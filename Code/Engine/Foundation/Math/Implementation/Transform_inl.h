@@ -52,7 +52,7 @@ EZ_ALWAYS_INLINE bool ezTransformTemplate<Type>::ContainsNegativeScale() const
 template <typename Type>
 EZ_ALWAYS_INLINE bool ezTransformTemplate<Type>::ContainsUniformScale() const
 {
-  const Type fEpsilon = ezMath::BasicType<Type>::DefaultEpsilon();
+  const Type fEpsilon = ezMath::DefaultEpsilon<Type>();
   return ezMath::IsEqual(m_vScale.x, m_vScale.y, fEpsilon) && ezMath::IsEqual(m_vScale.x, m_vScale.z, fEpsilon);
 }
 

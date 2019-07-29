@@ -176,7 +176,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdMat4f)
           ezSimdVec4f v = m.TransformDirection(ezSimdVec4f(1, 3, -10));
           ezSimdVec4f vinv = inv.TransformDirection(v);
 
-          EZ_TEST_BOOL(vinv.IsEqual(ezSimdVec4f(1, 3, -10), ezMath::BasicType<float>::DefaultEpsilon()).AllSet<3>());
+          EZ_TEST_BOOL(vinv.IsEqual(ezSimdVec4f(1, 3, -10), ezMath::DefaultEpsilon<float>()).AllSet<3>());
         }
       }
     }
@@ -202,7 +202,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdMat4f)
           ezSimdVec4f v = m.TransformDirection(ezSimdVec4f(1, 3, -10));
           ezSimdVec4f vinv = inv.TransformDirection(v);
 
-          EZ_TEST_BOOL(vinv.IsEqual(ezSimdVec4f(1, 3, -10), ezMath::BasicType<float>::DefaultEpsilon()).AllSet<3>());
+          EZ_TEST_BOOL(vinv.IsEqual(ezSimdVec4f(1, 3, -10), ezMath::DefaultEpsilon<float>()).AllSet<3>());
         }
       }
     }
@@ -239,7 +239,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdMat4f)
     m.SetIdentity();
     EZ_TEST_BOOL(m.IsValid());
 
-    m.m_col0.SetX(ezMath::BasicType<float>::GetNaN());
+    m.m_col0.SetX(ezMath::NaN<float>());
     EZ_TEST_BOOL(!m.IsValid());
   }
 
@@ -256,7 +256,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdMat4f)
     {
       m.SetIdentity();
       m.GetAsArray(data, ezMatrixLayout::ColumnMajor);
-      data[i] = ezMath::BasicType<float>::GetNaN();
+      data[i] = ezMath::NaN<float>();
       m.SetFromArray(data, ezMatrixLayout::ColumnMajor);
 
       EZ_TEST_BOOL(m.IsNaN());

@@ -33,7 +33,7 @@ ezVec3Template<Type> ezVec3Template<Type>::CreateRandomDirection(ezRandom& rng)
 template <typename Type>
 ezVec3Template<Type> ezVec3Template<Type>::CreateRandomDeviationX(ezRandom& rng, const ezAngle& maxDeviation)
 {
-  const double twoPi = 2.0 * ezMath::BasicType<double>::Pi();
+  const double twoPi = 2.0 * ezMath::Pi<double>();
 
   const double cosAngle = ezMath::Cos(maxDeviation);
 
@@ -79,4 +79,3 @@ ezVec3Template<Type> ezVec3Template<Type>::CreateRandomDeviation(ezRandom& rng, 
   // rotate from X to our basis
   return qRotXtoDir * vec;
 }
-

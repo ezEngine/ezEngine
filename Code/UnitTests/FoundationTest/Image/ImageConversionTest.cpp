@@ -112,9 +112,9 @@ private:
 
       EZ_TEST_BOOL(m_image.Convert(ezImageFormat::R32G32B32A32_FLOAT).Succeeded());
 
-      float posInf = +ezMath::BasicType<float>::GetInfinity();
-      float negInf = -ezMath::BasicType<float>::GetInfinity();
-      float NaN = ezMath::BasicType<float>::GetNaN();
+      float posInf = +ezMath::Infinity<float>();
+      float negInf = -ezMath::Infinity<float>();
+      float NaN = ezMath::NaN<float>();
 
       for (ezUInt32 y = 0; y < m_image.GetHeight(); ++y)
       {

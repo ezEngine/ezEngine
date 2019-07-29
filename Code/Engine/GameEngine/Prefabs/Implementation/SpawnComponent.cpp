@@ -86,7 +86,7 @@ bool ezSpawnComponent::SpawnOnce()
       const ezAngle tiltAngle =
           ezAngle::Radian((float)GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, (double)m_MaxDeviation.GetRadian()));
       const ezAngle turnAngle =
-          ezAngle::Radian((float)GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, ezMath::BasicType<double>::Pi() * 2.0));
+          ezAngle::Radian((float)GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, ezMath::Pi<double>() * 2.0));
 
       ezQuat qTilt, qTurn, qDeviate;
       qTilt.SetFromAxisAndAngle(vTiltAxis, tiltAngle);

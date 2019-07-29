@@ -75,10 +75,11 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdQuat)
     q2.SetFromAxisAndAngle(ezSimdVec4f(0, 0, -1), ezAngle::Degree(90));
     q3.SetFromAxisAndAngle(ezSimdVec4f(0, 0, 1), ezAngle::Degree(-90));
 
-    EZ_TEST_BOOL(q1.IsEqualRotation(q2, ezMath::BasicType<float>::LargeEpsilon()));
-    EZ_TEST_BOOL(q1.IsEqualRotation(q3, ezMath::BasicType<float>::LargeEpsilon()));
+    EZ_TEST_BOOL(q1.IsEqualRotation(q2, ezMath::LargeEpsilon<float>()));
+    EZ_TEST_BOOL(q1.IsEqualRotation(q3, ezMath::LargeEpsilon<float>()));
 
-    EZ_TEST_BOOL(ezSimdQuat::IdentityQuaternion().IsEqualRotation(ezSimdQuat::IdentityQuaternion(), ezMath::BasicType<float>::LargeEpsilon()));
+    EZ_TEST_BOOL(ezSimdQuat::IdentityQuaternion().IsEqualRotation(ezSimdQuat::IdentityQuaternion(), ezMath::LargeEpsilon<float>()));
+    EZ_TEST_BOOL(ezSimdQuat::IdentityQuaternion().IsEqualRotation(ezSimdQuat(ezSimdVec4f(0, 0, 0, -1)), ezMath::LargeEpsilon<float>()));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetSlerp")
@@ -105,19 +106,24 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdQuat)
 
     EZ_TEST_BOOL(q1.GetRotationAxisAndAngle(axis, angle) == EZ_SUCCESS);
     EZ_TEST_BOOL(axis.IsEqual(ezSimdVec4f(0, 0, -1), 0.001f).AllSet<3>());
-    EZ_TEST_FLOAT(ezAngle::RadToDeg((float)angle), 90, ezMath::BasicType<float>::LargeEpsilon());
+    EZ_TEST_FLOAT(ezAngle::RadToDeg((float)angle), 90, ezMath::LargeEpsilon<float>());
 
     EZ_TEST_BOOL(q2.GetRotationAxisAndAngle(axis, angle) == EZ_SUCCESS);
     EZ_TEST_BOOL(axis.IsEqual(ezSimdVec4f(0, 0, -1), 0.001f).AllSet<3>());
-    EZ_TEST_FLOAT(ezAngle::RadToDeg((float)angle), 90, ezMath::BasicType<float>::LargeEpsilon());
+    EZ_TEST_FLOAT(ezAngle::RadToDeg((float)angle), 90, ezMath::LargeEpsilon<float>());
 
     EZ_TEST_BOOL(q3.GetRotationAxisAndAngle(axis, angle) == EZ_SUCCESS);
     EZ_TEST_BOOL(axis.IsEqual(ezSimdVec4f(0, 0, -1), 0.001f).AllSet<3>());
-    EZ_TEST_FLOAT(ezAngle::RadToDeg((float)angle), 90, ezMath::BasicType<float>::LargeEpsilon());
+    EZ_TEST_FLOAT(ezAngle::RadToDeg((float)angle), 90, ezMath::LargeEpsilon<float>());
 
     EZ_TEST_BOOL(ezSimdQuat::IdentityQuaternion().GetRotationAxisAndAngle(axis, angle) == EZ_SUCCESS);
     EZ_TEST_BOOL(axis.IsEqual(ezSimdVec4f(1, 0, 0), 0.001f).AllSet<3>());
-    EZ_TEST_FLOAT(ezAngle::RadToDeg((float)angle), 0, ezMath::BasicType<float>::LargeEpsilon());
+    EZ_TEST_FLOAT(ezAngle::RadToDeg((float)angle), 0, ezMath::LargeEpsilon<float>());
+
+    ezSimdQuat otherIdentity(ezSimdVec4f(0, 0, 0, -1));
+    EZ_TEST_BOOL(otherIdentity.GetRotationAxisAndAngle(axis, angle) == EZ_SUCCESS);
+    EZ_TEST_BOOL(axis.IsEqual(ezSimdVec4f(1, 0, 0), 0.001f).AllSet<3>());
+    EZ_TEST_FLOAT(ezAngle::RadToDeg((float)angle), 360, ezMath::LargeEpsilon<float>());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsValid / Normalize")

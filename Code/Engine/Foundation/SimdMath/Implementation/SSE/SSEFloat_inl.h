@@ -6,7 +6,7 @@ EZ_ALWAYS_INLINE ezSimdFloat::ezSimdFloat()
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
-  m_v = _mm_set1_ps(ezMath::BasicType<float>::GetNaN());
+  m_v = _mm_set1_ps(ezMath::NaN<float>());
 #endif
 }
 

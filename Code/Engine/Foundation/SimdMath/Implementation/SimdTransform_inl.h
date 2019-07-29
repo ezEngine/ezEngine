@@ -43,7 +43,7 @@ EZ_ALWAYS_INLINE bool ezSimdTransform::ContainsNegativeScale() const
 
 EZ_ALWAYS_INLINE bool ezSimdTransform::ContainsUniformScale() const
 {
-  const ezSimdFloat fEpsilon = ezMath::BasicType<float>::DefaultEpsilon();
+  const ezSimdFloat fEpsilon = ezMath::DefaultEpsilon<float>();
   return m_Scale.x().IsEqual(m_Scale.y(), fEpsilon) && m_Scale.x().IsEqual(m_Scale.z(), fEpsilon);
 }
 

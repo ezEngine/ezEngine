@@ -465,7 +465,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingSphere)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsNaN")
   {
-    if (ezMath::BasicType<ezMathTestType>::SupportsNaN())
+    if (ezMath::SupportsNaN<ezMathTestType>())
     {
       ezBoundingSphereT s;
 
@@ -473,19 +473,19 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingSphere)
       EZ_TEST_BOOL(!s.IsNaN());
 
       s.SetInvalid();
-      s.m_fRadius = ezMath::BasicType<ezMathTestType>::GetNaN();
+      s.m_fRadius = ezMath::NaN<ezMathTestType>();
       EZ_TEST_BOOL(s.IsNaN());
 
       s.SetInvalid();
-      s.m_vCenter.x = ezMath::BasicType<ezMathTestType>::GetNaN();
+      s.m_vCenter.x = ezMath::NaN<ezMathTestType>();
       EZ_TEST_BOOL(s.IsNaN());
 
       s.SetInvalid();
-      s.m_vCenter.y = ezMath::BasicType<ezMathTestType>::GetNaN();
+      s.m_vCenter.y = ezMath::NaN<ezMathTestType>();
       EZ_TEST_BOOL(s.IsNaN());
 
       s.SetInvalid();
-      s.m_vCenter.z = ezMath::BasicType<ezMathTestType>::GetNaN();
+      s.m_vCenter.z = ezMath::NaN<ezMathTestType>();
       EZ_TEST_BOOL(s.IsNaN());
     }
   }

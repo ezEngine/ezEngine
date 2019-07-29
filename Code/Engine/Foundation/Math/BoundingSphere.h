@@ -33,7 +33,7 @@ public:
   void SetZero(); // [tested]
 
   /// \brief Checks whether the sphere is all zero.
-  bool IsZero(Type fEpsilon = ezMath::BasicType<Type>::DefaultEpsilon()) const; // [tested]
+  bool IsZero(Type fEpsilon = ezMath::DefaultEpsilon<Type>()) const; // [tested]
 
   /// \brief Sets the bounding sphere to invalid values.
   void SetInvalid(); // [tested]
@@ -69,7 +69,7 @@ public:
   bool IsIdentical(const ezBoundingSphereTemplate& rhs) const; // [tested]
 
   /// \brief Tests whether two spheres are equal within some threshold.
-  bool IsEqual(const ezBoundingSphereTemplate& rhs, Type fEpsilon = ezMath::BasicType<Type>::DefaultEpsilon()) const; // [tested]
+  bool IsEqual(const ezBoundingSphereTemplate& rhs, Type fEpsilon = ezMath::DefaultEpsilon<Type>()) const; // [tested]
 
   /// \brief Moves the sphere by the given vector.
   void Translate(const ezVec3Template<Type>& vTranslation); // [tested]

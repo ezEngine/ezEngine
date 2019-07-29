@@ -9,7 +9,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Default Constructor")
   {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-    if (ezMath::BasicType<ezMat3T::ComponentType>::SupportsNaN())
+    if (ezMath::SupportsNaN<ezMat3T::ComponentType>())
     {
       // In debug the default constructor initializes everything with NaN.
       ezPlaneT p;
@@ -481,7 +481,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsNaN")
   {
-    if (ezMath::BasicType<ezMathTestType>::SupportsNaN())
+    if (ezMath::SupportsNaN<ezMathTestType>())
     {
       ezPlaneT p;
 
@@ -489,19 +489,19 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
       EZ_TEST_BOOL(!p.IsNaN());
 
       p.SetInvalid();
-      p.m_fNegDistance = ezMath::BasicType<ezMathTestType>::GetNaN();
+      p.m_fNegDistance = ezMath::NaN<ezMathTestType>();
       EZ_TEST_BOOL(p.IsNaN());
 
       p.SetInvalid();
-      p.m_vNormal.x = ezMath::BasicType<ezMathTestType>::GetNaN();
+      p.m_vNormal.x = ezMath::NaN<ezMathTestType>();
       EZ_TEST_BOOL(p.IsNaN());
 
       p.SetInvalid();
-      p.m_vNormal.y = ezMath::BasicType<ezMathTestType>::GetNaN();
+      p.m_vNormal.y = ezMath::NaN<ezMathTestType>();
       EZ_TEST_BOOL(p.IsNaN());
 
       p.SetInvalid();
-      p.m_vNormal.z = ezMath::BasicType<ezMathTestType>::GetNaN();
+      p.m_vNormal.z = ezMath::NaN<ezMathTestType>();
       EZ_TEST_BOOL(p.IsNaN());
     }
   }

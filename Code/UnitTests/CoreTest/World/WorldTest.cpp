@@ -2,6 +2,7 @@
 
 #include <Core/World/World.h>
 #include <Foundation/Time/Clock.h>
+#include <Foundation/Utilities/GraphicsUtils.h>
 
 EZ_CREATE_SIMPLE_TEST_GROUP(World);
 
@@ -51,7 +52,7 @@ namespace
 
   void TestTransforms(const TestWorldObjects& o, ezVec3 offset = ezVec3(100.0f, 0.0f, 0.0f))
   {
-    const float eps = ezMath::BasicType<float>::DefaultEpsilon();
+    const float eps = ezMath::DefaultEpsilon<float>();
     ezQuat q;
     q.SetFromAxisAndAngle(ezVec3(0.0f, 0.0f, 1.0f), ezAngle::Degree(90.0f));
 
@@ -75,7 +76,7 @@ namespace
     struct Traverser
     {
       Traverser(ezWorld& world)
-          : m_World(world)
+        : m_World(world)
       {
       }
 
@@ -114,21 +115,20 @@ namespace
   {
   public:
     CustomCoordinateSystemProvider(const ezWorld* pWorld)
-        : ezCoordinateSystemProvider(pWorld)
+      : ezCoordinateSystemProvider(pWorld)
     {
     }
 
     virtual void GetCoordinateSystem(const ezVec3& vGlobalPosition, ezCoordinateSystem& out_CoordinateSystem) const override
     {
-      ezMat3 mTmp;
-      mTmp.SetLookInDirectionMatrix(-vGlobalPosition, ezVec3(0, 0, 1));
+      const ezMat3 mTmp = ezGraphicsUtils::CreateLookAtViewMatrix(-vGlobalPosition, ezVec3(0, 0, 1), ezHandedness::LeftHanded);
 
       out_CoordinateSystem.m_vRightDir = mTmp.GetRow(0);
       out_CoordinateSystem.m_vUpDir = mTmp.GetRow(1);
       out_CoordinateSystem.m_vForwardDir = mTmp.GetRow(2);
     }
   };
-}
+} // namespace
 
 class ezGameObjectTest
 {
@@ -193,7 +193,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     ezWorld world(worldDesc);
     EZ_LOCK(world.GetWriteMarker());
 
-    const float eps = ezMath::BasicType<float>::DefaultEpsilon();
+    const float eps = ezMath::DefaultEpsilon<float>();
     ezQuat q;
     q.SetFromAxisAndAngle(ezVec3(0.0f, 0.0f, 1.0f), ezAngle::Degree(90.0f));
 
@@ -554,7 +554,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     ezCoordinateSystem coordSys;
     world.GetCoordinateSystem(pos, coordSys);
 
-    EZ_TEST_VEC3(coordSys.m_vForwardDir, (-pos).GetNormalized(), ezMath::BasicType<float>::SmallEpsilon());
-    EZ_TEST_VEC3(coordSys.m_vUpDir, ezVec3(0, 0, 1), ezMath::BasicType<float>::SmallEpsilon());
+    EZ_TEST_VEC3(coordSys.m_vForwardDir, (-pos).GetNormalized(), ezMath::SmallEpsilon<float>());
+    EZ_TEST_VEC3(coordSys.m_vUpDir, ezVec3(0, 0, 1), ezMath::SmallEpsilon<float>());
   }
 }

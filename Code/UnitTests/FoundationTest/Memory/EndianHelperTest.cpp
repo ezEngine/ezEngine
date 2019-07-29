@@ -101,11 +101,8 @@ EZ_CREATE_SIMPLE_TEST(Memory, Endian)
 
     ezEndianHelper::SwitchStruct(&instance, "ddwwcccc");
 
-    ezIntFloatUnion floatHelper;
-    floatHelper.f = 42.0f;
-
-    ezIntFloatUnion floatHelper2;
-    floatHelper2.f = instance.fVal;
+    ezIntFloatUnion floatHelper(42.0f);
+    ezIntFloatUnion floatHelper2(instance.fVal);
 
     EZ_TEST_BOOL(floatHelper2.i == ezEndianHelper::Switch(floatHelper.i));
     EZ_TEST_BOOL(instance.uiDVal == ezEndianHelper::Switch(static_cast<ezUInt32>(0x34AA12FF)));

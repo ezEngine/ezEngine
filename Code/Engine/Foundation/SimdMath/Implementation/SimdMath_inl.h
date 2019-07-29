@@ -26,7 +26,7 @@ EZ_FORCE_INLINE ezSimdVec4f ezSimdMath::Tan(const ezSimdVec4f& f)
 // static
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdMath::ASin(const ezSimdVec4f& f)
 {
-  return ezSimdVec4f(ezMath::BasicType<float>::Pi() * 0.5f) - ACos(f);
+  return ezSimdVec4f(ezMath::Pi<float>() * 0.5f) - ACos(f);
 }
 
 // 4th order polynomial approximation
@@ -44,7 +44,7 @@ EZ_FORCE_INLINE ezSimdVec4f ezSimdMath::ACos(const ezSimdVec4f& f)
   s += x3 * -0.0187293f;
   s = s.CompMul((ezSimdVec4f(1.0f) - x1).GetSqrt());
 
-  return ezSimdVec4f::Select(f >= ezSimdVec4f::ZeroVector(), s, ezSimdVec4f(ezMath::BasicType<float>::Pi()) - s);
+  return ezSimdVec4f::Select(f >= ezSimdVec4f::ZeroVector(), s, ezSimdVec4f(ezMath::Pi<float>()) - s);
 }
 
 // Reference: https://seblagarde.wordpress.com/2014/12/01/inverse-trigonometric-functions-gpu-optimization-for-amd-gcn-architecture/
@@ -58,7 +58,7 @@ EZ_FORCE_INLINE ezSimdVec4f ezSimdMath::ATan(const ezSimdVec4f& f)
   poly = ezSimdVec4f(-0.301895f) + poly.CompMul(t1);
   poly = ezSimdVec4f(1.0f) + poly.CompMul(t1);
   poly = poly.CompMul(t0);
-  t0 = ezSimdVec4f::Select(x < ezSimdVec4f(1.0f), poly, ezSimdVec4f(ezMath::BasicType<float>::Pi() * 0.5f) - poly);
+  t0 = ezSimdVec4f::Select(x < ezSimdVec4f(1.0f), poly, ezSimdVec4f(ezMath::Pi<float>() * 0.5f) - poly);
 
   return ezSimdVec4f::Select(f < ezSimdVec4f::ZeroVector(), -t0, t0);
 }

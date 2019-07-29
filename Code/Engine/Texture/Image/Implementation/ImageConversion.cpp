@@ -48,7 +48,7 @@ namespace
     ezImageFormat::Enum m_sourceFormat = ezImageFormat::UNKNOWN;
     ezImageFormat::Enum m_targetFormat = ezImageFormat::UNKNOWN;
     ezBitflags<ezImageConversionFlags> m_flags;
-    float m_cost = ezMath::BasicType<float>::MaxValue();
+    float m_cost = ezMath::MaxValue<float>();
     ezUInt32 m_numChannels = 0;
 
     static TableEntry chain(const TableEntry& a, const TableEntry& b)
@@ -87,7 +87,7 @@ namespace
       if (m_numChannels == 0)
         return false;
 
-      return m_cost < ezMath::BasicType<float>::MaxValue();
+      return m_cost < ezMath::MaxValue<float>();
     }
   };
 

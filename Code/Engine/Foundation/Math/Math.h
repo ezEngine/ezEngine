@@ -3,6 +3,7 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Math/Angle.h>
 #include <Foundation/Math/Declarations.h>
+#include <Foundation/Math/Constants.h>
 
 
 /// \brief This namespace provides common math-functionality as functions.
@@ -24,39 +25,6 @@ namespace ezMath
   {
     return true;
   }
-
-  template <typename Type>
-  struct BasicType
-  {
-    /// \brief Returns whether the templated type supports NaN, at all. Usually only true for \c float and \c double.
-    constexpr static bool SupportsNaN() { return false; }
-
-    /// \brief Returns the value for NaN as the template type. Returns zero, if the type does not support NaN.
-    ///
-    /// Do not use this for comparisons, it will fail. Use it to initialize data (e.g. in debug builds), to detect uninitialized variables.
-    /// Use the function IsNaN() to check whether a value is not a number.
-    static Type GetNaN() { return Type(0); }
-
-    /// \brief Returns whether this templated type supports specialized values to represent Infinity.
-    constexpr static bool SupportsInfinity() { return false; }
-
-    /// \brief Returns the value for Infinity as the template type. Returns zero, if the type does not support Infinity.
-    static Type GetInfinity() { return Type(0); }
-
-    /// \brief Returns the natural constant e.
-    constexpr static Type e() { return (Type)2.71828182845904; }
-
-    /// \brief Returns the natural constant pi.
-    constexpr static Type Pi() { return (Type)3.1415926535897932384626433832795; }
-
-    /// \brief Returns the largest possible positive value (that is not infinity).
-    static Type MaxValue();
-
-    static Type SmallEpsilon() { return (Type)0.000001; }
-    static Type DefaultEpsilon() { return (Type)0.00001; }
-    static Type LargeEpsilon() { return (Type)0.0001; }
-    static Type HugeEpsilon() { return (Type)0.001; }
-  };
 
   /// ***** Trigonometric Functions *****
 
@@ -178,6 +146,16 @@ namespace ezMath
   template <typename Type>
   Type Trunc(Type f); // [tested]
 
+  /// \brief Casts the float to an integer, removes the fractional part
+  ///
+  /// \sa Trunc, Round, Floor, Ceil
+  constexpr ezInt32 FloatToInt(float value);
+
+  /// \brief Casts the float to an integer, removes the fractional part
+  ///
+  /// \sa Trunc, Round, Floor, Ceil
+  constexpr ezInt64 FloatToInt(double value);
+
   /// \brief Rounds f to the next integer.
   ///
   /// If f is positive 0.5 is rounded UP (i.e. to 1), if f is negative, -0.5 is rounded DOWN (i.e. to -1).
@@ -227,10 +205,33 @@ namespace ezMath
   constexpr bool IsEven(ezInt32 i); // [tested]
 
   /// \brief Returns the index of the least significant bit set
-  ezUInt32 FirstBitLow(ezUInt32 value);
+  ///
+  /// Asserts that bitmask is not 0.
+  ezUInt32 FirstBitLow(ezUInt32 bitmask); // [tested]
 
   /// \brief Returns the index of the most significant bit set
-  ezUInt32 FirstBitHigh(ezUInt32 value);
+  ///
+  /// Asserts that bitmask is not 0.
+  ezUInt32 FirstBitHigh(ezUInt32 bitmask); // [tested]
+
+  /// Returns the number of zeros at the end (least significant part) of a bitmask.
+  ///
+  /// E.g.
+  /// 0b0111 -> 0
+  /// 0b0110 -> 1
+  /// 0b0100 -> 2
+  /// Returns 32 when the input is 0
+  ezUInt32 CountTrailingZeros(ezUInt32 bitmask); // [tested]
+
+  /// Returns the number of zeros at the start (most significant part) of a bitmask.
+  ///
+  /// E.g.
+  /// 0b0111 -> 29
+  /// 0b0011 -> 30
+  /// 0b0001 -> 31
+  /// 0b0000 -> 32
+  /// Returns 32 when the input is 0
+  ezUInt32 CountLeadingZeros(ezUInt32 bitmask); // [tested]
 
   /// \brief Returns the number of bits set
   ezUInt32 CountBits(ezUInt32 value);

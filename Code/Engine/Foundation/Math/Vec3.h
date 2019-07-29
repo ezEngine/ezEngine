@@ -29,8 +29,17 @@ public:
   explicit ezVec3Template(Type xyz); // [tested]
   // no copy-constructor and operator= since the default-generated ones will be faster
 
-  /// \brief Static function that returns a zero-vector.
-  static const ezVec3Template ZeroVector() { return ezVec3Template(0); } // [tested]
+  /// \brief Returns a vector with all components set to zero.
+  static const ezVec3Template<Type> ZeroVector() { return ezVec3Template(0); } // [tested]
+  /// \brief Returns a vector with all components set to one.
+  static const ezVec3Template<Type> OneVector() { return ezVec3Template(1); }
+
+  /// \brief Returns a vector initialized to the x unit vector (1, 0, 0).
+  static const ezVec3Template<Type> UnitXAxis() { return ezVec3Template(1, 0, 0); }
+  /// \brief Returns a vector initialized to the y unit vector (0, 1, 0).
+  static const ezVec3Template<Type> UnitYAxis() { return ezVec3Template(0, 1, 0); }
+  /// \brief Returns a vector initialized to the z unit vector (1, 0, 0).
+  static const ezVec3Template<Type> UnitZAxis() { return ezVec3Template(0, 0, 1); }
 
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   void AssertNotNaN() const
@@ -78,7 +87,7 @@ public:
 
   /// \brief Tries to rescale the vector to the given length. If the vector is too close to zero, EZ_FAILURE is returned and the vector is
   /// set to zero.
-  ezResult SetLength(Type fNewLength, Type fEpsilon = ezMath::BasicType<Type>::DefaultEpsilon()); // [tested]
+  ezResult SetLength(Type fNewLength, Type fEpsilon = ezMath::DefaultEpsilon<Type>()); // [tested]
 
   /// \brief Returns the squared length. Faster, since no square-root is taken. Useful, if one only wants to compare the lengths of two
   /// vectors.
@@ -89,7 +98,7 @@ public:
   Type GetLengthAndNormalize(); // [tested]
 
   /// \brief Returns a normalized version of this vector, leaves the vector itself unchanged.
-  const ezVec3Template GetNormalized() const; // [tested]
+  const ezVec3Template<Type> GetNormalized() const; // [tested]
 
   /// \brief Normalizes this vector.
   void Normalize(); // [tested]
@@ -97,7 +106,7 @@ public:
   /// \brief Tries to normalize this vector. If the vector is too close to zero, EZ_FAILURE is returned and the vector is set to the given
   /// fallback value.
   ezResult NormalizeIfNotZero(
-    const ezVec3Template& vFallback = ezVec3Template(1, 0, 0), Type fEpsilon = ezMath::BasicType<Type>::SmallEpsilon()); // [tested]
+    const ezVec3Template<Type>& vFallback = ezVec3Template(1, 0, 0), Type fEpsilon = ezMath::SmallEpsilon<Type>()); // [tested]
 
   /// \brief Returns, whether this vector is (0, 0, 0).
   bool IsZero() const; // [tested]
@@ -106,7 +115,7 @@ public:
   bool IsZero(Type fEpsilon) const; // [tested]
 
   /// \brief Returns, whether the squared length of this vector is between 0.999f and 1.001f.
-  bool IsNormalized(Type fEpsilon = ezMath::BasicType<Type>::HugeEpsilon()) const; // [tested]
+  bool IsNormalized(Type fEpsilon = ezMath::HugeEpsilon<Type>()) const; // [tested]
 
   /// \brief Returns true, if any of x, y or z is NaN
   bool IsNaN() const; // [tested]
@@ -118,19 +127,19 @@ public:
   // *** Operators ***
 public:
   /// \brief Returns the negation of this vector.
-  const ezVec3Template operator-() const; // [tested]
+  const ezVec3Template<Type> operator-() const; // [tested]
 
   /// \brief Adds rhs component-wise to this vector
-  void operator+=(const ezVec3Template& rhs); // [tested]
+  void operator+=(const ezVec3Template<Type>& rhs); // [tested]
 
   /// \brief Subtracts rhs component-wise from this vector
-  void operator-=(const ezVec3Template& rhs); // [tested]
+  void operator-=(const ezVec3Template<Type>& rhs); // [tested]
 
   /// \brief Multiplies rhs component-wise to this vector
-  void operator*=(const ezVec3Template& rhs);
+  void operator*=(const ezVec3Template<Type>& rhs);
 
   /// \brief Divides this vector component-wise by rhs
-  void operator/=(const ezVec3Template& rhs);
+  void operator/=(const ezVec3Template<Type>& rhs);
 
   /// \brief Multiplies all components of this vector with f
   void operator*=(Type f); // [tested]
@@ -139,82 +148,86 @@ public:
   void operator/=(Type f); // [tested]
 
   /// \brief Equality Check (bitwise)
-  bool IsIdentical(const ezVec3Template& rhs) const; // [tested]
+  bool IsIdentical(const ezVec3Template<Type>& rhs) const; // [tested]
 
   /// \brief Equality Check with epsilon
-  bool IsEqual(const ezVec3Template& rhs, Type fEpsilon) const; // [tested]
+  bool IsEqual(const ezVec3Template<Type>& rhs, Type fEpsilon) const; // [tested]
 
 
   // *** Common vector operations ***
 public:
   /// \brief Returns the positive angle between *this and rhs.
   /// Both this and rhs must be normalized
-  ezAngle GetAngleBetween(const ezVec3Template& rhs) const; // [tested]
+  ezAngle GetAngleBetween(const ezVec3Template<Type>& rhs) const; // [tested]
 
   /// \brief Returns the Dot-product of the two vectors (commutative, order does not matter)
-  Type Dot(const ezVec3Template& rhs) const; // [tested]
+  Type Dot(const ezVec3Template<Type>& rhs) const; // [tested]
 
   /// \brief Returns the Cross-product of the two vectors (NOT commutative, order DOES matter)
-  const ezVec3Template CrossRH(const ezVec3Template& rhs) const; // [tested]
+  const ezVec3Template<Type> CrossRH(const ezVec3Template<Type>& rhs) const; // [tested]
 
   /// \brief Returns the component-wise minimum of *this and rhs
-  const ezVec3Template CompMin(const ezVec3Template& rhs) const; // [tested]
+  const ezVec3Template<Type> CompMin(const ezVec3Template<Type>& rhs) const; // [tested]
 
   /// \brief Returns the component-wise maximum of *this and rhs
-  const ezVec3Template CompMax(const ezVec3Template& rhs) const; // [tested]
+  const ezVec3Template<Type> CompMax(const ezVec3Template<Type>& rhs) const; // [tested]
+
+  /// \brief Returns the component-wise clamped value of *this between low and high.
+  const ezVec3Template<Type> CompClamp(const ezVec3Template<Type>& low, const ezVec3Template<Type>& high) const; // [tested]
 
   /// \brief Returns the component-wise multiplication of *this and rhs
-  const ezVec3Template CompMul(const ezVec3Template& rhs) const; // [tested]
+  const ezVec3Template<Type> CompMul(const ezVec3Template<Type>& rhs) const; // [tested]
 
   /// \brief Returns the component-wise division of *this and rhs
-  const ezVec3Template CompDiv(const ezVec3Template& rhs) const; // [tested]
+  const ezVec3Template<Type> CompDiv(const ezVec3Template<Type>& rhs) const; // [tested]
 
   /// brief Returns the component-wise absolute of *this.
-  const ezVec3Template Abs() const; // [tested]
+  const ezVec3Template<Type> Abs() const; // [tested]
 
 
   // *** Other common operations ***
 public:
   /// \brief Calculates the normal of the triangle defined by the three vertices. Vertices are assumed to be ordered counter-clockwise.
-  ezResult CalculateNormal(const ezVec3Template& v1, const ezVec3Template& v2, const ezVec3Template& v3); // [tested]
+  ezResult CalculateNormal(const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2, const ezVec3Template<Type>& v3); // [tested]
 
   /// \brief Modifies this direction vector to be orthogonal to the given (normalized) direction vector. The result is NOT normalized.
   ///
   /// \note This function may fail, e.g. create a vector that is zero, if the given normal is parallel to the vector itself.
   ///       If you need to handle such cases, you should manually check afterwards, whether the result is zero, or cannot be normalized.
-  void MakeOrthogonalTo(const ezVec3Template& vNormal); // [tested]
+  void MakeOrthogonalTo(const ezVec3Template<Type>& vNormal); // [tested]
 
   /// \brief Returns some arbitrary vector orthogonal to this one. The vector is NOT normalized.
-  const ezVec3Template GetOrthogonalVector() const; // [tested]
+  const ezVec3Template<Type> GetOrthogonalVector() const; // [tested]
 
   /// \brief Returns this vector reflected at vNormal.
-  const ezVec3Template GetReflectedVector(const ezVec3Template& vNormal) const; // [tested]
+  const ezVec3Template<Type> GetReflectedVector(const ezVec3Template<Type>& vNormal) const; // [tested]
 
   /// \brief Returns this vector, refracted at vNormal, using the refraction index of the current medium and the medium it enters.
-  const ezVec3Template GetRefractedVector(const ezVec3Template& vNormal, Type fRefIndex1, Type fRefIndex2) const;
+  const ezVec3Template<Type> GetRefractedVector(const ezVec3Template<Type>& vNormal, Type fRefIndex1, Type fRefIndex2) const;
 
   /// \brief Sets the vector to a random point inside a unit sphere (radius 1).
-  static ezVec3Template CreateRandomPointInSphere(ezRandom& rng); // [tested]
+  static ezVec3Template<Type> CreateRandomPointInSphere(ezRandom& rng); // [tested]
 
   /// \brief Creates a random direction vector. The vector is normalized.
-  static ezVec3Template CreateRandomDirection(ezRandom& rng); // [tested]
+  static ezVec3Template<Type> CreateRandomDirection(ezRandom& rng); // [tested]
 
   /// \brief Creates a random vector around the x axis with a maximum deviation angle of \a maxDeviation. The vector is normalized.
   /// The deviation angle must be larger than zero.
-  static ezVec3Template CreateRandomDeviationX(ezRandom& rng, const ezAngle& maxDeviation); // [tested]
+  static ezVec3Template<Type> CreateRandomDeviationX(ezRandom& rng, const ezAngle& maxDeviation); // [tested]
 
   /// \brief Creates a random vector around the y axis with a maximum deviation angle of \a maxDeviation. The vector is normalized.
   /// The deviation angle must be larger than zero.
-  static ezVec3Template CreateRandomDeviationY(ezRandom& rng, const ezAngle& maxDeviation); // [tested]
+  static ezVec3Template<Type> CreateRandomDeviationY(ezRandom& rng, const ezAngle& maxDeviation); // [tested]
 
   /// \brief Creates a random vector around the z axis with a maximum deviation angle of \a maxDeviation. The vector is normalized.
   /// The deviation angle must be larger than zero.
-  static ezVec3Template CreateRandomDeviationZ(ezRandom& rng, const ezAngle& maxDeviation); // [tested]
+  static ezVec3Template<Type> CreateRandomDeviationZ(ezRandom& rng, const ezAngle& maxDeviation); // [tested]
 
   /// \brief Creates a random vector around the given normal with a maximum deviation.
   /// \note If you are going to do this many times with the same axis, rather than calling this function, instead manually
   /// do what this function does (see inline code) and only compute the quaternion once.
-  static ezVec3Template CreateRandomDeviation(ezRandom& rng, const ezAngle& maxDeviation, const ezVec3& vNormal); // [tested]
+  static ezVec3Template<Type> CreateRandomDeviation(ezRandom& rng, const ezAngle& maxDeviation, const ezVec3& vNormal); // [tested]
+
 };
 
 // *** Operators ***

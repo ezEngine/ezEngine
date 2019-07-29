@@ -7,7 +7,7 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/Mutex.h>
-#include <Foundation/Utilities/StackTracer.h>
+#include <Foundation/System/StackTracer.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>

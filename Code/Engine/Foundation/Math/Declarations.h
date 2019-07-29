@@ -4,20 +4,45 @@
 
 #include <Foundation/Basics.h>
 
+// Enables adapter functions in various ez-math classes to ease transition of hk-math to ez-math
+// all this functionality will be removed over time when feasible
+#define EZ_HK_MATH_ADAPTERS EZ_ON
+
+
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
-#define EZ_NAN_ASSERT(obj) (obj)->AssertNotNaN();
+#  define EZ_NAN_ASSERT(obj) (obj)->AssertNotNaN();
 #else
-#define EZ_NAN_ASSERT(obj)
+#  define EZ_NAN_ASSERT(obj)
 #endif
 
 /// \brief Simple helper union to store ints and floats to modify their bit patterns.
 union ezIntFloatUnion {
+  constexpr ezIntFloatUnion(float init)
+    : f(init)
+  {
+  }
+
+  constexpr ezIntFloatUnion(ezUInt32 init)
+    : i(init)
+  {
+  }
+
   ezUInt32 i;
   float f;
 };
 
 /// \brief Simple helper union to store ints and doubles to modify their bit patterns.
 union ezInt64DoubleUnion {
+
+  constexpr ezInt64DoubleUnion(double init)
+    : f(init)
+  {
+  }
+  constexpr ezInt64DoubleUnion(ezUInt64 init)
+    : i(init)
+  {
+  }
+
   ezUInt64 i;
   double f;
 };
@@ -43,12 +68,12 @@ struct ezMatrixLayout
   };
 };
 
-/// \brief This enum describes for which depth range a projection matrix is constructed.
+/// \brief Describes for which depth range a projection matrix is constructed.
 ///
 /// Different Rendering APIs use different depth ranges.
 /// E.g. OpenGL uses -1 for the near plane and +1 for the far plane.
 /// DirectX uses 0 for the near plane and 1 for the far plane.
-struct EZ_FOUNDATION_DLL ezProjectionDepthRange
+struct ezClipSpaceDepthRange
 {
   enum Enum
   {
@@ -58,7 +83,45 @@ struct EZ_FOUNDATION_DLL ezProjectionDepthRange
 
   /// \brief Holds the default value for the projection depth range on each platform.
   /// This can be overridden by renderers to ensure the proper range is used when they become active.
-  static Enum Default;
+  /// On Windows/D3D this is initialized with 'ZeroToOne' by default on all other platforms/OpenGL it is initialized with 'MinusOneToOne' by default.
+  EZ_FOUNDATION_DLL static Enum Default;
+};
+
+/// \brief Specifies whether a projection matrix should flip the result along the Y axis or not.
+///
+/// Mostly needed to compensate for differing Y texture coordinate conventions. Ie. on some platforms
+/// the Y texture coordinate origin is at the lower left and on others on the upper left. To prevent having
+/// to modify content to compensate, instead textures are simply flipped along Y on texture load.
+/// The same has to be done for all render targets, ie. content has to be rendered upside-down.
+///
+/// Use ezClipSpaceYMode::RenderToTextureDefault when rendering to a texture, to always get the correct
+/// projection matrix.
+struct ezClipSpaceYMode
+{
+  enum Enum
+  {
+    Regular, ///< Creates a regular projection matrix
+    Flipped, ///< Creates a projection matrix that flips the image on its head. On platforms with different Y texture coordinate
+             ///< conventions, this can be used to compensate, by rendering images flipped to render targets.
+  };
+
+  /// \brief Holds the platform default value for the clip space Y mode when rendering to a texture.
+  /// This can be overridden by renderers to ensure the proper mode is used when they become active.
+  /// On Windows/D3D this is initialized with 'Regular' by default on all other platforms/OpenGL it is initialized with 'Flipped' by default.
+  EZ_FOUNDATION_DLL static Enum RenderToTextureDefault;
+};
+
+/// \brief For selecting a left-handed or right-handed convention
+struct ezHandedness
+{
+  enum Enum
+  {
+    LeftHanded,
+    RightHanded,
+  };
+
+  /// \brief Holds the default handedness value to use. ez uses 'LeftHanded' by default.
+  EZ_FOUNDATION_DLL static Enum Default /*= ezHandedness::LeftHanded*/;
 };
 
 // forward declarations
@@ -167,7 +230,5 @@ struct EZ_FOUNDATION_DLL ezBasisAxis
 
   static ezVec3 GetBasisVector(ezBasisAxis::Enum basisAxis);
   static ezMat3 CalculateTransformationMatrix(ezBasisAxis::Enum forwardDir, ezBasisAxis::Enum rightDir, ezBasisAxis::Enum upDir,
-                                              float fUniformScale = 1.0f, float fScaleX = 1.0f, float fScaleY = 1.0f, float fScaleZ = 1.0f);
+    float fUniformScale = 1.0f, float fScaleX = 1.0f, float fScaleY = 1.0f, float fScaleZ = 1.0f);
 };
-
-

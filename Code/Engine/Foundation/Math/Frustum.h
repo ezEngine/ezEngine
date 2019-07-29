@@ -2,6 +2,10 @@
 
 #include <Foundation/Math/Mat4.h>
 #include <Foundation/Math/Plane.h>
+#include <Foundation/SimdMath/SimdBBox.h>
+#include <Foundation/SimdMath/SimdBSphere.h>
+#include <Foundation/SimdMath/SimdVec4b.h>
+#include <Foundation/SimdMath/SimdVec4f.h>
 
 /// \brief Enum that describes where in a volume another object is located.
 struct ezVolumePosition
@@ -16,86 +20,110 @@ struct ezVolumePosition
 };
 
 /// \brief Represents the frustum of some camera and can be used for culling objects.
+///
+/// The frustum always consists of exactly 6 planes (near, far, left, right, top, bottom).
+///
+/// The frustum planes point outwards, ie. when an object is in front of one of the planes, it is considered to be outside
+/// the frustum.
+///
+/// Planes can be automatically extracted from a projection matrix or passed in manually.
+/// In the latter case, make sure to pass them in in the order defined in the PlaneType enum.
 class EZ_FOUNDATION_DLL ezFrustum
 {
 public:
-  /// \brief By default the frustum is empty.
-  ezFrustum(); // [tested]
+  enum PlaneType
+  {
+    NearPlane,
+    LeftPlane,
+    RightPlane,
+    FarPlane,
+    BottomPlane,
+    TopPlane,
 
-  /// \brief Sets the frustum manually by specifying the position and all planes at once.
-  void SetFrustum(const ezVec3& vPosition, ezUInt8 uiNumPlanes, const ezPlane* pPlanes); // [tested]
+    PLANE_COUNT
+  };
+
+  enum FrustumCorner
+  {
+    NearTopLeft,
+    NearTopRight,
+    NearBottomLeft,
+    NearBottomRight,
+    FarTopLeft,
+    FarTopRight,
+    FarBottomLeft,
+    FarBottomRight,
+
+    CORNER_COUNT = 8
+  };
+
+  /// \brief The constructor does NOT initialize the frustum planes, make sure to call SetFrustum() before trying to use it.
+  ezFrustum();
+  ~ezFrustum();
+
+  /// \brief Sets the frustum manually by specifying the planes directly.
+  ///
+  /// \note Make sure to pass in the planes in the order of the PlaneType enum, otherwise ezFrustum may not always work as expected.
+  void SetFrustum(const ezPlane* pPlanes); // [tested]
 
   /// \brief Creates the frustum by extracting the planes from the given (model-view / projection) matrix.
   ///
   /// If the matrix is just the projection matrix, the frustum will be in local space. Pass the full ModelViewProjection
   /// matrix to create the frustum in world-space.
-  ///
-  /// The near plane will always be moved to the camera position, to prevent culling of objects between the camera position and
-  /// the near plane (e.g. portals).
-  /// The far plane will be taken from the matrix, but when it is farther away than fMaxFarPlaneDist (from the camera position),
-  /// it will be moved closer to that distance.
-  void SetFrustum(const ezVec3& vPosition, const ezMat4& ModelViewProjection, float fMaxFarPlaneDist);
+  void SetFrustum(const ezMat4& ModelViewProjection, ezClipSpaceDepthRange::Enum DepthRange = ezClipSpaceDepthRange::Default, ezHandedness::Enum Handedness = ezHandedness::Default); // [tested]
 
   /// \brief Creates a frustum from the given camera position, direction vectors and the field-of-view along X and Y.
   ///
   /// The up vector does not need to be exactly orthogonal to the forwards vector, it will get recomputed properly.
-  /// Fov X and Y define the entire field-of-view, so a Fov of 180 degree would mean the entire half-space in front of the camera.
-  /// The near plane will always go through the camera position, to prevent culling objects between it and the camera.
-  void SetFrustum(const ezVec3& vPosition, const ezVec3& vForwards, const ezVec3& vUp, ezAngle FovX, ezAngle FovY, float fFarPlane);
-
-  /// \brief Returns the number of planes used in this frustum.
-  ezUInt8 GetNumPlanes() const; // [tested]
+  /// FOV X and Y define the entire field-of-view, so a FOV of 180 degree would mean the entire half-space in front of the camera.
+  void SetFrustum(const ezVec3& vPosition, const ezVec3& vForwards, const ezVec3& vUp, ezAngle FovX, ezAngle FovY, float fNearPlane, float fFarPlane); // [tested]
 
   /// \brief Returns the n-th plane of the frustum.
   const ezPlane& GetPlane(ezUInt8 uiPlane) const; // [tested]
 
-  /// \brief Returns the start position of the frustum.
-  const ezVec3& GetPosition() const; // [tested]
+  /// \brief Returns the n-th plane of the frustum and allows modification.
+  ezPlane& AccessPlane(ezUInt8 uiPlane);
 
-  /// \brief Transforms the frustum by the given matrix. This allows to adjust the frustum to a new orientation when a camera is moved or when it is necessary to cull from a different position.
+  /// \brief Transforms the frustum by the given matrix. This allows to adjust the frustum to a new orientation when a camera is moved or
+  /// when it is necessary to cull from a different position.
   void TransformFrustum(const ezMat4& mTransform); // [tested]
 
   /// \brief Flips all frustum planes around. Might be necessary after creating the frustum from a mirror projection matrix.
   void InvertFrustum(); // [tested]
 
   /// \brief Computes the frustum corner points.
-  void ComputeCornerPoints(ezVec3 out_Points[8]) const;
+  void ComputeCornerPoints(ezVec3 out_Points[FrustumCorner::CORNER_COUNT]) const; // [tested]
 
   /// \brief Checks whether the given object is inside or outside the frustum.
   ///
   /// A concave object might be classified as 'intersecting' although it is outside the frustum, if it overlaps the planes just right.
-  /// However an object that is overlaps the frustum is definitely never classified as 'outside'.
-  ezVolumePosition::Enum GetObjectPosition(const ezVec3* pVertices, ezUInt32 uiNumVertices) const;
+  /// However an object that overlaps the frustum is definitely never classified as 'outside'.
+  ezVolumePosition::Enum GetObjectPosition(const ezVec3* pVertices, ezUInt32 uiNumVertices) const; // [tested]
 
-  /// \brief Same as GetObjectPosition(), but applies a transformation to the given object first. This allows to do culling on instanced objects.
-  ezVolumePosition::Enum GetObjectPosition(const ezVec3* pVertices, ezUInt32 uiNumVertices, const ezMat4& mObjectTransform) const;
-
-  /// \brief Checks whether the given object is inside or outside the frustum.
-  ezVolumePosition::Enum GetObjectPosition(const ezBoundingSphere& Sphere) const;
+  /// \brief Same as GetObjectPosition(), but applies a transformation to the given object first. This allows to do culling on instanced
+  /// objects.
+  ezVolumePosition::Enum GetObjectPosition(const ezVec3* pVertices, ezUInt32 uiNumVertices, const ezMat4& mObjectTransform) const; // [tested]
 
   /// \brief Checks whether the given object is inside or outside the frustum.
-  ezVolumePosition::Enum GetObjectPosition(const ezBoundingBox& Box) const;
+  ezVolumePosition::Enum GetObjectPosition(const ezBoundingSphere& Sphere) const; // [tested]
 
+  /// \brief Checks whether the given object is inside or outside the frustum.
+  ezVolumePosition::Enum GetObjectPosition(const ezBoundingBox& Box) const; // [tested]
+
+  /// \brief Returns true if the object is fully inside the frustum or partially overlaps it. Returns false when the object is fully outside
+  /// the frustum.
+  ///
+  /// This function is more efficient than GetObjectPosition() and should be preferred when possible.
+  bool Overlaps(const ezSimdBBox& object) const; // [tested]
+
+  /// \brief Returns true if the object is fully inside the frustum or partially overlaps it. Returns false when the object is fully outside
+  /// the frustum.
+  ///
+  /// This function is more efficient than GetObjectPosition() and should be preferred when possible.
+  bool Overlaps(const ezSimdBSphere& object) const; // [tested]
 
 private:
-  enum PlaneType
-  {
-    NearPlane,
-    FarPlane,
-    LeftPlane,
-    RightPlane,
-    BottomPlane,
-    TopPlane,
-    FirstCustomPlane,
-    SecondCustomPlane,
-
-    PLANE_COUNT
-  };
-
-  ezUInt8 m_uiUsedPlanes;
-  ezVec3 m_vPosition;
   ezPlane m_Planes[PLANE_COUNT];
 };
 
 #include <Foundation/Math/Implementation/Frustum_inl.h>
-

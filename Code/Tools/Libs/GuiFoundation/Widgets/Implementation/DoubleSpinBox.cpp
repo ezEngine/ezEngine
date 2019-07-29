@@ -12,7 +12,7 @@ ezQtDoubleSpinBox::ezQtDoubleSpinBox(QWidget* pParent, bool bIntMode)
   : QDoubleSpinBox(pParent)
 {
   m_fDefaultValue = 0.0;
-  m_fDisplayedValue = ezMath::BasicType<float>::GetNaN();
+  m_fDisplayedValue = ezMath::NaN<float>();
   m_bInvalid = false;
   m_bModified = false;
   m_bIntMode = bIntMode;
@@ -143,7 +143,7 @@ void ezQtDoubleSpinBox::setValueInvalid()
 {
   m_bInvalid = true;
   m_sDisplayedText = QString();
-  m_fDisplayedValue = ezMath::BasicType<float>::GetNaN();
+  m_fDisplayedValue = ezMath::NaN<float>();
   QDoubleSpinBox::setValue(minimum());
 }
 
@@ -151,7 +151,7 @@ void ezQtDoubleSpinBox::setValue(double val)
 {
   EZ_ASSERT_DEBUG(ezMath::IsFinite(val), "Spin box value must be finite!");
   m_bInvalid = false;
-  m_fDisplayedValue = ezMath::BasicType<float>::GetNaN();
+  m_fDisplayedValue = ezMath::NaN<float>();
   QDoubleSpinBox::setValue(val);
 }
 

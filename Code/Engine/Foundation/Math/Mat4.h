@@ -100,37 +100,6 @@ public:
   /// \brief Sets this matrix to be a rotation matrix around the given axis.
   void SetRotationMatrix(const ezVec3Template<Type>& vAxis, ezAngle angle); // [tested]
 
-  /// \brief Creates a perspective projection matrix with Left = -fViewWidth/2, Right = +fViewWidth/2, Bottom = -fViewHeight/2, Top =
-  /// +fViewHeight/2.
-  void SetPerspectiveProjectionMatrix(
-    Type fViewWidth, Type fViewHeight, Type fNearZ, Type fFarZ, ezProjectionDepthRange::Enum DepthRange = ezProjectionDepthRange::Default);
-
-  /// \brief Creates a perspective projection matrix.
-  void SetPerspectiveProjectionMatrix(Type fLeft, Type fRight, Type fBottom, Type fTop, Type fNearZ, Type fFarZ,
-    ezProjectionDepthRange::Enum DepthRange = ezProjectionDepthRange::Default);
-
-  /// \brief Creates a perspective projection matrix.
-  /// \param fFieldOfViewX    Horizontal field of view.
-  void SetPerspectiveProjectionMatrixFromFovX(ezAngle fieldOfViewX, Type fAspectRatioWidthDivHeight, Type fNearZ, Type fFarZ,
-    ezProjectionDepthRange::Enum DepthRange = ezProjectionDepthRange::Default);
-
-  /// \brief Creates a perspective projection matrix.
-  /// \param fFieldOfViewY    Vertical field of view.
-  void SetPerspectiveProjectionMatrixFromFovY(ezAngle fieldOfViewY, Type fAspectRatioWidthDivHeight, Type fNearZ, Type fFarZ,
-    ezProjectionDepthRange::Enum DepthRange = ezProjectionDepthRange::Default);
-
-  /// \brief Creates an orthographic projection matrix with Left = -fViewWidth/2, Right = +fViewWidth/2, Bottom = -fViewHeight/2, Top =
-  /// +fViewHeight/2.
-  void SetOrthographicProjectionMatrix(
-    Type fViewWidth, Type fViewHeight, Type fNearZ, Type fFarZ, ezProjectionDepthRange::Enum DepthRange = ezProjectionDepthRange::Default);
-
-  /// \brief Creates an orthographic projection matrix.
-  void SetOrthographicProjectionMatrix(Type fLeft, Type fRight, Type fBottom, Type fTop, Type fNearZ, Type fFarZ,
-    ezProjectionDepthRange::Enum DepthRange = ezProjectionDepthRange::Default);
-
-  /// \brief Creates a look-at matrix.
-  void SetLookAtMatrix(const ezVec3Template<Type>& vStartPos, const ezVec3Template<Type>& vTargetPos, const ezVec3Template<Type>& vUpDir);
-
   // *** Common Matrix Operations ***
 public:
   /// \brief Returns an Identity Matrix.
@@ -146,18 +115,18 @@ public:
   const ezMat4Template<Type> GetTranspose() const; // [tested]
 
   /// \brief Inverts this matrix. Return value indicates whether the matrix could be inverted.
-  ezResult Invert(Type fEpsilon = ezMath::BasicType<Type>::SmallEpsilon()); // [tested]
+  ezResult Invert(Type fEpsilon = ezMath::SmallEpsilon<Type>()); // [tested]
 
   /// \brief Returns the inverse of this matrix.
-  const ezMat4Template<Type> GetInverse(Type fEpsilon = ezMath::BasicType<Type>::SmallEpsilon()) const; // [tested]
+  const ezMat4Template<Type> GetInverse(Type fEpsilon = ezMath::SmallEpsilon<Type>()) const; // [tested]
 
   // *** Checks ***
 public:
   /// \brief Checks whether all elements are zero.
-  bool IsZero(Type fEpsilon = ezMath::BasicType<Type>::DefaultEpsilon()) const; // [tested]
+  bool IsZero(Type fEpsilon = ezMath::DefaultEpsilon<Type>()) const; // [tested]
 
   /// \brief Checks whether this is an identity matrix.
-  bool IsIdentity(Type fEpsilon = ezMath::BasicType<Type>::DefaultEpsilon()) const; // [tested]
+  bool IsIdentity(Type fEpsilon = ezMath::DefaultEpsilon<Type>()) const; // [tested]
 
   /// \brief Checks whether all components are finite numbers.
   bool IsValid() const; // [tested]
@@ -202,7 +171,7 @@ public:
 
   /// \brief Tries to set the three scaling factors in the matrix. Returns EZ_FAILURE if the matrix columns cannot be normalized and thus no
   /// rescaling is possible.
-  ezResult SetScalingFactors(const ezVec3Template<Type>& vXYZ, Type fEpsilon = ezMath::BasicType<Type>::DefaultEpsilon()); // [tested]
+  ezResult SetScalingFactors(const ezVec3Template<Type>& vXYZ, Type fEpsilon = ezMath::DefaultEpsilon<Type>()); // [tested]
 
   // *** Operators ***
 public:

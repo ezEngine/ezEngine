@@ -25,7 +25,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBSphere)
     EZ_TEST_BOOL(!s.IsValid());
     EZ_TEST_BOOL(!s.IsNaN());
 
-    s = ezSimdBSphere(ezSimdVec4f(1, 2, 3), ezMath::BasicType<float>::GetNaN());
+    s = ezSimdBSphere(ezSimdVec4f(1, 2, 3), ezMath::NaN<float>());
     EZ_TEST_BOOL(s.IsNaN());
   }
 
@@ -71,7 +71,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBSphere)
     t.m_Scale = ezSimdVec4f(1, -2, -4);
 
     s.Transform(t);
-    EZ_TEST_BOOL(s.m_CenterAndRadius.IsEqual(ezSimdVec4f(4, 10, 6, 8), ezSimdFloat(ezMath::BasicType<float>::SmallEpsilon())).AllSet());
+    EZ_TEST_BOOL(s.m_CenterAndRadius.IsEqual(ezSimdVec4f(4, 10, 6, 8), ezSimdFloat(ezMath::SmallEpsilon<float>())).AllSet());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetDistanceTo (point)")

@@ -1,6 +1,7 @@
 #include <CorePCH.h>
 
 #include <Core/Graphics/Camera.h>
+#include <Foundation/Utilities/GraphicsUtils.h>
 #include <World/CoordinateSystem.h>
 
 class RemapCoordinateSystemProvider : public ezCoordinateSystemProvider
@@ -48,8 +49,8 @@ void ezCamera::SetCoordinateSystem(ezBasisAxis::Enum forwardAxis, ezBasisAxis::E
 {
   auto provider = EZ_DEFAULT_NEW(RemapCoordinateSystemProvider);
   provider->m_ForwardAxis = forwardAxis;
-  provider->m_RightAxis= rightAxis;
-  provider->m_UpAxis= upAxis;
+  provider->m_RightAxis = rightAxis;
+  provider->m_UpAxis = upAxis;
 
   m_CoordinateSystem = provider;
 }
@@ -66,17 +67,26 @@ ezVec3 ezCamera::GetPosition(ezCameraEye eye) const
 
 ezVec3 ezCamera::GetDirForwards(ezCameraEye eye) const
 {
-  return MapInternalToExternal(m_mViewMatrix[static_cast<int>(eye)].GetRow(2).GetAsVec3());
+  ezVec3 decFwd, decRight, decUp, decPos;
+  ezGraphicsUtils::DecomposeViewMatrix(decPos, decFwd, decRight, decUp, m_mViewMatrix[static_cast<int>(eye)], ezHandedness::LeftHanded);
+
+  return MapInternalToExternal(decFwd);
 }
 
 ezVec3 ezCamera::GetDirUp(ezCameraEye eye) const
 {
-  return MapInternalToExternal(m_mViewMatrix[static_cast<int>(eye)].GetRow(1).GetAsVec3());
+  ezVec3 decFwd, decRight, decUp, decPos;
+  ezGraphicsUtils::DecomposeViewMatrix(decPos, decFwd, decRight, decUp, m_mViewMatrix[static_cast<int>(eye)], ezHandedness::LeftHanded);
+
+  return MapInternalToExternal(decUp);
 }
 
 ezVec3 ezCamera::GetDirRight(ezCameraEye eye) const
 {
-  return MapInternalToExternal(m_mViewMatrix[static_cast<int>(eye)].GetRow(0).GetAsVec3());
+  ezVec3 decFwd, decRight, decUp, decPos;
+  ezGraphicsUtils::DecomposeViewMatrix(decPos, decFwd, decRight, decUp, m_mViewMatrix[static_cast<int>(eye)], ezHandedness::LeftHanded);
+
+  return MapInternalToExternal(decRight);
 }
 
 ezVec3 ezCamera::InternalGetPosition(ezCameraEye eye) const
@@ -86,17 +96,26 @@ ezVec3 ezCamera::InternalGetPosition(ezCameraEye eye) const
 
 ezVec3 ezCamera::InternalGetDirForwards(ezCameraEye eye) const
 {
-  return m_mViewMatrix[static_cast<int>(eye)].GetRow(2).GetAsVec3();
+  ezVec3 decFwd, decRight, decUp, decPos;
+  ezGraphicsUtils::DecomposeViewMatrix(decPos, decFwd, decRight, decUp, m_mViewMatrix[static_cast<int>(eye)], ezHandedness::LeftHanded);
+
+  return decFwd;
 }
 
 ezVec3 ezCamera::InternalGetDirUp(ezCameraEye eye) const
 {
-  return m_mViewMatrix[static_cast<int>(eye)].GetRow(1).GetAsVec3();
+  ezVec3 decFwd, decRight, decUp, decPos;
+  ezGraphicsUtils::DecomposeViewMatrix(decPos, decFwd, decRight, decUp, m_mViewMatrix[static_cast<int>(eye)], ezHandedness::LeftHanded);
+
+  return decUp;
 }
 
 ezVec3 ezCamera::InternalGetDirRight(ezCameraEye eye) const
 {
-  return m_mViewMatrix[static_cast<int>(eye)].GetRow(0).GetAsVec3();
+  ezVec3 decFwd, decRight, decUp, decPos;
+  ezGraphicsUtils::DecomposeViewMatrix(decPos, decFwd, decRight, decUp, m_mViewMatrix[static_cast<int>(eye)], ezHandedness::LeftHanded);
+
+  return -decRight;
 }
 
 ezVec3 ezCamera::MapExternalToInternal(const ezVec3& v) const
@@ -232,7 +251,7 @@ void ezCamera::LookAt(const ezVec3& vCameraPos0, const ezVec3& vTargetPos0, cons
     return;
   }
 
-  m_mViewMatrix[0].SetLookAtMatrix(vCameraPos, vTargetPos, vUp);
+  m_mViewMatrix[0] = ezGraphicsUtils::CreateLookAtViewMatrix(vCameraPos, vTargetPos, vUp, ezHandedness::LeftHanded);
   m_mViewMatrix[1] = m_mViewMatrix[0];
   m_vCameraPosition[1] = m_vCameraPosition[0] = vCameraPos;
 
@@ -244,8 +263,9 @@ void ezCamera::SetViewMatrix(const ezMat4& mLookAtMatrix, ezCameraEye eye)
   const int iEyeIdx = static_cast<int>(eye);
 
   m_mViewMatrix[iEyeIdx] = mLookAtMatrix;
-  m_vCameraPosition[iEyeIdx] = -(m_mViewMatrix[static_cast<int>(eye)].GetRotationalPart().GetTranspose() *
-                                 m_mViewMatrix[static_cast<int>(eye)].GetTranslationVector());
+
+  ezVec3 decFwd, decRight, decUp;
+  ezGraphicsUtils::DecomposeViewMatrix(m_vCameraPosition[iEyeIdx], decFwd, decRight, decUp, m_mViewMatrix[static_cast<int>(eye)], ezHandedness::LeftHanded);
 
   if (m_Mode != ezCameraMode::Stereo)
   {
@@ -256,39 +276,39 @@ void ezCamera::SetViewMatrix(const ezMat4& mLookAtMatrix, ezCameraEye eye)
   CameraOrientationChanged(true, true);
 }
 
-void ezCamera::GetProjectionMatrix(float fAspectRatioWidthDivHeight, ezMat4& out_projectionMatrix, ezCameraEye eye,
-                                   ezProjectionDepthRange::Enum depthRange) const
+void ezCamera::GetProjectionMatrix(
+  float fAspectRatioWidthDivHeight, ezMat4& out_projectionMatrix, ezCameraEye eye, ezClipSpaceDepthRange::Enum depthRange) const
 {
   switch (m_Mode)
   {
     case ezCameraMode::PerspectiveFixedFovX:
-      out_projectionMatrix.SetPerspectiveProjectionMatrixFromFovX(ezAngle::Degree(m_fFovOrDim), fAspectRatioWidthDivHeight, m_fNearPlane,
-                                                                  m_fFarPlane, depthRange);
+      out_projectionMatrix = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovX(ezAngle::Degree(m_fFovOrDim),
+        fAspectRatioWidthDivHeight, m_fNearPlane, m_fFarPlane, depthRange, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
       break;
 
     case ezCameraMode::PerspectiveFixedFovY:
-      out_projectionMatrix.SetPerspectiveProjectionMatrixFromFovY(ezAngle::Degree(m_fFovOrDim), fAspectRatioWidthDivHeight, m_fNearPlane,
-                                                                  m_fFarPlane, depthRange);
+      out_projectionMatrix = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(ezAngle::Degree(m_fFovOrDim),
+        fAspectRatioWidthDivHeight, m_fNearPlane, m_fFarPlane, depthRange, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
       break;
 
     case ezCameraMode::OrthoFixedWidth:
-      out_projectionMatrix.SetOrthographicProjectionMatrix(m_fFovOrDim, m_fFovOrDim / fAspectRatioWidthDivHeight, m_fNearPlane, m_fFarPlane,
-                                                           depthRange);
+      out_projectionMatrix = ezGraphicsUtils::CreateOrthographicProjectionMatrix(m_fFovOrDim, m_fFovOrDim / fAspectRatioWidthDivHeight,
+        m_fNearPlane, m_fFarPlane, depthRange, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
       break;
 
     case ezCameraMode::OrthoFixedHeight:
-      out_projectionMatrix.SetOrthographicProjectionMatrix(m_fFovOrDim * fAspectRatioWidthDivHeight, m_fFovOrDim, m_fNearPlane, m_fFarPlane,
-                                                           depthRange);
+      out_projectionMatrix = ezGraphicsUtils::CreateOrthographicProjectionMatrix(m_fFovOrDim * fAspectRatioWidthDivHeight, m_fFovOrDim,
+        m_fNearPlane, m_fFarPlane, depthRange, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
       break;
 
     case ezCameraMode::Stereo:
-      if (ezMath::IsEqual(m_fAspectOfPrecomputedStereoProjection, fAspectRatioWidthDivHeight, ezMath::BasicType<float>::LargeEpsilon()))
+      if (ezMath::IsEqual(m_fAspectOfPrecomputedStereoProjection, fAspectRatioWidthDivHeight, ezMath::LargeEpsilon<float>()))
         out_projectionMatrix = m_mStereoProjectionMatrix[static_cast<int>(eye)];
       else
       {
         // Evade to FixedFovY
-        out_projectionMatrix.SetPerspectiveProjectionMatrixFromFovY(ezAngle::Degree(m_fFovOrDim), fAspectRatioWidthDivHeight, m_fNearPlane,
-                                                                    m_fFarPlane, depthRange);
+        out_projectionMatrix = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(ezAngle::Degree(m_fFovOrDim),
+          fAspectRatioWidthDivHeight, m_fNearPlane, m_fFarPlane, depthRange, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
       }
       break;
 
@@ -311,8 +331,10 @@ void ezCamera::MoveLocally(float fForward, float fRight, float fUp)
   m_mViewMatrix[0].SetTranslationVector(m_mViewMatrix[0].GetTranslationVector() - ezVec3(fRight, fUp, fForward));
   m_mViewMatrix[1].SetTranslationVector(m_mViewMatrix[0].GetTranslationVector());
 
-  m_vCameraPosition[0] = m_vCameraPosition[1] =
-      -(m_mViewMatrix[static_cast<int>(0)].GetRotationalPart().GetTranspose() * m_mViewMatrix[static_cast<int>(0)].GetTranslationVector());
+  ezVec3 decFwd, decRight, decUp, decPos;
+  ezGraphicsUtils::DecomposeViewMatrix(decPos, decFwd, decRight, decUp, m_mViewMatrix[0], ezHandedness::LeftHanded);
+
+  m_vCameraPosition[0] = m_vCameraPosition[1] = decPos;
 
   CameraOrientationChanged(true, false);
 }
@@ -321,11 +343,15 @@ void ezCamera::MoveGlobally(float fForward, float fRight, float fUp)
 {
   ezVec3 vMove(fForward, fRight, fUp);
 
-  m_mViewMatrix[0].SetTranslationVector(m_mViewMatrix[0].GetTranslationVector() - m_mViewMatrix[0].GetRotationalPart() * vMove);
-  m_mViewMatrix[1].SetTranslationVector(m_mViewMatrix[0].GetTranslationVector());
+  ezVec3 decFwd, decRight, decUp, decPos;
+  ezGraphicsUtils::DecomposeViewMatrix(decPos, decFwd, decRight, decUp, m_mViewMatrix[0], ezHandedness::LeftHanded);
 
   m_vCameraPosition[0] += vMove;
-  m_vCameraPosition[1] = InternalGetPosition();
+  m_vCameraPosition[1] = m_vCameraPosition[0];
+
+  m_mViewMatrix[0] = ezGraphicsUtils::CreateViewMatrix(m_vCameraPosition[0], decFwd, decRight, decUp, ezHandedness::LeftHanded);
+
+  m_mViewMatrix[1].SetTranslationVector(m_mViewMatrix[0].GetTranslationVector());
 
   CameraOrientationChanged(true, false);
 }
@@ -338,11 +364,11 @@ void ezCamera::ClampRotationAngles(bool bLocalSpace, ezAngle& forwardAxis, ezAng
     {
       // Limit how much the camera can look up and down, to prevent it from overturning
 
-      const float fDot = InternalGetDirForwards().Dot(ezVec3(0, 0, 1));
-      ezAngle fCurAngle = ezMath::ACos(fDot) - ezAngle::Degree(90.0f);
-      ezAngle fNewAngle = fCurAngle + rightAxis;
+      const float fDot = InternalGetDirForwards().Dot(ezVec3(0, 0, -1));
+      const ezAngle fCurAngle = ezMath::ACos(fDot) - ezAngle::Degree(90.0f);
+      const ezAngle fNewAngle = fCurAngle + rightAxis;
 
-      ezAngle fAllowedAngle = ezMath::Clamp(fNewAngle, ezAngle::Degree(-85.0f), ezAngle::Degree(85.0f));
+      const ezAngle fAllowedAngle = ezMath::Clamp(fNewAngle, ezAngle::Degree(-85.0f), ezAngle::Degree(85.0f));
 
       rightAxis = fAllowedAngle - fCurAngle;
     }
@@ -384,9 +410,10 @@ void ezCamera::RotateLocally(ezAngle forwardAxis, ezAngle rightAxis, ezAngle upA
     vDirForwards = m * vDirForwards;
   }
 
-  // Using SetLookAtMatrix is not only easier, it also has the advantage that we end up always with orthonormal vectors.
+  // Using ezGraphicsUtils::CreateLookAtViewMatrix is not only easier, it also has the advantage that we end up always with orthonormal
+  // vectors.
   auto vPos = InternalGetPosition();
-  m_mViewMatrix[0].SetLookAtMatrix(vPos, vPos + vDirForwards, vDirUp);
+  m_mViewMatrix[0] = ezGraphicsUtils::CreateLookAtViewMatrix(vPos, vPos + vDirForwards, vDirUp, ezHandedness::LeftHanded);
   m_mViewMatrix[1] = m_mViewMatrix[0];
 
   CameraOrientationChanged(false, true);
@@ -426,9 +453,10 @@ void ezCamera::RotateGlobally(ezAngle forwardAxis, ezAngle rightAxis, ezAngle up
     vDirForwards = m * vDirForwards;
   }
 
-  // Using SetLookAtMatrix is not only easier, it also has the advantage that we end up always with orthonormal vectors.
+  // Using ezGraphicsUtils::CreateLookAtViewMatrix is not only easier, it also has the advantage that we end up always with orthonormal
+  // vectors.
   auto vPos = InternalGetPosition();
-  m_mViewMatrix[0].SetLookAtMatrix(vPos, vPos + vDirForwards, vDirUp);
+  m_mViewMatrix[0] = ezGraphicsUtils::CreateLookAtViewMatrix(vPos, vPos + vDirForwards, vDirUp, ezHandedness::LeftHanded);
   m_mViewMatrix[1] = m_mViewMatrix[0];
 
   CameraOrientationChanged(false, true);
@@ -437,4 +465,3 @@ void ezCamera::RotateGlobally(ezAngle forwardAxis, ezAngle rightAxis, ezAngle up
 
 
 EZ_STATICLINK_FILE(Core, Core_Graphics_Implementation_Camera);
-

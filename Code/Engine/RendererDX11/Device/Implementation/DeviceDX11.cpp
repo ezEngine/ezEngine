@@ -165,7 +165,7 @@ retry:
   // Fill lookup table
   FillFormatLookupTable();
 
-  ezProjectionDepthRange::Default = ezProjectionDepthRange::ZeroToOne;
+  ezClipSpaceDepthRange::Default = ezClipSpaceDepthRange::ZeroToOne;
 
   // Per frame data & timer data
   D3D11_QUERY_DESC disjointQueryDesc;

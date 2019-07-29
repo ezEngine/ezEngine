@@ -3,9 +3,9 @@
 #include <Foundation/Math/Math.h>
 
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
-#define EZ_VEC2_CHECK_FOR_NAN(obj) (obj)->AssertNotNaN();
+#  define EZ_VEC2_CHECK_FOR_NAN(obj) (obj)->AssertNotNaN();
 #else
-#define EZ_VEC2_CHECK_FOR_NAN(obj)
+#  define EZ_VEC2_CHECK_FOR_NAN(obj)
 #endif
 
 /// \brief A 2-component vector class.
@@ -38,12 +38,13 @@ public:
   // no copy-constructor and operator= since the default-generated ones will be faster
 
   /// \brief Static function that returns a zero-vector.
-  static const ezVec2Template ZeroVector() { return ezVec2Template(0); } // [tested]
+  static const ezVec2Template<Type> ZeroVector() { return ezVec2Template(0); } // [tested]
 
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   void AssertNotNaN() const
   {
-    EZ_ASSERT_ALWAYS(!IsNaN(), "This object contains NaN values. This can happen when you forgot to initialize it before using it. Please check that all code-paths properly initialize this object.");
+    EZ_ASSERT_ALWAYS(!IsNaN(), "This object contains NaN values. This can happen when you forgot to initialize it before using it. Please "
+                               "check that all code-paths properly initialize this object.");
   }
 #endif
 
@@ -77,20 +78,24 @@ public:
   /// \brief Returns the length of the vector.
   Type GetLength() const; // [tested]
 
-  /// \brief Returns the squared length. Faster, since no square-root is taken. Useful, if one only wants to compare the lengths of two vectors.
+  /// \brief Returns the squared length. Faster, since no square-root is taken. Useful, if one only wants to compare the lengths of two
+  /// vectors.
   Type GetLengthSquared() const; // [tested]
 
-  /// \brief Normalizes this vector and returns its previous length in one operation. More efficient than calling GetLength and then Normalize.
+  /// \brief Normalizes this vector and returns its previous length in one operation. More efficient than calling GetLength and then
+  /// Normalize.
   Type GetLengthAndNormalize(); // [tested]
 
   /// \brief Returns a normalized version of this vector, leaves the vector itself unchanged.
-  const ezVec2Template GetNormalized() const; // [tested]
+  const ezVec2Template<Type> GetNormalized() const; // [tested]
 
   /// \brief Normalizes this vector.
   void Normalize(); // [tested]
 
-  /// \brief Tries to normalize this vector. If the vector is too close to zero, EZ_FAILURE is returned and the vector is set to the given fallback value.
-  ezResult NormalizeIfNotZero(const ezVec2Template<Type>& vFallback = ezVec2Template<Type>(1, 0), Type fEpsilon = ezMath::BasicType<Type>::DefaultEpsilon()); // [tested]
+  /// \brief Tries to normalize this vector. If the vector is too close to zero, EZ_FAILURE is returned and the vector is set to the given
+  /// fallback value.
+  ezResult NormalizeIfNotZero(
+    const ezVec2Template<Type>& vFallback = ezVec2Template<Type>(1, 0), Type fEpsilon = ezMath::DefaultEpsilon<Type>()); // [tested]
 
   /// \brief Returns, whether this vector is (0, 0).
   bool IsZero() const; // [tested]
@@ -99,7 +104,7 @@ public:
   bool IsZero(Type fEpsilon) const; // [tested]
 
   /// \brief Returns, whether the squared length of this vector is between 0.999f and 1.001f.
-  bool IsNormalized(Type fEpsilon = ezMath::BasicType<Type>::HugeEpsilon()) const; // [tested]
+  bool IsNormalized(Type fEpsilon = ezMath::HugeEpsilon<Type>()) const; // [tested]
 
   /// \brief Returns true, if any of x or y is NaN
   bool IsNaN() const; // [tested]
@@ -111,7 +116,7 @@ public:
   // *** Operators ***
 public:
   /// \brief Returns the negation of this vector.
-  const ezVec2Template operator-() const; // [tested]
+  const ezVec2Template<Type> operator-() const; // [tested]
 
   /// \brief Adds cc component-wise to this vector
   void operator+=(const ezVec2Template<Type>& cc); // [tested]
@@ -146,6 +151,9 @@ public:
   /// \brief Returns the component-wise maximum of *this and rhs
   const ezVec2Template<Type> CompMax(const ezVec2Template<Type>& rhs) const; // [tested]
 
+  /// \brief Returns the component-wise clamped value of *this between low and high.
+  const ezVec2Template<Type> CompClamp(const ezVec2Template<Type>& low, const ezVec2Template<Type>& high) const; // [tested]
+
   /// \brief Returns the component-wise multiplication of *this and rhs
   const ezVec2Template<Type> CompMul(const ezVec2Template<Type>& rhs) const; // [tested]
 
@@ -153,7 +161,7 @@ public:
   const ezVec2Template<Type> CompDiv(const ezVec2Template<Type>& rhs) const; // [tested]
 
   /// brief Returns the component-wise absolute of *this.
-  const ezVec2Template Abs() const; // [tested]
+  const ezVec2Template<Type> Abs() const; // [tested]
 
 
   // *** Other common operations ***
@@ -206,4 +214,3 @@ template <typename Type>
 bool operator<(const ezVec2Template<Type>& v1, const ezVec2Template<Type>& v2);
 
 #include <Foundation/Math/Implementation/Vec2_inl.h>
-

@@ -107,7 +107,7 @@ ezSimdFloat ezImageFilterSincWithKaiserWindow::SamplePoint(const ezSimdFloat& x)
   }
   else
   {
-    return sinc(x * ezSimdFloat(ezMath::BasicType<float>::Pi())) * modifiedBessel0(m_beta * xSq.GetSqrt()) * m_invBesselBeta;
+    return sinc(x * ezSimdFloat(ezMath::Pi<float>())) * modifiedBessel0(m_beta * xSq.GetSqrt()) * m_invBesselBeta;
   }
 }
 

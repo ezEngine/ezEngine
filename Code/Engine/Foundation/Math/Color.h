@@ -195,12 +195,26 @@ public:
   static const ezColor Yellow;               ///< #FFFF00
   static const ezColor YellowGreen;          ///< #9ACD32
 
+  // A simple color table with 4 batchs of 8 colors from light to dark. I.e., each
+  // batch contains the same 8 colors but of increasingly darker shade. E.g., the
+  // first batch (from index 0) contains lighter versions of the colors in the
+  // second batch (from index 8).
+  static const ezColor s_PaletteColors[32];
+
   // *** Data ***
 public:
   float r;
   float g;
   float b;
   float a;
+
+  // *** Static Functions ***
+public:
+  /// \brief Get the i-th color from s_PaletteColors with optional alpha.
+  static ezColor GetPaletteColor(ezUInt32 colorIndex, ezUInt8 alpha = 0xFF);
+
+  /// \brief Returns a color with all four RGBA components set to zero. This is different to ezColor::Black, which has alpha still set to 1.0.
+  static ezColor ZeroColor();
 
   // *** Constructors ***
 public:
@@ -236,6 +250,9 @@ public:
   /// \brief Sets all four RGBA components.
   void SetRGBA(float fLinearRed, float fLinearGreen, float fLinearBlue, float fLinearAlpha = 1.0f); // [tested]
 
+  /// \brief Sets all four RGBA components to zero.
+  void SetZero();
+
   // *** Conversion Operators/Functions ***
 public:
   /// \brief Sets this color from a HSV (hue, saturation, value) format.
@@ -254,6 +271,9 @@ public:
   /// \brief Conversion to float*
   float* GetData() { return &r; }
 
+  /// \brief Returns the 4 color values packed in an ezVec4
+  const ezVec4 GetAsVec4() const;
+
   /// \brief Helper function to convert a float color value from gamma space to linear color space.
   static float GammaToLinear(float gamma); // [tested]
   /// \brief Helper function to convert a float color value from linear space to gamma color space.
@@ -268,6 +288,9 @@ public:
 public:
   /// \brief Returns if the color is in the Range [0; 1] on all 4 channels.
   bool IsNormalized() const; // [tested]
+
+  /// \brief Calculates the average of the RGB channels.
+  float CalcAverageRGB() const;
 
   /// \brief Computes saturation.
   float GetSaturation() const; // [tested]

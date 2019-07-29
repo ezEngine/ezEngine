@@ -5,7 +5,7 @@ EZ_FORCE_INLINE ezVec3Template<Type>::ezVec3Template()
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
-  const Type TypeNaN = ezMath::BasicType<Type>::GetNaN();
+  const Type TypeNaN = ezMath::NaN<Type>();
   x = TypeNaN;
   y = TypeNaN;
   z = TypeNaN;
@@ -14,17 +14,17 @@ EZ_FORCE_INLINE ezVec3Template<Type>::ezVec3Template()
 
 template <typename Type>
 EZ_ALWAYS_INLINE ezVec3Template<Type>::ezVec3Template(Type X, Type Y, Type Z)
-    : x(X)
-    , y(Y)
-    , z(Z)
+  : x(X)
+  , y(Y)
+  , z(Z)
 {
 }
 
 template <typename Type>
 EZ_ALWAYS_INLINE ezVec3Template<Type>::ezVec3Template(Type V)
-    : x(V)
-    , y(V)
-    , z(V)
+  : x(V)
+  , y(V)
+  , z(V)
 {
 }
 
@@ -57,7 +57,7 @@ EZ_ALWAYS_INLINE Type ezVec3Template<Type>::GetLength() const
 }
 
 template <typename Type>
-ezResult ezVec3Template<Type>::SetLength(Type fNewLength, Type fEpsilon /* = ezMath::BasicType<Type>::DefaultEpsilon() */)
+ezResult ezVec3Template<Type>::SetLength(Type fNewLength, Type fEpsilon /* = ezMath::DefaultEpsilon<Type>() */)
 {
   if (NormalizeIfNotZero(ezVec3Template<Type>::ZeroVector(), fEpsilon) == EZ_FAILURE)
     return EZ_FAILURE;
@@ -118,7 +118,7 @@ ezResult ezVec3Template<Type>::NormalizeIfNotZero(const ezVec3Template<Type>& vF
   length is between a lower and upper limit.
 */
 template <typename Type>
-EZ_FORCE_INLINE bool ezVec3Template<Type>::IsNormalized(Type fEpsilon /* = ezMath::BasicType<Type>::HugeEpsilon() */) const
+EZ_FORCE_INLINE bool ezVec3Template<Type>::IsNormalized(Type fEpsilon /* = ezMath::HugeEpsilon<Type>() */) const
 {
   const Type t = GetLengthSquared();
   return ezMath::IsEqual(t, (Type)1, fEpsilon);
@@ -137,9 +137,7 @@ bool ezVec3Template<Type>::IsZero(Type fEpsilon) const
 {
   EZ_NAN_ASSERT(this);
 
-  return (ezMath::IsZero(x, fEpsilon) &&
-          ezMath::IsZero(y, fEpsilon) &&
-          ezMath::IsZero(z, fEpsilon));
+  return (ezMath::IsZero(x, fEpsilon) && ezMath::IsZero(y, fEpsilon) && ezMath::IsZero(z, fEpsilon));
 }
 
 template <typename Type>
@@ -244,7 +242,8 @@ EZ_FORCE_INLINE void ezVec3Template<Type>::operator/=(Type f)
 }
 
 template <typename Type>
-ezResult ezVec3Template<Type>::CalculateNormal(const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2, const ezVec3Template<Type>& v3)
+ezResult ezVec3Template<Type>::CalculateNormal(
+  const ezVec3Template<Type>& v1, const ezVec3Template<Type>& v2, const ezVec3Template<Type>& v3)
 {
   *this = (v3 - v2).CrossRH(v1 - v2);
   return NormalizeIfNotZero();
@@ -253,7 +252,8 @@ ezResult ezVec3Template<Type>::CalculateNormal(const ezVec3Template<Type>& v1, c
 template <typename Type>
 void ezVec3Template<Type>::MakeOrthogonalTo(const ezVec3Template<Type>& vNormal)
 {
-  EZ_ASSERT_DEBUG(vNormal.IsNormalized(), "The vector to make this vector orthogonal to, must be normalized. It's length is {0}", ezArgF(vNormal.GetLength(), 3));
+  EZ_ASSERT_DEBUG(vNormal.IsNormalized(), "The vector to make this vector orthogonal to, must be normalized. It's length is {0}",
+    ezArgF(vNormal.GetLength(), 3));
 
   ezVec3Template<Type> vOrtho = vNormal.CrossRH(*this);
   *this = vOrtho.CrossRH(vNormal);
@@ -262,7 +262,7 @@ void ezVec3Template<Type>::MakeOrthogonalTo(const ezVec3Template<Type>& vNormal)
 template <typename Type>
 const ezVec3Template<Type> ezVec3Template<Type>::GetOrthogonalVector() const
 {
-  EZ_ASSERT_DEBUG(!IsZero(ezMath::BasicType<Type>::SmallEpsilon()), "The vector must not be zero to be able to compute an orthogonal vector.");
+  EZ_ASSERT_DEBUG(!IsZero(ezMath::SmallEpsilon<Type>()), "The vector must not be zero to be able to compute an orthogonal vector.");
 
   Type fDot = ezMath::Abs(this->Dot(ezVec3Template<Type>(0, 1, 0)));
   if (fDot < 0.999f)
@@ -294,9 +294,7 @@ const ezVec3Template<Type> ezVec3Template<Type>::CrossRH(const ezVec3Template<Ty
   EZ_NAN_ASSERT(this);
   EZ_NAN_ASSERT(&rhs);
 
-  return ezVec3Template<Type>(y * rhs.z - z * rhs.y,
-                              z * rhs.x - x * rhs.z,
-                              x * rhs.y - y * rhs.x);
+  return ezVec3Template<Type>(y * rhs.z - z * rhs.y, z * rhs.x - x * rhs.z, x * rhs.y - y * rhs.x);
 }
 
 template <typename Type>
@@ -324,6 +322,16 @@ EZ_FORCE_INLINE const ezVec3Template<Type> ezVec3Template<Type>::CompMax(const e
   EZ_NAN_ASSERT(&rhs);
 
   return ezVec3Template<Type>(ezMath::Max(x, rhs.x), ezMath::Max(y, rhs.y), ezMath::Max(z, rhs.z));
+}
+
+template <typename Type>
+EZ_FORCE_INLINE const ezVec3Template<Type> ezVec3Template<Type>::CompClamp(const ezVec3Template& low, const ezVec3Template& high) const
+{
+  EZ_NAN_ASSERT(this);
+  EZ_NAN_ASSERT(&low);
+  EZ_NAN_ASSERT(&high);
+
+  return ezVec3Template<Type>(ezMath::Clamp(x, low.x, high.x), ezMath::Clamp(y, low.y, high.y), ezMath::Clamp(z, low.z, high.z));
 }
 
 template <typename Type>
@@ -411,9 +419,7 @@ bool ezVec3Template<Type>::IsEqual(const ezVec3Template<Type>& rhs, Type fEpsilo
   EZ_NAN_ASSERT(this);
   EZ_NAN_ASSERT(&rhs);
 
-  return (ezMath::IsEqual(x, rhs.x, fEpsilon) &&
-          ezMath::IsEqual(y, rhs.y, fEpsilon) &&
-          ezMath::IsEqual(z, rhs.z, fEpsilon));
+  return (ezMath::IsEqual(x, rhs.x, fEpsilon) && ezMath::IsEqual(y, rhs.y, fEpsilon) && ezMath::IsEqual(z, rhs.z, fEpsilon));
 }
 
 template <typename Type>
@@ -447,7 +453,8 @@ EZ_FORCE_INLINE bool operator<(const ezVec3Template<Type>& v1, const ezVec3Templ
 }
 
 template <typename Type>
-const ezVec3Template<Type> ezVec3Template<Type>::GetRefractedVector(const ezVec3Template<Type>& vNormal, Type fRefIndex1, Type fRefIndex2) const
+const ezVec3Template<Type> ezVec3Template<Type>::GetRefractedVector(
+  const ezVec3Template<Type>& vNormal, Type fRefIndex1, Type fRefIndex2) const
 {
   EZ_ASSERT_DEBUG(vNormal.IsNormalized(), "vNormal must be normalized.");
 
@@ -455,10 +462,9 @@ const ezVec3Template<Type> ezVec3Template<Type>::GetRefractedVector(const ezVec3
   const Type cosI = this->Dot(vNormal);
   const Type sinT2 = n * n * (1.0f - (cosI * cosI));
 
-  //invalid refraction
+  // invalid refraction
   if (sinT2 > 1.0f)
     return (*this);
 
   return ((n * (*this)) - (n + ezMath::Sqrt(1.0f - sinT2)) * vNormal);
 }
-

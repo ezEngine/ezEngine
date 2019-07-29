@@ -14,7 +14,6 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #else
 #include <pwd.h>
 #include <sys/types.h>
-#include <limits.h>
 #include <unistd.h>
 #define EZ_USE_OLD_POSIX_FUNCTIONS EZ_OFF
 #endif

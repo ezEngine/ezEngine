@@ -224,7 +224,7 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
 
   // random rotation around the spawn direction
   {
-    double randomAngle = pWorld->GetRandomNumberGenerator().DoubleInRange(0.0, ezMath::BasicType<double>::Pi() * 2.0);
+    double randomAngle = pWorld->GetRandomNumberGenerator().DoubleInRange(0.0, ezMath::Pi<double>() * 2.0);
 
     ezMat3 rotMat;
     rotMat.SetRotationMatrix(vDir, ezAngle::Radian((float)randomAngle));
@@ -243,7 +243,7 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
       case ezSurfaceInteractionAlignment::ReverseReflectedDirection:
       {
         const float fCosAngle = vDir.Dot(-vSurfaceNormal);
-        const float fMaxDeviation = ezMath::BasicType<float>::Pi() - ezMath::ACos(fCosAngle).GetRadian();
+        const float fMaxDeviation = ezMath::Pi<float>() - ezMath::ACos(fCosAngle).GetRadian();
 
         maxDeviation = ezMath::Min(pIA->m_Deviation, ezAngle::Radian(fMaxDeviation));
       }
@@ -253,7 +253,7 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
       case ezSurfaceInteractionAlignment::ReverseIncidentDirection:
       {
         const float fCosAngle = vDir.Dot(vSurfaceNormal);
-        const float fMaxDeviation = ezMath::BasicType<float>::Pi() - ezMath::ACos(fCosAngle).GetRadian();
+        const float fMaxDeviation = ezMath::Pi<float>() - ezMath::ACos(fCosAngle).GetRadian();
 
         maxDeviation = ezMath::Min(pIA->m_Deviation, ezAngle::Radian(fMaxDeviation));
       }

@@ -194,7 +194,7 @@ void PlacementTask::ExecuteVM()
   ezSimdVec4i seed = ezSimdVec4i(m_iTileSeed) + ezSimdVec4i(0, 3, 7, 11);
 
   float fMinAngle = 0.0f;
-  float fMaxAngle = ezMath::BasicType<float>::Pi() * 2.0f;
+  float fMaxAngle = ezMath::Pi<float>() * 2.0f;
 
   ezSimdVec4f vMinValue = ezSimdVec4f(fMinAngle, m_pOutput->m_vMinOffset.z, 0.0f);
   ezSimdVec4f vMaxValue = ezSimdVec4f(fMaxAngle, m_pOutput->m_vMaxOffset.z, 0.0f);

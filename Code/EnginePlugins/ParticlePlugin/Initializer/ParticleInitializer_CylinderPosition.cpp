@@ -70,16 +70,16 @@ float ezParticleInitializerFactory_CylinderPosition::GetSpawnCountMultiplier(con
 
   if (m_bSpawnOnSurface)
   {
-    const float s0 = /* 2.0f * ezMath::BasicType<float>::Pi() * m_fRadius **/ m_fRadius + /* 2.0f * ezMath::BasicType<float>::Pi() * m_fRadius **/ m_fHeight;
-    const float s1 = /* 2.0f * ezMath::BasicType<float>::Pi() * m_fRadius **/ m_fRadius * fScaleRadius * fScaleRadius +
-                             /*2.0f * ezMath::BasicType<float>::Pi() * m_fRadius **/ fScaleRadius * m_fHeight * fScaleHeight;
+    const float s0 = /* 2.0f * ezMath::Pi<float>() * m_fRadius **/ m_fRadius + /* 2.0f * ezMath::Pi<float>() * m_fRadius **/ m_fHeight;
+    const float s1 = /* 2.0f * ezMath::Pi<float>() * m_fRadius **/ m_fRadius * fScaleRadius * fScaleRadius +
+                             /*2.0f * ezMath::Pi<float>() * m_fRadius **/ fScaleRadius * m_fHeight * fScaleHeight;
 
     return s1 / s0;
   }
   else
   {
-    const float v0 = 1.0f /* ezMath::BasicType<float>::Pi() * m_fRadius * m_fRadius*/;
-    const float v1 = 1.0f /* ezMath::BasicType<float>::Pi() * m_fRadius * m_fRadius*/ * fScaleRadius * fScaleRadius;
+    const float v0 = 1.0f /* ezMath::Pi<float>() * m_fRadius * m_fRadius*/;
+    const float v1 = 1.0f /* ezMath::Pi<float>() * m_fRadius * m_fRadius*/ * fScaleRadius * fScaleRadius;
 
     return v1 / v0;
   }
