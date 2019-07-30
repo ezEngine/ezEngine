@@ -10,6 +10,10 @@
 class ezMemoryStreamReader;
 class ezMemoryStreamWriter;
 
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
 /// \brief Instances of this class act as storage for memory streams
 class EZ_FOUNDATION_DLL ezMemoryStreamStorageInterface : public ezRefCounted
 {
@@ -35,6 +39,9 @@ public:
   /// \brief Copies all data from the given stream into the storage.
   void ReadAll(ezStreamReader& Stream);
 
+  /// \brief Reserves N bytes of storage.
+  virtual void Reserve(ezUInt64 uiBytes) = 0;
+
 private:
   virtual const ezUInt8* GetInternalData() const = 0;
   virtual ezUInt8* GetInternalData() = 0;
@@ -43,6 +50,11 @@ private:
   friend class ezMemoryStreamReader;
   friend class ezMemoryStreamWriter;
 };
+
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
 /// \brief Templated implementation of ezMemoryStreamStorageInterface that adapts all standard ez containers to the interface.
 ///
@@ -69,6 +81,7 @@ public:
       return nullptr;
     return &m_Storage[0];
   }
+  virtual void Reserve(ezUInt64 uiBytes) override { m_Storage.Reserve(uiBytes); }
 
 private:
   virtual const ezUInt8* GetInternalData() const override { return &m_Storage[0]; }
@@ -77,6 +90,12 @@ private:
 
   CONTAINER m_Storage;
 };
+
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
 
 /// ezMemoryStreamStorage holds internally an ezHybridArray<ezUInt8, 256>, to prevent allocations when only small temporary memory streams
 /// are needed. That means it will have a memory overhead of that size.
@@ -88,6 +107,11 @@ public:
   {
   }
 };
+
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
 /// \brief Wrapper around an existing container to implement ezMemoryStreamStorageInterface
 template <typename CONTAINER>
@@ -106,6 +130,7 @@ public:
       return nullptr;
     return &(*m_pStorage)[0];
   }
+  virtual void Reserve(ezUInt64 uiBytes) override { m_pStorage->Reserve(uiBytes); }
 
 private:
   virtual const ezUInt8* GetInternalData() const override { return &(*m_pStorage)[0]; }
@@ -114,6 +139,11 @@ private:
 
   CONTAINER* m_pStorage;
 };
+
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
 /// \brief A reader which can access a memory stream.
 ///
@@ -161,6 +191,11 @@ private:
   ezUInt32 m_uiReadPosition;
 };
 
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
 /// \brief A writer which can access a memory stream
 ///
 /// Please note that the functions exposed by this object are not thread safe!
@@ -199,6 +234,10 @@ private:
   ezUInt32 m_uiWritePosition;
 };
 
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
 /// \brief Maps a raw chunk of memory to the ezStreamReader interface.
 class EZ_FOUNDATION_DLL ezRawMemoryStreamReader : public ezStreamReader
@@ -249,6 +288,61 @@ private:
 
   ezUInt64 m_uiChunkSize = 0;
   ezUInt64 m_uiReadPosition = 0;
+
+  ezString m_DebugSourceInformation;
+};
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+
+/// \brief Maps a raw chunk of memory to the ezStreamReader interface.
+class EZ_FOUNDATION_DLL ezRawMemoryStreamWriter : public ezStreamWriter
+{
+public:
+  ezRawMemoryStreamWriter(); // [tested]
+
+  /// \brief Initialize the raw memory reader with the chunk of memory that is the data storage.
+  ezRawMemoryStreamWriter(void* pData, ezUInt64 uiDataSize); // [tested]
+
+  /// \brief Initialize the raw memory reader with the chunk of memory from a standard ez container.
+  /// \note The container must store the data in a contiguous array.
+  template <typename CONTAINER>
+  ezRawMemoryStreamWriter(CONTAINER& container) // [tested]
+  {
+    Reset(container);
+  }
+
+  ~ezRawMemoryStreamWriter(); // [tested]
+
+  void Reset(void* pData, ezUInt64 uiDataSize); // [tested]
+
+  template <typename CONTAINER>
+  void Reset(CONTAINER& container) // [tested]
+  {
+    Reset(static_cast<ezUInt8*>(container.GetData()), container.GetCount());
+  }
+
+  /// \brief Returns the total available bytes in the memory stream
+  ezUInt64 GetStorageSize() const; // [tested]
+
+  /// \brief Returns the number of bytes written to the storage
+  ezUInt64 GetNumWrittenBytes() const; // [tested]
+
+  /// \brief Allows to set a string as the source of information in the memory stream for debug purposes.
+  void SetDebugSourceInformation(const char* szDebugSourceInformation);
+
+  /// \brief Copies uiBytesToWrite from pWriteBuffer into the memory stream.
+  ///
+  /// pWriteBuffer must be a valid buffer and must hold that much data.
+  virtual ezResult WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite) override; // [tested]
+
+private:
+  ezUInt8* m_pRawMemory = nullptr;
+
+  ezUInt64 m_uiChunkSize = 0;
+  ezUInt64 m_uiWritePosition = 0;
 
   ezString m_DebugSourceInformation;
 };

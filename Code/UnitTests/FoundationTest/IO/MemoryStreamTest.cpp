@@ -148,4 +148,35 @@ EZ_CREATE_SIMPLE_TEST(IO, MemoryStream)
       }
     }
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Raw Memory Stream Writing")
+  {
+    ezDynamicArray<ezUInt8> OrigStorage;
+    OrigStorage.SetCountUninitialized(1000);
+
+    ezRawMemoryStreamWriter writer0;
+    EZ_TEST_INT(writer0.GetNumWrittenBytes(), 0);
+    EZ_TEST_INT(writer0.GetStorageSize(), 0);
+
+    ezRawMemoryStreamWriter writer(OrigStorage.GetData(), OrigStorage.GetCount());
+
+    for (ezUInt32 i = 0; i < 1000; ++i)
+    {
+      writer << static_cast<ezUInt8>(i % 256);
+
+      EZ_TEST_INT(writer.GetNumWrittenBytes(), i + 1);
+      EZ_TEST_INT(writer.GetStorageSize(), 1000);
+    }
+
+    for (ezUInt32 i = 0; i < 1000; ++i)
+    {
+      EZ_TEST_INT(OrigStorage[i], i % 256);
+    }
+
+    {
+      ezRawMemoryStreamWriter writer2(OrigStorage);
+      EZ_TEST_INT(writer2.GetNumWrittenBytes(), 0);
+      EZ_TEST_INT(writer2.GetStorageSize(), 1000);
+    }
+  }
 }
