@@ -36,7 +36,7 @@ namespace ezApplicationDetails
     return iReturnCode;
   }
 
-  EZ_FOUNDATION_DLL void AttachToConsoleWindow(ezMinWindows::BOOL (EZ_WINDOWS_WINAPI *consoleHandler)(ezMinWindows::DWORD dwCtrlType));
+  EZ_FOUNDATION_DLL void AttachToConsoleWindow(ezMinWindows::BOOL(EZ_WINDOWS_WINAPI* consoleHandler)(ezMinWindows::DWORD dwCtrlType));
   EZ_FOUNDATION_DLL void DetachFromConsoleWindow();
 
   template <typename AppClass, typename... Args>
@@ -52,7 +52,7 @@ namespace ezApplicationDetails
 
     // This handler overrides the default handler (which would
     // call ExitProcess which leads to unorderly engine shutdowns)
-    const auto consoleHandler = [](_In_ ezMinWindows::DWORD dwCtrlType) -> ezMinWindows::BOOL {
+    const auto consoleHandler = [](ezMinWindows::DWORD dwCtrlType) -> ezMinWindows::BOOL {
       // We have to wait until the application has shut down orderly
       // since Windows will kill everything after this handler returns
       reinterpret_cast<AppClass*>(appBuffer)->RequestQuit();
@@ -79,6 +79,8 @@ namespace ezApplicationDetails
     if (memLeaks)
       ezMemoryTracker::DumpMemoryLeaks();
 
+    DetachFromConsoleWindow();
+
     return iReturnCode;
   }
 } // namespace ezApplicationDetails
@@ -93,13 +95,15 @@ namespace ezApplicationDetails
   int main(int argc, const char** argv) { return ezApplicationDetails::ConsoleEntry<AppClass>(argc, argv, __VA_ARGS__); }
 
 // If windows.h is already included use the native types, otherwise use types from ezMinWindows
-#ifdef _WINDOWS_
-#  define _EZ_APPLICATION_ENTRY_POINT_HINSTANCE HINSTANCE
-#  define _EZ_APPLICATION_ENTRY_POINT_LPSTR LPSTR
-#else
-#  define _EZ_APPLICATION_ENTRY_POINT_HINSTANCE ezMinWindows::HINSTANCE
-#  define _EZ_APPLICATION_ENTRY_POINT_LPSTR ezMinWindows::LPSTR
-#endif
+//
+// In EZ_APPLICATION_ENTRY_POINT we use macro magic to concatenate strings in such a way that depending on whether windows.h has
+// been included in the mean time, either the macro is chosen which expands to the proper Windows.h type
+// or the macro that expands to our ezMinWindows type.
+// Unfortunately we cannot do the decision right here, as Windows.h may not yet be included, but may get included later.
+#define _EZ_APPLICATION_ENTRY_POINT_HINSTANCE HINSTANCE
+#define _EZ_APPLICATION_ENTRY_POINT_LPSTR LPSTR
+#define _EZ_APPLICATION_ENTRY_POINT_HINSTANCE_WINDOWS_ ezMinWindows::HINSTANCE
+#define _EZ_APPLICATION_ENTRY_POINT_LPSTR_WINDOWS_ ezMinWindows::LPSTR
 
 /// \brief This macro allows for easy creation of application entry points (since they can't be placed in DLLs)
 ///
@@ -111,8 +115,9 @@ namespace ezApplicationDetails
   {                                                                                                                                        \
     _declspec(dllexport) ezMinWindows::DWORD NvOptimusEnablement = 0x00000001;                                                             \
   }                                                                                                                                        \
-  int EZ_WINDOWS_CALLBACK WinMain(_EZ_APPLICATION_ENTRY_POINT_HINSTANCE hInstance, _EZ_APPLICATION_ENTRY_POINT_HINSTANCE hPrevInstance,    \
-    _EZ_APPLICATION_ENTRY_POINT_LPSTR lpCmdLine, int nCmdShow)                                                                             \
+  int EZ_WINDOWS_CALLBACK WinMain(EZ_CONCAT(_EZ_, EZ_CONCAT(APPLICATION_ENTRY_POINT_HINSTANCE, _WINDOWS_)) hInstance,                      \
+    EZ_CONCAT(_EZ_, EZ_CONCAT(APPLICATION_ENTRY_POINT_HINSTANCE, _WINDOWS_)) hPrevInstance,                                                \
+    EZ_CONCAT(_EZ_, EZ_CONCAT(APPLICATION_ENTRY_POINT_LPSTR, _WINDOWS_)) lpCmdLine, int nCmdShow)                                          \
   {                                                                                                                                        \
     return ezApplicationDetails::ApplicationEntry<AppClass>(__VA_ARGS__);                                                                  \
   }
