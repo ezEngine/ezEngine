@@ -50,11 +50,11 @@ public:
 
   /// \brief Adds all components that this manager handles to the given array (array is not cleared).
   /// Prefer to use more efficient methods on derived classes, only use this if you need to go through a ezComponentManagerBase pointer.
-  virtual void CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_AllComponents) = 0;
+  virtual void CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_AllComponents, bool bOnlyActive) = 0;
 
   /// \brief Adds all components that this manager handles to the given array (array is not cleared).
   /// Prefer to use more efficient methods on derived classes, only use this if you need to go through a ezComponentManagerBase pointer.
-  virtual void CollectAllComponents(ezDynamicArray<ezComponent*>& out_AllComponents) = 0;
+  virtual void CollectAllComponents(ezDynamicArray<ezComponent*>& out_AllComponents, bool bOnlyActive) = 0;
 
 private:
   /// \cond
@@ -102,8 +102,8 @@ public:
   /// \brief Returns the type id corresponding to the component type managed by this manager.
   static ezUInt16 TypeId();
 
-  virtual void CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_AllComponents) override;
-  virtual void CollectAllComponents(ezDynamicArray<ezComponent*>& out_AllComponents) override;
+  virtual void CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_AllComponents, bool bOnlyActive) override;
+  virtual void CollectAllComponents(ezDynamicArray<ezComponent*>& out_AllComponents, bool bOnlyActive) override;
 
 protected:
   friend ComponentType;

@@ -23,8 +23,8 @@ public:
   static ezUInt16 TypeId();
 
   // ezComponentManagerBase implementation
-  virtual void CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_AllComponents) override;
-  virtual void CollectAllComponents(ezDynamicArray<ezComponent*>& out_AllComponents) override;
+  virtual void CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_AllComponents, bool bOnlyActive) override;
+  virtual void CollectAllComponents(ezDynamicArray<ezComponent*>& out_AllComponents, bool bOnlyActive) override;
 
 private:
   friend class ezComponentManagerFactory;

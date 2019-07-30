@@ -113,24 +113,30 @@ EZ_ALWAYS_INLINE ezUInt16 ezComponentManager<T, StorageType>::TypeId()
 }
 
 template <typename T, ezBlockStorageType::Enum StorageType>
-void ezComponentManager<T, StorageType>::CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_AllComponents)
+void ezComponentManager<T, StorageType>::CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_AllComponents, bool bOnlyActive)
 {
   out_AllComponents.Reserve(out_AllComponents.GetCount() + m_ComponentStorage.GetCount());
 
   for (auto it = GetComponents(); it.IsValid(); it.Next())
   {
-    out_AllComponents.PushBack(it->GetHandle());
+    if (!bOnlyActive || it->IsActive())
+    {
+      out_AllComponents.PushBack(it->GetHandle());
+    }
   }
 }
 
 template <typename T, ezBlockStorageType::Enum StorageType>
-void ezComponentManager<T, StorageType>::CollectAllComponents(ezDynamicArray<ezComponent*>& out_AllComponents)
+void ezComponentManager<T, StorageType>::CollectAllComponents(ezDynamicArray<ezComponent*>& out_AllComponents, bool bOnlyActive)
 {
   out_AllComponents.Reserve(out_AllComponents.GetCount() + m_ComponentStorage.GetCount());
 
   for (auto it = GetComponents(); it.IsValid(); it.Next())
   {
-    out_AllComponents.PushBack(it);
+    if (!bOnlyActive || it->IsActive())
+    {
+      out_AllComponents.PushBack(it);
+    }
   }
 }
 
