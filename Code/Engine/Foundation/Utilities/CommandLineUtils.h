@@ -103,6 +103,9 @@ public:
   ///   If that conversion fails or there is no such option or no parameter follows it, iDefault is returned.
   ezInt32 GetIntOption(const char* szOption, ezInt32 iDefault = 0, bool bCaseSensitive = false) const; // [tested]
 
+  /// \brief Same as GetIntOption() but assumes the value is a uint32.
+  ezUInt32 GetUIntOption(const char* szOption, ezUInt32 uiDefault = 0, bool bCaseSensitive = false) const; // [tested]
+
   /// \brief Returns a float interpretation of the option \a szOption or fDefault if it cannot be found.
   ///
   /// \param szOption

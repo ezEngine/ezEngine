@@ -150,6 +150,30 @@ EZ_CREATE_SIMPLE_TEST(Utility, CommandLineUtils)
     EZ_TEST_INT(CmdLn.GetIntOption("-Test5"), 0);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetUIntOption")
+  {
+    const int argc = 9;
+    const char* argv[argc] = {"bla/blub/myprogram.exe", "-Test1", "23", "-Test2", "42", "-Test3", "-Test4", "-11", "-Test5"};
+
+    ezCommandLineUtils CmdLn;
+    CmdLn.SetCommandLine(argc, argv);
+
+    // case sensitive and wrong
+    EZ_TEST_INT(CmdLn.GetUIntOption("-test1", 2, true), 2);
+    EZ_TEST_INT(CmdLn.GetUIntOption("-test2", 17, true), 17);
+
+    // case insensitive and wrong
+    EZ_TEST_INT(CmdLn.GetUIntOption("-test1", 2), 23);
+    EZ_TEST_INT(CmdLn.GetUIntOption("-test2", 17), 42);
+
+    // case sensitive and correct
+    EZ_TEST_INT(CmdLn.GetUIntOption("-Test1", 2), 23);
+    EZ_TEST_INT(CmdLn.GetUIntOption("-Test2", 3), 42);
+    EZ_TEST_INT(CmdLn.GetUIntOption("-Test3", 4), 4);
+    EZ_TEST_INT(CmdLn.GetUIntOption("-Test4", 5), 5);
+    EZ_TEST_INT(CmdLn.GetUIntOption("-Test5"), 0);
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFloatOption")
   {
     const int argc = 9;
