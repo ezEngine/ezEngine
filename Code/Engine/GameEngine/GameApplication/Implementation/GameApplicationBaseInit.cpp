@@ -215,18 +215,24 @@ void ezGameApplicationBase::Init_SetupDefaultResources() {}
 
 void ezGameApplicationBase::Deinit_UnloadPlugins()
 {
-  ezSet<ezString> ToUnload;
+  ezHybridArray<ezString, 16> ToUnload;
 
   // if a plugin is linked statically (which happens mostly in an editor context)
   // then it cannot be unloaded and the ezPlugin instance won't ever go away
   // however, ezPlugin::UnloadPlugin will always return that it is already unloaded, so we can just skip it there
   // all other plugins must be unloaded as often as their refcount, though
+
+  // also, all plugins must be unloaded in the reverse order in which they were originally loaded
+  // otherwise a plugin may crash during its shutdown, because a dependency was already shutdown before it
+  // fortunately the loading order is recorded in the ezPlugin instance chain and we just need to traverse it backwards
+  // this happens especially when you load plugin A, and then plugin B, which itself has a fixed link dependency on A (not dynamically loaded)
+  // and thus needs A during its shutdown
   ezStringBuilder s;
   ezPlugin* pPlugin = ezPlugin::GetFirstInstance();
   while (pPlugin != nullptr)
   {
     s = pPlugin->GetPluginName();
-    ToUnload.Insert(s);
+    ToUnload.PushBack(s);
 
     pPlugin = pPlugin->GetNextInstance();
   }
@@ -234,13 +240,13 @@ void ezGameApplicationBase::Deinit_UnloadPlugins()
   ezString temp;
   while (!ToUnload.IsEmpty())
   {
-    auto it = ToUnload.GetIterator();
+    auto it = ToUnload.PeekBack();
 
     ezInt32 iRefCount = 0;
-    EZ_VERIFY(ezPlugin::UnloadPlugin(it.Key(), &iRefCount).Succeeded(), "Failed to unload plugin '{0}'", s);
+    EZ_VERIFY(ezPlugin::UnloadPlugin(it, &iRefCount).Succeeded(), "Failed to unload plugin '{0}'", s);
 
     if (iRefCount == 0)
-      ToUnload.Remove(it);
+      ToUnload.PopBack();
   }
 }
 
