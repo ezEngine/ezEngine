@@ -3,13 +3,8 @@
 #include <GameEngine/GameEngineDLL.h>
 
 #include <GameEngine/ActorSystem/ActorPlugin.h>
-#include <Foundation/Communication/Event.h>
-#include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Types/UniquePtr.h>
-#include <GameEngine/GameApplication/WindowOutputTargetBase.h>
-#include <System/Window/Window.h>
 
-class ezActor;
 struct ezActorImpl;
 
 class EZ_GAMEENGINE_DLL ezActor : public ezReflectedClass
@@ -45,15 +40,21 @@ public:
   /// \brief Fills the list with all plugins that have been added to the actor.
   void GetAllPlugins(ezHybridArray<ezActorPlugin*, 8>& out_AllPlugins);
 
-  ezUniquePtr<ezWindowBase> m_pWindow;
-  ezUniquePtr<ezWindowOutputTargetBase> m_pWindowOutputTarget;
-
 protected:
   void UpdateAllPlugins();
 
-private: // directly touched by ezActorManager
+protected: // directly touched by ezActorManager
   friend class ezActorManager;
 
+  enum class ActorState
+  {
+    New,
+    Active,
+    QueuedForDestruction
+  };
+
+  ActorState m_ActorState = ActorState::New;
+  
   virtual void Update();
 
 private:

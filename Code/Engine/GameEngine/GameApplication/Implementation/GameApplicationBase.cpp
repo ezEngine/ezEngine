@@ -1,6 +1,5 @@
 #include <GameEnginePCH.h>
 
-#include <GameEngine/ActorSystem/ActorManager.h>
 #include <Core/Input/InputManager.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Foundation/Communication/GlobalEvent.h>
@@ -13,6 +12,7 @@
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Time/Clock.h>
 #include <Foundation/Time/Timestamp.h>
+#include <GameEngine/ActorSystem/ActorManager.h>
 #include <GameEngine/GameApplication/GameApplicationBase.h>
 #include <GameEngine/Interfaces/FrameCaptureInterface.h>
 #include <System/Window/Window.h>
@@ -32,8 +32,6 @@ ezGameApplicationBase::~ezGameApplicationBase()
 {
   s_pGameApplicationBaseInstance = nullptr;
 }
-
-//////////////////////////////////////////////////////////////////////////
 
 void AppendCurrentTimestamp(ezStringBuilder& out_String)
 {
