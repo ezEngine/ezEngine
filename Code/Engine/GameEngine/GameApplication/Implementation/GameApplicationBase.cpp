@@ -370,8 +370,6 @@ ezApplication::ApplicationExecution ezGameApplicationBase::Run()
 
   s_bUpdatePluginsExecuted = false;
 
-  ezClock::GetGlobalClock()->Update();
-
   ezActorManager::GetSingleton()->Update();
 
   if (!IsGameUpdateEnabled())
@@ -408,6 +406,10 @@ ezApplication::ApplicationExecution ezGameApplicationBase::Run()
   }
 
   Run_FinishFrame();
+
+  ezClock::GetGlobalClock()->Update();
+
+  UpdateFrameTime();
 
   return ezApplication::Continue;
 }
@@ -492,6 +494,14 @@ void ezGameApplicationBase::Run_FinishFrame()
   m_bTakeScreenshot = false;
 }
 
+void ezGameApplicationBase::UpdateFrameTime()
+{
+  // Do not use ezClock for this, it smooths and clamps the timestep
+  const ezTime tNow = ezTime::Now();
 
+  static ezTime tLast = tNow;
+  m_FrameTime = tNow - tLast;
+  tLast = tNow;
+}
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_GameApplication_Implementation_GameApplicationBase);

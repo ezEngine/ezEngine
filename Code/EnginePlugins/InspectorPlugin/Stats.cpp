@@ -2,6 +2,7 @@
 
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Utilities/Stats.h>
+#include <GameEngine/GameApplication/GameApplicationBase.h>
 
 static void StatsEventHandler(const ezStats::StatsEventData& e)
 {
@@ -66,27 +67,11 @@ static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
 
     case ezTelemetry::TelemetryEventData::PerFrameUpdate:
     {
-      const ezTime Now = ezTime::Now();
-
-      static ezTime LastTime = Now;
-      static ezTime LastFPS = Now;
-      static ezUInt32 uiFPS = 0;
-      ++uiFPS;
-
-      const ezTime TimeDiff = Now - LastTime;
+      ezTime FrameTime = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetFrameTime();
 
       ezStringBuilder s;
-      ezStats::SetStat("App/FrameTime[ms]", TimeDiff.GetMilliseconds());
-
-      LastTime = Now;
-
-      if ((Now - LastFPS).GetSeconds() >= 1.0)
-      {
-        ezStats::SetStat("App/FPS", uiFPS);
-
-        LastFPS = Now;
-        uiFPS = 0;
-      }
+      ezStats::SetStat("App/FrameTime[ms]", FrameTime.GetMilliseconds());      
+      ezStats::SetStat("App/FPS", 1.0 / FrameTime.GetSeconds());
 
       ezStats::SetStat("App/Active Threads", ezOSThread::GetThreadCount());
 
