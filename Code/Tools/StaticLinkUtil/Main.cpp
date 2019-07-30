@@ -615,9 +615,9 @@ public:
     if (m_bHadSeriousWarnings || m_bHadErrors)
       return;
 
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) || defined(EZ_DOCS)
     const ezUInt32 uiSearchDirLength = m_sSearchDir.GetElementCount() + 1;
 
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) || defined(EZ_DOCS)
     // get a directory iterator for the search directory
     ezFileSystemIterator it;
     if (it.StartSearch(m_sSearchDir.GetData(), true, false) == EZ_SUCCESS)

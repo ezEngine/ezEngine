@@ -199,6 +199,8 @@ void ezTextureUtils::ConfigureSampler(ezTextureFilterSetting::Enum filter, ezGAL
       out_Sampler.m_MagFilter = ezGALTextureFilterMode::Anisotropic;
       out_Sampler.m_uiMaxAnisotropy = 16;
       break;
+    default:
+      break;
   }
 }
 

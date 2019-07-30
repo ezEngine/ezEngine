@@ -19,7 +19,7 @@ public:
   virtual ezWindowOutputTargetBase* GetOutputTarget() const = 0;
 
 protected:
-  virtual void Update();
+  virtual void Update() override;
 };
 
 class EZ_GAMEENGINE_DLL ezActorPluginWindowOwner : public ezActorPluginWindow

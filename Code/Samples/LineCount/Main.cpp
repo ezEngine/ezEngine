@@ -228,11 +228,11 @@ public:
 
   virtual ezApplication::ApplicationExecution Run() override
   {
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) || defined(EZ_DOCS)
+
     ezUInt32 uiDirectories = 0;
     ezUInt32 uiFiles = 0;
     ezMap<ezString, FileStats> FileTypeStatistics;
-
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) || defined(EZ_DOCS)
 
     // get a directory iterator for the search directory
     ezFileSystemIterator it;

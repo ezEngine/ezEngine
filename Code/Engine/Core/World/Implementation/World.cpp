@@ -879,7 +879,6 @@ void ezWorld::ProcessComponentsToInitialize()
     {
       pComponent->OnActivated();
 
-      EZ_ASSERT_DEBUG(!m_Data.m_ComponentsToStartSimulation.Contains(hComponent), "Must not be added twice to start simulation list");
       m_Data.m_ComponentsToStartSimulation.PushBack(hComponent);
     }
   }

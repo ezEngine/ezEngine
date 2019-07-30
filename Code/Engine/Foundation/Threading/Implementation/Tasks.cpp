@@ -220,10 +220,11 @@ ezResult ezTaskSystem::CancelTask(ezTask* pTask, ezOnTaskRunning::Enum OnTaskRun
   if (pTask->IsTaskFinished())
     return EZ_SUCCESS;
 
-  EZ_PROFILE_SCOPE("CancelTask");
+  // pTask may actually finish between here and the lock below
+  // in that case we will return failure, as in we had to 'wait' for a task,
+  // but it will be handled correctly
 
-  EZ_ASSERT_DEV(pTask->m_BelongsToGroup.m_pTaskGroup->m_uiGroupCounter == pTask->m_BelongsToGroup.m_uiGroupCounter,
-    "The task to be removed is in an invalid group.");
+  EZ_PROFILE_SCOPE("CancelTask");
 
   // we set the cancel flag, to make sure that tasks that support canceling will terminate asap
   pTask->m_bCancelExecution = true;

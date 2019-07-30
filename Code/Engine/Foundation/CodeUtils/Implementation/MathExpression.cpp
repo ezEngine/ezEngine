@@ -101,6 +101,9 @@ double ezMathExpression::Evaluate(const ezDelegate<double(const ezStringView&)>&
           case InstructionType::Divide:
             evaluationStack.PeekBack() = operand0 / operand1;
             break;
+
+          default:
+            break;
         }
       }
       break;

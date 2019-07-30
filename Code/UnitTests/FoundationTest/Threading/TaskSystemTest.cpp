@@ -349,9 +349,11 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     }
 
     // not a single thread should have finished the execution
-    EZ_TEST_BOOL(iDone == 0);
-    EZ_TEST_BOOL(iStarted > 0);
-    EZ_TEST_BOOL(iStarted <= 4); // should not have managed to start more tasks than there are threads
+    if (EZ_TEST_BOOL_MSG(iDone == 0, "This test can fail when the PC is under heavy load.").Succeeded())
+    {
+      EZ_TEST_BOOL(iStarted > 0);
+      EZ_TEST_BOOL(iStarted <= 4); // should not have managed to start more tasks than there are threads
+    }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Canceling Group")
