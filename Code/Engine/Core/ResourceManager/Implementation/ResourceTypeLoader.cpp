@@ -1,21 +1,17 @@
 #include <CorePCH.h>
 
-#include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <Core/ResourceManager/Resource.h>
 #include <Core/ResourceManager/ResourceTypeLoader.h>
+#include <Foundation/Containers/Blob.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Profiling/Profiling.h>
 
 struct FileResourceLoadData
 {
-  FileResourceLoadData()
-      : m_Reader(&m_Storage)
-  {
-  }
-
-  ezMemoryStreamStorage m_Storage;
-  ezMemoryStreamReader m_Reader;
+  ezBlob m_Storage;
+  ezRawMemoryStreamReader m_Reader;
 };
 
 ezResourceLoadData ezResourceLoaderFromFile::OpenDataStream(const ezResource* pResource)
@@ -41,22 +37,23 @@ ezResourceLoadData ezResourceLoaderFromFile::OpenDataStream(const ezResource* pR
 
   FileResourceLoadData* pData = EZ_DEFAULT_NEW(FileResourceLoadData);
 
-  ezMemoryStreamWriter w(&pData->m_Storage);
+  const ezUInt64 uiFileSize = File.GetFileSize();
+
+  const ezUInt64 uiBlobCapacity = uiFileSize + File.GetFilePathAbsolute().GetElementCount() + 8; // +8 for the string overhead
+  pData->m_Storage.SetCountUninitialized(uiBlobCapacity);
+
+  ezUInt8* pBlobPtr = pData->m_Storage.GetBlobPtr<ezUInt8>().GetPtr();
+
+  ezRawMemoryStreamWriter w(pBlobPtr, uiBlobCapacity);
 
   // write the absolute path to the read file into the memory stream
   w << File.GetFilePathAbsolute();
 
-  ezUInt8 uiTemp[1024];
+  const ezUInt64 uiOffset = w.GetNumWrittenBytes();
 
-  while (true)
-  {
-    const ezUInt64 uiRead = File.ReadBytes(uiTemp, 1024);
-    w.WriteBytes(uiTemp, uiRead);
+  File.ReadBytes(pBlobPtr + uiOffset, uiFileSize);
 
-    if (uiRead < 1024)
-      break;
-  }
-
+  pData->m_Reader.Reset(pBlobPtr, w.GetNumWrittenBytes() + uiFileSize);
   res.m_pDataStream = &pData->m_Reader;
   res.m_pCustomLoaderData = pData;
 
@@ -85,10 +82,7 @@ bool ezResourceLoaderFromFile::IsResourceOutdated(const ezResource* pResource) c
     if (ezFileSystem::GetFileStats(sAbs, stat).Failed())
       return false;
 
-    if (!stat.m_LastModificationTime.Compare(pResource->GetLoadedFileModificationTime(), ezTimestamp::CompareMode::FileTimeEqual))
-      return true;
-
-    return false;
+    return !stat.m_LastModificationTime.Compare(pResource->GetLoadedFileModificationTime(), ezTimestamp::CompareMode::FileTimeEqual);
   }
 
 #endif
@@ -134,4 +128,3 @@ bool ezResourceLoaderFromMemory::IsResourceOutdated(const ezResource* pResource)
 
 
 EZ_STATICLINK_FILE(Core, Core_ResourceManager_Implementation_ResourceTypeLoader);
-
