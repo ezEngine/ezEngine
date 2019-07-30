@@ -248,6 +248,11 @@ public:
   /// \brief Returns the input device that is attached to this window and typically provides mouse / keyboard input.
   ezStandardInputDevice* GetInputDevice() const { return m_pInputDevice.Borrow(); }
 
+  /// \brief Returns a number that can be used as a window number in ezWindowCreationDesc
+  ///
+  /// This number just increments every time an ezWindow is created. It starts at zero.
+  static ezUInt32 GetNextUnusedWindowNumber();
+
 protected:
   /// Description at creation time. ezWindow will not update this in any method other than Initialize.
   /// \remarks That means that messages like Resize will also have no effect on this variable.
@@ -259,5 +264,8 @@ private:
   ezUniquePtr<ezStandardInputDevice> m_pInputDevice;
 
   mutable ezWindowHandle m_WindowHandle = ezWindowHandle();
+
+  /// increased every time an ezWindow is created, to be able to get a free window index easily
+  static ezUInt32 s_uiNextUnusedWindowNumber;
 };
 
