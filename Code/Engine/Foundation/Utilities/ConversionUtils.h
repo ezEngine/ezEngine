@@ -42,6 +42,11 @@ namespace ezConversionUtils
   ///   EZ_FAILURE if the string starts with something that can not be interpreted as an integer.
   EZ_FOUNDATION_DLL ezResult StringToInt(const char* szString, ezInt32& out_Res, const char** out_LastParsePosition = nullptr); // [tested]
 
+  /// \brief Same as StringToInt() but expects the string to be a uint32.
+  ///
+  /// If the parsed value is a valid int but outside the uint32 value range, the function returns EZ_FAILURE.
+  EZ_FOUNDATION_DLL ezResult StringToUInt(const char* szString, ezUInt32& out_Res, const char** out_LastParsePosition = nullptr); // [tested]
+
   /// \brief Same as StringToInt but converts to a 64bit integer value instead.
   EZ_FOUNDATION_DLL ezResult StringToInt64(const char* szString, ezInt64& out_Res,
                                            const char** out_LastParsePosition = nullptr); // [tested]
