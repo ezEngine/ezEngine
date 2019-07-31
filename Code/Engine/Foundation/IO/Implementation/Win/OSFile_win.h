@@ -6,7 +6,6 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/StringConversion.h>
 #include <Foundation/Threading/ThreadUtils.h>
-#include <filesystem>
 
 // Defined in Timestamp_win.h
 ezInt64 FileTimeToEpoch(FILETIME fileTime);
@@ -520,6 +519,9 @@ ezString ezOSFile::GetTempDataFolder(const char* szSubFolder /*= nullptr*/)
 
 const ezString ezOSFile::GetCurrentWorkingDirectory()
 {
-  return std::filesystem::current_path().u8string().c_str();
+  wchar_t tmp[1024];
+  GetCurrentDirectoryW(EZ_ARRAY_SIZE(tmp), tmp);
+
+  return ezStringUtf8(tmp).GetData();
 }
 
