@@ -4,11 +4,6 @@
 
 #include <Foundation/Basics.h>
 
-// Enables adapter functions in various ez-math classes to ease transition of hk-math to ez-math
-// all this functionality will be removed over time when feasible
-#define EZ_HK_MATH_ADAPTERS EZ_ON
-
-
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
 #  define EZ_NAN_ASSERT(obj) (obj)->AssertNotNaN();
 #else
