@@ -19,6 +19,7 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <System/Screen/Screen.h>
+#include <ActorSystem/ActorPluginWindow.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameState, 1, ezRTTINoAllocator);
@@ -148,11 +149,14 @@ void ezGameState::CreateActors()
 
   ConfigureMainWindowInputDevices(pMainWindow.Borrow());
 
-  pActor->m_pWindow = std::move(pMainWindow);
-  pActor->m_pWindowOutputTarget = std::move(pOutput);
+  ezUniquePtr<ezActorPluginWindowOwner> pWindowPlugin = EZ_DEFAULT_NEW(ezActorPluginWindowOwner);
 
-  SetupMainView(pActor->m_pWindowOutputTarget.Borrow(), pActor->m_pWindow->GetClientAreaSize());
+  pWindowPlugin->m_pWindow = std::move(pMainWindow);
+  pWindowPlugin->m_pWindowOutputTarget = std::move(pOutput);
 
+  SetupMainView(pWindowPlugin->m_pWindowOutputTarget.Borrow(), pWindowPlugin->m_pWindow->GetClientAreaSize());
+
+  pActor->AddPlugin(std::move(pWindowPlugin));
 
   ezActorManager::GetSingleton()->AddActor(std::move(pActor));
 }

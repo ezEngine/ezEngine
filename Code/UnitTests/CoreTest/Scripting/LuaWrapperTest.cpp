@@ -251,24 +251,24 @@ EZ_CREATE_SIMPLE_TEST(Scripting, LuaWrapper)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFloatVariable (Global)")
   {
-    EZ_TEST_FLOAT(sMain.GetFloatVariable("nonexisting1", 13), 13, ezMath::BasicType<float>::DefaultEpsilon());
-    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 4.3f, ezMath::BasicType<float>::DefaultEpsilon());
-    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar2", 13), 7.3f, ezMath::BasicType<float>::DefaultEpsilon());
-    EZ_TEST_FLOAT(sMain.GetFloatVariable("nonexisting2", 14), 14, ezMath::BasicType<float>::DefaultEpsilon());
-    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 4.3f, ezMath::BasicType<float>::DefaultEpsilon());
-    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar2", 13), 7.3f, ezMath::BasicType<float>::DefaultEpsilon());
+    EZ_TEST_FLOAT(sMain.GetFloatVariable("nonexisting1", 13), 13, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 4.3f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar2", 13), 7.3f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(sMain.GetFloatVariable("nonexisting2", 14), 14, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 4.3f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar2", 13), 7.3f, ezMath::DefaultEpsilon<float>());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFloatVariable (Table)")
   {
     EZ_TEST_BOOL(sMain.OpenTable("MyTable") == EZ_SUCCESS);
 
-    EZ_TEST_FLOAT(sMain.GetFloatVariable("nonexisting1", 13), 13, ezMath::BasicType<float>::DefaultEpsilon());
-    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 14.3f, ezMath::BasicType<float>::DefaultEpsilon());
-    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar2", 13), 17.3f, ezMath::BasicType<float>::DefaultEpsilon());
-    EZ_TEST_FLOAT(sMain.GetFloatVariable("nonexisting2", 14), 14, ezMath::BasicType<float>::DefaultEpsilon());
-    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 14.3f, ezMath::BasicType<float>::DefaultEpsilon());
-    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar2", 13), 17.3f, ezMath::BasicType<float>::DefaultEpsilon());
+    EZ_TEST_FLOAT(sMain.GetFloatVariable("nonexisting1", 13), 13, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 14.3f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar2", 13), 17.3f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(sMain.GetFloatVariable("nonexisting2", 14), 14, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 14.3f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar2", 13), 17.3f, ezMath::DefaultEpsilon<float>());
 
     sMain.CloseTable();
   }
@@ -345,22 +345,22 @@ EZ_CREATE_SIMPLE_TEST(Scripting, LuaWrapper)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetVariable (float, Global)")
   {
-    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 4.3f, ezMath::BasicType<float>::DefaultEpsilon());
+    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 4.3f, ezMath::DefaultEpsilon<float>());
     sMain.SetVariable("floatvar1", 27.3f);
-    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 27.3f, ezMath::BasicType<float>::DefaultEpsilon());
+    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 27.3f, ezMath::DefaultEpsilon<float>());
     sMain.SetVariable("floatvar1", 4.3f);
-    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 4.3f, ezMath::BasicType<float>::DefaultEpsilon());
+    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 4.3f, ezMath::DefaultEpsilon<float>());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetVariable (float, Table)")
   {
     EZ_TEST_BOOL(sMain.OpenTable("MyTable") == EZ_SUCCESS);
 
-    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 14.3f, ezMath::BasicType<float>::DefaultEpsilon());
+    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 14.3f, ezMath::DefaultEpsilon<float>());
     sMain.SetVariable("floatvar1", 127.3f);
-    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 127.3f, ezMath::BasicType<float>::DefaultEpsilon());
+    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 127.3f, ezMath::DefaultEpsilon<float>());
     sMain.SetVariable("floatvar1", 14.3f);
-    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 14.3f, ezMath::BasicType<float>::DefaultEpsilon());
+    EZ_TEST_FLOAT(sMain.GetFloatVariable("floatvar1", 13), 14.3f, ezMath::DefaultEpsilon<float>());
 
     sMain.CloseTable();
   }

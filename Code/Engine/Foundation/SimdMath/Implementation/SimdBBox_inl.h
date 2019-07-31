@@ -10,8 +10,8 @@ EZ_ALWAYS_INLINE ezSimdBBox::ezSimdBBox(const ezSimdVec4f& vMin, const ezSimdVec
 
 EZ_ALWAYS_INLINE void ezSimdBBox::SetInvalid()
 {
-  m_Min.Set(ezMath::BasicType<float>::MaxValue());
-  m_Max.Set(-ezMath::BasicType<float>::MaxValue());
+  m_Min.Set(ezMath::MaxValue<float>());
+  m_Max.Set(-ezMath::MaxValue<float>());
 }
 
 EZ_ALWAYS_INLINE void ezSimdBBox::SetCenterAndHalfExtents(const ezSimdVec4f& vCenter, const ezSimdVec4f& vHalfExtents)

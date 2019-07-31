@@ -252,11 +252,14 @@ ezResult ezWindow::Destroy()
   LONG_PTR pNull = 0;
   SetWindowLongPtrW(hWindow, GWLP_USERDATA, pNull);
 
-  if (!UnregisterClassW(L"ezWin32Window", GetModuleHandleW(nullptr)))
-  {
-    ezLog::SeriousWarning("UnregisterClassW failed.");
-    Res = EZ_FAILURE;
-  }
+  // actually nobody cares about this, all Window Classes are cleared when the application closes
+  // in the mean time, having multiple windows will just result in errors when one is closed,
+  // as the Window Class must not be in use anymore when one calls UnregisterClassW
+  //if (!UnregisterClassW(L"ezWin32Window", GetModuleHandleW(nullptr)))
+  //{
+  //  ezLog::SeriousWarning("UnregisterClassW failed.");
+  //  Res = EZ_FAILURE;
+  //}
 
   m_bInitialized = false;
   m_WindowHandle = INVALID_WINDOW_HANDLE_VALUE;

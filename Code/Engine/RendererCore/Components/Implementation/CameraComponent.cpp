@@ -546,14 +546,15 @@ void ezCameraComponent::ApplySettingsToView(ezView* pView) const
       ezVec3 vForward = pOwner->GetGlobalDirForwards();
       ezVec3 vUp = pOwner->GetGlobalDirUp();
 
-      ezMat4 viewMatrix;
-      viewMatrix.SetLookAtMatrix(vPosition, vPosition + vForward, vUp);
+      const ezMat4 viewMatrix = ezGraphicsUtils::CreateLookAtViewMatrix(vPosition, vPosition + vForward, vUp);
 
       ezMat4 projectionMatrix = pView->GetProjectionMatrix(ezCameraEye::Left); // todo: Stereo support
       ezMat4 viewProjectionMatrix = projectionMatrix * viewMatrix;
 
       ezFrustum frustum;
-      frustum.SetFrustum(vPosition, viewProjectionMatrix, 10.0f);
+      frustum.SetFrustum(viewProjectionMatrix);
+
+      // TODO: limit far plane to 10 meters
 
       ezDebugRenderer::DrawLineFrustum(GetWorld(), frustum, ezColor::LimeGreen);
     }

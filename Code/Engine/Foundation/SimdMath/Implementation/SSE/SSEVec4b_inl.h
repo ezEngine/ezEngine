@@ -76,21 +76,21 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4b::operator!() const
 }
 
 template <int N>
-EZ_ALWAYS_INLINE bool ezSimdVec4b::AllSet()
+EZ_ALWAYS_INLINE bool ezSimdVec4b::AllSet() const
 {
   const int mask = EZ_BIT(N) - 1;
   return (_mm_movemask_ps(m_v) & mask) == mask;
 }
 
 template <int N>
-EZ_ALWAYS_INLINE bool ezSimdVec4b::AnySet()
+EZ_ALWAYS_INLINE bool ezSimdVec4b::AnySet() const
 {
   const int mask = EZ_BIT(N) - 1;
   return (_mm_movemask_ps(m_v) & mask) != 0;
 }
 
 template <int N>
-EZ_ALWAYS_INLINE bool ezSimdVec4b::NoneSet()
+EZ_ALWAYS_INLINE bool ezSimdVec4b::NoneSet() const
 {
   const int mask = EZ_BIT(N) - 1;
   return (_mm_movemask_ps(m_v) & mask) == 0;

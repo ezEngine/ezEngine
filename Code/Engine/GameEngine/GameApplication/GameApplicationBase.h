@@ -67,15 +67,14 @@ public:
 protected:
   static ezGameApplicationBase* s_pGameApplicationBaseInstance;
 
+  ///@}
+  /// \name Capturing Data
+  ///@{
+
 public:
   /// \brief Does a profiling capture and writes it to disk at ':appdata'
   void TakeProfilingCapture();
 
-  ///@}
-  /// \name Screenshots
-  ///@{
-
-public:
   /// \brief Schedules a screenshot to be taken at the end of the frame.
   ///
   /// After taking a screenshot, StoreScreenshot() is executed, which may decide where to write the result to.
@@ -253,6 +252,8 @@ public:
 
   ezEvent<const ezGameApplicationExecutionEvent&> m_ExecutionEvents;
 
+  ezTime GetFrameTime() const { return m_FrameTime; }
+
 protected:
   virtual bool IsGameUpdateEnabled() const { return true; }
 
@@ -264,6 +265,8 @@ protected:
   virtual void Run_UpdatePlugins();
   virtual void Run_FinishFrame();
 
+  void UpdateFrameTime();
+
+  ezTime m_FrameTime;
   ///@}
 };
-

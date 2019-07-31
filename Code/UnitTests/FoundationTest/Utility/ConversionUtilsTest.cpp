@@ -140,6 +140,133 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
     EZ_TEST_INT(iRes, 42);
   }
 
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "StringToUInt")
+  {
+    const char* szString = "1a";
+    const char* szResultPos = nullptr;
+
+    ezUInt32 uiRes = 42;
+    szString = "01234";
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt(szString, uiRes, &szResultPos) == EZ_SUCCESS);
+    EZ_TEST_INT(uiRes, 1234);
+    EZ_TEST_BOOL(szResultPos == szString + 5);
+
+    uiRes = 42;
+    szString = "0";
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt(szString, uiRes, &szResultPos) == EZ_SUCCESS);
+    EZ_TEST_INT(uiRes, 0);
+    EZ_TEST_BOOL(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));
+
+    uiRes = 42;
+    szString = "0000";
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt(szString, uiRes, &szResultPos) == EZ_SUCCESS);
+    EZ_TEST_INT(uiRes, 0);
+    EZ_TEST_BOOL(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));
+
+    uiRes = 42;
+    szString = "-999999";
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt(szString, uiRes, &szResultPos) == EZ_FAILURE);
+    EZ_TEST_INT(uiRes, 42);
+    EZ_TEST_BOOL(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));
+
+    uiRes = 42;
+    szString = "-+999999";
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt(szString, uiRes, &szResultPos) == EZ_FAILURE);
+    EZ_TEST_INT(uiRes, 42);
+    EZ_TEST_BOOL(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));
+
+    uiRes = 42;
+    szString = "--999999";
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt(szString, uiRes, &szResultPos) == EZ_SUCCESS);
+    EZ_TEST_INT(uiRes, 999999);
+    EZ_TEST_BOOL(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));
+
+    uiRes = 42;
+    szString = "++---+--+--999999";
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt(szString, uiRes, &szResultPos) == EZ_FAILURE);
+    EZ_TEST_INT(uiRes, 42);
+    EZ_TEST_BOOL(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));
+
+    uiRes = 42;
+    szString = "++--+--+--999999";
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt(szString, uiRes, &szResultPos) == EZ_SUCCESS);
+    EZ_TEST_INT(uiRes, 999999);
+    EZ_TEST_BOOL(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));
+
+    uiRes = 42;
+    szString = "123+456";
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt(szString, uiRes, &szResultPos) == EZ_SUCCESS);
+    EZ_TEST_INT(uiRes, 123);
+    EZ_TEST_BOOL(szResultPos == szString + 3);
+
+    uiRes = 42;
+    szString = "123_456";
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt(szString, uiRes, &szResultPos) == EZ_SUCCESS);
+    EZ_TEST_INT(uiRes, 123);
+    EZ_TEST_BOOL(szResultPos == szString + 3);
+
+    uiRes = 42;
+    szString = "-123-456";
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt(szString, uiRes, &szResultPos) == EZ_FAILURE);
+    EZ_TEST_INT(uiRes, 42);
+    EZ_TEST_BOOL(szResultPos == szString + 4);
+
+
+    uiRes = 42;
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt(nullptr, uiRes) == EZ_FAILURE);
+    EZ_TEST_INT(uiRes, 42);
+
+    uiRes = 42;
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt("", uiRes) == EZ_FAILURE);
+    EZ_TEST_INT(uiRes, 42);
+
+    uiRes = 42;
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt("a", uiRes) == EZ_FAILURE);
+    EZ_TEST_INT(uiRes, 42);
+
+    uiRes = 42;
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt("a15", uiRes) == EZ_FAILURE);
+    EZ_TEST_INT(uiRes, 42);
+
+    uiRes = 42;
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt("+", uiRes) == EZ_FAILURE);
+    EZ_TEST_INT(uiRes, 42);
+
+    uiRes = 42;
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt("-", uiRes) == EZ_FAILURE);
+    EZ_TEST_INT(uiRes, 42);
+
+    uiRes = 42;
+    szString = "1a";
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt(szString, uiRes, &szResultPos) == EZ_SUCCESS);
+    EZ_TEST_INT(uiRes, 1);
+    EZ_TEST_BOOL(szResultPos == szString + 1);
+
+    uiRes = 42;
+    szString = "0 23";
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt(szString, uiRes, &szResultPos) == EZ_SUCCESS);
+    EZ_TEST_INT(uiRes, 0);
+    EZ_TEST_BOOL(szResultPos == szString + 1);
+
+    // overflow check
+
+    uiRes = 42;
+    szString = "0004294967295"; // valid
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt(szString, uiRes, &szResultPos) == EZ_SUCCESS);
+    EZ_TEST_INT(uiRes, 4294967295u);
+    EZ_TEST_BOOL(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));
+
+    uiRes = 42;
+    szString = "0004294967296"; // invalid
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt(szString, uiRes, &szResultPos) == EZ_FAILURE);
+    EZ_TEST_INT(uiRes, 42);
+
+    uiRes = 42;
+    szString = "-1"; // invalid
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt(szString, uiRes, &szResultPos) == EZ_FAILURE);
+    EZ_TEST_INT(uiRes, 42);
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "StringToInt64")
   {
     // overflow check

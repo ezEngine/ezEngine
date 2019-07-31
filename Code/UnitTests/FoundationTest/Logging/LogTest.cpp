@@ -6,57 +6,64 @@
 #include <Foundation/Logging/HTMLWriter.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
+#include <Foundation/Threading/Thread.h>
+#include <TestFramework/Utilities/TestLogInterface.h>
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Logging);
 
-class ezLogTestLogInterface : public ezLogInterface
+namespace
 {
-public:
-  virtual void HandleLogMessage(const ezLoggingEventData& le) override
+
+  class LogTestLogInterface : public ezLogInterface
   {
-    switch (le.m_EventType)
+  public:
+    virtual void HandleLogMessage(const ezLoggingEventData& le) override
     {
-      case ezLogMsgType::BeginGroup:
-        m_Result.Append(">", le.m_szTag, " ", le.m_szText, "\n");
-        break;
-      case ezLogMsgType::EndGroup:
-        m_Result.Append("<", le.m_szTag, " ", le.m_szText, "\n");
-        break;
-      case ezLogMsgType::ErrorMsg:
-        m_Result.Append("E:", le.m_szTag, " ", le.m_szText, "\n");
-        break;
-      case ezLogMsgType::SeriousWarningMsg:
-        m_Result.Append("SW:", le.m_szTag, " ", le.m_szText, "\n");
-        break;
-      case ezLogMsgType::WarningMsg:
-        m_Result.Append("W:", le.m_szTag, " ", le.m_szText, "\n");
-        break;
-      case ezLogMsgType::SuccessMsg:
-        m_Result.Append("S:", le.m_szTag, " ", le.m_szText, "\n");
-        break;
-      case ezLogMsgType::InfoMsg:
-        m_Result.Append("I:", le.m_szTag, " ", le.m_szText, "\n");
-        break;
-      case ezLogMsgType::DevMsg:
-        m_Result.Append("E:", le.m_szTag, " ", le.m_szText, "\n");
-        break;
-      case ezLogMsgType::DebugMsg:
-        m_Result.Append("D:", le.m_szTag, " ", le.m_szText, "\n");
-        break;
+      switch (le.m_EventType)
+      {
+        case ezLogMsgType::BeginGroup:
+          m_Result.Append(">", le.m_szTag, " ", le.m_szText, "\n");
+          break;
+        case ezLogMsgType::EndGroup:
+          m_Result.Append("<", le.m_szTag, " ", le.m_szText, "\n");
+          break;
+        case ezLogMsgType::ErrorMsg:
+          m_Result.Append("E:", le.m_szTag, " ", le.m_szText, "\n");
+          break;
+        case ezLogMsgType::SeriousWarningMsg:
+          m_Result.Append("SW:", le.m_szTag, " ", le.m_szText, "\n");
+          break;
+        case ezLogMsgType::WarningMsg:
+          m_Result.Append("W:", le.m_szTag, " ", le.m_szText, "\n");
+          break;
+        case ezLogMsgType::SuccessMsg:
+          m_Result.Append("S:", le.m_szTag, " ", le.m_szText, "\n");
+          break;
+        case ezLogMsgType::InfoMsg:
+          m_Result.Append("I:", le.m_szTag, " ", le.m_szText, "\n");
+          break;
+        case ezLogMsgType::DevMsg:
+          m_Result.Append("E:", le.m_szTag, " ", le.m_szText, "\n");
+          break;
+        case ezLogMsgType::DebugMsg:
+          m_Result.Append("D:", le.m_szTag, " ", le.m_szText, "\n");
+          break;
 
-      default:
-        EZ_REPORT_FAILURE("Invalid msg type");
-        break;
+        default:
+          EZ_REPORT_FAILURE("Invalid msg type");
+          break;
+      }
     }
-  }
 
-  ezStringBuilder m_Result;
-};
+    ezStringBuilder m_Result;
+  };
+
+} // namespace
 
 EZ_CREATE_SIMPLE_TEST(Logging, Log)
 {
-  ezLogTestLogInterface log;
-  ezLogTestLogInterface log2;
+  LogTestLogInterface log;
+  LogTestLogInterface log2;
   ezLogSystemScope logScope(&log);
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Output")
@@ -195,6 +202,46 @@ E: Remember when you tried to kill me twice?\n\
 ";
 
   EZ_TEST_STRING(szResult2, szExpected2);
+}
 
+EZ_CREATE_SIMPLE_TEST(Logging, GlobalTestLog)
+{
   ezLog::GetThreadLocalLogSystem()->SetLogLevel(ezLogMsgType::All);
+
+  {
+    ezTestLogInterface log;
+    ezTestLogSystemScope scope(&log, true);
+
+    log.ExpectMessage("managed to break", ezLogMsgType::ErrorMsg);
+    log.ExpectMessage("my heart", ezLogMsgType::WarningMsg);
+    log.ExpectMessage("see you", ezLogMsgType::WarningMsg, 10);
+
+    {
+      class LogThread : public ezThread
+      {
+      public:
+        virtual ezUInt32 Run() override
+        {
+          ezLog::Warning("I see you!");
+          ezLog::Debug("Test debug");
+          return 0;
+        }
+      };
+
+      LogThread thread[10];
+
+      for (ezUInt32 i = 0; i < 10; ++i)
+      {
+        thread[i].Start();
+      }
+
+      ezLog::Error("The only thing you managed to break so far");
+      ezLog::Warning("is my heart");
+
+      for (ezUInt32 i = 0; i < 10; ++i)
+      {
+        thread[i].Join();
+      }
+    }
+  }
 }

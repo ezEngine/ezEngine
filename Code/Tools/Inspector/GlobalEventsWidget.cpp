@@ -5,6 +5,7 @@
 #include <Inspector/GlobalEventsWidget.moc.h>
 #include <MainWindow.moc.h>
 #include <qlistwidget.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 
 ezQtGlobalEventsWidget* ezQtGlobalEventsWidget::s_pWidget = nullptr;
 
@@ -80,7 +81,7 @@ void ezQtGlobalEventsWidget::ProcessTelemetry(void* pUnuseed)
 
 void ezQtGlobalEventsWidget::UpdateTable(bool bRecreate)
 {
-  TableEvents->blockSignals(true);
+  ezQtScopedUpdatesDisabled _1(TableEvents);
 
   if (bRecreate)
   {
@@ -147,6 +148,4 @@ void ezQtGlobalEventsWidget::UpdateTable(bool bRecreate)
       ++iRow;
     }
   }
-
-  TableEvents->blockSignals(false);
 }

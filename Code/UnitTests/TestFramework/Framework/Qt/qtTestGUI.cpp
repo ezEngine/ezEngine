@@ -67,8 +67,8 @@ ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& testFramework)
   addDockWidget(Qt::RightDockWidgetArea, m_pMessageLogDock);
 
   // connect custom context menu
-  connect(testTreeView, SIGNAL(customContextMenuRequested(const QPoint&)), this,
-    SLOT(onTestTreeViewCustomContextMenuRequested(const QPoint&)));
+  connect(
+    testTreeView, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(onTestTreeViewCustomContextMenuRequested(const QPoint&)));
 
   // connect current row changed signal
   QItemSelectionModel* pSelectionModel = testTreeView->selectionModel();
@@ -78,9 +78,10 @@ ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& testFramework)
   // Sync actions with test framework settings
   TestSettings settings = m_pTestFramework->GetSettings();
   this->actionAssertOnTestFail->setChecked(settings.m_bAssertOnTestFail);
-  this->actionOpenHTMLOutput->setChecked(settings.m_bOpenHtmlOutput);
+  this->actionOpenHTMLOutput->setChecked(settings.m_bOpenHtmlOutputOnError);
   this->actionKeepConsoleOpen->setChecked(settings.m_bKeepConsoleOpen);
   this->actionShowMessageBox->setChecked(settings.m_bShowMessageBox);
+  this->actionDisableSuccessfulTests->setChecked(settings.m_bAutoDisableSuccessfulTests);
 
   // Hide the Windows console
 #  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
@@ -145,7 +146,7 @@ void ezQtTestGUI::on_actionAssertOnTestFail_triggered(bool bChecked)
 void ezQtTestGUI::on_actionOpenHTMLOutput_triggered(bool bChecked)
 {
   TestSettings settings = m_pTestFramework->GetSettings();
-  settings.m_bOpenHtmlOutput = bChecked;
+  settings.m_bOpenHtmlOutputOnError = bChecked;
   m_pTestFramework->SetSettings(settings);
 }
 
@@ -170,6 +171,12 @@ void ezQtTestGUI::on_actionShowMessageBox_triggered(bool bChecked)
   m_pTestFramework->SetSettings(settings);
 }
 
+void ezQtTestGUI::on_actionDisableSuccessfulTests_triggered(bool bChecked)
+{
+  TestSettings settings = m_pTestFramework->GetSettings();
+  settings.m_bAutoDisableSuccessfulTests = bChecked;
+  m_pTestFramework->SetSettings(settings);
+}
 
 void ezQtTestGUI::on_actionSaveTestSettingsAs_triggered()
 {
@@ -189,6 +196,9 @@ void ezQtTestGUI::on_actionRunTests_triggered()
   // while already running tests  so we early out here.
   if (m_pTestFramework->GetTestsRunning())
     return;
+
+  m_uiTestsEnabledCount = m_pTestFramework->GetTestEnabledCount();
+  m_uiSubTestsEnabledCount = 0;
 
   m_pTestFramework->AutoSaveTestOrder();
   m_pModel->InvalidateAll();
@@ -340,6 +350,18 @@ void ezQtTestGUI::onTestFrameworkTestResultReceived(qint32 iTestIndex, qint32 iS
   QModelIndex TestModelIndex = m_pModel->index(iTestIndex, 0);
   QModelIndex LastSubTest = m_pModel->index(m_pModel->rowCount(TestModelIndex) - 1, 0, TestModelIndex);
 
+  if (iTestIndex != -1 && m_uiSubTestsEnabledCount == 0)
+  {
+    // started a new main test
+    m_uiSubTestsEnabledCount = m_pTestFramework->GetSubTestEnabledCount(iTestIndex);
+  }
+
+  if (iSubTestIndex == -1)
+  {
+    // main test was just finished, reset the sub-test count
+    m_uiSubTestsEnabledCount = 0;
+  }
+
   if (iSubTestIndex != -1)
   {
     bool bExpanded = testTreeView->isExpanded(TestModelIndex);
@@ -358,7 +380,7 @@ void ezQtTestGUI::onTestFrameworkTestResultReceived(qint32 iTestIndex, qint32 iS
   }
 
   // Update status bar
-  const ezUInt32 uiTestCount = m_pTestFramework->GetTestEnabledCount();
+  const ezUInt32 uiTestCount = m_uiTestsEnabledCount;
   const ezUInt32 uiFailed = m_pTestFramework->GetTestsFailedCount();
   const ezUInt32 uiPassed = m_pTestFramework->GetTestsPassedCount();
   const ezUInt32 uiErrors = m_pTestFramework->GetTotalErrorCount();
@@ -370,7 +392,7 @@ void ezQtTestGUI::onTestFrameworkTestResultReceived(qint32 iTestIndex, qint32 iS
   {
     fSubTestPercentage =
       (float)m_pTestFramework->GetTestResult().GetSubTestCount(m_pTestFramework->GetCurrentTestIndex(), ezTestResultQuery::Executed) /
-      (float)m_pTestFramework->GetSubTestEnabledCount(m_pTestFramework->GetCurrentTestIndex());
+      (float)m_uiSubTestsEnabledCount;
   }
 
   float fProgress = 100.0f * (fSubTestPercentage + uiFailed + uiPassed) / uiTestCount;
@@ -476,6 +498,13 @@ void ezQtTestGUI::on_actionOpenOutputFolder_triggered()
   const char* szDir = m_pTestFramework->GetAbsOutputPath();
 
   OpenInExplorer(szDir);
+}
+
+void ezQtTestGUI::on_actionOpenHTMLFile_triggered()
+{
+  std::string sOutputFile = std::string(ezTestFramework::GetInstance()->GetAbsOutputPath()) + "/UnitTestsLog.htm";
+
+  QDesktopServices::openUrl(QUrl::fromLocalFile(sOutputFile.c_str()));
 }
 
 ////////////////////////////////////////////////////////////////////////

@@ -713,8 +713,8 @@ static void DownScaleFast(const ezImageView& image, ezImage& out_Result, ezUInt3
 
   out_Result.ResetAndAlloc(outHeader);
 
-  EZ_ASSERT_DEBUG(intermediate.GetRowPitch() < ezMath::BasicType<ezUInt32>::MaxValue(), "Row pitch exceeds ezUInt32 max value.");
-  EZ_ASSERT_DEBUG(out_Result.GetRowPitch() < ezMath::BasicType<ezUInt32>::MaxValue(), "Row pitch exceeds ezUInt32 max value.");
+  EZ_ASSERT_DEBUG(intermediate.GetRowPitch() < ezMath::MaxValue<ezUInt32>(), "Row pitch exceeds ezUInt32 max value.");
+  EZ_ASSERT_DEBUG(out_Result.GetRowPitch() < ezMath::MaxValue<ezUInt32>(), "Row pitch exceeds ezUInt32 max value.");
 
   for (ezUInt32 arrayIndex = 0; arrayIndex < numArrayElements; arrayIndex++)
   {
@@ -1417,7 +1417,7 @@ ezResult ezImageUtils::CreateCubemapFromSingleFile(ezImage& dstImg, const ezImag
       const ezUInt64 faceRowPitch = dstImg.GetRowPitch() / sizeof(ezColor);
 
       const ezColor* srcData = srcImg.GetPixelPointer<ezColor>();
-      const float InvPi = 1.0f / ezMath::BasicType<float>::Pi();
+      const float InvPi = 1.0f / ezMath::Pi<float>();
 
       for (ezUInt32 faceIndex = 0; faceIndex < 6; faceIndex++)
       {
@@ -1432,12 +1432,12 @@ ezResult ezImageUtils::CreateCubemapFromSingleFile(ezImage& dstImg, const ezImag
             const ezVec3 modelSpacePos = faceCorners[faceIndex] + dstU * faceAxis[faceIndex * 2] + dstV * faceAxis[faceIndex * 2 + 1];
             const ezVec3 modelSpaceDir = modelSpacePos.GetNormalized();
 
-            const float phi = ezMath::ATan2(modelSpaceDir.x, modelSpaceDir.z).GetRadian() + ezMath::BasicType<float>::Pi();
+            const float phi = ezMath::ATan2(modelSpaceDir.x, modelSpaceDir.z).GetRadian() + ezMath::Pi<float>();
             const float r = ezMath::Sqrt(modelSpaceDir.x * modelSpaceDir.x + modelSpaceDir.z * modelSpaceDir.z);
-            const float theta = ezMath::ATan2(modelSpaceDir.y, r).GetRadian() + ezMath::BasicType<float>::Pi() * 0.5f;
+            const float theta = ezMath::ATan2(modelSpaceDir.y, r).GetRadian() + ezMath::Pi<float>() * 0.5f;
 
-            EZ_ASSERT_DEBUG(phi >= 0.0f && phi <= 2.0f * ezMath::BasicType<float>::Pi(), "");
-            EZ_ASSERT_DEBUG(theta >= 0.0f && theta <= ezMath::BasicType<float>::Pi(), "");
+            EZ_ASSERT_DEBUG(phi >= 0.0f && phi <= 2.0f * ezMath::Pi<float>(), "");
+            EZ_ASSERT_DEBUG(theta >= 0.0f && theta <= ezMath::Pi<float>(), "");
 
             const float srcU = phi * InvPi * fHalfSrcWidth;
             const float srcV = (1.0f - theta * InvPi) * fSrcHeight;

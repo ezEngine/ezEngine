@@ -1,7 +1,5 @@
 #include <GameEnginePCH.h>
 
-#include <GameEngine/ActorSystem/Actor.h>
-#include <GameEngine/ActorSystem/ActorManager.h>
 #include <Core/Input/InputManager.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/World/World.h>
@@ -14,6 +12,9 @@
 #include <Foundation/Memory/FrameAllocator.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Time/DefaultTimeStepSmoothing.h>
+#include <GameEngine/ActorSystem/Actor.h>
+#include <GameEngine/ActorSystem/ActorManager.h>
+#include <GameEngine/ActorSystem/ActorPluginWindow.h>
 #include <GameEngine/Configuration/InputConfig.h>
 #include <GameEngine/Console/Console.h>
 #include <GameEngine/GameApplication/GameApplication.h>
@@ -155,8 +156,13 @@ void ezGameApplication::Run_WorldUpdateAndRender()
 
     for (ezActor* pActor : allActors)
     {
+      ezActorPluginWindow* pWindowPlugin = pActor->GetPlugin<ezActorPluginWindow>();
+
+      if (pWindowPlugin == nullptr)
+        continue;
+
       // Ignore actors without an output target
-      if (auto pOutput = pActor->m_pWindowOutputTarget.Borrow())
+      if (auto pOutput = pWindowPlugin->GetOutputTarget())
       {
         // if we have multiple actors, append the actor name to each screenshot
         ezStringBuilder ctxt;
@@ -167,9 +173,9 @@ void ezGameApplication::Run_WorldUpdateAndRender()
 
         ExecuteTakeScreenshot(pOutput, ctxt);
 
-        if (pActor->m_pWindow)
+        if (pWindowPlugin->GetWindow())
         {
-          ExecuteFrameCapture(pActor->m_pWindow->GetNativeWindowHandle(), ctxt);
+          ExecuteFrameCapture(pWindowPlugin->GetWindow()->GetNativeWindowHandle(), ctxt);
         }
 
         pOutput->Present(CVarEnableVSync);

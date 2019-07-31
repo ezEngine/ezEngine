@@ -11,7 +11,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
   {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-    if (ezMath::BasicType<ezVec3T::ComponentType>::SupportsNaN())
+    if (ezMath::SupportsNaN<ezVec3T::ComponentType>())
     {
       // In debug the default constructor initializes everything with NaN.
       ezVec3T vDefCtor;
@@ -80,49 +80,49 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
 
     EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetLength")
     {
-      EZ_TEST_FLOAT(vOp1.GetLength(), 6.0f, ezMath::BasicType<ezMathTestType>::SmallEpsilon());
+      EZ_TEST_FLOAT(vOp1.GetLength(), 6.0f, ezMath::SmallEpsilon<ezMathTestType>());
     }
 
     EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetLength")
     {
-      ezVec3T vSetLength = vOp1.GetNormalized() * ezMath::BasicType<ezMathTestType>::DefaultEpsilon();
-      EZ_TEST_BOOL(vSetLength.SetLength(4.0f, ezMath::BasicType<ezMathTestType>::LargeEpsilon()) == EZ_FAILURE);
+      ezVec3T vSetLength = vOp1.GetNormalized() * ezMath::DefaultEpsilon<ezMathTestType>();
+      EZ_TEST_BOOL(vSetLength.SetLength(4.0f, ezMath::LargeEpsilon<ezMathTestType>()) == EZ_FAILURE);
       EZ_TEST_BOOL(vSetLength == ezVec3T::ZeroVector());
       vSetLength = vOp1.GetNormalized() * (ezMathTestType)0.001;
-      EZ_TEST_BOOL(vSetLength.SetLength(4.0f, (ezMathTestType)ezMath::BasicType<ezMathTestType>::DefaultEpsilon()) == EZ_SUCCESS);
-      EZ_TEST_FLOAT(vSetLength.GetLength(), 4.0f, ezMath::BasicType<ezMathTestType>::SmallEpsilon());
+      EZ_TEST_BOOL(vSetLength.SetLength(4.0f, (ezMathTestType)ezMath::DefaultEpsilon<ezMathTestType>()) == EZ_SUCCESS);
+      EZ_TEST_FLOAT(vSetLength.GetLength(), 4.0f, ezMath::SmallEpsilon<ezMathTestType>());
     }
 
     EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetLengthSquared")
     {
-      EZ_TEST_FLOAT(vOp1.GetLengthSquared(), 36.0f, ezMath::BasicType<ezMathTestType>::SmallEpsilon());
+      EZ_TEST_FLOAT(vOp1.GetLengthSquared(), 36.0f, ezMath::SmallEpsilon<ezMathTestType>());
     }
 
     EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetLengthAndNormalize")
     {
       ezVec3T vLengthAndNorm = vOp1;
       ezMathTestType fLength = vLengthAndNorm.GetLengthAndNormalize();
-      EZ_TEST_FLOAT(vLengthAndNorm.GetLength(), 1.0f, ezMath::BasicType<ezMathTestType>::SmallEpsilon());
-      EZ_TEST_FLOAT(fLength, 6.0f, ezMath::BasicType<ezMathTestType>::SmallEpsilon());
+      EZ_TEST_FLOAT(vLengthAndNorm.GetLength(), 1.0f, ezMath::SmallEpsilon<ezMathTestType>());
+      EZ_TEST_FLOAT(fLength, 6.0f, ezMath::SmallEpsilon<ezMathTestType>());
       EZ_TEST_FLOAT(vLengthAndNorm.x * vLengthAndNorm.x + vLengthAndNorm.y * vLengthAndNorm.y + vLengthAndNorm.z * vLengthAndNorm.z, 1.0f,
-                    ezMath::BasicType<ezMathTestType>::SmallEpsilon());
-      EZ_TEST_BOOL(vLengthAndNorm.IsNormalized(ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
+                    ezMath::SmallEpsilon<ezMathTestType>());
+      EZ_TEST_BOOL(vLengthAndNorm.IsNormalized(ezMath::SmallEpsilon<ezMathTestType>()));
     }
 
     EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetNormalized")
     {
       ezVec3T vGetNorm = vOp1.GetNormalized();
       EZ_TEST_FLOAT(vGetNorm.x * vGetNorm.x + vGetNorm.y * vGetNorm.y + vGetNorm.z * vGetNorm.z, 1.0f,
-                    ezMath::BasicType<ezMathTestType>::SmallEpsilon());
-      EZ_TEST_BOOL(vGetNorm.IsNormalized(ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
+                    ezMath::SmallEpsilon<ezMathTestType>());
+      EZ_TEST_BOOL(vGetNorm.IsNormalized(ezMath::SmallEpsilon<ezMathTestType>()));
     }
 
     EZ_TEST_BLOCK(ezTestBlock::Enabled, "Normalize")
     {
       ezVec3T vNorm = vOp1;
       vNorm.Normalize();
-      EZ_TEST_FLOAT(vNorm.x * vNorm.x + vNorm.y * vNorm.y + vNorm.z * vNorm.z, 1.0f, ezMath::BasicType<ezMathTestType>::SmallEpsilon());
-      EZ_TEST_BOOL(vNorm.IsNormalized(ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
+      EZ_TEST_FLOAT(vNorm.x * vNorm.x + vNorm.y * vNorm.y + vNorm.z * vNorm.z, 1.0f, ezMath::SmallEpsilon<ezMathTestType>());
+      EZ_TEST_BOOL(vNorm.IsNormalized(ezMath::SmallEpsilon<ezMathTestType>()));
     }
 
     EZ_TEST_BLOCK(ezTestBlock::Enabled, "NormalizeIfNotZero")
@@ -130,12 +130,12 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
       ezVec3T vNorm = vOp1;
       vNorm.Normalize();
 
-      ezVec3T vNormCond = vNorm * ezMath::BasicType<ezMathTestType>::DefaultEpsilon();
-      EZ_TEST_BOOL(vNormCond.NormalizeIfNotZero(vOp1, ezMath::BasicType<ezMathTestType>::LargeEpsilon()) == EZ_FAILURE);
+      ezVec3T vNormCond = vNorm * ezMath::DefaultEpsilon<ezMathTestType>();
+      EZ_TEST_BOOL(vNormCond.NormalizeIfNotZero(vOp1, ezMath::LargeEpsilon<ezMathTestType>()) == EZ_FAILURE);
       EZ_TEST_BOOL(vNormCond == vOp1);
-      vNormCond = vNorm * ezMath::BasicType<ezMathTestType>::DefaultEpsilon();
-      EZ_TEST_BOOL(vNormCond.NormalizeIfNotZero(vOp1, ezMath::BasicType<ezMathTestType>::SmallEpsilon()) == EZ_SUCCESS);
-      EZ_TEST_VEC3(vNormCond, vNorm, ezMath::BasicType<ezVec3T::ComponentType>::DefaultEpsilon());
+      vNormCond = vNorm * ezMath::DefaultEpsilon<ezMathTestType>();
+      EZ_TEST_BOOL(vNormCond.NormalizeIfNotZero(vOp1, ezMath::SmallEpsilon<ezMathTestType>()) == EZ_SUCCESS);
+      EZ_TEST_VEC3(vNormCond, vNorm, ezMath::DefaultEpsilon<ezVec3T::ComponentType>());
     }
 
     EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsZero")
@@ -169,9 +169,9 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
       }
     }
 
-    if (ezMath::BasicType<ezMathTestType>::SupportsNaN())
+    if (ezMath::SupportsNaN<ezMathTestType>())
     {
-      ezMathTestType fNaN = ezMath::BasicType<ezMathTestType>::GetNaN();
+      ezMathTestType fNaN = ezMath::NaN<ezMathTestType>();
       const ezVec3T nanArray[3] = {ezVec3T(fNaN, 0.0f, 0.0f), ezVec3T(0.0f, fNaN, 0.0f), ezVec3T(0.0f, 0.0f, fNaN)};
 
       EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsNaN")
@@ -190,8 +190,8 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
           EZ_TEST_BOOL(!nanArray[i].IsValid());
           EZ_TEST_BOOL(compArray[i].IsValid());
 
-          EZ_TEST_BOOL(!(compArray[i] * ezMath::BasicType<ezMathTestType>::GetInfinity()).IsValid());
-          EZ_TEST_BOOL(!(compArray[i] * -ezMath::BasicType<ezMathTestType>::GetInfinity()).IsValid());
+          EZ_TEST_BOOL(!(compArray[i] * ezMath::Infinity<ezMathTestType>()).IsValid());
+          EZ_TEST_BOOL(!(compArray[i] * -ezMath::Infinity<ezMathTestType>()).IsValid());
         }
       }
     }
@@ -206,22 +206,22 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
     EZ_TEST_BOOL(vOp1.IsIdentical(vOp1));
     for (int i = 0; i < 3; ++i)
     {
-      EZ_TEST_BOOL(!vOp1.IsIdentical(vOp1 + (ezMathTestType)ezMath::BasicType<ezMathTestType>::SmallEpsilon() * compArray[i]));
-      EZ_TEST_BOOL(!vOp1.IsIdentical(vOp1 - (ezMathTestType)ezMath::BasicType<ezMathTestType>::SmallEpsilon() * compArray[i]));
+      EZ_TEST_BOOL(!vOp1.IsIdentical(vOp1 + (ezMathTestType)ezMath::SmallEpsilon<ezMathTestType>() * compArray[i]));
+      EZ_TEST_BOOL(!vOp1.IsIdentical(vOp1 - (ezMathTestType)ezMath::SmallEpsilon<ezMathTestType>() * compArray[i]));
     }
 
     // IsEqual
     EZ_TEST_BOOL(vOp1.IsEqual(vOp1, 0.0f));
     for (int i = 0; i < 3; ++i)
     {
-      EZ_TEST_BOOL(vOp1.IsEqual(vOp1 + ezMath::BasicType<ezMathTestType>::SmallEpsilon() * compArray[i],
-                                2 * ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
-      EZ_TEST_BOOL(vOp1.IsEqual(vOp1 - ezMath::BasicType<ezMathTestType>::SmallEpsilon() * compArray[i],
-                                2 * ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
-      EZ_TEST_BOOL(vOp1.IsEqual(vOp1 + ezMath::BasicType<ezMathTestType>::DefaultEpsilon() * compArray[i],
-                                2 * ezMath::BasicType<ezMathTestType>::DefaultEpsilon()));
-      EZ_TEST_BOOL(vOp1.IsEqual(vOp1 - ezMath::BasicType<ezMathTestType>::DefaultEpsilon() * compArray[i],
-                                2 * ezMath::BasicType<ezMathTestType>::DefaultEpsilon()));
+      EZ_TEST_BOOL(vOp1.IsEqual(vOp1 + ezMath::SmallEpsilon<ezMathTestType>() * compArray[i],
+                                2 * ezMath::SmallEpsilon<ezMathTestType>()));
+      EZ_TEST_BOOL(vOp1.IsEqual(vOp1 - ezMath::SmallEpsilon<ezMathTestType>() * compArray[i],
+                                2 * ezMath::SmallEpsilon<ezMathTestType>()));
+      EZ_TEST_BOOL(vOp1.IsEqual(vOp1 + ezMath::DefaultEpsilon<ezMathTestType>() * compArray[i],
+                                2 * ezMath::DefaultEpsilon<ezMathTestType>()));
+      EZ_TEST_BOOL(vOp1.IsEqual(vOp1 - ezMath::DefaultEpsilon<ezMathTestType>() * compArray[i],
+                                2 * ezMath::DefaultEpsilon<ezMathTestType>()));
     }
 
     // operator-
@@ -231,64 +231,64 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
     // operator+= (ezVec3T)
     ezVec3T vPlusAssign = vOp1;
     vPlusAssign += vOp2;
-    EZ_TEST_BOOL(vPlusAssign.IsEqual(ezVec3T(-2.0f, 0.5f, -7.0f), ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
+    EZ_TEST_BOOL(vPlusAssign.IsEqual(ezVec3T(-2.0f, 0.5f, -7.0f), ezMath::SmallEpsilon<ezMathTestType>()));
 
     // operator-= (ezVec3T)
     ezVec3T vMinusAssign = vOp1;
     vMinusAssign -= vOp2;
-    EZ_TEST_BOOL(vMinusAssign.IsEqual(ezVec3T(-6.0f, -0.1f, -7.0f), ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
+    EZ_TEST_BOOL(vMinusAssign.IsEqual(ezVec3T(-6.0f, -0.1f, -7.0f), ezMath::SmallEpsilon<ezMathTestType>()));
 
     // operator*= (float)
     ezVec3T vMulFloat = vOp1;
     vMulFloat *= 2.0f;
-    EZ_TEST_BOOL(vMulFloat.IsEqual(ezVec3T(-8.0f, 0.4f, -14.0f), ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
+    EZ_TEST_BOOL(vMulFloat.IsEqual(ezVec3T(-8.0f, 0.4f, -14.0f), ezMath::SmallEpsilon<ezMathTestType>()));
     vMulFloat *= 0.0f;
-    EZ_TEST_BOOL(vMulFloat.IsEqual(ezVec3T::ZeroVector(), ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
+    EZ_TEST_BOOL(vMulFloat.IsEqual(ezVec3T::ZeroVector(), ezMath::SmallEpsilon<ezMathTestType>()));
 
     // operator/= (float)
     ezVec3T vDivFloat = vOp1;
     vDivFloat /= 2.0f;
-    EZ_TEST_BOOL(vDivFloat.IsEqual(ezVec3T(-2.0f, 0.1f, -3.5f), ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
+    EZ_TEST_BOOL(vDivFloat.IsEqual(ezVec3T(-2.0f, 0.1f, -3.5f), ezMath::SmallEpsilon<ezMathTestType>()));
 
     // operator+ (ezVec3T, ezVec3T)
     ezVec3T vPlus = (vOp1 + vOp2);
-    EZ_TEST_BOOL(vPlus.IsEqual(ezVec3T(-2.0f, 0.5f, -7.0f), ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
+    EZ_TEST_BOOL(vPlus.IsEqual(ezVec3T(-2.0f, 0.5f, -7.0f), ezMath::SmallEpsilon<ezMathTestType>()));
 
     // operator- (ezVec3T, ezVec3T)
     ezVec3T vMinus = (vOp1 - vOp2);
-    EZ_TEST_BOOL(vMinus.IsEqual(ezVec3T(-6.0f, -0.1f, -7.0f), ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
+    EZ_TEST_BOOL(vMinus.IsEqual(ezVec3T(-6.0f, -0.1f, -7.0f), ezMath::SmallEpsilon<ezMathTestType>()));
 
     // operator* (float, ezVec3T)
     ezVec3T vMulFloatVec3 = ((ezMathTestType)2 * vOp1);
     EZ_TEST_BOOL(vMulFloatVec3.IsEqual(ezVec3T((ezMathTestType)-8.0, (ezMathTestType)0.4, (ezMathTestType)-14.0),
-                                       ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
+                                       ezMath::SmallEpsilon<ezMathTestType>()));
     vMulFloatVec3 = ((ezMathTestType)0 * vOp1);
-    EZ_TEST_BOOL(vMulFloatVec3.IsEqual(ezVec3T::ZeroVector(), ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
+    EZ_TEST_BOOL(vMulFloatVec3.IsEqual(ezVec3T::ZeroVector(), ezMath::SmallEpsilon<ezMathTestType>()));
 
     // operator* (ezVec3T, float)
     ezVec3T vMulVec3Float = (vOp1 * (ezMathTestType)2);
-    EZ_TEST_BOOL(vMulVec3Float.IsEqual(ezVec3T(-8.0f, 0.4f, -14.0f), ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
+    EZ_TEST_BOOL(vMulVec3Float.IsEqual(ezVec3T(-8.0f, 0.4f, -14.0f), ezMath::SmallEpsilon<ezMathTestType>()));
     vMulVec3Float = (vOp1 * (ezMathTestType)0);
-    EZ_TEST_BOOL(vMulVec3Float.IsEqual(ezVec3T::ZeroVector(), ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
+    EZ_TEST_BOOL(vMulVec3Float.IsEqual(ezVec3T::ZeroVector(), ezMath::SmallEpsilon<ezMathTestType>()));
 
     // operator/ (ezVec3T, float)
     ezVec3T vDivVec3Float = (vOp1 / (ezMathTestType)2);
-    EZ_TEST_BOOL(vDivVec3Float.IsEqual(ezVec3T(-2.0f, 0.1f, -3.5f), ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
+    EZ_TEST_BOOL(vDivVec3Float.IsEqual(ezVec3T(-2.0f, 0.1f, -3.5f), ezMath::SmallEpsilon<ezMathTestType>()));
 
     // operator== (ezVec3T, ezVec3T)
     EZ_TEST_BOOL(vOp1 == vOp1);
     for (int i = 0; i < 3; ++i)
     {
-      EZ_TEST_BOOL(!(vOp1 == (vOp1 + (ezMathTestType)ezMath::BasicType<ezMathTestType>::SmallEpsilon() * compArray[i])));
-      EZ_TEST_BOOL(!(vOp1 == (vOp1 - (ezMathTestType)ezMath::BasicType<ezMathTestType>::SmallEpsilon() * compArray[i])));
+      EZ_TEST_BOOL(!(vOp1 == (vOp1 + (ezMathTestType)ezMath::SmallEpsilon<ezMathTestType>() * compArray[i])));
+      EZ_TEST_BOOL(!(vOp1 == (vOp1 - (ezMathTestType)ezMath::SmallEpsilon<ezMathTestType>() * compArray[i])));
     }
 
     // operator!= (ezVec3T, ezVec3T)
     EZ_TEST_BOOL(!(vOp1 != vOp1));
     for (int i = 0; i < 3; ++i)
     {
-      EZ_TEST_BOOL(vOp1 != (vOp1 + (ezMathTestType)ezMath::BasicType<ezMathTestType>::SmallEpsilon() * compArray[i]));
-      EZ_TEST_BOOL(vOp1 != (vOp1 - (ezMathTestType)ezMath::BasicType<ezMathTestType>::SmallEpsilon() * compArray[i]));
+      EZ_TEST_BOOL(vOp1 != (vOp1 + (ezMathTestType)ezMath::SmallEpsilon<ezMathTestType>() * compArray[i]));
+      EZ_TEST_BOOL(vOp1 != (vOp1 - (ezMathTestType)ezMath::SmallEpsilon<ezMathTestType>() * compArray[i]));
     }
 
     // operator< (ezVec3T, ezVec3T)
@@ -336,35 +336,39 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
     {
       for (int j = 0; j < 3; ++j)
       {
-        EZ_TEST_FLOAT(compArray[i].Dot(compArray[j]), i == j ? 1.0f : 0.0f, ezMath::BasicType<ezMathTestType>::SmallEpsilon());
+        EZ_TEST_FLOAT(compArray[i].Dot(compArray[j]), i == j ? 1.0f : 0.0f, ezMath::SmallEpsilon<ezMathTestType>());
       }
     }
-    EZ_TEST_FLOAT(vOp1.Dot(vOp2), -11.56f, ezMath::BasicType<ezMathTestType>::SmallEpsilon());
-    EZ_TEST_FLOAT(vOp2.Dot(vOp1), -11.56f, ezMath::BasicType<ezMathTestType>::SmallEpsilon());
+    EZ_TEST_FLOAT(vOp1.Dot(vOp2), -11.56f, ezMath::SmallEpsilon<ezMathTestType>());
+    EZ_TEST_FLOAT(vOp2.Dot(vOp1), -11.56f, ezMath::SmallEpsilon<ezMathTestType>());
 
     // Cross
     // Right-handed coordinate system check
-    EZ_TEST_BOOL(compArray[0].CrossRH(compArray[1]).IsEqual(compArray[2], ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
-    EZ_TEST_BOOL(compArray[1].CrossRH(compArray[2]).IsEqual(compArray[0], ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
-    EZ_TEST_BOOL(compArray[2].CrossRH(compArray[0]).IsEqual(compArray[1], ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
+    EZ_TEST_BOOL(compArray[0].CrossRH(compArray[1]).IsEqual(compArray[2], ezMath::SmallEpsilon<ezMathTestType>()));
+    EZ_TEST_BOOL(compArray[1].CrossRH(compArray[2]).IsEqual(compArray[0], ezMath::SmallEpsilon<ezMathTestType>()));
+    EZ_TEST_BOOL(compArray[2].CrossRH(compArray[0]).IsEqual(compArray[1], ezMath::SmallEpsilon<ezMathTestType>()));
 
     // CompMin
-    EZ_TEST_BOOL(vOp1.CompMin(vOp2).IsEqual(ezVec3T(-4.0f, -0.3f, -7.0f), ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
-    EZ_TEST_BOOL(vOp2.CompMin(vOp1).IsEqual(ezVec3T(-4.0f, -0.3f, -7.0f), ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
+    EZ_TEST_BOOL(vOp1.CompMin(vOp2).IsEqual(ezVec3T(-4.0f, -0.3f, -7.0f), ezMath::SmallEpsilon<ezMathTestType>()));
+    EZ_TEST_BOOL(vOp2.CompMin(vOp1).IsEqual(ezVec3T(-4.0f, -0.3f, -7.0f), ezMath::SmallEpsilon<ezMathTestType>()));
 
     // CompMax
-    EZ_TEST_BOOL(vOp1.CompMax(vOp2).IsEqual(ezVec3T(2.0f, 0.2f, 0.5f), ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
-    EZ_TEST_BOOL(vOp2.CompMax(vOp1).IsEqual(ezVec3T(2.0f, 0.2f, 0.5f), ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
+    EZ_TEST_BOOL(vOp1.CompMax(vOp2).IsEqual(ezVec3T(2.0f, 0.2f, 0.5f), ezMath::SmallEpsilon<ezMathTestType>()));
+    EZ_TEST_BOOL(vOp2.CompMax(vOp1).IsEqual(ezVec3T(2.0f, 0.2f, 0.5f), ezMath::SmallEpsilon<ezMathTestType>()));
+
+    // CompClamp
+    EZ_TEST_BOOL(vOp1.CompClamp(vOp1, vOp2).IsEqual(ezVec3T(-4.0f, -0.3f, -7.0f), ezMath::SmallEpsilon<ezMathTestType>()));
+    EZ_TEST_BOOL(vOp2.CompClamp(vOp1, vOp2).IsEqual(ezVec3T(2.0f, 0.2f, 0.5f), ezMath::SmallEpsilon<ezMathTestType>()));
 
     // CompMul
-    EZ_TEST_BOOL(vOp1.CompMul(vOp2).IsEqual(ezVec3T(-8.0f, -0.06f, -3.5f), ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
-    EZ_TEST_BOOL(vOp2.CompMul(vOp1).IsEqual(ezVec3T(-8.0f, -0.06f, -3.5f), ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
+    EZ_TEST_BOOL(vOp1.CompMul(vOp2).IsEqual(ezVec3T(-8.0f, -0.06f, -3.5f), ezMath::SmallEpsilon<ezMathTestType>()));
+    EZ_TEST_BOOL(vOp2.CompMul(vOp1).IsEqual(ezVec3T(-8.0f, -0.06f, -3.5f), ezMath::SmallEpsilon<ezMathTestType>()));
 
     // CompDiv
-    EZ_TEST_BOOL(vOp1.CompDiv(vOp2).IsEqual(ezVec3T(-2.0f, -0.66666666f, -14.0f), ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
+    EZ_TEST_BOOL(vOp1.CompDiv(vOp2).IsEqual(ezVec3T(-2.0f, -0.66666666f, -14.0f), ezMath::SmallEpsilon<ezMathTestType>()));
 
     // Abs
-    EZ_TEST_VEC3(vOp1.Abs(), ezVec3T(4.0, 0.2f, 7.0f), ezMath::BasicType<ezMathTestType>::SmallEpsilon());
+    EZ_TEST_VEC3(vOp1.Abs(), ezVec3T(4.0, 0.2f, 7.0f), ezMath::SmallEpsilon<ezMathTestType>());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "CalculateNormal")
@@ -486,7 +490,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
 
       EZ_TEST_BOOL(v.IsNormalized());
 
-      EZ_TEST_BOOL(vAxis.GetAngleBetween(v).GetRadian() <= dev.GetRadian() + ezMath::BasicType<float>::DefaultEpsilon());
+      EZ_TEST_BOOL(vAxis.GetAngleBetween(v).GetRadian() <= dev.GetRadian() + ezMath::DefaultEpsilon<float>());
 
       avg += v;
     }
@@ -515,7 +519,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
 
       EZ_TEST_BOOL(v.IsNormalized());
 
-      EZ_TEST_BOOL(vAxis.GetAngleBetween(v).GetRadian() <= dev.GetRadian() + ezMath::BasicType<float>::DefaultEpsilon());
+      EZ_TEST_BOOL(vAxis.GetAngleBetween(v).GetRadian() <= dev.GetRadian() + ezMath::DefaultEpsilon<float>());
 
       avg += v;
     }
@@ -544,7 +548,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
 
       EZ_TEST_BOOL(v.IsNormalized());
 
-      EZ_TEST_BOOL(vAxis.GetAngleBetween(v).GetRadian() <= dev.GetRadian() + ezMath::BasicType<float>::DefaultEpsilon());
+      EZ_TEST_BOOL(vAxis.GetAngleBetween(v).GetRadian() <= dev.GetRadian() + ezMath::DefaultEpsilon<float>());
 
       avg += v;
     }

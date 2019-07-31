@@ -18,10 +18,10 @@ void FindNearestControlPoints(ezArrayPtr<T> cps, ezInt64 iTick, T*& llhs, T*& lh
   lhs = nullptr;
   rhs = nullptr;
   rrhs = nullptr;
-  ezInt64 lhsTick = std::numeric_limits<ezInt64>::min();
-  ezInt64 llhsTick = std::numeric_limits<ezInt64>::min();
-  ezInt64 rhsTick = std::numeric_limits<ezInt64>::max();
-  ezInt64 rrhsTick = std::numeric_limits<ezInt64>::max();
+  ezInt64 lhsTick = ezMath::MinValue<ezInt64>();
+  ezInt64 llhsTick = ezMath::MinValue<ezInt64>();
+  ezInt64 rhsTick = ezMath::MaxValue<ezInt64>();
+  ezInt64 rrhsTick = ezMath::MaxValue<ezInt64>();
 
   for (decltype(auto) cp : cps)
   {

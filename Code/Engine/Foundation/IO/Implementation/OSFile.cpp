@@ -241,6 +241,8 @@ bool ezOSFile::ExistsDirectory(const char* szDirectory)
   s.MakeCleanPath();
   s.MakePathSeparatorsNative();
 
+  EZ_ASSERT_DEV(s.IsAbsolutePath(), "Path must be absolute");
+
   const bool bRes = InternalExistsDirectory(s);
 
   const ezTime t1 = ezTime::Now();
@@ -565,7 +567,7 @@ ezResult ezOSFile::DeleteFolder(const char* szFolder)
   // not worth the effort at the moment to implement all the details,
   // it is likely that this implementation will use std::filesystem soon
 
-  //for (ezUInt32 i = items.GetCount(); i > 0; --i)
+  // for (ezUInt32 i = items.GetCount(); i > 0; --i)
   //{
   //  const auto& item = items[i - 1];
 

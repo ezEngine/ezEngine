@@ -70,14 +70,17 @@ public:
   /// the ezFileSystem.
   static bool IsRootedPath(const char* szPath); // [tested]
 
-  /// \brief Extracts the root name from a rooted path
+  /// \brief Splits the passed path into its root portion and the relative path
   ///
-  /// ":MyRoot" -> "MyRoot"
-  /// ":MyRoot\folder" -> "MyRoot"
-  /// ":\MyRoot\folder" -> "MyRoot"
-  /// ":/MyRoot\folder" -> "MyRoot"
-  /// Returns an empty string, if the path is not rooted.
-  static ezStringView GetRootedPathRootName(const char* szPath);
+  /// ":MyRoot\file.txt" -> root = "MyRoot", relPath="file.txt"
+  /// ":MyRoot\folder\file.txt" -> root = "MyRoot", relPath = "folder\file.txt"
+  /// ":\MyRoot\folder\file.txt" -> root = "MyRoot", relPath = "folder\file.txt"
+  /// ":/MyRoot\folder\file.txt" -> root = "MyRoot", relPath = "folder\file.txt"
+  /// If the path is not rooted, then root will be an empty string and relPath is set to the full input path.
+  static void GetRootedPathParts(const char* szPath, ezStringView& root, ezStringView& relPath); // [tested]
+
+  /// \brief Special case of GetRootedPathParts that returns the root of the input path and discards the relative path
+  static ezStringView GetRootedPathRootName(const char* szPath); // [tested]
 
   /// \brief Creates a valid filename (not path!) using the given string by replacing all unallowed characters.
   ///

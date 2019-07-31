@@ -256,7 +256,7 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
       {
         return Qt::AlignRight;
       }
-      /*case Qt::BackgroundColorRole:
+      /*case Qt::BackgroundRole:
         {
           QPalette palette = QApplication::palette();
           return palette.alternateBase().color();
@@ -296,12 +296,12 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
             .arg(m_pResult->GetErrorMessageCount(pEntry->GetTestIndex(), pEntry->GetSubTestIndex()))
             .arg(m_pResult->GetOutputMessageCount(pEntry->GetTestIndex(), pEntry->GetSubTestIndex()));
       }
-      case Qt::BackgroundColorRole:
+      case Qt::BackgroundRole:
       {
         QPalette palette = QApplication::palette();
         return palette.alternateBase().color();
       }
-      case Qt::TextColorRole:
+      case Qt::ForegroundRole:
       {
         if (TestResult.m_bExecuted)
         {
@@ -327,7 +327,7 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
       {
         return QString("%1").arg(TestResult.m_iTestAsserts);
       }
-      case Qt::BackgroundColorRole:
+      case Qt::BackgroundRole:
       {
         QPalette palette = QApplication::palette();
         return palette.alternateBase().color();
@@ -388,12 +388,12 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
           return QString("Disabled");
         }
       }
-      case Qt::BackgroundColorRole:
+      case Qt::BackgroundRole:
       {
         QPalette palette = QApplication::palette();
         return palette.alternateBase().color();
       }
-      case Qt::TextColorRole:
+      case Qt::ForegroundRole:
       {
         if (testAvailable.Failed())
         {

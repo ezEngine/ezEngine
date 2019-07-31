@@ -1,3 +1,6 @@
+#include <Foundation/FoundationInternal.h>
+EZ_FOUNDATION_INTERNAL_HEADER
+
 #include <Foundation/Logging/Log.h>
 #include <Foundation/System/Process.h>
 #include <future>
@@ -33,7 +36,10 @@ struct ezPipeWin
       CloseHandle(m_pipeWrite);
       m_pipeWrite = nullptr;
 
-      m_readThread.join();
+      if (m_readThread.joinable())
+      {
+        m_readThread.join();
+      }
       CloseHandle(m_pipeRead);
       m_pipeRead = nullptr;
     }
@@ -120,6 +126,67 @@ ezOsProcessID ezProcess::GetCurrentProcessID()
   return processID;
 }
 
+
+// Taken from "Programmatically controlling which handles are inherited by new processes in Win32" by Raymond Chen
+// https://devblogs.microsoft.com/oldnewthing/20111216-00/?p=8873
+static BOOL CreateProcessWithExplicitHandles(LPCWSTR lpApplicationName, LPWSTR lpCommandLine, LPSECURITY_ATTRIBUTES lpProcessAttributes,
+  LPSECURITY_ATTRIBUTES lpThreadAttributes, BOOL bInheritHandles, DWORD dwCreationFlags, LPVOID lpEnvironment, LPCWSTR lpCurrentDirectory,
+  LPSTARTUPINFOW lpStartupInfo, LPPROCESS_INFORMATION lpProcessInformation,
+  // here is the new stuff
+  DWORD cHandlesToInherit, HANDLE* rgHandlesToInherit)
+{
+  BOOL fSuccess;
+  BOOL fInitialized = FALSE;
+  SIZE_T size = 0;
+  LPPROC_THREAD_ATTRIBUTE_LIST lpAttributeList = nullptr;
+  fSuccess = cHandlesToInherit < 0xFFFFFFFF / sizeof(HANDLE) && lpStartupInfo->cb == sizeof(*lpStartupInfo);
+  if (!fSuccess)
+  {
+    SetLastError(ERROR_INVALID_PARAMETER);
+  }
+
+  if (cHandlesToInherit > 0)
+  {
+    if (fSuccess)
+    {
+      fSuccess = InitializeProcThreadAttributeList(nullptr, 1, 0, &size) || GetLastError() == ERROR_INSUFFICIENT_BUFFER;
+    }
+    if (fSuccess)
+    {
+      lpAttributeList = reinterpret_cast<LPPROC_THREAD_ATTRIBUTE_LIST>(HeapAlloc(GetProcessHeap(), 0, size));
+      fSuccess = lpAttributeList != nullptr;
+    }
+    if (fSuccess)
+    {
+      fSuccess = InitializeProcThreadAttributeList(lpAttributeList, 1, 0, &size);
+    }
+    if (fSuccess)
+    {
+      fInitialized = TRUE;
+      fSuccess = UpdateProcThreadAttribute(
+        lpAttributeList, 0, PROC_THREAD_ATTRIBUTE_HANDLE_LIST, rgHandlesToInherit, cHandlesToInherit * sizeof(HANDLE), nullptr, nullptr);
+    }
+  }
+
+  if (fSuccess)
+  {
+    STARTUPINFOEXW info;
+    ZeroMemory(&info, sizeof(info));
+    info.StartupInfo = *lpStartupInfo;
+    info.StartupInfo.cb = sizeof(info);
+    info.lpAttributeList = lpAttributeList;
+
+    // it is both possible to pass in (STARTUPINFOW*)&info OR info.StartupInfo ...
+    fSuccess = CreateProcessW(lpApplicationName, lpCommandLine, lpProcessAttributes, lpThreadAttributes, bInheritHandles,
+      dwCreationFlags | EXTENDED_STARTUPINFO_PRESENT, lpEnvironment, lpCurrentDirectory, &info.StartupInfo, lpProcessInformation);
+  }
+  if (fInitialized)
+    DeleteProcThreadAttributeList(lpAttributeList);
+  if (lpAttributeList)
+    HeapFree(GetProcessHeap(), 0, lpAttributeList);
+  return fSuccess;
+}
+
 ezResult ezProcess::Launch(const ezProcessOptions& opt, ezBitflags<ezProcessLaunchFlags> launchFlags /*= ezAsyncProcessFlags::None*/)
 {
   EZ_ASSERT_DEV(m_impl->m_ProcessHandle == nullptr, "Cannot reuse an instance of ezProcess");
@@ -138,17 +205,25 @@ ezResult ezProcess::Launch(const ezProcessOptions& opt, ezBitflags<ezProcessLaun
   si.cb = sizeof(si);
   si.dwFlags = STARTF_FORCEOFFFEEDBACK; // do not show a wait cursor while launching the process
 
+  // attention: passing in even a single null handle will fail the handle inheritance entirely,
+  // but CreateProcess will still return success
+  // therefore we must ensure to only pass non-null handles to inherit
+  HANDLE HandlesToInherit[2];
+  ezUInt32 uiNumHandlesToInherit = 0;
+
   if (m_onStdOut.IsValid())
   {
     m_impl->m_pipeStdOut.Create();
     si.hStdOutput = m_impl->m_pipeStdOut.m_pipeWrite;
     si.dwFlags |= STARTF_USESTDHANDLES;
+    HandlesToInherit[uiNumHandlesToInherit++] = m_impl->m_pipeStdOut.m_pipeWrite;
   }
   if (m_onStdError.IsValid())
   {
     m_impl->m_pipeStdErr.Create();
     si.hStdError = m_impl->m_pipeStdErr.m_pipeWrite;
     si.dwFlags |= STARTF_USESTDHANDLES;
+    HandlesToInherit[uiNumHandlesToInherit++] = m_impl->m_pipeStdErr.m_pipeWrite;
   }
 
   PROCESS_INFORMATION pi;
@@ -170,15 +245,18 @@ ezResult ezProcess::Launch(const ezProcessOptions& opt, ezBitflags<ezProcessLaun
     dwCreationFlags |= CREATE_SUSPENDED;
   }
 
-  if (!CreateProcessW(ezStringWChar(sProcess).GetData(), const_cast<wchar_t*>(ezStringWChar(sCmdLine).GetData()),
-        nullptr,                                                 // lpProcessAttributes
-        nullptr,                                                 // lpThreadAttributes
-        (si.dwFlags & STARTF_USESTDHANDLES) != 0 ? TRUE : FALSE, // bInheritHandles
+
+  if (!CreateProcessWithExplicitHandles(ezStringWChar(sProcess).GetData(), const_cast<wchar_t*>(ezStringWChar(sCmdLine).GetData()),
+        nullptr,                              // lpProcessAttributes
+        nullptr,                              // lpThreadAttributes
+        uiNumHandlesToInherit > 0 ? TRUE : FALSE, // bInheritHandles
         dwCreationFlags,
-        nullptr, // lpEnvironment
-        nullptr, // lpCurrentDirectory
-        &si,     // lpStartupInfo
-        &pi      // lpProcessInformation
+        nullptr,           // lpEnvironment
+        nullptr,           // lpCurrentDirectory
+        &si,               // lpStartupInfo
+        &pi,               // lpProcessInformation
+        uiNumHandlesToInherit, // cHandlesToInherit
+        HandlesToInherit   // rgHandlesToInherit
         ))
   {
     m_impl->m_pipeStdOut.Close();
@@ -194,7 +272,7 @@ ezResult ezProcess::Launch(const ezProcessOptions& opt, ezBitflags<ezProcessLaun
 
   if (launchFlags.IsSet(ezProcessLaunchFlags::Suspended))
   {
-    // store the main thread handle for ResumeSuspended() later 
+    // store the main thread handle for ResumeSuspended() later
     m_impl->m_MainThreadHandle = pi.hThread;
   }
   else

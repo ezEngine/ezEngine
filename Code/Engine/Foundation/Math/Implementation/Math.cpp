@@ -5,11 +5,16 @@
 #include <Foundation/Math/Vec3.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-ezProjectionDepthRange::Enum ezProjectionDepthRange::Default = ezProjectionDepthRange::ZeroToOne; // Default on Windows is D3D convention
+// Default on Windows is D3D convention
+ezClipSpaceDepthRange::Enum ezClipSpaceDepthRange::Default = ezClipSpaceDepthRange::ZeroToOne;
+ezClipSpaceYMode::Enum ezClipSpaceYMode::RenderToTextureDefault = ezClipSpaceYMode::Regular;
 #else
-ezProjectionDepthRange::Enum ezProjectionDepthRange::Default =
-    ezProjectionDepthRange::MinusOneToOne; // Default everywhere else is OpenGL convention
+// Default everywhere else is OpenGL convention
+ezClipSpaceDepthRange::Enum ezClipSpaceDepthRange::Default = ezClipSpaceDepthRange::MinusOneToOne;
+ezClipSpaceYMode::Enum ezClipSpaceYMode::RenderToTextureDefault = ezClipSpaceYMode::Flipped;
 #endif
+
+ezHandedness::Enum ezHandedness::Default = ezHandedness::LeftHanded;
 
 bool ezMath::IsPowerOf(ezInt32 value, ezInt32 base)
 {
@@ -137,7 +142,7 @@ ezVec3 ezBasisAxis::GetBasisVector(Enum basisAxis)
 }
 
 ezMat3 ezBasisAxis::CalculateTransformationMatrix(Enum forwardDir, Enum rightDir, Enum upDir, float fUniformScale /*= 1.0f*/,
-                                                  float fScaleX /*= 1.0f*/, float fScaleY /*= 1.0f*/, float fScaleZ /*= 1.0f*/)
+  float fScaleX /*= 1.0f*/, float fScaleY /*= 1.0f*/, float fScaleZ /*= 1.0f*/)
 {
   ezMat3 mResult;
   mResult.SetRow(0, ezBasisAxis::GetBasisVector(forwardDir) * fUniformScale * fScaleX);
@@ -148,4 +153,3 @@ ezMat3 ezBasisAxis::CalculateTransformationMatrix(Enum forwardDir, Enum rightDir
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_Math);
-

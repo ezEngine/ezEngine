@@ -18,11 +18,15 @@ if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
   # Due to app sandboxing we need to explcitly name required plugins for UWP.
   target_link_libraries(${PROJECT_NAME}
     PUBLIC
-    FmodPlugin
     KrautPlugin
     ParticlePlugin
     InspectorPlugin
   )
+
+  if (EZ_BUILD_FMOD)
+    target_link_libraries(${PROJECT_NAME} PUBLIC FmodPlugin)
+  endif()
+
 endif()
 
 

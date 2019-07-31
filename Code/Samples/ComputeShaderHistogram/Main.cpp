@@ -1,17 +1,18 @@
 #include "Main.h"
 
-#include <GameEngine/ActorSystem/Actor.h>
-#include <GameEngine/ActorSystem/ActorManager.h>
 #include <Core/Graphics/Geometry.h>
+#include <Core/Input/InputManager.h>
 #include <Foundation/Time/Clock.h>
 #include <Foundation/Utilities/Stats.h>
+#include <GameEngine/ActorSystem/Actor.h>
+#include <GameEngine/ActorSystem/ActorManager.h>
+#include <GameEngine/ActorSystem/ActorPluginWindow.h>
 #include <GameEngine/GameApplication/WindowOutputTarget.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Resources/Texture.h>
 #include <System/Window/Window.h>
-#include <Core/Input/InputManager.h>
 
 static ezUInt32 g_uiWindowWidth = 1920;
 static ezUInt32 g_uiWindowHeight = 1080;
@@ -150,6 +151,7 @@ void ezComputeShaderHistogramApp::AfterCoreSystemsStartup()
   // Create a window for rendering
   {
     ezUniquePtr<ezActor> pActor = EZ_DEFAULT_NEW(ezActor, "Main Window", this);
+    ezUniquePtr<ezActorPluginWindowOwner> pWindowPlugin = EZ_DEFAULT_NEW(ezActorPluginWindowOwner);
 
     // create window
     {
@@ -165,7 +167,7 @@ void ezComputeShaderHistogramApp::AfterCoreSystemsStartup()
       g_uiWindowHeight = pWindow->GetClientAreaSize().height;
       g_uiWindowWidth = pWindow->GetClientAreaSize().width;
 
-      pActor->m_pWindow = std::move(pWindow);
+      pWindowPlugin->m_pWindow = std::move(pWindow);
     }
 
     // create window output target
@@ -173,7 +175,7 @@ void ezComputeShaderHistogramApp::AfterCoreSystemsStartup()
       ezUniquePtr<ezWindowOutputTargetGAL> pOutput = EZ_DEFAULT_NEW(ezWindowOutputTargetGAL);
 
       ezGALSwapChainCreationDescription swd;
-      swd.m_pWindow = pActor->m_pWindow.Borrow();
+      swd.m_pWindow = pWindowPlugin->m_pWindow.Borrow();
       swd.m_bAllowScreenshots = true;
       pOutput->CreateSwapchain(swd);
 
@@ -182,9 +184,10 @@ void ezComputeShaderHistogramApp::AfterCoreSystemsStartup()
       const ezGALSwapChain* pPrimarySwapChain = device->GetSwapChain(pOutput->m_hSwapChain);
       m_hBackbufferRTV = device->GetDefaultRenderTargetView(pPrimarySwapChain->GetBackBufferTexture());
 
-      pActor->m_pWindowOutputTarget = std::move(pOutput);
+      pWindowPlugin->m_pWindowOutputTarget = std::move(pOutput);
     }
 
+    pActor->AddPlugin(std::move(pWindowPlugin));
     ezActorManager::GetSingleton()->AddActor(std::move(pActor));
   }
 

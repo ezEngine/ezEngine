@@ -61,11 +61,11 @@ EZ_ALWAYS_INLINE ezVec4Template<Type>::ezVec4Template()
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
-  const Type TypeNaN = ezMath::BasicType<Type>::GetNaN();
+  const Type TypeNaN = ezMath::NaN<Type>();
   x = TypeNaN;
   y = TypeNaN;
-  z = TypeNaN;
-  w = TypeNaN;
+  z = 0;
+  w = 0;
 #endif
 }
 
@@ -185,7 +185,7 @@ inline ezResult ezVec4Template<Type>::NormalizeIfNotZero(const ezVec4Template<Ty
   length is between a lower and upper limit.
 */
 template <typename Type>
-inline bool ezVec4Template<Type>::IsNormalized(Type fEpsilon /* = ezMath::BasicType<Type>::HugeEpsilon() */) const
+inline bool ezVec4Template<Type>::IsNormalized(Type fEpsilon /* = ezMath::HugeEpsilon<Type>() */) const
 {
   const Type t = GetLengthSquared();
   return ezMath::IsEqual(t, (Type)1, fEpsilon);
@@ -319,6 +319,16 @@ inline const ezVec4Template<Type> ezVec4Template<Type>::CompMax(const ezVec4Temp
   EZ_NAN_ASSERT(&rhs);
 
   return ezVec4Template<Type>(ezMath::Max(x, rhs.x), ezMath::Max(y, rhs.y), ezMath::Max(z, rhs.z), ezMath::Max(w, rhs.w));
+}
+
+template <typename Type>
+inline const ezVec4Template<Type> ezVec4Template<Type>::CompClamp(const ezVec4Template& low, const ezVec4Template& high) const
+{
+  EZ_NAN_ASSERT(this);
+  EZ_NAN_ASSERT(&low);
+  EZ_NAN_ASSERT(&high);
+
+  return ezVec4Template<Type>(ezMath::Clamp(x, low.x, high.x), ezMath::Clamp(y, low.y, high.y), ezMath::Clamp(z, low.z, high.z), ezMath::Clamp(w, low.w, high.w));
 }
 
 template <typename Type>

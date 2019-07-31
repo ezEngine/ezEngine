@@ -1,6 +1,7 @@
 #include <InspectorPCH.h>
 
 #include <Foundation/Communication/Telemetry.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <Inspector/MainWindow.moc.h>
 #include <Inspector/StatVisWidget.moc.h>
 #include <QGraphicsPathItem>
@@ -13,21 +14,21 @@ ezInt32 ezQtStatVisWidget::s_iCurColor = 0;
 namespace StatVisWidgetDetail
 {
   static QColor s_Colors[ezQtStatVisWidget::s_uiMaxColors] = {
-      QColor(255, 106, 0), // orange
-      QColor(182, 255, 0), // lime green
-      QColor(255, 0, 255), // pink
-      QColor(0, 148, 255), // light blue
-      QColor(255, 0, 0),   // red
-      QColor(0, 255, 255), // turquoise
-      QColor(178, 0, 255), // purple
-      QColor(0, 38, 255),  // dark blue
-      QColor(72, 0, 255),  // lilac
+    QColor(255, 106, 0), // orange
+    QColor(182, 255, 0), // lime green
+    QColor(255, 0, 255), // pink
+    QColor(0, 148, 255), // light blue
+    QColor(255, 0, 0),   // red
+    QColor(0, 255, 255), // turquoise
+    QColor(178, 0, 255), // purple
+    QColor(0, 38, 255),  // dark blue
+    QColor(72, 0, 255),  // lilac
   };
 }
 
 ezQtStatVisWidget::ezQtStatVisWidget(QWidget* parent, ezInt32 iWindowNumber)
-    : QDockWidget(parent)
-    , m_ShowWindowAction(parent)
+  : QDockWidget(parent)
+  , m_ShowWindowAction(parent)
 {
   m_iWindowNumber = iWindowNumber;
   m_DisplayInterval = ezTime::Seconds(60.0);
@@ -36,19 +37,21 @@ ezQtStatVisWidget::ezQtStatVisWidget(QWidget* parent, ezInt32 iWindowNumber)
 
   setupUi(this);
 
-  ComboTimeframe->blockSignals(true);
-  ComboTimeframe->addItem("Timeframe: 1 minute");
-  ComboTimeframe->addItem("Timeframe: 2 minutes");
-  ComboTimeframe->addItem("Timeframe: 3 minutes");
-  ComboTimeframe->addItem("Timeframe: 4 minutes");
-  ComboTimeframe->addItem("Timeframe: 5 minutes");
-  ComboTimeframe->addItem("Timeframe: 6 minutes");
-  ComboTimeframe->addItem("Timeframe: 7 minutes");
-  ComboTimeframe->addItem("Timeframe: 8 minutes");
-  ComboTimeframe->addItem("Timeframe: 9 minutes");
-  ComboTimeframe->addItem("Timeframe: 10 minutes");
-  ComboTimeframe->setCurrentIndex(0);
-  ComboTimeframe->blockSignals(false);
+  {
+    ezQtScopedUpdatesDisabled _1(ComboTimeframe);
+
+    ComboTimeframe->addItem("Timeframe: 1 minute");
+    ComboTimeframe->addItem("Timeframe: 2 minutes");
+    ComboTimeframe->addItem("Timeframe: 3 minutes");
+    ComboTimeframe->addItem("Timeframe: 4 minutes");
+    ComboTimeframe->addItem("Timeframe: 5 minutes");
+    ComboTimeframe->addItem("Timeframe: 6 minutes");
+    ComboTimeframe->addItem("Timeframe: 7 minutes");
+    ComboTimeframe->addItem("Timeframe: 8 minutes");
+    ComboTimeframe->addItem("Timeframe: 9 minutes");
+    ComboTimeframe->addItem("Timeframe: 10 minutes");
+    ComboTimeframe->setCurrentIndex(0);
+  }
 
   ButtonRemove->setEnabled(false);
 

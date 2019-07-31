@@ -6,9 +6,9 @@
 ezRcPos::ezRcPos()
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-  m_Pos[0] = ezMath::BasicType<float>::GetNaN();
-  m_Pos[1] = ezMath::BasicType<float>::GetNaN();
-  m_Pos[2] = ezMath::BasicType<float>::GetNaN();
+  m_Pos[0] = ezMath::NaN<float>();
+  m_Pos[1] = ezMath::NaN<float>();
+  m_Pos[2] = ezMath::NaN<float>();
 #endif
 }
 

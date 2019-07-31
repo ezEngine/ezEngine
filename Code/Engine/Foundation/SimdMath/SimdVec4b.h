@@ -31,13 +31,13 @@ public:
   ezSimdVec4b operator!() const;                        // [tested]
 
   template <int N = 4>
-  bool AllSet(); // [tested]
+  bool AllSet() const; // [tested]
 
   template <int N = 4>
-  bool AnySet(); // [tested]
+  bool AnySet() const; // [tested]
 
   template <int N = 4>
-  bool NoneSet(); // [tested]
+  bool NoneSet() const; // [tested]
 
 public:
   ezInternal::QuadBool m_v;

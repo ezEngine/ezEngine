@@ -14,13 +14,16 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #else
 #include <pwd.h>
 #include <sys/types.h>
-#include <limits.h>
 #include <unistd.h>
 #define EZ_USE_OLD_POSIX_FUNCTIONS EZ_OFF
 #endif
 
 #if EZ_ENABLED(EZ_PLATFORM_OSX)
 #include <CoreFoundation/CoreFoundation.h>
+#endif
+
+#ifndef PATH_MAX
+#define PATH_MAX 1024
 #endif
 
 ezResult ezOSFile::InternalOpen(const char* szFile, ezFileMode::Enum OpenMode)
@@ -297,6 +300,12 @@ ezString ezOSFile::GetTempDataFolder(const char* szSubFolder)
   s.AppendPath(szSubFolder);
   s.MakeCleanPath();
   return s;
+}
+
+const ezString ezOSFile::GetCurrentWorkingDirectory()
+{
+  char tmp[PATH_MAX];
+  return getcwd(tmp, EZ_ARRAY_SIZE(tmp));
 }
 
 #endif // EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)

@@ -11,7 +11,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec2)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
   {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-    if (ezMath::BasicType<ezMathTestType>::SupportsNaN())
+    if (ezMath::SupportsNaN<ezMathTestType>())
     {
       // In debug the default constructor initializes everything with NaN.
       ezVec2T vDefCtor;
@@ -183,40 +183,40 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec2)
     ezVec2T v;
 
     v.SetZero();
-    EZ_TEST_BOOL(v.IsNormalized(ezMath::BasicType<ezMathTestType>::HugeEpsilon()) == false);
+    EZ_TEST_BOOL(v.IsNormalized(ezMath::HugeEpsilon<ezMathTestType>()) == false);
 
     v.Set(1, 0);
-    EZ_TEST_BOOL(v.IsNormalized(ezMath::BasicType<ezMathTestType>::HugeEpsilon()) == true);
+    EZ_TEST_BOOL(v.IsNormalized(ezMath::HugeEpsilon<ezMathTestType>()) == true);
 
     v.Set(0, 1);
-    EZ_TEST_BOOL(v.IsNormalized(ezMath::BasicType<ezMathTestType>::HugeEpsilon()) == true);
+    EZ_TEST_BOOL(v.IsNormalized(ezMath::HugeEpsilon<ezMathTestType>()) == true);
 
     v.Set(0.1f, 1);
-    EZ_TEST_BOOL(v.IsNormalized(ezMath::BasicType<ezMathTestType>::DefaultEpsilon()) == false);
+    EZ_TEST_BOOL(v.IsNormalized(ezMath::DefaultEpsilon<ezMathTestType>()) == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsNaN")
   {
-    if (ezMath::BasicType<ezMathTestType>::SupportsNaN())
+    if (ezMath::SupportsNaN<ezMathTestType>())
     {
       ezVec2T v(0);
 
       EZ_TEST_BOOL(!v.IsNaN());
 
-      v.x = ezMath::BasicType<ezMathTestType>::GetNaN();
+      v.x = ezMath::NaN<ezMathTestType>();
       EZ_TEST_BOOL(v.IsNaN());
     }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsValid")
   {
-    if (ezMath::BasicType<ezMathTestType>::SupportsNaN())
+    if (ezMath::SupportsNaN<ezMathTestType>())
     {
       ezVec2T v(0);
 
       EZ_TEST_BOOL(v.IsValid());
 
-      v.x = ezMath::BasicType<ezMathTestType>::GetNaN();
+      v.x = ezMath::NaN<ezMathTestType>();
       EZ_TEST_BOOL(!v.IsValid());
     }
   }
@@ -325,6 +325,15 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec2)
 
     v2 = v1.CompMax(ezVec2T(3, 1));
     EZ_TEST_VEC2(v2, ezVec2T(3, 3.5f), 0);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "CompClamp")
+  {
+    const ezVec2T vOp1(-4.0, 0.2f);
+    const ezVec2T vOp2(2.0, -0.3f);
+
+    EZ_TEST_BOOL(vOp1.CompClamp(vOp1, vOp2).IsEqual(ezVec2T(-4.0f, -0.3f), ezMath::SmallEpsilon<ezMathTestType>()));
+    EZ_TEST_BOOL(vOp2.CompClamp(vOp1, vOp2).IsEqual(ezVec2T(2.0f, 0.2f), ezMath::SmallEpsilon<ezMathTestType>()));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "CompMul")

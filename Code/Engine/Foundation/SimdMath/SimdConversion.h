@@ -1,7 +1,10 @@
 #pragma once
 
+#include <Foundation/Math/BoundingBox.h>
 #include <Foundation/Math/BoundingBoxSphere.h>
+#include <Foundation/Math/BoundingSphere.h>
 #include <Foundation/Math/Transform.h>
+#include <Foundation/SimdMath/SimdBBox.h>
 #include <Foundation/SimdMath/SimdBBoxSphere.h>
 
 namespace ezSimdConversion
@@ -89,6 +92,15 @@ namespace ezSimdConversion
     return ezBoundingSphere(centerAndRadius.GetAsVec3(), centerAndRadius.w);
   }
 
-  EZ_ALWAYS_INLINE ezSimdBSphere ToBSphere(const ezBoundingSphere& s) { return ezSimdBSphere(ToVec3(s.m_vCenter), s.m_fRadius); }
-};
+  EZ_ALWAYS_INLINE ezSimdBSphere ToBSphere(const ezBoundingSphere& s)
+  {
+    //
+    return ezSimdBSphere(ToVec3(s.m_vCenter), s.m_fRadius);
+  }
 
+  EZ_ALWAYS_INLINE ezSimdBBox ToBBox(const ezBoundingBox& b)
+  {
+    //
+    return ezSimdBBox(ToVec3(b.m_vMin), ToVec3(b.m_vMax));
+  }
+}; // namespace ezSimdConversion

@@ -212,6 +212,23 @@ ezInt32 ezCommandLineUtils::GetIntOption(const char* szOption, ezInt32 iDefault,
   return iRes;
 }
 
+ezUInt32 ezCommandLineUtils::GetUIntOption(const char* szOption, ezUInt32 uiDefault, bool bCaseSensitive) const
+{
+  const ezInt32 iIndex = GetOptionIndex(szOption, bCaseSensitive);
+
+  if (iIndex < 0)
+    return uiDefault;
+
+  if (iIndex + 1 == m_Commands.GetCount()) // last command
+    return uiDefault;
+
+  // try to convert the next option to a number
+  ezUInt32 uiRes = uiDefault;
+  ezConversionUtils::StringToUInt(m_Commands[iIndex + 1].GetData(), uiRes);
+
+  return uiRes;
+}
+
 double ezCommandLineUtils::GetFloatOption(const char* szOption, double fDefault, bool bCaseSensitive) const
 {
   const ezInt32 iIndex = GetOptionIndex(szOption, bCaseSensitive);

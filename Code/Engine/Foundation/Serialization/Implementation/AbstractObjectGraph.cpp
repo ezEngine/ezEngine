@@ -820,7 +820,7 @@ void ezAbstractObjectGraph::MergeArrays(const ezDynamicArray<ezVariant>& baseArr
         , m_iBaseIndex(iBaseIndex)
         , m_iLeftIndex(iLeftIndex)
         , m_iRightIndex(iRightIndex)
-        , m_fIndex(ezMath::BasicType<float>::MaxValue())
+        , m_fIndex(ezMath::MaxValue<float>())
     {
     }
     bool IsDeleted() const { return m_iBaseIndex != -1 && (m_iLeftIndex == -1 || m_iRightIndex == -1); }
@@ -902,7 +902,7 @@ void ezAbstractObjectGraph::MergeArrays(const ezDynamicArray<ezVariant>& baseArr
     if (currentElem.IsDeleted())
       continue;
 
-    float fLowestSubsequent = ezMath::BasicType<float>::MaxValue();
+    float fLowestSubsequent = ezMath::MaxValue<float>();
     for (ezInt32 j = i + 1; j < (ezInt32)leftOrder.GetCount(); j++)
     {
       Element& elem = baseOrder[leftOrder[j]];
@@ -930,7 +930,7 @@ void ezAbstractObjectGraph::MergeArrays(const ezDynamicArray<ezVariant>& baseArr
     if (currentElem.IsDeleted())
       continue;
 
-    float fLowestSubsequent = ezMath::BasicType<float>::MaxValue();
+    float fLowestSubsequent = ezMath::MaxValue<float>();
     for (ezInt32 j = i + 1; j < (ezInt32)rightOrder.GetCount(); j++)
     {
       Element& elem = baseOrder[rightOrder[j]];

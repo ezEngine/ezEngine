@@ -361,7 +361,7 @@ void ezGeometry::SetAllVertexTexCoord(const ezVec2& texCoord, ezUInt32 uiFirstVe
 
 void ezGeometry::TransformVertices(const ezMat4& mTransform, ezUInt32 uiFirstVertex)
 {
-  if (mTransform.IsIdentity(ezMath::BasicType<float>::SmallEpsilon()))
+  if (mTransform.IsIdentity(ezMath::SmallEpsilon<float>()))
     return;
 
   for (ezUInt32 v = uiFirstVertex; v < m_Vertices.GetCount(); ++v)

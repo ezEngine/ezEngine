@@ -56,6 +56,9 @@ public:
   /// typeless handle due to the missing template argument.
   static ezTypelessResourceHandle LoadResourceByType(const ezRTTI* pResourceType, const char* szResourceID);
 
+  /// \brief Checks whether any resource loading is in progress
+  static bool IsAnyLoadingInProgress();
+
   /// \brief Generates a unique resource ID with the given prefix.
   ///
   /// Provide a prefix that is preferably not used anywhere else (i.e., closely related to your code).

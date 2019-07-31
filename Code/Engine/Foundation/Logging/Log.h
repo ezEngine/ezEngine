@@ -105,12 +105,22 @@ public:
   /// \brief Returns how many message of the given type occurred.
   static ezUInt32 GetMessageCount(ezLogMsgType::Enum MessageType) { return s_uiMessageCount[MessageType]; }
 
+  /// ezLogInterfaces are thread_local and therefore a dedicated ezGlobalLog is created per thread.
+  /// Especially during testing one may want to replace the log system everywhere, to catch certain messages, no matter on which thread they
+  /// happen. Unfortunately that is not so easy, as one cannot modify the thread_local system for all the other threads. This function makes
+  /// it possible to at least force all messages that go through any ezGlobalLog to be redirected to one other log interface. Be aware that
+  /// that interface has to be thread-safe. Also, only one override can be set at a time, SetGlobalLogOverride() will assert that no other
+  /// override is set at the moment.
+  static void SetGlobalLogOverride(ezLogInterface* pInterface);
+
 private:
   /// \brief Counts the number of messages of each type.
   static ezAtomicInteger32 s_uiMessageCount[ezLogMsgType::ENUM_COUNT];
 
   /// \brief Manages all the Event Handlers for the logging events.
   static ezLoggingEvent s_LoggingEvent;
+
+  static ezLogInterface* s_pOverrideLog;
 
 private:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezGlobalLog);
@@ -275,13 +285,14 @@ public:
   /// pInterface must be != nullptr.
   static void BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum type, const char* szString);
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   /// \brief Calls low-level OS functionality to print a string to the typical outputs, e.g. printf and OutputDebugString.
   ///
   /// This function is meant for short term debugging when actual printing to the console is desired. Code using it should be temporary.
+  /// This function flushes the output immediately, to ensure output is never lost during a crash. Consequently it has a high performance
+  /// overhead.
+  ///
   /// \note This function uses actual printf formatting, not ezFormatString syntax.
   static void Printf(const char* szFormat, ...);
-#endif
 
 private:
   // Needed to call 'EndLogBlock'

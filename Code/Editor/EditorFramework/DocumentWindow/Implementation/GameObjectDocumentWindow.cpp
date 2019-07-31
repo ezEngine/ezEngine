@@ -191,7 +191,7 @@ void ezQtGameObjectDocumentWindow::HandleFocusOnSelection(const ezQuerySelection
     }
 
     // only zoom in on the object, if the target position is already identical (action executed twice)
-    if (!pMsg->m_vHalfExtents.IsZero(ezMath::BasicType<float>::DefaultEpsilon()) && bZoomIn)
+    if (!pMsg->m_vHalfExtents.IsZero(ezMath::DefaultEpsilon<float>()) && bZoomIn)
     {
       const ezAngle fovX = cam.GetFovX(fApsectRation);
       const ezAngle fovY = cam.GetFovY(fApsectRation);

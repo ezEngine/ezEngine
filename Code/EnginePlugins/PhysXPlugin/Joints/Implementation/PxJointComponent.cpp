@@ -60,8 +60,8 @@ void ezPxJointComponent::OnSimulationStarted()
   m_pJoint = CreateJointType(pActorA, tLocalToActorA, pActorB, tLocalToActorB);
   EZ_ASSERT_DEV(m_pJoint != nullptr, "Joint creation failed");
 
-  const float fBreakForce = m_fBreakForce <= 0.0f ? ezMath::BasicType<float>::MaxValue() : m_fBreakForce;
-  const float fBreakTorque = m_fBreakTorque <= 0.0f ? ezMath::BasicType<float>::MaxValue() : m_fBreakTorque;
+  const float fBreakForce = m_fBreakForce <= 0.0f ? ezMath::MaxValue<float>() : m_fBreakForce;
+  const float fBreakTorque = m_fBreakTorque <= 0.0f ? ezMath::MaxValue<float>() : m_fBreakTorque;
 
   m_pJoint->setBreakForce(fBreakForce, fBreakTorque);
   m_pJoint->setConstraintFlag(PxConstraintFlag::eCOLLISION_ENABLED, m_bPairCollision);

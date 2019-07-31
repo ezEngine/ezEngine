@@ -177,6 +177,16 @@ public:
   /// \brief This will return the platform specific file data (handles etc.), if you really want to be able to wreak havoc.
   const ezOSFileData& GetFileData() const { return m_FileData; }
 
+  /// \brief Returns the processes current working directory (CWD).
+  ///
+  /// The value typically depends on the directory from which the application was launched.
+  /// Since this is a process wide global variable, other code can modify it at any time.
+  /// 
+  /// \note ez does not use the CWD for any file resolution. This function is provided to enable
+  /// tools to work with relative paths from the command-line, but every application has to implement
+  /// such behavior individually.
+  static const ezString GetCurrentWorkingDirectory();
+
   /// \brief Checks whether the given file exists.
   static bool ExistsFile(const char* szFile); // [tested]
 

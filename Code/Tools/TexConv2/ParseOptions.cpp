@@ -252,8 +252,6 @@ ezResult ezTexConv2::ParseInputFiles()
 
 ezResult ezTexConv2::ParseOutputFiles()
 {
-  const auto pCmd = ezCommandLineUtils::GetGlobalInstance();
-
   ParseFile("-out", m_sOutputFile);
 
   if (ParseFile("-thumbnailOut", m_sOutputThumbnailFile))

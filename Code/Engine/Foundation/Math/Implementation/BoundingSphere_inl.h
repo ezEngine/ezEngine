@@ -8,7 +8,7 @@ EZ_FORCE_INLINE ezBoundingSphereTemplate<Type>::ezBoundingSphereTemplate()
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
   // m_vCenter is already initialized to NaN by its own constructor.
-  const Type TypeNaN = ezMath::BasicType<Type>::GetNaN();
+  const Type TypeNaN = ezMath::NaN<Type>();
   m_fRadius = TypeNaN;
 #endif
 }
@@ -28,7 +28,7 @@ void ezBoundingSphereTemplate<Type>::SetZero()
 }
 
 template <typename Type>
-bool ezBoundingSphereTemplate<Type>::IsZero(Type fEpsilon /* = ezMath::BasicType<Type>::DefaultEpsilon() */) const
+bool ezBoundingSphereTemplate<Type>::IsZero(Type fEpsilon /* = ezMath::DefaultEpsilon<Type>() */) const
 {
   return m_vCenter.IsZero(fEpsilon) && ezMath::IsZero(m_fRadius, fEpsilon);
 }
@@ -318,7 +318,7 @@ Type ezBoundingSphereTemplate<Type>::GetDistanceTo(const ezVec3Template<Type>* p
 
   const ezVec3Template<Type>* pCur = &pPoints[0];
 
-  Type fMinDistSQR = ezMath::BasicType<Type>::MaxValue();
+  Type fMinDistSQR = ezMath::MaxValue<Type>();
 
   for (ezUInt32 i = 0; i < uiNumPoints; ++i)
   {

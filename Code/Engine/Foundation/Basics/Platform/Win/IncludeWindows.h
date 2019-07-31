@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Foundation/Basics.h>
+
 #define EZ_INCLUDED_WINDOWS_H 1
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)

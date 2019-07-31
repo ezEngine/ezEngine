@@ -533,7 +533,7 @@ void ezReflectionPool::RegisterReflectionProbe(ezReflectionProbeData& data, ezWo
 {
   ProbeUpdateInfo updateInfo;
   updateInfo.m_pWorld = pWorld;
-  updateInfo.m_fPriority = ezMath::Clamp(fPriority, ezMath::BasicType<float>::DefaultEpsilon(), 100.0f);
+  updateInfo.m_fPriority = ezMath::Clamp(fPriority, ezMath::DefaultEpsilon<float>(), 100.0f);
 
   EZ_LOCK(s_pData->m_Mutex);
 
@@ -562,7 +562,7 @@ void ezReflectionPool::DeregisterReflectionProbe(ezReflectionProbeData& data, ez
 void ezReflectionPool::ExtractReflectionProbe(
   ezMsgExtractRenderData& msg, const ezReflectionProbeData& data, const ezComponent* pComponent, float fPriority /*= 1.0f*/)
 {
-  fPriority = ezMath::Clamp(fPriority, ezMath::BasicType<float>::DefaultEpsilon(), 100.0f);
+  fPriority = ezMath::Clamp(fPriority, ezMath::DefaultEpsilon<float>(), 100.0f);
   ezVec3 vPosition = pComponent->GetOwner()->GetGlobalPosition();
 
   ProbeUpdateInfo* pUpdateInfo = nullptr;

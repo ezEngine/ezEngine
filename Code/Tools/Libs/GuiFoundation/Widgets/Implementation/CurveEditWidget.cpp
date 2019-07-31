@@ -63,8 +63,8 @@ void ezQtCurveEditWidget::SetCurves(ezCurveGroupData* pCurveEditData, double fMi
   m_CurvesSorted = m_Curves;
   m_CurveExtents.SetCount(m_Curves.GetCount());
   m_fMaxCurveExtent = fMinCurveLength;
-  m_fMinValue = ezMath::BasicType<float>::MaxValue();
-  m_fMaxValue = -ezMath::BasicType<float>::MaxValue();
+  m_fMinValue = ezMath::MaxValue<float>();
+  m_fMaxValue = -ezMath::MaxValue<float>();
 
   for (ezUInt32 i = 0; i < m_CurvesSorted.GetCount(); ++i)
   {

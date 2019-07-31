@@ -350,6 +350,33 @@ void ezResourceManager::EngineAboutToShutdown()
   }
 }
 
+bool ezResourceManager::IsAnyLoadingInProgress()
+{
+  EZ_LOCK(s_ResourceMutex);
+
+  if (s_RequireLoading.GetCount() > 0)
+  {
+    return true;
+  }
+
+  for (int i = 0; i < ezResourceManager::MaxDataLoadTasks; ++i)
+  {
+    if (!s_WorkerTasksDataLoad[i].IsTaskFinished())
+    {
+      return true;
+    }
+  }
+
+  for (int i = 0; i < ezResourceManager::MaxUpdateContentTasks; ++i)
+  {
+    if (!s_WorkerTasksUpdateContent[i].IsTaskFinished())
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
 void ezResourceManager::OnEngineShutdown()
 {
   ezResourceManagerEvent e;

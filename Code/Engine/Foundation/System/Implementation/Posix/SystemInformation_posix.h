@@ -1,3 +1,6 @@
+#include <Foundation/FoundationInternal.h>
+EZ_FOUNDATION_INTERNAL_HEADER
+
 #include <unistd.h>
 
 bool ezSystemInformation::IsDebuggerAttached()

@@ -85,6 +85,8 @@ public:
   // At least the < operator is implement to make clamping etc. work
   constexpr bool operator<(const ezAngle& r) const;
   constexpr bool operator>(const ezAngle& r) const;
+  constexpr bool operator<=(const ezAngle& r) const;
+  constexpr bool operator>=(const ezAngle& r) const;
 
   // Note: relational operators on angles are not really possible - is 0 degree smaller or bigger than 359 degree?
 
@@ -98,7 +100,7 @@ private:
   /// The ezRadian value
   float m_fRadian;
 
-  /// Preventing an include circle by defining pi again (annoying, but unlikely to change ;)). Normally you should use ezMath::BasicType<Type>::Pi()
+  /// Preventing an include circle by defining pi again (annoying, but unlikely to change ;)). Normally you should use ezMath::Pi<Type>()
   template <typename Type>
   constexpr static Type Pi();
 };

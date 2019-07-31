@@ -1,9 +1,10 @@
 #include <EditorEngineProcessFrameworkPCH.h>
 
-#include <GameEngine/ActorSystem/Actor.h>
-#include <GameEngine/ActorSystem/ActorManager.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessApp.h>
 #include <EditorEngineProcessFramework/EngineProcess/RemoteViewContext.h>
+#include <GameEngine/ActorSystem/Actor.h>
+#include <GameEngine/ActorSystem/ActorManager.h>
+#include <GameEngine/ActorSystem/ActorPluginWindow.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameApplication/WindowOutputTarget.h>
 #include <RendererCore/Pipeline/View.h>
@@ -55,7 +56,10 @@ void ezEditorEngineProcessApp::CreateRemoteWindow()
 
     pWindow->Initialize(desc);
 
-    pActor->m_pWindow = std::move(pWindow);
+    ezUniquePtr<ezActorPluginWindowOwner> pWindowPlugin = EZ_DEFAULT_NEW(ezActorPluginWindowOwner);
+    pWindowPlugin->m_pWindow = std::move(pWindow);
+
+    m_pActor->AddPlugin(std::move(pWindowPlugin));
   }
 
   ezActorManager::GetSingleton()->AddActor(std::move(pActor));
@@ -99,24 +103,26 @@ ezViewHandle ezEditorEngineProcessApp::CreateRemoteWindowAndView(ezCamera* pCame
   {
     ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
+    ezActorPluginWindowOwner* pWindowPlugin = m_pActor->GetPlugin<ezActorPluginWindowOwner>();
+
     // create output target
     {
       ezUniquePtr<ezWindowOutputTargetGAL> pOutput = EZ_DEFAULT_NEW(ezWindowOutputTargetGAL);
 
       ezGALSwapChainCreationDescription desc;
-      desc.m_pWindow = m_pActor->m_pWindow.Borrow();
+      desc.m_pWindow = pWindowPlugin->m_pWindow.Borrow();
       desc.m_BackBufferFormat = ezGALResourceFormat::RGBAUByteNormalizedsRGB;
       desc.m_bAllowScreenshots = true;
 
       pOutput->CreateSwapchain(desc);
 
-      m_pActor->m_pWindowOutputTarget = std::move(pOutput);
+      pWindowPlugin->m_pWindowOutputTarget = std::move(pOutput);
     }
 
     // create render target
     ezGALRenderTargetSetup BackBufferRenderTargetSetup;
     {
-      ezWindowOutputTargetGAL* pOutputTarget = static_cast<ezWindowOutputTargetGAL*>(m_pActor->m_pWindowOutputTarget.Borrow());
+      ezWindowOutputTargetGAL* pOutputTarget = static_cast<ezWindowOutputTargetGAL*>(pWindowPlugin->m_pWindowOutputTarget.Borrow());
       const ezGALSwapChain* pPrimarySwapChain = pDevice->GetSwapChain(pOutputTarget->m_hSwapChain);
       EZ_ASSERT_DEV(pPrimarySwapChain != nullptr, "Failed to init swapchain");
 
@@ -134,7 +140,7 @@ ezViewHandle ezEditorEngineProcessApp::CreateRemoteWindowAndView(ezCamera* pCame
       pView->SetRenderPipelineResource(
         ezResourceManager::LoadResource<ezRenderPipelineResource>("{ da463c4d-c984-4910-b0b7-a0b3891d0448 }"));
 
-      const ezSizeU32 wndSize = m_pActor->m_pWindow->GetClientAreaSize();
+      const ezSizeU32 wndSize = pWindowPlugin->m_pWindow->GetClientAreaSize();
 
       pView->SetRenderTargetSetup(BackBufferRenderTargetSetup);
       pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)wndSize.width, (float)wndSize.height));

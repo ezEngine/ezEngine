@@ -73,7 +73,7 @@ public:
   void Normalize(); // [tested]
 
   /// \brief Returns the rotation-axis and angle, that this quaternion rotates around.
-  ezResult GetRotationAxisAndAngle(ezVec3Template<Type>& vAxis, ezAngle& angle) const; // [tested]
+  ezResult GetRotationAxisAndAngle(ezVec3Template<Type>& vAxis, ezAngle& angle, float fEpsilon = ezMath::DefaultEpsilon<Type>()) const; // [tested]
 
   /// \brief Returns the Quaternion as a matrix.
   const ezMat3Template<Type> GetAsMat3() const; // [tested]
@@ -82,7 +82,7 @@ public:
   const ezMat4Template<Type> GetAsMat4() const; // [tested]
 
   /// \brief Checks whether all components are neither NaN nor infinite and that the quaternion is normalized.
-  bool IsValid(Type fEpsilon = ezMath::BasicType<Type>::DefaultEpsilon()) const; // [tested]
+  bool IsValid(Type fEpsilon = ezMath::DefaultEpsilon<Type>()) const; // [tested]
 
   /// \brief Checks whether any component is NaN.
   bool IsNaN() const; // [tested]

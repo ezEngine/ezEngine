@@ -86,6 +86,18 @@ namespace ezConversionUtils
     return EZ_FAILURE;
   }
 
+  ezResult StringToUInt(const char* szString, ezUInt32& out_Res, const char** out_LastParsePosition)
+  {
+    ezInt64 tmp = out_Res;
+    if (StringToInt64(szString, tmp, out_LastParsePosition) == EZ_SUCCESS && tmp <= (ezUInt32)0xFFFFFFFF && tmp >= 0)
+    {
+      out_Res = (ezUInt32)tmp;
+      return EZ_SUCCESS;
+    }
+
+    return EZ_FAILURE;
+  }
+
   ezResult StringToInt64(const char* szString, ezInt64& out_Res, const char** out_LastParsePosition)
   {
     if (ezStringUtils::IsNullOrEmpty(szString))

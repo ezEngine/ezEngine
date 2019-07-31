@@ -18,7 +18,7 @@ public:
 
 protected:
   friend class ezActor;
-  virtual void Update() = 0;
+  virtual void Update() {}
 
 private:
   ezActor* m_pOwningActor = nullptr;

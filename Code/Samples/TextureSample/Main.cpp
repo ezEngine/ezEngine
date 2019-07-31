@@ -1,3 +1,7 @@
+#include <Core/Graphics/Geometry.h>
+#include <Core/Input/InputManager.h>
+#include <Core/ResourceManager/ResourceManager.h>
+#include <Foundation/Application/Application.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Containers/Map.h>
@@ -13,19 +17,7 @@
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Time/Clock.h>
-
-#include <Foundation/Application/Application.h>
-#include <Core/CoreDLL.h>
-#include <Core/Input/InputManager.h>
-#include <Core/ResourceManager/ResourceManager.h>
-
-#include <Core/Graphics/Geometry.h>
-#include <Texture/Image/ImageConversion.h>
-
-#include <System/Window/Window.h>
-
-#include <RendererDX11/Device/DeviceDX11.h>
-
+#include <Foundation/Utilities/GraphicsUtils.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/RenderContext/RenderContext.h>
@@ -34,8 +26,11 @@
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Textures/TextureLoader.h>
+#include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Device/SwapChain.h>
+#include <System/Window/Window.h>
+#include <Texture/Image/ImageConversion.h>
 
 // Constant buffer definition is shared between shader code and C++
 #include <RendererCore/../../../Data/Samples/TextureSample/Shaders/SampleConstantBuffer.h>
@@ -44,7 +39,7 @@ class TextureSampleWindow : public ezWindow
 {
 public:
   TextureSampleWindow()
-      : ezWindow()
+    : ezWindow()
   {
     m_bCloseRequested = false;
   }
@@ -77,7 +72,7 @@ public:
   typedef ezApplication SUPER;
 
   TextureSample()
-      : ezApplication("Texture Sample")
+    : ezApplication("Texture Sample")
   {
     m_vCameraPosition.SetZero();
   }
@@ -104,7 +99,7 @@ public:
     ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezFileSystem::AllowWrites);              // writing to the binary directory
     ezFileSystem::AddDataDirectory(">appdir/", "ShaderCache", "shadercache", ezFileSystem::AllowWrites); // for shader files
     ezFileSystem::AddDataDirectory(">user/ezEngine Project/TextureSample", "AppData", "appdata",
-                                   ezFileSystem::AllowWrites); // app user data
+      ezFileSystem::AllowWrites); // app user data
 
     ezFileSystem::AddDataDirectory(">sdk/Data/Base", "Base", "base");
     ezFileSystem::AddDataDirectory(">sdk/Data/FreeContent", "Shared", "shared");
@@ -316,11 +311,9 @@ public:
       pContext->SetRasterizerState(m_hRasterizerState);
       pContext->SetDepthStencilState(m_hDepthStencilState);
 
-      ezMat4 Proj;
-      Proj.SetIdentity();
-      Proj.SetOrthographicProjectionMatrix(
-          m_vCameraPosition.x + -(float)g_uiWindowWidth * 0.5f, m_vCameraPosition.x + (float)g_uiWindowWidth * 0.5f,
-          m_vCameraPosition.y + -(float)g_uiWindowHeight * 0.5f, m_vCameraPosition.y + (float)g_uiWindowHeight * 0.5f, -1.0f, 1.0f);
+      ezMat4 Proj = ezGraphicsUtils::CreateOrthographicProjectionMatrix(
+        m_vCameraPosition.x + -(float)g_uiWindowWidth * 0.5f, m_vCameraPosition.x + (float)g_uiWindowWidth * 0.5f,
+        m_vCameraPosition.y + -(float)g_uiWindowHeight * 0.5f, m_vCameraPosition.y + (float)g_uiWindowHeight * 0.5f, -1.0f, 1.0f);
 
       ezRenderContext::GetDefaultInstance()->BindConstantBuffer("ezTextureSampleConstants", m_hSampleConstants);
       ezRenderContext::GetDefaultInstance()->BindMaterial(m_hMaterial);
@@ -356,7 +349,7 @@ public:
           sResourceName.Printf("Loaded_%+03i_%+03i_D", x, y);
 
           ezTexture2DResourceHandle hTexture =
-              ezResourceManager::LoadResource<ezTexture2DResource>(sResourceName);
+            ezResourceManager::LoadResource<ezTexture2DResource>(sResourceName);
 
           // force immediate loading
           if (g_bForceImmediateLoading)
@@ -453,7 +446,7 @@ public:
       for (ezUInt32 v = 0; v < geom.GetPolygons()[p].m_Vertices.GetCount() - 2; ++v)
       {
         desc.SetTriangleIndices(t, geom.GetPolygons()[p].m_Vertices[0], geom.GetPolygons()[p].m_Vertices[v + 1],
-                                geom.GetPolygons()[p].m_Vertices[v + 2]);
+          geom.GetPolygons()[p].m_Vertices[v + 2]);
 
         ++t;
       }
@@ -463,7 +456,7 @@ public:
 
     if (!m_hQuadMeshBuffer.IsValid())
       m_hQuadMeshBuffer =
-          ezResourceManager::CreateResource<ezMeshBufferResource>("{E692442B-9E15-46C5-8A00-1B07C02BF8F7}", std::move(desc));
+        ezResourceManager::CreateResource<ezMeshBufferResource>("{E692442B-9E15-46C5-8A00-1B07C02BF8F7}", std::move(desc));
   }
 
 private:

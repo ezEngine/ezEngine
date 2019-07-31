@@ -9,6 +9,11 @@ class ezMessage;
 class ezWorldWriter;
 class ezWorldReader;
 
+// TODO: windows.h workaround
+#ifdef SendMessage
+#  undef SendMessage
+#endif
+
 /// \brief Base class of all component types.
 ///
 /// Derive from this class to implement custom component types. Also add the EZ_DECLARE_COMPONENT_TYPE macro to your class declaration.

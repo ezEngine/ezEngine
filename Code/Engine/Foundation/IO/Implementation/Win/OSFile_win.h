@@ -516,3 +516,12 @@ ezString ezOSFile::GetTempDataFolder(const char* szSubFolder /*= nullptr*/)
   s.MakeCleanPath();
   return s;
 }
+
+const ezString ezOSFile::GetCurrentWorkingDirectory()
+{
+  wchar_t tmp[1024];
+  GetCurrentDirectoryW(EZ_ARRAY_SIZE(tmp), tmp);
+
+  return ezStringUtf8(tmp).GetData();
+}
+

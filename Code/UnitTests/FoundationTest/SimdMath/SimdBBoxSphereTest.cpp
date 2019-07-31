@@ -48,7 +48,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBBoxSphere)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsNaN")
   {
-    if (ezMath::BasicType<float>::SupportsNaN())
+    if (ezMath::SupportsNaN<float>())
     {
       ezSimdBBoxSphere b;
 
@@ -56,31 +56,31 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBBoxSphere)
       EZ_TEST_BOOL(!b.IsNaN());
 
       b.SetInvalid();
-      b.m_CenterAndRadius.SetX(ezMath::BasicType<float>::GetNaN());
+      b.m_CenterAndRadius.SetX(ezMath::NaN<float>());
       EZ_TEST_BOOL(b.IsNaN());
 
       b.SetInvalid();
-      b.m_CenterAndRadius.SetY(ezMath::BasicType<float>::GetNaN());
+      b.m_CenterAndRadius.SetY(ezMath::NaN<float>());
       EZ_TEST_BOOL(b.IsNaN());
 
       b.SetInvalid();
-      b.m_CenterAndRadius.SetZ(ezMath::BasicType<float>::GetNaN());
+      b.m_CenterAndRadius.SetZ(ezMath::NaN<float>());
       EZ_TEST_BOOL(b.IsNaN());
 
       b.SetInvalid();
-      b.m_CenterAndRadius.SetW(ezMath::BasicType<float>::GetNaN());
+      b.m_CenterAndRadius.SetW(ezMath::NaN<float>());
       EZ_TEST_BOOL(b.IsNaN());
 
       b.SetInvalid();
-      b.m_BoxHalfExtents.SetX(ezMath::BasicType<float>::GetNaN());
+      b.m_BoxHalfExtents.SetX(ezMath::NaN<float>());
       EZ_TEST_BOOL(b.IsNaN());
 
       b.SetInvalid();
-      b.m_BoxHalfExtents.SetY(ezMath::BasicType<float>::GetNaN());
+      b.m_BoxHalfExtents.SetY(ezMath::NaN<float>());
       EZ_TEST_BOOL(b.IsNaN());
 
       b.SetInvalid();
-      b.m_BoxHalfExtents.SetZ(ezMath::BasicType<float>::GetNaN());
+      b.m_BoxHalfExtents.SetZ(ezMath::NaN<float>());
       EZ_TEST_BOOL(b.IsNaN());
     }
   }
@@ -159,10 +159,10 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBBoxSphere)
       ezSimdVec4f tp = t.TransformPosition(points[i]);
 
       ezSimdFloat boxDist = b.GetBox().GetDistanceTo(tp);
-      EZ_TEST_BOOL(boxDist < ezMath::BasicType<float>::DefaultEpsilon());
+      EZ_TEST_BOOL(boxDist < ezMath::DefaultEpsilon<float>());
 
       ezSimdFloat sphereDist = b.GetSphere().GetDistanceTo(tp);
-      EZ_TEST_BOOL(sphereDist < ezMath::BasicType<float>::DefaultEpsilon());
+      EZ_TEST_BOOL(sphereDist < ezMath::DefaultEpsilon<float>());
     }
   }
 

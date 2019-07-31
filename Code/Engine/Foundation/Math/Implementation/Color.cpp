@@ -23,6 +23,12 @@ bool ezColor::IsNormalized() const
          r >= 0.0f && g >= 0.0f && b >= 0.0f && a >= 0.0f;
 }
 
+
+float ezColor::CalcAverageRGB() const
+{
+  return (1.0f / 3.0f) * (r + g + b);
+}
+
 // http://en.literateprograms.org/RGB_to_HSV_color_space_conversion_%28C%29
 void ezColor::GetHSV(float& out_hue, float& out_sat, float& out_value) const
 {
@@ -33,7 +39,7 @@ void ezColor::GetHSV(float& out_hue, float& out_sat, float& out_value) const
 
   out_value = ezMath::Max(r2, g2, b2); // Value
 
-  if (out_value < ezMath::BasicType<float>::SmallEpsilon())
+  if (out_value < ezMath::SmallEpsilon<float>())
   {
     out_hue = 0.0f;
     out_sat = 0.0f;
@@ -249,6 +255,11 @@ ezColor ezColor::GetComplementaryColor() const
   return Shifted;
 }
 
+const ezVec4 ezColor::GetAsVec4() const
+{
+  return ezVec4(r, g, b, a);
+}
+
 float ezColor::GammaToLinear(float gamma)
 {
   return gamma <= 0.04045f ? (gamma / 12.92f) : (ezMath::Pow((gamma + 0.055f) / 1.055f, 2.4f));
@@ -420,7 +431,58 @@ const ezColor ezColor::WhiteSmoke(ezColorGammaUB(0xF5, 0xF5, 0xF5));
 const ezColor ezColor::Yellow(ezColorGammaUB(0xFF, 0xFF, 0x00));
 const ezColor ezColor::YellowGreen(ezColorGammaUB(0x9A, 0xCD, 0x32));
 
+const ezColor ezColor::s_PaletteColors[32] =
+{
+  ezColorGammaUB(0xE0, 0xE0, 0xE0), // grey
+  ezColorGammaUB(0xFF, 0x00, 0x00), // red
+  ezColorGammaUB(0x00, 0xFF, 0x00), // green
+  ezColorGammaUB(0x00, 0x00, 0xFF), // blue
+  ezColorGammaUB(0xFF, 0xFF, 0x00), // yellow
+  ezColorGammaUB(0x00, 0xFF, 0xFF), // cyan
+  ezColorGammaUB(0xFF, 0x00, 0xFF), // magenta
+  ezColorGammaUB(0xFF, 0xFF, 0xFF), // white
 
+  ezColorGammaUB(0xA0, 0xA0, 0xA0), // grey
+  ezColorGammaUB(0xC0, 0x00, 0x00), // red
+  ezColorGammaUB(0x00, 0xC0, 0x00), // green
+  ezColorGammaUB(0x00, 0x00, 0xC0), // blue
+  ezColorGammaUB(0xC0, 0xC0, 0x00), // yellow
+  ezColorGammaUB(0x00, 0xC0, 0xC0), // cyan
+  ezColorGammaUB(0xC0, 0x00, 0xC0), // magenta
+  ezColorGammaUB(0xC0, 0xC0, 0xC0), // white
+
+  ezColorGammaUB(0x60, 0x60, 0x60), // grey
+  ezColorGammaUB(0x80, 0x00, 0x00), // red
+  ezColorGammaUB(0x00, 0x80, 0x00), // green
+  ezColorGammaUB(0x00, 0x00, 0x80), // blue
+  ezColorGammaUB(0x80, 0x80, 0x00), // yellow
+  ezColorGammaUB(0x00, 0x80, 0x80), // cyan
+  ezColorGammaUB(0x80, 0x00, 0x80), // magenta
+  ezColorGammaUB(0x80, 0x80, 0x80), // white
+
+  ezColorGammaUB(0x20, 0x20, 0x20), // grey
+  ezColorGammaUB(0x40, 0x00, 0x00), // red
+  ezColorGammaUB(0x00, 0x40, 0x00), // green
+  ezColorGammaUB(0x00, 0x00, 0x40), // blue
+  ezColorGammaUB(0x40, 0x40, 0x00), // yellow
+  ezColorGammaUB(0x00, 0x40, 0x40), // cyan
+  ezColorGammaUB(0x40, 0x00, 0x40), // magenta
+  ezColorGammaUB(0x40, 0x40, 0x40)  // white
+};
+
+ezColor ezColor::GetPaletteColor(ezUInt32 colorIndex, ezUInt8 alpha)
+{
+  constexpr ezUInt32 numColors = sizeof(s_PaletteColors) / sizeof(s_PaletteColors[0]);
+  EZ_ASSERT_DEV(colorIndex < numColors, "Index is too large and points outside of color palette.");
+
+  return s_PaletteColors[colorIndex].WithAlpha(static_cast<float>(alpha) / 255.0f);
+}
+
+
+ezColor ezColor::ZeroColor()
+{
+  return ezColor(0.0f, 0.0f, 0.0f, 0.0f);
+}
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_Color);
 

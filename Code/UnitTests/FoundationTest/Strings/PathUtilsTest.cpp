@@ -118,4 +118,17 @@ EZ_CREATE_SIMPLE_TEST(Strings, PathUtils)
 #error "Unknown platform."
 #endif
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetRootedPathParts")
+  {
+    ezStringView root, relPath;
+    ezPathUtils::GetRootedPathParts(":MyRoot\\folder\\file.txt", root, relPath);
+    EZ_TEST_BOOL(ezPathUtils::GetRootedPathRootName(":MyRoot\\folder\\file.txt") == root);
+    EZ_TEST_BOOL(root == "MyRoot");
+    EZ_TEST_BOOL(relPath == "folder\\file.txt");
+    ezPathUtils::GetRootedPathParts("folder\\file2.txt", root, relPath);
+    EZ_TEST_BOOL(root.IsEmpty());
+    EZ_TEST_BOOL(relPath == "folder\\file2.txt");
+  }
+
 }

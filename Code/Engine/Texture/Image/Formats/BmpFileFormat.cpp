@@ -146,7 +146,7 @@ ezResult ezBmpFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
   ezUInt32 uiHeight = image.GetHeight(0);
 
   ezUInt64 dataSize = uiRowPitch * uiHeight;
-  if(dataSize >= ezMath::BasicType<ezUInt32>::MaxValue())
+  if(dataSize >= ezMath::MaxValue<ezUInt32>())
   {
     EZ_ASSERT_DEV(false, "Size overflow in BMP file format.");
     return EZ_FAILURE;

@@ -285,7 +285,7 @@ void ezPxDynamicActorComponent::OnSimulationStarted()
   m_pActor->setLinearDamping(ezMath::Clamp(m_fLinearDamping, 0.0f, 1000.0f));
   m_pActor->setAngularDamping(ezMath::Clamp(m_fAngularDamping, 0.0f, 1000.0f));
   m_pActor->setMaxDepenetrationVelocity(pModule->GetMaxDepenetrationVelocity());
-  m_pActor->setMaxContactImpulse(ezMath::Clamp(m_fMaxContactImpulse, 0.0f, ezMath::BasicType<float>::MaxValue()));
+  m_pActor->setMaxContactImpulse(ezMath::Clamp(m_fMaxContactImpulse, 0.0f, ezMath::MaxValue<float>()));
 
   ezVec3 vCenterOfMass(0.0f);
   if (FindCenterOfMass(GetOwner(), vCenterOfMass))

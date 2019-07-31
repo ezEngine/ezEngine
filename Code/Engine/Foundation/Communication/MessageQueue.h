@@ -80,7 +80,7 @@ public:
   template <typename Comparer>
   void Sort(const Comparer& comparer); // [tested]
 
-  /// \brief Attempts to acquire an exclusive lock on the queue. Do not use this method directly but use ezLock instead.
+  /// \brief Acquires an exclusive lock on the queue. Do not use this method directly but use ezLock instead.
   void Acquire(); // [tested]
 
   /// \brief Releases a lock that has been previously acquired. Do not use this method directly but use ezLock instead.

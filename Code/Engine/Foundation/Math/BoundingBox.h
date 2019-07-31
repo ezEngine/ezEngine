@@ -100,7 +100,7 @@ public:
   bool IsIdentical(const ezBoundingBoxTemplate& rhs) const; // [tested]
 
   /// \brief Checks whether this box and the other box are equal within some threshold.
-  bool IsEqual(const ezBoundingBoxTemplate& rhs, Type fEpsilon = ezMath::BasicType<Type>::DefaultEpsilon()) const; // [tested]
+  bool IsEqual(const ezBoundingBoxTemplate& rhs, Type fEpsilon = ezMath::DefaultEpsilon<Type>()) const; // [tested]
 
   /// \brief Moves the box by the given vector.
   void Translate(const ezVec3Template<Type>& vDiff); // [tested]

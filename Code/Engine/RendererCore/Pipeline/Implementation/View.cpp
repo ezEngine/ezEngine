@@ -137,8 +137,7 @@ void ezView::ComputeCullingFrustum(ezFrustum& out_Frustum) const
   ezMat4 projectionMatrix;
   pCamera->GetProjectionMatrix(fViewportAspectRatio, projectionMatrix);
 
-  ezMat4 viewProjectionMatrix = projectionMatrix * viewMatrix;
-  out_Frustum.SetFrustum(pCamera->GetCenterPosition(), viewProjectionMatrix, pCamera->GetFarPlane());
+  out_Frustum.SetFrustum(projectionMatrix * viewMatrix);
 }
 
 void ezView::SetRenderPassProperty(const char* szPassName, const char* szPropertyName, const ezVariant& value)

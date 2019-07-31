@@ -5,6 +5,7 @@
 #include <Inspector/FileWidget.moc.h>
 #include <MainWindow.moc.h>
 #include <qgraphicsitem.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 
 ezQtFileWidget* ezQtFileWidget::s_pWidget = nullptr;
 
@@ -325,7 +326,8 @@ void ezQtFileWidget::UpdateTable()
 
   m_bUpdateTable = false;
 
-  Table->blockSignals(true);
+  ezQtScopedUpdatesDisabled _1(Table);
+
   Table->setSortingEnabled(false);
   Table->clear();
 
@@ -416,7 +418,6 @@ void ezQtFileWidget::UpdateTable()
 
   Table->setRowCount(uiRow);
   Table->setSortingEnabled(true);
-  Table->blockSignals(false);
 }
 
 void ezQtFileWidget::UpdateStats()

@@ -116,7 +116,7 @@ void ezTexture2DResource::FillOutDescriptor(ezTexture2DResourceDescriptor& td, c
           id.m_uiRowPitch = static_cast<ezUInt32>(pImage->GetRowPitch(mip));
         }
 
-        EZ_ASSERT_DEV(pImage->GetDepthPitch(mip) < ezMath::BasicType<ezUInt32>::MaxValue(), "Depth pitch exceeds ezGAL limits.");
+        EZ_ASSERT_DEV(pImage->GetDepthPitch(mip) < ezMath::MaxValue<ezUInt32>(), "Depth pitch exceeds ezGAL limits.");
         id.m_uiSlicePitch = static_cast<ezUInt32>(pImage->GetDepthPitch(mip));
 
         out_MemoryUsed += id.m_uiSlicePitch;

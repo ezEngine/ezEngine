@@ -86,7 +86,7 @@ struct ezWorkerThreadType
   enum Enum : ezUInt8
   {
     Unknown,    ///< Default for all non-ezTaskSystem-worker threads. Will only execute short tasks.
-    MainThread, ///< My only be used by the main thread (automatically used by the ezTaskSystem)
+    MainThread, ///< May only be used by the main thread (automatically used by the ezTaskSystem)
     ShortTasks,
     LongTasks,
     FileAccess,
