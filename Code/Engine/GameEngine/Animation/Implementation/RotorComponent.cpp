@@ -9,11 +9,12 @@ float CalculateAcceleratedMovement(
   float fDistanceInMeters, float fAcceleration, float fMaxVelocity, float fDeceleration, ezTime& fTimeSinceStartInSec);
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezRotorComponent, 2, ezComponentMode::Dynamic)
+EZ_BEGIN_COMPONENT_TYPE(ezRotorComponent, 3, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ENUM_MEMBER_PROPERTY("Axis", ezBasisAxis, m_Axis),
+    EZ_MEMBER_PROPERTY("AxisDeviation", m_AxisDeviation)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(-180), ezAngle::Degree(180))),
     EZ_MEMBER_PROPERTY("DegreesToRotate", m_iDegreeToRotate),
     EZ_MEMBER_PROPERTY("Acceleration", m_fAcceleration),
     EZ_MEMBER_PROPERTY("Deceleration", m_fDeceleration),
@@ -37,30 +38,6 @@ void ezRotorComponent::Update()
   if (m_Flags.IsAnySet(ezTransformComponentFlags::Autorun) && !m_Flags.IsAnySet(ezTransformComponentFlags::Paused) &&
       m_fAnimationSpeed > 0.0f)
   {
-    ezVec3 vAxis;
-
-    switch (m_Axis)
-    {
-      case ezBasisAxis::PositiveX:
-        vAxis.Set(1, 0, 0);
-        break;
-      case ezBasisAxis::PositiveY:
-        vAxis.Set(0, 1, 0);
-        break;
-      case ezBasisAxis::PositiveZ:
-        vAxis.Set(0, 0, 1);
-        break;
-      case ezBasisAxis::NegativeX:
-        vAxis.Set(-1, 0, 0);
-        break;
-      case ezBasisAxis::NegativeY:
-        vAxis.Set(0, -1, 0);
-        break;
-      case ezBasisAxis::NegativeZ:
-        vAxis.Set(0, 0, -1);
-        break;
-    }
-
     if (m_iDegreeToRotate > 0)
     {
       if (m_Flags.IsAnySet(ezTransformComponentFlags::AnimationReversed))
@@ -72,7 +49,7 @@ void ezRotorComponent::Update()
         CalculateAcceleratedMovement((float)m_iDegreeToRotate, m_fAcceleration, m_fAnimationSpeed, m_fDeceleration, m_AnimationTime);
 
       ezQuat qRotation;
-      qRotation.SetFromAxisAndAngle(vAxis, ezAngle::Degree(fNewDistance));
+      qRotation.SetFromAxisAndAngle(m_vRotationAxis, ezAngle::Degree(fNewDistance));
 
       GetOwner()->SetLocalRotation(GetOwner()->GetLocalRotation() * -m_LastRotation * qRotation);
 
@@ -124,7 +101,7 @@ void ezRotorComponent::Update()
       /// \todo This will probably give precision issues pretty quickly
 
       ezQuat qRotation;
-      qRotation.SetFromAxisAndAngle(vAxis, ezAngle::Degree(m_fAnimationSpeed * (float)m_AnimationTime.GetSeconds()));
+      qRotation.SetFromAxisAndAngle(m_vRotationAxis, ezAngle::Degree(m_fAnimationSpeed * (float)m_AnimationTime.GetSeconds()));
 
       GetOwner()->SetLocalRotation(GetOwner()->GetLocalRotation() * -m_LastRotation * qRotation);
       m_LastRotation = qRotation;
@@ -143,13 +120,14 @@ void ezRotorComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_fDeceleration;
   s << m_Axis.GetValue();
   s << m_LastRotation;
+  s << m_AxisDeviation;
 }
 
 
 void ezRotorComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = stream.GetStream();
 
@@ -158,6 +136,53 @@ void ezRotorComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fDeceleration;
   s >> m_Axis;
   s >> m_LastRotation;
+
+  if (uiVersion >= 3)
+  {
+    s >> m_AxisDeviation;
+  }
+}
+
+void ezRotorComponent::OnSimulationStarted()
+{
+  SUPER::OnSimulationStarted();
+
+  switch (m_Axis)
+  {
+    case ezBasisAxis::PositiveX:
+      m_vRotationAxis.Set(1, 0, 0);
+      break;
+    case ezBasisAxis::PositiveY:
+      m_vRotationAxis.Set(0, 1, 0);
+      break;
+    case ezBasisAxis::PositiveZ:
+      m_vRotationAxis.Set(0, 0, 1);
+      break;
+    case ezBasisAxis::NegativeX:
+      m_vRotationAxis.Set(-1, 0, 0);
+      break;
+    case ezBasisAxis::NegativeY:
+      m_vRotationAxis.Set(0, -1, 0);
+      break;
+    case ezBasisAxis::NegativeZ:
+      m_vRotationAxis.Set(0, 0, -1);
+      break;
+  }
+
+  if (m_AxisDeviation.GetRadian() != 0.0f)
+  {
+    if (m_AxisDeviation > ezAngle::Degree(179))
+    {
+      m_vRotationAxis = ezVec3::CreateRandomDirection(GetWorld()->GetRandomNumberGenerator());
+    }
+    else
+    {
+      m_vRotationAxis = ezVec3::CreateRandomDeviation(GetWorld()->GetRandomNumberGenerator(), m_AxisDeviation, m_vRotationAxis);
+
+      if (m_AxisDeviation.GetRadian() > 0 && GetWorld()->GetRandomNumberGenerator().Bool())
+        m_vRotationAxis = -m_vRotationAxis;
+    }
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////

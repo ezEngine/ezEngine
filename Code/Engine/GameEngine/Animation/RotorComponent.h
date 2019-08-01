@@ -15,6 +15,12 @@ public:
 
   void Update();
 
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent interface
+
+protected:
+  virtual void OnSimulationStarted() override;
+
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
@@ -25,7 +31,9 @@ public:
   float m_fAcceleration;
   float m_fDeceleration;
   ezEnum<ezBasisAxis> m_Axis;
+  ezAngle m_AxisDeviation;
 
 private:
+  ezVec3 m_vRotationAxis;
   ezQuat m_LastRotation;
 };
