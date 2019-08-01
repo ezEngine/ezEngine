@@ -34,11 +34,11 @@ endif()
 
 ez_init_projects()
 
-add_subdirectory(Code)
-
 ez_add_external_projects_folder("_1")
 ez_add_external_projects_folder("_2")
 ez_add_external_projects_folder("_3")
+
+add_subdirectory(Code)
 
 if (TARGET Editor)
 

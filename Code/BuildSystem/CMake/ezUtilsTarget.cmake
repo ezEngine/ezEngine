@@ -86,6 +86,12 @@ function(ez_create_target TYPE TARGET_NAME)
         ez_generate_folder_unity_files_for_target(${TARGET_NAME} ${CMAKE_CURRENT_SOURCE_DIR} "${ARG_EXCLUDE_FOLDER_FOR_UNITY}")
 
     endif()
+	
+	get_property(GATHER_EXTERNAL_PROJECTS GLOBAL PROPERTY "GATHER_EXTERNAL_PROJECTS")
+	
+	if (GATHER_EXTERNAL_PROJECTS)
+		set_property(GLOBAL APPEND_STRING PROPERTY "EXTERNAL_PROJECTS" ${TARGET_NAME})
+	endif()
 
 endfunction()
 

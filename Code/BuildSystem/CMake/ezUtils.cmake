@@ -391,7 +391,9 @@ function(ez_add_external_projects_folder PROJECT_NUMBER)
 		return()
 	endif()
 
+	set_property(GLOBAL PROPERTY "GATHER_EXTERNAL_PROJECTS" TRUE)
 	add_subdirectory(${CACHE_VAR_VALUE} "${CMAKE_BINARY_DIR}/ExternalProject${PROJECT_NUMBER}")
+	set_property(GLOBAL PROPERTY "GATHER_EXTERNAL_PROJECTS" FALSE)
 
 endfunction()
 
