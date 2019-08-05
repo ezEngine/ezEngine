@@ -56,7 +56,7 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 		target_compile_options(${TARGET_NAME} PRIVATE "/WX")
 	endif()
 	
-	if (CMAKE_SIZEOF_VOID_P EQUAL 4)
+	if ((CMAKE_SIZEOF_VOID_P EQUAL 4) AND EZ_CMAKE_ARCHITECTURE_X86)
 		# enable SSE2 (incompatible with /fp:except)
 		target_compile_options(${TARGET_NAME} PRIVATE "/arch:SSE2")
 	endif ()
@@ -77,9 +77,20 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 	
 	# Enable SSE4.1 for Clang on Windows.
 	# Todo: In general we should make this configurable. As of writing SSE4.1 is always active for windows builds (independent of the compiler)
-	if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+	if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" AND EZ_CMAKE_ARCHITECTURE_X86)
 		target_compile_options(${TARGET_NAME} PRIVATE "-msse4.1")
 	endif()
+	
+	set (LINKER_FLAGS_DEBUG "")
+	
+	#Do not remove unreferenced data. Required to make incremental linking work.
+	set (LINKER_FLAGS_DEBUG "${LINKER_FLAGS_DEBUG} /OPT:NOREF")
+	
+	#Do not enable comdat foliding in debug. Required to make incremental linking work.
+	set (LINKER_FLAGS_DEBUG "${LINKER_FLAGS_DEBUG} /OPT:NOICF")
+	
+	set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS_DEBUG           ${LINKER_FLAGS_DEBUG})
+	set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS_RELWITHDEBINFO  ${LINKER_FLAGS_DEBUG})
 	
 	set (LINKER_FLAGS_RELEASE "")
 	
@@ -88,7 +99,7 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 	# Remove unreferenced data (does not work together with incremental build)
 	set (LINKER_FLAGS_RELEASE "${LINKER_FLAGS_RELEASE} /OPT:REF")
 		
-	# Don't know what it does, but Clemens wants it :-) (does not work together with incremental build)
+	# Enable comdat folding. Reduces the number of redudant template functions and thus reduces binary size. Makes debugging ahrder though.
 	set (LINKER_FLAGS_RELEASE "${LINKER_FLAGS_RELEASE} /OPT:ICF")	
 
   	set_target_properties (${TARGET_NAME} PROPERTIES LINK_FLAGS_RELEASE        ${LINKER_FLAGS_RELEASE})
