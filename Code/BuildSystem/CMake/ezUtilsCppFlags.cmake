@@ -86,7 +86,7 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 	#Do not remove unreferenced data. Required to make incremental linking work.
 	set (LINKER_FLAGS_DEBUG "${LINKER_FLAGS_DEBUG} /OPT:NOREF")
 	
-	#Do not enable comdat foliding in debug. Required to make incremental linking work.
+	#Do not enable comdat folding in debug. Required to make incremental linking work.
 	set (LINKER_FLAGS_DEBUG "${LINKER_FLAGS_DEBUG} /OPT:NOICF")
 	
 	set_target_properties(${TARGET_NAME} PROPERTIES LINK_FLAGS_DEBUG           ${LINKER_FLAGS_DEBUG})
@@ -99,7 +99,7 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 	# Remove unreferenced data (does not work together with incremental build)
 	set (LINKER_FLAGS_RELEASE "${LINKER_FLAGS_RELEASE} /OPT:REF")
 		
-	# Enable comdat folding. Reduces the number of redudant template functions and thus reduces binary size. Makes debugging ahrder though.
+	# Enable comdat folding. Reduces the number of redudant template functions and thus reduces binary size. Makes debugging harder though.
 	set (LINKER_FLAGS_RELEASE "${LINKER_FLAGS_RELEASE} /OPT:ICF")	
 
   	set_target_properties (${TARGET_NAME} PROPERTIES LINK_FLAGS_RELEASE        ${LINKER_FLAGS_RELEASE})
