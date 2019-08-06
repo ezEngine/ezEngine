@@ -4,11 +4,11 @@
 #include <Texture/Image/ImageConversion.h>
 #include <Foundation/Math/Float16.h>
 
-#if EZ_SSE_LEVEL >= EZ_SSE_20
+#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_SSE_LEVEL >= EZ_SSE_20
 #  include <emmintrin.h>
 #endif
 
-#if EZ_SSE_LEVEL >= EZ_SSE_30
+#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_SSE_LEVEL >= EZ_SSE_30
 #  include <tmmintrin.h>
 #endif
 
@@ -276,9 +276,10 @@ struct ezImageSwizzleConversion32_2103 : public ezImageConversionStepLinear
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
 
+#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
     if (IsAligned(sourcePointer) && IsAligned(targetPointer))
     {
-#if EZ_SSE_LEVEL >= EZ_SSE_30
+#  if EZ_SSE_LEVEL >= EZ_SSE_30
       const ezUInt32 elementsPerBatch = 8;
 
       __m128i shuffleMask = _mm_set_epi8(15, 12, 13, 14, 11, 8, 9, 10, 7, 4, 5, 6, 3, 0, 1, 2);
@@ -296,7 +297,7 @@ struct ezImageSwizzleConversion32_2103 : public ezImageConversionStepLinear
         targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride * elementsPerBatch);
         numElements -= elementsPerBatch;
       }
-#else
+#  else
       const ezUInt32 elementsPerBatch = 8;
 
       __m128i mask1 = _mm_set1_epi32(0xff00ff00);
@@ -309,16 +310,17 @@ struct ezImageSwizzleConversion32_2103 : public ezImageConversionStepLinear
         __m128i in1 = reinterpret_cast<const __m128i*>(sourcePointer)[1];
 
         reinterpret_cast<__m128i*>(targetPointer)[0] =
-            _mm_or_si128(_mm_and_si128(in0, mask1), _mm_and_si128(_mm_or_si128(_mm_slli_epi32(in0, 16), _mm_srli_epi32(in0, 16)), mask2));
+          _mm_or_si128(_mm_and_si128(in0, mask1), _mm_and_si128(_mm_or_si128(_mm_slli_epi32(in0, 16), _mm_srli_epi32(in0, 16)), mask2));
         reinterpret_cast<__m128i*>(targetPointer)[1] =
-            _mm_or_si128(_mm_and_si128(in1, mask1), _mm_and_si128(_mm_or_si128(_mm_slli_epi32(in1, 16), _mm_srli_epi32(in1, 16)), mask2));
+          _mm_or_si128(_mm_and_si128(in1, mask1), _mm_and_si128(_mm_or_si128(_mm_slli_epi32(in1, 16), _mm_srli_epi32(in1, 16)), mask2));
 
         sourcePointer = ezMemoryUtils::AddByteOffset(sourcePointer, sourceStride * elementsPerBatch);
         targetPointer = ezMemoryUtils::AddByteOffset(targetPointer, targetStride * elementsPerBatch);
         numElements -= elementsPerBatch;
       }
-#endif
+#  endif
     }
+#endif
 
     while (numElements)
     {
@@ -361,7 +363,7 @@ struct ezImageConversion_BGRX_BGRA : public ezImageConversionStepLinear
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
 
-#if EZ_SSE_LEVEL >= EZ_SSE_20
+#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_SSE_LEVEL >= EZ_SSE_20
     if (IsAligned(sourcePointer) && IsAligned(targetPointer))
     {
       const ezUInt32 elementsPerBatch = 4;
@@ -429,7 +431,7 @@ public:
     const void* sourcePointer = source.GetPtr();
     void* targetPointer = target.GetPtr();
 
-#if EZ_SSE_LEVEL >= EZ_SSE_20
+#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_SSE_LEVEL >= EZ_SSE_20
     {
       const ezUInt32 elementsPerBatch = 16;
 
