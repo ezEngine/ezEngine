@@ -1,1 +1,2 @@
-rd /s /q CMakeFiles && "C:\Program Files\CMake\bin\cmake.exe" -DCMAKE_BINARY_DIR=D:\ezEngine\workspaceAndroid -G Ninja -DCMAKE_TOOLCHAIN_FILE="D:\android-ndk-r20\build\cmake\android.toolchain.cmake" -DANDROID_PLATFORM=21
+if exist CMakeFiles rd /s /q workspaceAndroid
+"C:\Program Files\CMake\bin\cmake.exe" -G Ninja -S . -B .\workspaceAndroid -DCMAKE_TOOLCHAIN_FILE="D:\android-ndk-r20\build\cmake\android.toolchain.cmake" -DANDROID_PLATFORM=21 -DEZ_ENABLE_QT_SUPPORT=0
