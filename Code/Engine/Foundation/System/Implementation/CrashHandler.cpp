@@ -93,7 +93,7 @@ void ezCrashHandler_WriteMiniDump::HandleCrash(void* pOsSpecificData)
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #  include <Foundation/System/Implementation/Win/CrashHandler_win.h>
-#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
+#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
 #  include <Foundation/System/Implementation/Posix/CrashHandler_posix.h>
 #else
 #  error "ezCrashHandler is not implemented on current platform"

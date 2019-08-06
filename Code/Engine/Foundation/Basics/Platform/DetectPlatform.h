@@ -17,6 +17,11 @@
 #    define EZ_PLATFORM_IOS EZ_ON
 #  endif
 
+#elif defined(ANDROID)
+
+#undef EZ_PLATFORM_ANDROID
+#define EZ_PLATFORM_ANDROID EZ_ON
+
 #elif defined(__linux)
 
 #  undef EZ_PLATFORM_LINUX

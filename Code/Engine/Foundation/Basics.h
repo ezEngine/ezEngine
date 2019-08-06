@@ -15,7 +15,7 @@
 #  include <Foundation/Basics/Platform/Win/Platform_win.h>
 #elif EZ_ENABLED(EZ_PLATFORM_OSX)
 #  include <Foundation/Basics/Platform/OSX/Platform_OSX.h>
-#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+#elif EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
 #  include <Foundation/Basics/Platform/Linux/Platform_Linux.h>
 #else
 #  error "Undefined platform!"

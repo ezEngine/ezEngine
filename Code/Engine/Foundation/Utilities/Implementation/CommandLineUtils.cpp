@@ -102,6 +102,8 @@ void ezCommandLineUtils::SetCommandLine()
 // Not implemented on OSX.
 #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
 // Not implemented on Linux.
+#elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
+// Not implemented on Android.
 #else
 #  error "ezCommandLineUtils::SetCommandLine(): Abstraction missing."
 #endif

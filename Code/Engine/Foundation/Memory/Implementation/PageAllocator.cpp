@@ -23,7 +23,7 @@ ezAllocatorId ezPageAllocator::GetId()
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #include <Foundation/Memory/Implementation/Win/PageAllocator_win.h>
-#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
+#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
 #include <Foundation/Memory/Implementation/Posix/PageAllocator_posix.h>
 #else
 #error "ezPageAllocator is not implemented on current platform"

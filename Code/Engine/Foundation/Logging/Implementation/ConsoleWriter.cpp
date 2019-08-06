@@ -11,7 +11,7 @@ static void SetConsoleColor(WORD ui)
   SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), ui);
 #endif
 }
-#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
+#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
 static void SetConsoleColor(ezUInt8 ui) {}
 #else
 #error "Unknown Platform."

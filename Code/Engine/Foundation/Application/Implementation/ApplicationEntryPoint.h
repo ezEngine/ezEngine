@@ -10,7 +10,7 @@
 
 #include <Foundation/Application/Implementation/uwp/ApplicationEntryPoint_uwp.h>
 
-#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
+#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
 
 #include <Foundation/Application/Implementation/Posix/ApplicationEntryPoint_posix.h>
 

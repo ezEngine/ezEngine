@@ -6,6 +6,8 @@
 #include <Foundation/Basics/Platform/OSX/PlatformFeatures_OSX.h>
 #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
 #include <Foundation/Basics/Platform/Linux/PlatformFeatures_Linux.h>
+#elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#include <Foundation/Basics/Platform/Android/PlatformFeatures_Android.h>
 #else
 #error "Undefined platform!"
 #endif

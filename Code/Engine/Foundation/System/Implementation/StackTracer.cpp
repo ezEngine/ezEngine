@@ -14,6 +14,8 @@
 
 #elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
 #include <Foundation/System/Implementation/Posix/StackTracer_posix.h>
+#elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#include <Foundation/System/Implementation/Android/StackTracer_android.h>
 #else
 #error "StackTracer is not implemented on current platform"
 #endif

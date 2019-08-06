@@ -128,7 +128,11 @@ function(ez_set_build_flags_clang TARGET_NAME)
 		target_compile_options(${TARGET_NAME} PRIVATE "-msse4.1")
 	endif()
 	
+	# Compile for c++17 if compiling a c++ file
 	target_compile_options(${TARGET_NAME} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-std=c++17>)
+	
+	# Disable warning: multi-character character constant
+	target_compile_options(${TARGET_NAME} PRIVATE -Wno-multichar)
 
 endfunction()
 
