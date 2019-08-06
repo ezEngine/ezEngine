@@ -62,8 +62,9 @@ endif()
 
 # set all external projects as runtime dependencies of this application
 get_property(EXTERNAL_PROJECTS GLOBAL PROPERTY "EXTERNAL_PROJECTS")
-message(STATUS "External Projects: ${EXTERNAL_PROJECTS}")
-if (EXTERNAL_PROJECTS)
-  add_dependencies(${PROJECT_NAME} ${EXTERNAL_PROJECTS})
+if(EXTERNAL_PROJECTS)
+	message(STATUS "External Projects: ${EXTERNAL_PROJECTS}")
+	add_dependencies(${PROJECT_NAME} ${EXTERNAL_PROJECTS})
 endif()
+
 
