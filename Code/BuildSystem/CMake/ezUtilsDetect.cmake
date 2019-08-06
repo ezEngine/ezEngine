@@ -365,15 +365,17 @@ function(ez_detect_architecture)
 	ez_pull_platform_vars()
 	ez_pull_compiler_vars()
 
-	if (${CMAKE_GENERATOR_PLATFORM} MATCHES "ARM")
-		message (STATUS "Platform is ARM (EZ_CMAKE_ARCHITECTURE_ARM)")
-		set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_ARM ON)
-	else()
-		message (STATUS "Platform is X86 (EZ_CMAKE_ARCHITECTURE_X86)")
-		set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_X86 ON)
-	endif()
+
 
 	if (EZ_CMAKE_PLATFORM_WINDOWS AND EZ_CMAKE_COMPILER_MSVC)
+	  
+	  if (${CMAKE_GENERATOR_PLATFORM} MATCHES "ARM")
+			message (STATUS "Platform is ARM (EZ_CMAKE_ARCHITECTURE_ARM)")
+			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_ARM ON)
+	  else()
+			message (STATUS "Platform is X86 (EZ_CMAKE_ARCHITECTURE_X86)")
+			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_X86 ON)
+	  endif()
 	  
 	  # Detect 64-bit builds for MSVC.
 	  if (CMAKE_CL_64)
@@ -392,6 +394,9 @@ function(ez_detect_architecture)
 
 	elseif (EZ_CMAKE_PLATFORM_OSX AND EZ_CMAKE_COMPILER_CLANG)
 	
+	  message (STATUS "Platform is X86 (EZ_CMAKE_ARCHITECTURE_X86)")
+	  set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_X86 ON)
+	
 	  # OS X always has 32/64 bit support in the project files and the user switches on demand.
 	  # However, we do not support 32 bit with our current build configuration so we throw an error on 32-bit systems.
 	  if (CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -405,6 +410,9 @@ function(ez_detect_architecture)
 	  endif ()
 
 	elseif (EZ_CMAKE_PLATFORM_LINUX AND EZ_CMAKE_COMPILER_GCC)
+	  
+	  message (STATUS "Platform is X86 (EZ_CMAKE_ARCHITECTURE_X86)")
+	  set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_X86 ON)
 	  
 	  # Detect 64-bit builds for Linux, no other way than checking CMAKE_SIZEOF_VOID_P.
 	  if (CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -421,6 +429,10 @@ function(ez_detect_architecture)
 		
 	  endif ()
 	elseif(EZ_CMAKE_PLATFORM_ANDROID AND EZ_CMAKE_COMPILER_CLANG)
+	
+	  message (STATUS "Platform is ARM (EZ_CMAKE_ARCHITECTURE_ARM)")
+	  set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_ARM ON)
+	
 	  # Detect 64-bit builds for Android, ANDROID_ABI is arm64-v8a or similar if 64-bit
 	  if (ANDROID_ABI MATCHES "arm64")
 	  

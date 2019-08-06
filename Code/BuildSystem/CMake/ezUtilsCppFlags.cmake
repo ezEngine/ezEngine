@@ -120,8 +120,15 @@ function(ez_set_build_flags_clang TARGET_NAME)
 	#set (CMAKE_CPP_CREATE_STATIC_LIBRARY ON)
 	#endif ()
 	
-	target_compile_options(${TARGET_NAME} PRIVATE "-stdlib=libc++")
-	target_compile_options(${TARGET_NAME} PRIVATE "-msse4.1")
+	if(NOT EZ_CMAKE_PLATFORM_ANDROID)
+		target_compile_options(${TARGET_NAME} PRIVATE "-stdlib=libc++")
+	endif()
+	
+	if(EZ_CMAKE_ARCHITECTURE_X86)
+		target_compile_options(${TARGET_NAME} PRIVATE "-msse4.1")
+	endif()
+	
+	target_compile_options(${TARGET_NAME} PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-std=c++17>)
 
 endfunction()
 
