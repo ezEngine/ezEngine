@@ -109,9 +109,13 @@ namespace ezMath
 
   EZ_ALWAYS_INLINE ezUInt32 CountBits(ezUInt32 value)
   {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS) && EZ_ENABLED(EZ_PLATFORM_ARCH_X86)
+#if EZ_ENABLED(EZ_COMPILER_MSVC) && (EZ_ENABLED(EZ_PLATFORM_ARCH_X86) || EZ_ENABLED(EZ_PLATFORM_ARCH_ARM))
+#  if EZ_ENABLED(EZ_PLATFORM_ARCH_X86)
     return __popcnt(value);
-#elif (EZ_ENABLED(EZ_COMPILER_GCC) || EZ_ENABLED(EZ_COMPILER_CLANG)) && EZ_ENABLED(EZ_PLATFORM_ARCH_X86)
+#  else
+    return _CountOneBits(value);
+#  endif
+#elif EZ_ENABLED(EZ_COMPILER_GCC) || EZ_ENABLED(EZ_COMPILER_CLANG)
     return __builtin_popcount(value);
 #else
     value = value - ((value >> 1) & 0x55555555u);
