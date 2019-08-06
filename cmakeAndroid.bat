@@ -1,0 +1,1 @@
+rd /s /q CMakeFiles && "C:\Program Files\CMake\bin\cmake.exe" -DCMAKE_BINARY_DIR=D:\ezEngine\workspaceAndroid -G Ninja -DCMAKE_TOOLCHAIN_FILE="D:\ezEngine\Code\BuildSystem\CMake\toolchain-android.cmake" --debug-output
