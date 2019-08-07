@@ -41,8 +41,13 @@ function(ez_create_target TYPE TARGET_NAME)
     elseif (${TYPE} STREQUAL "APPLICATION")
 
         message (STATUS "Application: ${TARGET_NAME}")
-
-        add_executable (${TARGET_NAME} ${ALL_SOURCE_FILES})
+		
+		# On Android we can't use executables. Instead we have to use shared libraries which are loaded from java code.
+		if (EZ_CMAKE_PLATFORM_ANDROID)
+			add_library(${TARGET_NAME} SHARED ${ALL_SOURCE_FILES})
+		else()
+			add_executable (${TARGET_NAME} ${ALL_SOURCE_FILES})
+		endif()
 
         ez_uwp_add_default_content(${TARGET_NAME})
 
