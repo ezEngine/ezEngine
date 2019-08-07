@@ -1,0 +1,37 @@
+{
+  "configurations": [
+    {
+      "name": "Android-arm-Debug",
+      "generator": "Ninja",
+      "configurationType": "Debug",
+      "inheritEnvironments": [ "vsdev" ],
+      "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
+      "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
+      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=\"${env.NDK}\\build\\cmake\\android.toolchain.cmake\" -DANDROID_PLATFORM=21 -DEZ_ENABLE_QT_SUPPORT=0",
+      "buildCommandArgs": "-v",
+      "ctestCommandArgs": "",
+    },
+    {
+      "name": "Android-arm-RelWithDebInfo",
+      "generator": "Ninja",
+      "configurationType": "RelWithDebInfo",
+      "inheritEnvironments": [ "vsdev" ],
+      "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
+      "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
+      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=\"${env.NDK}\\build\\cmake\\android.toolchain.cmake\" -DANDROID_PLATFORM=21 -DEZ_ENABLE_QT_SUPPORT=0",
+      "buildCommandArgs": "-v",
+      "ctestCommandArgs": ""
+    },
+    {
+      "name": "Android-arm-Release",
+      "generator": "Ninja",
+      "configurationType": "Release",
+      "inheritEnvironments": [ "vsdev" ],
+      "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
+      "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
+      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=\"${env.NDK}\\build\\cmake\\android.toolchain.cmake\" -DANDROID_PLATFORM=21 -DEZ_ENABLE_QT_SUPPORT=0",
+      "buildCommandArgs": "-v",
+      "ctestCommandArgs": ""
+    }
+  ]
+}
