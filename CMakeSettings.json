@@ -15,7 +15,7 @@
         },
         {
           "name": "ANDROID_PLATFORM",
-          "value": "21"
+          "value": "26"
         },
         {
           "name": "EZ_ENABLE_QT_SUPPORT",
@@ -41,7 +41,7 @@
         },
         {
           "name": "ANDROID_PLATFORM",
-          "value": "21"
+          "value": "26"
         },
         {
           "name": "EZ_ENABLE_QT_SUPPORT",
@@ -67,7 +67,7 @@
         },
         {
           "name": "ANDROID_PLATFORM",
-          "value": "21"
+          "value": "26"
         },
         {
           "name": "EZ_ENABLE_QT_SUPPORT",
