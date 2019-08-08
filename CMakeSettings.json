@@ -7,9 +7,24 @@
       "inheritEnvironments": [ "vsdev" ],
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
-      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=\"${env.NDK}\\build\\cmake\\android.toolchain.cmake\" -DANDROID_PLATFORM=21 -DEZ_ENABLE_QT_SUPPORT=0",
+      "variables": [
+        {
+          "name": "CMAKE_TOOLCHAIN_FILE",
+          "value": "${env.NDK}\\build\\cmake\\android.toolchain.cmake",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "ANDROID_PLATFORM",
+          "value": "21"
+        },
+        {
+          "name": "EZ_ENABLE_QT_SUPPORT",
+          "value" : "0"
+        }
+      ],
       "buildCommandArgs": "-v",
       "ctestCommandArgs": "",
+      "intelliSenseMode": "android-clang-arm"
     },
     {
       "name": "Android-arm-RelWithDebInfo",
@@ -18,9 +33,24 @@
       "inheritEnvironments": [ "vsdev" ],
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
-      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=\"${env.NDK}\\build\\cmake\\android.toolchain.cmake\" -DANDROID_PLATFORM=21 -DEZ_ENABLE_QT_SUPPORT=0",
+      "variables": [
+        {
+          "name": "CMAKE_TOOLCHAIN_FILE",
+          "value": "${env.NDK}\\build\\cmake\\android.toolchain.cmake",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "ANDROID_PLATFORM",
+          "value": "21"
+        },
+        {
+          "name": "EZ_ENABLE_QT_SUPPORT",
+          "value": "0"
+        }
+      ],
       "buildCommandArgs": "-v",
-      "ctestCommandArgs": ""
+      "ctestCommandArgs": "",
+      "intelliSenseMode": "android-clang-arm"
     },
     {
       "name": "Android-arm-Release",
@@ -29,9 +59,24 @@
       "inheritEnvironments": [ "vsdev" ],
       "buildRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\build\\${name}",
       "installRoot": "${env.USERPROFILE}\\CMakeBuilds\\${workspaceHash}\\install\\${name}",
-      "cmakeCommandArgs": "-DCMAKE_TOOLCHAIN_FILE=\"${env.NDK}\\build\\cmake\\android.toolchain.cmake\" -DANDROID_PLATFORM=21 -DEZ_ENABLE_QT_SUPPORT=0",
+      "variables": [
+        {
+          "name": "CMAKE_TOOLCHAIN_FILE",
+          "value": "${env.NDK}\\build\\cmake\\android.toolchain.cmake",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "ANDROID_PLATFORM",
+          "value": "21"
+        },
+        {
+          "name": "EZ_ENABLE_QT_SUPPORT",
+          "value": "0"
+        }
+      ],
       "buildCommandArgs": "-v",
-      "ctestCommandArgs": ""
+      "ctestCommandArgs": "",
+      "intelliSenseMode": "android-clang-arm"
     }
   ]
 }
