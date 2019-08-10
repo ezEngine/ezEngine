@@ -49,16 +49,18 @@ function(ez_create_target TYPE TARGET_NAME)
 			add_library(${TARGET_NAME} SHARED ${ALL_SOURCE_FILES} "${CMAKE_ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c")
 			
 			# Prevent the linker from stripping away the application entry point of android_native_app_glue: ANativeActivity_onCreate
-			target_link_options(${TARGET_NAME} PRIVATE "-u ANativeActivity_onCreate")
-			
+			set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
+
 			# The log and android libraries are library dependencies of android_native_app_glue
-			target_link_libraries(${TARGET_NAME} PRIVATE log android)
+            target_link_libraries(${TARGET_NAME} PRIVATE log android EGL GLESv1_CM)
+            
+            ez_android_add_default_content(${TARGET_NAME})
 		else()
 			add_executable (${TARGET_NAME} ${ALL_SOURCE_FILES})
 		endif()
-
+        
         ez_uwp_add_default_content(${TARGET_NAME})
-
+        
         ez_set_application_properties(${TARGET_NAME})
 
     else()
