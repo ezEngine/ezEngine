@@ -48,7 +48,13 @@ function(ez_android_add_default_content TARGET_NAME)
   set(_ZIPALIGN ${ANDROID_BUILD_TOOLS}/zipalign.exe)
   set(_ADB ${ANDROID_SDK}/platform-tools/adb.exe)
 
+  # We can't use generator expressions for BYPRODUCTS so we need to get the default LIBRARY_OUTPUT_DIRECTORY.
+  # As the ninja generator does not use generator expressions this is not an issue as LIBRARY_OUTPUT_DIRECTORY
+  # matches the build type set in CMAKE_BUILD_TYPE.
+  get_target_property(APK_OUTPUT_DIR ${TARGET_NAME} LIBRARY_OUTPUT_DIRECTORY)
+ 
   add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
+    BYPRODUCTS ${APK_OUTPUT_DIR}/${TARGET_NAME}.apk ${APK_OUTPUT_DIR}/${TARGET_NAME}.unaligned.apk
     COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${TARGET_NAME}> ${CONTENT_DIRECTORY_DST}/lib/${ANDROID_ABI}/lib${TARGET_NAME}.so
     COMMAND ${_AAPT} package --debug-mode -f -M ${CMAKE_CURRENT_BINARY_DIR}/AndroidManifest.xml -S ${CONTENT_DIRECTORY_DST}/res -I ${_PLATFORM} -F $<TARGET_FILE_DIR:${TARGET_NAME}>/${TARGET_NAME}.unaligned.apk ${CONTENT_DIRECTORY_DST}
     COMMAND ${_ZIPALIGN} -f 4 $<TARGET_FILE_DIR:${TARGET_NAME}>/${TARGET_NAME}.unaligned.apk $<TARGET_FILE_DIR:${TARGET_NAME}>/${TARGET_NAME}.apk

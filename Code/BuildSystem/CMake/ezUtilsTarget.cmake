@@ -52,9 +52,7 @@ function(ez_create_target TYPE TARGET_NAME)
 			set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
 
 			# The log and android libraries are library dependencies of android_native_app_glue
-            target_link_libraries(${TARGET_NAME} PRIVATE log android EGL GLESv1_CM)
-            
-            ez_android_add_default_content(${TARGET_NAME})
+            target_link_libraries(${TARGET_NAME} PRIVATE log android EGL GLESv1_CM)    
 		else()
 			add_executable (${TARGET_NAME} ${ALL_SOURCE_FILES})
 		endif()
@@ -79,7 +77,8 @@ function(ez_create_target TYPE TARGET_NAME)
     endif()
 
     ez_set_default_target_output_dirs(${TARGET_NAME})
-
+    #We need the target directory to add the apk packaging steps for android. Thus, this step needs to be done here.
+    ez_android_add_default_content(${TARGET_NAME})
     ez_add_target_folder_as_include_dir(${TARGET_NAME} ${CMAKE_CURRENT_SOURCE_DIR})
 
     ez_set_common_target_definitions(${TARGET_NAME})
