@@ -79,6 +79,9 @@ void ezRTTI::GatherDynamicMessageHandlers()
 {
   // This cannot be done in the constructor, because the parent types are not guaranteed to be initialized at that point
 
+  if (m_bGatheredDynamicMessageHandlers)
+    return;
+
   m_bGatheredDynamicMessageHandlers = true;
 
   ezUInt32 uiMinMsgId = ezInvalidIndex;
@@ -92,6 +95,16 @@ void ezRTTI::GatherDynamicMessageHandlers()
       ezUInt32 id = pInstance->m_MessageHandlers[i]->GetMessageId();
       uiMinMsgId = ezMath::Min(uiMinMsgId, id);
       uiMaxMsgId = ezMath::Max(uiMaxMsgId, id);
+    }
+
+    ezAbstractMessageHandler* pHandlerList = pInstance->m_pAdditionalMessageHandlers;
+    while (pHandlerList)
+    {
+      ezUInt32 id = pHandlerList->GetMessageId();
+      uiMinMsgId = ezMath::Min(uiMinMsgId, id);
+      uiMaxMsgId = ezMath::Max(uiMaxMsgId, id);
+
+      pHandlerList = pHandlerList->m_pLinkedMsgHandler;
     }
 
     pInstance = pInstance->m_pParentType;
@@ -117,6 +130,20 @@ void ezRTTI::GatherDynamicMessageHandlers()
         {
           m_DynamicMessageHandlers[uiIndex] = pHandler;
         }
+      }
+
+      ezAbstractMessageHandler* pHandlerList = pInstance->m_pAdditionalMessageHandlers;
+      while (pHandlerList)
+      {
+        ezUInt32 uiIndex = pHandlerList->GetMessageId() - m_uiMsgIdOffset;
+
+        // this check ensures that handlers in base classes do not override the derived handlers
+        if (m_DynamicMessageHandlers[uiIndex] == nullptr)
+        {
+          m_DynamicMessageHandlers[uiIndex] = pHandlerList;
+        }
+
+        pHandlerList = pHandlerList->m_pLinkedMsgHandler;
       }
 
       pInstance = pInstance->m_pParentType;
@@ -156,6 +183,9 @@ void ezRTTI::VerifyCorrectness() const
     {
       for (ezUInt32 i = 0; i < pInstance->m_Properties.GetCount(); ++i)
       {
+        if (pInstance->m_Properties[i] == nullptr)
+          continue;
+
         const bool bNewProperty = !Known.Find(pInstance->m_Properties[i]->GetPropertyName()).IsValid();
         Known.Insert(pInstance->m_Properties[i]->GetPropertyName());
 
@@ -223,7 +253,16 @@ void ezRTTI::GetAllProperties(ezHybridArray<ezAbstractProperty*, 32>& out_Proper
   if (m_pParentType)
     m_pParentType->GetAllProperties(out_Properties);
 
-  out_Properties.PushBackRange(GetProperties());
+  out_Properties.Reserve(out_Properties.GetCount() + m_Properties.GetCount());
+
+  for (auto prop : m_Properties)
+  {
+    // filter out nullptr properties
+    if (prop != nullptr)
+    {
+      out_Properties.PushBack(prop);
+    }
+  }
 }
 
 ezRTTI* ezRTTI::FindTypeByName(const char* szName)
@@ -275,7 +314,7 @@ ezAbstractProperty* ezRTTI::FindPropertyByName(const char* szName, bool bSearchB
   {
     for (ezUInt32 p = 0; p < pInstance->m_Properties.GetCount(); ++p)
     {
-      if (ezStringUtils::IsEqual(pInstance->m_Properties[p]->GetPropertyName(), szName))
+      if (pInstance->m_Properties[p] && ezStringUtils::IsEqual(pInstance->m_Properties[p]->GetPropertyName(), szName))
       {
         return pInstance->m_Properties[p];
       }
@@ -392,6 +431,9 @@ void ezRTTI::SanityCheckType(ezRTTI* pType)
 
   for (auto pProp : pType->m_Properties)
   {
+    if (pProp == nullptr)
+      continue;
+
     const ezRTTI* pSpecificType = pProp->GetSpecificType();
 
     EZ_ASSERT_DEBUG(IsValidIdentifierName(pProp->GetPropertyName()), "Property name is invalid: '{0}'", pProp->GetPropertyName());
@@ -482,7 +524,5 @@ void ezRTTI::PluginEventHandler(const ezPlugin::PluginEvent& EventData)
       break;
   }
 }
-
-
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Reflection_Implementation_RTTI);

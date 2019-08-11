@@ -980,6 +980,8 @@ void ezReflectionUtils::GatherDependentTypes(const ezRTTI* pRtti, ezSet<const ez
   for (ezUInt32 i = 0; i < uiCount; ++i)
   {
     ezAbstractProperty* prop = rttiProps[i];
+    if (prop == nullptr)
+      continue;
     if (prop->GetFlags().IsSet(ezPropertyFlags::StandardType))
       continue;
     if (prop->GetAttributeByType<ezTemporaryAttribute>() != nullptr)

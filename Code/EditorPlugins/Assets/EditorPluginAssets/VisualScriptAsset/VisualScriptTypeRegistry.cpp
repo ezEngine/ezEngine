@@ -7,13 +7,13 @@
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptGraphQt.moc.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptTypeRegistry.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>
-#include <Foundation/Profiling/Profiling.h>
 
 EZ_IMPLEMENT_SINGLETON(ezVisualScriptTypeRegistry);
 
@@ -54,18 +54,17 @@ EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 ezVisualScriptTypeRegistry::ezVisualScriptTypeRegistry()
-    : m_SingletonRegistrar(this)
+  : m_SingletonRegistrar(this)
 {
   m_pBaseType = nullptr;
   ezPhantomRttiManager::s_Events.AddEventHandler(ezMakeDelegate(&ezVisualScriptTypeRegistry::PhantomTypeRegistryEventHandler, this));
-
 }
 
 
- ezVisualScriptTypeRegistry::~ezVisualScriptTypeRegistry()
- {
-   ezPhantomRttiManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezVisualScriptTypeRegistry::PhantomTypeRegistryEventHandler, this));
- }
+ezVisualScriptTypeRegistry::~ezVisualScriptTypeRegistry()
+{
+  ezPhantomRttiManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezVisualScriptTypeRegistry::PhantomTypeRegistryEventHandler, this));
+}
 
 const ezVisualScriptNodeDescriptor* ezVisualScriptTypeRegistry::GetDescriptorForType(const ezRTTI* pRtti) const
 {
@@ -307,12 +306,27 @@ const ezRTTI* ezVisualScriptTypeRegistry::GenerateTypeFromDesc(const ezVisualScr
 
 void ezVisualScriptTypeRegistry::CreateMessageNodeType(const ezRTTI* pRtti)
 {
-  const ezStringBuilder tmp(pRtti->GetTypeName(), "<send>");
+  ezStringBuilder tmp(pRtti->GetTypeName(), "<send>");
 
   ezVisualScriptNodeDescriptor nd;
   nd.m_sTypeName = tmp;
   nd.m_Color = ezColor::MediumPurple;
   nd.m_sCategory = "Message Senders";
+
+  if (const char* szSfMsg = ezStringUtils::FindSubString(pRtti->GetTypeName(), "::SfMsg_"))
+  {
+    ezStringBuilder sClassName;
+    sClassName.SetSubString_FromTo(pRtti->GetTypeName(), szSfMsg);
+
+    const char* szFuncName = szSfMsg + 8;
+
+    tmp.Format("Components/{}", sClassName);
+    nd.m_sCategory = tmp;
+
+    tmp.Format("{}\n{}()", sClassName, szFuncName);
+    nd.m_sTitle = tmp;
+  }
+
 
   if (const ezCategoryAttribute* pAttr = pRtti->GetAttributeByType<ezCategoryAttribute>())
   {
@@ -377,17 +391,6 @@ void ezVisualScriptTypeRegistry::CreateMessageNodeType(const ezRTTI* pRtti)
     nd.m_InputPins.PushBack(pd);
   }
 
-  // Delayed Delivery Property
-  {
-    ezReflectedPropertyDescriptor prd;
-    prd.m_Flags = ezPropertyFlags::StandardType | ezPropertyFlags::Phantom;
-    prd.m_Category = ezPropertyCategory::Member;
-    prd.m_sName = "Delay";
-    prd.m_sType = ezGetStaticRTTI<ezTime>()->GetTypeName();
-
-    nd.m_Properties.PushBack(prd);
-  }
-
   // Recursive Delivery Property
   {
     ezReflectedPropertyDescriptor prd;
@@ -399,12 +402,19 @@ void ezVisualScriptTypeRegistry::CreateMessageNodeType(const ezRTTI* pRtti)
     nd.m_Properties.PushBack(prd);
   }
 
-  ezInt32 iDataPinIndex = 1; // the first valid index is '2', because of the object and component data pins
-  for (auto prop : properties)
+  // the first valid index is '2', because of the object and component data pins (and we always increase it first)
+  ezInt32 iDataPinIndex = 1;
+  bool bHasAnyOutDataPins = false;
+
+  ezStringBuilder sPinName;
+
+  for (const ezAbstractProperty* prop : properties)
   {
-    if (prop->GetCategory() == ezPropertyCategory::Constant)
+    if (prop == nullptr || prop->GetCategory() == ezPropertyCategory::Constant)
       continue;
 
+    // do not add node properties for message parameters that are 'out' values
+    if (!prop->GetFlags().IsSet(ezPropertyFlags::VarOut))
     {
       ezReflectedPropertyDescriptor prd;
       prd.m_Flags = prop->GetFlags();
@@ -421,31 +431,66 @@ void ezVisualScriptTypeRegistry::CreateMessageNodeType(const ezRTTI* pRtti)
     }
 
     ++iDataPinIndex;
+
     const auto varType = prop->GetSpecificType()->GetVariantType();
     if (varType != ezVariantType::Bool && varType != ezVariantType::Double && varType != ezVariantType::Vector3)
       continue;
 
     ezVisualScriptPinDescriptor pid;
 
-    switch (varType)
+    // shared pin description
     {
-      case ezVariantType::Bool:
-        pid.m_DataType = ezVisualScriptDataPinType::Boolean;
-        break;
-      case ezVariantType::Double:
-        pid.m_DataType = ezVisualScriptDataPinType::Number;
-        break;
-      case ezVariantType::Vector3:
-        pid.m_DataType = ezVisualScriptDataPinType::Vec3;
-        break;
+      switch (varType)
+      {
+        case ezVariantType::Bool:
+          pid.m_DataType = ezVisualScriptDataPinType::Boolean;
+          break;
+        case ezVariantType::Double:
+          pid.m_DataType = ezVisualScriptDataPinType::Number;
+          break;
+        case ezVariantType::Vector3:
+          pid.m_DataType = ezVisualScriptDataPinType::Vec3;
+          break;
+      }
+
+      sPinName = prop->GetPropertyName();
+
+      pid.m_sName = sPinName;
+      pid.m_sTooltip = ""; /// \todo Use ezTranslateTooltip
+      pid.m_PinType = ezVisualScriptPinDescriptor::Data;
+      pid.m_Color = PinTypeColor(pid.m_DataType);
+      pid.m_uiPinIndex = iDataPinIndex;
     }
 
-    pid.m_sName = prop->GetPropertyName();
-    pid.m_sTooltip = ""; /// \todo Use ezTranslateTooltip
-    pid.m_PinType = ezVisualScriptPinDescriptor::Data;
-    pid.m_Color = PinTypeColor(pid.m_DataType);
-    pid.m_uiPinIndex = iDataPinIndex;
-    nd.m_InputPins.PushBack(pid);
+    // input pin
+    if (!prop->GetFlags().IsSet(ezPropertyFlags::VarOut))
+    {
+      nd.m_InputPins.PushBack(pid);
+    }
+
+    if (!prop->GetFlags().IsAnySet(ezPropertyFlags::VarInOut | ezPropertyFlags::VarOut))
+      continue;
+
+    bHasAnyOutDataPins = true;
+
+    // output pin
+    {
+      pid.m_uiPinIndex = iDataPinIndex - 2; // want this to be zero-based
+      nd.m_OutputPins.PushBack(pid);
+    }
+  }
+
+  if (!bHasAnyOutDataPins)
+  {
+    // Delayed Delivery Property
+
+    ezReflectedPropertyDescriptor prd;
+    prd.m_Flags = ezPropertyFlags::StandardType | ezPropertyFlags::Phantom;
+    prd.m_Category = ezPropertyCategory::Member;
+    prd.m_sName = "Delay";
+    prd.m_sType = ezGetStaticRTTI<ezTime>()->GetTypeName();
+
+    nd.m_Properties.PushBack(prd);
   }
 
   m_NodeDescriptors.Insert(GenerateTypeFromDesc(nd), nd);

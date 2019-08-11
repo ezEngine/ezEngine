@@ -23,6 +23,10 @@ public:
 
   EZ_ALWAYS_INLINE bool IsConst() const { return m_bIsConst; }
 
+  // needed for a linked list of 'additional' message handlers in ezRTTI
+  // see _ezScriptFunctionRegistrar
+  ezAbstractMessageHandler* m_pLinkedMsgHandler = nullptr;
+
 protected:
   typedef void (*DispatchFunc)(void*, ezMessage&);
   typedef void (*ConstDispatchFunc)(const void*, ezMessage&);
@@ -43,6 +47,20 @@ struct ezMessageSenderInfo
 
 namespace ezInternal
 {
+  /// \internal Used to add elements to ezRTTI::m_pAdditionalMessageHandlers
+  template <typename ClassName>
+  struct ezScriptFunctionRegistrar
+  {
+    inline ezScriptFunctionRegistrar(ezAbstractMessageHandler* pHandler)
+    {
+      const ezRTTI* pRtti = ClassName::GetStaticRTTI();
+
+      // extend the linked list
+      pHandler->m_pLinkedMsgHandler = pRtti->m_pAdditionalMessageHandlers;
+      pRtti->m_pAdditionalMessageHandlers = pHandler;
+    }
+  };
+
   template <typename Class, typename MessageType>
   struct MessageHandlerTraits
   {

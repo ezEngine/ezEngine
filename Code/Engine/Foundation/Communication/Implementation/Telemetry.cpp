@@ -2,7 +2,10 @@
 
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Threading/ThreadUtils.h>
+
+#ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
 #include <enet/enet.h>
+#endif
 
 class ezTelemetryThread;
 

@@ -80,9 +80,9 @@ void ezVisualScriptInstance::SetupPinDataTypeConversions()
   RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Vec3, ezVisualScriptDataPinType::Vec3, ezVisualScriptAssignVec3Vec3);
   RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Number, ezVisualScriptDataPinType::Vec3, ezVisualScriptAssignNumberVec3);
   RegisterDataPinAssignFunction(ezVisualScriptDataPinType::GameObjectHandle, ezVisualScriptDataPinType::GameObjectHandle,
-                                ezVisualScriptAssignGameObject);
+    ezVisualScriptAssignGameObject);
   RegisterDataPinAssignFunction(ezVisualScriptDataPinType::ComponentHandle, ezVisualScriptDataPinType::ComponentHandle,
-                                ezVisualScriptAssignComponent);
+    ezVisualScriptAssignComponent);
   RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Number, ezVisualScriptDataPinType::Boolean, ezVisualScriptAssignNumberBool);
 }
 
@@ -141,6 +141,8 @@ void ezVisualScriptInstance::ExecuteDependentNodes(ezUInt16 uiNode)
     // recurse to the most dependent nodes first
     ExecuteDependentNodes(uiDependency);
 
+    // only nodes that are not manually stepped are in the dependency list
+    // so we do not need to filter those out here
     pNode->Execute(this, 0);
     pNode->m_bInputValuesChanged = false;
   }
@@ -201,7 +203,7 @@ void ezVisualScriptInstance::Configure(const ezVisualScriptResourceHandle& hScri
   for (const auto& con : resource.m_DataPaths)
   {
     ConnectDataPins(con.m_uiSourceNode, con.m_uiOutputPin, (ezVisualScriptDataPinType::Enum)con.m_uiOutputPinType, con.m_uiTargetNode,
-                    con.m_uiInputPin, (ezVisualScriptDataPinType::Enum)con.m_uiInputPinType);
+      con.m_uiInputPin, (ezVisualScriptDataPinType::Enum)con.m_uiInputPinType);
   }
 
   ComputeNodeDependencies();
@@ -250,7 +252,7 @@ void ezVisualScriptInstance::CreateFunctionMessageNode(ezUInt32 uiNodeIdx, const
   const auto& node = resource.m_Nodes[uiNodeIdx];
 
   ezVisualScriptNode_MessageSender* pNode =
-      ezGetStaticRTTI<ezVisualScriptNode_MessageSender>()->GetAllocator()->Allocate<ezVisualScriptNode_MessageSender>();
+    ezGetStaticRTTI<ezVisualScriptNode_MessageSender>()->GetAllocator()->Allocate<ezVisualScriptNode_MessageSender>();
   pNode->m_uiNodeID = uiNodeIdx;
 
   pNode->m_pMessageToSend = node.m_pType->GetAllocator()->Allocate<ezMessage>();
@@ -292,7 +294,7 @@ void ezVisualScriptInstance::CreateEventMessageNode(ezUInt32 uiNodeIdx, const ez
   const auto& node = resource.m_Nodes[uiNodeIdx];
 
   ezVisualScriptNode_GenericEvent* pNode =
-      ezGetStaticRTTI<ezVisualScriptNode_GenericEvent>()->GetAllocator()->Allocate<ezVisualScriptNode_GenericEvent>();
+    ezGetStaticRTTI<ezVisualScriptNode_GenericEvent>()->GetAllocator()->Allocate<ezVisualScriptNode_GenericEvent>();
   pNode->m_uiNodeID = uiNodeIdx;
 
   pNode->m_sEventType = node.m_sTypeName;
@@ -353,7 +355,7 @@ void ezVisualScriptInstance::ConnectExecutionPins(ezUInt16 uiSourceNode, ezUInt8
 }
 
 void ezVisualScriptInstance::ConnectDataPins(ezUInt16 uiSourceNode, ezUInt8 uiSourcePin, ezVisualScriptDataPinType::Enum sourcePinType,
-                                             ezUInt16 uiTargetNode, ezUInt8 uiTargetPin, ezVisualScriptDataPinType::Enum targetPinType)
+  ezUInt16 uiTargetNode, ezUInt8 uiTargetPin, ezVisualScriptDataPinType::Enum targetPinType)
 {
   DataPinConnection& con = m_DataConnections[((ezUInt32)uiSourceNode << 16) | (ezUInt32)uiSourcePin].ExpandAndGetRef();
   con.m_uiTargetNode = uiTargetNode;
@@ -389,6 +391,11 @@ void ezVisualScriptInstance::SetOutputPinValue(const ezVisualScriptNode* pNode, 
 
 void ezVisualScriptInstance::ExecuteConnectedNodes(const ezVisualScriptNode* pNode, ezUInt16 uiNthTarget)
 {
+  EZ_ASSERT_DEBUG(pNode->IsManuallyStepped(), "Only visual script nodes that are flagged as manually stepped may call ExecuteConnectedNodes().\n\
+Otherwise visual script graph execution can end up in an endless recursion with stack-overflow.\n\
+Override ezVisualScriptNode::IsManuallyStepped() for type '{}' if necessary.",
+    pNode->GetDynamicRTTI()->GetTypeName());
+
   const ezUInt32 uiConnectionID = ((ezUInt32)pNode->m_uiNodeID << 16) | (ezUInt32)uiNthTarget;
 
   ExecPinConnection TargetNode;
@@ -409,7 +416,7 @@ void ezVisualScriptInstance::ExecuteConnectedNodes(const ezVisualScriptNode* pNo
 }
 
 void ezVisualScriptInstance::RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Enum sourceType,
-                                                           ezVisualScriptDataPinType::Enum dstType, ezVisualScriptDataPinAssignFunc func)
+  ezVisualScriptDataPinType::Enum dstType, ezVisualScriptDataPinAssignFunc func)
 {
   AssignFuncKey key;
   key.m_SourceType = sourceType;
@@ -419,7 +426,7 @@ void ezVisualScriptInstance::RegisterDataPinAssignFunction(ezVisualScriptDataPin
 }
 
 ezVisualScriptDataPinAssignFunc ezVisualScriptInstance::FindDataPinAssignFunction(ezVisualScriptDataPinType::Enum sourceType,
-                                                                                  ezVisualScriptDataPinType::Enum dstType)
+  ezVisualScriptDataPinType::Enum dstType)
 {
   AssignFuncKey key;
   key.m_SourceType = sourceType;
@@ -439,4 +446,3 @@ bool ezVisualScriptInstance::HandlesEventMessage(const ezEventMessage& msg) cons
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_VisualScript_Implementation_VisualScriptInstance);
-

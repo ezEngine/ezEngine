@@ -19,7 +19,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransformComponent, 2, ezRTTINoAllocator)
     EZ_ACCESSOR_PROPERTY("AutoToggleDirection", GetAutoToggleDirection, SetAutoToggleDirection), // If true, the animation might stop at start/end points, but set toggle its direction state. Triggering the animation again, means it will run in the reverse direction.
   }
   EZ_END_PROPERTIES;
-    EZ_BEGIN_ATTRIBUTES
+  EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Transform"),
   }
@@ -57,33 +57,33 @@ ezTransformComponent::ezTransformComponent()
   m_AnimationTime.SetZero();
 }
 
-void ezTransformComponent::ResumeAnimation()
+EZ_SCRIPTABLE_FUNCTION_IMPL_VOID(ezTransformComponent, ResumeAnimation)
 {
   m_Flags.Add(ezTransformComponentFlags::Autorun);
   m_Flags.Remove(ezTransformComponentFlags::Paused);
 }
 
-void ezTransformComponent::SetAnimationPaused(bool bPaused)
+EZ_SCRIPTABLE_FUNCTION_IMPL_VOID(ezTransformComponent, SetAnimationPaused, bool, bPaused)
 {
   m_Flags.AddOrRemove(ezTransformComponentFlags::Paused, bPaused);
 }
 
-void ezTransformComponent::SetDirectionForwards(bool bForwards)
+EZ_SCRIPTABLE_FUNCTION_IMPL_VOID(ezTransformComponent, SetDirectionForwards, bool, bForwards)
 {
   m_Flags.AddOrRemove(ezTransformComponentFlags::AnimationReversed, !bForwards);
 }
 
-void ezTransformComponent::ReverseDirection()
+EZ_SCRIPTABLE_FUNCTION_IMPL_VOID(ezTransformComponent, ReverseDirection)
 {
   m_Flags.AddOrRemove(ezTransformComponentFlags::AnimationReversed, !m_Flags.IsAnySet(ezTransformComponentFlags::AnimationReversed));
 }
 
-bool ezTransformComponent::IsDirectionForwards() const
+EZ_SCRIPTABLE_FUNCTION_IMPL(bool, ezTransformComponent, IsDirectionForwards) const
 {
   return !m_Flags.IsAnySet(ezTransformComponentFlags::AnimationReversed);
 }
 
-bool ezTransformComponent::IsAnimationRunning() const
+EZ_SCRIPTABLE_FUNCTION_IMPL(bool, ezTransformComponent, IsAnimationRunning) const
 {
   return m_Flags.IsAnySet(ezTransformComponentFlags::Autorun);
 }
@@ -171,71 +171,6 @@ float CalculateAcceleratedMovement(
 
   // return the distance with the decelerated movement
   return fDistanceInMeters - 0.5f * fDeceleration * ezMath::Square(fDecTime - fDecTime2);
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-// clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_TransformComponent, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_TransformComponent>)
-{
-  EZ_BEGIN_ATTRIBUTES
-  {
-    new ezCategoryAttribute("Components/Transform")
-  }
-  EZ_END_ATTRIBUTES;
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_INPUT_EXECUTION_PIN("Play", 0),
-    EZ_INPUT_EXECUTION_PIN("Pause", 1),
-    EZ_INPUT_EXECUTION_PIN("Reverse", 2),
-    EZ_INPUT_DATA_PIN("Component", 0, ezVisualScriptDataPinType::ComponentHandle),
-  }
-  EZ_END_PROPERTIES;
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-// clang-format on
-
-ezVisualScriptNode_TransformComponent::ezVisualScriptNode_TransformComponent() {}
-
-void ezVisualScriptNode_TransformComponent::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
-{
-  if (m_hComponent.IsInvalidated())
-    return;
-
-  ezComponent* pComponent = nullptr;
-  if (!pInstance->GetWorld()->TryGetComponent(m_hComponent, pComponent))
-    return;
-
-  if (!pComponent->GetDynamicRTTI()->IsDerivedFrom<ezTransformComponent>())
-    return;
-
-  ezTransformComponent* pTransform = static_cast<ezTransformComponent*>(pComponent);
-
-  switch (uiExecPin)
-  {
-    case 0:
-      pTransform->ResumeAnimation();
-      return;
-
-    case 1:
-      pTransform->SetAnimationPaused(true);
-      return;
-
-    case 2:
-      pTransform->ReverseDirection();
-      return;
-  }
-}
-
-void* ezVisualScriptNode_TransformComponent::GetInputPinDataPointer(ezUInt8 uiPin)
-{
-  switch (uiPin)
-  {
-    case 0:
-      return &m_hComponent;
-  }
-
-  return nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////

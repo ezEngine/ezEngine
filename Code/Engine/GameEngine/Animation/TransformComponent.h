@@ -1,9 +1,10 @@
 #pragma once
 
-#include <GameEngine/GameEngineDLL.h>
-#include <Core/World/World.h>
 #include <Core/World/Component.h>
+#include <Core/World/World.h>
+#include <Foundation/Communication/ScriptableFunctionBinding.h>
 #include <Foundation/Time/Time.h>
+#include <GameEngine/GameEngineDLL.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 
 struct ezTransformComponentFlags
@@ -12,14 +13,14 @@ struct ezTransformComponentFlags
 
   enum Enum
   {
-    None                = 0,
-    Autorun             = EZ_BIT(0),
-    AutoReturnStart     = EZ_BIT(1),
-    AutoReturnEnd       = EZ_BIT(2),
+    None = 0,
+    Autorun = EZ_BIT(0),
+    AutoReturnStart = EZ_BIT(1),
+    AutoReturnEnd = EZ_BIT(2),
     AutoToggleDirection = EZ_BIT(3),
-    Paused              = EZ_BIT(4),
-    AnimationReversed   = EZ_BIT(5),
-    Default             = Autorun | AutoReturnStart | AutoReturnEnd | AutoToggleDirection
+    Paused = EZ_BIT(4),
+    AnimationReversed = EZ_BIT(5),
+    Default = Autorun | AutoReturnStart | AutoReturnEnd | AutoToggleDirection
   };
 
   struct Bits
@@ -68,27 +69,10 @@ protected:
   // ************************************* FUNCTIONS *****************************
 
 public:
-  void ResumeAnimation();
-  void SetAnimationPaused(bool bPaused);
-  void SetDirectionForwards(bool bForwards);
-  void ReverseDirection();
-  bool IsDirectionForwards() const;
-  bool IsAnimationRunning() const;
+  EZ_SCRIPTABLE_FUNCTION_DECL_VOID(ResumeAnimation);
+  EZ_SCRIPTABLE_FUNCTION_DECL_VOID(SetAnimationPaused, bool, bPaused);
+  EZ_SCRIPTABLE_FUNCTION_DECL_VOID(SetDirectionForwards, bool, bForwards);
+  EZ_SCRIPTABLE_FUNCTION_DECL_VOID(ReverseDirection);
+  EZ_SCRIPTABLE_FUNCTION_DECL(bool, IsDirectionForwards) const;
+  EZ_SCRIPTABLE_FUNCTION_DECL(bool, IsAnimationRunning) const;
 };
-
-
-//////////////////////////////////////////////////////////////////////////
-
-class EZ_GAMEENGINE_DLL ezVisualScriptNode_TransformComponent : public ezVisualScriptNode
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_TransformComponent, ezVisualScriptNode);
-public:
-  ezVisualScriptNode_TransformComponent();
-
-  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
-  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override;
-
-  ezComponentHandle m_hComponent;
-};
-
-

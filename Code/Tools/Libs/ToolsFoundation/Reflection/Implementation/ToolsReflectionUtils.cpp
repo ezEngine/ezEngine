@@ -168,6 +168,9 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
   {
     ezAbstractProperty* prop = rttiProps[i];
 
+    if (prop == nullptr)
+      continue;
+
     switch (prop->GetCategory())
     {
       case ezPropertyCategory::Constant:
