@@ -28,7 +28,10 @@ public:
   virtual void HandleMessage(ezMessage* pMsg);
 
   /// \brief Whether the node has an execution pin (input or output) and thus must be stepped manually. Otherwise it will be implicitly executed on demand.
-  bool IsManuallyStepped() const;
+  ///
+  /// By default this is determined by checking the properties of the ezVisualScriptNode for attributes of type ezVisScriptExecPinOutAttribute
+  /// and ezVisScriptExecPinInAttribute. If those exist, it is a manually stepped node. However, derived types can override this to use other criteria.
+  virtual bool IsManuallyStepped() const;
 
 protected:
 
@@ -61,6 +64,7 @@ public:
 
   virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
   virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override;
+  virtual bool IsManuallyStepped() const override { return true; }
 
   ezGameObjectHandle m_hObject;
   ezComponentHandle m_hComponent;

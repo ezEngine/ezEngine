@@ -19,7 +19,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransformComponent, 2, ezRTTINoAllocator)
     EZ_ACCESSOR_PROPERTY("AutoToggleDirection", GetAutoToggleDirection, SetAutoToggleDirection), // If true, the animation might stop at start/end points, but set toggle its direction state. Triggering the animation again, means it will run in the reverse direction.
   }
   EZ_END_PROPERTIES;
-    EZ_BEGIN_ATTRIBUTES
+  EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Transform"),
   }

@@ -195,7 +195,7 @@ public:
   static const ezColor Yellow;               ///< #FFFF00
   static const ezColor YellowGreen;          ///< #9ACD32
 
-  // A simple color table with 4 batchs of 8 colors from light to dark. I.e., each
+  // A simple color table with 4 batches of 8 colors from light to dark. I.e., each
   // batch contains the same 8 colors but of increasingly darker shade. E.g., the
   // first batch (from index 0) contains lighter versions of the colors in the
   // second batch (from index 8).
