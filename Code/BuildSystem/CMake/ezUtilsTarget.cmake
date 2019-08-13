@@ -77,8 +77,12 @@ function(ez_create_target TYPE TARGET_NAME)
     endif()
 
     ez_set_default_target_output_dirs(${TARGET_NAME})
+	
     #We need the target directory to add the apk packaging steps for android. Thus, this step needs to be done here.
-    ez_android_add_default_content(${TARGET_NAME})
+	if (${TYPE} STREQUAL "APPLICATION")
+		ez_android_add_default_content(${TARGET_NAME})
+	endif()
+	
     ez_add_target_folder_as_include_dir(${TARGET_NAME} ${CMAKE_CURRENT_SOURCE_DIR})
 
     ez_set_common_target_definitions(${TARGET_NAME})
