@@ -20,21 +20,21 @@
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, ReflectionPool)
 
-BEGIN_SUBSYSTEM_DEPENDENCIES
-"Foundation",
-"Core",
-"RenderWorld"
-END_SUBSYSTEM_DEPENDENCIES
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+    "Foundation",
+    "Core",
+    "RenderWorld"
+  END_SUBSYSTEM_DEPENDENCIES
 
-ON_HIGHLEVELSYSTEMS_STARTUP
-{
-  ezReflectionPool::OnEngineStartup();
-}
+  ON_HIGHLEVELSYSTEMS_STARTUP
+  {
+    ezReflectionPool::OnEngineStartup();
+  }
 
-ON_HIGHLEVELSYSTEMS_SHUTDOWN
-{
-  ezReflectionPool::OnEngineShutdown();
-}
+  ON_HIGHLEVELSYSTEMS_SHUTDOWN
+  {
+    ezReflectionPool::OnEngineShutdown();
+  }
 
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
@@ -48,189 +48,185 @@ ezCVarInt CVarMaxFilterViews(
 // ezCVarBool CVarShadowPoolStats("r_ShadowPoolStats", false, ezCVarFlags::Default, "Display same stats of the shadow pool");
 #endif
 
-namespace
+static ezUInt32 s_uiReflectionCubeMapSize = 128;
+static ezUInt32 s_uiNumReflectionProbeCubeMaps = 32;
+static float s_fDebugSphereRadius = 0.3f;
+
+struct ReflectionView
 {
-  static ezUInt32 s_uiReflectionCubeMapSize = 128;
-  static ezUInt32 s_uiNumReflectionProbeCubeMaps = 32;
-  static float s_fDebugSphereRadius = 0.3f;
+  ezViewHandle m_hView;
+  ezCamera m_Camera;
+};
 
-  struct ReflectionView
+struct UpdateStep
+{
+  typedef ezUInt8 StorageType;
+
+  enum Enum
   {
-    ezViewHandle m_hView;
-    ezCamera m_Camera;
+    RenderFace0,
+    RenderFace1,
+    RenderFace2,
+    RenderFace3,
+    RenderFace4,
+    RenderFace5,
+    Filter,
+
+    ENUM_COUNT,
+
+    Default = Filter
   };
 
-  struct UpdateStep
+  static bool IsRenderStep(Enum value) { return value >= UpdateStep::RenderFace0 && value <= UpdateStep::RenderFace5; }
+
+  static Enum NextStep(Enum value) { return static_cast<UpdateStep::Enum>((value + 1) % UpdateStep::ENUM_COUNT); }
+};
+
+struct ProbeUpdateInfo
+{
+  ProbeUpdateInfo()
   {
-    typedef ezUInt8 StorageType;
+    ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-    enum Enum
     {
-      RenderFace0,
-      RenderFace1,
-      RenderFace2,
-      RenderFace3,
-      RenderFace4,
-      RenderFace5,
-      Filter,
+      ezGALTextureCreationDescription desc;
+      desc.m_uiWidth = s_uiReflectionCubeMapSize;
+      desc.m_uiHeight = s_uiReflectionCubeMapSize;
+      desc.m_uiMipLevelCount = ezMath::Log2i(s_uiReflectionCubeMapSize) - 1; // only down to 4x4
+      desc.m_Format = ezGALResourceFormat::RGBAHalf;
+      desc.m_Type = ezGALTextureType::TextureCube;
+      desc.m_bCreateRenderTarget = true;
+      desc.m_bAllowDynamicMipGeneration = true;
 
-      ENUM_COUNT,
-
-      Default = Filter
-    };
-
-    static bool IsRenderStep(Enum value) { return value >= UpdateStep::RenderFace0 && value <= UpdateStep::RenderFace5; }
-
-    static Enum NextStep(Enum value) { return static_cast<UpdateStep::Enum>((value + 1) % UpdateStep::ENUM_COUNT); }
-  };
-
-  struct ProbeUpdateInfo
-  {
-    ProbeUpdateInfo()
-    {
-      ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-
-      {
-        ezGALTextureCreationDescription desc;
-        desc.m_uiWidth = s_uiReflectionCubeMapSize;
-        desc.m_uiHeight = s_uiReflectionCubeMapSize;
-        desc.m_uiMipLevelCount = ezMath::Log2i(s_uiReflectionCubeMapSize) - 1; // only down to 4x4
-        desc.m_Format = ezGALResourceFormat::RGBAHalf;
-        desc.m_Type = ezGALTextureType::TextureCube;
-        desc.m_bCreateRenderTarget = true;
-        desc.m_bAllowDynamicMipGeneration = true;
-
-        m_hCubemap = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(desc);
-        pDevice->GetTexture(m_hCubemap)->SetDebugName("Reflection Cubemap");
-      }
-
-      ezStringBuilder sName;
-      for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_hCubemapProxies); ++i)
-      {
-        m_hCubemapProxies[i] = ezGALDevice::GetDefaultDevice()->CreateProxyTexture(m_hCubemap, i);
-
-        sName.Format("Reflection Cubemap Proxy {}", i);
-        pDevice->GetTexture(m_hCubemapProxies[i])->SetDebugName(sName);
-      }
+      m_hCubemap = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(desc);
+      pDevice->GetTexture(m_hCubemap)->SetDebugName("Reflection Cubemap");
     }
 
-    ProbeUpdateInfo(ProbeUpdateInfo&& other) { *this = std::move(other); }
-
-    ~ProbeUpdateInfo()
+    ezStringBuilder sName;
+    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_hCubemapProxies); ++i)
     {
-      for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_hCubemapProxies); ++i)
-      {
-        if (!m_hCubemapProxies[i].IsInvalidated())
-        {
-          ezGALDevice::GetDefaultDevice()->DestroyProxyTexture(m_hCubemapProxies[i]);
-        }
-      }
+      m_hCubemapProxies[i] = ezGALDevice::GetDefaultDevice()->CreateProxyTexture(m_hCubemap, i);
 
-      if (!m_hCubemap.IsInvalidated())
-      {
-        ezGPUResourcePool::GetDefaultInstance()->ReturnRenderTarget(m_hCubemap);
-      }
-    }
-
-    void operator=(ProbeUpdateInfo&& other)
-    {
-      m_uiLastActiveFrame = other.m_uiLastActiveFrame;
-      m_uiLastUpdatedFrame = other.m_uiLastUpdatedFrame;
-      m_pWorld = other.m_pWorld;
-      m_LastUpdateStep = other.m_LastUpdateStep;
-
-      m_UpdateSteps = std::move(other.m_UpdateSteps);
-
-      m_hCubemap = other.m_hCubemap;
-      other.m_hCubemap.Invalidate();
-
-      for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_hCubemapProxies); ++i)
-      {
-        m_hCubemapProxies[i] = other.m_hCubemapProxies[i];
-        other.m_hCubemapProxies[i].Invalidate();
-      }
-    }
-
-    ezUInt64 m_uiLastActiveFrame = -1;
-    ezUInt64 m_uiLastUpdatedFrame = -1;
-    ezWorld* m_pWorld = nullptr;
-    float m_fPriority = 0.0f;
-    ezUInt32 m_uiIndexInUpdateQueue = 0;
-    ezEnum<UpdateStep> m_LastUpdateStep;
-
-    struct Step
-    {
-      EZ_DECLARE_POD_TYPE();
-
-      ezUInt8 m_uiViewIndex;
-      ezEnum<UpdateStep> m_UpdateStep;
-    };
-
-    ezHybridArray<Step, 8> m_UpdateSteps;
-
-    ezGALTextureHandle m_hCubemap;
-    ezGALTextureHandle m_hCubemapProxies[6];
-
-    float GetPriority(ezUInt64 uiCurrentFrame) const
-    {
-      ezUInt32 uiFramesSinceLastUpdate = m_uiLastUpdatedFrame < uiCurrentFrame ? ezUInt32(uiCurrentFrame - m_uiLastUpdatedFrame) : 10000;
-      return uiFramesSinceLastUpdate * m_fPriority;
-    }
-  };
-
-  struct SortedUpdateInfo
-  {
-    EZ_DECLARE_POD_TYPE();
-
-    ProbeUpdateInfo* m_pUpdateInfo = nullptr;
-    ezUInt32 m_uiIndex = 0;
-    float m_fPriority = 0.0f;
-
-    EZ_ALWAYS_INLINE bool operator<(const SortedUpdateInfo& other) const
-    {
-      if (m_fPriority > other.m_fPriority) // we want to sort descending (higher priority first)
-        return true;
-
-      return m_uiIndex < other.m_uiIndex;
-    }
-  };
-
-  static void CreateViews(
-    ezDynamicArray<ReflectionView>& views, ezUInt32 uiMaxRenderViews, const char* szNameSuffix, const char* szRenderPipelineResource)
-  {
-    uiMaxRenderViews = ezMath::Max<ezUInt32>(uiMaxRenderViews, 1);
-
-    if (uiMaxRenderViews > views.GetCount())
-    {
-      ezStringBuilder sName;
-
-      ezUInt32 uiCurrentCount = views.GetCount();
-      for (ezUInt32 i = uiCurrentCount; i < uiMaxRenderViews; ++i)
-      {
-        auto& renderView = views.ExpandAndGetRef();
-
-        sName.Format("Reflection Probe {} {}", szNameSuffix, i);
-
-        ezView* pView = nullptr;
-        renderView.m_hView = ezRenderWorld::CreateView(sName, pView);
-
-        pView->SetCameraUsageHint(ezCameraUsageHint::Reflection);
-        pView->SetViewport(
-          ezRectFloat(0.0f, 0.0f, static_cast<float>(s_uiReflectionCubeMapSize), static_cast<float>(s_uiReflectionCubeMapSize)));
-
-        pView->SetRenderPipelineResource(ezResourceManager::LoadResource<ezRenderPipelineResource>(szRenderPipelineResource));
-
-        renderView.m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 90.0f, 0.1f, 100.0f); // TODO: expose
-        pView->SetCamera(&renderView.m_Camera);
-      }
-    }
-    else if (uiMaxRenderViews < views.GetCount())
-    {
-      views.SetCount(uiMaxRenderViews);
+      sName.Format("Reflection Cubemap Proxy {}", i);
+      pDevice->GetTexture(m_hCubemapProxies[i])->SetDebugName(sName);
     }
   }
 
-} // namespace
+  ProbeUpdateInfo(ProbeUpdateInfo&& other) { *this = std::move(other); }
+
+  ~ProbeUpdateInfo()
+  {
+    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_hCubemapProxies); ++i)
+    {
+      if (!m_hCubemapProxies[i].IsInvalidated())
+      {
+        ezGALDevice::GetDefaultDevice()->DestroyProxyTexture(m_hCubemapProxies[i]);
+      }
+    }
+
+    if (!m_hCubemap.IsInvalidated())
+    {
+      ezGPUResourcePool::GetDefaultInstance()->ReturnRenderTarget(m_hCubemap);
+    }
+  }
+
+  void operator=(ProbeUpdateInfo&& other)
+  {
+    m_uiLastActiveFrame = other.m_uiLastActiveFrame;
+    m_uiLastUpdatedFrame = other.m_uiLastUpdatedFrame;
+    m_pWorld = other.m_pWorld;
+    m_LastUpdateStep = other.m_LastUpdateStep;
+
+    m_UpdateSteps = std::move(other.m_UpdateSteps);
+
+    m_hCubemap = other.m_hCubemap;
+    other.m_hCubemap.Invalidate();
+
+    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_hCubemapProxies); ++i)
+    {
+      m_hCubemapProxies[i] = other.m_hCubemapProxies[i];
+      other.m_hCubemapProxies[i].Invalidate();
+    }
+  }
+
+  ezUInt64 m_uiLastActiveFrame = -1;
+  ezUInt64 m_uiLastUpdatedFrame = -1;
+  ezWorld* m_pWorld = nullptr;
+  float m_fPriority = 0.0f;
+  ezUInt32 m_uiIndexInUpdateQueue = 0;
+  ezEnum<UpdateStep> m_LastUpdateStep;
+
+  struct Step
+  {
+    EZ_DECLARE_POD_TYPE();
+
+    ezUInt8 m_uiViewIndex;
+    ezEnum<UpdateStep> m_UpdateStep;
+  };
+
+  ezHybridArray<Step, 8> m_UpdateSteps;
+
+  ezGALTextureHandle m_hCubemap;
+  ezGALTextureHandle m_hCubemapProxies[6];
+
+  float GetPriority(ezUInt64 uiCurrentFrame) const
+  {
+    ezUInt32 uiFramesSinceLastUpdate = m_uiLastUpdatedFrame < uiCurrentFrame ? ezUInt32(uiCurrentFrame - m_uiLastUpdatedFrame) : 10000;
+    return uiFramesSinceLastUpdate * m_fPriority;
+  }
+};
+
+struct SortedUpdateInfo
+{
+  EZ_DECLARE_POD_TYPE();
+
+  ProbeUpdateInfo* m_pUpdateInfo = nullptr;
+  ezUInt32 m_uiIndex = 0;
+  float m_fPriority = 0.0f;
+
+  EZ_ALWAYS_INLINE bool operator<(const SortedUpdateInfo& other) const
+  {
+    if (m_fPriority > other.m_fPriority) // we want to sort descending (higher priority first)
+      return true;
+
+    return m_uiIndex < other.m_uiIndex;
+  }
+};
+
+static void CreateViews(
+  ezDynamicArray<ReflectionView>& views, ezUInt32 uiMaxRenderViews, const char* szNameSuffix, const char* szRenderPipelineResource)
+{
+  uiMaxRenderViews = ezMath::Max<ezUInt32>(uiMaxRenderViews, 1);
+
+  if (uiMaxRenderViews > views.GetCount())
+  {
+    ezStringBuilder sName;
+
+    ezUInt32 uiCurrentCount = views.GetCount();
+    for (ezUInt32 i = uiCurrentCount; i < uiMaxRenderViews; ++i)
+    {
+      auto& renderView = views.ExpandAndGetRef();
+
+      sName.Format("Reflection Probe {} {}", szNameSuffix, i);
+
+      ezView* pView = nullptr;
+      renderView.m_hView = ezRenderWorld::CreateView(sName, pView);
+
+      pView->SetCameraUsageHint(ezCameraUsageHint::Reflection);
+      pView->SetViewport(
+        ezRectFloat(0.0f, 0.0f, static_cast<float>(s_uiReflectionCubeMapSize), static_cast<float>(s_uiReflectionCubeMapSize)));
+
+      pView->SetRenderPipelineResource(ezResourceManager::LoadResource<ezRenderPipelineResource>(szRenderPipelineResource));
+
+      renderView.m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 90.0f, 0.1f, 100.0f); // TODO: expose
+      pView->SetCamera(&renderView.m_Camera);
+    }
+  }
+  else if (uiMaxRenderViews < views.GetCount())
+  {
+    views.SetCount(uiMaxRenderViews);
+  }
+}
 
 // must not be in anonymous namespace
 template <>
@@ -759,4 +755,3 @@ void ezReflectionPool::OnBeginRender(ezUInt64 uiFrameCounter)
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_ReflectionPool);
-

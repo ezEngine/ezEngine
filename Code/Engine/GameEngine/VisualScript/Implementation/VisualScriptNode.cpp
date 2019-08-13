@@ -153,6 +153,30 @@ void ezVisualScriptNode_MessageSender::Execute(ezVisualScriptInstance* pInstance
           }
         }
       }
+
+      {
+        // could skip this, if we knew that there are no output pins, at all
+
+        ezHybridArray<ezAbstractProperty*, 32> properties;
+        m_pMessageToSend->GetDynamicRTTI()->GetAllProperties(properties);
+
+        for (ezUInt32 uiProp = 0; uiProp < properties.GetCount(); ++uiProp)
+        {
+          if (properties[uiProp]->GetCategory() == ezPropertyCategory::Member &&
+            properties[uiProp]->GetFlags().IsAnySet(ezPropertyFlags::VarInOut | ezPropertyFlags::VarOut))
+          {
+            ezAbstractMemberProperty* pAbsMember = static_cast<ezAbstractMemberProperty*>(properties[uiProp]);
+
+            const ezRTTI* pType = pAbsMember->GetSpecificType();
+
+            if (pType == ezGetStaticRTTI<bool>() || pType == ezGetStaticRTTI<double>() || pType == ezGetStaticRTTI<ezVec3>())
+            {
+              const void* pPropPtr = pAbsMember->GetPropertyPointer(m_pMessageToSend);
+              pInstance->SetOutputPinValue(this, uiProp, pPropPtr);
+            }
+          }
+        }
+      }
     }
     else
     {
@@ -243,7 +267,7 @@ ezVisualScriptNode_Log::~ezVisualScriptNode_Log() {}
 
 void ezVisualScriptNode_Log::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
-  ezLog::Debug(m_sLog, m_Value1, m_Value2);
+  ezLog::Dev(m_sLog, m_Value1, m_Value2);
 
   pInstance->ExecuteConnectedNodes(this, 0);
 }
@@ -266,4 +290,3 @@ void* ezVisualScriptNode_Log::GetInputPinDataPointer(ezUInt8 uiPin)
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_VisualScript_Implementation_VisualScriptNode);
-

@@ -79,6 +79,9 @@ void ezRTTI::GatherDynamicMessageHandlers()
 {
   // This cannot be done in the constructor, because the parent types are not guaranteed to be initialized at that point
 
+  if (m_bGatheredDynamicMessageHandlers)
+    return;
+
   m_bGatheredDynamicMessageHandlers = true;
 
   ezUInt32 uiMinMsgId = ezInvalidIndex;
