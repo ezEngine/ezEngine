@@ -819,6 +819,24 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAutoGenVisScriptMsgHandler, 1, ezRTTIDefaultAl
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScriptableFunctionAttribute, 1, ezRTTIDefaultAllocator<ezScriptableFunctionAttribute>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Arg1", m_sArg1),
+    EZ_MEMBER_PROPERTY("Arg2", m_sArg2),
+    EZ_MEMBER_PROPERTY("Arg3", m_sArg3),
+    EZ_MEMBER_PROPERTY("Arg4", m_sArg4),
+    EZ_MEMBER_PROPERTY("Arg5", m_sArg5),
+    EZ_MEMBER_PROPERTY("Arg6", m_sArg6),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 //////////////////////////////////////////////////////////////////////////
 

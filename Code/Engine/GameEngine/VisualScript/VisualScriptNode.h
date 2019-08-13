@@ -73,6 +73,23 @@ public:
   ezMessage* m_pMessageToSend = nullptr;
 };
 
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_GAMEENGINE_DLL ezVisualScriptNode_FunctionCall : public ezVisualScriptNode
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_FunctionCall, ezVisualScriptNode);
+
+public:
+  ezVisualScriptNode_FunctionCall();
+  ~ezVisualScriptNode_FunctionCall();
+
+  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
+  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override;
+  virtual bool IsManuallyStepped() const override { return true; }
+
+  ezComponentHandle m_hComponent;
+};
+
 
 //////////////////////////////////////////////////////////////////////////
 

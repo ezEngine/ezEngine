@@ -163,7 +163,7 @@ void ezVisualScriptNode_MessageSender::Execute(ezVisualScriptInstance* pInstance
         for (ezUInt32 uiProp = 0; uiProp < properties.GetCount(); ++uiProp)
         {
           if (properties[uiProp]->GetCategory() == ezPropertyCategory::Member &&
-            properties[uiProp]->GetFlags().IsAnySet(ezPropertyFlags::VarInOut | ezPropertyFlags::VarOut))
+              properties[uiProp]->GetFlags().IsAnySet(ezPropertyFlags::VarInOut | ezPropertyFlags::VarOut))
           {
             ezAbstractMemberProperty* pAbsMember = static_cast<ezAbstractMemberProperty*>(properties[uiProp]);
 
@@ -234,6 +234,99 @@ void* ezVisualScriptNode_MessageSender::GetInputPinDataPointer(ezUInt8 uiPin)
 
   return nullptr;
 }
+
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_FunctionCall, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_FunctionCall>)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Functions"),
+    new ezHiddenAttribute()
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezVisualScriptNode_FunctionCall::ezVisualScriptNode_FunctionCall()
+{
+}
+
+ezVisualScriptNode_FunctionCall::~ezVisualScriptNode_FunctionCall()
+{
+}
+
+void ezVisualScriptNode_FunctionCall::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
+{
+  if (m_hComponent.IsInvalidated())
+    return;
+
+  ezWorld* pWorld = pInstance->GetWorld();
+
+  ezComponent* pComponent = nullptr;
+  if (!pWorld->TryGetComponent(m_hComponent, pComponent))
+    return;
+
+  //pComponent->SendMessage(*m_pMessageToSend);
+
+  //{
+  //  // could skip this, if we knew that there are no output pins, at all
+
+  //  ezHybridArray<ezAbstractProperty*, 32> properties;
+  //  m_pMessageToSend->GetDynamicRTTI()->GetAllProperties(properties);
+
+  //  for (ezUInt32 uiProp = 0; uiProp < properties.GetCount(); ++uiProp)
+  //  {
+  //    if (properties[uiProp]->GetCategory() == ezPropertyCategory::Member &&
+  //        properties[uiProp]->GetFlags().IsAnySet(ezPropertyFlags::VarInOut | ezPropertyFlags::VarOut))
+  //    {
+  //      ezAbstractMemberProperty* pAbsMember = static_cast<ezAbstractMemberProperty*>(properties[uiProp]);
+
+  //      const ezRTTI* pType = pAbsMember->GetSpecificType();
+
+  //      if (pType == ezGetStaticRTTI<bool>() || pType == ezGetStaticRTTI<double>() || pType == ezGetStaticRTTI<ezVec3>())
+  //      {
+  //        const void* pPropPtr = pAbsMember->GetPropertyPointer(m_pMessageToSend);
+  //        pInstance->SetOutputPinValue(this, uiProp, pPropPtr);
+  //      }
+  //    }
+  //  }
+  //}
+
+  pInstance->ExecuteConnectedNodes(this, 0);
+}
+
+void* ezVisualScriptNode_FunctionCall::GetInputPinDataPointer(ezUInt8 uiPin)
+{
+  if (uiPin == 0)
+    return &m_hComponent;
+
+  //if (m_pMessageToSend != nullptr)
+  //{
+  //  const ezUInt32 uiProp = uiPin - 2;
+
+  //  ezHybridArray<ezAbstractProperty*, 32> properties;
+  //  m_pMessageToSend->GetDynamicRTTI()->GetAllProperties(properties);
+
+  //  if (properties[uiProp]->GetCategory() == ezPropertyCategory::Member)
+  //  {
+  //    ezAbstractMemberProperty* pAbsMember = static_cast<ezAbstractMemberProperty*>(properties[uiProp]);
+
+  //    const ezRTTI* pType = pAbsMember->GetSpecificType();
+
+  //    if (pType == ezGetStaticRTTI<bool>() || pType == ezGetStaticRTTI<double>() || pType == ezGetStaticRTTI<ezVec3>())
+  //    {
+  //      return pAbsMember->GetPropertyPointer(m_pMessageToSend);
+  //    }
+  //  }
+  //}
+
+  return nullptr;
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 

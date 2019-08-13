@@ -302,6 +302,10 @@ void ezVisualScriptInstance::CreateEventMessageNode(ezUInt32 uiNodeIdx, const ez
   m_Nodes.PushBack(pNode);
 }
 
+void ezVisualScriptInstance::CreateFunctionCallNode(ezUInt32 uiNodeIdx, const ezVisualScriptResourceDescriptor& resource)
+{
+}
+
 void ezVisualScriptInstance::ExecuteScript(ezVisualScriptInstanceActivity* pActivity /*= nullptr*/)
 {
   m_pActivity = pActivity;

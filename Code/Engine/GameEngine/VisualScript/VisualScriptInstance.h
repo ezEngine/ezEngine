@@ -81,6 +81,7 @@ private:
   void CreateVisualScriptNode(ezUInt32 uiNodeIdx, const ezVisualScriptResourceDescriptor& resource);
   void CreateFunctionMessageNode(ezUInt32 uiNodeIdx, const ezVisualScriptResourceDescriptor& resource);
   void CreateEventMessageNode(ezUInt32 uiNodeIdx, const ezVisualScriptResourceDescriptor& resource);
+  void CreateFunctionCallNode(ezUInt32 uiNodeIdx, const ezVisualScriptResourceDescriptor& resource);
 
   struct DataPinConnection
   {
