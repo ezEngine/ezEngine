@@ -631,7 +631,7 @@ ezStatus ezMaterialAssetDocument::InternalTransformAsset(const char* szTargetFil
   {
     ezStatus ret = RecreateVisualShaderFile(AssetHeader);
 
-    if (transformFlags.IsSet(ezTransformFlags::TriggeredManually))
+    if (transformFlags.IsSet(ezTransformFlags::ForceTransform))
     {
       ezMaterialVisualShaderEvent e;
 

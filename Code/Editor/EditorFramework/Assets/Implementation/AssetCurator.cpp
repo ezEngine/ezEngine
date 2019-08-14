@@ -906,10 +906,10 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformP
 
   for (const auto& dep : pAssetInfo->m_Info->m_AssetTransformDependencies)
   {
+    ezBitflags<ezTransformFlags> transformFlagsDeps = transformFlags;
+    transformFlagsDeps.Remove(ezTransformFlags::ForceTransform);
     if (ezAssetInfo* pInfo = GetAssetInfo(dep))
     {
-      ezBitflags<ezTransformFlags> transformFlagsDeps = transformFlags;
-      transformFlagsDeps.Remove(ezTransformFlags::ForceTransform);
       EZ_SUCCEED_OR_RETURN(ProcessAsset(pInfo, pAssetProfile, transformFlagsDeps));
     }
   }
@@ -917,10 +917,10 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformP
   ezStatus resReferences(EZ_SUCCESS);
   for (const auto& ref : pAssetInfo->m_Info->m_RuntimeDependencies)
   {
+    ezBitflags<ezTransformFlags> transformFlagsRefs = transformFlags;
+    transformFlagsRefs.Remove(ezTransformFlags::ForceTransform);
     if (ezAssetInfo* pInfo = GetAssetInfo(ref))
-    {
-      ezBitflags<ezTransformFlags> transformFlagsRefs = transformFlags;
-      transformFlagsRefs.Remove(ezTransformFlags::ForceTransform);
+    {    
       resReferences = ProcessAsset(pInfo, pAssetProfile, transformFlagsRefs);
       if (resReferences.m_Result.Failed())
         break;

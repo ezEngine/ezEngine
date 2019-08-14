@@ -98,7 +98,7 @@ void ezAssetDocument::InternalAfterSaveDocument()
     if (flags.IsAnySet(ezAssetDocumentFlags::AutoTransformOnSave))
     {
       /// \todo Should only be done for platform agnostic assets
-      auto ret = ezAssetCurator::GetSingleton()->TransformAsset(GetGuid(), ezTransformFlags::None);
+      auto ret = ezAssetCurator::GetSingleton()->TransformAsset(GetGuid(), ezTransformFlags::TriggeredManually);
 
       if (ret.m_Result.Failed())
       {
