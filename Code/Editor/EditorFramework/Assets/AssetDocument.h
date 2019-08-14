@@ -82,8 +82,8 @@ public:
   /// \brief Transforms an asset.
   ///   Typically not called manually but by the curator which takes care of dependencies first.
   ///
-  /// If transformFlags is true, it will try to transform the asset, ignoring whether the transform is disabled on an asset.
-  /// Will also not try to save the document and if it encounters flags that prevent transformation, it will return an error and not silently ignore them.
+  /// If ezTransformFlags::ForceTransform is set, it will try to transform the asset, ignoring whether the transform is up to date.
+  /// If ezTransformFlags::TriggeredManually is set, transform produced changes will be saved back to the document.
   ezStatus TransformAsset(ezBitflags<ezTransformFlags> transformFlags, const ezPlatformProfile* pAssetProfile = nullptr);
 
   /// \brief Updates the thumbnail of the asset.
@@ -183,14 +183,14 @@ protected:
   /// \param szOutputTag Either empty for the default output or matches one of the tags defined in ezAssetDocumentInfo::m_Outputs.
   /// \param szPlatform Platform for which is the output is to be created. Default is 'PC'.
   /// \param AssetHeader Header already written to the stream, provided for reference.
-  /// \param transformFlags is true when the user chose to transform a single specific asset.
+  /// \param transformFlags flags that affect the transform process, see ezTransformFlags.
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) = 0;
 
   /// \brief Only override this function, if the transformed file for the given szOutputTag must be written from another process.
   ///
   /// szTargetFile is where the transformed asset should be written to. The overriding function must ensure to first
   /// write \a AssetHeader to the file, to make it a valid asset file or provide a custom ezAssetDocumentManager::IsOutputUpToDate function.
-  /// transformFlags is true when the user chose to transform a single specific asset.
+  /// See ezTransformFlags for definition of transform flags.
   virtual ezStatus InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags);
 
   ezStatus RemoteExport(const ezAssetFileHeader& header, const char* szOutputTarget) const;

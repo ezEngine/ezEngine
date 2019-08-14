@@ -378,10 +378,12 @@ ezStatus ezAssetDocument::TransformAsset(ezBitflags<ezTransformFlags> transformF
 
   const ezStatus res = DoTransformAsset(pAssetProfile, transformFlags);
 
-  // some assets modify the document during transformation
-  // make sure the state is saved, at least when the user actively executed the action
-  SaveDocument();
-
+  if (transformFlags.IsAnySet(ezTransformFlags::TriggeredManually))
+  {
+    // some assets modify the document during transformation
+    // make sure the state is saved, at least when the user actively executed the action
+    SaveDocument();
+  }
   return res;
 }
 

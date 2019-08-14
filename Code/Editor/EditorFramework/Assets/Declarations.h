@@ -53,7 +53,7 @@ struct ezTransformFlags
   enum Enum
   {
     None = 0,
-    TriggeredManually = EZ_BIT(0), ///< Needs to be set to transform assets marked with  ezAssetDocumentFlags::Enum::OnlyTransformManually.
+    TriggeredManually = EZ_BIT(0), ///< Transform triggered by user directly. Needs to be set to transform assets marked with ezAssetDocumentFlags::Enum::OnlyTransformManually.
     ForceTransform = EZ_BIT(1), ///< Will transform the asset regardless of its current transform state.
     Default = None
   };

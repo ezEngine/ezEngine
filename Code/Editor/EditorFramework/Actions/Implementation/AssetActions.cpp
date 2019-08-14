@@ -124,7 +124,7 @@ void ezAssetAction::Execute(const ezVariant& value)
 
     case ezAssetAction::ButtonType::TransformAllAssets:
     {
-      ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::TriggeredManually);
+      ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::None);
     }
     break;
 
