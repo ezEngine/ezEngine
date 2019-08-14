@@ -170,7 +170,11 @@ void ezVisualScriptInstance::Configure(const ezVisualScriptResourceHandle& hScri
   {
     const auto& node = resource.m_Nodes[n];
 
-    if (node.m_pType->IsDerivedFrom<ezMessage>())
+    if (node.m_isMsgFunctionCall)
+    {
+      CreateFunctionCallNode(n, resource);
+    }
+    else if (node.m_pType->IsDerivedFrom<ezMessage>())
     {
       if (node.m_isMsgSender)
       {
@@ -293,8 +297,7 @@ void ezVisualScriptInstance::CreateEventMessageNode(ezUInt32 uiNodeIdx, const ez
 {
   const auto& node = resource.m_Nodes[uiNodeIdx];
 
-  ezVisualScriptNode_GenericEvent* pNode =
-    ezGetStaticRTTI<ezVisualScriptNode_GenericEvent>()->GetAllocator()->Allocate<ezVisualScriptNode_GenericEvent>();
+  ezVisualScriptNode_GenericEvent* pNode = ezGetStaticRTTI<ezVisualScriptNode_GenericEvent>()->GetAllocator()->Allocate<ezVisualScriptNode_GenericEvent>();
   pNode->m_uiNodeID = uiNodeIdx;
 
   pNode->m_sEventType = node.m_sTypeName;
@@ -304,6 +307,38 @@ void ezVisualScriptInstance::CreateEventMessageNode(ezUInt32 uiNodeIdx, const ez
 
 void ezVisualScriptInstance::CreateFunctionCallNode(ezUInt32 uiNodeIdx, const ezVisualScriptResourceDescriptor& resource)
 {
+  const auto& node = resource.m_Nodes[uiNodeIdx];
+
+  ezVisualScriptNode_FunctionCall* pNode = ezGetStaticRTTI<ezVisualScriptNode_FunctionCall>()->GetAllocator()->Allocate<ezVisualScriptNode_FunctionCall>();
+  pNode->m_uiNodeID = uiNodeIdx;
+
+  pNode->m_pExpectedType = node.m_pType;
+
+  if (pNode->m_pExpectedType != nullptr)
+  {
+    const ezStringBuilder sFunc = node.m_sTypeName.FindSubString("::");
+
+    const ezRTTI* pType = pNode->m_pExpectedType;
+    while (pType != nullptr)
+    {
+      for (auto pFunc : pNode->m_pExpectedType->GetFunctions())
+      {
+        if (sFunc == pFunc->GetPropertyName())
+        {
+          pNode->m_pFunctionToCall = pFunc;
+          pNode->m_Arguments.SetCount(pNode->m_pFunctionToCall->GetArgumentCount());
+          goto finish;
+        }
+      }
+
+      pType = pType->GetParentType();
+    }
+
+    ezLog::Error("Function '{}' does not exist on type '{}'", sFunc, node.m_pType->GetTypeName());
+  }
+
+finish:
+  m_Nodes.PushBack(pNode);
 }
 
 void ezVisualScriptInstance::ExecuteScript(ezVisualScriptInstanceActivity* pActivity /*= nullptr*/)

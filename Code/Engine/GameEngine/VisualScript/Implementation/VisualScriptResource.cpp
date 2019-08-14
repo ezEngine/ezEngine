@@ -19,7 +19,7 @@ EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezVisualScriptResource);
 // clang-format on
 
 ezVisualScriptResource::ezVisualScriptResource()
-    : ezResource(DoUpdate::OnAnyThread, 1)
+  : ezResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
@@ -125,21 +125,37 @@ void ezVisualScriptResourceDescriptor::Load(ezStreamReader& stream)
 
     node.m_isMsgSender = 0;
     node.m_isMsgHandler = 0;
+    node.m_isMsgFunctionCall = 0;
 
-    if (sType.EndsWith("<send>"))
+    if (sType.EndsWith("<call>"))
     {
+      node.m_isMsgFunctionCall = 1;
+
+      // remove the <call> part (leave full class name and function name in m_sTypeName
       sType.Shrink(0, 6);
-      node.m_isMsgSender = 1;
+      node.m_sTypeName = sType;
+
+      const char* szColon = sType.FindLastSubString("::");
+      sType.SetSubString_FromTo(sType.GetData(), szColon);
+
+      node.m_pType = ezRTTI::FindTypeByName(sType);
     }
-    else if (sType.EndsWith("<handle>"))
+    else
     {
-      sType.Shrink(0, 8);
-      node.m_isMsgHandler = 1;
+      if (sType.EndsWith("<send>"))
+      {
+        sType.Shrink(0, 6);
+        node.m_isMsgSender = 1;
+      }
+      else if (sType.EndsWith("<handle>"))
+      {
+        sType.Shrink(0, 8);
+        node.m_isMsgHandler = 1;
+      }
+
+      node.m_sTypeName = sType;
+      node.m_pType = ezRTTI::FindTypeByName(sType);
     }
-
-    node.m_sTypeName = sType;
-
-    node.m_pType = ezRTTI::FindTypeByName(sType);
 
     stream >> node.m_uiFirstProperty;
     stream >> node.m_uiNumProperties;
@@ -229,6 +245,8 @@ void ezVisualScriptResourceDescriptor::Save(ezStreamWriter& stream) const
       sType.Append("<send>");
     else if (node.m_isMsgHandler)
       sType.Append("<handle>");
+    else if (node.m_isMsgFunctionCall)
+      sType.Append("<call>");
 
     stream << sType;
 
@@ -291,7 +309,7 @@ void ezVisualScriptResourceDescriptor::PrecomputeMessageHandlers()
     {
       // TODO: just do the generic node logic here without allocating the node
       ezVisualScriptNode_GenericEvent* pEvent =
-          ezVisualScriptNode_GenericEvent::GetStaticRTTI()->GetAllocator()->Allocate<ezVisualScriptNode_GenericEvent>();
+        ezVisualScriptNode_GenericEvent::GetStaticRTTI()->GetAllocator()->Allocate<ezVisualScriptNode_GenericEvent>();
       pNode = pEvent;
 
       pEvent->m_sEventType = pType->GetTypeName();
@@ -319,4 +337,3 @@ void ezVisualScriptResourceDescriptor::PrecomputeMessageHandlers()
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_VisualScript_Implementation_VisualScriptResource);
-

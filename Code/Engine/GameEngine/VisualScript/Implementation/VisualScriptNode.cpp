@@ -261,7 +261,7 @@ ezVisualScriptNode_FunctionCall::~ezVisualScriptNode_FunctionCall()
 
 void ezVisualScriptNode_FunctionCall::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
-  if (m_hComponent.IsInvalidated())
+  if (m_hComponent.IsInvalidated() || m_pFunctionToCall == nullptr)
     return;
 
   ezWorld* pWorld = pInstance->GetWorld();
@@ -270,7 +270,14 @@ void ezVisualScriptNode_FunctionCall::Execute(ezVisualScriptInstance* pInstance,
   if (!pWorld->TryGetComponent(m_hComponent, pComponent))
     return;
 
-  //pComponent->SendMessage(*m_pMessageToSend);
+  if (!pComponent->GetDynamicRTTI()->IsDerivedFrom(m_pExpectedType))
+  {
+    m_pFunctionToCall = nullptr;
+    ezLog::Error("Component of type '{}' is not of the expected type '{}'", pComponent->GetDynamicRTTI()->GetTypeName(), m_pExpectedType->GetTypeName());
+    return;
+  }
+
+  m_pFunctionToCall->Execute(pComponent, m_Arguments, m_ReturnValue);
 
   //{
   //  // could skip this, if we knew that there are no output pins, at all
@@ -304,27 +311,10 @@ void* ezVisualScriptNode_FunctionCall::GetInputPinDataPointer(ezUInt8 uiPin)
   if (uiPin == 0)
     return &m_hComponent;
 
-  //if (m_pMessageToSend != nullptr)
-  //{
-  //  const ezUInt32 uiProp = uiPin - 2;
+  if (uiPin >= m_Arguments.GetCount() + 1)
+    return &m_ReturnValue; // unused dummy
 
-  //  ezHybridArray<ezAbstractProperty*, 32> properties;
-  //  m_pMessageToSend->GetDynamicRTTI()->GetAllProperties(properties);
-
-  //  if (properties[uiProp]->GetCategory() == ezPropertyCategory::Member)
-  //  {
-  //    ezAbstractMemberProperty* pAbsMember = static_cast<ezAbstractMemberProperty*>(properties[uiProp]);
-
-  //    const ezRTTI* pType = pAbsMember->GetSpecificType();
-
-  //    if (pType == ezGetStaticRTTI<bool>() || pType == ezGetStaticRTTI<double>() || pType == ezGetStaticRTTI<ezVec3>())
-  //    {
-  //      return pAbsMember->GetPropertyPointer(m_pMessageToSend);
-  //    }
-  //  }
-  //}
-
-  return nullptr;
+  return m_Arguments[uiPin - 1].GetData();
 }
 
 
