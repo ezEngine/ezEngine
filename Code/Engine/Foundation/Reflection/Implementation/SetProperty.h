@@ -72,7 +72,8 @@ public:
     // e.g. ezArrayPtr by value.
     while (!IsEmpty(pInstance))
     {
-      decltype(auto) c = (static_cast<const Class*>(pInstance)->*m_GetValues)();
+      // this should be decltype(auto) c = ...; but MSVC 16 is too dumb for that (MSVC 15 works fine)
+      decltype((static_cast<const Class*>(pInstance)->*m_GetValues)()) c = (static_cast<const Class*>(pInstance)->*m_GetValues)();
       auto it = cbegin(c);
       RealType value = *it;
       Remove(pInstance, &value);
