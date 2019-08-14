@@ -316,22 +316,72 @@ void ezVisualScriptInstance::CreateFunctionCallNode(ezUInt32 uiNodeIdx, const ez
 
   if (pNode->m_pExpectedType != nullptr)
   {
-    const ezStringBuilder sFunc = node.m_sTypeName.FindSubString("::");
+    ezStringBuilder sFunc = node.m_sTypeName.FindSubString("::");
+    sFunc.Shrink(2, 0);
 
-    const ezRTTI* pType = pNode->m_pExpectedType;
-    while (pType != nullptr)
+    if (!sFunc.IsEmpty())
     {
-      for (auto pFunc : pNode->m_pExpectedType->GetFunctions())
+      const ezRTTI* pType = pNode->m_pExpectedType;
+      while (pType != nullptr)
       {
-        if (sFunc == pFunc->GetPropertyName())
+        for (auto pFunc : pNode->m_pExpectedType->GetFunctions())
         {
-          pNode->m_pFunctionToCall = pFunc;
-          pNode->m_Arguments.SetCount(pNode->m_pFunctionToCall->GetArgumentCount());
-          goto finish;
-        }
-      }
+          if (sFunc == pFunc->GetPropertyName())
+          {
+            pNode->m_pFunctionToCall = pFunc;
+            pNode->m_Arguments.SetCount(pNode->m_pFunctionToCall->GetArgumentCount());
 
-      pType = pType->GetParentType();
+            // initialize the variants to the proper type
+            for (ezUInt32 arg = 0; arg < pFunc->GetArgumentCount(); ++arg)
+            {
+              switch (pFunc->GetArgumentType(arg)->GetVariantType())
+              {
+                case ezVariantType::Bool:
+                  pNode->m_Arguments[arg] = false;
+                  break;
+                case ezVariantType::Double:
+                case ezVariantType::Float:
+                case ezVariantType::Int8:
+                case ezVariantType::Int16:
+                case ezVariantType::Int32:
+                case ezVariantType::UInt8:
+                case ezVariantType::UInt16:
+                case ezVariantType::UInt32:
+                  pNode->m_Arguments[arg] = static_cast<double>(0);
+                  break;
+                case ezVariantType::Vector3:
+                  pNode->m_Arguments[arg] = ezVec3::ZeroVector();
+                  break;
+
+                default:
+                  ezLog::Error("Script function '{}' has unsupported argument type '{}' for parameter {}", node.m_sTypeName, pFunc->GetArgumentType(arg)->GetVariantType(), arg);
+                  break;
+              }
+            }
+
+            ezVariant tmpVal;
+
+            // assign all property values
+            for (ezUInt32 i = 0; i < node.m_uiNumProperties; ++i)
+            {
+              const ezUInt32 uiProp = node.m_uiFirstProperty + i;
+              const auto& prop = resource.m_Properties[uiProp];
+
+              ezResult couldConvert = EZ_FAILURE;
+              tmpVal = prop.m_Value.ConvertTo(pNode->m_Arguments[i].GetType(), &couldConvert);
+
+              if (couldConvert.Succeeded())
+              {
+                pNode->m_Arguments[i] = tmpVal;
+              }
+            }
+
+            goto finish;
+          }
+        }
+
+        pType = pType->GetParentType();
+      }
     }
 
     ezLog::Error("Function '{}' does not exist on type '{}'", sFunc, node.m_pType->GetTypeName());

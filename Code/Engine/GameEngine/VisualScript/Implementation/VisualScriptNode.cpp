@@ -279,29 +279,41 @@ void ezVisualScriptNode_FunctionCall::Execute(ezVisualScriptInstance* pInstance,
 
   m_pFunctionToCall->Execute(pComponent, m_Arguments, m_ReturnValue);
 
-  //{
-  //  // could skip this, if we knew that there are no output pins, at all
+  for (ezUInt32 arg = 0; arg < m_pFunctionToCall->GetArgumentCount(); ++arg)
+  {
+    if (m_pFunctionToCall->GetArgumentFlags(arg).IsSet(ezPropertyFlags::Reference)) // TODO: does reference mean non-const ?
+    {
+      // TODO: reset out parameters to the proper type and pass them on
 
-  //  ezHybridArray<ezAbstractProperty*, 32> properties;
-  //  m_pMessageToSend->GetDynamicRTTI()->GetAllProperties(properties);
+      //switch (m_pFunctionToCall->GetArgumentType(arg)->GetVariantType())
+      //{
+      //  case ezVariantType::Bool:
+      //    m_Arguments[arg] = false;
+      //    break;
+      //  case ezVariantType::Double:
+      //  case ezVariantType::Float:
+      //  case ezVariantType::Int8:
+      //  case ezVariantType::Int16:
+      //  case ezVariantType::Int32:
+      //  case ezVariantType::UInt8:
+      //  case ezVariantType::UInt16:
+      //  case ezVariantType::UInt32:
+      //    m_Arguments[arg] = static_cast<double>(0);
+      //    break;
+      //  case ezVariantType::Vector3:
+      //    m_Arguments[arg] = ezVec3::ZeroVector();
+      //    break;
 
-  //  for (ezUInt32 uiProp = 0; uiProp < properties.GetCount(); ++uiProp)
-  //  {
-  //    if (properties[uiProp]->GetCategory() == ezPropertyCategory::Member &&
-  //        properties[uiProp]->GetFlags().IsAnySet(ezPropertyFlags::VarInOut | ezPropertyFlags::VarOut))
-  //    {
-  //      ezAbstractMemberProperty* pAbsMember = static_cast<ezAbstractMemberProperty*>(properties[uiProp]);
+      //  default:
+      //    ezLog::Error("Script function '{}' has unsupported argument type '{}' for parameter {}", node.m_sTypeName, pFunc->GetArgumentType(arg)->GetVariantType(), arg);
+      //    break;
+      //}
 
-  //      const ezRTTI* pType = pAbsMember->GetSpecificType();
-
-  //      if (pType == ezGetStaticRTTI<bool>() || pType == ezGetStaticRTTI<double>() || pType == ezGetStaticRTTI<ezVec3>())
-  //      {
-  //        const void* pPropPtr = pAbsMember->GetPropertyPointer(m_pMessageToSend);
-  //        pInstance->SetOutputPinValue(this, uiProp, pPropPtr);
-  //      }
-  //    }
-  //  }
-  //}
+      // TODO: pass out parameters to output pins
+      // TODO: distinguish between in / out /inout parameters
+      // TODO: pass return value to output pin
+    }
+  }
 
   pInstance->ExecuteConnectedNodes(this, 0);
 }

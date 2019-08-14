@@ -26,12 +26,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransformComponent, 2, ezRTTINoAllocator)
   EZ_END_ATTRIBUTES;
   EZ_BEGIN_FUNCTIONS
   {
-    EZ_FUNCTION_PROPERTY(ResumeAnimation),
-    static_cast<ezAbstractFunctionProperty*>(EZ_FUNCTION_PROPERTY(SetAnimationPaused)->AddAttributes(new ezScriptableFunctionAttribute("Paused"))),
-    EZ_FUNCTION_PROPERTY(SetDirectionForwards),
-    EZ_FUNCTION_PROPERTY(ReverseDirection),
-    EZ_FUNCTION_PROPERTY(IsDirectionForwards),
-    EZ_FUNCTION_PROPERTY(IsAnimationRunning),
+    EZ_FUNCTION_PROPERTY(ResumeAnimation)->AddAttributes(new ezScriptableFunctionAttribute()),
+    EZ_FUNCTION_PROPERTY(SetAnimationPaused)->AddAttributes(new ezScriptableFunctionAttribute("Paused")),
+    EZ_FUNCTION_PROPERTY(SetDirectionForwards)->AddAttributes(new ezScriptableFunctionAttribute("Forwards")),
+    EZ_FUNCTION_PROPERTY(ReverseDirection)->AddAttributes(new ezScriptableFunctionAttribute()),
+    EZ_FUNCTION_PROPERTY(IsDirectionForwards)->AddAttributes(new ezScriptableFunctionAttribute()),
+    EZ_FUNCTION_PROPERTY(IsAnimationRunning)->AddAttributes(new ezScriptableFunctionAttribute()),
   }
   EZ_END_FUNCTIONS;
 }

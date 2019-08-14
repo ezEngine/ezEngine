@@ -578,7 +578,7 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
     static const ezColor ExecutionPinColor = ezColor::LightSlateGrey;
 
     ezVisualScriptPinDescriptor pd;
-    pd.m_sName = "send";
+    pd.m_sName = "call";
     pd.m_sTooltip = "When executed, the message is sent to the object or component.";
     pd.m_PinType = ezVisualScriptPinDescriptor::Execution;
     pd.m_Color = ExecutionPinColor;
@@ -615,10 +615,15 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
 
   ezStringBuilder sName;
 
+  // TODO: setup output pin for return value
+
   for (ezUInt32 argIdx = 0; argIdx < pFunction->GetArgumentCount(); ++argIdx)
   {
     if (pFunction->GetArgumentFlags(argIdx).IsAnySet(ezPropertyFlags::StandardType) == false)
-      continue;
+    {
+      ezLog::Error("Script function '{}' uses non-standard type for argument {}", nd.m_sTypeName, argIdx+1);
+      return;
+    }
 
     sName = pAttr->GetArgumentName(argIdx);
     if (sName.IsEmpty())
@@ -666,6 +671,8 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
     pid.m_Color = PinTypeColor(pid.m_DataType);
     pid.m_uiPinIndex = iDataPinIndex;
     nd.m_InputPins.PushBack(pid);
+
+    // TODO: setup out pins for non-const ref parameters
   }
 
   m_NodeDescriptors.Insert(GenerateTypeFromDesc(nd), nd);
