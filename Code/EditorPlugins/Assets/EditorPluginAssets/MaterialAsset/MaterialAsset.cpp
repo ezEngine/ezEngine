@@ -625,13 +625,13 @@ public:
 
 ezStatus ezMaterialAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag,
                                                          const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader,
-                                                         bool bTriggeredManually)
+                                                         ezBitflags<ezTransformFlags> transformFlags)
 {
   if (ezStringUtils::IsEqual(szOutputTag, ezMaterialAssetDocumentManager::s_szShaderOutputTag))
   {
     ezStatus ret = RecreateVisualShaderFile(AssetHeader);
 
-    if (bTriggeredManually)
+    if (transformFlags.IsSet(ezTransformFlags::TriggeredManually))
     {
       ezMaterialVisualShaderEvent e;
 
@@ -713,13 +713,13 @@ ezStatus ezMaterialAssetDocument::InternalTransformAsset(const char* szTargetFil
   }
   else
   {
-    return SUPER::InternalTransformAsset(szTargetFile, szOutputTag, pAssetProfile, AssetHeader, bTriggeredManually);
+    return SUPER::InternalTransformAsset(szTargetFile, szOutputTag, pAssetProfile, AssetHeader, transformFlags);
   }
 }
 
 ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag,
                                                          const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader,
-                                                         bool bTriggeredManually)
+  ezBitflags<ezTransformFlags> transformFlags)
 {
   EZ_ASSERT_DEV(ezStringUtils::IsNullOrEmpty(szOutputTag), "Additional output '{0}' not implemented!", szOutputTag);
 

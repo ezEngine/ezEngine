@@ -121,7 +121,7 @@ bool ezQtIconViewDelegate::mouseReleaseEvent(QMouseEvent* event, const QStyleOpt
   {
     ezUuid guid = index.data(ezQtAssetBrowserModel::UserRoles::AssetGuid).value<ezUuid>();
 
-    auto ret = ezAssetCurator::GetSingleton()->TransformAsset(guid, false);
+    auto ret = ezAssetCurator::GetSingleton()->TransformAsset(guid, ezTransformFlags::TriggeredManually);
 
     if (ret.m_Result.Failed())
     {

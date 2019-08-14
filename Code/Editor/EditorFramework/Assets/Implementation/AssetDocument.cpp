@@ -98,7 +98,7 @@ void ezAssetDocument::InternalAfterSaveDocument()
     if (flags.IsAnySet(ezAssetDocumentFlags::AutoTransformOnSave))
     {
       /// \todo Should only be done for platform agnostic assets
-      auto ret = ezAssetCurator::GetSingleton()->TransformAsset(GetGuid(), false);
+      auto ret = ezAssetCurator::GetSingleton()->TransformAsset(GetGuid(), ezTransformFlags::None);
 
       if (ret.m_Result.Failed())
       {
@@ -301,7 +301,7 @@ void ezAssetDocument::GetChildHash(const ezDocumentObject* pObject, ezUInt64& ui
   }
 }
 
-ezStatus ezAssetDocument::DoTransformAsset(const ezPlatformProfile* pAssetProfile0 /*= nullptr*/, bool bTriggeredManually)
+ezStatus ezAssetDocument::DoTransformAsset(const ezPlatformProfile* pAssetProfile0 /*= nullptr*/, ezBitflags<ezTransformFlags> transformFlags)
 {
   const auto flags = GetAssetFlags();
 
@@ -314,7 +314,7 @@ ezStatus ezAssetDocument::DoTransformAsset(const ezPlatformProfile* pAssetProfil
   ezUInt64 uiThumbHash = 0;
   ezAssetInfo::TransformState state =
       ezAssetCurator::GetSingleton()->IsAssetUpToDate(GetGuid(), pAssetProfile, GetDocumentTypeDescriptor(), uiHash, uiThumbHash);
-  if (state == ezAssetInfo::TransformState::UpToDate && !bTriggeredManually)
+  if (state == ezAssetInfo::TransformState::UpToDate && !transformFlags.IsSet(ezTransformFlags::ForceTransform))
     return ezStatus(EZ_SUCCESS, "Transformed asset is already up to date");
 
   if (uiHash == 0)
@@ -326,9 +326,9 @@ ezStatus ezAssetDocument::DoTransformAsset(const ezPlatformProfile* pAssetProfil
     AssetHeader.SetFileHashAndVersion(uiHash, GetAssetTypeVersion());
     const auto& outputs = GetAssetDocumentInfo()->m_Outputs;
 
-    auto GenerateOutput = [this, pAssetProfile, &AssetHeader, bTriggeredManually](const char* szOutputTag) -> ezStatus {
+    auto GenerateOutput = [this, pAssetProfile, &AssetHeader, transformFlags](const char* szOutputTag) -> ezStatus {
       const ezString sTargetFile = GetAssetDocumentManager()->GetAbsoluteOutputFileName(GetDocumentPath(), szOutputTag, pAssetProfile);
-      auto ret = InternalTransformAsset(sTargetFile, szOutputTag, pAssetProfile, AssetHeader, bTriggeredManually);
+      auto ret = InternalTransformAsset(sTargetFile, szOutputTag, pAssetProfile, AssetHeader, transformFlags);
 
       // if writing failed, make sure the output file does not exist
       if (ret.m_Result.Failed())
@@ -356,10 +356,10 @@ ezStatus ezAssetDocument::DoTransformAsset(const ezPlatformProfile* pAssetProfil
   }
 }
 
-ezStatus ezAssetDocument::TransformAsset(bool bTriggeredManually, const ezPlatformProfile* pAssetProfile)
+ezStatus ezAssetDocument::TransformAsset(ezBitflags<ezTransformFlags> transformFlags, const ezPlatformProfile* pAssetProfile)
 {
   EZ_PROFILE_SCOPE("TransformAsset");
-  if (!bTriggeredManually)
+  if (!transformFlags.IsSet(ezTransformFlags::ForceTransform))
   {
     if (IsModified())
     {
@@ -370,19 +370,17 @@ ezStatus ezAssetDocument::TransformAsset(bool bTriggeredManually, const ezPlatfo
 
     const auto flags = GetAssetFlags();
     {
-      if (flags.IsAnySet(ezAssetDocumentFlags::DisableTransform | ezAssetDocumentFlags::OnlyTransformManually))
+      if (flags.IsSet(ezAssetDocumentFlags::DisableTransform) ||
+          (flags.IsSet(ezAssetDocumentFlags::OnlyTransformManually) && !transformFlags.IsSet(ezTransformFlags::TriggeredManually)))
         return ezStatus(EZ_SUCCESS, "Transform is disabled for this asset");
     }
   }
 
-  const ezStatus res = DoTransformAsset(pAssetProfile, bTriggeredManually);
+  const ezStatus res = DoTransformAsset(pAssetProfile, transformFlags);
 
   // some assets modify the document during transformation
   // make sure the state is saved, at least when the user actively executed the action
-  if (bTriggeredManually)
-  {
-    SaveDocument();
-  }
+  SaveDocument();
 
   return res;
 }
@@ -412,14 +410,14 @@ ezStatus ezAssetDocument::CreateThumbnail()
 }
 
 ezStatus ezAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-                                                 const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+                                                 const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   ezDeferredFileWriter file;
   file.SetOutput(szTargetFile);
 
   AssetHeader.Write(file);
 
-  EZ_SUCCEED_OR_RETURN(InternalTransformAsset(file, szOutputTag, pAssetProfile, AssetHeader, bTriggeredManually));
+  EZ_SUCCEED_OR_RETURN(InternalTransformAsset(file, szOutputTag, pAssetProfile, AssetHeader, transformFlags));
 
   if (file.Close().Failed())
   {
