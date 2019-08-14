@@ -35,7 +35,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 
 ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType,
   ezBitflags<ezTypeFlags> flags, ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> properties,
-  ezArrayPtr<ezAbstractFunctionProperty*> functions, ezArrayPtr<ezPropertyAttribute*> attributes,
+  ezArrayPtr<ezAbstractProperty*> functions, ezArrayPtr<ezPropertyAttribute*> attributes,
   ezArrayPtr<ezAbstractMessageHandler*> messageHandlers, ezArrayPtr<ezMessageSenderInfo> messageSenders, const ezRTTI* (*fnVerifyParent)())
 {
   UpdateType(pParentType, uiTypeSize, uiTypeVersion, uiVariantType, flags);
@@ -45,7 +45,7 @@ ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSiz
   m_szTypeName = szName;
   m_pAllocator = pAllocator;
   m_Properties = properties;
-  m_Functions = functions;
+  m_Functions = ezMakeArrayPtr<ezAbstractFunctionProperty*>(reinterpret_cast<ezAbstractFunctionProperty**>(functions.GetPtr()), functions.GetCount());;
   m_Attributes = attributes;
   m_MessageHandlers = messageHandlers;
   m_uiMsgIdOffset = 0;
@@ -167,6 +167,13 @@ void ezRTTI::VerifyCorrectness() const
       }
 
       pInstance = pInstance->m_pParentType;
+    }
+  }
+
+  {
+    for (ezAbstractProperty* pFunc : m_Functions)
+    {
+      EZ_ASSERT_DEV(pFunc->GetCategory() == ezPropertyCategory::Function, "Invalid function property '{}'", pFunc->GetPropertyName());
     }
   }
 }
