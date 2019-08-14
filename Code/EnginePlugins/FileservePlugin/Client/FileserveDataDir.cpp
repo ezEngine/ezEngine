@@ -88,8 +88,15 @@ ezDataDirectory::FolderWriter* ezDataDirectory::FileserveType::CreateFolderWrite
 
 ezResult ezDataDirectory::FileserveType::GetFileStats(const char* szFileOrFolder, bool bOneSpecificDataDir, ezFileStats& out_Stats)
 {
-  EZ_SUCCEED_OR_RETURN(ezFileserveClient::GetSingleton()->DownloadFile(m_uiDataDirID, szFileOrFolder, bOneSpecificDataDir));
-  return FolderType::GetFileStats(szFileOrFolder, bOneSpecificDataDir, out_Stats);
+  ezStringBuilder sRedirected;
+  ResolveAssetRedirection(szFileOrFolder, sRedirected);
+
+  // we know that the server cannot resolve asset GUIDs, so don't even ask
+  if (ezConversionUtils::IsStringUuid(sRedirected))
+    return EZ_FAILURE;
+
+  EZ_SUCCEED_OR_RETURN(ezFileserveClient::GetSingleton()->DownloadFile(m_uiDataDirID, sRedirected, bOneSpecificDataDir));
+  return FolderType::GetFileStats(sRedirected, bOneSpecificDataDir, out_Stats);
 }
 
 bool ezDataDirectory::FileserveType::ExistsFile(const char* szFile, bool bOneSpecificDataDir)
