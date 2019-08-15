@@ -80,7 +80,7 @@ ezResourceLoadData ezFmodSoundBankResourceLoader::OpenDataStream(const ezResourc
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
     {
       ezFileStats stat;
-      if (ezFileSystem::GetFileStats(SoundBankAssetFile.GetFilePathAbsolute(), stat).Succeeded())
+      if (ezFileSystem::GetFileStats(pResource->GetResourceID(), stat).Succeeded())
       {
         res.m_LoadedFileModificationDate = stat.m_LastModificationTime;
       }
@@ -119,7 +119,7 @@ bool ezFmodSoundBankResourceLoader::IsResourceOutdated(const ezResource* pResour
   if (pResource->GetLoadedFileModificationTime().IsValid())
   {
     ezFileStats stat;
-    if (ezFileSystem::GetFileStats(sAbs, stat).Failed())
+    if (ezFileSystem::GetFileStats(pResource->GetResourceID(), stat).Failed())
       return false;
 
     return !stat.m_LastModificationTime.Compare(pResource->GetLoadedFileModificationTime(), ezTimestamp::CompareMode::FileTimeEqual);

@@ -216,7 +216,7 @@ void ezParticleEffectAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo*
 }
 
 ezStatus ezParticleEffectAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-                                                               const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+                                                               const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   return WriteParticleEffectAsset(stream, pAssetProfile);
 }

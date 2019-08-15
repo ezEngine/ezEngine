@@ -44,7 +44,7 @@ enum ezKrautImportLodType : ezUInt8
 
 ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag,
                                                           const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader,
-                                                          bool bTriggeredManually)
+                                                          ezBitflags<ezTransformFlags> transformFlags)
 {
   ezProgressRange range("Transforming Asset", 2, false);
 

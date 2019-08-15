@@ -1271,10 +1271,10 @@ ezStatus ezSceneDocument::ExportScene(bool bCreateThumbnail)
   if (bCreateThumbnail)
   {
     // this is needed to generate a scene thumbnail, however that has a larger overhead (1 sec or so)
-    res = ezAssetCurator::GetSingleton()->TransformAsset(GetGuid(), true);
+    res = ezAssetCurator::GetSingleton()->TransformAsset(GetGuid(), ezTransformFlags::ForceTransform | ezTransformFlags::TriggeredManually);
   }
   else
-    res = TransformAsset(true);
+    res = TransformAsset(ezTransformFlags::ForceTransform | ezTransformFlags::TriggeredManually);
 
   if (res.m_Result.Failed())
     ezLog::Error(res.m_sMessage);
@@ -1327,7 +1327,7 @@ void ezSceneDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
 }
 
 ezStatus ezSceneDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-  const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   const ezSceneDocumentSettings* pSettings = GetSettings();
 
@@ -1344,7 +1344,7 @@ ezStatus ezSceneDocument::InternalTransformAsset(const char* szTargetFile, const
 
 
 ezStatus ezSceneDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-  const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
 

@@ -111,7 +111,7 @@ ezRenderPipelineAssetDocument::ezRenderPipelineAssetDocument(const char* szDocum
 }
 
 ezStatus ezRenderPipelineAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-                                                               const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+                                                               const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   const ezUInt8 uiVersion = 1;
   stream << uiVersion;
