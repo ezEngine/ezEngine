@@ -719,8 +719,7 @@ class EZ_FOUNDATION_DLL ezAutoGenVisScriptMsgHandler : public ezPropertyAttribut
   EZ_ADD_DYNAMIC_REFLECTION(ezAutoGenVisScriptMsgHandler, ezPropertyAttribute);
 };
 
-/// \brief Attribute for ezMessages to instruct the visual script framework to automatically generate a node for handling this type of
-/// message
+/// \brief Attribute to mark a function up to be exposed to the scripting system. Arguments specify the names of the function parameters.
 class EZ_FOUNDATION_DLL ezScriptableFunctionAttribute : public ezPropertyAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezScriptableFunctionAttribute, ezPropertyAttribute);

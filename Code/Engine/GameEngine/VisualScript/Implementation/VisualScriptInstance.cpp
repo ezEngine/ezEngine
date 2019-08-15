@@ -170,7 +170,7 @@ void ezVisualScriptInstance::Configure(const ezVisualScriptResourceHandle& hScri
   {
     const auto& node = resource.m_Nodes[n];
 
-    if (node.m_isMsgFunctionCall)
+    if (node.m_isFunctionCall)
     {
       CreateFunctionCallNode(n, resource);
     }

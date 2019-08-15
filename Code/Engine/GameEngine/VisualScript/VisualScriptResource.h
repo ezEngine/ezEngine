@@ -20,7 +20,7 @@ struct EZ_GAMEENGINE_DLL ezVisualScriptResourceDescriptor
     {
       m_isMsgSender = 0;
       m_isMsgHandler = 0;
-      m_isMsgFunctionCall = 0;
+      m_isFunctionCall = 0;
     }
 
     ezString m_sTypeName;            ///< This is what gets written to the file if m_pType is null.
@@ -30,7 +30,7 @@ struct EZ_GAMEENGINE_DLL ezVisualScriptResourceDescriptor
     ezUInt8 m_uiNumProperties = 0;
     ezUInt8 m_isMsgSender : 1;
     ezUInt8 m_isMsgHandler : 1;
-    ezUInt8 m_isMsgFunctionCall : 1;
+    ezUInt8 m_isFunctionCall : 1;
   };
 
   struct ExecutionConnection

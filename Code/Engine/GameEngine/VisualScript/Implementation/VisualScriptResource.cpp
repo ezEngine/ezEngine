@@ -125,11 +125,11 @@ void ezVisualScriptResourceDescriptor::Load(ezStreamReader& stream)
 
     node.m_isMsgSender = 0;
     node.m_isMsgHandler = 0;
-    node.m_isMsgFunctionCall = 0;
+    node.m_isFunctionCall = 0;
 
     if (sType.EndsWith("<call>"))
     {
-      node.m_isMsgFunctionCall = 1;
+      node.m_isFunctionCall = 1;
 
       // remove the <call> part (leave full class name and function name in m_sTypeName
       sType.Shrink(0, 6);
@@ -245,7 +245,7 @@ void ezVisualScriptResourceDescriptor::Save(ezStreamWriter& stream) const
       sType.Append("<send>");
     else if (node.m_isMsgHandler)
       sType.Append("<handle>");
-    else if (node.m_isMsgFunctionCall)
+    else if (node.m_isFunctionCall)
       sType.Append("<call>");
 
     stream << sType;
