@@ -87,6 +87,8 @@ public:
   virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override;
   virtual bool IsManuallyStepped() const override { return true; }
 
+  void EnforceVariantTypes();
+
   const ezRTTI* m_pExpectedType = nullptr;
   const ezAbstractFunctionProperty* m_pFunctionToCall = nullptr;
   ezComponentHandle m_hComponent;

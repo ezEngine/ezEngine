@@ -545,6 +545,31 @@ void ezVisualScriptTypeRegistry::CreateEventMessageNodeType(const ezRTTI* pRtti)
   m_NodeDescriptors.Insert(GenerateTypeFromDesc(nd), nd);
 }
 
+static ezVisualScriptDataPinType::Enum GetDataPinTypeForVariant(ezVariantType::Enum varType)
+{
+  switch (varType)
+  {
+    case ezVariantType::Bool:
+      return ezVisualScriptDataPinType::Boolean;
+
+    case ezVariantType::Vector3:
+      return ezVisualScriptDataPinType::Vec3;
+
+    default:
+      return ezVisualScriptDataPinType::Number;
+  }
+}
+
+static bool IsVariantTypeSupported(ezVariantType::Enum varType)
+{
+  if (varType > ezVariant::Type::FirstStandardType && varType <= ezVariant::Type::Double)
+  {
+    return true;
+  }
+
+  return false;
+}
+
 void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti, const ezAbstractFunctionProperty* pFunction)
 {
   if (pFunction->GetFunctionType() != ezFunctionType::Member)
@@ -606,7 +631,7 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
     pd.m_sTooltip = "The component on which to call the function.";
     pd.m_PinType = ezVisualScriptPinDescriptor::Data;
     pd.m_DataType = ezVisualScriptDataPinType::ComponentHandle;
-    pd.m_Color = PinTypeColor(ezVisualScriptDataPinType::ComponentHandle);
+    pd.m_Color = PinTypeColor(pd.m_DataType);
     pd.m_uiPinIndex = 0;
     nd.m_InputPins.PushBack(pd);
   }
@@ -615,13 +640,23 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
 
   ezStringBuilder sName;
 
-  // TODO: setup output pin for return value
+  if (IsVariantTypeSupported(pFunction->GetReturnType()->GetVariantType()))
+  {
+    ezVisualScriptPinDescriptor pd;
+    pd.m_sName = "Result";
+    pd.m_sTooltip = "The return value of the function"; // TODO: better tooltip for return value
+    pd.m_PinType = ezVisualScriptPinDescriptor::Data;
+    pd.m_DataType = GetDataPinTypeForVariant(pFunction->GetReturnType()->GetVariantType());
+    pd.m_Color = PinTypeColor(pd.m_DataType);
+    pd.m_uiPinIndex = 0;
+    nd.m_OutputPins.PushBack(pd);
+  }
 
   for (ezUInt32 argIdx = 0; argIdx < pFunction->GetArgumentCount(); ++argIdx)
   {
     if (pFunction->GetArgumentFlags(argIdx).IsAnySet(ezPropertyFlags::StandardType) == false)
     {
-      ezLog::Error("Script function '{}' uses non-standard type for argument {}", nd.m_sTypeName, argIdx+1);
+      ezLog::Error("Script function '{}' uses non-standard type for argument {}", nd.m_sTypeName, argIdx + 1);
       return;
     }
 
@@ -647,24 +682,12 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
 
     ++iDataPinIndex;
     const auto varType = pFunction->GetArgumentType(argIdx)->GetVariantType();
-    if ((varType < ezVariantType::Bool || varType > ezVariantType::Double) && varType != ezVariantType::Vector3)
+
+    if (!IsVariantTypeSupported(varType))
       continue;
 
     ezVisualScriptPinDescriptor pid;
-
-    switch (varType)
-    {
-      case ezVariantType::Bool:
-        pid.m_DataType = ezVisualScriptDataPinType::Boolean;
-        break;
-      case ezVariantType::Vector3:
-        pid.m_DataType = ezVisualScriptDataPinType::Vec3;
-        break;
-      default:
-        pid.m_DataType = ezVisualScriptDataPinType::Number;
-        break;
-    }
-
+    pid.m_DataType = GetDataPinTypeForVariant(varType);
     pid.m_sName = sName;
     pid.m_sTooltip = ""; /// \todo Use ezTranslateTooltip
     pid.m_PinType = ezVisualScriptPinDescriptor::Data;

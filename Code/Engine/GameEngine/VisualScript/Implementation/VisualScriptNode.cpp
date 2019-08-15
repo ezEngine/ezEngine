@@ -279,6 +279,8 @@ void ezVisualScriptNode_FunctionCall::Execute(ezVisualScriptInstance* pInstance,
 
   m_pFunctionToCall->Execute(pComponent, m_Arguments, m_ReturnValue);
 
+
+
   for (ezUInt32 arg = 0; arg < m_pFunctionToCall->GetArgumentCount(); ++arg)
   {
     if (m_pFunctionToCall->GetArgumentFlags(arg).IsSet(ezPropertyFlags::Reference)) // TODO: does reference mean non-const ?
@@ -329,6 +331,10 @@ void* ezVisualScriptNode_FunctionCall::GetInputPinDataPointer(ezUInt8 uiPin)
   return m_Arguments[uiPin - 1].GetData();
 }
 
+
+void ezVisualScriptNode_FunctionCall::EnforceVariantTypes()
+{
+}
 
 //////////////////////////////////////////////////////////////////////////
 

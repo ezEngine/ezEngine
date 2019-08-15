@@ -69,7 +69,7 @@ protected:
 
 public:
   void ResumeAnimation();
-  void SetAnimationPaused(bool bPaused);
+  void SetAnimationPaused(bool bPaused); // [scriptable]
   void SetDirectionForwards(bool bForwards);
   void ReverseDirection();
   bool IsDirectionForwards() const;
