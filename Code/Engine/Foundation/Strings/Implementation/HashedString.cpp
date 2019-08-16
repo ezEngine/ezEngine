@@ -16,7 +16,8 @@ static ezHashedString::HashedType s_HSEmpty;
 // static
 ezHashedString::HashedType ezHashedString::AddHashedString(const char* szString, ezUInt32 uiHash)
 {
-  InitHashedString();
+  if (s_pHSData == nullptr)
+    InitHashedString();
 
   EZ_LOCK(s_pHSData->m_Mutex);
 
@@ -50,7 +51,7 @@ void ezHashedString::InitHashedString()
     return;
 
   static ezUInt8 HashedStringDataBuffer[sizeof(HashedStringData)];
-  HashedStringData* pData = new (HashedStringDataBuffer) HashedStringData();
+  s_pHSData = new (HashedStringDataBuffer) HashedStringData();
 
   // makes sure the empty string exists for the default constructor to use
   s_HSEmpty = AddHashedString("", ezHashingUtils::MurmurHash32String(""));
