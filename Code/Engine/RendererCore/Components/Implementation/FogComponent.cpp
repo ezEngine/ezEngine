@@ -96,7 +96,7 @@ float ezFogComponent::GetHeightFalloff() const
 
 void ezFogComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
 {
-  msg.SetAlwaysVisible();
+  msg.SetAlwaysVisible(GetOwner()->IsDynamic() ? ezDefaultSpatialDataCategories::RenderDynamic : ezDefaultSpatialDataCategories::RenderStatic);
 }
 
 void ezFogComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const

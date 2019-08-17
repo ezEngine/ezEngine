@@ -259,7 +259,8 @@ void ezGameObject::operator=(const ezGameObject& other)
 
   if (!m_pTransformationData->m_hSpatialData.IsInvalidated())
   {
-    m_pWorld->GetSpatialSystem().UpdateSpatialData(m_pTransformationData->m_hSpatialData, m_pTransformationData->m_globalBounds, this);
+    m_pWorld->GetSpatialSystem().UpdateSpatialData(m_pTransformationData->m_hSpatialData, m_pTransformationData->m_globalBounds, this,
+      m_pTransformationData->m_uiSpatialDataCategoryBitmask);
   }
 
   m_Components = other.m_Components;
@@ -581,6 +582,7 @@ void ezGameObject::UpdateLocalBounds()
 
   m_pTransformationData->m_localBounds = ezSimdConversion::ToBBoxSphere(msg.m_ResultingLocalBounds);
   m_pTransformationData->m_localBounds.m_BoxHalfExtents.SetW(msg.m_bAlwaysVisible ? 1.0f : 0.0f);
+  m_pTransformationData->m_uiSpatialDataCategoryBitmask = msg.m_uiSpatialDataCategoryBitmask;
 
   if (IsStatic())
   {
@@ -887,7 +889,7 @@ void ezGameObject::TransformationData::UpdateSpatialData(bool bWasAlwaysVisible,
   {
     if (m_hSpatialData.IsInvalidated())
     {
-      m_hSpatialData = spatialSystem.CreateSpatialDataAlwaysVisible(m_pObject);
+      m_hSpatialData = spatialSystem.CreateSpatialDataAlwaysVisible(m_pObject, m_uiSpatialDataCategoryBitmask);
     }
   }
   else
@@ -896,11 +898,11 @@ void ezGameObject::TransformationData::UpdateSpatialData(bool bWasAlwaysVisible,
     {
       if (m_hSpatialData.IsInvalidated())
       {
-        m_hSpatialData = spatialSystem.CreateSpatialData(m_globalBounds, m_pObject);
+        m_hSpatialData = spatialSystem.CreateSpatialData(m_globalBounds, m_pObject, m_uiSpatialDataCategoryBitmask);
       }
       else
       {
-        spatialSystem.UpdateSpatialData(m_hSpatialData, m_globalBounds, m_pObject);
+        spatialSystem.UpdateSpatialData(m_hSpatialData, m_globalBounds, m_pObject, m_uiSpatialDataCategoryBitmask);
       }
     }
     else

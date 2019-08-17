@@ -247,12 +247,12 @@ ezHybridArray<T, Size, A>::ezHybridArray(const ezHybridArrayBase<T, Size>& other
 }
 
 template <typename T, ezUInt32 Size, typename A>
-ezHybridArray<T, Size, A>::ezHybridArray(ezHybridArray<T, Size, A>&& other) : ezHybridArrayBase<T, Size>(std::move(other), A::GetAllocator())
+ezHybridArray<T, Size, A>::ezHybridArray(ezHybridArray<T, Size, A>&& other) : ezHybridArrayBase<T, Size>(std::move(other), other.GetAllocator())
 {
 }
 
 template <typename T, ezUInt32 Size, typename A>
-ezHybridArray<T, Size, A>::ezHybridArray(ezHybridArrayBase<T, Size>&& other) : ezHybridArrayBase<T, Size>(std::move(other), A::GetAllocator())
+ezHybridArray<T, Size, A>::ezHybridArray(ezHybridArrayBase<T, Size>&& other) : ezHybridArrayBase<T, Size>(std::move(other), other.GetAllocator())
 {
 }
 

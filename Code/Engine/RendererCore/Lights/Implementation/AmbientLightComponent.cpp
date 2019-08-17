@@ -108,7 +108,7 @@ float ezAmbientLightComponent::GetIntensity() const
 
 void ezAmbientLightComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
 {
-  msg.SetAlwaysVisible();
+  msg.SetAlwaysVisible(GetOwner()->IsDynamic() ? ezDefaultSpatialDataCategories::RenderDynamic : ezDefaultSpatialDataCategories::RenderStatic);
 }
 
 void ezAmbientLightComponent::SerializeComponent(ezWorldWriter& stream) const
