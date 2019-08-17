@@ -279,41 +279,24 @@ void ezVisualScriptNode_FunctionCall::Execute(ezVisualScriptInstance* pInstance,
 
   m_pFunctionToCall->Execute(pComponent, m_Arguments, m_ReturnValue);
 
+  ezUInt32 uiOutputPinIndex = 0;
 
+  if (m_ReturnValue.IsValid())
+  {
+    EnforceVariantType(m_ReturnValue);
+    pInstance->SetOutputPinValue(this, uiOutputPinIndex, m_ReturnValue.GetData());
+    ++uiOutputPinIndex;
+  }
 
   for (ezUInt32 arg = 0; arg < m_pFunctionToCall->GetArgumentCount(); ++arg)
   {
     if (m_pFunctionToCall->GetArgumentFlags(arg).IsSet(ezPropertyFlags::Reference)) // TODO: does reference mean non-const ?
     {
-      // TODO: reset out parameters to the proper type and pass them on
+      EnforceVariantType(m_Arguments[arg]);
+      pInstance->SetOutputPinValue(this, uiOutputPinIndex, m_Arguments[arg].GetData());
+      ++uiOutputPinIndex;
 
-      //switch (m_pFunctionToCall->GetArgumentType(arg)->GetVariantType())
-      //{
-      //  case ezVariantType::Bool:
-      //    m_Arguments[arg] = false;
-      //    break;
-      //  case ezVariantType::Double:
-      //  case ezVariantType::Float:
-      //  case ezVariantType::Int8:
-      //  case ezVariantType::Int16:
-      //  case ezVariantType::Int32:
-      //  case ezVariantType::UInt8:
-      //  case ezVariantType::UInt16:
-      //  case ezVariantType::UInt32:
-      //    m_Arguments[arg] = static_cast<double>(0);
-      //    break;
-      //  case ezVariantType::Vector3:
-      //    m_Arguments[arg] = ezVec3::ZeroVector();
-      //    break;
-
-      //  default:
-      //    ezLog::Error("Script function '{}' has unsupported argument type '{}' for parameter {}", node.m_sTypeName, pFunc->GetArgumentType(arg)->GetVariantType(), arg);
-      //    break;
-      //}
-
-      // TODO: pass out parameters to output pins
       // TODO: distinguish between in / out /inout parameters
-      // TODO: pass return value to output pin
     }
   }
 
@@ -331,9 +314,17 @@ void* ezVisualScriptNode_FunctionCall::GetInputPinDataPointer(ezUInt8 uiPin)
   return m_Arguments[uiPin - 1].GetData();
 }
 
-
-void ezVisualScriptNode_FunctionCall::EnforceVariantTypes()
+void ezVisualScriptNode_FunctionCall::EnforceVariantType(ezVariant& var)
 {
+  if (!var.IsValid() || var.GetType() == ezVariantType::Bool)
+  {
+    // nothing to do
+  }
+  else if (var.IsNumber())
+  {
+    const double value = var.ConvertTo<double>();
+    var = value;
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////

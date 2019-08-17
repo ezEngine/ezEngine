@@ -636,11 +636,11 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
     nd.m_InputPins.PushBack(pd);
   }
 
-  ezInt32 iDataPinIndex = 0; // the first valid index is '1', because of the component data pins
+  ezInt32 iDataPinIndexOut = 0;
 
   ezStringBuilder sName;
 
-  if (IsVariantTypeSupported(pFunction->GetReturnType()->GetVariantType()))
+  if (pFunction->GetReturnType() != nullptr && IsVariantTypeSupported(pFunction->GetReturnType()->GetVariantType()))
   {
     ezVisualScriptPinDescriptor pd;
     pd.m_sName = "Result";
@@ -648,8 +648,10 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
     pd.m_PinType = ezVisualScriptPinDescriptor::Data;
     pd.m_DataType = GetDataPinTypeForVariant(pFunction->GetReturnType()->GetVariantType());
     pd.m_Color = PinTypeColor(pd.m_DataType);
-    pd.m_uiPinIndex = 0;
+    pd.m_uiPinIndex = iDataPinIndexOut; // result is always on pin 0
     nd.m_OutputPins.PushBack(pd);
+
+    ++iDataPinIndexOut;
   }
 
   for (ezUInt32 argIdx = 0; argIdx < pFunction->GetArgumentCount(); ++argIdx)
@@ -680,7 +682,6 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
       nd.m_Properties.PushBack(prd);
     }
 
-    ++iDataPinIndex;
     const auto varType = pFunction->GetArgumentType(argIdx)->GetVariantType();
 
     if (!IsVariantTypeSupported(varType))
@@ -692,10 +693,19 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
     pid.m_sTooltip = ""; /// \todo Use ezTranslateTooltip
     pid.m_PinType = ezVisualScriptPinDescriptor::Data;
     pid.m_Color = PinTypeColor(pid.m_DataType);
-    pid.m_uiPinIndex = iDataPinIndex;
+    pid.m_uiPinIndex = 1 + argIdx; // TODO: document what m_uiPinIndex is for
     nd.m_InputPins.PushBack(pid);
 
-    // TODO: setup out pins for non-const ref parameters
+    if (pFunction->GetArgumentFlags(argIdx).IsSet(ezPropertyFlags::Reference))
+    {
+      // TODO: distinguish between in / out / inout parameters
+      // TODO: check const-ref
+
+      pid.m_uiPinIndex = iDataPinIndexOut;
+      nd.m_OutputPins.PushBack(pid);
+
+      ++iDataPinIndexOut;
+    }
   }
 
   m_NodeDescriptors.Insert(GenerateTypeFromDesc(nd), nd);
