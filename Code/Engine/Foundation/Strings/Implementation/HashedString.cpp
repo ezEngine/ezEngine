@@ -8,10 +8,10 @@ struct HashedStringData
 {
   ezMutex m_Mutex;
   ezHashedString::StringStorage m_Storage;
+  ezHashedString::HashedType m_Empty;
 };
 
 static HashedStringData* s_pHSData;
-static ezHashedString::HashedType s_HSEmpty;
 
 // static
 ezHashedString::HashedType ezHashedString::AddHashedString(const char* szString, ezUInt32 uiHash)
@@ -54,11 +54,11 @@ void ezHashedString::InitHashedString()
   s_pHSData = new (HashedStringDataBuffer) HashedStringData();
 
   // makes sure the empty string exists for the default constructor to use
-  s_HSEmpty = AddHashedString("", ezHashingUtils::MurmurHash32String(""));
+  s_pHSData->m_Empty = AddHashedString("", ezHashingUtils::MurmurHash32String(""));
 
 #if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
   // this one should never get deleted, so make sure its refcount is 2
-  s_HSEmpty.Value().m_iRefCount.Increment();
+  s_pHSData->m_Empty.Value().m_iRefCount.Increment();
 #endif
 }
 
@@ -93,7 +93,7 @@ ezHashedString::ezHashedString()
   if (s_pHSData == nullptr)
     InitHashedString();
 
-  m_Data = s_HSEmpty;
+  m_Data = s_pHSData->m_Empty;
 #if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
   m_Data.Value().m_iRefCount.Increment();
 #endif
@@ -101,23 +101,23 @@ ezHashedString::ezHashedString()
 
 bool ezHashedString::IsEmpty() const
 {
-  return m_Data == s_HSEmpty;
+  return m_Data == s_pHSData->m_Empty;
 }
 
 void ezHashedString::Clear()
 {
 #if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
-  if (m_Data != s_HSEmpty)
+  if (m_Data != s_pHSData->m_Empty)
   {
     HashedType tmp = m_Data;
 
-    m_Data = s_HSEmpty;
+    m_Data = s_pHSData->m_Empty;
     m_Data.Value().m_iRefCount.Increment();
 
     tmp.Value().m_iRefCount.Decrement();
   }
 #else
-  m_Data = s_HSEmpty;
+  m_Data = s_pHSData->m_Empty;
 #endif  
 }
 
