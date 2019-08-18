@@ -210,13 +210,14 @@ protected:
 #endif
 
 #if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#  include <Foundation/Basics/Platform/Android/AndroidUtils.h>
 #  include <android/log.h>
 #  include <android_native_app_glue.h>
 #  define EZ_TESTFRAMEWORK_ENTRY_POINT_BEGIN(szTestName, szNiceTestName)                                                   \
-    /* Enables that on machines with multiple GPUs the NVIDIA GPU is preferred */                                          \
     int ezAndroidMain(int argc, char** argv);                                                                              \
     extern "C" void android_main(struct android_app* app)                                                                  \
     {                                                                                                                      \
+      ezAndroidUtils::SetAndroidApp(app);                                                                                  \
       /* TODO: do something with the return value of ezAndroidMain?  */                                                    \
       /* TODO: can we get somehow get the command line arguments to the android app? Is there even something like that? */ \
       int iReturnCode = ezAndroidMain(0, nullptr);                                                                         \

@@ -22,6 +22,11 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
+#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#  include <android_native_app_glue.h>
+#  include <Foundation/Basics/Platform/Android/AndroidUtils.h>
+#endif
+
 #ifndef PATH_MAX
 #define PATH_MAX 1024
 #endif
@@ -261,7 +266,15 @@ const char* ezOSFile::GetApplicationDirectory()
     CFRelease(bundlePath);
     CFRelease(bundleURL);
     CFRelease(appBundle);
-
+#elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
+    android_app* app = ezAndroidUtils::GetAndroidApp();
+    JNIEnv* env = ezAndroidUtils::GetJniEnv();
+    
+    jclass activityClass = env->GetObjectClass(app->activity->clazz);
+    jmethodID getPackageCodePath = env->GetMethodID(activityClass, "getPackageCodePath", "()Ljava/lang/String;");
+    jobject result = env->CallObjectMethod(app->activity->clazz, getPackageCodePath);
+    jboolean isCopy;
+    s_Path = env->GetStringUTFChars((jstring)result, &isCopy);
 #else
     char result[PATH_MAX];
     ssize_t length = readlink( "/proc/self/exe", result, PATH_MAX);
@@ -277,10 +290,15 @@ ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)
 {
   if (s_UserDataPath.IsEmpty())
   {
+#  if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+    android_app* app = ezAndroidUtils::GetAndroidApp();
+    s_UserDataPath = app->activity->internalDataPath;
+#else
     s_UserDataPath = getenv("HOME");
 
     if (s_UserDataPath.IsEmpty())
       s_UserDataPath = getpwuid(getuid())->pw_dir;
+#  endif
   }
 
   ezStringBuilder s = s_UserDataPath;
@@ -293,7 +311,24 @@ ezString ezOSFile::GetTempDataFolder(const char* szSubFolder)
 {
   if (s_TempDataPath.IsEmpty())
   {
+#  if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+    android_app* app = ezAndroidUtils::GetAndroidApp();
+    JNIEnv* env = ezAndroidUtils::GetJniEnv();
+    jclass activityClass = env->FindClass("android/app/NativeActivity");
+    jmethodID getCacheDir = env->GetMethodID(activityClass, "getCacheDir", "()Ljava/io/File;");
+    jobject cacheDir = env->CallObjectMethod(app->activity->clazz, getCacheDir);
+
+    jclass fileClass = env->FindClass("java/io/File");
+    jmethodID getPath = env->GetMethodID(fileClass, "getPath", "()Ljava/lang/String;");
+    jstring path = (jstring)env->CallObjectMethod(cacheDir, getPath);
+
+    const char* path_chars = env->GetStringUTFChars(path, NULL);
+    s_TempDataPath = path_chars;
+
+    env->ReleaseStringUTFChars(path, path_chars);
+#  else
     s_TempDataPath = GetUserDataFolder(".cache").GetData();
+#  endif
   }
 
   ezStringBuilder s = s_TempDataPath;

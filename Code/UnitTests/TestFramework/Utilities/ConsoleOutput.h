@@ -4,6 +4,9 @@
 
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 
+#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#  include <android/log.h>
+#endif
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 inline void SetConsoleColorInl(WORD ui)
 {
@@ -70,6 +73,10 @@ inline void OutputToConsole(ezTestOutput::Enum Type, const char* szMsg)
   ezStringUtils::snprintf(sz, 1024, "%*s%s\n", iIndentation, "", szMsg);
   OutputDebugStringW(ezStringWChar(sz).GetData());
 #endif
+#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+  __android_log_print(ANDROID_LOG_DEBUG, "ezEngine", "%*s%s\n", iIndentation, "", szMsg);
+#endif
+
   if (Type >= ezTestOutput::Error)
   {
     fflush(stdout);

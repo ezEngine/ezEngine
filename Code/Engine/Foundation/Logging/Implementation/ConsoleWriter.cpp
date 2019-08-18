@@ -2,6 +2,11 @@
 
 #include <Foundation/Logging/ConsoleWriter.h>
 
+#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#  include <android/log.h>
+#  define printf(...) __android_log_print(ANDROID_LOG_DEBUG, "ezEngine", __VA_ARGS__)
+#endif
+
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 
@@ -82,6 +87,9 @@ void ezLogWriter::Console::LogMessageHandler(const ezLoggingEventData& eventData
   SetConsoleColor(0x07);
 }
 
+#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#  undef printf
+#endif
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Logging_Implementation_ConsoleWriter);

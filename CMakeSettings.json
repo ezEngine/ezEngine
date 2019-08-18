@@ -15,7 +15,7 @@
         },
         {
           "name": "ANDROID_PLATFORM",
-          "value": "16"
+          "value": "23"
         },
         {
           "name": "EZ_ENABLE_QT_SUPPORT",
@@ -45,7 +45,7 @@
         },
         {
           "name": "ANDROID_PLATFORM",
-          "value": "16"
+          "value": "23"
         },
         {
           "name": "EZ_ENABLE_QT_SUPPORT",
@@ -75,7 +75,7 @@
         },
         {
           "name": "ANDROID_PLATFORM",
-          "value": "16"
+          "value": "23"
         },
         {
           "name": "EZ_ENABLE_QT_SUPPORT",
@@ -109,7 +109,7 @@
         },
         {
           "name": "ANDROID_PLATFORM",
-          "value": "16"
+          "value": "23"
         },
         {
           "name": "EZ_ENABLE_QT_SUPPORT",
@@ -143,7 +143,7 @@
         },
         {
           "name": "ANDROID_PLATFORM",
-          "value": "16"
+          "value": "23"
         },
         {
           "name": "EZ_ENABLE_QT_SUPPORT",
@@ -177,7 +177,7 @@
         },
         {
           "name": "ANDROID_PLATFORM",
-          "value": "16"
+          "value": "23"
         },
         {
           "name": "EZ_ENABLE_QT_SUPPORT",

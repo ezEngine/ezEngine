@@ -1,7 +1,8 @@
 #pragma once
 
-#include <android_native_app_glue.h>
+#include <Foundation/Basics/Platform/Android/AndroidUtils.h>
 #include <android/log.h>
+#include <android_native_app_glue.h>
 
 /// \file
 
@@ -19,6 +20,7 @@
                                                                                                \
   extern "C" void android_main(struct android_app* app)                                        \
   {                                                                                            \
+    ezAndroidUtils::SetAndroidApp(app);                                                        \
     AppClass* pApp = new (appBuffer) AppClass(__VA_ARGS__);                                    \
     ezRun(pApp); /* Life cycle & run method calling */                                         \
     const int iReturnCode = pApp->GetReturnCode();                                             \
