@@ -5,6 +5,8 @@
 #include <Core/Messages/EventMessage.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 
+typedef ezUInt64 ezFmodParameterId;
+
 class ezPhysicsWorldModuleInterface;
 struct ezMsgSetFloatParameter;
 
@@ -159,14 +161,14 @@ public:
   /// \brief Triggers an fmod sound cue. Whatever that is useful for.
   void SoundCue(ezMsgFmodAddSoundCue& msg);
 
-  /// \brief Tries to find the fmod event parameter by name. Returns the parameter index or -1, if no such parameter exists.
-  ezInt32 FindParameter(const char* szName) const;
+  /// \brief Tries to find the fmod event parameter by name. Returns the parameter id or -1, if no such parameter exists.
+  ezFmodParameterId FindParameter(const char* szName) const;
 
   /// \brief Sets an fmod event parameter value. See FindParameter() for the index.
-  void SetParameter(ezInt32 iParamIndex, float fValue);
+  void SetParameter(ezFmodParameterId ParamId, float fValue);
 
   /// \brief Gets an fmod event parameter value. See FindParameter() for the index. Returns 0, if the index is invalid.
-  float GetParameter(ezInt32 iParamIndex) const;
+  float GetParameter(ezFmodParameterId ParamId) const;
 
   /// \brief Allows to set event parameters through the generic ezMsgSetFloatParameter message.
   ///
@@ -208,6 +210,6 @@ public:
 private:
   ezComponentHandle m_hComponent;
   double m_fValue;
-  ezInt32 m_iParameterIndex = -1;
+  ezFmodParameterId m_iParameterIndex = -1;
   ezHashedString m_sParameterName;
 };

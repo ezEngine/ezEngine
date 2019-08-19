@@ -640,7 +640,7 @@ void ezFmodEventComponent::OnDeleteObject(ezMsgDeleteGameObject& msg)
   ezOnComponentFinishedAction::HandleDeleteObjectMsg(msg, m_OnFinishedAction);
 }
 
-ezInt32 ezFmodEventComponent::FindParameter(const char* szName) const
+ezFmodParameterId ezFmodEventComponent::FindParameter(const char* szName) const
 {
   if (!m_hSoundEvent.IsValid())
     return -1;
@@ -652,27 +652,27 @@ ezInt32 ezFmodEventComponent::FindParameter(const char* szName) const
     return -1;
 
   FMOD_STUDIO_PARAMETER_DESCRIPTION paramDesc;
-  if (pEventDesc->getParameter(szName, &paramDesc) != FMOD_OK)
+  if (pEventDesc->getParameterDescriptionByName(szName, &paramDesc) != FMOD_OK)
     return -1;
 
-  return paramDesc.index;
+  return *reinterpret_cast<ezFmodParameterId*>(&paramDesc.id);
 }
 
-void ezFmodEventComponent::SetParameter(ezInt32 iParamIndex, float fValue)
+void ezFmodEventComponent::SetParameter(ezFmodParameterId ParamId, float fValue)
 {
-  if (m_pEventInstance == nullptr || iParamIndex < 0 || !m_pEventInstance->isValid())
+  if (m_pEventInstance == nullptr || !m_pEventInstance->isValid() || ParamId == (ezFmodParameterId)-1)
     return;
 
-  m_pEventInstance->setParameterValueByIndex(iParamIndex, fValue);
+  m_pEventInstance->setParameterByID(*reinterpret_cast<FMOD_STUDIO_PARAMETER_ID*>(&ParamId), fValue);
 }
 
-float ezFmodEventComponent::GetParameter(ezInt32 iParamIndex) const
+float ezFmodEventComponent::GetParameter(ezFmodParameterId ParamId) const
 {
-  if (m_pEventInstance == nullptr || iParamIndex < 0 || !m_pEventInstance->isValid())
+  if (m_pEventInstance == nullptr || !m_pEventInstance->isValid() || ParamId == (ezFmodParameterId)-1)
     return 0.0f;
 
   float value = 0;
-  m_pEventInstance->getParameterValueByIndex(iParamIndex, &value, nullptr);
+  m_pEventInstance->getParameterByID(*reinterpret_cast<FMOD_STUDIO_PARAMETER_ID*>(&ParamId), &value, nullptr);
   return value;
 }
 
