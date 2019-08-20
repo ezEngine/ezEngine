@@ -5,7 +5,15 @@
 #include <Core/Messages/EventMessage.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 
-typedef ezUInt64 ezFmodParameterId;
+struct ezFmodParameterId
+{
+public:
+  EZ_ALWAYS_INLINE void Invalidate() { m_uiValue = -1; }
+  EZ_ALWAYS_INLINE bool IsInvalidated() const { return m_uiValue == -1; }
+
+private:
+  ezUInt64 m_uiValue = -1;
+};
 
 class ezPhysicsWorldModuleInterface;
 struct ezMsgSetFloatParameter;
@@ -24,7 +32,7 @@ private:
   struct OcclusionState;
   ezDynamicArray<OcclusionState> m_OcclusionStates;
 
-  ezUInt32 AddOcclusionState(ezFmodEventComponent* pComponent, ezInt32 iOcclusionParamterIndex, float fRadius);
+  ezUInt32 AddOcclusionState(ezFmodEventComponent* pComponent, ezFmodParameterId occlusionParamId, float fRadius);
   void RemoveOcclusionState(ezUInt32 uiIndex);
   const OcclusionState& GetOcclusionState(ezUInt32 uiIndex) const { return m_OcclusionStates[uiIndex]; }
 
@@ -210,6 +218,7 @@ public:
 private:
   ezComponentHandle m_hComponent;
   double m_fValue;
-  ezFmodParameterId m_iParameterIndex = -1;
+  ezFmodParameterId m_ParamId;
   ezHashedString m_sParameterName;
+  bool m_bTryParamLookup = true;
 };
