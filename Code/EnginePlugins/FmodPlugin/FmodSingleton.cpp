@@ -86,7 +86,7 @@ void ezFmod::Startup()
   EZ_FMOD_ASSERT(FMOD::Studio::System::create(&m_pStudioSystem));
 
   // The example Studio project is authored for 5.1 sound, so set up the system output mode to match
-  EZ_FMOD_ASSERT(m_pStudioSystem->getLowLevelSystem(&m_pLowLevelSystem));
+  EZ_FMOD_ASSERT(m_pStudioSystem->getCoreSystem(&m_pLowLevelSystem));
   EZ_FMOD_ASSERT(m_pLowLevelSystem->setSoftwareFormat(config.m_uiSamplerRate, fmodMode, 0));
 
   void* extraDriverData = nullptr;

@@ -16,6 +16,19 @@
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
+EZ_CHECK_AT_COMPILETIME(sizeof(ezFmodParameterId) == sizeof(FMOD_STUDIO_PARAMETER_ID));
+
+EZ_ALWAYS_INLINE FMOD_STUDIO_PARAMETER_ID ConvertEzToFmodId(ezFmodParameterId paramId)
+{
+  return *reinterpret_cast<FMOD_STUDIO_PARAMETER_ID*>(&paramId);
+}
+
+EZ_ALWAYS_INLINE ezFmodParameterId ConvertFmodToEzId(FMOD_STUDIO_PARAMETER_ID paramId)
+{
+  return *reinterpret_cast<ezFmodParameterId*>(&paramId);
+}
+
+
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
@@ -85,8 +98,8 @@ static bool s_bInSpherePositionsInitialized = false;
 struct ezFmodEventComponentManager::OcclusionState
 {
   ezFmodEventComponent* m_pComponent = nullptr;
+  ezFmodParameterId m_OcclusionParamId;
   ezUInt32 m_uiRaycastHits = 0;
-  ezInt16 m_iOcclusionParameterIndex = -1;
   ezUInt8 m_uiNextRayIndex = 0;
   ezUInt8 m_uiNumUsedRays = 0;
   float m_fRadius = 0.0f;
@@ -150,11 +163,11 @@ void ezFmodEventComponentManager::Deinitialize()
   ezResourceManager::s_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezFmodEventComponentManager::ResourceEventHandler, this));
 }
 
-ezUInt32 ezFmodEventComponentManager::AddOcclusionState(ezFmodEventComponent* pComponent, ezInt32 iOcclusionParamterIndex, float fRadius)
+ezUInt32 ezFmodEventComponentManager::AddOcclusionState(ezFmodEventComponent* pComponent, ezFmodParameterId occlusionParamId, float fRadius)
 {
   auto& occlusionState = m_OcclusionStates.ExpandAndGetRef();
   occlusionState.m_pComponent = pComponent;
-  occlusionState.m_iOcclusionParameterIndex = iOcclusionParamterIndex;
+  occlusionState.m_OcclusionParamId = occlusionParamId;
   occlusionState.m_fRadius = fRadius;
 
   if (const auto pPhysicsWorldModule = GetWorld()->GetModule<ezPhysicsWorldModuleInterface>())
@@ -640,49 +653,49 @@ void ezFmodEventComponent::OnDeleteObject(ezMsgDeleteGameObject& msg)
   ezOnComponentFinishedAction::HandleDeleteObjectMsg(msg, m_OnFinishedAction);
 }
 
-ezInt32 ezFmodEventComponent::FindParameter(const char* szName) const
+ezFmodParameterId ezFmodEventComponent::FindParameter(const char* szName) const
 {
   if (!m_hSoundEvent.IsValid())
-    return -1;
+    return ezFmodParameterId();
 
   ezResourceLock<ezFmodSoundEventResource> pEvent(m_hSoundEvent, ezResourceAcquireMode::BlockTillLoaded);
 
   FMOD::Studio::EventDescription* pEventDesc = pEvent->GetDescriptor();
   if (pEventDesc == nullptr || !pEventDesc->isValid())
-    return -1;
+    return ezFmodParameterId();
 
   FMOD_STUDIO_PARAMETER_DESCRIPTION paramDesc;
-  if (pEventDesc->getParameter(szName, &paramDesc) != FMOD_OK)
-    return -1;
+  if (pEventDesc->getParameterDescriptionByName(szName, &paramDesc) != FMOD_OK)
+    return ezFmodParameterId();
 
-  return paramDesc.index;
+  return ConvertFmodToEzId(paramDesc.id);
 }
 
-void ezFmodEventComponent::SetParameter(ezInt32 iParamIndex, float fValue)
+void ezFmodEventComponent::SetParameter(ezFmodParameterId paramId, float fValue)
 {
-  if (m_pEventInstance == nullptr || iParamIndex < 0 || !m_pEventInstance->isValid())
+  if (m_pEventInstance == nullptr || !m_pEventInstance->isValid() || paramId.IsInvalidated())
     return;
 
-  m_pEventInstance->setParameterValueByIndex(iParamIndex, fValue);
+  m_pEventInstance->setParameterByID(ConvertEzToFmodId(paramId), fValue);
 }
 
-float ezFmodEventComponent::GetParameter(ezInt32 iParamIndex) const
+float ezFmodEventComponent::GetParameter(ezFmodParameterId paramId) const
 {
-  if (m_pEventInstance == nullptr || iParamIndex < 0 || !m_pEventInstance->isValid())
+  if (m_pEventInstance == nullptr || !m_pEventInstance->isValid() || paramId.IsInvalidated())
     return 0.0f;
 
   float value = 0;
-  m_pEventInstance->getParameterValueByIndex(iParamIndex, &value, nullptr);
+  m_pEventInstance->getParameterByID(ConvertEzToFmodId(paramId), &value, nullptr);
   return value;
 }
 
 void ezFmodEventComponent::SetEventParameter(ezMsgSetFloatParameter& msg)
 {
-  const ezInt32 iParamIdx = FindParameter(msg.m_sParameterName);
-  if (iParamIdx < 0)
+  ezFmodParameterId paramId = FindParameter(msg.m_sParameterName);
+  if (paramId.IsInvalidated())
     return;
 
-  SetParameter(iParamIdx, msg.m_fValue);
+  SetParameter(paramId, msg.m_fValue);
 }
 
 void ezFmodEventComponent::Update()
@@ -819,8 +832,8 @@ void ezFmodEventComponent::UpdateOcclusion()
 {
   if (m_uiOcclusionStateIndex == ezInvalidIndex)
   {
-    ezInt32 iOcclusionParameterIndex = FindParameter("Occlusion");
-    if (iOcclusionParameterIndex < 0)
+    ezFmodParameterId occlusionParamId = FindParameter("Occlusion");
+    if (occlusionParamId.IsInvalidated())
     {
       ezLog::Warning("'Occlusion' Fmod Event Parameter could not be found.");
       m_bUseOcclusion = false;
@@ -841,11 +854,11 @@ void ezFmodEventComponent::UpdateOcclusion()
     }
 
     m_uiOcclusionStateIndex =
-      static_cast<ezFmodEventComponentManager*>(GetOwningManager())->AddOcclusionState(this, iOcclusionParameterIndex, fRadius);
+      static_cast<ezFmodEventComponentManager*>(GetOwningManager())->AddOcclusionState(this, occlusionParamId, fRadius);
   }
 
   auto& occlusionState = static_cast<ezFmodEventComponentManager*>(GetOwningManager())->GetOcclusionState(m_uiOcclusionStateIndex);
-  SetParameter(occlusionState.m_iOcclusionParameterIndex, occlusionState.GetOcclusionValue(GetOcclusionThreshold()));
+  SetParameter(occlusionState.m_OcclusionParamId, occlusionState.GetOcclusionValue(GetOcclusionThreshold()));
 }
 
 void ezFmodEventComponent::InvalidateResource(bool bTryToRestore)
@@ -903,23 +916,23 @@ ezVisualScriptNode_SetFmodEventParameter::ezVisualScriptNode_SetFmodEventParamet
 
 void ezVisualScriptNode_SetFmodEventParameter::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
-  if (m_bInputValuesChanged && m_iParameterIndex != -2)
+  if (m_bInputValuesChanged && m_bTryParamLookup)
   {
     ezFmodEventComponent* pEvent = nullptr;
     if (!pInstance->GetWorld()->TryGetComponent(m_hComponent, pEvent))
       goto failure;
 
     // index not yet initialized
-    if (m_iParameterIndex < 0)
+    if (m_ParamId.IsInvalidated())
     {
-      m_iParameterIndex = pEvent->FindParameter(m_sParameterName.GetData());
+      m_ParamId = pEvent->FindParameter(m_sParameterName.GetData());
 
       // parameter not found
-      if (m_iParameterIndex < 0)
+      if (m_ParamId.IsInvalidated())
         goto failure;
     }
 
-    pEvent->SetParameter(m_iParameterIndex, (float)m_fValue);
+    pEvent->SetParameter(m_ParamId, (float)m_fValue);
   }
 
   pInstance->ExecuteConnectedNodes(this, 0);
@@ -929,7 +942,7 @@ failure:
   ezLog::Warning("Script: Fmod Event Parameter '{0}' could not be found. Note that event parameters are not available for one-shot events.",
     m_sParameterName.GetString());
 
-  m_iParameterIndex = -2; // make sure we don't try this again
+  m_bTryParamLookup = false; // make sure we don't try this again
   pInstance->ExecuteConnectedNodes(this, 0);
 }
 
