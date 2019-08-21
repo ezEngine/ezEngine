@@ -27,9 +27,40 @@ public:
 
   void OnTransformChanged(ezMsgTransformChanged& msg);
 
-private:
+protected:
   float m_fValue = 1.0f;
   ezEnum<ezProcGenBlendMode> m_BlendMode;
+
+  void InvalidateArea();
+  void InvalidateArea(const ezBoundingBox& area);
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+typedef ezComponentManager<class ezProcVolumeSphereComponent, ezBlockStorageType::Compact> ezProcVolumeSphereComponentManager;
+
+class EZ_PROCGENPLUGIN_DLL ezProcVolumeSphereComponent : public ezProcVolumeComponent
+{
+  EZ_DECLARE_COMPONENT_TYPE(ezProcVolumeSphereComponent, ezProcVolumeComponent, ezProcVolumeSphereComponentManager);
+
+public:
+  ezProcVolumeSphereComponent();
+  ~ezProcVolumeSphereComponent();
+
+  float GetRadius() const { return m_fRadius; }
+  void SetRadius(float fRadius);
+
+  float GetFadeOutStart() const { return m_fFadeOutStart; }
+  void SetFadeOutStart(float fFadeOutStart);
+
+  virtual void SerializeComponent(ezWorldWriter& stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& stream) override;
+
+  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
+
+private:
+  float m_fRadius = 10.0f;
+  float m_fFadeOutStart = 0.8f;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -44,6 +75,8 @@ public:
   ezProcVolumeBoxComponent();
   ~ezProcVolumeBoxComponent();
 
-private:
+  virtual void SerializeComponent(ezWorldWriter& stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& stream) override;
 
+private:
 };

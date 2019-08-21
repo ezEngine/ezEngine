@@ -263,8 +263,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezProcVertexColorComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-      EZ_ACCESSOR_PROPERTY("Resource", GetResourceFile, SetResourceFile)->AddAttributes(new ezAssetBrowserAttribute("ProcGen Graph")),
-      EZ_ARRAY_ACCESSOR_PROPERTY("OutputNames", OutputNames_GetCount, GetOutputName, SetOutputName, OutputNames_Insert, OutputNames_Remove),
+    EZ_ACCESSOR_PROPERTY("Resource", GetResourceFile, SetResourceFile)->AddAttributes(new ezAssetBrowserAttribute("ProcGen Graph")),
+    EZ_ARRAY_ACCESSOR_PROPERTY("OutputNames", OutputNames_GetCount, GetOutputName, SetOutputName, OutputNames_Insert, OutputNames_Remove),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -274,7 +274,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezProcVertexColorComponent, 1, ezComponentMode::Static)
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
-      new ezCategoryAttribute("Procedural Generation"),
+    new ezCategoryAttribute("Procedural Generation"),
   }
   EZ_END_ATTRIBUTES;
 }
