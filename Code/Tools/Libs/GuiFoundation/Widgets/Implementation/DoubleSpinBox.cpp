@@ -269,7 +269,7 @@ void ezQtDoubleSpinBox::mouseMoveEvent(QMouseEvent* event)
       m_iDragDelta += iDelta;
       {
         m_LastDragPos = event->globalPos();
-        const QRect dsize = QApplication::desktop()->availableGeometry(m_LastDragPos);
+        const QRect dsize = QApplication::screenAt(event->globalPos())->availableGeometry();
         if (m_LastDragPos.y() < (dsize.top() + 10))
         {
           m_LastDragPos.setY(dsize.bottom() - 10);

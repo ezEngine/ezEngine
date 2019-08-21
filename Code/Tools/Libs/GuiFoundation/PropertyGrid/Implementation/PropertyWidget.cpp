@@ -758,7 +758,7 @@ void ezQtColorButtonWidget::SetColor(const ezVariant& color)
   else
   {
     QPalette pal = palette();
-    pal.setBrush(QPalette::Window, QBrush(pal.foreground().color(), Qt::DiagCrossPattern));
+    pal.setBrush(QPalette::Window, QBrush(pal.windowText().color(), Qt::DiagCrossPattern));
 
     setPalette(pal);
   }

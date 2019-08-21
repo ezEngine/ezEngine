@@ -136,7 +136,7 @@ ezVec2I32 ezEditorInputContext::SetMouseMode(MouseMode newMode)
 
   if (newMode != MouseMode::Normal)
   {
-    const QRect dsize = QApplication::desktop()->availableGeometry(curPos);
+    const QRect dsize = QApplication::screenAt(curPos)->availableGeometry();
 
     m_MouseWrapRect.x = dsize.x() + 10;
     m_MouseWrapRect.y = dsize.y() + 10;
