@@ -24,6 +24,7 @@ struct ezProcGenBlendMode
     Divide,
     Max,
     Min,
+    Set,
 
     Default = Multiply
   };
