@@ -16,6 +16,7 @@ EZ_CHECK_AT_COMPILETIME(sizeof(PlacementPoint) == 32);
 PlacementTask::PlacementTask(const char* szName)
   : ezTask(szName)
 {
+  m_VM.RegisterDefaultFunctions();
 }
 
 PlacementTask::~PlacementTask() {}

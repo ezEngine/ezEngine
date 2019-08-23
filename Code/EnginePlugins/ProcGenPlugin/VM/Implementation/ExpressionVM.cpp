@@ -235,6 +235,25 @@ ezExpressionVM::ezExpressionVM(ezUInt32 uiTempRegistersInBytes /*= 256 * 1024*/)
 
 ezExpressionVM::~ezExpressionVM() {}
 
+void ezExpressionVM::RegisterFunction(const char* szName, ezExpressionFunction func,
+  ezExpressionValidateGlobalData validationFunc /*= ezExpressionValidateGlobalData()*/)
+{
+  ezUInt32 uiFunctionIndex = m_Functions.GetCount();
+
+  auto& functionInfo = m_Functions.ExpandAndGetRef();
+  functionInfo.m_sName.Assign(szName);
+  functionInfo.m_Func = func;
+  functionInfo.m_ValidationFunc = validationFunc;
+
+  m_FunctionNamesToIndex.Insert(functionInfo.m_sName, uiFunctionIndex);
+}
+
+void ezExpressionVM::RegisterDefaultFunctions()
+{
+  RegisterFunction("Random", &ezDefaultExpressionFunctions::Random);
+  RegisterFunction("PerlinNoise", &ezDefaultExpressionFunctions::PerlinNoise);
+}
+
 void ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPtr<const ezExpression::Stream> inputs,
   ezArrayPtr<ezExpression::Stream> outputs, ezUInt32 uiNumInstances, const ezExpression::GlobalData& globalData)
 {

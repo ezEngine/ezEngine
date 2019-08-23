@@ -6,7 +6,11 @@
 
 using namespace ezProcGenInternal;
 
-VertexColorTask::VertexColorTask() = default;
+VertexColorTask::VertexColorTask()
+{
+  m_VM.RegisterDefaultFunctions();
+}
+
 VertexColorTask::~VertexColorTask() = default;
 
 void VertexColorTask::Prepare(const ezMeshBufferResourceDescriptor& mbDesc, const ezTransform& transform,
