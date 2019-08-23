@@ -1,22 +1,22 @@
 #include <ProcGenPluginPCH.h>
 
+#include <Foundation/SimdMath/SimdMath.h>
 #include <ProcGenPlugin/VM/ExpressionByteCode.h>
 #include <ProcGenPlugin/VM/ExpressionVM.h>
-#include <Foundation/SimdMath/SimdMath.h>
 
 namespace
 {
-#define DEBUG_VM
+//#define DEBUG_VM
 
 #ifdef DEBUG_VM
-#define VM_INLINE
+#  define VM_INLINE
 #else
-#define VM_INLINE EZ_ALWAYS_INLINE
+#  define VM_INLINE EZ_ALWAYS_INLINE
 #endif
 
   template <typename Func>
   VM_INLINE void VMOperation1(const ezExpressionByteCode::StorageType*& pByteCode, ezSimdVec4f* pRegisters, ezUInt32 uiNumRegisters,
-                              Func func)
+    Func func)
   {
     ezSimdVec4f* r = pRegisters + ezExpressionByteCode::GetRegisterIndex(pByteCode, uiNumRegisters);
     ezSimdVec4f* re = r + uiNumRegisters;
@@ -33,7 +33,7 @@ namespace
 
   template <typename Func>
   VM_INLINE void VMOperation1_C(const ezExpressionByteCode::StorageType*& pByteCode, ezSimdVec4f* pRegisters, ezUInt32 uiNumRegisters,
-                                Func func)
+    Func func)
   {
     ezSimdVec4f* r = pRegisters + ezExpressionByteCode::GetRegisterIndex(pByteCode, uiNumRegisters);
     ezSimdVec4f* re = r + uiNumRegisters;
@@ -49,7 +49,7 @@ namespace
 
   template <typename Func>
   VM_INLINE void VMOperation2(const ezExpressionByteCode::StorageType*& pByteCode, ezSimdVec4f* pRegisters, ezUInt32 uiNumRegisters,
-                              Func func)
+    Func func)
   {
     ezSimdVec4f* r = pRegisters + ezExpressionByteCode::GetRegisterIndex(pByteCode, uiNumRegisters);
     ezSimdVec4f* re = r + uiNumRegisters;
@@ -68,7 +68,7 @@ namespace
 
   template <typename Func>
   VM_INLINE void VMOperation2_C(const ezExpressionByteCode::StorageType*& pByteCode, ezSimdVec4f* pRegisters, ezUInt32 uiNumRegisters,
-                                Func func)
+    Func func)
   {
     ezSimdVec4f* r = pRegisters + ezExpressionByteCode::GetRegisterIndex(pByteCode, uiNumRegisters);
     ezSimdVec4f* re = r + uiNumRegisters;
@@ -87,7 +87,7 @@ namespace
   VM_INLINE float ReadInputData(const ezUInt8* pData) { return *reinterpret_cast<const float*>(pData); }
 
   void VMLoadInput(const ezExpressionByteCode::StorageType*& pByteCode, ezSimdVec4f* pRegisters, ezUInt32 uiNumRegisters,
-                   ezArrayPtr<const ezExpression::Stream> inputs, ezArrayPtr<ezUInt32> inputMapping)
+    ezArrayPtr<const ezExpression::Stream> inputs, ezArrayPtr<ezUInt32> inputMapping)
   {
     ezSimdVec4f* r = pRegisters + ezExpressionByteCode::GetRegisterIndex(pByteCode, uiNumRegisters);
     ezSimdVec4f* re = r + uiNumRegisters;
@@ -118,7 +118,7 @@ namespace
   VM_INLINE void StoreOutputData(ezUInt8* pData, float fData) { *reinterpret_cast<float*>(pData) = fData; }
 
   void VMStoreOutput(const ezExpressionByteCode::StorageType*& pByteCode, ezSimdVec4f* pRegisters, ezUInt32 uiNumRegisters,
-                     ezArrayPtr<ezExpression::Stream> outputs, ezArrayPtr<ezUInt32> outputMapping)
+    ezArrayPtr<ezExpression::Stream> outputs, ezArrayPtr<ezUInt32> outputMapping)
   {
     ezUInt32 uiOutputIndex = ezExpressionByteCode::GetRegisterIndex(pByteCode, 1);
     uiOutputIndex = outputMapping[uiOutputIndex];
@@ -148,9 +148,9 @@ namespace
     }
   }
 
-  void VMCall(const ezExpressionByteCode::StorageType*& pByteCode, ezSimdVec4f* pRegisters, ezUInt32 uiNumRegisters)
+  void VMCall(const ezExpressionByteCode::StorageType*& pByteCode, ezSimdVec4f* pRegisters, ezUInt32 uiNumRegisters,
+    const ezExpression::GlobalData& globalData, ezExpressionFunction& func)
   {
-    ezUInt32 uiNameHash = ezExpressionByteCode::GetFunctionNameHash(pByteCode);
     ezSimdVec4f* r = pRegisters + ezExpressionByteCode::GetRegisterIndex(pByteCode, uiNumRegisters);
     ezUInt32 uiNumArgs = ezExpressionByteCode::GetFunctionArgCount(pByteCode);
 
@@ -164,31 +164,30 @@ namespace
 
     ezExpression::Output output = ezMakeArrayPtr(r, uiNumRegisters);
 
-    auto func = ezExpressionFunctionRegistry::GetFunction(uiNameHash);
-    func(inputs, output, ezExpression::UserData());
+    func(inputs, output, globalData);
   }
-}
+} // namespace
 
 //////////////////////////////////////////////////////////////////////////
 
 ezExpression::Stream::Stream()
-    : m_Type(Type::Float)
-    , m_uiByteStride(0)
+  : m_Type(Type::Float)
+  , m_uiByteStride(0)
 {
 }
 
 ezExpression::Stream::Stream(const ezHashedString& sName, Type::Enum type, ezUInt32 uiByteStride)
-    : m_sName(sName)
-    , m_Type(type)
-    , m_uiByteStride(uiByteStride)
+  : m_sName(sName)
+  , m_Type(type)
+  , m_uiByteStride(uiByteStride)
 {
 }
 
 ezExpression::Stream::Stream(const ezHashedString& sName, Type::Enum type, ezArrayPtr<ezUInt8> data, ezUInt32 uiByteStride)
-    : m_sName(sName)
-    , m_Data(data)
-    , m_Type(type)
-    , m_uiByteStride(uiByteStride)
+  : m_sName(sName)
+  , m_Data(data)
+  , m_Type(type)
+  , m_uiByteStride(uiByteStride)
 {
 }
 
@@ -223,7 +222,7 @@ void ezExpression::Stream::ValidateDataSize(ezUInt32 uiNumInstances, const char*
   ezUInt32 uiExpectedSize = m_uiByteStride * (uiNumInstances - 1) + uiElementSize;
 
   EZ_ASSERT_DEV(m_Data.GetCount() >= uiExpectedSize, "{0} data size must be {1} bytes or more. Only {2} bytes given", szDataName,
-                uiExpectedSize, m_Data.GetCount());
+    uiExpectedSize, m_Data.GetCount());
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -237,7 +236,7 @@ ezExpressionVM::ezExpressionVM(ezUInt32 uiTempRegistersInBytes /*= 256 * 1024*/)
 ezExpressionVM::~ezExpressionVM() {}
 
 void ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPtr<const ezExpression::Stream> inputs,
-                             ezArrayPtr<ezExpression::Stream> outputs, ezUInt32 uiNumInstances)
+  ezArrayPtr<ezExpression::Stream> outputs, ezUInt32 uiNumInstances, const ezExpression::GlobalData& globalData)
 {
   // Input mapping
   {
@@ -290,6 +289,29 @@ void ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPtr<co
       }
 
       EZ_ASSERT_DEV(bOutputFound, "Bytecode expects an output '{0}'", outputName);
+    }
+  }
+
+  // Function mapping and validation
+  {
+    auto functionNames = byteCode.GetFunctions();
+
+    m_FunctionMapping.Clear();
+    m_FunctionMapping.Reserve(functionNames.GetCount());
+
+    for (auto& functionName : functionNames)
+    {
+      ezUInt32 uiFunctionIndex = 0;
+      bool bFound = m_FunctionNamesToIndex.TryGetValue(functionName, uiFunctionIndex);
+      EZ_ASSERT_DEV(bFound, "Bytecode expects a function called '{0}' but it was not registered for this VM", functionName);
+
+      m_FunctionMapping.PushBack(uiFunctionIndex);
+
+      auto& validationFunction = m_Functions[uiFunctionIndex].m_ValidationFunc;
+      if (validationFunction.IsValid())
+      {
+        EZ_ASSERT_DEV(validationFunction(globalData).Succeeded(), "Global data validation for function '{0}' failed.", functionName);
+      }
     }
   }
 
@@ -414,8 +436,14 @@ void ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPtr<co
 
         // call
       case ezExpressionByteCode::OpCode::Call:
-        VMCall(pByteCode, pRegisters, uiNumRegisters);
-        break;
+      {
+        ezUInt32 uiFunctionIndex = ezExpressionByteCode::GetFunctionIndex(pByteCode);
+        uiFunctionIndex = m_FunctionMapping[uiFunctionIndex];
+        auto& func = m_Functions[uiFunctionIndex].m_Func;
+
+        VMCall(pByteCode, pRegisters, uiNumRegisters, globalData, func);
+      }
+      break;
 
       default:
         EZ_ASSERT_NOT_IMPLEMENTED;
