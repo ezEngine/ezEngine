@@ -566,7 +566,7 @@ void ezQtTestGUI::SetCheckStateRecursive(const QModelIndex& index, bool bChecked
   ezInt32 iChildren = m_pModel->rowCount(index);
   for (ezInt32 i = 0; i < iChildren; ++i)
   {
-    SetCheckStateRecursive(index.child(i, 0), bChecked);
+    SetCheckStateRecursive(m_pModel->index(i, 0, index), bChecked);
   }
 }
 
