@@ -1,6 +1,7 @@
 #include <GuiFoundationPCH.h>
 
 #include <GuiFoundation/Widgets/DoubleSpinBox.moc.h>
+#include <GuiFoundation/Widgets/WidgetUtils.h>
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QLineEdit>
@@ -269,7 +270,7 @@ void ezQtDoubleSpinBox::mouseMoveEvent(QMouseEvent* event)
       m_iDragDelta += iDelta;
       {
         m_LastDragPos = event->globalPos();
-        const QRect dsize = QApplication::screenAt(event->globalPos())->availableGeometry();
+        const QRect dsize = ezWidgetUtils::GetClosestScreen(event->globalPos()).availableGeometry();
         if (m_LastDragPos.y() < (dsize.top() + 10))
         {
           m_LastDragPos.setY(dsize.bottom() - 10);
