@@ -7,6 +7,13 @@
 #include <GameEngine/Animation/TransformComponent.h>
 #include <VisualScript/VisualScriptInstance.h>
 
+#define _EZ_SCRIPT_FUNCTION_PARAM(type, name) \
+  ezScriptableFunctionAttribute::ArgType::type, name
+
+#define EZ_SCRIPT_FUNCTION_PROPERTY(Function, ...) \
+  EZ_FUNCTION_PROPERTY(Function)->AddAttributes(new ezScriptableFunctionAttribute(EZ_EXPAND_ARGS_PAIR_COMMA(_EZ_SCRIPT_FUNCTION_PARAM, __VA_ARGS__)))
+
+
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransformComponent, 2, ezRTTINoAllocator)
 {
@@ -26,12 +33,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransformComponent, 2, ezRTTINoAllocator)
   EZ_END_ATTRIBUTES;
   EZ_BEGIN_FUNCTIONS
   {
-    EZ_FUNCTION_PROPERTY(ResumeAnimation)->AddAttributes(new ezScriptableFunctionAttribute()),
-    EZ_FUNCTION_PROPERTY(SetAnimationPaused)->AddAttributes(new ezScriptableFunctionAttribute("Paused")),
-    EZ_FUNCTION_PROPERTY(SetDirectionForwards)->AddAttributes(new ezScriptableFunctionAttribute("Forwards")),
-    EZ_FUNCTION_PROPERTY(ReverseDirection)->AddAttributes(new ezScriptableFunctionAttribute()),
-    EZ_FUNCTION_PROPERTY(IsDirectionForwards)->AddAttributes(new ezScriptableFunctionAttribute()),
-    EZ_FUNCTION_PROPERTY(IsAnimationRunning)->AddAttributes(new ezScriptableFunctionAttribute()),
+    EZ_SCRIPT_FUNCTION_PROPERTY(ResumeAnimation),
+    EZ_SCRIPT_FUNCTION_PROPERTY(SetAnimationPaused, In, "Paused"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(SetDirectionForwards, In, "Forwards"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(ReverseDirection),
+    EZ_SCRIPT_FUNCTION_PROPERTY(IsDirectionForwards),
+    EZ_SCRIPT_FUNCTION_PROPERTY(IsAnimationRunning),
   }
   EZ_END_FUNCTIONS;
 }

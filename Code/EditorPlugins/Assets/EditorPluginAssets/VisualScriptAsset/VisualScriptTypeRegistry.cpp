@@ -687,6 +687,8 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
     if (!IsVariantTypeSupported(varType))
       continue;
 
+    const ezScriptableFunctionAttribute::ArgType argType = pAttr->GetArgumentType(argIdx);
+
     ezVisualScriptPinDescriptor pid;
     pid.m_DataType = GetDataPinTypeForVariant(varType);
     pid.m_sName = sName;
@@ -694,11 +696,14 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
     pid.m_PinType = ezVisualScriptPinDescriptor::Data;
     pid.m_Color = PinTypeColor(pid.m_DataType);
     pid.m_uiPinIndex = 1 + argIdx; // TODO: document what m_uiPinIndex is for
-    nd.m_InputPins.PushBack(pid);
 
-    if (pFunction->GetArgumentFlags(argIdx).IsSet(ezPropertyFlags::Reference))
+    if (argType != ezScriptableFunctionAttribute::Out) // in or inout
     {
-      // TODO: distinguish between in / out / inout parameters
+      nd.m_InputPins.PushBack(pid);
+    }
+
+    if (pFunction->GetArgumentFlags(argIdx).IsSet(ezPropertyFlags::Reference) && argType != ezScriptableFunctionAttribute::In /* out or inout */)
+    {
       // TODO: check const-ref
 
       pid.m_uiPinIndex = iDataPinIndexOut;

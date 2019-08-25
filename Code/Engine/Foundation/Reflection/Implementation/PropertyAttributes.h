@@ -724,36 +724,18 @@ class EZ_FOUNDATION_DLL ezScriptableFunctionAttribute : public ezPropertyAttribu
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezScriptableFunctionAttribute, ezPropertyAttribute);
 
-  ezScriptableFunctionAttribute(const char* szArg1 = nullptr, const char* szArg2 = nullptr, const char* szArg3 = nullptr, const char* szArg4 = nullptr, const char* szArg5 = nullptr, const char* szArg6 = nullptr)
+  enum ArgType : ezUInt8
   {
-    m_sArg1 = szArg1;
-    m_sArg2 = szArg2;
-    m_sArg3 = szArg3;
-    m_sArg4 = szArg4;
-    m_sArg5 = szArg5;
-    m_sArg6 = szArg6;
-  }
+    In,
+    Out,
+    Inout
+  };
 
-  const char* GetArgumentName(ezUInt32 index) const
-  {
-    switch (index)
-    {
-    case 0:
-      return m_sArg1;
-    case 1:
-      return m_sArg2;
-    case 2:
-      return m_sArg3;
-    case 3:
-      return m_sArg4;
-    case 4:
-      return m_sArg5;
-    case 5:
-      return m_sArg6;
-    }
+  ezScriptableFunctionAttribute(ArgType ArgType1 = In,  const char* szArg1 = nullptr, ArgType ArgType2 = In, const char* szArg2 = nullptr, ArgType ArgType3 = In, const char* szArg3 = nullptr, ArgType ArgType4 = In, const char* szArg4 = nullptr, ArgType ArgType5 = In, const char* szArg5 = nullptr, ArgType ArgType6 = In, const char* szArg6 = nullptr);
 
-    return nullptr;
-  }
+  const char* GetArgumentName(ezUInt32 index) const;
+
+  ArgType GetArgumentType(ezUInt32 index) const;
 
   ezUntrackedString m_sArg1;
   ezUntrackedString m_sArg2;
@@ -761,6 +743,13 @@ class EZ_FOUNDATION_DLL ezScriptableFunctionAttribute : public ezPropertyAttribu
   ezUntrackedString m_sArg4;
   ezUntrackedString m_sArg5;
   ezUntrackedString m_sArg6;
+
+  ezUInt8 m_ArgType1;
+  ezUInt8 m_ArgType2;
+  ezUInt8 m_ArgType3;
+  ezUInt8 m_ArgType4;
+  ezUInt8 m_ArgType5;
+  ezUInt8 m_ArgType6;
 };
 
 //////////////////////////////////////////////////////////////////////////
