@@ -98,7 +98,7 @@ void ezVisualScriptResourceDescriptor::Load(ezStreamReader& stream)
   ezUInt8 uiVersion = 0;
 
   stream >> uiVersion;
-  EZ_ASSERT_DEV(uiVersion >= 4 && uiVersion <= 5, "Incorrect version {0} for visual script", uiVersion);
+  EZ_ASSERT_DEV(uiVersion >= 4 && uiVersion <= 6, "Incorrect version {0} for visual script", uiVersion);
 
   if (uiVersion < 4)
     return;
@@ -183,6 +183,11 @@ void ezVisualScriptResourceDescriptor::Load(ezStreamReader& stream)
   {
     stream >> prop.m_sName;
     stream >> prop.m_Value;
+
+    if (uiVersion >= 6)
+    {
+      stream >> prop.m_iMappingIndex;
+    }
   }
 
   // Version 5
@@ -214,7 +219,7 @@ void ezVisualScriptResourceDescriptor::Load(ezStreamReader& stream)
 
 void ezVisualScriptResourceDescriptor::Save(ezStreamWriter& stream) const
 {
-  const ezUInt8 uiVersion = 5;
+  const ezUInt8 uiVersion = 6;
 
   stream << uiVersion;
 
@@ -276,6 +281,9 @@ void ezVisualScriptResourceDescriptor::Save(ezStreamWriter& stream) const
   {
     stream << prop.m_sName;
     stream << prop.m_Value;
+
+    // Version 6
+    stream << prop.m_iMappingIndex;
   }
 
   // Version 5

@@ -731,7 +731,7 @@ class EZ_FOUNDATION_DLL ezScriptableFunctionAttribute : public ezPropertyAttribu
     Inout
   };
 
-  ezScriptableFunctionAttribute(ArgType ArgType1 = In,  const char* szArg1 = nullptr, ArgType ArgType2 = In, const char* szArg2 = nullptr, ArgType ArgType3 = In, const char* szArg3 = nullptr, ArgType ArgType4 = In, const char* szArg4 = nullptr, ArgType ArgType5 = In, const char* szArg5 = nullptr, ArgType ArgType6 = In, const char* szArg6 = nullptr);
+  ezScriptableFunctionAttribute(ArgType ArgType1 = In, const char* szArg1 = nullptr, ArgType ArgType2 = In, const char* szArg2 = nullptr, ArgType ArgType3 = In, const char* szArg3 = nullptr, ArgType ArgType4 = In, const char* szArg4 = nullptr, ArgType ArgType5 = In, const char* szArg5 = nullptr, ArgType ArgType6 = In, const char* szArg6 = nullptr);
 
   const char* GetArgumentName(ezUInt32 index) const;
 
@@ -750,6 +750,20 @@ class EZ_FOUNDATION_DLL ezScriptableFunctionAttribute : public ezPropertyAttribu
   ezUInt8 m_ArgType4;
   ezUInt8 m_ArgType5;
   ezUInt8 m_ArgType6;
+};
+
+/// \brief Used to annotate properties to which pin or function parameter they belong (if necessary)
+class EZ_FOUNDATION_DLL ezVisScriptMappingAttribute : public ezPropertyAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisScriptMappingAttribute, ezPropertyAttribute);
+
+  ezVisScriptMappingAttribute() {}
+  ezVisScriptMappingAttribute(ezInt32 mapping)
+    : m_iMapping(mapping)
+  {
+  }
+
+  ezInt32 m_iMapping = 0;
 };
 
 //////////////////////////////////////////////////////////////////////////

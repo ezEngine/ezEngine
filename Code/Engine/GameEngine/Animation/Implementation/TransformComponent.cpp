@@ -39,6 +39,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransformComponent, 2, ezRTTINoAllocator)
     EZ_SCRIPT_FUNCTION_PROPERTY(ReverseDirection),
     EZ_SCRIPT_FUNCTION_PROPERTY(IsDirectionForwards),
     EZ_SCRIPT_FUNCTION_PROPERTY(IsAnimationRunning),
+
+    EZ_SCRIPT_FUNCTION_PROPERTY(Test_VoidNoParam),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Test_ReturnFloat),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Test_StringUInt8, In, "inText", In, "inValue"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Test_InOut, Inout, "inoutValue", In, "inConstant", Inout, "inoutString"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Test_InAndOut, In, "inValue", Out, "outVal"),
   }
   EZ_END_FUNCTIONS;
 }
@@ -66,6 +72,38 @@ void ezTransformComponent::DeserializeComponent(ezWorldReader& stream)
 
   stream.GetStream() >> m_AnimationTime;
   stream.GetStream() >> m_fAnimationSpeed;
+}
+
+void ezTransformComponent::Test_VoidNoParam() const
+{
+  ezLog::Info("Test_VoidNoParam");
+}
+
+float ezTransformComponent::Test_ReturnFloat() const
+{
+  static int i = 0;
+  ++i;
+  return (float)i;
+}
+
+void ezTransformComponent::Test_StringUInt8(const char* szText, ezUInt8 val) const
+{
+  ezLog::Info("Test_String: {} = {}", szText, val);
+}
+
+void ezTransformComponent::Test_InOut(ezInt32& inout_Val, const ezInt32& constant, ezString& inoutString)
+{
+  ezLog::Info("Test_InOut: {}: {} = {}", inoutString, inout_Val, constant);
+  inout_Val++;
+  inoutString = "blub";
+}
+
+int ezTransformComponent::Test_InAndOut(ezInt32& inVal, ezInt32& outVal)
+{
+  outVal = inVal + 3;
+  ezLog::Info("Test_InAndOut: inVal = {}, outVal = {}", inVal, outVal);
+
+  return 23;
 }
 
 ezTransformComponent::ezTransformComponent()

@@ -57,8 +57,9 @@ struct EZ_GAMEENGINE_DLL ezVisualScriptResourceDescriptor
 
   struct Property
   {
-    ezString m_sName;
+    ezString m_sName; // name of the property, as shown in the UI (unless translated)
     ezVariant m_Value;
+    ezInt32 m_iMappingIndex = ezMath::MaxValue<ezInt32>(); // can (optionally) be used to map the property to something
   };
 
   struct LocalParameterBool

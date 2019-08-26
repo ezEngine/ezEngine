@@ -908,6 +908,20 @@ ezScriptableFunctionAttribute::ArgType ezScriptableFunctionAttribute::GetArgumen
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisScriptMappingAttribute, 1, ezRTTIDefaultAllocator<ezVisScriptMappingAttribute>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Mapping", m_iMapping)
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOpAttribute, 1, ezRTTIDefaultAllocator<ezLongOpAttribute>)
 {
   EZ_BEGIN_PROPERTIES

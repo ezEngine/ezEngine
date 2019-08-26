@@ -666,7 +666,10 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
     if (sName.IsEmpty())
       sName.Format("arg{}", argIdx);
 
+    const ezScriptableFunctionAttribute::ArgType argType = pAttr->GetArgumentType(argIdx);
+
     // add the inputs as properties
+    if (argType != ezScriptableFunctionAttribute::Out) // in or inout
     {
       ezReflectedPropertyDescriptor prd;
       prd.m_Flags = pFunction->GetArgumentFlags(argIdx);
@@ -674,10 +677,9 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
       prd.m_sName = sName;
       prd.m_sType = pFunction->GetArgumentType(argIdx)->GetTypeName();
 
-      for (ezPropertyAttribute* const pAttr : pFunction->GetAttributes())
-      {
-        prd.m_Attributes.PushBack(ezReflectionSerializer::Clone(pAttr));
-      }
+      ezVisScriptMappingAttribute* pMappingAttr = ezVisScriptMappingAttribute::GetStaticRTTI()->GetAllocator()->Allocate<ezVisScriptMappingAttribute>();
+      pMappingAttr->m_iMapping = argIdx;
+      prd.m_Attributes.PushBack(pMappingAttr);
 
       nd.m_Properties.PushBack(prd);
     }
@@ -686,8 +688,6 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
 
     if (!IsVariantTypeSupported(varType))
       continue;
-
-    const ezScriptableFunctionAttribute::ArgType argType = pAttr->GetArgumentType(argIdx);
 
     ezVisualScriptPinDescriptor pid;
     pid.m_DataType = GetDataPinTypeForVariant(varType);

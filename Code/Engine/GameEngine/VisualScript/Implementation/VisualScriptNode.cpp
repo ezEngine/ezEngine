@@ -3,6 +3,7 @@
 #include <Core/Messages/CollisionMessage.h>
 #include <Core/Messages/TriggerMessage.h>
 #include <Core/World/World.h>
+#include <Foundation/Reflection/ReflectionUtils.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 
@@ -277,13 +278,18 @@ void ezVisualScriptNode_FunctionCall::Execute(ezVisualScriptInstance* pInstance,
     return;
   }
 
+  for (ezUInt32 arg = 0; arg < m_pFunctionToCall->GetArgumentCount(); ++arg)
+  {
+    ConvertArgumentToRequiredType(m_Arguments[arg], m_pFunctionToCall->GetArgumentType(arg)->GetVariantType());
+  }
+
   m_pFunctionToCall->Execute(pComponent, m_Arguments, m_ReturnValue);
 
   ezUInt32 uiOutputPinIndex = 0;
 
   if (m_ReturnValue.IsValid())
   {
-    EnforceVariantType(m_ReturnValue);
+    EnforceVariantTypeForInputPins(m_ReturnValue);
     pInstance->SetOutputPinValue(this, uiOutputPinIndex, m_ReturnValue.GetData());
     ++uiOutputPinIndex;
   }
@@ -292,7 +298,7 @@ void ezVisualScriptNode_FunctionCall::Execute(ezVisualScriptInstance* pInstance,
   {
     if (m_pFunctionToCall->GetArgumentFlags(arg).IsSet(ezPropertyFlags::Reference)) // TODO: does reference mean non-const ?
     {
-      EnforceVariantType(m_Arguments[arg]);
+      EnforceVariantTypeForInputPins(m_Arguments[arg]);
       pInstance->SetOutputPinValue(this, uiOutputPinIndex, m_Arguments[arg].GetData());
       ++uiOutputPinIndex;
 
@@ -314,7 +320,22 @@ void* ezVisualScriptNode_FunctionCall::GetInputPinDataPointer(ezUInt8 uiPin)
   return m_Arguments[uiPin - 1].GetData();
 }
 
-void ezVisualScriptNode_FunctionCall::EnforceVariantType(ezVariant& var)
+void ezVisualScriptNode_FunctionCall::ConvertArgumentToRequiredType(ezVariant& var, ezVariantType::Enum type)
+{
+  if (var.GetType() == type)
+    return;
+
+  ezResult couldConvert = EZ_FAILURE;
+  var = var.ConvertTo(type, &couldConvert);
+
+  if (couldConvert.Failed())
+  {
+    ezLog::Error("VS function call: Could not convert convert argument from type '{}' to target type '{}'", (int)var.GetType(), (int)type);
+    var = ezReflectionUtils::GetDefaultVariantFromType(type);
+  }
+}
+
+void ezVisualScriptNode_FunctionCall::EnforceVariantTypeForInputPins(ezVariant& var)
 {
   if (!var.IsValid() || var.GetType() == ezVariantType::Bool)
   {

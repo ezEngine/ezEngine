@@ -262,31 +262,33 @@ void ezVisualScriptInstance::CreateFunctionMessageNode(ezUInt32 uiNodeIdx, const
   pNode->m_pMessageToSend = node.m_pType->GetAllocator()->Allocate<ezMessage>();
 
   // assign all property values
-  for (ezUInt32 i = 0; i < node.m_uiNumProperties; ++i)
   {
-    const ezUInt32 uiProp = node.m_uiFirstProperty + i;
-    const auto& prop = resource.m_Properties[uiProp];
-
-    ezAbstractProperty* pAbstract = pNode->m_pMessageToSend->GetDynamicRTTI()->FindPropertyByName(prop.m_sName);
-    if (pAbstract == nullptr)
+    for (ezUInt32 i = 0; i < node.m_uiNumProperties; ++i)
     {
-      if (prop.m_sName == "Delay" && prop.m_Value.CanConvertTo<ezTime>())
+      const ezUInt32 uiProp = node.m_uiFirstProperty + i;
+      const auto& prop = resource.m_Properties[uiProp];
+
+      ezAbstractProperty* pAbstract = pNode->m_pMessageToSend->GetDynamicRTTI()->FindPropertyByName(prop.m_sName);
+      if (pAbstract == nullptr)
       {
-        pNode->m_Delay = prop.m_Value.ConvertTo<ezTime>();
-      }
-      if (prop.m_sName == "Recursive" && prop.m_Value.CanConvertTo<bool>())
-      {
-        pNode->m_bRecursive = prop.m_Value.ConvertTo<bool>();
+        if (prop.m_sName == "Delay" && prop.m_Value.CanConvertTo<ezTime>())
+        {
+          pNode->m_Delay = prop.m_Value.ConvertTo<ezTime>();
+        }
+        if (prop.m_sName == "Recursive" && prop.m_Value.CanConvertTo<bool>())
+        {
+          pNode->m_bRecursive = prop.m_Value.ConvertTo<bool>();
+        }
+
+        continue;
       }
 
-      continue;
+      if (pAbstract->GetCategory() != ezPropertyCategory::Member)
+        continue;
+
+      ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pAbstract);
+      ezReflectionUtils::SetMemberPropertyValue(pMember, pNode->m_pMessageToSend, prop.m_Value);
     }
-
-    if (pAbstract->GetCategory() != ezPropertyCategory::Member)
-      continue;
-
-    ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pAbstract);
-    ezReflectionUtils::SetMemberPropertyValue(pMember, pNode->m_pMessageToSend, prop.m_Value);
   }
 
   m_Nodes.PushBack(pNode);
@@ -334,45 +336,27 @@ void ezVisualScriptInstance::CreateFunctionCallNode(ezUInt32 uiNodeIdx, const ez
             // initialize the variants to the proper type
             for (ezUInt32 arg = 0; arg < pFunc->GetArgumentCount(); ++arg)
             {
-              switch (pFunc->GetArgumentType(arg)->GetVariantType())
-              {
-                case ezVariantType::Bool:
-                  pNode->m_Arguments[arg] = false;
-                  break;
-                case ezVariantType::Double:
-                case ezVariantType::Float:
-                case ezVariantType::Int8:
-                case ezVariantType::Int16:
-                case ezVariantType::Int32:
-                case ezVariantType::UInt8:
-                case ezVariantType::UInt16:
-                case ezVariantType::UInt32:
-                  pNode->m_Arguments[arg] = static_cast<double>(0);
-                  break;
-                case ezVariantType::Vector3:
-                  pNode->m_Arguments[arg] = ezVec3::ZeroVector();
-                  break;
-
-                default:
-                  ezLog::Error("Script function '{}' has unsupported argument type '{}' for parameter {}", node.m_sTypeName, pFunc->GetArgumentType(arg)->GetVariantType(), arg);
-                  break;
-              }
+              pNode->m_Arguments[arg] = ezReflectionUtils::GetDefaultVariantFromType(pFunc->GetArgumentType(arg)->GetVariantType());
+              pNode->EnforceVariantTypeForInputPins(pNode->m_Arguments[arg]);
             }
 
             ezVariant tmpVal;
 
             // assign all property values
-            for (ezUInt32 i = 0; i < node.m_uiNumProperties; ++i)
+            for (ezUInt32 uiPropIdx = 0; uiPropIdx < node.m_uiNumProperties; ++uiPropIdx)
             {
-              const ezUInt32 uiProp = node.m_uiFirstProperty + i;
+              const ezUInt32 uiProp = node.m_uiFirstProperty + uiPropIdx;
               const auto& prop = resource.m_Properties[uiProp];
 
-              ezResult couldConvert = EZ_FAILURE;
-              tmpVal = prop.m_Value.ConvertTo(pNode->m_Arguments[i].GetType(), &couldConvert);
-
-              if (couldConvert.Succeeded())
+              if (prop.m_iMappingIndex >= 0 || prop.m_iMappingIndex < (ezInt32)pNode->m_Arguments.GetCount())
               {
-                pNode->m_Arguments[i] = tmpVal;
+                ezResult couldConvert = EZ_FAILURE;
+                tmpVal = prop.m_Value.ConvertTo(pNode->m_Arguments[prop.m_iMappingIndex].GetType(), &couldConvert);
+
+                if (couldConvert.Succeeded())
+                {
+                  pNode->m_Arguments[prop.m_iMappingIndex] = tmpVal;
+                }
               }
             }
 
