@@ -7,13 +7,6 @@
 #include <GameEngine/Animation/TransformComponent.h>
 #include <VisualScript/VisualScriptInstance.h>
 
-#define _EZ_SCRIPT_FUNCTION_PARAM(type, name) \
-  ezScriptableFunctionAttribute::ArgType::type, name
-
-#define EZ_SCRIPT_FUNCTION_PROPERTY(Function, ...) \
-  EZ_FUNCTION_PROPERTY(Function)->AddAttributes(new ezScriptableFunctionAttribute(EZ_EXPAND_ARGS_PAIR_COMMA(_EZ_SCRIPT_FUNCTION_PARAM, __VA_ARGS__)))
-
-
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransformComponent, 2, ezRTTINoAllocator)
 {
@@ -40,8 +33,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransformComponent, 2, ezRTTINoAllocator)
     EZ_SCRIPT_FUNCTION_PROPERTY(IsDirectionForwards),
     EZ_SCRIPT_FUNCTION_PROPERTY(IsAnimationRunning),
 
-    EZ_SCRIPT_FUNCTION_PROPERTY(Test_VoidNoParam),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Test_ReturnFloat),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Test_ReturnFloatNoParams),
     EZ_SCRIPT_FUNCTION_PROPERTY(Test_StringUInt8, In, "inText", In, "inValue"),
     EZ_SCRIPT_FUNCTION_PROPERTY(Test_InOut, Inout, "inoutValue", In, "inConstant", Inout, "inoutString"),
     EZ_SCRIPT_FUNCTION_PROPERTY(Test_InAndOut, In, "inRef",  In, "inConstRef", Out, "outVal"),
@@ -74,13 +66,10 @@ void ezTransformComponent::DeserializeComponent(ezWorldReader& stream)
   stream.GetStream() >> m_fAnimationSpeed;
 }
 
-void ezTransformComponent::Test_VoidNoParam() const
+float ezTransformComponent::Test_ReturnFloatNoParams() const
 {
-  ezLog::Info("Test_VoidNoParam");
-}
+  ezLog::Info("Test_ReturnFloatNoParams");
 
-float ezTransformComponent::Test_ReturnFloat() const
-{
   static int i = 0;
   ++i;
   return (float)i;

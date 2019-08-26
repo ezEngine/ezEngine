@@ -87,7 +87,7 @@ public:
   virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override;
   virtual bool IsManuallyStepped() const override { return true; }
 
-  static void ConvertArgumentToRequiredType(ezVariant& var, ezVariantType::Enum type);
+  static ezResult ConvertArgumentToRequiredType(ezVariant& var, ezVariantType::Enum type);
 
   /// \brief Enforces m_ReturnValue and m_Arguments to be supported types, ie. mostly doubles for number types
   static void EnforceVariantTypeForInputPins(ezVariant& var);

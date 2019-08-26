@@ -59,8 +59,7 @@ public:
   bool GetAutoToggleDirection(void) const { return (m_Flags.IsAnySet(ezTransformComponentFlags::AutoToggleDirection)); }
   void SetAutoToggleDirection(bool b) { m_Flags.AddOrRemove(ezTransformComponentFlags::AutoToggleDirection, b); }
 
-  void Test_VoidNoParam() const;
-  float Test_ReturnFloat() const;
+  float Test_ReturnFloatNoParams() const;
   void Test_StringUInt8(const char* szText, ezUInt8 val) const;
   void Test_InOut(ezInt32& inout_Val, const ezInt32& constant, ezString& inoutString);
   int Test_InAndOut(ezInt32& inRef, const ezInt32& inConstRef, ezInt32& outVal);

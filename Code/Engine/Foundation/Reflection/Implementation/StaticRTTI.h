@@ -249,6 +249,25 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 ///   The function to be executed, must match the C++ function name including the class name e.g. 'CLASS::NAME'.
 #define EZ_FUNCTION_PROPERTY_EX(PropertyName, Function) (new ezFunctionProperty<decltype(&Function)>(PropertyName, &Function))
 
+/// \internal Used by EZ_SCRIPT_FUNCTION_PROPERTY
+#define _EZ_SCRIPT_FUNCTION_PARAM(type, name) \
+  ezScriptableFunctionAttribute::ArgType::type, name
+
+/// \brief Convenience macro to declare a function that can be called from scripts.
+///
+/// \param Function
+///   The function to be executed, must match the C++ function name including the class name e.g. 'CLASS::NAME'.
+///
+/// Internally this calls EZ_FUNCTION_PROPERTY and adds a ezScriptableFunctionAttribute.
+/// Use the variadic arguments in pairs to configure how each function parameter gets exposed.
+///   Use 'In', 'Out' or 'Inout' to specify whether a function parameter is only read, or also written back to.
+///   Follow it with a string to specify the name under which the parameter should show up.
+///
+/// Example:
+///   EZ_SCRIPT_FUNCTION_PROPERTY(MyFunc1NoParams)
+///   EZ_SCRIPT_FUNCTION_PROPERTY(MyFunc2FloatInDoubleOut, In, "FloatValue", Out, "DoubleResult")
+#define EZ_SCRIPT_FUNCTION_PROPERTY(Function, ...) \
+  EZ_FUNCTION_PROPERTY(Function)->AddAttributes(new ezScriptableFunctionAttribute(EZ_EXPAND_ARGS_PAIR_COMMA(_EZ_SCRIPT_FUNCTION_PARAM, __VA_ARGS__)))
 
 /// \brief Within a EZ_BEGIN_FUNCTIONS / EZ_END_FUNCTIONS; block, this adds a constructor function property stored inside the RTTI data.
 ///
@@ -631,7 +650,7 @@ EZ_ALWAYS_INLINE const ezRTTI* ezGetStaticRTTI()
 ///   The name of the member variable that should get exposed as a message sender.
 ///
 /// \note A message sender must be derived from ezMessageSenderBase.
-#define EZ_MESSAGE_SENDER(MemberName)                                                    \
-  {                                                                                      \
-#    MemberName, ezGetStaticRTTI < EZ_MEMBER_TYPE(OwnType, MemberName)::MessageType > () \
+#define EZ_MESSAGE_SENDER(MemberName)                                                  \
+  {                                                                                    \
+#    MemberName, ezGetStaticRTTI < EZ_MEMBER_TYPE(OwnType, MemberName)::MessageType>() \
   }

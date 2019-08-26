@@ -262,29 +262,54 @@ ezVisualScriptNode_FunctionCall::~ezVisualScriptNode_FunctionCall()
 
 void ezVisualScriptNode_FunctionCall::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
-  if (m_hComponent.IsInvalidated() || m_pFunctionToCall == nullptr)
+  if (m_pFunctionToCall == nullptr)
     return;
+
+  if (m_hComponent.IsInvalidated())
+  {
+    ezLog::Error("VisScript function call: Target component is not specified");
+
+    m_pFunctionToCall = nullptr;
+    return;
+  }
 
   ezWorld* pWorld = pInstance->GetWorld();
 
   ezComponent* pComponent = nullptr;
   if (!pWorld->TryGetComponent(m_hComponent, pComponent))
+  {
+    // component is dead -> deactivate this node silently
+    m_pFunctionToCall = nullptr;
     return;
+  }
 
   if (!pComponent->GetDynamicRTTI()->IsDerivedFrom(m_pExpectedType))
   {
+    ezLog::Error("VisScript function call: Target component of type '{}' is not of the expected base type '{}'", pComponent->GetDynamicRTTI()->GetTypeName(), m_pExpectedType->GetTypeName());
+
     m_pFunctionToCall = nullptr;
-    ezLog::Error("Component of type '{}' is not of the expected type '{}'", pComponent->GetDynamicRTTI()->GetTypeName(), m_pExpectedType->GetTypeName());
     return;
   }
 
   for (ezUInt32 arg = 0; arg < m_pFunctionToCall->GetArgumentCount(); ++arg)
   {
-    ConvertArgumentToRequiredType(m_Arguments[arg], m_pFunctionToCall->GetArgumentType(arg)->GetVariantType());
+    const ezVariant& var = m_Arguments[arg];
+    const ezVariantType::Enum targetType = m_pFunctionToCall->GetArgumentType(arg)->GetVariantType();
+
+    if (ConvertArgumentToRequiredType(m_Arguments[arg], targetType).Failed())
+    {
+      ezLog::Error("VisScript function call: Could not convert argument {} from variant type '{}' to target type '{}'", arg, (int)var.GetType(), (int)targetType);
+
+      // probably a stale script with a mismatching pin <-> argument configuration
+      m_pFunctionToCall = nullptr;
+      return;
+    }
   }
 
+  // call the function on the target object
   m_pFunctionToCall->Execute(pComponent, m_Arguments, m_ReturnValue);
 
+  // now we need to pull the data from return values and out parameters and pass them into our output pins
   ezUInt32 uiOutputPinIndex = 0;
 
   if (m_ReturnValue.IsValid())
@@ -296,6 +321,7 @@ void ezVisualScriptNode_FunctionCall::Execute(ezVisualScriptInstance* pInstance,
 
   for (ezUInt32 arg = 0; arg < m_pFunctionToCall->GetArgumentCount(); ++arg)
   {
+    // also do this for non-out parameters, as an 'in' parameter may still be a non-const reference (bad but valid)
     EnforceVariantTypeForInputPins(m_Arguments[arg]);
 
     if ((m_ArgumentIsOutParamMask & EZ_BIT(arg)) != 0) // if this argument represents an out or inout parameter, pull the data
@@ -319,31 +345,38 @@ void* ezVisualScriptNode_FunctionCall::GetInputPinDataPointer(ezUInt8 uiPin)
   return m_Arguments[uiPin - 1].GetData();
 }
 
-void ezVisualScriptNode_FunctionCall::ConvertArgumentToRequiredType(ezVariant& var, ezVariantType::Enum type)
+ezResult ezVisualScriptNode_FunctionCall::ConvertArgumentToRequiredType(ezVariant& var, ezVariantType::Enum type)
 {
   if (var.GetType() == type)
-    return;
+    return EZ_SUCCESS;
 
   ezResult couldConvert = EZ_FAILURE;
   var = var.ConvertTo(type, &couldConvert);
 
-  if (couldConvert.Failed())
-  {
-    ezLog::Error("VS function call: Could not convert convert argument from type '{}' to target type '{}'", (int)var.GetType(), (int)type);
-    var = ezReflectionUtils::GetDefaultVariantFromType(type);
-  }
+  return couldConvert;
 }
 
 void ezVisualScriptNode_FunctionCall::EnforceVariantTypeForInputPins(ezVariant& var)
 {
-  if (!var.IsValid() || var.GetType() == ezVariantType::Bool)
+  switch (var.GetType())
   {
-    // nothing to do
-  }
-  else if (var.IsNumber())
-  {
-    const double value = var.ConvertTo<double>();
-    var = value;
+    case ezVariantType::Int8:
+    case ezVariantType::UInt8:
+    case ezVariantType::Int16:
+    case ezVariantType::UInt16:
+    case ezVariantType::Int32:
+    case ezVariantType::UInt32:
+    case ezVariantType::Int64:
+    case ezVariantType::UInt64:
+    case ezVariantType::Float:
+    {
+      const double value = var.ConvertTo<double>();
+      var = value;
+      return;
+    }
+
+    default:
+      return;
   }
 }
 
