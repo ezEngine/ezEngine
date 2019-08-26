@@ -642,9 +642,11 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
 
   if (pFunction->GetReturnType() != nullptr && IsVariantTypeSupported(pFunction->GetReturnType()->GetVariantType()))
   {
+    tmp.Set(pRtti->GetTypeName(), "::", pFunction->GetPropertyName(), "->Return");
+
     ezVisualScriptPinDescriptor pd;
     pd.m_sName = "Result";
-    pd.m_sTooltip = "The return value of the function"; // TODO: better tooltip for return value
+    pd.m_sTooltip = ezTranslateTooltip(tmp);
     pd.m_PinType = ezVisualScriptPinDescriptor::Data;
     pd.m_DataType = GetDataPinTypeForVariant(pFunction->GetReturnType()->GetVariantType());
     pd.m_Color = PinTypeColor(pd.m_DataType);
@@ -689,10 +691,12 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
     if (!IsVariantTypeSupported(varType))
       continue;
 
+    tmp.Set(pRtti->GetTypeName(), "::", pFunction->GetPropertyName(), "->", sName);
+
     ezVisualScriptPinDescriptor pid;
     pid.m_DataType = GetDataPinTypeForVariant(varType);
     pid.m_sName = sName;
-    pid.m_sTooltip = ""; /// \todo Use ezTranslateTooltip
+    pid.m_sTooltip = ezTranslateTooltip(tmp);
     pid.m_PinType = ezVisualScriptPinDescriptor::Data;
     pid.m_Color = PinTypeColor(pid.m_DataType);
     pid.m_uiPinIndex = 1 + argIdx; // TODO: document what m_uiPinIndex is for
@@ -702,9 +706,15 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
       nd.m_InputPins.PushBack(pid);
     }
 
-    if (pFunction->GetArgumentFlags(argIdx).IsSet(ezPropertyFlags::Reference) && argType != ezScriptableFunctionAttribute::In /* out or inout */)
+    if (argType != ezScriptableFunctionAttribute::In /* out or inout */)
     {
-      // TODO: check const-ref
+      if (!pFunction->GetArgumentFlags(argIdx).IsSet(ezPropertyFlags::Reference))
+      {
+        // TODO: ezPropertyFlags::Reference is also set for const-ref parameters, should we change that ?
+
+        ezLog::Error("Script function '{}' argument {} is marked 'out' but is not a non-const reference value", nd.m_sTypeName, argIdx + 1);
+        return;
+      }
 
       pid.m_uiPinIndex = iDataPinIndexOut;
       nd.m_OutputPins.PushBack(pid);

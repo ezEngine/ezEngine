@@ -68,10 +68,11 @@ void ezTransformComponent::DeserializeComponent(ezWorldReader& stream)
 
 float ezTransformComponent::Test_ReturnFloatNoParams() const
 {
-  ezLog::Info("Test_ReturnFloatNoParams");
-
   static int i = 0;
   ++i;
+
+  ezLog::Info("Test_ReturnFloatNoParams: {}", i);
+
   return (float)i;
 }
 
