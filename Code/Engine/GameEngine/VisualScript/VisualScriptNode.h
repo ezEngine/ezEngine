@@ -97,6 +97,7 @@ public:
   ezComponentHandle m_hComponent;
   ezVariant m_ReturnValue;
   ezHybridArray<ezVariant, 4> m_Arguments;
+  ezUInt16 m_ArgumentIsOutParamMask = 0; // the n-th EZ_BIT is set if m_Arguments[n] represents an out or inout parameter
 };
 
 

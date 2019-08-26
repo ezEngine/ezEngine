@@ -307,6 +307,32 @@ void ezVisualScriptInstance::CreateEventMessageNode(ezUInt32 uiNodeIdx, const ez
   m_Nodes.PushBack(pNode);
 }
 
+ezAbstractFunctionProperty* ezVisualScriptInstance::SearchForScriptableFunctionOnType(const ezRTTI* pObjectType, ezStringView sFuncName, const ezScriptableFunctionAttribute*& out_pSfAttr) const
+{
+  if (sFuncName.IsEmpty())
+    return nullptr;
+
+  while (pObjectType != nullptr)
+  {
+    for (auto pFunc : pObjectType->GetFunctions())
+    {
+      if (sFuncName != pFunc->GetPropertyName())
+        continue;
+
+      out_pSfAttr = pFunc->GetAttributeByType<ezScriptableFunctionAttribute>();
+
+      if (out_pSfAttr == nullptr)
+        continue;
+
+      return pFunc;
+    }
+
+    pObjectType = pObjectType->GetParentType();
+  }
+
+  return nullptr;
+}
+
 void ezVisualScriptInstance::CreateFunctionCallNode(ezUInt32 uiNodeIdx, const ezVisualScriptResourceDescriptor& resource)
 {
   const auto& node = resource.m_Nodes[uiNodeIdx];
@@ -321,57 +347,56 @@ void ezVisualScriptInstance::CreateFunctionCallNode(ezUInt32 uiNodeIdx, const ez
     ezStringBuilder sFunc = node.m_sTypeName.FindSubString("::");
     sFunc.Shrink(2, 0);
 
-    if (!sFunc.IsEmpty())
+    const ezScriptableFunctionAttribute* pSfAttr = nullptr;
+    pNode->m_pFunctionToCall = SearchForScriptableFunctionOnType(pNode->m_pExpectedType, sFunc, pSfAttr);
+
+    if (pNode->m_pFunctionToCall != nullptr)
     {
-      const ezRTTI* pType = pNode->m_pExpectedType;
-      while (pType != nullptr)
+      pNode->m_ArgumentIsOutParamMask = 0;
+      pNode->m_Arguments.SetCount(pNode->m_pFunctionToCall->GetArgumentCount());
+
+      // initialize the variants to the proper type
+      for (ezUInt32 arg = 0; arg < pNode->m_pFunctionToCall->GetArgumentCount(); ++arg)
       {
-        for (auto pFunc : pNode->m_pExpectedType->GetFunctions())
+        pNode->m_Arguments[arg] = ezReflectionUtils::GetDefaultVariantFromType(pNode->m_pFunctionToCall->GetArgumentType(arg)->GetVariantType());
+        pNode->EnforceVariantTypeForInputPins(pNode->m_Arguments[arg]);
+
+        if (pSfAttr->GetArgumentType(arg) != ezScriptableFunctionAttribute::In) // out or inout
         {
-          if (sFunc == pFunc->GetPropertyName())
+          pNode->m_ArgumentIsOutParamMask |= EZ_BIT(arg);
+        }
+      }
+
+      ezVariant tmpVal;
+
+      // assign all property values
+      for (ezUInt32 uiPropIdx = 0; uiPropIdx < node.m_uiNumProperties; ++uiPropIdx)
+      {
+        const ezUInt32 uiProp = node.m_uiFirstProperty + uiPropIdx;
+        const auto& prop = resource.m_Properties[uiProp];
+
+        if (prop.m_iMappingIndex >= 0 || prop.m_iMappingIndex < (ezInt32)pNode->m_Arguments.GetCount())
+        {
+          ezResult couldConvert = EZ_FAILURE;
+          tmpVal = prop.m_Value.ConvertTo(pNode->m_Arguments[prop.m_iMappingIndex].GetType(), &couldConvert);
+
+          if (couldConvert.Succeeded())
           {
-            pNode->m_pFunctionToCall = pFunc;
-            pNode->m_Arguments.SetCount(pNode->m_pFunctionToCall->GetArgumentCount());
-
-            // initialize the variants to the proper type
-            for (ezUInt32 arg = 0; arg < pFunc->GetArgumentCount(); ++arg)
-            {
-              pNode->m_Arguments[arg] = ezReflectionUtils::GetDefaultVariantFromType(pFunc->GetArgumentType(arg)->GetVariantType());
-              pNode->EnforceVariantTypeForInputPins(pNode->m_Arguments[arg]);
-            }
-
-            ezVariant tmpVal;
-
-            // assign all property values
-            for (ezUInt32 uiPropIdx = 0; uiPropIdx < node.m_uiNumProperties; ++uiPropIdx)
-            {
-              const ezUInt32 uiProp = node.m_uiFirstProperty + uiPropIdx;
-              const auto& prop = resource.m_Properties[uiProp];
-
-              if (prop.m_iMappingIndex >= 0 || prop.m_iMappingIndex < (ezInt32)pNode->m_Arguments.GetCount())
-              {
-                ezResult couldConvert = EZ_FAILURE;
-                tmpVal = prop.m_Value.ConvertTo(pNode->m_Arguments[prop.m_iMappingIndex].GetType(), &couldConvert);
-
-                if (couldConvert.Succeeded())
-                {
-                  pNode->m_Arguments[prop.m_iMappingIndex] = tmpVal;
-                }
-              }
-            }
-
-            goto finish;
+            pNode->m_Arguments[prop.m_iMappingIndex] = tmpVal;
           }
         }
-
-        pType = pType->GetParentType();
       }
     }
-
-    ezLog::Error("Function '{}' does not exist on type '{}'", sFunc, node.m_pType->GetTypeName());
+    else
+    {
+      ezLog::Error("Function '{}' does not exist on type '{}'", sFunc, node.m_pType->GetTypeName());
+    }
+  }
+  else
+  {
+    ezLog::Error("Expected target object type is null for vis script function call node '{}'", node.m_sTypeName);
   }
 
-finish:
   m_Nodes.PushBack(pNode);
 }
 

@@ -63,7 +63,7 @@ public:
   float Test_ReturnFloat() const;
   void Test_StringUInt8(const char* szText, ezUInt8 val) const;
   void Test_InOut(ezInt32& inout_Val, const ezInt32& constant, ezString& inoutString);
-  int Test_InAndOut(ezInt32& inVal, ezInt32& outVal);
+  int Test_InAndOut(ezInt32& inRef, const ezInt32& inConstRef, ezInt32& outVal);
 
   float m_fAnimationSpeed;
 

@@ -296,13 +296,12 @@ void ezVisualScriptNode_FunctionCall::Execute(ezVisualScriptInstance* pInstance,
 
   for (ezUInt32 arg = 0; arg < m_pFunctionToCall->GetArgumentCount(); ++arg)
   {
-    if (m_pFunctionToCall->GetArgumentFlags(arg).IsSet(ezPropertyFlags::Reference)) // TODO: does reference mean non-const ?
+    EnforceVariantTypeForInputPins(m_Arguments[arg]);
+
+    if ((m_ArgumentIsOutParamMask & EZ_BIT(arg)) != 0) // if this argument represents an out or inout parameter, pull the data
     {
-      EnforceVariantTypeForInputPins(m_Arguments[arg]);
       pInstance->SetOutputPinValue(this, uiOutputPinIndex, m_Arguments[arg].GetData());
       ++uiOutputPinIndex;
-
-      // TODO: distinguish between in / out /inout parameters
     }
   }
 

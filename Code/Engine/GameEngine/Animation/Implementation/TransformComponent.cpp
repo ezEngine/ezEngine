@@ -44,7 +44,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransformComponent, 2, ezRTTINoAllocator)
     EZ_SCRIPT_FUNCTION_PROPERTY(Test_ReturnFloat),
     EZ_SCRIPT_FUNCTION_PROPERTY(Test_StringUInt8, In, "inText", In, "inValue"),
     EZ_SCRIPT_FUNCTION_PROPERTY(Test_InOut, Inout, "inoutValue", In, "inConstant", Inout, "inoutString"),
-    EZ_SCRIPT_FUNCTION_PROPERTY(Test_InAndOut, In, "inValue", Out, "outVal"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Test_InAndOut, In, "inRef",  In, "inConstRef", Out, "outVal"),
   }
   EZ_END_FUNCTIONS;
 }
@@ -98,10 +98,10 @@ void ezTransformComponent::Test_InOut(ezInt32& inout_Val, const ezInt32& constan
   inoutString = "blub";
 }
 
-int ezTransformComponent::Test_InAndOut(ezInt32& inVal, ezInt32& outVal)
+int ezTransformComponent::Test_InAndOut(ezInt32& inRef, const ezInt32& inConstRef, ezInt32& outVal)
 {
-  outVal = inVal + 3;
-  ezLog::Info("Test_InAndOut: inVal = {}, outVal = {}", inVal, outVal);
+  outVal = inRef + 3;
+  ezLog::Info("Test_InAndOut: inRef = {}, inConstRef = {} outVal = {}", inRef, inConstRef, outVal);
 
   return 23;
 }
