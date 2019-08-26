@@ -44,7 +44,7 @@ void ezQtDataDirsDlg::FillList()
     {
       QColor col;
       col.setNamedColor("Orange");
-      pItem->setTextColor(col);
+      pItem->setForeground(col);
       pItem->setToolTip("This data directory is a hard dependency and cannot be removed.");
       pItem->setData(Qt::UserRole + 1, false); // can remove ?
     }
@@ -59,7 +59,8 @@ void ezQtDataDirsDlg::FillList()
   if (m_iSelection == -1)
     ListDataDirs->clearSelection();
   else
-    ListDataDirs->setItemSelected(ListDataDirs->item(m_iSelection), true);
+    ListDataDirs->item(m_iSelection)->setSelected(true);
+  
 
   ListDataDirs->blockSignals(false);
 

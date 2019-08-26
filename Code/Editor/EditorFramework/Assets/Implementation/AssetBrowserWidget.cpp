@@ -511,7 +511,7 @@ void ezQtAssetBrowserWidget::BuildDirectoryTree(const char* szCurPath, QTreeWidg
 
   if (bIsHidden)
   {
-    pNewParent->setTextColor(0, qRgb(110, 110, 120));
+    pNewParent->setForeground(0, QColor::fromRgba(qRgb(110, 110, 120)));
   }
 
   pParent->addChild(pNewParent);

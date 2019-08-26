@@ -104,7 +104,7 @@ void ezQtTimeWidget::UpdateStats()
       pItem->setCheckState(it.Value().m_bDisplay ? Qt::Checked : Qt::Unchecked);
       pItem->setData(Qt::UserRole, QString(it.Key().GetData()));
 
-      pItem->setTextColor(s_Colors[it.Value().m_iColor % s_uiMaxColors]);
+      pItem->setForeground(s_Colors[it.Value().m_iColor % s_uiMaxColors]);
 
       it.Value().m_pListItem = pItem;
     }

@@ -128,7 +128,7 @@ void ezQtMemoryWidget::UpdateStats()
       m_Accu.m_pTreeItem->setData(0, Qt::UserRole, ezUInt32(ezInvalidIndex));
 
       m_Accu.m_pTreeItem->setText(0, "<Accumulated>");
-      m_Accu.m_pTreeItem->setTextColor(0, QColor(255, 255, 255));
+      m_Accu.m_pTreeItem->setForeground(0, QColor(255, 255, 255));
 
       ListAllocators->addTopLevelItem(m_Accu.m_pTreeItem);
     }
@@ -144,7 +144,7 @@ void ezQtMemoryWidget::UpdateStats()
       pItem->setData(0, Qt::UserRole, it.Key());
 
       pItem->setText(0, it.Value().m_sName.GetData());
-      pItem->setTextColor(0, MemoryWidgetDetail::s_Colors[it.Value().m_iColor % s_uiMaxColors]);
+      pItem->setForeground(0, MemoryWidgetDetail::s_Colors[it.Value().m_iColor % s_uiMaxColors]);
 
       it.Value().m_pTreeItem = pItem;
     }
