@@ -265,15 +265,39 @@ void ezVisualScriptNode_FunctionCall::Execute(ezVisualScriptInstance* pInstance,
   if (m_pFunctionToCall == nullptr)
     return;
 
+  ezWorld* pWorld = pInstance->GetWorld();
+
   if (m_hComponent.IsInvalidated())
   {
-    ezLog::Error("VisScript function call: Target component is not specified");
+    // no component given -> try to look up the component type on the object instead
 
-    m_pFunctionToCall = nullptr;
-    return;
+    if (m_hObject.IsInvalidated())
+    {
+      ezLog::Error("VisScript function call: Target component or object is not specified");
+
+      m_pFunctionToCall = nullptr;
+      return;
+    }
+
+    ezGameObject* pObject;
+    if (!pWorld->TryGetObject(m_hObject, pObject))
+    {
+      // object is dead -> deactivate this node silently
+      m_pFunctionToCall = nullptr;
+      return;
+    }
+
+    ezComponent* pComponent;
+    if (!pObject->TryGetComponentOfBaseType(m_pExpectedType, pComponent))
+    {
+      ezLog::Error("VisScript function call: Target object does not have a component of type {}", m_pExpectedType->GetTypeName());
+
+      m_pFunctionToCall = nullptr;
+      return;
+    }
+
+    m_hComponent = pComponent->GetHandle();
   }
-
-  ezWorld* pWorld = pInstance->GetWorld();
 
   ezComponent* pComponent = nullptr;
   if (!pWorld->TryGetComponent(m_hComponent, pComponent))
@@ -337,12 +361,15 @@ void ezVisualScriptNode_FunctionCall::Execute(ezVisualScriptInstance* pInstance,
 void* ezVisualScriptNode_FunctionCall::GetInputPinDataPointer(ezUInt8 uiPin)
 {
   if (uiPin == 0)
+    return &m_hObject;
+
+  if (uiPin == 1)
     return &m_hComponent;
 
-  if (uiPin >= m_Arguments.GetCount() + 1)
-    return &m_ReturnValue; // unused dummy
+  if (uiPin >= m_Arguments.GetCount() + 2)
+    return &m_ReturnValue; // unused dummy just to return anything in case of a mismatch
 
-  return m_Arguments[uiPin - 1].GetData();
+  return m_Arguments[uiPin - 2].GetData();
 }
 
 ezResult ezVisualScriptNode_FunctionCall::ConvertArgumentToRequiredType(ezVariant& var, ezVariantType::Enum type)

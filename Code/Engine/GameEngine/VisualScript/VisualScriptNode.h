@@ -94,6 +94,7 @@ public:
 
   const ezRTTI* m_pExpectedType = nullptr;
   const ezAbstractFunctionProperty* m_pFunctionToCall = nullptr;
+  ezGameObjectHandle m_hObject;
   ezComponentHandle m_hComponent;
   ezVariant m_ReturnValue;
   ezHybridArray<ezVariant, 4> m_Arguments;

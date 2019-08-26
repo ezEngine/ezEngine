@@ -624,15 +624,27 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
     nd.m_OutputPins.PushBack(pd);
   }
 
+  // Add an input data pin for the target object
+  {
+    ezVisualScriptPinDescriptor pd;
+    pd.m_sName = "Object";
+    pd.m_sTooltip = "When the object is given, the function is called on the first matching component.";
+    pd.m_PinType = ezVisualScriptPinDescriptor::Data;
+    pd.m_DataType = ezVisualScriptDataPinType::GameObjectHandle;
+    pd.m_Color = PinTypeColor(pd.m_DataType);
+    pd.m_uiPinIndex = 0;
+    nd.m_InputPins.PushBack(pd);
+  }
+
   // Add an input data pin for the target component
   {
     ezVisualScriptPinDescriptor pd;
     pd.m_sName = "Component";
-    pd.m_sTooltip = "The component on which to call the function.";
+    pd.m_sTooltip = "When the component is given, the function is called directly on it.";
     pd.m_PinType = ezVisualScriptPinDescriptor::Data;
     pd.m_DataType = ezVisualScriptDataPinType::ComponentHandle;
     pd.m_Color = PinTypeColor(pd.m_DataType);
-    pd.m_uiPinIndex = 0;
+    pd.m_uiPinIndex = 1;
     nd.m_InputPins.PushBack(pd);
   }
 
@@ -699,7 +711,7 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
     pid.m_sTooltip = ezTranslateTooltip(tmp);
     pid.m_PinType = ezVisualScriptPinDescriptor::Data;
     pid.m_Color = PinTypeColor(pid.m_DataType);
-    pid.m_uiPinIndex = 1 + argIdx; // TODO: document what m_uiPinIndex is for
+    pid.m_uiPinIndex = 2 + argIdx; // TODO: document what m_uiPinIndex is for
 
     if (argType != ezScriptableFunctionAttribute::Out) // in or inout
     {
