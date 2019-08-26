@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7297922959506964864,5177324930371449723}}
-		u4 %Hash{6708333176872487719}
+		u4 %Hash{11613828296778923395}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -26,6 +26,7 @@ o
 			s{"{ 3eed317b-10cd-4752-8e7d-6fc6460beba0 }"}
 			s{"{ 40197e82-5fa5-4045-99d5-f24a2475497a }"}
 			s{"{ 418d077b-369f-46c7-9f71-9fd51857b608 }"}
+			s{"{ 4795f5c4-4a78-4c13-937e-cf3e6bdecb7c }"}
 			s{"{ 5f7e8998-fe23-4a33-aa84-d10d4dfcf2a6 }"}
 			s{"{ 6082de35-c174-4c40-a5a5-17fd67b11ce5 }"}
 			s{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
@@ -151,14 +152,13 @@ o
 	{
 		f %Acceleration{0xCDCC4C3E}
 		b %Active{1}
-		b %AutoToggleDirection{0}
 		s %Axis{"ezBasisAxis::PositiveZ"}
 		f %Deceleration{0xCDCC4C3E}
 		f %Distance{0x00000040}
 		Time %RandomStart{d{0x0000000000002440}}
 		b %ReverseAtEnd{1}
 		b %ReverseAtStart{1}
-		b %RunAtStartup{1}
+		b %Running{1}
 		f %Speed{0x0000803F}
 	}
 }
@@ -632,14 +632,13 @@ o
 	{
 		f %Acceleration{0xCDCC4C3E}
 		b %Active{1}
-		b %AutoToggleDirection{0}
 		s %Axis{"ezBasisAxis::PositiveZ"}
 		f %Deceleration{0xCDCC4C3E}
 		f %Distance{0x00000040}
 		Time %RandomStart{d{0x0000000000002440}}
 		b %ReverseAtEnd{1}
 		b %ReverseAtStart{1}
-		b %RunAtStartup{1}
+		b %Running{1}
 		f %Speed{0x0000803F}
 	}
 }
@@ -704,14 +703,13 @@ o
 	{
 		f %Acceleration{0xCDCC4C3E}
 		b %Active{1}
-		b %AutoToggleDirection{0}
 		s %Axis{"ezBasisAxis::PositiveZ"}
 		f %Deceleration{0xCDCC4C3E}
 		f %Distance{0x00000040}
 		Time %RandomStart{d{0x0000000000002440}}
 		b %ReverseAtEnd{1}
 		b %ReverseAtStart{1}
-		b %RunAtStartup{1}
+		b %Running{1}
 		f %Speed{0x0000803F}
 	}
 }
@@ -1883,14 +1881,13 @@ o
 	{
 		f %Acceleration{0xCDCC4C3E}
 		b %Active{1}
-		b %AutoToggleDirection{0}
 		s %Axis{"ezBasisAxis::PositiveZ"}
 		f %Deceleration{0xCDCC4C3E}
 		f %Distance{0x00000040}
 		Time %RandomStart{d{0x0000000000002440}}
 		b %ReverseAtEnd{1}
 		b %ReverseAtStart{1}
-		b %RunAtStartup{1}
+		b %Running{1}
 		f %Speed{0x0000803F}
 	}
 }
@@ -2313,14 +2310,13 @@ o
 	{
 		f %Acceleration{0xCDCC4C3E}
 		b %Active{1}
-		b %AutoToggleDirection{0}
 		s %Axis{"ezBasisAxis::PositiveZ"}
 		f %Deceleration{0xCDCC4C3E}
 		f %Distance{0x00000040}
 		Time %RandomStart{d{0x0000000000002440}}
 		b %ReverseAtEnd{1}
 		b %ReverseAtStart{1}
-		b %RunAtStartup{1}
+		b %Running{1}
 		f %Speed{0x0000803F}
 	}
 }
@@ -2383,14 +2379,13 @@ o
 	{
 		f %Acceleration{0xCDCC4C3E}
 		b %Active{1}
-		b %AutoToggleDirection{0}
 		s %Axis{"ezBasisAxis::PositiveZ"}
 		f %Deceleration{0xCDCC4C3E}
 		f %Distance{0x00000040}
 		Time %RandomStart{d{0x0000000000002440}}
 		b %ReverseAtEnd{1}
 		b %ReverseAtStart{1}
-		b %RunAtStartup{1}
+		b %Running{1}
 		f %Speed{0x0000803F}
 	}
 }
@@ -2880,6 +2875,32 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{12539911590385269378,4688714501443511445}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{11119081861943700618,5357756600222122578}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000E040}
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
@@ -3663,6 +3684,25 @@ o
 }
 o
 {
+	Uuid %id{u4{9356254145722182559,4842440759387804607}}
+	s %t{"ezSliderComponent"}
+	u3 %v{3}
+	p
+	{
+		f %Acceleration{0xCDCCCC3D}
+		b %Active{1}
+		s %Axis{"ezBasisAxis::PositiveZ"}
+		f %Deceleration{0xCDCCCC3D}
+		f %Distance{0xCDCCCC3D}
+		Time %RandomStart{d{0}}
+		b %ReverseAtEnd{1}
+		b %ReverseAtStart{1}
+		b %Running{1}
+		f %Speed{0x0AD7233D}
+	}
+}
+o
+{
 	Uuid %id{u4{17297344411205605273,4845249955685249893}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -3935,7 +3975,7 @@ o
 	p
 	{
 		b %Active{1}
-		u1 %CollisionLayer{6}
+		u1 %CollisionLayer{9}
 		s %OnContact{""}
 		f %Radius{0x00000040}
 		s %Surface{""}
@@ -4364,14 +4404,13 @@ o
 	{
 		f %Acceleration{0xCDCC4C3E}
 		b %Active{1}
-		b %AutoToggleDirection{0}
 		s %Axis{"ezBasisAxis::PositiveZ"}
 		f %Deceleration{0xCDCC4C3E}
 		f %Distance{0x9A99993E}
 		Time %RandomStart{d{0}}
 		b %ReverseAtEnd{1}
 		b %ReverseAtStart{1}
-		b %RunAtStartup{1}
+		b %Running{1}
 		f %Speed{0xCDCC4C3E}
 	}
 }
@@ -4993,14 +5032,13 @@ o
 	{
 		f %Acceleration{0}
 		b %Active{1}
-		b %AutoToggleDirection{0}
 		s %Axis{"ezBasisAxis::PositiveZ"}
 		Angle %AxisDeviation{f{0}}
 		f %Deceleration{0}
 		i3 %DegreesToRotate{0}
 		b %ReverseAtEnd{0}
 		b %ReverseAtStart{0}
-		b %RunAtStartup{1}
+		b %Running{1}
 		f %Speed{0x00003442}
 	}
 }
@@ -5071,17 +5109,20 @@ o
 	u3 %v{1}
 	p
 	{
-		VarArray %Children{}
+		VarArray %Children
+		{
+			Uuid{u4{12539911590385269378,4688714501443511445}}
+			Uuid{u4{78027126064006287,5667470383018300235}}
+		}
 		VarArray %Components
 		{
 			Uuid{u4{1331274868397026972,5393613643979014868}}
-			Uuid{u4{14733835526396566461,5081150165433781391}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x8FC2753C}
+		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{"Object"}
 		VarArray %Tags
@@ -5383,15 +5424,31 @@ o
 }
 o
 {
-	Uuid %id{u4{14733835526396566461,5081150165433781391}}
-	s %t{"ezMeshComponent"}
-	u3 %v{3}
+	Uuid %id{u4{12126960418084864648,5080290734664382510}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
 	p
 	{
-		b %Active{1}
-		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		VarArray %Materials{}
-		s %Mesh{"{ c75fd9fb-43d7-4023-a5c0-ccb045a9fd76 }"}
+		VarArray %Children
+		{
+			Uuid{u4{10327164916444536466,5051711097146930783}}
+		}
+		VarArray %Components
+		{
+			Uuid{u4{9356254145722182559,4842440759387804607}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
 	}
 }
 o
@@ -5604,17 +5661,16 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{10327164916444536466,5051711097146930783}}
+			Uuid{u4{12126960418084864648,5080290734664382510}}
 		}
 		VarArray %Components
 		{
 			Uuid{u4{12325063795671772833,5088867184885937739}}
 			Uuid{u4{16768875518918722441,4865914234638037481}}
 			Uuid{u4{1424455009777211803,4774362632283611650}}
-			Uuid{u4{7953472538741384118,5391503639244808305}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x0000B241,0x000088C1,0x0000C03F}}
+		Vec3 %LocalPosition{f{0x00008641,0x00001CC1,0x0000C03F}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -6085,6 +6141,19 @@ o
 }
 o
 {
+	Uuid %id{u4{9706848880933452692,5217905324666181104}}
+	s %t{"ezMeshComponent"}
+	u3 %v{3}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		VarArray %Materials{}
+		s %Mesh{"{ c75fd9fb-43d7-4023-a5c0-ccb045a9fd76 }"}
+	}
+}
+o
+{
 	Uuid %id{u4{2750079535221100169,5224326887589044127}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -6550,6 +6619,22 @@ o
 }
 o
 {
+	Uuid %id{u4{11119081861943700618,5357756600222122578}}
+	s %t{"ezMeshComponent"}
+	u3 %v{3}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0xB7A0AC3E,0x3C42A93C,0x72710D3E,0x0000803F}}
+		VarArray %Materials
+		{
+			s{"{ 4795f5c4-4a78-4c13-937e-cf3e6bdecb7c }"}
+		}
+		s %Mesh{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
+	}
+}
+o
+{
 	Uuid %id{u4{16475646656720980925,5357903997683718627}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -6758,23 +6843,6 @@ o
 }
 o
 {
-	Uuid %id{u4{7953472538741384118,5391503639244808305}}
-	s %t{"ezPointLightComponent"}
-	u3 %v{2}
-	p
-	{
-		b %Active{1}
-		b %CastShadows{0}
-		f %ConstantBias{0xCDCCCC3D}
-		f %Intensity{0x0000FA44}
-		ColorGamma %LightColor{u1{41,83,254,255}}
-		f %PenumbraSize{0xCDCCCC3D}
-		f %Range{0xCDCC0C40}
-		f %SlopeBias{0x0000803E}
-	}
-}
-o
-{
 	Uuid %id{u4{16395977551194005896,5392469047077809505}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -6835,14 +6903,13 @@ o
 	{
 		f %Acceleration{0}
 		b %Active{1}
-		b %AutoToggleDirection{0}
 		s %Axis{"ezBasisAxis::NegativeZ"}
 		Angle %AxisDeviation{f{0}}
 		f %Deceleration{0}
 		i3 %DegreesToRotate{0}
 		b %ReverseAtEnd{0}
 		b %ReverseAtStart{0}
-		b %RunAtStartup{0}
+		b %Running{0}
 		f %Speed{0x0000A041}
 	}
 }
@@ -8033,14 +8100,13 @@ o
 	{
 		f %Acceleration{0}
 		b %Active{1}
-		b %AutoToggleDirection{0}
 		s %Axis{"ezBasisAxis::NegativeZ"}
 		Angle %AxisDeviation{f{0}}
 		f %Deceleration{0}
 		i3 %DegreesToRotate{0}
 		b %ReverseAtEnd{0}
 		b %ReverseAtStart{0}
-		b %RunAtStartup{1}
+		b %Running{1}
 		f %Speed{0x0000E040}
 	}
 }
@@ -8367,14 +8433,13 @@ o
 	{
 		f %Acceleration{0xCDCC4C3E}
 		b %Active{1}
-		b %AutoToggleDirection{0}
 		s %Axis{"ezBasisAxis::PositiveZ"}
 		f %Deceleration{0xCDCC4C3E}
 		f %Distance{0x00000040}
 		Time %RandomStart{d{0x0000000000002440}}
 		b %ReverseAtEnd{1}
 		b %ReverseAtStart{1}
-		b %RunAtStartup{1}
+		b %Running{1}
 		f %Speed{0x0000803F}
 	}
 }
@@ -8480,6 +8545,32 @@ o
 		b %ShowStats{0}
 		Time %ShutterTime{d{0x000000000000F03F}}
 		s %UsageHint{"ezCameraUsageHint::None"}
+	}
+}
+o
+{
+	Uuid %id{u4{78027126064006287,5667470383018300235}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{9706848880933452692,5217905324666181104}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0xD6D4E23D,0x27E4F83D,0x6ACE02BB,0xDD837C3F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x8FC2753C}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
 	}
 }
 o
@@ -9360,14 +9451,13 @@ o
 	{
 		f %Acceleration{0xCDCC4C3E}
 		b %Active{1}
-		b %AutoToggleDirection{0}
 		s %Axis{"ezBasisAxis::PositiveZ"}
 		f %Deceleration{0xCDCC4C3E}
 		f %Distance{0x00000040}
 		Time %RandomStart{d{0x0000000000002440}}
 		b %ReverseAtEnd{1}
 		b %ReverseAtStart{1}
-		b %RunAtStartup{1}
+		b %Running{1}
 		f %Speed{0x0000803F}
 	}
 }
@@ -9764,14 +9854,13 @@ o
 	{
 		f %Acceleration{0xCDCC4C3E}
 		b %Active{1}
-		b %AutoToggleDirection{0}
 		s %Axis{"ezBasisAxis::PositiveZ"}
 		f %Deceleration{0xCDCC4C3E}
 		f %Distance{0x00000040}
 		Time %RandomStart{d{0x0000000000002440}}
 		b %ReverseAtEnd{1}
 		b %ReverseAtStart{1}
-		b %RunAtStartup{1}
+		b %Running{1}
 		f %Speed{0x0000803F}
 	}
 }
@@ -10517,14 +10606,13 @@ o
 	{
 		f %Acceleration{0xCDCC4C3E}
 		b %Active{1}
-		b %AutoToggleDirection{0}
 		s %Axis{"ezBasisAxis::PositiveZ"}
 		f %Deceleration{0xCDCC4C3E}
 		f %Distance{0x00000040}
 		Time %RandomStart{d{0x0000000000002440}}
 		b %ReverseAtEnd{1}
 		b %ReverseAtStart{1}
-		b %RunAtStartup{1}
+		b %Running{1}
 		f %Speed{0x0000803F}
 	}
 }
@@ -10587,14 +10675,13 @@ o
 	{
 		f %Acceleration{0xCDCC4C3E}
 		b %Active{1}
-		b %AutoToggleDirection{0}
 		s %Axis{"ezBasisAxis::PositiveZ"}
 		f %Deceleration{0xCDCC4C3E}
 		f %Distance{0x00000040}
 		Time %RandomStart{d{0x0000000000002440}}
 		b %ReverseAtEnd{1}
 		b %ReverseAtStart{1}
-		b %RunAtStartup{1}
+		b %Running{1}
 		f %Speed{0x0000803F}
 	}
 }
@@ -12555,14 +12642,13 @@ o
 	{
 		f %Acceleration{0xCDCC4C3E}
 		b %Active{1}
-		b %AutoToggleDirection{0}
 		s %Axis{"ezBasisAxis::PositiveZ"}
 		f %Deceleration{0xCDCC4C3E}
 		f %Distance{0x00000040}
 		Time %RandomStart{d{0x0000000000002440}}
 		b %ReverseAtEnd{1}
 		b %ReverseAtStart{1}
-		b %RunAtStartup{1}
+		b %Running{1}
 		f %Speed{0x0000803F}
 	}
 }
@@ -14975,14 +15061,13 @@ o
 	{
 		f %Acceleration{0xCDCC4C3E}
 		b %Active{1}
-		b %AutoToggleDirection{0}
 		s %Axis{"ezBasisAxis::PositiveZ"}
 		f %Deceleration{0xCDCC4C3E}
 		f %Distance{0x00000040}
 		Time %RandomStart{d{0x0000000000002440}}
 		b %ReverseAtEnd{1}
 		b %ReverseAtStart{1}
-		b %RunAtStartup{1}
+		b %Running{1}
 		f %Speed{0x0000803F}
 	}
 }
@@ -15071,14 +15156,13 @@ o
 	{
 		f %Acceleration{0xCDCC4C3E}
 		b %Active{1}
-		b %AutoToggleDirection{0}
 		s %Axis{"ezBasisAxis::PositiveZ"}
 		f %Deceleration{0xCDCC4C3E}
 		f %Distance{0x00000040}
 		Time %RandomStart{d{0x0000000000002440}}
 		b %ReverseAtEnd{1}
 		b %ReverseAtStart{1}
-		b %RunAtStartup{1}
+		b %Running{1}
 		f %Speed{0x0000803F}
 	}
 }
@@ -16229,14 +16313,13 @@ o
 	{
 		f %Acceleration{0xCDCC4C3E}
 		b %Active{1}
-		b %AutoToggleDirection{0}
 		s %Axis{"ezBasisAxis::PositiveZ"}
 		f %Deceleration{0xCDCC4C3E}
 		f %Distance{0x00000040}
 		Time %RandomStart{d{0x0000000000002440}}
 		b %ReverseAtEnd{1}
 		b %ReverseAtStart{1}
-		b %RunAtStartup{1}
+		b %Running{1}
 		f %Speed{0x0000803F}
 	}
 }
@@ -16373,14 +16456,13 @@ o
 	{
 		f %Acceleration{0xCDCC4C3E}
 		b %Active{1}
-		b %AutoToggleDirection{0}
 		s %Axis{"ezBasisAxis::PositiveZ"}
 		f %Deceleration{0xCDCC4C3E}
 		f %Distance{0x00000040}
 		Time %RandomStart{d{0x0000000000002440}}
 		b %ReverseAtEnd{1}
 		b %ReverseAtStart{1}
-		b %RunAtStartup{1}
+		b %Running{1}
 		f %Speed{0x0000803F}
 	}
 }
@@ -18590,14 +18672,13 @@ o
 	{
 		f %Acceleration{0xCDCC4C3E}
 		b %Active{1}
-		b %AutoToggleDirection{0}
 		s %Axis{"ezBasisAxis::PositiveZ"}
 		f %Deceleration{0xCDCC4C3E}
 		f %Distance{0x00000040}
 		Time %RandomStart{d{0x0000000000002440}}
 		b %ReverseAtEnd{1}
 		b %ReverseAtStart{1}
-		b %RunAtStartup{1}
+		b %Running{1}
 		f %Speed{0x0000803F}
 	}
 }
@@ -20176,14 +20257,13 @@ o
 	{
 		f %Acceleration{0xCDCC4C3E}
 		b %Active{1}
-		b %AutoToggleDirection{0}
 		s %Axis{"ezBasisAxis::PositiveZ"}
 		f %Deceleration{0xCDCC4C3E}
 		f %Distance{0x00000040}
 		Time %RandomStart{d{0x0000000000002440}}
 		b %ReverseAtEnd{1}
 		b %ReverseAtStart{1}
-		b %RunAtStartup{1}
+		b %Running{1}
 		f %Speed{0x0000803F}
 	}
 }
@@ -20196,14 +20276,13 @@ o
 	{
 		f %Acceleration{0xCDCC4C3E}
 		b %Active{1}
-		b %AutoToggleDirection{0}
 		s %Axis{"ezBasisAxis::PositiveZ"}
 		f %Deceleration{0xCDCC4C3E}
 		f %Distance{0x00000040}
 		Time %RandomStart{d{0x0000000000002440}}
 		b %ReverseAtEnd{1}
 		b %ReverseAtStart{1}
-		b %RunAtStartup{1}
+		b %Running{1}
 		f %Speed{0x0000803F}
 	}
 }
@@ -21571,7 +21650,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezTransformComponent"}
 		u3 %TypeSize{64}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o
