@@ -70,6 +70,7 @@ ezMaterialResource::ezMaterialResource()
   m_iLastUpdated = 0;
   m_iLastConstantsUpdated = 0;
   m_uiCacheIndex = ezInvalidIndex;
+  m_pCachedValues = nullptr;
 
   ezResourceManager::s_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezMaterialResource::OnResourceEvent, this));
 }
@@ -429,6 +430,7 @@ ezResourceLoadDesc ezMaterialResource::UnloadData(Unload WhatToUnload)
 
   DeallocateCache(m_uiCacheIndex);
   m_uiCacheIndex = ezInvalidIndex;
+  m_pCachedValues = nullptr;
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
@@ -819,7 +821,7 @@ void ezMaterialResource::OnResourceEvent(const ezResourceEvent& resourceEvent)
   if (resourceEvent.m_Type != ezResourceEvent::Type::ResourceContentUpdated)
     return;
 
-  if (m_uiCacheIndex != ezInvalidIndex && s_CachedValues[m_uiCacheIndex].m_hShader == resourceEvent.m_pResource)
+  if (m_pCachedValues != nullptr && m_pCachedValues->m_hShader == resourceEvent.m_pResource)
   {
     m_iLastConstantsModified.Increment();
   }
@@ -907,8 +909,8 @@ ezMaterialResource::CachedValues* ezMaterialResource::GetOrUpdateCachedValues()
 {
   if (!IsModified())
   {
-    EZ_ASSERT_DEV(m_uiCacheIndex != ezInvalidIndex, "");
-    return &s_CachedValues[m_uiCacheIndex];
+    EZ_ASSERT_DEV(m_pCachedValues != nullptr, "");
+    return m_pCachedValues;
   }
 
   ezHybridArray<ezMaterialResource*, 16> materialHierarchy;
@@ -936,11 +938,11 @@ ezMaterialResource::CachedValues* ezMaterialResource::GetOrUpdateCachedValues()
 
   if (!IsModified())
   {
-    EZ_ASSERT_DEV(m_uiCacheIndex != ezInvalidIndex, "");
-    return &s_CachedValues[m_uiCacheIndex];
+    EZ_ASSERT_DEV(m_pCachedValues != nullptr, "");
+    return m_pCachedValues;
   }
 
-  auto pCachedValues = AllocateCache();
+  m_pCachedValues = AllocateCache();
 
   // set state of parent material first
   for (ezUInt32 i = materialHierarchy.GetCount(); i-- > 0;)
@@ -949,31 +951,31 @@ ezMaterialResource::CachedValues* ezMaterialResource::GetOrUpdateCachedValues()
     const ezMaterialResourceDescriptor& desc = pMaterial->m_Desc;
 
     if (desc.m_hShader.IsValid())
-      pCachedValues->m_hShader = desc.m_hShader;
+      m_pCachedValues->m_hShader = desc.m_hShader;
 
     for (const auto& permutationVar : desc.m_PermutationVars)
     {
-      pCachedValues->m_PermutationVars.Insert(permutationVar.m_sName, permutationVar.m_sValue);
+      m_pCachedValues->m_PermutationVars.Insert(permutationVar.m_sName, permutationVar.m_sValue);
     }
 
     for (const auto& param : desc.m_Parameters)
     {
-      pCachedValues->m_Parameters.Insert(param.m_Name, param.m_Value);
+      m_pCachedValues->m_Parameters.Insert(param.m_Name, param.m_Value);
     }
 
     for (const auto& textureBinding : desc.m_Texture2DBindings)
     {
-      pCachedValues->m_Texture2DBindings.Insert(textureBinding.m_Name, textureBinding.m_Value);
+      m_pCachedValues->m_Texture2DBindings.Insert(textureBinding.m_Name, textureBinding.m_Value);
     }
 
     for (const auto& textureBinding : desc.m_TextureCubeBindings)
     {
-      pCachedValues->m_TextureCubeBindings.Insert(textureBinding.m_Name, textureBinding.m_Value);
+      m_pCachedValues->m_TextureCubeBindings.Insert(textureBinding.m_Name, textureBinding.m_Value);
     }
   }
 
   m_iLastUpdated = m_iLastModified;
-  return pCachedValues;
+  return m_pCachedValues;
 }
 
 namespace
