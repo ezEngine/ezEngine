@@ -27,6 +27,14 @@
 #error "EZ_SUPPORTS_FILE_STATS is not defined."
 #endif
 
+#ifndef EZ_SUPPORTS_MEMORY_MAPPED_FILE
+#error "EZ_SUPPORTS_MEMORY_MAPPED_FILE is not defined."
+#endif
+
+#ifndef EZ_SUPPORTS_SHARED_MEMORY
+#error "EZ_SUPPORTS_SHARED_MEMORY is not defined."
+#endif
+
 #ifndef EZ_SUPPORTS_DYNAMIC_PLUGINS
 #error "EZ_SUPPORTS_DYNAMIC_PLUGINS is not defined."
 #endif

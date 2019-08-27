@@ -11,6 +11,7 @@ enum class ezArchiveCompressionMode : ezUInt8
 {
   Uncompressed,
   Compressed_zstd,
+  Compressed_zip,
 };
 
 /// \brief Data for a single file entry in an ezArchive file

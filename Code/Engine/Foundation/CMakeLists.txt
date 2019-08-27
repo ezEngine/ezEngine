@@ -50,6 +50,12 @@ if (EZ_3RDPARTY_ZSTD_SUPPORT)
 
 endif()
 
+if (EZ_3RDPARTY_ZLIB_SUPPORT)
+
+  target_link_libraries(${PROJECT_NAME} PUBLIC zlib)
+
+endif()
+
 ez_set_natvis_file(${PROJECT_NAME} "${CMAKE_SOURCE_DIR}/Utilities/Visual Studio Visualizer/ezEngine.natvis")
 
 ####################################################

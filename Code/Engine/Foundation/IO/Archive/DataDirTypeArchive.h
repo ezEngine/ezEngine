@@ -2,6 +2,7 @@
 
 #include <Foundation/IO/Archive/ArchiveReader.h>
 #include <Foundation/IO/CompressedStreamZstd.h>
+#include <Foundation/IO/CompressedStreamZlib.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/FileSystem/Implementation/DataDirType.h>
 #include <Foundation/IO/MemoryStream.h>
@@ -14,6 +15,7 @@ namespace ezDataDirectory
 {
   class ArchiveReaderUncompressed;
   class ArchiveReaderZstd;
+  class ArchiveReaderZip;
 
   class EZ_FOUNDATION_DLL ArchiveType : public ezDataDirectoryType
   {
@@ -50,6 +52,10 @@ namespace ezDataDirectory
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
     ezHybridArray<ezUniquePtr<ArchiveReaderZstd>, 4> m_ReadersZstd;
     ezHybridArray<ArchiveReaderZstd*, 4> m_FreeReadersZstd;
+#endif
+#ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+    ezHybridArray<ezUniquePtr<ArchiveReaderZip>, 4> m_ReadersZip;
+    ezHybridArray<ArchiveReaderZip*, 4> m_FreeReadersZip;
 #endif
   };
 
@@ -94,4 +100,24 @@ namespace ezDataDirectory
   };
 #endif
 
+#ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+  class EZ_FOUNDATION_DLL ArchiveReaderZip : public ArchiveReaderUncompressed
+  {
+    EZ_DISALLOW_COPY_AND_ASSIGN(ArchiveReaderZip);
+
+  public:
+    ArchiveReaderZip(ezInt32 iDataDirUserData, ezUInt64 uiCompressedSize);
+    ~ArchiveReaderZip();
+
+    virtual ezUInt64 Read(void* pBuffer, ezUInt64 uiBytes) override;
+
+  protected:
+    virtual ezResult InternalOpen() override;
+
+    friend class ArchiveType;
+
+    ezUInt64 m_uiCompressedSize = 0;
+    ezCompressedStreamReaderZip m_CompressedStreamReader;
+  };
+#endif
 } // namespace ezDataDirectory

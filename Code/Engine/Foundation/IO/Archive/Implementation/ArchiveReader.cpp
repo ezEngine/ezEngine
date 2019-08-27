@@ -21,22 +21,50 @@ ezResult ezArchiveReader::OpenArchive(const char* szPath)
   {
     ezRawMemoryStreamReader reader(m_MemFile.GetReadPointer(), m_MemFile.GetFileSize());
 
-    EZ_SUCCEED_OR_RETURN(ezArchiveUtils::ReadHeader(reader, m_uiArchiveVersion));
-
-    if (m_uiArchiveVersion != 1)
+    ezStringView extension = ezPathUtils::GetFileExtension(szPath);
+    if (extension == "ezArchive")
     {
-      ezLog::Error("Unknown ezArchive version");
+      EZ_SUCCEED_OR_RETURN(ezArchiveUtils::ReadHeader(reader, m_uiArchiveVersion));
+      if (m_uiArchiveVersion != 1)
+      {
+        ezLog::Error("Unknown ezArchive version");
+        return EZ_FAILURE;
+      }
+      m_pDataStart = m_MemFile.GetReadPointer(16, ezMemoryMappedFile::OffsetBase::Start);
+
+      if (ezArchiveUtils::ExtractTOC(m_MemFile, m_ArchiveTOC).Failed())
+      {
+        ezLog::Error("Failed to deserialize ezArchive TOC");
+        return EZ_FAILURE;
+      }
+    }
+#ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+    else if (extension == "zip" || extension == "apk")
+    {
+      EZ_SUCCEED_OR_RETURN(ezArchiveUtils::ReadZipHeader(reader, m_uiArchiveVersion));
+      if (m_uiArchiveVersion != 0)
+      {
+        ezLog::Error("Unknown zip version");
+        return EZ_FAILURE;
+      }
+      m_pDataStart = m_MemFile.GetReadPointer(0, ezMemoryMappedFile::OffsetBase::Start);
+
+      if (ezArchiveUtils::ExtractZipTOC(m_MemFile, m_ArchiveTOC).Failed())
+      {
+        ezLog::Error("Failed to deserialize zip TOC");
+        return EZ_FAILURE;
+      }
+    }
+#endif
+    else
+    {
       return EZ_FAILURE;
     }
+
+    
   }
 
-  m_pDataStart = m_MemFile.GetReadPointer(16, ezMemoryMappedFile::OffsetBase::Start);
 
-  if (ezArchiveUtils::ExtractTOC(m_MemFile, m_ArchiveTOC).Failed())
-  {
-    ezLog::Error("Failed to deserialize ezArchive TOC");
-    return EZ_FAILURE;
-  }
 
   return EZ_SUCCESS;
 }

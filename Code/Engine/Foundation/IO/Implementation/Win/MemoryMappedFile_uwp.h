@@ -2,7 +2,9 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/PathUtils.h>
 
-/// UWP does not support memory mapped files.
+///#TODO: Implement. Under some restrictions, UWP supports
+/// CreateFileMappingFromApp, OpenFileMappingFromApp, MapViewOfFileFromApp
+/// Needs adding codeGeneration capability to the app manifest.
 
 struct ezMemoryMappedFileImpl
 {

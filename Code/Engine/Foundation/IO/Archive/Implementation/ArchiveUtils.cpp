@@ -2,8 +2,9 @@
 
 #include <Foundation/IO/Archive/ArchiveUtils.h>
 
-#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/CompressedStreamZlib.h>
 #include <Foundation/IO/CompressedStreamZstd.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/MemoryMappedFile.h>
 #include <Foundation/IO/MemoryStream.h>
 
@@ -158,7 +159,17 @@ ezResult ezArchiveUtils::WriteEntryOptimal(ezStreamWriter& stream, const char* s
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
 
-class ezCompressedStreamReaderWithSource : public ezCompressedStreamReaderZstd
+class ezCompressedStreamReaderZstdWithSource : public ezCompressedStreamReaderZstd
+{
+public:
+  ezRawMemoryStreamReader m_Source;
+};
+
+#endif
+
+#ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+
+class ezCompressedStreamReaderZipWithSource : public ezCompressedStreamReaderZip
 {
 public:
   ezRawMemoryStreamReader m_Source;
@@ -183,10 +194,20 @@ ezUniquePtr<ezStreamReader> ezArchiveUtils::CreateEntryReader(const ezArchiveEnt
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
     case ezArchiveCompressionMode::Compressed_zstd:
     {
-      reader = EZ_DEFAULT_NEW(ezCompressedStreamReaderWithSource);
-      ezCompressedStreamReaderWithSource* pRawReader = static_cast<ezCompressedStreamReaderWithSource*>(reader.Borrow());
+      reader = EZ_DEFAULT_NEW(ezCompressedStreamReaderZstdWithSource);
+      ezCompressedStreamReaderZstdWithSource* pRawReader = static_cast<ezCompressedStreamReaderZstdWithSource*>(reader.Borrow());
       ConfigureRawMemoryStreamReader(entry, pStartOfArchiveData, pRawReader->m_Source);
       pRawReader->SetInputStream(&pRawReader->m_Source);
+      break;
+    }
+#endif
+#ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+    case ezArchiveCompressionMode::Compressed_zip:
+    {
+      reader = EZ_DEFAULT_NEW(ezCompressedStreamReaderZipWithSource);
+      ezCompressedStreamReaderZipWithSource* pRawReader = static_cast<ezCompressedStreamReaderZipWithSource*>(reader.Borrow());
+      ConfigureRawMemoryStreamReader(entry, pStartOfArchiveData, pRawReader->m_Source);
+      pRawReader->SetInputStream(&pRawReader->m_Source, entry.m_uiStoredDataSize);
       break;
     }
 #endif
@@ -237,6 +258,182 @@ ezResult ezArchiveUtils::ExtractTOC(ezMemoryMappedFile& memFile, ezArchiveTOC& t
   return EZ_SUCCESS;
 }
 
+namespace ZipFormat
+{
+  constexpr ezUInt32 EndOfCDMagicSignature = 0x06054b50;
+  constexpr ezUInt32 EndOfCDHeaderLength = 22;
+
+  constexpr ezUInt32 MaxCommentLength = 65535;
+  constexpr ezUInt64 MaxEndOfCDSearchLength = MaxCommentLength + EndOfCDHeaderLength;
+
+  constexpr ezUInt32 LocalFileMagicSignature = 0x04034b50;
+  constexpr ezUInt32 LocalFileHeaderLength = 30;
+
+  constexpr ezUInt32 CDFileMagicSignature = 0x02014b50;
+  constexpr ezUInt32 CDFileHeaderLength = 46;
+
+  enum CompressionType
+  {
+    Uncompressed = 0,
+    Deflate = 8,
+
+  };
+
+  struct EndOfCDHeader
+  {
+    ezUInt32 signature;
+    ezUInt16 diskNumber;
+    ezUInt16 diskWithCD;
+    ezUInt16 diskEntries;
+    ezUInt16 totalEntries;
+    ezUInt32 cdSize;
+    ezUInt32 cdOffset;
+    ezUInt16 commentLength;
+  };
+
+  ezStreamReader& operator>>(ezStreamReader& Stream, EndOfCDHeader& Value)
+  {
+    Stream >> Value.signature >> Value.diskNumber >> Value.diskWithCD >> Value.diskEntries >> Value.totalEntries >> Value.cdSize;
+    Stream >> Value.cdOffset >> Value.commentLength;
+    EZ_ASSERT_DEBUG(Value.signature == EndOfCDMagicSignature, "ZIP: Corrupt end of central directory header.");
+    return Stream;
+  }
+
+  struct CDFileHeader
+  {
+    ezUInt32 signature;
+    ezUInt16 version;
+    ezUInt16 versionNeeded;
+    ezUInt16 flags;
+    ezUInt16 compression;
+    ezUInt16 modTime;
+    ezUInt16 modDate;
+    ezUInt32 crc32;
+    ezUInt32 compressedSize;
+    ezUInt32 uncompressedSize;
+    ezUInt16 fileNameLength;
+    ezUInt16 extraFieldLength;
+    ezUInt16 fileCommentLength;
+    ezUInt16 diskNumStart;
+    ezUInt16 internalAttr;
+    ezUInt32 externalAttr;
+    ezUInt32 offsetLocalHeader;
+  };
+
+  ezStreamReader& operator>>(ezStreamReader& Stream, CDFileHeader& Value)
+  {
+    Stream >> Value.signature >> Value.version >> Value.versionNeeded >> Value.flags >> Value.compression >> Value.modTime >> Value.modDate;
+    Stream >> Value.crc32 >> Value.compressedSize >> Value.uncompressedSize >> Value.fileNameLength >> Value.extraFieldLength;
+    Stream >> Value.fileCommentLength >> Value.diskNumStart >> Value.internalAttr >> Value.externalAttr >> Value.offsetLocalHeader;
+    EZ_ASSERT_DEBUG(Value.signature == CDFileMagicSignature, "ZIP: Corrupt central directory file entry header.");
+    return Stream;
+  }
+
+  struct LocalFileHeader
+  {
+    ezUInt32 signature;
+    ezUInt16 version;
+    ezUInt16 flags;
+    ezUInt16 compression;
+    ezUInt16 modTime;
+    ezUInt16 modDate;
+    ezUInt32 crc32;
+    ezUInt32 compressedSize;
+    ezUInt32 uncompressedSize;
+    ezUInt16 fileNameLength;
+    ezUInt16 extraFieldLength;
+  };
+
+  ezStreamReader& operator>>(ezStreamReader& Stream, LocalFileHeader& Value)
+  {
+    Stream >> Value.signature >> Value.version >> Value.flags >> Value.compression >> Value.modTime >> Value.modDate >> Value.crc32;
+    Stream >> Value.compressedSize >> Value.uncompressedSize >> Value.fileNameLength >> Value.extraFieldLength;
+    EZ_ASSERT_DEBUG(Value.signature == LocalFileMagicSignature, "ZIP: Corrupt local file entry header.");
+    return Stream;
+  }
+}; // namespace ZipFormat
+
+ezResult ezArchiveUtils::ReadZipHeader(ezStreamReader& stream, ezUInt8& out_uiVersion)
+{
+  using namespace ZipFormat;
+
+  ezUInt32 header;
+  stream >> header;
+  if (header == LocalFileMagicSignature)
+  {
+    out_uiVersion = 0;
+    return EZ_SUCCESS;
+  }
+  return EZ_SUCCESS;
+}
+
+ezResult ezArchiveUtils::ExtractZipTOC(ezMemoryMappedFile& memFile, ezArchiveTOC& toc)
+{
+  using namespace ZipFormat;
+
+  const ezUInt8* pEndOfCDStart = nullptr;
+  {
+    // Find End of CD signature by searching from the end of the file.
+    // As a comment can come after it we have to potentially walk max comment length backwards.
+    const ezUInt64 SearchEnd = memFile.GetFileSize() - ezMath::Min(MaxEndOfCDSearchLength, memFile.GetFileSize());
+    const ezUInt8* pSearchEnd = static_cast<const ezUInt8*>(memFile.GetReadPointer(SearchEnd, ezMemoryMappedFile::OffsetBase::End));
+    const ezUInt8* pSearchStart = static_cast<const ezUInt8*>(memFile.GetReadPointer(EndOfCDHeaderLength, ezMemoryMappedFile::OffsetBase::End));
+    while (pSearchStart >= pSearchEnd)
+    {
+      if (*reinterpret_cast<const ezUInt32*>(pSearchStart) == EndOfCDMagicSignature)
+      {
+        pEndOfCDStart = pSearchStart;
+        break;
+      }
+      pSearchStart--;
+    }
+    if (pEndOfCDStart == nullptr)
+      return EZ_FAILURE;
+  }
+
+  ezRawMemoryStreamReader tocReader(pEndOfCDStart, EndOfCDHeaderLength);
+  EndOfCDHeader ecdHeader;
+  tocReader >> ecdHeader;
+
+  toc.m_Entries.Reserve(ecdHeader.diskEntries);
+  toc.m_PathToIndex.Reserve(ecdHeader.diskEntries);
+
+  ezUInt64 uiEntryOffset = 0;
+  for (ezUInt16 uiEntry = 0; uiEntry < ecdHeader.diskEntries; ++uiEntry)
+  {
+    // First, read the current file's header from the central directory
+    const void* pCdfStart = memFile.GetReadPointer(ecdHeader.cdOffset + uiEntryOffset, ezMemoryMappedFile::OffsetBase::Start);
+    ezRawMemoryStreamReader cdfReader(pCdfStart, ecdHeader.cdSize - uiEntryOffset);
+    CDFileHeader cdfHeader;
+    cdfReader >> cdfHeader;
+
+    if (cdfHeader.compression == CompressionType::Uncompressed || cdfHeader.compression == CompressionType::Deflate)
+    {
+      auto& entry = toc.m_Entries.ExpandAndGetRef();
+      entry.m_uiUncompressedDataSize = cdfHeader.uncompressedSize;
+      entry.m_uiStoredDataSize = cdfHeader.compressedSize;
+      entry.m_uiPathStringOffset = toc.m_AllPathStrings.GetCount();
+      entry.m_CompressionMode = cdfHeader.compression == CompressionType::Uncompressed ? ezArchiveCompressionMode::Uncompressed : ezArchiveCompressionMode::Compressed_zip;
+
+      auto nameBuffer = ezArrayPtr<const ezUInt8>(static_cast<const ezUInt8*>(pCdfStart) + CDFileHeaderLength, cdfHeader.fileNameLength);
+      toc.m_AllPathStrings.PushBackRange(nameBuffer);
+      toc.m_AllPathStrings.PushBack(0);
+      const char* szName = reinterpret_cast<const char*>(toc.m_AllPathStrings.GetData() + entry.m_uiPathStringOffset);
+      toc.m_PathToIndex.Insert(ezTempHashedString(szName), toc.m_Entries.GetCount() - 1);
+
+      // Compute data stream start location. We need to skip past the local (and redundant) file header to find it.
+      const void* pLfStart = memFile.GetReadPointer(cdfHeader.offsetLocalHeader, ezMemoryMappedFile::OffsetBase::Start);
+      ezRawMemoryStreamReader lfReader(pLfStart, memFile.GetFileSize() - cdfHeader.offsetLocalHeader);
+      LocalFileHeader lfHeader;
+      lfReader >> lfHeader;
+      entry.m_uiDataStartOffset = cdfHeader.offsetLocalHeader + LocalFileHeaderLength + lfHeader.fileNameLength + lfHeader.extraFieldLength;
+    }
+    // Compute next file header location.
+    uiEntryOffset += CDFileHeaderLength + cdfHeader.fileNameLength + cdfHeader.extraFieldLength + cdfHeader.fileCommentLength;
+  }
+
+  return EZ_SUCCESS;
+}
+
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Archive_Implementation_ArchiveUtils);
-

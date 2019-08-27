@@ -4,7 +4,7 @@
 
 #ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
 
-#  include <ThirdParty/zlib/zlib.h>
+#  include <zlib/zlib.h>
 
 static voidpf zLibAlloc OF((voidpf opaque, uInt items, uInt size))
 {
@@ -18,6 +18,117 @@ static void zLibFree OF((voidpf opaque, voidpf address))
 }
 
 EZ_DEFINE_AS_POD_TYPE(z_stream_s);
+
+ezCompressedStreamReaderZip::ezCompressedStreamReaderZip()
+{
+}
+
+ezCompressedStreamReaderZip::~ezCompressedStreamReaderZip()
+{
+  EZ_VERIFY(inflateEnd(m_pZLibStream) == Z_OK, "Deinitializing the zlib stream failed: '{0}'", m_pZLibStream->msg);
+  EZ_DEFAULT_DELETE(m_pZLibStream);
+}
+
+void ezCompressedStreamReaderZip::SetInputStream(ezStreamReader* pInputStream, ezUInt64 uiInputSize)
+{
+  if (m_pZLibStream)
+  {
+    EZ_VERIFY(inflateEnd(m_pZLibStream) == Z_OK, "Deinitializing the zlib stream failed: '{0}'", m_pZLibStream->msg);
+    EZ_DEFAULT_DELETE(m_pZLibStream);
+  }
+
+  m_CompressedCache.SetCountUninitialized(1024 * 4);
+  m_bReachedEnd = false;
+  m_pInputStream = pInputStream;
+  m_uiRemainingInputSize = uiInputSize;
+
+  {
+    m_pZLibStream = EZ_DEFAULT_NEW(z_stream_s);
+    ezMemoryUtils::ZeroFill(m_pZLibStream, 1);
+
+    m_pZLibStream->opaque = nullptr;
+    m_pZLibStream->zalloc = zLibAlloc;
+    m_pZLibStream->zfree = zLibFree;
+
+    EZ_VERIFY(inflateInit2(m_pZLibStream, -MAX_WBITS) == Z_OK, "Initializing the zip stream for decompression failed: '{0}'", m_pZLibStream->msg);
+
+  }
+}
+
+ezUInt64 ezCompressedStreamReaderZip::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
+{
+  if (uiBytesToRead == 0 || m_bReachedEnd)
+    return 0;
+
+  // Implement the 'skip n bytes' feature with a temp cache
+  if (pReadBuffer == nullptr)
+  {
+    ezUInt64 uiBytesRead = 0;
+    ezUInt8 uiTemp[1024];
+
+    while (uiBytesToRead > 0)
+    {
+      const ezUInt32 uiToRead = ezMath::Min<ezUInt32>(static_cast<ezUInt32>(uiBytesToRead), 1024);
+
+      const ezUInt64 uiGotBytes = ReadBytes(uiTemp, uiToRead);
+
+      uiBytesRead += uiGotBytes;
+      uiBytesToRead -= uiGotBytes;
+
+      if (uiGotBytes == 0) // prevent an endless loop
+        break;
+    }
+
+    return uiBytesRead;
+  }
+
+
+  m_pZLibStream->next_out = static_cast<Bytef*>(pReadBuffer);
+  m_pZLibStream->avail_out = static_cast<ezUInt32>(uiBytesToRead);
+  m_pZLibStream->total_out = 0;
+
+  while (m_pZLibStream->avail_out > 0)
+  {
+    // if our input buffer is empty, we need to read more into our cache
+    if (m_pZLibStream->avail_in == 0 && m_uiRemainingInputSize > 0)
+    {
+      ezUInt32 uiReadAmount = m_CompressedCache.GetCount();
+      if (m_uiRemainingInputSize < uiReadAmount)
+      {
+        uiReadAmount = m_uiRemainingInputSize;
+      }
+      if (uiReadAmount == 0)
+      {
+        m_bReachedEnd = true;
+        return m_pZLibStream->total_out;
+      }
+
+      EZ_VERIFY(m_pInputStream->ReadBytes(m_CompressedCache.GetData(), sizeof(ezUInt8) * uiReadAmount) ==
+                  sizeof(ezUInt8) * uiReadAmount,
+        "Reading the compressed chunk of size {0} from the input stream failed.", uiReadAmount);
+      m_pZLibStream->avail_in = uiReadAmount;
+      m_pZLibStream->next_in = m_CompressedCache.GetData();
+      m_uiRemainingInputSize -= uiReadAmount;
+    }
+
+    const int iRet = inflate(m_pZLibStream, Z_SYNC_FLUSH);
+    EZ_ASSERT_DEV(iRet == Z_OK || iRet == Z_STREAM_END, "Decompressing the stream failed: '{0}'", m_pZLibStream->msg);
+
+    if (iRet == Z_STREAM_END)
+    {
+      m_bReachedEnd = true;
+      EZ_ASSERT_DEV(m_pZLibStream->avail_in == 0, "The input buffer should be depleted, but {0} bytes are still there.",
+        m_pZLibStream->avail_in);
+      return m_pZLibStream->total_out;
+    }
+  }
+
+  return m_pZLibStream->total_out;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+
 
 ezCompressedStreamReaderZlib::ezCompressedStreamReaderZlib(ezStreamReader* pInputStream)
     : m_pInputStream(pInputStream)
@@ -131,7 +242,7 @@ ezUInt64 ezCompressedStreamReaderZlib::ReadBytes(void* pReadBuffer, ezUInt64 uiB
 
 
 ezCompressedStreamWriterZlib::ezCompressedStreamWriterZlib(ezStreamWriter* pOutputStream, Compression Ratio)
-    : m_pOutputStream(pOutputStream)
+  : m_pOutputStream(pOutputStream)
 {
   m_CompressedCache.SetCountUninitialized(1024 * 4);
 
