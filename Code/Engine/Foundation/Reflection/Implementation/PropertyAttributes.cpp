@@ -819,6 +819,105 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAutoGenVisScriptMsgHandler, 1, ezRTTIDefaultAl
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScriptableFunctionAttribute, 1, ezRTTIDefaultAllocator<ezScriptableFunctionAttribute>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Arg1", m_sArg1),
+    EZ_MEMBER_PROPERTY("Arg2", m_sArg2),
+    EZ_MEMBER_PROPERTY("Arg3", m_sArg3),
+    EZ_MEMBER_PROPERTY("Arg4", m_sArg4),
+    EZ_MEMBER_PROPERTY("Arg5", m_sArg5),
+    EZ_MEMBER_PROPERTY("Arg6", m_sArg6),
+    EZ_MEMBER_PROPERTY("ArgType1", m_ArgType1),
+    EZ_MEMBER_PROPERTY("ArgType2", m_ArgType2),
+    EZ_MEMBER_PROPERTY("ArgType3", m_ArgType3),
+    EZ_MEMBER_PROPERTY("ArgType4", m_ArgType4),
+    EZ_MEMBER_PROPERTY("ArgType5", m_ArgType5),
+    EZ_MEMBER_PROPERTY("ArgType6", m_ArgType6),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezScriptableFunctionAttribute::ezScriptableFunctionAttribute(ArgType ArgType1 /*= In*/, const char* szArg1 /*= nullptr*/, ArgType ArgType2 /*= In*/, const char* szArg2 /*= nullptr*/, ArgType ArgType3 /*= In*/, const char* szArg3 /*= nullptr*/, ArgType ArgType4 /*= In*/, const char* szArg4 /*= nullptr*/, ArgType ArgType5 /*= In*/, const char* szArg5 /*= nullptr*/, ArgType ArgType6 /*= In*/, const char* szArg6 /*= nullptr*/)
+{
+  m_sArg1 = szArg1;
+  m_sArg2 = szArg2;
+  m_sArg3 = szArg3;
+  m_sArg4 = szArg4;
+  m_sArg5 = szArg5;
+  m_sArg6 = szArg6;
+
+  m_ArgType1 = ArgType1;
+  m_ArgType2 = ArgType2;
+  m_ArgType3 = ArgType3;
+  m_ArgType4 = ArgType4;
+  m_ArgType5 = ArgType5;
+  m_ArgType6 = ArgType6;
+}
+
+const char* ezScriptableFunctionAttribute::GetArgumentName(ezUInt32 index) const
+{
+  switch (index)
+  {
+    case 0:
+      return m_sArg1;
+    case 1:
+      return m_sArg2;
+    case 2:
+      return m_sArg3;
+    case 3:
+      return m_sArg4;
+    case 4:
+      return m_sArg5;
+    case 5:
+      return m_sArg6;
+  }
+
+  EZ_ASSERT_NOT_IMPLEMENTED;
+  return nullptr;
+}
+
+ezScriptableFunctionAttribute::ArgType ezScriptableFunctionAttribute::GetArgumentType(ezUInt32 index) const
+{
+  switch (index)
+  {
+    case 0:
+      return (ArgType)m_ArgType1;
+    case 1:
+      return (ArgType)m_ArgType2;
+    case 2:
+      return (ArgType)m_ArgType3;
+    case 3:
+      return (ArgType)m_ArgType4;
+    case 4:
+      return (ArgType)m_ArgType5;
+    case 5:
+      return (ArgType)m_ArgType6;
+  }
+
+  EZ_ASSERT_NOT_IMPLEMENTED;
+  return ArgType::In;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisScriptMappingAttribute, 1, ezRTTIDefaultAllocator<ezVisScriptMappingAttribute>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Mapping", m_iMapping)
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -850,3 +949,4 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 //////////////////////////////////////////////////////////////////////////
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Reflection_Implementation_PropertyAttributes);
+

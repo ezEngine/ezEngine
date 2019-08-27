@@ -712,12 +712,58 @@ class EZ_FOUNDATION_DLL ezAutoGenVisScriptMsgSender : public ezPropertyAttribute
   EZ_ADD_DYNAMIC_REFLECTION(ezAutoGenVisScriptMsgSender, ezPropertyAttribute);
 };
 
-
 /// \brief Attribute for ezMessages to instruct the visual script framework to automatically generate a node for handling this type of
 /// message
 class EZ_FOUNDATION_DLL ezAutoGenVisScriptMsgHandler : public ezPropertyAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezAutoGenVisScriptMsgHandler, ezPropertyAttribute);
+};
+
+/// \brief Attribute to mark a function up to be exposed to the scripting system. Arguments specify the names of the function parameters.
+class EZ_FOUNDATION_DLL ezScriptableFunctionAttribute : public ezPropertyAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezScriptableFunctionAttribute, ezPropertyAttribute);
+
+  enum ArgType : ezUInt8
+  {
+    In,
+    Out,
+    Inout
+  };
+
+  ezScriptableFunctionAttribute(ArgType ArgType1 = In, const char* szArg1 = nullptr, ArgType ArgType2 = In, const char* szArg2 = nullptr, ArgType ArgType3 = In, const char* szArg3 = nullptr, ArgType ArgType4 = In, const char* szArg4 = nullptr, ArgType ArgType5 = In, const char* szArg5 = nullptr, ArgType ArgType6 = In, const char* szArg6 = nullptr);
+
+  const char* GetArgumentName(ezUInt32 index) const;
+
+  ArgType GetArgumentType(ezUInt32 index) const;
+
+  ezUntrackedString m_sArg1;
+  ezUntrackedString m_sArg2;
+  ezUntrackedString m_sArg3;
+  ezUntrackedString m_sArg4;
+  ezUntrackedString m_sArg5;
+  ezUntrackedString m_sArg6;
+
+  ezUInt8 m_ArgType1;
+  ezUInt8 m_ArgType2;
+  ezUInt8 m_ArgType3;
+  ezUInt8 m_ArgType4;
+  ezUInt8 m_ArgType5;
+  ezUInt8 m_ArgType6;
+};
+
+/// \brief Used to annotate properties to which pin or function parameter they belong (if necessary)
+class EZ_FOUNDATION_DLL ezVisScriptMappingAttribute : public ezPropertyAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisScriptMappingAttribute, ezPropertyAttribute);
+
+  ezVisScriptMappingAttribute() {}
+  ezVisScriptMappingAttribute(ezInt32 mapping)
+    : m_iMapping(mapping)
+  {
+  }
+
+  ezInt32 m_iMapping = 0;
 };
 
 //////////////////////////////////////////////////////////////////////////

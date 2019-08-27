@@ -201,7 +201,7 @@ public:
   /// Bool counts as number.
   bool IsNumber() const; // [tested]
 
-  /// \brief Returns whether the stored type is floating point.
+  /// \brief Returns whether the stored type is floating point (float or double).
   bool IsFloatingPoint() const; // [tested]
 
   /// \brief Returns whether the stored type is exactly the given type.

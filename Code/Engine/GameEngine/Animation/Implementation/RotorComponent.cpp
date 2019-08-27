@@ -35,7 +35,7 @@ ezRotorComponent::ezRotorComponent()
 
 void ezRotorComponent::Update()
 {
-  if (m_Flags.IsAnySet(ezTransformComponentFlags::Autorun) && !m_Flags.IsAnySet(ezTransformComponentFlags::Paused) &&
+  if (m_Flags.IsAnySet(ezTransformComponentFlags::Running) &&
       m_fAnimationSpeed > 0.0f)
   {
     if (m_iDegreeToRotate > 0)
@@ -59,15 +59,12 @@ void ezRotorComponent::Update()
       {
         if (fNewDistance >= m_iDegreeToRotate)
         {
-          if (m_Flags.IsAnySet(ezTransformComponentFlags::AutoReturnEnd))
-            m_Flags.Add(ezTransformComponentFlags::AnimationReversed);
-          else
+          if (!m_Flags.IsSet(ezTransformComponentFlags::AutoReturnEnd))
           {
-            m_Flags.Remove(ezTransformComponentFlags::Autorun);
-
-            if (m_Flags.IsAnySet(ezTransformComponentFlags::AutoToggleDirection))
-              m_Flags.Add(ezTransformComponentFlags::AnimationReversed);
+            m_Flags.Remove(ezTransformComponentFlags::Running);
           }
+
+          m_Flags.Add(ezTransformComponentFlags::AnimationReversed);
 
           /// \todo Scripting integration
           // if (PrepareEvent("ANIMATOR_OnReachEnd"))
@@ -78,15 +75,12 @@ void ezRotorComponent::Update()
       {
         if (fNewDistance <= 0.0f)
         {
-          if (m_Flags.IsAnySet(ezTransformComponentFlags::AutoReturnStart))
-            m_Flags.Remove(ezTransformComponentFlags::AnimationReversed);
-          else
+          if (!m_Flags.IsSet(ezTransformComponentFlags::AutoReturnStart))
           {
-            m_Flags.Remove(ezTransformComponentFlags::Autorun);
-
-            if (m_Flags.IsAnySet(ezTransformComponentFlags::AutoToggleDirection))
-              m_Flags.Remove(ezTransformComponentFlags::AnimationReversed);
+            m_Flags.Remove(ezTransformComponentFlags::Running);
           }
+
+          m_Flags.Remove(ezTransformComponentFlags::AnimationReversed);
 
           /// \todo Scripting integration
           // if (PrepareEvent("ANIMATOR_OnReachStart"))

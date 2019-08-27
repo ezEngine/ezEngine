@@ -3,6 +3,7 @@
 #include <Core/Messages/CollisionMessage.h>
 #include <Core/Messages/TriggerMessage.h>
 #include <Core/World/World.h>
+#include <Foundation/Reflection/ReflectionUtils.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 
@@ -163,7 +164,7 @@ void ezVisualScriptNode_MessageSender::Execute(ezVisualScriptInstance* pInstance
         for (ezUInt32 uiProp = 0; uiProp < properties.GetCount(); ++uiProp)
         {
           if (properties[uiProp]->GetCategory() == ezPropertyCategory::Member &&
-            properties[uiProp]->GetFlags().IsAnySet(ezPropertyFlags::VarInOut | ezPropertyFlags::VarOut))
+              properties[uiProp]->GetFlags().IsAnySet(ezPropertyFlags::VarInOut | ezPropertyFlags::VarOut))
           {
             ezAbstractMemberProperty* pAbsMember = static_cast<ezAbstractMemberProperty*>(properties[uiProp]);
 
@@ -233,6 +234,177 @@ void* ezVisualScriptNode_MessageSender::GetInputPinDataPointer(ezUInt8 uiPin)
   }
 
   return nullptr;
+}
+
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_FunctionCall, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_FunctionCall>)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Functions"),
+    new ezHiddenAttribute()
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezVisualScriptNode_FunctionCall::ezVisualScriptNode_FunctionCall()
+{
+}
+
+ezVisualScriptNode_FunctionCall::~ezVisualScriptNode_FunctionCall()
+{
+}
+
+void ezVisualScriptNode_FunctionCall::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
+{
+  if (m_pFunctionToCall == nullptr)
+    return;
+
+  ezWorld* pWorld = pInstance->GetWorld();
+
+  if (m_hComponent.IsInvalidated())
+  {
+    // no component given -> try to look up the component type on the object instead
+
+    if (m_hObject.IsInvalidated())
+    {
+      ezLog::Error("VisScript function call: Target component or object is not specified");
+
+      m_pFunctionToCall = nullptr;
+      return;
+    }
+
+    ezGameObject* pObject;
+    if (!pWorld->TryGetObject(m_hObject, pObject))
+    {
+      // object is dead -> deactivate this node silently
+      m_pFunctionToCall = nullptr;
+      return;
+    }
+
+    ezComponent* pComponent;
+    if (!pObject->TryGetComponentOfBaseType(m_pExpectedType, pComponent))
+    {
+      ezLog::Error("VisScript function call: Target object does not have a component of type {}", m_pExpectedType->GetTypeName());
+
+      m_pFunctionToCall = nullptr;
+      return;
+    }
+
+    m_hComponent = pComponent->GetHandle();
+  }
+
+  ezComponent* pComponent = nullptr;
+  if (!pWorld->TryGetComponent(m_hComponent, pComponent))
+  {
+    // component is dead -> deactivate this node silently
+    m_pFunctionToCall = nullptr;
+    return;
+  }
+
+  if (!pComponent->GetDynamicRTTI()->IsDerivedFrom(m_pExpectedType))
+  {
+    ezLog::Error("VisScript function call: Target component of type '{}' is not of the expected base type '{}'", pComponent->GetDynamicRTTI()->GetTypeName(), m_pExpectedType->GetTypeName());
+
+    m_pFunctionToCall = nullptr;
+    return;
+  }
+
+  for (ezUInt32 arg = 0; arg < m_pFunctionToCall->GetArgumentCount(); ++arg)
+  {
+    const ezVariant& var = m_Arguments[arg];
+    const ezVariantType::Enum targetType = m_pFunctionToCall->GetArgumentType(arg)->GetVariantType();
+
+    if (ConvertArgumentToRequiredType(m_Arguments[arg], targetType).Failed())
+    {
+      ezLog::Error("VisScript function call: Could not convert argument {} from variant type '{}' to target type '{}'", arg, (int)var.GetType(), (int)targetType);
+
+      // probably a stale script with a mismatching pin <-> argument configuration
+      m_pFunctionToCall = nullptr;
+      return;
+    }
+  }
+
+  // call the function on the target object
+  m_pFunctionToCall->Execute(pComponent, m_Arguments, m_ReturnValue);
+
+  // now we need to pull the data from return values and out parameters and pass them into our output pins
+  ezUInt32 uiOutputPinIndex = 0;
+
+  if (m_ReturnValue.IsValid())
+  {
+    EnforceVariantTypeForInputPins(m_ReturnValue);
+    pInstance->SetOutputPinValue(this, uiOutputPinIndex, m_ReturnValue.GetData());
+    ++uiOutputPinIndex;
+  }
+
+  for (ezUInt32 arg = 0; arg < m_pFunctionToCall->GetArgumentCount(); ++arg)
+  {
+    // also do this for non-out parameters, as an 'in' parameter may still be a non-const reference (bad but valid)
+    EnforceVariantTypeForInputPins(m_Arguments[arg]);
+
+    if ((m_ArgumentIsOutParamMask & EZ_BIT(arg)) != 0) // if this argument represents an out or inout parameter, pull the data
+    {
+      pInstance->SetOutputPinValue(this, uiOutputPinIndex, m_Arguments[arg].GetData());
+      ++uiOutputPinIndex;
+    }
+  }
+
+  pInstance->ExecuteConnectedNodes(this, 0);
+}
+
+void* ezVisualScriptNode_FunctionCall::GetInputPinDataPointer(ezUInt8 uiPin)
+{
+  if (uiPin == 0)
+    return &m_hObject;
+
+  if (uiPin == 1)
+    return &m_hComponent;
+
+  if (uiPin >= m_Arguments.GetCount() + 2)
+    return &m_ReturnValue; // unused dummy just to return anything in case of a mismatch
+
+  return m_Arguments[uiPin - 2].GetData();
+}
+
+ezResult ezVisualScriptNode_FunctionCall::ConvertArgumentToRequiredType(ezVariant& var, ezVariantType::Enum type)
+{
+  if (var.GetType() == type)
+    return EZ_SUCCESS;
+
+  ezResult couldConvert = EZ_FAILURE;
+  var = var.ConvertTo(type, &couldConvert);
+
+  return couldConvert;
+}
+
+void ezVisualScriptNode_FunctionCall::EnforceVariantTypeForInputPins(ezVariant& var)
+{
+  switch (var.GetType())
+  {
+    case ezVariantType::Int8:
+    case ezVariantType::UInt8:
+    case ezVariantType::Int16:
+    case ezVariantType::UInt16:
+    case ezVariantType::Int32:
+    case ezVariantType::UInt32:
+    case ezVariantType::Int64:
+    case ezVariantType::UInt64:
+    case ezVariantType::Float:
+    {
+      const double value = var.ConvertTo<double>();
+      var = value;
+      return;
+    }
+
+    default:
+      return;
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////
