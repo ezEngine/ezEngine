@@ -2,9 +2,9 @@
 
 #include <Core/Scripting/LuaWrapper.h>
 
-#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
-
 EZ_CREATE_SIMPLE_TEST_GROUP(Scripting);
+
+#ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
 
 static const char* g_Script = "\
 globaltable = true;\n\
