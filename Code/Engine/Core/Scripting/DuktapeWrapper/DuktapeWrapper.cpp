@@ -38,6 +38,8 @@ ezResult ezDuktapeWrapper::ExecuteString(const char* szString)
   }
 
   // TODO: distinguish between compile and eval errors
+  // duk_pcompile_string / duk_pcompile_string_filename
+  // duk_pcall
 
   {
     EZ_LOG_BLOCK("ezDuktapeWrapper::ExecuteString");
@@ -47,6 +49,87 @@ ezResult ezDuktapeWrapper::ExecuteString(const char* szString)
   }
 
   return EZ_FAILURE;
+}
+
+void ezDuktapeWrapper::RegisterFunction(const char* szFunctionName, duk_c_function pFunction, ezUInt8 uiNumArguments)
+{
+  duk_push_global_object(m_pContext);
+  /*const int iFuncIdx =*/duk_push_c_function(m_pContext, pFunction, uiNumArguments);
+  // TODO: could store iFuncIdx for faster function calls
+  EZ_VERIFY(duk_put_prop_string(m_pContext, -2, szFunctionName), "Fail to register C function");
+  duk_pop(m_pContext);
+}
+
+bool ezDuktapeWrapper::PrepareFunctionCall(const char* szFunctionName)
+{
+  if (!duk_get_global_string(m_pContext, szFunctionName))
+    return false;
+
+  if (!duk_is_function(m_pContext, -1))
+    return false;
+
+  m_States.m_iPushedFunctionArguments = 0;
+
+  return true;
+}
+
+ezResult ezDuktapeWrapper::CallPreparedFunction()
+{
+  if (duk_pcall(m_pContext, m_States.m_iPushedFunctionArguments) == DUK_EXEC_SUCCESS)
+  {
+    // TODO: leave return value on stack for inspection
+    duk_pop(m_pContext);
+    return EZ_SUCCESS;
+  }
+  else
+  {
+    // TODO: could also create a stack trace using duk_is_error + duk_get_prop_string(ctx, -1, "stack");
+    ezLog::Error("[duktape]{}", duk_safe_to_string(m_pContext, -1));
+    duk_pop(m_pContext);
+    return EZ_FAILURE;
+  }
+}
+
+void ezDuktapeWrapper::PushParameter(ezInt32 iParam)
+{
+  duk_push_int(m_pContext, iParam);
+  m_States.m_iPushedFunctionArguments++;
+}
+
+void ezDuktapeWrapper::PushParameter(bool bParam)
+{
+  duk_push_boolean(m_pContext, bParam);
+  m_States.m_iPushedFunctionArguments++;
+}
+
+void ezDuktapeWrapper::PushParameter(double fParam)
+{
+  duk_push_number(m_pContext, fParam);
+  m_States.m_iPushedFunctionArguments++;
+}
+
+void ezDuktapeWrapper::PushParameter(const char* szParam)
+{
+  duk_push_string(m_pContext, szParam);
+  m_States.m_iPushedFunctionArguments++;
+}
+
+void ezDuktapeWrapper::PushParameter(const char* szParam, ezUInt32 length)
+{
+  duk_push_lstring(m_pContext, szParam, length);
+  m_States.m_iPushedFunctionArguments++;
+}
+
+void ezDuktapeWrapper::PushParameterNull()
+{
+  duk_push_null(m_pContext);
+  m_States.m_iPushedFunctionArguments++;
+}
+
+void ezDuktapeWrapper::PushParameterUndefined()
+{
+  duk_push_undefined(m_pContext);
+  m_States.m_iPushedFunctionArguments++;
 }
 
 void ezDuktapeWrapper::InitializeContext()
