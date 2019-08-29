@@ -156,6 +156,7 @@ class EZ_CORE_DLL ezDuktapeFunction final : public ezDuktapeWrapper
 {
 public:
   ezDuktapeFunction(duk_context* pExistingContext);
+  ~ezDuktapeFunction();
 
   /// \name Retrieving function parameters
   ///@{
@@ -192,10 +193,12 @@ public:
   ezInt32 ReturnFloat(float value);
   ezInt32 ReturnNumber(double value);
   ezInt32 ReturnString(const char* value);
+  ezInt32 ReturnCustom();
 
   ///@}
 
 private:
+  bool m_bDidReturnValue = false;
 };
 
 #  include <Core/Scripting/DuktapeWrapper/DuktapeWrapper.inl>
