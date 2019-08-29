@@ -231,72 +231,34 @@ EZ_CREATE_SIMPLE_TEST(Scripting, DuktapeWrapper)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Inspect Object")
   {
     ezDuktapeWrapper duk("DukTest");
+    EZ_TEST_RESULT(duk.ExecuteFile("Object.js"));
 
-    const char* objCode = "var obj = \n\
-{\n\
-  a : \"one\",\n\
-  b : 2.0,\n\
-  c : true\n\
-};";
+    EZ_TEST_RESULT(duk.OpenObject("obj"));
 
-    EZ_TEST_RESULT(duk.ExecuteString(objCode));
+    EZ_TEST_BOOL(duk.HasProperty("i"));
+    EZ_TEST_INT(duk.GetIntProperty("i", 0), 23);
 
-    if (EZ_TEST_RESULT(duk.OpenObject("obj")).Succeeded())
+    EZ_TEST_BOOL(duk.HasProperty("f"));
+    EZ_TEST_FLOAT(duk.GetFloatProperty("f", 0), 4.2f, 0.01f);
+
+    EZ_TEST_BOOL(duk.HasProperty("b"));
+    EZ_TEST_BOOL(duk.GetBoolProperty("b", false));
+
+    EZ_TEST_BOOL(duk.HasProperty("s"));
+    EZ_TEST_STRING(duk.GetStringProperty("s", ""), "text");
+
+    EZ_TEST_BOOL(duk.HasProperty("n"));
+
+    EZ_TEST_BOOL(duk.HasProperty("o"));
+
     {
-      EZ_TEST_BOOL(duk.HasProperty("a"));
-      EZ_TEST_BOOL(duk.HasProperty("b"));
-      EZ_TEST_BOOL(duk.HasProperty("c"));
-      EZ_TEST_BOOL(!duk.HasProperty("d"));
+      EZ_TEST_RESULT(duk.OpenObject("o"));
+      EZ_TEST_BOOL(duk.HasProperty("sub"));
+      EZ_TEST_STRING(duk.GetStringProperty("sub", ""), "wub");
 
       duk.CloseObject();
     }
-  }
-
-  ezFileSystem::RemoveDataDirectoryGroup("DuktapeTest");
-}
-
-EZ_CREATE_SIMPLE_TEST(Scripting, TypeScript)
-{
-  // setup file system
-  {
-    ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-
-    ezStringBuilder sTestDataDir(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath());
-    sTestDataDir.AppendPath("Scripting/Duktape");
-    if (EZ_TEST_RESULT(ezFileSystem::AddDataDirectory(sTestDataDir, "DuktapeTest")).Failed())
-      return;
-
-    if (EZ_TEST_RESULT(ezFileSystem::AddDataDirectory(">sdk/Data/Tools/ezEditor", "DuktapeTest")).Failed())
-      return;
-  }
-
-  ezDuktapeWrapper dukTS("DukTS");
-
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Compile TypeScriptServices")
-  {
-    EZ_TEST_RESULT(dukTS.ExecuteFile("Typescript/typescriptServices.js"));
-  }
-
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Transpile Simple")
-  {
-    // simple way
-    EZ_TEST_RESULT(dukTS.ExecuteString("ts.transpile('class X{}');"));
-
-    // complicated way, needed to retrieve the result
-    EZ_TEST_RESULT(dukTS.OpenObject("ts"));
-    EZ_TEST_RESULT(dukTS.BeginFunctionCall("transpile"));
-    dukTS.PushParameter("class X{}");
-    EZ_TEST_RESULT(dukTS.ExecuteFunctionCall());
-
-    EZ_TEST_BOOL(dukTS.IsReturnValueString());
-
-    ezStringBuilder sTranspiled = dukTS.GetStringReturnValue();
-
-    dukTS.EndFunctionCall();
-
-    // validate that the transpiled code can be executed by Duktape
-    ezDuktapeWrapper duk("duk");
-    EZ_TEST_RESULT(duk.ExecuteString(sTranspiled));
+    duk.CloseObject();
   }
 
   ezFileSystem::RemoveDataDirectoryGroup("DuktapeTest");

@@ -369,8 +369,126 @@ void ezDuktapeWrapper::CloseObject()
 
 bool ezDuktapeWrapper::HasProperty(const char* szPropertyName)
 {
-  return duk_has_prop_string(m_pContext, -1, szPropertyName);
+  if (m_States.m_iOpenObjects == 0)
+  {
+    const bool result = duk_get_global_string(m_pContext, szPropertyName);
+    duk_pop(m_pContext);
+    return result;
+  }
+  else
+  {
+    return duk_has_prop_string(m_pContext, -1, szPropertyName);
+  }
+}
+
+bool ezDuktapeWrapper::GetBoolProperty(const char* szPropertyName, bool fallback)
+{
+  bool result = fallback;
+
+  if (m_States.m_iOpenObjects == 0)
+  {
+    if (duk_get_global_string(m_pContext, szPropertyName) == 0)
+      goto cleanup;
+  }
+  else
+  {
+    if (duk_get_prop_string(m_pContext, -1, szPropertyName) == 0)
+      goto cleanup;
+  }
+
+  result = duk_get_boolean_default(m_pContext, -1, fallback);
+
+cleanup:
+  duk_pop(m_pContext);
+  return result;
+}
+
+ezInt32 ezDuktapeWrapper::GetIntProperty(const char* szPropertyName, ezInt32 fallback)
+{
+  ezInt32 result = fallback;
+
+  if (m_States.m_iOpenObjects == 0)
+  {
+    if (duk_get_global_string(m_pContext, szPropertyName) == 0)
+      goto cleanup;
+  }
+  else
+  {
+    if (duk_get_prop_string(m_pContext, -1, szPropertyName) == 0)
+      goto cleanup;
+  }
+
+  result = duk_get_int_default(m_pContext, -1, fallback);
+
+cleanup:
+  duk_pop(m_pContext);
+  return result;
+}
+
+float ezDuktapeWrapper::GetFloatProperty(const char* szPropertyName, float fallback)
+{
+  float result = fallback;
+
+  if (m_States.m_iOpenObjects == 0)
+  {
+    if (duk_get_global_string(m_pContext, szPropertyName) == 0)
+      goto cleanup;
+  }
+  else
+  {
+    if (duk_get_prop_string(m_pContext, -1, szPropertyName) == 0)
+      goto cleanup;
+  }
+
+  result = static_cast<float>(duk_get_number_default(m_pContext, -1, fallback));
+
+cleanup:
+  duk_pop(m_pContext);
+  return result;
+}
+
+double ezDuktapeWrapper::GetNumberProperty(const char* szPropertyName, double fallback)
+{
+  double result = fallback;
+
+  if (m_States.m_iOpenObjects == 0)
+  {
+    if (duk_get_global_string(m_pContext, szPropertyName) == 0)
+      goto cleanup;
+  }
+  else
+  {
+    if (duk_get_prop_string(m_pContext, -1, szPropertyName) == 0)
+      goto cleanup;
+  }
+
+  result = duk_get_number_default(m_pContext, -1, fallback);
+
+cleanup:
+  duk_pop(m_pContext);
+  return result;
+}
+
+const char* ezDuktapeWrapper::GetStringProperty(const char* szPropertyName, const char* fallback)
+{
+  const char* result = fallback;
+
+  if (m_States.m_iOpenObjects == 0)
+  {
+    if (duk_get_global_string(m_pContext, szPropertyName) == 0)
+      goto cleanup;
+  }
+  else
+  {
+    if (duk_get_prop_string(m_pContext, -1, szPropertyName) == 0)
+      goto cleanup;
+  }
+
+  result = duk_get_string_default(m_pContext, -1, fallback);
+
+cleanup:
+  duk_pop(m_pContext);
+  return result;
 }
 
 #endif
-

@@ -113,6 +113,12 @@ public:
 
   bool HasProperty(const char* szPropertyName);
 
+  bool GetBoolProperty(const char* szPropertyName, bool fallback);
+  ezInt32 GetIntProperty(const char* szPropertyName, ezInt32 fallback);
+  float GetFloatProperty(const char* szPropertyName, float fallback);
+  double GetNumberProperty(const char* szPropertyName, double fallback);
+  const char* GetStringProperty(const char* szPropertyName, const char* fallback);
+
   ///@}
 
 
@@ -151,6 +157,13 @@ private:
   ezAllocator<ezMemoryPolicies::ezHeapAllocation, ezMemoryTrackingFlags::None> m_Allocator;
 #  endif
 };
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
 class EZ_CORE_DLL ezDuktapeFunction final : public ezDuktapeWrapper
 {
