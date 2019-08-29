@@ -11,8 +11,8 @@
 #include <TestFramework/Utilities/TestOrder.h>
 
 #include <cstdlib>
-#include <stdlib.h>
 #include <stdexcept>
+#include <stdlib.h>
 
 #ifdef EZ_TESTFRAMEWORK_USE_FILESERVE
 #  include <FileservePlugin/Client/FileserveClient.h>
@@ -382,7 +382,7 @@ void ezTestFramework::TimeoutThread()
         // Should we attach a debugger mid run and reach the timeout we obviously do not want to terminate.
         continue;
       }
-      
+
       // CV was not signaled until the timeout was reached.
       ezTestFramework::Output(ezTestOutput::Error, "Timeout reached, terminating app.");
       // The top level exception handler takes care of all the shutdown logic already (app specific logic, crash dump, callstack etc)
@@ -1511,6 +1511,19 @@ ezResult ezTestBool(
   ezTestFramework::s_iAssertCounter++;
 
   if (!bCondition)
+  {
+    // if the test breaks here, go one up in the callstack to see where it exactly failed
+    OUTPUT_TEST_ERROR
+  }
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezTestResult(ezResult bCondition, const char* szErrorText, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
+{
+  ezTestFramework::s_iAssertCounter++;
+
+  if (bCondition.Failed())
   {
     // if the test breaks here, go one up in the callstack to see where it exactly failed
     OUTPUT_TEST_ERROR
