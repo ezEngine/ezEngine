@@ -127,9 +127,13 @@ private:
   /// If this script created the context, it also releases it on exit.
   bool m_bReleaseOnExit = true;
 
-  ezString m_sWrapperName;
   duk_context* m_pContext = nullptr;
-  mutable ezProxyAllocator m_Allocator;
+
+#  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  ezAllocator<ezMemoryPolicies::ezHeapAllocation, ezMemoryTrackingFlags::EnableTracking> m_Allocator;
+#  else
+  ezAllocator<ezMemoryPolicies::ezHeapAllocation, ezMemoryTrackingFlags::None> m_Allocator;
+#  endif
 };
 
 class EZ_CORE_DLL ezDuktapeFunction final : public ezDuktapeWrapper

@@ -18,13 +18,11 @@ EZ_CHECK_AT_COMPILETIME(ezDuktapeTypeMask::Object == DUK_TYPE_MASK_OBJECT);
 ezDuktapeWrapper::ezDuktapeWrapper(const char* szWrapperName)
   : m_Allocator(szWrapperName, ezFoundation::GetDefaultAllocator())
 {
-  m_sWrapperName = szWrapperName;
-
   InitializeContext();
 }
 
 ezDuktapeWrapper::ezDuktapeWrapper(duk_context* pExistingContext)
-  : m_Allocator("", ezFoundation::GetDefaultAllocator())
+  : m_Allocator("", nullptr)
 {
   EZ_ASSERT_ALWAYS(pExistingContext != nullptr, "Duktape context must not be null");
 
@@ -226,7 +224,7 @@ void ezDuktapeWrapper::FatalErrorHandler(void* pUserData, const char* szMsg)
 {
   ezDuktapeWrapper* pDukWrapper = reinterpret_cast<ezDuktapeWrapper*>(pUserData);
 
-  EZ_REPORT_FAILURE("{}: {}", pDukWrapper->m_sWrapperName, szMsg);
+  EZ_REPORT_FAILURE(szMsg);
 }
 
 void* ezDuktapeWrapper::DukAlloc(void* pUserData, size_t size)
