@@ -103,55 +103,60 @@ void ezDuktapeWrapper::RegisterFunctionWithVarArgs(const char* szFunctionName, d
   duk_pop(m_pContext);
 }
 
-bool ezDuktapeWrapper::PrepareFunctionCall(const char* szFunctionName)
+ezResult ezDuktapeWrapper::BeginFunctionCall(const char* szFunctionName)
 {
+  EZ_ASSERT_DEV(m_bIsInFunctionCall == false, "Function calls cannot be nested and must be finished with EndFunctionCall()");
+
   if (m_States.m_iOpenObjects == 0)
   {
     if (!duk_get_global_string(m_pContext, szFunctionName))
-      return false;
+      goto failure;
   }
   else
   {
-    // TODO
+    if (!duk_get_prop_string(m_pContext, -1, szFunctionName))
+      goto failure;
   }
 
   if (!duk_is_function(m_pContext, -1))
-    return false;
+    goto failure;
 
   m_States.m_iPushedFunctionArguments = 0;
 
-  return true;
+  m_bIsInFunctionCall = true;
+  return EZ_SUCCESS;
+
+failure:
+  duk_pop(m_pContext);
+  return EZ_FAILURE;
 }
 
-ezResult ezDuktapeWrapper::CallPreparedFunction()
+ezResult ezDuktapeWrapper::ExecuteFunctionCall()
 {
+  EZ_ASSERT_DEV(m_bIsInFunctionCall == true, "Function calls must be successfully initiated with BeginFunctionCall()");
+
   if (duk_pcall(m_pContext, m_States.m_iPushedFunctionArguments) == DUK_EXEC_SUCCESS)
   {
-    // TODO: leave return value on stack for inspection
-    duk_pop(m_pContext);
-
-    // TODO
-    //if (m_States.m_iOpenObjects == 0)
-    //{
-    //  duk_pop(m_pContext);
-    //}
-
+    // leaves return value on stack
     return EZ_SUCCESS;
   }
   else
   {
     // TODO: could also create a stack trace using duk_is_error + duk_get_prop_string(ctx, -1, "stack");
     ezLog::Error("[duktape]{}", duk_safe_to_string(m_pContext, -1));
-    duk_pop(m_pContext);
 
-    // TODO
-    //if (m_States.m_iOpenObjects == 0)
-    //{
-    //  duk_pop(m_pContext);
-    //}
 
     return EZ_FAILURE;
   }
+}
+
+void ezDuktapeWrapper::EndFunctionCall()
+{
+  EZ_ASSERT_DEV(m_bIsInFunctionCall == true, "Function calls must be successfully initiated with BeginFunctionCall()");
+  m_bIsInFunctionCall = false;
+
+  // pop the return value / error object from the stack
+  duk_pop(m_pContext);
 }
 
 void ezDuktapeWrapper::PushParameter(ezInt32 iParam)
@@ -194,6 +199,66 @@ void ezDuktapeWrapper::PushParameterUndefined()
 {
   duk_push_undefined(m_pContext);
   m_States.m_iPushedFunctionArguments++;
+}
+
+bool ezDuktapeWrapper::GetBoolReturnValue(bool fallback /*= false*/) const
+{
+  return duk_get_boolean_default(GetContext(), -1, fallback);
+}
+
+ezInt32 ezDuktapeWrapper::GetIntReturnValue(ezInt32 fallback /*= 0*/) const
+{
+  return duk_get_int_default(GetContext(), -1, fallback);
+}
+
+float ezDuktapeWrapper::GetFloatReturnValue(float fallback /*= 0*/) const
+{
+  return static_cast<float>(duk_get_number_default(GetContext(), -1, fallback));
+}
+
+double ezDuktapeWrapper::GetNumberReturnValue(double fallback /*= 0*/) const
+{
+  return duk_get_number_default(GetContext(), -1, fallback);
+}
+
+const char* ezDuktapeWrapper::GetStringReturnValue(const char* fallback /*= ""*/) const
+{
+  return duk_get_string_default(GetContext(), -1, fallback);
+}
+
+bool ezDuktapeWrapper::IsReturnValueOfType(ezBitflags<ezDuktapeTypeMask> mask) const
+{
+  return duk_check_type_mask(GetContext(), -1, mask.GetValue());
+}
+
+bool ezDuktapeWrapper::IsReturnValueBool() const
+{
+  return duk_check_type_mask(GetContext(), -1, DUK_TYPE_MASK_BOOLEAN);
+}
+
+bool ezDuktapeWrapper::IsReturnValueNumber() const
+{
+  return duk_check_type_mask(GetContext(), -1, DUK_TYPE_MASK_NUMBER);
+}
+
+bool ezDuktapeWrapper::IsReturnValueString() const
+{
+  return duk_check_type_mask(GetContext(), -1, DUK_TYPE_MASK_STRING);
+}
+
+bool ezDuktapeWrapper::IsReturnValueNull() const
+{
+  return duk_check_type_mask(GetContext(), -1, DUK_TYPE_MASK_NULL);
+}
+
+bool ezDuktapeWrapper::IsReturnValueUndefined() const
+{
+  return duk_check_type_mask(GetContext(), -1, DUK_TYPE_MASK_UNDEFINED);
+}
+
+bool ezDuktapeWrapper::IsReturnValueObject() const
+{
+  return duk_check_type_mask(GetContext(), -1, DUK_TYPE_MASK_OBJECT);
 }
 
 void ezDuktapeWrapper::InitializeContext()

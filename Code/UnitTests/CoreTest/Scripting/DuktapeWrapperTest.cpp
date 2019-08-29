@@ -96,7 +96,7 @@ EZ_CREATE_SIMPLE_TEST(Scripting, DuktapeWrapper)
 
     ezStringBuilder sTestDataDir(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath());
     sTestDataDir.AppendPath("Scripting/Duktape");
-    if (EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sTestDataDir, "DuktapeTest").Succeeded()).Failed())
+    if (EZ_TEST_RESULT(ezFileSystem::AddDataDirectory(sTestDataDir, "DuktapeTest")).Failed())
       return;
   }
 
@@ -109,7 +109,7 @@ EZ_CREATE_SIMPLE_TEST(Scripting, DuktapeWrapper)
     duk_pop(duk.GetContext());
     EZ_TEST_STRING(sTestString, "TESTSTRING");
 
-    EZ_TEST_BOOL(duk.ExecuteString("function MakeUpper(bla) { return bla.toUpperCase() }").Succeeded());
+    EZ_TEST_RESULT(duk.ExecuteString("function MakeUpper(bla) { return bla.toUpperCase() }"));
 
 
     duk_eval_string(duk.GetContext(), "MakeUpper(\"myTest\")");
@@ -185,10 +185,12 @@ EZ_CREATE_SIMPLE_TEST(Scripting, DuktapeWrapper)
 
     duk.RegisterFunction("Print", CFuncPrint, 1);
 
-    if (EZ_TEST_BOOL(duk.PrepareFunctionCall("Print")).Succeeded())
+    if (EZ_TEST_RESULT(duk.BeginFunctionCall("Print")).Succeeded())
     {
       duk.PushParameter("You did it, Fry!");
-      EZ_TEST_BOOL(duk.CallPreparedFunction().Succeeded());
+      EZ_TEST_RESULT(duk.ExecuteFunctionCall());
+
+      duk.EndFunctionCall();
     }
   }
 
@@ -207,19 +209,22 @@ EZ_CREATE_SIMPLE_TEST(Scripting, DuktapeWrapper)
     duk.RegisterFunction("Magic2", CFuncMagic, 0, 2);
     duk.RegisterFunction("Magic3", CFuncMagic, 0, 3);
 
-    if (EZ_TEST_BOOL(duk.PrepareFunctionCall("Magic1")).Succeeded())
+    if (EZ_TEST_RESULT(duk.BeginFunctionCall("Magic1")).Succeeded())
     {
-      EZ_TEST_BOOL(duk.CallPreparedFunction().Succeeded());
+      EZ_TEST_RESULT(duk.ExecuteFunctionCall());
+      duk.EndFunctionCall();
     }
 
-    if (EZ_TEST_BOOL(duk.PrepareFunctionCall("Magic2")).Succeeded())
+    if (EZ_TEST_RESULT(duk.BeginFunctionCall("Magic2")).Succeeded())
     {
-      EZ_TEST_BOOL(duk.CallPreparedFunction().Succeeded());
+      EZ_TEST_RESULT(duk.ExecuteFunctionCall());
+      duk.EndFunctionCall();
     }
 
-    if (EZ_TEST_BOOL(duk.PrepareFunctionCall("Magic3")).Succeeded())
+    if (EZ_TEST_RESULT(duk.BeginFunctionCall("Magic3")).Succeeded())
     {
-      EZ_TEST_BOOL(duk.CallPreparedFunction().Succeeded());
+      EZ_TEST_RESULT(duk.ExecuteFunctionCall());
+      duk.EndFunctionCall();
     }
   }
 
@@ -234,9 +239,9 @@ EZ_CREATE_SIMPLE_TEST(Scripting, DuktapeWrapper)
   c : true\n\
 };";
 
-    EZ_TEST_BOOL(duk.ExecuteString(objCode).Succeeded());
+    EZ_TEST_RESULT(duk.ExecuteString(objCode));
 
-    if (EZ_TEST_BOOL(duk.OpenObject("obj").Succeeded()).Succeeded())
+    if (EZ_TEST_RESULT(duk.OpenObject("obj")).Succeeded())
     {
       EZ_TEST_BOOL(duk.HasProperty("a"));
       EZ_TEST_BOOL(duk.HasProperty("b"));
@@ -258,10 +263,10 @@ EZ_CREATE_SIMPLE_TEST(Scripting, TypeScript)
 
     ezStringBuilder sTestDataDir(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath());
     sTestDataDir.AppendPath("Scripting/Duktape");
-    if (EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sTestDataDir, "DuktapeTest").Succeeded()).Failed())
+    if (EZ_TEST_RESULT(ezFileSystem::AddDataDirectory(sTestDataDir, "DuktapeTest")).Failed())
       return;
 
-    if (EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(">sdk/Data/Tools/ezEditor", "DuktapeTest").Succeeded()).Failed())
+    if (EZ_TEST_RESULT(ezFileSystem::AddDataDirectory(">sdk/Data/Tools/ezEditor", "DuktapeTest")).Failed())
       return;
   }
 
@@ -269,19 +274,29 @@ EZ_CREATE_SIMPLE_TEST(Scripting, TypeScript)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Compile TypeScriptServices")
   {
-    EZ_TEST_BOOL(dukTS.ExecuteFile("Typescript/typescriptServices.js").Succeeded());
+    EZ_TEST_RESULT(dukTS.ExecuteFile("Typescript/typescriptServices.js"));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Transpile Simple")
   {
     // simple way
-    EZ_TEST_BOOL(dukTS.ExecuteString("ts.transpile('class X{}');").Succeeded());
+    EZ_TEST_RESULT(dukTS.ExecuteString("ts.transpile('class X{}');"));
 
-    // complicated way
-    //EZ_TEST_BOOL(dukTS.OpenObject("ts").Succeeded());
-    //EZ_TEST_BOOL(dukTS.PrepareFunctionCall("transpile"));
-    //dukTS.PushParameter("class X{}');");
-    //EZ_TEST_BOOL(dukTS.CallPreparedFunction().Succeeded());
+    // complicated way, needed to retrieve the result
+    EZ_TEST_RESULT(dukTS.OpenObject("ts"));
+    EZ_TEST_RESULT(dukTS.BeginFunctionCall("transpile"));
+    dukTS.PushParameter("class X{}");
+    EZ_TEST_RESULT(dukTS.ExecuteFunctionCall());
+
+    EZ_TEST_BOOL(dukTS.IsReturnValueString());
+
+    ezStringBuilder sTranspiled = dukTS.GetStringReturnValue();
+
+    dukTS.EndFunctionCall();
+
+    // validate that the transpiled code can be executed by Duktape
+    ezDuktapeWrapper duk("duk");
+    EZ_TEST_RESULT(duk.ExecuteString(sTranspiled));
   }
 
   ezFileSystem::RemoveDataDirectoryGroup("DuktapeTest");

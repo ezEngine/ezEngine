@@ -76,9 +76,9 @@ public:
 
   void RegisterFunctionWithVarArgs(const char* szFunctionName, duk_c_function pFunction, ezInt16 iMagicValue = 0);
 
-  bool PrepareFunctionCall(const char* szFunctionName);
-
-  ezResult CallPreparedFunction();
+  ezResult BeginFunctionCall(const char* szFunctionName);
+  ezResult ExecuteFunctionCall();
+  void EndFunctionCall();
 
   void PushParameter(ezInt32 iParam);
   void PushParameter(bool bParam);
@@ -87,6 +87,21 @@ public:
   void PushParameter(const char* szParam, ezUInt32 length);
   void PushParameterNull();
   void PushParameterUndefined();
+
+  bool GetBoolReturnValue(bool fallback = false) const;
+  ezInt32 GetIntReturnValue(ezInt32 fallback = 0) const;
+  float GetFloatReturnValue(float fallback = 0) const;
+  double GetNumberReturnValue(double fallback = 0) const;
+  const char* GetStringReturnValue(const char* fallback = "") const;
+
+  bool IsReturnValueOfType(ezBitflags<ezDuktapeTypeMask> mask) const;
+  bool IsReturnValueBool() const;
+  bool IsReturnValueNumber() const;
+  bool IsReturnValueString() const;
+  bool IsReturnValueNull() const;
+  bool IsReturnValueUndefined() const;
+  bool IsReturnValueObject() const;
+
 
   ///@}
 
@@ -121,6 +136,7 @@ protected:
     ezInt32 m_iOpenObjects = 0;
   };
 
+  bool m_bIsInFunctionCall = false;
   States m_States;
 
 private:
