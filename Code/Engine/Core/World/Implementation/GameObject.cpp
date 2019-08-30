@@ -580,6 +580,11 @@ void ezGameObject::UpdateLocalBounds()
 
   SendMessage(msg);
 
+  if (m_pTransformationData->m_uiSpatialDataCategoryBitmask != msg.m_uiSpatialDataCategoryBitmask)
+  {
+    m_pTransformationData->m_globalBounds.SetInvalid(); // force spatial data update
+  }
+
   m_pTransformationData->m_localBounds = ezSimdConversion::ToBBoxSphere(msg.m_ResultingLocalBounds);
   m_pTransformationData->m_localBounds.m_BoxHalfExtents.SetW(msg.m_bAlwaysVisible ? 1.0f : 0.0f);
   m_pTransformationData->m_uiSpatialDataCategoryBitmask = msg.m_uiSpatialDataCategoryBitmask;
