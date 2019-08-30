@@ -70,3 +70,9 @@ Plugin
 	bool %LoadCopy{false}
 	string %DependencyOf{"<manual>","EditorPluginRecast"}
 }
+Plugin
+{
+	string %Path{"ezTypeScriptPlugin"}
+	bool %LoadCopy{false}
+	string %DependencyOf{"<manual>"}
+}
