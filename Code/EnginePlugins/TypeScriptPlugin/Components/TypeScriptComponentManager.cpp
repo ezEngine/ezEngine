@@ -70,8 +70,6 @@ void ezTypeScriptComponentManager::Initialize()
 
   RegisterUpdateFunction(desc);
 
-  EZ_VERIFY(m_Script.ExecuteFile("TypeScript/typescriptServices.js").Succeeded(), "");
-
   m_Script.RegisterFunction("ezLog_Info", TS_ezLog_Info, 1);
   m_Script.RegisterFunction("GetGameObject", TS_GetGameObject, 0);
   m_Script.RegisterFunction("GameObjectMove", TS_GameObjectMove, 1);

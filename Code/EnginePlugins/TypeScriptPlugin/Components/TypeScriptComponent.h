@@ -17,10 +17,11 @@ public:
   virtual void Initialize() override;
   virtual void Deinitialize() override;
 
+  ezDuktapeWrapper m_Script;
+
 private:
   void Update(const ezWorldModule::UpdateContext& context);
 
-  ezDuktapeWrapper m_Script;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -39,6 +40,7 @@ public:
 protected:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
+  virtual void OnSimulationStarted() override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezTypeScriptComponent Interface
@@ -47,7 +49,7 @@ public:
 protected:
   void Update(ezDuktapeWrapper& script);
 
-  ezResult TranspileFile(ezDuktapeWrapper& script, const char* szFile, ezStringBuilder& result) const;
+  ezResult TranspileFile(const char* szFile, ezStringBuilder& result) const;
 
   bool m_bScriptLoaded = false;
 };

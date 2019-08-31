@@ -109,6 +109,8 @@ public:
   ///@{
 
   ezResult OpenObject(const char* szObjectName);
+  void OpenGlobalObject();
+  void OpenGlobalStashObject();
   void CloseObject();
 
   bool HasProperty(const char* szPropertyName);
@@ -140,6 +142,7 @@ protected:
   {
     ezInt32 m_iPushedFunctionArguments = 0;
     ezInt32 m_iOpenObjects = 0;
+    bool m_bAutoOpenedGlobalObject = false;
   };
 
   bool m_bIsInFunctionCall = false;

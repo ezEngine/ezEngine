@@ -339,7 +339,10 @@ ezResult ezDuktapeWrapper::OpenObject(const char* szObjectName)
 {
   if (m_States.m_iOpenObjects == 0)
   {
-    duk_push_global_object(m_pContext);
+    EZ_ASSERT_DEV(m_States.m_bAutoOpenedGlobalObject == false, "Global Object is already open");
+
+    OpenGlobalObject();
+    m_States.m_bAutoOpenedGlobalObject = true;
   }
 
   m_States.m_iOpenObjects++;
@@ -353,6 +356,18 @@ ezResult ezDuktapeWrapper::OpenObject(const char* szObjectName)
   return EZ_SUCCESS;
 }
 
+void ezDuktapeWrapper::OpenGlobalObject()
+{
+  duk_push_global_object(m_pContext);
+  m_States.m_iOpenObjects++;
+}
+
+void ezDuktapeWrapper::OpenGlobalStashObject()
+{
+  duk_push_global_stash(m_pContext);
+  m_States.m_iOpenObjects++;
+}
+
 void ezDuktapeWrapper::CloseObject()
 {
   EZ_ASSERT_DEBUG(m_States.m_iOpenObjects > 0, "No objects open at this time");
@@ -360,9 +375,10 @@ void ezDuktapeWrapper::CloseObject()
   duk_pop(m_pContext);
   m_States.m_iOpenObjects--;
 
-  if (m_States.m_iOpenObjects == 0)
+  if (m_States.m_iOpenObjects == 0 && m_States.m_bAutoOpenedGlobalObject)
   {
     // also pop the global object
+    m_States.m_bAutoOpenedGlobalObject = false;
     duk_pop(m_pContext);
   }
 }
