@@ -176,9 +176,6 @@ public:
     if (GetArgumentCount() < 2)
       ezLog::Error("This tool requires at leas one command-line argument: An absolute path to the top-level folder of a library.");
 
-    // Add standard folder factory
-    ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-
     // Add the empty data directory to access files via absolute paths
     ezFileSystem::AddDataDirectory("", "App", ":", ezFileSystem::AllowWrites);
 

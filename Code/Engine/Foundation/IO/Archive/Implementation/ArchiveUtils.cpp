@@ -7,6 +7,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/MemoryMappedFile.h>
 #include <Foundation/IO/MemoryStream.h>
+#include <Foundation/Logging/Log.h>
 
 ezResult ezArchiveUtils::WriteHeader(ezStreamWriter& stream)
 {
@@ -398,6 +399,7 @@ ezResult ezArchiveUtils::ExtractZipTOC(ezMemoryMappedFile& memFile, ezArchiveTOC
   toc.m_Entries.Reserve(ecdHeader.diskEntries);
   toc.m_PathToIndex.Reserve(ecdHeader.diskEntries);
 
+  ezStringBuilder sLowerCaseHash;
   ezUInt64 uiEntryOffset = 0;
   for (ezUInt16 uiEntry = 0; uiEntry < ecdHeader.diskEntries; ++uiEntry)
   {
@@ -419,7 +421,9 @@ ezResult ezArchiveUtils::ExtractZipTOC(ezMemoryMappedFile& memFile, ezArchiveTOC
       toc.m_AllPathStrings.PushBackRange(nameBuffer);
       toc.m_AllPathStrings.PushBack(0);
       const char* szName = reinterpret_cast<const char*>(toc.m_AllPathStrings.GetData() + entry.m_uiPathStringOffset);
-      toc.m_PathToIndex.Insert(ezTempHashedString(szName), toc.m_Entries.GetCount() - 1);
+      sLowerCaseHash = szName;
+      sLowerCaseHash.ToLower();
+      toc.m_PathToIndex.Insert(ezTempHashedString(sLowerCaseHash.GetData()), toc.m_Entries.GetCount() - 1);
 
       // Compute data stream start location. We need to skip past the local (and redundant) file header to find it.
       const void* pLfStart = memFile.GetReadPointer(cdfHeader.offsetLocalHeader, ezMemoryMappedFile::OffsetBase::Start);

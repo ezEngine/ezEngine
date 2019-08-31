@@ -212,7 +212,10 @@ protected:
 #if EZ_ENABLED(EZ_PLATFORM_ANDROID)
 #  include <Foundation/Basics/Platform/Android/AndroidUtils.h>
 #  include <android/log.h>
+#  include <android/native_activity.h>
 #  include <android_native_app_glue.h>
+
+
 #  define EZ_TESTFRAMEWORK_ENTRY_POINT_BEGIN(szTestName, szNiceTestName)                                                   \
     int ezAndroidMain(int argc, char** argv);                                                                              \
     extern "C" void android_main(struct android_app* app)                                                                  \
@@ -221,7 +224,7 @@ protected:
       /* TODO: do something with the return value of ezAndroidMain?  */                                                    \
       /* TODO: can we get somehow get the command line arguments to the android app? Is there even something like that? */ \
       int iReturnCode = ezAndroidMain(0, nullptr);                                                                         \
-      __android_log_print(ANDROID_LOG_ERROR, "ezEngine", "Test framework failed with return code: '%d'", iReturnCode);     \
+      __android_log_print(ANDROID_LOG_ERROR, "ezEngine", "Test framework exited with return code: '%d'", iReturnCode);     \
     }                                                                                                                      \
                                                                                                                            \
     int ezAndroidMain(int argc, char** argv)                                                                               \
@@ -241,15 +244,46 @@ protected:
 
 #endif
 
-#define EZ_TESTFRAMEWORK_ENTRY_POINT_END()                        \
-  while (ezTestSetup::RunTests() == ezTestAppRun::Continue)       \
-  {                                                               \
-  }                                                               \
-  const ezInt32 iFailedTests = ezTestSetup::GetFailedTestCount(); \
-  ezTestSetup::DeInitTestFramework();                             \
-  return iFailedTests;                                            \
-  }
+#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#  define EZ_TESTFRAMEWORK_ENTRY_POINT_END()                                       \
+    /* TODO: This is too big for a macro now */                                    \
+    auto app = ezAndroidUtils::GetAndroidApp();                                    \
+    bool bRun = true;                                                              \
+    while (true)                                                                   \
+    {                                                                              \
+      struct android_poll_source* source = nullptr;                                \
+      int ident = 0;                                                               \
+      int events = 0;                                                              \
+      while ((ident = ALooper_pollAll(0, nullptr, &events, (void**)&source)) >= 0) \
+      {                                                                            \
+        if (source != nullptr)                                                     \
+          source->process(app, source);                                            \
+      }                                                                            \
+      if (bRun && ezTestSetup::RunTests() != ezTestAppRun::Continue)               \
+      {                                                                            \
+        bRun = false;                                                              \
+        ANativeActivity_finish(app->activity);                                     \
+      }                                                                            \
+      if (app->destroyRequested)                                                   \
+      {                                                                            \
+        const ezInt32 iFailedTests = ezTestSetup::GetFailedTestCount();            \
+        ezTestSetup::DeInitTestFramework();                                        \
+        return iFailedTests;                                                       \
+      }                                                                            \
+    }                                                                              \
+    } 
 
+#else
+#  define EZ_TESTFRAMEWORK_ENTRY_POINT_END()                        \
+    while (ezTestSetup::RunTests() == ezTestAppRun::Continue)       \
+    {                                                               \
+    }                                                               \
+    const ezInt32 iFailedTests = ezTestSetup::GetFailedTestCount(); \
+    ezTestSetup::DeInitTestFramework();                             \
+    return iFailedTests;                                            \
+    }
+
+#endif
 
 
 #define EZ_TESTFRAMEWORK_ENTRY_POINT(szTestName, szNiceTestName)             \

@@ -268,13 +268,19 @@ const char* ezOSFile::GetApplicationDirectory()
     CFRelease(appBundle);
 #elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
     android_app* app = ezAndroidUtils::GetAndroidApp();
-    JNIEnv* env = ezAndroidUtils::GetJniEnv();
+    JNIEnv* env = nullptr;
+    app->activity->vm->AttachCurrentThread(&env, nullptr);
     
     jclass activityClass = env->GetObjectClass(app->activity->clazz);
     jmethodID getPackageCodePath = env->GetMethodID(activityClass, "getPackageCodePath", "()Ljava/lang/String;");
     jobject result = env->CallObjectMethod(app->activity->clazz, getPackageCodePath);
     jboolean isCopy;
-    s_Path = env->GetStringUTFChars((jstring)result, &isCopy);
+    // By convention, android requires assets to be placed in the 'Assets' folder
+    // inside the apk thus we use that as our SDK root.
+    ezStringBuilder sTemp = env->GetStringUTFChars((jstring)result, &isCopy);
+    sTemp.AppendPath("Assets");
+    s_Path = sTemp;
+    app->activity->vm->DetachCurrentThread();
 #else
     char result[PATH_MAX];
     ssize_t length = readlink( "/proc/self/exe", result, PATH_MAX);
@@ -313,7 +319,9 @@ ezString ezOSFile::GetTempDataFolder(const char* szSubFolder)
   {
 #  if EZ_ENABLED(EZ_PLATFORM_ANDROID)
     android_app* app = ezAndroidUtils::GetAndroidApp();
-    JNIEnv* env = ezAndroidUtils::GetJniEnv();
+    JNIEnv* env = nullptr;
+    app->activity->vm->AttachCurrentThread(&env, nullptr);
+
     jclass activityClass = env->FindClass("android/app/NativeActivity");
     jmethodID getCacheDir = env->GetMethodID(activityClass, "getCacheDir", "()Ljava/io/File;");
     jobject cacheDir = env->CallObjectMethod(app->activity->clazz, getCacheDir);
@@ -326,6 +334,7 @@ ezString ezOSFile::GetTempDataFolder(const char* szSubFolder)
     s_TempDataPath = path_chars;
 
     env->ReleaseStringUTFChars(path, path_chars);
+    app->activity->vm->DetachCurrentThread();
 #  else
     s_TempDataPath = GetUserDataFolder(".cache").GetData();
 #  endif

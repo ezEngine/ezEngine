@@ -128,9 +128,6 @@ public:
 
     m_sSearchDir = sSearchDir;
 
-    // Add standard folder factory
-    ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-
     // Add the empty data directory to access files via absolute paths
     ezFileSystem::AddDataDirectory("", "App", ":", ezFileSystem::AllowWrites);
 

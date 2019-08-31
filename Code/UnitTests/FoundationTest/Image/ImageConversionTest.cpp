@@ -198,7 +198,6 @@ private:
 
     const ezStringBuilder sReadDir(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath());
 
-    ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
     if (ezFileSystem::AddDataDirectory(sReadDir.GetData(), "ImageConversionTest").Failed())
     {
       return EZ_FAILURE;

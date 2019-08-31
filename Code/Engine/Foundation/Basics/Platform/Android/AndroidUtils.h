@@ -13,10 +13,8 @@ class EZ_FOUNDATION_DLL ezAndroidUtils
 public:
   static void SetAndroidApp(android_app* app);
   static android_app* GetAndroidApp();
-  static JNIEnv* GetJniEnv();
 
 private:
   static android_app* s_app;
-  static JNIEnv* s_env;
 };
 

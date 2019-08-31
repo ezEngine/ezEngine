@@ -188,8 +188,6 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
   if (false)
   {
     ezStringBuilder outputPath = ezTestFramework::GetInstance()->GetAbsOutputPath();
-    ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-
     EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(outputPath.GetData(), "test", "output", ezFileSystem::AllowWrites) == EZ_SUCCESS);
 
     ezFileWriter fileWriter;

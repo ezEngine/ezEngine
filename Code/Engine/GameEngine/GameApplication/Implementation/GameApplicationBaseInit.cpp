@@ -30,7 +30,6 @@ void ezGameApplicationBase::ExecuteInitFunctions()
   Init_PlatformProfile_SetPreferred();
   Init_ConfigureTelemetry();
   Init_FileSystem_SetSpecialDirs();
-  Init_FileSystem_SetDataDirFactories();
   Init_LoadRequiredPlugins();
   Init_ConfigureAssetManagement();
   Init_FileSystem_ConfigureDataDirs();
@@ -69,12 +68,6 @@ void ezGameApplicationBase::Init_ConfigureTelemetry()
 void ezGameApplicationBase::Init_FileSystem_SetSpecialDirs()
 {
   ezFileSystem::SetSpecialDirectory("project", FindProjectDirectory());
-}
-
-void ezGameApplicationBase::Init_FileSystem_SetDataDirFactories()
-{
-  ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-  ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::ArchiveType::Factory);
 }
 
 void ezGameApplicationBase::Init_ConfigureAssetManagement() {}

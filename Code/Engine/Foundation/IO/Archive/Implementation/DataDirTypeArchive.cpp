@@ -5,6 +5,22 @@
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/Configuration/Startup.h>
+
+// clang-format off
+EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, ArchiveDataDirectory)
+
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+    "FileSystem", "FolderDataDirectory"
+  END_SUBSYSTEM_DEPENDENCIES
+
+  ON_CORESYSTEMS_STARTUP
+  {
+    ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::ArchiveType::Factory);
+  }
+
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 ezDataDirectory::ArchiveType::ArchiveType() = default;
 ezDataDirectory::ArchiveType::~ArchiveType() = default;
@@ -24,7 +40,10 @@ ezDataDirectoryType* ezDataDirectory::ArchiveType::Factory(
 ezDataDirectoryReader* ezDataDirectory::ArchiveType::OpenFileToRead(const char* szFile, bool bSpecificallyThisDataDir)
 {
   const ezArchiveTOC& toc = m_ArchiveReader.GetArchiveTOC();
-  const ezUInt32 uiEntryIndex = toc.FindEntry(szFile);
+  ezStringBuilder sArchivePath = m_sArchiveSubFolder;
+  sArchivePath.AppendPath(szFile);
+
+  const ezUInt32 uiEntryIndex = toc.FindEntry(sArchivePath);
 
   if (uiEntryIndex == ezInvalidIndex)
     return nullptr;
@@ -79,7 +98,7 @@ ezDataDirectoryReader* ezDataDirectory::ArchiveType::OpenFileToRead(const char* 
         }
         else
         {
-          m_ReadersZip.PushBack(EZ_DEFAULT_NEW(ArchiveReaderZip, 2, pEntry->m_uiStoredDataSize));
+          m_ReadersZip.PushBack(EZ_DEFAULT_NEW(ArchiveReaderZip, 2));
           pReader = m_ReadersZip.PeekBack().Borrow();
         }
         break;
@@ -93,10 +112,11 @@ ezDataDirectoryReader* ezDataDirectory::ArchiveType::OpenFileToRead(const char* 
   }
 
   pReader->m_uiUncompressedSize = pEntry->m_uiUncompressedDataSize;
+  pReader->m_uiCompressedSize = pEntry->m_uiStoredDataSize;
 
   m_ArchiveReader.ConfigureRawMemoryStreamReader(uiEntryIndex, pReader->m_MemStreamReader);
 
-  if (pReader->Open(szFile, this).Failed())
+  if (pReader->Open(sArchivePath, this).Failed())
   {
     EZ_DEFAULT_DELETE(pReader);
     return nullptr;
@@ -113,13 +133,17 @@ void ezDataDirectory::ArchiveType::RemoveDataDirectory()
 
 bool ezDataDirectory::ArchiveType::ExistsFile(const char* szFile, bool bOneSpecificDataDir)
 {
-  return m_ArchiveReader.GetArchiveTOC().FindEntry(szFile) != ezInvalidIndex;
+  ezStringBuilder sArchivePath = m_sArchiveSubFolder;
+  sArchivePath.AppendPath(szFile);
+  return m_ArchiveReader.GetArchiveTOC().FindEntry(sArchivePath) != ezInvalidIndex;
 }
 
 ezResult ezDataDirectory::ArchiveType::GetFileStats(const char* szFileOrFolder, bool bOneSpecificDataDir, ezFileStats& out_Stats)
 {
   const ezArchiveTOC& toc = m_ArchiveReader.GetArchiveTOC();
-  const ezUInt32 uiEntryIndex = toc.FindEntry(szFileOrFolder);
+  ezStringBuilder sArchivePath = m_sArchiveSubFolder;
+  sArchivePath.AppendPath(szFileOrFolder);
+  const ezUInt32 uiEntryIndex = toc.FindEntry(sArchivePath);
 
   if (uiEntryIndex == ezInvalidIndex)
     return EZ_FAILURE;
@@ -141,39 +165,59 @@ ezResult ezDataDirectory::ArchiveType::GetFileStats(const char* szFileOrFolder, 
 ezResult ezDataDirectory::ArchiveType::InternalInitializeDataDirectory(const char* szDirectory)
 {
   ezStringBuilder sRedirected;
-  if (ezFileSystem::ResolveSpecialDirectory(szDirectory, sRedirected).Succeeded())
-  {
-    m_sRedirectedDataDirPath = sRedirected;
-  }
-  else
-  {
-    m_sRedirectedDataDirPath = szDirectory;
-  }
-
+  ezFileSystem::ResolveSpecialDirectory(szDirectory, sRedirected);
+  sRedirected.MakeCleanPath();
   // remove trailing slashes
-  sRedirected.Trim("/\\");
+  sRedirected.Trim("", "/");
+  m_sRedirectedDataDirPath = sRedirected;
 
+  
   bool bSupported = false;
-  if (sRedirected.HasExtension("ezArchive"))
-    bSupported = true;
-
+  ezStringBuilder sArchivePath;
+  const char* szExtensions[] = {"ezArchive",
 #ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
-  if (sRedirected.HasExtension("zip") || sRedirected.HasExtension("apk"))
-    bSupported = true;
-
+    "zip", "apk",
 #endif
+  };
+  ezArrayPtr<const char*> extensions(szExtensions);
+  for (auto ext : extensions)
+  {
+    const ezUInt32 uiLength = ezStringUtils::GetStringElementCount(ext);
+    if (sRedirected.HasExtension(ext))
+    {
+      sArchivePath = sRedirected;
+      m_sArchiveSubFolder = "";
+      bSupported = true;
+      goto endloop;
+    }
+    const char* szFound = nullptr;
+    do
+    {
+      szFound = sRedirected.FindLastSubString_NoCase(ext, szFound);
+      if (szFound != nullptr && szFound[uiLength] == '/')
+      {
+        sArchivePath = ezStringView(sRedirected.GetData(), szFound + uiLength);
+        m_sArchiveSubFolder = szFound + uiLength + 1;
+        bSupported = true;
+        goto endloop;
+      }
+
+    } while (szFound != nullptr);
+
+  }
+endloop:
   if (!bSupported)
     return EZ_FAILURE;
 
   ezFileStats stats;
-  if (ezOSFile::GetFileStats(sRedirected, stats).Failed())
+  if (ezOSFile::GetFileStats(sArchivePath, stats).Failed())
     return EZ_FAILURE;
 
   EZ_LOG_BLOCK("ezArchiveDataDir", szDirectory);
 
   m_LastModificationTime = stats.m_LastModificationTime;
 
-  EZ_SUCCEED_OR_RETURN(m_ArchiveReader.OpenArchive(sRedirected));
+  EZ_SUCCEED_OR_RETURN(m_ArchiveReader.OpenArchive(sArchivePath));
 
   ReloadExternalConfigs();
 
@@ -261,9 +305,8 @@ ezResult ezDataDirectory::ArchiveReaderZstd::InternalOpen()
 
 //////////////////////////////////////////////////////////////////////////
 
-ezDataDirectory::ArchiveReaderZip::ArchiveReaderZip(ezInt32 iDataDirUserData, ezUInt64 uiCompressedSize)
+ezDataDirectory::ArchiveReaderZip::ArchiveReaderZip(ezInt32 iDataDirUserData)
   : ArchiveReaderUncompressed(iDataDirUserData)
-  , m_uiCompressedSize(uiCompressedSize)
 {
 }
 

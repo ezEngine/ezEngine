@@ -60,12 +60,7 @@ ezResult ezArchiveReader::OpenArchive(const char* szPath)
     {
       return EZ_FAILURE;
     }
-
-    
   }
-
-
-
   return EZ_SUCCESS;
 }
 

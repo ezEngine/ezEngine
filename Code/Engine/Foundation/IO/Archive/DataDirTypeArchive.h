@@ -42,6 +42,7 @@ namespace ezDataDirectory
     virtual void OnReaderWriterClose(ezDataDirectoryReaderWriterBase* pClosed) override;
 
     ezString128 m_sRedirectedDataDirPath;
+    ezString32 m_sArchiveSubFolder;
     ezTimestamp m_LastModificationTime;
     ezArchiveReader m_ArchiveReader;
 
@@ -77,6 +78,7 @@ namespace ezDataDirectory
     friend class ArchiveType;
 
     ezUInt64 m_uiUncompressedSize = 0;
+    ezUInt64 m_uiCompressedSize = 0;
     ezRawMemoryStreamReader m_MemStreamReader;
   };
 
@@ -106,7 +108,7 @@ namespace ezDataDirectory
     EZ_DISALLOW_COPY_AND_ASSIGN(ArchiveReaderZip);
 
   public:
-    ArchiveReaderZip(ezInt32 iDataDirUserData, ezUInt64 uiCompressedSize);
+    ArchiveReaderZip(ezInt32 iDataDirUserData);
     ~ArchiveReaderZip();
 
     virtual ezUInt64 Read(void* pBuffer, ezUInt64 uiBytes) override;
@@ -116,7 +118,6 @@ namespace ezDataDirectory
 
     friend class ArchiveType;
 
-    ezUInt64 m_uiCompressedSize = 0;
     ezCompressedStreamReaderZip m_CompressedStreamReader;
   };
 #endif

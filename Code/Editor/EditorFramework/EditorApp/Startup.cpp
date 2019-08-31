@@ -219,8 +219,6 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> flags, const char* sz
     ezFileSystem::CreateDirectoryStructure(sAppDir);
     ezFileSystem::CreateDirectoryStructure(sUserData);
 
-    ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-
     ezFileSystem::AddDataDirectory("", "AbsPaths", ":", ezFileSystem::AllowWrites);             // for absolute paths
     ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezFileSystem::AllowWrites);     // writing to the binary directory
     ezFileSystem::AddDataDirectory(sAppDir, "AppData", "app");                                  // app specific data

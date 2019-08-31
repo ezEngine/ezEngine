@@ -433,7 +433,6 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
   // capture profiling info for testing
   /*ezStringBuilder sOutputPath = ezTestFramework::GetInstance()->GetAbsOutputPath();
 
-  ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
   ezFileSystem::AddDataDirectory(sOutputPath.GetData());
 
   ezFileWriter fileWriter;

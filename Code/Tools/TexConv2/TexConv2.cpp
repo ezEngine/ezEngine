@@ -91,7 +91,6 @@ ezResult ezTexConv2::BeforeCoreSystemsStartup()
 
 void ezTexConv2::AfterCoreSystemsStartup()
 {
-  ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
   ezFileSystem::AddDataDirectory("", "App", ":", ezFileSystem::AllowWrites);
 
   ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
