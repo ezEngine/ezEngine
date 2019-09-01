@@ -3,6 +3,7 @@
 #include <Duktape/duktape.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <TypeScriptPlugin/Components/TypeScriptComponent.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezTypeScriptComponent, 1, ezComponentMode::Static)
@@ -27,6 +28,8 @@ void ezTypeScriptComponent::DeserializeComponent(ezWorldReader& stream)
 {
 }
 
+int TS_ezLog_Info(duk_context* pContext);
+
 void ezTypeScriptComponent::OnSimulationStarted()
 {
   auto& script = static_cast<ezTypeScriptComponentManager*>(GetOwningManager())->m_Script;
@@ -41,6 +44,18 @@ void ezTypeScriptComponent::OnSimulationStarted()
 
     if (script.ExecuteString(js, "Component.ts").Failed())
       return;
+
+    if (script.OpenObject("ezLog").Succeeded())
+    {
+      script.RegisterFunction("Error", TS_ezLog_Info, 1, ezLogMsgType::ErrorMsg);
+      script.RegisterFunction("SeriousWarning", TS_ezLog_Info, 1, ezLogMsgType::SeriousWarningMsg);
+      script.RegisterFunction("Warning", TS_ezLog_Info, 1, ezLogMsgType::WarningMsg);
+      script.RegisterFunction("Success", TS_ezLog_Info, 1, ezLogMsgType::SuccessMsg);
+      script.RegisterFunction("Info", TS_ezLog_Info, 1, ezLogMsgType::InfoMsg);
+      script.RegisterFunction("Dev", TS_ezLog_Info, 1, ezLogMsgType::DevMsg);
+      script.RegisterFunction("Debug", TS_ezLog_Info, 1, ezLogMsgType::DebugMsg);
+      script.CloseObject();
+    }
   }
 
   duk_push_global_stash(script.GetContext());
@@ -113,6 +128,14 @@ ezResult ezTypeScriptComponent::TranspileFile(const char* szFile, ezStringBuilde
 
   s_TranspilerScript.EndFunctionCall();
   s_TranspilerScript.CloseObject();
+
+  ezStringBuilder sOutFile = szFile;
+  sOutFile.ChangeFileExtension("js");
+  sOutFile.Prepend(":project/");
+
+  ezFileWriter fileOut;
+  fileOut.Open(sOutFile);
+  fileOut.WriteBytes(result.GetData(), result.GetElementCount());
 
   return EZ_SUCCESS;
 }

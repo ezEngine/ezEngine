@@ -85,22 +85,38 @@ ezResult ezDuktapeWrapper::ExecuteFile(const char* szFile)
 
 void ezDuktapeWrapper::RegisterFunction(const char* szFunctionName, duk_c_function pFunction, ezUInt8 uiNumArguments, ezInt16 iMagicValue /*= 0*/)
 {
-  duk_push_global_object(m_pContext);
+  if (m_States.m_iOpenObjects == 0)
+  {
+    duk_push_global_object(m_pContext);
+  }
+
   /*const int iFuncIdx =*/duk_push_c_function(m_pContext, pFunction, uiNumArguments);
   duk_set_magic(m_pContext, -1, iMagicValue);
   // TODO: could store iFuncIdx for faster function calls
   EZ_VERIFY(duk_put_prop_string(m_pContext, -2, szFunctionName), "Fail to register C function");
-  duk_pop(m_pContext);
+
+  if (m_States.m_iOpenObjects == 0)
+  {
+    duk_pop(m_pContext);
+  }
 }
 
 void ezDuktapeWrapper::RegisterFunctionWithVarArgs(const char* szFunctionName, duk_c_function pFunction, ezInt16 iMagicValue /*= 0*/)
 {
-  duk_push_global_object(m_pContext);
+  if (m_States.m_iOpenObjects == 0)
+  {
+    duk_push_global_object(m_pContext);
+  }
+
   /*const int iFuncIdx =*/duk_push_c_function(m_pContext, pFunction, DUK_VARARGS);
   duk_set_magic(m_pContext, -1, iMagicValue);
   // TODO: could store iFuncIdx for faster function calls
   EZ_VERIFY(duk_put_prop_string(m_pContext, -2, szFunctionName), "Fail to register C function");
-  duk_pop(m_pContext);
+
+  if (m_States.m_iOpenObjects == 0)
+  {
+    duk_pop(m_pContext);
+  }
 }
 
 ezResult ezDuktapeWrapper::BeginFunctionCall(const char* szFunctionName)
@@ -375,11 +391,11 @@ void ezDuktapeWrapper::CloseObject()
   duk_pop(m_pContext);
   m_States.m_iOpenObjects--;
 
-  if (m_States.m_iOpenObjects == 0 && m_States.m_bAutoOpenedGlobalObject)
+  if (m_States.m_iOpenObjects == 1 && m_States.m_bAutoOpenedGlobalObject)
   {
     // also pop the global object
     m_States.m_bAutoOpenedGlobalObject = false;
-    duk_pop(m_pContext);
+    CloseObject();
   }
 }
 

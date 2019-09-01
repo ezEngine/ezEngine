@@ -1,37 +1,13 @@
-declare function ezLog_Info(text: string): void;
-declare function GameObjectMove(obj: ezGameObject): void;
-declare function GetGameObject(): ezGameObject;
-
-/*
-class ezGameObject
+namespace ezLog
 {
-    Update() : void
-    {   
-        
-        ezLog_Info("ezGameObject::Update")
-        GameObjectMove(this)
-    }
-}
-
-let go : ezGameObject = null;
-
-function _CreateGameObject()
-{
-    return new ezGameObject;
-}
-
-function Update() : void
-{
-    if (go === null)
-    {
-        go = GetGameObject()
-        //go = new ezGameObject()
-    }
-
-    go.Update();
-}
-*/
-
+    export declare function Error(text : string) : void;
+    export declare function SeriousWarning(text : string) : void;
+    export declare function Warning(text : string) : void;
+    export declare function Success(text : string) : void;
+    export declare function Info(text : string) : void;
+    export declare function Dev(text : string) : void;
+    export declare function Debug(text : string) : void;
+};
 
 interface ezTsComponent {
     Update(): void;
@@ -44,19 +20,21 @@ interface ezTsComponent {
 
 class MyComponent implements ezTsComponent {
     constructor(name: string) {
-        ezLog_Info("Construct MyComponent: " + name)
+        ezLog.Info("Construct MyComponent: " + name)
         this._name = name;
     }
 
-    Update(): void {
-        ezLog_Info("MyComponent::Update: " + this._name)
+    Update(): void
+    {
+        ezLog.Dev("MyComponent::Update: " + this._name)
     }
 
-    private _name: string = "test"
+    private _name: string;
 }
 
-// call by the runtime
-function _Create_MyComponent(name: string): MyComponent {
-    ezLog_Info("_Create_MyComponent: " + name)
+// called by the runtime
+function _Create_MyComponent(name: string): MyComponent
+{
+    ezLog.Info("_Create_MyComponent: " + name)
     return new MyComponent(name);
 }

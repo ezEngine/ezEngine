@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{332678910050156717,5413383538482065259}}
-		u4 %Hash{10866355579474201611}
+		u4 %Hash{10456823071985761483}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -505,7 +505,7 @@ o
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::ForceDynamic"}
-		s %Name{""}
+		s %Name{"Asteroid"}
 		VarArray %Tags
 		{
 			s{"CastShadow"}
@@ -583,6 +583,7 @@ o
 			Uuid{u4{13937761163919513163,4922126407697239775}}
 			Uuid{u4{2408788564861677212,5516139339331815410}}
 			Uuid{u4{16404032263463191981,5656013160335437272}}
+			Uuid{u4{18049225704867873865,10758338429184754819}}
 		}
 		Uuid %Settings{u4{6640616717976673943,5615868403042510966}}
 	}
@@ -727,6 +728,16 @@ o
 }
 o
 {
+	Uuid %id{u4{14587935347232338468,9863458805638333006}}
+	s %t{"ezTypeScriptComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+	}
+}
+o
+{
 	Uuid %id{u4{10214997491497980725,10033333224397190645}}
 	s %t{"ezPrefabReferenceComponent"}
 	u3 %v{4}
@@ -783,6 +794,19 @@ o
 }
 o
 {
+	Uuid %id{u4{4028687920928954421,10577175691683364897}}
+	s %t{"ezMeshComponent"}
+	u3 %v{3}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		VarArray %Materials{}
+		s %Mesh{"{ 3bf60313-2bce-45cf-8836-68e3b9ef5323 }"}
+	}
+}
+o
+{
 	Uuid %id{u4{8950161736965270871,10611590234536060175}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -800,6 +824,33 @@ o
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{18049225704867873865,10758338429184754819}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{14587935347232338468,9863458805638333006}}
+			Uuid{u4{4028687920928954421,10577175691683364897}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x000080BE,0x00004040,0x0000D840}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::ForceDynamic"}
+		s %Name{"Rock"}
 		VarArray %Tags
 		{
 			s{"CastShadow"}

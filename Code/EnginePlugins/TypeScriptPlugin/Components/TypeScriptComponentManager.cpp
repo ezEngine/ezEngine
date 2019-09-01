@@ -16,7 +16,32 @@ ezTypeScriptComponentManager::~ezTypeScriptComponentManager()
 int TS_ezLog_Info(duk_context* pContext)
 {
   ezDuktapeFunction wrapper(pContext);
-  ezLog::Info(wrapper.GetStringParameter(0));
+  const ezInt16 iMagic = wrapper.GetFunctionMagicValue();
+
+  switch (iMagic)
+  {
+    case ezLogMsgType::ErrorMsg:
+      ezLog::Error(wrapper.GetStringParameter(0));
+      break;
+    case ezLogMsgType::SeriousWarningMsg:
+      ezLog::SeriousWarning(wrapper.GetStringParameter(0));
+      break;
+    case ezLogMsgType::WarningMsg:
+      ezLog::Warning(wrapper.GetStringParameter(0));
+      break;
+    case ezLogMsgType::SuccessMsg:
+      ezLog::Success(wrapper.GetStringParameter(0));
+      break;
+    case ezLogMsgType::InfoMsg:
+      ezLog::Info(wrapper.GetStringParameter(0));
+      break;
+    case ezLogMsgType::DevMsg:
+      ezLog::Dev(wrapper.GetStringParameter(0));
+      break;
+    case ezLogMsgType::DebugMsg:
+      ezLog::Debug(wrapper.GetStringParameter(0));
+      break;
+  }
 
   return wrapper.ReturnVoid();
 }
@@ -69,10 +94,6 @@ void ezTypeScriptComponentManager::Initialize()
   desc.m_Phase = UpdateFunctionDesc::Phase::PreAsync;
 
   RegisterUpdateFunction(desc);
-
-  m_Script.RegisterFunction("ezLog_Info", TS_ezLog_Info, 1);
-  m_Script.RegisterFunction("GetGameObject", TS_GetGameObject, 0);
-  m_Script.RegisterFunction("GameObjectMove", TS_GameObjectMove, 1);
 }
 
 void ezTypeScriptComponentManager::Deinitialize()
