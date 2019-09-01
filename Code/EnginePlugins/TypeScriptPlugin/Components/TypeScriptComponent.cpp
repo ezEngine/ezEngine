@@ -2,8 +2,8 @@
 
 #include <Duktape/duktape.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
-#include <TypeScriptPlugin/Components/TypeScriptComponent.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
+#include <TypeScriptPlugin/Components/TypeScriptComponent.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezTypeScriptComponent, 1, ezComponentMode::Static)
@@ -18,6 +18,7 @@ ezTypeScriptComponent::ezTypeScriptComponent()
 
 ezTypeScriptComponent::~ezTypeScriptComponent()
 {
+  // TODO: remove reference from stash
 }
 
 void ezTypeScriptComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -65,7 +66,13 @@ void ezTypeScriptComponent::OnSimulationStarted()
     script.PushParameter(GetOwner()->GetName());
     script.ExecuteFunctionCall();
 
-    //duk_put_prop_string(script.GetContext(), -3, "MyTsComponent");
+    // store a back pointer in the object
+    {
+      // TODO: store a handle instead
+      duk_push_pointer(script.GetContext(), this);
+      duk_put_prop_string(script.GetContext(), -2, "ezComponentPtr");
+    }
+
     const int iOwnRef = (int)GetHandle().GetInternalID().m_Data;
     duk_push_int(script.GetContext(), iOwnRef);
     duk_dup(script.GetContext(), -2);

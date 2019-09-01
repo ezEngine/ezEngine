@@ -9,17 +9,48 @@ namespace ezLog
     export declare function Debug(text : string) : void;
 };
 
-interface ezTsComponent {
-    Update(): void;
-    // GetOwner() : ezTsGameObject
-    // Activate / Deactivate / SetActive
-    // GetWorld
-    // GetHandle
-    // Initialize / Deinitialize / OnActivate / OnDeactivate / OnSimulationStarted  
+declare function ezInternal_ezTsComponent_GetOwner(component : ezTsComponent) : ezTsGameObject;
+declare function ezInternal_ezTsGameObject_SetLocalPosition(go : ezTsGameObject, x : number, y : number, z : number) : void;
+
+// class ezTsGameObjectHandle 
+// {
+//     IsValid() : boolean { return false }
+// }
+
+class ezTsGameObject
+{
+    // SetLocalPosition, GetLocalPosition
+    // rotation, scaling
+
+    //GetHandle() : ezTsGameObjectHandle { return new ezTsGameObjectHandle(); }
+
+    SetLocalPosition(x : number, y : number, z : number) : void
+    {
+        ezInternal_ezTsGameObject_SetLocalPosition(this, x, y, z);
+    }    
 }
 
-class MyComponent implements ezTsComponent {
-    constructor(name: string) {
+function _ezTS_CreateGameObject() : ezTsGameObject
+{
+    return new ezTsGameObject;
+}
+
+abstract class ezTsComponent
+{
+    abstract Update() : void;
+
+    GetOwner() : ezTsGameObject 
+    {
+        return ezInternal_ezTsComponent_GetOwner(this);
+    }
+}
+
+class MyComponent extends ezTsComponent 
+{
+    constructor(name: string) 
+    {
+        super()
+
         ezLog.Info("Construct MyComponent: " + name)
         this._name = name;
     }
@@ -27,6 +58,13 @@ class MyComponent implements ezTsComponent {
     Update(): void
     {
         ezLog.Dev("MyComponent::Update: " + this._name)
+
+        var go = this.GetOwner();
+
+        if (go != null)
+        {
+            go.SetLocalPosition(0, 0, Math.random());
+        }
     }
 
     private _name: string;
