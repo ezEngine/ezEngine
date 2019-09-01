@@ -421,8 +421,9 @@ private:
     ezSimdBBoxSphere m_globalBounds;
 
     ezSpatialDataHandle m_hSpatialData;
+    ezUInt32 m_uiSpatialDataCategoryBitmask;
 
-    ezUInt32 m_uiPadding2[3];
+    ezUInt32 m_uiPadding2[2];
 
     void UpdateLocalTransform();
 

@@ -10,6 +10,8 @@
 
 namespace
 {
+  static ezSpatialData::Category s_SpecialTestCategory = ezSpatialData::RegisterCategory("SpecialTestCategory");
+
   typedef ezComponentManager<class TestBoundsComponent, ezBlockStorageType::Compact> TestBoundsComponentManager;
 
   class TestBoundsComponent : public ezComponent
@@ -30,8 +32,16 @@ namespace
       ezBoundingBox bounds;
       bounds.SetCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3(x, y, z));
 
-      msg.AddBounds(bounds);
+      ezSpatialData::Category category = m_SpecialCategory;
+      if (category == ezInvalidSpatialDataCategory)
+      {
+        category = GetOwner()->IsDynamic() ? ezDefaultSpatialDataCategories::RenderDynamic : ezDefaultSpatialDataCategories::RenderStatic;
+      }
+
+      msg.AddBounds(bounds, category);
     }
+
+    ezSpatialData::Category m_SpecialCategory = ezInvalidSpatialDataCategory;
   };
 
   // clang-format off
@@ -58,6 +68,9 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
   auto& rng = world.GetRandomNumberGenerator();
   double range = 10000.0;
 
+  ezDynamicArray<ezGameObject*> objects;
+  objects.Reserve(1000);
+
   for (ezUInt32 i = 0; i < 1000; ++i)
   {
     float x = (float)rng.DoubleMinMax(-range, range);
@@ -65,10 +78,13 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
     float z = (float)rng.DoubleMinMax(-range, range);
 
     ezGameObjectDesc desc;
+    desc.m_bDynamic = (i >= 500);
     desc.m_LocalPosition = ezVec3(x, y, z);
 
     ezGameObject* pObject = nullptr;
     world.CreateObject(desc, pObject);
+
+    objects.PushBack(pObject);
 
     TestBoundsComponent* pComponent = nullptr;
     TestBoundsComponent::CreateComponent(pObject, pComponent);
@@ -76,13 +92,15 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
 
   world.Update();
 
+  ezUInt32 uiCategoryBitmask = ezDefaultSpatialDataCategories::RenderStatic.GetBitmask();
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindObjectsInSphere")
   {
     ezBoundingSphere testSphere(ezVec3(100.0f, 60.0f, 400.0f), 3000.0f);
 
     ezDynamicArray<ezGameObject*> objectsInSphere;
     ezHashSet<ezGameObject*> uniqueObjects;
-    world.GetSpatialSystem().FindObjectsInSphere(testSphere, objectsInSphere);
+    world.GetSpatialSystem().FindObjectsInSphere(testSphere, uiCategoryBitmask, objectsInSphere);
 
     for (auto pObject : objectsInSphere)
     {
@@ -90,6 +108,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
 
       EZ_TEST_BOOL(testSphere.Overlaps(objSphere));
       EZ_TEST_BOOL(!uniqueObjects.Insert(pObject));
+      EZ_TEST_BOOL(pObject->IsStatic());
     }
 
     // Check for missing objects
@@ -98,14 +117,14 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       ezBoundingSphere objSphere = it->GetGlobalBounds().GetSphere();
       if (testSphere.Overlaps(objSphere))
       {
-        EZ_TEST_BOOL(uniqueObjects.Contains(it));
+        EZ_TEST_BOOL(it->IsDynamic() || uniqueObjects.Contains(it));
       }
     }
 
     objectsInSphere.Clear();
     uniqueObjects.Clear();
 
-    world.GetSpatialSystem().FindObjectsInSphere(testSphere, [&](ezGameObject* pObject) {
+    world.GetSpatialSystem().FindObjectsInSphere(testSphere, uiCategoryBitmask, [&](ezGameObject* pObject) {
       objectsInSphere.PushBack(pObject);
       EZ_TEST_BOOL(!uniqueObjects.Insert(pObject));
 
@@ -117,6 +136,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       ezBoundingSphere objSphere = pObject->GetGlobalBounds().GetSphere();
 
       EZ_TEST_BOOL(testSphere.Overlaps(objSphere));
+      EZ_TEST_BOOL(pObject->IsStatic());
     }
 
     // Check for missing objects
@@ -125,7 +145,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       ezBoundingSphere objSphere = it->GetGlobalBounds().GetSphere();
       if (testSphere.Overlaps(objSphere))
       {
-        EZ_TEST_BOOL(uniqueObjects.Contains(it));
+        EZ_TEST_BOOL(it->IsDynamic() || uniqueObjects.Contains(it));        
       }
     }
   }
@@ -137,7 +157,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
 
     ezDynamicArray<ezGameObject*> objectsInBox;
     ezHashSet<ezGameObject*> uniqueObjects;
-    world.GetSpatialSystem().FindObjectsInBox(testBox, objectsInBox);
+    world.GetSpatialSystem().FindObjectsInBox(testBox, uiCategoryBitmask, objectsInBox);
 
     for (auto pObject : objectsInBox)
     {
@@ -145,6 +165,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
 
       EZ_TEST_BOOL(testBox.Overlaps(objBox));
       EZ_TEST_BOOL(!uniqueObjects.Insert(pObject));
+      EZ_TEST_BOOL(pObject->IsStatic());
     }
 
     // Check for missing objects
@@ -153,14 +174,14 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       ezBoundingBox objBox = it->GetGlobalBounds().GetBox();
       if (testBox.Overlaps(objBox))
       {
-        EZ_TEST_BOOL(uniqueObjects.Contains(it));
+        EZ_TEST_BOOL(it->IsDynamic() || uniqueObjects.Contains(it));
       }
     }
 
     objectsInBox.Clear();
     uniqueObjects.Clear();
 
-    world.GetSpatialSystem().FindObjectsInBox(testBox, [&](ezGameObject* pObject) {
+    world.GetSpatialSystem().FindObjectsInBox(testBox, uiCategoryBitmask, [&](ezGameObject* pObject) {
       objectsInBox.PushBack(pObject);
       EZ_TEST_BOOL(!uniqueObjects.Insert(pObject));
 
@@ -172,6 +193,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       ezBoundingSphere objSphere = pObject->GetGlobalBounds().GetSphere();
 
       EZ_TEST_BOOL(testBox.Overlaps(objSphere));
+      EZ_TEST_BOOL(pObject->IsStatic());
     }
 
     // Check for missing objects
@@ -180,7 +202,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       ezBoundingBox objBox = it->GetGlobalBounds().GetBox();
       if (testBox.Overlaps(objBox))
       {
-        EZ_TEST_BOOL(uniqueObjects.Contains(it));
+        EZ_TEST_BOOL(it->IsDynamic() || uniqueObjects.Contains(it));
       }
     }
   }
@@ -198,6 +220,18 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
       ezLog::Info("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
     }
   }
+
+  // Test multiple categories for spatial data
+  for (ezUInt32 i = 0; i < objects.GetCount(); ++i)
+  {
+    ezGameObject* pObject = objects[i];
+
+    TestBoundsComponent* pComponent = nullptr;
+    TestBoundsComponent::CreateComponent(pObject, pComponent);
+    pComponent->m_SpecialCategory = s_SpecialTestCategory;
+  }
+
+  world.Update();
 
   ezDynamicArray<ezGameObjectHandle> allObjects;
   allObjects.Reserve(world.GetObjectCount());

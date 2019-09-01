@@ -673,7 +673,7 @@ void ezQtNodeScene::OpenSearchMenu(QPoint screenPos)
   connect(pSearchMenu, &ezQtSearchableMenu::MenuItemTriggered, this, &ezQtNodeScene::OnMenuItemTriggered);
   connect(pSearchMenu, &ezQtSearchableMenu::MenuItemTriggered, this, [&menu]() { menu.close(); });
 
-  ezStringBuilder sFullName;
+  ezStringBuilder sFullName, sCleanName;
 
   ezHybridArray<const ezRTTI*, 32> types;
   m_pManager->GetCreateableTypes(types);
@@ -690,8 +690,14 @@ void ezQtNodeScene::OpenSearchMenu(QPoint screenPos)
     if (szUnderscore != nullptr)
       szCleanName = szUnderscore + 1;
 
+    sCleanName = szCleanName;
+    if (const char* szBracket = sCleanName.FindLastSubString("<"))
+    {
+      sCleanName.SetSubString_FromTo(sCleanName.GetData(), szBracket);
+    }
+
     sFullName = m_pManager->GetTypeCategory(pRtti);
-    sFullName.AppendPath(szCleanName);
+    sFullName.AppendPath(sCleanName);
 
     pSearchMenu->AddItem(sFullName, qVariantFromValue((void*)pRtti));
   }

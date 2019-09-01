@@ -285,6 +285,8 @@ void ezDataDirectory::ArchiveReaderUncompressed::InternalClose()
 
 //////////////////////////////////////////////////////////////////////////
 
+#ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
+
 ezDataDirectory::ArchiveReaderZstd::ArchiveReaderZstd(ezInt32 iDataDirUserData)
   : ArchiveReaderUncompressed(iDataDirUserData)
 {
@@ -303,7 +305,11 @@ ezResult ezDataDirectory::ArchiveReaderZstd::InternalOpen()
   return EZ_SUCCESS;
 }
 
+#endif
+
 //////////////////////////////////////////////////////////////////////////
+
+#ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
 
 ezDataDirectory::ArchiveReaderZip::ArchiveReaderZip(ezInt32 iDataDirUserData)
   : ArchiveReaderUncompressed(iDataDirUserData)
@@ -322,6 +328,8 @@ ezResult ezDataDirectory::ArchiveReaderZip::InternalOpen()
   m_CompressedStreamReader.SetInputStream(&m_MemStreamReader, m_uiCompressedSize);
   return EZ_SUCCESS;
 }
+
+#endif
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Archive_Implementation_DataDirTypeArchive);
 

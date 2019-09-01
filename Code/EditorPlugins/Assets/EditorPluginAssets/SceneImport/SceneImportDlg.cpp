@@ -194,7 +194,7 @@ void ezQtSceneImportDlg::on_accepted()
     // Transform.
     {
       meshDocument->SaveDocument();
-      ezAssetCurator::GetSingleton()->TransformAsset(meshDocument->GetGuid(), false);
+      ezAssetCurator::GetSingleton()->TransformAsset(meshDocument->GetGuid(), ezTransformFlags::None);
       meshDocument->SaveDocument(); // Save again since transform may change properties!
 
       rawMeshToFile.Insert(meshIt.Value().Borrow(), ezConversionUtils::ToString(meshDocument->GetGuid(), tmp));

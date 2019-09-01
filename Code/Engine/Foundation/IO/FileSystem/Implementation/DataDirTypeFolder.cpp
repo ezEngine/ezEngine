@@ -172,17 +172,20 @@ namespace ezDataDirectory
 
   ezResult FolderType::GetFileStats(const char* szFileOrFolder, bool bOneSpecificDataDir, ezFileStats& out_Stats)
   {
+    ezStringBuilder sRedirectedAsset;
+    ResolveAssetRedirection(szFileOrFolder, sRedirectedAsset);
+
     ezStringBuilder sPath = GetRedirectedDataDirectoryPath();
 
-    if (ezPathUtils::IsAbsolutePath(szFileOrFolder))
+    if (ezPathUtils::IsAbsolutePath(sRedirectedAsset))
     {
-      if (!ezStringUtils::StartsWith_NoCase(szFileOrFolder, sPath))
+      if (!ezStringUtils::StartsWith_NoCase(sRedirectedAsset, sPath))
         return EZ_FAILURE;
 
       sPath.Clear();
     }
 
-    sPath.AppendPath(szFileOrFolder);
+    sPath.AppendPath(sRedirectedAsset);
     return ezOSFile::GetFileStats(sPath, out_Stats);
   }
 

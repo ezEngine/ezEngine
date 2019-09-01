@@ -58,7 +58,7 @@ void ezPxShapeSphereComponent::DeserializeComponent(ezWorldReader& stream)
 
 void ezPxShapeSphereComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const
 {
-  msg.AddBounds(ezBoundingSphere(ezVec3::ZeroVector(), m_fRadius));
+  msg.AddBounds(ezBoundingSphere(ezVec3::ZeroVector(), m_fRadius), ezInvalidSpatialDataCategory);
 }
 
 

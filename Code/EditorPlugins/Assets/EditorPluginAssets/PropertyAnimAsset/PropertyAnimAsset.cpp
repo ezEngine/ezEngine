@@ -172,7 +172,7 @@ bool ezPropertyAnimAssetDocument::SetScrubberPosition(ezUInt64 uiTick)
 }
 
 ezStatus ezPropertyAnimAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-                                                             const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+                                                             const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   const ezPropertyAnimationTrackGroup* pProp = GetProperties();
 

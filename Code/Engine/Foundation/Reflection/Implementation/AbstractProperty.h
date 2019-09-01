@@ -4,11 +4,11 @@
 
 #include <Foundation/Basics.h>
 
-#include <Foundation/Reflection/Implementation/RTTI.h>
 #include <Foundation/Containers/HashSet.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/Set.h>
+#include <Foundation/Reflection/Implementation/RTTI.h>
 #include <Foundation/Types/Bitflags.h>
 #include <Foundation/Types/Enum.h>
 
@@ -46,7 +46,7 @@ struct ezPropertyFlags
 {
   typedef ezUInt16 StorageType;
 
-  enum Enum
+  enum Enum : ezUInt16
   {
     StandardType = EZ_BIT(0), ///< Anything that can be stored inside an ezVariant except for pointers and containers.
     IsEnum = EZ_BIT(1),       ///< enum property, cast to ezAbstractEnumerationProperty.
@@ -60,8 +60,11 @@ struct ezPropertyFlags
     PointerOwner = EZ_BIT(7), ///< This pointer property takes ownership of the passed pointer.
     ReadOnly = EZ_BIT(8),     ///< Can only be read but not modified.
     Hidden = EZ_BIT(9),       ///< This property should not appear in the UI.
-    Phantom = EZ_BIT(10), ///< Phantom types are mirrored types on the editor side. Ie. they do not exist as actual classes in the process.
-                          ///< Also used for data driven types, e.g. by the Visual Shader asset.
+    Phantom = EZ_BIT(10),     ///< Phantom types are mirrored types on the editor side. Ie. they do not exist as actual classes in the process. Also used for data driven types, e.g. by the Visual Shader asset.
+
+    VarOut = EZ_BIT(11),   ///< Tag for non-const-ref function parameters to indicate usage 'out'
+    VarInOut = EZ_BIT(12), ///< Tag for non-const-ref function parameters to indicate usage 'inout'
+
     Default = 0,
     Void = 0
   };
@@ -174,8 +177,8 @@ public:
   /// \brief Adds attributes to the property. Returns itself to allow to be called during initialization. Allocate an attribute using
   /// standard 'new'.
   ezAbstractProperty* AddAttributes(ezPropertyAttribute* pAttrib1, ezPropertyAttribute* pAttrib2 = nullptr,
-                                    ezPropertyAttribute* pAttrib3 = nullptr, ezPropertyAttribute* pAttrib4 = nullptr,
-                                    ezPropertyAttribute* pAttrib5 = nullptr, ezPropertyAttribute* pAttrib6 = nullptr)
+    ezPropertyAttribute* pAttrib3 = nullptr, ezPropertyAttribute* pAttrib4 = nullptr,
+    ezPropertyAttribute* pAttrib5 = nullptr, ezPropertyAttribute* pAttrib6 = nullptr)
   {
     EZ_ASSERT_DEV(pAttrib1 != nullptr, "invalid attribute");
 
@@ -212,7 +215,7 @@ class EZ_FOUNDATION_DLL ezAbstractConstantProperty : public ezAbstractProperty
 public:
   /// \brief Passes the property name through to ezAbstractProperty.
   ezAbstractConstantProperty(const char* szPropertyName)
-      : ezAbstractProperty(szPropertyName)
+    : ezAbstractProperty(szPropertyName)
   {
   }
 
@@ -236,7 +239,7 @@ class EZ_FOUNDATION_DLL ezAbstractMemberProperty : public ezAbstractProperty
 public:
   /// \brief Passes the property name through to ezAbstractProperty.
   ezAbstractMemberProperty(const char* szPropertyName)
-      : ezAbstractProperty(szPropertyName)
+    : ezAbstractProperty(szPropertyName)
   {
   }
 
@@ -272,7 +275,7 @@ class EZ_FOUNDATION_DLL ezAbstractArrayProperty : public ezAbstractProperty
 public:
   /// \brief Passes the property name through to ezAbstractProperty.
   ezAbstractArrayProperty(const char* szPropertyName)
-      : ezAbstractProperty(szPropertyName)
+    : ezAbstractProperty(szPropertyName)
   {
   }
 
@@ -310,7 +313,7 @@ class EZ_FOUNDATION_DLL ezAbstractSetProperty : public ezAbstractProperty
 public:
   /// \brief Passes the property name through to ezAbstractProperty.
   ezAbstractSetProperty(const char* szPropertyName)
-      : ezAbstractProperty(szPropertyName)
+    : ezAbstractProperty(szPropertyName)
   {
   }
 
@@ -345,7 +348,7 @@ class EZ_FOUNDATION_DLL ezAbstractMapProperty : public ezAbstractProperty
 public:
   /// \brief Passes the property name through to ezAbstractProperty.
   ezAbstractMapProperty(const char* szPropertyName)
-      : ezAbstractProperty(szPropertyName)
+    : ezAbstractProperty(szPropertyName)
   {
   }
 
@@ -520,7 +523,7 @@ class ezAbstractFunctionProperty : public ezAbstractProperty
 public:
   /// \brief Passes the property name through to ezAbstractProperty.
   ezAbstractFunctionProperty(const char* szPropertyName)
-      : ezAbstractProperty(szPropertyName)
+    : ezAbstractProperty(szPropertyName)
   {
   }
 
@@ -553,4 +556,3 @@ public:
 
   virtual const ezRTTI* GetSpecificType() const override { return GetReturnType(); }
 };
-

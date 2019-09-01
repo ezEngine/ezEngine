@@ -5,6 +5,16 @@
 #include <Core/Messages/EventMessage.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 
+struct ezFmodParameterId
+{
+public:
+  EZ_ALWAYS_INLINE void Invalidate() { m_uiValue = -1; }
+  EZ_ALWAYS_INLINE bool IsInvalidated() const { return m_uiValue == -1; }
+
+private:
+  ezUInt64 m_uiValue = -1;
+};
+
 class ezPhysicsWorldModuleInterface;
 struct ezMsgSetFloatParameter;
 
@@ -22,7 +32,7 @@ private:
   struct OcclusionState;
   ezDynamicArray<OcclusionState> m_OcclusionStates;
 
-  ezUInt32 AddOcclusionState(ezFmodEventComponent* pComponent, ezInt32 iOcclusionParamterIndex, float fRadius);
+  ezUInt32 AddOcclusionState(ezFmodEventComponent* pComponent, ezFmodParameterId occlusionParamId, float fRadius);
   void RemoveOcclusionState(ezUInt32 uiIndex);
   const OcclusionState& GetOcclusionState(ezUInt32 uiIndex) const { return m_OcclusionStates[uiIndex]; }
 
@@ -159,14 +169,14 @@ public:
   /// \brief Triggers an fmod sound cue. Whatever that is useful for.
   void SoundCue(ezMsgFmodAddSoundCue& msg);
 
-  /// \brief Tries to find the fmod event parameter by name. Returns the parameter index or -1, if no such parameter exists.
-  ezInt32 FindParameter(const char* szName) const;
+  /// \brief Tries to find the fmod event parameter by name. Returns the parameter id or -1, if no such parameter exists.
+  ezFmodParameterId FindParameter(const char* szName) const;
 
   /// \brief Sets an fmod event parameter value. See FindParameter() for the index.
-  void SetParameter(ezInt32 iParamIndex, float fValue);
+  void SetParameter(ezFmodParameterId ParamId, float fValue);
 
   /// \brief Gets an fmod event parameter value. See FindParameter() for the index. Returns 0, if the index is invalid.
-  float GetParameter(ezInt32 iParamIndex) const;
+  float GetParameter(ezFmodParameterId ParamId) const;
 
   /// \brief Allows to set event parameters through the generic ezMsgSetFloatParameter message.
   ///
@@ -208,6 +218,7 @@ public:
 private:
   ezComponentHandle m_hComponent;
   double m_fValue;
-  ezInt32 m_iParameterIndex = -1;
+  ezFmodParameterId m_ParamId;
   ezHashedString m_sParameterName;
+  bool m_bTryParamLookup = true;
 };

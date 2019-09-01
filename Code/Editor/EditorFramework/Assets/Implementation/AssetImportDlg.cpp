@@ -115,7 +115,7 @@ void ezQtAssetImportDlg::UpdateRow(ezUInt32 uiRow)
   QToolButton* pBrowse = qobject_cast<QToolButton*>(table->cellWidget(uiRow, Columns::Browse));
   pBrowse->setEnabled(data.m_iSelectedOption >= 0);
 
-  pStatusItem->setTextColor(QColor::fromRgba(qRgb(200, 0, 0)));
+  pStatusItem->setForeground(QColor::fromRgba(qRgb(200, 0, 0)));
   pStatusItem->setText(data.m_sImportMessage.GetData());
 
   if (data.m_bDoNotImport)
@@ -127,7 +127,7 @@ void ezQtAssetImportDlg::UpdateRow(ezUInt32 uiRow)
 
     pBrowse->setEnabled(true);
     pBrowse->setText("Open");
-    pStatusItem->setTextColor(QColor::fromRgba(qRgb(0, 200, 0)));
+    pStatusItem->setForeground(QColor::fromRgba(qRgb(0, 200, 0)));
 
     if (data.m_sImportMessage.IsEmpty())
     {

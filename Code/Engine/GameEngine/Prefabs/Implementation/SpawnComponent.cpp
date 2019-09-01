@@ -8,25 +8,6 @@
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgTriggerSpawnComponent);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgTriggerSpawnComponent, 1, ezRTTIDefaultAllocator<ezMsgTriggerSpawnComponent>)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_MEMBER_PROPERTY("Continuous", m_bContinuousSpawn),
-  }
-  EZ_END_PROPERTIES;
-
-  EZ_BEGIN_ATTRIBUTES
-  {
-    new ezAutoGenVisScriptMsgSender,
-  }
-  EZ_END_ATTRIBUTES;
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-//////////////////////////////////////////////////////////////////////////
-
 EZ_BEGIN_COMPONENT_TYPE(ezSpawnComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
@@ -51,9 +32,14 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpawnComponent, 2, ezComponentMode::Static)
   EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgComponentInternalTrigger, OnTriggered),
-    EZ_MESSAGE_HANDLER(ezMsgTriggerSpawnComponent, OnSpawn),
   }
   EZ_END_MESSAGEHANDLERS;
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_SCRIPT_FUNCTION_PROPERTY(TriggerManualSpawn),
+    EZ_SCRIPT_FUNCTION_PROPERTY(ScheduleSpawn),
+  }
+  EZ_END_FUNCTIONS;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
@@ -84,9 +70,9 @@ bool ezSpawnComponent::SpawnOnce()
       const ezVec3 vTurnAxis = ezVec3(1, 0, 0);
 
       const ezAngle tiltAngle =
-          ezAngle::Radian((float)GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, (double)m_MaxDeviation.GetRadian()));
+        ezAngle::Radian((float)GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, (double)m_MaxDeviation.GetRadian()));
       const ezAngle turnAngle =
-          ezAngle::Radian((float)GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, ezMath::Pi<double>() * 2.0));
+        ezAngle::Radian((float)GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, ezMath::Pi<double>() * 2.0));
 
       ezQuat qTilt, qTurn, qDeviate;
       qTilt.SetFromAxisAndAngle(vTiltAxis, tiltAngle);
@@ -135,7 +121,7 @@ void ezSpawnComponent::ScheduleSpawn()
   ezWorld* pWorld = GetWorld();
 
   const ezTime tKill =
-      ezTime::Seconds(pWorld->GetRandomNumberGenerator().DoubleInRange(m_MinDelay.GetSeconds(), m_DelayRange.GetSeconds()));
+    ezTime::Seconds(pWorld->GetRandomNumberGenerator().DoubleInRange(m_MinDelay.GetSeconds(), m_DelayRange.GetSeconds()));
 
   PostMessage(msg, ezObjectMsgQueueType::NextFrame, tKill);
 }
@@ -205,21 +191,39 @@ const char* ezSpawnComponent::GetPrefabFile() const
   return m_hPrefab.GetResourceID();
 }
 
+bool ezSpawnComponent::GetSpawnAtStart() const
+{
+  return m_SpawnFlags.IsAnySet(ezSpawnComponentFlags::SpawnAtStart);
+}
+
+void ezSpawnComponent::SetSpawnAtStart(bool b)
+{
+  m_SpawnFlags.AddOrRemove(ezSpawnComponentFlags::SpawnAtStart, b);
+}
+
+bool ezSpawnComponent::GetSpawnContinuously() const
+{
+  return m_SpawnFlags.IsAnySet(ezSpawnComponentFlags::SpawnContinuously);
+}
+
+void ezSpawnComponent::SetSpawnContinuously(bool b)
+{
+  m_SpawnFlags.AddOrRemove(ezSpawnComponentFlags::SpawnContinuously, b);
+}
+
+bool ezSpawnComponent::GetAttachAsChild() const
+{
+  return m_SpawnFlags.IsAnySet(ezSpawnComponentFlags::AttachAsChild);
+}
+
+void ezSpawnComponent::SetAttachAsChild(bool b)
+{
+  m_SpawnFlags.AddOrRemove(ezSpawnComponentFlags::AttachAsChild, b);
+}
+
 void ezSpawnComponent::SetPrefab(const ezPrefabResourceHandle& hPrefab)
 {
   m_hPrefab = hPrefab;
-}
-
-void ezSpawnComponent::OnSpawn(ezMsgTriggerSpawnComponent& msg)
-{
-  if (msg.m_bContinuousSpawn)
-  {
-    ScheduleSpawn();
-  }
-  else
-  {
-    TriggerManualSpawn();
-  }
 }
 
 void ezSpawnComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
@@ -242,9 +246,9 @@ void ezSpawnComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
   }
 }
 
-  //////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 
@@ -252,7 +256,7 @@ class ezSpawnComponentPatch_1_2 : public ezGraphPatch
 {
 public:
   ezSpawnComponentPatch_1_2()
-      : ezGraphPatch("ezSpawnComponent", 2)
+    : ezGraphPatch("ezSpawnComponent", 2)
   {
   }
 
@@ -271,4 +275,3 @@ ezSpawnComponentPatch_1_2 g_ezSpawnComponentPatch_1_2;
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_SpawnComponent);
-

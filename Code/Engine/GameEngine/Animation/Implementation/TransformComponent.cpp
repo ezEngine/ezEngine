@@ -8,22 +8,28 @@
 #include <VisualScript/VisualScriptInstance.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransformComponent, 2, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransformComponent, 3, ezRTTINoAllocator)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Speed", m_fAnimationSpeed), // How many units per second the animation should do.
-    EZ_ACCESSOR_PROPERTY("RunAtStartup", GetAnimatingAtStartup, SetAnimatingAtStartup), // Whether the animation should start right away.
-    EZ_ACCESSOR_PROPERTY("ReverseAtStart", GetAutoReturnStart, SetAutoReturnStart), // If true, it will not stop at the end, but turn around and continue.
-    EZ_ACCESSOR_PROPERTY("ReverseAtEnd", GetAutoReturnEnd, SetAutoReturnEnd), // If true, after coming back to the start point, the animation won't stop but turn around and continue.
-    EZ_ACCESSOR_PROPERTY("AutoToggleDirection", GetAutoToggleDirection, SetAutoToggleDirection), // If true, the animation might stop at start/end points, but set toggle its direction state. Triggering the animation again, means it will run in the reverse direction.
+    EZ_ACCESSOR_PROPERTY("Running", IsRunning, SetRunning)->AddAttributes(new ezDefaultValueAttribute(true)), // Whether the animation should start right away.
+    EZ_ACCESSOR_PROPERTY("ReverseAtEnd", GetReverseAtEnd, SetReverseAtEnd)->AddAttributes(new ezDefaultValueAttribute(true)), // If true, after coming back to the start point, the animation won't stop but turn around and continue.
+    EZ_ACCESSOR_PROPERTY("ReverseAtStart", GetReverseAtStart, SetReverseAtStart)->AddAttributes(new ezDefaultValueAttribute(true)), // If true, it will not stop at the end, but turn around and continue.
   }
   EZ_END_PROPERTIES;
-    EZ_BEGIN_ATTRIBUTES
+  EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Transform"),
   }
   EZ_END_ATTRIBUTES;
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_SCRIPT_FUNCTION_PROPERTY(SetDirectionForwards, In, "Forwards"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(IsDirectionForwards),
+    EZ_SCRIPT_FUNCTION_PROPERTY(ToggleDirection),
+  }
+  EZ_END_FUNCTIONS;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
@@ -51,21 +57,40 @@ void ezTransformComponent::DeserializeComponent(ezWorldReader& stream)
   stream.GetStream() >> m_fAnimationSpeed;
 }
 
+bool ezTransformComponent::IsRunning(void) const
+{
+  return m_Flags.IsAnySet(ezTransformComponentFlags::Running);
+}
+
+void ezTransformComponent::SetRunning(bool b)
+{
+  m_Flags.AddOrRemove(ezTransformComponentFlags::Running, b);
+}
+
+bool ezTransformComponent::GetReverseAtStart(void) const
+{
+  return (m_Flags.IsAnySet(ezTransformComponentFlags::AutoReturnStart));
+}
+
+void ezTransformComponent::SetReverseAtStart(bool b)
+{
+  m_Flags.AddOrRemove(ezTransformComponentFlags::AutoReturnStart, b);
+}
+
+bool ezTransformComponent::GetReverseAtEnd(void) const
+{
+  return (m_Flags.IsAnySet(ezTransformComponentFlags::AutoReturnEnd));
+}
+
+void ezTransformComponent::SetReverseAtEnd(bool b)
+{
+  m_Flags.AddOrRemove(ezTransformComponentFlags::AutoReturnEnd, b);
+}
+
 ezTransformComponent::ezTransformComponent()
 {
   m_fAnimationSpeed = 1.0f;
   m_AnimationTime.SetZero();
-}
-
-void ezTransformComponent::ResumeAnimation()
-{
-  m_Flags.Add(ezTransformComponentFlags::Autorun);
-  m_Flags.Remove(ezTransformComponentFlags::Paused);
-}
-
-void ezTransformComponent::SetAnimationPaused(bool bPaused)
-{
-  m_Flags.AddOrRemove(ezTransformComponentFlags::Paused, bPaused);
 }
 
 void ezTransformComponent::SetDirectionForwards(bool bForwards)
@@ -73,7 +98,7 @@ void ezTransformComponent::SetDirectionForwards(bool bForwards)
   m_Flags.AddOrRemove(ezTransformComponentFlags::AnimationReversed, !bForwards);
 }
 
-void ezTransformComponent::ReverseDirection()
+void ezTransformComponent::ToggleDirection()
 {
   m_Flags.AddOrRemove(ezTransformComponentFlags::AnimationReversed, !m_Flags.IsAnySet(ezTransformComponentFlags::AnimationReversed));
 }
@@ -81,11 +106,6 @@ void ezTransformComponent::ReverseDirection()
 bool ezTransformComponent::IsDirectionForwards() const
 {
   return !m_Flags.IsAnySet(ezTransformComponentFlags::AnimationReversed);
-}
-
-bool ezTransformComponent::IsAnimationRunning() const
-{
-  return m_Flags.IsAnySet(ezTransformComponentFlags::Autorun);
 }
 
 /*! Distance should be given in meters, but can be anything else, too. E.g. "angles" or "radians". All other values need to use the same
@@ -116,13 +136,13 @@ float CalculateAcceleratedMovement(
     return 0.0f;
 
   // calculate the duration and distance of accelerated movement
-  float fAccTime = 0.0f;
-  if (fAcceleration > 0.0f)
+  double fAccTime = 0.0;
+  if (fAcceleration > 0.0)
     fAccTime = fMaxVelocity / fAcceleration;
-  float fAccDist = fMaxVelocity * fAccTime * 0.5f;
+  double fAccDist = fMaxVelocity * fAccTime * 0.5;
 
   // calculate the duration and distance of decelerated movement
-  float fDecTime = 0.0f;
+  double fDecTime = 0.0f;
   if (fDeceleration > 0.0f)
     fDecTime = fMaxVelocity / fDeceleration;
   float fDecDist = fMaxVelocity * fDecTime * 0.5f;
@@ -149,15 +169,15 @@ float CalculateAcceleratedMovement(
 
   // if the time is still within the acceleration phase, return accelerated distance
   if (fTimeSinceStartInSec.GetSeconds() <= fAccTime)
-    return 0.5f * fAcceleration * ezMath::Square((float)fTimeSinceStartInSec.GetSeconds());
+    return 0.5 * fAcceleration * ezMath::Square(fTimeSinceStartInSec.GetSeconds());
 
   // calculate duration and length of the path, that has maximum velocity
-  const float fMaxVelDistance = fDistanceInMeters - (fAccDist + fDecDist);
-  const float fMaxVelTime = fMaxVelDistance / fMaxVelocity;
+  const double fMaxVelDistance = fDistanceInMeters - (fAccDist + fDecDist);
+  const double fMaxVelTime = fMaxVelDistance / fMaxVelocity;
 
   // if the time is within this phase, return the accelerated path plus the constant velocity path
   if (fTimeSinceStartInSec.GetSeconds() <= fAccTime + fMaxVelTime)
-    return fAccDist + ((float)fTimeSinceStartInSec.GetSeconds() - fAccTime) * fMaxVelocity;
+    return fAccDist + (fTimeSinceStartInSec.GetSeconds() - fAccTime) * fMaxVelocity;
 
   // if the time is, however, outside the whole path, just return the upper end
   if (fTimeSinceStartInSec.GetSeconds() >= fAccTime + fMaxVelTime + fDecTime)
@@ -167,75 +187,10 @@ float CalculateAcceleratedMovement(
   }
 
   // calculate the time into the decelerated movement
-  const float fDecTime2 = (float)fTimeSinceStartInSec.GetSeconds() - (fAccTime + fMaxVelTime);
+  const double fDecTime2 = fTimeSinceStartInSec.GetSeconds() - (fAccTime + fMaxVelTime);
 
   // return the distance with the decelerated movement
-  return fDistanceInMeters - 0.5f * fDeceleration * ezMath::Square(fDecTime - fDecTime2);
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-// clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_TransformComponent, 1, ezRTTIDefaultAllocator<ezVisualScriptNode_TransformComponent>)
-{
-  EZ_BEGIN_ATTRIBUTES
-  {
-    new ezCategoryAttribute("Components/Transform")
-  }
-  EZ_END_ATTRIBUTES;
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_INPUT_EXECUTION_PIN("Play", 0),
-    EZ_INPUT_EXECUTION_PIN("Pause", 1),
-    EZ_INPUT_EXECUTION_PIN("Reverse", 2),
-    EZ_INPUT_DATA_PIN("Component", 0, ezVisualScriptDataPinType::ComponentHandle),
-  }
-  EZ_END_PROPERTIES;
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-// clang-format on
-
-ezVisualScriptNode_TransformComponent::ezVisualScriptNode_TransformComponent() {}
-
-void ezVisualScriptNode_TransformComponent::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
-{
-  if (m_hComponent.IsInvalidated())
-    return;
-
-  ezComponent* pComponent = nullptr;
-  if (!pInstance->GetWorld()->TryGetComponent(m_hComponent, pComponent))
-    return;
-
-  if (!pComponent->GetDynamicRTTI()->IsDerivedFrom<ezTransformComponent>())
-    return;
-
-  ezTransformComponent* pTransform = static_cast<ezTransformComponent*>(pComponent);
-
-  switch (uiExecPin)
-  {
-    case 0:
-      pTransform->ResumeAnimation();
-      return;
-
-    case 1:
-      pTransform->SetAnimationPaused(true);
-      return;
-
-    case 2:
-      pTransform->ReverseDirection();
-      return;
-  }
-}
-
-void* ezVisualScriptNode_TransformComponent::GetInputPinDataPointer(ezUInt8 uiPin)
-{
-  switch (uiPin)
-  {
-    case 0:
-      return &m_hComponent;
-  }
-
-  return nullptr;
+  return fDistanceInMeters - 0.5 * fDeceleration * ezMath::Square(fDecTime - fDecTime2);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -257,11 +212,27 @@ public:
     pNode->RenameProperty("Run at Startup", "RunAtStartup");
     pNode->RenameProperty("Reverse at Start", "ReverseAtStart");
     pNode->RenameProperty("Reverse at End", "ReverseAtEnd");
-    pNode->RenameProperty("Auto Toggle Direction", "AutoToggleDirection");
   }
 };
 
 ezTransformComponentPatch_1_2 g_ezTransformComponentPatch_1_2;
 
+//////////////////////////////////////////////////////////////////////////
+
+class ezTransformComponentPatch_2_3 : public ezGraphPatch
+{
+public:
+  ezTransformComponentPatch_2_3()
+    : ezGraphPatch("ezTransformComponent", 3)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    pNode->RenameProperty("RunAtStartup", "Running");
+  }
+};
+
+ezTransformComponentPatch_2_3 g_ezTransformComponentPatch_2_3;
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_TransformComponent);

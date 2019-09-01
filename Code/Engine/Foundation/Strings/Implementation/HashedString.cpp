@@ -4,19 +4,26 @@
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/Mutex.h>
 
-static ezHashedString::StringStorage g_HashedStrings;
-static bool g_bHashedStringsInitialized = false;
-static ezHashedString::HashedType g_hsEmpty;
-static ezMutex g_HashedStringMutex;
+struct HashedStringData
+{
+  ezMutex m_Mutex;
+  ezHashedString::StringStorage m_Storage;
+  ezHashedString::HashedType m_Empty;
+};
+
+static HashedStringData* s_pHSData;
 
 // static
 ezHashedString::HashedType ezHashedString::AddHashedString(const char* szString, ezUInt32 uiHash)
 {
-  EZ_LOCK(g_HashedStringMutex);
+  if (s_pHSData == nullptr)
+    InitHashedString();
+
+  EZ_LOCK(s_pHSData->m_Mutex);
 
   // try to find the existing string
   bool bExisted = false;
-  auto ret = g_HashedStrings.FindOrAdd(uiHash, &bExisted);
+  auto ret = s_pHSData->m_Storage.FindOrAdd(uiHash, &bExisted);
 
   // if it already exists, just increase the refcount
   if (bExisted)
@@ -40,35 +47,33 @@ ezHashedString::HashedType ezHashedString::AddHashedString(const char* szString,
 // static
 void ezHashedString::InitHashedString()
 {
-  // makes sure the empty string exists for the default constructor to use
-
-  EZ_LOCK(g_HashedStringMutex);
-
-  if (g_bHashedStringsInitialized)
+  if (s_pHSData != nullptr)
     return;
 
-  g_bHashedStringsInitialized = true;
+  static ezUInt8 HashedStringDataBuffer[sizeof(HashedStringData)];
+  s_pHSData = new (HashedStringDataBuffer) HashedStringData();
 
-  g_hsEmpty = AddHashedString("", ezHashingUtils::MurmurHash32String(""));
+  // makes sure the empty string exists for the default constructor to use
+  s_pHSData->m_Empty = AddHashedString("", ezHashingUtils::MurmurHash32String(""));
 
 #if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
   // this one should never get deleted, so make sure its refcount is 2
-  g_hsEmpty.Value().m_iRefCount.Increment();
+  s_pHSData->m_Empty.Value().m_iRefCount.Increment();
 #endif
 }
 
 #if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
 ezUInt32 ezHashedString::ClearUnusedStrings()
 {
-  EZ_LOCK(g_HashedStringMutex);
+  EZ_LOCK(s_pHSData->m_Mutex);
 
   ezUInt32 uiDeleted = 0;
 
-  for (auto it = g_HashedStrings.GetIterator(); it.IsValid();)
+  for (auto it = s_pHSData->m_Storage.GetIterator(); it.IsValid();)
   {
     if (it.Value().m_iRefCount == 0)
     {
-      it = g_HashedStrings.Remove(it);
+      it = s_pHSData->m_Storage.Remove(it);
       ++uiDeleted;
     }
     else
@@ -85,10 +90,10 @@ ezHashedString::ezHashedString()
   EZ_CHECK_AT_COMPILETIME_MSG(sizeof(*this) == sizeof(void*), "The hashed string data should only be as large as one pointer.");
 
   // only insert the empty string once, after that, we can just use it without the need for the mutex
-  if (!g_bHashedStringsInitialized)
+  if (s_pHSData == nullptr)
     InitHashedString();
 
-  m_Data = g_hsEmpty;
+  m_Data = s_pHSData->m_Empty;
 #if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
   m_Data.Value().m_iRefCount.Increment();
 #endif
@@ -96,23 +101,23 @@ ezHashedString::ezHashedString()
 
 bool ezHashedString::IsEmpty() const
 {
-  return m_Data == g_hsEmpty;
+  return m_Data == s_pHSData->m_Empty;
 }
 
 void ezHashedString::Clear()
 {
 #if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
-  if (m_Data != g_hsEmpty)
+  if (m_Data != s_pHSData->m_Empty)
   {
     HashedType tmp = m_Data;
 
-    m_Data = g_hsEmpty;
+    m_Data = s_pHSData->m_Empty;
     m_Data.Value().m_iRefCount.Increment();
 
     tmp.Value().m_iRefCount.Decrement();
   }
 #else
-  m_Data = g_hsEmpty;
+  m_Data = s_pHSData->m_Empty;
 #endif  
 }
 

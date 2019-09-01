@@ -511,7 +511,7 @@ void ezQtAssetBrowserWidget::BuildDirectoryTree(const char* szCurPath, QTreeWidg
 
   if (bIsHidden)
   {
-    pNewParent->setTextColor(0, qRgb(110, 110, 120));
+    pNewParent->setForeground(0, QColor::fromRgba(qRgb(110, 110, 120)));
   }
 
   pParent->addChild(pNewParent);
@@ -653,7 +653,7 @@ void ezQtAssetBrowserWidget::OnTransform()
     ezUuid guid = m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AssetGuid).value<ezUuid>();
     QString sPath = m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::RelativePath).toString();
     range.BeginNextStep(sPath.toUtf8());
-    auto res = ezAssetCurator::GetSingleton()->TransformAsset(guid, false);
+    auto res = ezAssetCurator::GetSingleton()->TransformAsset(guid, ezTransformFlags::TriggeredManually);
     if (res.m_Result.Failed())
     {
       ezLog::Error("{0} ({1})", res.m_sMessage, sPath.toUtf8().data());

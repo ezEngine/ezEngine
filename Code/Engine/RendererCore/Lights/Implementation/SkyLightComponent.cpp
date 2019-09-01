@@ -78,7 +78,7 @@ float ezSkyLightComponent::GetSaturation() const
 
 void ezSkyLightComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
 {
-  msg.SetAlwaysVisible();
+  msg.SetAlwaysVisible(GetOwner()->IsDynamic() ? ezDefaultSpatialDataCategories::RenderDynamic : ezDefaultSpatialDataCategories::RenderStatic);
 }
 
 void ezSkyLightComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const

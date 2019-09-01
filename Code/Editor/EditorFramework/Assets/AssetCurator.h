@@ -216,9 +216,9 @@ private:
 public:
 
   /// \brief Transforms all assets and writes the lookup tables. If the given platform is empty, the active platform is used.
-  void TransformAllAssets(const ezPlatformProfile* pAssetProfile = nullptr);
+  void TransformAllAssets(ezBitflags<ezTransformFlags> transformFlags, const ezPlatformProfile* pAssetProfile = nullptr);
   void ResaveAllAssets();
-  ezStatus TransformAsset(const ezUuid& assetGuid, bool bTriggeredManually, const ezPlatformProfile* pAssetProfile = nullptr);
+  ezStatus TransformAsset(const ezUuid& assetGuid, ezBitflags<ezTransformFlags> transformFlags, const ezPlatformProfile* pAssetProfile = nullptr);
   ezStatus CreateThumbnail(const ezUuid& assetGuid);
 
   /// \brief Writes the asset lookup table for the given platform, or the currently active platform if nullptr is passed.
@@ -291,7 +291,7 @@ private:
   /// \name Processing
   ///@{
 
-  ezStatus ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformProfile* pAssetProfile, bool bTriggeredManually);
+  ezStatus ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformProfile* pAssetProfile, ezBitflags<ezTransformFlags> transformFlags);
   ezStatus ResaveAsset(ezAssetInfo* pAssetInfo);
   /// \brief Returns the asset info for the asset with the given GUID or nullptr if no such asset exists.
   ezAssetInfo* GetAssetInfo(const ezUuid& assetGuid);

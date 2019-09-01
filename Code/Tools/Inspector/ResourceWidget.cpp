@@ -232,34 +232,34 @@ void ezQtResourceWidget::UpdateTable()
       {
         case ezResourcePriority::Critical:
           pItem->setText("Critical");
-          pItem->setTextColor(QColor::fromRgb(255, 0, 0));
+          pItem->setForeground(QColor::fromRgb(255, 0, 0));
           break;
         case ezResourcePriority::VeryHigh:
           pItem->setText("Highest");
-          pItem->setTextColor(QColor::fromRgb(255, 106, 0));
+          pItem->setForeground(QColor::fromRgb(255, 106, 0));
           break;
         case ezResourcePriority::High:
           pItem->setText("High");
-          pItem->setTextColor(QColor::fromRgb(255, 216, 0));
+          pItem->setForeground(QColor::fromRgb(255, 216, 0));
           break;
         case ezResourcePriority::Medium:
           pItem->setText("Normal");
-          pItem->setTextColor(QColor::fromRgb(0, 148, 255));
+          pItem->setForeground(QColor::fromRgb(0, 148, 255));
           break;
         case ezResourcePriority::Low:
           pItem->setText("Low");
-          pItem->setTextColor(QColor::fromRgb(127, 146, 255));
+          pItem->setForeground(QColor::fromRgb(127, 146, 255));
           break;
         case ezResourcePriority::VeryLow:
           pItem->setText("Lowest");
-          pItem->setTextColor(QColor::fromRgb(127, 201, 255));
+          pItem->setForeground(QColor::fromRgb(127, 201, 255));
           break;
       }
 
       // if (res.m_Flags.IsAnySet(ezResourceFlags::IsPreloading))
       //{
       //  pItem->setText("Preloading");
-      //  pItem->setTextColor(QColor::fromRgb(86, 255, 25));
+      //  pItem->setForeground(QColor::fromRgb(86, 255, 25));
       //}
 
       pItem = Table->item(iTableRow, 2);
@@ -268,19 +268,19 @@ void ezQtResourceWidget::UpdateTable()
       {
         case ezResourceState::Invalid:
           pItem->setText("Deleted");
-          pItem->setTextColor(QColor::fromRgb(128, 128, 128));
+          pItem->setForeground(QColor::fromRgb(128, 128, 128));
           break;
         case ezResourceState::Unloaded:
           pItem->setText("Unloaded");
-          pItem->setTextColor(QColor::fromRgb(255, 216, 0));
+          pItem->setForeground(QColor::fromRgb(255, 216, 0));
           break;
         case ezResourceState::Loaded:
           pItem->setText("Loaded");
-          pItem->setTextColor(QColor::fromRgb(182, 255, 0));
+          pItem->setForeground(QColor::fromRgb(182, 255, 0));
           break;
         case ezResourceState::LoadedResourceMissing:
           pItem->setText("Missing");
-          pItem->setTextColor(QColor::fromRgb(255, 0, 0));
+          pItem->setForeground(QColor::fromRgb(255, 0, 0));
           break;
       }
 
@@ -318,7 +318,7 @@ void ezQtResourceWidget::UpdateTable()
         // Table->item(iTableRow, 4)->setText(""); // QL L
 
         for (int i = 0; i < 8; ++i)
-          Table->item(iTableRow, i)->setTextColor(QColor::fromRgb(128, 128, 128));
+          Table->item(iTableRow, i)->setForeground(QColor::fromRgb(128, 128, 128));
       }
     }
   }

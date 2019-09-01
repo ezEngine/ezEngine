@@ -377,7 +377,7 @@ void ezAssetCurator::MainThreadTick()
 // ezAssetCurator High Level Functions
 ////////////////////////////////////////////////////////////////////////
 
-void ezAssetCurator::TransformAllAssets(const ezPlatformProfile* pAssetProfile)
+void ezAssetCurator::TransformAllAssets(ezBitflags<ezTransformFlags> transformFlags, const ezPlatformProfile* pAssetProfile)
 {
   ezUInt32 uiNumStepsLeft = m_KnownAssets.GetCount();
   ezProgressRange range("Transforming Assets", 1 + uiNumStepsLeft, true);
@@ -401,7 +401,7 @@ void ezAssetCurator::TransformAllAssets(const ezPlatformProfile* pAssetProfile)
       --uiNumStepsLeft;
     }
 
-    auto res = ProcessAsset(pAssetInfo, pAssetProfile, false);
+    auto res = ProcessAsset(pAssetInfo, pAssetProfile, transformFlags);
     if (res.m_Result.Failed())
     {
       ezLog::Error("{0} ({1})", res.m_sMessage, pAssetInfo->m_sDataDirRelativePath);
@@ -481,7 +481,7 @@ void ezAssetCurator::ResaveAllAssets()
   }
 }
 
-ezStatus ezAssetCurator::TransformAsset(const ezUuid& assetGuid, bool bTriggeredManually, const ezPlatformProfile* pAssetProfile)
+ezStatus ezAssetCurator::TransformAsset(const ezUuid& assetGuid, ezBitflags<ezTransformFlags> transformFlags, const ezPlatformProfile* pAssetProfile)
 {
   EZ_LOCK(m_CuratorMutex);
 
@@ -490,7 +490,7 @@ ezStatus ezAssetCurator::TransformAsset(const ezUuid& assetGuid, bool bTriggered
   if (!m_KnownAssets.TryGetValue(assetGuid, pInfo))
     return ezStatus("Transform failed, unknown asset.");
 
-  auto res = ProcessAsset(pInfo, pAssetProfile, bTriggeredManually);
+  auto res = ProcessAsset(pInfo, pAssetProfile, transformFlags);
   ezLog::Info("Transform asset time: {0}s", ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
   return res;
 }
@@ -503,7 +503,7 @@ ezStatus ezAssetCurator::CreateThumbnail(const ezUuid& assetGuid)
   if (!m_KnownAssets.TryGetValue(assetGuid, pInfo))
     return ezStatus("Create thumbnail failed, unknown asset.");
 
-  return ProcessAsset(pInfo, nullptr, false);
+  return ProcessAsset(pInfo, nullptr, ezTransformFlags::None);
 }
 
 ezResult ezAssetCurator::WriteAssetTables(const ezPlatformProfile* pAssetProfile /* = nullptr*/)
@@ -899,25 +899,29 @@ void ezAssetCurator::CheckFileSystem()
 // ezAssetCurator Processing
 ////////////////////////////////////////////////////////////////////////
 
-ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformProfile* pAssetProfile, bool bTriggeredManually)
+ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformProfile* pAssetProfile, ezBitflags<ezTransformFlags> transformFlags)
 {
-  if (bTriggeredManually)
-    ezLog::Dev("Asset transform triggered manually (force transform).");
+  if (transformFlags.IsSet(ezTransformFlags::ForceTransform))
+    ezLog::Dev("Asset transform forced.");
 
   for (const auto& dep : pAssetInfo->m_Info->m_AssetTransformDependencies)
   {
+    ezBitflags<ezTransformFlags> transformFlagsDeps = transformFlags;
+    transformFlagsDeps.Remove(ezTransformFlags::ForceTransform);
     if (ezAssetInfo* pInfo = GetAssetInfo(dep))
     {
-      EZ_SUCCEED_OR_RETURN(ProcessAsset(pInfo, pAssetProfile, false));
+      EZ_SUCCEED_OR_RETURN(ProcessAsset(pInfo, pAssetProfile, transformFlagsDeps));
     }
   }
 
   ezStatus resReferences(EZ_SUCCESS);
   for (const auto& ref : pAssetInfo->m_Info->m_RuntimeDependencies)
   {
+    ezBitflags<ezTransformFlags> transformFlagsRefs = transformFlags;
+    transformFlagsRefs.Remove(ezTransformFlags::ForceTransform);
     if (ezAssetInfo* pInfo = GetAssetInfo(ref))
-    {
-      resReferences = ProcessAsset(pInfo, pAssetProfile, false);
+    {    
+      resReferences = ProcessAsset(pInfo, pAssetProfile, transformFlagsRefs);
       if (resReferences.m_Result.Failed())
         break;
     }
@@ -941,7 +945,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformP
     if (assetFlags.IsAnySet(ezAssetDocumentFlags::DisableTransform))
       return ezStatus(EZ_SUCCESS);
 
-    if (!bTriggeredManually && assetFlags.IsAnySet(ezAssetDocumentFlags::OnlyTransformManually))
+    if (!transformFlags.IsSet(ezTransformFlags::TriggeredManually) && assetFlags.IsAnySet(ezAssetDocumentFlags::OnlyTransformManually))
       return ezStatus(EZ_SUCCESS);
   }
 
@@ -955,7 +959,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformP
   ezUInt64 uiThumbHash = 0;
   ezAssetInfo::TransformState state = IsAssetUpToDate(pAssetInfo->m_Info->m_DocumentID, pAssetProfile, pTypeDesc, uiHash, uiThumbHash);
 
-  if (bTriggeredManually)
+  if (transformFlags.IsSet(ezTransformFlags::ForceTransform))
   {
     state = ezAssetInfo::NeedsTransform;
   }
@@ -984,7 +988,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformP
   if (state == ezAssetInfo::TransformState::NeedsTransform ||
       (state == ezAssetInfo::TransformState::NeedsThumbnail && assetFlags.IsSet(ezAssetDocumentFlags::AutoThumbnailOnTransform)))
   {
-    ret = pAsset->TransformAsset(bTriggeredManually, pAssetProfile);
+    ret = pAsset->TransformAsset(transformFlags, pAssetProfile);
   }
 
   if (state == ezAssetInfo::TransformState::MissingReference)
@@ -1300,7 +1304,7 @@ void ezAssetCurator::ProcessAllCoreAssets()
             {
               if (name.GetHash() == 0 || pInfo->m_Info->m_sAssetTypeName == name)
               {
-                resReferences = ProcessAsset(pInfo, pAssetProfile, false);
+                resReferences = ProcessAsset(pInfo, pAssetProfile, ezTransformFlags::TriggeredManually);
                 if (resReferences.m_Result.Failed())
                   break;
               }

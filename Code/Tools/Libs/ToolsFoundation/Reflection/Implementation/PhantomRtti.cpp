@@ -5,10 +5,10 @@
 #include <ToolsFoundation/Reflection/PhantomRtti.h>
 
 ezPhantomRTTI::ezPhantomRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion,
-                             ezUInt32 uiVariantType, ezBitflags<ezTypeFlags> flags, const char* szPluginName)
-    : ezRTTI(nullptr, pParentType, uiTypeSize, uiTypeVersion, uiVariantType, flags | ezTypeFlags::Phantom, nullptr,
-             ezArrayPtr<ezAbstractProperty*>(), ezArrayPtr<ezAbstractFunctionProperty*>(), ezArrayPtr<ezPropertyAttribute*>(),
-             ezArrayPtr<ezAbstractMessageHandler*>(), ezArrayPtr<ezMessageSenderInfo>(), nullptr)
+  ezUInt32 uiVariantType, ezBitflags<ezTypeFlags> flags, const char* szPluginName)
+  : ezRTTI(nullptr, pParentType, uiTypeSize, uiTypeVersion, uiVariantType, flags | ezTypeFlags::Phantom, nullptr,
+      ezArrayPtr<ezAbstractProperty*>(), ezArrayPtr<ezAbstractProperty*>(), ezArrayPtr<ezPropertyAttribute*>(),
+      ezArrayPtr<ezAbstractMessageHandler*>(), ezArrayPtr<ezMessageSenderInfo>(), nullptr)
 {
   m_sTypeNameStorage = szName;
   m_sPluginNameStorage = szPluginName;
@@ -119,7 +119,7 @@ void ezPhantomRTTI::SetAttributes(ezHybridArray<ezPropertyAttribute*, 2>& attrib
 void ezPhantomRTTI::UpdateType(ezReflectedTypeDescriptor& desc)
 {
   ezRTTI::UpdateType(ezRTTI::FindTypeByName(desc.m_sParentTypeName), desc.m_uiTypeSize, desc.m_uiTypeVersion, ezVariantType::Invalid,
-                     desc.m_Flags);
+    desc.m_Flags);
 
   m_sPluginNameStorage = desc.m_sPluginName;
   m_szPluginName = m_sPluginNameStorage.GetData();

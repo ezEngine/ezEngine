@@ -243,7 +243,7 @@ void ezQtStatVisWidget::AddStat(const ezString& sStatPath, bool bEnabled, bool b
     Stat.m_pListItem->setText(sStatPath.GetData());
     Stat.m_pListItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable);
     Stat.m_pListItem->setCheckState(bEnabled ? Qt::Checked : Qt::Unchecked);
-    Stat.m_pListItem->setTextColor(StatVisWidgetDetail::s_Colors[Stat.m_uiColor]);
+    Stat.m_pListItem->setForeground(StatVisWidgetDetail::s_Colors[Stat.m_uiColor]);
 
     ListStats->addItem(Stat.m_pListItem);
   }

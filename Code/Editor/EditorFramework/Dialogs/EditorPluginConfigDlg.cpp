@@ -36,7 +36,7 @@ void ezQtEditorPluginConfigDlg::FillPluginList()
     {
       sText.Append(" (missing)");
 
-      pItem->setBackgroundColor(Qt::red);
+      pItem->setBackground(Qt::red);
     }
     else if (it.Value().m_bActive)
     {

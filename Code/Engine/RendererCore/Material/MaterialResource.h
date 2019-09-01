@@ -112,9 +112,6 @@ private:
 
   ezConstantBufferStorageHandle m_hConstantBufferStorage;
 
-  ezMutex m_UpdateCacheMutex;
-  ezUInt32 m_uiCacheIndex;
-
   struct CachedValues
   {
     ezShaderResourceHandle m_hShader;
@@ -124,10 +121,14 @@ private:
     ezHashTable<ezHashedString, ezTextureCubeResourceHandle> m_TextureCubeBindings;
   };
 
+  ezUInt32 m_uiCacheIndex;
+  CachedValues* m_pCachedValues;
+
   CachedValues* GetOrUpdateCachedValues();
   CachedValues* AllocateCache();
   void DeallocateCache(ezUInt32 uiCacheIndex);
 
+  ezMutex m_UpdateCacheMutex;
   static ezDeque<ezMaterialResource::CachedValues> s_CachedValues;
 
   static void ClearCache();

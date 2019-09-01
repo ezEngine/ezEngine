@@ -93,16 +93,16 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResource* pRe
   else
   {
     ezFileReader File;
-    if (File.Open(pResource->GetResourceID().GetData()).Failed())
+    if (File.Open(pResource->GetResourceID()).Failed())
       return res;
 
     const ezStringBuilder sAbsolutePath = File.GetFilePathAbsolute();
-    res.m_sResourceDescription = File.GetFilePathRelative().GetData();
+    res.m_sResourceDescription = File.GetFilePathRelative().GetView();
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
     {
       ezFileStats stat;
-      if (ezFileSystem::GetFileStats(sAbsolutePath, stat).Succeeded())
+      if (ezFileSystem::GetFileStats(pResource->GetResourceID(), stat).Succeeded())
       {
         res.m_LoadedFileModificationDate = stat.m_LastModificationTime;
       }
@@ -176,7 +176,7 @@ bool ezTextureResourceLoader::IsResourceOutdated(const ezResource* pResource) co
   if (pResource->GetLoadedFileModificationTime().IsValid())
   {
     ezFileStats stat;
-    if (ezFileSystem::GetFileStats(sAbs, stat).Failed())
+    if (ezFileSystem::GetFileStats(pResource->GetResourceID(), stat).Failed())
       return false;
 
     return !stat.m_LastModificationTime.Compare(pResource->GetLoadedFileModificationTime(), ezTimestamp::CompareMode::FileTimeEqual);

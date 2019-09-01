@@ -7,6 +7,7 @@
 #include <QCursor>
 #include <QDesktopWidget>
 #include <QKeyEvent>
+#include <GuiFoundation/Widgets/WidgetUtils.h>
 
 ezEditorInputContext* ezEditorInputContext::s_pActiveInputContext = nullptr;
 
@@ -136,7 +137,7 @@ ezVec2I32 ezEditorInputContext::SetMouseMode(MouseMode newMode)
 
   if (newMode != MouseMode::Normal)
   {
-    const QRect dsize = QApplication::desktop()->availableGeometry(curPos);
+    const QRect dsize = ezWidgetUtils::GetClosestScreen(curPos).availableGeometry();
 
     m_MouseWrapRect.x = dsize.x() + 10;
     m_MouseWrapRect.y = dsize.y() + 10;

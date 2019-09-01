@@ -538,7 +538,7 @@ void ezQtFileserveWidget::UpdateClientList()
       pDir->setText(2, dd.m_sRedirectedPath.GetData());
 
       if (dd.m_sRedirectedPath.StartsWith("Failed"))
-        pDir->setTextColor(2, QColor::fromRgb(255, 0, 0));
+        pDir->setForeground(2, QColor::fromRgb(255, 0, 0));
     }
 
     pClient->setExpanded(it.Value().m_bConnected);

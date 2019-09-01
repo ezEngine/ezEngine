@@ -594,7 +594,7 @@ EZ_FORCE_INLINE ezUInt32 ezHashTableBase<K, V, H>::GetFlagsCapacity() const
 }
 
 template <typename K, typename V, typename H>
-ezUInt32 ezHashTableBase<K, V, H>::GetFlags(ezUInt32* pFlags, ezUInt32 uiEntryIndex) const
+EZ_ALWAYS_INLINE ezUInt32 ezHashTableBase<K, V, H>::GetFlags(ezUInt32* pFlags, ezUInt32 uiEntryIndex) const
 {
 #if EZ_ENABLED(EZ_HASHTABLE_USE_BITFLAGS)
   const ezUInt32 uiIndex = uiEntryIndex / 16;
@@ -611,7 +611,7 @@ void ezHashTableBase<K, V, H>::SetFlags(ezUInt32 uiEntryIndex, ezUInt32 uiFlags)
 #if EZ_ENABLED(EZ_HASHTABLE_USE_BITFLAGS)
   const ezUInt32 uiIndex = uiEntryIndex / 16;
   const ezUInt32 uiSubIndex = (uiEntryIndex & 15) * 2;
-  EZ_ASSERT_DEV(uiIndex < GetFlagsCapacity(), "Out of bounds access");
+  EZ_ASSERT_DEBUG(uiIndex < GetFlagsCapacity(), "Out of bounds access");
   m_pEntryFlags[uiIndex] &= ~(FLAGS_MASK << uiSubIndex);
   m_pEntryFlags[uiIndex] |= (uiFlags << uiSubIndex);
 #else
@@ -683,13 +683,13 @@ ezHashTable<K, V, H, A>::ezHashTable(const ezHashTableBase<K, V, H>& other)
 
 template <typename K, typename V, typename H, typename A>
 ezHashTable<K, V, H, A>::ezHashTable(ezHashTable<K, V, H, A>&& other)
-  : ezHashTableBase<K, V, H>(std::move(other), A::GetAllocator())
+  : ezHashTableBase<K, V, H>(std::move(other), other.GetAllocator())
 {
 }
 
 template <typename K, typename V, typename H, typename A>
 ezHashTable<K, V, H, A>::ezHashTable(ezHashTableBase<K, V, H>&& other)
-  : ezHashTableBase<K, V, H>(std::move(other), A::GetAllocator())
+  : ezHashTableBase<K, V, H>(std::move(other), other.GetAllocator())
 {
 }
 

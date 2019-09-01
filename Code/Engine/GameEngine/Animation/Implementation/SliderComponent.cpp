@@ -34,7 +34,7 @@ ezSliderComponent::ezSliderComponent()
 
 void ezSliderComponent::Update()
 {
-  if (m_Flags.IsAnySet(ezTransformComponentFlags::Autorun) && !m_Flags.IsAnySet(ezTransformComponentFlags::Paused))
+  if (m_Flags.IsAnySet(ezTransformComponentFlags::Running))
   {
     ezVec3 vAxis;
 
@@ -78,15 +78,12 @@ void ezSliderComponent::Update()
     {
       if (fNewDistance >= m_fDistanceToTravel)
       {
-        if (m_Flags.IsAnySet(ezTransformComponentFlags::AutoReturnEnd))
-          m_Flags.Add(ezTransformComponentFlags::AnimationReversed);
-        else
+        if (!m_Flags.IsSet(ezTransformComponentFlags::AutoReturnEnd))
         {
-          m_Flags.Remove(ezTransformComponentFlags::Autorun);
-
-          if (m_Flags.IsAnySet(ezTransformComponentFlags::AutoToggleDirection))
-            m_Flags.Add(ezTransformComponentFlags::AnimationReversed);
+          m_Flags.Remove(ezTransformComponentFlags::Running);
         }
+
+        m_Flags.Add(ezTransformComponentFlags::AnimationReversed);
 
         // if (PrepareEvent("ANIMATOR_OnReachEnd"))
         // RaiseEvent();
@@ -96,15 +93,12 @@ void ezSliderComponent::Update()
     {
       if (fNewDistance <= 0.0f)
       {
-        if (m_Flags.IsAnySet(ezTransformComponentFlags::AutoReturnStart))
-          m_Flags.Remove(ezTransformComponentFlags::AnimationReversed);
-        else
+        if (!m_Flags.IsSet(ezTransformComponentFlags::AutoReturnStart))
         {
-          m_Flags.Remove(ezTransformComponentFlags::Autorun);
-
-          if (m_Flags.IsAnySet(ezTransformComponentFlags::AutoToggleDirection))
-            m_Flags.Remove(ezTransformComponentFlags::AnimationReversed);
+          m_Flags.Remove(ezTransformComponentFlags::Running);
         }
+
+        m_Flags.Remove(ezTransformComponentFlags::AnimationReversed);
 
         // if (PrepareEvent("ANIMATOR_OnReachStart"))
         // RaiseEvent();

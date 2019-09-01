@@ -32,7 +32,7 @@ ezPxAxis::Z;Z
 ezConvexCollisionMeshType::ConvexHull;Convex Hull
 ezConvexCollisionMeshType::Cylinder;Cylinder
 ezOnPhysXContact::SendReportMsg;Send Contact Reports
-ezOnPhysXContact::ImpactReactions;Impact Reactiongs
+ezOnPhysXContact::ImpactReactions;Impact Reactions
 ezOnPhysXContact::SlideReactions;Slide Reactions
 ezOnPhysXContact::RollXReactions;Roll X Reactions
 ezOnPhysXContact::RollYReactions;Roll Y Reactions

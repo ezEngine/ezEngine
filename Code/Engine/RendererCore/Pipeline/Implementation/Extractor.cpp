@@ -13,6 +13,7 @@
   ezCVarBool CVarVisBounds("r_VisBounds", false, ezCVarFlags::Default, "Enables debug visualization of object bounds");
   ezCVarBool CVarVisLocalBBox("r_VisLocalBBox", false, ezCVarFlags::Default, "Enables debug visualization of object local bounding box");
   ezCVarBool CVarVisSpatialData("r_VisSpatialData", false, ezCVarFlags::Default, "Enables debug visualization of the spatial data structure");
+  ezCVarString CVarVisSpatialCategory("r_VisSpatialCategory", "", ezCVarFlags::Default, "When set the debug visualization is only shown for the given spatial data category");
   ezCVarBool CVarVisObjectSelection("r_VisObjectSelection", false, ezCVarFlags::Default, "When set the debug visualization is only shown for selected objects");
   ezCVarString CVarVisObjectName("r_VisObjectName", "", ezCVarFlags::Default, "When set the debug visualization is only shown for objects with the given name");
 
@@ -29,8 +30,10 @@ namespace
       const ezSpatialSystem& spatialSystem = view.GetWorld()->GetSpatialSystem();
       if (auto pSpatialSystemGrid = ezDynamicCast<const ezSpatialSystem_RegularGrid*>(&spatialSystem))
       {
+        ezSpatialData::Category filterCategory = ezSpatialData::FindCategory(CVarVisSpatialCategory.GetValue());
+
         ezHybridArray<ezBoundingBox, 16> boxes;
-        pSpatialSystemGrid->GetAllCellBoxes(boxes);
+        pSpatialSystemGrid->GetAllCellBoxes(boxes, filterCategory);
 
         for (auto& box : boxes)
         {
@@ -64,7 +67,7 @@ namespace
       }
     }
 
-    if (CVarVisSpatialData)
+    if (CVarVisSpatialData && CVarVisSpatialCategory.GetValue().IsEmpty())
     {
       const ezSpatialSystem& spatialSystem = view.GetWorld()->GetSpatialSystem();
       if (auto pSpatialSystemGrid = ezDynamicCast<const ezSpatialSystem_RegularGrid*>(&spatialSystem))

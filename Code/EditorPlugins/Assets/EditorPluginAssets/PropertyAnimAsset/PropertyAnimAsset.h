@@ -112,7 +112,7 @@ public:
 
 protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-    const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
+    const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
   virtual void InitializeAfterLoading() override;
 
 private:

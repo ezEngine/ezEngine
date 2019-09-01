@@ -127,7 +127,7 @@ void ezQtGameObjectReferencePropertyWidget::SetValue(const QString& sValue)
 
     if (pObject != nullptr)
     {
-      pal.setColor(QPalette::Foreground, QColor::fromRgb(182, 255, 0));
+      pal.setColor(QPalette::WindowText, QColor::fromRgb(182, 255, 0));
       m_pWidget->setToolTip(QStringLiteral("The reference is a known game object."));
 
       if (auto* pGoDoc = ezDynamicCast<const ezGameObjectDocument*>(m_pGrid->GetDocument()))
@@ -137,7 +137,7 @@ void ezQtGameObjectReferencePropertyWidget::SetValue(const QString& sValue)
     }
     else
     {
-      pal.setColor(QPalette::Foreground, Qt::red);
+      pal.setColor(QPalette::WindowText, Qt::red);
       m_pWidget->setToolTip(QStringLiteral("The reference is invalid."));
     }
 

@@ -19,7 +19,7 @@ EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezVisualScriptResource);
 // clang-format on
 
 ezVisualScriptResource::ezVisualScriptResource()
-    : ezResource(DoUpdate::OnAnyThread, 1)
+  : ezResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
@@ -98,7 +98,7 @@ void ezVisualScriptResourceDescriptor::Load(ezStreamReader& stream)
   ezUInt8 uiVersion = 0;
 
   stream >> uiVersion;
-  EZ_ASSERT_DEV(uiVersion >= 4 && uiVersion <= 5, "Incorrect version {0} for visual script", uiVersion);
+  EZ_ASSERT_DEV(uiVersion >= 4 && uiVersion <= 6, "Incorrect version {0} for visual script", uiVersion);
 
   if (uiVersion < 4)
     return;
@@ -125,21 +125,37 @@ void ezVisualScriptResourceDescriptor::Load(ezStreamReader& stream)
 
     node.m_isMsgSender = 0;
     node.m_isMsgHandler = 0;
+    node.m_isFunctionCall = 0;
 
-    if (sType.EndsWith("<send>"))
+    if (sType.EndsWith("<call>"))
     {
+      node.m_isFunctionCall = 1;
+
+      // remove the <call> part (leave full class name and function name in m_sTypeName
       sType.Shrink(0, 6);
-      node.m_isMsgSender = 1;
+      node.m_sTypeName = sType;
+
+      const char* szColon = sType.FindLastSubString("::");
+      sType.SetSubString_FromTo(sType.GetData(), szColon);
+
+      node.m_pType = ezRTTI::FindTypeByName(sType);
     }
-    else if (sType.EndsWith("<handle>"))
+    else
     {
-      sType.Shrink(0, 8);
-      node.m_isMsgHandler = 1;
+      if (sType.EndsWith("<send>"))
+      {
+        sType.Shrink(0, 6);
+        node.m_isMsgSender = 1;
+      }
+      else if (sType.EndsWith("<handle>"))
+      {
+        sType.Shrink(0, 8);
+        node.m_isMsgHandler = 1;
+      }
+
+      node.m_sTypeName = sType;
+      node.m_pType = ezRTTI::FindTypeByName(sType);
     }
-
-    node.m_sTypeName = sType;
-
-    node.m_pType = ezRTTI::FindTypeByName(sType);
 
     stream >> node.m_uiFirstProperty;
     stream >> node.m_uiNumProperties;
@@ -167,6 +183,11 @@ void ezVisualScriptResourceDescriptor::Load(ezStreamReader& stream)
   {
     stream >> prop.m_sName;
     stream >> prop.m_Value;
+
+    if (uiVersion >= 6)
+    {
+      stream >> prop.m_iMappingIndex;
+    }
   }
 
   // Version 5
@@ -198,7 +219,7 @@ void ezVisualScriptResourceDescriptor::Load(ezStreamReader& stream)
 
 void ezVisualScriptResourceDescriptor::Save(ezStreamWriter& stream) const
 {
-  const ezUInt8 uiVersion = 5;
+  const ezUInt8 uiVersion = 6;
 
   stream << uiVersion;
 
@@ -229,6 +250,8 @@ void ezVisualScriptResourceDescriptor::Save(ezStreamWriter& stream) const
       sType.Append("<send>");
     else if (node.m_isMsgHandler)
       sType.Append("<handle>");
+    else if (node.m_isFunctionCall)
+      sType.Append("<call>");
 
     stream << sType;
 
@@ -258,6 +281,9 @@ void ezVisualScriptResourceDescriptor::Save(ezStreamWriter& stream) const
   {
     stream << prop.m_sName;
     stream << prop.m_Value;
+
+    // Version 6
+    stream << prop.m_iMappingIndex;
   }
 
   // Version 5
@@ -291,7 +317,7 @@ void ezVisualScriptResourceDescriptor::PrecomputeMessageHandlers()
     {
       // TODO: just do the generic node logic here without allocating the node
       ezVisualScriptNode_GenericEvent* pEvent =
-          ezVisualScriptNode_GenericEvent::GetStaticRTTI()->GetAllocator()->Allocate<ezVisualScriptNode_GenericEvent>();
+        ezVisualScriptNode_GenericEvent::GetStaticRTTI()->GetAllocator()->Allocate<ezVisualScriptNode_GenericEvent>();
       pNode = pEvent;
 
       pEvent->m_sEventType = pType->GetTypeName();
@@ -319,4 +345,3 @@ void ezVisualScriptResourceDescriptor::PrecomputeMessageHandlers()
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_VisualScript_Implementation_VisualScriptResource);
-
