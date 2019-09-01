@@ -11,6 +11,7 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Application_Config_Implementation_PluginConfig);
   EZ_STATICLINK_REFERENCE(Foundation_Application_Implementation_Application);
   EZ_STATICLINK_REFERENCE(Foundation_Application_Implementation_MainLoop);
+  EZ_STATICLINK_REFERENCE(Foundation_Application_Implementation_Android_Application_android);
   EZ_STATICLINK_REFERENCE(Foundation_Application_Implementation_uwp_Application_uwp);
   EZ_STATICLINK_REFERENCE(Foundation_Basics_Assert);
   EZ_STATICLINK_REFERENCE(Foundation_Basics_Basics);
