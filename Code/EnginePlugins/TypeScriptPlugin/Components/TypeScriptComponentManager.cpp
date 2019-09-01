@@ -5,129 +5,11 @@
 
 ezTypeScriptComponentManager::ezTypeScriptComponentManager(ezWorld* pWorld)
   : SUPER(pWorld)
-  , m_Script("TypeScriptComponent")
 {
 }
 
 ezTypeScriptComponentManager::~ezTypeScriptComponentManager()
 {
-}
-
-int TS_ezLog_Info(duk_context* pContext)
-{
-  ezDuktapeFunction wrapper(pContext);
-  const ezInt16 iMagic = wrapper.GetFunctionMagicValue();
-
-  switch (iMagic)
-  {
-    case ezLogMsgType::ErrorMsg:
-      ezLog::Error(wrapper.GetStringParameter(0));
-      break;
-    case ezLogMsgType::SeriousWarningMsg:
-      ezLog::SeriousWarning(wrapper.GetStringParameter(0));
-      break;
-    case ezLogMsgType::WarningMsg:
-      ezLog::Warning(wrapper.GetStringParameter(0));
-      break;
-    case ezLogMsgType::SuccessMsg:
-      ezLog::Success(wrapper.GetStringParameter(0));
-      break;
-    case ezLogMsgType::InfoMsg:
-      ezLog::Info(wrapper.GetStringParameter(0));
-      break;
-    case ezLogMsgType::DevMsg:
-      ezLog::Dev(wrapper.GetStringParameter(0));
-      break;
-    case ezLogMsgType::DebugMsg:
-      ezLog::Debug(wrapper.GetStringParameter(0));
-      break;
-  }
-
-  return wrapper.ReturnVoid();
-}
-
-int TS_ezInternal_ezTsComponent_GetOwner(duk_context* pContext)
-{
-  ezDuktapeFunction wrapper(pContext);
-
-  duk_require_object(pContext, 0);
-  duk_get_prop_string(pContext, 0, "ezComponentPtr");
-  ezComponent* pComponent = (ezComponent*)duk_get_pointer(pContext, -1);
-  duk_pop(pContext);
-
-  //ezLog::Info("ezTsComponent::GetOwner -> {}", pComponent->GetOwner()->GetName());
-
-  // create ezTsGameObject and store ezGameObject Ptr and Handle in it
-  wrapper.OpenGlobalObject();
-  EZ_VERIFY(wrapper.BeginFunctionCall("_ezTS_CreateGameObject").Succeeded(), "");
-  EZ_VERIFY(wrapper.ExecuteFunctionCall().Succeeded(), "");
-  duk_dup_top(pContext);
-  wrapper.EndFunctionCall();
-
-  {
-    duk_push_pointer(pContext, pComponent->GetOwner()); // TODO: use handle
-    duk_put_prop_string(pContext, -2, "ezGameObjectPtr");
-  }
-
-  {
-    ezGameObjectHandle* pHandleBuffer = reinterpret_cast<ezGameObjectHandle*>(duk_push_fixed_buffer(pContext, sizeof(ezGameObjectHandle)));
-    *pHandleBuffer = pComponent->GetOwner()->GetHandle();
-    duk_put_prop_string(pContext, -2, "ezGameObjectHandle");
-  }
-
-  return wrapper.ReturnCustom();
-}
-
-int TS_ezInternal_ezTsGameObject_SetLocalPosition(duk_context* pContext)
-{
-  ezDuktapeFunction wrapper(pContext);
-  EZ_VERIFY(wrapper.IsParameterObject(0), "");
-
-  ezWorld* pWorld = nullptr;
-
-  // retrieve ezWorld* in global stash
-  {
-    // TODO: look up ezWorld* externally instead of through the stash
-
-    wrapper.OpenGlobalStashObject();
-
-    duk_get_prop_index(pContext, -1, 0 /* index for ezWorld* */);
-    pWorld = *reinterpret_cast<ezWorld**>(duk_get_buffer(pContext, -1, nullptr));
-    duk_pop(pContext);
-
-    wrapper.CloseObject();
-  }
-
-  ezGameObjectHandle hObject;
-  ezGameObject* pGameObject = nullptr;
-
-  {
-    duk_get_prop_string(pContext, 0, "ezGameObjectHandle");
-    hObject = *reinterpret_cast<ezGameObjectHandle*>(duk_get_buffer(pContext, -1, nullptr));
-    duk_pop(pContext);
-
-    EZ_VERIFY(pWorld->TryGetObject(hObject, pGameObject), "");
-  }
-
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-  {
-    duk_get_prop_string(pContext, 0, "ezGameObjectPtr");
-    ezGameObject* pGo = (ezGameObject*)duk_get_pointer_default(pContext, -1, nullptr);
-    duk_pop(pContext);
-
-    EZ_VERIFY(pGo == pGameObject, "outdated pointer");
-  }
-#endif
-
-  if (pGameObject)
-  {
-    EZ_VERIFY(pWorld == pGameObject->GetWorld(), "");
-
-    ezVec3 pos(wrapper.GetFloatParameter(1), wrapper.GetFloatParameter(2), wrapper.GetFloatParameter(3));
-    pGameObject->SetLocalPosition(pos);
-  }
-
-  return wrapper.ReturnVoid();
 }
 
 void ezTypeScriptComponentManager::Initialize()
@@ -140,20 +22,8 @@ void ezTypeScriptComponentManager::Initialize()
 
   RegisterUpdateFunction(desc);
 
-  m_Script.RegisterFunction("ezInternal_ezTsComponent_GetOwner", TS_ezInternal_ezTsComponent_GetOwner, 1);
-  m_Script.RegisterFunction("ezInternal_ezTsGameObject_SetLocalPosition", TS_ezInternal_ezTsGameObject_SetLocalPosition, 4);
-
-  // store ezWorld* in global stash
-  {
-    m_Script.OpenGlobalStashObject();
-
-    ezWorld** pWorldBuffer = reinterpret_cast<ezWorld**>(duk_push_fixed_buffer(m_Script.GetContext(), sizeof(void*)));
-    *pWorldBuffer = GetWorld();
-
-    duk_put_prop_index(m_Script.GetContext(), -2, 0 /* index for ezWorld* */);
-
-    m_Script.CloseObject();
-  }
+  ezTypeScriptWrapper::StartLoadTranspiler();
+  m_TsWrapper.Initialize(GetWorld());
 }
 
 void ezTypeScriptComponentManager::Deinitialize()
@@ -167,7 +37,7 @@ void ezTypeScriptComponentManager::Update(const ezWorldModule::UpdateContext& co
   {
     if (it->IsActiveAndSimulating())
     {
-      it->Update(m_Script);
+      it->Update(m_TsWrapper);
     }
   }
 }

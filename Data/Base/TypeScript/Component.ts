@@ -1,3 +1,7 @@
+abstract class ezTsGameObjectHandle
+{
+}
+
 namespace ezLog
 {
     export declare function Error(text : string) : void;
@@ -11,11 +15,6 @@ namespace ezLog
 
 declare function ezInternal_ezTsComponent_GetOwner(component : ezTsComponent) : ezTsGameObject;
 declare function ezInternal_ezTsGameObject_SetLocalPosition(go : ezTsGameObject, x : number, y : number, z : number) : void;
-
-// class ezTsGameObjectHandle 
-// {
-//     IsValid() : boolean { return false }
-// }
 
 class ezTsGameObject
 {
