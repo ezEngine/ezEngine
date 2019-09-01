@@ -1,3 +1,5 @@
+#include <Foundation/FoundationInternal.h>
+EZ_FOUNDATION_INTERNAL_HEADER
 // Android's time.h uses 32bit time stamps.
 #include <time64.h>
 
