@@ -7,6 +7,35 @@ if (TARGET ezPhysX::Foundation)
 endif()
 
 set (EZ_PHYSX_DIR "EZ_PHYSX_DIR-NOTFOUND" CACHE PATH "Directory of PhysX installation")
+mark_as_advanced(FORCE EZ_PHYSX_DIR)
+
+ez_pull_architecture_vars()
+
+if ((EZ_PHYSX_DIR STREQUAL "EZ_PHYSX_DIR-NOTFOUND") OR (EZ_PHYSX_DIR STREQUAL ""))
+
+  if (EZ_CMAKE_ARCHITECTURE_32BIT)
+    set (EZ_PHYSX_VER "physx-3.4.2-vc142-win32")
+    set (EZ_PHYSX_SRC "https://github.com/ezEngine/thirdparty/releases/download/PhysX-3.4.2-win32-win64/physx-3.4.2-vc142-win32.zip")
+  endif()
+
+  if (EZ_CMAKE_ARCHITECTURE_64BIT)
+    set (EZ_PHYSX_VER "physx-3.4.2-vc142-win64")
+    set (EZ_PHYSX_SRC "https://github.com/ezEngine/thirdparty/releases/download/PhysX-3.4.2-win32-win64/physx-3.4.2-vc142-win64.zip")
+  endif()
+
+  set (EZ_PHYSX_ZIP "${CMAKE_BINARY_DIR}/${EZ_PHYSX_VER}.zip")
+
+  if (NOT EXISTS(${EZ_PHYSX_ZIP}))
+    message(STATUS "Downloading '${EZ_PHYSX_ZIP}'...")
+    file(DOWNLOAD ${EZ_PHYSX_SRC} ${EZ_PHYSX_ZIP} SHOW_PROGRESS)
+
+    message(STATUS "Extracting '${EZ_PHYSX_ZIP}'...")  
+    execute_process(COMMAND ${CMAKE_COMMAND} -E tar -xf ${EZ_PHYSX_ZIP} WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+  endif()
+  
+  set (EZ_PHYSX_DIR "${CMAKE_BINARY_DIR}/${EZ_PHYSX_VER}" CACHE PATH "Directory of PhysX installation" FORCE)
+  
+endif()
 
 find_path(EZ_PHYSX_DIR PhysX_3.4/Include/PxActor.h
   PATHS
