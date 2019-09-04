@@ -3,7 +3,7 @@
 ######################################
 
 set (EZ_ENABLE_QT_SUPPORT ON CACHE BOOL "Whether to add Qt support.")
-set (EZ_QT_DIR $ENV{QTDIR} CACHE PATH "Directory of qt installation")
+set (EZ_QT_DIR $ENV{QTDIR} CACHE PATH "Directory of the Qt installation")
 
 ######################################
 ### ez_requires_qt()
@@ -24,6 +24,41 @@ function(ez_prepare_find_qt)
     set (EZ_CACHED_QT_DIR "EZ_CACHED_QT_DIR-NOTFOUND" CACHE STRING "")
     mark_as_advanced(EZ_CACHED_QT_DIR FORCE)
 
+    ######################
+    ## Download Qt package
+
+    ez_pull_architecture_vars()
+    ez_pull_platform_vars()
+
+    # Currently only implemented for x64
+    if (EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP AND EZ_CMAKE_ARCHITECTURE_64BIT)
+        if ((EZ_QT_DIR STREQUAL "EZ_QT_DIR-NOTFOUND") OR (EZ_QT_DIR STREQUAL ""))
+
+            if (EZ_CMAKE_ARCHITECTURE_64BIT)
+                set (EZ_SDK_VERSION "Qt-5.13.0-vs141-x64")
+                set (EZ_SDK_URL "https://github.com/ezEngine/thirdparty/releases/download/Qt-5.13.0-vs141-x64/Qt-5.13.0-vs141-x64.zip")
+            endif()
+
+            set (EZ_SDK_LOCAL_ZIP "${CMAKE_BINARY_DIR}/${EZ_SDK_VERSION}.zip")
+
+            if (NOT EXISTS ${EZ_SDK_LOCAL_ZIP})
+                message(STATUS "Downloading '${EZ_SDK_URL}'...")
+                file(DOWNLOAD ${EZ_SDK_URL} ${EZ_SDK_LOCAL_ZIP} SHOW_PROGRESS)
+
+                message(STATUS "Extracting '${EZ_SDK_LOCAL_ZIP}'...")  
+                execute_process(COMMAND ${CMAKE_COMMAND} -E tar -xf ${EZ_SDK_LOCAL_ZIP} WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+            else()
+                message(STATUS "Already downloaded '${EZ_SDK_LOCAL_ZIP}'")
+            endif()
+            
+            set (EZ_QT_DIR "${CMAKE_BINARY_DIR}/${EZ_SDK_VERSION}" CACHE PATH "Directory of the Qt installation" FORCE)
+        endif()    
+    endif()    
+
+    ## Download Qt package
+    ######################
+  
+
     if (NOT "${EZ_QT_DIR}" STREQUAL "${EZ_CACHED_QT_DIR}")
         # Need to reset qt vars now so that 'find_package' is re-executed
 
@@ -37,6 +72,7 @@ function(ez_prepare_find_qt)
         set (Qt5Gui_DIR "Qt5Gui_DIR-NOTFOUND" CACHE PATH "" FORCE)
         set (Qt5Widgets_DIR "Qt5Widgets_DIR-NOTFOUND" CACHE PATH "" FORCE)
         set (Qt5Network_DIR "Qt5Network_DIR-NOTFOUND" CACHE PATH "" FORCE)
+
         if (EZ_CMAKE_PLATFORM_WINDOWS)
             set (Qt5WinExtras_DIR "Qt5WinExtras_DIR-NOTFOUND" CACHE PATH "" FORCE)
         endif()
@@ -79,6 +115,16 @@ function(ez_link_target_qt)
     else()
         find_package (Qt5 COMPONENTS ${FN_ARG_COMPONENTS} REQUIRED)
     endif()
+
+    mark_as_advanced(FORCE Qt5_DIR)
+    mark_as_advanced(FORCE Qt5Core_DIR)
+    mark_as_advanced(FORCE Qt5Gui_DIR)
+    mark_as_advanced(FORCE Qt5Widgets_DIR)
+    mark_as_advanced(FORCE Qt5Network_DIR)    
+
+    if (EZ_CMAKE_PLATFORM_WINDOWS)
+        mark_as_advanced(FORCE Qt5WinExtras_DIR)
+    endif()    
 
     target_include_directories(${FN_ARG_TARGET} PRIVATE ${CMAKE_BINARY_DIR})
     target_include_directories(${FN_ARG_TARGET} PRIVATE ${CMAKE_BINARY_DIR}/Code)
