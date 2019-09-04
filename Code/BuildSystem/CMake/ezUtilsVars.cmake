@@ -33,6 +33,8 @@ mark_as_advanced(FORCE EZ_USE_PCH)
 
 set (EZ_ENABLE_FOLDER_UNITY_FILES ON CACHE BOOL "Whether unity cpp files should be created per folder")
 
+mark_as_advanced(FORCE EZ_ENABLE_FOLDER_UNITY_FILES)
+
 ######################################
 ### PVS Studio support
 ######################################
