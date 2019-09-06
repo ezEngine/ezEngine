@@ -17,7 +17,7 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 if (EZ_3RDPARTY_IMGUI_SUPPORT)
-	add_dependencies(${PROJECT_NAME} Imgui)
+	target_link_libraries(${PROJECT_NAME} PUBLIC Imgui)
 endif()
 
 if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)

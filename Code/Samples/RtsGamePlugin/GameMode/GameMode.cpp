@@ -1,5 +1,6 @@
 #include <RtsGamePluginPCH.h>
 
+#include <GameEngine/DearImgui/DearImgui.h>
 #include <RtsGamePlugin/GameMode/GameMode.h>
 #include <RtsGamePlugin/GameState/RtsGameState.h>
 
@@ -121,7 +122,7 @@ void RtsGameMode::DisplaySelectModeUI()
   ImGui::SetNextWindowPos(ImVec2(10, 10));
   ImGui::SetNextWindowSize(ImVec2(120, 100));
   ImGui::Begin("Game Mode", nullptr,
-               ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings);
+    ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings);
 
   const RtsActiveGameMode mode = RtsGameState::GetSingleton()->GetActiveGameMode();
 

@@ -1,5 +1,6 @@
 #include <RtsGamePluginPCH.h>
 
+#include <GameEngine/DearImgui/DearImgui.h>
 #include <RtsGamePlugin/Components/ComponentMessages.h>
 #include <RtsGamePlugin/Components/SelectableComponent.h>
 #include <RtsGamePlugin/GameMode/GameMode.h>
@@ -332,7 +333,6 @@ ezGameObject* RtsGameState::PickSelectableObject() const
     return nullptr;
 
   ezSpatialSystem::QueryCallback cb = [&pl](ezGameObject* pObject) {
-
     RtsSelectableComponent* pSelectable = nullptr;
     if (pObject->TryGetComponentOfBaseType(pSelectable))
     {
