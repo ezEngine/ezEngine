@@ -19,8 +19,8 @@ add_dependencies(${PROJECT_NAME}
   InspectorPlugin
 )
 
-if (EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
-  add_dependencies(${PROJECT_NAME} RenderDocPlugin)
+if (TARGET RenderDocPlugin)
+	add_dependencies(${PROJECT_NAME} RenderDocPlugin)
 endif()
 
 # set all external projects as runtime dependencies of this application

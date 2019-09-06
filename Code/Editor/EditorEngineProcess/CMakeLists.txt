@@ -26,7 +26,7 @@ if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
     InspectorPlugin
   )
 
-  if (EZ_BUILD_FMOD)
+  if (TARGET FmodPlugin)
 
     target_link_libraries(${PROJECT_NAME}
       PRIVATE
@@ -35,7 +35,7 @@ if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
 
   endif()
 
-  if (EZ_BUILD_PHYSX)
+  if (TARGET PhysXPlugin)
 
     target_link_libraries(${PROJECT_NAME}
       PRIVATE
@@ -45,12 +45,3 @@ if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
 
   endif()
 endif()
-
-add_dependencies(${PROJECT_NAME}
-  ShaderCompilerHLSL
-  EnginePluginScene
-  EnginePluginAssets
-  EnginePluginParticle
-  RecastPlugin
-  InspectorPlugin
-)

@@ -1,5 +1,7 @@
 #include <GameEnginePCH.h>
 
+#ifdef BUILDSYSTEM_ENABLE_IMGUI_SUPPORT
+
 #include <GameEngine/DearImgui/DearImgui.h>
 #include <GameEngine/DearImgui/DearImguiRenderer.h>
 #include <Imgui/imgui_internal.h>
@@ -255,6 +257,6 @@ void ezImguiRenderer::SetupRenderer()
   }
 }
 
-
+#endif
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_DearImgui_DearImguiRenderer);

@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef BUILDSYSTEM_ENABLE_IMGUI_SUPPORT
+
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Foundation/Math/Rect.h>
 #include <GameEngine/GameEngineDLL.h>
@@ -76,3 +78,5 @@ protected:
   ezGALBufferHandle m_hIndexBuffer;
   ezVertexDeclarationInfo m_VertexDeclarationInfo;
 };
+
+#endif

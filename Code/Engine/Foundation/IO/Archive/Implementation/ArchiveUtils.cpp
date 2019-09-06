@@ -2,8 +2,8 @@
 
 #include <Foundation/IO/Archive/ArchiveUtils.h>
 
-#include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/CompressedStreamZstd.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/MemoryMappedFile.h>
 #include <Foundation/IO/MemoryStream.h>
 
@@ -115,6 +115,7 @@ ezResult ezArchiveUtils::WriteEntry(ezStreamWriter& stream, const char* szAbsSou
       break;
 #endif
 
+    case ezArchiveCompressionMode::Uncompressed:
     default:
       tocEntry.m_uiStoredDataSize = tocEntry.m_uiUncompressedDataSize;
       break;
@@ -239,4 +240,3 @@ ezResult ezArchiveUtils::ExtractTOC(ezMemoryMappedFile& memFile, ezArchiveTOC& t
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Archive_Implementation_ArchiveUtils);
-
