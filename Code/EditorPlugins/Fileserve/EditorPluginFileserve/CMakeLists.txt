@@ -1,5 +1,7 @@
 ez_cmake_init()
 
+ez_requires_windows()
+
 ez_requires(EZ_3RDPARTY_ENET_SUPPORT)
 
 # Get the name of this folder as the project name
