@@ -67,10 +67,15 @@ static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
 
     case ezTelemetry::TelemetryEventData::PerFrameUpdate:
     {
-      ezTime FrameTime = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetFrameTime();
+      ezTime FrameTime;
+
+      if (ezGameApplicationBase::GetGameApplicationBaseInstance() != nullptr)
+      {
+        FrameTime = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetFrameTime();
+      }
 
       ezStringBuilder s;
-      ezStats::SetStat("App/FrameTime[ms]", FrameTime.GetMilliseconds());      
+      ezStats::SetStat("App/FrameTime[ms]", FrameTime.GetMilliseconds());
       ezStats::SetStat("App/FPS", 1.0 / FrameTime.GetSeconds());
 
       ezStats::SetStat("App/Active Threads", ezOSThread::GetThreadCount());
