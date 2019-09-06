@@ -32,24 +32,4 @@ add_dependencies(${PROJECT_NAME}
   ShaderCompiler
 )
 
-if (TARGET EditorPluginFileserve)
-  add_dependencies(${PROJECT_NAME} EditorPluginFileserve)
-endif()
-
-if (TARGET FmodPlugin)
-  add_dependencies(${PROJECT_NAME} EditorPluginFmod FmodPlugin)
-endif()
-
-if (TARGET PhysXPlugin)
-  add_dependencies(${PROJECT_NAME} EditorPluginPhysX PhysXPlugin)
-endif()
-
-if (TARGET KrautPlugin)
-  add_dependencies(${PROJECT_NAME} EditorPluginKraut KrautPlugin)
-endif()
-
-if (TARGET RecastPlugin)
-  add_dependencies(${PROJECT_NAME} RecastPlugin)
-endif()
-
 ez_ci_add_test(${PROJECT_NAME} NEEDS_HW_ACCESS)

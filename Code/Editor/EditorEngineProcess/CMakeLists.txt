@@ -26,7 +26,7 @@ if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
     InspectorPlugin
   )
 
-  if (TARGET FmodPlugin)
+  if (EZ_BUILD_FMOD)
 
     target_link_libraries(${PROJECT_NAME}
       PRIVATE
@@ -35,7 +35,7 @@ if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
 
   endif()
 
-  if (TARGET PhysXPlugin)
+  if (EZ_BUILD_PHYSX)
 
     target_link_libraries(${PROJECT_NAME}
       PRIVATE

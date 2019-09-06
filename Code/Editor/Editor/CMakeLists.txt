@@ -33,38 +33,6 @@ add_dependencies(${PROJECT_NAME}
   ShaderCompiler
 )
 
-if (TARGET EditorPluginFileserve)
-	add_dependencies(${PROJECT_NAME} EditorPluginFileserve)
-endif()
-
-if (TARGET EditorPluginFmod)
-	add_dependencies(${PROJECT_NAME} EditorPluginFmod)
-endif()
-
-if (TARGET PhysXPlugin)
-	add_dependencies(${PROJECT_NAME} EditorPluginPhysX PhysXPlugin)
-endif()
-
-if (TARGET KrautPlugin)
-	add_dependencies(${PROJECT_NAME} EditorPluginKraut KrautPlugin)
-endif()
-
-if (TARGET SampleGamePlugin)
-	add_dependencies(${PROJECT_NAME} SampleGamePlugin)
-endif()
-
-if (TARGET RtsGamePlugin)
-	add_dependencies(${PROJECT_NAME} RtsGamePlugin)
-endif()
-
-if (TARGET EditorPluginRecast)
-	add_dependencies(${PROJECT_NAME} EditorPluginRecast)
-endif()
-
-if (TARGET RenderDocPlugin)
-	add_dependencies(${PROJECT_NAME} RenderDocPlugin)
-endif()
-
 # set all external projects as runtime dependencies of this application
 get_property(EXTERNAL_PROJECTS GLOBAL PROPERTY "EXTERNAL_PROJECTS")
 if(EXTERNAL_PROJECTS)
