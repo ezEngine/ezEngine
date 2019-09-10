@@ -34,7 +34,7 @@ namespace ezProcGenInternal
     ezInt32 m_iTileSeed = 0;
     ezBoundingBox m_TileBoundingBox;
 
-    ezDynamicArray<ezSimdTransform, ezAlignedAllocatorWrapper> m_GlobalToLocalBoxTransforms;
+    ezDynamicArray<ezSimdMat4f, ezAlignedAllocatorWrapper> m_GlobalToLocalBoxTransforms;
 
     ezDynamicArray<PlacementPoint, ezAlignedAllocatorWrapper> m_InputPoints;
     ezDynamicArray<PlacementTransform, ezAlignedAllocatorWrapper> m_OutputTransforms;

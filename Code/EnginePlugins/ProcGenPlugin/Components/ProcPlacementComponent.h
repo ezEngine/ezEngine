@@ -151,7 +151,7 @@ private:
     EZ_DECLARE_POD_TYPE();
 
     ezSimdBBox m_GlobalBoundingBox;
-    ezSimdTransform m_GlobalToLocalBoxTransform;
+    ezSimdMat4f m_GlobalToLocalBoxTransform;
   };
 
   ezDynamicArray<Bounds, ezAlignedAllocatorWrapper> m_Bounds;

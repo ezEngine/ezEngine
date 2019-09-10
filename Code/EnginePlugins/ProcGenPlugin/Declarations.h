@@ -152,6 +152,6 @@ namespace ezProcGenInternal
     float m_fPatternSize;
     float m_fDistanceToCamera;
 
-    ezHybridArray<ezSimdTransform, 8, ezAlignedAllocatorWrapper> m_GlobalToLocalBoxTransforms;
+    ezHybridArray<ezSimdMat4f, 8, ezAlignedAllocatorWrapper> m_GlobalToLocalBoxTransforms;
   };
 } // namespace ezProcGenInternal

@@ -714,12 +714,14 @@ void ezProcPlacementComponent::UpdateBoundsAndTiles()
       ezSimdTransform finalBoxTransform;
       finalBoxTransform.SetGlobalTransform(ownerTransform, localBoxTransform);
 
+      ezSimdMat4f finalBoxMat = finalBoxTransform.GetAsMat4();
+
       ezSimdBBox globalBox(ezSimdVec4f(-1.0f), ezSimdVec4f(1.0f));
-      globalBox.Transform(finalBoxTransform.GetAsMat4());
+      globalBox.Transform(finalBoxMat);
 
       auto& bounds = m_Bounds.ExpandAndGetRef();
       bounds.m_GlobalBoundingBox = globalBox;
-      bounds.m_GlobalToLocalBoxTransform = finalBoxTransform.GetInverse();
+      bounds.m_GlobalToLocalBoxTransform = finalBoxMat.GetInverse();
     }
 
     pManager->AddComponent(this);
