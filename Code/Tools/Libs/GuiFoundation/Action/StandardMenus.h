@@ -1,7 +1,7 @@
 #pragma once
 
-#include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/Action/BaseActions.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 
 struct ezStandardMenuTypes
 {
@@ -50,14 +50,40 @@ public:
   static ezActionDescriptorHandle s_hMenuScene;
   static ezActionDescriptorHandle s_hMenuView;
   static ezActionDescriptorHandle s_hMenuHelp;
+  static ezActionDescriptorHandle s_hOpenWiki;
 };
 
 ///
 class EZ_GUIFOUNDATION_DLL ezApplicationPanelsMenuAction : public ezDynamicMenuAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezApplicationPanelsMenuAction, ezDynamicMenuAction);
+
 public:
-  ezApplicationPanelsMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath) : ezDynamicMenuAction(context, szName, szIconPath) {}
+  ezApplicationPanelsMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath)
+    : ezDynamicMenuAction(context, szName, szIconPath)
+  {
+  }
   virtual void GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_Entries) override;
   virtual void Execute(const ezVariant& value) override;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_GUIFOUNDATION_DLL ezHelpActions : public ezButtonAction
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezHelpActions, ezButtonAction);
+
+public:
+  enum class ButtonType
+  {
+    OpenWiki,
+  };
+
+  ezHelpActions(const ezActionContext& context, const char* szName, ButtonType button);
+  ~ezHelpActions();
+
+  virtual void Execute(const ezVariant& value) override;
+
+private:
+  ButtonType m_ButtonType;
 };

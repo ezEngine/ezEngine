@@ -124,3 +124,4 @@ ezTextureAssetProfileConfig;Texture Assets
 ezRenderPipelineProfileConfig;Render Pipelines
 Configs;Configs
 CameraPipelines;Camera Pipelines
+Help.OpenWiki;Open ezEngine Wiki
