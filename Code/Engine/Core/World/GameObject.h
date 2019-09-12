@@ -219,6 +219,8 @@ public:
   void SetLocalUniformScaling(float scaling);
   float GetLocalUniformScaling() const;
 
+  ezTransform GetLocalTransform() const;
+
   void SetGlobalPosition(const ezVec3& position);
   ezVec3 GetGlobalPosition() const;
 
@@ -243,6 +245,8 @@ public:
 
   void SetLocalUniformScaling(const ezSimdFloat& scaling);
   ezSimdFloat GetLocalUniformScalingSimd() const;
+
+  ezSimdTransform GetLocalTransformSimd() const;
 
   void SetGlobalPosition(const ezSimdVec4f& position);
   const ezSimdVec4f& GetGlobalPositionSimd() const;
