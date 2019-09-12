@@ -79,7 +79,7 @@ void ezPrefabReferenceComponent::SerializeComponent(ezWorldWriter& stream) const
         if (var.IsA<ezString>())
         {
           // and the resolver CAN map this string to a game object handle
-          ezGameObjectHandle hObject = resolver(var.Get<ezString>().GetData());
+          ezGameObjectHandle hObject = resolver(var.Get<ezString>().GetData(), ezComponentHandle(), nullptr);
           if (!hObject.IsInvalidated())
           {
             // write the handle properly to file (this enables correct remapping during deserialization)

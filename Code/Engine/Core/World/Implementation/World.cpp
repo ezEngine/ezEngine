@@ -12,7 +12,7 @@ ezStaticArray<ezWorld*, 64> ezWorld::s_Worlds;
 
 const ezUInt16 c_InvalidWorldIndex = 0xFFFFu;
 
-static ezGameObjectHandle DefaultGameObjectReferenceResolver(const void* pData)
+static ezGameObjectHandle DefaultGameObjectReferenceResolver(const void* pData, ezComponentHandle hThis, const char* szProperty)
 {
   const char* szRef = reinterpret_cast<const char*>(pData);
 

@@ -250,7 +250,7 @@ public:
   /// \brief Returns the associated user data.
   void* GetUserData() const;
 
-  using ReferenceResolver = ezDelegate<ezGameObjectHandle(const void*)>;
+  using ReferenceResolver = ezDelegate<ezGameObjectHandle(const void*, ezComponentHandle hThis, const char* szProperty)>;
 
   /// \brief If set, this delegate can be used to map some data (GUID or string) to an ezGameObjectHandle.
   ///

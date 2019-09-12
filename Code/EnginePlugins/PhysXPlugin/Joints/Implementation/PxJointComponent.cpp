@@ -133,7 +133,7 @@ void ezPxJointComponent::SetParentActor(const char* szReference)
     return;
 
   SetUserFlag(0, false);
-  m_hActorA = resolver(szReference);
+  m_hActorA = resolver(szReference, GetHandle(), "ParentActor");
 }
 
 void ezPxJointComponent::SetChildActor(const char* szReference)
@@ -144,7 +144,7 @@ void ezPxJointComponent::SetChildActor(const char* szReference)
     return;
 
   SetUserFlag(1, false);
-  m_hActorB = resolver(szReference);
+  m_hActorB = resolver(szReference, GetHandle(), "ChildActor");
 }
 
 void ezPxJointComponent::SetActors(ezGameObjectHandle hActorA, const ezTransform& localFrameA, ezGameObjectHandle hActorB,

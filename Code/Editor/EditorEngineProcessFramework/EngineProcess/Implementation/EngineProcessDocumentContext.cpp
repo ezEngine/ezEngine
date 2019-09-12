@@ -620,14 +620,118 @@ void ezEngineProcessDocumentContext::ClearTagRecursive(ezGameObject* pObject, co
   }
 }
 
-ezGameObjectHandle ezEngineProcessDocumentContext::ResolveStringToGameObjectHandle(const void* pString) const
+// TODO: structure event handler: on object deleted / added -> update m_GoRef_ReferencesTo / m_GoRef_ReferencedBy
+// on object added:
+// check if object is already in the m_GoRef_ReferencedBy list
+// if so, go to all referencors and re-apply the reference (setProperty "x" -> "guid") (this fixes 'undo delete object')
+
+// TODO / problems:
+// at the time of first reference resolving the target object may not be known yet (ordering problem in the scene tree)
+
+ezGameObjectHandle ezEngineProcessDocumentContext::ResolveStringToGameObjectHandle(const void* pData, ezComponentHandle hThis, const char* szComponentProperty) const
 {
-  if (!ezConversionUtils::IsStringUuid(reinterpret_cast<const char*>(pString)))
+  // overview:
+  // check if m_GoRef_ReferencesTo[component] already maps from [property] to something -> update (remove if pData is empty/invalid)
+  // otherwise add reference
+  //
+  // if already mapped to something, remove reference from m_GoRef_ReferencedBy
+  // then add new reference to m_GoRef_ReferencedBy
+
+  const char* szTargetGuid = reinterpret_cast<const char*>(pData);
+
+  const ezUuid srcComponentGuid = m_Context.m_ComponentMap.GetGuid(hThis);
+  EZ_ASSERT_DEV(srcComponentGuid.IsValid(), "Component handle is not known");
+
+  ezUuid newTargetGuid;
+  ezUuid oldTargetGuid;
+
+  if (ezConversionUtils::IsStringUuid(szTargetGuid))
+  {
+    newTargetGuid = ezConversionUtils::ConvertStringToUuid(szTargetGuid);
+  }
+
+  // update which object this component+property map to
+  {
+    auto& referencesTo = m_GoRef_ReferencesTo[srcComponentGuid];
+
+    // check all references from the src component
+    for (ezUInt32 i = 0; i < referencesTo.GetCount(); ++i)
+    {
+      // if this is the desired property, update it
+      if (ezStringUtils::IsEqual(referencesTo[i].m_szComponentProperty, szComponentProperty))
+      {
+        // retrieve previous reference, needed to update m_GoRef_ReferencedBy
+        oldTargetGuid = referencesTo[i].m_ReferenceToGameObject;
+
+        // write the new reference
+        if (newTargetGuid.IsValid())
+        {
+          referencesTo[i].m_ReferenceToGameObject = newTargetGuid;
+        }
+        else
+        {
+          referencesTo.RemoveAtAndSwap(i);
+        }
+
+        goto ref_to_is_updated;
+      }
+    }
+
+    // if we end up here, the reference-to was previously unknown and must be added
+    if (newTargetGuid.IsValid())
+    {
+      auto& refTo = referencesTo.ExpandAndGetRef();
+      refTo.m_szComponentProperty = szComponentProperty;
+      refTo.m_ReferenceToGameObject = newTargetGuid;
+    }
+  }
+
+ref_to_is_updated:
+
+  // only need to updated m_GoRef_ReferencedBy if the reference has actually changed
+  if (oldTargetGuid != newTargetGuid)
+  {
+    // if we referenced another object previously, remove the 'referenced-by' link to the old object
+    if (oldTargetGuid.IsValid())
+    {
+      auto& referencedBy = m_GoRef_ReferencedBy[oldTargetGuid];
+
+      for (ezUInt32 i = 0; i < referencedBy.GetCount(); ++i)
+      {
+        if (referencedBy[i].m_ReferencedByComponent == srcComponentGuid && ezStringUtils::IsEqual(referencedBy[i].m_szComponentProperty, szComponentProperty))
+        {
+          referencedBy.RemoveAtAndSwap(i);
+          break;
+        }
+      }
+    }
+
+    // if we are now referencing a valid object, add a 'referenced-by' link to the new object
+    if (newTargetGuid.IsValid())
+    {
+      auto& referencedBy = m_GoRef_ReferencedBy[newTargetGuid];
+
+      // this loop is currently only to validate that no bugs creeped in
+      for (ezUInt32 i = 0; i < referencedBy.GetCount(); ++i)
+      {
+        if (referencedBy[i].m_ReferencedByComponent == srcComponentGuid && ezStringUtils::IsEqual(referencedBy[i].m_szComponentProperty, szComponentProperty))
+        {
+          EZ_REPORT_FAILURE("Go-reference was not updated correctly");
+        }
+      }
+
+      // add the back-reference
+      auto& newRef = referencedBy.ExpandAndGetRef();
+      newRef.m_ReferencedByComponent = srcComponentGuid;
+      newRef.m_szComponentProperty = szComponentProperty;
+    }
+  }
+
+  // just an optimization for the common case
+  if (!newTargetGuid.IsValid())
     return ezGameObjectHandle();
 
-  ezUuid guid = ezConversionUtils::ConvertStringToUuid(reinterpret_cast<const char*>(pString));
-
-  return m_Context.m_GameObjectMap.GetHandle(guid);
+  return m_Context.m_GameObjectMap.GetHandle(newTargetGuid);
 }
 
 void ezEngineProcessDocumentContext::UpdateSyncObjects()
