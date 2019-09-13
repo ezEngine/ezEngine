@@ -173,4 +173,6 @@ private:
 
   // GameObjects referenced by Components
   mutable ezMap<ezUuid, ezHybridArray<GoReferencedBy, 4>> m_GoRef_ReferencedBy;
+
+  void WorldRttiConverterContextEventHandler(const ezWorldRttiConverterContext::Event& e);
 };

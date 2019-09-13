@@ -67,6 +67,12 @@ void* ezWorldRttiConverterContext::CreateObject(const ezUuid& guid, const ezRTTI
     if (m_pWorld->TryGetObject(hObject, pObject))
     {
       RegisterObject(guid, pRtti, pObject);
+
+      Event e;
+      e.m_Type = Event::Type::GameObjectCreated;
+      e.m_ObjectGuid = guid;
+      m_Events.Broadcast(e);
+
       return pObject;
     }
     else
@@ -121,6 +127,11 @@ void ezWorldRttiConverterContext::DeleteObject(const ezUuid& guid)
     auto hObject = m_GameObjectMap.GetHandle(guid);
     UnregisterObject(guid);
     m_pWorld->DeleteObjectNow(hObject);
+
+    Event e;
+    e.m_Type = Event::Type::GameObjectDeleted;
+    e.m_ObjectGuid = guid;
+    m_Events.Broadcast(e);
   }
   else if (pRtti->IsDerivedFrom<ezComponent>())
   {

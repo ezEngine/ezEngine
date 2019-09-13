@@ -105,11 +105,16 @@ ezBoundingBoxSphere ezEngineProcessDocumentContext::GetWorldBounds(ezWorld* pWor
   return bounds;
 }
 
-ezEngineProcessDocumentContext::ezEngineProcessDocumentContext() {}
+ezEngineProcessDocumentContext::ezEngineProcessDocumentContext()
+{
+  m_Context.m_Events.AddEventHandler(ezMakeDelegate(&ezEngineProcessDocumentContext::WorldRttiConverterContextEventHandler, this));
+}
 
 ezEngineProcessDocumentContext::~ezEngineProcessDocumentContext()
 {
   EZ_ASSERT_DEV(m_pWorld == nullptr, "World has not been deleted! Call 'ezEngineProcessDocumentContext::DestroyDocumentContext'");
+
+  m_Context.m_Events.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessDocumentContext::WorldRttiConverterContextEventHandler, this));
 }
 
 void ezEngineProcessDocumentContext::Initialize(const ezUuid& DocumentGuid, ezEngineProcessCommunicationChannel* pIPC)
@@ -620,6 +625,60 @@ void ezEngineProcessDocumentContext::ClearTagRecursive(ezGameObject* pObject, co
   }
 }
 
+void ezEngineProcessDocumentContext::WorldRttiConverterContextEventHandler(const ezWorldRttiConverterContext::Event& e)
+{
+  if (e.m_Type == ezWorldRttiConverterContext::Event::Type::GameObjectCreated)
+  {
+    auto it = m_GoRef_ReferencedBy.Find(e.m_ObjectGuid);
+    if (!it.IsValid())
+      return;
+
+    ezStringBuilder tmp;
+
+    for (const auto& ref : it.Value())
+    {
+      const ezUuid compGuid = ref.m_ReferencedByComponent;
+      if (!compGuid.IsValid())
+        continue;
+
+      ezComponentHandle hRefComp;
+
+      ezUInt64 uiLow, uiHigh;
+      compGuid.GetValues(uiLow, uiHigh);
+      if (uiHigh == 0xAABBCCDDAABBCCDD)
+      {
+        // ...
+      }
+      else
+      {
+        hRefComp = m_Context.m_ComponentMap.GetHandle(compGuid);
+      }
+
+      if (hRefComp.IsInvalidated())
+        continue;
+
+      ezComponent* pRefComp = nullptr;
+      if (!GetWorld()->TryGetComponent(hRefComp,pRefComp))
+        continue;
+
+      ezAbstractProperty* pAbsProp = pRefComp->GetDynamicRTTI()->FindPropertyByName(ref.m_szComponentProperty);
+      if (pAbsProp == nullptr)
+        continue;
+
+      if (pAbsProp->GetCategory() != ezPropertyCategory::Member)
+        continue;
+
+      ezConversionUtils::ToString(e.m_ObjectGuid, tmp);
+
+      ezReflectionUtils::SetMemberPropertyValue(static_cast<ezAbstractMemberProperty*>(pAbsProp), pRefComp, tmp.GetData());
+    }
+  }
+  else if (e.m_Type == ezWorldRttiConverterContext::Event::Type::GameObjectDeleted)
+  {
+    m_GoRef_ReferencesTo.Remove(e.m_ObjectGuid);
+  }
+}
+
 // TODO: structure event handler: on object deleted / added -> update m_GoRef_ReferencesTo / m_GoRef_ReferencedBy
 // on object added:
 // check if object is already in the m_GoRef_ReferencedBy list
@@ -639,8 +698,17 @@ ezGameObjectHandle ezEngineProcessDocumentContext::ResolveStringToGameObjectHand
 
   const char* szTargetGuid = reinterpret_cast<const char*>(pData);
 
-  const ezUuid srcComponentGuid = m_Context.m_ComponentMap.GetGuid(hThis);
-  EZ_ASSERT_DEV(srcComponentGuid.IsValid(), "Component handle is not known");
+  ezUuid srcComponentGuid = m_Context.m_ComponentMap.GetGuid(hThis);
+  if (!srcComponentGuid.IsValid())
+  {
+    ezUInt64 uiLow = 0;
+    ezUInt64 uiHigh = 0xAABBCCDDAABBCCDDull;
+    ezComponentId id = hThis.GetInternalID();
+    EZ_CHECK_AT_COMPILETIME(sizeof(id) == sizeof(ezUInt64));
+    ezMemoryUtils::Copy(&uiLow, reinterpret_cast<ezUInt64*>(&id), 1);
+
+    srcComponentGuid = ezUuid(uiLow, uiHigh);
+  }
 
   ezUuid newTargetGuid;
   ezUuid oldTargetGuid;
