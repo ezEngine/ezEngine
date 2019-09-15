@@ -1,3 +1,6 @@
+#include <Foundation/FoundationPCH.h>
+EZ_FOUNDATION_INTERNAL_HEADER
+
 #include <Foundation/IO/MemoryMappedFile.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/PathUtils.h>
@@ -5,6 +8,15 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+
+#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#  include <linux/version.h>
+#endif
+
+#if EZ_ENABLED(EZ_PLATFORM_OSX)
+#  include <unistd.h>
+#endif
 
 struct ezMemoryMappedFileImpl
 {
@@ -72,6 +84,11 @@ ezResult ezMemoryMappedFile::Open(const char* szAbsolutePath, Mode mode)
     prot |= PROT_WRITE;
     flags = MAP_SHARED;
   }
+#  if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#    if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 22)
+  flags |= MAP_POPULATE;
+#    endif
+#  endif
   m_Impl->m_hFile = open(szAbsolutePath, access, 0);
   if (m_Impl->m_hFile == -1)
   {
@@ -89,7 +106,7 @@ ezResult ezMemoryMappedFile::Open(const char* szAbsolutePath, Mode mode)
   m_Impl->m_uiFileSize = sb.st_size;
 
   m_Impl->m_pMappedFilePtr = mmap(nullptr, m_Impl->m_uiFileSize,
-    prot, flags | MAP_POPULATE, m_Impl->m_hFile, 0);
+    prot, flags, m_Impl->m_hFile, 0);
   if (m_Impl->m_pMappedFilePtr == nullptr)
   {
     ezLog::Error("Could not create memory mapping of file - {}", strerror(errno));
@@ -115,6 +132,12 @@ ezResult ezMemoryMappedFile::OpenShared(const char* szSharedName, ezUInt64 uiSiz
 
   int prot = PROT_READ;
   int oflag = O_RDONLY;
+  int flags = MAP_SHARED;
+#  if EZ_ENABLED(EZ_PLATFORM_LINUX)
+#    if LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 22)
+  flags |= MAP_POPULATE;
+#    endif
+#  endif
 
   if (mode == Mode::ReadWrite)
   {
@@ -141,7 +164,7 @@ ezResult ezMemoryMappedFile::OpenShared(const char* szSharedName, ezUInt64 uiSiz
   m_Impl->m_uiFileSize = uiSize;
 
   m_Impl->m_pMappedFilePtr = mmap(nullptr, m_Impl->m_uiFileSize,
-    prot, MAP_SHARED | MAP_POPULATE, m_Impl->m_hFile, 0);
+    prot, flags, m_Impl->m_hFile, 0);
   if (m_Impl->m_pMappedFilePtr == nullptr)
   {
     ezLog::Error("Could not create memory mapping of file - {}", strerror(errno));
