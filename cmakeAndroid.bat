@@ -1,2 +1,0 @@
-if exist CMakeFiles rd /s /q workspaceAndroid
-"C:\Program Files\CMake\bin\cmake.exe" -G Ninja -S . -B .\workspaceAndroid -DCMAKE_TOOLCHAIN_FILE="D:\android-ndk-r20\build\cmake\android.toolchain.cmake" -DANDROID_PLATFORM=26 -DEZ_ENABLE_QT_SUPPORT=0

@@ -43,19 +43,29 @@ Compilers:
 
 Dependencies:
   * XQuartz 2.7.5 or higher
+  * SFML-2.5.1
+  * Qt 5.11 (optional)
 
 
 Linux
 -----
 
 Versions:
-  * Ubuntu 12.4
+  * Ubuntu 19.4
 
 Compilers:
-  * GCC 4.8 64 Bit
+  * GCC 7 64 Bit
 
 Dependencies:
   * uuid-dev
+  * SFML-2.5.1
+  * Qt 5.11 (optional)
 
+
+Android
+-------
+
+Versions:
+  * Android 6.0 Marshmallow (API 23) or newer
 
 
