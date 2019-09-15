@@ -14,8 +14,11 @@ target_link_libraries(${PROJECT_NAME}
   PUBLIC
   System
   RendererCore
-  Imgui
 )
+
+if (EZ_3RDPARTY_IMGUI_SUPPORT)
+	target_link_libraries(${PROJECT_NAME} PUBLIC Imgui)
+endif()
 
 if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
 

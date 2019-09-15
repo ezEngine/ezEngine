@@ -168,6 +168,7 @@ QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& context, ezAction
   // make sure we don't use actions that are meant for a different document
   if (pProxy != nullptr && pProxy->GetAction()->GetContext().m_pDocument != nullptr)
   {
+    // if this assert fires, you might have tried to map an action into multiple documents, which uses ezActionScope::Global
     EZ_ASSERT_DEV(pProxy->GetAction()->GetContext().m_pDocument == context.m_pDocument, "invalid document pointer");
   }
   return pProxy;

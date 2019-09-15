@@ -12,6 +12,7 @@ ezActionDescriptorHandle ezStandardMenus::s_hMenuProject;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuScene;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuView;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuHelp;
+ezActionDescriptorHandle ezStandardMenus::s_hOpenWiki;
 
 void ezStandardMenus::RegisterActions()
 {
@@ -22,6 +23,7 @@ void ezStandardMenus::RegisterActions()
   s_hMenuScene = EZ_REGISTER_MENU("Menu.Scene");
   s_hMenuView = EZ_REGISTER_MENU("Menu.View");
   s_hMenuHelp = EZ_REGISTER_MENU("Menu.Help");
+  s_hOpenWiki = EZ_REGISTER_ACTION_1("Help.OpenWiki", ezActionScope::Document, "Help", "", ezHelpActions, ezHelpActions::ButtonType::OpenWiki);
 }
 
 void ezStandardMenus::UnregisterActions()
@@ -33,6 +35,7 @@ void ezStandardMenus::UnregisterActions()
   ezActionManager::UnregisterAction(s_hMenuScene);
   ezActionManager::UnregisterAction(s_hMenuView);
   ezActionManager::UnregisterAction(s_hMenuHelp);
+  ezActionManager::UnregisterAction(s_hOpenWiki);
 }
 
 void ezStandardMenus::MapActions(const char* szMapping, const ezBitflags<ezStandardMenuTypes>& Menus)
@@ -60,17 +63,21 @@ void ezStandardMenus::MapActions(const char* szMapping, const ezBitflags<ezStand
   if (Menus.IsAnySet(ezStandardMenuTypes::Panels))
     pMap->MapAction(s_hMenuPanels, "", 6.0f);
 
-  // not used at the moment
-  // if (Menus.IsAnySet(ezStandardMenuTypes::Help))
-  // pMap->MapAction(s_hMenuHelp, "", 7.0f);
+  if (Menus.IsAnySet(ezStandardMenuTypes::Help))
+  {
+    pMap->MapAction(s_hMenuHelp, "", 7.0f);
+    pMap->MapAction(s_hOpenWiki, "Menu.Help", 1.0f);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////
 // ezApplicationPanelsMenuAction
 ////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezApplicationPanelsMenuAction, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 struct ezComparePanels
 {
@@ -99,7 +106,7 @@ void ezApplicationPanelsMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction
     item.m_UserValue = pPanel;
     item.m_Icon = pPanel->windowIcon();
     item.m_CheckState =
-        pPanel->isVisible() ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
+      pPanel->isVisible() ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
 
     out_Entries.PushBack(item);
   }
@@ -117,4 +124,27 @@ void ezApplicationPanelsMenuAction::Execute(const ezVariant& value)
     pPanel->close();
   else
     pPanel->EnsureVisible();
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezHelpActions, 1, ezRTTINoAllocator);
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezHelpActions::ezHelpActions(const ezActionContext& context, const char* szName, ButtonType button)
+  : ezButtonAction(context, szName, false, "")
+{
+  m_ButtonType = button;
+}
+
+ezHelpActions::~ezHelpActions() = default;
+
+void ezHelpActions::Execute(const ezVariant& value)
+{
+  if (m_ButtonType == ButtonType::OpenWiki)
+  {
+    QDesktopServices::openUrl(QUrl("https://github.com/ezEngine/ezEngine/wiki"));
+  }
 }

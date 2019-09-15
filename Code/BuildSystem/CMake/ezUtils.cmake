@@ -438,3 +438,21 @@ function(ez_init_projects)
 	endforeach ()
 	
 endfunction()
+
+######################################
+### ez_finalize_projects()
+######################################
+
+function(ez_finalize_projects)
+
+	# find all init.cmake files below this directory
+	file (GLOB_RECURSE INIT_FILES "finalize.cmake")
+
+	foreach (INIT_FILE ${INIT_FILES})
+
+		message(STATUS "Including '${INIT_FILE}'")
+		include("${INIT_FILE}")
+
+	endforeach ()
+	
+endfunction()

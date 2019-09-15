@@ -25,40 +25,13 @@ add_dependencies(${PROJECT_NAME}
   EditorPluginScene
   EditorPluginAssets
   EditorPluginParticle
-  EditorPluginFileserve
   EditorPluginProcGen
   ParticlePlugin
   TexConv2
   Player
   InspectorPlugin
   ShaderCompiler
-  RecastPlugin
-  RenderDocPlugin
 )
-
-if (EZ_BUILD_FMOD)
-	add_dependencies(${PROJECT_NAME} EditorPluginFmod FmodPlugin)
-endif()
-
-if (EZ_BUILD_PHYSX)
-	add_dependencies(${PROJECT_NAME} EditorPluginPhysX PhysXPlugin)
-endif()
-
-if (EZ_BUILD_KRAUT)
-	add_dependencies(${PROJECT_NAME} EditorPluginKraut KrautPlugin)
-endif()
-
-if (EZ_BUILD_GAMES)
-	add_dependencies(${PROJECT_NAME} SampleGamePlugin)
-endif()
-
-if (EZ_BUILD_SAMPLES)
-	add_dependencies(${PROJECT_NAME} RtsGamePlugin)
-endif()
-
-if (EZ_3RDPARTY_RECAST_SUPPORT)
-	add_dependencies(${PROJECT_NAME} EditorPluginRecast)
-endif()
 
 # set all external projects as runtime dependencies of this application
 get_property(EXTERNAL_PROJECTS GLOBAL PROPERTY "EXTERNAL_PROJECTS")

@@ -2,12 +2,12 @@
 
 #include <Core/Collection/CollectionResource.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
+#include <GameEngine/Animation/PropertyAnimResource.h>
 #include <GameEngine/Curves/ColorGradientResource.h>
 #include <GameEngine/Curves/Curve1DResource.h>
 #include <GameEngine/GameApplication/GameApplication.h>
-#include <GameEngine/Prefabs/PrefabResource.h>
-#include <GameEngine/Animation/PropertyAnimResource.h>
 #include <GameEngine/Physics/SurfaceResource.h>
+#include <GameEngine/Prefabs/PrefabResource.h>
 #include <GameEngine/VisualScript/VisualScriptResource.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
@@ -253,9 +253,10 @@ void ezGameApplication::Init_LoadRequiredPlugins()
 
 #  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   ezPlugin::LoadPlugin("ezShaderCompilerHLSL");
-#    if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#  endif
+
+#  ifdef BUILDSYSTEM_ENABLE_RENDERDOC_SUPPORT
   ezPlugin::LoadPlugin("ezRenderDocPlugin");
-#    endif
 #  endif
 
   // on sandboxed platforms, we can only load data through fileserve, so enforce use of this plugin

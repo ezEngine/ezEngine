@@ -7,8 +7,9 @@ set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${EZ_CMAKE_UTILS_PATH})
 
 include("ezUtils")
 
-ez_vcpkg_show_info()
-ez_vcpkg_init()
+# Vcpkg is supported, but downloading pre-built packages works better
+# ez_vcpkg_show_info()
+# ez_vcpkg_init()
 
 ez_detect_project_name(DETECTED_NAME)
 
@@ -29,9 +30,9 @@ project (${EZ_SOLUTION_NAME}
 ez_check_build_type()
 ez_write_configuration_txt()
 
-if (EZ_VCPKG_INSTALL_QT)
-	ez_vcpkg_install("qt5-base;qt5-winextras")
-endif()
+#if (EZ_VCPKG_INSTALL_QT)
+#	ez_vcpkg_install("qt5-base;qt5-winextras")
+#endif()
 
 ez_init_projects()
 
@@ -47,3 +48,5 @@ if (TARGET Editor)
 	set_property(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT Editor)
 
 endif()
+
+ez_finalize_projects()

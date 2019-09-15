@@ -117,6 +117,7 @@ ezResult ezArchiveUtils::WriteEntry(ezStreamWriter& stream, const char* szAbsSou
       break;
 #endif
 
+    case ezArchiveCompressionMode::Uncompressed:
     default:
       tocEntry.m_uiStoredDataSize = tocEntry.m_uiUncompressedDataSize;
       break;

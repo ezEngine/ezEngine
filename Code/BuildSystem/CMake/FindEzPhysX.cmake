@@ -6,9 +6,40 @@ if (TARGET ezPhysX::Foundation)
 	return()
 endif()
 
-set (EZ_PHYSX_DIR "EZ_PHYSX_DIR-NOTFOUND" CACHE PATH "Directory of PhysX installation")
+set (EZ_PHYSX_SDK "EZ_PHYSX_SDK-NOTFOUND" CACHE PATH "Directory of PhysX installation")
+mark_as_advanced(FORCE EZ_PHYSX_SDK)
 
-find_path(EZ_PHYSX_DIR PhysX_3.4/Include/PxActor.h
+ez_pull_architecture_vars()
+
+if ((EZ_PHYSX_SDK STREQUAL "EZ_PHYSX_SDK-NOTFOUND") OR (EZ_PHYSX_SDK STREQUAL ""))
+
+  if (EZ_CMAKE_ARCHITECTURE_32BIT)
+    set (EZ_SDK_VERSION "physx-3.4.2-vc142-win32")
+    set (EZ_SDK_URL "https://github.com/ezEngine/thirdparty/releases/download/PhysX-3.4.2-win32-win64/physx-3.4.2-vc142-win32.zip")
+  endif()
+
+  if (EZ_CMAKE_ARCHITECTURE_64BIT)
+    set (EZ_SDK_VERSION "physx-3.4.2-vc142-win64")
+    set (EZ_SDK_URL "https://github.com/ezEngine/thirdparty/releases/download/PhysX-3.4.2-win32-win64/physx-3.4.2-vc142-win64.zip")
+  endif()
+
+  set (EZ_SDK_LOCAL_ZIP "${CMAKE_BINARY_DIR}/${EZ_SDK_VERSION}.zip")
+
+  if (NOT EXISTS ${EZ_SDK_LOCAL_ZIP})
+    message(STATUS "Downloading '${EZ_SDK_URL}'...")
+    file(DOWNLOAD ${EZ_SDK_URL} ${EZ_SDK_LOCAL_ZIP} SHOW_PROGRESS)
+
+    message(STATUS "Extracting '${EZ_SDK_LOCAL_ZIP}'...")  
+    execute_process(COMMAND ${CMAKE_COMMAND} -E tar -xf ${EZ_SDK_LOCAL_ZIP} WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+  else()
+    message(STATUS "Already downloaded '${EZ_SDK_LOCAL_ZIP}'")
+  endif()
+  
+  set (EZ_PHYSX_SDK "${CMAKE_BINARY_DIR}/${EZ_SDK_VERSION}" CACHE PATH "Directory of PhysX installation" FORCE)
+  
+endif()
+
+find_path(EZ_PHYSX_SDK PhysX_3.4/Include/PxActor.h
   PATHS
   ${CMAKE_SOURCE_DIR}/Code/ThirdParty/PhysX
 )
@@ -26,18 +57,18 @@ else()
 endif()
 
 
-set (PHYSX_LIB_DIR "${EZ_PHYSX_DIR}/PhysX_3.4/Lib/${PX_COMPILER_SUFFIX}${PX_FOLDER_SUFFIX}")
-set (PHYSX_BIN_DIR "${EZ_PHYSX_DIR}/PhysX_3.4/Bin/${PX_COMPILER_SUFFIX}${PX_FOLDER_SUFFIX}")
-set (PHYSX_INC_DIR "${EZ_PHYSX_DIR}/PhysX_3.4/Include")
+set (PHYSX_LIB_DIR "${EZ_PHYSX_SDK}/PhysX_3.4/Lib/${PX_COMPILER_SUFFIX}${PX_FOLDER_SUFFIX}")
+set (PHYSX_BIN_DIR "${EZ_PHYSX_SDK}/PhysX_3.4/Bin/${PX_COMPILER_SUFFIX}${PX_FOLDER_SUFFIX}")
+set (PHYSX_INC_DIR "${EZ_PHYSX_SDK}/PhysX_3.4/Include")
 
-set (PXSHARED_LIB_DIR "${EZ_PHYSX_DIR}/PxShared/Lib/${PX_COMPILER_SUFFIX}${PX_FOLDER_SUFFIX}")
-set (PXSHARED_BIN_DIR "${EZ_PHYSX_DIR}/PxShared/Bin/${PX_COMPILER_SUFFIX}${PX_FOLDER_SUFFIX}")
-set (PXSHARED_INC_DIR "${EZ_PHYSX_DIR}/PxShared/Include")
+set (PXSHARED_LIB_DIR "${EZ_PHYSX_SDK}/PxShared/Lib/${PX_COMPILER_SUFFIX}${PX_FOLDER_SUFFIX}")
+set (PXSHARED_BIN_DIR "${EZ_PHYSX_SDK}/PxShared/Bin/${PX_COMPILER_SUFFIX}${PX_FOLDER_SUFFIX}")
+set (PXSHARED_INC_DIR "${EZ_PHYSX_SDK}/PxShared/Include")
 
 
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(ezPhysX DEFAULT_MSG EZ_PHYSX_DIR)
+find_package_handle_standard_args(ezPhysX DEFAULT_MSG EZ_PHYSX_SDK)
 
 if (ezPhysX_FOUND)
 

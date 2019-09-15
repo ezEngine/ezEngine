@@ -17,21 +17,25 @@ void SampleGameState::OnActivation(ezWorld* pWorld, const ezTransform* pStartPos
 
   SUPER::OnActivation(pWorld, pStartPosition);
 
+#ifdef BUILDSYSTEM_ENABLE_IMGUI_SUPPORT
   if (ezImgui::GetSingleton() == nullptr)
   {
     EZ_DEFAULT_NEW(ezImgui);
   }
+#endif
 }
 
 void SampleGameState::OnDeactivation()
 {
   EZ_LOG_BLOCK("GameState::Deactivate");
 
+#ifdef BUILDSYSTEM_ENABLE_IMGUI_SUPPORT
   if (ezImgui::GetSingleton() != nullptr)
   {
     ezImgui* pImgui = ezImgui::GetSingleton();
     EZ_DEFAULT_DELETE(pImgui);
   }
+#endif
 
   SUPER::OnDeactivation();
 }
@@ -40,6 +44,7 @@ void SampleGameState::BeforeWorldUpdate()
 {
   EZ_LOCK(m_pMainWorld->GetWriteMarker());
 
+#ifdef BUILDSYSTEM_ENABLE_IMGUI_SUPPORT
   if (ezImgui::GetSingleton() != nullptr)
   {
     static bool stats = false;
@@ -70,6 +75,7 @@ void SampleGameState::BeforeWorldUpdate()
 
     ImGui::End();
   }
+#endif
 }
 
 
@@ -97,6 +103,7 @@ void SampleGameState::ConfigureInputActions()
 
 void SampleGameState::ProcessInput()
 {
+#ifdef BUILDSYSTEM_ENABLE_IMGUI_SUPPORT
   if (ezImgui::GetSingleton())
   {
     // SampleGameState::ProcessInput() isn't necessary called each frame, if the application decides that the game-state
@@ -108,6 +115,7 @@ void SampleGameState::ProcessInput()
     if (ezImgui::GetSingleton()->WantsInput())
       return;
   }
+#endif
 
   SUPER::ProcessInput();
 

@@ -24,27 +24,12 @@ add_dependencies(${PROJECT_NAME}
   EditorPluginScene
   EditorPluginAssets
   EditorPluginParticle
-  EditorPluginFileserve
   EditorPluginProcGen
   ParticlePlugin
   TexConv2
   Player
   InspectorPlugin
   ShaderCompiler
-  RecastPlugin
-  RenderDocPlugin
 )
-
-if (EZ_BUILD_FMOD)
-  add_dependencies(${PROJECT_NAME} EditorPluginFmod FmodPlugin)
-endif()
-
-if (EZ_BUILD_PHYSX)
-  add_dependencies(${PROJECT_NAME} EditorPluginPhysX PhysXPlugin)
-endif()
-
-if (EZ_BUILD_KRAUT)
-  add_dependencies(${PROJECT_NAME} EditorPluginKraut KrautPlugin)
-endif()
 
 ez_ci_add_test(${PROJECT_NAME} NEEDS_HW_ACCESS)
