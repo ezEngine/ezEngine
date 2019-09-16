@@ -1,9 +1,9 @@
 #pragma once
 
 #include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
+#include <EditorEngineProcessFramework/EngineProcess/WorldRttiConverterContext.h>
 #include <Foundation/Types/Uuid.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
-#include <EditorEngineProcessFramework/EngineProcess/WorldRttiConverterContext.h>
 
 class ezEditorEngineSyncObjectMsg;
 class ezEditorEngineSyncObject;
@@ -111,7 +111,7 @@ protected:
 protected:
   const ezEngineProcessViewContext* GetViewContext(ezUInt32 uiView) const { return uiView >= m_ViewContexts.GetCount() ? nullptr : m_ViewContexts[uiView]; }
 
-  ezGameObjectHandle ResolveStringToGameObjectHandle(const void* pString) const;
+  ezGameObjectHandle ResolveStringToGameObjectHandle(const void* pString, ezComponentHandle hThis, const char* szProperty) const;
 
 private:
   friend class ezEditorEngineSyncObject;
@@ -140,7 +140,7 @@ private:
 private:
   enum Constants
   {
-    ThumbnailSuperscaleFactor = 2, ///< Thumbnail render target size is multiplied by this and then the final image is downscaled again. Needs to be power-of-two.
+    ThumbnailSuperscaleFactor = 2,       ///< Thumbnail render target size is multiplied by this and then the final image is downscaled again. Needs to be power-of-two.
     ThumbnailConvergenceFramesTarget = 4 ///< Due to multi-threaded rendering, this must be at least 2
   };
 
@@ -152,5 +152,27 @@ private:
   ezGALTextureHandle m_hThumbnailColorRT;
   ezGALTextureHandle m_hThumbnailDepthRT;
   bool m_bWorldSimStateBeforeThumbnail = false;
-};
 
+  //////////////////////////////////////////////////////////////////////////
+  // GameObject reference resolution
+private:
+  struct GoReferenceTo
+  {
+    const char* m_szComponentProperty = nullptr;
+    ezUuid m_ReferenceToGameObject;
+  };
+
+  struct GoReferencedBy
+  {
+    const char* m_szComponentProperty = nullptr;
+    ezUuid m_ReferencedByComponent;
+  };
+
+  // Components reference GameObjects
+  mutable ezMap<ezUuid, ezHybridArray<GoReferenceTo, 4>> m_GoRef_ReferencesTo;
+
+  // GameObjects referenced by Components
+  mutable ezMap<ezUuid, ezHybridArray<GoReferencedBy, 4>> m_GoRef_ReferencedBy;
+
+  void WorldRttiConverterContextEventHandler(const ezWorldRttiConverterContext::Event& e);
+};

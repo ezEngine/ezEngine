@@ -164,7 +164,7 @@ namespace ezInternal
     bool m_bReportErrorWhenStaticObjectMoves;
 
     /// \brief Maps some data (given as void*) to an ezGameObjectHandle. Only available in special situations (e.g. editor use cases).
-    ezDelegate<ezGameObjectHandle(const void*)> m_GameObjectReferenceResolver;
+    ezDelegate<ezGameObjectHandle(const void*, ezComponentHandle, const char*)> m_GameObjectReferenceResolver;
 
   public:
     class ReadMarker
