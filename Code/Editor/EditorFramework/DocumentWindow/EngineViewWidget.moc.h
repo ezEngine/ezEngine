@@ -94,6 +94,8 @@ public:
   /// Orthographic views would typically return their projection planes, perspective views may return the ground plane
   virtual ezPlane GetFallbackPickingPlane(ezVec3 vPointOnPlane = ezVec3(0)) const;
 
+  void TakeScreenshot() const;
+
 protected:
   /// \brief Used to deactivate shortcuts
   virtual bool eventFilter(QObject* object, QEvent* event) override;

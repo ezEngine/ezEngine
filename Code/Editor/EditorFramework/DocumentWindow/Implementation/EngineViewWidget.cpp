@@ -211,6 +211,8 @@ const ezObjectPickingResult& ezQtEngineViewWidget::PickObject(ezUInt16 uiScreenP
     msg.m_uiPickPosY = uiScreenPosY * devicePixelRatio();
 
     GetDocumentWindow()->GetDocument()->SendMessageToEngine(&msg);
+
+    TakeScreenshot();
   }
 
   return m_LastPickingResult;
@@ -275,6 +277,14 @@ ezPlane ezQtEngineViewWidget::GetFallbackPickingPlane(ezVec3 vPointOnPlane) cons
   {
     return ezPlane(-m_pViewConfig->m_Camera.GetCenterDirForwards(), vPointOnPlane);
   }
+}
+
+void ezQtEngineViewWidget::TakeScreenshot() const
+{
+  ezViewScreenshotMsgToEngine msg;
+  msg.m_uiViewID = GetViewID();
+  msg.m_sOutputFile = "D:/test.tga";
+  m_pDocumentWindow->GetDocument()->SendMessageToEngine(&msg);
 }
 
 ////////////////////////////////////////////////////////////////////////

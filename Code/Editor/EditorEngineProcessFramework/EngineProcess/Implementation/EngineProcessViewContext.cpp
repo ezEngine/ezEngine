@@ -54,6 +54,14 @@ void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* 
       Redraw(true);
     }
   }
+  else if (ezViewScreenshotMsgToEngine* msg = ezDynamicCast<ezViewScreenshotMsgToEngine*>(pMsg))
+  {
+    ezImage img;
+    ezActorPluginWindow* pWindow = m_pEditorWndActor->GetPlugin<ezActorPluginWindow>();
+    pWindow->GetOutputTarget()->CaptureImage(img);
+
+    img.SaveTo(msg->m_sOutputFile);
+  }
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
   EZ_REPORT_FAILURE("This code path should never be executed on UWP.");
 #elif
@@ -96,8 +104,8 @@ void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt1
     {
       ezUniquePtr<ezEditorProcessViewWindow> pWindow = EZ_DEFAULT_NEW(ezEditorProcessViewWindow);
       pWindow->m_hWnd = hWnd;
-      pWindow->m_uiWidth = uiWidth;
-      pWindow->m_uiHeight = uiHeight;
+      pWindow->m_uiWidth = 640;//uiWidth;
+      pWindow->m_uiHeight = 480;//uiHeight;
 
       pWindowPlugin->m_pWindow = std::move(pWindow);
     }
