@@ -31,9 +31,9 @@ void ezObjectPickingResult::Reset()
 ////////////////////////////////////////////////////////////////////////
 
 ezQtEngineViewWidget::ezQtEngineViewWidget(QWidget* pParent, ezQtEngineDocumentWindow* pDocumentWindow, ezEngineViewConfig* pViewConfig)
-    : QWidget(pParent)
-    , m_pDocumentWindow(pDocumentWindow)
-    , m_pViewConfig(pViewConfig)
+  : QWidget(pParent)
+  , m_pDocumentWindow(pDocumentWindow)
+  , m_pViewConfig(pViewConfig)
 {
   m_pRestartButtonLayout = nullptr;
   m_pRestartButton = nullptr;
@@ -108,8 +108,8 @@ void ezQtEngineViewWidget::SyncToEngine()
   cam.m_uiWindowHeight = height() * this->devicePixelRatio();
   cam.m_bUpdatePickingData = m_bUpdatePickingData;
   cam.m_bEnablePickingSelected =
-      IsPickingAgainstSelectionAllowed() &&
-      (!ezEditorInputContext::IsAnyInputContextActive() || ezEditorInputContext::GetActiveInputContext()->IsPickingSelectedAllowed());
+    IsPickingAgainstSelectionAllowed() &&
+    (!ezEditorInputContext::IsAnyInputContextActive() || ezEditorInputContext::GetActiveInputContext()->IsPickingSelectedAllowed());
 
   m_pDocumentWindow->GetEditorEngineConnection()->SendMessage(&cam);
 }
@@ -153,7 +153,7 @@ void ezQtEngineViewWidget::UpdateCameraInterpolation()
 }
 
 void ezQtEngineViewWidget::InterpolateCameraTo(const ezVec3& vPosition, const ezVec3& vDirection, float fFovOrDim,
-                                               const ezVec3* pNewUpDirection)
+  const ezVec3* pNewUpDirection)
 {
   m_vCameraStartPosition = m_pViewConfig->m_Camera.GetPosition();
   m_vCameraTargetPosition = vPosition;
@@ -211,8 +211,6 @@ const ezObjectPickingResult& ezQtEngineViewWidget::PickObject(ezUInt16 uiScreenP
     msg.m_uiPickPosY = uiScreenPosY * devicePixelRatio();
 
     GetDocumentWindow()->GetDocument()->SendMessageToEngine(&msg);
-
-    TakeScreenshot();
   }
 
   return m_LastPickingResult;
@@ -279,11 +277,11 @@ ezPlane ezQtEngineViewWidget::GetFallbackPickingPlane(ezVec3 vPointOnPlane) cons
   }
 }
 
-void ezQtEngineViewWidget::TakeScreenshot() const
+void ezQtEngineViewWidget::TakeScreenshot(const char* szOutputPath) const
 {
   ezViewScreenshotMsgToEngine msg;
   msg.m_uiViewID = GetViewID();
-  msg.m_sOutputFile = "D:/test.tga";
+  msg.m_sOutputFile = szOutputPath;
   m_pDocumentWindow->GetDocument()->SendMessageToEngine(&msg);
 }
 
@@ -650,7 +648,7 @@ void ezQtEngineViewWidget::SlotRestartEngineProcess()
 ////////////////////////////////////////////////////////////////////////
 
 ezQtViewWidgetContainer::ezQtViewWidgetContainer(QWidget* pParent, ezQtEngineViewWidget* pViewWidget, const char* szToolBarMapping)
-    : QWidget(pParent)
+  : QWidget(pParent)
 {
   setBackgroundRole(QPalette::Base);
   setAutoFillBackground(true);

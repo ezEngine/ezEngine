@@ -129,6 +129,48 @@ ezResult ezEditorTest::CreateAndLoadProject(const char* name)
   return EZ_SUCCESS;
 }
 
+ezResult ezEditorTest::OpenProject(const char* path)
+{
+  EZ_PROFILE_SCOPE("OpenProject");
+  ezStringBuilder relPath;
+  relPath = ">sdk";
+  relPath.AppendPath(path);
+
+  ezStringBuilder absPath;
+  if (ezFileSystem::ResolveSpecialDirectory(relPath, absPath).Failed())
+  {
+    ezLog::Error("Failed to resolve project path '{0}'.", relPath);
+    return EZ_FAILURE;
+  }
+
+  ezStringBuilder projectFile = absPath;
+  projectFile.AppendPath("ezProject");
+  if (m_pApplication->m_pEditorApp->CreateOrOpenProject(false, projectFile).Failed())
+  {
+    ezLog::Error("Failed to open project '{0}'.", projectFile);
+    return EZ_FAILURE;
+  }
+
+  m_sProjectPath = absPath;
+  return EZ_SUCCESS;
+}
+
+ezDocument* ezEditorTest::OpenDocument(const char* subpath)
+{
+  ezStringBuilder fullpath;
+  fullpath = m_sProjectPath;
+  fullpath.AppendPath(subpath);
+
+  ezDocument* pDoc = m_pApplication->m_pEditorApp->OpenDocument(fullpath, ezDocumentFlags::RequestWindow);
+
+  if (pDoc)
+  {
+    ProcessEvents();
+  }
+
+  return pDoc;
+}
+
 void ezEditorTest::CloseCurrentProject()
 {
   EZ_PROFILE_SCOPE("CloseCurrentProject");

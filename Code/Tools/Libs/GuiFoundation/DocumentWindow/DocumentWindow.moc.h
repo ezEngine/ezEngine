@@ -85,6 +85,9 @@ public:
   /// \brief Returns at which tab order index this window is located
   ezUInt32 GetWindowIndex() const { return m_uiWindowIndex; }
 
+  /// \brief For unit tests to take a screenshot of the window (may include multiple views) to do image comparisons.
+  virtual void CreateImageCapture(const char* szOutputPath);
+
 protected:
   void FinishWindowCreation();
 

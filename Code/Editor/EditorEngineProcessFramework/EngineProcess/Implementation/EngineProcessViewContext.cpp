@@ -54,7 +54,7 @@ void ezEngineProcessViewContext::HandleViewMessage(const ezEditorEngineViewMsg* 
       Redraw(true);
     }
   }
-  else if (ezViewScreenshotMsgToEngine* msg = ezDynamicCast<ezViewScreenshotMsgToEngine*>(pMsg))
+  else if (const ezViewScreenshotMsgToEngine* msg = ezDynamicCast<const ezViewScreenshotMsgToEngine*>(pMsg))
   {
     ezImage img;
     ezActorPluginWindow* pWindow = m_pEditorWndActor->GetPlugin<ezActorPluginWindow>();

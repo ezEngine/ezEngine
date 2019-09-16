@@ -9,6 +9,8 @@
 #include <QSettings>
 #include <QtNetwork/QHostInfo>
 
+class ezSceneDocument;
+
 class ezEditorTestApplication : public ezApplication
 {
 public:
@@ -43,6 +45,9 @@ protected:
   virtual ezResult DeInitializeTest() override;
 
   ezResult CreateAndLoadProject(const char* name);
+  ezResult OpenProject(const char* path);
+  ezDocument* OpenDocument(const char* subpath);
+
   void CloseCurrentProject();
   void SafeProfilingData();
   void ProcessEvents(ezUInt32 uiIterations = 1);

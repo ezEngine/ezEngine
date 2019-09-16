@@ -708,7 +708,9 @@ ezGameObjectHandle ezEngineProcessDocumentContext::ResolveStringToGameObjectHand
   if (!srcComponentGuid.IsValid())
   {
     ezComponent* pComponent = nullptr;
-    m_pWorld->TryGetComponent(hThis, pComponent);
+    if (!m_pWorld->TryGetComponent(hThis, pComponent))
+      return ezGameObjectHandle();
+
     ezGameObject* pOwner = pComponent->GetOwner();
 
     while (pOwner)
