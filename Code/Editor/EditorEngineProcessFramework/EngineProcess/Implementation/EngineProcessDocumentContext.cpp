@@ -20,6 +20,7 @@
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <GameEngine/GameApplication/GameApplication.h>
+#include <GameEngine/Prefabs/PrefabReferenceComponent.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Device/Device.h>
@@ -629,48 +630,61 @@ void ezEngineProcessDocumentContext::WorldRttiConverterContextEventHandler(const
 {
   if (e.m_Type == ezWorldRttiConverterContext::Event::Type::GameObjectCreated)
   {
+    // see whether the newly created object is already referenced by other objects
     auto it = m_GoRef_ReferencedBy.Find(e.m_ObjectGuid);
     if (!it.IsValid())
       return;
 
     ezStringBuilder tmp;
 
+    // iterate over all objects that may reference the new object
     for (const auto& ref : it.Value())
     {
       const ezUuid compGuid = ref.m_ReferencedByComponent;
       if (!compGuid.IsValid())
         continue;
 
-      ezComponentHandle hRefComp;
-
-      ezUInt64 uiLow, uiHigh;
-      compGuid.GetValues(uiLow, uiHigh);
-      if (uiHigh == 0xAABBCCDDAABBCCDD)
-      {
-        // ...
-      }
-      else
-      {
-        hRefComp = m_Context.m_ComponentMap.GetHandle(compGuid);
-      }
+      // check whether the object that references the new object is already known (may be dead or not yet created as well)
+      ezComponentHandle hRefComp = m_Context.m_ComponentMap.GetHandle(compGuid);
 
       if (hRefComp.IsInvalidated())
         continue;
 
       ezComponent* pRefComp = nullptr;
-      if (!GetWorld()->TryGetComponent(hRefComp,pRefComp))
+      if (!GetWorld()->TryGetComponent(hRefComp, pRefComp))
         continue;
 
-      ezAbstractProperty* pAbsProp = pRefComp->GetDynamicRTTI()->FindPropertyByName(ref.m_szComponentProperty);
-      if (pAbsProp == nullptr)
-        continue;
+      if (!ezStringUtils::IsNullOrEmpty(ref.m_szComponentProperty))
+      {
+        // in this case, a 'regular' component+property reference the new object
+        // so we can just re-apply the reference (by setting the property again)
+        // and thus trigger that the other object updates/fixes its internal state
 
-      if (pAbsProp->GetCategory() != ezPropertyCategory::Member)
-        continue;
+        ezAbstractProperty* pAbsProp = pRefComp->GetDynamicRTTI()->FindPropertyByName(ref.m_szComponentProperty);
+        if (pAbsProp == nullptr)
+          continue;
 
-      ezConversionUtils::ToString(e.m_ObjectGuid, tmp);
+        if (pAbsProp->GetCategory() != ezPropertyCategory::Member)
+          continue;
 
-      ezReflectionUtils::SetMemberPropertyValue(static_cast<ezAbstractMemberProperty*>(pAbsProp), pRefComp, tmp.GetData());
+        ezConversionUtils::ToString(e.m_ObjectGuid, tmp);
+
+        ezReflectionUtils::SetMemberPropertyValue(static_cast<ezAbstractMemberProperty*>(pAbsProp), pRefComp, tmp.GetData());
+      }
+      else
+      {
+        // in this case, the object was referenced from a component inside a prefab
+        // the problem with prefabs is, that their internal objects and components are recreated all the time
+        // (e.g. every time any exposed parameter is changed)
+        // and since we have no GUIDs for the internal objects, we cannot directly update those internal references
+        // we can, however, just update the entire prefab, which will kill all internal objects and recreate them
+
+        ezPrefabReferenceComponent* pPrefab = ezDynamicCast<ezPrefabReferenceComponent*>(pRefComp);
+        EZ_ASSERT_DEV(pPrefab != nullptr, "Game-Object reference update: Expected an ezPrefabReferenceComponent");
+
+        ezPrefabReferenceComponentManager* pManager = ezStaticCast<ezPrefabReferenceComponentManager*>(pPrefab->GetOwningManager());
+        pManager->AddToUpdateList(pPrefab);
+      }
     }
   }
   else if (e.m_Type == ezWorldRttiConverterContext::Event::Type::GameObjectDeleted)
@@ -678,14 +692,6 @@ void ezEngineProcessDocumentContext::WorldRttiConverterContextEventHandler(const
     m_GoRef_ReferencesTo.Remove(e.m_ObjectGuid);
   }
 }
-
-// TODO: structure event handler: on object deleted / added -> update m_GoRef_ReferencesTo / m_GoRef_ReferencedBy
-// on object added:
-// check if object is already in the m_GoRef_ReferencedBy list
-// if so, go to all referencors and re-apply the reference (setProperty "x" -> "guid") (this fixes 'undo delete object')
-
-// TODO / problems:
-// at the time of first reference resolving the target object may not be known yet (ordering problem in the scene tree)
 
 ezGameObjectHandle ezEngineProcessDocumentContext::ResolveStringToGameObjectHandle(const void* pData, ezComponentHandle hThis, const char* szComponentProperty) const
 {
@@ -701,13 +707,41 @@ ezGameObjectHandle ezEngineProcessDocumentContext::ResolveStringToGameObjectHand
   ezUuid srcComponentGuid = m_Context.m_ComponentMap.GetGuid(hThis);
   if (!srcComponentGuid.IsValid())
   {
-    ezUInt64 uiLow = 0;
-    ezUInt64 uiHigh = 0xAABBCCDDAABBCCDDull;
-    ezComponentId id = hThis.GetInternalID();
-    EZ_CHECK_AT_COMPILETIME(sizeof(id) == sizeof(ezUInt64));
-    ezMemoryUtils::Copy(&uiLow, reinterpret_cast<ezUInt64*>(&id), 1);
+    ezComponent* pComponent = nullptr;
+    m_pWorld->TryGetComponent(hThis, pComponent);
+    ezGameObject* pOwner = pComponent->GetOwner();
 
-    srcComponentGuid = ezUuid(uiLow, uiHigh);
+    while (pOwner)
+    {
+      srcComponentGuid = m_Context.m_GameObjectMap.GetGuid(pOwner->GetHandle());
+
+      if (srcComponentGuid.IsValid())
+        break;
+
+      pOwner = pOwner->GetParent();
+    }
+
+    // currently we assume all these conditions should be met
+    // have to check with reality, though
+    EZ_ASSERT_DEV(pOwner != nullptr, "Expected a known top level object");
+    EZ_ASSERT_DEV(srcComponentGuid.IsValid(), "Expected a known top level object");
+    ezPrefabReferenceComponent* pPrefabComponent;
+    if (pOwner->TryGetComponentOfBaseType(pPrefabComponent))
+    {
+      srcComponentGuid = m_Context.m_ComponentMap.GetGuid(pPrefabComponent->GetHandle());
+      EZ_ASSERT_DEV(srcComponentGuid.IsValid(), "");
+
+      // tag this reference as being special
+      szComponentProperty = nullptr;
+    }
+    else
+    {
+      // this could probably happen if we have a component that creates sub-objects even at edit time
+      // and is not a prefab reference component
+      // and uses game object references
+      EZ_ASSERT_DEV(false, "Expected a known ezPrefabReferenceComponent as top-level object");
+      return ezGameObjectHandle();
+    }
   }
 
   ezUuid newTargetGuid;
@@ -716,6 +750,10 @@ ezGameObjectHandle ezEngineProcessDocumentContext::ResolveStringToGameObjectHand
   if (ezConversionUtils::IsStringUuid(szTargetGuid))
   {
     newTargetGuid = ezConversionUtils::ConvertStringToUuid(szTargetGuid);
+  }
+  else
+  {
+    EZ_ASSERT_DEV(ezStringUtils::IsNullOrEmpty(szTargetGuid), "Assuming only GUID references");
   }
 
   // update which object this component+property map to
