@@ -1,18 +1,18 @@
 #include <GuiFoundationPCH.h>
 
-#include <GuiFoundation/Action/ActionManager.h>
-#include <GuiFoundation/Action/DocumentActions.h>
-#include <GuiFoundation/Action/StandardMenus.h>
-#include <GuiFoundation/Action/CommandHistoryActions.h>
-#include <GuiFoundation/Action/EditActions.h>
 #include <Foundation/Configuration/Startup.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/Logging/Log.h>
-#include <ToolsFoundation/Application/ApplicationServices.h>
-#include <Foundation/IO/OpenDdlWriter.h>
-#include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/IO/OpenDdlReader.h>
+#include <Foundation/IO/OpenDdlWriter.h>
+#include <Foundation/Logging/Log.h>
+#include <GuiFoundation/Action/ActionManager.h>
+#include <GuiFoundation/Action/CommandHistoryActions.h>
+#include <GuiFoundation/Action/DocumentActions.h>
+#include <GuiFoundation/Action/EditActions.h>
+#include <GuiFoundation/Action/StandardMenus.h>
+#include <ToolsFoundation/Application/ApplicationServices.h>
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, ActionManager)
@@ -124,6 +124,46 @@ ezActionDescriptorHandle ezActionManager::GetActionHandle(const char* szCategory
   return hAction;
 }
 
+ezString ezActionManager::FindActionCategory(const char* szActionName)
+{
+  for (auto itCat : s_CategoryPathToActions)
+  {
+    if (itCat.Value().m_ActionNameToHandle.Contains(szActionName))
+      return itCat.Key();
+  }
+
+  return ezString();
+}
+
+ezResult ezActionManager::ExecuteAction(const char* szCategory, const char* szActionName, const ezActionContext& context, const ezVariant& value /*= ezVariant()*/)
+{
+  ezString sCategory = szCategory;
+
+  if (szCategory == nullptr)
+  {
+    sCategory = FindActionCategory(szActionName); 
+  }
+
+  auto hAction = ezActionManager::GetActionHandle(sCategory, szActionName);
+
+  if (hAction.IsInvalidated())
+    return EZ_FAILURE;
+
+  const ezActionDescriptor* pDesc = ezActionManager::GetActionDescriptor(hAction);
+
+  if (pDesc == nullptr)
+    return EZ_FAILURE;
+
+  ezAction* pAction = pDesc->CreateAction(context);
+
+  if (pAction == nullptr)
+    return EZ_FAILURE;
+
+  pAction->Execute(value);
+  pDesc->DeleteAction(pAction);
+
+  return EZ_SUCCESS;
+}
 
 void ezActionManager::SaveShortcutAssignment()
 {

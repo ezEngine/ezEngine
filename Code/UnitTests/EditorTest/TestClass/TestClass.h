@@ -1,13 +1,14 @@
 #pragma once
 
-#include <TestFramework/Framework/TestBaseClass.h>
-#include <Foundation/Application/Application.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <GuiFoundation/UIServices/ImageCache.moc.h>
+#include <Foundation/Application/Application.h>
 #include <Foundation/Configuration/Startup.h>
+#include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <QApplication>
 #include <QSettings>
 #include <QtNetwork/QHostInfo>
+#include <TestFramework/Framework/TestBaseClass.h>
+#include <Texture/Image/Image.h>
 
 class ezSceneDocument;
 
@@ -34,11 +35,13 @@ public:
 class ezEditorTest : public ezTestBaseClass
 {
   typedef ezTestBaseClass SUPER;
+
 public:
   ezEditorTest();
   ~ezEditorTest();
 
   virtual ezEditorTestApplication* CreateApplication();
+  virtual ezResult GetImage(ezImage& img) override;
 
 protected:
   virtual ezResult InitializeTest() override;
@@ -47,6 +50,8 @@ protected:
   ezResult CreateAndLoadProject(const char* name);
   ezResult OpenProject(const char* path);
   ezDocument* OpenDocument(const char* subpath);
+  void ExecuteDocumentAction(const char* szActionName, ezDocument* pDocument, const ezVariant& argument = ezVariant());
+  ezResult CaptureImage(ezQtDocumentWindow* pWindow, const char* szImageName);
 
   void CloseCurrentProject();
   void SafeProfilingData();
@@ -54,6 +59,5 @@ protected:
 
   ezEditorTestApplication* m_pApplication = nullptr;
   ezString m_sProjectPath;
+  ezImage m_CapturedImage;
 };
-
-

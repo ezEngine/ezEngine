@@ -3,37 +3,37 @@
 #include <Foundation/Basics.h>
 #include <GuiFoundation/Action/Action.h>
 
-#define EZ_REGISTER_ACTION_0(ActionName, Scope, CategoryName, ShortCut, ActionClass) \
+#define EZ_REGISTER_ACTION_0(ActionName, Scope, CategoryName, ShortCut, ActionClass)                                  \
   ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Action, Scope, ActionName, CategoryName, ShortCut, \
-    [](const ezActionContext& context)->ezAction* { return EZ_DEFAULT_NEW(ActionClass, context, ActionName); }));
+    [](const ezActionContext& context) -> ezAction* { return EZ_DEFAULT_NEW(ActionClass, context, ActionName); }));
 
-#define EZ_REGISTER_ACTION_1(ActionName, Scope, CategoryName, ShortCut, ActionClass, Param1) \
+#define EZ_REGISTER_ACTION_1(ActionName, Scope, CategoryName, ShortCut, ActionClass, Param1)                          \
   ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Action, Scope, ActionName, CategoryName, ShortCut, \
-    [](const ezActionContext& context)->ezAction* { return EZ_DEFAULT_NEW(ActionClass, context, ActionName, Param1); }));
+    [](const ezActionContext& context) -> ezAction* { return EZ_DEFAULT_NEW(ActionClass, context, ActionName, Param1); }));
 
-#define EZ_REGISTER_ACTION_2(ActionName, Scope, CategoryName, ShortCut, ActionClass, Param1, Param2) \
+#define EZ_REGISTER_ACTION_2(ActionName, Scope, CategoryName, ShortCut, ActionClass, Param1, Param2)                  \
   ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Action, Scope, ActionName, CategoryName, ShortCut, \
-    [](const ezActionContext& context)->ezAction* { return EZ_DEFAULT_NEW(ActionClass, context, ActionName, Param1, Param2); }));
+    [](const ezActionContext& context) -> ezAction* { return EZ_DEFAULT_NEW(ActionClass, context, ActionName, Param1, Param2); }));
 
-#define EZ_REGISTER_DYNAMIC_MENU(ActionName, ActionClass, IconPath) \
+#define EZ_REGISTER_DYNAMIC_MENU(ActionName, ActionClass, IconPath)                                                  \
   ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Menu, ezActionScope::Default, ActionName, "", "", \
-    [](const ezActionContext& context)->ezAction* { return EZ_DEFAULT_NEW(ActionClass, context, ActionName, IconPath); }));
+    [](const ezActionContext& context) -> ezAction* { return EZ_DEFAULT_NEW(ActionClass, context, ActionName, IconPath); }));
 
-#define EZ_REGISTER_ACTION_AND_DYNAMIC_MENU_1(ActionName, Scope, CategoryName, ShortCut, ActionClass, Param1) \
+#define EZ_REGISTER_ACTION_AND_DYNAMIC_MENU_1(ActionName, Scope, CategoryName, ShortCut, ActionClass, Param1)                \
   ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::ActionAndMenu, Scope, ActionName, CategoryName, ShortCut, \
-    [](const ezActionContext& context)->ezAction* { return EZ_DEFAULT_NEW(ActionClass, context, ActionName, Param1); }));
+    [](const ezActionContext& context) -> ezAction* { return EZ_DEFAULT_NEW(ActionClass, context, ActionName, Param1); }));
 
-#define EZ_REGISTER_MENU(ActionName) \
+#define EZ_REGISTER_MENU(ActionName)                                                                                 \
   ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Menu, ezActionScope::Default, ActionName, "", "", \
-    [](const ezActionContext& context)->ezAction*{ return EZ_DEFAULT_NEW(ezMenuAction, context, ActionName, ""); }));
+    [](const ezActionContext& context) -> ezAction* { return EZ_DEFAULT_NEW(ezMenuAction, context, ActionName, ""); }));
 
-#define EZ_REGISTER_MENU_WITH_ICON(ActionName, IconPath) \
+#define EZ_REGISTER_MENU_WITH_ICON(ActionName, IconPath)                                                             \
   ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Menu, ezActionScope::Default, ActionName, "", "", \
-    [](const ezActionContext& context)->ezAction*{ return EZ_DEFAULT_NEW(ezMenuAction, context, ActionName, IconPath); }));
+    [](const ezActionContext& context) -> ezAction* { return EZ_DEFAULT_NEW(ezMenuAction, context, ActionName, IconPath); }));
 
-#define EZ_REGISTER_CATEGORY(CategoryName) \
+#define EZ_REGISTER_CATEGORY(CategoryName)                                                                                 \
   ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Category, ezActionScope::Default, CategoryName, "", "", \
-    [](const ezActionContext& context)->ezAction*{ return EZ_DEFAULT_NEW(ezCategoryAction, context); }));
+    [](const ezActionContext& context) -> ezAction* { return EZ_DEFAULT_NEW(ezCategoryAction, context); }));
 
 ///
 class EZ_GUIFOUNDATION_DLL ezActionManager
@@ -42,7 +42,26 @@ public:
   static ezActionDescriptorHandle RegisterAction(const ezActionDescriptor& desc);
   static bool UnregisterAction(ezActionDescriptorHandle& hAction);
   static const ezActionDescriptor* GetActionDescriptor(ezActionDescriptorHandle hAction);
-  static ezActionDescriptorHandle GetActionHandle(const char* szCategoryPath, const char* szActionName);
+  static ezActionDescriptorHandle GetActionHandle(const char* szCategory, const char* szActionName);
+
+  /// \brief Searches all action categories for the given action name. Returns the category name in which the action name was found, or an empty string.
+  static ezString FindActionCategory(const char* szActionName);
+
+  /// \brief Quick way to execute an action from code
+  ///
+  /// The use case is mostly for unit tests, which need to execute actions directly and without a link dependency on
+  /// the code that registered the action.
+  ///
+  /// \param szCategory The category of the action, ie. under which name the action appears in the Shortcut binding dialog.
+  ///        For example "Scene", "Scene - Cameras", "Scene - Selection", "Assets" etc.
+  ///        This parameter may be nullptr in which case FindActionCategory(szActionName) is used to try to detect the category automatically.
+  /// \param szActionName The name (not mapped path) under which the action was registered.
+  ///        For example "Selection.Copy", "Prefabs.ConvertToEngine", "Scene.Camera.SnapObjectToCamera"
+  /// \param context The context in which to execute the action. Depending on the ezActionScope of the target action,
+  ///        some members are optional. E.g. for document actions, only the m_pDocument member must be specified.
+  /// \param value Optional value passed through to the ezAction::Execute() call. Some actions use it, most don't.
+  /// \return Returns failure in case the action could not be found.
+  static ezResult ExecuteAction(const char* szCategory, const char* szActionName, const ezActionContext& context, const ezVariant& value = ezVariant());
 
   static void SaveShortcutAssignment();
   static void LoadShortcutAssignment();
@@ -83,4 +102,3 @@ private:
   static ezMap<ezString, CategoryData> s_CategoryPathToActions;
   static ezMap<ezString, ezString> s_ShortcutOverride;
 };
-

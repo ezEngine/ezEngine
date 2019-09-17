@@ -104,8 +104,8 @@ void ezEngineProcessViewContext::HandleWindowUpdate(ezWindowHandle hWnd, ezUInt1
     {
       ezUniquePtr<ezEditorProcessViewWindow> pWindow = EZ_DEFAULT_NEW(ezEditorProcessViewWindow);
       pWindow->m_hWnd = hWnd;
-      pWindow->m_uiWidth = 640;//uiWidth;
-      pWindow->m_uiHeight = 480;//uiHeight;
+      pWindow->m_uiWidth = uiWidth;
+      pWindow->m_uiHeight = uiHeight;
 
       pWindowPlugin->m_pWindow = std::move(pWindow);
     }

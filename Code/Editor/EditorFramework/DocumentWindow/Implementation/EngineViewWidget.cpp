@@ -30,6 +30,8 @@ void ezObjectPickingResult::Reset()
 // ezQtEngineViewWidget public functions
 ////////////////////////////////////////////////////////////////////////
 
+ezSizeU32 ezQtEngineViewWidget::s_FixedResolution(0, 0);
+
 ezQtEngineViewWidget::ezQtEngineViewWidget(QWidget* pParent, ezQtEngineDocumentWindow* pDocumentWindow, ezEngineViewConfig* pViewConfig)
   : QWidget(pParent)
   , m_pDocumentWindow(pDocumentWindow)
@@ -111,6 +113,12 @@ void ezQtEngineViewWidget::SyncToEngine()
     IsPickingAgainstSelectionAllowed() &&
     (!ezEditorInputContext::IsAnyInputContextActive() || ezEditorInputContext::GetActiveInputContext()->IsPickingSelectedAllowed());
 
+  if (s_FixedResolution.HasNonZeroArea())
+  {
+    cam.m_uiWindowWidth = s_FixedResolution.width;
+    cam.m_uiWindowHeight = s_FixedResolution.height;
+  }
+
   m_pDocumentWindow->GetEditorEngineConnection()->SendMessage(&cam);
 }
 
@@ -153,7 +161,7 @@ void ezQtEngineViewWidget::UpdateCameraInterpolation()
 }
 
 void ezQtEngineViewWidget::InterpolateCameraTo(const ezVec3& vPosition, const ezVec3& vDirection, float fFovOrDim,
-  const ezVec3* pNewUpDirection)
+  const ezVec3* pNewUpDirection /*= nullptr*/, bool bImmediate /*= false*/)
 {
   m_vCameraStartPosition = m_pViewConfig->m_Camera.GetPosition();
   m_vCameraTargetPosition = vPosition;
@@ -184,8 +192,14 @@ void ezQtEngineViewWidget::InterpolateCameraTo(const ezVec3& vPosition, const ez
     return;
 
   m_LastCameraUpdate = ezTime::Now();
-
   m_fCameraLerp = 0.0f;
+
+  if (bImmediate)
+  {
+    // make sure the next camera update interpolates all the way
+    m_LastCameraUpdate -= ezTime::Seconds(10);
+    m_fCameraLerp = 0.9f;
+  }
 }
 
 void ezQtEngineViewWidget::OpenContextMenu(QPoint globalPos)

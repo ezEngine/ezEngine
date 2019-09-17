@@ -917,7 +917,7 @@ void ezSceneDocument::RestoreFavouriteCamera(ezUInt8 uiSlot)
   }
 }
 
-ezResult ezSceneDocument::JumpToLevelCamera(ezUInt8 uiSlot)
+ezResult ezSceneDocument::JumpToLevelCamera(ezUInt8 uiSlot, bool bImmediate)
 {
   EZ_ASSERT_DEBUG(uiSlot < 10, "Invalid slot");
 
@@ -959,7 +959,7 @@ ezResult ezSceneDocument::JumpToLevelCamera(ezUInt8 uiSlot)
   const ezTransform tCam = GetGlobalTransform(pCamObj);
 
   ezVec3 vUp = tCam.m_qRotation * ezVec3(0, 0, 1);
-  pView->InterpolateCameraTo(tCam.m_vPosition, tCam.m_qRotation * ezVec3(1, 0, 0), pView->m_pViewConfig->m_Camera.GetFovOrDim(), &vUp);
+  pView->InterpolateCameraTo(tCam.m_vPosition, tCam.m_qRotation * ezVec3(1, 0, 0), pView->m_pViewConfig->m_Camera.GetFovOrDim(), &vUp, bImmediate);
 
   return EZ_SUCCESS;
 }

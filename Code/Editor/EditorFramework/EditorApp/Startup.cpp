@@ -152,10 +152,11 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> flags, const char* sz
 {
   EZ_PROFILE_SCOPE("StartupEditor");
 
+  m_bUnitTestMode = flags.IsSet(StartupFlags::UnitTest);
+
   m_bHeadless = flags.IsSet(StartupFlags::Headless);
   if (!m_bHeadless)
   {
-    // ezUniquePtr does not work with forward declared classes :-(
     m_pProgressbar = EZ_DEFAULT_NEW(ezProgress);
     m_pQtProgressbar = EZ_DEFAULT_NEW(ezQtProgressbar);
 
@@ -170,7 +171,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> flags, const char* sz
   }
 
   m_bSafeMode = flags.IsSet(StartupFlags::SafeMode);
-  const bool bNoRecent = m_bSafeMode || m_bHeadless || flags.IsSet(StartupFlags::NoRecent);
+  const bool bNoRecent = m_bUnitTestMode || m_bSafeMode || m_bHeadless || flags.IsSet(StartupFlags::NoRecent);
 
   ezString sApplicationName = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-appname", 0, "ezEditor");
   ezApplicationServices::GetSingleton()->SetApplicationName(sApplicationName);
@@ -271,7 +272,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> flags, const char* sz
 
   ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
 
-  if (!bNoRecent && pPreferences->m_bLoadLastProjectAtStartup && !m_WhatsNew.HasChanged())
+  if (!bNoRecent && !m_bUnitTestMode && pPreferences->m_bLoadLastProjectAtStartup && !m_WhatsNew.HasChanged())
   {
     // first open the project, so that the data directory list is read
     if (!s_RecentProjects.GetFileList().IsEmpty())
@@ -288,7 +289,7 @@ void ezQtEditorApp::ShutdownEditor()
 {
   ezToolsProject::CloseProject();
 
-  if (!m_bHeadless)
+  if (!m_bHeadless && !m_bUnitTestMode)
   {
     m_WhatsNew.StoreLastRead();
   }

@@ -1,8 +1,10 @@
 #include <EditorTestPCH.h>
 
 #include "TestClass.h"
+#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <GuiFoundation/Action/ActionManager.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
 ezEditorTestApplication::ezEditorTestApplication()
@@ -48,10 +50,12 @@ void ezEditorTestApplication::AfterCoreSystemsStartup()
   userDataDir.AppendPath("ezEngine Project", "EditorTest");
   userDataDir.MakeCleanPath();
 
-  ezQtEditorApp::GetSingleton()->StartupEditor(ezQtEditorApp::StartupFlags::SafeMode | ezQtEditorApp::StartupFlags::NoRecent, userDataDir);
+  ezQtEditorApp::GetSingleton()->StartupEditor(ezQtEditorApp::StartupFlags::SafeMode | ezQtEditorApp::StartupFlags::NoRecent | ezQtEditorApp::StartupFlags::UnitTest, userDataDir);
   // Disable msg boxes.
   ezQtUiServices::SetHeadless(true);
   ezFileSystem::SetSpecialDirectory("testout", ezTestFramework::GetInstance()->GetAbsOutputPath());
+
+  ezFileSystem::AddDataDirectory(">eztest/", "ImageComparisonDataDir", "imgout", ezFileSystem::AllowWrites);
 }
 
 void ezEditorTestApplication::BeforeHighLevelSystemsShutdown()
@@ -62,12 +66,25 @@ void ezEditorTestApplication::BeforeHighLevelSystemsShutdown()
 
 //////////////////////////////////////////////////////////////////////////
 
-ezEditorTest::ezEditorTest() = default;
+ezEditorTest::ezEditorTest()
+{
+  ezQtEngineViewWidget::s_FixedResolution = ezSizeU32(512, 512);
+}
+
 ezEditorTest::~ezEditorTest() = default;
 
 ezEditorTestApplication* ezEditorTest::CreateApplication()
 {
   return EZ_DEFAULT_NEW(ezEditorTestApplication);
+}
+
+ezResult ezEditorTest::GetImage(ezImage& img)
+{
+  if (!m_CapturedImage.IsValid())
+    return EZ_FAILURE;
+
+  img.ResetAndMove(std::move(m_CapturedImage));
+  return EZ_SUCCESS;
 }
 
 ezResult ezEditorTest::InitializeTest()
@@ -169,6 +186,36 @@ ezDocument* ezEditorTest::OpenDocument(const char* subpath)
   }
 
   return pDoc;
+}
+
+void ezEditorTest::ExecuteDocumentAction(const char* szActionName, ezDocument* pDocument, const ezVariant& argument /*= ezVariant()*/)
+{
+  EZ_TEST_BOOL(ezActionManager::ExecuteAction(nullptr, szActionName, pDocument, argument).Succeeded());
+}
+
+ezResult ezEditorTest::CaptureImage(ezQtDocumentWindow* pWindow, const char* szImageName)
+{
+  ezStringBuilder sImgPath;
+  // TODO: fix this
+  sImgPath.Format("D:/{}.tga", szImageName);
+
+  ezOSFile::DeleteFile(sImgPath);
+
+  pWindow->CreateImageCapture(sImgPath);
+
+  // TODO: fix this
+  for (int i = 0; i < 10; ++i)
+  {
+    ezThreadUtils::Sleep(ezTime::Milliseconds(100));
+    ProcessEvents();
+  }
+
+  if (!ezOSFile::ExistsFile(sImgPath))
+    return EZ_FAILURE;
+
+  EZ_SUCCEED_OR_RETURN(m_CapturedImage.LoadFrom(sImgPath));
+
+  return EZ_SUCCESS;
 }
 
 void ezEditorTest::CloseCurrentProject()

@@ -1,11 +1,12 @@
 #include <EditorTestPCH.h>
 
 #include "Misc.h"
+#include <EditorFramework/Assets/AssetCurator.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Strings/StringConversion.h>
+#include <GuiFoundation/Action/ActionManager.h>
 #include <RendererCore/Components/SkyBoxComponent.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
-#include <EditorFramework/Assets/AssetCurator.h>
 
 static ezEditorTestMisc s_GameEngineTestBasics;
 
@@ -44,27 +45,25 @@ ezTestAppRun ezEditorTestMisc::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvoca
   {
     m_pDocument = SUPER::OpenDocument("Scenes/GameObjectReferences.ezScene");
 
-    ezQtDocumentWindow* pWindow = ezQtDocumentWindow::FindWindowByDocument(m_pDocument);
-
-    pWindow->CreateImageCapture("D:/test.tga");
-
-    if (EZ_TEST_BOOL(m_pDocument!= nullptr).Failed())
+    if (EZ_TEST_BOOL(m_pDocument != nullptr).Failed())
       return ezTestAppRun::Quit;
 
+    ezQtDocumentWindow* pWindow = ezQtDocumentWindow::FindWindowByDocument(m_pDocument);
+
+    if (EZ_TEST_BOOL(pWindow != nullptr).Failed())
+      return ezTestAppRun::Quit;
+
+    ExecuteDocumentAction("Scene.Camera.JumpTo.0", m_pDocument, true);
+
     for (int i = 0; i < 10; ++i)
     {
       ezThreadUtils::Sleep(ezTime::Milliseconds(100));
       ProcessEvents();
     }
 
-    pWindow->CreateImageCapture("D:/test2.tga");
+    EZ_TEST_BOOL(CaptureImage(pWindow, "GoRef").Succeeded());
 
-    for (int i = 0; i < 10; ++i)
-    {
-      ezThreadUtils::Sleep(ezTime::Milliseconds(100));
-      ProcessEvents();
-    }
-    
+    EZ_TEST_IMAGE(1, 100);
   }
 
 
@@ -110,4 +109,3 @@ ezResult ezEditorTestMisc::DeInitializeSubTest(ezInt32 iIdentifier)
   ezDocumentManager::CloseAllDocuments();
   return EZ_SUCCESS;
 }
-

@@ -144,7 +144,7 @@ public:
   void RestoreFavouriteCamera(ezUInt8 uiSlot);
 
   /// \brief Searches for an ezCameraComponent with the 'EditorShortcut' property set to \a uiSlot and moves the editor camera to that position.
-  ezResult JumpToLevelCamera(ezUInt8 uiSlot);
+  ezResult JumpToLevelCamera(ezUInt8 uiSlot, bool bImmediate);
 
   /// \brief Creates an object with an ezCameraComponent at the current editor camera position and sets the 'EditorShortcut' property to \a uiSlot.
   void CreateLevelCamera(ezUInt8 uiSlot);
