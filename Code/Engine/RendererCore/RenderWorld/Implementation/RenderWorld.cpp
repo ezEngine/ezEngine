@@ -12,8 +12,8 @@
 ezCVarBool CVarMultithreadedRendering("r_Multithreading", true, ezCVarFlags::Default, "Enables multi-threaded update and rendering");
 ezCVarBool CVarCacheRenderData("r_CacheRenderData", true, ezCVarFlags::Default, "Enables render data caching of static objects");
 
-ezEvent<ezView*> ezRenderWorld::s_ViewCreatedEvent;
-ezEvent<ezView*> ezRenderWorld::s_ViewDeletedEvent;
+ezEvent<ezView*, ezMutex> ezRenderWorld::s_ViewCreatedEvent;
+ezEvent<ezView*, ezMutex> ezRenderWorld::s_ViewDeletedEvent;
 ezEvent<ezUInt64> ezRenderWorld::s_BeginExtractionEvent;
 ezEvent<ezUInt64> ezRenderWorld::s_EndExtractionEvent;
 ezEvent<ezUInt64> ezRenderWorld::s_BeginRenderEvent;

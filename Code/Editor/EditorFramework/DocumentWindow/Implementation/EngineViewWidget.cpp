@@ -692,8 +692,3 @@ ezQtViewWidgetContainer::ezQtViewWidgetContainer(QWidget* pParent, ezQtEngineVie
 
 ezQtViewWidgetContainer::~ezQtViewWidgetContainer() {}
 
-ezQtEngineViewWidget::InteractionContext::InteractionContext()
-{
-  m_pLastHoveredViewWidget = nullptr;
-  m_pLastPickingResult = nullptr;
-}
