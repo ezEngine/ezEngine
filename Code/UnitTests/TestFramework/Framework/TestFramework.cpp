@@ -968,6 +968,11 @@ void ezTestFramework::SetImageReferenceFolderName(const char* szFolderName)
 void ezTestFramework::SetImageReferenceOverrideFolderName(const char* szFolderName)
 {
   m_sImageReferenceOverrideFolderName = szFolderName;
+
+  if (!m_sImageReferenceOverrideFolderName.empty())
+  {
+    Output(ezTestOutput::Message, "Using ImageReference override folder '%s'", szFolderName);
+  }
 }
 
 static const ezUInt8 s_Base64EncodingTable[64] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',

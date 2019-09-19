@@ -30,10 +30,12 @@ void ezObjectPickingResult::Reset()
 // ezQtEngineViewWidget public functions
 ////////////////////////////////////////////////////////////////////////
 
+ezSizeU32 ezQtEngineViewWidget::s_FixedResolution(0, 0);
+
 ezQtEngineViewWidget::ezQtEngineViewWidget(QWidget* pParent, ezQtEngineDocumentWindow* pDocumentWindow, ezEngineViewConfig* pViewConfig)
-    : QWidget(pParent)
-    , m_pDocumentWindow(pDocumentWindow)
-    , m_pViewConfig(pViewConfig)
+  : QWidget(pParent)
+  , m_pDocumentWindow(pDocumentWindow)
+  , m_pViewConfig(pViewConfig)
 {
   m_pRestartButtonLayout = nullptr;
   m_pRestartButton = nullptr;
@@ -108,8 +110,14 @@ void ezQtEngineViewWidget::SyncToEngine()
   cam.m_uiWindowHeight = height() * this->devicePixelRatio();
   cam.m_bUpdatePickingData = m_bUpdatePickingData;
   cam.m_bEnablePickingSelected =
-      IsPickingAgainstSelectionAllowed() &&
-      (!ezEditorInputContext::IsAnyInputContextActive() || ezEditorInputContext::GetActiveInputContext()->IsPickingSelectedAllowed());
+    IsPickingAgainstSelectionAllowed() &&
+    (!ezEditorInputContext::IsAnyInputContextActive() || ezEditorInputContext::GetActiveInputContext()->IsPickingSelectedAllowed());
+
+  if (s_FixedResolution.HasNonZeroArea())
+  {
+    cam.m_uiWindowWidth = s_FixedResolution.width;
+    cam.m_uiWindowHeight = s_FixedResolution.height;
+  }
 
   m_pDocumentWindow->GetEditorEngineConnection()->SendMessage(&cam);
 }
@@ -153,7 +161,7 @@ void ezQtEngineViewWidget::UpdateCameraInterpolation()
 }
 
 void ezQtEngineViewWidget::InterpolateCameraTo(const ezVec3& vPosition, const ezVec3& vDirection, float fFovOrDim,
-                                               const ezVec3* pNewUpDirection)
+  const ezVec3* pNewUpDirection /*= nullptr*/, bool bImmediate /*= false*/)
 {
   m_vCameraStartPosition = m_pViewConfig->m_Camera.GetPosition();
   m_vCameraTargetPosition = vPosition;
@@ -184,8 +192,14 @@ void ezQtEngineViewWidget::InterpolateCameraTo(const ezVec3& vPosition, const ez
     return;
 
   m_LastCameraUpdate = ezTime::Now();
-
   m_fCameraLerp = 0.0f;
+
+  if (bImmediate)
+  {
+    // make sure the next camera update interpolates all the way
+    m_LastCameraUpdate -= ezTime::Seconds(10);
+    m_fCameraLerp = 0.9f;
+  }
 }
 
 void ezQtEngineViewWidget::OpenContextMenu(QPoint globalPos)
@@ -275,6 +289,14 @@ ezPlane ezQtEngineViewWidget::GetFallbackPickingPlane(ezVec3 vPointOnPlane) cons
   {
     return ezPlane(-m_pViewConfig->m_Camera.GetCenterDirForwards(), vPointOnPlane);
   }
+}
+
+void ezQtEngineViewWidget::TakeScreenshot(const char* szOutputPath) const
+{
+  ezViewScreenshotMsgToEngine msg;
+  msg.m_uiViewID = GetViewID();
+  msg.m_sOutputFile = szOutputPath;
+  m_pDocumentWindow->GetDocument()->SendMessageToEngine(&msg);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -640,7 +662,7 @@ void ezQtEngineViewWidget::SlotRestartEngineProcess()
 ////////////////////////////////////////////////////////////////////////
 
 ezQtViewWidgetContainer::ezQtViewWidgetContainer(QWidget* pParent, ezQtEngineViewWidget* pViewWidget, const char* szToolBarMapping)
-    : QWidget(pParent)
+  : QWidget(pParent)
 {
   setBackgroundRole(QPalette::Base);
   setAutoFillBackground(true);
@@ -670,8 +692,3 @@ ezQtViewWidgetContainer::ezQtViewWidgetContainer(QWidget* pParent, ezQtEngineVie
 
 ezQtViewWidgetContainer::~ezQtViewWidgetContainer() {}
 
-ezQtEngineViewWidget::InteractionContext::InteractionContext()
-{
-  m_pLastHoveredViewWidget = nullptr;
-  m_pLastPickingResult = nullptr;
-}

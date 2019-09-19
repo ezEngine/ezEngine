@@ -51,10 +51,11 @@ public:
     typedef ezUInt8 StorageType;
     enum Enum
     {
-      Headless = EZ_BIT(0),
-      SafeMode = EZ_BIT(1),
-      NoRecent = EZ_BIT(2),
-      Debug = EZ_BIT(3),
+      Headless = EZ_BIT(0), ///< The app does not do any rendering.
+      SafeMode = EZ_BIT(1), ///< '-safe' : Prevent automatic loading of projects, scenes, etc. to minimize risk of crashing.
+      NoRecent = EZ_BIT(2), ///< '-norecent' : Do not modify recent file lists. Used for modes such as tests, where the user does not do any interactions.
+      Debug = EZ_BIT(3),    ///< '-debug' : Tell the engine process to wait for a debugger to attach.
+      UnitTest = EZ_BIT(4), ///< Specified when the process is running as a unit test
       Default = 0,
     };
 
@@ -246,6 +247,7 @@ private:
   bool m_bSafeMode;
   bool m_bHeadless;
   bool m_bSavePreferencesAfterOpenProject;
+  bool m_bUnitTestMode = false;
 
   ezSet<ezString> s_RestartRequiredReasons;
   ezSet<ezString> s_ReloadProjectRequiredReasons;

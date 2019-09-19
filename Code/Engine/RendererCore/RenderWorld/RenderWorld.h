@@ -37,8 +37,8 @@ public:
   static void BeginFrame();
   static void EndFrame();
 
-  static ezEvent<ezView*> s_ViewCreatedEvent;
-  static ezEvent<ezView*> s_ViewDeletedEvent;
+  static ezEvent<ezView*, ezMutex> s_ViewCreatedEvent;
+  static ezEvent<ezView*, ezMutex> s_ViewDeletedEvent;
 
   static ezEvent<ezUInt64> s_BeginExtractionEvent;
   static ezEvent<ezUInt64> s_EndExtractionEvent;

@@ -1,11 +1,12 @@
 #pragma once
 
-#include <EditorFramework/EditorFrameworkDLL.h>
-#include <QWidget>
-#include <Foundation/Containers/HybridArray.h>
 #include <Core/Graphics/Camera.h>
 #include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/IPC/EngineProcessConnection.h>
+#include <Foundation/Containers/HybridArray.h>
+#include <Foundation/Math/Size.h>
+#include <QWidget>
 
 class ezQtEngineDocumentWindow;
 class ezEditorInputContext;
@@ -55,7 +56,7 @@ public:
   void UpdateCameraInterpolation();
 
   /// \brief The view's camera will be interpolated to the given coordinates
-  void InterpolateCameraTo(const ezVec3& vPosition, const ezVec3& vDirection, float fFovOrDim, const ezVec3* pNewUpDirection = nullptr);
+  void InterpolateCameraTo(const ezVec3& vPosition, const ezVec3& vDirection, float fFovOrDim, const ezVec3* pNewUpDirection = nullptr, bool bImmediate = false);
 
   /// \brief If disabled, no picking takes place in this view.
   ///
@@ -69,14 +70,15 @@ public:
   /// \brief Holds information about the viewport that the user just now hovered over and what object was picked last
   struct InteractionContext
   {
-    InteractionContext();
-
-    ezQtEngineViewWidget* m_pLastHoveredViewWidget;
-    const ezObjectPickingResult* m_pLastPickingResult;
+    ezQtEngineViewWidget* m_pLastHoveredViewWidget = nullptr;
+    const ezObjectPickingResult* m_pLastPickingResult = nullptr;
   };
 
   /// \brief Returns the latest information about what viewport the user interacted with.
   static const InteractionContext& GetInteractionContext() { return s_InteractionContext; }
+
+  /// \brief Overrides the InteractionContext with custom values. Mostly useful for injecting procedural user interaction for unit tests.
+  static void SetInteractionContext(const InteractionContext& ctxt) { s_InteractionContext = ctxt; }
 
   /// \brief Supposed to open a context menu at the given position. Derived classes must implement OnOpenContextMenu and do the actual work there.
   void OpenContextMenu(QPoint globalPos);
@@ -93,6 +95,12 @@ public:
   /// \brief Returns a plane that can be used for picking, when nothing else is available
   /// Orthographic views would typically return their projection planes, perspective views may return the ground plane
   virtual ezPlane GetFallbackPickingPlane(ezVec3 vPointOnPlane = ezVec3(0)) const;
+
+  /// If this is set to a non-zero value, all rendering will use a fixed resolution, instead of the actual window size.
+  /// This is useful for unit tests, to guarantee a specific output size, to be able to do image comparisons.
+  static ezSizeU32 s_FixedResolution;
+
+  void TakeScreenshot(const char* szOutputPath) const;
 
 protected:
   /// \brief Used to deactivate shortcuts

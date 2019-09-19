@@ -1,15 +1,15 @@
 #pragma once
 
-#include <GuiFoundation/GuiFoundationDLL.h>
+#include <Foundation/Communication/Event.h>
+#include <Foundation/Containers/IdTable.h>
+#include <Foundation/Containers/Map.h>
+#include <Foundation/Containers/Set.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/Enum.h>
 #include <Foundation/Types/Variant.h>
-#include <Foundation/Communication/Event.h>
-#include <Foundation/Containers/IdTable.h>
-#include <Foundation/Containers/Set.h>
-#include <Foundation/Containers/Map.h>
-#include <ToolsFoundation/Document/DocumentManager.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <QKeySequence>
+#include <ToolsFoundation/Document/DocumentManager.h>
 
 class QWidget;
 struct ezActionDescriptor;
@@ -29,6 +29,7 @@ public:
   typedef ezUInt32 StorageType;
   EZ_DECLARE_HANDLE_TYPE(ezActionDescriptorHandle, ezActionId);
   friend class ezActionManager;
+
 public:
   const ezActionDescriptor* GetDescriptor() const;
 };
@@ -63,19 +64,19 @@ struct ezActionType
 ///
 struct EZ_GUIFOUNDATION_DLL ezActionContext
 {
-  ezActionContext()
-    : m_pDocument(nullptr), m_pWindow(nullptr) {}
+  ezActionContext() = default;
+  ezActionContext(ezDocument* doc) { m_pDocument = doc; }
 
-  ezDocument* m_pDocument;
+  ezDocument* m_pDocument = nullptr;
   ezString m_sMapping;
-  QWidget* m_pWindow;
+  QWidget* m_pWindow = nullptr;
 };
 
 
 ///
 struct EZ_GUIFOUNDATION_DLL ezActionDescriptor
 {
-  ezActionDescriptor() {};
+  ezActionDescriptor(){};
   ezActionDescriptor(ezActionType::Enum type, ezActionScope::Enum scope, const char* szName, const char* szCategoryPath, const char* szShortcut,
     CreateActionFunc createAction, DeleteActionFunc deleteAction = nullptr);
 
@@ -83,9 +84,9 @@ struct EZ_GUIFOUNDATION_DLL ezActionDescriptor
   ezEnum<ezActionType> m_Type;
 
   ezEnum<ezActionScope> m_Scope;
-  ezString m_sActionName; ///< Unique within category path, shown in key configuration dialog
+  ezString m_sActionName;   ///< Unique within category path, shown in key configuration dialog
   ezString m_sCategoryPath; ///< Category in key configuration dialog, e.g. "Tree View" or "File"
-  
+
   ezString m_sShortcut;
   ezString m_sDefaultShortcut;
 
@@ -108,6 +109,7 @@ class EZ_GUIFOUNDATION_DLL ezAction : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezAction, ezReflectedClass);
   EZ_DISALLOW_COPY_AND_ASSIGN(ezAction);
+
 public:
   ezAction(const ezActionContext& context) { m_Context = context; }
   virtual void Execute(const ezVariant& value) = 0;
@@ -126,5 +128,3 @@ private:
   friend struct ezActionDescriptor;
   ezActionDescriptorHandle m_DescriptorHandle;
 };
-
-

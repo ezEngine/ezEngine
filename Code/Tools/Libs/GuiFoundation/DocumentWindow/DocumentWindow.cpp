@@ -410,6 +410,11 @@ void ezQtDocumentWindow::SetPermanentStatusBarMsg(const ezFormatString& sText)
   m_pPermanentStatusMsg->setText(QString::fromUtf8(sText.GetText(tmp)));
 }
 
+void ezQtDocumentWindow::CreateImageCapture(const char* szOutputPath)
+{
+  EZ_ASSERT_NOT_IMPLEMENTED;
+}
+
 bool ezQtDocumentWindow::CanCloseWindow()
 {
   return InternalCanCloseWindow();

@@ -113,6 +113,11 @@ ezSceneDocument* ezQtSceneDocumentWindow::GetSceneDocument() const
   return static_cast<ezSceneDocument*>(GetDocument());
 }
 
+void ezQtSceneDocumentWindow::CreateImageCapture(const char* szOutputPath)
+{
+  m_pQuadViewWidget->GetActiveMainViews()[0]->GetViewWidget()->TakeScreenshot(szOutputPath);
+}
+
 void ezQtSceneDocumentWindow::ToggleViews(QWidget* pView)
 {
   m_pQuadViewWidget->ToggleViews(pView);

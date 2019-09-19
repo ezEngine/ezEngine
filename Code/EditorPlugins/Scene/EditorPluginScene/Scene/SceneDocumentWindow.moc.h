@@ -39,6 +39,8 @@ public:
   virtual const char* GetWindowLayoutGroupName() const { return "Scene"; }
   ezSceneDocument* GetSceneDocument() const;
 
+  virtual void CreateImageCapture(const char* szOutputPath) override;
+
 public Q_SLOTS:
   void ToggleViews(QWidget* pView);
 
