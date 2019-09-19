@@ -8,6 +8,10 @@
 #include <RendererFoundation/Device/Device.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#  include <RendererDX11/Device/DeviceDX11.h>
+#endif
+
 ezEditorTestApplication::ezEditorTestApplication()
   : ezApplication("ezEditor")
 {
@@ -98,8 +102,33 @@ ezResult ezEditorTest::InitializeTest()
 
   ezRun_Startup(m_pApplication);
 
-  if (ezGALDevice::GetDefaultDevice() != nullptr &&
-      ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName == "Microsoft Basic Render Driver")
+  static bool s_bCheckedReferenceDriver = false;
+  static bool s_bIsReferenceDriver = false;
+
+  if (!s_bCheckedReferenceDriver)
+  {
+    s_bCheckedReferenceDriver = true;
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+    ezUniquePtr<ezGALDevice> pDevice;
+    ezGALDeviceCreationDescription DeviceInit;
+    DeviceInit.m_bCreatePrimarySwapChain = false;
+
+    pDevice = EZ_DEFAULT_NEW(ezGALDeviceDX11, DeviceInit);
+
+    pDevice->Init();
+
+    if (pDevice->GetCapabilities().m_sAdapterName == "Microsoft Basic Render Driver")
+    {
+      s_bIsReferenceDriver = true;
+    }
+
+    pDevice->Shutdown();
+    pDevice.Clear();
+#endif
+  }
+
+  if (s_bIsReferenceDriver)
   {
     // Use different images for comparison when running the D3D11 Reference Device
     ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_D3D11Ref");

@@ -187,6 +187,12 @@ ezResult ezGALDevice::Shutdown()
 
   DestroyDeadObjects();
 
+  // make sure we are not listed as the default device anymore
+  if (ezGALDevice::HasDefaultDevice() && ezGALDevice::GetDefaultDevice() == this)
+  {
+    ezGALDevice::SetDefaultDevice(nullptr);
+  }
+
   return ShutdownPlatform();
 }
 

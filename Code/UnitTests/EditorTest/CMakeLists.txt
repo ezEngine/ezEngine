@@ -16,6 +16,7 @@ target_link_libraries(${PROJECT_NAME}
   TestFramework
   EditorFramework
   EditorEngineProcessFramework
+  RendererDX11
 )
 
 add_dependencies(${PROJECT_NAME}
