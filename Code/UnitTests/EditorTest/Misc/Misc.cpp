@@ -7,6 +7,8 @@
 #include <GuiFoundation/Action/ActionManager.h>
 #include <RendererCore/Components/SkyBoxComponent.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
+#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 
 static ezEditorTestMisc s_GameEngineTestBasics;
 
@@ -48,10 +50,25 @@ ezTestAppRun ezEditorTestMisc::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvoca
     if (EZ_TEST_BOOL(m_pDocument != nullptr).Failed())
       return ezTestAppRun::Quit;
 
-    ezQtDocumentWindow* pWindow = ezQtDocumentWindow::FindWindowByDocument(m_pDocument);
+    ezAssetCurator::GetSingleton()->TransformAsset(m_pDocument->GetGuid(), ezTransformFlags::Default);
+
+    ezQtEngineDocumentWindow* pWindow = qobject_cast<ezQtEngineDocumentWindow*>(ezQtDocumentWindow::FindWindowByDocument(m_pDocument));
 
     if (EZ_TEST_BOOL(pWindow != nullptr).Failed())
       return ezTestAppRun::Quit;
+
+    auto viewWidgets = pWindow->GetViewWidgets();
+
+    if (EZ_TEST_BOOL(!viewWidgets.IsEmpty()).Failed())
+      return ezTestAppRun::Quit;
+
+    ezQtEngineViewWidget::InteractionContext ctxt;
+    ctxt.m_pLastHoveredViewWidget = viewWidgets[0];
+    ezQtEngineViewWidget::SetInteractionContext(ctxt);
+
+    viewWidgets[0]->m_pViewConfig->m_RenderMode = ezViewRenderMode::Default;
+    viewWidgets[0]->m_pViewConfig->m_Perspective = ezSceneViewPerspective::Perspective;
+    viewWidgets[0]->m_pViewConfig->ApplyPerspectiveSetting(90.0f);
 
     ExecuteDocumentAction("Scene.Camera.JumpTo.0", m_pDocument, true);
 

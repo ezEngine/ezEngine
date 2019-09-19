@@ -70,14 +70,15 @@ public:
   /// \brief Holds information about the viewport that the user just now hovered over and what object was picked last
   struct InteractionContext
   {
-    InteractionContext();
-
-    ezQtEngineViewWidget* m_pLastHoveredViewWidget;
-    const ezObjectPickingResult* m_pLastPickingResult;
+    ezQtEngineViewWidget* m_pLastHoveredViewWidget = nullptr;
+    const ezObjectPickingResult* m_pLastPickingResult = nullptr;
   };
 
   /// \brief Returns the latest information about what viewport the user interacted with.
   static const InteractionContext& GetInteractionContext() { return s_InteractionContext; }
+
+  /// \brief Overrides the InteractionContext with custom values. Mostly useful for injecting procedural user interaction for unit tests.
+  static void SetInteractionContext(const InteractionContext& ctxt) { s_InteractionContext = ctxt; }
 
   /// \brief Supposed to open a context menu at the given position. Derived classes must implement OnOpenContextMenu and do the actual work there.
   void OpenContextMenu(QPoint globalPos);
