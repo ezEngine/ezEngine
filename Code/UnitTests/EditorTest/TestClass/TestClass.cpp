@@ -5,6 +5,7 @@
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <GuiFoundation/Action/ActionManager.h>
+#include <RendererFoundation/Device/Device.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
 ezEditorTestApplication::ezEditorTestApplication()
@@ -96,6 +97,17 @@ ezResult ezEditorTest::InitializeTest()
     return EZ_FAILURE;
 
   ezRun_Startup(m_pApplication);
+
+  if (ezGALDevice::GetDefaultDevice() != nullptr &&
+      ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName == "Microsoft Basic Render Driver")
+  {
+    // Use different images for comparison when running the D3D11 Reference Device
+    ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_D3D11Ref");
+  }
+  else
+  {
+    ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("");
+  }
 
   return EZ_SUCCESS;
 }
