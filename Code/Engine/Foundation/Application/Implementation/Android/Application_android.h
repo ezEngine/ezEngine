@@ -9,6 +9,7 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #include <Foundation/Strings/String.h>
 
 class ezApplication;
+struct AInputEvent;
 
 class ezAndroidApplication
 {

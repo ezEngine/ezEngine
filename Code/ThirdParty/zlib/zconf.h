@@ -10,7 +10,7 @@
 #ifndef ZCONF_H
 #define ZCONF_H
 
-#if BUILDSYSTEM_COMPILE_ENGINE_AS_DLL
+#if defined(ZLIB_DLL_EXPORT) || defined(ZLIB_DLL_IMPORT)
   #define ZLIB_DLL
 #endif
 

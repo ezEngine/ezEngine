@@ -3,16 +3,17 @@
 #include <Foundation/IO/Archive/ArchiveReader.h>
 #include <Foundation/IO/Archive/ArchiveUtils.h>
 
-#include <Foundation/IO/MemoryStream.h>
+#include <Foundation/IO/Archive/ArchiveUtils.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Types/Types.h>
-#include <Foundation/IO/Archive/ArchiveUtils.h>
 
 #include <Foundation/Logging/Log.h>
 
 ezResult ezArchiveReader::OpenArchive(const char* szPath)
 {
+#if EZ_ENABLED(EZ_SUPPORTS_MEMORY_MAPPED_FILE)
   EZ_LOG_BLOCK("OpenArchive", szPath);
 
   EZ_SUCCEED_OR_RETURN(m_MemFile.Open(szPath, ezMemoryMappedFile::Mode::ReadOnly));
@@ -38,7 +39,7 @@ ezResult ezArchiveReader::OpenArchive(const char* szPath)
         return EZ_FAILURE;
       }
     }
-#ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+#  ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
     else if (extension == "zip" || extension == "apk")
     {
       EZ_SUCCEED_OR_RETURN(ezArchiveUtils::ReadZipHeader(reader, m_uiArchiveVersion));
@@ -55,13 +56,17 @@ ezResult ezArchiveReader::OpenArchive(const char* szPath)
         return EZ_FAILURE;
       }
     }
-#endif
+#  endif
     else
     {
       return EZ_FAILURE;
     }
   }
   return EZ_SUCCESS;
+#else
+  EZ_REPORT_FAILURE("Memory mapped files are unsupported on this platform.");
+  return EZ_FAILURE;
+#endif
 }
 
 const ezArchiveTOC& ezArchiveReader::GetArchiveTOC()
@@ -147,4 +152,3 @@ bool ezArchiveReader::ExtractFileProgressCallback(ezUInt64 bytesWritten, ezUInt6
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Archive_Implementation_ArchiveReader);
-
