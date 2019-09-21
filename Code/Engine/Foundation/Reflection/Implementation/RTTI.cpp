@@ -45,7 +45,8 @@ ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSiz
   m_szTypeName = szName;
   m_pAllocator = pAllocator;
   m_Properties = properties;
-  m_Functions = ezMakeArrayPtr<ezAbstractFunctionProperty*>(reinterpret_cast<ezAbstractFunctionProperty**>(functions.GetPtr()), functions.GetCount());;
+  m_Functions = ezMakeArrayPtr<ezAbstractFunctionProperty*>(reinterpret_cast<ezAbstractFunctionProperty**>(functions.GetPtr()), functions.GetCount());
+  ;
   m_Attributes = attributes;
   m_MessageHandlers = messageHandlers;
   m_uiMsgIdOffset = 0;
@@ -302,7 +303,9 @@ ezAbstractProperty* ezRTTI::FindPropertyByName(const char* szName, bool bSearchB
 
 bool ezRTTI::DispatchMessage(void* pInstance, ezMessage& msg) const
 {
-  EZ_ASSERT_DEBUG(m_bGatheredDynamicMessageHandlers, "Message handler table should have been gathered at this point");
+  EZ_ASSERT_DEBUG(m_bGatheredDynamicMessageHandlers, "Message handler table should have been gathered at this point.\n"
+                                                     "If this assert is triggered for a type loaded from a dynamic plugin,\n"
+                                                     "you may have forgotten to instantiate an ezPlugin object inside your plugin DLL.");
 
   const ezUInt32 uiIndex = msg.GetId() - m_uiMsgIdOffset;
 
@@ -322,7 +325,9 @@ bool ezRTTI::DispatchMessage(void* pInstance, ezMessage& msg) const
 
 bool ezRTTI::DispatchMessage(const void* pInstance, ezMessage& msg) const
 {
-  EZ_ASSERT_DEBUG(m_bGatheredDynamicMessageHandlers, "Message handler table should have been gathered at this point");
+  EZ_ASSERT_DEBUG(m_bGatheredDynamicMessageHandlers, "Message handler table should have been gathered at this point.\n"
+                                                     "If this assert is triggered for a type loaded from a dynamic plugin,\n"
+                                                     "you may have forgotten to instantiate an ezPlugin object inside your plugin DLL.");
 
   const ezUInt32 uiIndex = msg.GetId() - m_uiMsgIdOffset;
 
