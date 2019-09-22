@@ -207,10 +207,6 @@ public:
 
     ezLog::Info("Search-dir: {}", m_sSearchDir);
 
-    // Since we want to read/write files through the filesystem, we need to set that up too
-    // First add a Factory that can create data directory types that handle normal folders
-    ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-
     // Then add a folder as a data directory (the previously registered Factory will take care of creating the proper handler)
     // As we only need access to files through global paths, we add the "empty data directory"
     // This data dir will manage all accesses through absolute paths, unless any other data directory can handle them

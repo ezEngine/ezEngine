@@ -28,7 +28,9 @@ void ezSystemInformation::Initialize()
   s_SystemInformation.m_b64BitOS = true;
 #else
   s_SystemInformation.m_b64BitOS = false;
-#error "32 Bit builds are not supported on OSX"
+#  if EZ_ENABLED(EZ_PLATFORM_OSX)
+#    error "32 Bit builds are not supported on OSX"
+#  endif
 #endif
 
 #if defined BUILDSYSTEM_CONFIGURATION
@@ -40,6 +42,8 @@ void ezSystemInformation::Initialize()
   // Each posix system should have its correct name so they can be distinguished.
 #if EZ_ENABLED(EZ_PLATFORM_LINUX)
   s_SystemInformation.m_szPlatformName = "Linux";
+#elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
+  s_SystemInformation.m_szPlatformName = "Android";
 #else
 #error "Platform name not defined on current posix platform"
 #endif

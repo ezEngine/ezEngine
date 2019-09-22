@@ -16,6 +16,7 @@ function(ez_create_target TYPE TARGET_NAME)
     ez_pull_all_vars()
 
     ez_glob_source_files(${CMAKE_CURRENT_SOURCE_DIR} ALL_SOURCE_FILES)
+	
 
     if ((${TYPE} STREQUAL "LIBRARY") OR (${TYPE} STREQUAL "STATIC_LIBRARY"))
 
@@ -41,11 +42,23 @@ function(ez_create_target TYPE TARGET_NAME)
     elseif (${TYPE} STREQUAL "APPLICATION")
 
         message (STATUS "Application: ${TARGET_NAME}")
+		
+		# On Android we can't use executables. Instead we have to use shared libraries which are loaded from java code.
+		if (EZ_CMAKE_PLATFORM_ANDROID)
+			# All ez applications must include the native app glue implementation
+			add_library(${TARGET_NAME} SHARED ${ALL_SOURCE_FILES} "${CMAKE_ANDROID_NDK}/sources/android/native_app_glue/android_native_app_glue.c")
+			
+			# Prevent the linker from stripping away the application entry point of android_native_app_glue: ANativeActivity_onCreate
+			set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -u ANativeActivity_onCreate")
 
-        add_executable (${TARGET_NAME} ${ALL_SOURCE_FILES})
-
+			# The log and android libraries are library dependencies of android_native_app_glue
+            target_link_libraries(${TARGET_NAME} PRIVATE log android EGL GLESv1_CM)    
+		else()
+			add_executable (${TARGET_NAME} ${ALL_SOURCE_FILES})
+		endif()
+        
         ez_uwp_add_default_content(${TARGET_NAME})
-
+        
         ez_set_application_properties(${TARGET_NAME})
 
     else()
@@ -64,7 +77,12 @@ function(ez_create_target TYPE TARGET_NAME)
     endif()
 
     ez_set_default_target_output_dirs(${TARGET_NAME})
-
+	
+    #We need the target directory to add the apk packaging steps for android. Thus, this step needs to be done here.
+	if (${TYPE} STREQUAL "APPLICATION")
+		ez_android_add_default_content(${TARGET_NAME})
+	endif()
+	
     ez_add_target_folder_as_include_dir(${TARGET_NAME} ${CMAKE_CURRENT_SOURCE_DIR})
 
     ez_set_common_target_definitions(${TARGET_NAME})
@@ -72,6 +90,11 @@ function(ez_create_target TYPE TARGET_NAME)
     ez_set_build_flags(${TARGET_NAME})
 
     ez_set_project_ide_folder(${TARGET_NAME} ${CMAKE_CURRENT_SOURCE_DIR})
+	
+	if(EZ_CMAKE_PLATFORM_ANDROID)
+		# Add the location for native_app_glue.h to the include directories.
+		target_include_directories(${TARGET_NAME} PRIVATE "${CMAKE_ANDROID_NDK}/sources/android/native_app_glue")
+	endif()
 
     if (NOT ${ARG_NO_QT})
 

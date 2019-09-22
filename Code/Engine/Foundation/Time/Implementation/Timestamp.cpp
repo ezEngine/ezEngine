@@ -114,6 +114,8 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezDateTime& arg)
 #  include <Foundation/Time/Implementation/Win/Timestamp_win.h>
 #elif EZ_ENABLED(EZ_PLATFORM_OSX)
 #  include <Foundation/Time/Implementation/OSX/Timestamp_osx.h>
+#elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#  include <Foundation/Time/Implementation/Android/Timestamp_android.h>
 #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
 #  include <Foundation/Time/Implementation/Posix/Timestamp_posix.h>
 #else

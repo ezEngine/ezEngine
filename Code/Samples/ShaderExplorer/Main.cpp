@@ -198,8 +198,6 @@ void ezShaderExplorerApp::AfterCoreSystemsStartup()
       .Succeeded(),
     "Failed to watch project directory");
 
-  ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-
   ezFileSystem::AddDataDirectory("", "", ":", ezFileSystem::AllowWrites);
   ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezFileSystem::AllowWrites);              // writing to the binary directory
   ezFileSystem::AddDataDirectory(">appdir/", "ShaderCache", "shadercache", ezFileSystem::AllowWrites); // for shader files

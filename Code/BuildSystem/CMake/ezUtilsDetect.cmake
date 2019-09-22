@@ -97,7 +97,15 @@ function(ez_detect_platform)
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_POSIX ON)
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_LINUX ON)
 	
-	  set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_PREFIX "Linux") 
+	  set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_PREFIX "Linux")
+	
+	elseif (CMAKE_SYSTEM_NAME STREQUAL "Android") # Android
+		message (STATUS "Platform is Android (EZ_CMAKE_PLATFORM_ANDROID, EZ_CMAKE_PLATFORM_POSIX)")
+		
+		set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_POSIX ON)
+		set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_ANDROID ON)
+	
+		set_property(GLOBAL PROPERTY EZ_CMAKE_PLATFORM_PREFIX "Android")
 
 	else ()
 	
@@ -123,6 +131,7 @@ macro(ez_pull_platform_vars)
 	get_property(EZ_CMAKE_PLATFORM_POSIX GLOBAL PROPERTY EZ_CMAKE_PLATFORM_POSIX)
 	get_property(EZ_CMAKE_PLATFORM_OSX GLOBAL PROPERTY EZ_CMAKE_PLATFORM_OSX)
 	get_property(EZ_CMAKE_PLATFORM_LINUX GLOBAL PROPERTY EZ_CMAKE_PLATFORM_LINUX)
+	get_property(EZ_CMAKE_PLATFORM_ANDROID GLOBAL PROPERTY EZ_CMAKE_PLATFORM_ANDROID)
 
 endmacro()
 
@@ -147,6 +156,8 @@ function(ez_detect_generator)
 	set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_MSVC OFF)
 	set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_XCODE OFF)
 	set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_MAKE OFF)
+	set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_NINJA OFF)
+	
 	
 	message (STATUS "CMAKE_GENERATOR is '${CMAKE_GENERATOR}'")
 
@@ -201,6 +212,17 @@ function(ez_detect_generator)
 		message (FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on Linux! Please extend ez_detect_generator()")
 	  endif ()
 
+	elseif (EZ_CMAKE_PLATFORM_ANDROID)
+		if(CMAKE_GENERATOR STREQUAL "Ninja") # Ninja makefiles. Only makefile format supported by Visual Studio Open Folder
+			message (STATUS "Buildsystem is Ninja (EZ_CMAKE_GENERATOR_NINJA)")
+			
+			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_NINJA ON)
+			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "Ninja")
+			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION ${CMAKE_BUILD_TYPE})
+			
+		else()
+			message (FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on Android! Please extend ez_detect_generator()")
+		endif()
 	else ()
 	  message (FATAL_ERROR "Platform '${CMAKE_SYSTEM_NAME}' has not set up the supported generators. Please extend ez_detect_generator()")
 	endif ()
@@ -220,6 +242,7 @@ macro(ez_pull_generator_vars)
 	get_property(EZ_CMAKE_GENERATOR_MSVC GLOBAL PROPERTY EZ_CMAKE_GENERATOR_MSVC)
 	get_property(EZ_CMAKE_GENERATOR_XCODE GLOBAL PROPERTY EZ_CMAKE_GENERATOR_XCODE)
 	get_property(EZ_CMAKE_GENERATOR_MAKE GLOBAL PROPERTY EZ_CMAKE_GENERATOR_MAKE)
+	get_property(EZ_CMAKE_GENERATOR_NINJA GLOBAL PROPERTY EZ_CMAKE_GENERATOR_NINJA)
 
 endmacro()
 
@@ -289,6 +312,13 @@ function(ez_detect_compiler)
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_GCC ON)
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_POSTFIX "Gcc")
 
+	elseif (EZ_CMAKE_PLATFORM_ANDROID)
+	
+	  # Android uses clang
+	  message (STATUS "Compiler is clang (EZ_CMAKE_COMPILER_CLANG)")
+	  set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_CLANG ON)
+	  set_property(GLOBAL PROPERTY EZ_CMAKE_COMPILER_POSTFIX "Clang")
+	  
 	else ()
 	  message (FATAL_ERROR "Compiler for generator '${CMAKE_GENERATOR}' is not supported on '${CMAKE_SYSTEM_NAME}'. Please extend ez_detect_compiler()")
 	endif ()
@@ -335,15 +365,17 @@ function(ez_detect_architecture)
 	ez_pull_platform_vars()
 	ez_pull_compiler_vars()
 
-	if (${CMAKE_GENERATOR_PLATFORM} MATCHES "ARM")
-		message (STATUS "Platform is ARM (EZ_CMAKE_ARCHITECTURE_ARM)")
-		set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_ARM ON)
-	else()
-		message (STATUS "Platform is X86 (EZ_CMAKE_ARCHITECTURE_X86)")
-		set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_X86 ON)
-	endif()
+
 
 	if (EZ_CMAKE_PLATFORM_WINDOWS AND EZ_CMAKE_COMPILER_MSVC)
+	  
+	  if (${CMAKE_GENERATOR_PLATFORM} MATCHES "ARM")
+			message (STATUS "Platform is ARM (EZ_CMAKE_ARCHITECTURE_ARM)")
+			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_ARM ON)
+	  else()
+			message (STATUS "Platform is X86 (EZ_CMAKE_ARCHITECTURE_X86)")
+			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_X86 ON)
+	  endif()
 	  
 	  # Detect 64-bit builds for MSVC.
 	  if (CMAKE_CL_64)
@@ -362,6 +394,9 @@ function(ez_detect_architecture)
 
 	elseif (EZ_CMAKE_PLATFORM_OSX AND EZ_CMAKE_COMPILER_CLANG)
 	
+	  message (STATUS "Platform is X86 (EZ_CMAKE_ARCHITECTURE_X86)")
+	  set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_X86 ON)
+	
 	  # OS X always has 32/64 bit support in the project files and the user switches on demand.
 	  # However, we do not support 32 bit with our current build configuration so we throw an error on 32-bit systems.
 	  if (CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -375,6 +410,9 @@ function(ez_detect_architecture)
 	  endif ()
 
 	elseif (EZ_CMAKE_PLATFORM_LINUX AND EZ_CMAKE_COMPILER_GCC)
+	  
+	  message (STATUS "Platform is X86 (EZ_CMAKE_ARCHITECTURE_X86)")
+	  set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_X86 ON)
 	  
 	  # Detect 64-bit builds for Linux, no other way than checking CMAKE_SIZEOF_VOID_P.
 	  if (CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -390,7 +428,36 @@ function(ez_detect_architecture)
 			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "32")
 		
 	  endif ()
-
+	elseif(EZ_CMAKE_PLATFORM_ANDROID AND EZ_CMAKE_COMPILER_CLANG)
+	
+		if(ANDROID_ABI STREQUAL armeabi-v7a)
+			message (STATUS "Platform is ARM (EZ_CMAKE_ARCHITECTURE_ARM)")
+			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_ARM ON)
+			message (STATUS "Platform is 32-Bit (EZ_CMAKE_ARCHITECTURE_32BIT)")
+			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_32BIT ON)
+			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "Arm32")
+		elseif(ANDROID_ABI STREQUAL arm64-v8a)
+			message (STATUS "Platform is ARM (EZ_CMAKE_ARCHITECTURE_ARM)")
+			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_ARM ON)
+			message (STATUS "Platform is 64-Bit (EZ_CMAKE_ARCHITECTURE_64BIT)")
+			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_64BIT ON)
+			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "Arm64")
+		elseif(ANDROID_ABI STREQUAL x86)
+			message (STATUS "Platform is X86 (EZ_CMAKE_ARCHITECTURE_X86)")
+			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_X86 ON)
+			message (STATUS "Platform is 32-Bit (EZ_CMAKE_ARCHITECTURE_32BIT)")
+			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_32BIT ON)
+			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "32")
+		elseif(ANDROID_ABI STREQUAL x86_64)
+			message (STATUS "Platform is X86 (EZ_CMAKE_ARCHITECTURE_X86)")
+			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_X86 ON)
+			message (STATUS "Platform is 64-Bit (EZ_CMAKE_ARCHITECTURE_64BIT)")
+			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_64BIT ON)
+			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "64")
+		else()
+			message(FATAL_ERROR "Invalid Android ABI: ${ANDROID_ABI}.")
+		endif()
+ 
 	else ()
 	  message (FATAL_ERROR "Architecture could not be determined. Please extend ez_detect_architecture()")
 	endif ()	

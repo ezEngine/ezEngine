@@ -6,7 +6,7 @@
 #    include <Foundation/System/Implementation/Win/Process_win.h>
 #  elif EZ_ENABLED(EZ_PLATFORM_OSX)
 #    include <Foundation/System/Implementation/OSX/Process_OSX.h>
-#  elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+#  elif EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
 #    include <Foundation/System/Implementation/Posix/Process_posix.h>
 #  else
 #    error "Process functions are not implemented on current platform"

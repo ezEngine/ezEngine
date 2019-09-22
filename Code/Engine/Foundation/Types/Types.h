@@ -7,7 +7,7 @@ typedef unsigned short ezUInt16;
 typedef unsigned int ezUInt32;
 typedef unsigned long long ezUInt64;
 
-typedef char ezInt8;
+typedef signed char ezInt8;
 typedef short ezInt16;
 typedef int ezInt32;
 typedef long long ezInt64;
@@ -28,7 +28,6 @@ EZ_CHECK_AT_COMPILETIME(sizeof(ezUInt16) == 2);
 EZ_CHECK_AT_COMPILETIME(sizeof(ezUInt32) == 4);
 EZ_CHECK_AT_COMPILETIME(sizeof(ezUInt64) == 8); // must be defined in the specific compiler header
 EZ_CHECK_AT_COMPILETIME(sizeof(long long int) == 8);
-
 
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
 #define EZ_ALIGNMENT_MINIMUM 8

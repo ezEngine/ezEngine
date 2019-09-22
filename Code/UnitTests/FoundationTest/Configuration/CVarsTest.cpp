@@ -52,8 +52,6 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
 
   ezStringBuilder sOutputFolder1 = ezTestFramework::GetInstance()->GetAbsOutputPath();
 
-  ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-
   EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder1.GetData(), "test", "output", ezFileSystem::AllowWrites) == EZ_SUCCESS);
 
   // Delete all cvar setting files
@@ -362,5 +360,4 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
 #endif
 
   ezFileSystem::ClearAllDataDirectories();
-  ezFileSystem::ClearAllDataDirectoryFactories();
 }

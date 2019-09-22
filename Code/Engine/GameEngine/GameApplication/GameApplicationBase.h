@@ -218,7 +218,6 @@ protected:
   virtual void Init_PlatformProfile_SetPreferred();
   virtual void Init_ConfigureTelemetry();
   virtual void Init_FileSystem_SetSpecialDirs();
-  virtual void Init_FileSystem_SetDataDirFactories();
   virtual void Init_LoadRequiredPlugins();
   virtual void Init_ConfigureAssetManagement();
   virtual void Init_FileSystem_ConfigureDataDirs();

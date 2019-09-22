@@ -11,16 +11,20 @@ function(ez_uwp_fix_library_properties TARGET_NAME SOURCE_FILES)
   # dlls are set to be deployed by cmake for some arbitrary reason.
   set_property(TARGET ${TARGET_NAME} PROPERTY VS_WINRT_COMPONENT ON)
 
-  # Cmake refuses to deploy C libraries so we force all of them into C++ mode.
-  # This is because C can't be winrt and without it cmake throws the dll away again.
-  foreach(FILE ${ALL_SOURCE_FILES})
+  get_target_property(targetType ${TARGET_NAME} TYPE)
+  if (NOT targetType STREQUAL "STATIC_LIBRARY")
+    # Cmake refuses to deploy C dynamic libraries so we force all of them into C++ mode.
+    # This is because C can't be winrt and without it cmake throws the dll away again.
+    foreach(FILE ${ALL_SOURCE_FILES})
 
-    get_filename_component(FILE_PATH ${FILE} LAST_EXT)
-    if (${FILE_PATH} STREQUAL ".c")
-      set_source_files_properties(${FILE} PROPERTIES LANGUAGE CXX)
-    endif()
+      get_filename_component(FILE_PATH ${FILE} LAST_EXT)
+      if (${FILE_PATH} STREQUAL ".c")
+        set_source_files_properties(${FILE} PROPERTIES LANGUAGE CXX)
+      endif()
+
+    endforeach()
+  endif ()
   
-  endforeach()
   
 endfunction()
 

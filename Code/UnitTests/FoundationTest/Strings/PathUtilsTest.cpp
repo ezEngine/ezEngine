@@ -109,7 +109,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, PathUtils)
     EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath("\\temp.stuff"));
     EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath("..\\temp.stuff"));
     EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath(".\\temp.stuff"));
-#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
+#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
     EZ_TEST_BOOL(ezPathUtils::IsAbsolutePath("/usr/local/.stuff"));
     EZ_TEST_BOOL(ezPathUtils::IsAbsolutePath("/file.test"));
     EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath("./file.stuff"));

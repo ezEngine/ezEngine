@@ -20,7 +20,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 // Include inline file
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #include <Foundation/Threading/Implementation/Win/ThreadUtils_win.h>
-#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
+#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
 #include <Foundation/Threading/Implementation/Posix/ThreadUtils_posix.h>
 #else
 #error "ThreadUtils functions are not implemented on current platform"

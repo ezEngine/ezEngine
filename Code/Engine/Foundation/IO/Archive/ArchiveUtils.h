@@ -53,4 +53,8 @@ namespace ezArchiveUtils
   /// Under the hood it may create different types of stream readers to uncompress or decode the data.
   EZ_FOUNDATION_DLL ezUniquePtr<ezStreamReader> CreateEntryReader(const ezArchiveEntry& entry, const void* pStartOfArchiveData);
 
+  EZ_FOUNDATION_DLL ezResult ReadZipHeader(ezStreamReader& stream, ezUInt8& out_uiVersion);
+  EZ_FOUNDATION_DLL ezResult ExtractZipTOC(ezMemoryMappedFile& memFile, ezArchiveTOC& toc);
+
+
 } // namespace ezArchiveUtils

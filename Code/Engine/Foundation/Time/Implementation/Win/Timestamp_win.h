@@ -1,3 +1,5 @@
+#include <Foundation/FoundationInternal.h>
+EZ_FOUNDATION_INTERNAL_HEADER
 
 // Helper function to shift windows file time into Unix epoch (in microseconds).
 ezInt64 FileTimeToEpoch(FILETIME fileTime)

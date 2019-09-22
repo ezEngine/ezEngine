@@ -13,9 +13,6 @@
 
 EZ_CREATE_SIMPLE_TEST(IO, Archive)
 {
-  ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-  ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::ArchiveType::Factory);
-
   ezStringBuilder sOutputFolder = ezTestFramework::GetInstance()->GetAbsOutputPath();
   sOutputFolder.AppendPath("ArchiveTest");
   sOutputFolder.MakeCleanPath();

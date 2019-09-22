@@ -115,9 +115,6 @@ bool ezTestFrameworkResult::WriteJsonToFile(const char* szFileName) const
   ezStartup::StartupCoreSystems();
   EZ_SCOPE_EXIT(ezStartup::ShutdownCoreSystems());
 
-
-  ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-
   {
     ezStringBuilder jsonFilename;
     if (ezPathUtils::IsAbsolutePath(szFileName))

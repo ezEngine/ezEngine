@@ -14,6 +14,10 @@
 
 #include <Foundation/Application/Implementation/Posix/ApplicationEntryPoint_posix.h>
 
+#elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
+
+#include <Foundation/Application/Implementation/Android/ApplicationEntryPoint_android.h>
+
 #else
 #error "Missing definition of platform specific entry point!"
 #endif

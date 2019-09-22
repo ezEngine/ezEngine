@@ -2,6 +2,22 @@
 
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Configuration/Startup.h>
+
+// clang-format off
+EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, FolderDataDirectory)
+
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+    "FileSystem"
+  END_SUBSYSTEM_DEPENDENCIES
+
+  ON_CORESYSTEMS_STARTUP
+  {
+    ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
+  }
+
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 namespace ezDataDirectory
 {

@@ -126,7 +126,7 @@ ezStringView ezPathUtils::GetFileDirectory(const char* szPath, const char* szPat
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 const char ezPathUtils::OsSpecificPathSeparator = '\\';
-#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+#elif EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
 const char ezPathUtils::OsSpecificPathSeparator = '/';
 #elif EZ_ENABLED(EZ_PLATFORM_OSX)
 const char ezPathUtils::OsSpecificPathSeparator = '/';
@@ -146,7 +146,7 @@ bool ezPathUtils::IsAbsolutePath(const char* szPath)
   /// checks for local paths, i.e. 'C:\stuff' and UNC paths, i.e. '\\server\stuff'
   /// not sure if we should handle '//' identical to '\\' (currently we do)
   return ((szPath[1] == ':') || (IsPathSeparator(szPath[0]) && IsPathSeparator(szPath[1])));
-#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+#elif EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
   return (szPath[0] == '/');
 #elif EZ_ENABLED(EZ_PLATFORM_OSX)
   return (szPath[0] == '/');

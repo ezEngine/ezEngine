@@ -54,8 +54,6 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
     ezStringBuilder sReadDir(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath());
     sReadDir.PathParentDirectory();
 
-    ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-
     ezFileSystem::AddDataDirectory(">appdir/", "ShaderCache", "shadercache", ezFileSystem::AllowWrites); // for shader files
 
     if (ezFileSystem::AddDataDirectory(sBaseDir, "Base").Failed())

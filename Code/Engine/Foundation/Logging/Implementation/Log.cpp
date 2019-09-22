@@ -3,7 +3,9 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Time/Time.h>
-
+#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#  include <android/log.h>
+#endif
 ezLogMsgType::Enum ezLog::s_DefaultLogLevel = ezLogMsgType::All;
 ezAtomicInteger32 ezGlobalLog::s_uiMessageCount[ezLogMsgType::ENUM_COUNT];
 ezLoggingEvent ezGlobalLog::s_LoggingEvent;
@@ -219,7 +221,9 @@ void ezLog::Printf(const char* szFormat, ...)
 #  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   OutputDebugStringA(buffer);
 #  endif
-
+#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+  __android_log_print(ANDROID_LOG_ERROR, "ezEngine", "%s", buffer);
+#endif
   va_end(args);
 
   fflush(stdout);

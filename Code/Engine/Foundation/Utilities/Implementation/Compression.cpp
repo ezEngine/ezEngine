@@ -36,7 +36,7 @@ namespace ezCompressionUtils
 
   static ezResult DecompressZStd(ezArrayPtr<const ezUInt8> pCompressedData, ezDynamicArray<ezUInt8>& out_Data)
   {
-    size_t uiSize = ZSTD_findDecompressedSize(pCompressedData.GetPtr(), pCompressedData.GetCount());
+    ezUInt64 uiSize = ZSTD_findDecompressedSize(pCompressedData.GetPtr(), pCompressedData.GetCount());
 
     if (uiSize == ZSTD_CONTENTSIZE_ERROR)
     {

@@ -286,7 +286,6 @@ EZ_CREATE_SIMPLE_TEST(Math, Random)
 static void SaveToImage(ezDynamicArray<ezUInt32>& Values, ezUInt32 uiMaxValue, const char* szFile)
 {
 #ifdef USE_EZIMAGE
-  ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
   EZ_TEST_BOOL(ezFileSystem::AddDataDirectory("", ezFileSystem::AllowWrites, "Clear") == EZ_SUCCESS);
 
   ezImage img;
@@ -316,7 +315,6 @@ static void SaveToImage(ezDynamicArray<ezUInt32>& Values, ezUInt32 uiMaxValue, c
   img.SaveTo(szFile);
 
   ezFileSystem::RemoveDataDirectoryGroup("Clear");
-  ezFileSystem::ClearAllDataDirectoryFactories();
 #endif
 }
 

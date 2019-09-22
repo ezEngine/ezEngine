@@ -24,6 +24,22 @@
 #undef EZ_SUPPORTS_FILE_STATS
 #define EZ_SUPPORTS_FILE_STATS EZ_ON
 
+/// Memory mapping a file is supported.
+#undef EZ_SUPPORTS_MEMORY_MAPPED_FILE
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+#  define EZ_SUPPORTS_MEMORY_MAPPED_FILE EZ_OFF
+#else
+#  define EZ_SUPPORTS_MEMORY_MAPPED_FILE EZ_ON
+#endif
+
+/// Shared memory IPC is supported.
+#undef EZ_SUPPORTS_SHARED_MEMORY
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+#  define EZ_SUPPORTS_SHARED_MEMORY EZ_OFF
+#else
+#  define EZ_SUPPORTS_SHARED_MEMORY EZ_ON
+#endif
+
 /// Whether dynamic plugins (through DLLs loaded/unloaded at runtime) are supported
 #undef EZ_SUPPORTS_DYNAMIC_PLUGINS
 #define EZ_SUPPORTS_DYNAMIC_PLUGINS EZ_ON

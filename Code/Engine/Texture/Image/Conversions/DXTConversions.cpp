@@ -6,7 +6,7 @@
 #include <Foundation/Math/Color16f.h>
 #include <Foundation/Strings/StringBuilder.h>
 
-#if EZ_SSE_LEVEL >= EZ_SSE_41
+#if EZ_SSE_LEVEL >= EZ_SSE_41 && EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
 #  define EZ_SUPPORTS_BC4_COMPRESSOR
 
 #  include <emmintrin.h>

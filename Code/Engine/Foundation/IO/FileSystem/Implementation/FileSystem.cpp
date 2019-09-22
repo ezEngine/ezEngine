@@ -734,6 +734,8 @@ ezResult ezFileSystem::DetectSdkRootDirectory(const char* szExpectedSubFolder /*
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
   // Probably this is what needs to be done on all mobile platforms as well
   sdkRoot = ezOSFile::GetApplicationDirectory();
+#elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
+  sdkRoot = ezOSFile::GetApplicationDirectory();
 #else
   if (ezFileSystem::FindFolderWithSubPath(ezOSFile::GetApplicationDirectory(), szExpectedSubFolder, sdkRoot).Failed())
   {

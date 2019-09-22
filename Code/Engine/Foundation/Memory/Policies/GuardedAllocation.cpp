@@ -4,7 +4,7 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #include <Foundation/Memory/Policies/Win/GuardedAllocation_win.h>
-#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
+#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
 #include <Foundation/Memory/Policies/Posix/GuardedAllocation_posix.h>
 #else
 #error "ezGuardedAllocation is not implemented on current platform"
