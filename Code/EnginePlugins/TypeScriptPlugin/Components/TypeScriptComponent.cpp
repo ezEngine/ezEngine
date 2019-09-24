@@ -41,7 +41,7 @@ void ezTypeScriptComponent::OnSimulationStarted()
   if (script.BeginFunctionCall("_Create_MyComponent").Succeeded())
   {
     script.PushParameter(GetOwner()->GetName());
-    script.ExecuteFunctionCall();
+    EZ_ASSERT_DEV(script.ExecuteFunctionCall().Succeeded(), "");
 
     // store a back pointer in the object
     {

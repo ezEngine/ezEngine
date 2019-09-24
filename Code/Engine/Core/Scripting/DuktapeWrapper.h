@@ -56,6 +56,12 @@ public:
   /// \brief Returns the raw Duktape context for custom operations.
   duk_context* GetContext() const { return m_pContext; }
 
+  /// \brief Implicit conversion to duk_context*
+  operator duk_context*() const { return m_pContext; }
+
+  /// \brief Enables support for loading modules via the 'require' function
+  void EnableModuleSupport(duk_c_function pModuleSearchFunction);
+
   ///@}
 
   /// \name Executing Scripts
@@ -75,6 +81,7 @@ public:
   void RegisterFunction(const char* szFunctionName, duk_c_function pFunction, ezUInt8 uiNumArguments, ezInt16 iMagicValue = 0);
 
   void RegisterFunctionWithVarArgs(const char* szFunctionName, duk_c_function pFunction, ezInt16 iMagicValue = 0);
+
 
   ezResult BeginFunctionCall(const char* szFunctionName);
   ezResult ExecuteFunctionCall();
@@ -146,6 +153,7 @@ protected:
   };
 
   bool m_bIsInFunctionCall = false;
+  bool m_bInitializedModuleSupport = false;
   States m_States;
 
 private:

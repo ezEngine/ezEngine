@@ -4,10 +4,14 @@
 
 #  include <Core/Scripting/DuktapeWrapper.h>
 
+#  include <Duktape/duk_module_duktape.h>
 #  include <Duktape/duktape.h>
 #  include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #  include <Foundation/IO/FileSystem/FileSystem.h>
 #  include <TestFramework/Utilities/TestLogInterface.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+
+duk_ret_t ModuleSearchFunction(duk_context* ctx);
 
 static int CFuncPrint(duk_context* pContext)
 {
@@ -135,6 +139,7 @@ EZ_CREATE_SIMPLE_TEST(Scripting, DuktapeWrapper)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExecuteFile")
   {
     ezDuktapeWrapper duk("DukTest");
+    duk.EnableModuleSupport(nullptr);
 
     ezTestLogInterface log;
     ezTestLogSystemScope logSystemScope(&log);
@@ -261,7 +266,48 @@ EZ_CREATE_SIMPLE_TEST(Scripting, DuktapeWrapper)
     duk.CloseObject();
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "require")
+  {
+    ezDuktapeWrapper duk("DukTest");
+    duk.EnableModuleSupport(ModuleSearchFunction);
+
+    duk.RegisterFunction("Print", CFuncPrint, 1);
+
+    ezTestLogInterface log;
+    ezTestLogSystemScope logSystemScope(&log);
+    log.ExpectMessage("Print: 'called f1'", ezLogMsgType::InfoMsg);
+    log.ExpectMessage("Print: 'Called require.js'", ezLogMsgType::InfoMsg);
+    log.ExpectMessage("Print: 'require.js: called f1'", ezLogMsgType::InfoMsg);
+
+    EZ_TEST_RESULT(duk.ExecuteFile("require.js"));
+  }
+
   ezFileSystem::RemoveDataDirectoryGroup("DuktapeTest");
+}
+
+static duk_ret_t ModuleSearchFunction(duk_context* ctx)
+{
+  ezDuktapeFunction script(ctx);
+
+  /* Nargs was given as 4 and we get the following stack arguments:
+  *   index 0: id
+  *   index 1: require
+  *   index 2: exports
+  *   index 3: module
+  */
+
+  ezStringBuilder id = script.GetStringParameter(0);
+  id.ChangeFileExtension("js");
+
+  ezStringBuilder source;
+  ezFileReader file;
+  file.Open(id);
+  source.ReadAll(file);
+
+  return script.ReturnString(source);
+
+  /* Return 'undefined' to indicate no source code. */
+  //return 0;
 }
 
 #endif

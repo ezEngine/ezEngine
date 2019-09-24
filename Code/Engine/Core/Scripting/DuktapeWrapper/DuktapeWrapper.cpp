@@ -4,6 +4,7 @@
 
 #ifdef BUILDSYSTEM_ENABLE_DUKTAPE_SUPPORT
 
+#  include <Duktape/duk_module_duktape.h>
 #  include <Duktape/duktape.h>
 #  include <Foundation/IO/FileSystem/FileReader.h>
 
@@ -115,6 +116,27 @@ void ezDuktapeWrapper::RegisterFunctionWithVarArgs(const char* szFunctionName, d
 
   if (m_States.m_iOpenObjects == 0)
   {
+    duk_pop(m_pContext);
+  }
+}
+
+void ezDuktapeWrapper::EnableModuleSupport(duk_c_function pModuleSearchFunction)
+{
+  if (!m_bInitializedModuleSupport)
+  {
+    // we need an 'exports' object for the transpiled TypeScript files to load
+    // (they access this object to define the '__esModule' property on it)
+    ExecuteString("var exports = {}");
+
+    m_bInitializedModuleSupport = true;
+    duk_module_duktape_init(m_pContext);
+  }
+
+  if (pModuleSearchFunction)
+  {
+    duk_get_global_string(m_pContext, "Duktape");
+    duk_push_c_function(m_pContext, pModuleSearchFunction, 4);
+    duk_put_prop_string(m_pContext, -2, "modSearch");
     duk_pop(m_pContext);
   }
 }
