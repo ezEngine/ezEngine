@@ -17,6 +17,8 @@ ezTypeScriptWrapper::ezTypeScriptWrapper()
 
 void ezTypeScriptWrapper::Initialize(ezWorld* pWorld)
 {
+  m_Script.EnableModuleSupport(ezTypeScriptWrapper::DukSearchModule);
+
   m_Script.RegisterFunction("ezInternal_ezTsComponent_GetOwner", TS_ezInternal_ezTsComponent_GetOwner, 1);
   m_Script.RegisterFunction("ezInternal_ezTsGameObject_SetLocalPosition", TS_ezInternal_ezTsGameObject_SetLocalPosition, 4);
 
@@ -39,18 +41,38 @@ void ezTypeScriptWrapper::SetupScript()
   if (ezTypeScriptWrapper::TranspileFile("TypeScript/Component.ts", js).Failed())
     return;
 
-  if (m_Script.ExecuteString(js, "Component.ts").Failed())
+  SetModuleSearchPath("TypeScript");
+
+  if (m_Script.ExecuteString(js, "TypeScript/Component.ts").Failed())
     return;
 
-  if (m_Script.OpenObject("ezLog").Succeeded())
+  if (m_Script.OpenObject("ez").Succeeded())
   {
-    m_Script.RegisterFunction("Error", TS_ezLog_Info, 1, ezLogMsgType::ErrorMsg);
-    m_Script.RegisterFunction("SeriousWarning", TS_ezLog_Info, 1, ezLogMsgType::SeriousWarningMsg);
-    m_Script.RegisterFunction("Warning", TS_ezLog_Info, 1, ezLogMsgType::WarningMsg);
-    m_Script.RegisterFunction("Success", TS_ezLog_Info, 1, ezLogMsgType::SuccessMsg);
-    m_Script.RegisterFunction("Info", TS_ezLog_Info, 1, ezLogMsgType::InfoMsg);
-    m_Script.RegisterFunction("Dev", TS_ezLog_Info, 1, ezLogMsgType::DevMsg);
-    m_Script.RegisterFunction("Debug", TS_ezLog_Info, 1, ezLogMsgType::DebugMsg);
+    if (m_Script.OpenObject("Log").Succeeded())
+    {
+      m_Script.RegisterFunction("Error", TS_ezLog_Info, 1, ezLogMsgType::ErrorMsg);
+      m_Script.RegisterFunction("SeriousWarning", TS_ezLog_Info, 1, ezLogMsgType::SeriousWarningMsg);
+      m_Script.RegisterFunction("Warning", TS_ezLog_Info, 1, ezLogMsgType::WarningMsg);
+      m_Script.RegisterFunction("Success", TS_ezLog_Info, 1, ezLogMsgType::SuccessMsg);
+      m_Script.RegisterFunction("Info", TS_ezLog_Info, 1, ezLogMsgType::InfoMsg);
+      m_Script.RegisterFunction("Dev", TS_ezLog_Info, 1, ezLogMsgType::DevMsg);
+      m_Script.RegisterFunction("Debug", TS_ezLog_Info, 1, ezLogMsgType::DebugMsg);
+      m_Script.CloseObject();
+    }
+    m_Script.CloseObject();
+  }
+}
+
+void ezTypeScriptWrapper::SetModuleSearchPath(const char* szPath)
+{
+  m_sSearchPath = szPath;
+
+  {
+    m_Script.OpenGlobalStashObject();
+
+    duk_push_string(m_Script, szPath);
+    EZ_ASSERT_DEV(duk_put_prop_string(m_Script, -2, "ModuleSearchPath"), "");
+
     m_Script.CloseObject();
   }
 }
@@ -62,7 +84,7 @@ void ezTypeScriptWrapper::StartLoadTranspiler()
 
   ezDelegateTask<void>* pTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "Load Transpiler", []() //
     {
-      EZ_VERIFY(s_Transpiler.ExecuteFile("TypeScript/typescriptServices.js").Succeeded(), "");
+      EZ_VERIFY(s_Transpiler.ExecuteFile("typescriptServices.js").Succeeded(), "");
     });
 
   pTask->SetOnTaskFinished([](ezTask* pTask) { EZ_DEFAULT_DELETE(pTask); });
@@ -221,4 +243,46 @@ int TS_ezInternal_ezTsGameObject_SetLocalPosition(duk_context* pContext)
   }
 
   return wrapper.ReturnVoid();
+}
+
+int ezTypeScriptWrapper::DukSearchModule(duk_context* pContext)
+{
+  ezDuktapeFunction script(pContext);
+
+  /* 
+  *   index 0: id
+  *   index 1: require
+  *   index 2: exports
+  *   index 3: module
+  */
+
+  ezStringBuilder sRequestedFile = script.GetStringParameter(0);
+
+  if (!sRequestedFile.HasAnyExtension())
+  {
+    sRequestedFile.ChangeFileExtension("ts");
+  }
+
+  // retrieve the ModuleSearchPath
+  {
+    script.OpenGlobalStashObject();
+
+    EZ_ASSERT_DEV(duk_get_prop_string(script, -1, "ModuleSearchPath"), "");
+    const char* szSearchPath = duk_get_string_default(script, -1, "");
+
+    if (!ezStringUtils::IsNullOrEmpty(szSearchPath))
+    {
+      sRequestedFile.Prepend(szSearchPath, "/");
+    }
+
+    duk_pop(script);
+
+    script.CloseObject();
+  }
+
+
+  ezStringBuilder result;
+  TranspileFile(sRequestedFile, result);
+
+  return script.ReturnString(result);
 }

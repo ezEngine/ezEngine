@@ -1,17 +1,4 @@
-abstract class ezTsGameObjectHandle
-{
-}
-
-namespace ezLog
-{
-    export declare function Error(text : string) : void;
-    export declare function SeriousWarning(text : string) : void;
-    export declare function Warning(text : string) : void;
-    export declare function Success(text : string) : void;
-    export declare function Info(text : string) : void;
-    export declare function Dev(text : string) : void;
-    export declare function Debug(text : string) : void;
-};
+import ez = require("./ez")
 
 declare function ezInternal_ezTsComponent_GetOwner(component : ezTsComponent) : ezTsGameObject;
 declare function ezInternal_ezTsGameObject_SetLocalPosition(go : ezTsGameObject, x : number, y : number, z : number) : void;
@@ -49,14 +36,13 @@ class MyComponent extends ezTsComponent
     constructor(name: string) 
     {
         super()
-
-        ezLog.Info("Construct MyComponent: " + name)
+        ez.Log.Info("Construct MyComponent: " + name)
         this._name = name;
     }
 
     Update(): void
     {
-        ezLog.Dev("MyComponent::Update: " + this._name)
+        ez.Log.Dev("MyComponent::Update: " + this._name)
 
         var go = this.GetOwner();
 
@@ -72,6 +58,6 @@ class MyComponent extends ezTsComponent
 // called by the runtime
 function _Create_MyComponent(name: string): MyComponent
 {
-    ezLog.Info("_Create_MyComponent: " + name)
+    ez.Log.Info("_Create_MyComponent: " + name)
     return new MyComponent(name);
 }

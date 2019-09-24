@@ -16,6 +16,8 @@ public:
 
   void SetupScript();
 
+  void SetModuleSearchPath(const char* szPath);
+
   ezDuktapeWrapper m_Script;
 
 public:
@@ -24,6 +26,10 @@ public:
   static ezResult TranspileFile(const char* szFile, ezStringBuilder& result);
 
 private:
+  static int DukSearchModule(duk_context* pContext);
+
   static ezTaskGroupID s_LoadTranspilerTask;
   static ezDuktapeWrapper s_Transpiler;
+
+  ezStringBuilder m_sSearchPath;
 };

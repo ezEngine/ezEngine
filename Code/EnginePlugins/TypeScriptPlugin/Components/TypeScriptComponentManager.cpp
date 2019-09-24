@@ -22,12 +22,16 @@ void ezTypeScriptComponentManager::Initialize()
 
   RegisterUpdateFunction(desc);
 
+  ezFileSystem::AddDataDirectory(">sdk/Data/Tools/ezEditor/TypeScript", "TypeScript", "TypeScript");
+
   ezTypeScriptWrapper::StartLoadTranspiler();
   m_TsWrapper.Initialize(GetWorld());
 }
 
 void ezTypeScriptComponentManager::Deinitialize()
 {
+  ezFileSystem::RemoveDataDirectoryGroup("TypeScript");
+
   SUPER::Deinitialize();
 }
 
