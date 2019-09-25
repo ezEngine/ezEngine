@@ -545,4 +545,15 @@ cleanup:
   return result;
 }
 
+ezDuktapeStackValidator::ezDuktapeStackValidator(duk_context* pContext)
+{
+  m_pContext = pContext;
+  m_iStackTop = duk_get_top(m_pContext);
+}
+
+ezDuktapeStackValidator::~ezDuktapeStackValidator()
+{
+  EZ_VERIFY(duk_get_top(m_pContext) == m_iStackTop, "Stack top is not as expected");
+}
+
 #endif

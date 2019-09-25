@@ -130,7 +130,6 @@ public:
 
   ///@}
 
-
 private:
   void InitializeContext();
   void DestroyContext();
@@ -223,6 +222,19 @@ public:
 
 private:
   bool m_bDidReturnValue = false;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_CORE_DLL ezDuktapeStackValidator
+{
+public:
+  ezDuktapeStackValidator(duk_context* pContext);
+  ~ezDuktapeStackValidator();
+
+private:
+  duk_context* m_pContext = nullptr;
+  ezInt32 m_iStackTop = 0;
 };
 
 #  include <Core/Scripting/DuktapeWrapper/DuktapeWrapper.inl>

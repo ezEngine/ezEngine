@@ -1,37 +1,6 @@
 import ez = require("./ez")
 
-declare function ezInternal_ezTsComponent_GetOwner(component : ezTsComponent) : ezTsGameObject;
-declare function ezInternal_ezTsGameObject_SetLocalPosition(go : ezTsGameObject, x : number, y : number, z : number) : void;
-
-class ezTsGameObject
-{
-    // SetLocalPosition, GetLocalPosition
-    // rotation, scaling
-
-    //GetHandle() : ezTsGameObjectHandle { return new ezTsGameObjectHandle(); }
-
-    SetLocalPosition(x : number, y : number, z : number) : void
-    {
-        ezInternal_ezTsGameObject_SetLocalPosition(this, x, y, z);
-    }    
-}
-
-function _ezTS_CreateGameObject() : ezTsGameObject
-{
-    return new ezTsGameObject;
-}
-
-abstract class ezTsComponent
-{
-    abstract Update() : void;
-
-    GetOwner() : ezTsGameObject 
-    {
-        return ezInternal_ezTsComponent_GetOwner(this);
-    }
-}
-
-class MyComponent extends ezTsComponent 
+class MyComponent extends ez.Component 
 {
     constructor(name: string) 
     {
@@ -48,6 +17,8 @@ class MyComponent extends ezTsComponent
 
         if (go != null)
         {
+            ez.Log.Dev("Setting Local Position")
+
             go.SetLocalPosition(0, 0, Math.random());
         }
     }
@@ -56,7 +27,7 @@ class MyComponent extends ezTsComponent
 }
 
 // called by the runtime
-function _Create_MyComponent(name: string): MyComponent
+function __Ts_Create_MyComponent(name: string): MyComponent
 {
     ez.Log.Info("_Create_MyComponent: " + name)
     return new MyComponent(name);

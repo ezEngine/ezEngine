@@ -36,9 +36,11 @@ void ezTypeScriptComponent::OnSimulationStarted()
 
   TsWrapper.SetupScript();
 
-  duk_push_global_stash(script.GetContext());
+  ezDuktapeStackValidator validator(script);
 
-  if (script.BeginFunctionCall("_Create_MyComponent").Succeeded())
+  duk_push_global_stash(script);
+
+  if (script.BeginFunctionCall("__Ts_Create_MyComponent").Succeeded())
   {
     script.PushParameter(GetOwner()->GetName());
     EZ_ASSERT_DEV(script.ExecuteFunctionCall().Succeeded(), "");
@@ -46,41 +48,43 @@ void ezTypeScriptComponent::OnSimulationStarted()
     // store a back pointer in the object
     {
       // TODO: store a handle instead
-      duk_push_pointer(script.GetContext(), this);
-      duk_put_prop_string(script.GetContext(), -2, "ezComponentPtr");
+      duk_push_pointer(script, this);
+      duk_put_prop_string(script, -2, "ezComponentPtr");
     }
 
     const int iOwnRef = (int)GetHandle().GetInternalID().m_Data;
-    duk_push_int(script.GetContext(), iOwnRef);
-    duk_dup(script.GetContext(), -2);
-    duk_put_prop(script.GetContext(), -4);
+    duk_push_int(script, iOwnRef);
+    duk_dup(script, -2);
+    duk_put_prop(script, -4);
 
     script.EndFunctionCall();
   }
 
-  duk_pop(script.GetContext());
+  duk_pop(script);
 }
 
 void ezTypeScriptComponent::Update(ezTypeScriptWrapper& TsWrapper)
 {
   ezDuktapeWrapper& script = TsWrapper.m_Script;
 
+  ezDuktapeStackValidator validator(script);
+
   script.OpenGlobalStashObject();
 
   const int iOwnRef = (int)GetHandle().GetInternalID().m_Data;
-  duk_push_int(script.GetContext(), iOwnRef);
-  duk_get_prop(script.GetContext(), -2);
+  duk_push_int(script, iOwnRef);
+  duk_get_prop(script, -2);
 
   {
     if (script.BeginFunctionCall("Update").Succeeded())
     {
-      duk_dup(script.GetContext(), -2); // this
+      duk_dup(script, -2); // this
 
-      duk_call_method(script.GetContext(), 0);
+      duk_call_method(script, 0);
       script.EndFunctionCall();
     }
   }
 
-  duk_pop(script.GetContext());
+  duk_pop(script);
   script.CloseObject();
 }

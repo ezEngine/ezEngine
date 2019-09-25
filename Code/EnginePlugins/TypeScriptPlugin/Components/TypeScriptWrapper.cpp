@@ -3,8 +3,8 @@
 #include <Foundation/Threading/DelegateTask.h>
 #include <TypeScriptPlugin/Components/TypeScriptWrapper.h>
 
-int TS_ezInternal_ezTsComponent_GetOwner(duk_context* pContext);
-int TS_ezInternal_ezTsGameObject_SetLocalPosition(duk_context* pContext);
+int ezTs_Component_GetOwner(duk_context* pContext);
+int ezTs_GameObject_SetLocalPosition(duk_context* pContext);
 int TS_ezLog_Info(duk_context* pContext);
 
 ezTaskGroupID ezTypeScriptWrapper::s_LoadTranspilerTask;
@@ -17,10 +17,10 @@ ezTypeScriptWrapper::ezTypeScriptWrapper()
 
 void ezTypeScriptWrapper::Initialize(ezWorld* pWorld)
 {
-  m_Script.EnableModuleSupport(ezTypeScriptWrapper::DukSearchModule);
+  m_Script.EnableModuleSupport(&ezTypeScriptWrapper::DukSearchModule);
 
-  m_Script.RegisterFunction("ezInternal_ezTsComponent_GetOwner", TS_ezInternal_ezTsComponent_GetOwner, 1);
-  m_Script.RegisterFunction("ezInternal_ezTsGameObject_SetLocalPosition", TS_ezInternal_ezTsGameObject_SetLocalPosition, 4);
+  m_Script.RegisterFunction("__Component_GetOwner", ezTs_Component_GetOwner, 1);
+  m_Script.RegisterFunction("__GameObject_SetLocalPosition", ezTs_GameObject_SetLocalPosition, 4);
 
   // store ezWorld* in global stash
   {
@@ -42,6 +42,8 @@ void ezTypeScriptWrapper::SetupScript()
     return;
 
   SetModuleSearchPath("TypeScript");
+
+  ezDuktapeStackValidator validator(m_Script);
 
   if (m_Script.ExecuteString(js, "TypeScript/Component.ts").Failed())
     return;
@@ -107,6 +109,8 @@ ezResult ezTypeScriptWrapper::TranspileFile(const char* szFile, ezStringBuilder&
 
   result.ReadAll(file);
 
+  ezDuktapeStackValidator validator(s_Transpiler);
+
   EZ_SUCCEED_OR_RETURN(s_Transpiler.OpenObject("ts"));
   EZ_SUCCEED_OR_RETURN(s_Transpiler.BeginFunctionCall("transpile"));
   s_Transpiler.PushParameter(result);
@@ -161,7 +165,7 @@ int TS_ezLog_Info(duk_context* pContext)
   return wrapper.ReturnVoid();
 }
 
-int TS_ezInternal_ezTsComponent_GetOwner(duk_context* pContext)
+int ezTs_Component_GetOwner(duk_context* pContext)
 {
   ezDuktapeFunction wrapper(pContext);
 
@@ -174,7 +178,8 @@ int TS_ezInternal_ezTsComponent_GetOwner(duk_context* pContext)
 
   // create ezTsGameObject and store ezGameObject Ptr and Handle in it
   wrapper.OpenGlobalObject();
-  EZ_VERIFY(wrapper.BeginFunctionCall("_ezTS_CreateGameObject").Succeeded(), "");
+  EZ_VERIFY(wrapper.OpenObject("ez").Succeeded(), "");
+  EZ_VERIFY(wrapper.BeginFunctionCall("__Ts_CreateGameObject").Succeeded(), "");
   EZ_VERIFY(wrapper.ExecuteFunctionCall().Succeeded(), "");
   duk_dup_top(pContext);
   wrapper.EndFunctionCall();
@@ -193,7 +198,7 @@ int TS_ezInternal_ezTsComponent_GetOwner(duk_context* pContext)
   return wrapper.ReturnCustom();
 }
 
-int TS_ezInternal_ezTsGameObject_SetLocalPosition(duk_context* pContext)
+int ezTs_GameObject_SetLocalPosition(duk_context* pContext)
 {
   ezDuktapeFunction wrapper(pContext);
   EZ_VERIFY(wrapper.IsParameterObject(0), "");
