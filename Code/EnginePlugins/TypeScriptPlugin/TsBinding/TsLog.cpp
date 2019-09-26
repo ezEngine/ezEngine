@@ -2,7 +2,7 @@
 
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
 
-static int __CPP_Log(duk_context* pContext);
+static int __CPP_Log(duk_context* pDuk);
 
 ezResult ezTypeScriptBinding::Init_Log()
 {
@@ -17,9 +17,9 @@ ezResult ezTypeScriptBinding::Init_Log()
   return EZ_SUCCESS;
 }
 
-static int __CPP_Log(duk_context* pContext)
+static int __CPP_Log(duk_context* pDuk)
 {
-  ezDuktapeFunction duk(pContext);
+  ezDuktapeFunction duk(pDuk);
   const ezInt16 iMagic = duk.GetFunctionMagicValue();
 
   switch (iMagic)

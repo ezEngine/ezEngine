@@ -27,9 +27,9 @@ void ezTypeScriptBinding::SetModuleSearchPath(const char* szPath)
   m_Duk.StoreStringInStash("ModuleSearchPath", szPath);
 }
 
-int ezTypeScriptBinding::DukSearchModule(duk_context* pContext)
+int ezTypeScriptBinding::DukSearchModule(duk_context* pDuk)
 {
-  ezDuktapeFunction duk(pContext);
+  ezDuktapeFunction duk(pDuk);
 
   ezTypeScriptTranspiler* pTranspiler = static_cast<ezTypeScriptTranspiler*>(duk.RetrievePointerFromStash("Transpiler"));
 

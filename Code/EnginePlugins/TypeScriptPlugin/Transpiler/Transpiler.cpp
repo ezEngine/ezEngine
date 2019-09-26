@@ -2,6 +2,7 @@
 
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Threading/DelegateTask.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <TypeScriptPlugin/Transpiler/Transpiler.h>
@@ -20,6 +21,8 @@ void ezTypeScriptTranspiler::StartLoadTranspiler()
 
   ezDelegateTask<void>* pTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "Load TypeScript Transpiler", [this]() //
     {
+      EZ_PROFILE_SCOPE("Load TypeScript Transpiler");
+
       if (m_Transpiler.ExecuteFile("typescriptServices.js").Failed())
       {
         ezLog::Error("typescriptServices.js could not be loaded");
@@ -42,6 +45,8 @@ ezResult ezTypeScriptTranspiler::TranspileString(const char* szString, ezStringB
   EZ_LOG_BLOCK("TranspileString");
 
   FinishLoadTranspiler();
+
+  EZ_PROFILE_SCOPE("Transpile TypeScript");
 
   ezDuktapeStackValidator validator(m_Transpiler);
 

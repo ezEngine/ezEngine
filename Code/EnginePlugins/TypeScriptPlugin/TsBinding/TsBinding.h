@@ -4,6 +4,7 @@
 
 #include <Core/Scripting/DuktapeWrapper.h>
 #include <TypeScriptPlugin/Transpiler/Transpiler.h>
+#include <Core/World/Declarations.h>
 
 class ezWorld;
 
@@ -34,7 +35,7 @@ public:
   void SetModuleSearchPath(const char* szPath);
 
 private:
-  static int DukSearchModule(duk_context* pContext);
+  static int DukSearchModule(duk_context* pDuk);
 
   ///@}
   /// \name Initialization
@@ -49,10 +50,20 @@ private:
   ///@}
   /// \name ezWorld
   ///@{
+public:
+  static ezWorld* RetrieveWorld(duk_context* pDuk);
+
 private:
   void StoreWorld(ezWorld* pWorld);
-  //void RetrieveWorld();
 
-  ezWorld* m_pWorld = nullptr;
+  static ezHashTable<duk_context*, ezWorld*> s_DukToWorld;
+
+  ///@}
+  /// \name ezGameObject
+  ///@{
+public:
+  static ezGameObjectHandle RetrieveGameObjectHandle(duk_context* pDuk, ezInt32 iObjIdx = 0 /* use 0, if the game object is passed in as the 'this' object (first parameter) */);
+  static ezGameObject* ExpectGameObject(duk_context* pDuk, ezInt32 iObjIdx = 0 /* use 0, if the game object is passed in as the 'this' object (first parameter) */);
+
   ///@}
 };

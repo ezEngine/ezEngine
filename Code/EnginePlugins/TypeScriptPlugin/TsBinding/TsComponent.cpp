@@ -2,7 +2,7 @@
 
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
 
-static int __CPP_Component_GetOwner(duk_context* pContext);
+static int __CPP_Component_GetOwner(duk_context* pDuk);
 
 ezResult ezTypeScriptBinding::Init_Component()
 {
@@ -11,9 +11,9 @@ ezResult ezTypeScriptBinding::Init_Component()
   return EZ_SUCCESS;
 }
 
-static int __CPP_Component_GetOwner(duk_context* pContext)
+static int __CPP_Component_GetOwner(duk_context* pDuk)
 {
-  ezDuktapeFunction duk(pContext);
+  ezDuktapeFunction duk(pDuk);
 
   duk_require_object(duk, 0);
   duk_get_prop_string(duk, 0, "ezComponentPtr");
@@ -29,11 +29,6 @@ static int __CPP_Component_GetOwner(duk_context* pContext)
   EZ_VERIFY(duk.ExecuteFunctionCall().Succeeded(), "");
   duk_dup_top(duk);
   duk.EndFunctionCall();
-
-  {
-    duk_push_pointer(duk, pComponent->GetOwner()); // TODO: use handle
-    duk_put_prop_string(duk, -2, "ezGameObjectPtr");
-  }
 
   {
     ezGameObjectHandle* pHandleBuffer = reinterpret_cast<ezGameObjectHandle*>(duk_push_fixed_buffer(duk, sizeof(ezGameObjectHandle)));

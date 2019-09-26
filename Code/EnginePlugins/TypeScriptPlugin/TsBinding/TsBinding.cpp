@@ -2,6 +2,7 @@
 
 #include <Core/World/World.h>
 #include <Duktape/duktape.h>
+#include <Foundation/Profiling/Profiling.h>
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
 
 ezTypeScriptBinding::ezTypeScriptBinding()
@@ -13,6 +14,9 @@ ezTypeScriptBinding::~ezTypeScriptBinding() = default;
 
 ezResult ezTypeScriptBinding::Initialize(ezTypeScriptTranspiler& transpiler, ezWorld& world)
 {
+  EZ_LOG_BLOCK("Initialize TypeScript Binding");
+  EZ_PROFILE_SCOPE("Initialize TypeScript Binding");
+
   m_pTranspiler = &transpiler;
 
   m_Duk.EnableModuleSupport(&ezTypeScriptBinding::DukSearchModule);
@@ -43,6 +47,8 @@ ezResult ezTypeScriptBinding::LoadComponent(const char* szComponent)
     return m_LoadedComponents[szComponent] ? EZ_SUCCESS : EZ_FAILURE;
   }
 
+  EZ_PROFILE_SCOPE("Load TypeScript Component");
+
   m_LoadedComponents[szComponent] = false;
 
   ezStringBuilder transpiledCode;
@@ -53,3 +59,4 @@ ezResult ezTypeScriptBinding::LoadComponent(const char* szComponent)
   m_LoadedComponents[szComponent] = true;
   return EZ_SUCCESS;
 }
+

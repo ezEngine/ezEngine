@@ -2,7 +2,7 @@
 
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
 
-static int __CPP_GameObject_SetLocalPosition(duk_context* pContext);
+static int __CPP_GameObject_SetLocalPosition(duk_context* pDuk);
 
 ezResult ezTypeScriptBinding::Init_GameObject()
 {
@@ -11,54 +11,35 @@ ezResult ezTypeScriptBinding::Init_GameObject()
   return EZ_SUCCESS;
 }
 
-static int __CPP_GameObject_SetLocalPosition(duk_context* pContext)
+ezGameObjectHandle ezTypeScriptBinding::RetrieveGameObjectHandle(duk_context* pDuk, ezInt32 iObjIdx /*= 0 */)
 {
-  ezDuktapeFunction duk(pContext);
-  EZ_VERIFY(duk.IsParameterObject(0), "");
+  duk_get_prop_string(pDuk, iObjIdx, "ezGameObjectHandle");
+  ezGameObjectHandle hObject = *reinterpret_cast<ezGameObjectHandle*>(duk_get_buffer(pDuk, -1, nullptr));
+  duk_pop(pDuk);
 
-  ezWorld* pWorld = nullptr;
+  return hObject;
+}
 
-  // retrieve ezWorld* in global stash
-  {
-    // TODO: look up ezWorld* externally instead of through the stash
+ezGameObject* ezTypeScriptBinding::ExpectGameObject(duk_context* pDuk, ezInt32 iObjIdx /*= 0*/)
+{
+  ezGameObjectHandle hObject = ezTypeScriptBinding::RetrieveGameObjectHandle(pDuk, 0 /*this*/);
 
-    duk.OpenGlobalStashObject();
+  ezWorld* pWorld = ezTypeScriptBinding::RetrieveWorld(pDuk);
 
-    duk_get_prop_index(duk, -1, 0 /* index for ezWorld* */);
-    pWorld = *reinterpret_cast<ezWorld**>(duk_get_buffer(duk, -1, nullptr));
-    duk_pop(duk);
-
-    duk.CloseObject();
-  }
-
-  ezGameObjectHandle hObject;
   ezGameObject* pGameObject = nullptr;
+  EZ_VERIFY(pWorld->TryGetObject(hObject, pGameObject), "Invalid ezGameObject");
 
-  {
-    duk_get_prop_string(duk, 0, "ezGameObjectHandle");
-    hObject = *reinterpret_cast<ezGameObjectHandle*>(duk_get_buffer(duk, -1, nullptr));
-    duk_pop(duk);
+  return pGameObject;
+}
 
-    EZ_VERIFY(pWorld->TryGetObject(hObject, pGameObject), "");
-  }
+static int __CPP_GameObject_SetLocalPosition(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk);
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-  {
-    duk_get_prop_string(duk, 0, "ezGameObjectPtr");
-    ezGameObject* pGo = (ezGameObject*)duk_get_pointer_default(duk, -1, nullptr);
-    duk_pop(duk);
+  ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
 
-    EZ_VERIFY(pGo == pGameObject, "outdated pointer");
-  }
-#endif
-
-  if (pGameObject)
-  {
-    EZ_VERIFY(pWorld == pGameObject->GetWorld(), "");
-
-    ezVec3 pos(duk.GetFloatParameter(1), duk.GetFloatParameter(2), duk.GetFloatParameter(3));
-    pGameObject->SetLocalPosition(pos);
-  }
+  const ezVec3 pos(duk.GetFloatParameter(1), duk.GetFloatParameter(2), duk.GetFloatParameter(3));
+  pGameObject->SetLocalPosition(pos);
 
   return duk.ReturnVoid();
 }
