@@ -8,6 +8,11 @@
 
 class ezWorld;
 
+enum ezTypeScriptBindingIndexProperty
+{
+  ComponentHandle,
+};
+
 class ezTypeScriptBinding
 {
   /// \name Basics

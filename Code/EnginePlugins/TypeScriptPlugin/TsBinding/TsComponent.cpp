@@ -16,9 +16,14 @@ static int __CPP_Component_GetOwner(duk_context* pDuk)
   ezDuktapeFunction duk(pDuk);
 
   duk_require_object(duk, 0);
-  duk_get_prop_string(duk, 0, "ezComponentPtr");
-  ezComponent* pComponent = (ezComponent*)duk_get_pointer(duk, -1);
+
+  duk_get_prop_index(duk, 0, ezTypeScriptBindingIndexProperty::ComponentHandle);
+  ezComponentHandle hOwnHandle = *reinterpret_cast<ezComponentHandle*>(duk_get_buffer(duk, -1, nullptr));
   duk_pop(duk);
+
+  ezComponent* pComponent = nullptr;
+  ezWorld* pWorld = ezTypeScriptBinding::RetrieveWorld(duk);
+  EZ_VERIFY(pWorld->TryGetComponent(hOwnHandle, pComponent), "");
 
   ezTypeScriptBinding::DukPutGameObject(duk, pComponent->GetOwner()->GetHandle());
 
