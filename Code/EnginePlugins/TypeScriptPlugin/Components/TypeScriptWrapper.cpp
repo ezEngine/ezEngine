@@ -3,9 +3,8 @@
 #include <Foundation/Threading/DelegateTask.h>
 #include <TypeScriptPlugin/Components/TypeScriptWrapper.h>
 
-int ezTs_Component_GetOwner(duk_context* pContext);
-int ezTs_GameObject_SetLocalPosition(duk_context* pContext);
-int TS_ezLog_Info(duk_context* pContext);
+int __CPP_Component_GetOwner(duk_context* pContext);
+int __CPP_GameObject_SetLocalPosition(duk_context* pContext);
 
 ezTaskGroupID ezTypeScriptWrapper::s_LoadTranspilerTask;
 ezDuktapeWrapper ezTypeScriptWrapper::s_Transpiler("TsTranspiler");
@@ -19,8 +18,8 @@ void ezTypeScriptWrapper::Initialize(ezWorld* pWorld)
 {
   m_Script.EnableModuleSupport(&ezTypeScriptWrapper::DukSearchModule);
 
-  m_Script.RegisterFunction("__Component_GetOwner", ezTs_Component_GetOwner, 1);
-  m_Script.RegisterFunction("__GameObject_SetLocalPosition", ezTs_GameObject_SetLocalPosition, 4);
+  m_Script.RegisterFunction("__CPP_Component_GetOwner", __CPP_Component_GetOwner, 1);
+  m_Script.RegisterFunction("__CPP_GameObject_SetLocalPosition", __CPP_GameObject_SetLocalPosition, 4);
 
   // store ezWorld* in global stash
   {
@@ -35,48 +34,31 @@ void ezTypeScriptWrapper::Initialize(ezWorld* pWorld)
   }
 }
 
-void ezTypeScriptWrapper::SetupScript()
+ezStatus ezTypeScriptWrapper::SetupScript()
 {
   ezStringBuilder js;
-  if (ezTypeScriptWrapper::TranspileFile("TypeScript/Component.ts", js).Failed())
-    return;
+  EZ_SUCCEED_OR_RETURN(ezTypeScriptWrapper::TranspileFile("TypeScript/Component.ts", js));
 
   SetModuleSearchPath("TypeScript");
 
   ezDuktapeStackValidator validator(m_Script);
 
-  if (m_Script.ExecuteString(js, "TypeScript/Component.ts").Failed())
-    return;
+  EZ_SUCCEED_OR_RETURN(Init_RequireModules());
+  EZ_SUCCEED_OR_RETURN(Init_Log());
 
-  if (m_Script.OpenObject("ez").Succeeded())
-  {
-    if (m_Script.OpenObject("Log").Succeeded())
-    {
-      m_Script.RegisterFunction("Error", TS_ezLog_Info, 1, ezLogMsgType::ErrorMsg);
-      m_Script.RegisterFunction("SeriousWarning", TS_ezLog_Info, 1, ezLogMsgType::SeriousWarningMsg);
-      m_Script.RegisterFunction("Warning", TS_ezLog_Info, 1, ezLogMsgType::WarningMsg);
-      m_Script.RegisterFunction("Success", TS_ezLog_Info, 1, ezLogMsgType::SuccessMsg);
-      m_Script.RegisterFunction("Info", TS_ezLog_Info, 1, ezLogMsgType::InfoMsg);
-      m_Script.RegisterFunction("Dev", TS_ezLog_Info, 1, ezLogMsgType::DevMsg);
-      m_Script.RegisterFunction("Debug", TS_ezLog_Info, 1, ezLogMsgType::DebugMsg);
-      m_Script.CloseObject();
-    }
-    m_Script.CloseObject();
-  }
+  EZ_SUCCEED_OR_RETURN(m_Script.ExecuteString(js, "TypeScript/Component.ts"));
+
+  return ezStatus(EZ_SUCCESS);
 }
 
 void ezTypeScriptWrapper::SetModuleSearchPath(const char* szPath)
 {
-  m_sSearchPath = szPath;
+  m_Script.OpenGlobalStashObject();
 
-  {
-    m_Script.OpenGlobalStashObject();
+  duk_push_string(m_Script, szPath);
+  EZ_VERIFY(duk_put_prop_string(m_Script, -2, "ModuleSearchPath"), "");
 
-    duk_push_string(m_Script, szPath);
-    EZ_ASSERT_DEV(duk_put_prop_string(m_Script, -2, "ModuleSearchPath"), "");
-
-    m_Script.CloseObject();
-  }
+  m_Script.CloseObject();
 }
 
 void ezTypeScriptWrapper::StartLoadTranspiler()
@@ -132,40 +114,7 @@ ezResult ezTypeScriptWrapper::TranspileFile(const char* szFile, ezStringBuilder&
   return EZ_SUCCESS;
 }
 
-int TS_ezLog_Info(duk_context* pContext)
-{
-  ezDuktapeFunction wrapper(pContext);
-  const ezInt16 iMagic = wrapper.GetFunctionMagicValue();
-
-  switch (iMagic)
-  {
-    case ezLogMsgType::ErrorMsg:
-      ezLog::Error(wrapper.GetStringParameter(0));
-      break;
-    case ezLogMsgType::SeriousWarningMsg:
-      ezLog::SeriousWarning(wrapper.GetStringParameter(0));
-      break;
-    case ezLogMsgType::WarningMsg:
-      ezLog::Warning(wrapper.GetStringParameter(0));
-      break;
-    case ezLogMsgType::SuccessMsg:
-      ezLog::Success(wrapper.GetStringParameter(0));
-      break;
-    case ezLogMsgType::InfoMsg:
-      ezLog::Info(wrapper.GetStringParameter(0));
-      break;
-    case ezLogMsgType::DevMsg:
-      ezLog::Dev(wrapper.GetStringParameter(0));
-      break;
-    case ezLogMsgType::DebugMsg:
-      ezLog::Debug(wrapper.GetStringParameter(0));
-      break;
-  }
-
-  return wrapper.ReturnVoid();
-}
-
-int ezTs_Component_GetOwner(duk_context* pContext)
+int __CPP_Component_GetOwner(duk_context* pContext)
 {
   ezDuktapeFunction wrapper(pContext);
 
@@ -178,8 +127,8 @@ int ezTs_Component_GetOwner(duk_context* pContext)
 
   // create ezTsGameObject and store ezGameObject Ptr and Handle in it
   wrapper.OpenGlobalObject();
-  EZ_VERIFY(wrapper.OpenObject("ez").Succeeded(), "");
-  EZ_VERIFY(wrapper.BeginFunctionCall("__Ts_CreateGameObject").Succeeded(), "");
+  EZ_VERIFY(wrapper.OpenObject("__GameObject").Succeeded(), "");
+  EZ_VERIFY(wrapper.BeginFunctionCall("__TS_CreateGameObject").Succeeded(), "");
   EZ_VERIFY(wrapper.ExecuteFunctionCall().Succeeded(), "");
   duk_dup_top(pContext);
   wrapper.EndFunctionCall();
@@ -198,7 +147,7 @@ int ezTs_Component_GetOwner(duk_context* pContext)
   return wrapper.ReturnCustom();
 }
 
-int ezTs_GameObject_SetLocalPosition(duk_context* pContext)
+int __CPP_GameObject_SetLocalPosition(duk_context* pContext)
 {
   ezDuktapeFunction wrapper(pContext);
   EZ_VERIFY(wrapper.IsParameterObject(0), "");
@@ -291,3 +240,68 @@ int ezTypeScriptWrapper::DukSearchModule(duk_context* pContext)
 
   return script.ReturnString(result);
 }
+
+ezStatus ezTypeScriptWrapper::Init_RequireModules()
+{
+  if (m_Script.ExecuteString("var __GameObject = require(\"./ez/GameObject\");").Failed())
+    return ezStatus("Failed to import 'GameObject.ts'");
+
+  if (m_Script.ExecuteString("var __Component = require(\"./ez/Component\");").Failed())
+    return ezStatus("Failed to import 'Component.ts'");
+
+  return ezStatus(EZ_SUCCESS);
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+static int __CPP_Log(duk_context* pContext)
+{
+  ezDuktapeFunction wrapper(pContext);
+  const ezInt16 iMagic = wrapper.GetFunctionMagicValue();
+
+  switch (iMagic)
+  {
+    case ezLogMsgType::ErrorMsg:
+      ezLog::Error(wrapper.GetStringParameter(0));
+      break;
+    case ezLogMsgType::SeriousWarningMsg:
+      ezLog::SeriousWarning(wrapper.GetStringParameter(0));
+      break;
+    case ezLogMsgType::WarningMsg:
+      ezLog::Warning(wrapper.GetStringParameter(0));
+      break;
+    case ezLogMsgType::SuccessMsg:
+      ezLog::Success(wrapper.GetStringParameter(0));
+      break;
+    case ezLogMsgType::InfoMsg:
+      ezLog::Info(wrapper.GetStringParameter(0));
+      break;
+    case ezLogMsgType::DevMsg:
+      ezLog::Dev(wrapper.GetStringParameter(0));
+      break;
+    case ezLogMsgType::DebugMsg:
+      ezLog::Debug(wrapper.GetStringParameter(0));
+      break;
+  }
+
+  return wrapper.ReturnVoid();
+}
+
+ezStatus ezTypeScriptWrapper::Init_Log()
+{
+  m_Script.RegisterFunction("__CPP_Log_Error", __CPP_Log, 1, ezLogMsgType::ErrorMsg);
+  m_Script.RegisterFunction("__CPP_Log_SeriousWarning", __CPP_Log, 1, ezLogMsgType::SeriousWarningMsg);
+  m_Script.RegisterFunction("__CPP_Log_Warning", __CPP_Log, 1, ezLogMsgType::WarningMsg);
+  m_Script.RegisterFunction("__CPP_Log_Success", __CPP_Log, 1, ezLogMsgType::SuccessMsg);
+  m_Script.RegisterFunction("__CPP_Log_Info", __CPP_Log, 1, ezLogMsgType::InfoMsg);
+  m_Script.RegisterFunction("__CPP_Log_Dev", __CPP_Log, 1, ezLogMsgType::DevMsg);
+  m_Script.RegisterFunction("__CPP_Log_Debug", __CPP_Log, 1, ezLogMsgType::DebugMsg);
+
+  return ezStatus(EZ_SUCCESS);
+}
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////

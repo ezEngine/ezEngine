@@ -4,6 +4,7 @@
 
 #include <Core/Scripting/DuktapeWrapper.h>
 #include <Foundation/Threading/Implementation/TaskSystemDeclarations.h>
+#include <Foundation/Types/Status.h>
 
 class ezWorld;
 
@@ -14,7 +15,7 @@ public:
 
   void Initialize(ezWorld* pWorld);
 
-  void SetupScript();
+  ezStatus SetupScript();
 
   void SetModuleSearchPath(const char* szPath);
 
@@ -28,8 +29,9 @@ public:
 private:
   static int DukSearchModule(duk_context* pContext);
 
+  ezStatus Init_RequireModules();
+  ezStatus Init_Log();
+
   static ezTaskGroupID s_LoadTranspilerTask;
   static ezDuktapeWrapper s_Transpiler;
-
-  ezStringBuilder m_sSearchPath;
 };

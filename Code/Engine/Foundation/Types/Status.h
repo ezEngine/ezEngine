@@ -33,7 +33,7 @@ struct EZ_FOUNDATION_DLL ezStatus
   {
   }
 
-  explicit ezStatus(ezResult r)
+  ezStatus(ezResult r)
       : m_Result(r)
   {
   }
