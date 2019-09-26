@@ -64,6 +64,7 @@ private:
 public:
   static ezGameObjectHandle RetrieveGameObjectHandle(duk_context* pDuk, ezInt32 iObjIdx = 0 /* use 0, if the game object is passed in as the 'this' object (first parameter) */);
   static ezGameObject* ExpectGameObject(duk_context* pDuk, ezInt32 iObjIdx = 0 /* use 0, if the game object is passed in as the 'this' object (first parameter) */);
+  static void DukPutGameObject(duk_context* pDuk, const ezGameObjectHandle& hObject);
 
   ///@}
 };

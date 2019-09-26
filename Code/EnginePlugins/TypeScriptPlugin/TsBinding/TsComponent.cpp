@@ -20,21 +20,7 @@ static int __CPP_Component_GetOwner(duk_context* pDuk)
   ezComponent* pComponent = (ezComponent*)duk_get_pointer(duk, -1);
   duk_pop(duk);
 
-  //ezLog::Info("ezTsComponent::GetOwner -> {}", pComponent->GetOwner()->GetName());
-
-  // create ezTsGameObject and store ezGameObject Ptr and Handle in it
-  duk.OpenGlobalObject();
-  EZ_VERIFY(duk.OpenObject("__GameObject").Succeeded(), "");
-  EZ_VERIFY(duk.BeginFunctionCall("__TS_CreateGameObject").Succeeded(), "");
-  EZ_VERIFY(duk.ExecuteFunctionCall().Succeeded(), "");
-  duk_dup_top(duk);
-  duk.EndFunctionCall();
-
-  {
-    ezGameObjectHandle* pHandleBuffer = reinterpret_cast<ezGameObjectHandle*>(duk_push_fixed_buffer(duk, sizeof(ezGameObjectHandle)));
-    *pHandleBuffer = pComponent->GetOwner()->GetHandle();
-    duk_put_prop_string(duk, -2, "ezGameObjectHandle");
-  }
+  ezTypeScriptBinding::DukPutGameObject(duk, pComponent->GetOwner()->GetHandle());
 
   return duk.ReturnCustom();
 }

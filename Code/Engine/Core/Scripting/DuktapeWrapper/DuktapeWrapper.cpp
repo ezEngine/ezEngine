@@ -603,10 +603,10 @@ const char* ezDuktapeWrapper::RetrieveStringFromStash(const char* szKey, const c
   return szFallback;
 }
 
-ezDuktapeStackValidator::ezDuktapeStackValidator(duk_context* pContext)
+ezDuktapeStackValidator::ezDuktapeStackValidator(duk_context* pContext, ezInt32 iExpectedChange /*= 0*/)
 {
   m_pContext = pContext;
-  m_iStackTop = duk_get_top(m_pContext);
+  m_iStackTop = duk_get_top(m_pContext) + iExpectedChange;
 }
 
 ezDuktapeStackValidator::~ezDuktapeStackValidator()

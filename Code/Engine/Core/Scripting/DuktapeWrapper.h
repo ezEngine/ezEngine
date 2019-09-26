@@ -48,6 +48,7 @@ class EZ_CORE_DLL ezDuktapeWrapper
 
 public:
   ezDuktapeWrapper(const char* szWrapperName);
+  ezDuktapeWrapper(duk_context* pExistingContext);
   ~ezDuktapeWrapper();
 
   /// \name Basics
@@ -150,9 +151,6 @@ private:
 
 
 protected:
-  ezDuktapeWrapper(duk_context* pExistingContext);
-
-
   struct States
   {
     ezInt32 m_iPushedFunctionArguments = 0;
@@ -238,7 +236,7 @@ private:
 class EZ_CORE_DLL ezDuktapeStackValidator
 {
 public:
-  ezDuktapeStackValidator(duk_context* pContext);
+  ezDuktapeStackValidator(duk_context* pContext, ezInt32 iExpectedChange = 0);
   ~ezDuktapeStackValidator();
 
 private:

@@ -59,4 +59,3 @@ ezResult ezTypeScriptBinding::LoadComponent(const char* szComponent)
   m_LoadedComponents[szComponent] = true;
   return EZ_SUCCESS;
 }
-

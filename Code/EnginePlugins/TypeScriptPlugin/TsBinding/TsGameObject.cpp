@@ -32,6 +32,31 @@ ezGameObject* ezTypeScriptBinding::ExpectGameObject(duk_context* pDuk, ezInt32 i
   return pGameObject;
 }
 
+void ezTypeScriptBinding::DukPutGameObject(duk_context* pDuk, const ezGameObjectHandle& hObject)
+{
+  ezDuktapeWrapper duk(pDuk);
+  ezDuktapeStackValidator validator(pDuk, +1);
+
+  // create ez.GameObject and store ezGameObjectHandle as a property in it
+  duk.OpenGlobalObject();
+  EZ_VERIFY(duk.OpenObject("__GameObject").Succeeded(), "");
+  EZ_VERIFY(duk.BeginFunctionCall("__TS_CreateGameObject").Succeeded(), "");
+  EZ_VERIFY(duk.ExecuteFunctionCall().Succeeded(), "");
+  // top of the stack (+3) contains our ez.GameObject now
+
+  // set the ezGameObjectHandle property
+  {
+    ezGameObjectHandle* pHandleBuffer = reinterpret_cast<ezGameObjectHandle*>(duk_push_fixed_buffer(duk, sizeof(ezGameObjectHandle)));
+    *pHandleBuffer = hObject;
+    duk_put_prop_string(duk, -2, "ezGameObjectHandle");
+  }
+
+  // move the top of the stack to the only position that we want to keep (return)
+  duk_replace(duk, -3);
+  // remove the remaining element that is too much
+  duk_pop(duk);
+}
+
 static int __CPP_GameObject_SetLocalPosition(duk_context* pDuk)
 {
   ezDuktapeFunction duk(pDuk);

@@ -11,7 +11,7 @@ class ezTypeScriptBinding;
 
 class EZ_TYPESCRIPTPLUGIN_DLL ezTypeScriptComponentManager : public ezComponentManager<class ezTypeScriptComponent, ezBlockStorageType::FreeList>
 {
-  typedef ezComponentManager<class ezTypeScriptComponent, ezBlockStorageType::FreeList> SUPER;
+  using SUPER = ezComponentManager<class ezTypeScriptComponent, ezBlockStorageType::FreeList>;
 
 public:
   ezTypeScriptComponentManager(ezWorld* pWorld);
