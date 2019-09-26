@@ -24,8 +24,8 @@ void ezTypeScriptComponentManager::Initialize()
 
   ezFileSystem::AddDataDirectory(">sdk/Data/Tools/ezEditor/TypeScript", "TypeScript", "TypeScript");
 
-  ezTypeScriptWrapper::StartLoadTranspiler();
-  m_TsWrapper.Initialize(GetWorld());
+  m_Transpiler.StartLoadTranspiler();
+  m_TsBinding.Initialize(m_Transpiler, *GetWorld());
 }
 
 void ezTypeScriptComponentManager::Deinitialize()
@@ -41,7 +41,7 @@ void ezTypeScriptComponentManager::Update(const ezWorldModule::UpdateContext& co
   {
     if (it->IsActiveAndSimulating())
     {
-      it->Update(m_TsWrapper);
+      it->Update(m_TsBinding);
     }
   }
 }

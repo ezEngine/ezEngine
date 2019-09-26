@@ -1,12 +1,13 @@
 #pragma once
 
-#include <TypeScriptPlugin/Components/TypeScriptWrapper.h>
+#include <TypeScriptPlugin/TsBinding/TsBinding.h>
 
 #include <Core/Scripting/DuktapeWrapper.h>
 #include <Core/World/Component.h>
 #include <Core/World/World.h>
+#include <TypeScriptPlugin/Transpiler/Transpiler.h>
 
-class ezTypeScriptWrapper;
+class ezTypeScriptBinding;
 
 class EZ_TYPESCRIPTPLUGIN_DLL ezTypeScriptComponentManager : public ezComponentManager<class ezTypeScriptComponent, ezBlockStorageType::FreeList>
 {
@@ -19,7 +20,8 @@ public:
   virtual void Initialize() override;
   virtual void Deinitialize() override;
 
-  ezTypeScriptWrapper m_TsWrapper;
+  ezTypeScriptBinding m_TsBinding;
+  ezTypeScriptTranspiler m_Transpiler;
 
 private:
   void Update(const ezWorldModule::UpdateContext& context);
@@ -48,5 +50,5 @@ protected:
   //
 public:
 protected:
-  void Update(ezTypeScriptWrapper& script);
+  void Update(ezTypeScriptBinding& script);
 };

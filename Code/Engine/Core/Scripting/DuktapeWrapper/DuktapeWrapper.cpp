@@ -545,6 +545,36 @@ cleanup:
   return result;
 }
 
+void ezDuktapeWrapper::StorePointerInStash(const char* szKey, void* pPointer)
+{
+  ezDuktapeStackValidator validator(m_pContext);
+
+  OpenGlobalStashObject();
+
+  void** pBuffer = reinterpret_cast<void**>(duk_push_fixed_buffer(m_pContext, sizeof(void*)));
+  *pBuffer = pPointer;
+
+  duk_put_prop_string(m_pContext, -2, szKey);
+
+  CloseObject();
+}
+
+void* ezDuktapeWrapper::RetrievePointerFromStash(const char* szKey)
+{
+  ezDuktapeStackValidator validator(m_pContext);
+
+  OpenGlobalStashObject();
+
+  duk_get_prop_string(m_pContext, -1, szKey);
+
+  void* pPointer = *reinterpret_cast<void**>(duk_get_buffer(m_pContext, -1, nullptr));
+  duk_pop(m_pContext);
+
+  CloseObject();
+
+  return pPointer;
+}
+
 ezDuktapeStackValidator::ezDuktapeStackValidator(duk_context* pContext)
 {
   m_pContext = pContext;
@@ -553,7 +583,7 @@ ezDuktapeStackValidator::ezDuktapeStackValidator(duk_context* pContext)
 
 ezDuktapeStackValidator::~ezDuktapeStackValidator()
 {
-  EZ_VERIFY(duk_get_top(m_pContext) == m_iStackTop, "Stack top is not as expected");
+  EZ_ASSERT_DEBUG(duk_get_top(m_pContext) == m_iStackTop, "Stack top is not as expected");
 }
 
 #endif

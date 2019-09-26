@@ -111,7 +111,6 @@ public:
 
 
   ///@}
-
   /// \name Working with Objects
   ///@{
 
@@ -127,6 +126,13 @@ public:
   float GetFloatProperty(const char* szPropertyName, float fallback);
   double GetNumberProperty(const char* szPropertyName, double fallback);
   const char* GetStringProperty(const char* szPropertyName, const char* fallback);
+
+  ///@}
+  /// \name Global State
+  ///@{
+
+  void StorePointerInStash(const char* szKey, void* pPointer);
+  void* RetrievePointerFromStash(const char* szKey);
 
   ///@}
 

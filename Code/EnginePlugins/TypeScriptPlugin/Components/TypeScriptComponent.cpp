@@ -31,60 +31,60 @@ void ezTypeScriptComponent::DeserializeComponent(ezWorldReader& stream)
 
 void ezTypeScriptComponent::OnSimulationStarted()
 {
-  auto& TsWrapper = static_cast<ezTypeScriptComponentManager*>(GetOwningManager())->m_TsWrapper;
-  auto& script = TsWrapper.m_Script;
+  ezTypeScriptBinding& binding = static_cast<ezTypeScriptComponentManager*>(GetOwningManager())->m_TsBinding;
+  ezDuktapeWrapper& duk = binding.GetDukTapeWrapper();
 
-  TsWrapper.SetupScript();
+  binding.SetupBinding();
 
-  ezDuktapeStackValidator validator(script);
+  ezDuktapeStackValidator validator(duk);
 
-  duk_push_global_stash(script);
+  duk_push_global_stash(duk);
 
-  if (script.BeginFunctionCall("__Ts_Create_MyComponent").Succeeded())
+  if (duk.BeginFunctionCall("__Ts_Create_MyComponent").Succeeded())
   {
-    script.PushParameter(GetOwner()->GetName());
-    EZ_ASSERT_DEV(script.ExecuteFunctionCall().Succeeded(), "");
+    duk.PushParameter(GetOwner()->GetName());
+    EZ_ASSERT_DEV(duk.ExecuteFunctionCall().Succeeded(), "");
 
     // store a back pointer in the object
     {
       // TODO: store a handle instead
-      duk_push_pointer(script, this);
-      duk_put_prop_string(script, -2, "ezComponentPtr");
+      duk_push_pointer(duk, this);
+      duk_put_prop_string(duk, -2, "ezComponentPtr");
     }
 
     const int iOwnRef = (int)GetHandle().GetInternalID().m_Data;
-    duk_push_int(script, iOwnRef);
-    duk_dup(script, -2);
-    duk_put_prop(script, -4);
+    duk_push_int(duk, iOwnRef);
+    duk_dup(duk, -2);
+    duk_put_prop(duk, -4);
 
-    script.EndFunctionCall();
+    duk.EndFunctionCall();
   }
 
-  duk_pop(script);
+  duk_pop(duk);
 }
 
-void ezTypeScriptComponent::Update(ezTypeScriptWrapper& TsWrapper)
+void ezTypeScriptComponent::Update(ezTypeScriptBinding& binding)
 {
-  ezDuktapeWrapper& script = TsWrapper.m_Script;
+  ezDuktapeWrapper& duk = binding.GetDukTapeWrapper();
 
-  ezDuktapeStackValidator validator(script);
+  ezDuktapeStackValidator validator(duk);
 
-  script.OpenGlobalStashObject();
+  duk.OpenGlobalStashObject();
 
   const int iOwnRef = (int)GetHandle().GetInternalID().m_Data;
-  duk_push_int(script, iOwnRef);
-  duk_get_prop(script, -2);
+  duk_push_int(duk, iOwnRef);
+  duk_get_prop(duk, -2);
 
   {
-    if (script.BeginFunctionCall("Update").Succeeded())
+    if (duk.BeginFunctionCall("Update").Succeeded())
     {
-      duk_dup(script, -2); // this
+      duk_dup(duk, -2); // this
 
-      duk_call_method(script, 0);
-      script.EndFunctionCall();
+      duk_call_method(duk, 0);
+      duk.EndFunctionCall();
     }
   }
 
-  duk_pop(script);
-  script.CloseObject();
+  duk_pop(duk);
+  duk.CloseObject();
 }
