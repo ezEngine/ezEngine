@@ -134,6 +134,9 @@ public:
   void StorePointerInStash(const char* szKey, void* pPointer);
   void* RetrievePointerFromStash(const char* szKey);
 
+  void StoreStringInStash(const char* szKey, const char* value);
+  const char* RetrieveStringFromStash(const char* szKey, const char* szFallback = nullptr);
+
   ///@}
 
 private:

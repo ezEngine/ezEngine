@@ -41,7 +41,7 @@ ezResult ezDuktapeWrapper::ExecuteString(const char* szString, const char* szDeb
   duk_push_string(m_pContext, szDebugName);
   if (duk_pcompile_string_filename(m_pContext, 0, szString) != 0)
   {
-    EZ_LOG_BLOCK("ezDuktapeWrapper::ExecuteString", "Compilation failed");
+    EZ_LOG_BLOCK("DukTape::ExecuteString", "Compilation failed");
 
     ezLog::Error("[duktape]{}", duk_safe_to_string(m_pContext, -1));
     // TODO: print out line by line
@@ -54,7 +54,7 @@ ezResult ezDuktapeWrapper::ExecuteString(const char* szString, const char* szDeb
 
   if (duk_pcall(m_pContext, 0) != DUK_EXEC_SUCCESS)
   {
-    EZ_LOG_BLOCK("ezDuktapeWrapper::ExecuteString", "Execution failed");
+    EZ_LOG_BLOCK("DukTape::ExecuteString", "Execution failed");
 
     ezLog::Error("[duktape]{}", duk_safe_to_string(m_pContext, -1));
     // TODO: print out line by line
@@ -573,6 +573,34 @@ void* ezDuktapeWrapper::RetrievePointerFromStash(const char* szKey)
   CloseObject();
 
   return pPointer;
+}
+
+void ezDuktapeWrapper::StoreStringInStash(const char* szKey, const char* value)
+{
+  ezDuktapeStackValidator validator(m_pContext);
+
+  OpenGlobalStashObject();
+
+  duk_push_string(m_pContext, value);
+  EZ_VERIFY(duk_put_prop_string(m_pContext, -2, szKey), "Failed to write string to stash");
+
+  CloseObject();
+}
+
+const char* ezDuktapeWrapper::RetrieveStringFromStash(const char* szKey, const char* szFallback /*= nullptr*/)
+{
+  OpenGlobalStashObject();
+
+  if (!duk_get_prop_string(m_pContext, -1, szKey))
+    return szFallback;
+
+  szFallback = duk_get_string_default(m_pContext, -1, "");
+
+  duk_pop(m_pContext);
+
+  CloseObject();
+
+  return szFallback;
 }
 
 ezDuktapeStackValidator::ezDuktapeStackValidator(duk_context* pContext)

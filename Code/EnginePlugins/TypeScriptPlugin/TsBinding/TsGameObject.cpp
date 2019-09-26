@@ -4,11 +4,11 @@
 
 static int __CPP_GameObject_SetLocalPosition(duk_context* pContext);
 
-ezStatus ezTypeScriptBinding::Init_GameObject()
+ezResult ezTypeScriptBinding::Init_GameObject()
 {
   m_Duk.RegisterFunction("__CPP_GameObject_SetLocalPosition", __CPP_GameObject_SetLocalPosition, 4);
 
-  return ezStatus(EZ_SUCCESS);
+  return EZ_SUCCESS;
 }
 
 static int __CPP_GameObject_SetLocalPosition(duk_context* pContext)

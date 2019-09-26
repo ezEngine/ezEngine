@@ -25,7 +25,6 @@ void ezTypeScriptComponentManager::Initialize()
   ezFileSystem::AddDataDirectory(">sdk/Data/Tools/ezEditor/TypeScript", "TypeScript", "TypeScript");
 
   m_Transpiler.StartLoadTranspiler();
-  m_TsBinding.Initialize(m_Transpiler, *GetWorld());
 }
 
 void ezTypeScriptComponentManager::Deinitialize()
@@ -33,6 +32,13 @@ void ezTypeScriptComponentManager::Deinitialize()
   ezFileSystem::RemoveDataDirectoryGroup("TypeScript");
 
   SUPER::Deinitialize();
+}
+
+void ezTypeScriptComponentManager::OnSimulationStarted()
+{
+  SUPER::OnSimulationStarted();
+
+  m_TsBinding.Initialize(m_Transpiler, *GetWorld());
 }
 
 void ezTypeScriptComponentManager::Update(const ezWorldModule::UpdateContext& context)

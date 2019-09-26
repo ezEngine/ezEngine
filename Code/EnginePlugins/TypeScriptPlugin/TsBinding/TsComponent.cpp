@@ -4,11 +4,11 @@
 
 static int __CPP_Component_GetOwner(duk_context* pContext);
 
-ezStatus ezTypeScriptBinding::Init_Component()
+ezResult ezTypeScriptBinding::Init_Component()
 {
   m_Duk.RegisterFunction("__CPP_Component_GetOwner", __CPP_Component_GetOwner, 1);
 
-  return ezStatus(EZ_SUCCESS);
+  return EZ_SUCCESS;
 }
 
 static int __CPP_Component_GetOwner(duk_context* pContext)

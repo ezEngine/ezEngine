@@ -1,10 +1,10 @@
 #include <TypeScriptPluginPCH.h>
 
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Threading/DelegateTask.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <TypeScriptPlugin/Transpiler/Transpiler.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
 
 ezTypeScriptTranspiler::ezTypeScriptTranspiler()
   : m_Transpiler("TypeScript Transpiler")
@@ -20,7 +20,10 @@ void ezTypeScriptTranspiler::StartLoadTranspiler()
 
   ezDelegateTask<void>* pTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "Load TypeScript Transpiler", [this]() //
     {
-      EZ_VERIFY(m_Transpiler.ExecuteFile("typescriptServices.js").Succeeded(), "");
+      if (m_Transpiler.ExecuteFile("typescriptServices.js").Failed())
+      {
+        ezLog::Error("typescriptServices.js could not be loaded");
+      }
     });
 
   pTask->SetOnTaskFinished([](ezTask* pTask) { EZ_DEFAULT_DELETE(pTask); });
@@ -36,14 +39,30 @@ void ezTypeScriptTranspiler::FinishLoadTranspiler()
 
 ezResult ezTypeScriptTranspiler::TranspileString(const char* szString, ezStringBuilder& out_Result)
 {
+  EZ_LOG_BLOCK("TranspileString");
+
   FinishLoadTranspiler();
 
   ezDuktapeStackValidator validator(m_Transpiler);
 
-  EZ_SUCCEED_OR_RETURN(m_Transpiler.OpenObject("ts"));
-  EZ_SUCCEED_OR_RETURN(m_Transpiler.BeginFunctionCall("transpile"));
+  if (m_Transpiler.OpenObject("ts").Failed())
+  {
+    ezLog::Error("'ts' object does not exist");
+    return EZ_FAILURE;
+  }
+
+  if (m_Transpiler.BeginFunctionCall("transpile").Failed())
+  {
+    ezLog::Error("'ts.transpile' function does not exist");
+    return EZ_FAILURE;
+  }
+
   m_Transpiler.PushParameter(szString);
-  EZ_SUCCEED_OR_RETURN(m_Transpiler.ExecuteFunctionCall());
+  if (m_Transpiler.ExecuteFunctionCall().Failed())
+  {
+    ezLog::Error("String could not be transpiled");
+    return EZ_FAILURE;
+  }
 
   out_Result = m_Transpiler.GetStringReturnValue();
 
@@ -55,10 +74,16 @@ ezResult ezTypeScriptTranspiler::TranspileString(const char* szString, ezStringB
 
 ezResult ezTypeScriptTranspiler::TranspileFile(const char* szFile, ezStringBuilder& out_Result)
 {
+  EZ_LOG_BLOCK("TranspileFile", szFile);
+
   FinishLoadTranspiler();
 
   ezFileReader file;
-  EZ_SUCCEED_OR_RETURN(file.Open(szFile));
+  if (file.Open(szFile).Failed())
+  {
+    ezLog::Error("File does not exist: '{}'", szFile);
+    return EZ_FAILURE;
+  }
 
   ezStringBuilder source;
   source.ReadAll(file);
@@ -68,6 +93,8 @@ ezResult ezTypeScriptTranspiler::TranspileFile(const char* szFile, ezStringBuild
 
 ezResult ezTypeScriptTranspiler::TranspileFileAndStoreJS(const char* szFile, ezStringBuilder& out_Result)
 {
+  EZ_LOG_BLOCK("TranspileFileAndStoreJS", szFile);
+
   EZ_SUCCEED_OR_RETURN(TranspileFile(szFile, out_Result));
 
   ezStringBuilder sOutFile = szFile;
@@ -75,7 +102,12 @@ ezResult ezTypeScriptTranspiler::TranspileFileAndStoreJS(const char* szFile, ezS
   sOutFile.Prepend(":project/");
 
   ezFileWriter fileOut;
-  fileOut.Open(sOutFile);
+  if (fileOut.Open(sOutFile).Failed())
+  {
+    ezLog::Error("Could not write transpiled JS to file '{}'", sOutFile);
+    return EZ_FAILURE;
+  }
+
   fileOut.WriteBytes(out_Result.GetData(), out_Result.GetElementCount());
 
   return EZ_SUCCESS;

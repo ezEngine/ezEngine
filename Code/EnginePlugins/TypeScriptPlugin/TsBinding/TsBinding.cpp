@@ -11,7 +11,7 @@ ezTypeScriptBinding::ezTypeScriptBinding()
 
 ezTypeScriptBinding::~ezTypeScriptBinding() = default;
 
-void ezTypeScriptBinding::Initialize(ezTypeScriptTranspiler& transpiler, ezWorld& world)
+ezResult ezTypeScriptBinding::Initialize(ezTypeScriptTranspiler& transpiler, ezWorld& world)
 {
   m_pTranspiler = &transpiler;
 
@@ -21,19 +21,35 @@ void ezTypeScriptBinding::Initialize(ezTypeScriptTranspiler& transpiler, ezWorld
   StoreWorld(&world);
 
   SetModuleSearchPath("TypeScript");
-}
 
-ezStatus ezTypeScriptBinding::SetupBinding()
-{
   EZ_SUCCEED_OR_RETURN(Init_RequireModules());
   EZ_SUCCEED_OR_RETURN(Init_Log());
   EZ_SUCCEED_OR_RETURN(Init_GameObject());
   EZ_SUCCEED_OR_RETURN(Init_Component());
 
-  ezStringBuilder js;
-  EZ_SUCCEED_OR_RETURN(m_pTranspiler->TranspileFileAndStoreJS("TypeScript/Component.ts", js));
+  m_bInitialized = true;
+  return EZ_SUCCESS;
+}
 
-  EZ_SUCCEED_OR_RETURN(m_Duk.ExecuteString(js, "TypeScript/Component.ts"));
+ezResult ezTypeScriptBinding::LoadComponent(const char* szComponent)
+{
+  if (!m_bInitialized)
+  {
+    return EZ_FAILURE;
+  }
 
-  return ezStatus(EZ_SUCCESS);
+  if (m_LoadedComponents.Contains(szComponent))
+  {
+    return m_LoadedComponents[szComponent] ? EZ_SUCCESS : EZ_FAILURE;
+  }
+
+  m_LoadedComponents[szComponent] = false;
+
+  ezStringBuilder transpiledCode;
+  EZ_SUCCEED_OR_RETURN(m_pTranspiler->TranspileFileAndStoreJS(szComponent, transpiledCode));
+
+  EZ_SUCCEED_OR_RETURN(m_Duk.ExecuteString(transpiledCode, szComponent));
+
+  m_LoadedComponents[szComponent] = true;
+  return EZ_SUCCESS;
 }

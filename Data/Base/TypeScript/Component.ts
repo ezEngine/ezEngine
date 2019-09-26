@@ -27,7 +27,7 @@ class MyComponent extends ez.Component
 }
 
 // called by the runtime
-function __Ts_Create_MyComponent(name: string): MyComponent
+function __TS_Create_MyComponent(name: string): MyComponent
 {
     ez.Log.Info("_Create_MyComponent: " + name)
     return new MyComponent(name);

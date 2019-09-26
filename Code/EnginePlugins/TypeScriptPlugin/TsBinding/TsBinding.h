@@ -3,7 +3,6 @@
 #include <TypeScriptPlugin/TypeScriptPluginDLL.h>
 
 #include <Core/Scripting/DuktapeWrapper.h>
-#include <Foundation/Types/Status.h>
 #include <TypeScriptPlugin/Transpiler/Transpiler.h>
 
 class ezWorld;
@@ -17,14 +16,16 @@ public:
   ezTypeScriptBinding();
   ~ezTypeScriptBinding();
 
-  void Initialize(ezTypeScriptTranspiler& transpiler, ezWorld& world);
-  ezStatus SetupBinding();
+  ezResult Initialize(ezTypeScriptTranspiler& transpiler, ezWorld& world);
+  ezResult LoadComponent(const char* szComponent);
 
   ezDuktapeWrapper& GetDukTapeWrapper() { return m_Duk; }
 
 private:
   ezDuktapeWrapper m_Duk;
   ezTypeScriptTranspiler* m_pTranspiler = nullptr;
+  bool m_bInitialized = false;
+  ezMap<ezString, bool> m_LoadedComponents;
 
   ///@}
   /// \name Modules
@@ -39,10 +40,10 @@ private:
   /// \name Initialization
   ///@{
 private:
-  ezStatus Init_RequireModules();
-  ezStatus Init_Log();
-  ezStatus Init_GameObject();
-  ezStatus Init_Component();
+  ezResult Init_RequireModules();
+  ezResult Init_Log();
+  ezResult Init_GameObject();
+  ezResult Init_Component();
 
 
   ///@}

@@ -34,33 +34,34 @@ void ezTypeScriptComponent::OnSimulationStarted()
   ezTypeScriptBinding& binding = static_cast<ezTypeScriptComponentManager*>(GetOwningManager())->m_TsBinding;
   ezDuktapeWrapper& duk = binding.GetDukTapeWrapper();
 
-  binding.SetupBinding();
-
-  ezDuktapeStackValidator validator(duk);
-
-  duk_push_global_stash(duk);
-
-  if (duk.BeginFunctionCall("__Ts_Create_MyComponent").Succeeded())
+  if (binding.LoadComponent("TypeScript/Component.ts").Succeeded())
   {
-    duk.PushParameter(GetOwner()->GetName());
-    EZ_ASSERT_DEV(duk.ExecuteFunctionCall().Succeeded(), "");
+    ezDuktapeStackValidator validator(duk);
 
-    // store a back pointer in the object
+    duk_push_global_stash(duk);
+
+    if (duk.BeginFunctionCall("__TS_Create_MyComponent").Succeeded())
     {
-      // TODO: store a handle instead
-      duk_push_pointer(duk, this);
-      duk_put_prop_string(duk, -2, "ezComponentPtr");
+      duk.PushParameter(GetOwner()->GetName());
+      EZ_ASSERT_DEV(duk.ExecuteFunctionCall().Succeeded(), "");
+
+      // store a back pointer in the object
+      {
+        // TODO: store a handle instead
+        duk_push_pointer(duk, this);
+        duk_put_prop_string(duk, -2, "ezComponentPtr");
+      }
+
+      const int iOwnRef = (int)GetHandle().GetInternalID().m_Data;
+      duk_push_int(duk, iOwnRef);
+      duk_dup(duk, -2);
+      duk_put_prop(duk, -4);
+
+      duk.EndFunctionCall();
     }
 
-    const int iOwnRef = (int)GetHandle().GetInternalID().m_Data;
-    duk_push_int(duk, iOwnRef);
-    duk_dup(duk, -2);
-    duk_put_prop(duk, -4);
-
-    duk.EndFunctionCall();
+    duk_pop(duk);
   }
-
-  duk_pop(duk);
 }
 
 void ezTypeScriptComponent::Update(ezTypeScriptBinding& binding)

@@ -4,7 +4,7 @@
 
 static int __CPP_Log(duk_context* pContext);
 
-ezStatus ezTypeScriptBinding::Init_Log()
+ezResult ezTypeScriptBinding::Init_Log()
 {
   m_Duk.RegisterFunction("__CPP_Log_Error", __CPP_Log, 1, ezLogMsgType::ErrorMsg);
   m_Duk.RegisterFunction("__CPP_Log_SeriousWarning", __CPP_Log, 1, ezLogMsgType::SeriousWarningMsg);
@@ -14,7 +14,7 @@ ezStatus ezTypeScriptBinding::Init_Log()
   m_Duk.RegisterFunction("__CPP_Log_Dev", __CPP_Log, 1, ezLogMsgType::DevMsg);
   m_Duk.RegisterFunction("__CPP_Log_Debug", __CPP_Log, 1, ezLogMsgType::DebugMsg);
 
-  return ezStatus(EZ_SUCCESS);
+  return EZ_SUCCESS;
 }
 
 static int __CPP_Log(duk_context* pContext)

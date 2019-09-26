@@ -3,25 +3,28 @@
 #include <Duktape/duktape.h>
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
 
-ezStatus ezTypeScriptBinding::Init_RequireModules()
+ezResult ezTypeScriptBinding::Init_RequireModules()
 {
+  EZ_LOG_BLOCK("Init_RequireModules");
+
   if (m_Duk.ExecuteString("var __GameObject = require(\"./ez/GameObject\");").Failed())
-    return ezStatus("Failed to import 'GameObject.ts'");
+  {
+    ezLog::Error("Failed to import 'GameObject.ts'");
+    return EZ_FAILURE;
+  }
 
   if (m_Duk.ExecuteString("var __Component = require(\"./ez/Component\");").Failed())
-    return ezStatus("Failed to import 'Component.ts'");
+  {
+    ezLog::Error("Failed to import 'Component.ts'");
+    return EZ_FAILURE;
+  }
 
-  return ezStatus(EZ_SUCCESS);
+  return EZ_SUCCESS;
 }
 
 void ezTypeScriptBinding::SetModuleSearchPath(const char* szPath)
 {
-  m_Duk.OpenGlobalStashObject();
-
-  duk_push_string(m_Duk, szPath);
-  EZ_VERIFY(duk_put_prop_string(m_Duk, -2, "ModuleSearchPath"), "");
-
-  m_Duk.CloseObject();
+  m_Duk.StoreStringInStash("ModuleSearchPath", szPath);
 }
 
 int ezTypeScriptBinding::DukSearchModule(duk_context* pContext)
@@ -30,13 +33,6 @@ int ezTypeScriptBinding::DukSearchModule(duk_context* pContext)
 
   ezTypeScriptTranspiler* pTranspiler = static_cast<ezTypeScriptTranspiler*>(duk.RetrievePointerFromStash("Transpiler"));
 
-  /* 
-  *   index 0: id
-  *   index 1: require
-  *   index 2: exports
-  *   index 3: module
-  */
-
   ezStringBuilder sRequestedFile = duk.GetStringParameter(0);
 
   if (!sRequestedFile.HasAnyExtension())
@@ -44,26 +40,19 @@ int ezTypeScriptBinding::DukSearchModule(duk_context* pContext)
     sRequestedFile.ChangeFileExtension("ts");
   }
 
-  // retrieve the ModuleSearchPath
+  if (const char* szSearchPath = duk.RetrieveStringFromStash("ModuleSearchPath"))
   {
-    duk.OpenGlobalStashObject();
-
-    EZ_ASSERT_DEV(duk_get_prop_string(duk, -1, "ModuleSearchPath"), "");
-    const char* szSearchPath = duk_get_string_default(duk, -1, "");
-
-    if (!ezStringUtils::IsNullOrEmpty(szSearchPath))
-    {
-      sRequestedFile.Prepend(szSearchPath, "/");
-    }
-
-    duk_pop(duk);
-
-    duk.CloseObject();
+    sRequestedFile.Prepend(szSearchPath, "/");
   }
 
+  EZ_LOG_BLOCK("DukSearchModule", sRequestedFile);
 
-  ezStringBuilder result;
-  pTranspiler->TranspileFileAndStoreJS(sRequestedFile, result);
+  ezStringBuilder sTranspiledCode;
+  if (pTranspiler->TranspileFileAndStoreJS(sRequestedFile, sTranspiledCode).Failed())
+  {
+    ezLog::Error("'required' module \"{}\" could not be found/transpiled.", sRequestedFile);
+    return 0;
+  }
 
-  return duk.ReturnString(result);
+  return duk.ReturnString(sTranspiledCode);
 }

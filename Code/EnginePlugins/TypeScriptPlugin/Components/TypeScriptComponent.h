@@ -19,6 +19,7 @@ public:
 
   virtual void Initialize() override;
   virtual void Deinitialize() override;
+  virtual void OnSimulationStarted() override;
 
   ezTypeScriptBinding m_TsBinding;
   ezTypeScriptTranspiler m_Transpiler;
