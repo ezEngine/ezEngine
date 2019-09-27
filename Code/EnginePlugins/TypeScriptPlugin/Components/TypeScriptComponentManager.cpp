@@ -8,9 +8,7 @@ ezTypeScriptComponentManager::ezTypeScriptComponentManager(ezWorld* pWorld)
 {
 }
 
-ezTypeScriptComponentManager::~ezTypeScriptComponentManager()
-{
-}
+ezTypeScriptComponentManager::~ezTypeScriptComponentManager() = default;
 
 void ezTypeScriptComponentManager::Initialize()
 {

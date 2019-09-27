@@ -84,9 +84,12 @@ public:
   void RegisterFunctionWithVarArgs(const char* szFunctionName, duk_c_function pFunction, ezInt16 iMagicValue = 0);
 
 
-  ezResult BeginFunctionCall(const char* szFunctionName);
+  ezResult BeginFunctionCall(const char* szFunctionName, bool bForceLocalObject = false);
+  ezResult BeginMethodCall(const char* szMethodName);
   ezResult ExecuteFunctionCall();
+  ezResult ExecuteMethodCall();
   void EndFunctionCall();
+  void EndMethodCall();
 
   void PushParameter(ezInt32 iParam);
   void PushParameter(bool bParam);
@@ -238,6 +241,8 @@ class EZ_CORE_DLL ezDuktapeStackValidator
 public:
   ezDuktapeStackValidator(duk_context* pContext, ezInt32 iExpectedChange = 0);
   ~ezDuktapeStackValidator();
+
+  void AdjustExpected(ezInt32 iChange);
 
 private:
   duk_context* m_pContext = nullptr;

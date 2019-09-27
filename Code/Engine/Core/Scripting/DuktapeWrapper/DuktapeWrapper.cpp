@@ -141,11 +141,11 @@ void ezDuktapeWrapper::EnableModuleSupport(duk_c_function pModuleSearchFunction)
   }
 }
 
-ezResult ezDuktapeWrapper::BeginFunctionCall(const char* szFunctionName)
+ezResult ezDuktapeWrapper::BeginFunctionCall(const char* szFunctionName, bool bForceLocalObject /*= false*/)
 {
   EZ_ASSERT_DEV(m_bIsInFunctionCall == false, "Function calls cannot be nested and must be finished with EndFunctionCall()");
 
-  if (m_States.m_iOpenObjects == 0)
+  if (!bForceLocalObject && m_States.m_iOpenObjects == 0)
   {
     if (!duk_get_global_string(m_pContext, szFunctionName))
       goto failure;
@@ -158,6 +158,29 @@ ezResult ezDuktapeWrapper::BeginFunctionCall(const char* szFunctionName)
 
   if (!duk_is_function(m_pContext, -1))
     goto failure;
+
+  m_States.m_iPushedFunctionArguments = 0;
+
+  m_bIsInFunctionCall = true;
+  return EZ_SUCCESS;
+
+failure:
+  duk_pop(m_pContext);
+  return EZ_FAILURE;
+}
+
+ezResult ezDuktapeWrapper::BeginMethodCall(const char* szMethodName)
+{
+  EZ_ASSERT_DEV(m_bIsInFunctionCall == false, "Function calls cannot be nested and must be finished with EndFunctionCall()");
+
+  if (!duk_get_prop_string(m_pContext, -1, szMethodName))
+    return EZ_FAILURE;
+
+  if (!duk_is_function(m_pContext, -1))
+    goto failure;
+
+  // assume 'this' is the top stack element
+  duk_dup(m_pContext, -2);
 
   m_States.m_iPushedFunctionArguments = 0;
 
@@ -183,12 +206,38 @@ ezResult ezDuktapeWrapper::ExecuteFunctionCall()
     // TODO: could also create a stack trace using duk_is_error + duk_get_prop_string(ctx, -1, "stack");
     ezLog::Error("[duktape]{}", duk_safe_to_string(m_pContext, -1));
 
+    return EZ_FAILURE;
+  }
+}
+
+ezResult ezDuktapeWrapper::ExecuteMethodCall()
+{
+  EZ_ASSERT_DEV(m_bIsInFunctionCall == true, "Function calls must be successfully initiated with BeginFunctionCall()");
+
+  if (duk_pcall_method(m_pContext, m_States.m_iPushedFunctionArguments) == DUK_EXEC_SUCCESS)
+  {
+    // leaves return value on stack
+    return EZ_SUCCESS;
+  }
+  else
+  {
+    // TODO: could also create a stack trace using duk_is_error + duk_get_prop_string(ctx, -1, "stack");
+    ezLog::Error("[duktape]{}", duk_safe_to_string(m_pContext, -1));
 
     return EZ_FAILURE;
   }
 }
 
 void ezDuktapeWrapper::EndFunctionCall()
+{
+  EZ_ASSERT_DEV(m_bIsInFunctionCall == true, "Function calls must be successfully initiated with BeginFunctionCall()");
+  m_bIsInFunctionCall = false;
+
+  // pop the return value / error object from the stack
+  duk_pop(m_pContext);
+}
+
+void ezDuktapeWrapper::EndMethodCall()
 {
   EZ_ASSERT_DEV(m_bIsInFunctionCall == true, "Function calls must be successfully initiated with BeginFunctionCall()");
   m_bIsInFunctionCall = false;
@@ -612,6 +661,11 @@ ezDuktapeStackValidator::ezDuktapeStackValidator(duk_context* pContext, ezInt32 
 ezDuktapeStackValidator::~ezDuktapeStackValidator()
 {
   EZ_ASSERT_DEBUG(duk_get_top(m_pContext) == m_iStackTop, "Stack top is not as expected");
+}
+
+void ezDuktapeStackValidator::AdjustExpected(ezInt32 iChange)
+{
+  m_iStackTop += iChange;
 }
 
 #endif

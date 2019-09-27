@@ -12,14 +12,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezTypeScriptComponent, 1, ezComponentMode::Static)
 EZ_END_COMPONENT_TYPE;
 // clang-format on
 
-ezTypeScriptComponent::ezTypeScriptComponent()
-{
-}
-
-ezTypeScriptComponent::~ezTypeScriptComponent()
-{
-  // TODO: remove reference from stash
-}
+ezTypeScriptComponent::ezTypeScriptComponent() = default;
+ezTypeScriptComponent::~ezTypeScriptComponent() = default;
 
 void ezTypeScriptComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -36,33 +30,14 @@ void ezTypeScriptComponent::OnSimulationStarted()
 
   if (binding.LoadComponent("TypeScript/Component.ts").Succeeded())
   {
-    ezDuktapeStackValidator validator(duk);
-
-    // TODO: add 'ezTypeScriptBinding::CreateComponent(name)' function
-    if (duk.BeginFunctionCall("__TS_Create_MyComponent").Succeeded())
-    {
-      duk.PushParameter(GetOwner()->GetName());
-      EZ_ASSERT_DEV(duk.ExecuteFunctionCall().Succeeded(), "");
-
-      // store own handle in obj as property
-      ezComponentHandle hOwnHandle = GetHandle();
-      ezComponentHandle* pBuffer = reinterpret_cast<ezComponentHandle*>(duk_push_fixed_buffer(duk, sizeof(ezComponentHandle)));
-      *pBuffer = hOwnHandle;
-      duk_put_prop_index(duk, -2, ezTypeScriptBindingIndexProperty::ComponentHandle);
-
-      {
-        const ezUInt32 uiOwnReference = hOwnHandle.GetInternalID().m_Data;
-
-        duk.OpenGlobalStashObject();
-        duk_push_uint(duk, uiOwnReference);
-        duk_dup(duk, -3); // duplicate component obj
-        duk_put_prop(duk, -3);
-        duk.CloseObject();
-      }
-
-      duk.EndFunctionCall();
-    }
+    binding.CreateTsComponent("MyComponent", GetHandle(), GetOwner()->GetName());
   }
+}
+
+void ezTypeScriptComponent::Deinitialize()
+{
+  ezTypeScriptBinding& binding = static_cast<ezTypeScriptComponentManager*>(GetOwningManager())->m_TsBinding;
+  binding.DeleteTsComponent(GetHandle());
 }
 
 void ezTypeScriptComponent::Update(ezTypeScriptBinding& binding)
@@ -71,24 +46,14 @@ void ezTypeScriptComponent::Update(ezTypeScriptBinding& binding)
 
   ezDuktapeStackValidator validator(duk);
 
-  // TODO: add 'ezTypeScriptBinding::DukPutComponent(handle)'
-  duk.OpenGlobalStashObject();
+  binding.DukPutComponentObject(GetHandle());
 
-  const ezUInt32 uiOwnHandle = GetHandle().GetInternalID().m_Data;
-  duk_push_uint(duk, uiOwnHandle);
-  duk_get_prop(duk, -2);
-
+  if (duk.BeginMethodCall("Update").Succeeded())
   {
-    // TODO: add 'BeginMethodCall'
-    if (duk.BeginFunctionCall("Update").Succeeded())
-    {
-      duk_dup(duk, -2); // this
-
-      duk_call_method(duk, 0);
-      duk.EndFunctionCall();
-    }
+    duk.ExecuteMethodCall();
+    duk.EndMethodCall();
   }
 
+  // remove 'this'
   duk_pop(duk);
-  duk.CloseObject();
 }

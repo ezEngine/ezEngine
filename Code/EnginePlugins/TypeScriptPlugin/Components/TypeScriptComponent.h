@@ -45,6 +45,7 @@ protected:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
   virtual void OnSimulationStarted() override;
+  virtual void Deinitialize() override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezTypeScriptComponent Interface

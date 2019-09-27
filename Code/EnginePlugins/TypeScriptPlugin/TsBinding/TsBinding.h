@@ -72,4 +72,13 @@ public:
   static void DukPutGameObject(duk_context* pDuk, const ezGameObjectHandle& hObject);
 
   ///@}
+  /// \name Components
+  ///@{
+public:
+  ezResult CreateTsComponent(const char* szTypeName, const ezComponentHandle& hCppComponent, const char* szDebugString = "");
+  ezResult DukPutComponentObject(const ezComponentHandle& hComponent);
+  void DeleteTsComponent(const ezComponentHandle& hCppComponent);
+
+  ///@}
+
 };
