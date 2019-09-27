@@ -38,6 +38,7 @@ void ezTypeScriptComponent::OnSimulationStarted()
   {
     ezDuktapeStackValidator validator(duk);
 
+    // TODO: add 'ezTypeScriptBinding::CreateComponent(name)' function
     if (duk.BeginFunctionCall("__TS_Create_MyComponent").Succeeded())
     {
       duk.PushParameter(GetOwner()->GetName());
@@ -70,6 +71,7 @@ void ezTypeScriptComponent::Update(ezTypeScriptBinding& binding)
 
   ezDuktapeStackValidator validator(duk);
 
+  // TODO: add 'ezTypeScriptBinding::DukPutComponent(handle)'
   duk.OpenGlobalStashObject();
 
   const ezUInt32 uiOwnHandle = GetHandle().GetInternalID().m_Data;
@@ -77,6 +79,7 @@ void ezTypeScriptComponent::Update(ezTypeScriptBinding& binding)
   duk_get_prop(duk, -2);
 
   {
+    // TODO: add 'BeginMethodCall'
     if (duk.BeginFunctionCall("Update").Succeeded())
     {
       duk_dup(duk, -2); // this

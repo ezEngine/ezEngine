@@ -17,6 +17,9 @@ static int __CPP_Component_GetOwner(duk_context* pDuk)
 
   duk_require_object(duk, 0);
 
+  // TODO: add 'ezTypeScriptBinding::RetrieveComponentHandle'
+  // TODO: add 'ezTypeScriptBinding::ExpectComponent<type>'
+
   duk_get_prop_index(duk, 0, ezTypeScriptBindingIndexProperty::ComponentHandle);
   ezComponentHandle hOwnHandle = *reinterpret_cast<ezComponentHandle*>(duk_get_buffer(duk, -1, nullptr));
   duk_pop(duk);
