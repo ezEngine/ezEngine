@@ -1,15 +1,15 @@
 declare function __CPP_GameObject_SetLocalPosition(go : GameObject, x : number, y : number, z : number) : void;
-
-export abstract class GameObjectHandle
-{
-}
+declare function __CPP_GameObject_IsValid(go : GameObject) : boolean;
 
 export class GameObject
 {
     // GetLocalPosition
     // rotation, scaling
 
-    //GetHandle() : GameObjectHandle { return new GameObjectHandle(); }
+     IsValid() : boolean
+     {
+        return __CPP_GameObject_IsValid(this);
+     }
 
     SetLocalPosition(x : number, y : number, z : number) : void
     {

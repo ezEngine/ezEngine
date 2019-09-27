@@ -3,9 +3,11 @@
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
 
 static int __CPP_GameObject_SetLocalPosition(duk_context* pDuk);
+static int __CPP_GameObject_IsValid(duk_context* pDuk);
 
 ezResult ezTypeScriptBinding::Init_GameObject()
 {
+  m_Duk.RegisterFunction("__CPP_GameObject_IsValid", __CPP_GameObject_IsValid, 1);
   m_Duk.RegisterFunction("__CPP_GameObject_SetLocalPosition", __CPP_GameObject_SetLocalPosition, 4);
 
   return EZ_SUCCESS;
@@ -67,4 +69,14 @@ static int __CPP_GameObject_SetLocalPosition(duk_context* pDuk)
   pGameObject->SetLocalPosition(pos);
 
   return duk.ReturnVoid();
+}
+
+static int __CPP_GameObject_IsValid(duk_context* pDuk)
+{
+  ezGameObjectHandle hObject = ezTypeScriptBinding::RetrieveGameObjectHandle(pDuk, 0 /*this*/);
+
+  ezWorld* pWorld = ezTypeScriptBinding::RetrieveWorld(pDuk);
+
+  ezGameObject* pGameObject = nullptr;
+  return pWorld->TryGetObject(hObject, pGameObject);
 }
