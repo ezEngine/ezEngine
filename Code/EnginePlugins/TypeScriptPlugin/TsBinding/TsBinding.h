@@ -78,7 +78,23 @@ public:
   ezResult CreateTsComponent(const char* szTypeName, const ezComponentHandle& hCppComponent, const char* szDebugString = "");
   ezResult DukPutComponentObject(const ezComponentHandle& hComponent);
   void DeleteTsComponent(const ezComponentHandle& hCppComponent);
+  static ezComponentHandle RetrieveComponentHandle(duk_context* pDuk, ezInt32 iObjIdx = 0 /* use 0, if the component is passed in as the 'this' object (first parameter) */);
+
+  template<typename ComponentType>
+  static ComponentType* ExpectComponent(duk_context* pDuk, ezInt32 iObjIdx = 0 /* use 0, if the game object is passed in as the 'this' object (first parameter) */);
 
   ///@}
 
 };
+
+template <typename ComponentType>
+ComponentType* ezTypeScriptBinding::ExpectComponent(duk_context* pDuk, ezInt32 iObjIdx /*= 0 */)
+{
+  ezComponentHandle hOwnHandle = ezTypeScriptBinding::RetrieveComponentHandle(pDuk, iObjIdx);
+
+  ComponentType* pComponent = nullptr;
+  ezWorld* pWorld = ezTypeScriptBinding::RetrieveWorld(pDuk);
+  EZ_VERIFY(pWorld->TryGetComponent(hOwnHandle, pComponent), "Invalid component parameter");
+
+  return pComponent;
+}

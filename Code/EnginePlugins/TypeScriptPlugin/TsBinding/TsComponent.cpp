@@ -77,22 +77,22 @@ void ezTypeScriptBinding::DeleteTsComponent(const ezComponentHandle& hCppCompone
   m_Duk.CloseObject();
 }
 
+ezComponentHandle ezTypeScriptBinding::RetrieveComponentHandle(duk_context* pDuk, ezInt32 iObjIdx /*= 0 */)
+{
+  ezDuktapeStackValidator validator(pDuk);
+
+  duk_get_prop_index(pDuk, iObjIdx, ezTypeScriptBindingIndexProperty::ComponentHandle);
+  ezComponentHandle hComponent = *reinterpret_cast<ezComponentHandle*>(duk_get_buffer(pDuk, -1, nullptr));
+  duk_pop(pDuk);
+
+  return hComponent;
+}
+
 static int __CPP_Component_GetOwner(duk_context* pDuk)
 {
   ezDuktapeFunction duk(pDuk);
 
-  duk_require_object(duk, 0);
-
-  // TODO: add 'ezTypeScriptBinding::RetrieveComponentHandle'
-  // TODO: add 'ezTypeScriptBinding::ExpectComponent<type>'
-
-  duk_get_prop_index(duk, 0, ezTypeScriptBindingIndexProperty::ComponentHandle);
-  ezComponentHandle hOwnHandle = *reinterpret_cast<ezComponentHandle*>(duk_get_buffer(duk, -1, nullptr));
-  duk_pop(duk);
-
-  ezComponent* pComponent = nullptr;
-  ezWorld* pWorld = ezTypeScriptBinding::RetrieveWorld(duk);
-  EZ_VERIFY(pWorld->TryGetComponent(hOwnHandle, pComponent), "");
+  ezComponent* pComponent = ezTypeScriptBinding::ExpectComponent<ezComponent>(pDuk);
 
   ezTypeScriptBinding::DukPutGameObject(duk, pComponent->GetOwner()->GetHandle());
 
