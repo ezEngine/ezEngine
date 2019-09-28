@@ -11,15 +11,16 @@ class MyComponent extends ez.Component
 
     Update(): void
     {
-        ez.Log.Dev("MyComponent::Update: " + this._name)
+        //ez.Log.Dev("MyComponent::Update: " + this._name)
 
         var go = this.GetOwner();
 
         if (go != null)
         {
-            ez.Log.Dev("Setting Local Position")
+            //ez.Log.Dev("Setting Local Position")
 
-            go.SetLocalPosition(0, 0, Math.random());
+            let newPos = ez.Vec3.CreateRandomPointInSphere();
+            go.SetLocalPosition(newPos.x, newPos.y, newPos.z);
         }
     }
 
