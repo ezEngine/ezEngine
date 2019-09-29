@@ -383,6 +383,9 @@ signals:
      * perspective
      */
     void perspectiveOpened(const QString& PerspectiveName);
+    //EZ_MODIFICATION_START
+    void floatingWidgetOpened(CFloatingDockContainer* FloatingWidget);
+    //EZ_MODIFICATION_END
 }; // class DockManager
 } // namespace ads
 //-----------------------------------------------------------------------------

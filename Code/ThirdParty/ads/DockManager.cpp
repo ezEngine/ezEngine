@@ -405,7 +405,7 @@ CDockManager::CDockManager(QWidget *parent) :
 	d(new DockManagerPrivate(this))
 {
 	createRootSplitter();
-	QMainWindow* MainWindow = dynamic_cast<QMainWindow*>(parent);
+	QMainWindow* MainWindow = qobject_cast<QMainWindow*>(parent);
 	if (MainWindow)
 	{
 		MainWindow->setCentralWidget(this);
@@ -433,7 +433,10 @@ CDockManager::~CDockManager()
 //============================================================================
 void CDockManager::registerFloatingWidget(CFloatingDockContainer* FloatingWidget)
 {
-	d->FloatingWidgets.append(FloatingWidget);
+  d->FloatingWidgets.append(FloatingWidget);
+  //EZ_MODIFICATION_START
+  emit floatingWidgetOpened(FloatingWidget);
+  //EZ_MODIFICATION_END
     ADS_PRINT("d->FloatingWidgets.count() " << d->FloatingWidgets.count());
 }
 

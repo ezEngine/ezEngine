@@ -261,7 +261,7 @@ struct DockAreaWidgetPrivate
 	 */
 	CDockWidget* dockWidgetAt(int index)
 	{
-		return dynamic_cast<CDockWidget*>(ContentsLayout->widget(index));
+		return qobject_cast<CDockWidget*>(ContentsLayout->widget(index));
 	}
 
 	/**
