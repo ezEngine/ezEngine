@@ -2,13 +2,15 @@
 
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
 
-static int __CPP_GameObject_SetLocalPosition(duk_context* pDuk);
 static int __CPP_GameObject_IsValid(duk_context* pDuk);
+static int __CPP_GameObject_SetLocalPosition(duk_context* pDuk);
+static int __CPP_GameObject_SetLocalRotation(duk_context* pDuk);
 
 ezResult ezTypeScriptBinding::Init_GameObject()
 {
   m_Duk.RegisterFunction("__CPP_GameObject_IsValid", __CPP_GameObject_IsValid, 1);
-  m_Duk.RegisterFunction("__CPP_GameObject_SetLocalPosition", __CPP_GameObject_SetLocalPosition, 4);
+  m_Duk.RegisterFunction("__CPP_GameObject_SetLocalPosition", __CPP_GameObject_SetLocalPosition, 2);
+  m_Duk.RegisterFunction("__CPP_GameObject_SetLocalRotation", __CPP_GameObject_SetLocalRotation, 2);
 
   return EZ_SUCCESS;
 }
@@ -59,18 +61,6 @@ void ezTypeScriptBinding::DukPutGameObject(duk_context* pDuk, const ezGameObject
   duk_pop(duk);
 }
 
-static int __CPP_GameObject_SetLocalPosition(duk_context* pDuk)
-{
-  ezDuktapeFunction duk(pDuk);
-
-  ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
-
-  const ezVec3 pos(duk.GetFloatParameter(1), duk.GetFloatParameter(2), duk.GetFloatParameter(3));
-  pGameObject->SetLocalPosition(pos);
-
-  return duk.ReturnVoid();
-}
-
 static int __CPP_GameObject_IsValid(duk_context* pDuk)
 {
   ezGameObjectHandle hObject = ezTypeScriptBinding::RetrieveGameObjectHandle(pDuk, 0 /*this*/);
@@ -79,4 +69,30 @@ static int __CPP_GameObject_IsValid(duk_context* pDuk)
 
   ezGameObject* pGameObject = nullptr;
   return pWorld->TryGetObject(hObject, pGameObject);
+}
+
+static int __CPP_GameObject_SetLocalPosition(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk);
+
+  ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
+
+  const ezVec3 pos = ezTypeScriptBinding::GetVec3(pDuk, 1);
+
+  pGameObject->SetLocalPosition(pos);
+
+  return duk.ReturnVoid();
+}
+
+static int __CPP_GameObject_SetLocalRotation(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk);
+
+  ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
+
+  const ezQuat rot = ezTypeScriptBinding::GetQuat(pDuk, 1);
+
+  pGameObject->SetLocalRotation(rot);
+
+  return duk.ReturnVoid();
 }

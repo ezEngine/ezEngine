@@ -1,8 +1,13 @@
+import __Math = require("./Math")
+import __Angle = require("./Angle")
+
+export import ezMath = __Math.ezMath;
+
 export class Vec3 
 {
+    x: number;
     y: number;
     z: number;
-    x: number;
 
     constructor(x: number = 0, y: number = 0, z: number = 0) 
     {

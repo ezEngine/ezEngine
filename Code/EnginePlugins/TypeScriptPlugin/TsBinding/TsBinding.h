@@ -84,6 +84,14 @@ public:
   static ComponentType* ExpectComponent(duk_context* pDuk, ezInt32 iObjIdx = 0 /* use 0, if the game object is passed in as the 'this' object (first parameter) */);
 
   ///@}
+  /// \name Math
+  ///@{
+
+  static ezVec3 GetVec3(duk_context* pDuk, ezInt32 iObjIdx);
+  static ezQuat GetQuat(duk_context* pDuk, ezInt32 iObjIdx);
+
+  ///@}
+
 
 };
 

@@ -20,7 +20,14 @@ class MyComponent extends ez.Component
             //ez.Log.Dev("Setting Local Position")
 
             let newPos = ez.Vec3.CreateRandomPointInSphere();
-            go.SetLocalPosition(newPos.x, newPos.y, newPos.z);
+            go.SetLocalPosition(newPos);
+
+            let newDir = ez.Vec3.CreateRandomDirection();
+            let newRot = new ez.Quat();
+            newRot.SetShortestRotation(new ez.Vec3(1, 0, 0), newDir);
+
+            go.SetLocalRotation(newRot);
+
         }
     }
 
