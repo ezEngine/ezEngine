@@ -86,13 +86,13 @@ ezSceneContext::ezSceneContext()
   m_pWorld = nullptr;
 
   ezVisualScriptComponent::s_ActivityEvents.AddEventHandler(ezMakeDelegate(&ezSceneContext::OnVisualScriptActivity, this));
-  ezResourceManager::s_ManagerEvents.AddEventHandler(ezMakeDelegate(&ezSceneContext::OnResourceManagerEvent, this));
+  ezResourceManager::GetManagerEvents().AddEventHandler(ezMakeDelegate(&ezSceneContext::OnResourceManagerEvent, this));
 }
 
 ezSceneContext::~ezSceneContext()
 {
   ezVisualScriptComponent::s_ActivityEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneContext::OnVisualScriptActivity, this));
-  ezResourceManager::s_ManagerEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneContext::OnResourceManagerEvent, this));
+  ezResourceManager::GetManagerEvents().RemoveEventHandler(ezMakeDelegate(&ezSceneContext::OnResourceManagerEvent, this));
 }
 
 void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)

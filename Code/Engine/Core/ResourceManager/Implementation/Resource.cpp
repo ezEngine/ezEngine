@@ -3,21 +3,66 @@
 #include <Core/ResourceManager/Resource.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/System/StackTracer.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezResource, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-EZ_CORE_DLL void IncreaseResourceRefCount(ezResource* pResource)
+EZ_CORE_DLL void IncreaseResourceRefCount(ezResource* pResource, const void* pOwner)
 {
+#if EZ_ENABLED(EZ_RESOURCEHANDLE_STACK_TRACES)
+  {
+    EZ_LOCK(pResource->m_HandleStackTraceMutex);
+
+    auto& info = pResource->m_HandleStackTraces[pOwner];
+
+    ezArrayPtr<void*> ptr(info.m_Ptrs);
+
+    info.m_uiNumPtrs = ezStackTracer::GetStackTrace(ptr);
+  }
+#endif
+
   pResource->m_iReferenceCount.Increment();
 }
 
-EZ_CORE_DLL void DecreaseResourceRefCount(ezResource* pResource)
+EZ_CORE_DLL void DecreaseResourceRefCount(ezResource* pResource, const void* pOwner)
 {
+#if EZ_ENABLED(EZ_RESOURCEHANDLE_STACK_TRACES)
+  {
+    EZ_LOCK(pResource->m_HandleStackTraceMutex);
+
+    if (!pResource->m_HandleStackTraces.Remove(pOwner, nullptr))
+    {
+      EZ_REPORT_FAILURE("No associated stack-trace!");
+    }
+  }
+#endif
+
   pResource->m_iReferenceCount.Decrement();
 }
+
+#if EZ_ENABLED(EZ_RESOURCEHANDLE_STACK_TRACES)
+EZ_CORE_DLL void MigrateResourceRefCount(ezResource* pResource, const void* pOldOwner, const void* pNewOwner)
+{
+  EZ_LOCK(pResource->m_HandleStackTraceMutex);
+
+  // allocate / resize the hash-table first to ensure the iterator stays valid
+  auto& newInfo = pResource->m_HandleStackTraces[pNewOwner];
+
+  auto it = pResource->m_HandleStackTraces.Find(pOldOwner);
+  if (!it.IsValid())
+  {
+    EZ_REPORT_FAILURE("No associated stack-trace!");
+  }
+  else
+  {
+    newInfo = it.Value();
+    pResource->m_HandleStackTraces.Remove(it);
+  }
+}
+#endif
 
 ezResource::~ezResource() = default;
 
@@ -26,6 +71,35 @@ ezResource::ezResource(DoUpdate ResourceUpdateThread, ezUInt8 uiQualityLevelsLoa
   m_Flags.AddOrRemove(ezResourceFlags::UpdateOnMainThread, ResourceUpdateThread == DoUpdate::OnMainThread);
 
   m_uiQualityLevelsLoadable = uiQualityLevelsLoadable;
+}
+
+#if EZ_ENABLED(EZ_RESOURCEHANDLE_STACK_TRACES)
+static void LogStackTrace(const char* szText)
+{
+  ezLog::Info(szText);
+};
+#endif
+
+void ezResource::PrintHandleStackTraces()
+{
+#if EZ_ENABLED(EZ_RESOURCEHANDLE_STACK_TRACES)
+
+  EZ_LOCK(m_HandleStackTraceMutex);
+
+  EZ_LOG_BLOCK("Resource Handle Stack Traces");
+
+  for (auto& it : m_HandleStackTraces)
+  {
+    EZ_LOG_BLOCK("Handle Trace");
+
+    ezStackTracer::ResolveStackTrace(ezArrayPtr<void*>(it.Value().m_Ptrs, it.Value().m_uiNumPtrs), LogStackTrace);
+  }
+
+#else
+
+  ezLog::Warning("Compile with EZ_RESOURCEHANDLE_STACK_TRACES set to EZ_ON to enable support for resource handle stack traces.");
+
+#endif
 }
 
 void ezResource::SetResourceDescription(const char* szDescription)

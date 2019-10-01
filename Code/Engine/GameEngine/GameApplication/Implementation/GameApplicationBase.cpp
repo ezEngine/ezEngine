@@ -323,7 +323,7 @@ void ezGameApplicationBase::BeforeHighLevelSystemsShutdown()
     // make sure that no resources continue to be streamed in, while the engine shuts down
     ezResourceManager::EngineAboutToShutdown();
     ezResourceManager::ExecuteAllResourceCleanupCallbacks();
-    ezResourceManager::FreeUnusedResources(true);
+    ezResourceManager::FreeAllUnusedResources();
   }
 }
 
@@ -334,12 +334,12 @@ void ezGameApplicationBase::BeforeCoreSystemsShutdown()
 
   {
     ezFrameAllocator::Reset();
-    ezResourceManager::FreeUnusedResources(true);
+    ezResourceManager::FreeAllUnusedResources();
   }
 
   {
     Deinit_ShutdownGraphicsDevice();
-    ezResourceManager::FreeUnusedResources(true);
+    ezResourceManager::FreeAllUnusedResources();
   }
 
   Deinit_UnloadPlugins();
@@ -405,6 +405,8 @@ ezApplication::ApplicationExecution ezGameApplicationBase::Run()
 
   Run_FinishFrame();
 
+  // continuously unload resources that are not in use anymore
+  ezResourceManager::FreeUnusedResources(ezTime::Microseconds(100), ezTime::Seconds(10.0f));
   ezClock::GetGlobalClock()->Update();
 
   UpdateFrameTime();

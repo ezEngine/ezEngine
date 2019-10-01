@@ -141,14 +141,14 @@ void ezFmod::Shutdown()
   if (m_bInitialized)
   {
     // delete all fmod resources, except the master bank
-    ezResourceManager::FreeUnusedResources(true);
+    ezResourceManager::FreeAllUnusedResources();
 
     m_bInitialized = false;
     m_pData->m_hMasterBank.Invalidate();
     m_pData->m_hMasterBankStrings.Invalidate();
 
     // now also delete the master bank
-    ezResourceManager::FreeUnusedResources(true);
+    ezResourceManager::FreeAllUnusedResources();
 
     // now actually delete the sound bank data
     ClearSoundBankDataDeletionQueue();

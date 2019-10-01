@@ -44,7 +44,7 @@ ezTypedResourceHandle<ResourceType> ezResourceManager::GetExistingResource(const
 
   const ezRTTI* pRtti = FindResourceTypeOverride(ezGetStaticRTTI<ResourceType>(), szResourceID);
 
-  if (s_LoadedResources[pRtti].m_Resources.TryGetValue(sResourceHash, pResource))
+  if (GetLoadedResources()[pRtti].m_Resources.TryGetValue(sResourceHash, pResource))
     return ezTypedResourceHandle<ResourceType>((ResourceType*)pResource);
 
   return ezTypedResourceHandle<ResourceType>();
@@ -98,7 +98,7 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
     "The requested resource does not have the same type ('{0}') as the resource handle ('{1}').",
     pResource->GetDynamicRTTI()->GetTypeName(), ezGetStaticRTTI<ResourceType>()->GetTypeName());
 
-  if (mode == ezResourceAcquireMode::AllowLoadingFallback && s_uiForceNoFallbackAcquisition > 0)
+  if (mode == ezResourceAcquireMode::AllowLoadingFallback && GetForceNoFallbackAcquisition() > 0)
   {
     mode = ezResourceAcquireMode::BlockTillLoaded;
   }
@@ -114,7 +114,7 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
 
   // only set the last accessed time stamp, if it is actually needed, pointer-only access might not mean that the resource is used
   // productively
-  pResource->m_LastAcquire = s_LastFrameUpdate;
+  pResource->m_LastAcquire = GetLastFrameUpdate();
 
   if (pResource->GetLoadingState() != ezResourceState::LoadedResourceMissing)
   {
@@ -206,17 +206,17 @@ ezLockedObject<ezMutex, ezDynamicArray<ezResource*>> ezResourceManager::GetAllRe
   // and thus does not extend the data life-time. It is safe to do this, as the
   // locked object holding the container ensures the container will not be
   // accessed concurrently.
-  ezLockedObject<ezMutex, ezDynamicArray<ezResource*>> loadedResourcesLock(s_ResourceMutex, &s_LoadedResourceOfTypeTempContainer);
+  ezLockedObject<ezMutex, ezDynamicArray<ezResource*>> loadedResourcesLock(s_ResourceMutex, &GetLoadedResourceOfTypeTempContainer());
 
-  s_LoadedResourceOfTypeTempContainer.Clear();
+  GetLoadedResourceOfTypeTempContainer().Clear();
 
-  for (auto itType = s_LoadedResources.GetIterator(); itType.IsValid(); itType.Next())
+  for (auto itType = GetLoadedResources().GetIterator(); itType.IsValid(); itType.Next())
   {
     const ezRTTI* pDerivedType = itType.Key();
 
     if (pDerivedType->IsDerivedFrom(pBaseType))
     {
-      const LoadedResources& lr = s_LoadedResources[pDerivedType];
+      const LoadedResources& lr = GetLoadedResources()[pDerivedType];
 
       if (lr.m_Resources.IsEmpty())
       {
@@ -224,11 +224,11 @@ ezLockedObject<ezMutex, ezDynamicArray<ezResource*>> ezResourceManager::GetAllRe
         continue;
       }
 
-      s_LoadedResourceOfTypeTempContainer.Reserve(s_LoadedResourceOfTypeTempContainer.GetCount() + lr.m_Resources.GetCount());
+      GetLoadedResourceOfTypeTempContainer().Reserve(GetLoadedResourceOfTypeTempContainer().GetCount() + lr.m_Resources.GetCount());
 
       for (auto itResource = lr.m_Resources.GetIterator(); itResource.IsValid(); itResource.Next())
       {
-        s_LoadedResourceOfTypeTempContainer.PushBack(itResource.Value());
+        GetLoadedResourceOfTypeTempContainer().PushBack(itResource.Value());
       }
     }
   }
@@ -259,20 +259,13 @@ void ezResourceManager::SetResourceTypeLoader(ezResourceTypeLoader* creator)
 {
   EZ_LOCK(s_ResourceMutex);
 
-  s_ResourceTypeLoader[ezGetStaticRTTI<ResourceType>()] = creator;
-}
-
-inline void ezResourceManager::SetDefaultResourceLoader(ezResourceTypeLoader* pDefaultLoader)
-{
-  EZ_LOCK(s_ResourceMutex);
-
-  s_pDefaultResourceLoader = pDefaultLoader;
+  GetResourceTypeLoaders()[ezGetStaticRTTI<ResourceType>()] = creator;
 }
 
 template <typename ResourceType>
 ezTypedResourceHandle<ResourceType> ezResourceManager::GetResourceHandleForExport(const char* szResourceID)
 {
-  EZ_ASSERT_DEV(s_bExportMode, "Export mode needs to be enabled");
+  EZ_ASSERT_DEV(IsExportModeEnabled(), "Export mode needs to be enabled");
 
   return LoadResource<ResourceType>(szResourceID);
 }

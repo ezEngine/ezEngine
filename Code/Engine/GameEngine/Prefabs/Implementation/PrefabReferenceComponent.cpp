@@ -375,13 +375,13 @@ bool ezPrefabReferenceComponent::GetParameter(const char* szKey, ezVariant& out_
 ezPrefabReferenceComponentManager::ezPrefabReferenceComponentManager(ezWorld* pWorld)
   : ezComponentManager<ComponentType, ezBlockStorageType::Compact>(pWorld)
 {
-  ezResourceManager::s_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezPrefabReferenceComponentManager::ResourceEventHandler, this));
+  ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezPrefabReferenceComponentManager::ResourceEventHandler, this));
 }
 
 
 ezPrefabReferenceComponentManager::~ezPrefabReferenceComponentManager()
 {
-  ezResourceManager::s_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezPrefabReferenceComponentManager::ResourceEventHandler, this));
+  ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezPrefabReferenceComponentManager::ResourceEventHandler, this));
 }
 
 void ezPrefabReferenceComponentManager::Initialize()

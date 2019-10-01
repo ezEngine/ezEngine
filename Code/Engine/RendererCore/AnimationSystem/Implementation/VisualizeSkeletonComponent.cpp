@@ -358,14 +358,14 @@ void ezVisualizeSkeletonComponentManager::Initialize()
 
   RegisterUpdateFunction(desc);
 
-  ezResourceManager::s_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezVisualizeSkeletonComponentManager::ResourceEventHandler, this));
+  ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezVisualizeSkeletonComponentManager::ResourceEventHandler, this));
 }
 
 void ezVisualizeSkeletonComponentManager::Deinitialize()
 {
   EZ_LOCK(m_Mutex);
 
-  ezResourceManager::s_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezVisualizeSkeletonComponentManager::ResourceEventHandler, this));
+  ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezVisualizeSkeletonComponentManager::ResourceEventHandler, this));
 
   SUPER::Deinitialize();
 }

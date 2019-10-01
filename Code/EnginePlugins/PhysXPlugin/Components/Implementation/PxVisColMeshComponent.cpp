@@ -270,14 +270,14 @@ void ezPxVisColMeshComponentManager::Initialize()
 
   RegisterUpdateFunction(desc);
 
-  ezResourceManager::s_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezPxVisColMeshComponentManager::ResourceEventHandler, this));
+  ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezPxVisColMeshComponentManager::ResourceEventHandler, this));
 }
 
 void ezPxVisColMeshComponentManager::Deinitialize()
 {
   EZ_LOCK(m_Mutex);
 
-  ezResourceManager::s_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezPxVisColMeshComponentManager::ResourceEventHandler, this));
+  ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezPxVisColMeshComponentManager::ResourceEventHandler, this));
 
   SUPER::Deinitialize();
 }

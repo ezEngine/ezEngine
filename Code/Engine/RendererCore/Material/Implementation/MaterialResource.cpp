@@ -72,12 +72,12 @@ ezMaterialResource::ezMaterialResource()
   m_uiCacheIndex = ezInvalidIndex;
   m_pCachedValues = nullptr;
 
-  ezResourceManager::s_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezMaterialResource::OnResourceEvent, this));
+  ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezMaterialResource::OnResourceEvent, this));
 }
 
 ezMaterialResource::~ezMaterialResource()
 {
-  ezResourceManager::s_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezMaterialResource::OnResourceEvent, this));
+  ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezMaterialResource::OnResourceEvent, this));
 }
 
 ezHashedString ezMaterialResource::GetPermutationValue(const ezTempHashedString& sName)

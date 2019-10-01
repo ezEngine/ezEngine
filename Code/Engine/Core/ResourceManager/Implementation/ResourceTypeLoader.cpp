@@ -70,8 +70,7 @@ void ezResourceLoaderFromFile::CloseDataStream(const ezResource* pResource, cons
 bool ezResourceLoaderFromFile::IsResourceOutdated(const ezResource* pResource) const
 {
   // if we cannot find the target file, there is no point in trying to reload it -> claim it's up to date
-  ezStringBuilder sAbs;
-  if (ezFileSystem::ResolvePath(pResource->GetResourceID(), &sAbs, nullptr).Failed())
+  if (ezFileSystem::ResolvePath(pResource->GetResourceID(), nullptr, nullptr).Failed())
     return false;
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
