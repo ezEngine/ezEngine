@@ -2,11 +2,11 @@
 
 #include <Foundation/IO/FileSystem/FileWriter.h>
 
-ezResult ezFileWriter::Open(const char* szFile, ezUInt32 uiCacheSize, bool bAllowFileEvents)
+ezResult ezFileWriter::Open(const char* szFile, ezUInt32 uiCacheSize /*= 1024 * 1024*/, ezFileShareMode::Enum FileShareMode /*= ezFileShareMode::Exclusive*/, bool bAllowFileEvents /*= true*/)
 {
   uiCacheSize = ezMath::Clamp<ezUInt32>(uiCacheSize, 1024, 1024 * 1024 * 32);
 
-  m_pDataDirWriter = GetFileWriter(szFile, bAllowFileEvents);
+  m_pDataDirWriter = GetFileWriter(szFile, FileShareMode, bAllowFileEvents);
 
   if (!m_pDataDirWriter)
     return EZ_FAILURE;
@@ -74,4 +74,3 @@ ezResult ezFileWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWr
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_FileSystem_Implementation_FileWriter);
-

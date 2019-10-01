@@ -2,6 +2,7 @@
 
 #include <Foundation/Basics.h>
 #include <Foundation/Communication/Event.h>
+#include <Foundation/IO/FileEnums.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Threading/AtomicInteger.h>
@@ -11,13 +12,13 @@
 struct ezOSFileData;
 
 #if EZ_ENABLED(EZ_USE_POSIX_FILE_API)
-#include <Foundation/IO/Implementation/Posix/OSFileDeclarations_posix.h>
+#  include <Foundation/IO/Implementation/Posix/OSFileDeclarations_posix.h>
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#include <Foundation/IO/Implementation/Win/OSFileDeclarations_win.h>
+#  include <Foundation/IO/Implementation/Win/OSFileDeclarations_win.h>
 #endif
 
 /// \brief Defines in which mode to open a file.
-struct ezFileMode
+struct ezFileOpenMode
 {
   enum Enum
   {
@@ -25,17 +26,6 @@ struct ezFileMode
     Read,   ///< Open file for reading.
     Write,  ///< Open file for writing (already existing data is discarded).
     Append, ///< Open file for appending (writing, but always only at the end, already existing data is preserved).
-  };
-};
-
-/// \brief For file seek operations this enum defines from which relative position the seek position is described.
-struct ezFilePos
-{
-  enum Enum
-  {
-    FromStart,   ///< The seek position is relative to the file's beginning
-    FromEnd,     ///< The seek position is relative to the file's end
-    FromCurrent, ///< The seek position is relative to the file's current seek position
   };
 };
 
@@ -69,6 +59,33 @@ struct EZ_FOUNDATION_DLL ezFileStats
 
 struct ezFileIterationData;
 
+struct ezFileSystemIteratorFlags
+{
+  typedef ezUInt8 StorageType;
+
+  enum Enum : ezUInt8
+  {
+    Recursive = EZ_BIT(0),
+    ReportFiles = EZ_BIT(1),
+    ReportFolders = EZ_BIT(2),
+
+    ReportFilesRecursive = Recursive | ReportFiles,
+    ReportFoldersRecursive = ReportFolders | ReportFiles,
+    ReportFilesAndFoldersRecursive = Recursive | ReportFiles | ReportFolders,
+
+    Default = ReportFilesAndFoldersRecursive,
+  };
+
+  struct Bits
+  {
+    StorageType Recursive : 1;
+    StorageType ReportFiles : 1;
+    StorageType ReportFolders : 1;
+  };
+};
+
+EZ_DECLARE_FLAGS_OPERATORS(ezFileSystemIteratorFlags);
+
 /// \brief An ezFileSystemIterator allows to iterate over all files in a certain directory.
 ///
 /// The search can be recursive, and it can contain wildcards (* and ?) to limit the search to specific file types.
@@ -91,7 +108,7 @@ public:
   /// If EZ_SUCCESS is returned, the iterator points to a valid file, and the functions GetCurrentPath() and GetStats() will return
   /// the information about that file. To advance to the next file, use Next() or SkipFolder().
   /// When no iteration is possible (the directory does not exist or the wild-cards are used incorrectly), EZ_FAILURE is returned.
-  ezResult StartSearch(const char* szSearchStart, bool bRecursive = true, bool bReportFolders = true); // [tested]
+  ezResult StartSearch(const char* szSearchStart, ezBitflags<ezFileSystemIteratorFlags> flags = ezFileSystemIteratorFlags::Default); // [tested]
 
   /// \brief Returns the current path in which files are searched. Changes when 'Next' moves in or out of a sub-folder.
   ///
@@ -115,11 +132,7 @@ private:
   /// \brief The current path of the folder, in which the iterator currently is.
   ezStringBuilder m_sCurPath;
 
-  /// \brief Whether to do a recursive file search.
-  bool m_bRecursive;
-
-  /// \brief Whether to report folders to the user, or to skip over them.
-  bool m_bReportFolders;
+  ezBitflags<ezFileSystemIteratorFlags> m_Flags;
 
   /// \brief The stats about the file that the iterator currently points to.
   ezFileStats m_CurFile;
@@ -144,8 +157,8 @@ public:
   ezOSFile();
   ~ezOSFile();
 
-  /// \brief Opens a file for reading or writing. Returns true if the file could be opened successfully.
-  ezResult Open(const char* szFile, ezFileMode::Enum OpenMode); // [tested]
+  /// \brief Opens a file for reading or writing. Returns EZ_SUCCESS if the file could be opened successfully.
+  ezResult Open(const char* szFile, ezFileOpenMode::Enum OpenMode, ezFileShareMode::Enum FileShareMode = ezFileShareMode::Default); // [tested]
 
   /// \brief Returns true if a file is currently open.
   bool IsOpen() const; // [tested]
@@ -169,7 +182,7 @@ public:
   ezUInt64 GetFilePosition() const; // [tested]
 
   /// \brief Sets the position where in the file to read/write next.
-  void SetFilePosition(ezInt64 iDistance, ezFilePos::Enum Pos) const; // [tested]
+  void SetFilePosition(ezInt64 iDistance, ezFileSeekMode::Enum Pos) const; // [tested]
 
   /// \brief Returns the current total size of the file.
   ezUInt64 GetFileSize() const; // [tested]
@@ -181,11 +194,16 @@ public:
   ///
   /// The value typically depends on the directory from which the application was launched.
   /// Since this is a process wide global variable, other code can modify it at any time.
-  /// 
+  ///
   /// \note ez does not use the CWD for any file resolution. This function is provided to enable
   /// tools to work with relative paths from the command-line, but every application has to implement
   /// such behavior individually.
-  static const ezString GetCurrentWorkingDirectory();
+  static const ezString GetCurrentWorkingDirectory(); // [tested]
+
+  /// \brief If szPath is a relative path, this function prepends GetCurrentWorkingDirectory().
+  ///
+  /// In either case, MakeCleanPath() is used before the string is returned.
+  static const ezString MakePathAbsoluteWithCWD(const char* szPath); // [tested]
 
   /// \brief Checks whether the given file exists.
   static bool ExistsFile(const char* szFile); // [tested]
@@ -206,17 +224,17 @@ public:
   /// \brief Gets the stats about the given file or folder. Returns false, if the stats could not be determined.
   static ezResult GetFileStats(const char* szFileOrFolder, ezFileStats& out_Stats); // [tested]
 
-#if (EZ_ENABLED(EZ_SUPPORTS_CASE_INSENSITIVE_PATHS) && EZ_ENABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS)) || defined(EZ_DOCS)
+#  if (EZ_ENABLED(EZ_SUPPORTS_CASE_INSENSITIVE_PATHS) && EZ_ENABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS)) || defined(EZ_DOCS)
   /// \brief Useful on systems that are not strict about the casing of file names. Determines the correct name of a file.
   static ezResult GetFileCasing(const char* szFileOrFolder, ezStringBuilder& out_sCorrectSpelling); // [tested]
-#endif
+#  endif
 
 #endif
 
 #if (EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) && EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)) || defined(EZ_DOCS)
 
   /// \brief Returns the ezFileStats for all files and folders in the given folder
-  static void GatherAllItemsInFolder(ezDynamicArray<ezFileStats>& out_ItemList, const char* szFolder);
+  static void GatherAllItemsInFolder(ezDynamicArray<ezFileStats>& out_ItemList, const char* szFolder, ezBitflags<ezFileSystemIteratorFlags> flags = ezFileSystemIteratorFlags::Default);
 
   /// \brief Copies \a szSourceFolder to \a szDestinationFolder. Overwrites existing files.
   static ezResult CopyFolder(const char* szSourceFolder, const char* szDestinationFolder);
@@ -285,7 +303,7 @@ public:
     const char* m_szFile2;
 
     /// \brief Mode that a file has been opened in.
-    ezFileMode::Enum m_FileMode;
+    ezFileOpenMode::Enum m_FileMode;
 
     /// \brief Whether the operation succeeded (reading, writing, etc.)
     bool m_bSuccess;
@@ -302,7 +320,7 @@ public:
       m_iFileID = 0;
       m_szFile = nullptr;
       m_szFile2 = nullptr;
-      m_FileMode = ezFileMode::None;
+      m_FileMode = ezFileOpenMode::None;
       m_bSuccess = true;
       m_uiBytesAccessed = 0;
     }
@@ -322,12 +340,12 @@ private:
 
   // *** Internal Functions that do the platform specific work ***
 
-  ezResult InternalOpen(const char* szFile, ezFileMode::Enum OpenMode);
+  ezResult InternalOpen(const char* szFile, ezFileOpenMode::Enum OpenMode, ezFileShareMode::Enum FileShareMode);
   void InternalClose();
   ezResult InternalWrite(const void* pBuffer, ezUInt64 uiBytes);
   ezUInt64 InternalRead(void* pBuffer, ezUInt64 uiBytes);
   ezUInt64 InternalGetFilePosition() const;
-  void InternalSetFilePosition(ezInt64 iDistance, ezFilePos::Enum Pos) const;
+  void InternalSetFilePosition(ezInt64 iDistance, ezFileSeekMode::Enum Pos) const;
 
   static bool InternalExistsFile(const char* szFile);
   static bool InternalExistsDirectory(const char* szDirectory);
@@ -341,7 +359,7 @@ private:
   // *************************************************************
 
   /// \brief Stores the mode with which the file was opened.
-  ezFileMode::Enum m_FileMode;
+  ezFileOpenMode::Enum m_FileMode;
 
   /// [internal] On win32 when a file is already open, and this is true, ezOSFile will wait until the file becomes available
   bool m_bRetryOnSharingViolation = true;
@@ -367,4 +385,3 @@ private:
   /// \brief Counts how many different files are touched.225
   static ezAtomicInteger32 s_FileCounter;
 };
-

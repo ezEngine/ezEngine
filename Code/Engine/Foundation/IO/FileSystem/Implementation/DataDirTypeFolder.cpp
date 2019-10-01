@@ -24,12 +24,12 @@ namespace ezDataDirectory
   ezString FolderType::s_sRedirectionFile;
   ezString FolderType::s_sRedirectionPrefix;
 
-  ezResult FolderReader::InternalOpen()
+  ezResult FolderReader::InternalOpen(ezFileShareMode::Enum FileShareMode)
   {
     ezStringBuilder sPath = ((ezDataDirectory::FolderType*)GetDataDirectory())->GetRedirectedDataDirectoryPath();
     sPath.AppendPath(GetFilePath().GetData());
 
-    return m_File.Open(sPath.GetData(), ezFileMode::Read);
+    return m_File.Open(sPath.GetData(), ezFileOpenMode::Read, FileShareMode);
   }
 
   void FolderReader::InternalClose() { m_File.Close(); }
@@ -38,12 +38,12 @@ namespace ezDataDirectory
 
   ezUInt64 FolderReader::GetFileSize() const { return m_File.GetFileSize(); }
 
-  ezResult FolderWriter::InternalOpen()
+  ezResult FolderWriter::InternalOpen(ezFileShareMode::Enum FileShareMode)
   {
     ezStringBuilder sPath = ((ezDataDirectory::FolderType*)GetDataDirectory())->GetRedirectedDataDirectoryPath();
     sPath.AppendPath(GetFilePath().GetData());
 
-    return m_File.Open(sPath.GetData(), ezFileMode::Write);
+    return m_File.Open(sPath.GetData(), ezFileOpenMode::Write, FileShareMode);
   }
 
   void FolderWriter::InternalClose() { m_File.Close(); }
@@ -115,7 +115,7 @@ namespace ezDataDirectory
       EZ_LOG_BLOCK("LoadRedirectionFile", sRedirectionFile.GetData());
 
       ezOSFile file;
-      if (file.Open(sRedirectionFile, ezFileMode::Read).Succeeded())
+      if (file.Open(sRedirectionFile, ezFileOpenMode::Read).Succeeded())
       {
         ezHybridArray<char, 1024 * 10> content;
         char uiTemp[4096];
@@ -232,7 +232,7 @@ namespace ezDataDirectory
 
   ezDataDirectory::FolderWriter* FolderType::CreateFolderWriter() const { return EZ_DEFAULT_NEW(FolderWriter, 0); }
 
-  ezDataDirectoryReader* FolderType::OpenFileToRead(const char* szFile, bool bSpecificallyThisDataDir)
+  ezDataDirectoryReader* FolderType::OpenFileToRead(const char* szFile, ezFileShareMode::Enum FileShareMode, bool bSpecificallyThisDataDir)
   {
     ezStringBuilder sFileToOpen;
     ResolveAssetRedirection(szFile, sFileToOpen);
@@ -259,7 +259,7 @@ namespace ezDataDirectory
     }
 
     // if opening the file fails, the reader's m_bIsInUse needs to be reset.
-    if (pReader->Open(sFileToOpen, this) == EZ_FAILURE)
+    if (pReader->Open(sFileToOpen, this, FileShareMode) == EZ_FAILURE)
     {
       EZ_LOCK(m_ReaderWriterMutex);
       pReader->m_bIsInUse = false;
@@ -299,7 +299,7 @@ namespace ezDataDirectory
     }
   }
 
-  ezDataDirectoryWriter* FolderType::OpenFileToWrite(const char* szFile)
+  ezDataDirectoryWriter* FolderType::OpenFileToWrite(const char* szFile, ezFileShareMode::Enum FileShareMode)
   {
     FolderWriter* pWriter = nullptr;
 
@@ -319,7 +319,7 @@ namespace ezDataDirectory
       pWriter->m_bIsInUse = true;
     }
     // if opening the file fails, the writer's m_bIsInUse needs to be reset.
-    if (pWriter->Open(szFile, this) == EZ_FAILURE)
+    if (pWriter->Open(szFile, this, FileShareMode) == EZ_FAILURE)
     {
       EZ_LOCK(m_ReaderWriterMutex);
       pWriter->m_bIsInUse = false;

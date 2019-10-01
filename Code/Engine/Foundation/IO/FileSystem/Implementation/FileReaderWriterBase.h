@@ -37,9 +37,9 @@ public:
   ezUInt64 GetFileSize() const { return m_pDataDirReader->GetFileSize(); }
 
 protected:
-  ezDataDirectoryReader* GetFileReader(const char* szFile, bool bAllowFileEvents)
+  ezDataDirectoryReader* GetFileReader(const char* szFile, ezFileShareMode::Enum FileShareMode, bool bAllowFileEvents)
   {
-    return ezFileSystem::GetFileReader(szFile, bAllowFileEvents);
+    return ezFileSystem::GetFileReader(szFile, FileShareMode, bAllowFileEvents);
   }
 
   ezDataDirectoryReader* m_pDataDirReader;
@@ -79,9 +79,9 @@ public:
   ezUInt64 GetFileSize() const { return m_pDataDirWriter->GetFileSize(); } // [tested]
 
 protected:
-  ezDataDirectoryWriter* GetFileWriter(const char* szFile, bool bAllowFileEvents)
+  ezDataDirectoryWriter* GetFileWriter(const char* szFile, ezFileShareMode::Enum FileShareMode, bool bAllowFileEvents)
   {
-    return ezFileSystem::GetFileWriter(szFile, bAllowFileEvents);
+    return ezFileSystem::GetFileWriter(szFile, FileShareMode, bAllowFileEvents);
   }
 
   ezDataDirectoryWriter* m_pDataDirWriter;

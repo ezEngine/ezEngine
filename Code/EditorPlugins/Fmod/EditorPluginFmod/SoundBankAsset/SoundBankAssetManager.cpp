@@ -114,7 +114,7 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
       // and if there are multiple, which one is the correct one
       // so we just load everything that we can find
       ezFileSystemIterator fsIt;
-      if (fsIt.StartSearch(sStringsBank, false, false).Succeeded())
+      if (fsIt.StartSearch(sStringsBank, ezFileSystemIteratorFlags::ReportFiles).Succeeded())
       {
         do
         {

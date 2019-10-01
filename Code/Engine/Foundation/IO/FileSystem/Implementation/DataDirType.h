@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
+#include <Foundation/IO/FileEnums.h>
 #include <Foundation/Strings/String.h>
 
 class ezDataDirectoryReaderWriterBase;
@@ -52,13 +53,13 @@ protected:
   /// by using a rooted path.
   /// If an absolute path is used, which incidentally matches the prefix of this data directory, bSpecificallyThisDataDir is NOT set to
   /// true, as there might be other data directories that also match.
-  virtual ezDataDirectoryReader* OpenFileToRead(const char* szFile, bool bSpecificallyThisDataDir) = 0;
+  virtual ezDataDirectoryReader* OpenFileToRead(const char* szFile, ezFileShareMode::Enum FileShareMode, bool bSpecificallyThisDataDir) = 0;
 
   /// \brief Must be implemented to create a ezDataDirectoryWriter for accessing the given file. Returns nullptr if the file could not be
   /// opened.
   ///
   /// If it always returns nullptr (default) the data directory is read-only (at least through this type).
-  virtual ezDataDirectoryWriter* OpenFileToWrite(const char* szFile) { return nullptr; }
+  virtual ezDataDirectoryWriter* OpenFileToWrite(const char* szFile, ezFileShareMode::Enum FileShareMode) { return nullptr; }
 
   /// \brief This function is called by the filesystem when a data directory is removed.
   ///
@@ -116,7 +117,7 @@ public:
   virtual ~ezDataDirectoryReaderWriterBase() {}
 
   /// \brief Used by ezDataDirectoryType's to try to open the given file. They need to pass along their own pointer.
-  ezResult Open(const char* szFilePath, ezDataDirectoryType* pOwnerDataDirectory);
+  ezResult Open(const char* szFilePath, ezDataDirectoryType* pOwnerDataDirectory, ezFileShareMode::Enum FileShareMode);
 
   /// \brief Closes this data stream.
   void Close();
@@ -137,7 +138,7 @@ public:
 
 protected:
   /// \brief This function must be implemented by the derived class.
-  virtual ezResult InternalOpen() = 0;
+  virtual ezResult InternalOpen(ezFileShareMode::Enum FileShareMode) = 0;
 
   /// \brief This function must be implemented by the derived class.
   virtual void InternalClose() = 0;

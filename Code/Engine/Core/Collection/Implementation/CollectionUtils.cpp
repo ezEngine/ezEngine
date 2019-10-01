@@ -12,7 +12,7 @@ void ezCollectionUtils::AddFiles(ezCollectionResourceDescriptor& collection, con
 
   const ezUInt32 uiStripPrefixLength = ezStringUtils::GetCharacterCount(szStripPrefix);
 
-  if (fsIt.StartSearch(szAbsPathToFolder, true, false).Failed())
+  if (fsIt.StartSearch(szAbsPathToFolder, ezFileSystemIteratorFlags::ReportFilesRecursive).Failed())
     return;
 
   ezStringBuilder sFullPath;
