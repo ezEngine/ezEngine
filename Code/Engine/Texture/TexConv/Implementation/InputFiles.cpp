@@ -67,13 +67,17 @@ ezResult ezTexConvProcessor::ConvertAndScaleImage(
     return EZ_FAILURE;
   }
 
+  // some scale operations fail when they are done in place, so use a scratch image as destination for now
+  ezImage scratch;
   if (ezImageUtils::Scale(
-        inout_Image, inout_Image, uiResolutionX, uiResolutionY, nullptr, ezImageAddressMode::Clamp, ezImageAddressMode::Clamp)
+        inout_Image, scratch, uiResolutionX, uiResolutionY, nullptr, ezImageAddressMode::Clamp, ezImageAddressMode::Clamp)
         .Failed())
   {
     ezLog::Error("Could not resize '{}' to {}x{}", szImageName, uiResolutionX, uiResolutionY);
     return EZ_FAILURE;
   }
+
+  inout_Image.ResetAndMove(std::move(scratch));
 
   return EZ_SUCCESS;
 }

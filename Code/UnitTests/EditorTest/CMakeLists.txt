@@ -27,7 +27,7 @@ add_dependencies(${PROJECT_NAME}
   EditorPluginParticle
   EditorPluginProcGen
   ParticlePlugin
-  TexConv2
+  TexConv
   Player
   InspectorPlugin
   ShaderCompiler

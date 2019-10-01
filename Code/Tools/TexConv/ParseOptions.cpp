@@ -1,8 +1,8 @@
-#include <TexConv2PCH.h>
+#include <TexConvPCH.h>
 
-#include <TexConv2/TexConv2.h>
+#include <TexConv/TexConv.h>
 
-ezResult ezTexConv2::ParseCommandLine()
+ezResult ezTexConv::ParseCommandLine()
 {
   auto* pCmd = ezCommandLineUtils::GetGlobalInstance();
   if (pCmd->GetBoolOption("-help") || pCmd->GetBoolOption("--help") || pCmd->GetBoolOption("-h"))
@@ -107,7 +107,7 @@ ezResult ezTexConv2::ParseCommandLine()
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConv2::ParseOutputType()
+ezResult ezTexConv::ParseOutputType()
 {
   if (m_sOutputFile.IsEmpty())
   {
@@ -164,7 +164,7 @@ ezResult ezTexConv2::ParseOutputType()
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConv2::ParseInputFiles()
+ezResult ezTexConv::ParseInputFiles()
 {
   if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Atlas)
     return EZ_SUCCESS;
@@ -178,7 +178,7 @@ ezResult ezTexConv2::ParseInputFiles()
   {
     tmp.Format("-in{0}", i);
 
-    res = pCmd->GetStringOption(tmp);
+    res = pCmd->GetAbsolutePathOption(tmp);
 
     // stop once an option was not found
     if (res.IsEmpty())
@@ -192,7 +192,7 @@ ezResult ezTexConv2::ParseInputFiles()
   if (files.IsEmpty())
   {
     // short version for -in1
-    res = pCmd->GetStringOption("-in");
+    res = pCmd->GetAbsolutePathOption("-in");
 
     if (!res.IsEmpty())
     {
@@ -213,19 +213,19 @@ ezResult ezTexConv2::ParseInputFiles()
     {
       files.SetCount(6);
 
-      files[0] = pCmd->GetStringOption("-right", 0, files[0]);
-      files[1] = pCmd->GetStringOption("-left", 0, files[1]);
-      files[2] = pCmd->GetStringOption("-top", 0, files[2]);
-      files[3] = pCmd->GetStringOption("-bottom", 0, files[3]);
-      files[4] = pCmd->GetStringOption("-front", 0, files[4]);
-      files[5] = pCmd->GetStringOption("-back", 0, files[5]);
+      files[0] = pCmd->GetAbsolutePathOption("-right", 0, files[0]);
+      files[1] = pCmd->GetAbsolutePathOption("-left", 0, files[1]);
+      files[2] = pCmd->GetAbsolutePathOption("-top", 0, files[2]);
+      files[3] = pCmd->GetAbsolutePathOption("-bottom", 0, files[3]);
+      files[4] = pCmd->GetAbsolutePathOption("-front", 0, files[4]);
+      files[5] = pCmd->GetAbsolutePathOption("-back", 0, files[5]);
 
-      files[0] = pCmd->GetStringOption("-px", 0, files[0]);
-      files[1] = pCmd->GetStringOption("-nx", 0, files[1]);
-      files[2] = pCmd->GetStringOption("-py", 0, files[2]);
-      files[3] = pCmd->GetStringOption("-ny", 0, files[3]);
-      files[4] = pCmd->GetStringOption("-pz", 0, files[4]);
-      files[5] = pCmd->GetStringOption("-nz", 0, files[5]);
+      files[0] = pCmd->GetAbsolutePathOption("-px", 0, files[0]);
+      files[1] = pCmd->GetAbsolutePathOption("-nx", 0, files[1]);
+      files[2] = pCmd->GetAbsolutePathOption("-py", 0, files[2]);
+      files[3] = pCmd->GetAbsolutePathOption("-ny", 0, files[3]);
+      files[4] = pCmd->GetAbsolutePathOption("-pz", 0, files[4]);
+      files[5] = pCmd->GetAbsolutePathOption("-nz", 0, files[5]);
     }
   }
 
@@ -250,8 +250,10 @@ ezResult ezTexConv2::ParseInputFiles()
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConv2::ParseOutputFiles()
+ezResult ezTexConv::ParseOutputFiles()
 {
+  const auto pCmd = ezCommandLineUtils::GetGlobalInstance();
+
   ParseFile("-out", m_sOutputFile);
 
   if (ParseFile("-thumbnailOut", m_sOutputThumbnailFile))
@@ -267,7 +269,7 @@ ezResult ezTexConv2::ParseOutputFiles()
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConv2::ParseUsage()
+ezResult ezTexConv::ParseUsage()
 {
   if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Atlas)
     return EZ_SUCCESS;
@@ -279,10 +281,12 @@ ezResult ezTexConv2::ParseUsage()
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConv2::ParseMipmapMode()
+ezResult ezTexConv::ParseMipmapMode()
 {
   if (!m_bOutputSupportsMipmaps)
   {
+    ezLog::Info("Selected output format does not support -mipmap options.");
+
     m_Processor.m_Descriptor.m_MipmapMode = ezTexConvMipmapMode::None;
     return EZ_SUCCESS;
   }
@@ -302,7 +306,7 @@ ezResult ezTexConv2::ParseMipmapMode()
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConv2::ParseTargetPlatform()
+ezResult ezTexConv::ParseTargetPlatform()
 {
   ezInt32 value = -1;
   EZ_SUCCEED_OR_RETURN(ParseStringOption("-platform", m_AllowedPlatforms, value));
@@ -311,10 +315,12 @@ ezResult ezTexConv2::ParseTargetPlatform()
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConv2::ParseCompressionMode()
+ezResult ezTexConv::ParseCompressionMode()
 {
   if (!m_bOutputSupportsCompression)
   {
+    ezLog::Info("Selected output format does not support -compression options.");
+
     m_Processor.m_Descriptor.m_CompressionMode = ezTexConvCompressionMode::None;
     return EZ_SUCCESS;
   }
@@ -326,7 +332,7 @@ ezResult ezTexConv2::ParseCompressionMode()
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConv2::ParseWrapModes()
+ezResult ezTexConv::ParseWrapModes()
 {
   // cubemaps do not require any wrap mode settings
   if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Cubemap ||
@@ -355,10 +361,13 @@ ezResult ezTexConv2::ParseWrapModes()
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConv2::ParseFilterModes()
+ezResult ezTexConv::ParseFilterModes()
 {
   if (!m_bOutputSupportsFiltering)
+  {
+    ezLog::Info("Selected output format does not support -filter options.");
     return EZ_SUCCESS;
+  }
 
   ezInt32 value = -1;
   EZ_SUCCEED_OR_RETURN(ParseStringOption("-filter", m_AllowedFilterModes, value));
@@ -367,7 +376,7 @@ ezResult ezTexConv2::ParseFilterModes()
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConv2::ParseResolutionModifiers()
+ezResult ezTexConv::ParseResolutionModifiers()
 {
   if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::None)
     return EZ_SUCCESS;
@@ -379,7 +388,7 @@ ezResult ezTexConv2::ParseResolutionModifiers()
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConv2::ParseMiscOptions()
+ezResult ezTexConv::ParseMiscOptions()
 {
   if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Texture2D ||
       m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::None)
@@ -398,7 +407,7 @@ ezResult ezTexConv2::ParseMiscOptions()
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConv2::ParseAssetHeader()
+ezResult ezTexConv::ParseAssetHeader()
 {
   const ezStringView ext = ezPathUtils::GetFileExtension(m_sOutputFile);
 
@@ -425,7 +434,7 @@ ezResult ezTexConv2::ParseAssetHeader()
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConv2::ParseBumpMapFilter()
+ezResult ezTexConv::ParseBumpMapFilter()
 {
   ezInt32 value = -1;
   EZ_SUCCEED_OR_RETURN(ParseStringOption("-bumpMapFilter", m_AllowedBumpMapFilters, value));
