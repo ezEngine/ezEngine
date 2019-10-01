@@ -20,9 +20,10 @@ public:
 
 private Q_SLOTS:
 
-  virtual void on_LineFilterByName_textChanged();
-  virtual void on_ComboResourceTypes_currentIndexChanged(int state);
-  virtual void on_CheckShowDeleted_toggled(bool checked);
+  void on_LineFilterByName_textChanged();
+  void on_ComboResourceTypes_currentIndexChanged(int state);
+  void on_CheckShowDeleted_toggled(bool checked);
+  void on_ButtonSave_clicked();
 
 public:
   static void ProcessTelemetry(void* pUnuseed);
