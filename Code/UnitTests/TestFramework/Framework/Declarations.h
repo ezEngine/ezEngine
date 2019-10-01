@@ -29,7 +29,6 @@ struct ezTestEntry
   ezTestEntry()
     : m_pTest(nullptr)
     , m_szTestName("")
-    , m_available(EZ_SUCCESS)
     , m_bEnableTest(true)
   {
   }
@@ -37,7 +36,7 @@ struct ezTestEntry
   ezTestBaseClass* m_pTest;
   const char* m_szTestName;
   std::deque<ezSubTestEntry> m_SubTests;
-  ezStatus m_available;
+  std::string m_sNotAvailableReason;
   bool m_bEnableTest;
 };
 
@@ -47,6 +46,7 @@ struct TestSettings
   bool m_bAssertOnTestFail = false;
   bool m_bOpenHtmlOutputOnError = false;
   bool m_bKeepConsoleOpen = false;
+  bool m_bShowTimestampsInLog = false;
   bool m_bShowMessageBox = false;
   bool m_bAutoDisableSuccessfulTests = false;
 

@@ -149,7 +149,7 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
   bool bTestEnabled = true;
   bool bParentEnabled = true;
   bool bIsSubTest = entryType == ezQtTestModelEntry::SubTestNode;
-  const ezStatus& testAvailable = m_pTestFramework->IsTestAvailable(bIsSubTest ? pParentEntry->GetTestIndex() : pEntry->GetTestIndex());
+  const std::string& testUnavailableReason = m_pTestFramework->IsTestAvailable(bIsSubTest ? pParentEntry->GetTestIndex() : pEntry->GetTestIndex());
 
   if (bIsSubTest)
   {
@@ -182,7 +182,7 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
       }
       case Qt::ForegroundRole:
       {
-        if (testAvailable.Failed())
+        if (!testUnavailableReason.empty())
         {
           QPalette palette = QApplication::palette();
           return palette.color(QPalette::Disabled, QPalette::Text);
@@ -190,9 +190,9 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
       }
       case Qt::ToolTipRole:
       {
-        if (testAvailable.Failed())
+        if (!testUnavailableReason.empty())
         {
-          return QString("Test not available: %1").arg(testAvailable.m_sMessage.GetData());
+          return QString("Test not available: %1").arg(testUnavailableReason.c_str());
         }
       }
       default:
@@ -206,9 +206,9 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
     {
       case Qt::DisplayRole:
       {
-        if (testAvailable.Failed())
+        if (!testUnavailableReason.empty())
         {
-          return QString("Test not available: %1").arg(testAvailable.m_sMessage.GetData());
+          return QString("Test not available: %1").arg(testUnavailableReason.c_str());
         }
         else if (bTestEnabled && bParentEnabled)
         {
@@ -348,9 +348,9 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
     {
       case Qt::DisplayRole:
       {
-        if (testAvailable.Failed())
+        if (!testUnavailableReason.empty())
         {
-          return QString("Test not available: %1").arg(testAvailable.m_sMessage.GetData());
+          return QString("Test not available: %1").arg(testUnavailableReason.c_str());
         }
         else if (bTestEnabled && bParentEnabled)
         {
@@ -395,7 +395,7 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
       }
       case Qt::ForegroundRole:
       {
-        if (testAvailable.Failed())
+        if (!testUnavailableReason.empty())
         {
           QPalette palette = QApplication::palette();
           return palette.color(QPalette::Disabled, QPalette::Text);

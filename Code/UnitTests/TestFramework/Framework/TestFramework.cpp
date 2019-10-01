@@ -27,6 +27,7 @@ ezTestFramework* ezTestFramework::s_pInstance = nullptr;
 const char* ezTestFramework::s_szTestBlockName = "";
 int ezTestFramework::s_iAssertCounter = 0;
 bool ezTestFramework::s_bCallstackOnAssert = false;
+ezLog::TimestampMode ezTestFramework::s_LogTimestampMode = ezLog::TimestampMode::None;
 
 constexpr int s_iMaxErrorMessageLength = 512;
 
@@ -55,6 +56,8 @@ static bool TestAssertHandler(
   // if a debugger is attached, one typically always wants to know about asserts
   if (ezSystemInformation::IsDebuggerAttached())
     return true;
+
+  ezTestFramework::GetInstance()->AbortTests();
 
   return ezTestFramework::GetAssertOnTestFail();
 }
@@ -97,6 +100,12 @@ void ezTestFramework::Initialize()
     /// \todo Need a platform abstraction for setting/retrieving environmment variables
     setenv("EZ_SILENT_ASSERTS", "1", 1);
 #endif
+  }
+
+  if (m_Settings.m_bShowTimestampsInLog)
+  {
+    ezTestFramework::s_LogTimestampMode = ezLog::TimestampMode::TimeOnly;
+    ezLogWriter::Console::SetTimestampMode(ezLog::TimestampMode::TimeOnly);
   }
 
   // Don't do this, it will spam the log with sub-system messages
@@ -221,7 +230,7 @@ void ezTestFramework::GatherAllTests()
     ezTestEntry e;
     e.m_pTest = pTestClass;
     e.m_szTestName = pTestClass->GetTestName();
-    e.m_available = pTestClass->IsTestAvailable();
+    e.m_sNotAvailableReason = pTestClass->IsTestAvailable();
 
     for (ezUInt32 i = 0; i < pTestClass->m_Entries.size(); ++i)
     {
@@ -255,6 +264,7 @@ void ezTestFramework::GetTestSettingsFromCommandLine(int argc, const char** argv
   m_Settings.m_bAssertOnTestFail = cmd.GetBoolOption("-assert", m_Settings.m_bAssertOnTestFail);
   m_Settings.m_bOpenHtmlOutputOnError = cmd.GetBoolOption("-html", m_Settings.m_bOpenHtmlOutputOnError);
   m_Settings.m_bKeepConsoleOpen = cmd.GetBoolOption("-console", m_Settings.m_bKeepConsoleOpen);
+  m_Settings.m_bShowTimestampsInLog = cmd.GetBoolOption("-timestamps", m_Settings.m_bShowTimestampsInLog);
   m_Settings.m_bShowMessageBox = cmd.GetBoolOption("-msgbox", m_Settings.m_bShowMessageBox);
   m_Settings.m_bAutoDisableSuccessfulTests = cmd.GetBoolOption("-disableSuccessful", m_Settings.m_bAutoDisableSuccessfulTests);
   m_Settings.m_iRevision = cmd.GetIntOption("-rev", -1);
@@ -558,18 +568,18 @@ void ezTestFramework::ExecuteNextTest()
       ezTestFramework::Output(ezTestOutput::BeginBlock, "Executing Test: '%s'", TestEntry.m_szTestName);
 
       // *** Test Initialization ***
-      if (TestEntry.m_available.Succeeded())
+      if (TestEntry.m_sNotAvailableReason.empty())
       {
         UpdateTestTimeout();
         if (pTestClass->DoTestInitialization().Failed())
         {
-          m_iExecutingSubTest = (ezInt32)TestEntry.m_SubTests.size(); // make sure all subtests are skipped
+          m_iExecutingSubTest = (ezInt32)TestEntry.m_SubTests.size(); // make sure all sub-tests are skipped
         }
       }
       else
       {
-        ezTestFramework::Output(ezTestOutput::ImportantInfo, "Test not available: %s", TestEntry.m_available.m_sMessage.GetData());
-        m_iExecutingSubTest = (ezInt32)TestEntry.m_SubTests.size(); // make sure all subtests are skipped
+        ezTestFramework::Output(ezTestOutput::ImportantInfo, "Test not available: %s", TestEntry.m_sNotAvailableReason.c_str());
+        m_iExecutingSubTest = (ezInt32)TestEntry.m_SubTests.size(); // make sure all sub-tests are skipped
       }
     }
 
@@ -620,6 +630,7 @@ void ezTestFramework::ExecuteNextTest()
 
         UpdateTestTimeout();
         subTestResult = pTestClass->DoSubTestRun(iSubTestIdentifier, fDuration, m_uiSubTestInvocationCount);
+        s_szTestBlockName = "";
 
         if (m_bImageComparisonScheduled)
         {
@@ -657,7 +668,7 @@ void ezTestFramework::ExecuteNextTest()
       }
     }
 
-    if (m_iExecutingSubTest >= (ezInt32)TestEntry.m_SubTests.size())
+    if (m_bAbortTests || m_iExecutingSubTest >= (ezInt32)TestEntry.m_SubTests.size())
     {
       // *** Test De-Initialization ***
       UpdateTestTimeout();
@@ -738,10 +749,10 @@ ezUInt32 ezTestFramework::GetSubTestEnabledCount(ezUInt32 uiTestIndex) const
   return uiEnabledCount;
 }
 
-const ezStatus& ezTestFramework::IsTestAvailable(ezUInt32 uiTestIndex) const
+const std::string& ezTestFramework::IsTestAvailable(ezUInt32 uiTestIndex) const
 {
   EZ_ASSERT_DEV(uiTestIndex < GetTestCount(), "Test index {0} is larger than number of tests {1}.", uiTestIndex, GetTestCount());
-  return m_TestEntries[uiTestIndex].m_available;
+  return m_TestEntries[uiTestIndex].m_sNotAvailableReason;
 }
 
 bool ezTestFramework::IsTestEnabled(ezUInt32 uiTestIndex) const
@@ -950,9 +961,7 @@ void ezTestFramework::GenerateComparisonImageName(ezUInt32 uiImageNumber, ezStri
 {
   const char* szTestName = GetTest(GetCurrentTestIndex())->m_szTestName;
   const char* szSubTestName = GetTest(GetCurrentTestIndex())->m_SubTests[GetCurrentSubTestIndex()].m_szSubTestName;
-
-  sImgName.Format("{0}_{1}_{2}", szTestName, szSubTestName, ezArgI(uiImageNumber, 3, true));
-  sImgName.ReplaceAll(" ", "_");
+  GetTest(GetCurrentTestIndex())->m_pTest->MapImageNumberToString(szTestName, szSubTestName, uiImageNumber, sImgName);
 }
 
 void ezTestFramework::GetCurrentComparisonImageName(ezStringBuilder& sImgName)
@@ -1283,7 +1292,7 @@ bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezI
     imgRgba.SaveTo(sImgPathResult);
 
     safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Comparison Image '%s' size (%ix%i) does not match captured image size (%ix%i)",
-      sImgPathReference.GetData(), imgRgba.GetWidth(), imgRgba.GetHeight(), imgExpRgba.GetWidth(), imgExpRgba.GetHeight());
+      sImgPathReference.GetData(), imgExpRgba.GetWidth(), imgExpRgba.GetHeight(), imgRgba.GetWidth(), imgRgba.GetHeight());
     return false;
   }
 
@@ -1433,7 +1442,27 @@ void ezTestFramework::OutputArgs(ezTestOutput::Enum Type, const char* szMsg, va_
 {
   // format the output text
   char szBuffer[1024 * 10];
-  ezStringUtils::vsnprintf(szBuffer, EZ_ARRAY_SIZE(szBuffer), szMsg, args);
+  ezInt32 pos = 0;
+
+  if (ezTestFramework::s_LogTimestampMode != ezLog::TimestampMode::None)
+  {
+    if (Type == ezTestOutput::BeginBlock ||
+        Type == ezTestOutput::EndBlock ||
+        Type == ezTestOutput::ImportantInfo ||
+        Type == ezTestOutput::Details ||
+        Type == ezTestOutput::Success ||
+        Type == ezTestOutput::Message ||
+        Type == ezTestOutput::Warning ||
+        Type == ezTestOutput::Error ||
+        Type == ezTestOutput::FinalResult)
+    {
+      ezStringBuilder timestamp;
+
+      ezLog::GenerateFormattedTimestamp(ezTestFramework::s_LogTimestampMode, timestamp);
+      pos = ezStringUtils::snprintf(szBuffer, EZ_ARRAY_SIZE(szBuffer), "%s", timestamp.GetData());
+    }
+  }
+  ezStringUtils::vsnprintf(szBuffer + pos, EZ_ARRAY_SIZE(szBuffer) - pos, szMsg, args);
 
   GetInstance()->OutputImpl(Type, szBuffer);
 }

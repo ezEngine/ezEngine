@@ -35,6 +35,8 @@ ezTestAppRun ezSimpleTestGroup::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvoc
 
   EZ_PROFILE_SCOPE(m_SimpleTests[iIdentifier].m_szName);
   m_SimpleTests[iIdentifier].m_Func();
+
+  ezTestFramework::s_szTestBlockName = "";
   return ezTestAppRun::Quit;
 }
 

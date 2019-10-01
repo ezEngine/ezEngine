@@ -28,9 +28,16 @@ public:
   /// \brief Implement this to add support for image comparisons. See EZ_TEST_IMAGE_MSG.
   virtual ezResult GetImage(ezImage& img) { return EZ_FAILURE; }
 
+  /// \brief Used to map the 'number' for an image comparison, to a string used for finding the comparison image.
+  ///
+  /// By default image comparison screenshots are called 'TestName_SubTestName_XYZ'
+  /// This can be fully overridden to use any other file name.
+  /// The location of the comparison images (ie the folder) cannot be specified at the moment.
+  virtual void MapImageNumberToString(const char* szTestName, const char* szSubTestName, ezUInt32 uiImageNumber, ezStringBuilder& out_String) const;
+
 private:
   /// Called at startup to determine if the test can be run. Should return a detailed error message on failure.
-  virtual ezStatus IsTestAvailable() const {  return ezStatus(EZ_SUCCESS); };
+  virtual std::string IsTestAvailable() const {  return {}; };
   /// Called at startup to setup all tests. Should use 'AddSubTest' to register all the sub-tests to the test framework.
   virtual void SetupSubTests() /*override*/ = 0;
   /// Called to run the test that was registered with the given identifier.
