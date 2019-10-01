@@ -72,6 +72,8 @@ void ezActorManager::Shutdown()
 
   DestroyAllActors(nullptr, DestructionMode::Immediate);
   DestroyAllApiServices();
+
+  s_ActorEvents.Clear();
 }
 
 void ezActorManager::AddActor(ezUniquePtr<ezActor>&& pActor)
@@ -90,7 +92,7 @@ void ezActorManager::DestroyActor(ezActor* pActor, DestructionMode mode)
 {
   EZ_LOCK(m_pImpl->m_Mutex);
 
-  pActor->m_ActorState = ezActor::ActorState::QueuedForDestruction;
+  pActor->m_State = ezActor::State::QueuedForDestruction;
 
   if (mode == DestructionMode::Immediate && m_bForceQueueActorDestruction == false)
   {
@@ -121,7 +123,7 @@ void ezActorManager::DestroyAllActors(const void* pCreatedBy, DestructionMode mo
 
     if (pCreatedBy == nullptr || pActor->GetCreatedBy() == pCreatedBy)
     {
-      pActor->m_ActorState = ezActor::ActorState::QueuedForDestruction;
+      pActor->m_State = ezActor::State::QueuedForDestruction;
 
       if (mode == DestructionMode::Immediate && m_bForceQueueActorDestruction == false)
       {
@@ -153,7 +155,7 @@ void ezActorManager::AddApiService(ezUniquePtr<ezActorApiService>&& pApiService)
   EZ_LOCK(m_pImpl->m_Mutex);
 
   EZ_ASSERT_DEV(pApiService != nullptr, "Invalid API service");
-  EZ_ASSERT_DEV(!pApiService->m_bActivated, "Actor API service already in use");
+  EZ_ASSERT_DEV(pApiService->m_State == ezActorApiService::State::New, "Actor API service already in use");
 
   for (auto& pExisting : m_pImpl->m_AllApiServices)
   {
@@ -164,27 +166,43 @@ void ezActorManager::AddApiService(ezUniquePtr<ezActorApiService>&& pApiService)
   m_pImpl->m_AllApiServices.PushBack(std::move(pApiService));
 }
 
-void ezActorManager::DestroyApiService(ezActorApiService* pApiService)
+void ezActorManager::DestroyApiService(ezActorApiService* pApiService, DestructionMode mode /*= DestructionMode::Immediate*/)
 {
   EZ_LOCK(m_pImpl->m_Mutex);
 
   EZ_ASSERT_DEV(pApiService != nullptr, "Invalid API service");
 
-  for (ezUInt32 i = 0; i < m_pImpl->m_AllApiServices.GetCount(); ++i)
+  pApiService->m_State = ezActorApiService::State::QueuedForDestruction;
+
+  if (mode == DestructionMode::Immediate)
   {
-    if (m_pImpl->m_AllApiServices[i].Borrow() == pApiService)
+    for (ezUInt32 i = 0; i < m_pImpl->m_AllApiServices.GetCount(); ++i)
     {
-      m_pImpl->m_AllApiServices.RemoveAtAndCopy(i);
-      break;
+      if (m_pImpl->m_AllApiServices[i].Borrow() == pApiService)
+      {
+        m_pImpl->m_AllApiServices.RemoveAtAndCopy(i);
+        break;
+      }
     }
   }
 }
 
-void ezActorManager::DestroyAllApiServices()
+void ezActorManager::DestroyAllApiServices(DestructionMode mode /*= DestructionMode::Immediate*/)
 {
   EZ_LOCK(m_pImpl->m_Mutex);
 
-  m_pImpl->m_AllApiServices.Clear();
+  for (ezUInt32 i0 = m_pImpl->m_AllApiServices.GetCount(); i0 > 0; --i0)
+  {
+    const ezUInt32 i = i0 - 1;
+    ezActorApiService* pApiService = m_pImpl->m_AllApiServices[i].Borrow();
+
+    pApiService->m_State = ezActorApiService::State::QueuedForDestruction;
+
+    if (mode == DestructionMode::Immediate)
+    {
+      m_pImpl->m_AllApiServices.RemoveAtAndCopy(i);
+    }
+  }
 }
 
 void ezActorManager::ActivateQueuedApiServices()
@@ -193,10 +211,10 @@ void ezActorManager::ActivateQueuedApiServices()
 
   for (auto& pManager : m_pImpl->m_AllApiServices)
   {
-    if (!pManager->m_bActivated)
+    if (pManager->m_State == ezActorApiService::State::New)
     {
       pManager->Activate();
-      pManager->m_bActivated = true;
+      pManager->m_State = ezActorApiService::State::Active;
     }
   }
 }
@@ -222,9 +240,10 @@ void ezActorManager::UpdateAllApiServices()
 
   for (auto& pApiService : m_pImpl->m_AllApiServices)
   {
-    EZ_ASSERT_DEBUG(pApiService->m_bActivated, "All actor API services should be active now");
-
-    pApiService->Update();
+    if (pApiService->m_State == ezActorApiService::State::Active)
+    {
+      pApiService->Update();
+    }
   }
 }
 
@@ -240,17 +259,19 @@ void ezActorManager::UpdateAllActors()
     const ezUInt32 i = i0 - 1;
     ezActor* pActor = m_pImpl->m_AllActors[i].Borrow();
 
-    if (pActor->m_ActorState == ezActor::ActorState::New)
+    if (pActor->m_State == ezActor::State::New)
     {
-      pActor->m_ActorState = ezActor::ActorState::Active;
+      pActor->m_State = ezActor::State::Active;
+
+      pActor->Activate();
 
       ezActorEvent e;
-      e.m_Type = ezActorEvent::Type::BeforeFirstActorUpdate;
+      e.m_Type = ezActorEvent::Type::AfterActorActivation;
       e.m_pActor = pActor;
       s_ActorEvents.Broadcast(e);
     }
 
-    if (pActor->m_ActorState == ezActor::ActorState::Active)
+    if (pActor->m_State == ezActor::State::Active)
     {
       pActor->Update();
     }
@@ -259,6 +280,8 @@ void ezActorManager::UpdateAllActors()
 
 void ezActorManager::DestroyQueuedActors()
 {
+  EZ_LOCK(m_pImpl->m_Mutex);
+
   EZ_ASSERT_DEV(!m_bForceQueueActorDestruction, "Cannot execute this function right now");
 
   for (ezUInt32 i0 = m_pImpl->m_AllActors.GetCount(); i0 > 0; --i0)
@@ -266,7 +289,7 @@ void ezActorManager::DestroyQueuedActors()
     const ezUInt32 i = i0 - 1;
     ezActor* pActor = m_pImpl->m_AllActors[i].Borrow();
 
-    if (pActor->m_ActorState == ezActor::ActorState::QueuedForDestruction)
+    if (pActor->m_State == ezActor::State::QueuedForDestruction)
     {
       ezActorEvent e;
       e.m_Type = ezActorEvent::Type::BeforeActorDestruction;
@@ -278,6 +301,22 @@ void ezActorManager::DestroyQueuedActors()
   }
 }
 
+void ezActorManager::DestroyQueuedActorApiServices()
+{
+  EZ_LOCK(m_pImpl->m_Mutex);
+
+  for (ezUInt32 i0 = m_pImpl->m_AllApiServices.GetCount(); i0 > 0; --i0)
+  {
+    const ezUInt32 i = i0 - 1;
+    ezActorApiService* pApiService = m_pImpl->m_AllApiServices[i].Borrow();
+
+    if (pApiService->m_State == ezActorApiService::State::QueuedForDestruction)
+    {
+      m_pImpl->m_AllApiServices.RemoveAtAndCopy(i);
+    }
+  }
+}
+
 void ezActorManager::Update()
 {
   EZ_LOCK(m_pImpl->m_Mutex);
@@ -285,5 +324,6 @@ void ezActorManager::Update()
   ActivateQueuedApiServices();
   UpdateAllApiServices();
   UpdateAllActors();
+  DestroyQueuedActorApiServices();
   DestroyQueuedActors();
 }

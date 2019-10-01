@@ -16,7 +16,7 @@ struct ezActorEvent
   enum class Type
   {
     AfterActorCreation,
-    BeforeFirstActorUpdate,
+    AfterActorActivation, ///< Sent after ezActor::Activate() has been called
     BeforeActorDestruction,
   };
 
@@ -69,8 +69,9 @@ public:
   void DestroyQueuedActors();
 
   void AddApiService(ezUniquePtr<ezActorApiService>&& pService);
-  void DestroyApiService(ezActorApiService* pService);
-  void DestroyAllApiServices();
+  void DestroyApiService(ezActorApiService* pService, DestructionMode mode = DestructionMode::Immediate);
+  void DestroyAllApiServices(DestructionMode mode = DestructionMode::Immediate);
+  void DestroyQueuedActorApiServices();
 
   ezActorApiService* GetApiService(const ezRTTI* pType);
 
