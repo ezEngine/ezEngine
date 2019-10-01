@@ -516,11 +516,11 @@ ezResult ezImageUtils::ExtractLowerMipChain(const ezImageView& srcImg, ezImage& 
   dstImgHeader.SetNumArrayIndices(srcImgHeader.GetNumArrayIndices());
   dstImgHeader.SetNumMipLevels(uiNumMips);
 
-  const void* pDataBegin = srcImg.GetPixelPointer<void>(startMipLevel);
-  const void* pDataEnd = srcImg.GetBlobPtr<void>().GetEndPtr();
+  const ezUInt8* pDataBegin = srcImg.GetPixelPointer<ezUInt8>(startMipLevel);
+  const ezUInt8* pDataEnd = srcImg.GetByteBlobPtr().GetEndPtr();
   const ptrdiff_t dataSize = reinterpret_cast<ptrdiff_t>(pDataEnd) - reinterpret_cast<ptrdiff_t>(pDataBegin);
 
-  const ezBlobPtr<const void> lowResData(pDataBegin, static_cast<ezUInt64>(dataSize));
+  const ezConstByteBlobPtr lowResData(pDataBegin, static_cast<ezUInt64>(dataSize));
 
   ezImageView dataview;
   dataview.ResetAndViewExternalStorage(dstImgHeader, lowResData);
@@ -1078,7 +1078,7 @@ void ezImageUtils::GenerateMipMaps(const ezImageView& source, ezImage& target, c
       currentMipMapHeader.SetNumFaces(1);
       currentMipMapHeader.SetNumArrayIndices(1);
 
-      auto sourceView = source.GetSubImageView(0, face, arrayIndex).GetBlobPtr<void>();
+      auto sourceView = source.GetSubImageView(0, face, arrayIndex).GetByteBlobPtr();
       auto targetView = target.GetSubImageView(0, face, arrayIndex).GetBlobPtr<ezUInt8>();
 
       memcpy(targetView.GetPtr(), sourceView.GetPtr(), targetView.GetCount());
@@ -1097,11 +1097,11 @@ void ezImageUtils::GenerateMipMaps(const ezImageView& source, ezImage& target, c
         nextMipMapHeader.SetHeight(ezMath::Max(1u, nextMipMapHeader.GetHeight() / 2));
         nextMipMapHeader.SetDepth(ezMath::Max(1u, nextMipMapHeader.GetDepth() / 2));
 
-        auto sourceData = target.GetSubImageView(mipMapLevel, face, arrayIndex).GetBlobPtr<void>();
+        auto sourceData = target.GetSubImageView(mipMapLevel, face, arrayIndex).GetByteBlobPtr();
         ezImage currentMipMap;
         currentMipMap.ResetAndUseExternalStorage(currentMipMapHeader, sourceData);
 
-        auto dstData = target.GetSubImageView(mipMapLevel + 1, face, arrayIndex).GetBlobPtr<void>();
+        auto dstData = target.GetSubImageView(mipMapLevel + 1, face, arrayIndex).GetByteBlobPtr();
         ezImage nextMipMap;
         nextMipMap.ResetAndUseExternalStorage(nextMipMapHeader, dstData);
 

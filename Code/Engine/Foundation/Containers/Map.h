@@ -81,8 +81,8 @@ public:
       return m_pElement->m_Value;
     } // [tested]
 
-    /// \brief Returns the 'value' of the element that this iterator points to.
-    EZ_ALWAYS_INLINE ConstIterator& operator*() { return *this; }
+    /// \brief Returns '*this' to enable foreach
+    EZ_ALWAYS_INLINE ConstIterator& operator*() { return *this; } // [tested]
 
     /// \brief Advances the iterator to the next element in the map. The iterator will not be valid anymore, if the end is reached.
     void Next(); // [tested]
@@ -134,8 +134,8 @@ public:
       return this->m_pElement->m_Value;
     }
 
-    /// \brief Returns the 'value' of the element that this iterator points to.
-    EZ_ALWAYS_INLINE Iterator& operator*() { return *this; }
+    /// \brief Returns '*this' to enable foreach
+    EZ_ALWAYS_INLINE Iterator& operator*() { return *this; } // [tested]
 
   private:
     friend class ezMapBase<KeyType, ValueType, Comparer>;
@@ -323,6 +323,7 @@ class ezMap : public ezMapBase<KeyType, ValueType, Comparer>
 {
 public:
   ezMap();
+  ezMap(ezAllocatorBase* pAllocator);
   ezMap(const Comparer& comparer, ezAllocatorBase* pAllocator);
 
   ezMap(const ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>& other);

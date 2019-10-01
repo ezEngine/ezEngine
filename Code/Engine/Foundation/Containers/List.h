@@ -115,6 +115,9 @@ public:
   /// \brief Clears the list, afterwards it is empty.
   void Clear(); // [tested]
 
+  /// \brief See ezDeque::Compact()
+  void Compact();
+
   /// \brief Returns the number of elements in the list. O(1) operation.
   ezUInt32 GetCount() const; // [tested]
 
@@ -221,7 +224,6 @@ private:
   /// \brief Stack that holds recently freed nodes, that can be quickly reused.
   ListElement* m_pFreeElementStack;
 };
-
 
 /// \brief \see ezListBase
 template <typename T, typename AllocatorWrapper = ezDefaultAllocatorWrapper>

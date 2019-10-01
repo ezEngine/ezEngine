@@ -413,7 +413,7 @@ ezResult ezImageConversion::Convert(const ezImageView& source, ezImage& target, 
   return EZ_SUCCESS;
 }
 
-ezResult ezImageConversion::ConvertRaw(ezBlobPtr<const void> source, ezBlobPtr<void> target, ezUInt32 numElements,
+ezResult ezImageConversion::ConvertRaw(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 numElements,
                                        ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat)
 {
   if (numElements == 0)
@@ -444,7 +444,7 @@ ezResult ezImageConversion::ConvertRaw(ezBlobPtr<const void> source, ezBlobPtr<v
   return ConvertRaw(source, target, numElements, path, numScratchBuffers);
 }
 
-ezResult ezImageConversion::ConvertRaw(ezBlobPtr<const void> source, ezBlobPtr<void> target, ezUInt32 numElements,
+ezResult ezImageConversion::ConvertRaw(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 numElements,
                                        ezArrayPtr<ConversionPathNode> path, ezUInt32 numScratchBuffers)
 {
   EZ_ASSERT_DEV(path.GetCount() > 0, "Path of length 0 is invalid.");
@@ -467,7 +467,7 @@ ezResult ezImageConversion::ConvertRaw(ezBlobPtr<const void> source, ezBlobPtr<v
     ezUInt32 targetIndex = path[i].m_targetBufferIndex;
     ezUInt32 targetBpp = ezImageFormat::GetBitsPerPixel(path[i].m_targetFormat);
 
-    ezBlobPtr<void> stepTarget;
+    ezByteBlobPtr stepTarget;
     if (targetIndex == 0)
     {
       stepTarget = target;
@@ -476,7 +476,7 @@ ezResult ezImageConversion::ConvertRaw(ezBlobPtr<const void> source, ezBlobPtr<v
     {
       ezUInt32 expectedSize = static_cast<ezUInt32>(targetBpp * numElements / 8);
       intermediates[targetIndex - 1].SetCountUninitialized(expectedSize);
-      stepTarget = intermediates[targetIndex - 1].GetBlobPtr<void>();
+      stepTarget = intermediates[targetIndex - 1].GetByteBlobPtr();
     }
 
     if (path[i].m_step == nullptr)
@@ -520,8 +520,8 @@ ezResult ezImageConversion::ConvertSingleStep(const ezImageConversionStep* pStep
     {
       // we have to do the computation in 64-bit otherwise it might overflow for very large textures (8k x 4k or bigger).
       ezUInt64 numElements =
-          ezUInt64(8) * target.GetBlobPtr<void>().GetCount() / (ezUInt64)ezImageFormat::GetBitsPerPixel(targetFormat);
-      return static_cast<const ezImageConversionStepLinear*>(pStep)->ConvertPixels(source.GetBlobPtr<void>(), target.GetBlobPtr<void>(),
+          ezUInt64(8) * target.GetByteBlobPtr().GetCount() / (ezUInt64)ezImageFormat::GetBitsPerPixel(targetFormat);
+      return static_cast<const ezImageConversionStepLinear*>(pStep)->ConvertPixels(source.GetByteBlobPtr(), target.GetByteBlobPtr(),
                                                                                    (ezUInt32)numElements, sourceFormat, targetFormat);
     }
     else
@@ -570,7 +570,7 @@ ezResult ezImageConversion::ConvertSingleStepDecompress(const ezImageView& sourc
             ezImageView sourceRowView = source.GetRowView(mipLevel, face, arrayIndex, blockY, slice);
 
             if (static_cast<const ezImageConversionStepDecompressBlocks*>(pStep)
-                    ->DecompressBlocks(sourceRowView.GetBlobPtr<void>(), ezBlobPtr<void>(tempBuffer.GetData(), tempBuffer.GetCount()),
+                    ->DecompressBlocks(sourceRowView.GetByteBlobPtr(), ezByteBlobPtr(tempBuffer.GetData(), tempBuffer.GetCount()),
                                        numBlocksX, sourceFormat, targetFormat)
                     .Failed())
             {
@@ -650,7 +650,7 @@ ezResult ezImageConversion::ConvertSingleStepCompress(const ezImageView& source,
           }
 
           ezResult result = static_cast<const ezImageConversionStepCompressBlocks*>(pStep)->CompressBlocks(
-              paddedSlice.GetBlobPtr<void>(), target.GetSliceView(mipLevel, face, arrayIndex, slice).GetBlobPtr<void>(), numBlocksX, numBlocksY,
+              paddedSlice.GetByteBlobPtr(), target.GetSliceView(mipLevel, face, arrayIndex, slice).GetByteBlobPtr(), numBlocksX, numBlocksY,
               sourceFormat, targetFormat);
 
           if (result.Failed())

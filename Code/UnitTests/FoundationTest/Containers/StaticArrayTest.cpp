@@ -43,11 +43,13 @@ namespace StaticArrayTestDetail
 }
 
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
-EZ_CHECK_AT_COMPILETIME(sizeof(ezStaticArray<ezInt32, 1>) == 24);
+static_assert(sizeof(ezStaticArray<ezInt32, 1>) == 24);
 #else
-EZ_CHECK_AT_COMPILETIME(sizeof(ezStaticArray<ezInt32, 1>) == 16);
+static_assert(sizeof(ezStaticArray<ezInt32, 1>) == 16);
 #endif
 
+static_assert(ezGetTypeClass<ezStaticArray<ezInt32, 1>>::value == ezTypeIsMemRelocatable::value);
+static_assert(ezGetTypeClass<ezStaticArray<StaticArrayTestDetail::Dummy, 1>>::value == ezTypeIsClass::value);
 
 EZ_CREATE_SIMPLE_TEST(Containers, StaticArray)
 {

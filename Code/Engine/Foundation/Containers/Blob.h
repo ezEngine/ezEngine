@@ -12,13 +12,12 @@ class ezBlobPtr
 public:
   EZ_DECLARE_POD_TYPE();
 
-  typedef T ElementType;
-  typedef typename ezTypeTraits<T>::NonConstType MutableElementType;
+  static_assert(!std::is_same_v<T, void>, "ezBlobPtr<void> is not allowed (anymore)");
+  static_assert(!std::is_same_v<T, const void>, "ezBlobPtr<void> is not allowed (anymore)");
 
-public:
-  typedef typename ezArrayPtrDetail::ByteTypeHelper<T>::type ByteType;
-  typedef typename ezArrayPtrDetail::VoidTypeHelper<T>::valueType ValueType;
-  typedef typename ezArrayPtrDetail::VoidTypeHelper<T>::pointerType PointerType;
+  using ByteType = typename ezArrayPtrDetail::ByteTypeHelper<T>::type;
+  using ValueType = T;
+  using PointerType = T*;
 
   /// \brief Initializes the ezBlobPtr to be empty.
   EZ_ALWAYS_INLINE ezBlobPtr()
@@ -28,10 +27,7 @@ public:
   }
 
   /// \brief Initializes the ezBlobPtr with the given pointer and number of elements. No memory is allocated or copied.
-  /// \note For ezBlobPtr<void> and ezBlobPtr<const void>, this constructor is only available if ptr is of
-  ///    type void*, const void*, or any T* with sizeof(T) == 1
-  template <typename U, typename = std::enable_if_t<!std::is_same<std::remove_cv_t<T>, void>::value ||
-                                                    sizeof(typename ezArrayPtrDetail::VoidTypeHelper<U>::valueType) == 1>>
+  template <typename U>
   inline ezBlobPtr(U* ptr, ezUInt64 uiCount)
     : m_ptr(ptr)
     , m_uiCount(uiCount)
@@ -113,15 +109,7 @@ public:
   }
 
   /// \brief Creates a sub-array from this array.
-  EZ_FORCE_INLINE ezBlobPtr<const T> GetSubArray(ezUInt64 uiStart, ezUInt64 uiCount) const // [tested]
-  {
-    EZ_ASSERT_DEV(uiStart + uiCount <= GetCount(), "uiStart+uiCount ({0}) has to be smaller or equal than the count ({1}).",
-      uiStart + uiCount, GetCount());
-    return ezBlobPtr<const T>(GetPtr() + uiStart, uiCount);
-  }
-
-  /// \brief Creates a sub-array from this array.
-  EZ_FORCE_INLINE ezBlobPtr<T> GetSubArray(ezUInt64 uiStart, ezUInt64 uiCount) // [tested]
+  EZ_FORCE_INLINE ezBlobPtr<T> GetSubArray(ezUInt64 uiStart, ezUInt64 uiCount) const // [tested]
   {
     EZ_ASSERT_DEV(uiStart + uiCount <= GetCount(), "uiStart+uiCount ({0}) has to be smaller or equal than the count ({1}).",
       uiStart + uiCount, GetCount());
@@ -130,47 +118,37 @@ public:
 
   /// \brief Creates a sub-array from this array.
   /// \note \code ap.GetSubArray(i) \endcode is equivalent to \code ap.GetSubArray(i, ap.GetCount() - i) \endcode.
-  EZ_FORCE_INLINE ezBlobPtr<const T> GetSubArray(ezUInt64 uiStart) const // [tested]
-  {
-    EZ_ASSERT_DEV(uiStart <= GetCount(), "uiStart ({0}) has to be smaller or equal than the count ({1}).", uiStart, GetCount());
-    return ezBlobPtr<const T>(GetPtr() + uiStart, GetCount() - uiStart);
-  }
-
-  /// \brief Creates a sub-array from this array.
-  /// \note \code ap.GetSubArray(i) \endcode is equivalent to \code ap.GetSubArray(i, ap.GetCount() - i) \endcode.
-  EZ_FORCE_INLINE ezBlobPtr<T> GetSubArray(ezUInt64 uiStart) // [tested]
+  EZ_FORCE_INLINE ezBlobPtr<T> GetSubArray(ezUInt64 uiStart) const // [tested]
   {
     EZ_ASSERT_DEV(uiStart <= GetCount(), "uiStart ({0}) has to be smaller or equal than the count ({1}).", uiStart, GetCount());
     return ezBlobPtr<T>(GetPtr() + uiStart, GetCount() - uiStart);
   }
 
   /// \brief Reinterprets this array as a byte array.
-  EZ_ALWAYS_INLINE ezBlobPtr<const ByteType> ToByteArray() const
+  EZ_ALWAYS_INLINE ezBlobPtr<const ByteType> ToByteBlob() const
   {
     return ezBlobPtr<const ByteType>(reinterpret_cast<const ByteType*>(GetPtr()), GetCount() * sizeof(T));
   }
 
   /// \brief Reinterprets this array as a byte array.
-  EZ_ALWAYS_INLINE ezBlobPtr<ByteType> ToByteArray()
+  EZ_ALWAYS_INLINE ezBlobPtr<ByteType> ToByteBlob()
   {
     return ezBlobPtr<ByteType>(reinterpret_cast<ByteType*>(GetPtr()), GetCount() * sizeof(T));
   }
 
-  /// \brief Cast an ArrayPtr to an ArrayPtr to a different, but same size, type
+  /// \brief Cast an BlobPtr to an BlobPtr to a different, but same size, type
   template <typename U>
   EZ_ALWAYS_INLINE ezBlobPtr<U> Cast()
   {
-    static_assert(sizeof(ezArrayPtrDetail::VoidTypeHelper<T>::valueType) == sizeof(ezArrayPtrDetail::VoidTypeHelper<U>::valueType),
-      "Can only cast with equivalent element size.");
+    static_assert(sizeof(T) == sizeof(U), "Can only cast with equivalent element size.");
     return ezBlobPtr<U>(reinterpret_cast<U*>(GetPtr()), GetCount());
   }
 
-  /// \brief Cast an ArrayPtr to an ArrayPtr to a different, but same size, type
+  /// \brief Cast an BlobPtr to an BlobPtr to a different, but same size, type
   template <typename U>
   EZ_ALWAYS_INLINE ezBlobPtr<const U> Cast() const
   {
-    static_assert(sizeof(ezArrayPtrDetail::VoidTypeHelper<T>::valueType) == sizeof(ezArrayPtrDetail::VoidTypeHelper<U>::valueType),
-      "Can only cast with equivalent element size.");
+    static_assert(sizeof(T) == sizeof(U), "Can only cast with equivalent element size.");
     return ezBlobPtr<const U>(reinterpret_cast<const U*>(GetPtr()), GetCount());
   }
 
@@ -231,88 +209,122 @@ private:
   ezUInt64 m_uiCount;
 };
 
-/// \brief Helper function to create ezArrayPtr from a pointer of some type and a count.
+//////////////////////////////////////////////////////////////////////////
+
+using ezByteBlobPtr = ezBlobPtr<ezUInt8>;
+using ezConstByteBlobPtr = ezBlobPtr<const ezUInt8>;
+
+//////////////////////////////////////////////////////////////////////////
+
+/// \brief Helper function to create ezBlobPtr from a pointer of some type and a count.
 template <typename T>
 EZ_ALWAYS_INLINE ezBlobPtr<T> ezMakeBlobPtr(T* ptr, ezUInt64 uiCount)
 {
   return ezBlobPtr<T>(ptr, uiCount);
 }
 
-/// \brief Helper function to create ezArrayPtr from a static array the a size known at compile-time.
+/// \brief Helper function to create ezBlobPtr from a static array the a size known at compile-time.
 template <typename T, ezUInt64 N>
 EZ_ALWAYS_INLINE ezBlobPtr<T> ezMakeBlobPtr(T (&staticArray)[N])
 {
   return ezBlobPtr<T>(staticArray);
 }
 
+/// \brief Helper function to create ezConstByteBlobPtr from a pointer of some type and a count.
+template <typename T>
+EZ_ALWAYS_INLINE ezConstByteBlobPtr ezMakeByteBlobPtr(const T* ptr, ezUInt32 uiCount)
+{
+  return ezConstByteBlobPtr(static_cast<const ezUInt8*>(ptr), uiCount * sizeof(T));
+}
 
-template <typename T, typename = std::enable_if_t<!std::is_same<std::remove_cv_t<T>, void>::value>>
+/// \brief Helper function to create ezByteBlobPtr from a pointer of some type and a count.
+template <typename T>
+EZ_ALWAYS_INLINE ezByteBlobPtr ezMakeByteBlobPtr(T* ptr, ezUInt32 uiCount)
+{
+  return ezByteBlobPtr(reinterpret_cast<ezUInt8*>(ptr), uiCount * sizeof(T));
+}
+
+/// \brief Helper function to create ezByteBlobPtr from a void pointer and a count.
+EZ_ALWAYS_INLINE ezByteBlobPtr ezMakeByteBlobPtr(void* ptr, ezUInt32 uiBytes)
+{
+  return ezByteBlobPtr(reinterpret_cast<ezUInt8*>(ptr), uiBytes);
+}
+
+/// \brief Helper function to create ezConstByteBlobPtr from a const void pointer and a count.
+EZ_ALWAYS_INLINE ezConstByteBlobPtr ezMakeByteBlobPtr(const void* ptr, ezUInt32 uiBytes)
+{
+  return ezConstByteBlobPtr(static_cast<const ezUInt8*>(ptr), uiBytes);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+template <typename T>
 typename ezBlobPtr<T>::iterator begin(ezBlobPtr<T>& container)
 {
   return container.GetPtr();
 }
 
-template <typename T, typename = std::enable_if_t<!std::is_same<std::remove_cv_t<T>, void>::value>>
+template <typename T>
 typename ezBlobPtr<T>::const_iterator begin(const ezBlobPtr<T>& container)
 {
   return container.GetPtr();
 }
 
-template <typename T, typename = std::enable_if_t<!std::is_same<std::remove_cv_t<T>, void>::value>>
+template <typename T>
 typename ezBlobPtr<T>::const_iterator cbegin(const ezBlobPtr<T>& container)
 {
   return container.GetPtr();
 }
 
-template <typename T, typename = std::enable_if_t<!std::is_same<std::remove_cv_t<T>, void>::value>>
+template <typename T>
 typename ezBlobPtr<T>::reverse_iterator rbegin(ezBlobPtr<T>& container)
 {
   return typename ezBlobPtr<T>::reverse_iterator(container.GetPtr() + container.GetCount() - 1);
 }
 
-template <typename T, typename = std::enable_if_t<!std::is_same<std::remove_cv_t<T>, void>::value>>
+template <typename T>
 typename ezBlobPtr<T>::const_reverse_iterator rbegin(const ezBlobPtr<T>& container)
 {
   return typename ezBlobPtr<T>::const_reverse_iterator(container.GetPtr() + container.GetCount() - 1);
 }
 
-template <typename T, typename = std::enable_if_t<!std::is_same<std::remove_cv_t<T>, void>::value>>
+template <typename T>
 typename ezBlobPtr<T>::const_reverse_iterator crbegin(const ezBlobPtr<T>& container)
 {
   return typename ezBlobPtr<T>::const_reverse_iterator(container.GetPtr() + container.GetCount() - 1);
 }
 
-template <typename T, typename = std::enable_if_t<!std::is_same<std::remove_cv_t<T>, void>::value>>
+template <typename T>
 typename ezBlobPtr<T>::iterator end(ezBlobPtr<T>& container)
 {
   return container.GetPtr() + container.GetCount();
 }
 
-template <typename T, typename = std::enable_if_t<!std::is_same<std::remove_cv_t<T>, void>::value>>
+template <typename T>
 typename ezBlobPtr<T>::const_iterator end(const ezBlobPtr<T>& container)
 {
   return container.GetPtr() + container.GetCount();
 }
 
-template <typename T, typename = std::enable_if_t<!std::is_same<std::remove_cv_t<T>, void>::value>>
+template <typename T>
 typename ezBlobPtr<T>::const_iterator cend(const ezBlobPtr<T>& container)
 {
   return container.GetPtr() + container.GetCount();
 }
 
-template <typename T, typename = std::enable_if_t<!std::is_same<std::remove_cv_t<T>, void>::value>>
+template <typename T>
 typename ezBlobPtr<T>::reverse_iterator rend(ezBlobPtr<T>& container)
 {
   return typename ezBlobPtr<T>::reverse_iterator(container.GetPtr() - 1);
 }
 
-template <typename T, typename = std::enable_if_t<!std::is_same<std::remove_cv_t<T>, void>::value>>
+template <typename T>
 typename ezBlobPtr<T>::const_reverse_iterator rend(const ezBlobPtr<T>& container)
 {
   return typename ezBlobPtr<T>::const_reverse_iterator(container.GetPtr() - 1);
 }
 
-template <typename T, typename = std::enable_if_t<!std::is_same<std::remove_cv_t<T>, void>::value>>
+template <typename T>
 typename ezBlobPtr<T>::const_reverse_iterator crend(const ezBlobPtr<T>& container)
 {
   return typename ezBlobPtr<T>::const_reverse_iterator(container.GetPtr() - 1);
@@ -324,7 +336,6 @@ typename ezBlobPtr<T>::const_reverse_iterator crend(const ezBlobPtr<T>& containe
 class EZ_FOUNDATION_DLL ezBlob
 {
 public:
-
   EZ_DECLARE_MEM_RELOCATABLE_TYPE();
 
   /// \brief Default constructor. Does not allocate any memory.
@@ -353,21 +364,32 @@ public:
   void ZeroFill();
 
   /// \brief Returns a blob pointer to the blob data, or an empty blob pointer if the blob is empty.
-  template<typename T>
+  template <typename T>
   ezBlobPtr<T> GetBlobPtr()
   {
     return ezBlobPtr<T>(static_cast<T*>(m_pStorage), m_uiSize);
   }
 
   /// \brief Returns a blob pointer to the blob data, or an empty blob pointer if the blob is empty.
-  template<typename T>
+  template <typename T>
   ezBlobPtr<const T> GetBlobPtr() const
   {
     return ezBlobPtr<const T>(static_cast<T*>(m_pStorage), m_uiSize);
   }
 
-private:
+  /// \brief Returns a blob pointer to the blob data, or an empty blob pointer if the blob is empty.
+  ezByteBlobPtr GetByteBlobPtr()
+  {
+    return ezByteBlobPtr(reinterpret_cast<ezUInt8*>(m_pStorage), m_uiSize);
+  }
 
+  /// \brief Returns a blob pointer to the blob data, or an empty blob pointer if the blob is empty.
+  ezConstByteBlobPtr GetByteBlobPtr() const
+  {
+    return ezConstByteBlobPtr(reinterpret_cast<const ezUInt8*>(m_pStorage), m_uiSize);
+  }
+
+private:
   void* m_pStorage = nullptr;
   ezUInt64 m_uiSize = 0;
 };

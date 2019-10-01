@@ -27,16 +27,16 @@ public:
     bool IsValid() const; // [tested]
 
     /// \brief Checks whether the two iterators point to the same element.
-    bool operator==(const typename ezHashSetBase<KeyType, Hasher>::ConstIterator& it2) const;
+    bool operator==(const typename ezHashSetBase<KeyType, Hasher>::ConstIterator& rhs) const;
 
     /// \brief Checks whether the two iterators point to the same element.
-    bool operator!=(const typename ezHashSetBase<KeyType, Hasher>::ConstIterator& it2) const;
+    bool operator!=(const typename ezHashSetBase<KeyType, Hasher>::ConstIterator& rhs) const;
 
     /// \brief Returns the 'key' of the element that this iterator points to.
     const KeyType& Key() const; // [tested]
 
     /// \brief Returns the 'key' of the element that this iterator points to.
-    EZ_ALWAYS_INLINE const KeyType& operator*() { return Key(); }
+    EZ_ALWAYS_INLINE const KeyType& operator*() { return Key(); } // [tested]
 
     /// \brief Advances the iterator to the next element in the map. The iterator will not be valid anymore, if the end is reached.
     void Next(); // [tested]
@@ -51,9 +51,9 @@ public:
     void SetToBegin();
     void SetToEnd();
 
-    const ezHashSetBase<KeyType, Hasher>& m_hashSet;
-    ezUInt32 m_uiCurrentIndex; // current element index that this iterator points to.
-    ezUInt32 m_uiCurrentCount; // current number of valid elements that this iterator has found so far.
+    const ezHashSetBase<KeyType, Hasher>* m_hashSet = nullptr;
+    ezUInt32 m_uiCurrentIndex = 0; // current element index that this iterator points to.
+    ezUInt32 m_uiCurrentCount = 0; // current number of valid elements that this iterator has found so far.
   };
 
 protected:

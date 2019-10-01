@@ -21,6 +21,19 @@ typedef ezTraitInt<0> ezTypeIsClass;
 typedef char ezCompileTimeTrueType;
 typedef int ezCompileTimeFalseType;
 
+/// \brief Converts a bool condition to CompileTimeTrue/FalseType
+template <bool cond>
+struct ezConditionToCompileTimeBool
+{
+  typedef ezCompileTimeFalseType type;
+};
+
+template <>
+struct ezConditionToCompileTimeBool<true>
+{
+  typedef ezCompileTimeTrueType type;
+};
+
 /// \brief Default % operator for T and TypeIsPod which returns a CompileTimeFalseType.
 template <typename T>
 ezCompileTimeFalseType operator%(const T&, const ezTypeIsPod&);
@@ -116,6 +129,9 @@ struct ezIsPointer<T*>
 /// are met, a type is memory relocatable.
 #define EZ_DECLARE_MEM_RELOCATABLE_TYPE()
 
+/// \brief mark a class as memory relocatable if the passed type is relocatable or pod.
+#define EZ_DECLARE_MEM_RELOCATABLE_TYPE_CONDITIONAL(T)
+
 // \brief embed this into a class to automatically detect which type class it belongs to
 // This macro is only guaranteed to work for classes / structs which don't have any constructor / destructor / assignment operator!
 // As arguments you have to list the types of all the members of the class / struct.
@@ -133,6 +149,11 @@ struct ezIsPointer<T*>
 /// example() pCur(buffer) {} }; A memory relocatable type also must not give out any pointers to its own location. If these two conditions
 /// are met, a type is memory relocatable.
 #define EZ_DECLARE_MEM_RELOCATABLE_TYPE() ezCompileTimeTrueType operator%(const ezTypeIsMemRelocatable&) const
+
+/// \brief mark a class as memory relocatable if the passed type is relocatable or pod.
+#define EZ_DECLARE_MEM_RELOCATABLE_TYPE_CONDITIONAL(T) \
+  typename ezConditionToCompileTimeBool<ezGetTypeClass<T>::value == ezTypeIsMemRelocatable::value || ezIsPodType<T>::value>::type \
+    operator%(const ezTypeIsMemRelocatable&) const
 
 #define EZ_DETECT_TYPE_CLASS_1(T1) ezGetTypeClass<T1>
 #define EZ_DETECT_TYPE_CLASS_2(T1, T2) ezGetStrongestTypeClass<EZ_DETECT_TYPE_CLASS_1(T1), EZ_DETECT_TYPE_CLASS_1(T2)>

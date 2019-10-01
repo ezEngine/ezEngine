@@ -9,17 +9,30 @@
 template <typename K, typename V, typename H>
 ezHashTableBase<K, V, H>::ConstIterator::ConstIterator(const ezHashTableBase<K, V, H>& hashTable)
   : m_hashTable(&hashTable)
-  , m_uiCurrentIndex(0)
-  , m_uiCurrentCount(0)
+{
+}
+
+template <typename K, typename V, typename H>
+void ezHashTableBase<K, V, H>::ConstIterator::SetToBegin()
 {
   if (m_hashTable->IsEmpty())
+  {
+    m_uiCurrentIndex = m_hashTable->m_uiCapacity;
     return;
-
+  }
   while (!m_hashTable->IsValidEntry(m_uiCurrentIndex))
   {
     ++m_uiCurrentIndex;
   }
 }
+
+template <typename K, typename V, typename H>
+inline void ezHashTableBase<K, V, H>::ConstIterator::SetToEnd()
+{
+  m_uiCurrentCount = m_hashTable->m_uiCount;
+  m_uiCurrentIndex = m_hashTable->m_uiCapacity;
+}
+
 
 template <typename K, typename V, typename H>
 EZ_FORCE_INLINE bool ezHashTableBase<K, V, H>::ConstIterator::IsValid() const
@@ -28,15 +41,15 @@ EZ_FORCE_INLINE bool ezHashTableBase<K, V, H>::ConstIterator::IsValid() const
 }
 
 template <typename K, typename V, typename H>
-EZ_FORCE_INLINE bool ezHashTableBase<K, V, H>::ConstIterator::operator==(const typename ezHashTableBase<K, V, H>::ConstIterator& it2) const
+EZ_FORCE_INLINE bool ezHashTableBase<K, V, H>::ConstIterator::operator==(const typename ezHashTableBase<K, V, H>::ConstIterator& rhs) const
 {
-  return m_hashTable->m_pEntries == it2.m_hashTable->m_pEntries && m_uiCurrentIndex == it2.m_uiCurrentIndex;
+  return m_uiCurrentIndex == rhs.m_uiCurrentIndex && m_hashTable->m_pEntries == rhs.m_hashTable->m_pEntries;
 }
 
 template <typename K, typename V, typename H>
-EZ_ALWAYS_INLINE bool ezHashTableBase<K, V, H>::ConstIterator::operator!=(const typename ezHashTableBase<K, V, H>::ConstIterator& it2) const
+EZ_ALWAYS_INLINE bool ezHashTableBase<K, V, H>::ConstIterator::operator!=(const typename ezHashTableBase<K, V, H>::ConstIterator& rhs) const
 {
-  return !(*this == it2);
+  return !(*this == rhs);
 }
 
 template <typename K, typename V, typename H>
@@ -54,14 +67,27 @@ EZ_ALWAYS_INLINE const V& ezHashTableBase<K, V, H>::ConstIterator::Value() const
 template <typename K, typename V, typename H>
 void ezHashTableBase<K, V, H>::ConstIterator::Next()
 {
-  ++m_uiCurrentCount;
-  if (m_uiCurrentCount == m_hashTable->m_uiCount)
+  // if we already iterated over the amount of valid elements that the hash-table stores, early out
+  if (m_uiCurrentCount >= m_hashTable->m_uiCount)
     return;
 
-  do
+  // increase the counter of how many elements we have seen
+  ++m_uiCurrentCount;
+  // increase the index of the element to look at
+  ++m_uiCurrentIndex;
+
+  // check that we don't leave the valid range of element indices
+  while (m_uiCurrentIndex < m_hashTable->m_uiCapacity)
   {
+    if (m_hashTable->IsValidEntry(m_uiCurrentIndex))
+      return;
+
     ++m_uiCurrentIndex;
-  } while (!m_hashTable->IsValidEntry(m_uiCurrentIndex));
+  }
+
+  // if we fell through this loop, we reached the end of all elements in the container
+  // set the m_uiCurrentCount to maximum, to enable early-out in the future and to make 'IsValid' return 'false'
+  m_uiCurrentCount = m_hashTable->m_uiCount;
 }
 
 template <typename K, typename V, typename H>
@@ -447,6 +473,40 @@ inline bool ezHashTableBase<K, V, H>::TryGetValue(const CompatibleKeyType& key, 
 
 template <typename K, typename V, typename H>
 template <typename CompatibleKeyType>
+inline typename ezHashTableBase<K, V, H>::ConstIterator ezHashTableBase<K, V, H>::Find(const CompatibleKeyType& key) const
+{
+  ezUInt32 uiIndex = FindEntry(key);
+  if (uiIndex == ezInvalidIndex)
+  {
+    return GetEndIterator();
+  }
+
+  ConstIterator it(*this);
+  it.m_uiCurrentIndex = uiIndex;
+  it.m_uiCurrentCount = 0; // we do not know the 'count' (which is used as an optimization), so we just use 0
+
+  return it;
+}
+
+template <typename K, typename V, typename H>
+template <typename CompatibleKeyType>
+inline typename ezHashTableBase<K, V, H>::Iterator ezHashTableBase<K, V, H>::Find(const CompatibleKeyType& key)
+{
+  ezUInt32 uiIndex = FindEntry(key);
+  if (uiIndex == ezInvalidIndex)
+  {
+    return GetEndIterator();
+  }
+
+  Iterator it(*this);
+  it.m_uiCurrentIndex = uiIndex;
+  it.m_uiCurrentCount = 0; // we do not know the 'count' (which is used as an optimization), so we just use 0
+  return it;
+}
+
+
+template <typename K, typename V, typename H>
+template <typename CompatibleKeyType>
 inline const V* ezHashTableBase<K, V, H>::GetValue(const CompatibleKeyType& key) const
 {
   ezUInt32 uiIndex = FindEntry(key);
@@ -499,13 +559,33 @@ EZ_FORCE_INLINE bool ezHashTableBase<K, V, H>::Contains(const CompatibleKeyType&
 template <typename K, typename V, typename H>
 EZ_ALWAYS_INLINE typename ezHashTableBase<K, V, H>::Iterator ezHashTableBase<K, V, H>::GetIterator()
 {
-  return Iterator(*this);
+  Iterator iterator(*this);
+  iterator.SetToBegin();
+  return iterator;
+}
+
+template <typename K, typename V, typename H>
+EZ_ALWAYS_INLINE typename ezHashTableBase<K, V, H>::Iterator ezHashTableBase<K, V, H>::GetEndIterator()
+{
+  Iterator iterator(*this);
+  iterator.SetToEnd();
+  return iterator;
 }
 
 template <typename K, typename V, typename H>
 EZ_ALWAYS_INLINE typename ezHashTableBase<K, V, H>::ConstIterator ezHashTableBase<K, V, H>::GetIterator() const
 {
-  return ConstIterator(*this);
+  ConstIterator iterator(*this);
+  iterator.SetToBegin();
+  return iterator;
+}
+
+template <typename K, typename V, typename H>
+EZ_ALWAYS_INLINE typename ezHashTableBase<K, V, H>::ConstIterator ezHashTableBase<K, V, H>::GetEndIterator() const
+{
+  ConstIterator iterator(*this);
+  iterator.SetToEnd();
+  return iterator;
 }
 
 template <typename K, typename V, typename H>

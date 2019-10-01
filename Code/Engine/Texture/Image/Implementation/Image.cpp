@@ -11,7 +11,7 @@ ezImageView::ezImageView()
   Clear();
 }
 
-ezImageView::ezImageView(const ezImageHeader& header, ezBlobPtr<const void> imageData)
+ezImageView::ezImageView(const ezImageHeader& header, ezConstByteBlobPtr imageData)
 {
   ResetAndViewExternalStorage(header, imageData);
 }
@@ -28,7 +28,7 @@ bool ezImageView::IsValid() const
   return !m_dataPtr.IsEmpty();
 }
 
-void ezImageView::ResetAndViewExternalStorage(const ezImageHeader& header, ezBlobPtr<const void> imageData)
+void ezImageView::ResetAndViewExternalStorage(const ezImageHeader& header, ezConstByteBlobPtr imageData)
 {
   static_cast<ezImageHeader&>(*this) = header;
 
@@ -99,7 +99,7 @@ ezImageView ezImageView::GetRowView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace
   offset += y * GetRowPitch(uiMipLevel);
 
   ezBlobPtr<const ezUInt8> dataSlice = m_dataPtr.GetSubArray(offset, GetRowPitch(uiMipLevel));
-  return ezImageView(header, ezBlobPtr<const void>(dataSlice.GetPtr(), dataSlice.GetCount()));
+  return ezImageView(header, ezConstByteBlobPtr(dataSlice.GetPtr(), dataSlice.GetCount()));
 }
 
 void ezImageView::ReinterpretAs(ezImageFormat::Enum format)
@@ -163,7 +163,7 @@ ezImage::ezImage(const ezImageHeader& header)
   ResetAndAlloc(header);
 }
 
-ezImage::ezImage(const ezImageHeader& header, ezBlobPtr<void> externalData)
+ezImage::ezImage(const ezImageHeader& header, ezByteBlobPtr externalData)
 {
   ResetAndUseExternalStorage(header, externalData);
 }
@@ -207,10 +207,10 @@ void ezImage::ResetAndAlloc(const ezImageHeader& header)
     m_dataPtr = m_internalStorage.GetBlobPtr<ezUInt8>();
   }
 
-  ezImageView::ResetAndViewExternalStorage(header, ezBlobPtr<const void>(m_dataPtr.GetPtr(), m_dataPtr.GetCount()));
+  ezImageView::ResetAndViewExternalStorage(header, ezConstByteBlobPtr(m_dataPtr.GetPtr(), m_dataPtr.GetCount()));
 }
 
-void ezImage::ResetAndUseExternalStorage(const ezImageHeader& header, ezBlobPtr<void> externalData)
+void ezImage::ResetAndUseExternalStorage(const ezImageHeader& header, ezByteBlobPtr externalData)
 {
   m_internalStorage.Clear();
 
@@ -294,7 +294,7 @@ ezImageView ezImageView::GetSubImageView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 u
 
   ezBlobPtr<const ezUInt8> subView = m_dataPtr.GetSubArray(offset, size);
 
-  return ezImageView(header, ezBlobPtr<const void>(subView.GetPtr(), subView.GetCount()));
+  return ezImageView(header, ezConstByteBlobPtr(subView.GetPtr(), subView.GetCount()));
 }
 
 ezImage ezImage::GetSubImageView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace /*= 0*/, ezUInt32 uiArrayIndex /*= 0*/)
@@ -302,7 +302,7 @@ ezImage ezImage::GetSubImageView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace /*
   ezImageView constView = ezImageView::GetSubImageView(uiMipLevel, uiFace, uiArrayIndex);
 
   // Create an ezImage attached to the view. Const cast is safe here since we own the storage.
-  return ezImage(constView.GetHeader(), ezBlobPtr<void>(const_cast<ezUInt8*>(constView.GetBlobPtr<ezUInt8>().GetPtr()),
+  return ezImage(constView.GetHeader(), ezByteBlobPtr(const_cast<ezUInt8*>(constView.GetBlobPtr<ezUInt8>().GetPtr()),
                                                          constView.GetBlobPtr<ezUInt8>().GetCount()));
 }
 
@@ -311,7 +311,7 @@ ezImage ezImage::GetSliceView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace /*= 0
   ezImageView constView = ezImageView::GetSliceView(uiMipLevel, uiFace, uiArrayIndex, z);
 
   // Create an ezImage attached to the view. Const cast is safe here since we own the storage.
-  return ezImage(constView.GetHeader(), ezBlobPtr<void>(const_cast<ezUInt8*>(constView.GetBlobPtr<ezUInt8>().GetPtr()),
+  return ezImage(constView.GetHeader(), ezByteBlobPtr(const_cast<ezUInt8*>(constView.GetBlobPtr<ezUInt8>().GetPtr()),
                                                          constView.GetBlobPtr<ezUInt8>().GetCount()));
 }
 
@@ -332,7 +332,7 @@ ezImageView ezImageView::GetSliceView(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFa
 
   ezBlobPtr<const ezUInt8> subView = m_dataPtr.GetSubArray(offset, size);
 
-  return ezImageView(header, ezBlobPtr<const void>(subView.GetPtr(), subView.GetCount()));
+  return ezImageView(header, ezConstByteBlobPtr(subView.GetPtr(), subView.GetCount()));
 }
 
 bool ezImage::UsesExternalStorage() const
