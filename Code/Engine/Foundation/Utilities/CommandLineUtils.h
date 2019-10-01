@@ -40,6 +40,9 @@ public:
   void SetCommandLine();
 #endif
 
+  /// \brief Assembles the original command line from the split up string representation.
+  ezString GetCommandLineString() const;
+
   /// \brief Returns the total number of command line parameters (excluding the program path, which is often passed as the first parameter).
   ezUInt32 GetParameterCount() const; // [tested]
 
@@ -68,6 +71,16 @@ public:
   /// If the option does not exist or does not have that many parameters, \a szDefault is returned.
   const char* GetStringOption(const char* szOption, ezUInt32 uiArgument = 0, const char* szDefault = "",
     bool bCaseSensitive = false) const; // [tested]
+
+  /// \brief Similar to GetStringOption() but assumes that the strings represent paths and concatenates the current working directory if a relative path is given.
+  ///
+  /// To check how many arguments are available, use GetStringOptionArguments().
+  /// \note This function always returns absolute or rooted paths, never relative ones. If relative paths are supposed to be allowed,
+  /// use GetStringOption() instead.
+  ///
+  /// If szDefault is empty and the user did not provide this option, then the result will also be the empty string.
+  /// If szDefault is a relative path, it will be concatenated with the CWD just as any user provided option would.
+  const ezString GetAbsolutePathOption(const char* szOption, ezUInt32 uiArgument = 0, const char* szDefault = "", bool bCaseSensitive = false);
 
   /// \brief Returns a boolean interpretation of the option \a szOption or bDefault if it cannot be found.
   ///
