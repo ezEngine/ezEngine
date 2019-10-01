@@ -6,6 +6,8 @@
 #include <Foundation/Time/Timestamp.h>
 #include <Foundation/Utilities/DGMLWriter.h>
 
+static thread_local ezHybridArray<ezTask*, 8> s_currentRunningTask;
+
 ezTask::ezTask(const char* szTaskName /*= nullptr*/)
 {
   Reset();
@@ -191,7 +193,11 @@ bool ezTaskSystem::ExecuteTask(ezTaskPriority::Enum FirstPriority, ezTaskPriorit
   if (td.m_pTask == nullptr)
     return false;
 
+  s_currentRunningTask.PushBack(td.m_pTask);
+
   td.m_pTask->Run(td.m_uiInvocation);
+
+  s_currentRunningTask.PopBack();
 
   // notify the group, that a task is finished, which might trigger other tasks to be executed
   TaskHasFinished(td.m_pTask, td.m_pBelongsToGroup);
@@ -203,6 +209,8 @@ void ezTaskSystem::WaitForTask(ezTask* pTask)
 {
   if (pTask->IsTaskFinished())
     return;
+
+  EZ_ASSERT_DEV(!ezTaskSystem::IsTaskRunningOnCurrentThread(pTask), "Trying to wait for a task that is currently executing on the same thread (self-dependency)");
 
   EZ_PROFILE_SCOPE("WaitForTask");
 
@@ -292,6 +300,11 @@ bool ezTaskSystem::HelpExecutingTasks(ezTask* pPrioritizeThis)
   }
 
   return false;
+}
+
+bool ezTaskSystem::IsTaskRunningOnCurrentThread(ezTask* pTask)
+{
+  return s_currentRunningTask.Contains(pTask);
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_Tasks);

@@ -46,6 +46,15 @@ void ezTaskSystem::Startup()
 void ezTaskSystem::Shutdown()
 {
   StopWorkerThreads();
+
+  for (ezUInt32 i = 0; i < ezTaskPriority::ENUM_COUNT; ++i)
+  {
+    s_Tasks[i].Clear();
+    s_Tasks[i].Compact();
+  }
+
+  s_TaskGroups.Clear();
+  s_TaskGroups.Compact();
 }
 
 ezTaskGroupID ezTaskSystem::StartSingleTask(ezTask* pTask, ezTaskPriority::Enum Priority, ezTaskGroupID Dependency)
