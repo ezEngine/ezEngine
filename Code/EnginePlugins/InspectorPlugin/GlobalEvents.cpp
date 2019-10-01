@@ -68,7 +68,7 @@ static void SendChangedGlobalEventTelemetry()
     const ezGlobalEvent::EventData& currentEventData = it.Value();
     ezGlobalEvent::EventData& lastEventData = s_LastState[it.Key()];
 
-    if (ezMemoryUtils::ByteCompare(&currentEventData, &lastEventData) != 0)
+    if (ezMemoryUtils::Compare(&currentEventData, &lastEventData) != 0)
     {
       SendGlobalEventTelemetry(it.Key().GetData(), it.Value());
 

@@ -129,7 +129,7 @@ EZ_CREATE_SIMPLE_TEST(Algorithm, HashableStruct)
 
   EZ_CHECK_AT_COMPILETIME(sizeof(AutomaticInst) == sizeof(NonAutomaticInst));
 
-  EZ_TEST_INT(ezMemoryUtils::ByteCompare<ezUInt8>((ezUInt8*)&AutomaticInst, (ezUInt8*)&NonAutomaticInst, sizeof(AutomaticInst)), 0);
+  EZ_TEST_INT(ezMemoryUtils::Compare<ezUInt8>((ezUInt8*)&AutomaticInst, (ezUInt8*)&NonAutomaticInst, sizeof(AutomaticInst)), 0);
 
   AutomaticInst.m_uiTestMember2 = 0x42u;
   AutomaticInst.m_uiTestMember3 = 0x23u;

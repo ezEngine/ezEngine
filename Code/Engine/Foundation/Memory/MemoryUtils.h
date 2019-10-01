@@ -90,6 +90,9 @@ public:
   template <typename T>
   static void Copy(T* pDestination, const T* pSource, size_t uiCount); // [tested]
 
+  /// \brief Copies exactly \a uiNumBytesToCopy from \a pSource to \a pDestination, independent of the involved types and their sizes.
+  static void RawByteCopy(void* pDestination, const void* pSource, size_t uiNumBytesToCopy);
+
   /// \brief Copies objects of type T from \a pSource to \a pDestination.
   ///
   /// The two buffers may overlap when using this method.
@@ -128,7 +131,10 @@ public:
 
   /// \brief Compares two buffers of raw memory byte wise.
   template <typename T>
-  static ezInt32 ByteCompare(const T* a, const T* b, size_t uiCount = 1); // [tested]
+  static ezInt32 Compare(const T* a, const T* b, size_t uiCount = 1); // [tested]
+
+  /// \brief Compares exactly \a uiNumBytesToCompare from \a a and \a b, independent of the involved types and their sizes.
+  static ezInt32 RawByteCompare(const void* a, const void* b, size_t uiNumBytesToCompare);
 
   /// \brief Returns the address stored in \a ptr plus the given byte offset \a iOffset, cast to type \a T.
   ///
@@ -253,4 +259,3 @@ private:
 };
 
 #include <Foundation/Memory/Implementation/MemoryUtils_inl.h>
-
