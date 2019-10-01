@@ -107,6 +107,9 @@ public:
   /// \brief Checks whether an event handler has already been registered.
   bool HasEventHandler(Handler handler) const;
 
+  /// \brief Removes all registered event handlers.
+  void Clear();
+
   // it would be a problem if the ezEvent moves in memory, for instance the Unsubscriber's would point to invalid memory
   EZ_DISALLOW_COPY_AND_ASSIGN(ezEventBase);
 

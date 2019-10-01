@@ -26,10 +26,10 @@ ezEventSubscriptionID ezEventBase<EventData, MutexType>::AddEventHandler(Handler
 {
   EZ_LOCK(m_Mutex);
 
-  EZ_ASSERT_DEV(handler.IsHeapAllocated() || !HasEventHandler(handler), "Event handler cannot be added twice");
+  EZ_ASSERT_DEV(!handler.IsComparable() || !HasEventHandler(handler), "Event handler cannot be added twice");
 
   auto& item = m_EventHandlers.ExpandAndGetRef();
-  item.m_Handler = handler;
+  item.m_Handler = std::move(handler);
   item.m_SubscriptionID = ++m_NextSubscriptionID;
 
   return item.m_SubscriptionID;
@@ -42,7 +42,7 @@ void ezEventBase<EventData, MutexType>::AddEventHandler(Handler handler, Unsubsc
 
   unsubscriber.Unsubscribe();
   unsubscriber.m_pEvent = this;
-  unsubscriber.m_SubscriptionID = AddEventHandler(handler);
+  unsubscriber.m_SubscriptionID = AddEventHandler(std::move(handler));
 }
 
 
@@ -51,13 +51,13 @@ void ezEventBase<EventData, MutexType>::AddEventHandler(Handler handler, Unsubsc
 template <typename EventData, typename MutexType>
 void ezEventBase<EventData, MutexType>::RemoveEventHandler(Handler handler) const
 {
-  EZ_ASSERT_DEV(!handler.IsHeapAllocated(), "Lambdas that capture data cannot be removed via function pointer. Use an ezEventSubscriptionID instead.");
+  EZ_ASSERT_DEV(handler.IsComparable(), "Lambdas that capture data cannot be removed via function pointer. Use an ezEventSubscriptionID instead.");
 
   EZ_LOCK(m_Mutex);
 
   for (ezUInt32 idx = 0; idx < m_EventHandlers.GetCount(); ++idx)
   {
-    if (m_EventHandlers[idx].m_Handler.IsEqualIfNotHeapAllocated(handler))
+    if (m_EventHandlers[idx].m_Handler.IsEqualIfComparable(handler))
     {
       m_EventHandlers.RemoveAtAndCopy(idx);
       return;
@@ -91,17 +91,23 @@ void ezEventBase<EventData, MutexType>::RemoveEventHandler(ezEventSubscriptionID
 template <typename EventData, typename MutexType>
 bool ezEventBase<EventData, MutexType>::HasEventHandler(Handler handler) const
 {
-  EZ_ASSERT_DEV(!handler.IsHeapAllocated(), "Lambdas that capture data cannot be checked via function pointer. Use an ezEventSubscriptionID instead.");
+  EZ_ASSERT_DEV(handler.IsComparable(), "Lambdas that capture data cannot be checked via function pointer. Use an ezEventSubscriptionID instead.");
 
   EZ_LOCK(m_Mutex);
 
   for (ezUInt32 i = 0; i < m_EventHandlers.GetCount(); ++i)
   {
-    if (m_EventHandlers[i].m_Handler.IsEqualIfNotHeapAllocated(handler))
+    if (m_EventHandlers[i].m_Handler.IsEqualIfComparable(handler))
       return true;
   }
 
   return false;
+}
+
+template <typename EventData, typename MutexType>
+void ezEventBase<EventData, MutexType>::Clear()
+{
+  m_EventHandlers.Clear();
 }
 
 /// The notification is sent to all event handlers in the order that they were registered.
