@@ -195,10 +195,10 @@ public:
 
 
   /// \brief Returns the spatial system that is associated with this world.
-  ezSpatialSystem& GetSpatialSystem();
+  ezSpatialSystem* GetSpatialSystem();
 
   /// \brief Returns the spatial system that is associated with this world.
-  const ezSpatialSystem& GetSpatialSystem() const;
+  const ezSpatialSystem* GetSpatialSystem() const;
 
 
   /// \brief Returns the coordinate system for the given position.

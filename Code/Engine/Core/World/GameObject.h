@@ -1,5 +1,7 @@
 #pragma once
 
+/// \file
+
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/SimdMath/SimdConversion.h>
 #include <Foundation/Time/Time.h>
@@ -13,6 +15,9 @@
 #  undef SendMessage
 #endif
 
+/// \brief Build switch to disable velocity on game objects if it is not needed
+#define EZ_GAMEOBJECT_VELOCITY EZ_ON
+
 /// \brief This class represents an object inside the world.
 ///
 /// Game objects only consists of hierarchical data like transformation and a list of components.
@@ -21,7 +26,6 @@
 /// object handle instead.
 /// \see ezWorld
 /// \see ezComponent
-
 class EZ_CORE_DLL ezGameObject
 {
 private:
@@ -259,6 +263,7 @@ public:
   /// \brief Returns the 'up' direction of the world's ezCoordinateSystem, rotated into the object's global space
   ezVec3 GetGlobalDirUp() const;
 
+#if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
   /// \brief Sets the object's velocity.
   ///
   /// This is used for some rendering techniques or for the computation of sound Doppler effect.
@@ -269,6 +274,7 @@ public:
   /// frame's position, but
   ///        also the time difference is divided out.
   ezVec3 GetVelocity() const;
+#endif
 
   /// \brief Updates the global transform immediately. Usually this done during the world update after the "Post-async" phase.
   void UpdateGlobalTransform();
@@ -414,8 +420,11 @@ private:
     ezSimdVec4f m_localScaling; // x,y,z = non-uniform scaling, w = uniform scaling
 
     ezSimdTransform m_globalTransform;
+
+#if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
     ezSimdVec4f m_lastGlobalPosition;
     ezSimdVec4f m_velocity; // w != 0 indicates custom velocity
+#endif
 
     ezSimdBBoxSphere m_localBounds; // m_BoxHalfExtents.w != 0 indicates that the object should be always visible
     ezSimdBBoxSphere m_globalBounds;
@@ -433,6 +442,7 @@ private:
 
     void ConditionalUpdateGlobalBounds();
     void UpdateGlobalBounds();
+    void UpdateGlobalBoundsAndSpatialData();
 
     void UpdateVelocity(const ezSimdFloat& fInvDeltaSeconds);
 

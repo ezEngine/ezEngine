@@ -61,7 +61,7 @@ private:
     ezHashedString m_sName;
   };
 
-  static ezHybridArray<CategoryData, 32> s_CategoryData;
+  static ezHybridArray<ezSpatialData::CategoryData, 32>& GetCategoryData();
 };
 
 struct EZ_CORE_DLL ezDefaultSpatialDataCategories

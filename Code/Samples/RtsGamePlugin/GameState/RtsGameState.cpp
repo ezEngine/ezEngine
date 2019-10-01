@@ -358,7 +358,7 @@ void RtsGameState::InspectObjectsInArea(const ezVec2& position, float radius, ez
 {
   ezBoundingSphere sphere(position.GetAsVec3(0), radius);
   ezUInt32 uiCategoryBitmask = RtsSelectableComponent::s_SelectableCategory.GetBitmask();
-  m_pMainWorld->GetSpatialSystem().FindObjectsInSphere(sphere, uiCategoryBitmask, callback, nullptr);
+  m_pMainWorld->GetSpatialSystem()->FindObjectsInSphere(sphere, uiCategoryBitmask, callback, nullptr);
 }
 
 ezGameObject* RtsGameState::SpawnNamedObjectAt(const ezTransform& transform, const char* szObjectName, ezUInt16 uiTeamID)

@@ -27,7 +27,7 @@ namespace
   {
     if (CVarVisSpatialData && CVarVisObjectName.GetValue().IsEmpty() && !CVarVisObjectSelection)
     {
-      const ezSpatialSystem& spatialSystem = view.GetWorld()->GetSpatialSystem();
+      const ezSpatialSystem& spatialSystem = *view.GetWorld()->GetSpatialSystem();
       if (auto pSpatialSystemGrid = ezDynamicCast<const ezSpatialSystem_RegularGrid*>(&spatialSystem))
       {
         ezSpatialData::Category filterCategory = ezSpatialData::FindCategory(CVarVisSpatialCategory.GetValue());
@@ -69,7 +69,7 @@ namespace
 
     if (CVarVisSpatialData && CVarVisSpatialCategory.GetValue().IsEmpty())
     {
-      const ezSpatialSystem& spatialSystem = view.GetWorld()->GetSpatialSystem();
+      const ezSpatialSystem& spatialSystem = *view.GetWorld()->GetSpatialSystem();
       if (auto pSpatialSystemGrid = ezDynamicCast<const ezSpatialSystem_RegularGrid*>(&spatialSystem))
       {
         ezBoundingBox box;

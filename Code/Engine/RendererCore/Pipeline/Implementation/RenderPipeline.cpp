@@ -939,7 +939,7 @@ void ezRenderPipeline::FindVisibleObjects(const ezView& view)
   ezSpatialSystem::QueryStats stats;
 
   ezUInt32 uiCategoryBitmask = ezDefaultSpatialDataCategories::RenderStatic.GetBitmask() | ezDefaultSpatialDataCategories::RenderDynamic.GetBitmask();
-  view.GetWorld()->GetSpatialSystem().FindVisibleObjects(frustum, uiCategoryBitmask, m_visibleObjects, bRecordStats ? &stats : nullptr);
+  view.GetWorld()->GetSpatialSystem()->FindVisibleObjects(frustum, uiCategoryBitmask, m_visibleObjects, bRecordStats ? &stats : nullptr);
 
   ezViewHandle hView = view.GetHandle();
 

@@ -180,7 +180,9 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   pTransformationData->m_localRotation = ezSimdConversion::ToQuat(desc.m_LocalRotation);
   pTransformationData->m_localScaling = ezSimdConversion::ToVec4(desc.m_LocalScaling.GetAsVec4(desc.m_LocalUniformScaling));
   pTransformationData->m_globalTransform.SetIdentity();
+#if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
   pTransformationData->m_velocity.SetZero();
+#endif
   pTransformationData->m_localBounds.SetInvalid();
   pTransformationData->m_localBounds.m_BoxHalfExtents.SetW(ezSimdFloat::Zero());
   pTransformationData->m_globalBounds = pTransformationData->m_localBounds;
@@ -196,7 +198,9 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
     pTransformationData->UpdateGlobalTransform();
   }
 
+#if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
   pTransformationData->m_lastGlobalPosition = pTransformationData->m_globalTransform.m_Position;
+#endif
 
   // link the transformation data to the game object
   pNewObject->m_pTransformationData = pTransformationData;
@@ -242,7 +246,7 @@ void ezWorld::DeleteObjectNow(const ezGameObjectHandle& object)
 
   // invalidate and remove from id table
   pObject->m_InternalId.Invalidate();
-  m_Data.m_DeadObjects.PushBack(pObject);
+  m_Data.m_DeadObjects.Insert(pObject);
   EZ_VERIFY(m_Data.m_Objects.Remove(object), "Implementation error.");
 }
 
@@ -735,7 +739,7 @@ void ezWorld::RegisterUpdateFunction(const ezComponentManagerBase::UpdateFunctio
     "Granularity must be 0 for synchronous update functions");
   EZ_ASSERT_DEV(desc.m_Phase != ezComponentManagerBase::UpdateFunctionDesc::Phase::Async || desc.m_DependsOn.GetCount() == 0,
     "Asynchronous update functions must not have dependencies");
-  EZ_ASSERT_DEV(!desc.m_Function.IsHeapAllocated(), "Delegates with captures are not allowed as ezWorld update functions.");
+  EZ_ASSERT_DEV(desc.m_Function.IsComparable(), "Delegates with captures are not allowed as ezWorld update functions.");
 
   m_Data.m_UpdateFunctionsToRegister.PushBack(desc);
 }
@@ -748,7 +752,7 @@ void ezWorld::DeregisterUpdateFunction(const ezComponentManagerBase::UpdateFunct
 
   for (ezUInt32 i = updateFunctions.GetCount(); i-- > 0;)
   {
-    if (updateFunctions[i].m_Function.IsEqualIfNotHeapAllocated(desc.m_Function))
+    if (updateFunctions[i].m_Function.IsEqualIfComparable(desc.m_Function))
     {
       updateFunctions.RemoveAtAndCopy(i);
     }
@@ -993,8 +997,7 @@ void ezWorld::DeleteDeadObjects()
 {
   while (!m_Data.m_DeadObjects.IsEmpty())
   {
-    ezGameObject* pObject = m_Data.m_DeadObjects.PeekBack();
-    m_Data.m_DeadObjects.PopBack();
+    ezGameObject* pObject = m_Data.m_DeadObjects.GetIterator().Key();
 
     if (!pObject->m_pTransformationData->m_hSpatialData.IsInvalidated())
     {
@@ -1014,16 +1017,15 @@ void ezWorld::DeleteDeadObjects()
       if (id.m_InstanceIndex != ezGameObjectId::INVALID_INSTANCE_INDEX)
         m_Data.m_Objects[id] = pObject;
 
-      // the moved object might be deleted as well so we need to patch the dead objects list
-      for (ezUInt32 i = 0; i < m_Data.m_DeadObjects.GetCount(); ++i)
+      // The moved object might be deleted as well so we remove it from the dead objects set instead.
+      // If that is not the case we remove the original object from the set.
+      if (m_Data.m_DeadObjects.Remove(pMovedObject))
       {
-        if (m_Data.m_DeadObjects[i] == pMovedObject)
-        {
-          m_Data.m_DeadObjects[i] = pObject;
-          break;
-        }
+        continue;
       }
     }
+
+    m_Data.m_DeadObjects.Remove(pObject);
   }
 }
 
@@ -1031,8 +1033,7 @@ void ezWorld::DeleteDeadComponents()
 {
   while (!m_Data.m_DeadComponents.IsEmpty())
   {
-    ezComponent* pComponent = m_Data.m_DeadComponents.PeekBack();
-    m_Data.m_DeadComponents.PopBack();
+    ezComponent* pComponent = m_Data.m_DeadComponents.GetIterator().Key();
 
     ezComponentManagerBase* pManager = pComponent->GetOwningManager();
     ezComponent* pMovedComponent = nullptr;
@@ -1048,16 +1049,15 @@ void ezWorld::DeleteDeadComponents()
         pOwner->FixComponentPointer(pMovedComponent, pComponent);
       }
 
-      // the moved component might be deleted as well so we need to patch the dead components list
-      for (ezUInt32 i = 0; i < m_Data.m_DeadComponents.GetCount(); ++i)
+      // The moved component might be deleted as well so we remove it from the dead components set instead.
+      // If that is not the case we remove the original component from the set.
+      if (m_Data.m_DeadComponents.Remove(pMovedComponent))
       {
-        if (m_Data.m_DeadComponents[i] == pMovedComponent)
-        {
-          m_Data.m_DeadComponents[i] = pComponent;
-          break;
-        }
+        continue;
       }
     }
+
+    m_Data.m_DeadComponents.Remove(pComponent);
   }
 }
 
