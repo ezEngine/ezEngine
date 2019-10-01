@@ -498,9 +498,9 @@ void ezEngineProcessGameApplication::Deinit_ShutdownLogging()
   SUPER::Deinit_ShutdownLogging();
 }
 
-void ezEngineProcessGameApplication::EventHandlerCVar(const ezCVar::CVarEvent& e)
+void ezEngineProcessGameApplication::EventHandlerCVar(const ezCVarEvent& e)
 {
-  if (e.m_EventType != ezCVar::CVarEvent::ValueChanged)
+  if (e.m_EventType != ezCVarEvent::ValueChanged)
     return;
 
   TransmitCVar(e.m_pCVar);

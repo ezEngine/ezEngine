@@ -53,7 +53,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 
 
 ezString ezCVar::s_StorageFolder;
-ezEvent<const ezCVar::CVarEvent&> ezCVar::s_AllCVarEvents;
+ezEvent<const ezCVarEvent&> ezCVar::s_AllCVarEvents;
 
 void ezCVar::AssignSubSystemPlugin(const char* szPluginName)
 {

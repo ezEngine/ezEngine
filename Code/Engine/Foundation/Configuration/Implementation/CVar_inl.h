@@ -30,8 +30,8 @@ void ezTypedCVar<Type, CVarType>::SetToRestartValue()
   // this will NOT trigger a 'restart value changed' event
   m_Values[ezCVarValue::Current] = m_Values[ezCVarValue::Restart];
 
-  CVarEvent e(this);
-  e.m_EventType = ezCVar::CVarEvent::ValueChanged;
+  ezCVarEvent e(this);
+  e.m_EventType = ezCVarEvent::ValueChanged;
   m_CVarEvents.Broadcast(e);
 
   // broadcast the same to the 'all cvars' event handlers
@@ -47,14 +47,14 @@ const Type& ezTypedCVar<Type, CVarType>::GetValue(ezCVarValue::Enum val) const
 template <typename Type, ezCVarType::Enum CVarType>
 void ezTypedCVar<Type, CVarType>::operator=(const Type& value)
 {
-  CVarEvent e(this);
+  ezCVarEvent e(this);
 
   if (GetFlags().IsAnySet(ezCVarFlags::RequiresRestart))
   {
     if (value == m_Values[ezCVarValue::Restart]) // no change
       return;
 
-    e.m_EventType = ezCVar::CVarEvent::RestartValueChanged;
+    e.m_EventType = ezCVarEvent::RestartValueChanged;
   }
   else
   {
@@ -62,7 +62,7 @@ void ezTypedCVar<Type, CVarType>::operator=(const Type& value)
       return;
 
     m_Values[ezCVarValue::Current] = value;
-    e.m_EventType = ezCVar::CVarEvent::ValueChanged;
+    e.m_EventType = ezCVarEvent::ValueChanged;
   }
 
   m_Values[ezCVarValue::Restart] = value;
