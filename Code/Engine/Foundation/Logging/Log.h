@@ -4,6 +4,7 @@
 #include <Foundation/Strings/FormatString.h>
 #include <Foundation/Strings/StringUtils.h>
 #include <Foundation/Threading/AtomicInteger.h>
+#include <Foundation/Time/Time.h>
 
 /// \brief Use this helper macro to easily create a scoped logging group. Will generate unique variable names to make the static code
 /// analysis happy.
@@ -20,6 +21,7 @@ struct EZ_FOUNDATION_DLL ezLogMsgType
 
   enum Enum : ezInt8
   {
+    Flush = -3,            ///< The user explicitly called ezLog::Flush() to instruct log writers to flush any cached output
     BeginGroup = -2,       ///< A logging group has been opened.
     EndGroup = -1,         ///< A logging group has been closed.
     None = 0,              ///< Can be used to disable all log message types.
@@ -82,6 +84,8 @@ private:
   friend class ezLogBlock;
   ezLogBlock* m_pCurrentBlock = nullptr;
   ezLogMsgType::Enum m_LogLevel = ezLogMsgType::All;
+  ezUInt32 m_uiLoggedMsgsSinceFlush = 0;
+  ezTime m_LastFlushTime;
 };
 
 /// \brief This is the standard log system that ezLog sends all messages to.
@@ -281,6 +285,24 @@ public:
     Debug(pInterface, ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
+  /// \brief Instructs log writers to flush their caches, to ensure all log output (even non-critical information) is written.
+  ///
+  /// On some log writers this has no effect.
+  /// Do not call this too frequently as it incurs a performance penalty.
+  ///
+  /// \param uiNumNewMsgThreshold
+  ///   If this is set to a number larger than zero, the flush may be ignored if the given ezLogInterface
+  ///   has logged fewer than this many messages since the last flush.
+  /// \param timeIntervalThreshold
+  ///   The flush may be ignored if less time has past than this, since the last flush.
+  ///
+  /// If either enough messages have been logged, or the flush interval has been exceeded, the flush is executed.
+  /// To force a flush, set \a uiNumNewMsgThreshold  to zero.
+  /// However, a flush is always ignored if not a single message was logged in between.
+  ///
+  /// \return Returns true if the flush is executed.
+  static bool Flush(ezUInt32 uiNumNewMsgThreshold = 0, ezTime timeIntervalThreshold = ezTime::Seconds(10), ezLogInterface* pInterface = GetThreadLocalLogSystem());
+
   /// \brief Usually called internally by the other log functions, but can be called directly, if the message type is already known.
   /// pInterface must be != nullptr.
   static void BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum type, const char* szString);
@@ -293,6 +315,17 @@ public:
   ///
   /// \note This function uses actual printf formatting, not ezFormatString syntax.
   static void Printf(const char* szFormat, ...);
+
+  /// \brief This enum is used in context of outputting timestamp information to indicate a formatting for said timestamps.
+  enum class TimestampMode
+  {
+    None = 0,     ///< No timestamp will be added at all.
+    Numeric = 1,  ///< A purely numeric timestamp will be added. Ex.: [2019-08-16 13:40:30.345 (UTC)] Log message.
+    Textual = 2,  ///< A timestamp with textual fields will be added. Ex.: [2019 Aug 16 (Fri) 13:40:30.345 (UTC)] Log message.
+    TimeOnly = 3, ///< A short timestamp (time only, no timezone indicator) is added. Ex: [13:40:30.345] Log message.
+  };
+
+  static void GenerateFormattedTimestamp(TimestampMode mode, ezStringBuilder& sTimestampOut);
 
 private:
   // Needed to call 'EndLogBlock'

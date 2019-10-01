@@ -3,9 +3,12 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Time/Time.h>
+#include <Foundation/Time/Timestamp.h>
+
 #if EZ_ENABLED(EZ_PLATFORM_ANDROID)
 #  include <android/log.h>
 #endif
+
 ezLogMsgType::Enum ezLog::s_DefaultLogLevel = ezLogMsgType::All;
 ezAtomicInteger32 ezGlobalLog::s_uiMessageCount[ezLogMsgType::ENUM_COUNT];
 ezLoggingEvent ezGlobalLog::s_LoggingEvent;
@@ -206,6 +209,7 @@ void ezLog::BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum
   le.m_szTag = szTag;
 
   pInterface->HandleLogMessage(le);
+  pInterface->m_uiLoggedMsgsSinceFlush++;
 }
 
 void ezLog::Printf(const char* szFormat, ...)
@@ -218,16 +222,44 @@ void ezLog::Printf(const char* szFormat, ...)
 
   printf("%s", buffer);
 
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   OutputDebugStringA(buffer);
-#  endif
+#endif
 #if EZ_ENABLED(EZ_PLATFORM_ANDROID)
   __android_log_print(ANDROID_LOG_ERROR, "ezEngine", "%s", buffer);
 #endif
+
   va_end(args);
 
   fflush(stdout);
   fflush(stderr);
+}
+
+void ezLog::GenerateFormattedTimestamp(TimestampMode mode, ezStringBuilder& sTimestampOut)
+{
+  // if mode is 'None', early out to not even retrieve a timestamp
+  if (mode == TimestampMode::None)
+  {
+    return;
+  }
+
+  const ezDateTime dateTime(ezTimestamp::CurrentTimestamp());
+
+  switch (mode)
+  {
+    case TimestampMode::Numeric:
+      sTimestampOut.Format("[{}] ", ezArgDateTime(dateTime, ezArgDateTime::ShowDate | ezArgDateTime::ShowMilliseconds | ezArgDateTime::ShowTimeZone));
+      break;
+    case TimestampMode::TimeOnly:
+      sTimestampOut.Format("[{}] ", ezArgDateTime(dateTime, ezArgDateTime::ShowMilliseconds));
+      break;
+    case TimestampMode::Textual:
+      sTimestampOut.Format("[{}] ", ezArgDateTime(dateTime, ezArgDateTime::TextualDate | ezArgDateTime::ShowMilliseconds | ezArgDateTime::ShowTimeZone));
+      break;
+    default:
+      EZ_ASSERT_DEV(false, "Unknown timestamp mode.");
+      break;
+  }
 }
 
 void ezLog::SetThreadLocalLogSystem(ezLogInterface* pInterface)
@@ -325,5 +357,21 @@ void ezLog::Debug(ezLogInterface* pInterface, const ezFormatString& string)
 }
 
 #endif
+
+bool ezLog::Flush(ezUInt32 uiNumNewMsgThreshold, ezTime timeIntervalThreshold, ezLogInterface* pInterface /*= GetThreadLocalLogSystem()*/)
+{
+  if (pInterface == nullptr || pInterface->m_uiLoggedMsgsSinceFlush == 0) // if really nothing was logged, don't execute a flush
+    return false;
+
+  if (pInterface->m_uiLoggedMsgsSinceFlush <= uiNumNewMsgThreshold && ezTime::Now() - pInterface->m_LastFlushTime < timeIntervalThreshold)
+    return false;
+
+  BroadcastLoggingEvent(pInterface, ezLogMsgType::Flush, nullptr);
+
+  pInterface->m_uiLoggedMsgsSinceFlush = 0;
+  pInterface->m_LastFlushTime = ezTime::Now();
+
+  return true;
+}
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Logging_Implementation_Log);
