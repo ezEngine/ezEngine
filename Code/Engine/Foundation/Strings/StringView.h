@@ -30,6 +30,9 @@ public:
   /// \brief Creates a string view for the range from pStart to pEnd.
   ezStringView(const char* pStart, const char* pEnd); // [tested]
 
+  /// \brief Creates a string view for the range from pStart to pStart + uiLength.
+  ezStringView(const char* pStart, ezUInt32 uiLength);
+
   /// \brief Advances the start to the next character, unless the end of the range was reached.
   void operator++(); // [tested]
 

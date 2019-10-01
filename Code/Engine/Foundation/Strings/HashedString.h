@@ -76,6 +76,9 @@ public:
   template <size_t N>
   void Assign(const char (&szString)[N]); // [tested]
 
+  template <size_t N>
+  void Assign(char (&szString)[N]) = delete;
+
   /// \brief Assigning a new string from a non-hashed string is a very slow operation, this should be used rarely.
   ///
   /// If you need to create an object to compare ezHashedString objects against, prefer to use ezTempHashedString. It will only compute
@@ -156,6 +159,9 @@ public:
   /// \brief Creates an ezTempHashedString object from the given string constant. The hash can be computed at compile time.
   template <size_t N>
   ezTempHashedString(const char (&szString)[N]); // [tested]
+
+  template <size_t N>
+  ezTempHashedString(char (&szString)[N]) = delete;
 
   /// \brief Creates an ezTempHashedString object from the given string. Computes the hash of the given string during runtime, which might
   /// be slow.

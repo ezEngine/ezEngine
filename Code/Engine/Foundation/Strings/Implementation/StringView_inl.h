@@ -16,6 +16,12 @@ inline ezStringView::ezStringView(const char* pStart, const char* pEnd)
   m_pEnd = pEnd;
 }
 
+inline ezStringView::ezStringView(const char* pStart, ezUInt32 uiLength)
+{
+  m_pStart = pStart;
+  m_pEnd = pStart + uiLength;
+}
+
 inline void ezStringView::operator++()
 {
   if (!IsValid())
