@@ -5,9 +5,18 @@ EZ_FOUNDATION_INTERNAL_HEADER
 
 static LONG WINAPI ezCrashHandlerFunc(struct _EXCEPTION_POINTERS* pExceptionInfo)
 {
-  if (ezCrashHandler::GetCrashHandler() != nullptr)
+  static ezMutex s_CrashMutex;
+  EZ_LOCK(s_CrashMutex);
+
+  static bool s_bAlreadyHandled = false;
+
+  if (s_bAlreadyHandled == false)
   {
-    ezCrashHandler::GetCrashHandler()->HandleCrash(pExceptionInfo);
+    if (ezCrashHandler::GetCrashHandler() != nullptr)
+    {
+      s_bAlreadyHandled = true;
+      ezCrashHandler::GetCrashHandler()->HandleCrash(pExceptionInfo);
+    }
   }
 
   return EXCEPTION_CONTINUE_SEARCH;

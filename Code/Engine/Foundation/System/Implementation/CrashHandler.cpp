@@ -4,6 +4,7 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/System/CrashHandler.h>
 #include <Foundation/System/MiniDumpUtils.h>
+#include <Foundation/System/Process.h>
 #include <Foundation/Time/Timestamp.h>
 
 static void PrintHelper(const char* szString)
@@ -57,6 +58,14 @@ void ezCrashHandler_WriteMiniDump::SetDumpFilePath(const char* szAbsDirectoryPat
     const ezDateTime date = ezTimestamp::CurrentTimestamp();
     sOutputPath.AppendFormat("_{}", date);
   }
+
+#if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
+  if (flags.IsSet(PathFlags::AppendPID))
+  {
+    const ezUInt32 pid = ezProcess::GetCurrentProcessID();
+    sOutputPath.AppendFormat("_{}", pid);
+  }
+#endif
 
   sOutputPath.Append(".dmp");
 

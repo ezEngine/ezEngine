@@ -49,14 +49,16 @@ public:
     {
       AppendDate = EZ_BIT(0),      ///< Whether to append the current date to the crash-dump file (YYYY-MM-DD_HH-MM-SS)
       AppendSubFolder = EZ_BIT(1), ///< Whether to append "CrashDump" as a sub-folder
+      AppendPID = EZ_BIT(2),       ///< Whether to append the process ID to the crash-dump file
 
-      Default = AppendDate | AppendSubFolder
+      Default = AppendDate | AppendSubFolder | AppendPID
     };
 
     struct Bits
     {
       StorageType AppendDate : 1;
       StorageType AppendSubFolder : 1;
+      StorageType AppendPID : 1;
     };
   };
 
