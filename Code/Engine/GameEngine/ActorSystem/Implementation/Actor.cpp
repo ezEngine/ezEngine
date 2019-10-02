@@ -91,6 +91,10 @@ void ezActor::UpdateAllPlugins()
   }
 }
 
+void ezActor::Activate()
+{
+}
+
 void ezActor::Update()
 {
   UpdateAllPlugins();

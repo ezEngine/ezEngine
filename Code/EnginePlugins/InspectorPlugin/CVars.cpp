@@ -154,14 +154,14 @@ namespace CVarsDetail
     }
   }
 
-  static void CVarEventHandler(const ezCVar::CVarEvent& e)
+  static void CVarEventHandler(const ezCVarEvent& e)
   {
     if (!ezTelemetry::IsConnectedToClient())
       return;
 
     switch (e.m_EventType)
     {
-      case ezCVar::CVarEvent::ValueChanged:
+      case ezCVarEvent::ValueChanged:
         SendCVarTelemetry(e.m_pCVar);
         break;
 

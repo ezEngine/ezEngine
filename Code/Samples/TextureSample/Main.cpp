@@ -393,6 +393,8 @@ public:
     // and that it therefore needs to cleanup anything that depends on that
     ezStartup::ShutdownHighLevelSystems();
 
+    ezResourceManager::FreeAllUnusedResources();
+
     m_pDevice->DestroyRasterizerState(m_hRasterizerState);
     m_pDevice->DestroyDepthStencilState(m_hDepthStencilState);
 

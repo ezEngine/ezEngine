@@ -38,7 +38,7 @@ namespace ezInternal
     ezIdTable<ezGameObjectId, ezGameObject*, ezLocalAllocatorWrapper> m_Objects;
     ObjectStorage m_ObjectStorage;
 
-    ezDynamicArray<ezGameObject*, ezLocalAllocatorWrapper> m_DeadObjects;
+    ezSet<ezGameObject*, ezCompareHelper<ezGameObject*>, ezLocalAllocatorWrapper> m_DeadObjects;
 
     // hierarchy structures
     struct Hierarchy
@@ -69,6 +69,8 @@ namespace ezInternal
 
     template <typename VISITOR>
     static ezVisitorExecution::Enum TraverseHierarchyLevel(Hierarchy::DataBlockArray& blocks, void* pUserData = nullptr);
+    template <typename VISITOR>
+    static ezVisitorExecution::Enum TraverseHierarchyLevelMultiThreaded(Hierarchy::DataBlockArray& blocks, void* pUserData = nullptr);
 
     typedef ezDelegate<ezVisitorExecution::Enum(ezGameObject*)> VisitorFunc;
     void TraverseBreadthFirst(VisitorFunc& func);
@@ -77,6 +79,9 @@ namespace ezInternal
 
     static void UpdateGlobalTransform(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds);
     static void UpdateGlobalTransformWithParent(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds);
+
+    static void UpdateGlobalTransformAndSpatialData(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds);
+    static void UpdateGlobalTransformWithParentAndSpatialData(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds);
 
     void UpdateGlobalTransforms(float fInvDeltaSeconds);
 
@@ -89,7 +94,7 @@ namespace ezInternal
     ezDynamicArray<ezWorldModule*, ezLocalAllocatorWrapper> m_ModulesToStartSimulation;
 
     // component management
-    ezDynamicArray<ezComponent*, ezLocalAllocatorWrapper> m_DeadComponents;
+    ezSet<ezComponent*, ezCompareHelper<ezComponent*>, ezLocalAllocatorWrapper> m_DeadComponents;
 
     ezDynamicArray<ezComponentHandle, ezLocalAllocatorWrapper> m_ComponentsToInitialize;
     ezDynamicArray<ezComponentHandle, ezLocalAllocatorWrapper> m_ComponentsToStartSimulation;

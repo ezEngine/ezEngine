@@ -279,9 +279,9 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
     return EZ_FAILURE;
   }
 
-  ezUInt64 uiDataSize = image.GetBlobPtr<void>().GetCount();
+  ezUInt64 uiDataSize = image.GetByteBlobPtr().GetCount();
 
-  if (stream.ReadBytes(image.GetBlobPtr<void>().GetPtr(), uiDataSize) != uiDataSize)
+  if (stream.ReadBytes(image.GetByteBlobPtr().GetPtr(), uiDataSize) != uiDataSize)
   {
     ezLog::Error(pLog, "Failed to read image data.");
     return EZ_FAILURE;
@@ -493,7 +493,7 @@ ezResult ezDdsFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
     }
   }
 
-  if (stream.WriteBytes(image.GetBlobPtr<void>().GetPtr(), image.GetBlobPtr<void>().GetCount()) != EZ_SUCCESS)
+  if (stream.WriteBytes(image.GetByteBlobPtr().GetPtr(), image.GetByteBlobPtr().GetCount()) != EZ_SUCCESS)
   {
     ezLog::Error(pLog, "Failed to write image data.");
     return EZ_FAILURE;

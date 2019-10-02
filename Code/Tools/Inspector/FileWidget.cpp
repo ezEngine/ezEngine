@@ -80,11 +80,11 @@ void ezQtFileWidget::ProcessTelemetry(void* pUnuseed)
 
         switch (uiMode)
         {
-          case ezFileMode::Write:
-          case ezFileMode::Append:
+          case ezFileOpenMode::Write:
+          case ezFileOpenMode::Append:
             data.m_State = bSuccess ? OpenWriting : OpenWritingFailed;
             break;
-          case ezFileMode::Read:
+          case ezFileOpenMode::Read:
             data.m_State = bSuccess ? OpenReading : OpenReadingFailed;
             break;
           default:

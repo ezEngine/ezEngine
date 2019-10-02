@@ -94,6 +94,16 @@ inline void ezDateTime::SetDay(ezUInt8 uiDay)
   m_uiDay = ezMath::Clamp<ezUInt8>(uiDay, 1u, 31u);
 }
 
+inline ezUInt8 ezDateTime::GetDayOfWeek() const
+{
+  return m_uiDayOfWeek;
+}
+
+inline void ezDateTime::SetDayOfWeek(ezUInt8 uiDayOfWeek)
+{
+  m_uiDayOfWeek = ezMath::Clamp<ezUInt8>(uiDayOfWeek, 0u, 6u);
+}
+
 inline ezUInt8 ezDateTime::GetHour() const
 {
   return m_uiHour;

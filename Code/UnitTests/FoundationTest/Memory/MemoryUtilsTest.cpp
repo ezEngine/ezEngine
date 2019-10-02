@@ -286,7 +286,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     EZ_TEST_INT(uiRawData[4], 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ByteCompare")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Compare")
   {
     ezUInt32 uiRawDataA[3] = {1, 2, 3};
     ezUInt32 uiRawDataB[3] = {3, 4, 5};
@@ -298,9 +298,9 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     EZ_TEST_INT(uiRawDataB[1], 4);
     EZ_TEST_INT(uiRawDataB[2], 5);
 
-    EZ_TEST_BOOL(ezMemoryUtils::ByteCompare(uiRawDataA, uiRawDataB, 3) < 0);
-    EZ_TEST_BOOL(ezMemoryUtils::ByteCompare(uiRawDataA + 2, uiRawDataB, 1) == 0);
-    EZ_TEST_BOOL(ezMemoryUtils::ByteCompare(uiRawDataB, uiRawDataA, 3) > 0);
+    EZ_TEST_BOOL(ezMemoryUtils::Compare(uiRawDataA, uiRawDataB, 3) < 0);
+    EZ_TEST_BOOL(ezMemoryUtils::Compare(uiRawDataA + 2, uiRawDataB, 1) == 0);
+    EZ_TEST_BOOL(ezMemoryUtils::Compare(uiRawDataB, uiRawDataA, 3) > 0);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddByteOffset")

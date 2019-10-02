@@ -1,6 +1,6 @@
-#include <TexConv2PCH.h>
+#include <TexConvPCH.h>
 
-#include <TexConv2/TexConv2.h>
+#include <TexConv/TexConv.h>
 
 static const char* ToString(ezTexConvChannelValue::Enum e)
 {
@@ -26,7 +26,7 @@ static const char* ToString(ezTexConvChannelValue::Enum e)
   return "";
 }
 
-ezResult ezTexConv2::ParseChannelMappings()
+ezResult ezTexConv::ParseChannelMappings()
 {
   if (m_Processor.m_Descriptor.m_OutputType == ezTexConvOutputType::Atlas)
     return EZ_SUCCESS;
@@ -67,7 +67,7 @@ ezResult ezTexConv2::ParseChannelMappings()
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConv2::ParseChannelSliceMapping(ezInt32 iSlice)
+ezResult ezTexConv::ParseChannelSliceMapping(ezInt32 iSlice)
 {
   const auto pCmd = ezCommandLineUtils::GetGlobalInstance();
   auto& mappings = m_Processor.m_Descriptor.m_ChannelMappings;
@@ -163,7 +163,7 @@ ezResult ezTexConv2::ParseChannelSliceMapping(ezInt32 iSlice)
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConv2::ParseChannelMappingConfig(ezTexConvChannelMapping& out_Mapping, const char* cfg, ezInt32 iChannelIndex,
+ezResult ezTexConv::ParseChannelMappingConfig(ezTexConvChannelMapping& out_Mapping, const char* cfg, ezInt32 iChannelIndex,
                                                bool bSingleChannel)
 {
   out_Mapping.m_iInputImageIndex = -1;

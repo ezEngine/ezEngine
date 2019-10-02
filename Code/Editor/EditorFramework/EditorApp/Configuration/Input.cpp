@@ -17,7 +17,7 @@ void ezQtEditorApp::GetKnownInputSlots(ezDynamicArray<ezString>& slotList) const
   sSearchDir.AppendPath("InputSlots/*.txt");
 
   ezFileSystemIterator it;
-  if (it.StartSearch(sSearchDir, false, false).Succeeded())
+  if (it.StartSearch(sSearchDir, ezFileSystemIteratorFlags::ReportFiles).Succeeded())
   {
     do
     {

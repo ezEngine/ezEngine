@@ -142,7 +142,7 @@ void ezGraphicsTest::ShutdownRenderer()
 
   ezStartup::ShutdownHighLevelSystems();
 
-  ezResourceManager::FreeUnusedResources(true);
+  ezResourceManager::FreeAllUnusedResources();
 
   if (m_pDevice)
   {

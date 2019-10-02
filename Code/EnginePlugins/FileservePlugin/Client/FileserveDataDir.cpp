@@ -18,7 +18,7 @@ void ezDataDirectory::FileserveType::ReloadExternalConfigs()
   FolderType::ReloadExternalConfigs();
 }
 
-ezDataDirectoryReader* ezDataDirectory::FileserveType::OpenFileToRead(const char* szFile, bool bSpecificallyThisDataDir)
+ezDataDirectoryReader* ezDataDirectory::FileserveType::OpenFileToRead(const char* szFile, ezFileShareMode::Enum FileShareMode, bool bSpecificallyThisDataDir)
 {
   // fileserve cannot handle absolute paths, which is actually already ruled out at creation time, so this is just an optimization
   if (ezPathUtils::IsAbsolutePath(szFile))
@@ -34,16 +34,16 @@ ezDataDirectoryReader* ezDataDirectory::FileserveType::OpenFileToRead(const char
   if (ezFileserveClient::GetSingleton()->DownloadFile(m_uiDataDirID, sRedirected, bSpecificallyThisDataDir).Failed())
     return nullptr;
 
-  return FolderType::OpenFileToRead(sRedirected, bSpecificallyThisDataDir);
+  return FolderType::OpenFileToRead(sRedirected, FileShareMode, bSpecificallyThisDataDir);
 }
 
-ezDataDirectoryWriter* ezDataDirectory::FileserveType::OpenFileToWrite(const char* szFile)
+ezDataDirectoryWriter* ezDataDirectory::FileserveType::OpenFileToWrite(const char* szFile, ezFileShareMode::Enum FileShareMode)
 {
   // fileserve cannot handle absolute paths, which is actually already ruled out at creation time, so this is just an optimization
   if (ezPathUtils::IsAbsolutePath(szFile))
     return nullptr;
 
-  return FolderType::OpenFileToWrite(szFile);
+  return FolderType::OpenFileToWrite(szFile, FileShareMode);
 }
 
 ezResult ezDataDirectory::FileserveType::InternalInitializeDataDirectory(const char* szDirectory)
@@ -152,7 +152,7 @@ void ezDataDirectory::FileserveType::FinishedWriting(FolderWriter* pWriter)
   sAbsPath.AppendPath(pWriter->GetFilePath());
 
   ezOSFile file;
-  if (file.Open(sAbsPath, ezFileMode::Read).Failed())
+  if (file.Open(sAbsPath, ezFileOpenMode::Read).Failed())
   {
     ezLog::Error("Could not read file for upload: '{0}'", sAbsPath);
     return;

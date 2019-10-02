@@ -4,7 +4,7 @@
 
 class ezStreamWriter;
 
-class ezTexConv2 : public ezApplication
+class ezTexConv : public ezApplication
 {
 public:
   typedef ezApplication SUPER;
@@ -21,7 +21,7 @@ public:
     ezInt32 m_iEnumValue = -1;
   };
 
-  ezTexConv2();
+  ezTexConv();
 
 public:
   virtual ApplicationExecution Run() override;

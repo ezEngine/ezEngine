@@ -21,6 +21,9 @@ namespace
     {
       switch (le.m_EventType)
       {
+        case ezLogMsgType::Flush:
+          m_Result.Append("[Flush]\n");
+          return;
         case ezLogMsgType::BeginGroup:
           m_Result.Append(">", le.m_szTag, " ", le.m_szText, "\n");
           break;
@@ -78,6 +81,8 @@ EZ_CREATE_SIMPLE_TEST(Logging, Log)
     ezLog::Info("{0}", "It's hard to overstate my satisfaction.");
     ezLog::Dev("{0}", "Aperture Science. We do what we must, because we can,");
     ezLog::Dev("{0}", "For the good of all of us, except the ones who are dead.");
+    ezLog::Flush();
+    ezLog::Flush(); // second flush should be ignored
 
     {
       EZ_LOG_BLOCK("Verse 2");
@@ -103,6 +108,8 @@ EZ_CREATE_SIMPLE_TEST(Logging, Log)
       ezLog::Info("As they burned it hurt because I was so happy for you.");
       ezLog::Error("Now these points of data make a beautiful line");
       ezLog::Dev("and we're off the beta, we're releasing on time.");
+      ezLog::Flush();
+      ezLog::Flush();
 
       {
         EZ_LOG_BLOCK("Verse 4");
@@ -167,6 +174,7 @@ E: Huge Success\n\
 I: It's hard to overstate my satisfaction.\n\
 E: Aperture Science. We do what we must, because we can,\n\
 E: For the good of all of us, except the ones who are dead.\n\
+[Flush]\n\
 > Verse 2\n\
 E: But there's no sense crying over every mistake.\n\
 I: And the science gets done, and you make a neat gun\n\
@@ -177,6 +185,7 @@ I: I'm not even angry.\n\
 I: And tore me to pieces,\n\
 I: As they burned it hurt because I was so happy for you.\n\
 E: Now these points of data make a beautiful line\n\
+[Flush]\n\
 > Verse 4\n\
 > Verse 5\n\
 W: Anyway, this cake is great.\n\

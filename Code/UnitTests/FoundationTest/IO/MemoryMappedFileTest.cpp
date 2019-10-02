@@ -17,7 +17,7 @@ EZ_CREATE_SIMPLE_TEST(IO, MemoryMappedFile)
   // generate test data
   {
     ezOSFile file;
-    if (EZ_TEST_BOOL_MSG(file.Open(sOutputFile, ezFileMode::Write).Succeeded(), "File for memory mapping could not be created").Failed())
+    if (EZ_TEST_BOOL_MSG(file.Open(sOutputFile, ezFileOpenMode::Write).Succeeded(), "File for memory mapping could not be created").Failed())
       return;
 
     ezDynamicArray<ezUInt32> data;

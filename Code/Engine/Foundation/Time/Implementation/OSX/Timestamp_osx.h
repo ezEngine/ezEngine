@@ -17,6 +17,7 @@ const ezTimestamp ezDateTime::GetTimestamp() const
   gdate.year = m_iYear;
   gdate.month = m_uiMonth;
   gdate.day = m_uiDay;
+  //gdate.dayOfWeek = m_uiDayOfWeek; // TODO: nothing like this exists
   gdate.hour = m_uiHour;
   gdate.minute = m_uiMinute;
   gdate.second = (double)m_uiSecond + (double)m_uiMicroseconds / 1000000.0;
@@ -39,6 +40,7 @@ bool ezDateTime::SetTimestamp(ezTimestamp timestamp)
   m_iYear = (ezInt16)gdate.year;
   m_uiMonth = (ezUInt8)gdate.month;
   m_uiDay = (ezUInt8)gdate.day;
+  m_uiDayOfWeek = ezMath::MaxValue<ezUInt8>(); // TODO: no day of week exists, setting to uint8 max.
   m_uiHour = (ezUInt8)gdate.hour;
   m_uiMinute = (ezUInt8)gdate.minute;
   m_uiSecond = (ezUInt8)ezMath::Trunc(gdate.second);

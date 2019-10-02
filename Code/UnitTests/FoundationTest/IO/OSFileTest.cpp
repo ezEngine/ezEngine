@@ -29,7 +29,7 @@ Only concrete and clocks.\n\
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Write File")
   {
     ezOSFile f;
-    EZ_TEST_BOOL(f.Open(sOutputFile.GetData(), ezFileMode::Write) == EZ_SUCCESS);
+    EZ_TEST_BOOL(f.Open(sOutputFile.GetData(), ezFileOpenMode::Write) == EZ_SUCCESS);
     EZ_TEST_BOOL(f.IsOpen());
     EZ_TEST_INT(f.GetFilePosition(), 0);
     EZ_TEST_INT(f.GetFileSize(), 0);
@@ -42,7 +42,7 @@ Only concrete and clocks.\n\
     }
 
     EZ_TEST_INT(f.GetFilePosition(), uiTextLen);
-    f.SetFilePosition(5, ezFilePos::FromStart);
+    f.SetFilePosition(5, ezFileSeekMode::FromStart);
     EZ_TEST_INT(f.GetFileSize(), uiTextLen);
 
     EZ_TEST_INT(f.GetFilePosition(), 5);
@@ -52,7 +52,7 @@ Only concrete and clocks.\n\
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Append File")
   {
     ezOSFile f;
-    EZ_TEST_BOOL(f.Open(sOutputFile.GetData(), ezFileMode::Append) == EZ_SUCCESS);
+    EZ_TEST_BOOL(f.Open(sOutputFile.GetData(), ezFileOpenMode::Append) == EZ_SUCCESS);
     EZ_TEST_BOOL(f.IsOpen());
     EZ_TEST_INT(f.GetFilePosition(), uiTextLen);
     EZ_TEST_BOOL(f.Write(sFileContent.GetData(), uiTextLen) == EZ_SUCCESS);
@@ -67,7 +67,7 @@ Only concrete and clocks.\n\
     char szTemp[FS_MAX_PATH];
 
     ezOSFile f;
-    EZ_TEST_BOOL(f.Open(sOutputFile.GetData(), ezFileMode::Read) == EZ_SUCCESS);
+    EZ_TEST_BOOL(f.Open(sOutputFile.GetData(), ezFileOpenMode::Read) == EZ_SUCCESS);
     EZ_TEST_BOOL(f.IsOpen());
     EZ_TEST_INT(f.GetFilePosition(), 0);
 
@@ -85,7 +85,7 @@ Only concrete and clocks.\n\
     ezOSFile::CopyFile(sOutputFile.GetData(), sOutputFile2.GetData());
 
     ezOSFile f;
-    EZ_TEST_BOOL(f.Open(sOutputFile2.GetData(), ezFileMode::Read) == EZ_SUCCESS);
+    EZ_TEST_BOOL(f.Open(sOutputFile2.GetData(), ezFileOpenMode::Read) == EZ_SUCCESS);
 
     const ezUInt32 FS_MAX_PATH = 1024;
     char szTemp[FS_MAX_PATH];
@@ -101,7 +101,7 @@ Only concrete and clocks.\n\
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadAll")
   {
     ezOSFile f;
-    EZ_TEST_BOOL(f.Open(sOutputFile, ezFileMode::Read) == EZ_SUCCESS);
+    EZ_TEST_BOOL(f.Open(sOutputFile, ezFileOpenMode::Read) == EZ_SUCCESS);
 
     ezDynamicArray<ezUInt8> fileContent;
     const ezUInt64 bytes = f.ReadAll(fileContent);
@@ -129,19 +129,19 @@ Only concrete and clocks.\n\
     // s.m_uiFileSize, s.m_LastModificationTime.GetInt64(ezSIUnitOfTime::Microsecond));
   }
 
-#if (EZ_ENABLED(EZ_SUPPORTS_CASE_INSENSITIVE_PATHS) && EZ_ENABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS))
+#  if (EZ_ENABLED(EZ_SUPPORTS_CASE_INSENSITIVE_PATHS) && EZ_ENABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS))
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFileCasing")
   {
     ezStringBuilder dir = sOutputFile2;
     dir.ToLower();
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#    if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     // On Windows the drive letter will always be turned upper case by ezOSFile::GetFileCasing()
     // ensure that our input data ('ground truth') also uses an upper case drive letter
     auto driveLetterIterator = sOutputFile2.GetIteratorFront();
     const ezUInt32 uiDriveLetter = ezStringUtils::ToUpperChar(driveLetterIterator.GetCharacter());
     sOutputFile2.ChangeCharacter(driveLetterIterator, uiDriveLetter);
-#endif
+#    endif
 
     ezStringBuilder sCorrected;
     EZ_TEST_BOOL(ezOSFile::GetFileCasing(dir.GetData(), sCorrected) == EZ_SUCCESS);
@@ -149,7 +149,7 @@ Only concrete and clocks.\n\
     // On Windows the drive letter will always be made to upper case
     EZ_TEST_STRING(sCorrected.GetData(), sOutputFile2.GetData());
   }
-#endif // EZ_SUPPORTS_CASE_INSENSITIVE_PATHS && EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS
+#  endif // EZ_SUPPORTS_CASE_INSENSITIVE_PATHS && EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS
 
 #endif // EZ_SUPPORTS_FILE_STATS
 
@@ -170,7 +170,7 @@ Only concrete and clocks.\n\
     ezUInt32 uiFiles = 0;
 
     ezFileSystemIterator it;
-    if (it.StartSearch(sOutputFolder.GetData(), true, true) == EZ_SUCCESS)
+    if (it.StartSearch(sOutputFolder.GetData(), ezFileSystemIteratorFlags::ReportFilesAndFoldersRecursive) == EZ_SUCCESS)
     {
       int SkipFolder = 0;
 
@@ -215,8 +215,8 @@ Only concrete and clocks.\n\
     EZ_TEST_BOOL(ezOSFile::DeleteFile(sOutputFile2.GetData()) == EZ_SUCCESS); // second time should still 'succeed'
 
     ezOSFile f;
-    EZ_TEST_BOOL(f.Open(sOutputFile.GetData(), ezFileMode::Read) == EZ_FAILURE);  // file should not exist anymore
-    EZ_TEST_BOOL(f.Open(sOutputFile2.GetData(), ezFileMode::Read) == EZ_FAILURE); // file should not exist anymore
+    EZ_TEST_BOOL(f.Open(sOutputFile.GetData(), ezFileOpenMode::Read) == EZ_FAILURE);  // file should not exist anymore
+    EZ_TEST_BOOL(f.Open(sOutputFile2.GetData(), ezFileOpenMode::Read) == EZ_FAILURE); // file should not exist anymore
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetCurrentWorkingDirectory")
@@ -226,6 +226,15 @@ Only concrete and clocks.\n\
     EZ_TEST_BOOL(!cwd.IsEmpty());
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakePathAbsoluteWithCWD")
+  {
+    ezStringBuilder cwd = ezOSFile::GetCurrentWorkingDirectory();
+    ezStringBuilder path = ezOSFile::MakePathAbsoluteWithCWD("sub/folder");
+
+    EZ_TEST_BOOL(path.StartsWith(cwd));
+    EZ_TEST_BOOL(path.EndsWith("/sub/folder"));
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExistsFile")
   {
     EZ_TEST_BOOL(ezOSFile::ExistsFile(sOutputFile.GetData()) == false);
@@ -233,7 +242,7 @@ Only concrete and clocks.\n\
 
     {
       ezOSFile f;
-      EZ_TEST_BOOL(f.Open(sOutputFile.GetData(), ezFileMode::Write) == EZ_SUCCESS);
+      EZ_TEST_BOOL(f.Open(sOutputFile.GetData(), ezFileOpenMode::Write) == EZ_SUCCESS);
     }
 
     EZ_TEST_BOOL(ezOSFile::ExistsFile(sOutputFile.GetData()) == true);
@@ -241,7 +250,7 @@ Only concrete and clocks.\n\
 
     {
       ezOSFile f;
-      EZ_TEST_BOOL(f.Open(sOutputFile2.GetData(), ezFileMode::Write) == EZ_SUCCESS);
+      EZ_TEST_BOOL(f.Open(sOutputFile2.GetData(), ezFileOpenMode::Write) == EZ_SUCCESS);
     }
 
     EZ_TEST_BOOL(ezOSFile::ExistsFile(sOutputFile.GetData()) == true);

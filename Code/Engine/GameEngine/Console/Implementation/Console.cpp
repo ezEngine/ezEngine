@@ -104,6 +104,7 @@ void ezConsole::LogHandler(const ezLoggingEventData& data)
 
   switch (data.m_EventType)
   {
+    case ezLogMsgType::Flush:
     case ezLogMsgType::BeginGroup:
     case ezLogMsgType::EndGroup:
     case ezLogMsgType::None:
@@ -215,4 +216,3 @@ void ezConsole::LoadState(ezStreamReader& Stream)
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Console_Implementation_Console);
-

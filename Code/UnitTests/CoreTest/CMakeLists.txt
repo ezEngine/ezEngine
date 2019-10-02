@@ -10,6 +10,11 @@ target_link_libraries(${PROJECT_NAME}
   TestFramework
   Utilities
   Core
+  Texture
+)
+
+add_dependencies(${PROJECT_NAME}
+  TexConv
 )
 
 ez_ci_add_test(${PROJECT_NAME})

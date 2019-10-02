@@ -15,3 +15,8 @@ target_link_libraries(${PROJECT_NAME}
   RendererDX11
   System
 )
+
+add_dependencies(${PROJECT_NAME}
+  InspectorPlugin
+  ShaderCompilerHLSL
+)

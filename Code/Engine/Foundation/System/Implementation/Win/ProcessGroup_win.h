@@ -116,7 +116,10 @@ ezResult ezProcessGroup::WaitToFinish(ezTime timeout /*= ezTime::Zero()*/)
   }
 
   if (allProcessesGone)
+  {
+    m_impl->Close();
     return EZ_SUCCESS;
+  }
 
   DWORD dwTimeout = INFINITE;
 
@@ -154,6 +157,7 @@ ezResult ezProcessGroup::WaitToFinish(ezTime timeout /*= ezTime::Zero()*/)
     // we got the expected result, all processes have finished
     if (((HANDLE)CompletionKey == m_impl->m_hJobObject && CompletionCode == JOB_OBJECT_MSG_ACTIVE_PROCESS_ZERO))
     {
+      m_impl->Close();
       return EZ_SUCCESS;
     }
 

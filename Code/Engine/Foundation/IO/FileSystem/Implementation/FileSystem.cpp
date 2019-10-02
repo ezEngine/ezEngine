@@ -441,7 +441,7 @@ const char* ezFileSystem::ExtractRootName(const char* szPath, ezString& rootName
   return it.GetStartPointer(); // return the string after the data-dir filter declaration
 }
 
-ezDataDirectoryReader* ezFileSystem::GetFileReader(const char* szFile, bool bAllowFileEvents)
+ezDataDirectoryReader* ezFileSystem::GetFileReader(const char* szFile, ezFileShareMode::Enum FileShareMode, bool bAllowFileEvents)
 {
   EZ_ASSERT_DEV(s_Data != nullptr, "FileSystem is not initialized.");
 
@@ -481,7 +481,7 @@ ezDataDirectoryReader* ezFileSystem::GetFileReader(const char* szFile, bool bAll
     }
 
     // Let the data directory try to open the file.
-    ezDataDirectoryReader* pReader = s_Data->m_DataDirectories[i].m_pDataDirectory->OpenFileToRead(szRelPath, bOneSpecificDataDir);
+    ezDataDirectoryReader* pReader = s_Data->m_DataDirectories[i].m_pDataDirectory->OpenFileToRead(szRelPath, FileShareMode, bOneSpecificDataDir);
 
     if (bAllowFileEvents && pReader != nullptr)
     {
@@ -509,7 +509,7 @@ ezDataDirectoryReader* ezFileSystem::GetFileReader(const char* szFile, bool bAll
   return nullptr;
 }
 
-ezDataDirectoryWriter* ezFileSystem::GetFileWriter(const char* szFile, bool bAllowFileEvents)
+ezDataDirectoryWriter* ezFileSystem::GetFileWriter(const char* szFile, ezFileShareMode::Enum FileShareMode, bool bAllowFileEvents)
 {
   EZ_ASSERT_DEV(s_Data != nullptr, "FileSystem is not initialized.");
 
@@ -557,7 +557,7 @@ ezDataDirectoryWriter* ezFileSystem::GetFileWriter(const char* szFile, bool bAll
       s_Data->m_Event.Broadcast(fe);
     }
 
-    ezDataDirectoryWriter* pWriter = s_Data->m_DataDirectories[i].m_pDataDirectory->OpenFileToWrite(szRelPath);
+    ezDataDirectoryWriter* pWriter = s_Data->m_DataDirectories[i].m_pDataDirectory->OpenFileToWrite(szRelPath, FileShareMode);
 
     if (bAllowFileEvents && pWriter != nullptr)
     {
@@ -613,7 +613,7 @@ ezResult ezFileSystem::ResolvePath(const char* szPath, ezStringBuilder* out_sAbs
   else
   {
     // try to get a reader -> if we get one, the file does indeed exist
-    ezDataDirectoryReader* pReader = ezFileSystem::GetFileReader(szPath, true);
+    ezDataDirectoryReader* pReader = ezFileSystem::GetFileReader(szPath, ezFileShareMode::SharedReads, true);
 
     if (!pReader)
       return EZ_FAILURE;

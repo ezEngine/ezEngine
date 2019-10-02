@@ -2,9 +2,6 @@
 template <typename T, typename Derived>
 ezArrayBase<T, Derived>::ezArrayBase()
 {
-  m_pElements = nullptr;
-  m_uiCount = 0;
-  m_uiCapacity = 0;
 }
 
 template <typename T, typename Derived>
@@ -80,7 +77,7 @@ template <typename T, typename Derived>
 EZ_ALWAYS_INLINE const T& ezArrayBase<T, Derived>::operator[](const ezUInt32 uiIndex) const
 {
   EZ_ASSERT_DEV(uiIndex < m_uiCount, "Out of bounds access. Array has {0} elements, trying to access element at index {1}.", m_uiCount,
-                uiIndex);
+    uiIndex);
   return static_cast<const Derived*>(this)->GetElementsPtr()[uiIndex];
 }
 
@@ -88,7 +85,7 @@ template <typename T, typename Derived>
 EZ_ALWAYS_INLINE T& ezArrayBase<T, Derived>::operator[](const ezUInt32 uiIndex)
 {
   EZ_ASSERT_DEV(uiIndex < m_uiCount, "Out of bounds access. Array has {0} elements, trying to access element at index {1}.", m_uiCount,
-                uiIndex);
+    uiIndex);
   return static_cast<Derived*>(this)->GetElementsPtr()[uiIndex];
 }
 
@@ -141,8 +138,8 @@ void ezArrayBase<T, Derived>::EnsureCount(ezUInt32 uiCount)
 
 template <typename T, typename Derived>
 template <typename> // second template needed so that the compiler does only instantiate it when called. Otherwise the static_assert would
-                    // trigger early.
-                    void ezArrayBase<T, Derived>::SetCountUninitialized(ezUInt32 uiCount)
+// trigger early.
+void ezArrayBase<T, Derived>::SetCountUninitialized(ezUInt32 uiCount)
 {
   static_assert(ezIsPodType<T>::value == ezTypeIsPod::value, "SetCountUninitialized is only supported for POD types.");
   const ezUInt32 uiOldCount = m_uiCount;
@@ -233,31 +230,36 @@ bool ezArrayBase<T, Derived>::RemoveAndSwap(const T& value)
 }
 
 template <typename T, typename Derived>
-void ezArrayBase<T, Derived>::RemoveAtAndCopy(ezUInt32 uiIndex)
+void ezArrayBase<T, Derived>::RemoveAtAndCopy(ezUInt32 uiIndex, ezUInt32 uiNumElements /*= 1*/)
 {
-  EZ_ASSERT_DEV(uiIndex < m_uiCount, "Out of bounds access. Array has {0} elements, trying to remove element at index {1}.", m_uiCount,
-                uiIndex);
+  EZ_ASSERT_DEV(uiIndex + uiNumElements <= m_uiCount, "Out of bounds access. Array has {0} elements, trying to remove element at index {1}.", m_uiCount,
+    uiIndex + uiNumElements - 1);
 
   T* pElements = static_cast<Derived*>(this)->GetElementsPtr();
 
-  m_uiCount--;
-  ezMemoryUtils::RelocateOverlapped(pElements + uiIndex, pElements + uiIndex + 1, m_uiCount - uiIndex);
+  m_uiCount -= uiNumElements;
+  ezMemoryUtils::RelocateOverlapped(pElements + uiIndex, pElements + uiIndex + uiNumElements, m_uiCount - uiIndex);
 }
 
 template <typename T, typename Derived>
-void ezArrayBase<T, Derived>::RemoveAtAndSwap(ezUInt32 uiIndex)
+void ezArrayBase<T, Derived>::RemoveAtAndSwap(ezUInt32 uiIndex, ezUInt32 uiNumElements /*= 1*/)
 {
-  EZ_ASSERT_DEV(uiIndex < m_uiCount, "Out of bounds access. Array has {0} elements, trying to remove element at index {1}.", m_uiCount,
-                uiIndex);
+  EZ_ASSERT_DEV(uiIndex + uiNumElements <= m_uiCount, "Out of bounds access. Array has {0} elements, trying to remove element at index {1}.", m_uiCount,
+    uiIndex + uiNumElements - 1);
 
   T* pElements = static_cast<Derived*>(this)->GetElementsPtr();
 
-  m_uiCount--;
-  if (m_uiCount != uiIndex)
+  for (ezUInt32 i = 0; i < uiNumElements; ++i)
   {
-    pElements[uiIndex] = std::move(pElements[m_uiCount]);
+    m_uiCount--;
+
+    if (m_uiCount != uiIndex)
+    {
+      pElements[uiIndex] = std::move(pElements[m_uiCount]);
+    }
+    ezMemoryUtils::Destruct(pElements + m_uiCount, 1);
+    ++uiIndex;
   }
-  ezMemoryUtils::Destruct(pElements + m_uiCount, 1);
 }
 
 template <typename T, typename Derived>
@@ -352,7 +354,7 @@ template <typename T, typename Derived>
 void ezArrayBase<T, Derived>::PopBack(ezUInt32 uiCountToRemove /* = 1 */)
 {
   EZ_ASSERT_DEV(m_uiCount >= uiCountToRemove, "Out of bounds access. Array has {0} elements, trying to pop {1} elements.", m_uiCount,
-                uiCountToRemove);
+    uiCountToRemove);
 
   m_uiCount -= uiCountToRemove;
   ezMemoryUtils::Destruct(static_cast<Derived*>(this)->GetElementsPtr() + m_uiCount, uiCountToRemove);
@@ -442,4 +444,3 @@ void ezArrayBase<T, Derived>::DoSwap(ezArrayBase<T, Derived>& other)
   ezMath::Swap(this->m_uiCapacity, other.m_uiCapacity);
   ezMath::Swap(this->m_uiCount, other.m_uiCount);
 }
-

@@ -230,6 +230,7 @@ class ezSet : public ezSetBase<KeyType, Comparer>
 {
 public:
   ezSet();
+  ezSet(ezAllocatorBase* pAllocator);
   ezSet(const Comparer& comparer, ezAllocatorBase* pAllocator);
 
   ezSet(const ezSet<KeyType, Comparer, AllocatorWrapper>& other);

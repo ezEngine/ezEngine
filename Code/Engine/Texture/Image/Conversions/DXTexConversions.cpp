@@ -183,7 +183,7 @@ class ezImageConversion_CompressDxTex : public ezImageConversionStepCompressBloc
     return supportedConversions;
   }
 
-  virtual ezResult CompressBlocks(ezBlobPtr<const void> source, ezBlobPtr<void> target, ezUInt32 numBlocksX, ezUInt32 numBlocksY,
+  virtual ezResult CompressBlocks(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 numBlocksX, ezUInt32 numBlocksY,
     ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const override
   {
     const ezUInt32 targetWidth = numBlocksX * ezImageFormat::GetBlockWidth(targetFormat);
@@ -242,7 +242,7 @@ class ezImageConversion_CompressDxTex : public ezImageConversionStepCompressBloc
     if (!bCompressionDone)
       return EZ_FAILURE;
 
-    target.CopyFrom(ezBlobPtr<const void>(dxDstImage.GetPixels(), static_cast<ezUInt32>(dxDstImage.GetPixelsSize())));
+    target.CopyFrom(ezConstByteBlobPtr(dxDstImage.GetPixels(), static_cast<ezUInt32>(dxDstImage.GetPixelsSize())));
 
     return EZ_SUCCESS;
   }

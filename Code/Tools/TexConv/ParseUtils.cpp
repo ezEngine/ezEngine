@@ -1,8 +1,8 @@
-#include <TexConv2PCH.h>
+#include <TexConvPCH.h>
 
-#include <TexConv2/TexConv2.h>
+#include <TexConv/TexConv.h>
 
-ezResult ezTexConv2::ParseBoolOption(const char* szOption, bool& bResult) const
+ezResult ezTexConv::ParseBoolOption(const char* szOption, bool& bResult) const
 {
   const auto pCmd = ezCommandLineUtils::GetGlobalInstance();
 
@@ -19,7 +19,7 @@ ezResult ezTexConv2::ParseBoolOption(const char* szOption, bool& bResult) const
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConv2::ParseUIntOption(const char* szOption, ezInt32 iMinValue, ezInt32 iMaxValue, ezUInt32& uiResult) const
+ezResult ezTexConv::ParseUIntOption(const char* szOption, ezInt32 iMinValue, ezInt32 iMaxValue, ezUInt32& uiResult) const
 {
   const auto pCmd = ezCommandLineUtils::GetGlobalInstance();
   const ezUInt32 uiDefault = uiResult;
@@ -45,7 +45,7 @@ ezResult ezTexConv2::ParseUIntOption(const char* szOption, ezInt32 iMinValue, ez
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConv2::ParseFloatOption(const char* szOption, float fMinValue, float fMaxValue, float& fResult) const
+ezResult ezTexConv::ParseFloatOption(const char* szOption, float fMinValue, float fMaxValue, float& fResult) const
 {
   const auto pCmd = ezCommandLineUtils::GetGlobalInstance();
   float fDefault = fResult;
@@ -71,7 +71,7 @@ ezResult ezTexConv2::ParseFloatOption(const char* szOption, float fMinValue, flo
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConv2::ParseStringOption(const char* szOption, const ezDynamicArray<KeyEnumValuePair>& allowed, ezInt32& iResult) const
+ezResult ezTexConv::ParseStringOption(const char* szOption, const ezDynamicArray<KeyEnumValuePair>& allowed, ezInt32& iResult) const
 {
   const auto pCmd = ezCommandLineUtils::GetGlobalInstance();
   const ezStringBuilder sValue = pCmd->GetStringOption(szOption, 0);
@@ -102,7 +102,7 @@ ezResult ezTexConv2::ParseStringOption(const char* szOption, const ezDynamicArra
   return EZ_FAILURE;
 }
 
-void ezTexConv2::PrintOptionValues(const char* szOption, const ezDynamicArray<KeyEnumValuePair>& allowed) const
+void ezTexConv::PrintOptionValues(const char* szOption, const ezDynamicArray<KeyEnumValuePair>& allowed) const
 {
   ezLog::Info("Valid values for option '{}' are:", szOption);
 
@@ -112,7 +112,7 @@ void ezTexConv2::PrintOptionValues(const char* szOption, const ezDynamicArray<Ke
   }
 }
 
-void ezTexConv2::PrintOptionValuesHelp(const char* szOption, const ezDynamicArray<KeyEnumValuePair>& allowed) const
+void ezTexConv::PrintOptionValuesHelp(const char* szOption, const ezDynamicArray<KeyEnumValuePair>& allowed) const
 {
   ezStringBuilder out(szOption, " ");
 
@@ -127,10 +127,10 @@ void ezTexConv2::PrintOptionValuesHelp(const char* szOption, const ezDynamicArra
   ezLog::Info(out);
 }
 
-bool ezTexConv2::ParseFile(const char* szOption, ezString& result) const
+bool ezTexConv::ParseFile(const char* szOption, ezString& result) const
 {
   const auto pCmd = ezCommandLineUtils::GetGlobalInstance();
-  result = pCmd->GetStringOption(szOption);
+  result = pCmd->GetAbsolutePathOption(szOption);
 
   if (!result.IsEmpty())
   {

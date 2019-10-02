@@ -27,14 +27,14 @@ static ezInt32 iChangedRestart = 0;
 
 #if EZ_ENABLED(EZ_SUPPORTS_DYNAMIC_PLUGINS)
 
-static void ChangedCVar(const ezCVar::CVarEvent& e)
+static void ChangedCVar(const ezCVarEvent& e)
 {
   switch (e.m_EventType)
   {
-    case ezCVar::CVarEvent::ValueChanged:
+    case ezCVarEvent::ValueChanged:
       ++iChangedValue;
       break;
-    case ezCVar::CVarEvent::RestartValueChanged:
+    case ezCVarEvent::RestartValueChanged:
       ++iChangedRestart;
       break;
   }

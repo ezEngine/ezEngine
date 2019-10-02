@@ -963,7 +963,7 @@ ezDeque<T, A, Construct>::ezDeque(const ezDeque<T, A, Construct>& other) : ezDeq
 }
 
 template <typename T, typename A, bool Construct>
-ezDeque<T, A, Construct>::ezDeque(ezDeque<T, A, Construct>&& other) : ezDequeBase<T, Construct>(std::move(other), A::GetAllocator())
+ezDeque<T, A, Construct>::ezDeque(ezDeque<T, A, Construct>&& other) : ezDequeBase<T, Construct>(std::move(other), other.GetAllocator())
 {
 }
 
@@ -973,7 +973,7 @@ ezDeque<T, A, Construct>::ezDeque(const ezDequeBase<T, Construct>& other) : ezDe
 }
 
 template <typename T, typename A, bool Construct>
-ezDeque<T, A, Construct>::ezDeque(ezDequeBase<T, Construct>&& other) : ezDequeBase<T, Construct>(std::move(other), A::GetAllocator())
+ezDeque<T, A, Construct>::ezDeque(ezDequeBase<T, Construct>&& other) : ezDequeBase<T, Construct>(std::move(other), other.GetAllocator())
 {
 }
 

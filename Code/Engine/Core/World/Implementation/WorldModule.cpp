@@ -81,7 +81,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 
 static ezUInt16 s_uiNextTypeId = 0;
 
-ezWorldModuleFactory::ezWorldModuleFactory() {}
+ezWorldModuleFactory::ezWorldModuleFactory() = default;
 
 // static
 ezWorldModuleFactory* ezWorldModuleFactory::GetInstance()

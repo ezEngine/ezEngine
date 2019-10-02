@@ -1,5 +1,7 @@
 #pragma once
 
+/// \file
+
 #include <Core/CoreDLL.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Strings/String.h>

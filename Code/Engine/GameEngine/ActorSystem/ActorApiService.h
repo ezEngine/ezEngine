@@ -7,6 +7,7 @@
 class EZ_GAMEENGINE_DLL ezActorApiService: public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezActorApiService, ezReflectedClass);
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezActorApiService);
 
 public:
   ezActorApiService();
@@ -19,5 +20,13 @@ protected:
 private: // directly accessed by ezActorManager
   friend class ezActorManager;
 
-  bool m_bActivated = false;
+  enum class State
+  {
+    New,
+    Active,
+    QueuedForDestruction
+  };
+
+  State m_State = State::New;
+
 };

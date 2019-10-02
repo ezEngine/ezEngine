@@ -20,12 +20,35 @@ static ezUInt64 HighLowToUInt64(ezUInt32 uiHigh32, ezUInt32 uiLow32)
 
 #if EZ_DISABLED(EZ_USE_POSIX_FILE_API)
 
-#include <Shlobj.h>
+#  include <Shlobj.h>
 
-ezResult ezOSFile::InternalOpen(const char* szFile, ezFileMode::Enum OpenMode)
+ezResult ezOSFile::InternalOpen(const char* szFile, ezFileOpenMode::Enum OpenMode, ezFileShareMode::Enum FileShareMode)
 {
   const ezTime sleepTime = ezTime::Milliseconds(20);
   ezInt32 iRetries = 20;
+
+  if (FileShareMode == ezFileShareMode::Default)
+  {
+    // when 'default' share mode is requested, use 'share reads' when opening a file for reading
+    // and use 'exclusive' when opening a file for writing
+
+    if (OpenMode == ezFileOpenMode::Read)
+    {
+      FileShareMode = ezFileShareMode::SharedReads;
+    }
+    else
+    {
+      FileShareMode = ezFileShareMode::Exclusive;
+    }
+  }
+
+  DWORD dwSharedMode = 0; // exclusive access
+  switch (FileShareMode)
+  {
+    case ezFileShareMode::SharedReads:
+      dwSharedMode = FILE_SHARE_READ;
+      break;
+  }
 
   while (iRetries > 0)
   {
@@ -35,18 +58,18 @@ ezResult ezOSFile::InternalOpen(const char* szFile, ezFileMode::Enum OpenMode)
 
     switch (OpenMode)
     {
-      case ezFileMode::Read:
-        m_FileData.m_pFileHandle = CreateFileW(s.GetData(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+      case ezFileOpenMode::Read:
+        m_FileData.m_pFileHandle = CreateFileW(s.GetData(), GENERIC_READ, dwSharedMode, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
         break;
-      case ezFileMode::Write:
-        m_FileData.m_pFileHandle = CreateFileW(s.GetData(), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+      case ezFileOpenMode::Write:
+        m_FileData.m_pFileHandle = CreateFileW(s.GetData(), GENERIC_WRITE, dwSharedMode, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
         break;
-      case ezFileMode::Append:
-        m_FileData.m_pFileHandle = CreateFileW(s.GetData(), FILE_APPEND_DATA, 0, nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+      case ezFileOpenMode::Append:
+        m_FileData.m_pFileHandle = CreateFileW(s.GetData(), FILE_APPEND_DATA, dwSharedMode, nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
 
         // in append mode we need to set the file pointer to the end explicitly, otherwise GetFilePosition might return 0 the first time
         if ((m_FileData.m_pFileHandle != nullptr) && (m_FileData.m_pFileHandle != INVALID_HANDLE_VALUE))
-          InternalSetFilePosition(0, ezFilePos::FromEnd);
+          InternalSetFilePosition(0, ezFileSeekMode::FromEnd);
 
         break;
     }
@@ -165,7 +188,7 @@ ezUInt64 ezOSFile::InternalGetFilePosition() const
   return HighLowToUInt64(uiHigh32, uiLow32);
 }
 
-void ezOSFile::InternalSetFilePosition(ezInt64 iDistance, ezFilePos::Enum Pos) const
+void ezOSFile::InternalSetFilePosition(ezInt64 iDistance, ezFileSeekMode::Enum Pos) const
 {
   LARGE_INTEGER pos;
   LARGE_INTEGER newpos;
@@ -173,13 +196,13 @@ void ezOSFile::InternalSetFilePosition(ezInt64 iDistance, ezFilePos::Enum Pos) c
 
   switch (Pos)
   {
-    case ezFilePos::FromStart:
+    case ezFileSeekMode::FromStart:
       EZ_VERIFY(SetFilePointerEx(m_FileData.m_pFileHandle, pos, &newpos, FILE_BEGIN), "Seek Failed.");
       break;
-    case ezFilePos::FromEnd:
+    case ezFileSeekMode::FromEnd:
       EZ_VERIFY(SetFilePointerEx(m_FileData.m_pFileHandle, pos, &newpos, FILE_END), "Seek Failed.");
       break;
-    case ezFilePos::FromCurrent:
+    case ezFileSeekMode::FromCurrent:
       EZ_VERIFY(SetFilePointerEx(m_FileData.m_pFileHandle, pos, &newpos, FILE_CURRENT), "Seek Failed.");
       break;
   }
@@ -288,7 +311,7 @@ ezFileSystemIterator::~ezFileSystemIterator()
   }
 }
 
-ezResult ezFileSystemIterator::StartSearch(const char* szSearchStart, bool bRecursive, bool bReportFolders)
+ezResult ezFileSystemIterator::StartSearch(const char* szSearchStart, ezBitflags<ezFileSystemIteratorFlags> flags /*= ezFileSystemIteratorFlags::All*/)
 {
   EZ_ASSERT_DEV(m_Data.m_Handles.IsEmpty(), "Cannot start another search.");
 
@@ -304,14 +327,13 @@ ezResult ezFileSystemIterator::StartSearch(const char* szSearchStart, bool bRecu
 
   // Since the use of wildcard-ed file names will disable recursion, we ensure both are not used simultaneously.
   const bool bHasWildcard = sSearch.FindLastSubString("*") || sSearch.FindLastSubString("?");
-  EZ_ASSERT_DEV(bRecursive == false || bHasWildcard == false, "Recursive file iteration does not support wildcards. Either don't use recursion, or filter the filenames manually.");
+  EZ_ASSERT_DEV(flags.IsSet(ezFileSystemIteratorFlags::Recursive) == false || bHasWildcard == false, "Recursive file iteration does not support wildcards. Either don't use recursion, or filter the filenames manually.");
 
   m_sCurPath = sSearch.GetFileDirectory();
 
   EZ_ASSERT_DEV(sSearch.IsAbsolutePath(), "The path '{0}' is not absolute.", m_sCurPath);
 
-  m_bRecursive = bRecursive;
-  m_bReportFolders = bReportFolders;
+  m_Flags = flags;
 
   WIN32_FIND_DATAW data;
   HANDLE hSearch = FindFirstFileW(ezStringWChar(sSearch.GetData()).GetData(), &data);
@@ -327,11 +349,38 @@ ezResult ezFileSystemIterator::StartSearch(const char* szSearchStart, bool bRecu
 
   m_Data.m_Handles.PushBack(hSearch);
 
+  if (ezOSFile::ExistsDirectory(sSearch))
+  {
+    // when calling FindFirstFileW with a path to a folder (e.g. "C:/test") it will report "test" as the very first item
+    // which is typically NOT what one wants, instead you want items INSIDE that folder to be reported
+    // this is especially annoying when 'Recursion' is disabled, as "C:/test" would result in "C:/test" being reported
+    // but no items inside it
+    // therefore, when the start search points to a directory, we enable recursion for one call to 'Next', thus enter
+    // the directory, and then switch it back again; all following calls to 'Next' will then iterate through the sub directory
+
+    const bool bRecursive = m_Flags.IsSet(ezFileSystemIteratorFlags::Recursive);
+    m_Flags.Add(ezFileSystemIteratorFlags::Recursive);
+
+    const ezResult res = Next();
+
+    m_Flags.AddOrRemove(ezFileSystemIteratorFlags::Recursive, bRecursive);
+
+    return res;
+  }
+
   if ((m_CurFile.m_sName == "..") || (m_CurFile.m_sName == "."))
     return Next(); // will search for the next file or folder that is not ".." or "." ; might return false though
 
-  if (m_CurFile.m_bIsDirectory && !m_bReportFolders)
-    return Next();
+  if (m_CurFile.m_bIsDirectory)
+  {
+    if (!m_Flags.IsSet(ezFileSystemIteratorFlags::ReportFolders))
+      return Next();
+  }
+  else
+  {
+    if (!m_Flags.IsSet(ezFileSystemIteratorFlags::ReportFiles))
+      return Next();
+  }
 
   return EZ_SUCCESS;
 }
@@ -341,7 +390,7 @@ ezResult ezFileSystemIterator::Next()
   if (m_Data.m_Handles.IsEmpty())
     return EZ_FAILURE;
 
-  if (m_bRecursive && m_CurFile.m_bIsDirectory && (m_CurFile.m_sName != "..") && (m_CurFile.m_sName != "."))
+  if (m_Flags.IsSet(ezFileSystemIteratorFlags::Recursive) && m_CurFile.m_bIsDirectory && (m_CurFile.m_sName != "..") && (m_CurFile.m_sName != "."))
   {
     m_sCurPath.AppendPath(m_CurFile.m_sName.GetData());
 
@@ -364,8 +413,16 @@ ezResult ezFileSystemIterator::Next()
       if ((m_CurFile.m_sName == "..") || (m_CurFile.m_sName == "."))
         return Next(); // will search for the next file or folder that is not ".." or "." ; might return false though
 
-      if (m_CurFile.m_bIsDirectory && !m_bReportFolders)
-        return Next();
+      if (m_CurFile.m_bIsDirectory)
+      {
+        if (!m_Flags.IsSet(ezFileSystemIteratorFlags::ReportFolders))
+          return Next();
+      }
+      else
+      {
+        if (!m_Flags.IsSet(ezFileSystemIteratorFlags::ReportFiles))
+          return Next();
+      }
 
       return EZ_SUCCESS;
     }
@@ -397,22 +454,30 @@ ezResult ezFileSystemIterator::Next()
   if ((m_CurFile.m_sName == "..") || (m_CurFile.m_sName == "."))
     return Next();
 
-  if (m_CurFile.m_bIsDirectory && !m_bReportFolders)
-    return Next();
+  if (m_CurFile.m_bIsDirectory)
+  {
+    if (!m_Flags.IsSet(ezFileSystemIteratorFlags::ReportFolders))
+      return Next();
+  }
+  else
+  {
+    if (!m_Flags.IsSet(ezFileSystemIteratorFlags::ReportFiles))
+      return Next();
+  }
 
   return EZ_SUCCESS;
 }
 
 ezResult ezFileSystemIterator::SkipFolder()
 {
-  EZ_ASSERT_DEBUG(m_bRecursive, "SkipFolder has no meaning when the iterator is not set to be recursive.");
+  EZ_ASSERT_DEBUG(m_Flags.IsSet(ezFileSystemIteratorFlags::Recursive), "SkipFolder has no meaning when the iterator is not set to be recursive.");
   EZ_ASSERT_DEBUG(m_CurFile.m_bIsDirectory, "SkipFolder can only be called when the current object is a folder.");
 
-  m_bRecursive = false;
+  m_Flags.Remove(ezFileSystemIteratorFlags::Recursive);
 
   const ezResult bRet = Next();
 
-  m_bRecursive = true;
+  m_Flags.Add(ezFileSystemIteratorFlags::Recursive);
 
   return bRet;
 }
@@ -434,8 +499,8 @@ const char* ezOSFile::GetApplicationDirectory()
 }
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-#include <Foundation/Basics/Platform/uwp/UWPUtils.h>
-#include <windows.storage.h>
+#  include <Foundation/Basics/Platform/uwp/UWPUtils.h>
+#  include <windows.storage.h>
 #endif
 
 ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)
@@ -522,6 +587,8 @@ const ezString ezOSFile::GetCurrentWorkingDirectory()
   wchar_t tmp[1024];
   GetCurrentDirectoryW(EZ_ARRAY_SIZE(tmp), tmp);
 
-  return ezStringUtf8(tmp).GetData();
-}
+  ezStringBuilder clean = ezStringUtf8(tmp).GetData();
+  clean.MakeCleanPath();
 
+  return clean;
+}

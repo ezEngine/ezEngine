@@ -4,14 +4,27 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/String.h>
 
+/// \brief If this is set to EZ_ON, stack traces are recorded for every resource handle.
+///
+/// This can be used to find the places that create resource handles but do not properly clean them up.
+#define EZ_RESOURCEHANDLE_STACK_TRACES EZ_OFF
+
 class ezResource;
 
 template <typename T>
 class ezResourceLock;
 
 // These out-of-line helper functions allow to forward declare resource handles without knowledge about the resource class.
-EZ_CORE_DLL void IncreaseResourceRefCount(ezResource* pResource);
-EZ_CORE_DLL void DecreaseResourceRefCount(ezResource* pResource);
+EZ_CORE_DLL void IncreaseResourceRefCount(ezResource* pResource, const void* pOwner);
+EZ_CORE_DLL void DecreaseResourceRefCount(ezResource* pResource, const void* pOwner);
+
+#if EZ_ENABLED(EZ_RESOURCEHANDLE_STACK_TRACES)
+EZ_CORE_DLL void MigrateResourceRefCount(ezResource* pResource, const void* pOldOwner, const void* pNewOwner);
+#else
+EZ_ALWAYS_INLINE void MigrateResourceRefCount(ezResource* pResource, const void* pOldOwner, const void* pNewOwner)
+{
+}
+#endif
 
 /// \brief The typeless implementation of resource handles. A typed interface is provided by ezTypedResourceHandle.
 class EZ_CORE_DLL ezTypelessResourceHandle
@@ -28,7 +41,9 @@ public:
     m_pResource = rhs.m_pResource;
 
     if (m_pResource)
-      IncreaseResourceRefCount(m_pResource);
+    {
+      IncreaseResourceRefCount(m_pResource, this);
+    }
   }
 
   /// \brief Move constructor, no refcount change is necessary.
@@ -36,6 +51,11 @@ public:
   {
     m_pResource = rhs.m_pResource;
     rhs.m_pResource = nullptr;
+
+    if (m_pResource)
+    {
+      MigrateResourceRefCount(m_pResource, &rhs, this);
+    }
   }
 
   /// \brief Releases any referenced resource.
@@ -109,28 +129,28 @@ public:
 
   /// \brief Increases the refcount of the given resource.
   explicit ezTypedResourceHandle(ResourceType* pResource)
-      : m_Typeless(pResource)
+    : m_Typeless(pResource)
   {
   }
 
   /// \brief Increases the refcount of the given resource.
   ezTypedResourceHandle(const ezTypedResourceHandle<ResourceType>& rhs)
-      : m_Typeless(rhs.m_Typeless)
+    : m_Typeless(rhs.m_Typeless)
   {
   }
 
   /// \brief Move constructor, no refcount change is necessary.
   ezTypedResourceHandle(ezTypedResourceHandle<ResourceType>&& rhs)
-      : m_Typeless(std::move(rhs.m_Typeless))
+    : m_Typeless(std::move(rhs.m_Typeless))
   {
   }
 
   template <typename BaseOrDerivedType>
   ezTypedResourceHandle(const ezTypedResourceHandle<BaseOrDerivedType>& rhs)
-      : m_Typeless(rhs.m_Typeless)
+    : m_Typeless(rhs.m_Typeless)
   {
     static_assert(std::is_base_of<ResourceType, BaseOrDerivedType>::value || std::is_base_of<BaseOrDerivedType, ResourceType>::value,
-        "Only related types can be assigned to handles of this type");
+      "Only related types can be assigned to handles of this type");
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
     if (std::is_base_of<BaseOrDerivedType, ResourceType>::value)

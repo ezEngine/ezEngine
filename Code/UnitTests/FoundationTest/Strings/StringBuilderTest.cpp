@@ -1,4 +1,4 @@
-#include <FoundationTestPCH.h>
+﻿#include <FoundationTestPCH.h>
 
 // NOTE: always save as Unicode UTF-8 with signature
 
@@ -86,7 +86,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
   {
     ezStringUtf8 sUtf8(L"⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺");
     ezStringUtf8 sUtf2(
-        L"⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺");
+      L"⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺");
 
     ezStringBuilder sb(sUtf8.GetData(), sUtf8.GetData(), sUtf8.GetData(), sUtf8.GetData(), sUtf8.GetData(), sUtf8.GetData());
 
@@ -952,7 +952,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
       const char* szAbsPath = "/folder";
       const char* szAbsPathAppendResult = "/folder/File.ext";
 #else
-#error "An absolute path example must be defined for the 'AppendPath' test for each platform!"
+#  error "An absolute path example must be defined for the 'AppendPath' test for each platform!"
 #endif
 
       p = "";
@@ -1271,7 +1271,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST_BOOL(!p.IsRootedPath());
 
 #else
-#error "Unknown platform."
+#  error "Unknown platform."
 #endif
   }
 
@@ -1411,7 +1411,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     ezMemoryStreamReader MemoryReader(&StreamStorage);
 
     const char* szText =
-        "l;kjasdflkjdfasjlk asflkj asfljwe oiweq2390432 4 @#$ otrjk3l;2rlkhitoqhrn324:R l324h32kjr hnasfhsakfh234fas1440687873242321245";
+      "l;kjasdflkjdfasjlk asflkj asfljwe oiweq2390432 4 @#$ otrjk3l;2rlkhitoqhrn324:R l324h32kjr hnasfhsakfh234fas1440687873242321245";
 
     MemoryWriter.WriteBytes(szText, ezStringUtils::GetStringElementCount(szText));
 
@@ -1501,5 +1501,71 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     sb = L"ですですですAにぱにぱにぱ";
     sb.Trim(ezStringUtf8(L"ですにぱ").GetData());
     EZ_TEST_STRING(sb.GetData(), ezStringUtf8(L"A").GetData());
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "TrimWordStart")
+  {
+    ezStringBuilder sb;
+
+    {
+      sb = "<test>abc<test>";
+      EZ_TEST_BOOL(sb.TrimWordStart("<test>"));
+      EZ_TEST_STRING(sb, "abc<test>");
+      EZ_TEST_BOOL(sb.TrimWordStart("<test>") == false);
+      EZ_TEST_STRING(sb, "abc<test>");
+    }
+
+    {
+      sb = "<test><tut><test><test><tut>abc<tut><test>";
+      EZ_TEST_BOOL(sb.TrimWordStart("<tut>", "<test>"));
+      EZ_TEST_STRING(sb, "abc<tut><test>");
+      EZ_TEST_BOOL(sb.TrimWordStart("<tut>", "<test>") == false);
+      EZ_TEST_STRING(sb, "abc<tut><test>");
+    }
+
+    {
+      sb = "<a><b><c><d><e><a><b><c><d><e>abc";
+      EZ_TEST_BOOL(sb.TrimWordStart("<a>", "<b>", "<c>", "<d>", "<e>"));
+      EZ_TEST_STRING(sb, "abc");
+    }
+
+    {
+      sb = "<a><b><c><d><e><a><b><c><d><e>";
+      EZ_TEST_BOOL(sb.TrimWordStart("<a>", "<b>", "<c>", "<d>", "<e>"));
+      EZ_TEST_STRING(sb, "");
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "TrimWordEnd")
+  {
+    ezStringBuilder sb;
+
+    {
+      sb = "<test>abc<test>";
+      EZ_TEST_BOOL(sb.TrimWordEnd("<test>"));
+      EZ_TEST_STRING(sb, "<test>abc");
+      EZ_TEST_BOOL(sb.TrimWordEnd("<test>") == false);
+      EZ_TEST_STRING(sb, "<test>abc");
+    }
+
+    {
+      sb = "<tut><test>abc<test><tut><test><test><tut>";
+      EZ_TEST_BOOL(sb.TrimWordEnd("<tut>", "<test>"));
+      EZ_TEST_STRING(sb, "<tut><test>abc");
+      EZ_TEST_BOOL(sb.TrimWordEnd("<tut>", "<test>") == false);
+      EZ_TEST_STRING(sb, "<tut><test>abc");
+    }
+
+    {
+      sb = "abc<a><b><c><d><e><a><b><c><d><e>";
+      EZ_TEST_BOOL(sb.TrimWordEnd("<a>", "<b>", "<c>", "<d>", "<e>"));
+      EZ_TEST_STRING(sb, "abc");
+    }
+
+    {
+      sb = "<a><b><c><d><e><a><b><c><d><e>";
+      EZ_TEST_BOOL(sb.TrimWordEnd("<a>", "<b>", "<c>", "<d>", "<e>"));
+      EZ_TEST_STRING(sb, "");
+    }
   }
 }

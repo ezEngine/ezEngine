@@ -152,6 +152,59 @@ public:
   /// has been put. This overload allows to additionally specify a single dependency.
   static ezTaskGroupID StartSingleTask(ezTask* pTask, ezTaskPriority::Enum Priority, ezTaskGroupID Dependency); // [tested]
 
+  /// \brief Class allowing to change certain parameters of a parallel for invocation.
+  struct EZ_FOUNDATION_DLL ParallelForParams
+  {
+    ParallelForParams() {} // do not remove, needed for Clang
+
+    /// The minimum number of items that must be processed by a task instance.
+    /// If the overall number of tasks lies below this value, all work will be executed purely serially
+    /// without involving any tasks at all.
+    ezUInt32 uiBinSize = 1;
+    /// Indicates how many tasks per thread may be spawned at most by a ParallelFor invocation.
+    /// Higher numbers give the scheduler more leeway to balance work across available threads.
+    /// Generally, if all task items are expected to take basically the same amount of time,
+    /// low numbers (usually 1) are recommended, while higher numbers (initially test with 2 or 3)
+    /// might yield better results for workloads where task items may take vastly different amounts
+    /// of time, such that scheduling in a balanced fashion becomes more difficult.
+    ezUInt32 uiMaxTasksPerThread = 2;
+
+    /// Returns the multiplicity to use for the given task. If 0 is returned,
+    /// serial execution is to be performed.
+    ezUInt32 DetermineMultiplicity(ezUInt32 uiNumTaskItems);
+    /// Returns the number of task items to work on per invocation (multiplicity).
+    /// This is aligned with the multiplicity, i.e., multiplicity * bin_size >= # task items.
+    ezUInt32 DetermineItemsPerInvocation(ezUInt32 uiNumTaskItems, ezUInt32 uiMultiplicity);
+  };
+
+  using ParallelForIndexedFunction = ezDelegate<void(ezUInt32, ezUInt32), 48>;
+
+  template <typename ElemType>
+  using ParallelForFunction = ezDelegate<void(ezUInt32, ezArrayPtr<ElemType>), 48>;
+
+  /// A helper function to process task items in a parallel fashion by having per-worker index ranges generated.
+  static void ParallelForIndexed(ezUInt32 uiStartIndex, ezUInt32 uiNumItems, ParallelForIndexedFunction taskCallback, const char* taskName = nullptr, ParallelForParams config = ParallelForParams());
+
+  /// A helper function to process task items in a parallel fashion by generating per-worker sub-ranges
+  /// from an initial item array pointer.
+  /// Given an array pointer 'taskItems' with elements of type ElemType, the following invocations are possible:
+  ///   - ParallelFor(taskItems, [](ezArrayPtr<ElemType> taskItemSlice) { });
+  template <typename ElemType, typename Callback>
+  static void ParallelFor(ezArrayPtr<ElemType> taskItems, Callback taskCallback, const char* taskName = nullptr, ParallelForParams params = ParallelForParams());
+  /// A helper function to process task items in a parallel fashion and one-by-one (without global index).
+  /// Given an array pointer 'taskItems' with elements of type ElemType, the following invocations are possible:
+  ///   - ParallelFor(taskItems, [](ElemType taskItem) { });
+  ///   - ParallelFor(taskItems, [](ElemType& taskItem) { });
+  ///   - ParallelFor(taskItems, [](const ElemType& taskItem) { });
+  template <typename ElemType, typename Callback>
+  static void ParallelForSingle(ezArrayPtr<ElemType> taskItems, Callback taskCallback, const char* taskName = nullptr, ParallelForParams params = ParallelForParams());
+  /// A helper function to process task items in a parallel fashion and one-by-one (with global index).
+  /// Given an array pointer 'taskItems' with elements of type ElemType, the following invocations are possible:
+  ///   - ParallelFor(taskItems, [](ezUInt32 globalTaskItemIndex, ElemType taskItem) { });
+  ///   - ParallelFor(taskItems, [](ezUInt32 globalTaskItemIndex, ElemType& taskItem) { });
+  ///   - ParallelFor(taskItems, [](ezUInt32 globalTaskItemIndex, const ElemType& taskItem) { });
+  template <typename ElemType, typename Callback>
+  static void ParallelForSingleIndex(ezArrayPtr<ElemType> taskItems, Callback taskCallback, const char* taskName = nullptr, ParallelForParams params = ParallelForParams());
 
   /// \brief Creates a new task group for one-time use. Groups need to be recreated every time a task is supposed to be inserted into the
   /// system.
@@ -278,6 +331,11 @@ public:
   /// ":appdata/TaskGraphs/__date__.dgml"
   static void WriteStateSnapshotToFile(const char* szPath = nullptr);
 
+  /// \brief Checks whether the given task is currently being executed on the calling thread.
+  ///
+  /// Can be used to prevent waiting on tasks that can never be finished, because the current thread is already executing them.
+  static bool IsTaskRunningOnCurrentThread(ezTask* pTask);
+
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, TaskSystem);
   friend class ezTaskWorkerThread;
@@ -333,6 +391,9 @@ private:
   static void DetermineTasksToExecuteOnThread(
     ezTaskPriority::Enum& out_FirstPriority, ezTaskPriority::Enum& out_LastPriority, bool& out_bAllowDefaultWork);
 
+  template<typename ElemType>
+  static void ParallelForInternal(ezArrayPtr<ElemType> taskItems, ParallelForFunction<ElemType> taskCallback, const char* taskName, ParallelForParams config);
+
 private:
   // *** Internal Data ***
 
@@ -351,3 +412,5 @@ private:
   // The target frame time used by FinishFrameTasks()
   static double s_fSmoothFrameMS;
 };
+
+#include <Foundation/Threading/Implementation/ParallelFor_inl.h>

@@ -1,10 +1,11 @@
 #include <FoundationPCH.h>
 
+#include <Foundation/IO/OSFile.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #  include <shellapi.h>
 #endif
 
@@ -16,7 +17,7 @@ ezCommandLineUtils* ezCommandLineUtils::GetGlobalInstance()
 }
 
 void ezCommandLineUtils::SplitCommandLineString(const char* commandString, bool addExecutableDir, ezDynamicArray<ezString>& outArgs,
-                                                ezDynamicArray<const char*>& outArgsV)
+  ezDynamicArray<const char*>& outArgsV)
 {
   // Add application dir as first argument as customary on other platforms.
   if (addExecutableDir)
@@ -108,6 +109,23 @@ void ezCommandLineUtils::SetCommandLine()
 #  error "ezCommandLineUtils::SetCommandLine(): Abstraction missing."
 #endif
 
+ezString ezCommandLineUtils::GetCommandLineString() const
+{
+  ezStringBuilder commandLine;
+  for (const ezString& command : m_Commands)
+  {
+    if (commandLine.IsEmpty())
+    {
+      commandLine.Append(command.GetView());
+    }
+    else
+    {
+      commandLine.Append(" ", command);
+    }
+  }
+  return commandLine;
+}
+
 ezUInt32 ezCommandLineUtils::GetParameterCount() const
 {
   return m_Commands.GetCount();
@@ -175,6 +193,16 @@ const char* ezCommandLineUtils::GetStringOption(const char* szOption, ezUInt32 u
   }
 
   return szDefault;
+}
+
+const ezString ezCommandLineUtils::GetAbsolutePathOption(const char* szOption, ezUInt32 uiArgument /*= 0*/, const char* szDefault /*= ""*/, bool bCaseSensitive /*= false*/)
+{
+  const char* szPath = GetStringOption(szOption, uiArgument, szDefault, bCaseSensitive);
+
+  if (ezStringUtils::IsNullOrEmpty(szPath))
+    return szPath;
+
+  return ezOSFile::MakePathAbsoluteWithCWD(szPath);
 }
 
 bool ezCommandLineUtils::GetBoolOption(const char* szOption, bool bDefault, bool bCaseSensitive) const
@@ -254,4 +282,3 @@ void ezCommandLineUtils::InjectCustomArgument(const char* szArgument)
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Utilities_Implementation_CommandLineUtils);
-

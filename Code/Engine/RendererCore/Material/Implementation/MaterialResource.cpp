@@ -72,12 +72,12 @@ ezMaterialResource::ezMaterialResource()
   m_uiCacheIndex = ezInvalidIndex;
   m_pCachedValues = nullptr;
 
-  ezResourceManager::s_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezMaterialResource::OnResourceEvent, this));
+  ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezMaterialResource::OnResourceEvent, this));
 }
 
 ezMaterialResource::~ezMaterialResource()
 {
-  ezResourceManager::s_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezMaterialResource::OnResourceEvent, this));
+  ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezMaterialResource::OnResourceEvent, this));
 }
 
 ezHashedString ezMaterialResource::GetPermutationValue(const ezTempHashedString& sName)
@@ -1022,9 +1022,12 @@ void ezMaterialResource::DeallocateCache(ezUInt32 uiCacheIndex)
   {
     EZ_LOCK(s_MaterialCacheMutex);
 
-    auto& freeEntry = s_FreeMaterialCacheEntries.ExpandAndGetRef();
-    freeEntry.m_uiIndex = uiCacheIndex;
-    freeEntry.m_uiFrame = ezRenderWorld::GetFrameCounter();
+    if (uiCacheIndex < s_CachedValues.GetCount())
+    {
+      auto& freeEntry = s_FreeMaterialCacheEntries.ExpandAndGetRef();
+      freeEntry.m_uiIndex = uiCacheIndex;
+      freeEntry.m_uiFrame = ezRenderWorld::GetFrameCounter();
+    }
   }
 }
 

@@ -94,7 +94,7 @@ private:
   friend class ezRenderContext;
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, MaterialResource);
 
-  ezEvent<const ezMaterialResource*> m_ModifiedEvent;
+  ezEvent<const ezMaterialResource*, ezMutex> m_ModifiedEvent;
   void OnBaseMaterialModified(const ezMaterialResource* pModifiedMaterial);
   void OnResourceEvent(const ezResourceEvent& resourceEvent);
 

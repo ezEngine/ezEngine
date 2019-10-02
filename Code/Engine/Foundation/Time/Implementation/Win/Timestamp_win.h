@@ -36,13 +36,13 @@ const ezTimestamp ezTimestamp::CurrentTimestamp()
 
 const ezTimestamp ezDateTime::GetTimestamp() const
 {
-
   SYSTEMTIME st;
   FILETIME fileTime;
   memset(&st, 0, sizeof(SYSTEMTIME));
   st.wYear = (WORD)m_iYear;
   st.wMonth = m_uiMonth;
   st.wDay = m_uiDay;
+  st.wDayOfWeek = m_uiDayOfWeek;
   st.wHour = m_uiHour;
   st.wMinute = m_uiMinute;
   st.wSecond = m_uiSecond;
@@ -67,6 +67,7 @@ bool ezDateTime::SetTimestamp(ezTimestamp timestamp)
   m_iYear = (ezInt16)st.wYear;
   m_uiMonth = (ezUInt8)st.wMonth;
   m_uiDay = (ezUInt8)st.wDay;
+  m_uiDayOfWeek = (ezUInt8)st.wDayOfWeek;
   m_uiHour = (ezUInt8)st.wHour;
   m_uiMinute = (ezUInt8)st.wMinute;
   m_uiSecond = (ezUInt8)st.wSecond;

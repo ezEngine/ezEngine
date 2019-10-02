@@ -31,12 +31,12 @@ void ezRecastWorldModule::Initialize()
     RegisterUpdateFunction(updateDesc);
   }
 
-  ezResourceManager::s_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezRecastWorldModule::ResourceEventHandler, this));
+  ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezRecastWorldModule::ResourceEventHandler, this));
 }
 
 void ezRecastWorldModule::Deinitialize()
 {
-  ezResourceManager::s_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezRecastWorldModule::ResourceEventHandler, this));
+  ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezRecastWorldModule::ResourceEventHandler, this));
 
   SUPER::Deinitialize();
 }

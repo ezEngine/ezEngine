@@ -155,12 +155,12 @@ void ezFmodEventComponentManager::Initialize()
     this->RegisterUpdateFunction(desc);
   }
 
-  ezResourceManager::s_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezFmodEventComponentManager::ResourceEventHandler, this));
+  ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezFmodEventComponentManager::ResourceEventHandler, this));
 }
 
 void ezFmodEventComponentManager::Deinitialize()
 {
-  ezResourceManager::s_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezFmodEventComponentManager::ResourceEventHandler, this));
+  ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezFmodEventComponentManager::ResourceEventHandler, this));
 }
 
 ezUInt32 ezFmodEventComponentManager::AddOcclusionState(ezFmodEventComponent* pComponent, ezFmodParameterId occlusionParamId, float fRadius)

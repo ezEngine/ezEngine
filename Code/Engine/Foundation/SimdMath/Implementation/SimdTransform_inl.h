@@ -83,7 +83,7 @@ EZ_ALWAYS_INLINE void ezSimdTransform::SetGlobalTransform(const ezSimdTransform&
   *this = GlobalTransformParent * LocalTransformChild;
 }
 
-inline ezSimdMat4f ezSimdTransform::GetAsMat4() const
+EZ_FORCE_INLINE ezSimdMat4f ezSimdTransform::GetAsMat4() const
 {
   ezSimdMat4f result = m_Rotation.GetAsMat4();
 

@@ -3,10 +3,12 @@
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Strings/StringUtils.h>
-#include <Foundation/Utilities/ConversionUtils.h>
 #include <Foundation/System/SystemInformation.h>
+#include <Foundation/Utilities/ConversionUtils.h>
 
+#include <cstdio>
 #include <cstdlib>
+#include <ctime>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS) && EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 #  include <crtdbg.h>
@@ -23,6 +25,28 @@ bool ezDefaultAssertHandler(
 
   printf("%s", szTemp);
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  OutputDebugStringW(ezStringWChar(szTemp).GetData());
+#endif
+
+  if (ezSystemInformation::IsDebuggerAttached())
+    return true;
+
+  // If no debugger is attached we append the assert to a common file so that postmortem debugging is easier
+  if (FILE* assertLogFP = fopen("ezDefaultAssertHandlerOutput.txt", "a"))
+  {
+    time_t timeUTC = time(&timeUTC);
+    tm* ptm = gmtime(&timeUTC);
+
+    char szTimeStr[256] = {0};
+    sprintf(szTimeStr, "UTC: %s", asctime(ptm));
+    fputs(szTimeStr, assertLogFP);
+
+    fputs(szTemp, assertLogFP);
+
+    fclose(assertLogFP);
+  }
+
   // if the environment variable "EZ_SILENT_ASSERTS" is set to a value like "1", "on", "true", "enable" or "yes"
   // the assert handler will never show a GUI that may block the application from continuing to run
   // this should be set on machines that run tests which should never get stuck but rather crash asap
@@ -36,12 +60,6 @@ bool ezDefaultAssertHandler(
   if (bSilentAsserts)
     return true;
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  OutputDebugStringW(ezStringWChar(szTemp).GetData());
-#endif
-
-  if (ezSystemInformation::IsDebuggerAttached())
-    return true;
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
     // make sure the cursor is definitely shown, since the user must be able to click buttons

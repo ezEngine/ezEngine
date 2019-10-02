@@ -12,7 +12,7 @@ void ezCollectionUtils::AddFiles(ezCollectionResourceDescriptor& collection, con
 
   const ezUInt32 uiStripPrefixLength = ezStringUtils::GetCharacterCount(szStripPrefix);
 
-  if (fsIt.StartSearch(szAbsPathToFolder, true, false).Failed())
+  if (fsIt.StartSearch(szAbsPathToFolder, ezFileSystemIteratorFlags::ReportFilesRecursive).Failed())
     return;
 
   ezStringBuilder sFullPath;
@@ -74,7 +74,13 @@ void ezCollectionUtils::AddResourceHandle(
 {
   if (!handle.IsValid())
     return;
+
   const char* resID = handle.GetResourceID();
+
+  auto& entry = collection.m_Resources.ExpandAndGetRef();
+
+  entry.m_sAssetTypeName.Assign(szAssetTypeName);
+  entry.m_sResourceID = resID;
 
   ezStringBuilder absFilename;
 
@@ -85,19 +91,16 @@ void ezCollectionUtils::AddResourceHandle(
     ezPathUtils::GetRootedPathParts(resID, root, relFile);
     absFilename = szAbsFolderpath;
     absFilename.AppendPath(relFile.GetStartPointer());
-  }
+    absFilename.MakeCleanPath();
 
-  auto& entry = collection.m_Resources.ExpandAndGetRef();
-
-  entry.m_sAssetTypeName.Assign(szAssetTypeName);
-  entry.m_sResourceID = resID;
-  ezFileStats stats;
-  if (!absFilename.IsEmpty() && ezFileSystem::GetFileStats(absFilename, stats).Succeeded())
-  {
-    entry.m_uiFileSize = stats.m_uiFileSize;
+    ezFileStats stats;
+    if (!absFilename.IsEmpty()
+      && absFilename.IsAbsolutePath()
+      && ezFileSystem::GetFileStats(absFilename, stats).Succeeded())
+    {
+      entry.m_uiFileSize = stats.m_uiFileSize;
+    }
   }
 }
-
-
 
 EZ_STATICLINK_FILE(Core, Core_Collection_Implementation_CollectionUtils);

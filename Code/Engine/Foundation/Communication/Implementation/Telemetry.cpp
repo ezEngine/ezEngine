@@ -327,7 +327,12 @@ ezResult ezTelemetry::OpenConnection(ConnectionMode Mode, const char* szConnectT
 
   if (!g_bInitialized)
   {
-    EZ_VERIFY(enet_initialize() == 0, "Enet could not be initialized.");
+    if (enet_initialize() != 0)
+    {
+      ezLog::Error("Enet could not be initialized.");
+      return EZ_FAILURE;
+    }
+
     g_bInitialized = true;
   }
 

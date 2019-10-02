@@ -10,6 +10,7 @@ class EZ_CORE_DLL ezResourceManagerWorkerDataLoad : public ezTask
 {
 private:
   friend class ezResourceManager;
+  friend class ezResourceManagerState;
 
   ezResourceManagerWorkerDataLoad();
   ~ezResourceManagerWorkerDataLoad();
@@ -35,6 +36,7 @@ public:
 
 private:
   friend class ezResourceManager;
+  friend class ezResourceManagerState;
   ezResourceManagerWorkerUpdateContent();
 
   virtual void Execute() override;

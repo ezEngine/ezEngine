@@ -15,7 +15,7 @@ void ezArchiveBuilder::AddFolder(const char* szAbsFolderPath,
   ezStringBuilder sBasePath = szAbsFolderPath;
   sBasePath.MakeCleanPath();
 
-  if (fileIt.StartSearch(sBasePath, true, false).Failed())
+  if (fileIt.StartSearch(sBasePath, ezFileSystemIteratorFlags::ReportFilesRecursive).Failed())
     return;
 
   ezStringBuilder fullPath;
@@ -97,7 +97,7 @@ ezResult ezArchiveBuilder::WriteArchive(ezStreamWriter& stream) const
     sHashablePath = e.m_sRelTargetPath;
     sHashablePath.ToLower();
 
-    toc.m_PathToIndex[ezTempHashedString(sHashablePath.GetData())] = toc.m_Entries.GetCount();
+    toc.m_PathToEntryIndex[ezArchiveStoredString(ezTempHashedString::ComputeHash(sHashablePath.GetData()), uiPathStringOffset)] = toc.m_Entries.GetCount();
 
     if (!WriteNextFileCallback(i + 1, uiNumEntries, e.m_sAbsSourcePath))
       return EZ_FAILURE;

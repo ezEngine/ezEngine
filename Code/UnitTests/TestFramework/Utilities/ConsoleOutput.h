@@ -52,6 +52,12 @@ inline void OutputToConsole(ezTestOutput::Enum Type, const char* szMsg)
       SetConsoleColorInl(0x0C);
       bAnyError = true;
       break;
+    case ezTestOutput::Duration:
+    case ezTestOutput::ImageDiffFile:
+    case ezTestOutput::InvalidType:
+    case ezTestOutput::AllOutputTypes:
+      return;
+
     case ezTestOutput::FinalResult:
       if (bAnyError)
         SetConsoleColorInl(0x0C);
@@ -61,7 +67,9 @@ inline void OutputToConsole(ezTestOutput::Enum Type, const char* szMsg)
       // reset it for the next test round
       bAnyError = false;
       break;
+
     default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
       break;
   }
 

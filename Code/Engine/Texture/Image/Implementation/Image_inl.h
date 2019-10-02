@@ -1,8 +1,9 @@
 #pragma once
 
-template<typename T> struct ezImageSizeofHelper
+template <typename T>
+struct ezImageSizeofHelper
 {
-  static constexpr size_t Size = sizeof (T);
+  static constexpr size_t Size = sizeof(T);
 };
 
 template <>
@@ -24,17 +25,30 @@ ezBlobPtr<const T> ezImageView::GetBlobPtr() const
   return ezBlobPtr<const T>(reinterpret_cast<T*>(static_cast<ezUInt8*>(m_dataPtr.GetPtr())), m_dataPtr.GetCount() / ezImageSizeofHelper<T>::Size);
 }
 
+inline ezConstByteBlobPtr ezImageView::GetByteBlobPtr() const
+{
+  ValidateDataTypeAccessor<ezUInt8>();
+  return ezConstByteBlobPtr(static_cast<ezUInt8*>(m_dataPtr.GetPtr()), m_dataPtr.GetCount());
+}
+
 template <typename T>
 ezBlobPtr<T> ezImage::GetBlobPtr()
 {
   ezBlobPtr<const T> constPtr = ezImageView::GetBlobPtr<T>();
-  
+
   return ezBlobPtr<T>(const_cast<T*>(static_cast<const T*>(constPtr.GetPtr())), constPtr.GetCount());
+}
+
+inline ezByteBlobPtr ezImage::GetByteBlobPtr()
+{
+  ezConstByteBlobPtr constPtr = ezImageView::GetByteBlobPtr();
+
+  return ezByteBlobPtr(const_cast<ezUInt8*>(constPtr.GetPtr()), constPtr.GetCount());
 }
 
 template <typename T>
 const T* ezImageView::GetPixelPointer(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace /*= 0*/, ezUInt32 uiArrayIndex /*= 0*/, ezUInt32 x /*= 0*/,
-                                ezUInt32 y /*= 0*/, ezUInt32 z /*= 0*/) const
+  ezUInt32 y /*= 0*/, ezUInt32 z /*= 0*/) const
 {
   ValidateDataTypeAccessor<T>();
   EZ_ASSERT_DEV(x < GetNumBlocksX(uiMipLevel), "Invalid x coordinate");
@@ -46,8 +60,8 @@ const T* ezImageView::GetPixelPointer(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFa
 }
 
 template <typename T>
- T* ezImage::GetPixelPointer(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace /*= 0*/, ezUInt32 uiArrayIndex /*= 0*/,
-                                      ezUInt32 x /*= 0*/, ezUInt32 y /*= 0*/, ezUInt32 z /*= 0*/)
+T* ezImage::GetPixelPointer(ezUInt32 uiMipLevel /*= 0*/, ezUInt32 uiFace /*= 0*/, ezUInt32 uiArrayIndex /*= 0*/,
+  ezUInt32 x /*= 0*/, ezUInt32 y /*= 0*/, ezUInt32 z /*= 0*/)
 {
   return const_cast<T*>(ezImageView::GetPixelPointer<T>(uiMipLevel, uiFace, uiArrayIndex, x, y, z));
 }

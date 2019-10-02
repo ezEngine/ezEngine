@@ -154,6 +154,12 @@ void ezListBase<T>::Clear()
 }
 
 template <typename T>
+EZ_FORCE_INLINE void ezListBase<T>::Compact()
+{
+  m_Elements.Compact();
+}
+
+template <typename T>
 EZ_FORCE_INLINE T& ezListBase<T>::PeekFront()
 {
   EZ_ASSERT_DEV(!IsEmpty(), "The container is empty.");

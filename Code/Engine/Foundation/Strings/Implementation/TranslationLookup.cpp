@@ -80,7 +80,7 @@ void ezTranslatorFromFiles::AddTranslationFilesFromFolder(const char* szFolder)
   ezStringBuilder fullpath;
 
   ezFileSystemIterator it;
-  if (it.StartSearch(startPath, true, false).Succeeded())
+  if (it.StartSearch(startPath, ezFileSystemIteratorFlags::ReportFilesRecursive).Succeeded())
   {
     do
     {

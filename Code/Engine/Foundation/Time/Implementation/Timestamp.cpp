@@ -76,12 +76,12 @@ bool ezTimestamp::Compare(const ezTimestamp& rhs, CompareMode::Enum mode) const
   return false;
 }
 
-
 ezDateTime::ezDateTime()
   : m_uiMicroseconds(0)
   , m_iYear(0)
   , m_uiMonth(0)
   , m_uiDay(0)
+  , m_uiDayOfWeek(0)
   , m_uiHour(0)
   , m_uiMinute(0)
   , m_uiSecond(0)
@@ -89,13 +89,7 @@ ezDateTime::ezDateTime()
 }
 
 ezDateTime::ezDateTime(ezTimestamp timestamp)
-  : m_uiMicroseconds(0)
-  , m_iYear(0)
-  , m_uiMonth(0)
-  , m_uiDay(0)
-  , m_uiHour(0)
-  , m_uiMinute(0)
-  , m_uiSecond(0)
+  : ezDateTime()
 {
   SetTimestamp(timestamp);
 }
@@ -108,6 +102,143 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezDateTime& arg)
   return tmp;
 }
 
+namespace
+{
+  // This implementation chooses a 3-character-long short name for each of the twelve months
+  // for consistency reasons. Mind, that other, potentially more widely-spread stylist
+  // alternatives may exist.
+  const char* GetMonthShortName(const ezDateTime& dateTime)
+  {
+    switch (dateTime.GetMonth())
+    {
+      case 1:
+        return "Jan";
+      case 2:
+        return "Feb";
+      case 3:
+        return "Mar";
+      case 4:
+        return "Apr";
+      case 5:
+        return "May";
+      case 6:
+        return "Jun";
+      case 7:
+        return "Jul";
+      case 8:
+        return "Aug";
+      case 9:
+        return "Sep";
+      case 10:
+        return "Oct";
+      case 11:
+        return "Nov";
+      case 12:
+        return "Dec";
+      default:
+        EZ_ASSERT_DEV(false, "Unknown month.");
+        return "Unknown Month";
+    }
+  }
+
+  // This implementation chooses a 3-character-long short name for each of the seven days
+  // of the week for consistency reasons. Mind, that other, potentially more widely-spread
+  // stylistic alternatives may exist.
+  const char* GetDayOfWeekShortName(const ezDateTime& dateTime)
+  {
+    switch (dateTime.GetDayOfWeek())
+    {
+      case 0:
+        return "Sun";
+      case 1:
+        return "Mon";
+      case 2:
+        return "Tue";
+      case 3:
+        return "Wed";
+      case 4:
+        return "Thu";
+      case 5:
+        return "Fri";
+      case 6:
+        return "Sat";
+      default:
+        EZ_ASSERT_DEV(false, "Unknown day of week.");
+        return "Unknown Day of Week";
+    }
+  }
+} // namespace
+
+ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgDateTime& arg)
+{
+  const ezDateTime& dateTime = arg.m_Value;
+
+  ezUInt32 offset = 0;
+
+  if ((arg.m_uiFormattingFlags & ezArgDateTime::ShowDate) == ezArgDateTime::ShowDate)
+  {
+    if ((arg.m_uiFormattingFlags & ezArgDateTime::TextualDate) == ezArgDateTime::TextualDate)
+    {
+      offset += ezStringUtils::snprintf(tmp + offset, uiLength - offset,
+        "%04u %s %02u", dateTime.GetYear(), ::GetMonthShortName(dateTime), dateTime.GetDay());
+    }
+    else
+    {
+      offset += ezStringUtils::snprintf(tmp + offset, uiLength - offset,
+        "%04u-%02u-%02u", dateTime.GetYear(), dateTime.GetMonth(), dateTime.GetDay());
+    }
+  }
+
+  if ((arg.m_uiFormattingFlags & ezArgDateTime::ShowWeekday) == ezArgDateTime::ShowWeekday)
+  {
+    // add a space
+    if (offset != 0)
+    {
+      tmp[offset] = ' ';
+      ++offset;
+      tmp[offset] = '\0';
+    }
+
+    offset += ezStringUtils::snprintf(tmp + offset, uiLength - offset,
+      "(%s)", ::GetDayOfWeekShortName(dateTime));
+  }
+
+  if ((arg.m_uiFormattingFlags & ezArgDateTime::ShowTime) == ezArgDateTime::ShowTime)
+  {
+    // add a space
+    if (offset != 0)
+    {
+      tmp[offset] = ' ';
+      tmp[offset + 1] = '-';
+      tmp[offset + 2] = ' ';
+      tmp[offset + 3] = '\0';
+      offset += 3;
+    }
+
+    offset += ezStringUtils::snprintf(tmp + offset, uiLength - offset,
+      "%02u:%02u", dateTime.GetHour(), dateTime.GetMinute());
+
+    if ((arg.m_uiFormattingFlags & ezArgDateTime::ShowSeconds) == ezArgDateTime::ShowSeconds)
+    {
+      offset += ezStringUtils::snprintf(tmp + offset, uiLength - offset,
+        ":%02u", dateTime.GetSecond());
+    }
+
+    if ((arg.m_uiFormattingFlags & ezArgDateTime::ShowMilliseconds) == ezArgDateTime::ShowMilliseconds)
+    {
+      offset += ezStringUtils::snprintf(tmp + offset, uiLength - offset,
+        ".%03u", dateTime.GetMicroseconds() / 1000);
+    }
+
+    if ((arg.m_uiFormattingFlags & ezArgDateTime::ShowTimeZone) == ezArgDateTime::ShowTimeZone)
+    {
+      offset += ezStringUtils::snprintf(tmp + offset, uiLength - offset,
+        " (UTC)");
+    }
+  }
+
+  return tmp;
+}
 
 // Include inline file
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)

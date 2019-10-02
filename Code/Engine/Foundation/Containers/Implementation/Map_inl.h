@@ -785,6 +785,11 @@ ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::ezMap() : ezMapBase<KeyTy
 }
 
 template <typename KeyType, typename ValueType, typename Comparer, typename AllocatorWrapper>
+ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::ezMap(ezAllocatorBase* pAllocator) : ezMapBase<KeyType, ValueType, Comparer>(Comparer(), pAllocator)
+{
+}
+
+template <typename KeyType, typename ValueType, typename Comparer, typename AllocatorWrapper>
 ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::ezMap(const Comparer& comparer, ezAllocatorBase* pAllocator) : ezMapBase<KeyType, ValueType, Comparer>(comparer, pAllocator)
 {
 }

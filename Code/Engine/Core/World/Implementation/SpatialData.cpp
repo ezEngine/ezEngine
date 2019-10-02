@@ -4,7 +4,11 @@
 
 EZ_CHECK_AT_COMPILETIME(sizeof(ezSpatialData) == 64);
 
-ezHybridArray<ezSpatialData::CategoryData, 32> ezSpatialData::s_CategoryData;
+ezHybridArray<ezSpatialData::CategoryData, 32>& ezSpatialData::GetCategoryData()
+{
+  static ezHybridArray<ezSpatialData::CategoryData, 32> CategoryData;
+  return CategoryData;
+}
 
 // static
 ezSpatialData::Category ezSpatialData::RegisterCategory(const char* szCategoryName)
@@ -13,15 +17,15 @@ ezSpatialData::Category ezSpatialData::RegisterCategory(const char* szCategoryNa
   if (oldCategory != ezInvalidSpatialDataCategory)
     return oldCategory;
 
-  if (s_CategoryData.GetCount() == 32)
+  if (GetCategoryData().GetCount() == 32)
   {
     EZ_REPORT_FAILURE("Too many spatial data categories");
     return ezInvalidSpatialDataCategory;
   }
 
-  Category newCategory = Category(s_CategoryData.GetCount());
+  Category newCategory = Category(GetCategoryData().GetCount());
 
-  auto& data = s_CategoryData.ExpandAndGetRef();
+  auto& data = GetCategoryData().ExpandAndGetRef();
   data.m_sName.Assign(szCategoryName);
 
   return newCategory;
@@ -32,9 +36,9 @@ ezSpatialData::Category ezSpatialData::FindCategory(const char* szCategoryName)
 {
   ezTempHashedString categoryName(szCategoryName);
 
-  for (ezUInt32 uiCategoryIndex = 0; uiCategoryIndex < s_CategoryData.GetCount(); ++uiCategoryIndex)
+  for (ezUInt32 uiCategoryIndex = 0; uiCategoryIndex < GetCategoryData().GetCount(); ++uiCategoryIndex)
   {
-    if (s_CategoryData[uiCategoryIndex].m_sName == categoryName)
+    if (GetCategoryData()[uiCategoryIndex].m_sName == categoryName)
       return Category(uiCategoryIndex);
   }
 

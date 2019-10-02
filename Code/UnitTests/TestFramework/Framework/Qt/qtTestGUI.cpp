@@ -183,7 +183,18 @@ void ezQtTestGUI::on_actionSaveTestSettingsAs_triggered()
   ezStringBuilder tmp;
   ezStringView defaultDir = ezPathUtils::GetFileDirectory(m_pTestFramework->GetAbsTestSettingsFilePath());
   QString dir = defaultDir.IsValid() ? defaultDir.GetData(tmp) : QString();
-  QString sSavePath = QFileDialog::getSaveFileName(this, QLatin1String("Save Test Settings As"), dir);
+
+  QString sAllFilters;
+  sAllFilters += "Settings (*.txt)\n";
+  sAllFilters += "All Files (*.*)";
+
+  QString selectedFilter;
+
+  QString sSavePath = QFileDialog::getSaveFileName(this, "Save Test Settings As", dir, sAllFilters, &selectedFilter,
+    // for some reason on some PCs this function hangs with the native dialog
+    // pretty much exactly this: https://forum.qt.io/topic/49209/qfiledialog-getopenfilename-hangs-in-windows-when-using-the-native-dialog/18
+    QFileDialog::Option::DontUseNativeDialog);
+
   if (!sSavePath.isEmpty())
   {
     m_pTestFramework->SaveTestOrder(sSavePath.toUtf8().data());

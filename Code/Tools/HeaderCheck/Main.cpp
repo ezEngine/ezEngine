@@ -326,7 +326,7 @@ public:
 
     // get a directory iterator for the search directory
     ezFileSystemIterator it;
-    if (it.StartSearch(m_sSearchDir.GetData(), true, false) == EZ_SUCCESS)
+    if (it.StartSearch(m_sSearchDir.GetData(), ezFileSystemIteratorFlags::ReportFilesRecursive) == EZ_SUCCESS)
     {
       ezStringBuilder currentFile, sExt;
 

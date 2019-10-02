@@ -87,9 +87,8 @@ namespace
   {
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     OutputDebugStringW(ezStringWChar(szText).GetData());
-#else
-    printf("%s", szText);
 #endif
+    printf("%s", szText);
   };
 
   static void DumpLeak(const ezMemoryTracker::AllocationInfo& info, const char* szAllocatorName)

@@ -323,7 +323,7 @@ void ezGameApplicationBase::BeforeHighLevelSystemsShutdown()
     // make sure that no resources continue to be streamed in, while the engine shuts down
     ezResourceManager::EngineAboutToShutdown();
     ezResourceManager::ExecuteAllResourceCleanupCallbacks();
-    ezResourceManager::FreeUnusedResources(true);
+    ezResourceManager::FreeAllUnusedResources();
   }
 }
 
@@ -334,12 +334,12 @@ void ezGameApplicationBase::BeforeCoreSystemsShutdown()
 
   {
     ezFrameAllocator::Reset();
-    ezResourceManager::FreeUnusedResources(true);
+    ezResourceManager::FreeAllUnusedResources();
   }
 
   {
     Deinit_ShutdownGraphicsDevice();
-    ezResourceManager::FreeUnusedResources(true);
+    ezResourceManager::FreeAllUnusedResources();
   }
 
   Deinit_UnloadPlugins();
@@ -484,9 +484,16 @@ void ezGameApplicationBase::Run_FinishFrame()
 {
   ezTelemetry::PerFrameUpdate();
   ezResourceManager::PerFrameUpdate();
+
+  // continuously unload resources that are not in use anymore
+  ezResourceManager::FreeUnusedResources(ezTime::Microseconds(100), ezTime::Seconds(10.0f));
+
   ezTaskSystem::FinishFrameTasks();
   ezFrameAllocator::Swap();
   ezProfilingSystem::StartNewFrame();
+
+  // if many messages have been logged, make sure they get written to disk
+  ezLog::Flush(100, ezTime::Seconds(10));
 
   // reset this state
   m_bTakeScreenshot = false;

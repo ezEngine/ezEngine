@@ -36,6 +36,7 @@ const ezTimestamp ezDateTime::GetTimestamp() const
   timeinfo.tm_min = m_uiMinute;      /* minutes after the hour - [0,59] */
   timeinfo.tm_hour = m_uiHour;       /* hours since midnight - [0,23] */
   timeinfo.tm_mday = m_uiDay;        /* day of the month - [1,31] */
+  timeinfo.tm_wday = m_uiDayOfWeek;  /* day of the week - [0,6] */
   timeinfo.tm_mon = m_uiMonth - 1;   /* months since January - [0,11] */
   timeinfo.tm_year = m_iYear - 1900; /* years since 1900 */
   timeinfo.tm_isdst = 0;             /* daylight savings time flag */
@@ -65,6 +66,7 @@ bool ezDateTime::SetTimestamp(ezTimestamp timestamp)
   m_iYear = timeinfo.tm_year + 1900;
   m_uiMonth = timeinfo.tm_mon + 1;
   m_uiDay = timeinfo.tm_mday;
+  m_uiDayOfWeek = timeinfo.tm_wday;
   m_uiHour = timeinfo.tm_hour;
   m_uiMinute = timeinfo.tm_min;
   m_uiSecond = timeinfo.tm_sec;

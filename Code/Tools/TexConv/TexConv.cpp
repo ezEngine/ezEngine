@@ -1,13 +1,13 @@
-#include <TexConv2PCH.h>
+#include <TexConvPCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
-#include <TexConv2/TexConv2.h>
+#include <TexConv/TexConv.h>
 #include <Texture/Image/Formats/DdsFileFormat.h>
 #include <Texture/ezTexFormat/ezTexFormat.h>
 
-ezTexConv2::ezTexConv2()
-  : ezApplication("TexConv2")
+ezTexConv::ezTexConv()
+  : ezApplication("TexConv")
 {
   // texture types
   {
@@ -81,7 +81,7 @@ ezTexConv2::ezTexConv2()
   }
 }
 
-ezResult ezTexConv2::BeforeCoreSystemsStartup()
+ezResult ezTexConv::BeforeCoreSystemsStartup()
 {
   ezStartup::AddApplicationTag("tool");
   ezStartup::AddApplicationTag("texconv");
@@ -89,15 +89,16 @@ ezResult ezTexConv2::BeforeCoreSystemsStartup()
   return SUPER::BeforeCoreSystemsStartup();
 }
 
-void ezTexConv2::AfterCoreSystemsStartup()
+void ezTexConv::AfterCoreSystemsStartup()
 {
+  ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
   ezFileSystem::AddDataDirectory("", "App", ":", ezFileSystem::AllowWrites);
 
   ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
   ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
 }
 
-void ezTexConv2::BeforeCoreSystemsShutdown()
+void ezTexConv::BeforeCoreSystemsShutdown()
 {
   ezGlobalLog::RemoveLogWriter(ezLogWriter::Console::LogMessageHandler);
   ezGlobalLog::RemoveLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
@@ -105,7 +106,7 @@ void ezTexConv2::BeforeCoreSystemsShutdown()
   SUPER::BeforeCoreSystemsShutdown();
 }
 
-ezResult ezTexConv2::DetectOutputFormat()
+ezResult ezTexConv::DetectOutputFormat()
 {
   if (m_sOutputFile.IsEmpty())
   {
@@ -127,7 +128,7 @@ ezResult ezTexConv2::DetectOutputFormat()
     m_bOutputSupportsCompression = true;
     return EZ_SUCCESS;
   }
-  if (sExt == "TGA")
+  if (sExt == "TGA" || sExt == "PNG")
   {
     m_bOutputSupports2D = true;
     m_bOutputSupports3D = false;
@@ -187,14 +188,14 @@ ezResult ezTexConv2::DetectOutputFormat()
   return EZ_FAILURE;
 }
 
-bool ezTexConv2::IsTexFormat() const
+bool ezTexConv::IsTexFormat() const
 {
   const ezStringView ext = ezPathUtils::GetFileExtension(m_sOutputFile);
 
   return ext.StartsWith_NoCase("ez");
 }
 
-ezResult ezTexConv2::WriteTexFile(ezStreamWriter& stream, const ezImage& image)
+ezResult ezTexConv::WriteTexFile(ezStreamWriter& stream, const ezImage& image)
 {
   ezAssetFileHeader asset;
   asset.SetFileHashAndVersion(m_Processor.m_Descriptor.m_uiAssetHash, m_Processor.m_Descriptor.m_uiAssetVersion);
@@ -220,7 +221,7 @@ ezResult ezTexConv2::WriteTexFile(ezStreamWriter& stream, const ezImage& image)
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConv2::WriteOutputFile(const char* szFile, const ezImage& image)
+ezResult ezTexConv::WriteOutputFile(const char* szFile, const ezImage& image)
 {
   if (IsTexFormat())
   {
@@ -237,7 +238,7 @@ ezResult ezTexConv2::WriteOutputFile(const char* szFile, const ezImage& image)
   }
 }
 
-ezApplication::ApplicationExecution ezTexConv2::Run()
+ezApplication::ApplicationExecution ezTexConv::Run()
 {
   SetReturnCode(-1);
 
@@ -305,4 +306,4 @@ ezApplication::ApplicationExecution ezTexConv2::Run()
   return ezApplication::ApplicationExecution::Quit;
 }
 
-EZ_CONSOLEAPP_ENTRY_POINT(ezTexConv2);
+EZ_CONSOLEAPP_ENTRY_POINT(ezTexConv);

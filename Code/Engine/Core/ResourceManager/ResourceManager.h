@@ -7,20 +7,27 @@
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Threading/LockedObject.h>
+#include <Foundation/Types/UniquePtr.h>
+
+class ezResourceManagerState;
 
 /// \brief The central class for managing all types derived from ezResource
 class EZ_CORE_DLL ezResourceManager
 {
+  friend class ezResourceManagerState;
+  static ezUniquePtr<ezResourceManagerState> s_State;
+
   /// \name Events
   ///@{
 
 public:
+
   /// Events on individual resources. Subscribe to this to get a notification for events happening on any resource.
   /// If you are only interested in events for a specific resource, subscribe on directly on that instance.
-  static ezEvent<const ezResourceEvent&> s_ResourceEvents;
+  static ezEvent<const ezResourceEvent&>& GetResourceEvents();
 
   /// Events for the resource manager that affect broader things.
-  static ezEvent<const ezResourceManagerEvent&> s_ManagerEvents;
+  static ezEvent<const ezResourceManagerEvent&>& GetManagerEvents();
 
   /// \brief Goes through all existing resources and broadcasts the 'Exists' event.
   ///
@@ -170,11 +177,13 @@ public:
 
 public:
   /// \brief Deallocates all resources whose refcount has reached 0. Returns the number of deleted resources.
-  ///
-  /// If bFreeAllUnused is false, the function only iterates once over the known resources. This may miss resources
-  /// that are unreferenced after another resource was unloaded.
-  /// If bFreeAllUnused is true, it will repeat the step as long as it finds resources that can be deallocated.
-  static ezUInt32 FreeUnusedResources(bool bFreeAllUnused);
+  static ezUInt32 FreeAllUnusedResources();
+
+  /// \brief Deallocates resources whose refcount has reached 0. Returns the number of deleted resources.
+  static ezUInt32 FreeUnusedResources(ezTime timeout, ezTime lastAcquireThreshold);
+
+private:
+  static void DeallocateResource(ezResource* pResource);
 
   ///@}
   /// \name Miscellaneous
@@ -216,7 +225,7 @@ public:
   static void SetDefaultResourceLoader(ezResourceTypeLoader* pDefaultLoader);
 
   /// \brief Returns the resource loader to use when no type specific resource loader is available.
-  static ezResourceTypeLoader* GetDefaultResourceLoader() { return s_pDefaultResourceLoader; }
+  static ezResourceTypeLoader* GetDefaultResourceLoader();
 
   /// \brief Sets the resource loader to use for the given resource type.
   ///
@@ -260,6 +269,9 @@ public:
   /// \brief Enables export mode. In this mode the resource manager will assert when it actually tries to load a resource.
   /// This can be useful when exporting resource handles but the actual resource content is not needed.
   static void EnableExportMode(bool enable);
+
+  /// \brief Returns whether export mode is active.
+  static bool IsExportModeEnabled();
 
   /// \brief Creates a resource handle for the given resource ID. This method can only be used if export mode is enabled.
   /// Internally it will create a resource but does not load the content. This way it can be ensured that the resource handle is always only
@@ -339,25 +351,20 @@ public:
   /// system shutdown to clean up resources.
   static void ExecuteAllResourceCleanupCallbacks();
 
-private:
-  static ezDynamicArray<ResourceCleanupCB> s_ResourceCleanupCallbacks;
-
   ///@}
   /// \name Resource Priorities
   ///@{
 
 public:
-
   /// \brief Specifies which resource to use as a loading fallback for the given type, while a resource is not yet loaded.
   template <typename RESOURCE_TYPE>
   static void SetResourceTypeDefaultPriority(ezResourcePriority priority)
   {
-    s_ResourceTypePriorities[ezGetStaticRTTI<RESOURCE_TYPE>()] = priority;
+    GetResourceTypePriorities()[ezGetStaticRTTI<RESOURCE_TYPE>()] = priority;
   }
 
 private:
-  static ezMap<const ezRTTI*, ezResourcePriority> s_ResourceTypePriorities;
-
+  static ezMap<const ezRTTI*, ezResourcePriority>& GetResourceTypePriorities();
   ///@}
 
   //////////////////////////////////////////////////////////////////////////
@@ -373,8 +380,6 @@ private:
   // Events
 private:
   static void BroadcastResourceEvent(const ezResourceEvent& e);
-
-  static bool s_bBroadcastExistsEvent;
 
   // Miscellaneous
 private:
@@ -403,7 +408,6 @@ private:
     EZ_ALWAYS_INLINE bool operator==(const LoadingInfo& rhs) const { return m_pResource == rhs.m_pResource; }
     EZ_ALWAYS_INLINE bool operator<(const LoadingInfo& rhs) const { return m_fPriority < rhs.m_fPriority; }
   };
-
   static void EnsureResourceLoadingState(ezResource* pResource, const ezResourceState RequestedState);
   static bool HelpResourceLoading();
   static void PreloadResource(ezResource* pResource);
@@ -414,37 +418,19 @@ private:
   static ezResource* GetResource(const ezRTTI* pRtti, const char* szResourceID, bool bIsReloadable);
   static void RunWorkerTask(ezResource* pResource);
   static void UpdateLoadingDeadlines();
-  static void ReverseBubbleSortStep(ezDeque<ezResourceManager::LoadingInfo>& data);
+  static void ReverseBubbleSortStep(ezDeque<LoadingInfo>& data);
   static bool ReloadResource(ezResource* pResource, bool bForce);
 
-private:
-  static ezUInt32 s_uiForceNoFallbackAcquisition;
-
-  // this is the resource preload queue
-  static ezDeque<LoadingInfo> s_RequireLoading;
-  static ezHashTable<const ezRTTI*, LoadedResources> s_LoadedResources;
-  static const ezUInt32 MaxDataLoadTasks = 4;
-  static const ezUInt32 MaxUpdateContentTasks = 16;
-  static bool s_bTaskRunning;
-  static bool s_bShutdown;
-  static ezResourceManagerWorkerDataLoad s_WorkerTasksDataLoad[MaxDataLoadTasks];
-  static ezResourceManagerWorkerUpdateContent s_WorkerTasksUpdateContent[MaxUpdateContentTasks];
-  static ezUInt8 s_uiCurrentUpdateContentWorkerTask;
-  static ezUInt8 s_uiCurrentLoadDataWorkerTask;
-  static ezTime s_LastFrameUpdate;
-  static ezUInt32 s_uiLastResourcePriorityUpdateIdx;
-
-  static ezDynamicArray<ezResource*> s_LoadedResourceOfTypeTempContainer;
-  static ezHashTable<ezTempHashedString, const ezRTTI*> s_ResourcesToUnloadOnMainThread;
+  static ezUInt32 GetForceNoFallbackAcquisition();
+  static ezTime GetLastFrameUpdate();
+  static ezHashTable<const ezRTTI*, LoadedResources>& GetLoadedResources();
+  static ezDynamicArray<ezResource*>& GetLoadedResourceOfTypeTempContainer();
 
   // Type loaders
 private:
   static ezResourceTypeLoader* GetResourceTypeLoader(const ezRTTI* pRTTI);
 
-  static ezMap<const ezRTTI*, ezResourceTypeLoader*> s_ResourceTypeLoader;
-  static ezResourceLoaderFromFile s_FileResourceLoader;
-  static ezResourceTypeLoader* s_pDefaultResourceLoader;
-  static ezMap<ezResource*, ezUniquePtr<ezResourceTypeLoader>> s_CustomLoaders;
+  static ezMap<const ezRTTI*, ezResourceTypeLoader*>& GetResourceTypeLoaders();
 
   // Override / derived resources
 private:
@@ -456,23 +442,6 @@ private:
 
   /// \brief Checks whether there is a type override for pRtti given szResourceID and returns that
   static const ezRTTI* FindResourceTypeOverride(const ezRTTI* pRtti, const char* szResourceID);
-
-  static ezMap<const ezRTTI*, ezHybridArray<DerivedTypeInfo, 4>> s_DerivedTypeInfos;
-
-  // Named resources
-
-private:
-  static ezHashTable<ezTempHashedString, ezHashedString> s_NamedResources;
-
-  // Asset system interaction
-private:
-  static ezMap<ezString, const ezRTTI*> s_AssetToResourceType;
-
-  // Export mode
-private:
-  static bool s_bExportMode;
-
-  static ezUInt32 s_uiNextResourceID;
 };
 
 #include <Core/ResourceManager/Implementation/ResourceLock.h>

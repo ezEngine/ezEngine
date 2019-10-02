@@ -736,6 +736,11 @@ ezSet<KeyType, Comparer, AllocatorWrapper>::ezSet() : ezSetBase<KeyType, Compare
 }
 
 template <typename KeyType, typename Comparer, typename AllocatorWrapper>
+ezSet<KeyType, Comparer, AllocatorWrapper>::ezSet(ezAllocatorBase* pAllocator) : ezSetBase<KeyType, Comparer>(Comparer(), pAllocator)
+{
+}
+
+template <typename KeyType, typename Comparer, typename AllocatorWrapper>
 ezSet<KeyType, Comparer, AllocatorWrapper>::ezSet(const Comparer& comparer, ezAllocatorBase* pAllocator) : ezSetBase<KeyType, Comparer>(comparer, pAllocator)
 {
 }

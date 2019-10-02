@@ -100,7 +100,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
 
     ezDynamicArray<ezGameObject*> objectsInSphere;
     ezHashSet<ezGameObject*> uniqueObjects;
-    world.GetSpatialSystem().FindObjectsInSphere(testSphere, uiCategoryBitmask, objectsInSphere);
+    world.GetSpatialSystem()->FindObjectsInSphere(testSphere, uiCategoryBitmask, objectsInSphere);
 
     for (auto pObject : objectsInSphere)
     {
@@ -124,7 +124,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
     objectsInSphere.Clear();
     uniqueObjects.Clear();
 
-    world.GetSpatialSystem().FindObjectsInSphere(testSphere, uiCategoryBitmask, [&](ezGameObject* pObject) {
+    world.GetSpatialSystem()->FindObjectsInSphere(testSphere, uiCategoryBitmask, [&](ezGameObject* pObject) {
       objectsInSphere.PushBack(pObject);
       EZ_TEST_BOOL(!uniqueObjects.Insert(pObject));
 
@@ -157,7 +157,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
 
     ezDynamicArray<ezGameObject*> objectsInBox;
     ezHashSet<ezGameObject*> uniqueObjects;
-    world.GetSpatialSystem().FindObjectsInBox(testBox, uiCategoryBitmask, objectsInBox);
+    world.GetSpatialSystem()->FindObjectsInBox(testBox, uiCategoryBitmask, objectsInBox);
 
     for (auto pObject : objectsInBox)
     {
@@ -181,7 +181,7 @@ EZ_CREATE_SIMPLE_TEST(World, SpatialSystem)
     objectsInBox.Clear();
     uniqueObjects.Clear();
 
-    world.GetSpatialSystem().FindObjectsInBox(testBox, uiCategoryBitmask, [&](ezGameObject* pObject) {
+    world.GetSpatialSystem()->FindObjectsInBox(testBox, uiCategoryBitmask, [&](ezGameObject* pObject) {
       objectsInBox.PushBack(pObject);
       EZ_TEST_BOOL(!uniqueObjects.Insert(pObject));
 

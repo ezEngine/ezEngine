@@ -1071,6 +1071,100 @@ void ezStringBuilder::Trim(const char* szTrimCharsStart, const char* szTrimChars
          ezStringUtils::GetCharacterCount(szNewEnd, GetData() + GetElementCount()));
 }
 
+bool ezStringBuilder::TrimWordStart(const char* szWord1, const char* szWord2 /*= nullptr*/, const char* szWord3 /*= nullptr*/, const char* szWord4 /*= nullptr*/, const char* szWord5 /*= nullptr*/)
+{
+  /// \test TrimWordStart
+  bool trimmed = false;
+
+  while (true)
+  {
+    if (!ezStringUtils::IsNullOrEmpty(szWord1) && StartsWith_NoCase(szWord1))
+    {
+      Shrink(ezStringUtils::GetCharacterCount(szWord1), 0);
+      trimmed = true;
+      continue;
+    }
+
+    if (!ezStringUtils::IsNullOrEmpty(szWord2) && StartsWith_NoCase(szWord2))
+    {
+      Shrink(ezStringUtils::GetCharacterCount(szWord2), 0);
+      trimmed = true;
+      continue;
+    }
+
+    if (!ezStringUtils::IsNullOrEmpty(szWord3) && StartsWith_NoCase(szWord3))
+    {
+      Shrink(ezStringUtils::GetCharacterCount(szWord3), 0);
+      trimmed = true;
+      continue;
+    }
+
+    if (!ezStringUtils::IsNullOrEmpty(szWord4) && StartsWith_NoCase(szWord4))
+    {
+      Shrink(ezStringUtils::GetCharacterCount(szWord4), 0);
+      trimmed = true;
+      continue;
+    }
+
+    if (!ezStringUtils::IsNullOrEmpty(szWord5) && StartsWith_NoCase(szWord5))
+    {
+      Shrink(ezStringUtils::GetCharacterCount(szWord5), 0);
+      trimmed = true;
+      continue;
+    }
+
+    return trimmed;
+  }
+}
+
+bool ezStringBuilder::TrimWordEnd(const char* szWord1, const char* szWord2 /*= nullptr*/, const char* szWord3 /*= nullptr*/, const char* szWord4 /*= nullptr*/, const char* szWord5 /*= nullptr*/)
+{
+  /// \test TrimWordEnd
+
+  bool trimmed = false;
+
+  while (true)
+  {
+
+    if (!ezStringUtils::IsNullOrEmpty(szWord1) && EndsWith_NoCase(szWord1))
+    {
+      Shrink(0, ezStringUtils::GetCharacterCount(szWord1));
+      trimmed = true;
+      continue;
+    }
+
+    if (!ezStringUtils::IsNullOrEmpty(szWord2) && EndsWith_NoCase(szWord2))
+    {
+      Shrink(0, ezStringUtils::GetCharacterCount(szWord2));
+      trimmed = true;
+      continue;
+    }
+
+    if (!ezStringUtils::IsNullOrEmpty(szWord3) && EndsWith_NoCase(szWord3))
+    {
+      Shrink(0, ezStringUtils::GetCharacterCount(szWord3));
+      trimmed = true;
+      continue;
+    }
+
+    if (!ezStringUtils::IsNullOrEmpty(szWord4) && EndsWith_NoCase(szWord4))
+    {
+      Shrink(0, ezStringUtils::GetCharacterCount(szWord4));
+      trimmed = true;
+      continue;
+    }
+
+    if (!ezStringUtils::IsNullOrEmpty(szWord5) && EndsWith_NoCase(szWord5))
+    {
+      Shrink(0, ezStringUtils::GetCharacterCount(szWord5));
+      trimmed = true;
+      continue;
+    }
+
+    return trimmed;
+  }
+}
+
 void ezStringBuilder::Format(const ezFormatString& string)
 {
   Clear();
@@ -1084,17 +1178,16 @@ void ezStringBuilder::Format(const ezFormatString& string)
 void ezStringBuilder::AppendFormat(const ezFormatString& string)
 {
   ezStringBuilder tmp;
-  string.GetText(tmp);
+  ezStringView view = string.GetText(tmp);
 
-  Append(ezStringView(tmp.GetData(), tmp.GetData() + tmp.GetElementCount()));
+  Append(view);
 }
 
 void ezStringBuilder::PrependFormat(const ezFormatString& string)
 {
   ezStringBuilder tmp;
-  string.GetText(tmp);
 
-  Prepend(tmp);
+  Prepend(string.GetText(tmp));
 }
 
 void ezStringBuilder::Printf(const char* szUtf8Format, ...)

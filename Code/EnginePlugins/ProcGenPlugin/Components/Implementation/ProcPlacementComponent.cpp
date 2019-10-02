@@ -53,12 +53,12 @@ void ezProcPlacementComponentManager::Initialize()
     this->RegisterUpdateFunction(desc);
   }
 
-  ezResourceManager::s_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezProcPlacementComponentManager::OnResourceEvent, this));
+  ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezProcPlacementComponentManager::OnResourceEvent, this));
 }
 
 void ezProcPlacementComponentManager::Deinitialize()
 {
-  ezResourceManager::s_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezProcPlacementComponentManager::OnResourceEvent, this));
+  ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezProcPlacementComponentManager::OnResourceEvent, this));
 
   for (auto& activeTile : m_ActiveTiles)
   {

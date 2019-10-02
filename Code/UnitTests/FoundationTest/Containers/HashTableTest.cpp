@@ -28,8 +28,8 @@ namespace HashTableTestDetail
   {
   public:
     OnlyMovable(ezUInt32 hash)
-        : hash(hash)
-        , m_NumTimesMoved(0)
+      : hash(hash)
+      , m_NumTimesMoved(0)
     {
     }
     OnlyMovable(OnlyMovable&& other) { *this = std::move(other); }
@@ -50,7 +50,7 @@ namespace HashTableTestDetail
     OnlyMovable(const OnlyMovable&);
     void operator=(const OnlyMovable&);
   };
-}
+} // namespace HashTableTestDetail
 
 template <>
 struct ezHashHelper<HashTableTestDetail::Collision>
@@ -503,6 +503,99 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
       tmp.Format("{0}{0}{0}", i);
       EZ_TEST_BOOL(map1.Contains(tmp));
       EZ_TEST_INT(map1[tmp], i);
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "foreach")
+  {
+    ezStringBuilder tmp;
+    ezHashTable<ezString, ezInt32> map;
+    ezHashTable<ezString, ezInt32> map2;
+
+    for (ezUInt32 i = 0; i < 1000; ++i)
+    {
+      tmp.Format("stuff{}bla", i);
+      map[tmp] = i;
+    }
+
+    EZ_TEST_INT(map.GetCount(), 1000);
+
+    map2 = map;
+    EZ_TEST_INT(map2.GetCount(), map.GetCount());
+
+    for (ezHashTable<ezString, ezInt32>::Iterator it = begin(map); it != end(map); ++it)
+    {
+      const ezString& k = it.Key();
+      ezInt32 v = it.Value();
+
+      map2.Remove(k);
+    }
+
+    EZ_TEST_BOOL(map2.IsEmpty());
+    map2 = map;
+
+    for (auto it : map)
+    {
+      const ezString& k = it.Key();
+      ezInt32 v = it.Value();
+
+      map2.Remove(k);
+    }
+
+    EZ_TEST_BOOL(map2.IsEmpty());
+    map2 = map;
+
+    // just check that this compiles
+    for (auto it : static_cast<const ezHashTable<ezString, ezInt32>&>(map))
+    {
+      const ezString& k = it.Key();
+      ezInt32 v = it.Value();
+
+      map2.Remove(k);
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Find")
+  {
+    ezStringBuilder tmp;
+    ezHashTable<ezString, ezInt32> map;
+
+    for (ezUInt32 i = 0; i < 1000; ++i)
+    {
+      tmp.Format("stuff{}bla", i);
+      map[tmp] = i;
+    }
+
+    for (ezInt32 i = map.GetCount() - 1; i > 0; --i)
+    {
+      tmp.Format("stuff{}bla", i);
+
+      auto it = map.Find(tmp);
+      auto cit = static_cast<const ezHashTable<ezString, ezInt32>&>(map).Find(tmp);
+
+      EZ_TEST_STRING(it.Key(), tmp);
+      EZ_TEST_INT(it.Value(), i);
+
+      EZ_TEST_STRING(cit.Key(), tmp);
+      EZ_TEST_INT(cit.Value(), i);
+
+      int allowedIterations = map.GetCount();
+      for (auto it2 = it; it2.IsValid(); ++it2)
+      {
+        // just test that iteration is possible and terminates correctly
+        --allowedIterations;
+        EZ_TEST_BOOL(allowedIterations >= 0);
+      }
+
+      allowedIterations = map.GetCount();
+      for (auto cit2 = cit; cit2.IsValid(); ++cit2)
+      {
+        // just test that iteration is possible and terminates correctly
+        --allowedIterations;
+        EZ_TEST_BOOL(allowedIterations >= 0);
+      }
+
+      map.Remove(it);
     }
   }
 }

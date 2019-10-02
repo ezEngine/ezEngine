@@ -122,7 +122,13 @@ public:
   /// itself).
   virtual void ResetResource() {}
 
-  mutable ezEvent<const ezResourceEvent&> m_ResourceEvents;
+  /// \brief Prints the stack-traces for all handles that currently reference this resource.
+  ///
+  /// Only implemented if EZ_RESOURCEHANDLE_STACK_TRACES is EZ_ON.
+  /// Otherwise the function does nothing.
+  void PrintHandleStackTraces();
+
+  mutable ezEvent<const ezResourceEvent&, ezMutex> m_ResourceEvents;
 
 private:
   friend class ezResourceManager;
@@ -177,8 +183,22 @@ private:
   template <typename ResourceType>
   friend class ezTypedResourceHandle;
 
-  friend EZ_CORE_DLL void IncreaseResourceRefCount(ezResource* pResource);
-  friend EZ_CORE_DLL void DecreaseResourceRefCount(ezResource* pResource);
+  friend EZ_CORE_DLL void IncreaseResourceRefCount(ezResource* pResource, const void* pOwner);
+  friend EZ_CORE_DLL void DecreaseResourceRefCount(ezResource* pResource, const void* pOwner);
+
+#if EZ_ENABLED(EZ_RESOURCEHANDLE_STACK_TRACES)
+  friend EZ_CORE_DLL void MigrateResourceRefCount(ezResource* pResource, const void* pOldOwner, const void* pNewOwner);
+
+  struct HandleStackTrace
+  {
+    ezUInt32 m_uiNumPtrs = 0;
+    void* m_Ptrs[64];
+  };
+
+  ezMutex m_HandleStackTraceMutex;
+  ezHashTable<const void*, HandleStackTrace> m_HandleStackTraces;
+#endif
+
 
   /// \brief This function must be overridden by all resource types.
   ///
@@ -218,96 +238,96 @@ private:
 
 #include <Core/ResourceManager/ResourceManager.h>
 
-#define EZ_RESOURCE_DECLARE_COMMON_CODE(SELF)                                                                                              \
-  friend class ezResourceManager;                                                                                                          \
-                                                                                                                                           \
-public:                                                                                                                                    \
-  /*                                                                                                                                       \
-  /// \brief Unfortunately this has to be called manually from within dynamic plugins during core engine shutdown.                         \
-  ///                                                                                                                                      \
-  /// Without this, the dynamic plugin might still be referenced by the core engine during later shutdown phases and will crash, because   \
-  /// memory and code is still referenced, that is already unloaded.                                                                       \
-  */                                                                                                                                       \
-  static void CleanupDynamicPluginReferences();                                                                                            \
-                                                                                                                                           \
-  /*                                                                                                                                       \
-  /// \brief Returns a typed resource handle to this resource                                                                              \
-  */                                                                                                                                       \
-  ezTypedResourceHandle<SELF> GetResourceHandle() const;                                                                                   \
-                                                                                                                                           \
-  /*                                                                                                                                       \
-  /// \brief Sets the fallback resource that can be used while this resource is not yet loaded.                                            \
-  ///                                                                                                                                      \
-  /// By default there is no fallback resource, so all resource will block the application when requested for the first time.              \
-  */                                                                                                                                       \
-  void SetLoadingFallbackResource(const ezTypedResourceHandle<SELF>& hResource);                                                           \
-                                                                                                                                           \
-private:                                                                                                                                   \
-  /* These functions are needed to access the static members, such that they get DLL exported, otherwise you get unresolved symbols */     \
-  static void SetResourceTypeLoadingFallback(const ezTypedResourceHandle<SELF>& hResource);                                                \
-  static void SetResourceTypeMissingFallback(const ezTypedResourceHandle<SELF>& hResource);                                                \
-  static const ezTypedResourceHandle<SELF>& GetResourceTypeLoadingFallback() { return s_TypeLoadingFallback; }                             \
-  static const ezTypedResourceHandle<SELF>& GetResourceTypeMissingFallback() { return s_TypeMissingFallback; }                             \
-  virtual bool HasResourceTypeLoadingFallback() const override { return s_TypeLoadingFallback.IsValid(); }                                 \
-                                                                                                                                           \
-  static ezTypedResourceHandle<SELF> s_TypeLoadingFallback;                                                                                \
-  static ezTypedResourceHandle<SELF> s_TypeMissingFallback;                                                                                \
-                                                                                                                                           \
+#define EZ_RESOURCE_DECLARE_COMMON_CODE(SELF)                                                                                            \
+  friend class ::ezResourceManager;                                                                                                        \
+                                                                                                                                         \
+public:                                                                                                                                  \
+  /*                                                                                                                                     \
+  /// \brief Unfortunately this has to be called manually from within dynamic plugins during core engine shutdown.                       \
+  ///                                                                                                                                    \
+  /// Without this, the dynamic plugin might still be referenced by the core engine during later shutdown phases and will crash, because \
+  /// memory and code is still referenced, that is already unloaded.                                                                     \
+  */                                                                                                                                     \
+  static void CleanupDynamicPluginReferences();                                                                                          \
+                                                                                                                                         \
+  /*                                                                                                                                     \
+  /// \brief Returns a typed resource handle to this resource                                                                            \
+  */                                                                                                                                     \
+  ezTypedResourceHandle<SELF> GetResourceHandle() const;                                                                                 \
+                                                                                                                                         \
+  /*                                                                                                                                     \
+  /// \brief Sets the fallback resource that can be used while this resource is not yet loaded.                                          \
+  ///                                                                                                                                    \
+  /// By default there is no fallback resource, so all resource will block the application when requested for the first time.            \
+  */                                                                                                                                     \
+  void SetLoadingFallbackResource(const ezTypedResourceHandle<SELF>& hResource);                                                         \
+                                                                                                                                         \
+private:                                                                                                                                 \
+  /* These functions are needed to access the static members, such that they get DLL exported, otherwise you get unresolved symbols */   \
+  static void SetResourceTypeLoadingFallback(const ezTypedResourceHandle<SELF>& hResource);                                              \
+  static void SetResourceTypeMissingFallback(const ezTypedResourceHandle<SELF>& hResource);                                              \
+  static const ezTypedResourceHandle<SELF>& GetResourceTypeLoadingFallback() { return s_TypeLoadingFallback; }                           \
+  static const ezTypedResourceHandle<SELF>& GetResourceTypeMissingFallback() { return s_TypeMissingFallback; }                           \
+  virtual bool HasResourceTypeLoadingFallback() const override { return s_TypeLoadingFallback.IsValid(); }                               \
+                                                                                                                                         \
+  static ezTypedResourceHandle<SELF> s_TypeLoadingFallback;                                                                              \
+  static ezTypedResourceHandle<SELF> s_TypeMissingFallback;                                                                              \
+                                                                                                                                         \
   ezTypedResourceHandle<SELF> m_hLoadingFallback;
 
 
-#define EZ_RESOURCE_IMPLEMENT_COMMON_CODE(SELF)                                                                                            \
-  ezTypedResourceHandle<SELF> SELF::s_TypeLoadingFallback;                                                                                 \
-  ezTypedResourceHandle<SELF> SELF::s_TypeMissingFallback;                                                                                 \
-                                                                                                                                           \
-  void SELF::CleanupDynamicPluginReferences()                                                                                              \
-  {                                                                                                                                        \
-    s_TypeLoadingFallback.Invalidate();                                                                                                    \
-    s_TypeMissingFallback.Invalidate();                                                                                                    \
-    ezResourceManager::ClearResourceCleanupCallback(&SELF::CleanupDynamicPluginReferences);                                                \
-  }                                                                                                                                        \
-                                                                                                                                           \
-  ezTypedResourceHandle<SELF> SELF::GetResourceHandle() const                                                                              \
-  {                                                                                                                                        \
-    ezTypedResourceHandle<SELF> handle((SELF*)this);                                                                                       \
-    return handle;                                                                                                                         \
-  }                                                                                                                                        \
-                                                                                                                                           \
-  void SELF::SetLoadingFallbackResource(const ezTypedResourceHandle<SELF>& hResource)                                                      \
-  {                                                                                                                                        \
-    m_hLoadingFallback = hResource;                                                                                                        \
-    SetHasLoadingFallback(m_hLoadingFallback.IsValid());                                                                                   \
-  }                                                                                                                                        \
-                                                                                                                                           \
-  void SELF::SetResourceTypeLoadingFallback(const ezTypedResourceHandle<SELF>& hResource)                                                  \
-  {                                                                                                                                        \
-    s_TypeLoadingFallback = hResource;                                                                                                     \
-    EZ_RESOURCE_VALIDATE_FALLBACK(SELF);                                                                                                   \
-    ezResourceManager::AddResourceCleanupCallback(&SELF::CleanupDynamicPluginReferences);                                                  \
-  }                                                                                                                                        \
-  void SELF::SetResourceTypeMissingFallback(const ezTypedResourceHandle<SELF>& hResource)                                                  \
-  {                                                                                                                                        \
-    s_TypeMissingFallback = hResource;                                                                                                     \
-    EZ_RESOURCE_VALIDATE_FALLBACK(SELF);                                                                                                   \
-    ezResourceManager::AddResourceCleanupCallback(&SELF::CleanupDynamicPluginReferences);                                                  \
+#define EZ_RESOURCE_IMPLEMENT_COMMON_CODE(SELF)                                             \
+  ezTypedResourceHandle<SELF> SELF::s_TypeLoadingFallback;                                  \
+  ezTypedResourceHandle<SELF> SELF::s_TypeMissingFallback;                                  \
+                                                                                            \
+  void SELF::CleanupDynamicPluginReferences()                                               \
+  {                                                                                         \
+    s_TypeLoadingFallback.Invalidate();                                                     \
+    s_TypeMissingFallback.Invalidate();                                                     \
+    ezResourceManager::ClearResourceCleanupCallback(&SELF::CleanupDynamicPluginReferences); \
+  }                                                                                         \
+                                                                                            \
+  ezTypedResourceHandle<SELF> SELF::GetResourceHandle() const                               \
+  {                                                                                         \
+    ezTypedResourceHandle<SELF> handle((SELF*)this);                                        \
+    return handle;                                                                          \
+  }                                                                                         \
+                                                                                            \
+  void SELF::SetLoadingFallbackResource(const ezTypedResourceHandle<SELF>& hResource)       \
+  {                                                                                         \
+    m_hLoadingFallback = hResource;                                                         \
+    SetHasLoadingFallback(m_hLoadingFallback.IsValid());                                    \
+  }                                                                                         \
+                                                                                            \
+  void SELF::SetResourceTypeLoadingFallback(const ezTypedResourceHandle<SELF>& hResource)   \
+  {                                                                                         \
+    s_TypeLoadingFallback = hResource;                                                      \
+    EZ_RESOURCE_VALIDATE_FALLBACK(SELF);                                                    \
+    ezResourceManager::AddResourceCleanupCallback(&SELF::CleanupDynamicPluginReferences);   \
+  }                                                                                         \
+  void SELF::SetResourceTypeMissingFallback(const ezTypedResourceHandle<SELF>& hResource)   \
+  {                                                                                         \
+    s_TypeMissingFallback = hResource;                                                      \
+    EZ_RESOURCE_VALIDATE_FALLBACK(SELF);                                                    \
+    ezResourceManager::AddResourceCleanupCallback(&SELF::CleanupDynamicPluginReferences);   \
   }
 
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-#  define EZ_RESOURCE_VALIDATE_FALLBACK(SELF)                                                                                              \
-    if (hResource.IsValid())                                                                                                               \
-    {                                                                                                                                      \
-      ezResourceLock<SELF> lock(hResource, ezResourceAcquireMode::BlockTillLoaded);                                                             \
-      /* if this fails, the 'fallback resource' is missing itself*/                                                                        \
+#  define EZ_RESOURCE_VALIDATE_FALLBACK(SELF)                                       \
+    if (hResource.IsValid())                                                        \
+    {                                                                               \
+      ezResourceLock<SELF> lock(hResource, ezResourceAcquireMode::BlockTillLoaded); \
+      /* if this fails, the 'fallback resource' is missing itself*/                 \
     }
 #else
 #  define EZ_RESOURCE_VALIDATE_FALLBACK(SELF)
 #endif
 
-#define EZ_RESOURCE_DECLARE_CREATEABLE(SELF, SELF_DESCRIPTOR)                                                                              \
-protected:                                                                                                                                 \
-  ezResourceLoadDesc CreateResource(SELF_DESCRIPTOR&& descriptor);                                                                         \
-                                                                                                                                           \
+#define EZ_RESOURCE_DECLARE_CREATEABLE(SELF, SELF_DESCRIPTOR)      \
+protected:                                                         \
+  ezResourceLoadDesc CreateResource(SELF_DESCRIPTOR&& descriptor); \
+                                                                   \
 private:
 
 #define EZ_RESOURCE_IMPLEMENT_CREATEABLE(SELF, SELF_DESCRIPTOR) ezResourceLoadDesc SELF::CreateResource(SELF_DESCRIPTOR&& descriptor)

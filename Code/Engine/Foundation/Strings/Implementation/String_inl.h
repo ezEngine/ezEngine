@@ -141,8 +141,6 @@ void ezHybridStringBase<Size>::operator=(const ezStringView& rhs)
 template <ezUInt16 Size>
 ezStringView ezHybridStringBase<Size>::GetSubString(ezUInt32 uiFirstCharacter, ezUInt32 uiNumCharacters) const
 {
-  EZ_ASSERT_DEV(uiFirstCharacter < m_uiCharacterCount, "The string only has {0} characters, cannot start a sub-string at character {1}.",
-                m_uiCharacterCount, uiFirstCharacter);
   EZ_ASSERT_DEV(uiFirstCharacter + uiNumCharacters <= m_uiCharacterCount,
                 "The string only has {0} characters, cannot get a sub-string up to character {1}.", m_uiCharacterCount,
                 uiFirstCharacter + uiNumCharacters);

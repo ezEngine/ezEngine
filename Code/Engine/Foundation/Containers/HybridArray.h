@@ -1,62 +1,44 @@
 #pragma once
 
-#include <Foundation/Containers/ArrayBase.h>
-#include <Foundation/Memory/AllocatorWrapper.h>
+#include <Foundation/Containers/DynamicArray.h>
 
 /// \brief Implementation a dynamically growing array.
 ///
 /// Best-case performance for the PushBack operation is in O(1) if the ezHybridArray does not need to be expanded.
 /// In the worst case, PushBack is in O(n).
 /// Look-up is guaranteed to always be in O(1).
-template <typename T, ezUInt32 Size>
-class ezHybridArrayBase : public ezArrayBase<T, ezHybridArrayBase<T, Size>>
+template <typename T, ezUInt32 Size, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
+class ezHybridArray : public ezDynamicArray<T, AllocatorWrapper>
 {
-protected:
+public:
+  // Only if the stored type is either POD or relocatable the hybrid array itself is also relocatable.
+  EZ_DECLARE_MEM_RELOCATABLE_TYPE_CONDITIONAL(T);
+
   /// \brief Creates an empty array. Does not allocate any data yet.
-  ezHybridArrayBase(ezAllocatorBase* pAllocator); // [tested]
+  ezHybridArray(); // [tested]
+
+  /// \brief Creates an empty array. Does not allocate any data yet.
+  ezHybridArray(ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Creates a copy of the given array.
-  ezHybridArrayBase(const ezHybridArrayBase<T, Size>& other, ezAllocatorBase* pAllocator); // [tested]
+  ezHybridArray(const ezHybridArray<T, Size, AllocatorWrapper>& other); // [tested]
+
+  /// \brief Creates a copy of the given array.
+  ezHybridArray(const ezArrayPtr<const T>& other); // [tested]
 
   /// \brief Moves the given array.
-  ezHybridArrayBase(ezHybridArrayBase<T, Size>&& other, ezAllocatorBase* pAllocator); // [tested]
-
-  /// \brief Creates a copy of the given array.
-  ezHybridArrayBase(const ezArrayPtr<const T>& other, ezAllocatorBase* pAllocator); // [tested]
-
-  /// \brief Destructor.
-  ~ezHybridArrayBase(); // [tested]
+  ezHybridArray(ezHybridArray<T, Size, AllocatorWrapper>&& other); // [tested]
 
   /// \brief Copies the data from some other contiguous array into this one.
-  void operator=(const ezHybridArrayBase<T, Size>& rhs); // [tested]
+  void operator=(const ezHybridArray<T, Size, AllocatorWrapper>& rhs); // [tested]
+
+  /// \brief Copies the data from some other contiguous array into this one.
+  void operator=(const ezArrayPtr<const T>& rhs); // [tested]
 
   /// \brief Moves the data from some other contiguous array into this one.
-  void operator=(ezHybridArrayBase<T, Size>&& rhs); // [tested]
+  void operator=(ezHybridArray<T, Size, AllocatorWrapper>&& rhs); // [tested]
 
-  T* GetElementsPtr();
-  const T* GetElementsPtr() const;
-
-  friend class ezArrayBase<T, ezHybridArrayBase<T, Size>>;
-
-public:
-  /// \brief Expands the array so it can at least store the given capacity.
-  void Reserve(ezUInt32 uiCapacity); // [tested]
-
-  /// \brief Tries to compact the array to avoid wasting memory. The resulting capacity is at least 'GetCount' (no elements get removed). Will deallocate all data, if the array is empty.
-  void Compact(); // [tested]
-
-  /// \brief Returns the allocator that is used by this instance.
-  ezAllocatorBase* GetAllocator() const { return m_pAllocator; }
-
-  /// \brief Returns the amount of bytes that are currently allocated on the heap.
-  ezUInt64 GetHeapMemoryUsage() const; // [tested]
-
-  /// \brief Swaps the contents of this array with another one
-  void Swap(ezHybridArrayBase<T, Size>& other); //[tested]
-
-private:
-  T* GetStaticArray();
-  const T* GetStaticArray() const;
+protected:
 
   /// \brief The fixed size array.
   struct : ezAligned<EZ_ALIGNMENT_OF(T)>
@@ -64,40 +46,17 @@ private:
     ezUInt8 m_StaticData[Size * sizeof(T)];
   };
 
-  ezAllocatorBase* m_pAllocator;
-
-  enum
+  EZ_ALWAYS_INLINE T* GetStaticArray()
   {
-    CAPACITY_ALIGNMENT = 16
-  };
+    return reinterpret_cast<T*>(m_StaticData);
+  }
 
-  void SetCapacity(ezUInt32 uiCapacity);
-};
-
-/// \brief \see ezHybridArrayBase
-template <typename T, ezUInt32 Size, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
-class ezHybridArray : public ezHybridArrayBase<T, Size>
-{
-public:
-  EZ_DECLARE_MEM_RELOCATABLE_TYPE();
-
-  ezHybridArray();
-  ezHybridArray(ezAllocatorBase* pAllocator);
-
-  ezHybridArray(const ezHybridArray<T, Size, AllocatorWrapper>& other);
-  ezHybridArray(const ezHybridArrayBase<T, Size>& other);
-  explicit ezHybridArray(const ezArrayPtr<const T>& other);
-
-  ezHybridArray(ezHybridArray<T, Size, AllocatorWrapper>&& other);
-  ezHybridArray(ezHybridArrayBase<T, Size>&& other);
-
-  void operator=(const ezHybridArray<T, Size, AllocatorWrapper>& rhs);
-  void operator=(const ezHybridArrayBase<T, Size>& rhs);
-  void operator=(const ezArrayPtr<const T>& rhs);
-
-  void operator=(ezHybridArray<T, Size, AllocatorWrapper>&& rhs);
-  void operator=(ezHybridArrayBase<T, Size>&& rhs);
+  EZ_ALWAYS_INLINE const T* GetStaticArray() const
+  {
+    return reinterpret_cast<const T*>(m_StaticData);
+  }
 };
 
 #include <Foundation/Containers/Implementation/HybridArray_inl.h>
+
 

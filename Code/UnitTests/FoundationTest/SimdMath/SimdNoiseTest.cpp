@@ -56,7 +56,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdNoise)
       }
 
       ezStringBuilder sOutFile;
-      sOutFile.Format(":output/SimdNoise/perlin_{}.tga", uiNumOctaves);
+      sOutFile.Format(":output/SimdNoise/result-perlin_{}.tga", uiNumOctaves);
 
       EZ_TEST_BOOL(image.SaveTo(sOutFile).Succeeded());
 

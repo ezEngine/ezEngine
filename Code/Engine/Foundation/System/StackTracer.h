@@ -15,7 +15,7 @@ public:
   static ezUInt32 GetStackTrace(ezArrayPtr<void*>& trace, void* pContext = nullptr);
 
   /// \brief Callback-function to print a text somewhere
-  typedef void (*PrintFunc)(const char* szText);
+  using PrintFunc = void(const char* szText);
 
   /// \brief Print a stack trace
   static void ResolveStackTrace(const ezArrayPtr<void*>& trace, PrintFunc printFunc);

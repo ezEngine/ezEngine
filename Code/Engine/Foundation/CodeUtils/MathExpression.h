@@ -3,12 +3,10 @@
 #include <Foundation/CodeUtils/TokenParseUtils.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Strings/String.h>
+#include <Foundation/Types/Delegate.h>
 
 struct ezStringView;
 class ezLogInterface;
-
-template <typename T>
-struct ezDelegate;
 
 /// \brief Parses a math expression from a string and allows efficient evaluation with different variable configurations.
 ///
@@ -93,4 +91,3 @@ private:
 
   bool m_bIsValid;
 };
-

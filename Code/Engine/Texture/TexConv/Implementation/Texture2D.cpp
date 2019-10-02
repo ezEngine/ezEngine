@@ -32,7 +32,7 @@ ezResult ezTexConvProcessor::Assemble2DSlice(
 
       for (ezUInt32 channel = 0; channel < 4; ++channel)
       {
-        float fValue = 1.0f;
+        float fValue = 0.0f;
 
         const auto& cm = mapping.m_Channel[channel];
         const ezInt32 inputIndex = cm.m_iInputImageIndex;
@@ -69,7 +69,7 @@ ezResult ezTexConvProcessor::Assemble2DSlice(
               break;
 
             default:
-              fValue = 1.0f;
+              fValue = channel == 3 ? 1.0f : 0.0f;
               break;
           }
         }

@@ -7,6 +7,8 @@
 #include <qgraphicsitem.h>
 
 #include <GuiFoundation/GuiFoundationDLL.h>
+#include <QDesktopServices>
+#include <QFileDialog>
 
 /// \todo Refcount ? (Max?)
 /// \todo Select Resource -> send to App for preview
@@ -362,6 +364,90 @@ void ezQtResourceWidget::on_CheckShowDeleted_toggled(bool checked)
 {
   m_bShowDeleted = checked;
   UpdateAll();
+}
+
+static const char* StateToString(ezResourceState state)
+{
+  switch (state)
+  {
+    case ezResourceState::Invalid:
+      return "Deleted";
+    case ezResourceState::Unloaded:
+      return "Unloaded";
+    case ezResourceState::Loaded:
+      return "Loaded";
+    case ezResourceState::LoadedResourceMissing:
+      return "Missing";
+  }
+
+  return "unknown";
+}
+
+static const char* PriorityToString(ezResourcePriority priority)
+{
+  switch (priority)
+  {
+    case ezResourcePriority::Critical:
+      return "Critical";
+    case ezResourcePriority::VeryHigh:
+      return "Very High";
+    case ezResourcePriority::High:
+      return "High";
+    case ezResourcePriority::Medium:
+      return "Normal";
+    case ezResourcePriority::Low:
+      return "Low";
+    case ezResourcePriority::VeryLow:
+      return "Lowest";
+  }
+
+  return "unknown";
+}
+
+void ezQtResourceWidget::on_ButtonSave_clicked()
+{
+  static QString sLastDir;
+
+  QString sFile = QFileDialog::getSaveFileName(this, "Save Resource Table", sLastDir, "CSV (*.csv)\nAll Files (*.*)", nullptr);
+
+  if (sFile.isEmpty())
+    return;
+
+  sLastDir = sFile;
+
+
+  QFile file(sFile);
+  if (!file.open(QIODevice::WriteOnly))
+    return;
+
+  ezStringBuilder sLine;
+
+  sLine = "sep=,\n";
+  file.write(sLine);
+
+  sLine = "Resource Type, Priority, State, CPU, GPU, Resource ID, Description\n";
+  file.write(sLine);
+
+  for (auto it = m_Resources.GetIterator(); it.IsValid(); ++it)
+  {
+    auto& res = it.Value();
+
+    if (!m_bShowDeleted && res.m_LoadingState.m_State == ezResourceState::Invalid)
+      continue;
+
+    if (!m_sTypeFilter.IsEmpty() && res.m_sResourceType != m_sTypeFilter)
+      continue;
+
+    if (!m_sNameFilter.IsEmpty() && res.m_sResourceID.FindSubString_NoCase(m_sNameFilter) == nullptr &&
+        res.m_sResourceDescription.FindSubString_NoCase(m_sNameFilter) == nullptr)
+      continue;
+
+    sLine.Format("{}, {}, {}, {}, {}, {}, {}\n", res.m_sResourceType, PriorityToString(res.m_Priority), StateToString(res.m_LoadingState.m_State),
+      res.m_Memory.m_uiMemoryCPU, res.m_Memory.m_uiMemoryGPU, res.m_sResourceID, res.m_sResourceDescription);
+    file.write(sLine);
+  }
+
+  QDesktopServices::openUrl(QUrl::fromLocalFile(sFile));
 }
 
 void ezQtResourceWidget::ProcessTelemetry(void* pUnuseed)

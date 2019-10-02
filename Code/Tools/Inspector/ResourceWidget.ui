@@ -127,6 +127,17 @@
            </property>
           </widget>
          </item>
+         <item>
+          <widget class="QPushButton" name="ButtonSave">
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="resources.qrc">
+             <normaloff>:/Icons/Icons/Save.png</normaloff>:/Icons/Icons/Save.png</iconset>
+           </property>
+          </widget>
+         </item>
         </layout>
        </item>
        <item>
@@ -164,4 +175,4 @@
   <include location="resources.qrc"/>
  </resources>
  <connections/>
-</ui> 
+</ui>

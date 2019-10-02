@@ -213,7 +213,14 @@ void ezGameObject::UpdateGlobalTransformAndBoundsRecursive()
     m_pTransformationData->UpdateGlobalTransform();
   }
 
-  m_pTransformationData->UpdateGlobalBounds();
+  if (GetWorld()->GetSpatialSystem() == nullptr)
+  {
+    m_pTransformationData->UpdateGlobalBounds();
+  }
+  else
+  {
+    m_pTransformationData->UpdateGlobalBoundsAndSpatialData();
+  }
 
   if (IsStatic() && m_Flags.IsSet(ezObjectFlags::StaticTransformChangesNotifications) && oldGlobalTransform != GetGlobalTransformSimd())
   {
@@ -257,9 +264,9 @@ void ezGameObject::operator=(const ezGameObject& other)
   m_pTransformationData = other.m_pTransformationData;
   m_pTransformationData->m_pObject = this;
 
-  if (!m_pTransformationData->m_hSpatialData.IsInvalidated())
+  if (!m_pTransformationData->m_hSpatialData.IsInvalidated() && m_pWorld->GetSpatialSystem() != nullptr)
   {
-    m_pWorld->GetSpatialSystem().UpdateSpatialData(m_pTransformationData->m_hSpatialData, m_pTransformationData->m_globalBounds, this,
+    m_pWorld->GetSpatialSystem()->UpdateSpatialData(m_pTransformationData->m_hSpatialData, m_pTransformationData->m_globalBounds, this,
       m_pTransformationData->m_uiSpatialDataCategoryBitmask);
   }
 
@@ -591,7 +598,14 @@ void ezGameObject::UpdateLocalBounds()
 
   if (IsStatic())
   {
-    m_pTransformationData->UpdateGlobalBounds();
+    if (GetWorld()->GetSpatialSystem() == nullptr)
+    {
+      m_pTransformationData->UpdateGlobalBounds();
+    }
+    else
+    {
+      m_pTransformationData->UpdateGlobalBoundsAndSpatialData();
+    }
   }
 }
 
@@ -874,12 +888,19 @@ void ezGameObject::TransformationData::ConditionalUpdateGlobalBounds()
   // Ensure that global transform is updated
   ConditionalUpdateGlobalTransform();
 
-  UpdateGlobalBounds();
+  if (m_pObject->GetWorld()->GetSpatialSystem() == nullptr)
+  {
+    UpdateGlobalBounds();
+  }
+  else
+  {
+    UpdateGlobalBoundsAndSpatialData();
+  }
 }
 
 void ezGameObject::TransformationData::UpdateSpatialData(bool bWasAlwaysVisible, bool bIsAlwaysVisible)
 {
-  ezSpatialSystem& spatialSystem = m_pObject->GetWorld()->GetSpatialSystem();
+  ezSpatialSystem& spatialSystem = *m_pObject->GetWorld()->GetSpatialSystem();
 
   if (bWasAlwaysVisible != bIsAlwaysVisible)
   {

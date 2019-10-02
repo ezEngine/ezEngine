@@ -15,8 +15,11 @@ public:
 
   /// \brief Generates the formatted text. Make sure to only call this function once and only when the formatted string is really needed.
   ///
-  /// Requires an ezStringBuilder as storage, ie. writes the formatted text into it. Additionally it returns a const char* to that
-  /// string builder data for convenience.
+  /// Requires an ezStringBuilder as storage, ie. POTENTIALLY writes the formatted text into it.
+  /// However, if no formatting is required, it may not touch the string builder at all and just return a string directly.
+  ///
+  /// \note Do not assume that the result is stored in \a sb. Always only use the return value. The string builder is only used
+  /// when necessary.
   virtual const char* GetText(ezStringBuilder& sb) const { return m_szString; }
 
 protected:

@@ -29,7 +29,7 @@ namespace ezDataDirectory
     virtual const ezString128& GetRedirectedDataDirectoryPath() const override { return m_sRedirectedDataDirPath; }
 
   protected:
-    virtual ezDataDirectoryReader* OpenFileToRead(const char* szFile, bool bSpecificallyThisDataDir) override;
+    virtual ezDataDirectoryReader* OpenFileToRead(const char* szFile, ezFileShareMode::Enum FileShareMode, bool bSpecificallyThisDataDir) override;
 
     virtual void RemoveDataDirectory() override;
 
@@ -72,7 +72,7 @@ namespace ezDataDirectory
     virtual ezUInt64 GetFileSize() const override;
 
   protected:
-    virtual ezResult InternalOpen() override;
+    virtual ezResult InternalOpen(ezFileShareMode::Enum FileShareMode) override;
     virtual void InternalClose() override;
 
     friend class ArchiveType;
@@ -94,7 +94,7 @@ namespace ezDataDirectory
     virtual ezUInt64 Read(void* pBuffer, ezUInt64 uiBytes) override;
 
   protected:
-    virtual ezResult InternalOpen() override;
+    virtual ezResult InternalOpen(ezFileShareMode::Enum FileShareMode) override;
 
     friend class ArchiveType;
 
@@ -114,7 +114,7 @@ namespace ezDataDirectory
     virtual ezUInt64 Read(void* pBuffer, ezUInt64 uiBytes) override;
 
   protected:
-    virtual ezResult InternalOpen() override;
+    virtual ezResult InternalOpen(ezFileShareMode::Enum FileShareMode) override;
 
     friend class ArchiveType;
 

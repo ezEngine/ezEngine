@@ -11,6 +11,8 @@ class EZ_GAMEENGINE_DLL ezActor : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezActor, ezReflectedClass);
 
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezActor);
+
 public:
   ezActor(const char* szActorName, const void* pCreatedBy);
   ~ezActor();
@@ -43,19 +45,28 @@ public:
 protected:
   void UpdateAllPlugins();
 
+ 
 protected: // directly touched by ezActorManager
   friend class ezActorManager;
 
-  enum class ActorState
+  /// \brief Called shortly before the first call to Update()
+  virtual void Activate();
+
+  /// \brief Called once per frame to update the actor state.
+  ///
+  /// By default this calls UpdateAllPlugins() internally.
+  virtual void Update();
+
+private: // directly touched by ezActorManager
+
+  enum class State
   {
     New,
     Active,
     QueuedForDestruction
   };
 
-  ActorState m_ActorState = ActorState::New;
-  
-  virtual void Update();
+  State m_State = State::New;
 
 private:
   ezUniquePtr<ezActorImpl> m_pImpl;

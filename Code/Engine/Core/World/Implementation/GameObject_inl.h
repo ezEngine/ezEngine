@@ -392,7 +392,7 @@ EZ_ALWAYS_INLINE const ezSimdTransform& ezGameObject::GetGlobalTransformSimd() c
   return m_pTransformationData->m_globalTransform;
 }
 
-
+#if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
 EZ_ALWAYS_INLINE void ezGameObject::SetVelocity(const ezVec3& vVelocity)
 {
   m_pTransformationData->m_velocity = ezSimdVec4f(vVelocity.x, vVelocity.y, vVelocity.z, 1.0f);
@@ -402,6 +402,7 @@ EZ_ALWAYS_INLINE ezVec3 ezGameObject::GetVelocity() const
 {
   return ezSimdConversion::ToVec3(m_pTransformationData->m_velocity);
 }
+#endif
 
 EZ_ALWAYS_INLINE void ezGameObject::UpdateGlobalTransform()
 {
@@ -538,12 +539,17 @@ EZ_ALWAYS_INLINE void ezGameObject::TransformationData::UpdateGlobalTransformWit
 
 EZ_FORCE_INLINE void ezGameObject::TransformationData::UpdateGlobalBounds()
 {
-  ezSimdBBoxSphere oldGlobalBounds = m_globalBounds;
-
   m_globalBounds = m_localBounds;
   m_globalBounds.Transform(m_globalTransform);
 
   m_globalBounds.m_BoxHalfExtents.SetW(m_localBounds.m_BoxHalfExtents.w());
+}
+
+EZ_FORCE_INLINE void ezGameObject::TransformationData::UpdateGlobalBoundsAndSpatialData()
+{
+  ezSimdBBoxSphere oldGlobalBounds = m_globalBounds;
+
+  UpdateGlobalBounds();
 
   ///\todo find a better place for this
   // Can't use ezSimdBBoxSphere::operator != because we want to include the w component of m_BoxHalfExtents
@@ -560,6 +566,7 @@ EZ_FORCE_INLINE void ezGameObject::TransformationData::UpdateGlobalBounds()
 
 EZ_ALWAYS_INLINE void ezGameObject::TransformationData::UpdateVelocity(const ezSimdFloat& fInvDeltaSeconds)
 {
+#if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
   // A w value != 0 indicates a custom velocity, don't overwrite it.
   ezSimdVec4b customVel = (m_velocity.Get<ezSwizzle::WWWW>() != ezSimdVec4f::ZeroVector());
   ezSimdVec4f newVel = (m_globalTransform.m_Position - m_lastGlobalPosition) * fInvDeltaSeconds;
@@ -567,5 +574,5 @@ EZ_ALWAYS_INLINE void ezGameObject::TransformationData::UpdateVelocity(const ezS
 
   m_lastGlobalPosition = m_globalTransform.m_Position;
   m_velocity.SetW(ezSimdFloat::Zero());
+#endif
 }
-

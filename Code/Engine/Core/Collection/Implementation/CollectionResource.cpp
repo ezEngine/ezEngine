@@ -32,6 +32,14 @@ void ezCollectionResource::PreloadResources()
       {
         hTypeless = ezResourceManager::LoadResourceByType(pRtti, e.m_sResourceID);
       }
+      else
+      {
+        ezLog::Error("There was no valid RTTI available for assets with type name '{}'. Could not pre-load resource '{}'. Did you forget to register the resource type with the ezResourceManager?", e.m_sAssetTypeName, e.m_sResourceID);
+      }
+    }
+    else
+    {
+      ezLog::Error("Asset '{}' had an empty asset type name. Cannot pre-load it.", e.m_sResourceID);
     }
 
     m_hPreloadedResources.PushBack(hTypeless);

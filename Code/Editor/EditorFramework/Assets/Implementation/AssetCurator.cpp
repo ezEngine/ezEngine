@@ -1464,7 +1464,7 @@ void ezAssetCurator::IterateDataDirectory(const char* szDataDir, const ezSet<ezS
     return;
 
   ezFileSystemIterator iterator;
-  if (iterator.StartSearch(sDataDir, true, true).Failed())
+  if (iterator.StartSearch(sDataDir, ezFileSystemIteratorFlags::ReportFilesAndFoldersRecursive).Failed())
     return;
 
   ezStringBuilder sPath;
