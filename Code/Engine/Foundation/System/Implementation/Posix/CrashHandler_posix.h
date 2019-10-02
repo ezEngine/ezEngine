@@ -15,13 +15,15 @@ static void ezCrashHandlerFunc() noexcept
     ezCrashHandler::GetCrashHandler()->HandleCrash(nullptr);
   }
 
-  std::_Exit(EXIT_FAILURE);
+  // restore the original signal handler for the abort signal and raise one so the kernel can do a core dump
+  std::signal(SIGABRT, SIG_DFL);
+  std::raise(SIGABRT);
 }
 
-static void ezSignalHandler(int signal)
+static void ezSignalHandler(int signum)
 {
   ezLog::Printf("***Unhandled Signal:***\n");
-  switch (signal)
+  switch (signum)
   {
     case SIGINT:
       ezLog::Printf("Signal SIGINT: interrupt\n");
@@ -46,7 +48,14 @@ static void ezSignalHandler(int signal)
       break;
   }
 
-  ezCrashHandlerFunc();
+  if (ezCrashHandler::GetCrashHandler() != nullptr)
+  {
+    ezCrashHandler::GetCrashHandler()->HandleCrash(nullptr);
+  }
+
+  // forward the signal back to the OS so that it can write a core dump
+  std::signal(signum, SIG_DFL);
+  kill(getpid(), signum);
 }
 
 void ezCrashHandler::SetCrashHandler(ezCrashHandler* pHandler)
@@ -75,9 +84,9 @@ void ezCrashHandler::SetCrashHandler(ezCrashHandler* pHandler)
   }
 }
 
-void ezCrashHandler_WriteMiniDump::WriteOwnProcessMiniDump(void* pOsSpecificData)
+bool ezCrashHandler_WriteMiniDump::WriteOwnProcessMiniDump(void* pOsSpecificData)
 {
-  // not implemented
+  return false;
 }
 
 void ezCrashHandler_WriteMiniDump::PrintStackTrace(void* pOsSpecificData)

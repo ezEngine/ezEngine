@@ -100,6 +100,15 @@ ezStatus ezMiniDumpUtils::WriteExternalProcessMiniDump(const char* szDumpFile, e
 
 #endif
 
+bool ezMiniDumpUtils::IsSupported()
+{
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+  return true;
+#else
+  return false;
+#endif
+}
+
 ezStatus ezMiniDumpUtils::WriteExternalProcessMiniDump(const char* szDumpFile, ezUInt32 uiProcessID)
 {
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)

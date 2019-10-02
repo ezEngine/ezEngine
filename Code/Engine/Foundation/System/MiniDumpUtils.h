@@ -15,6 +15,9 @@ extern "C"
 /// \brief Functionality for writing process mini-dumps (callstacks, memory snapshots, etc)
 struct EZ_FOUNDATION_DLL ezMiniDumpUtils
 {
+  /// \brief Checks if the MiniDumpUtils are supported on the current platform
+  static bool IsSupported();
+
   /// \brief Tries to write a mini-dump for the external process with the given process ID.
   static ezStatus WriteExternalProcessMiniDump(const char* szDumpFile, ezUInt32 uiProcessID);
 

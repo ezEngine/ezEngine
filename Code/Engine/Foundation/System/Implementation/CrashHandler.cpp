@@ -79,13 +79,25 @@ void ezCrashHandler_WriteMiniDump::SetDumpFilePath(const char* szAppName, ezBitf
 
 void ezCrashHandler_WriteMiniDump::HandleCrash(void* pOsSpecificData)
 {
+  bool crashDumpWritten = false;
   if (!m_sDumpFilePath.IsEmpty())
   {
-    if (ezMiniDumpUtils::LaunchMiniDumpTool(m_sDumpFilePath).Failed())
+    if (ezMiniDumpUtils::IsSupported())
     {
-      ezLog::Error("Could not launch MiniDumpTool, trying to write crash-dump from crashed process directly.");
+      if (ezMiniDumpUtils::LaunchMiniDumpTool(m_sDumpFilePath).Failed())
+      {
+        ezLog::Error("Could not launch MiniDumpTool, trying to write crash-dump from crashed process directly.");
 
-      WriteOwnProcessMiniDump(pOsSpecificData);
+        crashDumpWritten = WriteOwnProcessMiniDump(pOsSpecificData);
+      }
+      else
+      {
+        crashDumpWritten = true;
+      }
+    }
+    else
+    {
+      crashDumpWritten = WriteOwnProcessMiniDump(pOsSpecificData);
     }
   }
   else
@@ -95,7 +107,10 @@ void ezCrashHandler_WriteMiniDump::HandleCrash(void* pOsSpecificData)
 
   PrintStackTrace(pOsSpecificData);
 
-  ezLog::Error("Application crashed. Crash-dump written to '{}'.", m_sDumpFilePath);
+  if (crashDumpWritten)
+  {
+    ezLog::Error("Application crashed. Crash-dump written to '{}'.", m_sDumpFilePath);
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////
