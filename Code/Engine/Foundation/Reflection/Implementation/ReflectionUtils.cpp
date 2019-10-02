@@ -484,7 +484,7 @@ namespace
     ezUInt32 m_iComponent;
     double m_fValue;
   };
-}
+} // namespace
 
 const ezRTTI* ezReflectionUtils::GetCommonBaseType(const ezRTTI* pRtti1, const ezRTTI* pRtti2)
 {
@@ -1161,7 +1161,7 @@ ezInt64 ezReflectionUtils::DefaultEnumerationValue(const ezRTTI* pEnumerationRtt
   {
     auto pProp = pEnumerationRtti->GetProperties()[0];
     EZ_ASSERT_DEBUG(pProp->GetCategory() == ezPropertyCategory::Constant && ezStringUtils::EndsWith(pProp->GetPropertyName(), "::Default"),
-                    "First enumeration property must be the default value constant.");
+      "First enumeration property must be the default value constant.");
     return static_cast<const ezAbstractConstantProperty*>(pProp)->GetConstant().ConvertTo<ezInt64>();
   }
   else
@@ -1476,8 +1476,7 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbs
             }
             else
             {
-              ezLog::Error("The property '{0}' can not be compared as the type '{1}' cannot be allocated.", pProp->GetPropertyName(),
-                           pPropType->GetTypeName());
+              ezLog::Error("The property '{0}' can not be compared as the type '{1}' cannot be allocated.", pProp->GetPropertyName(), pPropType->GetTypeName());
             }
           }
           if (!bEqual)
@@ -1487,6 +1486,10 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbs
       }
     }
     break;
+
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+      break;
   }
   return true;
 }
@@ -1617,7 +1620,7 @@ ezVariant ezReflectionUtils::GetDefaultValue(const ezAbstractProperty* pProperty
 {
   const ezDefaultValueAttribute* pAttrib = pProperty->GetAttributeByType<ezDefaultValueAttribute>();
   auto type =
-      pProperty->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProperty->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
+    pProperty->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProperty->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
   if (pProperty->GetSpecificType()->GetTypeFlags().IsSet(ezTypeFlags::StandardType))
   {
     if (pAttrib)
@@ -1665,4 +1668,3 @@ void ezReflectionUtils::SetAllMemberPropertiesToDefault(const ezRTTI* pRtti, voi
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Reflection_Implementation_ReflectionUtils);
-

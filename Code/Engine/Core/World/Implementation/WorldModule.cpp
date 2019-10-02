@@ -205,8 +205,6 @@ void ezWorldModuleFactory::ClearUnloadedTypeToIDs()
     allRttis.Insert(pRtti);
   }
 
-  const ezRTTI* pModuleRtti = ezGetStaticRTTI<ezWorldModule>(); // base type where we want to stop iterating upwards
-
   ezSet<ezUInt16> mappedIdsToRemove;
 
   for (auto it = m_TypeToId.GetIterator(); it.IsValid();)

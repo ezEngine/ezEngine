@@ -24,7 +24,8 @@ static const char* GenerateThreadName(ezWorkerThreadType::Enum ThreadType, ezUIn
       else
         sTemp = "File Access";
       break;
-    case ezWorkerThreadType::ENUM_COUNT:
+
+    default:
       EZ_REPORT_FAILURE("Invalid Thread Type");
       break;
   }
@@ -33,7 +34,7 @@ static const char* GenerateThreadName(ezWorkerThreadType::Enum ThreadType, ezUIn
 }
 
 ezTaskWorkerThread::ezTaskWorkerThread(ezWorkerThreadType::Enum ThreadType, ezUInt32 iThreadNumber)
-    : ezThread(GenerateThreadName(ThreadType, iThreadNumber))
+  : ezThread(GenerateThreadName(ThreadType, iThreadNumber))
 {
   m_bActive = true;
   m_WorkerType = ThreadType;
@@ -137,7 +138,7 @@ void ezTaskSystem::SetWorkerThreadCount(ezInt8 iShortTasks, ezInt8 iLongTasks)
 
 ezUInt32 ezTaskWorkerThread::Run()
 {
-  EZ_ASSERT_DEBUG(m_WorkerType != ezWorkerThreadType::Unknown &&  m_WorkerType != ezWorkerThreadType::MainThread, "Worker threads cannot use this type");
+  EZ_ASSERT_DEBUG(m_WorkerType != ezWorkerThreadType::Unknown && m_WorkerType != ezWorkerThreadType::MainThread, "Worker threads cannot use this type");
   EZ_ASSERT_DEBUG(m_WorkerType < ezWorkerThreadType::ENUM_COUNT, "Worker Thread Type is invalid: {0}", m_WorkerType);
 
   // once this thread is running, store the worker type in the thread_local variable
@@ -199,4 +200,3 @@ ezTime ezTaskWorkerThread::GetAndResetThreadActiveTime()
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_TaskWorkers);
-

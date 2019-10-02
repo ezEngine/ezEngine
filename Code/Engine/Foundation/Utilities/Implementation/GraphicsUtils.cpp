@@ -158,7 +158,6 @@ void ezGraphicsUtils::ExtractPerspectiveMatrixFieldOfView(const ezMat4& Projecti
 {
   const ezVec3 row0 = ProjectionMatrix.GetRow(0).GetAsVec3();
   const ezVec3 row1 = ProjectionMatrix.GetRow(1).GetAsVec3();
-  const ezVec3 row2 = ProjectionMatrix.GetRow(2).GetAsVec3();
   const ezVec3 row3 = ProjectionMatrix.GetRow(3).GetAsVec3();
 
   const ezVec3 leftPlane = (row3 + row0).GetNormalized();

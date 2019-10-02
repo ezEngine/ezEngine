@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <FileservePlugin/Fileserver/ClientContext.h>
 #include <Foundation/Containers/HashTable.h>
@@ -106,7 +106,6 @@ private:
   ezStringBuilder m_sCurFileUpload;
   ezUuid m_FileUploadGuid;
   ezUInt32 m_uiFileUploadSize;
-  ezUInt16 m_FileUploadDataDir;
   ezUInt16 m_uiPort = 1042;
 };
 

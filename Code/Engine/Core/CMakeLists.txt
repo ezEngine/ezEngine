@@ -25,3 +25,12 @@ if (EZ_3RDPARTY_LUA_SUPPORT)
   )
 
 endif()
+
+if (EZ_3RDPARTY_DUKTAPE_SUPPORT)
+
+  target_link_libraries(${PROJECT_NAME}
+    PUBLIC
+    Duktape
+  )
+
+endif()

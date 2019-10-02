@@ -118,9 +118,6 @@ ezUInt64 ezImageView::ComputeLayout()
 
   ezUInt64 uiDataSize = 0;
 
-  bool bCompressed = ezImageFormat::GetType(m_format) == ezImageFormatType::BLOCK_COMPRESSED;
-  ezUInt32 uiBitsPerPixel = ezImageFormat::GetBitsPerPixel(m_format);
-
   for (ezUInt32 uiArrayIndex = 0; uiArrayIndex < m_uiNumArrayIndices; uiArrayIndex++)
   {
     for (ezUInt32 uiFace = 0; uiFace < m_uiNumFaces; uiFace++)

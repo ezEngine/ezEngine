@@ -212,7 +212,6 @@ void ezResourceManager::PreloadResource(const ezTypelessResourceHandle& hResourc
 {
   EZ_ASSERT_DEV(hResource.IsValid(), "Cannot acquire a resource through an invalid handle!");
 
-  ezResource* pResource = hResource.m_pResource;
   PreloadResource(hResource.m_pResource);
 }
 

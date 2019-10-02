@@ -350,6 +350,18 @@ EZ_TEST_DLL ezResult ezTestBool(
 
 //////////////////////////////////////////////////////////////////////////
 
+EZ_TEST_DLL ezResult ezTestResult(
+  ezResult bCondition, const char* szErrorText, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...);
+
+/// \brief Tests for a boolean condition, does not output an extra message.
+#define EZ_TEST_RESULT(condition) EZ_TEST_RESULT_MSG(condition, "")
+
+/// \brief Tests for a boolean condition, outputs a custom message on failure.
+#define EZ_TEST_RESULT_MSG(condition, msg, ...)                                                                                              \
+  ezTestResult(condition, "Test failed: " EZ_STRINGIZE(condition), EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
+
+//////////////////////////////////////////////////////////////////////////
+
 inline double ToFloat(int f)
 {
   return static_cast<double>(f);
