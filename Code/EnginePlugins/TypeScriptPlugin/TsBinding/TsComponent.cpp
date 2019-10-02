@@ -1,5 +1,6 @@
 #include <TypeScriptPluginPCH.h>
 
+#include <Core/World/Component.h>
 #include <Duktape/duktape.h>
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
 

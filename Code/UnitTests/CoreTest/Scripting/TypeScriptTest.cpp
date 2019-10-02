@@ -5,6 +5,7 @@
 #  include <Core/Scripting/DuktapeWrapper.h>
 
 #  include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
+#  include <Foundation/IO/FileSystem/FileReader.h>
 #  include <Foundation/IO/FileSystem/FileSystem.h>
 #  include <Foundation/IO/FileSystem/FileWriter.h>
 #  include <TestFramework/Utilities/TestLogInterface.h>

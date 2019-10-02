@@ -1,5 +1,8 @@
 #include <TypeScriptPluginPCH.h>
 
+#include <Core/World/GameObject.h>
+#include <Core/World/World.h>
+#include <Duktape/duktape.h>
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
 
 static int __CPP_GameObject_IsValid(duk_context* pDuk);

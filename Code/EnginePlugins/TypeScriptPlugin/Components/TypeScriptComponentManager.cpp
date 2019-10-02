@@ -1,6 +1,7 @@
 #include <TypeScriptPluginPCH.h>
 
 #include <Duktape/duktape.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
 #include <TypeScriptPlugin/Components/TypeScriptComponent.h>
 
 ezTypeScriptComponentManager::ezTypeScriptComponentManager(ezWorld* pWorld)
