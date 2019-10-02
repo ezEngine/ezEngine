@@ -87,7 +87,7 @@ inline const char* ezFmt(const char* szFormat)
 /// Allows to write a message using printf style.
 /// Compiled out in non-debug builds.
 /// The condition is not evaluated, when this is compiled out, so do not execute important code in it.
-#define EZ_ASSERT_DEBUG(bCondition, szErrorMsg, ...) EZ_IGNORE_UNUSED(bCondition)
+#define EZ_ASSERT_DEBUG(bCondition, szErrorMsg, ...) do { (void)sizeof(bCondition);} while (0) /* ignore unused variable warnings */
 #endif
 
 
@@ -115,7 +115,7 @@ inline const char* ezFmt(const char* szFormat)
 /// Allows to write a message using printf style.
 /// Compiled out in non-development builds.
 /// The condition is not evaluated, when this is compiled out, so do not execute important code in it.
-#define EZ_ASSERT_DEV(bCondition, szErrorMsg, ...) EZ_IGNORE_UNUSED(bCondition)
+#define EZ_ASSERT_DEV(bCondition, szErrorMsg, ...) do { (void)sizeof(bCondition);} while (0) /* ignore unused variable warnings */
 
 /// \brief Macro to raise an error, if a condition is not met.
 ///
@@ -136,7 +136,7 @@ inline const char* ezFmt(const char* szFormat)
 /// These asserts can be disabled (and then their condition will not be evaluated),
 /// but this needs to be specifically done by the user by defining EZ_DISABLE_RELEASE_ASSERTS.
 /// That should only be done, if you are intending to ship a product, and want get rid of all unnecessary overhead.
-#define EZ_ASSERT_RELEASE(bCondition, szErrorMsg, ...) EZ_IGNORE_UNUSED(bCondition)
+#define EZ_ASSERT_RELEASE(bCondition, szErrorMsg, ...) do { (void)sizeof(bCondition);} while (0) /* ignore unused variable warnings */
 
 #else
 
