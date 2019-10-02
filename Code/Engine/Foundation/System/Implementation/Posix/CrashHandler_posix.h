@@ -7,6 +7,7 @@ EZ_FOUNDATION_INTERNAL_HEADER
 
 #include <csignal>
 #include <cxxabi.h>
+#include <unistd.h>
 
 static void ezCrashHandlerFunc() noexcept
 {

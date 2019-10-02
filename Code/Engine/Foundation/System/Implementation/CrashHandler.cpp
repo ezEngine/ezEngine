@@ -82,23 +82,20 @@ void ezCrashHandler_WriteMiniDump::HandleCrash(void* pOsSpecificData)
   bool crashDumpWritten = false;
   if (!m_sDumpFilePath.IsEmpty())
   {
-    if (ezMiniDumpUtils::IsSupported())
+#if EZ_ENABLED(EZ_SUPPORTS_CRASH_DUMPS)
+    if (ezMiniDumpUtils::LaunchMiniDumpTool(m_sDumpFilePath).Failed())
     {
-      if (ezMiniDumpUtils::LaunchMiniDumpTool(m_sDumpFilePath).Failed())
-      {
-        ezLog::Error("Could not launch MiniDumpTool, trying to write crash-dump from crashed process directly.");
+      ezLog::Error("Could not launch MiniDumpTool, trying to write crash-dump from crashed process directly.");
 
-        crashDumpWritten = WriteOwnProcessMiniDump(pOsSpecificData);
-      }
-      else
-      {
-        crashDumpWritten = true;
-      }
+      crashDumpWritten = WriteOwnProcessMiniDump(pOsSpecificData);
     }
     else
     {
-      crashDumpWritten = WriteOwnProcessMiniDump(pOsSpecificData);
+      crashDumpWritten = true;
     }
+#else
+    crashDumpWritten = WriteOwnProcessMiniDump(pOsSpecificData);
+#endif
   }
   else
   {
