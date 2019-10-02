@@ -75,3 +75,8 @@
 #  error "Unknown architecture."
 #endif
 
+// Writing crashdumps is only supported on windows desktop
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#  undef EZ_SUPPORTS_CRASH_DUMPS
+#  define EZ_SUPPORTS_CRASH_DUMPS EZ_ON
+#endif

@@ -77,7 +77,7 @@ public:
   virtual void HandleCrash(void* pOsSpecificData) override;
 
 protected:
-  virtual void WriteOwnProcessMiniDump(void* pOsSpecificData);
+  virtual bool WriteOwnProcessMiniDump(void* pOsSpecificData);
   virtual void PrintStackTrace(void* pOsSpecificData);
 
   ezString m_sDumpFilePath;
