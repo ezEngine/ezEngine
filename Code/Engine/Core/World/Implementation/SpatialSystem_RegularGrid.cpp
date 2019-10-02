@@ -198,7 +198,7 @@ struct ezSpatialSystem_RegularGrid::Cell
       }
       else
       {
-        bool replaced = m_DataPointersToIndex[category].Insert(pMovedData, uiNewDataIndex);
+        const bool replaced = m_DataPointersToIndex[category].Insert(pMovedData, uiNewDataIndex);
         EZ_ASSERT_DEBUG(replaced, "Implementation error");
       }
     };
@@ -229,7 +229,7 @@ struct ezSpatialSystem_RegularGrid::Cell
       category = ezMath::FirstBitLow(mask);
       mask &= mask - 1;
 
-      bool found = m_DataPointersToIndex[category].TryGetValue(pData, dataIndex);
+      const bool found = m_DataPointersToIndex[category].TryGetValue(pData, dataIndex);
       EZ_ASSERT_DEBUG(found, "Implementation error");
 
       if (dataIndex != m_DataPointers[category].GetCount() - 1)
@@ -260,7 +260,7 @@ struct ezSpatialSystem_RegularGrid::Cell
       category = ezMath::FirstBitLow(mask);
       mask &= mask - 1;
 
-      bool found = m_DataPointersToIndex[category].TryGetValue(pData, dataIndex);
+      const bool found = m_DataPointersToIndex[category].TryGetValue(pData, dataIndex);
       EZ_ASSERT_DEBUG(found, "Implementation error");
 
       m_BoundingSpheres[category][dataIndex] = pData->m_Bounds.GetSphere();

@@ -26,7 +26,6 @@ void ezTypeScriptComponent::DeserializeComponent(ezWorldReader& stream)
 void ezTypeScriptComponent::OnSimulationStarted()
 {
   ezTypeScriptBinding& binding = static_cast<ezTypeScriptComponentManager*>(GetOwningManager())->m_TsBinding;
-  ezDuktapeWrapper& duk = binding.GetDukTapeWrapper();
 
   if (binding.LoadComponent("TypeScript/Component.ts").Succeeded())
   {

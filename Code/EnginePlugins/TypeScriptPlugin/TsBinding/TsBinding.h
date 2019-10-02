@@ -3,8 +3,9 @@
 #include <TypeScriptPlugin/TypeScriptPluginDLL.h>
 
 #include <Core/Scripting/DuktapeWrapper.h>
-#include <TypeScriptPlugin/Transpiler/Transpiler.h>
 #include <Core/World/Declarations.h>
+#include <Core/World/World.h>
+#include <TypeScriptPlugin/Transpiler/Transpiler.h>
 
 class ezWorld;
 
@@ -80,7 +81,7 @@ public:
   void DeleteTsComponent(const ezComponentHandle& hCppComponent);
   static ezComponentHandle RetrieveComponentHandle(duk_context* pDuk, ezInt32 iObjIdx = 0 /* use 0, if the component is passed in as the 'this' object (first parameter) */);
 
-  template<typename ComponentType>
+  template <typename ComponentType>
   static ComponentType* ExpectComponent(duk_context* pDuk, ezInt32 iObjIdx = 0 /* use 0, if the game object is passed in as the 'this' object (first parameter) */);
 
   ///@}
@@ -91,8 +92,6 @@ public:
   static ezQuat GetQuat(duk_context* pDuk, ezInt32 iObjIdx);
 
   ///@}
-
-
 };
 
 template <typename ComponentType>

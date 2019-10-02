@@ -11,7 +11,7 @@
 #  include <TestFramework/Utilities/TestLogInterface.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 
-duk_ret_t ModuleSearchFunction(duk_context* ctx);
+static duk_ret_t ModuleSearchFunction(duk_context* ctx);
 
 static int CFuncPrint(duk_context* pContext)
 {

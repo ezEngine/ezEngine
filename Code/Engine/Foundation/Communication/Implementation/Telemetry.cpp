@@ -75,7 +75,7 @@ void ezTelemetry::UpdateNetwork()
         if (s_ConnectionMode == Client)
         {
           char szHostIP[64] = "<unknown>";
-          char szHostName[64] = "<unknown>";
+          //char szHostName[64] = "<unknown>";
 
           enet_address_get_host_ip(&NetworkEvent.peer->address, szHostIP, 63);
 

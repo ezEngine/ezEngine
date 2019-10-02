@@ -111,7 +111,6 @@ void ezGraphPatchContext::Patch(ezAbstractObjectNode* pNode)
   UpdateBaseClasses();
 
   // Patch
-  bool bPatched = false;
   for (m_uiBaseClassIndex = 0; m_uiBaseClassIndex < m_BaseClasses.GetCount(); ++m_uiBaseClassIndex)
   {
     const ezUInt32 uiMaxVersion = m_pParent->GetMaxPatchVersion(m_BaseClasses[m_uiBaseClassIndex].m_sType);

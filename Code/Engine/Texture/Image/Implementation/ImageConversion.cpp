@@ -556,8 +556,6 @@ ezResult ezImageConversion::ConvertSingleStepDecompress(const ezImageView& sourc
         const ezUInt64 targetRowPitch = target.GetRowPitch(mipLevel);
         const ezUInt32 targetBytesPerPixel = ezImageFormat::GetBitsPerPixel(targetFormat) / 8;
 
-        const ezUInt32 blockSizeInBytes = ezImageFormat::GetBitsPerBlock(sourceFormat) / 8;
-
         // Decompress into a temp memory block so we don't have to explicitly handle the case where the image is not a multiple of the block
         // size
         ezHybridArray<ezUInt8, 256> tempBuffer;
@@ -621,8 +619,6 @@ ezResult ezImageConversion::ConvertSingleStepCompress(const ezImageView& source,
 
         const ezUInt64 sourceRowPitch = source.GetRowPitch(mipLevel);
         const ezUInt32 sourceBytesPerPixel = ezImageFormat::GetBitsPerPixel(sourceFormat) / 8;
-
-        const ezUInt32 blockSizeInBytes = ezImageFormat::GetBitsPerBlock(targetFormat) / 8;
 
         // Pad image to multiple of block size for compression
         ezImageHeader paddedSliceHeader;

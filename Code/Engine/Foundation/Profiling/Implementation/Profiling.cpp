@@ -70,11 +70,6 @@ namespace
   ezStaticRingBuffer<ezTime, RING_BUFFER_SIZE_FRAMES> s_FrameStartTimes;
   ezUInt64 s_uiFrameCount = 0;
 
-  bool operator==(const ezProfilingSystem::ThreadInfo& lhs, const ezProfilingSystem::ThreadInfo& rhs)
-  {
-    return lhs.m_uiThreadId == rhs.m_uiThreadId && lhs.m_sName == rhs.m_sName;
-  }
-
   static ezHybridArray<ezProfilingSystem::ThreadInfo, 16> s_ThreadInfos;
   static ezHybridArray<ezUInt64, 16> s_DeadThreadIDs;
   static ezMutex s_ThreadInfosMutex;
@@ -133,13 +128,6 @@ ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& outputStream) c
   {
     writer.BeginArray("traceEvents");
 
-    const ezUInt32 uiFramesThreadID = 1;
-    const ezUInt32 uiGPUThreadID = 0;
-#if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
-    const ezOsProcessID uiProcessID = ezProcess::GetCurrentProcessID();
-#else
-    const ezOsProcessID uiProcessID = 0;
-#endif
     {
       // Frames thread
       {

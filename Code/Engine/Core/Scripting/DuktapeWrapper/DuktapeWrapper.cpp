@@ -374,8 +374,6 @@ void ezDuktapeWrapper::DestroyContext()
 
 void ezDuktapeWrapper::FatalErrorHandler(void* pUserData, const char* szMsg)
 {
-  ezDuktapeWrapper* pDukWrapper = reinterpret_cast<ezDuktapeWrapper*>(pUserData);
-
   EZ_REPORT_FAILURE(szMsg);
 }
 
