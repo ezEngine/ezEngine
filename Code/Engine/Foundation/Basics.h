@@ -38,7 +38,7 @@
 
 #ifdef BUILDSYSTEM_BUILDING_FOUNDATION_LIB
 #  if BUILDSYSTEM_COMPILE_ENGINE_AS_DLL && EZ_DISABLED(EZ_COMPILE_ENGINE_AS_DLL)
-#    error                                                                                                                                 \
+#    error \
       "The Buildsystem is configured to build the Engine as a shared library, but EZ_COMPILE_ENGINE_AS_DLL is not defined in UserConfig.h"
 #  endif
 #  if !BUILDSYSTEM_COMPILE_ENGINE_AS_DLL && EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
@@ -82,7 +82,7 @@ public:
       return GetStaticAllocator();
   }
 
-  /// \brief The aligned allocator should be used for any allocations which need an alignment
+  /// \brief The aligned allocator should be used for all allocations which need alignment
   EZ_ALWAYS_INLINE static ezAllocatorBase* GetAlignedAllocator()
   {
     EZ_ASSERT_RELEASE(s_pAlignedAllocator != nullptr, "ezFoundation must have been initialized before this function can be called. This "
@@ -98,7 +98,7 @@ private:
 
   static void Initialize();
 
-  /// \brief Returns the allocator that is used to by global data and static members before the default allocator is created.
+  /// \brief Returns the allocator that is used by global data and static members before the default allocator is created.
   static ezAllocatorBase* GetStaticAllocator();
 
   static bool s_bIsInitialized;

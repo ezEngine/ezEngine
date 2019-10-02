@@ -132,7 +132,7 @@ namespace
   {
     EZ_DECLARE_COMPONENT_TYPE(TestComponent2, ezComponent, TestComponent2Manager);
 
-    virtual void OnActivated() { TestComponent::s_iActivateCounter++; }
+    virtual void OnActivated() override { TestComponent::s_iActivateCounter++; }
   };
 
   EZ_BEGIN_COMPONENT_TYPE(TestComponent2, 1, ezComponentMode::Static)

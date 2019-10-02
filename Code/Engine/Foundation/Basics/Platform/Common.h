@@ -45,7 +45,6 @@
 
 /// \brief Disallow the copy constructor and the assignment operator for this type.
 #define EZ_DISALLOW_COPY_AND_ASSIGN(type) \
-private:                                  \
   type(const type&) = delete;             \
   void operator=(const type&) = delete
 

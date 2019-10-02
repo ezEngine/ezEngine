@@ -26,7 +26,7 @@ protected:
   explicit ezMessage(size_t messageSize)
   {
     const auto sizeOffset = (reinterpret_cast<uintptr_t>(&m_Id) - reinterpret_cast<uintptr_t>(this)) + sizeof(m_Id);
-    memset(ezMemoryUtils::AddByteOffset(this, sizeOffset), 0, messageSize - sizeOffset);
+    memset((void*)ezMemoryUtils::AddByteOffset(this, sizeOffset), 0, messageSize - sizeOffset);
     m_uiSize = static_cast<ezUInt16>(messageSize);
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
     m_uiDebugMessageRouting = 0;

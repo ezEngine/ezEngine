@@ -15,7 +15,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSrmRenderComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Material", GetMaterialFile, SetMaterialFile)->AddAttributes(new ezAssetBrowserAttribute("Material"), new ezDefaultValueAttribute("Materials/Common/SRM_Visible.ezMaterial")),
+    EZ_ACCESSOR_PROPERTY("Material", GetMaterialFile, SetMaterialFile)->AddAttributes(new ezAssetBrowserAttribute("Material"), new ezDefaultValueAttribute(ezStringView("Materials/Common/SRM_Visible.ezMaterial"))),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES

@@ -97,7 +97,7 @@ public:
   void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
 
 protected:
-  virtual ezMeshRenderData* CreateRenderData() const;
+  virtual ezMeshRenderData* CreateRenderData() const override;
 
   ezUInt32 Instances_GetCount() const;
   ezMeshInstanceData Instances_GetValue(ezUInt32 uiIndex) const;

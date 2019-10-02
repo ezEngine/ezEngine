@@ -889,7 +889,7 @@ void TestSetProperty(const char* szPropName, void* pObject, const ezRTTI* pRtti,
     // Insert default init value
     if (!ezIsPointer<T>::value)
     {
-      T temp = {};
+      T temp;
       pSetProp->Insert(pObject, &temp);
       EZ_TEST_BOOL(!pSetProp->IsEmpty(pObject));
       EZ_TEST_BOOL(pSetProp->Contains(pObject, &value1));

@@ -100,7 +100,6 @@ void ezTokenizer::AddToken()
 
 void ezTokenizer::Tokenize(ezArrayPtr<const ezUInt8> Data, ezLogInterface* pLog)
 {
-  ezAllocatorBase* pAllocator = m_Data.GetAllocator();
   if (Data.GetCount() >= 3)
   {
     const char* dataStart = reinterpret_cast<const char*>(Data.GetPtr());

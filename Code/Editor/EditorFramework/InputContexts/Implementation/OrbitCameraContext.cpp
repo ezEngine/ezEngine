@@ -191,7 +191,7 @@ ezEditorInput ezOrbitCameraContext::DoMouseMoveEvent(QMouseEvent* e)
   if (m_Mode == Mode::Orbit)
   {
     float fMoveRight = diff.x * fMouseMoveSensitivity;
-    float fMoveUp = diff.y * fMouseMoveSensitivity;
+    float fMoveUp = -diff.y * fMouseMoveSensitivity;
 
     float fDistance = (m_vOrbitPoint - m_pCamera->GetCenterPosition()).GetLength();
 

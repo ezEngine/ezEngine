@@ -1022,9 +1022,12 @@ void ezMaterialResource::DeallocateCache(ezUInt32 uiCacheIndex)
   {
     EZ_LOCK(s_MaterialCacheMutex);
 
-    auto& freeEntry = s_FreeMaterialCacheEntries.ExpandAndGetRef();
-    freeEntry.m_uiIndex = uiCacheIndex;
-    freeEntry.m_uiFrame = ezRenderWorld::GetFrameCounter();
+    if (uiCacheIndex < s_CachedValues.GetCount())
+    {
+      auto& freeEntry = s_FreeMaterialCacheEntries.ExpandAndGetRef();
+      freeEntry.m_uiIndex = uiCacheIndex;
+      freeEntry.m_uiFrame = ezRenderWorld::GetFrameCounter();
+    }
   }
 }
 

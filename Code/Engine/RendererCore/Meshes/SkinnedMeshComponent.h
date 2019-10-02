@@ -7,7 +7,7 @@ class EZ_RENDERERCORE_DLL ezSkinnedMeshRenderData : public ezMeshRenderData
   EZ_ADD_DYNAMIC_REFLECTION(ezSkinnedMeshRenderData, ezMeshRenderData);
 
 public:
-  virtual void FillBatchIdAndSortingKey();
+  virtual void FillBatchIdAndSortingKey() override;
 
   ezGALBufferHandle m_hSkinningMatrices;
   ezArrayPtr<const ezUInt8> m_pNewSkinningMatricesData;
@@ -32,7 +32,7 @@ public:
   virtual void OnDeactivated() override;
 
 protected:
-  virtual ezMeshRenderData* CreateRenderData() const;
+  virtual ezMeshRenderData* CreateRenderData() const override;
 
   void CreateSkinningTransformBuffer(ezArrayPtr<const ezMat4> skinningMatrices);
   void UpdateSkinningTransformBuffer(ezArrayPtr<const ezMat4> skinningMatrices);

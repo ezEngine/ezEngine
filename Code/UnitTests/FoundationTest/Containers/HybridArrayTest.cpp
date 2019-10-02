@@ -104,13 +104,13 @@ namespace HybridArrayTestDetail
 static void TakesDynamicArray(ezDynamicArray<int>& ar, int num, int start);
 
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
-EZ_CHECK_AT_COMPILETIME(sizeof(ezHybridArray<ezInt32, 1>) == 32);
+static_assert(sizeof(ezHybridArray<ezInt32, 1>) == 32);
 #else
-EZ_CHECK_AT_COMPILETIME(sizeof(ezHybridArray<ezInt32, 1>) == 20);
+static_assert(sizeof(ezHybridArray<ezInt32, 1>) == 20);
 #endif
 
-EZ_CHECK_AT_COMPILETIME(ezGetTypeClass<ezHybridArray<ezInt32, 1>>::value == ezTypeIsMemRelocatable::value);
-EZ_CHECK_AT_COMPILETIME(ezGetTypeClass<ezHybridArray<HybridArrayTestDetail::NonMovableClass, 1>>::value == ezTypeIsClass::value);
+static_assert(ezGetTypeClass<ezHybridArray<ezInt32, 1>>::value == ezTypeIsMemRelocatable::value);
+static_assert(ezGetTypeClass<ezHybridArray<HybridArrayTestDetail::NonMovableClass, 1>>::value == ezTypeIsClass::value);
 
 EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
 {
