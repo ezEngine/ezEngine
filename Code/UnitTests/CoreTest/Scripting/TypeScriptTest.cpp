@@ -4,6 +4,7 @@
 
 #  include <Core/Scripting/DuktapeWrapper.h>
 
+#  include <Duktape/duktape.h>
 #  include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #  include <Foundation/IO/FileSystem/FileReader.h>
 #  include <Foundation/IO/FileSystem/FileSystem.h>
