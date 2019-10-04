@@ -239,7 +239,7 @@ private:
 #include <Core/ResourceManager/ResourceManager.h>
 
 #define EZ_RESOURCE_DECLARE_COMMON_CODE(SELF)                                                                                            \
-  friend class ::ezResourceManager;                                                                                                        \
+  friend class ::ezResourceManager;                                                                                                      \
                                                                                                                                          \
 public:                                                                                                                                  \
   /*                                                                                                                                     \

@@ -63,7 +63,7 @@ struct ezResourceFlags
     ResourceHasFallback     = EZ_BIT(2),  ///< Specifies whether this resource has a valid fallback resource that could be used. Automatically updated in ezResource::SetFallbackResource.
     ResourceHasTypeFallback = EZ_BIT(3),  ///< Specifies whether this resource has a valid type fallback that could be used.
     IsReloadable            = EZ_BIT(4),  ///< The resource was created, not loaded from file
-    IsPreloading            = EZ_BIT(5),
+    IsQueuedForLoading      = EZ_BIT(5),
     HasCustomDataLoader     = EZ_BIT(6),  ///< True if someone wants to update a resource with custom data and has created a resource loader to update this specific resource
     PreventFileReload       = EZ_BIT(7),  ///< Once this flag is set, no reloading from file is done, until the flag is manually removed. Automatically set when a custom loader is used. To restore a file to the disk state, this flag must be removed and then the resource can be reloaded.
     HasLowResData           = EZ_BIT(8),  ///< Whether low resolution data was set on a resource once before

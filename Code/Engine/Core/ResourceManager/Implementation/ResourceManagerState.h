@@ -38,11 +38,13 @@ private:
   bool s_bBroadcastExistsEvent = false;
   ezUInt32 s_uiForceNoFallbackAcquisition = 0;
 
-  ezDeque<ezResourceManager::LoadingInfo> s_RequireLoading;
+  // resources in this queue are waiting for a task to load them
+  ezDeque<ezResourceManager::LoadingInfo> s_LoadingQueue;
+
   ezHashTable<const ezRTTI*, ezResourceManager::LoadedResources> s_LoadedResources;
   static const ezUInt32 MaxDataLoadTasks = 4;
   static const ezUInt32 MaxUpdateContentTasks = 16;
-  bool s_bTaskRunning = false;
+  bool s_bDataLoadTaskRunning = false;
   bool s_bShutdown = false;
   ezResourceManagerWorkerDataLoad s_WorkerTasksDataLoad[MaxDataLoadTasks];
   ezResourceManagerWorkerUpdateContent s_WorkerTasksUpdateContent[MaxUpdateContentTasks];
@@ -83,4 +85,10 @@ private:
 
   bool s_bExportMode = false;
   ezUInt32 s_uiNextResourceID = 0;
+
+  // Resource Unloading
+  ezTime m_AutoFreeUnusedTimeout = ezTime::Zero();
+  ezTime m_AutoFreeUnusedThreshold = ezTime::Zero();
+
+  ezMap<const ezRTTI*, ezResourceManager::ResourceTypeInfo> m_TypeInfo;
 };

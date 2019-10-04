@@ -21,7 +21,6 @@ class EZ_CORE_DLL ezResourceManager
   ///@{
 
 public:
-
   /// Events on individual resources. Subscribe to this to get a notification for events happening on any resource.
   /// If you are only interested in events for a specific resource, subscribe on directly on that instance.
   static ezEvent<const ezResourceEvent&>& GetResourceEvents();
@@ -182,8 +181,15 @@ public:
   /// \brief Deallocates resources whose refcount has reached 0. Returns the number of deleted resources.
   static ezUInt32 FreeUnusedResources(ezTime timeout, ezTime lastAcquireThreshold);
 
+  /// \brief If timeout is not zero, FreeUnusedResources() is called once every frame with the given parameters.
+  static void SetAutoFreeUnused(ezTime timeout, ezTime lastAcquireThreshold);
+
+  template <typename ResourceType>
+  static void SetIncrementalUnloadForResourceType(bool bDeactivate);
+
+
 private:
-  static void DeallocateResource(ezResource* pResource);
+  static ezResult DeallocateResource(ezResource* pResource);
 
   ///@}
   /// \name Miscellaneous
@@ -421,10 +427,22 @@ private:
   static void ReverseBubbleSortStep(ezDeque<LoadingInfo>& data);
   static bool ReloadResource(ezResource* pResource, bool bForce);
 
+  static void SetupWorkerTasks();
   static ezUInt32 GetForceNoFallbackAcquisition();
   static ezTime GetLastFrameUpdate();
   static ezHashTable<const ezRTTI*, LoadedResources>& GetLoadedResources();
   static ezDynamicArray<ezResource*>& GetLoadedResourceOfTypeTempContainer();
+
+  EZ_ALWAYS_INLINE static bool IsQueuedForLoading(ezResource* pResource) { return pResource->m_Flags.IsSet(ezResourceFlags::IsQueuedForLoading); }
+  static ezResult RemoveFromLoadingQueue(ezResource* pResource);
+  static void AddToLoadingQueue(ezResource* pResource, bool bHighPriority);
+
+  struct ResourceTypeInfo
+  {
+    bool m_bIncrementalUnload = true;
+  };
+
+  static ResourceTypeInfo& GetResourceTypeInfo(const ezRTTI* pRtti);
 
   // Type loaders
 private:

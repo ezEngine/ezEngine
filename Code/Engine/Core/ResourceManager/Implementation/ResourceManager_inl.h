@@ -149,7 +149,9 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
     else
     {
       // as long as there are more quality levels available, schedule the resource for more loading
-      if (pResource->m_Flags.IsSet(ezResourceFlags::IsPreloading) == false && pResource->GetNumQualityLevelsLoadable() > 0)
+      // accessing IsQueuedForLoading without a lock here is save because InternalPreloadResource() will lock and early out if necessary
+      // and accidentally skipping InternalPreloadResource() is no problem
+      if (IsQueuedForLoading(pResource) == false && pResource->GetNumQualityLevelsLoadable() > 0)
         InternalPreloadResource(pResource, false);
     }
   }
@@ -268,4 +270,10 @@ ezTypedResourceHandle<ResourceType> ezResourceManager::GetResourceHandleForExpor
   EZ_ASSERT_DEV(IsExportModeEnabled(), "Export mode needs to be enabled");
 
   return LoadResource<ResourceType>(szResourceID);
+}
+
+template <typename ResourceType>
+void ezResourceManager::SetIncrementalUnloadForResourceType(bool bActive)
+{
+  GetResourceTypeInfo(ezGetStaticRTTI<ResourceType>()).m_bIncrementalUnload = bActive;
 }

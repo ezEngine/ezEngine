@@ -22,54 +22,57 @@ void ezResourceManager::InternalPreloadResource(ezResource* pResource, bool bHig
   if (pResource->GetLoadingState() == ezResourceState::Loaded && pResource->GetNumQualityLevelsLoadable() == 0)
   {
     // due to the threading this can happen for all resource types and is valid
-    // EZ_ASSERT_DEV(!pResource->m_Flags.IsSet(ezResourceFlags::IsPreloading), "Invalid flag on resource type '{0}'",
+    // EZ_ASSERT_DEV(!IsQueuedForLoading(pResource), "Invalid flag on resource type '{0}'",
     // pResource->GetDynamicRTTI()->GetTypeName());
     return;
   }
 
   EZ_ASSERT_DEV(!s_State->s_bExportMode, "Resources should not be loaded in export mode");
 
-  // if we are already preloading this resource, but now it has highest priority
-  // and it is still in the task queue (so not yet started)
-  if (pResource->m_Flags.IsSet(ezResourceFlags::IsPreloading))
+  // if we are already loading this resource, early out
+  if (IsQueuedForLoading(pResource))
   {
+    // however, if it now has highest priority and is still in the loading queue (so not yet started)
+    // move it to the front of the queue
     if (bHighestPriority)
     {
-      LoadingInfo li;
-      li.m_pResource = pResource;
-      pResource->SetPriority(ezResourcePriority::Critical);
-
-      // move it to the front of the queue
       // if it is not in the queue anymore, it has already been started by some thread
-      if (s_State->s_RequireLoading.RemoveAndSwap(li))
+      if (RemoveFromLoadingQueue(pResource).Succeeded())
       {
-        s_State->s_RequireLoading.PushFront(li);
+        AddToLoadingQueue(pResource, bHighestPriority);
       }
     }
 
     return;
   }
-
-  EZ_ASSERT_DEV(!pResource->m_Flags.IsSet(ezResourceFlags::IsPreloading), "");
-  pResource->m_Flags.Add(ezResourceFlags::IsPreloading);
-
-  LoadingInfo li;
-  li.m_pResource = pResource;
-
-  if (bHighestPriority)
-  {
-    pResource->SetPriority(ezResourcePriority::Critical);
-    li.m_fPriority = 0.0f;
-    s_State->s_RequireLoading.PushFront(li);
-  }
   else
   {
-    li.m_fPriority = pResource->GetLoadingPriority(s_State->s_LastFrameUpdate);
-    s_State->s_RequireLoading.PushBack(li);
-  }
+    AddToLoadingQueue(pResource, bHighestPriority);
 
-  // the mutex will be released by RunWorkerTask
-  RunWorkerTask(pResource);
+    // the mutex will be released by RunWorkerTask
+    RunWorkerTask(pResource);
+  }
+}
+
+void ezResourceManager::SetupWorkerTasks()
+{
+  if (!s_State->m_bTaskNamesInitialized)
+  {
+    s_State->m_bTaskNamesInitialized = true;
+    ezStringBuilder s;
+
+    for (ezUInt32 i = 0; i < s_State->MaxDataLoadTasks; ++i)
+    {
+      s.Format("Resource Data Loader {0}", i);
+      s_State->s_WorkerTasksDataLoad[i].SetTaskName(s.GetData());
+    }
+
+    for (ezUInt32 i = 0; i < s_State->MaxUpdateContentTasks; ++i)
+    {
+      s.Format("Resource Content Updater {0}", i);
+      s_State->s_WorkerTasksUpdateContent[i].SetTaskName(s.GetData());
+    }
+  }
 }
 
 void ezResourceManager::RunWorkerTask(ezResource* pResource)
@@ -83,31 +86,15 @@ void ezResourceManager::RunWorkerTask(ezResource* pResource)
   {
     EZ_LOCK(s_ResourceMutex);
 
-    if (!s_State->m_bTaskNamesInitialized)
-    {
-      s_State->m_bTaskNamesInitialized = true;
-      ezStringBuilder s;
-
-      for (ezUInt32 i = 0; i < s_State->MaxDataLoadTasks; ++i)
-      {
-        s.Format("Resource Data Loader {0}", i);
-        s_State->s_WorkerTasksDataLoad[i].SetTaskName(s.GetData());
-      }
-
-      for (ezUInt32 i = 0; i < s_State->MaxUpdateContentTasks; ++i)
-      {
-        s.Format("Resource Content Updater {0}", i);
-        s_State->s_WorkerTasksUpdateContent[i].SetTaskName(s.GetData());
-      }
-    }
+    SetupWorkerTasks();
 
     if (pResource != nullptr && ezTaskSystem::GetCurrentThreadWorkerType() == ezWorkerThreadType::FileAccess)
     {
       bDoItYourself = true;
     }
-    else if (!s_State->s_bTaskRunning && !s_State->s_RequireLoading.IsEmpty())
+    else if (!s_State->s_bDataLoadTaskRunning && !s_State->s_LoadingQueue.IsEmpty())
     {
-      s_State->s_bTaskRunning = true;
+      s_State->s_bDataLoadTaskRunning = true;
       s_State->s_uiCurrentLoadDataWorkerTask = (s_State->s_uiCurrentLoadDataWorkerTask + 1) % s_State->MaxDataLoadTasks;
       ezTaskSystem::StartSingleTask(&s_State->s_WorkerTasksDataLoad[s_State->s_uiCurrentLoadDataWorkerTask], ezTaskPriority::FileAccess);
     }
@@ -117,6 +104,8 @@ void ezResourceManager::RunWorkerTask(ezResource* pResource)
   {
     // this function is always called from within a mutex
     // but we need to release the mutex between every loop iteration to prevent deadlocks
+    EZ_ASSERT_DEV(s_ResourceMutex.IsLocked(), "Mutex must be locked");
+
     s_ResourceMutex.Release();
 
     while (true)
@@ -126,7 +115,8 @@ void ezResourceManager::RunWorkerTask(ezResource* pResource)
       {
         EZ_LOCK(s_ResourceMutex);
 
-        if (!pResource->m_Flags.IsAnySet(ezResourceFlags::IsPreloading))
+        // if some task (this or another) removed the resource from the loading queue we can stop
+        if (!pResource->m_Flags.IsAnySet(ezResourceFlags::IsQueuedForLoading))
         {
           break;
         }
@@ -163,14 +153,14 @@ void ezResourceManager::ReverseBubbleSortStep(ezDeque<LoadingInfo>& data)
 
 void ezResourceManager::UpdateLoadingDeadlines()
 {
-  if (s_State->s_RequireLoading.IsEmpty())
+  if (s_State->s_LoadingQueue.IsEmpty())
     return;
 
   EZ_ASSERT_DEBUG(s_ResourceMutex.IsLocked(), "Calling code must acquire s_ResourceMutex");
 
   EZ_PROFILE_SCOPE("UpdateLoadingDeadlines");
 
-  const ezUInt32 uiCount = s_State->s_RequireLoading.GetCount();
+  const ezUInt32 uiCount = s_State->s_LoadingQueue.GetCount();
   s_State->s_uiLastResourcePriorityUpdateIdx = ezMath::Min(s_State->s_uiLastResourcePriorityUpdateIdx, uiCount);
 
   ezUInt32 uiUpdateCount = ezMath::Min(50u, uiCount - s_State->s_uiLastResourcePriorityUpdateIdx);
@@ -190,7 +180,7 @@ void ezResourceManager::UpdateLoadingDeadlines()
 
       for (ezUInt32 i = 0; i < uiUpdateCount; ++i)
       {
-        auto& element = s_State->s_RequireLoading[s_State->s_uiLastResourcePriorityUpdateIdx];
+        auto& element = s_State->s_LoadingQueue[s_State->s_uiLastResourcePriorityUpdateIdx];
         element.m_fPriority = element.m_pResource->GetLoadingPriority(tNow);
         ++s_State->s_uiLastResourcePriorityUpdateIdx;
       }
@@ -198,7 +188,7 @@ void ezResourceManager::UpdateLoadingDeadlines()
 
     {
       EZ_PROFILE_SCOPE("SortLoadingDeadlines");
-      ReverseBubbleSortStep(s_State->s_RequireLoading);
+      ReverseBubbleSortStep(s_State->s_LoadingQueue);
     }
   }
 }
@@ -212,6 +202,7 @@ void ezResourceManager::PreloadResource(const ezTypelessResourceHandle& hResourc
 {
   EZ_ASSERT_DEV(hResource.IsValid(), "Cannot acquire a resource through an invalid handle!");
 
+  ezResource* pResource = hResource.m_pResource;
   PreloadResource(hResource.m_pResource);
 }
 
@@ -221,6 +212,48 @@ ezResourceState ezResourceManager::GetLoadingState(const ezTypelessResourceHandl
     return ezResourceState::Invalid;
 
   return hResource.m_pResource->GetLoadingState();
+}
+
+ezResult ezResourceManager::RemoveFromLoadingQueue(ezResource* pResource)
+{
+  EZ_ASSERT_DEV(s_ResourceMutex.IsLocked(), "Resource mutex must be locked");
+
+  if (!IsQueuedForLoading(pResource))
+    return EZ_SUCCESS;
+
+  LoadingInfo li;
+  li.m_pResource = pResource;
+
+  if (s_State->s_LoadingQueue.RemoveAndSwap(li))
+  {
+    pResource->m_Flags.Remove(ezResourceFlags::IsQueuedForLoading);
+    return EZ_SUCCESS;
+  }
+
+  return EZ_FAILURE;
+}
+
+void ezResourceManager::AddToLoadingQueue(ezResource* pResource, bool bHighestPriority)
+{
+  EZ_ASSERT_DEV(s_ResourceMutex.IsLocked(), "Resource mutex must be locked");
+  EZ_ASSERT_DEV(IsQueuedForLoading(pResource) == false, "Resource is already in the loading queue");
+
+  pResource->m_Flags.Add(ezResourceFlags::IsQueuedForLoading);
+
+  LoadingInfo li;
+  li.m_pResource = pResource;
+
+  if (bHighestPriority)
+  {
+    pResource->SetPriority(ezResourcePriority::Critical);
+    li.m_fPriority = 0.0f;
+    s_State->s_LoadingQueue.PushFront(li);
+  }
+  else
+  {
+    li.m_fPriority = pResource->GetLoadingPriority(s_State->s_LastFrameUpdate);
+    s_State->s_LoadingQueue.PushBack(li);
+  }
 }
 
 bool ezResourceManager::ReloadResource(ezResource* pResource, bool bForce)
@@ -249,21 +282,21 @@ bool ezResourceManager::ReloadResource(ezResource* pResource, bool bForce)
 
   bool bAllowPreloading = true;
 
-  // if the resource is already in the preloading queue we can just keep it there
-  if (pResource->m_Flags.IsSet(ezResourceFlags::IsPreloading))
+  // if the resource is already in the loading queue we can just keep it there
+  if (IsQueuedForLoading(pResource))
   {
     bAllowPreloading = false;
 
     LoadingInfo li;
     li.m_pResource = pResource;
 
-    if (s_State->s_RequireLoading.IndexOf(li) == ezInvalidIndex)
+    if (s_State->s_LoadingQueue.IndexOf(li) == ezInvalidIndex)
     {
-      // the resource is marked as 'preloading' but it is not in the queue anymore
+      // the resource is marked as 'loading' but it is not in the queue anymore
       // that means some task is already working on loading it
       // therefore we should not touch it (especially unload it), it might end up in an inconsistent state
 
-      ezLog::Dev("Resource '{0}' is not being reloaded, because it is currently loaded already", pResource->GetResourceID());
+      ezLog::Dev("Resource '{0}' is not being reloaded, because it is currently being loaded", pResource->GetResourceID());
       return false;
     }
   }

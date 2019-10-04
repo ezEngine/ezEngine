@@ -24,17 +24,17 @@ void ezResourceManagerWorkerDataLoad::DoWork(bool bCalledExternally)
   {
     EZ_LOCK(ezResourceManager::s_ResourceMutex);
 
-    if (ezResourceManager::s_State->s_RequireLoading.IsEmpty())
+    if (ezResourceManager::s_State->s_LoadingQueue.IsEmpty())
     {
-      ezResourceManager::s_State->s_bTaskRunning = false;
+      ezResourceManager::s_State->s_bDataLoadTaskRunning = false;
       return;
     }
 
     ezResourceManager::UpdateLoadingDeadlines();
 
-    auto it = ezResourceManager::s_State->s_RequireLoading.PeekFront();
+    auto it = ezResourceManager::s_State->s_LoadingQueue.PeekFront();
     pResourceToLoad = it.m_pResource;
-    ezResourceManager::s_State->s_RequireLoading.PopFront();
+    ezResourceManager::s_State->s_LoadingQueue.PopFront();
 
     if (pResourceToLoad->m_Flags.IsSet(ezResourceFlags::HasCustomDataLoader))
     {
@@ -93,7 +93,7 @@ void ezResourceManagerWorkerDataLoad::DoWork(bool bCalledExternally)
     if (!bCalledExternally)
     {
       // restart the next loading task (this one is about to finish)
-      ezResourceManager::s_State->s_bTaskRunning = false;
+      ezResourceManager::s_State->s_bDataLoadTaskRunning = false;
       ezResourceManager::RunWorkerTask(nullptr);
     }
 
@@ -145,8 +145,9 @@ void ezResourceManagerWorkerUpdateContent::Execute()
 
   {
     EZ_LOCK(ezResourceManager::s_ResourceMutex);
-    EZ_ASSERT_DEV(m_pResourceToLoad->m_Flags.IsSet(ezResourceFlags::IsPreloading) == true, "");
-    m_pResourceToLoad->m_Flags.Remove(ezResourceFlags::IsPreloading);
+    EZ_ASSERT_DEV(ezResourceManager::IsQueuedForLoading(m_pResourceToLoad), "Multi-threaded access detected");
+    m_pResourceToLoad->m_Flags.Remove(ezResourceFlags::IsQueuedForLoading);
+    m_pResourceToLoad->m_LastAcquire = ezResourceManager::GetLastFrameUpdate();
   }
 
   m_pLoader = nullptr;

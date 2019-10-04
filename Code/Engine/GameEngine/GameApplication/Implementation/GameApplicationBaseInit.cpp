@@ -201,7 +201,11 @@ void ezGameApplicationBase::Init_ConfigureCVars()
   ezCVar::LoadCVars();
 }
 
-void ezGameApplicationBase::Init_SetupDefaultResources() {}
+void ezGameApplicationBase::Init_SetupDefaultResources()
+{
+  // continuously unload resources that are not in use anymore
+  ezResourceManager::SetAutoFreeUnused(ezTime::Microseconds(100), ezTime::Seconds(10.0f));
+}
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////

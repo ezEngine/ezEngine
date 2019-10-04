@@ -64,7 +64,10 @@ EZ_CORE_DLL void MigrateResourceRefCount(ezResource* pResource, const void* pOld
 }
 #endif
 
-ezResource::~ezResource() = default;
+ezResource::~ezResource()
+{
+  EZ_ASSERT_DEV(!ezResourceManager::IsQueuedForLoading(this), "Cannot deallocate a resource while it is still qeued for loading");
+}
 
 ezResource::ezResource(DoUpdate ResourceUpdateThread, ezUInt8 uiQualityLevelsLoadable)
 {
