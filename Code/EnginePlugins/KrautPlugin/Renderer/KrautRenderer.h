@@ -4,7 +4,7 @@
 #include <RendererCore/Pipeline/Renderer.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 
-#include <RendererCore/../../../Data/Base/Kraut/TreeShaderData.h>
+#include <RendererCore/../../../Data/Plugins/Kraut/TreeShaderData.h>
 
 struct ezPerInstanceData;
 

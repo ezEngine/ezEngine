@@ -17,7 +17,6 @@ FORWARD_PASS_WRITE_DEPTH
 
 int KrautTreeMode; // 0 == regular mesh, 1 == frond, 2 == leaf, 3 == static impostor, 4 == billboard impostor
 
-
 [RENDERSTATE]
 
 #include <Shaders/Materials/MaterialState.h>

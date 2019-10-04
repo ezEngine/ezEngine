@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../Shaders/Common/Platforms.h"
-#include "../Shaders/Common/ConstantBufferMacros.h"
+#include <Shaders/Common/Platforms.h>
+#include <Shaders/Common/ConstantBufferMacros.h>
 
 CONSTANT_BUFFER(ezKrautTreeConstants, 4)
 {

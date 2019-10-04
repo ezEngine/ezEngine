@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7297922959506964864,5177324930371449723}}
-		u4 %Hash{12808100680969959503}
+		u4 %Hash{16876761396297625925}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -8240,7 +8240,7 @@ o
 		Vec2 %RenderTargetSize{f{0x0000803F,0x0000803F}}
 		b %ShowStats{0}
 		Time %ShutterTime{d{0x000000000000F03F}}
-		s %UsageHint{"ezCameraUsageHint::None"}
+		s %UsageHint{"ezCameraUsageHint::Thumbnail"}
 	}
 }
 o
