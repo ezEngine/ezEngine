@@ -34,11 +34,10 @@ void ezQtEditorApp::CloseSettingsDocument()
 }
 
 ezQtSettingsTab::ezQtSettingsTab()
-    : ezQtDocumentWindow("")
+    : ezQtDocumentWindow("Settings")
     , m_SingletonRegistrar(this)
 {
   setCentralWidget(new QWidget());
-
   EZ_ASSERT_DEV(centralWidget() != nullptr, "");
 
   setupUi(centralWidget());

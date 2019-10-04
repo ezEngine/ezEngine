@@ -1,19 +1,27 @@
 #pragma once
 
-#include <GuiFoundation/GuiFoundationDLL.h>
-#include <Foundation/Strings/String.h>
-#include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Containers/Map.h>
+#include <Foundation/Strings/String.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
-#include <ToolsFoundation/Project/ToolsProject.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QMainWindow>
+#include <ToolsFoundation/Project/ToolsProject.h>
+#include <QSet>
 
 class ezDocumentManager;
 class ezDocument;
 class ezQtApplicationPanel;
 struct ezDocumentTypeDescriptor;
 class QLabel;
+
+namespace ads
+{
+  class CDockManager;
+  class CFloatingDockContainer;
+  class CDockWidget;
+}
 
 /// \brief Container window that hosts documents and applications panels.
 class EZ_GUIFOUNDATION_DLL ezQtContainerWindow : public QMainWindow
@@ -22,30 +30,27 @@ class EZ_GUIFOUNDATION_DLL ezQtContainerWindow : public QMainWindow
 
 public:
   /// \brief Constructor.
-  ///
-  /// \param iUniqueIdentifier
-  ///   Identifies the container. Must not exist yet when creating. 0 is used
-  ///   for the main container window. Closing that one will close all others and the application.
-  explicit ezQtContainerWindow(ezInt32 iUniqueIdentifier);
+  explicit ezQtContainerWindow();
   ~ezQtContainerWindow();
 
-  static const ezDynamicArray<ezQtContainerWindow*>& GetAllContainerWindows() { return s_AllContainerWindows; }
-  /// \brief Creates a new container window with a new unique ID.
-  static ezQtContainerWindow* CreateNewContainerWindow();
-  /// \brief If the given ID is already used, return matching container. Otherwise create it.
-  static ezQtContainerWindow* GetOrCreateContainerWindow(ezInt32 iUniqueIdentifier);
+  static ezQtContainerWindow* GetContainerWindow() { return s_pContainerWindow; }
 
-  void MoveDocumentWindowToContainer(ezQtDocumentWindow* pDocWindow);
-  void MoveApplicationPanelToContainer(ezQtApplicationPanel* pPanel);
+  void AddDocumentWindow(ezQtDocumentWindow* pDocWindow);
+  void AddApplicationPanel(ezQtApplicationPanel* pPanel);
 
-  /// \brief Returns true if the unique ID of the container is 0.
-  bool IsMainContainer() const;
-  /// \brief Returns the unique ID of the container. 0 for the main one and increasing in number for additional containers.
-  ezInt32 GetUniqueIdentifier() const;
+  ads::CDockManager* GetDockManager() { return m_DockManager; }
 
   static ezResult EnsureVisibleAnyContainer(ezDocument* pDocument);
 
   void GetDocumentWindows(ezHybridArray<ezQtDocumentWindow*, 16>& windows);
+
+  void SaveWindowLayout();
+  void RestoreWindowLayout();
+
+  void ScheduleRestoreWindowLayout();
+
+protected:
+  virtual bool eventFilter(QObject* obj, QEvent* e) override;
 
 private:
   friend class ezQtDocumentWindow;
@@ -56,32 +61,22 @@ private:
   ezResult EnsureVisible(ezQtApplicationPanel* pPanel);
 
   bool m_bWindowLayoutRestored;
-  void ScheduleRestoreWindowLayout();
   ezInt32 m_iWindowLayoutRestoreScheduled;
 
 private Q_SLOTS:
-  void SlotDocumentTabCloseRequested(int index);
+  void SlotDocumentTabCloseRequested();
   void SlotRestoreLayout();
   void SlotTabsContextMenuRequested(const QPoint& pos);
-  void SlotDocumentTabCurrentChanged(int index);
   void SlotUpdateWindowDecoration(void* pDocWindow);
+  void SlotFloatingWidgetOpened(ads::CFloatingDockContainer* FloatingWidget);
 
 private:
-  QTabWidget* GetTabWidget() const;
-
-  void SaveWindowLayout();
-  void RestoreWindowLayout();
-
   void UpdateWindowTitle();
 
-  void RemoveDocumentWindowFromContainer(ezQtDocumentWindow* pDocWindow);
-  void RemoveApplicationPanelFromContainer(ezQtApplicationPanel* pPanel);
+  void RemoveDocumentWindow(ezQtDocumentWindow* pDocWindow);
+  void RemoveApplicationPanel(ezQtApplicationPanel* pPanel);
 
   void UpdateWindowDecoration(ezQtDocumentWindow* pDocWindow);
-
-  void SetupDocumentTabArea();
-
-  ezString GetUniqueName() const;
 
   void DocumentWindowEventHandler(const ezQtDocumentWindowEvent& e);
   void ProjectEventHandler(const ezToolsProjectEvent& e);
@@ -89,19 +84,15 @@ private:
 
   void closeEvent(QCloseEvent* e);
 
-  /// \brief Called whenever the tab order changes to tell each document window at what position it is.
-  void ReassignWindowIndex();
-
 private:
-  ezInt32 m_iUniqueIdentifier;
+  ads::CDockManager* m_DockManager = nullptr;
   QLabel* m_pStatusBarLabel;
   ezDynamicArray<ezQtDocumentWindow*> m_DocumentWindows;
-  ezDynamicArray<ezQtApplicationPanel*> m_ApplicationPanels;
+  ezDynamicArray<ads::CDockWidget*> m_DocumentDocks;
 
-  static ezDynamicArray<ezQtContainerWindow*> s_AllContainerWindows;
+  ezDynamicArray<ezQtApplicationPanel*> m_ApplicationPanels;
+  QSet<QString> m_DockNames;
+
+  static ezQtContainerWindow* s_pContainerWindow;
   static bool s_bForceClose;
 };
-
-
-
-

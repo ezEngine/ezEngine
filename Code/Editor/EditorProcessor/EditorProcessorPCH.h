@@ -1,5 +1,4 @@
 #include <Foundation/Basics.h>
-#include <QDockWidget>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Configuration/CVar.h>

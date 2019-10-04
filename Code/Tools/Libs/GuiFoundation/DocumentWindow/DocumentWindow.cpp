@@ -25,7 +25,6 @@ void ezQtDocumentWindow::Constructor()
 
   setStatusBar(new QStatusBar());
 
-  m_uiWindowIndex = 0;
   m_pContainerWindow = nullptr;
   m_bIsVisibleInContainer = false;
   m_bRedrawIsTriggered = false;
@@ -39,8 +38,8 @@ void ezQtDocumentWindow::Constructor()
   setMenuBar(pMenuBar);
 
   ezInt32 iContainerWindowIndex = ezToolsProject::SuggestContainerWindow(m_pDocument);
-  ezQtContainerWindow* pContainer = ezQtContainerWindow::GetOrCreateContainerWindow(iContainerWindowIndex);
-  pContainer->MoveDocumentWindowToContainer(this);
+  ezQtContainerWindow* pContainer = ezQtContainerWindow::GetContainerWindow();
+  pContainer->AddDocumentWindow(this);
 
   ezQtUiServices::s_Events.AddEventHandler(ezMakeDelegate(&ezQtDocumentWindow::UIServicesEventHandler, this));
 }
@@ -270,6 +269,18 @@ ezString ezQtDocumentWindow::GetDisplayNameShort() const
     s.Append('*');
 
   return s;
+}
+
+void ezQtDocumentWindow::showEvent(QShowEvent* event)
+{
+  QMainWindow::showEvent(event);
+  SetVisibleInContainer(true);
+}
+
+void ezQtDocumentWindow::hideEvent(QHideEvent* event)
+{
+  QMainWindow::hideEvent(event);
+  SetVisibleInContainer(false);
 }
 
 void ezQtDocumentWindow::FinishWindowCreation()

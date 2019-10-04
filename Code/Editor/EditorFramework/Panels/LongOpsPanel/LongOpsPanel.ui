@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>LongOpsPanel</class>
- <widget class="QDockWidget" name="LongOpsPanel">
+ <widget class="QWidget" name="LongOpsPanel">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -10,54 +10,58 @@
     <height>597</height>
    </rect>
   </property>
+  <property name="windowTitle">
+   <string>Long Operations</string>
+  </property>
   <property name="windowIcon">
    <iconset resource="../../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
     <normaloff>:/GuiFoundation/Icons/Flag_Purple16.png</normaloff>:/GuiFoundation/Icons/Flag_Purple16.png</iconset>
   </property>
-  <property name="windowTitle">
-   <string>Long Operations</string>
-  </property>
-  <widget class="QFrame" name="dockWidgetContents">
-   <property name="frameShape">
-    <enum>QFrame::StyledPanel</enum>
-   </property>
-   <property name="frameShadow">
-    <enum>QFrame::Sunken</enum>
-   </property>
-   <layout class="QVBoxLayout" name="verticalLayout_3">
-    <property name="spacing">
-     <number>0</number>
-    </property>
-    <property name="leftMargin">
-     <number>0</number>
-    </property>
-    <property name="topMargin">
-     <number>0</number>
-    </property>
-    <property name="rightMargin">
-     <number>0</number>
-    </property>
-    <property name="bottomMargin">
-     <number>0</number>
-    </property>
-    <item>
-     <widget class="QTableWidget" name="OperationsTable">
-      <property name="editTriggers">
-       <set>QAbstractItemView::NoEditTriggers</set>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QFrame" name="dockWidgetContents">
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <property name="spacing">
+       <number>0</number>
       </property>
-      <property name="selectionMode">
-       <enum>QAbstractItemView::NoSelection</enum>
+      <property name="leftMargin">
+       <number>0</number>
       </property>
-      <property name="selectionBehavior">
-       <enum>QAbstractItemView::SelectRows</enum>
+      <property name="topMargin">
+       <number>0</number>
       </property>
-      <attribute name="verticalHeaderVisible">
-       <bool>false</bool>
-      </attribute>
-     </widget>
-    </item>
-   </layout>
-  </widget>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QTableWidget" name="OperationsTable">
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
+        </property>
+        <property name="selectionMode">
+         <enum>QAbstractItemView::NoSelection</enum>
+        </property>
+        <property name="selectionBehavior">
+         <enum>QAbstractItemView::SelectRows</enum>
+        </property>
+        <attribute name="verticalHeaderVisible">
+         <bool>false</bool>
+        </attribute>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
  </widget>
  <resources>
   <include location="../../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc"/>

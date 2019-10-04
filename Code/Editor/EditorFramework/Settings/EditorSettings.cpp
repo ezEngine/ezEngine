@@ -20,6 +20,7 @@ void ezQtEditorApp::LoadRecentFiles()
 
 void ezQtEditorApp::SaveOpenDocumentsList()
 {
+  ezQtContainerWindow::GetContainerWindow()->SaveWindowLayout();
   const ezDynamicArray<ezQtDocumentWindow*>& windows = ezQtDocumentWindow::GetAllDocumentWindows();
 
   if (windows.IsEmpty())
@@ -29,9 +30,8 @@ void ezQtEditorApp::SaveOpenDocumentsList()
 
   ezDynamicArray<ezQtDocumentWindow*> allWindows;
   allWindows.Reserve(windows.GetCount());
-  const auto& containers = ezQtContainerWindow::GetAllContainerWindows();
-  for (auto* container : containers)
   {
+    auto* container = ezQtContainerWindow::GetContainerWindow();
     ezHybridArray<ezQtDocumentWindow*, 16> windows;
     container->GetDocumentWindows(windows);
     for (auto* pWindow : windows)
@@ -39,12 +39,11 @@ void ezQtEditorApp::SaveOpenDocumentsList()
       allWindows.PushBack(pWindow);
     }
   }
-
   for (ezInt32 w = (ezInt32)allWindows.GetCount() - 1; w >= 0; --w)
   {
     if (allWindows[w]->GetDocument())
     {
-      allDocs.Insert(allWindows[w]->GetDocument()->GetDocumentPath(), allWindows[w]->GetContainerWindow()->GetUniqueIdentifier());
+      allDocs.Insert(allWindows[w]->GetDocument()->GetDocumentPath(), 0);
     }
   }
 

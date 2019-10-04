@@ -10,22 +10,24 @@
 #include <QTabBar>
 #include <QTimer>
 #include <ToolsFoundation/Application/ApplicationServices.h>
+#include <ads/DockManager.h>
+#include <ads/DockWidgetTab.h>
+#include <ads/FloatingDockContainer.h>
 
-ezDynamicArray<ezQtContainerWindow*> ezQtContainerWindow::s_AllContainerWindows;
+ezQtContainerWindow* ezQtContainerWindow::s_pContainerWindow = nullptr;
 bool ezQtContainerWindow::s_bForceClose = false;
 
-ezQtContainerWindow::ezQtContainerWindow(ezInt32 iUniqueIdentifier)
+ezQtContainerWindow::ezQtContainerWindow()
 {
-  m_iUniqueIdentifier = iUniqueIdentifier;
+  setMinimumSize(QSize(800, 600));
   m_bWindowLayoutRestored = false;
   m_pStatusBarLabel = nullptr;
   m_iWindowLayoutRestoreScheduled = 0;
 
-  s_AllContainerWindows.PushBack(this);
+  s_pContainerWindow = this;
 
-  setObjectName(GetUniqueName().GetData());
+  setObjectName("ezEditor");
   setWindowIcon(QIcon(QStringLiteral(":/GuiFoundation/Icons/ezEditor16.png")));
-  setDockOptions(dockOptions() | QMainWindow::DockOption::GroupedDragging);
 
   ezQtDocumentWindow::s_Events.AddEventHandler(ezMakeDelegate(&ezQtContainerWindow::DocumentWindowEventHandler, this));
   ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezQtContainerWindow::ProjectEventHandler, this));
@@ -33,55 +35,31 @@ ezQtContainerWindow::ezQtContainerWindow(ezInt32 iUniqueIdentifier)
 
   UpdateWindowTitle();
 
-  ScheduleRestoreWindowLayout();
+  m_DockManager = new ads::CDockManager(this);
+  m_DockManager->setConfigFlags(static_cast<ads::CDockManager::ConfigFlags>(
+    ads::CDockManager::DockAreaHasCloseButton |
+    ads::CDockManager::DockAreaCloseButtonClosesTab |
+    ads::CDockManager::OpaqueSplitterResize |
+    ads::CDockManager::AllTabsHaveCloseButton));
+
+  connect(m_DockManager, &ads::CDockManager::floatingWidgetOpened, this, &ezQtContainerWindow::SlotFloatingWidgetOpened);
 }
 
 ezQtContainerWindow::~ezQtContainerWindow()
 {
-  s_AllContainerWindows.RemoveAndSwap(this);
+  s_pContainerWindow = nullptr;
 
   ezQtDocumentWindow::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtContainerWindow::DocumentWindowEventHandler, this));
   ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtContainerWindow::ProjectEventHandler, this));
   ezQtUiServices::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtContainerWindow::UIServicesEventHandler, this));
-}
 
-ezQtContainerWindow* ezQtContainerWindow::CreateNewContainerWindow()
-{
-  ezInt32 iUniqueIdentifier = 0;
-  auto isIdInUse = [](ezInt32 iUniqueIdentifier) -> bool {
-    for (auto pContainer : s_AllContainerWindows)
-    {
-      if (pContainer->m_iUniqueIdentifier == iUniqueIdentifier)
-        return true;
-    }
-    return false;
-  };
-  while (isIdInUse(iUniqueIdentifier))
+  // The dock manager does not take ownership of dock widgets.
+  auto dockWidgets = m_DockManager->dockWidgetsMap();
+  for (auto it = dockWidgets.begin(); it != dockWidgets.end(); ++it)
   {
-    ++iUniqueIdentifier;
+    m_DockManager->removeDockWidget(it.value());
+    delete it.value();
   }
-
-  ezQtContainerWindow* pNewContainer = new ezQtContainerWindow(iUniqueIdentifier);
-  return pNewContainer;
-}
-
-ezQtContainerWindow* ezQtContainerWindow::GetOrCreateContainerWindow(ezInt32 iUniqueIdentifier)
-{
-  for (auto pContainer : s_AllContainerWindows)
-  {
-    if (pContainer->m_iUniqueIdentifier == iUniqueIdentifier)
-      return pContainer;
-  }
-
-  return new ezQtContainerWindow(iUniqueIdentifier);
-}
-
-QTabWidget* ezQtContainerWindow::GetTabWidget() const
-{
-  QTabWidget* pTabs = qobject_cast<QTabWidget*>(centralWidget());
-  EZ_ASSERT_DEV(pTabs != nullptr, "The central widget is nullptr");
-
-  return pTabs;
 }
 
 void ezQtContainerWindow::UpdateWindowTitle()
@@ -126,169 +104,118 @@ void ezQtContainerWindow::closeEvent(QCloseEvent* e)
 
   e->setAccepted(true);
 
-  if (IsMainContainer())
+  if (!ezToolsProject::CanCloseProject())
   {
-    if (!ezToolsProject::CanCloseProject())
-    {
-      e->setAccepted(false);
-      return;
-    }
-
-    // Closing the main container should also close all other container windows.
-    ezDynamicArray<ezQtContainerWindow*> cntainerWindows = s_AllContainerWindows;
-    for (ezQtContainerWindow* pContainer : cntainerWindows)
-    {
-      if (pContainer != this)
-        pContainer->close();
-    }
-
-    // do not close the documents in the main container window here,
-    // as that would remove them from the recently-open documents list and not restore them when opening the editor again
-    ezDynamicArray<ezQtDocumentWindow*> windows = m_DocumentWindows;
-    for (ezQtDocumentWindow* pWindow : windows)
-    {
-      pWindow->DisableWindowLayoutSaving();
-    }
+    e->setAccepted(false);
+    return;
   }
-  else
+
+  // do not close the documents in the main container window here,
+  // as that would remove them from the recently-open documents list and not restore them when opening the editor again
+  ezDynamicArray<ezQtDocumentWindow*> windows = m_DocumentWindows;
+  for (ezQtDocumentWindow* pWindow : windows)
   {
-    ezHybridArray<ezDocument*, 32> docs;
-    docs.Reserve(m_DocumentWindows.GetCount());
-    for (ezQtDocumentWindow* pWindow : m_DocumentWindows)
-    {
-      docs.PushBack(pWindow->GetDocument());
-    }
-    if (!ezToolsProject::CanCloseDocuments(docs))
-    {
-      e->setAccepted(false);
-      return;
-    }
-
-    // closing a non-main window should close all documents as well
-    // this will remove them from the recently-open documents list and not restore them next time
-    ezDynamicArray<ezQtDocumentWindow*> windows = m_DocumentWindows;
-    for (ezQtDocumentWindow* pWindow : windows)
-    {
-      pWindow->CloseDocumentWindow();
-    }
-  }
-}
-
-
-void ezQtContainerWindow::ReassignWindowIndex()
-{
-  QTabWidget* pTabs = GetTabWidget();
-
-  for (ezInt32 i = 0; i < pTabs->count(); ++i)
-  {
-    ezQtDocumentWindow* pDocWnd = (ezQtDocumentWindow*)pTabs->widget(i);
-
-    pDocWnd->SetWindowIndex(i);
+    pWindow->DisableWindowLayoutSaving();
   }
 }
 
 void ezQtContainerWindow::SaveWindowLayout()
 {
+  ezStringBuilder sFile = ezApplicationServices::GetSingleton()->GetApplicationPreferencesFolder();
+  sFile.AppendPath("layout.settings");
+
+  ezStringBuilder sProjectFile;
+  if (ezToolsProject::IsProjectOpen())
+  {
+    sProjectFile = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
+    sProjectFile.AppendPath("layout.settings");
+  }
+
   for (ezUInt32 i = 0; i < m_DocumentWindows.GetCount(); ++i)
     m_DocumentWindows[i]->SaveWindowLayout();
 
-  QTabWidget* pTabs = GetTabWidget();
-
-  if (pTabs->currentWidget())
-  {
-    ezQtDocumentWindow* pDoc = (ezQtDocumentWindow*)pTabs->currentWidget();
-    pDoc->SaveWindowLayout();
-  }
-
   const bool bMaximized = isMaximized();
 
-  if (bMaximized)
-    showNormal();
-
-  ezStringBuilder sGroup;
-  sGroup.Format("ContainerWnd_{0}", GetUniqueName());
-
-  QSettings Settings;
-  Settings.beginGroup(QString::fromUtf8(sGroup));
+  QSettings Settings(ezToolsProject::IsProjectOpen() ? sProjectFile.GetData() : sFile.GetData(), QSettings::IniFormat);
+  Settings.beginGroup(QString::fromUtf8("ContainerWnd_ezEditor"));
   {
+    Settings.setValue("DockManagerState", m_DockManager->saveState(1));
     Settings.setValue("WindowGeometry", saveGeometry());
     Settings.setValue("WindowState", saveState());
     Settings.setValue("IsMaximized", bMaximized);
     Settings.setValue("WindowPosition", pos());
-
-    if (!bMaximized)
-      Settings.setValue("WindowSize", size());
+    Settings.setValue("WindowSize", size());
   }
   Settings.endGroup();
+
+  if (ezToolsProject::IsProjectOpen())
+  {
+    QFile::remove(sFile.GetData());
+    QFile::copy(sProjectFile.GetData(), sFile.GetData());
+  }
 }
 
 void ezQtContainerWindow::RestoreWindowLayout()
 {
-  EZ_ASSERT_DEBUG(m_iWindowLayoutRestoreScheduled > 0, "Incorrect use of ScheduleRestoreWindowLayout");
-
   --m_iWindowLayoutRestoreScheduled;
 
   if (m_iWindowLayoutRestoreScheduled > 0)
     return;
 
   show();
-  ezStringBuilder sGroup;
-  sGroup.Format("ContainerWnd_{0}", GetUniqueName());
 
-  QSettings Settings;
-  Settings.beginGroup(QString::fromUtf8(sGroup));
+  ezStringBuilder sFile;
+  if (ezToolsProject::IsProjectOpen())
   {
+    sFile = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
+    sFile.AppendPath("layout.settings");
+    if (!QFile::exists(sFile.GetData()))
+    {
+      sFile.Clear();
+    }
+  }
+
+  if (sFile.IsEmpty())
+  {
+    sFile = ezApplicationServices::GetSingleton()->GetApplicationPreferencesFolder();
+    sFile.AppendPath("layout.settings");
+    if (!QFile::exists(sFile.GetData()))
+    {
+      // No project or app settings file found, exiting.
+      return;
+    }
+  }
+
+  QSettings Settings(sFile.GetData(), QSettings::IniFormat);
+  Settings.beginGroup(QString::fromUtf8("ContainerWnd_ezEditor"));
+  {
+    auto dockState = Settings.value("DockManagerState");
+    if (dockState.isValid() && dockState.type() == QVariant::ByteArray)
+    {
+      m_DockManager->restoreState(dockState.toByteArray(), 1);
+      for (ads::CDockWidget* dock : m_DocumentDocks)
+      {
+        if (dock->isClosed())
+        {
+          dock->toggleView();
+        }
+      }
+    }
     restoreGeometry(Settings.value("WindowGeometry", saveGeometry()).toByteArray());
 
     move(Settings.value("WindowPosition", pos()).toPoint());
     resize(Settings.value("WindowSize", size()).toSize());
 
-    if (Settings.value("IsMaximized", isMaximized()).toBool())
-      showMaximized();
-
     restoreState(Settings.value("WindowState", saveState()).toByteArray());
+    if (Settings.value("IsMaximized", isMaximized()).toBool())
+    {
+      showNormal();
+      showMaximized();
+    }
   }
   Settings.endGroup();
 
   m_bWindowLayoutRestored = true;
-}
-
-void ezQtContainerWindow::SetupDocumentTabArea()
-{
-  if (centralWidget() != nullptr)
-    return;
-
-  QTabWidget* pTabs = new QTabWidget(this);
-  pTabs->setObjectName("DocumentTabs");
-  pTabs->setTabsClosable(true);
-  pTabs->setMovable(true);
-  pTabs->setTabShape(QTabWidget::TabShape::Rounded);
-  pTabs->setDocumentMode(true);
-  pTabs->tabBar()->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
-
-  EZ_VERIFY(connect(pTabs->tabBar(), SIGNAL(customContextMenuRequested(const QPoint&)), this,
-                    SLOT(SlotTabsContextMenuRequested(const QPoint&))) != nullptr,
-            "signal/slot connection failed");
-
-  EZ_VERIFY(connect(pTabs, SIGNAL(tabCloseRequested(int)), this, SLOT(SlotDocumentTabCloseRequested(int))) != nullptr,
-            "signal/slot connection failed");
-  EZ_VERIFY(connect(pTabs, SIGNAL(currentChanged(int)), this, SLOT(SlotDocumentTabCurrentChanged(int))) != nullptr,
-            "signal/slot connection failed");
-
-  setCentralWidget(pTabs);
-}
-
-ezString ezQtContainerWindow::GetUniqueName() const
-{
-  if (IsMainContainer())
-  {
-    return "ezEditor";
-  }
-  else
-  {
-    ezStringBuilder tmp;
-    return ezConversionUtils::ToString(m_iUniqueIdentifier, tmp);
-  }
 }
 
 void ezQtContainerWindow::SlotUpdateWindowDecoration(void* pDocWindow)
@@ -296,125 +223,123 @@ void ezQtContainerWindow::SlotUpdateWindowDecoration(void* pDocWindow)
   UpdateWindowDecoration(static_cast<ezQtDocumentWindow*>(pDocWindow));
 }
 
-void ezQtContainerWindow::UpdateWindowDecoration(ezQtDocumentWindow* pDocWindow)
+void ezQtContainerWindow::SlotFloatingWidgetOpened(ads::CFloatingDockContainer* FloatingWidget)
 {
-  if (m_DocumentWindows.IndexOf(pDocWindow) == ezInvalidIndex)
-    return;
-
-  QTabWidget* pTabs = GetTabWidget();
-
-  int iTabIndex = pTabs->indexOf(pDocWindow);
-  EZ_ASSERT_DEV(iTabIndex >= 0, "Invalid document window to close");
-
-  pTabs->setTabToolTip(iTabIndex, QString::fromUtf8(pDocWindow->GetDisplayName().GetData()));
-  pTabs->setTabText(iTabIndex, QString::fromUtf8(pDocWindow->GetDisplayNameShort().GetData()));
-  pTabs->setTabIcon(iTabIndex, ezQtUiServices::GetCachedIconResource(pDocWindow->GetWindowIcon().GetData()));
+  FloatingWidget->installEventFilter(this);
 }
 
-void ezQtContainerWindow::RemoveDocumentWindowFromContainer(ezQtDocumentWindow* pDocWindow)
+void ezQtContainerWindow::UpdateWindowDecoration(ezQtDocumentWindow* pDocWindow)
 {
-  const auto uiListIndex = m_DocumentWindows.IndexOf(pDocWindow);
-
+  const ezUInt32 uiListIndex = m_DocumentWindows.IndexOf(pDocWindow);
   if (uiListIndex == ezInvalidIndex)
     return;
 
-  QTabWidget* pTabs = GetTabWidget();
+  ads::CDockWidget* dock = m_DocumentDocks[uiListIndex];
 
-  int iTabIndex = pTabs->indexOf(pDocWindow);
-  EZ_ASSERT_DEV(iTabIndex >= 0, "Invalid document window to close");
-
-  pTabs->removeTab(iTabIndex);
-
-  m_DocumentWindows.RemoveAtAndSwap(uiListIndex);
-
-  pDocWindow->m_pContainerWindow = nullptr;
-
-  if (m_DocumentWindows.IsEmpty() && m_ApplicationPanels.IsEmpty() && !IsMainContainer())
-  {
-    close();
-    deleteLater();
-  }
+  dock->setTabToolTip(QString::fromUtf8(pDocWindow->GetDisplayName().GetData()));
+  dock->setIcon(ezQtUiServices::GetCachedIconResource(pDocWindow->GetWindowIcon().GetData()));
+  dock->setWindowTitle(QString::fromUtf8(pDocWindow->GetDisplayNameShort().GetData()));
 }
 
-void ezQtContainerWindow::RemoveApplicationPanelFromContainer(ezQtApplicationPanel* pPanel)
+void ezQtContainerWindow::RemoveDocumentWindow(ezQtDocumentWindow* pDocWindow)
+{
+  const ezUInt32 uiListIndex = m_DocumentWindows.IndexOf(pDocWindow);
+  if (uiListIndex == ezInvalidIndex)
+    return;
+
+  ads::CDockWidget* dock = m_DocumentDocks[uiListIndex];
+  m_DockManager->removeDockWidget(dock);
+
+  m_DocumentWindows.RemoveAtAndSwap(uiListIndex);
+  m_DocumentDocks.RemoveAtAndSwap(uiListIndex);
+  EZ_ASSERT_DEV(m_DockNames.contains(dock->objectName()), "Object name must not change during lifetime.");
+  m_DockNames.remove(dock->objectName());
+  dock->hide();
+  dock->deleteLater();
+  pDocWindow->m_pContainerWindow = nullptr;
+}
+
+void ezQtContainerWindow::RemoveApplicationPanel(ezQtApplicationPanel* pPanel)
 {
   const auto uiListIndex = m_ApplicationPanels.IndexOf(pPanel);
 
   if (uiListIndex == ezInvalidIndex)
     return;
 
+  m_DockManager->removeDockWidget(pPanel);
   m_ApplicationPanels.RemoveAtAndSwap(uiListIndex);
 
   pPanel->m_pContainerWindow = nullptr;
 }
 
-void ezQtContainerWindow::MoveDocumentWindowToContainer(ezQtDocumentWindow* pDocWindow)
+void ezQtContainerWindow::AddDocumentWindow(ezQtDocumentWindow* pDocWindow)
 {
+  EZ_ASSERT_DEV(!pDocWindow->objectName().isEmpty(), "Panel name must be unique and not empty.");
+
   if (m_DocumentWindows.IndexOf(pDocWindow) != ezInvalidIndex)
     return;
 
-  if (pDocWindow->m_pContainerWindow != nullptr)
-    pDocWindow->m_pContainerWindow->RemoveDocumentWindowFromContainer(pDocWindow);
-
   EZ_ASSERT_DEV(pDocWindow->m_pContainerWindow == nullptr, "Implementation error");
 
-  SetupDocumentTabArea();
-
   m_DocumentWindows.PushBack(pDocWindow);
+  ads::CDockWidget* dock = new ads::CDockWidget(QString::fromUtf8(pDocWindow->GetDisplayNameShort()));
+  EZ_ASSERT_DEV(!dock->objectName().isEmpty(), "Dock name must not be empty.");
+  EZ_ASSERT_DEV(!m_DockNames.contains(dock->objectName()), "Dock name must be unique.");
+  m_DockNames.insert(dock->objectName());
+  dock->setWidget(pDocWindow);
+  dock->tabWidget()->setContextMenuPolicy(Qt::CustomContextMenu);
+  if (!m_DocumentDocks.IsEmpty())
+  {
+    ads::CDockAreaWidget* dockArea = m_DocumentDocks.PeekBack()->dockAreaWidget();
+    m_DockManager->addDockWidgetTabToArea(dock, dockArea);
+  }
+  else
+  {
+    m_DockManager->addDockWidgetTab(ads::LeftDockWidgetArea, dock);
+  }
+  m_DocumentDocks.PushBack(dock);
+  connect(dock, &ads::CDockWidget::closed, this, &ezQtContainerWindow::SlotDocumentTabCloseRequested);
+  connect(dock->tabWidget(), &QWidget::customContextMenuRequested, this, &ezQtContainerWindow::SlotTabsContextMenuRequested);
+
+
+
   pDocWindow->m_pContainerWindow = this;
 
-  QTabWidget* pTabs = GetTabWidget();
-  pTabs->addTab(pDocWindow, QString::fromUtf8(pDocWindow->GetDisplayNameShort()));
-
-  // we cannot call virutal functions on pDocWindow here, because the object might still be under construction
+  // we cannot call virtual functions on pDocWindow here, because the object might still be under construction
   // so we delay it until later
   QMetaObject::invokeMethod(this, "SlotUpdateWindowDecoration", Qt::ConnectionType::QueuedConnection, Q_ARG(void*, pDocWindow));
 }
 
-void ezQtContainerWindow::MoveApplicationPanelToContainer(ezQtApplicationPanel* pPanel)
+void ezQtContainerWindow::AddApplicationPanel(ezQtApplicationPanel* pPanel)
 {
   // panel already in container window ?
   if (m_ApplicationPanels.IndexOf(pPanel) != ezInvalidIndex)
     return;
 
-  pPanel->setParent(this);
-
-  if (pPanel->m_pContainerWindow != nullptr)
-    pPanel->m_pContainerWindow->RemoveApplicationPanelFromContainer(pPanel);
-
+  EZ_ASSERT_DEV(!pPanel->objectName().isEmpty(), "Dock name must not be empty.");
+  EZ_ASSERT_DEV(!m_DockNames.contains(pPanel->objectName()), "Dock name must be unique.");
+  m_DockNames.insert(pPanel->objectName());
   EZ_ASSERT_DEV(pPanel->m_pContainerWindow == nullptr, "Implementation error");
-
-  SetupDocumentTabArea();
 
   m_ApplicationPanels.PushBack(pPanel);
   pPanel->m_pContainerWindow = this;
-
-  // dock the panel
-  addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPanel);
-
-  ScheduleRestoreWindowLayout();
-}
-
-
-bool ezQtContainerWindow::IsMainContainer() const
-{
-  return m_iUniqueIdentifier == 0;
-}
-
-
-ezInt32 ezQtContainerWindow::GetUniqueIdentifier() const
-{
-  return m_iUniqueIdentifier;
+  m_DockManager->addDockWidgetTab(ads::RightDockWidgetArea, pPanel);
 }
 
 ezResult ezQtContainerWindow::EnsureVisible(ezQtDocumentWindow* pDocWindow)
 {
-  if (m_DocumentWindows.IndexOf(pDocWindow) == ezInvalidIndex)
+  const auto uiListIndex = m_DocumentWindows.IndexOf(pDocWindow);
+
+  if (uiListIndex == ezInvalidIndex)
     return EZ_FAILURE;
 
-  QTabWidget* pTabs = GetTabWidget();
+  ads::CDockWidget* dock = m_DocumentDocks[uiListIndex];
 
-  pTabs->setCurrentWidget(pDocWindow);
+  if (dock->isClosed())
+  {
+    dock->toggleView();
+  }
+  dock->raise();
   return EZ_SUCCESS;
 }
 
@@ -434,7 +359,10 @@ ezResult ezQtContainerWindow::EnsureVisible(ezQtApplicationPanel* pPanel)
   if (m_ApplicationPanels.IndexOf(pPanel) == ezInvalidIndex)
     return EZ_FAILURE;
 
-  pPanel->show();
+  if (pPanel->isClosed())
+  {
+    pPanel->toggleView();
+  }
   pPanel->raise();
   return EZ_SUCCESS;
 }
@@ -444,72 +372,70 @@ ezResult ezQtContainerWindow::EnsureVisibleAnyContainer(ezDocument* pDocument)
   // make sure there is a window to make visible in the first place
   pDocument->GetDocumentManager()->EnsureWindowRequested(pDocument);
 
-  for (auto cont : s_AllContainerWindows)
-  {
-    if (cont->EnsureVisible(pDocument).Succeeded())
-      return EZ_SUCCESS;
-  }
+  if (s_pContainerWindow->EnsureVisible(pDocument).Succeeded())
+    return EZ_SUCCESS;
 
   return EZ_FAILURE;
 }
 
 void ezQtContainerWindow::GetDocumentWindows(ezHybridArray<ezQtDocumentWindow*, 16>& windows)
 {
-  struct WindowComparer
-  {
-    WindowComparer(QTabWidget* pTabs)
-        : m_pTabs(pTabs)
-    {
-    }
-    EZ_ALWAYS_INLINE bool Less(ezQtDocumentWindow* a, ezQtDocumentWindow* b) const
-    {
-      int iIndexA = m_pTabs->indexOf(a);
-      int iIndexB = m_pTabs->indexOf(b);
-      return iIndexA < iIndexB;
-    }
-    QTabWidget* m_pTabs;
-  };
-
-  if (QTabWidget* pTabs = qobject_cast<QTabWidget*>(centralWidget()))
-  {
-    windows = m_DocumentWindows;
-    windows.Sort(WindowComparer(pTabs));
-  }
+  windows = m_DocumentWindows;
 }
 
-void ezQtContainerWindow::SlotDocumentTabCloseRequested(int index)
+bool ezQtContainerWindow::eventFilter(QObject* obj, QEvent* e)
 {
-  QTabWidget* pTabs = GetTabWidget();
+  if (e->type() == QEvent::Type::Close)
+  {
+    if (auto* pFloatingWidget = qobject_cast<ads::CFloatingDockContainer*>(obj))
+    {
+      ezHybridArray<ezDocument*, 32> docs;
+      docs.Reserve(m_DocumentWindows.GetCount());
+      ezHybridArray<ezQtDocumentWindow*, 32> windows;
+      windows.Reserve(m_DocumentWindows.GetCount());
 
-  ezQtDocumentWindow* pDocWindow = (ezQtDocumentWindow*)pTabs->widget(index);
+      QList<ads::CDockWidget*> floatingDocks = pFloatingWidget->dockWidgets();
+      for (ezUInt32 i = 0; i < m_DocumentWindows.GetCount(); ++i)
+      {
+        if (floatingDocks.contains(m_DocumentDocks[i]))
+        {
+          docs.PushBack(m_DocumentWindows[i]->GetDocument());
+          windows.PushBack(m_DocumentWindows[i]);
+        }
+      }
+
+      if (!ezToolsProject::CanCloseDocuments(docs))
+      {
+        e->setAccepted(false);
+        return true;
+      }
+
+      // closing a non-main window should close all documents as well
+      // this will remove them from the recently-open documents list and not restore them next time
+      for (ezQtDocumentWindow* pWindow : windows)
+      {
+        pWindow->CloseDocumentWindow();
+      }
+    }
+  }
+  return false;
+}
+
+void ezQtContainerWindow::SlotDocumentTabCloseRequested()
+{
+  auto dock = qobject_cast<ads::CDockWidget*>(sender());
+  const auto uiListIndex = m_DocumentDocks.IndexOf(dock);
+  EZ_ASSERT_DEV(uiListIndex != ezInvalidIndex, "Can't close non-existing document.");
+
+  ezQtDocumentWindow* pDocWindow = m_DocumentWindows[uiListIndex];
 
   if (!pDocWindow->CanCloseWindow())
-    return;
-
-  pDocWindow->CloseDocumentWindow();
-}
-
-void ezQtContainerWindow::SlotDocumentTabCurrentChanged(int index)
-{
-  QTabWidget* pTabs = GetTabWidget();
-
-  ezQtDocumentWindow* pNowCurrentWindow = nullptr;
-
-  if (index >= 0)
-    pNowCurrentWindow = (ezQtDocumentWindow*)pTabs->widget(index);
-
-  for (ezQtDocumentWindow* pWnd : m_DocumentWindows)
   {
-    if (pNowCurrentWindow == pWnd)
-      continue;
-
-    pWnd->SetVisibleInContainer(false);
+    //TODO: There is no CloseRequested event so we just reopen on a timer.
+    QTimer::singleShot(1, [dock]() { dock->toggleView(); });
+    return;
   }
-
-  if (pNowCurrentWindow)
-    pNowCurrentWindow->SetVisibleInContainer(true);
-
-  ReassignWindowIndex();
+  pDocWindow->CloseDocumentWindow();
 }
 
 void ezQtContainerWindow::DocumentWindowEventHandler(const ezQtDocumentWindowEvent& e)
@@ -517,7 +443,7 @@ void ezQtContainerWindow::DocumentWindowEventHandler(const ezQtDocumentWindowEve
   switch (e.m_Type)
   {
     case ezQtDocumentWindowEvent::Type::WindowClosing:
-      RemoveDocumentWindowFromContainer(e.m_pWindow);
+      RemoveDocumentWindow(e.m_pWindow);
       break;
     case ezQtDocumentWindowEvent::Type::WindowDecorationChanged:
       UpdateWindowDecoration(e.m_pWindow);
@@ -573,19 +499,11 @@ void ezQtContainerWindow::UIServicesEventHandler(const ezQtUiServices::Event& e)
 
 void ezQtContainerWindow::SlotTabsContextMenuRequested(const QPoint& pos)
 {
-  QTabWidget* pTabs = GetTabWidget();
+  auto tab = qobject_cast<ads::CDockWidgetTab*>(sender());
+  ads::CDockWidget* dock = tab->dockWidget();
+  const auto uiListIndex = m_DocumentDocks.IndexOf(dock);
+  EZ_ASSERT_DEV(uiListIndex != ezInvalidIndex, "Can't close non-existing document.");
 
-  int iTab = pTabs->tabBar()->tabAt(pos);
-
-  if (iTab < 0)
-    return;
-
-  pTabs->setCurrentIndex(iTab);
-
-  if (!pTabs->currentWidget())
-    return;
-
-  ezQtDocumentWindow* pDoc = (ezQtDocumentWindow*)pTabs->currentWidget();
-
-  pDoc->RequestWindowTabContextMenu(pTabs->tabBar()->mapToGlobal(pos));
+  ezQtDocumentWindow* pDoc = m_DocumentWindows[uiListIndex];
+  pDoc->RequestWindowTabContextMenu(tab->mapToGlobal(pos));
 }

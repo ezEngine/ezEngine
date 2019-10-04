@@ -7,20 +7,18 @@
 ezDynamicArray<ezQtApplicationPanel*> ezQtApplicationPanel::s_AllApplicationPanels;
 
 ezQtApplicationPanel::ezQtApplicationPanel(const char* szPanelName)
-    : QDockWidget(ezQtContainerWindow::GetAllContainerWindows()[0])
+  : ads::CDockWidget(szPanelName, ezQtContainerWindow::GetContainerWindow())
 {
   ezStringBuilder sPanel("AppPanel_", szPanelName);
 
   setObjectName(QString::fromUtf8(sPanel.GetData()));
   setWindowTitle(QString::fromUtf8(ezTranslate(szPanelName)));
 
-  setBackgroundRole(QPalette::ColorRole::Highlight);
-
   s_AllApplicationPanels.PushBack(this);
 
   m_pContainerWindow = nullptr;
 
-  ezQtContainerWindow::GetAllContainerWindows()[0]->MoveApplicationPanelToContainer(this);
+  ezQtContainerWindow::GetContainerWindow()->AddApplicationPanel(this);
 
   ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezQtApplicationPanel::ToolsProjectEventHandler, this));
 }
