@@ -64,7 +64,7 @@ public:
 
   void RegisterDefaultFunctions();
 
-  void Execute(const ezExpressionByteCode& byteCode, ezArrayPtr<const ezExpression::Stream> inputs, ezArrayPtr<ezExpression::Stream> outputs,
+  ezResult Execute(const ezExpressionByteCode& byteCode, ezArrayPtr<const ezExpression::Stream> inputs, ezArrayPtr<ezExpression::Stream> outputs,
     ezUInt32 uiNumInstances, const ezExpression::GlobalData& globalData = ezExpression::GlobalData());
 
 private:

@@ -4,6 +4,7 @@
 #include <ProcGenPlugin/Declarations.h>
 
 struct ezMsgTransformChanged;
+struct ezMsgExtractVolumes;
 
 class EZ_PROCGENPLUGIN_DLL ezProcVolumeComponent : public ezComponent
 {
@@ -56,7 +57,8 @@ public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
-  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
+  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const;
+  void OnExtractVolumes(ezMsgExtractVolumes& msg) const;
 
 private:
   float m_fRadius = 10.0f;

@@ -174,7 +174,7 @@ void ezProcVertexColorComponentManager::UpdateComponentVertexColors(ezProcVertex
   taskName.Append(pCpuMesh->GetResourceDescription().GetView());
   pUpdateTask->SetTaskName(taskName);
 
-  pUpdateTask->Prepare(mbDesc, pComponent->GetOwner()->GetGlobalTransform(), pComponent->m_Outputs,
+  pUpdateTask->Prepare(*GetWorld(), mbDesc, pComponent->GetOwner()->GetGlobalTransform(), pComponent->m_Outputs,
     m_VertexColorData.GetArrayPtr().GetSubArray(uiBufferOffset, uiVertexColorCount));
 
   ezTaskSystem::AddTaskToGroup(m_UpdateTaskGroupID, pUpdateTask.Borrow());

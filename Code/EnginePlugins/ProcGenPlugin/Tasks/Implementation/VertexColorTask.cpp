@@ -1,6 +1,7 @@
 #include <ProcGenPluginPCH.h>
 
 #include <Foundation/Profiling/Profiling.h>
+#include <ProcGenPlugin/Tasks/Utils.h>
 #include <ProcGenPlugin/Tasks/VertexColorTask.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
 
@@ -9,11 +10,12 @@ using namespace ezProcGenInternal;
 VertexColorTask::VertexColorTask()
 {
   m_VM.RegisterDefaultFunctions();
+  m_VM.RegisterFunction("ApplyVolumes", &ezProcGenExpressionFunctions::ApplyVolumes, &ezProcGenExpressionFunctions::ApplyVolumesValidate);
 }
 
 VertexColorTask::~VertexColorTask() = default;
 
-void VertexColorTask::Prepare(const ezMeshBufferResourceDescriptor& mbDesc, const ezTransform& transform,
+void VertexColorTask::Prepare(const ezWorld& world, const ezMeshBufferResourceDescriptor& mbDesc, const ezTransform& transform,
   ezArrayPtr<ezSharedPtr<const VertexColorOutput>> outputs, ezArrayPtr<ezUInt32> outputVertexColors)
 {
   EZ_PROFILE_SCOPE("VertexColorPrepare");
@@ -26,7 +28,7 @@ void VertexColorTask::Prepare(const ezMeshBufferResourceDescriptor& mbDesc, cons
 
   const float* pPositions = nullptr;
   const float* pNormals = nullptr;
-  
+
   for (ezUInt32 vs = 0; vs < vdi.m_VertexStreams.GetCount(); ++vs)
   {
     if (vdi.m_VertexStreams[vs].m_Semantic == ezGALVertexAttributeSemantic::Position)
@@ -77,6 +79,21 @@ void VertexColorTask::Prepare(const ezMeshBufferResourceDescriptor& mbDesc, cons
 
   m_Outputs = outputs;
   m_OutputVertexColors = outputVertexColors;
+
+  //////////////////////////////////////////////////////////////////////////
+
+  // TODO:
+  //ezBoundingBox box = mbDesc.GetBounds();
+  ezBoundingBox box = ezBoundingBox(ezVec3(-1000), ezVec3(1000));
+  box.TransformFromOrigin(transform.GetAsMat4());
+
+  m_VolumeCollections.Clear();
+  m_GlobalData.Clear();
+
+  for (auto& output : outputs)
+  {
+    ezProcGenInternal::ExtractVolumeCollections(world, box, *output, m_VolumeCollections, m_GlobalData);
+  }
 }
 
 void VertexColorTask::Execute()
@@ -91,7 +108,7 @@ void VertexColorTask::Execute()
     if (pOutput == nullptr || pOutput->m_pByteCode == nullptr)
       continue;
 
-    EZ_PROFILE_SCOPE("ExecuteVM");  
+    EZ_PROFILE_SCOPE("ExecuteVM");
 
     ezUInt32 uiNumVertices = m_InputVertices.GetCount();
     m_TempData.SetCountUninitialized(uiNumVertices);
@@ -125,7 +142,7 @@ void VertexColorTask::Execute()
     }
 
     // Execute expression bytecode
-    m_VM.Execute(*(pOutput->m_pByteCode), inputs, outputs, uiNumVertices);
+    m_VM.Execute(*(pOutput->m_pByteCode), inputs, outputs, uiNumVertices, m_GlobalData);
 
     for (ezUInt32 i = 0; i < uiNumVertices; ++i)
     {

@@ -7,6 +7,7 @@ namespace
 {
   static ezHashedString s_sRandom = ezMakeHashedString("Random");
   static ezHashedString s_sPerlinNoise = ezMakeHashedString("PerlinNoise");
+  static ezHashedString s_sApplyVolumes = ezMakeHashedString("ApplyVolumes");
 
   ezExpressionAST::NodeType::Enum GetBlendOperator(ezProcGenBlendMode::Enum blendMode)
   {
@@ -475,4 +476,49 @@ ezExpressionAST::Node* ezProcGenSlope::GenerateExpressionASTNode(ezArrayPtr<ezEx
   auto pNormalZ = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sNormalZ);
   auto pAngle = out_Ast.CreateUnaryOperator(ezExpressionAST::NodeType::ACos, pNormalZ);
   return CreateRemapTo01WithFadeout(pAngle, m_MinSlope.GetRadian(), m_MaxSlope.GetRadian(), m_fLowerFade, m_fUpperFade, out_Ast);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenApplyVolumes, 1, ezRTTIDefaultAllocator<ezProcGenApplyVolumes>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("InputValue", m_fInputValue),
+    EZ_SET_MEMBER_PROPERTY("IncludeTags", m_IncludeTags)->AddAttributes(new ezTagSetWidgetAttribute("Default")),
+
+    EZ_MEMBER_PROPERTY("In", m_InputValuePin),
+    EZ_MEMBER_PROPERTY("Value", m_OutputValuePin)
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezTitleAttribute("Volumes: {IncludeTags}"),
+    new ezCategoryAttribute("Math"),
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezExpressionAST::Node* ezProcGenApplyVolumes::GenerateExpressionASTNode(ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast)
+{
+  ezExpressionAST::Node* pPosX = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sPositionX);
+  ezExpressionAST::Node* pPosY = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sPositionY);
+  ezExpressionAST::Node* pPosZ = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sPositionZ);
+
+  auto pInput = inputs[0];
+  if (pInput == nullptr)
+  {
+    pInput = out_Ast.CreateConstant(m_fInputValue);
+  }
+
+  auto pFunctionCall = out_Ast.CreateFunctionCall(s_sApplyVolumes);
+  pFunctionCall->m_Arguments.PushBack(pPosX);
+  pFunctionCall->m_Arguments.PushBack(pPosY);
+  pFunctionCall->m_Arguments.PushBack(pPosZ);
+  pFunctionCall->m_Arguments.PushBack(pInput);
+
+  return pFunctionCall;
 }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Foundation/Types/TagSet.h>
 #include <Foundation/Utilities/Node.h>
 #include <ProcGenPlugin/VM/ExpressionAST.h>
 
@@ -172,4 +173,19 @@ public:
   ezOutputNodePin m_OutputValuePin;
 };
 
+//////////////////////////////////////////////////////////////////////////
 
+class ezProcGenApplyVolumes : public ezProcGenNodeBase
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcGenApplyVolumes, ezProcGenNodeBase);
+
+public:
+  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast) override;
+
+  float m_fInputValue = 0.0f;
+
+  ezTagSet m_IncludeTags;
+
+  ezInputNodePin m_InputValuePin;
+  ezOutputNodePin m_OutputValuePin;
+};

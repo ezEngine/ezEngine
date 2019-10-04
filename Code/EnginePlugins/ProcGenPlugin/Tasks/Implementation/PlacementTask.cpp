@@ -7,6 +7,7 @@
 #include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <GameEngine/Physics/SurfaceResource.h>
 #include <ProcGenPlugin/Tasks/PlacementTask.h>
+#include <ProcGenPlugin/Tasks/Utils.h>
 
 using namespace ezProcGenInternal;
 
@@ -17,6 +18,7 @@ PlacementTask::PlacementTask(const char* szName)
   : ezTask(szName)
 {
   m_VM.RegisterDefaultFunctions();
+  m_VM.RegisterFunction("ApplyVolumes", &ezProcGenExpressionFunctions::ApplyVolumes, &ezProcGenExpressionFunctions::ApplyVolumesValidate);
 }
 
 PlacementTask::~PlacementTask() {}

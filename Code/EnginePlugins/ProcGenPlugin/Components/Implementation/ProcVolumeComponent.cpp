@@ -5,8 +5,12 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <ProcGenPlugin/Components/ProcVolumeComponent.h>
+#include <ProcGenPlugin/Components/VolumeCollection.h>
 
-ezSpatialData::Category s_ProcVolumeCategory = ezSpatialData::RegisterCategory("ProcVolume");
+namespace
+{
+  ezSpatialData::Category s_ProcVolumeCategory = ezSpatialData::RegisterCategory("ProcVolume");
+}
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -145,7 +149,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezProcVolumeSphereComponent, 1, ezComponentMode::Static)
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds)
+    EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
+    EZ_MESSAGE_HANDLER(ezMsgExtractVolumes, OnExtractVolumes)
   }
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
@@ -210,9 +215,19 @@ void ezProcVolumeSphereComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fFadeOutStart;
 }
 
-void ezProcVolumeSphereComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
+void ezProcVolumeSphereComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const
 {
   msg.AddBounds(ezBoundingSphere(ezVec3::ZeroVector(), m_fRadius), s_ProcVolumeCategory);
+}
+
+void ezProcVolumeSphereComponent::OnExtractVolumes(ezMsgExtractVolumes& msg) const
+{
+  ezSimdTransform transform = GetOwner()->GetGlobalTransformSimd();
+  transform.m_Scale *= m_fRadius;
+
+  auto& sphere = msg.m_pCollection->m_Spheres.ExpandAndGetRef();
+  sphere.m_GlobalToLocalTransform = transform.GetAsMat4().GetInverse();
+  sphere.m_BlendMode = m_BlendMode;
 }
 
 //////////////////////////////////////////////////////////////////////////

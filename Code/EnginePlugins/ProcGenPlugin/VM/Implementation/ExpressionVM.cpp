@@ -6,7 +6,7 @@
 
 namespace
 {
-//#define DEBUG_VM
+  //#define DEBUG_VM
 
 #ifdef DEBUG_VM
 #  define VM_INLINE
@@ -254,7 +254,7 @@ void ezExpressionVM::RegisterDefaultFunctions()
   RegisterFunction("PerlinNoise", &ezDefaultExpressionFunctions::PerlinNoise);
 }
 
-void ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPtr<const ezExpression::Stream> inputs,
+ezResult ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPtr<const ezExpression::Stream> inputs,
   ezArrayPtr<ezExpression::Stream> outputs, ezUInt32 uiNumInstances, const ezExpression::GlobalData& globalData)
 {
   // Input mapping
@@ -280,7 +280,11 @@ void ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPtr<co
         }
       }
 
-      EZ_ASSERT_DEV(bInputFound, "Bytecode expects an input '{0}'", inputName);
+      if (!bInputFound)
+      {
+        ezLog::Error("Bytecode expects an input '{0}'", inputName);
+        return EZ_FAILURE;
+      }
     }
   }
 
@@ -307,7 +311,11 @@ void ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPtr<co
         }
       }
 
-      EZ_ASSERT_DEV(bOutputFound, "Bytecode expects an output '{0}'", outputName);
+      if (!bOutputFound)
+      {
+        ezLog::Error("Bytecode expects an output '{0}'", outputName);
+        return EZ_FAILURE;
+      }
     }
   }
 
@@ -321,15 +329,22 @@ void ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPtr<co
     for (auto& functionName : functionNames)
     {
       ezUInt32 uiFunctionIndex = 0;
-      bool bFound = m_FunctionNamesToIndex.TryGetValue(functionName, uiFunctionIndex);
-      EZ_ASSERT_DEV(bFound, "Bytecode expects a function called '{0}' but it was not registered for this VM", functionName);
+      if (!m_FunctionNamesToIndex.TryGetValue(functionName, uiFunctionIndex))
+      {
+        ezLog::Error("Bytecode expects a function called '{0}' but it was not registered for this VM", functionName);
+        return EZ_FAILURE;
+      }
 
       m_FunctionMapping.PushBack(uiFunctionIndex);
 
       auto& validationFunction = m_Functions[uiFunctionIndex].m_ValidationFunc;
       if (validationFunction.IsValid())
       {
-        EZ_ASSERT_DEV(validationFunction(globalData).Succeeded(), "Global data validation for function '{0}' failed.", functionName);
+        if (validationFunction(globalData).Failed())
+        {
+          ezLog::Error("Global data validation for function '{0}' failed.", functionName);
+          return EZ_FAILURE;
+        }
       }
     }
   }
@@ -341,8 +356,8 @@ void ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPtr<co
   const ezUInt32 uiTotalNumRegisters = byteCode.GetNumTempRegisters() * uiNumRegisters;
   if (uiTotalNumRegisters > m_Registers.GetCount())
   {
-    EZ_REPORT_FAILURE("Not enough registers to execute bytecode. Needs {0} but only has {1}.", uiTotalNumRegisters, m_Registers.GetCount());
-    return;
+    ezLog::Error("Not enough registers to execute bytecode. Needs {0} but only has {1}.", uiTotalNumRegisters, m_Registers.GetCount());
+    return EZ_FAILURE;
   }
 
   // Execute bytecode
@@ -466,7 +481,9 @@ void ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPtr<co
 
       default:
         EZ_ASSERT_NOT_IMPLEMENTED;
-        return;
+        return EZ_FAILURE;
     }
   }
+
+  return EZ_SUCCESS;
 }
