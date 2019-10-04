@@ -51,6 +51,8 @@ void ezGameApplication::Init_ConfigureAssetManagement()
 
 void ezGameApplication::Init_SetupDefaultResources()
 {
+  SUPER::Init_SetupDefaultResources();
+
   ezResourceManager::SetIncrementalUnloadForResourceType<ezShaderPermutationResource>(false);
 
   // Shaders

@@ -524,7 +524,7 @@ void ezQtResourceWidget::ProcessTelemetry(void* pUnuseed)
 
     if (Msg.GetMessageID() == ' DEL')
     {
-      rd.m_Flags.Remove(ezResourceFlags::IsPreloading);
+      rd.m_Flags.Remove(ezResourceFlags::IsQueuedForLoading);
       rd.m_LoadingState.m_State = ezResourceState::Invalid;
     }
   }
