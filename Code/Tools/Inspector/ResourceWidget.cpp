@@ -18,11 +18,12 @@ void FormatSize(ezStringBuilder& s, const char* szPrefix, ezUInt64 uiSize);
 ezQtResourceWidget* ezQtResourceWidget::s_pWidget = nullptr;
 
 ezQtResourceWidget::ezQtResourceWidget(QWidget* parent)
-  : QDockWidget(parent)
+  : ads::CDockWidget("Resource Widget", parent)
 {
   s_pWidget = this;
 
   setupUi(this);
+  setWidget(ResourceWidgetFrame);
 
   m_bShowDeleted = true;
 

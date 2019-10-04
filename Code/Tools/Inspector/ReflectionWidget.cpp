@@ -8,11 +8,12 @@
 ezQtReflectionWidget* ezQtReflectionWidget::s_pWidget = nullptr;
 
 ezQtReflectionWidget::ezQtReflectionWidget(QWidget* parent)
-    : QDockWidget(parent)
+    : ads::CDockWidget("Reflection Widget", parent)
 {
   s_pWidget = this;
 
   setupUi(this);
+  setWidget(ReflectionWidgetFrame);
 
   ResetStats();
 }

@@ -4,6 +4,7 @@
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <Inspector/MainWindow.moc.h>
 #include <Inspector/StatVisWidget.moc.h>
+#include <Inspector/MainWidget.moc.h>
 #include <QGraphicsPathItem>
 #include <QGraphicsView>
 #include <QSettings>
@@ -27,7 +28,7 @@ namespace StatVisWidgetDetail
 }
 
 ezQtStatVisWidget::ezQtStatVisWidget(QWidget* parent, ezInt32 iWindowNumber)
-  : QDockWidget(parent)
+  : ads::CDockWidget(QString("StatVisWidget") + QString::number(iWindowNumber), parent)
   , m_ShowWindowAction(parent)
 {
   m_iWindowNumber = iWindowNumber;
@@ -36,6 +37,7 @@ ezQtStatVisWidget::ezQtStatVisWidget(QWidget* parent, ezInt32 iWindowNumber)
   s_pWidget = this;
 
   setupUi(this);
+  setWidget(StatVisWidgetFrame);
 
   {
     ezQtScopedUpdatesDisabled _1(ComboTimeframe);
@@ -86,6 +88,11 @@ ezQtStatVisWidget::ezQtStatVisWidget(QWidget* parent, ezInt32 iWindowNumber)
   EZ_VERIFY(nullptr != QWidget::connect(&m_ShowWindowAction, SIGNAL(triggered()), this, SLOT(on_ToggleVisible())), "");
 }
 
+
+ ezQtStatVisWidget::~ezQtStatVisWidget()
+{
+}
+
 void ezQtStatVisWidget::on_ComboTimeframe_currentIndexChanged(int index)
 {
   m_DisplayInterval = ezTime::Seconds(60.0) * (index + 1);
@@ -129,9 +136,9 @@ void ezQtStatVisWidget::on_SpinMax_valueChanged(double val)
 
 void ezQtStatVisWidget::on_ToggleVisible()
 {
-  setVisible(!isVisible());
+  toggleView(isClosed());
 
-  if (isVisible())
+  if (!isClosed())
     raise();
 }
 
@@ -228,7 +235,7 @@ void ezQtStatVisWidget::AddStat(const ezString& sStatPath, bool bEnabled, bool b
 {
   if (bRaiseWindow)
   {
-    setVisible(true);
+    toggleView(true);
     raise();
   }
 
@@ -251,7 +258,7 @@ void ezQtStatVisWidget::AddStat(const ezString& sStatPath, bool bEnabled, bool b
 
 void ezQtStatVisWidget::UpdateStats()
 {
-  if (!isVisible())
+  if (isClosed())
     return;
 
   QPainterPath pp[s_uiMaxColors];
@@ -261,7 +268,7 @@ void ezQtStatVisWidget::UpdateStats()
     if (it.Value().m_pListItem->checkState() != Qt::Checked)
       continue;
 
-    const ezDeque<ezQtMainWindow::StatSample>& Samples = ezQtMainWindow::s_pWidget->m_Stats[it.Key()].m_History;
+    const ezDeque<ezQtMainWidget::StatSample>& Samples = ezQtMainWidget::s_pWidget->m_Stats[it.Key()].m_History;
 
     if (Samples.IsEmpty())
       continue;
@@ -270,7 +277,7 @@ void ezQtStatVisWidget::UpdateStats()
 
     ezUInt32 uiFirstSample = 0;
 
-    const ezTime MaxGlobalTime = ezQtMainWindow::s_pWidget->m_MaxGlobalTime;
+    const ezTime MaxGlobalTime = ezQtMainWidget::s_pWidget->m_MaxGlobalTime;
 
     while ((uiFirstSample + 1 < Samples.GetCount()) && (MaxGlobalTime - Samples[uiFirstSample + 1].m_AtGlobalTime > m_DisplayInterval))
       ++uiFirstSample;

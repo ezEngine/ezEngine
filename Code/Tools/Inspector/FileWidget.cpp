@@ -10,13 +10,19 @@
 ezQtFileWidget* ezQtFileWidget::s_pWidget = nullptr;
 
 ezQtFileWidget::ezQtFileWidget(QWidget* parent)
-    : QDockWidget(parent)
+    : ads::CDockWidget("File Operations", parent)
 {
   s_pWidget = this;
 
   setupUi(this);
+  setWidget(Frame);
 
   ResetStats();
+}
+
+
+ezQtFileWidget::~ezQtFileWidget()
+{
 }
 
 void ezQtFileWidget::ResetStats()

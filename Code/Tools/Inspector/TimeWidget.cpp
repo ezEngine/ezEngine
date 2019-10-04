@@ -21,11 +21,12 @@ static QColor s_Colors[ezQtTimeWidget::s_uiMaxColors] = {
 };
 
 ezQtTimeWidget::ezQtTimeWidget(QWidget* parent)
-  : QDockWidget(parent)
+  : ads::CDockWidget("Time Widget", parent)
 {
   s_pWidget = this;
 
   setupUi(this);
+  setWidget(TimeWidgetFrame);
 
   {
     ezQtScopedUpdatesDisabled _1(ComboTimeframe);

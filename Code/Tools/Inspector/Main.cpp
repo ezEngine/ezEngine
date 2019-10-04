@@ -9,6 +9,7 @@
 #include <Inspector/InputWidget.moc.h>
 #include <Inspector/LogDockWidget.moc.h>
 #include <Inspector/MainWindow.moc.h>
+#include <Inspector/MainWidget.moc.h>
 #include <Inspector/MemoryWidget.moc.h>
 #include <Inspector/PluginsWidget.moc.h>
 #include <Inspector/ReflectionWidget.moc.h>
@@ -97,7 +98,7 @@ public:
     ezTelemetry::AcceptMessagesForSystem('FILE', true, ezQtFileWidget::ProcessTelemetry, nullptr);
     ezTelemetry::AcceptMessagesForSystem('INPT', true, ezQtInputWidget::ProcessTelemetry, nullptr);
     ezTelemetry::AcceptMessagesForSystem('STRT', true, ezQtSubsystemsWidget::ProcessTelemetry, nullptr);
-    ezTelemetry::AcceptMessagesForSystem('STAT', true, ezQtMainWindow::ProcessTelemetry, nullptr);
+    ezTelemetry::AcceptMessagesForSystem('STAT', true, ezQtMainWidget::ProcessTelemetry, nullptr);
     ezTelemetry::AcceptMessagesForSystem('PLUG', true, ezQtPluginsWidget::ProcessTelemetry, nullptr);
     ezTelemetry::AcceptMessagesForSystem('EVNT', true, ezQtGlobalEventsWidget::ProcessTelemetry, nullptr);
     ezTelemetry::AcceptMessagesForSystem('RFLC', true, ezQtReflectionWidget::ProcessTelemetry, nullptr);

@@ -10,11 +10,13 @@
 ezQtLogDockWidget* ezQtLogDockWidget::s_pWidget = nullptr;
 
 ezQtLogDockWidget::ezQtLogDockWidget(QWidget* parent)
-    : QDockWidget(parent)
+    : ads::CDockWidget("Log", parent)
 {
   s_pWidget = this;
   setupUi(this);
   LogWidget->GetSearchWidget()->setPlaceholderText(QStringLiteral("Search Log"));
+
+  this->setWidget(LogWidget);
 }
 
 void ezQtLogDockWidget::ResetStats()

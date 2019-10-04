@@ -2,11 +2,140 @@
 
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Utilities/ConversionUtils.h>
+#include <Inspector/MainWidget.moc.h>
 #include <Inspector/MainWindow.moc.h>
-#include <qdir.h>
-#include <qstandardpaths.h>
+#include <QDir>
+#include <QStandardPaths>
+#include <QMenu>
+#include <QSettings>
 
-void ezQtMainWindow::SaveFavourites()
+ezQtMainWidget* ezQtMainWidget::s_pWidget = nullptr;
+
+ezQtMainWidget::ezQtMainWidget(QWidget* parent)
+  : ads::CDockWidget("Main", parent)
+{
+  s_pWidget = this;
+
+  setupUi(this);
+  setWidget(MainWidgetFrame);
+
+  this->setFeature(ads::CDockWidget::DockWidgetClosable, false);
+
+  m_uiMaxStatSamples = 20000; // should be enough for 5 minutes of history at 60 Hz
+
+  setContextMenuPolicy(Qt::NoContextMenu);
+
+  TreeStats->setContextMenuPolicy(Qt::CustomContextMenu);
+
+  ResetStats();
+
+  LoadFavourites();
+
+  QSettings Settings;
+  Settings.beginGroup("MainWidget");
+
+  splitter->restoreState(Settings.value("SplitterState", splitter->saveState()).toByteArray());
+  splitter->restoreGeometry(Settings.value("SplitterSize", splitter->saveGeometry()).toByteArray());
+
+  Settings.endGroup();
+}
+
+ezQtMainWidget::~ezQtMainWidget()
+{
+  SaveFavourites();
+}
+
+void ezQtMainWidget::ProcessTelemetry(void* pUnuseed)
+{
+  if (!s_pWidget)
+    return;
+
+  ezTelemetryMessage Msg;
+
+  while (ezTelemetry::RetrieveMessage('STAT', Msg) == EZ_SUCCESS)
+  {
+    switch (Msg.GetMessageID())
+    {
+      case ' DEL':
+      {
+        ezString sStatName;
+        Msg.GetReader() >> sStatName;
+
+        ezMap<ezString, StatData>::Iterator it = s_pWidget->m_Stats.Find(sStatName);
+
+        if (!it.IsValid())
+          break;
+
+        if (it.Value().m_pItem)
+          delete it.Value().m_pItem;
+
+        if (it.Value().m_pItemFavourite)
+          delete it.Value().m_pItemFavourite;
+
+        s_pWidget->m_Stats.Remove(it);
+      }
+      break;
+
+      case ' SET':
+      {
+        ezString sStatName;
+        Msg.GetReader() >> sStatName;
+
+        StatData& sd = s_pWidget->m_Stats[sStatName];
+
+        Msg.GetReader() >> sd.m_Value;
+
+        StatSample ss;
+        ss.m_Value = sd.m_Value.ConvertTo<double>();
+        Msg.GetReader() >> ss.m_AtGlobalTime;
+
+        sd.m_History.PushBack(ss);
+
+        s_pWidget->m_MaxGlobalTime = ezMath::Max(s_pWidget->m_MaxGlobalTime, ss.m_AtGlobalTime);
+
+        // remove excess samples
+        if (sd.m_History.GetCount() > s_pWidget->m_uiMaxStatSamples)
+          sd.m_History.PopFront(sd.m_History.GetCount() - s_pWidget->m_uiMaxStatSamples);
+
+        if (sd.m_pItem == nullptr)
+        {
+          sd.m_pItem = s_pWidget->CreateStat(sStatName.GetData(), false);
+
+          if (s_pWidget->m_Favourites.Find(sStatName).IsValid())
+            sd.m_pItem->setCheckState(0, Qt::Checked);
+        }
+
+        const ezString sValue = sd.m_Value.ConvertTo<ezString>();
+        sd.m_pItem->setData(1, Qt::DisplayRole, sValue.GetData());
+
+        if (sd.m_pItemFavourite)
+          sd.m_pItemFavourite->setData(1, Qt::DisplayRole, sValue.GetData());
+      }
+      break;
+    }
+  }
+}
+
+void ezQtMainWidget::on_ButtonConnect_clicked()
+{
+  QSettings Settings;
+  const QString sServer = Settings.value("LastConnection", QLatin1String("localhost:1040")).toString();
+
+  bool bOk = false;
+  QString sRes =
+    QInputDialog::getText(this, "Host", "Host Name or IP Address:\nDefault is 'localhost:1040'", QLineEdit::Normal, sServer, &bOk);
+
+  if (!bOk)
+    return;
+
+  Settings.setValue("LastConnection", sRes);
+
+  if (ezTelemetry::ConnectToServer(sRes.toUtf8().data()) == EZ_SUCCESS)
+  {
+  }
+}
+
+void ezQtMainWidget::SaveFavourites()
 {
   QString sFile = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
   QDir d;
@@ -32,7 +161,7 @@ void ezQtMainWindow::SaveFavourites()
   f.close();
 }
 
-void ezQtMainWindow::LoadFavourites()
+void ezQtMainWidget::LoadFavourites()
 {
   QString sFile = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
   QDir d;
@@ -63,14 +192,14 @@ void ezQtMainWindow::LoadFavourites()
   f.close();
 }
 
-void ezQtMainWindow::ResetStats()
+void ezQtMainWidget::ResetStats()
 {
   m_Stats.Clear();
   TreeStats->clear();
   TreeFavourites->clear();
 }
 
-void ezQtMainWindow::UpdateStats()
+void ezQtMainWidget::UpdateStats()
 {
   static bool bWasConnected = false;
   const bool bIsConnected = ezTelemetry::IsConnectedToServer();
@@ -96,11 +225,22 @@ void ezQtMainWindow::UpdateStats()
         "<p><span style=\" font-weight:600;\">Status: </span><span style=\" font-weight:600; color:#00aa00;\">Connected</span></p>");
     LabelServer->setText(QString::fromUtf8("<p>Server: %1:%2</p>").arg(ezTelemetry::GetServerIP()).arg(ezTelemetry::s_uiPort));
   }
-
-  UpdateAlwaysOnTop();
 }
 
-QTreeWidgetItem* ezQtMainWindow::CreateStat(const char* szPath, bool bParent)
+
+void ezQtMainWidget::closeEvent(QCloseEvent* event)
+{
+  QSettings Settings;
+
+  Settings.beginGroup("MainWidget");
+
+  Settings.setValue("SplitterState", splitter->saveState());
+  Settings.setValue("SplitterGeometry", splitter->saveGeometry());
+
+  Settings.endGroup();
+}
+
+QTreeWidgetItem* ezQtMainWidget::CreateStat(const char* szPath, bool bParent)
 {
   ezStringBuilder sCleanPath = szPath;
   if (sCleanPath.EndsWith("/"))
@@ -157,7 +297,7 @@ QTreeWidgetItem* ezQtMainWindow::CreateStat(const char* szPath, bool bParent)
   return sd.m_pItem;
 }
 
-void ezQtMainWindow::SetFavourite(const ezString& sStat, bool bFavourite)
+void ezQtMainWidget::SetFavourite(const ezString& sStat, bool bFavourite)
 {
   StatData& sd = m_Stats[sStat];
 
@@ -188,7 +328,7 @@ void ezQtMainWindow::SetFavourite(const ezString& sStat, bool bFavourite)
   }
 }
 
-void ezQtMainWindow::on_TreeStats_itemChanged(QTreeWidgetItem* item, int column)
+void ezQtMainWidget::on_TreeStats_itemChanged(QTreeWidgetItem* item, int column)
 {
   if (column == 0)
   {
@@ -198,7 +338,7 @@ void ezQtMainWindow::on_TreeStats_itemChanged(QTreeWidgetItem* item, int column)
   }
 }
 
-void ezQtMainWindow::on_TreeStats_customContextMenuRequested(const QPoint& p)
+void ezQtMainWidget::on_TreeStats_customContextMenuRequested(const QPoint& p)
 {
   if (!TreeStats->currentItem())
     return;
@@ -212,8 +352,8 @@ void ezQtMainWindow::on_TreeStats_customContextMenuRequested(const QPoint& p)
 
   for (ezInt32 i = 0; i < 10; ++i)
   {
-    m_pActionShowStatIn[i]->setText(m_pStatHistoryWidgets[i]->LineName->text());
-    mSub.addAction(m_pActionShowStatIn[i]);
+    ezQtMainWindow::s_pWidget->m_pActionShowStatIn[i]->setText(ezQtMainWindow::s_pWidget->m_pStatHistoryWidgets[i]->LineName->text());
+    mSub.addAction(ezQtMainWindow::s_pWidget->m_pActionShowStatIn[i]);
   }
 
   if (TreeStats->currentItem()->childCount() > 0)
@@ -223,7 +363,7 @@ void ezQtMainWindow::on_TreeStats_customContextMenuRequested(const QPoint& p)
 }
 
 
-void ezQtMainWindow::ShowStatIn()
+void ezQtMainWidget::ShowStatIn(bool)
 {
   if (!TreeStats->currentItem())
     return;
@@ -233,7 +373,7 @@ void ezQtMainWindow::ShowStatIn()
   ezInt32 iHistoryWidget = 0;
   for (iHistoryWidget = 0; iHistoryWidget < 10; ++iHistoryWidget)
   {
-    if (m_pActionShowStatIn[iHistoryWidget] == pAction)
+    if (ezQtMainWindow::s_pWidget->m_pActionShowStatIn[iHistoryWidget] == pAction)
       goto found;
   }
 
@@ -243,5 +383,5 @@ found:
 
   ezString sPath = TreeStats->currentItem()->data(0, Qt::UserRole).toString().toUtf8().data();
 
-  m_pStatHistoryWidgets[iHistoryWidget]->AddStat(sPath);
+  ezQtMainWindow::s_pWidget->m_pStatHistoryWidgets[iHistoryWidget]->AddStat(sPath);
 }

@@ -10,11 +10,12 @@
 ezQtGlobalEventsWidget* ezQtGlobalEventsWidget::s_pWidget = nullptr;
 
 ezQtGlobalEventsWidget::ezQtGlobalEventsWidget(QWidget* parent)
-    : QDockWidget(parent)
+    : ads::CDockWidget("Global Events", parent)
 {
   s_pWidget = this;
 
   setupUi(this);
+  setWidget(GlobalEventsFrame);
 
   ResetStats();
 }

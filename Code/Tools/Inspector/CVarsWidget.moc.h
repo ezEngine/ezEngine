@@ -1,14 +1,14 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <QDockWidget>
 #include <Tools/Inspector/ui_CVarsWidget.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Configuration/CVar.h>
 #include <GuiFoundation/Widgets/CVarWidget.moc.h>
+#include <ads/DockWidget.h>
 
-class ezQtCVarsWidget : public QDockWidget, public Ui_CVarsWidget
+class ezQtCVarsWidget : public ads::CDockWidget, public Ui_CVarsWidget
 {
 public:
   Q_OBJECT

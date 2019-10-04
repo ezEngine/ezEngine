@@ -9,11 +9,12 @@
 ezQtPluginsWidget* ezQtPluginsWidget::s_pWidget = nullptr;
 
 ezQtPluginsWidget::ezQtPluginsWidget(QWidget* parent)
-  : QDockWidget(parent)
+  : ads::CDockWidget("Plugins Widget", parent)
 {
   s_pWidget = this;
 
   setupUi(this);
+  setWidget(TablePlugins);
 
   ResetStats();
 }

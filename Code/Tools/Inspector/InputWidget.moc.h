@@ -1,13 +1,13 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <QDockWidget>
 #include <Tools/Inspector/ui_InputWidget.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
 #include <Core/Input/InputManager.h>
+#include <ads/DockWidget.h>
 
-class ezQtInputWidget : public QDockWidget, public Ui_InputWidget
+class ezQtInputWidget : public ads::CDockWidget, public Ui_InputWidget
 {
 public:
   Q_OBJECT

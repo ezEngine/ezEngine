@@ -10,11 +10,12 @@
 ezQtInputWidget* ezQtInputWidget::s_pWidget = nullptr;
 
 ezQtInputWidget::ezQtInputWidget(QWidget* parent)
-  : QDockWidget(parent)
+  : ads::CDockWidget("Input Widget", parent)
 {
   s_pWidget = this;
 
   setupUi(this);
+  setWidget(InputWidgetFrame);
 
   ResetStats();
 }

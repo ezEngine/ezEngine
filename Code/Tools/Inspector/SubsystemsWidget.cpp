@@ -9,11 +9,12 @@
 ezQtSubsystemsWidget* ezQtSubsystemsWidget::s_pWidget = nullptr;
 
 ezQtSubsystemsWidget::ezQtSubsystemsWidget(QWidget* parent)
-  : QDockWidget(parent)
+  : ads::CDockWidget("Subsystem Widget", parent)
 {
   s_pWidget = this;
 
   setupUi(this);
+  setWidget(TableSubsystems);
 
   ResetStats();
 }

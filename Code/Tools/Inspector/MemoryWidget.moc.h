@@ -5,13 +5,13 @@
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
-#include <QDockWidget>
 #include <Tools/Inspector/ui_MemoryWidget.h>
 #include <QGraphicsView>
+#include <ads/DockWidget.h>
 
 class QTreeWidgetItem;
 
-class ezQtMemoryWidget : public QDockWidget, public Ui_MemoryWidget
+class ezQtMemoryWidget : public ads::CDockWidget, public Ui_MemoryWidget
 {
 public:
   Q_OBJECT

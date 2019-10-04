@@ -36,11 +36,12 @@ void FormatSize(ezStringBuilder& s, const char* szPrefix, ezUInt64 uiSize)
 }
 
 ezQtMemoryWidget::ezQtMemoryWidget(QWidget* parent)
-  : QDockWidget(parent)
+  : ads::CDockWidget("Memory Widget", parent)
 {
   s_pWidget = this;
 
   setupUi(this);
+  setWidget(MemoryWidgetFrame);
 
   {
     ezQtScopedUpdatesDisabled _1(ComboTimeframe);

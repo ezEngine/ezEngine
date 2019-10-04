@@ -1,14 +1,14 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <QDockWidget>
 #include <Tools/Inspector/ui_ResourceWidget.h>
 #include <Foundation/Containers/Set.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Time/Time.h>
 #include <Core/ResourceManager/Resource.h>
+#include <ads/DockWidget.h>
 
-class ezQtResourceWidget : public QDockWidget, public Ui_ResourceWidget
+class ezQtResourceWidget : public ads::CDockWidget, public Ui_ResourceWidget
 {
 public:
   Q_OBJECT
