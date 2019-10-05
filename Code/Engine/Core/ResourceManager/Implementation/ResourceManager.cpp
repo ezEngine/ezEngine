@@ -399,12 +399,12 @@ void ezResourceManager::PerFrameUpdate()
   }
 }
 
-ezEvent<const ezResourceEvent&>& ezResourceManager::GetResourceEvents()
+const ezEvent<const ezResourceEvent&>& ezResourceManager::GetResourceEvents()
 {
   return s_State->s_ResourceEvents;
 }
 
-ezEvent<const ezResourceManagerEvent&>& ezResourceManager::GetManagerEvents()
+const ezEvent<const ezResourceManagerEvent&>& ezResourceManager::GetManagerEvents()
 {
   return s_State->s_ManagerEvents;
 }

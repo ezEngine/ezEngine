@@ -8,16 +8,19 @@
 /// \brief Identifies an event subscription. Zero is always an invalid subscription ID.
 typedef ezUInt32 ezEventSubscriptionID;
 
-/// \brief This class allows to propagate events to code that might be interested in them.
+/// \brief This class propagates event information to registered event handlers.
 ///
-/// An event can be anything that "happens" that might be of interest for other code, such
+/// An event can be anything that "happens" that might be of interest to other code, such
 /// that it can react on it in some way.
-/// Just create an instance of ezEvent and call "Broadcast" on it. Other interested code needs access to
-/// the variable (or at least to AddEventHandler / RemoveEventHandler) such that it can
-/// register itself as an interested party. To pass information to the handlers, create your own
-/// custom struct to package that information and then pass a pointer to that data through Broadcast.
-/// The handlers just need to cast the void-pointer to the proper struct and thus can get all the detailed
-/// information about the event.
+/// Just create an instance of ezEvent and call Broadcast() on it. Other interested code needs const access to
+/// the event variable to be able to call AddEventHandler() and RemoveEventHandler().
+/// To pass information to the handlers, create a custom struct with event information
+/// and then pass a (const) reference to that data through Broadcast().
+///
+/// \note A class holding an ezEvent member needs to provide public access to the member for external code to
+/// be able to register as an event handler. To make it possible to prevent external code from also raising events,
+/// all functions that are needed for listening are const, and all others are non-const.
+/// Therefore, simply make event members private and provide const reference access through a public getter.
 template <typename EventData, typename MutexType>
 class ezEventBase
 {
@@ -83,7 +86,7 @@ public:
   /// \brief This function will broadcast to all registered users, that this event has just happened.
   ///  Setting uiMaxRecursionDepth will allow you to permit recursions. When broadcasting consider up to what depth
   ///  you want recursions to be permitted. By default no recursion is allowed.
-  void Broadcast(EventData pEventData, ezUInt8 uiMaxRecursionDepth = 0) const; // [tested]
+  void Broadcast(EventData pEventData, ezUInt8 uiMaxRecursionDepth = 0); // [tested]
 
   /// \brief Adds a function as an event handler. All handlers will be notified in the order that they were registered.
   ///
@@ -115,7 +118,7 @@ public:
 
 private:
   /// \brief Used to detect recursive broadcasts and then throw asserts at you.
-  mutable ezUInt8 m_uiRecursionDepth;
+  ezUInt8 m_uiRecursionDepth;
   mutable ezEventSubscriptionID m_NextSubscriptionID = 0;
 
   mutable MutexType m_Mutex;
@@ -130,7 +133,7 @@ private:
     ezEventSubscriptionID m_SubscriptionID;
   };
 
-  /// \brief A dynamic array allows to have zero overhead as long as no event receivers are registered.
+  /// \brief A dynamic array allows to have zero overhead as long as no event handlers are registered.
   mutable ezDynamicArray<HandlerData> m_EventHandlers;
 };
 
@@ -144,4 +147,3 @@ public:
 };
 
 #include <Foundation/Communication/Implementation/Event_inl.h>
-

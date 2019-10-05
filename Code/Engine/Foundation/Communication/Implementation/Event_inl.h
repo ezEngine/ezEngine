@@ -112,7 +112,7 @@ void ezEventBase<EventData, MutexType>::Clear()
 
 /// The notification is sent to all event handlers in the order that they were registered.
 template <typename EventData, typename MutexType>
-void ezEventBase<EventData, MutexType>::Broadcast(EventData eventData, ezUInt8 uiMaxRecursionDepth) const
+void ezEventBase<EventData, MutexType>::Broadcast(EventData eventData, ezUInt8 uiMaxRecursionDepth)
 {
   EZ_LOCK(m_Mutex);
 

@@ -23,10 +23,10 @@ class EZ_CORE_DLL ezResourceManager
 public:
   /// Events on individual resources. Subscribe to this to get a notification for events happening on any resource.
   /// If you are only interested in events for a specific resource, subscribe on directly on that instance.
-  static ezEvent<const ezResourceEvent&>& GetResourceEvents();
+  static const ezEvent<const ezResourceEvent&>& GetResourceEvents();
 
   /// Events for the resource manager that affect broader things.
-  static ezEvent<const ezResourceManagerEvent&>& GetManagerEvents();
+  static const ezEvent<const ezResourceManagerEvent&>& GetManagerEvents();
 
   /// \brief Goes through all existing resources and broadcasts the 'Exists' event.
   ///
