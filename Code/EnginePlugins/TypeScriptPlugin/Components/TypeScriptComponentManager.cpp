@@ -23,6 +23,7 @@ void ezTypeScriptComponentManager::Initialize()
 
   ezFileSystem::AddDataDirectory(">sdk/Data/Tools/ezEditor/TypeScript", "TypeScript", "TypeScript");
 
+  m_Transpiler.SetOutputFolder(":project/AssetCache/Common");
   m_Transpiler.StartLoadTranspiler();
 }
 
