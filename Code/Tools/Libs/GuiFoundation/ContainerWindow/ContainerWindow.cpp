@@ -17,6 +17,38 @@
 ezQtContainerWindow* ezQtContainerWindow::s_pContainerWindow = nullptr;
 bool ezQtContainerWindow::s_bForceClose = false;
 
+namespace
+{
+  bool GetProjectLayoutPath(ezStringBuilder& out_sFile, bool bWrite)
+  {
+    if (!ezToolsProject::IsProjectOpen())
+    {
+      out_sFile.Clear();
+      return false;
+    }
+    out_sFile = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
+    out_sFile.AppendPath("layout.settings");
+    if (!bWrite && !QFile::exists(out_sFile.GetData()))
+    {
+      out_sFile.Clear();
+      return false;
+    }
+    return true;
+  }
+
+  bool GetApplicationLayoutPath(ezStringBuilder& out_sFile, bool bWrite)
+  {
+    out_sFile = ezApplicationServices::GetSingleton()->GetApplicationPreferencesFolder();
+    out_sFile.AppendPath("layout.settings");
+    if (!bWrite && !QFile::exists(out_sFile.GetData()))
+    {
+      out_sFile.Clear();
+      return false;
+    }
+    return true;
+  }
+}
+
 ezQtContainerWindow::ezQtContainerWindow()
 {
   setMinimumSize(QSize(800, 600));
@@ -121,15 +153,11 @@ void ezQtContainerWindow::closeEvent(QCloseEvent* e)
 
 void ezQtContainerWindow::SaveWindowLayout()
 {
-  ezStringBuilder sFile = ezApplicationServices::GetSingleton()->GetApplicationPreferencesFolder();
-  sFile.AppendPath("layout.settings");
+  ezStringBuilder sFile;
+  GetApplicationLayoutPath(sFile, true);
 
   ezStringBuilder sProjectFile;
-  if (ezToolsProject::IsProjectOpen())
-  {
-    sProjectFile = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
-    sProjectFile.AppendPath("layout.settings");
-  }
+  GetProjectLayoutPath(sProjectFile, true);
 
   for (ezUInt32 i = 0; i < m_DocumentWindows.GetCount(); ++i)
     m_DocumentWindows[i]->SaveWindowLayout();
@@ -150,6 +178,8 @@ void ezQtContainerWindow::SaveWindowLayout()
 
   if (ezToolsProject::IsProjectOpen())
   {
+    // The last open project always serves as the default layout in case
+    // a new project is created or a project without layout data is opened.
     QFile::remove(sFile.GetData());
     QFile::copy(sProjectFile.GetData(), sFile.GetData());
   }
@@ -158,28 +188,15 @@ void ezQtContainerWindow::SaveWindowLayout()
 void ezQtContainerWindow::RestoreWindowLayout()
 {
   --m_iWindowLayoutRestoreScheduled;
-
   if (m_iWindowLayoutRestoreScheduled > 0)
     return;
 
   show();
 
   ezStringBuilder sFile;
-  if (ezToolsProject::IsProjectOpen())
+  if (!GetProjectLayoutPath(sFile, false))
   {
-    sFile = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
-    sFile.AppendPath("layout.settings");
-    if (!QFile::exists(sFile.GetData()))
-    {
-      sFile.Clear();
-    }
-  }
-
-  if (sFile.IsEmpty())
-  {
-    sFile = ezApplicationServices::GetSingleton()->GetApplicationPreferencesFolder();
-    sFile.AppendPath("layout.settings");
-    if (!QFile::exists(sFile.GetData()))
+    if (!GetApplicationLayoutPath(sFile, false))
     {
       // No project or app settings file found, exiting.
       return;
@@ -193,6 +210,8 @@ void ezQtContainerWindow::RestoreWindowLayout()
     if (dockState.isValid() && dockState.type() == QVariant::ByteArray)
     {
       m_DockManager->restoreState(dockState.toByteArray(), 1);
+      // As document windows can't be in a closed state (as pressing x destroys them),
+      // we need to fix any document window that was accidentally saved in its closed state.
       for (ads::CDockWidget* dock : m_DocumentDocks)
       {
         if (dock->isClosed())
@@ -201,15 +220,13 @@ void ezQtContainerWindow::RestoreWindowLayout()
         }
       }
     }
+    showNormal();
     restoreGeometry(Settings.value("WindowGeometry", saveGeometry()).toByteArray());
-
     move(Settings.value("WindowPosition", pos()).toPoint());
     resize(Settings.value("WindowSize", size()).toSize());
-
     restoreState(Settings.value("WindowState", saveState()).toByteArray());
     if (Settings.value("IsMaximized", isMaximized()).toBool())
-    {
-      showNormal();
+    {    
       showMaximized();
     }
   }
