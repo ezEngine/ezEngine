@@ -13,6 +13,9 @@ public:
   {
     ezSimdMat4f m_GlobalToLocalTransform;
     ezEnum<ezProcGenBlendMode> m_BlendMode;
+    float m_fValue;
+    float m_fFadeOutScale;
+    float m_fFadeOutBias;
   };
 
   ezDynamicArray<Sphere, ezAlignedAllocatorWrapper> m_Spheres;
@@ -28,6 +31,11 @@ public:
 struct EZ_PROCGENPLUGIN_DLL ezMsgExtractVolumes : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgExtractVolumes, ezMessage);
+
+  void AddSphere(const ezSimdTransform& transform, float fRadius, ezEnum<ezProcGenBlendMode> blendMode, float fValue, float fFadeOutStart);
+
+private:
+  friend class ezVolumeCollection;
 
   ezVolumeCollection* m_pCollection = nullptr;
 };

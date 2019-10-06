@@ -144,7 +144,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezProcVolumeSphereComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Radius", GetRadius, SetRadius)->AddAttributes(new ezDefaultValueAttribute(10.0f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_ACCESSOR_PROPERTY("FadeOutStart", GetFadeOutStart, SetFadeOutStart)->AddAttributes(new ezDefaultValueAttribute(0.8f), new ezClampValueAttribute(0.0f, 1.0f)),
+    EZ_ACCESSOR_PROPERTY("FadeOutStart", GetFadeOutStart, SetFadeOutStart)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -222,12 +222,7 @@ void ezProcVolumeSphereComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ms
 
 void ezProcVolumeSphereComponent::OnExtractVolumes(ezMsgExtractVolumes& msg) const
 {
-  ezSimdTransform transform = GetOwner()->GetGlobalTransformSimd();
-  transform.m_Scale *= m_fRadius;
-
-  auto& sphere = msg.m_pCollection->m_Spheres.ExpandAndGetRef();
-  sphere.m_GlobalToLocalTransform = transform.GetAsMat4().GetInverse();
-  sphere.m_BlendMode = m_BlendMode;
+  msg.AddSphere(GetOwner()->GetGlobalTransformSimd(), m_fRadius, m_BlendMode, m_fValue, m_fFadeOutStart);
 }
 
 //////////////////////////////////////////////////////////////////////////
