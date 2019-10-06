@@ -3,6 +3,7 @@
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EnginePluginKraut/EnginePluginKrautDLL.h>
 #include <KrautPlugin/Components/KrautTreeComponent.h>
+#include <RendererCore/Meshes/MeshResource.h>
 
 class ezObjectSelectionMsgToEngine;
 class ezRenderContext;
@@ -29,4 +30,5 @@ private:
 
   ezGameObject* m_pMainObject;
   ezKrautTreeResourceHandle m_hMainResource;
+  ezMeshResourceHandle m_hPreviewMeshResource;
 };
