@@ -65,7 +65,7 @@ void ezTextureCubeContext::OnInitialize()
   ezConversionUtils::ToString(GetDocumentGuid(), sTextureGuid);
   const ezStringBuilder sMaterialResource(sTextureGuid.GetData(), " - TextureCube Preview");
 
-  ezMeshResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(szMeshName);
+  m_hPreviewMeshResource = ezResourceManager::GetExistingResource<ezMeshResource>(szMeshName);
   m_hMaterial = ezResourceManager::GetExistingResource<ezMaterialResource>(sMaterialResource);
 
   m_hTexture = ezResourceManager::LoadResource<ezTextureCubeResource>(sTextureGuid);
@@ -83,7 +83,7 @@ void ezTextureCubeContext::OnInitialize()
   }
 
   // Preview Mesh
-  if (!hMesh.IsValid())
+  if (!m_hPreviewMeshResource.IsValid())
   {
     const char* szMeshBufferName = "DefaultTextureCubePreviewMeshBuffer";
 
@@ -112,7 +112,7 @@ void ezTextureCubeContext::OnInitialize()
       md.SetMaterial(0, "");
       md.ComputeBounds();
 
-      hMesh = ezResourceManager::CreateResource<ezMeshResource>(szMeshName, std::move(md), pMeshBuffer->GetResourceDescription());
+      m_hPreviewMeshResource = ezResourceManager::CreateResource<ezMeshResource>(szMeshName, std::move(md), pMeshBuffer->GetResourceDescription());
     }
   }
 
@@ -146,7 +146,7 @@ void ezTextureCubeContext::OnInitialize()
 
     ezMeshComponent* pMesh;
     m_hPreviewMesh2D = ezMeshComponent::CreateComponent(pObj, pMesh);
-    pMesh->SetMesh(hMesh);
+    pMesh->SetMesh(m_hPreviewMeshResource);
     pMesh->SetMaterial(0, m_hMaterial);
   }
 

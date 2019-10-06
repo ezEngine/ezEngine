@@ -26,9 +26,9 @@ ezDecalContext::ezDecalContext() {}
 void ezDecalContext::OnInitialize()
 {
   const char* szMeshName = "DefaultDecalPreviewMesh";
-  ezMeshResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(szMeshName);
+  m_hPreviewMeshResource = ezResourceManager::GetExistingResource<ezMeshResource>(szMeshName);
 
-  if (!hMesh.IsValid())
+  if (!m_hPreviewMeshResource.IsValid())
   {
     const char* szMeshBufferName = "DefaultDecalPreviewMeshBuffer";
 
@@ -73,7 +73,7 @@ void ezDecalContext::OnInitialize()
       md.SetMaterial(0, "Materials/BaseMaterials/TestBricks.ezMaterial");
       md.ComputeBounds();
 
-      hMesh = ezResourceManager::CreateResource<ezMeshResource>(szMeshName, std::move(md), pMeshBuffer->GetResourceDescription());
+      m_hPreviewMeshResource = ezResourceManager::CreateResource<ezMeshResource>(szMeshName, std::move(md), pMeshBuffer->GetResourceDescription());
     }
   }
 
@@ -90,7 +90,7 @@ void ezDecalContext::OnInitialize()
 
     ezMeshComponent* pMesh;
     ezMeshComponent::CreateComponent(pObj, pMesh);
-    pMesh->SetMesh(hMesh);
+    pMesh->SetMesh(m_hPreviewMeshResource);
   }
 
   // decals
