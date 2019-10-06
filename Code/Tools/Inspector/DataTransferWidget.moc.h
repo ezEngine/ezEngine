@@ -5,10 +5,10 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/IO/MemoryStream.h>
-#include <QDockWidget>
 #include <Tools/Inspector/ui_DataTransferWidget.h>
+#include <ads/DockWidget.h>
 
-class ezQtDataWidget : public QDockWidget, public Ui_DataTransferWidget
+class ezQtDataWidget : public ads::CDockWidget, public Ui_DataTransferWidget
 {
 public:
   Q_OBJECT

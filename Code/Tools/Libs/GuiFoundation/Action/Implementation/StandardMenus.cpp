@@ -104,9 +104,9 @@ void ezApplicationPanelsMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction
     ezDynamicMenuAction::Item item;
     item.m_sDisplay = pPanel->windowTitle().toUtf8().data();
     item.m_UserValue = pPanel;
-    item.m_Icon = pPanel->windowIcon();
+    item.m_Icon = pPanel->icon();
     item.m_CheckState =
-      pPanel->isVisible() ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
+      pPanel->isClosed() ? ezDynamicMenuAction::Item::CheckMark::Unchecked : ezDynamicMenuAction::Item::CheckMark::Checked;
 
     out_Entries.PushBack(item);
   }
@@ -119,11 +119,15 @@ void ezApplicationPanelsMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction
 void ezApplicationPanelsMenuAction::Execute(const ezVariant& value)
 {
   ezQtApplicationPanel* pPanel = static_cast<ezQtApplicationPanel*>(value.ConvertTo<void*>());
-
-  if (pPanel->isVisible())
-    pPanel->close();
-  else
+  if (pPanel->isClosed())
+  {
+    pPanel->toggleView(true);
     pPanel->EnsureVisible();
+  }
+  else
+  {
+    pPanel->toggleView(false);
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////

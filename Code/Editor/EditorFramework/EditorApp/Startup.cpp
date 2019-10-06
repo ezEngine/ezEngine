@@ -58,6 +58,7 @@
 #include <QClipboard>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 #include <ToolsFoundation/Factory/RttiMappedObjectFactory.h>
+#include <ads/DockManager.h>
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
@@ -194,7 +195,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> flags, const char* sz
     EZ_PROFILE_SCOPE("ezQtContainerWindow");
     SetStyleSheet();
 
-    ezQtContainerWindow* pContainer = new ezQtContainerWindow(0);
+    ezQtContainerWindow* pContainer = new ezQtContainerWindow();
     pContainer->show();
   }
 
@@ -278,6 +279,10 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> flags, const char* sz
       CreateOrOpenProject(false, s_RecentProjects.GetFileList()[0].m_File);
     }
   }
+  else
+  {
+    ezQtContainerWindow::GetContainerWindow()->ScheduleRestoreWindowLayout();
+  }
 
   connect(m_pTimer, SIGNAL(timeout()), this, SLOT(SlotTimedUpdate()), Qt::QueuedConnection);
   m_pTimer->start(1);
@@ -312,10 +317,7 @@ void ezQtEditorApp::ShutdownEditor()
 
   if (!m_bHeadless)
   {
-    while (!ezQtContainerWindow::GetAllContainerWindows().IsEmpty())
-    {
-      delete ezQtContainerWindow::GetAllContainerWindows()[0];
-    }
+    delete ezQtContainerWindow::GetContainerWindow();
   }
   // HACK to figure out why the panels are not always properly destroyed together with the ContainerWindows
   // if you run into this, please try to figure this out
@@ -374,12 +376,13 @@ void ezQtEditorApp::CreatePanels()
   ezQtApplicationPanel* pCVarPanel = new ezQtCVarPanel();
   ezQtApplicationPanel* pAssetCuratorPanel = new ezQtAssetCuratorPanel();
 
-  QMainWindow* pMainWnd = ezQtContainerWindow::GetAllContainerWindows()[0];
-
-  pMainWnd->tabifyDockWidget(pAssetBrowserPanel, pLogPanel);
-  pMainWnd->tabifyDockWidget(pAssetBrowserPanel, pAssetCuratorPanel);
-  pMainWnd->tabifyDockWidget(pAssetBrowserPanel, pCVarPanel);
-  pMainWnd->tabifyDockWidget(pAssetBrowserPanel, pLongOpsPanel);
+  ezQtContainerWindow* pMainWnd = ezQtContainerWindow::GetContainerWindow();
+  ads::CDockManager* pDockManager = pMainWnd->GetDockManager();
+  pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pAssetBrowserPanel);
+  pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pLogPanel);
+  pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pAssetCuratorPanel);
+  pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pCVarPanel);
+  pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pLongOpsPanel);
 
   pAssetBrowserPanel->raise();
 }

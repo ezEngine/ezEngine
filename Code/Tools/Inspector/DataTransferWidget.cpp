@@ -15,13 +15,14 @@
 ezQtDataWidget* ezQtDataWidget::s_pWidget = nullptr;
 
 ezQtDataWidget::ezQtDataWidget(QWidget* parent)
-  : QDockWidget(parent)
+  : ads::CDockWidget("Data Transfer Widget", parent)
 {
   /// \todo Improve Data Transfer UI
 
   s_pWidget = this;
 
   setupUi(this);
+  setWidget(DataTransferWidgetFrame);
 
   ResetStats();
 }

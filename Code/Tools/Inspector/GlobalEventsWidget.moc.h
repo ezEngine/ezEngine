@@ -1,13 +1,13 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <QDockWidget>
 #include <Tools/Inspector/ui_GlobalEventsWidget.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Communication/GlobalEvent.h>
+#include <ads/DockWidget.h>
 
-class ezQtGlobalEventsWidget : public QDockWidget, public Ui_GlobalEventsWidget
+class ezQtGlobalEventsWidget : public ads::CDockWidget, public Ui_GlobalEventsWidget
 {
 public:
   Q_OBJECT

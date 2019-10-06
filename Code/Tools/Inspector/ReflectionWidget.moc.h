@@ -1,13 +1,13 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <QDockWidget>
 #include <Tools/Inspector/ui_ReflectionWidget.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <ads/DockWidget.h>
 
-class ezQtReflectionWidget : public QDockWidget, public Ui_ReflectionWidget
+class ezQtReflectionWidget : public ads::CDockWidget, public Ui_ReflectionWidget
 {
 public:
   Q_OBJECT

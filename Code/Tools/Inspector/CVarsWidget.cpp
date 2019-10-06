@@ -12,11 +12,12 @@
 ezQtCVarsWidget* ezQtCVarsWidget::s_pWidget = nullptr;
 
 ezQtCVarsWidget::ezQtCVarsWidget(QWidget* parent)
-    : QDockWidget(parent)
+    : ads::CDockWidget("CVars", parent)
 {
   s_pWidget = this;
 
   setupUi(this);
+  setWidget(CVarWidget);
 
   connect(CVarWidget, &ezQtCVarWidget::onBoolChanged, this, &ezQtCVarsWidget::BoolChanged);
   connect(CVarWidget, &ezQtCVarWidget::onFloatChanged, this, &ezQtCVarsWidget::FloatChanged);

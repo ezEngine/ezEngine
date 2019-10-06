@@ -14,7 +14,7 @@ ezQtAssetBrowserPanel::ezQtAssetBrowserPanel()
 {
   setupUi(this);
 
-  m_pStatusBar = new QStatusBar(this);
+  m_pStatusBar = new QStatusBar(nullptr);
   m_pStatusBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
   m_pStatusBar->setSizeGripEnabled(false);
 
@@ -23,8 +23,9 @@ ezQtAssetBrowserPanel::ezQtAssetBrowserPanel()
   m_pStatusBar->addPermanentWidget(m_pCuratorControl);
 
   dockWidgetContents->layout()->addWidget(m_pStatusBar);
+  setWidget(dockWidgetContents);
 
-  setWindowIcon(ezQtUiServices::GetCachedIconResource(":/EditorFramework/Icons/Asset16.png"));
+  setIcon(ezQtUiServices::GetCachedIconResource(":/EditorFramework/Icons/Asset16.png"));
   setWindowTitle(QString::fromUtf8(ezTranslate("Panel.AssetBrowser")));
 
   EZ_VERIFY(connect(AssetBrowserWidget, &ezQtAssetBrowserWidget::ItemChosen, this, &ezQtAssetBrowserPanel::SlotAssetChosen) != nullptr, "signal/slot connection failed");

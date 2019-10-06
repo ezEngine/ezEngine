@@ -79,16 +79,13 @@ public:
   /// \brief Sets which text to show permanently in the statusbar. Set an empty string to clear the message.
   void SetPermanentStatusBarMsg(const ezFormatString& sText);
 
-  /// \brief Sets at which tab order index this window is located
-  void SetWindowIndex(ezUInt32 uiIndex) { m_uiWindowIndex = uiIndex; }
-
-  /// \brief Returns at which tab order index this window is located
-  ezUInt32 GetWindowIndex() const { return m_uiWindowIndex; }
-
   /// \brief For unit tests to take a screenshot of the window (may include multiple views) to do image comparisons.
   virtual void CreateImageCapture(const char* szOutputPath);
 
 protected:
+  virtual void showEvent(QShowEvent* event) override;
+  virtual void hideEvent(QHideEvent* event) override;
+
   void FinishWindowCreation();
 
 private Q_SLOTS:
@@ -116,7 +113,6 @@ private:
   ezInt16 m_iTargetFramerate;
   ezDocument* m_pDocument;
   ezQtContainerWindow* m_pContainerWindow;
-  ezUInt32 m_uiWindowIndex;
   QLabel* m_pPermanentStatusMsg = nullptr;
 
 private:

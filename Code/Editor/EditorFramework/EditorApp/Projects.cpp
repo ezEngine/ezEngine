@@ -6,6 +6,7 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <GuiFoundation/Dialogs/ModifiedDocumentsDlg.moc.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
+#include <Foundation/Types/ScopeExit.h>
 
 void UpdateInputDynamicEnumValues();
 
@@ -39,6 +40,8 @@ void ezQtEditorApp::SlotQueuedOpenProject(QString sProject)
 ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
 {
   EZ_PROFILE_SCOPE("CreateOrOpenProject");
+  m_bLoadingProjectInProgress = true;
+  EZ_SCOPE_EXIT(m_bLoadingProjectInProgress = false;);
 
   if (ezToolsProject::IsProjectOpen() && ezToolsProject::GetSingleton()->GetProjectFile() == szFile)
   {
@@ -77,8 +80,9 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
       // break;
 
       // range.BeginNextStep(doc.m_File);
-      OpenDocumentQueued(doc.m_File);
+      SlotQueuedOpenDocument(doc.m_File.GetData(), nullptr);
     }
+    ezQtContainerWindow::GetContainerWindow()->ScheduleRestoreWindowLayout();
   }
   return EZ_SUCCESS;
 }

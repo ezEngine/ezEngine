@@ -248,6 +248,7 @@ private:
   bool m_bHeadless;
   bool m_bSavePreferencesAfterOpenProject;
   bool m_bUnitTestMode = false;
+  bool m_bLoadingProjectInProgress = false;
 
   ezSet<ezString> s_RestartRequiredReasons;
   ezSet<ezString> s_ReloadProjectRequiredReasons;
