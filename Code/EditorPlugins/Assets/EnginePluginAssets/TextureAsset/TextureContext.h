@@ -4,6 +4,7 @@
 #include <EnginePluginAssets/EnginePluginAssetsDLL.h>
 #include <RendererCore/Declarations.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
+#include <RendererCore/Meshes/MeshResource.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 
@@ -35,6 +36,7 @@ private:
 
   ezGameObjectHandle m_hPreviewObject;
   ezComponentHandle m_hPreviewMesh2D;
+  ezMeshResourceHandle m_hPreviewMeshResource;
   ezMaterialResourceHandle m_hMaterial;
   ezTexture2DResourceHandle m_hTexture;
 

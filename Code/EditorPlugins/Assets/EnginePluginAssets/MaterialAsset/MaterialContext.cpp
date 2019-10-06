@@ -50,9 +50,9 @@ void ezMaterialContext::OnInitialize()
 {
 
   const char* szMeshName = "DefaultMaterialPreviewMesh";
-  ezMeshResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(szMeshName);
+  m_hPreviewMeshResource = ezResourceManager::GetExistingResource<ezMeshResource>(szMeshName);
 
-  if (!hMesh.IsValid())
+  if (!m_hPreviewMeshResource.IsValid())
   {
     const char* szMeshBufferName = "DefaultMaterialPreviewMeshBuffer";
 
@@ -84,7 +84,7 @@ void ezMaterialContext::OnInitialize()
       md.SetMaterial(0, "");
       md.ComputeBounds();
 
-      hMesh = ezResourceManager::CreateResource<ezMeshResource>(szMeshName, std::move(md), pMeshBuffer->GetResourceDescription());
+      m_hPreviewMeshResource = ezResourceManager::CreateResource<ezMeshResource>(szMeshName, std::move(md), pMeshBuffer->GetResourceDescription());
     }
   }
 
@@ -102,7 +102,7 @@ void ezMaterialContext::OnInitialize()
 
     ezMeshComponent* pMesh;
     ezMeshComponent::CreateComponent(pObj, pMesh);
-    pMesh->SetMesh(hMesh);
+    pMesh->SetMesh(m_hPreviewMeshResource);
     ezStringBuilder sMaterialGuid;
     ezConversionUtils::ToString(GetDocumentGuid(), sMaterialGuid);
     m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>(sMaterialGuid);

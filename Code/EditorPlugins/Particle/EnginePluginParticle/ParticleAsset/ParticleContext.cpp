@@ -117,9 +117,9 @@ void ezParticleContext::OnInitialize()
   }
 
   const char* szMeshName = "ParticlePreviewBackgroundMesh";
-  ezMeshResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(szMeshName);
+  m_hPreviewMeshResource = ezResourceManager::GetExistingResource<ezMeshResource>(szMeshName);
 
-  if (!hMesh.IsValid())
+  if (!m_hPreviewMeshResource.IsValid())
   {
     const char* szMeshBufferName = "ParticlePreviewBackgroundMeshBuffer";
 
@@ -151,7 +151,7 @@ void ezParticleContext::OnInitialize()
       md.SetMaterial(0, "{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"); // Pattern.ezMaterialAsset
       md.ComputeBounds();
 
-      hMesh = ezResourceManager::CreateResource<ezMeshResource>(szMeshName, std::move(md), pMeshBuffer->GetResourceDescription());
+      m_hPreviewMeshResource = ezResourceManager::CreateResource<ezMeshResource>(szMeshName, std::move(md), pMeshBuffer->GetResourceDescription());
     }
   }
 
@@ -172,7 +172,7 @@ void ezParticleContext::OnInitialize()
 
         ezMeshComponent* pMesh;
         ezMeshComponent::CreateComponent(pObj, pMesh);
-        pMesh->SetMesh(hMesh);
+        pMesh->SetMesh(m_hPreviewMeshResource);
 
         if (pPhysicsInterface)
           pPhysicsInterface->AddStaticCollisionBox(pObj, ezVec3(4, 4, 4));
@@ -189,7 +189,7 @@ void ezParticleContext::OnInitialize()
 
         ezMeshComponent* pMesh;
         ezMeshComponent::CreateComponent(pObj, pMesh);
-        pMesh->SetMesh(hMesh);
+        pMesh->SetMesh(m_hPreviewMeshResource);
 
         if (pPhysicsInterface)
           pPhysicsInterface->AddStaticCollisionBox(pObj, ezVec3(4, 4, 4));
@@ -205,7 +205,7 @@ void ezParticleContext::OnInitialize()
 
       ezMeshComponent* pMesh;
       ezMeshComponent::CreateComponent(pObj, pMesh);
-      pMesh->SetMesh(hMesh);
+      pMesh->SetMesh(m_hPreviewMeshResource);
 
       if (pPhysicsInterface)
         pPhysicsInterface->AddStaticCollisionBox(pObj, ezVec3(4, 4, 4));
