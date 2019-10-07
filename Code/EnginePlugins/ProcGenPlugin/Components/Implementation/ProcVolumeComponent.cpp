@@ -32,6 +32,8 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezProcVolumeComponent, 1)
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
+ezEvent<const ezProcGenInternal::InvalidatedArea&> ezProcVolumeComponent::s_AreaInvalidatedEvent;
+
 ezProcVolumeComponent::ezProcVolumeComponent() = default;
 ezProcVolumeComponent::~ezProcVolumeComponent() = default;
 
@@ -131,9 +133,13 @@ void ezProcVolumeComponent::InvalidateArea()
   }
 }
 
-void ezProcVolumeComponent::InvalidateArea(const ezBoundingBox& area)
+void ezProcVolumeComponent::InvalidateArea(const ezBoundingBox& box)
 {
-  // TODO
+  ezProcGenInternal::InvalidatedArea area;
+  area.m_Box = box;
+  area.m_pWorld = GetWorld();
+
+  s_AreaInvalidatedEvent.Broadcast(area);
 }
 
 //////////////////////////////////////////////////////////////////////////

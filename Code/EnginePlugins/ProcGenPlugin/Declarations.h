@@ -41,6 +41,12 @@ namespace ezProcGenInternal
   class VertexColorTask;
   struct PlacementData;
 
+  struct InvalidatedArea
+  {
+    ezBoundingBox m_Box;
+    ezWorld* m_pWorld = nullptr;
+  };
+
   struct Pattern
   {
     struct Point

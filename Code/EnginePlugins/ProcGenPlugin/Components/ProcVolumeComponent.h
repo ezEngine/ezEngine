@@ -28,12 +28,16 @@ public:
 
   void OnTransformChanged(ezMsgTransformChanged& msg);
 
+  static const ezEvent<const ezProcGenInternal::InvalidatedArea&>& GetAreaInvalidatedEvent() { return s_AreaInvalidatedEvent; }
+
 protected:
   float m_fValue = 1.0f;
   ezEnum<ezProcGenBlendMode> m_BlendMode;
 
   void InvalidateArea();
   void InvalidateArea(const ezBoundingBox& area);
+
+  static ezEvent<const ezProcGenInternal::InvalidatedArea&> s_AreaInvalidatedEvent;
 };
 
 //////////////////////////////////////////////////////////////////////////

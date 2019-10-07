@@ -78,6 +78,8 @@ void ezVolumeCollection::ExtractVolumesInBox(const ezWorld& world, const ezBound
     }
     return ezVisitorExecution::Continue;
   });
+
+  // TODO: sort collection
 }
 
 //////////////////////////////////////////////////////////////////////////
