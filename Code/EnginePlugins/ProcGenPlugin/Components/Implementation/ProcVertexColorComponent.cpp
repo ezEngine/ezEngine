@@ -267,7 +267,7 @@ void ezProcVertexColorComponentManager::OnAreaInvalidated(const ezProcGenInterna
     return;
 
   ezUInt32 category = ezDefaultSpatialDataCategories::RenderStatic.GetBitmask() | ezDefaultSpatialDataCategories::RenderDynamic.GetBitmask();
-  GetWorld()->GetSpatialSystem().FindObjectsInBox(area.m_Box, category, [this](ezGameObject* pObject) {
+  GetWorld()->GetSpatialSystem()->FindObjectsInBox(area.m_Box, category, [this](ezGameObject* pObject) {
     ezHybridArray<ezProcVertexColorComponent*, 8> components;
     pObject->TryGetComponentsOfBaseType(components);
 

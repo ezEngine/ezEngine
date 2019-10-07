@@ -58,7 +58,7 @@ void ezVolumeCollection::ExtractVolumesInBox(const ezWorld& world, const ezBound
   ezMsgExtractVolumes msg;
   msg.m_pCollection = &out_Collection;
 
-  world.GetSpatialSystem().FindObjectsInBox(box, spatialCategory.GetBitmask(), [&](ezGameObject* pObject) {
+  world.GetSpatialSystem()->FindObjectsInBox(box, spatialCategory.GetBitmask(), [&](ezGameObject* pObject) {
     if (includeTags.IsEmpty() || includeTags.IsAnySet(pObject->GetTags()))
     {
       if (pComponentBaseType != nullptr)
