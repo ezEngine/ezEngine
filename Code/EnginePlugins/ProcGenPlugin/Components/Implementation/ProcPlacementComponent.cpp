@@ -213,7 +213,7 @@ void ezProcPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateCo
             continue;
 
           auto& activeTile = m_ActiveTiles[processingTask.m_uiTileIndex];
-          activeTile.PreparePlacementTask(pPhysicsModule, *processingTask.m_pPlacementTask);
+          activeTile.PreparePlacementData(pPhysicsModule, *processingTask.m_pData);
 
           ezTaskSystem::AddTaskToGroup(prepareTaskGroupID, processingTask.m_pPrepareTask.Borrow());
         }
@@ -377,12 +377,14 @@ ezUInt32 ezProcPlacementComponentManager::AllocateProcessingTask(ezUInt32 uiTile
     uiNewTaskIndex = m_ProcessingTasks.GetCount();
     auto& newTask = m_ProcessingTasks.ExpandAndGetRef();
 
-    ezStringBuilder sName;
-    sName.Format("Placement Task {}", uiNewTaskIndex);
-    newTask.m_pPlacementTask = EZ_DEFAULT_NEW(PlacementTask, sName);
+    newTask.m_pData = EZ_DEFAULT_NEW(PlacementData);
 
+    ezStringBuilder sName;
     sName.Format("Prepare Task {}", uiNewTaskIndex);
-    newTask.m_pPrepareTask = EZ_DEFAULT_NEW(PreparePlacementTask, newTask.m_pPlacementTask.Borrow(), sName);
+    newTask.m_pPrepareTask = EZ_DEFAULT_NEW(PreparePlacementTask, newTask.m_pData.Borrow(), sName);
+
+    sName.Format("Placement Task {}", uiNewTaskIndex);
+    newTask.m_pPlacementTask = EZ_DEFAULT_NEW(PlacementTask, newTask.m_pData.Borrow(), sName);
   }
 
   m_ProcessingTasks[uiNewTaskIndex].m_uiTileIndex = uiTileIndex;
@@ -397,6 +399,8 @@ void ezProcPlacementComponentManager::DeallocateProcessingTask(ezUInt32 uiTaskIn
     ezTaskSystem::WaitForGroup(task.m_PlacementTaskGroupID);
   }
 
+  task.m_pData->Clear();
+  task.m_pPrepareTask->Clear();
   task.m_pPlacementTask->Clear();
   task.Invalidate();
 

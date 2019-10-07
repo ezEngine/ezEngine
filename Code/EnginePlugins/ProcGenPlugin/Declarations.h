@@ -39,6 +39,7 @@ namespace ezProcGenInternal
   class PreparePlacementTask;
   class PlacementTask;
   class VertexColorTask;
+  struct PlacementData;
 
   struct Pattern
   {

@@ -70,6 +70,7 @@ private:
     }
 
     ezUInt64 m_uiScheduledFrame;
+    ezUniquePtr<ezProcGenInternal::PlacementData> m_pData;
     ezUniquePtr<ezProcGenInternal::PreparePlacementTask> m_pPrepareTask;
     ezUniquePtr<ezProcGenInternal::PlacementTask> m_pPlacementTask;
     ezTaskGroupID m_PlacementTaskGroupID;

@@ -4,7 +4,7 @@
 #include <Foundation/SimdMath/SimdConversion.h>
 #include <GameEngine/Prefabs/PrefabReferenceComponent.h>
 #include <ProcGenPlugin/Components/Implementation/PlacementTile.h>
-#include <ProcGenPlugin/Tasks/PlacementTask.h>
+#include <ProcGenPlugin/Tasks/PlacementData.h>
 #include <RendererCore/Messages/SetColorMessage.h>
 
 using namespace ezProcGenInternal;
@@ -97,15 +97,15 @@ ezColor PlacementTile::GetDebugColor() const
   return ezColor::DarkRed;
 }
 
-void PlacementTile::PreparePlacementTask(const ezPhysicsWorldModuleInterface* pPhysicsModule, PlacementTask& placementTask)
+void PlacementTile::PreparePlacementData(const ezPhysicsWorldModuleInterface* pPhysicsModule, PlacementData& placementData)
 {
   EZ_ASSERT_DEV(pPhysicsModule != nullptr, "Physics module must be valid");
 
-  placementTask.m_pPhysicsModule = pPhysicsModule;
-  placementTask.m_pOutput = m_pOutput;
-  placementTask.m_iTileSeed = (m_Desc.m_iPosX << 11) ^ (m_Desc.m_iPosY * 17);
-  placementTask.m_TileBoundingBox = GetBoundingBox();
-  placementTask.m_GlobalToLocalBoxTransforms = m_Desc.m_GlobalToLocalBoxTransforms;
+  placementData.m_pPhysicsModule = pPhysicsModule;
+  placementData.m_pOutput = m_pOutput;
+  placementData.m_iTileSeed = (m_Desc.m_iPosX << 11) ^ (m_Desc.m_iPosY * 17);
+  placementData.m_TileBoundingBox = GetBoundingBox();
+  placementData.m_GlobalToLocalBoxTransforms = m_Desc.m_GlobalToLocalBoxTransforms;
 
   m_State = State::Scheduled;
 }
