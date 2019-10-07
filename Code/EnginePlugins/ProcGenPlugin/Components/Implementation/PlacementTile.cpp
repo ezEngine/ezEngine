@@ -97,7 +97,7 @@ ezColor PlacementTile::GetDebugColor() const
   return ezColor::DarkRed;
 }
 
-void PlacementTile::PrepareTask(const ezPhysicsWorldModuleInterface* pPhysicsModule, PlacementTask& placementTask)
+void PlacementTile::PreparePlacementTask(const ezPhysicsWorldModuleInterface* pPhysicsModule, PlacementTask& placementTask)
 {
   EZ_ASSERT_DEV(pPhysicsModule != nullptr, "Physics module must be valid");
 

@@ -5,6 +5,7 @@
 #include <ProcGenPlugin/VM/ExpressionVM.h>
 
 class ezPhysicsWorldModuleInterface;
+class ezVolumeCollection;
 
 namespace ezProcGenInternal
 {
@@ -40,6 +41,9 @@ namespace ezProcGenInternal
     ezDynamicArray<PlacementTransform, ezAlignedAllocatorWrapper> m_OutputTransforms;
     ezDynamicArray<float> m_TempData;
     ezDynamicArray<ezUInt32> m_ValidPoints;
+
+    ezDynamicArray<ezVolumeCollection> m_VolumeCollections;
+    ezExpression::GlobalData m_GlobalData;
 
     ezExpressionVM m_VM;
   };

@@ -162,10 +162,11 @@ void PlacementTask::ExecuteVM()
       outputs.PushBack(ezExpression::MakeStream(objectIndex, 0, ExpressionOutputs::s_sObjectIndex));
     }
 
-    ezExpression::GlobalData globalData;
-
     // Execute expression bytecode
-    m_VM.Execute(*(m_pOutput->m_pByteCode), inputs, outputs, uiNumInstances, globalData);
+    if (m_VM.Execute(*(m_pOutput->m_pByteCode), inputs, outputs, uiNumInstances, m_GlobalData).Failed())
+    {
+      return;
+    }
 
     // Test density against point threshold and fill remaining input point data from expression
     float fMaxObjectIndex = static_cast<float>(m_pOutput->m_ObjectsToPlace.GetCount() - 1);
