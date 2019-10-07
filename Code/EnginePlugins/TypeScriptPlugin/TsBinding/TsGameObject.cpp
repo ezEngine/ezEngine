@@ -8,12 +8,16 @@
 static int __CPP_GameObject_IsValid(duk_context* pDuk);
 static int __CPP_GameObject_SetLocalPosition(duk_context* pDuk);
 static int __CPP_GameObject_SetLocalRotation(duk_context* pDuk);
+static int __CPP_GameObject_SetActive(duk_context* pDuk);
+static int __CPP_GameObject_FindChildByName(duk_context* pDuk);
 
 ezResult ezTypeScriptBinding::Init_GameObject()
 {
   m_Duk.RegisterFunction("__CPP_GameObject_IsValid", __CPP_GameObject_IsValid, 1);
   m_Duk.RegisterFunction("__CPP_GameObject_SetLocalPosition", __CPP_GameObject_SetLocalPosition, 2);
   m_Duk.RegisterFunction("__CPP_GameObject_SetLocalRotation", __CPP_GameObject_SetLocalRotation, 2);
+  m_Duk.RegisterFunction("__CPP_GameObject_SetActive", __CPP_GameObject_SetActive, 2);
+  m_Duk.RegisterFunction("__CPP_GameObject_FindChildByName", __CPP_GameObject_FindChildByName, 2);
 
   return EZ_SUCCESS;
 }
@@ -44,7 +48,15 @@ void ezTypeScriptBinding::DukPutGameObject(duk_context* pDuk, const ezGameObject
   ezDuktapeWrapper duk(pDuk);
   ezDuktapeStackValidator validator(pDuk, +1);
 
-  // create ez.GameObject and store ezGameObjectHandle as a property in it
+  if (hObject.IsInvalidated())
+  {
+    duk_push_null(pDuk);
+    return;
+  }
+
+  // TODO: make this more efficient by reusing previous ez.GameObject instances when possible
+
+  // create ez.GameObject and store the ezGameObjectHandle as a property in it
   duk.OpenGlobalObject();
   EZ_VERIFY(duk.OpenObject("__GameObject").Succeeded(), "");
   EZ_VERIFY(duk.BeginFunctionCall("__TS_CreateGameObject").Succeeded(), "");
@@ -62,6 +74,18 @@ void ezTypeScriptBinding::DukPutGameObject(duk_context* pDuk, const ezGameObject
   duk_replace(duk, -3);
   // remove the remaining element that is too much
   duk_pop(duk);
+}
+
+void ezTypeScriptBinding::DukPutGameObject(duk_context* pDuk, const ezGameObject* pObject)
+{
+  if (pObject == nullptr)
+  {
+    duk_push_null(pDuk);
+  }
+  else
+  {
+    DukPutGameObject(pDuk, pObject->GetHandle());
+  }
 }
 
 static int __CPP_GameObject_IsValid(duk_context* pDuk)
@@ -98,4 +122,36 @@ static int __CPP_GameObject_SetLocalRotation(duk_context* pDuk)
   pGameObject->SetLocalRotation(rot);
 
   return duk.ReturnVoid();
+}
+
+static int __CPP_GameObject_SetActive(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk);
+
+  ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
+
+  const bool bActive = duk.GetBoolParameter(1, true);
+
+  if (bActive)
+    pGameObject->Activate();
+  else
+    pGameObject->Deactivate();
+
+  return duk.ReturnVoid();
+}
+
+static int __CPP_GameObject_FindChildByName(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk);
+
+  ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
+
+  const char* szName = duk.GetStringParameter(1);
+  bool bRecursive = duk.GetBoolParameter(2, true);
+
+  ezGameObject* pChild = pGameObject->FindChildByName(ezTempHashedString(szName), bRecursive);
+
+  ezTypeScriptBinding::DukPutGameObject(duk, pChild);
+
+  return duk.ReturnCustom();
 }

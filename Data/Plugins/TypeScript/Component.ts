@@ -13,21 +13,26 @@ class MyComponent extends ez.Component
     {
         //ez.Log.Dev("MyComponent::Update: " + this._name)
 
-        var go = this.GetOwner();
+        let owner = this.GetOwner();
 
-        if (go != null)
+        if (owner != null)
         {
             //ez.Log.Dev("Setting Local Position")
 
             let newPos = ez.Vec3.CreateRandomPointInSphere();
-            go.SetLocalPosition(newPos);
+            //owner.SetLocalPosition(newPos);
 
             let newDir = ez.Vec3.CreateRandomDirection();
             let newRot = new ez.Quat();
             newRot.SetShortestRotation(new ez.Vec3(1, 0, 0), newDir);
 
-            go.SetLocalRotation(newRot);
+            owner.SetLocalRotation(newRot);
+        }
 
+        let child = owner.FindChildByName("Light");
+        if (child != null)
+        {
+            child.SetActive(Math.random() > 0.7);
         }
     }
 

@@ -5,10 +5,12 @@
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
 
 static int __CPP_Component_GetOwner(duk_context* pDuk);
+static int __CPP_Component_SetActive(duk_context* pDuk);
 
 ezResult ezTypeScriptBinding::Init_Component()
 {
   m_Duk.RegisterFunction("__CPP_Component_GetOwner", __CPP_Component_GetOwner, 1);
+  m_Duk.RegisterFunction("__CPP_Component_SetActive", __CPP_Component_SetActive, 2);
 
   return EZ_SUCCESS;
 }
@@ -98,4 +100,15 @@ static int __CPP_Component_GetOwner(duk_context* pDuk)
   ezTypeScriptBinding::DukPutGameObject(duk, pComponent->GetOwner()->GetHandle());
 
   return duk.ReturnCustom();
+}
+
+static int __CPP_Component_SetActive(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk);
+
+  ezComponent* pComponent = ezTypeScriptBinding::ExpectComponent<ezComponent>(pDuk);
+
+  pComponent->SetActive(duk.GetBoolParameter(2, true));
+
+  return duk.ReturnVoid();
 }
