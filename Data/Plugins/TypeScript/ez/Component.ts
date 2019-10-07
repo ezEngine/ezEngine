@@ -7,8 +7,6 @@ declare function __CPP_Component_SetActive(component: Component, active: boolean
 
 export abstract class Component
 {
-    abstract Update(): void;
-
     GetOwner(): GameObject 
     {
         return __CPP_Component_GetOwner(this);
@@ -18,4 +16,9 @@ export abstract class Component
     {
         __CPP_Component_SetActive(this, active);
     }
+}
+
+export abstract class TypescriptComponent extends Component
+{
+    abstract Update(): void;
 }

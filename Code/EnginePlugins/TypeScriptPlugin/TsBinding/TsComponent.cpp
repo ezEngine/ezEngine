@@ -46,7 +46,7 @@ ezResult ezTypeScriptBinding::CreateTsComponent(const char* szTypeName, const ez
   return EZ_SUCCESS;
 }
 
-ezResult ezTypeScriptBinding::DukPutComponentObject(const ezComponentHandle& hComponent)
+void ezTypeScriptBinding::DukPutComponentObject(const ezComponentHandle& hComponent)
 {
   ezDuktapeStackValidator validator(m_Duk, +1);
 
@@ -56,17 +56,29 @@ ezResult ezTypeScriptBinding::DukPutComponentObject(const ezComponentHandle& hCo
   duk_push_uint(m_Duk, uiComponentReference);
   if (!duk_get_prop(m_Duk, -2))
   {
-    // remove 'undefined' result from stack
+    // remove 'undefined' result from stack, replace it with null
     duk_pop(m_Duk);
-    validator.AdjustExpected(-1);
-    return EZ_FAILURE;
+    duk_push_null(m_Duk);
   }
-
-  // remove stash object, keep result on top
-  duk_replace(m_Duk, -2);
-
-  return EZ_SUCCESS;
+  else
+  {
+    // remove stash object, keep result on top
+    duk_replace(m_Duk, -2);
+  }
 }
+
+void ezTypeScriptBinding::DukPutComponentObject(ezComponent* pComponent)
+{
+  if (pComponent == nullptr)
+  {
+    duk_push_null(m_Duk);
+  }
+  else
+  {
+    DukPutComponentObject(pComponent->GetHandle());
+  }
+}
+
 
 void ezTypeScriptBinding::DeleteTsComponent(const ezComponentHandle& hCppComponent)
 {

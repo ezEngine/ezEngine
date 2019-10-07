@@ -35,6 +35,16 @@ private:
   ezMap<ezString, bool> m_LoadedComponents;
 
   ///@}
+  /// \name Typescript Code Generation
+  ///@{
+public:
+
+  static void GenerateComponentCode(ezStringBuilder& out_Code, const ezRTTI* pRtti);
+  static void GenerateAllComponentsCode(ezStringBuilder& out_Code);
+  static void GenerateComponentsFile(const char* szFile);
+  static void InjectComponentImportExport(const char* szFile, const char* szComponentFile);
+
+  ///@}
   /// \name Modules
   ///@{
 public:
@@ -78,7 +88,8 @@ public:
   ///@{
 public:
   ezResult CreateTsComponent(const char* szTypeName, const ezComponentHandle& hCppComponent, const char* szDebugString = "");
-  ezResult DukPutComponentObject(const ezComponentHandle& hComponent);
+  void DukPutComponentObject(const ezComponentHandle& hComponent);
+  void DukPutComponentObject(ezComponent* pComponent);
   void DeleteTsComponent(const ezComponentHandle& hCppComponent);
   static ezComponentHandle RetrieveComponentHandle(duk_context* pDuk, ezInt32 iObjIdx = 0 /* use 0, if the component is passed in as the 'this' object (first parameter) */);
 

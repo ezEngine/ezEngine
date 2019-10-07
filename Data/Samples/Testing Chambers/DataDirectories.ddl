@@ -20,5 +20,5 @@ DataDir
 {
 	string %Path{">sdk/Data/Plugins"}
 	string %RootName{"plugins"}
-	bool %Writable{false}
+	bool %Writable{true}
 }

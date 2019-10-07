@@ -1,6 +1,6 @@
 import ez = require("./ez")
 
-class MyComponent extends ez.Component 
+class MyComponent extends ez.TypescriptComponent 
 {
     constructor(name: string) 
     {
