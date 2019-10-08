@@ -38,7 +38,7 @@ void ezTypeScriptBinding::GenerateComponentCode(ezStringBuilder& out_Code, const
   out_Code.Append("{\n");
   out_Code.Append("}\n");
   out_Code.Append("\n");
-  out_Code.AppendFormat("function __TS_Create_{0}(): {0}\n", sComponentType);
+  out_Code.AppendFormat("export function __TS_Create_{0}(): {0}\n", sComponentType);
   out_Code.Append("{\n");
   out_Code.AppendFormat("  return new {0}();\n", sComponentType);
   out_Code.Append("}\n");

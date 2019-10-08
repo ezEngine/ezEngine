@@ -1,14 +1,18 @@
 import __Vec3 = require("./Vec3")
-import __Quat = require("./Quat")
-
 export import Vec3 = __Vec3.Vec3;
+
+import __Quat = require("./Quat")
 export import Quat = __Quat.Quat;
+
+import __Component = require("./Component")
+export import Component = __Component.Component;
 
 declare function __CPP_GameObject_IsValid(_this: GameObject) : boolean;
 declare function __CPP_GameObject_SetLocalPosition(_this: GameObject, pos: Vec3) : void;
 declare function __CPP_GameObject_SetLocalRotation(_this: GameObject, rot: Quat) : void;
 declare function __CPP_GameObject_SetActive(_this: GameObject, active: boolean) : void;
 declare function __CPP_GameObject_FindChildByName(_this: GameObject, name: string, recursive: boolean) : GameObject;
+declare function __CPP_GameObject_FindComponentByType(_this: GameObject, typeName: string) : Component;
 
 export class GameObject
 {
@@ -67,6 +71,11 @@ export class GameObject
     FindChildByName(name: string, recursive: boolean = true): GameObject
     {
         return __CPP_GameObject_FindChildByName(this, name, recursive);
+    }
+
+    FindComponentByType(typeName: string): Component
+    {
+        return __CPP_GameObject_FindComponentByType(this, typeName);
     }
 }
 

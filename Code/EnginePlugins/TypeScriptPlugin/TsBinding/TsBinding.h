@@ -27,6 +27,7 @@ public:
   ezResult LoadComponent(const char* szComponent);
 
   ezDuktapeWrapper& GetDukTapeWrapper() { return m_Duk; }
+  duk_context* GetDukContext() { return m_Duk.GetContext(); }
 
 private:
   ezDuktapeWrapper m_Duk;
@@ -89,9 +90,9 @@ public:
   /// \name Components
   ///@{
 public:
-  ezResult CreateTsComponent(const char* szTypeName, const ezComponentHandle& hCppComponent, const char* szDebugString = "");
-  void DukPutComponentObject(const ezComponentHandle& hComponent);
-  void DukPutComponentObject(ezComponent* pComponent);
+  static ezResult CreateTsComponent(duk_context* pDuk, const char* szTypeName, const ezComponentHandle& hCppComponent, const char* szDebugString = "");
+  static void DukPutComponentObject(duk_context* pDuk, const ezComponentHandle& hComponent);
+  static void DukPutComponentObject(duk_context* pDuk, ezComponent* pComponent);
   void DeleteTsComponent(const ezComponentHandle& hCppComponent);
   static ezComponentHandle RetrieveComponentHandle(duk_context* pDuk, ezInt32 iObjIdx = 0 /* use 0, if the component is passed in as the 'this' object (first parameter) */);
 

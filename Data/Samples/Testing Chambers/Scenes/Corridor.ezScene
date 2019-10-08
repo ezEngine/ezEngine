@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7297922959506964864,5177324930371449723}}
-		u4 %Hash{14037124231852948498}
+		u4 %Hash{1516634137347584573}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -6814,6 +6814,25 @@ o
 }
 o
 {
+	Uuid %id{u4{2634300396832354992,5348465976884031303}}
+	s %t{"ezRotorComponent"}
+	u3 %v{3}
+	p
+	{
+		f %Acceleration{0}
+		b %Active{1}
+		s %Axis{"ezBasisAxis::PositiveZ"}
+		Angle %AxisDeviation{f{0}}
+		f %Deceleration{0}
+		i3 %DegreesToRotate{0}
+		b %ReverseAtEnd{0}
+		b %ReverseAtStart{0}
+		b %Running{1}
+		f %Speed{0x0000B442}
+	}
+}
+o
+{
 	Uuid %id{u4{13940774898476872371,5355948853339890935}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -8594,6 +8613,7 @@ o
 		{
 			Uuid{u4{5014021384467377038,5488212927486022949}}
 			Uuid{u4{9051928419616016299,5332701774360925666}}
+			Uuid{u4{2634300396832354992,5348465976884031303}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0x0000403F,0x000080BF,0x000040BF}}

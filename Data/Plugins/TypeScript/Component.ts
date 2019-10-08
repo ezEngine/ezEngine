@@ -26,13 +26,19 @@ class MyComponent extends ez.TypescriptComponent
             let newRot = new ez.Quat();
             newRot.SetShortestRotation(new ez.Vec3(1, 0, 0), newDir);
 
-            owner.SetLocalRotation(newRot);
+            //owner.SetLocalRotation(newRot);
         }
 
         let child = owner.FindChildByName("Light");
         if (child != null)
         {
             child.SetActive(Math.random() > 0.7);
+        }
+
+        let comp = owner.FindComponentByType("ezTransformComponent");
+        if (comp != null)
+        {
+            comp.SetActive(Math.random() > 0.5);
         }
     }
 

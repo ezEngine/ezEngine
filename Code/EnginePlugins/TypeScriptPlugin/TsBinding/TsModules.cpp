@@ -19,6 +19,12 @@ ezResult ezTypeScriptBinding::Init_RequireModules()
     return EZ_FAILURE;
   }
 
+  if (m_Duk.ExecuteString("var __AllComponents = require(\"./ez/AllComponents\");").Failed())
+  {
+    ezLog::Error("Failed to import 'AllComponents.ts'");
+    return EZ_FAILURE;
+  }
+
   return EZ_SUCCESS;
 }
 

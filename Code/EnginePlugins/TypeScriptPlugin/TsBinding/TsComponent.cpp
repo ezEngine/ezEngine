@@ -2,6 +2,7 @@
 
 #include <Core/World/Component.h>
 #include <Duktape/duktape.h>
+#include <Foundation/Types/ScopeExit.h>
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
 
 static int __CPP_Component_GetOwner(duk_context* pDuk);
@@ -15,67 +16,80 @@ ezResult ezTypeScriptBinding::Init_Component()
   return EZ_SUCCESS;
 }
 
-ezResult ezTypeScriptBinding::CreateTsComponent(const char* szTypeName, const ezComponentHandle& hCppComponent, const char* szDebugString)
+ezResult ezTypeScriptBinding::CreateTsComponent(duk_context* pDuk, const char* szTypeName, const ezComponentHandle& hCppComponent, const char* szDebugString)
 {
-  ezDuktapeStackValidator validator(m_Duk);
+  ezDuktapeStackValidator validator(pDuk);
+  ezDuktapeWrapper duk(pDuk);
 
-  const ezStringBuilder sFactoryName("__TS_Create_", szTypeName);
+  ezStringBuilder sTypeName = szTypeName;
 
-  EZ_SUCCEED_OR_RETURN(m_Duk.BeginFunctionCall(sFactoryName));
+  bool bCloseAllComps = false;
+  if (sTypeName.TrimWordStart("ez"))
+  {
+    EZ_SUCCEED_OR_RETURN(duk.OpenObject("__AllComponents"));
+    bCloseAllComps = true;
+  }
 
-  m_Duk.PushParameter(szDebugString);
-  EZ_SUCCEED_OR_RETURN(m_Duk.ExecuteFunctionCall());
+  EZ_SCOPE_EXIT(if (bCloseAllComps) duk.CloseObject());
+
+  const ezStringBuilder sFactoryName("__TS_Create_", sTypeName);
+
+  EZ_SUCCEED_OR_RETURN(duk.BeginFunctionCall(sFactoryName));
+
+  duk.PushParameter(szDebugString);
+  EZ_SUCCEED_OR_RETURN(duk.ExecuteFunctionCall());
 
   // store C++ side component handle in obj as property
-  ezComponentHandle* pBuffer = reinterpret_cast<ezComponentHandle*>(duk_push_fixed_buffer(m_Duk, sizeof(ezComponentHandle)));
+  ezComponentHandle* pBuffer = reinterpret_cast<ezComponentHandle*>(duk_push_fixed_buffer(duk, sizeof(ezComponentHandle)));
   *pBuffer = hCppComponent;
-  duk_put_prop_index(m_Duk, -2, ezTypeScriptBindingIndexProperty::ComponentHandle);
+  duk_put_prop_index(duk, -2, ezTypeScriptBindingIndexProperty::ComponentHandle);
 
   {
     const ezUInt32 uiComponentReference = hCppComponent.GetInternalID().m_Data;
 
-    m_Duk.OpenGlobalStashObject();
-    duk_push_uint(m_Duk, uiComponentReference);
-    duk_dup(m_Duk, -3); // duplicate component obj
-    EZ_VERIFY(duk_put_prop(m_Duk, -3), "Storing property failed");
-    m_Duk.CloseObject();
+    duk.OpenGlobalStashObject();
+    duk_push_uint(duk, uiComponentReference);
+    duk_dup(duk, -3); // duplicate component obj
+    EZ_VERIFY(duk_put_prop(duk, -3), "Storing property failed");
+    duk.CloseObject();
   }
 
-  m_Duk.EndFunctionCall();
+  duk.EndFunctionCall();
 
   return EZ_SUCCESS;
 }
 
-void ezTypeScriptBinding::DukPutComponentObject(const ezComponentHandle& hComponent)
+void ezTypeScriptBinding::DukPutComponentObject(duk_context* pDuk, const ezComponentHandle& hComponent)
 {
-  ezDuktapeStackValidator validator(m_Duk, +1);
+  ezDuktapeStackValidator validator(pDuk, +1);
 
-  duk_push_global_stash(m_Duk);
+  duk_push_global_stash(pDuk);
 
   const ezUInt32 uiComponentReference = hComponent.GetInternalID().m_Data;
-  duk_push_uint(m_Duk, uiComponentReference);
-  if (!duk_get_prop(m_Duk, -2))
+  duk_push_uint(pDuk, uiComponentReference);
+  if (!duk_get_prop(pDuk, -2))
   {
     // remove 'undefined' result from stack, replace it with null
-    duk_pop(m_Duk);
-    duk_push_null(m_Duk);
+    duk_pop(pDuk);
+    duk_push_null(pDuk);
   }
   else
   {
     // remove stash object, keep result on top
-    duk_replace(m_Duk, -2);
+    duk_replace(pDuk, -2);
   }
 }
 
-void ezTypeScriptBinding::DukPutComponentObject(ezComponent* pComponent)
+void ezTypeScriptBinding::DukPutComponentObject(duk_context* pDuk, ezComponent* pComponent)
 {
   if (pComponent == nullptr)
   {
-    duk_push_null(m_Duk);
+    duk_push_null(pDuk);
   }
   else
   {
-    DukPutComponentObject(pComponent->GetHandle());
+    CreateTsComponent(pDuk, pComponent->GetDynamicRTTI()->GetTypeName(), pComponent->GetHandle(), "");
+    DukPutComponentObject(pDuk, pComponent->GetHandle());
   }
 }
 
@@ -120,7 +134,7 @@ static int __CPP_Component_SetActive(duk_context* pDuk)
 
   ezComponent* pComponent = ezTypeScriptBinding::ExpectComponent<ezComponent>(pDuk);
 
-  pComponent->SetActive(duk.GetBoolParameter(2, true));
+  pComponent->SetActive(duk.GetBoolParameter(1, true));
 
   return duk.ReturnVoid();
 }

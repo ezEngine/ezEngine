@@ -29,7 +29,7 @@ void ezTypeScriptComponent::OnSimulationStarted()
 
   if (binding.LoadComponent("TypeScript/Component.ts").Succeeded())
   {
-    binding.CreateTsComponent("MyComponent", GetHandle(), GetOwner()->GetName());
+    ezTypeScriptBinding::CreateTsComponent(binding.GetDukContext(), "MyComponent", GetHandle(), GetOwner()->GetName());
   }
 }
 
@@ -45,7 +45,7 @@ void ezTypeScriptComponent::Update(ezTypeScriptBinding& binding)
 
   ezDuktapeStackValidator validator(duk);
 
-  binding.DukPutComponentObject(GetHandle());
+  binding.DukPutComponentObject(duk, GetHandle());
 
   if (duk.BeginMethodCall("Update").Succeeded())
   {

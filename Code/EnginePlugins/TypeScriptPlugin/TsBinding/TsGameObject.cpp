@@ -10,6 +10,7 @@ static int __CPP_GameObject_SetLocalPosition(duk_context* pDuk);
 static int __CPP_GameObject_SetLocalRotation(duk_context* pDuk);
 static int __CPP_GameObject_SetActive(duk_context* pDuk);
 static int __CPP_GameObject_FindChildByName(duk_context* pDuk);
+static int __CPP_GameObject_FindComponentByType(duk_context* pDuk);
 
 ezResult ezTypeScriptBinding::Init_GameObject()
 {
@@ -18,6 +19,7 @@ ezResult ezTypeScriptBinding::Init_GameObject()
   m_Duk.RegisterFunction("__CPP_GameObject_SetLocalRotation", __CPP_GameObject_SetLocalRotation, 2);
   m_Duk.RegisterFunction("__CPP_GameObject_SetActive", __CPP_GameObject_SetActive, 2);
   m_Duk.RegisterFunction("__CPP_GameObject_FindChildByName", __CPP_GameObject_FindChildByName, 2);
+  m_Duk.RegisterFunction("__CPP_GameObject_FindComponentByType", __CPP_GameObject_FindComponentByType, 2);
 
   return EZ_SUCCESS;
 }
@@ -152,6 +154,31 @@ static int __CPP_GameObject_FindChildByName(duk_context* pDuk)
   ezGameObject* pChild = pGameObject->FindChildByName(ezTempHashedString(szName), bRecursive);
 
   ezTypeScriptBinding::DukPutGameObject(duk, pChild);
+
+  return duk.ReturnCustom();
+}
+
+static int __CPP_GameObject_FindComponentByType(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk);
+
+  ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
+
+  const char* szTypeName = duk.GetStringParameter(1);
+
+  const ezRTTI* pRtti = ezRTTI::FindTypeByName(szTypeName);
+  if (pRtti == nullptr)
+  {
+    return duk.ReturnNull();
+  }
+
+  ezComponent* pComponent = nullptr;
+  if (!pGameObject->TryGetComponentOfBaseType(pRtti, pComponent))
+  {
+    return duk.ReturnNull();
+  }
+
+  ezTypeScriptBinding::DukPutComponentObject(duk, pComponent);
 
   return duk.ReturnCustom();
 }
