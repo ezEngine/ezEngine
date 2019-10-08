@@ -201,6 +201,7 @@ public:
 
   bool GetBoolParameter(ezUInt32 uiArgIdx, bool fallback = false) const;
   ezInt32 GetIntParameter(ezUInt32 uiArgIdx, ezInt32 fallback = 0) const;
+  ezUInt32 GetUIntParameter(ezUInt32 uiArgIdx, ezUInt32 fallback = 0) const;
   float GetFloatParameter(ezUInt32 uiArgIdx, float fallback = 0) const;
   double GetNumberParameter(ezUInt32 uiArgIdx, double fallback = 0) const;
   const char* GetStringParameter(ezUInt32 uiArgIdx, const char* fallback = "") const;

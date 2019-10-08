@@ -36,6 +36,11 @@ ezInt32 ezDuktapeFunction::GetIntParameter(ezUInt32 uiArgIdx, ezInt32 fallback /
   return duk_get_int_default(GetContext(), uiArgIdx, fallback);
 }
 
+ezUInt32 ezDuktapeFunction::GetUIntParameter(ezUInt32 uiArgIdx, ezUInt32 fallback /*= 0*/) const
+{
+  return duk_get_uint_default(GetContext(), uiArgIdx, fallback);
+}
+
 float ezDuktapeFunction::GetFloatParameter(ezUInt32 uiArgIdx, float fallback /*= 0*/) const
 {
   return static_cast<float>(duk_get_number_default(GetContext(), uiArgIdx, fallback));

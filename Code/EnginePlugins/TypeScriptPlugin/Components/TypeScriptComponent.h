@@ -22,7 +22,7 @@ public:
   virtual void OnSimulationStarted() override;
 
   ezTypeScriptBinding m_TsBinding;
-  ezTypeScriptTranspiler m_Transpiler;
+  static ezTypeScriptTranspiler s_Transpiler;
 
 private:
   void Update(const ezWorldModule::UpdateContext& context);

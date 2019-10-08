@@ -36,6 +36,7 @@ void ezTypeScriptBinding::GenerateComponentCode(ezStringBuilder& out_Code, const
 
   out_Code.AppendFormat("export class {0} extends {1}\n", sComponentType, sParentType);
   out_Code.Append("{\n");
+  out_Code.AppendFormat("  public static GetTypeNameHash(): number { return {}; }\n", pRtti->GetTypeNameHash());
   out_Code.Append("}\n");
   out_Code.Append("\n");
   out_Code.AppendFormat("export function __TS_Create_{0}(): {0}\n", sComponentType);

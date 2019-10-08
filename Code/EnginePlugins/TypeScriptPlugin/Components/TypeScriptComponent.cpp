@@ -12,6 +12,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezTypeScriptComponent, 1, ezComponentMode::Static)
 EZ_END_COMPONENT_TYPE;
 // clang-format on
 
+ezTypeScriptTranspiler ezTypeScriptComponentManager::s_Transpiler;
+
 ezTypeScriptComponent::ezTypeScriptComponent() = default;
 ezTypeScriptComponent::~ezTypeScriptComponent() = default;
 
@@ -27,7 +29,7 @@ void ezTypeScriptComponent::OnSimulationStarted()
 {
   ezTypeScriptBinding& binding = static_cast<ezTypeScriptComponentManager*>(GetOwningManager())->m_TsBinding;
 
-  if (binding.LoadComponent("TypeScript/Component.ts").Succeeded())
+  if (binding.LoadComponent("TypeScript/MyComponent.ts").Succeeded())
   {
     ezTypeScriptBinding::CreateTsComponent(binding.GetDukContext(), "MyComponent", GetHandle(), GetOwner()->GetName());
   }
@@ -56,3 +58,5 @@ void ezTypeScriptComponent::Update(ezTypeScriptBinding& binding)
   // remove 'this'
   duk_pop(duk);
 }
+
+

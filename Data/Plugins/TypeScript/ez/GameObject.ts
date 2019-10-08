@@ -12,7 +12,8 @@ declare function __CPP_GameObject_SetLocalPosition(_this: GameObject, pos: Vec3)
 declare function __CPP_GameObject_SetLocalRotation(_this: GameObject, rot: Quat) : void;
 declare function __CPP_GameObject_SetActive(_this: GameObject, active: boolean) : void;
 declare function __CPP_GameObject_FindChildByName(_this: GameObject, name: string, recursive: boolean) : GameObject;
-declare function __CPP_GameObject_FindComponentByType(_this: GameObject, typeName: string) : Component;
+declare function __CPP_GameObject_FindComponentByTypeName(_this: GameObject, typeName: string);
+declare function __CPP_GameObject_FindComponentByTypeNameHash(_this: GameObject, nameHash: number);
 
 export class GameObject
 {
@@ -73,9 +74,14 @@ export class GameObject
         return __CPP_GameObject_FindChildByName(this, name, recursive);
     }
 
-    FindComponentByType(typeName: string): Component
+    FindComponentByTypeName<TYPE extends Component>(typeName: string): TYPE
     {
-        return __CPP_GameObject_FindComponentByType(this, typeName);
+        return __CPP_GameObject_FindComponentByTypeName(this, typeName);
+    }
+    
+    FindComponentByTypeNameHash<TYPE extends Component>(hash: number): TYPE
+    {
+        return __CPP_GameObject_FindComponentByTypeNameHash(this, hash);
     }
 }
 
