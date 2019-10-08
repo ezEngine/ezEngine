@@ -38,7 +38,9 @@ private:
   /// \name Typescript Code Generation
   ///@{
 public:
+  static ezResult SetupProjectCode();
 
+private:
   static void GenerateComponentCode(ezStringBuilder& out_Code, const ezRTTI* pRtti);
   static void GenerateAllComponentsCode(ezStringBuilder& out_Code);
   static void GenerateComponentsFile(const char* szFile);

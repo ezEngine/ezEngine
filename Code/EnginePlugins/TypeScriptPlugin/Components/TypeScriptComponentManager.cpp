@@ -38,6 +38,12 @@ void ezTypeScriptComponentManager::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
+  if (ezTypeScriptBinding::SetupProjectCode().Failed())
+  {
+    ezLog::Error("Could not setup Typescript data in project directory");
+    return;
+  }
+
   m_TsBinding.Initialize(m_Transpiler, *GetWorld());
 }
 

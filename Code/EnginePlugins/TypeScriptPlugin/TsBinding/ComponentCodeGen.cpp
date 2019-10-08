@@ -3,6 +3,23 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
+#include <Foundation/IO/OSFile.h>
+
+ezResult ezTypeScriptBinding::SetupProjectCode()
+{
+  ezStringBuilder sAbsSrcFolder;
+  EZ_SUCCEED_OR_RETURN(ezFileSystem::ResolvePath(":plugins/TypeScript", &sAbsSrcFolder, nullptr));
+
+  ezStringBuilder sAbsDstFolder;
+  EZ_SUCCEED_OR_RETURN(ezFileSystem::ResolvePath(":project/TypeScript", &sAbsDstFolder, nullptr));
+
+  EZ_SUCCEED_OR_RETURN(ezOSFile::CopyFolder(sAbsSrcFolder, sAbsDstFolder));
+
+  GenerateComponentsFile(":project/TypeScript/ez/AllComponents.ts");
+  InjectComponentImportExport(":project/TypeScript/ez.ts", "./ez/AllComponents");
+
+  return EZ_SUCCESS;
+}
 
 static void GetTsName(const ezRTTI* pRtti, ezStringBuilder& out_sName)
 {

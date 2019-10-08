@@ -27,9 +27,6 @@ void ezTypeScriptComponent::OnSimulationStarted()
 {
   ezTypeScriptBinding& binding = static_cast<ezTypeScriptComponentManager*>(GetOwningManager())->m_TsBinding;
 
-  ezTypeScriptBinding::GenerateComponentsFile(":plugins/TypeScript/ez/AllComponents.ts");
-  ezTypeScriptBinding::InjectComponentImportExport(":plugins/TypeScript/ez.ts", "./ez/AllComponents");
-
   if (binding.LoadComponent("TypeScript/Component.ts").Succeeded())
   {
     binding.CreateTsComponent("MyComponent", GetHandle(), GetOwner()->GetName());

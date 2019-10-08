@@ -117,7 +117,7 @@ void ezGameApplicationBase::Init_FileSystem_ConfigureDataDirs()
   ezFileSystem::AddDataDirectory(GetProjectDataDirectoryPath(), "GameApplicationBase", "project", ezFileSystem::DataDirUsage::ReadOnly);
 
   // ":plugins/" for plugin specific data
-  ezFileSystem::AddDataDirectory(">sdk/Data/Plugins", "GameApplicationBase", "plugins", ezFileSystem::DataDirUsage::AllowWrites);
+  ezFileSystem::AddDataDirectory(">sdk/Data/Plugins", "GameApplicationBase", "plugins", ezFileSystem::DataDirUsage::ReadOnly);
 
   {
     ezApplicationFileSystemConfig appFileSystemConfig;
