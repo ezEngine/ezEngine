@@ -43,6 +43,7 @@ public:
 
 private:
   static void GenerateComponentCode(ezStringBuilder& out_Code, const ezRTTI* pRtti);
+  static void GenerateExposedFunctionsCode(ezStringBuilder& out_Code, const ezRTTI* pRtti);
   static void GenerateAllComponentsCode(ezStringBuilder& out_Code);
   static void GenerateComponentsFile(const char* szFile);
   static void InjectComponentImportExport(const char* szFile, const char* szComponentFile);
