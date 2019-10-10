@@ -27,6 +27,7 @@ ezResult ezTypeScriptBinding::Initialize(ezTypeScriptTranspiler& transpiler, ezW
   SetModuleSearchPath("TypeScript");
 
   SetupRttiFunctionBindings();
+  SetupRttiPropertyBindings();
 
   EZ_SUCCEED_OR_RETURN(Init_RequireModules());
   EZ_SUCCEED_OR_RETURN(Init_Log());
