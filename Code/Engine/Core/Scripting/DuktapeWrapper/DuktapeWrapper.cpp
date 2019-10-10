@@ -667,3 +667,4 @@ void ezDuktapeStackValidator::AdjustExpected(ezInt32 iChange)
 }
 
 #endif
+

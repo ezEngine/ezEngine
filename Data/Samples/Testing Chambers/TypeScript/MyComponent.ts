@@ -32,7 +32,7 @@ class MyComponent extends ez.TypescriptComponent
         let child = owner.FindChildByName("Light");
         if (child != null)
         {
-            child.SetActive(Math.random() > 0.7);
+            child.SetActive(false);//Math.random() > 0.7);
         }
 
         let comp = owner.FindComponentByTypeNameHash<ez.TransformComponent>(ez.TransformComponent.GetTypeNameHash());
@@ -41,8 +41,13 @@ class MyComponent extends ez.TypescriptComponent
             //comp.SetActive(Math.random() > 0.5);
             if (Math.random() > 0.9)
             {
-                comp.ToggleDirection();
+                if (comp.IsDirectionForwards())
+                    comp.SetDirectionForwards(false);
+                else
+                    comp.SetDirectionForwards(true);
+                //comp.ToggleDirection();
             }
+            //comp.SetDirectionForwards(Math.random() > 0.9);
         }
     }
 

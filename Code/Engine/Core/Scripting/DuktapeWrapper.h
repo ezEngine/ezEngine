@@ -224,6 +224,7 @@ public:
   ezInt32 ReturnUndefined();
   ezInt32 ReturnBool(bool value);
   ezInt32 ReturnInt(ezInt32 value);
+  ezInt32 ReturnUInt(ezUInt32 value);
   ezInt32 ReturnFloat(float value);
   ezInt32 ReturnNumber(double value);
   ezInt32 ReturnString(const char* value);

@@ -130,6 +130,14 @@ ezInt32 ezDuktapeFunction::ReturnInt(ezInt32 value)
   return 1;
 }
 
+ezInt32 ezDuktapeFunction::ReturnUInt(ezUInt32 value)
+{
+  EZ_ASSERT_DEV(!m_bDidReturnValue, "Only one ReturnXYZ function may be called when exiting a C function");
+  m_bDidReturnValue = true;
+  duk_push_uint(GetContext(), value);
+  return 1;
+}
+
 ezInt32 ezDuktapeFunction::ReturnFloat(float value)
 {
   EZ_ASSERT_DEV(!m_bDidReturnValue, "Only one ReturnXYZ function may be called when exiting a C function");

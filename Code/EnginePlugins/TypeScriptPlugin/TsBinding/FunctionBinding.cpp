@@ -4,11 +4,11 @@
 
 ezHashTable<ezUInt32, ezTypeScriptBinding::FunctionBinding> ezTypeScriptBinding::s_BoundFunctions;
 
-static int __CPP_ComponentFunction_Call0(duk_context* pDuk);
+static int __CPP_ComponentFunction_Call(duk_context* pDuk);
 
 ezResult ezTypeScriptBinding::Init_FunctionBinding()
 {
-  m_Duk.RegisterFunction("__CPP_ComponentFunction_Call0", __CPP_ComponentFunction_Call0, 2);
+  m_Duk.RegisterFunctionWithVarArgs("__CPP_ComponentFunction_Call", __CPP_ComponentFunction_Call);
 
   return EZ_SUCCESS;
 }
@@ -104,6 +104,10 @@ void ezTypeScriptBinding::GenerateExposedFunctionsCode(ezStringBuilder& out_Code
     if (pFunc->GetFunctionType() != ezFunctionType::Member)
       continue;
 
+    // don't support functions with that many arguments
+    if (pFunc->GetArgumentCount() > 16)
+      continue;
+
     const ezScriptableFunctionAttribute* pAttr = pFunc->GetAttributeByType<ezScriptableFunctionAttribute>();
 
     if (pAttr == nullptr)
@@ -123,23 +127,34 @@ void ezTypeScriptBinding::GenerateExposedFunctionsCode(ezStringBuilder& out_Code
 
     sFunc.Append("): ");
 
-    // TODO: currently only allows void functions
-    if (pFunc->GetReturnType() != nullptr)
-      goto ignore;
-
     {
-      const char* szType = TsType(pFunc->GetReturnType());
+      const bool bHasReturnValue = pFunc->GetReturnType() != nullptr;
 
-      if (szType == nullptr)
-        goto ignore;
+      {
+        const char* szType = TsType(pFunc->GetReturnType());
 
-      sFunc.Append(szType);
-    }
+        if (szType == nullptr)
+          goto ignore;
 
-    // function body
-    {
-      ezUInt32 uiFuncHash = ComputeFunctionBindingHash(pRtti, pFunc);
-      sFunc.AppendFormat(" { __CPP_ComponentFunction_Call0(this, {0}); }\n", uiFuncHash);
+        sFunc.Append(szType);
+      }
+
+      // function body
+      {
+        ezUInt32 uiFuncHash = ComputeFunctionBindingHash(pRtti, pFunc);
+
+        if (bHasReturnValue)
+          sFunc.AppendFormat(" { return __CPP_ComponentFunction_Call(this, {0}", uiFuncHash);
+        else
+          sFunc.AppendFormat(" { __CPP_ComponentFunction_Call(this, {0}", uiFuncHash);
+
+        for (ezUInt32 arg = 0; arg < pFunc->GetArgumentCount(); ++arg)
+        {
+          sFunc.Append(", ", pAttr->GetArgumentName(arg));
+        }
+
+        sFunc.Append("); }\n");
+      }
     }
 
     out_Code.Append(sFunc.GetView());
@@ -156,7 +171,7 @@ const ezTypeScriptBinding::FunctionBinding* ezTypeScriptBinding::FindFunctionBin
   return pBinding;
 }
 
-int __CPP_ComponentFunction_Call0(duk_context* pDuk)
+int __CPP_ComponentFunction_Call(duk_context* pDuk)
 {
   ezDuktapeFunction duk(pDuk);
 
@@ -172,10 +187,79 @@ int __CPP_ComponentFunction_Call0(duk_context* pDuk)
     return duk.ReturnVoid();
   }
 
-  ezHybridArray<ezVariant, 10> args;
+  const ezUInt32 uiNumArgs = pBinding->m_pFunc->GetArgumentCount();
+
   ezVariant ret;
+  ezStaticArray<ezVariant, 16> args;
+  args.SetCount(uiNumArgs);
+
+  for (ezUInt32 arg = 0; arg < uiNumArgs; ++arg)
+  {
+    switch (pBinding->m_pFunc->GetArgumentType(arg)->GetVariantType())
+    {
+      case ezVariant::Type::Bool:
+        args[arg] = duk.GetBoolParameter(2 + arg);
+        break;
+
+      case ezVariant::Type::Int8:
+      case ezVariant::Type::Int16:
+      case ezVariant::Type::Int32:
+      case ezVariant::Type::Int64:
+        args[arg] = duk.GetIntParameter(2 + arg);
+        break;
+
+      case ezVariant::Type::UInt8:
+      case ezVariant::Type::UInt16:
+      case ezVariant::Type::UInt32:
+      case ezVariant::Type::UInt64:
+        args[arg] = duk.GetUIntParameter(2 + arg);
+        break;
+
+      case ezVariant::Type::Float:
+      case ezVariant::Type::Double:
+        args[arg] = duk.GetFloatParameter(2 + arg);
+        break;
+
+      case ezVariant::Type::String:
+      case ezVariant::Type::StringView:
+        args[arg] = duk.GetStringParameter(2 + arg);
+        break;
+    }
+  }
 
   pBinding->m_pFunc->Execute(pComponent, args, ret);
+
+  if (pBinding->m_pFunc->GetReturnType() != nullptr)
+  {
+    switch (ret.GetType())
+    {
+      case ezVariant::Type::Bool:
+        return duk.ReturnBool(ret.Get<bool>());
+
+      case ezVariant::Type::Int8:
+      case ezVariant::Type::Int16:
+      case ezVariant::Type::Int32:
+      case ezVariant::Type::Int64:
+        return duk.ReturnInt(ret.ConvertTo<ezInt32>());
+
+      case ezVariant::Type::UInt8:
+      case ezVariant::Type::UInt16:
+      case ezVariant::Type::UInt32:
+      case ezVariant::Type::UInt64:
+        return duk.ReturnUInt(ret.ConvertTo<ezUInt32>());
+
+      case ezVariant::Type::Float:
+      case ezVariant::Type::Double:
+        return duk.ReturnNumber(ret.ConvertTo<double>());
+
+      case ezVariant::Type::String:
+      case ezVariant::Type::StringView:
+        return duk.ReturnString(ret.ConvertTo<ezString>());
+
+      default:
+        EZ_ASSERT_NOT_IMPLEMENTED;
+    }
+  }
 
   return duk.ReturnVoid();
 }
