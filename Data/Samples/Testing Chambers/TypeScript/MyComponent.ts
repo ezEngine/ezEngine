@@ -38,7 +38,11 @@ class MyComponent extends ez.TypescriptComponent
         let comp = owner.FindComponentByTypeNameHash<ez.TransformComponent>(ez.TransformComponent.GetTypeNameHash());
         if (comp != null)
         {
-            comp.SetActive(Math.random() > 0.5);
+            //comp.SetActive(Math.random() > 0.5);
+            if (Math.random() > 0.9)
+            {
+                comp.ToggleDirection();
+            }
         }
     }
 

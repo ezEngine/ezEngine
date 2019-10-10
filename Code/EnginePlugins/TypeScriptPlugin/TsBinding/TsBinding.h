@@ -5,6 +5,7 @@
 #include <Core/Scripting/DuktapeWrapper.h>
 #include <Core/World/Declarations.h>
 #include <Core/World/World.h>
+#include <Foundation/Containers/HashTable.h>
 #include <TypeScriptPlugin/Transpiler/Transpiler.h>
 
 class ezWorld;
@@ -49,10 +50,28 @@ private:
   static void InjectComponentImportExport(const char* szFile, const char* szComponentFile);
 
   ///@}
-  /// \name Modules
+  /// \name Function Binding
   ///@{
+
 public:
-  void SetModuleSearchPath(const char* szPath);
+  struct FunctionBinding
+  {
+    ezAbstractFunctionProperty* m_pFunc = nullptr;
+  };
+
+  static const FunctionBinding* FindFunctionBinding(ezUInt32 uiFunctionHash);
+
+private:
+  static ezUInt32 ComputeFunctionBindingHash(const ezRTTI* pType, ezAbstractFunctionProperty* pFunc);
+  static void SetupRttiFunctionBindings();
+  static const char* TsType(const ezRTTI* pRtti);
+
+  static ezHashTable<ezUInt32, FunctionBinding> s_BoundFunctions;
+
+    ///@}
+    /// \name Modules
+    ///@{
+    public : void SetModuleSearchPath(const char* szPath);
 
 private:
   static int DukSearchModule(duk_context* pDuk);
@@ -65,6 +84,7 @@ private:
   ezResult Init_Log();
   ezResult Init_GameObject();
   ezResult Init_Component();
+  ezResult Init_FunctionBinding();
 
 
   ///@}
