@@ -32,6 +32,7 @@ ezResult ezTypeScriptBinding::Initialize(ezTypeScriptTranspiler& transpiler, ezW
   EZ_SUCCEED_OR_RETURN(Init_Log());
   EZ_SUCCEED_OR_RETURN(Init_GameObject());
   EZ_SUCCEED_OR_RETURN(Init_FunctionBinding());
+  EZ_SUCCEED_OR_RETURN(Init_PropertyBinding());
   EZ_SUCCEED_OR_RETURN(Init_Component());
 
   m_bInitialized = true;

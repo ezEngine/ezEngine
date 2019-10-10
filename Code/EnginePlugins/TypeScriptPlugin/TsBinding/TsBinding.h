@@ -45,6 +45,7 @@ public:
 private:
   static void GenerateComponentCode(ezStringBuilder& out_Code, const ezRTTI* pRtti);
   static void GenerateExposedFunctionsCode(ezStringBuilder& out_Code, const ezRTTI* pRtti);
+  static void GeneratePropertiesCode(ezStringBuilder& out_Code, const ezRTTI* pRtti);
   static void GenerateAllComponentsCode(ezStringBuilder& out_Code);
   static void GenerateComponentsFile(const char* szFile);
   static void InjectComponentImportExport(const char* szFile, const char* szComponentFile);
@@ -68,6 +69,25 @@ private:
 
   static ezHashTable<ezUInt32, FunctionBinding> s_BoundFunctions;
 
+
+  ///@}
+  /// \name Property Binding
+  ///@{
+
+public:
+  struct PropertyBinding
+  {
+    ezAbstractMemberProperty* m_pMember = nullptr;
+  };
+
+  static const PropertyBinding* FindPropertyBinding(ezUInt32 uiHash);
+
+private:
+  static ezUInt32 ComputePropertyBindingHash(const ezRTTI* pType, ezAbstractMemberProperty* pMember);
+  static void SetupRttiPropertyBindings();
+
+  static ezHashTable<ezUInt32, PropertyBinding> s_BoundProperties;
+
     ///@}
     /// \name Modules
     ///@{
@@ -85,6 +105,7 @@ private:
   ezResult Init_GameObject();
   ezResult Init_Component();
   ezResult Init_FunctionBinding();
+  ezResult Init_PropertyBinding();
 
 
   ///@}

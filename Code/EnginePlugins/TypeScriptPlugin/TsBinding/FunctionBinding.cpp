@@ -29,6 +29,9 @@ void ezTypeScriptBinding::SetupRttiFunctionBindings()
 
   for (const ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
   {
+    if (!pRtti->IsDerivedFrom<ezComponent>())
+      continue;
+
     for (ezAbstractFunctionProperty* pFunc : pRtti->GetFunctions())
     {
       // TODO: static members ?
