@@ -66,17 +66,21 @@ const char* ezTypeScriptBinding::TsType(const ezRTTI* pRtti)
     case ezVariant::Type::Double:
       return "number";
 
-      //case ezVariant::Type::Color:
-      //case ezVariant::Type::Vector2:
-      //case ezVariant::Type::Vector3:
-      //case ezVariant::Type::Vector4:
-      //case ezVariant::Type::Vector2I:
-      //case ezVariant::Type::Vector3I:
-      //case ezVariant::Type::Vector4I:
-      //case ezVariant::Type::Vector2U:
-      //case ezVariant::Type::Vector3U:
-      //case ezVariant::Type::Vector4U:
-      //case ezVariant::Type::Quaternion:
+    //case ezVariant::Type::Color:
+    //case ezVariant::Type::Vector2:
+    case ezVariant::Type::Vector3:
+      return "Vec3";
+
+    //case ezVariant::Type::Vector4:
+    //case ezVariant::Type::Vector2I:
+    //case ezVariant::Type::Vector3I:
+    //case ezVariant::Type::Vector4I:
+    //case ezVariant::Type::Vector2U:
+    //case ezVariant::Type::Vector3U:
+    //case ezVariant::Type::Vector4U:
+    case ezVariant::Type::Quaternion:
+      return "Quat";
+
       //case ezVariant::Type::Matrix3:
       //case ezVariant::Type::Matrix4:
       //case ezVariant::Type::Transform:
@@ -224,6 +228,18 @@ int __CPP_ComponentFunction_Call(duk_context* pDuk)
       case ezVariant::Type::StringView:
         args[arg] = duk.GetStringParameter(2 + arg);
         break;
+
+      case ezVariant::Type::Vector3:
+        args[arg] = ezTypeScriptBinding::GetVec3(duk, 2 + arg);
+        break;
+
+      case ezVariant::Type::Quaternion:
+        args[arg] = ezTypeScriptBinding::GetQuat(duk, 2 + arg);
+        break;
+
+      default:
+        EZ_ASSERT_NOT_IMPLEMENTED;
+        break;
     }
   }
 
@@ -256,8 +272,15 @@ int __CPP_ComponentFunction_Call(duk_context* pDuk)
       case ezVariant::Type::StringView:
         return duk.ReturnString(ret.ConvertTo<ezString>());
 
+      case ezVariant::Type::Vector3:
+        //return ezTypeScriptBinding::PushVec3(duk, ret.Get<ezVec3>());
+
+      case ezVariant::Type::Quaternion:
+        //return ezTypeScriptBinding::PushQuat(duk, ret.Get<ezQuat>());
+
       default:
         EZ_ASSERT_NOT_IMPLEMENTED;
+        break;
     }
   }
 
