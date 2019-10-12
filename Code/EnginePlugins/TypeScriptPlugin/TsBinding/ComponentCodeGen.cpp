@@ -18,6 +18,8 @@ ezResult ezTypeScriptBinding::SetupProjectCode()
   GenerateComponentsFile(":project/TypeScript/ez/AllComponents.ts");
   InjectComponentImportExport(":project/TypeScript/ez.ts", "./ez/AllComponents");
 
+  GenerateMessagesFile(":project/TypeScript/ez/AllMessages.ts");
+
   return EZ_SUCCESS;
 }
 

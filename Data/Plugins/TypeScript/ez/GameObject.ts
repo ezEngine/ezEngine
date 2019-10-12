@@ -19,8 +19,15 @@ declare function __CPP_GameObject_FindComponentByTypeNameHash(_this: GameObject,
 
 export class GameObject
 {
-    // GetLocalPosition
-    // rotation, scaling
+    // SetLocalScaling / GetLocalScaling
+    // SetLocalUniformScaling / GetLocalUniformScaling
+    // SetGlobalPosition / GetGlobalPosition
+    // SetGlobalRotation / GetGlobalRotation
+    // SetGlobalScaling / GetGlobalScaling
+    // GetGlobalDirForwards
+    // GetGlobalDirRight
+    // GetGlobalDirUp
+    // GetVelocity
     // Activate
     // Deactivate
     // IsActive
@@ -30,18 +37,7 @@ export class GameObject
     // FindChildByPath
     // SearchForChildByNameSequence
     // SearchForChildrenByNameSequence
-    // SetLocalPosition / GetLocalPosition
-    // SetLocalRotation / GetLocalRotation
-    // SetLocalScaling / GetLocalScaling
-    // SetLocalUniformScaling / GetLocalUniformScaling
-    // SetGlobalPosition / GetGlobalPosition
-    // SetGlobalRotation / GetGlobalRotation
-    // SetGlobalScaling / GetGlobalScaling
     // SetGlobalTransform / GetGlobalTransform
-    // GetGlobalDirForwards
-    // GetGlobalDirRight
-    // GetGlobalDirUp
-    // GetVelocity
     // TryGetComponentOfBaseType
     // GetComponents
     // SendMessage

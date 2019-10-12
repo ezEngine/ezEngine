@@ -25,6 +25,12 @@ ezResult ezTypeScriptBinding::Init_RequireModules()
     return EZ_FAILURE;
   }
 
+  if (m_Duk.ExecuteString("var __AllMessages = require(\"./ez/AllMessages\");").Failed())
+  {
+    ezLog::Error("Failed to import 'AllMessages.ts'");
+    return EZ_FAILURE;
+  }
+
   if (m_Duk.ExecuteString("var __Vec3 = require(\"./ez/Vec3\");").Failed())
   {
     ezLog::Error("Failed to import 'Vec3.ts'");

@@ -88,10 +88,23 @@ private:
 
   static ezHashTable<ezUInt32, PropertyBinding> s_BoundProperties;
 
-    ///@}
-    /// \name Modules
-    ///@{
-    public : void SetModuleSearchPath(const char* szPath);
+  ///@}
+  /// \name Message Binding
+  ///@{
+
+private:
+
+  static void GenerateMessagesFile(const char* szFile);
+  static void GenerateAllMessagesCode(ezStringBuilder& out_Code);
+  static void GenerateMessageCode(ezStringBuilder& out_Code, const ezRTTI* pRtti);
+  static void GenerateMessagePropertiesCode(ezStringBuilder& out_Code, const ezRTTI* pRtti);
+
+
+  ///@}
+  /// \name Modules
+  ///@{
+public:
+  void SetModuleSearchPath(const char* szPath);
 
 private:
   static int DukSearchModule(duk_context* pDuk);
