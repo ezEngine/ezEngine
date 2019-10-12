@@ -20,7 +20,9 @@ class MyComponent extends ez.TypescriptComponent
             //ez.Log.Dev("Setting Local Position")
 
             let newPos = ez.Vec3.CreateRandomPointInSphere();
-            //owner.SetLocalPosition(newPos);
+            newPos.MulNumber(0.1)
+            newPos.AddVec3(owner.GetLocalPosition())
+            owner.SetLocalPosition(newPos);
 
             let newDir = ez.Vec3.CreateRandomDirection();
             let newRot = new ez.Quat();

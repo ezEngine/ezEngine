@@ -124,10 +124,12 @@ int __CPP_ComponentProperty_get(duk_context* pDuk)
       return duk.ReturnString(value.ConvertTo<ezString>());
 
     case ezVariant::Type::Vector3:
-      //return ezTypeScriptBinding::PushVec3(duk, ret.Get<ezVec3>());
+      ezTypeScriptBinding::PushVec3(duk, value.Get<ezVec3>());
+      return duk.ReturnCustom();
 
     case ezVariant::Type::Quaternion:
-      //return ezTypeScriptBinding::PushQuat(duk, ret.Get<ezQuat>());
+      ezTypeScriptBinding::PushQuat(duk, value.Get<ezQuat>());
+      return duk.ReturnCustom();
 
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;

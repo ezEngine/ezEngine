@@ -7,7 +7,9 @@
 
 static int __CPP_GameObject_IsValid(duk_context* pDuk);
 static int __CPP_GameObject_SetLocalPosition(duk_context* pDuk);
+static int __CPP_GameObject_GetLocalPosition(duk_context* pDuk);
 static int __CPP_GameObject_SetLocalRotation(duk_context* pDuk);
+static int __CPP_GameObject_GetLocalRotation(duk_context* pDuk);
 static int __CPP_GameObject_SetActive(duk_context* pDuk);
 static int __CPP_GameObject_FindChildByName(duk_context* pDuk);
 static int __CPP_GameObject_FindComponentByTypeName(duk_context* pDuk);
@@ -17,7 +19,9 @@ ezResult ezTypeScriptBinding::Init_GameObject()
 {
   m_Duk.RegisterFunction("__CPP_GameObject_IsValid", __CPP_GameObject_IsValid, 1);
   m_Duk.RegisterFunction("__CPP_GameObject_SetLocalPosition", __CPP_GameObject_SetLocalPosition, 2);
+  m_Duk.RegisterFunction("__CPP_GameObject_GetLocalPosition", __CPP_GameObject_GetLocalPosition, 1);
   m_Duk.RegisterFunction("__CPP_GameObject_SetLocalRotation", __CPP_GameObject_SetLocalRotation, 2);
+  m_Duk.RegisterFunction("__CPP_GameObject_GetLocalRotation", __CPP_GameObject_GetLocalRotation, 1);
   m_Duk.RegisterFunction("__CPP_GameObject_SetActive", __CPP_GameObject_SetActive, 2);
   m_Duk.RegisterFunction("__CPP_GameObject_FindChildByName", __CPP_GameObject_FindChildByName, 2);
   m_Duk.RegisterFunction("__CPP_GameObject_FindComponentByTypeName", __CPP_GameObject_FindComponentByTypeName, 2);
@@ -115,6 +119,17 @@ static int __CPP_GameObject_SetLocalPosition(duk_context* pDuk)
   return duk.ReturnVoid();
 }
 
+static int __CPP_GameObject_GetLocalPosition(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk);
+
+  ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
+
+  ezTypeScriptBinding::PushVec3(pDuk, pGameObject->GetLocalPosition());
+
+  return duk.ReturnCustom();
+}
+
 static int __CPP_GameObject_SetLocalRotation(duk_context* pDuk)
 {
   ezDuktapeFunction duk(pDuk);
@@ -126,6 +141,17 @@ static int __CPP_GameObject_SetLocalRotation(duk_context* pDuk)
   pGameObject->SetLocalRotation(rot);
 
   return duk.ReturnVoid();
+}
+
+static int __CPP_GameObject_GetLocalRotation(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk);
+
+  ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
+
+  ezTypeScriptBinding::PushQuat(pDuk, pGameObject->GetLocalRotation());
+
+  return duk.ReturnCustom();
 }
 
 static int __CPP_GameObject_SetActive(duk_context* pDuk)

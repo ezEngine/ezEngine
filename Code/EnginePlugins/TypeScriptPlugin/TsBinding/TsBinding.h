@@ -147,6 +147,8 @@ public:
 
   static ezVec3 GetVec3(duk_context* pDuk, ezInt32 iObjIdx);
   static ezQuat GetQuat(duk_context* pDuk, ezInt32 iObjIdx);
+  static void PushVec3(duk_context* pDuk, const ezVec3& value);
+  static void PushQuat(duk_context* pDuk, const ezQuat& value);
 
   ///@}
 };

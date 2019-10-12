@@ -25,6 +25,18 @@ ezResult ezTypeScriptBinding::Init_RequireModules()
     return EZ_FAILURE;
   }
 
+  if (m_Duk.ExecuteString("var __Vec3 = require(\"./ez/Vec3\");").Failed())
+  {
+    ezLog::Error("Failed to import 'Vec3.ts'");
+    return EZ_FAILURE;
+  }
+
+  if (m_Duk.ExecuteString("var __Quat = require(\"./ez/Quat\");").Failed())
+  {
+    ezLog::Error("Failed to import 'Quat.ts'");
+    return EZ_FAILURE;
+  }
+
   return EZ_SUCCESS;
 }
 
