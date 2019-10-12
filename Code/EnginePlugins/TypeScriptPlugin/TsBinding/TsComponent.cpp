@@ -18,43 +18,50 @@ ezResult ezTypeScriptBinding::Init_Component()
 
 ezResult ezTypeScriptBinding::CreateTsComponent(duk_context* pDuk, const char* szTypeName, const ezComponentHandle& hCppComponent, const char* szDebugString)
 {
-  ezDuktapeStackValidator validator(pDuk);
+  ezDuktapeStackValidator validator(pDuk, 0);
   ezDuktapeWrapper duk(pDuk);
 
   ezStringBuilder sTypeName = szTypeName;
 
+  duk.OpenGlobalObject(); // [ global ]
+
   bool bCloseAllComps = false;
   if (sTypeName.TrimWordStart("ez"))
   {
-    EZ_SUCCEED_OR_RETURN(duk.OpenObject("__AllComponents"));
+    EZ_SUCCEED_OR_RETURN(duk.OpenObject("__AllComponents")); // [ global __AllComponents ]
     bCloseAllComps = true;
   }
 
-  EZ_SCOPE_EXIT(if (bCloseAllComps) duk.CloseObject());
-
-  const ezStringBuilder sFactoryName("__TS_Create_", sTypeName);
-
-  EZ_SUCCEED_OR_RETURN(duk.BeginFunctionCall(sFactoryName));
-
-  duk.PushParameter(szDebugString);
-  EZ_SUCCEED_OR_RETURN(duk.ExecuteFunctionCall());
+  duk_get_prop_string(duk, -1, sTypeName); // [ global __AllComponents sTypeName ]
+  duk_new(duk, 0);                         // [ global __AllComponents instance ]
 
   // store C++ side component handle in obj as property
-  ezComponentHandle* pBuffer = reinterpret_cast<ezComponentHandle*>(duk_push_fixed_buffer(duk, sizeof(ezComponentHandle)));
-  *pBuffer = hCppComponent;
-  duk_put_prop_index(duk, -2, ezTypeScriptBindingIndexProperty::ComponentHandle);
+  {
+    ezComponentHandle* pBuffer = reinterpret_cast<ezComponentHandle*>(duk_push_fixed_buffer(duk, sizeof(ezComponentHandle))); // [ global __AllComponents instance buffer ]
+    *pBuffer = hCppComponent;
+    duk_put_prop_index(duk, -2, ezTypeScriptBindingIndexProperty::ComponentHandle); // [ global __AllComponents instance ]
+  }
 
+  // store reference to component in the global stash
   {
     const ezUInt32 uiComponentReference = hCppComponent.GetInternalID().m_Data;
 
-    duk.OpenGlobalStashObject();
-    duk_push_uint(duk, uiComponentReference);
-    duk_dup(duk, -3); // duplicate component obj
-    EZ_VERIFY(duk_put_prop(duk, -3), "Storing property failed");
-    duk.CloseObject();
+    duk.OpenGlobalStashObject();                                 // [ global __AllComponents instance gstash]
+    duk_push_uint(duk, uiComponentReference);                    // [ global __AllComponents instance gstash uint ]
+    duk_dup(duk, -3);                                            // [ global __AllComponents instance gstash uint instance ]
+    EZ_VERIFY(duk_put_prop(duk, -3), "Storing property failed"); // [ global __AllComponents instance gstash ]
+    duk.CloseObject();                                           // [ global __AllComponents instance ]
   }
 
-  duk.EndFunctionCall();
+
+  if (bCloseAllComps)
+  {
+    duk_pop_3(duk); // [ global __AllComponents instance ] -> [ ]
+  }
+  else
+  {
+    duk_pop_2(duk); // [ global instance ] -> [ ]
+  }
 
   return EZ_SUCCESS;
 }

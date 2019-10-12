@@ -58,30 +58,28 @@ void ezTypeScriptBinding::DukPutGameObject(duk_context* pDuk, const ezGameObject
 
   if (hObject.IsInvalidated())
   {
-    duk_push_null(pDuk);
+    duk_push_null(pDuk); // [ null ]
     return;
   }
 
   // TODO: make this more efficient by reusing previous ez.GameObject instances when possible
 
   // create ez.GameObject and store the ezGameObjectHandle as a property in it
-  duk.OpenGlobalObject();
-  EZ_VERIFY(duk.OpenObject("__GameObject").Succeeded(), "");
-  EZ_VERIFY(duk.BeginFunctionCall("__TS_CreateGameObject").Succeeded(), "");
-  EZ_VERIFY(duk.ExecuteFunctionCall().Succeeded(), "");
-  // top of the stack (+3) contains our ez.GameObject now
+  duk.OpenGlobalObject();                                    // [ global ]
+  EZ_VERIFY(duk.OpenObject("__GameObject").Succeeded(), ""); // [ global __GameObject ]
+  duk_get_prop_string(duk, -1, "GameObject");                // [ global __GameObject GameObject ]
+  duk_new(duk, 0);                                           // [ global __GameObject result ]
 
   // set the ezGameObjectHandle property
   {
-    ezGameObjectHandle* pHandleBuffer = reinterpret_cast<ezGameObjectHandle*>(duk_push_fixed_buffer(duk, sizeof(ezGameObjectHandle)));
+    ezGameObjectHandle* pHandleBuffer = reinterpret_cast<ezGameObjectHandle*>(duk_push_fixed_buffer(duk, sizeof(ezGameObjectHandle))); // [ global __GameObject result buffer ]
     *pHandleBuffer = hObject;
-    duk_put_prop_string(duk, -2, "ezGameObjectHandle");
+    duk_put_prop_string(duk, -2, "ezGameObjectHandle"); // [ global __GameObject result ]
   }
 
   // move the top of the stack to the only position that we want to keep (return)
-  duk_replace(duk, -3);
-  // remove the remaining element that is too much
-  duk_pop(duk);
+  duk_replace(duk, -3); // [ result __GameObject ]
+  duk_pop(duk); // [ result ]
 }
 
 void ezTypeScriptBinding::DukPutGameObject(duk_context* pDuk, const ezGameObject* pObject)

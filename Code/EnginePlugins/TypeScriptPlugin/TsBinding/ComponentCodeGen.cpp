@@ -39,13 +39,7 @@ void ezTypeScriptBinding::GenerateComponentCode(ezStringBuilder& out_Code, const
   out_Code.AppendFormat("  public static GetTypeNameHash(): number { return {}; }\n", pRtti->GetTypeNameHash());
   GenerateExposedFunctionsCode(out_Code, pRtti);
   GeneratePropertiesCode(out_Code, pRtti);
-  out_Code.Append("}\n");
-  out_Code.Append("\n");
-  out_Code.AppendFormat("export function __TS_Create_{0}(): {0}\n", sComponentType);
-  out_Code.Append("{\n");
-  out_Code.AppendFormat("  return new {0}();\n", sComponentType);
-  out_Code.Append("}\n");
-  out_Code.Append("\n\n");
+  out_Code.Append("}\n\n");
 }
 
 static void CreateComponentTypeList(ezSet<const ezRTTI*>& found, ezDynamicArray<const ezRTTI*>& sorted, const ezRTTI* pRtti)

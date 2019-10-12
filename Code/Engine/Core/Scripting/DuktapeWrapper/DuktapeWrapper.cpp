@@ -658,7 +658,8 @@ ezDuktapeStackValidator::ezDuktapeStackValidator(duk_context* pContext, ezInt32 
 
 ezDuktapeStackValidator::~ezDuktapeStackValidator()
 {
-  EZ_ASSERT_DEBUG(duk_get_top(m_pContext) == m_iStackTop, "Stack top is not as expected");
+  const int iCurTop = duk_get_top(m_pContext);
+  EZ_ASSERT_DEBUG(iCurTop == m_iStackTop, "Stack top is not as expected");
 }
 
 void ezDuktapeStackValidator::AdjustExpected(ezInt32 iChange)
