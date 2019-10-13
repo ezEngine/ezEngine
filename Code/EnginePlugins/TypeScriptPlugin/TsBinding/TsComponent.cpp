@@ -23,12 +23,12 @@ ezResult ezTypeScriptBinding::CreateTsComponent(duk_context* pDuk, const char* s
 
   ezStringBuilder sTypeName = szTypeName;
 
-  duk.OpenGlobalObject(); // [ global ]
+  duk.PushGlobalObject(); // [ global ]
 
   bool bCloseAllComps = false;
   if (sTypeName.TrimWordStart("ez"))
   {
-    EZ_SUCCEED_OR_RETURN(duk.OpenObject("__AllComponents")); // [ global __AllComponents ]
+    EZ_SUCCEED_OR_RETURN(duk.PushLocalObject("__AllComponents")); // [ global __AllComponents ]
     bCloseAllComps = true;
   }
 
@@ -46,21 +46,21 @@ ezResult ezTypeScriptBinding::CreateTsComponent(duk_context* pDuk, const char* s
   {
     const ezUInt32 uiComponentReference = hCppComponent.GetInternalID().m_Data;
 
-    duk.OpenGlobalStashObject();                                 // [ global __AllComponents instance gstash]
-    duk_push_uint(duk, uiComponentReference);                    // [ global __AllComponents instance gstash uint ]
-    duk_dup(duk, -3);                                            // [ global __AllComponents instance gstash uint instance ]
-    EZ_VERIFY(duk_put_prop(duk, -3), "Storing property failed"); // [ global __AllComponents instance gstash ]
-    duk.CloseObject();                                           // [ global __AllComponents instance ]
+    duk.PushGlobalStash();                                       // [ global __AllComponents instance stash]
+    duk.PushUInt(uiComponentReference);                          // [ global __AllComponents instance stash uint ]
+    duk_dup(duk, -3);                                            // [ global __AllComponents instance stash uint instance ]
+    EZ_VERIFY(duk_put_prop(duk, -3), "Storing property failed"); // [ global __AllComponents instance stash ]
+    duk.PopStack();                                              // [ global __AllComponents instance ]
   }
 
 
   if (bCloseAllComps)
   {
-    duk_pop_3(duk); // [ global __AllComponents instance ] -> [ ]
+    duk.PopStack(3); // [ global __AllComponents instance ] -> [ ]
   }
   else
   {
-    duk_pop_2(duk); // [ global instance ] -> [ ]
+    duk.PopStack(2); // [ global instance ] -> [ ]
   }
 
   return EZ_SUCCESS;
@@ -107,10 +107,10 @@ void ezTypeScriptBinding::DeleteTsComponent(const ezComponentHandle& hCppCompone
 
   ezDuktapeStackValidator validator(m_Duk);
 
-  m_Duk.OpenGlobalStashObject();
+  m_Duk.PushGlobalStash();
   duk_push_uint(m_Duk, uiComponentReference);
   EZ_VERIFY(duk_del_prop(m_Duk, -2), "Could not delete property");
-  m_Duk.CloseObject();
+  m_Duk.PopStack();
 }
 
 ezComponentHandle ezTypeScriptBinding::RetrieveComponentHandle(duk_context* pDuk, ezInt32 iObjIdx /*= 0 */)

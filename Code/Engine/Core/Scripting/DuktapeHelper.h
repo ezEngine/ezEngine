@@ -68,7 +68,7 @@ public:
   /// \name Objects / Stash
   ///@{
 
-  void PopStackElements(ezUInt32 n = 1);
+  void PopStack(ezUInt32 n = 1);
 
   void PushGlobalObject();
 
@@ -121,6 +121,13 @@ public:
   void RegisterGlobalFunction(const char* szFunctionName, duk_c_function pFunction, ezUInt8 uiNumArguments, ezInt16 iMagicValue = 0);
   void RegisterGlobalFunctionWithVarArgs(const char* szFunctionName, duk_c_function pFunction, ezInt16 iMagicValue = 0);
 
+  ezResult PrepareGlobalFunctionCall(const char* szFunctionName);
+  ezResult PrepareObjectFunctionCall(const char* szFunctionName, ezInt32 iParentObjectIndex = -1);
+  ezResult CallPreparedFunction();
+
+  ezResult PrepareMethodCall(const char* szMethodName, ezInt32 iParentObjectIndex = -1);
+  ezResult CallPreparedMethod();
+
 
   ///@}
   /// \name Values / Parameters
@@ -141,6 +148,15 @@ public:
   double GetNumberValue(ezInt32 iStackElement, double fallback = 0) const;
   const char* GetStringValue(ezInt32 iStackElement, const char* fallback = "") const;
 
+  ///@}
+  /// \name Executing Scripts
+  ///@{
+
+  ezResult ExecuteString(const char* szString, const char* szDebugName = "eval");
+
+  ezResult ExecuteStream(ezStreamReader& stream, const char* szDebugName);
+
+  ezResult ExecuteFile(const char* szFile);
 
   ///@}
 

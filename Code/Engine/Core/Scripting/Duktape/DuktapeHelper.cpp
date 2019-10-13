@@ -2,6 +2,7 @@
 
 #include <Core/Scripting/DuktapeHelper.h>
 #include <Duktape/duktape.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
 
 EZ_CHECK_AT_COMPILETIME(ezDuktapeTypeMask::None == DUK_TYPE_MASK_NONE);
 EZ_CHECK_AT_COMPILETIME(ezDuktapeTypeMask::Undefined == DUK_TYPE_MASK_UNDEFINED);
@@ -30,7 +31,7 @@ void ezDuktapeHelper::Error(ezFormatString& text)
   duk_error(m_pContext, DUK_ERR_ERROR, tmp.GetData());
 }
 
-void ezDuktapeHelper::PopStackElements(ezUInt32 n /*= 1*/)
+void ezDuktapeHelper::PopStack(ezUInt32 n /*= 1*/)
 {
   duk_pop_n(m_pContext, n);
 }
@@ -47,6 +48,8 @@ void ezDuktapeHelper::PushGlobalStash()
 
 ezResult ezDuktapeHelper::PushLocalObject(const char* szName, ezInt32 iParentObjectIndex /* = -1*/)
 {
+  duk_require_top_index(m_pContext);
+
   if (duk_get_prop_string(m_pContext, iParentObjectIndex, szName) == false) // [ obj/undef ]
   {
     duk_pop(m_pContext); // [ ]
@@ -241,6 +244,94 @@ void ezDuktapeHelper::RegisterGlobalFunctionWithVarArgs(const char* szFunctionNa
   duk_pop(m_pContext);                                                             // [ ]
 }
 
+ezResult ezDuktapeHelper::PrepareGlobalFunctionCall(const char* szFunctionName)
+{
+  if (!duk_get_global_string(m_pContext, szFunctionName)) // [ func/undef ]
+    goto failure;
+
+  if (!duk_is_function(m_pContext, -1)) // [ func ]
+    goto failure;
+
+  m_iPushedValues = 0;
+  return EZ_SUCCESS; // [ func ]
+
+failure:
+  duk_pop(m_pContext); // [ ]
+  return EZ_FAILURE;
+}
+
+ezResult ezDuktapeHelper::PrepareObjectFunctionCall(const char* szFunctionName, ezInt32 iParentObjectIndex /*= -1*/)
+{
+  duk_require_top_index(m_pContext);
+
+  if (!duk_get_prop_string(m_pContext, iParentObjectIndex, szFunctionName)) // [ func/undef ]
+    goto failure;
+
+  if (!duk_is_function(m_pContext, -1)) // [ func ]
+    goto failure;
+
+  m_iPushedValues = 0;
+  return EZ_SUCCESS; // [ func ]
+
+failure:
+  duk_pop(m_pContext); // [ ]
+  return EZ_FAILURE;
+}
+
+ezResult ezDuktapeHelper::CallPreparedFunction()
+{
+  if (duk_pcall(m_pContext, m_iPushedValues) == DUK_EXEC_SUCCESS) // [ func n-args ] -> [ result/error ]
+  {
+    return EZ_SUCCESS; // [ result ]
+  }
+  else
+  {
+    // TODO: could also create a stack trace using duk_is_error + duk_get_prop_string(ctx, -1, "stack");
+    ezLog::Error("[duktape]{}", duk_safe_to_string(m_pContext, -1));
+    return EZ_FAILURE; // [ error ]
+  }
+}
+
+ezResult ezDuktapeHelper::PrepareMethodCall(const char* szMethodName, ezInt32 iParentObjectIndex /*= -1*/)
+{
+  if (!duk_get_prop_string(m_pContext, iParentObjectIndex, szMethodName)) // [ func/undef ]
+    goto failure;
+
+  if (!duk_is_function(m_pContext, -1)) // [ func ]
+    goto failure;
+
+  if (iParentObjectIndex < 0)
+  {
+    duk_dup(m_pContext, iParentObjectIndex - 1); // [ func this ]
+  }
+  else
+  {
+    duk_dup(m_pContext, iParentObjectIndex); // [ func this ]
+  }
+
+  m_iPushedValues = 0;
+  return EZ_SUCCESS; // [ func this ]
+
+failure:
+  duk_pop(m_pContext); // [ ]
+  return EZ_FAILURE;
+}
+
+ezResult ezDuktapeHelper::CallPreparedMethod()
+{
+  if (duk_pcall_method(m_pContext, m_iPushedValues) == DUK_EXEC_SUCCESS) // [ func this n-args ] -> [ result/error ]
+  {
+    return EZ_SUCCESS; // [ result ]
+  }
+  else
+  {
+    // TODO: could also create a stack trace using duk_is_error + duk_get_prop_string(ctx, -1, "stack");
+    ezLog::Error("[duktape]{}", duk_safe_to_string(m_pContext, -1));
+
+    return EZ_FAILURE; // [ error ]
+  }
+}
+
 void ezDuktapeHelper::PushInt(ezInt32 iParam)
 {
   duk_push_int(m_pContext, iParam); // [ value ]
@@ -311,4 +402,53 @@ double ezDuktapeHelper::GetNumberValue(ezInt32 iStackElement, double fallback /*
 const char* ezDuktapeHelper::GetStringValue(ezInt32 iStackElement, const char* fallback /*= ""*/) const
 {
   return duk_get_string_default(m_pContext, iStackElement, fallback);
+}
+
+ezResult ezDuktapeHelper::ExecuteString(const char* szString, const char* szDebugName /*= "eval"*/)
+{
+  duk_push_string(m_pContext, szDebugName);                       // [ filename ]
+  if (duk_pcompile_string_filename(m_pContext, 0, szString) != 0) // [ function/error ]
+  {
+    EZ_LOG_BLOCK("DukTape::ExecuteString", "Compilation failed");
+
+    ezLog::Error("[duktape]{}", duk_safe_to_string(m_pContext, -1)); // [ error ]
+    // TODO: print out line by line
+    ezLog::Info("[duktape]Source: {0}", szString);
+
+    duk_pop(m_pContext); // [ ]
+    return EZ_FAILURE;
+  }
+
+  // [ function ]
+
+  if (duk_pcall(m_pContext, 0) != DUK_EXEC_SUCCESS) // [ result/error ]
+  {
+    EZ_LOG_BLOCK("DukTape::ExecuteString", "Execution failed");
+
+    ezLog::Error("[duktape]{}", duk_safe_to_string(m_pContext, -1)); // [ error ]
+    // TODO: print out line by line
+    ezLog::Info("[duktape]Source: {0}", szString);
+
+    duk_pop(m_pContext); // [ ]
+    return EZ_FAILURE;
+  }
+
+  duk_pop(m_pContext); // [ ]
+  return EZ_SUCCESS;
+}
+
+ezResult ezDuktapeHelper::ExecuteStream(ezStreamReader& stream, const char* szDebugName)
+{
+  ezStringBuilder source;
+  source.ReadAll(stream);
+
+  return ExecuteString(source, szDebugName);
+}
+
+ezResult ezDuktapeHelper::ExecuteFile(const char* szFile)
+{
+  ezFileReader file;
+  EZ_SUCCEED_OR_RETURN(file.Open(szFile));
+
+  return ExecuteStream(file, szFile);
 }

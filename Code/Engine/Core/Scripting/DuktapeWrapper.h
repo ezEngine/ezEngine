@@ -30,37 +30,7 @@ public:
 
   ///@}
 
-  /// \name Executing Scripts
-  ///@{
 
-  ezResult ExecuteString(const char* szString, const char* szDebugName = "eval");
-
-  ezResult ExecuteStream(ezStreamReader& stream, const char* szDebugName);
-
-  ezResult ExecuteFile(const char* szFile);
-
-  ///@}
-
-  /// \name C Functions
-  ///@{
-
-  ezResult BeginFunctionCall(const char* szFunctionName, bool bForceLocalObject = false);
-  ezResult BeginMethodCall(const char* szMethodName);
-  ezResult ExecuteFunctionCall();
-  ezResult ExecuteMethodCall();
-  void EndFunctionCall();
-  void EndMethodCall();
-
-  ///@}
-  /// \name Working with Objects
-  ///@{
-
-  ezResult OpenObject(const char* szObjectName);
-  void OpenGlobalObject();
-  void OpenGlobalStashObject();
-  void CloseObject();
-
-  ///@}
 
 private:
   void InitializeContext();
@@ -73,15 +43,7 @@ private:
 
 
 protected:
-  struct States
-  {
-    ezInt32 m_iOpenObjects = 0;
-    bool m_bAutoOpenedGlobalObject = false;
-  };
-
-  bool m_bIsInFunctionCall = false;
   bool m_bInitializedModuleSupport = false;
-  States m_States;
 
 private:
   /// If this script created the context, it also releases it on exit.

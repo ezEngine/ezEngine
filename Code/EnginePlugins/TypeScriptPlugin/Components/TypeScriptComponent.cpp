@@ -47,16 +47,16 @@ void ezTypeScriptComponent::Update(ezTypeScriptBinding& binding)
 
   ezDuktapeStackValidator validator(duk);
 
-  binding.DukPutComponentObject(duk, GetHandle());
+  binding.DukPutComponentObject(duk, GetHandle()); // [ comp ]
 
-  if (duk.BeginMethodCall("Update").Succeeded())
+  if (duk.PrepareMethodCall("Update").Succeeded()) // [ comp Update comp ]
   {
-    duk.ExecuteMethodCall();
-    duk.EndMethodCall();
+    duk.CallPreparedMethod(); // [ comp result ]
+    duk.PopStack(2);          // [ ]
   }
-
-  // remove 'this'
-  duk_pop(duk);
+  else
+  {
+    // remove 'this'   [ comp ]
+    duk.PopStack(); // [ ]
+  }
 }
-
-

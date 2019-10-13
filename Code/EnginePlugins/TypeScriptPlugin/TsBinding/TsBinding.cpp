@@ -108,16 +108,15 @@ void ezTypeScriptBinding::PushVec3(duk_context* pDuk, const ezVec3& value)
   ezDuktapeWrapper duk(pDuk);
   ezDuktapeStackValidator validator(duk, 1);
 
-  EZ_VERIFY(duk.OpenObject("__Vec3").Succeeded(), ""); // [ global __Vec3 ]
-
-  duk_get_prop_string(duk, -1, "Vec3"); // [ global __Vec3 Vec3 ]
-  duk_push_number(duk, value.x); // [ global __Vec3 Vec3 x ]
-  duk_push_number(duk, value.y); // [ global __Vec3 Vec3 x y ]
-  duk_push_number(duk, value.z); // [ global __Vec3 Vec3 x y z ]
-  duk_new(duk, 3);     // [ global __Vec3 result ]
-  duk_remove(duk, -2); // remove __Vec3 -> [ global result ]
-  duk_remove(duk, -2); // remove global -> [ result ]
-  // stack now contains result from constructor
+  duk.PushGlobalObject();                                   // [ global ]
+  EZ_VERIFY(duk.PushLocalObject("__Vec3").Succeeded(), ""); // [ global __Vec3 ]
+  duk_get_prop_string(duk, -1, "Vec3");                     // [ global __Vec3 Vec3 ]
+  duk_push_number(duk, value.x);                            // [ global __Vec3 Vec3 x ]
+  duk_push_number(duk, value.y);                            // [ global __Vec3 Vec3 x y ]
+  duk_push_number(duk, value.z);                            // [ global __Vec3 Vec3 x y z ]
+  duk_new(duk, 3);                                          // [ global __Vec3 result ]
+  duk_remove(duk, -2);                                      // [ global result ]
+  duk_remove(duk, -2);                                      // [ result ]
 }
 
 void ezTypeScriptBinding::PushQuat(duk_context* pDuk, const ezQuat& value)
@@ -125,15 +124,14 @@ void ezTypeScriptBinding::PushQuat(duk_context* pDuk, const ezQuat& value)
   ezDuktapeWrapper duk(pDuk);
   ezDuktapeStackValidator validator(duk, 1);
 
-  EZ_VERIFY(duk.OpenObject("__Quat").Succeeded(), ""); // [ global __Quat ]
-
-  duk_get_prop_string(duk, -1, "Quat"); // [ global __Quat Vec3 ]
-  duk_push_number(duk, value.v.x);      // [ global __Quat Vec3 x ]
-  duk_push_number(duk, value.v.y);      // [ global __Quat Vec3 x y ]
-  duk_push_number(duk, value.v.z);      // [ global __Quat Vec3 x y z ]
-  duk_push_number(duk, value.w);        // [ global __Quat Vec3 x y z w ]
-  duk_new(duk, 4);                      // [ global __Quat result ]
-  duk_remove(duk, -2);                  // remove __Quat -> [ global result ]
-  duk_remove(duk, -2);                  // remove global -> [ result ]
-                                        // stack now contains result from constructor
+  duk.PushGlobalObject();                                   // [ global ]
+  EZ_VERIFY(duk.PushLocalObject("__Quat").Succeeded(), ""); // [ global __Quat ]
+  duk_get_prop_string(duk, -1, "Quat");                     // [ global __Quat Vec3 ]
+  duk_push_number(duk, value.v.x);                          // [ global __Quat Vec3 x ]
+  duk_push_number(duk, value.v.y);                          // [ global __Quat Vec3 x y ]
+  duk_push_number(duk, value.v.z);                          // [ global __Quat Vec3 x y z ]
+  duk_push_number(duk, value.w);                            // [ global __Quat Vec3 x y z w ]
+  duk_new(duk, 4);                                          // [ global __Quat result ]
+  duk_remove(duk, -2);                                      // [ global result ]
+  duk_remove(duk, -2);                                      // [ result ]
 }

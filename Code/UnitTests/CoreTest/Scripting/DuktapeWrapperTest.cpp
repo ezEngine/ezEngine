@@ -7,9 +7,9 @@
 #  include <Duktape/duk_module_duktape.h>
 #  include <Duktape/duktape.h>
 #  include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
+#  include <Foundation/IO/FileSystem/FileReader.h>
 #  include <Foundation/IO/FileSystem/FileSystem.h>
 #  include <TestFramework/Utilities/TestLogInterface.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
 
 static duk_ret_t ModuleSearchFunction(duk_context* ctx);
 
@@ -190,12 +190,11 @@ EZ_CREATE_SIMPLE_TEST(Scripting, DuktapeWrapper)
 
     duk.RegisterGlobalFunction("Print", CFuncPrint, 1);
 
-    if (EZ_TEST_RESULT(duk.BeginFunctionCall("Print")).Succeeded())
+    if (EZ_TEST_RESULT(duk.PrepareGlobalFunctionCall("Print")).Succeeded()) // [ Print ] / [ ]
     {
-      duk.PushString("You did it, Fry!");
-      EZ_TEST_RESULT(duk.ExecuteFunctionCall());
-
-      duk.EndFunctionCall();
+      duk.PushString("You did it, Fry!");         // [ Print String ]
+      EZ_TEST_RESULT(duk.CallPreparedFunction()); // [ result ]
+      duk.PopStack();                             // [ ]
     }
   }
 
@@ -214,31 +213,33 @@ EZ_CREATE_SIMPLE_TEST(Scripting, DuktapeWrapper)
     duk.RegisterGlobalFunction("Magic2", CFuncMagic, 0, 2);
     duk.RegisterGlobalFunction("Magic3", CFuncMagic, 0, 3);
 
-    if (EZ_TEST_RESULT(duk.BeginFunctionCall("Magic1")).Succeeded())
+    if (EZ_TEST_RESULT(duk.PrepareGlobalFunctionCall("Magic1")).Succeeded()) // [ Magic1 ]
     {
-      EZ_TEST_RESULT(duk.ExecuteFunctionCall());
-      duk.EndFunctionCall();
+      EZ_TEST_RESULT(duk.CallPreparedFunction()); // [ result ]
+      duk.PopStack();                             // [ ]
     }
 
-    if (EZ_TEST_RESULT(duk.BeginFunctionCall("Magic2")).Succeeded())
+    if (EZ_TEST_RESULT(duk.PrepareGlobalFunctionCall("Magic2")).Succeeded()) // [ Magic2 ]
     {
-      EZ_TEST_RESULT(duk.ExecuteFunctionCall());
-      duk.EndFunctionCall();
+      EZ_TEST_RESULT(duk.CallPreparedFunction()); // [ result ]
+      duk.PopStack();                             // [ ]
     }
 
-    if (EZ_TEST_RESULT(duk.BeginFunctionCall("Magic3")).Succeeded())
+    if (EZ_TEST_RESULT(duk.PrepareGlobalFunctionCall("Magic3")).Succeeded()) // [ Magic2 ]
     {
-      EZ_TEST_RESULT(duk.ExecuteFunctionCall());
-      duk.EndFunctionCall();
+      EZ_TEST_RESULT(duk.CallPreparedFunction()); // [ result ]
+      duk.PopStack();                             // [ ]
     }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Inspect Object")
   {
     ezDuktapeWrapper duk("DukTest");
+    ezDuktapeStackValidator val(duk);
     EZ_TEST_RESULT(duk.ExecuteFile("Object.js"));
 
-    EZ_TEST_RESULT(duk.OpenObject("obj"));
+    duk.PushGlobalObject();                     // [ global ]
+    EZ_TEST_RESULT(duk.PushLocalObject("obj")); // [ global obj ]
 
     EZ_TEST_BOOL(duk.HasProperty("i"));
     EZ_TEST_INT(duk.GetIntProperty("i", 0), 23);
@@ -257,13 +258,12 @@ EZ_CREATE_SIMPLE_TEST(Scripting, DuktapeWrapper)
     EZ_TEST_BOOL(duk.HasProperty("o"));
 
     {
-      EZ_TEST_RESULT(duk.OpenObject("o"));
+      EZ_TEST_RESULT(duk.PushLocalObject("o")); // [ global obj o ]
       EZ_TEST_BOOL(duk.HasProperty("sub"));
       EZ_TEST_STRING(duk.GetStringProperty("sub", ""), "wub");
-
-      duk.CloseObject();
     }
-    duk.CloseObject();
+
+    duk.PopStack(3); // [ ]
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "require")

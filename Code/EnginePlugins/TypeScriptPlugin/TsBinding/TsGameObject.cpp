@@ -58,17 +58,17 @@ void ezTypeScriptBinding::DukPutGameObject(duk_context* pDuk, const ezGameObject
 
   if (hObject.IsInvalidated())
   {
-    duk_push_null(pDuk); // [ null ]
+    duk.PushNull(); // [ null ]
     return;
   }
 
   // TODO: make this more efficient by reusing previous ez.GameObject instances when possible
 
   // create ez.GameObject and store the ezGameObjectHandle as a property in it
-  duk.OpenGlobalObject();                                    // [ global ]
-  EZ_VERIFY(duk.OpenObject("__GameObject").Succeeded(), ""); // [ global __GameObject ]
-  duk_get_prop_string(duk, -1, "GameObject");                // [ global __GameObject GameObject ]
-  duk_new(duk, 0);                                           // [ global __GameObject result ]
+  duk.PushGlobalObject();                                         // [ global ]
+  EZ_VERIFY(duk.PushLocalObject("__GameObject").Succeeded(), ""); // [ global __GameObject ]
+  duk_get_prop_string(duk, -1, "GameObject");                     // [ global __GameObject GameObject ]
+  duk_new(duk, 0);                                                // [ global __GameObject result ]
 
   // set the ezGameObjectHandle property
   {
@@ -79,7 +79,7 @@ void ezTypeScriptBinding::DukPutGameObject(duk_context* pDuk, const ezGameObject
 
   // move the top of the stack to the only position that we want to keep (return)
   duk_replace(duk, -3); // [ result __GameObject ]
-  duk_pop(duk); // [ result ]
+  duk.PopStack();       // [ result ]
 }
 
 void ezTypeScriptBinding::DukPutGameObject(duk_context* pDuk, const ezGameObject* pObject)

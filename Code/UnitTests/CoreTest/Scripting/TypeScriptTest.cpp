@@ -13,15 +13,13 @@
 
 static ezResult TranspileString(const char* szSource, ezDuktapeWrapper& script, ezStringBuilder& result)
 {
-  EZ_SUCCEED_OR_RETURN(script.OpenObject("ts"));
-  EZ_SUCCEED_OR_RETURN(script.BeginFunctionCall("transpile"));
-  script.PushString(szSource);
-  EZ_SUCCEED_OR_RETURN(script.ExecuteFunctionCall());
-
-  result = script.GetStringValue(-1);
-
-  script.EndFunctionCall();
-  script.CloseObject();
+  script.PushGlobalObject();                                           // [ global ]
+  script.PushLocalObject("ts");                                        // [ global ts ]
+  EZ_SUCCEED_OR_RETURN(script.PrepareObjectFunctionCall("transpile")); // [ global ts transpile ]
+  script.PushString(szSource);                                         // [ global ts transpile source ]
+  EZ_SUCCEED_OR_RETURN(script.CallPreparedFunction());                 // [ global ts result ]
+  result = script.GetStringValue(-1);                                  // [ global ts result ]
+  script.PopStack(3);                                                  // [ ]
 
   return EZ_SUCCESS;
 }
