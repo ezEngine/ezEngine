@@ -105,7 +105,7 @@ ezQuat ezTypeScriptBinding::GetQuat(duk_context* pDuk, ezInt32 iObjIdx)
 
 void ezTypeScriptBinding::PushVec3(duk_context* pDuk, const ezVec3& value)
 {
-  ezDuktapeContext duk(pDuk);
+  ezDuktapeHelper duk(pDuk);
   ezDuktapeStackValidator validator(duk, 1);
 
   duk.PushGlobalObject();                                   // [ global ]
@@ -121,7 +121,7 @@ void ezTypeScriptBinding::PushVec3(duk_context* pDuk, const ezVec3& value)
 
 void ezTypeScriptBinding::PushQuat(duk_context* pDuk, const ezQuat& value)
 {
-  ezDuktapeContext duk(pDuk);
+  ezDuktapeHelper duk(pDuk);
   ezDuktapeStackValidator validator(duk, 1);
 
   duk.PushGlobalObject();                                   // [ global ]

@@ -15,15 +15,6 @@ ezDuktapeContext::ezDuktapeContext(const char* szWrapperName)
   InitializeContext();
 }
 
-ezDuktapeContext::ezDuktapeContext(duk_context* pExistingContext)
-  : ezDuktapeHelper(pExistingContext)
-  , m_Allocator("", nullptr)
-{
-  EZ_ASSERT_ALWAYS(pExistingContext != nullptr, "Duktape context must not be null");
-
-  m_bReleaseOnExit = false;
-}
-
 ezDuktapeContext::~ezDuktapeContext()
 {
   DestroyContext();
@@ -54,8 +45,6 @@ void ezDuktapeContext::InitializeContext()
 {
   EZ_ASSERT_ALWAYS(m_pContext == nullptr, "Duktape context should be null");
 
-  m_bReleaseOnExit = true;
-
   m_pContext = duk_create_heap(DukAlloc, DukRealloc, DukFree, this, FatalErrorHandler);
 
   EZ_ASSERT_ALWAYS(m_pContext != nullptr, "Duktape context could not be created");
@@ -63,9 +52,6 @@ void ezDuktapeContext::InitializeContext()
 
 void ezDuktapeContext::DestroyContext()
 {
-  if (!m_bReleaseOnExit)
-    return;
-
   duk_destroy_heap(m_pContext);
   m_pContext = nullptr;
 
