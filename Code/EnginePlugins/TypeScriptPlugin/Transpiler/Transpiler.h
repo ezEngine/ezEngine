@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/Scripting/DuktapeWrapper.h>
+#include <Core/Scripting/DuktapeContext.h>
 #include <Foundation/Basics.h>
 #include <Foundation/Threading/TaskSystem.h>
 
@@ -20,5 +20,5 @@ public:
 private:
   ezString m_sOutputFolder;
   ezTaskGroupID m_LoadTaskGroup;
-  ezDuktapeWrapper m_Transpiler;
+  ezDuktapeContext m_Transpiler;
 };

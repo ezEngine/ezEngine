@@ -2,7 +2,7 @@
 
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
 
-#include <Core/Scripting/DuktapeWrapper.h>
+#include <Core/Scripting/DuktapeContext.h>
 #include <Core/World/Component.h>
 #include <Core/World/World.h>
 #include <TypeScriptPlugin/Transpiler/Transpiler.h>

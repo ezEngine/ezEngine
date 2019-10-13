@@ -13,14 +13,14 @@ typedef duk_hthread duk_context;
 typedef int (*duk_c_function)(duk_context* ctx);
 
 
-class EZ_CORE_DLL ezDuktapeWrapper : public ezDuktapeHelper
+class EZ_CORE_DLL ezDuktapeContext : public ezDuktapeHelper
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezDuktapeWrapper);
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezDuktapeContext);
 
 public:
-  ezDuktapeWrapper(const char* szWrapperName);
-  ezDuktapeWrapper(duk_context* pExistingContext);
-  ~ezDuktapeWrapper();
+  ezDuktapeContext(const char* szWrapperName);
+  ezDuktapeContext(duk_context* pExistingContext);
+  ~ezDuktapeContext();
 
   /// \name Basics
   ///@{
@@ -30,8 +30,6 @@ public:
 
   ///@}
 
-
-
 private:
   void InitializeContext();
   void DestroyContext();
@@ -40,7 +38,6 @@ private:
   static void* DukAlloc(void* pUserData, size_t size);
   static void* DukRealloc(void* pUserData, void* pPointer, size_t size);
   static void DukFree(void* pUserData, void* pPointer);
-
 
 protected:
   bool m_bInitializedModuleSupport = false;
@@ -63,7 +60,7 @@ private:
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_CORE_DLL ezDuktapeFunction final : public ezDuktapeWrapper
+class EZ_CORE_DLL ezDuktapeFunction final : public ezDuktapeContext
 {
 public:
   ezDuktapeFunction(duk_context* pExistingContext);
@@ -113,7 +110,5 @@ private:
   duk_context* m_pContext = nullptr;
   ezInt32 m_iStackTop = 0;
 };
-
-#  include <Core/Scripting/DuktapeWrapper/DuktapeWrapper.inl>
 
 #endif // BUILDSYSTEM_ENABLE_DUKTAPE_SUPPORT

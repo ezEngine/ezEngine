@@ -2,7 +2,7 @@
 
 #ifdef BUILDSYSTEM_ENABLE_DUKTAPE_SUPPORT
 
-#  include <Core/Scripting/DuktapeWrapper.h>
+#  include <Core/Scripting/DuktapeContext.h>
 
 #  include <Duktape/duktape.h>
 #  include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
@@ -11,7 +11,7 @@
 #  include <Foundation/IO/FileSystem/FileWriter.h>
 #  include <TestFramework/Utilities/TestLogInterface.h>
 
-static ezResult TranspileString(const char* szSource, ezDuktapeWrapper& script, ezStringBuilder& result)
+static ezResult TranspileString(const char* szSource, ezDuktapeContext& script, ezStringBuilder& result)
 {
   script.PushGlobalObject();                                           // [ global ]
   script.PushLocalObject("ts");                                        // [ global ts ]
@@ -24,7 +24,7 @@ static ezResult TranspileString(const char* szSource, ezDuktapeWrapper& script, 
   return EZ_SUCCESS;
 }
 
-static ezResult TranspileFile(const char* szFile, ezDuktapeWrapper& script, ezStringBuilder& result)
+static ezResult TranspileFile(const char* szFile, ezDuktapeContext& script, ezStringBuilder& result)
 {
   ezFileReader file;
   file.Open(szFile);
@@ -35,7 +35,7 @@ static ezResult TranspileFile(const char* szFile, ezDuktapeWrapper& script, ezSt
   return TranspileString(source, script, result);
 }
 
-static ezResult TranspileFileToJS(const char* szFile, ezDuktapeWrapper& script, ezStringBuilder& result)
+static ezResult TranspileFileToJS(const char* szFile, ezDuktapeContext& script, ezStringBuilder& result)
 {
   EZ_SUCCEED_OR_RETURN(TranspileFile(szFile, script, result));
 
@@ -99,7 +99,7 @@ EZ_CREATE_SIMPLE_TEST(Scripting, TypeScript)
       return;
   }
 
-  ezDuktapeWrapper duk("DukTS");
+  ezDuktapeContext duk("DukTS");
   duk.EnableModuleSupport(ModuleSearchFunction2);
 
   duk.RegisterGlobalFunction("Print", Duk_Print, 1);
@@ -119,7 +119,7 @@ EZ_CREATE_SIMPLE_TEST(Scripting, TypeScript)
     TranspileString("class X{}", duk, sTranspiled);
 
     // validate that the transpiled code can be executed by Duktape
-    ezDuktapeWrapper duk("duk");
+    ezDuktapeContext duk("duk");
     EZ_TEST_RESULT(duk.ExecuteString(sTranspiled));
   }
 

@@ -2,7 +2,7 @@
 
 #ifdef BUILDSYSTEM_ENABLE_DUKTAPE_SUPPORT
 
-#  include <Core/Scripting/DuktapeWrapper.h>
+#  include <Core/Scripting/DuktapeContext.h>
 
 #  include <Duktape/duk_module_duktape.h>
 #  include <Duktape/duktape.h>
@@ -106,7 +106,7 @@ EZ_CREATE_SIMPLE_TEST(Scripting, DuktapeWrapper)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Basics")
   {
-    ezDuktapeWrapper duk("DukTest");
+    ezDuktapeContext duk("DukTest");
 
     duk_eval_string(duk.GetContext(), "'testString'.toUpperCase()");
     ezStringBuilder sTestString = duk_get_string(duk.GetContext(), -1);
@@ -124,7 +124,7 @@ EZ_CREATE_SIMPLE_TEST(Scripting, DuktapeWrapper)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExecuteString (error)")
   {
-    ezDuktapeWrapper duk("DukTest");
+    ezDuktapeContext duk("DukTest");
 
     ezTestLogInterface log;
     ezTestLogSystemScope logSystemScope(&log);
@@ -138,7 +138,7 @@ EZ_CREATE_SIMPLE_TEST(Scripting, DuktapeWrapper)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExecuteFile")
   {
-    ezDuktapeWrapper duk("DukTest");
+    ezDuktapeContext duk("DukTest");
     duk.EnableModuleSupport(nullptr);
 
     ezTestLogInterface log;
@@ -153,7 +153,7 @@ EZ_CREATE_SIMPLE_TEST(Scripting, DuktapeWrapper)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "C Function")
   {
-    ezDuktapeWrapper duk("DukTest");
+    ezDuktapeContext duk("DukTest");
 
     ezTestLogInterface log;
     ezTestLogSystemScope logSystemScope(&log);
@@ -167,7 +167,7 @@ EZ_CREATE_SIMPLE_TEST(Scripting, DuktapeWrapper)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "VarArgs C Function")
   {
-    ezDuktapeWrapper duk("DukTest");
+    ezDuktapeContext duk("DukTest");
 
     ezTestLogInterface log;
     ezTestLogSystemScope logSystemScope(&log);
@@ -181,7 +181,7 @@ EZ_CREATE_SIMPLE_TEST(Scripting, DuktapeWrapper)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Call Function")
   {
-    ezDuktapeWrapper duk("DukTest");
+    ezDuktapeContext duk("DukTest");
 
     ezTestLogInterface log;
     ezTestLogSystemScope logSystemScope(&log);
@@ -200,7 +200,7 @@ EZ_CREATE_SIMPLE_TEST(Scripting, DuktapeWrapper)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Function Magic Value")
   {
-    ezDuktapeWrapper duk("DukTest");
+    ezDuktapeContext duk("DukTest");
 
     ezTestLogInterface log;
     ezTestLogSystemScope logSystemScope(&log);
@@ -234,7 +234,7 @@ EZ_CREATE_SIMPLE_TEST(Scripting, DuktapeWrapper)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Inspect Object")
   {
-    ezDuktapeWrapper duk("DukTest");
+    ezDuktapeContext duk("DukTest");
     ezDuktapeStackValidator val(duk);
     EZ_TEST_RESULT(duk.ExecuteFile("Object.js"));
 
@@ -268,7 +268,7 @@ EZ_CREATE_SIMPLE_TEST(Scripting, DuktapeWrapper)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "require")
   {
-    ezDuktapeWrapper duk("DukTest");
+    ezDuktapeContext duk("DukTest");
     duk.EnableModuleSupport(ModuleSearchFunction);
 
     duk.RegisterGlobalFunction("Print", CFuncPrint, 1);

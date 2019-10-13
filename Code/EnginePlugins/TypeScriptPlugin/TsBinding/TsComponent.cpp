@@ -19,7 +19,7 @@ ezResult ezTypeScriptBinding::Init_Component()
 ezResult ezTypeScriptBinding::CreateTsComponent(duk_context* pDuk, const char* szTypeName, const ezComponentHandle& hCppComponent, const char* szDebugString)
 {
   ezDuktapeStackValidator validator(pDuk, 0);
-  ezDuktapeWrapper duk(pDuk);
+  ezDuktapeContext duk(pDuk);
 
   ezStringBuilder sTypeName = szTypeName;
 

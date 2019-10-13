@@ -2,7 +2,7 @@
 
 #include <TypeScriptPlugin/TypeScriptPluginDLL.h>
 
-#include <Core/Scripting/DuktapeWrapper.h>
+#include <Core/Scripting/DuktapeContext.h>
 #include <Core/World/Declarations.h>
 #include <Core/World/World.h>
 #include <Foundation/Containers/HashTable.h>
@@ -27,13 +27,13 @@ public:
   ezResult Initialize(ezTypeScriptTranspiler& transpiler, ezWorld& world);
   ezResult LoadComponent(const char* szComponent);
 
-  ezDuktapeWrapper& GetDukTapeWrapper() { return m_Duk; }
+  ezDuktapeContext& GetDukTapeWrapper() { return m_Duk; }
   duk_context* GetDukContext() { return m_Duk.GetContext(); }
 
 private:
   static void GetTsName(const ezRTTI* pRtti, ezStringBuilder& out_sName);
 
-  ezDuktapeWrapper m_Duk;
+  ezDuktapeContext m_Duk;
   ezTypeScriptTranspiler* m_pTranspiler = nullptr;
   bool m_bInitialized = false;
   ezMap<ezString, bool> m_LoadedComponents;

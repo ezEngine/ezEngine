@@ -1,13 +1,13 @@
 #include <CorePCH.h>
 
-#include <Core/Scripting/DuktapeWrapper.h>
+#include <Core/Scripting/DuktapeContext.h>
 
 #ifdef BUILDSYSTEM_ENABLE_DUKTAPE_SUPPORT
 
 #  include <Duktape/duktape.h>
 
 ezDuktapeFunction::ezDuktapeFunction(duk_context* pExistingContext)
-  : ezDuktapeWrapper(pExistingContext)
+  : ezDuktapeContext(pExistingContext)
 {
 }
 

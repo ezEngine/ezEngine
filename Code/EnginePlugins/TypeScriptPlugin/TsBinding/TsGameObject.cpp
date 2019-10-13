@@ -53,7 +53,7 @@ ezGameObject* ezTypeScriptBinding::ExpectGameObject(duk_context* pDuk, ezInt32 i
 
 void ezTypeScriptBinding::DukPutGameObject(duk_context* pDuk, const ezGameObjectHandle& hObject)
 {
-  ezDuktapeWrapper duk(pDuk);
+  ezDuktapeContext duk(pDuk);
   ezDuktapeStackValidator validator(pDuk, +1);
 
   if (hObject.IsInvalidated())
