@@ -8,7 +8,7 @@ static int __CPP_ComponentFunction_Call(duk_context* pDuk);
 
 ezResult ezTypeScriptBinding::Init_FunctionBinding()
 {
-  m_Duk.RegisterFunctionWithVarArgs("__CPP_ComponentFunction_Call", __CPP_ComponentFunction_Call);
+  m_Duk.RegisterGlobalFunctionWithVarArgs("__CPP_ComponentFunction_Call", __CPP_ComponentFunction_Call);
 
   return EZ_SUCCESS;
 }
@@ -184,7 +184,7 @@ int __CPP_ComponentFunction_Call(duk_context* pDuk)
 
   ezComponent* pComponent = ezTypeScriptBinding::ExpectComponent<ezComponent>(pDuk);
 
-  const ezUInt32 uiFuncHash = duk.GetUIntParameter(1);
+  const ezUInt32 uiFuncHash = duk.GetUIntValue(1);
 
   const ezTypeScriptBinding::FunctionBinding* pBinding = ezTypeScriptBinding::FindFunctionBinding(uiFuncHash);
 
@@ -205,31 +205,31 @@ int __CPP_ComponentFunction_Call(duk_context* pDuk)
     switch (pBinding->m_pFunc->GetArgumentType(arg)->GetVariantType())
     {
       case ezVariant::Type::Bool:
-        args[arg] = duk.GetBoolParameter(2 + arg);
+        args[arg] = duk.GetBoolValue(2 + arg);
         break;
 
       case ezVariant::Type::Int8:
       case ezVariant::Type::Int16:
       case ezVariant::Type::Int32:
       case ezVariant::Type::Int64:
-        args[arg] = duk.GetIntParameter(2 + arg);
+        args[arg] = duk.GetIntValue(2 + arg);
         break;
 
       case ezVariant::Type::UInt8:
       case ezVariant::Type::UInt16:
       case ezVariant::Type::UInt32:
       case ezVariant::Type::UInt64:
-        args[arg] = duk.GetUIntParameter(2 + arg);
+        args[arg] = duk.GetUIntValue(2 + arg);
         break;
 
       case ezVariant::Type::Float:
       case ezVariant::Type::Double:
-        args[arg] = duk.GetFloatParameter(2 + arg);
+        args[arg] = duk.GetFloatValue(2 + arg);
         break;
 
       case ezVariant::Type::String:
       case ezVariant::Type::StringView:
-        args[arg] = duk.GetStringParameter(2 + arg);
+        args[arg] = duk.GetStringValue(2 + arg);
         break;
 
       case ezVariant::Type::Vector3:

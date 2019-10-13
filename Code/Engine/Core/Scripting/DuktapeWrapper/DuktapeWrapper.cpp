@@ -8,26 +8,22 @@
 #  include <Duktape/duktape.h>
 #  include <Foundation/IO/FileSystem/FileReader.h>
 
-EZ_CHECK_AT_COMPILETIME(ezDuktapeTypeMask::None == DUK_TYPE_MASK_NONE);
-EZ_CHECK_AT_COMPILETIME(ezDuktapeTypeMask::Undefined == DUK_TYPE_MASK_UNDEFINED);
-EZ_CHECK_AT_COMPILETIME(ezDuktapeTypeMask::Null == DUK_TYPE_MASK_NULL);
-EZ_CHECK_AT_COMPILETIME(ezDuktapeTypeMask::Bool == DUK_TYPE_MASK_BOOLEAN);
-EZ_CHECK_AT_COMPILETIME(ezDuktapeTypeMask::Number == DUK_TYPE_MASK_NUMBER);
-EZ_CHECK_AT_COMPILETIME(ezDuktapeTypeMask::String == DUK_TYPE_MASK_STRING);
-EZ_CHECK_AT_COMPILETIME(ezDuktapeTypeMask::Object == DUK_TYPE_MASK_OBJECT);
+
 
 ezDuktapeWrapper::ezDuktapeWrapper(const char* szWrapperName)
-  : m_Allocator(szWrapperName, ezFoundation::GetDefaultAllocator())
+  : ezDuktapeHelper(nullptr)
+  , m_Allocator(szWrapperName, ezFoundation::GetDefaultAllocator())
+
 {
   InitializeContext();
 }
 
 ezDuktapeWrapper::ezDuktapeWrapper(duk_context* pExistingContext)
-  : m_Allocator("", nullptr)
+  : ezDuktapeHelper(pExistingContext)
+  , m_Allocator("", nullptr)
 {
   EZ_ASSERT_ALWAYS(pExistingContext != nullptr, "Duktape context must not be null");
 
-  m_pContext = pExistingContext;
   m_bReleaseOnExit = false;
 }
 
@@ -84,42 +80,6 @@ ezResult ezDuktapeWrapper::ExecuteFile(const char* szFile)
   return ExecuteStream(file, szFile);
 }
 
-void ezDuktapeWrapper::RegisterFunction(const char* szFunctionName, duk_c_function pFunction, ezUInt8 uiNumArguments, ezInt16 iMagicValue /*= 0*/)
-{
-  if (m_States.m_iOpenObjects == 0)
-  {
-    duk_push_global_object(m_pContext);
-  }
-
-  /*const int iFuncIdx =*/duk_push_c_function(m_pContext, pFunction, uiNumArguments);
-  duk_set_magic(m_pContext, -1, iMagicValue);
-  // TODO: could store iFuncIdx for faster function calls
-  EZ_VERIFY(duk_put_prop_string(m_pContext, -2, szFunctionName), "Fail to register C function");
-
-  if (m_States.m_iOpenObjects == 0)
-  {
-    duk_pop(m_pContext);
-  }
-}
-
-void ezDuktapeWrapper::RegisterFunctionWithVarArgs(const char* szFunctionName, duk_c_function pFunction, ezInt16 iMagicValue /*= 0*/)
-{
-  if (m_States.m_iOpenObjects == 0)
-  {
-    duk_push_global_object(m_pContext);
-  }
-
-  /*const int iFuncIdx =*/duk_push_c_function(m_pContext, pFunction, DUK_VARARGS);
-  duk_set_magic(m_pContext, -1, iMagicValue);
-  // TODO: could store iFuncIdx for faster function calls
-  EZ_VERIFY(duk_put_prop_string(m_pContext, -2, szFunctionName), "Fail to register C function");
-
-  if (m_States.m_iOpenObjects == 0)
-  {
-    duk_pop(m_pContext);
-  }
-}
-
 void ezDuktapeWrapper::EnableModuleSupport(duk_c_function pModuleSearchFunction)
 {
   if (!m_bInitializedModuleSupport)
@@ -159,7 +119,7 @@ ezResult ezDuktapeWrapper::BeginFunctionCall(const char* szFunctionName, bool bF
   if (!duk_is_function(m_pContext, -1))
     goto failure;
 
-  m_States.m_iPushedFunctionArguments = 0;
+  m_iPushedValues = 0;
 
   m_bIsInFunctionCall = true;
   return EZ_SUCCESS;
@@ -182,7 +142,7 @@ ezResult ezDuktapeWrapper::BeginMethodCall(const char* szMethodName)
   // assume 'this' is the top stack element
   duk_dup(m_pContext, -2);
 
-  m_States.m_iPushedFunctionArguments = 0;
+  m_iPushedValues = 0;
 
   m_bIsInFunctionCall = true;
   return EZ_SUCCESS;
@@ -196,7 +156,7 @@ ezResult ezDuktapeWrapper::ExecuteFunctionCall()
 {
   EZ_ASSERT_DEV(m_bIsInFunctionCall == true, "Function calls must be successfully initiated with BeginFunctionCall()");
 
-  if (duk_pcall(m_pContext, m_States.m_iPushedFunctionArguments) == DUK_EXEC_SUCCESS)
+  if (duk_pcall(m_pContext, m_iPushedValues) == DUK_EXEC_SUCCESS)
   {
     // leaves return value on stack
     return EZ_SUCCESS;
@@ -214,7 +174,7 @@ ezResult ezDuktapeWrapper::ExecuteMethodCall()
 {
   EZ_ASSERT_DEV(m_bIsInFunctionCall == true, "Function calls must be successfully initiated with BeginFunctionCall()");
 
-  if (duk_pcall_method(m_pContext, m_States.m_iPushedFunctionArguments) == DUK_EXEC_SUCCESS)
+  if (duk_pcall_method(m_pContext, m_iPushedValues) == DUK_EXEC_SUCCESS)
   {
     // leaves return value on stack
     return EZ_SUCCESS;
@@ -244,108 +204,6 @@ void ezDuktapeWrapper::EndMethodCall()
 
   // pop the return value / error object from the stack
   duk_pop(m_pContext);
-}
-
-void ezDuktapeWrapper::PushParameter(ezInt32 iParam)
-{
-  duk_push_int(m_pContext, iParam);
-  m_States.m_iPushedFunctionArguments++;
-}
-
-void ezDuktapeWrapper::PushParameter(bool bParam)
-{
-  duk_push_boolean(m_pContext, bParam);
-  m_States.m_iPushedFunctionArguments++;
-}
-
-void ezDuktapeWrapper::PushParameter(double fParam)
-{
-  duk_push_number(m_pContext, fParam);
-  m_States.m_iPushedFunctionArguments++;
-}
-
-void ezDuktapeWrapper::PushParameter(const char* szParam)
-{
-  duk_push_string(m_pContext, szParam);
-  m_States.m_iPushedFunctionArguments++;
-}
-
-void ezDuktapeWrapper::PushParameter(const char* szParam, ezUInt32 length)
-{
-  duk_push_lstring(m_pContext, szParam, length);
-  m_States.m_iPushedFunctionArguments++;
-}
-
-void ezDuktapeWrapper::PushParameterNull()
-{
-  duk_push_null(m_pContext);
-  m_States.m_iPushedFunctionArguments++;
-}
-
-void ezDuktapeWrapper::PushParameterUndefined()
-{
-  duk_push_undefined(m_pContext);
-  m_States.m_iPushedFunctionArguments++;
-}
-
-bool ezDuktapeWrapper::GetBoolReturnValue(bool fallback /*= false*/) const
-{
-  return duk_get_boolean_default(GetContext(), -1, fallback);
-}
-
-ezInt32 ezDuktapeWrapper::GetIntReturnValue(ezInt32 fallback /*= 0*/) const
-{
-  return duk_get_int_default(GetContext(), -1, fallback);
-}
-
-float ezDuktapeWrapper::GetFloatReturnValue(float fallback /*= 0*/) const
-{
-  return static_cast<float>(duk_get_number_default(GetContext(), -1, fallback));
-}
-
-double ezDuktapeWrapper::GetNumberReturnValue(double fallback /*= 0*/) const
-{
-  return duk_get_number_default(GetContext(), -1, fallback);
-}
-
-const char* ezDuktapeWrapper::GetStringReturnValue(const char* fallback /*= ""*/) const
-{
-  return duk_get_string_default(GetContext(), -1, fallback);
-}
-
-bool ezDuktapeWrapper::IsReturnValueOfType(ezBitflags<ezDuktapeTypeMask> mask) const
-{
-  return duk_check_type_mask(GetContext(), -1, mask.GetValue());
-}
-
-bool ezDuktapeWrapper::IsReturnValueBool() const
-{
-  return duk_check_type_mask(GetContext(), -1, DUK_TYPE_MASK_BOOLEAN);
-}
-
-bool ezDuktapeWrapper::IsReturnValueNumber() const
-{
-  return duk_check_type_mask(GetContext(), -1, DUK_TYPE_MASK_NUMBER);
-}
-
-bool ezDuktapeWrapper::IsReturnValueString() const
-{
-  return duk_check_type_mask(GetContext(), -1, DUK_TYPE_MASK_STRING);
-}
-
-bool ezDuktapeWrapper::IsReturnValueNull() const
-{
-  return duk_check_type_mask(GetContext(), -1, DUK_TYPE_MASK_NULL);
-}
-
-bool ezDuktapeWrapper::IsReturnValueUndefined() const
-{
-  return duk_check_type_mask(GetContext(), -1, DUK_TYPE_MASK_UNDEFINED);
-}
-
-bool ezDuktapeWrapper::IsReturnValueObject() const
-{
-  return duk_check_type_mask(GetContext(), -1, DUK_TYPE_MASK_OBJECT);
 }
 
 void ezDuktapeWrapper::InitializeContext()
@@ -468,188 +326,6 @@ void ezDuktapeWrapper::CloseObject()
   }
 }
 
-bool ezDuktapeWrapper::HasProperty(const char* szPropertyName)
-{
-  if (m_States.m_iOpenObjects == 0)
-  {
-    const bool result = duk_get_global_string(m_pContext, szPropertyName);
-    duk_pop(m_pContext);
-    return result;
-  }
-  else
-  {
-    return duk_has_prop_string(m_pContext, -1, szPropertyName);
-  }
-}
-
-bool ezDuktapeWrapper::GetBoolProperty(const char* szPropertyName, bool fallback)
-{
-  bool result = fallback;
-
-  if (m_States.m_iOpenObjects == 0)
-  {
-    if (duk_get_global_string(m_pContext, szPropertyName) == 0)
-      goto cleanup;
-  }
-  else
-  {
-    if (duk_get_prop_string(m_pContext, -1, szPropertyName) == 0)
-      goto cleanup;
-  }
-
-  result = duk_get_boolean_default(m_pContext, -1, fallback);
-
-cleanup:
-  duk_pop(m_pContext);
-  return result;
-}
-
-ezInt32 ezDuktapeWrapper::GetIntProperty(const char* szPropertyName, ezInt32 fallback)
-{
-  ezInt32 result = fallback;
-
-  if (m_States.m_iOpenObjects == 0)
-  {
-    if (duk_get_global_string(m_pContext, szPropertyName) == 0)
-      goto cleanup;
-  }
-  else
-  {
-    if (duk_get_prop_string(m_pContext, -1, szPropertyName) == 0)
-      goto cleanup;
-  }
-
-  result = duk_get_int_default(m_pContext, -1, fallback);
-
-cleanup:
-  duk_pop(m_pContext);
-  return result;
-}
-
-float ezDuktapeWrapper::GetFloatProperty(const char* szPropertyName, float fallback)
-{
-  float result = fallback;
-
-  if (m_States.m_iOpenObjects == 0)
-  {
-    if (duk_get_global_string(m_pContext, szPropertyName) == 0)
-      goto cleanup;
-  }
-  else
-  {
-    if (duk_get_prop_string(m_pContext, -1, szPropertyName) == 0)
-      goto cleanup;
-  }
-
-  result = static_cast<float>(duk_get_number_default(m_pContext, -1, fallback));
-
-cleanup:
-  duk_pop(m_pContext);
-  return result;
-}
-
-double ezDuktapeWrapper::GetNumberProperty(const char* szPropertyName, double fallback)
-{
-  double result = fallback;
-
-  if (m_States.m_iOpenObjects == 0)
-  {
-    if (duk_get_global_string(m_pContext, szPropertyName) == 0)
-      goto cleanup;
-  }
-  else
-  {
-    if (duk_get_prop_string(m_pContext, -1, szPropertyName) == 0)
-      goto cleanup;
-  }
-
-  result = duk_get_number_default(m_pContext, -1, fallback);
-
-cleanup:
-  duk_pop(m_pContext);
-  return result;
-}
-
-const char* ezDuktapeWrapper::GetStringProperty(const char* szPropertyName, const char* fallback)
-{
-  const char* result = fallback;
-
-  if (m_States.m_iOpenObjects == 0)
-  {
-    if (duk_get_global_string(m_pContext, szPropertyName) == 0)
-      goto cleanup;
-  }
-  else
-  {
-    if (duk_get_prop_string(m_pContext, -1, szPropertyName) == 0)
-      goto cleanup;
-  }
-
-  result = duk_get_string_default(m_pContext, -1, fallback);
-
-cleanup:
-  duk_pop(m_pContext);
-  return result;
-}
-
-void ezDuktapeWrapper::StorePointerInStash(const char* szKey, void* pPointer)
-{
-  ezDuktapeStackValidator validator(m_pContext);
-
-  OpenGlobalStashObject();
-
-  void** pBuffer = reinterpret_cast<void**>(duk_push_fixed_buffer(m_pContext, sizeof(void*)));
-  *pBuffer = pPointer;
-
-  duk_put_prop_string(m_pContext, -2, szKey);
-
-  CloseObject();
-}
-
-void* ezDuktapeWrapper::RetrievePointerFromStash(const char* szKey)
-{
-  ezDuktapeStackValidator validator(m_pContext);
-
-  OpenGlobalStashObject();
-
-  duk_get_prop_string(m_pContext, -1, szKey);
-
-  void* pPointer = *reinterpret_cast<void**>(duk_get_buffer(m_pContext, -1, nullptr));
-  duk_pop(m_pContext);
-
-  CloseObject();
-
-  return pPointer;
-}
-
-void ezDuktapeWrapper::StoreStringInStash(const char* szKey, const char* value)
-{
-  ezDuktapeStackValidator validator(m_pContext);
-
-  OpenGlobalStashObject();
-
-  duk_push_string(m_pContext, value);
-  EZ_VERIFY(duk_put_prop_string(m_pContext, -2, szKey), "Failed to write string to stash");
-
-  CloseObject();
-}
-
-const char* ezDuktapeWrapper::RetrieveStringFromStash(const char* szKey, const char* szFallback /*= nullptr*/)
-{
-  OpenGlobalStashObject();
-
-  if (!duk_get_prop_string(m_pContext, -1, szKey))
-    return szFallback;
-
-  szFallback = duk_get_string_default(m_pContext, -1, "");
-
-  duk_pop(m_pContext);
-
-  CloseObject();
-
-  return szFallback;
-}
-
 ezDuktapeStackValidator::ezDuktapeStackValidator(duk_context* pContext, ezInt32 iExpectedChange /*= 0*/)
 {
   m_pContext = pContext;
@@ -668,4 +344,3 @@ void ezDuktapeStackValidator::AdjustExpected(ezInt32 iChange)
 }
 
 #endif
-

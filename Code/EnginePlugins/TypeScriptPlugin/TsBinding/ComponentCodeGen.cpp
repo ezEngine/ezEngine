@@ -23,7 +23,7 @@ ezResult ezTypeScriptBinding::SetupProjectCode()
   return EZ_SUCCESS;
 }
 
-static void GetTsName(const ezRTTI* pRtti, ezStringBuilder& out_sName)
+void ezTypeScriptBinding::GetTsName(const ezRTTI* pRtti, ezStringBuilder& out_sName)
 {
   out_sName = pRtti->GetTypeName();
   out_sName.TrimWordStart("ez");

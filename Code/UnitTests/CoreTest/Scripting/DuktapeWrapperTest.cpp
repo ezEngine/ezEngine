@@ -16,7 +16,7 @@ static duk_ret_t ModuleSearchFunction(duk_context* ctx);
 static int CFuncPrint(duk_context* pContext)
 {
   ezDuktapeFunction wrapper(pContext);
-  const char* szText = wrapper.GetStringParameter(0, nullptr);
+  const char* szText = wrapper.GetStringValue(0, nullptr);
 
   ezLog::Info("Print: '{}'", szText);
   return wrapper.ReturnVoid();
@@ -33,30 +33,30 @@ static int CFuncPrintVA(duk_context* pContext)
 
   for (ezUInt32 arg = 0; arg < uiNumArgs; ++arg)
   {
-    if (wrapper.IsParameterNumber(arg))
+    if (wrapper.IsNumber(arg))
     {
-      double val = wrapper.GetNumberParameter(arg);
+      double val = wrapper.GetNumberValue(arg);
       s.AppendFormat(", #{}: Number = {}", arg, val);
     }
-    else if (wrapper.IsParameterBool(arg))
+    else if (wrapper.IsBool(arg))
     {
-      bool val = wrapper.GetBoolParameter(arg);
+      bool val = wrapper.GetBoolValue(arg);
       s.AppendFormat(", #{}: Bool = {}", arg, val);
     }
-    else if (wrapper.IsParameterString(arg))
+    else if (wrapper.IsString(arg))
     {
-      const char* val = wrapper.GetStringParameter(arg);
+      const char* val = wrapper.GetStringValue(arg);
       s.AppendFormat(", #{}: String = {}", arg, val);
     }
-    else if (wrapper.IsParameterNull(arg))
+    else if (wrapper.IsNull(arg))
     {
       s.AppendFormat(", #{}: null", arg);
     }
-    else if (wrapper.IsParameterUndefined(arg))
+    else if (wrapper.IsUndefined(arg))
     {
       s.AppendFormat(", #{}: undefined", arg);
     }
-    else if (wrapper.IsParameterObject(arg))
+    else if (wrapper.IsObject(arg))
     {
       s.AppendFormat(", #{}: object", arg);
     }
@@ -146,7 +146,7 @@ EZ_CREATE_SIMPLE_TEST(Scripting, DuktapeWrapper)
 
     log.ExpectMessage("Print: 'called f1'", ezLogMsgType::InfoMsg);
 
-    duk.RegisterFunction("Print", CFuncPrint, 1);
+    duk.RegisterGlobalFunction("Print", CFuncPrint, 1);
 
     duk.ExecuteFile("ExecuteFile.js");
   }
@@ -160,7 +160,7 @@ EZ_CREATE_SIMPLE_TEST(Scripting, DuktapeWrapper)
 
     log.ExpectMessage("Hello Test", ezLogMsgType::InfoMsg);
 
-    duk.RegisterFunction("Print", CFuncPrint, 1);
+    duk.RegisterGlobalFunction("Print", CFuncPrint, 1);
 
     duk.ExecuteString("Print('Hello Test')");
   }
@@ -174,7 +174,7 @@ EZ_CREATE_SIMPLE_TEST(Scripting, DuktapeWrapper)
 
     log.ExpectMessage("#Args: 5, #0: String = text, #1: Number = 7, #2: Bool = true, #3: null, #4: object", ezLogMsgType::InfoMsg);
 
-    duk.RegisterFunctionWithVarArgs("PrintVA", CFuncPrintVA);
+    duk.RegisterGlobalFunctionWithVarArgs("PrintVA", CFuncPrintVA);
 
     duk.ExecuteString("PrintVA('text', 7, true, null, {})");
   }
@@ -188,11 +188,11 @@ EZ_CREATE_SIMPLE_TEST(Scripting, DuktapeWrapper)
 
     log.ExpectMessage("You did it", ezLogMsgType::InfoMsg);
 
-    duk.RegisterFunction("Print", CFuncPrint, 1);
+    duk.RegisterGlobalFunction("Print", CFuncPrint, 1);
 
     if (EZ_TEST_RESULT(duk.BeginFunctionCall("Print")).Succeeded())
     {
-      duk.PushParameter("You did it, Fry!");
+      duk.PushString("You did it, Fry!");
       EZ_TEST_RESULT(duk.ExecuteFunctionCall());
 
       duk.EndFunctionCall();
@@ -210,9 +210,9 @@ EZ_CREATE_SIMPLE_TEST(Scripting, DuktapeWrapper)
     log.ExpectMessage("Magic: '2'", ezLogMsgType::InfoMsg);
     log.ExpectMessage("Magic: '3'", ezLogMsgType::InfoMsg);
 
-    duk.RegisterFunction("Magic1", CFuncMagic, 0, 1);
-    duk.RegisterFunction("Magic2", CFuncMagic, 0, 2);
-    duk.RegisterFunction("Magic3", CFuncMagic, 0, 3);
+    duk.RegisterGlobalFunction("Magic1", CFuncMagic, 0, 1);
+    duk.RegisterGlobalFunction("Magic2", CFuncMagic, 0, 2);
+    duk.RegisterGlobalFunction("Magic3", CFuncMagic, 0, 3);
 
     if (EZ_TEST_RESULT(duk.BeginFunctionCall("Magic1")).Succeeded())
     {
@@ -271,7 +271,7 @@ EZ_CREATE_SIMPLE_TEST(Scripting, DuktapeWrapper)
     ezDuktapeWrapper duk("DukTest");
     duk.EnableModuleSupport(ModuleSearchFunction);
 
-    duk.RegisterFunction("Print", CFuncPrint, 1);
+    duk.RegisterGlobalFunction("Print", CFuncPrint, 1);
 
     ezTestLogInterface log;
     ezTestLogSystemScope logSystemScope(&log);
@@ -296,7 +296,7 @@ static duk_ret_t ModuleSearchFunction(duk_context* ctx)
   *   index 3: module
   */
 
-  ezStringBuilder id = script.GetStringParameter(0);
+  ezStringBuilder id = script.GetStringValue(0);
   id.ChangeFileExtension("js");
 
   ezStringBuilder source;

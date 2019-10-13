@@ -10,8 +10,8 @@ static int __CPP_Component_SetActive(duk_context* pDuk);
 
 ezResult ezTypeScriptBinding::Init_Component()
 {
-  m_Duk.RegisterFunction("__CPP_Component_GetOwner", __CPP_Component_GetOwner, 1);
-  m_Duk.RegisterFunction("__CPP_Component_SetActive", __CPP_Component_SetActive, 2);
+  m_Duk.RegisterGlobalFunction("__CPP_Component_GetOwner", __CPP_Component_GetOwner, 1);
+  m_Duk.RegisterGlobalFunction("__CPP_Component_SetActive", __CPP_Component_SetActive, 2);
 
   return EZ_SUCCESS;
 }
@@ -141,7 +141,7 @@ static int __CPP_Component_SetActive(duk_context* pDuk)
 
   ezComponent* pComponent = ezTypeScriptBinding::ExpectComponent<ezComponent>(pDuk);
 
-  pComponent->SetActive(duk.GetBoolParameter(1, true));
+  pComponent->SetActive(duk.GetBoolValue(1, true));
 
   return duk.ReturnVoid();
 }

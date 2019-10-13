@@ -57,7 +57,7 @@ int ezTypeScriptBinding::DukSearchModule(duk_context* pDuk)
 
   ezTypeScriptTranspiler* pTranspiler = static_cast<ezTypeScriptTranspiler*>(duk.RetrievePointerFromStash("Transpiler"));
 
-  ezStringBuilder sRequestedFile = duk.GetStringParameter(0);
+  ezStringBuilder sRequestedFile = duk.GetStringValue(0);
 
   if (!sRequestedFile.HasAnyExtension())
   {

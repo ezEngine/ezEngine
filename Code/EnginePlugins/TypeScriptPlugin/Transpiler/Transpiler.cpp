@@ -68,14 +68,14 @@ ezResult ezTypeScriptTranspiler::TranspileString(const char* szString, ezStringB
     return EZ_FAILURE;
   }
 
-  m_Transpiler.PushParameter(szString);
+  m_Transpiler.PushString(szString);
   if (m_Transpiler.ExecuteFunctionCall().Failed())
   {
     ezLog::Error("String could not be transpiled");
     return EZ_FAILURE;
   }
 
-  out_Result = m_Transpiler.GetStringReturnValue();
+  out_Result = m_Transpiler.GetStringValue(-1);
 
   m_Transpiler.EndFunctionCall();
   m_Transpiler.CloseObject();

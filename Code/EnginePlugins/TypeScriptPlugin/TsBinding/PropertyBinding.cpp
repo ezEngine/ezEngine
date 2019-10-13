@@ -10,8 +10,8 @@ static int __CPP_ComponentProperty_set(duk_context* pDuk);
 
 ezResult ezTypeScriptBinding::Init_PropertyBinding()
 {
-  m_Duk.RegisterFunction("__CPP_ComponentProperty_get", __CPP_ComponentProperty_get, 2);
-  m_Duk.RegisterFunction("__CPP_ComponentProperty_set", __CPP_ComponentProperty_set, 3);
+  m_Duk.RegisterGlobalFunction("__CPP_ComponentProperty_get", __CPP_ComponentProperty_get, 2);
+  m_Duk.RegisterGlobalFunction("__CPP_ComponentProperty_set", __CPP_ComponentProperty_set, 3);
 
   return EZ_SUCCESS;
 }
@@ -86,7 +86,7 @@ int __CPP_ComponentProperty_get(duk_context* pDuk)
 
   ezComponent* pComponent = ezTypeScriptBinding::ExpectComponent<ezComponent>(pDuk);
 
-  const ezUInt32 uiHash = duk.GetUIntParameter(1);
+  const ezUInt32 uiHash = duk.GetUIntValue(1);
 
   const ezTypeScriptBinding::PropertyBinding* pBinding = ezTypeScriptBinding::FindPropertyBinding(uiHash);
 
@@ -145,7 +145,7 @@ int __CPP_ComponentProperty_set(duk_context* pDuk)
 
   ezComponent* pComponent = ezTypeScriptBinding::ExpectComponent<ezComponent>(pDuk);
 
-  const ezUInt32 uiHash = duk.GetUIntParameter(1);
+  const ezUInt32 uiHash = duk.GetUIntValue(1);
 
   const ezTypeScriptBinding::PropertyBinding* pBinding = ezTypeScriptBinding::FindPropertyBinding(uiHash);
 
@@ -160,31 +160,31 @@ int __CPP_ComponentProperty_set(duk_context* pDuk)
   switch (pBinding->m_pMember->GetSpecificType()->GetVariantType())
   {
     case ezVariant::Type::Bool:
-      value = duk.GetBoolParameter(2);
+      value = duk.GetBoolValue(2);
       break;
 
     case ezVariant::Type::Int8:
     case ezVariant::Type::Int16:
     case ezVariant::Type::Int32:
     case ezVariant::Type::Int64:
-      value = duk.GetIntParameter(2);
+      value = duk.GetIntValue(2);
       break;
 
     case ezVariant::Type::UInt8:
     case ezVariant::Type::UInt16:
     case ezVariant::Type::UInt32:
     case ezVariant::Type::UInt64:
-      value = duk.GetUIntParameter(2);
+      value = duk.GetUIntValue(2);
       break;
 
     case ezVariant::Type::Float:
     case ezVariant::Type::Double:
-      value = duk.GetFloatParameter(2);
+      value = duk.GetFloatValue(2);
       break;
 
     case ezVariant::Type::String:
     case ezVariant::Type::StringView:
-      value = duk.GetStringParameter(2);
+      value = duk.GetStringValue(2);
       break;
 
     case ezVariant::Type::Vector3:

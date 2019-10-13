@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/CoreDLL.h>
+#include <Core/Scripting/DuktapeHelper.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Memory/CommonAllocators.h>
 #include <Foundation/Strings/String.h>
@@ -11,38 +12,8 @@ struct duk_hthread;
 typedef duk_hthread duk_context;
 typedef int (*duk_c_function)(duk_context* ctx);
 
-struct ezDuktapeTypeMask
-{
-  typedef ezUInt32 StorageType;
 
-  enum Enum
-  {
-    None = EZ_BIT(0),      ///< no value, e.g. invalid index
-    Undefined = EZ_BIT(1), ///< ECMAScript undefined
-    Null = EZ_BIT(2),      ///< ECMAScript null
-    Bool = EZ_BIT(3),      ///< boolean, true or false
-    Number = EZ_BIT(4),    ///< any number, stored as a double
-    String = EZ_BIT(5),    ///< ECMAScript string: CESU-8 / extended UTF-8 encoded
-    Object = EZ_BIT(6)     ///< ECMAScript object: includes objects, arrays, functions, threads
-  };
-
-  struct Bits
-  {
-    StorageType None : 1;
-    StorageType Undefined : 1;
-    StorageType Null : 1;
-    StorageType Bool : 1;
-    StorageType Number : 1;
-    StorageType String : 1;
-    StorageType Object : 1;
-  };
-};
-
-EZ_DECLARE_FLAGS_OPERATORS(ezDuktapeTypeMask);
-
-
-
-class EZ_CORE_DLL ezDuktapeWrapper
+class EZ_CORE_DLL ezDuktapeWrapper : public ezDuktapeHelper
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezDuktapeWrapper);
 
@@ -53,12 +24,6 @@ public:
 
   /// \name Basics
   ///@{
-
-  /// \brief Returns the raw Duktape context for custom operations.
-  duk_context* GetContext() const { return m_pContext; }
-
-  /// \brief Implicit conversion to duk_context*
-  operator duk_context*() const { return m_pContext; }
 
   /// \brief Enables support for loading modules via the 'require' function
   void EnableModuleSupport(duk_c_function pModuleSearchFunction);
@@ -79,40 +44,12 @@ public:
   /// \name C Functions
   ///@{
 
-  void RegisterFunction(const char* szFunctionName, duk_c_function pFunction, ezUInt8 uiNumArguments, ezInt16 iMagicValue = 0);
-
-  void RegisterFunctionWithVarArgs(const char* szFunctionName, duk_c_function pFunction, ezInt16 iMagicValue = 0);
-
-
   ezResult BeginFunctionCall(const char* szFunctionName, bool bForceLocalObject = false);
   ezResult BeginMethodCall(const char* szMethodName);
   ezResult ExecuteFunctionCall();
   ezResult ExecuteMethodCall();
   void EndFunctionCall();
   void EndMethodCall();
-
-  void PushParameter(ezInt32 iParam);
-  void PushParameter(bool bParam);
-  void PushParameter(double fParam);
-  void PushParameter(const char* szParam);
-  void PushParameter(const char* szParam, ezUInt32 length);
-  void PushParameterNull();
-  void PushParameterUndefined();
-
-  bool GetBoolReturnValue(bool fallback = false) const;
-  ezInt32 GetIntReturnValue(ezInt32 fallback = 0) const;
-  float GetFloatReturnValue(float fallback = 0) const;
-  double GetNumberReturnValue(double fallback = 0) const;
-  const char* GetStringReturnValue(const char* fallback = "") const;
-
-  bool IsReturnValueOfType(ezBitflags<ezDuktapeTypeMask> mask) const;
-  bool IsReturnValueBool() const;
-  bool IsReturnValueNumber() const;
-  bool IsReturnValueString() const;
-  bool IsReturnValueNull() const;
-  bool IsReturnValueUndefined() const;
-  bool IsReturnValueObject() const;
-
 
   ///@}
   /// \name Working with Objects
@@ -122,24 +59,6 @@ public:
   void OpenGlobalObject();
   void OpenGlobalStashObject();
   void CloseObject();
-
-  bool HasProperty(const char* szPropertyName);
-
-  bool GetBoolProperty(const char* szPropertyName, bool fallback);
-  ezInt32 GetIntProperty(const char* szPropertyName, ezInt32 fallback);
-  float GetFloatProperty(const char* szPropertyName, float fallback);
-  double GetNumberProperty(const char* szPropertyName, double fallback);
-  const char* GetStringProperty(const char* szPropertyName, const char* fallback);
-
-  ///@}
-  /// \name Global State
-  ///@{
-
-  void StorePointerInStash(const char* szKey, void* pPointer);
-  void* RetrievePointerFromStash(const char* szKey);
-
-  void StoreStringInStash(const char* szKey, const char* value);
-  const char* RetrieveStringFromStash(const char* szKey, const char* szFallback = nullptr);
 
   ///@}
 
@@ -156,7 +75,6 @@ private:
 protected:
   struct States
   {
-    ezInt32 m_iPushedFunctionArguments = 0;
     ezInt32 m_iOpenObjects = 0;
     bool m_bAutoOpenedGlobalObject = false;
   };
@@ -168,8 +86,6 @@ protected:
 private:
   /// If this script created the context, it also releases it on exit.
   bool m_bReleaseOnExit = true;
-
-  duk_context* m_pContext = nullptr;
 
 #  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   ezAllocator<ezMemoryPolicies::ezHeapAllocation, ezMemoryTrackingFlags::EnableTracking> m_Allocator;
@@ -198,21 +114,6 @@ public:
   ezUInt32 GetNumVarArgFunctionParameters() const;
 
   ezInt16 GetFunctionMagicValue() const;
-
-  bool GetBoolParameter(ezUInt32 uiArgIdx, bool fallback = false) const;
-  ezInt32 GetIntParameter(ezUInt32 uiArgIdx, ezInt32 fallback = 0) const;
-  ezUInt32 GetUIntParameter(ezUInt32 uiArgIdx, ezUInt32 fallback = 0) const;
-  float GetFloatParameter(ezUInt32 uiArgIdx, float fallback = 0) const;
-  double GetNumberParameter(ezUInt32 uiArgIdx, double fallback = 0) const;
-  const char* GetStringParameter(ezUInt32 uiArgIdx, const char* fallback = "") const;
-
-  bool IsParameterOfType(ezUInt32 uiArgIdx, ezBitflags<ezDuktapeTypeMask> mask) const;
-  bool IsParameterBool(ezUInt32 uiArgIdx) const;
-  bool IsParameterNumber(ezUInt32 uiArgIdx) const;
-  bool IsParameterString(ezUInt32 uiArgIdx) const;
-  bool IsParameterNull(ezUInt32 uiArgIdx) const;
-  bool IsParameterUndefined(ezUInt32 uiArgIdx) const;
-  bool IsParameterObject(ezUInt32 uiArgIdx) const;
 
   ///@}
 

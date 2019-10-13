@@ -31,6 +31,8 @@ public:
   duk_context* GetDukContext() { return m_Duk.GetContext(); }
 
 private:
+  static void GetTsName(const ezRTTI* pRtti, ezStringBuilder& out_sName);
+
   ezDuktapeWrapper m_Duk;
   ezTypeScriptTranspiler* m_pTranspiler = nullptr;
   bool m_bInitialized = false;

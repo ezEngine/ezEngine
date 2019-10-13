@@ -62,12 +62,6 @@ void ezTypeScriptBinding::GenerateAllMessagesCode(ezStringBuilder& out_Code)
   }
 }
 
-static void GetTsName(const ezRTTI* pRtti, ezStringBuilder& out_sName)
-{
-  out_sName = pRtti->GetTypeName();
-  out_sName.TrimWordStart("ez");
-}
-
 void ezTypeScriptBinding::GenerateMessageCode(ezStringBuilder& out_Code, const ezRTTI* pRtti)
 {
   ezStringBuilder sType, sParentType;

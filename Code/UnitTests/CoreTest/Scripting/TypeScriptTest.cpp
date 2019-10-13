@@ -15,10 +15,10 @@ static ezResult TranspileString(const char* szSource, ezDuktapeWrapper& script, 
 {
   EZ_SUCCEED_OR_RETURN(script.OpenObject("ts"));
   EZ_SUCCEED_OR_RETURN(script.BeginFunctionCall("transpile"));
-  script.PushParameter(szSource);
+  script.PushString(szSource);
   EZ_SUCCEED_OR_RETURN(script.ExecuteFunctionCall());
 
-  result = script.GetStringReturnValue();
+  result = script.GetStringValue(-1);
 
   script.EndFunctionCall();
   script.CloseObject();
@@ -55,7 +55,7 @@ static int Duk_Print(duk_context* pContext)
 {
   ezDuktapeFunction duk(pContext);
 
-  ezLog::Info(duk.GetStringParameter(0));
+  ezLog::Info(duk.GetStringValue(0));
 
   return duk.ReturnVoid();
 }
@@ -71,7 +71,7 @@ static duk_ret_t ModuleSearchFunction2(duk_context* ctx)
   *   index 3: module
   */
 
-  ezStringBuilder id = script.GetStringParameter(0);
+  ezStringBuilder id = script.GetStringValue(0);
   id.ChangeFileExtension("js");
 
   ezStringBuilder source;
@@ -104,7 +104,7 @@ EZ_CREATE_SIMPLE_TEST(Scripting, TypeScript)
   ezDuktapeWrapper duk("DukTS");
   duk.EnableModuleSupport(ModuleSearchFunction2);
 
-  duk.RegisterFunction("Print", Duk_Print, 1);
+  duk.RegisterGlobalFunction("Print", Duk_Print, 1);
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Compile TypeScriptServices")
   {
