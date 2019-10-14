@@ -4,6 +4,9 @@ export import Vec3 = __Vec3.Vec3;
 import __Quat = require("./Quat")
 export import Quat = __Quat.Quat;
 
+import __Message = require("./Message")
+export import Message = __Message.Message;
+
 import __Component = require("./Component")
 export import Component = __Component.Component;
 
@@ -16,6 +19,7 @@ declare function __CPP_GameObject_SetActive(_this: GameObject, active: boolean) 
 declare function __CPP_GameObject_FindChildByName(_this: GameObject, name: string, recursive: boolean) : GameObject;
 declare function __CPP_GameObject_FindComponentByTypeName(_this: GameObject, typeName: string);
 declare function __CPP_GameObject_FindComponentByTypeNameHash(_this: GameObject, nameHash: number);
+declare function __CPP_GameObject_SendMessage(_this: GameObject, typeNameHash: number, msg: Message);
 
 export class GameObject
 {
@@ -91,9 +95,9 @@ export class GameObject
     {
         return __CPP_GameObject_FindComponentByTypeNameHash(this, hash);
     }
-}
-
-export function __TS_CreateGameObject() : GameObject
-{
-    return new GameObject;
+    
+    SendMessage(msg: Message): void
+    {
+         __CPP_GameObject_SendMessage(this, msg.TypeNameHash, msg);
+    }
 }

@@ -111,6 +111,19 @@ ezInt32 ezDuktapeHelper::GetIntProperty(const char* szPropertyName, ezInt32 fall
   return result;
 }
 
+ezUInt32 ezDuktapeHelper::GetUIntProperty(const char* szPropertyName, ezUInt32 fallback, ezInt32 iParentObjectIndex /*= -1*/) const
+{
+  ezUInt32 result = fallback;
+
+  if (duk_get_prop_string(m_pContext, iParentObjectIndex, szPropertyName)) // [ value/undef ]
+  {
+    result = duk_get_uint_default(m_pContext, -1, fallback); // [ value ]
+  }
+
+  duk_pop(m_pContext); // [ ]
+  return result;
+}
+
 float ezDuktapeHelper::GetFloatProperty(const char* szPropertyName, float fallback, ezInt32 iParentObjectIndex /*= -1*/) const
 {
   return static_cast<float>(GetNumberProperty(szPropertyName, fallback, iParentObjectIndex));

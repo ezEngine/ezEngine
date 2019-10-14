@@ -71,7 +71,7 @@ void ezTypeScriptBinding::GenerateMessageCode(ezStringBuilder& out_Code, const e
 
   out_Code.AppendFormat("export class {0} extends {1}\n", sType, sParentType);
   out_Code.Append("{\n");
-  //out_Code.AppendFormat("  public static GetTypeNameHash(): number { return {}; }\n", pRtti->GetTypeNameHash());
+  out_Code.AppendFormat("  constructor() { super(); this.TypeNameHash = {}; }\n", pRtti->GetTypeNameHash());
   GenerateMessagePropertiesCode(out_Code, pRtti);
   out_Code.Append("}\n\n");
 }
@@ -109,5 +109,64 @@ void ezTypeScriptBinding::GenerateMessagePropertiesCode(ezStringBuilder& out_Cod
     }
 
     out_Code.Append(sProp.GetView());
+  }
+}
+
+void ezTypeScriptBinding::InjectMessageImportExport(const char* szFile, const char* szMessageFile)
+{
+  ezSet<const ezRTTI*> found;
+  ezDynamicArray<const ezRTTI*> sorted;
+  sorted.Reserve(100);
+
+  for (auto pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
+  {
+    CreateMessageTypeList(found, sorted, pRtti);
+  }
+
+  ezStringBuilder sImportExport, sTypeName;
+
+  sImportExport.Format(R"(
+
+// AUTO-GENERATED
+import __AllMessages = require("{}")
+)",
+    szMessageFile);
+
+  for (const ezRTTI* pRtti : sorted)
+  {
+    GetTsName(pRtti, sTypeName);
+    sImportExport.AppendFormat("export import {0}  = __AllMessages.{0};\n",
+      sTypeName);
+  }
+
+
+  ezStringBuilder sFinal;
+
+  {
+    ezFileReader fileIn;
+    fileIn.Open(szFile);
+
+    ezStringBuilder sSrc;
+    sSrc.ReadAll(fileIn);
+
+    //if (const char* szAutoGen = sSrc.FindSubString("// AUTO-GENERATED"))
+    //{
+    //  sFinal.SetSubString_FromTo(sSrc.GetData(), szAutoGen);
+    //  sFinal.Trim(" \t\n\r");
+    //}
+    //else
+    {
+      sFinal = sSrc;
+      sFinal.Append("\n\n");
+    }
+
+    sFinal.Append(sImportExport.GetView());
+    sFinal.Append("\n");
+  }
+
+  {
+    ezFileWriter fileOut;
+    fileOut.Open(szFile);
+    fileOut.WriteBytes(sFinal.GetData(), sFinal.GetElementCount());
   }
 }

@@ -51,14 +51,22 @@ class MyComponent extends ez.TypescriptComponent
             }
             //comp.SetDirectionForwards(Math.random() > 0.9);
         }
+
+        if (Math.random() > 0.9)
+        {
+            let setMat = new ez.MsgSetMeshMaterial();
+
+            if (Math.random() > 0.5)
+            {
+                setMat.Material = "{ eed69dde-aab0-4ccd-8f98-a9822a389ea0 }";
+            }
+            else
+            {
+                setMat.Material = "{ 49324140-a093-4a75-9c6c-efde65a39fc4 }";
+            }
+            owner.SendMessage(setMat);
+        }
     }
 
     private _name: string;
-}
-
-// called by the runtime
-function __TS_Create_MyComponent(name: string): MyComponent
-{
-    ez.Log.Info("_Create_MyComponent: " + name)
-    return new MyComponent(name);
 }

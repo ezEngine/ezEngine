@@ -14,6 +14,7 @@ static int __CPP_GameObject_SetActive(duk_context* pDuk);
 static int __CPP_GameObject_FindChildByName(duk_context* pDuk);
 static int __CPP_GameObject_FindComponentByTypeName(duk_context* pDuk);
 static int __CPP_GameObject_FindComponentByTypeNameHash(duk_context* pDuk);
+static int __CPP_GameObject_SendMessage(duk_context* pDuk);
 
 ezResult ezTypeScriptBinding::Init_GameObject()
 {
@@ -26,6 +27,7 @@ ezResult ezTypeScriptBinding::Init_GameObject()
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_FindChildByName", __CPP_GameObject_FindChildByName, 2);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_FindComponentByTypeName", __CPP_GameObject_FindComponentByTypeName, 2);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_FindComponentByTypeNameHash", __CPP_GameObject_FindComponentByTypeNameHash, 2);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_SendMessage", __CPP_GameObject_SendMessage, 3);
 
   return EZ_SUCCESS;
 }
@@ -231,4 +233,88 @@ static int __CPP_GameObject_FindComponentByTypeNameHash(duk_context* pDuk)
   ezTypeScriptBinding::DukPutComponentObject(duk, pComponent);
 
   return duk.ReturnCustom();
+}
+
+ezMessage* CreateMessage(ezUInt32 uiTypeHash)
+{
+  static ezHashTable<ezUInt32, const ezRTTI*, ezHashHelper<ezUInt32>, ezStaticAllocatorWrapper> MessageTypes;
+
+  const ezRTTI* pRtti = nullptr;
+  if (!MessageTypes.TryGetValue(uiTypeHash, pRtti))
+  {
+    for (pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
+    {
+      if (pRtti->GetTypeNameHash() == uiTypeHash)
+      {
+        MessageTypes[uiTypeHash] = pRtti;
+        break;
+      }
+    }
+  }
+
+  if (pRtti == nullptr || !pRtti->GetAllocator()->CanAllocate())
+    return nullptr;
+
+  auto pMsg = pRtti->GetAllocator()->Allocate<ezMessage>();
+
+  return pMsg;
+}
+
+static int __CPP_GameObject_SendMessage(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk, 0);
+
+  ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
+
+  ezUInt32 uiTypeNameHash = duk.GetUIntValue(1);
+
+  ezMessage* pMsg = CreateMessage(uiTypeNameHash);
+
+  const ezRTTI* pRtti = pMsg->GetDynamicRTTI();
+
+
+  ezHybridArray<ezAbstractProperty*, 32> properties;
+  pRtti->GetAllProperties(properties);
+
+  for (ezAbstractProperty* pProp : properties)
+  {
+    if (pProp->GetCategory() != ezPropertyCategory::Member)
+      continue;
+
+    ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pProp);
+
+    switch (pMember->GetSpecificType()->GetVariantType())
+    {
+      case ezVariantType::String:
+      {
+        const char* value = duk.GetStringProperty(pMember->GetPropertyName(), "", 2);
+        ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg, value);
+        break;
+      }
+
+      case ezVariantType::Int8:
+      case ezVariantType::Int16:
+      case ezVariantType::Int32:
+      case ezVariantType::Int64:
+      {
+        ezInt32 value = duk.GetIntProperty(pMember->GetPropertyName(), 0, 2);
+        ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg, value);
+        break;
+      }
+
+      case ezVariantType::UInt8:
+      case ezVariantType::UInt16:
+      case ezVariantType::UInt32:
+      case ezVariantType::UInt64:
+      {
+        ezUInt32 value = duk.GetUIntProperty(pMember->GetPropertyName(), 0, 2);
+        ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg, value);
+        break;
+      }
+    }
+  }
+
+  pGameObject->SendMessage(*pMsg);
+
+  return duk.ReturnVoid();
 }

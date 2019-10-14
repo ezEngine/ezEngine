@@ -86,6 +86,7 @@ public:
 
   bool GetBoolProperty(const char* szPropertyName, bool fallback, ezInt32 iParentObjectIndex = -1) const;
   ezInt32 GetIntProperty(const char* szPropertyName, ezInt32 fallback, ezInt32 iParentObjectIndex = -1) const;
+  ezUInt32 GetUIntProperty(const char* szPropertyName, ezUInt32 fallback, ezInt32 iParentObjectIndex = -1) const;
   float GetFloatProperty(const char* szPropertyName, float fallback, ezInt32 iParentObjectIndex = -1) const;
   double GetNumberProperty(const char* szPropertyName, double fallback, ezInt32 iParentObjectIndex = -1) const;
   const char* GetStringProperty(const char* szPropertyName, const char* fallback, ezInt32 iParentObjectIndex = -1) const;
