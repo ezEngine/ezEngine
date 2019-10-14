@@ -82,7 +82,7 @@ const ezTypeScriptBinding::PropertyBinding* ezTypeScriptBinding::FindPropertyBin
 
 int __CPP_ComponentProperty_get(duk_context* pDuk)
 {
-  ezDuktapeFunction duk(pDuk);
+  ezDuktapeFunction duk(pDuk, +1);
 
   ezComponent* pComponent = ezTypeScriptBinding::ExpectComponent<ezComponent>(pDuk);
 
@@ -136,12 +136,13 @@ int __CPP_ComponentProperty_get(duk_context* pDuk)
       break;
   }
 
+  duk.SetExpectedStackChange(0);
   return duk.ReturnVoid();
 }
 
 int __CPP_ComponentProperty_set(duk_context* pDuk)
 {
-  ezDuktapeFunction duk(pDuk);
+  ezDuktapeFunction duk(pDuk, 0);
 
   ezComponent* pComponent = ezTypeScriptBinding::ExpectComponent<ezComponent>(pDuk);
 

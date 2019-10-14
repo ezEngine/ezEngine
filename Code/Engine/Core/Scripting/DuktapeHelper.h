@@ -45,7 +45,7 @@ EZ_DECLARE_FLAGS_OPERATORS(ezDuktapeTypeMask);
 class EZ_CORE_DLL ezDuktapeHelper
 {
 public:
-  ezDuktapeHelper(duk_context* pContext);
+  ezDuktapeHelper(duk_context* pContext, ezInt32 iExpectedStackChange);
   ~ezDuktapeHelper();
 
   /// \name Basics
@@ -57,11 +57,13 @@ public:
   /// \brief Implicit conversion to duk_context*
   operator duk_context*() const { return m_pContext; }
 
+  void SetExpectedStackChange(ezInt32 iExpectedStackChange /*= -0xFFFF to disable stack check */);
+
   ///@}
   /// \name Error Handling
   ///@{
 
-  void Error(ezFormatString& text);
+  void Error(ezFormatString text);
 
 
   ///@}
@@ -121,6 +123,8 @@ public:
   void RegisterGlobalFunction(const char* szFunctionName, duk_c_function pFunction, ezUInt8 uiNumArguments, ezInt16 iMagicValue = 0);
   void RegisterGlobalFunctionWithVarArgs(const char* szFunctionName, duk_c_function pFunction, ezInt16 iMagicValue = 0);
 
+  void RegisterObjectFunction(const char* szFunctionName, duk_c_function pFunction, ezUInt8 uiNumArguments, ezInt32 iParentObjectIndex = -1, ezInt16 iMagicValue = 0);
+
   ezResult PrepareGlobalFunctionCall(const char* szFunctionName);
   ezResult PrepareObjectFunctionCall(const char* szFunctionName, ezInt32 iParentObjectIndex = -1);
   ezResult CallPreparedFunction();
@@ -163,6 +167,11 @@ public:
 protected:
   duk_context* m_pContext = nullptr;
   ezInt32 m_iPushedValues = 0;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  ezInt32 m_iStackTopAtStart = 0;
+  ezInt32 m_iExpectedStackChange = -10000;
+#endif
 };
 
 #endif

@@ -19,7 +19,7 @@ ezResult ezTypeScriptBinding::Init_Log()
 
 static int __CPP_Log(duk_context* pDuk)
 {
-  ezDuktapeFunction duk(pDuk);
+  ezDuktapeFunction duk(pDuk, 0);
   const ezInt16 iMagic = duk.GetFunctionMagicValue();
 
   switch (iMagic)

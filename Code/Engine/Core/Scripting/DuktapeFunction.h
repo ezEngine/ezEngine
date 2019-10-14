@@ -8,7 +8,7 @@
 class EZ_CORE_DLL ezDuktapeFunction final : public ezDuktapeHelper
 {
 public:
-  ezDuktapeFunction(duk_context* pExistingContext);
+  ezDuktapeFunction(duk_context* pExistingContext, ezInt32 iExpectedStackChange);
   ~ezDuktapeFunction();
 
   /// \name Retrieving function parameters
@@ -39,23 +39,6 @@ public:
 
 private:
   bool m_bDidReturnValue = false;
-};
-
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-
-class EZ_CORE_DLL ezDuktapeStackValidator
-{
-public:
-  ezDuktapeStackValidator(duk_context* pContext, ezInt32 iExpectedChange = 0);
-  ~ezDuktapeStackValidator();
-
-  void AdjustExpected(ezInt32 iChange);
-
-private:
-  duk_context* m_pContext = nullptr;
-  ezInt32 m_iStackTop = 0;
 };
 
 #endif

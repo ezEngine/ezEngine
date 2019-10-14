@@ -8,7 +8,7 @@
 #  include <Duktape/duktape.h>
 
 ezDuktapeContext::ezDuktapeContext(const char* szWrapperName)
-  : ezDuktapeHelper(nullptr)
+  : ezDuktapeHelper(nullptr, 0)
   , m_Allocator(szWrapperName, ezFoundation::GetDefaultAllocator())
 
 {

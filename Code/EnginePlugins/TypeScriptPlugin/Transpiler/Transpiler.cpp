@@ -54,18 +54,20 @@ ezResult ezTypeScriptTranspiler::TranspileString(const char* szString, ezStringB
 
   EZ_PROFILE_SCOPE("Transpile TypeScript");
 
-  ezDuktapeStackValidator validator(m_Transpiler);
+  ezDuktapeHelper duk(m_Transpiler, 0);
 
   m_Transpiler.PushGlobalObject();                 // [ global ]
   if (m_Transpiler.PushLocalObject("ts").Failed()) // [ global ts ]
   {
     ezLog::Error("'ts' object does not exist");
+    duk.PopStack(2); // [ ]
     return EZ_FAILURE;
   }
 
   if (m_Transpiler.PrepareObjectFunctionCall("transpile").Failed()) // [ global ts transpile ]
   {
     ezLog::Error("'ts.transpile' function does not exist");
+    duk.PopStack(3); // [ ]
     return EZ_FAILURE;
   }
 
@@ -73,6 +75,7 @@ ezResult ezTypeScriptTranspiler::TranspileString(const char* szString, ezStringB
   if (m_Transpiler.CallPreparedFunction().Failed()) // [ global ts result ]
   {
     ezLog::Error("String could not be transpiled");
+    duk.PopStack(3); // [ ]
     return EZ_FAILURE;
   }
 

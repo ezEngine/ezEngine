@@ -7,8 +7,8 @@
 #  include <Duktape/duk_module_duktape.h>
 #  include <Duktape/duktape.h>
 
-ezDuktapeFunction::ezDuktapeFunction(duk_context* pExistingContext)
-  : ezDuktapeHelper(pExistingContext)
+ezDuktapeFunction::ezDuktapeFunction(duk_context* pExistingContext, ezInt32 iExpectedStackChange)
+  : ezDuktapeHelper(pExistingContext, iExpectedStackChange)
 {
 }
 
@@ -104,27 +104,6 @@ ezInt32 ezDuktapeFunction::ReturnCustom()
   m_bDidReturnValue = true;
   // push nothing, the user calls this because he pushed something custom already
   return 1;
-}
-
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////
-
-ezDuktapeStackValidator::ezDuktapeStackValidator(duk_context* pContext, ezInt32 iExpectedChange /*= 0*/)
-{
-  m_pContext = pContext;
-  m_iStackTop = duk_get_top(m_pContext) + iExpectedChange;
-}
-
-ezDuktapeStackValidator::~ezDuktapeStackValidator()
-{
-  const int iCurTop = duk_get_top(m_pContext);
-  EZ_ASSERT_DEBUG(iCurTop == m_iStackTop, "Stack top is not as expected");
-}
-
-void ezDuktapeStackValidator::AdjustExpected(ezInt32 iChange)
-{
-  m_iStackTop += iChange;
 }
 
 #endif

@@ -180,7 +180,7 @@ const ezTypeScriptBinding::FunctionBinding* ezTypeScriptBinding::FindFunctionBin
 
 int __CPP_ComponentFunction_Call(duk_context* pDuk)
 {
-  ezDuktapeFunction duk(pDuk);
+  ezDuktapeFunction duk(pDuk, +1);
 
   ezComponent* pComponent = ezTypeScriptBinding::ExpectComponent<ezComponent>(pDuk);
 
@@ -289,5 +289,6 @@ int __CPP_ComponentFunction_Call(duk_context* pDuk)
     }
   }
 
+  duk.SetExpectedStackChange(0);
   return duk.ReturnVoid();
 }

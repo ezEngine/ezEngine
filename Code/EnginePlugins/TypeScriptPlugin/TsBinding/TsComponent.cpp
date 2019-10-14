@@ -18,8 +18,7 @@ ezResult ezTypeScriptBinding::Init_Component()
 
 ezResult ezTypeScriptBinding::CreateTsComponent(duk_context* pDuk, const char* szTypeName, const ezComponentHandle& hCppComponent, const char* szDebugString)
 {
-  ezDuktapeStackValidator validator(pDuk, 0);
-  ezDuktapeHelper duk(pDuk);
+  ezDuktapeHelper duk(pDuk, 0);
 
   ezStringBuilder sTypeName = szTypeName;
 
@@ -68,7 +67,7 @@ ezResult ezTypeScriptBinding::CreateTsComponent(duk_context* pDuk, const char* s
 
 void ezTypeScriptBinding::DukPutComponentObject(duk_context* pDuk, const ezComponentHandle& hComponent)
 {
-  ezDuktapeStackValidator validator(pDuk, +1);
+  ezDuktapeHelper duk(pDuk, +1);
 
   duk_push_global_stash(pDuk);
 
@@ -105,7 +104,7 @@ void ezTypeScriptBinding::DeleteTsComponent(const ezComponentHandle& hCppCompone
 {
   const ezUInt32 uiComponentReference = hCppComponent.GetInternalID().m_Data;
 
-  ezDuktapeStackValidator validator(m_Duk);
+  ezDuktapeHelper validator(m_Duk, 0);
 
   m_Duk.PushGlobalStash();
   duk_push_uint(m_Duk, uiComponentReference);
@@ -115,7 +114,7 @@ void ezTypeScriptBinding::DeleteTsComponent(const ezComponentHandle& hCppCompone
 
 ezComponentHandle ezTypeScriptBinding::RetrieveComponentHandle(duk_context* pDuk, ezInt32 iObjIdx /*= 0 */)
 {
-  ezDuktapeStackValidator validator(pDuk);
+  ezDuktapeHelper validator(pDuk, 0);
 
   duk_get_prop_index(pDuk, iObjIdx, ezTypeScriptBindingIndexProperty::ComponentHandle);
   ezComponentHandle hComponent = *reinterpret_cast<ezComponentHandle*>(duk_get_buffer(pDuk, -1, nullptr));
@@ -126,7 +125,7 @@ ezComponentHandle ezTypeScriptBinding::RetrieveComponentHandle(duk_context* pDuk
 
 static int __CPP_Component_GetOwner(duk_context* pDuk)
 {
-  ezDuktapeFunction duk(pDuk);
+  ezDuktapeFunction duk(pDuk, +1);
 
   ezComponent* pComponent = ezTypeScriptBinding::ExpectComponent<ezComponent>(pDuk);
 
@@ -137,7 +136,7 @@ static int __CPP_Component_GetOwner(duk_context* pDuk)
 
 static int __CPP_Component_SetActive(duk_context* pDuk)
 {
-  ezDuktapeFunction duk(pDuk);
+  ezDuktapeFunction duk(pDuk, 0);
 
   ezComponent* pComponent = ezTypeScriptBinding::ExpectComponent<ezComponent>(pDuk);
 

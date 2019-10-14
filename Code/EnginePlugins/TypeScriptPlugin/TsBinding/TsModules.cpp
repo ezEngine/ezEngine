@@ -31,6 +31,12 @@ ezResult ezTypeScriptBinding::Init_RequireModules()
     return EZ_FAILURE;
   }
 
+  if (m_Duk.ExecuteString("var __Log = require(\"./ez/Log\");").Failed())
+  {
+    ezLog::Error("Failed to import 'Log.ts'");
+    return EZ_FAILURE;
+  }
+
   if (m_Duk.ExecuteString("var __Vec3 = require(\"./ez/Vec3\");").Failed())
   {
     ezLog::Error("Failed to import 'Vec3.ts'");
@@ -53,7 +59,7 @@ void ezTypeScriptBinding::SetModuleSearchPath(const char* szPath)
 
 int ezTypeScriptBinding::DukSearchModule(duk_context* pDuk)
 {
-  ezDuktapeFunction duk(pDuk);
+  ezDuktapeFunction duk(pDuk, +1);
 
   ezTypeScriptTranspiler* pTranspiler = static_cast<ezTypeScriptTranspiler*>(duk.RetrievePointerFromStash("Transpiler"));
 
@@ -74,8 +80,9 @@ int ezTypeScriptBinding::DukSearchModule(duk_context* pDuk)
   ezStringBuilder sTranspiledCode;
   if (pTranspiler->TranspileFileAndStoreJS(sRequestedFile, sTranspiledCode).Failed())
   {
-    ezLog::Error("'required' module \"{}\" could not be found/transpiled.", sRequestedFile);
-    return 0;
+    duk.PushUndefined();
+    duk.Error(ezFmt("'required' module \"{}\" could not be found/transpiled.", sRequestedFile));
+    return duk.ReturnCustom();
   }
 
   return duk.ReturnString(sTranspiledCode);

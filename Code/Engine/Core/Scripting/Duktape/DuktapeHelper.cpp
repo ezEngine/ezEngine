@@ -14,16 +14,36 @@ EZ_CHECK_AT_COMPILETIME(ezDuktapeTypeMask::Object == DUK_TYPE_MASK_OBJECT);
 EZ_CHECK_AT_COMPILETIME(ezDuktapeTypeMask::Buffer == DUK_TYPE_MASK_BUFFER);
 EZ_CHECK_AT_COMPILETIME(ezDuktapeTypeMask::Pointer == DUK_TYPE_MASK_POINTER);
 
-ezDuktapeHelper::ezDuktapeHelper(duk_context* pContext)
+ezDuktapeHelper::ezDuktapeHelper(duk_context* pContext, ezInt32 iExpectedStackChange)
   : m_pContext(pContext)
+  , m_iExpectedStackChange(iExpectedStackChange)
 {
+  if (m_pContext)
+  {
+    m_iStackTopAtStart = duk_get_top(m_pContext);
+  }
 }
 
 ezDuktapeHelper::~ezDuktapeHelper()
 {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  if (m_pContext && m_iExpectedStackChange > -1000 && m_iExpectedStackChange < 1000)
+  {
+    const ezInt32 iCurTop = duk_get_top(m_pContext);
+    const ezInt32 iStackChange = iCurTop - m_iStackTopAtStart;
+    EZ_ASSERT_DEBUG(iStackChange == m_iExpectedStackChange, "Stack change ({}) is not as expected ({})", iStackChange, m_iExpectedStackChange);
+  }
+#endif
 }
 
-void ezDuktapeHelper::Error(ezFormatString& text)
+void ezDuktapeHelper::SetExpectedStackChange(ezInt32 iExpectedStackChange)
+{
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  m_iExpectedStackChange = iExpectedStackChange;
+#endif
+}
+
+void ezDuktapeHelper::Error(ezFormatString text)
 {
   ezStringBuilder tmp;
   text.GetText(tmp);
@@ -242,6 +262,21 @@ void ezDuktapeHelper::RegisterGlobalFunctionWithVarArgs(const char* szFunctionNa
   duk_set_magic(m_pContext, -1, iMagicValue);                                      // [ global func ]
   duk_put_prop_string(m_pContext, -2, szFunctionName);                             // [ global ]
   duk_pop(m_pContext);                                                             // [ ]
+}
+
+void ezDuktapeHelper::RegisterObjectFunction(const char* szFunctionName, duk_c_function pFunction, ezUInt8 uiNumArguments, ezInt32 iParentObjectIndex /*= -1*/, ezInt16 iMagicValue /*= 0*/)
+{
+  /*const int iFuncIdx =*/duk_push_c_function(m_pContext, pFunction, uiNumArguments); // [ func ]
+  duk_set_magic(m_pContext, -1, iMagicValue);                                         // [ func ]
+
+  if (iParentObjectIndex < 0)
+  {
+    duk_put_prop_string(m_pContext, iParentObjectIndex - 1, szFunctionName); // [ ]
+  }
+  else
+  {
+    duk_put_prop_string(m_pContext, iParentObjectIndex, szFunctionName); // [ ]
+  }
 }
 
 ezResult ezDuktapeHelper::PrepareGlobalFunctionCall(const char* szFunctionName)

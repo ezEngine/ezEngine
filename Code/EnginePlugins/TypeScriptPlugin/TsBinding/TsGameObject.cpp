@@ -53,8 +53,7 @@ ezGameObject* ezTypeScriptBinding::ExpectGameObject(duk_context* pDuk, ezInt32 i
 
 void ezTypeScriptBinding::DukPutGameObject(duk_context* pDuk, const ezGameObjectHandle& hObject)
 {
-  ezDuktapeHelper duk(pDuk);
-  ezDuktapeStackValidator validator(pDuk, +1);
+  ezDuktapeHelper duk(pDuk, +1);
 
   if (hObject.IsInvalidated())
   {
@@ -106,7 +105,7 @@ static int __CPP_GameObject_IsValid(duk_context* pDuk)
 
 static int __CPP_GameObject_SetLocalPosition(duk_context* pDuk)
 {
-  ezDuktapeFunction duk(pDuk);
+  ezDuktapeFunction duk(pDuk, 0);
 
   ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
 
@@ -119,7 +118,7 @@ static int __CPP_GameObject_SetLocalPosition(duk_context* pDuk)
 
 static int __CPP_GameObject_GetLocalPosition(duk_context* pDuk)
 {
-  ezDuktapeFunction duk(pDuk);
+  ezDuktapeFunction duk(pDuk, +1);
 
   ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
 
@@ -130,7 +129,7 @@ static int __CPP_GameObject_GetLocalPosition(duk_context* pDuk)
 
 static int __CPP_GameObject_SetLocalRotation(duk_context* pDuk)
 {
-  ezDuktapeFunction duk(pDuk);
+  ezDuktapeFunction duk(pDuk, 0);
 
   ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
 
@@ -143,7 +142,7 @@ static int __CPP_GameObject_SetLocalRotation(duk_context* pDuk)
 
 static int __CPP_GameObject_GetLocalRotation(duk_context* pDuk)
 {
-  ezDuktapeFunction duk(pDuk);
+  ezDuktapeFunction duk(pDuk, +1);
 
   ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
 
@@ -154,7 +153,7 @@ static int __CPP_GameObject_GetLocalRotation(duk_context* pDuk)
 
 static int __CPP_GameObject_SetActive(duk_context* pDuk)
 {
-  ezDuktapeFunction duk(pDuk);
+  ezDuktapeFunction duk(pDuk, 0);
 
   ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
 
@@ -170,7 +169,7 @@ static int __CPP_GameObject_SetActive(duk_context* pDuk)
 
 static int __CPP_GameObject_FindChildByName(duk_context* pDuk)
 {
-  ezDuktapeFunction duk(pDuk);
+  ezDuktapeFunction duk(pDuk, +1);
 
   ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
 
@@ -186,7 +185,7 @@ static int __CPP_GameObject_FindChildByName(duk_context* pDuk)
 
 static int __CPP_GameObject_FindComponentByTypeName(duk_context* pDuk)
 {
-  ezDuktapeFunction duk(pDuk);
+  ezDuktapeFunction duk(pDuk, +1);
 
   ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
 
@@ -211,7 +210,7 @@ static int __CPP_GameObject_FindComponentByTypeName(duk_context* pDuk)
 
 static int __CPP_GameObject_FindComponentByTypeNameHash(duk_context* pDuk)
 {
-  ezDuktapeFunction duk(pDuk);
+  ezDuktapeFunction duk(pDuk, +1);
 
   ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
 
