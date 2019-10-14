@@ -51,7 +51,7 @@ static ezResult TranspileFileToJS(const char* szFile, ezDuktapeContext& script, 
 
 static int Duk_Print(duk_context* pContext)
 {
-  ezDuktapeFunction duk(pContext);
+  ezDuktapeFunction duk(pContext, 0);
 
   ezLog::Info(duk.GetStringValue(0));
 
@@ -60,7 +60,7 @@ static int Duk_Print(duk_context* pContext)
 
 static duk_ret_t ModuleSearchFunction2(duk_context* ctx)
 {
-  ezDuktapeFunction script(ctx);
+  ezDuktapeFunction script(ctx, 1);
 
   /* Nargs was given as 4 and we get the following stack arguments:
   *   index 0: id
