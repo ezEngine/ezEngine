@@ -91,9 +91,9 @@ export class GameObject
         return __CPP_GameObject_FindComponentByTypeName(this, typeName);
     }
     
-    FindComponentByTypeNameHash<TYPE extends Component>(hash: number): TYPE
+    FindComponentByType<TYPE extends Component>(typeClass: new () => TYPE): TYPE
     {
-        return __CPP_GameObject_FindComponentByTypeNameHash(this, hash);
+        return __CPP_GameObject_FindComponentByTypeNameHash(this, typeClass.GetTypeNameHash());
     }
     
     SendMessage(msg: Message): void
