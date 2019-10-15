@@ -29,6 +29,11 @@ export class Time {
         return fHours * 60 * 60;
     }
 
+    // Returns a zero Time value
+    static Zero(): number {
+        return 0;
+    }
+
     // Converts Time to nanoseconds
     static GetNanoseconds(Time: number): number {
         return Time * 1000000000.0;
