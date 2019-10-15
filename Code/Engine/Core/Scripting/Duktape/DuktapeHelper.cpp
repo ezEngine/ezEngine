@@ -1,4 +1,4 @@
-#include <Core/CorePCH.h>
+#include <CorePCH.h>
 
 #include <Core/Scripting/DuktapeHelper.h>
 #include <Duktape/duktape.h>
@@ -16,12 +16,14 @@ EZ_CHECK_AT_COMPILETIME(ezDuktapeTypeMask::Pointer == DUK_TYPE_MASK_POINTER);
 
 ezDuktapeHelper::ezDuktapeHelper(duk_context* pContext, ezInt32 iExpectedStackChange)
   : m_pContext(pContext)
-  , m_iExpectedStackChange(iExpectedStackChange)
 {
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  m_iExpectedStackChange = iExpectedStackChange;
   if (m_pContext)
   {
     m_iStackTopAtStart = duk_get_top(m_pContext);
   }
+#endif
 }
 
 ezDuktapeHelper::~ezDuktapeHelper()

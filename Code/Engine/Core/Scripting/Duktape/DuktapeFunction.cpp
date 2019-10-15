@@ -1,4 +1,4 @@
-#include <Core/CorePCH.h>
+#include <CorePCH.h>
 
 #include <Core/Scripting/DuktapeFunction.h>
 
