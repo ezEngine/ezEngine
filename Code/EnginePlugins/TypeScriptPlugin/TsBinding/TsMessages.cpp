@@ -1,6 +1,7 @@
 #include <TypeScriptPluginPCH.h>
 
 #include <Duktape/duktape.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
@@ -23,6 +24,12 @@ export import Quat = __Quat.Quat;
 
 import __Color = require("./Color")
 export import Color = __Color.Color;
+
+import __Time = require("./Time")
+export import Time = __Time.Time;
+
+import __Angle = require("./Angle")
+export import Angle = __Angle.Angle;
 
 )";
 
