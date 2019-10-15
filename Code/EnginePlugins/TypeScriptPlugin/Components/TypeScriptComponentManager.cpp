@@ -23,7 +23,8 @@ void ezTypeScriptComponentManager::Initialize()
 
   ezFileSystem::AddDataDirectory(">sdk/Data/Tools/ezEditor/TypeScript", "TypeScript", "TypeScript");
 
-  m_Transpiler.StartLoadTranspiler();
+  s_Transpiler.SetOutputFolder(":project/AssetCache/Common");
+  s_Transpiler.StartLoadTranspiler();
 }
 
 void ezTypeScriptComponentManager::Deinitialize()
@@ -37,7 +38,13 @@ void ezTypeScriptComponentManager::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
-  m_TsBinding.Initialize(m_Transpiler, *GetWorld());
+  if (ezTypeScriptBinding::SetupProjectCode().Failed())
+  {
+    ezLog::Error("Could not setup Typescript data in project directory");
+    return;
+  }
+
+  m_TsBinding.Initialize(s_Transpiler, *GetWorld());
 }
 
 void ezTypeScriptComponentManager::Update(const ezWorldModule::UpdateContext& context)

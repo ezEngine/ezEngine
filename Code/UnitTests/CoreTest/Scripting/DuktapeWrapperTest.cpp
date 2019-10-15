@@ -2,21 +2,21 @@
 
 #ifdef BUILDSYSTEM_ENABLE_DUKTAPE_SUPPORT
 
-#  include <Core/Scripting/DuktapeWrapper.h>
+#  include <Core/Scripting/DuktapeContext.h>
 
 #  include <Duktape/duk_module_duktape.h>
 #  include <Duktape/duktape.h>
 #  include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
+#  include <Foundation/IO/FileSystem/FileReader.h>
 #  include <Foundation/IO/FileSystem/FileSystem.h>
 #  include <TestFramework/Utilities/TestLogInterface.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
 
 static duk_ret_t ModuleSearchFunction(duk_context* ctx);
 
 static int CFuncPrint(duk_context* pContext)
 {
-  ezDuktapeFunction wrapper(pContext);
-  const char* szText = wrapper.GetStringParameter(0, nullptr);
+  ezDuktapeFunction wrapper(pContext, 0);
+  const char* szText = wrapper.GetStringValue(0, nullptr);
 
   ezLog::Info("Print: '{}'", szText);
   return wrapper.ReturnVoid();
@@ -24,7 +24,7 @@ static int CFuncPrint(duk_context* pContext)
 
 static int CFuncPrintVA(duk_context* pContext)
 {
-  ezDuktapeFunction wrapper(pContext);
+  ezDuktapeFunction wrapper(pContext, 1);
 
   const ezUInt32 uiNumArgs = wrapper.GetNumVarArgFunctionParameters();
 
@@ -33,30 +33,30 @@ static int CFuncPrintVA(duk_context* pContext)
 
   for (ezUInt32 arg = 0; arg < uiNumArgs; ++arg)
   {
-    if (wrapper.IsParameterNumber(arg))
+    if (wrapper.IsNumber(arg))
     {
-      double val = wrapper.GetNumberParameter(arg);
+      double val = wrapper.GetNumberValue(arg);
       s.AppendFormat(", #{}: Number = {}", arg, val);
     }
-    else if (wrapper.IsParameterBool(arg))
+    else if (wrapper.IsBool(arg))
     {
-      bool val = wrapper.GetBoolParameter(arg);
+      bool val = wrapper.GetBoolValue(arg);
       s.AppendFormat(", #{}: Bool = {}", arg, val);
     }
-    else if (wrapper.IsParameterString(arg))
+    else if (wrapper.IsString(arg))
     {
-      const char* val = wrapper.GetStringParameter(arg);
+      const char* val = wrapper.GetStringValue(arg);
       s.AppendFormat(", #{}: String = {}", arg, val);
     }
-    else if (wrapper.IsParameterNull(arg))
+    else if (wrapper.IsNull(arg))
     {
       s.AppendFormat(", #{}: null", arg);
     }
-    else if (wrapper.IsParameterUndefined(arg))
+    else if (wrapper.IsUndefined(arg))
     {
       s.AppendFormat(", #{}: undefined", arg);
     }
-    else if (wrapper.IsParameterObject(arg))
+    else if (wrapper.IsObject(arg))
     {
       s.AppendFormat(", #{}: object", arg);
     }
@@ -84,7 +84,7 @@ static int CFuncPrintVA(duk_context* pContext)
 
 static int CFuncMagic(duk_context* pContext)
 {
-  ezDuktapeFunction wrapper(pContext);
+  ezDuktapeFunction wrapper(pContext, 1);
   ezInt16 iMagic = wrapper.GetFunctionMagicValue();
 
   ezLog::Info("Magic: '{}'", iMagic);
@@ -106,7 +106,7 @@ EZ_CREATE_SIMPLE_TEST(Scripting, DuktapeWrapper)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Basics")
   {
-    ezDuktapeWrapper duk("DukTest");
+    ezDuktapeContext duk("DukTest");
 
     duk_eval_string(duk.GetContext(), "'testString'.toUpperCase()");
     ezStringBuilder sTestString = duk_get_string(duk.GetContext(), -1);
@@ -124,7 +124,7 @@ EZ_CREATE_SIMPLE_TEST(Scripting, DuktapeWrapper)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExecuteString (error)")
   {
-    ezDuktapeWrapper duk("DukTest");
+    ezDuktapeContext duk("DukTest");
 
     ezTestLogInterface log;
     ezTestLogSystemScope logSystemScope(&log);
@@ -138,7 +138,7 @@ EZ_CREATE_SIMPLE_TEST(Scripting, DuktapeWrapper)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExecuteFile")
   {
-    ezDuktapeWrapper duk("DukTest");
+    ezDuktapeContext duk("DukTest");
     duk.EnableModuleSupport(nullptr);
 
     ezTestLogInterface log;
@@ -146,62 +146,61 @@ EZ_CREATE_SIMPLE_TEST(Scripting, DuktapeWrapper)
 
     log.ExpectMessage("Print: 'called f1'", ezLogMsgType::InfoMsg);
 
-    duk.RegisterFunction("Print", CFuncPrint, 1);
+    duk.RegisterGlobalFunction("Print", CFuncPrint, 1);
 
     duk.ExecuteFile("ExecuteFile.js");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "C Function")
   {
-    ezDuktapeWrapper duk("DukTest");
+    ezDuktapeContext duk("DukTest");
 
     ezTestLogInterface log;
     ezTestLogSystemScope logSystemScope(&log);
 
     log.ExpectMessage("Hello Test", ezLogMsgType::InfoMsg);
 
-    duk.RegisterFunction("Print", CFuncPrint, 1);
+    duk.RegisterGlobalFunction("Print", CFuncPrint, 1);
 
     duk.ExecuteString("Print('Hello Test')");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "VarArgs C Function")
   {
-    ezDuktapeWrapper duk("DukTest");
+    ezDuktapeContext duk("DukTest");
 
     ezTestLogInterface log;
     ezTestLogSystemScope logSystemScope(&log);
 
     log.ExpectMessage("#Args: 5, #0: String = text, #1: Number = 7, #2: Bool = true, #3: null, #4: object", ezLogMsgType::InfoMsg);
 
-    duk.RegisterFunctionWithVarArgs("PrintVA", CFuncPrintVA);
+    duk.RegisterGlobalFunctionWithVarArgs("PrintVA", CFuncPrintVA);
 
     duk.ExecuteString("PrintVA('text', 7, true, null, {})");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Call Function")
   {
-    ezDuktapeWrapper duk("DukTest");
+    ezDuktapeContext duk("DukTest");
 
     ezTestLogInterface log;
     ezTestLogSystemScope logSystemScope(&log);
 
     log.ExpectMessage("You did it", ezLogMsgType::InfoMsg);
 
-    duk.RegisterFunction("Print", CFuncPrint, 1);
+    duk.RegisterGlobalFunction("Print", CFuncPrint, 1);
 
-    if (EZ_TEST_RESULT(duk.BeginFunctionCall("Print")).Succeeded())
+    if (EZ_TEST_RESULT(duk.PrepareGlobalFunctionCall("Print")).Succeeded()) // [ Print ] / [ ]
     {
-      duk.PushParameter("You did it, Fry!");
-      EZ_TEST_RESULT(duk.ExecuteFunctionCall());
-
-      duk.EndFunctionCall();
+      duk.PushString("You did it, Fry!");         // [ Print String ]
+      EZ_TEST_RESULT(duk.CallPreparedFunction()); // [ result ]
+      duk.PopStack();                             // [ ]
     }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Function Magic Value")
   {
-    ezDuktapeWrapper duk("DukTest");
+    ezDuktapeContext duk("DukTest");
 
     ezTestLogInterface log;
     ezTestLogSystemScope logSystemScope(&log);
@@ -210,35 +209,37 @@ EZ_CREATE_SIMPLE_TEST(Scripting, DuktapeWrapper)
     log.ExpectMessage("Magic: '2'", ezLogMsgType::InfoMsg);
     log.ExpectMessage("Magic: '3'", ezLogMsgType::InfoMsg);
 
-    duk.RegisterFunction("Magic1", CFuncMagic, 0, 1);
-    duk.RegisterFunction("Magic2", CFuncMagic, 0, 2);
-    duk.RegisterFunction("Magic3", CFuncMagic, 0, 3);
+    duk.RegisterGlobalFunction("Magic1", CFuncMagic, 0, 1);
+    duk.RegisterGlobalFunction("Magic2", CFuncMagic, 0, 2);
+    duk.RegisterGlobalFunction("Magic3", CFuncMagic, 0, 3);
 
-    if (EZ_TEST_RESULT(duk.BeginFunctionCall("Magic1")).Succeeded())
+    if (EZ_TEST_RESULT(duk.PrepareGlobalFunctionCall("Magic1")).Succeeded()) // [ Magic1 ]
     {
-      EZ_TEST_RESULT(duk.ExecuteFunctionCall());
-      duk.EndFunctionCall();
+      EZ_TEST_RESULT(duk.CallPreparedFunction()); // [ result ]
+      duk.PopStack();                             // [ ]
     }
 
-    if (EZ_TEST_RESULT(duk.BeginFunctionCall("Magic2")).Succeeded())
+    if (EZ_TEST_RESULT(duk.PrepareGlobalFunctionCall("Magic2")).Succeeded()) // [ Magic2 ]
     {
-      EZ_TEST_RESULT(duk.ExecuteFunctionCall());
-      duk.EndFunctionCall();
+      EZ_TEST_RESULT(duk.CallPreparedFunction()); // [ result ]
+      duk.PopStack();                             // [ ]
     }
 
-    if (EZ_TEST_RESULT(duk.BeginFunctionCall("Magic3")).Succeeded())
+    if (EZ_TEST_RESULT(duk.PrepareGlobalFunctionCall("Magic3")).Succeeded()) // [ Magic2 ]
     {
-      EZ_TEST_RESULT(duk.ExecuteFunctionCall());
-      duk.EndFunctionCall();
+      EZ_TEST_RESULT(duk.CallPreparedFunction()); // [ result ]
+      duk.PopStack();                             // [ ]
     }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Inspect Object")
   {
-    ezDuktapeWrapper duk("DukTest");
+    ezDuktapeContext duk("DukTest");
+    ezDuktapeHelper val(duk, 0);
     EZ_TEST_RESULT(duk.ExecuteFile("Object.js"));
 
-    EZ_TEST_RESULT(duk.OpenObject("obj"));
+    duk.PushGlobalObject();                     // [ global ]
+    EZ_TEST_RESULT(duk.PushLocalObject("obj")); // [ global obj ]
 
     EZ_TEST_BOOL(duk.HasProperty("i"));
     EZ_TEST_INT(duk.GetIntProperty("i", 0), 23);
@@ -257,21 +258,20 @@ EZ_CREATE_SIMPLE_TEST(Scripting, DuktapeWrapper)
     EZ_TEST_BOOL(duk.HasProperty("o"));
 
     {
-      EZ_TEST_RESULT(duk.OpenObject("o"));
+      EZ_TEST_RESULT(duk.PushLocalObject("o")); // [ global obj o ]
       EZ_TEST_BOOL(duk.HasProperty("sub"));
       EZ_TEST_STRING(duk.GetStringProperty("sub", ""), "wub");
-
-      duk.CloseObject();
     }
-    duk.CloseObject();
+
+    duk.PopStack(3); // [ ]
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "require")
   {
-    ezDuktapeWrapper duk("DukTest");
+    ezDuktapeContext duk("DukTest");
     duk.EnableModuleSupport(ModuleSearchFunction);
 
-    duk.RegisterFunction("Print", CFuncPrint, 1);
+    duk.RegisterGlobalFunction("Print", CFuncPrint, 1);
 
     ezTestLogInterface log;
     ezTestLogSystemScope logSystemScope(&log);
@@ -287,7 +287,7 @@ EZ_CREATE_SIMPLE_TEST(Scripting, DuktapeWrapper)
 
 static duk_ret_t ModuleSearchFunction(duk_context* ctx)
 {
-  ezDuktapeFunction script(ctx);
+  ezDuktapeFunction script(ctx, 1);
 
   /* Nargs was given as 4 and we get the following stack arguments:
   *   index 0: id
@@ -296,7 +296,7 @@ static duk_ret_t ModuleSearchFunction(duk_context* ctx)
   *   index 3: module
   */
 
-  ezStringBuilder id = script.GetStringParameter(0);
+  ezStringBuilder id = script.GetStringValue(0);
   id.ChangeFileExtension("js");
 
   ezStringBuilder source;

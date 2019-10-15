@@ -35,12 +35,6 @@ public:
   /// components.
   void SetActive(bool bActive);
 
-  /// \brief Activates the component. Note that it is up to the manager if he differentiates between active and inactive components.
-  void Activate();
-
-  /// \brief Deactivates the component.
-  void Deactivate();
-
   /// \brief Returns whether this component is active.
   bool IsActive() const;
 

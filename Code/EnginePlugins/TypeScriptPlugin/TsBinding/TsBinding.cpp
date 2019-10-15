@@ -26,9 +26,14 @@ ezResult ezTypeScriptBinding::Initialize(ezTypeScriptTranspiler& transpiler, ezW
 
   SetModuleSearchPath("TypeScript");
 
+  SetupRttiFunctionBindings();
+  SetupRttiPropertyBindings();
+
   EZ_SUCCEED_OR_RETURN(Init_RequireModules());
   EZ_SUCCEED_OR_RETURN(Init_Log());
   EZ_SUCCEED_OR_RETURN(Init_GameObject());
+  EZ_SUCCEED_OR_RETURN(Init_FunctionBinding());
+  EZ_SUCCEED_OR_RETURN(Init_PropertyBinding());
   EZ_SUCCEED_OR_RETURN(Init_Component());
 
   m_bInitialized = true;
@@ -75,6 +80,21 @@ ezVec3 ezTypeScriptBinding::GetVec3(duk_context* pDuk, ezInt32 iObjIdx)
   return res;
 }
 
+ezVec3 ezTypeScriptBinding::GetVec3Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx)
+{
+  ezDuktapeHelper duk(pDuk, 0);
+
+  if (duk.PushLocalObject(szPropertyName, iObjIdx).Failed()) // [ prop ]
+  {
+    duk.Error(ezFmt("Vec3 property '{}' does not exist.", szPropertyName));
+    return ezVec3::ZeroVector();
+  }
+
+  const ezVec3 res = GetVec3(pDuk, -1);
+  duk.PopStack(); // [ ]
+  return res;
+}
+
 ezQuat ezTypeScriptBinding::GetQuat(duk_context* pDuk, ezInt32 iObjIdx)
 {
   ezQuat res;
@@ -98,3 +118,92 @@ ezQuat ezTypeScriptBinding::GetQuat(duk_context* pDuk, ezInt32 iObjIdx)
   return res;
 }
 
+ezQuat ezTypeScriptBinding::GetQuatProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx)
+{
+  ezDuktapeHelper duk(pDuk, 0);
+
+  if (duk.PushLocalObject(szPropertyName, iObjIdx).Failed()) // [ prop ]
+  {
+    duk.Error(ezFmt("Quat property '{}' does not exist.", szPropertyName));
+    return ezQuat::IdentityQuaternion();
+  }
+
+  const ezQuat res = GetQuat(pDuk, -1);
+  duk.PopStack(); // [ ]
+  return res;
+}
+
+ezColor ezTypeScriptBinding::GetColor(duk_context* pDuk, ezInt32 iObjIdx)
+{
+  ezDuktapeHelper duk(pDuk, 0);
+
+  ezColor res;
+  res.r = duk.GetFloatProperty("r", 0.0f, iObjIdx);
+  res.g = duk.GetFloatProperty("g", 0.0f, iObjIdx);
+  res.b = duk.GetFloatProperty("b", 0.0f, iObjIdx);
+  res.a = duk.GetFloatProperty("a", 1.0f, iObjIdx);
+
+  return res;
+}
+
+ezColor ezTypeScriptBinding::GetColorProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx)
+{
+  ezDuktapeHelper duk(pDuk, 0);
+
+  if (duk.PushLocalObject(szPropertyName, iObjIdx).Failed()) // [ prop ]
+  {
+    duk.Error(ezFmt("Color property '{}' does not exist.", szPropertyName));
+    return ezColor::RebeccaPurple;
+  }
+
+  const ezColor res = GetColor(pDuk, -1);
+  duk.PopStack(); // [ ]
+  return res;
+}
+
+void ezTypeScriptBinding::PushVec3(duk_context* pDuk, const ezVec3& value)
+{
+  ezDuktapeHelper duk(pDuk, +1);
+
+  duk.PushGlobalObject();                                   // [ global ]
+  EZ_VERIFY(duk.PushLocalObject("__Vec3").Succeeded(), ""); // [ global __Vec3 ]
+  duk_get_prop_string(duk, -1, "Vec3");                     // [ global __Vec3 Vec3 ]
+  duk_push_number(duk, value.x);                            // [ global __Vec3 Vec3 x ]
+  duk_push_number(duk, value.y);                            // [ global __Vec3 Vec3 x y ]
+  duk_push_number(duk, value.z);                            // [ global __Vec3 Vec3 x y z ]
+  duk_new(duk, 3);                                          // [ global __Vec3 result ]
+  duk_remove(duk, -2);                                      // [ global result ]
+  duk_remove(duk, -2);                                      // [ result ]
+}
+
+void ezTypeScriptBinding::PushQuat(duk_context* pDuk, const ezQuat& value)
+{
+  ezDuktapeHelper duk(pDuk, +1);
+
+  duk.PushGlobalObject();                                   // [ global ]
+  EZ_VERIFY(duk.PushLocalObject("__Quat").Succeeded(), ""); // [ global __Quat ]
+  duk_get_prop_string(duk, -1, "Quat");                     // [ global __Quat Vec3 ]
+  duk_push_number(duk, value.v.x);                          // [ global __Quat Vec3 x ]
+  duk_push_number(duk, value.v.y);                          // [ global __Quat Vec3 x y ]
+  duk_push_number(duk, value.v.z);                          // [ global __Quat Vec3 x y z ]
+  duk_push_number(duk, value.w);                            // [ global __Quat Vec3 x y z w ]
+  duk_new(duk, 4);                                          // [ global __Quat result ]
+  duk_remove(duk, -2);                                      // [ global result ]
+  duk_remove(duk, -2);                                      // [ result ]
+}
+
+void ezTypeScriptBinding::PushColor(duk_context* pDuk, const ezColor& value)
+{
+  ezDuktapeHelper duk(pDuk, +1);
+
+  duk.PushGlobalObject();                                    // [ global ]
+  EZ_VERIFY(duk.PushLocalObject("__Color").Succeeded(), ""); // [ global __Color ]
+  duk_get_prop_string(duk, -1, "Color");                     // [ global __Color Color ]
+  duk_push_number(duk, value.r);                             // [ global __Color Color r ]
+  duk_push_number(duk, value.g);                             // [ global __Color Color r g ]
+  duk_push_number(duk, value.b);                             // [ global __Color Color r g b ]
+  duk_push_number(duk, value.a);                             // [ global __Color Color r g b a ]
+  duk_new(duk, 4);                                           // [ global __Color result ]
+  duk_remove(duk, -2);                                       // [ global result ]
+  duk_remove(duk, -2);                                       // [ result ]
+}

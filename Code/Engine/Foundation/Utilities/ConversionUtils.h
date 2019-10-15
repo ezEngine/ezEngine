@@ -133,10 +133,19 @@ namespace ezConversionUtils
   /// \brief Converts a hex character ('0', '1', ... '9', 'A'/'a', ... 'F'/'f') to the corresponding int value 0 - 15.
   ///
   /// \note Returns -1 for invalid HEX characters.
-  EZ_FOUNDATION_DLL ezInt8 HexCharacterToIntValue(char Character); // [tested]
+  EZ_FOUNDATION_DLL ezInt8 HexCharacterToIntValue(ezUInt32 Character); // [tested]
 
   /// \brief Converts a hex string (i.e. 0xAABBCCDD) into its uint32 value.
   EZ_FOUNDATION_DLL ezUInt32 ConvertHexStringToUInt32(const char* szHEX); // [tested]
+
+  /// \brief Converts a hex string (i.e. 0xAABBCCDD) into its uint64 value.
+  ///
+  /// "0x" at the beginning is ignored.
+  /// Empty strings are interpreted as 'valid', representing the value 0 (returns EZ_SUCCESS).
+  /// If the ezStringView is shorter than 16 characters, this is interpreted as a valid HEX value with a smaller value.
+  /// If the string is longer than 16 characters (after the '0x'), the additional characters are not parsed at all.
+  /// If the first 16 characters (after the '0x') contain any non-HEX characters, parsing is interrupted and EZ_FAILURE is returned.
+  EZ_FOUNDATION_DLL ezResult ConvertHexStringToUInt64(ezStringView sHex, ezUInt64& out_uiResult);
 
   /// \brief Converts a HEX string to a binary value.
   ///

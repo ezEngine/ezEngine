@@ -5,6 +5,7 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Threading/DelegateTask.h>
 #include <Foundation/Threading/TaskSystem.h>
+#include <Foundation/Utilities/ConversionUtils.h>
 #include <TypeScriptPlugin/Transpiler/Transpiler.h>
 
 ezTypeScriptTranspiler::ezTypeScriptTranspiler()
@@ -13,6 +14,11 @@ ezTypeScriptTranspiler::ezTypeScriptTranspiler()
 }
 
 ezTypeScriptTranspiler::~ezTypeScriptTranspiler() = default;
+
+void ezTypeScriptTranspiler::SetOutputFolder(const char* szFolder)
+{
+  m_sOutputFolder = szFolder;
+}
 
 void ezTypeScriptTranspiler::StartLoadTranspiler()
 {
@@ -48,36 +54,38 @@ ezResult ezTypeScriptTranspiler::TranspileString(const char* szString, ezStringB
 
   EZ_PROFILE_SCOPE("Transpile TypeScript");
 
-  ezDuktapeStackValidator validator(m_Transpiler);
+  ezDuktapeHelper duk(m_Transpiler, 0);
 
-  if (m_Transpiler.OpenObject("ts").Failed())
+  m_Transpiler.PushGlobalObject();                 // [ global ]
+  if (m_Transpiler.PushLocalObject("ts").Failed()) // [ global ts ]
   {
     ezLog::Error("'ts' object does not exist");
+    duk.PopStack(2); // [ ]
     return EZ_FAILURE;
   }
 
-  if (m_Transpiler.BeginFunctionCall("transpile").Failed())
+  if (m_Transpiler.PrepareObjectFunctionCall("transpile").Failed()) // [ global ts transpile ]
   {
     ezLog::Error("'ts.transpile' function does not exist");
+    duk.PopStack(3); // [ ]
     return EZ_FAILURE;
   }
 
-  m_Transpiler.PushParameter(szString);
-  if (m_Transpiler.ExecuteFunctionCall().Failed())
+  m_Transpiler.PushString(szString);                // [ global ts transpile source ]
+  if (m_Transpiler.CallPreparedFunction().Failed()) // [ global ts result ]
   {
     ezLog::Error("String could not be transpiled");
+    duk.PopStack(3); // [ ]
     return EZ_FAILURE;
   }
 
-  out_Result = m_Transpiler.GetStringReturnValue();
-
-  m_Transpiler.EndFunctionCall();
-  m_Transpiler.CloseObject();
+  out_Result = m_Transpiler.GetStringValue(-1); // [ global ts result ]
+  m_Transpiler.PopStack(3);                     // [ ]
 
   return EZ_SUCCESS;
 }
 
-ezResult ezTypeScriptTranspiler::TranspileFile(const char* szFile, ezStringBuilder& out_Result)
+ezResult ezTypeScriptTranspiler::TranspileFile(const char* szFile, ezUInt64 uiSkipIfFileHash, ezStringBuilder& out_Result, ezUInt64& out_uiFileHash)
 {
   EZ_LOG_BLOCK("TranspileFile", szFile);
 
@@ -93,6 +101,11 @@ ezResult ezTypeScriptTranspiler::TranspileFile(const char* szFile, ezStringBuild
   ezStringBuilder source;
   source.ReadAll(file);
 
+  out_uiFileHash = ezHashingUtils::xxHash64(source.GetData(), source.GetElementCount());
+
+  if (uiSkipIfFileHash == out_uiFileHash)
+    return EZ_SUCCESS;
+
   return TranspileString(source, out_Result);
 }
 
@@ -100,20 +113,54 @@ ezResult ezTypeScriptTranspiler::TranspileFileAndStoreJS(const char* szFile, ezS
 {
   EZ_LOG_BLOCK("TranspileFileAndStoreJS", szFile);
 
-  EZ_SUCCEED_OR_RETURN(TranspileFile(szFile, out_Result));
+  EZ_ASSERT_DEV(!m_sOutputFolder.IsEmpty(), "Output folder has not been set");
+
+  ezUInt64 uiExpectedFileHash = 0;
+  ezUInt64 uiActualFileHash = 0;
 
   ezStringBuilder sOutFile = szFile;
   sOutFile.ChangeFileExtension("js");
-  sOutFile.Prepend(":project/");
+  sOutFile.Prepend(m_sOutputFolder, "/");
+  sOutFile.MakeCleanPath();
 
-  ezFileWriter fileOut;
-  if (fileOut.Open(sOutFile).Failed())
   {
-    ezLog::Error("Could not write transpiled JS to file '{}'", sOutFile);
-    return EZ_FAILURE;
+    ezFileReader fileIn;
+    if (fileIn.Open(sOutFile).Succeeded())
+    {
+      out_Result.ReadAll(fileIn);
+
+      if (out_Result.StartsWith_NoCase("/*SOURCE-HASH:"))
+      {
+        ezStringView sHashView = out_Result.GetView();
+        sHashView.Shrink(14, 0);
+
+        // try to extract the hash
+        if (ezConversionUtils::ConvertHexStringToUInt64(sHashView, uiExpectedFileHash).Failed())
+        {
+          uiExpectedFileHash = 0;
+        }
+      }
+    }
   }
 
-  fileOut.WriteBytes(out_Result.GetData(), out_Result.GetElementCount());
+  EZ_SUCCEED_OR_RETURN(TranspileFile(szFile, uiExpectedFileHash, out_Result, uiActualFileHash));
+
+  if (uiExpectedFileHash != uiActualFileHash)
+  {
+    ezFileWriter fileOut;
+    if (fileOut.Open(sOutFile).Failed())
+    {
+      ezLog::Error("Could not write transpiled JS to file '{}'", sOutFile);
+      return EZ_FAILURE;
+    }
+
+    ezStringBuilder sHashHeader;
+    sHashHeader.Format("/*SOURCE-HASH:{}*/\n", ezArgU(uiActualFileHash, 16, true, 16, true));
+    out_Result.Prepend(sHashHeader);
+
+    fileOut.WriteBytes(out_Result.GetData(), out_Result.GetElementCount());
+    ezLog::Success("Transpiled '{}'", szFile);
+  }
 
   return EZ_SUCCESS;
 }

@@ -2,7 +2,7 @@
 
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
 
-#include <Core/Scripting/DuktapeWrapper.h>
+#include <Core/Scripting/DuktapeContext.h>
 #include <Core/World/Component.h>
 #include <Core/World/World.h>
 #include <TypeScriptPlugin/Transpiler/Transpiler.h>
@@ -22,7 +22,7 @@ public:
   virtual void OnSimulationStarted() override;
 
   ezTypeScriptBinding m_TsBinding;
-  ezTypeScriptTranspiler m_Transpiler;
+  static ezTypeScriptTranspiler s_Transpiler;
 
 private:
   void Update(const ezWorldModule::UpdateContext& context);

@@ -2,7 +2,7 @@
 
 #ifdef BUILDSYSTEM_ENABLE_DUKTAPE_SUPPORT
 
-#  include <Core/Scripting/DuktapeWrapper.h>
+#  include <Core/Scripting/DuktapeContext.h>
 
 #  include <Duktape/duktape.h>
 #  include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
@@ -11,22 +11,20 @@
 #  include <Foundation/IO/FileSystem/FileWriter.h>
 #  include <TestFramework/Utilities/TestLogInterface.h>
 
-static ezResult TranspileString(const char* szSource, ezDuktapeWrapper& script, ezStringBuilder& result)
+static ezResult TranspileString(const char* szSource, ezDuktapeContext& script, ezStringBuilder& result)
 {
-  EZ_SUCCEED_OR_RETURN(script.OpenObject("ts"));
-  EZ_SUCCEED_OR_RETURN(script.BeginFunctionCall("transpile"));
-  script.PushParameter(szSource);
-  EZ_SUCCEED_OR_RETURN(script.ExecuteFunctionCall());
-
-  result = script.GetStringReturnValue();
-
-  script.EndFunctionCall();
-  script.CloseObject();
+  script.PushGlobalObject();                                           // [ global ]
+  script.PushLocalObject("ts");                                        // [ global ts ]
+  EZ_SUCCEED_OR_RETURN(script.PrepareObjectFunctionCall("transpile")); // [ global ts transpile ]
+  script.PushString(szSource);                                         // [ global ts transpile source ]
+  EZ_SUCCEED_OR_RETURN(script.CallPreparedFunction());                 // [ global ts result ]
+  result = script.GetStringValue(-1);                                  // [ global ts result ]
+  script.PopStack(3);                                                  // [ ]
 
   return EZ_SUCCESS;
 }
 
-static ezResult TranspileFile(const char* szFile, ezDuktapeWrapper& script, ezStringBuilder& result)
+static ezResult TranspileFile(const char* szFile, ezDuktapeContext& script, ezStringBuilder& result)
 {
   ezFileReader file;
   file.Open(szFile);
@@ -37,7 +35,7 @@ static ezResult TranspileFile(const char* szFile, ezDuktapeWrapper& script, ezSt
   return TranspileString(source, script, result);
 }
 
-static ezResult TranspileFileToJS(const char* szFile, ezDuktapeWrapper& script, ezStringBuilder& result)
+static ezResult TranspileFileToJS(const char* szFile, ezDuktapeContext& script, ezStringBuilder& result)
 {
   EZ_SUCCEED_OR_RETURN(TranspileFile(szFile, script, result));
 
@@ -53,16 +51,16 @@ static ezResult TranspileFileToJS(const char* szFile, ezDuktapeWrapper& script, 
 
 static int Duk_Print(duk_context* pContext)
 {
-  ezDuktapeFunction duk(pContext);
+  ezDuktapeFunction duk(pContext, 0);
 
-  ezLog::Info(duk.GetStringParameter(0));
+  ezLog::Info(duk.GetStringValue(0));
 
   return duk.ReturnVoid();
 }
 
 static duk_ret_t ModuleSearchFunction2(duk_context* ctx)
 {
-  ezDuktapeFunction script(ctx);
+  ezDuktapeFunction script(ctx, 1);
 
   /* Nargs was given as 4 and we get the following stack arguments:
   *   index 0: id
@@ -71,7 +69,7 @@ static duk_ret_t ModuleSearchFunction2(duk_context* ctx)
   *   index 3: module
   */
 
-  ezStringBuilder id = script.GetStringParameter(0);
+  ezStringBuilder id = script.GetStringValue(0);
   id.ChangeFileExtension("js");
 
   ezStringBuilder source;
@@ -101,10 +99,10 @@ EZ_CREATE_SIMPLE_TEST(Scripting, TypeScript)
       return;
   }
 
-  ezDuktapeWrapper duk("DukTS");
+  ezDuktapeContext duk("DukTS");
   duk.EnableModuleSupport(ModuleSearchFunction2);
 
-  duk.RegisterFunction("Print", Duk_Print, 1);
+  duk.RegisterGlobalFunction("Print", Duk_Print, 1);
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Compile TypeScriptServices")
   {
@@ -121,7 +119,7 @@ EZ_CREATE_SIMPLE_TEST(Scripting, TypeScript)
     TranspileString("class X{}", duk, sTranspiled);
 
     // validate that the transpiled code can be executed by Duktape
-    ezDuktapeWrapper duk("duk");
+    ezDuktapeContext duk("duk");
     EZ_TEST_RESULT(duk.ExecuteString(sTranspiled));
   }
 

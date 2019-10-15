@@ -1,13 +1,14 @@
 #include <CorePCH.h>
 
-#include <Core/Scripting/DuktapeWrapper.h>
+#include <Core/Scripting/DuktapeFunction.h>
 
 #ifdef BUILDSYSTEM_ENABLE_DUKTAPE_SUPPORT
 
+#  include <Duktape/duk_module_duktape.h>
 #  include <Duktape/duktape.h>
 
-ezDuktapeFunction::ezDuktapeFunction(duk_context* pExistingContext)
-  : ezDuktapeWrapper(pExistingContext)
+ezDuktapeFunction::ezDuktapeFunction(duk_context* pExistingContext, ezInt32 iExpectedStackChange)
+  : ezDuktapeHelper(pExistingContext, iExpectedStackChange)
 {
 }
 
@@ -24,66 +25,6 @@ ezUInt32 ezDuktapeFunction::GetNumVarArgFunctionParameters() const
 ezInt16 ezDuktapeFunction::GetFunctionMagicValue() const
 {
   return duk_get_current_magic(GetContext());
-}
-
-bool ezDuktapeFunction::GetBoolParameter(ezUInt32 uiArgIdx, bool fallback /*= false*/) const
-{
-  return duk_get_boolean_default(GetContext(), uiArgIdx, fallback);
-}
-
-ezInt32 ezDuktapeFunction::GetIntParameter(ezUInt32 uiArgIdx, ezInt32 fallback /*= 0*/) const
-{
-  return duk_get_int_default(GetContext(), uiArgIdx, fallback);
-}
-
-float ezDuktapeFunction::GetFloatParameter(ezUInt32 uiArgIdx, float fallback /*= 0*/) const
-{
-  return static_cast<float>(duk_get_number_default(GetContext(), uiArgIdx, fallback));
-}
-
-double ezDuktapeFunction::GetNumberParameter(ezUInt32 uiArgIdx, double fallback /*= 0*/) const
-{
-  return duk_get_number_default(GetContext(), uiArgIdx, fallback);
-}
-
-const char* ezDuktapeFunction::GetStringParameter(ezUInt32 uiArgIdx, const char* fallback /*= ""*/) const
-{
-  return duk_get_string_default(GetContext(), uiArgIdx, fallback);
-}
-
-bool ezDuktapeFunction::IsParameterOfType(ezUInt32 uiArgIdx, ezBitflags<ezDuktapeTypeMask> mask) const
-{
-  return duk_check_type_mask(GetContext(), uiArgIdx, mask.GetValue());
-}
-
-bool ezDuktapeFunction::IsParameterBool(ezUInt32 uiArgIdx) const
-{
-  return duk_check_type_mask(GetContext(), uiArgIdx, DUK_TYPE_MASK_BOOLEAN);
-}
-
-bool ezDuktapeFunction::IsParameterNumber(ezUInt32 uiArgIdx) const
-{
-  return duk_check_type_mask(GetContext(), uiArgIdx, DUK_TYPE_MASK_NUMBER);
-}
-
-bool ezDuktapeFunction::IsParameterString(ezUInt32 uiArgIdx) const
-{
-  return duk_check_type_mask(GetContext(), uiArgIdx, DUK_TYPE_MASK_STRING);
-}
-
-bool ezDuktapeFunction::IsParameterNull(ezUInt32 uiArgIdx) const
-{
-  return duk_check_type_mask(GetContext(), uiArgIdx, DUK_TYPE_MASK_NULL);
-}
-
-bool ezDuktapeFunction::IsParameterUndefined(ezUInt32 uiArgIdx) const
-{
-  return duk_check_type_mask(GetContext(), uiArgIdx, DUK_TYPE_MASK_UNDEFINED);
-}
-
-bool ezDuktapeFunction::IsParameterObject(ezUInt32 uiArgIdx) const
-{
-  return duk_check_type_mask(GetContext(), uiArgIdx, DUK_TYPE_MASK_OBJECT);
 }
 
 ezInt32 ezDuktapeFunction::ReturnVoid()
@@ -122,6 +63,14 @@ ezInt32 ezDuktapeFunction::ReturnInt(ezInt32 value)
   EZ_ASSERT_DEV(!m_bDidReturnValue, "Only one ReturnXYZ function may be called when exiting a C function");
   m_bDidReturnValue = true;
   duk_push_int(GetContext(), value);
+  return 1;
+}
+
+ezInt32 ezDuktapeFunction::ReturnUInt(ezUInt32 value)
+{
+  EZ_ASSERT_DEV(!m_bDidReturnValue, "Only one ReturnXYZ function may be called when exiting a C function");
+  m_bDidReturnValue = true;
+  duk_push_uint(GetContext(), value);
   return 1;
 }
 

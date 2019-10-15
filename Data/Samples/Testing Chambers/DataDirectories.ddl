@@ -6,8 +6,8 @@ DataDir
 }
 DataDir
 {
-	string %Path{">project/"}
-	string %RootName{"project"}
+	string %Path{">sdk/Data/Plugins"}
+	string %RootName{"plugins"}
 	bool %Writable{true}
 }
 DataDir
@@ -18,7 +18,7 @@ DataDir
 }
 DataDir
 {
-	string %Path{">sdk/Data/Plugins"}
-	string %RootName{"plugins"}
-	bool %Writable{false}
+	string %Path{">project/"}
+	string %RootName{"project"}
+	bool %Writable{true}
 }

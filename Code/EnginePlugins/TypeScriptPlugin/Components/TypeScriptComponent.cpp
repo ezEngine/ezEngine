@@ -12,6 +12,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezTypeScriptComponent, 1, ezComponentMode::Static)
 EZ_END_COMPONENT_TYPE;
 // clang-format on
 
+ezTypeScriptTranspiler ezTypeScriptComponentManager::s_Transpiler;
+
 ezTypeScriptComponent::ezTypeScriptComponent() = default;
 ezTypeScriptComponent::~ezTypeScriptComponent() = default;
 
@@ -27,9 +29,9 @@ void ezTypeScriptComponent::OnSimulationStarted()
 {
   ezTypeScriptBinding& binding = static_cast<ezTypeScriptComponentManager*>(GetOwningManager())->m_TsBinding;
 
-  if (binding.LoadComponent("TypeScript/Component.ts").Succeeded())
+  if (binding.LoadComponent("TypeScript/MyComponent.ts").Succeeded())
   {
-    binding.CreateTsComponent("MyComponent", GetHandle(), GetOwner()->GetName());
+    ezTypeScriptBinding::CreateTsComponent(binding.GetDukContext(), "MyComponent", GetHandle(), GetOwner()->GetName());
   }
 }
 
@@ -41,18 +43,18 @@ void ezTypeScriptComponent::Deinitialize()
 
 void ezTypeScriptComponent::Update(ezTypeScriptBinding& binding)
 {
-  ezDuktapeWrapper& duk = binding.GetDukTapeWrapper();
+  ezDuktapeHelper duk(binding.GetDukTapeWrapper(), 0);
 
-  ezDuktapeStackValidator validator(duk);
+  binding.DukPutComponentObject(duk, GetHandle()); // [ comp ]
 
-  binding.DukPutComponentObject(GetHandle());
-
-  if (duk.BeginMethodCall("Update").Succeeded())
+  if (duk.PrepareMethodCall("Update").Succeeded()) // [ comp Update comp ]
   {
-    duk.ExecuteMethodCall();
-    duk.EndMethodCall();
+    duk.CallPreparedMethod(); // [ comp result ]
+    duk.PopStack(2);          // [ ]
   }
-
-  // remove 'this'
-  duk_pop(duk);
+  else
+  {
+    // remove 'this'   [ comp ]
+    duk.PopStack(); // [ ]
+  }
 }
