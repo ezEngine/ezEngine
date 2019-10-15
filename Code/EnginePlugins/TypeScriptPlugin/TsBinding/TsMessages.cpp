@@ -10,9 +10,19 @@ void ezTypeScriptBinding::GenerateMessagesFile(const char* szFile)
   ezStringBuilder sFileContent;
 
   sFileContent =
-    R"(
+    R"(// AUTO-GENERATED FILE
+
 import __Message = require("./Message")
 export import Message = __Message.Message;
+
+import __Vec3 = require("./Vec3")
+export import Vec3 = __Vec3.Vec3;
+
+import __Quat = require("./Quat")
+export import Quat = __Quat.Quat;
+
+import __Color = require("./Color")
+export import Color = __Color.Color;
 
 )";
 
@@ -101,7 +111,14 @@ void ezTypeScriptBinding::GenerateMessagePropertiesCode(ezStringBuilder& out_Cod
 
     if (!sDefault.IsEmpty())
     {
-      sProp.Format("  {0}: {1} = {2};\n", pMember->GetPropertyName(), szTypeName, def);
+      // TODO: make this prettier
+      if (def.GetType() == ezVariantType::Color)
+      {
+        ezColor c = def.Get<ezColor>();
+        sDefault.Format("new Color({}, {}, {}, {})", c.r, c.g, c.b, c.a);
+      }
+
+      sProp.Format("  {0}: {1} = {2};\n", pMember->GetPropertyName(), szTypeName, sDefault);
     }
     else
     {

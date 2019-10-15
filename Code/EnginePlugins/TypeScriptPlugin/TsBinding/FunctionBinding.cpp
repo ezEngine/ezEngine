@@ -69,7 +69,10 @@ const char* ezTypeScriptBinding::TsType(const ezRTTI* pRtti)
     case ezVariant::Type::Double:
       return "number";
 
-    //case ezVariant::Type::Color:
+    case ezVariant::Type::Color:
+      //case ezVariant::Type::ColorGamma:
+      return "Color";
+
     //case ezVariant::Type::Vector2:
     case ezVariant::Type::Vector3:
       return "Vec3";
@@ -94,7 +97,6 @@ const char* ezTypeScriptBinding::TsType(const ezRTTI* pRtti)
 
       //case ezVariant::Type::Time:
       //case ezVariant::Type::Uuid:
-      //case ezVariant::Type::ColorGamma:
 
     default:
       return nullptr;
@@ -240,6 +242,10 @@ int __CPP_ComponentFunction_Call(duk_context* pDuk)
         args[arg] = ezTypeScriptBinding::GetQuat(duk, 2 + arg);
         break;
 
+      case ezVariant::Type::Color:
+        args[arg] = ezTypeScriptBinding::GetColor(duk, 2 + arg);
+        break;
+
       default:
         EZ_ASSERT_NOT_IMPLEMENTED;
         break;
@@ -281,6 +287,10 @@ int __CPP_ComponentFunction_Call(duk_context* pDuk)
 
       case ezVariant::Type::Quaternion:
         ezTypeScriptBinding::PushQuat(duk, ret.Get<ezQuat>());
+        return duk.ReturnCustom();
+
+      case ezVariant::Type::Color:
+        ezTypeScriptBinding::PushColor(duk, ret.Get<ezColor>());
         return duk.ReturnCustom();
 
       default:

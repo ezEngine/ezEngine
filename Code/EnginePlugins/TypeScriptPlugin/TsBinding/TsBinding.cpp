@@ -80,6 +80,21 @@ ezVec3 ezTypeScriptBinding::GetVec3(duk_context* pDuk, ezInt32 iObjIdx)
   return res;
 }
 
+ezVec3 ezTypeScriptBinding::GetVec3Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx)
+{
+  ezDuktapeHelper duk(pDuk, 0);
+
+  if (duk.PushLocalObject(szPropertyName, iObjIdx).Failed()) // [ prop ]
+  {
+    duk.Error(ezFmt("Vec3 property '{}' does not exist.", szPropertyName));
+    return ezVec3::ZeroVector();
+  }
+
+  const ezVec3 res = GetVec3(pDuk, -1);
+  duk.PopStack(); // [ ]
+  return res;
+}
+
 ezQuat ezTypeScriptBinding::GetQuat(duk_context* pDuk, ezInt32 iObjIdx)
 {
   ezQuat res;
@@ -100,6 +115,49 @@ ezQuat ezTypeScriptBinding::GetQuat(duk_context* pDuk, ezInt32 iObjIdx)
 
   duk_pop_n(pDuk, 5);
 
+  return res;
+}
+
+ezQuat ezTypeScriptBinding::GetQuatProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx)
+{
+  ezDuktapeHelper duk(pDuk, 0);
+
+  if (duk.PushLocalObject(szPropertyName, iObjIdx).Failed()) // [ prop ]
+  {
+    duk.Error(ezFmt("Quat property '{}' does not exist.", szPropertyName));
+    return ezQuat::IdentityQuaternion();
+  }
+
+  const ezQuat res = GetQuat(pDuk, -1);
+  duk.PopStack(); // [ ]
+  return res;
+}
+
+ezColor ezTypeScriptBinding::GetColor(duk_context* pDuk, ezInt32 iObjIdx)
+{
+  ezDuktapeHelper duk(pDuk, 0);
+
+  ezColor res;
+  res.r = duk.GetFloatProperty("r", 0.0f, iObjIdx);
+  res.g = duk.GetFloatProperty("g", 0.0f, iObjIdx);
+  res.b = duk.GetFloatProperty("b", 0.0f, iObjIdx);
+  res.a = duk.GetFloatProperty("a", 1.0f, iObjIdx);
+
+  return res;
+}
+
+ezColor ezTypeScriptBinding::GetColorProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx)
+{
+  ezDuktapeHelper duk(pDuk, 0);
+
+  if (duk.PushLocalObject(szPropertyName, iObjIdx).Failed()) // [ prop ]
+  {
+    duk.Error(ezFmt("Color property '{}' does not exist.", szPropertyName));
+    return ezColor::RebeccaPurple;
+  }
+
+  const ezColor res = GetColor(pDuk, -1);
+  duk.PopStack(); // [ ]
   return res;
 }
 
@@ -132,4 +190,20 @@ void ezTypeScriptBinding::PushQuat(duk_context* pDuk, const ezQuat& value)
   duk_new(duk, 4);                                          // [ global __Quat result ]
   duk_remove(duk, -2);                                      // [ global result ]
   duk_remove(duk, -2);                                      // [ result ]
+}
+
+void ezTypeScriptBinding::PushColor(duk_context* pDuk, const ezColor& value)
+{
+  ezDuktapeHelper duk(pDuk, +1);
+
+  duk.PushGlobalObject();                                    // [ global ]
+  EZ_VERIFY(duk.PushLocalObject("__Color").Succeeded(), ""); // [ global __Color ]
+  duk_get_prop_string(duk, -1, "Color");                     // [ global __Color Color ]
+  duk_push_number(duk, value.r);                             // [ global __Color Color r ]
+  duk_push_number(duk, value.g);                             // [ global __Color Color r g ]
+  duk_push_number(duk, value.b);                             // [ global __Color Color r g b ]
+  duk_push_number(duk, value.a);                             // [ global __Color Color r g b a ]
+  duk_new(duk, 4);                                           // [ global __Color result ]
+  duk_remove(duk, -2);                                       // [ global result ]
+  duk_remove(duk, -2);                                       // [ result ]
 }

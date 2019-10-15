@@ -162,9 +162,14 @@ public:
   ///@{
 
   static ezVec3 GetVec3(duk_context* pDuk, ezInt32 iObjIdx);
+  static ezVec3 GetVec3Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx);
   static ezQuat GetQuat(duk_context* pDuk, ezInt32 iObjIdx);
+  static ezQuat GetQuatProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx);
+  static ezColor GetColor(duk_context* pDuk, ezInt32 iObjIdx);
+  static ezColor GetColorProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx);
   static void PushVec3(duk_context* pDuk, const ezVec3& value);
   static void PushQuat(duk_context* pDuk, const ezQuat& value);
+  static void PushColor(duk_context* pDuk, const ezColor& value);
 
   ///@}
 };

@@ -311,6 +311,14 @@ static int __CPP_GameObject_SendMessage(duk_context* pDuk)
         ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg, value);
         break;
       }
+
+      case ezVariantType::Color:
+      {
+        ezColor value = ezTypeScriptBinding::GetColorProperty(duk, pMember->GetPropertyName(), 2);
+        ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg, value);
+        break;
+      }
+
     }
   }
 

@@ -1,22 +1,18 @@
 import ez = require("./ez")
 
-class MyComponent extends ez.TypescriptComponent 
-{
-    constructor(name: string) 
-    {
+class MyComponent extends ez.TypescriptComponent {
+    constructor(name: string) {
         super()
         ez.Log.Info("Construct MyComponent: " + name)
         this._name = name;
     }
 
-    Update(): void
-    {
+    Update(): void {
         //ez.Log.Dev("MyComponent::Update: " + this._name)
 
         let owner = this.GetOwner();
 
-        if (owner != null)
-        {
+        if (owner != null) {
             //ez.Log.Dev("Setting Local Position")
 
             let newPos = ez.Vec3.CreateRandomPointInSphere();
@@ -32,17 +28,14 @@ class MyComponent extends ez.TypescriptComponent
         }
 
         let child = owner.FindChildByName("Light");
-        if (child != null)
-        {
+        if (child != null) {
             child.SetActive(false);//Math.random() > 0.7);
         }
 
         let comp = owner.FindComponentByType(ez.TransformComponent);
-        if (comp != null)
-        {
+        if (comp != null) {
             //comp.SetActive(Math.random() > 0.5);
-            if (Math.random() > 0.9)
-            {
+            if (Math.random() > 0.9) {
                 if (comp.IsDirectionForwards())
                     comp.SetDirectionForwards(false);
                 else
@@ -52,17 +45,28 @@ class MyComponent extends ez.TypescriptComponent
             //comp.SetDirectionForwards(Math.random() > 0.9);
         }
 
-        if (Math.random() > 0.9)
-        {
+        if (false && Math.random() > 0.9) {
             let setMat = new ez.MsgSetMeshMaterial();
 
-            if (Math.random() > 0.5)
-            {
+            if (Math.random() > 0.5) {
                 setMat.Material = "{ eed69dde-aab0-4ccd-8f98-a9822a389ea0 }";
             }
-            else
-            {
+            else {
                 setMat.Material = "{ 49324140-a093-4a75-9c6c-efde65a39fc4 }";
+            }
+            owner.SendMessage(setMat);
+        }
+
+        if (Math.random() > 0.9) {
+            let setMat = new ez.MsgSetColor();
+            
+            if (Math.random() > 0.5) {
+                setMat.Color.SetPurple();
+                ez.Log.Info("Color: " + setMat.Color.r + ", " + setMat.Color.g + ", " + setMat.Color.b + ", " + setMat.Color.a)
+            }
+            else {
+                setMat.Color.SetWhite();
+                ez.Log.Info("Color: " + setMat.Color.r + ", " + setMat.Color.g + ", " + setMat.Color.b + ", " + setMat.Color.a)
             }
             owner.SendMessage(setMat);
         }

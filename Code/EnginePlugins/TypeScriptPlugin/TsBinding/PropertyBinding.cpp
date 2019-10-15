@@ -131,6 +131,10 @@ int __CPP_ComponentProperty_get(duk_context* pDuk)
       ezTypeScriptBinding::PushQuat(duk, value.Get<ezQuat>());
       return duk.ReturnCustom();
 
+    case ezVariant::Type::Color:
+      ezTypeScriptBinding::PushColor(duk, value.Get<ezColor>());
+      return duk.ReturnCustom();
+
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
       break;
@@ -194,6 +198,10 @@ int __CPP_ComponentProperty_set(duk_context* pDuk)
 
     case ezVariant::Type::Quaternion:
       value = ezTypeScriptBinding::GetQuat(duk, 2);
+      break;
+
+    case ezVariant::Type::Color:
+      value = ezTypeScriptBinding::GetColor(duk, 2);
       break;
 
     default:

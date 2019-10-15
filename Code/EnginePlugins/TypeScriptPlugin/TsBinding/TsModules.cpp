@@ -49,6 +49,12 @@ ezResult ezTypeScriptBinding::Init_RequireModules()
     return EZ_FAILURE;
   }
 
+  if (m_Duk.ExecuteString("var __Color = require(\"./ez/Color\");").Failed())
+  {
+    ezLog::Error("Failed to import 'Color.ts'");
+    return EZ_FAILURE;
+  }
+
   return EZ_SUCCESS;
 }
 
