@@ -33,6 +33,8 @@ void ezTypeScriptTranspiler::StartLoadTranspiler()
       {
         ezLog::Error("typescriptServices.js could not be loaded");
       }
+
+      ezLog::Success("Loaded TypeScript transpiler.");
     });
 
   pTask->SetOnTaskFinished([](ezTask* pTask) { EZ_DEFAULT_DELETE(pTask); });

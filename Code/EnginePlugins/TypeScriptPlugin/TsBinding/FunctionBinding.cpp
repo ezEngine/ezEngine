@@ -53,7 +53,9 @@ const char* ezTypeScriptBinding::TsType(const ezRTTI* pRtti)
 
   switch (pRtti->GetVariantType())
   {
-      //case ezVariant::Type::Angle:
+    case ezVariant::Type::Angle:
+      return "number";
+
     case ezVariant::Type::Bool:
       return "boolean";
 
@@ -70,7 +72,7 @@ const char* ezTypeScriptBinding::TsType(const ezRTTI* pRtti)
       return "number";
 
     case ezVariant::Type::Color:
-      //case ezVariant::Type::ColorGamma:
+    case ezVariant::Type::ColorGamma:
       return "Color";
 
     //case ezVariant::Type::Vector2:
@@ -95,7 +97,9 @@ const char* ezTypeScriptBinding::TsType(const ezRTTI* pRtti)
     case ezVariant::Type::StringView:
       return "string";
 
-      //case ezVariant::Type::Time:
+    case ezVariant::Type::Time:
+      return "number";
+
       //case ezVariant::Type::Uuid:
 
     default:
@@ -225,13 +229,16 @@ int __CPP_ComponentFunction_Call(duk_context* pDuk)
         break;
 
       case ezVariant::Type::Float:
-      case ezVariant::Type::Double:
         args[arg] = duk.GetFloatValue(2 + arg);
+        break;
+
+      case ezVariant::Type::Double:
+        args[arg] = duk.GetNumberValue(2 + arg);
         break;
 
       case ezVariant::Type::String:
       case ezVariant::Type::StringView:
-        args[arg] = duk.GetStringValue(2 + arg);
+        args[arg] = ezStringView(duk.GetStringValue(2 + arg));
         break;
 
       case ezVariant::Type::Vector3:
@@ -243,7 +250,19 @@ int __CPP_ComponentFunction_Call(duk_context* pDuk)
         break;
 
       case ezVariant::Type::Color:
+        args[arg] = ezColorGammaUB(ezTypeScriptBinding::GetColor(duk, 2 + arg));
+        break;
+
+      case ezVariant::Type::ColorGamma:
         args[arg] = ezTypeScriptBinding::GetColor(duk, 2 + arg);
+        break;
+
+      case ezVariant::Type::Time:
+        args[arg] = ezTime::Seconds(duk.GetNumberValue(2 + arg));
+        break;
+
+      case ezVariant::Type::Angle:
+        args[arg] = ezAngle::Radian(duk.GetFloatValue(2 + arg));
         break;
 
       default:
@@ -258,6 +277,12 @@ int __CPP_ComponentFunction_Call(duk_context* pDuk)
   {
     switch (ret.GetType())
     {
+      case ezVariant::Type::Angle:
+        return duk.ReturnNumber(ret.Get<ezAngle>().GetRadian());
+
+      case ezVariant::Type::Time:
+        return duk.ReturnNumber(ret.Get<ezTime>().GetSeconds());
+
       case ezVariant::Type::Bool:
         return duk.ReturnBool(ret.Get<bool>());
 
@@ -291,6 +316,10 @@ int __CPP_ComponentFunction_Call(duk_context* pDuk)
 
       case ezVariant::Type::Color:
         ezTypeScriptBinding::PushColor(duk, ret.Get<ezColor>());
+        return duk.ReturnCustom();
+
+      case ezVariant::Type::ColorGamma:
+        ezTypeScriptBinding::PushColor(duk, ret.Get<ezColorGammaUB>());
         return duk.ReturnCustom();
 
       default:

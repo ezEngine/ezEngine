@@ -61,14 +61,14 @@ class MyComponent extends ez.TypescriptComponent {
             let setMat = new ez.MsgSetColor();
             
             if (Math.random() > 0.5) {
-                setMat.Color.SetRebeccaPurple();
+                setMat.Color.SetHotPink();
                 ez.Log.Info("Color: " + setMat.Color.r + ", " + setMat.Color.g + ", " + setMat.Color.b + ", " + setMat.Color.a)
             }
             else {
                 setMat.Color.SetWhite();
                 ez.Log.Info("Color: " + setMat.Color.r + ", " + setMat.Color.g + ", " + setMat.Color.b + ", " + setMat.Color.a)
             }
-            owner.SendMessage(setMat);
+            owner.PostMessage(setMat, ez.Time.Seconds(1.0));
         }
     }
 

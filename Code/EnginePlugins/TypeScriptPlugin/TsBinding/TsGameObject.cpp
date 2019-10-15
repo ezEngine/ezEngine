@@ -60,7 +60,8 @@ ezResult ezTypeScriptBinding::Init_GameObject()
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_FindChildByName", __CPP_GameObject_FindChildByName, 2);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_FindComponentByTypeName", __CPP_GameObject_FindComponentByTypeName, 2);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_FindComponentByTypeNameHash", __CPP_GameObject_FindComponentByTypeNameHash, 2);
-  m_Duk.RegisterGlobalFunction("__CPP_GameObject_SendMessage", __CPP_GameObject_SendMessage, 3);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_SendMessage", __CPP_GameObject_SendMessage, 4, 0);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_PostMessage", __CPP_GameObject_SendMessage, 5, 1);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetGlobalDirForwards", __CPP_GameObject_GetX_Vec3, 1, GameObject_X::GlobalDirForwards);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetGlobalDirRight", __CPP_GameObject_GetX_Vec3, 1, GameObject_X::GlobalDirRight);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetGlobalDirUp", __CPP_GameObject_GetX_Vec3, 1, GameObject_X::GlobalDirUp);
@@ -481,103 +482,127 @@ static int __CPP_GameObject_SendMessage(duk_context* pDuk)
 
     ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pProp);
 
-    const ezVariantType::Enum type = pMember->GetSpecificType()->GetVariantType();
+    const ezVariant::Type::Enum type = pMember->GetSpecificType()->GetVariantType();
     switch (type)
     {
-      case ezVariantType::Invalid:
+      case ezVariant::Type::Invalid:
         break;
 
-      case ezVariantType::Bool:
+      case ezVariant::Type::Bool:
       {
         bool value = duk.GetBoolProperty(pMember->GetPropertyName(), false, 2);
         ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg, value);
         break;
       }
 
-      case ezVariantType::String:
-      case ezVariantType::StringView:
+      case ezVariant::Type::String:
+      case ezVariant::Type::StringView:
       {
-        const char* value = duk.GetStringProperty(pMember->GetPropertyName(), "", 2);
+        ezStringView value = duk.GetStringProperty(pMember->GetPropertyName(), "", 2);
         ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg, value);
         break;
       }
 
-      case ezVariantType::Int8:
-      case ezVariantType::Int16:
-      case ezVariantType::Int32:
-      case ezVariantType::Int64:
+      case ezVariant::Type::Int8:
+      case ezVariant::Type::Int16:
+      case ezVariant::Type::Int32:
+      case ezVariant::Type::Int64:
       {
         ezInt32 value = duk.GetIntProperty(pMember->GetPropertyName(), 0, 2);
         ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg, value);
         break;
       }
 
-      case ezVariantType::UInt8:
-      case ezVariantType::UInt16:
-      case ezVariantType::UInt32:
-      case ezVariantType::UInt64:
+      case ezVariant::Type::UInt8:
+      case ezVariant::Type::UInt16:
+      case ezVariant::Type::UInt32:
+      case ezVariant::Type::UInt64:
       {
         ezUInt32 value = duk.GetUIntProperty(pMember->GetPropertyName(), 0, 2);
         ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg, value);
         break;
       }
 
-      case ezVariantType::Float:
+      case ezVariant::Type::Float:
       {
         const float value = duk.GetFloatProperty(pMember->GetPropertyName(), 0, 2);
         ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg, value);
         break;
       }
 
-      case ezVariantType::Double:
+      case ezVariant::Type::Double:
       {
         const double value = duk.GetNumberProperty(pMember->GetPropertyName(), 0, 2);
         ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg, value);
         break;
       }
 
-
-      case ezVariantType::Vector3:
+      case ezVariant::Type::Vector3:
       {
         ezVec3 value = ezTypeScriptBinding::GetVec3Property(duk, pMember->GetPropertyName(), 2);
         ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg, value);
         break;
       }
 
-      case ezVariantType::Quaternion:
+      case ezVariant::Type::Quaternion:
       {
         ezQuat value = ezTypeScriptBinding::GetQuatProperty(duk, pMember->GetPropertyName(), 2);
         ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg, value);
         break;
       }
 
-
-      case ezVariantType::Color:
-      case ezVariantType::ColorGamma:
+      case ezVariant::Type::Color:
       {
         ezColor value = ezTypeScriptBinding::GetColorProperty(duk, pMember->GetPropertyName(), 2);
         ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg, value);
         break;
       }
 
-      case ezVariantType::Vector2:
-      case ezVariantType::Matrix3:
-      case ezVariantType::Matrix4:
-      case ezVariantType::Time:
-      case ezVariantType::Uuid:
-      case ezVariantType::Angle:
+      case ezVariant::Type::ColorGamma:
+      {
+        ezColorGammaUB value = ezTypeScriptBinding::GetColorProperty(duk, pMember->GetPropertyName(), 2);
+        ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg, value);
+        break;
+      }
+
+      case ezVariant::Type::Time:
+      {
+        const ezTime value = ezTime::Seconds(duk.GetNumberProperty(pMember->GetPropertyName(), 0, 2));
+        ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg, value);
+        break;
+      }
+
+      case ezVariant::Type::Angle:
+      {
+        const ezAngle value = ezAngle::Radian(duk.GetFloatProperty(pMember->GetPropertyName(), 0, 2));
+        ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg, value);
+        break;
+      }
+
+      case ezVariant::Type::Vector2:
+      case ezVariant::Type::Matrix3:
+      case ezVariant::Type::Matrix4:
+      case ezVariant::Type::Uuid:
       default:
         EZ_ASSERT_NOT_IMPLEMENTED;
     }
   }
 
-  if (duk.GetBoolValue(2))
+  if (duk.GetFunctionMagicValue() == 0) // SendMessage
   {
-    pGameObject->SendMessageRecursive(*pMsg);
+    if (duk.GetBoolValue(3))
+      pGameObject->SendMessageRecursive(*pMsg);
+    else
+      pGameObject->SendMessage(*pMsg);
   }
-  else
+  else // PostMessage
   {
-    pGameObject->SendMessage(*pMsg);
+    const ezTime delay = ezTime::Seconds(duk.GetNumberValue(4));
+
+    if (duk.GetBoolValue(3))
+      pGameObject->PostMessageRecursive(*pMsg, ezObjectMsgQueueType::NextFrame, delay);
+    else
+      pGameObject->PostMessage(*pMsg, ezObjectMsgQueueType::NextFrame, delay);
   }
 
   return duk.ReturnVoid();

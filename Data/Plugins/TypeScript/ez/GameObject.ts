@@ -4,6 +4,12 @@ export import Vec3 = __Vec3.Vec3;
 import __Quat = require("./Quat")
 export import Quat = __Quat.Quat;
 
+import __Angle = require("./Angle")
+export import Angle = __Angle.Angle;
+
+import __Time = require("./Time")
+export import Time = __Time.Time;
+
 import __Message = require("./Message")
 export import Message = __Message.Message;
 
@@ -45,6 +51,7 @@ declare function __CPP_GameObject_FindChildByName(_this: GameObject, name: strin
 declare function __CPP_GameObject_FindComponentByTypeName(_this: GameObject, typeName: string);
 declare function __CPP_GameObject_FindComponentByTypeNameHash(_this: GameObject, nameHash: number);
 declare function __CPP_GameObject_SendMessage(_this: GameObject, typeNameHash: number, msg: Message, recursive: boolean);
+declare function __CPP_GameObject_PostMessage(_this: GameObject, typeNameHash: number, msg: Message, recursive: boolean, delay: number);
 
 export class GameObject {
     // FindChildByName
@@ -54,10 +61,6 @@ export class GameObject {
     // SetGlobalTransform / GetGlobalTransform
     // TryGetComponentOfBaseType
     // GetComponents
-    // SendMessage
-    // SendMessageRecursive
-    // PostMessage
-    // PostMessageRecursive
     // GetTags
     // GetTeamID
 
@@ -176,4 +179,12 @@ export class GameObject {
     SendMessageRecursive(msg: Message): void {
         __CPP_GameObject_SendMessage(this, msg.TypeNameHash, msg, true);
     }
+
+    PostMessage(msg: Message, delay: number = Time.Zero()): void {
+        __CPP_GameObject_PostMessage(this, msg.TypeNameHash, msg, false, delay);
+    }
+
+    PostMessageRecursive(msg: Message, delay: number = Time.Zero()): void {
+        __CPP_GameObject_PostMessage(this, msg.TypeNameHash, msg, true, delay);
+    }    
 }

@@ -100,6 +100,9 @@ int __CPP_ComponentProperty_get(duk_context* pDuk)
 
   switch (value.GetType())
   {
+    case ezVariant::Type::Angle:
+      return duk.ReturnNumber(value.Get<ezAngle>().GetRadian());
+
     case ezVariant::Type::Bool:
       return duk.ReturnBool(value.Get<bool>());
 
@@ -119,6 +122,9 @@ int __CPP_ComponentProperty_get(duk_context* pDuk)
     case ezVariant::Type::Double:
       return duk.ReturnNumber(value.ConvertTo<double>());
 
+    case ezVariant::Type::Time:
+      return duk.ReturnNumber(value.Get<ezTime>().GetSeconds());
+
     case ezVariant::Type::String:
     case ezVariant::Type::StringView:
       return duk.ReturnString(value.ConvertTo<ezString>());
@@ -133,6 +139,10 @@ int __CPP_ComponentProperty_get(duk_context* pDuk)
 
     case ezVariant::Type::Color:
       ezTypeScriptBinding::PushColor(duk, value.Get<ezColor>());
+      return duk.ReturnCustom();
+
+    case ezVariant::Type::ColorGamma:
+      ezTypeScriptBinding::PushColor(duk, value.Get<ezColorGammaUB>());
       return duk.ReturnCustom();
 
     default:
@@ -168,6 +178,14 @@ int __CPP_ComponentProperty_set(duk_context* pDuk)
       value = duk.GetBoolValue(2);
       break;
 
+    case ezVariant::Type::Angle:
+      value = ezAngle::Radian(duk.GetFloatValue(2));
+      break;
+
+    case ezVariant::Type::Time:
+      value = ezTime::Seconds(duk.GetFloatValue(2));
+      break;
+
     case ezVariant::Type::Int8:
     case ezVariant::Type::Int16:
     case ezVariant::Type::Int32:
@@ -188,6 +206,9 @@ int __CPP_ComponentProperty_set(duk_context* pDuk)
       break;
 
     case ezVariant::Type::String:
+      value = ezStringView(duk.GetStringValue(2));
+      break;
+
     case ezVariant::Type::StringView:
       value = duk.GetStringValue(2);
       break;
@@ -202,6 +223,10 @@ int __CPP_ComponentProperty_set(duk_context* pDuk)
 
     case ezVariant::Type::Color:
       value = ezTypeScriptBinding::GetColor(duk, 2);
+      break;
+
+    case ezVariant::Type::ColorGamma:
+      value = ezColorGammaUB(ezTypeScriptBinding::GetColor(duk, 2));
       break;
 
     default:
