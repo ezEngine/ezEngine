@@ -6,28 +6,60 @@
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
 
 static int __CPP_GameObject_IsValid(duk_context* pDuk);
-static int __CPP_GameObject_SetLocalPosition(duk_context* pDuk);
-static int __CPP_GameObject_GetLocalPosition(duk_context* pDuk);
-static int __CPP_GameObject_SetLocalRotation(duk_context* pDuk);
-static int __CPP_GameObject_GetLocalRotation(duk_context* pDuk);
+static int __CPP_GameObject_SetX_Vec3(duk_context* pDuk);
+static int __CPP_GameObject_GetX_Vec3(duk_context* pDuk);
+static int __CPP_GameObject_SetX_Float(duk_context* pDuk);
+static int __CPP_GameObject_GetX_Float(duk_context* pDuk);
+static int __CPP_GameObject_SetX_Quat(duk_context* pDuk);
+static int __CPP_GameObject_GetX_Quat(duk_context* pDuk);
 static int __CPP_GameObject_SetActive(duk_context* pDuk);
 static int __CPP_GameObject_FindChildByName(duk_context* pDuk);
 static int __CPP_GameObject_FindComponentByTypeName(duk_context* pDuk);
 static int __CPP_GameObject_FindComponentByTypeNameHash(duk_context* pDuk);
 static int __CPP_GameObject_SendMessage(duk_context* pDuk);
 
+enum GameObject_X
+{
+  LocalPosition,
+  GlobalPosition,
+  LocalScaling,
+  GlobalScaling,
+  LocalUniformScaling,
+  LocalRotation,
+  GlobalRotation,
+  GlobalDirForwards,
+  GlobalDirRight,
+  GlobalDirUp,
+  Velocity,
+};
+
 ezResult ezTypeScriptBinding::Init_GameObject()
 {
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_IsValid", __CPP_GameObject_IsValid, 1);
-  m_Duk.RegisterGlobalFunction("__CPP_GameObject_SetLocalPosition", __CPP_GameObject_SetLocalPosition, 2);
-  m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetLocalPosition", __CPP_GameObject_GetLocalPosition, 1);
-  m_Duk.RegisterGlobalFunction("__CPP_GameObject_SetLocalRotation", __CPP_GameObject_SetLocalRotation, 2);
-  m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetLocalRotation", __CPP_GameObject_GetLocalRotation, 1);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_SetLocalPosition", __CPP_GameObject_SetX_Vec3, 2, GameObject_X::LocalPosition);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetLocalPosition", __CPP_GameObject_GetX_Vec3, 1, GameObject_X::LocalPosition);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_SetGlobalPosition", __CPP_GameObject_SetX_Vec3, 2, GameObject_X::GlobalPosition);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetGlobalPosition", __CPP_GameObject_GetX_Vec3, 1, GameObject_X::GlobalPosition);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_SetLocalScaling", __CPP_GameObject_SetX_Vec3, 2, GameObject_X::LocalScaling);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetLocalScaling", __CPP_GameObject_GetX_Vec3, 1, GameObject_X::LocalScaling);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_SetGlobalScaling", __CPP_GameObject_SetX_Vec3, 2, GameObject_X::GlobalScaling);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetGlobalScaling", __CPP_GameObject_GetX_Vec3, 1, GameObject_X::GlobalScaling);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_SetLocalUniformScaling", __CPP_GameObject_SetX_Float, 2, GameObject_X::LocalUniformScaling);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetLocalUniformScaling", __CPP_GameObject_GetX_Float, 1, GameObject_X::LocalUniformScaling);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_SetLocalRotation", __CPP_GameObject_SetX_Quat, 2, GameObject_X::LocalRotation);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetLocalRotation", __CPP_GameObject_GetX_Quat, 1, GameObject_X::LocalRotation);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_SetGlobalRotation", __CPP_GameObject_SetX_Quat, 2, GameObject_X::GlobalRotation);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetGlobalRotation", __CPP_GameObject_GetX_Quat, 1, GameObject_X::GlobalRotation);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_SetActive", __CPP_GameObject_SetActive, 2);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_FindChildByName", __CPP_GameObject_FindChildByName, 2);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_FindComponentByTypeName", __CPP_GameObject_FindComponentByTypeName, 2);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_FindComponentByTypeNameHash", __CPP_GameObject_FindComponentByTypeNameHash, 2);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_SendMessage", __CPP_GameObject_SendMessage, 3);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetGlobalDirForwards", __CPP_GameObject_GetX_Vec3, 1, GameObject_X::GlobalDirForwards);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetGlobalDirRight", __CPP_GameObject_GetX_Vec3, 1, GameObject_X::GlobalDirRight);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetGlobalDirUp", __CPP_GameObject_GetX_Vec3, 1, GameObject_X::GlobalDirUp);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_SetVelocity", __CPP_GameObject_SetX_Vec3, 2, GameObject_X::Velocity);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetVelocity", __CPP_GameObject_GetX_Vec3, 1, GameObject_X::Velocity);
 
   return EZ_SUCCESS;
 }
@@ -105,31 +137,135 @@ static int __CPP_GameObject_IsValid(duk_context* pDuk)
   return pWorld->TryGetObject(hObject, pGameObject);
 }
 
-static int __CPP_GameObject_SetLocalPosition(duk_context* pDuk)
+static int __CPP_GameObject_SetX_Vec3(duk_context* pDuk)
 {
   ezDuktapeFunction duk(pDuk, 0);
 
   ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
 
-  const ezVec3 pos = ezTypeScriptBinding::GetVec3(pDuk, 1);
+  const ezVec3 value = ezTypeScriptBinding::GetVec3(pDuk, 1);
 
-  pGameObject->SetLocalPosition(pos);
+  switch (duk.GetFunctionMagicValue())
+  {
+    case GameObject_X::LocalPosition:
+      pGameObject->SetLocalPosition(value);
+      break;
+
+    case GameObject_X::GlobalPosition:
+      pGameObject->SetGlobalPosition(value);
+      break;
+
+    case GameObject_X::LocalScaling:
+      pGameObject->SetLocalScaling(value);
+      break;
+
+    case GameObject_X::GlobalScaling:
+      pGameObject->SetGlobalScaling(value);
+      break;
+
+    case GameObject_X::Velocity:
+      pGameObject->SetVelocity(value);
+      break;
+
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+  }
 
   return duk.ReturnVoid();
 }
 
-static int __CPP_GameObject_GetLocalPosition(duk_context* pDuk)
+static int __CPP_GameObject_GetX_Vec3(duk_context* pDuk)
 {
   ezDuktapeFunction duk(pDuk, +1);
 
   ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
 
-  ezTypeScriptBinding::PushVec3(pDuk, pGameObject->GetLocalPosition());
+  ezVec3 value;
+
+  switch (duk.GetFunctionMagicValue())
+  {
+    case GameObject_X::LocalPosition:
+      value = pGameObject->GetLocalPosition();
+      break;
+
+    case GameObject_X::GlobalPosition:
+      value = pGameObject->GetGlobalPosition();
+      break;
+
+    case GameObject_X::LocalScaling:
+      value = pGameObject->GetLocalScaling();
+      break;
+
+    case GameObject_X::GlobalScaling:
+      value = pGameObject->GetGlobalScaling();
+      break;
+
+    case GameObject_X::GlobalDirForwards:
+      value = pGameObject->GetGlobalDirForwards();
+      break;
+
+    case GameObject_X::GlobalDirRight:
+      value = pGameObject->GetGlobalDirRight();
+      break;
+
+    case GameObject_X::GlobalDirUp:
+      value = pGameObject->GetGlobalDirUp();
+      break;
+
+    case GameObject_X::Velocity:
+      value = pGameObject->GetVelocity();
+      break;
+
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+  }
+
+  ezTypeScriptBinding::PushVec3(pDuk, value);
 
   return duk.ReturnCustom();
 }
 
-static int __CPP_GameObject_SetLocalRotation(duk_context* pDuk)
+static int __CPP_GameObject_SetX_Float(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk, 0);
+
+  ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
+
+  switch (duk.GetFunctionMagicValue())
+  {
+    case GameObject_X::LocalUniformScaling:
+      pGameObject->SetLocalUniformScaling(duk.GetFloatValue(1));
+      break;
+
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+  }
+
+  return duk.ReturnVoid();
+}
+
+static int __CPP_GameObject_GetX_Float(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk, +1);
+
+  ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
+
+  float value = 0.0f;
+
+  switch (duk.GetFunctionMagicValue())
+  {
+    case GameObject_X::LocalUniformScaling:
+      value = pGameObject->GetLocalUniformScaling();
+      break;
+
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+  }
+
+  return duk.ReturnFloat(value);
+}
+
+static int __CPP_GameObject_SetX_Quat(duk_context* pDuk)
 {
   ezDuktapeFunction duk(pDuk, 0);
 
@@ -137,18 +273,46 @@ static int __CPP_GameObject_SetLocalRotation(duk_context* pDuk)
 
   const ezQuat rot = ezTypeScriptBinding::GetQuat(pDuk, 1);
 
-  pGameObject->SetLocalRotation(rot);
+  switch (duk.GetFunctionMagicValue())
+  {
+    case GameObject_X::LocalRotation:
+      pGameObject->SetLocalRotation(rot);
+      break;
+
+    case GameObject_X::GlobalRotation:
+      pGameObject->SetGlobalRotation(rot);
+      break;
+
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+  }
 
   return duk.ReturnVoid();
 }
 
-static int __CPP_GameObject_GetLocalRotation(duk_context* pDuk)
+static int __CPP_GameObject_GetX_Quat(duk_context* pDuk)
 {
   ezDuktapeFunction duk(pDuk, +1);
 
   ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
 
-  ezTypeScriptBinding::PushQuat(pDuk, pGameObject->GetLocalRotation());
+  ezQuat value;
+
+  switch (duk.GetFunctionMagicValue())
+  {
+    case GameObject_X::LocalRotation:
+      value = pGameObject->GetLocalRotation();
+      break;
+
+    case GameObject_X::GlobalRotation:
+      pGameObject->GetGlobalRotation();
+      break;
+
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+  }
+
+  ezTypeScriptBinding::PushQuat(pDuk, value);
 
   return duk.ReturnCustom();
 }
@@ -283,8 +447,12 @@ static int __CPP_GameObject_SendMessage(duk_context* pDuk)
 
     ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pProp);
 
-    switch (pMember->GetSpecificType()->GetVariantType())
+    const ezVariantType::Enum type = pMember->GetSpecificType()->GetVariantType();
+    switch (type)
     {
+      case ezVariantType::Invalid:
+        break;
+
       case ezVariantType::String:
       {
         const char* value = duk.GetStringProperty(pMember->GetPropertyName(), "", 2);
@@ -319,6 +487,8 @@ static int __CPP_GameObject_SendMessage(duk_context* pDuk)
         break;
       }
 
+      default:
+        EZ_ASSERT_NOT_IMPLEMENTED;
     }
   }
 

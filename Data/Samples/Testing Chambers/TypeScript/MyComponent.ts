@@ -61,7 +61,7 @@ class MyComponent extends ez.TypescriptComponent {
             let setMat = new ez.MsgSetColor();
             
             if (Math.random() > 0.5) {
-                setMat.Color.SetPurple();
+                setMat.Color.SetRebeccaPurple();
                 ez.Log.Info("Color: " + setMat.Color.r + ", " + setMat.Color.g + ", " + setMat.Color.b + ", " + setMat.Color.a)
             }
             else {
