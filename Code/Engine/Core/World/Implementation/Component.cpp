@@ -41,16 +41,6 @@ void ezComponent::SetActive(bool bActive)
   }
 }
 
-void ezComponent::Activate()
-{
-  SetActive(true);
-}
-
-void ezComponent::Deactivate()
-{
-  SetActive(false);
-}
-
 ezWorld* ezComponent::GetWorld()
 {
   return m_pManager->GetWorld();
@@ -189,7 +179,7 @@ void ezComponent::Deinitialize()
 
   if (IsActive())
   {
-    Deactivate();
+    SetActive(false);
   }
 }
 

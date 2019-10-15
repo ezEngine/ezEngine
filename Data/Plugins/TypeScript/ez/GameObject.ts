@@ -36,15 +36,14 @@ declare function __CPP_GameObject_SetVelocity(_this: GameObject, value: Vec3): V
 declare function __CPP_GameObject_GetVelocity(_this: GameObject): Vec3;
 
 declare function __CPP_GameObject_SetActive(_this: GameObject, active: boolean): void;
+declare function __CPP_GameObject_IsActive(_this: GameObject): boolean;
+
 declare function __CPP_GameObject_FindChildByName(_this: GameObject, name: string, recursive: boolean): GameObject;
 declare function __CPP_GameObject_FindComponentByTypeName(_this: GameObject, typeName: string);
 declare function __CPP_GameObject_FindComponentByTypeNameHash(_this: GameObject, nameHash: number);
 declare function __CPP_GameObject_SendMessage(_this: GameObject, typeNameHash: number, msg: Message);
 
 export class GameObject {
-    // Activate
-    // Deactivate
-    // IsActive
     // GetName
     // SetName
     // FindChildByName
@@ -143,6 +142,10 @@ export class GameObject {
 
     SetActive(active: boolean): void {
         __CPP_GameObject_SetActive(this, active);
+    }
+
+    IsActive(): boolean {
+        return __CPP_GameObject_IsActive(this);
     }
 
     FindChildByName(name: string, recursive: boolean = true): GameObject {

@@ -110,12 +110,8 @@ public:
   /// \brief Returns whether this object is static.
   bool IsStatic() const;
 
-
   /// \brief Activates the object and all its components.
-  void Activate();
-
-  /// \brief Deactivates the object and all its components.
-  void Deactivate();
+  void SetActive(bool bActive);
 
   /// \brief Returns whether this object is active.
   bool IsActive() const;

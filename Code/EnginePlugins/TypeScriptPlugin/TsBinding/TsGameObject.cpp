@@ -12,7 +12,8 @@ static int __CPP_GameObject_SetX_Float(duk_context* pDuk);
 static int __CPP_GameObject_GetX_Float(duk_context* pDuk);
 static int __CPP_GameObject_SetX_Quat(duk_context* pDuk);
 static int __CPP_GameObject_GetX_Quat(duk_context* pDuk);
-static int __CPP_GameObject_SetActive(duk_context* pDuk);
+static int __CPP_GameObject_SetX_Bool(duk_context* pDuk);
+static int __CPP_GameObject_GetX_Bool(duk_context* pDuk);
 static int __CPP_GameObject_FindChildByName(duk_context* pDuk);
 static int __CPP_GameObject_FindComponentByTypeName(duk_context* pDuk);
 static int __CPP_GameObject_FindComponentByTypeNameHash(duk_context* pDuk);
@@ -31,6 +32,7 @@ enum GameObject_X
   GlobalDirRight,
   GlobalDirUp,
   Velocity,
+  Active,
 };
 
 ezResult ezTypeScriptBinding::Init_GameObject()
@@ -50,7 +52,8 @@ ezResult ezTypeScriptBinding::Init_GameObject()
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetLocalRotation", __CPP_GameObject_GetX_Quat, 1, GameObject_X::LocalRotation);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_SetGlobalRotation", __CPP_GameObject_SetX_Quat, 2, GameObject_X::GlobalRotation);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetGlobalRotation", __CPP_GameObject_GetX_Quat, 1, GameObject_X::GlobalRotation);
-  m_Duk.RegisterGlobalFunction("__CPP_GameObject_SetActive", __CPP_GameObject_SetActive, 2);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_SetActive", __CPP_GameObject_SetX_Bool, 2, GameObject_X::Active);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_IsActive", __CPP_GameObject_GetX_Bool, 1, GameObject_X::Active);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_FindChildByName", __CPP_GameObject_FindChildByName, 2);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_FindComponentByTypeName", __CPP_GameObject_FindComponentByTypeName, 2);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_FindComponentByTypeNameHash", __CPP_GameObject_FindComponentByTypeNameHash, 2);
@@ -317,20 +320,46 @@ static int __CPP_GameObject_GetX_Quat(duk_context* pDuk)
   return duk.ReturnCustom();
 }
 
-static int __CPP_GameObject_SetActive(duk_context* pDuk)
+static int __CPP_GameObject_SetX_Bool(duk_context* pDuk)
 {
   ezDuktapeFunction duk(pDuk, 0);
 
   ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
 
-  const bool bActive = duk.GetBoolValue(1, true);
+  const bool value = duk.GetBoolValue(1, true);
 
-  if (bActive)
-    pGameObject->Activate();
-  else
-    pGameObject->Deactivate();
+  switch (duk.GetFunctionMagicValue())
+  {
+    case GameObject_X::Active:
+      pGameObject->SetActive(value);
+      break;
+
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+  }
 
   return duk.ReturnVoid();
+}
+
+static int __CPP_GameObject_GetX_Bool(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk, +1);
+
+  ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
+
+  bool value = false;
+
+  switch (duk.GetFunctionMagicValue())
+  {
+    case GameObject_X::Active:
+      value = pGameObject->IsActive();
+      break;
+
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+  }
+
+  return duk.ReturnBool(value);
 }
 
 static int __CPP_GameObject_FindChildByName(duk_context* pDuk)

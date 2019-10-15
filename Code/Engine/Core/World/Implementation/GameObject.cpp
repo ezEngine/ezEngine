@@ -305,23 +305,13 @@ void ezGameObject::MakeStatic()
   MakeStaticInternal();
 }
 
-void ezGameObject::Activate()
+void ezGameObject::SetActive(bool bActive)
 {
-  m_Flags.Add(ezObjectFlags::Active);
+  m_Flags.AddOrRemove(ezObjectFlags::Active, bActive);
 
   for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
-    m_Components[i]->Activate();
-  }
-}
-
-void ezGameObject::Deactivate()
-{
-  m_Flags.Remove(ezObjectFlags::Active);
-
-  for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
-  {
-    m_Components[i]->Deactivate();
+    m_Components[i]->SetActive(bActive);
   }
 }
 
