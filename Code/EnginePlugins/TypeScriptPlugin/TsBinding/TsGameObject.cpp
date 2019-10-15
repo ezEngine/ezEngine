@@ -18,6 +18,8 @@ static int __CPP_GameObject_FindChildByName(duk_context* pDuk);
 static int __CPP_GameObject_FindComponentByTypeName(duk_context* pDuk);
 static int __CPP_GameObject_FindComponentByTypeNameHash(duk_context* pDuk);
 static int __CPP_GameObject_SendMessage(duk_context* pDuk);
+static int __CPP_GameObject_SetName(duk_context* pDuk);
+static int __CPP_GameObject_GetName(duk_context* pDuk);
 
 enum GameObject_X
 {
@@ -63,6 +65,8 @@ ezResult ezTypeScriptBinding::Init_GameObject()
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetGlobalDirUp", __CPP_GameObject_GetX_Vec3, 1, GameObject_X::GlobalDirUp);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_SetVelocity", __CPP_GameObject_SetX_Vec3, 2, GameObject_X::Velocity);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetVelocity", __CPP_GameObject_GetX_Vec3, 1, GameObject_X::Velocity);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_SetName", __CPP_GameObject_SetName, 2);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetName", __CPP_GameObject_GetName, 1);
 
   return EZ_SUCCESS;
 }
@@ -482,7 +486,15 @@ static int __CPP_GameObject_SendMessage(duk_context* pDuk)
       case ezVariantType::Invalid:
         break;
 
+      case ezVariantType::Bool:
+      {
+        bool value = duk.GetBoolProperty(pMember->GetPropertyName(), false, 2);
+        ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg, value);
+        break;
+      }
+
       case ezVariantType::String:
+      case ezVariantType::StringView:
       {
         const char* value = duk.GetStringProperty(pMember->GetPropertyName(), "", 2);
         ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg, value);
@@ -509,19 +521,84 @@ static int __CPP_GameObject_SendMessage(duk_context* pDuk)
         break;
       }
 
+      case ezVariantType::Float:
+      {
+        const float value = duk.GetFloatProperty(pMember->GetPropertyName(), 0, 2);
+        ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg, value);
+        break;
+      }
+
+      case ezVariantType::Double:
+      {
+        const double value = duk.GetNumberProperty(pMember->GetPropertyName(), 0, 2);
+        ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg, value);
+        break;
+      }
+
+
+      case ezVariantType::Vector3:
+      {
+        ezVec3 value = ezTypeScriptBinding::GetVec3Property(duk, pMember->GetPropertyName(), 2);
+        ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg, value);
+        break;
+      }
+
+      case ezVariantType::Quaternion:
+      {
+        ezQuat value = ezTypeScriptBinding::GetQuatProperty(duk, pMember->GetPropertyName(), 2);
+        ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg, value);
+        break;
+      }
+
+
       case ezVariantType::Color:
+      case ezVariantType::ColorGamma:
       {
         ezColor value = ezTypeScriptBinding::GetColorProperty(duk, pMember->GetPropertyName(), 2);
         ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg, value);
         break;
       }
 
+      case ezVariantType::Vector2:
+      case ezVariantType::Matrix3:
+      case ezVariantType::Matrix4:
+      case ezVariantType::Time:
+      case ezVariantType::Uuid:
+      case ezVariantType::Angle:
       default:
         EZ_ASSERT_NOT_IMPLEMENTED;
     }
   }
 
-  pGameObject->SendMessage(*pMsg);
+  if (duk.GetBoolValue(2))
+  {
+    pGameObject->SendMessageRecursive(*pMsg);
+  }
+  else
+  {
+    pGameObject->SendMessage(*pMsg);
+  }
 
   return duk.ReturnVoid();
+}
+
+
+static int __CPP_GameObject_SetName(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk, 0);
+
+  ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
+
+  pGameObject->SetName(duk.GetStringValue(1));
+
+  return duk.ReturnVoid();
+}
+
+static int __CPP_GameObject_GetName(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk, 0);
+
+  ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
+
+  return duk.ReturnString(pGameObject->GetName());
 }

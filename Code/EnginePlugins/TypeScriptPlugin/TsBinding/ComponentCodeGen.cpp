@@ -13,7 +13,9 @@ ezResult ezTypeScriptBinding::SetupProjectCode()
   ezStringBuilder sAbsDstFolder;
   EZ_SUCCEED_OR_RETURN(ezFileSystem::ResolvePath(":project/TypeScript", &sAbsDstFolder, nullptr));
 
+#if (EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) && EZ_ENABLED(EZ_SUPPORTS_FILE_STATS))
   EZ_SUCCEED_OR_RETURN(ezOSFile::CopyFolder(sAbsSrcFolder, sAbsDstFolder));
+#endif
 
   GenerateComponentsFile(":project/TypeScript/ez/AllComponents.ts");
   InjectComponentImportExport(":project/TypeScript/ez.ts", "./ez/AllComponents");

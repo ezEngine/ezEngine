@@ -32,20 +32,21 @@ declare function __CPP_GameObject_GetGlobalDirForwards(_this: GameObject): Vec3;
 declare function __CPP_GameObject_GetGlobalDirRight(_this: GameObject): Vec3;
 declare function __CPP_GameObject_GetGlobalDirUp(_this: GameObject): Vec3;
 
-declare function __CPP_GameObject_SetVelocity(_this: GameObject, value: Vec3): Vec3;
+declare function __CPP_GameObject_SetVelocity(_this: GameObject, value: Vec3): void;
 declare function __CPP_GameObject_GetVelocity(_this: GameObject): Vec3;
 
 declare function __CPP_GameObject_SetActive(_this: GameObject, active: boolean): void;
 declare function __CPP_GameObject_IsActive(_this: GameObject): boolean;
 
+declare function __CPP_GameObject_SetName(_this: GameObject, value: String): void;
+declare function __CPP_GameObject_GetName(_this: GameObject): String;
+
 declare function __CPP_GameObject_FindChildByName(_this: GameObject, name: string, recursive: boolean): GameObject;
 declare function __CPP_GameObject_FindComponentByTypeName(_this: GameObject, typeName: string);
 declare function __CPP_GameObject_FindComponentByTypeNameHash(_this: GameObject, nameHash: number);
-declare function __CPP_GameObject_SendMessage(_this: GameObject, typeNameHash: number, msg: Message);
+declare function __CPP_GameObject_SendMessage(_this: GameObject, typeNameHash: number, msg: Message, recursive: boolean);
 
 export class GameObject {
-    // GetName
-    // SetName
     // FindChildByName
     // FindChildByPath
     // SearchForChildByNameSequence
@@ -62,6 +63,22 @@ export class GameObject {
 
     IsValid(): boolean {
         return __CPP_GameObject_IsValid(this);
+    }
+
+    SetName(name: String): void {
+        __CPP_GameObject_SetName(this, name);
+    }
+
+    GetName(): String {
+        return __CPP_GameObject_GetName(this);
+    }
+
+    SetActive(active: boolean): void {
+        __CPP_GameObject_SetActive(this, active);
+    }
+
+    IsActive(): boolean {
+        return __CPP_GameObject_IsActive(this);
     }
 
     SetLocalPosition(pos: Vec3): void {
@@ -140,14 +157,6 @@ export class GameObject {
         return __CPP_GameObject_GetVelocity(this);
     }
 
-    SetActive(active: boolean): void {
-        __CPP_GameObject_SetActive(this, active);
-    }
-
-    IsActive(): boolean {
-        return __CPP_GameObject_IsActive(this);
-    }
-
     FindChildByName(name: string, recursive: boolean = true): GameObject {
         return __CPP_GameObject_FindChildByName(this, name, recursive);
     }
@@ -161,6 +170,10 @@ export class GameObject {
     }
 
     SendMessage(msg: Message): void {
-        __CPP_GameObject_SendMessage(this, msg.TypeNameHash, msg);
+        __CPP_GameObject_SendMessage(this, msg.TypeNameHash, msg, false);
+    }
+
+    SendMessageRecursive(msg: Message): void {
+        __CPP_GameObject_SendMessage(this, msg.TypeNameHash, msg, true);
     }
 }
