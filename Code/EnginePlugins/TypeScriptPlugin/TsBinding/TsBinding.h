@@ -120,6 +120,7 @@ private:
   ezResult Init_Log();
   ezResult Init_GameObject();
   ezResult Init_Component();
+  ezResult Init_World();
   ezResult Init_FunctionBinding();
   ezResult Init_PropertyBinding();
 

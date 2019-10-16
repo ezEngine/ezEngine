@@ -83,11 +83,17 @@ ezResult ezTypeScriptBinding::Init_GameObject()
 
 ezGameObjectHandle ezTypeScriptBinding::RetrieveGameObjectHandle(duk_context* pDuk, ezInt32 iObjIdx /*= 0 */)
 {
-  duk_get_prop_string(pDuk, iObjIdx, "ezGameObjectHandle");
-  ezGameObjectHandle hObject = *reinterpret_cast<ezGameObjectHandle*>(duk_get_buffer(pDuk, -1, nullptr));
-  duk_pop(pDuk);
+  if (duk_is_null_or_undefined(pDuk, iObjIdx))
+    return ezGameObjectHandle();
 
-  return hObject;
+  if (duk_get_prop_string(pDuk, iObjIdx, "ezGameObjectHandle"))
+  {
+    ezGameObjectHandle hObject = *reinterpret_cast<ezGameObjectHandle*>(duk_get_buffer(pDuk, -1, nullptr));
+    duk_pop(pDuk);
+    return hObject;
+  }
+
+  return ezGameObjectHandle();
 }
 
 ezGameObject* ezTypeScriptBinding::ExpectGameObject(duk_context* pDuk, ezInt32 iObjIdx /*= 0*/)

@@ -69,8 +69,21 @@ class MyComponent extends ez.TypescriptComponent {
                 ez.Log.Info("Color: " + setMat.Color.r + ", " + setMat.Color.g + ", " + setMat.Color.b + ", " + setMat.Color.a)
             }
             owner.PostMessage(setMat, ez.Time.Seconds(1.0));
+
+            --this.deleteCounter;
+
+            if (this.deleteCounter == 0)
+            {
+                ez.Log.Info("Creating Object");
+
+                //ez.World.DeleteObjectDelayed(owner);
+                let desc = new ez.GameObjectDesc();
+                desc.Name = "From Script";
+
+                ez.World.CreateObject(desc);
+            }
         }
     }
 
-    private _name: string;
+    private deleteCounter = 3;
 }
