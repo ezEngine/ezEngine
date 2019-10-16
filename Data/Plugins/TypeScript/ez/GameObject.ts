@@ -44,35 +44,38 @@ declare function __CPP_GameObject_GetVelocity(_this: GameObject): Vec3;
 declare function __CPP_GameObject_SetActive(_this: GameObject, active: boolean): void;
 declare function __CPP_GameObject_IsActive(_this: GameObject): boolean;
 
-declare function __CPP_GameObject_SetName(_this: GameObject, value: String): void;
-declare function __CPP_GameObject_GetName(_this: GameObject): String;
+declare function __CPP_GameObject_SetName(_this: GameObject, value: string): void;
+declare function __CPP_GameObject_GetName(_this: GameObject): string;
+
+declare function __CPP_GameObject_SetTeamID(_this: GameObject, value: number): void;
+declare function __CPP_GameObject_GetTeamID(_this: GameObject): number;
 
 declare function __CPP_GameObject_FindChildByName(_this: GameObject, name: string, recursive: boolean): GameObject;
-declare function __CPP_GameObject_FindComponentByTypeName(_this: GameObject, typeName: string);
-declare function __CPP_GameObject_FindComponentByTypeNameHash(_this: GameObject, nameHash: number);
-declare function __CPP_GameObject_SendMessage(_this: GameObject, typeNameHash: number, msg: Message, recursive: boolean);
-declare function __CPP_GameObject_PostMessage(_this: GameObject, typeNameHash: number, msg: Message, recursive: boolean, delay: number);
+declare function __CPP_GameObject_FindChildByPath(_this: GameObject, path: string): GameObject;
+declare function __CPP_GameObject_SearchForChildByNameSequence(_this: GameObject, objectSequence: string, componentNameHash: number): GameObject;
+
+declare function __CPP_GameObject_TryGetComponentOfBaseTypeName(_this: GameObject, typeName: string);
+declare function __CPP_GameObject_TryGetComponentOfBaseTypeNameHash(_this: GameObject, nameHash: number);
+
+declare function __CPP_GameObject_SendMessage(_this: GameObject, typeNameHash: number, msg: Message, recursive: boolean): void;
+declare function __CPP_GameObject_PostMessage(_this: GameObject, typeNameHash: number, msg: Message, recursive: boolean, delay: number): void;
 
 export class GameObject {
-    // FindChildByName
-    // FindChildByPath
-    // SearchForChildByNameSequence
-    // SearchForChildrenByNameSequence
+
+    // TODO:
     // SetGlobalTransform / GetGlobalTransform
-    // TryGetComponentOfBaseType
     // GetComponents
     // GetTags
-    // GetTeamID
 
     IsValid(): boolean {
         return __CPP_GameObject_IsValid(this);
     }
 
-    SetName(name: String): void {
+    SetName(name: string): void {
         __CPP_GameObject_SetName(this, name);
     }
 
-    GetName(): String {
+    GetName(): string {
         return __CPP_GameObject_GetName(this);
     }
 
@@ -160,16 +163,36 @@ export class GameObject {
         return __CPP_GameObject_GetVelocity(this);
     }
 
+    SetTeamID(id: number): void {
+        __CPP_GameObject_SetTeamID(this, id);
+    }
+
+    GetTeamID(): number {
+        return __CPP_GameObject_GetTeamID(this);
+    }
+
     FindChildByName(name: string, recursive: boolean = true): GameObject {
         return __CPP_GameObject_FindChildByName(this, name, recursive);
     }
 
-    FindComponentByTypeName<TYPE extends Component>(typeName: string): TYPE {
-        return __CPP_GameObject_FindComponentByTypeName(this, typeName);
+    FindChildByPath(path: string): GameObject {
+        return __CPP_GameObject_FindChildByPath(this, path);
     }
 
-    FindComponentByType<TYPE extends Component>(typeClass: new () => TYPE): TYPE {
-        return __CPP_GameObject_FindComponentByTypeNameHash(this, typeClass.GetTypeNameHash());
+    SearchForChildByNameSequence(objectSequence: string): GameObject {
+        return __CPP_GameObject_SearchForChildByNameSequence(this, objectSequence, 0);
+    }
+
+    SearchForChildWithComponentByNameSequence<TYPE extends Component>(objectSequence: string, typeClass: new () => TYPE): GameObject {
+        return __CPP_GameObject_SearchForChildByNameSequence(this, objectSequence, typeClass.GetTypeNameHash());
+    }
+
+    TryGetComponentOfBaseTypeName<TYPE extends Component>(typeName: string): TYPE {
+        return __CPP_GameObject_TryGetComponentOfBaseTypeName(this, typeName);
+    }
+
+    TryGetComponentOfBaseType<TYPE extends Component>(typeClass: new () => TYPE): TYPE {
+        return __CPP_GameObject_TryGetComponentOfBaseTypeNameHash(this, typeClass.GetTypeNameHash());
     }
 
     SendMessage(msg: Message): void {
@@ -186,5 +209,5 @@ export class GameObject {
 
     PostMessageRecursive(msg: Message, delay: number = Time.Zero()): void {
         __CPP_GameObject_PostMessage(this, msg.TypeNameHash, msg, true, delay);
-    }    
+    }
 }

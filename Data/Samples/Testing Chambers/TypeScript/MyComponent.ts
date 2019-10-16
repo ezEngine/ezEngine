@@ -32,7 +32,7 @@ class MyComponent extends ez.TypescriptComponent {
             child.SetActive(false);//Math.random() > 0.7);
         }
 
-        let comp = owner.FindComponentByType(ez.TransformComponent);
+        let comp = owner.TryGetComponentOfBaseType(ez.TransformComponent);
         if (comp != null) {
             //comp.SetActive(Math.random() > 0.5);
             if (Math.random() > 0.9) {
