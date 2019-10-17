@@ -1,14 +1,13 @@
 import ez = require("./ez")
 
 class MyComponent extends ez.TypescriptComponent {
-    constructor(name: string) {
+    constructor() {
         super()
-        ez.Log.Info("Construct MyComponent: " + name)
-        this._name = name;
+        ez.Log.Info("Construct MyComponent")
     }
 
     Update(): void {
-        //ez.Log.Dev("MyComponent::Update: " + this._name)
+        //ez.Log.Info("MyComponent::Update")
 
         let owner = this.GetOwner();
 
@@ -87,6 +86,23 @@ class MyComponent extends ez.TypescriptComponent {
                     light.Intensity = 500
                     light.Range = 5
                     light.LightColor = ez.Color.RoyalBlue()
+
+                    let spawnComp1 = owner.TryGetComponentOfBaseType(ez.SpawnComponent);
+
+                    if (spawnComp1 != null)
+                    {
+                        spawnComp1.TriggerManualSpawn();
+                    }
+
+                    let spawnObj = ez.World.TryGetObjectWithGlobalKey("Spawn");
+                    if (spawnObj != null)
+                    {
+                        let spawnComp = spawnObj.TryGetComponentOfBaseType(ez.SpawnComponent);
+                        if (spawnComp != null)
+                        {
+                            spawnComp.TriggerManualSpawn();
+                        }
+                    }
                 }
                 else {
                     ez.World.DeleteObjectDelayed(this.child)

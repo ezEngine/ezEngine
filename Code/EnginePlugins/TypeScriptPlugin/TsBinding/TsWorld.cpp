@@ -6,12 +6,16 @@
 static int __CPP_World_DeleteObjectDelayed(duk_context* pDuk);
 static int __CPP_World_CreateObject(duk_context* pDuk);
 static int __CPP_World_CreateComponent(duk_context* pDuk);
+static int __CPP_World_DeleteComponent(duk_context* pDuk);
+static int __CPP_World_TryGetObjectWithGlobalKey(duk_context* pDuk);
 
 ezResult ezTypeScriptBinding::Init_World()
 {
   m_Duk.RegisterGlobalFunction("__CPP_World_DeleteObjectDelayed", __CPP_World_DeleteObjectDelayed, 1);
   m_Duk.RegisterGlobalFunction("__CPP_World_CreateObject", __CPP_World_CreateObject, 1);
   m_Duk.RegisterGlobalFunction("__CPP_World_CreateComponent", __CPP_World_CreateComponent, 2);
+  m_Duk.RegisterGlobalFunction("__CPP_World_DeleteComponent", __CPP_World_DeleteComponent, 1);
+  m_Duk.RegisterGlobalFunction("__CPP_World_TryGetObjectWithGlobalKey", __CPP_World_TryGetObjectWithGlobalKey, 1);
 
   return EZ_SUCCESS;
 }
@@ -99,6 +103,36 @@ static int __CPP_World_CreateComponent(duk_context* pDuk)
   pMan->CreateComponent(pOwner, pComponent);
 
   ezTypeScriptBinding::DukPutComponentObject(duk, pComponent);
+
+  return duk.ReturnCustom();
+}
+
+static int __CPP_World_DeleteComponent(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk, 0);
+
+  ezWorld* pWorld = ezTypeScriptBinding::RetrieveWorld(duk);
+  ezComponentHandle hComponent = ezTypeScriptBinding::RetrieveComponentHandle(duk, 0 /*this*/);
+
+  ezComponent* pComponent = nullptr;
+  if (pWorld->TryGetComponent(hComponent, pComponent))
+  {
+    pComponent->GetOwningManager()->DeleteComponent(pComponent);
+  }
+
+  return duk.ReturnVoid();
+}
+
+static int __CPP_World_TryGetObjectWithGlobalKey(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk, +1);
+
+  ezWorld* pWorld = ezTypeScriptBinding::RetrieveWorld(duk);
+
+  ezGameObject* pObject = nullptr;
+  pWorld->TryGetObjectWithGlobalKey(ezTempHashedString(duk.GetStringValue(0)), pObject);
+
+  ezTypeScriptBinding::DukPutGameObject(duk, pObject);
 
   return duk.ReturnCustom();
 }

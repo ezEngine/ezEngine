@@ -152,12 +152,17 @@ void ezTypeScriptBinding::DukPutGameObject(duk_context* pDuk, const ezGameObject
 
 static int __CPP_GameObject_IsValid(duk_context* pDuk)
 {
+  ezDuktapeFunction duk(pDuk, +1);
+
   ezGameObjectHandle hObject = ezTypeScriptBinding::RetrieveGameObjectHandle(pDuk, 0 /*this*/);
+
+  if (hObject.IsInvalidated())
+    return duk.ReturnBool(false);
 
   ezWorld* pWorld = ezTypeScriptBinding::RetrieveWorld(pDuk);
 
   ezGameObject* pGameObject = nullptr;
-  return pWorld->TryGetObject(hObject, pGameObject);
+  return duk.ReturnBool(pWorld->TryGetObject(hObject, pGameObject));
 }
 
 static int __CPP_GameObject_SetX_Vec3(duk_context* pDuk)

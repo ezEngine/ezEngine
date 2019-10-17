@@ -69,20 +69,18 @@ void ezTypeScriptBinding::DukPutComponentObject(duk_context* pDuk, const ezCompo
 {
   ezDuktapeHelper duk(pDuk, +1);
 
-  duk_push_global_stash(pDuk);
+  duk_push_global_stash(pDuk); // [ stash ]
 
   const ezUInt32 uiComponentReference = hComponent.GetInternalID().m_Data;
-  duk_push_uint(pDuk, uiComponentReference);
-  if (!duk_get_prop(pDuk, -2))
+  duk_push_uint(pDuk, uiComponentReference); // [ stash key ]
+  if (!duk_get_prop(pDuk, -2))               // [ stash obj/undef ]
   {
-    // remove 'undefined' result from stack, replace it with null
-    duk_pop(pDuk);
-    duk_push_null(pDuk);
+    duk_pop_2(pDuk);     // [ ]
+    duk_push_null(pDuk); // [ null ]
   }
-  else
+  else // [ stash obj ]
   {
-    // remove stash object, keep result on top
-    duk_replace(pDuk, -2);
+    duk_replace(pDuk, -2); // [ obj ]
   }
 }
 
@@ -114,13 +112,19 @@ void ezTypeScriptBinding::DeleteTsComponent(const ezComponentHandle& hCppCompone
 
 ezComponentHandle ezTypeScriptBinding::RetrieveComponentHandle(duk_context* pDuk, ezInt32 iObjIdx /*= 0 */)
 {
-  ezDuktapeHelper validator(pDuk, 0);
+  if (duk_is_null_or_undefined(pDuk, iObjIdx))
+    return ezComponentHandle();
 
-  duk_get_prop_index(pDuk, iObjIdx, ezTypeScriptBindingIndexProperty::ComponentHandle);
-  ezComponentHandle hComponent = *reinterpret_cast<ezComponentHandle*>(duk_get_buffer(pDuk, -1, nullptr));
-  duk_pop(pDuk);
+  ezDuktapeHelper duk(pDuk, 0);
 
-  return hComponent;
+  if (duk_get_prop_index(pDuk, iObjIdx, ezTypeScriptBindingIndexProperty::ComponentHandle))
+  {
+    ezComponentHandle hComponent = *reinterpret_cast<ezComponentHandle*>(duk_get_buffer(pDuk, -1, nullptr));
+    duk_pop(pDuk);
+    return hComponent;
+  }
+
+  return ezComponentHandle();
 }
 
 static int __CPP_Component_GetOwner(duk_context* pDuk)

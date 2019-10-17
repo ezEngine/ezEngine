@@ -31,26 +31,32 @@ export class GameObjectDesc {
 
 declare function __CPP_World_DeleteObjectDelayed(object: GameObject): void;
 declare function __CPP_World_CreateObject(desc: GameObjectDesc): GameObject;
-declare function __CPP_World_CreateComponent(parent: GameObject, componentTypeNameHash: number);
+declare function __CPP_World_CreateComponent(owner: GameObject, componentTypeNameHash: number): any;
+declare function __CPP_World_DeleteComponent(component: Component): void;
+declare function __CPP_World_TryGetObjectWithGlobalKey(globalKey: string): GameObject;
 
 export namespace World {
-
-  export function DeleteObjectDelayed(object: GameObject): void {
-    __CPP_World_DeleteObjectDelayed(object);
-  }
 
   export function CreateObject(desc: GameObjectDesc): GameObject {
     return __CPP_World_CreateObject(desc);
   }
 
-  export function CreateComponent<TYPE extends Component>(parent: GameObject, typeClass: new () => TYPE): TYPE {
-    return __CPP_World_CreateComponent(parent, typeClass.GetTypeNameHash());
+  export function DeleteObjectDelayed(object: GameObject): void {
+    __CPP_World_DeleteObjectDelayed(object);
+  }  
+
+  export function CreateComponent<TYPE extends Component>(owner: GameObject, typeClass: new () => TYPE): TYPE {
+    return __CPP_World_CreateComponent(owner, typeClass.GetTypeNameHash());
   }
 
-  // TryGetObject
-  // TryGetObjectWithGlobalKey
-  // IsValidComponent
-  // TryGetComponent
+  export function DeleteComponent(component: Component): void {
+    __CPP_World_DeleteComponent(component);
+  }
+
+  export function TryGetObjectWithGlobalKey(globalKey: string): GameObject {
+    return __CPP_World_TryGetObjectWithGlobalKey(globalKey);
+  }
+
   // SendMessage
   // SendMessageRecursive
   // PostMessage
@@ -59,5 +65,4 @@ export namespace World {
   // GetClock
   // GetRandomNumberGenerator
   // SpawnPrefab ?
-
 };

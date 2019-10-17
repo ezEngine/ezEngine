@@ -15,6 +15,20 @@ export abstract class Component
     {
         __CPP_Component_SetActive(this, active);
     }
+
+    // IsValid
+    // IsActiveAndInitialized
+    // IsActiveAndSimulating
+    // GetUniqueID
+    // SendMessage
+    // PostMessage
+    // GetMode
+    // virtual void Initialize();
+    // virtual void Deinitialize();
+    // virtual void OnActivated();
+    // virtual void OnDeactivated();
+    // virtual void OnSimulationStarted();
+
 }
 
 export abstract class TypescriptComponent extends Component
