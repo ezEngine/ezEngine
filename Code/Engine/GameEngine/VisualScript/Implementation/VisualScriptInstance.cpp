@@ -425,24 +425,29 @@ void ezVisualScriptInstance::ExecuteScript(ezVisualScriptInstanceActivity* pActi
   }
 }
 
-void ezVisualScriptInstance::HandleMessage(ezMessage& msg)
+bool ezVisualScriptInstance::HandleMessage(ezMessage& msg)
 {
   if (m_pMessageHandlers == nullptr)
-    return;
+    return false;
 
   ezUInt32 uiFirstHandler = m_pMessageHandlers->LowerBound(msg.GetId());
+
+  bool bHandled = false;
 
   while (uiFirstHandler < m_pMessageHandlers->GetCount())
   {
     const auto& data = (*m_pMessageHandlers).GetPair(uiFirstHandler);
     if (data.key != msg.GetId())
-      return;
+      break;
 
     const ezUInt32 uiNodeId = data.value;
     m_Nodes[uiNodeId]->HandleMessage(&msg);
 
+    bHandled = true;
     ++uiFirstHandler;
   }
+
+  return bHandled;
 }
 
 void ezVisualScriptInstance::ConnectExecutionPins(ezUInt16 uiSourceNode, ezUInt8 uiOutputSlot, ezUInt16 uiTargetNode, ezUInt8 uiTargetPin)

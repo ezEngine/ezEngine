@@ -27,6 +27,14 @@ void ezComponentManagerBase::DeleteComponent(const ezComponentHandle& component)
   if (!m_Components.TryGetValue(component, pComponent))
     return;
 
+  DeleteComponent(pComponent);
+}
+
+void ezComponentManagerBase::DeleteComponent(ezComponent* pComponent)
+{
+  if (pComponent == nullptr)
+    return;
+
   DeinitializeComponent(pComponent);
 
   m_Components.Remove(pComponent->m_InternalId);
