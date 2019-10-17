@@ -59,7 +59,7 @@ class MyComponent extends ez.TypescriptComponent {
 
         if (Math.random() > 0.9) {
             let setMat = new ez.MsgSetColor();
-            
+
             if (Math.random() > 0.5) {
                 setMat.Color.SetHotPink();
                 ez.Log.Info("Color: " + setMat.Color.r + ", " + setMat.Color.g + ", " + setMat.Color.b + ", " + setMat.Color.a)
@@ -72,18 +72,32 @@ class MyComponent extends ez.TypescriptComponent {
 
             --this.deleteCounter;
 
-            if (this.deleteCounter == 0)
-            {
-                ez.Log.Info("Creating Object");
+            if (this.deleteCounter == 0) {
+                if (this.child == null) {
+                    ez.Log.Info("Creating Object");
 
-                //ez.World.DeleteObjectDelayed(owner);
-                let desc = new ez.GameObjectDesc();
-                desc.Name = "From Script";
+                    //ez.World.DeleteObjectDelayed(owner);
+                    let desc = new ez.GameObjectDesc();
+                    desc.Name = "From Script";
+                    desc.Parent = owner
 
-                ez.World.CreateObject(desc);
+                    this.child = ez.World.CreateObject(desc);
+
+                    let light = ez.World.CreateComponent(this.child, ez.PointLightComponent);
+                    light.Intensity = 500
+                    light.Range = 5
+                    light.LightColor = ez.Color.RoyalBlue()
+                }
+                else {
+                    ez.World.DeleteObjectDelayed(this.child)
+                    this.child = null
+                }
+
+                this.deleteCounter = 3
             }
         }
     }
 
     private deleteCounter = 3;
+    private child: ez.GameObject
 }

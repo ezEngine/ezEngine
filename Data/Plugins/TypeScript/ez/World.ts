@@ -1,6 +1,9 @@
 import __GameObject = require("./GameObject")
 export import GameObject = __GameObject.GameObject;
 
+import __Component = require("./Component")
+export import Component = __Component.Component;
+
 import __Vec3 = require("./Vec3")
 export import Vec3 = __Vec3.Vec3;
 
@@ -28,6 +31,7 @@ export class GameObjectDesc {
 
 declare function __CPP_World_DeleteObjectDelayed(object: GameObject): void;
 declare function __CPP_World_CreateObject(desc: GameObjectDesc): GameObject;
+declare function __CPP_World_CreateComponent(parent: GameObject, componentTypeNameHash: number);
 
 export namespace World {
 
@@ -39,10 +43,12 @@ export namespace World {
     return __CPP_World_CreateObject(desc);
   }
 
+  export function CreateComponent<TYPE extends Component>(parent: GameObject, typeClass: new () => TYPE): TYPE {
+    return __CPP_World_CreateComponent(parent, typeClass.GetTypeNameHash());
+  }
+
   // TryGetObject
   // TryGetObjectWithGlobalKey
-  // GetOrCreateComponentManager
-  // GetManagerForComponentType
   // IsValidComponent
   // TryGetComponent
   // SendMessage

@@ -5,11 +5,13 @@
 
 static int __CPP_World_DeleteObjectDelayed(duk_context* pDuk);
 static int __CPP_World_CreateObject(duk_context* pDuk);
+static int __CPP_World_CreateComponent(duk_context* pDuk);
 
 ezResult ezTypeScriptBinding::Init_World()
 {
   m_Duk.RegisterGlobalFunction("__CPP_World_DeleteObjectDelayed", __CPP_World_DeleteObjectDelayed, 1);
   m_Duk.RegisterGlobalFunction("__CPP_World_CreateObject", __CPP_World_CreateObject, 1);
+  m_Duk.RegisterGlobalFunction("__CPP_World_CreateComponent", __CPP_World_CreateComponent, 2);
 
   return EZ_SUCCESS;
 }
@@ -74,3 +76,30 @@ static int __CPP_World_CreateObject(duk_context* pDuk)
 
   return duk.ReturnCustom();
 }
+
+static int __CPP_World_CreateComponent(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk, +1);
+
+  ezWorld* pWorld = ezTypeScriptBinding::RetrieveWorld(duk);
+  ezGameObject* pOwner = ezTypeScriptBinding::ExpectGameObject(duk, 0);
+
+  const ezUInt32 uiTypeNameHash = duk.GetUIntValue(1);
+
+  const ezRTTI* pRtti = ezRTTI::FindTypeByNameHash(uiTypeNameHash);
+  if (pRtti == nullptr)
+  {
+    duk.Error(ezFmt("Invalid component type name hash: {}", uiTypeNameHash));
+    return duk.ReturnNull();
+  }
+
+  auto* pMan = pWorld->GetOrCreateManagerForComponentType(pRtti);
+
+  ezComponent* pComponent = nullptr;
+  pMan->CreateComponent(pOwner, pComponent);
+
+  ezTypeScriptBinding::DukPutComponentObject(duk, pComponent);
+
+  return duk.ReturnCustom();
+}
+
