@@ -60,5 +60,4 @@ export namespace World {
   // GetCoordinateSystem
   // GetClock
   // GetRandomNumberGenerator
-  // SpawnPrefab ?
 };

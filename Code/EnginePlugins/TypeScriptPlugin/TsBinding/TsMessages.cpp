@@ -194,3 +194,154 @@ import __AllMessages = require("{}")
     fileOut.WriteBytes(sFinal.GetData(), sFinal.GetElementCount());
   }
 }
+
+static ezUniquePtr<ezMessage> CreateMessage(ezUInt32 uiTypeHash, const ezRTTI*& pRtti)
+{
+  static ezHashTable<ezUInt32, const ezRTTI*, ezHashHelper<ezUInt32>, ezStaticAllocatorWrapper> MessageTypes;
+
+  if (!MessageTypes.TryGetValue(uiTypeHash, pRtti))
+  {
+    for (pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
+    {
+      if (pRtti->GetTypeNameHash() == uiTypeHash)
+      {
+        MessageTypes[uiTypeHash] = pRtti;
+        break;
+      }
+    }
+  }
+
+  if (pRtti == nullptr || !pRtti->GetAllocator()->CanAllocate())
+    return nullptr;
+
+  return pRtti->GetAllocator()->Allocate<ezMessage>();
+}
+
+ezUniquePtr<ezMessage> ezTypeScriptBinding::MessageFromParameter(duk_context* pDuk, ezInt32 iObjIdx)
+{
+  ezDuktapeHelper duk(pDuk, 0);
+
+  ezUInt32 uiTypeNameHash = duk.GetUIntValue(iObjIdx);
+
+  const ezRTTI* pRtti = nullptr;
+  ezUniquePtr<ezMessage> pMsg = CreateMessage(uiTypeNameHash, pRtti);
+
+
+  ezHybridArray<ezAbstractProperty*, 32> properties;
+  pRtti->GetAllProperties(properties);
+
+  for (ezAbstractProperty* pProp : properties)
+  {
+    if (pProp->GetCategory() != ezPropertyCategory::Member)
+      continue;
+
+    ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pProp);
+
+    const ezVariant::Type::Enum type = pMember->GetSpecificType()->GetVariantType();
+    switch (type)
+    {
+      case ezVariant::Type::Invalid:
+        break;
+
+      case ezVariant::Type::Bool:
+      {
+        bool value = duk.GetBoolProperty(pMember->GetPropertyName(), false, iObjIdx + 1);
+        ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg.Borrow(), value);
+        break;
+      }
+
+      case ezVariant::Type::String:
+      case ezVariant::Type::StringView:
+      {
+        ezStringView value = duk.GetStringProperty(pMember->GetPropertyName(), "", iObjIdx + 1);
+        ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg.Borrow(), value);
+        break;
+      }
+
+      case ezVariant::Type::Int8:
+      case ezVariant::Type::Int16:
+      case ezVariant::Type::Int32:
+      case ezVariant::Type::Int64:
+      {
+        ezInt32 value = duk.GetIntProperty(pMember->GetPropertyName(), 0, iObjIdx + 1);
+        ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg.Borrow(), value);
+        break;
+      }
+
+      case ezVariant::Type::UInt8:
+      case ezVariant::Type::UInt16:
+      case ezVariant::Type::UInt32:
+      case ezVariant::Type::UInt64:
+      {
+        ezUInt32 value = duk.GetUIntProperty(pMember->GetPropertyName(), 0, iObjIdx + 1);
+        ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg.Borrow(), value);
+        break;
+      }
+
+      case ezVariant::Type::Float:
+      {
+        const float value = duk.GetFloatProperty(pMember->GetPropertyName(), 0, iObjIdx + 1);
+        ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg.Borrow(), value);
+        break;
+      }
+
+      case ezVariant::Type::Double:
+      {
+        const double value = duk.GetNumberProperty(pMember->GetPropertyName(), 0, iObjIdx + 1);
+        ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg.Borrow(), value);
+        break;
+      }
+
+      case ezVariant::Type::Vector3:
+      {
+        ezVec3 value = ezTypeScriptBinding::GetVec3Property(duk, pMember->GetPropertyName(), iObjIdx + 1);
+        ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg.Borrow(), value);
+        break;
+      }
+
+      case ezVariant::Type::Quaternion:
+      {
+        ezQuat value = ezTypeScriptBinding::GetQuatProperty(duk, pMember->GetPropertyName(), iObjIdx + 1);
+        ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg.Borrow(), value);
+        break;
+      }
+
+      case ezVariant::Type::Color:
+      {
+        ezColor value = ezTypeScriptBinding::GetColorProperty(duk, pMember->GetPropertyName(), iObjIdx + 1);
+        ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg.Borrow(), value);
+        break;
+      }
+
+      case ezVariant::Type::ColorGamma:
+      {
+        ezColorGammaUB value = ezTypeScriptBinding::GetColorProperty(duk, pMember->GetPropertyName(), iObjIdx + 1);
+        ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg.Borrow(), value);
+        break;
+      }
+
+      case ezVariant::Type::Time:
+      {
+        const ezTime value = ezTime::Seconds(duk.GetNumberProperty(pMember->GetPropertyName(), 0, iObjIdx + 1));
+        ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg.Borrow(), value);
+        break;
+      }
+
+      case ezVariant::Type::Angle:
+      {
+        const ezAngle value = ezAngle::Radian(duk.GetFloatProperty(pMember->GetPropertyName(), 0, iObjIdx + 1));
+        ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg.Borrow(), value);
+        break;
+      }
+
+      case ezVariant::Type::Vector2:
+      case ezVariant::Type::Matrix3:
+      case ezVariant::Type::Matrix4:
+      case ezVariant::Type::Uuid:
+      default:
+        EZ_ASSERT_NOT_IMPLEMENTED;
+    }
+  }
+
+  return pMsg;
+}

@@ -5,13 +5,22 @@
 #include <Foundation/Types/ScopeExit.h>
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
 
+static int __CPP_Component_IsValid(duk_context* pDuk);
 static int __CPP_Component_GetOwner(duk_context* pDuk);
 static int __CPP_Component_SetActive(duk_context* pDuk);
+static int __CPP_Component_IsActive(duk_context* pDuk);
+static int __CPP_Component_SendMessage(duk_context* pDuk);
 
 ezResult ezTypeScriptBinding::Init_Component()
 {
+  m_Duk.RegisterGlobalFunction("__CPP_Component_IsValid", __CPP_Component_IsValid, 1);
   m_Duk.RegisterGlobalFunction("__CPP_Component_GetOwner", __CPP_Component_GetOwner, 1);
   m_Duk.RegisterGlobalFunction("__CPP_Component_SetActive", __CPP_Component_SetActive, 2);
+  m_Duk.RegisterGlobalFunction("__CPP_Component_IsActive", __CPP_Component_IsActive, 1, 0);
+  m_Duk.RegisterGlobalFunction("__CPP_Component_IsActiveAndInitialized", __CPP_Component_IsActive, 1, 1);
+  m_Duk.RegisterGlobalFunction("__CPP_Component_IsActiveAndSimulating", __CPP_Component_IsActive, 1, 2);
+  m_Duk.RegisterGlobalFunction("__CPP_Component_SendMessage", __CPP_Component_SendMessage, 3, 0);
+  m_Duk.RegisterGlobalFunction("__CPP_Component_SendMessage", __CPP_Component_SendMessage, 4, 1);
 
   return EZ_SUCCESS;
 }
@@ -129,6 +138,24 @@ ezComponentHandle ezTypeScriptBinding::RetrieveComponentHandle(duk_context* pDuk
   return ezComponentHandle();
 }
 
+static int __CPP_Component_IsValid(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk, 0);
+
+  if (!duk_get_prop_index(pDuk, 0, ezTypeScriptBindingIndexProperty::ComponentHandle))
+  {
+    return duk.ReturnBool(false);
+  }
+
+  ezComponentHandle hComponent = *reinterpret_cast<ezComponentHandle*>(duk_get_buffer(pDuk, -1, nullptr));
+  duk_pop(pDuk);
+
+  ezComponent* pComponent = nullptr;
+  ezWorld* pWorld = ezTypeScriptBinding::RetrieveWorld(pDuk);
+
+  return duk.ReturnBool(pWorld->TryGetComponent(hComponent, pComponent));
+}
+
 static int __CPP_Component_GetOwner(duk_context* pDuk)
 {
   ezDuktapeFunction duk(pDuk, +1);
@@ -148,6 +175,51 @@ static int __CPP_Component_SetActive(duk_context* pDuk)
   ezComponent* pComponent = ezTypeScriptBinding::ExpectComponent<ezComponent>(pDuk);
 
   pComponent->SetActive(duk.GetBoolValue(1, true));
+
+  return duk.ReturnVoid();
+}
+
+static int __CPP_Component_IsActive(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk, 0);
+
+  ezComponent* pComponent = ezTypeScriptBinding::ExpectComponent<ezComponent>(pDuk);
+
+  switch (duk.GetFunctionMagicValue())
+  {
+    case 0:
+      return duk.ReturnBool(pComponent->IsActive());
+
+    case 1:
+      return duk.ReturnBool(pComponent->IsActiveAndInitialized());
+
+    case 2:
+      return duk.ReturnBool(pComponent->IsActiveAndSimulating());
+  }
+
+  EZ_ASSERT_NOT_IMPLEMENTED;
+  return duk.ReturnBool(false);
+  ;
+}
+
+static int __CPP_Component_SendMessage(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk, 0);
+
+  ezComponent* pComponent = ezTypeScriptBinding::ExpectComponent<ezComponent>(duk, 0 /*this*/);
+
+  ezUniquePtr<ezMessage> pMsg = ezTypeScriptBinding::MessageFromParameter(pDuk, 1);
+
+  if (duk.GetFunctionMagicValue() == 0) // SendMessage
+  {
+    pComponent->SendMessage(*pMsg);
+  }
+  else // PostMessage
+  {
+    const ezTime delay = ezTime::Seconds(duk.GetNumberValue(3));
+
+    pComponent->PostMessage(*pMsg, ezObjectMsgQueueType::NextFrame, delay);
+  }
 
   return duk.ReturnVoid();
 }

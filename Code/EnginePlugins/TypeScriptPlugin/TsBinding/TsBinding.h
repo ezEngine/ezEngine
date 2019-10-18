@@ -96,6 +96,9 @@ private:
   /// \name Message Binding
   ///@{
 
+public:
+  static ezUniquePtr<ezMessage> MessageFromParameter(duk_context* pDuk, ezInt32 iObjIdx);
+
 private:
   static void GenerateMessagesFile(const char* szFile);
   static void GenerateAllMessagesCode(ezStringBuilder& out_Code);
