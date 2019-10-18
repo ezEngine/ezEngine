@@ -57,10 +57,6 @@ export namespace World {
     return __CPP_World_TryGetObjectWithGlobalKey(globalKey);
   }
 
-  // SendMessage
-  // SendMessageRecursive
-  // PostMessage
-  // PostMessageRecursive
   // GetCoordinateSystem
   // GetClock
   // GetRandomNumberGenerator

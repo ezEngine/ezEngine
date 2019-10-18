@@ -13,6 +13,7 @@ class ezWorld;
 enum ezTypeScriptBindingIndexProperty
 {
   ComponentHandle,
+  GameObjectHandle
 };
 
 class ezTypeScriptBinding
@@ -27,8 +28,8 @@ public:
   ezResult Initialize(ezTypeScriptTranspiler& transpiler, ezWorld& world);
   ezResult LoadComponent(const char* szComponent);
 
-  ezDuktapeContext& GetDukTapeWrapper() { return m_Duk; }
-  duk_context* GetDukContext() { return m_Duk.GetContext(); }
+  EZ_ALWAYS_INLINE ezDuktapeContext& GetDukTapeContext() { return m_Duk; }
+  EZ_ALWAYS_INLINE duk_context* GetDukContext() { return m_Duk.GetContext(); }
 
 private:
   static void GetTsName(const ezRTTI* pRtti, ezStringBuilder& out_sName);
@@ -96,7 +97,6 @@ private:
   ///@{
 
 private:
-
   static void GenerateMessagesFile(const char* szFile);
   static void GenerateAllMessagesCode(ezStringBuilder& out_Code);
   static void GenerateMessageCode(ezStringBuilder& out_Code, const ezRTTI* pRtti);
@@ -130,6 +130,7 @@ private:
   ///@{
 public:
   static ezWorld* RetrieveWorld(duk_context* pDuk);
+  static ezTypeScriptBinding* RetrieveBinding(duk_context* pDuk);
 
 private:
   void StoreWorld(ezWorld* pWorld);
@@ -142,8 +143,8 @@ private:
 public:
   static ezGameObjectHandle RetrieveGameObjectHandle(duk_context* pDuk, ezInt32 iObjIdx = 0 /* use 0, if the game object is passed in as the 'this' object (first parameter) */);
   static ezGameObject* ExpectGameObject(duk_context* pDuk, ezInt32 iObjIdx = 0 /* use 0, if the game object is passed in as the 'this' object (first parameter) */);
-  static void DukPutGameObject(duk_context* pDuk, const ezGameObjectHandle& hObject);
-  static void DukPutGameObject(duk_context* pDuk, const ezGameObject* pObject);
+  bool DukPutGameObject(duk_context* pDuk, const ezGameObjectHandle& hObject);
+  void DukPutGameObject(duk_context* pDuk, const ezGameObject* pObject);
 
   ///@}
   /// \name Components
@@ -171,6 +172,24 @@ public:
   static void PushVec3(duk_context* pDuk, const ezVec3& value);
   static void PushQuat(duk_context* pDuk, const ezQuat& value);
   static void PushColor(duk_context* pDuk, const ezColor& value);
+
+  ///@}
+  /// \name C++ Object Registration
+  ///@{
+public:
+
+  bool RegisterGameObject(ezGameObjectHandle handle, ezUInt32& out_uiStashIdx);
+
+
+private:
+  void StoreReferenceInStash(ezUInt32 uiStashIdx);
+  bool DukPushStashObject(ezUInt32 uiStashIdx);
+
+  // TODO: clean up stash every once in a while
+
+  ezUInt32 m_uiNextStashObjIdx = 1024;
+  ezMap<ezGameObjectHandle, ezUInt32> m_GameObjectToStashIdx;
+  ezMap<ezComponentHandle, ezUInt32> m_ComponentToStashIdx;
 
   ///@}
 };

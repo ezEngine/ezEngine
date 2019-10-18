@@ -86,7 +86,7 @@ ezGameObjectHandle ezTypeScriptBinding::RetrieveGameObjectHandle(duk_context* pD
   if (duk_is_null_or_undefined(pDuk, iObjIdx))
     return ezGameObjectHandle();
 
-  if (duk_get_prop_string(pDuk, iObjIdx, "ezGameObjectHandle"))
+  if (duk_get_prop_index(pDuk, iObjIdx, ezTypeScriptBindingIndexProperty::GameObjectHandle))
   {
     ezGameObjectHandle hObject = *reinterpret_cast<ezGameObjectHandle*>(duk_get_buffer(pDuk, -1, nullptr));
     duk_pop(pDuk);
@@ -108,34 +108,55 @@ ezGameObject* ezTypeScriptBinding::ExpectGameObject(duk_context* pDuk, ezInt32 i
   return pGameObject;
 }
 
-void ezTypeScriptBinding::DukPutGameObject(duk_context* pDuk, const ezGameObjectHandle& hObject)
+bool ezTypeScriptBinding::RegisterGameObject(ezGameObjectHandle handle, ezUInt32& out_uiStashIdx)
 {
-  ezDuktapeHelper duk(pDuk, +1);
+  if (handle.IsInvalidated())
+    return false;
 
-  if (hObject.IsInvalidated())
+  ezUInt32& uiStashIdx = m_GameObjectToStashIdx[handle];
+
+  if (uiStashIdx != 0)
   {
-    duk.PushNull(); // [ null ]
-    return;
+    out_uiStashIdx = uiStashIdx;
+    return true;
   }
 
-  // TODO: make this more efficient by reusing previous ez.GameObject instances when possible
+  uiStashIdx = m_uiNextStashObjIdx;
+  ++m_uiNextStashObjIdx;
 
-  // create ez.GameObject and store the ezGameObjectHandle as a property in it
+  ezDuktapeHelper duk(m_Duk, 0);
+
   duk.PushGlobalObject();                                         // [ global ]
   EZ_VERIFY(duk.PushLocalObject("__GameObject").Succeeded(), ""); // [ global __GameObject ]
   duk_get_prop_string(duk, -1, "GameObject");                     // [ global __GameObject GameObject ]
-  duk_new(duk, 0);                                                // [ global __GameObject result ]
+  duk_new(duk, 0);                                                // [ global __GameObject object ]
 
   // set the ezGameObjectHandle property
   {
     ezGameObjectHandle* pHandleBuffer = reinterpret_cast<ezGameObjectHandle*>(duk_push_fixed_buffer(duk, sizeof(ezGameObjectHandle))); // [ global __GameObject result buffer ]
-    *pHandleBuffer = hObject;
-    duk_put_prop_string(duk, -2, "ezGameObjectHandle"); // [ global __GameObject result ]
+    *pHandleBuffer = handle;
+    duk_put_prop_index(duk, -2, ezTypeScriptBindingIndexProperty::GameObjectHandle); // [ global __GameObject object ]
   }
 
-  // move the top of the stack to the only position that we want to keep (return)
-  duk_replace(duk, -3); // [ result __GameObject ]
-  duk.PopStack();       // [ result ]
+  StoreReferenceInStash(uiStashIdx); // [ global __GameObject object ]
+  duk.PopStack(3);                   // [ ]
+
+  out_uiStashIdx = uiStashIdx;
+  return true;
+}
+
+bool ezTypeScriptBinding::DukPutGameObject(duk_context* pDuk, const ezGameObjectHandle& hObject)
+{
+  ezDuktapeHelper duk(pDuk, +1);
+
+  ezUInt32 uiStashIdx = 0;
+  if (!RegisterGameObject(hObject, uiStashIdx))
+  {
+    duk.PushNull(); // [ null ]
+    return false;
+  }
+
+  return DukPushStashObject(uiStashIdx);
 }
 
 void ezTypeScriptBinding::DukPutGameObject(duk_context* pDuk, const ezGameObject* pObject)
@@ -398,7 +419,8 @@ static int __CPP_GameObject_FindChildByName(duk_context* pDuk)
 
   ezGameObject* pChild = pGameObject->FindChildByName(ezTempHashedString(szName), bRecursive);
 
-  ezTypeScriptBinding::DukPutGameObject(duk, pChild);
+  ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(pDuk);
+  pBinding->DukPutGameObject(duk, pChild);
 
   return duk.ReturnCustom();
 }
@@ -413,7 +435,8 @@ static int __CPP_GameObject_FindChildByPath(duk_context* pDuk)
 
   ezGameObject* pChild = pGameObject->FindChildByPath(szPath);
 
-  ezTypeScriptBinding::DukPutGameObject(duk, pChild);
+  ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(pDuk);
+  pBinding->DukPutGameObject(duk, pChild);
 
   return duk.ReturnCustom();
 }
@@ -485,7 +508,8 @@ static int __CPP_GameObject_SearchForChildByNameSequence(duk_context* pDuk)
 
   ezGameObject* pObject = pGameObject->SearchForChildByNameSequence(duk.GetStringValue(1), pRtti);
 
-  ezTypeScriptBinding::DukPutGameObject(duk, pObject);
+  ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(pDuk);
+  pBinding->DukPutGameObject(duk, pObject);
 
   return duk.ReturnCustom();
 }

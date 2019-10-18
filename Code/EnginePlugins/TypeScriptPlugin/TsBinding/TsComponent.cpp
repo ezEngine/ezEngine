@@ -133,7 +133,8 @@ static int __CPP_Component_GetOwner(duk_context* pDuk)
 
   ezComponent* pComponent = ezTypeScriptBinding::ExpectComponent<ezComponent>(pDuk);
 
-  ezTypeScriptBinding::DukPutGameObject(duk, pComponent->GetOwner()->GetHandle());
+  ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(pDuk);
+  pBinding->DukPutGameObject(duk, pComponent->GetOwner()->GetHandle());
 
   return duk.ReturnCustom();
 }

@@ -26,9 +26,11 @@ class MyComponent extends ez.TypescriptComponent {
             //owner.SetLocalRotation(newRot);
         }
 
-        let child = owner.FindChildByName("Light");
-        if (child != null) {
-            child.SetActive(false);//Math.random() > 0.7);
+        if (false) {
+            let child = owner.FindChildByName("Light");
+            if (child != null) {
+                child.SetActive(false);//Math.random() > 0.7);
+            }
         }
 
         let comp = owner.TryGetComponentOfBaseType(ez.TransformComponent);
@@ -56,7 +58,7 @@ class MyComponent extends ez.TypescriptComponent {
             owner.SendMessage(setMat);
         }
 
-        if (Math.random() > 0.9) {
+        if (false && Math.random() > 0.9) {
             let setMat = new ez.MsgSetColor();
 
             if (Math.random() > 0.5) {
@@ -71,7 +73,7 @@ class MyComponent extends ez.TypescriptComponent {
 
             --this.deleteCounter;
 
-            if (this.deleteCounter == 0) {
+            if (false && this.deleteCounter == 0) {
                 if (this.child == null) {
                     ez.Log.Info("Creating Object");
 
@@ -89,17 +91,14 @@ class MyComponent extends ez.TypescriptComponent {
 
                     let spawnComp1 = owner.TryGetComponentOfBaseType(ez.SpawnComponent);
 
-                    if (spawnComp1 != null)
-                    {
+                    if (spawnComp1 != null) {
                         spawnComp1.TriggerManualSpawn();
                     }
 
                     let spawnObj = ez.World.TryGetObjectWithGlobalKey("Spawn");
-                    if (spawnObj != null)
-                    {
+                    if (spawnObj != null) {
                         let spawnComp = spawnObj.TryGetComponentOfBaseType(ez.SpawnComponent);
-                        if (spawnComp != null)
-                        {
+                        if (spawnComp != null) {
                             spawnComp.TriggerManualSpawn();
                         }
                     }

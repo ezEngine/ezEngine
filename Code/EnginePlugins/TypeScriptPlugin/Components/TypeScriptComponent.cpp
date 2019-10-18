@@ -43,7 +43,7 @@ void ezTypeScriptComponent::Deinitialize()
 
 void ezTypeScriptComponent::Update(ezTypeScriptBinding& binding)
 {
-  ezDuktapeHelper duk(binding.GetDukTapeWrapper(), 0);
+  ezDuktapeHelper duk(binding.GetDukTapeContext(), 0);
 
   binding.DukPutComponentObject(duk, GetHandle()); // [ comp ]
 

@@ -5,12 +5,25 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
 
+static ezHashTable<duk_context*, ezTypeScriptBinding*> s_DukToBinding;
+
 ezTypeScriptBinding::ezTypeScriptBinding()
   : m_Duk("Typescript Binding")
 {
+  s_DukToBinding[m_Duk] = this;
 }
 
-ezTypeScriptBinding::~ezTypeScriptBinding() = default;
+ezTypeScriptBinding::~ezTypeScriptBinding()
+{
+  s_DukToBinding.Remove(m_Duk);
+}
+
+ezTypeScriptBinding* ezTypeScriptBinding::RetrieveBinding(duk_context* pDuk)
+{
+  ezTypeScriptBinding* pBinding = nullptr;
+  s_DukToBinding.TryGetValue(pDuk, pBinding);
+  return pBinding;
+}
 
 ezResult ezTypeScriptBinding::Initialize(ezTypeScriptTranspiler& transpiler, ezWorld& world)
 {
@@ -213,4 +226,34 @@ void ezTypeScriptBinding::PushColor(duk_context* pDuk, const ezColor& value)
   duk_new(duk, 4);                                           // [ global __Color result ]
   duk_remove(duk, -2);                                       // [ global result ]
   duk_remove(duk, -2);                                       // [ result ]
+}
+
+void ezTypeScriptBinding::StoreReferenceInStash(ezUInt32 uiStashIdx)
+{
+  ezDuktapeHelper duk(m_Duk, 0); // [ object ]
+  duk.PushGlobalStash();         // [ object stash ]
+  duk.PushUInt(uiStashIdx);      // [ object stash uint ]
+  duk_dup(duk, -3);              // [ object stash uint object ]
+  duk_put_prop(duk, -3);         // [ object stash ]
+  duk.PopStack();                // [ object ]
+}
+
+bool ezTypeScriptBinding::DukPushStashObject(ezUInt32 uiStashIdx)
+{
+  ezDuktapeHelper duk(m_Duk, +1);
+
+  duk.PushGlobalStash();          // [ stash ]
+  duk_push_uint(duk, uiStashIdx); // [ stash idx ]
+
+  if (!duk_get_prop(duk, -2)) // [ stash obj/undef ]
+  {
+    duk_pop_2(duk);     // [ ]
+    duk_push_null(duk); // [ null ]
+    return false;
+  }
+  else // [ stash obj ]
+  {
+    duk_replace(duk, -2); // [ obj ]
+    return true;
+  }
 }
