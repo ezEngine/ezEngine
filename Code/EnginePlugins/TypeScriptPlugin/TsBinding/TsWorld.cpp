@@ -78,7 +78,7 @@ static int __CPP_World_CreateObject(duk_context* pDuk)
   ezGameObjectHandle hObject = pWorld->CreateObject(desc);
 
   ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(pDuk);
-  pBinding->DukPutGameObject(duk, hObject);
+  pBinding->DukPutGameObject(hObject);
 
   return duk.ReturnCustom();
 }
@@ -104,7 +104,8 @@ static int __CPP_World_CreateComponent(duk_context* pDuk)
   ezComponent* pComponent = nullptr;
   pMan->CreateComponent(pOwner, pComponent);
 
-  ezTypeScriptBinding::DukPutComponentObject(duk, pComponent);
+  ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(duk);
+  pBinding->DukPutComponentObject(pComponent);
 
   return duk.ReturnCustom();
 }
@@ -135,7 +136,7 @@ static int __CPP_World_TryGetObjectWithGlobalKey(duk_context* pDuk)
   pWorld->TryGetObjectWithGlobalKey(ezTempHashedString(duk.GetStringValue(0)), pObject);
 
   ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(pDuk);
-  pBinding->DukPutGameObject(duk, pObject);
+  pBinding->DukPutGameObject(pObject);
 
   return duk.ReturnCustom();
 }

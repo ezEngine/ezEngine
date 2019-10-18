@@ -16,15 +16,29 @@ ezResult ezTypeScriptBinding::Init_Component()
   return EZ_SUCCESS;
 }
 
-ezResult ezTypeScriptBinding::CreateTsComponent(duk_context* pDuk, const char* szTypeName, const ezComponentHandle& hCppComponent, const char* szDebugString)
+ezResult ezTypeScriptBinding::RegisterComponent(const char* szTypeName, ezComponentHandle handle, ezUInt32& out_uiStashIdx)
 {
-  ezDuktapeHelper duk(pDuk, 0);
+  if (handle.IsInvalidated())
+    return EZ_FAILURE;
 
-  ezStringBuilder sTypeName = szTypeName;
+  ezUInt32& uiStashIdx = m_ComponentToStashIdx[handle];
+
+  if (uiStashIdx != 0)
+  {
+    out_uiStashIdx = uiStashIdx;
+    return EZ_SUCCESS;
+  }
+
+  uiStashIdx = m_uiNextStashObjIdx;
+  ++m_uiNextStashObjIdx;
+
+  ezDuktapeHelper duk(m_Duk, 0);
 
   duk.PushGlobalObject(); // [ global ]
 
   bool bCloseAllComps = false;
+  ezStringBuilder sTypeName = szTypeName;
+
   if (sTypeName.TrimWordStart("ez"))
   {
     EZ_SUCCEED_OR_RETURN(duk.PushLocalObject("__AllComponents")); // [ global __AllComponents ]
@@ -32,71 +46,59 @@ ezResult ezTypeScriptBinding::CreateTsComponent(duk_context* pDuk, const char* s
   }
 
   duk_get_prop_string(duk, -1, sTypeName); // [ global __AllComponents sTypeName ]
-  duk_new(duk, 0);                         // [ global __AllComponents instance ]
+  duk_new(duk, 0);                         // [ global __AllComponents object ]
 
   // store C++ side component handle in obj as property
   {
-    ezComponentHandle* pBuffer = reinterpret_cast<ezComponentHandle*>(duk_push_fixed_buffer(duk, sizeof(ezComponentHandle))); // [ global __AllComponents instance buffer ]
-    *pBuffer = hCppComponent;
-    duk_put_prop_index(duk, -2, ezTypeScriptBindingIndexProperty::ComponentHandle); // [ global __AllComponents instance ]
+    ezComponentHandle* pBuffer = reinterpret_cast<ezComponentHandle*>(duk_push_fixed_buffer(duk, sizeof(ezComponentHandle))); // [ global __AllComponents object buffer ]
+    *pBuffer = handle;
+    duk_put_prop_index(duk, -2, ezTypeScriptBindingIndexProperty::ComponentHandle); // [ global __AllComponents object ]
   }
 
-  // store reference to component in the global stash
-  {
-    const ezUInt32 uiComponentReference = hCppComponent.GetInternalID().m_Data;
+  StoreReferenceInStash(uiStashIdx);    // [ global __AllComponents object ]
+  duk.PopStack(bCloseAllComps ? 3 : 2); // [ ]
 
-    duk.PushGlobalStash();                                       // [ global __AllComponents instance stash]
-    duk.PushUInt(uiComponentReference);                          // [ global __AllComponents instance stash uint ]
-    duk_dup(duk, -3);                                            // [ global __AllComponents instance stash uint instance ]
-    EZ_VERIFY(duk_put_prop(duk, -3), "Storing property failed"); // [ global __AllComponents instance stash ]
-    duk.PopStack();                                              // [ global __AllComponents instance ]
-  }
-
-
-  if (bCloseAllComps)
-  {
-    duk.PopStack(3); // [ global __AllComponents instance ] -> [ ]
-  }
-  else
-  {
-    duk.PopStack(2); // [ global instance ] -> [ ]
-  }
-
+  out_uiStashIdx = uiStashIdx;
   return EZ_SUCCESS;
 }
 
-void ezTypeScriptBinding::DukPutComponentObject(duk_context* pDuk, const ezComponentHandle& hComponent)
+void ezTypeScriptBinding::DukPutComponentObject(const ezComponentHandle& hComponent)
 {
-  ezDuktapeHelper duk(pDuk, +1);
+  ezDuktapeHelper duk(m_Duk, +1);
 
-  duk_push_global_stash(pDuk); // [ stash ]
+  duk_push_global_stash(duk); // [ stash ]
 
   const ezUInt32 uiComponentReference = hComponent.GetInternalID().m_Data;
-  duk_push_uint(pDuk, uiComponentReference); // [ stash key ]
-  if (!duk_get_prop(pDuk, -2))               // [ stash obj/undef ]
+  duk_push_uint(duk, uiComponentReference); // [ stash key ]
+  if (!duk_get_prop(duk, -2))               // [ stash obj/undef ]
   {
-    duk_pop_2(pDuk);     // [ ]
-    duk_push_null(pDuk); // [ null ]
+    duk_pop_2(duk);     // [ ]
+    duk_push_null(duk); // [ null ]
   }
   else // [ stash obj ]
   {
-    duk_replace(pDuk, -2); // [ obj ]
+    duk_replace(duk, -2); // [ obj ]
   }
 }
 
-void ezTypeScriptBinding::DukPutComponentObject(duk_context* pDuk, ezComponent* pComponent)
+void ezTypeScriptBinding::DukPutComponentObject(ezComponent* pComponent)
 {
   if (pComponent == nullptr)
   {
-    duk_push_null(pDuk);
+    m_Duk.PushNull(); // [ null ]
   }
   else
   {
-    CreateTsComponent(pDuk, pComponent->GetDynamicRTTI()->GetTypeName(), pComponent->GetHandle(), "");
-    DukPutComponentObject(pDuk, pComponent->GetHandle());
+    ezUInt32 uiStashIdx = 0;
+    if (RegisterComponent(pComponent->GetDynamicRTTI()->GetTypeName(), pComponent->GetHandle(), uiStashIdx).Failed())
+    {
+      m_Duk.PushNull(); // [ null ]
+      return;
+    }
+
+    DukPushStashObject(uiStashIdx);
   }
 }
-
 
 void ezTypeScriptBinding::DeleteTsComponent(const ezComponentHandle& hCppComponent)
 {
@@ -134,7 +136,7 @@ static int __CPP_Component_GetOwner(duk_context* pDuk)
   ezComponent* pComponent = ezTypeScriptBinding::ExpectComponent<ezComponent>(pDuk);
 
   ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(pDuk);
-  pBinding->DukPutGameObject(duk, pComponent->GetOwner()->GetHandle());
+  pBinding->DukPutGameObject(pComponent->GetOwner()->GetHandle());
 
   return duk.ReturnCustom();
 }

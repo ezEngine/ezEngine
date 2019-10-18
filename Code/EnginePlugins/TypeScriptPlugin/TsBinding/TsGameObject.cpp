@@ -145,9 +145,9 @@ bool ezTypeScriptBinding::RegisterGameObject(ezGameObjectHandle handle, ezUInt32
   return true;
 }
 
-bool ezTypeScriptBinding::DukPutGameObject(duk_context* pDuk, const ezGameObjectHandle& hObject)
+bool ezTypeScriptBinding::DukPutGameObject(const ezGameObjectHandle& hObject)
 {
-  ezDuktapeHelper duk(pDuk, +1);
+  ezDuktapeHelper duk(m_Duk, +1);
 
   ezUInt32 uiStashIdx = 0;
   if (!RegisterGameObject(hObject, uiStashIdx))
@@ -159,15 +159,15 @@ bool ezTypeScriptBinding::DukPutGameObject(duk_context* pDuk, const ezGameObject
   return DukPushStashObject(uiStashIdx);
 }
 
-void ezTypeScriptBinding::DukPutGameObject(duk_context* pDuk, const ezGameObject* pObject)
+void ezTypeScriptBinding::DukPutGameObject(const ezGameObject* pObject)
 {
   if (pObject == nullptr)
   {
-    duk_push_null(pDuk);
+    duk_push_null(m_Duk);
   }
   else
   {
-    DukPutGameObject(pDuk, pObject->GetHandle());
+    DukPutGameObject(pObject->GetHandle());
   }
 }
 
@@ -420,7 +420,7 @@ static int __CPP_GameObject_FindChildByName(duk_context* pDuk)
   ezGameObject* pChild = pGameObject->FindChildByName(ezTempHashedString(szName), bRecursive);
 
   ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(pDuk);
-  pBinding->DukPutGameObject(duk, pChild);
+  pBinding->DukPutGameObject(pChild);
 
   return duk.ReturnCustom();
 }
@@ -436,7 +436,7 @@ static int __CPP_GameObject_FindChildByPath(duk_context* pDuk)
   ezGameObject* pChild = pGameObject->FindChildByPath(szPath);
 
   ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(pDuk);
-  pBinding->DukPutGameObject(duk, pChild);
+  pBinding->DukPutGameObject(pChild);
 
   return duk.ReturnCustom();
 }
@@ -461,7 +461,8 @@ static int __CPP_GameObject_TryGetComponentOfBaseTypeName(duk_context* pDuk)
     return duk.ReturnNull();
   }
 
-  ezTypeScriptBinding::DukPutComponentObject(duk, pComponent);
+  ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(duk);
+  pBinding->DukPutComponentObject(pComponent);
 
   return duk.ReturnCustom();
 }
@@ -486,7 +487,8 @@ static int __CPP_GameObject_TryGetComponentOfBaseTypeNameHash(duk_context* pDuk)
     return duk.ReturnNull();
   }
 
-  ezTypeScriptBinding::DukPutComponentObject(duk, pComponent);
+  ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(duk);
+  pBinding->DukPutComponentObject(pComponent);
 
   return duk.ReturnCustom();
 }
@@ -509,7 +511,7 @@ static int __CPP_GameObject_SearchForChildByNameSequence(duk_context* pDuk)
   ezGameObject* pObject = pGameObject->SearchForChildByNameSequence(duk.GetStringValue(1), pRtti);
 
   ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(pDuk);
-  pBinding->DukPutGameObject(duk, pObject);
+  pBinding->DukPutGameObject(pObject);
 
   return duk.ReturnCustom();
 }

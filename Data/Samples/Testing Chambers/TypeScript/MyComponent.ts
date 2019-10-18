@@ -58,7 +58,7 @@ class MyComponent extends ez.TypescriptComponent {
             owner.SendMessage(setMat);
         }
 
-        if (false && Math.random() > 0.9) {
+        if (true && Math.random() > 0.9) {
             let setMat = new ez.MsgSetColor();
 
             if (Math.random() > 0.5) {
@@ -73,7 +73,7 @@ class MyComponent extends ez.TypescriptComponent {
 
             --this.deleteCounter;
 
-            if (false && this.deleteCounter == 0) {
+            if (true && this.deleteCounter == 0) {
                 if (this.child == null) {
                     ez.Log.Info("Creating Object");
 

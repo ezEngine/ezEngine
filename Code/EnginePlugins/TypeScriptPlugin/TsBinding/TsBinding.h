@@ -143,16 +143,15 @@ private:
 public:
   static ezGameObjectHandle RetrieveGameObjectHandle(duk_context* pDuk, ezInt32 iObjIdx = 0 /* use 0, if the game object is passed in as the 'this' object (first parameter) */);
   static ezGameObject* ExpectGameObject(duk_context* pDuk, ezInt32 iObjIdx = 0 /* use 0, if the game object is passed in as the 'this' object (first parameter) */);
-  bool DukPutGameObject(duk_context* pDuk, const ezGameObjectHandle& hObject);
-  void DukPutGameObject(duk_context* pDuk, const ezGameObject* pObject);
+  bool DukPutGameObject(const ezGameObjectHandle& hObject);
+  void DukPutGameObject(const ezGameObject* pObject);
 
   ///@}
   /// \name Components
   ///@{
 public:
-  static ezResult CreateTsComponent(duk_context* pDuk, const char* szTypeName, const ezComponentHandle& hCppComponent, const char* szDebugString = "");
-  static void DukPutComponentObject(duk_context* pDuk, const ezComponentHandle& hComponent);
-  static void DukPutComponentObject(duk_context* pDuk, ezComponent* pComponent);
+  void DukPutComponentObject(const ezComponentHandle& hComponent);
+  void DukPutComponentObject(ezComponent* pComponent);
   void DeleteTsComponent(const ezComponentHandle& hCppComponent);
   static ezComponentHandle RetrieveComponentHandle(duk_context* pDuk, ezInt32 iObjIdx = 0 /* use 0, if the component is passed in as the 'this' object (first parameter) */);
 
@@ -179,6 +178,7 @@ public:
 public:
 
   bool RegisterGameObject(ezGameObjectHandle handle, ezUInt32& out_uiStashIdx);
+  ezResult RegisterComponent(const char* szTypeNamem, ezComponentHandle handle, ezUInt32& out_uiStashIdx);
 
 
 private:

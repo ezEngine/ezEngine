@@ -31,7 +31,8 @@ void ezTypeScriptComponent::OnSimulationStarted()
 
   if (binding.LoadComponent("TypeScript/MyComponent.ts").Succeeded())
   {
-    ezTypeScriptBinding::CreateTsComponent(binding.GetDukContext(), "MyComponent", GetHandle(), GetOwner()->GetName());
+    ezUInt32 uiStashIdx = 0;
+    binding.RegisterComponent("MyComponent", GetHandle(), uiStashIdx);
   }
 }
 
@@ -45,7 +46,7 @@ void ezTypeScriptComponent::Update(ezTypeScriptBinding& binding)
 {
   ezDuktapeHelper duk(binding.GetDukTapeContext(), 0);
 
-  binding.DukPutComponentObject(duk, GetHandle()); // [ comp ]
+  binding.DukPutComponentObject(this); // [ comp ]
 
   if (duk.PrepareMethodCall("Update").Succeeded()) // [ comp Update comp ]
   {
