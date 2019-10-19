@@ -47,6 +47,11 @@ protected:
   virtual void OnSimulationStarted() override;
   virtual void Deinitialize() override;
 
+  virtual bool OnUnhandledMessage(ezMessage& msg) override;
+  virtual bool OnUnhandledMessage(ezMessage& msg) const override;
+
+  bool HandleUnhandledMessage(ezMessage& msg);
+
   //////////////////////////////////////////////////////////////////////////
   // ezTypeScriptComponent Interface
   //

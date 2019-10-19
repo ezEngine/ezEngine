@@ -157,6 +157,63 @@ const char* ezDuktapeHelper::GetStringProperty(const char* szPropertyName, const
   return result;
 }
 
+void ezDuktapeHelper::SetBoolProperty(const char* szPropertyName, bool value, ezInt32 iParentObjectIndex /*= -1*/) const
+{
+  ezDuktapeHelper duk(m_pContext, 0);
+
+  if (duk_get_prop_string(m_pContext, iParentObjectIndex, szPropertyName)) // [ key/undef ]
+  {
+    duk_push_boolean(m_pContext, value); // [ key value ]
+
+    if (iParentObjectIndex >= 0)
+      duk_put_prop(m_pContext, iParentObjectIndex); // [ ]
+    else
+      duk_put_prop(m_pContext, iParentObjectIndex - 2); // [ ]
+  }
+  else // [ undef ]
+  {
+    duk_pop(m_pContext); // [ ]
+  }
+}
+
+void ezDuktapeHelper::SetNumberProperty(const char* szPropertyName, double value, ezInt32 iParentObjectIndex /*= -1*/) const
+{
+  ezDuktapeHelper duk(m_pContext, 0);
+
+  if (duk_get_prop_string(m_pContext, iParentObjectIndex, szPropertyName)) // [ key/undef ]
+  {
+    duk_push_number(m_pContext, value); // [ key value ]
+
+    if (iParentObjectIndex >= 0)
+      duk_put_prop(m_pContext, iParentObjectIndex); // [ ]
+    else
+      duk_put_prop(m_pContext, iParentObjectIndex - 2); // [ ]
+  }
+  else // [ undef ]
+  {
+    duk_pop(m_pContext); // [ ]
+  }
+}
+
+void ezDuktapeHelper::SetStringProperty(const char* szPropertyName, const char* value, ezInt32 iParentObjectIndex /*= -1*/) const
+{
+  ezDuktapeHelper duk(m_pContext, 0);
+
+  if (duk_get_prop_string(m_pContext, iParentObjectIndex, szPropertyName)) // [ key/undef ]
+  {
+    duk_push_string(m_pContext, value); // [ key value ]
+
+    if (iParentObjectIndex >= 0)
+      duk_put_prop(m_pContext, iParentObjectIndex); // [ ]
+    else
+      duk_put_prop(m_pContext, iParentObjectIndex - 2); // [ ]
+  }
+  else // [ undef ]
+  {
+    duk_pop(m_pContext); // [ ]
+  }
+}
+
 void ezDuktapeHelper::StorePointerInStash(const char* szKey, void* pPointer)
 {
   duk_push_global_stash(m_pContext);                                                      // [ stash ]
@@ -422,6 +479,11 @@ void ezDuktapeHelper::PushUndefined()
 {
   duk_push_undefined(m_pContext); // [ undefined ]
   ++m_iPushedValues;
+}
+
+void ezDuktapeHelper::PushCustom(ezUInt32 num)
+{
+  m_iPushedValues += num;
 }
 
 bool ezDuktapeHelper::GetBoolValue(ezInt32 iStackElement, bool fallback /*= false*/) const

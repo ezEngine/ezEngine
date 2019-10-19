@@ -98,6 +98,7 @@ private:
 
 public:
   static ezUniquePtr<ezMessage> MessageFromParameter(duk_context* pDuk, ezInt32 iObjIdx);
+  static void DukPutMessage(duk_context* pDuk, const ezMessage& msg);
 
 private:
   static void GenerateMessagesFile(const char* szFile);

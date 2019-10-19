@@ -34,12 +34,58 @@ void ezTypeScriptComponent::OnSimulationStarted()
     ezUInt32 uiStashIdx = 0;
     binding.RegisterComponent("MyComponent", GetHandle(), uiStashIdx);
   }
+
+  EnableUnhandledMessageHandler(true);
 }
 
 void ezTypeScriptComponent::Deinitialize()
 {
   ezTypeScriptBinding& binding = static_cast<ezTypeScriptComponentManager*>(GetOwningManager())->m_TsBinding;
   binding.DeleteTsComponent(GetHandle());
+}
+
+bool ezTypeScriptComponent::OnUnhandledMessage(ezMessage& msg)
+{
+  return HandleUnhandledMessage(msg);
+}
+
+bool ezTypeScriptComponent::OnUnhandledMessage(ezMessage& msg) const
+{
+  return const_cast<ezTypeScriptComponent*>(this)->HandleUnhandledMessage(msg);
+}
+
+bool ezTypeScriptComponent::HandleUnhandledMessage(ezMessage& msg)
+{
+  ezTypeScriptBinding& binding = const_cast<ezTypeScriptBinding&>(static_cast<ezTypeScriptComponentManager*>(GetOwningManager())->m_TsBinding);
+
+  ezStringBuilder sMsgName = msg.GetDynamicRTTI()->GetTypeName();
+  sMsgName.TrimWordStart("ez");
+
+  if (sMsgName != "MsgSetColor" && sMsgName != "MsgSetFloatParameter")
+    return false;
+
+  ezStringBuilder sFuncName("On", sMsgName);
+
+  ezDuktapeHelper duk(binding.GetDukTapeContext(), 0);
+
+  binding.DukPutComponentObject(this); // [ comp ]
+
+  if (duk.PrepareMethodCall(sFuncName).Succeeded()) // [ comp func comp ]
+  {
+    ezTypeScriptBinding::DukPutMessage(duk, msg); // [ comp func comp msg ]
+    duk.PushCustom();                             // [ comp func comp msg ]
+    duk.CallPreparedMethod();                     // [ comp result ]
+    duk.PopStack(2);                              // [ ]
+
+    return true;
+  }
+  else
+  {
+    // remove 'this'   [ comp ]
+    duk.PopStack(); // [ ]
+
+    return false;
+  }
 }
 
 void ezTypeScriptComponent::Update(ezTypeScriptBinding& binding)

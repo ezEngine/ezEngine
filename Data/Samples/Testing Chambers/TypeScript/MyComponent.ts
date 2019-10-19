@@ -6,6 +6,14 @@ class MyComponent extends ez.TypescriptComponent {
         ez.Log.Info("Construct MyComponent")
     }
 
+    OnMsgSetColor(msg: ez.MsgSetColor): void { 
+        ez.Log.Info("MsgSetColor: " + msg.Color.r + ", " + msg.Color.g + ", " + msg.Color.b + ", " + msg.Color.a);
+    }
+
+    OnMsgSetFloatParameter(msg: ez.MsgSetFloatParameter): void { 
+        ez.Log.Info("MsgSetFloatParameter: " + msg.Value + " / " + msg.TypeNameHash);
+    }
+
     Update(): void {
         //ez.Log.Info("MyComponent::Update")
 
@@ -66,14 +74,18 @@ class MyComponent extends ez.TypescriptComponent {
                 ez.Log.Info("Color: " + setMat.Color.r + ", " + setMat.Color.g + ", " + setMat.Color.b + ", " + setMat.Color.a)
             }
             else {
-                setMat.Color.SetWhite();
+                setMat.Color.SetBlueViolet();
                 ez.Log.Info("Color: " + setMat.Color.r + ", " + setMat.Color.g + ", " + setMat.Color.b + ", " + setMat.Color.a)
             }
-            owner.PostMessage(setMat, ez.Time.Seconds(1.0));
+            owner.SendMessage(setMat);
+
+            let fMsg = new ez.MsgSetFloatParameter();
+            fMsg.Value = 23;
+            owner.SendMessage(fMsg);
 
             --this.deleteCounter;
 
-            if (true && this.deleteCounter == 0) {
+            if (false && this.deleteCounter == 0) {
                 if (this.child == null) {
                     ez.Log.Info("Creating Object");
 

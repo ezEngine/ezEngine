@@ -91,6 +91,10 @@ public:
   double GetNumberProperty(const char* szPropertyName, double fallback, ezInt32 iParentObjectIndex = -1) const;
   const char* GetStringProperty(const char* szPropertyName, const char* fallback, ezInt32 iParentObjectIndex = -1) const;
 
+  void SetBoolProperty(const char* szPropertyName, bool value, ezInt32 iParentObjectIndex = -1) const;
+  void SetNumberProperty(const char* szPropertyName, double value, ezInt32 iParentObjectIndex = -1) const;
+  void SetStringProperty(const char* szPropertyName, const char* value, ezInt32 iParentObjectIndex = -1) const;
+
 
   ///@}
   /// \name Global State
@@ -145,6 +149,7 @@ public:
   void PushString(const ezStringView& sParam);
   void PushNull();
   void PushUndefined();
+  void PushCustom(ezUInt32 num = 1);
 
   bool GetBoolValue(ezInt32 iStackElement, bool fallback = false) const;
   ezInt32 GetIntValue(ezInt32 iStackElement, ezInt32 fallback = 0) const;
