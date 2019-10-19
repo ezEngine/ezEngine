@@ -161,57 +161,36 @@ void ezDuktapeHelper::SetBoolProperty(const char* szPropertyName, bool value, ez
 {
   ezDuktapeHelper duk(m_pContext, 0);
 
-  if (duk_get_prop_string(m_pContext, iParentObjectIndex, szPropertyName)) // [ key/undef ]
-  {
-    duk_push_boolean(m_pContext, value); // [ key value ]
+  duk_push_boolean(m_pContext, value); // [ value ]
 
-    if (iParentObjectIndex >= 0)
-      duk_put_prop(m_pContext, iParentObjectIndex); // [ ]
-    else
-      duk_put_prop(m_pContext, iParentObjectIndex - 2); // [ ]
-  }
-  else // [ undef ]
-  {
-    duk_pop(m_pContext); // [ ]
-  }
+  if (iParentObjectIndex >= 0)
+    duk_put_prop_string(m_pContext, iParentObjectIndex, szPropertyName); // [ ]
+  else
+    duk_put_prop_string(m_pContext, iParentObjectIndex - 1, szPropertyName); // [ ]
 }
 
 void ezDuktapeHelper::SetNumberProperty(const char* szPropertyName, double value, ezInt32 iParentObjectIndex /*= -1*/) const
 {
   ezDuktapeHelper duk(m_pContext, 0);
 
-  if (duk_get_prop_string(m_pContext, iParentObjectIndex, szPropertyName)) // [ key/undef ]
-  {
-    duk_push_number(m_pContext, value); // [ key value ]
+  duk_push_number(m_pContext, value); // [ value ]
 
-    if (iParentObjectIndex >= 0)
-      duk_put_prop(m_pContext, iParentObjectIndex); // [ ]
-    else
-      duk_put_prop(m_pContext, iParentObjectIndex - 2); // [ ]
-  }
-  else // [ undef ]
-  {
-    duk_pop(m_pContext); // [ ]
-  }
+  if (iParentObjectIndex >= 0)
+    duk_put_prop_string(m_pContext, iParentObjectIndex, szPropertyName); // [ ]
+  else
+    duk_put_prop_string(m_pContext, iParentObjectIndex - 1, szPropertyName); // [ ]
 }
 
 void ezDuktapeHelper::SetStringProperty(const char* szPropertyName, const char* value, ezInt32 iParentObjectIndex /*= -1*/) const
 {
   ezDuktapeHelper duk(m_pContext, 0);
 
-  if (duk_get_prop_string(m_pContext, iParentObjectIndex, szPropertyName)) // [ key/undef ]
-  {
-    duk_push_string(m_pContext, value); // [ key value ]
+  duk_push_string(m_pContext, value); // [ value ]
 
-    if (iParentObjectIndex >= 0)
-      duk_put_prop(m_pContext, iParentObjectIndex); // [ ]
-    else
-      duk_put_prop(m_pContext, iParentObjectIndex - 2); // [ ]
-  }
-  else // [ undef ]
-  {
-    duk_pop(m_pContext); // [ ]
-  }
+  if (iParentObjectIndex >= 0)
+    duk_put_prop_string(m_pContext, iParentObjectIndex, szPropertyName); // [ ]
+  else
+    duk_put_prop_string(m_pContext, iParentObjectIndex - 1, szPropertyName); // [ ]
 }
 
 void ezDuktapeHelper::StorePointerInStash(const char* szKey, void* pPointer)

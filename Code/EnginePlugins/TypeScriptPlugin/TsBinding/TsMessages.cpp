@@ -411,9 +411,7 @@ void ezTypeScriptBinding::DukPutMessage(duk_context* pDuk, const ezMessage& msg)
       case ezVariant::Type::Float:
       case ezVariant::Type::Double:
       {
-        double cur0 = duk.GetNumberProperty(pMember->GetPropertyName(), 13);
         duk.SetNumberProperty(pMember->GetPropertyName(), val.ConvertTo<double>());
-        double cur1 = duk.GetNumberProperty(pMember->GetPropertyName(), 14);
         break;
       }
 
