@@ -29,14 +29,14 @@ void ezTypeScriptComponent::OnSimulationStarted()
 {
   ezTypeScriptBinding& binding = static_cast<ezTypeScriptComponentManager*>(GetOwningManager())->GetTsBinding();
 
-  if (binding.LoadComponent("TypeScript/MyComponent.ts").Succeeded())
+  if (binding.LoadComponent("MyComponent", m_ComponentTypeInfo).Succeeded())
   {
     ezUInt32 uiStashIdx = 0;
-    binding.RegisterComponent("MyComponent", GetHandle(), uiStashIdx);
+    binding.RegisterComponent(m_ComponentTypeInfo.Key(), GetHandle(), uiStashIdx);
   }
 
-  // TODO: only do this when the component type has any message handlers
-  EnableUnhandledMessageHandler(true);
+  // if the TS component has any message handlers, we need to capture all messages and redirect them to the script
+  EnableUnhandledMessageHandler(!m_ComponentTypeInfo.Value().m_MessageHandlers.IsEmpty());
 }
 
 void ezTypeScriptComponent::Deinitialize()
@@ -59,7 +59,7 @@ bool ezTypeScriptComponent::HandleUnhandledMessage(ezMessage& msg)
 {
   ezTypeScriptBinding& binding = static_cast<ezTypeScriptComponentManager*>(GetOwningManager())->GetTsBinding();
 
-  return binding.DeliverMessage("MyComponent", this, msg);
+  return binding.DeliverMessage(m_ComponentTypeInfo, this, msg);
 }
 
 void ezTypeScriptComponent::Update(ezTypeScriptBinding& binding)

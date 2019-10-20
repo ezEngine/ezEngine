@@ -89,6 +89,7 @@ void ezTypeScriptBinding::GenerateMessageCode(ezStringBuilder& out_Code, const e
 
   out_Code.AppendFormat("export class {0} extends {1}\n", sType, sParentType);
   out_Code.Append("{\n");
+  out_Code.AppendFormat("  public static GetTypeNameHash(): number { return {}; }\n", pRtti->GetTypeNameHash());
   out_Code.AppendFormat("  constructor() { super(); this.TypeNameHash = {}; }\n", pRtti->GetTypeNameHash());
   GenerateMessagePropertiesCode(out_Code, pRtti);
   out_Code.Append("}\n\n");
@@ -469,11 +470,10 @@ void ezTypeScriptBinding::RegisterMessageHandlersForComponentType(const char* sz
 {
   ezDuktapeHelper duk(m_Duk, 0);
 
-  ezStringBuilder sCompName = ezPathUtils::GetFileName(szComponent);
-  m_sCurrentTsMsgHandlerRegistrator = sCompName;
+  m_sCurrentTsMsgHandlerRegistrator = szComponent;
 
   duk.PushGlobalObject();                         // [ global ]
-  if (duk.PushLocalObject(sCompName).Succeeded()) // [ global obj ]
+  if (duk.PushLocalObject(szComponent).Succeeded()) // [ global obj ]
   {
     if (duk.PrepareObjectFunctionCall("RegisterMessageHandlers").Succeeded()) // [ global obj func ]
     {
@@ -493,39 +493,44 @@ int ezTypeScriptBinding::__CPP_Binding_RegisterMessageHandler(duk_context* pDuk)
 {
   ezTypeScriptBinding* tsb = ezTypeScriptBinding::RetrieveBinding(pDuk);
 
-  EZ_ASSERT_DEV(!tsb->m_sCurrentTsMsgHandlerRegistrator.IsEmpty(), "'ez.Component.RegisterMessageHandler' may only be called from 'static RegisterMessageHandlers()'");
+  EZ_ASSERT_DEV(!tsb->m_sCurrentTsMsgHandlerRegistrator.IsEmpty(), "'ez.TypescriptComponent.RegisterMessageHandler' may only be called from 'static RegisterMessageHandlers()'");
 
   ezDuktapeFunction duk(pDuk, 0);
 
-  ezStringBuilder sMsgType = duk.GetStringValue(0);
+  ezUInt32 uiMsgTypeHash = duk.GetUIntValue(0);
   const char* szMsgHandler = duk.GetStringValue(1);
 
-  auto& mh = tsb->m_TsMessageHandlers[tsb->m_sCurrentTsMsgHandlerRegistrator].ExpandAndGetRef();
-  mh.m_sMessageType = sMsgType;
+  const ezRTTI* pMsgType = ezRTTI::FindTypeByNameHash(uiMsgTypeHash);
+
+  if (pMsgType == nullptr)
+  {
+    ezLog::Error("Message with type name hash '{}' does not exist.", uiMsgTypeHash);
+    return duk.ReturnVoid();
+  }
+
+  auto& tsc = tsb->m_TsComponentTypes[tsb->m_sCurrentTsMsgHandlerRegistrator];
+  auto& mh = tsc.m_MessageHandlers.ExpandAndGetRef();
+
   mh.m_sHandlerFunc = szMsgHandler;
-
-  if (!sMsgType.StartsWith("ez"))
-    sMsgType.Prepend("ez");
-
-  mh.m_pMessageType = ezRTTI::FindTypeByName(sMsgType);
+  mh.m_pMessageType = pMsgType;
 
   return duk.ReturnVoid();
 }
 
-bool ezTypeScriptBinding::DeliverMessage(const char* szComponentTypeName, ezTypeScriptComponent* pComponent, ezMessage& msg)
+bool ezTypeScriptBinding::DeliverMessage(const TsComponentTypeInfo& typeInfo, ezTypeScriptComponent* pComponent, ezMessage& msg)
 {
-  // TODO: pass in iterator to type
-
-  auto it = m_TsMessageHandlers.Find(szComponentTypeName);
-  if (!it.IsValid())
+  if (!typeInfo.IsValid())
     return false;
 
-  if (it.Value().IsEmpty())
+  auto& tsc = typeInfo.Value();
+
+  if (tsc.m_MessageHandlers.IsEmpty())
     return false;
 
   const ezRTTI* pMsgRtti = msg.GetDynamicRTTI();
 
-  for (auto& mh : it.Value())
+  // TODO: make this more efficient
+  for (auto& mh : tsc.m_MessageHandlers)
   {
     if (mh.m_pMessageType == pMsgRtti)
     {
@@ -546,9 +551,9 @@ bool ezTypeScriptBinding::DeliverMessage(const char* szComponentTypeName, ezType
       {
         // TODO: better error handling
 
-        ezLog::Error("{}.{}(msg: {}) does not exist", szComponentTypeName, mh.m_sHandlerFunc, pMsgRtti->GetTypeName());
+        ezLog::Error("{}.{}(msg: {}) does not exist", typeInfo.Key(), mh.m_sHandlerFunc, pMsgRtti->GetTypeName());
 
-        mh.m_pMessageType = nullptr;
+        // mh.m_pMessageType = nullptr;
 
         // remove 'this'   [ comp ]
         duk.PopStack(); // [ ]

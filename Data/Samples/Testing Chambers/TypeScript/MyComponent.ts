@@ -17,8 +17,8 @@ class MyComponent extends ez.TypescriptComponent {
     static RegisterMessageHandlers() {
         ez.Log.Info("RegisterMessageHandlers")
 
-        ez.Component.RegisterMessageHandler("MsgSetColor", "OnMsgSetColor");
-        ez.Component.RegisterMessageHandler("MsgSetFloatParameter", "OnMsgSetFloatParameter");
+        ez.TypescriptComponent.RegisterMessageHandler(ez.MsgSetColor, "OnMsgSetColor");
+        ez.TypescriptComponent.RegisterMessageHandler(ez.MsgSetFloatParameter, "OnMsgSetFloatParameter");
     }
 
     Update(): void {

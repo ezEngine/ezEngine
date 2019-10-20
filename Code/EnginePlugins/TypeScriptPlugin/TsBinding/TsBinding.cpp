@@ -7,8 +7,6 @@
 
 static ezHashTable<duk_context*, ezTypeScriptBinding*> s_DukToBinding;
 
-static int __CPP_Binding_RegisterMessageHandler(duk_context* pDuk);
-
 ezTypeScriptBinding::ezTypeScriptBinding()
   : m_Duk("Typescript Binding")
 {
@@ -37,7 +35,7 @@ ezResult ezTypeScriptBinding::Initialize(ezTypeScriptTranspiler& transpiler, ezW
   m_Duk.EnableModuleSupport(&ezTypeScriptBinding::DukSearchModule);
   m_Duk.StorePointerInStash("Transpiler", m_pTranspiler);
 
-  m_Duk.RegisterGlobalFunction("__CPP_Binding_RegisterMessageHandler", __CPP_Binding_RegisterMessageHandler, 2);
+  m_Duk.RegisterGlobalFunction("__CPP_Binding_RegisterMessageHandler", &ezTypeScriptBinding::__CPP_Binding_RegisterMessageHandler, 2);
 
   StoreWorld(&world);
 
@@ -58,7 +56,7 @@ ezResult ezTypeScriptBinding::Initialize(ezTypeScriptTranspiler& transpiler, ezW
   return EZ_SUCCESS;
 }
 
-ezResult ezTypeScriptBinding::LoadComponent(const char* szComponent)
+ezResult ezTypeScriptBinding::LoadComponent(const char* szComponent, TsComponentTypeInfo& out_TypeInfo)
 {
   if (!m_bInitialized)
   {
@@ -67,6 +65,7 @@ ezResult ezTypeScriptBinding::LoadComponent(const char* szComponent)
 
   if (m_LoadedComponents.Contains(szComponent))
   {
+    out_TypeInfo = m_TsComponentTypes.Find(szComponent);
     return m_LoadedComponents[szComponent] ? EZ_SUCCESS : EZ_FAILURE;
   }
 
@@ -74,15 +73,30 @@ ezResult ezTypeScriptBinding::LoadComponent(const char* szComponent)
 
   m_LoadedComponents[szComponent] = false;
 
-  ezStringBuilder transpiledCode;
-  EZ_SUCCEED_OR_RETURN(m_pTranspiler->TranspileFileAndStoreJS(szComponent, transpiledCode));
+  const ezStringBuilder sComponentFile("TypeScript/", szComponent, ".ts");
 
-  EZ_SUCCEED_OR_RETURN(m_Duk.ExecuteString(transpiledCode, szComponent));
+  ezStringBuilder transpiledCode;
+  EZ_SUCCEED_OR_RETURN(m_pTranspiler->TranspileFileAndStoreJS(sComponentFile, transpiledCode));
+
+  EZ_SUCCEED_OR_RETURN(m_Duk.ExecuteString(transpiledCode, sComponentFile));
 
   RegisterMessageHandlersForComponentType(szComponent);
 
   m_LoadedComponents[szComponent] = true;
+
+  m_TsComponentTypes[szComponent]; // important
+  out_TypeInfo = m_TsComponentTypes.Find(szComponent);
+
   return EZ_SUCCESS;
+}
+
+const ezTypeScriptBinding::TsComponentInfo* ezTypeScriptBinding::GetComponentTypeInfo(const char* szComponentType) const
+{
+  auto it = m_TsComponentTypes.Find(szComponentType);
+  if (!it.IsValid())
+    return nullptr;
+
+  return &it.Value();
 }
 
 ezVec3 ezTypeScriptBinding::GetVec3(duk_context* pDuk, ezInt32 iObjIdx)

@@ -61,4 +61,7 @@ protected:
 public:
 protected:
   void Update(ezTypeScriptBinding& script);
+
+  ezTypeScriptBinding::TsComponentTypeInfo m_ComponentTypeInfo;
+
 };

@@ -19,6 +19,20 @@ enum ezTypeScriptBindingIndexProperty
 
 class ezTypeScriptBinding
 {
+public:
+  struct TsMessageHandler
+  {
+    const ezRTTI* m_pMessageType = nullptr;
+    ezString m_sHandlerFunc;
+  };
+
+  struct TsComponentInfo
+  {
+    ezHybridArray<TsMessageHandler, 4> m_MessageHandlers;
+  };
+
+  using TsComponentTypeInfo = ezMap<ezString, TsComponentInfo>::ConstIterator;
+
   /// \name Basics
   ///@{
 
@@ -27,7 +41,8 @@ public:
   ~ezTypeScriptBinding();
 
   ezResult Initialize(ezTypeScriptTranspiler& transpiler, ezWorld& world);
-  ezResult LoadComponent(const char* szComponent);
+  ezResult LoadComponent(const char* szComponent, TsComponentTypeInfo& out_TypeInfo);
+  const TsComponentInfo* GetComponentTypeInfo(const char* szComponentType) const;
 
   void RegisterMessageHandlersForComponentType(const char* szComponent);
 
@@ -104,7 +119,7 @@ public:
   static ezUniquePtr<ezMessage> MessageFromParameter(duk_context* pDuk, ezInt32 iObjIdx);
   static void DukPutMessage(duk_context* pDuk, const ezMessage& msg);
 
-  bool DeliverMessage(const char* szComponentTypeName, ezTypeScriptComponent* pComponent, ezMessage& msg);
+  bool DeliverMessage(const TsComponentTypeInfo& typeInfo, ezTypeScriptComponent* pComponent, ezMessage& msg);
 
 private:
   static void GenerateMessagesFile(const char* szFile);
@@ -112,15 +127,8 @@ private:
   static void GenerateMessageCode(ezStringBuilder& out_Code, const ezRTTI* pRtti);
   static void GenerateMessagePropertiesCode(ezStringBuilder& out_Code, const ezRTTI* pRtti);
 
-  struct TsMessageHandler
-  {
-    ezString m_sMessageType;
-    const ezRTTI* m_pMessageType = nullptr;
-    ezString m_sHandlerFunc;
-  };
-
   ezString m_sCurrentTsMsgHandlerRegistrator;
-  ezMap<ezString, ezHybridArray<TsMessageHandler, 4>> m_TsMessageHandlers;
+  ezMap<ezString, TsComponentInfo> m_TsComponentTypes;
 
 
   ///@}
