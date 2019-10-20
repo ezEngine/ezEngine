@@ -4,6 +4,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
+#include <TypeScriptPlugin/Components/TypeScriptComponent.h>
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
 
 void ezTypeScriptBinding::GenerateMessagesFile(const char* szFile)
@@ -424,11 +425,8 @@ void ezTypeScriptBinding::DukPutMessage(duk_context* pDuk, const ezMessage& msg)
         duk.SetNumberProperty("y", v.y, -1);
         duk.SetNumberProperty("z", v.z, -1);
         duk.PopStack();
-      }
-      break;
-
-      case ezVariant::Type::Quaternion:
         break;
+      }
 
       case ezVariant::Type::Color:
       case ezVariant::Type::ColorGamma:
@@ -456,6 +454,7 @@ void ezTypeScriptBinding::DukPutMessage(duk_context* pDuk, const ezMessage& msg)
         break;
       }
 
+      case ezVariant::Type::Quaternion:
       case ezVariant::Type::Vector2:
       case ezVariant::Type::Matrix3:
       case ezVariant::Type::Matrix4:
@@ -464,4 +463,103 @@ void ezTypeScriptBinding::DukPutMessage(duk_context* pDuk, const ezMessage& msg)
         EZ_ASSERT_NOT_IMPLEMENTED;
     }
   }
+}
+
+void ezTypeScriptBinding::RegisterMessageHandlersForComponentType(const char* szComponent)
+{
+  ezDuktapeHelper duk(m_Duk, 0);
+
+  ezStringBuilder sCompName = ezPathUtils::GetFileName(szComponent);
+  m_sCurrentTsMsgHandlerRegistrator = sCompName;
+
+  duk.PushGlobalObject();                         // [ global ]
+  if (duk.PushLocalObject(sCompName).Succeeded()) // [ global obj ]
+  {
+    if (duk.PrepareObjectFunctionCall("RegisterMessageHandlers").Succeeded()) // [ global obj func ]
+    {
+      duk.CallPreparedFunction(); // [ global obj result ]
+      duk.PopStack();             // [ global obj ]
+    }
+
+    duk.PopStack(); // [ global ]
+  }
+
+  duk.PopStack(); // [ ]
+
+  m_sCurrentTsMsgHandlerRegistrator.Clear();
+}
+
+int ezTypeScriptBinding::__CPP_Binding_RegisterMessageHandler(duk_context* pDuk)
+{
+  ezTypeScriptBinding* tsb = ezTypeScriptBinding::RetrieveBinding(pDuk);
+
+  EZ_ASSERT_DEV(!tsb->m_sCurrentTsMsgHandlerRegistrator.IsEmpty(), "'ez.Component.RegisterMessageHandler' may only be called from 'static RegisterMessageHandlers()'");
+
+  ezDuktapeFunction duk(pDuk, 0);
+
+  ezStringBuilder sMsgType = duk.GetStringValue(0);
+  const char* szMsgHandler = duk.GetStringValue(1);
+
+  auto& mh = tsb->m_TsMessageHandlers[tsb->m_sCurrentTsMsgHandlerRegistrator].ExpandAndGetRef();
+  mh.m_sMessageType = sMsgType;
+  mh.m_sHandlerFunc = szMsgHandler;
+
+  if (!sMsgType.StartsWith("ez"))
+    sMsgType.Prepend("ez");
+
+  mh.m_pMessageType = ezRTTI::FindTypeByName(sMsgType);
+
+  return duk.ReturnVoid();
+}
+
+bool ezTypeScriptBinding::DeliverMessage(const char* szComponentTypeName, ezTypeScriptComponent* pComponent, ezMessage& msg)
+{
+  // TODO: pass in iterator to type
+
+  auto it = m_TsMessageHandlers.Find(szComponentTypeName);
+  if (!it.IsValid())
+    return false;
+
+  if (it.Value().IsEmpty())
+    return false;
+
+  const ezRTTI* pMsgRtti = msg.GetDynamicRTTI();
+
+  for (auto& mh : it.Value())
+  {
+    if (mh.m_pMessageType == pMsgRtti)
+    {
+      ezDuktapeHelper duk(m_Duk, 0);
+
+      DukPutComponentObject(pComponent); // [ comp ]
+
+      if (duk.PrepareMethodCall(mh.m_sHandlerFunc).Succeeded()) // [ comp func comp ]
+      {
+        ezTypeScriptBinding::DukPutMessage(duk, msg); // [ comp func comp msg ]
+        duk.PushCustom();                             // [ comp func comp msg ]
+        duk.CallPreparedMethod();                     // [ comp result ]
+        duk.PopStack(2);                              // [ ]
+
+        return true;
+      }
+      else
+      {
+        // TODO: better error handling
+
+        ezLog::Error("{}.{}(msg: {}) does not exist", szComponentTypeName, mh.m_sHandlerFunc, pMsgRtti->GetTypeName());
+
+        mh.m_pMessageType = nullptr;
+
+        // remove 'this'   [ comp ]
+        duk.PopStack(); // [ ]
+
+        return false;
+      }
+
+
+      return true;
+    }
+  }
+
+  return false;
 }

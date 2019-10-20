@@ -9,6 +9,7 @@
 #include <TypeScriptPlugin/Transpiler/Transpiler.h>
 
 class ezWorld;
+class ezTypeScriptComponent;
 
 enum ezTypeScriptBindingIndexProperty
 {
@@ -27,6 +28,8 @@ public:
 
   ezResult Initialize(ezTypeScriptTranspiler& transpiler, ezWorld& world);
   ezResult LoadComponent(const char* szComponent);
+
+  void RegisterMessageHandlersForComponentType(const char* szComponent);
 
   EZ_ALWAYS_INLINE ezDuktapeContext& GetDukTapeContext() { return m_Duk; }
   EZ_ALWAYS_INLINE duk_context* GetDukContext() { return m_Duk.GetContext(); }
@@ -70,6 +73,7 @@ private:
   static ezUInt32 ComputeFunctionBindingHash(const ezRTTI* pType, ezAbstractFunctionProperty* pFunc);
   static void SetupRttiFunctionBindings();
   static const char* TsType(const ezRTTI* pRtti);
+  static int __CPP_Binding_RegisterMessageHandler(duk_context* pDuk);
 
   static ezHashTable<ezUInt32, FunctionBinding> s_BoundFunctions;
 
@@ -100,11 +104,23 @@ public:
   static ezUniquePtr<ezMessage> MessageFromParameter(duk_context* pDuk, ezInt32 iObjIdx);
   static void DukPutMessage(duk_context* pDuk, const ezMessage& msg);
 
+  bool DeliverMessage(const char* szComponentTypeName, ezTypeScriptComponent* pComponent, ezMessage& msg);
+
 private:
   static void GenerateMessagesFile(const char* szFile);
   static void GenerateAllMessagesCode(ezStringBuilder& out_Code);
   static void GenerateMessageCode(ezStringBuilder& out_Code, const ezRTTI* pRtti);
   static void GenerateMessagePropertiesCode(ezStringBuilder& out_Code, const ezRTTI* pRtti);
+
+  struct TsMessageHandler
+  {
+    ezString m_sMessageType;
+    const ezRTTI* m_pMessageType = nullptr;
+    ezString m_sHandlerFunc;
+  };
+
+  ezString m_sCurrentTsMsgHandlerRegistrator;
+  ezMap<ezString, ezHybridArray<TsMessageHandler, 4>> m_TsMessageHandlers;
 
 
   ///@}
@@ -180,7 +196,6 @@ public:
   /// \name C++ Object Registration
   ///@{
 public:
-
   bool RegisterGameObject(ezGameObjectHandle handle, ezUInt32& out_uiStashIdx);
   ezResult RegisterComponent(const char* szTypeNamem, ezComponentHandle handle, ezUInt32& out_uiStashIdx);
 

@@ -7,6 +7,8 @@
 
 static ezHashTable<duk_context*, ezTypeScriptBinding*> s_DukToBinding;
 
+static int __CPP_Binding_RegisterMessageHandler(duk_context* pDuk);
+
 ezTypeScriptBinding::ezTypeScriptBinding()
   : m_Duk("Typescript Binding")
 {
@@ -34,6 +36,8 @@ ezResult ezTypeScriptBinding::Initialize(ezTypeScriptTranspiler& transpiler, ezW
 
   m_Duk.EnableModuleSupport(&ezTypeScriptBinding::DukSearchModule);
   m_Duk.StorePointerInStash("Transpiler", m_pTranspiler);
+
+  m_Duk.RegisterGlobalFunction("__CPP_Binding_RegisterMessageHandler", __CPP_Binding_RegisterMessageHandler, 2);
 
   StoreWorld(&world);
 
@@ -74,6 +78,8 @@ ezResult ezTypeScriptBinding::LoadComponent(const char* szComponent)
   EZ_SUCCEED_OR_RETURN(m_pTranspiler->TranspileFileAndStoreJS(szComponent, transpiledCode));
 
   EZ_SUCCEED_OR_RETURN(m_Duk.ExecuteString(transpiledCode, szComponent));
+
+  RegisterMessageHandlersForComponentType(szComponent);
 
   m_LoadedComponents[szComponent] = true;
   return EZ_SUCCESS;

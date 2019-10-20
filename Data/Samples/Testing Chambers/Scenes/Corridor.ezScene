@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7297922959506964864,5177324930371449723}}
-		u4 %Hash{9029633715626410594}
+		u4 %Hash{4955976044647365447}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -4744,6 +4744,7 @@ o
 		VarArray %Children
 		{
 			Uuid{u4{10857983952751222147,5646058073303634252}}
+			Uuid{u4{5290464674155227404,10428294429759464281}}
 		}
 		VarArray %Components
 		{
@@ -11687,6 +11688,23 @@ o
 }
 o
 {
+	Uuid %id{u4{6843584682204650771,9748967910197609691}}
+	s %t{"ezPointLightComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		b %CastShadows{0}
+		f %ConstantBias{0xCDCCCC3D}
+		f %Intensity{0x0000C842}
+		ColorGamma %LightColor{u1{198,29,108,255}}
+		f %PenumbraSize{0xCDCCCC3D}
+		f %Range{0}
+		f %SlopeBias{0x0000803E}
+	}
+}
+o
+{
 	Uuid %id{u4{6489576213873784115,9753052795818624322}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -11947,6 +11965,23 @@ o
 			s{"CastShadow"}
 			s{"AutoColMesh"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{1043889447867966530,9870007146512143392}}
+	s %t{"ezSpawnComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		b %AttachAsChild{0}
+		Time %DelayRange{d{0}}
+		Angle %Deviation{f{0}}
+		Time %MinDelay{d{0x000000000000F03F}}
+		s %Prefab{"{ e12eff21-6f53-4b0e-8dc4-4e9f9852d224 }"}
+		b %SpawnAtStart{0}
+		b %SpawnContinuously{0}
 	}
 }
 o
@@ -12455,6 +12490,19 @@ o
 }
 o
 {
+	Uuid %id{u4{3484409141020021556,10114938130816755695}}
+	s %t{"ezMeshComponent"}
+	u3 %v{3}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		VarArray %Materials{}
+		s %Mesh{"{ 3bf60313-2bce-45cf-8836-68e3b9ef5323 }"}
+	}
+}
+o
+{
 	Uuid %id{u4{13303964772602289200,10125429143793207140}}
 	s %t{"ezPrefabReferenceComponent"}
 	u3 %v{4}
@@ -12487,6 +12535,25 @@ o
 		b %SlopedBottom{0}
 		b %SlopedTop{0}
 		f %Thickness{0x0000003F}
+	}
+}
+o
+{
+	Uuid %id{u4{15513525191945911865,10130702333339861332}}
+	s %t{"ezRotorComponent"}
+	u3 %v{3}
+	p
+	{
+		f %Acceleration{0}
+		b %Active{1}
+		s %Axis{"ezBasisAxis::PositiveZ"}
+		Angle %AxisDeviation{f{0}}
+		f %Deceleration{0}
+		i3 %DegreesToRotate{0}
+		b %ReverseAtEnd{0}
+		b %ReverseAtStart{0}
+		b %Running{1}
+		f %Speed{0x0000B442}
 	}
 }
 o
@@ -12735,6 +12802,16 @@ o
 		b %Active{1}
 		VarDict %Parameters{}
 		s %Prefab{"{ cb3fcb70-258b-4b4e-a79e-0537ace7d7e3 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{17893246179580933911,10270449283941852978}}
+	s %t{"ezTypeScriptComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
 	}
 }
 o
@@ -13353,6 +13430,38 @@ o
 }
 o
 {
+	Uuid %id{u4{5290464674155227404,10428294429759464281}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{10574167538830637861,10439462377643539511}}
+		}
+		VarArray %Components
+		{
+			Uuid{u4{17893246179580933911,10270449283941852978}}
+			Uuid{u4{3484409141020021556,10114938130816755695}}
+			Uuid{u4{15513525191945911865,10130702333339861332}}
+			Uuid{u4{1043889447867966530,9870007146512143392}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x00005040,0x000080BF,0x000040BF}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::ForceDynamic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{2147398474610728779,10429579530174423996}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -13399,6 +13508,32 @@ o
 		b %SlopedBottom{0}
 		b %SlopedTop{0}
 		f %Thickness{0x0000003F}
+	}
+}
+o
+{
+	Uuid %id{u4{10574167538830637861,10439462377643539511}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{6843584682204650771,9748967910197609691}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"Light"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
 	}
 }
 o

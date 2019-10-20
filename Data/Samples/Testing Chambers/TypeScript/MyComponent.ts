@@ -6,12 +6,19 @@ class MyComponent extends ez.TypescriptComponent {
         ez.Log.Info("Construct MyComponent")
     }
 
-    OnMsgSetColor(msg: ez.MsgSetColor): void { 
+    OnMsgSetColor(msg: ez.MsgSetColor): void {
         ez.Log.Info("MsgSetColor: " + msg.Color.r + ", " + msg.Color.g + ", " + msg.Color.b + ", " + msg.Color.a);
     }
 
-    OnMsgSetFloatParameter(msg: ez.MsgSetFloatParameter): void { 
+    OnMsgSetFloatParameter(msg: ez.MsgSetFloatParameter): void {
         ez.Log.Info("MsgSetFloatParameter: " + msg.Value + " / " + msg.TypeNameHash);
+    }
+
+    static RegisterMessageHandlers() {
+        ez.Log.Info("RegisterMessageHandlers")
+
+        ez.Component.RegisterMessageHandler("MsgSetColor", "OnMsgSetColor");
+        ez.Component.RegisterMessageHandler("MsgSetFloatParameter", "OnMsgSetFloatParameter");
     }
 
     Update(): void {

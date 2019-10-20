@@ -21,11 +21,14 @@ public:
   virtual void Deinitialize() override;
   virtual void OnSimulationStarted() override;
 
-  ezTypeScriptBinding m_TsBinding;
+  ezTypeScriptBinding& GetTsBinding() const { return m_TsBinding; }
+
   static ezTypeScriptTranspiler s_Transpiler;
 
 private:
   void Update(const ezWorldModule::UpdateContext& context);
+
+  mutable ezTypeScriptBinding m_TsBinding;
 };
 
 //////////////////////////////////////////////////////////////////////////

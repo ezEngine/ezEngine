@@ -27,7 +27,7 @@ void ezTypeScriptComponent::DeserializeComponent(ezWorldReader& stream)
 
 void ezTypeScriptComponent::OnSimulationStarted()
 {
-  ezTypeScriptBinding& binding = static_cast<ezTypeScriptComponentManager*>(GetOwningManager())->m_TsBinding;
+  ezTypeScriptBinding& binding = static_cast<ezTypeScriptComponentManager*>(GetOwningManager())->GetTsBinding();
 
   if (binding.LoadComponent("TypeScript/MyComponent.ts").Succeeded())
   {
@@ -35,12 +35,13 @@ void ezTypeScriptComponent::OnSimulationStarted()
     binding.RegisterComponent("MyComponent", GetHandle(), uiStashIdx);
   }
 
+  // TODO: only do this when the component type has any message handlers
   EnableUnhandledMessageHandler(true);
 }
 
 void ezTypeScriptComponent::Deinitialize()
 {
-  ezTypeScriptBinding& binding = static_cast<ezTypeScriptComponentManager*>(GetOwningManager())->m_TsBinding;
+  ezTypeScriptBinding& binding = static_cast<ezTypeScriptComponentManager*>(GetOwningManager())->GetTsBinding();
   binding.DeleteTsComponent(GetHandle());
 }
 
@@ -56,36 +57,9 @@ bool ezTypeScriptComponent::OnUnhandledMessage(ezMessage& msg) const
 
 bool ezTypeScriptComponent::HandleUnhandledMessage(ezMessage& msg)
 {
-  ezTypeScriptBinding& binding = const_cast<ezTypeScriptBinding&>(static_cast<ezTypeScriptComponentManager*>(GetOwningManager())->m_TsBinding);
+  ezTypeScriptBinding& binding = static_cast<ezTypeScriptComponentManager*>(GetOwningManager())->GetTsBinding();
 
-  ezStringBuilder sMsgName = msg.GetDynamicRTTI()->GetTypeName();
-  sMsgName.TrimWordStart("ez");
-
-  if (sMsgName != "MsgSetColor" && sMsgName != "MsgSetFloatParameter")
-    return false;
-
-  ezStringBuilder sFuncName("On", sMsgName);
-
-  ezDuktapeHelper duk(binding.GetDukTapeContext(), 0);
-
-  binding.DukPutComponentObject(this); // [ comp ]
-
-  if (duk.PrepareMethodCall(sFuncName).Succeeded()) // [ comp func comp ]
-  {
-    ezTypeScriptBinding::DukPutMessage(duk, msg); // [ comp func comp msg ]
-    duk.PushCustom();                             // [ comp func comp msg ]
-    duk.CallPreparedMethod();                     // [ comp result ]
-    duk.PopStack(2);                              // [ ]
-
-    return true;
-  }
-  else
-  {
-    // remove 'this'   [ comp ]
-    duk.PopStack(); // [ ]
-
-    return false;
-  }
+  return binding.DeliverMessage("MyComponent", this, msg);
 }
 
 void ezTypeScriptComponent::Update(ezTypeScriptBinding& binding)

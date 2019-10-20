@@ -7,6 +7,7 @@ export import Message = __Message.Message;
 import __Time = require("./Time")
 export import Time = __Time.Time;
 
+declare function __CPP_Binding_RegisterMessageHandler(msgTypeName: string, handlerFuncName: string): void;
 declare function __CPP_Component_IsValid(component: Component): boolean;
 declare function __CPP_Component_GetOwner(component: Component): GameObject;
 declare function __CPP_Component_SetActive(component: Component, active: boolean): GameObject;
@@ -17,6 +18,11 @@ declare function __CPP_Component_SendMessage(_this: Component, typeNameHash: num
 declare function __CPP_Component_PostMessage(_this: Component, typeNameHash: number, msg: Message, delay: number): void;
 
 export abstract class Component {
+
+    static RegisterMessageHandler(msgTypeName: string, handlerFuncName: string) {
+        __CPP_Binding_RegisterMessageHandler(msgTypeName, handlerFuncName);
+    }
+
     IsValid(): boolean {
         return __CPP_Component_IsValid(this);
     }
