@@ -33,10 +33,7 @@ void ezTypeScriptAssetDocument::EditScript()
 
   if (!ezFileSystem::ExistsFile(sTsPath))
   {
-    ezFileWriter file;
-    if (file.Open(sTsPath).Succeeded())
-    {
-    }
+    CreateComponentFile(sTsPath);
   }
 
   ezStringBuilder sAbsPath;
@@ -44,6 +41,47 @@ void ezTypeScriptAssetDocument::EditScript()
     return;
 
   ezQtUiServices::OpenFileInDefaultProgram(sAbsPath);
+}
+
+void ezTypeScriptAssetDocument::CreateComponentFile(const char* szFile)
+{
+  ezStringBuilder sAbsPathToEzTs;
+  if (ezFileSystem::ResolvePath(":project/TypeScript/ez", &sAbsPathToEzTs, nullptr).Failed())
+  {
+    ezLog::Error("TypeScript data not found in ':project/TypeScript'");
+    return;
+  }
+
+  ezStringBuilder sScriptFilePath = szFile;
+  sScriptFilePath.ChangeFileNameAndExtension("");
+
+  ezStringBuilder sRelPathToEzTS = sAbsPathToEzTs;
+  sRelPathToEzTS.MakeRelativeTo(sScriptFilePath);
+
+  if (!sRelPathToEzTS.StartsWith("."))
+  {
+    sRelPathToEzTS.Prepend("./");
+  }
+
+  const ezStringBuilder sComponentName = ezPathUtils::GetFileName(szFile);
+
+  ezStringBuilder sContent;
+
+  {
+    ezFileReader fileIn;
+    if (fileIn.Open(":plugins/TypeScript/NewComponent.ts").Succeeded())
+    {
+      sContent.ReadAll(fileIn);
+      sContent.ReplaceAll("NewComponent", sComponentName.GetView());
+      sContent.ReplaceAll("<PATH-TO-EZ-TS>", sRelPathToEzTS.GetView());
+    }
+  }
+
+  ezFileWriter file;
+  if (file.Open(szFile).Succeeded())
+  {
+    file.WriteBytes(sContent.GetData(), sContent.GetElementCount());
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////

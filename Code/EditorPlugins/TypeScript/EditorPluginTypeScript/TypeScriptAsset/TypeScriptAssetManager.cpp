@@ -19,6 +19,8 @@ ezTypeScriptAssetDocumentManager::ezTypeScriptAssetDocumentManager()
   m_AssetDesc.m_sIcon = ":/AssetIcons/TypeScript.png";
   m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezTypeScriptAssetDocument>();
   m_AssetDesc.m_pManager = this;
+
+  ezQtImageCache::GetSingleton()->RegisterTypeImage("TypeScript", QPixmap(":/AssetIcons/TypeScript.png"));
 }
 
 ezTypeScriptAssetDocumentManager::~ezTypeScriptAssetDocumentManager()
