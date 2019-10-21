@@ -17,7 +17,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezTypeScriptAssetDocument::ezTypeScriptAssetDocument(const char* szDocumentPath)
-    : ezSimpleAssetDocument<ezTypeScriptAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::Simple)
+  : ezSimpleAssetDocument<ezTypeScriptAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::Simple)
 {
 }
 
@@ -26,13 +26,32 @@ const char* ezTypeScriptAssetDocument::QueryAssetType() const
   return "TypeScript";
 }
 
+void ezTypeScriptAssetDocument::EditScript()
+{
+  ezStringBuilder sTsPath = GetDocumentPath();
+  sTsPath.ChangeFileExtension("ts");
+
+  if (!ezFileSystem::ExistsFile(sTsPath))
+  {
+    ezFileWriter file;
+    if (file.Open(sTsPath).Succeeded())
+    {
+    }
+  }
+
+  ezStringBuilder sAbsPath;
+  if (ezFileSystem::ResolvePath(sTsPath, &sAbsPath, nullptr).Failed())
+    return;
+
+  ezQtUiServices::OpenFileInDefaultProgram(sAbsPath);
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 ezStatus ezTypeScriptAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag,
-                                                          const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader,
-                                                          ezBitflags<ezTransformFlags> transformFlags)
+  const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader,
+  ezBitflags<ezTransformFlags> transformFlags)
 {
 
   return ezStatus(EZ_SUCCESS);
 }
-

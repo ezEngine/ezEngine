@@ -1,4 +1,7 @@
 <RCC>
+  <qresource prefix="EditorPluginTypeScript">
+    <file>Icons/EditScript16.png</file>
+  </qresource>
   <qresource prefix="AssetIcons">
     <file>TypeScript.png</file>
   </qresource>

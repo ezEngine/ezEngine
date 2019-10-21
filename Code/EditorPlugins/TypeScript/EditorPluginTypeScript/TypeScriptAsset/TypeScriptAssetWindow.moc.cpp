@@ -34,7 +34,6 @@ ezQtTypeScriptAssetDocumentWindow::ezQtTypeScriptAssetDocumentWindow(ezAssetDocu
     addToolBar(pToolBar);
   }
 
-
   // Property Grid
   {
     ezQtDocumentPanel* pPropertyPanel = new ezQtDocumentPanel(this);
@@ -50,7 +49,16 @@ ezQtTypeScriptAssetDocumentWindow::ezQtTypeScriptAssetDocumentWindow(ezAssetDocu
     pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
   }
 
+  // central widget
+  {
+    m_pLabelInfo = new QLabel(this);
+    setCentralWidget(m_pLabelInfo);
+
+    m_pLabelInfo->setText("<Information>");
+  }
+
   m_pAssetDoc = static_cast<ezTypeScriptAssetDocument*>(pDocument);
+
 
   FinishWindowCreation();
 }

@@ -15,5 +15,6 @@ public:
   virtual const char* GetWindowLayoutGroupName() const { return "TypeScriptAsset"; }
 
 private:
-  ezTypeScriptAssetDocument* m_pAssetDoc;
+  ezTypeScriptAssetDocument* m_pAssetDoc = nullptr;
+  QLabel* m_pLabelInfo = nullptr;
 };
