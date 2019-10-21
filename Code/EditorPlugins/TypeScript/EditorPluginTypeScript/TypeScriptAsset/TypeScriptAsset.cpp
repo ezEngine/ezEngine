@@ -90,6 +90,15 @@ ezStatus ezTypeScriptAssetDocument::InternalTransformAsset(ezStreamWriter& strea
   const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader,
   ezBitflags<ezTransformFlags> transformFlags)
 {
+  ezStringBuilder sTsPath = GetDocumentPath();
+  sTsPath.ChangeFileExtension("ts");
 
-  return ezStatus(EZ_SUCCESS);
+  ezStringBuilder sAbsPathToProject;
+  if (ezFileSystem::ResolvePath(":project/", &sAbsPathToProject, nullptr).Failed())
+    return ezStatus("Failed to make project path absolute");
+
+  sTsPath.MakeRelativeTo(sAbsPathToProject);
+
+  ezStringBuilder sTranspiledCode;
+  return static_cast<ezTypeScriptAssetDocumentManager*>(GetAssetDocumentManager())->GetTranspiler().TranspileFileAndStoreJS(sTsPath, sTranspiledCode);
 }

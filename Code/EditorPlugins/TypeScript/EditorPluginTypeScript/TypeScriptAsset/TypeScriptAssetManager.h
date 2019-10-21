@@ -12,12 +12,14 @@ public:
   ezTypeScriptAssetDocumentManager();
   ~ezTypeScriptAssetDocumentManager();
 
-  virtual ezString GetResourceTypeExtension(const char* szDocumentPath) const override { return "ezTypeScript"; }
+  virtual ezString GetResourceTypeExtension(const char* szDocumentPath) const override { return "ezTypeScriptBin"; }
 
   virtual void QuerySupportedAssetTypes(ezSet<ezString>& inout_AssetTypeNames) const override
   {
     inout_AssetTypeNames.Insert("TypeScript");
   }
+
+  ezTypeScriptTranspiler& GetTranspiler() { return m_Transpiler; }
 
 private:
   void OnDocumentManagerEvent(const ezDocumentManager::Event& e);
