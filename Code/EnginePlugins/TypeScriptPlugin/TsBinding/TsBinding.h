@@ -17,7 +17,7 @@ enum ezTypeScriptBindingIndexProperty
   GameObjectHandle
 };
 
-class ezTypeScriptBinding
+class EZ_TYPESCRIPTPLUGIN_DLL ezTypeScriptBinding
 {
 public:
   struct TsMessageHandler

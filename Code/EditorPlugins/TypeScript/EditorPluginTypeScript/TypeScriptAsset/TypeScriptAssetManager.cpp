@@ -5,6 +5,7 @@
 #include <EditorPluginTypeScript/TypeScriptAsset/TypeScriptAssetWindow.moc.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
+#include <TypeScriptPlugin/TsBinding/TsBinding.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTypeScriptAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezTypeScriptAssetDocumentManager>);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -21,10 +22,14 @@ ezTypeScriptAssetDocumentManager::ezTypeScriptAssetDocumentManager()
   m_AssetDesc.m_pManager = this;
 
   ezQtImageCache::GetSingleton()->RegisterTypeImage("TypeScript", QPixmap(":/AssetIcons/TypeScript.png"));
+
+  ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezTypeScriptAssetDocumentManager::ToolsProjectEventHandler, this));
 }
 
 ezTypeScriptAssetDocumentManager::~ezTypeScriptAssetDocumentManager()
 {
+  ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezTypeScriptAssetDocumentManager::ToolsProjectEventHandler, this));
+
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezTypeScriptAssetDocumentManager::OnDocumentManagerEvent, this));
 }
 
@@ -63,5 +68,36 @@ ezTypeScriptAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentType
 {
   EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
   return ezAssetDocumentFlags::None;
+}
+
+void ezTypeScriptAssetDocumentManager::ToolsProjectEventHandler(const ezToolsProjectEvent& e)
+{
+  if (e.m_Type == ezToolsProjectEvent::Type::ProjectOpened)
+  {
+    InitializeTranspiler();
+    SetupProjectForTypeScript();
+  }
+}
+
+void ezTypeScriptAssetDocumentManager::InitializeTranspiler()
+{
+  if (m_bTranspilerLoaded)
+    return;
+
+  m_bTranspilerLoaded = true;
+
+  ezFileSystem::AddDataDirectory(">sdk/Data/Tools/ezEditor/TypeScript", "TypeScript", "TypeScript");
+
+  m_Transpiler.SetOutputFolder(":project/AssetCache/Common");
+  m_Transpiler.StartLoadTranspiler();
+}
+
+void ezTypeScriptAssetDocumentManager::SetupProjectForTypeScript()
+{
+  if (ezTypeScriptBinding::SetupProjectCode().Failed())
+  {
+    ezLog::Error("Could not setup Typescript data in project directory");
+    return;
+  }
 }
 

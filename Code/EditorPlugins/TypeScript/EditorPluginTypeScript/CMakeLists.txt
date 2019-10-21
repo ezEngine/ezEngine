@@ -18,6 +18,7 @@ target_link_libraries(${PROJECT_NAME}
   KrautPlugin
   ModelImporter
   EditorPluginAssets
+  TypeScriptPlugin
 )
 
 add_dependencies(${PROJECT_NAME}
