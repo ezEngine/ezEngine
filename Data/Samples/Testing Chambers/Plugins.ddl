@@ -74,5 +74,5 @@ Plugin
 {
 	string %Path{"ezTypeScriptPlugin"}
 	bool %LoadCopy{false}
-	string %DependencyOf{"<manual>"}
+	string %DependencyOf{"<manual>","EditorPluginTypeScript"}
 }
