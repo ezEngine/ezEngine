@@ -10,6 +10,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Math/Random.h>
 #include <Foundation/Utilities/Progress.h>
+#include <TypeScriptPlugin/Resources/JavaScriptResource.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTypeScriptAssetDocument, 1, ezRTTINoAllocator);
@@ -93,12 +94,19 @@ ezStatus ezTypeScriptAssetDocument::InternalTransformAsset(ezStreamWriter& strea
   ezStringBuilder sTsPath = GetDocumentPath();
   sTsPath.ChangeFileExtension("ts");
 
-  ezStringBuilder sAbsPathToProject;
-  if (ezFileSystem::ResolvePath(":project/", &sAbsPathToProject, nullptr).Failed())
-    return ezStatus("Failed to make project path absolute");
-
-  sTsPath.MakeRelativeTo(sAbsPathToProject);
-
   ezStringBuilder sTranspiledCode;
-  return static_cast<ezTypeScriptAssetDocumentManager*>(GetAssetDocumentManager())->GetTranspiler().TranspileFileAndStoreJS(sTsPath, sTranspiledCode);
+  ezUInt64 uiSourceHash = 0;
+  if (static_cast<ezTypeScriptAssetDocumentManager*>(GetAssetDocumentManager())->GetTranspiler().TranspileFile(sTsPath, 0, sTranspiledCode, uiSourceHash).Failed())
+  {
+    return ezStatus("Transpiling from TypeScript to JavaScript failed.");
+  }
+
+  ezJavaScriptResourceDesc desc;
+  desc.m_JsSource.SetCountUninitialized(sTranspiledCode.GetElementCount() + 1);
+
+  ezMemoryUtils::RawByteCopy(desc.m_JsSource.GetData(), sTranspiledCode.GetData(), desc.m_JsSource.GetCount());
+
+  EZ_SUCCEED_OR_RETURN(desc.Serialize(stream));
+
+  return ezStatus(EZ_SUCCESS);
 }

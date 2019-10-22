@@ -146,12 +146,15 @@ ezTypeVersion ezStreamReader::ReadVersion(ezTypeVersion uiExpectedMaxVersion)
   ReadWordValue(&v);
 
   EZ_ASSERT_ALWAYS(v <= uiExpectedMaxVersion, "Read version ({0}) is larger than expected max version ({1}).", v, uiExpectedMaxVersion);
+  EZ_ASSERT_ALWAYS(v > 0, "Invalid version.");
 
   return v;
 }
 
 void ezStreamWriter::WriteVersion(ezTypeVersion uiVersion)
 {
+  EZ_ASSERT_ALWAYS(uiVersion > 0, "Version cannot be zero.");
+
   WriteWordValue(&uiVersion);
 }
 
