@@ -29,7 +29,8 @@ private:
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
 private:
-  ezDynamicArray<ezExpressionByteCode> m_ByteCode;
   ezDynamicArray<ezSharedPtr<const ezProcGenInternal::PlacementOutput>> m_PlacementOutputs;
   ezDynamicArray<ezSharedPtr<const ezProcGenInternal::VertexColorOutput>> m_VertexColorOutputs;
+
+  ezSharedPtr<ezProcGenInternal::GraphSharedDataBase> m_pSharedData;
 };

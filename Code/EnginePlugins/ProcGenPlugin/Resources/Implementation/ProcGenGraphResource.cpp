@@ -3,9 +3,10 @@
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/ChunkStream.h>
 #include <GameEngine/Curves/ColorGradientResource.h>
-#include <GameEngine/Prefabs/PrefabResource.h>
 #include <GameEngine/Physics/SurfaceResource.h>
+#include <GameEngine/Prefabs/PrefabResource.h>
 #include <ProcGenPlugin/Resources/ProcGenGraphResource.h>
+#include <ProcGenPlugin/Resources/ProcGenGraphSharedData.h>
 #include <ProcGenPlugin/VM/ExpressionByteCode.h>
 
 namespace ezProcGenInternal
@@ -41,9 +42,9 @@ const ezDynamicArray<ezSharedPtr<const VertexColorOutput>>& ezProcGenGraphResour
 
 ezResourceLoadDesc ezProcGenGraphResource::UnloadData(Unload WhatToUnload)
 {
-  m_ByteCode.Clear();
   m_PlacementOutputs.Clear();
   m_VertexColorOutputs.Clear();
+  m_pSharedData = nullptr;
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
@@ -85,39 +86,48 @@ ezResourceLoadDesc ezProcGenGraphResource::UpdateContent(ezStreamReader* Stream)
 
     ezStringBuilder sTemp;
 
-    ezHashTable<PlacementOutput*, ezUInt32> placementOutputToByteCodeIndex;
-    ezHashTable<VertexColorOutput*, ezUInt32> vertexColorOutputToByteCodeIndex;
-
     // skip all chunks that we don't know
     while (chunk.GetCurrentChunk().m_bValid)
     {
-      if (chunk.GetCurrentChunk().m_sChunkName == "ByteCode")
+      if (chunk.GetCurrentChunk().m_sChunkName == "SharedData")
       {
-        ezUInt32 uiNumByteCodes = 0;
-        chunk >> uiNumByteCodes;
-
-        m_ByteCode.SetCount(uiNumByteCodes);
-        for (ezUInt32 uiByteCodeIndex = 0; uiByteCodeIndex < uiNumByteCodes; ++uiByteCodeIndex)
+        ezSharedPtr<GraphSharedData> pSharedData = EZ_DEFAULT_NEW(GraphSharedData);
+        if (pSharedData->Load(chunk).Succeeded())
         {
-          m_ByteCode[uiByteCodeIndex].Load(chunk);
+          m_pSharedData = pSharedData;
         }
       }
       else if (chunk.GetCurrentChunk().m_sChunkName == "PlacementOutputs")
       {
+        if (chunk.GetCurrentChunk().m_uiChunkVersion < 4)
+        {
+          ezLog::Error("Invalid PlacementOutputs Chunk Version {0}. Expected >= 4", chunk.GetCurrentChunk().m_uiChunkVersion);
+          chunk.NextChunk();
+          continue;
+        }
+
         ezUInt32 uiNumOutputs = 0;
         chunk >> uiNumOutputs;
 
         m_PlacementOutputs.Reserve(uiNumOutputs);
         for (ezUInt32 uiIndex = 0; uiIndex < uiNumOutputs; ++uiIndex)
         {
-          auto pOutput = EZ_DEFAULT_NEW(PlacementOutput);
+          ezUniquePtr<ezExpressionByteCode> pByteCode = EZ_DEFAULT_NEW(ezExpressionByteCode);
+          if (pByteCode->Load(chunk).Failed())
+          {
+            break;
+          }
+
+          ezSharedPtr<PlacementOutput> pOutput = EZ_DEFAULT_NEW(PlacementOutput);
+          pOutput->m_pByteCode = std::move(pByteCode);
 
           chunk >> pOutput->m_sName;
+          chunk.ReadArray(pOutput->m_VolumeTagSetIndices);
 
-          ezUInt32 uiNumObjectsToPlace = 0;
+          ezUInt64 uiNumObjectsToPlace = 0;
           chunk >> uiNumObjectsToPlace;
 
-          for (ezUInt32 uiObjectIndex = 0; uiObjectIndex < uiNumObjectsToPlace; ++uiObjectIndex)
+          for (ezUInt32 uiObjectIndex = 0; uiObjectIndex < static_cast<ezUInt32>(uiNumObjectsToPlace); ++uiObjectIndex)
           {
             chunk >> sTemp;
             pOutput->m_ObjectsToPlace.ExpandAndGetRef() = ezResourceManager::LoadResource<ezPrefabResource>(sTemp);
@@ -137,31 +147,18 @@ ezResourceLoadDesc ezProcGenGraphResource::UpdateContent(ezStreamReader* Stream)
 
           chunk >> pOutput->m_fCullDistance;
 
-          if (chunk.GetCurrentChunk().m_uiChunkVersion >= 2)
+          chunk >> pOutput->m_uiCollisionLayer;
+
+          chunk >> sTemp;
+          if (!sTemp.IsEmpty())
           {
-            chunk >> pOutput->m_uiCollisionLayer;
-
-            chunk >> sTemp;
-
-            if (!sTemp.IsEmpty())
-            {
-              pOutput->m_hColorGradient = ezResourceManager::LoadResource<ezColorGradientResource>(sTemp);
-            }
+            pOutput->m_hColorGradient = ezResourceManager::LoadResource<ezColorGradientResource>(sTemp);
           }
 
-          ezUInt32 uiByteCodeIndex = ezInvalidIndex;
-          chunk >> uiByteCodeIndex;
-
-          placementOutputToByteCodeIndex.Insert(pOutput, uiByteCodeIndex);
-
-          if (chunk.GetCurrentChunk().m_uiChunkVersion >= 3)
+          chunk >> sTemp;
+          if (!sTemp.IsEmpty())
           {
-            chunk >> sTemp;
-
-            if (!sTemp.IsEmpty())
-            {
-              pOutput->m_hSurface = ezResourceManager::LoadResource<ezSurfaceResource>(sTemp);
-            }
+            pOutput->m_hSurface = ezResourceManager::LoadResource<ezSurfaceResource>(sTemp);
           }
 
           m_PlacementOutputs.PushBack(pOutput);
@@ -169,20 +166,30 @@ ezResourceLoadDesc ezProcGenGraphResource::UpdateContent(ezStreamReader* Stream)
       }
       else if (chunk.GetCurrentChunk().m_sChunkName == "VertexColorOutputs")
       {
+        if (chunk.GetCurrentChunk().m_uiChunkVersion < 2)
+        {
+          ezLog::Error("Invalid VertexColorOutputs Chunk Version {0}. Expected >= 2", chunk.GetCurrentChunk().m_uiChunkVersion);
+          chunk.NextChunk();
+          continue;
+        }
+
         ezUInt32 uiNumOutputs = 0;
         chunk >> uiNumOutputs;
 
         m_VertexColorOutputs.Reserve(uiNumOutputs);
         for (ezUInt32 uiIndex = 0; uiIndex < uiNumOutputs; ++uiIndex)
         {
-          auto pOutput = EZ_DEFAULT_NEW(VertexColorOutput);
+          ezUniquePtr<ezExpressionByteCode> pByteCode = EZ_DEFAULT_NEW(ezExpressionByteCode);
+          if (pByteCode->Load(chunk).Failed())
+          {
+            break;
+          }
+
+          ezSharedPtr<VertexColorOutput> pOutput = EZ_DEFAULT_NEW(VertexColorOutput);
+          pOutput->m_pByteCode = std::move(pByteCode);
 
           chunk >> pOutput->m_sName;
-
-          ezUInt32 uiByteCodeIndex = ezInvalidIndex;
-          chunk >> uiByteCodeIndex;
-
-          vertexColorOutputToByteCodeIndex.Insert(pOutput, uiByteCodeIndex);
+          chunk.ReadArray(pOutput->m_VolumeTagSetIndices);
 
           m_VertexColorOutputs.PushBack(pOutput);
         }
@@ -193,22 +200,17 @@ ezResourceLoadDesc ezProcGenGraphResource::UpdateContent(ezStreamReader* Stream)
 
     chunk.EndStream();
 
-    // link bytecode
-    for (auto it = placementOutputToByteCodeIndex.GetIterator(); it.IsValid(); ++it)
+    // link shared data
+    if (m_pSharedData != nullptr)
     {
-      ezUInt32 uiByteCodeIndex = it.Value();
-      if (uiByteCodeIndex != ezInvalidIndex)
+      for (auto& pPlacementOutput : m_PlacementOutputs)
       {
-        it.Key()->m_pByteCode = &m_ByteCode[uiByteCodeIndex];
+        const_cast<PlacementOutput*>(pPlacementOutput.Borrow())->m_pGraphSharedData = m_pSharedData;
       }
-    }
 
-    for (auto it = vertexColorOutputToByteCodeIndex.GetIterator(); it.IsValid(); ++it)
-    {
-      ezUInt32 uiByteCodeIndex = it.Value();
-      if (uiByteCodeIndex != ezInvalidIndex)
+      for (auto& pVertexColorOutput : m_VertexColorOutputs)
       {
-        it.Key()->m_pByteCode = &m_ByteCode[uiByteCodeIndex];
+        const_cast<VertexColorOutput*>(pVertexColorOutput.Borrow())->m_pGraphSharedData = m_pSharedData;
       }
     }
   }

@@ -1,12 +1,14 @@
 #pragma once
 
 #include <EditorFramework/Assets/AssetDocument.h>
-#include <ProcGenPlugin/VM/ExpressionAST.h>
+#include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenNodes.h>
 
 class ezDocumentObjectConverterWriter;
 class ezProcGenNodeBase;
 class ezProcGenPlacementOutput;
 class ezPin;
+
+class ezProcGenGraphSharedData;
 
 class ezProcGenGraphAssetDocument : public ezAssetDocument
 {
@@ -49,10 +51,11 @@ private:
   };
 
   ezExpressionAST::Node* GenerateExpressionAST(const ezDocumentObject* outputNode, ezDocumentObjectConverterWriter& objectWriter,
-    ezRttiConverterReader& rttiConverter, ezHashTable<const ezDocumentObject*, CachedNode>& nodeCache, ezExpressionAST& out_Ast) const;
+    ezRttiConverterReader& rttiConverter, ezHashTable<const ezDocumentObject*, CachedNode>& nodeCache, ezExpressionAST& out_Ast,
+    ezProcGenNodeBase::GenerateASTContext& context) const;
 
   ezExpressionAST::Node* GenerateDebugExpressionAST(ezDocumentObjectConverterWriter& objectWriter, ezRttiConverterReader& rttiConverter,
-    ezHashTable<const ezDocumentObject*, CachedNode>& nodeCache, ezExpressionAST& out_Ast) const;
+    ezHashTable<const ezDocumentObject*, CachedNode>& nodeCache, ezExpressionAST& out_Ast, ezProcGenNodeBase::GenerateASTContext& context) const;
 
   void DumpSelectedOutput(bool bAst, bool bDisassembly) const;
 

@@ -59,13 +59,20 @@ namespace ezProcGenInternal
     float m_fSize;
   };
 
+  struct GraphSharedDataBase : public ezRefCounted
+  {
+  };
+
   struct Output : public ezRefCounted
   {
+    virtual ~Output();
+
     ezHashedString m_sName;
 
-    ezHybridArray<ezUInt8, 4> m_VolumeIndices;
+    ezHybridArray<ezUInt8, 4> m_VolumeTagSetIndices;
+    ezSharedPtr<const GraphSharedDataBase> m_pGraphSharedData;
 
-    ezExpressionByteCode* m_pByteCode = nullptr;
+    ezUniquePtr<ezExpressionByteCode> m_pByteCode;
   };
 
   struct PlacementOutput : public Output
@@ -76,7 +83,7 @@ namespace ezProcGenInternal
     {
       return !m_ObjectsToPlace.IsEmpty() && m_pPattern != nullptr && m_fFootprint > 0.0f && m_fCullDistance > 0.0f &&
              m_pByteCode != nullptr;
-    }    
+    }
 
     ezHybridArray<ezPrefabResourceHandle, 4> m_ObjectsToPlace;
 
