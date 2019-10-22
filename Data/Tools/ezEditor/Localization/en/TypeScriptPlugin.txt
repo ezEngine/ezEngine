@@ -1,0 +1,1 @@
+TypeScript.Edit;Edit Script;Edit Script - Creates the script file if necessary

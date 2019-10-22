@@ -45,6 +45,13 @@ void ezTypeScriptAssetDocument::EditScript()
     return;
 
   ezQtUiServices::OpenFileInDefaultProgram(sAbsPath);
+
+  {
+    ezTypeScriptAssetDocumentEvent e;
+    e.m_Type = ezTypeScriptAssetDocumentEvent::Type::ScriptOpened;
+    e.m_pDocument = this;
+    m_Events.Broadcast(e);
+  }
 }
 
 void ezTypeScriptAssetDocument::CreateComponentFile(const char* szFile)
@@ -79,10 +86,19 @@ void ezTypeScriptAssetDocument::CreateComponentFile(const char* szFile)
     }
   }
 
-  ezFileWriter file;
-  if (file.Open(szFile).Succeeded())
   {
-    file.WriteBytes(sContent.GetData(), sContent.GetElementCount());
+    ezFileWriter file;
+    if (file.Open(szFile).Succeeded())
+    {
+      file.WriteBytes(sContent.GetData(), sContent.GetElementCount());
+    }
+  }
+
+  {
+    ezTypeScriptAssetDocumentEvent e;
+    e.m_Type = ezTypeScriptAssetDocumentEvent::Type::ScriptCreated;
+    e.m_pDocument = this;
+    m_Events.Broadcast(e);
   }
 }
 

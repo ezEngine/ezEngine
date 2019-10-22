@@ -16,7 +16,7 @@ ezActionDescriptorHandle ezTypeScriptActions::s_hEditScript;
 void ezTypeScriptActions::RegisterActions()
 {
   s_hCategory = EZ_REGISTER_CATEGORY("TypeScriptCategory");
-  s_hEditScript = EZ_REGISTER_ACTION_1("TS.Edit", ezActionScope::Document, "TypeScripts", "Edit Script", ezTypeScriptAction, ezTypeScriptAction::ActionType::EditScript);
+  s_hEditScript = EZ_REGISTER_ACTION_1("TypeScript.Edit", ezActionScope::Document, "TypeScripts", "Edit Script", ezTypeScriptAction, ezTypeScriptAction::ActionType::EditScript);
 }
 
 void ezTypeScriptActions::UnregisterActions()
