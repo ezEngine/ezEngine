@@ -214,12 +214,13 @@ private:
     }
   }
 
+protected:
+
   virtual ezDocumentInfo* CreateDocumentInfo() override
   {
     return EZ_DEFAULT_NEW(ezAssetDocumentInfo);
   }
 
-protected:
   ezDocumentObjectMirror m_ObjectMirror;
   ezRttiConverterContext m_Context;
 };

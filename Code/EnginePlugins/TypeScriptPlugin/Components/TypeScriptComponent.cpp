@@ -1,13 +1,22 @@
 #include <TypeScriptPluginPCH.h>
 
+#include <Core/ResourceManager/ResourceManager.h>
+#include <Core/WorldSerializer/WorldReader.h>
+#include <Core/WorldSerializer/WorldWriter.h>
 #include <Duktape/duktape.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <TypeScriptPlugin/Components/TypeScriptComponent.h>
+#include <TypeScriptPlugin/Resources/JavaScriptResource.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezTypeScriptComponent, 1, ezComponentMode::Static)
 {
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ACCESSOR_PROPERTY("Script", GetJavaScriptResourceFile, SetJavaScriptResourceFile)->AddAttributes(new ezAssetBrowserAttribute("TypeScript")),
+  }
+  EZ_END_PROPERTIES;
 }
 EZ_END_COMPONENT_TYPE;
 // clang-format on
@@ -19,10 +28,16 @@ ezTypeScriptComponent::~ezTypeScriptComponent() = default;
 
 void ezTypeScriptComponent::SerializeComponent(ezWorldWriter& stream) const
 {
+  auto& s = stream.GetStream();
+
+  s << m_hJsResource;
 }
 
 void ezTypeScriptComponent::DeserializeComponent(ezWorldReader& stream)
 {
+  auto& s = stream.GetStream();
+
+  s >> m_hJsResource;
 }
 
 void ezTypeScriptComponent::OnSimulationStarted()
@@ -78,4 +93,36 @@ void ezTypeScriptComponent::Update(ezTypeScriptBinding& binding)
     // remove 'this'   [ comp ]
     duk.PopStack(); // [ ]
   }
+}
+
+void ezTypeScriptComponent::SetJavaScriptResourceFile(const char* szFile)
+{
+  ezJavaScriptResourceHandle hResource;
+
+  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  {
+    hResource = ezResourceManager::LoadResource<ezJavaScriptResource>(szFile);
+  }
+
+  SetJavaScriptResource(hResource);
+}
+
+const char* ezTypeScriptComponent::GetJavaScriptResourceFile() const
+{
+  if (m_hJsResource.IsValid())
+  {
+    return m_hJsResource.GetResourceID();
+  }
+
+  return "";
+}
+
+void ezTypeScriptComponent::SetJavaScriptResource(const ezJavaScriptResourceHandle& hResource)
+{
+  m_hJsResource = hResource;
+}
+
+const ezJavaScriptResourceHandle& ezTypeScriptComponent::GetJavaScriptResource() const
+{
+  return m_hJsResource;
 }

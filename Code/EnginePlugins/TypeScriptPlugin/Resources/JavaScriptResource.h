@@ -34,3 +34,5 @@ private:
 
   ezJavaScriptResourceDesc m_Desc;
 };
+
+using ezJavaScriptResourceHandle = ezTypedResourceHandle<class ezJavaScriptResource>;

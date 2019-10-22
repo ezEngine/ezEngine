@@ -5,9 +5,11 @@
 #include <EditorPluginTypeScript/TypeScriptAsset/TypeScriptAssetWindow.moc.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
+#include <ToolsFoundation/Command/TreeCommands.h>
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTypeScriptAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezTypeScriptAssetDocumentManager>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTypeScriptAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezTypeScriptAssetDocumentManager>)
+  ;
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezTypeScriptAssetDocumentManager::ezTypeScriptAssetDocumentManager()
@@ -42,23 +44,21 @@ void ezTypeScriptAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMa
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezTypeScriptAssetDocument>())
       {
         ezQtTypeScriptAssetDocumentWindow* pDocWnd =
-            new ezQtTypeScriptAssetDocumentWindow(static_cast<ezTypeScriptAssetDocument*>(e.m_pDocument));
+          new ezQtTypeScriptAssetDocumentWindow(static_cast<ezTypeScriptAssetDocument*>(e.m_pDocument));
       }
     }
     break;
   }
 }
 
-ezStatus ezTypeScriptAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath,
-                                                                     bool bCreateNewDocument, ezDocument*& out_pDocument)
+ezStatus ezTypeScriptAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezTypeScriptAssetDocument(szPath);
 
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezTypeScriptAssetDocumentManager::InternalGetSupportedDocumentTypes(
-    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezTypeScriptAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_AssetDesc);
 }
@@ -100,4 +100,3 @@ void ezTypeScriptAssetDocumentManager::SetupProjectForTypeScript()
     return;
   }
 }
-

@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7297922959506964864,5177324930371449723}}
-		u4 %Hash{4955976044647365447}
+		u4 %Hash{13767049005228394079}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -22,6 +22,7 @@ o
 			s{"{ 21e7efd6-6d5e-4f03-a4d1-7a430ceb0f8a }"}
 			s{"{ 2d50dee8-5549-4755-bbce-4cc39624919c }"}
 			s{"{ 2fe9db45-6e52-4e17-8e27-5744f9e8ada6 }"}
+			s{"{ 328efa1a-d937-48f7-a060-d5cdfcb9fa02 }"}
 			s{"{ 3bf60313-2bce-45cf-8836-68e3b9ef5323 }"}
 			s{"{ 3e1603a0-178a-4e3d-810b-7ae29708cf36 }"}
 			s{"{ 3eed317b-10cd-4752-8e7d-6fc6460beba0 }"}
@@ -7666,6 +7667,7 @@ o
 	p
 	{
 		b %Active{1}
+		s %Script{""}
 	}
 }
 o
@@ -12812,6 +12814,7 @@ o
 	p
 	{
 		b %Active{1}
+		s %Script{"{ 328efa1a-d937-48f7-a060-d5cdfcb9fa02 }"}
 	}
 }
 o
@@ -22052,13 +22055,13 @@ o
 	p
 	{
 		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
 		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"ezTypeScriptPlugin"}
+		s %PluginName{"ezEditorPluginTypeScript"}
 		VarArray %Properties{}
 		s %TypeName{"ezTypeScriptComponent"}
-		u3 %TypeSize{48}
+		u3 %TypeSize{64}
 		u3 %TypeVersion{1}
 	}
 }

@@ -2,12 +2,15 @@
 
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
 
+#include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/Scripting/DuktapeContext.h>
 #include <Core/World/Component.h>
 #include <Core/World/World.h>
 #include <TypeScriptPlugin/Transpiler/Transpiler.h>
 
 class ezTypeScriptBinding;
+
+using ezJavaScriptResourceHandle = ezTypedResourceHandle<class ezJavaScriptResource>;
 
 class EZ_TYPESCRIPTPLUGIN_DLL ezTypeScriptComponentManager : public ezComponentManager<class ezTypeScriptComponent, ezBlockStorageType::FreeList>
 {
@@ -58,10 +61,17 @@ protected:
   //////////////////////////////////////////////////////////////////////////
   // ezTypeScriptComponent Interface
   //
-public:
 protected:
   void Update(ezTypeScriptBinding& script);
 
   ezTypeScriptBinding::TsComponentTypeInfo m_ComponentTypeInfo;
 
+  void SetJavaScriptResourceFile(const char* szFile); // [ property ]
+  const char* GetJavaScriptResourceFile() const;      // [ property ]
+
+  void SetJavaScriptResource(const ezJavaScriptResourceHandle& hResource); // [ property ]
+  const ezJavaScriptResourceHandle& GetJavaScriptResource() const;         // [ property ]
+
+private:
+  ezJavaScriptResourceHandle m_hJsResource;
 };

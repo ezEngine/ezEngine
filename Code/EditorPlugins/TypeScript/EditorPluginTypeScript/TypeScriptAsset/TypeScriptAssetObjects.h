@@ -11,5 +11,6 @@ public:
   ezTypeScriptAssetProperties();
   ~ezTypeScriptAssetProperties();
 
-
+  ezString m_sScriptFile;
+  ezString m_sComponentName;
 };

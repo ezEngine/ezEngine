@@ -10,6 +10,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Math/Random.h>
 #include <Foundation/Utilities/Progress.h>
+#include <ToolsFoundation/Command/TreeCommands.h>
 #include <TypeScriptPlugin/Resources/JavaScriptResource.h>
 
 // clang-format off
@@ -29,8 +30,10 @@ const char* ezTypeScriptAssetDocument::QueryAssetType() const
 
 void ezTypeScriptAssetDocument::EditScript()
 {
-  ezStringBuilder sTsPath = GetDocumentPath();
-  sTsPath.ChangeFileExtension("ts");
+  ezStringBuilder sTsPath(":project/", GetProperties()->m_sScriptFile);
+
+  if (sTsPath.IsEmpty())
+    return;
 
   if (!ezFileSystem::ExistsFile(sTsPath))
   {
@@ -46,12 +49,7 @@ void ezTypeScriptAssetDocument::EditScript()
 
 void ezTypeScriptAssetDocument::CreateComponentFile(const char* szFile)
 {
-  ezStringBuilder sAbsPathToEzTs;
-  if (ezFileSystem::ResolvePath(":project/TypeScript/ez", &sAbsPathToEzTs, nullptr).Failed())
-  {
-    ezLog::Error("TypeScript data not found in ':project/TypeScript'");
-    return;
-  }
+  ezStringBuilder sAbsPathToEzTs = ":project/TypeScript/ez";
 
   ezStringBuilder sScriptFilePath = szFile;
   sScriptFilePath.ChangeFileNameAndExtension("");
@@ -64,7 +62,10 @@ void ezTypeScriptAssetDocument::CreateComponentFile(const char* szFile)
     sRelPathToEzTS.Prepend("./");
   }
 
-  const ezStringBuilder sComponentName = ezPathUtils::GetFileName(szFile);
+  const ezStringBuilder sComponentName = GetProperties()->m_sComponentName;
+
+  if (sComponentName.IsEmpty())
+    return;
 
   ezStringBuilder sContent;
 
@@ -109,4 +110,38 @@ ezStatus ezTypeScriptAssetDocument::InternalTransformAsset(ezStreamWriter& strea
   EZ_SUCCEED_OR_RETURN(desc.Serialize(stream));
 
   return ezStatus(EZ_SUCCESS);
+}
+
+void ezTypeScriptAssetDocument::InitializeAfterLoading()
+{
+  SUPER::InitializeAfterLoading();
+
+  auto history = GetCommandHistory();
+  history->StartTransaction("Initial Setup");
+
+  if (GetProperties()->m_sComponentName.IsEmpty())
+  {
+    const ezString sCompName = ezPathUtils::GetFileName(GetDocumentPath());
+
+    ezSetObjectPropertyCommand propCmd;
+    propCmd.m_Object = GetPropertyObject()->GetGuid();
+    propCmd.m_sProperty = "ComponentName";
+    propCmd.m_NewValue = sCompName;
+    EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
+  }
+
+  if (GetProperties()->m_sScriptFile.IsEmpty())
+  {
+    ezStringBuilder sDefaultFile = GetDocumentPath();
+    sDefaultFile.ChangeFileExtension("ts");
+    ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sDefaultFile);
+
+    ezSetObjectPropertyCommand propCmd;
+    propCmd.m_Object = GetPropertyObject()->GetGuid();
+    propCmd.m_sProperty = "ScriptFile";
+    propCmd.m_NewValue = ezString(sDefaultFile);
+    EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
+  }
+
+  history->FinishTransaction();
 }
