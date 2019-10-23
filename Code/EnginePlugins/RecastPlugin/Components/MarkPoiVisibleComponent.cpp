@@ -109,8 +109,8 @@ void ezRcMarkPoiVisibleComponent::Update()
 
       --iPointsToCheck;
 
-      ezPhysicsHitResult hit;
-      if (m_pPhysicsModule->CastRay(vOwnPos, vDirToTop, fRayLenTop, m_uiCollisionLayer, hit, ezPhysicsShapeType::Static))
+      ezPhysicsHitResult hit2;
+      if (m_pPhysicsModule->CastRay(vOwnPos, vDirToTop, fRayLenTop, m_uiCollisionLayer, hit2, ezPhysicsShapeType::Static))
       {
         poi.m_uiVisibleMarker = uiCheckTimeStamp;
       }
