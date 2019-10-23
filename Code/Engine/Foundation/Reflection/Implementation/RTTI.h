@@ -139,9 +139,6 @@ public:
 
   EZ_ALWAYS_INLINE const ezArrayPtr<ezMessageSenderInfo>& GetMessageSender() const { return m_MessageSenders; }
 
-  /// \brief Fire this if a type was dynamically added or changed outside of plugin registration.
-  static ezEvent<const ezRTTI*> s_TypeUpdatedEvent;
-
 protected:
   const char* m_szPluginName;
   const char* m_szTypeName;
