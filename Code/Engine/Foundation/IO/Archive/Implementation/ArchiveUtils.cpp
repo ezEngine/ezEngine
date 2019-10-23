@@ -56,7 +56,7 @@ ezResult ezArchiveUtils::WriteEntry(ezStreamWriter& stream, const char* szAbsSou
 
   const ezUInt64 uiMaxBytes = file.GetFileSize();
 
-  ezUInt8 uiTemp[1024 * 64];
+  ezUInt8 uiTemp[1024 * 8];
 
   tocEntry.m_uiPathStringOffset = uiPathStringOffset;
   tocEntry.m_uiDataStartOffset = inout_uiCurrentStreamPosition;

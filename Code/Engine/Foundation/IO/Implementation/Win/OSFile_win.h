@@ -52,7 +52,7 @@ ezResult ezOSFile::InternalOpen(const char* szFile, ezFileOpenMode::Enum OpenMod
 
   while (iRetries > 0)
   {
-    GetLastError();
+    DWORD error = GetLastError();
 
     ezStringWChar s = szFile;
 
@@ -78,7 +78,7 @@ ezResult ezOSFile::InternalOpen(const char* szFile, ezFileOpenMode::Enum OpenMod
 
     if (res.Failed())
     {
-      DWORD error = GetLastError();
+      error = GetLastError();
 
       // file does not exist
       if (error == ERROR_FILE_NOT_FOUND || error == ERROR_PATH_NOT_FOUND)

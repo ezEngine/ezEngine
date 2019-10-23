@@ -377,18 +377,18 @@ private: // *** Other ***
 
 #define PP_LOG(Type, FormatStr, ErrorToken, ...)                                                                                                    \
   {                                                                                                                                                 \
-    ProcessingEvent pe;                                                                                                                             \
-    pe.m_Type = ProcessingEvent::Type;                                                                                                              \
-    pe.m_pToken = ErrorToken;                                                                                                                       \
-    if (pe.m_pToken->m_uiLine == 0 && pe.m_pToken->m_uiColumn == 0)                                                                                 \
+    ProcessingEvent _pe;                                                                                                                             \
+    _pe.m_Type = ProcessingEvent::Type;                                                                                                             \
+    _pe.m_pToken = ErrorToken;                                                                                                                       \
+    if (_pe.m_pToken->m_uiLine == 0 && _pe.m_pToken->m_uiColumn == 0)                                                                                 \
     {                                                                                                                                               \
-      const_cast<ezToken*>(pe.m_pToken)->m_uiLine = m_sCurrentFileStack.PeekBack().m_iCurrentLine;                                                  \
-      const_cast<ezToken*>(pe.m_pToken)->m_File.Assign(m_sCurrentFileStack.PeekBack().m_sVirtualFileName.GetData());                                \
+      const_cast<ezToken*>(_pe.m_pToken)->m_uiLine = m_sCurrentFileStack.PeekBack().m_iCurrentLine;                                                  \
+      const_cast<ezToken*>(_pe.m_pToken)->m_File.Assign(m_sCurrentFileStack.PeekBack().m_sVirtualFileName.GetData());                                \
     }                                                                                                                                               \
     ezStringBuilder sInfo;                                                                                                                          \
     sInfo.Format(FormatStr, ##__VA_ARGS__);                                                                                                         \
-    pe.m_szInfo = sInfo.GetData();                                                                                                                  \
-    m_ProcessingEvents.Broadcast(pe);                                                                                                               \
-    ezLog::Type(m_pLog, "File '{0}', Line {1} ({2}): {3}", pe.m_pToken->m_File.GetString(), pe.m_pToken->m_uiLine, pe.m_pToken->m_uiColumn, sInfo); \
+    _pe.m_szInfo = sInfo.GetData();                                                                                                                  \
+    m_ProcessingEvents.Broadcast(_pe);                                                                                                               \
+    ezLog::Type(m_pLog, "File '{0}', Line {1} ({2}): {3}", _pe.m_pToken->m_File.GetString(), _pe.m_pToken->m_uiLine, _pe.m_pToken->m_uiColumn, sInfo); \
   }
 

@@ -19,6 +19,8 @@ ezHashedString::HashedType ezHashedString::AddHashedString(const char* szString,
   if (s_pHSData == nullptr)
     InitHashedString();
 
+  EZ_MSVC_ANALYSIS_ASSUME(s_pHSData != nullptr);
+
   EZ_LOCK(s_pHSData->m_Mutex);
 
   // try to find the existing string
@@ -92,6 +94,8 @@ ezHashedString::ezHashedString()
   // only insert the empty string once, after that, we can just use it without the need for the mutex
   if (s_pHSData == nullptr)
     InitHashedString();
+
+  EZ_MSVC_ANALYSIS_ASSUME(s_pHSData != nullptr);
 
   m_Data = s_pHSData->m_Empty;
 #if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)

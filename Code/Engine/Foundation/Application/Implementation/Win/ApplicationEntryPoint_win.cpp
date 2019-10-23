@@ -16,9 +16,15 @@ namespace ezApplicationDetails
 
       // this is necessary to direct the standard
       // output to the newly attached console
-      freopen("CONOUT$", "w", stdout);
-      freopen("CONOUT$", "w", stderr);
-      freopen("CONIN$", "r", stdin);
+      FILE* fpStdout = freopen("CONOUT$", "w", stdout);
+      FILE* fpStderr = freopen("CONOUT$", "w", stderr);
+      FILE* fpStdin  = freopen("CONIN$", "r", stdin);
+
+      if (!fpStdout || !fpStderr || !fpStdin)
+      {
+        printf("\nCouldn't reopen console output in AttachToConsoleWindow()\n");
+      }
+
       printf("\n");
     }
   }
