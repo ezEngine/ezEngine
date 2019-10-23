@@ -86,8 +86,8 @@
 #define EZ_MSVC_ANALYSIS_WARNING_DISABLE(warningNumber)
 #define EZ_MSVC_ANALYSIS_ASSUME(expression)
 
-#if EZ_ENABLED(EZ_COMPILER_MSVC)
-  #include <Basics/Compiler/MSVC/StaticAnalysis.h>
+#if defined(_MSC_VER)
+  #include <Foundation/Basics/Compiler/MSVC/StaticAnalysis.h>
 #endif
 
 #if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)

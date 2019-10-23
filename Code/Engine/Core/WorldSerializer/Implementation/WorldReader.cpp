@@ -340,9 +340,9 @@ void ezWorldReader::ReadComponentsOfType(ezUInt32 uiComponentTypeIdx)
 
       pComponent->SetActive(bActive);
 
-      for (ezUInt8 i = 0; i < 8; ++i)
+      for (ezUInt8 j = 0; j < 8; ++j)
       {
-        pComponent->SetUserFlag(i, (userFlags & EZ_BIT(i)) != 0);
+        pComponent->SetUserFlag(j, (userFlags & EZ_BIT(j)) != 0);
       }
 
       pComponent->DeserializeComponent(*this);

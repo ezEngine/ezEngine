@@ -13,13 +13,14 @@ struct HashedStringData
 
 static HashedStringData* s_pHSData;
 
+EZ_MSVC_ANALYSIS_WARNING_PUSH
+EZ_MSVC_ANALYSIS_WARNING_DISABLE(6011) // Disable warning for null pointer dereference as InitHashedString() will ensure that s_pHSData is set
+
 // static
 ezHashedString::HashedType ezHashedString::AddHashedString(const char* szString, ezUInt32 uiHash)
 {
   if (s_pHSData == nullptr)
     InitHashedString();
-
-  EZ_MSVC_ANALYSIS_ASSUME(s_pHSData != nullptr);
 
   EZ_LOCK(s_pHSData->m_Mutex);
 
@@ -45,6 +46,8 @@ ezHashedString::HashedType ezHashedString::AddHashedString(const char* szString,
 
   return ret;
 }
+
+EZ_MSVC_ANALYSIS_WARNING_POP
 
 // static
 void ezHashedString::InitHashedString()
@@ -86,6 +89,9 @@ ezUInt32 ezHashedString::ClearUnusedStrings()
 }
 #endif
 
+EZ_MSVC_ANALYSIS_WARNING_PUSH
+EZ_MSVC_ANALYSIS_WARNING_DISABLE(6011) // Disable warning for null pointer dereference as InitHashedString() will ensure that s_pHSData is set
+
 ezHashedString::ezHashedString()
 {
   EZ_CHECK_AT_COMPILETIME_MSG(sizeof(m_Data) == sizeof(void*), "The hashed string data should only be as large as one pointer.");
@@ -95,13 +101,13 @@ ezHashedString::ezHashedString()
   if (s_pHSData == nullptr)
     InitHashedString();
 
-  EZ_MSVC_ANALYSIS_ASSUME(s_pHSData != nullptr);
-
   m_Data = s_pHSData->m_Empty;
 #if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
   m_Data.Value().m_iRefCount.Increment();
 #endif
 }
+
+EZ_MSVC_ANALYSIS_WARNING_POP
 
 bool ezHashedString::IsEmpty() const
 {

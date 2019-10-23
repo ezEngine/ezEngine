@@ -137,17 +137,19 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
   ezGALTextureHandle tempSSAOTexture;
 
   {
-    ezGALTextureCreationDescription desc;
-    desc.m_uiWidth = uiHzbWidth / 2;
-    desc.m_uiHeight = uiHzbHeight / 2;
-    desc.m_uiMipLevelCount = 3;
-    desc.m_Type = ezGALTextureType::Texture2D;
-    desc.m_Format = ezGALResourceFormat::RHalf;
-    desc.m_bCreateRenderTarget = true;
-    desc.m_bAllowShaderResourceView = true;
-    desc.m_uiArraySize = pOutput->m_Desc.m_uiArraySize;
+    {
+      ezGALTextureCreationDescription desc;
+      desc.m_uiWidth = uiHzbWidth / 2;
+      desc.m_uiHeight = uiHzbHeight / 2;
+      desc.m_uiMipLevelCount = 3;
+      desc.m_Type = ezGALTextureType::Texture2D;
+      desc.m_Format = ezGALResourceFormat::RHalf;
+      desc.m_bCreateRenderTarget = true;
+      desc.m_bAllowShaderResourceView = true;
+      desc.m_uiArraySize = pOutput->m_Desc.m_uiArraySize;
 
-    hzbTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(desc);
+      hzbTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(desc);
+    }
 
     for (ezUInt32 i = 0; i < uiNumMips; ++i)
     {
@@ -177,7 +179,7 @@ void ezAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArr
     }
 
     tempSSAOTexture = ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(uiWidth, uiHeight, ezGALResourceFormat::RGHalf,
-                                                                               ezGALMSAASampleCount::None, desc.m_uiArraySize);
+                                                                               ezGALMSAASampleCount::None, pOutput->m_Desc.m_uiArraySize);
   }
 
   // Bind common data
