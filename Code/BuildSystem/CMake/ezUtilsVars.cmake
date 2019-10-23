@@ -44,6 +44,14 @@ set (EZ_ENABLE_PVS_STUDIO_HEADER_IN_UNITY_FILES ON CACHE BOOL "Adds the necessar
 mark_as_advanced(FORCE EZ_ENABLE_PVS_STUDIO_HEADER_IN_UNITY_FILES)
 
 ######################################
+### Static analysis support
+######################################
+set (EZ_ENABLE_COMPILER_STATIC_ANALYSIS OFF CACHE BOOL "Enables static analysis in the compiler options")
+
+mark_as_advanced(FORCE EZ_ENABLE_COMPILER_STATIC_ANALYSIS)
+
+
+######################################
 ### vcpkg
 ######################################
 
