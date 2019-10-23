@@ -108,8 +108,9 @@ ezStatus ezTypeScriptAssetDocument::InternalTransformAsset(ezStreamWriter& strea
   const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader,
   ezBitflags<ezTransformFlags> transformFlags)
 {
-  ezStringBuilder sTsPath = GetDocumentPath();
+  ezStringBuilder sTsPath = GetProperties()->m_sScriptFile;
   sTsPath.ChangeFileExtension("ts");
+  ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sTsPath);
 
   ezStringBuilder sTranspiledCode;
   ezUInt64 uiSourceHash = 0;
@@ -119,6 +120,7 @@ ezStatus ezTypeScriptAssetDocument::InternalTransformAsset(ezStreamWriter& strea
   }
 
   ezJavaScriptResourceDesc desc;
+  desc.m_sComponentName = GetProperties()->m_sComponentName;
   desc.m_JsSource.SetCountUninitialized(sTranspiledCode.GetElementCount() + 1);
 
   ezMemoryUtils::RawByteCopy(desc.m_JsSource.GetData(), sTranspiledCode.GetData(), desc.m_JsSource.GetCount());

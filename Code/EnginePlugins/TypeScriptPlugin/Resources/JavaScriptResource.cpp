@@ -71,12 +71,18 @@ ezResult ezJavaScriptResourceDesc::Serialize(ezStreamWriter& stream) const
 {
   stream.WriteVersion(1);
 
-  return stream.WriteArray(m_JsSource);
+  EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_JsSource));
+  EZ_SUCCEED_OR_RETURN(stream.WriteString(m_sComponentName));
+
+  return EZ_SUCCESS;
 }
 
 ezResult ezJavaScriptResourceDesc::Deserialize(ezStreamReader& stream)
 {
   /*ezTypeVersion version =*/stream.ReadVersion(1);
 
-  return stream.ReadArray(m_JsSource);
+  EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_JsSource));
+  EZ_SUCCEED_OR_RETURN(stream.ReadString(m_sComponentName));
+
+  return EZ_SUCCESS;
 }

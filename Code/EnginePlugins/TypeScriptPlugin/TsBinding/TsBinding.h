@@ -2,6 +2,7 @@
 
 #include <TypeScriptPlugin/TypeScriptPluginDLL.h>
 
+#include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/Scripting/DuktapeContext.h>
 #include <Core/World/Declarations.h>
 #include <Core/World/World.h>
@@ -10,6 +11,8 @@
 
 class ezWorld;
 class ezTypeScriptComponent;
+
+using ezJavaScriptResourceHandle = ezTypedResourceHandle<class ezJavaScriptResource>;
 
 enum ezTypeScriptBindingIndexProperty
 {
@@ -42,6 +45,7 @@ public:
 
   ezResult Initialize(ezTypeScriptTranspiler& transpiler, ezWorld& world);
   ezResult LoadComponent(const char* szComponent, TsComponentTypeInfo& out_TypeInfo);
+  ezResult LoadComponent(const ezJavaScriptResourceHandle& hResource, TsComponentTypeInfo& out_TypeInfo);
   const TsComponentInfo* GetComponentTypeInfo(const char* szComponentType) const;
 
   void RegisterMessageHandlersForComponentType(const char* szComponent);

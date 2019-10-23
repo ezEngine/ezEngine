@@ -10,6 +10,7 @@ class ezStreamReader;
 
 struct EZ_TYPESCRIPTPLUGIN_DLL ezJavaScriptResourceDesc
 {
+  ezString m_sComponentName;
   ezDynamicArray<ezUInt8> m_JsSource;
 
   ezResult Serialize(ezStreamWriter& stream) const;

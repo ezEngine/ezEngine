@@ -44,14 +44,14 @@ void ezTypeScriptComponent::OnSimulationStarted()
 {
   ezTypeScriptBinding& binding = static_cast<ezTypeScriptComponentManager*>(GetOwningManager())->GetTsBinding();
 
-  if (binding.LoadComponent("MyComponent", m_ComponentTypeInfo).Succeeded())
+  if (binding.LoadComponent(m_hJsResource, m_ComponentTypeInfo).Succeeded())
   {
     ezUInt32 uiStashIdx = 0;
     binding.RegisterComponent(m_ComponentTypeInfo.Key(), GetHandle(), uiStashIdx);
-  }
 
-  // if the TS component has any message handlers, we need to capture all messages and redirect them to the script
-  EnableUnhandledMessageHandler(!m_ComponentTypeInfo.Value().m_MessageHandlers.IsEmpty());
+    // if the TS component has any message handlers, we need to capture all messages and redirect them to the script
+    EnableUnhandledMessageHandler(!m_ComponentTypeInfo.Value().m_MessageHandlers.IsEmpty());
+  }
 }
 
 void ezTypeScriptComponent::Deinitialize()

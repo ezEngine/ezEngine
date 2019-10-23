@@ -1,8 +1,10 @@
 #include <TypeScriptPluginPCH.h>
 
+#include <Core/ResourceManager/ResourceManager.h>
 #include <Core/World/World.h>
 #include <Duktape/duktape.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Resources/JavaScriptResource.h>
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
 
 static ezHashTable<duk_context*, ezTypeScriptBinding*> s_DukToBinding;
@@ -79,13 +81,53 @@ ezResult ezTypeScriptBinding::LoadComponent(const char* szComponent, TsComponent
   EZ_SUCCEED_OR_RETURN(m_pTranspiler->TranspileFileAndStoreJS(sComponentFile, transpiledCode));
 
   EZ_SUCCEED_OR_RETURN(m_Duk.ExecuteString(transpiledCode, sComponentFile));
-
   RegisterMessageHandlersForComponentType(szComponent);
 
   m_LoadedComponents[szComponent] = true;
 
   m_TsComponentTypes[szComponent]; // important
   out_TypeInfo = m_TsComponentTypes.Find(szComponent);
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezTypeScriptBinding::LoadComponent(const ezJavaScriptResourceHandle& hResource, TsComponentTypeInfo& out_TypeInfo)
+{
+  if (!m_bInitialized || !hResource.IsValid())
+  {
+    return EZ_FAILURE;
+  }
+
+  ezResourceLock<ezJavaScriptResource> pJsResource(hResource, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+
+  if (pJsResource.GetAcquireResult() != ezResourceAcquireResult::Final)
+  {
+    return EZ_FAILURE;
+  }
+
+  const ezString& sComponent = pJsResource->GetDescriptor().m_sComponentName;
+
+  auto itLoaded = m_LoadedComponents.Find(sComponent);
+
+  if (itLoaded.IsValid())
+  {
+    out_TypeInfo = m_TsComponentTypes.Find(sComponent);
+    return itLoaded.Value() ? EZ_SUCCESS : EZ_FAILURE;
+  }
+
+  EZ_PROFILE_SCOPE("Load JavaScript Component");
+
+  bool& bLoaded = m_LoadedComponents[sComponent];
+  bLoaded = false;
+
+  const char* szSource = reinterpret_cast<const char*>(pJsResource->GetDescriptor().m_JsSource.GetData());
+
+  EZ_SUCCEED_OR_RETURN(m_Duk.ExecuteString(szSource, sComponent));
+  RegisterMessageHandlersForComponentType(sComponent);
+
+  bLoaded = true;
+
+  out_TypeInfo = m_TsComponentTypes.FindOrAdd(sComponent, nullptr);
 
   return EZ_SUCCESS;
 }
