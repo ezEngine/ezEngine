@@ -155,10 +155,12 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
   // Constant buffer for both passes.
   renderViewContext.m_pRenderContext->BindConstantBuffer("ezLSAOConstants", m_hLineSweepCB);
   // Depth buffer for both passes.
-  ezGALResourceViewCreationDescription rvcd;
-  rvcd.m_hTexture = inputs[m_PinDepthInput.m_uiInputIndex]->m_TextureHandle;
-  ezGALResourceViewHandle hDepthInputView = ezGALDevice::GetDefaultDevice()->CreateResourceView(rvcd);
-  renderViewContext.m_pRenderContext->BindTexture2D("DepthBuffer", hDepthInputView);
+  {
+    ezGALResourceViewCreationDescription rvcd;
+    rvcd.m_hTexture = inputs[m_PinDepthInput.m_uiInputIndex]->m_TextureHandle;
+    ezGALResourceViewHandle hDepthInputView = ezGALDevice::GetDefaultDevice()->CreateResourceView(rvcd);
+    renderViewContext.m_pRenderContext->BindTexture2D("DepthBuffer", hDepthInputView);
+  }
 
 
   // Line Sweep part (compute)
@@ -232,10 +234,12 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
 
     renderViewContext.m_pRenderContext->BindShader(m_hShaderAverage);
 
-    ezGALResourceViewCreationDescription rvcd;
-    rvcd.m_hTexture = tempTexture;
-    ezGALResourceViewHandle hTempTextureRView = ezGALDevice::GetDefaultDevice()->CreateResourceView(rvcd);
-    renderViewContext.m_pRenderContext->BindTexture2D("SSAOGatherOutput", hTempTextureRView);
+    {
+      ezGALResourceViewCreationDescription rvcd;
+      rvcd.m_hTexture = tempTexture;
+      ezGALResourceViewHandle hTempTextureRView = ezGALDevice::GetDefaultDevice()->CreateResourceView(rvcd);
+      renderViewContext.m_pRenderContext->BindTexture2D("SSAOGatherOutput", hTempTextureRView);
+    }
 
     renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles,
                                                        1);

@@ -87,7 +87,6 @@ PxShape* ezPxShapeConvexComponent::CreateShape(PxRigidActor* pActor, PxTransform
   }
   else
   {
-    ezResourceLock<ezPxMeshResource> pMesh(m_hCollisionMesh, ezResourceAcquireMode::AllowLoadingFallback);
     const auto& surfaces = pMesh->GetSurfaces();
 
     if (!surfaces.IsEmpty() && surfaces[0].IsValid())

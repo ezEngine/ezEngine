@@ -99,18 +99,22 @@ void ezFmod::Startup()
   {
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     // mutex handle will be closed automatically on process termination
-    GetLastError();
+    DWORD err = GetLastError();
     g_hLiveUpdateMutex = CreateMutexW(nullptr, TRUE, L"ezFmodLiveUpdate");
 
-    if (g_hLiveUpdateMutex != NULL && GetLastError() != ERROR_ALREADY_EXISTS)
+    err = GetLastError();
+    if (g_hLiveUpdateMutex != NULL && err != ERROR_ALREADY_EXISTS)
     {
       studioflags |= FMOD_STUDIO_INIT_LIVEUPDATE;
     }
     else
     {
       ezLog::Warning("Fmod Live-Update not available for this process, another process using fmod is already running.");
-      CloseHandle(g_hLiveUpdateMutex); // we didn't create it, so don't keep it alive
-      g_hLiveUpdateMutex = NULL;
+      if (g_hLiveUpdateMutex != NULL)
+      {
+        CloseHandle(g_hLiveUpdateMutex); // we didn't create it, so don't keep it alive
+        g_hLiveUpdateMutex = NULL;
+      }
     }
 #else
     studioflags |= FMOD_STUDIO_INIT_LIVEUPDATE;

@@ -116,7 +116,7 @@ ezResult ezArchiveReader::ExtractFile(ezUInt32 uiEntryIdx, const char* szTargetF
   ezFileWriter file;
   EZ_SUCCEED_OR_RETURN(file.Open(sOutputFile));
 
-  ezUInt8 uiTemp[1024 * 64];
+  ezUInt8 uiTemp[1024 * 8];
 
   ezUInt64 uiRead = 0;
   ezUInt64 uiReadTotal = 0;

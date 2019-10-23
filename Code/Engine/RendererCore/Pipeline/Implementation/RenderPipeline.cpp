@@ -327,7 +327,7 @@ bool ezRenderPipeline::SortPasses()
   while (!usable.IsEmpty())
   {
     ezRenderPipelinePass* pPass = usable.PeekBack();
-    ezLogBlock b("Traverse", pPass->GetName());
+    ezLogBlock b2("Traverse", pPass->GetName());
 
     usable.PopBack();
     ConnectionData& data = m_Connections[pPass];
@@ -410,7 +410,7 @@ bool ezRenderPipeline::InitRenderTargetDescriptions(const ezView& view)
 
   for (auto& pPass : m_Passes)
   {
-    ezLogBlock b("InitPass", pPass->GetName());
+    ezLogBlock b2("InitPass", pPass->GetName());
 
     if (view.GetCamera()->IsStereoscopic() && !pPass->IsStereoAware())
     {
@@ -521,12 +521,12 @@ bool ezRenderPipeline::CreateRenderTargetUsage(const ezView& view)
         else
         {
           m_ConnectionToTextureIndex[pConn] = m_TextureUsage.GetCount();
-          TextureUsageData& data = m_TextureUsage.ExpandAndGetRef();
+          TextureUsageData& texData = m_TextureUsage.ExpandAndGetRef();
 
-          data.m_bTargetTexture = false;
-          data.m_uiFirstUsageIdx = i;
-          data.m_uiLastUsageIdx = i;
-          data.m_UsedBy.PushBack(pConn);
+          texData.m_bTargetTexture = false;
+          texData.m_uiFirstUsageIdx = i;
+          texData.m_uiLastUsageIdx = i;
+          texData.m_UsedBy.PushBack(pConn);
         }
       }
     }
@@ -547,11 +547,13 @@ bool ezRenderPipeline::CreateRenderTargetUsage(const ezView& view)
         {
           ezGALTextureHandle hTexture = pTargetPass->GetTextureHandle(view, pPass->GetInputPins()[j]);
           EZ_ASSERT_DEV(m_ConnectionToTextureIndex.Contains(pConn), "");
+
           ezUInt32 uiDataIdx = m_ConnectionToTextureIndex[pConn];
           m_TextureUsage[uiDataIdx].m_bTargetTexture = true;
-          for (auto pConn : m_TextureUsage[uiDataIdx].m_UsedBy)
+
+          for (auto pUsedByConn : m_TextureUsage[uiDataIdx].m_UsedBy)
           {
-            pConn->m_TextureHandle = hTexture;
+            pUsedByConn->m_TextureHandle = hTexture;
           }
         }
       }
@@ -1073,14 +1075,14 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
     {
       EZ_PROFILE_AND_MARKER(pRenderContext->GetGALContext(), pPass->m_sName.GetData());
 
-      ConnectionData& data = m_Connections[pPass.Borrow()];
+      ConnectionData& connectionData = m_Connections[pPass.Borrow()];
       if (pPass->m_bActive)
       {
-        pPass->Execute(renderViewContext, data.m_Inputs, data.m_Outputs);
+        pPass->Execute(renderViewContext, connectionData.m_Inputs, connectionData.m_Outputs);
       }
       else
       {
-        pPass->ExecuteInactive(renderViewContext, data.m_Inputs, data.m_Outputs);
+        pPass->ExecuteInactive(renderViewContext, connectionData.m_Inputs, connectionData.m_Outputs);
       }
     }
 

@@ -500,11 +500,11 @@ void ezSpatialSystem_RegularGrid::FindVisibleObjectsInternal(const ezFrustum& fr
     if (!SphereFrustumIntersect(cellSphere, planeData))
       return;
 
-    ezUInt32 mask = uiFilteredCategoryBitmask;
-    while (mask > 0)
+    ezUInt32 filteredMask = uiFilteredCategoryBitmask;
+    while (filteredMask > 0)
     {
-      ezUInt32 category = ezMath::FirstBitLow(mask);
-      mask &= mask - 1;
+      ezUInt32 category = ezMath::FirstBitLow(filteredMask);
+      filteredMask &= filteredMask - 1;
 
       auto& boundingSpheres = cell.m_BoundingSpheres[category];
       auto& dataPointers = cell.m_DataPointers[category];

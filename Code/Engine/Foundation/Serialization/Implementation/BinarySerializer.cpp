@@ -17,8 +17,8 @@ static void WriteGraph(const ezAbstractObjectGraph* pGraph, ezStreamWriter& stre
 {
   const auto& Nodes = pGraph->GetAllNodes();
 
-  ezUInt32 iNodes = Nodes.GetCount();
-  stream << iNodes;
+  ezUInt32 uiNodes = Nodes.GetCount();
+  stream << uiNodes;
   for (auto itNode = Nodes.GetIterator(); itNode.IsValid(); ++itNode)
   {
     const auto& node = *itNode.Value();
@@ -28,8 +28,8 @@ static void WriteGraph(const ezAbstractObjectGraph* pGraph, ezStreamWriter& stre
     stream << node.GetNodeName();
 
     const ezHybridArray<ezAbstractObjectNode::Property, 16>& properties = node.GetProperties();
-    ezUInt32 iProps = properties.GetCount();
-    stream << iProps;
+    ezUInt32 uiProps = properties.GetCount();
+    stream << uiProps;
     for (const ezAbstractObjectNode::Property& prop : properties)
     {
       stream << prop.m_szPropertyName;
@@ -53,9 +53,9 @@ void ezAbstractGraphBinarySerializer::Write(ezStreamWriter& stream, const ezAbst
 
 static void ReadGraph(ezStreamReader& stream, ezAbstractObjectGraph* pGraph)
 {
-  ezUInt32 iNodes = 0;
-  stream >> iNodes;
-  for (ezUInt32 i = 0; i < iNodes; i++)
+  ezUInt32 uiNodes = 0;
+  stream >> uiNodes;
+  for (ezUInt32 uiNodeIdx = 0; uiNodeIdx < uiNodes; uiNodeIdx++)
   {
     ezUuid guid;
     ezUInt32 uiTypeVersion;
@@ -66,9 +66,9 @@ static void ReadGraph(ezStreamReader& stream, ezAbstractObjectGraph* pGraph)
     stream >> uiTypeVersion;
     stream >> sNodeName;
     ezAbstractObjectNode* pNode = pGraph->AddNode(guid, sType, uiTypeVersion, sNodeName);
-    ezUInt32 iProps = 0;
-    stream >> iProps;
-    for (ezUInt32 i = 0; i < iProps; i++)
+    ezUInt32 uiProps = 0;
+    stream >> uiProps;
+    for (ezUInt32 propIdx = 0; propIdx < uiProps; ++propIdx)
     {
       ezStringBuilder sPropName;
       ezVariant value;

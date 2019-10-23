@@ -150,8 +150,8 @@ ezAbstractObjectNode* ezRttiConverterWriter::AddObjectToGraph(const ezRTTI* pRtt
   ezRttiConverterObject obj = m_pContext->DequeueObject();
   while (obj.m_pObject != nullptr)
   {
-    const ezUuid guid = m_pContext->GetObjectGUID(obj.m_pType, obj.m_pObject);
-    AddSubObjectToGraph(obj.m_pType, obj.m_pObject, guid, nullptr);
+    const ezUuid objectGuid = m_pContext->GetObjectGUID(obj.m_pType, obj.m_pObject);
+    AddSubObjectToGraph(obj.m_pType, obj.m_pObject, objectGuid, nullptr);
 
     obj = m_pContext->DequeueObject();
   }

@@ -104,7 +104,11 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 
   	set_target_properties (${TARGET_NAME} PROPERTIES LINK_FLAGS_RELEASE        ${LINKER_FLAGS_RELEASE})
 	set_target_properties (${TARGET_NAME} PROPERTIES LINK_FLAGS_MINSIZEREL     ${LINKER_FLAGS_RELEASE})
-  		
+  	
+	if(EZ_ENABLE_COMPILER_STATIC_ANALYSIS)
+		target_compile_options(${TARGET_NAME} PRIVATE "/analyze")
+	endif()
+	
 endfunction()
 
 ######################################
