@@ -351,6 +351,27 @@ void ezDebugRenderer::DrawLines(const ezDebugRendererContext& context, ezArrayPt
   }
 }
 
+//static
+void ezDebugRenderer::DrawCross(const ezDebugRendererContext& context, const ezVec3& globalPosition, float fLineLength, const ezColor& color)
+{
+  if (fLineLength <= 0.0f)
+    return;
+
+  const float fHalfLineLength = fLineLength * 0.5f;
+  const ezVec3 xAxis = ezVec3::UnitXAxis() * fHalfLineLength;
+  const ezVec3 yAxis = ezVec3::UnitYAxis() * fHalfLineLength;
+  const ezVec3 zAxis = ezVec3::UnitZAxis() * fHalfLineLength;
+
+  Line lines[3] =
+  {
+    {globalPosition - xAxis, globalPosition + xAxis},
+    {globalPosition - yAxis, globalPosition + yAxis},
+    {globalPosition - zAxis, globalPosition + zAxis}
+  };
+
+  DrawLines(context, lines, color);
+}
+
 // static
 void ezDebugRenderer::DrawLineBox(const ezDebugRendererContext& context, const ezBoundingBox& box, const ezColor& color,
   const ezTransform& transform)

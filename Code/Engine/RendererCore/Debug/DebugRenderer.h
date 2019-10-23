@@ -63,6 +63,8 @@ public:
 
   static void DrawLines(const ezDebugRendererContext& context, ezArrayPtr<Line> lines, const ezColor& color);
 
+  static void DrawCross(const ezDebugRendererContext& context, const ezVec3& globalPosition, float fLineLength, const ezColor& color);
+
   static void DrawLineBox(const ezDebugRendererContext& context, const ezBoundingBox& box, const ezColor& color,
                           const ezTransform& transform = ezTransform::IdentityTransform());
 
