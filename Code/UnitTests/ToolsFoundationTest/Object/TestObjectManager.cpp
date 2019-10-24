@@ -25,9 +25,9 @@ ezTestDocument::~ezTestDocument()
   }
 }
 
-void ezTestDocument::InitializeAfterLoading()
+void ezTestDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 {
-  SUPER::InitializeAfterLoading();
+  SUPER::InitializeAfterLoading(bFirstTimeCreation);
 
   if (m_bUseIPCObjectMirror)
   {

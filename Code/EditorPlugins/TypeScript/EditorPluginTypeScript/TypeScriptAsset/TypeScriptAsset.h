@@ -36,7 +36,7 @@ protected:
   void CreateComponentFile(const char* szFile);
 
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
-  virtual void InitializeAfterLoading() override;
+  virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;
 
   ezEvent<const ezTypeScriptAssetDocumentEvent&> m_Events;
 };

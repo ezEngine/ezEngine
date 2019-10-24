@@ -351,9 +351,9 @@ ezStatus ezTextureAssetDocument::RunTexConv(
 }
 
 
-void ezTextureAssetDocument::InitializeAfterLoading()
+void ezTextureAssetDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 {
-  SUPER::InitializeAfterLoading();
+  SUPER::InitializeAfterLoading(bFirstTimeCreation);
 
   if (m_bIsRenderTarget)
   {

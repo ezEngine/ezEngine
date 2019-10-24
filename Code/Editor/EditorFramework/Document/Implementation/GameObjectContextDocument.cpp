@@ -105,11 +105,11 @@ const ezDocumentObject* ezGameObjectContextDocument::GetContextObject() const
   return nullptr;
 }
 
-void ezGameObjectContextDocument::InitializeAfterLoading()
+void ezGameObjectContextDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 {
   ezGameObjectContextPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezGameObjectContextPreferencesUser>(this);
   SetContext(pPreferences->GetContextDocument(), pPreferences->GetContextObject()).LogFailure();
-  SUPER::InitializeAfterLoading();
+  SUPER::InitializeAfterLoading(bFirstTimeCreation);
 }
 
 void ezGameObjectContextDocument::ClearContext()

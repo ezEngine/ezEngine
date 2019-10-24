@@ -154,7 +154,7 @@ public:
 protected:
   void SetGameMode(GameMode::Enum mode);
 
-  virtual void InitializeAfterLoading() override;
+  virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;
   virtual void UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, const char* szBasePrefab) override;
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
 

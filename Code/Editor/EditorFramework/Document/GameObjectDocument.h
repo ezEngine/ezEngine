@@ -218,7 +218,7 @@ protected:
   /// \brief Sends the current state of the scene to the engine process. This is typically done after scene load or when the world might have deviated on the engine side (after play the game etc.)
   void SendGameWorldToEngine();
 
-  virtual void InitializeAfterLoading() override;
+  virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;
   virtual void AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const override;
   virtual void RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable) override;
 

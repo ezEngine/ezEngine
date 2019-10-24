@@ -32,7 +32,7 @@ void ezTypeScriptAssetDocument::EditScript()
 {
   ezStringBuilder sTsPath(":project/", GetProperties()->m_sScriptFile);
 
-  if (sTsPath.IsEmpty())
+  if (GetProperties()->m_sScriptFile.IsEmpty())
     return;
 
   if (!ezFileSystem::ExistsFile(sTsPath))
@@ -130,36 +130,46 @@ ezStatus ezTypeScriptAssetDocument::InternalTransformAsset(ezStreamWriter& strea
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezTypeScriptAssetDocument::InitializeAfterLoading()
+void ezTypeScriptAssetDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 {
-  SUPER::InitializeAfterLoading();
+  SUPER::InitializeAfterLoading(bFirstTimeCreation);
 
-  auto history = GetCommandHistory();
-  history->StartTransaction("Initial Setup");
-
-  if (GetProperties()->m_sComponentName.IsEmpty())
+  if (bFirstTimeCreation)
   {
-    const ezString sCompName = ezPathUtils::GetFileName(GetDocumentPath());
+    auto history = GetCommandHistory();
+    history->StartTransaction("Initial Setup");
 
-    ezSetObjectPropertyCommand propCmd;
-    propCmd.m_Object = GetPropertyObject()->GetGuid();
-    propCmd.m_sProperty = "ComponentName";
-    propCmd.m_NewValue = sCompName;
-    EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
+    if (GetProperties()->m_sComponentName.IsEmpty())
+    {
+      const ezString sCompName = ezPathUtils::GetFileName(GetDocumentPath());
+
+      ezSetObjectPropertyCommand propCmd;
+      propCmd.m_Object = GetPropertyObject()->GetGuid();
+      propCmd.m_sProperty = "ComponentName";
+      propCmd.m_NewValue = sCompName;
+      EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
+    }
+
+    if (GetProperties()->m_sScriptFile.IsEmpty())
+    {
+      ezStringBuilder sDefaultFile = GetDocumentPath();
+      sDefaultFile.ChangeFileExtension("ts");
+      ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sDefaultFile);
+
+      ezSetObjectPropertyCommand propCmd;
+      propCmd.m_Object = GetPropertyObject()->GetGuid();
+      propCmd.m_sProperty = "ScriptFile";
+      propCmd.m_NewValue = ezString(sDefaultFile);
+      EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
+    }
+
+    history->FinishTransaction();
+
+    ezStringBuilder sTsPath(":project/", GetProperties()->m_sScriptFile);
+
+    if (!ezFileSystem::ExistsFile(sTsPath))
+    {
+      CreateComponentFile(sTsPath);
+    }
   }
-
-  if (GetProperties()->m_sScriptFile.IsEmpty())
-  {
-    ezStringBuilder sDefaultFile = GetDocumentPath();
-    sDefaultFile.ChangeFileExtension("ts");
-    ezQtEditorApp::GetSingleton()->MakePathDataDirectoryRelative(sDefaultFile);
-
-    ezSetObjectPropertyCommand propCmd;
-    propCmd.m_Object = GetPropertyObject()->GetGuid();
-    propCmd.m_sProperty = "ScriptFile";
-    propCmd.m_NewValue = ezString(sDefaultFile);
-    EZ_VERIFY(history->AddCommand(propCmd).m_Result.Succeeded(), "AddCommand failed");
-  }
-
-  history->FinishTransaction();
 }

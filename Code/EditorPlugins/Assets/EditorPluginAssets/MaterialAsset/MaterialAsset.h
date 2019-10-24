@@ -127,7 +127,7 @@ protected:
   static ezUuid GetMaterialNodeGuid(const ezAbstractObjectGraph& graph);
   virtual void UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed,
                                   const char* szBasePrefab) override;
-  virtual void InitializeAfterLoading() override;
+  virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;
 
   virtual ezStatus InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
                                           const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
