@@ -42,9 +42,9 @@ ezCollisionMeshAssetDocument::ezCollisionMeshAssetDocument(const char* szDocumen
   m_bIsConvexMesh = bConvexMesh;
 }
 
-void ezCollisionMeshAssetDocument::InitializeAfterLoading()
+void ezCollisionMeshAssetDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 {
-  SUPER::InitializeAfterLoading();
+  SUPER::InitializeAfterLoading(bFirstTimeCreation);
 
   // this logic is for backwards compatibility, to sync the convex state with existing data
   if (m_bIsConvexMesh)

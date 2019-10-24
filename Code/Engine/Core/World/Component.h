@@ -182,10 +182,14 @@ protected:
   /// \brief By default disabled. Enable to have OnUnhandledMessage() called for every unhandled message.
   void EnableUnhandledMessageHandler(bool enable);
 
-  /// \brief When EnableUnhandledMessageHandler() was activated, called for messages all unhandled messages.
+  /// \brief When EnableUnhandledMessageHandler() was activated, this is called for all messages for which there is no dedicated message handler.
+  ///
+  /// \return Should return true if the given message was handled, false otherwise.
   virtual bool OnUnhandledMessage(ezMessage& msg);
 
-  /// \brief When EnableUnhandledMessageHandler() was activated, called for messages all unhandled messages.
+  /// \brief When EnableUnhandledMessageHandler() was activated, this is called for all messages for which there is no dedicated message handler.
+  ///
+  /// \return Should return true if the given message was handled, false otherwise.
   virtual bool OnUnhandledMessage(ezMessage& msg) const;
 
 protected:

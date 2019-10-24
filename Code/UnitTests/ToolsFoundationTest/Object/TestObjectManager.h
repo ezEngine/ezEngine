@@ -24,7 +24,7 @@ public:
   ezTestDocument(const char* szDocumentPath, bool bUseIPCObjectMirror = false);
   ~ezTestDocument();
 
-  virtual void InitializeAfterLoading() override;
+  virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;
   void ApplyNativePropertyChangesToObjectManager(ezDocumentObject* pObject);
   virtual const char* GetDocumentTypeDisplayString() const override;
   virtual ezDocumentInfo* CreateDocumentInfo() override;

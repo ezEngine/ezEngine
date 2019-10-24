@@ -2,19 +2,25 @@
 #pragma once
 
 #include <Foundation/Basics.h>
+#include <Foundation/Containers/ArrayBase.h>
+#include <Foundation/Containers/HashTable.h>
+#include <Foundation/Containers/Map.h>
+#include <Foundation/Containers/Set.h>
 #include <Foundation/Math/Math.h>
 #include <Foundation/Memory/EndianHelper.h>
-#include <Foundation/Containers/ArrayBase.h>
-#include <Foundation/Containers/Set.h>
-#include <Foundation/Containers/Map.h>
-#include <Foundation/Containers/HashTable.h>
 
 typedef ezUInt16 ezTypeVersion;
+
+template <ezUInt16 Size, typename AllocatorWrapper>
+struct ezHybridString;
+
+using ezString = ezHybridString<32, ezDefaultAllocatorWrapper>;
 
 /// \brief Interface for binary in (read) streams.
 class EZ_FOUNDATION_DLL ezStreamReader
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezStreamReader);
+
 public:
   /// \brief Constructor
   ezStreamReader();
@@ -42,7 +48,7 @@ public:
   template <typename ArrayType, typename ValueType>
   ezResult ReadArray(ezArrayBase<ValueType, ArrayType>& Array); // [tested]
 
-    /// \brief Writes a C style fixed array
+  /// \brief Writes a C style fixed array
   template <typename ValueType, ezUInt32 uiSize>
   ezResult ReadArray(ValueType (&Array)[uiSize]);
 
@@ -58,8 +64,12 @@ public:
   template <typename KeyType, typename ValueType, typename Hasher>
   ezResult ReadHashTable(ezHashTableBase<KeyType, ValueType, Hasher>& HashTable); // [tested]
 
-  /// \brief Reads a string into a ezStringBuilder
+  /// \brief Reads a string into an ezStringBuilder
   ezResult ReadString(ezStringBuilder& builder); // [tested]
+
+  /// \brief Reads a string into an ezString
+  ezResult ReadString(ezString& string);
+
 
   /// \brief Helper method to skip a number of bytes (implementations of the stream reader may implement this more efficiently for example)
   virtual ezUInt64 SkipBytes(ezUInt64 uiBytesToSkip)
@@ -91,6 +101,7 @@ public:
 class EZ_FOUNDATION_DLL ezStreamWriter
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezStreamWriter);
+
 public:
   /// \brief Constructor
   ezStreamWriter();
@@ -123,7 +134,7 @@ public:
 
   /// \brief Writes a type version to the stream
   EZ_ALWAYS_INLINE void WriteVersion(ezTypeVersion uiVersion);
-  
+
   /// \brief Writes an array of elements to the stream
   template <typename ArrayType, typename ValueType>
   ezResult WriteArray(const ezArrayBase<ValueType, ArrayType>& Array); // [tested]
@@ -157,4 +168,3 @@ public:
 #include <Foundation/IO/Implementation/StreamOperationsMath_inl.h>
 
 #include <Foundation/IO/Implementation/StreamOperationsOther_inl.h>
-

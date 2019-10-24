@@ -368,9 +368,9 @@ ezMaterialAssetDocument::~ezMaterialAssetDocument()
   ezQtEditorApp::GetSingleton()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezMaterialAssetDocument::EditorEventHandler, this));
 }
 
-void ezMaterialAssetDocument::InitializeAfterLoading()
+void ezMaterialAssetDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 {
-  SUPER::InitializeAfterLoading();
+  SUPER::InitializeAfterLoading(bFirstTimeCreation);
 
   {
     ezCommandHistory* pHistory = GetCommandHistory();

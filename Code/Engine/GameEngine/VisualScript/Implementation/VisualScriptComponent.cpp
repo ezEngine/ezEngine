@@ -227,16 +227,12 @@ void ezVisualScriptComponent::Update()
 
 bool ezVisualScriptComponent::OnUnhandledMessage(ezMessage& msg)
 {
-  m_Script->HandleMessage(msg);
-
-  return false;
+  return m_Script->HandleMessage(msg);
 }
 
 bool ezVisualScriptComponent::OnUnhandledMessage(ezMessage& msg) const
 {
-  m_Script->HandleMessage(msg);
-
-  return false;
+  return m_Script->HandleMessage(msg);
 }
 
 const ezRangeView<const char*, ezUInt32> ezVisualScriptComponent::GetParameters() const

@@ -2,6 +2,7 @@
 
 #include <TypeScriptPlugin/TypeScriptPluginDLL.h>
 
+#include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/Scripting/DuktapeContext.h>
 #include <Core/World/Declarations.h>
 #include <Core/World/World.h>
@@ -9,14 +10,32 @@
 #include <TypeScriptPlugin/Transpiler/Transpiler.h>
 
 class ezWorld;
+class ezTypeScriptComponent;
+
+using ezJavaScriptResourceHandle = ezTypedResourceHandle<class ezJavaScriptResource>;
 
 enum ezTypeScriptBindingIndexProperty
 {
   ComponentHandle,
+  GameObjectHandle
 };
 
-class ezTypeScriptBinding
+class EZ_TYPESCRIPTPLUGIN_DLL ezTypeScriptBinding
 {
+public:
+  struct TsMessageHandler
+  {
+    const ezRTTI* m_pMessageType = nullptr;
+    ezString m_sHandlerFunc;
+  };
+
+  struct TsComponentInfo
+  {
+    ezHybridArray<TsMessageHandler, 4> m_MessageHandlers;
+  };
+
+  using TsComponentTypeInfo = ezMap<ezString, TsComponentInfo>::ConstIterator;
+
   /// \name Basics
   ///@{
 
@@ -25,10 +44,14 @@ public:
   ~ezTypeScriptBinding();
 
   ezResult Initialize(ezTypeScriptTranspiler& transpiler, ezWorld& world);
-  ezResult LoadComponent(const char* szComponent);
+  ezResult LoadComponent(const char* szComponent, TsComponentTypeInfo& out_TypeInfo);
+  ezResult LoadComponent(const ezJavaScriptResourceHandle& hResource, TsComponentTypeInfo& out_TypeInfo);
+  const TsComponentInfo* GetComponentTypeInfo(const char* szComponentType) const;
 
-  ezDuktapeContext& GetDukTapeWrapper() { return m_Duk; }
-  duk_context* GetDukContext() { return m_Duk.GetContext(); }
+  void RegisterMessageHandlersForComponentType(const char* szComponent);
+
+  EZ_ALWAYS_INLINE ezDuktapeContext& GetDukTapeContext() { return m_Duk; }
+  EZ_ALWAYS_INLINE duk_context* GetDukContext() { return m_Duk.GetContext(); }
 
 private:
   static void GetTsName(const ezRTTI* pRtti, ezStringBuilder& out_sName);
@@ -69,6 +92,7 @@ private:
   static ezUInt32 ComputeFunctionBindingHash(const ezRTTI* pType, ezAbstractFunctionProperty* pFunc);
   static void SetupRttiFunctionBindings();
   static const char* TsType(const ezRTTI* pRtti);
+  static int __CPP_Binding_RegisterMessageHandler(duk_context* pDuk);
 
   static ezHashTable<ezUInt32, FunctionBinding> s_BoundFunctions;
 
@@ -95,12 +119,20 @@ private:
   /// \name Message Binding
   ///@{
 
-private:
+public:
+  static ezUniquePtr<ezMessage> MessageFromParameter(duk_context* pDuk, ezInt32 iObjIdx);
+  static void DukPutMessage(duk_context* pDuk, const ezMessage& msg);
 
+  bool DeliverMessage(const TsComponentTypeInfo& typeInfo, ezTypeScriptComponent* pComponent, ezMessage& msg);
+
+private:
   static void GenerateMessagesFile(const char* szFile);
   static void GenerateAllMessagesCode(ezStringBuilder& out_Code);
   static void GenerateMessageCode(ezStringBuilder& out_Code, const ezRTTI* pRtti);
   static void GenerateMessagePropertiesCode(ezStringBuilder& out_Code, const ezRTTI* pRtti);
+
+  ezString m_sCurrentTsMsgHandlerRegistrator;
+  ezMap<ezString, TsComponentInfo> m_TsComponentTypes;
 
 
   ///@}
@@ -120,6 +152,7 @@ private:
   ezResult Init_Log();
   ezResult Init_GameObject();
   ezResult Init_Component();
+  ezResult Init_World();
   ezResult Init_FunctionBinding();
   ezResult Init_PropertyBinding();
 
@@ -129,6 +162,7 @@ private:
   ///@{
 public:
   static ezWorld* RetrieveWorld(duk_context* pDuk);
+  static ezTypeScriptBinding* RetrieveBinding(duk_context* pDuk);
 
 private:
   void StoreWorld(ezWorld* pWorld);
@@ -141,16 +175,15 @@ private:
 public:
   static ezGameObjectHandle RetrieveGameObjectHandle(duk_context* pDuk, ezInt32 iObjIdx = 0 /* use 0, if the game object is passed in as the 'this' object (first parameter) */);
   static ezGameObject* ExpectGameObject(duk_context* pDuk, ezInt32 iObjIdx = 0 /* use 0, if the game object is passed in as the 'this' object (first parameter) */);
-  static void DukPutGameObject(duk_context* pDuk, const ezGameObjectHandle& hObject);
-  static void DukPutGameObject(duk_context* pDuk, const ezGameObject* pObject);
+  bool DukPutGameObject(const ezGameObjectHandle& hObject);
+  void DukPutGameObject(const ezGameObject* pObject);
 
   ///@}
   /// \name Components
   ///@{
 public:
-  static ezResult CreateTsComponent(duk_context* pDuk, const char* szTypeName, const ezComponentHandle& hCppComponent, const char* szDebugString = "");
-  static void DukPutComponentObject(duk_context* pDuk, const ezComponentHandle& hComponent);
-  static void DukPutComponentObject(duk_context* pDuk, ezComponent* pComponent);
+  void DukPutComponentObject(const ezComponentHandle& hComponent);
+  void DukPutComponentObject(ezComponent* pComponent);
   void DeleteTsComponent(const ezComponentHandle& hCppComponent);
   static ezComponentHandle RetrieveComponentHandle(duk_context* pDuk, ezInt32 iObjIdx = 0 /* use 0, if the component is passed in as the 'this' object (first parameter) */);
 
@@ -170,6 +203,24 @@ public:
   static void PushVec3(duk_context* pDuk, const ezVec3& value);
   static void PushQuat(duk_context* pDuk, const ezQuat& value);
   static void PushColor(duk_context* pDuk, const ezColor& value);
+
+  ///@}
+  /// \name C++ Object Registration
+  ///@{
+public:
+  bool RegisterGameObject(ezGameObjectHandle handle, ezUInt32& out_uiStashIdx);
+  ezResult RegisterComponent(const char* szTypeNamem, ezComponentHandle handle, ezUInt32& out_uiStashIdx);
+
+
+private:
+  void StoreReferenceInStash(ezUInt32 uiStashIdx);
+  bool DukPushStashObject(ezUInt32 uiStashIdx);
+
+  // TODO: clean up stash every once in a while
+
+  ezUInt32 m_uiNextStashObjIdx = 1024;
+  ezMap<ezGameObjectHandle, ezUInt32> m_GameObjectToStashIdx;
+  ezMap<ezComponentHandle, ezUInt32> m_ComponentToStashIdx;
 
   ///@}
 };

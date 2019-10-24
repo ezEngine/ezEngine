@@ -209,7 +209,7 @@ protected:
   virtual void AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const;
   virtual void RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable);
 
-  virtual void InitializeAfterLoading() {}
+  virtual void InitializeAfterLoading(bool bFirstTimeCreation) {}
   virtual void InitializeAfterLoadingAndSaving() {}
 
   void SetUnknownObjectTypes(const ezSet<ezString>& Types, ezUInt32 uiInstances);

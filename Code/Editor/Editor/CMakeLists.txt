@@ -40,4 +40,8 @@ if(EXTERNAL_PROJECTS)
 	add_dependencies(${PROJECT_NAME} ${EXTERNAL_PROJECTS})
 endif()
 
+set(EDITOR_DATA_FOLDER "${CMAKE_CURRENT_SOURCE_DIR}/../../../Data/Tools/ezEditor")
+file(GLOB_RECURSE EDITOR_DATA "${CMAKE_CURRENT_SOURCE_DIR}/../../../Data/Tools/ezEditor/*")
 
+source_group(TREE ${EDITOR_DATA_FOLDER} PREFIX "Editor Data" FILES ${EDITOR_DATA})
+target_sources(${PROJECT_NAME} PRIVATE "${EDITOR_DATA}")

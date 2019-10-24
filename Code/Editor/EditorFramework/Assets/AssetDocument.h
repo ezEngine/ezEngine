@@ -234,8 +234,9 @@ protected:
 protected:
   ezIPCObjectMirrorEditor m_Mirror;
 
-private:
   virtual ezDocumentInfo* CreateDocumentInfo() override;
+
+private:
 
   ezStatus DoTransformAsset(const ezPlatformProfile* pAssetProfile, ezBitflags<ezTransformFlags> transformFlags);
 

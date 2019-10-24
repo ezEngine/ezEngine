@@ -262,7 +262,7 @@ void RecursiveModifyObject(const ezDocumentObject* pObject, ezObjectAccessorBase
 EZ_CREATE_SIMPLE_TEST(DocumentObject, ObjectMirror)
 {
   ezTestDocument doc("Test", true);
-  doc.InitializeAfterLoading();
+  doc.InitializeAfterLoading(false);
   ezObjectAccessorBase* pAccessor = doc.GetObjectAccessor();
   ezUuid mirrorGuid;
 

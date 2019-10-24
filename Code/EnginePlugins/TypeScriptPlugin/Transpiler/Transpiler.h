@@ -1,10 +1,12 @@
 #pragma once
 
+#include <TypeScriptPlugin/TypeScriptPluginDLL.h>
+
 #include <Core/Scripting/DuktapeContext.h>
 #include <Foundation/Basics.h>
 #include <Foundation/Threading/TaskSystem.h>
 
-class ezTypeScriptTranspiler
+class EZ_TYPESCRIPTPLUGIN_DLL ezTypeScriptTranspiler
 {
 public:
   ezTypeScriptTranspiler();

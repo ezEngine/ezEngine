@@ -8,7 +8,6 @@
 #include <Foundation/Containers/HashTable.h>
 
 typedef ezHashTable<const char*, ezRTTI*, ezHashHelper<const char*>, ezStaticAllocatorWrapper> ezTypeHashTable;
-ezEvent<const ezRTTI*> ezRTTI::s_TypeUpdatedEvent;
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezRTTI);
 

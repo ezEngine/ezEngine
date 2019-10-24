@@ -6,6 +6,7 @@ import __Quat = require("./ez/Quat")
 import __Color = require("./ez/Color")
 import __Time = require("./ez/Time")
 import __Angle = require("./ez/Angle")
+import __World = require("./ez/World")
 
 export import Log = __Log.Log;
 export import GameObject = __GameObject.GameObject;
@@ -16,4 +17,6 @@ export import Quat = __Quat.Quat;
 export import Color = __Color.Color;
 export import Time  = __Time.Time;
 export import Angle  = __Angle.Angle;
+export import World  = __World.World;
+export import GameObjectDesc  = __World.GameObjectDesc;
 

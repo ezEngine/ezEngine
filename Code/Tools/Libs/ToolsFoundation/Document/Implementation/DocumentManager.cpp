@@ -243,7 +243,7 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
 
         {
           EZ_PROFILE_SCOPE("InitializeAfterLoading");
-          out_pDocument->InitializeAfterLoading();
+          out_pDocument->InitializeAfterLoading(bCreate);
         }
 
         if (bCreate)

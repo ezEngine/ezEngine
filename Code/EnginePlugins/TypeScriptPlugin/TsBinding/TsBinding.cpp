@@ -1,16 +1,31 @@
 #include <TypeScriptPluginPCH.h>
 
+#include <Core/ResourceManager/ResourceManager.h>
 #include <Core/World/World.h>
 #include <Duktape/duktape.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Resources/JavaScriptResource.h>
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
+
+static ezHashTable<duk_context*, ezTypeScriptBinding*> s_DukToBinding;
 
 ezTypeScriptBinding::ezTypeScriptBinding()
   : m_Duk("Typescript Binding")
 {
+  s_DukToBinding[m_Duk] = this;
 }
 
-ezTypeScriptBinding::~ezTypeScriptBinding() = default;
+ezTypeScriptBinding::~ezTypeScriptBinding()
+{
+  s_DukToBinding.Remove(m_Duk);
+}
+
+ezTypeScriptBinding* ezTypeScriptBinding::RetrieveBinding(duk_context* pDuk)
+{
+  ezTypeScriptBinding* pBinding = nullptr;
+  s_DukToBinding.TryGetValue(pDuk, pBinding);
+  return pBinding;
+}
 
 ezResult ezTypeScriptBinding::Initialize(ezTypeScriptTranspiler& transpiler, ezWorld& world)
 {
@@ -21,6 +36,8 @@ ezResult ezTypeScriptBinding::Initialize(ezTypeScriptTranspiler& transpiler, ezW
 
   m_Duk.EnableModuleSupport(&ezTypeScriptBinding::DukSearchModule);
   m_Duk.StorePointerInStash("Transpiler", m_pTranspiler);
+
+  m_Duk.RegisterGlobalFunction("__CPP_Binding_RegisterMessageHandler", &ezTypeScriptBinding::__CPP_Binding_RegisterMessageHandler, 2);
 
   StoreWorld(&world);
 
@@ -35,12 +52,13 @@ ezResult ezTypeScriptBinding::Initialize(ezTypeScriptTranspiler& transpiler, ezW
   EZ_SUCCEED_OR_RETURN(Init_FunctionBinding());
   EZ_SUCCEED_OR_RETURN(Init_PropertyBinding());
   EZ_SUCCEED_OR_RETURN(Init_Component());
+  EZ_SUCCEED_OR_RETURN(Init_World());
 
   m_bInitialized = true;
   return EZ_SUCCESS;
 }
 
-ezResult ezTypeScriptBinding::LoadComponent(const char* szComponent)
+ezResult ezTypeScriptBinding::LoadComponent(const char* szComponent, TsComponentTypeInfo& out_TypeInfo)
 {
   if (!m_bInitialized)
   {
@@ -49,6 +67,7 @@ ezResult ezTypeScriptBinding::LoadComponent(const char* szComponent)
 
   if (m_LoadedComponents.Contains(szComponent))
   {
+    out_TypeInfo = m_TsComponentTypes.Find(szComponent);
     return m_LoadedComponents[szComponent] ? EZ_SUCCESS : EZ_FAILURE;
   }
 
@@ -56,26 +75,88 @@ ezResult ezTypeScriptBinding::LoadComponent(const char* szComponent)
 
   m_LoadedComponents[szComponent] = false;
 
-  ezStringBuilder transpiledCode;
-  EZ_SUCCEED_OR_RETURN(m_pTranspiler->TranspileFileAndStoreJS(szComponent, transpiledCode));
+  const ezStringBuilder sComponentFile("TypeScript/", szComponent, ".ts");
 
-  EZ_SUCCEED_OR_RETURN(m_Duk.ExecuteString(transpiledCode, szComponent));
+  ezStringBuilder transpiledCode;
+  EZ_SUCCEED_OR_RETURN(m_pTranspiler->TranspileFileAndStoreJS(sComponentFile, transpiledCode));
+
+  EZ_SUCCEED_OR_RETURN(m_Duk.ExecuteString(transpiledCode, sComponentFile));
+  RegisterMessageHandlersForComponentType(szComponent);
 
   m_LoadedComponents[szComponent] = true;
+
+  m_TsComponentTypes[szComponent]; // important
+  out_TypeInfo = m_TsComponentTypes.Find(szComponent);
+
   return EZ_SUCCESS;
+}
+
+ezResult ezTypeScriptBinding::LoadComponent(const ezJavaScriptResourceHandle& hResource, TsComponentTypeInfo& out_TypeInfo)
+{
+  if (!m_bInitialized || !hResource.IsValid())
+  {
+    return EZ_FAILURE;
+  }
+
+  ezResourceLock<ezJavaScriptResource> pJsResource(hResource, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+
+  if (pJsResource.GetAcquireResult() != ezResourceAcquireResult::Final)
+  {
+    return EZ_FAILURE;
+  }
+
+  const ezString& sComponent = pJsResource->GetDescriptor().m_sComponentName;
+
+  auto itLoaded = m_LoadedComponents.Find(sComponent);
+
+  if (itLoaded.IsValid())
+  {
+    out_TypeInfo = m_TsComponentTypes.Find(sComponent);
+    return itLoaded.Value() ? EZ_SUCCESS : EZ_FAILURE;
+  }
+
+  EZ_PROFILE_SCOPE("Load JavaScript Component");
+
+  bool& bLoaded = m_LoadedComponents[sComponent];
+  bLoaded = false;
+
+  const char* szSource = reinterpret_cast<const char*>(pJsResource->GetDescriptor().m_JsSource.GetData());
+
+  EZ_SUCCEED_OR_RETURN(m_Duk.ExecuteString(szSource, sComponent));
+  RegisterMessageHandlersForComponentType(sComponent);
+
+  bLoaded = true;
+
+  out_TypeInfo = m_TsComponentTypes.FindOrAdd(sComponent, nullptr);
+
+  return EZ_SUCCESS;
+}
+
+const ezTypeScriptBinding::TsComponentInfo* ezTypeScriptBinding::GetComponentTypeInfo(const char* szComponentType) const
+{
+  auto it = m_TsComponentTypes.Find(szComponentType);
+  if (!it.IsValid())
+    return nullptr;
+
+  return &it.Value();
 }
 
 ezVec3 ezTypeScriptBinding::GetVec3(duk_context* pDuk, ezInt32 iObjIdx)
 {
+  if (duk_is_null_or_undefined(pDuk, iObjIdx))
+    return ezVec3::ZeroVector();
+
   ezVec3 res;
 
   EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "x"), "");
   res.x = duk_get_number_default(pDuk, -1, 0.0f);
+  duk_pop(pDuk);
   EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "y"), "");
   res.y = duk_get_number_default(pDuk, -1, 0.0f);
+  duk_pop(pDuk);
   EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "z"), "");
   res.z = duk_get_number_default(pDuk, -1, 0.0f);
-  duk_pop_3(pDuk);
+  duk_pop(pDuk);
 
   return res;
 }
@@ -97,23 +178,24 @@ ezVec3 ezTypeScriptBinding::GetVec3Property(duk_context* pDuk, const char* szPro
 
 ezQuat ezTypeScriptBinding::GetQuat(duk_context* pDuk, ezInt32 iObjIdx)
 {
+  if (duk_is_null_or_undefined(pDuk, iObjIdx))
+    return ezQuat::IdentityQuaternion();
+
   ezQuat res;
 
   EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "w"), "");
   res.w = duk_get_number_default(pDuk, -1, 0.0f);
+  duk_pop(pDuk);
 
   EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "v"), "");
 
   EZ_VERIFY(duk_get_prop_string(pDuk, -1, "x"), "");
   res.v.x = duk_get_number_default(pDuk, -1, 0.0f);
-
   EZ_VERIFY(duk_get_prop_string(pDuk, -2, "y"), "");
   res.v.y = duk_get_number_default(pDuk, -1, 0.0f);
-
   EZ_VERIFY(duk_get_prop_string(pDuk, -3, "z"), "");
   res.v.z = duk_get_number_default(pDuk, -1, 0.0f);
-
-  duk_pop_n(pDuk, 5);
+  duk_pop_n(pDuk, 4);
 
   return res;
 }
@@ -206,4 +288,34 @@ void ezTypeScriptBinding::PushColor(duk_context* pDuk, const ezColor& value)
   duk_new(duk, 4);                                           // [ global __Color result ]
   duk_remove(duk, -2);                                       // [ global result ]
   duk_remove(duk, -2);                                       // [ result ]
+}
+
+void ezTypeScriptBinding::StoreReferenceInStash(ezUInt32 uiStashIdx)
+{
+  ezDuktapeHelper duk(m_Duk, 0); // [ object ]
+  duk.PushGlobalStash();         // [ object stash ]
+  duk.PushUInt(uiStashIdx);      // [ object stash uint ]
+  duk_dup(duk, -3);              // [ object stash uint object ]
+  duk_put_prop(duk, -3);         // [ object stash ]
+  duk.PopStack();                // [ object ]
+}
+
+bool ezTypeScriptBinding::DukPushStashObject(ezUInt32 uiStashIdx)
+{
+  ezDuktapeHelper duk(m_Duk, +1);
+
+  duk.PushGlobalStash();          // [ stash ]
+  duk_push_uint(duk, uiStashIdx); // [ stash idx ]
+
+  if (!duk_get_prop(duk, -2)) // [ stash obj/undef ]
+  {
+    duk_pop_2(duk);     // [ ]
+    duk_push_null(duk); // [ null ]
+    return false;
+  }
+  else // [ stash obj ]
+  {
+    duk_replace(duk, -2); // [ obj ]
+    return true;
+  }
 }

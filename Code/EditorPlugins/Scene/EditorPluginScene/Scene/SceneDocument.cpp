@@ -55,7 +55,7 @@ ezSceneDocument::ezSceneDocument(const char* szDocumentPath, bool bIsPrefab)
 }
 
 
-void ezSceneDocument::InitializeAfterLoading()
+void ezSceneDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 {
   // (Local mirror only mirrors settings)
   m_ObjectMirror.SetFilterFunction([this](const ezDocumentObject* pObject, const char* szProperty) -> bool {
@@ -66,7 +66,7 @@ void ezSceneDocument::InitializeAfterLoading()
     return GetObjectManager()->IsUnderRootProperty("Children", pObject, szProperty);
   });
 
-  SUPER::InitializeAfterLoading();
+  SUPER::InitializeAfterLoading(bFirstTimeCreation);
   EnsureSettingsObjectExist();
 
   m_DocumentObjectMetaData.m_DataModifiedEvent.AddEventHandler(ezMakeDelegate(&ezSceneDocument::DocumentObjectMetaDataEventHandler, this));

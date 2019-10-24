@@ -2,10 +2,9 @@
 
 #include <Foundation/IO/Stream.h>
 #include <Foundation/IO/StringDeduplicationContext.h>
-
+#include <Foundation/Strings/String.h>
 
 ezStreamReader::ezStreamReader() = default;
-
 ezStreamReader::~ezStreamReader() = default;
 
 ezResult ezStreamReader::ReadString(ezStringBuilder& builder)
@@ -40,6 +39,15 @@ ezResult ezStreamReader::ReadString(ezStringBuilder& builder)
   return EZ_SUCCESS;
 }
 
+ezResult ezStreamReader::ReadString(ezString& string)
+{
+  ezStringBuilder tmp;
+  const ezResult res = ReadString(tmp);
+  string = tmp;
+
+  return res;
+}
+
 ezStreamWriter::ezStreamWriter() = default;
 
 ezStreamWriter::~ezStreamWriter() = default;
@@ -53,7 +61,7 @@ ezResult ezStreamWriter::WriteString(const ezStringView szStringView)
   if (!context)
   {
     EZ_SUCCEED_OR_RETURN(WriteDWordValue(&uiCount));
-    if(uiCount > 0)
+    if (uiCount > 0)
     {
       EZ_SUCCEED_OR_RETURN(WriteBytes(szStringView.GetStartPointer(), uiCount));
     }
@@ -68,4 +76,3 @@ ezResult ezStreamWriter::WriteString(const ezStringView szStringView)
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_Stream);
-
