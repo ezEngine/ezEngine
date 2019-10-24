@@ -53,9 +53,16 @@ ezResult ezTypeScriptBinding::RegisterComponent(const char* szTypeName, ezCompon
     EZ_SUCCEED_OR_RETURN(duk.PushLocalObject("__AllComponents")); // [ global __AllComponents ]
     bCloseAllComps = true;
   }
+  else
+  {
+    EZ_SUCCEED_OR_RETURN(duk.PushLocalObject(sTypeName)); // [ global sTypeName ]
+    bCloseAllComps = true;
+  }
 
-  duk_get_prop_string(duk, -1, sTypeName); // [ global __AllComponents sTypeName ]
-  duk_new(duk, 0);                         // [ global __AllComponents object ]
+  if (!duk_get_prop_string(duk, -1, sTypeName)) // [ global __AllComponents sTypeName ]
+    return EZ_FAILURE;
+
+  duk_new(duk, 0); // [ global __AllComponents object ]
 
   // store C++ side component handle in obj as property
   {

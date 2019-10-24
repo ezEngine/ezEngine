@@ -41,7 +41,7 @@ ezResult ezTypeScriptBinding::Initialize(ezTypeScriptTranspiler& transpiler, ezW
 
   StoreWorld(&world);
 
-  SetModuleSearchPath("TypeScript");
+  //SetModuleSearchPath("TypeScript");
 
   SetupRttiFunctionBindings();
   SetupRttiPropertyBindings();
@@ -122,7 +122,18 @@ ezResult ezTypeScriptBinding::LoadComponent(const ezJavaScriptResourceHandle& hR
 
   const char* szSource = reinterpret_cast<const char*>(pJsResource->GetDescriptor().m_JsSource.GetData());
 
-  EZ_SUCCEED_OR_RETURN(m_Duk.ExecuteString(szSource, sComponent));
+  //ezStringBuilder sRelPath ("Scripts/Below/", sComponent);
+
+  ezStringBuilder req;
+  req.Format("var {} = require(\"./Scripts/below/MyTestComponent\");", sComponent);
+  if (m_Duk.ExecuteString(req).Failed())
+  {
+    ezLog::Error("Could not load component");
+    return EZ_FAILURE;
+  }
+
+  //EZ_SUCCEED_OR_RETURN(m_Duk.ExecuteString(szSource, sRelPath));
+
   RegisterMessageHandlersForComponentType(sComponent);
 
   bLoaded = true;
