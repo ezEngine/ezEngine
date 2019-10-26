@@ -73,6 +73,8 @@ ezResult ezTexConv::ParseCommandLine()
     ezLog::Info("  -downscale Number");
     ezLog::Info("    How often to half the input texture resolution.");
     ezLog::Info("");
+    ezLog::Info("  -smearMasked");
+    ezLog::Info("    Smear color from opaque areas into transparent areas.");
     ezLog::Info("  -flip_horz");
     ezLog::Info("    Whether to flip the output horizontally.");
     ezLog::Info("  -premulalpha");
@@ -395,6 +397,7 @@ ezResult ezTexConv::ParseMiscOptions()
   {
     EZ_SUCCEED_OR_RETURN(ParseBoolOption("-flip_horz", m_Processor.m_Descriptor.m_bFlipHorizontal));
     EZ_SUCCEED_OR_RETURN(ParseBoolOption("-premulalpha", m_Processor.m_Descriptor.m_bPremultiplyAlpha));
+    EZ_SUCCEED_OR_RETURN(ParseBoolOption("-smearMasked", m_Processor.m_Descriptor.m_bSmearMasked));
   }
 
   if (m_Processor.m_Descriptor.m_Usage == ezTexConvUsage::Hdr)

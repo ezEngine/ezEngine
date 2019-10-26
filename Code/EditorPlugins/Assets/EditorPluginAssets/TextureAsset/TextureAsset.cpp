@@ -210,6 +210,9 @@ ezStatus ezTextureAssetDocument::RunTexConv(
   if (pProp->m_bPremultipliedAlpha)
     arguments << "-premulalpha";
 
+  if (pProp->m_bSmearMasked)
+    arguments << "-smearMasked";
+
   if (pProp->m_bFlipHorizontal)
     arguments << "-flip_horz";
 

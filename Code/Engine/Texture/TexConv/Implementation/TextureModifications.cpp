@@ -121,96 +121,91 @@ ezResult ezTexConvProcessor::ConvertToNormalMap(ezImage& bumpMap) const
   EZ_ASSERT_DEV(bumpMap.GetImageFormat() == ezImageFormat::R32G32B32A32_FLOAT && bumpMap.GetRowPitch() % sizeof(ezColor) == 0, "");
 
   const ezColor* bumpPixels = bumpMap.GetPixelPointer<ezColor>(0, 0, 0, 0, 0, 0);
-  const auto getBumpPixel = [&](ezUInt32 x, ezUInt32 y) -> float
-  {
+  const auto getBumpPixel = [&](ezUInt32 x, ezUInt32 y) -> float {
     const ezColor* ptr = bumpPixels + y * bumpMap.GetWidth() + x;
     return ptr->r;
   };
 
   ezColor* newPixels = newImage.GetPixelPointer<ezColor>(0, 0, 0, 0, 0, 0);
-  auto getNewPixel = [&](ezUInt32 x, ezUInt32 y) -> ezColor&
-  {
+  auto getNewPixel = [&](ezUInt32 x, ezUInt32 y) -> ezColor& {
     ezColor* ptr = newPixels + y * newImage.GetWidth() + x;
     return *ptr;
   };
 
   switch (m_Descriptor.m_BumpMapFilter)
   {
-  case ezTexConvBumpMapFilter::Finite:
-    filterKernel = [&](ezUInt32 x, ezUInt32 y)
-    {
-      constexpr float linearKernel[3] = {-1, 0, 1};
+    case ezTexConvBumpMapFilter::Finite:
+      filterKernel = [&](ezUInt32 x, ezUInt32 y) {
+        constexpr float linearKernel[3] = {-1, 0, 1};
 
-      Accum accum;
-      for (int i = -1; i <= 1; ++i)
-      {
-        const ezInt32 rx = ezMath::Clamp(i + static_cast<ezInt32>(x), 0, static_cast<ezInt32>(newImage.GetWidth()) - 1);
-        const ezInt32 ry = ezMath::Clamp(i + static_cast<ezInt32>(y), 0, static_cast<ezInt32>(newImage.GetHeight()) - 1);
-
-        const float depthX = getBumpPixel(rx, y);
-        const float depthY = getBumpPixel(x, ry);
-
-        accum.x += depthX * linearKernel[i + 1];
-        accum.y += depthY * linearKernel[i + 1];
-      }
-
-      return accum;
-    };
-    break;
-  case ezTexConvBumpMapFilter::Sobel:
-    filterKernel = [&](ezUInt32 x, ezUInt32 y)
-    {
-      constexpr float kernel[3][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
-      constexpr float weight = 1.f / 4.f;
-
-      Accum accum;
-      for (ezInt32 i = -1; i <= 1; ++i)
-      {
-        for (ezInt32 j = -1; j <= 1; ++j)
+        Accum accum;
+        for (int i = -1; i <= 1; ++i)
         {
-          const ezInt32 rx = ezMath::Clamp(j + static_cast<ezInt32>(x), 0, static_cast<ezInt32>(newImage.GetWidth()) - 1);
-          const ezInt32 ry = ezMath::Clamp(i + static_cast<ezInt32>(y), 0, static_cast<ezInt32>(newImage.GetHeight()) - 1);
-      
-          const float depth = getBumpPixel(rx, ry);
-      
-          accum.x += depth * kernel[i + 1][j + 1];
-          accum.y += depth * kernel[j + 1][i + 1];
-        }
-      }
-
-      accum.x *= weight;
-      accum.y *= weight;
-
-      return accum;
-    };
-    break;
-  case ezTexConvBumpMapFilter::Scharr:
-    filterKernel = [&](ezUInt32 x, ezUInt32 y)
-    {
-      constexpr float kernel[3][3] = {{-3, 0, 3}, {-10, 0, 10}, {-3, 0, 3}};
-      constexpr float weight = 1.f / 16.f;
-
-      Accum accum;
-      for (ezInt32 i = -1; i <= 1; ++i)
-      {
-        for (ezInt32 j = -1; j <= 1; ++j)
-        {
-          const ezInt32 rx = ezMath::Clamp(j + static_cast<ezInt32>(x), 0, static_cast<ezInt32>(newImage.GetWidth()) - 1);
+          const ezInt32 rx = ezMath::Clamp(i + static_cast<ezInt32>(x), 0, static_cast<ezInt32>(newImage.GetWidth()) - 1);
           const ezInt32 ry = ezMath::Clamp(i + static_cast<ezInt32>(y), 0, static_cast<ezInt32>(newImage.GetHeight()) - 1);
 
-          const float depth = getBumpPixel(rx, ry);
+          const float depthX = getBumpPixel(rx, y);
+          const float depthY = getBumpPixel(x, ry);
 
-          accum.x += depth * kernel[i + 1][j + 1];
-          accum.y += depth * kernel[j + 1][i + 1];
+          accum.x += depthX * linearKernel[i + 1];
+          accum.y += depthY * linearKernel[i + 1];
         }
-      }
 
-      accum.x *= weight;
-      accum.y *= weight;
+        return accum;
+      };
+      break;
+    case ezTexConvBumpMapFilter::Sobel:
+      filterKernel = [&](ezUInt32 x, ezUInt32 y) {
+        constexpr float kernel[3][3] = {{-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1}};
+        constexpr float weight = 1.f / 4.f;
 
-      return accum;
-    };
-    break;
+        Accum accum;
+        for (ezInt32 i = -1; i <= 1; ++i)
+        {
+          for (ezInt32 j = -1; j <= 1; ++j)
+          {
+            const ezInt32 rx = ezMath::Clamp(j + static_cast<ezInt32>(x), 0, static_cast<ezInt32>(newImage.GetWidth()) - 1);
+            const ezInt32 ry = ezMath::Clamp(i + static_cast<ezInt32>(y), 0, static_cast<ezInt32>(newImage.GetHeight()) - 1);
+
+            const float depth = getBumpPixel(rx, ry);
+
+            accum.x += depth * kernel[i + 1][j + 1];
+            accum.y += depth * kernel[j + 1][i + 1];
+          }
+        }
+
+        accum.x *= weight;
+        accum.y *= weight;
+
+        return accum;
+      };
+      break;
+    case ezTexConvBumpMapFilter::Scharr:
+      filterKernel = [&](ezUInt32 x, ezUInt32 y) {
+        constexpr float kernel[3][3] = {{-3, 0, 3}, {-10, 0, 10}, {-3, 0, 3}};
+        constexpr float weight = 1.f / 16.f;
+
+        Accum accum;
+        for (ezInt32 i = -1; i <= 1; ++i)
+        {
+          for (ezInt32 j = -1; j <= 1; ++j)
+          {
+            const ezInt32 rx = ezMath::Clamp(j + static_cast<ezInt32>(x), 0, static_cast<ezInt32>(newImage.GetWidth()) - 1);
+            const ezInt32 ry = ezMath::Clamp(i + static_cast<ezInt32>(y), 0, static_cast<ezInt32>(newImage.GetHeight()) - 1);
+
+            const float depth = getBumpPixel(rx, ry);
+
+            accum.x += depth * kernel[i + 1][j + 1];
+            accum.y += depth * kernel[j + 1][i + 1];
+          }
+        }
+
+        accum.x *= weight;
+        accum.y *= weight;
+
+        return accum;
+      };
+      break;
   };
 
   for (ezUInt32 y = 0; y < bumpMap.GetHeight(); ++y)
@@ -218,7 +213,7 @@ ezResult ezTexConvProcessor::ConvertToNormalMap(ezImage& bumpMap) const
     for (ezUInt32 x = 0; x < bumpMap.GetWidth(); ++x)
     {
       Accum accum = filterKernel(x, y);
-      
+
       ezVec3 normal = ezVec3(1.f, 0.f, accum.x).CrossRH(ezVec3(0.f, 1.f, accum.y));
       normal.NormalizeIfNotZero(ezVec3(0, 0, 1), 0.001f);
       normal.y = -normal.y;
@@ -262,6 +257,136 @@ ezResult ezTexConvProcessor::ClampInputValues(ezImage& image, float maxValue) co
       value = ezMath::Clamp(value, -maxValue, maxValue);
     }
   }
+
+  return EZ_SUCCESS;
+}
+
+static bool FillAvgImageColor(ezImage& img)
+{
+  ezColor avg = ezColor::ZeroColor();
+  ezUInt32 uiValidCount = 0;
+
+  for (const ezColor& col : img.GetBlobPtr<ezColor>())
+  {
+    if (col.a > 0.0f)
+    {
+      avg += col;
+      ++uiValidCount;
+    }
+  }
+
+  if (uiValidCount == img.GetBlobPtr<ezColor>().GetCount())
+  {
+    // nothing to do
+    return false;
+  }
+
+  avg /= uiValidCount;
+  avg.NormalizeToLdrRange();
+  avg.a = 0.0f;
+
+  for (ezColor& col : img.GetBlobPtr<ezColor>())
+  {
+    if (col.a == 0.0f)
+    {
+      col = avg;
+    }
+  }
+
+  return true;
+}
+
+static void ClearAlpha(ezImage& img, float fAlphaThreshold)
+{
+  for (ezColor& col : img.GetBlobPtr<ezColor>())
+  {
+    if (col.a <= fAlphaThreshold)
+    {
+      col.a = 0.0f;
+    }
+  }
+}
+
+inline static ezColor GetPixelValue(const ezColor* pPixels, ezInt32 iWidth, ezInt32 x, ezInt32 y)
+{
+  return pPixels[y * iWidth + x];
+}
+
+inline static void SetPixelValue(ezColor* pPixels, ezInt32 iWidth, ezInt32 x, ezInt32 y, const ezColor& col)
+{
+  pPixels[y * iWidth + x] = col;
+}
+
+static ezColor GetAvgColor(ezColor* pPixels, ezInt32 iWidth, ezInt32 iHeight, ezInt32 x, ezInt32 y, float fMarkAlpha)
+{
+  ezColor colAt = GetPixelValue(pPixels, iWidth, x, y);
+
+  if (colAt.a > 0)
+    return colAt;
+
+  ezColor avg;
+  avg.SetZero();
+  ezUInt32 uiValidCount = 0;
+
+  const ezInt32 iRadius = 1;
+
+  for (ezInt32 cy = ezMath::Max<ezInt32>(0, y - iRadius); cy <= ezMath::Min<ezInt32>(y + iRadius, iHeight - 1); ++cy)
+  {
+    for (ezInt32 cx = ezMath::Max<ezInt32>(0, x - iRadius); cx <= ezMath::Min<ezInt32>(x + iRadius, iWidth - 1); ++cx)
+    {
+      const ezColor col = GetPixelValue(pPixels, iWidth, cx, cy);
+
+      if (col.a > fMarkAlpha)
+      {
+        avg += col;
+        ++uiValidCount;
+      }
+    }
+  }
+
+  if (uiValidCount == 0)
+    return colAt;
+
+  avg /= uiValidCount;
+  avg.a = fMarkAlpha;
+
+  return avg;
+}
+
+static void DilateColors(ezColor* pPixels, ezInt32 iWidth, ezInt32 iHeight, float fMarkAlpha)
+{
+  for (ezInt32 y = 0; y < iHeight; ++y)
+  {
+    for (ezInt32 x = 0; x < iWidth; ++x)
+    {
+      const ezColor avg = GetAvgColor(pPixels, iWidth, iHeight, x, y, fMarkAlpha);
+
+      SetPixelValue(pPixels, iWidth, x, y, avg);
+    }
+  }
+}
+
+ezResult ezTexConvProcessor::SmearMasked2D(ezImage& img) const
+{
+  if (!m_Descriptor.m_bSmearMasked)
+    return EZ_SUCCESS;
+
+  if (!FillAvgImageColor(img))
+    return EZ_SUCCESS;
+
+  const ezUInt32 uiNumPasses = 8;
+
+  ezColor* pPixels = img.GetPixelPointer<ezColor>();
+  const ezInt32 iWidth = static_cast<ezInt32>(img.GetWidth());
+  const ezInt32 iHeight = static_cast<ezInt32>(img.GetHeight());
+
+  for (ezUInt32 pass = uiNumPasses; pass > 0; --pass)
+  {
+    const float fAlphaThreshold = (static_cast<float>(pass) / uiNumPasses) / 256.0f; // between 0 and 1/256
+    DilateColors(pPixels, iWidth, iHeight, fAlphaThreshold);
+  }
+
+  ClearAlpha(img, 1.0f / 256.0f);
 
   return EZ_SUCCESS;
 }

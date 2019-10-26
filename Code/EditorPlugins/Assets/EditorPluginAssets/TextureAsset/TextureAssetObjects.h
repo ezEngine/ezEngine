@@ -97,6 +97,7 @@ public:
   bool m_bIsRenderTarget = false;
   bool m_bPremultipliedAlpha = false;
   bool m_bFlipHorizontal = false;
+  bool m_bSmearMasked = true;
   bool m_bPreserveAlphaCoverage = false;
   float m_fCVarResolutionScale = 1.0f;
   float m_fHdrExposureBias = 0;
