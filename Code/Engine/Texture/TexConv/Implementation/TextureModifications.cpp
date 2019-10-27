@@ -366,15 +366,15 @@ static void DilateColors(ezColor* pPixels, ezInt32 iWidth, ezInt32 iHeight, floa
   }
 }
 
-ezResult ezTexConvProcessor::SmearMasked2D(ezImage& img) const
+ezResult ezTexConvProcessor::DilateColor2D(ezImage& img) const
 {
-  if (!m_Descriptor.m_bSmearMasked)
+  if (m_Descriptor.m_uiDilateColor == 0)
     return EZ_SUCCESS;
 
   if (!FillAvgImageColor(img))
     return EZ_SUCCESS;
 
-  const ezUInt32 uiNumPasses = 8;
+  const ezUInt32 uiNumPasses = m_Descriptor.m_uiDilateColor;
 
   ezColor* pPixels = img.GetPixelPointer<ezColor>();
   const ezInt32 iWidth = static_cast<ezInt32>(img.GetWidth());

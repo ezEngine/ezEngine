@@ -73,8 +73,8 @@ ezResult ezTexConv::ParseCommandLine()
     ezLog::Info("  -downscale Number");
     ezLog::Info("    How often to half the input texture resolution.");
     ezLog::Info("");
-    ezLog::Info("  -smearMasked");
-    ezLog::Info("    Smear color from opaque areas into transparent areas.");
+    ezLog::Info("  -dilate");
+    ezLog::Info("    Dilate/smear color from opaque areas into transparent areas.");
     ezLog::Info("  -flip_horz");
     ezLog::Info("    Whether to flip the output horizontally.");
     ezLog::Info("  -premulalpha");
@@ -397,7 +397,16 @@ ezResult ezTexConv::ParseMiscOptions()
   {
     EZ_SUCCEED_OR_RETURN(ParseBoolOption("-flip_horz", m_Processor.m_Descriptor.m_bFlipHorizontal));
     EZ_SUCCEED_OR_RETURN(ParseBoolOption("-premulalpha", m_Processor.m_Descriptor.m_bPremultiplyAlpha));
-    EZ_SUCCEED_OR_RETURN(ParseBoolOption("-smearMasked", m_Processor.m_Descriptor.m_bSmearMasked));
+
+    bool bDilate = false;
+    EZ_SUCCEED_OR_RETURN(ParseBoolOption("-dilate", bDilate));
+
+    if (bDilate)
+    {
+      ezUInt32 res = 8;
+      EZ_SUCCEED_OR_RETURN(ParseUIntOption("-dilate", 0, 255, res));
+      m_Processor.m_Descriptor.m_uiDilateColor = static_cast<ezUInt8>(res);
+    }
   }
 
   if (m_Processor.m_Descriptor.m_Usage == ezTexConvUsage::Hdr)

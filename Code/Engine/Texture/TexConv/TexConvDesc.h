@@ -68,7 +68,7 @@ public:
   float m_fMipmapAlphaThreshold = 0.5f;
 
   // Misc options
-  bool m_bSmearMasked = false;
+  ezUInt8 m_uiDilateColor = 0;
   bool m_bFlipHorizontal = false;
   bool m_bPremultiplyAlpha = false;
   float m_fHdrExposureBias = 0.0f;

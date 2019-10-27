@@ -87,18 +87,18 @@ const char* ToUsageMode(ezTexConvUsage::Enum mode)
 {
   switch (mode)
   {
-  case ezTexConvUsage::Auto:
-    return "Auto";
-  case ezTexConvUsage::Color:
-    return "Color";
-  case ezTexConvUsage::Linear:
-    return "Linear";
-  case ezTexConvUsage::Hdr:
-    return "Hdr";
-  case ezTexConvUsage::NormalMap:
-    return "NormalMap";
-  case ezTexConvUsage::NormalMap_Inverted:
-    return "NormalMap_Inverted";
+    case ezTexConvUsage::Auto:
+      return "Auto";
+    case ezTexConvUsage::Color:
+      return "Color";
+    case ezTexConvUsage::Linear:
+      return "Linear";
+    case ezTexConvUsage::Hdr:
+      return "Hdr";
+    case ezTexConvUsage::NormalMap:
+      return "NormalMap";
+    case ezTexConvUsage::NormalMap_Inverted:
+      return "NormalMap_Inverted";
   }
 
   EZ_ASSERT_NOT_IMPLEMENTED;
@@ -107,14 +107,14 @@ const char* ToUsageMode(ezTexConvUsage::Enum mode)
 
 const char* ToMipmapMode(ezTexConvMipmapMode::Enum mode)
 {
-  switch(mode)
+  switch (mode)
   {
-  case ezTexConvMipmapMode::None:
-    return "None";
-  case ezTexConvMipmapMode::Linear:
-    return "Linear";
-  case ezTexConvMipmapMode::Kaiser:
-    return "Kaiser";
+    case ezTexConvMipmapMode::None:
+      return "None";
+    case ezTexConvMipmapMode::Linear:
+      return "Linear";
+    case ezTexConvMipmapMode::Kaiser:
+      return "Kaiser";
   }
 
   EZ_ASSERT_NOT_IMPLEMENTED;
@@ -210,8 +210,11 @@ ezStatus ezTextureAssetDocument::RunTexConv(
   if (pProp->m_bPremultipliedAlpha)
     arguments << "-premulalpha";
 
-  if (pProp->m_bSmearMasked)
-    arguments << "-smearMasked";
+  if (pProp->m_bDilateColor)
+  {
+    arguments << "-dilate";
+    //arguments << "8"; // default value
+  }
 
   if (pProp->m_bFlipHorizontal)
     arguments << "-flip_horz";

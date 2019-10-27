@@ -37,7 +37,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProperties, 5, ezRTTIDefaultAlloca
     EZ_MEMBER_PROPERTY("AlphaThreshold", m_fAlphaThreshold)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_ENUM_MEMBER_PROPERTY("CompressionMode", ezTexConvCompressionMode, m_CompressionMode),
     EZ_MEMBER_PROPERTY("PremultipliedAlpha", m_bPremultipliedAlpha),
-    EZ_MEMBER_PROPERTY("SmearMasked", m_bSmearMasked)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_MEMBER_PROPERTY("DilateColor", m_bDilateColor)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("FlipHorizontal", m_bFlipHorizontal),
     EZ_MEMBER_PROPERTY("HdrExposureBias", m_fHdrExposureBias)->AddAttributes(new ezClampValueAttribute(-20.0f, 20.0f)),
 
