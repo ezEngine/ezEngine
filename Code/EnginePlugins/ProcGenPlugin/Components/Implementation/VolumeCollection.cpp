@@ -79,7 +79,7 @@ void ezVolumeCollection::ExtractVolumesInBox(const ezWorld& world, const ezBound
     return ezVisitorExecution::Continue;
   });
 
-  // TODO: sort collection
+  out_Collection.m_Spheres.Sort();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -88,15 +88,21 @@ EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgExtractVolumes);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgExtractVolumes, 1, ezRTTIDefaultAllocator<ezMsgExtractVolumes>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-void ezMsgExtractVolumes::AddSphere(const ezSimdTransform& transform, float fRadius, ezEnum<ezProcGenBlendMode> blendMode, float fValue, float fFadeOutStart)
+void ezMsgExtractVolumes::AddSphere(const ezSimdTransform& transform, float fRadius, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder,
+  float fValue, float fFadeOutStart)
 {
   ezSimdTransform scaledTransform = transform;
   scaledTransform.m_Scale *= fRadius;
+
+  float fMaxScale = scaledTransform.GetMaxScale();
+  ezUInt32 uiSortingKey = (ezUInt32)(ezMath::Min(fSortOrder * 512.0f, 32767.0f) + 32768.0f);
+  uiSortingKey = (uiSortingKey << 16) | ((ezUInt32)(fMaxScale * 100.0f) & 0xFFFF);
 
   auto& sphere = m_pCollection->m_Spheres.ExpandAndGetRef();
   sphere.m_GlobalToLocalTransform = scaledTransform.GetAsMat4().GetInverse();
   sphere.m_BlendMode = blendMode;
   sphere.m_fValue = fValue;
+  sphere.m_uiSortingKey = uiSortingKey;
   sphere.m_fFadeOutScale = -1.0f / ezMath::Max(1.0f - fFadeOutStart, 0.0001f);
   sphere.m_fFadeOutBias = -sphere.m_fFadeOutScale;
 }

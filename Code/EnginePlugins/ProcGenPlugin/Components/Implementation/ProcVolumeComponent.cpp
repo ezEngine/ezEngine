@@ -4,6 +4,7 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <ProcGenPlugin/Components/ProcVolumeComponent.h>
 #include <ProcGenPlugin/Components/VolumeCollection.h>
 
@@ -20,6 +21,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezProcVolumeComponent, 1)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Value", GetValue, SetValue)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+    EZ_ACCESSOR_PROPERTY("SortOrder", GetSortOrder, SetSortOrder)->AddAttributes(new ezClampValueAttribute(-64.0f, 64.0f)),
     EZ_ENUM_ACCESSOR_PROPERTY("BlendMode", ezProcGenBlendMode, GetBlendMode, SetBlendMode)->AddAttributes(new ezDefaultValueAttribute(ezProcGenBlendMode::Set)),
   }
   EZ_END_PROPERTIES;
@@ -74,10 +76,17 @@ void ezProcVolumeComponent::SetValue(float fValue)
   {
     m_fValue = fValue;
 
-    if (IsActiveAndInitialized())
-    {
-      InvalidateArea();
-    }
+    InvalidateArea();
+  }
+}
+
+void ezProcVolumeComponent::SetSortOrder(float fOrder)
+{
+  if (m_fSortOrder != fOrder)
+  {
+    m_fSortOrder = fOrder;
+
+    InvalidateArea();
   }
 }
 
@@ -87,10 +96,7 @@ void ezProcVolumeComponent::SetBlendMode(ezEnum<ezProcGenBlendMode> blendMode)
   {
     m_BlendMode = blendMode;
 
-    if (IsActiveAndInitialized())
-    {
-      InvalidateArea();
-    }
+    InvalidateArea();
   }
 }
 
@@ -101,6 +107,7 @@ void ezProcVolumeComponent::SerializeComponent(ezWorldWriter& stream) const
   ezStreamWriter& s = stream.GetStream();
 
   s << m_fValue;
+  s << m_fSortOrder;
   s << m_BlendMode;
 }
 
@@ -111,6 +118,7 @@ void ezProcVolumeComponent::DeserializeComponent(ezWorldReader& stream)
   ezStreamReader& s = stream.GetStream();
 
   s >> m_fValue;
+  s >> m_fSortOrder;
   s >> m_BlendMode;
 }
 
@@ -126,6 +134,9 @@ void ezProcVolumeComponent::OnTransformChanged(ezMsgTransformChanged& msg)
 
 void ezProcVolumeComponent::InvalidateArea()
 {
+  if (!IsActiveAndInitialized())
+    return;
+
   ezBoundingBoxSphere globalBounds = GetOwner()->GetGlobalBounds();
   if (globalBounds.IsValid())
   {
@@ -182,9 +193,9 @@ void ezProcVolumeSphereComponent::SetRadius(float fRadius)
     if (IsActiveAndInitialized())
     {
       GetOwner()->UpdateLocalBounds();
-
-      InvalidateArea();
     }
+
+    InvalidateArea();
   }
 }
 
@@ -194,10 +205,7 @@ void ezProcVolumeSphereComponent::SetFadeOutStart(float fFadeOutStart)
   {
     m_fFadeOutStart = fFadeOutStart;
 
-    if (IsActiveAndInitialized())
-    {
-      InvalidateArea();
-    }
+    InvalidateArea();
   }
 }
 
@@ -228,7 +236,7 @@ void ezProcVolumeSphereComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ms
 
 void ezProcVolumeSphereComponent::OnExtractVolumes(ezMsgExtractVolumes& msg) const
 {
-  msg.AddSphere(GetOwner()->GetGlobalTransformSimd(), m_fRadius, m_BlendMode, m_fValue, m_fFadeOutStart);
+  msg.AddSphere(GetOwner()->GetGlobalTransformSimd(), m_fRadius, m_BlendMode, m_fSortOrder, m_fValue, m_fFadeOutStart);
 }
 
 //////////////////////////////////////////////////////////////////////////

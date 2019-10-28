@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Core/World/World.h>
+#include <Foundation/Math/Float16.h>
 #include <Foundation/Types/TagSet.h>
 #include <ProcGenPlugin/Declarations.h>
 
@@ -13,9 +14,12 @@ public:
   {
     ezSimdMat4f m_GlobalToLocalTransform;
     ezEnum<ezProcGenBlendMode> m_BlendMode;
-    float m_fValue;
+    ezFloat16 m_fValue;
+    ezUInt32 m_uiSortingKey;
     float m_fFadeOutScale;
     float m_fFadeOutBias;
+
+    EZ_ALWAYS_INLINE bool operator<(const Sphere& other) const { return m_uiSortingKey < other.m_uiSortingKey; }
   };
 
   ezDynamicArray<Sphere, ezAlignedAllocatorWrapper> m_Spheres;
@@ -32,7 +36,8 @@ struct EZ_PROCGENPLUGIN_DLL ezMsgExtractVolumes : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgExtractVolumes, ezMessage);
 
-  void AddSphere(const ezSimdTransform& transform, float fRadius, ezEnum<ezProcGenBlendMode> blendMode, float fValue, float fFadeOutStart);
+  void AddSphere(const ezSimdTransform& transform, float fRadius, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder,
+    float fValue, float fFadeOutStart);
 
 private:
   friend class ezVolumeCollection;

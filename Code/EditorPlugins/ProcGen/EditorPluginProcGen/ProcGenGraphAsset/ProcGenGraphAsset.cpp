@@ -86,13 +86,13 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
   ezChunkStreamWriter chunk(stream);
   chunk.BeginStream(1);
 
-  ezExpressionAST ast;
   ezExpressionCompiler compiler;
   ezProcGenNodeBase::GenerateASTContext context;
 
   auto WriteByteCode = [&](const ezDocumentObject* pOutputNode) {
     context.m_VolumeTagSetIndices.Clear();
 
+    ezExpressionAST ast;
     GenerateExpressionAST(pOutputNode, objectWriter, rttiConverter, nodeCache, ast, context);
 
     if (false)
@@ -141,6 +141,7 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
 
       context.m_VolumeTagSetIndices.Clear();
 
+      ezExpressionAST ast;
       GenerateDebugExpressionAST(objectWriter, rttiConverter, nodeCache, ast, context);
 
       ezExpressionByteCode byteCode;
@@ -399,11 +400,10 @@ ezExpressionAST::Node* ezProcGenGraphAssetDocument::GenerateExpressionAST(const 
     ezAbstractObjectNode* pAbstractNode = objectWriter.AddObjectToGraph(outputNode);
     cachedNode.m_pPPNode = static_cast<ezProcGenNodeBase*>(rttiConverter.CreateObjectFromNode(pAbstractNode));
 
-    cachedNode.m_pASTNode = cachedNode.m_pPPNode->GenerateExpressionASTNode(inputAstNodes, out_Ast, context);
     nodeCache.Insert(outputNode, cachedNode);
   }
 
-  return cachedNode.m_pASTNode;
+  return cachedNode.m_pPPNode->GenerateExpressionASTNode(inputAstNodes, out_Ast, context);
 }
 
 ezExpressionAST::Node* ezProcGenGraphAssetDocument::GenerateDebugExpressionAST(ezDocumentObjectConverterWriter& objectWriter,

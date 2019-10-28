@@ -47,7 +47,6 @@ private:
   struct CachedNode
   {
     ezProcGenNodeBase* m_pPPNode = nullptr;
-    ezExpressionAST::Node* m_pASTNode = nullptr;
   };
 
   ezExpressionAST::Node* GenerateExpressionAST(const ezDocumentObject* outputNode, ezDocumentObjectConverterWriter& objectWriter,

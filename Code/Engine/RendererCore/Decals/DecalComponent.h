@@ -1,9 +1,9 @@
 #pragma once
 
-#include <RendererCore/Declarations.h>
-#include <RendererCore/Components/RenderComponent.h>
-#include <RendererCore/Pipeline/RenderData.h>
 #include <Foundation/Types/VarianceTypes.h>
+#include <RendererCore/Components/RenderComponent.h>
+#include <RendererCore/Declarations.h>
+#include <RendererCore/Pipeline/RenderData.h>
 
 class ezAbstractObjectNode;
 struct ezMsgComponentInternalTrigger;
@@ -103,7 +103,6 @@ public:
   ezEnum<ezOnComponentFinishedAction> m_OnFinishedAction;
 
 protected:
-
   ezVec3 m_vExtents;
   float m_fSizeVariance;
   ezColor m_Color;
@@ -128,4 +127,3 @@ protected:
   ezUInt32 m_uiInternalSortKey;
   static ezUInt16 s_uiNextSortKey;
 };
-

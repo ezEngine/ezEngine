@@ -17,11 +17,14 @@ public:
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 
-  float GetValue() const { return m_fValue; }
   void SetValue(float fValue);
+  float GetValue() const { return m_fValue; }
 
-  ezEnum<ezProcGenBlendMode> GetBlendMode() const { return m_BlendMode; }
+  void SetSortOrder(float fOrder);
+  float GetSortOrder() const { return m_fSortOrder; }
+
   void SetBlendMode(ezEnum<ezProcGenBlendMode> blendMode);
+  ezEnum<ezProcGenBlendMode> GetBlendMode() const { return m_BlendMode; }
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
@@ -32,6 +35,7 @@ public:
 
 protected:
   float m_fValue = 1.0f;
+  float m_fSortOrder = 0.0f;
   ezEnum<ezProcGenBlendMode> m_BlendMode;
 
   void InvalidateArea();
