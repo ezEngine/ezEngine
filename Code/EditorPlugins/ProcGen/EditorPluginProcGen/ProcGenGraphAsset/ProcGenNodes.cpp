@@ -525,11 +525,14 @@ ezExpressionAST::Node* ezProcGenApplyVolumes::GenerateExpressionASTNode(ezArrayP
     pInput = out_Ast.CreateConstant(m_fInputValue);
   }
 
+  auto pTagSetInex = out_Ast.CreateConstant(static_cast<float>(tagSetIndex));
+
   auto pFunctionCall = out_Ast.CreateFunctionCall(s_sApplyVolumes);
   pFunctionCall->m_Arguments.PushBack(pPosX);
   pFunctionCall->m_Arguments.PushBack(pPosY);
   pFunctionCall->m_Arguments.PushBack(pPosZ);
   pFunctionCall->m_Arguments.PushBack(pInput);
+  pFunctionCall->m_Arguments.PushBack(pTagSetInex);
 
   return pFunctionCall;
 }

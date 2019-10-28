@@ -16,6 +16,11 @@ namespace ezProcGenInternal
     return uiIndex;
   }
 
+  const ezTagSet& GraphSharedData::GetTagSet(ezUInt32 uiIndex) const
+  {
+    return m_TagSets[uiIndex];
+  }
+
   static ezTypeVersion s_GraphSharedDataVersion = 1;
 
   void GraphSharedData::Save(ezStreamWriter& stream) const
@@ -40,7 +45,7 @@ namespace ezProcGenInternal
     {
       ezUInt32 uiCount = 0;
       stream >> uiCount;
-      
+
       for (ezUInt32 i = 0; i < uiCount; ++i)
       {
         m_TagSets.ExpandAndGetRef().Load(stream, ezTagRegistry::GetGlobalRegistry());

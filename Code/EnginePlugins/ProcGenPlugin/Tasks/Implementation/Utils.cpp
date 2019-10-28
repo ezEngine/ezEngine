@@ -2,6 +2,7 @@
 
 #include <ProcGenPlugin/Components/ProcVolumeComponent.h>
 #include <ProcGenPlugin/Components/VolumeCollection.h>
+#include <ProcGenPlugin/Resources/ProcGenGraphSharedData.h>
 #include <ProcGenPlugin/Tasks/Utils.h>
 
 namespace
@@ -17,6 +18,10 @@ void ezProcGenExpressionFunctions::ApplyVolumes(ezExpression::Inputs inputs, ezE
     return;
 
   ezUInt32 uiIndex = 0;
+  if (inputs.GetCount() > 4)
+  {
+    uiIndex = ezSimdVec4i::Truncate(inputs[4][0]).x();
+  }
 
   auto pVolumeCollection = ezDynamicCast<const ezVolumeCollection*>(volumes[uiIndex].Get<ezReflectedClass*>());
   if (pVolumeCollection == nullptr)
@@ -67,14 +72,32 @@ ezResult ezProcGenExpressionFunctions::ApplyVolumesValidate(const ezExpression::
 void ezProcGenInternal::ExtractVolumeCollections(const ezWorld& world, const ezBoundingBox& box, const Output& output,
   ezDynamicArray<ezVolumeCollection>& volumeCollections, ezExpression::GlobalData& globalData)
 {
-  if (!volumeCollections.IsEmpty())
+  auto& volumeTagSetIndices = output.m_VolumeTagSetIndices;
+  if (volumeTagSetIndices.IsEmpty())
     return;
 
-  auto& volumeCollection = volumeCollections.ExpandAndGetRef();
-  ezVolumeCollection::ExtractVolumesInBox(world, box, s_ProcVolumeCategory, ezTagSet(), volumeCollection, ezGetStaticRTTI<ezProcVolumeComponent>());
-
   ezVariantArray volumes;
-  volumes.PushBack(&volumeCollection);
+  if (ezVariant* volumesVar = globalData.GetValue(s_sVolumes))
+  {
+    volumes = volumesVar->Get<ezVariantArray>();
+  }
+
+  for (ezUInt8 tagSetIndex : volumeTagSetIndices)
+  {
+    if (tagSetIndex < volumes.GetCount() && volumes[tagSetIndex].IsValid())
+    {
+      continue;
+    }
+
+    auto pGraphSharedData = static_cast<const ezProcGenInternal::GraphSharedData*>(output.m_pGraphSharedData.Borrow());
+    auto& includeTags = pGraphSharedData->GetTagSet(tagSetIndex);
+
+    auto& volumeCollection = volumeCollections.ExpandAndGetRef();
+    ezVolumeCollection::ExtractVolumesInBox(world, box, s_ProcVolumeCategory, includeTags, volumeCollection, ezGetStaticRTTI<ezProcVolumeComponent>());
+
+    volumes.EnsureCount(tagSetIndex + 1);
+    volumes[tagSetIndex] = ezVariant(&volumeCollection);
+  }
 
   globalData.Insert(s_sVolumes, volumes);
 }

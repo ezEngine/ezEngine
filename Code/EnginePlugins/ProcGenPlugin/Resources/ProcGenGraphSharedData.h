@@ -11,6 +11,8 @@ namespace ezProcGenInternal
   public:
     ezUInt32 AddTagSet(const ezTagSet& tagSet);
 
+    const ezTagSet& GetTagSet(ezUInt32 uiIndex) const;
+
     void Save(ezStreamWriter& stream) const;
     ezResult Load(ezStreamReader& stream);
 
