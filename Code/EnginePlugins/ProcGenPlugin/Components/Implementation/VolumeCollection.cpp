@@ -31,6 +31,14 @@ namespace
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVolumeCollection, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+//static
+ezUInt32 ezVolumeCollection::ComputeSortingKey(float fSortOrder, float fMaxScale)
+{
+  ezUInt32 uiSortingKey = (ezUInt32)(ezMath::Min(fSortOrder * 512.0f, 32767.0f) + 32768.0f);
+  uiSortingKey = (uiSortingKey << 16) | ((ezUInt32)(fMaxScale * 100.0f) & 0xFFFF);
+  return uiSortingKey;
+}
+
 float ezVolumeCollection::EvaluateAtGlobalPosition(const ezVec3& vPosition, float fInitialValue /*= 0.0f*/) const
 {
   ezSimdVec4f globalPos = ezSimdConversion::ToVec3(vPosition);
@@ -94,15 +102,26 @@ void ezMsgExtractVolumes::AddSphere(const ezSimdTransform& transform, float fRad
   ezSimdTransform scaledTransform = transform;
   scaledTransform.m_Scale *= fRadius;
 
-  float fMaxScale = scaledTransform.GetMaxScale();
-  ezUInt32 uiSortingKey = (ezUInt32)(ezMath::Min(fSortOrder * 512.0f, 32767.0f) + 32768.0f);
-  uiSortingKey = (uiSortingKey << 16) | ((ezUInt32)(fMaxScale * 100.0f) & 0xFFFF);
-
   auto& sphere = m_pCollection->m_Spheres.ExpandAndGetRef();
   sphere.m_GlobalToLocalTransform = scaledTransform.GetAsMat4().GetInverse();
   sphere.m_BlendMode = blendMode;
   sphere.m_fValue = fValue;
-  sphere.m_uiSortingKey = uiSortingKey;
+  sphere.m_uiSortingKey = ezVolumeCollection::ComputeSortingKey(fSortOrder, scaledTransform.GetMaxScale());
   sphere.m_fFadeOutScale = -1.0f / ezMath::Max(1.0f - fFadeOutStart, 0.0001f);
   sphere.m_fFadeOutBias = -sphere.m_fFadeOutScale;
+}
+
+void ezMsgExtractVolumes::AddBox(const ezSimdTransform& transform, const ezVec3& vExtents, ezEnum<ezProcGenBlendMode> blendMode,
+  float fSortOrder, float fValue, const ezVec3& vFadeOutStart)
+{
+  ezSimdTransform scaledTransform = transform;
+  scaledTransform.m_Scale = scaledTransform.m_Scale.CompMul(ezSimdConversion::ToVec3(vExtents));
+
+  auto& box = m_pCollection->m_Boxes.ExpandAndGetRef();
+  box.m_GlobalToLocalTransform = scaledTransform.GetAsMat4().GetInverse();
+  box.m_BlendMode = blendMode;
+  box.m_fValue = fValue;
+  box.m_uiSortingKey = ezVolumeCollection::ComputeSortingKey(fSortOrder, scaledTransform.GetMaxScale());
+  box.m_vFadeOutScale = ezVec3(-1.0f).CompDiv((ezVec3(1.0f) - vFadeOutStart).CompMax(ezVec3(0.0001f)));
+  box.m_vFadeOutBias = -box.m_vFadeOutScale;
 }

@@ -85,8 +85,19 @@ public:
   ezProcVolumeBoxComponent();
   ~ezProcVolumeBoxComponent();
 
+  const ezVec3& GetExtents() const { return m_vExtents; }
+  void SetExtents(const ezVec3& extents);
+
+  const ezVec3& GetFadeOutStart() const { return m_vFadeOutStart; }
+  void SetFadeOutStart(const ezVec3& fadeOutStart);
+
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
+  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const;
+  void OnExtractVolumes(ezMsgExtractVolumes& msg) const;
+
 private:
+  ezVec3 m_vExtents = ezVec3(10.0f);
+  ezVec3 m_vFadeOutStart = ezVec3(0.5f);
 };
