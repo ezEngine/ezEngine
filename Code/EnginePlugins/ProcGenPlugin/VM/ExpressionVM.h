@@ -56,7 +56,7 @@ namespace ezExpression
 class EZ_PROCGENPLUGIN_DLL ezExpressionVM
 {
 public:
-  ezExpressionVM(ezUInt32 uiTempRegistersInBytes = 256 * 1024);
+  ezExpressionVM();
   ~ezExpressionVM();
 
   void RegisterFunction(const char* szName, ezExpressionFunction func,

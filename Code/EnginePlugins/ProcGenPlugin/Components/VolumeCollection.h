@@ -31,7 +31,7 @@ public:
     ezVec3 m_vFadeOutScale;
     ezVec3 m_vFadeOutBias;
 
-    EZ_ALWAYS_INLINE bool operator<(const Sphere& other) const { return m_uiSortingKey < other.m_uiSortingKey; }
+    EZ_ALWAYS_INLINE bool operator<(const Box& other) const { return m_uiSortingKey < other.m_uiSortingKey; }
   };
 
   ezDynamicArray<Sphere, ezAlignedAllocatorWrapper> m_Spheres;

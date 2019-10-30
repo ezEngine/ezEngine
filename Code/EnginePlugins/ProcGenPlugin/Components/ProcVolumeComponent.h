@@ -69,7 +69,7 @@ public:
   void OnExtractVolumes(ezMsgExtractVolumes& msg) const;
 
 private:
-  float m_fRadius = 10.0f;
+  float m_fRadius = 5.0f;
   float m_fFadeOutStart = 0.5f;
 };
 

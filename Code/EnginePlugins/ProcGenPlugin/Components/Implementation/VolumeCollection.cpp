@@ -46,12 +46,25 @@ float ezVolumeCollection::EvaluateAtGlobalPosition(const ezVec3& vPosition, floa
 
   for (auto& sphere : m_Spheres)
   {
-    ezSimdVec4f localPos = sphere.m_GlobalToLocalTransform.TransformPosition(globalPos);
+    const ezSimdVec4f localPos = sphere.m_GlobalToLocalTransform.TransformPosition(globalPos);
     const float distSquared = localPos.GetLengthSquared<3>();
     if (distSquared <= 1.0f)
     {
       const float fNewValue = ApplyValue(sphere.m_BlendMode, fValue, sphere.m_fValue);
       const float fAlpha = ezMath::Saturate(ezMath::Sqrt(distSquared) * sphere.m_fFadeOutScale + sphere.m_fFadeOutBias);
+      fValue = ezMath::Lerp(fValue, fNewValue, fAlpha);
+    }
+  }
+
+  for (auto& box : m_Boxes)
+  {
+    const ezSimdVec4f absLocalPos = box.m_GlobalToLocalTransform.TransformPosition(globalPos).Abs();
+    if ((absLocalPos <= ezSimdVec4f(1.0f)).AllSet<3>())
+    {
+      const float fNewValue = ApplyValue(box.m_BlendMode, fValue, box.m_fValue);
+      ezSimdVec4f vAlpha = absLocalPos.CompMul(ezSimdConversion::ToVec3(box.m_vFadeOutScale)) + ezSimdConversion::ToVec3(box.m_vFadeOutBias);
+      vAlpha = vAlpha.CompMin(ezSimdVec4f(1.0f)).CompMax(ezSimdVec4f::ZeroVector());
+      const float fAlpha = vAlpha.x() * vAlpha.y() * vAlpha.z();
       fValue = ezMath::Lerp(fValue, fNewValue, fAlpha);
     }
   }
@@ -88,6 +101,7 @@ void ezVolumeCollection::ExtractVolumesInBox(const ezWorld& world, const ezBound
   });
 
   out_Collection.m_Spheres.Sort();
+  out_Collection.m_Boxes.Sort();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -115,7 +129,7 @@ void ezMsgExtractVolumes::AddBox(const ezSimdTransform& transform, const ezVec3&
   float fSortOrder, float fValue, const ezVec3& vFadeOutStart)
 {
   ezSimdTransform scaledTransform = transform;
-  scaledTransform.m_Scale = scaledTransform.m_Scale.CompMul(ezSimdConversion::ToVec3(vExtents));
+  scaledTransform.m_Scale = scaledTransform.m_Scale.CompMul(ezSimdConversion::ToVec3(vExtents)) * 0.5f;
 
   auto& box = m_pCollection->m_Boxes.ExpandAndGetRef();
   box.m_GlobalToLocalTransform = scaledTransform.GetAsMat4().GetInverse();

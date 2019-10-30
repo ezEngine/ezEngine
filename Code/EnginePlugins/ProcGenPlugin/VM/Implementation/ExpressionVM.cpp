@@ -227,13 +227,8 @@ void ezExpression::Stream::ValidateDataSize(ezUInt32 uiNumInstances, const char*
 
 //////////////////////////////////////////////////////////////////////////
 
-ezExpressionVM::ezExpressionVM(ezUInt32 uiTempRegistersInBytes /*= 256 * 1024*/)
-{
-  ezUInt32 uiNumTempRegisters = (uiTempRegistersInBytes + sizeof(ezSimdVec4f) - 1) / sizeof(ezSimdVec4f);
-  m_Registers.SetCountUninitialized(uiNumTempRegisters);
-}
-
-ezExpressionVM::~ezExpressionVM() {}
+ezExpressionVM::ezExpressionVM() = default;
+ezExpressionVM::~ezExpressionVM() = default;
 
 void ezExpressionVM::RegisterFunction(const char* szName, ezExpressionFunction func,
   ezExpressionValidateGlobalData validationFunc /*= ezExpressionValidateGlobalData()*/)
@@ -349,16 +344,13 @@ ezResult ezExpressionVM::Execute(const ezExpressionByteCode& byteCode, ezArrayPt
     }
   }
 
-  ezSimdVec4f* pRegisters = m_Registers.GetData();
   const ezUInt32 uiNumRegisters = (uiNumInstances + 3) / 4;
   const ezUInt32 uiLastInstanceIndex = uiNumInstances - 1;
 
   const ezUInt32 uiTotalNumRegisters = byteCode.GetNumTempRegisters() * uiNumRegisters;
-  if (uiTotalNumRegisters > m_Registers.GetCount())
-  {
-    ezLog::Error("Not enough registers to execute bytecode. Needs {0} but only has {1}.", uiTotalNumRegisters, m_Registers.GetCount());
-    return EZ_FAILURE;
-  }
+  m_Registers.SetCountUninitialized(uiTotalNumRegisters);
+
+  ezSimdVec4f* pRegisters = m_Registers.GetData();
 
   // Execute bytecode
   const ezExpressionByteCode::StorageType* pByteCode = byteCode.GetByteCode();

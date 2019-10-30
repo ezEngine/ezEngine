@@ -90,9 +90,12 @@ void VertexColorTask::Prepare(const ezWorld& world, const ezMeshBufferResourceDe
   m_VolumeCollections.Clear();
   m_GlobalData.Clear();
 
-  for (auto& output : outputs)
+  for (auto& pOutput : outputs)
   {
-    ezProcGenInternal::ExtractVolumeCollections(world, box, *output, m_VolumeCollections, m_GlobalData);
+    if (pOutput != nullptr)
+    {
+      ezProcGenInternal::ExtractVolumeCollections(world, box, *pOutput, m_VolumeCollections, m_GlobalData);
+    }
   }
 }
 
