@@ -9,6 +9,7 @@
 #include <ProcGenPlugin/Components/Implementation/PlacementTile.h>
 #include <ProcGenPlugin/Components/ProcPlacementComponent.h>
 #include <ProcGenPlugin/Tasks/FindPlacementTilesTask.h>
+#include <ProcGenPlugin/Tasks/PlacementData.h>
 #include <ProcGenPlugin/Tasks/PlacementTask.h>
 #include <ProcGenPlugin/Tasks/PreparePlacementTask.h>
 #include <RendererCore/Debug/DebugRenderer.h>
@@ -212,6 +213,9 @@ void ezProcPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateCo
           if (!processingTask.IsValid() || processingTask.IsScheduled())
             continue;
 
+          auto& activeTile = m_ActiveTiles[processingTask.m_uiTileIndex];
+          activeTile.PreparePlacementData(pPhysicsModule, *processingTask.m_pData);
+
           ezTaskSystem::AddTaskToGroup(prepareTaskGroupID, processingTask.m_pPrepareTask.Borrow());
         }
 
@@ -226,9 +230,6 @@ void ezProcPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateCo
         {
           if (!processingTask.IsValid() || processingTask.IsScheduled())
             continue;
-
-          auto& activeTile = m_ActiveTiles[processingTask.m_uiTileIndex];
-          activeTile.PrepareTask(pPhysicsModule, *processingTask.m_pPlacementTask);
 
           processingTask.m_uiScheduledFrame = ezRenderWorld::GetFrameCounter();
           processingTask.m_PlacementTaskGroupID =
@@ -377,12 +378,14 @@ ezUInt32 ezProcPlacementComponentManager::AllocateProcessingTask(ezUInt32 uiTile
     uiNewTaskIndex = m_ProcessingTasks.GetCount();
     auto& newTask = m_ProcessingTasks.ExpandAndGetRef();
 
+    newTask.m_pData = EZ_DEFAULT_NEW(PlacementData);
+
     ezStringBuilder sName;
     sName.Format("Prepare Task {}", uiNewTaskIndex);
-    newTask.m_pPrepareTask = EZ_DEFAULT_NEW(PreparePlacementTask, sName);
+    newTask.m_pPrepareTask = EZ_DEFAULT_NEW(PreparePlacementTask, newTask.m_pData.Borrow(), sName);
 
     sName.Format("Placement Task {}", uiNewTaskIndex);
-    newTask.m_pPlacementTask = EZ_DEFAULT_NEW(PlacementTask, sName);
+    newTask.m_pPlacementTask = EZ_DEFAULT_NEW(PlacementTask, newTask.m_pData.Borrow(), sName);
   }
 
   m_ProcessingTasks[uiNewTaskIndex].m_uiTileIndex = uiTileIndex;
@@ -397,6 +400,8 @@ void ezProcPlacementComponentManager::DeallocateProcessingTask(ezUInt32 uiTaskIn
     ezTaskSystem::WaitForGroup(task.m_PlacementTaskGroupID);
   }
 
+  task.m_pData->Clear();
+  task.m_pPrepareTask->Clear();
   task.m_pPlacementTask->Clear();
   task.Invalidate();
 
@@ -714,12 +719,14 @@ void ezProcPlacementComponent::UpdateBoundsAndTiles()
       ezSimdTransform finalBoxTransform;
       finalBoxTransform.SetGlobalTransform(ownerTransform, localBoxTransform);
 
+      ezSimdMat4f finalBoxMat = finalBoxTransform.GetAsMat4();
+
       ezSimdBBox globalBox(ezSimdVec4f(-1.0f), ezSimdVec4f(1.0f));
-      globalBox.Transform(finalBoxTransform.GetAsMat4());
+      globalBox.Transform(finalBoxMat);
 
       auto& bounds = m_Bounds.ExpandAndGetRef();
       bounds.m_GlobalBoundingBox = globalBox;
-      bounds.m_GlobalToLocalBoxTransform = finalBoxTransform.GetInverse();
+      bounds.m_GlobalToLocalBoxTransform = finalBoxMat.GetInverse();
     }
 
     pManager->AddComponent(this);

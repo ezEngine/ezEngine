@@ -1,7 +1,7 @@
 #pragma once
 
-#include <ProcGenPlugin/VM/ExpressionFunctions.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <ProcGenPlugin/VM/ExpressionFunctions.h>
 
 class ezExpressionByteCode;
 
@@ -51,20 +51,36 @@ namespace ezExpression
 
     return Stream(sName, Stream::Type::Float, byteData, sizeof(T));
   }
-}
+} // namespace ezExpression
 
 class EZ_PROCGENPLUGIN_DLL ezExpressionVM
 {
 public:
-  ezExpressionVM(ezUInt32 uiTempRegistersInBytes = 256 * 1024);
+  ezExpressionVM();
   ~ezExpressionVM();
 
-  void Execute(const ezExpressionByteCode& byteCode, ezArrayPtr<const ezExpression::Stream> inputs, ezArrayPtr<ezExpression::Stream> outputs, ezUInt32 uiNumInstances);
+  void RegisterFunction(const char* szName, ezExpressionFunction func,
+    ezExpressionValidateGlobalData validationFunc = ezExpressionValidateGlobalData());
+
+  void RegisterDefaultFunctions();
+
+  ezResult Execute(const ezExpressionByteCode& byteCode, ezArrayPtr<const ezExpression::Stream> inputs, ezArrayPtr<ezExpression::Stream> outputs,
+    ezUInt32 uiNumInstances, const ezExpression::GlobalData& globalData = ezExpression::GlobalData());
 
 private:
   ezDynamicArray<ezSimdVec4f, ezAlignedAllocatorWrapper> m_Registers;
 
   ezDynamicArray<ezUInt32> m_InputMapping;
   ezDynamicArray<ezUInt32> m_OutputMapping;
-};
+  ezDynamicArray<ezUInt32> m_FunctionMapping;
 
+  struct FunctionInfo
+  {
+    ezHashedString m_sName;
+    ezExpressionFunction m_Func;
+    ezExpressionValidateGlobalData m_ValidationFunc;
+  };
+
+  ezDynamicArray<FunctionInfo> m_Functions;
+  ezHashTable<ezHashedString, ezUInt32> m_FunctionNamesToIndex;
+};

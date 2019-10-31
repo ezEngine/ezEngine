@@ -24,6 +24,9 @@ class ezTagSetTemplate
 public:
   ezTagSetTemplate();
 
+  bool operator==(const ezTagSetTemplate& other) const;
+  bool operator!=(const ezTagSetTemplate& other) const;
+
   /// \brief Adds the given tag to the set.
   void Set(const ezTag& Tag); // [tested]
 

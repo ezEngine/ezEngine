@@ -9,10 +9,16 @@ namespace ezProcGenInternal
   class PreparePlacementTask : public ezTask
   {
   public:
-    PreparePlacementTask(const char* szName);
+    PreparePlacementTask(PlacementData* pData, const char* szName);
     ~PreparePlacementTask();
 
+    void Clear() {}
+
   private:
+    friend class PlacementTile;
+
+    PlacementData* m_pData = nullptr;
+
     virtual void Execute() override;
   };
 }

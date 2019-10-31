@@ -5,6 +5,7 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <ProcGenPlugin/Components/ProcVertexColorComponent.h>
+#include <ProcGenPlugin/Components/ProcVolumeComponent.h>
 #include <ProcGenPlugin/Tasks/VertexColorTask.h>
 #include <RendererCore/Meshes/CpuMeshResource.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
@@ -38,7 +39,7 @@ ezProcVertexColorComponentManager::ezProcVertexColorComponentManager(ezWorld* pW
 {
 }
 
-ezProcVertexColorComponentManager::~ezProcVertexColorComponentManager() {}
+ezProcVertexColorComponentManager::~ezProcVertexColorComponentManager() = default;
 
 void ezProcVertexColorComponentManager::Initialize()
 {
@@ -66,6 +67,8 @@ void ezProcVertexColorComponentManager::Initialize()
   ezRenderWorld::s_EndExtractionEvent.AddEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnEndExtraction, this));
 
   ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnResourceEvent, this));
+
+  ezProcVolumeComponent::GetAreaInvalidatedEvent().AddEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnAreaInvalidated, this));
 }
 
 void ezProcVertexColorComponentManager::Deinitialize()
@@ -77,6 +80,8 @@ void ezProcVertexColorComponentManager::Deinitialize()
   ezRenderWorld::s_EndExtractionEvent.RemoveEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnEndExtraction, this));
 
   ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnResourceEvent, this));
+
+  ezProcVolumeComponent::GetAreaInvalidatedEvent().RemoveEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnAreaInvalidated, this));
 }
 
 void ezProcVertexColorComponentManager::UpdateVertexColors(const ezWorldModule::UpdateContext& context)
@@ -174,7 +179,7 @@ void ezProcVertexColorComponentManager::UpdateComponentVertexColors(ezProcVertex
   taskName.Append(pCpuMesh->GetResourceDescription().GetView());
   pUpdateTask->SetTaskName(taskName);
 
-  pUpdateTask->Prepare(mbDesc, pComponent->GetOwner()->GetGlobalTransform(), pComponent->m_Outputs,
+  pUpdateTask->Prepare(*GetWorld(), mbDesc, pComponent->GetOwner()->GetGlobalTransform(), pComponent->m_Outputs,
     m_VertexColorData.GetArrayPtr().GetSubArray(uiBufferOffset, uiVertexColorCount));
 
   ezTaskSystem::AddTaskToGroup(m_UpdateTaskGroupID, pUpdateTask.Borrow());
@@ -256,6 +261,25 @@ void ezProcVertexColorComponentManager::OnResourceEvent(const ezResourceEvent& r
   }
 }
 
+void ezProcVertexColorComponentManager::OnAreaInvalidated(const ezProcGenInternal::InvalidatedArea& area)
+{
+  if (area.m_pWorld != GetWorld())
+    return;
+
+  ezUInt32 category = ezDefaultSpatialDataCategories::RenderStatic.GetBitmask() | ezDefaultSpatialDataCategories::RenderDynamic.GetBitmask();
+  GetWorld()->GetSpatialSystem()->FindObjectsInBox(area.m_Box, category, [this](ezGameObject* pObject) {
+    ezHybridArray<ezProcVertexColorComponent*, 8> components;
+    pObject->TryGetComponentsOfBaseType(components);
+
+    for (auto pComponent : components)
+    {
+      EnqueueUpdate(pComponent);
+    }
+
+    return ezVisitorExecution::Continue;
+  });
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
@@ -263,8 +287,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezProcVertexColorComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-      EZ_ACCESSOR_PROPERTY("Resource", GetResourceFile, SetResourceFile)->AddAttributes(new ezAssetBrowserAttribute("ProcGen Graph")),
-      EZ_ARRAY_ACCESSOR_PROPERTY("OutputNames", OutputNames_GetCount, GetOutputName, SetOutputName, OutputNames_Insert, OutputNames_Remove),
+    EZ_ACCESSOR_PROPERTY("Resource", GetResourceFile, SetResourceFile)->AddAttributes(new ezAssetBrowserAttribute("ProcGen Graph")),
+    EZ_ARRAY_ACCESSOR_PROPERTY("OutputNames", OutputNames_GetCount, GetOutputName, SetOutputName, OutputNames_Insert, OutputNames_Remove),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -274,7 +298,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezProcVertexColorComponent, 1, ezComponentMode::Static)
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
-      new ezCategoryAttribute("Procedural Generation"),
+    new ezCategoryAttribute("Procedural Generation"),
   }
   EZ_END_ATTRIBUTES;
 }

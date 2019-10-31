@@ -4,6 +4,8 @@
   </qresource>
   <qresource prefix="TypeIcons">
     <file>ezProcPlacementComponent.png</file>
+    <file>ezProcVolumeBoxComponent.png</file>
+    <file>ezProcVolumeSphereComponent.png</file>
   </qresource>
   <qresource prefix="Icons">
   </qresource>

@@ -43,6 +43,8 @@ private:
 
   void OnResourceEvent(const ezResourceEvent& resourceEvent);
 
+  void OnAreaInvalidated(const ezProcGenInternal::InvalidatedArea& area);
+
   ezDynamicArray<ezComponentHandle> m_ComponentsToUpdate;
 
   ezDynamicArray<ezUniquePtr<ezProcGenInternal::VertexColorTask>> m_UpdateTasks;

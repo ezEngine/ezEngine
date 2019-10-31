@@ -210,6 +210,11 @@ EZ_ALWAYS_INLINE float ezGameObject::GetLocalUniformScaling() const
   return m_pTransformationData->m_localScaling.w();
 }
 
+EZ_ALWAYS_INLINE ezTransform ezGameObject::GetLocalTransform() const
+{
+  return ezSimdConversion::ToTransform(GetLocalTransformSimd());
+}
+
 
 EZ_ALWAYS_INLINE void ezGameObject::SetGlobalPosition(const ezVec3& position)
 {
@@ -318,6 +323,12 @@ EZ_ALWAYS_INLINE void ezGameObject::SetLocalUniformScaling(const ezSimdFloat& sc
 EZ_ALWAYS_INLINE ezSimdFloat ezGameObject::GetLocalUniformScalingSimd() const
 {
   return m_pTransformationData->m_localScaling.w();
+}
+
+EZ_ALWAYS_INLINE ezSimdTransform ezGameObject::GetLocalTransformSimd() const
+{
+  const ezSimdVec4f vScale = m_pTransformationData->m_localScaling * m_pTransformationData->m_localScaling.w();
+  return ezSimdTransform(m_pTransformationData->m_localPosition, m_pTransformationData->m_localRotation, vScale);
 }
 
 

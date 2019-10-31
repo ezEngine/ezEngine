@@ -6,9 +6,12 @@ ezProcPlacementComponent;Procedural Placement
 ezProcGenBoxExtents;Box Extents
 BoxExtents;Extents
 ezProcVertexColorComponent;Procedural Vertex Color
+ezProcVolumeSphereComponent;Procedural Volume Sphere
+ezProcVolumeBoxComponent;Procedural Volume Box
 ezProcGenBlendMode::Add;Add
 ezProcGenBlendMode::Subtract;Subtract
 ezProcGenBlendMode::Multiply;Multiply
 ezProcGenBlendMode::Divide;Divide
 ezProcGenBlendMode::Max;Max
 ezProcGenBlendMode::Min;Min
+ezProcGenBlendMode::Set;Set

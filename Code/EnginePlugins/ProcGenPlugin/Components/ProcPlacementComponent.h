@@ -70,6 +70,7 @@ private:
     }
 
     ezUInt64 m_uiScheduledFrame;
+    ezUniquePtr<ezProcGenInternal::PlacementData> m_pData;
     ezUniquePtr<ezProcGenInternal::PreparePlacementTask> m_pPrepareTask;
     ezUniquePtr<ezProcGenInternal::PlacementTask> m_pPlacementTask;
     ezTaskGroupID m_PlacementTaskGroupID;
@@ -151,7 +152,7 @@ private:
     EZ_DECLARE_POD_TYPE();
 
     ezSimdBBox m_GlobalBoundingBox;
-    ezSimdTransform m_GlobalToLocalBoxTransform;
+    ezSimdMat4f m_GlobalToLocalBoxTransform;
   };
 
   ezDynamicArray<Bounds, ezAlignedAllocatorWrapper> m_Bounds;
