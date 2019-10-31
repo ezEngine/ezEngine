@@ -4,6 +4,7 @@
 #include <ProcGenPlugin/Declarations.h>
 
 struct ezMsgTransformChanged;
+struct ezMsgUpdateLocalBounds;
 struct ezMsgExtractVolumes;
 
 class EZ_PROCGENPLUGIN_DLL ezProcVolumeComponent : public ezComponent

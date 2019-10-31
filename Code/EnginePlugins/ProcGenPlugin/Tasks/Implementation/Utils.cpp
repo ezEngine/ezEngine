@@ -1,5 +1,6 @@
 #include <ProcGenPluginPCH.h>
 
+#include <Foundation/SimdMath/SimdVec4i.h>
 #include <ProcGenPlugin/Components/ProcVolumeComponent.h>
 #include <ProcGenPlugin/Components/VolumeCollection.h>
 #include <ProcGenPlugin/Resources/ProcGenGraphSharedData.h>

@@ -9,6 +9,7 @@
 #include <ProcGenPlugin/Components/Implementation/PlacementTile.h>
 #include <ProcGenPlugin/Components/ProcPlacementComponent.h>
 #include <ProcGenPlugin/Tasks/FindPlacementTilesTask.h>
+#include <ProcGenPlugin/Tasks/PlacementData.h>
 #include <ProcGenPlugin/Tasks/PlacementTask.h>
 #include <ProcGenPlugin/Tasks/PreparePlacementTask.h>
 #include <RendererCore/Debug/DebugRenderer.h>

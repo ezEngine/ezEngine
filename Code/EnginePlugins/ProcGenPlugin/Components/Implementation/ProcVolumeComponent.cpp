@@ -1,6 +1,7 @@
 #include <ProcGenPluginPCH.h>
 
 #include <Core/Messages/TransformChangedMessage.h>
+#include <Core/Messages/UpdateLocalBoundsMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Profiling/Profiling.h>

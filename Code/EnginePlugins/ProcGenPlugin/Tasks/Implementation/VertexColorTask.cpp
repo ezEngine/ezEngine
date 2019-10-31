@@ -1,6 +1,7 @@
 #include <ProcGenPluginPCH.h>
 
 #include <Foundation/Profiling/Profiling.h>
+#include <ProcGenPlugin/Components/VolumeCollection.h>
 #include <ProcGenPlugin/Tasks/Utils.h>
 #include <ProcGenPlugin/Tasks/VertexColorTask.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
