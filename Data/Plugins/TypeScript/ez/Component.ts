@@ -9,6 +9,7 @@ export import Time = __Time.Time;
 
 declare function __CPP_Binding_RegisterMessageHandler(msgTypeNameHash: number, handlerFuncName: string): void;
 declare function __CPP_Component_IsValid(component: Component): boolean;
+declare function __CPP_Component_GetUniqueID(component: Component): number;
 declare function __CPP_Component_GetOwner(component: Component): GameObject;
 declare function __CPP_Component_SetActive(component: Component, active: boolean): GameObject;
 declare function __CPP_Component_IsActive(component: Component): boolean;
@@ -51,13 +52,24 @@ export abstract class Component {
         __CPP_Component_PostMessage(this, msg.TypeNameHash, msg, delay);
     }
 
-    // GetUniqueID
-    // GetMode
-    // virtual void Initialize();
-    // virtual void Deinitialize();
-    // virtual void OnActivated();
-    // virtual void OnDeactivated();
-    // virtual void OnSimulationStarted();
+    GetUniqueID(): number {
+        return __CPP_Component_GetUniqueID(this);
+    }
+
+    Initialize(): void {
+    }
+
+    Deinitialize(): void {
+    }
+
+    OnActivated(): void {
+    }
+
+    OnDeactivated(): void {
+    }
+
+    OnSimulationStarted(): void {
+    }
 }
 
 export abstract class TypescriptComponent extends Component {

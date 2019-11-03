@@ -6,6 +6,7 @@
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
 
 static int __CPP_Component_IsValid(duk_context* pDuk);
+static int __CPP_Component_GetUniqueID(duk_context* pDuk);
 static int __CPP_Component_GetOwner(duk_context* pDuk);
 static int __CPP_Component_SetActive(duk_context* pDuk);
 static int __CPP_Component_IsActive(duk_context* pDuk);
@@ -14,6 +15,7 @@ static int __CPP_Component_SendMessage(duk_context* pDuk);
 ezResult ezTypeScriptBinding::Init_Component()
 {
   m_Duk.RegisterGlobalFunction("__CPP_Component_IsValid", __CPP_Component_IsValid, 1);
+  m_Duk.RegisterGlobalFunction("__CPP_Component_GetUniqueID", __CPP_Component_GetUniqueID, 1);
   m_Duk.RegisterGlobalFunction("__CPP_Component_GetOwner", __CPP_Component_GetOwner, 1);
   m_Duk.RegisterGlobalFunction("__CPP_Component_SetActive", __CPP_Component_SetActive, 2);
   m_Duk.RegisterGlobalFunction("__CPP_Component_IsActive", __CPP_Component_IsActive, 1, 0);
@@ -163,6 +165,15 @@ static int __CPP_Component_IsValid(duk_context* pDuk)
   ezWorld* pWorld = ezTypeScriptBinding::RetrieveWorld(pDuk);
 
   return duk.ReturnBool(pWorld->TryGetComponent(hComponent, pComponent));
+}
+
+static int __CPP_Component_GetUniqueID(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk, 0);
+
+  ezComponent* pComponent = ezTypeScriptBinding::ExpectComponent<ezComponent>(pDuk);
+
+  return duk.ReturnUInt(pComponent->GetUniqueID());
 }
 
 static int __CPP_Component_GetOwner(duk_context* pDuk)

@@ -50,18 +50,23 @@ public:
 protected:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
-  virtual void OnSimulationStarted() override;
+  virtual void Initialize() override;
   virtual void Deinitialize() override;
+  virtual void OnActivated() override;
+  virtual void OnDeactivated() override;
+  virtual void OnSimulationStarted() override;
 
   virtual bool OnUnhandledMessage(ezMessage& msg) override;
   virtual bool OnUnhandledMessage(ezMessage& msg) const override;
 
   bool HandleUnhandledMessage(ezMessage& msg);
 
+
   //////////////////////////////////////////////////////////////////////////
   // ezTypeScriptComponent Interface
   //
 protected:
+  bool CallTsFunc(const char* szFuncName);
   void Update(ezTypeScriptBinding& script);
 
   ezTypeScriptBinding::TsComponentTypeInfo m_ComponentTypeInfo;
@@ -71,6 +76,12 @@ protected:
 
   void SetJavaScriptResource(const ezJavaScriptResourceHandle& hResource); // [ property ]
   const ezJavaScriptResourceHandle& GetJavaScriptResource() const;         // [ property ]
+
+  enum UserFlag
+  {
+    InitializedTS = 0,
+    OnActivatedTS = 1,
+  };
 
 private:
   ezJavaScriptResourceHandle m_hJsResource;

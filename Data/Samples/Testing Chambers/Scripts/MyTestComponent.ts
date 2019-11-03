@@ -132,6 +132,26 @@ export class MyTestComponent extends ez.TypescriptComponent {
         }
     }
 
+    Initialize(): void {
+        ez.Log.Info("Called Initialize")
+    }
+
+    Deinitialize(): void {
+        ez.Log.Info("Called Deinitialize")
+    }
+
+    OnActivated(): void {
+        ez.Log.Info("Called OnActivated")
+    }
+
+    OnDeactivated(): void {
+        ez.Log.Info("Called OnDeactivated")
+    }
+
+    OnSimulationStarted(): void {
+        ez.Log.Info("Called OnSimulationStarted")
+    }
+
     private deleteCounter = 3;
     private child: ez.GameObject
 }

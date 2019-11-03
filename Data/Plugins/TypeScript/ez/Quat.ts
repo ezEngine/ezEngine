@@ -280,21 +280,22 @@ export class Quat
         
         q.w = this.w * q2.w - (this.x * q2.x + this.y * q2.y + this.z * q2.z);
         
-        let t1x = q2.x * this.w;
-        let t1y = q2.y * this.w;
-        let t1z = q2.z * this.w;
+        const t1x = q2.x * this.w;
+        const t1y = q2.y * this.w;
+        const t1z = q2.z * this.w;
         
-        let t2x = this.x * q2.w;
-        let t2y = this.y * q2.w;
-        let t2z = this.z * q2.w;
+        const t2x = this.x * q2.w;
+        const t2y = this.y * q2.w;
+        const t2z = this.z * q2.w;
         
         q.x = t1x + t2x;
         q.y = t1y + t2y;
         q.z = t1z + t2z;
         
-        // TODO
-        // CrossRH = return new Vec3(this.y * rhs.z - this.z * rhs.y, this.z * rhs.x - this.x * rhs.z, this.x * rhs.y - this.y * rhs.x);
-        q.v.AddVec3(this.v.CrossRH(q2.v));
+        // q.v += Cross(this.v, q2.v)
+        q.x +=  this.y * q2.z - this.z * q2.y;
+        q.y +=  this.z * q2.x - this.x * q2.z;
+        q.z +=  this.x * q2.y - this.y * q2.x;
 
         this.x = q.x;
         this.y = q.y;

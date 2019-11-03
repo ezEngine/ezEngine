@@ -4,6 +4,8 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <TypeScriptPlugin/Components/TypeScriptComponent.h>
 
+ezTypeScriptTranspiler ezTypeScriptComponentManager::s_Transpiler;
+
 ezTypeScriptComponentManager::ezTypeScriptComponentManager(ezWorld* pWorld)
   : SUPER(pWorld)
 {
