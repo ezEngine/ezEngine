@@ -299,6 +299,7 @@ void ezQtContainerWindow::AddDocumentWindow(ezQtDocumentWindow* pDocWindow)
 
   m_DocumentWindows.PushBack(pDocWindow);
   ads::CDockWidget* dock = new ads::CDockWidget(QString::fromUtf8(pDocWindow->GetDisplayNameShort()));
+  dock->setObjectName(pDocWindow->GetUniqueName());
   EZ_ASSERT_DEV(!dock->objectName().isEmpty(), "Dock name must not be empty.");
   EZ_ASSERT_DEV(!m_DockNames.contains(dock->objectName()), "Dock name must be unique.");
   m_DockNames.insert(dock->objectName());
@@ -351,11 +352,7 @@ ezResult ezQtContainerWindow::EnsureVisible(ezQtDocumentWindow* pDocWindow)
 
   ads::CDockWidget* dock = m_DocumentDocks[uiListIndex];
 
-  if (dock->isClosed())
-  {
-    dock->toggleView();
-  }
-  dock->raise();
+  dock->toggleView(true);
   return EZ_SUCCESS;
 }
 
