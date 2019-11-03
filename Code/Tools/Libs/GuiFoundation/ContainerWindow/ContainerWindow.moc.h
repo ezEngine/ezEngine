@@ -45,6 +45,7 @@ public:
   void GetDocumentWindows(ezHybridArray<ezQtDocumentWindow*, 16>& windows);
 
   void SaveWindowLayout();
+  void SaveDocumentLayouts();
   void RestoreWindowLayout();
 
   void ScheduleRestoreWindowLayout();

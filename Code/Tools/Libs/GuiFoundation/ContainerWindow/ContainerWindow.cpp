@@ -47,7 +47,7 @@ namespace
     }
     return true;
   }
-}
+} // namespace
 
 ezQtContainerWindow::ezQtContainerWindow()
 {
@@ -127,6 +127,7 @@ void ezQtContainerWindow::SlotRestoreLayout()
 void ezQtContainerWindow::closeEvent(QCloseEvent* e)
 {
   SaveWindowLayout();
+  SaveDocumentLayouts();
 
   if (s_bForceClose)
     return;
@@ -159,9 +160,6 @@ void ezQtContainerWindow::SaveWindowLayout()
   ezStringBuilder sProjectFile;
   GetProjectLayoutPath(sProjectFile, true);
 
-  for (ezUInt32 i = 0; i < m_DocumentWindows.GetCount(); ++i)
-    m_DocumentWindows[i]->SaveWindowLayout();
-
   const bool bMaximized = isMaximized();
 
   QSettings Settings(ezToolsProject::IsProjectOpen() ? sProjectFile.GetData() : sFile.GetData(), QSettings::IniFormat);
@@ -170,9 +168,6 @@ void ezQtContainerWindow::SaveWindowLayout()
     Settings.setValue("DockManagerState", m_DockManager->saveState(1));
     Settings.setValue("WindowGeometry", saveGeometry());
     Settings.setValue("WindowState", saveState());
-    Settings.setValue("IsMaximized", bMaximized);
-    Settings.setValue("WindowPosition", pos());
-    Settings.setValue("WindowSize", size());
   }
   Settings.endGroup();
 
@@ -183,6 +178,12 @@ void ezQtContainerWindow::SaveWindowLayout()
     QFile::remove(sFile.GetData());
     QFile::copy(sProjectFile.GetData(), sFile.GetData());
   }
+}
+
+void ezQtContainerWindow::SaveDocumentLayouts()
+{
+  for (ezUInt32 i = 0; i < m_DocumentWindows.GetCount(); ++i)
+    m_DocumentWindows[i]->SaveWindowLayout();
 }
 
 void ezQtContainerWindow::RestoreWindowLayout()
@@ -203,34 +204,32 @@ void ezQtContainerWindow::RestoreWindowLayout()
     }
   }
 
-  QSettings Settings(sFile.GetData(), QSettings::IniFormat);
-  Settings.beginGroup(QString::fromUtf8("ContainerWnd_ezEditor"));
   {
-    auto dockState = Settings.value("DockManagerState");
-    if (dockState.isValid() && dockState.type() == QVariant::ByteArray)
+    QSettings Settings(sFile.GetData(), QSettings::IniFormat);
+    Settings.beginGroup(QString::fromUtf8("ContainerWnd_ezEditor"));
     {
-      m_DockManager->restoreState(dockState.toByteArray(), 1);
-      // As document windows can't be in a closed state (as pressing x destroys them),
-      // we need to fix any document window that was accidentally saved in its closed state.
-      for (ads::CDockWidget* dock : m_DocumentDocks)
+      restoreGeometry(Settings.value("WindowGeometry", saveGeometry()).toByteArray());
+      restoreState(Settings.value("WindowState", saveState()).toByteArray());
+      auto dockState = Settings.value("DockManagerState");
+      if (dockState.isValid() && dockState.type() == QVariant::ByteArray)
       {
-        if (dock->isClosed())
+        m_DockManager->restoreState(dockState.toByteArray(), 1);
+        // As document windows can't be in a closed state (as pressing x destroys them),
+        // we need to fix any document window that was accidentally saved in its closed state.
+        for (ads::CDockWidget* dock : m_DocumentDocks)
         {
-          dock->toggleView();
+          if (dock->isClosed())
+          {
+            dock->toggleView();
+          }
         }
       }
     }
-    showNormal();
-    restoreGeometry(Settings.value("WindowGeometry", saveGeometry()).toByteArray());
-    move(Settings.value("WindowPosition", pos()).toPoint());
-    resize(Settings.value("WindowSize", size()).toSize());
-    restoreState(Settings.value("WindowState", saveState()).toByteArray());
-    if (Settings.value("IsMaximized", isMaximized()).toBool())
-    {    
-      showMaximized();
-    }
+    Settings.endGroup();
   }
-  Settings.endGroup();
+
+  for (ezUInt32 i = 0; i < m_DocumentWindows.GetCount(); ++i)
+    m_DocumentWindows[i]->RestoreWindowLayout();
 
   m_bWindowLayoutRestored = true;
 }

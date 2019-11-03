@@ -105,14 +105,14 @@ private:
 
   void SetVisibleInContainer(bool bVisible);
 
-  bool m_bIsVisibleInContainer;
-  bool m_bRedrawIsTriggered;
-  bool m_bIsDrawingATM;
-  bool m_bTriggerRedrawQueued;
+  bool m_bIsVisibleInContainer = false;
+  bool m_bRedrawIsTriggered = false;
+  bool m_bIsDrawingATM = false;
+  bool m_bTriggerRedrawQueued = false;
   bool m_bAllowSaveWindowLayout = true;
-  ezInt16 m_iTargetFramerate;
-  ezDocument* m_pDocument;
-  ezQtContainerWindow* m_pContainerWindow;
+  ezInt16 m_iTargetFramerate = 0;
+  ezDocument* m_pDocument = nullptr;
+  ezQtContainerWindow* m_pContainerWindow = nullptr;
   QLabel* m_pPermanentStatusMsg = nullptr;
 
 private:
