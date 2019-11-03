@@ -200,19 +200,18 @@ ezQuat ezTypeScriptBinding::GetQuat(duk_context* pDuk, ezInt32 iObjIdx)
 
   ezQuat res;
 
+  EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "x"), "");
+  res.v.x = duk_get_number_default(pDuk, -1, 0.0f);
+  duk_pop(pDuk);
+  EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "y"), "");
+  res.v.y = duk_get_number_default(pDuk, -1, 0.0f);
+  duk_pop(pDuk);
+  EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "z"), "");
+  res.v.z = duk_get_number_default(pDuk, -1, 0.0f);
+  duk_pop(pDuk);
   EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "w"), "");
   res.w = duk_get_number_default(pDuk, -1, 0.0f);
   duk_pop(pDuk);
-
-  EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "v"), "");
-
-  EZ_VERIFY(duk_get_prop_string(pDuk, -1, "x"), "");
-  res.v.x = duk_get_number_default(pDuk, -1, 0.0f);
-  EZ_VERIFY(duk_get_prop_string(pDuk, -2, "y"), "");
-  res.v.y = duk_get_number_default(pDuk, -1, 0.0f);
-  EZ_VERIFY(duk_get_prop_string(pDuk, -3, "z"), "");
-  res.v.z = duk_get_number_default(pDuk, -1, 0.0f);
-  duk_pop_n(pDuk, 4);
 
   return res;
 }
@@ -281,11 +280,11 @@ void ezTypeScriptBinding::PushQuat(duk_context* pDuk, const ezQuat& value)
 
   duk.PushGlobalObject();                                   // [ global ]
   EZ_VERIFY(duk.PushLocalObject("__Quat").Succeeded(), ""); // [ global __Quat ]
-  duk_get_prop_string(duk, -1, "Quat");                     // [ global __Quat Vec3 ]
-  duk_push_number(duk, value.v.x);                          // [ global __Quat Vec3 x ]
-  duk_push_number(duk, value.v.y);                          // [ global __Quat Vec3 x y ]
-  duk_push_number(duk, value.v.z);                          // [ global __Quat Vec3 x y z ]
-  duk_push_number(duk, value.w);                            // [ global __Quat Vec3 x y z w ]
+  duk_get_prop_string(duk, -1, "Quat");                     // [ global __Quat Quat ]
+  duk_push_number(duk, value.v.x);                          // [ global __Quat Quat x ]
+  duk_push_number(duk, value.v.y);                          // [ global __Quat Quat x y ]
+  duk_push_number(duk, value.v.z);                          // [ global __Quat Quat x y z ]
+  duk_push_number(duk, value.w);                            // [ global __Quat Quat x y z w ]
   duk_new(duk, 4);                                          // [ global __Quat result ]
   duk_remove(duk, -2);                                      // [ global result ]
   duk_remove(duk, -2);                                      // [ result ]

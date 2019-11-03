@@ -7,7 +7,9 @@ export import Angle = __Angle.Angle;
 
 export class Quat
 {
-    v : Vec3;
+    x : number;
+    y : number;
+    z : number;
     w : number;
 
     // TODO: void SetFromMat3(const ezMat3Template<Type>& m)
@@ -16,20 +18,22 @@ export class Quat
 
     constructor(_x: number = 0.0, _y: number = 0.0, _z: number = 0.0, _w: number = 1.0)
     {
-        this.v = new Vec3(_x, _y, _z);
+        this.x = _x;
+        this.y = _y;
+        this.z = _z;
         this.w = _w;
     }
 
     Clone(): Quat
     {
-        return new Quat(this.v.x, this.v.y, this.v.z, this.w);
+        return new Quat(this.x, this.y, this.z, this.w);
     }
 
     SetIdentity(): void
     {
-        this.v.x = 0;
-        this.v.y = 0;
-        this.v.z = 0;
+        this.x = 0;
+        this.y = 0;
+        this.z = 0;
         this.w = 1.0;
     }
 
@@ -40,29 +44,37 @@ export class Quat
     
     Normalize(): void
     {
-        let n = this.v.x * this.v.x + this.v.y * this.v.y + this.v.z * this.v.z + this.w * this.w;
+        let n = this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w;
 
         n = 1.0 / Math.sqrt(n);
       
-        this.v.MulNumber(n);
+        this.x *= n;
+        this.y *= n;
+        this.z *= n;
         this.w *= n;
     }
 
     Negate(): void
     {
-        this.v.MulNumber(-1.0);
+        this.x = -this.x;
+        this.y = -this.y;
+        this.z = -this.z;
     }
 
     GetNegated(): Quat
     {
-        return new Quat(-this.v.x, -this.v.y, -this.v.z, this.w);
+        return new Quat(-this.x, -this.y, -this.z, this.w);
     }
 
     SetFromAxisAndAngle(vRotationAxis: Vec3, angleInRadian: number)
     {
       const halfAngle = angleInRadian * 0.5;
+
+      let sinHalfAngle = Math.sin(halfAngle);
     
-      this.v.SetMul(vRotationAxis, Math.sin(halfAngle));
+      this.x = vRotationAxis.x * sinHalfAngle;
+      this.y = vRotationAxis.y * sinHalfAngle;
+      this.z = vRotationAxis.z * sinHalfAngle;
       this.w = Math.cos(halfAngle);
     }    
 
@@ -94,8 +106,11 @@ export class Quat
       const c = v0.CrossRH(v1);
       const d = v0.Dot(v1);
       const s = Math.sqrt((1.0 + d) * 2.0);
+      const invS = 1.0 / s;
 
-      this.v.SetDiv(c, s);
+      this.x = c.x * invS;
+      this.y = c.y * invS;
+      this.z = c.z * invS;
       this.w = s * 0.5;
     
       this.Normalize();
@@ -105,7 +120,7 @@ export class Quat
     {
       const qdelta = 0.009;
     
-      let cosTheta = (qFrom.v.x * qTo.v.x + qFrom.v.y * qTo.v.y + qFrom.v.z * qTo.v.z + qFrom.w * qTo.w);
+      let cosTheta = (qFrom.x * qTo.x + qFrom.y * qTo.y + qFrom.z * qTo.z + qFrom.w * qTo.w);
     
       let bFlipSign = false;
       
@@ -141,14 +156,14 @@ export class Quat
       if (bFlipSign)
         t1 = -t1;
     
-      this.v.x = t0 * qFrom.v.x;
-      this.v.y = t0 * qFrom.v.y;
-      this.v.z = t0 * qFrom.v.z;
+      this.x = t0 * qFrom.x;
+      this.y = t0 * qFrom.y;
+      this.z = t0 * qFrom.z;
       this.w = t0 * qFrom.w;
     
-      this.v.x += t1 * qTo.v.x;
-      this.v.y += t1 * qTo.v.y;
-      this.v.z += t1 * qTo.v.z;
+      this.x += t1 * qTo.x;
+      this.y += t1 * qTo.y;
+      this.z += t1 * qTo.z;
       this.w += t1 * qTo.w;
     
       this.Normalize();
@@ -159,7 +174,7 @@ export class Quat
         const acos = Math.acos(this.w);
         const d = Math.sin(acos);
 
-        let axis: Vec3;
+        let axis: Vec3 = new Vec3();
         let angleInRadian: number;
 
         if (d < 0.00001)
@@ -168,7 +183,11 @@ export class Quat
         }
         else
         {
-            axis.SetDiv(this.v, d);
+            const invD = 1.0 / d;
+           
+            axis.x = this.x * invD;
+            axis.y = this.y * invD;
+            axis.z = this.z * invD;
         }
 
         angleInRadian = acos * 2.0;
@@ -201,20 +220,20 @@ export class Quat
         let roll: number;
 
         // roll (x-axis rotation)
-        const sinr = 2.0 * (this.w * this.v.x + this.v.y * this.v.z);
-        const cosr = 1.0 - 2.0 * (this.v.x * this.v.x + this.v.y * this.v.y);
+        const sinr = 2.0 * (this.w * this.x + this.y * this.z);
+        const cosr = 1.0 - 2.0 * (this.x * this.x + this.y * this.y);
         roll = Math.atan2(sinr, cosr);
 
         // pitch (y-axis rotation)
-        const sinp = 2.0 * (this.w * this.v.y - this.v.z * this.v.x);
+        const sinp = 2.0 * (this.w * this.y - this.z * this.x);
         if (Math.abs(sinp) >= 1.0)
             pitch = Math.abs(Math.PI * 0.5) * Math.sign(sinp);
         else
             pitch = Math.asin(sinp);
 
         // yaw (z-axis rotation)
-        const siny = 2.0 * (this.w * this.v.z + this.v.x * this.v.y);
-        const cosy = 1.0 - 2.0 * (this.v.y * this.v.y + this.v.z * this.v.z);
+        const siny = 2.0 * (this.w * this.z + this.x * this.y);
+        const cosy = 1.0 - 2.0 * (this.y * this.y + this.z * this.z);
         yaw = Math.atan2(siny, cosy);
 
         return { yaw, pitch, roll };
@@ -233,50 +252,61 @@ export class Quat
         const sp = Math.sin(pitch * 0.5);
 
         this.w = (cy * cr * cp + sy * sr * sp);
-        this.v.x = (cy * sr * cp - sy * cr * sp);
-        this.v.y = (cy * cr * sp + sy * sr * cp);
-        this.v.z = (sy * cr * cp - cy * sr * sp);
+        this.x = (cy * sr * cp - sy * cr * sp);
+        this.y = (cy * cr * sp + sy * sr * cp);
+        this.z = (sy * cr * cp - cy * sr * sp);
     }
-      
+
     RotateVec3(vector: Vec3): void
     {
-        let t = this.v.CrossRH(vector)
-        t.MulNumber(2.0);
+        // t = cross(this, vector) * 2
+        const tx = (this.y * vector.z - this.z * vector.y) * 2.0;
+        const ty = (this.z * vector.x - this.x * vector.z) * 2.0;
+        const tz = (this.x * vector.y - this.y * vector.x) * 2.0;
 
-        const t2 = this.v.CrossRH(t);
+        // t2 = cross(this, t)
+        const t2x = this.y * tz - this.z * ty;
+        const t2y = this.z * tx - this.x * tz;
+        const t2z = this.x * ty - this.y * tx;
 
-        t.MulNumber(this.w);
-        t.AddVec3(t2);
-
-        vector.AddVec3(t);
+        vector.x += (tx * this.w) + t2x;
+        vector.y += (ty * this.w) + t2y;
+        vector.z += (tz * this.w) + t2z;
     }
-
+    
     ConcatenateRotations(q2: Quat): void
     {
-        let q: Quat;
-
-        q.w = this.w * q2.w - this.v.Dot(q2.v);
-
-        let temp1: Vec3;
-        temp1 = q2.v.Clone();
-        temp1.MulNumber(this.w);
-
-        let temp2: Vec3;
-        temp2 = this.v.Clone();
-        temp2.MulNumber(q2.w);
-
-        q.v.SetAdd(temp1, temp2);
+        let q: Quat = new Quat;
+        
+        q.w = this.w * q2.w - (this.x * q2.x + this.y * q2.y + this.z * q2.z);
+        
+        let t1x = q2.x * this.w;
+        let t1y = q2.y * this.w;
+        let t1z = q2.z * this.w;
+        
+        let t2x = this.x * q2.w;
+        let t2y = this.y * q2.w;
+        let t2z = this.z * q2.w;
+        
+        q.x = t1x + t2x;
+        q.y = t1y + t2y;
+        q.z = t1z + t2z;
+        
+        // TODO
+        // CrossRH = return new Vec3(this.y * rhs.z - this.z * rhs.y, this.z * rhs.x - this.x * rhs.z, this.x * rhs.y - this.y * rhs.x);
         q.v.AddVec3(this.v.CrossRH(q2.v));
 
-        this.v = q.v;
+        this.x = q.x;
+        this.y = q.y;
+        this.z = q.z;
         this.w = q.w;
     }
     
     IsIdentical(rhs: Quat): boolean
     {
-        return this.v.x == rhs.v.x && 
-               this.v.y == rhs.v.y &&
-               this.v.z == rhs.v.z &&
+        return this.x == rhs.x && 
+               this.y == rhs.y &&
+               this.z == rhs.z &&
                this.w   == rhs.w;
     }
 }
