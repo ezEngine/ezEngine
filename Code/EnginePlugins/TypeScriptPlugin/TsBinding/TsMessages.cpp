@@ -472,13 +472,20 @@ void ezTypeScriptBinding::RegisterMessageHandlersForComponentType(const char* sz
 
   m_sCurrentTsMsgHandlerRegistrator = szComponent;
 
-  duk.PushGlobalObject();                         // [ global ]
-  if (duk.PushLocalObject(szComponent).Succeeded()) // [ global obj ]
+  const ezStringBuilder sCompModule("__", szComponent);
+
+  duk.PushGlobalObject();                           // [ global ]
+  if (duk.PushLocalObject(sCompModule).Succeeded()) // [ global __CompModule ]
   {
-    if (duk.PrepareObjectFunctionCall("RegisterMessageHandlers").Succeeded()) // [ global obj func ]
+    if (duk.PushLocalObject(szComponent).Succeeded()) // [ global __CompModule obj ]
     {
-      duk.CallPreparedFunction(); // [ global obj result ]
-      duk.PopStack();             // [ global obj ]
+      if (duk.PrepareObjectFunctionCall("RegisterMessageHandlers").Succeeded()) // [ global __CompModule obj func ]
+      {
+        duk.CallPreparedFunction(); // [ global __CompModule obj result ]
+        duk.PopStack();             // [ global __CompModule obj ]
+      }
+
+      duk.PopStack(); // [ global __CompModule ]
     }
 
     duk.PopStack(); // [ global ]

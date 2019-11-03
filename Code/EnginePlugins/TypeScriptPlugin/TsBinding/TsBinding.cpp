@@ -124,13 +124,19 @@ ezResult ezTypeScriptBinding::LoadComponent(const ezJavaScriptResourceHandle& hR
 
   //ezStringBuilder sRelPath ("Scripts/Below/", sComponent);
 
+  const ezStringBuilder sCompModule("__", sComponent);
+
+  m_Duk.PushGlobalObject();
+
   ezStringBuilder req;
-  req.Format("var {} = require(\"./Scripts/below/MyTestComponent\");", sComponent);
+  req.Format("var {} = require(\"./Scripts/MyTestComponent\");", sCompModule);
   if (m_Duk.ExecuteString(req).Failed())
   {
     ezLog::Error("Could not load component");
     return EZ_FAILURE;
   }
+
+  m_Duk.PopStack();
 
   //EZ_SUCCEED_OR_RETURN(m_Duk.ExecuteString(szSource, sRelPath));
 

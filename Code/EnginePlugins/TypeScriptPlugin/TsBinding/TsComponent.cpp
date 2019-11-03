@@ -50,28 +50,30 @@ ezResult ezTypeScriptBinding::RegisterComponent(const char* szTypeName, ezCompon
 
   if (sTypeName.TrimWordStart("ez"))
   {
-    EZ_SUCCEED_OR_RETURN(duk.PushLocalObject("__AllComponents")); // [ global __AllComponents ]
+    EZ_SUCCEED_OR_RETURN(duk.PushLocalObject("__AllComponents")); // [ global __CompModule ]
     bCloseAllComps = true;
   }
   else
   {
-    EZ_SUCCEED_OR_RETURN(duk.PushLocalObject(sTypeName)); // [ global sTypeName ]
+    const ezStringBuilder sCompModule("__", sTypeName);
+
+    EZ_SUCCEED_OR_RETURN(duk.PushLocalObject(sCompModule)); // [ global __CompModule ]
     bCloseAllComps = true;
   }
 
-  if (!duk_get_prop_string(duk, -1, sTypeName)) // [ global __AllComponents sTypeName ]
+  if (!duk_get_prop_string(duk, -1, sTypeName)) // [ global __CompModule sTypeName ]
     return EZ_FAILURE;
 
-  duk_new(duk, 0); // [ global __AllComponents object ]
+  duk_new(duk, 0); // [ global __CompModule object ]
 
   // store C++ side component handle in obj as property
   {
-    ezComponentHandle* pBuffer = reinterpret_cast<ezComponentHandle*>(duk_push_fixed_buffer(duk, sizeof(ezComponentHandle))); // [ global __AllComponents object buffer ]
+    ezComponentHandle* pBuffer = reinterpret_cast<ezComponentHandle*>(duk_push_fixed_buffer(duk, sizeof(ezComponentHandle))); // [ global __CompModule object buffer ]
     *pBuffer = handle;
-    duk_put_prop_index(duk, -2, ezTypeScriptBindingIndexProperty::ComponentHandle); // [ global __AllComponents object ]
+    duk_put_prop_index(duk, -2, ezTypeScriptBindingIndexProperty::ComponentHandle); // [ global __CompModule object ]
   }
 
-  StoreReferenceInStash(uiStashIdx);    // [ global __AllComponents object ]
+  StoreReferenceInStash(uiStashIdx);    // [ global __CompModule object ]
   duk.PopStack(bCloseAllComps ? 3 : 2); // [ ]
 
   out_uiStashIdx = uiStashIdx;

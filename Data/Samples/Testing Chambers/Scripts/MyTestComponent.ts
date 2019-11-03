@@ -1,6 +1,6 @@
 import ez = require("./../TypeScript/ez")
 
-class MyTestComponent extends ez.TypescriptComponent {
+export class MyTestComponent extends ez.TypescriptComponent {
     constructor() {
         super()
         ez.Log.Info("Construct MyTestComponent")

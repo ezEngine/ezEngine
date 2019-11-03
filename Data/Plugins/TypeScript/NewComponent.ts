@@ -1,6 +1,6 @@
 import ez = require("<PATH-TO-EZ-TS>")
 
-class NewComponent extends ez.TypescriptComponent {
+export class NewComponent extends ez.TypescriptComponent {
     constructor() {
         super()
     }
