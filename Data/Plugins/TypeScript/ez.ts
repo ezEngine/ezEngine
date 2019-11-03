@@ -12,6 +12,7 @@ export import Log = __Log.Log;
 export import GameObject = __GameObject.GameObject;
 export import Component  = __Component.Component;
 export import TypescriptComponent  = __Component.TypescriptComponent;
+export import TickedTypescriptComponent  = __Component.TickedTypescriptComponent;
 export import Vec3 = __Vec3.Vec3;
 export import Quat = __Quat.Quat;
 export import Color = __Color.Color;

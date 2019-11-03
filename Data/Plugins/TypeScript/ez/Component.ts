@@ -56,6 +56,7 @@ export abstract class Component {
         return __CPP_Component_GetUniqueID(this);
     }
 
+/*
     Initialize(): void {
     }
 
@@ -70,12 +71,16 @@ export abstract class Component {
 
     OnSimulationStarted(): void {
     }
+*/
 }
 
 export abstract class TypescriptComponent extends Component {
-    abstract Update(): void;
 
     static RegisterMessageHandler<TYPE extends Message>(msgType: new () => TYPE, handlerFuncName: string) {
         __CPP_Binding_RegisterMessageHandler(msgType.GetTypeNameHash(), handlerFuncName);
     }
+}
+
+export abstract class TickedTypescriptComponent extends TypescriptComponent {
+    abstract Tick(): void;
 }

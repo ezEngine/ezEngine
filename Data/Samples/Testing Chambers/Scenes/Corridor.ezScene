@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7297922959506964864,5177324930371449723}}
-		u4 %Hash{5961263582101782995}
+		u4 %Hash{8776567996325801447}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -12405,25 +12405,6 @@ o
 }
 o
 {
-	Uuid %id{u4{15513525191945911865,10130702333339861332}}
-	s %t{"ezRotorComponent"}
-	u3 %v{3}
-	p
-	{
-		f %Acceleration{0}
-		b %Active{1}
-		s %Axis{"ezBasisAxis::PositiveZ"}
-		Angle %AxisDeviation{f{0}}
-		f %Deceleration{0}
-		i3 %DegreesToRotate{0}
-		b %ReverseAtEnd{0}
-		b %ReverseAtStart{0}
-		b %Running{1}
-		f %Speed{0x0000B442}
-	}
-}
-o
-{
 	Uuid %id{u4{2504397330424958524,10154551340094871805}}
 	s %t{"ezGreyBoxComponent"}
 	u3 %v{3}
@@ -13310,7 +13291,6 @@ o
 		{
 			Uuid{u4{17893246179580933911,10270449283941852978}}
 			Uuid{u4{3484409141020021556,10114938130816755695}}
-			Uuid{u4{15513525191945911865,10130702333339861332}}
 			Uuid{u4{1043889447867966530,9870007146512143392}}
 		}
 		s %GlobalKey{""}

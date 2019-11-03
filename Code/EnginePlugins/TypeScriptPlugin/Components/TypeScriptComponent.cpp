@@ -163,7 +163,13 @@ void ezTypeScriptComponent::OnSimulationStarted()
 
 void ezTypeScriptComponent::Update(ezTypeScriptBinding& binding)
 {
-  CallTsFunc("Update");
+  if (GetUserFlag(UserFlag::NoTsTick))
+    return;
+
+  if (!CallTsFunc("Tick"))
+  {
+    SetUserFlag(UserFlag::NoTsTick, true);
+  }
 }
 
 void ezTypeScriptComponent::SetJavaScriptResourceFile(const char* szFile)

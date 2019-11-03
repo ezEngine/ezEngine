@@ -1,6 +1,6 @@
 import ez = require("./../TypeScript/ez")
 
-export class MyTestComponent extends ez.TypescriptComponent {
+export class MyTestComponent extends ez.TickedTypescriptComponent {
     constructor() {
         super()
         ez.Log.Info("Construct MyTestComponent")
@@ -21,7 +21,7 @@ export class MyTestComponent extends ez.TypescriptComponent {
         ez.TypescriptComponent.RegisterMessageHandler(ez.MsgSetFloatParameter, "OnMsgSetFloatParameter");
     }
 
-    Update(): void {
+    Tick(): void {
         //ez.Log.Info("MyTestComponent::Update")
 
         let owner = this.GetOwner();

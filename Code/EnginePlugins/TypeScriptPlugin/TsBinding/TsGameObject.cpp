@@ -192,6 +192,12 @@ static int __CPP_GameObject_SetX_Vec3(duk_context* pDuk)
 
   ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
 
+  if (!pGameObject->IsDynamic())
+  {
+    ezLog::SeriousWarning("TypeScript component modifies transform of static game-object '{}'. Use 'Force Dynamic' mode on owner game-object.", pGameObject->GetName());
+    pGameObject->MakeDynamic();
+  }
+
   const ezVec3 value = ezTypeScriptBinding::GetVec3(pDuk, 1);
 
   switch (duk.GetFunctionMagicValue())
@@ -280,6 +286,12 @@ static int __CPP_GameObject_SetX_Float(duk_context* pDuk)
 
   ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
 
+  if (!pGameObject->IsDynamic())
+  {
+    ezLog::SeriousWarning("TypeScript component modifies transform of static game-object '{}'. Use 'Force Dynamic' mode on owner game-object.", pGameObject->GetName());
+    pGameObject->MakeDynamic();
+  }
+
   switch (duk.GetFunctionMagicValue())
   {
     case GameObject_X::LocalUniformScaling:
@@ -319,6 +331,12 @@ static int __CPP_GameObject_SetX_Quat(duk_context* pDuk)
   ezDuktapeFunction duk(pDuk, 0);
 
   ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
+
+  if (!pGameObject->IsDynamic())
+  {
+    ezLog::SeriousWarning("TypeScript component modifies transform of static game-object '{}'. Use 'Force Dynamic' mode on owner game-object.", pGameObject->GetName());
+    pGameObject->MakeDynamic();
+  }
 
   const ezQuat rot = ezTypeScriptBinding::GetQuat(pDuk, 1);
 
