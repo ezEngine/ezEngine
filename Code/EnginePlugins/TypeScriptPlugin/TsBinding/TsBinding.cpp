@@ -27,21 +27,19 @@ ezTypeScriptBinding* ezTypeScriptBinding::RetrieveBinding(duk_context* pDuk)
   return pBinding;
 }
 
-ezResult ezTypeScriptBinding::Initialize(ezTypeScriptTranspiler& transpiler, ezWorld& world)
+ezResult ezTypeScriptBinding::Initialize(ezWorld& world)
 {
   EZ_LOG_BLOCK("Initialize TypeScript Binding");
   EZ_PROFILE_SCOPE("Initialize TypeScript Binding");
 
-  m_pTranspiler = &transpiler;
+  m_hScriptCompendium = ezResourceManager::LoadResource<ezScriptCompendiumResource>(":project/AssetCache/Common/Scripts.ezScriptCompendium");
 
   m_Duk.EnableModuleSupport(&ezTypeScriptBinding::DukSearchModule);
-  m_Duk.StorePointerInStash("Transpiler", m_pTranspiler);
+  m_Duk.StorePointerInStash("ezTypeScriptBinding", this);
 
   m_Duk.RegisterGlobalFunction("__CPP_Binding_RegisterMessageHandler", &ezTypeScriptBinding::__CPP_Binding_RegisterMessageHandler, 2);
 
   StoreWorld(&world);
-
-  //SetModuleSearchPath("TypeScript");
 
   SetupRttiFunctionBindings();
   SetupRttiPropertyBindings();
@@ -55,39 +53,6 @@ ezResult ezTypeScriptBinding::Initialize(ezTypeScriptTranspiler& transpiler, ezW
   EZ_SUCCEED_OR_RETURN(Init_World());
 
   m_bInitialized = true;
-  return EZ_SUCCESS;
-}
-
-ezResult ezTypeScriptBinding::LoadComponent(const char* szComponent, TsComponentTypeInfo& out_TypeInfo)
-{
-  if (!m_bInitialized)
-  {
-    return EZ_FAILURE;
-  }
-
-  if (m_LoadedComponents.Contains(szComponent))
-  {
-    out_TypeInfo = m_TsComponentTypes.Find(szComponent);
-    return m_LoadedComponents[szComponent] ? EZ_SUCCESS : EZ_FAILURE;
-  }
-
-  EZ_PROFILE_SCOPE("Load TypeScript Component");
-
-  m_LoadedComponents[szComponent] = false;
-
-  const ezStringBuilder sComponentFile("TypeScript/", szComponent, ".ts");
-
-  ezStringBuilder transpiledCode;
-  EZ_SUCCEED_OR_RETURN(m_pTranspiler->TranspileFileAndStoreJS(sComponentFile, transpiledCode));
-
-  EZ_SUCCEED_OR_RETURN(m_Duk.ExecuteString(transpiledCode, sComponentFile));
-  RegisterMessageHandlersForComponentType(szComponent);
-
-  m_LoadedComponents[szComponent] = true;
-
-  m_TsComponentTypes[szComponent]; // important
-  out_TypeInfo = m_TsComponentTypes.Find(szComponent);
-
   return EZ_SUCCESS;
 }
 
@@ -120,16 +85,14 @@ ezResult ezTypeScriptBinding::LoadComponent(const ezJavaScriptResourceHandle& hR
   bool& bLoaded = m_LoadedComponents[sComponent];
   bLoaded = false;
 
-  const char* szSource = reinterpret_cast<const char*>(pJsResource->GetDescriptor().m_JsSource.GetData());
-
-  //ezStringBuilder sRelPath ("Scripts/Below/", sComponent);
-
   const ezStringBuilder sCompModule("__", sComponent);
 
   m_Duk.PushGlobalObject();
 
+  // TODO: do not hardcode path to script
+
   ezStringBuilder req;
-  req.Format("var {} = require(\"./Scripts/MyTestComponent\");", sCompModule);
+  req.Format("var {} = require(\"./Scripts/{}\");", sCompModule, sComponent);
   if (m_Duk.ExecuteString(req).Failed())
   {
     ezLog::Error("Could not load component");
@@ -137,8 +100,6 @@ ezResult ezTypeScriptBinding::LoadComponent(const ezJavaScriptResourceHandle& hR
   }
 
   m_Duk.PopStack();
-
-  //EZ_SUCCEED_OR_RETURN(m_Duk.ExecuteString(szSource, sRelPath));
 
   RegisterMessageHandlersForComponentType(sComponent);
 

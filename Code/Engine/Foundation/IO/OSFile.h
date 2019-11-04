@@ -128,6 +128,9 @@ public:
   /// Returns false, if the search has reached its end.
   ezResult SkipFolder(); // [tested]
 
+  /// \brief Returns true if the iterator currently points to a valid file entry.
+  bool IsValid() const;
+
 private:
   /// \brief The current path of the folder, in which the iterator currently is.
   ezStringBuilder m_sCurPath;

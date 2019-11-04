@@ -12,7 +12,7 @@ public:
   ezTypeScriptAssetDocumentManager();
   ~ezTypeScriptAssetDocumentManager();
 
-  virtual ezString GetResourceTypeExtension(const char* szDocumentPath) const override { return "ezTypeScriptBin"; }
+  virtual ezString GetResourceTypeExtension(const char* szDocumentPath) const override { return "ezTypeScriptRes"; }
 
   virtual void QuerySupportedAssetTypes(ezSet<ezString>& inout_AssetTypeNames) const override
   {
@@ -20,6 +20,8 @@ public:
   }
 
   ezTypeScriptTranspiler& GetTranspiler() { return m_Transpiler; }
+
+  ezResult GenerateScriptCompendium();
 
 private:
   void OnDocumentManagerEvent(const ezDocumentManager::Event& e);
@@ -41,4 +43,6 @@ private:
   void SetupProjectForTypeScript();
 
   ezDocumentTypeDescriptor m_AssetDesc;
+
+  ezMap<ezString, ezTimestamp> m_CheckedTsFiles;
 };

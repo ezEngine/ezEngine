@@ -26,8 +26,6 @@ public:
 
   ezTypeScriptBinding& GetTsBinding() const { return m_TsBinding; }
 
-  static ezTypeScriptTranspiler s_Transpiler;
-
 private:
   void Update(const ezWorldModule::UpdateContext& context);
 

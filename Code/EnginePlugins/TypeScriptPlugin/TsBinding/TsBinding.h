@@ -7,6 +7,7 @@
 #include <Core/World/Declarations.h>
 #include <Core/World/World.h>
 #include <Foundation/Containers/HashTable.h>
+#include <TypeScriptPlugin/Resources/ScriptCompendiumResource.h>
 #include <TypeScriptPlugin/Transpiler/Transpiler.h>
 
 class ezWorld;
@@ -43,8 +44,7 @@ public:
   ezTypeScriptBinding();
   ~ezTypeScriptBinding();
 
-  ezResult Initialize(ezTypeScriptTranspiler& transpiler, ezWorld& world);
-  ezResult LoadComponent(const char* szComponent, TsComponentTypeInfo& out_TypeInfo);
+  ezResult Initialize(ezWorld& world);
   ezResult LoadComponent(const ezJavaScriptResourceHandle& hResource, TsComponentTypeInfo& out_TypeInfo);
   const TsComponentInfo* GetComponentTypeInfo(const char* szComponentType) const;
 
@@ -57,9 +57,9 @@ private:
   static void GetTsName(const ezRTTI* pRtti, ezStringBuilder& out_sName);
 
   ezDuktapeContext m_Duk;
-  ezTypeScriptTranspiler* m_pTranspiler = nullptr;
   bool m_bInitialized = false;
   ezMap<ezString, bool> m_LoadedComponents;
+  ezScriptCompendiumResourceHandle m_hScriptCompendium;
 
   ///@}
   /// \name Typescript Code Generation
@@ -138,9 +138,6 @@ private:
   ///@}
   /// \name Modules
   ///@{
-public:
-  void SetModuleSearchPath(const char* szPath);
-
 private:
   static int DukSearchModule(duk_context* pDuk);
 

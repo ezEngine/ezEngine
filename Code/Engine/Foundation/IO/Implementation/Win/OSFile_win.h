@@ -311,6 +311,11 @@ ezFileSystemIterator::~ezFileSystemIterator()
   }
 }
 
+bool ezFileSystemIterator::IsValid() const
+{
+  return !m_Data.m_Handles.IsEmpty();
+}
+
 ezResult ezFileSystemIterator::StartSearch(const char* szSearchStart, ezBitflags<ezFileSystemIteratorFlags> flags /*= ezFileSystemIteratorFlags::All*/)
 {
   EZ_ASSERT_DEV(m_Data.m_Handles.IsEmpty(), "Cannot start another search.");

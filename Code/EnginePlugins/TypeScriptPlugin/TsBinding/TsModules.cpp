@@ -58,38 +58,36 @@ ezResult ezTypeScriptBinding::Init_RequireModules()
   return EZ_SUCCESS;
 }
 
-void ezTypeScriptBinding::SetModuleSearchPath(const char* szPath)
-{
-  m_Duk.StoreStringInStash("ModuleSearchPath", szPath);
-}
-
 int ezTypeScriptBinding::DukSearchModule(duk_context* pDuk)
 {
   ezDuktapeFunction duk(pDuk, +1);
 
-  ezTypeScriptTranspiler* pTranspiler = static_cast<ezTypeScriptTranspiler*>(duk.RetrievePointerFromStash("Transpiler"));
-
   ezStringBuilder sRequestedFile = duk.GetStringValue(0);
-
   if (!sRequestedFile.HasAnyExtension())
   {
     sRequestedFile.ChangeFileExtension("ts");
   }
 
-  if (const char* szSearchPath = duk.RetrieveStringFromStash("ModuleSearchPath"))
-  {
-    sRequestedFile.Prepend(szSearchPath, "/");
-  }
-
   EZ_LOG_BLOCK("DukSearchModule", sRequestedFile);
 
-  ezStringBuilder sTranspiledCode;
-  if (pTranspiler->TranspileFileAndStoreJS(sRequestedFile, sTranspiledCode).Failed())
+  ezTypeScriptBinding* pBinding = static_cast<ezTypeScriptBinding*>(duk.RetrievePointerFromStash("ezTypeScriptBinding"));
+
+  ezResourceLock<ezScriptCompendiumResource> pJsLib(pBinding->m_hScriptCompendium, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+  if (pJsLib.GetAcquireResult() != ezResourceAcquireResult::Final)
   {
     duk.PushUndefined();
-    duk.Error(ezFmt("'required' module \"{}\" could not be found/transpiled.", sRequestedFile));
+    duk.Error(ezFmt("'required' module \"{}\" could not be loaded: JsLib resource is missing.", sRequestedFile));
     return duk.ReturnCustom();
   }
 
-  return duk.ReturnString(sTranspiledCode);
+  auto it = pJsLib->GetDescriptor().m_PathToSource.Find(sRequestedFile);
+
+  if (!it.IsValid())
+  {
+    duk.PushUndefined();
+    duk.Error(ezFmt("'required' module \"{}\" could not be loaded: JsLib resource does not contain source for it.", sRequestedFile));
+    return duk.ReturnCustom();
+  }
+
+  return duk.ReturnString(it.Value());
 }
