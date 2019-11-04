@@ -1,6 +1,7 @@
 #pragma once
 
 #include <EditorFramework/Assets/AssetDocumentManager.h>
+#include <Foundation/Time/Timestamp.h>
 #include <Foundation/Types/Status.h>
 #include <TypeScriptPlugin/Transpiler/Transpiler.h>
 

@@ -6,15 +6,17 @@
 #include <EditorPluginTypeScript/TypeScriptAsset/TypeScriptAssetWindow.moc.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/Utilities/Progress.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <TypeScriptPlugin/Resources/ScriptCompendiumResource.h>
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTypeScriptAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezTypeScriptAssetDocumentManager>)
-  ;
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezTypeScriptAssetDocumentManager::ezTypeScriptAssetDocumentManager()
 {
