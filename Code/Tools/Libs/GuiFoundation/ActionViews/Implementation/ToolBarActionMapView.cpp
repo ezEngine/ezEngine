@@ -11,10 +11,12 @@
 #include <QToolButton>
 
 ezQtToolBarActionMapView::ezQtToolBarActionMapView(QString title, QWidget* parent)
-    : QToolBar(title, parent)
+  : QToolBar(title, parent)
 {
   setIconSize(QSize(16, 16));
   setFloatable(false);
+
+  toggleViewAction()->setEnabled(false);
 }
 
 ezQtToolBarActionMapView::~ezQtToolBarActionMapView()
@@ -32,6 +34,11 @@ void ezQtToolBarActionMapView::SetActionContext(const ezActionContext& context)
   m_Context = context;
 
   CreateView();
+}
+
+void ezQtToolBarActionMapView::setVisible(bool visible)
+{
+  QToolBar::setVisible(true);
 }
 
 void ezQtToolBarActionMapView::ClearView()
