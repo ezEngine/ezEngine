@@ -6,6 +6,8 @@
 #include <Core/Scripting/DuktapeContext.h>
 #include <Core/World/Component.h>
 #include <Core/World/World.h>
+#include <Foundation/Containers/ArrayMap.h>
+#include <Foundation/Types/RangeView.h>
 #include <TypeScriptPlugin/Transpiler/Transpiler.h>
 
 class ezTypeScriptBinding;
@@ -63,6 +65,7 @@ protected:
 protected:
   bool CallTsFunc(const char* szFuncName);
   void Update(ezTypeScriptBinding& script);
+  void SetExposedVariables();
 
   ezTypeScriptBinding::TsComponentTypeInfo m_ComponentTypeInfo;
 
@@ -81,4 +84,15 @@ protected:
 
 private:
   ezUuid m_TypeScriptComponentGuid;
+
+  //////////////////////////////////////////////////////////////////////////
+  // Exposed Parameters
+public:
+  const ezRangeView<const char*, ezUInt32> GetParameters() const;
+  void SetParameter(const char* szKey, const ezVariant& value);
+  void RemoveParameter(const char* szKey);
+  bool GetParameter(const char* szKey, ezVariant& out_value) const;
+
+private:
+  ezArrayMap<ezHashedString, ezVariant> m_Parameters;
 };

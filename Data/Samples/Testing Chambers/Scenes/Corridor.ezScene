@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7297922959506964864,5177324930371449723}}
-		u4 %Hash{11518774492305494920}
+		u4 %Hash{11890446935927663502}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -12658,10 +12658,14 @@ o
 {
 	Uuid %id{u4{17893246179580933911,10270449283941852978}}
 	s %t{"ezTypeScriptComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
+		VarDict %Parameters
+		{
+			i3 %bla{25}
+		}
 		s %Script{"{ 328efa1a-d937-48f7-a060-d5cdfcb9fa02 }"}
 	}
 }
@@ -19131,10 +19135,11 @@ o
 {
 	Uuid %id{u4{8381254059381297815,15714000548239657414}}
 	s %t{"ezTypeScriptComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
+		VarDict %Parameters{}
 		s %Script{"{ 371cde16-e79f-4ecd-a7c1-b757d1f39522 }"}
 	}
 }
@@ -21959,8 +21964,8 @@ o
 		s %PluginName{"ezEditorPluginTypeScript"}
 		VarArray %Properties{}
 		s %TypeName{"ezTypeScriptComponent"}
-		u3 %TypeSize{72}
-		u3 %TypeVersion{2}
+		u3 %TypeSize{104}
+		u3 %TypeVersion{3}
 	}
 }
 o

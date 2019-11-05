@@ -15,14 +15,14 @@ export class MyTestComponent extends ez.TickedTypescriptComponent {
     }
 
     static RegisterMessageHandlers() {
-        ez.Log.Info("RegisterMessageHandlers")
-
         ez.TypescriptComponent.RegisterMessageHandler(ez.MsgSetColor, "OnMsgSetColor");
         ez.TypescriptComponent.RegisterMessageHandler(ez.MsgSetFloatParameter, "OnMsgSetFloatParameter");
     }
 
+    /*expose*/bla:number = 0;
+
     Tick(): void {
-        //ez.Log.Info("MyTestComponent::Update")
+        ez.Log.Info("MyTestComponent::Update: " + this.bla)
 
         let owner = this.GetOwner();
 

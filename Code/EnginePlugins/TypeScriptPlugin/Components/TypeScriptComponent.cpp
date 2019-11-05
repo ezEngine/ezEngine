@@ -9,13 +9,19 @@
 #include <TypeScriptPlugin/Components/TypeScriptComponent.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezTypeScriptComponent, 2, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezTypeScriptComponent, 3, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Script", GetTypeScriptComponentFile, SetTypeScriptComponentFile)->AddAttributes(new ezAssetBrowserAttribute("TypeScript")),
+    EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("Script")),
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezCategoryAttribute("Scripting"),
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_COMPONENT_TYPE;
 // clang-format on
@@ -28,6 +34,16 @@ void ezTypeScriptComponent::SerializeComponent(ezWorldWriter& stream) const
   auto& s = stream.GetStream();
 
   s << m_TypeScriptComponentGuid;
+
+  // version 3
+  ezUInt16 uiNumParams = m_Parameters.GetCount();
+  s << uiNumParams;
+
+  for (ezUInt32 p = 0; p < uiNumParams; ++p)
+  {
+    s << m_Parameters.GetKey(p);
+    s << m_Parameters.GetValue(p);
+  }
 }
 
 void ezTypeScriptComponent::DeserializeComponent(ezWorldReader& stream)
@@ -44,6 +60,24 @@ void ezTypeScriptComponent::DeserializeComponent(ezWorldReader& stream)
   else
   {
     s >> m_TypeScriptComponentGuid;
+  }
+
+  if (uiVersion >= 3)
+  {
+    ezUInt16 uiNumParams = 0;
+    s >> uiNumParams;
+    m_Parameters.Reserve(uiNumParams);
+
+    ezHashedString key;
+    ezVariant value;
+
+    for (ezUInt32 p = 0; p < uiNumParams; ++p)
+    {
+      s >> key;
+      s >> value;
+
+      m_Parameters.Insert(key, value);
+    }
   }
 }
 
@@ -86,6 +120,83 @@ bool ezTypeScriptComponent::CallTsFunc(const char* szFuncName)
 
     return false;
   }
+}
+
+void ezTypeScriptComponent::SetExposedVariables()
+{
+  ezTypeScriptBinding& binding = static_cast<ezTypeScriptComponentManager*>(GetOwningManager())->GetTsBinding();
+
+  ezDuktapeHelper duk(binding.GetDukTapeContext(), 0);
+
+  binding.DukPutComponentObject(this); // [ comp ]
+
+  for (ezUInt32 p = 0; p < m_Parameters.GetCount(); ++p)
+  {
+    const auto& pair = m_Parameters.GetPair(p);
+
+    switch (pair.value.GetType())
+    {
+      case ezVariantType::Angle:
+        duk.SetNumberProperty(pair.key.GetString(), pair.value.Get<ezAngle>().GetRadian());
+        break;
+
+      case ezVariantType::Bool:
+        duk.SetBoolProperty(pair.key.GetString(), pair.value.Get<bool>());
+        break;
+
+      case ezVariantType::Int8:
+      case ezVariantType::UInt8:
+      case ezVariantType::Int16:
+      case ezVariantType::UInt16:
+      case ezVariantType::Int32:
+      case ezVariantType::UInt32:
+      case ezVariantType::Int64:
+      case ezVariantType::UInt64:
+      case ezVariantType::Float:
+      case ezVariantType::Double:
+        duk.SetNumberProperty(pair.key.GetString(), pair.value.ConvertTo<double>());
+        break;
+
+      //case ezVariantType::Color:
+      //case ezVariantType::Vector2:
+      //case ezVariantType::Vector3:
+      //case ezVariantType::Vector4:
+      //case ezVariantType::Vector2I:
+      //case ezVariantType::Vector3I:
+      //case ezVariantType::Vector4I:
+      //case ezVariantType::Vector2U:
+      //case ezVariantType::Vector3U:
+      //case ezVariantType::Vector4U:
+      //case ezVariantType::Quaternion:
+      //case ezVariantType::Matrix3:
+      //case ezVariantType::Matrix4:
+      //case ezVariantType::Transform:
+      //
+      case ezVariantType::String:
+        duk.SetStringProperty(pair.key.GetString(), pair.value.Get<ezString>());
+        break;
+
+      case ezVariantType::StringView:
+      {
+        ezStringBuilder tmp;
+
+        duk.SetStringProperty(pair.key.GetString(), pair.value.Get<ezStringView>().GetData(tmp));
+
+        break;
+      }
+
+        //case ezVariantType::DataBuffer:
+        //case ezVariantType::Time:
+        //case ezVariantType::Uuid:
+        //case ezVariantType::ColorGamma:
+
+      default:
+        EZ_ASSERT_NOT_IMPLEMENTED;
+    }
+  }
+
+
+  duk.PopStack(); // [ ]
 }
 
 void ezTypeScriptComponent::Initialize()
@@ -162,6 +273,8 @@ void ezTypeScriptComponent::OnSimulationStarted()
 
     // if the TS component has any message handlers, we need to capture all messages and redirect them to the script
     EnableUnhandledMessageHandler(!m_ComponentTypeInfo.Value().m_MessageHandlers.IsEmpty());
+
+    SetExposedVariables();
   }
 
   ezTypeScriptComponent::OnActivated();
@@ -211,4 +324,44 @@ void ezTypeScriptComponent::SetTypeScriptComponentGuid(const ezUuid& hResource)
 const ezUuid& ezTypeScriptComponent::GetTypeScriptComponentGuid() const
 {
   return m_TypeScriptComponentGuid;
+}
+
+
+const ezRangeView<const char*, ezUInt32> ezTypeScriptComponent::GetParameters() const
+{
+  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32 { return 0; }, [this]() -> ezUInt32 { return m_Parameters.GetCount(); },
+    [](ezUInt32& it) { ++it; }, [this](const ezUInt32& it) -> const char* { return m_Parameters.GetKey(it).GetString().GetData(); });
+}
+
+void ezTypeScriptComponent::SetParameter(const char* szKey, const ezVariant& value)
+{
+  ezHashedString hs;
+  hs.Assign(szKey);
+
+  auto it = m_Parameters.Find(hs);
+  if (it != ezInvalidIndex && m_Parameters.GetValue(it) == value)
+    return;
+
+  m_Parameters[hs] = value;
+
+  //GetWorld()->GetComponentManager<ezTypeScriptComponentManager>()->AddToUpdateList(this);
+}
+
+void ezTypeScriptComponent::RemoveParameter(const char* szKey)
+{
+  if (m_Parameters.RemoveAndCopy(ezTempHashedString(szKey)))
+  {
+    //GetWorld()->GetComponentManager<ezTypeScriptComponentManager>()->AddToUpdateList(this);
+  }
+}
+
+bool ezTypeScriptComponent::GetParameter(const char* szKey, ezVariant& out_value) const
+{
+  ezUInt32 it = m_Parameters.Find(szKey);
+
+  if (it == ezInvalidIndex)
+    return false;
+
+  out_value = m_Parameters.GetValue(it);
+  return true;
 }
