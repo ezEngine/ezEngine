@@ -193,6 +193,16 @@ void ezDuktapeHelper::SetStringProperty(const char* szPropertyName, const char* 
     duk_put_prop_string(m_pContext, iParentObjectIndex - 1, szPropertyName); // [ ]
 }
 
+void ezDuktapeHelper::SetCustomProperty(const char* szPropertyName, ezInt32 iParentObjectIndex /*= -1*/) const
+{
+  ezDuktapeHelper duk(m_pContext, -1); // [ value ]
+
+  if (iParentObjectIndex >= 0)
+    duk_put_prop_string(m_pContext, iParentObjectIndex, szPropertyName); // [ ]
+  else
+    duk_put_prop_string(m_pContext, iParentObjectIndex - 1, szPropertyName); // [ ]
+}
+
 void ezDuktapeHelper::StorePointerInStash(const char* szKey, void* pPointer)
 {
   duk_push_global_stash(m_pContext);                                                      // [ stash ]

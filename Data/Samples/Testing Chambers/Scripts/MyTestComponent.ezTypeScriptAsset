@@ -2,6 +2,19 @@ HeaderV2
 {
 o
 {
+	Uuid %id{u4{13636422549788647195,564964452047744187}}
+	s %t{"ezExposedParameters"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Parameters
+		{
+			Uuid{u4{5144070357444831053,11039841961700390299}}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{214688427689730208,5257909921073003034}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
@@ -14,10 +27,26 @@ o
 			s{"Scripts/MyTestComponent.ts"}
 		}
 		Uuid %DocumentID{u4{214688427689730208,5257909921073003034}}
-		u4 %Hash{10589176728809582653}
-		VarArray %MetaInfo{}
+		u4 %Hash{1483945650312126948}
+		VarArray %MetaInfo
+		{
+			Uuid{u4{13636422549788647195,564964452047744187}}
+		}
 		VarArray %Outputs{}
 		VarArray %References{}
+	}
+}
+o
+{
+	Uuid %id{u4{5144070357444831053,11039841961700390299}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		Color %DefaultValue{f{0x6C7B333F,0x4CD45D3C,0x4DB9443E,0x0000803F}}
+		s %Name{"MyPonyColor"}
+		s %Type{""}
 	}
 }
 }
@@ -30,8 +59,26 @@ o
 	u3 %v{1}
 	p
 	{
-		s %ComponentName{"MyTestComponent"}
+		VarArray %BoolParameters{}
+		VarArray %ColorParameters
+		{
+			Uuid{u4{2932335423863357104,5435170687455804782}}
+		}
+		VarArray %NumberParameters{}
 		s %ScriptFile{"Scripts/MyTestComponent.ts"}
+		VarArray %StringParameters{}
+		VarArray %Vec3Parameters{}
+	}
+}
+o
+{
+	Uuid %id{u4{2932335423863357104,5435170687455804782}}
+	s %t{"ezTypeScriptParameterColor"}
+	u3 %v{1}
+	p
+	{
+		Color %Default{f{0x6C7B333F,0x4CD45D3C,0x4DB9443E,0x0000803F}}
+		s %Name{"MyPonyColor"}
 	}
 }
 o
@@ -53,6 +100,24 @@ Types
 {
 o
 {
+	Uuid %id{u4{2240511302173689179,2703173325265816714}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezTypeScriptParameter"}
+		s %PluginName{"ezEditorPluginTypeScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezTypeScriptParameterString"}
+		u3 %TypeSize{136}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{2210350094203572486,5399788602566693581}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -65,7 +130,25 @@ o
 		s %PluginName{"ezEditorPluginTypeScript"}
 		VarArray %Properties{}
 		s %TypeName{"ezTypeScriptAssetProperties"}
-		u3 %TypeSize{136}
+		u3 %TypeSize{192}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{15173286799798070773,6138599035276477466}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezTypeScriptParameter"}
+		s %PluginName{"ezEditorPluginTypeScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezTypeScriptParameterColor"}
+		u3 %TypeSize{88}
 		u3 %TypeVersion{1}
 	}
 }
@@ -89,6 +172,60 @@ o
 }
 o
 {
+	Uuid %id{u4{12150617948573266325,14322766287966293674}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginTypeScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezTypeScriptParameter"}
+		u3 %TypeSize{72}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{17374214829508657989,14417081421920061278}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezTypeScriptParameter"}
+		s %PluginName{"ezEditorPluginTypeScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezTypeScriptParameterVec3"}
+		u3 %TypeSize{88}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{1906593913559848105,14475620603728329546}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezTypeScriptParameter"}
+		s %PluginName{"ezEditorPluginTypeScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezTypeScriptParameterNumber"}
+		u3 %TypeSize{80}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{983387834180907111,17935407260904399048}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -102,6 +239,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
 		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{4125384624966386702,18426699712145839704}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezTypeScriptParameter"}
+		s %PluginName{"ezEditorPluginTypeScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezTypeScriptParameterBool"}
+		u3 %TypeSize{80}
 		u3 %TypeVersion{1}
 	}
 }

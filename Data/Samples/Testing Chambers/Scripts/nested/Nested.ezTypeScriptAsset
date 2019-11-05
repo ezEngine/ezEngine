@@ -2,6 +2,32 @@ HeaderV2
 {
 o
 {
+	Uuid %id{u4{4969520201257414020,807186506325103477}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		Vec3 %DefaultValue{f{0x0000803F,0x00000040,0x00004040}}
+		s %Name{"Vec3"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{13241226125471720065,5348266469252050666}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		Color %DefaultValue{f{0x64003C40,0x6178FA3C,0x8A491240,0x0000803F}}
+		s %Name{"Color"}
+		s %Type{""}
+	}
+}
+o
+{
 	Uuid %id{u4{2492166049264812455,5678449376194518550}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
@@ -14,10 +40,69 @@ o
 			s{"Scripts/nested/Nested.ts"}
 		}
 		Uuid %DocumentID{u4{2492166049264812455,5678449376194518550}}
-		u4 %Hash{9758745404076502966}
-		VarArray %MetaInfo{}
+		u4 %Hash{16193772882220171193}
+		VarArray %MetaInfo
+		{
+			Uuid{u4{15732117038310708319,7125559824858693083}}
+		}
 		VarArray %Outputs{}
 		VarArray %References{}
+	}
+}
+o
+{
+	Uuid %id{u4{15732117038310708319,7125559824858693083}}
+	s %t{"ezExposedParameters"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Parameters
+		{
+			Uuid{u4{9352815252193157592,17362035754402060208}}
+			Uuid{u4{16122196816843474244,14198779997350625069}}
+			Uuid{u4{16571611976344153537,7224867266580226477}}
+			Uuid{u4{4969520201257414020,807186506325103477}}
+			Uuid{u4{13241226125471720065,5348266469252050666}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{16571611976344153537,7224867266580226477}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		s %DefaultValue{"Yeah"}
+		s %Name{"String"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{16122196816843474244,14198779997350625069}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		b %DefaultValue{1}
+		s %Name{"Boolean"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{9352815252193157592,17362035754402060208}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		d %DefaultValue{0x000000000000F03F}
+		s %Name{"Number"}
+		s %Type{""}
 	}
 }
 }
@@ -25,13 +110,87 @@ Objects
 {
 o
 {
+	Uuid %id{u4{11888638320328219266,4723616775190594246}}
+	s %t{"ezTypeScriptParameterNumber"}
+	u3 %v{1}
+	p
+	{
+		d %Default{0x000000000000F03F}
+		s %Name{"Number"}
+	}
+}
+o
+{
+	Uuid %id{u4{5611162856219121041,4747557197039989955}}
+	s %t{"ezTypeScriptParameterColor"}
+	u3 %v{1}
+	p
+	{
+		Color %Default{f{0x64003C40,0x6178FA3C,0x8A491240,0x0000803F}}
+		s %Name{"Color"}
+	}
+}
+o
+{
+	Uuid %id{u4{4647848429645336756,4789648746251375313}}
+	s %t{"ezTypeScriptParameterString"}
+	u3 %v{1}
+	p
+	{
+		s %Default{"Yeah"}
+		s %Name{"String"}
+	}
+}
+o
+{
+	Uuid %id{u4{6321022208642872242,5045313920232325899}}
+	s %t{"ezTypeScriptParameterVec3"}
+	u3 %v{1}
+	p
+	{
+		Vec3 %Default{f{0x0000803F,0x00000040,0x00004040}}
+		s %Name{"Vec3"}
+	}
+}
+o
+{
 	Uuid %id{u4{353929820793530020,5217269304207582593}}
 	s %t{"ezTypeScriptAssetProperties"}
 	u3 %v{1}
 	p
 	{
-		s %ComponentName{"Nested"}
+		VarArray %BoolParameters
+		{
+			Uuid{u4{12954325080239529601,5340599078512487244}}
+		}
+		VarArray %ColorParameters
+		{
+			Uuid{u4{5611162856219121041,4747557197039989955}}
+		}
+		VarArray %NumberParameters
+		{
+			Uuid{u4{11888638320328219266,4723616775190594246}}
+		}
 		s %ScriptFile{"Scripts/nested/Nested.ts"}
+		VarArray %StringParameters
+		{
+			Uuid{u4{4647848429645336756,4789648746251375313}}
+		}
+		VarArray %Vec3Parameters
+		{
+			Uuid{u4{6321022208642872242,5045313920232325899}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{12954325080239529601,5340599078512487244}}
+	s %t{"ezTypeScriptParameterBool"}
+	u3 %v{1}
+	p
+	{
+		b %Default{1}
+		s %Name{"Boolean"}
 	}
 }
 o
@@ -53,6 +212,24 @@ Types
 {
 o
 {
+	Uuid %id{u4{2240511302173689179,2703173325265816714}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezTypeScriptParameter"}
+		s %PluginName{"ezEditorPluginTypeScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezTypeScriptParameterString"}
+		u3 %TypeSize{136}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{2210350094203572486,5399788602566693581}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -65,7 +242,25 @@ o
 		s %PluginName{"ezEditorPluginTypeScript"}
 		VarArray %Properties{}
 		s %TypeName{"ezTypeScriptAssetProperties"}
-		u3 %TypeSize{136}
+		u3 %TypeSize{192}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{15173286799798070773,6138599035276477466}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezTypeScriptParameter"}
+		s %PluginName{"ezEditorPluginTypeScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezTypeScriptParameterColor"}
+		u3 %TypeSize{88}
 		u3 %TypeVersion{1}
 	}
 }
@@ -89,6 +284,60 @@ o
 }
 o
 {
+	Uuid %id{u4{12150617948573266325,14322766287966293674}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezReflectedClass"}
+		s %PluginName{"ezEditorPluginTypeScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezTypeScriptParameter"}
+		u3 %TypeSize{72}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{17374214829508657989,14417081421920061278}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezTypeScriptParameter"}
+		s %PluginName{"ezEditorPluginTypeScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezTypeScriptParameterVec3"}
+		u3 %TypeSize{88}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{1906593913559848105,14475620603728329546}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezTypeScriptParameter"}
+		s %PluginName{"ezEditorPluginTypeScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezTypeScriptParameterNumber"}
+		u3 %TypeSize{80}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{983387834180907111,17935407260904399048}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -102,6 +351,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezReflectedClass"}
 		u3 %TypeSize{8}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{4125384624966386702,18426699712145839704}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezTypeScriptParameter"}
+		s %PluginName{"ezEditorPluginTypeScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezTypeScriptParameterBool"}
+		u3 %TypeSize{80}
 		u3 %TypeVersion{1}
 	}
 }

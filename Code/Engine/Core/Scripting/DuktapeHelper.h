@@ -94,6 +94,7 @@ public:
   void SetBoolProperty(const char* szPropertyName, bool value, ezInt32 iParentObjectIndex = -1) const;
   void SetNumberProperty(const char* szPropertyName, double value, ezInt32 iParentObjectIndex = -1) const;
   void SetStringProperty(const char* szPropertyName, const char* value, ezInt32 iParentObjectIndex = -1) const;
+  void SetCustomProperty(const char* szPropertyName, ezInt32 iParentObjectIndex = -1) const;
 
 
   ///@}

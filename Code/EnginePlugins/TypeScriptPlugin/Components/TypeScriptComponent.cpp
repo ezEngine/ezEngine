@@ -157,9 +157,27 @@ void ezTypeScriptComponent::SetExposedVariables()
         duk.SetNumberProperty(pair.key.GetString(), pair.value.ConvertTo<double>());
         break;
 
-      //case ezVariantType::Color:
+      case ezVariantType::Color:
+        binding.PushColor(duk, pair.value.Get<ezColor>());
+        duk.SetCustomProperty(pair.key.GetString());
+        break;
+
+      case ezVariantType::ColorGamma:
+        binding.PushColor(duk, pair.value.Get<ezColorGammaUB>());
+        duk.SetCustomProperty(pair.key.GetString());
+        break;
+
+      case ezVariantType::Vector3:
+        binding.PushVec3(duk, pair.value.Get<ezVec3>());
+        duk.SetCustomProperty(pair.key.GetString());
+        break;
+
+      case ezVariantType::Quaternion:
+        binding.PushQuat(duk, pair.value.Get<ezQuat>());
+        duk.SetCustomProperty(pair.key.GetString());
+        break;
+
       //case ezVariantType::Vector2:
-      //case ezVariantType::Vector3:
       //case ezVariantType::Vector4:
       //case ezVariantType::Vector2I:
       //case ezVariantType::Vector3I:
@@ -167,7 +185,6 @@ void ezTypeScriptComponent::SetExposedVariables()
       //case ezVariantType::Vector2U:
       //case ezVariantType::Vector3U:
       //case ezVariantType::Vector4U:
-      //case ezVariantType::Quaternion:
       //case ezVariantType::Matrix3:
       //case ezVariantType::Matrix4:
       //case ezVariantType::Transform:
@@ -188,7 +205,6 @@ void ezTypeScriptComponent::SetExposedVariables()
         //case ezVariantType::DataBuffer:
         //case ezVariantType::Time:
         //case ezVariantType::Uuid:
-        //case ezVariantType::ColorGamma:
 
       default:
         EZ_ASSERT_NOT_IMPLEMENTED;

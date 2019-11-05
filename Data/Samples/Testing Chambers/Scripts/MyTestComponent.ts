@@ -1,6 +1,11 @@
 import ez = require("./../TypeScript/ez")
 
 export class MyTestComponent extends ez.TickedTypescriptComponent {
+
+    /* BEGIN AUTO-GENERATED CODE */
+    MyPonyColor: ez.Color = new ez.Color(0.701102, 0.013539, 0.192113, 1);
+    /* END AUTO-GENERATED CODE */
+
     constructor() {
         super()
         ez.Log.Info("Construct MyTestComponent")
@@ -18,11 +23,9 @@ export class MyTestComponent extends ez.TickedTypescriptComponent {
         ez.TypescriptComponent.RegisterMessageHandler(ez.MsgSetColor, "OnMsgSetColor");
         ez.TypescriptComponent.RegisterMessageHandler(ez.MsgSetFloatParameter, "OnMsgSetFloatParameter");
     }
-
-    /*expose*/bla:number = 0;
-
+    
     Tick(): void {
-        ez.Log.Info("MyTestComponent::Update: " + this.bla)
+        ez.Log.Info("MyTestComponent::Update: ")
 
         let owner = this.GetOwner();
 
@@ -77,7 +80,7 @@ export class MyTestComponent extends ez.TickedTypescriptComponent {
             let setMat = new ez.MsgSetColor();
 
             if (Math.random() > 0.5) {
-                setMat.Color.SetHotPink();
+                setMat.Color = this.MyPonyColor;
                 ez.Log.Info("Color: " + setMat.Color.r + ", " + setMat.Color.g + ", " + setMat.Color.b + ", " + setMat.Color.a)
             }
             else {
