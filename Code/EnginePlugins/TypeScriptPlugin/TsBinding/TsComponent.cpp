@@ -6,6 +6,7 @@
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
 
 static int __CPP_Component_IsValid(duk_context* pDuk);
+static int __CPP_Component_GetUniqueID(duk_context* pDuk);
 static int __CPP_Component_GetOwner(duk_context* pDuk);
 static int __CPP_Component_SetActive(duk_context* pDuk);
 static int __CPP_Component_IsActive(duk_context* pDuk);
@@ -14,6 +15,7 @@ static int __CPP_Component_SendMessage(duk_context* pDuk);
 ezResult ezTypeScriptBinding::Init_Component()
 {
   m_Duk.RegisterGlobalFunction("__CPP_Component_IsValid", __CPP_Component_IsValid, 1);
+  m_Duk.RegisterGlobalFunction("__CPP_Component_GetUniqueID", __CPP_Component_GetUniqueID, 1);
   m_Duk.RegisterGlobalFunction("__CPP_Component_GetOwner", __CPP_Component_GetOwner, 1);
   m_Duk.RegisterGlobalFunction("__CPP_Component_SetActive", __CPP_Component_SetActive, 2);
   m_Duk.RegisterGlobalFunction("__CPP_Component_IsActive", __CPP_Component_IsActive, 1, 0);
@@ -50,21 +52,30 @@ ezResult ezTypeScriptBinding::RegisterComponent(const char* szTypeName, ezCompon
 
   if (sTypeName.TrimWordStart("ez"))
   {
-    EZ_SUCCEED_OR_RETURN(duk.PushLocalObject("__AllComponents")); // [ global __AllComponents ]
+    EZ_SUCCEED_OR_RETURN(duk.PushLocalObject("__AllComponents")); // [ global __CompModule ]
+    bCloseAllComps = true;
+  }
+  else
+  {
+    const ezStringBuilder sCompModule("__", sTypeName);
+
+    EZ_SUCCEED_OR_RETURN(duk.PushLocalObject(sCompModule)); // [ global __CompModule ]
     bCloseAllComps = true;
   }
 
-  duk_get_prop_string(duk, -1, sTypeName); // [ global __AllComponents sTypeName ]
-  duk_new(duk, 0);                         // [ global __AllComponents object ]
+  if (!duk_get_prop_string(duk, -1, sTypeName)) // [ global __CompModule sTypeName ]
+    return EZ_FAILURE;
+
+  duk_new(duk, 0); // [ global __CompModule object ]
 
   // store C++ side component handle in obj as property
   {
-    ezComponentHandle* pBuffer = reinterpret_cast<ezComponentHandle*>(duk_push_fixed_buffer(duk, sizeof(ezComponentHandle))); // [ global __AllComponents object buffer ]
+    ezComponentHandle* pBuffer = reinterpret_cast<ezComponentHandle*>(duk_push_fixed_buffer(duk, sizeof(ezComponentHandle))); // [ global __CompModule object buffer ]
     *pBuffer = handle;
-    duk_put_prop_index(duk, -2, ezTypeScriptBindingIndexProperty::ComponentHandle); // [ global __AllComponents object ]
+    duk_put_prop_index(duk, -2, ezTypeScriptBindingIndexProperty::ComponentHandle); // [ global __CompModule object ]
   }
 
-  StoreReferenceInStash(uiStashIdx);    // [ global __AllComponents object ]
+  StoreReferenceInStash(uiStashIdx);    // [ global __CompModule object ]
   duk.PopStack(bCloseAllComps ? 3 : 2); // [ ]
 
   out_uiStashIdx = uiStashIdx;
@@ -154,6 +165,15 @@ static int __CPP_Component_IsValid(duk_context* pDuk)
   ezWorld* pWorld = ezTypeScriptBinding::RetrieveWorld(pDuk);
 
   return duk.ReturnBool(pWorld->TryGetComponent(hComponent, pComponent));
+}
+
+static int __CPP_Component_GetUniqueID(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk, 0);
+
+  ezComponent* pComponent = ezTypeScriptBinding::ExpectComponent<ezComponent>(pDuk);
+
+  return duk.ReturnUInt(pComponent->GetUniqueID());
 }
 
 static int __CPP_Component_GetOwner(duk_context* pDuk)

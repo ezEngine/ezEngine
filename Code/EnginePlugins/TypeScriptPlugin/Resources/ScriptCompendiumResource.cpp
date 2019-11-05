@@ -1,33 +1,35 @@
 #include <TypeScriptPluginPCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
-#include <TypeScriptPlugin/Resources/JavaScriptResource.h>
+#include <TypeScriptPlugin/Resources/ScriptCompendiumResource.h>
 
 // clang-format off
-EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezJavaScriptResource);
+EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezScriptCompendiumResource);
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezJavaScriptResource, 1, ezRTTIDefaultAllocator<ezJavaScriptResource>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScriptCompendiumResource, 1, ezRTTIDefaultAllocator<ezScriptCompendiumResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezJavaScriptResource::ezJavaScriptResource()
+ezScriptCompendiumResource::ezScriptCompendiumResource()
   : ezResource(ezResource::DoUpdate::OnAnyThread, 1)
 {
 }
 
-ezJavaScriptResource::~ezJavaScriptResource() = default;
+ezScriptCompendiumResource::~ezScriptCompendiumResource() = default;
 
-ezResourceLoadDesc ezJavaScriptResource::UnloadData(Unload WhatToUnload)
+ezResourceLoadDesc ezScriptCompendiumResource::UnloadData(Unload WhatToUnload)
 {
   ezResourceLoadDesc ld;
   ld.m_State = ezResourceState::Unloaded;
   ld.m_uiQualityLevelsDiscardable = 0;
   ld.m_uiQualityLevelsLoadable = 0;
 
+  m_Desc.m_PathToSource.Clear();
+
   return ld;
 }
 
-ezResourceLoadDesc ezJavaScriptResource::UpdateContent(ezStreamReader* pStream)
+ezResourceLoadDesc ezScriptCompendiumResource::UpdateContent(ezStreamReader* pStream)
 {
   ezResourceLoadDesc ld;
   ld.m_uiQualityLevelsDiscardable = 0;
@@ -56,28 +58,28 @@ ezResourceLoadDesc ezJavaScriptResource::UpdateContent(ezStreamReader* pStream)
   return ld;
 }
 
-void ezJavaScriptResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
+void ezScriptCompendiumResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  out_NewMemoryUsage.m_uiMemoryCPU = (ezUInt32)sizeof(ezJavaScriptResource)/* + (ezUInt32)m_Desc.m_JsSource.GetHeapMemoryUsage()*/;
+  out_NewMemoryUsage.m_uiMemoryCPU = (ezUInt32)sizeof(ezScriptCompendiumResource) + (ezUInt32)m_Desc.m_PathToSource.GetHeapMemoryUsage();
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-ezResult ezJavaScriptResourceDesc::Serialize(ezStreamWriter& stream) const
+ezResult ezScriptCompendiumResourceDesc::Serialize(ezStreamWriter& stream) const
 {
   stream.WriteVersion(1);
 
-  EZ_SUCCEED_OR_RETURN(stream.WriteString(m_sComponentName));
+  EZ_SUCCEED_OR_RETURN(stream.WriteMap(m_PathToSource));
 
   return EZ_SUCCESS;
 }
 
-ezResult ezJavaScriptResourceDesc::Deserialize(ezStreamReader& stream)
+ezResult ezScriptCompendiumResourceDesc::Deserialize(ezStreamReader& stream)
 {
   /*ezTypeVersion version =*/stream.ReadVersion(1);
 
-  EZ_SUCCEED_OR_RETURN(stream.ReadString(m_sComponentName));
+  EZ_SUCCEED_OR_RETURN(stream.ReadMap(m_PathToSource));
 
   return EZ_SUCCESS;
 }

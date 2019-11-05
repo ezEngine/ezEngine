@@ -1,6 +1,6 @@
 import ez = require("./../TypeScript/ez")
 
-class MyTestComponent extends ez.TypescriptComponent {
+export class MyTestComponent extends ez.TickedTypescriptComponent {
     constructor() {
         super()
         ez.Log.Info("Construct MyTestComponent")
@@ -21,7 +21,7 @@ class MyTestComponent extends ez.TypescriptComponent {
         ez.TypescriptComponent.RegisterMessageHandler(ez.MsgSetFloatParameter, "OnMsgSetFloatParameter");
     }
 
-    Update(): void {
+    Tick(): void {
         //ez.Log.Info("MyTestComponent::Update")
 
         let owner = this.GetOwner();
@@ -130,6 +130,26 @@ class MyTestComponent extends ez.TypescriptComponent {
                 this.deleteCounter = 3
             }
         }
+    }
+
+    Initialize(): void {
+        ez.Log.Info("Called Initialize")
+    }
+
+    Deinitialize(): void {
+        ez.Log.Info("Called Deinitialize")
+    }
+
+    OnActivated(): void {
+        ez.Log.Info("Called OnActivated")
+    }
+
+    OnDeactivated(): void {
+        ez.Log.Info("Called OnDeactivated")
+    }
+
+    OnSimulationStarted(): void {
+        ez.Log.Info("Called OnSimulationStarted")
     }
 
     private deleteCounter = 3;

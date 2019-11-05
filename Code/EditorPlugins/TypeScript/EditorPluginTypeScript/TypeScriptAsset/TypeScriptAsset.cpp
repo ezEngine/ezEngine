@@ -108,22 +108,12 @@ ezStatus ezTypeScriptAssetDocument::InternalTransformAsset(ezStreamWriter& strea
   const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader,
   ezBitflags<ezTransformFlags> transformFlags)
 {
-  ezStringBuilder sTsPath = GetProperties()->m_sScriptFile;
-  sTsPath.ChangeFileExtension("ts");
-  ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sTsPath);
+  ezTypeScriptAssetDocumentManager* pAssMan = static_cast<ezTypeScriptAssetDocumentManager*>(GetAssetDocumentManager());
+  pAssMan->GenerateScriptCompendium();
 
-  ezStringBuilder sTranspiledCode;
-  ezUInt64 uiSourceHash = 0;
-  if (static_cast<ezTypeScriptAssetDocumentManager*>(GetAssetDocumentManager())->GetTranspiler().TranspileFile(sTsPath, 0, sTranspiledCode, uiSourceHash).Failed())
-  {
-    return ezStatus("Transpiling from TypeScript to JavaScript failed.");
-  }
-
+  // TODO: quite wasteful to use an entire resource just for a single string, maybe the ezTypeScriptComponent could store that string directly instead
   ezJavaScriptResourceDesc desc;
   desc.m_sComponentName = GetProperties()->m_sComponentName;
-  desc.m_JsSource.SetCountUninitialized(sTranspiledCode.GetElementCount() + 1);
-
-  ezMemoryUtils::RawByteCopy(desc.m_JsSource.GetData(), sTranspiledCode.GetData(), desc.m_JsSource.GetCount());
 
   EZ_SUCCEED_OR_RETURN(desc.Serialize(stream));
 

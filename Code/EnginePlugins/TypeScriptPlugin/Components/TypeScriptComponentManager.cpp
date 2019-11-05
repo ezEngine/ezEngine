@@ -20,17 +20,10 @@ void ezTypeScriptComponentManager::Initialize()
   desc.m_Phase = UpdateFunctionDesc::Phase::PreAsync;
 
   RegisterUpdateFunction(desc);
-
-  ezFileSystem::AddDataDirectory(">sdk/Data/Tools/ezEditor/TypeScript", "TypeScript", "TypeScript");
-
-  s_Transpiler.SetOutputFolder(":project/AssetCache/Common");
-  s_Transpiler.StartLoadTranspiler();
 }
 
 void ezTypeScriptComponentManager::Deinitialize()
 {
-  ezFileSystem::RemoveDataDirectoryGroup("TypeScript");
-
   SUPER::Deinitialize();
 }
 
@@ -38,13 +31,7 @@ void ezTypeScriptComponentManager::OnSimulationStarted()
 {
   SUPER::OnSimulationStarted();
 
-  if (ezTypeScriptBinding::SetupProjectCode().Failed())
-  {
-    ezLog::Error("Could not setup Typescript data in project directory");
-    return;
-  }
-
-  m_TsBinding.Initialize(s_Transpiler, *GetWorld());
+  m_TsBinding.Initialize(*GetWorld());
 }
 
 void ezTypeScriptComponentManager::Update(const ezWorldModule::UpdateContext& context)
