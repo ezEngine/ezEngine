@@ -7,14 +7,13 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <TypeScriptPlugin/Components/TypeScriptComponent.h>
-#include <TypeScriptPlugin/Resources/JavaScriptResource.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezTypeScriptComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezTypeScriptComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Script", GetJavaScriptResourceFile, SetJavaScriptResourceFile)->AddAttributes(new ezAssetBrowserAttribute("TypeScript")),
+    EZ_ACCESSOR_PROPERTY("Script", GetTypeScriptComponentFile, SetTypeScriptComponentFile)->AddAttributes(new ezAssetBrowserAttribute("TypeScript")),
   }
   EZ_END_PROPERTIES;
 }
@@ -28,14 +27,24 @@ void ezTypeScriptComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   auto& s = stream.GetStream();
 
-  s << m_hJsResource;
+  s << m_TypeScriptComponentGuid;
 }
 
 void ezTypeScriptComponent::DeserializeComponent(ezWorldReader& stream)
 {
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+
   auto& s = stream.GetStream();
 
-  s >> m_hJsResource;
+  if (uiVersion == 1)
+  {
+    ezTypelessResourceHandle hDummy;
+    s >> hDummy;
+  }
+  else
+  {
+    s >> m_TypeScriptComponentGuid;
+  }
 }
 
 bool ezTypeScriptComponent::OnUnhandledMessage(ezMessage& msg)
@@ -146,10 +155,10 @@ void ezTypeScriptComponent::OnSimulationStarted()
 {
   ezTypeScriptBinding& binding = static_cast<ezTypeScriptComponentManager*>(GetOwningManager())->GetTsBinding();
 
-  if (binding.LoadComponent(m_hJsResource, m_ComponentTypeInfo).Succeeded())
+  if (binding.LoadComponent(m_TypeScriptComponentGuid, m_ComponentTypeInfo).Succeeded())
   {
     ezUInt32 uiStashIdx = 0;
-    binding.RegisterComponent(m_ComponentTypeInfo.Key(), GetHandle(), uiStashIdx);
+    binding.RegisterComponent(m_ComponentTypeInfo.Value().m_sComponentTypeName, GetHandle(), uiStashIdx);
 
     // if the TS component has any message handlers, we need to capture all messages and redirect them to the script
     EnableUnhandledMessageHandler(!m_ComponentTypeInfo.Value().m_MessageHandlers.IsEmpty());
@@ -159,7 +168,6 @@ void ezTypeScriptComponent::OnSimulationStarted()
 
   CallTsFunc("OnSimulationStarted");
 }
-
 
 void ezTypeScriptComponent::Update(ezTypeScriptBinding& binding)
 {
@@ -172,34 +180,35 @@ void ezTypeScriptComponent::Update(ezTypeScriptBinding& binding)
   }
 }
 
-void ezTypeScriptComponent::SetJavaScriptResourceFile(const char* szFile)
+void ezTypeScriptComponent::SetTypeScriptComponentFile(const char* szFile)
 {
-  ezJavaScriptResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  if (ezConversionUtils::IsStringUuid(szFile))
   {
-    hResource = ezResourceManager::LoadResource<ezJavaScriptResource>(szFile);
+    SetTypeScriptComponentGuid(ezConversionUtils::ConvertStringToUuid(szFile));
   }
-
-  SetJavaScriptResource(hResource);
+  else
+  {
+    SetTypeScriptComponentGuid(ezUuid());
+  }
 }
 
-const char* ezTypeScriptComponent::GetJavaScriptResourceFile() const
+const char* ezTypeScriptComponent::GetTypeScriptComponentFile() const
 {
-  if (m_hJsResource.IsValid())
+  if (m_TypeScriptComponentGuid.IsValid())
   {
-    return m_hJsResource.GetResourceID();
+    static ezStringBuilder sGuid; // need dummy storage
+    return ezConversionUtils::ToString(m_TypeScriptComponentGuid, sGuid);
   }
 
   return "";
 }
 
-void ezTypeScriptComponent::SetJavaScriptResource(const ezJavaScriptResourceHandle& hResource)
+void ezTypeScriptComponent::SetTypeScriptComponentGuid(const ezUuid& hResource)
 {
-  m_hJsResource = hResource;
+  m_TypeScriptComponentGuid = hResource;
 }
 
-const ezJavaScriptResourceHandle& ezTypeScriptComponent::GetJavaScriptResource() const
+const ezUuid& ezTypeScriptComponent::GetTypeScriptComponentGuid() const
 {
-  return m_hJsResource;
+  return m_TypeScriptComponentGuid;
 }

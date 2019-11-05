@@ -466,11 +466,11 @@ void ezTypeScriptBinding::DukPutMessage(duk_context* pDuk, const ezMessage& msg)
   }
 }
 
-void ezTypeScriptBinding::RegisterMessageHandlersForComponentType(const char* szComponent)
+void ezTypeScriptBinding::RegisterMessageHandlersForComponentType(const char* szComponent, const ezUuid& componentType)
 {
   ezDuktapeHelper duk(m_Duk, 0);
 
-  m_sCurrentTsMsgHandlerRegistrator = szComponent;
+  m_CurrentTsMsgHandlerRegistrator = componentType;
 
   const ezStringBuilder sCompModule("__", szComponent);
 
@@ -493,14 +493,14 @@ void ezTypeScriptBinding::RegisterMessageHandlersForComponentType(const char* sz
 
   duk.PopStack(); // [ ]
 
-  m_sCurrentTsMsgHandlerRegistrator.Clear();
+  m_CurrentTsMsgHandlerRegistrator.SetInvalid();
 }
 
 int ezTypeScriptBinding::__CPP_Binding_RegisterMessageHandler(duk_context* pDuk)
 {
   ezTypeScriptBinding* tsb = ezTypeScriptBinding::RetrieveBinding(pDuk);
 
-  EZ_ASSERT_DEV(!tsb->m_sCurrentTsMsgHandlerRegistrator.IsEmpty(), "'ez.TypescriptComponent.RegisterMessageHandler' may only be called from 'static RegisterMessageHandlers()'");
+  EZ_ASSERT_DEV(tsb->m_CurrentTsMsgHandlerRegistrator.IsValid(), "'ez.TypescriptComponent.RegisterMessageHandler' may only be called from 'static RegisterMessageHandlers()'");
 
   ezDuktapeFunction duk(pDuk, 0);
 
@@ -515,7 +515,7 @@ int ezTypeScriptBinding::__CPP_Binding_RegisterMessageHandler(duk_context* pDuk)
     return duk.ReturnVoid();
   }
 
-  auto& tsc = tsb->m_TsComponentTypes[tsb->m_sCurrentTsMsgHandlerRegistrator];
+  auto& tsc = tsb->m_TsComponentTypes[tsb->m_CurrentTsMsgHandlerRegistrator];
   auto& mh = tsc.m_MessageHandlers.ExpandAndGetRef();
 
   mh.m_sHandlerFunc = szMsgHandler;

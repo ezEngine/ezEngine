@@ -86,7 +86,7 @@ void ezQtEditorApp::SaveAllOpenDocuments()
 {
   for (auto pMan : ezDocumentManager::GetAllDocumentManagers())
   {
-    for (auto pDoc : pMan->ezDocumentManager::GetAllDocuments())
+    for (auto pDoc : pMan->ezDocumentManager::GetAllOpenDocuments())
     {
       ezQtDocumentWindow* pWnd = ezQtDocumentWindow::FindWindowByDocument(pDoc);
       if (pWnd)

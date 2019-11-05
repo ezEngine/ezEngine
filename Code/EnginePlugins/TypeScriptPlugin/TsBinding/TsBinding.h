@@ -7,6 +7,7 @@
 #include <Core/World/Declarations.h>
 #include <Core/World/World.h>
 #include <Foundation/Containers/HashTable.h>
+#include <Foundation/Types/Uuid.h>
 #include <TypeScriptPlugin/Resources/ScriptCompendiumResource.h>
 #include <TypeScriptPlugin/Transpiler/Transpiler.h>
 
@@ -32,10 +33,11 @@ public:
 
   struct TsComponentInfo
   {
+    ezString m_sComponentTypeName;
     ezHybridArray<TsMessageHandler, 4> m_MessageHandlers;
   };
 
-  using TsComponentTypeInfo = ezMap<ezString, TsComponentInfo>::ConstIterator;
+  using TsComponentTypeInfo = ezMap<ezUuid, TsComponentInfo>::ConstIterator;
 
   /// \name Basics
   ///@{
@@ -45,10 +47,9 @@ public:
   ~ezTypeScriptBinding();
 
   ezResult Initialize(ezWorld& world);
-  ezResult LoadComponent(const ezJavaScriptResourceHandle& hResource, TsComponentTypeInfo& out_TypeInfo);
-  const TsComponentInfo* GetComponentTypeInfo(const char* szComponentType) const;
+  ezResult LoadComponent(const ezUuid& typeGuid, TsComponentTypeInfo& out_TypeInfo);
 
-  void RegisterMessageHandlersForComponentType(const char* szComponent);
+  void RegisterMessageHandlersForComponentType(const char* szComponent, const ezUuid& componentType);
 
   EZ_ALWAYS_INLINE ezDuktapeContext& GetDukTapeContext() { return m_Duk; }
   EZ_ALWAYS_INLINE duk_context* GetDukContext() { return m_Duk.GetContext(); }
@@ -58,7 +59,7 @@ private:
 
   ezDuktapeContext m_Duk;
   bool m_bInitialized = false;
-  ezMap<ezString, bool> m_LoadedComponents;
+  ezMap<ezUuid, bool> m_LoadedComponents;
   ezScriptCompendiumResourceHandle m_hScriptCompendium;
 
   ///@}
@@ -131,8 +132,8 @@ private:
   static void GenerateMessageCode(ezStringBuilder& out_Code, const ezRTTI* pRtti);
   static void GenerateMessagePropertiesCode(ezStringBuilder& out_Code, const ezRTTI* pRtti);
 
-  ezString m_sCurrentTsMsgHandlerRegistrator;
-  ezMap<ezString, TsComponentInfo> m_TsComponentTypes;
+  ezUuid m_CurrentTsMsgHandlerRegistrator;
+  ezMap<ezUuid, TsComponentInfo> m_TsComponentTypes;
 
 
   ///@}
@@ -206,7 +207,7 @@ public:
   ///@{
 public:
   bool RegisterGameObject(ezGameObjectHandle handle, ezUInt32& out_uiStashIdx);
-  ezResult RegisterComponent(const char* szTypeNamem, ezComponentHandle handle, ezUInt32& out_uiStashIdx);
+  ezResult RegisterComponent(const char* szTypeName, ezComponentHandle handle, ezUInt32& out_uiStashIdx);
 
 
 private:

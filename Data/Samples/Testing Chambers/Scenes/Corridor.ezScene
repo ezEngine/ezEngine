@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7297922959506964864,5177324930371449723}}
-		u4 %Hash{8776567996325801447}
+		u4 %Hash{11518774492305494920}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -22,7 +22,9 @@ o
 			s{"{ 21e7efd6-6d5e-4f03-a4d1-7a430ceb0f8a }"}
 			s{"{ 2d50dee8-5549-4755-bbce-4cc39624919c }"}
 			s{"{ 2fe9db45-6e52-4e17-8e27-5744f9e8ada6 }"}
+			s{"{ 317e4b00-3e99-4f42-a175-2f7cdfc3fd7f }"}
 			s{"{ 328efa1a-d937-48f7-a060-d5cdfcb9fa02 }"}
+			s{"{ 371cde16-e79f-4ecd-a7c1-b757d1f39522 }"}
 			s{"{ 3bf60313-2bce-45cf-8836-68e3b9ef5323 }"}
 			s{"{ 3e1603a0-178a-4e3d-810b-7ae29708cf36 }"}
 			s{"{ 3eed317b-10cd-4752-8e7d-6fc6460beba0 }"}
@@ -4728,6 +4730,7 @@ o
 		VarArray %Children
 		{
 			Uuid{u4{5290464674155227404,10428294429759464281}}
+			Uuid{u4{14225216627665142924,15871845694057268717}}
 		}
 		VarArray %Components
 		{
@@ -12655,7 +12658,7 @@ o
 {
 	Uuid %id{u4{17893246179580933911,10270449283941852978}}
 	s %t{"ezTypeScriptComponent"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %Active{1}
@@ -18708,6 +18711,19 @@ o
 }
 o
 {
+	Uuid %id{u4{12419161094529937076,15558489395114560131}}
+	s %t{"ezMeshComponent"}
+	u3 %v{3}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		VarArray %Materials{}
+		s %Mesh{"{ 317e4b00-3e99-4f42-a175-2f7cdfc3fd7f }"}
+	}
+}
+o
+{
 	Uuid %id{u4{11482666214312071373,15569613272824298550}}
 	s %t{"ezPrefabReferenceComponent"}
 	u3 %v{4}
@@ -19109,6 +19125,17 @@ o
 			s{"CastShadow"}
 			s{"AutoColMesh"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{8381254059381297815,15714000548239657414}}
+	s %t{"ezTypeScriptComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		s %Script{"{ 371cde16-e79f-4ecd-a7c1-b757d1f39522 }"}
 	}
 }
 o
@@ -19567,6 +19594,33 @@ o
 		b %SlopedBottom{0}
 		b %SlopedTop{0}
 		f %Thickness{0x0000003F}
+	}
+}
+o
+{
+	Uuid %id{u4{14225216627665142924,15871845694057268717}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{8381254059381297815,15714000548239657414}}
+			Uuid{u4{12419161094529937076,15558489395114560131}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x00005040,0x000010C0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0xCDCCCC3E}
+		s %Mode{"ezObjectMode::ForceDynamic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
 	}
 }
 o
@@ -21905,8 +21959,8 @@ o
 		s %PluginName{"ezEditorPluginTypeScript"}
 		VarArray %Properties{}
 		s %TypeName{"ezTypeScriptComponent"}
-		u3 %TypeSize{64}
-		u3 %TypeVersion{1}
+		u3 %TypeSize{72}
+		u3 %TypeVersion{2}
 	}
 }
 o

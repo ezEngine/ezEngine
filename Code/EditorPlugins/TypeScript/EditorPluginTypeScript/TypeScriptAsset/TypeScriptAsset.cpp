@@ -11,7 +11,6 @@
 #include <Foundation/Math/Random.h>
 #include <Foundation/Utilities/Progress.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
-#include <TypeScriptPlugin/Resources/JavaScriptResource.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTypeScriptAssetDocument, 1, ezRTTINoAllocator);
@@ -109,13 +108,7 @@ ezStatus ezTypeScriptAssetDocument::InternalTransformAsset(ezStreamWriter& strea
   ezBitflags<ezTransformFlags> transformFlags)
 {
   ezTypeScriptAssetDocumentManager* pAssMan = static_cast<ezTypeScriptAssetDocumentManager*>(GetAssetDocumentManager());
-  pAssMan->GenerateScriptCompendium();
-
-  // TODO: quite wasteful to use an entire resource just for a single string, maybe the ezTypeScriptComponent could store that string directly instead
-  ezJavaScriptResourceDesc desc;
-  desc.m_sComponentName = GetProperties()->m_sComponentName;
-
-  EZ_SUCCEED_OR_RETURN(desc.Serialize(stream));
+  pAssMan->GenerateScriptCompendium(transformFlags);
 
   return ezStatus(EZ_SUCCESS);
 }

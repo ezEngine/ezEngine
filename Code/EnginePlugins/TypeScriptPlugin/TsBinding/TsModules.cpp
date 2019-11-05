@@ -72,15 +72,15 @@ int ezTypeScriptBinding::DukSearchModule(duk_context* pDuk)
 
   ezTypeScriptBinding* pBinding = static_cast<ezTypeScriptBinding*>(duk.RetrievePointerFromStash("ezTypeScriptBinding"));
 
-  ezResourceLock<ezScriptCompendiumResource> pJsLib(pBinding->m_hScriptCompendium, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-  if (pJsLib.GetAcquireResult() != ezResourceAcquireResult::Final)
+  ezResourceLock<ezScriptCompendiumResource> pCompendium(pBinding->m_hScriptCompendium, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+  if (pCompendium.GetAcquireResult() != ezResourceAcquireResult::Final)
   {
     duk.PushUndefined();
     duk.Error(ezFmt("'required' module \"{}\" could not be loaded: JsLib resource is missing.", sRequestedFile));
     return duk.ReturnCustom();
   }
 
-  auto it = pJsLib->GetDescriptor().m_PathToSource.Find(sRequestedFile);
+  auto it = pCompendium->GetDescriptor().m_PathToSource.Find(sRequestedFile);
 
   if (!it.IsValid())
   {

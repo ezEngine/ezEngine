@@ -10,8 +10,6 @@
 
 class ezTypeScriptBinding;
 
-using ezJavaScriptResourceHandle = ezTypedResourceHandle<class ezJavaScriptResource>;
-
 class EZ_TYPESCRIPTPLUGIN_DLL ezTypeScriptComponentManager : public ezComponentManager<class ezTypeScriptComponent, ezBlockStorageType::FreeList>
 {
   using SUPER = ezComponentManager<class ezTypeScriptComponent, ezBlockStorageType::FreeList>;
@@ -59,7 +57,6 @@ protected:
 
   bool HandleUnhandledMessage(ezMessage& msg);
 
-
   //////////////////////////////////////////////////////////////////////////
   // ezTypeScriptComponent Interface
   //
@@ -69,11 +66,11 @@ protected:
 
   ezTypeScriptBinding::TsComponentTypeInfo m_ComponentTypeInfo;
 
-  void SetJavaScriptResourceFile(const char* szFile); // [ property ]
-  const char* GetJavaScriptResourceFile() const;      // [ property ]
+  void SetTypeScriptComponentFile(const char* szFile); // [ property ]
+  const char* GetTypeScriptComponentFile() const;      // [ property ]
 
-  void SetJavaScriptResource(const ezJavaScriptResourceHandle& hResource); // [ property ]
-  const ezJavaScriptResourceHandle& GetJavaScriptResource() const;         // [ property ]
+  void SetTypeScriptComponentGuid(const ezUuid& hResource); // [ property ]
+  const ezUuid& GetTypeScriptComponentGuid() const;         // [ property ]
 
   enum UserFlag
   {
@@ -83,5 +80,5 @@ protected:
   };
 
 private:
-  ezJavaScriptResourceHandle m_hJsResource;
+  ezUuid m_TypeScriptComponentGuid;
 };

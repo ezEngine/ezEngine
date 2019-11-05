@@ -1,12 +1,12 @@
-import ez = require("<PATH-TO-EZ-TS>")
+import ez = require("../../TypeScript/ez")
 
-export class NewComponent extends ez.TickedTypescriptComponent {
+export class Nested extends ez.TickedTypescriptComponent {
     constructor() {
         super()
     }
 
     Tick(): void {
-        ez.Log.Info("NewComponent.Tick()")
+        //ez.Log.Info("Nested.Tick()")
     }
 
     /*

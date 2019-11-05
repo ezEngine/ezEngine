@@ -68,18 +68,42 @@ void ezScriptCompendiumResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsa
 
 ezResult ezScriptCompendiumResourceDesc::Serialize(ezStreamWriter& stream) const
 {
-  stream.WriteVersion(1);
+  stream.WriteVersion(2);
 
   EZ_SUCCEED_OR_RETURN(stream.WriteMap(m_PathToSource));
+  EZ_SUCCEED_OR_RETURN(stream.WriteMap(m_AssetGuidToInfo));
 
   return EZ_SUCCESS;
 }
 
 ezResult ezScriptCompendiumResourceDesc::Deserialize(ezStreamReader& stream)
 {
-  /*ezTypeVersion version =*/stream.ReadVersion(1);
+  ezTypeVersion version = stream.ReadVersion(2);
 
   EZ_SUCCEED_OR_RETURN(stream.ReadMap(m_PathToSource));
 
+  if (version >= 2)
+  {
+    EZ_SUCCEED_OR_RETURN(stream.ReadMap(m_AssetGuidToInfo));
+  }
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezScriptCompendiumResourceDesc::ComponentTypeInfo::Serialize(ezStreamWriter& stream) const
+{
+  stream.WriteVersion(1);
+
+  EZ_SUCCEED_OR_RETURN(stream.WriteString(m_sComponentTypeName));
+  EZ_SUCCEED_OR_RETURN(stream.WriteString(m_sComponentFilePath));
+  return EZ_SUCCESS;
+}
+
+ezResult ezScriptCompendiumResourceDesc::ComponentTypeInfo::Deserialize(ezStreamReader& stream)
+{
+  ezTypeVersion version = stream.ReadVersion(1);
+
+  EZ_SUCCEED_OR_RETURN(stream.ReadString(m_sComponentTypeName));
+  EZ_SUCCEED_OR_RETURN(stream.ReadString(m_sComponentFilePath));
   return EZ_SUCCESS;
 }

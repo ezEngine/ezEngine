@@ -47,20 +47,17 @@ ezResult ezTypeScriptBinding::RegisterComponent(const char* szTypeName, ezCompon
 
   duk.PushGlobalObject(); // [ global ]
 
-  bool bCloseAllComps = false;
   ezStringBuilder sTypeName = szTypeName;
 
   if (sTypeName.TrimWordStart("ez"))
   {
     EZ_SUCCEED_OR_RETURN(duk.PushLocalObject("__AllComponents")); // [ global __CompModule ]
-    bCloseAllComps = true;
   }
   else
   {
     const ezStringBuilder sCompModule("__", sTypeName);
 
     EZ_SUCCEED_OR_RETURN(duk.PushLocalObject(sCompModule)); // [ global __CompModule ]
-    bCloseAllComps = true;
   }
 
   if (!duk_get_prop_string(duk, -1, sTypeName)) // [ global __CompModule sTypeName ]
@@ -75,8 +72,8 @@ ezResult ezTypeScriptBinding::RegisterComponent(const char* szTypeName, ezCompon
     duk_put_prop_index(duk, -2, ezTypeScriptBindingIndexProperty::ComponentHandle); // [ global __CompModule object ]
   }
 
-  StoreReferenceInStash(uiStashIdx);    // [ global __CompModule object ]
-  duk.PopStack(bCloseAllComps ? 3 : 2); // [ ]
+  StoreReferenceInStash(uiStashIdx); // [ global __CompModule object ]
+  duk.PopStack(3);                   // [ ]
 
   out_uiStashIdx = uiStashIdx;
   return EZ_SUCCESS;

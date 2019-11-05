@@ -4,7 +4,6 @@
 #include <Core/World/World.h>
 #include <Duktape/duktape.h>
 #include <Foundation/Profiling/Profiling.h>
-#include <Resources/JavaScriptResource.h>
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
 
 static ezHashTable<duk_context*, ezTypeScriptBinding*> s_DukToBinding;
@@ -56,43 +55,50 @@ ezResult ezTypeScriptBinding::Initialize(ezWorld& world)
   return EZ_SUCCESS;
 }
 
-ezResult ezTypeScriptBinding::LoadComponent(const ezJavaScriptResourceHandle& hResource, TsComponentTypeInfo& out_TypeInfo)
+ezResult ezTypeScriptBinding::LoadComponent(const ezUuid& typeGuid, TsComponentTypeInfo& out_TypeInfo)
 {
-  if (!m_bInitialized || !hResource.IsValid())
+  if (!m_bInitialized || !typeGuid.IsValid())
   {
     return EZ_FAILURE;
   }
 
-  ezResourceLock<ezJavaScriptResource> pJsResource(hResource, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-
-  if (pJsResource.GetAcquireResult() != ezResourceAcquireResult::Final)
+  // check if this component type has been loaded before
   {
-    return EZ_FAILURE;
+    auto itLoaded = m_LoadedComponents.Find(typeGuid);
+
+    if (itLoaded.IsValid())
+    {
+      out_TypeInfo = m_TsComponentTypes.Find(typeGuid);
+      return itLoaded.Value() ? EZ_SUCCESS : EZ_FAILURE;
+    }
   }
 
-  const ezString& sComponent = pJsResource->GetDescriptor().m_sComponentName;
+  EZ_PROFILE_SCOPE("Load Script Component");
 
-  auto itLoaded = m_LoadedComponents.Find(sComponent);
-
-  if (itLoaded.IsValid())
-  {
-    out_TypeInfo = m_TsComponentTypes.Find(sComponent);
-    return itLoaded.Value() ? EZ_SUCCESS : EZ_FAILURE;
-  }
-
-  EZ_PROFILE_SCOPE("Load JavaScript Component");
-
-  bool& bLoaded = m_LoadedComponents[sComponent];
+  bool& bLoaded = m_LoadedComponents[typeGuid];
   bLoaded = false;
 
-  const ezStringBuilder sCompModule("__", sComponent);
+  ezResourceLock<ezScriptCompendiumResource> pCompendium(m_hScriptCompendium, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+  if (pCompendium.GetAcquireResult() != ezResourceAcquireResult::Final)
+  {
+    return EZ_FAILURE;
+  }
+
+  auto itType = pCompendium->GetDescriptor().m_AssetGuidToInfo.Find(typeGuid);
+  if (!itType.IsValid())
+  {
+    return EZ_FAILURE;
+  }
+
+  const ezString& sComponentPath = itType.Value().m_sComponentFilePath;
+  const ezString& sComponentName = itType.Value().m_sComponentTypeName;
+
+  const ezStringBuilder sCompModule("__", sComponentName);
 
   m_Duk.PushGlobalObject();
 
-  // TODO: do not hardcode path to script
-
   ezStringBuilder req;
-  req.Format("var {} = require(\"./Scripts/{}\");", sCompModule, sComponent);
+  req.Format("var {} = require(\"./{}\");", sCompModule, itType.Value().m_sComponentFilePath);
   if (m_Duk.ExecuteString(req).Failed())
   {
     ezLog::Error("Could not load component");
@@ -101,22 +107,14 @@ ezResult ezTypeScriptBinding::LoadComponent(const ezJavaScriptResourceHandle& hR
 
   m_Duk.PopStack();
 
-  RegisterMessageHandlersForComponentType(sComponent);
+  m_TsComponentTypes[typeGuid].m_sComponentTypeName = sComponentName;
+  RegisterMessageHandlersForComponentType(sComponentName, typeGuid);
 
   bLoaded = true;
 
-  out_TypeInfo = m_TsComponentTypes.FindOrAdd(sComponent, nullptr);
+  out_TypeInfo = m_TsComponentTypes.FindOrAdd(typeGuid, nullptr);
 
   return EZ_SUCCESS;
-}
-
-const ezTypeScriptBinding::TsComponentInfo* ezTypeScriptBinding::GetComponentTypeInfo(const char* szComponentType) const
-{
-  auto it = m_TsComponentTypes.Find(szComponentType);
-  if (!it.IsValid())
-    return nullptr;
-
-  return &it.Value();
 }
 
 ezVec3 ezTypeScriptBinding::GetVec3(duk_context* pDuk, ezInt32 iObjIdx)

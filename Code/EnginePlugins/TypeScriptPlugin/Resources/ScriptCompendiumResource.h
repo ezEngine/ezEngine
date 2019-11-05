@@ -12,6 +12,17 @@ struct EZ_TYPESCRIPTPLUGIN_DLL ezScriptCompendiumResourceDesc
 {
   ezMap<ezString, ezString> m_PathToSource;
 
+  struct ComponentTypeInfo
+  {
+    ezString m_sComponentTypeName;
+    ezString m_sComponentFilePath;
+
+    ezResult Serialize(ezStreamWriter& stream) const;
+    ezResult Deserialize(ezStreamReader& stream);
+  };
+
+  ezMap<ezUuid, ComponentTypeInfo> m_AssetGuidToInfo;
+
   ezResult Serialize(ezStreamWriter& stream) const;
   ezResult Deserialize(ezStreamReader& stream);
 };

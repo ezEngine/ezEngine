@@ -356,7 +356,7 @@ void ezDocument::BroadcastInterDocumentMessage(ezReflectedClass* pMessage, ezDoc
 {
   for (auto& man : ezDocumentManager::GetAllDocumentManagers())
   {
-    for (auto pDoc : man->GetAllDocuments())
+    for (auto pDoc : man->GetAllOpenDocuments())
     {
       if (pDoc == pSender)
         continue;

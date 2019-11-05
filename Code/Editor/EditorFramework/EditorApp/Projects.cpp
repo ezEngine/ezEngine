@@ -189,7 +189,7 @@ void ezQtEditorApp::ProjectRequestHandler(ezToolsProjectRequest& r)
       {
         for (ezDocumentManager* pMan : ezDocumentManager::GetAllDocumentManagers())
         {
-          for (ezDocument* pDoc : pMan->GetAllDocuments())
+          for (ezDocument* pDoc : pMan->GetAllOpenDocuments())
           {
             if (pDoc->IsModified())
               ModifiedDocs.PushBack(pDoc);

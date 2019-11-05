@@ -32,6 +32,15 @@ void ezResourceHandleReadContext::ReadHandle(ezStreamReader* pStream, ezTypeless
   pContext->ReadResourceReference(pStream, pResourceHandle);
 }
 
+void ezResourceHandleReadContext::ReadAndDiscardHandle(ezStreamReader* pStream)
+{
+  ezResourceHandleReadContext* pContext = s_pActiveReadContext;
+  EZ_ASSERT_DEBUG(pContext != nullptr, "No ezResourceHandleReadContext is active on this thread");
+
+  ezUInt32 uiID = 0;
+  *pStream >> uiID;
+}
+
 void ezResourceHandleReadContext::ReadResourceReference(ezStreamReader* pStream, ezTypelessResourceHandle* pResourceHandle)
 {
   ezUInt32 uiID = 0;
@@ -55,8 +64,8 @@ void ezResourceHandleReadContext::BeginRestoringHandles(ezStreamReader* pStream)
   s_pActiveReadContext = this;
 
   EZ_ASSERT_DEV(
-      m_uiVersion != 0,
-      "ezResourceHandleReadContext::BeginRestoringHandles must be called after ezResourceHandleReadContext::BeginReadingFromStream");
+    m_uiVersion != 0,
+    "ezResourceHandleReadContext::BeginRestoringHandles must be called after ezResourceHandleReadContext::BeginReadingFromStream");
 
   m_StoredHandles.Clear();
 }
@@ -64,9 +73,9 @@ void ezResourceHandleReadContext::BeginRestoringHandles(ezStreamReader* pStream)
 void ezResourceHandleReadContext::EndRestoringHandles()
 {
   EZ_ASSERT_DEV(s_pActiveReadContext == this,
-                "Incorrect usage of ezResourceHandleReadContext::BeginRestoringHandles / EndRestoringHandles");
+    "Incorrect usage of ezResourceHandleReadContext::BeginRestoringHandles / EndRestoringHandles");
   EZ_ASSERT_DEV(m_bReadData,
-                "ezResourceHandleReadContext::EndRestoringHandles must be called AFTER ezResourceHandleReadContext::EndReadingFromStream");
+    "ezResourceHandleReadContext::EndRestoringHandles must be called AFTER ezResourceHandleReadContext::EndReadingFromStream");
 
   for (const auto& hd : m_StoredHandles)
   {
@@ -146,4 +155,3 @@ void ezResourceHandleReadContext::EndReadingFromStream(ezStreamReader* pStream)
 
 
 EZ_STATICLINK_FILE(Core, Core_WorldSerializer_Implementation_ResourceHandleReader);
-
