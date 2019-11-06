@@ -57,5 +57,6 @@
 	<file>Icons/Rename16.png</file>
 	<file>Icons/Cursor16.png</file>
 	<file>Icons/Go16.png</file>
+	<file>Icons/vscode16.png</file>
   </qresource>
 </RCC>
