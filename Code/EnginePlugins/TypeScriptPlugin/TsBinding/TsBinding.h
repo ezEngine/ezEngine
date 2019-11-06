@@ -192,12 +192,15 @@ public:
   /// \name Math
   ///@{
 
-  static ezVec3 GetVec3(duk_context* pDuk, ezInt32 iObjIdx);
-  static ezVec3 GetVec3Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx);
-  static ezQuat GetQuat(duk_context* pDuk, ezInt32 iObjIdx);
-  static ezQuat GetQuatProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx);
-  static ezColor GetColor(duk_context* pDuk, ezInt32 iObjIdx);
-  static ezColor GetColorProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx);
+  static ezVec2 GetVec2(duk_context* pDuk, ezInt32 iObjIdx, const ezVec2& fallback = ezVec2::ZeroVector());
+  static ezVec2 GetVec2Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec2& fallback = ezVec2::ZeroVector());
+  static ezVec3 GetVec3(duk_context* pDuk, ezInt32 iObjIdx, const ezVec3& fallback = ezVec3::ZeroVector());
+  static ezVec3 GetVec3Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec3& fallback = ezVec3::ZeroVector());
+  static ezQuat GetQuat(duk_context* pDuk, ezInt32 iObjIdx, ezQuat fallback = ezQuat::IdentityQuaternion());
+  static ezQuat GetQuatProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, ezQuat fallback = ezQuat::IdentityQuaternion());
+  static ezColor GetColor(duk_context* pDuk, ezInt32 iObjIdx, const ezColor& fallback = ezColor::White);
+  static ezColor GetColorProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezColor& fallback = ezColor::White);
+  static void PushVec2(duk_context* pDuk, const ezVec2& value);
   static void PushVec3(duk_context* pDuk, const ezVec3& value);
   static void PushQuat(duk_context* pDuk, const ezQuat& value);
   static void PushColor(duk_context* pDuk, const ezColor& value);

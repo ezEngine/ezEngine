@@ -17,6 +17,9 @@ void ezTypeScriptBinding::GenerateMessagesFile(const char* szFile)
 import __Message = require("./Message")
 export import Message = __Message.Message;
 
+import __Vec2 = require("./Vec2")
+export import Vec2 = __Vec2.Vec2;
+
 import __Vec3 = require("./Vec3")
 export import Vec3 = __Vec3.Vec3;
 

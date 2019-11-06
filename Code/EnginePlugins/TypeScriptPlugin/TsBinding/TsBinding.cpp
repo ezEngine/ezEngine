@@ -117,105 +117,147 @@ ezResult ezTypeScriptBinding::LoadComponent(const ezUuid& typeGuid, TsComponentT
   return EZ_SUCCESS;
 }
 
-ezVec3 ezTypeScriptBinding::GetVec3(duk_context* pDuk, ezInt32 iObjIdx)
+ezVec2 ezTypeScriptBinding::GetVec2(duk_context* pDuk, ezInt32 iObjIdx, const ezVec2& fallback /*= ezVec2::ZeroVector()*/)
 {
   if (duk_is_null_or_undefined(pDuk, iObjIdx))
-    return ezVec3::ZeroVector();
+    return fallback;
+
+  ezVec2 res;
+
+  EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "x"), "");
+  res.x = duk_get_number_default(pDuk, -1, fallback.x);
+  duk_pop(pDuk);
+  EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "y"), "");
+  res.y = duk_get_number_default(pDuk, -1, fallback.y);
+  duk_pop(pDuk);
+
+  return res;
+}
+
+ezVec2 ezTypeScriptBinding::GetVec2Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec2& fallback /*= ezVec2::ZeroVector()*/)
+{
+  ezDuktapeHelper duk(pDuk, 0);
+
+  if (duk.PushLocalObject(szPropertyName, iObjIdx).Failed()) // [ prop ]
+  {
+    return fallback;
+  }
+
+  const ezVec2 res = GetVec2(pDuk, -1, fallback);
+  duk.PopStack(); // [ ]
+  return res;
+}
+
+ezVec3 ezTypeScriptBinding::GetVec3(duk_context* pDuk, ezInt32 iObjIdx, const ezVec3& fallback /*= ezVec3::ZeroVector()*/)
+{
+  if (duk_is_null_or_undefined(pDuk, iObjIdx))
+    return fallback;
 
   ezVec3 res;
 
   EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "x"), "");
-  res.x = duk_get_number_default(pDuk, -1, 0.0f);
+  res.x = duk_get_number_default(pDuk, -1, fallback.x);
   duk_pop(pDuk);
   EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "y"), "");
-  res.y = duk_get_number_default(pDuk, -1, 0.0f);
+  res.y = duk_get_number_default(pDuk, -1, fallback.y);
   duk_pop(pDuk);
   EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "z"), "");
-  res.z = duk_get_number_default(pDuk, -1, 0.0f);
+  res.z = duk_get_number_default(pDuk, -1, fallback.z);
   duk_pop(pDuk);
 
   return res;
 }
 
-ezVec3 ezTypeScriptBinding::GetVec3Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx)
+ezVec3 ezTypeScriptBinding::GetVec3Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec3& fallback /*= ezVec3::ZeroVector()*/)
 {
   ezDuktapeHelper duk(pDuk, 0);
 
   if (duk.PushLocalObject(szPropertyName, iObjIdx).Failed()) // [ prop ]
   {
-    duk.Error(ezFmt("Vec3 property '{}' does not exist.", szPropertyName));
-    return ezVec3::ZeroVector();
+    return fallback;
   }
 
-  const ezVec3 res = GetVec3(pDuk, -1);
+  const ezVec3 res = GetVec3(pDuk, -1, fallback);
   duk.PopStack(); // [ ]
   return res;
 }
 
-ezQuat ezTypeScriptBinding::GetQuat(duk_context* pDuk, ezInt32 iObjIdx)
+ezQuat ezTypeScriptBinding::GetQuat(duk_context* pDuk, ezInt32 iObjIdx, ezQuat fallback /*= ezQuat::IdentityQuaternion()*/)
 {
   if (duk_is_null_or_undefined(pDuk, iObjIdx))
-    return ezQuat::IdentityQuaternion();
+    return fallback;
 
   ezQuat res;
 
   EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "x"), "");
-  res.v.x = duk_get_number_default(pDuk, -1, 0.0f);
+  res.v.x = duk_get_number_default(pDuk, -1, fallback.v.x);
   duk_pop(pDuk);
   EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "y"), "");
-  res.v.y = duk_get_number_default(pDuk, -1, 0.0f);
+  res.v.y = duk_get_number_default(pDuk, -1, fallback.v.y);
   duk_pop(pDuk);
   EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "z"), "");
-  res.v.z = duk_get_number_default(pDuk, -1, 0.0f);
+  res.v.z = duk_get_number_default(pDuk, -1, fallback.v.z);
   duk_pop(pDuk);
   EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "w"), "");
-  res.w = duk_get_number_default(pDuk, -1, 0.0f);
+  res.w = duk_get_number_default(pDuk, -1, fallback.w);
   duk_pop(pDuk);
 
   return res;
 }
 
-ezQuat ezTypeScriptBinding::GetQuatProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx)
+ezQuat ezTypeScriptBinding::GetQuatProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, ezQuat fallback /*= ezQuat::IdentityQuaternion()*/)
 {
   ezDuktapeHelper duk(pDuk, 0);
 
   if (duk.PushLocalObject(szPropertyName, iObjIdx).Failed()) // [ prop ]
   {
-    duk.Error(ezFmt("Quat property '{}' does not exist.", szPropertyName));
-    return ezQuat::IdentityQuaternion();
+    return fallback;
   }
 
-  const ezQuat res = GetQuat(pDuk, -1);
+  const ezQuat res = GetQuat(pDuk, -1, fallback);
   duk.PopStack(); // [ ]
   return res;
 }
 
-ezColor ezTypeScriptBinding::GetColor(duk_context* pDuk, ezInt32 iObjIdx)
+ezColor ezTypeScriptBinding::GetColor(duk_context* pDuk, ezInt32 iObjIdx, const ezColor& fallback /*= ezColor::White*/)
 {
   ezDuktapeHelper duk(pDuk, 0);
 
   ezColor res;
-  res.r = duk.GetFloatProperty("r", 0.0f, iObjIdx);
-  res.g = duk.GetFloatProperty("g", 0.0f, iObjIdx);
-  res.b = duk.GetFloatProperty("b", 0.0f, iObjIdx);
-  res.a = duk.GetFloatProperty("a", 1.0f, iObjIdx);
+  res.r = duk.GetFloatProperty("r", fallback.r, iObjIdx);
+  res.g = duk.GetFloatProperty("g", fallback.g, iObjIdx);
+  res.b = duk.GetFloatProperty("b", fallback.b, iObjIdx);
+  res.a = duk.GetFloatProperty("a", fallback.a, iObjIdx);
 
   return res;
 }
 
-ezColor ezTypeScriptBinding::GetColorProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx)
+ezColor ezTypeScriptBinding::GetColorProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezColor& fallback /*= ezColor::White*/)
 {
   ezDuktapeHelper duk(pDuk, 0);
 
   if (duk.PushLocalObject(szPropertyName, iObjIdx).Failed()) // [ prop ]
   {
-    duk.Error(ezFmt("Color property '{}' does not exist.", szPropertyName));
-    return ezColor::RebeccaPurple;
+    return fallback;
   }
 
-  const ezColor res = GetColor(pDuk, -1);
+  const ezColor res = GetColor(pDuk, -1, fallback);
   duk.PopStack(); // [ ]
   return res;
+}
+
+void ezTypeScriptBinding::PushVec2(duk_context* pDuk, const ezVec2& value)
+{
+  ezDuktapeHelper duk(pDuk, +1);
+
+  duk.PushGlobalObject();                                   // [ global ]
+  EZ_VERIFY(duk.PushLocalObject("__Vec2").Succeeded(), ""); // [ global __Vec2 ]
+  duk_get_prop_string(duk, -1, "Vec2");                     // [ global __Vec2 Vec2 ]
+  duk_push_number(duk, value.x);                            // [ global __Vec2 Vec2 x ]
+  duk_push_number(duk, value.y);                            // [ global __Vec2 Vec2 x y ]
+  duk_new(duk, 2);                                          // [ global __Vec2 result ]
+  duk_remove(duk, -2);                                      // [ global result ]
+  duk_remove(duk, -2);                                      // [ result ]
 }
 
 void ezTypeScriptBinding::PushVec3(duk_context* pDuk, const ezVec3& value)

@@ -37,6 +37,12 @@ ezResult ezTypeScriptBinding::Init_RequireModules()
     return EZ_FAILURE;
   }
 
+  if (m_Duk.ExecuteString("var __Vec2 = require(\"./TypeScript/ez/Vec2\");").Failed())
+  {
+    ezLog::Error("Failed to import 'Vec2.ts'");
+    return EZ_FAILURE;
+  }
+
   if (m_Duk.ExecuteString("var __Vec3 = require(\"./TypeScript/ez/Vec3\");").Failed())
   {
     ezLog::Error("Failed to import 'Vec3.ts'");
