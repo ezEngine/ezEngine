@@ -112,6 +112,7 @@ void ezQtTypeScriptAssetDocumentWindow::TsDocumentEventHandler(const ezTypeScrip
   {
     case ezTypeScriptAssetDocumentEvent::Type::ScriptCreated:
     case ezTypeScriptAssetDocumentEvent::Type::ScriptOpened:
+    case ezTypeScriptAssetDocumentEvent::Type::ScriptTransformed:
       UpdateFileContentDisplay();
       break;
 
@@ -122,292 +123,247 @@ void ezQtTypeScriptAssetDocumentWindow::TsDocumentEventHandler(const ezTypeScrip
 
 //////////////////////////////////////////////////////////////////////////
 
-Highlighter::Highlighter(QTextDocument* parent)
-  : QSyntaxHighlighter(parent)
-{
-  HighlightingRule rule;
-
-  keywordFormat.setForeground(Qt::darkBlue);
-  keywordFormat.setFontWeight(QFont::Bold);
-  const QString keywordPatterns[] = {
-    QStringLiteral("\\bchar\\b"), QStringLiteral("\\bclass\\b"), QStringLiteral("\\bconst\\b"),
-    QStringLiteral("\\bdouble\\b"), QStringLiteral("\\benum\\b"), QStringLiteral("\\bexplicit\\b"),
-    QStringLiteral("\\bfriend\\b"), QStringLiteral("\\binline\\b"), QStringLiteral("\\bint\\b"),
-    QStringLiteral("\\blong\\b"), QStringLiteral("\\bnamespace\\b"), QStringLiteral("\\boperator\\b"),
-    QStringLiteral("\\bprivate\\b"), QStringLiteral("\\bprotected\\b"), QStringLiteral("\\bpublic\\b"),
-    QStringLiteral("\\bshort\\b"), QStringLiteral("\\bsignals\\b"), QStringLiteral("\\bsigned\\b"),
-    QStringLiteral("\\bslots\\b"), QStringLiteral("\\bstatic\\b"), QStringLiteral("\\bstruct\\b"),
-    QStringLiteral("\\btemplate\\b"), QStringLiteral("\\btypedef\\b"), QStringLiteral("\\btypename\\b"),
-    QStringLiteral("\\bunion\\b"), QStringLiteral("\\bunsigned\\b"), QStringLiteral("\\bvirtual\\b"),
-    QStringLiteral("\\bvoid\\b"), QStringLiteral("\\bvolatile\\b"), QStringLiteral("\\bbool\\b")};
-  for (const QString& pattern : keywordPatterns)
-  {
-    rule.pattern = QRegularExpression(pattern);
-    rule.format = keywordFormat;
-    highlightingRules.append(rule);
-  }
-
-  classFormat.setFontWeight(QFont::Bold);
-  classFormat.setForeground(Qt::darkMagenta);
-  rule.pattern = QRegularExpression(QStringLiteral("\\bQ[A-Za-z]+\\b"));
-  rule.format = classFormat;
-  highlightingRules.append(rule);
-
-  singleLineCommentFormat.setForeground(Qt::red);
-  rule.pattern = QRegularExpression(QStringLiteral("//[^\n]*"));
-  rule.format = singleLineCommentFormat;
-  highlightingRules.append(rule);
-
-  multiLineCommentFormat.setForeground(Qt::red);
-
-  quotationFormat.setForeground(Qt::darkGreen);
-  rule.pattern = QRegularExpression(QStringLiteral("\".*\""));
-  rule.format = quotationFormat;
-  highlightingRules.append(rule);
-
-  functionFormat.setFontItalic(true);
-  functionFormat.setForeground(Qt::blue);
-  rule.pattern = QRegularExpression(QStringLiteral("\\b[A-Za-z0-9_]+(?=\\()"));
-  rule.format = functionFormat;
-  highlightingRules.append(rule);
-
-  commentStartExpression = QRegularExpression(QStringLiteral("/\\*"));
-  commentEndExpression = QRegularExpression(QStringLiteral("\\*/"));
-}
-
-void Highlighter::highlightBlock(const QString& text)
-{
-  for (const HighlightingRule& rule : qAsConst(highlightingRules))
-  {
-    QRegularExpressionMatchIterator matchIterator = rule.pattern.globalMatch(text);
-    while (matchIterator.hasNext())
-    {
-      QRegularExpressionMatch match = matchIterator.next();
-      setFormat(match.capturedStart(), match.capturedLength(), rule.format);
-    }
-  }
-  setCurrentBlockState(0);
-
-  int startIndex = 0;
-  if (previousBlockState() != 1)
-    startIndex = text.indexOf(commentStartExpression);
-
-  while (startIndex >= 0)
-  {
-    QRegularExpressionMatch match = commentEndExpression.match(text, startIndex);
-    int endIndex = match.capturedStart();
-    int commentLength = 0;
-    if (endIndex == -1)
-    {
-      setCurrentBlockState(1);
-      commentLength = text.length() - startIndex;
-    }
-    else
-    {
-      commentLength = endIndex - startIndex + match.capturedLength();
-    }
-    setFormat(startIndex, commentLength, multiLineCommentFormat);
-    startIndex = text.indexOf(commentStartExpression, startIndex + commentLength);
-  }
-}
-
-//////////////////////////////////////////////////////////////////////////
-
 JSHighlighter::JSHighlighter(QTextDocument* parent)
   : QSyntaxHighlighter(parent)
-  , m_markCaseSensitivity(Qt::CaseInsensitive)
 {
   // default color scheme
-  m_colors[JSEdit::Normal] = QColor("#000000");
-  m_colors[JSEdit::Comment] = QColor("#808080");
-  m_colors[JSEdit::Number] = QColor("#008000");
-  m_colors[JSEdit::String] = QColor("#800000");
+  m_colors[JSEdit::Comment] = QColor("#6A8A35");
+  m_colors[JSEdit::Number] = QColor("#B5CEA8");
+  m_colors[JSEdit::String] = QColor("#CE916A");
   m_colors[JSEdit::Operator] = QColor("#808000");
-  m_colors[JSEdit::Identifier] = QColor("#000020");
-  m_colors[JSEdit::Keyword] = QColor("#000080");
-  m_colors[JSEdit::BuiltIn] = QColor("#008080");
-  m_colors[JSEdit::Marker] = QColor("#ffff00");
+  m_colors[JSEdit::KeywordBlue] = QColor("#569CCA");
+  m_colors[JSEdit::KeywordPink] = QColor("#C586C0");
+  m_colors[JSEdit::KeywordGreen] = QColor("#4EC9B0");
+  m_colors[JSEdit::BuiltIn] = QColor("#DCDCAA");
 
-  // https://developer.mozilla.org/en/JavaScript/Reference/Reserved_Words
-  m_keywords << "break";
-  m_keywords << "case";
-  m_keywords << "catch";
-  m_keywords << "continue";
-  m_keywords << "default";
-  m_keywords << "delete";
-  m_keywords << "do";
-  m_keywords << "else";
-  m_keywords << "finally";
-  m_keywords << "for";
-  m_keywords << "function";
-  m_keywords << "if";
-  m_keywords << "in";
-  m_keywords << "instanceof";
-  m_keywords << "new";
-  m_keywords << "return";
-  m_keywords << "switch";
-  m_keywords << "this";
-  m_keywords << "throw";
-  m_keywords << "try";
-  m_keywords << "typeof";
-  m_keywords << "var";
-  m_keywords << "void";
-  m_keywords << "while";
-  m_keywords << "with";
+  m_keywordsPink << "break";
+  m_keywordsPink << "case";
+  m_keywordsPink << "catch";
+  m_keywordsPink << "continue";
+  m_keywordsPink << "default";
+  m_keywordsBlue << "delete";
+  m_keywordsPink << "do";
+  m_keywordsPink << "finally";
+  m_keywordsPink << "for";
+  m_keywordsBlue << "function";
+  m_keywordsBlue << "in";
+  m_keywordsBlue << "instanceof";
+  m_keywordsBlue << "new";
+  m_keywordsPink << "return";
+  m_keywordsPink << "switch";
+  m_keywordsBlue << "this";
+  m_keywordsPink << "throw";
+  m_keywordsPink << "try";
+  m_keywordsBlue << "typeof";
+  m_keywordsBlue << "var";
+  m_keywordsBlue << "void";
+  m_keywordsPink << "while";
+  m_keywordsPink << "with";
+  m_keywordsBlue << "true";
+  m_keywordsBlue << "false";
+  m_keywordsBlue << "null";
+  m_keywordsBlue << "static";
+  m_keywordsBlue << "let";
+  m_keywordsBlue << "class";
+  m_keywordsBlue << "extends";
+  m_keywordsBlue << "implements";
+  m_keywordsBlue << "const";
+  m_keywordsBlue << "enum";
+  m_keywordsBlue << "super";
+  m_keywordsPink << "as";
+  m_keywordsBlue << "private";
+  m_keywordsBlue << "protected";
+  m_keywordsBlue << "public";
+  m_keywordsPink << "yield";
+  m_keywordsBlue << "symbol";
+  m_keywordsBlue << "type";
+  m_keywordsBlue << "from";
+  m_keywordsBlue << "of";
+  m_keywordsGreen << "boolean";
+  m_keywordsGreen << "string";
+  m_keywordsGreen << "number";
+  m_keywordsGreen << "any";
+  m_keywordsBlue << "declare";
+  m_keywordsBlue << "get";
+  m_keywordsBlue << "set";
+  m_keywordsGreen << "module";
+  m_keywordsBlue << "namespace";
+  m_keywordsPink << "async";
+  m_keywordsPink << "await";
+  m_keywordsPink << "export";
+  m_keywordsPink << "import";
+  m_keywordsPink << "interface";
+  m_keywordsPink << "require";
+  m_keywordsPink << "package";
+  m_keywordsPink << "if";
+  m_keywordsPink << "else";
 
-  m_keywords << "true";
-  m_keywords << "false";
-  m_keywords << "null";
 
   // built-in and other popular objects + properties
-  m_knownIds << "Object";
-  m_knownIds << "prototype";
-  m_knownIds << "create";
-  m_knownIds << "defineProperty";
-  m_knownIds << "defineProperties";
-  m_knownIds << "getOwnPropertyDescriptor";
-  m_knownIds << "keys";
-  m_knownIds << "getOwnPropertyNames";
-  m_knownIds << "constructor";
-  m_knownIds << "__parent__";
-  m_knownIds << "__proto__";
-  m_knownIds << "__defineGetter__";
-  m_knownIds << "__defineSetter__";
-  m_knownIds << "eval";
-  m_knownIds << "hasOwnProperty";
-  m_knownIds << "isPrototypeOf";
-  m_knownIds << "__lookupGetter__";
-  m_knownIds << "__lookupSetter__";
-  m_knownIds << "__noSuchMethod__";
-  m_knownIds << "propertyIsEnumerable";
-  m_knownIds << "toSource";
-  m_knownIds << "toLocaleString";
-  m_knownIds << "toString";
-  m_knownIds << "unwatch";
-  m_knownIds << "valueOf";
-  m_knownIds << "watch";
+  m_builtIn << "Object";
+  m_builtIn << "prototype";
+  m_builtIn << "create";
+  m_builtIn << "defineProperty";
+  m_builtIn << "defineProperties";
+  m_builtIn << "getOwnPropertyDescriptor";
+  m_builtIn << "keys";
+  m_builtIn << "getOwnPropertyNames";
+  m_builtIn << "constructor";
+  m_builtIn << "__parent__";
+  m_builtIn << "__proto__";
+  m_builtIn << "__defineGetter__";
+  m_builtIn << "__defineSetter__";
+  m_builtIn << "eval";
+  m_builtIn << "hasOwnProperty";
+  m_builtIn << "isPrototypeOf";
+  m_builtIn << "__lookupGetter__";
+  m_builtIn << "__lookupSetter__";
+  m_builtIn << "__noSuchMethod__";
+  m_builtIn << "propertyIsEnumerable";
+  m_builtIn << "toSource";
+  m_builtIn << "toLocaleString";
+  m_builtIn << "toString";
+  m_builtIn << "unwatch";
+  m_builtIn << "valueOf";
+  m_builtIn << "watch";
 
-  m_knownIds << "Function";
-  m_knownIds << "arguments";
-  m_knownIds << "arity";
-  m_knownIds << "caller";
-  m_knownIds << "constructor";
-  m_knownIds << "length";
-  m_knownIds << "name";
-  m_knownIds << "apply";
-  m_knownIds << "bind";
-  m_knownIds << "call";
+  m_builtIn << "Function";
+  m_builtIn << "arguments";
+  m_builtIn << "arity";
+  m_builtIn << "caller";
+  m_builtIn << "constructor";
+  m_builtIn << "length";
+  m_builtIn << "name";
+  m_builtIn << "apply";
+  m_builtIn << "bind";
+  m_builtIn << "call";
 
-  m_knownIds << "String";
-  m_knownIds << "fromCharCode";
-  m_knownIds << "length";
-  m_knownIds << "charAt";
-  m_knownIds << "charCodeAt";
-  m_knownIds << "concat";
-  m_knownIds << "indexOf";
-  m_knownIds << "lastIndexOf";
-  m_knownIds << "localCompare";
-  m_knownIds << "match";
-  m_knownIds << "quote";
-  m_knownIds << "replace";
-  m_knownIds << "search";
-  m_knownIds << "slice";
-  m_knownIds << "split";
-  m_knownIds << "substr";
-  m_knownIds << "substring";
-  m_knownIds << "toLocaleLowerCase";
-  m_knownIds << "toLocaleUpperCase";
-  m_knownIds << "toLowerCase";
-  m_knownIds << "toUpperCase";
-  m_knownIds << "trim";
-  m_knownIds << "trimLeft";
-  m_knownIds << "trimRight";
+  m_builtIn << "String";
+  m_builtIn << "fromCharCode";
+  m_builtIn << "length";
+  m_builtIn << "charAt";
+  m_builtIn << "charCodeAt";
+  m_builtIn << "concat";
+  m_builtIn << "indexOf";
+  m_builtIn << "lastIndexOf";
+  m_builtIn << "localCompare";
+  m_builtIn << "match";
+  m_builtIn << "quote";
+  m_builtIn << "replace";
+  m_builtIn << "search";
+  m_builtIn << "slice";
+  m_builtIn << "split";
+  m_builtIn << "substr";
+  m_builtIn << "substring";
+  m_builtIn << "toLocaleLowerCase";
+  m_builtIn << "toLocaleUpperCase";
+  m_builtIn << "toLowerCase";
+  m_builtIn << "toUpperCase";
+  m_builtIn << "trim";
+  m_builtIn << "trimLeft";
+  m_builtIn << "trimRight";
 
-  m_knownIds << "Array";
-  m_knownIds << "isArray";
-  m_knownIds << "index";
-  m_knownIds << "input";
-  m_knownIds << "pop";
-  m_knownIds << "push";
-  m_knownIds << "reverse";
-  m_knownIds << "shift";
-  m_knownIds << "sort";
-  m_knownIds << "splice";
-  m_knownIds << "unshift";
-  m_knownIds << "concat";
-  m_knownIds << "join";
-  m_knownIds << "filter";
-  m_knownIds << "forEach";
-  m_knownIds << "every";
-  m_knownIds << "map";
-  m_knownIds << "some";
-  m_knownIds << "reduce";
-  m_knownIds << "reduceRight";
+  m_builtIn << "Array";
+  m_builtIn << "isArray";
+  m_builtIn << "index";
+  m_builtIn << "input";
+  m_builtIn << "pop";
+  m_builtIn << "push";
+  m_builtIn << "reverse";
+  m_builtIn << "shift";
+  m_builtIn << "sort";
+  m_builtIn << "splice";
+  m_builtIn << "unshift";
+  m_builtIn << "concat";
+  m_builtIn << "join";
+  m_builtIn << "filter";
+  m_builtIn << "forEach";
+  m_builtIn << "every";
+  m_builtIn << "map";
+  m_builtIn << "some";
+  m_builtIn << "reduce";
+  m_builtIn << "reduceRight";
 
-  m_knownIds << "RegExp";
-  m_knownIds << "global";
-  m_knownIds << "ignoreCase";
-  m_knownIds << "lastIndex";
-  m_knownIds << "multiline";
-  m_knownIds << "source";
-  m_knownIds << "exec";
-  m_knownIds << "test";
+  m_builtIn << "RegExp";
+  m_builtIn << "global";
+  m_builtIn << "ignoreCase";
+  m_builtIn << "lastIndex";
+  m_builtIn << "multiline";
+  m_builtIn << "source";
+  m_builtIn << "exec";
+  m_builtIn << "test";
 
-  m_knownIds << "JSON";
-  m_knownIds << "parse";
-  m_knownIds << "stringify";
+  m_builtIn << "JSON";
+  m_builtIn << "parse";
+  m_builtIn << "stringify";
 
-  m_knownIds << "decodeURI";
-  m_knownIds << "decodeURIComponent";
-  m_knownIds << "encodeURI";
-  m_knownIds << "encodeURIComponent";
-  m_knownIds << "eval";
-  m_knownIds << "isFinite";
-  m_knownIds << "isNaN";
-  m_knownIds << "parseFloat";
-  m_knownIds << "parseInt";
-  m_knownIds << "Infinity";
-  m_knownIds << "NaN";
-  m_knownIds << "undefined";
+  m_builtIn << "decodeURI";
+  m_builtIn << "decodeURIComponent";
+  m_builtIn << "encodeURI";
+  m_builtIn << "encodeURIComponent";
+  m_builtIn << "eval";
+  m_builtIn << "isFinite";
+  m_builtIn << "isNaN";
+  m_builtIn << "parseFloat";
+  m_builtIn << "parseInt";
+  m_builtIn << "Infinity";
+  m_builtIn << "NaN";
+  m_builtIn << "undefined";
 
-  m_knownIds << "Math";
-  m_knownIds << "E";
-  m_knownIds << "LN2";
-  m_knownIds << "LN10";
-  m_knownIds << "LOG2E";
-  m_knownIds << "LOG10E";
-  m_knownIds << "PI";
-  m_knownIds << "SQRT1_2";
-  m_knownIds << "SQRT2";
-  m_knownIds << "abs";
-  m_knownIds << "acos";
-  m_knownIds << "asin";
-  m_knownIds << "atan";
-  m_knownIds << "atan2";
-  m_knownIds << "ceil";
-  m_knownIds << "cos";
-  m_knownIds << "exp";
-  m_knownIds << "floor";
-  m_knownIds << "log";
-  m_knownIds << "max";
-  m_knownIds << "min";
-  m_knownIds << "pow";
-  m_knownIds << "random";
-  m_knownIds << "round";
-  m_knownIds << "sin";
-  m_knownIds << "sqrt";
-  m_knownIds << "tan";
+  m_keywordsGreen << "Math";
+  m_keywordsGreen << "E";
+  m_builtIn << "LN2";
+  m_builtIn << "LN10";
+  m_builtIn << "LOG2E";
+  m_builtIn << "LOG10E";
+  m_keywordsGreen << "PI";
+  m_builtIn << "SQRT1_2";
+  m_builtIn << "SQRT2";
+  m_builtIn << "abs";
+  m_builtIn << "acos";
+  m_builtIn << "asin";
+  m_builtIn << "atan";
+  m_builtIn << "atan2";
+  m_builtIn << "ceil";
+  m_builtIn << "cos";
+  m_builtIn << "exp";
+  m_builtIn << "floor";
+  m_builtIn << "log";
+  m_builtIn << "max";
+  m_builtIn << "min";
+  m_builtIn << "pow";
+  m_builtIn << "random";
+  m_builtIn << "round";
+  m_builtIn << "sin";
+  m_builtIn << "sqrt";
+  m_builtIn << "tan";
 
-  m_knownIds << "document";
-  m_knownIds << "window";
-  m_knownIds << "navigator";
-  m_knownIds << "userAgent";
-}
+  m_builtIn << "document";
+  m_builtIn << "window";
+  m_builtIn << "navigator";
+  m_builtIn << "userAgent";
 
-void JSHighlighter::setColor(JSEdit::ColorComponent component, const QColor& color)
-{
-  m_colors[component] = color;
-  rehighlight();
+  m_keywordsGreen << "ez";
+  m_keywordsGreen << "Vec3";
+  m_keywordsGreen << "Quat";
+  m_keywordsGreen << "Color";
+  m_keywordsGreen << "Log";
+  m_keywordsGreen << "ezMath";
+  m_keywordsGreen << "Angle";
+  m_keywordsGreen << "Time";
+  m_keywordsGreen << "World";
+  m_keywordsGreen << "GameObject";
+  m_keywordsGreen << "Component";
+  m_keywordsGreen << "Message";
+  m_keywordsGreen << "TypescriptComponent";
+  m_keywordsGreen << "TickedTypescriptComponent";
+  m_keywordsGreen << "Tick";
+  m_keywordsGreen << "Initialize";
+  m_keywordsGreen << "Deinitialize";
+  m_keywordsGreen << "OnActivated";
+  m_keywordsGreen << "OnActivated";
+  m_keywordsGreen << "OnSimulationStarted";
+  m_keywordsGreen << "RegisterMessageHandlers";
 }
 
 void JSHighlighter::highlightBlock(const QString& text)
@@ -514,9 +470,13 @@ void JSHighlighter::highlightBlock(const QString& text)
         if (ch.isSpace() || !(ch.isDigit() || ch.isLetter() || ch == '_'))
         {
           QString token = text.mid(start, i - start).trimmed();
-          if (m_keywords.contains(token))
-            setFormat(start, i - start, m_colors[JSEdit::Keyword]);
-          else if (m_knownIds.contains(token))
+          if (m_keywordsBlue.contains(token))
+            setFormat(start, i - start, m_colors[JSEdit::KeywordBlue]);
+          if (m_keywordsPink.contains(token))
+            setFormat(start, i - start, m_colors[JSEdit::KeywordPink]);
+          if (m_keywordsGreen.contains(token))
+            setFormat(start, i - start, m_colors[JSEdit::KeywordGreen]);
+          else if (m_builtIn.contains(token))
             setFormat(start, i - start, m_colors[JSEdit::BuiltIn]);
           state = Start;
         }
@@ -593,23 +553,6 @@ void JSHighlighter::highlightBlock(const QString& text)
   else
     state = Start;
 
-  if (!m_markString.isEmpty())
-  {
-    int pos = 0;
-    int len = m_markString.length();
-    QTextCharFormat markerFormat;
-    markerFormat.setBackground(m_colors[JSEdit::Marker]);
-    markerFormat.setForeground(m_colors[JSEdit::Normal]);
-    for (;;)
-    {
-      pos = text.indexOf(m_markString, pos, m_markCaseSensitivity);
-      if (pos < 0)
-        break;
-      setFormat(pos, len, markerFormat);
-      ++pos;
-    }
-  }
-
   if (!bracketPositions.isEmpty())
   {
     JSBlockData* blockData = reinterpret_cast<JSBlockData*>(currentBlock().userData());
@@ -623,22 +566,4 @@ void JSHighlighter::highlightBlock(const QString& text)
 
   blockState = (state & 15) | (bracketLevel << 4);
   setCurrentBlockState(blockState);
-}
-
-void JSHighlighter::mark(const QString& str, Qt::CaseSensitivity caseSensitivity)
-{
-  m_markString = str;
-  m_markCaseSensitivity = caseSensitivity;
-  rehighlight();
-}
-
-QStringList JSHighlighter::keywords() const
-{
-  return m_keywords.toList();
-}
-
-void JSHighlighter::setKeywords(const QStringList& keywords)
-{
-  m_keywords = QSet<QString>::fromList(keywords);
-  rehighlight();
 }

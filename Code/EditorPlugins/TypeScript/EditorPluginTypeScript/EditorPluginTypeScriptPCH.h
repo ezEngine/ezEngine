@@ -8,9 +8,14 @@
 
 #include <EditorPluginTypeScript/EditorPluginTypeScriptDLL.h>
 
-#include <Foundation/Strings/StringBuilder.h>
+#include <Core/Graphics/Geometry.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/Action/ActionManager.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <Core/Graphics/Geometry.h>
+
+#include <QLabel>
+#include <QLayout>
+#include <QSyntaxHighlighter>
+#include <QTextEdit>

@@ -13,6 +13,7 @@ struct ezTypeScriptAssetDocumentEvent
     None,
     ScriptCreated,
     ScriptOpened,
+    ScriptTransformed,
   };
 
   Type m_Type = Type::None;
