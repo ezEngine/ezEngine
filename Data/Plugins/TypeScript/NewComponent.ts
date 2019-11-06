@@ -11,6 +11,7 @@ export class NewComponent extends ez.TickedTypescriptComponent {
 
     Tick(): void {
         ez.Log.Info("NewComponent.Tick()")
+
     }
 
     /*
@@ -28,6 +29,17 @@ export class NewComponent extends ez.TickedTypescriptComponent {
 
     OnSimulationStarted(): void {
     }
+
+    // to use message handlers you must implement exactly this function
+    static RegisterMessageHandlers() {
+        // you can only call "RegisterMessageHandler" from within this function
+        ez.TypescriptComponent.RegisterMessageHandler(ez.MsgSetColor, "OnMsgSetColor");
+    }
+
+    // example message handler
+    OnMsgSetColor(msg: ez.MsgSetColor): void {
+        ez.Log.Info("MsgSetColor: " + msg.Color.r + ", " + msg.Color.g + ", " + msg.Color.b + ", " + msg.Color.a);
+    }    
     */
 }
 
