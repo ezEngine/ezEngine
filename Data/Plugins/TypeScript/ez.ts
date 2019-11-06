@@ -31,4 +31,5 @@ import __World = require("./ez/World")
 export import World = __World.World;
 export import GameObjectDesc = __World.GameObjectDesc;
 
-
+import __Message = require("./ez/Message")
+export import Message = __Message.Message;

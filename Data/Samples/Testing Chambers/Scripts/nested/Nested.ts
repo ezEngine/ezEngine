@@ -5,13 +5,13 @@ export class Nested extends ez.TickedTypescriptComponent {
         super()
     }
 
-    /* BEGIN AUTO-GENERATED CODE */
+    /* BEGIN AUTO-GENERATED: VARIABLES */
     Number: number = 1;
     Boolean: boolean = true;
     String: string = "Yeah";
     Vec3: ez.Vec3 = new ez.Vec3(1, 2, 3);
     Color: ez.Color = new ez.Color(2.937524, 0.030575, 2.285738, 1);
-    /* END AUTO-GENERATED CODE */
+    /* END AUTO-GENERATED: VARIABLES */
 
     Tick(): void {
         ez.Log.Info("Number: " + this.Number)

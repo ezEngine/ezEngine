@@ -1,10 +1,24 @@
 import ez = require("./../TypeScript/ez")
 
+export class MyTestMessage extends ez.Message {
+    /* BEGIN AUTO-GENERATED: MESSAGE */
+    public static GetTypeNameHash(): number { return 2067847616; }
+    constructor() { super(); this.TypeNameHash = 2067847616; }
+    /* END AUTO-GENERATED: MESSAGE */
+}
+
+export class MySecondMessage extends ez.Message {
+    /* BEGIN AUTO-GENERATED: MESSAGE */
+    public static GetTypeNameHash(): number { return 1130979718; }
+    constructor() { super(); this.TypeNameHash = 1130979718; }
+    /* END AUTO-GENERATED: MESSAGE */
+}
+
 export class MyTestComponent extends ez.TickedTypescriptComponent {
 
-    /* BEGIN AUTO-GENERATED CODE */
+    /* BEGIN AUTO-GENERATED: VARIABLES */
     MyPonyColor: ez.Color = new ez.Color(0.701102, 0.013539, 0.192113, 1);
-    /* END AUTO-GENERATED CODE */
+    /* END AUTO-GENERATED: VARIABLES */
 
     constructor() {
         super()
@@ -23,7 +37,7 @@ export class MyTestComponent extends ez.TickedTypescriptComponent {
         ez.TypescriptComponent.RegisterMessageHandler(ez.MsgSetColor, "OnMsgSetColor");
         ez.TypescriptComponent.RegisterMessageHandler(ez.MsgSetFloatParameter, "OnMsgSetFloatParameter");
     }
-    
+
     Tick(): void {
         ez.Log.Info("MyTestComponent::Update: ")
 
