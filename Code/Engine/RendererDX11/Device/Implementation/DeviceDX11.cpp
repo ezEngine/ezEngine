@@ -17,6 +17,7 @@
 #include <System/Window/Window.h>
 
 #include <d3d11.h>
+#include <d3d11_3.h>
 #include <dxgidebug.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
@@ -26,6 +27,7 @@
 ezGALDeviceDX11::ezGALDeviceDX11(const ezGALDeviceCreationDescription& Description)
   : ezGALDevice(Description)
   , m_pDevice(nullptr)
+  , m_pDevice3(nullptr)
   , m_pDebug(nullptr)
   , m_pDXGIFactory(nullptr)
   , m_pDXGIAdapter(nullptr)
@@ -145,6 +147,11 @@ retry:
     ezLog::Error("Couldn't get the DXGIDevice1 interface of the D3D11 device - this may happen when running on Windows Vista without SP2 "
                  "installed!");
     return EZ_FAILURE;
+  }
+
+  if (FAILED(m_pDevice->QueryInterface(__uuidof(ID3D11Device3), (void**)&m_pDevice3)))
+  {
+    ezLog::Info("D3D device doesn't support ID3D11Device3, some features might be unavailable.");
   }
 
   if (FAILED(m_pDXGIDevice->SetMaximumFrameLatency(1)))
@@ -298,6 +305,7 @@ ezResult ezGALDeviceDX11::ShutdownPlatform()
 
   EZ_DELETE(&m_Allocator, m_pPrimaryContext);
 
+  EZ_GAL_DX11_RELEASE(m_pDevice3);
   EZ_GAL_DX11_RELEASE(m_pDevice);
   EZ_GAL_DX11_RELEASE(m_pDebug);
   EZ_GAL_DX11_RELEASE(m_pDXGIFactory);
@@ -898,6 +906,15 @@ void ezGALDeviceDX11::FillCapabilitiesPlatform()
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
       break;
+  }
+
+  if (m_pDevice3)
+  {
+    D3D11_FEATURE_DATA_D3D11_OPTIONS2 featureOpts2;
+    if (SUCCEEDED(m_pDevice3->CheckFeatureSupport(D3D11_FEATURE_D3D11_OPTIONS2, &featureOpts2, sizeof(featureOpts2))))
+    {
+      m_Capabilities.m_bConservativeRasterization = (featureOpts2.ConservativeRasterizationTier != D3D11_CONSERVATIVE_RASTERIZATION_NOT_SUPPORTED);
+    }
   }
 }
 
