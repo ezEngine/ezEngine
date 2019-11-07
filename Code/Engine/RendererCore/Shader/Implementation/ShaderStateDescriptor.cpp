@@ -167,7 +167,7 @@ void ezShaderStateResourceDescriptor::Load(ezStreamReader& stream)
 
     if (uiVersion >= ezShaderStateVersion::Version3)
     {
-      stream >> m_RasterizerDesc.m_bScissorTest;
+      stream >> m_RasterizerDesc.m_bConservativeRasterization;
     }
   }
 }
