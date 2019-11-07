@@ -9,6 +9,12 @@
 #include <TypeScriptPlugin/Components/TypeScriptComponent.h>
 
 // clang-format off
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgTypeScriptMsgProxy);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgTypeScriptMsgProxy, 1, ezRTTIDefaultAllocator<ezMsgTypeScriptMsgProxy>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezTypeScriptComponent, 3, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
@@ -22,6 +28,11 @@ EZ_BEGIN_COMPONENT_TYPE(ezTypeScriptComponent, 3, ezComponentMode::Static)
     new ezCategoryAttribute("Scripting"),
   }
   EZ_END_ATTRIBUTES;
+  EZ_BEGIN_MESSAGEHANDLERS
+  {
+    EZ_MESSAGE_HANDLER(ezMsgTypeScriptMsgProxy, OnMsgTypeScriptMsgProxy)
+  }
+  EZ_END_MESSAGEHANDLERS;
 }
 EZ_END_COMPONENT_TYPE;
 // clang-format on
@@ -167,6 +178,11 @@ void ezTypeScriptComponent::SetExposedVariables()
         duk.SetCustomProperty(pair.key.GetString());
         break;
 
+      case ezVariantType::Vector2:
+        binding.PushVec2(duk, pair.value.Get<ezVec2>());
+        duk.SetCustomProperty(pair.key.GetString());
+        break;
+
       case ezVariantType::Vector3:
         binding.PushVec3(duk, pair.value.Get<ezVec3>());
         duk.SetCustomProperty(pair.key.GetString());
@@ -177,18 +193,7 @@ void ezTypeScriptComponent::SetExposedVariables()
         duk.SetCustomProperty(pair.key.GetString());
         break;
 
-      //case ezVariantType::Vector2:
-      //case ezVariantType::Vector4:
-      //case ezVariantType::Vector2I:
-      //case ezVariantType::Vector3I:
-      //case ezVariantType::Vector4I:
-      //case ezVariantType::Vector2U:
-      //case ezVariantType::Vector3U:
-      //case ezVariantType::Vector4U:
-      //case ezVariantType::Matrix3:
-      //case ezVariantType::Matrix4:
-      //case ezVariantType::Transform:
-      //
+
       case ezVariantType::String:
         duk.SetStringProperty(pair.key.GetString(), pair.value.Get<ezString>());
         break;
@@ -202,9 +207,20 @@ void ezTypeScriptComponent::SetExposedVariables()
         break;
       }
 
+        //case ezVariantType::Vector4:
+        //case ezVariantType::Vector2I:
+        //case ezVariantType::Vector3I:
+        //case ezVariantType::Vector4I:
+        //case ezVariantType::Vector2U:
+        //case ezVariantType::Vector3U:
+        //case ezVariantType::Vector4U:
+        //case ezVariantType::Matrix3:
+        //case ezVariantType::Matrix4:
+        //case ezVariantType::Transform:
         //case ezVariantType::DataBuffer:
         //case ezVariantType::Time:
         //case ezVariantType::Uuid:
+        // TODO: implement these types
 
       default:
         EZ_ASSERT_NOT_IMPLEMENTED;
@@ -342,6 +358,12 @@ const ezUuid& ezTypeScriptComponent::GetTypeScriptComponentGuid() const
   return m_TypeScriptComponentGuid;
 }
 
+void ezTypeScriptComponent::OnMsgTypeScriptMsgProxy(ezMsgTypeScriptMsgProxy& msg)
+{
+  ezTypeScriptBinding& binding = static_cast<ezTypeScriptComponentManager*>(GetOwningManager())->GetTsBinding();
+
+  binding.DeliverTsMessage(m_ComponentTypeInfo, this, msg);
+}
 
 const ezRangeView<const char*, ezUInt32> ezTypeScriptComponent::GetParameters() const
 {

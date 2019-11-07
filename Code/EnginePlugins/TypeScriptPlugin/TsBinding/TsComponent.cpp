@@ -72,8 +72,8 @@ ezResult ezTypeScriptBinding::RegisterComponent(const char* szTypeName, ezCompon
     duk_put_prop_index(duk, -2, ezTypeScriptBindingIndexProperty::ComponentHandle); // [ global __CompModule object ]
   }
 
-  StoreReferenceInStash(uiStashIdx); // [ global __CompModule object ]
-  duk.PopStack(3);                   // [ ]
+  StoreReferenceInStash(duk, uiStashIdx); // [ global __CompModule object ]
+  duk.PopStack(3);                        // [ ]
 
   out_uiStashIdx = uiStashIdx;
   return EZ_SUCCESS;
@@ -113,7 +113,7 @@ void ezTypeScriptBinding::DukPutComponentObject(ezComponent* pComponent)
       return;
     }
 
-    DukPushStashObject(uiStashIdx);
+    DukPushStashObject(m_Duk, uiStashIdx);
   }
 }
 
@@ -225,7 +225,8 @@ static int __CPP_Component_SendMessage(duk_context* pDuk)
 
   ezComponent* pComponent = ezTypeScriptBinding::ExpectComponent<ezComponent>(duk, 0 /*this*/);
 
-  ezUniquePtr<ezMessage> pMsg = ezTypeScriptBinding::MessageFromParameter(pDuk, 1);
+  ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(duk);
+  ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1);
 
   if (duk.GetFunctionMagicValue() == 0) // SendMessage
   {

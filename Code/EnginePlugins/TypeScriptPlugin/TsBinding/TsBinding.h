@@ -13,6 +13,7 @@
 
 class ezWorld;
 class ezTypeScriptComponent;
+struct ezMsgTypeScriptMsgProxy;
 
 using ezJavaScriptResourceHandle = ezTypedResourceHandle<class ezJavaScriptResource>;
 
@@ -28,6 +29,7 @@ public:
   struct TsMessageHandler
   {
     const ezRTTI* m_pMessageType = nullptr;
+    ezUInt32 m_uiMessageTypeNameHash = 0;
     ezString m_sHandlerFunc;
   };
 
@@ -121,10 +123,11 @@ private:
   ///@{
 
 public:
-  static ezUniquePtr<ezMessage> MessageFromParameter(duk_context* pDuk, ezInt32 iObjIdx);
+  ezUniquePtr<ezMessage> MessageFromParameter(duk_context* pDuk, ezInt32 iObjIdx);
   static void DukPutMessage(duk_context* pDuk, const ezMessage& msg);
 
   bool DeliverMessage(const TsComponentTypeInfo& typeInfo, ezTypeScriptComponent* pComponent, ezMessage& msg);
+  bool DeliverTsMessage(const TsComponentTypeInfo& typeInfo, ezTypeScriptComponent* pComponent, const ezMsgTypeScriptMsgProxy& msg);
 
 private:
   static void GenerateMessagesFile(const char* szFile);
@@ -214,11 +217,14 @@ public:
 
 
 private:
-  void StoreReferenceInStash(ezUInt32 uiStashIdx);
-  bool DukPushStashObject(ezUInt32 uiStashIdx);
+  static void StoreReferenceInStash(duk_context* pDuk, ezUInt32 uiStashIdx);
+  static bool DukPushStashObject(duk_context* pDuk, ezUInt32 uiStashIdx);
 
   // TODO: clean up stash every once in a while
 
+  static constexpr ezUInt32 c_uiFirstStashMsgIdx = 512;
+  static constexpr ezUInt32 c_uiLastStashMsgIdx = 1024;
+  ezUInt32 m_uiNextStashMsgIdx = c_uiFirstStashMsgIdx;
   ezUInt32 m_uiNextStashObjIdx = 1024;
   ezMap<ezGameObjectHandle, ezUInt32> m_GameObjectToStashIdx;
   ezMap<ezComponentHandle, ezUInt32> m_ComponentToStashIdx;

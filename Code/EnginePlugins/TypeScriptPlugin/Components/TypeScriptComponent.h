@@ -12,6 +12,14 @@
 
 class ezTypeScriptBinding;
 
+struct EZ_TYPESCRIPTPLUGIN_DLL ezMsgTypeScriptMsgProxy : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgTypeScriptMsgProxy, ezMessage);
+
+  ezUInt32 m_uiTypeNameHash = 0;
+  ezUInt32 m_uiStashIndex = 0;
+};
+
 class EZ_TYPESCRIPTPLUGIN_DLL ezTypeScriptComponentManager : public ezComponentManager<class ezTypeScriptComponent, ezBlockStorageType::FreeList>
 {
   using SUPER = ezComponentManager<class ezTypeScriptComponent, ezBlockStorageType::FreeList>;
@@ -74,6 +82,8 @@ protected:
 
   void SetTypeScriptComponentGuid(const ezUuid& hResource); // [ property ]
   const ezUuid& GetTypeScriptComponentGuid() const;         // [ property ]
+
+  void OnMsgTypeScriptMsgProxy(ezMsgTypeScriptMsgProxy& msg); // [ message handler ]
 
   enum UserFlag
   {

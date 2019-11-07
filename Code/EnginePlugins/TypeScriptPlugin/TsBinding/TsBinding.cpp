@@ -307,9 +307,9 @@ void ezTypeScriptBinding::PushColor(duk_context* pDuk, const ezColor& value)
   duk_remove(duk, -2);                                       // [ result ]
 }
 
-void ezTypeScriptBinding::StoreReferenceInStash(ezUInt32 uiStashIdx)
+void ezTypeScriptBinding::StoreReferenceInStash(duk_context* pDuk, ezUInt32 uiStashIdx)
 {
-  ezDuktapeHelper duk(m_Duk, 0); // [ object ]
+  ezDuktapeHelper duk(pDuk, 0); // [ object ]
   duk.PushGlobalStash();         // [ object stash ]
   duk.PushUInt(uiStashIdx);      // [ object stash uint ]
   duk_dup(duk, -3);              // [ object stash uint object ]
@@ -317,9 +317,9 @@ void ezTypeScriptBinding::StoreReferenceInStash(ezUInt32 uiStashIdx)
   duk.PopStack();                // [ object ]
 }
 
-bool ezTypeScriptBinding::DukPushStashObject(ezUInt32 uiStashIdx)
+bool ezTypeScriptBinding::DukPushStashObject(duk_context* pDuk, ezUInt32 uiStashIdx)
 {
-  ezDuktapeHelper duk(m_Duk, +1);
+  ezDuktapeHelper duk(pDuk, +1);
 
   duk.PushGlobalStash();          // [ stash ]
   duk_push_uint(duk, uiStashIdx); // [ stash idx ]

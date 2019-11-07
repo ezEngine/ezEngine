@@ -75,23 +75,27 @@ const char* ezTypeScriptBinding::TsType(const ezRTTI* pRtti)
     case ezVariant::Type::ColorGamma:
       return "Color";
 
-    //case ezVariant::Type::Vector2:
+    case ezVariant::Type::Vector2:
+      return "Vec2";
+
     case ezVariant::Type::Vector3:
       return "Vec3";
 
-    //case ezVariant::Type::Vector4:
-    //case ezVariant::Type::Vector2I:
-    //case ezVariant::Type::Vector3I:
-    //case ezVariant::Type::Vector4I:
-    //case ezVariant::Type::Vector2U:
-    //case ezVariant::Type::Vector3U:
-    //case ezVariant::Type::Vector4U:
     case ezVariant::Type::Quaternion:
       return "Quat";
 
+      //case ezVariant::Type::Vector4:
+      //case ezVariant::Type::Vector2I:
+      //case ezVariant::Type::Vector3I:
+      //case ezVariant::Type::Vector4I:
+      //case ezVariant::Type::Vector2U:
+      //case ezVariant::Type::Vector3U:
+      //case ezVariant::Type::Vector4U:
       //case ezVariant::Type::Matrix3:
       //case ezVariant::Type::Matrix4:
       //case ezVariant::Type::Transform:
+      //case ezVariant::Type::Uuid:
+      // TODO: implement these types
 
     case ezVariant::Type::String:
     case ezVariant::Type::StringView:
@@ -100,7 +104,6 @@ const char* ezTypeScriptBinding::TsType(const ezRTTI* pRtti)
     case ezVariant::Type::Time:
       return "number";
 
-      //case ezVariant::Type::Uuid:
 
     default:
       return nullptr;

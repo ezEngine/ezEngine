@@ -138,8 +138,8 @@ bool ezTypeScriptBinding::RegisterGameObject(ezGameObjectHandle handle, ezUInt32
     duk_put_prop_index(duk, -2, ezTypeScriptBindingIndexProperty::GameObjectHandle); // [ global __GameObject object ]
   }
 
-  StoreReferenceInStash(uiStashIdx); // [ global __GameObject object ]
-  duk.PopStack(3);                   // [ ]
+  StoreReferenceInStash(duk, uiStashIdx); // [ global __GameObject object ]
+  duk.PopStack(3);                        // [ ]
 
   out_uiStashIdx = uiStashIdx;
   return true;
@@ -156,7 +156,7 @@ bool ezTypeScriptBinding::DukPutGameObject(const ezGameObjectHandle& hObject)
     return false;
   }
 
-  return DukPushStashObject(uiStashIdx);
+  return DukPushStashObject(duk, uiStashIdx);
 }
 
 void ezTypeScriptBinding::DukPutGameObject(const ezGameObject* pObject)
@@ -540,7 +540,8 @@ static int __CPP_GameObject_SendMessage(duk_context* pDuk)
 
   ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
 
-  ezUniquePtr<ezMessage> pMsg = ezTypeScriptBinding::MessageFromParameter(pDuk, 1);
+  ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(duk);
+  ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1);
 
   if (duk.GetFunctionMagicValue() == 0) // SendMessage
   {
