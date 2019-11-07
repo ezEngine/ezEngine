@@ -26,7 +26,7 @@ add_dependencies(${PROJECT_NAME}
   EditorPluginAssets
   EditorPluginParticle
   EditorPluginProcGen
-  ParticlePlugin
+  BakingPlugin
   TexConv
   Player
   InspectorPlugin
