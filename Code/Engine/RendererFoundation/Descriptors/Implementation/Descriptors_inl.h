@@ -134,7 +134,8 @@ inline ezGALRasterizerStateCreationDescription::ezGALRasterizerStateCreationDesc
     m_fSlopeScaledDepthBias(0.0f),
     m_bWireFrame(false),
     m_bFrontCounterClockwise(false),
-    m_bScissorTest(false)
+    m_bScissorTest(false),
+    m_bConservativeRasterization(false)
 {
 }
 

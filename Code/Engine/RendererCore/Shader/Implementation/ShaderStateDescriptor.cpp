@@ -9,7 +9,7 @@ struct ezShaderStateVersion
     Version0 = 0,
     Version1,
     Version2,
-
+    Version3,
 
     ENUM_COUNT,
     Current = ENUM_COUNT - 1
@@ -69,6 +69,7 @@ void ezShaderStateResourceDescriptor::Save(ezStreamWriter& stream) const
     stream << m_RasterizerDesc.m_fDepthBiasClamp;
     stream << m_RasterizerDesc.m_fSlopeScaledDepthBias;
     stream << m_RasterizerDesc.m_iDepthBias;
+    stream << m_RasterizerDesc.m_bConservativeRasterization;
   }
 }
 
@@ -163,6 +164,11 @@ void ezShaderStateResourceDescriptor::Load(ezStreamReader& stream)
     stream >> m_RasterizerDesc.m_fDepthBiasClamp;
     stream >> m_RasterizerDesc.m_fSlopeScaledDepthBias;
     stream >> m_RasterizerDesc.m_iDepthBias;
+
+    if (uiVersion >= ezShaderStateVersion::Version3)
+    {
+      stream >> m_RasterizerDesc.m_bScissorTest;
+    }
   }
 }
 
@@ -410,6 +416,7 @@ ezResult ezShaderStateResourceDescriptor::Load(const char* szSource)
     m_RasterizerDesc.m_bFrontCounterClockwise =
         GetBoolStateVariable(VariableValues, "FrontCounterClockwise", m_RasterizerDesc.m_bFrontCounterClockwise);
     m_RasterizerDesc.m_bScissorTest = GetBoolStateVariable(VariableValues, "ScissorTest", m_RasterizerDesc.m_bScissorTest);
+    m_RasterizerDesc.m_bConservativeRasterization = GetBoolStateVariable(VariableValues, "ConservativeRasterization", m_RasterizerDesc.m_bConservativeRasterization);
     m_RasterizerDesc.m_bWireFrame = GetBoolStateVariable(VariableValues, "WireFrame", m_RasterizerDesc.m_bWireFrame);
     m_RasterizerDesc.m_CullMode =
         (ezGALCullMode::Enum)GetEnumStateVariable(VariableValues, StateValuesCullMode, "CullMode", m_RasterizerDesc.m_CullMode);

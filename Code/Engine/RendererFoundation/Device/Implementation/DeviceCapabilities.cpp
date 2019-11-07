@@ -19,6 +19,7 @@ ezGALDeviceCapabilities::ezGALDeviceCapabilities()
   m_b32BitIndices = false;
   m_bIndirectDraw = false;
   m_bStreamOut = false;
+  m_bConservativeRasterization = false;
   m_uiMaxConstantBuffers = 0;
 
 

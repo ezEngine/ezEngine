@@ -10,6 +10,7 @@
 #include <dxgi.h>
 
 struct ID3D11Device;
+struct ID3D11Device3;
 struct ID3D11DeviceContext;
 struct ID3D11Debug;
 struct IDXGIFactory1;
@@ -39,6 +40,7 @@ public:
 public:
 
   ID3D11Device* GetDXDevice() const;
+  ID3D11Device3* GetDXDevice3() const;
 
   IDXGIFactory1* GetDXGIFactory() const;
 
@@ -171,6 +173,7 @@ private:
   void FillFormatLookupTable();
 
   ID3D11Device* m_pDevice;
+  ID3D11Device3* m_pDevice3;
 
   ID3D11Debug* m_pDebug;
 

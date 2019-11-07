@@ -26,6 +26,7 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALDeviceCapabilities
   bool m_b32BitIndices;
   bool m_bIndirectDraw;
   bool m_bStreamOut;
+  bool m_bConservativeRasterization;
   ezUInt16 m_uiMaxConstantBuffers;
 
 
