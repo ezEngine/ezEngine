@@ -26,6 +26,9 @@ export import Vec3 = __Vec3.Vec3;
 import __Quat = require("./Quat")
 export import Quat = __Quat.Quat;
 
+import __Transform = require("./Transform")
+export import Transform = __Transform.Transform;
+
 import __Color = require("./Color")
 export import Color = __Color.Color;
 
@@ -124,7 +127,7 @@ void ezTypeScriptBinding::GenerateMessagePropertiesCode(ezStringBuilder& out_Cod
     if (!sDefault.IsEmpty())
     {
       // TODO: make this prettier
-      if (def.GetType() == ezVariantType::Color)
+      if (def.GetType() == ezVariant::Type::Color)
       {
         ezColor c = def.Get<ezColor>();
         sDefault.Format("new Color({}, {}, {}, {})", c.r, c.g, c.b, c.a);
@@ -309,6 +312,13 @@ ezUniquePtr<ezMessage> ezTypeScriptBinding::MessageFromParameter(duk_context* pD
           break;
         }
 
+        case ezVariant::Type::Transform:
+        {
+          ezTransform value = ezTypeScriptBinding::GetTransformProperty(duk, pMember->GetPropertyName(), iObjIdx + 1);
+          ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg.Borrow(), value);
+          break;
+        }
+
         case ezVariant::Type::Color:
         {
           ezColor value = ezTypeScriptBinding::GetColorProperty(duk, pMember->GetPropertyName(), iObjIdx + 1);
@@ -405,7 +415,7 @@ void ezTypeScriptBinding::DukPutMessage(duk_context* pDuk, const ezMessage& msg)
     ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pProp);
 
     const ezRTTI* pType = pMember->GetSpecificType();
-    if (pType->GetVariantType() == ezVariantType::Invalid)
+    if (pType->GetVariantType() == ezVariant::Type::Invalid)
       continue;
 
     const ezVariant val = ezReflectionUtils::GetMemberPropertyValue(pMember, &msg);
@@ -443,27 +453,14 @@ void ezTypeScriptBinding::DukPutMessage(duk_context* pDuk, const ezMessage& msg)
 
       case ezVariant::Type::Vector3:
       {
-        const ezVec3 v = val.Get<ezVec3>();
-
-        EZ_VERIFY(duk.PushLocalObject(pMember->GetPropertyName(), -1).Succeeded(), "null object in message");
-        duk.SetNumberProperty("x", v.x, -1);
-        duk.SetNumberProperty("y", v.y, -1);
-        duk.SetNumberProperty("z", v.z, -1);
-        duk.PopStack();
+        SetVec3Property(duk, pMember->GetPropertyName(), -1, val.Get<ezVec3>());
         break;
       }
 
       case ezVariant::Type::Color:
       case ezVariant::Type::ColorGamma:
       {
-        const ezColor c = val.ConvertTo<ezColor>();
-
-        EZ_VERIFY(duk.PushLocalObject(pMember->GetPropertyName(), -1).Succeeded(), "null object in message");
-        duk.SetNumberProperty("r", c.r, -1);
-        duk.SetNumberProperty("g", c.g, -1);
-        duk.SetNumberProperty("b", c.b, -1);
-        duk.SetNumberProperty("a", c.a, -1);
-        duk.PopStack();
+        SetColorProperty(duk, pMember->GetPropertyName(), -1, val.ConvertTo<ezColor>());
         break;
       }
 
@@ -481,25 +478,19 @@ void ezTypeScriptBinding::DukPutMessage(duk_context* pDuk, const ezMessage& msg)
 
       case ezVariant::Type::Quaternion:
       {
-        const ezQuat q = val.Get<ezQuat>();
-
-        EZ_VERIFY(duk.PushLocalObject(pMember->GetPropertyName(), -1).Succeeded(), "null object in message");
-        duk.SetNumberProperty("x", q.v.x, -1);
-        duk.SetNumberProperty("y", q.v.y, -1);
-        duk.SetNumberProperty("z", q.v.z, -1);
-        duk.SetNumberProperty("w", q.w, -1);
-        duk.PopStack();
+        SetQuatProperty(duk, pMember->GetPropertyName(), -1, val.Get<ezQuat>());
         break;
       }
 
       case ezVariant::Type::Vector2:
       {
-        const ezVec2 v = val.Get<ezVec2>();
+        SetVec2Property(duk, pMember->GetPropertyName(), -1, val.Get<ezVec2>());
+        break;
+      }
 
-        EZ_VERIFY(duk.PushLocalObject(pMember->GetPropertyName(), -1).Succeeded(), "null object in message");
-        duk.SetNumberProperty("x", v.x, -1);
-        duk.SetNumberProperty("y", v.y, -1);
-        duk.PopStack();
+      case ezVariant::Type::Transform:
+      {
+        SetTransformProperty(duk, pMember->GetPropertyName(), -1, val.Get<ezTransform>());
         break;
       }
 

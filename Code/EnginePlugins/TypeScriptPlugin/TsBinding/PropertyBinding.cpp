@@ -213,12 +213,20 @@ int __CPP_ComponentProperty_set(duk_context* pDuk)
       value = duk.GetStringValue(2);
       break;
 
+    case ezVariant::Type::Vector2:
+      value = ezTypeScriptBinding::GetVec2(duk, 2);
+      break;
+
     case ezVariant::Type::Vector3:
       value = ezTypeScriptBinding::GetVec3(duk, 2);
       break;
 
     case ezVariant::Type::Quaternion:
       value = ezTypeScriptBinding::GetQuat(duk, 2);
+      break;
+
+    case ezVariant::Type::Transform:
+      value = ezTypeScriptBinding::GetTransform(duk, 2);
       break;
 
     case ezVariant::Type::Color:

@@ -61,6 +61,12 @@ ezResult ezTypeScriptBinding::Init_RequireModules()
     return EZ_FAILURE;
   }
 
+  if (m_Duk.ExecuteString("var __Transform = require(\"./TypeScript/ez/Transform\");").Failed())
+  {
+    ezLog::Error("Failed to import 'Transform.ts'");
+    return EZ_FAILURE;
+  }
+
   return EZ_SUCCESS;
 }
 

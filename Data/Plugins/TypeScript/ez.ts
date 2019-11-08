@@ -10,6 +10,9 @@ export import Vec2 = __Vec2.Vec2;
 import __Quat = require("./ez/Quat")
 export import Quat = __Quat.Quat;
 
+import __Transform = require("./ez/Transform")
+export import Transform = __Transform.Transform;
+
 import __Color = require("./ez/Color")
 export import Color = __Color.Color;
 

@@ -244,12 +244,19 @@ int __CPP_ComponentFunction_Call(duk_context* pDuk)
         args[arg] = ezStringView(duk.GetStringValue(2 + arg));
         break;
 
+      case ezVariant::Type::Vector2:
+        args[arg] = ezTypeScriptBinding::GetVec2(duk, 2 + arg);
+
       case ezVariant::Type::Vector3:
         args[arg] = ezTypeScriptBinding::GetVec3(duk, 2 + arg);
         break;
 
       case ezVariant::Type::Quaternion:
         args[arg] = ezTypeScriptBinding::GetQuat(duk, 2 + arg);
+        break;
+
+      case ezVariant::Type::Transform:
+        args[arg] = ezTypeScriptBinding::GetTransform(duk, 2 + arg);
         break;
 
       case ezVariant::Type::Color:
@@ -309,12 +316,20 @@ int __CPP_ComponentFunction_Call(duk_context* pDuk)
       case ezVariant::Type::StringView:
         return duk.ReturnString(ret.ConvertTo<ezString>());
 
+      case ezVariant::Type::Vector2:
+        ezTypeScriptBinding::PushVec2(duk, ret.Get<ezVec2>());
+        return duk.ReturnCustom();
+
       case ezVariant::Type::Vector3:
         ezTypeScriptBinding::PushVec3(duk, ret.Get<ezVec3>());
         return duk.ReturnCustom();
 
       case ezVariant::Type::Quaternion:
         ezTypeScriptBinding::PushQuat(duk, ret.Get<ezQuat>());
+        return duk.ReturnCustom();
+
+      case ezVariant::Type::Transform:
+        ezTypeScriptBinding::PushTransform(duk, ret.Get<ezTransform>());
         return duk.ReturnCustom();
 
       case ezVariant::Type::Color:

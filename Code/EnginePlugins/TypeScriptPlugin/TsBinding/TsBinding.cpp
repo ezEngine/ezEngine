@@ -117,6 +117,23 @@ ezResult ezTypeScriptBinding::LoadComponent(const ezUuid& typeGuid, TsComponentT
   return EZ_SUCCESS;
 }
 
+void ezTypeScriptBinding::SetVec2(duk_context* pDuk, ezInt32 iObjIdx, const ezVec2& value)
+{
+  ezDuktapeHelper duk(pDuk, 0);
+
+  duk.SetNumberProperty("x", value.x, iObjIdx);
+  duk.SetNumberProperty("y", value.y, iObjIdx);
+}
+
+void ezTypeScriptBinding::SetVec2Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec2& value)
+{
+  ezDuktapeHelper duk(pDuk, 0);
+
+  EZ_VERIFY(duk.PushLocalObject(szPropertyName, iObjIdx).Succeeded(), "invalid property");
+  SetVec2(pDuk, -1, value);
+  duk.PopStack();
+}
+
 ezVec2 ezTypeScriptBinding::GetVec2(duk_context* pDuk, ezInt32 iObjIdx, const ezVec2& fallback /*= ezVec2::ZeroVector()*/)
 {
   if (duk_is_null_or_undefined(pDuk, iObjIdx))
@@ -168,6 +185,24 @@ ezVec3 ezTypeScriptBinding::GetVec3(duk_context* pDuk, ezInt32 iObjIdx, const ez
   return res;
 }
 
+void ezTypeScriptBinding::SetVec3(duk_context* pDuk, ezInt32 iObjIdx, const ezVec3& value)
+{
+  ezDuktapeHelper duk(pDuk, 0);
+
+  duk.SetNumberProperty("x", value.x, iObjIdx);
+  duk.SetNumberProperty("y", value.y, iObjIdx);
+  duk.SetNumberProperty("z", value.z, iObjIdx);
+}
+
+void ezTypeScriptBinding::SetVec3Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec3& value)
+{
+  ezDuktapeHelper duk(pDuk, 0);
+
+  EZ_VERIFY(duk.PushLocalObject(szPropertyName, iObjIdx).Succeeded(), "invalid property");
+  SetVec3(pDuk, -1, value);
+  duk.PopStack();
+}
+
 ezVec3 ezTypeScriptBinding::GetVec3Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec3& fallback /*= ezVec3::ZeroVector()*/)
 {
   ezDuktapeHelper duk(pDuk, 0);
@@ -180,6 +215,25 @@ ezVec3 ezTypeScriptBinding::GetVec3Property(duk_context* pDuk, const char* szPro
   const ezVec3 res = GetVec3(pDuk, -1, fallback);
   duk.PopStack(); // [ ]
   return res;
+}
+
+void ezTypeScriptBinding::SetQuat(duk_context* pDuk, ezInt32 iObjIdx, const ezQuat& value)
+{
+  ezDuktapeHelper duk(pDuk, 0);
+
+  duk.SetNumberProperty("x", value.v.x, iObjIdx);
+  duk.SetNumberProperty("y", value.v.y, iObjIdx);
+  duk.SetNumberProperty("z", value.v.z, iObjIdx);
+  duk.SetNumberProperty("w", value.w, iObjIdx);
+}
+
+void ezTypeScriptBinding::SetQuatProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezQuat& value)
+{
+  ezDuktapeHelper duk(pDuk, 0);
+
+  EZ_VERIFY(duk.PushLocalObject(szPropertyName, iObjIdx).Succeeded(), "invalid property");
+  SetQuat(pDuk, -1, value);
+  duk.PopStack();
 }
 
 ezQuat ezTypeScriptBinding::GetQuat(duk_context* pDuk, ezInt32 iObjIdx, ezQuat fallback /*= ezQuat::IdentityQuaternion()*/)
@@ -219,6 +273,25 @@ ezQuat ezTypeScriptBinding::GetQuatProperty(duk_context* pDuk, const char* szPro
   return res;
 }
 
+void ezTypeScriptBinding::SetColor(duk_context* pDuk, ezInt32 iObjIdx, const ezColor& value)
+{
+  ezDuktapeHelper duk(pDuk, 0);
+
+  duk.SetNumberProperty("r", value.r, iObjIdx);
+  duk.SetNumberProperty("g", value.g, iObjIdx);
+  duk.SetNumberProperty("b", value.b, iObjIdx);
+  duk.SetNumberProperty("a", value.a, iObjIdx);
+}
+
+void ezTypeScriptBinding::SetColorProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezColor& value)
+{
+  ezDuktapeHelper duk(pDuk, 0);
+
+  EZ_VERIFY(duk.PushLocalObject(szPropertyName, iObjIdx).Succeeded(), "invalid property");
+  SetColor(pDuk, -1, value);
+  duk.PopStack();
+}
+
 ezColor ezTypeScriptBinding::GetColor(duk_context* pDuk, ezInt32 iObjIdx, const ezColor& fallback /*= ezColor::White*/)
 {
   ezDuktapeHelper duk(pDuk, 0);
@@ -242,6 +315,47 @@ ezColor ezTypeScriptBinding::GetColorProperty(duk_context* pDuk, const char* szP
   }
 
   const ezColor res = GetColor(pDuk, -1, fallback);
+  duk.PopStack(); // [ ]
+  return res;
+}
+
+void ezTypeScriptBinding::SetTransform(duk_context* pDuk, ezInt32 iObjIdx, const ezTransform& value)
+{
+  SetVec3Property(pDuk, "position", iObjIdx, value.m_vPosition);
+  SetQuatProperty(pDuk, "rotation", iObjIdx, value.m_qRotation);
+  SetVec3Property(pDuk, "scale", iObjIdx, value.m_vScale);
+}
+
+void ezTypeScriptBinding::SetTransformProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezTransform& value)
+{
+  ezDuktapeHelper duk(pDuk, 0);
+
+  EZ_VERIFY(duk.PushLocalObject(szPropertyName, iObjIdx).Succeeded(), "invalid property");
+  SetTransform(pDuk, -1, value);
+  duk.PopStack();
+}
+
+ezTransform ezTypeScriptBinding::GetTransform(duk_context* pDuk, ezInt32 iObjIdx, const ezTransform& fallback /*= ezTransform::IdentityTransform()*/)
+{
+  ezTransform res;
+
+  res.m_vPosition = GetVec3Property(pDuk, "position", iObjIdx, fallback.m_vPosition);
+  res.m_qRotation = GetQuatProperty(pDuk, "rotation", iObjIdx, fallback.m_qRotation);
+  res.m_vScale = GetVec3Property(pDuk, "scale", iObjIdx, fallback.m_vScale);
+
+  return res;
+}
+
+ezTransform ezTypeScriptBinding::GetTransformProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezTransform& fallback /*= ezTransform::IdentityTransform()*/)
+{
+  ezDuktapeHelper duk(pDuk, 0);
+
+  if (duk.PushLocalObject(szPropertyName, iObjIdx).Failed()) // [ prop ]
+  {
+    return fallback;
+  }
+
+  const ezTransform res = GetTransform(pDuk, -1, fallback);
   duk.PopStack(); // [ ]
   return res;
 }
@@ -307,14 +421,29 @@ void ezTypeScriptBinding::PushColor(duk_context* pDuk, const ezColor& value)
   duk_remove(duk, -2);                                       // [ result ]
 }
 
+void ezTypeScriptBinding::PushTransform(duk_context* pDuk, const ezTransform& value)
+{
+  ezDuktapeHelper duk(pDuk, +1);
+
+  duk.PushGlobalObject();                                        // [ global ]
+  EZ_VERIFY(duk.PushLocalObject("__Transform").Succeeded(), ""); // [ global __Transform ]
+  duk_get_prop_string(duk, -1, "Transform");                     // [ global __Transform Transform ]
+  duk_new(duk, 0);                                               // [ global __Transform object ]
+  SetVec3Property(pDuk, "position", -1, value.m_vPosition);      // [ global __Transform object ]
+  SetQuatProperty(pDuk, "rotation", -1, value.m_qRotation);      // [ global __Transform object ]
+  SetVec3Property(pDuk, "scale", -1, value.m_vScale);            // [ global __Transform object ]
+  duk_remove(duk, -2);                                           // [ global object ]
+  duk_remove(duk, -2);                                           // [ object ]
+}
+
 void ezTypeScriptBinding::StoreReferenceInStash(duk_context* pDuk, ezUInt32 uiStashIdx)
 {
   ezDuktapeHelper duk(pDuk, 0); // [ object ]
-  duk.PushGlobalStash();         // [ object stash ]
-  duk.PushUInt(uiStashIdx);      // [ object stash uint ]
-  duk_dup(duk, -3);              // [ object stash uint object ]
-  duk_put_prop(duk, -3);         // [ object stash ]
-  duk.PopStack();                // [ object ]
+  duk.PushGlobalStash();        // [ object stash ]
+  duk.PushUInt(uiStashIdx);     // [ object stash uint ]
+  duk_dup(duk, -3);             // [ object stash uint object ]
+  duk_put_prop(duk, -3);        // [ object stash ]
+  duk.PopStack();               // [ object ]
 }
 
 bool ezTypeScriptBinding::DukPushStashObject(duk_context* pDuk, ezUInt32 uiStashIdx)

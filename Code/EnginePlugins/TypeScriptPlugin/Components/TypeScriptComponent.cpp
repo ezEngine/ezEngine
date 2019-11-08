@@ -147,58 +147,66 @@ void ezTypeScriptComponent::SetExposedVariables()
 
     switch (pair.value.GetType())
     {
-      case ezVariantType::Angle:
+      case ezVariant::Type::Angle:
         duk.SetNumberProperty(pair.key.GetString(), pair.value.Get<ezAngle>().GetRadian());
         break;
 
-      case ezVariantType::Bool:
+      case ezVariant::Type::Time:
+        duk.SetNumberProperty(pair.key.GetString(), pair.value.Get<ezTime>().GetSeconds());
+        break;
+
+      case ezVariant::Type::Bool:
         duk.SetBoolProperty(pair.key.GetString(), pair.value.Get<bool>());
         break;
 
-      case ezVariantType::Int8:
-      case ezVariantType::UInt8:
-      case ezVariantType::Int16:
-      case ezVariantType::UInt16:
-      case ezVariantType::Int32:
-      case ezVariantType::UInt32:
-      case ezVariantType::Int64:
-      case ezVariantType::UInt64:
-      case ezVariantType::Float:
-      case ezVariantType::Double:
+      case ezVariant::Type::Int8:
+      case ezVariant::Type::UInt8:
+      case ezVariant::Type::Int16:
+      case ezVariant::Type::UInt16:
+      case ezVariant::Type::Int32:
+      case ezVariant::Type::UInt32:
+      case ezVariant::Type::Int64:
+      case ezVariant::Type::UInt64:
+      case ezVariant::Type::Float:
+      case ezVariant::Type::Double:
         duk.SetNumberProperty(pair.key.GetString(), pair.value.ConvertTo<double>());
         break;
 
-      case ezVariantType::Color:
-        binding.PushColor(duk, pair.value.Get<ezColor>());
+      case ezVariant::Type::Color:
+        ezTypeScriptBinding::PushColor(duk, pair.value.Get<ezColor>());
         duk.SetCustomProperty(pair.key.GetString());
         break;
 
-      case ezVariantType::ColorGamma:
-        binding.PushColor(duk, pair.value.Get<ezColorGammaUB>());
+      case ezVariant::Type::ColorGamma:
+        ezTypeScriptBinding::PushColor(duk, pair.value.Get<ezColorGammaUB>());
         duk.SetCustomProperty(pair.key.GetString());
         break;
 
-      case ezVariantType::Vector2:
-        binding.PushVec2(duk, pair.value.Get<ezVec2>());
+      case ezVariant::Type::Vector2:
+        ezTypeScriptBinding::PushVec2(duk, pair.value.Get<ezVec2>());
         duk.SetCustomProperty(pair.key.GetString());
         break;
 
-      case ezVariantType::Vector3:
-        binding.PushVec3(duk, pair.value.Get<ezVec3>());
+      case ezVariant::Type::Vector3:
+        ezTypeScriptBinding::PushVec3(duk, pair.value.Get<ezVec3>());
         duk.SetCustomProperty(pair.key.GetString());
         break;
 
-      case ezVariantType::Quaternion:
-        binding.PushQuat(duk, pair.value.Get<ezQuat>());
+      case ezVariant::Type::Quaternion:
+        ezTypeScriptBinding::PushQuat(duk, pair.value.Get<ezQuat>());
         duk.SetCustomProperty(pair.key.GetString());
         break;
 
+      case ezVariant::Type::Transform:
+        ezTypeScriptBinding::PushTransform(duk, pair.value.Get<ezTransform>());
+        duk.SetCustomProperty(pair.key.GetString());
+        break;
 
-      case ezVariantType::String:
+      case ezVariant::Type::String:
         duk.SetStringProperty(pair.key.GetString(), pair.value.Get<ezString>());
         break;
 
-      case ezVariantType::StringView:
+      case ezVariant::Type::StringView:
       {
         ezStringBuilder tmp;
 
@@ -207,19 +215,16 @@ void ezTypeScriptComponent::SetExposedVariables()
         break;
       }
 
-        //case ezVariantType::Vector4:
-        //case ezVariantType::Vector2I:
-        //case ezVariantType::Vector3I:
-        //case ezVariantType::Vector4I:
-        //case ezVariantType::Vector2U:
-        //case ezVariantType::Vector3U:
-        //case ezVariantType::Vector4U:
-        //case ezVariantType::Matrix3:
-        //case ezVariantType::Matrix4:
-        //case ezVariantType::Transform:
-        //case ezVariantType::DataBuffer:
-        //case ezVariantType::Time:
-        //case ezVariantType::Uuid:
+        //case ezVariant::Type::Vector4:
+        //case ezVariant::Type::Vector2I:
+        //case ezVariant::Type::Vector3I:
+        //case ezVariant::Type::Vector4I:
+        //case ezVariant::Type::Vector2U:
+        //case ezVariant::Type::Vector3U:
+        //case ezVariant::Type::Vector4U:
+        //case ezVariant::Type::Matrix3:
+        //case ezVariant::Type::Matrix4:
+        //case ezVariant::Type::Uuid:
         // TODO: implement these types
 
       default:

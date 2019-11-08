@@ -105,6 +105,9 @@ export import Vec3 = __Vec3.Vec3;
 import __Quat = require("./Quat")
 export import Quat = __Quat.Quat;
 
+import __Transform = require("./Transform")
+export import Transform = __Transform.Transform;
+
 )";
 
   GenerateAllComponentsCode(sFileContent);

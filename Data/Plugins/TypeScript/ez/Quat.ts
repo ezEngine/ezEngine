@@ -26,6 +26,13 @@ export class Quat {
         return new Quat(this.x, this.y, this.z, this.w);
     }
 
+    SetQuat(rhs: Quat): void {
+        this.x = rhs.x;
+        this.y = rhs.y;
+        this.z = rhs.z;
+        this.w = rhs.w;
+    }
+
     SetIdentity(): void {
         this.x = 0;
         this.y = 0;
@@ -250,32 +257,58 @@ export class Quat {
         vector.z += (tz * this.w) + t2z;
     }
 
-    ConcatenateRotations(q2: Quat): void {
+    InvRotateVec3(vector: Vec3): void {
+        // t = cross(this, vector) * 2
+        const tx = (-this.y * vector.z + this.z * vector.y) * 2.0;
+        const ty = (-this.z * vector.x + this.x * vector.z) * 2.0;
+        const tz = (-this.x * vector.y + this.y * vector.x) * 2.0;
+
+        // t2 = cross(this, t)
+        const t2x = -this.y * tz + this.z * ty;
+        const t2y = -this.z * tx + this.x * tz;
+        const t2z = -this.x * ty + this.y * tx;
+
+        vector.x += (tx * -this.w) + t2x;
+        vector.y += (ty * -this.w) + t2y;
+        vector.z += (tz * -this.w) + t2z;
+    }
+
+
+    /**
+    * Concatenates the rotations of 'this' and 'rhs' and writes the result into 'this': 
+    * this = this * rhs
+    */
+    ConcatenateRotations(rhs: Quat): void {
         let q: Quat = new Quat;
 
-        q.w = this.w * q2.w - (this.x * q2.x + this.y * q2.y + this.z * q2.z);
+        q.w = this.w * rhs.w - (this.x * rhs.x + this.y * rhs.y + this.z * rhs.z);
 
-        const t1x = q2.x * this.w;
-        const t1y = q2.y * this.w;
-        const t1z = q2.z * this.w;
+        const t1x = rhs.x * this.w;
+        const t1y = rhs.y * this.w;
+        const t1z = rhs.z * this.w;
 
-        const t2x = this.x * q2.w;
-        const t2y = this.y * q2.w;
-        const t2z = this.z * q2.w;
+        const t2x = this.x * rhs.w;
+        const t2y = this.y * rhs.w;
+        const t2z = this.z * rhs.w;
 
         q.x = t1x + t2x;
         q.y = t1y + t2y;
         q.z = t1z + t2z;
 
         // q.v += Cross(this.v, q2.v)
-        q.x += this.y * q2.z - this.z * q2.y;
-        q.y += this.z * q2.x - this.x * q2.z;
-        q.z += this.x * q2.y - this.y * q2.x;
+        q.x += this.y * rhs.z - this.z * rhs.y;
+        q.y += this.z * rhs.x - this.x * rhs.z;
+        q.z += this.x * rhs.y - this.y * rhs.x;
 
         this.x = q.x;
         this.y = q.y;
         this.z = q.z;
         this.w = q.w;
+    }
+
+    SetConcatenatedRotations(lhs: Quat, rhs: Quat): void {
+        this.SetQuat(lhs);
+        this.ConcatenateRotations(rhs);
     }
 
     IsIdentical(rhs: Quat): boolean {
