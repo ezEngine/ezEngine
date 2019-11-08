@@ -1,20 +1,6 @@
 import ez = require("./../TypeScript/ez")
 
-export class MyTestMessage extends ez.Message {
-    /* BEGIN AUTO-GENERATED: MESSAGE */
-    public static GetTypeNameHash(): number { return 2067847616; }
-    constructor() { super(); this.TypeNameHash = 2067847616; }
-    /* END AUTO-GENERATED: MESSAGE */
-}
-
-export class MySecondMessage extends ez.Message {
-    /* BEGIN AUTO-GENERATED: MESSAGE */
-    public static GetTypeNameHash(): number { return 1130979718; }
-    constructor() { super(); this.TypeNameHash = 1130979718; }
-    /* END AUTO-GENERATED: MESSAGE */
-
-    text:string = "hello";
-}
+import tcm = require("./Messages")
 
 export class MyTestComponent extends ez.TickedTypescriptComponent {
 
@@ -35,19 +21,19 @@ export class MyTestComponent extends ez.TickedTypescriptComponent {
         ez.Log.Info("MsgSetFloatParameter: " + msg.Value + " / " + msg.TypeNameHash);
     }
 
-    OnMsgMyTestMessage(msg: MyTestMessage): void {
+    OnMsgMyTestMessage(msg: tcm.MyTestMessage): void {
         ez.Log.Info("Got MyTestMessage");
     }
 
-    OnMsgMySecondMessage(msg: MySecondMessage): void {
+    OnMsgMySecondMessage(msg: tcm.MySecondMessage): void {
         ez.Log.Info("Got MySecondMessage: " + msg.text);
     }
 
     static RegisterMessageHandlers() {
         ez.TypescriptComponent.RegisterMessageHandler(ez.MsgSetColor, "OnMsgSetColor");
         ez.TypescriptComponent.RegisterMessageHandler(ez.MsgSetFloatParameter, "OnMsgSetFloatParameter");
-        ez.TypescriptComponent.RegisterMessageHandler(MyTestMessage, "OnMsgMyTestMessage");
-        ez.TypescriptComponent.RegisterMessageHandler(MySecondMessage, "OnMsgMySecondMessage");
+        ez.TypescriptComponent.RegisterMessageHandler(tcm.MyTestMessage, "OnMsgMyTestMessage");
+        ez.TypescriptComponent.RegisterMessageHandler(tcm.MySecondMessage, "OnMsgMySecondMessage");
     }
 
     Tick(): void {
@@ -104,7 +90,7 @@ export class MyTestComponent extends ez.TickedTypescriptComponent {
 
         if (true && Math.random() > 0.9) {
             let setMat = new ez.MsgSetColor();
-            let tsMsg1 = new MySecondMessage();
+            let tsMsg1 = new tcm.MySecondMessage();
 
             if (Math.random() > 0.5) {
                 setMat.Color = this.MyPonyColor;

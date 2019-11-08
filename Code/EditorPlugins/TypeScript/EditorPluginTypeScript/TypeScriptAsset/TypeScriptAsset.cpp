@@ -160,7 +160,6 @@ ezStatus ezTypeScriptAssetDocument::InternalTransformAsset(ezStreamWriter& strea
   ezBitflags<ezTransformFlags> transformFlags)
 {
   EZ_SUCCEED_OR_RETURN(AutoGenerateVariablesCode());
-  EZ_SUCCEED_OR_RETURN(AutoGenerateMessageCode());
 
   {
     ezTypeScriptAssetDocumentEvent e;
@@ -250,105 +249,6 @@ ezStatus ezTypeScriptAssetDocument::AutoGenerateVariablesCode()
 
     content.ReplaceSubString(szBeginAG, szEndAG + ezStringUtils::GetStringElementCount(szTagEnd), sAutoGen);
 
-    ezFileWriter tsWriteBack;
-    if (tsWriteBack.Open(sTsDocPath).Failed())
-    {
-      return ezStatus(ezFmt("Could not update .ts file '{}'", GetProperties()->m_sScriptFile));
-    }
-
-    tsWriteBack.WriteBytes(content.GetData(), content.GetElementCount());
-  }
-
-  return ezStatus(EZ_SUCCESS);
-}
-
-ezStatus ezTypeScriptAssetDocument::AutoGenerateMessageCode()
-{
-  ezStringBuilder sTsDocPath = GetProperties()->m_sScriptFile;
-  ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sTsDocPath);
-
-  ezStringBuilder content;
-  bool bModifiedFile = false;
-
-  // read typescript file content
-  {
-    ezFileReader tsFile;
-    if (tsFile.Open(sTsDocPath).Failed())
-    {
-      return ezStatus(ezFmt("Could not read .ts file '{}'", GetProperties()->m_sScriptFile));
-    }
-
-    content.ReadAll(tsFile);
-  }
-
-  const char* szTagBegin = "/* BEGIN AUTO-GENERATED: MESSAGE */";
-  const char* szTagEnd = "/* END AUTO-GENERATED: MESSAGE */";
-
-  const char* szNextMessageLocation = nullptr;
-
-  while (true)
-  {
-
-    const char* szBeginAG = content.FindSubString(szTagBegin, szNextMessageLocation);
-
-    if (szBeginAG == nullptr)
-    {
-      break;
-    }
-
-    const char* szEndAG = content.FindSubString(szTagEnd, szBeginAG);
-
-    if (szEndAG == nullptr)
-    {
-      return ezStatus(ezFmt("'{}' tag is missing or corrupted.", szTagEnd));
-    }
-
-    const char* szClassAG = content.FindLastSubString("class", szBeginAG);
-    if (szClassAG == nullptr)
-    {
-      return ezStatus(ezFmt("'{}' tag is incorrectly placed.", szBeginAG));
-    }
-
-    ezUInt32 uiTypeNameHash = 0;
-
-    {
-      ezStringView classNameView(szClassAG + 5, szBeginAG);
-      classNameView.Trim(" \t\n\r");
-
-      ezStringBuilder sClassName;
-
-      ezStringIterator classNameIt = classNameView.GetIteratorFront();
-      while (classNameIt.IsValid() && !ezStringUtils::IsIdentifierDelimiter_C_Code(classNameIt.GetCharacter()))
-      {
-        sClassName.Append(classNameIt.GetCharacter());
-        ++classNameIt;
-      }
-
-      if (sClassName.IsEmpty())
-      {
-        return ezStatus("Message class name not found.");
-      }
-
-      uiTypeNameHash = ezTempHashedString::ComputeHash(sClassName.GetData());
-    }
-
-    ezStringBuilder sAutoGen;
-    sAutoGen.Append(szTagBegin, "\n");
-    sAutoGen.AppendFormat("    public static GetTypeNameHash(): number { return {}; }\n", uiTypeNameHash);
-    sAutoGen.AppendFormat("    constructor() { super(); this.TypeNameHash = {}; }\n", uiTypeNameHash);
-    sAutoGen.Append("    ", szTagEnd);
-
-    const ezUInt32 uiContinueAfterOffset = szEndAG - content.GetData();
-
-    bModifiedFile = true;
-    content.ReplaceSubString(szBeginAG, szEndAG + ezStringUtils::GetStringElementCount(szTagEnd), sAutoGen);
-
-    szNextMessageLocation = content.GetData() + uiContinueAfterOffset;
-  }
-
-  // write back the modified file
-  if (bModifiedFile)
-  {
     ezFileWriter tsWriteBack;
     if (tsWriteBack.Open(sTsDocPath).Failed())
     {

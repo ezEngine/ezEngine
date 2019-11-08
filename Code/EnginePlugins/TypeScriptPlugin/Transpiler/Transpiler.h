@@ -18,8 +18,10 @@ public:
   ezResult TranspileString(const char* szString, ezStringBuilder& out_Result);
   ezResult TranspileFile(const char* szFile, ezUInt64 uiSkipIfFileHash, ezStringBuilder& out_Result, ezUInt64& out_uiFileHash);
   ezResult TranspileFileAndStoreJS(const char* szFile, ezStringBuilder& out_Result);
+  void SetModifyTsBeforeTranspilationCallback(ezDelegate<void(ezStringBuilder&)> callback);
 
 private:
+  ezDelegate<void(ezStringBuilder&)> m_ModifyTsBeforeTranspilationCB;
   ezString m_sOutputFolder;
   ezTaskGroupID m_LoadTaskGroup;
   ezDuktapeContext m_Transpiler;

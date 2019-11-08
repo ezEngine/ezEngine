@@ -85,6 +85,63 @@ void ezTypeScriptAssetDocumentManager::ToolsProjectEventHandler(const ezToolsPro
   }
 }
 
+void ezTypeScriptAssetDocumentManager::ModifyTsBeforeTranspilation(ezStringBuilder& content)
+{
+  const char* szTagBegin = "EZ_DECLARE_MESSAGE_TYPE;";
+
+  ezUInt32 uiContinueAfterOffset = 0;
+  ezStringBuilder sAutoGen;
+
+  while (true)
+  {
+
+    const char* szBeginAG = content.FindSubString(szTagBegin, content.GetData() + uiContinueAfterOffset);
+
+    if (szBeginAG == nullptr)
+    {
+      break;
+    }
+
+    const char* szClassAG = content.FindLastSubString("class", szBeginAG);
+    if (szClassAG == nullptr)
+    {
+      //return ezStatus(ezFmt("'{}' tag is incorrectly placed.", szBeginAG));
+      return;
+    }
+
+    ezUInt32 uiTypeNameHash = 0;
+
+    {
+      ezStringView classNameView(szClassAG + 5, szBeginAG);
+      classNameView.Trim(" \t\n\r");
+
+      ezStringBuilder sClassName;
+
+      ezStringIterator classNameIt = classNameView.GetIteratorFront();
+      while (classNameIt.IsValid() && !ezStringUtils::IsIdentifierDelimiter_C_Code(classNameIt.GetCharacter()))
+      {
+        sClassName.Append(classNameIt.GetCharacter());
+        ++classNameIt;
+      }
+
+      if (sClassName.IsEmpty())
+      {
+        //return ezStatus("Message class name not found.");
+        return;
+      }
+
+      uiTypeNameHash = ezTempHashedString::ComputeHash(sClassName.GetData());
+    }
+
+    sAutoGen.Format("public static GetTypeNameHash(): number { return {0}; }\nconstructor() { super(); this.TypeNameHash = {0}; }\n", uiTypeNameHash);
+
+    uiContinueAfterOffset = szBeginAG - content.GetData();
+
+    content.ReplaceSubString(szBeginAG, szBeginAG + ezStringUtils::GetStringElementCount(szTagBegin), sAutoGen);
+  }
+
+}
+
 void ezTypeScriptAssetDocumentManager::InitializeTranspiler()
 {
   if (m_bTranspilerLoaded)
@@ -96,6 +153,7 @@ void ezTypeScriptAssetDocumentManager::InitializeTranspiler()
 
   m_Transpiler.SetOutputFolder(":project/AssetCache/Temp");
   m_Transpiler.StartLoadTranspiler();
+  m_Transpiler.SetModifyTsBeforeTranspilationCallback(&ezTypeScriptAssetDocumentManager::ModifyTsBeforeTranspilation);
 }
 
 void ezTypeScriptAssetDocumentManager::SetupProjectForTypeScript()
@@ -110,8 +168,6 @@ void ezTypeScriptAssetDocumentManager::SetupProjectForTypeScript()
 ezResult ezTypeScriptAssetDocumentManager::GenerateScriptCompendium(ezBitflags<ezTransformFlags> transformFlags)
 {
   EZ_LOG_BLOCK("Generating Script Compendium");
-
-  // TODO: store GUID of all TypeScript assets with lookup to ComponentName + relative path to file -> get rid of ezJavaScriptResource
 
   ezStringBuilder sProjectPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
   sProjectPath.MakeCleanPath();

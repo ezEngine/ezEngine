@@ -36,6 +36,7 @@ private:
 
 private:
   void ToolsProjectEventHandler(const ezToolsProjectEvent& e);
+  static void ModifyTsBeforeTranspilation(ezStringBuilder& source);
 
   void InitializeTranspiler();
   bool m_bTranspilerLoaded = false;
