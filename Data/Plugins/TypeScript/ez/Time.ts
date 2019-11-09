@@ -1,4 +1,11 @@
+declare function __CPP_Time_Now(): number;
+
 export class Time {
+
+    static Now(): number {
+        return __CPP_Time_Now();
+    }
+
     // Converts nanoseconds to Time
     static Nanoseconds(fNanoseconds: number): number {
         return fNanoseconds * 0.000000001;

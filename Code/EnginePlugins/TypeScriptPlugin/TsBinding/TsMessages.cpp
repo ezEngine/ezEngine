@@ -237,7 +237,7 @@ ezUniquePtr<ezMessage> ezTypeScriptBinding::MessageFromParameter(duk_context* pD
 
       ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pProp);
 
-      const ezVariant value = ezTypeScriptBinding::GetVariant(duk, iObjIdx + 1, pMember->GetSpecificType()->GetVariantType());
+      const ezVariant value = ezTypeScriptBinding::GetVariantProperty(duk, pProp->GetPropertyName(), iObjIdx + 1, pMember->GetSpecificType()->GetVariantType());
       ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg.Borrow(), value);
     }
   }

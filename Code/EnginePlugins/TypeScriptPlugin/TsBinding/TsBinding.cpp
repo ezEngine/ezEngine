@@ -8,6 +8,12 @@
 
 static ezHashTable<duk_context*, ezTypeScriptBinding*> s_DukToBinding;
 
+static int __CPP_Time_Now(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk, +1);
+  return duk.ReturnFloat(ezTime::Now().GetSeconds());
+}
+
 ezTypeScriptBinding::ezTypeScriptBinding()
   : m_Duk("Typescript Binding")
 {
@@ -17,6 +23,13 @@ ezTypeScriptBinding::ezTypeScriptBinding()
 ezTypeScriptBinding::~ezTypeScriptBinding()
 {
   s_DukToBinding.Remove(m_Duk);
+}
+
+ezResult ezTypeScriptBinding::Init_Time()
+{
+  m_Duk.RegisterGlobalFunction("__CPP_Time_Now", __CPP_Time_Now, 0);
+
+  return EZ_SUCCESS;
 }
 
 ezTypeScriptBinding* ezTypeScriptBinding::RetrieveBinding(duk_context* pDuk)
@@ -45,6 +58,7 @@ ezResult ezTypeScriptBinding::Initialize(ezWorld& world)
 
   EZ_SUCCEED_OR_RETURN(Init_RequireModules());
   EZ_SUCCEED_OR_RETURN(Init_Log());
+  EZ_SUCCEED_OR_RETURN(Init_Time());
   EZ_SUCCEED_OR_RETURN(Init_GameObject());
   EZ_SUCCEED_OR_RETURN(Init_FunctionBinding());
   EZ_SUCCEED_OR_RETURN(Init_PropertyBinding());

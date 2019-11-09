@@ -67,6 +67,12 @@ ezResult ezTypeScriptBinding::Init_RequireModules()
     return EZ_FAILURE;
   }
 
+  if (m_Duk.ExecuteString("var __Time = require(\"./TypeScript/ez/Time\");").Failed())
+  {
+    ezLog::Error("Failed to import 'Time.ts'");
+    return EZ_FAILURE;
+  }
+
   return EZ_SUCCESS;
 }
 

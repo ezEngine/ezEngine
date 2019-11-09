@@ -152,6 +152,7 @@ private:
 private:
   ezResult Init_RequireModules();
   ezResult Init_Log();
+  ezResult Init_Time();
   ezResult Init_GameObject();
   ezResult Init_Component();
   ezResult Init_World();
