@@ -23,6 +23,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezBakingSettingsComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Rendering/Baking"),
+    new ezLongOpAttribute("ezLongOpProxy_BakeScene")
   }
   EZ_END_ATTRIBUTES;
 }
