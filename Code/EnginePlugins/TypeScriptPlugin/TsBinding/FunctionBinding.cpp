@@ -76,26 +76,18 @@ const char* ezTypeScriptBinding::TsType(const ezRTTI* pRtti)
       return "Color";
 
     case ezVariant::Type::Vector2:
+    case ezVariant::Type::Vector2I:
+    case ezVariant::Type::Vector2U:
       return "Vec2";
 
     case ezVariant::Type::Vector3:
+    case ezVariant::Type::Vector3I:
+    case ezVariant::Type::Vector3U:
       return "Vec3";
 
     case ezVariant::Type::Quaternion:
       return "Quat";
 
-      //case ezVariant::Type::Vector4:
-      //case ezVariant::Type::Vector2I:
-      //case ezVariant::Type::Vector3I:
-      //case ezVariant::Type::Vector4I:
-      //case ezVariant::Type::Vector2U:
-      //case ezVariant::Type::Vector3U:
-      //case ezVariant::Type::Vector4U:
-      //case ezVariant::Type::Matrix3:
-      //case ezVariant::Type::Matrix4:
-      //case ezVariant::Type::Transform:
-      //case ezVariant::Type::Uuid:
-      // TODO: implement these types
 
     case ezVariant::Type::String:
     case ezVariant::Type::StringView:
@@ -104,6 +96,15 @@ const char* ezTypeScriptBinding::TsType(const ezRTTI* pRtti)
     case ezVariant::Type::Time:
       return "number";
 
+    case ezVariant::Type::Transform:
+      return "Transform";
+
+      // TODO: implement these types
+      //case ezVariant::Type::Vector4:
+      //case ezVariant::Type::Vector4I:
+      //case ezVariant::Type::Vector4U:
+      //case ezVariant::Type::Matrix3:
+      //case ezVariant::Type::Matrix4:
 
     default:
       return nullptr;
@@ -211,141 +212,19 @@ int __CPP_ComponentFunction_Call(duk_context* pDuk)
 
   for (ezUInt32 arg = 0; arg < uiNumArgs; ++arg)
   {
-    switch (pBinding->m_pFunc->GetArgumentType(arg)->GetVariantType())
-    {
-      case ezVariant::Type::Bool:
-        args[arg] = duk.GetBoolValue(2 + arg);
-        break;
-
-      case ezVariant::Type::Int8:
-      case ezVariant::Type::Int16:
-      case ezVariant::Type::Int32:
-      case ezVariant::Type::Int64:
-        args[arg] = duk.GetIntValue(2 + arg);
-        break;
-
-      case ezVariant::Type::UInt8:
-      case ezVariant::Type::UInt16:
-      case ezVariant::Type::UInt32:
-      case ezVariant::Type::UInt64:
-        args[arg] = duk.GetUIntValue(2 + arg);
-        break;
-
-      case ezVariant::Type::Float:
-        args[arg] = duk.GetFloatValue(2 + arg);
-        break;
-
-      case ezVariant::Type::Double:
-        args[arg] = duk.GetNumberValue(2 + arg);
-        break;
-
-      case ezVariant::Type::String:
-      case ezVariant::Type::StringView:
-        args[arg] = ezStringView(duk.GetStringValue(2 + arg));
-        break;
-
-      case ezVariant::Type::Vector2:
-        args[arg] = ezTypeScriptBinding::GetVec2(duk, 2 + arg);
-
-      case ezVariant::Type::Vector3:
-        args[arg] = ezTypeScriptBinding::GetVec3(duk, 2 + arg);
-        break;
-
-      case ezVariant::Type::Quaternion:
-        args[arg] = ezTypeScriptBinding::GetQuat(duk, 2 + arg);
-        break;
-
-      case ezVariant::Type::Transform:
-        args[arg] = ezTypeScriptBinding::GetTransform(duk, 2 + arg);
-        break;
-
-      case ezVariant::Type::Color:
-        args[arg] = ezColorGammaUB(ezTypeScriptBinding::GetColor(duk, 2 + arg));
-        break;
-
-      case ezVariant::Type::ColorGamma:
-        args[arg] = ezTypeScriptBinding::GetColor(duk, 2 + arg);
-        break;
-
-      case ezVariant::Type::Time:
-        args[arg] = ezTime::Seconds(duk.GetNumberValue(2 + arg));
-        break;
-
-      case ezVariant::Type::Angle:
-        args[arg] = ezAngle::Radian(duk.GetFloatValue(2 + arg));
-        break;
-
-      default:
-        EZ_ASSERT_NOT_IMPLEMENTED;
-        break;
-    }
+    args[arg] = ezTypeScriptBinding::GetVariant(duk, 2 + arg, pBinding->m_pFunc->GetArgumentType(arg)->GetVariantType());
   }
 
   pBinding->m_pFunc->Execute(pComponent, args, ret);
 
   if (pBinding->m_pFunc->GetReturnType() != nullptr)
   {
-    switch (ret.GetType())
-    {
-      case ezVariant::Type::Angle:
-        return duk.ReturnNumber(ret.Get<ezAngle>().GetRadian());
-
-      case ezVariant::Type::Time:
-        return duk.ReturnNumber(ret.Get<ezTime>().GetSeconds());
-
-      case ezVariant::Type::Bool:
-        return duk.ReturnBool(ret.Get<bool>());
-
-      case ezVariant::Type::Int8:
-      case ezVariant::Type::Int16:
-      case ezVariant::Type::Int32:
-      case ezVariant::Type::Int64:
-        return duk.ReturnInt(ret.ConvertTo<ezInt32>());
-
-      case ezVariant::Type::UInt8:
-      case ezVariant::Type::UInt16:
-      case ezVariant::Type::UInt32:
-      case ezVariant::Type::UInt64:
-        return duk.ReturnUInt(ret.ConvertTo<ezUInt32>());
-
-      case ezVariant::Type::Float:
-      case ezVariant::Type::Double:
-        return duk.ReturnNumber(ret.ConvertTo<double>());
-
-      case ezVariant::Type::String:
-      case ezVariant::Type::StringView:
-        return duk.ReturnString(ret.ConvertTo<ezString>());
-
-      case ezVariant::Type::Vector2:
-        ezTypeScriptBinding::PushVec2(duk, ret.Get<ezVec2>());
-        return duk.ReturnCustom();
-
-      case ezVariant::Type::Vector3:
-        ezTypeScriptBinding::PushVec3(duk, ret.Get<ezVec3>());
-        return duk.ReturnCustom();
-
-      case ezVariant::Type::Quaternion:
-        ezTypeScriptBinding::PushQuat(duk, ret.Get<ezQuat>());
-        return duk.ReturnCustom();
-
-      case ezVariant::Type::Transform:
-        ezTypeScriptBinding::PushTransform(duk, ret.Get<ezTransform>());
-        return duk.ReturnCustom();
-
-      case ezVariant::Type::Color:
-        ezTypeScriptBinding::PushColor(duk, ret.Get<ezColor>());
-        return duk.ReturnCustom();
-
-      case ezVariant::Type::ColorGamma:
-        ezTypeScriptBinding::PushColor(duk, ret.Get<ezColorGammaUB>());
-        return duk.ReturnCustom();
-
-      default:
-        EZ_ASSERT_NOT_IMPLEMENTED;
-        break;
-    }
+    ezTypeScriptBinding::PushVariant(duk, ret);
+    return duk.ReturnCustom();
   }
-
-  duk.SetExpectedStackChange(0);
-  return duk.ReturnVoid();
+  else
+  {
+    duk.SetExpectedStackChange(0);
+    return duk.ReturnVoid();
+  }
 }

@@ -196,31 +196,40 @@ public:
   /// \name Math
   ///@{
 
+  static void PushVec2(duk_context* pDuk, const ezVec2& value);
   static void SetVec2(duk_context* pDuk, ezInt32 iObjIdx, const ezVec2& value);
   static void SetVec2Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec2& value);
   static ezVec2 GetVec2(duk_context* pDuk, ezInt32 iObjIdx, const ezVec2& fallback = ezVec2::ZeroVector());
   static ezVec2 GetVec2Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec2& fallback = ezVec2::ZeroVector());
-  static ezVec3 GetVec3(duk_context* pDuk, ezInt32 iObjIdx, const ezVec3& fallback = ezVec3::ZeroVector());
+
+  static void PushVec3(duk_context* pDuk, const ezVec3& value);
   static void SetVec3(duk_context* pDuk, ezInt32 iObjIdx, const ezVec3& value);
   static void SetVec3Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec3& value);
+  static ezVec3 GetVec3(duk_context* pDuk, ezInt32 iObjIdx, const ezVec3& fallback = ezVec3::ZeroVector());
   static ezVec3 GetVec3Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec3& fallback = ezVec3::ZeroVector());
+
+  static void PushQuat(duk_context* pDuk, const ezQuat& value);
   static void SetQuat(duk_context* pDuk, ezInt32 iObjIdx, const ezQuat& value);
   static void SetQuatProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezQuat& value);
   static ezQuat GetQuat(duk_context* pDuk, ezInt32 iObjIdx, ezQuat fallback = ezQuat::IdentityQuaternion());
   static ezQuat GetQuatProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, ezQuat fallback = ezQuat::IdentityQuaternion());
+
+  static void PushColor(duk_context* pDuk, const ezColor& value);
   static void SetColor(duk_context* pDuk, ezInt32 iObjIdx, const ezColor& value);
   static void SetColorProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezColor& value);
   static ezColor GetColor(duk_context* pDuk, ezInt32 iObjIdx, const ezColor& fallback = ezColor::White);
   static ezColor GetColorProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezColor& fallback = ezColor::White);
+
+  static void PushTransform(duk_context* pDuk, const ezTransform& value);
   static void SetTransform(duk_context* pDuk, ezInt32 iObjIdx, const ezTransform& value);
   static void SetTransformProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezTransform& value);
   static ezTransform GetTransform(duk_context* pDuk, ezInt32 iObjIdx, const ezTransform& fallback = ezTransform::IdentityTransform());
   static ezTransform GetTransformProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezTransform& fallback = ezTransform::IdentityTransform());
-  static void PushVec2(duk_context* pDuk, const ezVec2& value);
-  static void PushVec3(duk_context* pDuk, const ezVec3& value);
-  static void PushQuat(duk_context* pDuk, const ezQuat& value);
-  static void PushColor(duk_context* pDuk, const ezColor& value);
-  static void PushTransform(duk_context* pDuk, const ezTransform& value);
+
+  static void PushVariant(duk_context* pDuk, const ezVariant& value);
+  static void SetVariantProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVariant& value);
+  static ezVariant GetVariant(duk_context* pDuk, ezInt32 iObjIdx, ezVariant::Type::Enum type);
+  static ezVariant GetVariantProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, ezVariant::Type::Enum type);
 
   ///@}
   /// \name C++ Object Registration
