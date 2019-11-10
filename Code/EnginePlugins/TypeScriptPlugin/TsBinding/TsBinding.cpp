@@ -131,14 +131,58 @@ ezResult ezTypeScriptBinding::LoadComponent(const ezUuid& typeGuid, TsComponentT
   return EZ_SUCCESS;
 }
 
+void ezTypeScriptBinding::CleanupStash(ezUInt32 uiNumIterations)
+{
+  if (!m_LastCleanupObj.IsValid())
+    m_LastCleanupObj = m_GameObjectToStashIdx.GetIterator();
+
+  ezDuktapeHelper duk(m_Duk, 0); // [ ]
+  duk.PushGlobalStash();         // [ stash ]
+
+  for (ezUInt32 i = 0; i < uiNumIterations && m_LastCleanupObj.IsValid(); ++i)
+  {
+    ezGameObject* pGO;
+    if (!m_pWorld->TryGetObject(m_LastCleanupObj.Key(), pGO))
+    {
+      duk.PushNull();                                        // [ stash null ]
+      duk_put_prop_index(duk, -2, m_LastCleanupObj.Value()); // [ stash ]
+
+      m_FreeStashObjIdx.PushBack(m_LastCleanupObj.Value());
+      m_LastCleanupObj = m_GameObjectToStashIdx.Remove(m_LastCleanupObj);
+    }
+    else
+    {
+      ++m_LastCleanupObj;
+    }
+  }
+
+  for (ezUInt32 i = 0; i < uiNumIterations && m_LastCleanupComp.IsValid(); ++i)
+  {
+    ezComponent* pGO;
+    if (!m_pWorld->TryGetComponent(m_LastCleanupComp.Key(), pGO))
+    {
+      duk.PushNull();                                         // [ stash null ]
+      duk_put_prop_index(duk, -2, m_LastCleanupComp.Value()); // [ stash ]
+
+      m_FreeStashObjIdx.PushBack(m_LastCleanupComp.Value());
+      m_LastCleanupComp = m_ComponentToStashIdx.Remove(m_LastCleanupComp);
+    }
+    else
+    {
+      ++m_LastCleanupComp;
+    }
+  }
+
+  duk.PopStack(); // [ ]
+}
+
 void ezTypeScriptBinding::StoreReferenceInStash(duk_context* pDuk, ezUInt32 uiStashIdx)
 {
-  ezDuktapeHelper duk(pDuk, 0); // [ object ]
-  duk.PushGlobalStash();        // [ object stash ]
-  duk.PushUInt(uiStashIdx);     // [ object stash uint ]
-  duk_dup(duk, -3);             // [ object stash uint object ]
-  duk_put_prop(duk, -3);        // [ object stash ]
-  duk.PopStack();               // [ object ]
+  ezDuktapeHelper duk(pDuk, 0);            // [ object ]
+  duk.PushGlobalStash();                   // [ object stash ]
+  duk_dup(duk, -2);                        // [ object stash object ]
+  duk_put_prop_index(duk, -2, uiStashIdx); // [ object stash ]
+  duk.PopStack();                          // [ object ]
 }
 
 bool ezTypeScriptBinding::DukPushStashObject(duk_context* pDuk, ezUInt32 uiStashIdx)

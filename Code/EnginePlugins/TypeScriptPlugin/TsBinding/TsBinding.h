@@ -170,6 +170,7 @@ public:
 private:
   void StoreWorld(ezWorld* pWorld);
 
+  ezWorld* m_pWorld = nullptr;
   static ezHashTable<duk_context*, ezWorld*> s_DukToWorld;
 
   ///@}
@@ -239,6 +240,8 @@ public:
   bool RegisterGameObject(ezGameObjectHandle handle, ezUInt32& out_uiStashIdx);
   ezResult RegisterComponent(const char* szTypeName, ezComponentHandle handle, ezUInt32& out_uiStashIdx);
 
+  /// \brief Removes dead GameObject and Component references from the DukTape stash.
+  void CleanupStash(ezUInt32 uiNumIterations);
 
 private:
   static void StoreReferenceInStash(duk_context* pDuk, ezUInt32 uiStashIdx);
@@ -252,6 +255,9 @@ private:
   ezUInt32 m_uiNextStashObjIdx = 1024;
   ezMap<ezGameObjectHandle, ezUInt32> m_GameObjectToStashIdx;
   ezMap<ezComponentHandle, ezUInt32> m_ComponentToStashIdx;
+  ezDeque<ezUInt32> m_FreeStashObjIdx;
+  ezMap<ezGameObjectHandle, ezUInt32>::Iterator m_LastCleanupObj;
+  ezMap<ezComponentHandle, ezUInt32>::Iterator m_LastCleanupComp;
 
   ///@}
 };

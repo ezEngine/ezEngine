@@ -24,6 +24,7 @@ ezHashTable<duk_context*, ezWorld*> ezTypeScriptBinding::s_DukToWorld;
 
 void ezTypeScriptBinding::StoreWorld(ezWorld* pWorld)
 {
+  m_pWorld = pWorld;
   s_DukToWorld[m_Duk.GetContext()] = pWorld;
 }
 
