@@ -94,6 +94,7 @@ protected:
 
 private:
   ezUuid m_TypeScriptComponentGuid;
+  ezTime m_NextUpdate;
 
   //////////////////////////////////////////////////////////////////////////
   // Exposed Parameters

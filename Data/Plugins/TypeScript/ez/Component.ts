@@ -82,5 +82,5 @@ export abstract class TypescriptComponent extends Component {
 }
 
 export abstract class TickedTypescriptComponent extends TypescriptComponent {
-    abstract Tick(): void;
+    abstract Tick(): number;
 }

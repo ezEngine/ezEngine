@@ -239,8 +239,26 @@ void ezTypeScriptComponent::Update(ezTypeScriptBinding& binding)
   if (GetUserFlag(UserFlag::NoTsTick))
     return;
 
-  if (!CallTsFunc("Tick"))
+  const ezTime tNow = GetWorld()->GetClock().GetAccumulatedTime();
+
+  if (m_NextUpdate > tNow)
+    return;
+
+  ezDuktapeHelper duk(binding.GetDukTapeContext(), 0);
+
+  binding.DukPutComponentObject(this); // [ comp ]
+
+  if (duk.PrepareMethodCall("Tick").Succeeded()) // [ comp func comp ]
   {
+    duk.CallPreparedMethod(); // [ comp result ]
+    m_NextUpdate = tNow + ezTime::Seconds(duk.GetFloatValue(-1, 0.0f));
+    duk.PopStack(2); // [ ]
+  }
+  else
+  {
+    // remove 'this'   [ comp ]
+    duk.PopStack(); // [ ]
+
     SetUserFlag(UserFlag::NoTsTick, true);
   }
 }

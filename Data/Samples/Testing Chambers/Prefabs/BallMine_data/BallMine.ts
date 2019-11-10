@@ -28,7 +28,7 @@ export class BallMine extends ez.TickedTypescriptComponent {
         this._player = ez.World.TryGetObjectWithGlobalKey("Player");
     }
 
-    Tick(): void {
+    Tick(): number {
 
         if (this._player == null || !this._player.IsValid())
             return;
@@ -79,26 +79,30 @@ export class BallMine extends ez.TickedTypescriptComponent {
                         let matMsg = new ez.MsgSetMeshMaterial();
                         matMsg.Material = "{ d615cd66-0904-00ca-81f9-768ff4fc24ee }";
                         this.GetOwner().SendMessageRecursive(matMsg);
-                        break;
+
+                        return ez.Time.Milliseconds(500);
                     }
                 case BallMineState.Alert:
                     {
                         let matMsg = new ez.MsgSetMeshMaterial();
                         matMsg.Material = "{ 6ae73fcf-e09c-1c3f-54a8-8a80498519fb }";
                         this.GetOwner().SendMessageRecursive(matMsg);
-                        break;
+                        
+                        return ez.Time.Milliseconds(100);
                     }
                 case BallMineState.Approaching:
                     {
                         let matMsg = new ez.MsgSetMeshMaterial();
                         matMsg.Material = "{ 49324140-a093-4a75-9c6c-efde65a39fc4 }";
                         this.GetOwner().SendMessageRecursive(matMsg);
-                        break;
+                        
+                        return ez.Time.Milliseconds(50);
                     }
                 case BallMineState.Attacking:
                     {
                         this.Explode();
-                        break;
+                        
+                        return ez.Time.Milliseconds(50);
                     }
 
             }

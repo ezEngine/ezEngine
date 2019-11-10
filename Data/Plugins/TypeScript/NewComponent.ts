@@ -9,9 +9,11 @@ export class NewComponent extends ez.TickedTypescriptComponent {
         super()
     }
 
-    Tick(): void {
+    Tick(): number {
         ez.Log.Info("NewComponent.Tick()")
 
+        // call 'Tick' again in 100ms
+        return ez.Time.Milliseconds(100);
     }
 
     /*
