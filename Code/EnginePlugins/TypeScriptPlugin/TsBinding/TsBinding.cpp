@@ -156,6 +156,9 @@ void ezTypeScriptBinding::CleanupStash(ezUInt32 uiNumIterations)
     }
   }
 
+  if (!m_LastCleanupComp.IsValid())
+    m_LastCleanupComp = m_ComponentToStashIdx.GetIterator();
+
   for (ezUInt32 i = 0; i < uiNumIterations && m_LastCleanupComp.IsValid(); ++i)
   {
     ezComponent* pGO;
