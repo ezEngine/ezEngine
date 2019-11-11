@@ -234,16 +234,17 @@ static int __CPP_Component_SendMessage(duk_context* pDuk)
   ezComponent* pComponent = ezTypeScriptBinding::ExpectComponent<ezComponent>(duk, 0 /*this*/);
 
   ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(duk);
-  ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1);
 
   if (duk.GetFunctionMagicValue() == 0) // SendMessage
   {
+    ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, ezTime::Zero());
     pComponent->SendMessage(*pMsg);
   }
   else // PostMessage
   {
     const ezTime delay = ezTime::Seconds(duk.GetNumberValue(3));
 
+    ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, delay);
     pComponent->PostMessage(*pMsg, ezObjectMsgQueueType::NextFrame, delay);
   }
 

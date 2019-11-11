@@ -216,7 +216,7 @@ static ezUniquePtr<ezMessage> CreateMessage(ezUInt32 uiTypeHash, const ezRTTI*& 
   return pRtti->GetAllocator()->Allocate<ezMessage>();
 }
 
-ezUniquePtr<ezMessage> ezTypeScriptBinding::MessageFromParameter(duk_context* pDuk, ezInt32 iObjIdx)
+ezUniquePtr<ezMessage> ezTypeScriptBinding::MessageFromParameter(duk_context* pDuk, ezInt32 iObjIdx, ezTime delay)
 {
   ezDuktapeHelper duk(pDuk, 0);
 
@@ -244,6 +244,29 @@ ezUniquePtr<ezMessage> ezTypeScriptBinding::MessageFromParameter(duk_context* pD
   else
 
   {
+    ezUInt32 uiMsgStashIdx = 0xFFFFFFFF;
+
+    m_StashedMsgDelivery.SetCount(c_uiMaxMsgStash);
+    const ezTime tNow = m_pWorld->GetClock().GetAccumulatedTime();
+
+    for (ezUInt32 i = 0; i < c_uiMaxMsgStash; ++i)
+    {
+      m_uiNextStashMsgIdx++;
+
+      if (m_uiNextStashMsgIdx >= c_uiLastStashMsgIdx)
+        m_uiNextStashMsgIdx = c_uiFirstStashMsgIdx;
+
+      if (m_StashedMsgDelivery[m_uiNextStashMsgIdx - c_uiFirstStashMsgIdx] < tNow)
+        goto found;
+    }
+
+    ezLog::Error("Too many posted messages with large delay (> {}). DukTape stash is full.", c_uiMaxMsgStash);
+    return nullptr;
+
+  found:
+
+    m_StashedMsgDelivery[m_uiNextStashMsgIdx - c_uiFirstStashMsgIdx] = tNow + delay + ezTime::Milliseconds(50);
+
     {
       duk_dup(duk, iObjIdx + 1);                       // [ object ]
       StoreReferenceInStash(duk, m_uiNextStashMsgIdx); // [ object ]
@@ -254,12 +277,6 @@ ezUniquePtr<ezMessage> ezTypeScriptBinding::MessageFromParameter(duk_context* pD
     ezMsgTypeScriptMsgProxy* pTypedMsg = static_cast<ezMsgTypeScriptMsgProxy*>(pMsg.Borrow());
     pTypedMsg->m_uiTypeNameHash = uiTypeNameHash;
     pTypedMsg->m_uiStashIndex = m_uiNextStashMsgIdx;
-
-    ++m_uiNextStashMsgIdx;
-    if (m_uiNextStashMsgIdx >= c_uiLastStashMsgIdx)
-    {
-      m_uiNextStashMsgIdx = c_uiFirstStashMsgIdx;
-    }
   }
 
   return pMsg;

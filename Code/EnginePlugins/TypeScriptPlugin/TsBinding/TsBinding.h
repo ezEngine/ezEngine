@@ -124,7 +124,7 @@ private:
   ///@{
 
 public:
-  ezUniquePtr<ezMessage> MessageFromParameter(duk_context* pDuk, ezInt32 iObjIdx);
+  ezUniquePtr<ezMessage> MessageFromParameter(duk_context* pDuk, ezInt32 iObjIdx, ezTime delay);
   static void DukPutMessage(duk_context* pDuk, const ezMessage& msg);
 
   bool DeliverMessage(const TsComponentTypeInfo& typeInfo, ezTypeScriptComponent* pComponent, ezMessage& msg);
@@ -247,17 +247,18 @@ private:
   static void StoreReferenceInStash(duk_context* pDuk, ezUInt32 uiStashIdx);
   static bool DukPushStashObject(duk_context* pDuk, ezUInt32 uiStashIdx);
 
-  // TODO: clean up stash every once in a while
-
+  static constexpr ezUInt32 c_uiMaxMsgStash = 512;
   static constexpr ezUInt32 c_uiFirstStashMsgIdx = 512;
-  static constexpr ezUInt32 c_uiLastStashMsgIdx = 1024;
+  static constexpr ezUInt32 c_uiLastStashMsgIdx = c_uiFirstStashMsgIdx + c_uiFirstStashMsgIdx;
+  static constexpr ezUInt32 c_uiFirstStashObjIdx = c_uiLastStashMsgIdx;
   ezUInt32 m_uiNextStashMsgIdx = c_uiFirstStashMsgIdx;
-  ezUInt32 m_uiNextStashObjIdx = 1024;
+  ezUInt32 m_uiNextStashObjIdx = c_uiFirstStashObjIdx;
   ezMap<ezGameObjectHandle, ezUInt32> m_GameObjectToStashIdx;
   ezMap<ezComponentHandle, ezUInt32> m_ComponentToStashIdx;
   ezDeque<ezUInt32> m_FreeStashObjIdx;
   ezMap<ezGameObjectHandle, ezUInt32>::Iterator m_LastCleanupObj;
   ezMap<ezComponentHandle, ezUInt32>::Iterator m_LastCleanupComp;
+  ezDynamicArray<ezTime> m_StashedMsgDelivery;
 
   ///@}
 };

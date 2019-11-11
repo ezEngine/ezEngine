@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7297922959506964864,5177324930371449723}}
-		u4 %Hash{1614122953007155264}
+		u4 %Hash{983807329845469224}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -6476,7 +6476,7 @@ o
 		Time %MinDelay{d{0x000000000000F03F}}
 		s %Prefab{"{ 41a909e4-0dbd-48ef-b6f3-a445bed9f62c }"}
 		b %SpawnAtStart{1}
-		b %SpawnContinuously{0}
+		b %SpawnContinuously{1}
 	}
 }
 o
