@@ -30,45 +30,49 @@ export class BallMine extends ez.TickedTypescriptComponent {
 
     Tick(): number {
 
-        if (this._player == null || !this._player.IsValid())
-            return;
-
-        let playerPos = this._player.GetGlobalPosition();
-        let ownPos = this.GetOwner().GetGlobalPosition();
-        let diffPos = new ez.Vec3();
-
-        diffPos.SetSub(playerPos, ownPos);
-
-        let distToPlayer = diffPos.GetLength();
         let oldState = this._state;
 
-        //ez.Log.Dev("Distance to Player: " + distToPlayer);
+        if (this._player != null && this._player.IsValid()) {
 
-        if (distToPlayer <= this.ApproachDistance) {
+            let playerPos = this._player.GetGlobalPosition();
+            let ownPos = this.GetOwner().GetGlobalPosition();
+            let diffPos = new ez.Vec3();
 
-            this._state = BallMineState.Approaching;
+            diffPos.SetSub(playerPos, ownPos);
 
-            let actor = this.GetOwner().TryGetComponentOfBaseType(ez.PxDynamicActorComponent);
-            if (actor != null) {
-                diffPos.Normalize();
-                diffPos.MulNumber(this.RollForce);
+            let distToPlayer = diffPos.GetLength();
 
-                actor.AddLinearForce(diffPos);
+            //ez.Log.Dev("Distance to Player: " + distToPlayer);
+
+            if (distToPlayer <= this.ApproachDistance) {
+
+                this._state = BallMineState.Approaching;
+
+                let actor = this.GetOwner().TryGetComponentOfBaseType(ez.PxDynamicActorComponent);
+                if (actor != null) {
+                    diffPos.Normalize();
+                    diffPos.MulNumber(this.RollForce);
+
+                    actor.AddLinearForce(diffPos);
+                }
+
+                //ez.Log.Dev("Attack: " + distToPlayer);
+            }
+            else if (distToPlayer <= this.AlertDistance) {
+                this._state = BallMineState.Alert;
+                //ez.Log.Dev("Alert: " + distToPlayer);
+            }
+            else {
+                this._state = BallMineState.Idle;
+
             }
 
-            //ez.Log.Dev("Attack: " + distToPlayer);
-        }
-        else if (distToPlayer <= this.AlertDistance) {
-            this._state = BallMineState.Alert;
-            //ez.Log.Dev("Alert: " + distToPlayer);
+            if (distToPlayer <= this.AttackDistance) {
+                this._state = BallMineState.Attacking;
+            }
         }
         else {
             this._state = BallMineState.Idle;
-
-        }
-
-        if (distToPlayer <= this.AttackDistance) {
-            this._state = BallMineState.Attacking;
         }
 
         if (oldState != this._state) {
@@ -87,7 +91,7 @@ export class BallMine extends ez.TickedTypescriptComponent {
                         let matMsg = new ez.MsgSetMeshMaterial();
                         matMsg.Material = "{ 6ae73fcf-e09c-1c3f-54a8-8a80498519fb }";
                         this.GetOwner().SendMessageRecursive(matMsg);
-                        
+
                         return ez.Time.Milliseconds(100);
                     }
                 case BallMineState.Approaching:
@@ -95,13 +99,13 @@ export class BallMine extends ez.TickedTypescriptComponent {
                         let matMsg = new ez.MsgSetMeshMaterial();
                         matMsg.Material = "{ 49324140-a093-4a75-9c6c-efde65a39fc4 }";
                         this.GetOwner().SendMessageRecursive(matMsg);
-                        
+
                         return ez.Time.Milliseconds(50);
                     }
                 case BallMineState.Attacking:
                     {
                         this.Explode();
-                        
+
                         return ez.Time.Milliseconds(50);
                     }
 

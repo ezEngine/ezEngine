@@ -155,7 +155,7 @@ void ezTypeScriptComponent::Initialize()
 {
   // SUPER::Initialize() does nothing
 
-  if (!GetWorld()->GetWorldSimulationEnabled())
+  if (!GetUserFlag(UserFlag::SimStartedTS))
     return;
 
   if (!GetUserFlag(UserFlag::InitializedTS))
@@ -177,7 +177,7 @@ void ezTypeScriptComponent::Deinitialize()
     SetActive(false);
   }
 
-  if (GetWorld()->GetWorldSimulationEnabled() && GetUserFlag(UserFlag::InitializedTS))
+  if (GetUserFlag(UserFlag::InitializedTS))
   {
     CallTsFunc("Deinitialize");
   }
@@ -192,7 +192,7 @@ void ezTypeScriptComponent::OnActivated()
 {
   // SUPER::OnActivated() does nothing
 
-  if (!GetWorld()->GetWorldSimulationEnabled())
+  if (!GetUserFlag(UserFlag::SimStartedTS))
     return;
 
   ezTypeScriptComponent::Initialize();
@@ -204,7 +204,7 @@ void ezTypeScriptComponent::OnActivated()
 
 void ezTypeScriptComponent::OnDeactivated()
 {
-  if (GetWorld()->GetWorldSimulationEnabled() && GetUserFlag(UserFlag::OnActivatedTS))
+  if (GetUserFlag(UserFlag::OnActivatedTS))
   {
     CallTsFunc("OnDeactivated");
   }
@@ -217,6 +217,8 @@ void ezTypeScriptComponent::OnDeactivated()
 void ezTypeScriptComponent::OnSimulationStarted()
 {
   ezTypeScriptBinding& binding = static_cast<ezTypeScriptComponentManager*>(GetOwningManager())->GetTsBinding();
+
+  SetUserFlag(UserFlag::SimStartedTS, true);
 
   if (binding.LoadComponent(m_TypeScriptComponentGuid, m_ComponentTypeInfo).Succeeded())
   {

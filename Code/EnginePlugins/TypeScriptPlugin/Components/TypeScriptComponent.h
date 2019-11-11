@@ -90,6 +90,7 @@ protected:
     InitializedTS = 0,
     OnActivatedTS = 1,
     NoTsTick = 2,
+    SimStartedTS = 3,
   };
 
 private:
