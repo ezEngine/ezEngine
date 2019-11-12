@@ -96,11 +96,17 @@ export import Component = __Component.Component;
 import __Color = require("./Color")
 export import Color = __Color.Color;
 
+import __Vec2 = require("./Vec2")
+export import Vec2 = __Vec2.Vec2;
+
 import __Vec3 = require("./Vec3")
 export import Vec3 = __Vec3.Vec3;
 
 import __Quat = require("./Quat")
 export import Quat = __Quat.Quat;
+
+import __Transform = require("./Transform")
+export import Transform = __Transform.Transform;
 
 )";
 

@@ -22,7 +22,7 @@ public:
 
   ezTypeScriptTranspiler& GetTranspiler() { return m_Transpiler; }
 
-  ezResult GenerateScriptCompendium();
+  ezResult GenerateScriptCompendium(ezBitflags<ezTransformFlags> transformFlags);
 
 private:
   void OnDocumentManagerEvent(const ezDocumentManager::Event& e);
@@ -36,6 +36,7 @@ private:
 
 private:
   void ToolsProjectEventHandler(const ezToolsProjectEvent& e);
+  static void ModifyTsBeforeTranspilation(ezStringBuilder& source);
 
   void InitializeTranspiler();
   bool m_bTranspilerLoaded = false;

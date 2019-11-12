@@ -17,11 +17,17 @@ void ezTypeScriptBinding::GenerateMessagesFile(const char* szFile)
 import __Message = require("./Message")
 export import Message = __Message.Message;
 
+import __Vec2 = require("./Vec2")
+export import Vec2 = __Vec2.Vec2;
+
 import __Vec3 = require("./Vec3")
 export import Vec3 = __Vec3.Vec3;
 
 import __Quat = require("./Quat")
 export import Quat = __Quat.Quat;
+
+import __Transform = require("./Transform")
+export import Transform = __Transform.Transform;
 
 import __Color = require("./Color")
 export import Color = __Color.Color;
@@ -121,7 +127,7 @@ void ezTypeScriptBinding::GenerateMessagePropertiesCode(ezStringBuilder& out_Cod
     if (!sDefault.IsEmpty())
     {
       // TODO: make this prettier
-      if (def.GetType() == ezVariantType::Color)
+      if (def.GetType() == ezVariant::Type::Color)
       {
         ezColor c = def.Get<ezColor>();
         sDefault.Format("new Color({}, {}, {}, {})", c.r, c.g, c.b, c.a);
@@ -172,20 +178,9 @@ import __AllMessages = require("{}")
     ezFileReader fileIn;
     fileIn.Open(szFile);
 
-    ezStringBuilder sSrc;
-    sSrc.ReadAll(fileIn);
+    sFinal.ReadAll(fileIn);
 
-    //if (const char* szAutoGen = sSrc.FindSubString("// AUTO-GENERATED"))
-    //{
-    //  sFinal.SetSubString_FromTo(sSrc.GetData(), szAutoGen);
-    //  sFinal.Trim(" \t\n\r");
-    //}
-    //else
-    {
-      sFinal = sSrc;
-      sFinal.Append("\n\n");
-    }
-
+    sFinal.Append("\n\n");
     sFinal.Append(sImportExport.GetView());
     sFinal.Append("\n");
   }
@@ -203,6 +198,8 @@ static ezUniquePtr<ezMessage> CreateMessage(ezUInt32 uiTypeHash, const ezRTTI*& 
 
   if (!MessageTypes.TryGetValue(uiTypeHash, pRtti))
   {
+    MessageTypes[uiTypeHash] = nullptr;
+
     for (pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
     {
       if (pRtti->GetTypeNameHash() == uiTypeHash)
@@ -219,7 +216,7 @@ static ezUniquePtr<ezMessage> CreateMessage(ezUInt32 uiTypeHash, const ezRTTI*& 
   return pRtti->GetAllocator()->Allocate<ezMessage>();
 }
 
-ezUniquePtr<ezMessage> ezTypeScriptBinding::MessageFromParameter(duk_context* pDuk, ezInt32 iObjIdx)
+ezUniquePtr<ezMessage> ezTypeScriptBinding::MessageFromParameter(duk_context* pDuk, ezInt32 iObjIdx, ezTime delay)
 {
   ezDuktapeHelper duk(pDuk, 0);
 
@@ -228,127 +225,58 @@ ezUniquePtr<ezMessage> ezTypeScriptBinding::MessageFromParameter(duk_context* pD
   const ezRTTI* pRtti = nullptr;
   ezUniquePtr<ezMessage> pMsg = CreateMessage(uiTypeNameHash, pRtti);
 
-
-  ezHybridArray<ezAbstractProperty*, 32> properties;
-  pRtti->GetAllProperties(properties);
-
-  for (ezAbstractProperty* pProp : properties)
+  if (pMsg != nullptr)
   {
-    if (pProp->GetCategory() != ezPropertyCategory::Member)
-      continue;
+    ezHybridArray<ezAbstractProperty*, 32> properties;
+    pRtti->GetAllProperties(properties);
 
-    ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pProp);
-
-    const ezVariant::Type::Enum type = pMember->GetSpecificType()->GetVariantType();
-    switch (type)
+    for (ezAbstractProperty* pProp : properties)
     {
-      case ezVariant::Type::Invalid:
-        break;
+      if (pProp->GetCategory() != ezPropertyCategory::Member)
+        continue;
 
-      case ezVariant::Type::Bool:
-      {
-        bool value = duk.GetBoolProperty(pMember->GetPropertyName(), false, iObjIdx + 1);
-        ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg.Borrow(), value);
-        break;
-      }
+      ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pProp);
 
-      case ezVariant::Type::String:
-      {
-        ezString value = duk.GetStringProperty(pMember->GetPropertyName(), "", iObjIdx + 1);
-        ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg.Borrow(), value);
-        break;
-      }
-
-      case ezVariant::Type::StringView:
-      {
-        ezStringView value = duk.GetStringProperty(pMember->GetPropertyName(), "", iObjIdx + 1);
-        ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg.Borrow(), value);
-        break;
-      }
-
-      case ezVariant::Type::Int8:
-      case ezVariant::Type::Int16:
-      case ezVariant::Type::Int32:
-      case ezVariant::Type::Int64:
-      {
-        ezInt32 value = duk.GetIntProperty(pMember->GetPropertyName(), 0, iObjIdx + 1);
-        ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg.Borrow(), value);
-        break;
-      }
-
-      case ezVariant::Type::UInt8:
-      case ezVariant::Type::UInt16:
-      case ezVariant::Type::UInt32:
-      case ezVariant::Type::UInt64:
-      {
-        ezUInt32 value = duk.GetUIntProperty(pMember->GetPropertyName(), 0, iObjIdx + 1);
-        ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg.Borrow(), value);
-        break;
-      }
-
-      case ezVariant::Type::Float:
-      {
-        const float value = duk.GetFloatProperty(pMember->GetPropertyName(), 0, iObjIdx + 1);
-        ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg.Borrow(), value);
-        break;
-      }
-
-      case ezVariant::Type::Double:
-      {
-        const double value = duk.GetNumberProperty(pMember->GetPropertyName(), 0, iObjIdx + 1);
-        ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg.Borrow(), value);
-        break;
-      }
-
-      case ezVariant::Type::Vector3:
-      {
-        ezVec3 value = ezTypeScriptBinding::GetVec3Property(duk, pMember->GetPropertyName(), iObjIdx + 1);
-        ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg.Borrow(), value);
-        break;
-      }
-
-      case ezVariant::Type::Quaternion:
-      {
-        ezQuat value = ezTypeScriptBinding::GetQuatProperty(duk, pMember->GetPropertyName(), iObjIdx + 1);
-        ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg.Borrow(), value);
-        break;
-      }
-
-      case ezVariant::Type::Color:
-      {
-        ezColor value = ezTypeScriptBinding::GetColorProperty(duk, pMember->GetPropertyName(), iObjIdx + 1);
-        ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg.Borrow(), value);
-        break;
-      }
-
-      case ezVariant::Type::ColorGamma:
-      {
-        ezColorGammaUB value = ezTypeScriptBinding::GetColorProperty(duk, pMember->GetPropertyName(), iObjIdx + 1);
-        ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg.Borrow(), value);
-        break;
-      }
-
-      case ezVariant::Type::Time:
-      {
-        const ezTime value = ezTime::Seconds(duk.GetNumberProperty(pMember->GetPropertyName(), 0, iObjIdx + 1));
-        ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg.Borrow(), value);
-        break;
-      }
-
-      case ezVariant::Type::Angle:
-      {
-        const ezAngle value = ezAngle::Radian(duk.GetFloatProperty(pMember->GetPropertyName(), 0, iObjIdx + 1));
-        ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg.Borrow(), value);
-        break;
-      }
-
-      case ezVariant::Type::Vector2:
-      case ezVariant::Type::Matrix3:
-      case ezVariant::Type::Matrix4:
-      case ezVariant::Type::Uuid:
-      default:
-        EZ_ASSERT_NOT_IMPLEMENTED;
+      const ezVariant value = ezTypeScriptBinding::GetVariantProperty(duk, pProp->GetPropertyName(), iObjIdx + 1, pMember->GetSpecificType()->GetVariantType());
+      ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg.Borrow(), value);
     }
+  }
+  else
+
+  {
+    ezUInt32 uiMsgStashIdx = 0xFFFFFFFF;
+
+    m_StashedMsgDelivery.SetCount(c_uiMaxMsgStash);
+    const ezTime tNow = m_pWorld->GetClock().GetAccumulatedTime();
+
+    for (ezUInt32 i = 0; i < c_uiMaxMsgStash; ++i)
+    {
+      m_uiNextStashMsgIdx++;
+
+      if (m_uiNextStashMsgIdx >= c_uiLastStashMsgIdx)
+        m_uiNextStashMsgIdx = c_uiFirstStashMsgIdx;
+
+      if (m_StashedMsgDelivery[m_uiNextStashMsgIdx - c_uiFirstStashMsgIdx] < tNow)
+        goto found;
+    }
+
+    ezLog::Error("Too many posted messages with large delay (> {}). DukTape stash is full.", c_uiMaxMsgStash);
+    return nullptr;
+
+  found:
+
+    m_StashedMsgDelivery[m_uiNextStashMsgIdx - c_uiFirstStashMsgIdx] = tNow + delay + ezTime::Milliseconds(50);
+
+    {
+      duk_dup(duk, iObjIdx + 1);                       // [ object ]
+      StoreReferenceInStash(duk, m_uiNextStashMsgIdx); // [ object ]
+      duk.PopStack();                                  // [ ]
+    }
+
+    pMsg = ezGetStaticRTTI<ezMsgTypeScriptMsgProxy>()->GetAllocator()->Allocate<ezMsgTypeScriptMsgProxy>();
+    ezMsgTypeScriptMsgProxy* pTypedMsg = static_cast<ezMsgTypeScriptMsgProxy*>(pMsg.Borrow());
+    pTypedMsg->m_uiTypeNameHash = uiTypeNameHash;
+    pTypedMsg->m_uiStashIndex = m_uiNextStashMsgIdx;
   }
 
   return pMsg;
@@ -381,96 +309,20 @@ void ezTypeScriptBinding::DukPutMessage(duk_context* pDuk, const ezMessage& msg)
     ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pProp);
 
     const ezRTTI* pType = pMember->GetSpecificType();
-    if (pType->GetVariantType() == ezVariantType::Invalid)
+    if (pType->GetVariantType() == ezVariant::Type::Invalid)
       continue;
 
     const ezVariant val = ezReflectionUtils::GetMemberPropertyValue(pMember, &msg);
 
-    const ezVariant::Type::Enum type = pMember->GetSpecificType()->GetVariantType();
-    switch (type)
-    {
-      case ezVariant::Type::Bool:
-      {
-        duk.SetBoolProperty(pMember->GetPropertyName(), val.Get<bool>());
-        break;
-      }
-
-      case ezVariant::Type::String:
-      case ezVariant::Type::StringView:
-      {
-        duk.SetStringProperty(pMember->GetPropertyName(), val.Get<ezString>());
-        break;
-      }
-
-      case ezVariant::Type::Int8:
-      case ezVariant::Type::Int16:
-      case ezVariant::Type::Int32:
-      case ezVariant::Type::Int64:
-      case ezVariant::Type::UInt8:
-      case ezVariant::Type::UInt16:
-      case ezVariant::Type::UInt32:
-      case ezVariant::Type::UInt64:
-      case ezVariant::Type::Float:
-      case ezVariant::Type::Double:
-      {
-        duk.SetNumberProperty(pMember->GetPropertyName(), val.ConvertTo<double>());
-        break;
-      }
-
-      case ezVariant::Type::Vector3:
-      {
-        const ezVec3 v = val.Get<ezVec3>();
-
-        duk.PushLocalObject(pMember->GetPropertyName(), -1);
-        duk.SetNumberProperty("x", v.x, -1);
-        duk.SetNumberProperty("y", v.y, -1);
-        duk.SetNumberProperty("z", v.z, -1);
-        duk.PopStack();
-        break;
-      }
-
-      case ezVariant::Type::Color:
-      case ezVariant::Type::ColorGamma:
-      {
-        const ezColor c = val.ConvertTo<ezColor>();
-
-        duk.PushLocalObject(pMember->GetPropertyName(), -1);
-        duk.SetNumberProperty("r", c.r, -1);
-        duk.SetNumberProperty("g", c.g, -1);
-        duk.SetNumberProperty("b", c.b, -1);
-        duk.SetNumberProperty("a", c.a, -1);
-        duk.PopStack();
-        break;
-      }
-
-      case ezVariant::Type::Time:
-      {
-        duk.SetNumberProperty(pMember->GetPropertyName(), val.Get<ezTime>().GetSeconds());
-        break;
-      }
-
-      case ezVariant::Type::Angle:
-      {
-        duk.SetNumberProperty(pMember->GetPropertyName(), val.Get<ezAngle>().GetRadian());
-        break;
-      }
-
-      case ezVariant::Type::Quaternion:
-      case ezVariant::Type::Vector2:
-      case ezVariant::Type::Matrix3:
-      case ezVariant::Type::Matrix4:
-      case ezVariant::Type::Uuid:
-      default:
-        EZ_ASSERT_NOT_IMPLEMENTED;
-    }
+    SetVariantProperty(duk, pMember->GetPropertyName(), -1, val);
   }
 }
 
-void ezTypeScriptBinding::RegisterMessageHandlersForComponentType(const char* szComponent)
+void ezTypeScriptBinding::RegisterMessageHandlersForComponentType(const char* szComponent, const ezUuid& componentType)
 {
   ezDuktapeHelper duk(m_Duk, 0);
 
-  m_sCurrentTsMsgHandlerRegistrator = szComponent;
+  m_CurrentTsMsgHandlerRegistrator = componentType;
 
   const ezStringBuilder sCompModule("__", szComponent);
 
@@ -493,14 +345,14 @@ void ezTypeScriptBinding::RegisterMessageHandlersForComponentType(const char* sz
 
   duk.PopStack(); // [ ]
 
-  m_sCurrentTsMsgHandlerRegistrator.Clear();
+  m_CurrentTsMsgHandlerRegistrator.SetInvalid();
 }
 
 int ezTypeScriptBinding::__CPP_Binding_RegisterMessageHandler(duk_context* pDuk)
 {
   ezTypeScriptBinding* tsb = ezTypeScriptBinding::RetrieveBinding(pDuk);
 
-  EZ_ASSERT_DEV(!tsb->m_sCurrentTsMsgHandlerRegistrator.IsEmpty(), "'ez.TypescriptComponent.RegisterMessageHandler' may only be called from 'static RegisterMessageHandlers()'");
+  EZ_ASSERT_DEV(tsb->m_CurrentTsMsgHandlerRegistrator.IsValid(), "'ez.TypescriptComponent.RegisterMessageHandler' may only be called from 'static RegisterMessageHandlers()'");
 
   ezDuktapeFunction duk(pDuk, 0);
 
@@ -509,17 +361,19 @@ int ezTypeScriptBinding::__CPP_Binding_RegisterMessageHandler(duk_context* pDuk)
 
   const ezRTTI* pMsgType = ezRTTI::FindTypeByNameHash(uiMsgTypeHash);
 
-  if (pMsgType == nullptr)
-  {
-    ezLog::Error("Message with type name hash '{}' does not exist.", uiMsgTypeHash);
-    return duk.ReturnVoid();
-  }
+  // this happens for pure TypeScript messages
+  //if (pMsgType == nullptr)
+  //{
+  //  ezLog::Error("Message with type name hash '{}' does not exist.", uiMsgTypeHash);
+  //  return duk.ReturnVoid();
+  //}
 
-  auto& tsc = tsb->m_TsComponentTypes[tsb->m_sCurrentTsMsgHandlerRegistrator];
+  auto& tsc = tsb->m_TsComponentTypes[tsb->m_CurrentTsMsgHandlerRegistrator];
   auto& mh = tsc.m_MessageHandlers.ExpandAndGetRef();
 
   mh.m_sHandlerFunc = szMsgHandler;
   mh.m_pMessageType = pMsgType;
+  mh.m_uiMessageTypeNameHash = uiMsgTypeHash;
 
   return duk.ReturnVoid();
 }
@@ -536,7 +390,6 @@ bool ezTypeScriptBinding::DeliverMessage(const TsComponentTypeInfo& typeInfo, ez
 
   const ezRTTI* pMsgRtti = msg.GetDynamicRTTI();
 
-  // TODO: make this more efficient
   for (auto& mh : tsc.m_MessageHandlers)
   {
     if (mh.m_pMessageType == pMsgRtti)
@@ -568,6 +421,51 @@ bool ezTypeScriptBinding::DeliverMessage(const TsComponentTypeInfo& typeInfo, ez
         return false;
       }
 
+
+      return true;
+    }
+  }
+
+  return false;
+}
+
+bool ezTypeScriptBinding::DeliverTsMessage(const TsComponentTypeInfo& typeInfo, ezTypeScriptComponent* pComponent, const ezMsgTypeScriptMsgProxy& msg)
+{
+  if (!typeInfo.IsValid())
+    return false;
+
+  auto& tsc = typeInfo.Value();
+
+  for (auto& mh : tsc.m_MessageHandlers)
+  {
+    if (mh.m_uiMessageTypeNameHash == msg.m_uiTypeNameHash)
+    {
+      ezDuktapeHelper duk(m_Duk, 0);
+
+      DukPutComponentObject(pComponent); // [ comp ]
+
+      if (duk.PrepareMethodCall(mh.m_sHandlerFunc).Succeeded()) // [ comp func comp ]
+      {
+        DukPushStashObject(duk, msg.m_uiStashIndex); // [ comp func comp msg ]
+        duk.PushCustom();                            // [ comp func comp msg ]
+        duk.CallPreparedMethod();                    // [ comp result ]
+        duk.PopStack(2);                             // [ ]
+
+        return true;
+      }
+      else
+      {
+        // TODO: better error handling
+
+        ezLog::Error("{}.{}(msg: {}) does not exist", typeInfo.Key(), mh.m_sHandlerFunc, msg.m_uiTypeNameHash);
+
+        // mh.m_uiMessageTypeNameHash = 0;
+
+        // remove 'this'   [ comp ]
+        duk.PopStack(); // [ ]
+
+        return false;
+      }
 
       return true;
     }

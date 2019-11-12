@@ -109,8 +109,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxDynamicActorComponent, 3, ezComponentMode::Dynamic)
       EZ_ACCESSOR_PROPERTY("DisableGravity", GetDisableGravity, SetDisableGravity),
       EZ_MEMBER_PROPERTY("LinearDamping", m_fLinearDamping)->AddAttributes(new ezDefaultValueAttribute(0.1f)),
       EZ_MEMBER_PROPERTY("AngularDamping", m_fAngularDamping)->AddAttributes(new ezDefaultValueAttribute(0.05f)),
-      EZ_MEMBER_PROPERTY("MaxContactImpulse", m_fMaxContactImpulse)
-          ->AddAttributes(new ezDefaultValueAttribute(1000000.0f), new ezClampValueAttribute(0.0f, ezVariant())),
+      EZ_MEMBER_PROPERTY("MaxContactImpulse", m_fMaxContactImpulse)->AddAttributes(new ezDefaultValueAttribute(1000000.0f), new ezClampValueAttribute(0.0f, ezVariant())),
       EZ_ACCESSOR_PROPERTY("ContinuousCollisionDetection", GetContinuousCollisionDetection, SetContinuousCollisionDetection)
   }
   EZ_END_PROPERTIES;
@@ -120,6 +119,16 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxDynamicActorComponent, 3, ezComponentMode::Dynamic)
       EZ_MESSAGE_HANDLER(ezMsgPhysicsAddImpulse, AddImpulseAtPos),
   }
   EZ_END_MESSAGEHANDLERS;
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_SCRIPT_FUNCTION_PROPERTY(AddLinearForce, In, "vForce"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(AddLinearImpulse, In, "vImpulse"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(AddAngularForce, In, "vForce"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(AddAngularImpulse, In, "vImpulse"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetLocalCenterOfMass),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetGlobalCenterOfMass),
+  }
+  EZ_END_FUNCTIONS;
 }
 EZ_END_COMPONENT_TYPE
 // clang-format on

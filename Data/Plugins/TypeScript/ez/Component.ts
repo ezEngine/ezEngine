@@ -56,22 +56,22 @@ export abstract class Component {
         return __CPP_Component_GetUniqueID(this);
     }
 
-/*
-    Initialize(): void {
-    }
-
-    Deinitialize(): void {
-    }
-
-    OnActivated(): void {
-    }
-
-    OnDeactivated(): void {
-    }
-
-    OnSimulationStarted(): void {
-    }
-*/
+    /*
+        Initialize(): void {
+        }
+    
+        Deinitialize(): void {
+        }
+    
+        OnActivated(): void {
+        }
+    
+        OnDeactivated(): void {
+        }
+    
+        OnSimulationStarted(): void {
+        }
+    */
 }
 
 export abstract class TypescriptComponent extends Component {
@@ -82,5 +82,5 @@ export abstract class TypescriptComponent extends Component {
 }
 
 export abstract class TickedTypescriptComponent extends TypescriptComponent {
-    abstract Tick(): void;
+    abstract Tick(): number;
 }

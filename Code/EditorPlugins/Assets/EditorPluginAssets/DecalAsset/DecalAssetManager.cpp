@@ -102,8 +102,6 @@ ezUInt64 ezDecalAssetDocumentManager::ComputeAssetProfileHashImpl(const ezPlatfo
 
 ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfile* pAssetProfile)
 {
-  const ezDynamicArray<ezDocument*>& docs = GetAllDocuments();
-
   ezAssetCurator* pCurator = ezAssetCurator::GetSingleton();
   const auto& allAssets = pCurator->GetKnownSubAssets();
 

@@ -37,6 +37,12 @@ ezResult ezTypeScriptBinding::Init_RequireModules()
     return EZ_FAILURE;
   }
 
+  if (m_Duk.ExecuteString("var __Vec2 = require(\"./TypeScript/ez/Vec2\");").Failed())
+  {
+    ezLog::Error("Failed to import 'Vec2.ts'");
+    return EZ_FAILURE;
+  }
+
   if (m_Duk.ExecuteString("var __Vec3 = require(\"./TypeScript/ez/Vec3\");").Failed())
   {
     ezLog::Error("Failed to import 'Vec3.ts'");
@@ -52,6 +58,18 @@ ezResult ezTypeScriptBinding::Init_RequireModules()
   if (m_Duk.ExecuteString("var __Color = require(\"./TypeScript/ez/Color\");").Failed())
   {
     ezLog::Error("Failed to import 'Color.ts'");
+    return EZ_FAILURE;
+  }
+
+  if (m_Duk.ExecuteString("var __Transform = require(\"./TypeScript/ez/Transform\");").Failed())
+  {
+    ezLog::Error("Failed to import 'Transform.ts'");
+    return EZ_FAILURE;
+  }
+
+  if (m_Duk.ExecuteString("var __Time = require(\"./TypeScript/ez/Time\");").Failed())
+  {
+    ezLog::Error("Failed to import 'Time.ts'");
     return EZ_FAILURE;
   }
 
@@ -72,15 +90,15 @@ int ezTypeScriptBinding::DukSearchModule(duk_context* pDuk)
 
   ezTypeScriptBinding* pBinding = static_cast<ezTypeScriptBinding*>(duk.RetrievePointerFromStash("ezTypeScriptBinding"));
 
-  ezResourceLock<ezScriptCompendiumResource> pJsLib(pBinding->m_hScriptCompendium, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-  if (pJsLib.GetAcquireResult() != ezResourceAcquireResult::Final)
+  ezResourceLock<ezScriptCompendiumResource> pCompendium(pBinding->m_hScriptCompendium, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+  if (pCompendium.GetAcquireResult() != ezResourceAcquireResult::Final)
   {
     duk.PushUndefined();
     duk.Error(ezFmt("'required' module \"{}\" could not be loaded: JsLib resource is missing.", sRequestedFile));
     return duk.ReturnCustom();
   }
 
-  auto it = pJsLib->GetDescriptor().m_PathToSource.Find(sRequestedFile);
+  auto it = pCompendium->GetDescriptor().m_PathToSource.Find(sRequestedFile);
 
   if (!it.IsValid())
   {

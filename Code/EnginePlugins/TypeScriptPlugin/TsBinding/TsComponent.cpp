@@ -40,27 +40,32 @@ ezResult ezTypeScriptBinding::RegisterComponent(const char* szTypeName, ezCompon
     return EZ_SUCCESS;
   }
 
-  uiStashIdx = m_uiNextStashObjIdx;
-  ++m_uiNextStashObjIdx;
+  if (!m_FreeStashObjIdx.IsEmpty())
+  {
+    uiStashIdx = m_FreeStashObjIdx.PeekBack();
+    m_FreeStashObjIdx.PopBack();
+  }
+  else
+  {
+    uiStashIdx = m_uiNextStashObjIdx;
+    ++m_uiNextStashObjIdx;
+  }
 
   ezDuktapeHelper duk(m_Duk, 0);
 
   duk.PushGlobalObject(); // [ global ]
 
-  bool bCloseAllComps = false;
   ezStringBuilder sTypeName = szTypeName;
 
   if (sTypeName.TrimWordStart("ez"))
   {
     EZ_SUCCEED_OR_RETURN(duk.PushLocalObject("__AllComponents")); // [ global __CompModule ]
-    bCloseAllComps = true;
   }
   else
   {
     const ezStringBuilder sCompModule("__", sTypeName);
 
     EZ_SUCCEED_OR_RETURN(duk.PushLocalObject(sCompModule)); // [ global __CompModule ]
-    bCloseAllComps = true;
   }
 
   if (!duk_get_prop_string(duk, -1, sTypeName)) // [ global __CompModule sTypeName ]
@@ -75,8 +80,8 @@ ezResult ezTypeScriptBinding::RegisterComponent(const char* szTypeName, ezCompon
     duk_put_prop_index(duk, -2, ezTypeScriptBindingIndexProperty::ComponentHandle); // [ global __CompModule object ]
   }
 
-  StoreReferenceInStash(uiStashIdx);    // [ global __CompModule object ]
-  duk.PopStack(bCloseAllComps ? 3 : 2); // [ ]
+  StoreReferenceInStash(duk, uiStashIdx); // [ global __CompModule object ]
+  duk.PopStack(3);                        // [ ]
 
   out_uiStashIdx = uiStashIdx;
   return EZ_SUCCESS;
@@ -116,7 +121,7 @@ void ezTypeScriptBinding::DukPutComponentObject(ezComponent* pComponent)
       return;
     }
 
-    DukPushStashObject(uiStashIdx);
+    DukPushStashObject(m_Duk, uiStashIdx);
   }
 }
 
@@ -228,16 +233,18 @@ static int __CPP_Component_SendMessage(duk_context* pDuk)
 
   ezComponent* pComponent = ezTypeScriptBinding::ExpectComponent<ezComponent>(duk, 0 /*this*/);
 
-  ezUniquePtr<ezMessage> pMsg = ezTypeScriptBinding::MessageFromParameter(pDuk, 1);
+  ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(duk);
 
   if (duk.GetFunctionMagicValue() == 0) // SendMessage
   {
+    ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, ezTime::Zero());
     pComponent->SendMessage(*pMsg);
   }
   else // PostMessage
   {
     const ezTime delay = ezTime::Seconds(duk.GetNumberValue(3));
 
+    ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, delay);
     pComponent->PostMessage(*pMsg, ezObjectMsgQueueType::NextFrame, delay);
   }
 

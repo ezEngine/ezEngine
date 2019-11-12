@@ -1,6 +1,13 @@
 import ez = require("./../TypeScript/ez")
 
+import tcm = require("./Messages")
+
 export class MyTestComponent extends ez.TickedTypescriptComponent {
+
+    /* BEGIN AUTO-GENERATED: VARIABLES */
+    MyPonyColor: ez.Color = new ez.Color(0.701102, 0.013539, 0.192113, 1);
+    /* END AUTO-GENERATED: VARIABLES */
+
     constructor() {
         super()
         ez.Log.Info("Construct MyTestComponent")
@@ -14,15 +21,23 @@ export class MyTestComponent extends ez.TickedTypescriptComponent {
         ez.Log.Info("MsgSetFloatParameter: " + msg.Value + " / " + msg.TypeNameHash);
     }
 
-    static RegisterMessageHandlers() {
-        ez.Log.Info("RegisterMessageHandlers")
+    OnMsgMyTestMessage(msg: tcm.MyTestMessage): void {
+        ez.Log.Info("Got MyTestMessage");
+    }
 
+    OnMsgMySecondMessage(msg: tcm.MySecondMessage): void {
+        ez.Log.Info("Got MySecondMessage: " + msg.text);
+    }
+
+    static RegisterMessageHandlers() {
         ez.TypescriptComponent.RegisterMessageHandler(ez.MsgSetColor, "OnMsgSetColor");
         ez.TypescriptComponent.RegisterMessageHandler(ez.MsgSetFloatParameter, "OnMsgSetFloatParameter");
+        ez.TypescriptComponent.RegisterMessageHandler(tcm.MyTestMessage, "OnMsgMyTestMessage");
+        ez.TypescriptComponent.RegisterMessageHandler(tcm.MySecondMessage, "OnMsgMySecondMessage");
     }
 
     Tick(): void {
-        //ez.Log.Info("MyTestComponent::Update")
+        //ez.Log.Info("MyTestComponent::Update: ")
 
         let owner = this.GetOwner();
 
@@ -75,20 +90,25 @@ export class MyTestComponent extends ez.TickedTypescriptComponent {
 
         if (true && Math.random() > 0.9) {
             let setMat = new ez.MsgSetColor();
+            let tsMsg1 = new tcm.MySecondMessage();
 
             if (Math.random() > 0.5) {
-                setMat.Color.SetHotPink();
-                ez.Log.Info("Color: " + setMat.Color.r + ", " + setMat.Color.g + ", " + setMat.Color.b + ", " + setMat.Color.a)
+                setMat.Color = this.MyPonyColor;
+                //ez.Log.Info("Color: " + setMat.Color.r + ", " + setMat.Color.g + ", " + setMat.Color.b + ", " + setMat.Color.a)
+                tsMsg1.text = "Hello"
             }
             else {
                 setMat.Color.SetBlueViolet();
-                ez.Log.Info("Color: " + setMat.Color.r + ", " + setMat.Color.g + ", " + setMat.Color.b + ", " + setMat.Color.a)
+                //ez.Log.Info("Color: " + setMat.Color.r + ", " + setMat.Color.g + ", " + setMat.Color.b + ", " + setMat.Color.a)
+                tsMsg1.text = "World"
             }
-            owner.SendMessage(setMat);
+            //owner.SendMessage(setMat);
+
+            owner.SendMessage(tsMsg1);
 
             let fMsg = new ez.MsgSetFloatParameter();
             fMsg.Value = 23;
-            owner.SendMessage(fMsg);
+            //owner.SendMessage(fMsg);
 
             --this.deleteCounter;
 

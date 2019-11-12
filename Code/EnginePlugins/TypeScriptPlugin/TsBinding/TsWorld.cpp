@@ -24,6 +24,7 @@ ezHashTable<duk_context*, ezWorld*> ezTypeScriptBinding::s_DukToWorld;
 
 void ezTypeScriptBinding::StoreWorld(ezWorld* pWorld)
 {
+  m_pWorld = pWorld;
   s_DukToWorld[m_Duk.GetContext()] = pWorld;
 }
 
@@ -56,8 +57,8 @@ static int __CPP_World_CreateObject(duk_context* pDuk)
 
   desc.m_bActive = duk.GetBoolProperty("Active", desc.m_bActive, 0);
   desc.m_bDynamic = duk.GetBoolProperty("Dynamic", desc.m_bDynamic, 0);
-  desc.m_LocalPosition = ezTypeScriptBinding::GetVec3Property(duk, "LocalPosition", 0);
-  desc.m_LocalScaling = ezTypeScriptBinding::GetVec3Property(duk, "LocalScaling", 0);
+  desc.m_LocalPosition = ezTypeScriptBinding::GetVec3Property(duk, "LocalPosition", 0, ezVec3(0.0f));
+  desc.m_LocalScaling = ezTypeScriptBinding::GetVec3Property(duk, "LocalScaling", 0, ezVec3(1.0f));
   desc.m_LocalRotation = ezTypeScriptBinding::GetQuatProperty(duk, "LocalRotation", 0);
   desc.m_LocalUniformScaling = duk.GetFloatProperty("LocalUniformScaling", 1.0f, 0);
   desc.m_uiTeamID = duk.GetUIntProperty("TeamID", 0, 0);

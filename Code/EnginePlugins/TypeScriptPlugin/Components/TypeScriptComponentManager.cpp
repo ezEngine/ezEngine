@@ -43,4 +43,6 @@ void ezTypeScriptComponentManager::Update(const ezWorldModule::UpdateContext& co
       it->Update(m_TsBinding);
     }
   }
+
+  m_TsBinding.CleanupStash(10);
 }

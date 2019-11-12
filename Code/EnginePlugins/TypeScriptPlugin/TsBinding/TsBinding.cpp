@@ -4,10 +4,15 @@
 #include <Core/World/World.h>
 #include <Duktape/duktape.h>
 #include <Foundation/Profiling/Profiling.h>
-#include <Resources/JavaScriptResource.h>
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
 
 static ezHashTable<duk_context*, ezTypeScriptBinding*> s_DukToBinding;
+
+static int __CPP_Time_Now(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk, +1);
+  return duk.ReturnFloat(ezTime::Now().GetSeconds());
+}
 
 ezTypeScriptBinding::ezTypeScriptBinding()
   : m_Duk("Typescript Binding")
@@ -18,6 +23,13 @@ ezTypeScriptBinding::ezTypeScriptBinding()
 ezTypeScriptBinding::~ezTypeScriptBinding()
 {
   s_DukToBinding.Remove(m_Duk);
+}
+
+ezResult ezTypeScriptBinding::Init_Time()
+{
+  m_Duk.RegisterGlobalFunction("__CPP_Time_Now", __CPP_Time_Now, 0);
+
+  return EZ_SUCCESS;
 }
 
 ezTypeScriptBinding* ezTypeScriptBinding::RetrieveBinding(duk_context* pDuk)
@@ -46,6 +58,7 @@ ezResult ezTypeScriptBinding::Initialize(ezWorld& world)
 
   EZ_SUCCEED_OR_RETURN(Init_RequireModules());
   EZ_SUCCEED_OR_RETURN(Init_Log());
+  EZ_SUCCEED_OR_RETURN(Init_Time());
   EZ_SUCCEED_OR_RETURN(Init_GameObject());
   EZ_SUCCEED_OR_RETURN(Init_FunctionBinding());
   EZ_SUCCEED_OR_RETURN(Init_PropertyBinding());
@@ -56,43 +69,50 @@ ezResult ezTypeScriptBinding::Initialize(ezWorld& world)
   return EZ_SUCCESS;
 }
 
-ezResult ezTypeScriptBinding::LoadComponent(const ezJavaScriptResourceHandle& hResource, TsComponentTypeInfo& out_TypeInfo)
+ezResult ezTypeScriptBinding::LoadComponent(const ezUuid& typeGuid, TsComponentTypeInfo& out_TypeInfo)
 {
-  if (!m_bInitialized || !hResource.IsValid())
+  if (!m_bInitialized || !typeGuid.IsValid())
   {
     return EZ_FAILURE;
   }
 
-  ezResourceLock<ezJavaScriptResource> pJsResource(hResource, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
-
-  if (pJsResource.GetAcquireResult() != ezResourceAcquireResult::Final)
+  // check if this component type has been loaded before
   {
-    return EZ_FAILURE;
+    auto itLoaded = m_LoadedComponents.Find(typeGuid);
+
+    if (itLoaded.IsValid())
+    {
+      out_TypeInfo = m_TsComponentTypes.Find(typeGuid);
+      return itLoaded.Value() ? EZ_SUCCESS : EZ_FAILURE;
+    }
   }
 
-  const ezString& sComponent = pJsResource->GetDescriptor().m_sComponentName;
+  EZ_PROFILE_SCOPE("Load Script Component");
 
-  auto itLoaded = m_LoadedComponents.Find(sComponent);
-
-  if (itLoaded.IsValid())
-  {
-    out_TypeInfo = m_TsComponentTypes.Find(sComponent);
-    return itLoaded.Value() ? EZ_SUCCESS : EZ_FAILURE;
-  }
-
-  EZ_PROFILE_SCOPE("Load JavaScript Component");
-
-  bool& bLoaded = m_LoadedComponents[sComponent];
+  bool& bLoaded = m_LoadedComponents[typeGuid];
   bLoaded = false;
 
-  const ezStringBuilder sCompModule("__", sComponent);
+  ezResourceLock<ezScriptCompendiumResource> pCompendium(m_hScriptCompendium, ezResourceAcquireMode::BlockTillLoaded_NeverFail);
+  if (pCompendium.GetAcquireResult() != ezResourceAcquireResult::Final)
+  {
+    return EZ_FAILURE;
+  }
+
+  auto itType = pCompendium->GetDescriptor().m_AssetGuidToInfo.Find(typeGuid);
+  if (!itType.IsValid())
+  {
+    return EZ_FAILURE;
+  }
+
+  const ezString& sComponentPath = itType.Value().m_sComponentFilePath;
+  const ezString& sComponentName = itType.Value().m_sComponentTypeName;
+
+  const ezStringBuilder sCompModule("__", sComponentName);
 
   m_Duk.PushGlobalObject();
 
-  // TODO: do not hardcode path to script
-
   ezStringBuilder req;
-  req.Format("var {} = require(\"./Scripts/{}\");", sCompModule, sComponent);
+  req.Format("var {} = require(\"./{}\");", sCompModule, itType.Value().m_sComponentFilePath);
   if (m_Duk.ExecuteString(req).Failed())
   {
     ezLog::Error("Could not load component");
@@ -101,185 +121,76 @@ ezResult ezTypeScriptBinding::LoadComponent(const ezJavaScriptResourceHandle& hR
 
   m_Duk.PopStack();
 
-  RegisterMessageHandlersForComponentType(sComponent);
+  m_TsComponentTypes[typeGuid].m_sComponentTypeName = sComponentName;
+  RegisterMessageHandlersForComponentType(sComponentName, typeGuid);
 
   bLoaded = true;
 
-  out_TypeInfo = m_TsComponentTypes.FindOrAdd(sComponent, nullptr);
+  out_TypeInfo = m_TsComponentTypes.FindOrAdd(typeGuid, nullptr);
 
   return EZ_SUCCESS;
 }
 
-const ezTypeScriptBinding::TsComponentInfo* ezTypeScriptBinding::GetComponentTypeInfo(const char* szComponentType) const
+void ezTypeScriptBinding::CleanupStash(ezUInt32 uiNumIterations)
 {
-  auto it = m_TsComponentTypes.Find(szComponentType);
-  if (!it.IsValid())
-    return nullptr;
+  if (!m_LastCleanupObj.IsValid())
+    m_LastCleanupObj = m_GameObjectToStashIdx.GetIterator();
 
-  return &it.Value();
-}
+  ezDuktapeHelper duk(m_Duk, 0); // [ ]
+  duk.PushGlobalStash();         // [ stash ]
 
-ezVec3 ezTypeScriptBinding::GetVec3(duk_context* pDuk, ezInt32 iObjIdx)
-{
-  if (duk_is_null_or_undefined(pDuk, iObjIdx))
-    return ezVec3::ZeroVector();
-
-  ezVec3 res;
-
-  EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "x"), "");
-  res.x = duk_get_number_default(pDuk, -1, 0.0f);
-  duk_pop(pDuk);
-  EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "y"), "");
-  res.y = duk_get_number_default(pDuk, -1, 0.0f);
-  duk_pop(pDuk);
-  EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "z"), "");
-  res.z = duk_get_number_default(pDuk, -1, 0.0f);
-  duk_pop(pDuk);
-
-  return res;
-}
-
-ezVec3 ezTypeScriptBinding::GetVec3Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx)
-{
-  ezDuktapeHelper duk(pDuk, 0);
-
-  if (duk.PushLocalObject(szPropertyName, iObjIdx).Failed()) // [ prop ]
+  for (ezUInt32 i = 0; i < uiNumIterations && m_LastCleanupObj.IsValid(); ++i)
   {
-    duk.Error(ezFmt("Vec3 property '{}' does not exist.", szPropertyName));
-    return ezVec3::ZeroVector();
+    ezGameObject* pGO;
+    if (!m_pWorld->TryGetObject(m_LastCleanupObj.Key(), pGO))
+    {
+      duk.PushNull();                                        // [ stash null ]
+      duk_put_prop_index(duk, -2, m_LastCleanupObj.Value()); // [ stash ]
+
+      m_FreeStashObjIdx.PushBack(m_LastCleanupObj.Value());
+      m_LastCleanupObj = m_GameObjectToStashIdx.Remove(m_LastCleanupObj);
+    }
+    else
+    {
+      ++m_LastCleanupObj;
+    }
   }
 
-  const ezVec3 res = GetVec3(pDuk, -1);
-  duk.PopStack(); // [ ]
-  return res;
-}
+  if (!m_LastCleanupComp.IsValid())
+    m_LastCleanupComp = m_ComponentToStashIdx.GetIterator();
 
-ezQuat ezTypeScriptBinding::GetQuat(duk_context* pDuk, ezInt32 iObjIdx)
-{
-  if (duk_is_null_or_undefined(pDuk, iObjIdx))
-    return ezQuat::IdentityQuaternion();
-
-  ezQuat res;
-
-  EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "x"), "");
-  res.v.x = duk_get_number_default(pDuk, -1, 0.0f);
-  duk_pop(pDuk);
-  EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "y"), "");
-  res.v.y = duk_get_number_default(pDuk, -1, 0.0f);
-  duk_pop(pDuk);
-  EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "z"), "");
-  res.v.z = duk_get_number_default(pDuk, -1, 0.0f);
-  duk_pop(pDuk);
-  EZ_VERIFY(duk_get_prop_string(pDuk, iObjIdx, "w"), "");
-  res.w = duk_get_number_default(pDuk, -1, 0.0f);
-  duk_pop(pDuk);
-
-  return res;
-}
-
-ezQuat ezTypeScriptBinding::GetQuatProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx)
-{
-  ezDuktapeHelper duk(pDuk, 0);
-
-  if (duk.PushLocalObject(szPropertyName, iObjIdx).Failed()) // [ prop ]
+  for (ezUInt32 i = 0; i < uiNumIterations && m_LastCleanupComp.IsValid(); ++i)
   {
-    duk.Error(ezFmt("Quat property '{}' does not exist.", szPropertyName));
-    return ezQuat::IdentityQuaternion();
+    ezComponent* pGO;
+    if (!m_pWorld->TryGetComponent(m_LastCleanupComp.Key(), pGO))
+    {
+      duk.PushNull();                                         // [ stash null ]
+      duk_put_prop_index(duk, -2, m_LastCleanupComp.Value()); // [ stash ]
+
+      m_FreeStashObjIdx.PushBack(m_LastCleanupComp.Value());
+      m_LastCleanupComp = m_ComponentToStashIdx.Remove(m_LastCleanupComp);
+    }
+    else
+    {
+      ++m_LastCleanupComp;
+    }
   }
 
-  const ezQuat res = GetQuat(pDuk, -1);
   duk.PopStack(); // [ ]
-  return res;
 }
 
-ezColor ezTypeScriptBinding::GetColor(duk_context* pDuk, ezInt32 iObjIdx)
+void ezTypeScriptBinding::StoreReferenceInStash(duk_context* pDuk, ezUInt32 uiStashIdx)
 {
-  ezDuktapeHelper duk(pDuk, 0);
-
-  ezColor res;
-  res.r = duk.GetFloatProperty("r", 0.0f, iObjIdx);
-  res.g = duk.GetFloatProperty("g", 0.0f, iObjIdx);
-  res.b = duk.GetFloatProperty("b", 0.0f, iObjIdx);
-  res.a = duk.GetFloatProperty("a", 1.0f, iObjIdx);
-
-  return res;
+  ezDuktapeHelper duk(pDuk, 0);            // [ object ]
+  duk.PushGlobalStash();                   // [ object stash ]
+  duk_dup(duk, -2);                        // [ object stash object ]
+  duk_put_prop_index(duk, -2, uiStashIdx); // [ object stash ]
+  duk.PopStack();                          // [ object ]
 }
 
-ezColor ezTypeScriptBinding::GetColorProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx)
-{
-  ezDuktapeHelper duk(pDuk, 0);
-
-  if (duk.PushLocalObject(szPropertyName, iObjIdx).Failed()) // [ prop ]
-  {
-    duk.Error(ezFmt("Color property '{}' does not exist.", szPropertyName));
-    return ezColor::RebeccaPurple;
-  }
-
-  const ezColor res = GetColor(pDuk, -1);
-  duk.PopStack(); // [ ]
-  return res;
-}
-
-void ezTypeScriptBinding::PushVec3(duk_context* pDuk, const ezVec3& value)
+bool ezTypeScriptBinding::DukPushStashObject(duk_context* pDuk, ezUInt32 uiStashIdx)
 {
   ezDuktapeHelper duk(pDuk, +1);
-
-  duk.PushGlobalObject();                                   // [ global ]
-  EZ_VERIFY(duk.PushLocalObject("__Vec3").Succeeded(), ""); // [ global __Vec3 ]
-  duk_get_prop_string(duk, -1, "Vec3");                     // [ global __Vec3 Vec3 ]
-  duk_push_number(duk, value.x);                            // [ global __Vec3 Vec3 x ]
-  duk_push_number(duk, value.y);                            // [ global __Vec3 Vec3 x y ]
-  duk_push_number(duk, value.z);                            // [ global __Vec3 Vec3 x y z ]
-  duk_new(duk, 3);                                          // [ global __Vec3 result ]
-  duk_remove(duk, -2);                                      // [ global result ]
-  duk_remove(duk, -2);                                      // [ result ]
-}
-
-void ezTypeScriptBinding::PushQuat(duk_context* pDuk, const ezQuat& value)
-{
-  ezDuktapeHelper duk(pDuk, +1);
-
-  duk.PushGlobalObject();                                   // [ global ]
-  EZ_VERIFY(duk.PushLocalObject("__Quat").Succeeded(), ""); // [ global __Quat ]
-  duk_get_prop_string(duk, -1, "Quat");                     // [ global __Quat Quat ]
-  duk_push_number(duk, value.v.x);                          // [ global __Quat Quat x ]
-  duk_push_number(duk, value.v.y);                          // [ global __Quat Quat x y ]
-  duk_push_number(duk, value.v.z);                          // [ global __Quat Quat x y z ]
-  duk_push_number(duk, value.w);                            // [ global __Quat Quat x y z w ]
-  duk_new(duk, 4);                                          // [ global __Quat result ]
-  duk_remove(duk, -2);                                      // [ global result ]
-  duk_remove(duk, -2);                                      // [ result ]
-}
-
-void ezTypeScriptBinding::PushColor(duk_context* pDuk, const ezColor& value)
-{
-  ezDuktapeHelper duk(pDuk, +1);
-
-  duk.PushGlobalObject();                                    // [ global ]
-  EZ_VERIFY(duk.PushLocalObject("__Color").Succeeded(), ""); // [ global __Color ]
-  duk_get_prop_string(duk, -1, "Color");                     // [ global __Color Color ]
-  duk_push_number(duk, value.r);                             // [ global __Color Color r ]
-  duk_push_number(duk, value.g);                             // [ global __Color Color r g ]
-  duk_push_number(duk, value.b);                             // [ global __Color Color r g b ]
-  duk_push_number(duk, value.a);                             // [ global __Color Color r g b a ]
-  duk_new(duk, 4);                                           // [ global __Color result ]
-  duk_remove(duk, -2);                                       // [ global result ]
-  duk_remove(duk, -2);                                       // [ result ]
-}
-
-void ezTypeScriptBinding::StoreReferenceInStash(ezUInt32 uiStashIdx)
-{
-  ezDuktapeHelper duk(m_Duk, 0); // [ object ]
-  duk.PushGlobalStash();         // [ object stash ]
-  duk.PushUInt(uiStashIdx);      // [ object stash uint ]
-  duk_dup(duk, -3);              // [ object stash uint object ]
-  duk_put_prop(duk, -3);         // [ object stash ]
-  duk.PopStack();                // [ object ]
-}
-
-bool ezTypeScriptBinding::DukPushStashObject(ezUInt32 uiStashIdx)
-{
-  ezDuktapeHelper duk(m_Duk, +1);
 
   duk.PushGlobalStash();          // [ stash ]
   duk_push_uint(duk, uiStashIdx); // [ stash idx ]

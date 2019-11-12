@@ -24,6 +24,8 @@
 #include <GuiFoundation/Dialogs/ShortcutEditorDlg.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QFileDialog>
+#include <QProcess>
+#include <QStandardPaths>
 #include <ToolsFoundation/Project/ToolsProject.h>
 
 ezActionDescriptorHandle ezProjectActions::s_hEditorMenu;
@@ -60,6 +62,7 @@ ezActionDescriptorHandle ezProjectActions::s_hReloadEngine;
 ezActionDescriptorHandle ezProjectActions::s_hLaunchFileserve;
 ezActionDescriptorHandle ezProjectActions::s_hLaunchInspector;
 ezActionDescriptorHandle ezProjectActions::s_hSaveProfiling;
+ezActionDescriptorHandle ezProjectActions::s_hOpenVsCode;
 
 void ezProjectActions::RegisterActions()
 {
@@ -119,6 +122,8 @@ void ezProjectActions::RegisterActions()
     "Editor.LaunchInspector", ezActionScope::Global, "Engine", "", ezProjectAction, ezProjectAction::ButtonType::LaunchInspector);
   s_hSaveProfiling = EZ_REGISTER_ACTION_1(
     "Editor.SaveProfiling", ezActionScope::Global, "Engine", "Alt+S", ezProjectAction, ezProjectAction::ButtonType::SaveProfiling);
+  s_hOpenVsCode = EZ_REGISTER_ACTION_1(
+    "Editor.OpenVsCode", ezActionScope::Global, "Project", "Ctrl+Alt+O", ezProjectAction, ezProjectAction::ButtonType::OpenVsCode);
 }
 
 void ezProjectActions::UnregisterActions()
@@ -143,6 +148,7 @@ void ezProjectActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hLaunchFileserve);
   ezActionManager::UnregisterAction(s_hLaunchInspector);
   ezActionManager::UnregisterAction(s_hSaveProfiling);
+  ezActionManager::UnregisterAction(s_hOpenVsCode);
   ezActionManager::UnregisterAction(s_hShortcutEditor);
   ezActionManager::UnregisterAction(s_hEditorPlugins);
   ezActionManager::UnregisterAction(s_hEnginePlugins);
@@ -185,6 +191,7 @@ void ezProjectActions::MapActions(const char* szMapping)
   pMap->MapAction(s_hLaunchFileserve, "Menu.Tools/ToolsCategory", 3.0f);
   pMap->MapAction(s_hLaunchInspector, "Menu.Tools/ToolsCategory", 3.5f);
   pMap->MapAction(s_hSaveProfiling, "Menu.Tools/ToolsCategory", 4.0f);
+  pMap->MapAction(s_hOpenVsCode, "Menu.Tools/ToolsCategory", 5.0f);
 
   pMap->MapAction(s_hEditorPlugins, "Menu.Editor/SettingsCategory/Menu.EditorSettings", 1.0f);
   pMap->MapAction(s_hShortcutEditor, "Menu.Editor/SettingsCategory/Menu.EditorSettings", 2.0f);
@@ -373,12 +380,15 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
     case ezProjectAction::ButtonType::AssetProfiles:
       SetIconPath(":/EditorFramework/Icons/AssetProfiles16.png");
       break;
+    case ezProjectAction::ButtonType::OpenVsCode:
+      SetIconPath(":/GuiFoundation/Icons/vscode16.png");
+      break;
   }
 
   if (m_ButtonType == ButtonType::CloseProject || m_ButtonType == ButtonType::DataDirectories || m_ButtonType == ButtonType::WindowConfig ||
       m_ButtonType == ButtonType::ImportAsset || m_ButtonType == ButtonType::EnginePlugins || m_ButtonType == ButtonType::TagsDialog ||
       m_ButtonType == ButtonType::ReloadEngine || m_ButtonType == ButtonType::ReloadResources ||
-      m_ButtonType == ButtonType::LaunchFileserve || m_ButtonType == ButtonType::LaunchInspector ||
+      m_ButtonType == ButtonType::LaunchFileserve || m_ButtonType == ButtonType::LaunchInspector || m_ButtonType == ButtonType::OpenVsCode ||
       m_ButtonType == ButtonType::InputConfig || m_ButtonType == ButtonType::AssetProfiles)
   {
     SetEnabled(ezToolsProject::IsProjectOpen());
@@ -392,7 +402,7 @@ ezProjectAction::~ezProjectAction()
   if (m_ButtonType == ButtonType::CloseProject || m_ButtonType == ButtonType::DataDirectories || m_ButtonType == ButtonType::WindowConfig ||
       m_ButtonType == ButtonType::ImportAsset || m_ButtonType == ButtonType::EnginePlugins || m_ButtonType == ButtonType::TagsDialog ||
       m_ButtonType == ButtonType::ReloadEngine || m_ButtonType == ButtonType::ReloadResources ||
-      m_ButtonType == ButtonType::LaunchFileserve || m_ButtonType == ButtonType::LaunchInspector ||
+      m_ButtonType == ButtonType::LaunchFileserve || m_ButtonType == ButtonType::LaunchInspector || m_ButtonType == ButtonType::OpenVsCode ||
       m_ButtonType == ButtonType::InputConfig || m_ButtonType == ButtonType::AssetProfiles)
   {
     ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezProjectAction::ProjectEventHandler, this));
@@ -559,6 +569,25 @@ void ezProjectAction::Execute(const ezVariant& value)
       {
         ezLog::Error("Could not write profiling capture to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
       }
+    }
+    break;
+
+    case ezProjectAction::ButtonType::OpenVsCode:
+    {
+      QString sVsCodeExe = QStandardPaths::locate(QStandardPaths::GenericDataLocation, "Programs/Microsoft VS Code/Code.exe", QStandardPaths::LocateOption::LocateFile);
+
+      if (!QFile().exists(sVsCodeExe))
+      {
+        ezQtUiServices::GetSingleton()->MessageBoxInformation("Installation of Visual Studio Code could not be located.\n"
+                                                              "Please visit 'https://code.visualstudio.com/download' to download the 'User Installer' of Visual Studio Code.");
+        return;
+      }
+
+      QStringList args;
+      args.append(QString::fromUtf8(ezToolsProject::GetSingleton()->GetProjectDirectory()));
+
+      QProcess proc;
+      proc.startDetached(sVsCodeExe, args);
     }
     break;
 

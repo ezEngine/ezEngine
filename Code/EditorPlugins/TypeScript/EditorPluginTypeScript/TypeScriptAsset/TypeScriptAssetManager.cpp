@@ -1,6 +1,7 @@
 #include <EditorPluginTypeScriptPCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
+#include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorPluginTypeScript/TypeScriptAsset/TypeScriptAsset.h>
 #include <EditorPluginTypeScript/TypeScriptAsset/TypeScriptAssetManager.h>
 #include <EditorPluginTypeScript/TypeScriptAsset/TypeScriptAssetWindow.moc.h>
@@ -85,6 +86,62 @@ void ezTypeScriptAssetDocumentManager::ToolsProjectEventHandler(const ezToolsPro
   }
 }
 
+void ezTypeScriptAssetDocumentManager::ModifyTsBeforeTranspilation(ezStringBuilder& content)
+{
+  const char* szTagBegin = "EZ_DECLARE_MESSAGE_TYPE;";
+
+  ezUInt32 uiContinueAfterOffset = 0;
+  ezStringBuilder sAutoGen;
+
+  while (true)
+  {
+
+    const char* szBeginAG = content.FindSubString(szTagBegin, content.GetData() + uiContinueAfterOffset);
+
+    if (szBeginAG == nullptr)
+    {
+      break;
+    }
+
+    const char* szClassAG = content.FindLastSubString("class", szBeginAG);
+    if (szClassAG == nullptr)
+    {
+      //return ezStatus(ezFmt("'{}' tag is incorrectly placed.", szBeginAG));
+      return;
+    }
+
+    ezUInt32 uiTypeNameHash = 0;
+
+    {
+      ezStringView classNameView(szClassAG + 5, szBeginAG);
+      classNameView.Trim(" \t\n\r");
+
+      ezStringBuilder sClassName;
+
+      ezStringIterator classNameIt = classNameView.GetIteratorFront();
+      while (classNameIt.IsValid() && !ezStringUtils::IsIdentifierDelimiter_C_Code(classNameIt.GetCharacter()))
+      {
+        sClassName.Append(classNameIt.GetCharacter());
+        ++classNameIt;
+      }
+
+      if (sClassName.IsEmpty())
+      {
+        //return ezStatus("Message class name not found.");
+        return;
+      }
+
+      uiTypeNameHash = ezTempHashedString::ComputeHash(sClassName.GetData());
+    }
+
+    sAutoGen.Format("public static GetTypeNameHash(): number { return {0}; }\nconstructor() { super(); this.TypeNameHash = {0}; }\n", uiTypeNameHash);
+
+    uiContinueAfterOffset = szBeginAG - content.GetData();
+
+    content.ReplaceSubString(szBeginAG, szBeginAG + ezStringUtils::GetStringElementCount(szTagBegin), sAutoGen);
+  }
+}
+
 void ezTypeScriptAssetDocumentManager::InitializeTranspiler()
 {
   if (m_bTranspilerLoaded)
@@ -96,6 +153,7 @@ void ezTypeScriptAssetDocumentManager::InitializeTranspiler()
 
   m_Transpiler.SetOutputFolder(":project/AssetCache/Temp");
   m_Transpiler.StartLoadTranspiler();
+  m_Transpiler.SetModifyTsBeforeTranspilationCallback(&ezTypeScriptAssetDocumentManager::ModifyTsBeforeTranspilation);
 }
 
 void ezTypeScriptAssetDocumentManager::SetupProjectForTypeScript()
@@ -107,11 +165,9 @@ void ezTypeScriptAssetDocumentManager::SetupProjectForTypeScript()
   }
 }
 
-ezResult ezTypeScriptAssetDocumentManager::GenerateScriptCompendium()
+ezResult ezTypeScriptAssetDocumentManager::GenerateScriptCompendium(ezBitflags<ezTransformFlags> transformFlags)
 {
   EZ_LOG_BLOCK("Generating Script Compendium");
-
-  // TODO: store GUID of all TypeScript assets with lookup to ComponentName + relative path to file -> get rid of ezJavaScriptResource
 
   ezStringBuilder sProjectPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
   sProjectPath.MakeCleanPath();
@@ -146,28 +202,74 @@ ezResult ezTypeScriptAssetDocumentManager::GenerateScriptCompendium()
 
   ezStringBuilder sOutFile(":project/AssetCache/Common/Scripts.ezScriptCompendium");
 
-  if (bAnythingNew == false && ezFileSystem::ExistsFile(sOutFile))
-    return EZ_SUCCESS;
+  if (!transformFlags.IsSet(ezTransformFlags::ForceTransform))
+  {
+    if (bAnythingNew == false && ezFileSystem::ExistsFile(sOutFile))
+      return EZ_SUCCESS;
+  }
+
+  ezMap<ezString, ezString> filenameToSourceTsPath;
 
   ezProgressRange progress("Transpiling Scripts", compendium.m_PathToSource.GetCount(), true);
 
   // remove the output file, so that if anything fails from here on out, it will be re-generated next time
   ezFileSystem::DeleteFile(sOutFile);
 
+  ezStringBuilder sFilename;
+
   // TODO: could multi-thread this, if we had multiple transpilers loaded
-  ezStringBuilder sTranspiledJs;
-  for (auto it : compendium.m_PathToSource)
   {
-    if (!progress.BeginNextStep(it.Key()))
-      return EZ_FAILURE;
-
-    if (m_Transpiler.TranspileFileAndStoreJS(it.Key(), sTranspiledJs).Failed())
+    ezStringBuilder sTranspiledJs;
+    for (auto it : compendium.m_PathToSource)
     {
-      ezLog::Error("Failed to transpile '{}'", it.Key());
-      return EZ_FAILURE;
-    }
+      if (!progress.BeginNextStep(it.Key()))
+        return EZ_FAILURE;
 
-    it.Value() = sTranspiledJs;
+      if (m_Transpiler.TranspileFileAndStoreJS(it.Key(), sTranspiledJs).Failed())
+      {
+        ezLog::Error("Failed to transpile '{}'", it.Key());
+        return EZ_FAILURE;
+      }
+
+      it.Value() = sTranspiledJs;
+
+      sFilename = ezPathUtils::GetFileName(it.Key());
+      filenameToSourceTsPath[sFilename] = it.Key();
+    }
+  }
+
+  // at runtime we need to be able to load a typescript component
+  // at edit time, the ezTypeScriptComponent should present the component type as a reference to an asset document
+  // thus at edit time, this reference should look like a path to a document
+  // however, at runtime we only need the name of the component type to instantiate (for the call to 'new' in Duktape/JS)
+  // and the relative path to the source ts/js file (for the call to 'require' in Duktape/JS to 'load' the module)
+  // just for these two strings we do not want to load an entire resource, as we would typically do with other asset types
+  // therefore we extract the required data (component name and path) here and store it in the compendium
+  // now all we need is the GUID of the TypeScript asset to look up this information at runtime
+  // thus the ezTypeScriptComponent does not need to store the asset document reference as a full string (path), but can just
+  // store it as the GUID
+  // at runtime this 'path' is not used as an ezResource path/id, as would be common, but is used to look up the information
+  // directly from the compendium
+  {
+    ezAssetCurator* pCurator = ezAssetCurator::GetSingleton();
+    const auto& allAssets = pCurator->GetKnownSubAssets();
+
+    for (auto it = allAssets->GetIterator(); it.IsValid(); ++it)
+    {
+      const auto& asset = it.Value();
+
+      if (asset.m_pAssetInfo->m_pManager != this)
+        continue;
+
+      const ezString& docPath = asset.m_pAssetInfo->m_sDataDirRelativePath;
+      const ezUuid& docGuid = asset.m_pAssetInfo->m_Info->m_DocumentID;
+
+      sFilename = ezPathUtils::GetFileName(docPath);
+
+      // TODO: handle filenameToSourceTsPath[sFilename] == "" case (log error)
+      compendium.m_AssetGuidToInfo[docGuid].m_sComponentTypeName = sFilename;
+      compendium.m_AssetGuidToInfo[docGuid].m_sComponentFilePath = filenameToSourceTsPath[sFilename];
+    }
   }
 
   {

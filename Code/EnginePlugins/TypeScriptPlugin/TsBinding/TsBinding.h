@@ -7,11 +7,14 @@
 #include <Core/World/Declarations.h>
 #include <Core/World/World.h>
 #include <Foundation/Containers/HashTable.h>
+#include <Foundation/Math/Declarations.h>
+#include <Foundation/Types/Uuid.h>
 #include <TypeScriptPlugin/Resources/ScriptCompendiumResource.h>
 #include <TypeScriptPlugin/Transpiler/Transpiler.h>
 
 class ezWorld;
 class ezTypeScriptComponent;
+struct ezMsgTypeScriptMsgProxy;
 
 using ezJavaScriptResourceHandle = ezTypedResourceHandle<class ezJavaScriptResource>;
 
@@ -27,15 +30,17 @@ public:
   struct TsMessageHandler
   {
     const ezRTTI* m_pMessageType = nullptr;
+    ezUInt32 m_uiMessageTypeNameHash = 0;
     ezString m_sHandlerFunc;
   };
 
   struct TsComponentInfo
   {
+    ezString m_sComponentTypeName;
     ezHybridArray<TsMessageHandler, 4> m_MessageHandlers;
   };
 
-  using TsComponentTypeInfo = ezMap<ezString, TsComponentInfo>::ConstIterator;
+  using TsComponentTypeInfo = ezMap<ezUuid, TsComponentInfo>::ConstIterator;
 
   /// \name Basics
   ///@{
@@ -45,10 +50,9 @@ public:
   ~ezTypeScriptBinding();
 
   ezResult Initialize(ezWorld& world);
-  ezResult LoadComponent(const ezJavaScriptResourceHandle& hResource, TsComponentTypeInfo& out_TypeInfo);
-  const TsComponentInfo* GetComponentTypeInfo(const char* szComponentType) const;
+  ezResult LoadComponent(const ezUuid& typeGuid, TsComponentTypeInfo& out_TypeInfo);
 
-  void RegisterMessageHandlersForComponentType(const char* szComponent);
+  void RegisterMessageHandlersForComponentType(const char* szComponent, const ezUuid& componentType);
 
   EZ_ALWAYS_INLINE ezDuktapeContext& GetDukTapeContext() { return m_Duk; }
   EZ_ALWAYS_INLINE duk_context* GetDukContext() { return m_Duk.GetContext(); }
@@ -58,7 +62,7 @@ private:
 
   ezDuktapeContext m_Duk;
   bool m_bInitialized = false;
-  ezMap<ezString, bool> m_LoadedComponents;
+  ezMap<ezUuid, bool> m_LoadedComponents;
   ezScriptCompendiumResourceHandle m_hScriptCompendium;
 
   ///@}
@@ -120,10 +124,11 @@ private:
   ///@{
 
 public:
-  static ezUniquePtr<ezMessage> MessageFromParameter(duk_context* pDuk, ezInt32 iObjIdx);
+  ezUniquePtr<ezMessage> MessageFromParameter(duk_context* pDuk, ezInt32 iObjIdx, ezTime delay);
   static void DukPutMessage(duk_context* pDuk, const ezMessage& msg);
 
   bool DeliverMessage(const TsComponentTypeInfo& typeInfo, ezTypeScriptComponent* pComponent, ezMessage& msg);
+  bool DeliverTsMessage(const TsComponentTypeInfo& typeInfo, ezTypeScriptComponent* pComponent, const ezMsgTypeScriptMsgProxy& msg);
 
 private:
   static void GenerateMessagesFile(const char* szFile);
@@ -131,8 +136,8 @@ private:
   static void GenerateMessageCode(ezStringBuilder& out_Code, const ezRTTI* pRtti);
   static void GenerateMessagePropertiesCode(ezStringBuilder& out_Code, const ezRTTI* pRtti);
 
-  ezString m_sCurrentTsMsgHandlerRegistrator;
-  ezMap<ezString, TsComponentInfo> m_TsComponentTypes;
+  ezUuid m_CurrentTsMsgHandlerRegistrator;
+  ezMap<ezUuid, TsComponentInfo> m_TsComponentTypes;
 
 
   ///@}
@@ -147,6 +152,7 @@ private:
 private:
   ezResult Init_RequireModules();
   ezResult Init_Log();
+  ezResult Init_Time();
   ezResult Init_GameObject();
   ezResult Init_Component();
   ezResult Init_World();
@@ -164,6 +170,7 @@ public:
 private:
   void StoreWorld(ezWorld* pWorld);
 
+  ezWorld* m_pWorld = nullptr;
   static ezHashTable<duk_context*, ezWorld*> s_DukToWorld;
 
   ///@}
@@ -191,33 +198,67 @@ public:
   /// \name Math
   ///@{
 
-  static ezVec3 GetVec3(duk_context* pDuk, ezInt32 iObjIdx);
-  static ezVec3 GetVec3Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx);
-  static ezQuat GetQuat(duk_context* pDuk, ezInt32 iObjIdx);
-  static ezQuat GetQuatProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx);
-  static ezColor GetColor(duk_context* pDuk, ezInt32 iObjIdx);
-  static ezColor GetColorProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx);
+  static void PushVec2(duk_context* pDuk, const ezVec2& value);
+  static void SetVec2(duk_context* pDuk, ezInt32 iObjIdx, const ezVec2& value);
+  static void SetVec2Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec2& value);
+  static ezVec2 GetVec2(duk_context* pDuk, ezInt32 iObjIdx, const ezVec2& fallback = ezVec2::ZeroVector());
+  static ezVec2 GetVec2Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec2& fallback = ezVec2::ZeroVector());
+
   static void PushVec3(duk_context* pDuk, const ezVec3& value);
+  static void SetVec3(duk_context* pDuk, ezInt32 iObjIdx, const ezVec3& value);
+  static void SetVec3Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec3& value);
+  static ezVec3 GetVec3(duk_context* pDuk, ezInt32 iObjIdx, const ezVec3& fallback = ezVec3::ZeroVector());
+  static ezVec3 GetVec3Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec3& fallback = ezVec3::ZeroVector());
+
   static void PushQuat(duk_context* pDuk, const ezQuat& value);
+  static void SetQuat(duk_context* pDuk, ezInt32 iObjIdx, const ezQuat& value);
+  static void SetQuatProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezQuat& value);
+  static ezQuat GetQuat(duk_context* pDuk, ezInt32 iObjIdx, ezQuat fallback = ezQuat::IdentityQuaternion());
+  static ezQuat GetQuatProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, ezQuat fallback = ezQuat::IdentityQuaternion());
+
   static void PushColor(duk_context* pDuk, const ezColor& value);
+  static void SetColor(duk_context* pDuk, ezInt32 iObjIdx, const ezColor& value);
+  static void SetColorProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezColor& value);
+  static ezColor GetColor(duk_context* pDuk, ezInt32 iObjIdx, const ezColor& fallback = ezColor::White);
+  static ezColor GetColorProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezColor& fallback = ezColor::White);
+
+  static void PushTransform(duk_context* pDuk, const ezTransform& value);
+  static void SetTransform(duk_context* pDuk, ezInt32 iObjIdx, const ezTransform& value);
+  static void SetTransformProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezTransform& value);
+  static ezTransform GetTransform(duk_context* pDuk, ezInt32 iObjIdx, const ezTransform& fallback = ezTransform::IdentityTransform());
+  static ezTransform GetTransformProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezTransform& fallback = ezTransform::IdentityTransform());
+
+  static void PushVariant(duk_context* pDuk, const ezVariant& value);
+  static void SetVariantProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVariant& value);
+  static ezVariant GetVariant(duk_context* pDuk, ezInt32 iObjIdx, ezVariant::Type::Enum type);
+  static ezVariant GetVariantProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, ezVariant::Type::Enum type);
 
   ///@}
   /// \name C++ Object Registration
   ///@{
 public:
   bool RegisterGameObject(ezGameObjectHandle handle, ezUInt32& out_uiStashIdx);
-  ezResult RegisterComponent(const char* szTypeNamem, ezComponentHandle handle, ezUInt32& out_uiStashIdx);
+  ezResult RegisterComponent(const char* szTypeName, ezComponentHandle handle, ezUInt32& out_uiStashIdx);
 
+  /// \brief Removes dead GameObject and Component references from the DukTape stash.
+  void CleanupStash(ezUInt32 uiNumIterations);
 
 private:
-  void StoreReferenceInStash(ezUInt32 uiStashIdx);
-  bool DukPushStashObject(ezUInt32 uiStashIdx);
+  static void StoreReferenceInStash(duk_context* pDuk, ezUInt32 uiStashIdx);
+  static bool DukPushStashObject(duk_context* pDuk, ezUInt32 uiStashIdx);
 
-  // TODO: clean up stash every once in a while
-
-  ezUInt32 m_uiNextStashObjIdx = 1024;
+  static constexpr ezUInt32 c_uiMaxMsgStash = 512;
+  static constexpr ezUInt32 c_uiFirstStashMsgIdx = 512;
+  static constexpr ezUInt32 c_uiLastStashMsgIdx = c_uiFirstStashMsgIdx + c_uiFirstStashMsgIdx;
+  static constexpr ezUInt32 c_uiFirstStashObjIdx = c_uiLastStashMsgIdx;
+  ezUInt32 m_uiNextStashMsgIdx = c_uiFirstStashMsgIdx;
+  ezUInt32 m_uiNextStashObjIdx = c_uiFirstStashObjIdx;
   ezMap<ezGameObjectHandle, ezUInt32> m_GameObjectToStashIdx;
   ezMap<ezComponentHandle, ezUInt32> m_ComponentToStashIdx;
+  ezDeque<ezUInt32> m_FreeStashObjIdx;
+  ezMap<ezGameObjectHandle, ezUInt32>::Iterator m_LastCleanupObj;
+  ezMap<ezComponentHandle, ezUInt32>::Iterator m_LastCleanupComp;
+  ezDynamicArray<ezTime> m_StashedMsgDelivery;
 
   ///@}
 };

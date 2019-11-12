@@ -13,6 +13,7 @@ struct ezTypeScriptAssetDocumentEvent
     None,
     ScriptCreated,
     ScriptOpened,
+    ScriptTransformed,
   };
 
   Type m_Type = Type::None;
@@ -34,8 +35,12 @@ public:
 
 protected:
   void CreateComponentFile(const char* szFile);
+  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
 
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+
+  ezStatus AutoGenerateVariablesCode();
+
   virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;
 
   ezEvent<const ezTypeScriptAssetDocumentEvent&> m_Events;

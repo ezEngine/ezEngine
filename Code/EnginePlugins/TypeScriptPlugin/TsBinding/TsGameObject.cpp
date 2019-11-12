@@ -121,8 +121,16 @@ bool ezTypeScriptBinding::RegisterGameObject(ezGameObjectHandle handle, ezUInt32
     return true;
   }
 
-  uiStashIdx = m_uiNextStashObjIdx;
-  ++m_uiNextStashObjIdx;
+  if (!m_FreeStashObjIdx.IsEmpty())
+  {
+    uiStashIdx = m_FreeStashObjIdx.PeekBack();
+    m_FreeStashObjIdx.PopBack();
+  }
+  else
+  {
+    uiStashIdx = m_uiNextStashObjIdx;
+    ++m_uiNextStashObjIdx;
+  }
 
   ezDuktapeHelper duk(m_Duk, 0);
 
@@ -138,8 +146,8 @@ bool ezTypeScriptBinding::RegisterGameObject(ezGameObjectHandle handle, ezUInt32
     duk_put_prop_index(duk, -2, ezTypeScriptBindingIndexProperty::GameObjectHandle); // [ global __GameObject object ]
   }
 
-  StoreReferenceInStash(uiStashIdx); // [ global __GameObject object ]
-  duk.PopStack(3);                   // [ ]
+  StoreReferenceInStash(duk, uiStashIdx); // [ global __GameObject object ]
+  duk.PopStack(3);                        // [ ]
 
   out_uiStashIdx = uiStashIdx;
   return true;
@@ -156,7 +164,7 @@ bool ezTypeScriptBinding::DukPutGameObject(const ezGameObjectHandle& hObject)
     return false;
   }
 
-  return DukPushStashObject(uiStashIdx);
+  return DukPushStashObject(duk, uiStashIdx);
 }
 
 void ezTypeScriptBinding::DukPutGameObject(const ezGameObject* pObject)
@@ -540,10 +548,12 @@ static int __CPP_GameObject_SendMessage(duk_context* pDuk)
 
   ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
 
-  ezUniquePtr<ezMessage> pMsg = ezTypeScriptBinding::MessageFromParameter(pDuk, 1);
+  ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(duk);
 
   if (duk.GetFunctionMagicValue() == 0) // SendMessage
   {
+    ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, ezTime::Zero());
+
     if (duk.GetBoolValue(3))
       pGameObject->SendMessageRecursive(*pMsg);
     else
@@ -552,6 +562,8 @@ static int __CPP_GameObject_SendMessage(duk_context* pDuk)
   else // PostMessage
   {
     const ezTime delay = ezTime::Seconds(duk.GetNumberValue(4));
+
+    ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, delay);
 
     if (duk.GetBoolValue(3))
       pGameObject->PostMessageRecursive(*pMsg, ezObjectMsgQueueType::NextFrame, delay);

@@ -6,11 +6,19 @@
 #include <Core/Scripting/DuktapeContext.h>
 #include <Core/World/Component.h>
 #include <Core/World/World.h>
+#include <Foundation/Containers/ArrayMap.h>
+#include <Foundation/Types/RangeView.h>
 #include <TypeScriptPlugin/Transpiler/Transpiler.h>
 
 class ezTypeScriptBinding;
 
-using ezJavaScriptResourceHandle = ezTypedResourceHandle<class ezJavaScriptResource>;
+struct EZ_TYPESCRIPTPLUGIN_DLL ezMsgTypeScriptMsgProxy : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgTypeScriptMsgProxy, ezMessage);
+
+  ezUInt32 m_uiTypeNameHash = 0;
+  ezUInt32 m_uiStashIndex = 0;
+};
 
 class EZ_TYPESCRIPTPLUGIN_DLL ezTypeScriptComponentManager : public ezComponentManager<class ezTypeScriptComponent, ezBlockStorageType::FreeList>
 {
@@ -59,29 +67,44 @@ protected:
 
   bool HandleUnhandledMessage(ezMessage& msg);
 
-
   //////////////////////////////////////////////////////////////////////////
   // ezTypeScriptComponent Interface
   //
 protected:
   bool CallTsFunc(const char* szFuncName);
   void Update(ezTypeScriptBinding& script);
+  void SetExposedVariables();
 
   ezTypeScriptBinding::TsComponentTypeInfo m_ComponentTypeInfo;
 
-  void SetJavaScriptResourceFile(const char* szFile); // [ property ]
-  const char* GetJavaScriptResourceFile() const;      // [ property ]
+  void SetTypeScriptComponentFile(const char* szFile); // [ property ]
+  const char* GetTypeScriptComponentFile() const;      // [ property ]
 
-  void SetJavaScriptResource(const ezJavaScriptResourceHandle& hResource); // [ property ]
-  const ezJavaScriptResourceHandle& GetJavaScriptResource() const;         // [ property ]
+  void SetTypeScriptComponentGuid(const ezUuid& hResource); // [ property ]
+  const ezUuid& GetTypeScriptComponentGuid() const;         // [ property ]
+
+  void OnMsgTypeScriptMsgProxy(ezMsgTypeScriptMsgProxy& msg); // [ message handler ]
 
   enum UserFlag
   {
     InitializedTS = 0,
     OnActivatedTS = 1,
     NoTsTick = 2,
+    SimStartedTS = 3,
   };
 
 private:
-  ezJavaScriptResourceHandle m_hJsResource;
+  ezUuid m_TypeScriptComponentGuid;
+  ezTime m_NextUpdate;
+
+  //////////////////////////////////////////////////////////////////////////
+  // Exposed Parameters
+public:
+  const ezRangeView<const char*, ezUInt32> GetParameters() const;
+  void SetParameter(const char* szKey, const ezVariant& value);
+  void RemoveParameter(const char* szKey);
+  bool GetParameter(const char* szKey, ezVariant& out_value) const;
+
+private:
+  ezArrayMap<ezHashedString, ezVariant> m_Parameters;
 };

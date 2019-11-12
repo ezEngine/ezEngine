@@ -103,6 +103,11 @@ ezResult ezTypeScriptTranspiler::TranspileFile(const char* szFile, ezUInt64 uiSk
   ezStringBuilder source;
   source.ReadAll(file);
 
+  if (m_ModifyTsBeforeTranspilationCB.IsValid())
+  {
+    m_ModifyTsBeforeTranspilationCB(source);
+  }
+
   out_uiFileHash = ezHashingUtils::xxHash64(source.GetData(), source.GetElementCount());
 
   if (uiSkipIfFileHash == out_uiFileHash)
@@ -165,4 +170,9 @@ ezResult ezTypeScriptTranspiler::TranspileFileAndStoreJS(const char* szFile, ezS
   }
 
   return EZ_SUCCESS;
+}
+
+void ezTypeScriptTranspiler::SetModifyTsBeforeTranspilationCallback(ezDelegate<void(ezStringBuilder&)> callback)
+{
+  m_ModifyTsBeforeTranspilationCB = callback;
 }

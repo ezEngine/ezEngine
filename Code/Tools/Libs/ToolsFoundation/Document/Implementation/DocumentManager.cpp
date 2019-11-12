@@ -234,7 +234,7 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
         out_pDocument->SetupDocumentInfo(DocumentTypes[i]);
 
         out_pDocument->m_pDocumentManager = this;
-        m_AllDocuments.PushBack(out_pDocument);
+        m_AllOpenDocuments.PushBack(out_pDocument);
 
         if (!bCreate)
         {
@@ -363,7 +363,7 @@ void ezDocumentManager::CloseDocument(ezDocument* pDocument)
 {
   EZ_ASSERT_DEV(pDocument != nullptr, "Invalid document pointer");
 
-  if (!m_AllDocuments.RemoveAndCopy(pDocument))
+  if (!m_AllOpenDocuments.RemoveAndCopy(pDocument))
     return;
 
   Event e;
@@ -384,9 +384,9 @@ void ezDocumentManager::CloseDocument(ezDocument* pDocument)
 
 void ezDocumentManager::CloseAllDocumentsOfManager()
 {
-  while (!m_AllDocuments.IsEmpty())
+  while (!m_AllOpenDocuments.IsEmpty())
   {
-    CloseDocument(m_AllDocuments[0]);
+    CloseDocument(m_AllOpenDocuments[0]);
   }
 }
 
@@ -403,7 +403,7 @@ ezDocument* ezDocumentManager::GetDocumentByPath(const char* szPath) const
   ezStringBuilder sPath = szPath;
   sPath.MakeCleanPath();
 
-  for (ezDocument* pDoc : m_AllDocuments)
+  for (ezDocument* pDoc : m_AllOpenDocuments)
   {
     if (sPath.IsEqual_NoCase(pDoc->GetDocumentPath()))
       return pDoc;
@@ -417,7 +417,7 @@ ezDocument* ezDocumentManager::GetDocumentByGuid(const ezUuid& guid)
 {
   for (auto man : s_AllDocumentManagers)
   {
-    for (auto doc : man->m_AllDocuments)
+    for (auto doc : man->m_AllOpenDocuments)
     {
       if (doc->GetGuid() == guid)
         return doc;

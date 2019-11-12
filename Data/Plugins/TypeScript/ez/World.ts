@@ -18,15 +18,10 @@ export class GameObjectDesc {
   Name: string;
   Parent: GameObject = null;
 
-  // TODO: make it work with null objects
-  LocalPosition: Vec3 = new Vec3();
-  LocalRotation: Quat = new Quat();
-  LocalScaling: Vec3 = new Vec3(1, 1, 1);
+  LocalPosition: Vec3 = null; // default is (0, 0, 0)
+  LocalRotation: Quat = null; // default is identity
+  LocalScaling: Vec3 = null; // default is (1, 1, 1)
   LocalUniformScaling: number = 1;
-
-  constructor() {
-    this.LocalRotation.SetIdentity();
-  }
 };
 
 declare function __CPP_World_DeleteObjectDelayed(object: GameObject): void;
@@ -43,7 +38,7 @@ export namespace World {
 
   export function DeleteObjectDelayed(object: GameObject): void {
     __CPP_World_DeleteObjectDelayed(object);
-  }  
+  }
 
   export function CreateComponent<TYPE extends Component>(owner: GameObject, typeClass: new () => TYPE): TYPE {
     return __CPP_World_CreateComponent(owner, typeClass.GetTypeNameHash());
