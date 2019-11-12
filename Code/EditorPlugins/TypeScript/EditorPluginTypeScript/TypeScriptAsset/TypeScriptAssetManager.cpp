@@ -1,6 +1,7 @@
 #include <EditorPluginTypeScriptPCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
+#include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorPluginTypeScript/TypeScriptAsset/TypeScriptAsset.h>
 #include <EditorPluginTypeScript/TypeScriptAsset/TypeScriptAssetManager.h>
 #include <EditorPluginTypeScript/TypeScriptAsset/TypeScriptAssetWindow.moc.h>
@@ -139,7 +140,6 @@ void ezTypeScriptAssetDocumentManager::ModifyTsBeforeTranspilation(ezStringBuild
 
     content.ReplaceSubString(szBeginAG, szBeginAG + ezStringUtils::GetStringElementCount(szTagBegin), sAutoGen);
   }
-
 }
 
 void ezTypeScriptAssetDocumentManager::InitializeTranspiler()
