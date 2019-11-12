@@ -37,7 +37,7 @@ ezWorld* ezTypeScriptBinding::RetrieveWorld(duk_context* pDuk)
 
 static int __CPP_World_DeleteObjectDelayed(duk_context* pDuk)
 {
-  ezDuktapeFunction duk(pDuk, 0);
+  ezDuktapeFunction duk(pDuk);
 
   ezWorld* pWorld = ezTypeScriptBinding::RetrieveWorld(duk);
   ezGameObjectHandle hObject = ezTypeScriptBinding::RetrieveGameObjectHandle(duk, 0 /*this*/);
@@ -49,7 +49,7 @@ static int __CPP_World_DeleteObjectDelayed(duk_context* pDuk)
 
 static int __CPP_World_CreateObject(duk_context* pDuk)
 {
-  ezDuktapeFunction duk(pDuk, +1);
+  ezDuktapeFunction duk(pDuk);
 
   ezWorld* pWorld = ezTypeScriptBinding::RetrieveWorld(duk);
 
@@ -81,12 +81,12 @@ static int __CPP_World_CreateObject(duk_context* pDuk)
   ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(pDuk);
   pBinding->DukPutGameObject(hObject);
 
-  return duk.ReturnCustom();
+  EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnCustom(), +1);
 }
 
 static int __CPP_World_CreateComponent(duk_context* pDuk)
 {
-  ezDuktapeFunction duk(pDuk, +1);
+  ezDuktapeFunction duk(pDuk);
 
   ezWorld* pWorld = ezTypeScriptBinding::RetrieveWorld(duk);
   ezGameObject* pOwner = ezTypeScriptBinding::ExpectGameObject(duk, 0);
@@ -108,12 +108,12 @@ static int __CPP_World_CreateComponent(duk_context* pDuk)
   ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(duk);
   pBinding->DukPutComponentObject(pComponent);
 
-  return duk.ReturnCustom();
+  EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnCustom(), +1);
 }
 
 static int __CPP_World_DeleteComponent(duk_context* pDuk)
 {
-  ezDuktapeFunction duk(pDuk, 0);
+  ezDuktapeFunction duk(pDuk);
 
   ezWorld* pWorld = ezTypeScriptBinding::RetrieveWorld(duk);
   ezComponentHandle hComponent = ezTypeScriptBinding::RetrieveComponentHandle(duk, 0 /*this*/);
@@ -129,7 +129,7 @@ static int __CPP_World_DeleteComponent(duk_context* pDuk)
 
 static int __CPP_World_TryGetObjectWithGlobalKey(duk_context* pDuk)
 {
-  ezDuktapeFunction duk(pDuk, +1);
+  ezDuktapeFunction duk(pDuk);
 
   ezWorld* pWorld = ezTypeScriptBinding::RetrieveWorld(duk);
 
@@ -139,5 +139,5 @@ static int __CPP_World_TryGetObjectWithGlobalKey(duk_context* pDuk)
   ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(pDuk);
   pBinding->DukPutGameObject(pObject);
 
-  return duk.ReturnCustom();
+  EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnCustom(), +1);
 }

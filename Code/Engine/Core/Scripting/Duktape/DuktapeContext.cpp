@@ -8,7 +8,7 @@
 #  include <Duktape/duktape.h>
 
 ezDuktapeContext::ezDuktapeContext(const char* szWrapperName)
-  : ezDuktapeHelper(nullptr, 0)
+  : ezDuktapeHelper(nullptr)
   , m_Allocator(szWrapperName, ezFoundation::GetDefaultAllocator())
 
 {
@@ -62,7 +62,7 @@ void ezDuktapeContext::DestroyContext()
 
 void ezDuktapeContext::FatalErrorHandler(void* pUserData, const char* szMsg)
 {
-  EZ_REPORT_FAILURE(szMsg);
+  ezLog::Error("DukTape: {}", szMsg);
 }
 
 void* ezDuktapeContext::DukAlloc(void* pUserData, size_t size)

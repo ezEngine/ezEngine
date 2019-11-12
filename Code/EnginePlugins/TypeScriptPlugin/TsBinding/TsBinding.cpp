@@ -10,7 +10,7 @@ static ezHashTable<duk_context*, ezTypeScriptBinding*> s_DukToBinding;
 
 static int __CPP_Time_Now(duk_context* pDuk)
 {
-  ezDuktapeFunction duk(pDuk, +1);
+  ezDuktapeFunction duk(pDuk);
   return duk.ReturnFloat(ezTime::Now().GetSeconds());
 }
 
@@ -136,8 +136,8 @@ void ezTypeScriptBinding::CleanupStash(ezUInt32 uiNumIterations)
   if (!m_LastCleanupObj.IsValid())
     m_LastCleanupObj = m_GameObjectToStashIdx.GetIterator();
 
-  ezDuktapeHelper duk(m_Duk, 0); // [ ]
-  duk.PushGlobalStash();         // [ stash ]
+  ezDuktapeHelper duk(m_Duk); // [ ]
+  duk.PushGlobalStash();      // [ stash ]
 
   for (ezUInt32 i = 0; i < uiNumIterations && m_LastCleanupObj.IsValid(); ++i)
   {
@@ -177,20 +177,24 @@ void ezTypeScriptBinding::CleanupStash(ezUInt32 uiNumIterations)
   }
 
   duk.PopStack(); // [ ]
+
+  EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, 0);
 }
 
 void ezTypeScriptBinding::StoreReferenceInStash(duk_context* pDuk, ezUInt32 uiStashIdx)
 {
-  ezDuktapeHelper duk(pDuk, 0);            // [ object ]
+  ezDuktapeHelper duk(pDuk);               // [ object ]
   duk.PushGlobalStash();                   // [ object stash ]
   duk_dup(duk, -2);                        // [ object stash object ]
   duk_put_prop_index(duk, -2, uiStashIdx); // [ object stash ]
   duk.PopStack();                          // [ object ]
+
+  EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, 0);
 }
 
 bool ezTypeScriptBinding::DukPushStashObject(duk_context* pDuk, ezUInt32 uiStashIdx)
 {
-  ezDuktapeHelper duk(pDuk, +1);
+  ezDuktapeHelper duk(pDuk);
 
   duk.PushGlobalStash();          // [ stash ]
   duk_push_uint(duk, uiStashIdx); // [ stash idx ]
@@ -199,11 +203,11 @@ bool ezTypeScriptBinding::DukPushStashObject(duk_context* pDuk, ezUInt32 uiStash
   {
     duk_pop_2(duk);     // [ ]
     duk_push_null(duk); // [ null ]
-    return false;
+    EZ_DUK_RETURN_AND_VERIFY_STACK(duk, false, +1);
   }
   else // [ stash obj ]
   {
     duk_replace(duk, -2); // [ obj ]
-    return true;
+    EZ_DUK_RETURN_AND_VERIFY_STACK(duk, true, +1);
   }
 }

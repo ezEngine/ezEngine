@@ -82,7 +82,7 @@ const ezTypeScriptBinding::PropertyBinding* ezTypeScriptBinding::FindPropertyBin
 
 int __CPP_ComponentProperty_get(duk_context* pDuk)
 {
-  ezDuktapeFunction duk(pDuk, +1);
+  ezDuktapeFunction duk(pDuk);
 
   ezComponent* pComponent = ezTypeScriptBinding::ExpectComponent<ezComponent>(pDuk);
 
@@ -103,7 +103,7 @@ int __CPP_ComponentProperty_get(duk_context* pDuk)
 
 int __CPP_ComponentProperty_set(duk_context* pDuk)
 {
-  ezDuktapeFunction duk(pDuk, 0);
+  ezDuktapeFunction duk(pDuk);
 
   ezComponent* pComponent = ezTypeScriptBinding::ExpectComponent<ezComponent>(pDuk);
 

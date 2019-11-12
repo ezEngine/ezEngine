@@ -42,10 +42,40 @@ struct ezDuktapeTypeMask
 
 EZ_DECLARE_FLAGS_OPERATORS(ezDuktapeTypeMask);
 
+#  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+
+#    define EZ_DUK_VERIFY_STACK(duk, ExpectedStackChange) \
+      duk.EnableStackChangeVerification();                \
+      duk.VerifyExpectedStackChange(ExpectedStackChange, EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION);
+
+#    define EZ_DUK_RETURN_AND_VERIFY_STACK(duk, ReturnCode, ExpectedStackChange) \
+      {                                                                          \
+        auto ret = ReturnCode;                                                   \
+        EZ_DUK_VERIFY_STACK(duk, ExpectedStackChange);                           \
+        return ret;                                                              \
+      }
+
+#    define EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, ExpectedStackChange) \
+      EZ_DUK_VERIFY_STACK(duk, ExpectedStackChange);                      \
+      return;
+
+
+#  else
+
+#    define EZ_DUK_VERIFY_STACK(duk, ExpectedStackChange)
+
+#    define EZ_DUK_RETURN_AND_VERIFY_STACK(duk, ReturnCode, ExpectedStackChange) \
+      return ReturnCode;
+
+#    define EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, ExpectedStackChange) \
+      return;
+
+#  endif
+
 class EZ_CORE_DLL ezDuktapeHelper
 {
 public:
-  ezDuktapeHelper(duk_context* pContext, ezInt32 iExpectedStackChange);
+  ezDuktapeHelper(duk_context* pContext);
   ~ezDuktapeHelper();
 
   /// \name Basics
@@ -57,7 +87,9 @@ public:
   /// \brief Implicit conversion to duk_context*
   operator duk_context*() const { return m_pContext; }
 
-  void SetExpectedStackChange(ezInt32 iExpectedStackChange /*= -0xFFFF to disable stack check */);
+#  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  void VerifyExpectedStackChange(ezInt32 iExpectedStackChange, const char* szFile, ezUInt32 uiLine, const char* szFunction) const;
+#  endif
 
   ///@}
   /// \name Error Handling
@@ -171,14 +203,21 @@ public:
 
   ///@}
 
+public:
+#  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  void EnableStackChangeVerification() const;
+#  endif
+
+
 protected:
   duk_context* m_pContext = nullptr;
   ezInt32 m_iPushedValues = 0;
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   ezInt32 m_iStackTopAtStart = 0;
-  ezInt32 m_iExpectedStackChange = -10000;
-#endif
+  mutable bool m_bVerifyStackChange = false;
+
+#  endif
 };
 
 #endif

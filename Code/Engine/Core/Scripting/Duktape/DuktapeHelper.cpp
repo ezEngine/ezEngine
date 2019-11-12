@@ -14,36 +14,45 @@ EZ_CHECK_AT_COMPILETIME(ezDuktapeTypeMask::Object == DUK_TYPE_MASK_OBJECT);
 EZ_CHECK_AT_COMPILETIME(ezDuktapeTypeMask::Buffer == DUK_TYPE_MASK_BUFFER);
 EZ_CHECK_AT_COMPILETIME(ezDuktapeTypeMask::Pointer == DUK_TYPE_MASK_POINTER);
 
-ezDuktapeHelper::ezDuktapeHelper(duk_context* pContext, ezInt32 iExpectedStackChange)
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+
+
+void ezDuktapeHelper::EnableStackChangeVerification() const
+{
+  m_bVerifyStackChange = true;
+}
+
+#endif
+
+ezDuktapeHelper::ezDuktapeHelper(duk_context* pContext)
   : m_pContext(pContext)
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-  m_iExpectedStackChange = iExpectedStackChange;
   if (m_pContext)
   {
+    m_bVerifyStackChange = false;
     m_iStackTopAtStart = duk_get_top(m_pContext);
   }
 #endif
 }
 
-ezDuktapeHelper::~ezDuktapeHelper()
-{
+ezDuktapeHelper::~ezDuktapeHelper() = default;
+
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-  if (m_pContext && m_iExpectedStackChange > -1000 && m_iExpectedStackChange < 1000)
+void ezDuktapeHelper::VerifyExpectedStackChange(ezInt32 iExpectedStackChange, const char* szFile, ezUInt32 uiLine, const char* szFunction) const
+{
+  if (m_bVerifyStackChange && m_pContext)
   {
     const ezInt32 iCurTop = duk_get_top(m_pContext);
     const ezInt32 iStackChange = iCurTop - m_iStackTopAtStart;
-    EZ_ASSERT_DEBUG(iStackChange == m_iExpectedStackChange, "Stack change ({}) is not as expected ({})", iStackChange, m_iExpectedStackChange);
-  }
-#endif
-}
 
-void ezDuktapeHelper::SetExpectedStackChange(ezInt32 iExpectedStackChange)
-{
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-  m_iExpectedStackChange = iExpectedStackChange;
-#endif
+    if (iStackChange != iExpectedStackChange)
+    {
+      ezLog::Error("{}:{} ({}): Stack change {} != {}", szFile, uiLine, szFunction, iStackChange, iExpectedStackChange);
+    }
+  }
 }
+#endif
 
 void ezDuktapeHelper::Error(ezFormatString text)
 {
@@ -159,7 +168,7 @@ const char* ezDuktapeHelper::GetStringProperty(const char* szPropertyName, const
 
 void ezDuktapeHelper::SetBoolProperty(const char* szPropertyName, bool value, ezInt32 iParentObjectIndex /*= -1*/) const
 {
-  ezDuktapeHelper duk(m_pContext, 0);
+  ezDuktapeHelper duk(m_pContext);
 
   duk_push_boolean(m_pContext, value); // [ value ]
 
@@ -167,11 +176,13 @@ void ezDuktapeHelper::SetBoolProperty(const char* szPropertyName, bool value, ez
     duk_put_prop_string(m_pContext, iParentObjectIndex, szPropertyName); // [ ]
   else
     duk_put_prop_string(m_pContext, iParentObjectIndex - 1, szPropertyName); // [ ]
+
+  EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, 0);
 }
 
 void ezDuktapeHelper::SetNumberProperty(const char* szPropertyName, double value, ezInt32 iParentObjectIndex /*= -1*/) const
 {
-  ezDuktapeHelper duk(m_pContext, 0);
+  ezDuktapeHelper duk(m_pContext);
 
   duk_push_number(m_pContext, value); // [ value ]
 
@@ -179,11 +190,13 @@ void ezDuktapeHelper::SetNumberProperty(const char* szPropertyName, double value
     duk_put_prop_string(m_pContext, iParentObjectIndex, szPropertyName); // [ ]
   else
     duk_put_prop_string(m_pContext, iParentObjectIndex - 1, szPropertyName); // [ ]
+
+  EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, 0);
 }
 
 void ezDuktapeHelper::SetStringProperty(const char* szPropertyName, const char* value, ezInt32 iParentObjectIndex /*= -1*/) const
 {
-  ezDuktapeHelper duk(m_pContext, 0);
+  ezDuktapeHelper duk(m_pContext);
 
   duk_push_string(m_pContext, value); // [ value ]
 
@@ -191,16 +204,20 @@ void ezDuktapeHelper::SetStringProperty(const char* szPropertyName, const char* 
     duk_put_prop_string(m_pContext, iParentObjectIndex, szPropertyName); // [ ]
   else
     duk_put_prop_string(m_pContext, iParentObjectIndex - 1, szPropertyName); // [ ]
+
+  EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, 0);
 }
 
 void ezDuktapeHelper::SetCustomProperty(const char* szPropertyName, ezInt32 iParentObjectIndex /*= -1*/) const
 {
-  ezDuktapeHelper duk(m_pContext, -1); // [ value ]
+  ezDuktapeHelper duk(m_pContext); // [ value ]
 
   if (iParentObjectIndex >= 0)
     duk_put_prop_string(m_pContext, iParentObjectIndex, szPropertyName); // [ ]
   else
     duk_put_prop_string(m_pContext, iParentObjectIndex - 1, szPropertyName); // [ ]
+
+  EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, -1);
 }
 
 void ezDuktapeHelper::StorePointerInStash(const char* szKey, void* pPointer)

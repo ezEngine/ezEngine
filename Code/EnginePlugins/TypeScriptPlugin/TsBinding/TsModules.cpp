@@ -78,7 +78,7 @@ ezResult ezTypeScriptBinding::Init_RequireModules()
 
 int ezTypeScriptBinding::DukSearchModule(duk_context* pDuk)
 {
-  ezDuktapeFunction duk(pDuk, +1);
+  ezDuktapeFunction duk(pDuk);
 
   ezStringBuilder sRequestedFile = duk.GetStringValue(0);
   if (!sRequestedFile.HasAnyExtension())
@@ -95,7 +95,7 @@ int ezTypeScriptBinding::DukSearchModule(duk_context* pDuk)
   {
     duk.PushUndefined();
     duk.Error(ezFmt("'required' module \"{}\" could not be loaded: JsLib resource is missing.", sRequestedFile));
-    return duk.ReturnCustom();
+    EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnCustom(), +1);
   }
 
   auto it = pCompendium->GetDescriptor().m_PathToSource.Find(sRequestedFile);
@@ -104,8 +104,8 @@ int ezTypeScriptBinding::DukSearchModule(duk_context* pDuk)
   {
     duk.PushUndefined();
     duk.Error(ezFmt("'required' module \"{}\" could not be loaded: JsLib resource does not contain source for it.", sRequestedFile));
-    return duk.ReturnCustom();
+    EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnCustom(), +1);
   }
 
-  return duk.ReturnString(it.Value());
+  EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnString(it.Value()), +1);
 }

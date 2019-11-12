@@ -190,7 +190,7 @@ const ezTypeScriptBinding::FunctionBinding* ezTypeScriptBinding::FindFunctionBin
 
 int __CPP_ComponentFunction_Call(duk_context* pDuk)
 {
-  ezDuktapeFunction duk(pDuk, +1);
+  ezDuktapeFunction duk(pDuk);
 
   ezComponent* pComponent = ezTypeScriptBinding::ExpectComponent<ezComponent>(pDuk);
 
@@ -201,7 +201,7 @@ int __CPP_ComponentFunction_Call(duk_context* pDuk)
   if (pBinding == nullptr)
   {
     ezLog::Error("Bound function with hash {} not found.", uiFuncHash);
-    return duk.ReturnVoid();
+    EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnVoid(), +1);
   }
 
   const ezUInt32 uiNumArgs = pBinding->m_pFunc->GetArgumentCount();
@@ -220,11 +220,10 @@ int __CPP_ComponentFunction_Call(duk_context* pDuk)
   if (pBinding->m_pFunc->GetReturnType() != nullptr)
   {
     ezTypeScriptBinding::PushVariant(duk, ret);
-    return duk.ReturnCustom();
+    EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnCustom(), +1);
   }
   else
   {
-    duk.SetExpectedStackChange(0);
-    return duk.ReturnVoid();
+    EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnVoid(), 0);
   }
 }

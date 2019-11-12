@@ -8,7 +8,7 @@
 class EZ_CORE_DLL ezDuktapeFunction final : public ezDuktapeHelper
 {
 public:
-  ezDuktapeFunction(duk_context* pExistingContext, ezInt32 iExpectedStackChange);
+  ezDuktapeFunction(duk_context* pExistingContext);
   ~ezDuktapeFunction();
 
   /// \name Retrieving function parameters

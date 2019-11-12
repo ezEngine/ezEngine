@@ -7,8 +7,8 @@
 #  include <Duktape/duk_module_duktape.h>
 #  include <Duktape/duktape.h>
 
-ezDuktapeFunction::ezDuktapeFunction(duk_context* pExistingContext, ezInt32 iExpectedStackChange)
-  : ezDuktapeHelper(pExistingContext, iExpectedStackChange)
+ezDuktapeFunction::ezDuktapeFunction(duk_context* pExistingContext)
+  : ezDuktapeHelper(pExistingContext)
 {
 }
 

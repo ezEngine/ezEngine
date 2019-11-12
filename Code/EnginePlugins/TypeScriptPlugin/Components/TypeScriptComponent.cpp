@@ -113,7 +113,7 @@ bool ezTypeScriptComponent::CallTsFunc(const char* szFuncName)
 {
   ezTypeScriptBinding& binding = static_cast<ezTypeScriptComponentManager*>(GetOwningManager())->GetTsBinding();
 
-  ezDuktapeHelper duk(binding.GetDukTapeContext(), 0);
+  ezDuktapeHelper duk(binding.GetDukTapeContext());
 
   binding.DukPutComponentObject(this); // [ comp ]
 
@@ -122,14 +122,14 @@ bool ezTypeScriptComponent::CallTsFunc(const char* szFuncName)
     duk.CallPreparedMethod(); // [ comp result ]
     duk.PopStack(2);          // [ ]
 
-    return true;
+    EZ_DUK_RETURN_AND_VERIFY_STACK(duk, true, 0);
   }
   else
   {
     // remove 'this'   [ comp ]
     duk.PopStack(); // [ ]
 
-    return false;
+    EZ_DUK_RETURN_AND_VERIFY_STACK(duk, false, 0);
   }
 }
 
@@ -137,7 +137,7 @@ void ezTypeScriptComponent::SetExposedVariables()
 {
   ezTypeScriptBinding& binding = static_cast<ezTypeScriptComponentManager*>(GetOwningManager())->GetTsBinding();
 
-  ezDuktapeHelper duk(binding.GetDukTapeContext(), 0);
+  ezDuktapeHelper duk(binding.GetDukTapeContext());
 
   binding.DukPutComponentObject(this); // [ comp ]
 
@@ -149,6 +149,8 @@ void ezTypeScriptComponent::SetExposedVariables()
   }
 
   duk.PopStack(); // [ ]
+
+  EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, 0);
 }
 
 void ezTypeScriptComponent::Initialize()
@@ -246,7 +248,7 @@ void ezTypeScriptComponent::Update(ezTypeScriptBinding& binding)
   if (m_NextUpdate > tNow)
     return;
 
-  ezDuktapeHelper duk(binding.GetDukTapeContext(), 0);
+  ezDuktapeHelper duk(binding.GetDukTapeContext());
 
   binding.DukPutComponentObject(this); // [ comp ]
 
@@ -263,6 +265,8 @@ void ezTypeScriptComponent::Update(ezTypeScriptBinding& binding)
 
     SetUserFlag(UserFlag::NoTsTick, true);
   }
+
+  EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, 0);
 }
 
 void ezTypeScriptComponent::SetTypeScriptComponentFile(const char* szFile)
