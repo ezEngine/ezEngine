@@ -1,11 +1,13 @@
 #pragma once
 
-#include <BakingPlugin/Baking.h>
+#include <BakingPlugin/BakingPluginDLL.h>
+
+class ezBakingScene;
 
 class EZ_BAKINGPLUGIN_DLL ezTracerInterface
 {
 public:
-  virtual ezResult BuildScene(const ezBaking::Scene& scene) = 0;
+  virtual ezResult BuildScene(const ezBakingScene& scene) = 0;
 
   struct Ray
   {

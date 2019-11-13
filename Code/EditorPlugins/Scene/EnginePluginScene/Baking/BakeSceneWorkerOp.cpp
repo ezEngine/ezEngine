@@ -2,6 +2,7 @@
 
 #include <EnginePluginScene/Baking/BakeSceneWorkerOp.h>
 
+#include <BakingPlugin/BakingScene.h>
 #include <Core/Assets/AssetFileHeader.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
@@ -23,9 +24,9 @@ ezResult ezLongOpWorker_BakeScene::InitializeExecution(ezStreamReader& config, c
   config >> m_sOutputPath;
 
   {
-    EZ_LOCK(pDocContext->GetWorld()->GetReadMarker());
+    m_pScene = ezBakingScene::GetOrCreate(*pDocContext->GetWorld());
 
-    EZ_SUCCEED_OR_RETURN(ezBaking::ExtractScene(*pDocContext->GetWorld(), m_Scene));
+    EZ_SUCCEED_OR_RETURN(m_pScene->Extract());
   }
 
   return EZ_SUCCESS;
@@ -33,7 +34,7 @@ ezResult ezLongOpWorker_BakeScene::InitializeExecution(ezStreamReader& config, c
 
 ezResult ezLongOpWorker_BakeScene::Execute(ezProgress& progress, ezStreamWriter& proxydata)
 {
-  EZ_SUCCEED_OR_RETURN(ezBaking::BakeScene(m_Scene, m_sOutputPath, progress));
+  EZ_SUCCEED_OR_RETURN(m_pScene->Bake(m_sOutputPath, progress));
 
 #if 0
   ezProgressRange pgRange("Generating NavMesh", 2, true, &progress);

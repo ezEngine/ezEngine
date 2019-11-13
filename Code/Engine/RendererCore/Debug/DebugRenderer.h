@@ -5,6 +5,7 @@
 #include <RendererCore/Debug/DebugRendererContext.h>
 #include <RendererCore/Declarations.h>
 #include <RendererCore/RendererCoreDLL.h>
+#include <RendererFoundation/Descriptors/Descriptors.h>
 
 struct ezRenderViewContext;
 
@@ -95,6 +96,10 @@ public:
   static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color);
 
   static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, const ezTexture2DResourceHandle& hTexture);
+
+
+static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color,
+    ezGALResourceViewHandle hResourceView);
 
   static void Draw2DText(
     const ezDebugRendererContext& context, const ezStringView& text, const ezVec2I32& positionInPixel, const ezColor& color, ezUInt32 uiSizeInPixel = 16, HorizontalAlignment::Enum horizontalAlignment = HorizontalAlignment::Left, VerticalAlignment::Enum verticalAlignment = VerticalAlignment::Top);

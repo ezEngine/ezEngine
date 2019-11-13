@@ -1,5 +1,6 @@
 #include <BakingPluginPCH.h>
 
+#include <BakingPlugin/BakingScene.h>
 #include <BakingPlugin/Tracer/TracerEmbree.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/SimdMath/SimdConversion.h>
@@ -133,14 +134,14 @@ ezTracerEmbree::ezTracerEmbree()
 
 ezTracerEmbree::~ezTracerEmbree() = default;
 
-ezResult ezTracerEmbree::BuildScene(const ezBaking::Scene& scene)
+ezResult ezTracerEmbree::BuildScene(const ezBakingScene& scene)
 {
   EZ_SUCCEED_OR_RETURN(InitDevice());
 
   m_pData->ClearScene();
   m_pData->m_rtcScene = rtcNewScene(s_rtcDevice);
 
-  for (auto& meshObject : scene.m_MeshObjects)
+  for (auto& meshObject : scene.GetMeshObjects())
   {
     RTCScene mesh = GetOrCreateMesh(meshObject.m_MeshResourceId);
     if (mesh == nullptr)
