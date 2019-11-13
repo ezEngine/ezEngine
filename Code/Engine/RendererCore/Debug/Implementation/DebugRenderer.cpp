@@ -793,6 +793,12 @@ void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, con
 
 void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, const ezTexture2DResourceHandle& hTexture)
 {
+  ezResourceLock<ezTexture2DResource> pTexture(hTexture, ezResourceAcquireMode::AllowLoadingFallback);
+  Draw2DRectangle(context, rectInPixel, fDepth, color, ezGALDevice::GetDefaultDevice()->GetDefaultResourceView(pTexture->GetGALTexture()));
+}
+
+void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, ezGALResourceViewHandle hResourceView)
+{
   TexVertex vertices[6];
 
   vertices[0].m_position = ezVec3(rectInPixel.Left(), rectInPixel.Top(), fDepth);
@@ -818,7 +824,7 @@ void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, con
 
   auto& data = GetDataForExtraction(context);
 
-  data.m_texTriangle2DVertices[hTexture].PushBackRange(ezMakeArrayPtr(vertices));
+  data.m_texTriangle2DVertices[hResourceView].PushBackRange(ezMakeArrayPtr(vertices));
 }
 
 void ezDebugRenderer::Draw2DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec2I32& positionInPixel, const ezColor& color, ezUInt32 uiSizeInPixel /*= 16*/, HorizontalAlignment::Enum horizontalAlignment /*= HorizontalAlignment::Left*/,

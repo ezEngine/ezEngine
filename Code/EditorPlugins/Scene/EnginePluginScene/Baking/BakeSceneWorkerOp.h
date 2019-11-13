@@ -1,7 +1,8 @@
 #pragma once
 
-#include <BakingPlugin/Baking.h>
 #include <EditorEngineProcessFramework/LongOps/LongOps.h>
+
+class ezBakingScene;
 
 class ezLongOpWorker_BakeScene : public ezLongOpWorker
 {
@@ -12,5 +13,5 @@ public:
   virtual ezResult Execute(ezProgress& progress, ezStreamWriter& proxydata) override;
 
   ezString m_sOutputPath;
-  ezBaking::Scene m_Scene;
+  ezBakingScene* m_pScene;
 };

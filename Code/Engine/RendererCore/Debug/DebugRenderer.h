@@ -5,6 +5,7 @@
 #include <RendererCore/Debug/DebugRendererContext.h>
 #include <RendererCore/Declarations.h>
 #include <RendererCore/RendererCoreDLL.h>
+#include <RendererFoundation/Descriptors/Descriptors.h>
 
 template <typename Type>
 class ezRectTemplate;
@@ -109,6 +110,9 @@ public:
 
   /// \brief Renders a textured 2D rectangle in screenspace for one frame.
   static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, const ezTexture2DResourceHandle& hTexture);
+  
+  /// \brief Renders a textured 2D rectangle in screenspace for one frame.
+  static void Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, ezGALResourceViewHandle hResourceView);
 
   /// \brief Displays a string in screenspace for one frame.
   static void Draw2DText(const ezDebugRendererContext& context, const ezFormatString& text, const ezVec2I32& positionInPixel, const ezColor& color, ezUInt32 uiSizeInPixel = 16, HorizontalAlignment::Enum horizontalAlignment = HorizontalAlignment::Left, VerticalAlignment::Enum verticalAlignment = VerticalAlignment::Top);

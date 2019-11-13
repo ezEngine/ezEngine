@@ -9,7 +9,7 @@ public:
   ezTracerEmbree();
   ~ezTracerEmbree();
 
-  virtual ezResult BuildScene(const ezBaking::Scene& scene) override;
+  virtual ezResult BuildScene(const ezBakingScene& scene) override;
 
   virtual void TraceRays() override;
 
