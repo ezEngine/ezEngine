@@ -295,6 +295,14 @@ export class Vec3 {
         this.z = lhs.z * invRhs;
     }
 
+    SetLength(length: number, epsilon: number): boolean {
+        if (!this.NormalizeIfNotZero(Vec3.ZeroVector(), epsilon))
+            return false;
+
+        this.MulNumber(length);
+        return true;
+    }
+
     static CreateRandomPointInSphere(): Vec3 {
         let px: number, py: number, pz: number;
         let len: number = 0.0;
