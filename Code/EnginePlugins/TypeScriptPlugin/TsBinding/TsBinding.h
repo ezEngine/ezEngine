@@ -210,6 +210,18 @@ public:
   static ezVec3 GetVec3(duk_context* pDuk, ezInt32 iObjIdx, const ezVec3& fallback = ezVec3::ZeroVector());
   static ezVec3 GetVec3Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVec3& fallback = ezVec3::ZeroVector());
 
+  static void PushMat3(duk_context* pDuk, const ezMat3& value);
+  static void SetMat3(duk_context* pDuk, ezInt32 iObjIdx, const ezMat3& value);
+  static void SetMat3Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezMat3& value);
+  static ezMat3 GetMat3(duk_context* pDuk, ezInt32 iObjIdx, const ezMat3& fallback = ezMat3::IdentityMatrix());
+  static ezMat3 GetMat3Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezMat3& fallback = ezMat3::IdentityMatrix());
+
+  static void PushMat4(duk_context* pDuk, const ezMat4& value);
+  static void SetMat4(duk_context* pDuk, ezInt32 iObjIdx, const ezMat4& value);
+  static void SetMat4Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezMat4& value);
+  static ezMat4 GetMat4(duk_context* pDuk, ezInt32 iObjIdx, const ezMat4& fallback = ezMat4::IdentityMatrix());
+  static ezMat4 GetMat4Property(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezMat4& fallback = ezMat4::IdentityMatrix());
+
   static void PushQuat(duk_context* pDuk, const ezQuat& value);
   static void SetQuat(duk_context* pDuk, ezInt32 iObjIdx, const ezQuat& value);
   static void SetQuatProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezQuat& value);

@@ -99,12 +99,16 @@ const char* ezTypeScriptBinding::TsType(const ezRTTI* pRtti)
     case ezVariant::Type::Transform:
       return "Transform";
 
+    case ezVariant::Type::Matrix3:
+      return "Mat3";
+
+    case ezVariant::Type::Matrix4:
+      return "Mat4";
+
       // TODO: implement these types
       //case ezVariant::Type::Vector4:
       //case ezVariant::Type::Vector4I:
       //case ezVariant::Type::Vector4U:
-      //case ezVariant::Type::Matrix3:
-      //case ezVariant::Type::Matrix4:
 
     default:
       return nullptr;
