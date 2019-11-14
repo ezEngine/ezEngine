@@ -36,6 +36,11 @@ ezDuktapeHelper::ezDuktapeHelper(duk_context* pContext)
 #endif
 }
 
+ezDuktapeHelper::ezDuktapeHelper(const ezDuktapeHelper& rhs)
+  : ezDuktapeHelper(rhs.GetContext())
+{
+}
+
 ezDuktapeHelper::~ezDuktapeHelper() = default;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)

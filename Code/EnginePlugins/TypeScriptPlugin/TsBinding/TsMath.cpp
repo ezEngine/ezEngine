@@ -334,6 +334,9 @@ void ezTypeScriptBinding::SetTransformProperty(duk_context* pDuk, const char* sz
 
 ezTransform ezTypeScriptBinding::GetTransform(duk_context* pDuk, ezInt32 iObjIdx, const ezTransform& fallback /*= ezTransform::IdentityTransform()*/)
 {
+  if (duk_is_null_or_undefined(pDuk, iObjIdx))
+    return fallback;
+
   ezTransform res;
 
   res.m_vPosition = GetVec3Property(pDuk, "position", iObjIdx, fallback.m_vPosition);

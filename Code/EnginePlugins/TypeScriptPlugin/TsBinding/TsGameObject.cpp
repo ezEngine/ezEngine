@@ -132,16 +132,16 @@ bool ezTypeScriptBinding::RegisterGameObject(ezGameObjectHandle handle, ezUInt32
     ++m_uiNextStashObjIdx;
   }
 
-  ezDuktapeHelper duk(m_Duk);
-
+  ezDuktapeHelper duk(m_Duk);                                     // [ ]
   duk.PushGlobalObject();                                         // [ global ]
   EZ_VERIFY(duk.PushLocalObject("__GameObject").Succeeded(), ""); // [ global __GameObject ]
   duk_get_prop_string(duk, -1, "GameObject");                     // [ global __GameObject GameObject ]
-  duk_new(duk, 0);                                                // [ global __GameObject object ]
+
+  duk_new(duk, 0); // [ global __GameObject object ]
 
   // set the ezGameObjectHandle property
   {
-    ezGameObjectHandle* pHandleBuffer = reinterpret_cast<ezGameObjectHandle*>(duk_push_fixed_buffer(duk, sizeof(ezGameObjectHandle))); // [ global __GameObject result buffer ]
+    ezGameObjectHandle* pHandleBuffer = reinterpret_cast<ezGameObjectHandle*>(duk_push_fixed_buffer(duk, sizeof(ezGameObjectHandle))); // [ global __GameObject object buffer ]
     *pHandleBuffer = handle;
     duk_put_prop_index(duk, -2, ezTypeScriptBindingIndexProperty::GameObjectHandle); // [ global __GameObject object ]
   }

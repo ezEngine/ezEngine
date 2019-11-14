@@ -93,9 +93,6 @@ export import GameObject = __GameObject.GameObject;
 import __Component = require("./Component")
 export import Component = __Component.Component;
 
-import __Color = require("./Color")
-export import Color = __Color.Color;
-
 import __Vec2 = require("./Vec2")
 export import Vec2 = __Vec2.Vec2;
 
@@ -107,6 +104,15 @@ export import Quat = __Quat.Quat;
 
 import __Transform = require("./Transform")
 export import Transform = __Transform.Transform;
+
+import __Color = require("./Color")
+export import Color = __Color.Color;
+
+import __Time = require("./Time")
+export import Time = __Time.Time;
+
+import __Angle = require("./Angle")
+export import Angle = __Angle.Angle;
 
 )";
 

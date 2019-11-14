@@ -76,16 +76,17 @@ class EZ_CORE_DLL ezDuktapeHelper
 {
 public:
   ezDuktapeHelper(duk_context* pContext);
+  ezDuktapeHelper(const ezDuktapeHelper& rhs);
   ~ezDuktapeHelper();
 
   /// \name Basics
   ///@{
 
   /// \brief Returns the raw Duktape context for custom operations.
-  duk_context* GetContext() const { return m_pContext; }
+  EZ_ALWAYS_INLINE duk_context* GetContext() const { return m_pContext; }
 
   /// \brief Implicit conversion to duk_context*
-  operator duk_context*() const { return m_pContext; }
+  EZ_ALWAYS_INLINE operator duk_context*() const { return m_pContext; }
 
 #  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   void VerifyExpectedStackChange(ezInt32 iExpectedStackChange, const char* szFile, ezUInt32 uiLine, const char* szFunction) const;
@@ -214,7 +215,7 @@ protected:
   ezInt32 m_iPushedValues = 0;
 
 #  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-  ezInt32 m_iStackTopAtStart = 0;
+  ezInt32 m_iStackTopAtStart = -1000;
   mutable bool m_bVerifyStackChange = false;
 
 #  endif
