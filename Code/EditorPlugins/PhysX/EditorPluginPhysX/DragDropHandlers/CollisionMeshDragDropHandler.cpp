@@ -1,7 +1,7 @@
-#include <EditorPluginScenePCH.h>
+#include <EditorPluginPhysXPCH.h>
 
 #include <EditorFramework/DragDrop/DragDropInfo.h>
-#include <EditorPluginScene/DragDropHandlers/CollisionMeshDragDropHandler.h>
+#include <EditorPluginPhysX/DragDropHandlers/CollisionMeshDragDropHandler.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollisionMeshComponentDragDropHandler, 1, ezRTTIDefaultAllocator<ezCollisionMeshComponentDragDropHandler>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
