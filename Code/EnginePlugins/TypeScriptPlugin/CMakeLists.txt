@@ -10,4 +10,5 @@ ez_create_target(LIBRARY ${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
   Core
+  RendererCore
 )
