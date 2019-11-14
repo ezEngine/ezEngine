@@ -1,18 +1,22 @@
 import __Math = require("./Math")
 export import ezMath = __Math.ezMath;
 
-import __radians = require("./radians")
-export import radians = __radians.radians;
+import __Mat3 = require("./Mat3")
+export import Mat3 = __Mat3.Mat3;
 
 import __Vec3 = require("./Vec3")
 export import Vec3 = __Vec3.Vec3;
 
 export class Mat4 {
-    m_ElementsCM: number[]
-        = [1, 0, 0, 0,
-            0, 1, 0, 0,
-            0, 0, 1, 0,
-            0, 0, 0, 1];
+    m_ElementsCM: number[] = [
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        0, 0, 0, 1];
+
+    constructor(c1r1 = 1, c2r1 = 0, c3r1 = 0, c4r1 = 0, c1r2 = 0, c2r2 = 1, c3r2 = 0, c4r2 = 0, c1r3 = 0, c2r3 = 0, c3r3 = 1, c4r3 = 0, c1r4 = 0, c2r4 = 0, c3r4 = 0, c4r4 = 1) {
+        this.SetElements(c1r1, c2r1, c3r1, c4r1, c1r2, c2r2, c3r2, c4r2, c1r3, c2r3, c3r3, c4r3, c1r4, c2r4, c3r4, c4r4);
+    }
 
     Clone(): Mat4 {
         let c = new Mat4;
@@ -20,7 +24,12 @@ export class Mat4 {
         return c;
     }
 
-    //CloneAsVec3() : Mat3{ }
+    CloneAsMat3(): Mat3 {
+        return new Mat3(
+            this.m_ElementsCM[0], this.m_ElementsCM[4], this.m_ElementsCM[8],
+            this.m_ElementsCM[1], this.m_ElementsCM[5], this.m_ElementsCM[9],
+            this.m_ElementsCM[2], this.m_ElementsCM[6], this.m_ElementsCM[10]);
+    }
 
     SetMat4(m: Mat4): void {
         for (var i = 0; i < 16; ++i) {
@@ -450,14 +459,91 @@ export class Mat4 {
         }
     }
 
-    // ezVec4Template<Type> GetRow(ezUInt32 uiRow) const;
-    // ezVec4Template<Type> GetColumn(ezUInt32 uiColumn) const;
-    // ezVec4Template<Type> GetDiagonal() const;
-    // void SetFromArray(const Type* const pData, ezMatrixLayout::Enum layout);
-    // void GetAsArray(Type* out_pData, ezMatrixLayout::Enum layout) const;
-    // void SetTransformationMatrix(const ezMat3Template<Type>& Rotation, const ezVec3Template<Type>& translation);
-    // void SetRotationalPart(const ezMat3Template<Type>& Rotation);
-    // const ezMat3Template<Type> GetRotationalPart() const;
+    GetRow(row: number): number[] {
+        return [this.m_ElementsCM[row], this.m_ElementsCM[row + 4], this.m_ElementsCM[row + 8], this.m_ElementsCM[row + 12]];
+    }
+
+    GetColumn(column: number): number[] {
+        return [this.m_ElementsCM[column * 4], this.m_ElementsCM[column * 4 + 1], this.m_ElementsCM[column * 4 + 2], this.m_ElementsCM[column * 4 + 3]];
+    }
+
+    GetDiagonal(): number[] {
+        return [this.m_ElementsCM[0], this.m_ElementsCM[5], this.m_ElementsCM[10], this.m_ElementsCM[15]];
+    }
+
+    SetFromArray(array: number[], isColumnMajor: boolean): void {
+
+        if (isColumnMajor) {
+            for (var i = 0; i < 16; ++i) {
+                this.m_ElementsCM[i] = array[i];
+            }
+        }
+        else {
+            this.m_ElementsCM[0] = array[0];
+            this.m_ElementsCM[1] = array[4];
+            this.m_ElementsCM[2] = array[8];
+            this.m_ElementsCM[3] = array[12];
+
+            this.m_ElementsCM[4] = array[1];
+            this.m_ElementsCM[5] = array[5];
+            this.m_ElementsCM[6] = array[9];
+            this.m_ElementsCM[7] = array[13];
+
+            this.m_ElementsCM[8] = array[2];
+            this.m_ElementsCM[9] = array[6];
+            this.m_ElementsCM[10] = array[10];
+            this.m_ElementsCM[11] = array[14];
+
+            this.m_ElementsCM[12] = array[3];
+            this.m_ElementsCM[13] = array[7];
+            this.m_ElementsCM[14] = array[11];
+            this.m_ElementsCM[15] = array[15];
+        }
+    }
+
+    GetAsArray(asColumnMajor: boolean): number[] {
+
+        if (asColumnMajor) {
+            let array: number[] = [
+                this.m_ElementsCM[0], this.m_ElementsCM[1], this.m_ElementsCM[2], this.m_ElementsCM[3],
+                this.m_ElementsCM[4], this.m_ElementsCM[5], this.m_ElementsCM[6], this.m_ElementsCM[7],
+                this.m_ElementsCM[8], this.m_ElementsCM[9], this.m_ElementsCM[10], this.m_ElementsCM[11],
+                this.m_ElementsCM[12], this.m_ElementsCM[13], this.m_ElementsCM[14], this.m_ElementsCM[15]];
+            return array;
+        }
+        else {
+            let array: number[] = [
+                this.m_ElementsCM[0], this.m_ElementsCM[4], this.m_ElementsCM[8], this.m_ElementsCM[12],
+                this.m_ElementsCM[1], this.m_ElementsCM[5], this.m_ElementsCM[9], this.m_ElementsCM[13],
+                this.m_ElementsCM[2], this.m_ElementsCM[6], this.m_ElementsCM[10], this.m_ElementsCM[14],
+                this.m_ElementsCM[3], this.m_ElementsCM[7], this.m_ElementsCM[11], this.m_ElementsCM[15]];
+            return array;
+        }
+    }
+
+    SetTransformationMatrix(rotation: Mat3, translation: Vec3) {
+        this.SetRotationalPart(rotation);
+        this.SetTranslationVector(translation);
+        this.SetRow(3, 0, 0, 0, 1);
+    }
+
+    GetRotationalPart(): Mat3 {
+        return this.CloneAsMat3();
+    }
+
+    SetRotationalPart(mat3: Mat3): void {
+        this.m_ElementsCM[0] = mat3.m_ElementsCM[0];
+        this.m_ElementsCM[1] = mat3.m_ElementsCM[1];
+        this.m_ElementsCM[2] = mat3.m_ElementsCM[2];
+
+        this.m_ElementsCM[4] = mat3.m_ElementsCM[3];
+        this.m_ElementsCM[5] = mat3.m_ElementsCM[4];
+        this.m_ElementsCM[6] = mat3.m_ElementsCM[5];
+
+        this.m_ElementsCM[8] = mat3.m_ElementsCM[6];
+        this.m_ElementsCM[9] = mat3.m_ElementsCM[7];
+        this.m_ElementsCM[10] = mat3.m_ElementsCM[8];
+    }
 
     private GetDeterminantOf3x3SubMatrix(i: number, j: number): number {
         const si0 = 0 + ((i <= 0) ? 1 : 0);

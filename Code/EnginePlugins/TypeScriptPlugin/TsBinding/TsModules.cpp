@@ -49,6 +49,18 @@ ezResult ezTypeScriptBinding::Init_RequireModules()
     return EZ_FAILURE;
   }
 
+  if (m_Duk.ExecuteString("var __Mat3 = require(\"./TypeScript/ez/Mat3\");").Failed())
+  {
+    ezLog::Error("Failed to import 'Mat3.ts'");
+    return EZ_FAILURE;
+  }
+
+  if (m_Duk.ExecuteString("var __Mat4 = require(\"./TypeScript/ez/Mat4\");").Failed())
+  {
+    ezLog::Error("Failed to import 'Mat4.ts'");
+    return EZ_FAILURE;
+  }
+
   if (m_Duk.ExecuteString("var __Quat = require(\"./TypeScript/ez/Quat\");").Failed())
   {
     ezLog::Error("Failed to import 'Quat.ts'");

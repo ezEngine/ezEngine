@@ -99,6 +99,12 @@ export import Vec2 = __Vec2.Vec2;
 import __Vec3 = require("./Vec3")
 export import Vec3 = __Vec3.Vec3;
 
+import __Mat3 = require("./Mat3")
+export import Mat3 = __Mat3.Mat3;
+
+import __Mat4 = require("./Mat4")
+export import Mat4 = __Mat4.Mat4;
+
 import __Quat = require("./Quat")
 export import Quat = __Quat.Quat;
 
