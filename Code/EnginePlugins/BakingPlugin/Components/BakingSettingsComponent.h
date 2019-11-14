@@ -12,9 +12,11 @@ public:
   ~ezBakingSettingsComponentManager();
 
   virtual void Initialize() override;
+  virtual void Deinitialize() override;
 
 private:
   void RenderDebug(const ezWorldModule::UpdateContext& updateContext);
+  void OnBeginRender(ezUInt64 uiFrameCounter);
 };
 
 class EZ_BAKINGPLUGIN_DLL ezBakingSettingsComponent : public ezSettingsComponent
@@ -39,6 +41,7 @@ public:
 
 private:
   void RenderDebugOverlay();
+  void UpdateDebugViewTexture();
 
   bool m_bShowDebugOverlay = false;
   bool m_bShowDebugProbes = false;

@@ -2,6 +2,7 @@
 
 #include <BakingPlugin/BakingScene.h>
 #include <BakingPlugin/Tracer/TracerEmbree.h>
+#include <Foundation/Utilities/Progress.h>
 #include <RendererCore/Meshes/MeshComponentBase.h>
 
 namespace
@@ -48,6 +49,7 @@ ezResult ezBakingScene::Extract()
 
   m_MeshObjects.Clear();
   m_BoundingBox.SetInvalid();
+  m_bTracerReady = false;
 
   const ezWorld* pWorld = ezWorld::GetWorld(m_uiWorldIndex);
   if (pWorld == nullptr)
@@ -79,6 +81,37 @@ ezResult ezBakingScene::Bake(const ezStringView& sOutputPath, ezProgress& progre
   EZ_ASSERT_DEV(!ezThreadUtils::IsMainThread(), "BakeScene must be executed on a worker thread");
 
   EZ_SUCCEED_OR_RETURN(m_pTracer->BuildScene(*this));
+  m_bTracerReady = true;
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezBakingScene::RenderDebugView(const ezMat4& InverseViewProjection, ezUInt32 uiWidth, ezUInt32 uiHeight, ezDynamicArray<ezColorGammaUB>& out_Pixels,
+  ezProgress& progress) const
+{
+  if (!m_bTracerReady)
+    return EZ_FAILURE;
+
+  const ezUInt32 uiNumPixel = uiWidth * uiHeight;
+  out_Pixels.SetCountUninitialized(uiNumPixel);
+
+  ezUInt32 uiStartPixel = 0;
+  ezUInt32 uiPixelPerBatch = 128;
+  while (uiStartPixel < uiNumPixel)
+  {
+    uiPixelPerBatch = ezMath::Min(uiPixelPerBatch, uiNumPixel - uiStartPixel);
+
+    for (ezUInt32 i = 0; i < uiPixelPerBatch; ++i)
+    {
+      out_Pixels[uiStartPixel + i] = ezColor((float)i / uiPixelPerBatch, 0, 0);
+    }
+
+    uiStartPixel += uiPixelPerBatch;
+
+    progress.SetCompletion((float)uiStartPixel / uiNumPixel);
+    if (progress.WasCanceled())
+      break;
+  }
 
   return EZ_SUCCESS;
 }
