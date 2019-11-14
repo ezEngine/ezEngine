@@ -5,10 +5,17 @@
 #include <Core/World/SettingsComponentManager.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
-struct ezMsgUpdateLocalBounds;
-struct ezMsgExtractRenderData;
+class EZ_BAKINGPLUGIN_DLL ezBakingSettingsComponentManager : public ezSettingsComponentManager<class ezBakingSettingsComponent>
+{
+public:
+  ezBakingSettingsComponentManager(ezWorld* pWorld);
+  ~ezBakingSettingsComponentManager();
 
-typedef ezSettingsComponentManager<class ezBakingSettingsComponent> ezBakingSettingsComponentManager;
+  virtual void Initialize() override;
+
+private:
+  void RenderDebug(const ezWorldModule::UpdateContext& updateContext);
+};
 
 class EZ_BAKINGPLUGIN_DLL ezBakingSettingsComponent : public ezSettingsComponent
 {
@@ -27,13 +34,12 @@ public:
   void SetShowDebugProbes(bool bShow);
   bool GetShowDebugProbes() const { return m_bShowDebugProbes; }
 
-  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
-  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
-
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
 private:
+  void RenderDebugOverlay();
+
   bool m_bShowDebugOverlay = false;
   bool m_bShowDebugProbes = false;
 
