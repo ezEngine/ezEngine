@@ -75,14 +75,14 @@ private:
   friend class ezProgressRange;
   void SetActiveRange(ezProgressRange* pRange);
 
-  ezProgressRange* m_pActiveRange;
+  ezProgressRange* m_pActiveRange = nullptr;
 
   ezString m_sCurrentDisplayText;
-  bool m_bCancelClicked;
-  bool m_bEnableCancel;
+  bool m_bCancelClicked = false;
+  bool m_bEnableCancel = true;
 
-  float m_fLastReportedCompletion;
-  float m_fCurrentCompletion;
+  float m_fLastReportedCompletion = 0.0f;
+  float m_fCurrentCompletion = 0.0f;
 };
 
 /// \brief ezProgressRange is the preferred method to inform the system of progress.

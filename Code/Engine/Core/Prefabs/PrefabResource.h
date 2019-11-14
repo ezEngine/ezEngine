@@ -37,7 +37,7 @@ public:
   /// \brief Creates an instance of this prefab in the given world.
   void InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezPrefabInstantiationOptions options, const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues = nullptr);
 
-  void ApplyExposedParameterValues(const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues, const ezHybridArray<ezGameObject*, 8>& createdChildObjects, const ezHybridArray<ezGameObject*, 8>& createdRootObjects) const;
+  void ApplyExposedParameterValues(const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues, const ezDynamicArray<ezGameObject*>& createdChildObjects, const ezDynamicArray<ezGameObject*>& createdRootObjects) const;
 
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;

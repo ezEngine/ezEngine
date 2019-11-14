@@ -11,6 +11,7 @@ using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResourc
 using ezRenderToTexture2DResourceHandle = ezTypedResourceHandle<class ezRenderToTexture2DResource>;
 using ezTextureCubeResourceHandle = ezTypedResourceHandle<class ezTextureCubeResource>;
 using ezMeshBufferResourceHandle = ezTypedResourceHandle<class ezMeshBufferResource>;
+using ezMeshResourceHandle = ezTypedResourceHandle<class ezMeshResource>;
 using ezMaterialResourceHandle = ezTypedResourceHandle<class ezMaterialResource>;
 using ezShaderResourceHandle = ezTypedResourceHandle<class ezShaderResource>;
 using ezShaderPermutationResourceHandle = ezTypedResourceHandle<class ezShaderPermutationResource>;

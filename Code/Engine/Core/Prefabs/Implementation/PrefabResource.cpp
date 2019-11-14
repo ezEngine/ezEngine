@@ -47,7 +47,7 @@ void ezPrefabResource::InstantiatePrefab(ezWorld& world, const ezTransform& root
   }
 }
 
-void ezPrefabResource::ApplyExposedParameterValues(const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues, const ezHybridArray<ezGameObject*, 8>& createdChildObjects, const ezHybridArray<ezGameObject*, 8>& createdRootObjects) const
+void ezPrefabResource::ApplyExposedParameterValues(const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues, const ezDynamicArray<ezGameObject*>& createdChildObjects, const ezDynamicArray<ezGameObject*>& createdRootObjects) const
 {
   const ezUInt32 uiNumParamDescs = m_PrefabParamDescs.GetCount();
 

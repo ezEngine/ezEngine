@@ -14,8 +14,8 @@ struct ezPrefabInstantiationOptions
 {
   ezGameObjectHandle m_hParent;
 
-  ezHybridArray<ezGameObject*, 8>* m_pCreatedRootObjectsOut = nullptr;
-  ezHybridArray<ezGameObject*, 8>* m_pCreatedChildObjectsOut = nullptr;
+  ezDynamicArray<ezGameObject*>* m_pCreatedRootObjectsOut = nullptr;
+  ezDynamicArray<ezGameObject*>* m_pCreatedChildObjectsOut = nullptr;
   const ezUInt16* m_pOverrideTeamID = nullptr;
 
   bool bForceDynamic = false;
@@ -195,7 +195,7 @@ private:
     virtual void Cancel() override;
 
     template <bool UseTransform>
-    bool CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedObjects, ezTime endTime);
+    bool CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, ezGameObjectHandle hParent, ezDynamicArray<ezGameObject*>* out_CreatedObjects, ezTime endTime);
 
     bool CreateComponents(ezTime endTime);
     bool DeserializeComponents(ezTime endTime);

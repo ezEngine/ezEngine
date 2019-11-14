@@ -317,7 +317,7 @@ void ezGALCommandEncoder::UpdateBuffer(
 {
   AssertRenderingThread();
 
-  EZ_VERIFY(!pSourceData.IsEmpty(), "Source data for buffer update is invalid!");
+  EZ_ASSERT_DEV(!pSourceData.IsEmpty(), "Source data for buffer update is invalid!");
 
   const ezGALBuffer* pDest = m_Device.GetBuffer(hDest);
 
@@ -328,7 +328,7 @@ void ezGALCommandEncoder::UpdateBuffer(
       updateMode = ezGALUpdateMode::CopyToTempStorage;
     }
 
-    EZ_VERIFY(pDest->GetSize() >= (uiDestOffset + pSourceData.GetCount()), "Buffer is too small (or offset too big)");
+    EZ_ASSERT_DEV(pDest->GetSize() >= (uiDestOffset + pSourceData.GetCount()), "Buffer is too small (or offset too big)");
     m_CommonImpl.UpdateBufferPlatform(pDest, uiDestOffset, pSourceData, updateMode);
   }
   else

@@ -54,6 +54,7 @@ ezResult ezProcVertexColorMapping::Deserialize(ezStreamReader& stream)
 
 namespace ezProcGenInternal
 {
+  GraphSharedDataBase::~GraphSharedDataBase() = default;
   Output::~Output() = default;
 
   ezHashedString ExpressionInputs::s_sPositionX = ezMakeHashedString("PositionX");

@@ -26,15 +26,21 @@ Node %UV
   unsigned_int8 %Color { 38, 105, 0 }
 
   string %CodeVertexShader { "
-#define USE_TEXCOORD0
+#ifndef USE_TEXCOORD0
+  #define USE_TEXCOORD0
+#endif
 " }
 
   string %CodeGeometryShader { "
-#define USE_TEXCOORD0
+#ifndef USE_TEXCOORD0
+  #define USE_TEXCOORD0
+#endif
 " }
 
   string %CodePixelDefines { "
-#define USE_TEXCOORD0
+#ifndef USE_TEXCOORD0
+  #define USE_TEXCOORD0
+#endif
 " }
 
   OutputPin %UV
@@ -52,11 +58,21 @@ Node %UV2
   unsigned_int8 %Color { 38, 105, 0 }
   
   string %CodeVertexShader { "
-#define USE_TEXCOORD1
+#ifndef USE_TEXCOORD1
+  #define USE_TEXCOORD1
+#endif
+" }
+
+  string %CodeGeometryShader { "
+#ifndef USE_TEXCOORD1
+  #define USE_TEXCOORD1
+#endif
 " }
   
   string %CodePixelDefines { "
-#define USE_TEXCOORD1
+#ifndef USE_TEXCOORD1
+  #define USE_TEXCOORD1
+#endif
 " }
 
   OutputPin %UV
@@ -124,15 +140,21 @@ Node %VertexNormal
   unsigned_int8 %Color { 38, 105, 0 }
 
   string %CodeVertexShader { "
-#define USE_NORMAL
+#ifndef USE_NORMAL
+  #define USE_NORMAL
+#endif
 " }
 
   string %CodeGeometryShader { "
-#define USE_NORMAL
+#ifndef USE_NORMAL
+  #define USE_NORMAL
+#endif
 " }
 
   string %CodePixelDefines { "
-#define USE_NORMAL
+#ifndef USE_NORMAL
+  #define USE_NORMAL
+#endif
 " }
 
   OutputPin %Normal
@@ -150,15 +172,21 @@ Node %VertexTangent
   unsigned_int8 %Color { 38, 105, 0 }
 
   string %CodeVertexShader { "
-#define USE_TANGENT
+#ifndef USE_TANGENT
+  #define USE_TANGENT
+#endif
 " }
 
   string %CodeGeometryShader { "
-#define USE_TANGENT
+#ifndef USE_TANGENT
+  #define USE_TANGENT
+#endif
 " }
 
   string %CodePixelDefines { "
-#define USE_TANGENT
+#ifndef USE_TANGENT
+  #define USE_TANGENT
+#endif
 " }
 
   OutputPin %Tangent
@@ -176,11 +204,21 @@ Node %VertexColor
   unsigned_int8 %Color { 38, 105, 0 }
   
   string %CodeVertexShader { "
-#define USE_COLOR0
+#ifndef USE_COLOR0
+  #define USE_COLOR0
+#endif
+" }
+
+  string %CodeGeometryShader { "
+#ifndef USE_COLOR0
+  #define USE_COLOR0
+#endif
 " }
   
   string %CodePixelDefines { "
-#define USE_COLOR0
+#ifndef USE_COLOR0
+  #define USE_COLOR0
+#endif
 " }
 
   OutputPin %Color
