@@ -25,6 +25,8 @@ static int __CPP_GameObject_SetName(duk_context* pDuk);
 static int __CPP_GameObject_GetName(duk_context* pDuk);
 static int __CPP_GameObject_SetTeamID(duk_context* pDuk);
 static int __CPP_GameObject_GetTeamID(duk_context* pDuk);
+static int __CPP_GameObject_ChangeTags(duk_context* pDuk);
+static int __CPP_GameObject_CheckTags(duk_context* pDuk);
 
 enum GameObject_X
 {
@@ -77,6 +79,11 @@ ezResult ezTypeScriptBinding::Init_GameObject()
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetName", __CPP_GameObject_GetName, 1);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_SetTeamID", __CPP_GameObject_SetTeamID, 2);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetTeamID", __CPP_GameObject_GetTeamID, 1);
+  m_Duk.RegisterGlobalFunctionWithVarArgs("__CPP_GameObject_SetTags", __CPP_GameObject_ChangeTags, 0);
+  m_Duk.RegisterGlobalFunctionWithVarArgs("__CPP_GameObject_AddTags", __CPP_GameObject_ChangeTags, 1);
+  m_Duk.RegisterGlobalFunctionWithVarArgs("__CPP_GameObject_RemoveTags", __CPP_GameObject_ChangeTags, 2);
+  m_Duk.RegisterGlobalFunctionWithVarArgs("__CPP_GameObject_HasAnyTags", __CPP_GameObject_CheckTags, 0);
+  m_Duk.RegisterGlobalFunctionWithVarArgs("__CPP_GameObject_HasAllTags", __CPP_GameObject_CheckTags, 1);
 
   return EZ_SUCCESS;
 }
@@ -614,4 +621,87 @@ static int __CPP_GameObject_GetTeamID(duk_context* pDuk)
   ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
 
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnUInt(pGameObject->GetTeamID()), +1);
+}
+
+static int __CPP_GameObject_ChangeTags(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk);
+
+  ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
+
+  const ezUInt32 uiMagic = duk.GetFunctionMagicValue();
+
+  if (uiMagic == 0) // SetTags
+  {
+    pGameObject->GetTags().Clear();
+  }
+
+  for (ezUInt32 i = 1; i < duk.GetNumVarArgFunctionParameters(); ++i)
+  {
+    const char* szParam = duk.GetStringValue(i, nullptr);
+
+    if (!ezStringUtils::IsNullOrEmpty(szParam))
+    {
+      switch (uiMagic)
+      {
+        case 0: // SetTags
+        case 1: // AddTags
+          pGameObject->GetTags().SetByName(szParam);
+          break;
+
+        case 2: // RemoveTags
+          pGameObject->GetTags().RemoveByName(szParam);
+          break;
+
+        default:
+          EZ_ASSERT_NOT_IMPLEMENTED;
+      }
+    }
+  }
+
+  EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnVoid(), 0);
+}
+
+static int __CPP_GameObject_CheckTags(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk);
+
+  ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
+
+  const ezUInt32 uiMagic = duk.GetFunctionMagicValue();
+
+  bool result = false;
+
+  for (ezUInt32 i = 1; i < duk.GetNumVarArgFunctionParameters(); ++i)
+  {
+    const char* szParam = duk.GetStringValue(i, nullptr);
+
+    if (!ezStringUtils::IsNullOrEmpty(szParam))
+    {
+      const bool bIsSet = pGameObject->GetTags().IsSetByName(szParam);
+
+      if (uiMagic == 0) // HasAnyTag
+      {
+        if (bIsSet)
+        {
+          result = true;
+          break;
+        }
+      }
+      else if (uiMagic == 1) // HasAllTags
+      {
+        if (!bIsSet)
+        {
+          result = false;
+          break;
+        }
+      }
+      else
+      {
+        EZ_ASSERT_NOT_IMPLEMENTED;
+      }
+    }
+  }
+
+  EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnBool(result), +1);
 }
