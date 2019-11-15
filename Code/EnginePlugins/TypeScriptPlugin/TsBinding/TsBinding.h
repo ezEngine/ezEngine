@@ -161,6 +161,7 @@ private:
   ezResult Init_FunctionBinding();
   ezResult Init_PropertyBinding();
   ezResult Init_Debug();
+  ezResult Init_Physics();
 
 
   ///@}

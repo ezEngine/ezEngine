@@ -85,6 +85,12 @@ ezResult ezTypeScriptBinding::Init_RequireModules()
     return EZ_FAILURE;
   }
 
+  if (m_Duk.ExecuteString("var __Physics = require(\"./TypeScript/ez/Physics\");").Failed())
+  {
+    ezLog::Error("Failed to import 'Physics.ts'");
+    return EZ_FAILURE;
+  }
+
   return EZ_SUCCESS;
 }
 

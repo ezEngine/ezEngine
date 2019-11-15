@@ -51,3 +51,6 @@ export import Random = __Random.Random;
 
 import __Clock = require("./ez/Clock")
 export import Clock = __Clock.Clock;
+
+import __Physics = require("./ez/Physics")
+export import Physics = __Physics.Physics;
