@@ -42,3 +42,12 @@ export import GameObjectDesc = __World.GameObjectDesc;
 
 import __Message = require("./ez/Message")
 export import Message = __Message.Message;
+
+import __Debug = require("./ez/Debug")
+export import Debug = __Debug.Debug;
+
+import __Random = require("./ez/Random")
+export import Random = __Random.Random;
+
+import __Clock = require("./ez/Clock")
+export import Clock = __Clock.Clock;

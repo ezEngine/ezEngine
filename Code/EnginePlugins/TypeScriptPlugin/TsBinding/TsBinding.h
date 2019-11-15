@@ -156,8 +156,11 @@ private:
   ezResult Init_GameObject();
   ezResult Init_Component();
   ezResult Init_World();
+  ezResult Init_Clock();
+  ezResult Init_Random();
   ezResult Init_FunctionBinding();
   ezResult Init_PropertyBinding();
+  ezResult Init_Debug();
 
 
   ///@}

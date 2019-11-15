@@ -64,6 +64,9 @@ ezResult ezTypeScriptBinding::Initialize(ezWorld& world)
   EZ_SUCCEED_OR_RETURN(Init_PropertyBinding());
   EZ_SUCCEED_OR_RETURN(Init_Component());
   EZ_SUCCEED_OR_RETURN(Init_World());
+  EZ_SUCCEED_OR_RETURN(Init_Clock());
+  EZ_SUCCEED_OR_RETURN(Init_Debug());
+  EZ_SUCCEED_OR_RETURN(Init_Random());
 
   m_bInitialized = true;
   return EZ_SUCCESS;
