@@ -9,6 +9,7 @@
 #include <Foundation/Serialization/DdlSerializer.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <ToolsFoundation/Document/DocumentUtils.h>
+#include <ToolsFoundation/Project/ToolsProject.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentManager, 1, ezRTTINoAllocator);
@@ -219,6 +220,42 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
   {
     if (DocumentTypes[i]->m_sDocumentTypeName == szDocumentTypeName)
     {
+      // See if there is a default asset document registered for the type, if so clone
+      // it and use that as the new document instead of creating one from scratch.
+      if (bCreate)
+      {
+        ezString ProjectDirectory = ezToolsProject::GetSingleton()->GetProjectDirectory();
+        ezStringBuilder TemplateDocumentPath = ProjectDirectory;
+        ezStringBuilder DocumentFileName;
+        TemplateDocumentPath.AppendPath("DocumentTemplates", "Default");
+        ezStringBuilder Temp;
+        TemplateDocumentPath.ChangeFileExtension(sPath.GetFileExtension().GetData(Temp));
+
+        if (ezOSFile::ExistsFile(TemplateDocumentPath))
+        {
+          EZ_PROFILE_SCOPE(szDocumentTypeName);
+
+          ezUuid CloneUuid;
+          if (CloneDocument(TemplateDocumentPath, sPath, CloneUuid).Succeeded())
+          {
+            status = OpenDocument(szDocumentTypeName, sPath, out_pDocument, flags, pOpenContext);
+
+            if(status.Failed())
+            {
+              ezLog::SeriousWarning("Couldn't open cloned template document, proceeding with normal creation behavior.");
+            }
+            else
+            {
+              return status;
+            }
+          }
+          else
+          {
+            ezLog::SeriousWarning("Couldn't clone template document, proceeding with normal creation behavior.");
+          }
+        }
+      }
+
       EZ_ASSERT_DEV(DocumentTypes[i]->m_bCanCreate, "This document manager cannot create the document type '{0}'", szDocumentTypeName);
 
       {
