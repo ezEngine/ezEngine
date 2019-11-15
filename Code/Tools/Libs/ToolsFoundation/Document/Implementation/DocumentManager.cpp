@@ -9,7 +9,7 @@
 #include <Foundation/Serialization/DdlSerializer.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <ToolsFoundation/Document/DocumentUtils.h>
-#include <Project/ToolsProject.h>
+#include <ToolsFoundation/Project/ToolsProject.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentManager, 1, ezRTTINoAllocator);
@@ -227,17 +227,18 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
         ezString ProjectDirectory = ezToolsProject::GetSingleton()->GetProjectDirectory();
         ezStringBuilder TemplateDocumentPath = ProjectDirectory;
         ezStringBuilder DocumentFileName;
-        TemplateDocumentPath.AppendPath("DocumentTemplates", szDocumentTypeName);
-        TemplateDocumentPath.ChangeFileExtension("ezDocument");
+        TemplateDocumentPath.AppendPath("DocumentTemplates", "Default");
+        ezStringBuilder Temp;
+        TemplateDocumentPath.ChangeFileExtension(sPath.GetFileExtension().GetData(Temp));
 
-        if (ezOSFile::ExistsFile(TemplateDocumentPath.GetData()))
+        if (ezOSFile::ExistsFile(TemplateDocumentPath))
         {
           EZ_PROFILE_SCOPE(szDocumentTypeName);
 
           ezUuid CloneUuid;
-          if (CloneDocument(TemplateDocumentPath.GetData(), sPath.GetData(), CloneUuid).Succeeded())
+          if (CloneDocument(TemplateDocumentPath, sPath, CloneUuid).Succeeded())
           {
-            status = OpenDocument(szDocumentTypeName, sPath.GetData(), out_pDocument, flags, pOpenContext);
+            status = OpenDocument(szDocumentTypeName, sPath, out_pDocument, flags, pOpenContext);
 
             if(status.Failed())
             {
