@@ -127,6 +127,8 @@ public:
   void SetBoolProperty(const char* szPropertyName, bool value, ezInt32 iParentObjectIndex = -1) const;
   void SetNumberProperty(const char* szPropertyName, double value, ezInt32 iParentObjectIndex = -1) const;
   void SetStringProperty(const char* szPropertyName, const char* value, ezInt32 iParentObjectIndex = -1) const;
+
+  /// \note If a negative parent index is given, the parent object taken is actually ParentIdx - 1 (obj at idx -1 is the custom object to use)
   void SetCustomProperty(const char* szPropertyName, ezInt32 iParentObjectIndex = -1) const;
 
 
