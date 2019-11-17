@@ -91,6 +91,88 @@ namespace
     {
       const auto& mbDesc = pCpuMesh->GetDescriptor().MeshBufferDesc();
 
+      const ezVertexDeclarationInfo& vdi = mbDesc.GetVertexDeclaration();
+      const ezUInt8* pRawVertexData = mbDesc.GetVertexBufferData().GetData();
+
+      const ezVec3* pPositions = nullptr;
+      const ezVec3* pNormals = nullptr;
+
+      for (ezUInt32 vs = 0; vs < vdi.m_VertexStreams.GetCount(); ++vs)
+      {
+        if (vdi.m_VertexStreams[vs].m_Semantic == ezGALVertexAttributeSemantic::Position)
+        {
+          if (vdi.m_VertexStreams[vs].m_Format != ezGALResourceFormat::RGBFloat)
+          {
+            ezLog::Warning("Unsupported CPU mesh vertex position format {0}", (int)vdi.m_VertexStreams[vs].m_Format);
+            return nullptr; // other position formats are not supported
+          }
+
+          pPositions = reinterpret_cast<const ezVec3*>(pRawVertexData + vdi.m_VertexStreams[vs].m_uiOffset);
+        }
+        else if (vdi.m_VertexStreams[vs].m_Semantic == ezGALVertexAttributeSemantic::Normal)
+        {
+          if (vdi.m_VertexStreams[vs].m_Format != ezGALResourceFormat::RGBFloat)
+          {
+            ezLog::Warning("Unsupported CPU mesh vertex normal format {0}", (int)vdi.m_VertexStreams[vs].m_Format);
+            return nullptr; // other normal formats are not supported
+          }
+
+          pNormals = reinterpret_cast<const ezVec3*>(pRawVertexData + vdi.m_VertexStreams[vs].m_uiOffset);
+        }
+      }
+
+      if (pPositions == nullptr || pNormals == nullptr)
+      {
+        ezLog::Warning("No position and normal stream found in CPU mesh");
+        return nullptr;
+      }
+
+      const ezUInt32 uiElementStride = mbDesc.GetVertexDataSize();
+
+      ezVec3* rtcPositions = static_cast<ezVec3*>(rtcSetNewGeometryBuffer(triangleMesh, RTC_BUFFER_TYPE_VERTEX, 0, RTC_FORMAT_FLOAT3, sizeof(ezVec3),
+        mbDesc.GetVertexCount()));
+
+      rtcSetGeometryVertexAttributeCount(triangleMesh, 1);
+      ezVec3* rtcNormals = static_cast<ezVec3*>(rtcSetNewGeometryBuffer(triangleMesh, RTC_BUFFER_TYPE_VERTEX_ATTRIBUTE, 0, RTC_FORMAT_FLOAT3, sizeof(ezVec3),
+        mbDesc.GetVertexCount()));
+
+      // write out all vertices
+      for (ezUInt32 i = 0; i < mbDesc.GetVertexCount(); ++i)
+      {
+        rtcPositions[i] = *pPositions;
+        rtcNormals[i] = *pNormals;
+
+        pPositions = ezMemoryUtils::AddByteOffset(pPositions, uiElementStride);
+        pNormals = ezMemoryUtils::AddByteOffset(pNormals, uiElementStride);
+      }
+
+      ezVec3U32* rtcIndices = static_cast<ezVec3U32*>(rtcSetNewGeometryBuffer(triangleMesh, RTC_BUFFER_TYPE_INDEX, 0, RTC_FORMAT_UINT3, sizeof(ezVec3U32),
+        mbDesc.GetPrimitiveCount()));
+
+      bool flip = false;
+      if (mbDesc.Uses32BitIndices())
+      {
+        const ezUInt32* pTypedIndices = reinterpret_cast<const ezUInt32*>(mbDesc.GetIndexBufferData().GetData());
+
+        for (ezUInt32 p = 0; p < mbDesc.GetPrimitiveCount(); ++p)
+        {
+          rtcIndices[p].x = pTypedIndices[p * 3 + (flip ? 2 : 0)];
+          rtcIndices[p].y = pTypedIndices[p * 3 + 1];
+          rtcIndices[p].z = pTypedIndices[p * 3 + (flip ? 0 : 2)];
+        }
+      }
+      else
+      {
+        const ezUInt16* pTypedIndices = reinterpret_cast<const ezUInt16*>(mbDesc.GetIndexBufferData().GetData());
+
+        for (ezUInt32 p = 0; p < mbDesc.GetPrimitiveCount(); ++p)
+        {
+          rtcIndices[p].x = pTypedIndices[p * 3 + (flip ? 2 : 0)];
+          rtcIndices[p].y = pTypedIndices[p * 3 + 1];
+          rtcIndices[p].z = pTypedIndices[p * 3 + (flip ? 0 : 2)];
+        }
+      }
+
       rtcCommitGeometry(triangleMesh);
     }
 
@@ -168,7 +250,60 @@ ezResult ezTracerEmbree::BuildScene(const ezBakingScene& scene)
   return EZ_SUCCESS;
 }
 
-void ezTracerEmbree::TraceRays()
+EZ_DEFINE_AS_POD_TYPE(RTCRayHit);
+
+void ezTracerEmbree::TraceRays(ezArrayPtr<const Ray> rays, ezArrayPtr<Hit> hits)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  const ezUInt32 uiNumRays = rays.GetCount();
+
+  ezHybridArray<RTCRayHit, 256, ezAlignedAllocatorWrapper> rtcRayHits;
+  rtcRayHits.SetCountUninitialized(uiNumRays);
+
+  for (ezUInt32 i = 0; i < uiNumRays; ++i)
+  {
+    auto& ray = rays[i];
+    auto& rtcRayHit = rtcRayHits[i];
+
+    rtcRayHit.ray.org_x = ray.m_vStartPos.x;
+    rtcRayHit.ray.org_y = ray.m_vStartPos.y;
+    rtcRayHit.ray.org_z = ray.m_vStartPos.z;
+    rtcRayHit.ray.tnear = 0.0f;
+
+    rtcRayHit.ray.dir_x = ray.m_vDir.x;
+    rtcRayHit.ray.dir_y = ray.m_vDir.y;
+    rtcRayHit.ray.dir_z = ray.m_vDir.z;
+    rtcRayHit.ray.time = 0.0f;
+
+    rtcRayHit.ray.tfar = ray.m_fDistance;
+    rtcRayHit.ray.mask = 0;
+    rtcRayHit.ray.id = i;
+    rtcRayHit.ray.flags = 0;
+
+    rtcRayHit.hit.geomID = RTC_INVALID_GEOMETRY_ID;
+  }
+
+  RTCIntersectContext context;
+  rtcInitIntersectContext(&context);
+
+  rtcIntersect1M(m_pData->m_rtcScene, &context, rtcRayHits.GetData(), uiNumRays, sizeof(RTCRayHit));
+
+  for (ezUInt32 i = 0; i < uiNumRays; ++i)
+  {
+    auto& rtcRayHit = rtcRayHits[i];
+    auto& ray = rays[i];
+    auto& hit = hits[i];
+
+    if (rtcRayHit.hit.geomID != RTC_INVALID_GEOMETRY_ID)
+    {
+      hit.m_vNormal = ezVec3(rtcRayHit.hit.Ng_x, rtcRayHit.hit.Ng_y, rtcRayHit.hit.Ng_z).GetNormalized();
+      hit.m_fDistance = rtcRayHit.ray.tfar;
+      hit.m_vPosition = ray.m_vStartPos + ray.m_vDir * hit.m_fDistance;
+    }
+    else
+    {
+      hit.m_vPosition.SetZero();
+      hit.m_vNormal.SetZero();
+      hit.m_fDistance = -1.0f;
+    }
+  }
 }

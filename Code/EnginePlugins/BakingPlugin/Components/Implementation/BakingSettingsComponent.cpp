@@ -96,7 +96,7 @@ void ezBakingSettingsComponentManager::OnBeginRender(ezUInt64 uiFrameCounter)
     auto& task = pComponent->m_pRenderDebugViewTask;
     if (task != nullptr && task->m_bHasNewData)
     {
-      //task->m_bHasNewData = false;
+      task->m_bHasNewData = false;
 
       ezGALContext* pContext = ezGALDevice::GetDefaultDevice()->GetPrimaryContext();
 
