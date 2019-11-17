@@ -2,6 +2,7 @@
 
 #include <BakingPlugin/BakingScene.h>
 #include <BakingPlugin/Tracer/TracerEmbree.h>
+#include <Foundation/Utilities/GraphicsUtils.h>
 #include <Foundation/Utilities/Progress.h>
 #include <RendererCore/Meshes/MeshComponentBase.h>
 
@@ -60,8 +61,18 @@ ezResult ezBakingScene::Extract()
   const ezWorld& world = *pWorld;
   EZ_LOCK(world.GetReadMarker());
 
+  const ezTag& tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");
+
   for (auto it = world.GetObjects(); it.IsValid(); ++it)
   {
+    // Exclude editor only objects like gizmos etc.
+    if (it->GetTags().IsSet(tagEditor))
+      continue;
+
+    // Only static objects
+    if (it->IsDynamic())
+      continue;
+
     const ezMeshComponentBase* pMeshComponent = nullptr;
     if (!it->TryGetComponentOfBaseType(pMeshComponent) || !pMeshComponent->GetMesh().IsValid())
       continue;
@@ -95,15 +106,45 @@ ezResult ezBakingScene::RenderDebugView(const ezMat4& InverseViewProjection, ezU
   const ezUInt32 uiNumPixel = uiWidth * uiHeight;
   out_Pixels.SetCountUninitialized(uiNumPixel);
 
+  ezHybridArray<ezTracerInterface::Ray, 128> rays;
+  rays.SetCountUninitialized(128);
+
+  ezHybridArray<ezTracerInterface::Hit, 128> hits;
+  hits.SetCountUninitialized(128);
+
   ezUInt32 uiStartPixel = 0;
-  ezUInt32 uiPixelPerBatch = 128;
+  ezUInt32 uiPixelPerBatch = rays.GetCount();
   while (uiStartPixel < uiNumPixel)
   {
     uiPixelPerBatch = ezMath::Min(uiPixelPerBatch, uiNumPixel - uiStartPixel);
 
     for (ezUInt32 i = 0; i < uiPixelPerBatch; ++i)
     {
-      out_Pixels[uiStartPixel + i] = ezColor((float)i / uiPixelPerBatch, 0, 0);
+      ezUInt32 uiPixelIndex = uiStartPixel + i;
+      ezUInt32 x = uiPixelIndex % uiWidth;
+      ezUInt32 y = uiHeight - (uiPixelIndex / uiWidth) - 1;
+
+      auto& ray = rays[i];
+      ezGraphicsUtils::ConvertScreenPosToWorldPos(InverseViewProjection, 0, 0, uiWidth, uiHeight, ezVec3(x, y, 0), ray.m_vStartPos, &ray.m_vDir);
+      ray.m_fDistance = 1000.0f;
+    }
+
+    m_pTracer->TraceRays(rays, hits);
+
+    for (ezUInt32 i = 0; i < uiPixelPerBatch; ++i)
+    {
+      ezUInt32 uiPixelIndex = uiStartPixel + i;
+
+      auto& hit = hits[i];
+      if (hit.m_fDistance >= 0.0f)
+      {
+        ezVec3 normal = hit.m_vNormal * 0.5f + ezVec3(0.5f);
+        out_Pixels[uiPixelIndex] = ezColorGammaUB(ezMath::ColorFloatToByte(normal.x), ezMath::ColorFloatToByte(normal.y), ezMath::ColorFloatToByte(normal.z));
+      }
+      else
+      {
+        out_Pixels[uiPixelIndex] = ezColorGammaUB(0, 0, 0);
+      }
     }
 
     uiStartPixel += uiPixelPerBatch;

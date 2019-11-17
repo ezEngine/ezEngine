@@ -11,8 +11,21 @@ public:
 
   struct Ray
   {
-    ezVec3 m_vOrigin;
+    EZ_DECLARE_POD_TYPE();
+
+    ezVec3 m_vStartPos;
+    ezVec3 m_vDir;
+    float m_fDistance;
   };
 
-  virtual void TraceRays() = 0;
+  struct Hit
+  {
+    EZ_DECLARE_POD_TYPE();
+
+    ezVec3 m_vPosition;
+    ezVec3 m_vNormal;
+    float m_fDistance;
+  };
+
+  virtual void TraceRays(ezArrayPtr<const Ray> rays, ezArrayPtr<Hit> hits) = 0;
 };
