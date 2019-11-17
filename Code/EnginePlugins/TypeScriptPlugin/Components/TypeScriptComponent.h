@@ -91,6 +91,7 @@ protected:
     OnActivatedTS = 1,
     NoTsTick = 2,
     SimStartedTS = 3,
+    ScriptFailure = 4,
   };
 
 private:

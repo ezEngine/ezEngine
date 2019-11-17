@@ -104,6 +104,9 @@ bool ezTypeScriptComponent::OnUnhandledMessage(ezMessage& msg) const
 
 bool ezTypeScriptComponent::HandleUnhandledMessage(ezMessage& msg)
 {
+  if (GetUserFlag(UserFlag::ScriptFailure))
+    return false;
+
   ezTypeScriptBinding& binding = static_cast<ezTypeScriptComponentManager*>(GetOwningManager())->GetTsBinding();
 
   return binding.DeliverMessage(m_ComponentTypeInfo, this, msg);
@@ -111,6 +114,9 @@ bool ezTypeScriptComponent::HandleUnhandledMessage(ezMessage& msg)
 
 bool ezTypeScriptComponent::CallTsFunc(const char* szFuncName)
 {
+  if (GetUserFlag(UserFlag::ScriptFailure))
+    return false;
+
   ezTypeScriptBinding& binding = static_cast<ezTypeScriptComponentManager*>(GetOwningManager())->GetTsBinding();
 
   ezDuktapeHelper duk(binding.GetDukTapeContext());
@@ -222,16 +228,23 @@ void ezTypeScriptComponent::OnSimulationStarted()
 
   SetUserFlag(UserFlag::SimStartedTS, true);
 
-  if (binding.LoadComponent(m_TypeScriptComponentGuid, m_ComponentTypeInfo).Succeeded())
+  if (binding.LoadComponent(m_TypeScriptComponentGuid, m_ComponentTypeInfo).Failed())
   {
-    ezUInt32 uiStashIdx = 0;
-    binding.RegisterComponent(m_ComponentTypeInfo.Value().m_sComponentTypeName, GetHandle(), uiStashIdx);
-
-    // if the TS component has any message handlers, we need to capture all messages and redirect them to the script
-    EnableUnhandledMessageHandler(!m_ComponentTypeInfo.Value().m_MessageHandlers.IsEmpty());
-
-    SetExposedVariables();
+    SetUserFlag(UserFlag::ScriptFailure, true);
+    return;
   }
+
+  ezUInt32 uiStashIdx = 0;
+  if (binding.RegisterComponent(m_ComponentTypeInfo.Value().m_sComponentTypeName, GetHandle(), uiStashIdx).Failed())
+  {
+    SetUserFlag(UserFlag::ScriptFailure, true);
+    return;
+  }
+
+  // if the TS component has any message handlers, we need to capture all messages and redirect them to the script
+  EnableUnhandledMessageHandler(!m_ComponentTypeInfo.Value().m_MessageHandlers.IsEmpty());
+
+  SetExposedVariables();
 
   ezTypeScriptComponent::OnActivated();
 
@@ -240,6 +253,9 @@ void ezTypeScriptComponent::OnSimulationStarted()
 
 void ezTypeScriptComponent::Update(ezTypeScriptBinding& binding)
 {
+  if (GetUserFlag(UserFlag::ScriptFailure))
+    return;
+
   if (GetUserFlag(UserFlag::NoTsTick))
     return;
 
@@ -304,6 +320,9 @@ const ezUuid& ezTypeScriptComponent::GetTypeScriptComponentGuid() const
 
 void ezTypeScriptComponent::OnMsgTypeScriptMsgProxy(ezMsgTypeScriptMsgProxy& msg)
 {
+  if (GetUserFlag(UserFlag::ScriptFailure))
+    return;
+
   ezTypeScriptBinding& binding = static_cast<ezTypeScriptComponentManager*>(GetOwningManager())->GetTsBinding();
 
   binding.DeliverTsMessage(m_ComponentTypeInfo, this, msg);
