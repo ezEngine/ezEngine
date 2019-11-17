@@ -15,6 +15,12 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTriggerState, 1)
+  EZ_ENUM_CONSTANTS(ezTriggerState::Activated, ezTriggerState::Continuing, ezTriggerState::Deactivated)
+EZ_END_STATIC_REFLECTED_ENUM;
+
+//////////////////////////////////////////////////////////////////////////
+
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgDeleteGameObject);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgDeleteGameObject, 1, ezRTTIDefaultAllocator<ezMsgDeleteGameObject>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -24,6 +30,11 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgComponentInternalTrigger);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgComponentInternalTrigger, 1, ezRTTIDefaultAllocator<ezMsgComponentInternalTrigger>)
 {
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("UsageStringHash", m_uiUsageStringHash)
+  }
+  EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
     new ezAutoGenVisScriptMsgSender(),
@@ -99,4 +110,3 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 EZ_STATICLINK_FILE(Core, Core_Messages_Implementation_Messages);
-

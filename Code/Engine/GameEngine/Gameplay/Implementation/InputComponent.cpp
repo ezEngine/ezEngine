@@ -16,6 +16,14 @@ EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgInputActionTriggered);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgInputActionTriggered, 1, ezRTTIDefaultAllocator<ezMsgInputActionTriggered>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("InputActionHash", m_uiInputActionHash),
+    EZ_MEMBER_PROPERTY("KeyPressValue", m_fKeyPressValue),
+  }
+  EZ_END_PROPERTIES;
+}
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_COMPONENT_TYPE(ezInputComponent, 2, ezComponentMode::Static)
@@ -35,7 +43,12 @@ EZ_BEGIN_COMPONENT_TYPE(ezInputComponent, 2, ezComponentMode::Static)
   {
     EZ_MESSAGE_SENDER(m_InputEventSender)
   }
-  EZ_END_MESSAGESENDERS
+  EZ_END_MESSAGESENDERS;
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetCurrentInputState, In, "InputAction", In, "OnlyKeyPressed"),
+  }
+  EZ_END_FUNCTIONS;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
