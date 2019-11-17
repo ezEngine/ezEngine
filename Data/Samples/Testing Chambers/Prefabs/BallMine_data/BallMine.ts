@@ -121,7 +121,6 @@ export class BallMine extends ez.TickedTypescriptComponent {
         }
 
         ez.World.DeleteObjectDelayed(this.GetOwner());
-
     }
 
     // to use message handlers you must implement exactly this function
