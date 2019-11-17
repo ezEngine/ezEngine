@@ -1,19 +1,22 @@
 import __Vec3 = require("./Vec3")
-import __Angle = require("./Angle")
-
 export import Vec3 = __Vec3.Vec3;
-export import ezMath = __Vec3.ezMath;
+
+import __Angle = require("./Angle")
 export import Angle = __Angle.Angle;
+
+import __Mat3 = require("./Mat3")
+export import Mat3 = __Mat3.Mat3;
+
+import __Mat4 = require("./Mat4")
+export import Mat4 = __Mat4.Mat4;
+
+export import ezMath = __Vec3.ezMath;
 
 export class Quat {
     x: number;
     y: number;
     z: number;
     w: number;
-
-    // TODO: void SetFromMat3(const ezMat3Template<Type>& m)
-    // const ezMat3Template<Type> GetAsMat3() const
-    // const ezMat4Template<Type> GetAsMat4() const
 
     constructor(_x: number = 0.0, _y: number = 0.0, _z: number = 0.0, _w: number = 1.0) {
         this.x = _x;
@@ -24,6 +27,108 @@ export class Quat {
 
     Clone(): Quat {
         return new Quat(this.x, this.y, this.z, this.w);
+    }
+
+    GetAsMat3(): Mat3 {
+        let m = new Mat3();
+
+        const fTx = this.x + this.x;
+        const fTy = this.y + this.y;
+        const fTz = this.z + this.z;
+        const fTwx = fTx * this.w;
+        const fTwy = fTy * this.w;
+        const fTwz = fTz * this.w;
+        const fTxx = fTx * this.x;
+        const fTxy = fTy * this.x;
+        const fTxz = fTz * this.x;
+        const fTyy = fTy * this.y;
+        const fTyz = fTz * this.y;
+        const fTzz = fTz * this.z;
+
+        m.SetElement(0, 0, 1 - (fTyy + fTzz));
+        m.SetElement(1, 0, fTxy - fTwz);
+        m.SetElement(2, 0, fTxz + fTwy);
+        m.SetElement(0, 1, fTxy + fTwz);
+        m.SetElement(1, 1, 1 - (fTxx + fTzz));
+        m.SetElement(2, 1, fTyz - fTwx);
+        m.SetElement(0, 2, fTxz - fTwy);
+        m.SetElement(1, 2, fTyz + fTwx);
+        m.SetElement(2, 2, 1 - (fTxx + fTyy));
+
+        return m;
+    }
+
+    GetAsMat4(): Mat4 {
+        let m = new Mat4();
+
+        const fTx = this.x + this.x;
+        const fTy = this.y + this.y;
+        const fTz = this.z + this.z;
+        const fTwx = fTx * this.w;
+        const fTwy = fTy * this.w;
+        const fTwz = fTz * this.w;
+        const fTxx = fTx * this.x;
+        const fTxy = fTy * this.x;
+        const fTxz = fTz * this.x;
+        const fTyy = fTy * this.y;
+        const fTyz = fTz * this.y;
+        const fTzz = fTz * this.z;
+
+        m.SetElement(0, 0, 1 - (fTyy + fTzz));
+        m.SetElement(1, 0, fTxy - fTwz);
+        m.SetElement(2, 0, fTxz + fTwy);
+        m.SetElement(0, 1, fTxy + fTwz);
+        m.SetElement(1, 1, 1 - (fTxx + fTzz));
+        m.SetElement(2, 1, fTyz - fTwx);
+        m.SetElement(0, 2, fTxz - fTwy);
+        m.SetElement(1, 2, fTyz + fTwx);
+        m.SetElement(2, 2, 1 - (fTxx + fTyy));
+
+        return m;
+    }
+
+    SetFromMat3(m: Mat3): void {
+        const trace = m.GetElement(0, 0) + m.GetElement(1, 1) + m.GetElement(2, 2);
+        const half = 0.5;
+
+        let val: number[] = [0, 0, 0, 0];
+
+        if (trace > 0) {
+            let s = Math.sqrt(trace + 1);
+            let t = half / s;
+
+            val[0] = (m.GetElement(1, 2) - m.GetElement(2, 1)) * t;
+            val[1] = (m.GetElement(2, 0) - m.GetElement(0, 2)) * t;
+            val[2] = (m.GetElement(0, 1) - m.GetElement(1, 0)) * t;
+
+            val[3] = half * s;
+        }
+        else {
+            const next: number[] = [1, 2, 0];
+            let i = 0;
+
+            if (m.GetElement(1, 1) > m.GetElement(0, 0))
+                i = 1;
+
+            if (m.GetElement(2, 2) > m.GetElement(i, i))
+                i = 2;
+
+            let j = next[i];
+            let k = next[j];
+
+            let s = Math.sqrt(m.GetElement(i, i) - (m.GetElement(j, j) + m.GetElement(k, k)) + 1);
+            let t = half / s;
+
+            val[i] = half * s;
+            val[3] = (m.GetElement(j, k) - m.GetElement(k, j)) * t;
+            val[j] = (m.GetElement(i, j) + m.GetElement(j, i)) * t;
+            val[k] = (m.GetElement(i, k) + m.GetElement(k, i)) * t;
+        }
+
+        this.x = val[0];
+        this.y = val[1];
+        this.z = val[2];
+        this.w = val[3];
     }
 
     SetQuat(rhs: Quat): void {

@@ -7,14 +7,19 @@
 #  include <Duktape/duk_module_duktape.h>
 #  include <Duktape/duktape.h>
 
-ezDuktapeFunction::ezDuktapeFunction(duk_context* pExistingContext, ezInt32 iExpectedStackChange)
-  : ezDuktapeHelper(pExistingContext, iExpectedStackChange)
+ezDuktapeFunction::ezDuktapeFunction(duk_context* pExistingContext)
+  : ezDuktapeHelper(pExistingContext)
 {
 }
 
 ezDuktapeFunction::~ezDuktapeFunction()
 {
-  EZ_ASSERT_DEV(m_bDidReturnValue, "You need to call one ezDuktapeFunction::ReturnXY() and return its result from your C function.");
+#  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  if (!m_bDidReturnValue)
+  {
+    ezLog::Error("You need to call one ezDuktapeFunction::ReturnXY() and return its result from your C function.");
+  }
+#  endif
 }
 
 ezUInt32 ezDuktapeFunction::GetNumVarArgFunctionParameters() const

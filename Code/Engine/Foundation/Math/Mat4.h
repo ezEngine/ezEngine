@@ -179,8 +179,7 @@ public:
   const ezVec3Template<Type> TransformPosition(const ezVec3Template<Type>& v) const; // [tested]
 
   /// \brief Matrix-vector multiplication, assuming the 4th component of the vector is one (default behavior).
-  void TransformPosition(
-    ezVec3Template<Type>* inout_v, ezUInt32 uiNumVectors, ezUInt32 uiStride = sizeof(ezVec3Template<Type>)) const; // [tested]
+  void TransformPosition(ezVec3Template<Type>* inout_v, ezUInt32 uiNumVectors, ezUInt32 uiStride = sizeof(ezVec3Template<Type>)) const; // [tested]
 
   /// \brief Matrix-vector multiplication, assuming the 4th component of the vector is zero. So, rotation/scaling only. Useful as an
   /// optimization.
@@ -188,8 +187,7 @@ public:
 
   /// \brief Matrix-vector multiplication, assuming the 4th component of the vector is zero. So, rotation/scaling only. Useful as an
   /// optimization.
-  void TransformDirection(
-    ezVec3Template<Type>* inout_v, ezUInt32 uiNumVectors, ezUInt32 uiStride = sizeof(ezVec3Template<Type>)) const; // [tested]
+  void TransformDirection(ezVec3Template<Type>* inout_v, ezUInt32 uiNumVectors, ezUInt32 uiStride = sizeof(ezVec3Template<Type>)) const; // [tested]
 
   /// \brief Matrix-vector multiplication.
   const ezVec4Template<Type> Transform(const ezVec4Template<Type>& v) const; // [tested]

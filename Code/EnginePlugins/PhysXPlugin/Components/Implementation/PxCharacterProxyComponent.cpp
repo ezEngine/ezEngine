@@ -96,7 +96,7 @@ namespace
       // do nothing for now
     }
   };
-}
+} // namespace
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -113,37 +113,38 @@ struct ezPxCharacterProxyData
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterProxyComponent, 3, ezComponentMode::Dynamic)
 {
-  EZ_BEGIN_PROPERTIES{
-      EZ_MEMBER_PROPERTY("CapsuleHeight", m_fCapsuleHeight)
-          ->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 10.0f)),
-      EZ_MEMBER_PROPERTY("CapsuleCrouchHeight", m_fCapsuleCrouchHeight)
-          ->AddAttributes(new ezDefaultValueAttribute(0.2f), new ezClampValueAttribute(0.0f, 10.0f)),
-      EZ_MEMBER_PROPERTY("CapsuleRadius", m_fCapsuleRadius)
-          ->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezClampValueAttribute(0.1f, 5.0f)),
-      EZ_MEMBER_PROPERTY("Mass", m_fMass)
-          ->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezClampValueAttribute(0.01f, ezVariant())),
-      EZ_MEMBER_PROPERTY("MaxStepHeight", m_fMaxStepHeight)
-          ->AddAttributes(new ezDefaultValueAttribute(0.3f), new ezClampValueAttribute(0.0f, 5.0f)),
-      EZ_MEMBER_PROPERTY("MaxSlopeAngle", m_MaxClimbingSlope)
-          ->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(40.0f)),
-                          new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(80.0f))),
+  EZ_BEGIN_PROPERTIES
+  {
+      EZ_MEMBER_PROPERTY("CapsuleHeight", m_fCapsuleHeight)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 10.0f)),
+      EZ_MEMBER_PROPERTY("CapsuleCrouchHeight", m_fCapsuleCrouchHeight)->AddAttributes(new ezDefaultValueAttribute(0.2f), new ezClampValueAttribute(0.0f, 10.0f)),
+      EZ_MEMBER_PROPERTY("CapsuleRadius", m_fCapsuleRadius)->AddAttributes(new ezDefaultValueAttribute(0.25f), new ezClampValueAttribute(0.1f, 5.0f)),
+      EZ_MEMBER_PROPERTY("Mass", m_fMass)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezClampValueAttribute(0.01f, ezVariant())),
+      EZ_MEMBER_PROPERTY("MaxStepHeight", m_fMaxStepHeight)->AddAttributes(new ezDefaultValueAttribute(0.3f), new ezClampValueAttribute(0.0f, 5.0f)),
+      EZ_MEMBER_PROPERTY("MaxSlopeAngle", m_MaxClimbingSlope)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(40.0f)), new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(80.0f))),
       EZ_MEMBER_PROPERTY("ForceSlopeSliding", m_bForceSlopeSliding)->AddAttributes(new ezDefaultValueAttribute(true)),
       EZ_MEMBER_PROPERTY("ConstrainedClimbMode", m_bConstrainedClimbingMode),
       EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
-  } EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS{
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_MESSAGEHANDLERS
+  {
       EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
-  } EZ_END_MESSAGEHANDLERS; EZ_BEGIN_ATTRIBUTES{
+  }
+  EZ_END_MESSAGEHANDLERS; EZ_BEGIN_ATTRIBUTES
+  {
       new ezCapsuleManipulatorAttribute("CapsuleHeight", "CapsuleRadius"),
       new ezCapsuleVisualizerAttribute("CapsuleHeight", "CapsuleRadius"),
-  } EZ_END_ATTRIBUTES;
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_COMPONENT_TYPE
+// clang-format on
 
 ezPxCharacterProxyComponent::ezPxCharacterProxyComponent()
-    : m_UserData(this)
+  : m_UserData(this)
 {
   m_fCapsuleHeight = 1.0f;
   m_fCapsuleCrouchHeight = 0.2f;
@@ -314,7 +315,7 @@ ezBitflags<ezPxCharacterCollisionFlags> ezPxCharacterProxyComponent::Move(const 
 
     EZ_PX_WRITE_LOCK(*(m_pController->getScene()));
     PxControllerCollisionFlags collisionFlags =
-        m_pController->move(ezPxConversionUtils::ToVec3(vMotion), 0.0f, fElapsedTime, m_Data->m_ControllerFilter);
+      m_pController->move(ezPxConversionUtils::ToVec3(vMotion), 0.0f, fElapsedTime, m_Data->m_ControllerFilter);
 
     ezVec3 vNewPos = ezPxConversionUtils::ToVec3(m_pController->getPosition());
     pOwner->SetGlobalPosition(vNewPos);

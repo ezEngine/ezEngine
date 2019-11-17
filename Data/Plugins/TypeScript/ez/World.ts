@@ -10,6 +10,12 @@ export import Vec3 = __Vec3.Vec3;
 import __Quat = require("./Quat")
 export import Quat = __Quat.Quat;
 
+import __Color = require("./Color")
+export import Color = __Color.Color;
+
+import __Transform = require("./Transform")
+export import Transform = __Transform.Transform;
+
 export class GameObjectDesc {
 
   Active: boolean = false;
@@ -29,6 +35,9 @@ declare function __CPP_World_CreateObject(desc: GameObjectDesc): GameObject;
 declare function __CPP_World_CreateComponent(owner: GameObject, componentTypeNameHash: number): any;
 declare function __CPP_World_DeleteComponent(component: Component): void;
 declare function __CPP_World_TryGetObjectWithGlobalKey(globalKey: string): GameObject;
+
+declare function __CPP_World_FindObjectsInSphere(center: Vec3, radius: number, callback: (go: GameObject) => boolean): void;
+declare function __CPP_World_FindObjectsInBox(min: Vec3, max: Vec3, callback: (go: GameObject) => boolean): void;
 
 export namespace World {
 
@@ -52,7 +61,13 @@ export namespace World {
     return __CPP_World_TryGetObjectWithGlobalKey(globalKey);
   }
 
+  export function FindObjectsInSphere(center: Vec3, radius: number, callback: (go: GameObject) => boolean): void {
+    __CPP_World_FindObjectsInSphere(center, radius, callback);
+  }
+
+  export function FindObjectsInBox(min: Vec3, max: Vec3, callback: (go: GameObject) => boolean): void {
+    __CPP_World_FindObjectsInBox(min, max, callback);
+  }
+
   // GetCoordinateSystem
-  // GetClock
-  // GetRandomNumberGenerator
 };

@@ -49,6 +49,18 @@ ezResult ezTypeScriptBinding::Init_RequireModules()
     return EZ_FAILURE;
   }
 
+  if (m_Duk.ExecuteString("var __Mat3 = require(\"./TypeScript/ez/Mat3\");").Failed())
+  {
+    ezLog::Error("Failed to import 'Mat3.ts'");
+    return EZ_FAILURE;
+  }
+
+  if (m_Duk.ExecuteString("var __Mat4 = require(\"./TypeScript/ez/Mat4\");").Failed())
+  {
+    ezLog::Error("Failed to import 'Mat4.ts'");
+    return EZ_FAILURE;
+  }
+
   if (m_Duk.ExecuteString("var __Quat = require(\"./TypeScript/ez/Quat\");").Failed())
   {
     ezLog::Error("Failed to import 'Quat.ts'");
@@ -73,12 +85,18 @@ ezResult ezTypeScriptBinding::Init_RequireModules()
     return EZ_FAILURE;
   }
 
+  if (m_Duk.ExecuteString("var __Physics = require(\"./TypeScript/ez/Physics\");").Failed())
+  {
+    ezLog::Error("Failed to import 'Physics.ts'");
+    return EZ_FAILURE;
+  }
+
   return EZ_SUCCESS;
 }
 
 int ezTypeScriptBinding::DukSearchModule(duk_context* pDuk)
 {
-  ezDuktapeFunction duk(pDuk, +1);
+  ezDuktapeFunction duk(pDuk);
 
   ezStringBuilder sRequestedFile = duk.GetStringValue(0);
   if (!sRequestedFile.HasAnyExtension())
@@ -95,7 +113,7 @@ int ezTypeScriptBinding::DukSearchModule(duk_context* pDuk)
   {
     duk.PushUndefined();
     duk.Error(ezFmt("'required' module \"{}\" could not be loaded: JsLib resource is missing.", sRequestedFile));
-    return duk.ReturnCustom();
+    EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnCustom(), +1);
   }
 
   auto it = pCompendium->GetDescriptor().m_PathToSource.Find(sRequestedFile);
@@ -104,8 +122,8 @@ int ezTypeScriptBinding::DukSearchModule(duk_context* pDuk)
   {
     duk.PushUndefined();
     duk.Error(ezFmt("'required' module \"{}\" could not be loaded: JsLib resource does not contain source for it.", sRequestedFile));
-    return duk.ReturnCustom();
+    EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnCustom(), +1);
   }
 
-  return duk.ReturnString(it.Value());
+  EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnString(it.Value()), +1);
 }

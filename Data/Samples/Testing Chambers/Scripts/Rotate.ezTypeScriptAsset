@@ -2,33 +2,7 @@ HeaderV2
 {
 o
 {
-	Uuid %id{u4{4969520201257414020,807186506325103477}}
-	s %t{"ezExposedParameter"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes{}
-		Vec3 %DefaultValue{f{0x0000803F,0x00000040,0x00004040}}
-		s %Name{"Vec3"}
-		s %Type{""}
-	}
-}
-o
-{
-	Uuid %id{u4{13241226125471720065,5348266469252050666}}
-	s %t{"ezExposedParameter"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes{}
-		Color %DefaultValue{f{0x64003C40,0x6178FA3C,0x8A491240,0x0000803F}}
-		s %Name{"Color"}
-		s %Type{""}
-	}
-}
-o
-{
-	Uuid %id{u4{2492166049264812455,5678449376194518550}}
+	Uuid %id{u4{3701279737852572830,5417918135468549630}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
 	s %n{"Header"}
@@ -37,13 +11,13 @@ o
 		s %AssetType{"TypeScript"}
 		VarArray %Dependencies
 		{
-			s{"Scripts/nested/Nested.ts"}
+			s{"Scripts/Rotate.ts"}
 		}
-		Uuid %DocumentID{u4{2492166049264812455,5678449376194518550}}
-		u4 %Hash{16193772882220171193}
+		Uuid %DocumentID{u4{3701279737852572830,5417918135468549630}}
+		u4 %Hash{11678104500419989865}
 		VarArray %MetaInfo
 		{
-			Uuid{u4{15732117038310708319,7125559824858693083}}
+			Uuid{u4{98109194289725165,10269579756313425659}}
 		}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -51,58 +25,28 @@ o
 }
 o
 {
-	Uuid %id{u4{15732117038310708319,7125559824858693083}}
+	Uuid %id{u4{15136052478303198954,8999223323010441795}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		d %DefaultValue{0x0000000000805640}
+		s %Name{"Speed"}
+		s %Type{""}
+	}
+}
+o
+{
+	Uuid %id{u4{98109194289725165,10269579756313425659}}
 	s %t{"ezExposedParameters"}
 	u3 %v{3}
 	p
 	{
 		VarArray %Parameters
 		{
-			Uuid{u4{9352815252193157592,17362035754402060208}}
-			Uuid{u4{16122196816843474244,14198779997350625069}}
-			Uuid{u4{16571611976344153537,7224867266580226477}}
-			Uuid{u4{4969520201257414020,807186506325103477}}
-			Uuid{u4{13241226125471720065,5348266469252050666}}
+			Uuid{u4{15136052478303198954,8999223323010441795}}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{16571611976344153537,7224867266580226477}}
-	s %t{"ezExposedParameter"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes{}
-		s %DefaultValue{"Yeah"}
-		s %Name{"String"}
-		s %Type{""}
-	}
-}
-o
-{
-	Uuid %id{u4{16122196816843474244,14198779997350625069}}
-	s %t{"ezExposedParameter"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes{}
-		b %DefaultValue{1}
-		s %Name{"Boolean"}
-		s %Type{""}
-	}
-}
-o
-{
-	Uuid %id{u4{9352815252193157592,17362035754402060208}}
-	s %t{"ezExposedParameter"}
-	u3 %v{2}
-	p
-	{
-		VarArray %Attributes{}
-		d %DefaultValue{0x000000000000F03F}
-		s %Name{"Number"}
-		s %Type{""}
 	}
 }
 }
@@ -110,87 +54,31 @@ Objects
 {
 o
 {
-	Uuid %id{u4{11888638320328219266,4723616775190594246}}
-	s %t{"ezTypeScriptParameterNumber"}
-	u3 %v{1}
-	p
-	{
-		d %Default{0x000000000000F03F}
-		s %Name{"Number"}
-	}
-}
-o
-{
-	Uuid %id{u4{5611162856219121041,4747557197039989955}}
-	s %t{"ezTypeScriptParameterColor"}
-	u3 %v{1}
-	p
-	{
-		Color %Default{f{0x64003C40,0x6178FA3C,0x8A491240,0x0000803F}}
-		s %Name{"Color"}
-	}
-}
-o
-{
-	Uuid %id{u4{4647848429645336756,4789648746251375313}}
-	s %t{"ezTypeScriptParameterString"}
-	u3 %v{1}
-	p
-	{
-		s %Default{"Yeah"}
-		s %Name{"String"}
-	}
-}
-o
-{
-	Uuid %id{u4{6321022208642872242,5045313920232325899}}
-	s %t{"ezTypeScriptParameterVec3"}
-	u3 %v{1}
-	p
-	{
-		Vec3 %Default{f{0x0000803F,0x00000040,0x00004040}}
-		s %Name{"Vec3"}
-	}
-}
-o
-{
-	Uuid %id{u4{353929820793530020,5217269304207582593}}
+	Uuid %id{u4{14381134361731566271,5319207614331051826}}
 	s %t{"ezTypeScriptAssetProperties"}
 	u3 %v{1}
 	p
 	{
-		VarArray %BoolParameters
-		{
-			Uuid{u4{12954325080239529601,5340599078512487244}}
-		}
-		VarArray %ColorParameters
-		{
-			Uuid{u4{5611162856219121041,4747557197039989955}}
-		}
+		VarArray %BoolParameters{}
+		VarArray %ColorParameters{}
 		VarArray %NumberParameters
 		{
-			Uuid{u4{11888638320328219266,4723616775190594246}}
+			Uuid{u4{15647480004896335535,5666814723188813885}}
 		}
-		s %ScriptFile{"Scripts/nested/Nested.ts"}
-		VarArray %StringParameters
-		{
-			Uuid{u4{4647848429645336756,4789648746251375313}}
-		}
-		VarArray %Vec3Parameters
-		{
-			Uuid{u4{6321022208642872242,5045313920232325899}}
-		}
+		s %ScriptFile{"Scripts/Rotate.ts"}
+		VarArray %StringParameters{}
+		VarArray %Vec3Parameters{}
 	}
 }
 o
 {
-	Uuid %id{u4{12954325080239529601,5340599078512487244}}
-	s %t{"ezTypeScriptParameterBool"}
+	Uuid %id{u4{15647480004896335535,5666814723188813885}}
+	s %t{"ezTypeScriptParameterNumber"}
 	u3 %v{1}
 	p
 	{
-		b %Default{1}
-		s %Name{"Boolean"}
+		d %Default{0x0000000000805640}
+		s %Name{"Speed"}
 	}
 }
 o
@@ -203,7 +91,7 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{353929820793530020,5217269304207582593}}
+			Uuid{u4{14381134361731566271,5319207614331051826}}
 		}
 	}
 }

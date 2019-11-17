@@ -15,7 +15,7 @@ static duk_ret_t ModuleSearchFunction(duk_context* ctx);
 
 static int CFuncPrint(duk_context* pContext)
 {
-  ezDuktapeFunction wrapper(pContext, 0);
+  ezDuktapeFunction wrapper(pContext);
   const char* szText = wrapper.GetStringValue(0, nullptr);
 
   ezLog::Info("Print: '{}'", szText);
@@ -24,7 +24,7 @@ static int CFuncPrint(duk_context* pContext)
 
 static int CFuncPrintVA(duk_context* pContext)
 {
-  ezDuktapeFunction wrapper(pContext, 1);
+  ezDuktapeFunction wrapper(pContext);
 
   const ezUInt32 uiNumArgs = wrapper.GetNumVarArgFunctionParameters();
 
@@ -84,7 +84,7 @@ static int CFuncPrintVA(duk_context* pContext)
 
 static int CFuncMagic(duk_context* pContext)
 {
-  ezDuktapeFunction wrapper(pContext, 1);
+  ezDuktapeFunction wrapper(pContext);
   ezInt16 iMagic = wrapper.GetFunctionMagicValue();
 
   ezLog::Info("Magic: '{}'", iMagic);
@@ -235,7 +235,7 @@ EZ_CREATE_SIMPLE_TEST(Scripting, DuktapeWrapper)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Inspect Object")
   {
     ezDuktapeContext duk("DukTest");
-    ezDuktapeHelper val(duk, 0);
+    ezDuktapeHelper val(duk);
     EZ_TEST_RESULT(duk.ExecuteFile("Object.js"));
 
     duk.PushGlobalObject();                     // [ global ]
@@ -287,7 +287,7 @@ EZ_CREATE_SIMPLE_TEST(Scripting, DuktapeWrapper)
 
 static duk_ret_t ModuleSearchFunction(duk_context* ctx)
 {
-  ezDuktapeFunction script(ctx, 1);
+  ezDuktapeFunction script(ctx);
 
   /* Nargs was given as 4 and we get the following stack arguments:
   *   index 0: id

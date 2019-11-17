@@ -23,6 +23,12 @@ export import Vec2 = __Vec2.Vec2;
 import __Vec3 = require("./Vec3")
 export import Vec3 = __Vec3.Vec3;
 
+import __Mat3 = require("./Mat3")
+export import Mat3 = __Mat3.Mat3;
+
+import __Mat4 = require("./Mat4")
+export import Mat4 = __Mat4.Mat4;
+
 import __Quat = require("./Quat")
 export import Quat = __Quat.Quat;
 
@@ -218,7 +224,7 @@ static ezUniquePtr<ezMessage> CreateMessage(ezUInt32 uiTypeHash, const ezRTTI*& 
 
 ezUniquePtr<ezMessage> ezTypeScriptBinding::MessageFromParameter(duk_context* pDuk, ezInt32 iObjIdx, ezTime delay)
 {
-  ezDuktapeHelper duk(pDuk, 0);
+  ezDuktapeHelper duk(pDuk);
 
   ezUInt32 uiTypeNameHash = duk.GetUIntValue(iObjIdx);
 
@@ -261,7 +267,7 @@ ezUniquePtr<ezMessage> ezTypeScriptBinding::MessageFromParameter(duk_context* pD
     }
 
     ezLog::Error("Too many posted messages with large delay (> {}). DukTape stash is full.", c_uiMaxMsgStash);
-    return nullptr;
+    EZ_DUK_RETURN_AND_VERIFY_STACK(duk, nullptr, 0);
 
   found:
 
@@ -279,12 +285,13 @@ ezUniquePtr<ezMessage> ezTypeScriptBinding::MessageFromParameter(duk_context* pD
     pTypedMsg->m_uiStashIndex = m_uiNextStashMsgIdx;
   }
 
+  EZ_DUK_VERIFY_STACK(duk, 0);
   return pMsg;
 }
 
 void ezTypeScriptBinding::DukPutMessage(duk_context* pDuk, const ezMessage& msg)
 {
-  ezDuktapeHelper duk(pDuk, +1);
+  ezDuktapeHelper duk(pDuk);
 
   const ezRTTI* pRtti = msg.GetDynamicRTTI();
   ezStringBuilder sMsgName = pRtti->GetTypeName();
@@ -316,11 +323,13 @@ void ezTypeScriptBinding::DukPutMessage(duk_context* pDuk, const ezMessage& msg)
 
     SetVariantProperty(duk, pMember->GetPropertyName(), -1, val);
   }
+
+  EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, +1);
 }
 
 void ezTypeScriptBinding::RegisterMessageHandlersForComponentType(const char* szComponent, const ezUuid& componentType)
 {
-  ezDuktapeHelper duk(m_Duk, 0);
+  ezDuktapeHelper duk(m_Duk);
 
   m_CurrentTsMsgHandlerRegistrator = componentType;
 
@@ -346,6 +355,8 @@ void ezTypeScriptBinding::RegisterMessageHandlersForComponentType(const char* sz
   duk.PopStack(); // [ ]
 
   m_CurrentTsMsgHandlerRegistrator.SetInvalid();
+
+  EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, 0);
 }
 
 int ezTypeScriptBinding::__CPP_Binding_RegisterMessageHandler(duk_context* pDuk)
@@ -354,7 +365,7 @@ int ezTypeScriptBinding::__CPP_Binding_RegisterMessageHandler(duk_context* pDuk)
 
   EZ_ASSERT_DEV(tsb->m_CurrentTsMsgHandlerRegistrator.IsValid(), "'ez.TypescriptComponent.RegisterMessageHandler' may only be called from 'static RegisterMessageHandlers()'");
 
-  ezDuktapeFunction duk(pDuk, 0);
+  ezDuktapeFunction duk(pDuk);
 
   ezUInt32 uiMsgTypeHash = duk.GetUIntValue(0);
   const char* szMsgHandler = duk.GetStringValue(1);
@@ -375,7 +386,7 @@ int ezTypeScriptBinding::__CPP_Binding_RegisterMessageHandler(duk_context* pDuk)
   mh.m_pMessageType = pMsgType;
   mh.m_uiMessageTypeNameHash = uiMsgTypeHash;
 
-  return duk.ReturnVoid();
+  EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnVoid(), 0);
 }
 
 bool ezTypeScriptBinding::DeliverMessage(const TsComponentTypeInfo& typeInfo, ezTypeScriptComponent* pComponent, ezMessage& msg)
@@ -394,7 +405,7 @@ bool ezTypeScriptBinding::DeliverMessage(const TsComponentTypeInfo& typeInfo, ez
   {
     if (mh.m_pMessageType == pMsgRtti)
     {
-      ezDuktapeHelper duk(m_Duk, 0);
+      ezDuktapeHelper duk(m_Duk);
 
       DukPutComponentObject(pComponent); // [ comp ]
 
@@ -405,7 +416,7 @@ bool ezTypeScriptBinding::DeliverMessage(const TsComponentTypeInfo& typeInfo, ez
         duk.CallPreparedMethod();                     // [ comp result ]
         duk.PopStack(2);                              // [ ]
 
-        return true;
+        EZ_DUK_RETURN_AND_VERIFY_STACK(duk, true, 0);
       }
       else
       {
@@ -418,11 +429,10 @@ bool ezTypeScriptBinding::DeliverMessage(const TsComponentTypeInfo& typeInfo, ez
         // remove 'this'   [ comp ]
         duk.PopStack(); // [ ]
 
-        return false;
+        EZ_DUK_RETURN_AND_VERIFY_STACK(duk, false, 0);
       }
 
-
-      return true;
+      EZ_DUK_RETURN_AND_VERIFY_STACK(duk, true, 0);
     }
   }
 
@@ -440,7 +450,7 @@ bool ezTypeScriptBinding::DeliverTsMessage(const TsComponentTypeInfo& typeInfo, 
   {
     if (mh.m_uiMessageTypeNameHash == msg.m_uiTypeNameHash)
     {
-      ezDuktapeHelper duk(m_Duk, 0);
+      ezDuktapeHelper duk(m_Duk);
 
       DukPutComponentObject(pComponent); // [ comp ]
 
@@ -451,7 +461,7 @@ bool ezTypeScriptBinding::DeliverTsMessage(const TsComponentTypeInfo& typeInfo, 
         duk.CallPreparedMethod();                    // [ comp result ]
         duk.PopStack(2);                             // [ ]
 
-        return true;
+        EZ_DUK_RETURN_AND_VERIFY_STACK(duk, true, 0);
       }
       else
       {
@@ -464,10 +474,10 @@ bool ezTypeScriptBinding::DeliverTsMessage(const TsComponentTypeInfo& typeInfo, 
         // remove 'this'   [ comp ]
         duk.PopStack(); // [ ]
 
-        return false;
+        EZ_DUK_RETURN_AND_VERIFY_STACK(duk, false, 0);
       }
 
-      return true;
+      EZ_DUK_RETURN_AND_VERIFY_STACK(duk, true, 0);
     }
   }
 
