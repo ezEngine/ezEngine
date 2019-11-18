@@ -178,7 +178,7 @@ namespace
 
     scene = rtcNewScene(s_rtcDevice);
     {
-      rtcAttachGeometry(scene, triangleMesh);
+      EZ_VERIFY(rtcAttachGeometry(scene, triangleMesh) == 0, "Geometry id must be 0");
       rtcReleaseGeometry(triangleMesh);
 
       rtcCommitScene(scene);
@@ -199,6 +199,8 @@ struct ezTracerEmbree::Data
 
   void ClearScene()
   {
+    m_rtcInstancedGeometry.Clear();
+
     if (m_rtcScene != nullptr)
     {
       rtcReleaseScene(m_rtcScene);
@@ -207,6 +209,16 @@ struct ezTracerEmbree::Data
   }
 
   RTCScene m_rtcScene = nullptr;
+
+  struct InstancedGeometry
+  {
+    RTCGeometry m_mesh;
+    ezSimdVec4f m_normalTransform0;
+    ezSimdVec4f m_normalTransform1;
+    ezSimdVec4f m_normalTransform2;
+  };
+
+  ezDynamicArray<InstancedGeometry, ezAlignedAllocatorWrapper> m_rtcInstancedGeometry;
 };
 
 ezTracerEmbree::ezTracerEmbree()
@@ -231,18 +243,27 @@ ezResult ezTracerEmbree::BuildScene(const ezBakingScene& scene)
       continue;
     }
 
+    ezSimdMat4f transform = meshObject.m_GlobalTransform.GetAsMat4();
+
     RTCGeometry instance = rtcNewGeometry(s_rtcDevice, RTC_GEOMETRY_TYPE_INSTANCE);
     {
       rtcSetGeometryInstancedScene(instance, mesh);
-
-      ezMat4 transform = ezSimdConversion::ToMat4(meshObject.m_GlobalTransform.GetAsMat4());
-      rtcSetGeometryTransform(instance, 0, RTC_FORMAT_FLOAT4X4_COLUMN_MAJOR, transform.m_fElementsCM);
+      rtcSetGeometryTransform(instance, 0, RTC_FORMAT_FLOAT4X4_COLUMN_MAJOR, &transform);
 
       rtcCommitGeometry(instance);
     }
 
-    rtcAttachGeometry(m_pData->m_rtcScene, instance);
+    ezUInt32 uiInstanceID = rtcAttachGeometry(m_pData->m_rtcScene, instance);
     rtcReleaseGeometry(instance);
+
+    ezSimdMat4f normalTransform = transform.GetInverse(0.0f).GetTranspose();
+
+    EZ_ASSERT_DEBUG(uiInstanceID == m_pData->m_rtcInstancedGeometry.GetCount(), "");
+    auto& instancedGeometry = m_pData->m_rtcInstancedGeometry.ExpandAndGetRef();
+    instancedGeometry.m_mesh = rtcGetGeometry(mesh, 0);
+    instancedGeometry.m_normalTransform0 = normalTransform.m_col0;
+    instancedGeometry.m_normalTransform1 = normalTransform.m_col1;
+    instancedGeometry.m_normalTransform2 = normalTransform.m_col2;
   }
 
   rtcCommitScene(m_pData->m_rtcScene);
@@ -295,7 +316,17 @@ void ezTracerEmbree::TraceRays(ezArrayPtr<const Ray> rays, ezArrayPtr<Hit> hits)
 
     if (rtcRayHit.hit.geomID != RTC_INVALID_GEOMETRY_ID)
     {
-      hit.m_vNormal = ezVec3(rtcRayHit.hit.Ng_x, rtcRayHit.hit.Ng_y, rtcRayHit.hit.Ng_z).GetNormalized();
+      auto& instancedGeometry = m_pData->m_rtcInstancedGeometry[rtcRayHit.hit.instID[0]];
+
+      ezSimdVec4f objectSpaceNormal;
+      rtcInterpolate0(instancedGeometry.m_mesh, rtcRayHit.hit.primID, rtcRayHit.hit.u, rtcRayHit.hit.v, RTC_BUFFER_TYPE_VERTEX_ATTRIBUTE, 0,
+        reinterpret_cast<float*>(&objectSpaceNormal), 3);
+
+      ezSimdVec4f worldSpaceNormal = instancedGeometry.m_normalTransform0 * objectSpaceNormal.x();
+      worldSpaceNormal += instancedGeometry.m_normalTransform1 * objectSpaceNormal.y();
+      worldSpaceNormal += instancedGeometry.m_normalTransform2 * objectSpaceNormal.z();
+
+      hit.m_vNormal = ezSimdConversion::ToVec3(worldSpaceNormal.GetNormalized<3>());
       hit.m_fDistance = rtcRayHit.ray.tfar;
       hit.m_vPosition = ray.m_vStartPos + ray.m_vDir * hit.m_fDistance;
     }
