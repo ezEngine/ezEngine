@@ -3,7 +3,11 @@
 #include <BakingPlugin/BakingPluginDLL.h>
 #include <Core/World/SettingsComponent.h>
 #include <Core/World/SettingsComponentManager.h>
+#include <RendererCore/Declarations.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
+
+struct ezMsgUpdateLocalBounds;
+struct ezMsgExtractRenderData;
 
 class EZ_BAKINGPLUGIN_DLL ezBakingSettingsComponentManager : public ezSettingsComponentManager<class ezBakingSettingsComponent>
 {
@@ -14,9 +18,13 @@ public:
   virtual void Initialize() override;
   virtual void Deinitialize() override;
 
+  ezMeshResourceHandle m_hDebugSphere;
+  ezMaterialResourceHandle m_hDebugMaterial;
+
 private:
   void RenderDebug(const ezWorldModule::UpdateContext& updateContext);
   void OnBeginRender(ezUInt64 uiFrameCounter);
+  void CreateDebugResources();
 };
 
 class EZ_BAKINGPLUGIN_DLL ezBakingSettingsComponent : public ezSettingsComponent
@@ -35,6 +43,9 @@ public:
 
   void SetShowDebugProbes(bool bShow);
   bool GetShowDebugProbes() const { return m_bShowDebugProbes; }
+
+  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
+  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;

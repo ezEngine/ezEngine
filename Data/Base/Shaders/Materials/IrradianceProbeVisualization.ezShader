@@ -1,0 +1,71 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+BLEND_MODE = BLEND_MODE_OPAQUE
+RENDER_PASS
+TWO_SIDED = FALSE
+FLIP_WINDING = FALSE
+SHADING_MODE = SHADING_MODE_FULLBRIGHT
+SHADING_QUALITY = SHADING_QUALITY_NORMAL
+CAMERA_MODE = CAMERA_MODE_PERSPECTIVE
+
+[RENDERSTATE]
+
+#include <Shaders/Materials/MaterialState.h>
+
+[SHADER]
+
+#define USE_NORMAL
+
+[VERTEXSHADER]
+
+#include <Shaders/Materials/MaterialVertexShader.h>
+
+VS_OUT main(VS_IN Input)
+{
+  return FillVertexData(Input);
+}
+
+[PIXELSHADER]
+
+#include <Shaders/Materials/MaterialPixelShader.h>
+
+float3 GetNormal()
+{
+  return G.Input.Normal;
+}
+
+float3 GetDiffuseColor()
+{
+  float3 normal = normalize(G.Input.Normal);
+  
+  float3 ambientCube0 = RGB8ToFloat3(asuint(GetInstanceData().Color.r));
+  float3 ambientCube1 = RGB8ToFloat3(asuint(GetInstanceData().Color.g));
+  
+  AmbientCubeFloat skyVisibility;
+  skyVisibility.m_Values[0] = ambientCube0.x;
+  skyVisibility.m_Values[1] = ambientCube0.y;
+  skyVisibility.m_Values[2] = ambientCube0.z;
+  skyVisibility.m_Values[3] = ambientCube1.x;
+  skyVisibility.m_Values[4] = ambientCube1.y;
+  skyVisibility.m_Values[5] = ambientCube1.z;
+  
+  return SrgbToLinear(EvaluateAmbientCube(skyVisibility, normal));
+}
+
+float3 GetSpecularColor()
+{
+  return 0.0f;
+}
+
+float GetRoughness()
+{
+  return 1.0f;
+}
+
+float GetOpacity()
+{
+  return 1.0f;
+}

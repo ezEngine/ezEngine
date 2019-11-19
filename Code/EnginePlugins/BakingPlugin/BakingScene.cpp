@@ -1,6 +1,8 @@
 #include <BakingPluginPCH.h>
 
 #include <BakingPlugin/BakingScene.h>
+#include <BakingPlugin/Tasks/PlaceProbesTask.h>
+#include <BakingPlugin/Tasks/SkyVisibilityTask.h>
 #include <BakingPlugin/Tracer/TracerEmbree.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <Foundation/Utilities/Progress.h>
@@ -50,7 +52,7 @@ ezResult ezBakingScene::Extract()
 
   m_MeshObjects.Clear();
   m_BoundingBox.SetInvalid();
-  m_bTracerReady = false;
+  m_bIsBaked = false;
 
   const ezWorld* pWorld = ezWorld::GetWorld(m_uiWorldIndex);
   if (pWorld == nullptr)
@@ -69,8 +71,8 @@ ezResult ezBakingScene::Extract()
     if (it->GetTags().IsSet(tagEditor))
       continue;
 
-    // Only static objects
-    if (it->IsDynamic())
+    // Only active static objects
+    if (!it->IsStatic() || !it->IsActive())
       continue;
 
     const ezMeshComponentBase* pMeshComponent = nullptr;
@@ -92,7 +94,17 @@ ezResult ezBakingScene::Bake(const ezStringView& sOutputPath, ezProgress& progre
   EZ_ASSERT_DEV(!ezThreadUtils::IsMainThread(), "BakeScene must be executed on a worker thread");
 
   EZ_SUCCEED_OR_RETURN(m_pTracer->BuildScene(*this));
-  m_bTracerReady = true;
+  
+  ezBakingInternal::PlaceProbesTask placeProbesTask(m_BoundingBox);
+  placeProbesTask.Execute();
+
+  ezBakingInternal::SkyVisibilityTask skyVisibilityTask(m_pTracer.Borrow(), placeProbesTask.GetProbePositions());
+  skyVisibilityTask.Execute();
+
+  m_ProbePositions = placeProbesTask.GetProbePositions();
+  m_SkyVisibility = skyVisibilityTask.GetSkyVisibility();
+
+  m_bIsBaked = true;
 
   return EZ_SUCCESS;
 }
@@ -100,7 +112,7 @@ ezResult ezBakingScene::Bake(const ezStringView& sOutputPath, ezProgress& progre
 ezResult ezBakingScene::RenderDebugView(const ezMat4& InverseViewProjection, ezUInt32 uiWidth, ezUInt32 uiHeight, ezDynamicArray<ezColorGammaUB>& out_Pixels,
   ezProgress& progress) const
 {
-  if (!m_bTracerReady)
+  if (!m_bIsBaked)
     return EZ_FAILURE;
 
   const ezUInt32 uiNumPixel = uiWidth * uiHeight;

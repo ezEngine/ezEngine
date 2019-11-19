@@ -2,11 +2,13 @@
 
 #include <BakingPlugin/BakingScene.h>
 #include <BakingPlugin/Components/BakingSettingsComponent.h>
+#include <Core/Graphics/Geometry.h>
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Utilities/Progress.h>
 #include <RendererCore/Debug/DebugRenderer.h>
+#include <RendererCore/Meshes/MeshComponentBase.h>
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
@@ -71,6 +73,8 @@ void ezBakingSettingsComponentManager::Initialize()
   }
 
   ezRenderWorld::s_BeginRenderEvent.AddEventHandler(ezMakeDelegate(&ezBakingSettingsComponentManager::OnBeginRender, this));
+
+  CreateDebugResources();
 }
 
 void ezBakingSettingsComponentManager::Deinitialize()
@@ -113,6 +117,45 @@ void ezBakingSettingsComponentManager::OnBeginRender(ezUInt64 uiFrameCounter)
   }
 }
 
+void ezBakingSettingsComponentManager::CreateDebugResources()
+{
+  if (!m_hDebugSphere.IsValid())
+  {
+    ezGeometry geom;
+    geom.AddSphere(0.3f, 32, 16, ezColor::White);
+
+    const char* szBufferResourceName = "ReflectionProbeDebugSphereBuffer";
+    ezMeshBufferResourceHandle hMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szBufferResourceName);
+    if (!hMeshBuffer.IsValid())
+    {
+      ezMeshBufferResourceDescriptor desc;
+      desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
+      desc.AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
+      desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
+
+      hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(szBufferResourceName, std::move(desc), szBufferResourceName);
+    }
+
+    const char* szMeshResourceName = "ReflectionProbeDebugSphere";
+    m_hDebugSphere = ezResourceManager::GetExistingResource<ezMeshResource>(szMeshResourceName);
+    if (!m_hDebugSphere.IsValid())
+    {
+      ezMeshResourceDescriptor desc;
+      desc.UseExistingMeshBuffer(hMeshBuffer);
+      desc.AddSubMesh(geom.CalculateTriangleCount(), 0, 0);
+      desc.ComputeBounds();
+
+      m_hDebugSphere = ezResourceManager::CreateResource<ezMeshResource>(szMeshResourceName, std::move(desc), szMeshResourceName);
+    }
+  }
+
+  if (!m_hDebugMaterial.IsValid())
+  {
+    m_hDebugMaterial = ezResourceManager::LoadResource<ezMaterialResource>(
+      "{ 4d15c716-a8e9-43d4-9424-43174403fb94 }"); // IrradianceProbeVisualization.ezMaterialAsset
+  }
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
@@ -124,6 +167,12 @@ EZ_BEGIN_COMPONENT_TYPE(ezBakingSettingsComponent, 1, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("ShowDebugProbes", GetShowDebugProbes, SetShowDebugProbes),
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_MESSAGEHANDLERS
+  {
+    EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
+    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
+  }
+  EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Rendering/Baking"),
@@ -139,12 +188,19 @@ ezBakingSettingsComponent::~ezBakingSettingsComponent() = default;
 
 void ezBakingSettingsComponent::OnActivated()
 {
+  GetOwner()->UpdateLocalBounds();
+
   SUPER::OnActivated();
 }
 
 void ezBakingSettingsComponent::OnDeactivated()
 {
-  ezTaskSystem::WaitForTask(m_pRenderDebugViewTask.Borrow());
+  if (m_pRenderDebugViewTask != nullptr)
+  {
+    ezTaskSystem::WaitForTask(m_pRenderDebugViewTask.Borrow());
+  }
+
+  GetOwner()->UpdateLocalBounds();
 
   SUPER::OnDeactivated();
 }
@@ -161,7 +217,68 @@ void ezBakingSettingsComponent::SetShowDebugOverlay(bool bShow)
 
 void ezBakingSettingsComponent::SetShowDebugProbes(bool bShow)
 {
-  m_bShowDebugProbes = bShow;
+  if (m_bShowDebugProbes != bShow)
+  {
+    m_bShowDebugProbes = bShow;
+
+    if (IsActiveAndInitialized())
+    {
+      ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+    }
+  }
+}
+
+void ezBakingSettingsComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
+{
+  msg.SetAlwaysVisible(GetOwner()->IsDynamic() ? ezDefaultSpatialDataCategories::RenderDynamic : ezDefaultSpatialDataCategories::RenderStatic);
+}
+
+void ezBakingSettingsComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
+{
+  if (!m_bShowDebugProbes)
+    return;
+
+  // Don't trigger probe rendering in shadow or reflection views.
+  if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow ||
+      msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Reflection)
+    return;
+
+  ezBakingScene* pBakingScene = ezBakingScene::Get(*GetWorld());
+  if (pBakingScene != nullptr && pBakingScene->IsBaked())
+  {
+    auto probePositions = pBakingScene->GetProbePositions();
+    auto skyVisibility = pBakingScene->GetSkyVisibility();
+
+    ezTransform transform = ezTransform::IdentityTransform();
+    ezColor encodedSkyVisibility = ezColor::Black;
+
+    const ezGameObject* pOwner = GetOwner();
+    auto pManager = static_cast<const ezBakingSettingsComponentManager*>(GetOwningManager());
+
+    for (ezUInt32 uiProbeIndex = 0; uiProbeIndex < probePositions.GetCount(); ++uiProbeIndex)
+    {
+      transform.m_vPosition = probePositions[uiProbeIndex];
+
+      auto& skyVis = skyVisibility[uiProbeIndex];
+      encodedSkyVisibility.r = *reinterpret_cast<float*>(&ezColorLinearUB(skyVis.m_Values[0], skyVis.m_Values[1], skyVis.m_Values[2], 0));
+      encodedSkyVisibility.g = *reinterpret_cast<float*>(&ezColorLinearUB(skyVis.m_Values[3], skyVis.m_Values[4], skyVis.m_Values[5], 0));
+
+      ezMeshRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezMeshRenderData>(pOwner);
+      {
+        pRenderData->m_GlobalTransform = transform;
+        pRenderData->m_GlobalBounds.SetInvalid();
+        pRenderData->m_hMesh = pManager->m_hDebugSphere;
+        pRenderData->m_hMaterial = pManager->m_hDebugMaterial;
+        pRenderData->m_Color = encodedSkyVisibility;
+        pRenderData->m_uiSubMeshIndex = 0;
+        pRenderData->m_uiUniqueID = ezRenderComponent::GetUniqueIdForRendering(this, 0);
+
+        pRenderData->FillBatchIdAndSortingKey();
+      }
+
+      msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::SimpleOpaque, ezRenderData::Caching::IfStatic);
+    }
+  }
 }
 
 void ezBakingSettingsComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -191,7 +308,7 @@ void ezBakingSettingsComponent::RenderDebugOverlay()
   ezUInt32 uiHeight = ezMath::Ceil(viewport.height / 3.0f);
 
   ezBakingScene* pBakingScene = ezBakingScene::Get(*GetWorld());
-  if (pBakingScene != nullptr && pBakingScene->IsTracerReady())
+  if (pBakingScene != nullptr && pBakingScene->IsBaked())
   {
     ezMat4 inverseViewProjection = pView->GetInverseViewProjectionMatrix(ezCameraEye::Left);
 
