@@ -37,7 +37,9 @@ struct ezAmbientCube
   bool operator==(const ezAmbientCube& other) const;
   bool operator!=(const ezAmbientCube& other) const;
 
-  T Evaluate(const ezVec3& vNormal);
+  void AddSample(const ezVec3& vDir, const T& value);
+
+  T Evaluate(const ezVec3& vNormal) const;
 
   T m_Values[ezAmbientCubeBasis::NumDirs];
 };

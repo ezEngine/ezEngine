@@ -4,6 +4,11 @@
 
 #define AMBIENT_CUBE_NUM_DIRS 6
 
+struct AmbientCubeFloat
+{
+  float m_Values[AMBIENT_CUBE_NUM_DIRS];
+};
+
 struct AmbientCubeFloat3
 {
   float3 m_Values[AMBIENT_CUBE_NUM_DIRS];
@@ -26,6 +31,24 @@ void AddAmbientCube(inout AmbientCubeFloat3 a, AmbientCubeFloat3 b)
   {
     a.m_Values[i] += b.m_Values[i];
   }
+}
+
+float EvaluateAmbientCube(in AmbientCubeFloat ac, float3 normal)
+{
+  float3 normalSquared = normal * normal;
+  int3 isNegative = normal < 0.0;
+  return normalSquared.x * ac.m_Values[isNegative.x + 0] +
+         normalSquared.y * ac.m_Values[isNegative.y + 2] +
+         normalSquared.z * ac.m_Values[isNegative.z + 4];
+}
+
+float3 EvaluateAmbientCube(in AmbientCubeFloat3 ac, float3 normal)
+{
+  float3 normalSquared = normal * normal;
+  int3 isNegative = normal < 0.0;
+  return normalSquared.x * ac.m_Values[isNegative.x + 0] +
+         normalSquared.y * ac.m_Values[isNegative.y + 2] +
+         normalSquared.z * ac.m_Values[isNegative.z + 4];
 }
 
 float4 EvaluateAmbientCube(Texture2D ambientCubeTexture, int slotIndex, float3 normal)
