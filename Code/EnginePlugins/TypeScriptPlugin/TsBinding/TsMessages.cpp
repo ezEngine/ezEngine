@@ -389,6 +389,22 @@ int ezTypeScriptBinding::__CPP_Binding_RegisterMessageHandler(duk_context* pDuk)
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnVoid(), 0);
 }
 
+bool ezTypeScriptBinding::HasMessageHandler(const TsComponentTypeInfo& typeInfo, const ezRTTI* pMsgRtti) const
+{
+  if (!typeInfo.IsValid())
+    return false;
+
+  for (auto& mh : typeInfo.Value().m_MessageHandlers)
+  {
+    if (mh.m_pMessageType == pMsgRtti)
+    {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 bool ezTypeScriptBinding::DeliverMessage(const TsComponentTypeInfo& typeInfo, ezTypeScriptComponent* pComponent, ezMessage& msg)
 {
   if (!typeInfo.IsValid())

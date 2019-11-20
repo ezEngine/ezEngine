@@ -33,7 +33,7 @@ public:
   static ezArrayPtr<ezComponentHandle> GetAllGlobalEventHandler(const ezWorld* pWorld);
 
 private:
-  bool m_bDebugOutput;
-  bool m_bIsGlobalEventHandler;
+  bool m_bDebugOutput = false;
+  bool m_bIsGlobalEventHandler = false;
 };
 

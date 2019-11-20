@@ -38,13 +38,8 @@ namespace
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEventMessageHandlerComponent, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-ezEventMessageHandlerComponent::ezEventMessageHandlerComponent()
-    : m_bDebugOutput(false)
-    , m_bIsGlobalEventHandler(false)
-{
-}
-
-ezEventMessageHandlerComponent::~ezEventMessageHandlerComponent() {}
+ezEventMessageHandlerComponent::ezEventMessageHandlerComponent() = default;
+ezEventMessageHandlerComponent::~ezEventMessageHandlerComponent() = default;
 
 void ezEventMessageHandlerComponent::Deinitialize()
 {
@@ -82,7 +77,7 @@ void ezEventMessageHandlerComponent::SetGlobalEventHandlerMode(bool enable)
 
 bool ezEventMessageHandlerComponent::HandlesEventMessage(const ezEventMessage& msg) const
 {
-  return true;
+  return false;
 }
 
 // static
@@ -104,4 +99,3 @@ ezArrayPtr<ezComponentHandle> ezEventMessageHandlerComponent::GetAllGlobalEventH
 
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_EventMessageHandlerComponent);
-

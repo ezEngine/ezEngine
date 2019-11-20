@@ -1,5 +1,6 @@
 #include <TypeScriptPluginPCH.h>
 
+#include <Core/Messages/EventMessage.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
@@ -110,6 +111,13 @@ bool ezTypeScriptComponent::HandleUnhandledMessage(ezMessage& msg)
   ezTypeScriptBinding& binding = static_cast<ezTypeScriptComponentManager*>(GetOwningManager())->GetTsBinding();
 
   return binding.DeliverMessage(m_ComponentTypeInfo, this, msg);
+}
+
+bool ezTypeScriptComponent::HandlesEventMessage(const ezEventMessage& msg) const
+{
+  ezTypeScriptBinding& binding = static_cast<const ezTypeScriptComponentManager*>(GetOwningManager())->GetTsBinding();
+
+  return binding.HasMessageHandler(m_ComponentTypeInfo, msg.GetDynamicRTTI());
 }
 
 bool ezTypeScriptComponent::CallTsFunc(const char* szFuncName)

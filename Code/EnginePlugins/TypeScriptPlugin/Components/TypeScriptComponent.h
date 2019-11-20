@@ -5,6 +5,7 @@
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/Scripting/DuktapeContext.h>
 #include <Core/World/Component.h>
+#include <Core/World/EventMessageHandlerComponent.h>
 #include <Core/World/World.h>
 #include <Foundation/Containers/ArrayMap.h>
 #include <Foundation/Types/RangeView.h>
@@ -42,9 +43,9 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_TYPESCRIPTPLUGIN_DLL ezTypeScriptComponent : public ezComponent
+class EZ_TYPESCRIPTPLUGIN_DLL ezTypeScriptComponent : public ezEventMessageHandlerComponent
 {
-  EZ_DECLARE_COMPONENT_TYPE(ezTypeScriptComponent, ezComponent, ezTypeScriptComponentManager);
+  EZ_DECLARE_COMPONENT_TYPE(ezTypeScriptComponent, ezEventMessageHandlerComponent, ezTypeScriptComponentManager);
 
 public:
   ezTypeScriptComponent();
@@ -66,6 +67,11 @@ protected:
   virtual bool OnUnhandledMessage(ezMessage& msg) const override;
 
   bool HandleUnhandledMessage(ezMessage& msg);
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezEventMessageHandlerComponent Interface
+
+  virtual bool HandlesEventMessage(const ezEventMessage& msg) const override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezTypeScriptComponent Interface
