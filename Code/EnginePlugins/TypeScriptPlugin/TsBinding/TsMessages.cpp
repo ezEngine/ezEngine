@@ -44,6 +44,9 @@ export import Time = __Time.Time;
 import __Angle = require("./Angle")
 export import Angle = __Angle.Angle;
 
+import __Enums = require("./Enums")
+export import Enums = __Enums.Enums;
+
 )";
 
   GenerateAllMessagesCode(sFileContent);
@@ -117,33 +120,44 @@ void ezTypeScriptBinding::GenerateMessagePropertiesCode(ezStringBuilder& out_Cod
     if (pProp->GetCategory() != ezPropertyCategory::Member)
       continue;
 
-    ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pProp);
+    const ezRTTI* pPropType = pProp->GetSpecificType();
 
-    const char* szTypeName = TsType(pMember->GetSpecificType());
-    if (szTypeName == nullptr)
-      continue;
-
-    const ezVariant def = ezReflectionUtils::GetDefaultValue(pMember);
-
-    if (def.CanConvertTo<ezString>())
+    if (pPropType->IsDerivedFrom<ezEnumBase>() || pPropType->IsDerivedFrom<ezBitflagsBase>())
     {
-      sDefault = def.ConvertTo<ezString>();
-    }
-
-    if (!sDefault.IsEmpty())
-    {
-      // TODO: make this prettier
-      if (def.GetType() == ezVariant::Type::Color)
-      {
-        ezColor c = def.Get<ezColor>();
-        sDefault.Format("new Color({}, {}, {}, {})", c.r, c.g, c.b, c.a);
-      }
-
-      sProp.Format("  {0}: {1} = {2};\n", pMember->GetPropertyName(), szTypeName, sDefault);
+      sDefault = pPropType->GetTypeName();
+      sDefault.TrimWordStart("ez");
+      sProp.Format("  {0}: {1};\n", pProp->GetPropertyName(), sDefault);
     }
     else
     {
-      sProp.Format("  {0}: {1};\n", pMember->GetPropertyName(), szTypeName);
+      ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pProp);
+
+      const char* szTypeName = TsType(pMember->GetSpecificType());
+      if (szTypeName == nullptr)
+        continue;
+
+      const ezVariant def = ezReflectionUtils::GetDefaultValue(pMember);
+
+      if (def.CanConvertTo<ezString>())
+      {
+        sDefault = def.ConvertTo<ezString>();
+      }
+
+      if (!sDefault.IsEmpty())
+      {
+        // TODO: make this prettier
+        if (def.GetType() == ezVariant::Type::Color)
+        {
+          ezColor c = def.Get<ezColor>();
+          sDefault.Format("new Color({}, {}, {}, {})", c.r, c.g, c.b, c.a);
+        }
+
+        sProp.Format("  {0}: {1} = {2};\n", pMember->GetPropertyName(), szTypeName, sDefault);
+      }
+      else
+      {
+        sProp.Format("  {0}: {1};\n", pMember->GetPropertyName(), szTypeName);
+      }
     }
 
     out_Code.Append(sProp.GetView());

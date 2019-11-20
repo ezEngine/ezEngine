@@ -17,6 +17,7 @@ ezResult ezTypeScriptBinding::SetupProjectCode()
   EZ_SUCCEED_OR_RETURN(ezOSFile::CopyFolder(sAbsSrcFolder, sAbsDstFolder));
 #endif
 
+  GenerateEnumsFile();
   GenerateComponentsFile(":project/TypeScript/ez/AllComponents.ts");
   InjectComponentImportExport(":project/TypeScript/ez.ts", "./ez/AllComponents");
   InjectMessageImportExport(":project/TypeScript/ez.ts", "./ez/AllMessages");
@@ -119,6 +120,9 @@ export import Time = __Time.Time;
 
 import __Angle = require("./Angle")
 export import Angle = __Angle.Angle;
+
+import __Enums = require("./Enums")
+export import Enums = __Enums.Enums;
 
 )";
 

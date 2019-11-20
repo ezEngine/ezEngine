@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <PhysXPlugin/Components/PxActorComponent.h>
 #include <PhysXPlugin/Utilities/PxUserData.h>
@@ -33,7 +33,7 @@ struct EZ_PHYSXPLUGIN_DLL ezMsgPxTriggerTriggered : public ezEventMessage
   ezUInt32 m_uiMessageStringHash;
 
   /// Messages are only sent for 'entered' ('Activated') and 'left' ('Deactivated')
-  ezTriggerState::Enum m_TriggerState;
+  ezEnum<ezTriggerState> m_TriggerState;
 
   /// The object that entered the trigger volume.
   ezGameObjectHandle m_hTriggeringObject;

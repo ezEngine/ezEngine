@@ -79,6 +79,7 @@ private:
   static void GenerateComponentsFile(const char* szFile);
   static void InjectComponentImportExport(const char* szFile, const char* szComponentFile);
   static void InjectMessageImportExport(const char* szFile, const char* szComponentFile);
+  static void GenerateEnumsFile();
 
   ///@}
   /// \name Function Binding
