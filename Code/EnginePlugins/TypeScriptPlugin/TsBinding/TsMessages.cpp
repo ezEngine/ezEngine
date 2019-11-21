@@ -44,8 +44,8 @@ export import Time = __Time.Time;
 import __Angle = require("./Angle")
 export import Angle = __Angle.Angle;
 
-import __Enums = require("./Enums")
-export import Enums = __Enums.Enums;
+import Enum = require("./AllEnums")
+
 
 )";
 
@@ -124,9 +124,11 @@ void ezTypeScriptBinding::GenerateMessagePropertiesCode(ezStringBuilder& out_Cod
 
     if (pPropType->IsDerivedFrom<ezEnumBase>() || pPropType->IsDerivedFrom<ezBitflagsBase>())
     {
+      s_RequiredEnums.Insert(pPropType);
+
       sDefault = pPropType->GetTypeName();
       sDefault.TrimWordStart("ez");
-      sProp.Format("  {0}: {1};\n", pProp->GetPropertyName(), sDefault);
+      sProp.Format("  {0}: Enum.{1};\n", pProp->GetPropertyName(), sDefault);
     }
     else
     {
@@ -141,6 +143,8 @@ void ezTypeScriptBinding::GenerateMessagePropertiesCode(ezStringBuilder& out_Cod
       if (def.CanConvertTo<ezString>())
       {
         sDefault = def.ConvertTo<ezString>();
+
+        EZ_ASSERT_DEV(sDefault != "N/A", "");
       }
 
       if (!sDefault.IsEmpty())
@@ -150,6 +154,14 @@ void ezTypeScriptBinding::GenerateMessagePropertiesCode(ezStringBuilder& out_Cod
         {
           ezColor c = def.Get<ezColor>();
           sDefault.Format("new Color({}, {}, {}, {})", c.r, c.g, c.b, c.a);
+        }
+        else if (def.GetType() == ezVariant::Type::Time)
+        {
+          sDefault.Format("{0}", def.Get<ezTime>().GetSeconds());
+        }
+        else if (def.GetType() == ezVariant::Type::Angle)
+        {
+          sDefault.Format("{0}", def.Get<ezAngle>().GetRadian());
         }
 
         sProp.Format("  {0}: {1} = {2};\n", pMember->GetPropertyName(), szTypeName, sDefault);
@@ -177,39 +189,18 @@ void ezTypeScriptBinding::InjectMessageImportExport(const char* szFile, const ch
 
   ezStringBuilder sImportExport, sTypeName;
 
-  sImportExport.Format(R"(
-
-// AUTO-GENERATED
-import __AllMessages = require("{}")
+  sImportExport.Format(R"(import __AllMessages = require("{}")
 )",
     szMessageFile);
 
   for (const ezRTTI* pRtti : sorted)
   {
     GetTsName(pRtti, sTypeName);
-    sImportExport.AppendFormat("export import {0}  = __AllMessages.{0};\n",
+    sImportExport.AppendFormat("export import {0} = __AllMessages.{0};\n",
       sTypeName);
   }
 
-
-  ezStringBuilder sFinal;
-
-  {
-    ezFileReader fileIn;
-    fileIn.Open(szFile);
-
-    sFinal.ReadAll(fileIn);
-
-    sFinal.Append("\n\n");
-    sFinal.Append(sImportExport.GetView());
-    sFinal.Append("\n");
-  }
-
-  {
-    ezFileWriter fileOut;
-    fileOut.Open(szFile);
-    fileOut.WriteBytes(sFinal.GetData(), sFinal.GetElementCount());
-  }
+  AppendToTextFile(szFile, sImportExport);
 }
 
 static ezUniquePtr<ezMessage> CreateMessage(ezUInt32 uiTypeHash, const ezRTTI*& pRtti)
@@ -330,12 +321,22 @@ void ezTypeScriptBinding::DukPutMessage(duk_context* pDuk, const ezMessage& msg)
     ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pProp);
 
     const ezRTTI* pType = pMember->GetSpecificType();
-    if (pType->GetVariantType() == ezVariant::Type::Invalid)
-      continue;
 
-    const ezVariant val = ezReflectionUtils::GetMemberPropertyValue(pMember, &msg);
+    if (pType->GetTypeFlags().IsAnySet(ezTypeFlags::IsEnum | ezTypeFlags::Bitflags))
+    {
+      const ezVariant val = ezReflectionUtils::GetMemberPropertyValue(pMember, &msg);
 
-    SetVariantProperty(duk, pMember->GetPropertyName(), -1, val);
+      SetVariantProperty(duk, pMember->GetPropertyName(), -1, val);
+    }
+    else
+    {
+      if (pType->GetVariantType() == ezVariant::Type::Invalid)
+        continue;
+
+      const ezVariant val = ezReflectionUtils::GetMemberPropertyValue(pMember, &msg);
+
+      SetVariantProperty(duk, pMember->GetPropertyName(), -1, val);
+    }
   }
 
   EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, +1);

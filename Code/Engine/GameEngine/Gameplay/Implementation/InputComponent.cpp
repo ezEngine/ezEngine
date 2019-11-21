@@ -21,6 +21,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgInputActionTriggered, 1, ezRTTIDefaultAlloc
   {
     EZ_MEMBER_PROPERTY("InputActionHash", m_uiInputActionHash),
     EZ_MEMBER_PROPERTY("KeyPressValue", m_fKeyPressValue),
+    EZ_ENUM_MEMBER_PROPERTY("TriggerState", ezTriggerState, m_TriggerState),
   }
   EZ_END_PROPERTIES;
 }
@@ -140,9 +141,9 @@ void ezInputComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_Granularity;
 }
 
-  //////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 
@@ -150,7 +151,7 @@ class ezInputComponentPatch_1_2 : public ezGraphPatch
 {
 public:
   ezInputComponentPatch_1_2()
-      : ezGraphPatch("ezInputComponent", 2)
+    : ezGraphPatch("ezInputComponent", 2)
   {
   }
 
@@ -165,4 +166,3 @@ ezInputComponentPatch_1_2 g_ezInputComponentPatch_1_2;
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_InputComponent);
-

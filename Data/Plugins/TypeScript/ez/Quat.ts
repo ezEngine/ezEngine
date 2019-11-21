@@ -10,7 +10,7 @@ export import Mat3 = __Mat3.Mat3;
 import __Mat4 = require("./Mat4")
 export import Mat4 = __Mat4.Mat4;
 
-export import ezMath = __Vec3.ezMath;
+export import Utils = __Vec3.Utils;
 
 export class Quat {
     x: number;
@@ -188,11 +188,11 @@ export class Quat {
         const fDot = v0.Dot(v1);
 
         // if both vectors are identical -> no rotation needed
-        if (ezMath.IsNumberEqual(fDot, 1.0, 0.0001)) {
+        if (Utils.IsNumberEqual(fDot, 1.0, 0.0001)) {
             this.SetIdentity();
             return;
         }
-        else if (ezMath.IsNumberEqual(fDot, -1.0, 0.0001)) // if both vectors are opposing
+        else if (Utils.IsNumberEqual(fDot, -1.0, 0.0001)) // if both vectors are opposing
         {
             // find an axis, that is not identical and not opposing, ezVec3Template::Cross-product to find perpendicular vector, rotate around that
 

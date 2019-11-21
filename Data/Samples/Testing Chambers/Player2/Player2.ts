@@ -20,7 +20,10 @@ export class Player2 extends ez.TickedTypescriptComponent {
     }
 
     OnMsgInputActionTriggered(msg: ez.MsgInputActionTriggered): void {
-        ez.Log.Info("Player Input: " + msg.InputActionHash);
+
+        if (msg.InputActionHash == ez.Utils.StringToHash("Jump")) {
+            ez.Log.Info("Jump: " + ez.TriggerState[msg.TriggerState] + " - " + msg.KeyPressValue);
+        }
     }
 }
 

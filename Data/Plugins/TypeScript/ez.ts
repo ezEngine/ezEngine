@@ -1,6 +1,9 @@
 import __Log = require("./ez/Log")
 export import Log = __Log.Log;
 
+import __Utils = require("./ez/Utils")
+export import Utils = __Utils.Utils;
+
 import __Vec2 = require("./ez/Vec2")
 export import Vec2 = __Vec2.Vec2;
 

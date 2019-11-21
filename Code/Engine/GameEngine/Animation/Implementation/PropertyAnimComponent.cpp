@@ -28,7 +28,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgPropertyAnimationPlayRange, 1, ezRTTIDefaul
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("RangeLow", m_RangeLow)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant())),
-    EZ_MEMBER_PROPERTY("RangeHigh", m_RangeHigh)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant()), new ezDefaultValueAttribute(ezTime::Seconds(60 * 60))),
+    EZ_MEMBER_PROPERTY("RangeHigh", m_RangeHigh)->AddAttributes(new ezClampValueAttribute(ezTime(), ezVariant()), new ezDefaultValueAttribute(ezTime::Seconds(60.0 * 60.0))),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES

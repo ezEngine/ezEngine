@@ -35,7 +35,7 @@ struct EZ_GAMEENGINE_DLL ezMsgInputActionTriggered : public ezEventMessage
   ezUInt32 m_uiInputActionHash;
 
   /// The 'trigger state', depending on the key state and the configuration on the ezInputComponent
-  ezTriggerState::Enum m_TriggerState;
+  ezEnum<ezTriggerState> m_TriggerState;
 
   /// For analog keys, how much they are pressed. Typically between 0 and 1.
   float m_fKeyPressValue;

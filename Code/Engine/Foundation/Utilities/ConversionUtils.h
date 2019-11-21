@@ -49,7 +49,7 @@ namespace ezConversionUtils
 
   /// \brief Same as StringToInt but converts to a 64bit integer value instead.
   EZ_FOUNDATION_DLL ezResult StringToInt64(const char* szString, ezInt64& out_Res,
-                                           const char** out_LastParsePosition = nullptr); // [tested]
+    const char** out_LastParsePosition = nullptr); // [tested]
 
   /// \brief Parses szString and converts it to a double value. Returns EZ_FAILURE if the string contains no parseable floating point value.
   ///
@@ -128,7 +128,7 @@ namespace ezConversionUtils
   /// \return
   ///   The number of successfully extracted values (and thus valid values in out_pFloats).
   EZ_FOUNDATION_DLL ezUInt32 ExtractFloatsFromString(const char* szText, ezUInt32 uiNumFloats, float* out_pFloats,
-                                                     const char** out_LastParsePosition = nullptr); // [tested]
+    const char** out_LastParsePosition = nullptr); // [tested]
 
   /// \brief Converts a hex character ('0', '1', ... '9', 'A'/'a', ... 'F'/'f') to the corresponding int value 0 - 15.
   ///
@@ -255,12 +255,15 @@ namespace ezConversionUtils
   /// \brief Converts an angle to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezAngle& value, ezStringBuilder& out_Result); // [tested]
 
+  /// \brief Converts an angle to a string
+  EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezTime& value, ezStringBuilder& out_Result);
+
   /// \brief Converts a ezStringView to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezStringView& value, ezStringBuilder& out_Result);
 
   /// \brief Converts a ezVariantArray to a string
   EZ_FOUNDATION_DLL const ezStringBuilder& ToString(const ezDynamicArray<ezVariant, ezDefaultAllocatorWrapper>& value,
-                                                    ezStringBuilder& out_Result);
+    ezStringBuilder& out_Result);
 
   /// \brief Fallback ToString implementation for all types that don't have one
   template <typename T>
@@ -278,7 +281,7 @@ namespace ezConversionUtils
 
   /// \brief The inverse of GetColorByName
   EZ_FOUNDATION_DLL ezString GetColorName(const ezColor& col); // [tested]
-};
+};                                                             // namespace ezConversionUtils
 
 template <typename APPEND_CONTAINER_LAMBDA>
 inline void ezConversionUtils::ConvertBinaryToHex(const void* pBinaryData, ezUInt32 uiBytes, APPEND_CONTAINER_LAMBDA append) // [tested]
@@ -295,4 +298,3 @@ inline void ezConversionUtils::ConvertBinaryToHex(const void* pBinaryData, ezUIn
     append(tmp);
   }
 }
-
