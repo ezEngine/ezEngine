@@ -76,6 +76,21 @@ protected:
   //////////////////////////////////////////////////////////////////////////
   // ezTypeScriptComponent Interface
   //
+
+public:
+
+  void BroadcastEventMsg(ezEventMessage& msg);
+
+private:
+
+  struct EventSender
+  {
+    const ezRTTI* m_pMsgType = nullptr;
+    ezEventMessageSender<ezEventMessage> m_Sender;
+  };
+
+  ezHybridArray<EventSender, 2> m_EventSenders;
+
 protected:
   bool CallTsFunc(const char* szFuncName);
   void Update(ezTypeScriptBinding& script);

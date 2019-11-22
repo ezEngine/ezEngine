@@ -16,6 +16,7 @@ void ezTypeScriptBinding::GenerateMessagesFile(const char* szFile)
 
 import __Message = require("./Message")
 export import Message = __Message.Message;
+export import EventMessage = __Message.EventMessage;
 
 import __Vec2 = require("./Vec2")
 export import Vec2 = __Vec2.Vec2;
@@ -69,7 +70,7 @@ static void CreateMessageTypeList(ezSet<const ezRTTI*>& found, ezDynamicArray<co
   if (!pRtti->IsDerivedFrom<ezMessage>())
     return;
 
-  if (pRtti == ezGetStaticRTTI<ezMessage>())
+  if (pRtti == ezGetStaticRTTI<ezMessage>() || pRtti == ezGetStaticRTTI<ezEventMessage>())
     return;
 
   found.Insert(pRtti);

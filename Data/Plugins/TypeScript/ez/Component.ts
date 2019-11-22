@@ -3,6 +3,7 @@ export import GameObject = __GameObject.GameObject;
 
 import __Message = require("./Message")
 export import Message = __Message.Message;
+export import EventMessage = __Message.EventMessage;
 
 import __Time = require("./Time")
 export import Time = __Time.Time;
@@ -17,6 +18,7 @@ declare function __CPP_Component_IsActiveAndInitialized(component: Component): b
 declare function __CPP_Component_IsActiveAndSimulating(component: Component): boolean;
 declare function __CPP_Component_SendMessage(_this: Component, typeNameHash: number, msg: Message): void;
 declare function __CPP_Component_PostMessage(_this: Component, typeNameHash: number, msg: Message, delay: number): void;
+declare function __CPP_TsComponent_BroadcastEvent(_this: TypescriptComponent, typeNameHash: number, msg: EventMessage): void;
 
 export abstract class Component {
 
@@ -78,6 +80,11 @@ export abstract class TypescriptComponent extends Component {
 
     static RegisterMessageHandler<TYPE extends Message>(msgType: new () => TYPE, handlerFuncName: string) {
         __CPP_Binding_RegisterMessageHandler(msgType.GetTypeNameHash(), handlerFuncName);
+    }
+
+    protected BroadcastEvent<TYPE extends EventMessage>(msg: TYPE): void {
+
+        __CPP_TsComponent_BroadcastEvent(this, msg.TypeNameHash, msg);
     }
 }
 

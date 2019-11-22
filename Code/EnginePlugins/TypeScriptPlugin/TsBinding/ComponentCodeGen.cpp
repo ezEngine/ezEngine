@@ -60,7 +60,7 @@ static void CreateComponentTypeList(ezSet<const ezRTTI*>& found, ezDynamicArray<
   if (!pRtti->IsDerivedFrom<ezComponent>())
     return;
 
-  if (pRtti == ezGetStaticRTTI<ezComponent>())
+  if (pRtti == ezGetStaticRTTI<ezComponent>() || pRtti == ezGetStaticRTTI<ezTypeScriptComponent>())
     return;
 
   found.Insert(pRtti);
@@ -125,8 +125,7 @@ export import Time = __Time.Time;
 import __Angle = require("./Angle")
 export import Angle = __Angle.Angle;
 
-import __Enums = require("./AllEnums")
-export import Enum = __Enums.Enum;
+import Enum = require("./AllEnums")
 
 )";
 

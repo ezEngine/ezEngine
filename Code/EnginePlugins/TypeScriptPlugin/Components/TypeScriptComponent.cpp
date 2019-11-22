@@ -120,6 +120,24 @@ bool ezTypeScriptComponent::HandlesEventMessage(const ezEventMessage& msg) const
   return binding.HasMessageHandler(m_ComponentTypeInfo, msg.GetDynamicRTTI());
 }
 
+void ezTypeScriptComponent::BroadcastEventMsg(ezEventMessage& msg)
+{
+  const ezRTTI* pType = msg.GetDynamicRTTI();
+
+  for (auto& sender : m_EventSenders)
+  {
+    if (sender.m_pMsgType == pType)
+    {
+      sender.m_Sender.SendMessage(msg, this, GetOwner()->GetParent());
+      return;
+    }
+  }
+
+  auto& sender = m_EventSenders.ExpandAndGetRef();
+  sender.m_pMsgType = pType;
+  sender.m_Sender.SendMessage(msg, this, GetOwner()->GetParent());
+}
+
 bool ezTypeScriptComponent::CallTsFunc(const char* szFuncName)
 {
   if (GetUserFlag(UserFlag::ScriptFailure))
