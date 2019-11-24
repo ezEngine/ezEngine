@@ -1,11 +1,11 @@
 #pragma once
 
-#include <GameEngine/GameEngineDLL.h>
-#include <Core/World/World.h>
 #include <Core/World/Component.h>
-#include <GameEngine/Prefabs/PrefabResource.h>
-#include <Foundation/Types/RangeView.h>
+#include <Core/World/World.h>
 #include <Foundation/Containers/ArrayMap.h>
+#include <Foundation/Types/RangeView.h>
+#include <GameEngine/GameEngineDLL.h>
+#include <GameEngine/Prefabs/PrefabResource.h>
 
 class ezPrefabReferenceComponent;
 
@@ -18,7 +18,6 @@ public:
   virtual void Initialize() override;
 
   void Update(const ezWorldModule::UpdateContext& context);
-
   void AddToUpdateList(ezPrefabReferenceComponent* pComponent);
 
 private:
@@ -31,22 +30,12 @@ class EZ_GAMEENGINE_DLL ezPrefabReferenceComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezPrefabReferenceComponent, ezComponent, ezPrefabReferenceComponentManager);
 
-public:
-  ezPrefabReferenceComponent();
-  ~ezPrefabReferenceComponent();
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent
 
+public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
-
-  // ************************************* PROPERTIES ***********************************
-
-  void SetPrefabFile(const char* szFile);
-  const char* GetPrefabFile() const;
-
-  void SetPrefab(const ezPrefabResourceHandle& hPrefab);
-  EZ_ALWAYS_INLINE const ezPrefabResourceHandle& GetPrefab() const { return m_hPrefab; }
-
-  void InstantiatePrefab();
 
 protected:
   virtual void OnActivated() override;
@@ -55,17 +44,27 @@ protected:
   virtual void Deinitialize() override;
   virtual void OnSimulationStarted() override;
 
-  void ClearPreviousInstances();
 
   //////////////////////////////////////////////////////////////////////////
-  // Exposed Parameters
-public:
-  const ezRangeView<const char*, ezUInt32> GetParameters() const;
-  void SetParameter(const char* szKey, const ezVariant& value);
-  void RemoveParameter(const char* szKey);
-  bool GetParameter(const char* szKey, ezVariant& out_value) const;
+  // ezPrefabReferenceComponent
 
-  // ************************************* FUNCTIONS *****************************
+public:
+  ezPrefabReferenceComponent();
+  ~ezPrefabReferenceComponent();
+
+  void SetPrefabFile(const char* szFile); // [ property ]
+  const char* GetPrefabFile() const;      // [ property ]
+
+  void SetPrefab(const ezPrefabResourceHandle& hPrefab);                                 // [ property ]
+  EZ_ALWAYS_INLINE const ezPrefabResourceHandle& GetPrefab() const { return m_hPrefab; } // [ property ]
+
+  const ezRangeView<const char*, ezUInt32> GetParameters() const;   // [ property ] (exposed parameter)
+  void SetParameter(const char* szKey, const ezVariant& value);     // [ property ] (exposed parameter)
+  void RemoveParameter(const char* szKey);                          // [ property ] (exposed parameter)
+  bool GetParameter(const char* szKey, ezVariant& out_value) const; // [ property ] (exposed parameter)
+
+  void InstantiatePrefab();      // [ scriptable ]
+  void ClearPreviousInstances(); // [ scriptable ]
 
 private:
   void ResourceEventHandler(const ezResourceEvent& e);
@@ -74,4 +73,3 @@ private:
   ezArrayMap<ezHashedString, ezVariant> m_Parameters;
   bool m_bInUpdateList = false;
 };
-

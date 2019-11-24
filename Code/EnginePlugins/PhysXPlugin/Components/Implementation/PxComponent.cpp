@@ -16,6 +16,8 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPxComponent, 1)
 EZ_END_ABSTRACT_COMPONENT_TYPE
 // clang-format on
 
+ezPxComponent::ezPxComponent() = default;
+ezPxComponent::~ezPxComponent() = default;
 
 
 EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Components_Implementation_PxComponent);

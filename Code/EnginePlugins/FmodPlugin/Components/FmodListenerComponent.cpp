@@ -18,11 +18,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezFmodListenerComponent, 1, ezComponentMode::Static)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezFmodListenerComponent::ezFmodListenerComponent()
-{
-  m_uiListenerIndex = 0;
-}
-
+ezFmodListenerComponent::ezFmodListenerComponent() = default;
+ezFmodListenerComponent::~ezFmodListenerComponent() = default;
 
 void ezFmodListenerComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -33,12 +30,10 @@ void ezFmodListenerComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_uiListenerIndex;
 }
 
-
 void ezFmodListenerComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-
+  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = stream.GetStream();
 
@@ -54,7 +49,5 @@ void ezFmodListenerComponent::Update()
 
   ezFmod::GetSingleton()->SetListener(m_uiListenerIndex, pos, fwd, up, vel);
 }
-
-
 
 EZ_STATICLINK_FILE(FmodPlugin, FmodPlugin_Components_FmodListenerComponent);

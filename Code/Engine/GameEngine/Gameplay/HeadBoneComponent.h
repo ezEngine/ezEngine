@@ -10,26 +10,28 @@ class EZ_GAMEENGINE_DLL ezHeadBoneComponent : public ezComponent
   EZ_DECLARE_COMPONENT_TYPE(ezHeadBoneComponent, ezComponent, ezHeadBoneComponentManager);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent interface
+  // ezComponent
 
 public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezHeadBoneComponent interface
+  // ezHeadBoneComponent
 
 public:
   ezHeadBoneComponent();
+  ~ezHeadBoneComponent();
 
+
+  void SetVerticalRotation(float radians);    // [ scriptable ]
+  void ChangeVerticalRotation(float radians); // [ scriptable ]
+
+  ezAngle m_NewVerticalRotation;                       // [ property ]
+  ezAngle m_MaxVerticalRotation = ezAngle::Degree(80); // [ property ]
+
+protected:
   void Update();
 
-  void SetVerticalRotation(float radians);    // [scriptable]
-  void ChangeVerticalRotation(float radians); // [scriptable]
-
-  ezAngle m_MaxVerticalRotation; // [property]
-
-private:
   ezAngle m_CurVerticalRotation;
-  ezAngle m_NewVerticalRotation;
 };

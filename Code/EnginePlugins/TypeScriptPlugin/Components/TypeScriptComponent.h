@@ -47,13 +47,9 @@ class EZ_TYPESCRIPTPLUGIN_DLL ezTypeScriptComponent : public ezEventMessageHandl
 {
   EZ_DECLARE_COMPONENT_TYPE(ezTypeScriptComponent, ezEventMessageHandlerComponent, ezTypeScriptComponentManager);
 
-public:
-  ezTypeScriptComponent();
-  ~ezTypeScriptComponent();
-
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent Interface
-  //
+  // ezComponent
+
 protected:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
@@ -69,20 +65,21 @@ protected:
   bool HandleUnhandledMessage(ezMessage& msg);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezEventMessageHandlerComponent Interface
+  // ezEventMessageHandlerComponent
 
+protected:
   virtual bool HandlesEventMessage(const ezEventMessage& msg) const override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezTypeScriptComponent Interface
-  //
+  // ezTypeScriptComponent
 
 public:
+  ezTypeScriptComponent();
+  ~ezTypeScriptComponent();
 
   void BroadcastEventMsg(ezEventMessage& msg);
 
 private:
-
   struct EventSender
   {
     const ezRTTI* m_pMsgType = nullptr;
@@ -91,7 +88,6 @@ private:
 
   ezHybridArray<EventSender, 2> m_EventSenders;
 
-protected:
   bool CallTsFunc(const char* szFuncName);
   void Update(ezTypeScriptBinding& script);
   void SetExposedVariables();
@@ -101,8 +97,8 @@ protected:
   void SetTypeScriptComponentFile(const char* szFile); // [ property ]
   const char* GetTypeScriptComponentFile() const;      // [ property ]
 
-  void SetTypeScriptComponentGuid(const ezUuid& hResource); // [ property ]
-  const ezUuid& GetTypeScriptComponentGuid() const;         // [ property ]
+  void SetTypeScriptComponentGuid(const ezUuid& hResource);
+  const ezUuid& GetTypeScriptComponentGuid() const;
 
   void OnMsgTypeScriptMsgProxy(ezMsgTypeScriptMsgProxy& msg); // [ message handler ]
 
@@ -121,6 +117,7 @@ private:
 
   //////////////////////////////////////////////////////////////////////////
   // Exposed Parameters
+
 public:
   const ezRangeView<const char*, ezUInt32> GetParameters() const;
   void SetParameter(const char* szKey, const ezVariant& value);

@@ -31,6 +31,12 @@ EZ_BEGIN_COMPONENT_TYPE(ezPrefabReferenceComponent, 4, ezComponentMode::Static)
     EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("Prefab")),
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_SCRIPT_FUNCTION_PROPERTY(InstantiatePrefab),
+    EZ_SCRIPT_FUNCTION_PROPERTY(ClearPreviousInstances),
+  }
+  EZ_END_FUNCTIONS;
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("General"),

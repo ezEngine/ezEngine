@@ -29,12 +29,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezHeadBoneComponent, 1, ezComponentMode::Dynamic)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezHeadBoneComponent::ezHeadBoneComponent()
-{
-  m_MaxVerticalRotation = ezAngle::Degree(80);
-  m_CurVerticalRotation.SetRadian(0);
-  m_NewVerticalRotation.SetRadian(0);
-}
+ezHeadBoneComponent::ezHeadBoneComponent() = default;
+ezHeadBoneComponent::~ezHeadBoneComponent() = default;
 
 void ezHeadBoneComponent::Update()
 {

@@ -1,30 +1,36 @@
-﻿#pragma once
+#pragma once
 
 #include <FmodPlugin/Components/FmodComponent.h>
 
 typedef ezComponentManagerSimple<class ezFmodListenerComponent, ezComponentUpdateType::WhenSimulating> ezFmodListenerComponentManager;
 
+/// \brief Represents the position of the sound listener
 class EZ_FMODPLUGIN_DLL ezFmodListenerComponent : public ezFmodComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezFmodListenerComponent, ezFmodComponent, ezFmodListenerComponentManager);
-  virtual void ezFmodComponentIsAbstract() override {}
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent
 
 public:
-  ezFmodListenerComponent();
-
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
-  // ************************************* PROPERTIES ***********************************
+  //////////////////////////////////////////////////////////////////////////
+  // ezFmodComponent
+
+private:
+  virtual void ezFmodComponentIsAbstract() override {}
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezFmodListenerComponent
+
 public:
-  ezUInt8 m_uiListenerIndex;
+  ezFmodListenerComponent();
+  ~ezFmodListenerComponent();
 
-
-  // ************************************* FUNCTIONS *****************************
-
+  ezUInt8 m_uiListenerIndex = 0; // [ property ]
 
 protected:
   void Update();
 };
-
-

@@ -54,8 +54,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezInputComponent, 2, ezComponentMode::Static)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezInputComponent::ezInputComponent() {}
-ezInputComponent::~ezInputComponent() {}
+ezInputComponent::ezInputComponent() = default;
+ezInputComponent::~ezInputComponent() = default;
 
 static inline ezTriggerState::Enum ToTriggerState(ezKeyState::Enum s)
 {
