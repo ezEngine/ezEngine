@@ -33,11 +33,9 @@ class EZ_PHYSXPLUGIN_DLL ezPxDynamicActorComponent : public ezPxActorComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezPxDynamicActorComponent, ezPxActorComponent, ezPxDynamicActorComponentManager);
 
-public:
-  ezPxDynamicActorComponent();
-
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent Interface
+  // ezComponent
+
 public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
@@ -46,8 +44,12 @@ public:
   virtual void Deinitialize() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezPxDynamicActorComponent Interface
+  // ezPxDynamicActorComponent
+
 public:
+  ezPxDynamicActorComponent();
+  ~ezPxDynamicActorComponent();
+
   physx::PxRigidDynamic* GetActor() const { return m_pActor; }
 
   void AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg); // [ message ]
@@ -65,10 +67,10 @@ public:
   float GetMass() const { return m_fMass; } // [ property ]
   void SetMass(float fMass);                // [ property ]
 
-  float m_fDensity;           // [ property ]
-  float m_fLinearDamping;     // [ property ]
-  float m_fAngularDamping;    // [ property ]
-  float m_fMaxContactImpulse; // [ property ]
+  float m_fDensity = 1.0f;                 // [ property ]
+  float m_fLinearDamping = 0.1f;           // [ property ]
+  float m_fAngularDamping = 0.05f;         // [ property ]
+  float m_fMaxContactImpulse = 1000000.0f; // [ property ]
 
   ezVec3 GetLocalCenterOfMass() const;  // [ scriptable ]
   ezVec3 GetGlobalCenterOfMass() const; // [ scriptable ]
@@ -81,13 +83,13 @@ public:
 protected:
   bool FindCenterOfMass(ezGameObject* pRoot, ezVec3& out_CoM) const;
 
-  physx::PxRigidDynamic* m_pActor;
+  physx::PxRigidDynamic* m_pActor = nullptr;
 
 private:
-  float m_fMass;
-  bool m_bDisableGravity;
-  bool m_bKinematic;
-  bool m_bCCD;
+  float m_fMass = 0.0f;
+  bool m_bDisableGravity = false;
+  bool m_bKinematic = false;
+  bool m_bCCD = false;
 
   ezPxUserData m_UserData;
 };

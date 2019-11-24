@@ -82,6 +82,8 @@ ezPxTriggerComponent::ezPxTriggerComponent()
   m_pActor = nullptr;
 }
 
+ezPxTriggerComponent::~ezPxTriggerComponent() = default;
+
 void ezPxTriggerComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);

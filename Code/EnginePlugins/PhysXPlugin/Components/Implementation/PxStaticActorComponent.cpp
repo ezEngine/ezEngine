@@ -1,12 +1,12 @@
 #include <PhysXPluginPCH.h>
 
+#include <Core/Utils/WorldGeoExtractionUtil.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <PhysXPlugin/Components/PxStaticActorComponent.h>
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
-#include <Core/Utils/WorldGeoExtractionUtil.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezPxStaticActorComponent, 2, ezComponentMode::Static)
@@ -33,14 +33,11 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezPxStaticActorComponent::ezPxStaticActorComponent()
-    : m_uiCollisionLayer(0)
-    , m_uiShapeId(ezInvalidIndex)
-    , m_pActor(nullptr)
-    , m_UserData(this)
+  : m_UserData(this)
 {
 }
 
-ezPxStaticActorComponent::~ezPxStaticActorComponent() {}
+ezPxStaticActorComponent::~ezPxStaticActorComponent() = default;
 
 void ezPxStaticActorComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -160,7 +157,7 @@ void ezPxStaticActorComponent::OnSimulationStarted()
     if (pMesh->GetTriangleMesh() != nullptr)
     {
       pShape =
-          m_pActor->createShape(PxTriangleMeshGeometry(pMesh->GetTriangleMesh(), scale), pxMaterials.GetData(), pxMaterials.GetCount());
+        m_pActor->createShape(PxTriangleMeshGeometry(pMesh->GetTriangleMesh(), scale), pxMaterials.GetData(), pxMaterials.GetCount());
     }
     else if (pMesh->GetConvexMesh() != nullptr)
     {
@@ -169,7 +166,7 @@ void ezPxStaticActorComponent::OnSimulationStarted()
     else
     {
       ezLog::Warning("ezPxStaticActorComponent: Collision mesh resource is valid, but it contains no triangle mesh ('{0}' - '{1}')",
-                     pMesh->GetResourceID(), pMesh->GetResourceDescription());
+        pMesh->GetResourceID(), pMesh->GetResourceDescription());
     }
   }
 
@@ -226,7 +223,6 @@ void ezPxStaticActorComponent::SetMeshFile(const char* szFile)
   SetMesh(hMesh);
 }
 
-
 const char* ezPxStaticActorComponent::GetMeshFile() const
 {
   if (!m_hCollisionMesh.IsValid())
@@ -235,12 +231,9 @@ const char* ezPxStaticActorComponent::GetMeshFile() const
   return m_hCollisionMesh.GetResourceID();
 }
 
-
 void ezPxStaticActorComponent::SetMesh(const ezPxMeshResourceHandle& hMesh)
 {
   m_hCollisionMesh = hMesh;
 }
-
-
 
 EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Components_Implementation_PxStaticActorComponent);

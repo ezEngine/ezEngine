@@ -136,17 +136,9 @@ EZ_END_COMPONENT_TYPE
 ezPxDynamicActorComponent::ezPxDynamicActorComponent()
   : m_UserData(this)
 {
-  m_bKinematic = false;
-  m_bDisableGravity = false;
-  m_bCCD = false;
-  m_pActor = nullptr;
-
-  m_fLinearDamping = 0.1f;
-  m_fAngularDamping = 0.05f;
-  m_fMaxContactImpulse = 1000000.0f;
-  m_fDensity = 1.0f;
-  m_fMass = 0.0f;
 }
+
+ezPxDynamicActorComponent::~ezPxDynamicActorComponent() = default;
 
 void ezPxDynamicActorComponent::SerializeComponent(ezWorldWriter& stream) const
 {
