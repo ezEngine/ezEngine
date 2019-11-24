@@ -1,8 +1,8 @@
 #include <CorePCH.h>
 
+#include <Core/Collection/CollectionComponent.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/Collection/CollectionComponent.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezCollectionComponent, 1, ezComponentMode::Static)
