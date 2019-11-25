@@ -16,6 +16,7 @@ void ezTypeScriptBinding::GenerateMessagesFile(const char* szFile)
 
 import __Message = require("./Message")
 export import Message = __Message.Message;
+export import EventMessage = __Message.EventMessage;
 
 import __Vec2 = require("./Vec2")
 export import Vec2 = __Vec2.Vec2;
@@ -44,6 +45,9 @@ export import Time = __Time.Time;
 import __Angle = require("./Angle")
 export import Angle = __Angle.Angle;
 
+import Enum = require("./AllEnums")
+
+
 )";
 
   GenerateAllMessagesCode(sFileContent);
@@ -66,7 +70,7 @@ static void CreateMessageTypeList(ezSet<const ezRTTI*>& found, ezDynamicArray<co
   if (!pRtti->IsDerivedFrom<ezMessage>())
     return;
 
-  if (pRtti == ezGetStaticRTTI<ezMessage>())
+  if (pRtti == ezGetStaticRTTI<ezMessage>() || pRtti == ezGetStaticRTTI<ezEventMessage>())
     return;
 
   found.Insert(pRtti);
@@ -117,33 +121,56 @@ void ezTypeScriptBinding::GenerateMessagePropertiesCode(ezStringBuilder& out_Cod
     if (pProp->GetCategory() != ezPropertyCategory::Member)
       continue;
 
-    ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pProp);
+    const ezRTTI* pPropType = pProp->GetSpecificType();
 
-    const char* szTypeName = TsType(pMember->GetSpecificType());
-    if (szTypeName == nullptr)
-      continue;
-
-    const ezVariant def = ezReflectionUtils::GetDefaultValue(pMember);
-
-    if (def.CanConvertTo<ezString>())
+    if (pPropType->IsDerivedFrom<ezEnumBase>() || pPropType->IsDerivedFrom<ezBitflagsBase>())
     {
-      sDefault = def.ConvertTo<ezString>();
-    }
+      s_RequiredEnums.Insert(pPropType);
 
-    if (!sDefault.IsEmpty())
-    {
-      // TODO: make this prettier
-      if (def.GetType() == ezVariant::Type::Color)
-      {
-        ezColor c = def.Get<ezColor>();
-        sDefault.Format("new Color({}, {}, {}, {})", c.r, c.g, c.b, c.a);
-      }
-
-      sProp.Format("  {0}: {1} = {2};\n", pMember->GetPropertyName(), szTypeName, sDefault);
+      sDefault = pPropType->GetTypeName();
+      sDefault.TrimWordStart("ez");
+      sProp.Format("  {0}: Enum.{1};\n", pProp->GetPropertyName(), sDefault);
     }
     else
     {
-      sProp.Format("  {0}: {1};\n", pMember->GetPropertyName(), szTypeName);
+      ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pProp);
+
+      const char* szTypeName = TsType(pMember->GetSpecificType());
+      if (szTypeName == nullptr)
+        continue;
+
+      const ezVariant def = ezReflectionUtils::GetDefaultValue(pMember);
+
+      if (def.CanConvertTo<ezString>())
+      {
+        sDefault = def.ConvertTo<ezString>();
+
+        EZ_ASSERT_DEV(sDefault != "N/A", "");
+      }
+
+      if (!sDefault.IsEmpty())
+      {
+        // TODO: make this prettier
+        if (def.GetType() == ezVariant::Type::Color)
+        {
+          ezColor c = def.Get<ezColor>();
+          sDefault.Format("new Color({}, {}, {}, {})", c.r, c.g, c.b, c.a);
+        }
+        else if (def.GetType() == ezVariant::Type::Time)
+        {
+          sDefault.Format("{0}", def.Get<ezTime>().GetSeconds());
+        }
+        else if (def.GetType() == ezVariant::Type::Angle)
+        {
+          sDefault.Format("{0}", def.Get<ezAngle>().GetRadian());
+        }
+
+        sProp.Format("  {0}: {1} = {2};\n", pMember->GetPropertyName(), szTypeName, sDefault);
+      }
+      else
+      {
+        sProp.Format("  {0}: {1};\n", pMember->GetPropertyName(), szTypeName);
+      }
     }
 
     out_Code.Append(sProp.GetView());
@@ -163,39 +190,18 @@ void ezTypeScriptBinding::InjectMessageImportExport(const char* szFile, const ch
 
   ezStringBuilder sImportExport, sTypeName;
 
-  sImportExport.Format(R"(
-
-// AUTO-GENERATED
-import __AllMessages = require("{}")
+  sImportExport.Format(R"(import __AllMessages = require("{}")
 )",
     szMessageFile);
 
   for (const ezRTTI* pRtti : sorted)
   {
     GetTsName(pRtti, sTypeName);
-    sImportExport.AppendFormat("export import {0}  = __AllMessages.{0};\n",
+    sImportExport.AppendFormat("export import {0} = __AllMessages.{0};\n",
       sTypeName);
   }
 
-
-  ezStringBuilder sFinal;
-
-  {
-    ezFileReader fileIn;
-    fileIn.Open(szFile);
-
-    sFinal.ReadAll(fileIn);
-
-    sFinal.Append("\n\n");
-    sFinal.Append(sImportExport.GetView());
-    sFinal.Append("\n");
-  }
-
-  {
-    ezFileWriter fileOut;
-    fileOut.Open(szFile);
-    fileOut.WriteBytes(sFinal.GetData(), sFinal.GetElementCount());
-  }
+  AppendToTextFile(szFile, sImportExport);
 }
 
 static ezUniquePtr<ezMessage> CreateMessage(ezUInt32 uiTypeHash, const ezRTTI*& pRtti)
@@ -316,12 +322,22 @@ void ezTypeScriptBinding::DukPutMessage(duk_context* pDuk, const ezMessage& msg)
     ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pProp);
 
     const ezRTTI* pType = pMember->GetSpecificType();
-    if (pType->GetVariantType() == ezVariant::Type::Invalid)
-      continue;
 
-    const ezVariant val = ezReflectionUtils::GetMemberPropertyValue(pMember, &msg);
+    if (pType->GetTypeFlags().IsAnySet(ezTypeFlags::IsEnum | ezTypeFlags::Bitflags))
+    {
+      const ezVariant val = ezReflectionUtils::GetMemberPropertyValue(pMember, &msg);
 
-    SetVariantProperty(duk, pMember->GetPropertyName(), -1, val);
+      SetVariantProperty(duk, pMember->GetPropertyName(), -1, val);
+    }
+    else
+    {
+      if (pType->GetVariantType() == ezVariant::Type::Invalid)
+        continue;
+
+      const ezVariant val = ezReflectionUtils::GetMemberPropertyValue(pMember, &msg);
+
+      SetVariantProperty(duk, pMember->GetPropertyName(), -1, val);
+    }
   }
 
   EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, +1);
@@ -387,6 +403,22 @@ int ezTypeScriptBinding::__CPP_Binding_RegisterMessageHandler(duk_context* pDuk)
   mh.m_uiMessageTypeNameHash = uiMsgTypeHash;
 
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnVoid(), 0);
+}
+
+bool ezTypeScriptBinding::HasMessageHandler(const TsComponentTypeInfo& typeInfo, const ezRTTI* pMsgRtti) const
+{
+  if (!typeInfo.IsValid())
+    return false;
+
+  for (auto& mh : typeInfo.Value().m_MessageHandlers)
+  {
+    if (mh.m_pMessageType == pMsgRtti)
+    {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 bool ezTypeScriptBinding::DeliverMessage(const TsComponentTypeInfo& typeInfo, ezTypeScriptComponent* pComponent, ezMessage& msg)

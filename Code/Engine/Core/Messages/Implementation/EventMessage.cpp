@@ -32,38 +32,46 @@ EZ_CHECK_AT_COMPILETIME(sizeof(ezEventMessageSender<ezEventMessage>) == 8);
 namespace ezInternal
 {
   ezComponentHandle EventMessageSenderHelper::FindReceiver(ezEventMessage& msg, const ezComponent* pSenderComponent,
-                                                           const ezGameObject* pSearchObject)
+    const ezGameObject* pSearchObject)
   {
-    const ezGameObject* pCurrentObject = pSearchObject;
 
-    while (pCurrentObject != nullptr)
+    // walk the graph upwards until an object is found with an ezEventMessageHandlerComponent that handles this type of message
     {
-      const ezEventMessageHandlerComponent* pEventMessageHandlerComponent = nullptr;
-      if (pCurrentObject->TryGetComponentOfBaseType(pEventMessageHandlerComponent))
+      const ezGameObject* pCurrentObject = pSearchObject;
+
+      while (pCurrentObject != nullptr)
       {
-        if (pEventMessageHandlerComponent->HandlesEventMessage(msg))
+        const ezEventMessageHandlerComponent* pEventMessageHandlerComponent = nullptr;
+        if (pCurrentObject->TryGetComponentOfBaseType(pEventMessageHandlerComponent))
         {
-          return pEventMessageHandlerComponent->GetHandle();
+          if (pEventMessageHandlerComponent->HandlesEventMessage(msg))
+          {
+            return pEventMessageHandlerComponent->GetHandle();
+          }
+
+          // found an ezEventMessageHandlerComponent -> stop searching
+          // even if it does not handle this type of message, we do not want to propagate the message to someone else
+          return ezComponentHandle();
         }
 
-        return ezComponentHandle();
+        pCurrentObject = pCurrentObject->GetParent();
       }
-
-      pCurrentObject = pCurrentObject->GetParent();
     }
 
-    // fallback to global event message handlers
-    const ezWorld* pWorld = pSenderComponent->GetWorld();
-
-    auto globalEventMessageHandler = ezEventMessageHandlerComponent::GetAllGlobalEventHandler(pWorld);
-    for (auto hEventMessageHandlerComponent : globalEventMessageHandler)
+    // if no such object is found, check all objects that are registered as 'global event handlers'
     {
-      const ezEventMessageHandlerComponent* pEventMessageHandlerComponent = nullptr;
-      if (pWorld->TryGetComponent(hEventMessageHandlerComponent, pEventMessageHandlerComponent))
+      const ezWorld* pWorld = pSenderComponent->GetWorld();
+
+      auto globalEventMessageHandler = ezEventMessageHandlerComponent::GetAllGlobalEventHandler(pWorld);
+      for (auto hEventMessageHandlerComponent : globalEventMessageHandler)
       {
-        if (pEventMessageHandlerComponent->HandlesEventMessage(msg))
+        const ezEventMessageHandlerComponent* pEventMessageHandlerComponent = nullptr;
+        if (pWorld->TryGetComponent(hEventMessageHandlerComponent, pEventMessageHandlerComponent))
         {
-          return pEventMessageHandlerComponent->GetHandle();
+          if (pEventMessageHandlerComponent->HandlesEventMessage(msg))
+          {
+            return pEventMessageHandlerComponent->GetHandle();
+          }
         }
       }
     }
@@ -104,7 +112,7 @@ namespace ezInternal
   }
 
   void EventMessageSenderHelper::PostMessage(const ezComponent* pSenderComponent, ezComponentHandle hReceiver, const ezEventMessage& msg,
-                                             ezObjectMsgQueueType::Enum queueType)
+    ezObjectMsgQueueType::Enum queueType)
   {
     if (!hReceiver.IsInvalidated())
     {
@@ -120,7 +128,7 @@ namespace ezInternal
   }
 
   void EventMessageSenderHelper::PostMessage(const ezComponent* pSenderComponent, ezComponentHandle hReceiver, const ezEventMessage& msg,
-                                             ezObjectMsgQueueType::Enum queueType, ezTime delay)
+    ezObjectMsgQueueType::Enum queueType, ezTime delay)
   {
     if (!hReceiver.IsInvalidated())
     {
@@ -134,9 +142,8 @@ namespace ezInternal
     }
 #endif
   }
-}
+} // namespace ezInternal
 
 
 
 EZ_STATICLINK_FILE(Core, Core_Messages_Implementation_EventMessage);
-

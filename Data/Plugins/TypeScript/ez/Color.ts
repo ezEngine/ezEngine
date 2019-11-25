@@ -1,6 +1,6 @@
-import __Math = require("./Math")
+import __Utils = require("./Utils")
 
-export import ezMath = __Math.ezMath;
+export import Utils = __Utils.Utils;
 
 export class Color {
 
@@ -143,11 +143,11 @@ export class Color {
     }
 
     IsEqualRGB(rhs: Color, epsilon: number): boolean {
-        return ezMath.IsNumberEqual(this.r, rhs.r, epsilon) && ezMath.IsNumberEqual(this.g, rhs.g, epsilon) && ezMath.IsNumberEqual(this.b, rhs.b, epsilon);
+        return Utils.IsNumberEqual(this.r, rhs.r, epsilon) && Utils.IsNumberEqual(this.g, rhs.g, epsilon) && Utils.IsNumberEqual(this.b, rhs.b, epsilon);
     }
 
     IsEqualRGBA(rhs: Color, epsilon: number): boolean {
-        return ezMath.IsNumberEqual(this.r, rhs.r, epsilon) && ezMath.IsNumberEqual(this.g, rhs.g, epsilon) && ezMath.IsNumberEqual(this.b, rhs.b, epsilon) && ezMath.IsNumberEqual(this.a, rhs.a, epsilon);
+        return Utils.IsNumberEqual(this.r, rhs.r, epsilon) && Utils.IsNumberEqual(this.g, rhs.g, epsilon) && Utils.IsNumberEqual(this.b, rhs.b, epsilon) && Utils.IsNumberEqual(this.a, rhs.a, epsilon);
     }
 
     WithAlpha(alpha: number): Color {

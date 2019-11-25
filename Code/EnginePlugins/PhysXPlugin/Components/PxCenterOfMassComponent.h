@@ -9,22 +9,10 @@ class EZ_PHYSXPLUGIN_DLL ezPxCenterOfMassComponent : public ezPxComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezPxCenterOfMassComponent, ezPxComponent, ezPxCenterOfMassComponentManager);
 
+  //////////////////////////////////////////////////////////////////////////
+  // ezPxCenterOfMassComponent
+
 public:
   ezPxCenterOfMassComponent();
-
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
-
-  // ************************************* PROPERTIES ***********************************
-public:
-
-
-protected:
-
-  // ************************************* FUNCTIONS *****************************
-
-public:
-
-private:
-
+  ~ezPxCenterOfMassComponent();
 };

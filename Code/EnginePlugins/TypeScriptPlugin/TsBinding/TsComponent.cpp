@@ -1,8 +1,10 @@
 #include <TypeScriptPluginPCH.h>
 
+#include <Core/Messages/EventMessage.h>
 #include <Core/World/Component.h>
 #include <Duktape/duktape.h>
 #include <Foundation/Types/ScopeExit.h>
+#include <TypeScriptPlugin/Components/TypeScriptComponent.h>
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
 
 static int __CPP_Component_IsValid(duk_context* pDuk);
@@ -11,6 +13,7 @@ static int __CPP_Component_GetOwner(duk_context* pDuk);
 static int __CPP_Component_SetActive(duk_context* pDuk);
 static int __CPP_Component_IsActive(duk_context* pDuk);
 static int __CPP_Component_SendMessage(duk_context* pDuk);
+static int __CPP_TsComponent_BroadcastEvent(duk_context* pDuk);
 
 ezResult ezTypeScriptBinding::Init_Component()
 {
@@ -23,6 +26,7 @@ ezResult ezTypeScriptBinding::Init_Component()
   m_Duk.RegisterGlobalFunction("__CPP_Component_IsActiveAndSimulating", __CPP_Component_IsActive, 1, 2);
   m_Duk.RegisterGlobalFunction("__CPP_Component_SendMessage", __CPP_Component_SendMessage, 3, 0);
   m_Duk.RegisterGlobalFunction("__CPP_Component_SendMessage", __CPP_Component_SendMessage, 4, 1);
+  m_Duk.RegisterGlobalFunction("__CPP_TsComponent_BroadcastEvent", __CPP_TsComponent_BroadcastEvent, 4);
 
   return EZ_SUCCESS;
 }
@@ -262,6 +266,20 @@ static int __CPP_Component_SendMessage(duk_context* pDuk)
     ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, delay);
     pComponent->PostMessage(*pMsg, ezObjectMsgQueueType::NextFrame, delay);
   }
+
+  EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnVoid(), 0);
+}
+
+static int __CPP_TsComponent_BroadcastEvent(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk);
+
+  ezTypeScriptComponent* pComponent = ezTypeScriptBinding::ExpectComponent<ezTypeScriptComponent>(duk, 0 /*this*/);
+
+  ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(duk);
+
+  ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, ezTime::Zero());
+  pComponent->BroadcastEventMsg(*ezStaticCast<ezEventMessage*>(pMsg.Borrow()));
 
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnVoid(), 0);
 }

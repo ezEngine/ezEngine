@@ -19,12 +19,12 @@ EZ_BEGIN_COMPONENT_TYPE(ezAreaDamageComponent, 1, ezComponentMode::Static)
     EZ_MEMBER_PROPERTY("Impulse", m_fImpulse)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezClampValueAttribute(0.0f, ezVariant())),
   }
   EZ_END_PROPERTIES;
-    //  EZ_BEGIN_MESSAGEHANDLERS
-    //{
-    //  EZ_MESSAGE_HANDLER(ezMsgComponentInternalTrigger, OnTriggered),
-    //}
-    //EZ_END_MESSAGEHANDLERS;
-    EZ_BEGIN_ATTRIBUTES
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_SCRIPT_FUNCTION_PROPERTY(ApplyAreaDamage),
+  }
+  EZ_END_FUNCTIONS;
+  EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Gameplay"),
     new ezSphereVisualizerAttribute("Radius", nullptr, ezColor::OrangeRed),
@@ -37,7 +37,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 static ezPhysicsOverlapResult g_OverlapResults;
 
-ezAreaDamageComponent::ezAreaDamageComponent() {}
+ezAreaDamageComponent::ezAreaDamageComponent() = default;
 
 void ezAreaDamageComponent::ApplyAreaDamage()
 {
@@ -103,7 +103,6 @@ void ezAreaDamageComponent::ApplyAreaDamage()
   }
 }
 
-
 void ezAreaDamageComponent::OnSimulationStarted()
 {
   if (m_bTriggerOnCreation)
@@ -140,8 +139,8 @@ void ezAreaDamageComponent::DeserializeComponent(ezWorldReader& stream)
 //////////////////////////////////////////////////////////////////////////
 
 ezAreaDamageComponentManager::ezAreaDamageComponentManager(ezWorld* pWorld)
-    : SUPER(pWorld)
-    , m_pPhysicsInterface(nullptr)
+  : SUPER(pWorld)
+  , m_pPhysicsInterface(nullptr)
 {
 }
 
@@ -164,4 +163,3 @@ void ezAreaDamageComponentManager::Update(const ezWorldModule::UpdateContext& co
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_AreaDamageComponent);
-

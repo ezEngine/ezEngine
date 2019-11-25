@@ -16,6 +16,15 @@ EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgInputActionTriggered);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgInputActionTriggered, 1, ezRTTIDefaultAllocator<ezMsgInputActionTriggered>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("InputActionHash", m_uiInputActionHash),
+    EZ_MEMBER_PROPERTY("KeyPressValue", m_fKeyPressValue),
+    EZ_ENUM_MEMBER_PROPERTY("TriggerState", ezTriggerState, m_TriggerState),
+  }
+  EZ_END_PROPERTIES;
+}
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_COMPONENT_TYPE(ezInputComponent, 2, ezComponentMode::Static)
@@ -35,13 +44,18 @@ EZ_BEGIN_COMPONENT_TYPE(ezInputComponent, 2, ezComponentMode::Static)
   {
     EZ_MESSAGE_SENDER(m_InputEventSender)
   }
-  EZ_END_MESSAGESENDERS
+  EZ_END_MESSAGESENDERS;
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetCurrentInputState, In, "InputAction", In, "OnlyKeyPressed"),
+  }
+  EZ_END_FUNCTIONS;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezInputComponent::ezInputComponent() {}
-ezInputComponent::~ezInputComponent() {}
+ezInputComponent::ezInputComponent() = default;
+ezInputComponent::~ezInputComponent() = default;
 
 static inline ezTriggerState::Enum ToTriggerState(ezKeyState::Enum s)
 {
@@ -127,9 +141,9 @@ void ezInputComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_Granularity;
 }
 
-  //////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 
@@ -137,7 +151,7 @@ class ezInputComponentPatch_1_2 : public ezGraphPatch
 {
 public:
   ezInputComponentPatch_1_2()
-      : ezGraphPatch("ezInputComponent", 2)
+    : ezGraphPatch("ezInputComponent", 2)
   {
   }
 
@@ -152,4 +166,3 @@ ezInputComponentPatch_1_2 g_ezInputComponentPatch_1_2;
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_InputComponent);
-

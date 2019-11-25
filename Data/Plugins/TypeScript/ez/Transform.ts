@@ -1,5 +1,5 @@
-import __Math = require("./Math")
-export import ezMath = __Math.ezMath;
+import __Utils = require("./Utils")
+export import Utils = __Utils.Utils;
 
 import __Vec3 = require("./Vec3")
 export import Vec3 = __Vec3.Vec3;

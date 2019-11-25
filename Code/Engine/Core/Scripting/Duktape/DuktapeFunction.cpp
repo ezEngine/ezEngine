@@ -15,7 +15,7 @@ ezDuktapeFunction::ezDuktapeFunction(duk_context* pExistingContext)
 ezDuktapeFunction::~ezDuktapeFunction()
 {
 #  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-  if (!m_bDidReturnValue)
+  if (m_bVerifyStackChange && !m_bDidReturnValue)
   {
     ezLog::Error("You need to call one ezDuktapeFunction::ReturnXY() and return its result from your C function.");
   }

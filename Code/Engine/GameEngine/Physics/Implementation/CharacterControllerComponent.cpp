@@ -35,13 +35,16 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezCharacterControllerComponent, 1)
 {
-  //EZ_BEGIN_PROPERTIES
-  //EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Gameplay"),
   }
   EZ_END_ATTRIBUTES;
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_SCRIPT_FUNCTION_PROPERTY(RawMove, In, "move"),
+  }
+  EZ_END_FUNCTIONS;
   EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgMoveCharacterController, MoveCharacter),

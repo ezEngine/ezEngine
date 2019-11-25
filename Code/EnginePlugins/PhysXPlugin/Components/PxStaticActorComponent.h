@@ -11,13 +11,10 @@ class EZ_PHYSXPLUGIN_DLL ezPxStaticActorComponent : public ezPxActorComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezPxStaticActorComponent, ezPxActorComponent, ezPxStaticActorComponentManager);
 
-public:
-  ezPxStaticActorComponent();
-  ~ezPxStaticActorComponent();
-
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent Interface
+  // ezComponent
 
+public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
@@ -25,35 +22,30 @@ public:
   virtual void OnSimulationStarted() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezPxStaticActorComponent Interface
-
-  void OnExtractGeometry(ezMsgExtractGeometry& msg) const;
-
-  // ************************************* PROPERTIES ***********************************
-public:
-
-  void SetMeshFile(const char* szFile);
-  const char* GetMeshFile() const;
-
-  ezUInt32 GetShapeId() const { return m_uiShapeId; }
-
-  ezUInt8 m_uiCollisionLayer;
-  bool m_bIncludeInNavmesh = true;
-
-protected:
-  ezUInt32 m_uiShapeId;
-
-  ezPxMeshResourceHandle m_hCollisionMesh;
-
-  // ************************************* FUNCTIONS *****************************
+  // ezPxStaticActorComponent
 
 public:
+  ezPxStaticActorComponent();
+  ~ezPxStaticActorComponent();
+
+  void SetMeshFile(const char* szFile); // [ property ]
+  const char* GetMeshFile() const;      // [ property ]
+
   void SetMesh(const ezPxMeshResourceHandle& hMesh);
   EZ_ALWAYS_INLINE const ezPxMeshResourceHandle& GetMesh() const { return m_hCollisionMesh; }
 
-private:
+  ezUInt32 GetShapeId() const { return m_uiShapeId; } // [ scriptable ]
 
-  physx::PxRigidStatic* m_pActor;
+  ezUInt8 m_uiCollisionLayer = 0;  // [ property ]
+  bool m_bIncludeInNavmesh = true; // [ property ]
+
+protected:
+  void OnExtractGeometry(ezMsgExtractGeometry& msg) const;
+
+  ezUInt32 m_uiShapeId = ezInvalidIndex;
+  ezPxMeshResourceHandle m_hCollisionMesh;
+
+  physx::PxRigidStatic* m_pActor = nullptr;
 
   ezPxUserData m_UserData;
 };

@@ -12,7 +12,7 @@
 
 
 ezCameraComponentManager::ezCameraComponentManager(ezWorld* pWorld)
-    : ezComponentManager<ezCameraComponent, ezBlockStorageType::Compact>(pWorld)
+  : ezComponentManager<ezCameraComponent, ezBlockStorageType::Compact>(pWorld)
 {
   ezRenderWorld::s_CameraConfigsModifiedEvent.AddEventHandler(ezMakeDelegate(&ezCameraComponentManager::OnCameraConfigsChanged, this));
 }
@@ -158,8 +158,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 9, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("ISO", GetISO, SetISO)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezClampValueAttribute(50.0f, 64000.0f)),
     EZ_ACCESSOR_PROPERTY("ExposureCompensation", GetExposureCompensation, SetExposureCompensation)->AddAttributes(new ezClampValueAttribute(-32.0f, 32.0f)),
     EZ_MEMBER_PROPERTY("ShowStats", m_bShowStats),
-    /*EZ_ACCESSOR_PROPERTY_READ_ONLY("EV100", GetEV100),
-    EZ_ACCESSOR_PROPERTY_READ_ONLY("Final Exposure", GetExposure),*/
+    EZ_ACCESSOR_PROPERTY_READ_ONLY("EV100", GetEV100),
+    EZ_ACCESSOR_PROPERTY_READ_ONLY("Final Exposure", GetExposure),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -173,22 +173,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 9, ezComponentMode::Static)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezCameraComponent::ezCameraComponent()
-{
-  m_fNearPlane = 0.25f;
-  m_fFarPlane = 1000.0f;
-  m_fPerspectiveFieldOfView = 60.0f;
-  m_fOrthoDimension = 10.0f;
-
-  m_fAperture = 1.0f;
-  m_ShutterTime = ezTime::Seconds(1.0f);
-  m_fISO = 100.0f;
-  m_fExposureCompensation = 0.0f;
-
-  m_bIsModified = false;
-  m_bShowStats = false;
-}
-
+ezCameraComponent::ezCameraComponent() = default;
 ezCameraComponent::~ezCameraComponent() = default;
 
 void ezCameraComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -312,7 +297,7 @@ void ezCameraComponent::UpdateRenderTargetCamera()
     m_RenderTargetCamera.SetCameraMode(GetCameraMode(), m_fOrthoDimension, m_fNearPlane, m_fFarPlane);
 
   m_RenderTargetCamera.LookAt(GetOwner()->GetGlobalPosition(), GetOwner()->GetGlobalPosition() + GetOwner()->GetGlobalDirForwards(),
-                              GetOwner()->GetGlobalDirUp());
+    GetOwner()->GetGlobalDirUp());
 }
 
 void ezCameraComponent::SetUsageHint(ezEnum<ezCameraUsageHint> val)
@@ -535,7 +520,7 @@ void ezCameraComponent::ApplySettingsToView(ezView* pView) const
 
       ezStringBuilder sb;
       sb.Format("Camera '{0}': EV100: {1}, Exposure: {2}", ezStringUtils::IsNullOrEmpty(szName) ? pView->GetName() : szName, GetEV100(),
-                GetExposure());
+        GetExposure());
       ezDebugRenderer::Draw2DText(GetWorld(), sb, ezVec2I32(20, 20), ezColor::LimeGreen);
     }
 
@@ -721,7 +706,7 @@ class ezCameraComponentPatch_4_5 : public ezGraphPatch
 {
 public:
   ezCameraComponentPatch_4_5()
-      : ezGraphPatch("ezCameraComponent", 5)
+    : ezGraphPatch("ezCameraComponent", 5)
   {
   }
 
@@ -746,7 +731,7 @@ class ezCameraComponentPatch_8_9 : public ezGraphPatch
 {
 public:
   ezCameraComponentPatch_8_9()
-      : ezGraphPatch("ezCameraComponent", 9)
+    : ezGraphPatch("ezCameraComponent", 9)
   {
   }
 
@@ -768,4 +753,3 @@ ezCameraComponentPatch_8_9 g_ezCameraComponentPatch_8_9;
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_CameraComponent);
-

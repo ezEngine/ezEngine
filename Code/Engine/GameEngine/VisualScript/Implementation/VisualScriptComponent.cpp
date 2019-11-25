@@ -10,12 +10,11 @@
 ezEvent<const ezVisualScriptComponentActivityEvent&> ezVisualScriptComponent::s_ActivityEvents;
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezVisualScriptComponent, 3, ezComponentMode::Static);
+EZ_BEGIN_COMPONENT_TYPE(ezVisualScriptComponent, 4, ezComponentMode::Static);
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Script", GetScriptFile, SetScriptFile)->AddAttributes(new ezAssetBrowserAttribute("Visual Script")),
-    EZ_ACCESSOR_PROPERTY("HandleGlobalEvents", GetIsGlobalEventHandler, SetIsGlobalEventHandler),
     EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("Script"), new ezExposeColorAlphaAttribute),
   }
   EZ_END_PROPERTIES;
@@ -42,7 +41,6 @@ void ezVisualScriptComponent::SerializeComponent(ezWorldWriter& stream) const
   auto& s = stream.GetStream();
 
   s << m_hResource;
-  s << m_bGlobalEventHandler;
   /// \todo Store the current script state
 
   // Version 3
@@ -68,10 +66,11 @@ void ezVisualScriptComponent::DeserializeComponent(ezWorldReader& stream)
 
   s >> m_hResource;
 
-  bool globalEventHandler = false; // dummy to prevent early out in SetIsGlobalEventHandler
-  if (uiVersion >= 2)
+  if (uiVersion == 3)
   {
+    bool globalEventHandler = false; // dummy to prevent early out in SetIsGlobalEventHandler
     s >> globalEventHandler;
+    SetGlobalEventHandlerMode(globalEventHandler);
   }
 
   if (uiVersion >= 3)
@@ -102,7 +101,6 @@ void ezVisualScriptComponent::DeserializeComponent(ezWorldReader& stream)
   }
 
   /// \todo Read script state
-  SetIsGlobalEventHandler(globalEventHandler);
 }
 
 void ezVisualScriptComponent::SetScriptFile(const char* szFile)
@@ -128,15 +126,6 @@ const char* ezVisualScriptComponent::GetScriptFile() const
 void ezVisualScriptComponent::SetScript(const ezVisualScriptResourceHandle& hResource)
 {
   m_hResource = hResource;
-}
-
-void ezVisualScriptComponent::SetIsGlobalEventHandler(bool enable)
-{
-  if (m_bGlobalEventHandler != enable)
-  {
-    m_bGlobalEventHandler = enable;
-    SetGlobalEventHandlerMode(m_bGlobalEventHandler);
-  }
 }
 
 bool ezVisualScriptComponent::HandlesEventMessage(const ezEventMessage& msg) const

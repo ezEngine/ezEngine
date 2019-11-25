@@ -8,6 +8,8 @@
 
 static ezHashTable<duk_context*, ezTypeScriptBinding*> s_DukToBinding;
 
+ezSet<const ezRTTI*> ezTypeScriptBinding::s_RequiredEnums;
+
 static int __CPP_Time_Now(duk_context* pDuk)
 {
   ezDuktapeFunction duk(pDuk);
@@ -58,6 +60,7 @@ ezResult ezTypeScriptBinding::Initialize(ezWorld& world)
 
   EZ_SUCCEED_OR_RETURN(Init_RequireModules());
   EZ_SUCCEED_OR_RETURN(Init_Log());
+  EZ_SUCCEED_OR_RETURN(Init_Utils());
   EZ_SUCCEED_OR_RETURN(Init_Time());
   EZ_SUCCEED_OR_RETURN(Init_GameObject());
   EZ_SUCCEED_OR_RETURN(Init_FunctionBinding());

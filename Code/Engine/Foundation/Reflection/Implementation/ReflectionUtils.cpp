@@ -1061,11 +1061,10 @@ bool ezReflectionUtils::EnumerationToString(const ezRTTI* pEnumerationRtti, ezIn
         ezVariant value = static_cast<const ezAbstractConstantProperty*>(pProp)->GetConstant();
         if (value.ConvertTo<ezInt64>() == iValue)
         {
-          const ezInt32 uiMaxSearch = ezStringUtils::GetCharacterCount(pProp->GetPropertyName()) - 2;
           out_sOutput =
             conversionMode == EnumConversionMode::FullyQualifiedName
               ? pProp->GetPropertyName()
-              : ezStringUtils::FindLastSubString(pProp->GetPropertyName(), "::", nullptr, pProp->GetPropertyName() + uiMaxSearch) + 2;
+              : ezStringUtils::FindLastSubString(pProp->GetPropertyName(), "::") + 2;
           return true;
         }
       }
@@ -1081,11 +1080,10 @@ bool ezReflectionUtils::EnumerationToString(const ezRTTI* pEnumerationRtti, ezIn
         ezVariant value = static_cast<const ezAbstractConstantProperty*>(pProp)->GetConstant();
         if ((value.ConvertTo<ezInt64>() & iValue) != 0)
         {
-          const ezInt32 uiMaxSearch = ezStringUtils::GetCharacterCount(pProp->GetPropertyName()) - 2;
           out_sOutput.Append(
             conversionMode == EnumConversionMode::FullyQualifiedName
               ? pProp->GetPropertyName()
-              : ezStringUtils::FindLastSubString(pProp->GetPropertyName(), "::", nullptr, pProp->GetPropertyName() + uiMaxSearch) + 2,
+              : ezStringUtils::FindLastSubString(pProp->GetPropertyName(), "::") + 2,
             "|");
         }
       }

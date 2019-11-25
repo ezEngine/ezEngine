@@ -44,12 +44,12 @@ EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 4, ezComponentMode::Dynamic)
     EZ_ARRAY_MEMBER_PROPERTY("Interactions", m_SurfaceInteractions),
   }
   EZ_END_PROPERTIES;
-    EZ_BEGIN_MESSAGEHANDLERS
+  EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgComponentInternalTrigger, OnTriggered),
   }
   EZ_END_MESSAGEHANDLERS;
-    EZ_BEGIN_ATTRIBUTES
+  EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Gameplay"),
     new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.2f, ezColor::OrangeRed),
@@ -86,6 +86,8 @@ ezProjectileComponent::ezProjectileComponent()
   m_fGravityMultiplier = 0.0f;
   m_vVelocity.SetZero();
 }
+
+ezProjectileComponent::~ezProjectileComponent() = default;
 
 void ezProjectileComponent::Update()
 {

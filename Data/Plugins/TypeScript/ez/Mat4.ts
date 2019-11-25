@@ -1,5 +1,5 @@
-import __Math = require("./Math")
-export import ezMath = __Math.ezMath;
+import __Utils = require("./Utils")
+export import Utils = __Utils.Utils;
 
 import __Mat3 = require("./Mat3")
 export import Mat3 = __Mat3.Mat3;
@@ -265,7 +265,7 @@ export class Mat4 {
 
         const fDet = this.GetDeterminantOf4x4Matrix();
 
-        if (ezMath.IsNumberEqual(fDet, 0, epsilon))
+        if (Utils.IsNumberEqual(fDet, 0, epsilon))
             return null;
 
         let fOneDivDet = 1.0 / fDet;
@@ -287,7 +287,7 @@ export class Mat4 {
     IsEqual(rhs: Mat4, epsilon: number): boolean {
 
         for (let i = 0; i < 16; ++i) {
-            if (!ezMath.IsNumberEqual(this.m_ElementsCM[i], rhs.m_ElementsCM[i], epsilon)) {
+            if (!Utils.IsNumberEqual(this.m_ElementsCM[i], rhs.m_ElementsCM[i], epsilon)) {
                 return false;
             }
         }
@@ -297,7 +297,7 @@ export class Mat4 {
 
     IsZero(epsilon: number): boolean {
         for (let i = 0; i < 16; ++i) {
-            if (!ezMath.IsNumberZero(this.m_ElementsCM[i], epsilon)) {
+            if (!Utils.IsNumberZero(this.m_ElementsCM[i], epsilon)) {
                 return false;
             }
         }
@@ -307,41 +307,41 @@ export class Mat4 {
 
     IsIdentity(epsilon: number): boolean {
 
-        if (!ezMath.IsNumberEqual(this.m_ElementsCM[0], 1, epsilon))
+        if (!Utils.IsNumberEqual(this.m_ElementsCM[0], 1, epsilon))
             return false;
-        if (!ezMath.IsNumberZero(this.m_ElementsCM[4], epsilon))
+        if (!Utils.IsNumberZero(this.m_ElementsCM[4], epsilon))
             return false;
-        if (!ezMath.IsNumberZero(this.m_ElementsCM[8], epsilon))
+        if (!Utils.IsNumberZero(this.m_ElementsCM[8], epsilon))
             return false;
-        if (!ezMath.IsNumberZero(this.m_ElementsCM[12], epsilon))
-            return false;
-
-
-        if (!ezMath.IsNumberZero(this.m_ElementsCM[1], epsilon))
-            return false;
-        if (!ezMath.IsNumberEqual(this.m_ElementsCM[5], 1, epsilon))
-            return false;
-        if (!ezMath.IsNumberZero(this.m_ElementsCM[9], epsilon))
-            return false;
-        if (!ezMath.IsNumberZero(this.m_ElementsCM[13], epsilon))
+        if (!Utils.IsNumberZero(this.m_ElementsCM[12], epsilon))
             return false;
 
-        if (!ezMath.IsNumberZero(this.m_ElementsCM[2], epsilon))
+
+        if (!Utils.IsNumberZero(this.m_ElementsCM[1], epsilon))
             return false;
-        if (!ezMath.IsNumberZero(this.m_ElementsCM[6], epsilon))
+        if (!Utils.IsNumberEqual(this.m_ElementsCM[5], 1, epsilon))
             return false;
-        if (!ezMath.IsNumberEqual(this.m_ElementsCM[10], 1, epsilon))
+        if (!Utils.IsNumberZero(this.m_ElementsCM[9], epsilon))
             return false;
-        if (!ezMath.IsNumberZero(this.m_ElementsCM[14], epsilon))
+        if (!Utils.IsNumberZero(this.m_ElementsCM[13], epsilon))
             return false;
 
-        if (!ezMath.IsNumberZero(this.m_ElementsCM[3], epsilon))
+        if (!Utils.IsNumberZero(this.m_ElementsCM[2], epsilon))
             return false;
-        if (!ezMath.IsNumberZero(this.m_ElementsCM[7], epsilon))
+        if (!Utils.IsNumberZero(this.m_ElementsCM[6], epsilon))
             return false;
-        if (!ezMath.IsNumberZero(this.m_ElementsCM[11], epsilon))
+        if (!Utils.IsNumberEqual(this.m_ElementsCM[10], 1, epsilon))
             return false;
-        if (!ezMath.IsNumberEqual(this.m_ElementsCM[15], 1, epsilon))
+        if (!Utils.IsNumberZero(this.m_ElementsCM[14], epsilon))
+            return false;
+
+        if (!Utils.IsNumberZero(this.m_ElementsCM[3], epsilon))
+            return false;
+        if (!Utils.IsNumberZero(this.m_ElementsCM[7], epsilon))
+            return false;
+        if (!Utils.IsNumberZero(this.m_ElementsCM[11], epsilon))
+            return false;
+        if (!Utils.IsNumberEqual(this.m_ElementsCM[15], 1, epsilon))
             return false;
 
         return true;
@@ -452,10 +452,10 @@ export class Mat4 {
     SetMulMat4(lhs: Mat4, rhs: Mat4): void {
 
         for (let i = 0; i < 4; ++i) {
-            this.SetElement(0, i, lhs.GetElement(0, i) * rhs.GetElement(0, 0) + lhs.GetElement(1, i) * rhs.GetElement(0, 1) + lhs.GetElement(2, i) * rhs.GetElement(0, 2) + lhs.GetElement(3, i) * rhs.GetElement(0, 3);
-            this.SetElement(1, i, lhs.GetElement(0, i) * rhs.GetElement(1, 0) + lhs.GetElement(1, i) * rhs.GetElement(1, 1) + lhs.GetElement(2, i) * rhs.GetElement(1, 2) + lhs.GetElement(3, i) * rhs.GetElement(1, 3);
-            this.SetElement(2, i, lhs.GetElement(0, i) * rhs.GetElement(2, 0) + lhs.GetElement(1, i) * rhs.GetElement(2, 1) + lhs.GetElement(2, i) * rhs.GetElement(2, 2) + lhs.GetElement(3, i) * rhs.GetElement(2, 3);
-            this.SetElement(3, i, lhs.GetElement(0, i) * rhs.GetElement(3, 0) + lhs.GetElement(1, i) * rhs.GetElement(3, 1) + lhs.GetElement(2, i) * rhs.GetElement(3, 2) + lhs.GetElement(3, i) * rhs.GetElement(3, 3);
+            this.SetElement(0, i, lhs.GetElement(0, i) * rhs.GetElement(0, 0) + lhs.GetElement(1, i) * rhs.GetElement(0, 1) + lhs.GetElement(2, i) * rhs.GetElement(0, 2) + lhs.GetElement(3, i) * rhs.GetElement(0, 3));
+            this.SetElement(1, i, lhs.GetElement(0, i) * rhs.GetElement(1, 0) + lhs.GetElement(1, i) * rhs.GetElement(1, 1) + lhs.GetElement(2, i) * rhs.GetElement(1, 2) + lhs.GetElement(3, i) * rhs.GetElement(1, 3));
+            this.SetElement(2, i, lhs.GetElement(0, i) * rhs.GetElement(2, 0) + lhs.GetElement(1, i) * rhs.GetElement(2, 1) + lhs.GetElement(2, i) * rhs.GetElement(2, 2) + lhs.GetElement(3, i) * rhs.GetElement(2, 3));
+            this.SetElement(3, i, lhs.GetElement(0, i) * rhs.GetElement(3, 0) + lhs.GetElement(1, i) * rhs.GetElement(3, 1) + lhs.GetElement(2, i) * rhs.GetElement(3, 2) + lhs.GetElement(3, i) * rhs.GetElement(3, 3));
         }
     }
 

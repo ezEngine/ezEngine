@@ -11,6 +11,12 @@ namespace MemoryDetail
   {
     ezUInt64 uiTotalAllocations = 0;
 
+    {
+      ezTelemetryMessage msg;
+      msg.SetMessageID(' MEM', 'BGN');
+      ezTelemetry::Broadcast(ezTelemetry::Unreliable, msg);
+    }
+       
     for (auto it = ezMemoryTracker::GetIterator(); it.IsValid(); ++it)
     {
       ezTelemetryMessage msg;
@@ -22,6 +28,12 @@ namespace MemoryDetail
 
       uiTotalAllocations += it.Stats().m_uiNumAllocations;
 
+      ezTelemetry::Broadcast(ezTelemetry::Unreliable, msg);
+    }
+
+    {
+      ezTelemetryMessage msg;
+      msg.SetMessageID(' MEM', 'END');
       ezTelemetry::Broadcast(ezTelemetry::Unreliable, msg);
     }
 

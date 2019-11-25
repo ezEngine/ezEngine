@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
+    <width>548</width>
     <height>300</height>
    </rect>
   </property>
@@ -168,6 +168,21 @@
     </widget>
    </item>
   </layout>
+  <action name="actionEnableOnlyThis">
+   <property name="text">
+    <string>Enable Only This</string>
+   </property>
+  </action>
+  <action name="actionEnableAll">
+   <property name="text">
+    <string>Enable All</string>
+   </property>
+  </action>
+  <action name="actionDisableAll">
+   <property name="text">
+    <string>Disable All</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="resources.qrc"/>

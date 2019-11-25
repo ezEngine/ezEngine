@@ -24,33 +24,44 @@ class EZ_PHYSXPLUGIN_DLL ezPxCharacterControllerComponent : public ezCharacterCo
 {
   EZ_DECLARE_COMPONENT_TYPE(ezPxCharacterControllerComponent, ezCharacterControllerComponent, ezPxCharacterControllerComponentManager);
 
-public:
-  ezPxCharacterControllerComponent();
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent
 
+public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
-  virtual void RawMove(const ezVec3& vMove) override;
-
-  void Update();
-
+protected:
   virtual void OnSimulationStarted() override;
 
-  // ************************************* PROPERTIES ***********************************
-public:
-  float m_fWalkSpeed;    ///< How many meters the character walks per second
-  float m_fRunSpeed;     ///< How many meters the character runs per second
-  float m_fCrouchSpeed;  ///< How many meters the character walks per second while crouching
-  float m_fAirSpeed;     ///< How fast the character can change direction while not standing on solid round
-  float m_fAirFriction;  ///< How much damping is applied to the velocity when the character is jumping
-  ezAngle m_RotateSpeed; ///< How many degrees per second the character turns
-  float m_fJumpImpulse;
+  //////////////////////////////////////////////////////////////////////////
+  // ezCharacterControllerComponent
 
-  float m_fPushingForce; ///< force to push other rigid bodies
-  ezHashedString m_sWalkSurfaceInteraction;
-  ezSurfaceResourceHandle m_hFallbackWalkSurface;
-  float m_fWalkInteractionDistance;
-  float m_fRunInteractionDistance;
+public:
+  virtual void MoveCharacter(ezMsgMoveCharacterController& msg) override;
+  virtual void RawMove(const ezVec3& vMove) override;
+
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezPxCharacterControllerComponent
+
+public:
+  ezPxCharacterControllerComponent();
+
+  void OnCollision(ezMsgCollision& msg); // [ msg handler ]
+
+  float m_fWalkSpeed = 5.0f;                      ///< [ property ] How many meters the character walks per second
+  float m_fRunSpeed = 15.0f;                      ///< [ property ] How many meters the character runs per second
+  float m_fCrouchSpeed = 2.0f;                    ///< [ property ] How many meters the character walks per second while crouching
+  float m_fAirSpeed = 2.5f;                       ///< [ property ] How fast the character can change direction while not standing on solid round
+  float m_fAirFriction = 0.5f;                    ///< [ property ] How much damping is applied to the velocity when the character is jumping
+  ezAngle m_RotateSpeed = ezAngle::Degree(90.0f); ///< [ property ] How many degrees per second the character turns
+  float m_fJumpImpulse = 6.0f;                    ///< [ property ] How high the character will be able to jump
+  float m_fPushingForce = 500.0f;                 ///< [ property ] Force to push other rigid bodies
+  ezHashedString m_sWalkSurfaceInteraction;       ///< [ property ] The surface interaction to spawn regularly when walking
+  ezSurfaceResourceHandle m_hFallbackWalkSurface; ///< [ property ] The surface type to use for interactions, when no other surface type is available
+  float m_fWalkInteractionDistance = 1.0f;        ///< [ property ] How far the CC has to walk for spawning another surface interaction
+  float m_fRunInteractionDistance = 3.0f;         ///< [ property ] How far the CC has to run for spawning another surface interaction
 
   void SetWalkSurfaceInteraction(const char* sz) { m_sWalkSurfaceInteraction.Assign(sz); }
   const char* GetWalkSurfaceInteraction() const { return m_sWalkSurfaceInteraction.GetData(); }
@@ -59,14 +70,7 @@ public:
   const char* GetFallbackWalkSurfaceFile() const;
 
 protected:
-  // ************************************* FUNCTIONS *****************************
-
-public:
-  virtual void MoveCharacter(ezMsgMoveCharacterController& msg) override;
-  void OnCollision(ezMsgCollision& msg);
-
-protected:
-  ezComponentHandle m_hProxy;
+  void Update();
 
   enum InputStateBits : ezUInt8
   {
@@ -75,13 +79,12 @@ protected:
     Run = EZ_BIT(2),
   };
 
-  ezUInt8 m_InputStateBits;
-  ezVec3 m_vRelativeMoveDirection;
+  ezUInt8 m_InputStateBits = 0;
+  ezComponentHandle m_hProxy;
+  ezVec3 m_vRelativeMoveDirection = ezVec3::ZeroVector();
   ezAngle m_RotateZ;
   bool m_bWantsCrouch = false;
-
   float m_fVelocityUp = 0.0f;
-  ezVec3 m_vVelocityLateral = ezVec3(0.0f);
-
+  ezVec3 m_vVelocityLateral = ezVec3::ZeroVector();
   float m_fAccumulatedWalkDistance = 0.0f;
 };

@@ -32,59 +32,8 @@ EZ_ALWAYS_INLINE ezFmodParameterId ConvertFmodToEzId(FMOD_STUDIO_PARAMETER_ID pa
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgFmodRestartSound);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgFmodRestartSound, 1, ezRTTIDefaultAllocator<ezMsgFmodRestartSound>)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_MEMBER_PROPERTY("OneShot", m_bOneShotInstance)->AddAttributes(new ezDefaultValueAttribute(true)),
-  }
-  EZ_END_PROPERTIES;
-
-  EZ_BEGIN_ATTRIBUTES
-  {
-    new ezAutoGenVisScriptMsgSender,
-  }
-  EZ_END_ATTRIBUTES;
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-//////////////////////////////////////////////////////////////////////////
-
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgFmodStopSound);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgFmodStopSound, 1, ezRTTIDefaultAllocator<ezMsgFmodStopSound>)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_MEMBER_PROPERTY("Immediate", m_bImmediate),
-  }
-  EZ_END_PROPERTIES;
-
-  EZ_BEGIN_ATTRIBUTES
-  {
-    new ezAutoGenVisScriptMsgSender,
-  }
-  EZ_END_ATTRIBUTES;
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-//////////////////////////////////////////////////////////////////////////
-
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgFmodSoundFinished);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgFmodSoundFinished, 1, ezRTTIDefaultAllocator<ezMsgFmodSoundFinished>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-//////////////////////////////////////////////////////////////////////////
-
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgFmodAddSoundCue);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgFmodAddSoundCue, 1, ezRTTIDefaultAllocator<ezMsgFmodAddSoundCue>)
-{
-  EZ_BEGIN_ATTRIBUTES
-  {
-    new ezAutoGenVisScriptMsgSender,
-  }
-  EZ_END_ATTRIBUTES;
-}
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -293,18 +242,24 @@ EZ_BEGIN_COMPONENT_TYPE(ezFmodEventComponent, 4, ezComponentMode::Static)
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgFmodRestartSound, RestartSound),
-    EZ_MESSAGE_HANDLER(ezMsgFmodStopSound, StopSound),
-    EZ_MESSAGE_HANDLER(ezMsgFmodAddSoundCue, SoundCue),
     EZ_MESSAGE_HANDLER(ezMsgDeleteGameObject, OnDeleteObject),
-    EZ_MESSAGE_HANDLER(ezMsgSetFloatParameter, SetEventParameter),
+    EZ_MESSAGE_HANDLER(ezMsgSetFloatParameter, OnMsgSetFloatParameter),
   }
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_MESSAGESENDERS
   {
     EZ_MESSAGE_SENDER(m_SoundFinishedEventSender),
   }
-  EZ_END_MESSAGESENDERS
+  EZ_END_MESSAGESENDERS;
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_SCRIPT_FUNCTION_PROPERTY(Restart),
+    EZ_SCRIPT_FUNCTION_PROPERTY(StartOneShot),
+    EZ_SCRIPT_FUNCTION_PROPERTY(StopSound, In, "Immediate"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(SoundCue),
+    EZ_SCRIPT_FUNCTION_PROPERTY(SetEventParameter, In, "ParamName", In, "Value"),
+  }
+  EZ_END_FUNCTIONS;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
@@ -326,7 +281,7 @@ ezFmodEventComponent::ezFmodEventComponent()
   m_fVolume = 1.0f;
 }
 
-ezFmodEventComponent::~ezFmodEventComponent() {}
+ezFmodEventComponent::~ezFmodEventComponent() = default;
 
 void ezFmodEventComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -490,9 +445,7 @@ void ezFmodEventComponent::SetSoundEvent(const ezFmodSoundEventResourceHandle& h
 {
   if (m_pEventInstance)
   {
-    ezMsgFmodStopSound msg;
-    msg.m_bImmediate = false;
-    StopSound(msg);
+    StopSound(false);
 
     EZ_FMOD_ASSERT(m_pEventInstance->release());
     m_pEventInstance = nullptr;
@@ -624,23 +577,16 @@ void ezFmodEventComponent::StartOneShot()
   EZ_FMOD_ASSERT(pEventInstance->release());
 }
 
-void ezFmodEventComponent::RestartSound(ezMsgFmodRestartSound& msg)
-{
-  if (msg.m_bOneShotInstance)
-    StartOneShot();
-  else
-    Restart();
-}
-void ezFmodEventComponent::StopSound(ezMsgFmodStopSound& msg)
+void ezFmodEventComponent::StopSound(bool bImmediate)
 {
   if (m_pEventInstance != nullptr)
   {
     m_iTimelinePosition = -1;
-    EZ_FMOD_ASSERT(m_pEventInstance->stop(msg.m_bImmediate ? FMOD_STUDIO_STOP_IMMEDIATE : FMOD_STUDIO_STOP_ALLOWFADEOUT));
+    EZ_FMOD_ASSERT(m_pEventInstance->stop(bImmediate ? FMOD_STUDIO_STOP_IMMEDIATE : FMOD_STUDIO_STOP_ALLOWFADEOUT));
   }
 }
 
-void ezFmodEventComponent::SoundCue(ezMsgFmodAddSoundCue& msg)
+void ezFmodEventComponent::SoundCue()
 {
   if (m_pEventInstance != nullptr && m_pEventInstance->isValid())
   {
@@ -689,13 +635,18 @@ float ezFmodEventComponent::GetParameter(ezFmodParameterId paramId) const
   return value;
 }
 
-void ezFmodEventComponent::SetEventParameter(ezMsgSetFloatParameter& msg)
+void ezFmodEventComponent::SetEventParameter(const char* szParamName, float fValue)
 {
-  ezFmodParameterId paramId = FindParameter(msg.m_sParameterName);
+  ezFmodParameterId paramId = FindParameter(szParamName);
   if (paramId.IsInvalidated())
     return;
 
-  SetParameter(paramId, msg.m_fValue);
+  SetParameter(paramId, fValue);
+}
+
+void ezFmodEventComponent::OnMsgSetFloatParameter(ezMsgSetFloatParameter& msg)
+{
+  SetEventParameter(msg.m_sParameterName, msg.m_fValue);
 }
 
 void ezFmodEventComponent::Update()
@@ -887,79 +838,5 @@ void ezFmodEventComponent::InvalidateResource(bool bTryToRestore)
     // ezLog::Debug("Fmod instance pointer has been invalidated.");
   }
 }
-
-//////////////////////////////////////////////////////////////////////////
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_SetFmodEventParameter, 1,
-  ezRTTIDefaultAllocator<ezVisualScriptNode_SetFmodEventParameter>)
-  {
-    EZ_BEGIN_ATTRIBUTES
-    {
-      new ezCategoryAttribute("Sound"),
-      new ezTitleAttribute("Fmod Param '{Parameter}' = {Value}"),
-    } EZ_END_ATTRIBUTES;
-    EZ_BEGIN_PROPERTIES
-    {
-      EZ_ACCESSOR_PROPERTY("Parameter", GetParameterName, SetParameterName),
-      // Execution Pins (Input)
-      EZ_INPUT_EXECUTION_PIN("run", 0),
-      // Execution Pins (Output)
-      EZ_OUTPUT_EXECUTION_PIN("then", 0),
-      // Data Pins (Input)
-      EZ_INPUT_DATA_PIN("Component", 0, ezVisualScriptDataPinType::ComponentHandle),
-      EZ_INPUT_DATA_PIN_AND_PROPERTY("Value", 1, ezVisualScriptDataPinType::Number, m_fValue),
-    } EZ_END_PROPERTIES;
-  }
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-ezVisualScriptNode_SetFmodEventParameter::ezVisualScriptNode_SetFmodEventParameter() = default;
-
-void ezVisualScriptNode_SetFmodEventParameter::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
-{
-  if (m_bInputValuesChanged && m_bTryParamLookup)
-  {
-    ezFmodEventComponent* pEvent = nullptr;
-    if (!pInstance->GetWorld()->TryGetComponent(m_hComponent, pEvent))
-      goto failure;
-
-    // index not yet initialized
-    if (m_ParamId.IsInvalidated())
-    {
-      m_ParamId = pEvent->FindParameter(m_sParameterName.GetData());
-
-      // parameter not found
-      if (m_ParamId.IsInvalidated())
-        goto failure;
-    }
-
-    pEvent->SetParameter(m_ParamId, (float)m_fValue);
-  }
-
-  pInstance->ExecuteConnectedNodes(this, 0);
-  return;
-
-failure:
-  ezLog::Warning("Script: Fmod Event Parameter '{0}' could not be found. Note that event parameters are not available for one-shot events.",
-    m_sParameterName.GetString());
-
-  m_bTryParamLookup = false; // make sure we don't try this again
-  pInstance->ExecuteConnectedNodes(this, 0);
-}
-
-void* ezVisualScriptNode_SetFmodEventParameter::GetInputPinDataPointer(ezUInt8 uiPin)
-{
-  switch (uiPin)
-  {
-    case 0:
-      return &m_hComponent;
-
-    case 1:
-      return &m_fValue;
-  }
-
-  return nullptr;
-}
-
-
 
 EZ_STATICLINK_FILE(FmodPlugin, FmodPlugin_Components_FmodEventComponent);

@@ -1,10 +1,10 @@
 #pragma once
 
-#include <GameEngine/GameEngineDLL.h>
-#include <Core/World/World.h>
-#include <Core/World/EventMessageHandlerComponent.h>
 #include <Core/ResourceManager/ResourceHandle.h>
+#include <Core/World/EventMessageHandlerComponent.h>
+#include <Core/World/World.h>
 #include <Foundation/Types/RangeView.h>
+#include <GameEngine/GameEngineDLL.h>
 
 class ezVisualScriptInstance;
 struct ezVisualScriptInstanceActivity;
@@ -35,9 +35,6 @@ public:
 
   void SetScript(const ezVisualScriptResourceHandle& hResource);
   EZ_ALWAYS_INLINE const ezVisualScriptResourceHandle& GetScript() const { return m_hResource; }
-
-  void SetIsGlobalEventHandler(bool enable);
-  bool GetIsGlobalEventHandler() const { return m_bGlobalEventHandler; }
 
   virtual bool HandlesEventMessage(const ezEventMessage& msg) const override;
 
@@ -80,10 +77,7 @@ protected:
   ezVisualScriptResourceHandle m_hResource;
   ezUniquePtr<ezVisualScriptInstance> m_Script;
 
-  bool m_bGlobalEventHandler = false;
   bool m_bHadEmptyActivity = true;
 
   ezUniquePtr<ezVisualScriptInstanceActivity> m_pActivity;
 };
-
-

@@ -1,10 +1,10 @@
 #pragma once
 
-#include <GameEngine/GameEngineDLL.h>
 #include <Core/Input/Declarations.h>
 #include <Core/Messages/EventMessage.h>
 #include <Core/Messages/TriggerMessage.h>
 #include <Core/World/World.h>
+#include <GameEngine/GameEngineDLL.h>
 
 typedef ezComponentManagerSimple<class ezInputComponent, ezComponentUpdateType::WhenSimulating> ezInputComponentManager;
 
@@ -16,8 +16,8 @@ struct EZ_GAMEENGINE_DLL ezInputMessageGranularity
   /// \brief Which types of input events are broadcast
   enum Enum
   {
-    PressOnly, ///< Key pressed events are sent, but nothing else
-    PressAndRelease, ///< Key pressed and key released events are sent
+    PressOnly,           ///< Key pressed events are sent, but nothing else
+    PressAndRelease,     ///< Key pressed and key released events are sent
     PressReleaseAndDown, ///< Key pressed and released events are sent, and while a key is down, another message is sent every frame as well
 
     Default = PressReleaseAndDown
@@ -35,7 +35,7 @@ struct EZ_GAMEENGINE_DLL ezMsgInputActionTriggered : public ezEventMessage
   ezUInt32 m_uiInputActionHash;
 
   /// The 'trigger state', depending on the key state and the configuration on the ezInputComponent
-  ezTriggerState::Enum m_TriggerState;
+  ezEnum<ezTriggerState> m_TriggerState;
 
   /// For analog keys, how much they are pressed. Typically between 0 and 1.
   float m_fKeyPressValue;
@@ -51,22 +51,28 @@ class EZ_GAMEENGINE_DLL ezInputComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezInputComponent, ezComponent, ezInputComponentManager);
 
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent
+
+public:
+  virtual void SerializeComponent(ezWorldWriter& stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& stream) override;
+
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezInputComponent
+
 public:
   ezInputComponent();
   ~ezInputComponent();
 
+  float GetCurrentInputState(const char* szInputAction, bool bOnlyKeyPressed = false) const; // [ scriptable ]
+
+  ezString m_sInputSet;                            // [ property ]
+  ezEnum<ezInputMessageGranularity> m_Granularity; // [ property ]
+
+protected:
   void Update();
 
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
-
-  float GetCurrentInputState(const char* szInputAction, bool bOnlyKeyPressed = false) const;
-
-  // ************************************* PROPERTIES ***********************************
-
-  ezString m_sInputSet;
-  ezEnum<ezInputMessageGranularity> m_Granularity;
-
-  ezEventMessageSender<ezMsgInputActionTriggered> m_InputEventSender;
+  ezEventMessageSender<ezMsgInputActionTriggered> m_InputEventSender; // [ event ]
 };
-

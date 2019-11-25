@@ -2,6 +2,8 @@
 
 #include <Core/World/EventMessageHandlerComponent.h>
 #include <Core/World/World.h>
+#include <WorldSerializer/WorldReader.h>
+#include <WorldSerializer/WorldWriter.h>
 
 namespace
 {
@@ -35,16 +37,44 @@ namespace
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEventMessageHandlerComponent, 1, ezRTTINoAllocator)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-ezEventMessageHandlerComponent::ezEventMessageHandlerComponent()
-    : m_bDebugOutput(false)
-    , m_bIsGlobalEventHandler(false)
+// clang-format off
+EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezEventMessageHandlerComponent, 2)
 {
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ACCESSOR_PROPERTY("HandleGlobalEvents", GetGlobalEventHandlerMode, SetGlobalEventHandlerMode),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_ABSTRACT_COMPONENT_TYPE;
+// clang-format on
+
+ezEventMessageHandlerComponent::ezEventMessageHandlerComponent() = default;
+ezEventMessageHandlerComponent::~ezEventMessageHandlerComponent() = default;
+
+void ezEventMessageHandlerComponent::SerializeComponent(ezWorldWriter& stream) const
+{
+  SUPER::SerializeComponent(stream);
+  auto& s = stream.GetStream();
+
+  // version 2
+  s << m_bIsGlobalEventHandler;
 }
 
-ezEventMessageHandlerComponent::~ezEventMessageHandlerComponent() {}
+void ezEventMessageHandlerComponent::DeserializeComponent(ezWorldReader& stream)
+{
+  SUPER::DeserializeComponent(stream);
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  auto& s = stream.GetStream();
+
+  if (uiVersion >= 2)
+  {
+    bool bGlobalEH;
+    s >> bGlobalEH;
+
+    SetGlobalEventHandlerMode(m_bIsGlobalEventHandler);
+  }
+}
 
 void ezEventMessageHandlerComponent::Deinitialize()
 {
@@ -82,7 +112,7 @@ void ezEventMessageHandlerComponent::SetGlobalEventHandlerMode(bool enable)
 
 bool ezEventMessageHandlerComponent::HandlesEventMessage(const ezEventMessage& msg) const
 {
-  return true;
+  return false;
 }
 
 // static
@@ -104,4 +134,3 @@ ezArrayPtr<ezComponentHandle> ezEventMessageHandlerComponent::GetAllGlobalEventH
 
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_EventMessageHandlerComponent);
-

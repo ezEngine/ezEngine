@@ -2,23 +2,23 @@
 
 #include <Core/Messages/CollisionMessage.h>
 #include <Core/Messages/TriggerMessage.h>
+#include <Core/ResourceManager/Implementation/Declarations.h>
+#include <Core/ResourceManager/Implementation/ResourceLock.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
+#include <GameEngine/Physics/SurfaceResource.h>
 #include <PhysXPlugin/Components/PxCharacterControllerComponent.h>
 #include <PhysXPlugin/Components/PxCharacterProxyComponent.h>
 #include <PhysXPlugin/Components/PxDynamicActorComponent.h>
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
 #include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
-#include <Core/ResourceManager/Implementation/Declarations.h>
-#include <Core/ResourceManager/Implementation/ResourceLock.h>
-#include <GameEngine/Physics/SurfaceResource.h>
 
 
 
 //////////////////////////////////////////////////////////////////////////
 
 ezPxCharacterControllerComponentManager::ezPxCharacterControllerComponentManager(ezWorld* pWorld)
-    : ezComponentManager<ezPxCharacterControllerComponent, ezBlockStorageType::Compact>(pWorld)
+  : ezComponentManager<ezPxCharacterControllerComponent, ezBlockStorageType::Compact>(pWorld)
 {
 }
 
@@ -48,59 +48,38 @@ void ezPxCharacterControllerComponentManager::Update(const ezWorldModule::Update
 
 //////////////////////////////////////////////////////////////////////////
 
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterControllerComponent, 5, ezComponentMode::Dynamic)
 {
-  EZ_BEGIN_PROPERTIES{
-      EZ_MEMBER_PROPERTY("JumpImpulse", m_fJumpImpulse)
-          ->AddAttributes(new ezDefaultValueAttribute(6.0f), new ezClampValueAttribute(0.0f, 50.0f)),
-      EZ_MEMBER_PROPERTY("WalkSpeed", m_fWalkSpeed)
-          ->AddAttributes(new ezDefaultValueAttribute(5.0f), new ezClampValueAttribute(0.01f, 20.0f)),
-      EZ_MEMBER_PROPERTY("RunSpeed", m_fRunSpeed)
-          ->AddAttributes(new ezDefaultValueAttribute(15.0f), new ezClampValueAttribute(0.01f, 20.0f)),
-      EZ_MEMBER_PROPERTY("CrouchSpeed", m_fCrouchSpeed)
-          ->AddAttributes(new ezDefaultValueAttribute(2.0f), new ezClampValueAttribute(0.01f, 20.0f)),
-      EZ_MEMBER_PROPERTY("AirSpeed", m_fAirSpeed)
-          ->AddAttributes(new ezDefaultValueAttribute(2.5f), new ezClampValueAttribute(0.01f, 20.0f)),
-      EZ_MEMBER_PROPERTY("AirFriction", m_fAirFriction)
-          ->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
-      EZ_MEMBER_PROPERTY("RotateSpeed", m_RotateSpeed)
-          ->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(90.0f)),
-                          new ezClampValueAttribute(ezAngle::Degree(1.0f), ezAngle::Degree(360.0f))),
-      EZ_MEMBER_PROPERTY("PushingForce", m_fPushingForce)
-          ->AddAttributes(new ezDefaultValueAttribute(500.0f), new ezClampValueAttribute(0.0f, ezVariant())),
-      EZ_ACCESSOR_PROPERTY("WalkSurfaceInteraction", GetWalkSurfaceInteraction,
-                           SetWalkSurfaceInteraction), //->AddAttributes(new ezDefaultValueAttribute("Footstep")),
-      EZ_MEMBER_PROPERTY("WalkInteractionDistance", m_fWalkInteractionDistance)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
-      EZ_MEMBER_PROPERTY("RunInteractionDistance", m_fRunInteractionDistance)->AddAttributes(new ezDefaultValueAttribute(3.0f)),
-      EZ_ACCESSOR_PROPERTY("FallbackWalkSurface", GetFallbackWalkSurfaceFile, SetFallbackWalkSurfaceFile)
-          ->AddAttributes(new ezAssetBrowserAttribute("Surface")),
-  } EZ_END_PROPERTIES;
-  EZ_BEGIN_MESSAGEHANDLERS{EZ_MESSAGE_HANDLER(ezMsgCollision, OnCollision)} EZ_END_MESSAGEHANDLERS;
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("JumpImpulse", m_fJumpImpulse)->AddAttributes(new ezDefaultValueAttribute(6.0f), new ezClampValueAttribute(0.0f, 50.0f)),
+    EZ_MEMBER_PROPERTY("WalkSpeed", m_fWalkSpeed)->AddAttributes(new ezDefaultValueAttribute(5.0f), new ezClampValueAttribute(0.01f, 20.0f)),
+    EZ_MEMBER_PROPERTY("RunSpeed", m_fRunSpeed)->AddAttributes(new ezDefaultValueAttribute(15.0f), new ezClampValueAttribute(0.01f, 20.0f)),
+    EZ_MEMBER_PROPERTY("CrouchSpeed", m_fCrouchSpeed)->AddAttributes(new ezDefaultValueAttribute(2.0f), new ezClampValueAttribute(0.01f, 20.0f)),
+    EZ_MEMBER_PROPERTY("AirSpeed", m_fAirSpeed)->AddAttributes(new ezDefaultValueAttribute(2.5f), new ezClampValueAttribute(0.01f, 20.0f)),
+    EZ_MEMBER_PROPERTY("AirFriction", m_fAirFriction)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
+    EZ_MEMBER_PROPERTY("RotateSpeed", m_RotateSpeed)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(90.0f)), new ezClampValueAttribute(ezAngle::Degree(1.0f), ezAngle::Degree(360.0f))),
+    EZ_MEMBER_PROPERTY("PushingForce", m_fPushingForce)->AddAttributes(new ezDefaultValueAttribute(500.0f), new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_ACCESSOR_PROPERTY("WalkSurfaceInteraction", GetWalkSurfaceInteraction, SetWalkSurfaceInteraction)->AddAttributes(new ezDefaultValueAttribute(ezStringView("Footstep"))),
+    EZ_MEMBER_PROPERTY("WalkInteractionDistance", m_fWalkInteractionDistance)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+    EZ_MEMBER_PROPERTY("RunInteractionDistance", m_fRunInteractionDistance)->AddAttributes(new ezDefaultValueAttribute(3.0f)),
+    EZ_ACCESSOR_PROPERTY("FallbackWalkSurface", GetFallbackWalkSurfaceFile, SetFallbackWalkSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("Surface")),
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_MESSAGEHANDLERS
+  {
+    EZ_MESSAGE_HANDLER(ezMsgCollision, OnCollision)
+  }
+  EZ_END_MESSAGEHANDLERS;
 }
 EZ_END_COMPONENT_TYPE
+// clang-format on
 
 ezPxCharacterControllerComponent::ezPxCharacterControllerComponent()
 {
-  m_InputStateBits = 0;
-
-  m_vRelativeMoveDirection.SetZero();
-
-  m_fWalkSpeed = 5.0f;
-  m_fRunSpeed = 15.0f;
-  m_fCrouchSpeed = 2.0f;
-  m_fAirSpeed = 2.5f;
-  m_fAirFriction = 0.5f;
-  m_RotateSpeed = ezAngle::Degree(90.0f);
-  m_fJumpImpulse = 6.0f;
-  m_fPushingForce = 500.0f;
-  m_fVelocityUp = 0.0f;
-  m_vVelocityLateral.SetZero();
   m_sWalkSurfaceInteraction.Assign("Footstep");
-  m_fWalkInteractionDistance = 1.0f;
-  m_fRunInteractionDistance = 3.0f;
-  m_fAccumulatedWalkDistance = 0;
 }
-
 
 void ezPxCharacterControllerComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -124,7 +103,6 @@ void ezPxCharacterControllerComponent::SerializeComponent(ezWorldWriter& stream)
   // Version 5
   s << m_fCrouchSpeed;
 }
-
 
 void ezPxCharacterControllerComponent::DeserializeComponent(ezWorldReader& stream)
 {
@@ -289,7 +267,7 @@ void ezPxCharacterControllerComponent::Update()
 
     ezPhysicsHitResult hitResult;
     if (pModule->SweepTestCapsule(pProxy->m_fCapsuleRadius, pProxy->GetCurrentCapsuleHeight(), t, ezVec3(0, 0, -1),
-                                  pProxy->m_fMaxStepHeight, pProxy->m_uiCollisionLayer, hitResult, pProxy->GetShapeId()))
+          pProxy->m_fMaxStepHeight, pProxy->m_uiCollisionLayer, hitResult, pProxy->GetShapeId()))
     {
       RawMove(ezVec3(0, 0, -hitResult.m_fDistance));
 
@@ -312,7 +290,7 @@ void ezPxCharacterControllerComponent::Update()
 
             ezResourceLock<ezSurfaceResource> pSurface(hSurface, ezResourceAcquireMode::AllowLoadingFallback);
             pSurface->InteractWithSurface(GetWorld(), ezGameObjectHandle(), hitResult.m_vPosition, hitResult.m_vNormal, ezVec3(0, 0, 1),
-                                          m_sWalkSurfaceInteraction, &GetOwner()->GetTeamID());
+              m_sWalkSurfaceInteraction, &GetOwner()->GetTeamID());
           }
         }
       }
@@ -408,10 +386,10 @@ const char* ezPxCharacterControllerComponent::GetFallbackWalkSurfaceFile() const
 void ezPxCharacterControllerComponent::MoveCharacter(ezMsgMoveCharacterController& msg)
 {
   const float fDistanceToMove = ezMath::Max(ezMath::Abs((float)(msg.m_fMoveForwards - msg.m_fMoveBackwards)),
-                                            ezMath::Abs((float)(msg.m_fStrafeRight - msg.m_fStrafeLeft)));
+    ezMath::Abs((float)(msg.m_fStrafeRight - msg.m_fStrafeLeft)));
 
   m_vRelativeMoveDirection +=
-      ezVec3((float)(msg.m_fMoveForwards - msg.m_fMoveBackwards), (float)(msg.m_fStrafeRight - msg.m_fStrafeLeft), 0);
+    ezVec3((float)(msg.m_fMoveForwards - msg.m_fMoveBackwards), (float)(msg.m_fStrafeRight - msg.m_fStrafeLeft), 0);
   m_vRelativeMoveDirection.NormalizeIfNotZero(ezVec3::ZeroVector());
   m_vRelativeMoveDirection *= fDistanceToMove;
 
@@ -474,7 +452,5 @@ void ezPxCharacterControllerComponent::OnCollision(ezMsgCollision& msg)
     }
   }
 }
-
-
 
 EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Components_Implementation_PxCharacterControllerComponent);
