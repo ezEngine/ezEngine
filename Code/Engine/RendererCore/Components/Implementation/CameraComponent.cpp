@@ -158,8 +158,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezCameraComponent, 9, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("ISO", GetISO, SetISO)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezClampValueAttribute(50.0f, 64000.0f)),
     EZ_ACCESSOR_PROPERTY("ExposureCompensation", GetExposureCompensation, SetExposureCompensation)->AddAttributes(new ezClampValueAttribute(-32.0f, 32.0f)),
     EZ_MEMBER_PROPERTY("ShowStats", m_bShowStats),
-    EZ_ACCESSOR_PROPERTY_READ_ONLY("EV100", GetEV100),
-    EZ_ACCESSOR_PROPERTY_READ_ONLY("FinalExposure", GetExposure),
+    //EZ_ACCESSOR_PROPERTY_READ_ONLY("EV100", GetEV100),
+    //EZ_ACCESSOR_PROPERTY_READ_ONLY("FinalExposure", GetExposure),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
