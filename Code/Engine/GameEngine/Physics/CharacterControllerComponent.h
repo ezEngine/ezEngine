@@ -1,8 +1,8 @@
 #pragma once
 
-#include <GameEngine/GameEngineDLL.h>
-#include <Core/World/World.h>
 #include <Core/World/Component.h>
+#include <Core/World/World.h>
+#include <GameEngine/GameEngineDLL.h>
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -30,22 +30,28 @@ class EZ_GAMEENGINE_DLL ezCharacterControllerComponent : public ezComponent
 {
   EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezCharacterControllerComponent, ezComponent);
 
-public:
-  ezCharacterControllerComponent();
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent
 
+public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezCharacterControllerComponent
+
+public:
+  ezCharacterControllerComponent();
+
   /// \brief Instructs the CC to move in certain directions. An implementation can queue the request for later processing.
   /// It can also add further functionality, such as adding gravity, stair stepping, etc.
-  virtual void MoveCharacter(ezMsgMoveCharacterController& msg) = 0;
+  virtual void MoveCharacter(ezMsgMoveCharacterController& msg) = 0; // [ msg handler ]
 
   /// \brief Attempts to move the character into the given direction.
-  /// 
+  ///
   /// Implements the specific constraints, such as colliding with geometry and sliding along walls.
   /// Should NOT add further functionality, such as gravity. This function applies the result immediately
   /// and moves the owner object to the final location.
-  virtual void RawMove(const ezVec3& vMove) = 0;
+  virtual void RawMove(const ezVec3& vMove) = 0; // [ scriptable ]
 };
-
-

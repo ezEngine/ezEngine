@@ -63,10 +63,10 @@ public:
   void RemoveParameter(const char* szKey);                          // [ property ] (exposed parameter)
   bool GetParameter(const char* szKey, ezVariant& out_value) const; // [ property ] (exposed parameter)
 
-  void InstantiatePrefab();      // [ scriptable ]
-  void ClearPreviousInstances(); // [ scriptable ]
-
 private:
+  void InstantiatePrefab();
+  void ClearPreviousInstances();
+
   void ResourceEventHandler(const ezResourceEvent& e);
 
   ezPrefabResourceHandle m_hPrefab;

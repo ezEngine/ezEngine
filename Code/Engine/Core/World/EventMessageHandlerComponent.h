@@ -1,6 +1,8 @@
 #pragma once
 
+#include <Core/Messages/EventMessage.h>
 #include <Core/World/Component.h>
+#include <Core/World/World.h>
 
 struct ezEventMessage;
 
