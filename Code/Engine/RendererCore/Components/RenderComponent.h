@@ -1,23 +1,29 @@
 #pragma once
 
-#include <RendererCore/RendererCoreDLL.h>
-#include <Core/World/World.h>
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
+#include <Core/World/World.h>
+#include <RendererCore/RendererCoreDLL.h>
 
 class EZ_RENDERERCORE_DLL ezRenderComponent : public ezComponent
 {
   EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezRenderComponent, ezComponent);
 
-public:
-  ezRenderComponent();
-  ~ezRenderComponent();
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent
 
+protected:
   virtual void Deinitialize() override;
 
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
 
-  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezRenderComponent
+
+public:
+  ezRenderComponent();
+  ~ezRenderComponent();
 
   /// \brief Called by ezRenderComponent::OnUpdateLocalBounds().
   /// If EZ_SUCCESS is returned, \a bounds and \a bAlwaysVisible will be integrated into the ezMsgUpdateLocalBounds result,
@@ -26,6 +32,8 @@ public:
 
   void TriggerLocalBoundsUpdate();
 
+  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
+
   static ezUInt32 GetUniqueIdForRendering(const ezComponent* pComponent, ezUInt32 uiInnerIndex = 0, ezUInt32 uiInnerIndexShift = 24);
 
   EZ_ALWAYS_INLINE ezUInt32 GetUniqueIdForRendering(ezUInt32 uiInnerIndex = 0, ezUInt32 uiInnerIndexShift = 24) const
@@ -33,4 +41,3 @@ public:
     return GetUniqueIdForRendering(this, uiInnerIndex, uiInnerIndexShift);
   }
 };
-

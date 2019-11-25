@@ -6,29 +6,30 @@
 struct ezPhysicsHitResult;
 typedef ezComponentManager<class ezPxRaycastInteractComponent, ezBlockStorageType::FreeList> ezPxRaycastInteractComponentManager;
 
-struct EZ_PHYSXPLUGIN_DLL ezMsgTriggerRaycastInteractionComponent : public ezMessage
-{
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgTriggerRaycastInteractionComponent, ezMessage);
-};
-
 class EZ_PHYSXPLUGIN_DLL ezPxRaycastInteractComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezPxRaycastInteractComponent, ezComponent, ezPxRaycastInteractComponentManager);
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent
+
+public:
+  virtual void SerializeComponent(ezWorldWriter& stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& stream) override;
+
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezPxRaycastInteractComponent
 
 public:
   ezPxRaycastInteractComponent();
   ~ezPxRaycastInteractComponent();
 
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  void ExecuteInteraction(); // [ scriptable ]
 
-  void OnTrigger(ezMsgTriggerRaycastInteractionComponent& msg);
-
-  // ************************************* PROPERTIES ***********************************
-
-  ezUInt8 m_uiCollisionLayer = 0;
-  float m_fMaxDistance = 1.0f;
-  ezString m_sUserMessage;
+  ezUInt8 m_uiCollisionLayer = 0; // [ property ]
+  float m_fMaxDistance = 1.0f;    // [ property ]
+  ezString m_sUserMessage;        // [ property ]
 
 protected:
   virtual void SendMessage(const ezPhysicsHitResult& hit);

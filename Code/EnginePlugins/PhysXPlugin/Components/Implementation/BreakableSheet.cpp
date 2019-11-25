@@ -75,6 +75,12 @@ EZ_BEGIN_COMPONENT_TYPE(ezBreakableSheetComponent, 1, ezComponentMode::Dynamic)
     EZ_MESSAGE_HANDLER(ezMsgPhysicsAddImpulse, AddImpulseAtPos),
   }
   EZ_END_MESSAGEHANDLERS;
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_SCRIPT_FUNCTION_PROPERTY(IsBroken),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Break)
+  }
+  EZ_END_FUNCTIONS;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
@@ -84,6 +90,8 @@ ezBreakableSheetComponent::ezBreakableSheetComponent()
 {
   m_vExtents = ezVec3(m_fWidth, m_fThickness, m_fHeight);
 }
+
+ezBreakableSheetComponent::~ezBreakableSheetComponent() = default;
 
 void ezBreakableSheetComponent::Update()
 {
@@ -336,7 +344,7 @@ void ezBreakableSheetComponent::OnCollision(ezMsgCollision& msg)
 
   if (fImpulse > m_fBreakImpulseStrength)
   {
-    Break();
+    BreakNow();
   }
 }
 
@@ -353,7 +361,7 @@ void ezBreakableSheetComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg)
       fakeMsg.m_vPosition = msg.m_vGlobalPosition;
       fakeMsg.m_vImpulse = msg.m_vImpulse;
 
-      Break(&fakeMsg);
+      BreakNow(&fakeMsg);
     }
   }
   else
@@ -368,6 +376,11 @@ void ezBreakableSheetComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg)
         ezPxConversionUtils::ToVec3(msg.m_vGlobalPosition), PxForceMode::eIMPULSE);
     }
   }
+}
+
+void ezBreakableSheetComponent::Break()
+{
+  BreakNow(nullptr);
 }
 
 void ezBreakableSheetComponent::SetWidth(float fWidth)
@@ -552,7 +565,7 @@ ezMaterialResourceHandle ezBreakableSheetComponent::GetBrokenMaterial() const
   return m_hBrokenMaterial;
 }
 
-void ezBreakableSheetComponent::Break(const ezMsgCollision* pMessage /*= nullptr*/)
+void ezBreakableSheetComponent::BreakNow(const ezMsgCollision* pMessage /*= nullptr*/)
 {
   if (m_bBroken)
     return;

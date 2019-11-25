@@ -1,13 +1,12 @@
 #pragma once
 
+#include <Core/Messages/EventMessage.h>
 #include <PhysXPlugin/PhysXPluginDLL.h>
 #include <PhysXPlugin/Utilities/PxUserData.h>
-#include <Core/Messages/EventMessage.h>
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshResource.h>
 
-//typedef ezComponentManager<class ezBreakableSheetComponent, ezBlockStorageType::FreeList> ezBreakableSheetComponentManager;
 typedef ezComponentManagerSimple<class ezBreakableSheetComponent, ezComponentUpdateType::Always /* TODO: When simulating */> ezBreakableSheetComponentManager;
 
 struct ezMsgExtractRenderData;
@@ -29,77 +28,85 @@ class EZ_PHYSXPLUGIN_DLL ezBreakableSheetComponent : public ezRenderComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezBreakableSheetComponent, ezRenderComponent, ezBreakableSheetComponentManager);
 
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent
+
 public:
-  ezBreakableSheetComponent();
-
-  void Update();
-
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
-
-  void OnExtractGeometry(ezMsgExtractGeometry& msg) const;
-  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
-  void OnCollision(ezMsgCollision& msg);
-  void AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg);
-
-  bool IsBroken() const { return m_bBroken; }
-
 protected:
-
   virtual void Initialize() override;
-  virtual void OnSimulationStarted() override;
   virtual void Deinitialize() override;
+  virtual void OnSimulationStarted() override;
+
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezRenderComponent
 
 public:
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
 
-  // ************************************* PROPERTIES ***********************************
 
-  void SetWidth(float fWidth);
-  float GetWidth() const;
+  //////////////////////////////////////////////////////////////////////////
+  // ezBreakableSheetComponent
 
-  void SetHeight(float fHeight);
-  float GetHeight() const;
+public:
+  ezBreakableSheetComponent();
+  ~ezBreakableSheetComponent();
 
-  void SetThickness(float fThickness);
-  float GetThickness() const;
+  void SetWidth(float fWidth); // [ property ]
+  float GetWidth() const;      // [ property ]
 
-  void SetDensity(float fDensity);
-  float GetDensity() const;
+  void SetHeight(float fHeight); // [ property ]
+  float GetHeight() const;       // [ property ]
 
-  void SetBreakImpulseStrength(float fBreakImpulseStrength);
-  float GetBreakImpulseStrength() const;
+  void SetThickness(float fThickness); // [ property ]
+  float GetThickness() const;          // [ property ]
 
-  void SetDisappearTimeout(ezTime fDisappearTimeout);
-  ezTime GetDisappearTimeout() const;
+  void SetDensity(float fDensity); // [ property ]
+  float GetDensity() const;        // [ property ]
 
-  void SetFixedBorder(bool bFixedBorder);
-  bool GetFixedBorder() const;
+  void SetBreakImpulseStrength(float fBreakImpulseStrength); // [ property ]
+  float GetBreakImpulseStrength() const;                     // [ property ]
 
-  void SetFixedRandomSeed(ezUInt32 uiFixedRandomSeed);
-  ezUInt32 GetFixedRandomSeed() const;
+  void SetDisappearTimeout(ezTime fDisappearTimeout); // [ property ]
+  ezTime GetDisappearTimeout() const;                 // [ property ]
 
-  void SetNumPieces(ezUInt32 uiNumPieces);
-  ezUInt32 GetNumPieces() const;
+  void SetFixedBorder(bool bFixedBorder); // [ property ]
+  bool GetFixedBorder() const;            // [ property ]
 
-  void SetMaterialFile(const char* szFile);
-  const char* GetMaterialFile() const;
+  void SetFixedRandomSeed(ezUInt32 uiFixedRandomSeed); // [ property ]
+  ezUInt32 GetFixedRandomSeed() const;                 // [ property ]
+
+  void SetNumPieces(ezUInt32 uiNumPieces); // [ property ]
+  ezUInt32 GetNumPieces() const;           // [ property ]
+
+  void SetMaterialFile(const char* szFile); // [ property ]
+  const char* GetMaterialFile() const;      // [ property ]
+
+  void SetBrokenMaterialFile(const char* szFile); // [ property ]
+  const char* GetBrokenMaterialFile() const;      // [ property ]
+
+  ezUInt8 m_uiCollisionLayerUnbroken = 0;     // [ property ]
+  ezUInt8 m_uiCollisionLayerBrokenPieces = 0; // [ property ]
+  bool m_bIncludeInNavmesh = true;            // [ property ]
 
   ezMaterialResourceHandle GetMaterial() const;
-
-  void SetBrokenMaterialFile(const char* szFile);
-  const char* GetBrokenMaterialFile() const;
-
   ezMaterialResourceHandle GetBrokenMaterial() const;
 
-  ezUInt8 m_uiCollisionLayerUnbroken = 0;
-  ezUInt8 m_uiCollisionLayerBrokenPieces = 0;
-  bool m_bIncludeInNavmesh = true;
+  void AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg); // [ msg handler ]
+
+  void Break();                               // [ scriptable ]
+  bool IsBroken() const { return m_bBroken; } // [ scriptable ]
 
 protected:
+  void Update();
 
-  // Property variables
+  void OnExtractGeometry(ezMsgExtractGeometry& msg) const; // [ msg handler ]
+  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void OnCollision(ezMsgCollision& msg);
+
   float m_fWidth = 1.0f;
   float m_fHeight = 1.0f;
   float m_fThickness = 0.1f;
@@ -131,8 +138,7 @@ protected:
 
   ezGALBufferHandle m_hPieceTransformsBuffer;
 
-  // ************************************* FUNCTIONS *****************************
-  void Break(const ezMsgCollision* pMessage = nullptr);
+  void BreakNow(const ezMsgCollision* pMessage = nullptr);
   void CreateMeshes();
   void AddSkirtPolygons(ezVec2 Point0, ezVec2 Point1, float fHalfThickness, ezInt32 iPieceMatrixIndex, ezGeometry& Geometry) const;
   void BuildMeshResourceFromGeometry(ezGeometry& Geometry, ezMeshResourceDescriptor& MeshDesc, bool bWithSkinningData) const;

@@ -31,12 +31,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxShapeCapsuleComponent, 1, ezComponentMode::Static)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezPxShapeCapsuleComponent::ezPxShapeCapsuleComponent()
-{
-  m_fRadius = 0.5f;
-  m_fHeight = 0.5f;
-}
-
+ezPxShapeCapsuleComponent::ezPxShapeCapsuleComponent() = default;
+ezPxShapeCapsuleComponent::~ezPxShapeCapsuleComponent() = default;
 
 void ezPxShapeCapsuleComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -46,7 +42,6 @@ void ezPxShapeCapsuleComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_fRadius;
   s << m_fHeight;
 }
-
 
 void ezPxShapeCapsuleComponent::DeserializeComponent(ezWorldReader& stream)
 {
@@ -59,13 +54,11 @@ void ezPxShapeCapsuleComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fHeight;
 }
 
-
 void ezPxShapeCapsuleComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const
 {
   msg.AddBounds(ezBoundingSphere(ezVec3(0, 0, -m_fHeight * 0.5f), m_fRadius), ezInvalidSpatialDataCategory);
   msg.AddBounds(ezBoundingSphere(ezVec3(0, 0, +m_fHeight * 0.5f), m_fRadius), ezInvalidSpatialDataCategory);
 }
-
 
 void ezPxShapeCapsuleComponent::SetRadius(float value)
 {

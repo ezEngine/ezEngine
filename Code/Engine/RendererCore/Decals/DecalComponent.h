@@ -42,86 +42,83 @@ class EZ_RENDERERCORE_DLL ezDecalComponent : public ezRenderComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezDecalComponent, ezRenderComponent, ezDecalComponentManager);
 
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent
+
+public:
+  virtual void SerializeComponent(ezWorldWriter& stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& stream) override;
+
+protected:
+  virtual void OnSimulationStarted() override;
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezRenderComponent
+
+protected:
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
+  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
+
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezDecalComponent
+
 public:
   ezDecalComponent();
   ~ezDecalComponent();
 
-  //////////////////////////////////////////////////////////////////////////
-  // ezComponent Interface
+  void SetExtents(const ezVec3& value); // [ property ]
+  const ezVec3& GetExtents() const;     // [ property ]
 
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
-  virtual void OnSimulationStarted() override;
+  void SetSizeVariance(float fVariance); // [ property ]
+  float GetSizeVariance() const;         // [ property ]
 
-  //////////////////////////////////////////////////////////////////////////
-  // ezRenderComponent Interface
+  void SetColor(ezColor color); // [ property ]
+  ezColor GetColor() const;     // [ property ]
 
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
-  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void SetInnerFadeAngle(ezAngle fFadeAngle); // [ property ]
+  ezAngle GetInnerFadeAngle() const;          // [ property ]
 
-  //////////////////////////////////////////////////////////////////////////
-  // Editor Interface
+  void SetOuterFadeAngle(ezAngle fFadeAngle); // [ property ]
+  ezAngle GetOuterFadeAngle() const;          // [ property ]
 
-  void OnObjectCreated(const ezAbstractObjectNode& node);
+  void SetSortOrder(float fOrder); // [ property ]
+  float GetSortOrder() const;      // [ property ]
 
-  //////////////////////////////////////////////////////////////////////////
-  // Properties
+  void SetWrapAround(bool bWrapAround); // [ property ]
+  bool GetWrapAround() const;           // [ property ]
 
-public:
-  void SetExtents(const ezVec3& value);
-  const ezVec3& GetExtents() const;
+  void SetDecal(const ezDecalResourceHandle& hResource); // [ property ]
+  const ezDecalResourceHandle& GetDecal() const;         // [ property ]
 
-  void SetSizeVariance(float fVariance);
-  float GetSizeVariance() const;
+  void SetDecalFile(const char* szFile); // [ property ]
+  const char* GetDecalFile() const;      // [ property ]
 
-  void SetColor(ezColor color);
-  ezColor GetColor() const;
-
-  void SetInnerFadeAngle(ezAngle fFadeAngle);
-  ezAngle GetInnerFadeAngle() const;
-
-  void SetOuterFadeAngle(ezAngle fFadeAngle);
-  ezAngle GetOuterFadeAngle() const;
-
-  void SetSortOrder(float fOrder);
-  float GetSortOrder() const;
-
-  void SetWrapAround(bool bWrapAround);
-  bool GetWrapAround() const;
-
-  void SetDecal(const ezDecalResourceHandle& hResource);
-  const ezDecalResourceHandle& GetDecal() const;
-
-  void SetDecalFile(const char* szFile);
-  const char* GetDecalFile() const;
+  ezVarianceTypeTime m_FadeOutDelay;                      // [ property ]
+  ezTime m_FadeOutDuration;                               // [ property ]
+  ezEnum<ezOnComponentFinishedAction> m_OnFinishedAction; // [ property ]
 
   void SetApplyOnlyTo(ezGameObjectHandle hObject);
   ezGameObjectHandle GetApplyOnlyTo() const;
 
-  ezVarianceTypeTime m_FadeOutDelay;
-  ezTime m_FadeOutDuration;
-  ezEnum<ezOnComponentFinishedAction> m_OnFinishedAction;
-
 protected:
-  ezVec3 m_vExtents;
-  float m_fSizeVariance;
-  ezColor m_Color;
-  ezAngle m_InnerFadeAngle;
-  ezAngle m_OuterFadeAngle;
-  float m_fSortOrder;
-  bool m_bWrapAround;
+  void OnObjectCreated(const ezAbstractObjectNode& node);
+  void OnTriggered(ezMsgComponentInternalTrigger& msg);
+  void OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg);
+  void OnMsgOnlyApplyToObject(ezMsgOnlyApplyToObject& msg);
+  void OnMsgSetColor(ezMsgSetColor& msg);
+
+  ezVec3 m_vExtents = ezVec3(1.0f);
+  float m_fSizeVariance = 0;
+  ezColor m_Color = ezColor::White;
+  ezAngle m_InnerFadeAngle = ezAngle::Degree(50.0f);
+  ezAngle m_OuterFadeAngle = ezAngle::Degree(80.0f);
+  float m_fSortOrder = 0;
+  bool m_bWrapAround = false;
   ezDecalResourceHandle m_hDecal;
 
   ezGameObjectHandle m_hApplyOnlyToObject;
-  ezUInt32 m_uiApplyOnlyToId;
-
-  //////////////////////////////////////////////////////////////////////////
-  // Internal
-
-  void OnTriggered(ezMsgComponentInternalTrigger& msg);
-  void OnDeleteObject(ezMsgDeleteGameObject& msg);
-  void OnApplyOnlyTo(ezMsgOnlyApplyToObject& msg);
-  void OnSetColor(ezMsgSetColor& msg);
+  ezUInt32 m_uiApplyOnlyToId = 0;
 
   ezTime m_StartFadeOutTime;
   ezUInt32 m_uiInternalSortKey;

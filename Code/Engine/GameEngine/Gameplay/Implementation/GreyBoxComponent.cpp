@@ -52,9 +52,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 3, ezComponentMode::Static)
 EZ_END_COMPONENT_TYPE;
 // clang-format on
 
-ezGreyBoxComponent::ezGreyBoxComponent() {}
-
-ezGreyBoxComponent::~ezGreyBoxComponent() {}
+ezGreyBoxComponent::ezGreyBoxComponent() = default;
+ezGreyBoxComponent::~ezGreyBoxComponent() = default;
 
 void ezGreyBoxComponent::SerializeComponent(ezWorldWriter& stream) const
 {

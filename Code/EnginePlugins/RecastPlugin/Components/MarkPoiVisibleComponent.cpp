@@ -22,8 +22,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezRcMarkPoiVisibleComponent, 1, ezComponentMode::Static)
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
-ezRcMarkPoiVisibleComponent::ezRcMarkPoiVisibleComponent() {}
-ezRcMarkPoiVisibleComponent::~ezRcMarkPoiVisibleComponent() {}
+ezRcMarkPoiVisibleComponent::ezRcMarkPoiVisibleComponent() = default;
+ezRcMarkPoiVisibleComponent::~ezRcMarkPoiVisibleComponent() = default;
 
 void ezRcMarkPoiVisibleComponent::SerializeComponent(ezWorldWriter& stream) const
 {

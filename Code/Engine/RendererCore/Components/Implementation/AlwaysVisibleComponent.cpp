@@ -19,20 +19,6 @@ EZ_END_COMPONENT_TYPE;
 ezAlwaysVisibleComponent::ezAlwaysVisibleComponent() = default;
 ezAlwaysVisibleComponent::~ezAlwaysVisibleComponent() = default;
 
-void ezAlwaysVisibleComponent::SerializeComponent(ezWorldWriter& stream) const
-{
-  SUPER::SerializeComponent(stream);
-  //ezStreamWriter& s = stream.GetStream();
-}
-
-void ezAlwaysVisibleComponent::DeserializeComponent(ezWorldReader& stream)
-{
-  SUPER::DeserializeComponent(stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-
-  //ezStreamReader& s = stream.GetStream();
-}
-
 ezResult ezAlwaysVisibleComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
 {
   bAlwaysVisible = true;
@@ -40,6 +26,4 @@ ezResult ezAlwaysVisibleComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, b
 }
 
 
-
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_AlwaysVisibleComponent);
-
