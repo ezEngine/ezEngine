@@ -1,10 +1,10 @@
 #include <PhysXPluginPCH.h>
 
+#include <Core/Utils/WorldGeoExtractionUtil.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <PhysXPlugin/Shapes/PxShapeBoxComponent.h>
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
-#include <Core/Utils/WorldGeoExtractionUtil.h>
 
 using namespace physx;
 
@@ -31,10 +31,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxShapeBoxComponent, 1, ezComponentMode::Static)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezPxShapeBoxComponent::ezPxShapeBoxComponent()
-{
-  m_vExtents.Set(1.0f);
-}
+ezPxShapeBoxComponent::ezPxShapeBoxComponent() = default;
+ezPxShapeBoxComponent::~ezPxShapeBoxComponent() = default;
 
 void ezPxShapeBoxComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -43,7 +41,6 @@ void ezPxShapeBoxComponent::SerializeComponent(ezWorldWriter& stream) const
   auto& s = stream.GetStream();
   s << m_vExtents;
 }
-
 
 void ezPxShapeBoxComponent::DeserializeComponent(ezWorldReader& stream)
 {

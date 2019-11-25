@@ -6,38 +6,33 @@ class EZ_PHYSXPLUGIN_DLL ezPxJointComponent : public ezPxComponent
 {
   EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezPxJointComponent, ezPxComponent);
 
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent
+
+public:
+  virtual void SerializeComponent(ezWorldWriter& stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& stream) override;
+
+protected:
+  virtual void OnSimulationStarted() override;
+  virtual void Deinitialize() override;
+
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezPxJointComponent
+
 public:
   ezPxJointComponent();
   ~ezPxJointComponent();
 
-  virtual void OnSimulationStarted() override;
-  virtual void Deinitialize() override;
+  float m_fBreakForce = 0.0f;    // [ property ]
+  float m_fBreakTorque = 0.0f;   // [ property ]
+  bool m_bPairCollision = false; // [ property ]
 
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
-
-  // ************************************* PROPERTIES ***********************************
-public:
-  float m_fBreakForce;
-  float m_fBreakTorque;
-  bool m_bPairCollision;
-
-
-  void SetParentActor(const char* szReference);
-  void SetChildActor(const char* szReference);
-
+  void SetParentActor(const char* szReference); // [ property ]
+  void SetChildActor(const char* szReference);  // [ property ]
 
 protected:
-
-
-  // ************************************* FUNCTIONS *****************************
-
-public:
-
-  void SetActors(ezGameObjectHandle hActorA, const ezTransform& localFrameA, ezGameObjectHandle hActorB, const ezTransform& localFrameB);
-
-protected:
-
   ezResult FindParentBody(physx::PxRigidActor*& pActor);
   ezResult FindChildBody(physx::PxRigidActor*& pActor);
 
@@ -51,10 +46,8 @@ protected:
   // UserFlag1 specifies whether m_localFrameB is already set
   ezTransform m_localFrameB;
 
-  physx::PxJoint* m_pJoint;
+  physx::PxJoint* m_pJoint = nullptr;
 
 private:
   const char* DummyGetter() const { return nullptr; }
 };
-
-

@@ -18,7 +18,6 @@ public:
 
   // ************************************* PROPERTIES ***********************************
 public:
-
   void SetRadius(float value);
   float GetRadius() const { return m_fRadius; }
 
@@ -27,7 +26,6 @@ public:
 
 
 protected:
-
   float m_fRadius;
   float m_fHeight;
 
@@ -35,11 +33,7 @@ protected:
   // ************************************* FUNCTIONS *****************************
 
 public:
-
   virtual physx::PxShape* CreateShape(physx::PxRigidActor* pActor, physx::PxTransform& out_ShapeTransform) override;
 
 protected:
-
 };
-
-

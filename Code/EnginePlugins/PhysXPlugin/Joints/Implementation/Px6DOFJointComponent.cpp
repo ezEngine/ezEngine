@@ -30,14 +30,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezPx6DOFJointComponent, 1, ezComponentMode::Static)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezPx6DOFJointComponent::ezPx6DOFJointComponent()
-{
-  m_fLinearStiffness = 0.0f;
-  m_fLinearDamping = 0.0f;
-  m_fAngularStiffness = 0.0f;
-  m_fAngularDamping = 0.0f;
-}
-
+ezPx6DOFJointComponent::ezPx6DOFJointComponent() = default;
+ezPx6DOFJointComponent::~ezPx6DOFJointComponent() = default;
 
 void ezPx6DOFJointComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -71,7 +65,7 @@ void ezPx6DOFJointComponent::DeserializeComponent(ezWorldReader& stream)
 }
 
 PxJoint* ezPx6DOFJointComponent::CreateJointType(PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1,
-                                                     const PxTransform& localFrame1)
+  const PxTransform& localFrame1)
 {
   PxD6Joint* pJoint = PxD6JointCreate(*(ezPhysX::GetSingleton()->GetPhysXAPI()), actor0, localFrame0, actor1, localFrame1);
 

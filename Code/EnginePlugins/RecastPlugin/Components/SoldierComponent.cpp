@@ -9,13 +9,13 @@
 #include <RecastPlugin/WorldModule/RecastWorldModule.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 
-//////////////////////////////////////////////////////////////////////////
-
+// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezSoldierComponent, 1, ezComponentMode::Dynamic)
 EZ_END_COMPONENT_TYPE
+// clang-format on
 
-ezSoldierComponent::ezSoldierComponent() {}
-ezSoldierComponent::~ezSoldierComponent() {}
+ezSoldierComponent::ezSoldierComponent() = default;
+ezSoldierComponent::~ezSoldierComponent() = default;
 
 void ezSoldierComponent::SerializeComponent(ezWorldWriter& stream) const
 {

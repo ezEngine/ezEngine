@@ -32,11 +32,11 @@ EZ_END_ABSTRACT_COMPONENT_TYPE
 // clang-format on
 
 ezPxShapeComponent::ezPxShapeComponent()
-    : m_UserData(this)
+  : m_UserData(this)
 {
 }
 
-ezPxShapeComponent::~ezPxShapeComponent() {}
+ezPxShapeComponent::~ezPxShapeComponent() = default;
 
 void ezPxShapeComponent::SerializeComponent(ezWorldWriter& stream) const
 {

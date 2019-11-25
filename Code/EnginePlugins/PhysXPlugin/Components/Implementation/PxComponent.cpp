@@ -5,8 +5,6 @@
 // clang-format off
 EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPxComponent, 1)
 {
-  //EZ_BEGIN_PROPERTIES
-  //EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Physics"),
