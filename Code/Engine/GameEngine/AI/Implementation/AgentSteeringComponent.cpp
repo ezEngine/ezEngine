@@ -4,8 +4,6 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/AI/AgentSteeringComponent.h>
 
-//////////////////////////////////////////////////////////////////////////
-
 // clang-format off
 EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezAgentSteeringComponent, 1)
 {
@@ -14,11 +12,20 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezAgentSteeringComponent, 1)
     new ezCategoryAttribute("AI"),
   }
   EZ_END_ATTRIBUTES;
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_SCRIPT_FUNCTION_PROPERTY(SetTargetPosition, In, "position"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetTargetPosition),
+    EZ_SCRIPT_FUNCTION_PROPERTY(ClearTargetPosition),
+    //EZ_SCRIPT_FUNCTION_PROPERTY(GetPathToTargetState),
+  }
+  EZ_END_FUNCTIONS;
 }
 EZ_END_ABSTRACT_COMPONENT_TYPE
 // clang-format on
 
-ezAgentSteeringComponent::ezAgentSteeringComponent() {}
+ezAgentSteeringComponent::ezAgentSteeringComponent() = default;
+ezAgentSteeringComponent::~ezAgentSteeringComponent() = default;
 
 void ezAgentSteeringComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -36,4 +43,3 @@ void ezAgentSteeringComponent::DeserializeComponent(ezWorldReader& stream)
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_AgentSteeringComponent);
-
