@@ -4,6 +4,8 @@
 #include <Foundation/Memory/MemoryTracker.h>
 #include <Foundation/Utilities/Stats.h>
 
+#include <GameEngine/GameApplication/GameApplicationBase.h>
+
 namespace MemoryDetail
 {
 
@@ -46,14 +48,14 @@ namespace MemoryDetail
     uiLastTotalAllocations = uiTotalAllocations;
   }
 
-  static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
+  static void PerframeUpdateHandler(const ezGameApplicationExecutionEvent& e)
   {
     if (!ezTelemetry::IsConnectedToClient())
       return;
 
-    switch (e.m_EventType)
+    switch (e.m_Type)
     {
-      case ezTelemetry::TelemetryEventData::PerFrameUpdate:
+      case ezGameApplicationExecutionEvent::Type::AfterPresent:
         BroadcastMemoryStats();
         break;
 
@@ -66,12 +68,15 @@ namespace MemoryDetail
 
 void AddMemoryEventHandler()
 {
-  ezTelemetry::AddEventHandler(MemoryDetail::TelemetryEventsHandler);
+  // We're handling the per frame update by a different event since
+  // using ezTelemetry::TelemetryEventData::PerFrameUpdate can lead
+  // to deadlocks between the ezStats and ezTelemetry system.
+  ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(MemoryDetail::PerframeUpdateHandler);
 }
 
 void RemoveMemoryEventHandler()
 {
-  ezTelemetry::RemoveEventHandler(MemoryDetail::TelemetryEventsHandler);
+  ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(MemoryDetail::PerframeUpdateHandler);
 }
 
 
