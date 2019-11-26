@@ -129,14 +129,14 @@ ezUInt16 ezWorldModuleFactory::RegisterWorldModule(const ezRTTI* pRtti, CreatorF
 }
 
 // static
-void ezWorldModuleFactory::PluginEventHandler(const ezPlugin::PluginEvent& EventData)
+void ezWorldModuleFactory::PluginEventHandler(const ezPluginEvent& EventData)
 {
-  if (EventData.m_EventType == ezPlugin::PluginEvent::AfterLoadingBeforeInit)
+  if (EventData.m_EventType == ezPluginEvent::AfterLoadingBeforeInit)
   {
     ezWorldModuleFactory::GetInstance()->FillBaseTypeIds();
   }
 
-  if (EventData.m_EventType == ezPlugin::PluginEvent::AfterUnloading)
+  if (EventData.m_EventType == ezPluginEvent::AfterUnloading)
   {
     ezWorldModuleFactory::GetInstance()->ClearUnloadedTypeToIDs();
   }

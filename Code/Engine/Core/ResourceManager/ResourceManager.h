@@ -397,7 +397,7 @@ private:
   static void OnEngineShutdown();
   static void OnCoreShutdown();
   static void OnCoreStartup();
-  static void PluginEventHandler(const ezPlugin::PluginEvent& e);
+  static void PluginEventHandler(const ezPluginEvent& e);
 
   // Loading / reloading / creating resources
 private:

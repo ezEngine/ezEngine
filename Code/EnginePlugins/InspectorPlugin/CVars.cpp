@@ -170,11 +170,11 @@ namespace CVarsDetail
     }
   }
 
-  static void PluginEventHandler(const ezPlugin::PluginEvent& e)
+  static void PluginEventHandler(const ezPluginEvent& e)
   {
     switch (e.m_EventType)
     {
-      case ezPlugin::PluginEvent::AfterPluginChanges:
+      case ezPluginEvent::AfterPluginChanges:
         SendAllCVarTelemetry();
         break;
 

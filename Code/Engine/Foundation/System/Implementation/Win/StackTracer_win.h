@@ -117,7 +117,7 @@ namespace
   }
 }
 
-void ezStackTracer::OnPluginEvent(const ezPlugin::PluginEvent& e)
+void ezStackTracer::OnPluginEvent(const ezPluginEvent& e)
 {
   Initialize();
 
@@ -127,12 +127,12 @@ void ezStackTracer::OnPluginEvent(const ezPlugin::PluginEvent& e)
   // Can't get dbghelp functions to work correctly. SymLoadModuleEx will fail on every dll after the first call.
   // However, SymInitialize works to load dynamic dlls if we postpone it until all dlls are loaded.
   // So we defer init until the first DLL is un-loaded or the first callstack is to be resolved.
-  if (e.m_EventType == ezPlugin::PluginEvent::BeforeUnloading)
+  if (e.m_EventType == ezPluginEvent::BeforeUnloading)
   {
     SymbolInitialize();
   }
 
-  if (false) // e.m_EventType == ezPlugin::PluginEvent::AfterLoading)
+  if (false) // e.m_EventType == ezPluginEvent::AfterLoading)
   {
     char buffer[1024];
     strcpy_s(buffer, ezOSFile::GetApplicationDirectory());

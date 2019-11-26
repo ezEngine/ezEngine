@@ -10,7 +10,7 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #include <unwind.h>
 #include <dlfcn.h>
 
-void ezStackTracer::OnPluginEvent(const ezPlugin::PluginEvent& e) {}
+void ezStackTracer::OnPluginEvent(const ezPluginEvent& e) {}
 
 struct Backtrace
 {

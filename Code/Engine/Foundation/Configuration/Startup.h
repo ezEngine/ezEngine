@@ -145,7 +145,7 @@ private:
   /// Broadcasts the global event EZ_GLOBALEVENT_UNLOAD_PLUGIN_BEGIN and EZ_GLOBALEVENT_UNLOAD_PLUGIN_END and passes szPluginName in the first event parameter.
   static void UnloadPluginSubSystems(const char* szPluginName);
 
-  static void PluginEventHandler(const ezPlugin::PluginEvent& EventData);
+  static void PluginEventHandler(const ezPluginEvent& EventData);
   static void AssignSubSystemPlugin(const char* szPluginName);
 
   static void ComputeOrder(ezDeque<ezSubSystem*>& Order);

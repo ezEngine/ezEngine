@@ -40,7 +40,7 @@ struct PluginData
 static ezMap<ezString, PluginData> g_LoadedPlugins;
 ezInt32 ezPlugin::s_iPluginChangeRecursionCounter = 0;
 ezUInt32 ezPlugin::m_uiMaxParallelInstances = 32;
-ezEvent<const ezPlugin::PluginEvent&> ezPlugin::s_PluginEvents;
+ezEvent<const ezPluginEvent&> ezPlugin::s_PluginEvents;
 
 
 ezPlugin::ezPlugin(bool bIsReloadable, OnPluginLoadedFunction OnLoadPlugin, OnPluginUnloadedFunction OnUnloadPlugin,
@@ -109,8 +109,8 @@ void ezPlugin::BeginPluginChanges()
 {
   if (s_iPluginChangeRecursionCounter == 0)
   {
-    PluginEvent e;
-    e.m_EventType = PluginEvent::BeforePluginChanges;
+    ezPluginEvent e;
+    e.m_EventType = ezPluginEvent::BeforePluginChanges;
     e.m_pPluginObject = nullptr;
     e.m_szPluginFile = nullptr;
     s_PluginEvents.Broadcast(e);
@@ -125,8 +125,8 @@ void ezPlugin::EndPluginChanges()
 
   if (s_iPluginChangeRecursionCounter == 0)
   {
-    PluginEvent e;
-    e.m_EventType = PluginEvent::AfterPluginChanges;
+    ezPluginEvent e;
+    e.m_EventType = ezPluginEvent::AfterPluginChanges;
     e.m_pPluginObject = nullptr;
     e.m_szPluginFile = nullptr;
     s_PluginEvents.Broadcast(e);
@@ -142,8 +142,8 @@ ezResult ezPlugin::UnloadPluginInternal(const char* szPluginFile, bool bReloadin
 
   // Broadcast event: Before unloading plugin
   {
-    PluginEvent e;
-    e.m_EventType = PluginEvent::BeforeUnloading;
+    ezPluginEvent e;
+    e.m_EventType = ezPluginEvent::BeforeUnloading;
     e.m_pPluginObject = g_LoadedPlugins[szPluginFile].m_pPluginObject;
     e.m_szPluginFile = szPluginFile;
     s_PluginEvents.Broadcast(e);
@@ -151,8 +151,8 @@ ezResult ezPlugin::UnloadPluginInternal(const char* szPluginFile, bool bReloadin
 
   // Broadcast event: Startup Shutdown
   {
-    PluginEvent e;
-    e.m_EventType = PluginEvent::StartupShutdown;
+    ezPluginEvent e;
+    e.m_EventType = ezPluginEvent::StartupShutdown;
     e.m_pPluginObject = g_LoadedPlugins[szPluginFile].m_pPluginObject;
     e.m_szPluginFile = szPluginFile;
     s_PluginEvents.Broadcast(e);
@@ -160,8 +160,8 @@ ezResult ezPlugin::UnloadPluginInternal(const char* szPluginFile, bool bReloadin
 
   // Broadcast event: After Startup Shutdown
   {
-    PluginEvent e;
-    e.m_EventType = PluginEvent::AfterStartupShutdown;
+    ezPluginEvent e;
+    e.m_EventType = ezPluginEvent::AfterStartupShutdown;
     e.m_pPluginObject = g_LoadedPlugins[szPluginFile].m_pPluginObject;
     e.m_szPluginFile = szPluginFile;
     s_PluginEvents.Broadcast(e);
@@ -194,8 +194,8 @@ ezResult ezPlugin::UnloadPluginInternal(const char* szPluginFile, bool bReloadin
 
   // Broadcast event: After unloading plugin
   {
-    PluginEvent e;
-    e.m_EventType = PluginEvent::AfterUnloading;
+    ezPluginEvent e;
+    e.m_EventType = ezPluginEvent::AfterUnloading;
     e.m_pPluginObject = nullptr;
     e.m_szPluginFile = szPluginFile;
     s_PluginEvents.Broadcast(e);
@@ -251,8 +251,8 @@ success:
 
   // Broadcast Event: Before loading plugin
   {
-    PluginEvent e;
-    e.m_EventType = PluginEvent::BeforeLoading;
+    ezPluginEvent e;
+    e.m_EventType = ezPluginEvent::BeforeLoading;
     e.m_pPluginObject = nullptr;
     e.m_szPluginFile = szPluginFile;
     s_PluginEvents.Broadcast(e);
@@ -293,8 +293,8 @@ success:
 
         // Broadcast Event: After loading plugin, before init
         {
-          PluginEvent e;
-          e.m_EventType = PluginEvent::AfterLoadingBeforeInit;
+          ezPluginEvent e;
+          e.m_EventType = ezPluginEvent::AfterLoadingBeforeInit;
           e.m_pPluginObject = pPlugin;
           e.m_szPluginFile = szPluginFile;
           s_PluginEvents.Broadcast(e);
@@ -304,8 +304,8 @@ success:
 
         // Broadcast Event: After loading plugin
         {
-          PluginEvent e;
-          e.m_EventType = PluginEvent::AfterLoading;
+          ezPluginEvent e;
+          e.m_EventType = ezPluginEvent::AfterLoading;
           e.m_pPluginObject = pPlugin;
           e.m_szPluginFile = szPluginFile;
           s_PluginEvents.Broadcast(e);

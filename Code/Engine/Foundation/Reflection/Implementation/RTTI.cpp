@@ -45,7 +45,6 @@ ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSiz
   m_pAllocator = pAllocator;
   m_Properties = properties;
   m_Functions = ezMakeArrayPtr<ezAbstractFunctionProperty*>(reinterpret_cast<ezAbstractFunctionProperty**>(functions.GetPtr()), functions.GetCount());
-  ;
   m_Attributes = attributes;
   m_MessageHandlers = messageHandlers;
   m_uiMsgIdOffset = 0;
@@ -466,11 +465,11 @@ void ezRTTI::SanityCheckType(ezRTTI* pType)
   }
 }
 
-void ezRTTI::PluginEventHandler(const ezPlugin::PluginEvent& EventData)
+void ezRTTI::PluginEventHandler(const ezPluginEvent& EventData)
 {
   switch (EventData.m_EventType)
   {
-    case ezPlugin::PluginEvent::BeforeLoading:
+    case ezPluginEvent::BeforeLoading:
     {
       // before a new plugin is loaded, make sure all current ezRTTI instances
       // are assigned to the proper plugin
@@ -479,7 +478,7 @@ void ezRTTI::PluginEventHandler(const ezPlugin::PluginEvent& EventData)
     }
     break;
 
-    case ezPlugin::PluginEvent::AfterLoadingBeforeInit:
+    case ezPluginEvent::AfterLoadingBeforeInit:
     {
       // after we loaded a new plugin, but before it is initialized,
       // find all new rtti instances and assign them to that new plugin

@@ -7,6 +7,29 @@
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Utilities/EnumerableClass.h>
 
+class ezPlugin;
+
+/// \brief The data that is broadcast whenever a plugin is (un-) loaded.
+struct ezPluginEvent
+{
+  enum Type
+  {
+    BeforeLoading,          ///< Sent shortly before a new plugin is loaded
+    AfterLoadingBeforeInit, ///< Sent immediately after a new plugin has been loaded, even before it is initialized (which might trigger loading of other plugins)
+    AfterLoading,           ///< Sent after a new plugin has been loaded and initialized
+    BeforeUnloading,        ///< Sent before a plugin is going to be unloaded
+    StartupShutdown,        ///< Used by the startup system for automatic shutdown
+    AfterStartupShutdown,
+    AfterUnloading,      ///< Sent after a plugin has been unloaded
+    BeforePluginChanges, ///< Sent (once) before any (group) plugin changes (load/unload) are done.
+    AfterPluginChanges,  ///< Sent (once) after all (group) plugin changes (unload/load/reload) are finished.
+  };
+
+  Type m_EventType;           ///< Which type of event this is.
+  ezPlugin* m_pPluginObject;  ///< Which plugin object is affected. Only available in 'AfterLoading' and 'BeforeUnloading'.
+  const char* m_szPluginFile; ///< The file name in which the plugin that is loaded or unloaded is located.
+};
+
 /// \brief ezPlugin allows to manage all dynamically loadable plugins. Each plugin DLL must contain one global instance of ezPlugin.
 ///
 /// Put a global instance of ezPlugin somewhere into the source of each dynamic plugin DLL. Certain code depends on such instances
@@ -83,29 +106,8 @@ public:
   /// Can be used to check whether a certain plugin is loaded.
   static ezPlugin* FindPluginByName(const char* szPluginName); // [tested]
 
-  /// \brief The data that is broadcast whenever a plugin is (un-) loaded.
-  struct PluginEvent
-  {
-    enum Type
-    {
-      BeforeLoading,          ///< Sent shortly before a new plugin is loaded
-      AfterLoadingBeforeInit, ///< Sent immediately after a new plugin has been loaded, even before it is initialized (which might trigger loading of other plugins)
-      AfterLoading,           ///< Sent after a new plugin has been loaded and initialized
-      BeforeUnloading,        ///< Sent before a plugin is going to be unloaded
-      StartupShutdown,        ///< Used by the startup system for automatic shutdown
-      AfterStartupShutdown,
-      AfterUnloading,      ///< Sent after a plugin has been unloaded
-      BeforePluginChanges, ///< Sent (once) before any (group) plugin changes (load/unload) are done.
-      AfterPluginChanges,  ///< Sent (once) after all (group) plugin changes (unload/load/reload) are finished.
-    };
-
-    Type m_EventType;           ///< Which type of event this is.
-    ezPlugin* m_pPluginObject;  ///< Which plugin object is affected. Only available in 'AfterLoading' and 'BeforeUnloading'.
-    const char* m_szPluginFile; ///< The file name in which the plugin that is loaded or unloaded is located.
-  };
-
   /// \brief Code that needs to be execute whenever a plugin is loaded or unloaded can register itself here to be notified of such events.
-  static ezEvent<const PluginEvent&> s_PluginEvents;
+  static ezEvent<const ezPluginEvent&> s_PluginEvents;
 
   /// \brief Returns the n-th plugin that this one is dependent on, or nullptr if there is no further dependency.
   const char* GetPluginDependency(ezUInt8 uiDependency) const { return (uiDependency < 5) ? m_szPluginDependencies[uiDependency] : nullptr; }
@@ -139,4 +141,3 @@ private:
   static ezUInt32 m_uiMaxParallelInstances;
   static ezInt32 s_iPluginChangeRecursionCounter;
 };
-

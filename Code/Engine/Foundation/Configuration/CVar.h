@@ -186,7 +186,7 @@ private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, CVars);
 
   static void AssignSubSystemPlugin(const char* szPluginName);
-  static void PluginEventHandler(const ezPlugin::PluginEvent& EventData);
+  static void PluginEventHandler(const ezPluginEvent& EventData);
 
 
   bool m_bHasNeverBeenLoaded;

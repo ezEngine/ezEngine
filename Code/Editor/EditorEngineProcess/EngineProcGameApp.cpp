@@ -492,9 +492,9 @@ void ezEngineProcessGameApplication::EventHandlerCVar(const ezCVarEvent& e)
   TransmitCVar(e.m_pCVar);
 }
 
-void ezEngineProcessGameApplication::EventHandlerCVarPlugin(const ezPlugin::PluginEvent& e)
+void ezEngineProcessGameApplication::EventHandlerCVarPlugin(const ezPluginEvent& e)
 {
-  if (e.m_EventType == ezPlugin::PluginEvent::Type::AfterLoadingBeforeInit)
+  if (e.m_EventType == ezPluginEvent::Type::AfterLoadingBeforeInit)
   {
     ezCVar* pCVar = ezCVar::GetFirstInstance();
 

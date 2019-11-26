@@ -115,7 +115,7 @@ private:
 
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, GraphVersioning);
 
-  void PluginEventHandler(const ezPlugin::PluginEvent& EventData);
+  void PluginEventHandler(const ezPluginEvent& EventData);
   void UpdatePatches();
   ezUInt32 GetMaxPatchVersion(const ezHashedString& sType) const;
 

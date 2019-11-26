@@ -414,11 +414,11 @@ void ezResourceManager::BroadcastExistsEvent()
   s_State->s_bBroadcastExistsEvent = true;
 }
 
-void ezResourceManager::PluginEventHandler(const ezPlugin::PluginEvent& e)
+void ezResourceManager::PluginEventHandler(const ezPluginEvent& e)
 {
   switch (e.m_EventType)
   {
-    case ezPlugin::PluginEvent::AfterStartupShutdown:
+    case ezPluginEvent::AfterStartupShutdown:
     {
       // unload all resources until there are no more that can be unloaded
       // this is to prevent having resources allocated that came from a dynamic plugin
