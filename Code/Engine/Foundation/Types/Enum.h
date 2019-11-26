@@ -41,13 +41,13 @@ public:
 
   /// \brief Default constructor
   EZ_ALWAYS_INLINE ezEnum()
-      : m_value(Derived::Default)
+      : m_value((StorageType)Derived::Default)
   {
   } // [tested]
 
   /// \brief Construct from a C++ enum, and implicit conversion from enum type
   EZ_ALWAYS_INLINE ezEnum(typename Derived::Enum init)
-      : m_value(init)
+      : m_value((StorageType)init)
   {
   } // [tested]
 

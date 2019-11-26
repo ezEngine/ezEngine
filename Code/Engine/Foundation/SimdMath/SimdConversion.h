@@ -103,4 +103,11 @@ namespace ezSimdConversion
     //
     return ezSimdBBox(ToVec3(b.m_vMin), ToVec3(b.m_vMax));
   }
+
+  EZ_ALWAYS_INLINE ezBoundingBox ToBBox(const ezSimdBBox& b)
+  {
+    //
+    return ezBoundingBox(ToVec3(b.m_Min), ToVec3(b.m_Max));
+  }
+
 }; // namespace ezSimdConversion

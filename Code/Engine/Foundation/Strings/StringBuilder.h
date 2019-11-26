@@ -220,36 +220,36 @@ public:
   void Prepend(const char* pData1, const char* pData2 = nullptr, const char* pData3 = nullptr, const char* pData4 = nullptr,
     const char* pData5 = nullptr, const char* pData6 = nullptr); // [tested]
 
-  /// \brief Sets this string to the formatted string.
+  /// \brief Sets this string to the formatted string, uses printf-style formatting.
   void Printf(const char* szUtf8Format, ...); // [tested]
 
-  /// \brief Sets this string to the formatted string.
+  /// \brief Sets this string to the formatted string, uses printf-style formatting.
   void PrintfArgs(const char* szUtf8Format, va_list args); // [tested]
 
-  /// \brief A type safe version of sprintf, see ezFormatString for details
+  /// \brief Replaces this with a formatted string. Uses '{}' formatting placeholders, see ezFormatString for details.
   void Format(const ezFormatString& string);
 
-  /// \brief A type safe version of sprintf, see ezFormatString for details
+  /// \brief Replaces this with a formatted string. Uses '{}' formatting placeholders, see ezFormatString for details.
   template <typename... ARGS>
   void Format(const char* szFormat, ARGS&&... args)
   {
     Format(ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
-  /// \brief A type safe version of sprintf, see ezFormatString for details
+  /// \brief Appends a formatted string. Uses '{}' formatting placeholders, see ezFormatString for details.
   void AppendFormat(const ezFormatString& string);
 
-  /// \brief A type safe version of sprintf, see ezFormatString for details
+  /// \brief Appends a formatted string. Uses '{}' formatting placeholders, see ezFormatString for details.
   template <typename... ARGS>
   void AppendFormat(const char* szFormat, ARGS&&... args)
   {
     AppendFormat(ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
-  /// \brief A type safe version of sprintf, see ezFormatString for details
+  /// \brief Prepends a formatted string. Uses '{}' formatting placeholders, see ezFormatString for details.
   void PrependFormat(const ezFormatString& string);
 
-  /// \brief A type safe version of sprintf, see ezFormatString for details
+  /// \brief Prepends a formatted string. Uses '{}' formatting placeholders, see ezFormatString for details.
   template <typename... ARGS>
   void PrependFormat(const char* szFormat, ARGS&&... args)
   {

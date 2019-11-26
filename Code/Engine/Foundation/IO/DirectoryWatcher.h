@@ -65,12 +65,14 @@ public:
   ///   Returns the opened directory, will be empty if no directory was opened.
   const char* GetDirectory() const { return m_sDirectoryPath; }
 
+  using EnumerateChangesFunction = ezDelegate<void(const char* filename, ezDirectoryWatcherAction action), 48>;
+
   /// \brief
   ///   Calls the callback \p func for each change since the last call. For each change the filename
   ///   and the action, which was performed on the file, is passed to \p func.
   ///
   /// \note There might be multiple changes on the same file reported.
-  void EnumerateChanges(ezDelegate<void(const char* filename, ezDirectoryWatcherAction action)> func);
+  void EnumerateChanges(EnumerateChangesFunction func);
 
 private:
   ezString m_sDirectoryPath;

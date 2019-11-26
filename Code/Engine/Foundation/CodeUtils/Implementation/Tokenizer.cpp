@@ -26,13 +26,9 @@ namespace
 
 
 ezTokenizer::ezTokenizer(ezAllocatorBase* pAllocator)
+  : m_Data(pAllocator != nullptr ? pAllocator : &s_ClassAllocator)
+  , m_Tokens(pAllocator != nullptr ? pAllocator : &s_ClassAllocator)
 {
-  if (pAllocator == nullptr)
-  {
-    pAllocator = &s_ClassAllocator;
-  }
-  m_Data = ezDynamicArray<ezUInt8>(pAllocator);
-  m_Tokens = ezDeque<ezToken>(pAllocator);
   m_pLog = nullptr;
   m_CurMode = ezTokenType::Unknown;
   m_uiCurLine = 1;

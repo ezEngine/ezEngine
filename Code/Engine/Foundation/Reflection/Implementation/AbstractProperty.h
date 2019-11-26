@@ -8,6 +8,7 @@
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/Set.h>
+#include <Foundation/Containers/StaticArray.h>
 #include <Foundation/Reflection/Implementation/RTTI.h>
 #include <Foundation/Types/Bitflags.h>
 #include <Foundation/Types/Enum.h>
@@ -261,7 +262,7 @@ public:
 
   /// \brief Writes the value of this property in pInstance to pObject.
   /// pObject needs to point to an instance of this property's type.
-  virtual void GetValuePtr(const void* pInstance, void* pObject) const = 0;
+  virtual void GetValuePtr(const void* pInstance, void* out_pObject) const = 0;
 
   /// \brief Sets the value of pObject to the property in pInstance.
   /// pObject needs to point to an instance of this property's type.
@@ -468,6 +469,12 @@ struct ezContainerSubTypeResolver<ezDynamicArray<T>>
 
 template <typename T, ezUInt32 Size>
 struct ezContainerSubTypeResolver<ezHybridArray<T, Size>>
+{
+  typedef typename ezTypeTraits<T>::NonConstReferenceType Type;
+};
+
+template <typename T, ezUInt32 Size>
+struct ezContainerSubTypeResolver<ezStaticArray<T, Size>>
 {
   typedef typename ezTypeTraits<T>::NonConstReferenceType Type;
 };

@@ -1,16 +1,16 @@
 #pragma once
 
-#include <ToolsFoundation/ToolsFoundationDLL.h>
 #include <Foundation/Types/Status.h>
-#include <ToolsFoundation/Reflection/ReflectedType.h>
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
+#include <ToolsFoundation/Reflection/ReflectedType.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 
 class ezDocumentObjectManager;
 class ezDocument;
 
 // Prevent conflicts with windows.h
 #ifdef GetObject
-#undef GetObject
+#  undef GetObject
 #endif
 
 class EZ_TOOLSFOUNDATION_DLL ezDocumentRoot : public ezReflectedClass
@@ -24,7 +24,8 @@ class EZ_TOOLSFOUNDATION_DLL ezDocumentRoot : public ezReflectedClass
 class ezDocumentRootObject : public ezDocumentStorageObject
 {
 public:
-  ezDocumentRootObject(const ezRTTI* pRootType) : ezDocumentStorageObject(pRootType)
+  ezDocumentRootObject(const ezRTTI* pRootType)
+    : ezDocumentStorageObject(pRootType)
   {
     m_Guid = ezUuid::StableUuidForString("DocumentRoot");
   }
@@ -37,8 +38,12 @@ public:
 
 struct ezDocumentObjectStructureEvent
 {
-  ezDocumentObjectStructureEvent() : m_pObject(nullptr), m_pPreviousParent(nullptr), m_pNewParent(nullptr)
-  {}
+  ezDocumentObjectStructureEvent()
+    : m_pObject(nullptr)
+    , m_pPreviousParent(nullptr)
+    , m_pNewParent(nullptr)
+  {
+  }
 
   const ezAbstractProperty* GetProperty() const;
   ezVariant getInsertIndex() const;

@@ -281,7 +281,10 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> flags, const char* sz
   }
   else
   {
-    ezQtContainerWindow::GetContainerWindow()->ScheduleRestoreWindowLayout();
+    if (ezQtContainerWindow::GetContainerWindow())
+    {
+      ezQtContainerWindow::GetContainerWindow()->ScheduleRestoreWindowLayout();
+    }
   }
 
   connect(m_pTimer, SIGNAL(timeout()), this, SLOT(SlotTimedUpdate()), Qt::QueuedConnection);

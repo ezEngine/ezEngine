@@ -5,6 +5,51 @@
 class ezStringBuilder;
 struct ezStringView;
 
+/// \brief Implements formating of strings with placeholders and formatting options.
+///
+/// ezFormatString can be used anywhere where a string should be formatable when passing it into a function.
+/// Good examples are ezStringBuilder::Format() or ezLog::Info().
+///
+/// A function taking an ezFormatString can internally call ezFormatString::GetText() to retrieve he formatted result.
+/// When calling such a function, one must wrap the parameter into 'ezFmt' to enable formatting options, example:
+///   void MyFunc(const ezFormatString& text);
+///   MyFunc(ezFmt("Cool Story {}", "Bro"));
+///
+/// To provide more convenience, one can add a template-function overload like this:
+///   template <typename... ARGS>
+///   void MyFunc(const char* szFormat, ARGS&&... args)
+///   {
+///     MyFunc(ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
+///   }
+///
+/// This allows to call MyFunc() without the 'ezFmt' wrapper.
+///
+/// 
+/// === Formatting ===
+///
+/// Placeholders for variables are specified using '{}'. These may use numbers from 0 to 9,
+/// ie. {0}, {3}, {2}, etc. which allows to change the order or insert duplicates.
+/// If no number is provided, each {} instance represents the next argument.
+///
+/// To specify special formatting, wrap the argument into an ezArgXY call:
+///   ezArgC - for characters
+///   ezArgI - for integer formatting
+///   ezArgU - for unsigned integer formatting (e.g. HEX)
+///   ezArgF - for floating point formatting
+///   ezArgP - for pointer formatting
+///   ezArgDateTime - for ezDateTime formatting options
+///   ezArgErrorCode - for Windows error code formatting
+///   ezArgHumanReadable - for shortening numbers with common abbreviations
+///   ezArgFileSize - for representing file sizes
+///
+/// Example:
+///   ezStringBuilder::Format("HEX: {}", ezArgU(1337, 8 /*width*/, true /*pad with zeros*/, 16 /*base16*/, true/*upper case*/));
+///
+/// Arbitrary other types can support special formatting even without an ezArgXY call. E.g. ezTime and ezAngle do special formatting.
+/// ezArgXY calls are only necessary if formatting options are needed for a specific formatting should be enforced (e.g. ezArgErrorCode
+/// would otherwise just use uint32 formatting).
+///
+/// To implement custom formatting see the various free standing 'BuildString' functions.
 class EZ_FOUNDATION_DLL ezFormatString
 {
 public:

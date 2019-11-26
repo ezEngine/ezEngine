@@ -8,6 +8,7 @@
 #include <Foundation/System/CrashHandler.h>
 #include <Foundation/System/StackTracer.h>
 #include <Foundation/Threading/ThreadUtils.h>
+#include <Foundation/Types/ScopeExit.h>
 #include <TestFramework/Utilities/TestOrder.h>
 
 #include <cstdlib>
@@ -51,6 +52,7 @@ static bool TestAssertHandler(
     const ezUInt32 uiNumTraces = ezStackTracer::GetStackTrace(tempTrace, nullptr);
     ezStackTracer::ResolveStackTrace(tempTrace.GetSubArray(0, uiNumTraces), &PrintCallstack);
   }
+
   ezTestFramework::Error(szExpression, szSourceFile, (ezInt32)uiLine, szFunction, szAssertMsg);
 
   // if a debugger is attached, one typically always wants to know about asserts
@@ -114,6 +116,7 @@ void ezTestFramework::Initialize()
 
   ezStartup::AddApplicationTag("testframework");
   ezStartup::StartupCoreSystems();
+  EZ_SCOPE_EXIT(ezStartup::ShutdownCoreSystems());
 
   // if tests need to write data back through Fileserve (e.g. image comparison results), they can do that through a data dir mounted with
   // this path
@@ -883,7 +886,7 @@ void ezTestFramework::ErrorImpl(const char* szError, const char* szFile, ezInt32
     ezTestFramework::Output(ezTestOutput::ImportantInfo, "Function: %s", szFunction);
 
     if ((szMsg != nullptr) && (szMsg[0] != '\0'))
-      ezTestFramework::Output(ezTestOutput::Message, "Message: %s", szMsg);
+      ezTestFramework::Output(ezTestOutput::Message, "Error: %s", szMsg);
   }
   ezTestFramework::Output(ezTestOutput::EndBlock, "");
   g_bBlockOutput = false;
@@ -1337,7 +1340,7 @@ bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezI
     WriteImageDiffHtml(sDiffHtmlPath, imgExpRgb, imgExpAlpha, imgRgb, imgAlpha, imgDiffRgb, imgDiffAlpha, uiMeanError, uiMaxError,
       uiMinDiffRgb, uiMaxDiffRgb, uiMinDiffAlpha, uiMaxDiffAlpha);
 
-    safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Image Comparison Failed: Error of %u exceeds threshold of %u for image '%s'.",
+    safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Error: Image Comparison Failed: MSE of %u exceeds threshold of %u for image '%s'.",
       uiMeanError, uiMaxError, sImgName.GetData());
 
     ezStringBuilder sDataDirRelativePath;
