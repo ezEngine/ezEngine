@@ -14,7 +14,8 @@ ezResult ezArchiveUtils::WriteHeader(ezStreamWriter& stream)
   const char* szTag = "EZARCHIVE";
   EZ_SUCCEED_OR_RETURN(stream.WriteBytes(szTag, 10));
 
-  const ezUInt8 uiArchiveVersion = 1;
+  const ezUInt8 uiArchiveVersion = 2;
+  // Version 2: Added end-of-file marker for file corruption (cutoff) detection
   stream << uiArchiveVersion;
 
   const ezUInt8 uiPadding[5] = {0, 0, 0, 0, 0};
@@ -29,12 +30,18 @@ ezResult ezArchiveUtils::ReadHeader(ezStreamReader& stream, ezUInt8& out_uiVersi
   stream.ReadBytes(szTag, 10);
 
   if (!ezStringUtils::IsEqual(szTag, "EZARCHIVE"))
+  {
+    ezLog::Error("Invalid or corrupted archive. Archive-marker not found.");
     return EZ_FAILURE;
+  }
 
   stream >> out_uiVersion;
 
-  if (out_uiVersion != 1)
+  if (out_uiVersion != 1 && out_uiVersion != 2)
+  {
+    ezLog::Error("Unsupported archive version '{}'.", out_uiVersion);
     return EZ_FAILURE;
+  }
 
   ezUInt8 uiPadding[5];
   stream.ReadBytes(uiPadding, 5);
@@ -42,7 +49,10 @@ ezResult ezArchiveUtils::ReadHeader(ezStreamReader& stream, ezUInt8& out_uiVersi
   const ezUInt8 uiZeroPadding[5] = {0, 0, 0, 0, 0};
 
   if (ezMemoryUtils::Compare<ezUInt8>(uiPadding, uiZeroPadding, 5) != 0)
+  {
+    ezLog::Error("Invalid or corrupted archive. Unexpected header data.");
     return EZ_FAILURE;
+  }
 
   return EZ_SUCCESS;
 }
@@ -151,10 +161,10 @@ ezResult ezArchiveUtils::WriteEntryOptimal(ezStreamWriter& stream, const char* s
     }
     else
     {
-      stream.WriteBytes(storage.GetData(), storage.GetStorageSize());
+      auto res = stream.WriteBytes(storage.GetData(), storage.GetStorageSize());
       inout_uiCurrentStreamPosition = streamPos;
 
-      return EZ_SUCCESS;
+      return res;
     }
   }
 }
@@ -228,6 +238,30 @@ void ezArchiveUtils::ConfigureRawMemoryStreamReader(
   memReader.Reset(ezMemoryUtils::AddByteOffset(pStartOfArchiveData, entry.m_uiDataStartOffset), entry.m_uiStoredDataSize);
 }
 
+static const char* szEndMarker = "EZARCHIVE-END";
+
+static ezUInt32 GetEndMarkerSize(ezUInt8 uiFileVersion)
+{
+  if (uiFileVersion == 1)
+    return 0;
+
+  return 14;
+}
+
+static ezUInt32 GetTocMetaSize(ezUInt8 uiFileVersion)
+{
+  if (uiFileVersion == 1)
+    return sizeof(ezUInt32); // TOC size
+
+  return sizeof(ezUInt32) /* TOC size */ + sizeof(ezUInt64) /* TOC hash */;
+}
+
+struct TocMetaData
+{
+  ezUInt32 m_uiSize = 0;
+  ezUInt64 m_uiHash = 0;
+};
+
 ezResult ezArchiveUtils::AppendTOC(ezStreamWriter& stream, const ezArchiveTOC& toc)
 {
   ezMemoryStreamStorage storage;
@@ -237,25 +271,90 @@ ezResult ezArchiveUtils::AppendTOC(ezStreamWriter& stream, const ezArchiveTOC& t
 
   EZ_SUCCEED_OR_RETURN(stream.WriteBytes(storage.GetData(), storage.GetStorageSize()));
 
-  // append the size of the TOC data
-  const ezUInt32 uiTocSize = storage.GetStorageSize();
-  stream << uiTocSize;
+  TocMetaData tocMeta;
+
+  // Added in file version 2: hash of the TOC
+  tocMeta.m_uiSize = storage.GetStorageSize();
+  tocMeta.m_uiHash = ezHashingUtils::xxHash64(storage.GetData(), tocMeta.m_uiSize);
+
+  // append the TOC meta data
+  stream << tocMeta.m_uiSize;
+  stream << tocMeta.m_uiHash;
+
+  // write an 'end' marker
+  return stream.WriteBytes(szEndMarker, 14);
+}
+
+static ezResult VerifyEndMarker(ezMemoryMappedFile& memFile, ezUInt8 uiArchiveVersion)
+{
+  const ezUInt32 uiEndMarkerSize = GetEndMarkerSize(uiArchiveVersion);
+
+  if (uiEndMarkerSize == 0)
+    return EZ_SUCCESS;
+
+  const void* pStart = memFile.GetReadPointer(uiEndMarkerSize, ezMemoryMappedFile::OffsetBase::End);
+
+  ezRawMemoryStreamReader reader(pStart, uiEndMarkerSize);
+
+  char szMarker[32];
+  reader.ReadBytes(szMarker, uiEndMarkerSize);
+
+  if (!ezStringUtils::IsEqual(szMarker, szEndMarker))
+  {
+    ezLog::Error("Archive is corrupt or cut off. End-marker not found.");
+    return EZ_FAILURE;
+  }
 
   return EZ_SUCCESS;
 }
 
-ezResult ezArchiveUtils::ExtractTOC(ezMemoryMappedFile& memFile, ezArchiveTOC& toc)
+ezResult ezArchiveUtils::ExtractTOC(ezMemoryMappedFile& memFile, ezArchiveTOC& toc, ezUInt8 uiArchiveVersion)
 {
-  const ezUInt32 uiTocSize = *static_cast<const ezUInt32*>(memFile.GetReadPointer(sizeof(ezUInt32), ezMemoryMappedFile::OffsetBase::End));
+  EZ_SUCCEED_OR_RETURN(VerifyEndMarker(memFile, uiArchiveVersion));
 
-  const ezUInt32 uiTocStart = uiTocSize + sizeof(ezUInt32);
+  const ezUInt32 uiEndMarkerSize = GetEndMarkerSize(uiArchiveVersion);
+  const ezUInt32 uiTocMetaSize = GetTocMetaSize(uiArchiveVersion);
 
-  const void* pTocStart = memFile.GetReadPointer(uiTocStart, ezMemoryMappedFile::OffsetBase::End);
+  ezUInt32 uiTocSize = 0;
+  ezUInt64 uiExpectedTocHash = 0;
 
-  ezRawMemoryStreamReader tocReader(pTocStart, uiTocSize);
+  // read the TOC meta data
+  {
+    const void* pTocMetaStart = memFile.GetReadPointer(uiEndMarkerSize + uiTocMetaSize, ezMemoryMappedFile::OffsetBase::End);
 
-  if (toc.Deserialize(tocReader).Failed())
-    return EZ_FAILURE;
+    ezRawMemoryStreamReader tocMetaReader(pTocMetaStart, uiTocMetaSize);
+
+    tocMetaReader >> uiTocSize;
+
+    if (uiArchiveVersion >= 2)
+    {
+      tocMetaReader >> uiExpectedTocHash;
+    }
+  }
+
+  const void* pTocStart = memFile.GetReadPointer(uiTocSize + uiTocMetaSize + uiEndMarkerSize, ezMemoryMappedFile::OffsetBase::End);
+
+  // validate the TOC hash
+  if (uiArchiveVersion >= 2)
+  {
+    const ezUInt64 uiActualTocHash = ezHashingUtils::xxHash64(pTocStart, uiTocSize);
+    if (uiExpectedTocHash != uiActualTocHash)
+    {
+      ezLog::Error("Archive TOC is corrupted. Hashes do not match.");
+      return EZ_FAILURE;
+    }
+  }
+
+  // read the actual TOC data
+  {
+    ezRawMemoryStreamReader tocReader(pTocStart, uiTocSize);
+
+    if (toc.Deserialize(tocReader).Failed())
+    {
+      ezLog::Error("Failed to deserialize ezArchive TOC");
+      return EZ_FAILURE;
+    }
+  }
 
   return EZ_SUCCESS;
 }
