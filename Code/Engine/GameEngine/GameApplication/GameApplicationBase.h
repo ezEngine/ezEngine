@@ -261,7 +261,8 @@ protected:
   virtual void Run_WorldUpdateAndRender() = 0;
   virtual void Run_BeforeWorldUpdate();
   virtual void Run_AfterWorldUpdate();
-  virtual void Run_UpdatePlugins();
+  virtual void Run_UpdatePlugins();  
+  virtual void Run_Present();
   virtual void Run_FinishFrame();
 
   void UpdateFrameTime();
