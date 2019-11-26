@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Foundation/Containers/Bitfield.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Strings/StringBuilder.h>
@@ -211,7 +212,7 @@ inline ezStreamWriter& operator<<(ezStreamWriter& Stream, const ezBitflags<T>& v
 }
 
 template <typename T>
-inline ezStreamReader& operator >> (ezStreamReader& Stream, ezBitflags<T>& value)
+inline ezStreamReader& operator>>(ezStreamReader& Stream, ezBitflags<T>& value)
 {
   typename T::StorageType storedValue = T::Default;
   Stream >> storedValue;
@@ -219,5 +220,3 @@ inline ezStreamReader& operator >> (ezStreamReader& Stream, ezBitflags<T>& value
 
   return Stream;
 }
-
-

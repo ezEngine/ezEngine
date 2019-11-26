@@ -9,7 +9,7 @@ EZ_FORCE_INLINE ezBlockStorage<T, BlockSize, StorageType>::ConstIterator::ConstI
   if (StorageType == ezBlockStorageType::FreeList)
   {
     ezUInt32 uiEndIndex = ezMath::Min(m_uiEndIndex, m_Storage.m_uiCount);
-    while (m_uiCurrentIndex < uiEndIndex && !m_Storage.m_UsedEntries.IsSet(m_uiCurrentIndex))
+    while (m_uiCurrentIndex < uiEndIndex && !m_Storage.m_UsedEntries.IsBitSet(m_uiCurrentIndex))
     {
       ++m_uiCurrentIndex;
     }
@@ -50,7 +50,7 @@ EZ_FORCE_INLINE void ezBlockStorage<T, BlockSize, StorageType>::ConstIterator::N
   if (StorageType == ezBlockStorageType::FreeList)
   {
     ezUInt32 uiEndIndex = ezMath::Min(m_uiEndIndex, m_Storage.m_uiCount);
-    while (m_uiCurrentIndex < uiEndIndex && !m_Storage.m_UsedEntries.IsSet(m_uiCurrentIndex))
+    while (m_uiCurrentIndex < uiEndIndex && !m_Storage.m_UsedEntries.IsBitSet(m_uiCurrentIndex))
     {
       ++m_uiCurrentIndex;
     }
@@ -122,7 +122,7 @@ ezBlockStorage<T, BlockSize, StorageType>::~ezBlockStorage()
       for (ezUInt32 uiInnerIndex = 0; uiInnerIndex < block.m_uiCount; ++uiInnerIndex)
       {
         ezUInt32 uiIndex = uiBlockIndex * ezDataBlock<T, BlockSize>::CAPACITY + uiInnerIndex;
-        if (m_UsedEntries.IsSet(uiIndex))
+        if (m_UsedEntries.IsBitSet(uiIndex))
         {
           ezMemoryUtils::Destruct(&block.m_pData[uiInnerIndex], 1);
         }

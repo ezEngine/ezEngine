@@ -532,7 +532,7 @@ bool ezConvexHullGenerator::PruneDegenerateTriangles(double fMaxCosAngle)
   {
     for (ezUInt32 n = discardVtx.GetCount(); n > 0; --n)
     {
-      if (discardVtx.IsSet(n - 1))
+      if (discardVtx.IsBitSet(n - 1))
       {
         m_Vertices.RemoveAtAndSwap(n - 1);
       }
@@ -616,7 +616,7 @@ bool ezConvexHullGenerator::PruneSmallTriangles(double fMaxEdgeLen)
   {
     for (ezUInt32 n = discardVtx.GetCount(); n > 0; --n)
     {
-      if (discardVtx.IsSet(n - 1))
+      if (discardVtx.IsBitSet(n - 1))
       {
         m_Vertices.RemoveAtAndSwap(n - 1);
       }

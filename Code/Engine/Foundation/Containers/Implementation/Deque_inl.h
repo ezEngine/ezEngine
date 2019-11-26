@@ -390,6 +390,41 @@ void ezDequeBase<T, Construct>::SetCount(ezUInt32 uiCount)
 }
 
 template <typename T, bool Construct>
+template <typename> // Second template needed so that the compiler does only instantiate it when called. Otherwise the static_assert would trigger early.
+void ezDequeBase<T, Construct>::SetCountUninitialized(ezUInt32 uiCount)
+{
+  static_assert(ezIsPodType<T>::value == ezTypeIsPod::value, "SetCountUninitialized is only supported for POD types.");
+
+  const ezUInt32 uiOldCount = m_uiCount;
+  const ezUInt32 uiNewCount = uiCount;
+
+  if (uiNewCount > uiOldCount)
+  {
+    // grow the deque
+
+    RESERVE(uiNewCount);
+    m_uiCount = uiNewCount;
+
+    for (ezUInt32 i = uiOldCount; i < uiNewCount; ++i)
+      ElementAt(i);
+  }
+  else
+  {
+    if (Construct)
+    {
+      // destruct elements at the end of the deque
+      for (ezUInt32 i = uiNewCount; i < uiOldCount; ++i)
+        ezMemoryUtils::Destruct(&operator[](i), 1);
+    }
+
+    m_uiCount = uiNewCount;
+
+    // if enough elements have been destructed, trigger a size reduction (the first time will not deallocate anything though)
+    ReduceSize(uiOldCount - uiNewCount);
+  }
+}
+
+template <typename T, bool Construct>
 void ezDequeBase<T, Construct>::EnsureCount(ezUInt32 uiCount)
 {
   if (uiCount > m_uiCount)
