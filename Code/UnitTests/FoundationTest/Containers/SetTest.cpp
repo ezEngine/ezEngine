@@ -521,30 +521,102 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
     EZ_TEST_BOOL(m == m2);
   }
 
+  constexpr ezUInt32 uiSetSize = sizeof(ezSet<ezString>);
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Swap")
   {
+    ezUInt8 set1Mem[uiSetSize];
+    ezUInt8 set2Mem[uiSetSize];
+    ezMemoryUtils::PatternFill(set1Mem, 0xCA, uiSetSize);
+    ezMemoryUtils::PatternFill(set2Mem, 0xCA, uiSetSize);
+
     ezStringBuilder tmp;
-    ezSet<ezString> set1;
-    ezSet<ezString> set2;
+    ezSet<ezString>* set1 = new (set1Mem)(ezSet<ezString>);
+    ezSet<ezString>* set2 = new (set2Mem)(ezSet<ezString>);
 
     for (ezUInt32 i = 0; i < 1000; ++i)
     {
       tmp.Format("stuff{}bla", i);
-      set1.Insert(tmp);
+      set1->Insert(tmp);
 
       tmp.Format("{0}{0}{0}", i);
-      set2.Insert(tmp);
+      set2->Insert(tmp);
     }
 
-    set1.Swap(set2);
+    set1->Swap(*set2);
 
+    // test swapped elements
     for (ezUInt32 i = 0; i < 1000; ++i)
     {
       tmp.Format("stuff{}bla", i);
-      EZ_TEST_BOOL(set2.Contains(tmp));
+      EZ_TEST_BOOL(set2->Contains(tmp));
 
       tmp.Format("{0}{0}{0}", i);
-      EZ_TEST_BOOL(set1.Contains(tmp));
+      EZ_TEST_BOOL(set1->Contains(tmp));
     }
+
+    // test iterators after swap
+    {
+      for (const auto& element : *set1)
+      {
+        EZ_TEST_BOOL(!set2->Contains(element));
+      }
+
+      for (const auto& element : *set2)
+      {
+        EZ_TEST_BOOL(!set1->Contains(element));
+      }
+    }
+
+    // due to a compiler bug in VS 2017, PatternFill cannot be called here, because it will move the memset BEFORE the destructor call!
+    // seems to be fixed in VS 2019 though
+
+    set1->~ezSet<ezString>();
+    //ezMemoryUtils::PatternFill(set1Mem, 0xBA, uiSetSize);
+
+    set2->~ezSet<ezString>();
+    ezMemoryUtils::PatternFill(set2Mem, 0xBA, uiSetSize);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Swap Empty")
+  {
+    ezUInt8 set1Mem[uiSetSize];
+    ezUInt8 set2Mem[uiSetSize];
+    ezMemoryUtils::PatternFill(set1Mem, 0xCA, uiSetSize);
+    ezMemoryUtils::PatternFill(set2Mem, 0xCA, uiSetSize);
+
+    ezStringBuilder tmp;
+    ezSet<ezString>* set1 = new (set1Mem)(ezSet<ezString>);
+    ezSet<ezString>* set2 = new (set2Mem)(ezSet<ezString>);
+
+    for (ezUInt32 i = 0; i < 100; ++i)
+    {
+      tmp.Format("stuff{}bla", i);
+      set1->Insert(tmp);
+    }
+
+    set1->Swap(*set2);
+    EZ_TEST_BOOL(set1->IsEmpty());
+
+    set1->~ezSet<ezString>();
+    ezMemoryUtils::PatternFill(set1Mem, 0xBA, uiSetSize);
+
+    // test swapped elements
+    for (ezUInt32 i = 0; i < 100; ++i)
+    {
+      tmp.Format("stuff{}bla", i);
+      EZ_TEST_BOOL(set2->Contains(tmp));
+    }
+
+    // test iterators after swap
+    {
+      for (const auto& element : *set2)
+      {
+        EZ_TEST_BOOL(set2->Contains(element));
+      }
+    }
+
+    set2->~ezSet<ezString>();
+    ezMemoryUtils::PatternFill(set2Mem, 0xBA, uiSetSize);
   }
 }

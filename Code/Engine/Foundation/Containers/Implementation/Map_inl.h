@@ -4,7 +4,7 @@
 
 // ***** Const Iterator *****
 
-#define STACK_SIZE 48
+#define STACK_SIZE 64
 
 template <typename KeyType, typename ValueType, typename Comparer>
 void ezMapBase<KeyType, ValueType, Comparer>::ConstIterator::Next()
@@ -131,13 +131,16 @@ void ezMapBase<KeyType, ValueType, Comparer>::Constructor()
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-ezMapBase<KeyType, ValueType, Comparer>::ezMapBase(const Comparer& comparer, ezAllocatorBase* pAllocator) : m_Elements(pAllocator), m_Comparer(comparer)
+ezMapBase<KeyType, ValueType, Comparer>::ezMapBase(const Comparer& comparer, ezAllocatorBase* pAllocator)
+  : m_Elements(pAllocator)
+  , m_Comparer(comparer)
 {
   Constructor();
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-ezMapBase<KeyType, ValueType, Comparer>::ezMapBase(const ezMapBase<KeyType, ValueType, Comparer>& cc, ezAllocatorBase* pAllocator) : m_Elements(pAllocator)
+ezMapBase<KeyType, ValueType, Comparer>::ezMapBase(const ezMapBase<KeyType, ValueType, Comparer>& cc, ezAllocatorBase* pAllocator)
+  : m_Elements(pAllocator)
 {
   Constructor();
 
@@ -780,27 +783,32 @@ bool ezMapBase<KeyType, ValueType, Comparer>::operator!=(const ezMapBase<KeyType
 
 
 template <typename KeyType, typename ValueType, typename Comparer, typename AllocatorWrapper>
-ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::ezMap() : ezMapBase<KeyType, ValueType, Comparer>(Comparer(), AllocatorWrapper::GetAllocator())
+ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::ezMap()
+  : ezMapBase<KeyType, ValueType, Comparer>(Comparer(), AllocatorWrapper::GetAllocator())
 {
 }
 
 template <typename KeyType, typename ValueType, typename Comparer, typename AllocatorWrapper>
-ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::ezMap(ezAllocatorBase* pAllocator) : ezMapBase<KeyType, ValueType, Comparer>(Comparer(), pAllocator)
+ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::ezMap(ezAllocatorBase* pAllocator)
+  : ezMapBase<KeyType, ValueType, Comparer>(Comparer(), pAllocator)
 {
 }
 
 template <typename KeyType, typename ValueType, typename Comparer, typename AllocatorWrapper>
-ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::ezMap(const Comparer& comparer, ezAllocatorBase* pAllocator) : ezMapBase<KeyType, ValueType, Comparer>(comparer, pAllocator)
+ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::ezMap(const Comparer& comparer, ezAllocatorBase* pAllocator)
+  : ezMapBase<KeyType, ValueType, Comparer>(comparer, pAllocator)
 {
 }
 
 template <typename KeyType, typename ValueType, typename Comparer, typename AllocatorWrapper>
-ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::ezMap(const ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>& other) : ezMapBase<KeyType, ValueType, Comparer>(other, AllocatorWrapper::GetAllocator())
+ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::ezMap(const ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>& other)
+  : ezMapBase<KeyType, ValueType, Comparer>(other, AllocatorWrapper::GetAllocator())
 {
 }
 
 template <typename KeyType, typename ValueType, typename Comparer, typename AllocatorWrapper>
-ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::ezMap(const ezMapBase<KeyType, ValueType, Comparer>& other) : ezMapBase<KeyType, ValueType, Comparer>(other, AllocatorWrapper::GetAllocator())
+ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::ezMap(const ezMapBase<KeyType, ValueType, Comparer>& other)
+  : ezMapBase<KeyType, ValueType, Comparer>(other, AllocatorWrapper::GetAllocator())
 {
 }
 
@@ -827,9 +835,12 @@ void ezMapBase<KeyType, ValueType, Comparer>::Swap(ezMapBase<KeyType, ValueType,
   ezMath::Swap(this->m_pFreeElementStack, other.m_pFreeElementStack);
   ezMath::Swap(this->m_Comparer, other.m_Comparer);
 
+  // after we swapped the root nodes, fix up their parent nodes
+  this->m_pRoot->m_pParent = reinterpret_cast<Node*>(&this->m_NilNode);
+  other.m_pRoot->m_pParent = reinterpret_cast<Node*>(&other.m_NilNode);
+
   // the set allocator is stored in this array
   m_Elements.Swap(other.m_Elements);
-
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
@@ -844,4 +855,3 @@ void ezMapBase<KeyType, ValueType, Comparer>::SwapNilNode(Node*& pCurNode, NilNo
   SwapNilNode(pCurNode->m_pLink[0], pOld, pNew);
   SwapNilNode(pCurNode->m_pLink[1], pOld, pNew);
 }
-
