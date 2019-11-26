@@ -1,6 +1,9 @@
 #include <CorePCH.h>
 
 #include <Core/Scripting/DuktapeHelper.h>
+
+#ifdef BUILDSYSTEM_ENABLE_DUKTAPE_SUPPORT
+
 #include <Duktape/duktape.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 
@@ -575,3 +578,5 @@ ezResult ezDuktapeHelper::ExecuteFile(const char* szFile)
 
   return ExecuteStream(file, szFile);
 }
+
+#endif

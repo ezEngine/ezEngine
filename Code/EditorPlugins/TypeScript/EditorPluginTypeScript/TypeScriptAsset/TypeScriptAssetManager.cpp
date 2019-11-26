@@ -37,6 +37,8 @@ ezTypeScriptAssetDocumentManager::ezTypeScriptAssetDocumentManager()
 
 ezTypeScriptAssetDocumentManager::~ezTypeScriptAssetDocumentManager()
 {
+  ShutdownTranspiler();
+
   ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezTypeScriptAssetDocumentManager::ToolsProjectEventHandler, this));
 
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezTypeScriptAssetDocumentManager::OnDocumentManagerEvent, this));
@@ -83,6 +85,11 @@ void ezTypeScriptAssetDocumentManager::ToolsProjectEventHandler(const ezToolsPro
   {
     InitializeTranspiler();
     SetupProjectForTypeScript();
+  }
+
+  if (e.m_Type == ezToolsProjectEvent::Type::ProjectClosing)
+  {
+    ShutdownTranspiler();
   }
 }
 
@@ -154,6 +161,16 @@ void ezTypeScriptAssetDocumentManager::InitializeTranspiler()
   m_Transpiler.SetOutputFolder(":project/AssetCache/Temp");
   m_Transpiler.StartLoadTranspiler();
   m_Transpiler.SetModifyTsBeforeTranspilationCallback(&ezTypeScriptAssetDocumentManager::ModifyTsBeforeTranspilation);
+}
+
+void ezTypeScriptAssetDocumentManager::ShutdownTranspiler()
+{
+  if (!m_bTranspilerLoaded)
+    return;
+
+  m_bTranspilerLoaded = false;
+
+  m_Transpiler.FinishLoadTranspiler();
 }
 
 void ezTypeScriptAssetDocumentManager::SetupProjectForTypeScript()
