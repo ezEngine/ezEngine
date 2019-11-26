@@ -106,9 +106,9 @@ bool ezPhantomRttiManager::UnregisterType(const ezRTTI* pRtti)
 // ezPhantomRttiManager private functions
 ////////////////////////////////////////////////////////////////////////
 
-void ezPhantomRttiManager::PluginEventHandler(const ezPlugin::PluginEvent& e)
+void ezPhantomRttiManager::PluginEventHandler(const ezPluginEvent& e)
 {
-  if (e.m_EventType == ezPlugin::PluginEvent::Type::BeforeUnloading)
+  if (e.m_EventType == ezPluginEvent::Type::BeforeUnloading)
   {
     while (!m_NameToPhantom.IsEmpty())
     {

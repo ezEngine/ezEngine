@@ -48,7 +48,7 @@ private:
   void SendReflectionInformation();
   void EventHandlerIPC(const ezEngineProcessCommunicationChannel::Event& e);
   void EventHandlerCVar(const ezCVarEvent& e);
-  void EventHandlerCVarPlugin(const ezPlugin::PluginEvent& e);
+  void EventHandlerCVarPlugin(const ezPluginEvent& e);
   void TransmitCVar(const ezCVar* pCVar);
 
   void HandleResourceUpdateMsg(const ezResourceUpdateMsgToEngine& msg);

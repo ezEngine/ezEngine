@@ -108,6 +108,10 @@ ezProcess::~ezProcess()
 
     Terminate();
   }
+
+  // Explicitly clear the implementation here so that member
+  // state (e.g. delegates) used by the impl survives the implementation.
+  m_impl.Clear();
 }
 
 ezOsProcessHandle ezProcess::GetProcessHandle() const

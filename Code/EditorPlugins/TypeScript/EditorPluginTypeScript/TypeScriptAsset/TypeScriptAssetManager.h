@@ -39,6 +39,8 @@ private:
   static void ModifyTsBeforeTranspilation(ezStringBuilder& source);
 
   void InitializeTranspiler();
+  void ShutdownTranspiler();
+
   bool m_bTranspilerLoaded = false;
   ezTypeScriptTranspiler m_Transpiler;
 

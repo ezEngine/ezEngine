@@ -93,9 +93,9 @@ private:
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(ToolsFoundation, DocumentManager);
 
-  static void OnPluginEvent(const ezPlugin::PluginEvent& e);
+  static void OnPluginEvent(const ezPluginEvent& e);
 
-  static void UpdateBeforeUnloadingPlugins(const ezPlugin::PluginEvent& e);
+  static void UpdateBeforeUnloadingPlugins(const ezPluginEvent& e);
   static void UpdatedAfterLoadingPlugins();
 
   ezDynamicArray<ezDocument*> m_AllOpenDocuments;

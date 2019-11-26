@@ -83,3 +83,12 @@ void ezSystemInformation::Initialize()
   s_SystemInformation.m_bIsInitialized = true;
 }
 
+ezUInt64 ezSystemInformation::GetAvailableMainMemory() const
+{
+  EZ_ASSERT_NOT_IMPLEMENTED;
+}
+
+float ezSystemInformation::GetCPUUtilization() const
+{
+  EZ_ASSERT_NOT_IMPLEMENTED;
+}

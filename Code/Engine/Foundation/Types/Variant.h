@@ -3,10 +3,10 @@
 #include <Foundation/Algorithm/HashingUtils.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/HashTable.h>
+#include <Foundation/Math/Declarations.h>
 #include <Foundation/Threading/AtomicInteger.h>
 #include <Foundation/Types/Types.h>
 #include <Foundation/Utilities/ConversionUtils.h>
-#include <Foundation/Math/Declarations.h>
 
 class ezReflectedClass;
 class ezVariant;
@@ -292,8 +292,8 @@ private:
     void* m_Ptr;
     ezAtomicInteger32 m_uiRef;
     EZ_ALWAYS_INLINE SharedData(void* ptr)
-        : m_Ptr(ptr)
-        , m_uiRef(1)
+      : m_Ptr(ptr)
+      , m_uiRef(1)
     {
     }
     virtual ~SharedData() {}
@@ -344,9 +344,26 @@ private:
   T ConvertNumber() const;
 };
 
-typedef ezVariant::Type ezVariantType;
+using ezVariantType = ezVariant::Type;
+
+/// \brief An overload of ezDynamicCast for dynamic casting a variant to a type derived from ezReflectedClass.
+///
+/// If the ezVariant stores an ezReflectedClass pointer, this pointer will be dynamicly cast to T*.
+/// If the ezVariant stores any other type (or nothing), nullptr is returned.
+template <typename T>
+EZ_ALWAYS_INLINE T ezDynamicCast(const ezVariant& variant)
+{
+  if (variant.IsA<ezReflectedClass*>())
+  {
+    ezReflectedClass* pRefC = variant.Get<ezReflectedClass*>();
+
+    return ezDynamicCast<T>(pRefC);
+  }
+
+  return nullptr;
+}
+
 
 #include <Foundation/Types/Implementation/VariantHelper_inl.h>
 #include <Foundation/Types/Implementation/VariantTypeDeduction_inl.h>
 #include <Foundation/Types/Implementation/Variant_inl.h>
-

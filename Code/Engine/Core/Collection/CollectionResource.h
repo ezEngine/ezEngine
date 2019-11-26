@@ -70,10 +70,12 @@ public:
   /// This has to be called manually (or triggered by an ezCollectionComponent).
   void PreloadResources();
 
-  /// \brief Returns a value between 0.0 and 1.0 representing how many of the preloaded resources are in a loaded state at the moment.
-  ///
-  /// This will always return 1.0 if the collection contains no resources, or PreloadResources() was not triggered previously.
-  float GetPreloadProgress() const;
+  /// \brief Returns true if loading is finished and
+  /// if `out_progress` is defined:
+  ///     * Assigns a value between 0.0 and 1.0 representing how many of the preloaded resources are in a loaded state at the moment.
+  ///     * Always assigns 1.0 if loading is finished.
+  ///     * Always assigns 1.0 if the collection contains no resources, or PreloadResources() was not triggered previously.
+  bool IsLoadingFinished(float* out_progress = nullptr) const;
 
   /// \brief Returns the resource descriptor for this resource.
   const ezCollectionResourceDescriptor& GetDescriptor() const;

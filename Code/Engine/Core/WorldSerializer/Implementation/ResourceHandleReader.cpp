@@ -138,7 +138,7 @@ void ezResourceHandleReadContext::EndReadingFromStream(ezStreamReader* pStream)
         if (pRtti != nullptr)
         {
           // load the resource of the given type
-          const ezTypelessResourceHandle hResource(ezResourceManager::GetResource(pRtti, sTemp, true));
+          const ezTypelessResourceHandle hResource(ezResourceManager::LoadResourceByType(pRtti, sTemp));
 
           m_AllResources[uiInternalID] = hResource;
         }

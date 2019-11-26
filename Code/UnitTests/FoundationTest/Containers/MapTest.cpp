@@ -547,4 +547,105 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
     }
   }
 
+  constexpr ezUInt32 uiMapSize = sizeof(ezMap<ezString, ezInt32>);
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Swap")
+  {
+    ezUInt8 map1Mem[uiMapSize];
+    ezUInt8 map2Mem[uiMapSize];
+    ezMemoryUtils::PatternFill(map1Mem, 0xCA, uiMapSize);
+    ezMemoryUtils::PatternFill(map2Mem, 0xCA, uiMapSize);
+
+    ezStringBuilder tmp;
+    ezMap<ezString, ezInt32>* map1 = new (map1Mem)(ezMap<ezString, ezInt32>);
+    ezMap<ezString, ezInt32>* map2 = new (map2Mem)(ezMap<ezString, ezInt32>);
+
+    for (ezUInt32 i = 0; i < 1000; ++i)
+    {
+      tmp.Format("stuff{}bla", i);
+      map1->Insert(tmp, i);
+
+      tmp.Format("{0}{0}{0}", i);
+      map2->Insert(tmp, i);
+    }
+
+    map1->Swap(*map2);
+
+    // test swapped elements
+    for (ezUInt32 i = 0; i < 1000; ++i)
+    {
+      tmp.Format("stuff{}bla", i);
+      EZ_TEST_BOOL(map2->Contains(tmp));
+      EZ_TEST_INT((*map2)[tmp], i);
+
+      tmp.Format("{0}{0}{0}", i);
+      EZ_TEST_BOOL(map1->Contains(tmp));
+      EZ_TEST_INT((*map1)[tmp], i);
+    }
+
+    // test iterators after swap
+    {
+      for (auto it: *map1)
+      {
+        EZ_TEST_BOOL(!map2->Contains(it.Key()));
+      }
+
+      for (auto it : *map2)
+      {
+        EZ_TEST_BOOL(!map1->Contains(it.Key()));
+      }
+    }
+
+    // due to a compiler bug in VS 2017, PatternFill cannot be called here, because it will move the memset BEFORE the destructor call!
+    // seems to be fixed in VS 2019 though
+
+    map1->~ezMap<ezString, ezInt32>();
+    //ezMemoryUtils::PatternFill(map1Mem, 0xBA, uiSetSize);
+
+    map2->~ezMap<ezString, ezInt32>();
+    ezMemoryUtils::PatternFill(map2Mem, 0xBA, uiMapSize);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Swap Empty")
+  {
+    ezUInt8 map1Mem[uiMapSize];
+    ezUInt8 map2Mem[uiMapSize];
+    ezMemoryUtils::PatternFill(map1Mem, 0xCA, uiMapSize);
+    ezMemoryUtils::PatternFill(map2Mem, 0xCA, uiMapSize);
+
+    ezStringBuilder tmp;
+    ezMap<ezString, ezInt32>* map1 = new (map1Mem)(ezMap<ezString, ezInt32>);
+    ezMap<ezString, ezInt32>* map2 = new (map2Mem)(ezMap<ezString, ezInt32>);
+
+    for (ezUInt32 i = 0; i < 100; ++i)
+    {
+      tmp.Format("stuff{}bla", i);
+      map1->Insert(tmp, i);
+    }
+
+    map1->Swap(*map2);
+    EZ_TEST_BOOL(map1->IsEmpty());
+
+    map1->~ezMap<ezString, ezInt32>();
+    ezMemoryUtils::PatternFill(map1Mem, 0xBA, uiMapSize);
+
+    // test swapped elements
+    for (ezUInt32 i = 0; i < 100; ++i)
+    {
+      tmp.Format("stuff{}bla", i);
+      EZ_TEST_BOOL(map2->Contains(tmp));
+    }
+
+    // test iterators after swap
+    {
+      for (auto it : *map2)
+      {
+        EZ_TEST_BOOL(map2->Contains(it.Key()));
+      }
+    }
+
+    map2->~ezMap<ezString, ezInt32>();
+    ezMemoryUtils::PatternFill(map2Mem, 0xBA, uiMapSize);
+  }
+
 }

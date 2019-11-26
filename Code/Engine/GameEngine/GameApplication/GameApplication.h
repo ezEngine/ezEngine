@@ -75,6 +75,8 @@ protected:
 
   virtual bool Run_ProcessApplicationInput() override;
   virtual void Run_WorldUpdateAndRender() override;
+  virtual void Run_Present() override;
+  virtual void Run_FinishFrame() override;
 
   /// \brief Stores what is given to the constructor
   ezString m_sAppProjectPath;

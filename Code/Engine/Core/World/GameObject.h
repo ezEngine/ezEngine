@@ -199,6 +199,13 @@ public:
   const ezWorld* GetWorld() const;
 
 
+  /// \brief Defines update behavior for global transforms when changing the local transform on a static game object
+  enum class UpdateBehaviorIfStatic
+  {
+    None,                  ///< Only sets the local transform, does not update
+    UpdateImmediately,     ///< Updates the hierarchy underneath the object immediately
+  };
+
   /// \brief Changes the position of the object local to its parent.
   /// \note The rotation of the object itself does not affect the final global position!
   /// The local position is always in the space of the parent object. If there is no parent, local position and global position are
@@ -230,16 +237,16 @@ public:
   ezTransform GetGlobalTransform() const;
 
   // Simd variants of above methods
-  void SetLocalPosition(const ezSimdVec4f& position);
+  void SetLocalPosition(const ezSimdVec4f& position, UpdateBehaviorIfStatic updateBehavior = UpdateBehaviorIfStatic::UpdateImmediately);
   const ezSimdVec4f& GetLocalPositionSimd() const;
 
-  void SetLocalRotation(const ezSimdQuat& rotation);
+  void SetLocalRotation(const ezSimdQuat& rotation, UpdateBehaviorIfStatic updateBehavior = UpdateBehaviorIfStatic::UpdateImmediately);
   const ezSimdQuat& GetLocalRotationSimd() const;
 
-  void SetLocalScaling(const ezSimdVec4f& scaling);
+  void SetLocalScaling(const ezSimdVec4f& scaling, UpdateBehaviorIfStatic updateBehavior = UpdateBehaviorIfStatic::UpdateImmediately);
   const ezSimdVec4f& GetLocalScalingSimd() const;
 
-  void SetLocalUniformScaling(const ezSimdFloat& scaling);
+  void SetLocalUniformScaling(const ezSimdFloat& scaling, UpdateBehaviorIfStatic updateBehavior = UpdateBehaviorIfStatic::UpdateImmediately);
   ezSimdFloat GetLocalUniformScalingSimd() const;
 
   ezSimdTransform GetLocalTransformSimd() const;

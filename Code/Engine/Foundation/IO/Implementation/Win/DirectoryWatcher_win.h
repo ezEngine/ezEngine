@@ -95,7 +95,7 @@ void ezDirectoryWatcherImpl::DoRead()
   EZ_ASSERT_DEV(success, "ReadDirectoryChangesW failed.");
 }
 
-void ezDirectoryWatcher::EnumerateChanges(ezDelegate<void(const char* filename, ezDirectoryWatcherAction action)> func)
+void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func)
 {
   EZ_ASSERT_DEV(!m_sDirectoryPath.IsEmpty(), "No directory opened!");
   OVERLAPPED* lpOverlapped;

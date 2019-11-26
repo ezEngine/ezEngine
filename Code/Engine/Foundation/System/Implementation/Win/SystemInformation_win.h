@@ -7,8 +7,8 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-#include <Foundation/Basics/Platform/uwp/UWPUtils.h>
-#include <windows.networking.connectivity.h>
+#  include <Foundation/Basics/Platform/uwp/UWPUtils.h>
+#  include <windows.networking.connectivity.h>
 #endif
 
 #include <Foundation/Strings/String.h>
@@ -79,7 +79,7 @@ void ezSystemInformation::Initialize()
   using namespace ABI::Windows::Networking;
   ComPtr<INetworkInformationStatics> networkInformation;
   if (SUCCEEDED(ABI::Windows::Foundation::GetActivationFactory(
-          HStringReference(RuntimeClass_Windows_Networking_Connectivity_NetworkInformation).Get(), &networkInformation)))
+        HStringReference(RuntimeClass_Windows_Networking_Connectivity_NetworkInformation).Get(), &networkInformation)))
   {
     ComPtr<ABI::Windows::Foundation::Collections::IVectorView<HostName*>> hostNames;
     if (SUCCEEDED(networkInformation->GetHostNames(&hostNames)))
@@ -112,3 +112,38 @@ void ezSystemInformation::Initialize()
   s_SystemInformation.m_bIsInitialized = true;
 }
 
+ezUInt64 ezSystemInformation::GetAvailableMainMemory() const
+{
+  MEMORYSTATUSEX statex;
+  statex.dwLength = sizeof(statex);
+  GlobalMemoryStatusEx(&statex);
+
+  return statex.ullAvailPhys;
+}
+
+float ezSystemInformation::GetCPUUtilization() const
+{
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+
+  LARGE_INTEGER kernel, user, idle;
+  GetSystemTimes((FILETIME*)&idle, (FILETIME*)&kernel, (FILETIME*)&user);
+
+  static thread_local uint64_t lastKernel = 0u, lastIdle = 0u, lastUser = 0u;
+
+  auto kernelTime = kernel.QuadPart - lastKernel;
+  auto idleTime = idle.QuadPart - lastIdle;
+  auto userTime = user.QuadPart - lastUser;
+
+  lastKernel = kernel.QuadPart;
+  lastUser = user.QuadPart;
+  lastIdle = idle.QuadPart;
+
+  auto util = static_cast<float>(kernelTime + userTime - idleTime) / (kernelTime + userTime);
+
+  return ezMath::Clamp(util, 0.f, 1.f) * 100.f;
+
+#else
+  EZ_ASSERT_NOT_IMPLEMENTED;
+  return 0.0f;
+#endif
+}

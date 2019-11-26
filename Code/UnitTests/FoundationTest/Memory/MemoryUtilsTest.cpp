@@ -286,6 +286,35 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     EZ_TEST_INT(uiRawData[4], 0);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "PatternFill")
+  {
+    ezUInt8 uiRawData[5] = {1, 2, 3, 4, 5};
+
+    EZ_TEST_INT(uiRawData[0], 1);
+    EZ_TEST_INT(uiRawData[1], 2);
+    EZ_TEST_INT(uiRawData[2], 3);
+    EZ_TEST_INT(uiRawData[3], 4);
+    EZ_TEST_INT(uiRawData[4], 5);
+
+    // T*, size_t N overload
+    ezMemoryUtils::PatternFill(uiRawData + 1, 0xAB, 3);
+
+    EZ_TEST_INT(uiRawData[0], 1);
+    EZ_TEST_INT(uiRawData[1], 0xAB);
+    EZ_TEST_INT(uiRawData[2], 0xAB);
+    EZ_TEST_INT(uiRawData[3], 0xAB);
+    EZ_TEST_INT(uiRawData[4], 5);
+
+    // T[N] overload
+    ezMemoryUtils::PatternFill(uiRawData, 0xCD);
+
+    EZ_TEST_INT(uiRawData[0], 0xCD);
+    EZ_TEST_INT(uiRawData[1], 0xCD);
+    EZ_TEST_INT(uiRawData[2], 0xCD);
+    EZ_TEST_INT(uiRawData[3], 0xCD);
+    EZ_TEST_INT(uiRawData[4], 0xCD);
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Compare")
   {
     ezUInt32 uiRawDataA[3] = {1, 2, 3};

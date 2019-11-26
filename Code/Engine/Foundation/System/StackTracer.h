@@ -21,7 +21,7 @@ public:
   static void ResolveStackTrace(const ezArrayPtr<void*>& trace, PrintFunc printFunc);
 
 private:
-  static void OnPluginEvent(const ezPlugin::PluginEvent& e);
+  static void OnPluginEvent(const ezPluginEvent& e);
 
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, StackTracer);
 };

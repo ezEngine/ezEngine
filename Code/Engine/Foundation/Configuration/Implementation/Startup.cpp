@@ -69,17 +69,17 @@ void ezStartup::AssignSubSystemPlugin(const char* szPluginName)
   }
 }
 
-void ezStartup::PluginEventHandler(const ezPlugin::PluginEvent& EventData)
+void ezStartup::PluginEventHandler(const ezPluginEvent& EventData)
 {
   switch (EventData.m_EventType)
   {
-    case ezPlugin::PluginEvent::BeforeLoading:
+    case ezPluginEvent::BeforeLoading:
     {
       AssignSubSystemPlugin("Static");
     }
     break;
 
-    case ezPlugin::PluginEvent::AfterLoadingBeforeInit:
+    case ezPluginEvent::AfterLoadingBeforeInit:
     {
       if (EventData.m_pPluginObject)
       {
@@ -88,7 +88,7 @@ void ezStartup::PluginEventHandler(const ezPlugin::PluginEvent& EventData)
     }
     break;
 
-    case ezPlugin::PluginEvent::StartupShutdown:
+    case ezPluginEvent::StartupShutdown:
     {
       if (EventData.m_pPluginObject)
       {
@@ -97,7 +97,7 @@ void ezStartup::PluginEventHandler(const ezPlugin::PluginEvent& EventData)
     }
     break;
 
-    case ezPlugin::PluginEvent::AfterPluginChanges:
+    case ezPluginEvent::AfterPluginChanges:
     {
       ezStartup::ReinitToCurrentState();
     }

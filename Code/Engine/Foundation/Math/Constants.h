@@ -50,6 +50,10 @@ namespace ezMath
 
   template <typename TYPE>
   constexpr TYPE HugeEpsilon();
+
+  /// \brief Returns the number of bits in the given type. Mostly useful for unsigned integer types.
+  template <typename TYPE>
+  constexpr ezUInt32 NumBits();
 }
 
 

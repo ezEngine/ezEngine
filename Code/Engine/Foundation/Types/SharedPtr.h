@@ -18,7 +18,7 @@ public:
   template <typename U>
   ezSharedPtr(const ezInternal::NewInstance<U>& instance);
 
-  /// \brief Creates a shared ptr from a pointer and an allocator. The passed allocator will be used to destroy the instance when the unique
+  /// \brief Creates a shared ptr from a pointer and an allocator. The passed allocator will be used to destroy the instance when the shared
   /// ptr goes out of scope.
   template <typename U>
   ezSharedPtr(U* pInstance, ezAllocatorBase* pAllocator);
@@ -34,8 +34,7 @@ public:
   template <typename U>
   ezSharedPtr(ezSharedPtr<U>&& other);
 
-  /// \brief Move constructs a shared ptr from a unique ptr. The unique ptr will be empty afterwards to guarantee that there is only one
-  /// unique ptr managing the same object.
+  /// \brief Move constructs a shared ptr from a unique ptr. The unique ptr will be empty afterwards.
   template <typename U>
   ezSharedPtr(ezUniquePtr<U>&& other);
 
@@ -60,19 +59,18 @@ public:
   template <typename U>
   void operator=(ezSharedPtr<U>&& other);
 
-  /// \brief Move assigns a shared ptr from a unique ptr. The unique ptr will be empty afterwards to guarantee that there is only one unique
-  /// ptr managing the same object.
+  /// \brief Move assigns a shared ptr from a unique ptr. The unique ptr will be empty afterwards.
   template <typename U>
   void operator=(ezUniquePtr<U>&& other);
 
   /// \brief Assigns a nullptr to the shared ptr. Same as Reset.
   void operator=(std::nullptr_t);
 
-  /// \brief Borrows the managed object. The unique ptr stays unmodified.
+  /// \brief Borrows the managed object. The shared ptr stays unmodified.
   T* Borrow() const;
 
   /// \brief Destroys the managed object if no one else references it anymore and resets the shared ptr.
-  void Reset();
+  void Clear();
 
   /// \brief Provides access to the managed object.
   T& operator*() const;
@@ -105,6 +103,15 @@ public:
   bool operator>(std::nullptr_t) const;
   bool operator>=(std::nullptr_t) const;
 
+  /// \brief Returns a copy of this, as an ezSharedPtr<DERIVED>. Downcasts the stored pointer (using static_cast).
+  ///
+  /// Does not check whether the cast would be valid, that is all your responsibility.
+  template <typename DERIVED>
+  ezSharedPtr<DERIVED> Downcast() const
+  {
+    return ezSharedPtr<DERIVED>(static_cast<DERIVED*>(m_pInstance), m_pAllocator);
+  }
+
 private:
   template <typename U>
   friend class ezSharedPtr;
@@ -117,4 +124,3 @@ private:
 };
 
 #include <Foundation/Types/Implementation/SharedPtr_inl.h>
-

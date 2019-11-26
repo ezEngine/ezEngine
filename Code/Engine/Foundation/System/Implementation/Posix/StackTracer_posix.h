@@ -10,7 +10,7 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #include <Foundation/Math/Math.h>
 #include <execinfo.h>
 
-void ezStackTracer::OnPluginEvent(const ezPlugin::PluginEvent& e) {}
+void ezStackTracer::OnPluginEvent(const ezPluginEvent& e) {}
 
 // static
 ezUInt32 ezStackTracer::GetStackTrace(ezArrayPtr<void*>& trace, void* pContext)

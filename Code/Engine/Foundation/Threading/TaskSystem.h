@@ -97,7 +97,10 @@ private:
   volatile bool m_bCancelExecution;
 
   /// \brief Whether this task has been scheduled for execution already, or is still waiting for dependencies to finish.
-  bool m_bTaskIsScheduled;
+  bool m_bTaskIsScheduled = false;
+
+  /// \brief Double buffers the state whether this task uses multiplicity, since it can't read m_uiMultiplicity while the task is scheduled.
+  bool m_bUsesMultiplicity = false;
 
   /// \brief Optional callback to be fired when the task has finished or was canceled.
   OnTaskFinished m_OnTaskFinished;
@@ -358,7 +361,7 @@ private:
   static void DebugCheckTaskGroup(ezTaskGroupID Group);
 
   // Takes all the tasks in the given group and schedules them for execution, by inserting them into the proper task lists.
-  static void ScheduleGroupTasks(ezTaskGroup* pGroup);
+  static void ScheduleGroupTasks(ezTaskGroup* pGroup, bool bHighPriority);
 
   // Called whenever a task has been finished/canceled. Makes sure that groups are marked as finished when all tasks are done.
   static void TaskHasFinished(ezTask* pTask, ezTaskGroup* pGroup);

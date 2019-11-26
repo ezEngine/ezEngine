@@ -192,3 +192,30 @@ EZ_ALWAYS_INLINE bool ezUniquePtr<T>::operator>=(std::nullptr_t) const
 {
   return m_pInstance >= nullptr;
 }
+
+//////////////////////////////////////////////////////////////////////////
+// free functions
+
+template <typename T>
+EZ_ALWAYS_INLINE bool operator==(const ezUniquePtr<T>& lhs, const T* rhs)
+{
+  return lhs.Borrow() == rhs;
+}
+
+template <typename T>
+EZ_ALWAYS_INLINE bool operator!=(const ezUniquePtr<T>& lhs, const T* rhs)
+{
+  return lhs.Borrow() != rhs;
+}
+
+template <typename T>
+EZ_ALWAYS_INLINE bool operator==(const T* lhs, const ezUniquePtr<T>& rhs)
+{
+  return lhs == rhs.Borrow();
+}
+
+template <typename T>
+EZ_ALWAYS_INLINE bool operator!=(const T* lhs, const ezUniquePtr<T>& rhs)
+{
+  return lhs != rhs.Borrow();
+}

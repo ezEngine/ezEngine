@@ -60,7 +60,7 @@ public:
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, RenderData);
 
-  static void PluginEventHandler(const ezPlugin::PluginEvent& e);
+  static void PluginEventHandler(const ezPluginEvent& e);
   static void UpdateRendererTypes();
 
   static void CreateRendererInstances();

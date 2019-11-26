@@ -19,126 +19,90 @@ namespace ezMemoryPolicies
     };
 
     EZ_FORCE_INLINE ezStackAllocation(ezAllocatorBase* pParent)
-        : m_pParent(pParent)
-        , m_uiCurrentBucketIndex(0)
-        , m_uiCurrentBucketSize(4096)
-        , m_pNextAllocation(nullptr)
+      : m_pParent(pParent)
+      , m_uiNextBucketSize(4096)
     {
     }
 
     EZ_FORCE_INLINE ~ezStackAllocation()
     {
-      EZ_ASSERT_DEV(m_uiCurrentBucketIndex == 0 && m_pNextAllocation == m_currentBucket.GetPtr(), "There is still something allocated!");
-      for (auto& bucket : m_buckets)
+      EZ_ASSERT_DEV(m_uiCurrentBucketIndex == 0 && (m_Buckets.IsEmpty() || m_Buckets[m_uiCurrentBucketIndex].GetPtr() == m_pNextAllocation), "There is still something allocated!");
+      for (auto& bucket : m_Buckets)
       {
-        m_pParent->Deallocate(bucket.memory.GetPtr());
+        m_pParent->Deallocate(bucket.GetPtr());
       }
     }
-
-    EZ_FORCE_INLINE void SetNextBucketSize(ezUInt32 uiSize) { m_uiCurrentBucketSize = uiSize; }
 
     EZ_FORCE_INLINE void* Allocate(size_t uiSize, size_t uiAlign)
     {
       EZ_ASSERT_DEV(uiAlign <= Alignment && Alignment % uiAlign == 0, "Unsupported alignment {0}", ((ezUInt32)uiAlign));
       uiSize = ezMemoryUtils::AlignSize(uiSize, (size_t)Alignment);
 
-      // Do we need a new bucket?
-      if (m_pNextAllocation + uiSize > m_currentBucket.GetPtr() + m_currentBucket.GetCount())
+      bool bFoundBucket = !m_Buckets.IsEmpty() && m_pNextAllocation + uiSize <= m_Buckets[m_uiCurrentBucketIndex].GetEndPtr();
+
+      if (!bFoundBucket)
       {
-        if (m_currentBucket.GetPtr() != nullptr)
+        // Check if there is an empty bucket that fits the allocation
+        for (ezUInt32 i = m_uiCurrentBucketIndex + 1; i < m_Buckets.GetCount(); ++i)
         {
-          m_buckets[m_uiCurrentBucketIndex].pLastAllocation = m_pNextAllocation;
-          m_uiCurrentBucketIndex++;
-        }
-        while (uiSize > m_uiCurrentBucketSize)
-          m_uiCurrentBucketSize *= 2;
-
-        // Is there still a not yet freed bucket?
-        if (m_uiCurrentBucketIndex < m_buckets.GetCount())
-        {
-          // is the allocation to big for the current bucket?
-          while (m_uiCurrentBucketIndex < m_buckets.GetCount() && uiSize > m_buckets[m_uiCurrentBucketIndex].memory.GetCount())
+          auto& testBucket = m_Buckets[i];
+          if (uiSize <= testBucket.GetCount())
           {
-            m_uiCurrentBucketIndex++;
+            m_uiCurrentBucketIndex = i;
+            m_pNextAllocation = testBucket.GetPtr();
+            bFoundBucket = true;
+            break;
           }
-          if (m_uiCurrentBucketIndex >= m_buckets.GetCount())
-            goto AllocNewBucket;
-          else
-            m_currentBucket = m_buckets[m_uiCurrentBucketIndex].memory;
         }
-        else
-        {
-        AllocNewBucket:
-          m_currentBucket =
-              ezArrayPtr<ezUInt8>(static_cast<ezUInt8*>(m_pParent->Allocate(m_uiCurrentBucketSize, Alignment)), m_uiCurrentBucketSize);
-          m_buckets.ExpandAndGetRef().memory = m_currentBucket;
-          m_uiCurrentBucketSize *= 2;
-        }
-        m_pNextAllocation = m_currentBucket.GetPtr();
       }
-      EZ_ASSERT_DEBUG(m_pNextAllocation + uiSize <= m_currentBucket.GetPtr() + m_currentBucket.GetCount(), "");
 
-      auto pResult = m_pNextAllocation;
+      if (!bFoundBucket)
+      {
+        while (uiSize > m_uiNextBucketSize)
+        {
+          m_uiNextBucketSize *= 2;
+        }
+
+        m_uiCurrentBucketIndex = m_Buckets.GetCount();
+
+        auto newBucket = ezArrayPtr<ezUInt8>(static_cast<ezUInt8*>(m_pParent->Allocate(m_uiNextBucketSize, Alignment)), m_uiNextBucketSize);
+        m_Buckets.PushBack(newBucket);
+
+        m_pNextAllocation = newBucket.GetPtr();
+
+        m_uiNextBucketSize *= 2;
+      }
+
+      auto& currentBucket = m_Buckets[m_uiCurrentBucketIndex];
+
+      EZ_ASSERT_DEBUG(m_pNextAllocation + uiSize <= currentBucket.GetEndPtr(), "");
+
+      ezUInt8* ptr = m_pNextAllocation;
       m_pNextAllocation += uiSize;
-      return pResult;
+      return ptr;
     }
 
     EZ_FORCE_INLINE void Deallocate(void* ptr)
     {
-      // ptr is not on top of the stack, can't deallocate now
-      if (ptr != m_buckets[m_uiCurrentBucketIndex].pLastAllocation)
-        return;
-
-      // does this empty the current bucket?
-      if (ptr == m_currentBucket.GetPtr())
-      {
-        m_pNextAllocation = (ezUInt8*)ptr;
-        m_buckets[m_uiCurrentBucketIndex].pLastAllocation = (ezUInt8*)ptr;
-        while (m_pNextAllocation == m_currentBucket.GetPtr() && m_uiCurrentBucketIndex > 0)
-        {
-          m_uiCurrentBucketIndex--;
-          Bucket& currentBucket = m_buckets[m_uiCurrentBucketIndex];
-          m_currentBucket = currentBucket.memory;
-          m_pNextAllocation = currentBucket.pLastAllocation;
-        }
-      }
-      else
-      {
-        m_pNextAllocation = (ezUInt8*)ptr;
-      }
+      // Individual deallocation is not supported by this allocator
     }
 
     EZ_FORCE_INLINE void Reset()
     {
-      for (auto& bucket : m_buckets)
-      {
-        bucket.pLastAllocation = bucket.memory.GetPtr();
-      }
       m_uiCurrentBucketIndex = 0;
-
-      if (!m_buckets.IsEmpty())
-        m_currentBucket = m_buckets[0].memory;
-      else
-        m_currentBucket.Clear();
-
-      m_pNextAllocation = m_currentBucket.GetPtr();
+      m_pNextAllocation = !m_Buckets.IsEmpty() ? m_Buckets[0].GetPtr() : nullptr;
     }
 
     EZ_ALWAYS_INLINE ezAllocatorBase* GetParent() const { return m_pParent; }
 
   private:
-    struct Bucket
-    {
-      ezArrayPtr<ezUInt8> memory;
-      ezUInt8* pLastAllocation;
-    };
+    ezAllocatorBase* m_pParent = nullptr;
 
-    ezAllocatorBase* m_pParent;
-    ezUInt32 m_uiCurrentBucketIndex;
-    ezUInt32 m_uiCurrentBucketSize;
-    ezArrayPtr<ezUInt8> m_currentBucket;
-    ezUInt8* m_pNextAllocation;
-    ezHybridArray<Bucket, 4> m_buckets;
+    ezUInt32 m_uiCurrentBucketIndex = 0;
+    ezUInt32 m_uiNextBucketSize = 0;
+
+    ezUInt8* m_pNextAllocation = nullptr;
+
+    ezHybridArray<ezArrayPtr<ezUInt8>, 4> m_Buckets;
   };
-}
-
+} // namespace ezMemoryPolicies

@@ -65,7 +65,16 @@ static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
       SendAllStatsTelemetry();
       break;
 
-    case ezTelemetry::TelemetryEventData::PerFrameUpdate:
+    default:
+      break;
+  }
+}
+
+static void PerFrameUpdateHandler(const ezGameApplicationExecutionEvent& e)
+{
+  switch (e.m_Type)
+  {
+    case ezGameApplicationExecutionEvent::Type::AfterPresent:
     {
       ezTime FrameTime;
 
@@ -119,23 +128,25 @@ static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
         }
       }
     }
-    break;
-
-    default:
-      break;
   }
 }
-
 
 void AddStatsEventHandler()
 {
   ezStats::AddEventHandler(StatsEventHandler);
 
   ezTelemetry::AddEventHandler(TelemetryEventsHandler);
+
+  // We're handling the per frame update by a different event since
+  // using ezTelemetry::TelemetryEventData::PerFrameUpdate can lead
+  // to deadlocks between the ezStats and ezTelemetry system.
+  ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(PerFrameUpdateHandler);
 }
 
 void RemoveStatsEventHandler()
 {
+  ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(PerFrameUpdateHandler);
+
   ezTelemetry::RemoveEventHandler(TelemetryEventsHandler);
 
   ezStats::RemoveEventHandler(StatsEventHandler);

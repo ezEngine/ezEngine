@@ -286,6 +286,69 @@ namespace ezMath
   {
     return (TYPE)0.001;
   }
+
+  //////////////////////////////////////////////////////////////////////////
+
+  template <>
+  constexpr ezUInt32 NumBits<ezUInt8>()
+  {
+    return 8;
+  }
+
+  template <>
+  constexpr ezUInt32 NumBits<ezUInt16>()
+  {
+    return 16;
+  }
+
+  template <>
+  constexpr ezUInt32 NumBits<ezUInt32>()
+  {
+    return 32;
+  }
+
+  template <>
+  constexpr ezUInt32 NumBits<ezUInt64>()
+  {
+    return 64;
+  }
+
+  template <>
+  constexpr ezUInt32 NumBits<ezInt8>()
+  {
+    return 8;
+  }
+
+  template <>
+  constexpr ezUInt32 NumBits<ezInt16>()
+  {
+    return 16;
+  }
+
+  template <>
+  constexpr ezUInt32 NumBits<ezInt32>()
+  {
+    return 32;
+  }
+
+  template <>
+  constexpr ezUInt32 NumBits<ezInt64>()
+  {
+    return 64;
+  }
+
+  template <>
+  constexpr ezUInt32 NumBits<float>()
+  {
+    return 32;
+  }
+
+  template <>
+  constexpr ezUInt32 NumBits<double>()
+  {
+    return 64;
+  }
+
   //////////////////////////////////////////////////////////////////////////
 
 } // namespace ezMath

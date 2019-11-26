@@ -159,7 +159,7 @@ EZ_ALWAYS_INLINE T* ezSharedPtr<T>::Borrow() const
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE void ezSharedPtr<T>::Reset()
+EZ_ALWAYS_INLINE void ezSharedPtr<T>::Clear()
 {
   ReleaseReferenceIfValid();
 }

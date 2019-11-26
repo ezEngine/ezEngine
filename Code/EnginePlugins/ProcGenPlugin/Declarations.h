@@ -59,7 +59,7 @@ namespace ezProcGenInternal
     float m_fSize;
   };
 
-  struct GraphSharedDataBase : public ezRefCounted
+  struct EZ_PROCGENPLUGIN_DLL GraphSharedDataBase : public ezRefCounted
   {
   };
 

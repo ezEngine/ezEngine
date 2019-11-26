@@ -137,8 +137,7 @@ void ezArrayBase<T, Derived>::EnsureCount(ezUInt32 uiCount)
 }
 
 template <typename T, typename Derived>
-template <typename> // second template needed so that the compiler does only instantiate it when called. Otherwise the static_assert would
-// trigger early.
+template <typename> // Second template needed so that the compiler does only instantiate it when called. Otherwise the static_assert would trigger early.
 void ezArrayBase<T, Derived>::SetCountUninitialized(ezUInt32 uiCount)
 {
   static_assert(ezIsPodType<T>::value == ezTypeIsPod::value, "SetCountUninitialized is only supported for POD types.");

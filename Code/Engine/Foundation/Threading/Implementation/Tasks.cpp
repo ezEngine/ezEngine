@@ -21,6 +21,7 @@ void ezTask::Reset()
   m_iRemainingRuns = (int)ezMath::Max(1u, m_uiMultiplicity);
   m_bCancelExecution = false;
   m_bTaskIsScheduled = false;
+  m_bUsesMultiplicity = m_uiMultiplicity > 0;
 }
 
 void ezTask::SetTaskName(const char* szName)
@@ -30,9 +31,8 @@ void ezTask::SetTaskName(const char* szName)
 
 void ezTask::SetMultiplicity(ezUInt32 uiMultiplicity)
 {
-  EZ_ASSERT_DEV(!m_bTaskIsScheduled, "This task has already been scheduled to run, the multiplicity cannot be changed anymore.");
-
   m_uiMultiplicity = uiMultiplicity;
+  m_bUsesMultiplicity = m_uiMultiplicity > 0;
 }
 
 void ezTask::SetOnTaskFinished(OnTaskFinished Callback)
@@ -52,12 +52,12 @@ void ezTask::Run(ezUInt32 uiInvocation)
   {
     ezStringBuilder scopeName = m_sTaskName;
 
-    if (m_uiMultiplicity > 0)
+    if (m_bUsesMultiplicity)
       scopeName.AppendFormat("-{}", uiInvocation);
 
     EZ_PROFILE_SCOPE(scopeName.GetData());
 
-    if (m_uiMultiplicity > 0)
+    if (m_bUsesMultiplicity)
     {
       ExecuteWithMultiplicity(uiInvocation);
     }

@@ -77,11 +77,11 @@ ezRenderData::Category ezRenderData::FindCategory(const char* szCategoryName)
 }
 
 // static
-void ezRenderData::PluginEventHandler(const ezPlugin::PluginEvent& e)
+void ezRenderData::PluginEventHandler(const ezPluginEvent& e)
 {
   switch (e.m_EventType)
   {
-    case ezPlugin::PluginEvent::AfterPluginChanges:
+    case ezPluginEvent::AfterPluginChanges:
       UpdateRendererTypes();
       break;
 

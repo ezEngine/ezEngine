@@ -2,12 +2,25 @@
 
 import __Message = require("./Message")
 export import Message = __Message.Message;
+export import EventMessage = __Message.EventMessage;
+
+import __Vec2 = require("./Vec2")
+export import Vec2 = __Vec2.Vec2;
 
 import __Vec3 = require("./Vec3")
 export import Vec3 = __Vec3.Vec3;
 
+import __Mat3 = require("./Mat3")
+export import Mat3 = __Mat3.Mat3;
+
+import __Mat4 = require("./Mat4")
+export import Mat4 = __Mat4.Mat4;
+
 import __Quat = require("./Quat")
 export import Quat = __Quat.Quat;
+
+import __Transform = require("./Transform")
+export import Transform = __Transform.Transform;
 
 import __Color = require("./Color")
 export import Color = __Color.Color;
@@ -18,11 +31,8 @@ export import Time = __Time.Time;
 import __Angle = require("./Angle")
 export import Angle = __Angle.Angle;
 
-export class EventMessage extends Message
-{
-  public static GetTypeNameHash(): number { return 758823069; }
-  constructor() { super(); this.TypeNameHash = 758823069; }
-}
+import Enum = require("./AllEnums")
+
 
 export class MsgGenericEvent extends EventMessage
 {
@@ -47,6 +57,7 @@ export class MsgComponentInternalTrigger extends Message
 {
   public static GetTypeNameHash(): number { return 2729883851; }
   constructor() { super(); this.TypeNameHash = 2729883851; }
+  UsageStringHash: number = 0;
 }
 
 export class MsgUpdateLocalBounds extends Message
@@ -119,6 +130,7 @@ export class MsgSetColor extends Message
   public static GetTypeNameHash(): number { return 12434892; }
   constructor() { super(); this.TypeNameHash = 12434892; }
   Color: Color = new Color(1, 1, 1, 1);
+  Mode: Enum.SetColorMode;
 }
 
 export class MsgExtractRenderData extends Message
@@ -133,18 +145,13 @@ export class MsgPropertyAnimationEndReached extends EventMessage
   constructor() { super(); this.TypeNameHash = 3741310044; }
 }
 
-export class MsgPropertyAnimationPlayRange extends Message
-{
-  public static GetTypeNameHash(): number { return 4041140774; }
-  constructor() { super(); this.TypeNameHash = 4041140774; }
-  RangeLow: number = N/A;
-  RangeHigh: number = N/A;
-}
-
 export class MsgInputActionTriggered extends EventMessage
 {
   public static GetTypeNameHash(): number { return 2990029836; }
   constructor() { super(); this.TypeNameHash = 2990029836; }
+  InputActionHash: number = 0;
+  KeyPressValue: number = 0;
+  TriggerState: Enum.TriggerState;
 }
 
 export class MsgPhysicsAddImpulse extends Message
@@ -187,30 +194,10 @@ export class MsgMoveCharacterController extends Message
   Crouch: boolean = false;
 }
 
-export class MsgFmodRestartSound extends Message
-{
-  public static GetTypeNameHash(): number { return 3559542584; }
-  constructor() { super(); this.TypeNameHash = 3559542584; }
-  OneShot: boolean = true;
-}
-
-export class MsgFmodStopSound extends Message
-{
-  public static GetTypeNameHash(): number { return 990442021; }
-  constructor() { super(); this.TypeNameHash = 990442021; }
-  Immediate: boolean = false;
-}
-
 export class MsgFmodSoundFinished extends EventMessage
 {
   public static GetTypeNameHash(): number { return 4085975113; }
   constructor() { super(); this.TypeNameHash = 4085975113; }
-}
-
-export class MsgFmodAddSoundCue extends Message
-{
-  public static GetTypeNameHash(): number { return 48382456; }
-  constructor() { super(); this.TypeNameHash = 48382456; }
 }
 
 export class MsgBreakableSheetBroke extends EventMessage
@@ -229,5 +216,19 @@ export class MsgPxTriggerTriggered extends EventMessage
 {
   public static GetTypeNameHash(): number { return 3270153082; }
   constructor() { super(); this.TypeNameHash = 3270153082; }
+  MsgStringHash: number = 0;
+  TriggerState: Enum.TriggerState;
+}
+
+export class MsgExtractVolumes extends Message
+{
+  public static GetTypeNameHash(): number { return 3796594901; }
+  constructor() { super(); this.TypeNameHash = 3796594901; }
+}
+
+export class MsgTypeScriptMsgProxy extends Message
+{
+  public static GetTypeNameHash(): number { return 344792456; }
+  constructor() { super(); this.TypeNameHash = 344792456; }
 }
 

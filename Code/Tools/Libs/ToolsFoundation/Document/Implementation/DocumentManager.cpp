@@ -40,14 +40,14 @@ ezDynamicArray<const ezDocumentTypeDescriptor*> ezDocumentManager::s_AllDocument
 ezEvent<const ezDocumentManager::Event&> ezDocumentManager::s_Events;
 ezEvent<ezDocumentManager::Request&> ezDocumentManager::s_Requests;
 
-void ezDocumentManager::OnPluginEvent(const ezPlugin::PluginEvent& e)
+void ezDocumentManager::OnPluginEvent(const ezPluginEvent& e)
 {
   switch (e.m_EventType)
   {
-    case ezPlugin::PluginEvent::BeforeUnloading:
+    case ezPluginEvent::BeforeUnloading:
       UpdateBeforeUnloadingPlugins(e);
       break;
-    case ezPlugin::PluginEvent::AfterPluginChanges:
+    case ezPluginEvent::AfterPluginChanges:
       UpdatedAfterLoadingPlugins();
       break;
 
@@ -56,7 +56,7 @@ void ezDocumentManager::OnPluginEvent(const ezPlugin::PluginEvent& e)
   }
 }
 
-void ezDocumentManager::UpdateBeforeUnloadingPlugins(const ezPlugin::PluginEvent& e)
+void ezDocumentManager::UpdateBeforeUnloadingPlugins(const ezPluginEvent& e)
 {
   bool bChanges = false;
 

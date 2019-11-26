@@ -42,6 +42,8 @@ namespace
           m_cost *= 2;
         }
       }
+
+      m_cost += entry.m_additionalPenalty;
     }
 
     const ezImageConversionStep* m_step = nullptr;

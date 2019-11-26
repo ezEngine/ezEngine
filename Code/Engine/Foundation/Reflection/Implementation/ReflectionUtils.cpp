@@ -1587,9 +1587,9 @@ ezVariant ezReflectionUtils::GetDefaultVariantFromType(ezVariant::Type::Enum typ
     case ezVariant::Type::Transform:
       return ezVariant(ezTransform::IdentityTransform());
     case ezVariant::Type::String:
-      return ezVariant("");
+      return ezVariant(ezString());
     case ezVariant::Type::StringView:
-      return ezVariant("");
+      return ezVariant(ezStringView());
     case ezVariant::Type::DataBuffer:
       return ezVariant(ezDataBuffer());
     case ezVariant::Type::Time:
@@ -1603,9 +1603,9 @@ ezVariant ezReflectionUtils::GetDefaultVariantFromType(ezVariant::Type::Enum typ
     case ezVariant::Type::VariantDictionary:
       return ezVariantDictionary();
     case ezVariant::Type::ReflectedPointer:
-      return ezVariant();
+      return ezVariant(static_cast<ezReflectedClass*>(nullptr));
     case ezVariant::Type::VoidPointer:
-      return ezVariant();
+      return ezVariant(static_cast<void*>(nullptr));
 
     default:
       EZ_REPORT_FAILURE("Invalid case statement");

@@ -10,7 +10,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezCollectionResource);
 
 ezCollectionResource::ezCollectionResource()
-    : ezResource(DoUpdate::OnAnyThread, 1)
+  : ezResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
@@ -51,14 +51,14 @@ void ezCollectionResource::PreloadResources()
   }
 }
 
-float ezCollectionResource::GetPreloadProgress() const
+bool ezCollectionResource::IsLoadingFinished(float* out_progress) const
 {
   EZ_LOCK(m_preloadMutex);
 
   EZ_ASSERT_DEBUG(m_hPreloadedResources.GetCount() == m_Collection.m_Resources.GetCount(), "Collection size mismatch. PreloadResources not called?");
 
-  double loadedWeight = 0;
-  double totalWeight = 0;
+  ezUInt64 loadedWeight = 0;
+  ezUInt64 totalWeight = 0;
 
   for (ezUInt32 i = 0; i < m_hPreloadedResources.GetCount(); i++)
   {
@@ -67,7 +67,7 @@ float ezCollectionResource::GetPreloadProgress() const
       continue;
 
     const ezCollectionEntry& entry = m_Collection.m_Resources[i];
-    double thisWeight = static_cast<double>(ezMath::Max(entry.m_uiFileSize, 1ull)); // if file sizes are not specified, we weight by 1
+    ezUInt64 thisWeight = ezMath::Max(entry.m_uiFileSize, 1ull); // if file sizes are not specified, we weight by 1
     ezResourceState state = ezResourceManager::GetLoadingState(hResource);
 
     if (state == ezResourceState::Loaded || state == ezResourceState::LoadedResourceMissing)
@@ -81,10 +81,24 @@ float ezCollectionResource::GetPreloadProgress() const
     }
   }
 
-  if (totalWeight == 0)
-    return 1.0f;
+  if (out_progress != nullptr)
+  {
+    if (totalWeight != 0 && totalWeight != loadedWeight)
+    {
+      *out_progress = static_cast<float>(static_cast<double>(loadedWeight) / totalWeight);
+    }
+    else
+    {
+      *out_progress = 1.f;
+    }
+  }
 
-  return static_cast<float>(loadedWeight / totalWeight);
+  if (totalWeight == 0 || totalWeight == loadedWeight)
+  {
+    return true;
+  }
+
+  return false;
 }
 
 

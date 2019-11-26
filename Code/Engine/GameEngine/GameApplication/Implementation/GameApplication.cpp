@@ -140,57 +140,48 @@ void ezGameApplication::Run_WorldUpdateAndRender()
     EZ_PROFILE_SCOPE("Wait for UpdateWorldsAndExtractViews");
     ezTaskSystem::WaitForGroup(updateTaskID);
   }
+}
 
+void ezGameApplication::Run_Present()
+{
+  ezHybridArray<ezActor*, 8> allActors;
+  ezActorManager::GetSingleton()->GetAllActors(allActors);
+
+  for (ezActor* pActor : allActors)
   {
-    ezGameApplicationExecutionEvent e;
-    e.m_Type = ezGameApplicationExecutionEvent::Type::BeforePresent;
-    m_ExecutionEvents.Broadcast(e);
-  }
+    ezActorPluginWindow* pWindowPlugin = pActor->GetPlugin<ezActorPluginWindow>();
 
-  if (ezRenderWorld::GetFrameCounter() < 10)
-    ezLog::Debug("Finishing Frame: {0}", ezRenderWorld::GetFrameCounter());
+    if (pWindowPlugin == nullptr)
+      continue;
 
-  {
-    ezHybridArray<ezActor*, 8> allActors;
-    ezActorManager::GetSingleton()->GetAllActors(allActors);
-
-    for (ezActor* pActor : allActors)
+    // Ignore actors without an output target
+    if (auto pOutput = pWindowPlugin->GetOutputTarget())
     {
-      ezActorPluginWindow* pWindowPlugin = pActor->GetPlugin<ezActorPluginWindow>();
-
-      if (pWindowPlugin == nullptr)
-        continue;
-
-      // Ignore actors without an output target
-      if (auto pOutput = pWindowPlugin->GetOutputTarget())
+      // if we have multiple actors, append the actor name to each screenshot
+      ezStringBuilder ctxt;
+      if (allActors.GetCount() > 1)
       {
-        // if we have multiple actors, append the actor name to each screenshot
-        ezStringBuilder ctxt;
-        if (allActors.GetCount() > 1)
-        {
-          ctxt.Append(" - ", pActor->GetName());
-        }
-
-        ExecuteTakeScreenshot(pOutput, ctxt);
-
-        if (pWindowPlugin->GetWindow())
-        {
-          ExecuteFrameCapture(pWindowPlugin->GetWindow()->GetNativeWindowHandle(), ctxt);
-        }
-
-        pOutput->Present(CVarEnableVSync);
+        ctxt.Append(" - ", pActor->GetName());
       }
+
+      ExecuteTakeScreenshot(pOutput, ctxt);
+
+      if (pWindowPlugin->GetWindow())
+      {
+        ExecuteFrameCapture(pWindowPlugin->GetWindow()->GetNativeWindowHandle(), ctxt);
+      }
+
+      pOutput->Present(CVarEnableVSync);
     }
   }
+}
 
-  {
-    ezGameApplicationExecutionEvent e;
-    e.m_Type = ezGameApplicationExecutionEvent::Type::AfterPresent;
-    m_ExecutionEvents.Broadcast(e);
-  }
-
+void ezGameApplication::Run_FinishFrame()
+{
   ezGALDevice::GetDefaultDevice()->EndFrame();
   ezRenderWorld::EndFrame();
+
+  SUPER::Run_FinishFrame();
 }
 
 void ezGameApplication::UpdateWorldsAndExtractViews()
@@ -251,20 +242,22 @@ void ezGameApplication::UpdateWorldsAndExtractViews()
 void ezGameApplication::RenderFps()
 {
   // Do not use ezClock for this, it smooths and clamps the timestep
-  const ezTime tNow = ezTime::Now();
 
-  static ezTime fAccumTime;
-  static ezTime fElapsedTime;
-  static ezTime tLast = tNow;
-  const ezTime tDiff = tNow - tLast;
-  fAccumTime += tDiff;
-  tLast = tNow;
+  static ezTime tAccumTime;
+  static ezTime tDisplayedFrameTime = m_FrameTime;
+  static ezUInt32 uiFrames = 0;
+  static ezUInt32 uiFPS = 0;
 
-  if (fAccumTime >= ezTime::Seconds(0.5))
+  ++uiFrames;
+  tAccumTime += m_FrameTime;
+
+  if (tAccumTime >= ezTime::Seconds(0.5))
   {
-    fAccumTime -= ezTime::Seconds(0.5);
+    tAccumTime -= ezTime::Seconds(0.5);
+    tDisplayedFrameTime = m_FrameTime;
 
-    fElapsedTime = tDiff;
+    uiFPS = uiFrames * 2;
+    uiFrames = 0;
   }
 
   if (CVarShowFPS)
@@ -272,8 +265,7 @@ void ezGameApplication::RenderFps()
     if (const ezView* pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView))
     {
       ezStringBuilder sFps;
-      sFps.Format(
-        "{0} fps, {1} ms", ezArgF(1.0 / fElapsedTime.GetSeconds(), 1, false, 4), ezArgF(fElapsedTime.GetSeconds() * 1000.0, 1, false, 4));
+      sFps.Format("{0} fps, {1} ms", uiFPS, ezArgF(tDisplayedFrameTime.GetMilliseconds(), 1, false, 4));
 
       ezInt32 viewHeight = (ezInt32)(pView->GetViewport().height);
 

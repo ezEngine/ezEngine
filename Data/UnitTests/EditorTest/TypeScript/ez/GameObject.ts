@@ -60,6 +60,12 @@ declare function __CPP_GameObject_TryGetComponentOfBaseTypeNameHash(_this: GameO
 declare function __CPP_GameObject_SendMessage(_this: GameObject, typeNameHash: number, msg: Message, recursive: boolean): void;
 declare function __CPP_GameObject_PostMessage(_this: GameObject, typeNameHash: number, msg: Message, recursive: boolean, delay: number): void;
 
+declare function __CPP_GameObject_SetTags(_this: GameObject, ...tags:string[]): void;
+declare function __CPP_GameObject_AddTags(_this: GameObject, ...tags:string[]): void;
+declare function __CPP_GameObject_RemoveTags(_this: GameObject, ...tags:string[]): void;
+declare function __CPP_GameObject_HasAnyTags(_this: GameObject, ...tags:string[]): boolean;
+declare function __CPP_GameObject_HasAllTags(_this: GameObject, ...tags:string[]): boolean;
+
 export class GameObject {
 
     // TODO:
@@ -209,5 +215,25 @@ export class GameObject {
 
     PostMessageRecursive(msg: Message, delay: number = Time.Zero()): void {
         __CPP_GameObject_PostMessage(this, msg.TypeNameHash, msg, true, delay);
+    }
+
+    SetTags(...tags:string[]): void {
+        __CPP_GameObject_SetTags(this, ...tags);
+    }
+
+    AddTags(...tags:string[]): void {
+        __CPP_GameObject_AddTags(this, ...tags);
+    }
+    
+    RemoveTags(...tags:string[]): void {
+        __CPP_GameObject_RemoveTags(this, ...tags);
+    }
+
+    HasAnyTags(...tags:string[]): boolean {
+        return __CPP_GameObject_HasAnyTags(this, ...tags);
+    }
+
+    HasAllTags(...tags:string[]): boolean {
+        return __CPP_GameObject_HasAllTags(this, ...tags);
     }
 }

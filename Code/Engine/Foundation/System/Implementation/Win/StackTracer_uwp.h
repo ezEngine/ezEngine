@@ -7,7 +7,7 @@
 #include <Foundation/FoundationInternal.h>
 EZ_FOUNDATION_INTERNAL_HEADER
 
-void ezStackTracer::OnPluginEvent(const ezPlugin::PluginEvent& e) {}
+void ezStackTracer::OnPluginEvent(const ezPluginEvent& e) {}
 
 // static
 ezUInt32 ezStackTracer::GetStackTrace(ezArrayPtr<void*>& trace, void* pContext)

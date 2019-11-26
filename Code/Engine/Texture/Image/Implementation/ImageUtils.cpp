@@ -486,26 +486,35 @@ ezResult ezImageUtils::ExtractLowerMipChain(const ezImageView& srcImg, ezImage& 
 {
   const ezImageHeader& srcImgHeader = srcImg.GetHeader();
 
-  // only power-of-two resolutions are supported atm
-  if (!ezMath::IsPowerOf2(srcImgHeader.GetWidth()) || !ezMath::IsPowerOf2(srcImgHeader.GetHeight()))
+  if (srcImgHeader.GetNumFaces() != 1 || srcImgHeader.GetNumArrayIndices() != 1)
+  {
+    // Lower mips aren't stored contiguously for array/cube textures and would require copying. This isn't implemented yet.
     return EZ_FAILURE;
+  }
 
   uiNumMips = ezMath::Min(uiNumMips, srcImgHeader.GetNumMipLevels());
 
   ezUInt32 startMipLevel = srcImgHeader.GetNumMipLevels() - uiNumMips;
 
-  // block compressed image formats require resolutions that are divisible by 4
-  // therefore, adjust startMipLevel accordingly
-  while (srcImgHeader.GetWidth(startMipLevel) % 4 != 0 || srcImgHeader.GetHeight(startMipLevel) % 4 != 0)
+  ezImageFormat::Enum format = srcImgHeader.GetImageFormat();
+
+  if (ezImageFormat::RequiresFirstLevelBlockAlignment(format))
   {
-    if (uiNumMips >= srcImgHeader.GetNumMipLevels())
-      return EZ_FAILURE;
+    // Some block compressed image formats require resolutions that are divisible by block size,
+    // therefore adjust startMipLevel accordingly
+    while (
+      srcImgHeader.GetWidth(startMipLevel) % ezImageFormat::GetBlockWidth(format) != 0 ||
+      srcImgHeader.GetHeight(startMipLevel) % ezImageFormat::GetBlockHeight(format) != 0)
+    {
+      if (uiNumMips >= srcImgHeader.GetNumMipLevels())
+        return EZ_FAILURE;
 
-    if (startMipLevel == 0)
-      return EZ_FAILURE;
+      if (startMipLevel == 0)
+        return EZ_FAILURE;
 
-    ++uiNumMips;
-    --startMipLevel;
+      ++uiNumMips;
+      --startMipLevel;
+    }
   }
 
   ezImageHeader dstImgHeader = srcImgHeader;
@@ -529,8 +538,6 @@ ezResult ezImageUtils::ExtractLowerMipChain(const ezImageView& srcImg, ezImage& 
 
   return EZ_SUCCESS;
 }
-
-
 
 ezUInt32 ezImageUtils::GetSampleIndex(ezUInt32 numTexels, ezInt32 index, ezImageAddressMode::Enum addressMode, bool& outUseBorderColor)
 {
@@ -1052,6 +1059,9 @@ void ezImageUtils::GenerateMipMaps(const ezImageView& source, ezImage& target, c
 
   // Make a local copy to be able to tweak some of the options
   ezImageUtils::MipMapOptions mipMapOptions = options;
+
+  // alpha thresholds with extreme values are not supported at the moment
+  mipMapOptions.m_alphaThreshold = ezMath::Clamp(mipMapOptions.m_alphaThreshold, 0.05f, 0.95f);
 
   // Enforce CLAMP addressing mode for cubemaps
   if (source.GetNumFaces() == 6)

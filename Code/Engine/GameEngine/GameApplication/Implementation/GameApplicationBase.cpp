@@ -330,7 +330,10 @@ void ezGameApplicationBase::BeforeHighLevelSystemsShutdown()
 void ezGameApplicationBase::BeforeCoreSystemsShutdown()
 {
   // shut down all actors and APIs that may have been in use
-  ezActorManager::GetSingleton()->Shutdown();
+  if (ezActorManager::GetSingleton() != nullptr)
+  {
+    ezActorManager::GetSingleton()->Shutdown();
+  }
 
   {
     ezFrameAllocator::Reset();
@@ -403,11 +406,24 @@ ezApplication::ApplicationExecution ezGameApplicationBase::Run()
     m_ExecutionEvents.Broadcast(e);
   }
 
-  Run_FinishFrame();
+  {
+    ezGameApplicationExecutionEvent e;
+    e.m_Type = ezGameApplicationExecutionEvent::Type::BeforePresent;
+    m_ExecutionEvents.Broadcast(e);
+  }
+
+  Run_Present();
 
   ezClock::GetGlobalClock()->Update();
-
   UpdateFrameTime();
+
+  {
+    ezGameApplicationExecutionEvent e;
+    e.m_Type = ezGameApplicationExecutionEvent::Type::AfterPresent;
+    m_ExecutionEvents.Broadcast(e);
+  }
+
+  Run_FinishFrame();
 
   return ezApplication::Continue;
 }
@@ -478,6 +494,10 @@ void ezGameApplicationBase::Run_UpdatePlugins()
     e.m_Type = ezGameApplicationExecutionEvent::Type::AfterUpdatePlugins;
     m_ExecutionEvents.Broadcast(e);
   }
+}
+
+void ezGameApplicationBase::Run_Present()
+{
 }
 
 void ezGameApplicationBase::Run_FinishFrame()

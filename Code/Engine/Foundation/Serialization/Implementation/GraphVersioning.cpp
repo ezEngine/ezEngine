@@ -234,7 +234,7 @@ void ezGraphVersioning::PatchGraph(ezAbstractObjectGraph* pGraph, ezAbstractObje
   }
 }
 
-void ezGraphVersioning::PluginEventHandler(const ezPlugin::PluginEvent& EventData)
+void ezGraphVersioning::PluginEventHandler(const ezPluginEvent& EventData)
 {
   UpdatePatches();
 }

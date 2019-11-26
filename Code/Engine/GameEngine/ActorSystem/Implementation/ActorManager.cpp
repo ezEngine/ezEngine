@@ -160,7 +160,8 @@ void ezActorManager::AddApiService(ezUniquePtr<ezActorApiService>&& pApiService)
   for (auto& pExisting : m_pImpl->m_AllApiServices)
   {
     EZ_ASSERT_ALWAYS(
-      pApiService->GetDynamicRTTI() != pExisting->GetDynamicRTTI(), "An actor API service of this type has already been added");
+      pApiService->GetDynamicRTTI() != pExisting->GetDynamicRTTI() || pExisting->m_State == ezActorApiService::State::QueuedForDestruction,
+      "An actor API service of this type has already been added");
   }
 
   m_pImpl->m_AllApiServices.PushBack(std::move(pApiService));
@@ -227,7 +228,7 @@ ezActorApiService* ezActorManager::GetApiService(const ezRTTI* pType)
 
   for (auto& pApiService : m_pImpl->m_AllApiServices)
   {
-    if (pApiService->GetDynamicRTTI()->IsDerivedFrom(pType))
+    if (pApiService->GetDynamicRTTI()->IsDerivedFrom(pType) && pApiService->m_State != ezActorApiService::State::QueuedForDestruction)
       return pApiService.Borrow();
   }
 
@@ -321,9 +322,9 @@ void ezActorManager::Update()
 {
   EZ_LOCK(m_pImpl->m_Mutex);
 
+  DestroyQueuedActorApiServices();
+  DestroyQueuedActors();
   ActivateQueuedApiServices();
   UpdateAllApiServices();
   UpdateAllActors();
-  DestroyQueuedActorApiServices();
-  DestroyQueuedActors();
 }

@@ -140,7 +140,7 @@ private:
   ezWorldModuleFactory();
   ezUInt16 RegisterWorldModule(const ezRTTI* pRtti, CreatorFunc creatorFunc);
 
-  static void PluginEventHandler(const ezPlugin::PluginEvent& EventData);
+  static void PluginEventHandler(const ezPluginEvent& EventData);
   void FillBaseTypeIds();
   void ClearUnloadedTypeToIDs();
 

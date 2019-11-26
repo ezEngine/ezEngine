@@ -26,8 +26,8 @@ namespace ezArchiveUtils
   EZ_FOUNDATION_DLL ezResult AppendTOC(ezStreamWriter& stream, const ezArchiveTOC& toc);
 
   /// \brief Deserializes the TOC from the memory mapped file. Assumes the TOC is the very last data in the file and reads it from the back.
-  EZ_FOUNDATION_DLL ezResult ExtractTOC(ezMemoryMappedFile& memFile, ezArchiveTOC& toc);
-
+  EZ_FOUNDATION_DLL ezResult ExtractTOC(ezMemoryMappedFile& memFile, ezArchiveTOC& toc, ezUInt8 uiArchiveVersion);
+  
   /// \brief Writes a single file entry to an ezArchive stream with the given compression level.
   ///
   /// Appends information to the TOC for finding the data in the stream. Reads and updates inout_uiCurrentStreamPosition with the data byte
