@@ -121,13 +121,21 @@ public:
   template <typename T>
   static bool IsEqual(const T* a, const T* b, size_t uiCount = 1); // [tested]
 
-  /// \brief Zeros out buffer of a raw memory.
+  /// \brief Zeros every byte in the provided memory buffer.
   template <typename T>
   static void ZeroFill(T* pDestination, size_t uiCount); // [tested]
 
-  /// \brief Zeros out buffer of a raw memory.
+  /// \brief Zeros every byte in the provided memory buffer.
   template <typename T, size_t N>
   static void ZeroFill(T (&destination)[N]); // [tested]
+
+  /// \brief Fills every byte of the provided buffer with the given value
+  template <typename T>
+  static void PatternFill(T* pDestination, ezUInt8 uiBytePattern, size_t uiCount); // [tested]
+
+  /// \brief Fills every byte of the provided buffer with the given value
+  template <typename T, size_t N>
+  static void PatternFill(T (&destination)[N], ezUInt8 uiBytePattern); // [tested]
 
   /// \brief Compares two buffers of raw memory byte wise.
   template <typename T>
