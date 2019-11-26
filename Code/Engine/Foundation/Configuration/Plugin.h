@@ -64,13 +64,16 @@ public:
   /// \param szPluginDependency1
   ///   Allows to specify other modules that this plugin depends on. These will be automatically loaded and unloaded together with this plugin.
   ezPlugin(bool bIsReloadable, OnPluginLoadedFunction OnLoadPlugin = nullptr, OnPluginUnloadedFunction OnUnloadPlugin = nullptr,
-           const char* szPluginDependency1 = nullptr, const char* szPluginDependency2 = nullptr, const char* szPluginDependency3 = nullptr, const char* szPluginDependency4 = nullptr, const char* szPluginDependency5 = nullptr);
+    const char* szPluginDependency1 = nullptr, const char* szPluginDependency2 = nullptr, const char* szPluginDependency3 = nullptr, const char* szPluginDependency4 = nullptr, const char* szPluginDependency5 = nullptr);
 
   /// \brief Returns the name that was used to load the plugin from disk.
   const char* GetPluginName() const { return m_sLoadedFromFile.GetData(); } // [tested]
 
   /// \brief Returns whether this plugin supports hot-reloading.
   bool IsReloadable() const { return m_bIsReloadable; } // [tested]
+
+  /// \brief Checks whether a plugin with the given name exists. Does not guarantee that the plugin could be loaded successfully.
+  static bool ExistsPluginFile(const char* szPluginFile);
 
   /// \brief Tries to load a DLL dynamically into the program.
   ///
@@ -81,6 +84,11 @@ public:
   /// EZ_FAILURE is returned if the DLL cannot be located or it could not be loaded properly.
   static ezResult LoadPlugin(const char* szPluginFile, bool bLoadCopy = false); // [tested]
 
+  /// \brief Same as LoadPlugin() but checks first whether the plugin exists at all and does not output an error in that case.
+  ///
+  /// If the plugin does exist, but cannot be loaded for other reasons (e.g. missing dependencies), it will still log that information as errors.
+  static ezResult LoadOptionalPlugin(const char* szPluginFile, bool bLoadCopy = false); // [tested]
+
   /// \brief Tries to unload a previously loaded plugin.
   ///
   /// For every time a plugin is loaded via 'LoadPlugin' it should also get unloaded via 'UnloadPlugin',
@@ -90,6 +98,9 @@ public:
   /// EZ_SUCCESS is returned when the DLL is either successfully unloaded are has already been unloaded before (or has even never been loaded before).
   /// EZ_FAILURE is returned if the DLL cannot be unloaded (at this time).
   static ezResult UnloadPlugin(const char* szPluginFile, ezInt32* out_pCurRefCount = nullptr); // [tested]
+
+  /// \brief Attempts to unload all previously loaded plugins in the reverse order in which they were loaded.
+  static ezResult UnloadAllPlugins();
 
   /// \brief Hot-reloads all plugins that are marked as reloadable.
   ///

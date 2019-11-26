@@ -43,9 +43,14 @@ ezUInt32 ezPlugin::m_uiMaxParallelInstances = 32;
 ezEvent<const ezPluginEvent&> ezPlugin::s_PluginEvents;
 
 
+void ezPlugin::SetMaxParallelInstances(ezUInt32 uiMaxParallelInstances)
+{
+  m_uiMaxParallelInstances = ezMath::Max(1u, uiMaxParallelInstances);
+}
+
 ezPlugin::ezPlugin(bool bIsReloadable, OnPluginLoadedFunction OnLoadPlugin, OnPluginUnloadedFunction OnUnloadPlugin,
-                   const char* szPluginDependency1, const char* szPluginDependency2, const char* szPluginDependency3,
-                   const char* szPluginDependency4, const char* szPluginDependency5)
+  const char* szPluginDependency1, const char* szPluginDependency2, const char* szPluginDependency3,
+  const char* szPluginDependency4, const char* szPluginDependency5)
 {
   m_bInitialized = false;
   m_OnLoadPlugin = OnLoadPlugin;
@@ -232,8 +237,8 @@ ezResult ezPlugin::LoadPluginInternal(const char* szPluginFile, bool bLoadCopy, 
     }
 
     ezLog::Error(
-        "Could not copy the plugin file '{0}' to '{1}' (and all previous file numbers). Plugin MaxParallelInstances is set to {2}.",
-        sOldPlugin, sNewPlugin, ezPlugin::m_uiMaxParallelInstances);
+      "Could not copy the plugin file '{0}' to '{1}' (and all previous file numbers). Plugin MaxParallelInstances is set to {2}.",
+      sOldPlugin, sNewPlugin, ezPlugin::m_uiMaxParallelInstances);
 
     g_LoadedPlugins.Remove(sNewPlugin);
     return EZ_FAILURE;
@@ -327,6 +332,14 @@ success:
   return EZ_SUCCESS;
 }
 
+bool ezPlugin::ExistsPluginFile(const char* szPluginFile)
+{
+  ezStringBuilder sOldPlugin, sNewPlugin;
+  GetPluginPaths(szPluginFile, sOldPlugin, sNewPlugin, 0);
+
+  return ezOSFile::ExistsFile(sOldPlugin);
+}
+
 ezResult ezPlugin::LoadPlugin(const char* szPluginFile, bool bLoadCopy /*= false*/)
 {
   ezStringBuilder sPlugin = szPluginFile;
@@ -353,6 +366,14 @@ ezResult ezPlugin::LoadPlugin(const char* szPluginFile, bool bLoadCopy /*= false
   }
 
   return res;
+}
+
+ezResult ezPlugin::LoadOptionalPlugin(const char* szPluginFile, bool bLoadCopy /*= false*/)
+{
+  if (!ExistsPluginFile(szPluginFile))
+    return EZ_FAILURE;
+
+  return LoadPlugin(szPluginFile, bLoadCopy);
 }
 
 ezResult ezPlugin::UnloadPlugin(const char* szPluginFile, ezInt32* out_pCurRefCount /*= nullptr*/)
@@ -382,6 +403,49 @@ ezResult ezPlugin::UnloadPlugin(const char* szPluginFile, ezInt32* out_pCurRefCo
 
   ezLog::Debug("Plugin to unload: \"{0}\"", szPluginFile);
   UnloadPluginInternal(szPluginFile, false);
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezPlugin::UnloadAllPlugins()
+{
+  ezHybridArray<ezString, 16> ToUnload;
+
+  // if a plugin is linked statically (which happens mostly in an editor context)
+  // then it cannot be unloaded and the ezPlugin instance won't ever go away
+  // however, ezPlugin::UnloadPlugin will always return that it is already unloaded, so we can just skip it there
+  // all other plugins must be unloaded as often as their refcount, though
+
+  // also, all plugins must be unloaded in the reverse order in which they were originally loaded
+  // otherwise a plugin may crash during its shutdown, because a dependency was already shutdown before it
+  // fortunately the loading order is recorded in the ezPlugin instance chain and we just need to traverse it backwards
+  // this happens especially when you load plugin A, and then plugin B, which itself has a fixed link dependency on A (not dynamically loaded)
+  // and thus needs A during its shutdown
+  ezStringBuilder s;
+  ezPlugin* pPlugin = ezPlugin::GetFirstInstance();
+  while (pPlugin != nullptr)
+  {
+    s = pPlugin->GetPluginName();
+    ToUnload.PushBack(s);
+
+    pPlugin = pPlugin->GetNextInstance();
+  }
+
+  ezString temp;
+  while (!ToUnload.IsEmpty())
+  {
+    auto it = ToUnload.PeekBack();
+
+    ezInt32 iRefCount = 0;
+    if (ezPlugin::UnloadPlugin(it, &iRefCount).Failed())
+    {
+      ezLog::Error("Failed to unload plugin '{0}'", s);
+      return EZ_FAILURE;
+    }
+
+    if (iRefCount == 0)
+      ToUnload.PopBack();
+  }
 
   return EZ_SUCCESS;
 }
@@ -503,7 +567,7 @@ ezResult ezPlugin::ReloadPlugins(bool bForceReload)
             if (ezOSFile::GetFileStats(sOldPlugin.GetData(), stat) == EZ_SUCCESS)
             {
               if (g_LoadedPlugins[pPlugin->m_sLoadedFromFile].m_LastModificationTime.Compare(stat.m_LastModificationTime,
-                                                                                             ezTimestamp::CompareMode::FileTimeEqual))
+                    ezTimestamp::CompareMode::FileTimeEqual))
               {
                 ezLog::Debug("Plugin '{0}' is not modified.", pPlugin->GetPluginName());
                 bModified = false;
@@ -522,7 +586,7 @@ ezResult ezPlugin::ReloadPlugins(bool bForceReload)
           sBackup.Append(".backup");
 
           EZ_VERIFY(ezOSFile::CopyFile(sNewPlugin.GetData(), sBackup.GetData()) == EZ_SUCCESS, "Could not create backup of plugin '{0}'",
-                    pPlugin->GetPluginName());
+            pPlugin->GetPluginName());
 
           PluginsToReload.PushBack(pPlugin->m_sLoadedFromFile);
         }
@@ -545,7 +609,7 @@ ezResult ezPlugin::ReloadPlugins(bool bForceReload)
       ezUInt32 iIndex = i - 1;
 
       EZ_VERIFY(UnloadPluginInternal(PluginsToReload[iIndex].GetData(), true) == EZ_SUCCESS, "Could not unload plugin '{0}'.",
-                PluginsToReload[iIndex]);
+        PluginsToReload[iIndex]);
     }
   }
 
@@ -573,7 +637,7 @@ ezResult ezPlugin::ReloadPlugins(bool bForceReload)
           // if we cannot reload a plugin (not even its backup), all we can do is crash with an error message
           // everything else would most probably result in crashes in very strange ways
           EZ_VERIFY(LoadPluginInternal(PluginsToReload[i].GetData(), false, true) == EZ_SUCCESS, "Could not reload backup of plugin '{0}'",
-                    PluginsToReload[i]);
+            PluginsToReload[i]);
         }
       }
 
@@ -589,4 +653,3 @@ ezResult ezPlugin::ReloadPlugins(bool bForceReload)
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Configuration_Implementation_Plugin);
-
