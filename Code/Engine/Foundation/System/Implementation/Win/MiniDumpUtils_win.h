@@ -9,10 +9,11 @@ EZ_FOUNDATION_INTERNAL_HEADER
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
-#include <Dbghelp.h>
-#include <Shlwapi.h>
-#include <tchar.h>
-#include <werapi.h>
+#  include <Dbghelp.h>
+#  include <Shlwapi.h>
+#  include <Utilities/CommandLineUtils.h>
+#  include <tchar.h>
+#  include <werapi.h>
 
 typedef BOOL(WINAPI* MINIDUMPWRITEDUMP)(HANDLE hProcess, DWORD ProcessId, HANDLE hFile, MINIDUMP_TYPE DumpType,
   PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam, PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam,
@@ -55,8 +56,12 @@ ezStatus ezMiniDumpUtils::WriteProcessMiniDump(
     return ezStatus("'MiniDumpWriteDump' function address could not be resolved.");
   }
 
-  const ezUInt32 dumpType(/*MiniDumpWithFullMemory |*/ MiniDumpWithHandleData | MiniDumpWithModuleHeaders | MiniDumpWithUnloadedModules |
-                          MiniDumpWithProcessThreadData | MiniDumpWithFullMemoryInfo | MiniDumpWithThreadInfo);
+  ezUInt32 dumpType = MiniDumpWithHandleData | MiniDumpWithModuleHeaders | MiniDumpWithUnloadedModules | MiniDumpWithProcessThreadData | MiniDumpWithFullMemoryInfo | MiniDumpWithThreadInfo;
+
+  if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-fullcrashdumps"))
+  {
+    dumpType |= MiniDumpWithFullMemory;
+  }
 
   // make sure the target folder exists
   {
@@ -133,6 +138,12 @@ ezStatus ezMiniDumpUtils::LaunchMiniDumpTool(const char* szDumpFile)
   procOpt.AddArgument("{}", ezProcess::GetCurrentProcessID());
   procOpt.m_Arguments.PushBack("-f");
   procOpt.m_Arguments.PushBack(szDumpFile);
+
+  if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-fullcrashdumps"))
+  {
+    // forward the '-fullcrashdumps' command line argument
+    procOpt.AddArgument("-fullcrashdumps");
+  }
 
   ezProcessGroup proc;
   if (proc.Launch(procOpt).Failed())
