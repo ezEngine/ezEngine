@@ -260,11 +260,11 @@ EZ_ALWAYS_INLINE ezTransform ezGameObject::GetGlobalTransform() const
 }
 
 
-EZ_ALWAYS_INLINE void ezGameObject::SetLocalPosition(const ezSimdVec4f& position)
+EZ_ALWAYS_INLINE void ezGameObject::SetLocalPosition(const ezSimdVec4f& position, UpdateBehaviorIfStatic updateBehavior)
 {
   m_pTransformationData->m_localPosition = position;
 
-  if (IsStatic())
+  if (IsStatic() && updateBehavior == UpdateBehaviorIfStatic::UpdateImmediately)
   {
     UpdateGlobalTransformAndBoundsRecursive();
   }
@@ -276,11 +276,11 @@ EZ_ALWAYS_INLINE const ezSimdVec4f& ezGameObject::GetLocalPositionSimd() const
 }
 
 
-EZ_ALWAYS_INLINE void ezGameObject::SetLocalRotation(const ezSimdQuat& rotation)
+EZ_ALWAYS_INLINE void ezGameObject::SetLocalRotation(const ezSimdQuat& rotation, UpdateBehaviorIfStatic updateBehavior)
 {
   m_pTransformationData->m_localRotation = rotation;
 
-  if (IsStatic())
+  if (IsStatic() && updateBehavior == UpdateBehaviorIfStatic::UpdateImmediately)
   {
     UpdateGlobalTransformAndBoundsRecursive();
   }
@@ -292,13 +292,13 @@ EZ_ALWAYS_INLINE const ezSimdQuat& ezGameObject::GetLocalRotationSimd() const
 }
 
 
-EZ_ALWAYS_INLINE void ezGameObject::SetLocalScaling(const ezSimdVec4f& scaling)
+EZ_ALWAYS_INLINE void ezGameObject::SetLocalScaling(const ezSimdVec4f& scaling, UpdateBehaviorIfStatic updateBehavior)
 {
   ezSimdFloat uniformScale = m_pTransformationData->m_localScaling.w();
   m_pTransformationData->m_localScaling = scaling;
   m_pTransformationData->m_localScaling.SetW(uniformScale);
 
-  if (IsStatic())
+  if (IsStatic() && updateBehavior == UpdateBehaviorIfStatic::UpdateImmediately)
   {
     UpdateGlobalTransformAndBoundsRecursive();
   }
@@ -310,11 +310,11 @@ EZ_ALWAYS_INLINE const ezSimdVec4f& ezGameObject::GetLocalScalingSimd() const
 }
 
 
-EZ_ALWAYS_INLINE void ezGameObject::SetLocalUniformScaling(const ezSimdFloat& scaling)
+EZ_ALWAYS_INLINE void ezGameObject::SetLocalUniformScaling(const ezSimdFloat& scaling, UpdateBehaviorIfStatic updateBehavior)
 {
   m_pTransformationData->m_localScaling.SetW(scaling);
 
-  if (IsStatic())
+  if (IsStatic() && updateBehavior == UpdateBehaviorIfStatic::UpdateImmediately)
   {
     UpdateGlobalTransformAndBoundsRecursive();
   }
