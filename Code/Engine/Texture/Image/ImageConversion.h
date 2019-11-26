@@ -21,8 +21,12 @@ struct ezImageConversionEntry
   const ezImageFormat::Enum m_sourceFormat;
   const ezImageFormat::Enum m_targetFormat;
   const ezBitflags<ezImageConversionFlags> m_flags;
-};
 
+  /// This member adds an additional amount to the cost estimate for this conversion step.
+  /// It can be used to bias the choice between steps when there are comparable conversion
+  /// steps available.
+  float m_additionalPenalty = 0.0f;
+};
 
 /// \brief Interface for a single image conversion step.
 ///
