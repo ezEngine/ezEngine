@@ -3,12 +3,14 @@ export import GameObject = __GameObject.GameObject;
 
 import __Message = require("./Message")
 export import Message = __Message.Message;
+export import EventMessage = __Message.EventMessage;
 
 import __Time = require("./Time")
 export import Time = __Time.Time;
 
 declare function __CPP_Binding_RegisterMessageHandler(msgTypeNameHash: number, handlerFuncName: string): void;
 declare function __CPP_Component_IsValid(component: Component): boolean;
+declare function __CPP_Component_GetUniqueID(component: Component): number;
 declare function __CPP_Component_GetOwner(component: Component): GameObject;
 declare function __CPP_Component_SetActive(component: Component, active: boolean): GameObject;
 declare function __CPP_Component_IsActive(component: Component): boolean;
@@ -16,6 +18,7 @@ declare function __CPP_Component_IsActiveAndInitialized(component: Component): b
 declare function __CPP_Component_IsActiveAndSimulating(component: Component): boolean;
 declare function __CPP_Component_SendMessage(_this: Component, typeNameHash: number, msg: Message): void;
 declare function __CPP_Component_PostMessage(_this: Component, typeNameHash: number, msg: Message, delay: number): void;
+declare function __CPP_TsComponent_BroadcastEvent(_this: TypescriptComponent, typeNameHash: number, msg: EventMessage): void;
 
 export abstract class Component {
 
@@ -51,19 +54,40 @@ export abstract class Component {
         __CPP_Component_PostMessage(this, msg.TypeNameHash, msg, delay);
     }
 
-    // GetUniqueID
-    // GetMode
-    // virtual void Initialize();
-    // virtual void Deinitialize();
-    // virtual void OnActivated();
-    // virtual void OnDeactivated();
-    // virtual void OnSimulationStarted();
+    GetUniqueID(): number {
+        return __CPP_Component_GetUniqueID(this);
+    }
+
+    /*
+        Initialize(): void {
+        }
+    
+        Deinitialize(): void {
+        }
+    
+        OnActivated(): void {
+        }
+    
+        OnDeactivated(): void {
+        }
+    
+        OnSimulationStarted(): void {
+        }
+    */
 }
 
 export abstract class TypescriptComponent extends Component {
-    abstract Update(): void;
 
     static RegisterMessageHandler<TYPE extends Message>(msgType: new () => TYPE, handlerFuncName: string) {
         __CPP_Binding_RegisterMessageHandler(msgType.GetTypeNameHash(), handlerFuncName);
     }
+
+    protected BroadcastEvent<TYPE extends EventMessage>(msg: TYPE): void {
+
+        __CPP_TsComponent_BroadcastEvent(this, msg.TypeNameHash, msg);
+    }
+}
+
+export abstract class TickedTypescriptComponent extends TypescriptComponent {
+    abstract Tick(): number;
 }
