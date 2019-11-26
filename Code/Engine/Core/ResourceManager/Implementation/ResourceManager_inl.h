@@ -11,6 +11,8 @@ ResourceType* ezResourceManager::GetResource(const char* szResourceID, bool bIsR
 template <typename ResourceType>
 ezTypedResourceHandle<ResourceType> ezResourceManager::LoadResource(const char* szResourceID)
 {
+  // the mutex here is necessary to prevent a race between resource unloading and storing the pointer in the handle
+  EZ_LOCK(s_ResourceMutex);
   return ezTypedResourceHandle<ResourceType>(GetResource<ResourceType>(szResourceID, true));
 }
 
@@ -18,10 +20,14 @@ template <typename ResourceType>
 ezTypedResourceHandle<ResourceType> ezResourceManager::LoadResource(
   const char* szResourceID, ezTypedResourceHandle<ResourceType> hLoadingFallback)
 {
-  ezTypedResourceHandle<ResourceType> hResource(GetResource<ResourceType>(szResourceID, true));
+  ezTypedResourceHandle<ResourceType> hResource;
+  {
+    // the mutex here is necessary to prevent a race between resource unloading and storing the pointer in the handle
+    EZ_LOCK(s_ResourceMutex);
+    hResource = ezTypedResourceHandle<ResourceType>(GetResource<ResourceType>(szResourceID, true));
+  }
 
-  ResourceType* pResource =
-    ezResourceManager::BeginAcquireResource(hResource, ezResourceAcquireMode::PointerOnly, ezTypedResourceHandle<ResourceType>());
+  ResourceType* pResource = ezResourceManager::BeginAcquireResource(hResource, ezResourceAcquireMode::PointerOnly, ezTypedResourceHandle<ResourceType>());
 
   if (hLoadingFallback.IsValid())
   {

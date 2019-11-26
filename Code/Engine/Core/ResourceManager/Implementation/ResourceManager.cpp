@@ -92,6 +92,12 @@ void ezResourceManager::ClearResourceCleanupCallback(ResourceCleanupCB cb)
 
 void ezResourceManager::ExecuteAllResourceCleanupCallbacks()
 {
+  if (s_State == nullptr)
+  {
+    // In case resource manager wasn't initialized, nothing to do
+    return;
+  }
+
   ezDynamicArray<ResourceCleanupCB> callbacks = s_State->s_ResourceCleanupCallbacks;
   s_State->s_ResourceCleanupCallbacks.Clear();
 
@@ -146,6 +152,12 @@ ezUInt32 ezResourceManager::FreeAllUnusedResources()
   EZ_LOG_BLOCK("ezResourceManager::FreeAllUnusedResources");
 
   EZ_PROFILE_SCOPE("FreeAllUnusedResources");
+
+  if (s_State == nullptr)
+  {
+    // In case resource manager wasn't initialized, no resources to unload
+    return 0;
+  }
 
   const bool bFreeAllUnused = true;
 
@@ -446,6 +458,13 @@ void ezResourceManager::EngineAboutToShutdown()
 {
   {
     EZ_LOCK(s_ResourceMutex);
+
+    if (s_State == nullptr)
+    {
+      // In case resource manager wasn't initialized, nothing to do
+      return;
+    }
+
     s_State->s_bDataLoadTaskRunning = true; // prevent a new one from starting
     s_State->s_bShutdown = true;
   }
@@ -558,7 +577,7 @@ ezResource* ezResourceManager::GetResource(const ezRTTI* pRtti, const char* szRe
   if (ezStringUtils::IsNullOrEmpty(szResourceID))
     return nullptr;
 
-  EZ_LOCK(s_ResourceMutex);
+  EZ_ASSERT_DEV(s_ResourceMutex.IsLocked(), "Calling code must lock the mutex until the resource pointer is stored in a handle");
 
   // redirect requested type to override type, if available
   pRtti = FindResourceTypeOverride(pRtti, szResourceID);

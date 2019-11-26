@@ -78,7 +78,7 @@ struct ezResourceFlags
     StorageType ResourceHasFallback     : 1;
     StorageType ResourceHasTypeFallback : 1;
     StorageType IsReloadable            : 1;
-    StorageType IsPreloading            : 1;
+    StorageType IsQueuedForLoading      : 1;
     StorageType HasCustomDataLoader     : 1;
     StorageType PreventFileReload       : 1;
     StorageType HasLowResData           : 1;

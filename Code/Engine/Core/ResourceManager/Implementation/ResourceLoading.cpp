@@ -6,6 +6,8 @@
 
 ezTypelessResourceHandle ezResourceManager::LoadResourceByType(const ezRTTI* pResourceType, const char* szResourceID)
 {
+  // the mutex here is necessary to prevent a race between resource unloading and storing the pointer in the handle
+  EZ_LOCK(s_ResourceMutex);
   return ezTypelessResourceHandle(GetResource(pResourceType, szResourceID, true));
 }
 
