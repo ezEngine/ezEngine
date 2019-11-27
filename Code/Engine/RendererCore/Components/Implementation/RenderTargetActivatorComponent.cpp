@@ -22,7 +22,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezRenderTargetActivatorComponent, 1, ezComponentMode::St
   EZ_END_ATTRIBUTES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
   }
   EZ_END_MESSAGEHANDLERS;
 }
@@ -61,7 +61,7 @@ ezResult ezRenderTargetActivatorComponent::GetLocalBounds(ezBoundingBoxSphere& b
   return EZ_FAILURE;
 }
 
-void ezRenderTargetActivatorComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
+void ezRenderTargetActivatorComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   // only add render target views from main views
   // otherwise every shadow casting light source would activate a render target
@@ -110,4 +110,3 @@ const char* ezRenderTargetActivatorComponent::GetRenderTargetFile() const
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_RenderTargetActivatorComponent);
-

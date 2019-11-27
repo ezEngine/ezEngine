@@ -35,9 +35,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 10, ezComponentMode::Dynamic);
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
-ezAnimatedMeshComponent::ezAnimatedMeshComponent() {}
-
-ezAnimatedMeshComponent::~ezAnimatedMeshComponent() {}
+ezAnimatedMeshComponent::ezAnimatedMeshComponent() = default;
+ezAnimatedMeshComponent::~ezAnimatedMeshComponent() = default;
 
 void ezAnimatedMeshComponent::SerializeComponent(ezWorldWriter& stream) const
 {

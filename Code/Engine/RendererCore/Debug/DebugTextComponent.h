@@ -33,5 +33,5 @@ public:
   float m_fValue3; // [ property ]
 
 protected:
-  void OnExtractRenderData(ezMsgExtractRenderData& msg) const; // [ msg handler ]
+  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const; // [ msg handler ]
 };

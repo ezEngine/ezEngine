@@ -32,12 +32,13 @@ public:
 
   void TriggerLocalBoundsUpdate();
 
-  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
-
   static ezUInt32 GetUniqueIdForRendering(const ezComponent* pComponent, ezUInt32 uiInnerIndex = 0, ezUInt32 uiInnerIndexShift = 24);
 
   EZ_ALWAYS_INLINE ezUInt32 GetUniqueIdForRendering(ezUInt32 uiInnerIndex = 0, ezUInt32 uiInnerIndexShift = 24) const
   {
     return GetUniqueIdForRendering(this, uiInnerIndex, uiInnerIndexShift);
   }
+
+protected:
+  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
 };

@@ -61,7 +61,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 3, ezComponentMode::Static)
   EZ_END_FUNCTIONS;
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
     EZ_MESSAGE_HANDLER(ezMsgComponentInternalTrigger, OnTriggered),
     EZ_MESSAGE_HANDLER(ezMsgDeleteGameObject, OnMsgDeleteGameObject),
     EZ_MESSAGE_HANDLER(ezMsgOnlyApplyToObject, OnMsgOnlyApplyToObject),
@@ -261,7 +261,7 @@ ezGameObjectHandle ezDecalComponent::GetApplyOnlyTo() const
   return m_hApplyOnlyToObject;
 }
 
-void ezDecalComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
+void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   // Don't extract decal render data for selection.
   if (msg.m_OverrideCategory != ezInvalidRenderDataCategory)

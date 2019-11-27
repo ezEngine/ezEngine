@@ -23,7 +23,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDirectionalLightComponent, 3, ezComponentMode::Static)
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
   }
   EZ_END_MESSAGEHANDLERS;
     EZ_BEGIN_ATTRIBUTES
@@ -35,16 +35,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezDirectionalLightComponent, 3, ezComponentMode::Static)
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
-ezDirectionalLightComponent::ezDirectionalLightComponent()
-    : m_uiNumCascades(3)
-    , m_fMinShadowRange(50.0f)
-    , m_fFadeOutStart(0.8f)
-    , m_fSplitModeWeight(0.7f)
-    , m_fNearPlaneOffset(100.0f)
-{
-}
-
-ezDirectionalLightComponent::~ezDirectionalLightComponent() {}
+ezDirectionalLightComponent::ezDirectionalLightComponent() = default;
+ezDirectionalLightComponent::~ezDirectionalLightComponent() = default;
 
 ezResult ezDirectionalLightComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
 {
@@ -102,7 +94,7 @@ float ezDirectionalLightComponent::GetNearPlaneOffset() const
   return m_fNearPlaneOffset;
 }
 
-void ezDirectionalLightComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
+void ezDirectionalLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   // Don't extract light render data for selection or in shadow views.
   if (msg.m_OverrideCategory != ezInvalidRenderDataCategory || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)

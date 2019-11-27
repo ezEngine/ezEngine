@@ -15,40 +15,42 @@ class EZ_GAMEENGINE_DLL ezAnimatedMeshComponent : public ezSkinnedMeshComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezAnimatedMeshComponent, ezSkinnedMeshComponent, ezAnimatedMeshComponentManager);
 
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent
+
+public:
+  virtual void SerializeComponent(ezWorldWriter& stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& stream) override;
+
+protected:
+  virtual void OnSimulationStarted() override;
+
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezAnimatedMeshComponent
+
 public:
   ezAnimatedMeshComponent();
   ~ezAnimatedMeshComponent();
 
-  //////////////////////////////////////////////////////////////////////////
-  // ezComponent Interface
-  //
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
-  virtual void OnSimulationStarted() override;
-
-  //////////////////////////////////////////////////////////////////////////
-  //
-
-  //////////////////////////////////////////////////////////////////////////
-  // Properties
-  //
-
   void SetAnimationClip(const ezAnimationClipResourceHandle& hResource);
   const ezAnimationClipResourceHandle& GetAnimationClip() const;
 
-  void SetAnimationClipFile(const char* szFile);
-  const char* GetAnimationClipFile() const;
+  void SetAnimationClipFile(const char* szFile); // [ property ]
+  const char* GetAnimationClipFile() const;      // [ property ]
 
-  bool GetLoopAnimation() const;
-  void SetLoopAnimation(bool loop);
+  bool GetLoopAnimation() const;    // [ property ]
+  void SetLoopAnimation(bool loop); // [ property ]
 
-  float GetAnimationSpeed() const;
-  void SetAnimationSpeed(float speed);
+  float GetAnimationSpeed() const;     // [ property ]
+  void SetAnimationSpeed(float speed); // [ property ]
 
-  void Update();
 
 protected:
+  void Update();
   void CreatePhysicsShapes(const ezSkeletonResourceDescriptor& skeleton, const ezAnimationPose& pose);
+
   void* m_pRagdoll = nullptr;
 
   bool m_bApplyRootMotion = false;

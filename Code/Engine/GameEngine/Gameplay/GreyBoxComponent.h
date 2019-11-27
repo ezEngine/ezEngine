@@ -52,7 +52,7 @@ class EZ_GAMEENGINE_DLL ezGreyBoxComponent : public ezRenderComponent
   // ezRenderComponent
 protected:
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
-  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
 
   //////////////////////////////////////////////////////////////////////////
   // ezGreyBoxComponent
@@ -93,7 +93,7 @@ public:
 
 protected:
   void OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const;
-  void OnExtractGeometry(ezMsgExtractGeometry& msg) const;
+  void OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const;
 
   ezEnum<ezGreyBoxShape> m_Shape;
   ezMaterialResourceHandle m_hMaterial;

@@ -26,15 +26,22 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezGizmoComponent : public ezMeshCompon
 {
   EZ_DECLARE_COMPONENT_TYPE(ezGizmoComponent, ezMeshComponent, ezGizmoComponentManager);
 
-public:
-  ezGizmoComponent();
-
-  ezColor m_GizmoColor;
-  bool m_bUseDepthPrepass;
-  bool m_bIsPickable = true;
-
+  //////////////////////////////////////////////////////////////////////////
+  // ezMeshComponentBase
+  
 protected:
   virtual ezMeshRenderData* CreateRenderData() const override;
 
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezGizmoComponent
+
+public:
+  ezGizmoComponent();
+  ~ezGizmoComponent();
+
+  ezColor m_GizmoColor;
+  bool m_bUseDepthPrepass = false;
+  bool m_bIsPickable = true;
 };
 

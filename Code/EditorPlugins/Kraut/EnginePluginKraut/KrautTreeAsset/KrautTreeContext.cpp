@@ -67,7 +67,7 @@ void ezKrautTreeContext::OnInitialize()
     obj.m_sName.Assign("KrautTreePreview");
     // TODO: making the object dynamic is a workaround!
     // without it, shadows keep disappearing when switching between tree documents
-    // triggering resource reload will also trigger ezKrautTreeComponent::OnExtractRenderData,
+    // triggering resource reload will also trigger ezKrautTreeComponent::OnMsgExtractRenderData,
     // which fixes the shadows for a while, but not caching the render-data (ezRenderData::Caching::IfStatic)
     // 'solves' the issue in the preview
     obj.m_bDynamic = true;

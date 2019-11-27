@@ -28,9 +28,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezMotionMatchingComponent, 2, ezComponentMode::Dynamic);
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
-ezMotionMatchingComponent::ezMotionMatchingComponent() {}
-
-ezMotionMatchingComponent::~ezMotionMatchingComponent() {}
+ezMotionMatchingComponent::ezMotionMatchingComponent() = default;
+ezMotionMatchingComponent::~ezMotionMatchingComponent() = default;
 
 void ezMotionMatchingComponent::SerializeComponent(ezWorldWriter& stream) const
 {

@@ -103,8 +103,8 @@ public:
 protected:
   void Update();
 
-  void OnExtractGeometry(ezMsgExtractGeometry& msg) const; // [ msg handler ]
-  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const; // [ msg handler ]
+  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
   void OnCollision(ezMsgCollision& msg);
 
   float m_fWidth = 1.0f;

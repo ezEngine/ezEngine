@@ -57,7 +57,7 @@ protected:
 
 protected:
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
-  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
 
   //////////////////////////////////////////////////////////////////////////
   // ezKrautTreeComponent
@@ -69,7 +69,7 @@ public:
   // see ezKrautTreeComponent::GetLocalBounds for details
   static const int s_iLocalBoundsScale = 3;
 
-  void OnExtractGeometry(ezMsgExtractGeometry& msg) const;
+  void OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const;
   void OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const;
 
   void SetKrautTreeFile(const char* szFile); // [ property ]

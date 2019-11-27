@@ -403,7 +403,7 @@ private:
 
   void UpdateGlobalTransformAndBoundsRecursive();
 
-  void OnDeleteObject(ezMsgDeleteGameObject& msg);
+  void OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg);
 
   void AddComponent(ezComponent* pComponent);
   void RemoveComponent(ezComponent* pComponent);

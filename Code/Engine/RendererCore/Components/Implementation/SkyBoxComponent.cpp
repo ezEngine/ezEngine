@@ -26,22 +26,15 @@ EZ_BEGIN_COMPONENT_TYPE(ezSkyBoxComponent, 4, ezComponentMode::Static)
   EZ_END_ATTRIBUTES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
   }
   EZ_END_MESSAGEHANDLERS;
 }
 EZ_END_COMPONENT_TYPE;
 // clang-format on
 
-ezSkyBoxComponent::ezSkyBoxComponent()
-    : m_fExposureBias(0.0f)
-    , m_fVirtualDistance(1000.0f)
-    , m_bInverseTonemap(false)
-    , m_bUseFog(true)
-{
-}
-
-ezSkyBoxComponent::~ezSkyBoxComponent() {}
+ezSkyBoxComponent::ezSkyBoxComponent() = default;
+ezSkyBoxComponent::~ezSkyBoxComponent() = default;
 
 void ezSkyBoxComponent::Initialize()
 {
@@ -94,7 +87,7 @@ ezResult ezSkyBoxComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bA
   return EZ_SUCCESS;
 }
 
-void ezSkyBoxComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
+void ezSkyBoxComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   // Don't extract sky render data for selection or in orthographic views.
   if (msg.m_OverrideCategory != ezInvalidRenderDataCategory || msg.m_pView->GetCamera()->IsOrthographic())
@@ -236,9 +229,9 @@ void ezSkyBoxComponent::UpdateMaterials()
   }
 }
 
-  //////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
@@ -247,7 +240,7 @@ class ezSkyBoxComponentPatch_1_2 : public ezGraphPatch
 {
 public:
   ezSkyBoxComponentPatch_1_2()
-      : ezGraphPatch("ezSkyBoxComponent", 2)
+    : ezGraphPatch("ezSkyBoxComponent", 2)
   {
   }
 
@@ -269,4 +262,3 @@ ezSkyBoxComponentPatch_1_2 g_ezSkyBoxComponentPatch_1_2;
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_SkyBoxComponent);
-

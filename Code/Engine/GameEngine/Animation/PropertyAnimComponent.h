@@ -54,7 +54,7 @@ public:
   void PlayAnimationRange(ezTime RangeLow, ezTime RangeHigh);
 
   /// \brief Pauses or resumes animation playback. Does not reset any state.
-  void OnSetPlaying(ezMsgSetPlaying& msg);
+  void OnMsgSetPlaying(ezMsgSetPlaying& msg);
 
   ezEnum<ezPropertyAnimMode> m_AnimationMode; // [ property ]
   ezTime m_RandomOffset;                      // [ property ]

@@ -43,9 +43,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 3, ezComponentMode::Static)
   EZ_END_ATTRIBUTES;
     EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
     EZ_MESSAGE_HANDLER(ezMsgBuildStaticMesh, OnBuildStaticMesh),
-    EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnExtractGeometry),
+    EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnMsgExtractGeometry),
   }
   EZ_END_MESSAGEHANDLERS;
 }
@@ -124,7 +124,7 @@ ezResult ezGreyBoxComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& b
   return EZ_FAILURE;
 }
 
-void ezGreyBoxComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
+void ezGreyBoxComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   GenerateRenderMesh();
 
@@ -314,7 +314,7 @@ void ezGreyBoxComponent::OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const
   }
 }
 
-void ezGreyBoxComponent::OnExtractGeometry(ezMsgExtractGeometry& msg) const
+void ezGreyBoxComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
 {
   if (msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::CollisionMesh ||
       msg.m_Mode == ezWorldGeoExtractionUtil::ExtractionMode::NavMeshGeneration)

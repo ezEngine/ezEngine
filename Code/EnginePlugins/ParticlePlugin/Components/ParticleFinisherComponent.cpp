@@ -10,19 +10,14 @@
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezParticleFinisherComponent, 1, ezComponentMode::Static)
 {
-  //EZ_BEGIN_PROPERTIES
-  //{
-  //  EZ_ENUM_MEMBER_PROPERTY("OnFinishedAction", ezOnComponentFinishedAction, m_OnFinishedAction),
-  //}
-  //EZ_END_PROPERTIES;
-    EZ_BEGIN_ATTRIBUTES
+  EZ_BEGIN_ATTRIBUTES
   {
     new ezHiddenAttribute,
   }
   EZ_END_ATTRIBUTES;
-    EZ_BEGIN_MESSAGEHANDLERS
+  EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
   }
   EZ_END_MESSAGEHANDLERS;
 }
@@ -38,16 +33,6 @@ void ezParticleFinisherComponent::OnDeactivated()
   m_EffectController.Invalidate();
 
   ezRenderComponent::OnDeactivated();
-}
-
-void ezParticleFinisherComponent::SerializeComponent(ezWorldWriter& stream) const
-{
-  // auto& s = stream.GetStream();
-}
-
-void ezParticleFinisherComponent::DeserializeComponent(ezWorldReader& stream)
-{
-  // auto& s = stream.GetStream();
 }
 
 ezResult ezParticleFinisherComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
@@ -67,7 +52,7 @@ ezResult ezParticleFinisherComponent::GetLocalBounds(ezBoundingBoxSphere& bounds
   return EZ_FAILURE;
 }
 
-void ezParticleFinisherComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
+void ezParticleFinisherComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   // do not extract particles during shadow map rendering
   if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)

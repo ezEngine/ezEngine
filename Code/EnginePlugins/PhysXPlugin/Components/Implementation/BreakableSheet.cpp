@@ -69,8 +69,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezBreakableSheetComponent, 1, ezComponentMode::Dynamic)
   EZ_END_MESSAGESENDERS
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
-    EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnExtractGeometry),
+    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnMsgExtractGeometry),
     EZ_MESSAGE_HANDLER(ezMsgCollision, OnCollision),
     EZ_MESSAGE_HANDLER(ezMsgPhysicsAddImpulse, AddImpulseAtPos),
   }
@@ -204,7 +204,7 @@ ezResult ezBreakableSheetComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, 
   return EZ_FAILURE;
 }
 
-void ezBreakableSheetComponent::OnExtractGeometry(ezMsgExtractGeometry& msg) const
+void ezBreakableSheetComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
 {
   if (!m_bIncludeInNavmesh)
     return;
@@ -254,7 +254,7 @@ void ezBreakableSheetComponent::Deinitialize()
   Cleanup();
 }
 
-void ezBreakableSheetComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
+void ezBreakableSheetComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   if (!m_hUnbrokenMesh.IsValid())
     return;

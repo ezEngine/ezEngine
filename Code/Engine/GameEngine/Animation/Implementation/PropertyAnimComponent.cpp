@@ -43,7 +43,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPropertyAnimComponent, 3, ezComponentMode::Dynamic)
   EZ_END_ATTRIBUTES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgSetPlaying, OnSetPlaying),
+    EZ_MESSAGE_HANDLER(ezMsgSetPlaying, OnMsgSetPlaying),
   }
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_MESSAGESENDERS
@@ -149,7 +149,7 @@ void ezPropertyAnimComponent::PlayAnimationRange(ezTime RangeLow, ezTime RangeHi
 }
 
 
-void ezPropertyAnimComponent::OnSetPlaying(ezMsgSetPlaying& msg)
+void ezPropertyAnimComponent::OnMsgSetPlaying(ezMsgSetPlaying& msg)
 {
   m_bPlaying = msg.m_bPlay;
 }

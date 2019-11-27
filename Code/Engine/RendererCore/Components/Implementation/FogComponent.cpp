@@ -22,7 +22,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezFogComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
   }
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
@@ -99,7 +99,7 @@ void ezFogComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
   msg.SetAlwaysVisible(GetOwner()->IsDynamic() ? ezDefaultSpatialDataCategories::RenderDynamic : ezDefaultSpatialDataCategories::RenderStatic);
 }
 
-void ezFogComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
+void ezFogComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   if (msg.m_OverrideCategory != ezInvalidRenderDataCategory)
     return;

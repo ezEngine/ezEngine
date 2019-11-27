@@ -38,24 +38,15 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezLightComponent, 4)
   EZ_END_ATTRIBUTES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgSetColor, OnSetColor),
+    EZ_MESSAGE_HANDLER(ezMsgSetColor, OnMsgSetColor),
   }
   EZ_END_MESSAGEHANDLERS;
 }
 EZ_END_ABSTRACT_COMPONENT_TYPE
 // clang-format on
 
-ezLightComponent::ezLightComponent()
-    : m_LightColor(ezColor::White)
-    , m_fIntensity(10.0f)
-    , m_fPenumbraSize(0.1f)
-    , m_fSlopeBias(0.25f)
-    , m_fConstantBias(0.1f)
-    , m_bCastShadows(false)
-{
-}
-
-ezLightComponent::~ezLightComponent() {}
+ezLightComponent::ezLightComponent() = default;
+ezLightComponent::~ezLightComponent() = default;
 
 void ezLightComponent::SetLightColor(ezColorGammaUB LightColor)
 {
@@ -156,7 +147,7 @@ void ezLightComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_bCastShadows;
 }
 
-void ezLightComponent::OnSetColor(ezMsgSetColor& msg)
+void ezLightComponent::OnMsgSetColor(ezMsgSetColor& msg)
 {
   msg.ModifyColor(m_LightColor);
 }

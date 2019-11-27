@@ -21,8 +21,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezKrautTreeComponent, 1, ezComponentMode::Static)
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
-    EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnExtractGeometry),
+    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnMsgExtractGeometry),
     EZ_MESSAGE_HANDLER(ezMsgBuildStaticMesh, OnBuildStaticMesh),
   }
   EZ_END_MESSAGEHANDLERS;
@@ -131,7 +131,7 @@ void ezKrautTreeComponent::Initialize()
   GetWorld()->GetOrCreateComponentManager<ezKrautTreeComponentManager>()->EnqueueUpdate(GetHandle());
 }
 
-void ezKrautTreeComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
+void ezKrautTreeComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   if (!m_hKrautTree.IsValid())
     return;
@@ -246,7 +246,7 @@ ezResult ezKrautTreeComponent::CreateGeometry(ezGeometry& geo, ezWorldGeoExtract
   return EZ_SUCCESS;
 }
 
-void ezKrautTreeComponent::OnExtractGeometry(ezMsgExtractGeometry& msg) const
+void ezKrautTreeComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
 {
   ezGeometry geo;
   if (CreateGeometry(geo, msg.m_Mode).Failed())

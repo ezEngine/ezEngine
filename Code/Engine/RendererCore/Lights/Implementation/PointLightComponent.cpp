@@ -18,12 +18,12 @@ EZ_BEGIN_COMPONENT_TYPE(ezPointLightComponent, 2, ezComponentMode::Static)
     //EZ_ACCESSOR_PROPERTY("ProjectedTexture", GetProjectedTextureFile, SetProjectedTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture Cube")),
   }
   EZ_END_PROPERTIES;
-    EZ_BEGIN_MESSAGEHANDLERS
+  EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
   }
   EZ_END_MESSAGEHANDLERS;
-    EZ_BEGIN_ATTRIBUTES
+  EZ_BEGIN_ATTRIBUTES
   {
     new ezSphereManipulatorAttribute("Range"),
     new ezPointLightVisualizerAttribute("Range", "Intensity", "LightColor"),
@@ -34,12 +34,11 @@ EZ_END_COMPONENT_TYPE
 // clang-format on
 
 ezPointLightComponent::ezPointLightComponent()
-    : m_fRange(0.0f)
 {
   m_fEffectiveRange = CalculateEffectiveRange(m_fRange, m_fIntensity);
 }
 
-ezPointLightComponent::~ezPointLightComponent() {}
+ezPointLightComponent::~ezPointLightComponent() = default;
 
 ezResult ezPointLightComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
 {
@@ -96,7 +95,7 @@ const char* ezPointLightComponent::GetProjectedTextureFile() const
   return m_hProjectedTexture.GetResourceID();
 }
 
-void ezPointLightComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
+void ezPointLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   // Don't extract light render data for selection or in shadow views.
   if (msg.m_OverrideCategory != ezInvalidRenderDataCategory || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)
@@ -108,7 +107,7 @@ void ezPointLightComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) con
   ezTransform t = GetOwner()->GetGlobalTransform();
 
   float fScreenSpaceSize =
-      CalculateScreenSpaceSize(ezBoundingSphere(t.m_vPosition, m_fEffectiveRange * 0.5f), *msg.m_pView->GetCullingCamera());
+    CalculateScreenSpaceSize(ezBoundingSphere(t.m_vPosition, m_fEffectiveRange * 0.5f), *msg.m_pView->GetCullingCamera());
 
   auto pRenderData = ezCreateRenderDataForThisFrame<ezPointLightRenderData>(GetOwner());
 
@@ -151,18 +150,18 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPointLightVisualizerAttribute, 1, ezRTTIDefaul
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezPointLightVisualizerAttribute::ezPointLightVisualizerAttribute()
-    : ezVisualizerAttribute(nullptr)
+  : ezVisualizerAttribute(nullptr)
 {
 }
 
 ezPointLightVisualizerAttribute::ezPointLightVisualizerAttribute(const char* szRangeProperty, const char* szIntensityProperty,
-                                                                 const char* szColorProperty)
-    : ezVisualizerAttribute(szRangeProperty, szIntensityProperty, szColorProperty)
+  const char* szColorProperty)
+  : ezVisualizerAttribute(szRangeProperty, szIntensityProperty, szColorProperty)
 {
 }
 
-  //////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
@@ -171,7 +170,7 @@ class ezPointLightComponentPatch_1_2 : public ezGraphPatch
 {
 public:
   ezPointLightComponentPatch_1_2()
-      : ezGraphPatch("ezPointLightComponent", 2)
+    : ezGraphPatch("ezPointLightComponent", 2)
   {
   }
 
@@ -184,4 +183,3 @@ public:
 ezPointLightComponentPatch_1_2 g_ezPointLightComponentPatch_1_2;
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_PointLightComponent);
-
