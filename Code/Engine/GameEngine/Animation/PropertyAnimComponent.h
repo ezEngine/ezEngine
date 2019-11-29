@@ -51,10 +51,10 @@ public:
   EZ_ALWAYS_INLINE const ezPropertyAnimResourceHandle& GetPropertyAnim() const { return m_hPropertyAnim; } // [ property ]
 
   /// \brief Sets the animation playback range and resets the playing position to the range start position. Also activates the component if it isn't.
-  void PlayAnimationRange(ezTime RangeLow, ezTime RangeHigh);
+  void PlayAnimationRange(ezTime RangeLow, ezTime RangeHigh); // [ scriptable ]
 
   /// \brief Pauses or resumes animation playback. Does not reset any state.
-  void OnMsgSetPlaying(ezMsgSetPlaying& msg);
+  void OnMsgSetPlaying(ezMsgSetPlaying& msg); // [ msg handler ]
 
   ezEnum<ezPropertyAnimMode> m_AnimationMode; // [ property ]
   ezTime m_RandomOffset;                      // [ property ]

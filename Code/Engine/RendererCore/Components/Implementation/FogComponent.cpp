@@ -34,14 +34,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezFogComponent, 1, ezComponentMode::Static)
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
-ezFogComponent::ezFogComponent()
-    : m_Color(ezColor(0.2f, 0.2f, 0.3f))
-    , m_fDensity(1.0f)
-    , m_fHeightFalloff(10.0f)
-{
-}
-
-ezFogComponent::~ezFogComponent() {}
+ezFogComponent::ezFogComponent() = default;
+ezFogComponent::~ezFogComponent() = default;
 
 void ezFogComponent::Deinitialize()
 {
@@ -136,7 +130,4 @@ void ezFogComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fHeightFalloff;
 }
 
-
-
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_FogComponent);
-

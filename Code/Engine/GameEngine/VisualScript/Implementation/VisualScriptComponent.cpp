@@ -27,13 +27,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezVisualScriptComponent, 4, ezComponentMode::Static);
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
-ezVisualScriptComponent::ezVisualScriptComponent() {}
-
-ezVisualScriptComponent::~ezVisualScriptComponent()
-{
-  m_hResource.Invalidate();
-  m_Script.Clear();
-}
+ezVisualScriptComponent::ezVisualScriptComponent() = default;
+ezVisualScriptComponent::~ezVisualScriptComponent() = default;
 
 void ezVisualScriptComponent::SerializeComponent(ezWorldWriter& stream) const
 {

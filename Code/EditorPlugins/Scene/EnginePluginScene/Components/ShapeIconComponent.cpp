@@ -16,29 +16,15 @@ EZ_BEGIN_COMPONENT_TYPE(ezShapeIconComponent, 1, ezComponentMode::Static)
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
-ezShapeIconComponent::ezShapeIconComponent() {}
-
-ezShapeIconComponent::~ezShapeIconComponent() {}
-
-void ezShapeIconComponent::SerializeComponent(ezWorldWriter& stream) const
-{
-  SUPER::SerializeComponent(stream);
-  ezStreamWriter& s = stream.GetStream();
-}
-
-void ezShapeIconComponent::DeserializeComponent(ezWorldReader& stream)
-{
-  SUPER::DeserializeComponent(stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  // ezStreamReader& s = stream.GetStream();
-}
+ezShapeIconComponent::ezShapeIconComponent() = default;
+ezShapeIconComponent::~ezShapeIconComponent() = default;
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneExportModifier_RemoveShapeIconComponents, 1,
-                                ezRTTIDefaultAllocator<ezSceneExportModifier_RemoveShapeIconComponents>)
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneExportModifier_RemoveShapeIconComponents, 1, ezRTTIDefaultAllocator<ezSceneExportModifier_RemoveShapeIconComponents>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
+// clang-format on
 
 void ezSceneExportModifier_RemoveShapeIconComponents::ModifyWorld(ezWorld& world, const ezUuid& documentGuid)
 {

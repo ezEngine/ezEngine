@@ -17,29 +17,30 @@ class EZ_GAMEENGINE_DLL ezSrmRenderComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezSrmRenderComponent, ezComponent, ezSrmRenderComponentManager);
 
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent
+
+public:
+  virtual void SerializeComponent(ezWorldWriter& stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& stream) override;
+
+protected:
+  virtual void OnActivated() override;
+  virtual void OnDeactivated() override;
+
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezSrmRenderComponent
+
 public:
   ezSrmRenderComponent();
   ~ezSrmRenderComponent();
 
-  //
-  // ezComponent Interface
-  //
-
-protected:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
-  virtual void OnActivated() override;
-  virtual void OnDeactivated() override;
-
-  //
-  // ezSrmRenderComponent Interface
-  //
-public:
-  void SetMaterialFile(const char* szFile);
-  const char* GetMaterialFile() const;
+  void SetMaterialFile(const char* szFile); // [ property ]
+  const char* GetMaterialFile() const;      // [ property ]
 
   void SetMaterial(const ezMaterialResourceHandle& hMaterial);
-  EZ_ALWAYS_INLINE const ezMaterialResourceHandle& GetMaterial() const { return m_hMaterial; }
+  const ezMaterialResourceHandle& GetMaterial() const { return m_hMaterial; }
 
 
 protected:
@@ -53,10 +54,8 @@ protected:
   void SurfaceReconstructionManagerEventHandler(const ezSrmManagerEvent& e);
   void RemoveSrmRenderObject(const ezUuid& guid);
   void UpdateSurfaceRepresentation(const ezUuid& guid);
-  void CreateSurfaceRepresentation(const ezUuid& guid, SrmRenderObject& surface, const ezTransform& transform,
-                                   ezMeshBufferResourceDescriptor&& mb);
+  void CreateSurfaceRepresentation(const ezUuid& guid, SrmRenderObject& surface, const ezTransform& transform, ezMeshBufferResourceDescriptor&& mb);
 
   ezMaterialResourceHandle m_hMaterial;
   ezMap<ezUuid, SrmRenderObject> m_SrmRenderObjects;
 };
-

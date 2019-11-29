@@ -1,10 +1,10 @@
 #pragma once
 
-#include <GameEngine/GameEngineDLL.h>
-#include <Core/World/World.h>
-#include <Core/World/Component.h>
-#include <Foundation/Time/Time.h>
 #include <Core/ResourceManager/ResourceHandle.h>
+#include <Core/World/Component.h>
+#include <Core/World/World.h>
+#include <Foundation/Time/Time.h>
+#include <GameEngine/GameEngineDLL.h>
 
 struct ezMsgComponentInternalTrigger;
 typedef ezComponentManager<class ezTimedDeathComponent, ezBlockStorageType::Compact> ezTimedDeathComponentManager;
@@ -19,30 +19,33 @@ class EZ_GAMEENGINE_DLL ezTimedDeathComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezTimedDeathComponent, ezComponent, ezTimedDeathComponentManager);
 
-public:
-  ezTimedDeathComponent();
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent
 
+public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
+protected:
   /// \brief Once this function has been executed, the timeout for deletion is fixed and cannot be reset.
   virtual void OnSimulationStarted() override;
 
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezTimedDeathComponent
+
+public:
+  ezTimedDeathComponent();
+  ~ezTimedDeathComponent();
+
+  ezTime m_MinDelay = ezTime::Seconds(1.0);   // [ property ]
+  ezTime m_DelayRange = ezTime::Seconds(0.0); // [ property ]
+
+  void SetTimeoutPrefab(const char* szPrefab); // [ property ]
+  const char* GetTimeoutPrefab() const;        // [ property ]
+
+protected:
   void OnTriggered(ezMsgComponentInternalTrigger& msg);
 
-  // ************************************* PROPERTIES ***********************************
-
-  ezTime m_MinDelay;
-  ezTime m_DelayRange;
-
-  void SetTimeoutPrefab(const char* szPrefab);
-  const char* GetTimeoutPrefab() const;
-
-private:
-
   ezPrefabResourceHandle m_hTimeoutPrefab; ///< Spawned when the component is killed due to the timeout
-
-
-
 };
-

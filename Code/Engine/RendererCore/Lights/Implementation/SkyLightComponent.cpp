@@ -36,10 +36,7 @@ EZ_END_COMPONENT_TYPE
 
 static float s_fSkyLightPriority = 10.0f;
 
-ezSkyLightComponent::ezSkyLightComponent()
-{
-}
-
+ezSkyLightComponent::ezSkyLightComponent() = default;
 ezSkyLightComponent::~ezSkyLightComponent() = default;
 
 void ezSkyLightComponent::OnActivated()

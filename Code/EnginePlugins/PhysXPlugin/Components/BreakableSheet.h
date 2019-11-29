@@ -100,10 +100,11 @@ public:
   void Break();                               // [ scriptable ]
   bool IsBroken() const { return m_bBroken; } // [ scriptable ]
 
+  void OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const; // [ msg handler ]
+
 protected:
   void Update();
 
-  void OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const; // [ msg handler ]
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
   void OnCollision(ezMsgCollision& msg);
 

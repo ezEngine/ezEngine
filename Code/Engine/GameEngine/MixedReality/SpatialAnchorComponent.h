@@ -1,8 +1,8 @@
 #pragma once
 
-#include <GameEngine/GameEngineDLL.h>
-#include <Core/World/World.h>
 #include <Core/World/Component.h>
+#include <Core/World/World.h>
+#include <GameEngine/GameEngineDLL.h>
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -12,27 +12,27 @@ class EZ_GAMEENGINE_DLL ezSpatialAnchorComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezSpatialAnchorComponent, ezComponent, ezSpatialAnchorComponentManager);
 
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent
+
+public:
+  virtual void SerializeComponent(ezWorldWriter& stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& stream) override;
+
+protected:
+  virtual void OnSimulationStarted() override;
+  virtual void OnDeactivated() override;
+
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezSpatialAnchorComponent
+
 public:
   ezSpatialAnchorComponent();
   ~ezSpatialAnchorComponent();
 
-  //
-  // ezComponent Interface
-  //
-
-protected:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
-  virtual void OnSimulationStarted() override;
-  virtual void OnDeactivated() override;
-
-  //
-  // ezSpatialAnchorComponent Interface
-  // 
-
-public:
   /// \brief Attempts to create a new anchor at the given location.
-  /// 
+  ///
   /// On failure, the existing anchor will continue to be used.
   /// On success, the new anchor will be used and the new location will be persisted automatically,
   /// if the anchor has a persistence name.
@@ -40,7 +40,7 @@ public:
 
   /// \brief Sets the unique name with which this anchor is identified.
   /// All anchors with a name will be persisted and restored when the app is launched again.
-  /// 
+  ///
   /// Set to null to turn this into a non-persistent anchor.
   void SetPersistentAnchorName(const char* szName);
 
@@ -58,4 +58,3 @@ protected:
   ezUniquePtr<class ezWindowsSpatialAnchor> m_pSpatialAnchor;
 #endif
 };
-

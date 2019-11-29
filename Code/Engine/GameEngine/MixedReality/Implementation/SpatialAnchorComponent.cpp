@@ -10,7 +10,7 @@
 #include <WindowsMixedReality/SpatialReferenceFrame.h>
 
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
-#include <windows.perception.spatial.h>
+#  include <windows.perception.spatial.h>
 #endif
 
 //////////////////////////////////////////////////////////////////////////
@@ -32,8 +32,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpatialAnchorComponent, 1, ezComponentMode::Dynamic)
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
-ezSpatialAnchorComponent::ezSpatialAnchorComponent() {}
-ezSpatialAnchorComponent::~ezSpatialAnchorComponent() {}
+ezSpatialAnchorComponent::ezSpatialAnchorComponent() = default;
+ezSpatialAnchorComponent::~ezSpatialAnchorComponent() = default;
 
 void ezSpatialAnchorComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -171,4 +171,3 @@ void ezSpatialAnchorComponent::OnDeactivated()
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_MixedReality_Components_SpatialAnchorComponent);
-

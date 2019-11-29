@@ -87,11 +87,8 @@ void ezTransformComponent::SetReverseAtEnd(bool b)
   m_Flags.AddOrRemove(ezTransformComponentFlags::AutoReturnEnd, b);
 }
 
-ezTransformComponent::ezTransformComponent()
-{
-  m_fAnimationSpeed = 1.0f;
-  m_AnimationTime.SetZero();
-}
+ezTransformComponent::ezTransformComponent() = default;
+ezTransformComponent::~ezTransformComponent() = default;
 
 void ezTransformComponent::SetDirectionForwards(bool bForwards)
 {

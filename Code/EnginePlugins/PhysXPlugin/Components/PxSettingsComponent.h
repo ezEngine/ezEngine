@@ -1,8 +1,8 @@
 #pragma once
 
-#include <PhysXPlugin/PhysXInterface.h>
 #include <Core/World/SettingsComponent.h>
 #include <Core/World/SettingsComponentManager.h>
+#include <PhysXPlugin/PhysXInterface.h>
 
 typedef ezSettingsComponentManager<class ezPxSettingsComponent> ezPxSettingsComponentManager;
 
@@ -10,36 +10,41 @@ class EZ_PHYSXPLUGIN_DLL ezPxSettingsComponent : public ezSettingsComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezPxSettingsComponent, ezSettingsComponent, ezPxSettingsComponentManager);
 
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent
+
+public:
+  virtual void SerializeComponent(ezWorldWriter& stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& stream) override;
+
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezPxSettingsComponent
+
 public:
   ezPxSettingsComponent();
   ~ezPxSettingsComponent();
 
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
-
-  // ************************************* PROPERTIES ***********************************
-public:
-
-  const ezVec3& GetObjectGravity() const { return m_Settings.m_vObjectGravity; }
-  void SetObjectGravity(const ezVec3& v);
-
-  const ezVec3& GetCharacterGravity() const { return m_Settings.m_vCharacterGravity; }
-  void SetCharacterGravity(const ezVec3& v);
-
-  float GetMaxDepenetrationVelocity() const { return m_Settings.m_fMaxDepenetrationVelocity; }
-  void SetMaxDepenetrationVelocity(float fMaxVelocity);
-
-  ezPxSteppingMode::Enum GetSteppingMode() const { return m_Settings.m_SteppingMode; }
-  void SetSteppingMode(ezPxSteppingMode::Enum mode);
-
-  float GetFixedFrameRate() const { return m_Settings.m_fFixedFrameRate; }
-  void SetFixedFrameRate(float fFixedFrameRate);
-
-  ezUInt32 GetMaxSubSteps() const { return m_Settings.m_uiMaxSubSteps; }
-  void SetMaxSubSteps(ezUInt32 uiMaxSubSteps);
-
   const ezPxSettings& GetSettings() const { return m_Settings; }
 
-private:
+  const ezVec3& GetObjectGravity() const { return m_Settings.m_vObjectGravity; } // [ property ]
+  void SetObjectGravity(const ezVec3& v);                                        // [ property ]
+
+  const ezVec3& GetCharacterGravity() const { return m_Settings.m_vCharacterGravity; } // [ property ]
+  void SetCharacterGravity(const ezVec3& v);                                           // [ property ]
+
+  float GetMaxDepenetrationVelocity() const { return m_Settings.m_fMaxDepenetrationVelocity; } // [ property ]
+  void SetMaxDepenetrationVelocity(float fMaxVelocity);                                        // [ property ]
+
+  ezPxSteppingMode::Enum GetSteppingMode() const { return m_Settings.m_SteppingMode; } // [ property ]
+  void SetSteppingMode(ezPxSteppingMode::Enum mode);                                   // [ property ]
+
+  float GetFixedFrameRate() const { return m_Settings.m_fFixedFrameRate; } // [ property ]
+  void SetFixedFrameRate(float fFixedFrameRate);                           // [ property ]
+
+  ezUInt32 GetMaxSubSteps() const { return m_Settings.m_uiMaxSubSteps; } // [ property ]
+  void SetMaxSubSteps(ezUInt32 uiMaxSubSteps);                           // [ property ]
+
+protected:
   ezPxSettings m_Settings;
 };

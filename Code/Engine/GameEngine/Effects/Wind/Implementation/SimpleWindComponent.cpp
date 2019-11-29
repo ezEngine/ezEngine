@@ -139,7 +139,7 @@ void ezSimpleWindComponent::Initialize()
   SUPER::Initialize();
 
   // make sure to query the wind interface before any simulation starts
-  /*ezWindWorldModuleInterface* pWindInterface =*/ GetWorld()->GetOrCreateModule<ezWindWorldModuleInterface>();
+  /*ezWindWorldModuleInterface* pWindInterface =*/GetWorld()->GetOrCreateModule<ezWindWorldModuleInterface>();
 }
 
 

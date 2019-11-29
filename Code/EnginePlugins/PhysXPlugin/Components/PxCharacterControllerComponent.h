@@ -63,11 +63,11 @@ public:
   float m_fWalkInteractionDistance = 1.0f;        ///< [ property ] How far the CC has to walk for spawning another surface interaction
   float m_fRunInteractionDistance = 3.0f;         ///< [ property ] How far the CC has to run for spawning another surface interaction
 
-  void SetWalkSurfaceInteraction(const char* sz) { m_sWalkSurfaceInteraction.Assign(sz); }
-  const char* GetWalkSurfaceInteraction() const { return m_sWalkSurfaceInteraction.GetData(); }
+  void SetWalkSurfaceInteraction(const char* sz) { m_sWalkSurfaceInteraction.Assign(sz); }      // [ property ]
+  const char* GetWalkSurfaceInteraction() const { return m_sWalkSurfaceInteraction.GetData(); } // [ property ]
 
-  void SetFallbackWalkSurfaceFile(const char* szFile);
-  const char* GetFallbackWalkSurfaceFile() const;
+  void SetFallbackWalkSurfaceFile(const char* szFile); // [ property ]
+  const char* GetFallbackWalkSurfaceFile() const;      // [ property ]
 
 protected:
   void Update();
