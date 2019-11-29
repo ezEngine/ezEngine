@@ -12,33 +12,40 @@ class EZ_RENDERERCORE_DLL ezAmbientLightComponent : public ezSettingsComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezAmbientLightComponent, ezSettingsComponent, ezAmbientLightComponentManager);
 
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent
+
+public:
+  virtual void SerializeComponent(ezWorldWriter& stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& stream) override;
+
+protected:
+  virtual void Deinitialize() override;
+  virtual void OnActivated() override;
+  virtual void OnDeactivated() override;
+
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezAmbientLightComponent
+
 public:
   ezAmbientLightComponent();
   ~ezAmbientLightComponent();
 
-  virtual void Deinitialize() override;
+  void SetTopColor(ezColorGammaUB color); // [ property ]
+  ezColorGammaUB GetTopColor() const;     // [ property ]
 
-  virtual void OnActivated() override;
-  virtual void OnDeactivated() override;
+  void SetBottomColor(ezColorGammaUB color); // [ property ]
+  ezColorGammaUB GetBottomColor() const;     // [ property ]
 
-  void SetTopColor(ezColorGammaUB color);
-  ezColorGammaUB GetTopColor() const;
-
-  void SetBottomColor(ezColorGammaUB color);
-  ezColorGammaUB GetBottomColor() const;
-
-  void SetIntensity(float fIntensity);
-  float GetIntensity() const;
-
-  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
-
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  void SetIntensity(float fIntensity); // [ property ]
+  float GetIntensity() const;          // [ property ]
 
 private:
+  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
   void UpdateSkyIrradiance();
 
-  ezColorGammaUB m_TopColor;
-  ezColorGammaUB m_BottomColor;
-  float m_fIntensity;
+  ezColorGammaUB m_TopColor = ezColor(0.2f, 0.2f, 0.3f);
+  ezColorGammaUB m_BottomColor = ezColor(0.1f, 0.1f, 0.15f);
+  float m_fIntensity = 1.0f;
 };

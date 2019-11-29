@@ -13,17 +13,6 @@ EZ_END_ABSTRACT_COMPONENT_TYPE
 ezPxActorComponent::ezPxActorComponent() = default;
 ezPxActorComponent::~ezPxActorComponent() = default;
 
-void ezPxActorComponent::SerializeComponent(ezWorldWriter& stream) const
-{
-  SUPER::SerializeComponent(stream);
-}
-
-void ezPxActorComponent::DeserializeComponent(ezWorldReader& stream)
-{
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-}
-
 void ezPxActorComponent::AddShapesFromObject(ezGameObject* pObject, PxRigidActor* pRigidActor, const ezSimdTransform& ParentTransform)
 {
   ezHybridArray<ezPxShapeComponent*, 8> shapes;

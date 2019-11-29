@@ -30,11 +30,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxShapeSphereComponent, 1, ezComponentMode::Static)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezPxShapeSphereComponent::ezPxShapeSphereComponent()
-{
-  m_fRadius = 0.5f;
-}
-
+ezPxShapeSphereComponent::ezPxShapeSphereComponent() = default;
+ezPxShapeSphereComponent::~ezPxShapeSphereComponent() = default;
 
 void ezPxShapeSphereComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -43,7 +40,6 @@ void ezPxShapeSphereComponent::SerializeComponent(ezWorldWriter& stream) const
   auto& s = stream.GetStream();
   s << m_fRadius;
 }
-
 
 void ezPxShapeSphereComponent::DeserializeComponent(ezWorldReader& stream)
 {
@@ -55,12 +51,10 @@ void ezPxShapeSphereComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fRadius;
 }
 
-
 void ezPxShapeSphereComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const
 {
   msg.AddBounds(ezBoundingSphere(ezVec3::ZeroVector(), m_fRadius), ezInvalidSpatialDataCategory);
 }
-
 
 void ezPxShapeSphereComponent::SetRadius(float f)
 {

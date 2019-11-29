@@ -30,14 +30,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPxJointComponent, 2)
 EZ_END_ABSTRACT_COMPONENT_TYPE
 // clang-format on
 
-ezPxJointComponent::ezPxJointComponent()
-{
-  m_fBreakForce = 0.0f;
-  m_fBreakTorque = 0.0f;
-  m_bPairCollision = false;
-  m_pJoint = nullptr;
-}
-
+ezPxJointComponent::ezPxJointComponent() = default;
 ezPxJointComponent::~ezPxJointComponent() = default;
 
 void ezPxJointComponent::OnSimulationStarted()
@@ -145,20 +138,6 @@ void ezPxJointComponent::SetChildActor(const char* szReference)
 
   SetUserFlag(1, false);
   m_hActorB = resolver(szReference, GetHandle(), "ChildActor");
-}
-
-void ezPxJointComponent::SetActors(ezGameObjectHandle hActorA, const ezTransform& localFrameA, ezGameObjectHandle hActorB,
-  const ezTransform& localFrameB)
-{
-  m_hActorA = hActorA;
-  m_hActorB = hActorB;
-
-  // prevent FindParentBody() and FindChildBody() from overwriting the local frames
-  SetUserFlag(0, true);
-  SetUserFlag(1, true);
-
-  m_localFrameA = localFrameA;
-  m_localFrameB = localFrameB;
 }
 
 ezResult ezPxJointComponent::FindParentBody(physx::PxRigidActor*& pActor)

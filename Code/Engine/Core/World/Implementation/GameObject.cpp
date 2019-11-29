@@ -36,7 +36,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezRTTINoAllocator)
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgDeleteGameObject, OnDeleteObject),
+    EZ_MESSAGE_HANDLER(ezMsgDeleteGameObject, OnMsgDeleteGameObject),
   }
   EZ_END_MESSAGEHANDLERS;
 }
@@ -660,7 +660,7 @@ void ezGameObject::TryGetComponentsOfBaseType(const ezRTTI* pType, ezHybridArray
   }
 }
 
-void ezGameObject::OnDeleteObject(ezMsgDeleteGameObject& msg)
+void ezGameObject::OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg)
 {
   m_pWorld->DeleteObjectNow(GetHandle());
 }

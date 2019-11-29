@@ -20,7 +20,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxStaticActorComponent, 2, ezComponentMode::Static)
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnExtractGeometry),
+    EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnMsgExtractGeometry),
   }
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_FUNCTIONS
@@ -192,7 +192,7 @@ void ezPxStaticActorComponent::OnSimulationStarted()
   }
 }
 
-void ezPxStaticActorComponent::OnExtractGeometry(ezMsgExtractGeometry& msg) const
+void ezPxStaticActorComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
 {
   if (!m_bIncludeInNavmesh)
     return;

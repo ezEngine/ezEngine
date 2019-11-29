@@ -156,7 +156,7 @@ public:
   void OnMsgSetFloatParameter(ezMsgSetFloatParameter& msg); // [ msg handler ]
 
 protected:
-  void OnDeleteObject(ezMsgDeleteGameObject& msg); // [ msg handler ]
+  void OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg); // [ msg handler ]
 
   void Update();
   void UpdateParameters();

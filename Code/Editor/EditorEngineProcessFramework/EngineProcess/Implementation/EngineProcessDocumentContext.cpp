@@ -696,7 +696,7 @@ void ezEngineProcessDocumentContext::WorldRttiConverterContextEventHandler(const
 ezGameObjectHandle ezEngineProcessDocumentContext::ResolveStringToGameObjectHandle(const void* pData, ezComponentHandle hThis, const char* szComponentProperty) const
 {
   // overview:
-  // check if m_GoRef_ReferencesTo[component] already maps from [property] to something -> update (remove if pData is empty/invalid)
+  // check if m_GoRef_ReferencesTo[component] already maps from [ property ] to something -> update (remove if pData is empty/invalid)
   // otherwise add reference
   //
   // if already mapped to something, remove reference from m_GoRef_ReferencedBy

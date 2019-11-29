@@ -24,14 +24,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezRotorComponent, 3, ezComponentMode::Dynamic)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezRotorComponent::ezRotorComponent()
-{
-  m_LastRotation.SetIdentity();
-  m_iDegreeToRotate = 0;
-  m_fAcceleration = 1.0f;
-  m_fDeceleration = 1.0f;
-  m_Axis = ezBasisAxis::PositiveZ;
-}
+ezRotorComponent::ezRotorComponent() = default;
+ezRotorComponent::~ezRotorComponent() = default;
 
 void ezRotorComponent::Update()
 {

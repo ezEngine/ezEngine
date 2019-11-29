@@ -22,7 +22,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDebugTextComponent, 1, ezComponentMode::Static)
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
   }
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
@@ -74,7 +74,7 @@ void ezDebugTextComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_Color;
 }
 
-void ezDebugTextComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
+void ezDebugTextComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   if (msg.m_OverrideCategory != ezInvalidRenderDataCategory || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)
     return;

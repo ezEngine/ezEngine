@@ -9,13 +9,6 @@ class EZ_PHYSXPLUGIN_DLL ezPxActorComponent : public ezPxComponent
   EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezPxActorComponent, ezPxComponent);
 
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent
-
-public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
-
-  //////////////////////////////////////////////////////////////////////////
   // ezPxActorComponent
 
 public:

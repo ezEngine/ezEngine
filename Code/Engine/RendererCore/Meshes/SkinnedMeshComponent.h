@@ -19,25 +19,34 @@ class EZ_RENDERERCORE_DLL ezSkinnedMeshComponent : public ezMeshComponentBase
 {
   EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezSkinnedMeshComponent, ezMeshComponentBase);
 
-public:
-  ezSkinnedMeshComponent();
-  ~ezSkinnedMeshComponent();
-
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent Interface
-  //
+  // ezComponent
+
+public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
+protected:
   virtual void OnDeactivated() override;
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezMeshComponentBase
 
 protected:
   virtual ezMeshRenderData* CreateRenderData() const override;
 
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezSkinnedMeshComponent
+
+public:
+  ezSkinnedMeshComponent();
+  ~ezSkinnedMeshComponent();
+
+protected:
   void CreateSkinningTransformBuffer(ezArrayPtr<const ezMat4> skinningMatrices);
   void UpdateSkinningTransformBuffer(ezArrayPtr<const ezMat4> skinningMatrices);
 
-private:
   ezGALBufferHandle m_hSkinningTransformsBuffer;
   ezArrayPtr<const ezMat4> m_SkinningMatrices;
 };

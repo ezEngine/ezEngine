@@ -14,36 +14,35 @@ class EZ_GAMEENGINE_DLL ezMotionMatchingComponent : public ezSkinnedMeshComponen
 {
   EZ_DECLARE_COMPONENT_TYPE(ezMotionMatchingComponent, ezSkinnedMeshComponent, ezMotionMatchingComponentManager);
 
-public:
-  ezMotionMatchingComponent();
-  ~ezMotionMatchingComponent();
-
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent Interface
-  //
+  // ezComponent
+
+public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
+
+protected:
   virtual void OnSimulationStarted() override;
 
 
   //////////////////////////////////////////////////////////////////////////
-  //
+  // ezMotionMatchingComponent
 
-  //////////////////////////////////////////////////////////////////////////
-  // Properties
-  //
-
-  void Update();
+public:
+  ezMotionMatchingComponent();
+  ~ezMotionMatchingComponent();
 
   void SetAnimation(ezUInt32 uiIndex, const ezAnimationClipResourceHandle& hResource);
   ezAnimationClipResourceHandle GetAnimation(ezUInt32 uiIndex) const;
 
 protected:
-  ezUInt32 Animations_GetCount() const;
-  const char* Animations_GetValue(ezUInt32 uiIndex) const;
-  void Animations_SetValue(ezUInt32 uiIndex, const char* value);
-  void Animations_Insert(ezUInt32 uiIndex, const char* value);
-  void Animations_Remove(ezUInt32 uiIndex);
+  void Update();
+
+  ezUInt32 Animations_GetCount() const;                          // [ property ]
+  const char* Animations_GetValue(ezUInt32 uiIndex) const;       // [ property ]
+  void Animations_SetValue(ezUInt32 uiIndex, const char* value); // [ property ]
+  void Animations_Insert(ezUInt32 uiIndex, const char* value);   // [ property ]
+  void Animations_Remove(ezUInt32 uiIndex);                      // [ property ]
 
   void ConfigureInput();
   ezVec3 GetInputDirection() const;

@@ -242,7 +242,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezFmodEventComponent, 4, ezComponentMode::Static)
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgDeleteGameObject, OnDeleteObject),
+    EZ_MESSAGE_HANDLER(ezMsgDeleteGameObject, OnMsgDeleteGameObject),
     EZ_MESSAGE_HANDLER(ezMsgSetFloatParameter, OnMsgSetFloatParameter),
   }
   EZ_END_MESSAGEHANDLERS;
@@ -594,7 +594,7 @@ void ezFmodEventComponent::SoundCue()
   }
 }
 
-void ezFmodEventComponent::OnDeleteObject(ezMsgDeleteGameObject& msg)
+void ezFmodEventComponent::OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg)
 {
   ezOnComponentFinishedAction::HandleDeleteObjectMsg(msg, m_OnFinishedAction);
 }

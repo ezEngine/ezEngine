@@ -32,7 +32,7 @@ ezSrmRenderComponent::ezSrmRenderComponent()
   SetMaterialFile("Materials/Common/SRM_Visible.ezMaterial");
 }
 
-ezSrmRenderComponent::~ezSrmRenderComponent() {}
+ezSrmRenderComponent::~ezSrmRenderComponent() = default;
 
 void ezSrmRenderComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -182,7 +182,7 @@ end:
 }
 
 void ezSrmRenderComponent::CreateSurfaceRepresentation(const ezUuid& guid, SrmRenderObject& surface, const ezTransform& transform,
-                                                       ezMeshBufferResourceDescriptor&& mb)
+  ezMeshBufferResourceDescriptor&& mb)
 {
   EZ_LOCK(GetWorld()->GetWriteMarker());
 
@@ -228,4 +228,3 @@ void ezSrmRenderComponent::CreateSurfaceRepresentation(const ezUuid& guid, SrmRe
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_MixedReality_Components_SrmRenderComponent);
-

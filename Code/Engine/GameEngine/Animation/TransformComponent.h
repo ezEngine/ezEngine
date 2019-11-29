@@ -37,34 +37,35 @@ class EZ_GAMEENGINE_DLL ezTransformComponent : public ezComponent
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezTransformComponent, ezComponent);
 
-public:
-  ezTransformComponent();
-
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent interface
+  // ezComponent
 
 public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
+
   //////////////////////////////////////////////////////////////////////////
-  // ezTransformComponent interface
+  // ezTransformComponent
 
 public:
-  void SetDirectionForwards(bool bForwards); // [scriptable]
-  void ToggleDirection();                    // [scriptable]
-  bool IsDirectionForwards() const;          // [scriptable]
+  ezTransformComponent();
+  ~ezTransformComponent();
 
-  bool IsRunning(void) const;     // [property]
-  void SetRunning(bool bRunning); // [property]
+  void SetDirectionForwards(bool bForwards); // [ scriptable ]
+  void ToggleDirection();                    // [ scriptable ]
+  bool IsDirectionForwards() const;          // [ scriptable ]
 
-  bool GetReverseAtStart(void) const; // [property]
-  void SetReverseAtStart(bool b);     // [property]
+  bool IsRunning(void) const;     // [ property ]
+  void SetRunning(bool bRunning); // [ property ]
 
-  bool GetReverseAtEnd(void) const; // [property]
-  void SetReverseAtEnd(bool b);     // [property]
+  bool GetReverseAtStart(void) const; // [ property ]
+  void SetReverseAtStart(bool b);     // [ property ]
 
-  float m_fAnimationSpeed; // [property]
+  bool GetReverseAtEnd(void) const; // [ property ]
+  void SetReverseAtEnd(bool b);     // [ property ]
+
+  float m_fAnimationSpeed = 1.0f; // [ property ]
 
 protected:
   ezBitflags<ezTransformComponentFlags> m_Flags;

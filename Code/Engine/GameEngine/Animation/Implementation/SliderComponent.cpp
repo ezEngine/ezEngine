@@ -23,14 +23,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezSliderComponent, 3, ezComponentMode::Dynamic)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezSliderComponent::ezSliderComponent()
-{
-  m_fDistanceToTravel = 1.0f;
-  m_fAcceleration = 0.0f;
-  m_fDeceleration = 0.0;
-  m_Axis = ezBasisAxis::PositiveZ;
-  m_fLastDistance = 0.0f;
-}
+ezSliderComponent::ezSliderComponent() = default;
+ezSliderComponent::~ezSliderComponent() = default;
 
 void ezSliderComponent::Update()
 {

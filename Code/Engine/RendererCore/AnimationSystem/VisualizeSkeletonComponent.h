@@ -7,7 +7,7 @@
 #include <RendererCore/Pipeline/RenderData.h>
 
 class EZ_RENDERERCORE_DLL ezVisualizeSkeletonComponentManager
-    : public ezComponentManager<class ezVisualizeSkeletonComponent, ezBlockStorageType::Compact>
+  : public ezComponentManager<class ezVisualizeSkeletonComponent, ezBlockStorageType::Compact>
 {
 public:
   typedef ezComponentManager<ezVisualizeSkeletonComponent, ezBlockStorageType::Compact> SUPER;
@@ -32,45 +32,45 @@ class EZ_RENDERERCORE_DLL ezVisualizeSkeletonComponent : public ezRenderComponen
 {
   EZ_DECLARE_COMPONENT_TYPE(ezVisualizeSkeletonComponent, ezRenderComponent, ezVisualizeSkeletonComponentManager);
 
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent
+
+public:
+  virtual void SerializeComponent(ezWorldWriter& stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& stream) override;
+
+protected:
+  virtual void OnSimulationStarted() override;
+
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezRenderComponent
+
+public:
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
+
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezVisualizeSkeletonComponent
+
 public:
   ezVisualizeSkeletonComponent();
   ~ezVisualizeSkeletonComponent();
 
-  void Render();
+  void SetSkeletonFile(const char* szFile); // [ property ]
+  const char* GetSkeletonFile() const;      // [ property ]
 
-protected:
-  // ezComponent interface
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
-  virtual void OnSimulationStarted() override;
-
-  // ezRenderComponent interface
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
-
-  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
-
-protected:
-  void CreateRenderMesh();
-
-  void CreateSkeletonGeometry(const ezSkeleton* pSkeletonData, ezGeometry& geo);
-  void CreateHitBoxGeometry(const ezSkeletonResourceDescriptor* pDescriptor, ezGeometry& geo);
-
-
-
-  // ************************************* PROPERTIES ***********************************
-public:
-  void SetSkeletonFile(const char* szFile);
-  const char* GetSkeletonFile() const;
-
-protected:
-  // ************************************* FUNCTIONS *****************************
-
-public:
   void SetSkeleton(const ezSkeletonResourceHandle& hMesh);
   EZ_ALWAYS_INLINE const ezSkeletonResourceHandle& GetSkeleton() const { return m_hSkeleton; }
 
-private:
+protected:
+  void Render();
+  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
+
+  void CreateRenderMesh();
+  void CreateSkeletonGeometry(const ezSkeleton* pSkeletonData, ezGeometry& geo);
+  void CreateHitBoxGeometry(const ezSkeletonResourceDescriptor* pDescriptor, ezGeometry& geo);
+
   ezSkeletonResourceHandle m_hSkeleton;
   mutable ezMeshResourceHandle m_hMesh;
 };
-

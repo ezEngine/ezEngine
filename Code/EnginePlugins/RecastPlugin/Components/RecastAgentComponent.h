@@ -42,21 +42,20 @@ class EZ_RECASTPLUGIN_DLL ezRcAgentComponent : public ezAgentSteeringComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezRcAgentComponent, ezAgentSteeringComponent, ezRcAgentComponentManager);
 
-public:
-  ezRcAgentComponent();
-  ~ezRcAgentComponent();
-
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent Interface
-  //
+  // ezComponent
+
 protected:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezAgentSteeringComponent Interface
-  //
+  // ezAgentSteeringComponent
+
 public:
+  ezRcAgentComponent();
+  ~ezRcAgentComponent();
+
   virtual void SetTargetPosition(const ezVec3& vPosition) override;
   virtual ezVec3 GetTargetPosition() const override;
   virtual void ClearTargetPosition() override;
@@ -64,6 +63,7 @@ public:
 
   //////////////////////////////////////////////////////////////////////////
   // Helper Functions
+
 public:
   ezResult FindNavMeshPolyAt(const ezVec3& vPosition, dtPolyRef& out_PolyRef, ezVec3* out_vAdjustedPosition = nullptr,
     float fPlaneEpsilon = 0.01f, float fHeightEpsilon = 1.0f) const;
@@ -73,7 +73,7 @@ public:
 
   //////////////////////////////////////////////////////////////////////////
   // Debug Visualization Functions
-  //
+
 private:
   void VisualizePathCorridorPosition();
   void VisualizePathCorridor();
@@ -82,6 +82,7 @@ private:
 
   //////////////////////////////////////////////////////////////////////////
   // Path Finding and Steering
+
 private:
   ezResult ComputePathToTarget();
   ezResult ComputePathCorridor(dtPolyRef startPoly, dtPolyRef endPoly, bool& bFoundPartialPath);
@@ -107,7 +108,7 @@ private:
   //////////////////////////////////////////////////////////////////////////
   // Properties
 public:
-  float m_fWalkSpeed = 4.0f;
+  float m_fWalkSpeed = 4.0f; // [ property ]
   /// \todo Expose and use
   // float m_fRadius = 0.2f;
   // float m_fHeight = 1.0f;

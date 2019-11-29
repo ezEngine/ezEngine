@@ -40,7 +40,7 @@ public:
   bool m_bIncludeInNavmesh = true; // [ property ]
 
 protected:
-  void OnExtractGeometry(ezMsgExtractGeometry& msg) const;
+  void OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const;
 
   ezUInt32 m_uiShapeId = ezInvalidIndex;
   ezPxMeshResourceHandle m_hCollisionMesh;

@@ -22,10 +22,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezGizmoComponent, 1, ezComponentMode::Static)
 EZ_END_COMPONENT_TYPE;
 // clang-format on
 
-ezGizmoComponent::ezGizmoComponent()
-{
-  m_bUseDepthPrepass = false;
-}
+ezGizmoComponent::ezGizmoComponent() = default;
+ezGizmoComponent::~ezGizmoComponent() = default;
 
 ezMeshRenderData* ezGizmoComponent::CreateRenderData() const
 {

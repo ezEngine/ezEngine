@@ -27,9 +27,9 @@ public:
   void SetJointName(const char* szName); // [ property ]
   const char* GetJointName() const;      // [ property ]
 
+protected:
   void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg); // [ msg handler ]
 
-protected:
   ezHashedString m_sJointToAttachTo;
   ezUInt16 m_uiJointIndex = ezInvalidJointIndex;
 };

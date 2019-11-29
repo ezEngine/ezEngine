@@ -87,20 +87,15 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezMeshComponentBase, 1)
     } EZ_END_ATTRIBUTES;
     EZ_BEGIN_MESSAGEHANDLERS
     {
-      EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
-      EZ_MESSAGE_HANDLER(ezMsgSetMeshMaterial, OnSetMaterial),
-      EZ_MESSAGE_HANDLER(ezMsgSetColor, OnSetColor),
+      EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
+      EZ_MESSAGE_HANDLER(ezMsgSetMeshMaterial, OnMsgSetMeshMaterial),
+      EZ_MESSAGE_HANDLER(ezMsgSetColor, OnMsgSetColor),
     } EZ_END_MESSAGEHANDLERS;
   }
 EZ_END_ABSTRACT_COMPONENT_TYPE;
 // clang-format on
 
-ezMeshComponentBase::ezMeshComponentBase()
-{
-  m_RenderDataCategory = ezInvalidRenderDataCategory;
-  m_Color = ezColor::White;
-}
-
+ezMeshComponentBase::ezMeshComponentBase() = default;
 ezMeshComponentBase::~ezMeshComponentBase() = default;
 
 void ezMeshComponentBase::SerializeComponent(ezWorldWriter& stream) const
@@ -163,7 +158,7 @@ ezResult ezMeshComponentBase::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& 
   return EZ_FAILURE;
 }
 
-void ezMeshComponentBase::OnExtractRenderData(ezMsgExtractRenderData& msg) const
+void ezMeshComponentBase::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   if (!m_hMesh.IsValid())
     return;
@@ -278,12 +273,12 @@ const ezColor& ezMeshComponentBase::GetColor() const
   return m_Color;
 }
 
-void ezMeshComponentBase::OnSetMaterial(ezMsgSetMeshMaterial& msg)
+void ezMeshComponentBase::OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& msg)
 {
   SetMaterial(msg.m_uiMaterialSlot, msg.m_hMaterial);
 }
 
-void ezMeshComponentBase::OnSetColor(ezMsgSetColor& msg)
+void ezMeshComponentBase::OnMsgSetColor(ezMsgSetColor& msg)
 {
   msg.ModifyColor(m_Color);
 }

@@ -15,12 +15,13 @@ class EZ_CORE_DLL ezSettingsComponent : public ezComponent
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSettingsComponent, ezComponent);
 
+  //////////////////////////////////////////////////////////////////////////
+  // ezSettingsComponent
+
 public:
   /// \brief The constructor marks the component as modified.
   ezSettingsComponent();
-
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  ~ezSettingsComponent();
 
   /// \brief Marks the component as modified. Individual bits can be used to mark only specific settings (groups) as modified.
   void SetModified(ezUInt32 uiBits = 0xFFFFFFFF) { m_uiSettingsModified |= uiBits; }
@@ -34,4 +35,3 @@ public:
 private:
   ezUInt32 m_uiSettingsModified;
 };
-

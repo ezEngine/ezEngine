@@ -44,7 +44,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpawnComponent, 2, ezComponentMode::Static)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezSpawnComponent::ezSpawnComponent() {}
+ezSpawnComponent::ezSpawnComponent() = default;
+ezSpawnComponent::~ezSpawnComponent() = default;
 
 void ezSpawnComponent::OnSimulationStarted()
 {

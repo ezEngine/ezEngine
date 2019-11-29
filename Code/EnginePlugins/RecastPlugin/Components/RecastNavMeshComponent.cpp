@@ -29,8 +29,8 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezRcComponent, 1)
 EZ_END_ABSTRACT_COMPONENT_TYPE
 // clang-format on
 
-ezRcComponent::ezRcComponent() {}
-ezRcComponent::~ezRcComponent() {}
+ezRcComponent::ezRcComponent() = default;
+ezRcComponent::~ezRcComponent() = default;
 
 //////////////////////////////////////////////////////////////////////////
 

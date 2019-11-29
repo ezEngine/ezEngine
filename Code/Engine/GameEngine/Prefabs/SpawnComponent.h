@@ -37,11 +37,8 @@ class EZ_GAMEENGINE_DLL ezSpawnComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezSpawnComponent, ezComponent, ezSpawnComponentManager);
 
-public:
-  ezSpawnComponent();
-
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent interface
+  // ezComponent
 
 public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
@@ -50,55 +47,57 @@ public:
 protected:
   virtual void OnSimulationStarted() override;
 
+
   //////////////////////////////////////////////////////////////////////////
-  // ezSpawnComponent interface
+  // ezSpawnComponent
 
 public:
+  ezSpawnComponent();
+  ~ezSpawnComponent();
+
   /// \brief Spawns a new object, unless the minimum spawn delay has not been reached between calls to this function.
   ///
   /// Manual spawns and continuous (scheduled) spawns are independent from each other regarding minimum spawn delays.
   /// If this function is called in too short intervals, it is ignored and false is returned.
   /// Returns true, if an object was spawned.
-  bool TriggerManualSpawn(); // [scriptable]
+  bool TriggerManualSpawn(); // [ scriptable ]
 
   /// \brief Unless a spawn is already scheduled, this will schedule one within the configured time frame.
   ///
   /// If continuous spawning is enabled, this will kick of the first spawn and then continue infinitely.
   /// To stop continuously spawning, remove the continuous spawn flag.
-  void ScheduleSpawn(); // [scriptable]
+  void ScheduleSpawn(); // [ scriptable ]
 
-  void SetPrefabFile(const char* szFile); // [property]
-  const char* GetPrefabFile() const;      // [property]
+  void SetPrefabFile(const char* szFile); // [ property ]
+  const char* GetPrefabFile() const;      // [ property ]
 
-  bool GetSpawnAtStart() const; // [property]
-  void SetSpawnAtStart(bool b); // [property]
+  bool GetSpawnAtStart() const; // [ property ]
+  void SetSpawnAtStart(bool b); // [ property ]
 
-  bool GetSpawnContinuously() const; // [property]
-  void SetSpawnContinuously(bool b); // [property]
+  bool GetSpawnContinuously() const; // [ property ]
+  void SetSpawnContinuously(bool b); // [ property ]
 
-  bool GetAttachAsChild() const; // [property]
-  void SetAttachAsChild(bool b); // [property]
+  bool GetAttachAsChild() const; // [ property ]
+  void SetAttachAsChild(bool b); // [ property ]
 
   void SetPrefab(const ezPrefabResourceHandle& hPrefab);
   EZ_ALWAYS_INLINE const ezPrefabResourceHandle& GetPrefab() const { return m_hPrefab; }
 
   /// The minimum delay between spawning objects. This is also enforced for manually spawning things.
-  ezTime m_MinDelay; // [property]
+  ezTime m_MinDelay; // [ property ]
 
   /// For scheduled spawns (continuous / at start) this is an additional random range on top of the minimum spawn delay.
-  ezTime m_DelayRange; // [property]
+  ezTime m_DelayRange; // [ property ]
 
   /// The spawned object's orientation may deviate by this amount around the X axis. 180° is completely random orientation.
-  ezAngle m_MaxDeviation; // [property]
+  ezAngle m_MaxDeviation; // [ property ]
 
 
 protected:
   ezBitflags<ezSpawnComponentFlags> m_SpawnFlags;
 
-  bool SpawnOnce();
   virtual void DoSpawn(const ezTransform& tLocalSpawn);
-
-private:
+  bool SpawnOnce();
   void OnTriggered(ezMsgComponentInternalTrigger& msg);
 
   ezTime m_LastManualSpawn;

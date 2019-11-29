@@ -1,10 +1,10 @@
 #pragma once
 
-#include <ParticlePlugin/ParticlePluginDLL.h>
 #include <Core/World/World.h>
-#include <ParticlePlugin/Effect/ParticleEffectInstance.h>
-#include <RendererCore/Components/RenderComponent.h>
 #include <ParticlePlugin/Effect/ParticleEffectController.h>
+#include <ParticlePlugin/Effect/ParticleEffectInstance.h>
+#include <ParticlePlugin/ParticlePluginDLL.h>
+#include <RendererCore/Components/RenderComponent.h>
 
 struct ezMsgExtractRenderData;
 
@@ -14,53 +14,33 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleFinisherComponent : public ezRenderCompone
 {
   EZ_DECLARE_COMPONENT_TYPE(ezParticleFinisherComponent, ezRenderComponent, ezParticleFinisherComponentManager);
 
-public:
-  ezParticleFinisherComponent();
-  ~ezParticleFinisherComponent();
-
   //////////////////////////////////////////////////////////////////////////
-  // Properties
-  //
-
-public:
-  //ezEnum<ezOnComponentFinishedAction> m_OnFinishedAction;
-
-  //////////////////////////////////////////////////////////////////////////
-  // ezParticleFinisherComponent Interface
-  //
-
-
-  //////////////////////////////////////////////////////////////////////////
-  // ezComponent Interface
-  //
-
-public:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  // ezComponent
 
 protected:
   virtual void OnDeactivated() override;
 
+
   //////////////////////////////////////////////////////////////////////////
-  // ezRenderComponent Interface
-  // 
+  // ezRenderComponent
 
 public:
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
 
-protected:
-  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
 
   //////////////////////////////////////////////////////////////////////////
-  // Implementation
-  //
+  // ezParticleFinisherComponent
 
 public:
+  ezParticleFinisherComponent();
+  ~ezParticleFinisherComponent();
+
   ezParticleEffectController m_EffectController;
 
 protected:
-  void Update();
+  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
 
+  void Update();
   void CheckBVolumeUpdate();
   ezTime m_LastBVolumeUpdate;
 };

@@ -21,12 +21,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxSettingsComponent, 3, ezComponentMode::Static)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezPxSettingsComponent::ezPxSettingsComponent()
-    : m_Settings()
-{
-}
-
-ezPxSettingsComponent::~ezPxSettingsComponent() {}
+ezPxSettingsComponent::ezPxSettingsComponent() = default;
+ezPxSettingsComponent::~ezPxSettingsComponent() = default;
 
 void ezPxSettingsComponent::SerializeComponent(ezWorldWriter& stream) const
 {

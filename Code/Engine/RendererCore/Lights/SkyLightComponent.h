@@ -13,25 +13,34 @@ class EZ_RENDERERCORE_DLL ezSkyLightComponent : public ezSettingsComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezSkyLightComponent, ezSettingsComponent, ezSkyLightComponentManager);
 
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent
+
+public:
+  virtual void SerializeComponent(ezWorldWriter& stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& stream) override;
+
+protected:
+  virtual void OnActivated() override;
+  virtual void OnDeactivated() override;
+
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezSkyLightComponent
+
 public:
   ezSkyLightComponent();
   ~ezSkyLightComponent();
 
-  virtual void OnActivated() override;
-  virtual void OnDeactivated() override;
+  void SetIntensity(float fIntensity); // [ property ]
+  float GetIntensity() const;          // [ property ]
 
-  void SetIntensity(float fIntensity);
-  float GetIntensity() const;
+  void SetSaturation(float fSaturation); // [ property ]
+  float GetSaturation() const;           // [ property ]
 
-  void SetSaturation(float fSaturation);
-  float GetSaturation() const;
-
+protected:
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
-  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
 
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
-
-private:
   ezReflectionProbeData m_ReflectionProbeData;
 };

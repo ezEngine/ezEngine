@@ -22,7 +22,7 @@ ezPxCharacterControllerComponentManager::ezPxCharacterControllerComponentManager
 {
 }
 
-ezPxCharacterControllerComponentManager::~ezPxCharacterControllerComponentManager() {}
+ezPxCharacterControllerComponentManager::~ezPxCharacterControllerComponentManager() = default;
 
 void ezPxCharacterControllerComponentManager::Initialize()
 {

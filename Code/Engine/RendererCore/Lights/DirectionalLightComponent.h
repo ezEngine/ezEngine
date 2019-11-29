@@ -11,7 +11,6 @@ class EZ_RENDERERCORE_DLL ezDirectionalLightRenderData : public ezLightRenderDat
   EZ_ADD_DYNAMIC_REFLECTION(ezDirectionalLightRenderData, ezLightRenderData);
 
 public:
-
 };
 
 /// \brief The standard directional light component.
@@ -20,38 +19,47 @@ class EZ_RENDERERCORE_DLL ezDirectionalLightComponent : public ezLightComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezDirectionalLightComponent, ezLightComponent, ezDirectionalLightComponentManager);
 
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent
+
+public:
+  virtual void SerializeComponent(ezWorldWriter& stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& stream) override;
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezRenderComponent
+
+public:
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezDirectionalLightComponent
+
 public:
   ezDirectionalLightComponent();
   ~ezDirectionalLightComponent();
 
-  // ezRenderComponent interface
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
+  void SetNumCascades(ezUInt32 uiNumCascades); // [ property ]
+  ezUInt32 GetNumCascades() const;             // [ property ]
 
-  void SetNumCascades(ezUInt32 uiNumCascades);
-  ezUInt32 GetNumCascades() const;
+  void SetMinShadowRange(float fMinShadowRange); // [ property ]
+  float GetMinShadowRange() const;               // [ property ]
 
-  void SetMinShadowRange(float fMinShadowRange);
-  float GetMinShadowRange() const;
+  void SetFadeOutStart(float fFadeOutStart); // [ property ]
+  float GetFadeOutStart() const;             // [ property ]
 
-  void SetFadeOutStart(float fFadeOutStart);
-  float GetFadeOutStart() const;
+  void SetSplitModeWeight(float fSplitModeWeight); // [ property ]
+  float GetSplitModeWeight() const;                // [ property ]
 
-  void SetSplitModeWeight(float fSplitModeWeight);
-  float GetSplitModeWeight() const;
+  void SetNearPlaneOffset(float fNearPlaneOffset); // [ property ]
+  float GetNearPlaneOffset() const;                // [ property ]
 
-  void SetNearPlaneOffset(float fNearPlaneOffset);
-  float GetNearPlaneOffset() const;
+protected:
+  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
 
-  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
-
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
-
-private:
-  ezUInt32 m_uiNumCascades;
-  float m_fMinShadowRange;
-  float m_fFadeOutStart;
-  float m_fSplitModeWeight;
-  float m_fNearPlaneOffset;
+  ezUInt32 m_uiNumCascades = 3;
+  float m_fMinShadowRange = 50.0f;
+  float m_fFadeOutStart = 0.8f;
+  float m_fSplitModeWeight = 0.7f;
+  float m_fNearPlaneOffset = 100.0f;
 };
-

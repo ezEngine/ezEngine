@@ -133,7 +133,18 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterProxyComponent, 3, ezComponentMode::Dynamic
   {
       EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds),
   }
-  EZ_END_MESSAGEHANDLERS; EZ_BEGIN_ATTRIBUTES
+  EZ_END_MESSAGEHANDLERS;
+  EZ_BEGIN_FUNCTIONS
+  {
+    //EZ_SCRIPT_FUNCTION_PROPERTY(Move, In, "motion", In, "crouch"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(IsCrouching),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetCurrentCapsuleHeight),
+    //EZ_SCRIPT_FUNCTION_PROPERTY(GetCollisionFlags),
+    EZ_SCRIPT_FUNCTION_PROPERTY(IsGrounded),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetShapeId),
+  }
+  EZ_END_FUNCTIONS;
+  EZ_BEGIN_ATTRIBUTES
   {
       new ezCapsuleManipulatorAttribute("CapsuleHeight", "CapsuleRadius"),
       new ezCapsuleVisualizerAttribute("CapsuleHeight", "CapsuleRadius"),
@@ -146,23 +157,10 @@ EZ_END_COMPONENT_TYPE
 ezPxCharacterProxyComponent::ezPxCharacterProxyComponent()
   : m_UserData(this)
 {
-  m_fCapsuleHeight = 1.0f;
-  m_fCapsuleCrouchHeight = 0.2f;
-  m_fCapsuleRadius = 0.25f;
-  m_fMass = 100.0f;
-  m_fMaxStepHeight = 0.3f;
-  m_MaxClimbingSlope = ezAngle::Degree(40.0f);
-  m_bForceSlopeSliding = true;
-  m_bConstrainedClimbingMode = false;
-  m_uiCollisionLayer = 0;
-  m_uiShapeId = ezInvalidIndex;
-
-  m_pController = nullptr;
-
   m_Data = EZ_DEFAULT_NEW(ezPxCharacterProxyData);
 }
 
-ezPxCharacterProxyComponent::~ezPxCharacterProxyComponent() {}
+ezPxCharacterProxyComponent::~ezPxCharacterProxyComponent() = default;
 
 void ezPxCharacterProxyComponent::SerializeComponent(ezWorldWriter& stream) const
 {
