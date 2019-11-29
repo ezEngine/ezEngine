@@ -14,10 +14,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezAnimatedMeshComponent, 10, ezComponentMode::Dynamic);
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Mesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("Animated Mesh")),
-    EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
-    EZ_ARRAY_ACCESSOR_PROPERTY("Materials", Materials_GetCount, Materials_GetValue, Materials_SetValue, Materials_Insert, Materials_Remove)->AddAttributes(new ezAssetBrowserAttribute("Material")),
-
     EZ_ACCESSOR_PROPERTY("AnimationClip", GetAnimationClipFile, SetAnimationClipFile)->AddAttributes(new ezAssetBrowserAttribute("Animation Clip")),
     EZ_ACCESSOR_PROPERTY("Loop", GetLoopAnimation, SetLoopAnimation),
     EZ_ACCESSOR_PROPERTY("Speed", GetAnimationSpeed, SetAnimationSpeed)->AddAttributes(new ezDefaultValueAttribute(1.0f)),

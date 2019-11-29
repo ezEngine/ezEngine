@@ -158,12 +158,17 @@ export class MsgPhysicsAddImpulse extends Message
 {
   public static GetTypeNameHash(): number { return 2618981170; }
   constructor() { super(); this.TypeNameHash = 2618981170; }
+  GlobalPosition: Vec3 = { x=0, y=0, z=0 };
+  Impulse: Vec3 = { x=0, y=0, z=0 };
+  ShapeID: number = 0;
 }
 
 export class MsgPhysicsAddForce extends Message
 {
   public static GetTypeNameHash(): number { return 3475477528; }
   constructor() { super(); this.TypeNameHash = 3475477528; }
+  GlobalPosition: Vec3 = { x=0, y=0, z=0 };
+  Force: Vec3 = { x=0, y=0, z=0 };
 }
 
 export class MsgBuildStaticMesh extends Message
@@ -204,12 +209,6 @@ export class MsgBreakableSheetBroke extends EventMessage
 {
   public static GetTypeNameHash(): number { return 2481203103; }
   constructor() { super(); this.TypeNameHash = 2481203103; }
-}
-
-export class MsgTriggerRaycastInteractionComponent extends Message
-{
-  public static GetTypeNameHash(): number { return 3760994013; }
-  constructor() { super(); this.TypeNameHash = 3760994013; }
 }
 
 export class MsgPxTriggerTriggered extends EventMessage

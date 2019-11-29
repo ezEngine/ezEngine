@@ -84,7 +84,8 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezMeshComponentBase, 1)
     EZ_BEGIN_ATTRIBUTES
     {
       new ezCategoryAttribute("Rendering"),
-    } EZ_END_ATTRIBUTES;
+    }
+    EZ_END_ATTRIBUTES;
     EZ_BEGIN_MESSAGEHANDLERS
     {
       EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),

@@ -14,7 +14,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezMotionMatchingComponent, 2, ezComponentMode::Dynamic);
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Mesh", GetMeshFile, SetMeshFile)->AddAttributes(new ezAssetBrowserAttribute("Animated Mesh")),
     EZ_ARRAY_ACCESSOR_PROPERTY("Animations", Animations_GetCount, Animations_GetValue, Animations_SetValue, Animations_Insert, Animations_Remove)->AddAttributes(new ezAssetBrowserAttribute("Animation Clip")),
   }
   EZ_END_PROPERTIES;

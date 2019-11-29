@@ -8,7 +8,7 @@ struct EZ_GAMEENGINE_DLL ezMsgDamage : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgDamage, ezMessage);
 
-  double m_fDamage;
+  double m_fDamage = 0;
 };
 
 class EZ_GAMEENGINE_DLL ezVisualScriptNode_OnDamage : public ezVisualScriptNode

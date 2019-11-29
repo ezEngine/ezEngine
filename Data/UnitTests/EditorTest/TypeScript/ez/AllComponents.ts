@@ -101,10 +101,6 @@ export class CameraComponent extends Component
   set ExposureCompensation(value: number) { __CPP_ComponentProperty_set(this, 1334442640, value); }
   get ShowStats(): boolean { return __CPP_ComponentProperty_get(this, 2413753208); }
   set ShowStats(value: boolean) { __CPP_ComponentProperty_set(this, 2413753208, value); }
-  get EV100(): number { return __CPP_ComponentProperty_get(this, 1273415082); }
-  set EV100(value: number) { __CPP_ComponentProperty_set(this, 1273415082, value); }
-  get FinalExposure(): number { return __CPP_ComponentProperty_get(this, 2136843053); }
-  set FinalExposure(value: number) { __CPP_ComponentProperty_set(this, 2136843053, value); }
 }
 
 export class FogComponent extends SettingsComponent
@@ -300,6 +296,9 @@ export class SkinnedMeshComponent extends MeshComponentBase
 export class AgentSteeringComponent extends Component
 {
   public static GetTypeNameHash(): number { return 2686193892; }
+  SetTargetPosition(position: Vec3): void { __CPP_ComponentFunction_Call(this, 2544519327, position); }
+  GetTargetPosition(): Vec3 { return __CPP_ComponentFunction_Call(this, 909036378); }
+  ClearTargetPosition(): void { __CPP_ComponentFunction_Call(this, 2709479750); }
 }
 
 export class NpcComponent extends Component
@@ -376,11 +375,31 @@ export class SliderComponent extends TransformComponent
   set RandomStart(value: number) { __CPP_ComponentProperty_set(this, 4145002481, value); }
 }
 
+export class AnimatedMeshComponent extends SkinnedMeshComponent
+{
+  public static GetTypeNameHash(): number { return 1527917431; }
+  get AnimationClip(): string { return __CPP_ComponentProperty_get(this, 1657785373); }
+  set AnimationClip(value: string) { __CPP_ComponentProperty_set(this, 1657785373, value); }
+  get Loop(): boolean { return __CPP_ComponentProperty_get(this, 1077905908); }
+  set Loop(value: boolean) { __CPP_ComponentProperty_set(this, 1077905908, value); }
+  get Speed(): number { return __CPP_ComponentProperty_get(this, 709491084); }
+  set Speed(value: number) { __CPP_ComponentProperty_set(this, 709491084, value); }
+  get ApplyRootMotion(): boolean { return __CPP_ComponentProperty_get(this, 1946384531); }
+  set ApplyRootMotion(value: boolean) { __CPP_ComponentProperty_set(this, 1946384531, value); }
+  get VisualizeSkeleton(): boolean { return __CPP_ComponentProperty_get(this, 2767026346); }
+  set VisualizeSkeleton(value: boolean) { __CPP_ComponentProperty_set(this, 2767026346, value); }
+}
+
 export class JointAttachmentComponent extends Component
 {
   public static GetTypeNameHash(): number { return 315480184; }
   get JointName(): string { return __CPP_ComponentProperty_get(this, 1509896923); }
   set JointName(value: string) { __CPP_ComponentProperty_set(this, 1509896923, value); }
+}
+
+export class MotionMatchingComponent extends SkinnedMeshComponent
+{
+  public static GetTypeNameHash(): number { return 187955417; }
 }
 
 export class LineToComponent extends Component
@@ -620,6 +639,10 @@ export class KrautTreeComponent extends RenderComponent
 export class ParticleComponent extends RenderComponent
 {
   public static GetTypeNameHash(): number { return 2240296493; }
+  StartEffect(): boolean { return __CPP_ComponentFunction_Call(this, 3825702116); }
+  StopEffect(): void { __CPP_ComponentFunction_Call(this, 803042566); }
+  InterruptEffect(): void { __CPP_ComponentFunction_Call(this, 1115174398); }
+  IsEffectActive(): boolean { return __CPP_ComponentFunction_Call(this, 4213314739); }
   get Effect(): string { return __CPP_ComponentProperty_get(this, 2934020498); }
   set Effect(value: string) { __CPP_ComponentProperty_set(this, 2934020498, value); }
   get SpawnAtStart(): boolean { return __CPP_ComponentProperty_get(this, 159119901); }
@@ -642,6 +665,8 @@ export class ParticleFinisherComponent extends RenderComponent
 export class BreakableSheetComponent extends RenderComponent
 {
   public static GetTypeNameHash(): number { return 464038314; }
+  IsBroken(): boolean { return __CPP_ComponentFunction_Call(this, 4216478794); }
+  Break(): void { __CPP_ComponentFunction_Call(this, 1906919080); }
   get Material(): string { return __CPP_ComponentProperty_get(this, 2807885632); }
   set Material(value: string) { __CPP_ComponentProperty_set(this, 2807885632, value); }
   get BrokenMaterial(): string { return __CPP_ComponentProperty_get(this, 2065678432); }
@@ -719,6 +744,10 @@ export class PxCharacterControllerComponent extends CharacterControllerComponent
 export class PxCharacterProxyComponent extends PxComponent
 {
   public static GetTypeNameHash(): number { return 3984055946; }
+  IsCrouching(): boolean { return __CPP_ComponentFunction_Call(this, 1663365931); }
+  GetCurrentCapsuleHeight(): number { return __CPP_ComponentFunction_Call(this, 2267056647); }
+  IsGrounded(): boolean { return __CPP_ComponentFunction_Call(this, 2996897303); }
+  GetShapeId(): number { return __CPP_ComponentFunction_Call(this, 3873554784); }
   get CapsuleHeight(): number { return __CPP_ComponentProperty_get(this, 149776140); }
   set CapsuleHeight(value: number) { __CPP_ComponentProperty_set(this, 149776140, value); }
   get CapsuleCrouchHeight(): number { return __CPP_ComponentProperty_get(this, 2342783111); }
@@ -769,6 +798,7 @@ export class PxDynamicActorComponent extends PxActorComponent
 export class PxRaycastInteractComponent extends Component
 {
   public static GetTypeNameHash(): number { return 347650539; }
+  ExecuteInteraction(): void { __CPP_ComponentFunction_Call(this, 3619207634); }
   get CollisionLayer(): number { return __CPP_ComponentProperty_get(this, 1680035716); }
   set CollisionLayer(value: number) { __CPP_ComponentProperty_set(this, 1680035716, value); }
   get MaxDistance(): number { return __CPP_ComponentProperty_get(this, 4274457726); }

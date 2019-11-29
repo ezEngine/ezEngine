@@ -27,6 +27,6 @@ struct EZ_CORE_DLL ezMsgComponentInternalTrigger : public ezMessage
 
   /// Identifies what the message should trigger. Only stores the hashed string, because one should only check for equality with some
   /// expected string. Use ezTempHashedString::ComputeHash() to assign and compare the value.
-  ezUInt32 m_uiUsageStringHash;
+  ezUInt32 m_uiUsageStringHash = 0;
 };
 
