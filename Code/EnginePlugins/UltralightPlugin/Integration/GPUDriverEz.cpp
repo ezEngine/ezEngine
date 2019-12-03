@@ -457,13 +457,27 @@ void ezUltralightGPUDriver::DrawGeometry(uint32_t geometry_id, uint32_t indices_
     {
       m_pContext->SetResourceView(ezGALShaderStage::PixelShader, 0, m_Textures.GetValue(state.texture_1_id)->m_hResourceView);
     }
+    else
+    {
+      m_pContext->SetResourceView(ezGALShaderStage::PixelShader, 0, ezGALResourceViewHandle());
+    }
+
     if (state.texture_2_id)
     {
       m_pContext->SetResourceView(ezGALShaderStage::PixelShader, 1, m_Textures.GetValue(state.texture_2_id)->m_hResourceView);
     }
+    else
+    {
+      m_pContext->SetResourceView(ezGALShaderStage::PixelShader, 1, ezGALResourceViewHandle());
+    }
+
     if (state.texture_3_id)
     {
       m_pContext->SetResourceView(ezGALShaderStage::PixelShader, 2, m_Textures.GetValue(state.texture_3_id)->m_hResourceView);
+    }
+    else
+    {
+      m_pContext->SetResourceView(ezGALShaderStage::PixelShader, 2, ezGALResourceViewHandle());
     }
 
     auto* pGeom = m_Geometries.GetValue(geometry_id);

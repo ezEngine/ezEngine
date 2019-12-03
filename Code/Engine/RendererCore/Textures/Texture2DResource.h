@@ -56,18 +56,20 @@ private:
 protected:
   friend class ezRenderContext;
 
+  ezTexture2DResource(DoUpdate ResourceUpdateThread);
+
   const ezGALTextureHandle& GetGALTexture() const { return m_hGALTexture[m_uiLoadedTextures - 1]; }
   const ezGALSamplerStateHandle& GetGALSamplerState() const { return m_hSamplerState; }
 
 protected:
-  ezUInt8 m_uiLoadedTextures;
+  ezUInt8 m_uiLoadedTextures = 0;
   ezGALTextureHandle m_hGALTexture[2];
-  ezUInt32 m_uiMemoryGPU[2];
+  ezUInt32 m_uiMemoryGPU[2] = { 0, 0 };
 
-  ezGALTextureType::Enum m_Type;
-  ezGALResourceFormat::Enum m_Format;
-  ezUInt32 m_uiWidth;
-  ezUInt32 m_uiHeight;
+  ezGALTextureType::Enum m_Type = ezGALTextureType::Invalid;
+  ezGALResourceFormat::Enum m_Format = ezGALResourceFormat::Invalid;
+  ezUInt32 m_uiWidth = 0;
+  ezUInt32 m_uiHeight = 0;
 
   ezGALSamplerStateHandle m_hSamplerState;
 };

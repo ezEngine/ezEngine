@@ -16,8 +16,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezUltralightHTMLResource, 1, ezRTTIDefaultAlloca
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezUltralightHTMLResource::ezUltralightHTMLResource()
-    : ezTexture2DResource()
+    : ezTexture2DResource(DoUpdate::OnMainThread)
 {
+
   ezGALDevice::GetDefaultDevice()->m_Events.AddEventHandler(ezMakeDelegate(&ezUltralightHTMLResource::HACK_UPDATE_METHOD, this));
 }
 
@@ -74,19 +75,18 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezUltralightHTMLResource, ezUltralightHTMLResou
   ret.m_uiQualityLevelsLoadable = 0;
   ret.m_State = ezResourceState::Loaded;
 
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+
+  
   m_View = s_renderer->CreateView(descriptor.m_uiWidth, descriptor.m_uiHeight, false);
   m_View->set_load_listener(this);
   m_View->set_view_listener(this);
-
-  m_View->Reload();
 
   if (!descriptor.m_sHTMLContent.IsEmpty())
   {
     m_View->LoadHTML(descriptor.m_sHTMLContent.GetData());
     m_View->set_needs_paint(true);
   }
-
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
   auto renderTarget = m_View->render_target();
 
