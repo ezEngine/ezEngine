@@ -7,7 +7,7 @@
 #include <Foundation/Math/Color16f.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
-#include <RendererCore/Lights/Implementation/ReflectionPool.h>
+#include <RendererCore/Lights/Implementation/IndirectLightPool.h>
 #include <RendererCore/Lights/Implementation/ReflectionProbeData.h>
 #include <RendererCore/Meshes/MeshComponentBase.h>
 #include <RendererCore/Pipeline/View.h>

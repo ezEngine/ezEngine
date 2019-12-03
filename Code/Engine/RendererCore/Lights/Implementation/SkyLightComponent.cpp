@@ -3,7 +3,7 @@
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
-#include <RendererCore/Lights/Implementation/ReflectionPool.h>
+#include <RendererCore/Lights/Implementation/IndirectLightPool.h>
 #include <RendererCore/Lights/SkyLightComponent.h>
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Pipeline/View.h>

@@ -1,6 +1,6 @@
 #include <RendererCore/RendererCorePCH.h>
 
-#include <RendererCore/Lights/Implementation/ReflectionPool.h>
+#include <RendererCore/Lights/Implementation/IndirectLightPool.h>
 #include <RendererCore/Pipeline/Passes/ReflectionFilterPass.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
