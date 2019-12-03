@@ -14,6 +14,8 @@ public:
 
   ezUInt16 m_uiWidth = 512;
   ezUInt16 m_uiHeight = 512;
+
+  bool m_bTransparentBackground = false;
 };
 
 class ezUltralightHTMLAssetDocument : public ezSimpleAssetDocument<ezUltralightHTMLAssetProperties>

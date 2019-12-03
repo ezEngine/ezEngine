@@ -20,6 +20,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezUltralightHTMLAssetProperties, 1, ezRTTIDefaul
 
     EZ_MEMBER_PROPERTY("Width", m_uiWidth)->AddAttributes(new ezDefaultValueAttribute(512)),
     EZ_MEMBER_PROPERTY("Height", m_uiHeight)->AddAttributes(new ezDefaultValueAttribute(512)),
+
+    EZ_MEMBER_PROPERTY("TransparentBackground", m_bTransparentBackground)->AddAttributes(new ezDefaultValueAttribute(false)),
   }
   EZ_END_PROPERTIES;
 }
@@ -59,6 +61,8 @@ ezStatus ezUltralightHTMLAssetDocument::InternalTransformAsset(ezStreamWriter& s
 
   descriptor.m_uiWidth = pProp->m_uiWidth;
   descriptor.m_uiHeight = pProp->m_uiHeight;
+
+  descriptor.m_bTransparentBackground = pProp->m_bTransparentBackground;
 
   descriptor.Save(stream);
 

@@ -14,6 +14,8 @@ struct EZ_ULTRALIGHTPLUGIN_DLL ezUltralightHTMLResourceDescriptor
   ezUInt16 m_uiWidth = 512;
   ezUInt16 m_uiHeight = 512;
 
+  bool m_bTransparentBackground = false;
+
   void Save(ezStreamWriter& stream) const;
   void Load(ezStreamReader& stream);
 };

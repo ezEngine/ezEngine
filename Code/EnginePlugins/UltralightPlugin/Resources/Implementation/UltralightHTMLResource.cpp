@@ -78,14 +78,17 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezUltralightHTMLResource, ezUltralightHTMLResou
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
   
-  m_View = s_renderer->CreateView(descriptor.m_uiWidth, descriptor.m_uiHeight, false);
+  m_View = s_renderer->CreateView(descriptor.m_uiWidth, descriptor.m_uiHeight, descriptor.m_bTransparentBackground);
   m_View->set_load_listener(this);
   m_View->set_view_listener(this);
 
   if (!descriptor.m_sHTMLContent.IsEmpty())
   {
     m_View->LoadHTML(descriptor.m_sHTMLContent.GetData());
-    m_View->set_needs_paint(true);
+  }
+  else if (!descriptor.m_sHTMLFileName.IsEmpty())
+  {
+    m_View->LoadURL(descriptor.m_sHTMLFileName.GetData());
   }
 
   auto renderTarget = m_View->render_target();
@@ -185,6 +188,8 @@ void ezUltralightHTMLResourceDescriptor::Save(ezStreamWriter& stream) const
 
   stream << m_uiWidth;
   stream << m_uiHeight;
+
+  stream << m_bTransparentBackground;
 }
 
 void ezUltralightHTMLResourceDescriptor::Load(ezStreamReader& stream)
@@ -199,6 +204,8 @@ void ezUltralightHTMLResourceDescriptor::Load(ezStreamReader& stream)
 
   stream >> m_uiWidth;
   stream >> m_uiHeight;
+
+  stream >> m_bTransparentBackground;
 }
 
 EZ_STATICLINK_FILE(UltralightPlugin, UltralightPlugin_Resources_UltralightHTMLResource);
