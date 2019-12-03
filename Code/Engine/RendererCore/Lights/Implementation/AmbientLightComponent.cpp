@@ -4,7 +4,7 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Lights/AmbientLightComponent.h>
-#include <RendererCore/Lights/Implementation/ReflectionPool.h>
+#include <RendererCore/Lights/Implementation/IndirectLightPool.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
 // clang-format off

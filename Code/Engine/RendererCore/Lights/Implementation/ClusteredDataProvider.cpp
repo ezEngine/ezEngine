@@ -4,7 +4,7 @@
 #include <RendererCore/Lights/ClusteredDataExtractor.h>
 #include <RendererCore/Lights/ClusteredDataProvider.h>
 #include <RendererCore/Lights/Implementation/ClusteredDataUtils.h>
-#include <RendererCore/Lights/Implementation/ReflectionPool.h>
+#include <RendererCore/Lights/Implementation/IndirectLightPool.h>
 #include <RendererCore/Lights/Implementation/ShadowPool.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererCore/RenderContext/RenderContext.h>

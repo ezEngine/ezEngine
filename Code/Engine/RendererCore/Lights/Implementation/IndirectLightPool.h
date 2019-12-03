@@ -29,8 +29,6 @@ public:
   static ezGALTextureHandle GetReflectionSpecularTexture(ezUInt32 uiWorldIndex);
   static ezGALTextureHandle GetSkyIrradianceTexture();
 
-  // static ezGALBufferHandle GetShadowDataBuffer();
-
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, ReflectionPool);
 
