@@ -92,8 +92,11 @@ protected:
   // index 1 = ultralight::kShaderType_FillPath
   ezGALShaderHandle m_hShaders[2];
 
-  ezGALBlendStateHandle m_hBlendState;
+  ezGALBlendStateHandle m_hBlendEnabledState;
+  ezGALBlendStateHandle m_hBlendDisabledState;
+
   ezGALRasterizerStateHandle m_hRasterizerState;
+  ezGALRasterizerStateHandle m_hRasterizerWithScissorTestState;
 
   ezGALSamplerStateHandle m_hSamplerState;
 

@@ -216,7 +216,7 @@ void ezUltralightGPUDriver::CreateTexture(uint32_t texture_id, ultralight::Ref<u
     return;
   }
 
-  const ezGALResourceFormat::Enum format = bitmap->format() == ultralight::kBitmapFormat_A8_UNORM ? ezGALResourceFormat::RUByteNormalized : ezGALResourceFormat::BGRAUByteNormalizedsRGB;
+  const ezGALResourceFormat::Enum format = bitmap->format() == ultralight::kBitmapFormat_A8_UNORM ? ezGALResourceFormat::AUByteNormalized : ezGALResourceFormat::BGRAUByteNormalizedsRGB;
 
   ezGALTextureCreationDescription textureDesc;
   textureDesc.m_uiArraySize = 1;
@@ -444,9 +444,16 @@ void ezUltralightGPUDriver::DrawGeometry(uint32_t geometry_id, uint32_t indices_
     BindRenderBuffer(state.render_buffer_id);
 
     // Update constant buffer
+    ultralight::Matrix transform_mat;
+    transform_mat.Set(state.transform);
+
+    ultralight::Matrix result;
+    result.SetOrthographicProjection(state.viewport_width, state.viewport_height, false);
+    result.Transform(transform_mat);
+
     UltralightConstantBuffer constantBuffer;
     constantBuffer.State.Set(0, state.viewport_width, state.viewport_height, 1.0f /* context_->scale() */);
-    constantBuffer.Transform.SetFromArray(state.transform.data, ezMatrixLayout::ColumnMajor);
+    constantBuffer.Transform.SetFromArray(result.GetMatrix4x4().data, ezMatrixLayout::ColumnMajor);
     constantBuffer.Scalar4[0].Set(state.uniform_scalar[0], state.uniform_scalar[1], state.uniform_scalar[2], state.uniform_scalar[3]);
     constantBuffer.Scalar4[1].Set(state.uniform_scalar[5], state.uniform_scalar[5], state.uniform_scalar[6], state.uniform_scalar[7]);
     for (int i = 0; i < 8; ++i)
