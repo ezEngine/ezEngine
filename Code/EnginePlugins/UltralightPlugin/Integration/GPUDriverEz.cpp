@@ -119,7 +119,14 @@ ezUltralightGPUDriver::ezUltralightGPUDriver()
     blendDesc.m_RenderTargetBlendDescriptions[0].m_DestBlendAlpha = ezGALBlend::One;
     blendDesc.m_RenderTargetBlendDescriptions[0].m_BlendOpAlpha = ezGALBlendOp::Add;
 
-    m_hBlendState = m_pDevice->CreateBlendState(blendDesc);
+    m_hBlendEnabledState = m_pDevice->CreateBlendState(blendDesc);
+  }
+
+  {
+    ezGALBlendStateCreationDescription blendDesc;
+    blendDesc.m_RenderTargetBlendDescriptions[0].m_bBlendingEnabled = false;
+
+    m_hBlendDisabledState = m_pDevice->CreateBlendState(blendDesc);
   }
 
   {
@@ -133,6 +140,10 @@ ezUltralightGPUDriver::ezUltralightGPUDriver()
     rasterDesc.m_bScissorTest = false;
 
     m_hRasterizerState = m_pDevice->CreateRasterizerState(rasterDesc);
+
+    rasterDesc.m_bScissorTest = true;
+
+    m_hRasterizerWithScissorTestState = m_pDevice->CreateRasterizerState(rasterDesc);
   }
 
   {
@@ -161,8 +172,11 @@ ezUltralightGPUDriver::~ezUltralightGPUDriver()
   m_pDevice->DestroyShader(m_hShaders[0]);
   m_pDevice->DestroyShader(m_hShaders[1]);
 
-  m_pDevice->DestroyBlendState(m_hBlendState);
+  m_pDevice->DestroyBlendState(m_hBlendEnabledState);
+  m_pDevice->DestroyBlendState(m_hBlendDisabledState);
+
   m_pDevice->DestroyRasterizerState(m_hRasterizerState);
+  m_pDevice->DestroyRasterizerState(m_hRasterizerWithScissorTestState);
 
   m_pDevice->DestroySamplerState(m_hSamplerState);
 
@@ -202,7 +216,7 @@ void ezUltralightGPUDriver::CreateTexture(uint32_t texture_id, ultralight::Ref<u
     return;
   }
 
-  const ezGALResourceFormat::Enum format = bitmap->format() == ultralight::kBitmapFormat_A8 ? ezGALResourceFormat::AUByteNormalized : ezGALResourceFormat::BGRAUByteNormalized;
+  const ezGALResourceFormat::Enum format = bitmap->format() == ultralight::kBitmapFormat_A8_UNORM ? ezGALResourceFormat::RUByteNormalized : ezGALResourceFormat::BGRAUByteNormalizedsRGB;
 
   ezGALTextureCreationDescription textureDesc;
   textureDesc.m_uiArraySize = 1;
@@ -354,7 +368,7 @@ void ezUltralightGPUDriver::ClearRenderBuffer(uint32_t render_buffer_id)
 
   // No depth/stencil clear as the D3D11 base implementation also doesn't
   // support it
-  m_pContext->Clear(ezColor::Black, 0xFF, false, false);
+  m_pContext->Clear(ezColor::Black.WithAlpha(0), 0xFF, false, false);
 }
 
 void ezUltralightGPUDriver::DestroyRenderBuffer(uint32_t render_buffer_id)
@@ -490,8 +504,24 @@ void ezUltralightGPUDriver::DrawGeometry(uint32_t geometry_id, uint32_t indices_
 
     m_pContext->SetShader(state.shader_type == ultralight::kShaderType_Fill ? m_hShaders[0] : m_hShaders[1]);
 
-    m_pContext->SetBlendState(m_hBlendState);
-    m_pContext->SetRasterizerState(m_hRasterizerState);
+    m_pContext->SetBlendState(state.enable_blend ? m_hBlendEnabledState : m_hBlendDisabledState);
+
+    if (state.enable_scissor)
+    {
+      m_pContext->SetRasterizerState(m_hRasterizerWithScissorTestState);
+      m_pContext->SetScissorRect(
+        ezRectU32(
+          static_cast<ezUInt32>(state.scissor_rect.left),
+          static_cast<ezUInt32>(state.scissor_rect.top),
+          static_cast<ezUInt32>(state.scissor_rect.width()),
+          static_cast<ezUInt32>(state.scissor_rect.height())
+            )
+        );
+    }
+    else
+    {
+      m_pContext->SetRasterizerState(m_hRasterizerState);
+    }
 
     m_pContext->DrawIndexed(indices_count, indices_offset);
   }
