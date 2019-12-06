@@ -4,6 +4,7 @@
 #include <Ultralight/Ultralight.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Threading/Mutex.h>
 #include <RendererFoundation/Resources/Texture.h>
 #include <RendererFoundation/Resources/Buffer.h>
 
@@ -85,6 +86,7 @@ protected:
   uint32_t m_uiNextGeometryId = 1;
 
   ezDynamicArray<ultralight::Command> m_Commands;
+  ezMutex m_CommandListMutex;
 
   ezGALBufferHandle m_hConstantBuffer;
 

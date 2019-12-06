@@ -5,6 +5,7 @@
 #include <Ultralight/Ultralight.h>
 
 struct ezGALDeviceEvent;
+class ezUltralightThread;
 
 struct EZ_ULTRALIGHTPLUGIN_DLL ezUltralightHTMLResourceDescriptor
 {
@@ -47,6 +48,16 @@ public:
   virtual void OnChangeTooltip(ultralight::View* caller, const ultralight::String& tooltip) override;
   virtual void OnChangeCursor(ultralight::View* caller, ultralight::Cursor cursor) override;
   virtual void OnAddConsoleMessage(ultralight::View* caller, ultralight::MessageSource source, ultralight::MessageLevel level, const ultralight::String& message, uint32_t line_number, uint32_t column_number, const ultralight::String& source_id) override;
+
+  ultralight::View* GetView();
+
+protected:
+
+  friend ezUltralightThread;
+
+  void CreateView(ultralight::Renderer* pRenderer);
+  void DestroyView();
+  void SetTextureHandle(ezGALTextureHandle hTextureHandle);
 
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;

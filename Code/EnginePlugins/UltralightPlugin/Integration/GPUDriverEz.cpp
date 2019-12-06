@@ -190,17 +190,12 @@ ezUltralightGPUDriver::~ezUltralightGPUDriver()
 
 void ezUltralightGPUDriver::BeginSynchronize()
 {
-  m_pContext->PushMarker("ezUltralightGPUDriver::BeginSynchronize");
-
-  m_uiBoundRenderBufferId = 0xFFFFFFFFu;
-  m_uiDrawCalls = 0;
+  m_CommandListMutex.Acquire();
 }
 
 void ezUltralightGPUDriver::EndSynchronize()
 {
-  m_pContext->PopMarker();
-
-  ezStats::SetStat("Ultralight/NumDrawcalls", m_uiDrawCalls);
+  m_CommandListMutex.Release();
 }
 
 uint32_t ezUltralightGPUDriver::NextTextureId()
@@ -531,6 +526,8 @@ void ezUltralightGPUDriver::DrawGeometry(uint32_t geometry_id, uint32_t indices_
     }
 
     m_pContext->DrawIndexed(indices_count, indices_offset);
+
+    m_uiDrawCalls++;
   }
 }
 
@@ -547,6 +544,8 @@ void ezUltralightGPUDriver::DestroyGeometry(uint32_t geometry_id)
 
 void ezUltralightGPUDriver::UpdateCommandList(const ultralight::CommandList& list)
 {
+  EZ_LOCK(m_CommandListMutex);
+
   if (list.size > 0)
   {
     m_Commands.SetCountUninitialized(list.size);
@@ -562,6 +561,10 @@ bool ezUltralightGPUDriver::HasCommandsPending()
 void ezUltralightGPUDriver::DrawCommandList()
 {
   EZ_PROFILE_SCOPE("ezUltralightGPUDriver::DrawCommandList");
+  EZ_LOCK(m_CommandListMutex);
+
+  m_uiBoundRenderBufferId = 0xFFFFFFFFu;
+  m_uiDrawCalls = 0;
 
   m_pContext->PushMarker("ezUltralightGPUDriver::DrawCommandList");
 
@@ -580,6 +583,8 @@ void ezUltralightGPUDriver::DrawCommandList()
   }
 
   m_pContext->PopMarker();
+
+  ezStats::SetStat("Ultralight/NumDrawcalls", m_uiDrawCalls);
 
   m_Commands.Clear();
 }
