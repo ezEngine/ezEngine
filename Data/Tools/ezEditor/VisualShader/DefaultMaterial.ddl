@@ -37,11 +37,11 @@ CAMERA_MODE=CAMERA_MODE_PERSPECTIVE
   #define USE_DEBUG_INTERPOLATOR
 #endif
 
-#if INPUT_PIN_9_CONNECTED
+#if INPUT_PIN_10_CONNECTED
   #define USE_OBJECT_POSITION_OFFSET
 #endif
 
-#if INPUT_PIN_10_CONNECTED
+#if INPUT_PIN_11_CONNECTED
   #define USE_WORLD_POSITION_OFFSET
 #endif
 
@@ -115,6 +115,10 @@ float MaskThreshold @Default($prop0);
 #if INPUT_PIN_8_CONNECTED
   #define USE_MATERIAL_REFRACTION
 #endif
+
+#if INPUT_PIN_9_CONNECTED
+  #define USE_MATERIAL_SUBSURFACE_COLOR
+#endif
 " }
 
   string %CodePixelIncludes { "
@@ -182,6 +186,13 @@ float GetOcclusion()
 float4 GetRefractionColor()
 {
   return ToColor4($in8);
+}
+#endif
+
+#if defined USE_MATERIAL_SUBSURFACE_COLOR
+float3 GetSubsurfaceColor()
+{
+  return ToColor3($in9);
 }
 #endif
 
@@ -281,6 +292,15 @@ float4 GetRefractionColor()
   }
 
   // Pin 9
+  InputPin %SubsurfaceColor
+  {
+    string %Type { "float3" }
+    unsigned_int8 %Color { 255, 106, 0 }
+    bool %Expose { true }
+    string %DefaultValue { "0, 0, 0" }
+  }
+
+  // Pin 10
   InputPin %LocalPosOffset
   {
     string %Type { "float3" }
@@ -288,7 +308,7 @@ float4 GetRefractionColor()
     string %DefaultValue { "0" }
   }
 
-  // Pin 10
+  // Pin 11
   InputPin %GlobalPosOffset
   {
     string %Type { "float3" }

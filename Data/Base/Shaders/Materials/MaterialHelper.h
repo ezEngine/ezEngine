@@ -32,6 +32,14 @@ float GetOpacity();
   float GetOcclusion();
 #endif
 
+#if defined(USE_MATERIAL_SUBSURFACE_COLOR)
+  float3 GetSubsurfaceColor();
+#endif
+
+#if defined(USE_MATERIAL_SUBSURFACE_PARAMS)
+  void GetSubsurfaceParams(out float scatterPower, out float shadowFalloff);
+#endif
+
 struct PS_GLOBALS
 {
   PS_IN Input;
@@ -140,6 +148,19 @@ ezMaterialData FillMaterialData()
     matData.opacity = GetOpacity();
   #else
     matData.opacity = 1.0f;
+  #endif
+
+  #if defined(USE_MATERIAL_SUBSURFACE_COLOR)
+    matData.subsurfaceColor = GetSubsurfaceColor() * matData.diffuseColor;
+  #else
+    matData.subsurfaceColor = 0.0;
+  #endif
+
+  #if defined(USE_MATERIAL_SUBSURFACE_PARAMS)
+    GetSubsurfaceParams(matData.subsurfaceScatterPower, matData.subsurfaceShadowFalloff);
+  #else
+    matData.subsurfaceScatterPower = 9.0;
+    matData.subsurfaceShadowFalloff = 0.0;
   #endif
 
   return matData;
