@@ -109,6 +109,13 @@ void ezLongOpControllerManager::RemoveOperation(ezUuid opGuid)
 
 void ezLongOpControllerManager::RegisterLongOp(const ezUuid& documentGuid, const ezUuid& componentGuid, const char* szLongOpType)
 {
+  const ezRTTI* pRtti = ezRTTI::FindTypeByName(szLongOpType);
+  if (pRtti == nullptr)
+  {
+    ezLog::Error("Can't register long op of unknown type '{}'", szLongOpType);
+    return;
+  }
+
   auto& opInfoPtr = m_ProxyOps.ExpandAndGetRef();
   opInfoPtr = EZ_DEFAULT_NEW(ProxyOpInfo);
 
@@ -117,7 +124,6 @@ void ezLongOpControllerManager::RegisterLongOp(const ezUuid& documentGuid, const
   opInfo.m_ComponentGuid = componentGuid;
   opInfo.m_OperationGuid.CreateNewUuid();
 
-  const ezRTTI* pRtti = ezRTTI::FindTypeByName(szLongOpType);
   opInfo.m_pProxyOp = pRtti->GetAllocator()->Allocate<ezLongOpProxy>();
   opInfo.m_pProxyOp->InitializeRegistered(documentGuid, componentGuid);
 
