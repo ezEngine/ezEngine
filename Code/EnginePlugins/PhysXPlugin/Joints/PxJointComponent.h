@@ -32,6 +32,8 @@ public:
   void SetParentActor(const char* szReference); // [ property ]
   void SetChildActor(const char* szReference);  // [ property ]
 
+  void SetActors(ezGameObjectHandle hActorA, const ezTransform& localFrameA, ezGameObjectHandle hActorB, const ezTransform& localFrameB);
+
 protected:
   ezResult FindParentBody(physx::PxRigidActor*& pActor);
   ezResult FindChildBody(physx::PxRigidActor*& pActor);

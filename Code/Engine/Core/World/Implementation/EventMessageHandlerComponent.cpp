@@ -112,7 +112,7 @@ void ezEventMessageHandlerComponent::SetGlobalEventHandlerMode(bool enable)
 
 bool ezEventMessageHandlerComponent::HandlesEventMessage(const ezEventMessage& msg) const
 {
-  return false;
+  return m_pMessageDispatchType->CanHandleMessage(msg.GetId());
 }
 
 // static
