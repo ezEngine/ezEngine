@@ -231,6 +231,8 @@ void ezUltralightGPUDriver::CreateTexture(uint32_t texture_id, ultralight::Ref<u
     textureDesc.m_uiWidth = bitmap->width();
     textureDesc.m_uiHeight = bitmap->height();
     textureDesc.m_Format = format;
+    textureDesc.m_ResourceAccess.m_bImmutable = false;
+    textureDesc.m_ResourceAccess.m_bReadBack = false;
 
     ezGALSystemMemoryDescription initialData[1];
     initialData[0].m_pData = bitmap->LockPixels();

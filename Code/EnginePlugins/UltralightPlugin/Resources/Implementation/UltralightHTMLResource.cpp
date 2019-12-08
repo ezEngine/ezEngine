@@ -64,13 +64,15 @@ void ezUltralightHTMLResource::OnAddConsoleMessage(ultralight::View* caller, ult
 
 ultralight::View* ezUltralightHTMLResource::GetView()
 {
-  // TODO:: Assert Ultralight thread
+  ezUltralightThread::AssertUltralightThread();
 
   return m_View.get();
 }
 
 void ezUltralightHTMLResource::CreateView(ultralight::Renderer* pRenderer)
 {
+  ezUltralightThread::AssertUltralightThread();
+
   m_View = pRenderer->CreateView(m_Descriptor.m_uiWidth, m_Descriptor.m_uiHeight, m_Descriptor.m_bTransparentBackground);
   m_View->set_load_listener(this);
   m_View->set_view_listener(this);
@@ -81,7 +83,8 @@ void ezUltralightHTMLResource::CreateView(ultralight::Renderer* pRenderer)
   }
   else if (!m_Descriptor.m_sHTMLFileName.IsEmpty())
   {
-    m_View->LoadURL(m_Descriptor.m_sHTMLFileName.GetData());
+    ezStringBuilder FileUrl("file:///", m_Descriptor.m_sHTMLFileName);
+    m_View->LoadURL(FileUrl.GetData());
   }
 
   auto renderTarget = m_View->render_target();
@@ -91,6 +94,8 @@ void ezUltralightHTMLResource::CreateView(ultralight::Renderer* pRenderer)
 
 void ezUltralightHTMLResource::DestroyView()
 {
+  ezUltralightThread::AssertUltralightThread();
+
   m_View = nullptr;
 }
 

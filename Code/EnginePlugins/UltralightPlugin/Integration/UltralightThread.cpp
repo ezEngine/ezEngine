@@ -7,11 +7,13 @@
 
 #include <UltralightPlugin/Integration/UltralightThread.h>
 #include <UltralightPlugin/Integration/FileSystemWin.h>
+#include <UltralightPlugin/Integration/FileSystem.h>
 #include <UltralightPlugin/Integration/FontLoaderWin.h>
 #include <UltralightPlugin/Integration/GPUDriverEz.h>
 #include <UltralightPlugin/Resources/UltralightHTMLResource.h>
 
 static ezUltralightThread* s_pInstance = nullptr;
+static ezThreadID s_ThreadId;
 
 ezUltralightThread::ezUltralightThread()
   : ezThreadWithDispatcher("ezUltralightThread")
@@ -28,19 +30,22 @@ ezUltralightThread::~ezUltralightThread()
 
 ezUInt32 ezUltralightThread::Run()
 {
+  s_ThreadId = ezThread::GetThreadID();
+
   ultralight::Config config;
   config.face_winding = ultralight::kFaceWinding_Clockwise; // CW in D3D, CCW in OGL
   config.device_scale_hint = 1.0;                           // Set DPI to monitor DPI scale
   config.font_family_standard = "Segoe UI";                 // Default font family
   config.force_repaint = ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-ultralight-force-repaint");
 
+  m_pFileSystem = EZ_DEFAULT_NEW(ezUltralightFileSystem);
+
   ultralight::Platform::instance().set_config(config);
-  ultralight::Platform::instance().set_file_system(new ultralight::FileSystemWin(L""));
-  ultralight::Platform::instance().set_font_loader(new ultralight::FontLoaderWin);
+  ultralight::Platform::instance().set_file_system(m_pFileSystem.Borrow());
 
   m_pGPUDriver = EZ_DEFAULT_NEW(ezUltralightGPUDriver);
 
-  ultralight::Platform::instance().set_gpu_driver(m_pGPUDriver);
+  ultralight::Platform::instance().set_gpu_driver(m_pGPUDriver.Borrow());
 
   m_pRenderer = ultralight::Renderer::Create();
 
@@ -91,7 +96,10 @@ ezUInt32 ezUltralightThread::Run()
 
   ezGALDevice::GetDefaultDevice()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezUltralightThread::UpdateForRendering, this));
 
-  EZ_DEFAULT_DELETE(m_pGPUDriver);
+  m_pGPUDriver = nullptr;
+  m_pFileSystem = nullptr;
+
+  s_ThreadId = ezThreadID();
 
   return 0;
 }
@@ -129,6 +137,11 @@ void ezUltralightThread::Unregister(ezUltralightHTMLResource* pResource)
 ezUltralightThread* ezUltralightThread::GetInstance()
 {
   return s_pInstance;
+}
+
+void ezUltralightThread::AssertUltralightThread()
+{
+  EZ_ASSERT_DEV(s_ThreadId == ezThreadUtils::GetCurrentThreadID(), "Ultralight functions can only be used from the Ultralight thread. Use the Dispatch functionality to run the code on the correct thread.");
 }
 
 void ezUltralightThread::UpdateForRendering(const ezGALDeviceEvent& event)
