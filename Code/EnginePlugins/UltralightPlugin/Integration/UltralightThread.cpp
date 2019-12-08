@@ -6,9 +6,7 @@
 #include <RendererFoundation/Device/Device.h>
 
 #include <UltralightPlugin/Integration/UltralightThread.h>
-#include <UltralightPlugin/Integration/FileSystemWin.h>
-#include <UltralightPlugin/Integration/FileSystem.h>
-#include <UltralightPlugin/Integration/FontLoaderWin.h>
+#include <UltralightPlugin/Integration/UltralightFileSystem.h>
 #include <UltralightPlugin/Integration/GPUDriverEz.h>
 #include <UltralightPlugin/Resources/UltralightHTMLResource.h>
 

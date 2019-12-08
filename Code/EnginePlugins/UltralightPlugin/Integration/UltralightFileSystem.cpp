@@ -1,7 +1,7 @@
 
 #include <PCH.h>
 
-#include <UltralightPlugin/Integration/FileSystem.h>
+#include <UltralightPlugin/Integration/UltralightFileSystem.h>
 
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
