@@ -38,6 +38,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 static ezPhysicsOverlapResult g_OverlapResults;
 
 ezAreaDamageComponent::ezAreaDamageComponent() = default;
+ezAreaDamageComponent::~ezAreaDamageComponent() = default;
 
 void ezAreaDamageComponent::ApplyAreaDamage()
 {

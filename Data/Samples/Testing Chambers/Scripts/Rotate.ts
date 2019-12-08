@@ -34,22 +34,11 @@ export class Rotate extends ez.TickedTypescriptComponent {
     }
 
     Tick(): number {
-        let diff = ez.Clock.GetTimeDiff();
-
-        this._degree += diff * this.Speed;
-
-        let mRot = new ez.Mat3();
-        mRot.SetRotationMatrixZ(ez.Angle.DegreeToRadian(this._degree));
-
-        let qRot = new ez.Quat();
-        qRot.SetFromMat3(mRot);
 
         let owner = this.GetOwner();
-        owner.SetLocalRotation(qRot);
 
         this._lines = [];
         ez.World.FindObjectsInSphere(owner.GetGlobalPosition(), 5, this.FindObjects)
-        //ez.World.Debug.DrawLineSphere(owner.GetGlobalPosition(), 5, ez.Color.AliceBlue());
         ez.Debug.DrawLines(this._lines, ez.Color.OrangeRed());
 
         return ez.Time.Milliseconds(0);
