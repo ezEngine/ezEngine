@@ -45,7 +45,17 @@ void ezTypeScriptAssetDocument::EditScript()
   if (ezFileSystem::ResolvePath(sTsPath, &sAbsPath, nullptr).Failed())
     return;
 
-  ezQtUiServices::OpenFileInDefaultProgram(sAbsPath);
+  {
+    QStringList args;
+    args.append(QString::fromUtf8(ezToolsProject::GetSingleton()->GetProjectDirectory()));
+    args.append(sAbsPath.GetData());
+
+    if (ezQtUiServices::OpenInVsCode(args).Failed())
+    {
+      // try again with a different program
+      ezQtUiServices::OpenFileInDefaultProgram(sAbsPath);
+    }
+  }
 
   {
     ezTypeScriptAssetDocumentEvent e;

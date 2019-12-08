@@ -574,20 +574,12 @@ void ezProjectAction::Execute(const ezVariant& value)
 
     case ezProjectAction::ButtonType::OpenVsCode:
     {
-      QString sVsCodeExe = QStandardPaths::locate(QStandardPaths::GenericDataLocation, "Programs/Microsoft VS Code/Code.exe", QStandardPaths::LocateOption::LocateFile);
-
-      if (!QFile().exists(sVsCodeExe))
-      {
-        ezQtUiServices::GetSingleton()->MessageBoxInformation("Installation of Visual Studio Code could not be located.\n"
-                                                              "Please visit 'https://code.visualstudio.com/download' to download the 'User Installer' of Visual Studio Code.");
-        return;
-      }
-
       QStringList args;
       args.append(QString::fromUtf8(ezToolsProject::GetSingleton()->GetProjectDirectory()));
 
-      QProcess proc;
-      proc.startDetached(sVsCodeExe, args);
+      const ezStatus res = ezQtUiServices::OpenInVsCode(args);
+
+      ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Failed to open VS Code");
     }
     break;
 
