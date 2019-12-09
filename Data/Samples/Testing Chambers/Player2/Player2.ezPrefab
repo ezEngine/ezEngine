@@ -21,7 +21,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8325318639183543703,4757176779305952111}}
-		u4 %Hash{17566860466796675357}
+		u4 %Hash{2423717158884209033}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{14146522745554303380,2902865256510917925}}
@@ -163,8 +163,9 @@ o
 			Uuid{u4{5622439316203724425,1720748372109465727}}
 			Uuid{u4{9037051775693227418,1142056909135927101}}
 			Uuid{u4{1632982377772426898,5345566257393890410}}
+			Uuid{u4{12321513403865792957,5135711551099382971}}
 		}
-		s %GlobalKey{"Player"}
+		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
@@ -204,12 +205,25 @@ o
 }
 o
 {
+	Uuid %id{u4{12321513403865792957,5135711551099382971}}
+	s %t{"ezMarkerComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		s %Marker{"Player"}
+		f %Radius{0x9A99993E}
+	}
+}
+o
+{
 	Uuid %id{u4{1632982377772426898,5345566257393890410}}
 	s %t{"ezTypeScriptComponent"}
 	u3 %v{3}
 	p
 	{
 		b %Active{1}
+		b %HandleGlobalEvents{0}
 		VarDict %Parameters{}
 		s %Script{"{ 64d3d26c-3e5d-46ab-8072-b9b65e850c77 }"}
 	}
@@ -478,6 +492,24 @@ o
 }
 o
 {
+	Uuid %id{u4{8577194213068516669,1439152778878942207}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezMarkerComponent"}
+		u3 %TypeSize{72}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{16706295012782774504,2108762400861998705}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -640,6 +672,24 @@ o
 }
 o
 {
+	Uuid %id{u4{5109955776826617296,6026817826851389185}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEventMessageHandlerComponent"}
+		u3 %TypeSize{56}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
 	Uuid %id{u4{13649880205026559927,7297274558339895637}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -792,11 +842,11 @@ o
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
-		s %ParentTypeName{"ezComponent"}
+		s %ParentTypeName{"ezEventMessageHandlerComponent"}
 		s %PluginName{"ezEditorPluginTypeScript"}
 		VarArray %Properties{}
 		s %TypeName{"ezTypeScriptComponent"}
-		u3 %TypeSize{112}
+		u3 %TypeSize{176}
 		u3 %TypeVersion{3}
 	}
 }

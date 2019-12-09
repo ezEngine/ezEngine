@@ -12,7 +12,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezMarkerComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Marker", GetMarkerType, SetMarkerType),
+    EZ_ACCESSOR_PROPERTY("Marker", GetMarkerType, SetMarkerType)->AddAttributes(new ezDynamicStringEnumAttribute("SpatialDataCategoryEnum")),
     EZ_ACCESSOR_PROPERTY("Radius", GetRadius, SetRadius)->AddAttributes(new ezDefaultValueAttribute(0.1)),
   }
   EZ_END_PROPERTIES;

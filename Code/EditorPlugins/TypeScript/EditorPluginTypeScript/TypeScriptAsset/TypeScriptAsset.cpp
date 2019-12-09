@@ -246,12 +246,6 @@ ezStatus ezTypeScriptAssetDocument::AutoGenerateVariablesCode()
     }
   }
 
-  if (sAutoGen.IsEmpty())
-  {
-    // no auto-generated code at all? just finish up
-    return ezStatus(EZ_SUCCESS);
-  }
-
   // write back the modified file
   {
     sAutoGen.Prepend(szTagBegin, "\n");

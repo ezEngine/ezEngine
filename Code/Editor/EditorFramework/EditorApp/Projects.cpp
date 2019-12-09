@@ -4,9 +4,9 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/Preferences.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Types/ScopeExit.h>
 #include <GuiFoundation/Dialogs/ModifiedDocumentsDlg.moc.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
-#include <Foundation/Types/ScopeExit.h>
 
 void UpdateInputDynamicEnumValues();
 
@@ -98,6 +98,7 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
     case ezToolsProjectEvent::Type::ProjectOpened:
     {
       EZ_PROFILE_SCOPE("ProjectOpened");
+      ezDynamicStringEnum::s_RequestUnknownCallback = ezMakeDelegate(&ezQtEditorApp::OnDemandDynamicStringEnumLoad, this);
       LoadProjectPreferences();
       SetupDataDirectories();
       ReadEnginePluginConfig();
@@ -161,6 +162,15 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
       UpdateGlobalStatusBarMessage();
 
       ezPreferences::ClearProjectPreferences();
+
+      // remove all dynamic enums that were dynamically loaded from the project directory
+      {
+        for (const auto& val : m_DynamicEnumStringsToClear)
+        {
+          ezDynamicStringEnum::RemoveEnum(val);
+        }
+        m_DynamicEnumStringsToClear.Clear();
+      }
 
       break;
     }

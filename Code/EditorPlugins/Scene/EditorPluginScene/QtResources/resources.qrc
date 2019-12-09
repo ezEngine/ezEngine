@@ -50,5 +50,6 @@
 	<file>ezSimpleWindComponent.png</file>
 	<file>ezPlayerStartPointComponent.png</file>
 	<file>ezColorAnimationComponent.png</file>
+	<file>ezMarkerComponent.png</file>
   </qresource>  
 </RCC>

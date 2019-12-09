@@ -156,7 +156,10 @@ void ezTypeScriptAssetDocumentManager::InitializeTranspiler()
 
   m_bTranspilerLoaded = true;
 
-  ezFileSystem::AddDataDirectory(">sdk/Data/Tools/ezEditor/TypeScript", "TypeScript", "TypeScript");
+  if (ezFileSystem::FindDataDirectoryWithRoot("TypeScript") == nullptr)
+  {
+    ezFileSystem::AddDataDirectory(">sdk/Data/Tools/ezEditor/TypeScript", "TypeScript", "TypeScript");
+  }
 
   m_Transpiler.SetOutputFolder(":project/AssetCache/Temp");
   m_Transpiler.StartLoadTranspiler();
