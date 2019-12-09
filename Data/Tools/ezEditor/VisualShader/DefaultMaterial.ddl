@@ -64,14 +64,14 @@ VS_OUT main(VS_IN Input)
 #if defined(USE_OBJECT_POSITION_OFFSET)
 float3 GetObjectPositionOffset(ezPerInstanceData data)
 {
-  return ToFloat3($in9);
+  return ToFloat3($in10);
 }
 #endif
 
 #if defined(USE_WORLD_POSITION_OFFSET)
 float3 GetWorldPositionOffset(ezPerInstanceData data, float3 worldPosition)
 {
-  return ToFloat3($in10);
+  return ToFloat3($in11);
 }
 #endif
 
