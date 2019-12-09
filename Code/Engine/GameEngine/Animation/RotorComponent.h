@@ -28,11 +28,11 @@ public:
   ezRotorComponent();
   ~ezRotorComponent();
 
-  ezInt32 m_iDegreeToRotate = 0;
-  float m_fAcceleration = 1.0f;
-  float m_fDeceleration = 1.0f;
-  ezEnum<ezBasisAxis> m_Axis = ezBasisAxis::PositiveZ;
-  ezAngle m_AxisDeviation;
+  ezInt32 m_iDegreeToRotate = 0;                       // [ property ]
+  float m_fAcceleration = 1.0f;                        // [ property ]
+  float m_fDeceleration = 1.0f;                        // [ property ]
+  ezEnum<ezBasisAxis> m_Axis = ezBasisAxis::PositiveZ; // [ property ]
+  ezAngle m_AxisDeviation;                             // [ property ]
 
 protected:
   void Update();

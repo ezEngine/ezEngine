@@ -216,7 +216,7 @@ int __CPP_ComponentFunction_Call(duk_context* pDuk)
 
   for (ezUInt32 arg = 0; arg < uiNumArgs; ++arg)
   {
-    args[arg] = ezTypeScriptBinding::GetVariant(duk, 2 + arg, pBinding->m_pFunc->GetArgumentType(arg)->GetVariantType());
+    args[arg] = ezTypeScriptBinding::GetVariant(duk, 2 + arg, pBinding->m_pFunc->GetArgumentType(arg));
   }
 
   pBinding->m_pFunc->Execute(pComponent, args, ret);

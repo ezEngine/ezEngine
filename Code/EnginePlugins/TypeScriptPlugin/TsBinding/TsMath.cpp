@@ -688,11 +688,16 @@ void ezTypeScriptBinding::SetVariantProperty(duk_context* pDuk, const char* szPr
   EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, 0);
 }
 
-ezVariant ezTypeScriptBinding::GetVariant(duk_context* pDuk, ezInt32 iObjIdx, ezVariant::Type::Enum type)
+ezVariant ezTypeScriptBinding::GetVariant(duk_context* pDuk, ezInt32 iObjIdx, const ezRTTI* pType)
 {
   ezDuktapeHelper duk(pDuk);
 
-  switch (type)
+  if (pType->IsDerivedFrom<ezEnumBase>() || pType->IsDerivedFrom<ezBitflagsBase>())
+  {
+    return duk.GetIntValue(iObjIdx);
+  }
+
+  switch (pType->GetVariantType())
   {
     case ezVariant::Type::Invalid:
       return ezVariant();
@@ -796,7 +801,7 @@ ezVariant ezTypeScriptBinding::GetVariant(duk_context* pDuk, ezInt32 iObjIdx, ez
   return ezVariant();
 }
 
-ezVariant ezTypeScriptBinding::GetVariantProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, ezVariant::Type::Enum type)
+ezVariant ezTypeScriptBinding::GetVariantProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezRTTI* pType)
 {
   ezDuktapeHelper duk(pDuk);
 
@@ -805,7 +810,7 @@ ezVariant ezTypeScriptBinding::GetVariantProperty(duk_context* pDuk, const char*
     return ezVariant();
   }
 
-  const ezVariant res = GetVariant(pDuk, -1, type);
+  const ezVariant res = GetVariant(pDuk, -1, pType);
   duk.PopStack(); // [ ]
 
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, res, 0);

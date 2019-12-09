@@ -255,8 +255,8 @@ public:
 
   static void PushVariant(duk_context* pDuk, const ezVariant& value);
   static void SetVariantProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVariant& value);
-  static ezVariant GetVariant(duk_context* pDuk, ezInt32 iObjIdx, ezVariant::Type::Enum type);
-  static ezVariant GetVariantProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, ezVariant::Type::Enum type);
+  static ezVariant GetVariant(duk_context* pDuk, ezInt32 iObjIdx, const ezRTTI* pType);
+  static ezVariant GetVariantProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezRTTI* pType);
 
   ///@}
   /// \name C++ Object Registration
