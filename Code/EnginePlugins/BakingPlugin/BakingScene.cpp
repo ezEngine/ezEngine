@@ -4,8 +4,11 @@
 #include <BakingPlugin/Tasks/PlaceProbesTask.h>
 #include <BakingPlugin/Tasks/SkyVisibilityTask.h>
 #include <BakingPlugin/Tracer/TracerEmbree.h>
+#include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <Foundation/Utilities/Progress.h>
+#include <RendererCore/Lights/ProbeTreeSectorResource.h>
 #include <RendererCore/Meshes/MeshComponentBase.h>
 
 namespace
@@ -93,13 +96,39 @@ ezResult ezBakingScene::Bake(const ezStringView& sOutputPath, ezProgress& progre
 {
   EZ_ASSERT_DEV(!ezThreadUtils::IsMainThread(), "BakeScene must be executed on a worker thread");
 
+  ezProgressRange pgRange("Baking Scene", 2, true, &progress);
+  pgRange.SetStepWeighting(0, 0.95f);
+  pgRange.SetStepWeighting(1, 0.05f);
+
+  if (!pgRange.BeginNextStep("Building Scene"))
+    return EZ_FAILURE;
+
   EZ_SUCCEED_OR_RETURN(m_pTracer->BuildScene(*this));
-  
+
   ezBakingInternal::PlaceProbesTask placeProbesTask(m_BoundingBox);
   placeProbesTask.Execute();
 
   ezBakingInternal::SkyVisibilityTask skyVisibilityTask(m_pTracer.Borrow(), placeProbesTask.GetProbePositions());
   skyVisibilityTask.Execute();
+
+  if (!pgRange.BeginNextStep("Writing Result"))
+    return EZ_FAILURE;
+
+  ezStringBuilder sFullOutputPath = sOutputPath;
+  sFullOutputPath.Append("_Global.ezProbeTreeSector");
+
+  ezFileWriter file;
+  EZ_SUCCEED_OR_RETURN(file.Open(sFullOutputPath));
+
+  ezAssetFileHeader header;
+  header.SetFileHashAndVersion(1, 1);
+  header.Write(file);
+
+  ezProbeTreeSectorResourceDescriptor desc;
+  desc.m_ProbePositions = placeProbesTask.GetProbePositions();
+  desc.m_SkyVisibility = skyVisibilityTask.GetSkyVisibility();
+
+  EZ_SUCCEED_OR_RETURN(desc.Serialize(file));
 
   m_ProbePositions = placeProbesTask.GetProbePositions();
   m_SkyVisibility = skyVisibilityTask.GetSkyVisibility();

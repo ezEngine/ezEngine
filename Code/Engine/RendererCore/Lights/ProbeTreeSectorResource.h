@@ -12,11 +12,13 @@ struct EZ_RENDERERCORE_DLL ezProbeTreeSectorResourceDescriptor
 
   ezProbeTreeSectorResourceDescriptor();
   ~ezProbeTreeSectorResourceDescriptor();
+  void operator=(ezProbeTreeSectorResourceDescriptor&& other);
 
   ezDynamicArray<ezVec3> m_ProbePositions;
   ezDynamicArray<ezAmbientCube<ezUInt8>> m_SkyVisibility;
 
   void Clear();
+  ezUInt32 GetHeapMemoryUsage() const;
 
   ezResult Serialize(ezStreamWriter& stream) const;
   ezResult Deserialize(ezStreamReader& stream);

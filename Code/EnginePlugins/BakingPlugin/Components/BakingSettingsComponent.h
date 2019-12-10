@@ -8,6 +8,7 @@
 
 struct ezMsgUpdateLocalBounds;
 struct ezMsgExtractRenderData;
+class ezAbstractObjectNode;
 
 class EZ_BAKINGPLUGIN_DLL ezBakingSettingsComponentManager : public ezSettingsComponentManager<class ezBakingSettingsComponent>
 {
@@ -52,7 +53,7 @@ public:
 
 private:
   void RenderDebugOverlay();
-  void UpdateDebugViewTexture();
+  void OnObjectCreated(const ezAbstractObjectNode& node);
 
   bool m_bShowDebugOverlay = false;
   bool m_bShowDebugProbes = false;

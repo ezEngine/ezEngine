@@ -6,6 +6,7 @@
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Utilities/Progress.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Meshes/MeshComponentBase.h>
@@ -173,6 +174,11 @@ EZ_BEGIN_COMPONENT_TYPE(ezBakingSettingsComponent, 1, ezComponentMode::Static)
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
   }
   EZ_END_MESSAGEHANDLERS;
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_FUNCTION_PROPERTY(OnObjectCreated),
+  }
+  EZ_END_FUNCTIONS;
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Rendering/Baking"),
@@ -355,4 +361,12 @@ void ezBakingSettingsComponent::RenderDebugOverlay()
   ezRectFloat rectInPixel = ezRectFloat(10.0f, 10.0f, uiWidth, uiHeight);
 
   ezDebugRenderer::Draw2DRectangle(pView->GetHandle(), rectInPixel, 0.0f, ezColor::White, pDevice->GetDefaultResourceView(m_hDebugViewTexture));
+}
+
+void ezBakingSettingsComponent::OnObjectCreated(const ezAbstractObjectNode& node)
+{
+  ezStringBuilder sOutputPath;
+
+  // this is where the editor will put the baked probe tree resources
+  sOutputPath.Format(":project/AssetCache/Generated/{0}", node.GetGuid());
 }

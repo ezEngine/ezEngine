@@ -3,6 +3,7 @@
 #include <Core/CoreDLL.h>
 
 #include <Foundation/Math/Vec3.h>
+#include <Foundation/IO/Stream.h>
 
 struct EZ_CORE_DLL ezAmbientCubeBasis
 {
@@ -40,6 +41,9 @@ struct ezAmbientCube
   void AddSample(const ezVec3& vDir, const T& value);
 
   T Evaluate(const ezVec3& vNormal) const;
+
+  ezResult Serialize(ezStreamWriter& stream) const;
+  ezResult Deserialize(ezStreamReader& stream);
 
   T m_Values[ezAmbientCubeBasis::NumDirs];
 };
