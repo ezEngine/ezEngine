@@ -18,9 +18,9 @@ void ezLongOpProxy_BakeScene::GetReplicationInfo(ezStringBuilder& out_sReplicati
 {
   out_sReplicationOpType = "ezLongOpWorker_BakeScene";
 
-  ezStringBuilder sOutputFile;
-  sOutputFile.Format(":project/AssetCache/Generated/{0}", m_DocumentGuid);
-  description << sOutputFile;
+  ezStringBuilder sOutputPath;
+  sOutputPath.Format(":project/AssetCache/Generated/{0}", m_ComponentGuid);
+  description << sOutputPath;
 }
 
 void ezLongOpProxy_BakeScene::Finalize(ezResult result, const ezDataBuffer& resultData)
