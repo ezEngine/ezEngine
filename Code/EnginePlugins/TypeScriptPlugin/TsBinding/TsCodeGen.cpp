@@ -57,43 +57,37 @@ void ezTypeScriptBinding::AppendToTextFile(const char* szFile, ezStringView text
   }
 }
 
-void ezTypeScriptBinding::GenerateEnumsFile()
+void ezTypeScriptBinding::GenerateEnumsFile(const char* szFile, const ezSet<const ezRTTI*>& items)
 {
-  const char* szFile = ":project/TypeScript/ez/AllEnums.ts";
+  ezStringBuilder sFileContent = "// AUTO-GENERATED FILE\n\n";
 
-  ezStringBuilder sFileContent;
   ezStringBuilder sType, sName;
 
-  sFileContent = "// AUTO-GENERATED FILE\n\n";
-
-  for (const ezRTTI* pRtti : s_RequiredEnums)
+  for (const ezRTTI* pRtti : items)
   {
     if (pRtti->GetProperties().IsEmpty())
       continue;
 
-    if (pRtti->IsDerivedFrom<ezEnumBase>() || pRtti->IsDerivedFrom<ezBitflagsBase>())
+    sName = pRtti->GetTypeName();
+    sName.TrimWordStart("ez");
+
+    sType.Format("export enum {0} { ", sName);
+
+    for (auto pProp : pRtti->GetProperties().GetSubArray(1))
     {
-      sName = pRtti->GetTypeName();
-      sName.TrimWordStart("ez");
-
-      sType.Format("export enum {0} { ", sName);
-
-      for (auto pProp : pRtti->GetProperties().GetSubArray(1))
+      if (pProp->GetCategory() == ezPropertyCategory::Constant)
       {
-        if (pProp->GetCategory() == ezPropertyCategory::Constant)
-        {
-          const ezVariant value = static_cast<const ezAbstractConstantProperty*>(pProp)->GetConstant();
-          const ezInt64 iValue = value.ConvertTo<ezInt64>();
+        const ezVariant value = static_cast<const ezAbstractConstantProperty*>(pProp)->GetConstant();
+        const ezInt64 iValue = value.ConvertTo<ezInt64>();
 
-          sType.AppendFormat(" {0} = {1},", ezStringUtils::FindLastSubString(pProp->GetPropertyName(), "::") + 2, iValue);
-        }
+        sType.AppendFormat(" {0} = {1},", ezStringUtils::FindLastSubString(pProp->GetPropertyName(), "::") + 2, iValue);
       }
-
-      sType.Shrink(0, 1);
-      sType.Append(" }\n");
-
-      sFileContent.Append(sType.GetView());
     }
+
+    sType.Shrink(0, 1);
+    sType.Append(" }\n");
+
+    sFileContent.Append(sType.GetView());
   }
 
   ezFileWriter file;
@@ -116,6 +110,21 @@ void ezTypeScriptBinding::InjectEnumImportExport(const char* szFile, const char*
   {
     GetTsName(pRtti, sTypeName);
     sImportExport.AppendFormat("export import {0} = __AllEnums.{0};\n", sTypeName);
+  }
+
+  AppendToTextFile(szFile, sImportExport);
+}
+
+void ezTypeScriptBinding::InjectFlagsImportExport(const char* szFile, const char* szFlagsFile)
+{
+  ezStringBuilder sImportExport, sTypeName;
+
+  sImportExport.Format("import __AllFlags = require(\"{}\")\n", szFlagsFile);
+
+  for (const ezRTTI* pRtti : s_RequiredFlags)
+  {
+    GetTsName(pRtti, sTypeName);
+    sImportExport.AppendFormat("export import {0} = __AllFlags.{0};\n", sTypeName);
   }
 
   AppendToTextFile(szFile, sImportExport);

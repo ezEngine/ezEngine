@@ -51,6 +51,30 @@ const char* ezTypeScriptBinding::TsType(const ezRTTI* pRtti)
   if (pRtti == nullptr)
     return "void";
 
+  static ezStringBuilder res;
+
+  if (pRtti->IsDerivedFrom<ezEnumBase>())
+  {
+    s_RequiredEnums.Insert(pRtti);
+
+    res = pRtti->GetTypeName();
+    res.TrimWordStart("ez");
+    res.Prepend("Enum.");
+
+    return res;
+  }
+
+  if (pRtti->IsDerivedFrom<ezBitflagsBase>())
+  {
+    s_RequiredFlags.Insert(pRtti);
+
+    res = pRtti->GetTypeName();
+    res.TrimWordStart("ez");
+    res.Prepend("Flags.");
+
+    return res;
+  }
+
   switch (pRtti->GetVariantType())
   {
     case ezVariant::Type::Angle:

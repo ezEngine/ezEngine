@@ -64,24 +64,9 @@ void ezTypeScriptBinding::GeneratePropertiesCode(ezStringBuilder& out_Code, cons
 
     ezStringBuilder sTypeName;
 
-    if (pPropType->IsDerivedFrom<ezEnumBase>() || pPropType->IsDerivedFrom<ezBitflagsBase>())
-    {
-      // enums and bitflags mostly work as numbers
-      // but on the Typescript side we of course want the type safety
-
-      s_RequiredEnums.Insert(pPropType);
-
-      sTypeName = pPropType->GetTypeName();
-      sTypeName.TrimWordStart("ez");
-
-      sTypeName.Prepend("Enum.");
-    }
-    else
-    {
-      sTypeName = TsType(pPropType);
-      if (sTypeName.IsEmpty())
-        continue;
-    }
+    sTypeName = TsType(pPropType);
+    if (sTypeName.IsEmpty())
+      continue;
 
     sProp.Format("  get {0}(): {1} { return __CPP_ComponentProperty_get(this, {2}); }\n", pMember->GetPropertyName(), sTypeName, uiHash);
     out_Code.Append(sProp.GetView());

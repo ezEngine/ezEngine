@@ -9,6 +9,7 @@
 static ezHashTable<duk_context*, ezTypeScriptBinding*> s_DukToBinding;
 
 ezSet<const ezRTTI*> ezTypeScriptBinding::s_RequiredEnums;
+ezSet<const ezRTTI*> ezTypeScriptBinding::s_RequiredFlags;
 
 static int __CPP_Time_Now(duk_context* pDuk)
 {
