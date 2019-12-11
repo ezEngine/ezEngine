@@ -67,7 +67,7 @@ class ezPxOutStream : public PxOutputStream
 {
 public:
   ezPxOutStream(ezStreamWriter* pStream)
-      : m_pStream(pStream)
+    : m_pStream(pStream)
   {
   }
 
@@ -233,6 +233,7 @@ ezResult ezPhysXCooking::ComputeConvexHull(const ezPhysXCookingMesh& mesh, ezPhy
 
   outMesh.m_bFlipNormals = mesh.m_bFlipNormals;
 
+
   ezConvexHullGenerator gen;
   if (gen.Build(mesh.m_Vertices).Failed())
   {
@@ -242,6 +243,23 @@ ezResult ezPhysXCooking::ComputeConvexHull(const ezPhysXCookingMesh& mesh, ezPhy
 
   ezDynamicArray<ezConvexHullGenerator::Face> faces;
   gen.Retrieve(outMesh.m_Vertices, faces);
+
+  if (faces.GetCount() >= 255)
+  {
+    ezConvexHullGenerator gen2;
+    gen2.SetSimplificationMinTriangleAngle(ezAngle::Degree(30));
+    gen2.SetSimplificationFlatVertexNormalThreshold(ezAngle::Degree(10));
+    gen2.SetSimplificationMinTriangleEdgeLength(0.08f);
+
+    if (gen2.Build(outMesh.m_Vertices).Failed())
+    {
+      ezLog::Error("Computing the convex hull failed (second try).");
+      return EZ_FAILURE;
+    }
+
+    gen2.Retrieve(outMesh.m_Vertices, faces);
+  }
+
 
   for (const auto& face : faces)
   {
@@ -296,7 +314,7 @@ void ezPhysXCooking::CreateMeshDesc(const ezPhysXCookingMesh& mesh, PxSimpleTria
 }
 
 ezStatus ezPhysXCooking::WriteResourceToStream(ezChunkStreamWriter& stream, const ezPhysXCookingMesh& mesh,
-                                               const ezArrayPtr<ezString>& surfaces, bool bConvexMesh)
+  const ezArrayPtr<ezString>& surfaces, bool bConvexMesh)
 {
   ezResult resCooking = EZ_FAILURE;
 
