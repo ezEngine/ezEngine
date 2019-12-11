@@ -11,6 +11,7 @@ static int __CPP_Physics_SweepTestCapsule(duk_context* pDuk);
 static int __CPP_Physics_OverlapTestSphere(duk_context* pDuk);
 static int __CPP_Physics_OverlapTestCapsule(duk_context* pDuk);
 static int __CPP_Physics_GetGravity(duk_context* pDuk);
+static int __CPP_Physics_QueryDynamicShapesInSphere(duk_context* pDuk);
 
 #define GetPhysicsModule()                                    \
   pWorld->GetOrCreateModule<ezPhysicsWorldModuleInterface>(); \
@@ -30,6 +31,7 @@ ezResult ezTypeScriptBinding::Init_Physics()
   m_Duk.RegisterGlobalFunction("__CPP_Physics_OverlapTestSphere", __CPP_Physics_OverlapTestSphere, 4);
   m_Duk.RegisterGlobalFunction("__CPP_Physics_OverlapTestCapsule", __CPP_Physics_OverlapTestCapsule, 5);
   m_Duk.RegisterGlobalFunction("__CPP_Physics_GetGravity", __CPP_Physics_GetGravity, 0);
+  m_Duk.RegisterGlobalFunction("__CPP_Physics_QueryDynamicShapesInSphere", __CPP_Physics_QueryDynamicShapesInSphere, 5);
 
   return EZ_SUCCESS;
 }
@@ -204,4 +206,46 @@ static int __CPP_Physics_GetGravity(duk_context* pDuk)
 
   ezTypeScriptBinding::PushVec3(duk, pModule->GetGravity());
   return duk.ReturnCustom();
+}
+
+int __CPP_Physics_QueryDynamicShapesInSphere(duk_context* pDuk)
+{
+  duk_require_function(pDuk, -1);
+
+  ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(pDuk);
+
+  ezDuktapeFunction duk(pDuk);
+  ezWorld* pWorld = ezTypeScriptBinding::RetrieveWorld(duk);
+
+  ezPhysicsWorldModuleInterface* pModule = GetPhysicsModule();
+
+  const float fRadius = duk.GetFloatValue(0);
+  const ezVec3 vPos = ezTypeScriptBinding::GetVec3(duk, 1);
+  const ezUInt8 uiCollisionLayer = duk.GetUIntValue(2);
+  const ezUInt32 uiIgnoreShapeID = duk.GetIntValue(3);
+
+  ezPhysicsOverlapResult result;
+  pModule->QueryDynamicShapesInSphere(fRadius, vPos, uiCollisionLayer, result, uiIgnoreShapeID);
+
+  // forward the results via a callback
+  for (const auto& res : result.m_Results)
+  {
+    duk_dup(pDuk, -1); // [ func ]
+
+    pBinding->DukPutGameObject(res.m_hActorObject); // [ func go1 ]
+    pBinding->DukPutGameObject(res.m_hShapeObject); // [ func go1 go2 ]
+    duk.PushUInt(res.m_uiShapeId);                  // [ func go1 go2 sid ]
+
+    duk_call(pDuk, 3); // [ result ]
+
+    if (duk_get_boolean_default(pDuk, -1, false) == false)
+    {
+      duk_pop(pDuk); // [ ]
+      break;
+    }
+
+    duk_pop(pDuk); // [ ]
+  }
+
+  EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnVoid(), 0);
 }

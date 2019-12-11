@@ -20,7 +20,7 @@ bool ezQtUiServices::s_bHeadless;
 static ezQtUiServices g_instance;
 
 ezQtUiServices::ezQtUiServices()
-    : m_SingletonRegistrar(this)
+  : m_SingletonRegistrar(this)
 {
   int id = qRegisterMetaType<ezUuid>();
   m_pColorDlg = nullptr;
@@ -152,4 +152,23 @@ void ezQtUiServices::OpenInExplorer(const char* szPath, bool bIsFile)
   args << QDir::toNativeSeparators(szPath);
 
   QProcess::startDetached("explorer", args);
+}
+
+ezStatus ezQtUiServices::OpenInVsCode(const QStringList& arguments)
+{
+  QString sVsCodeExe = QStandardPaths::locate(QStandardPaths::GenericDataLocation, "Programs/Microsoft VS Code/Code.exe", QStandardPaths::LocateOption::LocateFile);
+
+  if (!QFile().exists(sVsCodeExe))
+  {
+    return ezStatus("Installation of Visual Studio Code could not be located.\n"
+                    "Please visit 'https://code.visualstudio.com/download' to download the 'User Installer' of Visual Studio Code.");
+  }
+
+  QProcess proc;
+  if (proc.startDetached(sVsCodeExe, arguments) == false)
+  {
+    return ezStatus("Failed to launch Visual Studio Code.");
+  }
+
+  return ezStatus(EZ_SUCCESS);
 }

@@ -3,10 +3,7 @@ import ez = require("../TypeScript/ez")
 export class Rotate extends ez.TickedTypescriptComponent {
 
     /* BEGIN AUTO-GENERATED: VARIABLES */
-    Speed: number = 90;
     /* END AUTO-GENERATED: VARIABLES */
-
-    private _degree = 0;
 
     constructor() {
         super()
@@ -18,7 +15,7 @@ export class Rotate extends ez.TickedTypescriptComponent {
         let owner = this.GetOwner();
         let ownerPos = owner.GetGlobalPosition();
         let pos = go.GetGlobalPosition();
-        ez.Log.Info(owner.GetName() + "::FindObject: " + go.GetName() + " at " + pos.x + ", " + pos.y + ", " + pos.z + (go.HasAnyTags("game") ? " (game)" : ""));
+        //ez.Log.Info(owner.GetName() + "::FindObject: " + go.GetName() + " at " + pos.x + ", " + pos.y + ", " + pos.z + (go.HasAnyTags("game") ? " (game)" : ""));
 
         let line = new ez.Debug.Line();
         line.startX = ownerPos.x;
@@ -33,23 +30,32 @@ export class Rotate extends ez.TickedTypescriptComponent {
         return true;
     }
 
+    QueryShapes = (actor: ez.GameObject, shape: ez.GameObject, shapeId: number): boolean => {
+        let owner = this.GetOwner();
+        let ownerPos = owner.GetGlobalPosition();
+        let pos = shape.GetGlobalPosition();
+
+        let line = new ez.Debug.Line();
+        line.startX = ownerPos.x;
+        line.startY = ownerPos.y;
+        line.startZ = ownerPos.z;
+        line.endX = pos.x;
+        line.endY = pos.y;
+        line.endZ = pos.z;
+
+        this._lines.push(line);
+
+        return true;
+    }
+
+
     Tick(): number {
-        let diff = ez.Clock.GetTimeDiff();
-
-        this._degree += diff * this.Speed;
-
-        let mRot = new ez.Mat3();
-        mRot.SetRotationMatrixZ(ez.Angle.DegreeToRadian(this._degree));
-
-        let qRot = new ez.Quat();
-        qRot.SetFromMat3(mRot);
 
         let owner = this.GetOwner();
-        owner.SetLocalRotation(qRot);
 
         this._lines = [];
-        ez.World.FindObjectsInSphere(owner.GetGlobalPosition(), 5, this.FindObjects)
-        //ez.World.Debug.DrawLineSphere(owner.GetGlobalPosition(), 5, ez.Color.AliceBlue());
+        //ez.World.FindObjectsInSphere("NPC", owner.GetGlobalPosition(), 5, this.FindObjects)
+        ez.Physics.QueryDynamicShapesInSphere(3, owner.GetGlobalPosition(), 0, this.QueryShapes, -1)
         ez.Debug.DrawLines(this._lines, ez.Color.OrangeRed());
 
         return ez.Time.Milliseconds(0);

@@ -11,7 +11,12 @@ public:
   ezCollisionMeshAssetDocumentManager();
   ~ezCollisionMeshAssetDocumentManager();
 
-  virtual ezString GetResourceTypeExtension(const char* szDocumentPath) const override { return "ezPhysXMesh"; }
+  virtual ezString GetResourceTypeExtension(const char* szDocumentPath) const override
+  {
+    // TODO: should use a different file extension for concave/convex meshes, otherwise one can create
+    // two meshes with the same name that will overwrite each other every time they are transformed
+    return "ezPhysXMesh";
+  }
 
   virtual void QuerySupportedAssetTypes(ezSet<ezString>& inout_AssetTypeNames) const override
   {
@@ -23,7 +28,7 @@ private:
   void OnDocumentManagerEvent(const ezDocumentManager::Event& e);
 
   virtual ezStatus InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument,
-                                          ezDocument*& out_pDocument) override;
+    ezDocument*& out_pDocument) override;
   virtual void InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const override;
 
   ezBitflags<ezAssetDocumentFlags> GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const;

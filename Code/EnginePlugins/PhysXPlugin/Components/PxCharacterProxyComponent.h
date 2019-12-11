@@ -25,6 +25,8 @@ struct ezPxCharacterCollisionFlags
   };
 };
 
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_PHYSXPLUGIN_DLL, ezPxCharacterCollisionFlags);
+
 struct ezPxCharacterProxyData;
 
 typedef ezComponentManager<class ezPxCharacterProxyComponent, ezBlockStorageType::FreeList> ezPxCharacterProxyComponentManager;
@@ -53,10 +55,10 @@ public:
   ezPxCharacterProxyComponent();
   ~ezPxCharacterProxyComponent();
 
-  ezBitflags<ezPxCharacterCollisionFlags> Move(const ezVec3& vMotion, bool bCrouch);                           // TODO: make scriptable
+  ezBitflags<ezPxCharacterCollisionFlags> Move(const ezVec3& vMotion, bool bCrouch);                           // [ scriptable ]
   bool IsCrouching() const { return m_bIsCrouching; }                                                          // [ scriptable ]
   float GetCurrentCapsuleHeight() const { return m_bIsCrouching ? m_fCapsuleCrouchHeight : m_fCapsuleHeight; } // [ scriptable ]
-  ezBitflags<ezPxCharacterCollisionFlags> GetCollisionFlags() const;                                           // TODO: make scriptable
+  ezBitflags<ezPxCharacterCollisionFlags> GetCollisionFlags() const;                                           // [ scriptable ]
   bool IsGrounded() const { return GetCollisionFlags().IsSet(ezPxCharacterCollisionFlags::Below); }            // [ scriptable ]
 
   ezGameObjectHandle GetTouchedShapeObject() const; // TODO: make scriptable

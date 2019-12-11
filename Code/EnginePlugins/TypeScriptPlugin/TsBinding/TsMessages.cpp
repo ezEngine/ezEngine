@@ -46,6 +46,7 @@ import __Angle = require("./Angle")
 export import Angle = __Angle.Angle;
 
 import Enum = require("./AllEnums")
+import Flags = require("./AllFlags")
 
 
 )";
@@ -123,54 +124,43 @@ void ezTypeScriptBinding::GenerateMessagePropertiesCode(ezStringBuilder& out_Cod
 
     const ezRTTI* pPropType = pProp->GetSpecificType();
 
-    if (pPropType->IsDerivedFrom<ezEnumBase>() || pPropType->IsDerivedFrom<ezBitflagsBase>())
-    {
-      s_RequiredEnums.Insert(pPropType);
+    ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pProp);
 
-      sDefault = pPropType->GetTypeName();
-      sDefault.TrimWordStart("ez");
-      sProp.Format("  {0}: Enum.{1};\n", pProp->GetPropertyName(), sDefault);
+    const char* szTypeName = TsType(pMember->GetSpecificType());
+    if (szTypeName == nullptr)
+      continue;
+
+    const ezVariant def = ezReflectionUtils::GetDefaultValue(pMember);
+
+    if (def.CanConvertTo<ezString>())
+    {
+      sDefault = def.ConvertTo<ezString>();
+
+      EZ_ASSERT_DEV(sDefault != "N/A", "");
+    }
+
+    if (!sDefault.IsEmpty())
+    {
+      // TODO: make this prettier
+      if (def.GetType() == ezVariant::Type::Color)
+      {
+        ezColor c = def.Get<ezColor>();
+        sDefault.Format("new Color({}, {}, {}, {})", c.r, c.g, c.b, c.a);
+      }
+      else if (def.GetType() == ezVariant::Type::Time)
+      {
+        sDefault.Format("{0}", def.Get<ezTime>().GetSeconds());
+      }
+      else if (def.GetType() == ezVariant::Type::Angle)
+      {
+        sDefault.Format("{0}", def.Get<ezAngle>().GetRadian());
+      }
+
+      sProp.Format("  {0}: {1} = {2};\n", pMember->GetPropertyName(), szTypeName, sDefault);
     }
     else
     {
-      ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pProp);
-
-      const char* szTypeName = TsType(pMember->GetSpecificType());
-      if (szTypeName == nullptr)
-        continue;
-
-      const ezVariant def = ezReflectionUtils::GetDefaultValue(pMember);
-
-      if (def.CanConvertTo<ezString>())
-      {
-        sDefault = def.ConvertTo<ezString>();
-
-        EZ_ASSERT_DEV(sDefault != "N/A", "");
-      }
-
-      if (!sDefault.IsEmpty())
-      {
-        // TODO: make this prettier
-        if (def.GetType() == ezVariant::Type::Color)
-        {
-          ezColor c = def.Get<ezColor>();
-          sDefault.Format("new Color({}, {}, {}, {})", c.r, c.g, c.b, c.a);
-        }
-        else if (def.GetType() == ezVariant::Type::Time)
-        {
-          sDefault.Format("{0}", def.Get<ezTime>().GetSeconds());
-        }
-        else if (def.GetType() == ezVariant::Type::Angle)
-        {
-          sDefault.Format("{0}", def.Get<ezAngle>().GetRadian());
-        }
-
-        sProp.Format("  {0}: {1} = {2};\n", pMember->GetPropertyName(), szTypeName, sDefault);
-      }
-      else
-      {
-        sProp.Format("  {0}: {1};\n", pMember->GetPropertyName(), szTypeName);
-      }
+      sProp.Format("  {0}: {1};\n", pMember->GetPropertyName(), szTypeName);
     }
 
     out_Code.Append(sProp.GetView());
@@ -249,7 +239,7 @@ ezUniquePtr<ezMessage> ezTypeScriptBinding::MessageFromParameter(duk_context* pD
 
       ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pProp);
 
-      const ezVariant value = ezTypeScriptBinding::GetVariantProperty(duk, pProp->GetPropertyName(), iObjIdx + 1, pMember->GetSpecificType()->GetVariantType());
+      const ezVariant value = ezTypeScriptBinding::GetVariantProperty(duk, pProp->GetPropertyName(), iObjIdx + 1, pMember->GetSpecificType());
       ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg.Borrow(), value);
     }
   }

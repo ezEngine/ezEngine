@@ -2,7 +2,17 @@ HeaderV2
 {
 o
 {
-	Uuid %id{u4{3701279737852572830,5417918135468549630}}
+	Uuid %id{u4{7355302225660781577,3365495958262335452}}
+	s %t{"ezExposedParameters"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Parameters{}
+	}
+}
+o
+{
+	Uuid %id{u4{4662619141635610766,4788884483168648736}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
 	s %n{"Header"}
@@ -11,26 +21,16 @@ o
 		s %AssetType{"TypeScript"}
 		VarArray %Dependencies
 		{
-			s{"Scripts/Rotate.ts"}
+			s{"Prefabs/HealthPickup_data/HealthPickup.ts"}
 		}
-		Uuid %DocumentID{u4{3701279737852572830,5417918135468549630}}
-		u4 %Hash{11644286939870225984}
+		Uuid %DocumentID{u4{4662619141635610766,4788884483168648736}}
+		u4 %Hash{18284992211451162194}
 		VarArray %MetaInfo
 		{
-			Uuid{u4{98109194289725165,10269579756313425659}}
+			Uuid{u4{7355302225660781577,3365495958262335452}}
 		}
 		VarArray %Outputs{}
 		VarArray %References{}
-	}
-}
-o
-{
-	Uuid %id{u4{98109194289725165,10269579756313425659}}
-	s %t{"ezExposedParameters"}
-	u3 %v{3}
-	p
-	{
-		VarArray %Parameters{}
 	}
 }
 }
@@ -38,7 +38,7 @@ Objects
 {
 o
 {
-	Uuid %id{u4{14381134361731566271,5319207614331051826}}
+	Uuid %id{u4{6244812978329173914,5202711214458908245}}
 	s %t{"ezTypeScriptAssetProperties"}
 	u3 %v{1}
 	p
@@ -46,7 +46,7 @@ o
 		VarArray %BoolParameters{}
 		VarArray %ColorParameters{}
 		VarArray %NumberParameters{}
-		s %ScriptFile{"Scripts/Rotate.ts"}
+		s %ScriptFile{"Prefabs/HealthPickup_data/HealthPickup.ts"}
 		VarArray %StringParameters{}
 		VarArray %Vec3Parameters{}
 	}
@@ -61,7 +61,7 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{14381134361731566271,5319207614331051826}}
+			Uuid{u4{6244812978329173914,5202711214458908245}}
 		}
 	}
 }

@@ -26,8 +26,11 @@ ezResult ezTypeScriptBinding::SetupProjectCode()
   GenerateMessagesFile(":project/TypeScript/ez/AllMessages.ts");
   InjectMessageImportExport(":project/TypeScript/ez.ts", "./ez/AllMessages");
 
-  GenerateEnumsFile();
+  GenerateEnumsFile(":project/TypeScript/ez/AllEnums.ts", s_RequiredEnums);
+  GenerateEnumsFile(":project/TypeScript/ez/AllFlags.ts", s_RequiredFlags);
+
   InjectEnumImportExport(":project/TypeScript/ez.ts", "./ez/AllEnums");
+  InjectFlagsImportExport(":project/TypeScript/ez.ts", "./ez/AllFlags");
 
   return EZ_SUCCESS;
 }
@@ -127,6 +130,7 @@ import __Angle = require("./Angle")
 export import Angle = __Angle.Angle;
 
 import Enum = require("./AllEnums")
+import Flags = require("./AllFlags")
 
 )";
 

@@ -36,8 +36,8 @@ declare function __CPP_World_CreateComponent(owner: GameObject, componentTypeNam
 declare function __CPP_World_DeleteComponent(component: Component): void;
 declare function __CPP_World_TryGetObjectWithGlobalKey(globalKey: string): GameObject;
 
-declare function __CPP_World_FindObjectsInSphere(center: Vec3, radius: number, callback: (go: GameObject) => boolean): void;
-declare function __CPP_World_FindObjectsInBox(min: Vec3, max: Vec3, callback: (go: GameObject) => boolean): void;
+declare function __CPP_World_FindObjectsInSphere(type: string, center: Vec3, radius: number, callback: (go: GameObject) => boolean): void;
+declare function __CPP_World_FindObjectsInBox(type: string, min: Vec3, max: Vec3, callback: (go: GameObject) => boolean): void;
 
 export namespace World {
 
@@ -61,12 +61,12 @@ export namespace World {
     return __CPP_World_TryGetObjectWithGlobalKey(globalKey);
   }
 
-  export function FindObjectsInSphere(center: Vec3, radius: number, callback: (go: GameObject) => boolean): void {
-    __CPP_World_FindObjectsInSphere(center, radius, callback);
+  export function FindObjectsInSphere(type: string, center: Vec3, radius: number, callback: (go: GameObject) => boolean): void {
+    __CPP_World_FindObjectsInSphere(type, center, radius, callback);
   }
 
-  export function FindObjectsInBox(min: Vec3, max: Vec3, callback: (go: GameObject) => boolean): void {
-    __CPP_World_FindObjectsInBox(min, max, callback);
+  export function FindObjectsInBox(type: string, min: Vec3, max: Vec3, callback: (go: GameObject) => boolean): void {
+    __CPP_World_FindObjectsInBox(type, min, max, callback);
   }
 
   // GetCoordinateSystem

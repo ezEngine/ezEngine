@@ -72,6 +72,9 @@ public:
   /// \brief Opens the given file or folder in the Explorer
   static void OpenInExplorer(const char* szPath, bool bIsFile);
 
+  /// \brief Attempts to launch Visual Studio Code with the given command line
+  static ezStatus OpenInVsCode(const QStringList& arguments);
+
   /// \brief Loads some global state used by ezQtUiServices from the registry. E.g. the last position of the color dialog.
   void LoadState();
 

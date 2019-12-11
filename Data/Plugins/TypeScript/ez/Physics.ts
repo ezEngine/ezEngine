@@ -7,6 +7,7 @@ export import Transform = __Transform.Transform;
 import __GameObject = require("./GameObject")
 export import GameObject = __GameObject.GameObject;
 
+
 declare function __CPP_Physics_CastRay(start: Vec3, dir: Vec3, distance: number, collisionLayer: number, shapeTypes: Physics.ShapeType, ignoreShapeId: number): Physics.HitResult;
 declare function __CPP_Physics_SweepTestSphere(sphereRadius: number, start: Vec3, dir: Vec3, distance: number, collisionLayer: number, ignoreShapeId: number): Physics.HitResult;
 declare function __CPP_Physics_SweepTestBox(boxExtends: Vec3, start: Transform, dir: Vec3, distance: number, collisionLayer: number, ignoreShapeId: number): Physics.HitResult;
@@ -14,8 +15,11 @@ declare function __CPP_Physics_SweepTestCapsule(capsuleRadius: number, capsuleHe
 declare function __CPP_Physics_OverlapTestSphere(sphereRadius: number, position: Vec3, collisionLayer: number, ignoreShapeId: number): boolean;
 declare function __CPP_Physics_OverlapTestCapsule(capsuleRadius: number, capsuleHeight: number, transform: Transform, collisionLayer: number, ignoreShapeId: number): boolean;
 declare function __CPP_Physics_GetGravity(): Vec3;
+declare function __CPP_Physics_QueryDynamicShapesInSphere(radius: number, position: Vec3, collisionLayer: number, ignoreShapeId: number, callback: Physics.QueryShapeCallback): void;
 
 export namespace Physics {
+
+    export type QueryShapeCallback = (actor: GameObject, shape: GameObject, shapeId: number) => boolean;
 
     export enum ShapeType {
         Static = 1 << 0,
@@ -55,9 +59,11 @@ export namespace Physics {
         return __CPP_Physics_OverlapTestCapsule(capsuleRadius, capsuleHeight, transform, collisionLayer, ignoreShapeId);
     }
 
-    //export function QueryDynamicShapesInSphere(sphereRadius: number, position: Vec3, collisionLayer: number, ezPhysicsOverlapResult & out_Results, ignoreShapeId: number = -1): void { }
-
     export function GetGravity(): Vec3 {
         return __CPP_Physics_GetGravity();
+    }
+
+    export function QueryDynamicShapesInSphere(radius: number, position: Vec3, collisionLayer: number, callback: QueryShapeCallback, ignoreShapeId: number = -1): void {
+        __CPP_Physics_QueryDynamicShapesInSphere(radius, position, collisionLayer, ignoreShapeId, callback);
     }
 }

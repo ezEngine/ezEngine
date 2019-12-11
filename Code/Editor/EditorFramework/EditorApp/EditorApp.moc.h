@@ -26,6 +26,7 @@ class ezQtProgressbar;
 class ezQtEditorApp;
 class QStringList;
 class ezTranslatorFromFiles;
+class ezDynamicStringEnum;
 
 struct EZ_EDITORFRAMEWORK_DLL ezEditorAppEvent
 {
@@ -284,6 +285,10 @@ private:
 
   // *** Localization ***
   ezTranslatorFromFiles* m_pTranslatorFromFiles = nullptr;
+
+  // *** Dynamic Enum Strings ***
+  ezSet<ezString> m_DynamicEnumStringsToClear;
+  void OnDemandDynamicStringEnumLoad(const char* szEnum, ezDynamicStringEnum& e);
 
 
   ezWhatsNewText m_WhatsNew;

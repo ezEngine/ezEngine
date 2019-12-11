@@ -28,9 +28,23 @@ export class BallMine extends ez.TickedTypescriptComponent {
         this._player = ez.World.TryGetObjectWithGlobalKey("Player");
     }
 
+    QueryForNPC = (go: ez.GameObject): boolean => {
+
+        // just accept the first object that was found
+        this._player = go;
+        return false;
+    }
+
     Tick(): number {
 
         let oldState = this._state;
+        let owner = this.GetOwner();
+
+        if (this._player == null || !this._player.IsValid()) {
+
+            this._player = null;
+            ez.World.FindObjectsInSphere("Player", owner.GetGlobalPosition(), this.AlertDistance, this.QueryForNPC);
+        }
 
         if (this._player != null && this._player.IsValid()) {
 
@@ -111,6 +125,8 @@ export class BallMine extends ez.TickedTypescriptComponent {
 
             }
         }
+
+        return ez.Time.Seconds(0.5);
     }
 
     Explode(): void {

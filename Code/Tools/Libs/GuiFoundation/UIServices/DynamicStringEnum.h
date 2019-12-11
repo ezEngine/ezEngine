@@ -1,8 +1,8 @@
 #pragma once
 
-#include <GuiFoundation/GuiFoundationDLL.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 
 /// \brief Stores the valid values and names for 'dynamic' enums.
 ///
@@ -13,12 +13,14 @@
 class EZ_GUIFOUNDATION_DLL ezDynamicStringEnum
 {
 public:
-
   /// \brief Returns a ezDynamicEnum under the given name. Creates a new one, if the name has not been used before.
   static ezDynamicStringEnum& GetDynamicEnum(const char* szEnumName);
 
   /// \brief Returns all enum values and current names.
   const ezHybridArray<ezString, 16>& GetAllValidValues() const { return m_ValidValues; }
+
+  /// \brief Removes the entire enum with the given name.
+  static void RemoveEnum(const char* szEnumName);
 
   /// \brief Resets the internal data.
   void Clear();
@@ -32,9 +34,16 @@ public:
   /// \brief Returns whether a certain value is known.
   bool IsValueValid(const char* szValue) const;
 
+  /// \brief Sorts existing values alphabetically
+  void SortValues();
+
+  /// \brief Invoked by GetDynamicEnum() for enums that are unkonwn at that time.
+  ///
+  /// Can be used to on-demand load those values, before GetDynamicEnum() returns.
+  static ezDelegate<void(const char* szEnumName, ezDynamicStringEnum& e)> s_RequestUnknownCallback;
+
 private:
   ezHybridArray<ezString, 16> m_ValidValues;
 
   static ezMap<ezString, ezDynamicStringEnum> s_DynamicEnums;
 };
-

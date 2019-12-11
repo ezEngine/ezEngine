@@ -45,7 +45,17 @@ void ezTypeScriptAssetDocument::EditScript()
   if (ezFileSystem::ResolvePath(sTsPath, &sAbsPath, nullptr).Failed())
     return;
 
-  ezQtUiServices::OpenFileInDefaultProgram(sAbsPath);
+  {
+    QStringList args;
+    args.append(QString::fromUtf8(ezToolsProject::GetSingleton()->GetProjectDirectory()));
+    args.append(sAbsPath.GetData());
+
+    if (ezQtUiServices::OpenInVsCode(args).Failed())
+    {
+      // try again with a different program
+      ezQtUiServices::OpenFileInDefaultProgram(sAbsPath);
+    }
+  }
 
   {
     ezTypeScriptAssetDocumentEvent e;
@@ -234,12 +244,6 @@ ezStatus ezTypeScriptAssetDocument::AutoGenerateVariablesCode()
     {
       sAutoGen.AppendFormat("    {}: ez.Color = new ez.Color({}, {}, {}, {});\n", p.m_sName, p.m_DefaultValue.r, p.m_DefaultValue.g, p.m_DefaultValue.b, p.m_DefaultValue.a);
     }
-  }
-
-  if (sAutoGen.IsEmpty())
-  {
-    // no auto-generated code at all? just finish up
-    return ezStatus(EZ_SUCCESS);
   }
 
   // write back the modified file
