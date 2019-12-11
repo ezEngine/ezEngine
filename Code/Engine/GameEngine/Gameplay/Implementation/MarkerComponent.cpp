@@ -75,7 +75,7 @@ void ezMarkerComponent::UpdateMarker()
     m_SpatialCategory = ezInvalidSpatialDataCategory;
   }
 
-  if (GetOwner())
+  if (IsActiveAndInitialized())
   {
     GetOwner()->UpdateLocalBounds();
   }
@@ -98,8 +98,6 @@ void ezMarkerComponent::DeserializeComponent(ezWorldReader& stream)
 
   s >> m_sMarkerType;
   s >> m_fRadius;
-
-  UpdateMarker();
 }
 
 void ezMarkerComponent::OnActivated()
@@ -113,7 +111,6 @@ void ezMarkerComponent::OnDeactivated()
 {
   SUPER::OnDeactivated();
 
-  // TODO: do this ?
   GetOwner()->UpdateLocalBounds();
 }
 
