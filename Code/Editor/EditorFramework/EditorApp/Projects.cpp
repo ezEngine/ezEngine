@@ -6,6 +6,7 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Types/ScopeExit.h>
 #include <GuiFoundation/Dialogs/ModifiedDocumentsDlg.moc.h>
+#include <GuiFoundation/UIServices/DynamicStringEnum.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 
 void UpdateInputDynamicEnumValues();
