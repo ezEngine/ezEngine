@@ -186,6 +186,10 @@ namespace ezDataDirectory
     }
 
     sPath.AppendPath(sRedirectedAsset);
+
+    if (!ezPathUtils::IsAbsolutePath(sPath))
+      return EZ_FAILURE;
+
     return ezOSFile::GetFileStats(sPath, out_Stats);
   }
 
