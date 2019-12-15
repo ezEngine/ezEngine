@@ -14,35 +14,35 @@ void ezTypeScriptBinding::GenerateMessagesFile(const char* szFile)
   sFileContent =
     R"(// AUTO-GENERATED FILE
 
-import __Message = require("./Message")
+import __Message = require("TypeScript/ez/Message")
 export import Message = __Message.Message;
 export import EventMessage = __Message.EventMessage;
 
-import __Vec2 = require("./Vec2")
+import __Vec2 = require("TypeScript/ez/Vec2")
 export import Vec2 = __Vec2.Vec2;
 
-import __Vec3 = require("./Vec3")
+import __Vec3 = require("TypeScript/ez/Vec3")
 export import Vec3 = __Vec3.Vec3;
 
-import __Mat3 = require("./Mat3")
+import __Mat3 = require("TypeScript/ez/Mat3")
 export import Mat3 = __Mat3.Mat3;
 
-import __Mat4 = require("./Mat4")
+import __Mat4 = require("TypeScript/ez/Mat4")
 export import Mat4 = __Mat4.Mat4;
 
-import __Quat = require("./Quat")
+import __Quat = require("TypeScript/ez/Quat")
 export import Quat = __Quat.Quat;
 
-import __Transform = require("./Transform")
+import __Transform = require("TypeScript/ez/Transform")
 export import Transform = __Transform.Transform;
 
-import __Color = require("./Color")
+import __Color = require("TypeScript/ez/Color")
 export import Color = __Color.Color;
 
-import __Time = require("./Time")
+import __Time = require("TypeScript/ez/Time")
 export import Time = __Time.Time;
 
-import __Angle = require("./Angle")
+import __Angle = require("TypeScript/ez/Angle")
 export import Angle = __Angle.Angle;
 
 import Enum = require("./AllEnums")
