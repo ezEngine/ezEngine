@@ -41,19 +41,27 @@ void ezTypeScriptAssetDocument::EditScript()
     CreateComponentFile(sTsPath);
   }
 
-  ezStringBuilder sAbsPath;
-  if (ezFileSystem::ResolvePath(sTsPath, &sAbsPath, nullptr).Failed())
+  ezStringBuilder sTsFileAbsPath;
+  if (ezFileSystem::ResolvePath(sTsPath, &sTsFileAbsPath, nullptr).Failed())
     return;
 
   {
     QStringList args;
-    args.append(QString::fromUtf8(ezToolsProject::GetSingleton()->GetProjectDirectory()));
-    args.append(sAbsPath.GetData());
+
+    for (const auto& dd : ezQtEditorApp::GetSingleton()->GetFileSystemConfig().m_DataDirs)
+    {
+      ezStringBuilder path;
+      ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, path);
+
+      args.append(QString::fromUtf8(path));
+    }
+
+    args.append(sTsFileAbsPath.GetData());
 
     if (ezQtUiServices::OpenInVsCode(args).Failed())
     {
       // try again with a different program
-      ezQtUiServices::OpenFileInDefaultProgram(sAbsPath);
+      ezQtUiServices::OpenFileInDefaultProgram(sTsFileAbsPath);
     }
   }
 
