@@ -2,6 +2,9 @@ import __Utils = require("./Utils")
 
 export import Utils = __Utils.Utils;
 
+/**
+ * Represents an HDR RGBA color value in linear space.
+ */
 export class Color {
 
     // TODO:
@@ -23,11 +26,23 @@ export class Color {
     //void operator*=(const ezMat4& rhs)
     //const ezColor operator*(const ezMat4& lhs, const ezColor& rhs)
 
+    /** The red value */
     r: number;
+    /** The green value */
     g: number;
+    /** The blue value */
     b: number;
+    /** The alpha value */
     a: number;
 
+    /**
+     * Constrcuts a custom color or default initializes it to black (alpha = 1)
+     * 
+     * @param r Red in [0; 1] linear range.
+     * @param g Green in [0; 1] linear range.
+     * @param b Blue in [0; 1] linear range.
+     * @param a Alpha in [0; 1] range.
+     */
     constructor(r: number = 0, g: number = 0, b: number = 0, a: number = 1) {
         this.r = r;
         this.g = g;
@@ -35,36 +50,73 @@ export class Color {
         this.a = a;
     }
 
+    /**
+     * Returns a duplicate of this object.
+     */
     Clone(): Color {
         return new Color(this.r, this.g, this.b, this.a);
     }
 
+    /**
+     * Returns an all-zero color object.
+     */
     static ZeroColor(): Color {
         return new Color(0, 0, 0, 0);
     }
 
+    /**
+     * Converts a color value from Gamma space to Linear space.
+     * 
+     * @param gamma A color value (red, green or blue) in Gamma space.
+     * @returns The converted value in Linear space.
+     */
     static GammaToLinear(gamma: number): number {
         return (gamma <= 0.04045) ? (gamma / 12.92) : (Math.pow((gamma + 0.055) / 1.055, 2.4));
     }
 
+    /**
+     * Converts a color value from Linear space to Gamme space.
+     * 
+     * @param linear A color value (red, green or blue) in Linear space.
+     * @returns The converted value in Gamma space.
+     */
     static LinearToGamma(linear: number): number {
         return (linear <= 0.0031308) ? (12.92 * linear) : (1.055 * Math.pow(linear, 1.0 / 2.4) - 0.055);
     }
 
+    /**
+     * Converts a color value from [0; 255] range to [0; 1] range.
+     * 
+     * @param byte A color value in [0; 255] range.
+     * @returns The color value in [0; 1] range.
+     */
     static ColorByteToFloat(byte: number): number {
         return byte / 255.0;
     }
 
+    /**
+     * Converts a color value from [0; 1] range to [0; 255] range.
+     * 
+     * @param float A color value in [0; 1] range.
+     * @returns The color value in [0; 255] range.
+     */
     static ColorFloatToByte(float: number): number {
         return float * 255.0 + 0.5;
     }
 
+    /**
+     * Sets the RGB part with values in Linear space, [0; 1] range.
+     * Does not modify alpha.
+     */
     SetLinearRGB(r: number, g: number, b: number): void {
         this.r = r;
         this.g = g;
         this.b = b;
     }
 
+    /**
+     * Sets RGB and Alpha values in Linear space, [0; 1] range.
+     */
     SetLinearRGBA(r: number, g: number, b: number, a: number): void {
         this.r = r;
         this.g = g;
@@ -72,12 +124,21 @@ export class Color {
         this.a = a;
     }
 
+    /**
+     * Sets the RGB part with values in Gamma space, [0; 255] range.
+     * Converts the given values to Linear space, [0; 1] range.
+     * Does not modify alpha.
+     */
     SetGammaByteRGB(byteR: number, byteG: number, byteB: number): void {
         this.r = Color.GammaToLinear(Color.ColorByteToFloat(byteR));
         this.g = Color.GammaToLinear(Color.ColorByteToFloat(byteG));
         this.b = Color.GammaToLinear(Color.ColorByteToFloat(byteB));
     }
 
+    /**
+     * Sets RGB and Alpha with values in Gamma space, [0; 255] range.
+     * Converts the given values to Linear space, [0; 1] range.
+     */
     SetGammaByteRGBA(byteR: number, byteG: number, byteB: number, byteA: number = 255): void {
         this.r = Color.GammaToLinear(Color.ColorByteToFloat(byteR));
         this.g = Color.GammaToLinear(Color.ColorByteToFloat(byteG));
@@ -85,6 +146,9 @@ export class Color {
         this.a = Color.GammaToLinear(Color.ColorByteToFloat(byteA));
     }
 
+    /**
+     * Sets all values to zero.
+     */
     SetZero(): void {
         this.r = 0;
         this.g = 0;
@@ -92,12 +156,19 @@ export class Color {
         this.a = 0;
     }
 
+    /**
+     * Scales the RGB values with the given factor.
+     * Does not modify Alpha.
+     */
     ScaleRGB(factor: number): void {
         this.r *= factor;
         this.g *= factor;
         this.b *= factor;
     }
 
+    /**
+     * Adds rhs to this.
+     */
     AddColor(rhs: Color): void {
         this.r += rhs.r;
         this.g += rhs.g;
@@ -105,6 +176,9 @@ export class Color {
         this.a += rhs.a;
     }
 
+    /**
+     * Subtracts rhs from this.
+     */
     SubColor(rhs: Color): void {
         this.r -= rhs.r;
         this.g -= rhs.g;
@@ -112,6 +186,9 @@ export class Color {
         this.a -= rhs.a;
     }
 
+    /**
+     * Multiplies rhs into this.
+     */
     MulColor(rhs: Color): void {
         this.r *= rhs.r;
         this.g *= rhs.g;
@@ -119,6 +196,9 @@ export class Color {
         this.a *= rhs.a;
     }
 
+    /**
+     * Multiplies this with factor.
+     */
     MulNumber(factor: number): void {
         this.r *= factor;
         this.g *= factor;
@@ -126,6 +206,9 @@ export class Color {
         this.a *= factor;
     }
 
+    /**
+     * Divides this by factor.
+     */
     DivNumber(factor: number): void {
         let oneDiv = 1.0 / factor;
         this.r *= oneDiv;
@@ -134,26 +217,46 @@ export class Color {
         this.a *= oneDiv;
     }
 
+    /**
+     * Checks whether this and rhs are completely identical in RGB. Ignores Alpha.
+     */
     IsIdenticalRGB(rhs: Color): boolean {
         return this.r == rhs.r && this.g == rhs.g && this.b == rhs.b;
     }
 
+    /**
+     * Checks whether this and rhs are completely identical in RGB and Alpha.
+     */
     IsIdenticalRGBA(rhs: Color): boolean {
         return this.r == rhs.r && this.g == rhs.g && this.b == rhs.b && this.a == rhs.a;
     }
 
+    /**
+     * Checks whether this and rhs are approximately equal in RGB. Ignores Alpha.
+     * @param epsilon In Linear space, [0; 1] range.
+     */
     IsEqualRGB(rhs: Color, epsilon: number): boolean {
         return Utils.IsNumberEqual(this.r, rhs.r, epsilon) && Utils.IsNumberEqual(this.g, rhs.g, epsilon) && Utils.IsNumberEqual(this.b, rhs.b, epsilon);
     }
 
+    /**
+     * Checks whether this and rhs are approximately equal in RGB and Alpha.
+     * @param epsilon In Linear space, [0; 1] range.
+     */
     IsEqualRGBA(rhs: Color, epsilon: number): boolean {
         return Utils.IsNumberEqual(this.r, rhs.r, epsilon) && Utils.IsNumberEqual(this.g, rhs.g, epsilon) && Utils.IsNumberEqual(this.b, rhs.b, epsilon) && Utils.IsNumberEqual(this.a, rhs.a, epsilon);
     }
 
+    /**
+     * Returns a duplicate of this, but with a replaced alpha value.
+     */
     WithAlpha(alpha: number): Color {
         return new Color(this.r, this.g, this.b, alpha);
     }
 
+    /**
+     * Sets this to lhs + rhs.
+     */
     SetAdd(lhs: Color, rhs: Color): void {
         this.r = lhs.r + rhs.r;
         this.g = lhs.g + rhs.g;
@@ -161,6 +264,9 @@ export class Color {
         this.a = lhs.a + rhs.a;
     }
 
+    /**
+     * Sets this to lhs - rhs.
+     */
     SetSub(lhs: Color, rhs: Color): void {
         this.r = lhs.r - rhs.r;
         this.g = lhs.g - rhs.g;
@@ -168,6 +274,9 @@ export class Color {
         this.a = lhs.a - rhs.a;
     }
 
+    /**
+     * Sets this to lhs * rhs.
+     */
     SetMul(lhs: Color, rhs: Color): void {
         this.r = lhs.r * rhs.r;
         this.g = lhs.g * rhs.g;
@@ -175,6 +284,9 @@ export class Color {
         this.a = lhs.a * rhs.a;
     }
 
+    /**
+     * Sets this to lhs * rhs.
+     */
     SetMulNumber(lhs: Color, rhs: number): void {
         this.r = lhs.r * rhs;
         this.g = lhs.g * rhs;
@@ -182,6 +294,9 @@ export class Color {
         this.a = lhs.a * rhs;
     }
 
+    /**
+     * Sets this to lhs / rhs.
+     */
     SetDivNumber(lhs: Color, rhs: number): void {
         let invRhs = 1.0 / rhs;
         this.r = lhs.r * invRhs;
