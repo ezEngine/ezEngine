@@ -9,13 +9,12 @@
 ezResult ezTypeScriptBinding::SetupProjectCode()
 {
   ezStringBuilder sAbsSrcFolder;
-  EZ_SUCCEED_OR_RETURN(ezFileSystem::ResolvePath(":plugins/TypeScript/ez.ts", &sAbsSrcFolder, nullptr));
+  EZ_SUCCEED_OR_RETURN(ezFileSystem::ResolvePath(":plugins/TypeScript/ez-template.ts", &sAbsSrcFolder, nullptr));
 
   ezStringBuilder sAbsDstFolder;
   EZ_SUCCEED_OR_RETURN(ezFileSystem::ResolvePath(":project/TypeScript/ez.ts", &sAbsDstFolder, nullptr));
 
 #if (EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) && EZ_ENABLED(EZ_SUPPORTS_FILE_STATS))
-  //EZ_SUCCEED_OR_RETURN(ezOSFile::CopyFolder(sAbsSrcFolder, sAbsDstFolder));
   EZ_SUCCEED_OR_RETURN(ezOSFile::CopyFile(sAbsSrcFolder, sAbsDstFolder));
 #endif
 

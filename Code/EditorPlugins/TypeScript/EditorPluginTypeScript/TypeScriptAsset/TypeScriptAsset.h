@@ -35,6 +35,9 @@ public:
 
 protected:
   void CreateComponentFile(const char* szFile);
+  void CreateTsConfigFiles();
+  ezResult CreateTsConfigFile(const char* szDirectory);
+
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
 
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
