@@ -401,8 +401,15 @@ public:
   /// \brief Appends several path pieces. Makes sure they are always properly separated by a slash.
   ///
   /// Will call 'MakeCleanPath' internally, so the representation of the path might change.
-  void AppendPath(const char* szPath1, const char* szPath2 = nullptr, const char* szPath3 = nullptr,
-    const char* szPath4 = nullptr); // [tested]
+  void AppendPath(const char* szPath1, const char* szPath2 = nullptr, const char* szPath3 = nullptr, const char* szPath4 = nullptr); // [tested]
+
+  /// \brief Similar to Append() but the very first argument is a separator that is only appended (once) if the existing string is not empty and does not already end with the separator.
+  ///
+  /// This is useful when one wants to append entries that require a separator like a comma in between items. E.g. calling
+  /// AppendWithSeparator(", ", "a", "b");
+  /// AppendWithSeparator(", ", "c", "d");
+  /// results in the string "ab, cd"
+  void AppendWithSeparator(ezStringView separator, ezStringView sText1, ezStringView sText2 = ezStringView(), ezStringView sText3 = ezStringView(), ezStringView sText4 = ezStringView(), ezStringView sText5 = ezStringView(), ezStringView sText6 = ezStringView());
 
   /// \brief Changes the file name part of the path, keeps the extension intact (if there is any).
   void ChangeFileName(const char* szNewFileName); // [tested]
@@ -468,4 +475,3 @@ private:
 };
 
 #include <Foundation/Strings/Implementation/StringBuilder_inl.h>
-
