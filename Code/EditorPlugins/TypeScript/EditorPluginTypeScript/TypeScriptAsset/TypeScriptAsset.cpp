@@ -170,12 +170,22 @@ ezResult ezTypeScriptAssetDocument::CreateTsConfigFile(const char* szDirectory)
 )",
     sTmp);
 
-  sTmp = szDirectory;
-  sTmp.AppendPath("tsconfig.json");
 
-  ezFileWriter file;
-  EZ_SUCCEED_OR_RETURN(file.Open(sTmp));
-  EZ_SUCCEED_OR_RETURN(file.WriteBytes(sTsConfig.GetData(), sTsConfig.GetElementCount()));
+  {
+    sTmp = szDirectory;
+    sTmp.AppendPath("tsconfig.json");
+
+    ezFileWriter file;
+    EZ_SUCCEED_OR_RETURN(file.Open(sTmp));
+    EZ_SUCCEED_OR_RETURN(file.WriteBytes(sTsConfig.GetData(), sTsConfig.GetElementCount()));
+  }
+
+  {
+    sTmp = szDirectory;
+    sTmp.AppendPath(".gitignore");
+
+    ezQtUiServices::AddToGitIgnore(sTmp, "tsconfig.json"); //.IgnoreFailure();
+  }
 
   return EZ_SUCCESS;
 }
