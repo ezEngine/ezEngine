@@ -189,34 +189,39 @@ ezResult ezTypeScriptAssetDocumentManager::GenerateScriptCompendium(ezBitflags<e
 {
   EZ_LOG_BLOCK("Generating Script Compendium");
 
-  ezStringBuilder sProjectPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
-  sProjectPath.MakeCleanPath();
-
-  ezFileSystemIterator fsIt;
-  fsIt.StartSearch(sProjectPath, ezFileSystemIteratorFlags::ReportFilesRecursive);
-
   ezScriptCompendiumResourceDesc compendium;
-
   bool bAnythingNew = false;
 
-  ezStringBuilder sTsFilePath;
-  for (; fsIt.IsValid(); fsIt.Next())
+  for (ezUInt32 ddIdx = 0; ddIdx < ezFileSystem::GetNumDataDirectories(); ++ddIdx)
   {
-    if (!fsIt.GetStats().m_sName.EndsWith_NoCase(".ts"))
+    ezStringBuilder sDataDirPath = ezFileSystem::GetDataDirectory(ddIdx)->GetRedirectedDataDirectoryPath();
+    sDataDirPath.MakeCleanPath();
+
+    if (!sDataDirPath.IsAbsolutePath())
       continue;
 
-    fsIt.GetStats().GetFullPath(sTsFilePath);
+    ezFileSystemIterator fsIt;
+    fsIt.StartSearch(sDataDirPath, ezFileSystemIteratorFlags::ReportFilesRecursive);
 
-    sTsFilePath.MakeRelativeTo(sProjectPath);
-
-    compendium.m_PathToSource.Insert(sTsFilePath, ezString());
-
-    ezTimestamp& lastModification = m_CheckedTsFiles[sTsFilePath];
-
-    if (!lastModification.Compare(fsIt.GetStats().m_LastModificationTime, ezTimestamp::CompareMode::FileTimeEqual))
+    ezStringBuilder sTsFilePath;
+    for (; fsIt.IsValid(); fsIt.Next())
     {
-      bAnythingNew = true;
-      lastModification = fsIt.GetStats().m_LastModificationTime;
+      if (!fsIt.GetStats().m_sName.EndsWith_NoCase(".ts"))
+        continue;
+
+      fsIt.GetStats().GetFullPath(sTsFilePath);
+
+      sTsFilePath.MakeRelativeTo(sDataDirPath);
+
+      compendium.m_PathToSource.Insert(sTsFilePath, ezString());
+
+      ezTimestamp& lastModification = m_CheckedTsFiles[sTsFilePath];
+
+      if (!lastModification.Compare(fsIt.GetStats().m_LastModificationTime, ezTimestamp::CompareMode::FileTimeEqual))
+      {
+        bAnythingNew = true;
+        lastModification = fsIt.GetStats().m_LastModificationTime;
+      }
     }
   }
 

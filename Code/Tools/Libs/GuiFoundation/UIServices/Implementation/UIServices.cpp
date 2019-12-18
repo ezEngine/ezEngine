@@ -1,5 +1,7 @@
 #include <GuiFoundationPCH.h>
 
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QDesktopServices>
 #include <QDir>
@@ -86,7 +88,6 @@ const QImage& ezQtUiServices::GetCachedImageResource(const char* szIdentifier)
   return map[sIdentifier];
 }
 
-
 const QPixmap& ezQtUiServices::GetCachedPixmapResource(const char* szIdentifier)
 {
   const ezString sIdentifier = szIdentifier;
@@ -100,6 +101,36 @@ const QPixmap& ezQtUiServices::GetCachedPixmapResource(const char* szIdentifier)
   map[sIdentifier] = QPixmap(QString::fromUtf8(szIdentifier));
 
   return map[sIdentifier];
+}
+
+ezResult ezQtUiServices::AddToGitIgnore(const char* szGitIgnoreFile, const char* szPattern)
+{
+  ezStringBuilder ignoreFile;
+
+  {
+    ezFileReader file;
+    if (file.Open(szGitIgnoreFile).Succeeded())
+    {
+      ignoreFile.ReadAll(file);
+    }
+  }
+
+  const ezStringBuilder sPattern(szPattern, "\n");
+
+  // pattern already present ?
+  if (ignoreFile.FindSubString(sPattern))
+    return EZ_SUCCESS;
+
+  ignoreFile.AppendWithSeparator("\n", sPattern);
+
+  {
+    ezFileWriter file;
+    EZ_SUCCEED_OR_RETURN(file.Open(szGitIgnoreFile));
+
+    EZ_SUCCEED_OR_RETURN(file.WriteBytes(ignoreFile.GetData(), ignoreFile.GetElementCount()));
+  }
+
+  return EZ_SUCCESS;
 }
 
 void ezQtUiServices::LoadState()

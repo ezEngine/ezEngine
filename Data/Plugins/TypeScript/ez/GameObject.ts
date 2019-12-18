@@ -60,11 +60,11 @@ declare function __CPP_GameObject_TryGetComponentOfBaseTypeNameHash(_this: GameO
 declare function __CPP_GameObject_SendMessage(_this: GameObject, typeNameHash: number, msg: Message, recursive: boolean): void;
 declare function __CPP_GameObject_PostMessage(_this: GameObject, typeNameHash: number, msg: Message, recursive: boolean, delay: number): void;
 
-declare function __CPP_GameObject_SetTags(_this: GameObject, ...tags:string[]): void;
-declare function __CPP_GameObject_AddTags(_this: GameObject, ...tags:string[]): void;
-declare function __CPP_GameObject_RemoveTags(_this: GameObject, ...tags:string[]): void;
-declare function __CPP_GameObject_HasAnyTags(_this: GameObject, ...tags:string[]): boolean;
-declare function __CPP_GameObject_HasAllTags(_this: GameObject, ...tags:string[]): boolean;
+declare function __CPP_GameObject_SetTags(_this: GameObject, ...tags: string[]): void;
+declare function __CPP_GameObject_AddTags(_this: GameObject, ...tags: string[]): void;
+declare function __CPP_GameObject_RemoveTags(_this: GameObject, ...tags: string[]): void;
+declare function __CPP_GameObject_HasAnyTags(_this: GameObject, ...tags: string[]): boolean;
+declare function __CPP_GameObject_HasAllTags(_this: GameObject, ...tags: string[]): boolean;
 
 export class GameObject {
 
@@ -77,163 +77,344 @@ export class GameObject {
         return __CPP_GameObject_IsValid(this);
     }
 
+    /**
+     * Changes the name of the GameObject.
+     */
     SetName(name: string): void {
         __CPP_GameObject_SetName(this, name);
     }
 
+    /**
+     * Returns the name of the GameObject.
+     */
     GetName(): string {
         return __CPP_GameObject_GetName(this);
     }
 
+    /**
+     * Activates or deactivates the GameObject.
+     * Deactivating a GameObject is similar to deactivating all components attached to that object.
+     */
     SetActive(active: boolean): void {
         __CPP_GameObject_SetActive(this, active);
     }
 
+    /**
+     * Returns whether the GameObject is active.
+     */
     IsActive(): boolean {
         return __CPP_GameObject_IsActive(this);
     }
 
+    /**
+     * Sets the position of the object relative to its parent object.
+     * If the object has no parent, this is the same as the global position.
+     * The global transform is updated at the end of the frame, so this change is not reflected in the global transform
+     * until the next frame.
+     */
     SetLocalPosition(pos: Vec3): void {
         __CPP_GameObject_SetLocalPosition(this, pos);
     }
 
+    /**
+     * Returns the position relative to the parent object.
+     * If the object has no parent, this is the same as the global position.
+     */
     GetLocalPosition(): Vec3 {
         return __CPP_GameObject_GetLocalPosition(this);
     }
 
+    /**
+     * Sets the rotation of the object relative to its parent object.
+     * If the object has no parent, this is the same as the global rotation.
+     * The global transform is updated at the end of the frame, so this change is not reflected in the global transform
+     * until the next frame.
+     */
     SetLocalRotation(rot: Quat): void {
         __CPP_GameObject_SetLocalRotation(this, rot);
     }
 
+    /**
+     * Returns the rotation relative to the parent object.
+     * If the object has no parent, this is the same as the global rotation.
+     */
     GetLocalRotation(): Quat {
         return __CPP_GameObject_GetLocalRotation(this);
     }
 
+    /**
+     * Sets the scaling of the object relative to its parent object.
+     * If the object has no parent, this is the same as the global scale.
+     * The global transform is updated at the end of the frame, so this change is not reflected in the global transform
+     * until the next frame.
+     */
     SetLocalScaling(scaling: Vec3): void {
         __CPP_GameObject_SetLocalScaling(this, scaling);
     }
 
+    /**
+     * Returns the scaling relative to the parent object.
+     * If the object has no parent, this is the same as the global scaling.
+     */
     GetLocalScaling(): Vec3 {
         return __CPP_GameObject_GetLocalScaling(this);
     }
 
+    /**
+     * Sets the uniform scaling of the object relative to its parent object.
+     * If the object has no parent, this is the same as the global uniform scale.
+     * The global transform is updated at the end of the frame, so this change is not reflected in the global transform
+     * until the next frame.
+     */
     SetLocalUniformScaling(scaling: number): void {
         __CPP_GameObject_SetLocalUniformScaling(this, scaling);
     }
 
+    /**
+     * Returns the uniform scaling relative to the parent object.
+     * If the object has no parent, this is the same as the global uniform scaling.
+     */
     GetLocalUniformScaling(): number {
         return __CPP_GameObject_GetLocalUniformScaling(this);
     }
 
+    /**
+     * Sets the object's global position.
+     * Internally this will set the local position such that the desired global position is reached.
+     */
     SetGlobalPosition(pos: Vec3): void {
         __CPP_GameObject_SetGlobalPosition(this, pos);
     }
 
+    /**
+     * Returns the current global position as computed from the local transforms.
+     */
     GetGlobalPosition(): Vec3 {
         return __CPP_GameObject_GetGlobalPosition(this);
     }
 
+    /**
+     * Sets the object's global rotation.
+     * Internally this will set the local rotation such that the desired global rotation is reached.
+     */
     SetGlobalRotation(rot: Quat): void {
         __CPP_GameObject_SetGlobalRotation(this, rot);
     }
 
+    /**
+     * Returns the current global rotation as computed from the local transforms.
+     */
     GetGlobalRotation(): Quat {
         return __CPP_GameObject_GetGlobalRotation(this);
     }
 
+    /**
+     * Sets the object's scaling position.
+     * Internally this will set the local scaling such that the desired global scaling is reached.
+     */
     SetGlobalScaling(scaling: Vec3): void {
         __CPP_GameObject_SetGlobalScaling(this, scaling);
     }
 
+    /**
+     * Returns the current global scaling as computed from the local transforms.
+     * Note that there is no global uniform scaling as the local uniform scaling and non-uniform scaling are
+     * combined into the global scaling.
+     */
     GetGlobalScaling(): Vec3 {
         return __CPP_GameObject_GetGlobalScaling(this);
     }
 
+    /**
+     * Returns the vector representing the logical 'forward' direction of the GameObject in global space.
+     */
     GetGlobalDirForwards(): Vec3 {
         return __CPP_GameObject_GetGlobalDirForwards(this);
     }
 
+    /**
+     * Returns the vector representing the logical 'right' direction of the GameObject in global space.
+     */
     GetGlobalDirRight(): Vec3 {
         return __CPP_GameObject_GetGlobalDirRight(this);
     }
 
+    /**
+     * Returns the vector representing the logical 'up' direction of the GameObject in global space.
+     */
     GetGlobalDirUp(): Vec3 {
         return __CPP_GameObject_GetGlobalDirUp(this);
     }
 
+    /**
+     * Sets the velocity value of the GameObject.
+     * The velocity value only has an effect in some scenarios. It does not affect the GameObject's position.
+     * E.g. velicity is used by sound-sources to compute Doppler effects.
+     * By default this value is computed out of position changes.
+     */
     SetVelocity(velocity: Vec3): void {
         __CPP_GameObject_SetVelocity(this, velocity);
     }
 
+    /**
+     * Returns the velocity of the object over the last two world updates.
+     */
     GetVelocity(): Vec3 {
         return __CPP_GameObject_GetVelocity(this);
     }
 
+    /**
+     * Sets the team ID of this GameObject.
+     * 
+     * The team ID can be used to identify to which team or player an object belongs to.
+     * The team ID is inherited to other GameObjects, e.g. when spawning new objects.
+     * Thus for instance a projectile inherits the team ID of the weapon or player that spawned it.
+     * 
+     * @param id The team ID must be in range [0; 65535] (uint16).
+     */
     SetTeamID(id: number): void {
         __CPP_GameObject_SetTeamID(this, id);
     }
 
+    /**
+     * Returns the object's team ID.
+     */
     GetTeamID(): number {
         return __CPP_GameObject_GetTeamID(this);
     }
 
+    /**
+     * Searches for a child GameObject with the given name.
+     * 
+     * @param name The expected exact name of the child object.
+     * @param recursive If false, only direct children are inspected. Otherwise recursively all children are inspected.
+     */
     FindChildByName(name: string, recursive: boolean = true): GameObject {
         return __CPP_GameObject_FindChildByName(this, name, recursive);
     }
 
+    /** 
+     * Searches for a child using a path. Every path segment represents a child with a given name.
+     * 
+     * Paths are separated with single slashes: /
+     * When an empty path is given, 'this' is returned.
+     * When on any part of the path the next child cannot be found, null is returned.
+     * This function expects an exact path to the destination. It does not search the full hierarchy for
+     * the next child, as SearchChildByNameSequence() does.
+     */
     FindChildByPath(path: string): GameObject {
         return __CPP_GameObject_FindChildByPath(this, path);
     }
 
+    /**
+     * Searches for a child similar to FindChildByName() but allows to search for multiple names in a sequence.
+     *
+     * The names in the sequence are separated with slashes.
+     * For example, calling this with "a/b" will first search the entire hierarchy below this object for a child
+     * named "a". If that is found, the search continues from there for a child called "b".
+     */
     SearchForChildByNameSequence(objectSequence: string): GameObject {
         return __CPP_GameObject_SearchForChildByNameSequence(this, objectSequence, 0);
     }
 
+    /**
+     * Searches for a child similar to FindChildByName() but allows to search for multiple names in a sequence.
+     *
+     * The names in the sequence are separated with slashes.
+     * For example, calling this with "a/b" will first search the entire hierarchy below this object for a child
+     * named "a". If that is found, the search continues from there for a child called "b".
+     * If such a child is found it is verified that the object contains a component of 'typeClass'. 
+     * If it doesn't the search continues (including back-tracking).
+     */
     SearchForChildWithComponentByNameSequence<TYPE extends Component>(objectSequence: string, typeClass: new () => TYPE): GameObject {
         return __CPP_GameObject_SearchForChildByNameSequence(this, objectSequence, typeClass.GetTypeNameHash());
     }
 
+    /**
+     * Tries to find a component of type 'typeName' in the object's components list and returns the first match.
+     */
     TryGetComponentOfBaseTypeName<TYPE extends Component>(typeName: string): TYPE {
         return __CPP_GameObject_TryGetComponentOfBaseTypeName(this, typeName);
     }
 
+    /**
+     * Tries to find a component of type 'typeClass' in the object's components list and returns the first match.
+     */
     TryGetComponentOfBaseType<TYPE extends Component>(typeClass: new () => TYPE): TYPE {
         return __CPP_GameObject_TryGetComponentOfBaseTypeNameHash(this, typeClass.GetTypeNameHash());
     }
 
+    /**
+     * Sends a message to all the components on this GameObject (but not its children).
+     * 
+     * The message is delivered immediately.
+     */
     SendMessage(msg: Message): void {
         __CPP_GameObject_SendMessage(this, msg.TypeNameHash, msg, false);
     }
 
+    /**
+     * Sends a message to all the components on this GameObject (including all its children).
+     * 
+     * The message is delivered immediately.
+     */
     SendMessageRecursive(msg: Message): void {
         __CPP_GameObject_SendMessage(this, msg.TypeNameHash, msg, true);
     }
 
+    /**
+     * Queues a message to be sent to all the components on this GameObject (but not its children).
+     * 
+     * The message is delivered after the tiemout.
+     * If the timeout is zero, the message is delivered within this frame, but not immediately.
+     */
     PostMessage(msg: Message, delay: number = Time.Zero()): void {
         __CPP_GameObject_PostMessage(this, msg.TypeNameHash, msg, false, delay);
     }
 
+    /**
+     * Queues a message to be sent to all the components on this GameObject (including all its children).
+     * 
+     * The message is delivered after the tiemout.
+     * If the timeout is zero, the message is delivered within this frame, but not immediately.
+     */
     PostMessageRecursive(msg: Message, delay: number = Time.Zero()): void {
         __CPP_GameObject_PostMessage(this, msg.TypeNameHash, msg, true, delay);
     }
 
-    SetTags(...tags:string[]): void {
+    /**
+     * Replaces all the tags on this GameObject with the given set of tags.
+     */
+    SetTags(...tags: string[]): void {
         __CPP_GameObject_SetTags(this, ...tags);
     }
 
-    AddTags(...tags:string[]): void {
+    /**
+     * Adds all the given tags to this GameObject.
+     */
+    AddTags(...tags: string[]): void {
         __CPP_GameObject_AddTags(this, ...tags);
     }
-    
-    RemoveTags(...tags:string[]): void {
+
+    /**
+     * Removes all the given tags from this GameObject.
+     * Ignores tags that were not set on this GameObject to begin with.
+     */
+    RemoveTags(...tags: string[]): void {
         __CPP_GameObject_RemoveTags(this, ...tags);
     }
 
-    HasAnyTags(...tags:string[]): boolean {
+    /**
+     * Checks whether this object has at least on of the given tags.
+     */
+    HasAnyTags(...tags: string[]): boolean {
         return __CPP_GameObject_HasAnyTags(this, ...tags);
     }
 
-    HasAllTags(...tags:string[]): boolean {
+    /**
+     * Checks whether this object has all the given tags.
+     */
+    HasAllTags(...tags: string[]): boolean {
         return __CPP_GameObject_HasAllTags(this, ...tags);
     }
 }

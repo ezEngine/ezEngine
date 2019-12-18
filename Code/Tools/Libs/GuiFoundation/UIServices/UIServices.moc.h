@@ -90,6 +90,12 @@ public:
   /// \brief Returns a cached QPixmap that was created from an internal Qt resource (e.g. 'QPixmap(":QtNamespace/MyIcon.png")' ). Prevents creating the object over and over.
   static const QPixmap& GetCachedPixmapResource(const char* szIdentifier);
 
+  /// \brief Adds the pattern to the gitignore file.
+  ///
+  /// If the gitignore file does not exist, it is created.
+  /// If the pattern is already present in the file, it is not added again.
+  static ezResult AddToGitIgnore(const char* szGitIgnoreFile, const char* szPattern);
+
 private:
   ezQtColorDialog* m_pColorDlg;
   QByteArray m_ColorDlgGeometry;

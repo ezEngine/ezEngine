@@ -575,7 +575,14 @@ void ezProjectAction::Execute(const ezVariant& value)
     case ezProjectAction::ButtonType::OpenVsCode:
     {
       QStringList args;
-      args.append(QString::fromUtf8(ezToolsProject::GetSingleton()->GetProjectDirectory()));
+
+      for (const auto& dd : ezQtEditorApp::GetSingleton()->GetFileSystemConfig().m_DataDirs)
+      {
+        ezStringBuilder path;
+        ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, path);
+
+        args.append(QString::fromUtf8(path));
+      }
 
       const ezStatus res = ezQtUiServices::OpenInVsCode(args);
 

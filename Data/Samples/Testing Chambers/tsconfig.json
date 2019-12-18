@@ -1,9 +1,0 @@
-{
-  "compilerOptions": {
-    "target": "es5",
-    "baseUrl": "",
-    "paths": {
-      "*": ["D:/GitHub/ezEngine/Data/Plugins/TypeScript/*", "D:/GitHub/ezEngine/Data/Samples/Testing Chambers/*"]
-    }    
-  }
-}

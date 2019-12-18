@@ -31,7 +31,7 @@ const char* ezTypeScriptAssetDocument::QueryAssetType() const
 
 void ezTypeScriptAssetDocument::EditScript()
 {
-  ezStringBuilder sTsPath(":project/", GetProperties()->m_sScriptFile);
+  ezStringBuilder sTsPath(GetProperties()->m_sScriptFile);
 
   if (GetProperties()->m_sScriptFile.IsEmpty())
     return;
@@ -41,19 +41,29 @@ void ezTypeScriptAssetDocument::EditScript()
     CreateComponentFile(sTsPath);
   }
 
-  ezStringBuilder sAbsPath;
-  if (ezFileSystem::ResolvePath(sTsPath, &sAbsPath, nullptr).Failed())
+  ezStringBuilder sTsFileAbsPath;
+  if (ezFileSystem::ResolvePath(sTsPath, &sTsFileAbsPath, nullptr).Failed())
     return;
+
+  CreateTsConfigFiles();
 
   {
     QStringList args;
-    args.append(QString::fromUtf8(ezToolsProject::GetSingleton()->GetProjectDirectory()));
-    args.append(sAbsPath.GetData());
+
+    for (const auto& dd : ezQtEditorApp::GetSingleton()->GetFileSystemConfig().m_DataDirs)
+    {
+      ezStringBuilder path;
+      ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, path);
+
+      args.append(QString::fromUtf8(path));
+    }
+
+    args.append(sTsFileAbsPath.GetData());
 
     if (ezQtUiServices::OpenInVsCode(args).Failed())
     {
       // try again with a different program
-      ezQtUiServices::OpenFileInDefaultProgram(sAbsPath);
+      ezQtUiServices::OpenFileInDefaultProgram(sTsFileAbsPath);
     }
   }
 
@@ -67,18 +77,20 @@ void ezTypeScriptAssetDocument::EditScript()
 
 void ezTypeScriptAssetDocument::CreateComponentFile(const char* szFile)
 {
-  ezStringBuilder sAbsPathToEzTs = ":project/TypeScript/ez";
-
   ezStringBuilder sScriptFilePath = szFile;
   sScriptFilePath.ChangeFileNameAndExtension("");
 
-  ezStringBuilder sRelPathToEzTS = sAbsPathToEzTs;
-  sRelPathToEzTS.MakeRelativeTo(sScriptFilePath);
+  ezStringBuilder sRelPathToEzTS = "TypeScript/ez";
+  //sRelPathToEzTS = ":project/TypeScript/ez";
+  //sRelPathToEzTS.MakeRelativeTo(sScriptFilePath);
 
-  if (!sRelPathToEzTS.StartsWith("."))
-  {
-    sRelPathToEzTS.Prepend("./");
-  }
+  //if (!sRelPathToEzTS.StartsWith("."))
+  //{
+  //  sRelPathToEzTS.Prepend("./");
+  //}
+
+  // code above is not necessary anymore
+  sRelPathToEzTS = "TypeScript/ez";
 
   const ezStringBuilder sComponentName = ezPathUtils::GetFileName(GetDocumentPath());
 
@@ -111,6 +123,71 @@ void ezTypeScriptAssetDocument::CreateComponentFile(const char* szFile)
     e.m_pDocument = this;
     m_Events.Broadcast(e);
   }
+}
+
+void ezTypeScriptAssetDocument::CreateTsConfigFiles()
+{
+  for (const auto& dd : ezQtEditorApp::GetSingleton()->GetFileSystemConfig().m_DataDirs)
+  {
+    if (dd.m_sRootName.IsEqual_NoCase("BASE"))
+      continue;
+
+    ezStringBuilder path;
+    ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, path);
+    path.MakeCleanPath();
+
+    CreateTsConfigFile(path);
+  }
+}
+
+ezResult ezTypeScriptAssetDocument::CreateTsConfigFile(const char* szDirectory)
+{
+  ezStringBuilder sTsConfig;
+  ezStringBuilder sTmp;
+
+  for (ezUInt32 iPlus1 = ezQtEditorApp::GetSingleton()->GetFileSystemConfig().m_DataDirs.GetCount(); iPlus1 > 0; --iPlus1)
+  {
+    const auto& dd = ezQtEditorApp::GetSingleton()->GetFileSystemConfig().m_DataDirs[iPlus1 - 1];
+
+    ezStringBuilder path;
+    ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, path);
+    path.MakeCleanPath();
+    path.AppendPath("*");
+
+    sTmp.AppendWithSeparator(", ", "\"", path, "\"");
+  }
+
+  sTsConfig.Format(
+    R"({
+  "compilerOptions": {
+    "target": "es5",
+    "baseUrl": "",
+    "paths": {
+      "*": [{0}]
+    }    
+  }
+}
+)",
+    sTmp);
+
+
+  {
+    sTmp = szDirectory;
+    sTmp.AppendPath("tsconfig.json");
+
+    ezFileWriter file;
+    EZ_SUCCEED_OR_RETURN(file.Open(sTmp));
+    EZ_SUCCEED_OR_RETURN(file.WriteBytes(sTsConfig.GetData(), sTsConfig.GetElementCount()));
+  }
+
+  {
+    sTmp = szDirectory;
+    sTmp.AppendPath(".gitignore");
+
+    ezQtUiServices::AddToGitIgnore(sTmp, "tsconfig.json"); //.IgnoreFailure();
+  }
+
+  return EZ_SUCCESS;
 }
 
 void ezTypeScriptAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
