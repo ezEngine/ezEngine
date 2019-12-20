@@ -1,6 +1,6 @@
 #include <GameEngineTestPCH.h>
 
-#include "Particles.h"
+#include "ParticlesTest.h"
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 

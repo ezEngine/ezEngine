@@ -4,16 +4,16 @@
 
 #include "../TestClass/TestClass.h"
 
-class ezGameEngineTestApplication_Particles : public ezGameEngineTestApplication
+class ezGameEngineTestApplication_TypeScript : public ezGameEngineTestApplication
 {
 public:
-  ezGameEngineTestApplication_Particles();
+  ezGameEngineTestApplication_TypeScript();
 
-  void SubTestBillboardsSetup();
-  ezTestAppRun SubTestBillboardsExec(ezInt32 iCurFrame);
+  void SubTestBasicsSetup();
+  ezTestAppRun SubTestBasisExec(ezInt32 iCurFrame);
 };
 
-class ezGameEngineTestParticles : public ezGameEngineTest
+class ezGameEngineTestTypeScript : public ezGameEngineTest
 {
 public:
   virtual const char* GetTestName() const override;
@@ -22,15 +22,15 @@ public:
 private:
   enum SubTests
   {
-    ST_Billboards,
+    Basics,
   };
 
   virtual void SetupSubTests() override;
   virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
   virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override;
 
-  ezInt32 m_iFrame;
-  ezGameEngineTestApplication_Particles* m_pOwnApplication;
+  ezInt32 m_iFrame = 0;
+  ezGameEngineTestApplication_TypeScript* m_pOwnApplication = nullptr;
 };
 
 
