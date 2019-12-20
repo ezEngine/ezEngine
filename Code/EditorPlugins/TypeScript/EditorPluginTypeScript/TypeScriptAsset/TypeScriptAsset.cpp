@@ -45,6 +45,8 @@ void ezTypeScriptAssetDocument::EditScript()
   if (ezFileSystem::ResolvePath(sTsPath, &sTsFileAbsPath, nullptr).Failed())
     return;
 
+  static_cast<ezTypeScriptAssetDocumentManager*>(GetDocumentManager())->SetupProjectForTypeScript(false);
+
   CreateTsConfigFiles();
 
   {

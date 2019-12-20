@@ -84,7 +84,6 @@ void ezTypeScriptAssetDocumentManager::ToolsProjectEventHandler(const ezToolsPro
   if (e.m_Type == ezToolsProjectEvent::Type::ProjectOpened)
   {
     InitializeTranspiler();
-    SetupProjectForTypeScript();
   }
 
   if (e.m_Type == ezToolsProjectEvent::Type::ProjectClosing)
@@ -176,8 +175,13 @@ void ezTypeScriptAssetDocumentManager::ShutdownTranspiler()
   m_Transpiler.FinishLoadTranspiler();
 }
 
-void ezTypeScriptAssetDocumentManager::SetupProjectForTypeScript()
+void ezTypeScriptAssetDocumentManager::SetupProjectForTypeScript(bool bForce)
 {
+  if (m_bProjectSetUp && !bForce)
+    return;
+
+  m_bProjectSetUp = true;
+
   if (ezTypeScriptBinding::SetupProjectCode().Failed())
   {
     ezLog::Error("Could not setup Typescript data in project directory");
@@ -188,6 +192,8 @@ void ezTypeScriptAssetDocumentManager::SetupProjectForTypeScript()
 ezResult ezTypeScriptAssetDocumentManager::GenerateScriptCompendium(ezBitflags<ezTransformFlags> transformFlags)
 {
   EZ_LOG_BLOCK("Generating Script Compendium");
+
+  SetupProjectForTypeScript(false);
 
   ezScriptCompendiumResourceDesc compendium;
   bool bAnythingNew = false;
