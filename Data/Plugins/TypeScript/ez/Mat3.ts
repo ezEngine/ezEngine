@@ -4,36 +4,57 @@ export import Utils = __Utils.Utils;
 import __Vec3 = require("./Vec3")
 export import Vec3 = __Vec3.Vec3;
 
+/**
+ * A 3x3 matrix that can represent rotations and scalings, but no translation.
+ */
 export class Mat3 {
     m_ElementsCM: number[] = [
         1, 0, 0,
         0, 1, 0,
         0, 0, 1];
 
+    /**
+     * By default the constructor will initialize the matrix to identity.
+     */
     constructor(c1r1: number = 1, c2r1: number = 0, c3r1: number = 0, c1r2: number = 0, c2r2: number = 1, c3r2: number = 0, c1r3: number = 0, c2r3: number = 0, c3r3: number = 1) {
         this.SetElements(c1r1, c2r1, c3r1, c1r2, c2r2, c1r3, c1r3, c2r3, c3r3);
     }
 
+    /**
+     * Returns a duplicate of this matrix.
+     */
     Clone(): Mat3 {
         let c = new Mat3();
         c.SetMat3(this);
         return c;
     }
 
+    /**
+     * Copies the values of m into this.
+     */
     SetMat3(m: Mat3): void {
         for (var i = 0; i < 9; ++i) {
             this.m_ElementsCM[i] = m[i];
         }
     }
 
+    /**
+     * Returns the value from the requested row and column.
+     */
     GetElement(column: number, row: number): number {
         return this.m_ElementsCM[column * 3 + row];
     }
 
+    /**
+     * Overwrites the value in the given row and column.
+     */
     SetElement(column: number, row: number, value: number): void {
         this.m_ElementsCM[column * 3 + row] = value;
     }
 
+    /**
+     * Sets all values of the matrix.
+     */
     SetElements(c1r1: number, c2r1: number, c3r1: number, c1r2: number, c2r2: number, c3r2: number, c1r3: number, c2r3: number, c3r3: number): void {
         this.m_ElementsCM[0] = c1r1;
         this.m_ElementsCM[3] = c2r1;
@@ -48,12 +69,18 @@ export class Mat3 {
         this.m_ElementsCM[8] = c3r3;
     }
 
+    /**
+     * Sets all values to zero.
+     */
     SetZero(): void {
         for (var i = 0; i < 9; ++i) {
             this.m_ElementsCM[i] = 0;
         }
     }
 
+    /**
+     * Sets the matrix to be the identity matrix.
+     */
     SetIdentity(): void {
         this.m_ElementsCM[0] = 1;
         this.m_ElementsCM[3] = 0;
@@ -68,6 +95,10 @@ export class Mat3 {
         this.m_ElementsCM[8] = 1;
     }
 
+    /**
+     * Sets this matrix to be a scaling matrix
+     * @param scale How much the matrix scales along x, y and z.
+     */
     SetScalingMatrix(scale: Vec3): void {
         this.SetElements(
             scale.x, 0, 0,
@@ -75,6 +106,11 @@ export class Mat3 {
             0, 0, scale.z);
     }
 
+    /**
+     * Sets the matrix to rotate objects around the X axis.
+     * 
+     * @param radians The angle of rotation in radians.
+     */
     SetRotationMatrixX(radians: number): void {
         const fSin = Math.sin(radians);
         const fCos = Math.cos(radians);
@@ -85,6 +121,11 @@ export class Mat3 {
             0, fSin, fCos);
     }
 
+    /**
+     * Sets the matrix to rotate objects around the Y axis.
+     * 
+     * @param radians The angle of rotation in radians.
+     */
     SetRotationMatrixY(radians: number): void {
         const fSin = Math.sin(radians);
         const fCos = Math.cos(radians);
@@ -95,6 +136,11 @@ export class Mat3 {
             -fSin, 0, fCos);
     }
 
+    /**
+     * Sets the matrix to rotate objects around the Z axis.
+     * 
+     * @param radians The angle of rotation in radians.
+     */
     SetRotationMatrixZ(radians: number): void {
         const fSin = Math.sin(radians);
         const fCos = Math.cos(radians);
@@ -105,6 +151,12 @@ export class Mat3 {
             0, 0, 1);
     }
 
+    /**
+     * Sets the matrix to rotate objects around an arbitrary axis.
+     * 
+     * @param axis The normalized axis around which to rotate.
+     * @param radians The angle of rotation in radians.
+     */
     SetRotationMatrix(axis: Vec3, radians: number): void {
 
         const cos = Math.cos(radians);
@@ -139,17 +191,26 @@ export class Mat3 {
         this.m_ElementsCM[8] = cos + (oneminuscos * (axis.z * axis.z));
     }
 
+    /**
+     * Returns an all-zero matrix.
+     */
     static ZeroMatrix(): Mat3 {
         let m = new Mat3();
         m.SetZero();
         return m;
     }
 
+    /**
+     * Returns an identity matrix.
+     */
     static IdentityMatrix(): Mat3 {
         let m = new Mat3();
         return m;
     }
 
+    /**
+     * Flips all values along the diagonal.
+     */
     Transpose(): void {
         let tmp: number;
 
@@ -166,18 +227,27 @@ export class Mat3 {
         this.SetElement(2, 1, tmp);
     }
 
+    /**
+     * Returns a trnasposed clone of this matrix.
+     */
     GetTranspose(): Mat3 {
         let m = this.Clone();
         m.Transpose();
         return m;
     }
 
+    /**
+     * Sets the values in the given row.
+     */
     SetRow(row: number, c1: number, c2: number, c3: number): void {
         this.m_ElementsCM[row] = c1;
         this.m_ElementsCM[3 + row] = c2;
         this.m_ElementsCM[6 + row] = c3;
     }
 
+    /**
+     * Sets the values in the given column.
+     */
     SetColumn(column: number, r1: number, r2: number, r3: number): void {
         const off = column * 3;
         this.m_ElementsCM[off + 0] = r1;
@@ -185,12 +255,21 @@ export class Mat3 {
         this.m_ElementsCM[off + 2] = r3;
     }
 
-    SetDiagonal(d1: number, d2: number, d3: number, d4: number): void {
+    /**
+     * Sets the values on the diagonal.
+     */
+    SetDiagonal(d1: number, d2: number, d3: number): void {
         this.m_ElementsCM[0] = d1;
         this.m_ElementsCM[4] = d2;
         this.m_ElementsCM[8] = d3;
     }
 
+    /**
+     * Inverts this matrix, if possible.
+     * 
+     * @param epsilon The epsilon to determine whether this matrix can be inverted at all.
+     * @returns true if the matrix could be inverted, false if inversion failed. In case of failure, this is unchanged.
+     */
     Invert(epsilon: number = 0.00001): boolean {
         let inv = this.GetInverse(epsilon);
 
@@ -201,6 +280,11 @@ export class Mat3 {
         return true;
     }
 
+    /**
+     * Returns an inverted clone of this or null if inversion failed.
+     * 
+     * @param epsilon The epsilon to determine whether this matrix can be inverted at all.
+     */
     GetInverse(epsilon: number = 0.00001): Mat3 {
         let Inverse = new Mat3();
 
@@ -227,6 +311,9 @@ export class Mat3 {
         return Inverse;
     }
 
+    /**
+     * Checks whether this and rhs have equal values within a certain epsilon.
+     */
     IsEqual(rhs: Mat3, epsilon: number): boolean {
 
         for (let i = 0; i < 9; ++i) {
@@ -238,6 +325,9 @@ export class Mat3 {
         return true;
     }
 
+    /**
+     * Checks whether this has all zero values within a certain epsilon.
+     */
     IsZero(epsilon: number): boolean {
         for (let i = 0; i < 9; ++i) {
             if (!Utils.IsNumberZero(this.m_ElementsCM[i], epsilon)) {
@@ -248,6 +338,9 @@ export class Mat3 {
         return true;
     }
 
+    /**
+     * Checks whether this is an identity matrix within a certain epsilon.
+     */
     IsIdentity(epsilon: number): boolean {
 
         if (!Utils.IsNumberEqual(this.m_ElementsCM[0], 1, epsilon))
@@ -274,6 +367,9 @@ export class Mat3 {
         return true;
     }
 
+    /**
+     * Checks whether this and rhs are completely identical without any epsilon comparison.
+     */
     IsIdentical(rhs: Mat3): boolean {
         for (let i = 0; i < 9; ++i) {
             if (this.m_ElementsCM[i] != rhs.m_ElementsCM[i]) {
@@ -284,6 +380,9 @@ export class Mat3 {
         return true;
     }
 
+    /**
+     * Tries to extract the scaling factors for x, y and z within this matrix.
+     */
     GetScalingFactors(): Vec3 {
         let tmp = new Vec3();
 
@@ -300,6 +399,12 @@ export class Mat3 {
         return tmp;
     }
 
+    /**
+     * Tries to rescale this matrix such that it applies the given scaling.
+     * 
+     * @param epsilon The epsilon to detect whether rescaling the matrix is possible.
+     * @returns True if successful, false if the desired scaling could not be baked into the matrix.
+     */
     SetScalingFactors(x: number, y: number, z: number, epsilon: number): boolean {
         let tx = new Vec3(this.GetElement(0, 0), this.GetElement(0, 1), this.GetElement(0, 2));
         let ty = new Vec3(this.GetElement(1, 0), this.GetElement(1, 1), this.GetElement(1, 2));
@@ -325,6 +430,10 @@ export class Mat3 {
         return true;
     }
 
+    /**
+     * Modifies the incoming vector by multiplying this from the left.
+     *   dir = this * dir
+     */
     TransformDirection(dir: Vec3): void {
         const x = this.GetElement(0, 0) * dir.x + this.GetElement(1, 0) * dir.y + this.GetElement(2, 0) * dir.z;
         const y = this.GetElement(0, 1) * dir.x + this.GetElement(1, 1) * dir.y + this.GetElement(2, 1) * dir.z;
@@ -333,12 +442,18 @@ export class Mat3 {
         dir.Set(x, y, z);
     }
 
+    /**
+     * Multiplies all values in this matrix with 'factor'.
+     */
     MulNumber(factor: number): void {
         for (var i = 0; i < 9; ++i) {
             this.m_ElementsCM[i] *= factor;
         }
     }
 
+    /**
+     * Divides all values in this matrix by 'factor'.
+     */
     DivNumber(factor: number): void {
         const mul = 1 / factor;
         for (var i = 0; i < 9; ++i) {
@@ -346,18 +461,29 @@ export class Mat3 {
         }
     }
 
+    /**
+     * Adds the components of rhs into the components of this.
+     */
     AddMat3(rhs: Mat3): void {
         for (var i = 0; i < 9; ++i) {
             this.m_ElementsCM[i] += rhs.m_ElementsCM[i];
         }
     }
 
+    /**
+     * Subtracts the components of rhs from the components of this.
+     */
     SubMat3(rhs: Mat3): void {
         for (var i = 0; i < 9; ++i) {
             this.m_ElementsCM[i] -= rhs.m_ElementsCM[i];
         }
     }
 
+    /**
+     * Sets this matrix to be the product of lhs and rhs.
+     * 
+     *   this = lhs * rhs
+     */
     SetMulMat3(lhs: Mat3, rhs: Mat3): void {
 
         for (let i = 0; i < 4; ++i) {
@@ -368,18 +494,33 @@ export class Mat3 {
         }
     }
 
+    /**
+     * Returns the values in 'row' as a 3-element array.
+     */
     GetRow(row: number): number[] {
         return [this.m_ElementsCM[row], this.m_ElementsCM[row + 3], this.m_ElementsCM[row + 6]];
     }
 
+    /**
+     * Returns the values in 'column' as a 3-element array.
+     */
     GetColumn(column: number): number[] {
         return [this.m_ElementsCM[column * 3], this.m_ElementsCM[column * 3 + 1], this.m_ElementsCM[column * 3 + 2]];
     }
 
+    /**
+     * Returns the values in from the diagonal as a 3-element array.
+     */    
     GetDiagonal(): number[] {
         return [this.m_ElementsCM[0], this.m_ElementsCM[4], this.m_ElementsCM[8]];
     }
 
+    /**
+     * Sets all elements in this by copying them from an array.
+     * 
+     * @param array The array with the 9 values to copy.
+     * @param isColumnMajor Whether the data in the array is column-major or row-major.
+     */
     SetFromArray(array: number[], isColumnMajor: boolean): void {
 
         if (isColumnMajor) {
@@ -402,6 +543,11 @@ export class Mat3 {
         }
     }
 
+    /**
+     * Returns the values of the matrix as an array.
+     * 
+     * @param asColumnMajor Whether the array should contain the values in column-major or row-major order.
+     */
     GetAsArray(asColumnMajor: boolean): number[] {
 
         if (asColumnMajor) {

@@ -66,6 +66,16 @@ declare function __CPP_GameObject_RemoveTags(_this: GameObject, ...tags: string[
 declare function __CPP_GameObject_HasAnyTags(_this: GameObject, ...tags: string[]): boolean;
 declare function __CPP_GameObject_HasAllTags(_this: GameObject, ...tags: string[]): boolean;
 
+/**
+ * Represents a C++ ezGameObject on the TypeScript side.
+ * 
+ * This class acts like a weak pointer to the C++ instance. In between game updates, the C++ side object may get deleted.
+ * Therefore it is vital to call 'IsValid()' on a GameObject before doing anything else with it. If IsValid returns false,
+ * the C++ side ezGameObject has been deleted and the TypeScript instance cannot be used anymore either.
+ * 
+ * Be aware that functions that return GameObjects will typically return null objects, in case of failure. They will not return
+ * 'invalid' GameObject instances.
+ */
 export class GameObject {
 
     // TODO:
@@ -73,6 +83,13 @@ export class GameObject {
     // GetComponents
     // GetTags
 
+    /**
+     * If the GameObject is not null, it may still be 'dead' on the C++ side. This function checks whether that is the case.
+     * 
+     * If the object is valid, all other functions can be called, otherwise it is an error to do anything with the GameObject.
+     * GameObjects will always stay valid throughout a single game update (end of frame), so it is not necessary to call this
+     * more than once per frame.
+     */
     IsValid(): boolean {
         return __CPP_GameObject_IsValid(this);
     }

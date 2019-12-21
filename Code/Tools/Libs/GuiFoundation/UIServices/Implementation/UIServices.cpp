@@ -115,13 +115,27 @@ ezResult ezQtUiServices::AddToGitIgnore(const char* szGitIgnoreFile, const char*
     }
   }
 
-  const ezStringBuilder sPattern(szPattern, "\n");
+  ignoreFile.Trim("\n\r");
+
+  const ezUInt32 len = ezStringUtils::GetStringElementCount(szPattern);
 
   // pattern already present ?
-  if (ignoreFile.FindSubString(sPattern))
-    return EZ_SUCCESS;
+  if (const char* szFound = ignoreFile.FindSubString(szPattern))
+  {
+    if (szFound == ignoreFile.GetData() || // right at the start
+        *(szFound - 1) == '\n')            // after a new line
+    {
+      const char end = *(szFound + len);
 
-  ignoreFile.AppendWithSeparator("\n", sPattern);
+      if (end == '\0' || end == '\r' || end == '\n') // line does not continue with an extended pattern
+      {
+        return EZ_SUCCESS;
+      }
+    }
+  }
+
+  ignoreFile.AppendWithSeparator("\n", szPattern);
+  ignoreFile.Append("\n\n");
 
   {
     ezFileWriter file;
