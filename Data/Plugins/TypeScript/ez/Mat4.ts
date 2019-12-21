@@ -7,6 +7,9 @@ export import Mat3 = __Mat3.Mat3;
 import __Vec3 = require("./Vec3")
 export import Vec3 = __Vec3.Vec3;
 
+/**
+ * A 4x4 matrix.
+ */
 export class Mat4 {
     m_ElementsCM: number[] = [
         1, 0, 0, 0,
@@ -14,16 +17,25 @@ export class Mat4 {
         0, 0, 1, 0,
         0, 0, 0, 1];
 
+    /**
+     * By default the constructor will initialize the matrix to identity.
+     */
     constructor(c1r1 = 1, c2r1 = 0, c3r1 = 0, c4r1 = 0, c1r2 = 0, c2r2 = 1, c3r2 = 0, c4r2 = 0, c1r3 = 0, c2r3 = 0, c3r3 = 1, c4r3 = 0, c1r4 = 0, c2r4 = 0, c3r4 = 0, c4r4 = 1) {
         this.SetElements(c1r1, c2r1, c3r1, c4r1, c1r2, c2r2, c3r2, c4r2, c1r3, c2r3, c3r3, c4r3, c1r4, c2r4, c3r4, c4r4);
     }
 
+    /**
+     * Returns a duplicate of this matrix.
+     */
     Clone(): Mat4 {
         let c = new Mat4;
         c.SetMat4(this);
         return c;
     }
 
+    /**
+     * Returns a duplicate of this matrices' 3x3 sub-matrix.
+     */
     CloneAsMat3(): Mat3 {
         return new Mat3(
             this.m_ElementsCM[0], this.m_ElementsCM[4], this.m_ElementsCM[8],
@@ -31,20 +43,32 @@ export class Mat4 {
             this.m_ElementsCM[2], this.m_ElementsCM[6], this.m_ElementsCM[10]);
     }
 
+    /**
+     * Copies the values of m into this.
+     */
     SetMat4(m: Mat4): void {
         for (var i = 0; i < 16; ++i) {
             this.m_ElementsCM[i] = m[i];
         }
     }
 
+    /**
+     * Returns the value from the requested row and column.
+     */
     GetElement(column: number, row: number): number {
         return this.m_ElementsCM[column * 4 + row];
     }
 
+    /**
+     * Overwrites the value in the given row and column.
+     */
     SetElement(column: number, row: number, value: number): void {
         this.m_ElementsCM[column * 4 + row] = value;
     }
 
+    /**
+     * Sets all values of this matrix.
+     */
     SetElements(c1r1: number, c2r1: number, c3r1: number, c4r1: number, c1r2: number, c2r2: number, c3r2: number, c4r2: number, c1r3: number, c2r3: number, c3r3: number, c4r3: number, c1r4: number, c2r4: number, c3r4: number, c4r4: number): void {
         this.m_ElementsCM[0] = c1r1;
         this.m_ElementsCM[4] = c2r1;
@@ -67,12 +91,18 @@ export class Mat4 {
         this.m_ElementsCM[15] = c4r4;
     }
 
+    /**
+     * Sets all values to zero.
+     */
     SetZero(): void {
         for (var i = 0; i < 16; ++i) {
             this.m_ElementsCM[i] = 0;
         }
     }
 
+    /**
+     * Sets the matrix to be the identity matrix.
+     */
     SetIdentity(): void {
         this.m_ElementsCM[0] = 1;
         this.m_ElementsCM[4] = 0;
@@ -95,6 +125,10 @@ export class Mat4 {
         this.m_ElementsCM[15] = 1;
     }
 
+    /**
+     * Sets this matrix to represent a translation.
+     * @param translation How much the matrix translates along x, y and z.
+     */
     SetTranslationMatrix(translation: Vec3): void {
         this.SetElements(1, 0, 0, translation.x,
             0, 1, 0, translation.y,
@@ -102,6 +136,10 @@ export class Mat4 {
             0, 0, 0, 1);
     }
 
+    /**
+     * Sets this matrix to be a scaling matrix
+     * @param scale How much the matrix scales along x, y and z.
+     */
     SetScalingMatrix(scale: Vec3): void {
         this.SetElements(scale.x, 0, 0, 0,
             0, scale.y, 0, 0,
@@ -109,6 +147,11 @@ export class Mat4 {
             0, 0, 0, 1);
     }
 
+    /**
+     * Sets the matrix to rotate objects around the X axis.
+     * 
+     * @param radians The angle of rotation in radians.
+     */
     SetRotationMatrixX(radians: number): void {
         const fSin = Math.sin(radians);
         const fCos = Math.cos(radians);
@@ -119,6 +162,11 @@ export class Mat4 {
             0, 0, 0, 1);
     }
 
+    /**
+     * Sets the matrix to rotate objects around the Y axis.
+     * 
+     * @param radians The angle of rotation in radians.
+     */
     SetRotationMatrixY(radians: number): void {
         const fSin = Math.sin(radians);
         const fCos = Math.cos(radians);
@@ -130,6 +178,11 @@ export class Mat4 {
             0, 0, 0, 1);
     }
 
+    /**
+     * Sets the matrix to rotate objects around the Z axis.
+     * 
+     * @param radians The angle of rotation in radians.
+     */
     SetRotationMatrixZ(radians: number): void {
         const fSin = Math.sin(radians);
         const fCos = Math.cos(radians);
@@ -140,6 +193,12 @@ export class Mat4 {
             0, 0, 0, 1);
     }
 
+    /**
+     * Sets the matrix to rotate objects around an arbitrary axis.
+     * 
+     * @param axis The normalized axis around which to rotate.
+     * @param radians The angle of rotation in radians.
+     */
     SetRotationMatrix(axis: Vec3, radians: number): void {
 
         const cos = Math.cos(radians);
@@ -183,17 +242,26 @@ export class Mat4 {
         this.m_ElementsCM[15] = 1;
     }
 
+    /**
+     * Returns an all-zero matrix.
+     */
     static ZeroMatrix(): Mat4 {
         let m = new Mat4();
         m.SetZero();
         return m;
     }
 
+    /**
+     * Returns an identity matrix.
+     */
     static IdentityMatrix(): Mat4 {
         let m = new Mat4();
         return m;
     }
 
+    /**
+     * Flips all values along the diagonal.
+     */
     Transpose(): void {
         let tmp: number;
 
@@ -222,12 +290,18 @@ export class Mat4 {
         this.SetElement(3, 2, tmp);
     }
 
+    /**
+     * Returns a transposed clone of this matrix.
+     */
     GetTranspose(): Mat4 {
         let m = this.Clone();
         m.Transpose();
         return m;
     }
 
+    /**
+     * Sets the values in the given row.
+     */
     SetRow(row: number, c1: number, c2: number, c3: number, c4: number): void {
         this.m_ElementsCM[row] = c1;
         this.m_ElementsCM[4 + row] = c2;
@@ -235,6 +309,9 @@ export class Mat4 {
         this.m_ElementsCM[12 + row] = c4;
     }
 
+    /**
+     * Sets the values in the given column.
+     */
     SetColumn(column: number, r1: number, r2: number, r3: number, r4: number): void {
         const off = column * 4;
         this.m_ElementsCM[off + 0] = r1;
@@ -243,6 +320,9 @@ export class Mat4 {
         this.m_ElementsCM[off + 3] = r4;
     }
 
+    /**
+     * Sets the values on the diagonal.
+     */
     SetDiagonal(d1: number, d2: number, d3: number, d4: number): void {
         this.m_ElementsCM[0] = d1;
         this.m_ElementsCM[5] = d2;
@@ -250,6 +330,12 @@ export class Mat4 {
         this.m_ElementsCM[15] = d4;
     }
 
+    /**
+     * Inverts this matrix, if possible.
+     * 
+     * @param epsilon The epsilon to determine whether this matrix can be inverted at all.
+     * @returns true if the matrix could be inverted, false if inversion failed. In case of failure, this is unchanged.
+     */
     Invert(epsilon: number = 0.00001): boolean {
         let inv = this.GetInverse(epsilon);
 
@@ -260,6 +346,11 @@ export class Mat4 {
         return true;
     }
 
+    /**
+     * Returns an inverted clone of this or null if inversion failed.
+     * 
+     * @param epsilon The epsilon to determine whether this matrix can be inverted at all.
+     */
     GetInverse(epsilon: number = 0.00001): Mat4 {
         let Inverse = new Mat4();
 
@@ -284,6 +375,9 @@ export class Mat4 {
         return Inverse;
     }
 
+    /**
+     * Checks whether this and rhs have equal values within a certain epsilon.
+     */
     IsEqual(rhs: Mat4, epsilon: number): boolean {
 
         for (let i = 0; i < 16; ++i) {
@@ -295,6 +389,9 @@ export class Mat4 {
         return true;
     }
 
+    /**
+     * Checks whether this has all zero values within a certain epsilon.
+     */
     IsZero(epsilon: number): boolean {
         for (let i = 0; i < 16; ++i) {
             if (!Utils.IsNumberZero(this.m_ElementsCM[i], epsilon)) {
@@ -305,6 +402,9 @@ export class Mat4 {
         return true;
     }
 
+    /**
+     * Checks whether this is an identity matrix within a certain epsilon.
+     */
     IsIdentity(epsilon: number): boolean {
 
         if (!Utils.IsNumberEqual(this.m_ElementsCM[0], 1, epsilon))
@@ -347,6 +447,9 @@ export class Mat4 {
         return true;
     }
 
+    /**
+     * Checks whether this and rhs are completely identical without any epsilon comparison.
+     */
     IsIdentical(rhs: Mat4): boolean {
         for (let i = 0; i < 16; ++i) {
             if (this.m_ElementsCM[i] != rhs.m_ElementsCM[i]) {
@@ -357,16 +460,27 @@ export class Mat4 {
         return true;
     }
 
+    /**
+     * Returns the translation part of this matrix.
+     */
     GetTranslationVector(): Vec3 {
         return new Vec3(this.m_ElementsCM[12], this.m_ElementsCM[13], this.m_ElementsCM[14]);
     }
 
+    /**
+     * Modifies only the translation part of this matrix.
+     * 
+     * @param translation How much the matrix should translate objects.
+     */
     SetTranslationVector(translation: Vec3): void {
         this.m_ElementsCM[12] = translation.x;
         this.m_ElementsCM[13] = translation.y;
         this.m_ElementsCM[14] = translation.z;
     }
 
+    /**
+     * Tries to extract the scaling factors for x, y and z within this matrix.
+     */
     GetScalingFactors(): Vec3 {
         let tmp = new Vec3();
 
@@ -383,6 +497,12 @@ export class Mat4 {
         return tmp;
     }
 
+    /**
+     * Tries to rescale this matrix such that it applies the given scaling.
+     * 
+     * @param epsilon The epsilon to detect whether rescaling the matrix is possible.
+     * @returns True if successful, false if the desired scaling could not be baked into the matrix.
+     */
     SetScalingFactors(x: number, y: number, z: number, epsilon: number): boolean {
         let tx = new Vec3(this.GetElement(0, 0), this.GetElement(0, 1), this.GetElement(0, 2));
         let ty = new Vec3(this.GetElement(1, 0), this.GetElement(1, 1), this.GetElement(1, 2));
@@ -408,6 +528,12 @@ export class Mat4 {
         return true;
     }
 
+    /**
+     * Modifies the incoming vector by multiplying this from the left. Treats 'pos' like a position vector with an implied w-component of 1.
+     *   pos.xyz = this * pos.xyz1
+     * 
+     * @param pos A 'position' vector with an implied w-compoennt of 1. Thus the translation part of the matrix will affect the resulting vector.
+     */
     TransformPosition(pos: Vec3): void {
         const x = this.GetElement(0, 0) * pos.x + this.GetElement(1, 0) * pos.y + this.GetElement(2, 0) * pos.z + this.GetElement(3, 0);
         const y = this.GetElement(0, 1) * pos.x + this.GetElement(1, 1) * pos.y + this.GetElement(2, 1) * pos.z + this.GetElement(3, 1);
@@ -416,6 +542,12 @@ export class Mat4 {
         pos.Set(x, y, z);
     }
 
+    /**
+     * Modifies the incoming vector by multiplying this from the left. Treats 'dir' like a direction vector with an implied w-component of 0.
+     *   dir.xyz = dir * pos.xyz0
+     * 
+     * @param dir A 'direction' vector with an implied w-compoennt of 0. Thus the translation part of the matrix willNOT  affect the resulting vector.
+     */
     TransformDirection(dir: Vec3): void {
         const x = this.GetElement(0, 0) * dir.x + this.GetElement(1, 0) * dir.y + this.GetElement(2, 0) * dir.z;
         const y = this.GetElement(0, 1) * dir.x + this.GetElement(1, 1) * dir.y + this.GetElement(2, 1) * dir.z;
@@ -424,12 +556,18 @@ export class Mat4 {
         dir.Set(x, y, z);
     }
 
+    /**
+     * Multiplies all values in this matrix with 'factor'.
+     */
     MulNumber(factor: number): void {
         for (var i = 0; i < 16; ++i) {
             this.m_ElementsCM[i] *= factor;
         }
     }
 
+    /**
+     * Divides all values in this matrix by 'factor'.
+     */
     DivNumber(factor: number): void {
         const mul = 1 / factor;
         for (var i = 0; i < 16; ++i) {
@@ -437,18 +575,29 @@ export class Mat4 {
         }
     }
 
+    /**
+     * Adds the components of rhs into the components of this.
+     */
     AddMat4(rhs: Mat4): void {
         for (var i = 0; i < 16; ++i) {
             this.m_ElementsCM[i] += rhs.m_ElementsCM[i];
         }
     }
 
+    /**
+     * Subtracts the components of rhs from the components of this.
+     */
     SubMat4(rhs: Mat4): void {
         for (var i = 0; i < 16; ++i) {
             this.m_ElementsCM[i] -= rhs.m_ElementsCM[i];
         }
     }
 
+    /**
+     * Sets this matrix to be the product of lhs and rhs.
+     * 
+     *   this = lhs * rhs
+     */
     SetMulMat4(lhs: Mat4, rhs: Mat4): void {
 
         for (let i = 0; i < 4; ++i) {
@@ -459,18 +608,33 @@ export class Mat4 {
         }
     }
 
+    /**
+     * Returns the values in 'row' as a 4-element array.
+     */
     GetRow(row: number): number[] {
         return [this.m_ElementsCM[row], this.m_ElementsCM[row + 4], this.m_ElementsCM[row + 8], this.m_ElementsCM[row + 12]];
     }
 
+    /**
+     * Returns the values in 'column' as a 4-element array.
+     */
     GetColumn(column: number): number[] {
         return [this.m_ElementsCM[column * 4], this.m_ElementsCM[column * 4 + 1], this.m_ElementsCM[column * 4 + 2], this.m_ElementsCM[column * 4 + 3]];
     }
 
+    /**
+     * Returns the values in from the diagonal as a 4-element array.
+     */
     GetDiagonal(): number[] {
         return [this.m_ElementsCM[0], this.m_ElementsCM[5], this.m_ElementsCM[10], this.m_ElementsCM[15]];
     }
 
+    /**
+     * Sets all elements in this by copying them from an array.
+     * 
+     * @param array The array with the 16 values to copy.
+     * @param isColumnMajor Whether the data in the array is column-major or row-major.
+     */
     SetFromArray(array: number[], isColumnMajor: boolean): void {
 
         if (isColumnMajor) {
@@ -501,6 +665,11 @@ export class Mat4 {
         }
     }
 
+    /**
+     * Returns the values of the matrix as an array.
+     * 
+     * @param asColumnMajor Whether the array should contain the values in column-major or row-major order.
+     */
     GetAsArray(asColumnMajor: boolean): number[] {
 
         if (asColumnMajor) {
@@ -521,16 +690,29 @@ export class Mat4 {
         }
     }
 
+    /**
+     * Combines a Mat3 for rotation/scaling and a Vec3 for translation into this Mat4.
+     * All values in this are overwritten, including the last row.
+     * 
+     * @param rotation The 3x3 matrix to copy into this matrix.
+     * @param translation The vector to copy into the last column of this matrix.
+     */
     SetTransformationMatrix(rotation: Mat3, translation: Vec3) {
         this.SetRotationalPart(rotation);
         this.SetTranslationVector(translation);
         this.SetRow(3, 0, 0, 0, 1);
     }
 
+    /**
+     * Returns a clone of the 3x3 sub-matrix. Same as 'CloneAsMat3()'.
+     */
     GetRotationalPart(): Mat3 {
         return this.CloneAsMat3();
     }
 
+    /**
+     * Overwrites only the 3x3 sub-matrix with the given values. 
+     */
     SetRotationalPart(mat3: Mat3): void {
         this.m_ElementsCM[0] = mat3.m_ElementsCM[0];
         this.m_ElementsCM[1] = mat3.m_ElementsCM[1];

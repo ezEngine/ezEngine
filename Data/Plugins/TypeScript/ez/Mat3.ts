@@ -53,7 +53,7 @@ export class Mat3 {
     }
 
     /**
-     * Sets all values of the matrix.
+     * Sets all values of this matrix.
      */
     SetElements(c1r1: number, c2r1: number, c3r1: number, c1r2: number, c2r2: number, c3r2: number, c1r3: number, c2r3: number, c3r3: number): void {
         this.m_ElementsCM[0] = c1r1;
@@ -228,7 +228,7 @@ export class Mat3 {
     }
 
     /**
-     * Returns a trnasposed clone of this matrix.
+     * Returns a transposed clone of this matrix.
      */
     GetTranspose(): Mat3 {
         let m = this.Clone();
@@ -510,7 +510,7 @@ export class Mat3 {
 
     /**
      * Returns the values in from the diagonal as a 3-element array.
-     */    
+     */
     GetDiagonal(): number[] {
         return [this.m_ElementsCM[0], this.m_ElementsCM[4], this.m_ElementsCM[8]];
     }
