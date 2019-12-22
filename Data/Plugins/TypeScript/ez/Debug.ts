@@ -22,6 +22,11 @@ declare function __CPP_Debug_Draw3DText(text: string, pos: Vec3, color: Color, s
  */
 export namespace Debug {
 
+    // TODO:
+    // DrawLineBoxCorners
+    // DrawLineCapsuleZ
+    // DrawLineFrustum
+
     /**
      * Renders a cross of three lines at the given position.
      * 
@@ -100,8 +105,4 @@ export namespace Debug {
     export function Draw3DText(text: string, pos: Vec3, color: Color = null, sizeInPixel: number = 16) {
         __CPP_Debug_Draw3DText(text, pos, color, sizeInPixel);
     }
-
-    // DrawLineBoxCorners
-    // DrawLineCapsuleZ
-    // DrawLineFrustum
 }

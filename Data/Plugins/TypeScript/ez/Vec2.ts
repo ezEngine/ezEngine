@@ -8,6 +8,9 @@ export class Vec2 {
     x: number;
     y: number;
 
+    // TODO:
+    // GetAngleBetween
+
     constructor(x: number = 0, y: number = 0) {
         this.x = x;
         this.y = y;
@@ -162,8 +165,6 @@ export class Vec2 {
         return (this.x >= rhs.x - epsilon && this.x <= rhs.x + epsilon) &&
             (this.y >= rhs.y - epsilon && this.y <= rhs.y + epsilon);
     }
-
-    // GetAngleBetween
 
     Dot(rhs: Vec2): number {
         return this.x * rhs.x + this.y * rhs.y;

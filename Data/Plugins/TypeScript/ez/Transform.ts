@@ -16,6 +16,11 @@ export class Transform {
     rotation: Quat = new Quat();     /** Identity rotation by default */
     scale: Vec3 = new Vec3(1, 1, 1); /** Identity scaling (one) by default */
 
+    // TODO:
+    // SetFromMat4(m: Mat4): void;
+    // GetAsMat4(): Mat4;
+
+
     /**
      * Returns a duplicate of this transform.
      */
@@ -111,10 +116,6 @@ export class Transform {
     Translate(movePos: Vec3): void {
         this.position.AddVec3(movePos);
     }
-
-    // TODO:
-    // SetFromMat4(m: Mat4): void;
-    // GetAsMat4(): Mat4;
 
     /**
      * Sets this transform to be the local transformation needed to get from the parent's transform to the child's.

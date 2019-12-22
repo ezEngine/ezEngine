@@ -12,6 +12,10 @@ export class Vec3 {
     y: number;
     z: number;
 
+    // TODO:
+    // GetAngleBetween
+    // CreateRandomDeviationX/Y/Z/Normal
+
     constructor(x: number = 0, y: number = 0, z: number = 0) {
         this.x = x;
         this.y = y;
@@ -187,8 +191,6 @@ export class Vec3 {
             (this.z >= rhs.z - epsilon && this.z <= rhs.z + epsilon);
     }
 
-    // GetAngleBetween
-
     Dot(rhs: Vec3): number {
         return this.x * rhs.x + this.y * rhs.y + this.z * rhs.z;
     }
@@ -324,5 +326,4 @@ export class Vec3 {
         return res;
     }
 
-    // CreateRandomDeviationX/Y/Z/Normal
 }

@@ -3,8 +3,8 @@ declare function __CPP_Clock_GetSpeed(): number;
 declare function __CPP_Clock_GetTimeDiff(): number;
 declare function __CPP_Clock_GetAccumulatedTime(): number;
 
-/** Functions to work with the game clock.
- * 
+/**
+ * Functions to work with the game clock.
  */
 export namespace Clock {
 

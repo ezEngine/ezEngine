@@ -117,6 +117,4 @@ export namespace World {
   export function FindObjectsInBox(type: string, min: Vec3, max: Vec3, callback: (go: GameObject) => boolean): void {
     __CPP_World_FindObjectsInBox(type, min, max, callback);
   }
-
-  // GetCoordinateSystem
 };
