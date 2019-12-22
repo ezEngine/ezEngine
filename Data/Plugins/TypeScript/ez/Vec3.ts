@@ -7,7 +7,11 @@ export import Angle = __Angle.Angle;
 import __Vec2 = require("./Vec2")
 export import Vec2 = __Vec2.Vec2;
 
+/**
+ * A three-component vector type.
+ */
 export class Vec3 {
+
     x: number;
     y: number;
     z: number;
@@ -16,72 +20,118 @@ export class Vec3 {
     // GetAngleBetween
     // CreateRandomDeviationX/Y/Z/Normal
 
+    /**
+     * Default initializes the vector to all zero.
+     */
     constructor(x: number = 0, y: number = 0, z: number = 0) {
         this.x = x;
         this.y = y;
         this.z = z;
     }
 
+    /**
+     * Returns a duplicate of this vector.
+     */
     Clone(): Vec3 {
         return new Vec3(this.x, this.y, this.z);
     }
 
+    /**
+     * Returns a duplicate Vec2 with the z component removed.
+     */
     CloneAsVec2() {
         return new Vec2(this.x, this.y);
     }
 
+    /**
+     * Returns a vector with all components set to zero.
+     */
     static ZeroVector(): Vec3 {
         return new Vec3(0, 0, 0);
     }
 
+    /**
+     * Returns a vector with all components set to one.
+     */
     static OneVector(): Vec3 {
         return new Vec3(1, 1, 1);
     }
 
+    /**
+     * Returns the vector (1, 0, 0)
+     */
     static UnitAxisX(): Vec3 {
         return new Vec3(1, 0, 0);
     }
 
+    /**
+     * Returns the vector (0, 1, 0)
+     */
     static UnitAxisY(): Vec3 {
         return new Vec3(0, 1, 0);
     }
 
+    /**
+     * Returns the vector (0, 0, 1)
+     */
     static UnitAxisZ(): Vec3 {
         return new Vec3(0, 0, 1);
     }
 
+    /**
+     * Sets all components to the given values.
+     */
     Set(x: number, y: number, z: number): void {
         this.x = x;
         this.y = y;
         this.z = z;
     }
 
+    /**
+     * Copies all component values from rhs.
+     */
     SetVec3(rhs: Vec3): void {
         this.x = rhs.x;
         this.y = rhs.y;
         this.z = rhs.z;
     }
 
+    /**
+     * Sets all components to the value 'val'.
+     */
     SetAll(val: number): void {
         this.x = val;
         this.y = val;
         this.z = val;
     }
 
+    /**
+     * Sets all components to zero.
+     */
     SetZero(): void {
         this.x = 0;
         this.y = 0;
         this.z = 0;
     }
 
+    /**
+     * Returns the squared length of the vector.
+     */
     GetLengthSquared(): number {
         return this.x * this.x + this.y * this.y + this.z * this.z;
     }
 
+    /**
+     * Returns the length of the vector.
+     */
     GetLength(): number {
         return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
     }
 
+    /**
+     * Computes and returns the length of the vector, and normalizes the vector.
+     * This is more efficient than calling GetLength() followed by Normalize().
+     */
     GetLengthAndNormalize(): number {
         let length = this.GetLength();
         let invLength = 1.0 / length;
@@ -92,6 +142,10 @@ export class Vec3 {
         return length;
     }
 
+    /**
+     * Normalizes the vector. Afterwards its length will be one.
+     * This only works on non-zero vectors. Calling Normalize() on a zero-vector is an error.
+     */
     Normalize(): void {
         let invLength = 1.0 / this.GetLength();
         this.x *= invLength;
@@ -99,12 +153,24 @@ export class Vec3 {
         this.z *= invLength;
     }
 
+    /**
+     * Returns a normalized duplicate of this vector.
+     * Calling this on a zero-vector is an error.
+     */
     GetNormalized(): Vec3 {
         let norm = this.Clone();
         norm.Normalize();
         return norm;
     }
 
+    /**
+     * Normalizes the vector as long as it is not a zero-vector (within the given epsilon).
+     * If it is determined to be too close to zero, it is set to 'fallback'.
+     * 
+     * @param fallback The value to use in case 'this' is too close to zero.
+     * @param epsilon The epsilon within this vector is considered to be a zero-vector.
+     * @returns true if the vector was normalized regularly, false if the vector was close to zero and 'fallback' was used instead.
+     */
     NormalizeIfNotZero(fallback: Vec3 = new Vec3(1, 0, 0), epsilon: number = 0.000001): boolean {
         let length = this.GetLength();
 
@@ -117,6 +183,9 @@ export class Vec3 {
         return true;
     }
 
+    /**
+     * Checks whether all components of this are close to zero.
+     */
     IsZero(epsilon: number = 0): boolean {
         if (epsilon != 0) {
             return this.x >= -epsilon && this.x <= epsilon &&
@@ -129,51 +198,78 @@ export class Vec3 {
         }
     }
 
+    /**
+     * Checks whether this is normalized within some epsilon.
+     */
     IsNormalized(epsilon: number = 0.001): boolean {
         let length = this.GetLength();
         return (length >= 1.0 - epsilon) && (length <= 1.0 - epsilon);
     }
 
+    /**
+     * Returns a negated duplicate of this.
+     */
     GetNegated(): Vec3 {
         return new Vec3(-this.x, -this.y, -this.z);
     }
 
+    /**
+     * Negates all components of this.
+     */
     Negate(): void {
         this.x = -this.x;
         this.y = -this.y;
         this.z = -this.z;
     }
 
+    /**
+     * Adds rhs component-wise to this.
+     */
     AddVec3(rhs: Vec3): void {
         this.x += rhs.x;
         this.y += rhs.y;
         this.z += rhs.z;
     }
 
+    /**
+     * Subtracts rhs component-wise from this.
+     */
     SubVec3(rhs: Vec3): void {
         this.x -= rhs.x;
         this.y -= rhs.y;
         this.z -= rhs.z;
     }
 
+    /**
+     * Multiplies rhs component-wise into this.
+     */
     MulVec3(rhs: Vec3): void {
         this.x *= rhs.x;
         this.y *= rhs.y;
         this.z *= rhs.z;
     }
 
+    /**
+     * Divides each component of this by rhs.
+     */
     DivVec3(rhs: Vec3): void {
         this.x /= rhs.x;
         this.y /= rhs.y;
         this.z /= rhs.z;
     }
 
+    /**
+     * Multiplies all components of this by 'val'.
+     */
     MulNumber(val: number): void {
         this.x *= val;
         this.y *= val;
         this.z *= val;
     }
 
+    /**
+     * Divides all components of this by 'val'.
+     */
     DivNumber(val: number): void {
         let invVal = 1.0 / val;
         this.x *= invVal;
@@ -181,38 +277,62 @@ export class Vec3 {
         this.z *= invVal;
     }
 
+    /**
+     * Checks whether this and rhs are exactly identical.
+     */
     IsIdentical(rhs: Vec3): boolean {
         return this.x == rhs.x && this.y == rhs.y && this.z == rhs.z;
     }
 
+    /**
+     * Checks whether this and rhs are approximately equal within a given epsilon.
+     */
     IsEqual(rhs: Vec3, epsilon: number): boolean {
         return (this.x >= rhs.x - epsilon && this.x <= rhs.x + epsilon) &&
             (this.y >= rhs.y - epsilon && this.y <= rhs.y + epsilon) &&
             (this.z >= rhs.z - epsilon && this.z <= rhs.z + epsilon);
     }
 
+    /**
+     * Returns the dot-product between this and rhs.
+     */
     Dot(rhs: Vec3): number {
         return this.x * rhs.x + this.y * rhs.y + this.z * rhs.z;
     }
 
+    /**
+     * Returns the cross-product between this and rhs.
+     */
     CrossRH(rhs: Vec3): Vec3 {
         return new Vec3(this.y * rhs.z - this.z * rhs.y, this.z * rhs.x - this.x * rhs.z, this.x * rhs.y - this.y * rhs.x);
     }
 
+    /**
+     * Sets this to be the cross product between lhs and rhs.
+     */
     SetCrossRH(lhs: Vec3, rhs: Vec3): void {
         this.x = lhs.y * rhs.z - lhs.z * rhs.y;
         this.y = lhs.z * rhs.x - lhs.x * rhs.z;
         this.z = lhs.x * rhs.y - lhs.y * rhs.x;
     }
 
+    /**
+     * Returns a vector consisting of the minimum of the respective components of this and rhs.
+     */
     GetCompMin(rhs: Vec3): Vec3 {
         return new Vec3(Math.min(this.x, rhs.x), Math.min(this.y, rhs.y), Math.min(this.z, rhs.z));
     }
 
+    /**
+     * Returns a vector consisting of the maximum of the respective components of this and rhs.
+     */
     GetCompMax(rhs: Vec3): Vec3 {
         return new Vec3(Math.max(this.x, rhs.x), Math.max(this.y, rhs.y), Math.max(this.z, rhs.z));
     }
 
+    /**
+     * Returns a vector where each component is set to this component's value, clamped to the respective low and high value.
+     */
     GetCompClamp(low: Vec3, high: Vec3): Vec3 {
         let _x = Math.max(low.x, Math.min(high.x, this.x));
         let _y = Math.max(low.y, Math.min(high.y, this.y));
@@ -221,25 +341,44 @@ export class Vec3 {
         return new Vec3(_x, _y, _z);
     }
 
+    /**
+     * Returns a vector with each component being the product of this and rhs.
+     */
     GetCompMul(rhs: Vec3): Vec3 {
-        this.MulVec3
         return new Vec3(this.x * rhs.x, this.y * rhs.y, this.z * rhs.z);
     }
 
+    /**
+     * Returns a vector with each component being the division of this and rhs.
+     */
     GetCompDiv(rhs: Vec3): Vec3 {
         return new Vec3(this.x / rhs.x, this.y / rhs.y, this.z / rhs.z);
     }
 
+    /**
+     * Returns a vector with each component set to the absolute value of this vector's respective component.
+     */
     GetAbs(): Vec3 {
         return new Vec3(Math.abs(this.x), Math.abs(this.y), Math.abs(this.z));
     }
 
+    /**
+     * Sets this vector's components to the absolute value of lhs's respective components.
+     */
     SetAbs(lhs: Vec3): void {
         this.x = Math.abs(lhs.x);
         this.y = Math.abs(lhs.y);
         this.z = Math.abs(lhs.z);
     }
 
+    /**
+     * Sets this vector to be the normal of the plane formed by the given three points in space.
+     * The points are expected to be in counter-clockwise order to define the 'front' of a triangle.
+     * If the points are given in clockwise order, the normal will point in the opposite direction.
+     * The points must form a proper triangle, if they are degenerate, the calculation may fail.
+     * 
+     * @returns true when the normal could be calculated successfully.
+     */
     CalculateNormal(v1: Vec3, v2: Vec3, v3: Vec3): boolean {
         let tmp1: Vec3;
         tmp1.SetSub(v3, v2);
@@ -251,11 +390,18 @@ export class Vec3 {
         return this.NormalizeIfNotZero();
     }
 
+    /**
+     * Adjusts this vector such that it is orthogonal to the given normal.
+     * The operation may change the length of this vector.
+     */
     MakeOrthogonalTo(normal: Vec3): void {
         let ortho = normal.CrossRH(this);
         this.SetCrossRH(ortho, normal);
     }
 
+    /**
+     * Returns an arbitrary vector that is orthogonal to this vector.
+     */
     GetOrthogonalVector(): Vec3 {
         if (Math.abs(this.y) < 0.999) {
             return this.CrossRH(new Vec3(0, 1, 0));
@@ -264,6 +410,9 @@ export class Vec3 {
         return this.CrossRH(new Vec3(1, 0, 0));
     }
 
+    /**
+     * Returns a vector that is this vector reflected along the given normal.
+     */
     GetReflectedVector(normal: Vec3): Vec3 {
         let res = this.Clone();
         let tmp = normal.Clone();
@@ -272,24 +421,36 @@ export class Vec3 {
         return res;
     }
 
+    /**
+     * Sets this vector to be the addition of lhs and rhs.
+     */
     SetAdd(lhs: Vec3, rhs: Vec3): void {
         this.x = lhs.x + rhs.x;
         this.y = lhs.y + rhs.y;
         this.z = lhs.z + rhs.z;
     }
 
+    /**
+     * Sets this vector to be the subtraction of lhs and rhs.
+     */
     SetSub(lhs: Vec3, rhs: Vec3): void {
         this.x = lhs.x - rhs.x;
         this.y = lhs.y - rhs.y;
         this.z = lhs.z - rhs.z;
     }
 
+    /**
+     * Sets this vector to be the product of lhs and rhs.
+     */
     SetMul(lhs: Vec3, rhs: number): void {
         this.x = lhs.x * rhs;
         this.y = lhs.y * rhs;
         this.z = lhs.z * rhs;
     }
 
+    /**
+     * Sets this vector to be the division of lhs and rhs.
+     */
     SetDiv(lhs: Vec3, rhs: number): void {
         let invRhs = 1.0 / rhs;
         this.x = lhs.x * invRhs;
@@ -297,6 +458,12 @@ export class Vec3 {
         this.z = lhs.z * invRhs;
     }
 
+    /**
+     * Attempts to modify this vector such that it has the desired length.
+     * Requires that this vector is not zero.
+     * 
+     * @returns true if the vector's length could be changed as desired.
+     */
     SetLength(length: number, epsilon: number): boolean {
         if (!this.NormalizeIfNotZero(Vec3.ZeroVector(), epsilon))
             return false;
@@ -305,6 +472,9 @@ export class Vec3 {
         return true;
     }
 
+    /**
+     * Returns a random point inside a sphere of radius 1 around the origin.
+     */
     static CreateRandomPointInSphere(): Vec3 {
         let px: number, py: number, pz: number;
         let len: number = 0.0;
@@ -320,6 +490,9 @@ export class Vec3 {
         return new Vec3(px, py, pz);
     }
 
+    /**
+     * Returns a random direction vector.
+     */
     static CreateRandomDirection(): Vec3 {
         let res = Vec3.CreateRandomPointInSphere();
         res.Normalize();
