@@ -11,12 +11,13 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12887889684847103107,5243788855127965982}}
-		u4 %Hash{15708792773429581064}
+		u4 %Hash{4061470176314072274}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
+			s{"{ 42e28e77-d53f-46e7-a8ce-3a30a99c4db8 }"}
 			s{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
 		}
 	}
@@ -24,6 +25,32 @@ o
 }
 Objects
 {
+o
+{
+	Uuid %id{u4{14640771179055165844,4630883920994583893}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{10489671881922674360,5359533953546367188}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x000087C4,0x003042C4,0x00008B42}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"Basics"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
 o
 {
 	Uuid %id{u4{14362283097289748116,4787442603717395290}}
@@ -95,6 +122,45 @@ o
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{10489671881922674360,5359533953546367188}}
+	s %t{"ezTypeScriptComponent"}
+	u3 %v{3}
+	p
+	{
+		b %Active{1}
+		b %HandleGlobalEvents{0}
+		VarDict %Parameters{}
+		s %Script{"{ 42e28e77-d53f-46e7-a8ce-3a30a99c4db8 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{10481347052893203100,5493932028717236231}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Children
+		{
+			Uuid{u4{14640771179055165844,4630883920994583893}}
+		}
+		VarArray %Components{}
+		s %GlobalKey{"Tests"}
+		Vec3 %LocalPosition{f{0x00008744,0x00304244,0x00008BC2}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"Tests"}
 		VarArray %Tags
 		{
 			s{"CastShadow"}
@@ -188,6 +254,7 @@ o
 			Uuid{u4{11103650838448788919,5170186803244375368}}
 			Uuid{u4{14362283097289748116,4787442603717395290}}
 			Uuid{u4{14124759593496088756,5750051866651660852}}
+			Uuid{u4{10481347052893203100,5493932028717236231}}
 		}
 		Uuid %Settings{u4{1045479388755752590,5732003999000084825}}
 	}
@@ -247,6 +314,24 @@ o
 		s %TypeName{"ezMeshComponent"}
 		u3 %TypeSize{104}
 		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{5109955776826617296,6026817826851389185}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEventMessageHandlerComponent"}
+		u3 %TypeSize{56}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -390,6 +475,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezDirectionalLightComponent"}
 		u3 %TypeSize{96}
+		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{11568452837770943362,10420668725217181016}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEventMessageHandlerComponent"}
+		s %PluginName{"ezEditorPluginTypeScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezTypeScriptComponent"}
+		u3 %TypeSize{176}
 		u3 %TypeVersion{3}
 	}
 }

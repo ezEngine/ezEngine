@@ -1,8 +1,12 @@
 #include <GameEngineTestPCH.h>
 
 #include "TypeScriptTest.h"
+#include <Core/Messages/EventMessage.h>
+#include <Core/Scripting/DuktapeFunction.h>
+#include <Core/Scripting/DuktapeHelper.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
+#include <TypeScriptPlugin/Components/TypeScriptComponent.h>
 
 static ezGameEngineTestTypeScript s_GameEngineTestTypeScript;
 
@@ -55,9 +59,23 @@ ezGameEngineTestApplication_TypeScript::ezGameEngineTestApplication_TypeScript()
 
 //////////////////////////////////////////////////////////////////////////
 
+static int Duk_TestFailure(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk);
+
+  ezTestBool(false, "TypeScript Test Failed", "unknown file", 0, "unknown function", "");
+
+  return duk.ReturnVoid();
+}
+
 void ezGameEngineTestApplication_TypeScript::SubTestBasicsSetup()
 {
   LoadScene("TypeScript/AssetCache/Common/Scenes/TypeScripting.ezObjectGraph");
+
+  EZ_LOCK(m_pWorld->GetWriteMarker());
+  ezTypeScriptComponentManager* pMan = m_pWorld->GetOrCreateComponentManager<ezTypeScriptComponentManager>();
+
+  pMan->GetTsBinding().GetDukTapeContext().RegisterGlobalFunction("ezTestFailure", Duk_TestFailure, 0);
 }
 
 ezTestAppRun ezGameEngineTestApplication_TypeScript::SubTestBasisExec(ezInt32 iCurFrame)
@@ -65,17 +83,30 @@ ezTestAppRun ezGameEngineTestApplication_TypeScript::SubTestBasisExec(ezInt32 iC
   if (Run() == ezApplication::Quit)
     return ezTestAppRun::Quit;
 
+  EZ_LOCK(m_pWorld->GetWriteMarker());
+
+  ezGameObject* pTests = nullptr;
+  if (m_pWorld->TryGetObjectWithGlobalKey("Tests", pTests) == false)
+  {
+    EZ_TEST_FAILURE("Failed to retrieve TypeScript Tests-Object", "");
+    return ezTestAppRun::Quit;
+  }
+
   switch (iCurFrame)
   {
-    //case 15:
-    //  EZ_TEST_IMAGE(0, 50);
-    //  break;
-    //case 30:
-    //  EZ_TEST_IMAGE(1, 50);
-    //  break;
+    case 0:
+    {
+      ezMsgGenericEvent msg;
+      msg.m_sMessage = "TestVec3";
+      pTests->SendMessageRecursive(msg);
+    }
+    break;
 
-    case 60:
-      //EZ_TEST_IMAGE(2, 50);
+      //case 15:
+      //  EZ_TEST_IMAGE(0, 50);
+      //  break;
+
+    case 10:
       return ezTestAppRun::Quit;
   }
 

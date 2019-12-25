@@ -1,5 +1,14 @@
 import ez = require("TypeScript/ez")
 
+declare function ezTestFailure(): void;
+
+function EZ_TEST_BOOL(condition: boolean) {
+
+    if (!condition) {
+        ezTestFailure();
+    }
+}
+
 export class TestBasics extends ez.TickedTypescriptComponent {
 
     /* BEGIN AUTO-GENERATED: VARIABLES */
@@ -31,17 +40,18 @@ export class TestBasics extends ez.TickedTypescriptComponent {
 
     OnSimulationStarted(): void {
     }
-
-    // to use message handlers you must implement exactly this function
+*/
     static RegisterMessageHandlers() {
-        // you can only call "RegisterMessageHandler" from within this function
-        ez.TypescriptComponent.RegisterMessageHandler(ez.MsgSetColor, "OnMsgSetColor");
+        ez.TypescriptComponent.RegisterMessageHandler(ez.MsgGenericEvent, "OnMsgGenericEvent");
     }
 
-    // example message handler
-    OnMsgSetColor(msg: ez.MsgSetColor): void {
-        ez.Log.Info("MsgSetColor: " + msg.Color.r + ", " + msg.Color.g + ", " + msg.Color.b + ", " + msg.Color.a);
-    }    
-    */
+    OnMsgGenericEvent(msg: ez.MsgGenericEvent): void {
+        if (msg.Message == "TestVec3") {
+            ez.Log.Info("Test Vec3");
+
+            EZ_TEST_BOOL(false);
+        }
+    }
+
 }
 
