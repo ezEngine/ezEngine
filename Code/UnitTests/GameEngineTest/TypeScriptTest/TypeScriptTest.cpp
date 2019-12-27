@@ -99,6 +99,8 @@ ezTestAppRun ezGameEngineTestApplication_TypeScript::SubTestBasisExec(ezInt32 iC
       ezMsgGenericEvent msg;
       msg.m_sMessage = "TestVec3";
       pTests->SendMessageRecursive(msg);
+
+      EZ_TEST_STRING(msg.m_sMessage, "done");
     }
     break;
 

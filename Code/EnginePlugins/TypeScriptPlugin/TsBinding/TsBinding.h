@@ -137,7 +137,7 @@ public:
   static void DukPutMessage(duk_context* pDuk, const ezMessage& msg);
 
   bool HasMessageHandler(const TsComponentTypeInfo& typeInfo, const ezRTTI* pMsgRtti) const;
-  bool DeliverMessage(const TsComponentTypeInfo& typeInfo, ezTypeScriptComponent* pComponent, ezMessage& msg);
+  bool DeliverMessage(const TsComponentTypeInfo& typeInfo, ezTypeScriptComponent* pComponent, ezMessage& msg, bool bSynchronizeAfterwards);
   bool DeliverTsMessage(const TsComponentTypeInfo& typeInfo, ezTypeScriptComponent* pComponent, const ezMsgTypeScriptMsgProxy& msg);
 
 private:
@@ -145,6 +145,8 @@ private:
   static void GenerateAllMessagesCode(ezStringBuilder& out_Code);
   static void GenerateMessageCode(ezStringBuilder& out_Code, const ezRTTI* pRtti);
   static void GenerateMessagePropertiesCode(ezStringBuilder& out_Code, const ezRTTI* pRtti);
+  static void SyncEzObjectToTsObject(duk_context* pDuk, const ezRTTI* pRtti, const void* pObject, ezInt32 iObjIdx);
+  static void SyncTsObjectEzTsObject(duk_context* pDuk, const ezRTTI* pRtti, void* pObject, ezInt32 iObjIdx);
 
   ezUuid m_CurrentTsMsgHandlerRegistrator;
   ezMap<ezUuid, TsComponentInfo> m_TsComponentTypes;

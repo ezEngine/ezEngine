@@ -219,3 +219,58 @@ bool ezTypeScriptBinding::DukPushStashObject(duk_context* pDuk, ezUInt32 uiStash
     EZ_DUK_RETURN_AND_VERIFY_STACK(duk, true, +1);
   }
 }
+
+void ezTypeScriptBinding::SyncTsObjectEzTsObject(duk_context* pDuk, const ezRTTI* pRtti, void* pObject, ezInt32 iObjIdx)
+{
+  ezHybridArray<ezAbstractProperty*, 32> properties;
+  pRtti->GetAllProperties(properties);
+
+  for (ezAbstractProperty* pProp : properties)
+  {
+    if (pProp->GetCategory() != ezPropertyCategory::Member)
+      continue;
+
+    ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pProp);
+
+    const ezVariant value = ezTypeScriptBinding::GetVariantProperty(pDuk, pProp->GetPropertyName(), iObjIdx, pMember->GetSpecificType());
+    ezReflectionUtils::SetMemberPropertyValue(pMember, pObject, value);
+  }
+}
+
+void ezTypeScriptBinding::SyncEzObjectToTsObject(duk_context* pDuk, const ezRTTI* pRtti, const void* pObject, ezInt32 iObjIdx)
+{
+  ezDuktapeHelper duk(pDuk);
+
+  ezHybridArray<ezAbstractProperty*, 32> properties;
+  pRtti->GetAllProperties(properties);
+
+  for (ezAbstractProperty* pProp : properties)
+  {
+    if (pProp->GetCategory() != ezPropertyCategory::Member)
+      continue;
+
+    ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pProp);
+
+    const ezRTTI* pType = pMember->GetSpecificType();
+
+    if (pType->GetTypeFlags().IsAnySet(ezTypeFlags::IsEnum | ezTypeFlags::Bitflags))
+    {
+      const ezVariant val = ezReflectionUtils::GetMemberPropertyValue(pMember, pObject);
+
+      SetVariantProperty(duk, pMember->GetPropertyName(), -1, val);
+    }
+    else
+    {
+      if (pType->GetVariantType() == ezVariant::Type::Invalid)
+        continue;
+
+      const ezVariant val = ezReflectionUtils::GetMemberPropertyValue(pMember, pObject);
+
+      SetVariantProperty(duk, pMember->GetPropertyName(), -1, val);
+    }
+  }
+
+  EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, 0);
+}
+
+

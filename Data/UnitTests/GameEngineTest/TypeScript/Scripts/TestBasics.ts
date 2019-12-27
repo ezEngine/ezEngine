@@ -50,6 +50,8 @@ export class TestBasics extends ez.TickedTypescriptComponent {
             ez.Log.Info("Test Vec3");
 
             EZ_TEST_BOOL(false);
+
+            msg.Message = "done";
         }
     }
 

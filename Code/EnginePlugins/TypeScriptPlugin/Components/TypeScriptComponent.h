@@ -59,10 +59,10 @@ protected:
   virtual void OnDeactivated() override;
   virtual void OnSimulationStarted() override;
 
-  virtual bool OnUnhandledMessage(ezMessage& msg) override;
-  virtual bool OnUnhandledMessage(ezMessage& msg) const override;
+  virtual bool OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg) override;
+  virtual bool OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg) const override;
 
-  bool HandleUnhandledMessage(ezMessage& msg);
+  bool HandleUnhandledMessage(ezMessage& msg, bool bWasPostedMsg);
 
   //////////////////////////////////////////////////////////////////////////
   // ezEventMessageHandlerComponent
