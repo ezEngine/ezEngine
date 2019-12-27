@@ -31,8 +31,7 @@ EZ_CHECK_AT_COMPILETIME(sizeof(ezEventMessageSender<ezEventMessage>) == 8);
 
 namespace ezInternal
 {
-  ezComponentHandle EventMessageSenderHelper::FindReceiver(ezEventMessage& msg, const ezComponent* pSenderComponent,
-    const ezGameObject* pSearchObject)
+  ezComponentHandle EventMessageSenderHelper::FindReceiver(ezEventMessage& msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject)
   {
 
     // walk the graph upwards until an object is found with an ezEventMessageHandlerComponent that handles this type of message
@@ -111,8 +110,7 @@ namespace ezInternal
 #endif
   }
 
-  void EventMessageSenderHelper::PostMessage(const ezComponent* pSenderComponent, ezComponentHandle hReceiver, const ezEventMessage& msg,
-    ezObjectMsgQueueType::Enum queueType)
+  void EventMessageSenderHelper::PostMessage(const ezComponent* pSenderComponent, ezComponentHandle hReceiver, const ezEventMessage& msg, ezObjectMsgQueueType::Enum queueType)
   {
     if (!hReceiver.IsInvalidated())
     {
@@ -127,8 +125,7 @@ namespace ezInternal
 #endif
   }
 
-  void EventMessageSenderHelper::PostMessage(const ezComponent* pSenderComponent, ezComponentHandle hReceiver, const ezEventMessage& msg,
-    ezObjectMsgQueueType::Enum queueType, ezTime delay)
+  void EventMessageSenderHelper::PostMessage(const ezComponent* pSenderComponent, ezComponentHandle hReceiver, const ezEventMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay)
   {
     if (!hReceiver.IsInvalidated())
     {

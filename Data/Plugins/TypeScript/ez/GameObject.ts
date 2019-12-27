@@ -365,18 +365,28 @@ export class GameObject {
      * Sends a message to all the components on this GameObject (but not its children).
      * 
      * The message is delivered immediately.
+     * 
+     * @param expectResultData If set to true, the calling code assumes that the message receiver(s) may write result data
+     *   back into the message and thus the caller is interested in reading that data afterwards. If set to false
+     *   (the default) the state of the message is not synchronized back into the TypeScript message after the message
+     *   has been delivered and thus any data written into the message by the receiver, is lost.
      */
-    SendMessage(msg: Message, expectMsgResult: boolean = false): void {
-        __CPP_GameObject_SendMessage(this, msg.TypeNameHash, msg, false, expectMsgResult);
+    SendMessage(msg: Message, expectResultData: boolean = false): void {
+        __CPP_GameObject_SendMessage(this, msg.TypeNameHash, msg, false, expectResultData);
     }
 
     /**
      * Sends a message to all the components on this GameObject (including all its children).
      * 
      * The message is delivered immediately.
+     * 
+     * @param expectResultData If set to true, the calling code assumes that the message receiver(s) may write result data
+     *   back into the message and thus the caller is interested in reading that data afterwards. If set to false
+     *   (the default) the state of the message is not synchronized back into the TypeScript message after the message
+     *   has been delivered and thus any data written into the message by the receiver, is lost.
      */
-    SendMessageRecursive(msg: Message, expectMsgResult: boolean = false): void {
-        __CPP_GameObject_SendMessage(this, msg.TypeNameHash, msg, true, expectMsgResult);
+    SendMessageRecursive(msg: Message, expectResultData: boolean = false): void {
+        __CPP_GameObject_SendMessage(this, msg.TypeNameHash, msg, true, expectResultData);
     }
 
     /**

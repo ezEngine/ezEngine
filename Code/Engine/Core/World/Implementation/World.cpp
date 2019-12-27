@@ -620,7 +620,7 @@ void ezWorld::ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::En
     ezComponent* pReceiverComponent = nullptr;
     if (TryGetComponent(hComponent, pReceiverComponent))
     {
-      pReceiverComponent->SendMessage(*entry.m_pMessage);
+      pReceiverComponent->SendMessageInternal(*entry.m_pMessage, true);
     }
     else
     {
@@ -642,11 +642,11 @@ void ezWorld::ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::En
     {
       if (entry.m_MetaData.m_uiRecursive)
       {
-        pReceiverObject->SendMessageRecursive(*entry.m_pMessage);
+        pReceiverObject->SendMessageRecursiveInternal(*entry.m_pMessage, true);
       }
       else
       {
-        pReceiverObject->SendMessage(*entry.m_pMessage);
+        pReceiverObject->SendMessageInternal(*entry.m_pMessage, true);
       }
     }
     else

@@ -202,8 +202,8 @@ public:
   /// \brief Defines update behavior for global transforms when changing the local transform on a static game object
   enum class UpdateBehaviorIfStatic
   {
-    None,                  ///< Only sets the local transform, does not update
-    UpdateImmediately,     ///< Updates the hierarchy underneath the object immediately
+    None,              ///< Only sets the local transform, does not update
+    UpdateImmediately, ///< Updates the hierarchy underneath the object immediately
   };
 
   /// \brief Changes the position of the object local to its parent.
@@ -348,16 +348,16 @@ public:
 
 
   /// \brief Sends a message to all components of this object.
-  bool SendMessage(ezMessage& msg);
+  EZ_ALWAYS_INLINE bool SendMessage(ezMessage& msg) { return SendMessageInternal(msg, false); }
 
   /// \brief Sends a message to all components of this object.
-  bool SendMessage(ezMessage& msg) const;
+  EZ_ALWAYS_INLINE bool SendMessage(ezMessage& msg) const { return SendMessageInternal(msg, false); }
 
   /// \brief Sends a message to all components of this object and then recursively to all children.
-  bool SendMessageRecursive(ezMessage& msg);
+  EZ_ALWAYS_INLINE bool SendMessageRecursive(ezMessage& msg) { return SendMessageRecursiveInternal(msg, false); }
 
   /// \brief Sends a message to all components of this object and then recursively to all children.
-  bool SendMessageRecursive(ezMessage& msg) const;
+  EZ_ALWAYS_INLINE bool SendMessageRecursive(ezMessage& msg) const { return SendMessageRecursiveInternal(msg, false); }
 
 
   /// \brief Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
@@ -382,6 +382,11 @@ public:
 private:
   friend class ezComponentManagerBase;
   friend class ezGameObjectTest;
+
+  bool SendMessageInternal(ezMessage& msg, bool bWasPostedMsg);
+  bool SendMessageInternal(ezMessage& msg, bool bWasPostedMsg) const;
+  bool SendMessageRecursiveInternal(ezMessage& msg, bool bWasPostedMsg);
+  bool SendMessageRecursiveInternal(ezMessage& msg, bool bWasPostedMsg) const;
 
   EZ_ALLOW_PRIVATE_PROPERTIES(ezGameObject);
 
