@@ -57,7 +57,7 @@ declare function __CPP_GameObject_SearchForChildByNameSequence(_this: GameObject
 declare function __CPP_GameObject_TryGetComponentOfBaseTypeName(_this: GameObject, typeName: string);
 declare function __CPP_GameObject_TryGetComponentOfBaseTypeNameHash(_this: GameObject, nameHash: number);
 
-declare function __CPP_GameObject_SendMessage(_this: GameObject, typeNameHash: number, msg: Message, recursive: boolean): void;
+declare function __CPP_GameObject_SendMessage(_this: GameObject, typeNameHash: number, msg: Message, recursive: boolean, expectMsgResult: boolean): void;
 declare function __CPP_GameObject_PostMessage(_this: GameObject, typeNameHash: number, msg: Message, recursive: boolean, delay: number): void;
 
 declare function __CPP_GameObject_SetTags(_this: GameObject, ...tags: string[]): void;
@@ -366,8 +366,8 @@ export class GameObject {
      * 
      * The message is delivered immediately.
      */
-    SendMessage(msg: Message): void {
-        __CPP_GameObject_SendMessage(this, msg.TypeNameHash, msg, false);
+    SendMessage(msg: Message, expectMsgResult: boolean = false): void {
+        __CPP_GameObject_SendMessage(this, msg.TypeNameHash, msg, false, expectMsgResult);
     }
 
     /**
@@ -375,8 +375,8 @@ export class GameObject {
      * 
      * The message is delivered immediately.
      */
-    SendMessageRecursive(msg: Message): void {
-        __CPP_GameObject_SendMessage(this, msg.TypeNameHash, msg, true);
+    SendMessageRecursive(msg: Message, expectMsgResult: boolean = false): void {
+        __CPP_GameObject_SendMessage(this, msg.TypeNameHash, msg, true, expectMsgResult);
     }
 
     /**

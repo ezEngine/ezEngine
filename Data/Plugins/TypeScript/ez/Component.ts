@@ -16,7 +16,7 @@ declare function __CPP_Component_SetActive(component: Component, active: boolean
 declare function __CPP_Component_IsActive(component: Component): boolean;
 declare function __CPP_Component_IsActiveAndInitialized(component: Component): boolean;
 declare function __CPP_Component_IsActiveAndSimulating(component: Component): boolean;
-declare function __CPP_Component_SendMessage(_this: Component, typeNameHash: number, msg: Message): void;
+declare function __CPP_Component_SendMessage(_this: Component, typeNameHash: number, msg: Message, expectMsgResult: boolean): void;
 declare function __CPP_Component_PostMessage(_this: Component, typeNameHash: number, msg: Message, delay: number): void;
 declare function __CPP_TsComponent_BroadcastEvent(_this: TypescriptComponent, typeNameHash: number, msg: EventMessage): void;
 
@@ -80,8 +80,8 @@ export abstract class Component {
     /**
      * Sends an ez.Message directly to this component.
      */
-    SendMessage(msg: Message): void {
-        __CPP_Component_SendMessage(this, msg.TypeNameHash, msg);
+    SendMessage(msg: Message, expectMsgResult: boolean = false): void {
+        __CPP_Component_SendMessage(this, msg.TypeNameHash, msg, expectMsgResult);
     }
 
     /**

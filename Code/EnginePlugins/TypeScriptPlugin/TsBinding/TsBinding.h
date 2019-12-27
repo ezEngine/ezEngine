@@ -122,6 +122,9 @@ public:
 
   static const PropertyBinding* FindPropertyBinding(ezUInt32 uiHash);
 
+  static void SyncEzObjectToTsObject(duk_context* pDuk, const ezRTTI* pRtti, const void* pObject, ezInt32 iObjIdx);
+  static void SyncTsObjectEzTsObject(duk_context* pDuk, const ezRTTI* pRtti, void* pObject, ezInt32 iObjIdx);
+
 private:
   static ezUInt32 ComputePropertyBindingHash(const ezRTTI* pType, ezAbstractMemberProperty* pMember);
   static void SetupRttiPropertyBindings();
@@ -145,8 +148,6 @@ private:
   static void GenerateAllMessagesCode(ezStringBuilder& out_Code);
   static void GenerateMessageCode(ezStringBuilder& out_Code, const ezRTTI* pRtti);
   static void GenerateMessagePropertiesCode(ezStringBuilder& out_Code, const ezRTTI* pRtti);
-  static void SyncEzObjectToTsObject(duk_context* pDuk, const ezRTTI* pRtti, const void* pObject, ezInt32 iObjIdx);
-  static void SyncTsObjectEzTsObject(duk_context* pDuk, const ezRTTI* pRtti, void* pObject, ezInt32 iObjIdx);
 
   ezUuid m_CurrentTsMsgHandlerRegistrator;
   ezMap<ezUuid, TsComponentInfo> m_TsComponentTypes;
