@@ -165,6 +165,12 @@ void ezProjectileComponent::Update()
               ezMsgDamage msg;
               msg.m_fDamage = interaction.m_fDamage;
 
+              ezGameObject* pHitShape = nullptr;
+              if (GetWorld()->TryGetObject(hitResult.m_hShapeObject, pHitShape))
+              {
+                msg.m_sHitObjectName = pHitShape->GetName();
+              }
+
               pObject->SendMessage(msg);
             }
           }
