@@ -273,4 +273,147 @@ void ezTypeScriptBinding::SyncEzObjectToTsObject(duk_context* pDuk, const ezRTTI
   EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, 0);
 }
 
+void ezTypeScriptBinding::GenerateConstructorString(ezStringBuilder& out_String, const ezVariant& value)
+{
+  out_String.Clear();
 
+  const ezVariant::Type::Enum type = value.GetType();
+
+  switch (type)
+  {
+    case ezVariant::Type::Invalid:
+      break;
+
+    case ezVariant::Type::Bool:
+    case ezVariant::Type::Int8:
+    case ezVariant::Type::UInt8:
+    case ezVariant::Type::Int16:
+    case ezVariant::Type::UInt16:
+    case ezVariant::Type::Int32:
+    case ezVariant::Type::UInt32:
+    case ezVariant::Type::Int64:
+    case ezVariant::Type::UInt64:
+    case ezVariant::Type::Float:
+    case ezVariant::Type::Double:
+    case ezVariant::Type::String:
+    case ezVariant::Type::StringView:
+    {
+      out_String = value.ConvertTo<ezString>();
+      break;
+    }
+
+    case ezVariant::Type::Color:
+    case ezVariant::Type::ColorGamma:
+    {
+      const ezColor c = value.ConvertTo<ezColor>();
+      out_String.Format("new Color({}, {}, {}, {})", c.r, c.g, c.b, c.a);
+      break;
+    }
+
+    case ezVariant::Type::Vector2:
+    {
+      const ezVec2 v = value.Get<ezVec2>();
+      out_String.Format("new Vec2({}, {})", v.x, v.y);
+      break;
+    }
+
+    case ezVariant::Type::Vector3:
+    {
+      const ezVec3 v = value.Get<ezVec3>();
+      out_String.Format("new Vec3({}, {}, {})", v.x, v.y, v.z);
+      break;
+    }
+
+    case ezVariant::Type::Vector4:
+    {
+      const ezVec4 v = value.Get<ezVec4>();
+      out_String.Format("new Vec4({}, {}, {}, {})", v.x, v.y, v.z, v.w);
+      break;
+    }
+
+    case ezVariant::Type::Vector2I:
+    {
+      const ezVec2I32 v = value.Get<ezVec2I32>();
+      out_String.Format("new Vec2({}, {})", v.x, v.y);
+      break;
+    }
+
+    case ezVariant::Type::Vector3I:
+    {
+      const ezVec3I32 v = value.Get<ezVec3I32>();
+      out_String.Format("new Vec3({}, {}, {})", v.x, v.y, v.z);
+      break;
+    }
+
+    case ezVariant::Type::Vector4I:
+    {
+      const ezVec4I32 v = value.Get<ezVec4I32>();
+      out_String.Format("new Vec4({}, {}, {}, {})", v.x, v.y, v.z, v.w);
+      break;
+    }
+
+    case ezVariant::Type::Vector2U:
+    {
+      const ezVec2U32 v = value.Get<ezVec2U32>();
+      out_String.Format("new Vec2({}, {})", v.x, v.y);
+      break;
+    }
+
+    case ezVariant::Type::Vector3U:
+    {
+      const ezVec3U32 v = value.Get<ezVec3U32>();
+      out_String.Format("new Vec3({}, {}, {})", v.x, v.y, v.z);
+      break;
+    }
+
+    case ezVariant::Type::Vector4U:
+    {
+      const ezVec4U32 v = value.Get<ezVec4U32>();
+      out_String.Format("new Vec4({}, {}, {}, {})", v.x, v.y, v.z, v.w);
+      break;
+    }
+
+    case ezVariant::Type::Quaternion:
+    {
+      const ezQuat q = value.Get<ezQuat>();
+      out_String.Format("new Quat({}, {}, {}, {})", q.v.x, q.v.y, q.v.z, q.w);
+      break;
+    }
+
+    case ezVariant::Type::Matrix3:
+    {
+      out_String = "new Mat3()";
+      break;
+    }
+
+    case ezVariant::Type::Matrix4:
+    {
+      out_String = "new Mat4()";
+      break;
+    }
+
+    case ezVariant::Type::Transform:
+    {
+      out_String = "new Transform()";
+      break;
+    }
+
+    case ezVariant::Type::Time:
+      out_String.Format("{0}", value.Get<ezTime>().GetSeconds());
+      break;
+
+    case ezVariant::Type::Angle:
+      out_String.Format("{0}", value.Get<ezAngle>().GetRadian());
+      break;
+
+    case ezVariant::Type::Uuid:
+    case ezVariant::Type::DataBuffer:
+    case ezVariant::Type::VariantArray:
+    case ezVariant::Type::VariantDictionary:
+    case ezVariant::Type::ReflectedPointer:
+    case ezVariant::Type::VoidPointer:
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+      break;
+  }
+}

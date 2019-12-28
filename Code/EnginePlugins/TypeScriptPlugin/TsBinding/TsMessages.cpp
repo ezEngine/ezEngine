@@ -130,32 +130,11 @@ void ezTypeScriptBinding::GenerateMessagePropertiesCode(ezStringBuilder& out_Cod
     if (szTypeName == nullptr)
       continue;
 
-    const ezVariant def = ezReflectionUtils::GetDefaultValue(pMember);
-
-    if (def.CanConvertTo<ezString>())
-    {
-      sDefault = def.ConvertTo<ezString>();
-
-      EZ_ASSERT_DEV(sDefault != "N/A", "");
-    }
+    const ezVariant defaultValue = ezReflectionUtils::GetDefaultValue(pMember);
+    GenerateConstructorString(sDefault, defaultValue);
 
     if (!sDefault.IsEmpty())
     {
-      // TODO: make this prettier
-      if (def.GetType() == ezVariant::Type::Color)
-      {
-        ezColor c = def.Get<ezColor>();
-        sDefault.Format("new Color({}, {}, {}, {})", c.r, c.g, c.b, c.a);
-      }
-      else if (def.GetType() == ezVariant::Type::Time)
-      {
-        sDefault.Format("{0}", def.Get<ezTime>().GetSeconds());
-      }
-      else if (def.GetType() == ezVariant::Type::Angle)
-      {
-        sDefault.Format("{0}", def.Get<ezAngle>().GetRadian());
-      }
-
       sProp.Format("  {0}: {1} = {2};\n", pMember->GetPropertyName(), szTypeName, sDefault);
     }
     else
