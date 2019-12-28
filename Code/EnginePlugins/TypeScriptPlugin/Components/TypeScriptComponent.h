@@ -79,6 +79,8 @@ public:
 
   void BroadcastEventMsg(ezEventMessage& msg);
 
+  void SetUpdateInterval(ezTime interval) { m_UpdateInterval = interval; }
+
 private:
   struct EventSender
   {
@@ -113,7 +115,8 @@ private:
 
 private:
   ezUuid m_TypeScriptComponentGuid;
-  ezTime m_NextUpdate;
+  ezTime m_LastUpdate;
+  ezTime m_UpdateInterval = ezTime::Seconds(1);
 
   //////////////////////////////////////////////////////////////////////////
   // Exposed Parameters

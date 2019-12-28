@@ -287,8 +287,10 @@ void ezTypeScriptComponent::Update(ezTypeScriptBinding& binding)
 
   const ezTime tNow = GetWorld()->GetClock().GetAccumulatedTime();
 
-  if (m_NextUpdate > tNow)
+  if (m_LastUpdate + m_UpdateInterval > tNow)
     return;
+
+  m_LastUpdate = tNow;
 
   ezDuktapeHelper duk(binding.GetDukTapeContext());
 
@@ -297,8 +299,7 @@ void ezTypeScriptComponent::Update(ezTypeScriptBinding& binding)
   if (duk.PrepareMethodCall("Tick").Succeeded()) // [ comp func comp ]
   {
     duk.CallPreparedMethod(); // [ comp result ]
-    m_NextUpdate = tNow + ezTime::Seconds(duk.GetFloatValue(-1, 0.0f));
-    duk.PopStack(2); // [ ]
+    duk.PopStack(2);          // [ ]
   }
   else
   {

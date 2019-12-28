@@ -25,6 +25,8 @@ export class BallMine extends ez.TickedTypescriptComponent {
     }
 
     OnSimulationStarted(): void {
+        this.SetTickInterval(ez.Time.Seconds(0.5));
+
         this._player = ez.World.TryGetObjectWithGlobalKey("Player");
     }
 
@@ -35,7 +37,7 @@ export class BallMine extends ez.TickedTypescriptComponent {
         return false;
     }
 
-    Tick(): number {
+    Tick(): void {
 
         let oldState = this._state;
         let owner = this.GetOwner();
@@ -98,7 +100,8 @@ export class BallMine extends ez.TickedTypescriptComponent {
                         matMsg.Material = "{ d615cd66-0904-00ca-81f9-768ff4fc24ee }";
                         this.GetOwner().SendMessageRecursive(matMsg);
 
-                        return ez.Time.Milliseconds(500);
+                        this.SetTickInterval(ez.Time.Milliseconds(500));
+                        return;
                     }
                 case BallMineState.Alert:
                     {
@@ -106,7 +109,8 @@ export class BallMine extends ez.TickedTypescriptComponent {
                         matMsg.Material = "{ 6ae73fcf-e09c-1c3f-54a8-8a80498519fb }";
                         this.GetOwner().SendMessageRecursive(matMsg);
 
-                        return ez.Time.Milliseconds(100);
+                        this.SetTickInterval(ez.Time.Milliseconds(100));
+                        return;
                     }
                 case BallMineState.Approaching:
                     {
@@ -114,19 +118,19 @@ export class BallMine extends ez.TickedTypescriptComponent {
                         matMsg.Material = "{ 49324140-a093-4a75-9c6c-efde65a39fc4 }";
                         this.GetOwner().SendMessageRecursive(matMsg);
 
-                        return ez.Time.Milliseconds(50);
+                        this.SetTickInterval(ez.Time.Milliseconds(50));
+                        return;
                     }
                 case BallMineState.Attacking:
                     {
                         this.Explode();
 
-                        return ez.Time.Milliseconds(50);
+                        this.SetTickInterval(ez.Time.Milliseconds(50));
+                        return;
                     }
 
             }
         }
-
-        return ez.Time.Seconds(0.5);
     }
 
     Explode(): void {

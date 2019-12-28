@@ -38,6 +38,12 @@ void ezTypeScriptAssetDocument::EditScript()
 
   if (!ezFileSystem::ExistsFile(sTsPath))
   {
+    ezDataDirectoryType* pDataDir = nullptr;
+    if (ezFileSystem::ResolvePath(GetDocumentPath(), nullptr, nullptr, &pDataDir).Failed())
+      return;
+
+    sTsPath.Prepend(pDataDir->GetRedirectedDataDirectoryPath(), "/");
+
     CreateComponentFile(sTsPath);
   }
 
