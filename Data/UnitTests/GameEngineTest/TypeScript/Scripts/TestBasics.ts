@@ -18,11 +18,8 @@ export class TestBasics extends ez.TickedTypescriptComponent {
         super()
     }
 
-    Tick(): number {
+    Tick(): void {
         ez.Log.Info("TestBasics.Tick()")
-
-        // call 'Tick' again in 100ms
-        return ez.Time.Milliseconds(100);
     }
 
     /*

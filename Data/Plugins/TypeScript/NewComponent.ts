@@ -7,13 +7,12 @@ export class NewComponent extends ez.TickedTypescriptComponent {
 
     constructor() {
         super()
+
+        
     }
 
-    Tick(): number {
+    Tick(): void {
         ez.Log.Info("NewComponent.Tick()")
-
-        // call 'Tick' again in 100ms
-        return ez.Time.Milliseconds(100);
     }
 
     /*
@@ -30,6 +29,7 @@ export class NewComponent extends ez.TickedTypescriptComponent {
     }
 
     OnSimulationStarted(): void {
+        this.SetTickInterval(ez.Time.Milliseconds(100));
     }
 
     // to use message handlers you must implement exactly this function
