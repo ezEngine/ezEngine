@@ -23,7 +23,7 @@ export class Vec3 {
     /**
      * Default initializes the vector to all zero.
      */
-    constructor(x: number = 0, y: number = 0, z: number = 0) {
+    constructor(x: number = 0, y: number = 0, z: number = 0) { // [tested]
         this.x = x;
         this.y = y;
         this.z = z;
@@ -32,56 +32,56 @@ export class Vec3 {
     /**
      * Returns a duplicate of this vector.
      */
-    Clone(): Vec3 {
+    Clone(): Vec3 { // [tested]
         return new Vec3(this.x, this.y, this.z);
     }
 
     /**
      * Returns a duplicate Vec2 with the z component removed.
      */
-    CloneAsVec2() {
+    CloneAsVec2() { // [tested]
         return new Vec2(this.x, this.y);
     }
 
     /**
      * Returns a vector with all components set to zero.
      */
-    static ZeroVector(): Vec3 {
+    static ZeroVector(): Vec3 { // [tested]
         return new Vec3(0, 0, 0);
     }
 
     /**
      * Returns a vector with all components set to one.
      */
-    static OneVector(): Vec3 {
+    static OneVector(): Vec3 { // [tested]
         return new Vec3(1, 1, 1);
     }
 
     /**
      * Returns the vector (1, 0, 0)
      */
-    static UnitAxisX(): Vec3 {
+    static UnitAxisX(): Vec3 { // [tested]
         return new Vec3(1, 0, 0);
     }
 
     /**
      * Returns the vector (0, 1, 0)
      */
-    static UnitAxisY(): Vec3 {
+    static UnitAxisY(): Vec3 { // [tested]
         return new Vec3(0, 1, 0);
     }
 
     /**
      * Returns the vector (0, 0, 1)
      */
-    static UnitAxisZ(): Vec3 {
+    static UnitAxisZ(): Vec3 { // [tested]
         return new Vec3(0, 0, 1);
     }
 
     /**
      * Sets all components to the given values.
      */
-    Set(x: number, y: number, z: number): void {
+    Set(x: number, y: number, z: number): void { // [tested]
         this.x = x;
         this.y = y;
         this.z = z;
@@ -90,7 +90,7 @@ export class Vec3 {
     /**
      * Copies all component values from rhs.
      */
-    SetVec3(rhs: Vec3): void {
+    SetVec3(rhs: Vec3): void { // [tested]
         this.x = rhs.x;
         this.y = rhs.y;
         this.z = rhs.z;
@@ -99,7 +99,7 @@ export class Vec3 {
     /**
      * Sets all components to the value 'val'.
      */
-    SetAll(val: number): void {
+    SetAll(val: number): void { // [tested]
         this.x = val;
         this.y = val;
         this.z = val;
@@ -108,7 +108,7 @@ export class Vec3 {
     /**
      * Sets all components to zero.
      */
-    SetZero(): void {
+    SetZero(): void { // [tested]
         this.x = 0;
         this.y = 0;
         this.z = 0;
@@ -117,14 +117,14 @@ export class Vec3 {
     /**
      * Returns the squared length of the vector.
      */
-    GetLengthSquared(): number {
+    GetLengthSquared(): number { // [tested]
         return this.x * this.x + this.y * this.y + this.z * this.z;
     }
 
     /**
      * Returns the length of the vector.
      */
-    GetLength(): number {
+    GetLength(): number { // [tested]
         return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
     }
 
@@ -132,7 +132,7 @@ export class Vec3 {
      * Computes and returns the length of the vector, and normalizes the vector.
      * This is more efficient than calling GetLength() followed by Normalize().
      */
-    GetLengthAndNormalize(): number {
+    GetLengthAndNormalize(): number { // [tested]
         let length = this.GetLength();
         let invLength = 1.0 / length;
         this.x *= invLength;
@@ -146,7 +146,7 @@ export class Vec3 {
      * Normalizes the vector. Afterwards its length will be one.
      * This only works on non-zero vectors. Calling Normalize() on a zero-vector is an error.
      */
-    Normalize(): void {
+    Normalize(): void { // [tested]
         let invLength = 1.0 / this.GetLength();
         this.x *= invLength;
         this.y *= invLength;
@@ -157,7 +157,7 @@ export class Vec3 {
      * Returns a normalized duplicate of this vector.
      * Calling this on a zero-vector is an error.
      */
-    GetNormalized(): Vec3 {
+    GetNormalized(): Vec3 { // [tested]
         let norm = this.Clone();
         norm.Normalize();
         return norm;
@@ -171,7 +171,7 @@ export class Vec3 {
      * @param epsilon The epsilon within this vector is considered to be a zero-vector.
      * @returns true if the vector was normalized regularly, false if the vector was close to zero and 'fallback' was used instead.
      */
-    NormalizeIfNotZero(fallback: Vec3 = new Vec3(1, 0, 0), epsilon: number = 0.000001): boolean {
+    NormalizeIfNotZero(fallback: Vec3 = new Vec3(1, 0, 0), epsilon: number = 0.000001): boolean { // [tested]
         let length = this.GetLength();
 
         if (length >= -epsilon && length <= epsilon) {
@@ -186,7 +186,7 @@ export class Vec3 {
     /**
      * Checks whether all components of this are close to zero.
      */
-    IsZero(epsilon: number = 0): boolean {
+    IsZero(epsilon: number = 0): boolean { // [tested]
         if (epsilon != 0) {
             return this.x >= -epsilon && this.x <= epsilon &&
                 this.y >= -epsilon && this.y <= epsilon &&
@@ -201,22 +201,22 @@ export class Vec3 {
     /**
      * Checks whether this is normalized within some epsilon.
      */
-    IsNormalized(epsilon: number = 0.001): boolean {
+    IsNormalized(epsilon: number = 0.001): boolean { // [tested]
         let length = this.GetLength();
-        return (length >= 1.0 - epsilon) && (length <= 1.0 - epsilon);
+        return (length >= 1.0 - epsilon) && (length <= 1.0 + epsilon);
     }
 
     /**
      * Returns a negated duplicate of this.
      */
-    GetNegated(): Vec3 {
+    GetNegated(): Vec3 { // [tested]
         return new Vec3(-this.x, -this.y, -this.z);
     }
 
     /**
      * Negates all components of this.
      */
-    Negate(): void {
+    Negate(): void { // [tested]
         this.x = -this.x;
         this.y = -this.y;
         this.z = -this.z;

@@ -63,7 +63,12 @@ static int Duk_TestFailure(duk_context* pDuk)
 {
   ezDuktapeFunction duk(pDuk);
 
-  ezTestBool(false, "TypeScript Test Failed", "unknown file", 0, "unknown function", "");
+  const char* szFile = duk.GetStringValue(0);
+  const ezInt32 iLine = duk.GetIntValue(1);
+  const char* szFunction = duk.GetStringValue(2);
+  const char* szMsg = duk.GetStringValue(3);
+
+  ezTestBool(false, "TypeScript Test Failed", szFile, iLine, szFunction, szMsg);
 
   return duk.ReturnVoid();
 }
@@ -75,7 +80,7 @@ void ezGameEngineTestApplication_TypeScript::SubTestBasicsSetup()
   EZ_LOCK(m_pWorld->GetWriteMarker());
   ezTypeScriptComponentManager* pMan = m_pWorld->GetOrCreateComponentManager<ezTypeScriptComponentManager>();
 
-  pMan->GetTsBinding().GetDukTapeContext().RegisterGlobalFunction("ezTestFailure", Duk_TestFailure, 0);
+  pMan->GetTsBinding().GetDukTapeContext().RegisterGlobalFunction("ezTestFailure", Duk_TestFailure, 4);
 }
 
 ezTestAppRun ezGameEngineTestApplication_TypeScript::SubTestBasisExec(ezInt32 iCurFrame)
