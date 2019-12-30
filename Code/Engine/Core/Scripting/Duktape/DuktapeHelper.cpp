@@ -446,8 +446,25 @@ ezResult ezDuktapeHelper::CallPreparedMethod()
   }
   else
   {
-    // TODO: could also create a stack trace using duk_is_error + duk_get_prop_string(ctx, -1, "stack");
     ezLog::Error("[duktape]{}", duk_safe_to_string(m_pContext, -1));
+
+    if (duk_is_error(m_pContext, -1))
+    {
+      EZ_LOG_BLOCK("Stack Trace");
+
+      duk_get_prop_string(m_pContext, -1, "stack");
+
+      const ezStringBuilder stack = duk_safe_to_string(m_pContext, -1);
+      ezHybridArray<ezStringView, 32> lines;
+      stack.Split(false, lines, "\n", "\r");
+
+      for (ezStringView line : lines)
+      {
+        ezLog::Dev("{}", line);
+      }
+
+      duk_pop(m_pContext);
+    }
 
     return EZ_FAILURE; // [ error ]
   }

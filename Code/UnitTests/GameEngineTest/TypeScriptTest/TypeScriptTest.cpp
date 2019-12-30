@@ -23,14 +23,13 @@ ezGameEngineTestApplication* ezGameEngineTestTypeScript::CreateApplication()
 
 void ezGameEngineTestTypeScript::SetupSubTests()
 {
-  AddSubTest("Basics", SubTests::Basics);
+  AddSubTest("Vec2", SubTests::Vec2);
+  AddSubTest("Vec3", SubTests::Vec3);
 }
 
 ezResult ezGameEngineTestTypeScript::InitializeSubTest(ezInt32 iIdentifier)
 {
-  m_iFrame = -1;
-
-  if (iIdentifier == SubTests::Basics)
+  if (iIdentifier == SubTests::Vec2 || iIdentifier == SubTests::Vec3)
   {
     m_pOwnApplication->SubTestBasicsSetup();
     return EZ_SUCCESS;
@@ -41,10 +40,11 @@ ezResult ezGameEngineTestTypeScript::InitializeSubTest(ezInt32 iIdentifier)
 
 ezTestAppRun ezGameEngineTestTypeScript::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
 {
-  ++m_iFrame;
+  if (iIdentifier == SubTests::Vec2)
+    return m_pOwnApplication->SubTestBasisExec(iIdentifier);
 
-  if (iIdentifier == SubTests::Basics)
-    return m_pOwnApplication->SubTestBasisExec(m_iFrame);
+  if (iIdentifier == SubTests::Vec3)
+    return m_pOwnApplication->SubTestBasisExec(iIdentifier);
 
   EZ_ASSERT_NOT_IMPLEMENTED;
   return ezTestAppRun::Quit;
@@ -83,7 +83,7 @@ void ezGameEngineTestApplication_TypeScript::SubTestBasicsSetup()
   pMan->GetTsBinding().GetDukTapeContext().RegisterGlobalFunction("ezTestFailure", Duk_TestFailure, 4);
 }
 
-ezTestAppRun ezGameEngineTestApplication_TypeScript::SubTestBasisExec(ezInt32 iCurFrame)
+ezTestAppRun ezGameEngineTestApplication_TypeScript::SubTestBasisExec(ezInt32 iIdentifier)
 {
   if (Run() == ezApplication::Quit)
     return ezTestAppRun::Quit;
@@ -97,25 +97,28 @@ ezTestAppRun ezGameEngineTestApplication_TypeScript::SubTestBasisExec(ezInt32 iC
     return ezTestAppRun::Quit;
   }
 
-  switch (iCurFrame)
+  switch (iIdentifier)
   {
-    case 0:
+    case ezGameEngineTestTypeScript::SubTests::Vec2:
+    {
+      ezMsgGenericEvent msg;
+      msg.m_sMessage = "TestVec2";
+      pTests->SendMessageRecursive(msg);
+
+      EZ_TEST_STRING(msg.m_sMessage, "done");
+      break;
+    }
+
+    case ezGameEngineTestTypeScript::SubTests::Vec3:
     {
       ezMsgGenericEvent msg;
       msg.m_sMessage = "TestVec3";
       pTests->SendMessageRecursive(msg);
 
       EZ_TEST_STRING(msg.m_sMessage, "done");
+      break;
     }
-    break;
-
-      //case 15:
-      //  EZ_TEST_IMAGE(0, 50);
-      //  break;
-
-    case 10:
-      return ezTestAppRun::Quit;
   }
 
-  return ezTestAppRun::Continue;
+  return ezTestAppRun::Quit;
 }

@@ -111,6 +111,9 @@ void ezWorld::Clear()
   {
     DeleteObjectNow(it->GetHandle());
   }
+
+  // make sure all dead objects and components are cleared right now
+  Update();
 }
 
 void ezWorld::SetCoordinateSystemProvider(const ezSharedPtr<ezCoordinateSystemProvider>& pProvider)

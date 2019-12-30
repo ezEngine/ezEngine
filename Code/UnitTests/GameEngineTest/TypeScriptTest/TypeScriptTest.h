@@ -10,7 +10,7 @@ public:
   ezGameEngineTestApplication_TypeScript();
 
   void SubTestBasicsSetup();
-  ezTestAppRun SubTestBasisExec(ezInt32 iCurFrame);
+  ezTestAppRun SubTestBasisExec(ezInt32 iIdentifier);
 };
 
 class ezGameEngineTestTypeScript : public ezGameEngineTest
@@ -19,17 +19,17 @@ public:
   virtual const char* GetTestName() const override;
   virtual ezGameEngineTestApplication* CreateApplication() override;
 
-private:
   enum SubTests
   {
-    Basics,
+    Vec2,
+    Vec3,
   };
 
+private:
   virtual void SetupSubTests() override;
   virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
   virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) override;
 
-  ezInt32 m_iFrame = 0;
   ezGameEngineTestApplication_TypeScript* m_pOwnApplication = nullptr;
 };
 

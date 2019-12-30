@@ -225,7 +225,7 @@ export class Vec3 {
     /**
      * Adds rhs component-wise to this.
      */
-    AddVec3(rhs: Vec3): void {
+    AddVec3(rhs: Vec3): void { // [tested]
         this.x += rhs.x;
         this.y += rhs.y;
         this.z += rhs.z;
@@ -234,7 +234,7 @@ export class Vec3 {
     /**
      * Subtracts rhs component-wise from this.
      */
-    SubVec3(rhs: Vec3): void {
+    SubVec3(rhs: Vec3): void { // [tested]
         this.x -= rhs.x;
         this.y -= rhs.y;
         this.z -= rhs.z;
@@ -243,7 +243,7 @@ export class Vec3 {
     /**
      * Multiplies rhs component-wise into this.
      */
-    MulVec3(rhs: Vec3): void {
+    MulVec3(rhs: Vec3): void { // [tested]
         this.x *= rhs.x;
         this.y *= rhs.y;
         this.z *= rhs.z;
@@ -252,7 +252,7 @@ export class Vec3 {
     /**
      * Divides each component of this by rhs.
      */
-    DivVec3(rhs: Vec3): void {
+    DivVec3(rhs: Vec3): void { // [tested]
         this.x /= rhs.x;
         this.y /= rhs.y;
         this.z /= rhs.z;
@@ -261,7 +261,7 @@ export class Vec3 {
     /**
      * Multiplies all components of this by 'val'.
      */
-    MulNumber(val: number): void {
+    MulNumber(val: number): void { // [tested]
         this.x *= val;
         this.y *= val;
         this.z *= val;
@@ -270,7 +270,7 @@ export class Vec3 {
     /**
      * Divides all components of this by 'val'.
      */
-    DivNumber(val: number): void {
+    DivNumber(val: number): void { // [tested]
         let invVal = 1.0 / val;
         this.x *= invVal;
         this.y *= invVal;
@@ -280,14 +280,14 @@ export class Vec3 {
     /**
      * Checks whether this and rhs are exactly identical.
      */
-    IsIdentical(rhs: Vec3): boolean {
+    IsIdentical(rhs: Vec3): boolean { // [tested]
         return this.x == rhs.x && this.y == rhs.y && this.z == rhs.z;
     }
 
     /**
      * Checks whether this and rhs are approximately equal within a given epsilon.
      */
-    IsEqual(rhs: Vec3, epsilon: number): boolean {
+    IsEqual(rhs: Vec3, epsilon: number): boolean { // [tested]
         return (this.x >= rhs.x - epsilon && this.x <= rhs.x + epsilon) &&
             (this.y >= rhs.y - epsilon && this.y <= rhs.y + epsilon) &&
             (this.z >= rhs.z - epsilon && this.z <= rhs.z + epsilon);
@@ -296,21 +296,21 @@ export class Vec3 {
     /**
      * Returns the dot-product between this and rhs.
      */
-    Dot(rhs: Vec3): number {
+    Dot(rhs: Vec3): number { // [tested]
         return this.x * rhs.x + this.y * rhs.y + this.z * rhs.z;
     }
 
     /**
      * Returns the cross-product between this and rhs.
      */
-    CrossRH(rhs: Vec3): Vec3 {
+    CrossRH(rhs: Vec3): Vec3 { // [tested]
         return new Vec3(this.y * rhs.z - this.z * rhs.y, this.z * rhs.x - this.x * rhs.z, this.x * rhs.y - this.y * rhs.x);
     }
 
     /**
      * Sets this to be the cross product between lhs and rhs.
      */
-    SetCrossRH(lhs: Vec3, rhs: Vec3): void {
+    SetCrossRH(lhs: Vec3, rhs: Vec3): void { // [tested]
         this.x = lhs.y * rhs.z - lhs.z * rhs.y;
         this.y = lhs.z * rhs.x - lhs.x * rhs.z;
         this.z = lhs.x * rhs.y - lhs.y * rhs.x;
@@ -319,21 +319,21 @@ export class Vec3 {
     /**
      * Returns a vector consisting of the minimum of the respective components of this and rhs.
      */
-    GetCompMin(rhs: Vec3): Vec3 {
+    GetCompMin(rhs: Vec3): Vec3 { // [tested]
         return new Vec3(Math.min(this.x, rhs.x), Math.min(this.y, rhs.y), Math.min(this.z, rhs.z));
     }
 
     /**
      * Returns a vector consisting of the maximum of the respective components of this and rhs.
      */
-    GetCompMax(rhs: Vec3): Vec3 {
+    GetCompMax(rhs: Vec3): Vec3 { // [tested]
         return new Vec3(Math.max(this.x, rhs.x), Math.max(this.y, rhs.y), Math.max(this.z, rhs.z));
     }
 
     /**
      * Returns a vector where each component is set to this component's value, clamped to the respective low and high value.
      */
-    GetCompClamp(low: Vec3, high: Vec3): Vec3 {
+    GetCompClamp(low: Vec3, high: Vec3): Vec3 { // [tested]
         let _x = Math.max(low.x, Math.min(high.x, this.x));
         let _y = Math.max(low.y, Math.min(high.y, this.y));
         let _z = Math.max(low.z, Math.min(high.z, this.z));
@@ -344,28 +344,28 @@ export class Vec3 {
     /**
      * Returns a vector with each component being the product of this and rhs.
      */
-    GetCompMul(rhs: Vec3): Vec3 {
+    GetCompMul(rhs: Vec3): Vec3 { // [tested]
         return new Vec3(this.x * rhs.x, this.y * rhs.y, this.z * rhs.z);
     }
 
     /**
      * Returns a vector with each component being the division of this and rhs.
      */
-    GetCompDiv(rhs: Vec3): Vec3 {
+    GetCompDiv(rhs: Vec3): Vec3 { // [tested]
         return new Vec3(this.x / rhs.x, this.y / rhs.y, this.z / rhs.z);
     }
 
     /**
      * Returns a vector with each component set to the absolute value of this vector's respective component.
      */
-    GetAbs(): Vec3 {
+    GetAbs(): Vec3 { // [tested]
         return new Vec3(Math.abs(this.x), Math.abs(this.y), Math.abs(this.z));
     }
 
     /**
      * Sets this vector's components to the absolute value of lhs's respective components.
      */
-    SetAbs(lhs: Vec3): void {
+    SetAbs(lhs: Vec3): void { // [tested]
         this.x = Math.abs(lhs.x);
         this.y = Math.abs(lhs.y);
         this.z = Math.abs(lhs.z);
@@ -379,11 +379,11 @@ export class Vec3 {
      * 
      * @returns true when the normal could be calculated successfully.
      */
-    CalculateNormal(v1: Vec3, v2: Vec3, v3: Vec3): boolean {
-        let tmp1: Vec3;
+    CalculateNormal(v1: Vec3, v2: Vec3, v3: Vec3): boolean { // [tested]
+        let tmp1 = new Vec3();
         tmp1.SetSub(v3, v2);
 
-        let tmp2: Vec3;
+        let tmp2 = new Vec3();
         tmp2.SetSub(v1, v2);
 
         this.SetCrossRH(tmp1, tmp2);
@@ -394,7 +394,7 @@ export class Vec3 {
      * Adjusts this vector such that it is orthogonal to the given normal.
      * The operation may change the length of this vector.
      */
-    MakeOrthogonalTo(normal: Vec3): void {
+    MakeOrthogonalTo(normal: Vec3): void { // [tested]
         let ortho = normal.CrossRH(this);
         this.SetCrossRH(ortho, normal);
     }
@@ -402,7 +402,7 @@ export class Vec3 {
     /**
      * Returns an arbitrary vector that is orthogonal to this vector.
      */
-    GetOrthogonalVector(): Vec3 {
+    GetOrthogonalVector(): Vec3 { // [tested]
         if (Math.abs(this.y) < 0.999) {
             return this.CrossRH(new Vec3(0, 1, 0));
         }
@@ -413,7 +413,7 @@ export class Vec3 {
     /**
      * Returns a vector that is this vector reflected along the given normal.
      */
-    GetReflectedVector(normal: Vec3): Vec3 {
+    GetReflectedVector(normal: Vec3): Vec3 { // [tested]
         let res = this.Clone();
         let tmp = normal.Clone();
         tmp.MulNumber(this.Dot(normal) * 2.0);
@@ -424,7 +424,7 @@ export class Vec3 {
     /**
      * Sets this vector to be the addition of lhs and rhs.
      */
-    SetAdd(lhs: Vec3, rhs: Vec3): void {
+    SetAdd(lhs: Vec3, rhs: Vec3): void { // [tested]
         this.x = lhs.x + rhs.x;
         this.y = lhs.y + rhs.y;
         this.z = lhs.z + rhs.z;
@@ -433,7 +433,7 @@ export class Vec3 {
     /**
      * Sets this vector to be the subtraction of lhs and rhs.
      */
-    SetSub(lhs: Vec3, rhs: Vec3): void {
+    SetSub(lhs: Vec3, rhs: Vec3): void { // [tested]
         this.x = lhs.x - rhs.x;
         this.y = lhs.y - rhs.y;
         this.z = lhs.z - rhs.z;
@@ -442,7 +442,7 @@ export class Vec3 {
     /**
      * Sets this vector to be the product of lhs and rhs.
      */
-    SetMul(lhs: Vec3, rhs: number): void {
+    SetMul(lhs: Vec3, rhs: number): void { // [tested]
         this.x = lhs.x * rhs;
         this.y = lhs.y * rhs;
         this.z = lhs.z * rhs;
@@ -451,7 +451,7 @@ export class Vec3 {
     /**
      * Sets this vector to be the division of lhs and rhs.
      */
-    SetDiv(lhs: Vec3, rhs: number): void {
+    SetDiv(lhs: Vec3, rhs: number): void { // [tested]
         let invRhs = 1.0 / rhs;
         this.x = lhs.x * invRhs;
         this.y = lhs.y * invRhs;
@@ -464,7 +464,7 @@ export class Vec3 {
      * 
      * @returns true if the vector's length could be changed as desired.
      */
-    SetLength(length: number, epsilon: number): boolean {
+    SetLength(length: number, epsilon: number): boolean { // [tested]
         if (!this.NormalizeIfNotZero(Vec3.ZeroVector(), epsilon))
             return false;
 
@@ -475,7 +475,7 @@ export class Vec3 {
     /**
      * Returns a random point inside a sphere of radius 1 around the origin.
      */
-    static CreateRandomPointInSphere(): Vec3 {
+    static CreateRandomPointInSphere(): Vec3 { // [tested]
         let px: number, py: number, pz: number;
         let len: number = 0.0;
 
@@ -493,7 +493,7 @@ export class Vec3 {
     /**
      * Returns a random direction vector.
      */
-    static CreateRandomDirection(): Vec3 {
+    static CreateRandomDirection(): Vec3 { // [tested]
         let res = Vec3.CreateRandomPointInSphere();
         res.Normalize();
         return res;
