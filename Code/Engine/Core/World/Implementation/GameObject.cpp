@@ -4,6 +4,7 @@
 #include <Core/Messages/HierarchyChangedMessages.h>
 #include <Core/Messages/TransformChangedMessage.h>
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
+#include <Core/World/EventMessageHandlerComponent.h>
 #include <Core/World/World.h>
 
 namespace
