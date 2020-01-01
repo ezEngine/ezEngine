@@ -163,8 +163,7 @@ public:
   /// \brief Sends a message to all components of the receiverObject and all its children.
   void SendMessageRecursive(const ezGameObjectHandle& receiverObject, ezMessage& msg);
 
-  /// \brief Queues the message for the given phase. The message is send to the receiverObject after the given delay in the corresponding
-  /// phase.
+  /// \brief Queues the message for the given phase. The message is send to the receiverObject after the given delay in the corresponding phase.
   void PostMessage(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
 
   /// \brief Queues the message for the given phase. The message is send to the receiverObject and all its children after the given delay in
@@ -174,10 +173,16 @@ public:
   /// \brief Sends a message to the component.
   void SendMessage(const ezComponentHandle& receiverComponent, ezMessage& msg);
 
-  /// \brief Queues the message for the given phase. The message is send to the receiverComponent after the given delay in the corresponding
-  /// phase.
+  /// \brief Queues the message for the given phase. The message is send to the receiverComponent after the given delay in the corresponding phase.
   void PostMessage(const ezComponentHandle& receiverComponent, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
 
+  /// \brief Finds the closest (parent) object, starting at pSearchObject, which has an ezEventMessageHandlerComponent.
+  ///
+  /// If any such parent object exists, the search is stopped there, even if that component does not handle messages of the given type.
+  /// If no such parent object exists, it searches for a ezEventMessageHandlerComponent instance that is set to 'handle global events'
+  /// that handles messages of the given type.
+  ///
+  /// \returns A non-null pointer if an event handler component was found that also handles this type of message. nullptr otherwise.
   const ezEventMessageHandlerComponent* FindEventMsgHandler(ezEventMessage& msg, const ezGameObject* pSearchObject) const;
 
   ///@}

@@ -368,9 +368,38 @@ public:
   /// \brief Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
   void PostMessageRecursive(const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
 
-  void SendEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent);
-  void SendEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent) const;
+  /// \brief Delivers an ezEventMessage to the closest (parent) object containing an ezEventMessageHandlerComponent.
+  ///
+  /// Regular SendMessage() and PostMessage() send a message directly to the target object (and all attached components).
+  /// SendMessageRecursive() and PostMessageRecursive() send a message 'down' the graph to the target object and all children.
+  ///
+  /// In contrast, SendEventMessage() / PostEventMessage() bubble the message 'up' the graph.
+  /// They do so by inspecting the chain of parent objects for the existence of an ezEventMessageHandlerComponent
+  /// (typically a script component). If such a component is found, the message is delivered to it directly, and no other component.
+  /// If it is found, but does not handle this type of message, the message is discarded and NOT tried to be delivered
+  /// to anyone else.
+  ///
+  /// If no such component is found in all parent objects, the message is delivered to one ezEventMessageHandlerComponent
+  /// instances that is set to 'handle global events' (typically used for level-logic scripts), no matter where in the graph it resides.
+  /// If multiple global event handler component exist that handle the same message type, the result is non-deterministic.
+  ///
+  /// \param msg The message to deliver.
+  /// \param senderComponent The component that triggered the event in the first place. May be nullptr.
+  ///        If not null, this information is stored in \a msg as ezEventMessage::m_hSenderObject and ezEventMessage::m_hSenderComponent.
+  ///        This information is used to pass through more contextual information for the event handler.
+  ///        For instance, a trigger would pass through which object entered the trigger.
+  ///        A projectile component sending a 'take damage event' to the hit object, would pass through itself (the projectile)
+  ///        such that the handling code can detect which object was responsible for the damage (and using the ezGameObject's team-ID,
+  ///        it can detect which player fired the projectile).
+  void SendEventMessage(ezEventMessage& msg, const ezComponent* senderComponent);
 
+  /// \copydoc ezGameObject::SendEventMessage()
+  void SendEventMessage(ezEventMessage& msg, const ezComponent* senderComponent) const;
+
+  /// \copydoc ezGameObject::SendEventMessage()
+  ///
+  /// \param queueType In which update phase to deliver the message.
+  /// \param delay An optional delay before delivering the message.
   void PostEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
 
   /// \brief Returns the tag set associated with this object.
