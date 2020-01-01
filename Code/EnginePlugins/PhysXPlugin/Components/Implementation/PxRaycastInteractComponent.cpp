@@ -93,5 +93,9 @@ void ezPxRaycastInteractComponent::SendMessage(const ezPhysicsHitResult& hit)
   ezMsgGenericEvent msg;
   msg.m_sMessage = m_sUserMessage;
 
-  GetWorld()->SendMessage(hit.m_hActorObject, msg);
+  ezGameObject* pShape;
+  if (GetWorld()->TryGetObject(hit.m_hShapeObject, pShape))
+  {
+    pShape->SendEventMessage(msg, this);
+  }
 }

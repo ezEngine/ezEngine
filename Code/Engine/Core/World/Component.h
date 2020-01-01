@@ -95,11 +95,8 @@ public:
   EZ_ALWAYS_INLINE bool SendMessage(ezMessage& msg) { return SendMessageInternal(msg, false); }
   EZ_ALWAYS_INLINE bool SendMessage(ezMessage& msg) const { return SendMessageInternal(msg, false); }
 
-  /// \brief Queues the message for the given phase and processes it later in that phase.
-  void PostMessage(const ezMessage& msg, ezObjectMsgQueueType::Enum queueType) const;
-
   /// \brief Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
-  void PostMessage(const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const;
+  void PostMessage(const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime::Zero()) const;
 
   /// \brief Stores a custom flag. Index must be between 0 and 7.
   ///

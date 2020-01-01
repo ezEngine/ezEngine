@@ -10,6 +10,8 @@
 #include <Core/World/ComponentManager.h>
 #include <Core/World/GameObjectDesc.h>
 
+struct ezEventMessage;
+
 // Avoid conflicts with windows.h
 #ifdef SendMessage
 #  undef SendMessage
@@ -365,6 +367,11 @@ public:
 
   /// \brief Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
   void PostMessageRecursive(const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
+
+  void SendEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent);
+  void SendEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent) const;
+
+  void PostEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
 
   /// \brief Returns the tag set associated with this object.
   ezTagSet& GetTags();

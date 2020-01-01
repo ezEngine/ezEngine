@@ -821,6 +821,48 @@ void ezGameObject::PostMessageRecursive(const ezMessage& msg, ezObjectMsgQueueTy
   m_pWorld->PostMessageRecursive(GetHandle(), msg, queueType, delay);
 }
 
+void ezGameObject::SendEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent)
+{
+  if (ezComponent* pReceiver = const_cast<ezEventMessageHandlerComponent*>(GetWorld()->FindEventMsgHandler(msg, this)))
+  {
+    if (pSenderComponent)
+    {
+      msg.m_hSenderComponent = pSenderComponent->GetHandle();
+      msg.m_hSenderObject = pSenderComponent->GetOwner()->GetHandle();
+    }
+
+    pReceiver->SendMessage(msg);
+  }
+}
+
+void ezGameObject::SendEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent) const
+{
+  if (const ezComponent* pReceiver = GetWorld()->FindEventMsgHandler(msg, const_cast<ezGameObject*>(this)))
+  {
+    if (pSenderComponent)
+    {
+      msg.m_hSenderComponent = pSenderComponent->GetHandle();
+      msg.m_hSenderObject = pSenderComponent->GetOwner()->GetHandle();
+    }
+
+    pReceiver->SendMessage(msg);
+  }
+}
+
+void ezGameObject::PostEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent, ezObjectMsgQueueType::Enum queueType, ezTime delay /*= ezTime()*/) const
+{
+  if (const ezComponent* pReceiver = GetWorld()->FindEventMsgHandler(msg, const_cast<ezGameObject*>(this)))
+  {
+    if (pSenderComponent)
+    {
+      msg.m_hSenderComponent = pSenderComponent->GetHandle();
+      msg.m_hSenderObject = pSenderComponent->GetOwner()->GetHandle();
+    }
+
+    pReceiver->PostMessage(msg, queueType, delay);
+  }
+}
+
 void ezGameObject::FixComponentPointer(ezComponent* pOldPtr, ezComponent* pNewPtr)
 {
   ezUInt32 uiIndex = m_Components.IndexOf(pOldPtr);

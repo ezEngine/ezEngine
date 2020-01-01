@@ -31,53 +31,6 @@ EZ_CHECK_AT_COMPILETIME(sizeof(ezEventMessageSender<ezEventMessage>) == 8);
 
 namespace ezInternal
 {
-  ezComponentHandle EventMessageSenderHelper::FindReceiver(ezEventMessage& msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject)
-  {
-
-    // walk the graph upwards until an object is found with an ezEventMessageHandlerComponent that handles this type of message
-    {
-      const ezGameObject* pCurrentObject = pSearchObject;
-
-      while (pCurrentObject != nullptr)
-      {
-        const ezEventMessageHandlerComponent* pEventMessageHandlerComponent = nullptr;
-        if (pCurrentObject->TryGetComponentOfBaseType(pEventMessageHandlerComponent))
-        {
-          if (pEventMessageHandlerComponent->HandlesEventMessage(msg))
-          {
-            return pEventMessageHandlerComponent->GetHandle();
-          }
-
-          // found an ezEventMessageHandlerComponent -> stop searching
-          // even if it does not handle this type of message, we do not want to propagate the message to someone else
-          return ezComponentHandle();
-        }
-
-        pCurrentObject = pCurrentObject->GetParent();
-      }
-    }
-
-    // if no such object is found, check all objects that are registered as 'global event handlers'
-    {
-      const ezWorld* pWorld = pSenderComponent->GetWorld();
-
-      auto globalEventMessageHandler = ezEventMessageHandlerComponent::GetAllGlobalEventHandler(pWorld);
-      for (auto hEventMessageHandlerComponent : globalEventMessageHandler)
-      {
-        const ezEventMessageHandlerComponent* pEventMessageHandlerComponent = nullptr;
-        if (pWorld->TryGetComponent(hEventMessageHandlerComponent, pEventMessageHandlerComponent))
-        {
-          if (pEventMessageHandlerComponent->HandlesEventMessage(msg))
-          {
-            return pEventMessageHandlerComponent->GetHandle();
-          }
-        }
-      }
-    }
-
-    return ezComponentHandle();
-  }
-
   void EventMessageSenderHelper::SendMessage(ezComponent* pSenderComponent, ezComponentHandle hReceiver, ezEventMessage& msg)
   {
     ezWorld* pWorld = pSenderComponent->GetWorld();

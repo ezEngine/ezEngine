@@ -1,6 +1,7 @@
 #include <CorePCH.h>
 
 #include <Core/Messages/DeleteObjectMessage.h>
+#include <Core/Messages/EventMessage.h>
 #include <Core/Messages/HierarchyChangedMessages.h>
 #include <Core/World/World.h>
 #include <Core/World/WorldModule.h>
@@ -306,6 +307,52 @@ void ezWorld::PostMessage(const ezComponentHandle& receiverComponent, const ezMe
     ezMessage* pMsgCopy = pMsgRTTIAllocator->Clone<ezMessage>(&msg, m_Data.m_StackAllocator.GetCurrentAllocator());
     m_Data.m_MessageQueues[queueType].Enqueue(pMsgCopy, metaData);
   }
+}
+
+const ezEventMessageHandlerComponent* ezWorld::FindEventMsgHandler(ezEventMessage& msg, const ezGameObject* pSearchObject) const
+{
+  ezWorld* pWorld = const_cast<ezWorld*>(this);
+
+  // walk the graph upwards until an object is found with an ezEventMessageHandlerComponent that handles this type of message
+  {
+    const ezGameObject* pCurrentObject = pSearchObject;
+
+    while (pCurrentObject != nullptr)
+    {
+      const ezEventMessageHandlerComponent* pEventMessageHandlerComponent = nullptr;
+      if (pCurrentObject->TryGetComponentOfBaseType(pEventMessageHandlerComponent))
+      {
+        if (pEventMessageHandlerComponent->HandlesEventMessage(msg))
+        {
+          return pEventMessageHandlerComponent;
+        }
+
+        // found an ezEventMessageHandlerComponent -> stop searching
+        // even if it does not handle this type of message, we do not want to propagate the message to someone else
+        return nullptr;
+      }
+
+      pCurrentObject = pCurrentObject->GetParent();
+    }
+  }
+
+  // if no such object is found, check all objects that are registered as 'global event handlers'
+  {
+    auto globalEventMessageHandler = ezEventMessageHandlerComponent::GetAllGlobalEventHandler(this);
+    for (auto hEventMessageHandlerComponent : globalEventMessageHandler)
+    {
+      ezEventMessageHandlerComponent* pEventMessageHandlerComponent = nullptr;
+      if (pWorld->TryGetComponent(hEventMessageHandlerComponent, pEventMessageHandlerComponent))
+      {
+        if (pEventMessageHandlerComponent->HandlesEventMessage(msg))
+        {
+          return pEventMessageHandlerComponent;
+        }
+      }
+    }
+  }
+
+  return nullptr;
 }
 
 void ezWorld::Update()
