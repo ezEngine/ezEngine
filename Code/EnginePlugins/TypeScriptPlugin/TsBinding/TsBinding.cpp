@@ -4,6 +4,7 @@
 #include <Core/World/World.h>
 #include <Duktape/duktape.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Reflection/ReflectionUtils.h>
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
 
 static ezHashTable<duk_context*, ezTypeScriptBinding*> s_DukToBinding;
