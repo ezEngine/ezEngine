@@ -88,6 +88,10 @@ private:
       {
         m_hCachedReceiver = pReceiver->GetHandle();
       }
+      else
+      {
+        m_hCachedReceiver.Invalidate();
+      }
     }
   }
 

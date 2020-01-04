@@ -350,16 +350,16 @@ public:
 
 
   /// \brief Sends a message to all components of this object.
-  EZ_ALWAYS_INLINE bool SendMessage(ezMessage& msg) { return SendMessageInternal(msg, false); }
+  bool SendMessage(ezMessage& msg);
 
   /// \brief Sends a message to all components of this object.
-  EZ_ALWAYS_INLINE bool SendMessage(ezMessage& msg) const { return SendMessageInternal(msg, false); }
+  bool SendMessage(ezMessage& msg) const;
 
   /// \brief Sends a message to all components of this object and then recursively to all children.
-  EZ_ALWAYS_INLINE bool SendMessageRecursive(ezMessage& msg) { return SendMessageRecursiveInternal(msg, false); }
+  bool SendMessageRecursive(ezMessage& msg);
 
   /// \brief Sends a message to all components of this object and then recursively to all children.
-  EZ_ALWAYS_INLINE bool SendMessageRecursive(ezMessage& msg) const { return SendMessageRecursiveInternal(msg, false); }
+  bool SendMessageRecursive(ezMessage& msg) const;
 
 
   /// \brief Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
