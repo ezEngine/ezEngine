@@ -79,21 +79,13 @@ void ezTypeScriptBinding::GenerateAllComponentsCode(ezStringBuilder& out_Code)
   ezDynamicArray<const ezRTTI*> sorted;
   sorted.Reserve(100);
 
-  ezMap<ezString, const ezRTTI*> alphabetical;
-  for (auto pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
+  ezHybridArray<const ezRTTI*, 64> alphabetical;
+  for (auto pRtti : ezRTTI::GetAllTypesDerivedFrom(ezGetStaticRTTI<ezComponent>(), alphabetical, true))
   {
-    if (!pRtti->IsDerivedFrom<ezComponent>())
-      continue;
-
     if (pRtti == ezGetStaticRTTI<ezComponent>() || pRtti == ezGetStaticRTTI<ezTypeScriptComponent>())
       continue;
 
-    alphabetical[pRtti->GetTypeName()] = pRtti;
-  }
-
-  for (auto pair : alphabetical)
-  {
-    CreateComponentTypeList(found, sorted, pair.Value());
+    CreateComponentTypeList(found, sorted, pRtti);
   }
 
   for (auto pRtti : sorted)
@@ -168,7 +160,8 @@ void ezTypeScriptBinding::InjectComponentImportExport(const char* szFile, const 
   ezDynamicArray<const ezRTTI*> sorted;
   sorted.Reserve(100);
 
-  for (auto pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
+  ezHybridArray<const ezRTTI*, 64> alphabetical;
+  for (auto pRtti : ezRTTI::GetAllTypesDerivedFrom(ezGetStaticRTTI<ezComponent>(), alphabetical, true))
   {
     CreateComponentTypeList(found, sorted, pRtti);
   }

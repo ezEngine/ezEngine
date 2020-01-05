@@ -86,21 +86,13 @@ void ezTypeScriptBinding::GenerateAllMessagesCode(ezStringBuilder& out_Code)
   ezDynamicArray<const ezRTTI*> sorted;
   sorted.Reserve(100);
 
-  ezMap<ezString, const ezRTTI*> alphabetical;
-  for (auto pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
+  ezHybridArray<const ezRTTI*, 64> alphabetical;
+  for (auto pRtti : ezRTTI::GetAllTypesDerivedFrom(ezGetStaticRTTI<ezMessage>(), alphabetical, true))
   {
-    if (!pRtti->IsDerivedFrom<ezMessage>())
-      continue;
-
     if (pRtti == ezGetStaticRTTI<ezMessage>() || pRtti == ezGetStaticRTTI<ezEventMessage>())
       continue;
 
-    alphabetical[pRtti->GetTypeName()] = pRtti;
-  }
-
-  for (auto pair : alphabetical)
-  {
-    CreateMessageTypeList(found, sorted, pair.Value());
+    CreateMessageTypeList(found, sorted, pRtti);
   }
 
   for (auto pRtti : sorted)
@@ -164,7 +156,8 @@ void ezTypeScriptBinding::InjectMessageImportExport(const char* szFile, const ch
   ezDynamicArray<const ezRTTI*> sorted;
   sorted.Reserve(100);
 
-  for (auto pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
+  ezHybridArray<const ezRTTI*, 64> alphabetical;
+  for (auto pRtti : ezRTTI::GetAllTypesDerivedFrom(ezGetStaticRTTI<ezMessage>(), alphabetical, true))
   {
     CreateMessageTypeList(found, sorted, pRtti);
   }
