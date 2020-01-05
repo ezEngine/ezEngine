@@ -16,34 +16,46 @@ function TestFailed(msg: string) {
 export function BOOL(condition: boolean) {
 
     if (!condition) {
-        TestFailed("");
+        TestFailed("BOOL condition is false");
     }
 }
 
-export function FLOAT(f1: number, f2: number, epsilon: number) {
+export function FLOAT(f1: number, f2: number, epsilon: number = 0.001) {
 
     if (!ez.Utils.IsNumberEqual(f1, f2, epsilon)) {
         TestFailed(f1 + " does not equal " + f2);
     }
 }
 
-export function VEC2(v1: ez.Vec2, v2: ez.Vec2, epsilon: number) {
+export function VEC2(v1: ez.Vec2, v2: ez.Vec2, epsilon: number = 0.001) {
 
     if (!v1.IsEqual(v2, epsilon)) {
         TestFailed("(" + v1.x + ", " + v1.y + ") does not equal (" + v2.x + ", " + v2.y + ")");
     }
 }
 
-export function VEC3(v1: ez.Vec3, v2: ez.Vec3, epsilon: number) {
+export function VEC3(v1: ez.Vec3, v2: ez.Vec3, epsilon: number = 0.001) {
 
     if (!v1.IsEqual(v2, epsilon)) {
         TestFailed("(" + v1.x + ", " + v1.y + ", " + v1.z + ") does not equal (" + v2.x + ", " + v2.y + ", " + v2.z + ")");
     }
 }
 
-export function QUAT(q1: ez.Quat, q2: ez.Quat, epsilon: number) {
+export function QUAT(q1: ez.Quat, q2: ez.Quat, epsilon: number = 0.001) {
 
     if (!q1.IsEqualRotation(q2, epsilon)) {
         TestFailed("(" + q1.x + ", " + q1.y + ", " + q1.z + ", " + q1.w + ") does not equal (" + q2.x + ", " + q2.y + ", " + q2.z + ", " + q2.w + ")");
     }
+}
+
+export function ARRAY(N: number, v1: number[], v2: number[], epsilon: number = 0.001): void {
+
+    for (let i = 0; i < N; ++i) {
+
+        if (!ez.Utils.IsNumberEqual(v1[i], v2[i], epsilon)) {
+
+            TestFailed(v1[i] + " does not equal " + v2[i]);
+        }
+    }
+
 }

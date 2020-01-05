@@ -17,7 +17,7 @@ export class Mat3 {
      * By default the constructor will initialize the matrix to identity.
      */
     constructor(c1r1: number = 1, c2r1: number = 0, c3r1: number = 0, c1r2: number = 0, c2r2: number = 1, c3r2: number = 0, c1r3: number = 0, c2r3: number = 0, c3r3: number = 1) {
-        this.SetElements(c1r1, c2r1, c3r1, c1r2, c2r2, c1r3, c1r3, c2r3, c3r3);
+        this.SetElements(c1r1, c2r1, c3r1, c1r2, c2r2, c3r2, c1r3, c2r3, c3r3);
     }
 
     /**
