@@ -23,6 +23,10 @@ public:
   {
     Vec2,
     Vec3,
+    Quat,
+    Mat3,
+    Mat4,
+    Transform,
   };
 
 private:

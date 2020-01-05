@@ -25,11 +25,20 @@ void ezGameEngineTestTypeScript::SetupSubTests()
 {
   AddSubTest("Vec2", SubTests::Vec2);
   AddSubTest("Vec3", SubTests::Vec3);
+  AddSubTest("Quat", SubTests::Quat);
+  AddSubTest("Mat3", SubTests::Mat3);
+  AddSubTest("Mat4", SubTests::Mat4);
+  AddSubTest("Transform", SubTests::Transform);
 }
 
 ezResult ezGameEngineTestTypeScript::InitializeSubTest(ezInt32 iIdentifier)
 {
-  if (iIdentifier == SubTests::Vec2 || iIdentifier == SubTests::Vec3)
+  if (iIdentifier == SubTests::Vec2 ||
+      iIdentifier == SubTests::Vec3 ||
+      iIdentifier == SubTests::Quat ||
+      iIdentifier == SubTests::Mat3 ||
+      iIdentifier == SubTests::Mat4 ||
+      iIdentifier == SubTests::Transform)
   {
     m_pOwnApplication->SubTestBasicsSetup();
     return EZ_SUCCESS;
@@ -44,6 +53,18 @@ ezTestAppRun ezGameEngineTestTypeScript::RunSubTest(ezInt32 iIdentifier, ezUInt3
     return m_pOwnApplication->SubTestBasisExec(iIdentifier);
 
   if (iIdentifier == SubTests::Vec3)
+    return m_pOwnApplication->SubTestBasisExec(iIdentifier);
+
+  if (iIdentifier == SubTests::Quat)
+    return m_pOwnApplication->SubTestBasisExec(iIdentifier);
+
+  if (iIdentifier == SubTests::Mat3)
+    return m_pOwnApplication->SubTestBasisExec(iIdentifier);
+
+  if (iIdentifier == SubTests::Mat4)
+    return m_pOwnApplication->SubTestBasisExec(iIdentifier);
+
+  if (iIdentifier == SubTests::Transform)
     return m_pOwnApplication->SubTestBasisExec(iIdentifier);
 
   EZ_ASSERT_NOT_IMPLEMENTED;
@@ -113,6 +134,46 @@ ezTestAppRun ezGameEngineTestApplication_TypeScript::SubTestBasisExec(ezInt32 iI
     {
       ezMsgGenericEvent msg;
       msg.m_sMessage = "TestVec3";
+      pTests->SendMessageRecursive(msg);
+
+      EZ_TEST_STRING(msg.m_sMessage, "done");
+      break;
+    }
+
+    case ezGameEngineTestTypeScript::SubTests::Quat:
+    {
+      ezMsgGenericEvent msg;
+      msg.m_sMessage = "TestQuat";
+      pTests->SendMessageRecursive(msg);
+
+      EZ_TEST_STRING(msg.m_sMessage, "done");
+      break;
+    }
+
+    case ezGameEngineTestTypeScript::SubTests::Mat3:
+    {
+      ezMsgGenericEvent msg;
+      msg.m_sMessage = "TestMat3";
+      pTests->SendMessageRecursive(msg);
+
+      EZ_TEST_STRING(msg.m_sMessage, "done");
+      break;
+    }
+
+    case ezGameEngineTestTypeScript::SubTests::Mat4:
+    {
+      ezMsgGenericEvent msg;
+      msg.m_sMessage = "TestMat4";
+      pTests->SendMessageRecursive(msg);
+
+      EZ_TEST_STRING(msg.m_sMessage, "done");
+      break;
+    }
+
+    case ezGameEngineTestTypeScript::SubTests::Transform:
+    {
+      ezMsgGenericEvent msg;
+      msg.m_sMessage = "TestTransform";
       pTests->SendMessageRecursive(msg);
 
       EZ_TEST_STRING(msg.m_sMessage, "done");
