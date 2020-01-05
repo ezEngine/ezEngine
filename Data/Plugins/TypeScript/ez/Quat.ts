@@ -25,7 +25,7 @@ export class Quat {
     /**
      * By default the constructor initializes the quaternion to identity. It is very rare to set the quaternion values to anything different manually.
      */
-    constructor(_x: number = 0.0, _y: number = 0.0, _z: number = 0.0, _w: number = 1.0) {
+    constructor(_x: number = 0.0, _y: number = 0.0, _z: number = 0.0, _w: number = 1.0) { // [tested]
         this.x = _x;
         this.y = _y;
         this.z = _z;
@@ -35,14 +35,14 @@ export class Quat {
     /**
      * Returns a duplicate of this quaternion.
      */
-    Clone(): Quat {
+    Clone(): Quat { // [tested]
         return new Quat(this.x, this.y, this.z, this.w);
     }
 
     /**
      * Returns a 3x3 rotation matrix that represents the same rotation as the quaternion.
      */
-    GetAsMat3(): Mat3 {
+    GetAsMat3(): Mat3 { // [tested]
         let m = new Mat3();
 
         const fTx = this.x + this.x;
@@ -74,7 +74,7 @@ export class Quat {
     /**
      * Returns a 4x4 rotation matrix that represents the same rotation as the quaternion.
      */
-    GetAsMat4(): Mat4 {
+    GetAsMat4(): Mat4 { // [tested]
         let m = new Mat4();
 
         const fTx = this.x + this.x;
@@ -106,7 +106,7 @@ export class Quat {
     /**
      * Extracts the rotation stored in the 3x3 matrix and initializes this quaternion with it.
      */
-    SetFromMat3(m: Mat3): void {
+    SetFromMat3(m: Mat3): void {  // [tested]
         const trace = m.GetElement(0, 0) + m.GetElement(1, 1) + m.GetElement(2, 2);
         const half = 0.5;
 
@@ -153,7 +153,7 @@ export class Quat {
     /**
      * Copies the values from rhs into this.
      */
-    SetQuat(rhs: Quat): void {
+    SetQuat(rhs: Quat): void { // [tested]
         this.x = rhs.x;
         this.y = rhs.y;
         this.z = rhs.z;
@@ -163,7 +163,7 @@ export class Quat {
     /**
      * Sets this to be identity, ie. a zero rotation quaternion.
      */
-    SetIdentity(): void {
+    SetIdentity(): void { // [tested]
         this.x = 0;
         this.y = 0;
         this.z = 0;
@@ -173,14 +173,14 @@ export class Quat {
     /**
      * Returns an identity quaternion.
      */
-    static IdentityQuaternion(): Quat {
+    static IdentityQuaternion(): Quat { // [tested]
         return new Quat();
     }
 
     /**
      * Normalizes the quaternion. All quaternions must be normalized to work correctly.
      */
-    Normalize(): void {
+    Normalize(): void { // [tested]
         let n = this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w;
 
         n = 1.0 / Math.sqrt(n);
@@ -194,7 +194,7 @@ export class Quat {
     /**
      * Negates the quaternion. Afterwards it will rotate objects in the opposite direction.
      */
-    Negate(): void {
+    Negate(): void { // [tested]
         this.x = -this.x;
         this.y = -this.y;
         this.z = -this.z;
@@ -203,14 +203,14 @@ export class Quat {
     /**
      * Returns a negated quaternion, which rotates objects in the opposite direction.
      */
-    GetNegated(): Quat {
+    GetNegated(): Quat { // [tested]
         return new Quat(-this.x, -this.y, -this.z, this.w);
     }
 
     /**
      * Creates the quaternion from a normalized axis and an angle (in radians).
      */
-    SetFromAxisAndAngle(rotationAxis: Vec3, angleInRadians: number) {
+    SetFromAxisAndAngle(rotationAxis: Vec3, angleInRadians: number) { // [tested]
         const halfAngle = angleInRadians * 0.5;
 
         let sinHalfAngle = Math.sin(halfAngle);
@@ -227,7 +227,7 @@ export class Quat {
      * @param dirFrom A normalized source direction.
      * @param dirTo A normalized target direction.
      */
-    SetShortestRotation(dirFrom: Vec3, dirTo: Vec3): void {
+    SetShortestRotation(dirFrom: Vec3, dirTo: Vec3): void { // [tested]
         const v0 = dirFrom.GetNormalized();
         const v1 = dirTo.GetNormalized();
 
@@ -270,7 +270,7 @@ export class Quat {
      * @param to   The quaternion to interpolate to.
      * @param lerpFactor The interpolation value in range [0; 1]. Ie with 0.5 this will be half-way between 'from' and 'to'.
      */
-    SetSlerp(from: Quat, to: Quat, lerpFactor: number): void {
+    SetSlerp(from: Quat, to: Quat, lerpFactor: number): void { // [tested]
         const qdelta = 0.009;
 
         let cosTheta = (from.x * to.x + from.y * to.y + from.z * to.z + from.w * to.w);
@@ -322,7 +322,7 @@ export class Quat {
     /**
      * Returns two values, a Vec3 that represents the axis through which this quaternion rotates, and a number that is the angle of rotation in radians.
      */
-    GetRotationAxisAndAngle() {
+    GetRotationAxisAndAngle(): { axis: Vec3, angleInRadian: number } { // [tested]
         const acos = Math.acos(this.w);
         const d = Math.sin(acos);
 
@@ -342,13 +342,13 @@ export class Quat {
 
         angleInRadian = acos * 2.0;
 
-        return { axis, angleInRadian };
+        return { axis: axis, angleInRadian: angleInRadian };
     }
 
     /**
      * Checks whether this and 'other' are approximately the equal rotation.
      */
-    IsEqualRotation(other: Quat, epsilon: number): boolean {
+    IsEqualRotation(other: Quat, epsilon: number): boolean { // [tested]
         const res1 = this.GetRotationAxisAndAngle();
         const res2 = other.GetRotationAxisAndAngle();
 
@@ -366,7 +366,7 @@ export class Quat {
     /**
      * Returns three values in Euler angles (in radians): yaw, pitch and roll
      */
-    GetAsEulerAngles() {
+    GetAsEulerAngles(): { yaw: number, pitch: number, roll: number } { // [tested]
         let yaw: number;
         let pitch: number;
         let roll: number;
@@ -394,7 +394,7 @@ export class Quat {
     /**
      * Sets this from three Euler angles (in radians)
      */
-    SetFromEulerAngles(radianX: number, radianY: number, radianZ: number): void {
+    SetFromEulerAngles(radianX: number, radianY: number, radianZ: number): void { // [tested]
         const yaw = radianZ;
         const pitch = radianY;
         const roll = radianX;
@@ -414,7 +414,7 @@ export class Quat {
     /**
      * Applies the quaternion's rotation to 'vector' in place.
      */
-    RotateVec3(vector: Vec3): void {
+    RotateVec3(vector: Vec3): void { // [tested]
         // t = cross(this, vector) * 2
         const tx = (this.y * vector.z - this.z * vector.y) * 2.0;
         const ty = (this.z * vector.x - this.x * vector.z) * 2.0;
@@ -433,7 +433,7 @@ export class Quat {
     /**
      * Applies the quaternion's inverse rotation to 'vector' in place.
      */
-    InvRotateVec3(vector: Vec3): void {
+    InvRotateVec3(vector: Vec3): void { // [tested]
         // t = cross(this, vector) * 2
         const tx = (-this.y * vector.z + this.z * vector.y) * 2.0;
         const ty = (-this.z * vector.x + this.x * vector.z) * 2.0;
@@ -444,17 +444,16 @@ export class Quat {
         const t2y = -this.z * tx + this.x * tz;
         const t2z = -this.x * ty + this.y * tx;
 
-        vector.x += (tx * -this.w) + t2x;
-        vector.y += (ty * -this.w) + t2y;
-        vector.z += (tz * -this.w) + t2z;
+        vector.x += (tx * this.w) + t2x;
+        vector.y += (ty * this.w) + t2y;
+        vector.z += (tz * this.w) + t2z;
     }
-
 
     /**
     * Concatenates the rotations of 'this' and 'rhs' and writes the result into 'this': 
     *   this = this * rhs
     */
-    ConcatenateRotations(rhs: Quat): void {
+    ConcatenateRotations(rhs: Quat): void { // [tested]
         let q: Quat = new Quat;
 
         q.w = this.w * rhs.w - (this.x * rhs.x + this.y * rhs.y + this.z * rhs.z);
@@ -486,7 +485,7 @@ export class Quat {
      * Sets 'this' with the concatenated rotation or lhs and rhs:
      *   this = lhs * rhs
      */
-    SetConcatenatedRotations(lhs: Quat, rhs: Quat): void {
+    SetConcatenatedRotations(lhs: Quat, rhs: Quat): void { // [tested]
         this.SetQuat(lhs);
         this.ConcatenateRotations(rhs);
     }
@@ -494,7 +493,7 @@ export class Quat {
     /**
      * Checks whether this and rhs are fully identical.
      */
-    IsIdentical(rhs: Quat): boolean {
+    IsIdentical(rhs: Quat): boolean { // [tested]
         return this.x == rhs.x &&
             this.y == rhs.y &&
             this.z == rhs.z &&

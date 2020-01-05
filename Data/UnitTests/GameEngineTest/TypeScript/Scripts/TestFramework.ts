@@ -40,3 +40,10 @@ export function VEC3(v1: ez.Vec3, v2: ez.Vec3, epsilon: number) {
         TestFailed("(" + v1.x + ", " + v1.y + ", " + v1.z + ") does not equal (" + v2.x + ", " + v2.y + ", " + v2.z + ")");
     }
 }
+
+export function QUAT(q1: ez.Quat, q2: ez.Quat, epsilon: number) {
+
+    if (!q1.IsEqualRotation(q2, epsilon)) {
+        TestFailed("(" + q1.x + ", " + q1.y + ", " + q1.z + ", " + q1.w + ") does not equal (" + q2.x + ", " + q2.y + ", " + q2.z + ", " + q2.w + ")");
+    }
+}
