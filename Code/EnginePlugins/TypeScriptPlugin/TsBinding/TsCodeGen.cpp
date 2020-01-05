@@ -59,8 +59,7 @@ void ezTypeScriptBinding::AppendToTextFile(const char* szFile, ezStringView text
 
 void ezTypeScriptBinding::GenerateEnumsFile(const char* szFile, const ezSet<const ezRTTI*>& items)
 {
-  ezStringBuilder sFileContent = "// AUTO-GENERATED FILE\n\n";
-
+  ezArrayMap<ezString, const ezRTTI*> sortedItems;
   ezStringBuilder sType, sName;
 
   for (const ezRTTI* pRtti : items)
@@ -71,7 +70,18 @@ void ezTypeScriptBinding::GenerateEnumsFile(const char* szFile, const ezSet<cons
     sName = pRtti->GetTypeName();
     sName.TrimWordStart("ez");
 
-    sType.Format("export enum {0} { ", sName);
+    sortedItems.Insert(sName, pRtti);
+  }
+
+  sortedItems.Sort();
+
+  ezStringBuilder sFileContent = "// AUTO-GENERATED FILE\n\n";
+
+  for (ezUInt32 i = 0; i < sortedItems.GetCount(); ++i)
+  {
+    const ezRTTI* pRtti = sortedItems.GetValue(i);
+
+    sType.Format("export enum {0} { ", sortedItems.GetKey(i));
 
     for (auto pProp : pRtti->GetProperties().GetSubArray(1))
     {

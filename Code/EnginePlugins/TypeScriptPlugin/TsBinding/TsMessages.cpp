@@ -86,9 +86,21 @@ void ezTypeScriptBinding::GenerateAllMessagesCode(ezStringBuilder& out_Code)
   ezDynamicArray<const ezRTTI*> sorted;
   sorted.Reserve(100);
 
+  ezMap<ezString, const ezRTTI*> alphabetical;
   for (auto pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
   {
-    CreateMessageTypeList(found, sorted, pRtti);
+    if (!pRtti->IsDerivedFrom<ezMessage>())
+      continue;
+
+    if (pRtti == ezGetStaticRTTI<ezMessage>() || pRtti == ezGetStaticRTTI<ezEventMessage>())
+      continue;
+
+    alphabetical[pRtti->GetTypeName()] = pRtti;
+  }
+
+  for (auto pair : alphabetical)
+  {
+    CreateMessageTypeList(found, sorted, pair.Value());
   }
 
   for (auto pRtti : sorted)

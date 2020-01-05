@@ -195,6 +195,10 @@ export import MsgTypeScriptMsgProxy = __AllMessages.MsgTypeScriptMsgProxy;
 import __AllEnums = require("./ez/AllEnums")
 export import ProcGenBlendMode = __AllEnums.ProcGenBlendMode;
 export import PxSteppingMode = __AllEnums.PxSteppingMode;
+export import CameraMode = __AllEnums.CameraMode;
+export import TriggerState = __AllEnums.TriggerState;
+export import OnComponentFinishedAction = __AllEnums.OnComponentFinishedAction;
+export import OnComponentFinishedAction2 = __AllEnums.OnComponentFinishedAction2;
 export import SpriteBlendMode = __AllEnums.SpriteBlendMode;
 export import SetColorMode = __AllEnums.SetColorMode;
 export import CameraUsageHint = __AllEnums.CameraUsageHint;
@@ -204,10 +208,6 @@ export import InputMessageGranularity = __AllEnums.InputMessageGranularity;
 export import VRDeviceType = __AllEnums.VRDeviceType;
 export import VRStageSpace = __AllEnums.VRStageSpace;
 export import VRTransformSpace = __AllEnums.VRTransformSpace;
-export import CameraMode = __AllEnums.CameraMode;
-export import TriggerState = __AllEnums.TriggerState;
-export import OnComponentFinishedAction = __AllEnums.OnComponentFinishedAction;
-export import OnComponentFinishedAction2 = __AllEnums.OnComponentFinishedAction2;
 export import BasisAxis = __AllEnums.BasisAxis;
 
 
