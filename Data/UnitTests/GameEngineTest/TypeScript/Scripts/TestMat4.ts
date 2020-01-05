@@ -844,7 +844,6 @@ export class TestMat4 extends ez.TypescriptComponent {
 
             EZ_TEST.BOOL(!m.IsIdentical(m2));
         }
-
     }
 
     OnMsgGenericEvent(msg: ez.MsgGenericEvent): void {
