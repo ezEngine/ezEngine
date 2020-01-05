@@ -2,17 +2,7 @@ HeaderV2
 {
 o
 {
-	Uuid %id{u4{5628163037984667519,4006716139725530680}}
-	s %t{"ezExposedParameters"}
-	u3 %v{3}
-	p
-	{
-		VarArray %Parameters{}
-	}
-}
-o
-{
-	Uuid %id{u4{13280443126658027176,5109286769956916855}}
+	Uuid %id{u4{6638121751111250359,5384234099271094839}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
 	s %n{"Header"}
@@ -21,16 +11,26 @@ o
 		s %AssetType{"TypeScript"}
 		VarArray %Dependencies
 		{
-			s{"Scripts/TestBasics.ts"}
+			s{"Scripts/TestVec3.ts"}
 		}
-		Uuid %DocumentID{u4{13280443126658027176,5109286769956916855}}
-		u4 %Hash{6032086042638970394}
+		Uuid %DocumentID{u4{6638121751111250359,5384234099271094839}}
+		u4 %Hash{13756636719981848420}
 		VarArray %MetaInfo
 		{
-			Uuid{u4{5628163037984667519,4006716139725530680}}
+			Uuid{u4{1564115045575450045,8418145298507498010}}
 		}
 		VarArray %Outputs{}
 		VarArray %References{}
+	}
+}
+o
+{
+	Uuid %id{u4{1564115045575450045,8418145298507498010}}
+	s %t{"ezExposedParameters"}
+	u3 %v{3}
+	p
+	{
+		VarArray %Parameters{}
 	}
 }
 }
@@ -38,7 +38,7 @@ Objects
 {
 o
 {
-	Uuid %id{u4{14099050262822367657,4670978951700016299}}
+	Uuid %id{u4{8024154650680924850,4968326994278786334}}
 	s %t{"ezTypeScriptAssetProperties"}
 	u3 %v{1}
 	p
@@ -46,7 +46,7 @@ o
 		VarArray %BoolParameters{}
 		VarArray %ColorParameters{}
 		VarArray %NumberParameters{}
-		s %ScriptFile{"Scripts/TestBasics.ts"}
+		s %ScriptFile{"Scripts/TestVec3.ts"}
 		VarArray %StringParameters{}
 		VarArray %Vec3Parameters{}
 	}
@@ -61,7 +61,7 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{14099050262822367657,4670978951700016299}}
+			Uuid{u4{8024154650680924850,4968326994278786334}}
 		}
 	}
 }

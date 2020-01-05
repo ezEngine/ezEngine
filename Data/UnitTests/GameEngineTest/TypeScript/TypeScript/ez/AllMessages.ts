@@ -178,7 +178,7 @@ export class MsgBuildStaticMesh extends Message
   constructor() { super(); this.TypeNameHash = 3694682949; }
 }
 
-export class MsgDamage extends Message
+export class MsgDamage extends EventMessage
 {
   public static GetTypeNameHash(): number { return 3889610425; }
   constructor() { super(); this.TypeNameHash = 3889610425; }
