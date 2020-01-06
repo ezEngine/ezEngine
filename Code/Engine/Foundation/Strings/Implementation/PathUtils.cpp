@@ -276,5 +276,16 @@ ezResult ezPathUtils::MakeValidFilename(const char* szFilename, ezUInt32 replace
   return EZ_SUCCESS;
 }
 
+bool ezPathUtils::IsSubPath(const ezStringView& sPrefixPath, const ezStringView& sFullPath)
+{
+  /// \test this is new
+
+  ezStringBuilder tmp = sPrefixPath;
+  tmp.MakeCleanPath();
+  tmp.AppendPath("");
+
+  return sFullPath.StartsWith_NoCase(tmp);
+}
+
 EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_PathUtils);
 

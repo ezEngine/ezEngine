@@ -82,13 +82,16 @@ public:
   /// \brief Special case of GetRootedPathParts that returns the root of the input path and discards the relative path
   static ezStringView GetRootedPathRootName(const char* szPath); // [tested]
 
-  /// \brief Creates a valid filename (not path!) using the given string by replacing all unallowed characters.
+  /// \brief Creates a valid filename (not path!) using the given string by replacing all disallowed characters.
   ///
   /// Note that path separators in the given string will be replaced as well!
   /// Asserts that replacementCharacter is not allowed itself.
   /// Fails for empty strings.
   /// \see IsValidFilenameChar()
   static ezResult MakeValidFilename(const char* szFilename, ezUInt32 replacementCharacter, ezStringBuilder& outFilename);
+  
+  /// \brief Checks whether \a sFullPath starts with \a sPrefixPath.
+  static bool IsSubPath(const ezStringView& sPrefixPath, const ezStringView& sFullPath);
 };
 
 #include <Foundation/Strings/Implementation/PathUtils_inl.h>
