@@ -1,6 +1,7 @@
 #include <CorePCH.h>
 
 #include <Core/Messages/DeleteObjectMessage.h>
+#include <Core/Messages/EventMessage.h>
 #include <Core/Messages/HierarchyChangedMessages.h>
 #include <Core/World/World.h>
 #include <Core/World/WorldModule.h>
@@ -111,6 +112,10 @@ void ezWorld::Clear()
   {
     DeleteObjectNow(it->GetHandle());
   }
+
+  // make sure all dead objects and components are cleared right now
+  DeleteDeadObjects();
+  DeleteDeadComponents();
 }
 
 void ezWorld::SetCoordinateSystemProvider(const ezSharedPtr<ezCoordinateSystemProvider>& pProvider)
@@ -255,8 +260,7 @@ void ezWorld::DeleteObjectDelayed(const ezGameObjectHandle& hObject)
   PostMessage(hObject, msg, ezObjectMsgQueueType::NextFrame);
 }
 
-void ezWorld::PostMessage(
-  const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay, bool bRecursive) const
+void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay, bool bRecursive) const
 {
   // This method is allowed to be called from multiple threads.
 
@@ -280,8 +284,7 @@ void ezWorld::PostMessage(
   }
 }
 
-void ezWorld::PostMessage(
-  const ezComponentHandle& receiverComponent, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const
+void ezWorld::PostMessage(const ezComponentHandle& receiverComponent, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const
 {
   // This method is allowed to be called from multiple threads.
 
@@ -305,6 +308,52 @@ void ezWorld::PostMessage(
     ezMessage* pMsgCopy = pMsgRTTIAllocator->Clone<ezMessage>(&msg, m_Data.m_StackAllocator.GetCurrentAllocator());
     m_Data.m_MessageQueues[queueType].Enqueue(pMsgCopy, metaData);
   }
+}
+
+const ezEventMessageHandlerComponent* ezWorld::FindEventMsgHandler(ezEventMessage& msg, const ezGameObject* pSearchObject) const
+{
+  ezWorld* pWorld = const_cast<ezWorld*>(this);
+
+  // walk the graph upwards until an object is found with an ezEventMessageHandlerComponent that handles this type of message
+  {
+    const ezGameObject* pCurrentObject = pSearchObject;
+
+    while (pCurrentObject != nullptr)
+    {
+      const ezEventMessageHandlerComponent* pEventMessageHandlerComponent = nullptr;
+      if (pCurrentObject->TryGetComponentOfBaseType(pEventMessageHandlerComponent))
+      {
+        if (pEventMessageHandlerComponent->HandlesEventMessage(msg))
+        {
+          return pEventMessageHandlerComponent;
+        }
+
+        // found an ezEventMessageHandlerComponent -> stop searching
+        // even if it does not handle this type of message, we do not want to propagate the message to someone else
+        return nullptr;
+      }
+
+      pCurrentObject = pCurrentObject->GetParent();
+    }
+  }
+
+  // if no such object is found, check all objects that are registered as 'global event handlers'
+  {
+    auto globalEventMessageHandler = ezEventMessageHandlerComponent::GetAllGlobalEventHandler(this);
+    for (auto hEventMessageHandlerComponent : globalEventMessageHandler)
+    {
+      ezEventMessageHandlerComponent* pEventMessageHandlerComponent = nullptr;
+      if (pWorld->TryGetComponent(hEventMessageHandlerComponent, pEventMessageHandlerComponent))
+      {
+        if (pEventMessageHandlerComponent->HandlesEventMessage(msg))
+        {
+          return pEventMessageHandlerComponent;
+        }
+      }
+    }
+  }
+
+  return nullptr;
 }
 
 void ezWorld::Update()
@@ -622,7 +671,7 @@ void ezWorld::ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::En
     ezComponent* pReceiverComponent = nullptr;
     if (TryGetComponent(hComponent, pReceiverComponent))
     {
-      pReceiverComponent->SendMessage(*entry.m_pMessage);
+      pReceiverComponent->SendMessageInternal(*entry.m_pMessage, true);
     }
     else
     {
@@ -644,11 +693,11 @@ void ezWorld::ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::En
     {
       if (entry.m_MetaData.m_uiRecursive)
       {
-        pReceiverObject->SendMessageRecursive(*entry.m_pMessage);
+        pReceiverObject->SendMessageRecursiveInternal(*entry.m_pMessage, true);
       }
       else
       {
-        pReceiverObject->SendMessage(*entry.m_pMessage);
+        pReceiverObject->SendMessageInternal(*entry.m_pMessage, true);
       }
     }
     else

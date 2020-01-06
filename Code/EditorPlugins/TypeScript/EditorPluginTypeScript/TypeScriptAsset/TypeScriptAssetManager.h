@@ -22,6 +22,7 @@ public:
 
   ezTypeScriptTranspiler& GetTranspiler() { return m_Transpiler; }
 
+  void SetupProjectForTypeScript(bool bForce);
   ezResult GenerateScriptCompendium(ezBitflags<ezTransformFlags> transformFlags);
 
 private:
@@ -42,9 +43,8 @@ private:
   void ShutdownTranspiler();
 
   bool m_bTranspilerLoaded = false;
+  bool m_bProjectSetUp = false;
   ezTypeScriptTranspiler m_Transpiler;
-
-  void SetupProjectForTypeScript();
 
   ezDocumentTypeDescriptor m_AssetDesc;
 

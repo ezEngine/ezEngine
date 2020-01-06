@@ -532,6 +532,27 @@ EZ_ALWAYS_INLINE const ezTagSet& ezGameObject::GetTags() const
   return m_Tags;
 }
 
+EZ_ALWAYS_INLINE bool ezGameObject::SendMessage(ezMessage& msg)
+{
+  return SendMessageInternal(msg, false);
+}
+
+EZ_ALWAYS_INLINE bool ezGameObject::SendMessage(ezMessage& msg) const
+{
+  return SendMessageInternal(msg, false);
+}
+
+EZ_ALWAYS_INLINE bool ezGameObject::SendMessageRecursive(ezMessage& msg)
+{
+  return SendMessageRecursiveInternal(msg, false);
+}
+
+EZ_ALWAYS_INLINE bool ezGameObject::SendMessageRecursive(ezMessage& msg) const
+{
+  return SendMessageRecursiveInternal(msg, false);
+}
+
+
 //////////////////////////////////////////////////////////////////////////
 
 EZ_ALWAYS_INLINE void ezGameObject::TransformationData::UpdateGlobalTransform()

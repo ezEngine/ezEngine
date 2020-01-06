@@ -1,5 +1,5 @@
-/** Helper functions for working with angles.
- * 
+/**
+ * Helper functions for working with angles.
  */
 export class Angle {
 

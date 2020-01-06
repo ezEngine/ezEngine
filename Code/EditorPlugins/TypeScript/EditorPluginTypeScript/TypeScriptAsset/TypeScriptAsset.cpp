@@ -45,6 +45,8 @@ void ezTypeScriptAssetDocument::EditScript()
   if (ezFileSystem::ResolvePath(sTsPath, &sTsFileAbsPath, nullptr).Failed())
     return;
 
+  static_cast<ezTypeScriptAssetDocumentManager*>(GetDocumentManager())->SetupProjectForTypeScript(false);
+
   CreateTsConfigFiles();
 
   {
@@ -77,20 +79,15 @@ void ezTypeScriptAssetDocument::EditScript()
 
 void ezTypeScriptAssetDocument::CreateComponentFile(const char* szFile)
 {
-  ezStringBuilder sScriptFilePath = szFile;
-  sScriptFilePath.ChangeFileNameAndExtension("");
+  ezStringBuilder sScriptFile = szFile;
 
-  ezStringBuilder sRelPathToEzTS = "TypeScript/ez";
-  //sRelPathToEzTS = ":project/TypeScript/ez";
-  //sRelPathToEzTS.MakeRelativeTo(sScriptFilePath);
+  {
+    ezDataDirectoryType* pDataDir = nullptr;
+    if (ezFileSystem::ResolvePath(GetDocumentPath(), nullptr, nullptr, &pDataDir).Failed())
+      return;
 
-  //if (!sRelPathToEzTS.StartsWith("."))
-  //{
-  //  sRelPathToEzTS.Prepend("./");
-  //}
-
-  // code above is not necessary anymore
-  sRelPathToEzTS = "TypeScript/ez";
+    sScriptFile.Prepend(pDataDir->GetRedirectedDataDirectoryPath(), "/");
+  }
 
   const ezStringBuilder sComponentName = ezPathUtils::GetFileName(GetDocumentPath());
 
@@ -105,13 +102,13 @@ void ezTypeScriptAssetDocument::CreateComponentFile(const char* szFile)
     {
       sContent.ReadAll(fileIn);
       sContent.ReplaceAll("NewComponent", sComponentName.GetView());
-      sContent.ReplaceAll("<PATH-TO-EZ-TS>", sRelPathToEzTS.GetView());
+      sContent.ReplaceAll("<PATH-TO-EZ-TS>", "TypeScript/ez");
     }
   }
 
   {
     ezFileWriter file;
-    if (file.Open(szFile).Succeeded())
+    if (file.Open(sScriptFile).Succeeded())
     {
       file.WriteBytes(sContent.GetData(), sContent.GetElementCount());
     }
@@ -366,7 +363,7 @@ void ezTypeScriptAssetDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 
     history->FinishTransaction();
 
-    ezStringBuilder sTsPath(":project/", GetProperties()->m_sScriptFile);
+    const ezString& sTsPath = GetProperties()->m_sScriptFile;
 
     if (!ezFileSystem::ExistsFile(sTsPath))
     {

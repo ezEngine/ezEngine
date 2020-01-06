@@ -92,14 +92,11 @@ public:
 
 
   /// \brief Sends a message to this component.
-  bool SendMessage(ezMessage& msg);
-  bool SendMessage(ezMessage& msg) const;
-
-  /// \brief Queues the message for the given phase and processes it later in that phase.
-  void PostMessage(const ezMessage& msg, ezObjectMsgQueueType::Enum queueType) const;
+  EZ_ALWAYS_INLINE bool SendMessage(ezMessage& msg) { return SendMessageInternal(msg, false); }
+  EZ_ALWAYS_INLINE bool SendMessage(ezMessage& msg) const { return SendMessageInternal(msg, false); }
 
   /// \brief Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
-  void PostMessage(const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const;
+  void PostMessage(const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime::Zero()) const;
 
   /// \brief Stores a custom flag. Index must be between 0 and 7.
   ///
@@ -185,12 +182,12 @@ protected:
   /// \brief When EnableUnhandledMessageHandler() was activated, this is called for all messages for which there is no dedicated message handler.
   ///
   /// \return Should return true if the given message was handled, false otherwise.
-  virtual bool OnUnhandledMessage(ezMessage& msg);
+  virtual bool OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg);
 
   /// \brief When EnableUnhandledMessageHandler() was activated, this is called for all messages for which there is no dedicated message handler.
   ///
   /// \return Should return true if the given message was handled, false otherwise.
-  virtual bool OnUnhandledMessage(ezMessage& msg) const;
+  virtual bool OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg) const;
 
 protected:
   /// Messages will be dispatched to this type. Default is what GetDynamicRTTI() returns, can be redirected if necessary.
@@ -200,6 +197,9 @@ private:
   bool IsInitialized() const;
   bool IsInitializing() const;
   bool IsSimulationStarted() const;
+
+  bool SendMessageInternal(ezMessage& msg, bool bWasPostedMsg);
+  bool SendMessageInternal(ezMessage& msg, bool bWasPostedMsg) const;
 
   ezBitflags<ezObjectFlags> m_ComponentFlags;
 

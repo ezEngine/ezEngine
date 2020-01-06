@@ -135,7 +135,7 @@ void ezGameApplicationBase::Init_FileSystem_ConfigureDataDirs()
     {
       const ezString name = appFileSystemConfig.m_DataDirs[i - 1].m_sRootName;
       if (name.IsEqual_NoCase(":") || name.IsEqual_NoCase("bin") || name.IsEqual_NoCase("shadercache") || name.IsEqual_NoCase("appdata") ||
-          name.IsEqual_NoCase("base") || name.IsEqual_NoCase("project"))
+          name.IsEqual_NoCase("base") || name.IsEqual_NoCase("project") || name.IsEqual_NoCase("plugins"))
       {
         appFileSystemConfig.m_DataDirs.RemoveAtAndCopy(i - 1);
       }

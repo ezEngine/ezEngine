@@ -93,24 +93,24 @@ void ezTypeScriptComponent::DeserializeComponent(ezWorldReader& stream)
   }
 }
 
-bool ezTypeScriptComponent::OnUnhandledMessage(ezMessage& msg)
+bool ezTypeScriptComponent::OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg)
 {
-  return HandleUnhandledMessage(msg);
+  return HandleUnhandledMessage(msg, bWasPostedMsg);
 }
 
-bool ezTypeScriptComponent::OnUnhandledMessage(ezMessage& msg) const
+bool ezTypeScriptComponent::OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg) const
 {
-  return const_cast<ezTypeScriptComponent*>(this)->HandleUnhandledMessage(msg);
+  return const_cast<ezTypeScriptComponent*>(this)->HandleUnhandledMessage(msg, bWasPostedMsg);
 }
 
-bool ezTypeScriptComponent::HandleUnhandledMessage(ezMessage& msg)
+bool ezTypeScriptComponent::HandleUnhandledMessage(ezMessage& msg, bool bWasPostedMsg)
 {
   if (GetUserFlag(UserFlag::ScriptFailure))
     return false;
 
   ezTypeScriptBinding& binding = static_cast<ezTypeScriptComponentManager*>(GetOwningManager())->GetTsBinding();
 
-  return binding.DeliverMessage(m_ComponentTypeInfo, this, msg);
+  return binding.DeliverMessage(m_ComponentTypeInfo, this, msg, bWasPostedMsg == false);
 }
 
 bool ezTypeScriptComponent::HandlesEventMessage(const ezEventMessage& msg) const
@@ -287,8 +287,10 @@ void ezTypeScriptComponent::Update(ezTypeScriptBinding& binding)
 
   const ezTime tNow = GetWorld()->GetClock().GetAccumulatedTime();
 
-  if (m_NextUpdate > tNow)
+  if (m_LastUpdate + m_UpdateInterval > tNow)
     return;
+
+  m_LastUpdate = tNow;
 
   ezDuktapeHelper duk(binding.GetDukTapeContext());
 
@@ -297,8 +299,7 @@ void ezTypeScriptComponent::Update(ezTypeScriptBinding& binding)
   if (duk.PrepareMethodCall("Tick").Succeeded()) // [ comp func comp ]
   {
     duk.CallPreparedMethod(); // [ comp result ]
-    m_NextUpdate = tNow + ezTime::Seconds(duk.GetFloatValue(-1, 0.0f));
-    duk.PopStack(2); // [ ]
+    duk.PopStack(2);          // [ ]
   }
   else
   {

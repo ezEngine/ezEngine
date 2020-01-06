@@ -160,12 +160,18 @@ void ezProjectileComponent::Update()
           if (interaction.m_fDamage > 0.0f)
           {
             // skip the TryGetObject if we already did that above
-            if (pObject != nullptr || GetWorld()->TryGetObject(hitResult.m_hActorObject, pObject))
+            if (pObject != nullptr || GetWorld()->TryGetObject(hitResult.m_hShapeObject, pObject))
             {
               ezMsgDamage msg;
               msg.m_fDamage = interaction.m_fDamage;
 
-              pObject->SendMessage(msg);
+              ezGameObject* pHitShape = nullptr;
+              if (GetWorld()->TryGetObject(hitResult.m_hShapeObject, pHitShape))
+              {
+                msg.m_sHitObjectName = pHitShape->GetName();
+              }
+
+              pObject->SendEventMessage(msg, this);
             }
           }
         }

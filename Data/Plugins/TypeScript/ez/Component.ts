@@ -16,9 +16,10 @@ declare function __CPP_Component_SetActive(component: Component, active: boolean
 declare function __CPP_Component_IsActive(component: Component): boolean;
 declare function __CPP_Component_IsActiveAndInitialized(component: Component): boolean;
 declare function __CPP_Component_IsActiveAndSimulating(component: Component): boolean;
-declare function __CPP_Component_SendMessage(_this: Component, typeNameHash: number, msg: Message): void;
+declare function __CPP_Component_SendMessage(_this: Component, typeNameHash: number, msg: Message, expectMsgResult: boolean): void;
 declare function __CPP_Component_PostMessage(_this: Component, typeNameHash: number, msg: Message, delay: number): void;
 declare function __CPP_TsComponent_BroadcastEvent(_this: TypescriptComponent, typeNameHash: number, msg: EventMessage): void;
+declare function __CPP_TsComponent_SetTickInterval(_this: TypescriptComponent, interval: number): void;
 
 /**
  * Abstract base class for all component classes.
@@ -79,9 +80,14 @@ export abstract class Component {
 
     /**
      * Sends an ez.Message directly to this component.
+     * 
+     * @param expectResultData If set to true, the calling code assumes that the message receiver(s) may write result data
+     *   back into the message and thus the caller is interested in reading that data afterwards. If set to false
+     *   (the default) the state of the message is not synchronized back into the TypeScript message after the message
+     *   has been delivered and thus any data written into the message by the receiver, is lost.
      */
-    SendMessage(msg: Message): void {
-        __CPP_Component_SendMessage(this, msg.TypeNameHash, msg);
+    SendMessage(msg: Message, expectResultData: boolean = false): void {
+        __CPP_Component_SendMessage(this, msg.TypeNameHash, msg, expectResultData);
     }
 
     /**
@@ -160,10 +166,16 @@ export abstract class TickedTypescriptComponent extends TypescriptComponent {
     /**
      * Abstract 'Tick()' function that gets called once per frame.
      * Custom component logic that requires regularly checking of conditions should be implemented here.
-     * 
-     * @returns A time delta in which to call 'Tick()' again. Returning 0.0 means 'Tick()' will be called
-     * again in the very next frame. Any higher value may result in 'Tick()' being skipped for multiple frames
-     * until the desired time difference has passed. 
      */
-    abstract Tick(): number;
+    abstract Tick(): void;
+
+    /**
+     * Sets the time that passes between calls to 'Tick()'.
+     * If set to zero, Tick() is called every frame, independent of frame-rate.
+     * 
+     * @param seconds Time that shall pass between calls to 'Tick()'. Default is one second.
+     */
+    public SetTickInterval(seconds: number) {
+        __CPP_TsComponent_SetTickInterval(this, seconds);
+    }
 }

@@ -57,7 +57,7 @@ declare function __CPP_GameObject_SearchForChildByNameSequence(_this: GameObject
 declare function __CPP_GameObject_TryGetComponentOfBaseTypeName(_this: GameObject, typeName: string);
 declare function __CPP_GameObject_TryGetComponentOfBaseTypeNameHash(_this: GameObject, nameHash: number);
 
-declare function __CPP_GameObject_SendMessage(_this: GameObject, typeNameHash: number, msg: Message, recursive: boolean): void;
+declare function __CPP_GameObject_SendMessage(_this: GameObject, typeNameHash: number, msg: Message, recursive: boolean, expectMsgResult: boolean): void;
 declare function __CPP_GameObject_PostMessage(_this: GameObject, typeNameHash: number, msg: Message, recursive: boolean, delay: number): void;
 
 declare function __CPP_GameObject_SetTags(_this: GameObject, ...tags: string[]): void;
@@ -66,6 +66,16 @@ declare function __CPP_GameObject_RemoveTags(_this: GameObject, ...tags: string[
 declare function __CPP_GameObject_HasAnyTags(_this: GameObject, ...tags: string[]): boolean;
 declare function __CPP_GameObject_HasAllTags(_this: GameObject, ...tags: string[]): boolean;
 
+/**
+ * Represents a C++ ezGameObject on the TypeScript side.
+ * 
+ * This class acts like a weak pointer to the C++ instance. In between game updates, the C++ side object may get deleted.
+ * Therefore it is vital to call 'IsValid()' on a GameObject before doing anything else with it. If IsValid returns false,
+ * the C++ side ezGameObject has been deleted and the TypeScript instance cannot be used anymore either.
+ * 
+ * Be aware that functions that return GameObjects will typically return null objects, in case of failure. They will not return
+ * 'invalid' GameObject instances.
+ */
 export class GameObject {
 
     // TODO:
@@ -73,6 +83,13 @@ export class GameObject {
     // GetComponents
     // GetTags
 
+    /**
+     * If the GameObject is not null, it may still be 'dead' on the C++ side. This function checks whether that is the case.
+     * 
+     * If the object is valid, all other functions can be called, otherwise it is an error to do anything with the GameObject.
+     * GameObjects will always stay valid throughout a single game update (end of frame), so it is not necessary to call this
+     * more than once per frame.
+     */
     IsValid(): boolean {
         return __CPP_GameObject_IsValid(this);
     }
@@ -348,18 +365,28 @@ export class GameObject {
      * Sends a message to all the components on this GameObject (but not its children).
      * 
      * The message is delivered immediately.
+     * 
+     * @param expectResultData If set to true, the calling code assumes that the message receiver(s) may write result data
+     *   back into the message and thus the caller is interested in reading that data afterwards. If set to false
+     *   (the default) the state of the message is not synchronized back into the TypeScript message after the message
+     *   has been delivered and thus any data written into the message by the receiver, is lost.
      */
-    SendMessage(msg: Message): void {
-        __CPP_GameObject_SendMessage(this, msg.TypeNameHash, msg, false);
+    SendMessage(msg: Message, expectResultData: boolean = false): void {
+        __CPP_GameObject_SendMessage(this, msg.TypeNameHash, msg, false, expectResultData);
     }
 
     /**
      * Sends a message to all the components on this GameObject (including all its children).
      * 
      * The message is delivered immediately.
+     * 
+     * @param expectResultData If set to true, the calling code assumes that the message receiver(s) may write result data
+     *   back into the message and thus the caller is interested in reading that data afterwards. If set to false
+     *   (the default) the state of the message is not synchronized back into the TypeScript message after the message
+     *   has been delivered and thus any data written into the message by the receiver, is lost.
      */
-    SendMessageRecursive(msg: Message): void {
-        __CPP_GameObject_SendMessage(this, msg.TypeNameHash, msg, true);
+    SendMessageRecursive(msg: Message, expectResultData: boolean = false): void {
+        __CPP_GameObject_SendMessage(this, msg.TypeNameHash, msg, true, expectResultData);
     }
 
     /**

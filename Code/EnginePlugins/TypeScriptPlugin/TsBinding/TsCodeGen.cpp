@@ -1,5 +1,6 @@
 #include <TypeScriptPluginPCH.h>
 
+#include <Foundation/Containers/ArrayMap.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
@@ -59,8 +60,7 @@ void ezTypeScriptBinding::AppendToTextFile(const char* szFile, ezStringView text
 
 void ezTypeScriptBinding::GenerateEnumsFile(const char* szFile, const ezSet<const ezRTTI*>& items)
 {
-  ezStringBuilder sFileContent = "// AUTO-GENERATED FILE\n\n";
-
+  ezArrayMap<ezString, const ezRTTI*> sortedItems;
   ezStringBuilder sType, sName;
 
   for (const ezRTTI* pRtti : items)
@@ -71,7 +71,18 @@ void ezTypeScriptBinding::GenerateEnumsFile(const char* szFile, const ezSet<cons
     sName = pRtti->GetTypeName();
     sName.TrimWordStart("ez");
 
-    sType.Format("export enum {0} { ", sName);
+    sortedItems.Insert(sName, pRtti);
+  }
+
+  sortedItems.Sort();
+
+  ezStringBuilder sFileContent = "// AUTO-GENERATED FILE\n\n";
+
+  for (ezUInt32 i = 0; i < sortedItems.GetCount(); ++i)
+  {
+    const ezRTTI* pRtti = sortedItems.GetValue(i);
+
+    sType.Format("export enum {0} { ", sortedItems.GetKey(i));
 
     for (auto pProp : pRtti->GetProperties().GetSubArray(1))
     {
@@ -106,7 +117,17 @@ void ezTypeScriptBinding::InjectEnumImportExport(const char* szFile, const char*
 
   sImportExport.Format("import __AllEnums = require(\"{}\")\n", szEnumFile);
 
+  ezDynamicArray<const ezRTTI*> sorted;
+  sorted.Reserve(s_RequiredEnums.GetCount());
   for (const ezRTTI* pRtti : s_RequiredEnums)
+  {
+    sorted.PushBack(pRtti);
+  }
+  sorted.Sort([](const ezRTTI* r1, const ezRTTI* r2) -> bool {
+    return ezStringUtils::Compare(r1->GetTypeName(), r2->GetTypeName()) < 0;
+  });
+
+  for (const ezRTTI* pRtti : sorted)
   {
     GetTsName(pRtti, sTypeName);
     sImportExport.AppendFormat("export import {0} = __AllEnums.{0};\n", sTypeName);
@@ -121,7 +142,17 @@ void ezTypeScriptBinding::InjectFlagsImportExport(const char* szFile, const char
 
   sImportExport.Format("import __AllFlags = require(\"{}\")\n", szFlagsFile);
 
+  ezDynamicArray<const ezRTTI*> sorted;
+  sorted.Reserve(s_RequiredFlags.GetCount());
   for (const ezRTTI* pRtti : s_RequiredFlags)
+  {
+    sorted.PushBack(pRtti);
+  }
+  sorted.Sort([](const ezRTTI* r1, const ezRTTI* r2) -> bool {
+    return ezStringUtils::Compare(r1->GetTypeName(), r2->GetTypeName()) < 0;
+  });
+
+  for (const ezRTTI* pRtti : sorted)
   {
     GetTsName(pRtti, sTypeName);
     sImportExport.AppendFormat("export import {0} = __AllFlags.{0};\n", sTypeName);

@@ -61,18 +61,27 @@ ezResult TranformProject(const char* szProjectPath)
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 EZ_CREATE_SIMPLE_TEST_GROUP(00_Init);
+
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformBase)
 {
   EZ_TEST_BOOL(TranformProject("Data/Base/ezProject").Succeeded());
 }
+
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformBasics)
 {
   EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Basics/ezProject").Succeeded());
 }
+
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformParticles)
 {
   EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Particles/ezProject").Succeeded());
 }
+
+EZ_CREATE_SIMPLE_TEST(00_Init, TransformTypeScript)
+{
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/TypeScript/ezProject").Succeeded());
+}
+
 #endif
 
 

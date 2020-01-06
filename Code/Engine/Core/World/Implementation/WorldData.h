@@ -137,7 +137,7 @@ namespace ezInternal
       EZ_DECLARE_POD_TYPE();
 
       EZ_ALWAYS_INLINE QueuedMsgMetaData()
-          : m_uiReceiverData(0)
+        : m_uiReceiverData(0)
       {
       }
 
@@ -204,7 +204,6 @@ namespace ezInternal
 
     void* m_pUserData;
   };
-}
+} // namespace ezInternal
 
 #include <Core/World/Implementation/WorldData_inl.h>
-

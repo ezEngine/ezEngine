@@ -79,8 +79,12 @@ void ezTypeScriptBinding::GenerateAllComponentsCode(ezStringBuilder& out_Code)
   ezDynamicArray<const ezRTTI*> sorted;
   sorted.Reserve(100);
 
-  for (auto pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
+  ezHybridArray<const ezRTTI*, 64> alphabetical;
+  for (auto pRtti : ezRTTI::GetAllTypesDerivedFrom(ezGetStaticRTTI<ezComponent>(), alphabetical, true))
   {
+    if (pRtti == ezGetStaticRTTI<ezComponent>() || pRtti == ezGetStaticRTTI<ezTypeScriptComponent>())
+      continue;
+
     CreateComponentTypeList(found, sorted, pRtti);
   }
 
@@ -132,6 +136,10 @@ export import Angle = __Angle.Angle;
 import Enum = require("./AllEnums")
 import Flags = require("./AllFlags")
 
+declare function __CPP_ComponentProperty_get(component: Component, id: number);
+declare function __CPP_ComponentProperty_set(component: Component, id: number, value);
+declare function __CPP_ComponentFunction_Call(component: Component, id: number, ...args);
+
 )";
 
   GenerateAllComponentsCode(sFileContent);
@@ -152,7 +160,8 @@ void ezTypeScriptBinding::InjectComponentImportExport(const char* szFile, const 
   ezDynamicArray<const ezRTTI*> sorted;
   sorted.Reserve(100);
 
-  for (auto pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
+  ezHybridArray<const ezRTTI*, 64> alphabetical;
+  for (auto pRtti : ezRTTI::GetAllTypesDerivedFrom(ezGetStaticRTTI<ezComponent>(), alphabetical, true))
   {
     CreateComponentTypeList(found, sorted, pRtti);
   }

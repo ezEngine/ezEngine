@@ -9,7 +9,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgDamage, 1, ezRTTIDefaultAllocator<ezMsgDama
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Damage", m_fDamage)
+    EZ_MEMBER_PROPERTY("Damage", m_fDamage),
+    EZ_MEMBER_PROPERTY("HitObjectName", m_sHitObjectName)
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -48,7 +49,7 @@ ezVisualScriptNode_OnDamage::~ezVisualScriptNode_OnDamage() {}
 void ezVisualScriptNode_OnDamage::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
   EZ_CHECK_AT_COMPILETIME_MSG(sizeof(m_Msg.m_fDamage) == 8,
-                              "The damage value is directly used by a visual script node, so it must be a double.");
+    "The damage value is directly used by a visual script node, so it must be a double.");
 
   pInstance->SetOutputPinValue(this, 0, &m_Msg.m_fDamage);
   pInstance->ExecuteConnectedNodes(this, 0);
@@ -70,4 +71,3 @@ void ezVisualScriptNode_OnDamage::HandleMessage(ezMessage* pMsg)
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Messages_Implementation_DamageMessage);
-
