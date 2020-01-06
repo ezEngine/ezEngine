@@ -1,5 +1,6 @@
 #include <TypeScriptPluginPCH.h>
 
+#include <Foundation/Containers/ArrayMap.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
