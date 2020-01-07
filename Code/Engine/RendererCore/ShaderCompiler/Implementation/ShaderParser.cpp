@@ -286,22 +286,24 @@ namespace
       {
         uiDefaultValue = uiCurrentValue;
       }
-
-      if (bCheckPrefix && !sValueName.StartsWith(sEnumPrefix))
-      {
-        ezLog::Error("Enum value does not start with the expected enum name as prefix: '{0}'", sEnumPrefix);
-      }
-
-      out_EnumDefinition.m_Values.EnsureCount(uiCurrentValue + 1);
-
-      if (ezStringUtils::IsNullOrEmpty(out_EnumDefinition.m_Values[uiCurrentValue].GetData()))
-      {
-        const ezStringBuilder sFinalName = sValueName;
-        out_EnumDefinition.m_Values[uiCurrentValue].Assign(sFinalName.GetData());
-      }
       else
       {
-        ezLog::Error("A enum value with '{0}' already exists: '{1}'", uiCurrentValue, out_EnumDefinition.m_Values[uiCurrentValue]);
+        if (bCheckPrefix && !sValueName.StartsWith(sEnumPrefix))
+        {
+          ezLog::Error("Enum value does not start with the expected enum name as prefix: '{0}'", sEnumPrefix);
+        }
+
+        out_EnumDefinition.m_Values.EnsureCount(uiCurrentValue + 1);
+
+        if (ezStringUtils::IsNullOrEmpty(out_EnumDefinition.m_Values[uiCurrentValue].GetData()))
+        {
+          const ezStringBuilder sFinalName = sValueName;
+          out_EnumDefinition.m_Values[uiCurrentValue].Assign(sFinalName.GetData());
+        }
+        else
+        {
+          ezLog::Error("A enum value with '{0}' already exists: '{1}'", uiCurrentValue, out_EnumDefinition.m_Values[uiCurrentValue]);
+        }
       }
 
       if (Accept(Tokens, uiCurToken, ","))
