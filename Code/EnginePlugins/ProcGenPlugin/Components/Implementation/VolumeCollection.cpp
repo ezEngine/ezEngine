@@ -61,7 +61,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezUInt32 ezVolumeCollection::ComputeSortingKey(float fSortOrder, float fMaxScale)
 {
   ezUInt32 uiSortingKey = (ezUInt32)(ezMath::Min(fSortOrder * 512.0f, 32767.0f) + 32768.0f);
-  uiSortingKey = (uiSortingKey << 16) | ((ezUInt32)(fMaxScale * 100.0f) & 0xFFFF);
+  uiSortingKey = (uiSortingKey << 16) | (0xFFFF - ((ezUInt32)(fMaxScale * 100.0f) & 0xFFFF));
   return uiSortingKey;
 }
 
@@ -132,22 +132,50 @@ void ezVolumeCollection::ExtractVolumesInBox(const ezWorld& world, const ezBound
 
   out_Collection.m_Spheres.Sort();
   out_Collection.m_Boxes.Sort();
+
+  const ezUInt32 uiNumSpheres = out_Collection.m_Spheres.GetCount();
+  const ezUInt32 uiNumBoxes = out_Collection.m_Boxes.GetCount();
+
+  out_Collection.m_SortedShapes.Reserve(uiNumSpheres + uiNumBoxes);
+
+  ezUInt32 uiCurrentSphere = 0;
+  ezUInt32 uiCurrentBox = 0;
+
+  while (uiCurrentSphere < uiNumSpheres || uiCurrentBox < uiNumBoxes)
+  {
+    Sphere* pSphere = uiCurrentSphere < uiNumSpheres ? &out_Collection.m_Spheres[uiCurrentSphere] : nullptr;
+    Box* pBox = uiCurrentBox < uiNumBoxes ? &out_Collection.m_Boxes[uiCurrentBox] : nullptr;
+
+    if (pSphere != nullptr && pBox != nullptr)
+    {
+      if (pSphere->m_uiSortingKey < pBox->m_uiSortingKey)
+        pBox = nullptr;
+      else
+        pSphere = nullptr;
+    }
+
+    if (pSphere == nullptr)
+    {
+      out_Collection.m_SortedShapes.PushBack(pBox);
+      ++uiCurrentBox;
+    }
+    else
+    {
+      out_Collection.m_SortedShapes.PushBack(pSphere);
+      ++uiCurrentSphere;
+    }
+  }
 }
 
-//////////////////////////////////////////////////////////////////////////
-
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgExtractVolumes);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgExtractVolumes, 1, ezRTTIDefaultAllocator<ezMsgExtractVolumes>)
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-void ezMsgExtractVolumes::AddSphere(const ezSimdTransform& transform, float fRadius, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder,
+void ezVolumeCollection::AddSphere(const ezSimdTransform& transform, float fRadius, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder,
   float fValue, float fFadeOutStart)
 {
   ezSimdTransform scaledTransform = transform;
   scaledTransform.m_Scale *= fRadius;
 
-  auto& sphere = m_pCollection->m_Spheres.ExpandAndGetRef();
+  auto& sphere = m_Spheres.ExpandAndGetRef();
   sphere.SetGlobalToLocalTransform(scaledTransform.GetAsMat4().GetInverse());
+  sphere.m_Type = ShapeType::Sphere;
   sphere.m_BlendMode = blendMode;
   sphere.m_fValue = fValue;
   sphere.m_uiSortingKey = ezVolumeCollection::ComputeSortingKey(fSortOrder, scaledTransform.GetMaxScale());
@@ -155,17 +183,24 @@ void ezMsgExtractVolumes::AddSphere(const ezSimdTransform& transform, float fRad
   sphere.m_fFadeOutBias = -sphere.m_fFadeOutScale;
 }
 
-void ezMsgExtractVolumes::AddBox(const ezSimdTransform& transform, const ezVec3& vExtents, ezEnum<ezProcGenBlendMode> blendMode,
+void ezVolumeCollection::AddBox(const ezSimdTransform& transform, const ezVec3& vExtents, ezEnum<ezProcGenBlendMode> blendMode,
   float fSortOrder, float fValue, const ezVec3& vFadeOutStart)
 {
   ezSimdTransform scaledTransform = transform;
   scaledTransform.m_Scale = scaledTransform.m_Scale.CompMul(ezSimdConversion::ToVec3(vExtents)) * 0.5f;
 
-  auto& box = m_pCollection->m_Boxes.ExpandAndGetRef();
+  auto& box = m_Boxes.ExpandAndGetRef();
   box.SetGlobalToLocalTransform(scaledTransform.GetAsMat4().GetInverse());
+  box.m_Type = ShapeType::Box;
   box.m_BlendMode = blendMode;
   box.m_fValue = fValue;
   box.m_uiSortingKey = ezVolumeCollection::ComputeSortingKey(fSortOrder, scaledTransform.GetMaxScale());
   box.m_vFadeOutScale = ezVec3(-1.0f).CompDiv((ezVec3(1.0f) - vFadeOutStart).CompMax(ezVec3(0.0001f)));
   box.m_vFadeOutBias = -box.m_vFadeOutScale;
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgExtractVolumes);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgExtractVolumes, 1, ezRTTIDefaultAllocator<ezMsgExtractVolumes>)
+EZ_END_DYNAMIC_REFLECTED_TYPE;

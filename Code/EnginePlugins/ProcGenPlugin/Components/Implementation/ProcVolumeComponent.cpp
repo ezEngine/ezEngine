@@ -237,7 +237,7 @@ void ezProcVolumeSphereComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ms
 
 void ezProcVolumeSphereComponent::OnExtractVolumes(ezMsgExtractVolumes& msg) const
 {
-  msg.AddSphere(GetOwner()->GetGlobalTransformSimd(), m_fRadius, m_BlendMode, m_fSortOrder, m_fValue, m_fFadeOutStart);
+  msg.m_pCollection->AddSphere(GetOwner()->GetGlobalTransformSimd(), m_fRadius, m_BlendMode, m_fSortOrder, m_fValue, m_fFadeOutStart);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -323,5 +323,5 @@ void ezProcVolumeBoxComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) 
 
 void ezProcVolumeBoxComponent::OnExtractVolumes(ezMsgExtractVolumes& msg) const
 {
-  msg.AddBox(GetOwner()->GetGlobalTransformSimd(), m_vExtents, m_BlendMode, m_fSortOrder, m_fValue, m_vFadeOutStart);
+  msg.m_pCollection->AddBox(GetOwner()->GetGlobalTransformSimd(), m_vExtents, m_BlendMode, m_fSortOrder, m_fValue, m_vFadeOutStart);
 }

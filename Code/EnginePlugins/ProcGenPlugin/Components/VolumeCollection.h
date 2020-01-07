@@ -60,9 +60,13 @@ public:
   static void ExtractVolumesInBox(const ezWorld& world, const ezBoundingBox& box, ezSpatialData::Category spatialCategory,
     const ezTagSet& includeTags, ezVolumeCollection& out_Collection, const ezRTTI* pComponentBaseType = nullptr);
 
-private:
-  friend struct ezMsgExtractVolumes;
+  void AddSphere(const ezSimdTransform& transform, float fRadius, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder,
+    float fValue, float fFadeOutStart);
 
+  void AddBox(const ezSimdTransform& transform, const ezVec3& vExtents, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder,
+    float fValue, const ezVec3& vFadeOutStart);
+
+private:
   ezDynamicArray<Sphere, ezAlignedAllocatorWrapper> m_Spheres;
   ezDynamicArray<Box, ezAlignedAllocatorWrapper> m_Boxes;
 
@@ -72,15 +76,6 @@ private:
 struct EZ_PROCGENPLUGIN_DLL ezMsgExtractVolumes : public ezMessage
 {
   EZ_DECLARE_MESSAGE_TYPE(ezMsgExtractVolumes, ezMessage);
-
-  void AddSphere(const ezSimdTransform& transform, float fRadius, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder,
-    float fValue, float fFadeOutStart);
-
-  void AddBox(const ezSimdTransform& transform, const ezVec3& vExtents, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder,
-    float fValue, const ezVec3& vFadeOutStart);
-
-private:
-  friend class ezVolumeCollection;
 
   ezVolumeCollection* m_pCollection = nullptr;
 };

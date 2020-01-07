@@ -144,6 +144,7 @@ public:
   ezEnum<ezProcGenBlendMode> m_BlendMode;
   float m_fInputValueA = 1.0f;
   float m_fInputValueB = 1.0f;
+  bool m_bClampOutput = false;
 
   ezInputNodePin m_InputValueAPin;
   ezInputNodePin m_InputValueBPin;
