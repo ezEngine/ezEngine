@@ -1089,7 +1089,7 @@ void ezImageUtils::GenerateMipMaps(const ezImageView& source, ezImage& target, c
       currentMipMapHeader.SetNumArrayIndices(1);
 
       auto sourceView = source.GetSubImageView(0, face, arrayIndex).GetByteBlobPtr();
-      auto targetView = target.GetSubImageView(0, face, arrayIndex).GetBlobPtr<ezUInt8>();
+      auto targetView = target.GetSubImageView(0, face, arrayIndex).GetByteBlobPtr();
 
       memcpy(targetView.GetPtr(), sourceView.GetPtr(), targetView.GetCount());
 

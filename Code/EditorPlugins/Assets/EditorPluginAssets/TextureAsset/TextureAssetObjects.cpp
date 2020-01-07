@@ -144,10 +144,14 @@ void ezTextureAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaState
           break;
       }
 
-      if (mapping == ezTexture2DChannelMappingEnum::RGBA1 || mapping == ezTexture2DChannelMappingEnum::R1_G2_B3_A4 ||
+      if (mapping == ezTexture2DChannelMappingEnum::R1 ||
+          mapping == ezTexture2DChannelMappingEnum::RGBA1 || mapping == ezTexture2DChannelMappingEnum::R1_G2_B3_A4 ||
           mapping == ezTexture2DChannelMappingEnum::RGB1_A2 || mapping == ezTexture2DChannelMappingEnum::R1_G2_B3_A4)
       {
-        props["PremultipliedAlpha"].m_Visibility = ezPropertyUiState::Default;
+        if (mapping != ezTexture2DChannelMappingEnum::R1)
+        {
+          props["PremultipliedAlpha"].m_Visibility = ezPropertyUiState::Default;
+        }
 
         if (hasMips)
         {
