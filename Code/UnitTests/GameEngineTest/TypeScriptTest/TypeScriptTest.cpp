@@ -29,6 +29,7 @@ void ezGameEngineTestTypeScript::SetupSubTests()
   AddSubTest("Mat3", SubTests::Mat3);
   AddSubTest("Mat4", SubTests::Mat4);
   AddSubTest("Transform", SubTests::Transform);
+  AddSubTest("Color", SubTests::Color);
 }
 
 ezResult ezGameEngineTestTypeScript::InitializeSubTest(ezInt32 iIdentifier)
@@ -38,6 +39,7 @@ ezResult ezGameEngineTestTypeScript::InitializeSubTest(ezInt32 iIdentifier)
       iIdentifier == SubTests::Quat ||
       iIdentifier == SubTests::Mat3 ||
       iIdentifier == SubTests::Mat4 ||
+      iIdentifier == SubTests::Color ||
       iIdentifier == SubTests::Transform)
   {
     m_pOwnApplication->SubTestBasicsSetup();
@@ -65,6 +67,9 @@ ezTestAppRun ezGameEngineTestTypeScript::RunSubTest(ezInt32 iIdentifier, ezUInt3
     return m_pOwnApplication->SubTestBasisExec(iIdentifier);
 
   if (iIdentifier == SubTests::Transform)
+    return m_pOwnApplication->SubTestBasisExec(iIdentifier);
+
+  if (iIdentifier == SubTests::Color)
     return m_pOwnApplication->SubTestBasisExec(iIdentifier);
 
   EZ_ASSERT_NOT_IMPLEMENTED;
@@ -174,6 +179,16 @@ ezTestAppRun ezGameEngineTestApplication_TypeScript::SubTestBasisExec(ezInt32 iI
     {
       ezMsgGenericEvent msg;
       msg.m_sMessage = "TestTransform";
+      pTests->SendMessageRecursive(msg);
+
+      EZ_TEST_STRING(msg.m_sMessage, "done");
+      break;
+    }
+
+    case ezGameEngineTestTypeScript::SubTests::Color:
+    {
+      ezMsgGenericEvent msg;
+      msg.m_sMessage = "TestColor";
       pTests->SendMessageRecursive(msg);
 
       EZ_TEST_STRING(msg.m_sMessage, "done");
