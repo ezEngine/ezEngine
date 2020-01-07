@@ -28,6 +28,32 @@ namespace
   }
 } // namespace
 
+EZ_CHECK_AT_COMPILETIME(sizeof(ezVolumeCollection::Sphere) == 64);
+EZ_CHECK_AT_COMPILETIME(sizeof(ezVolumeCollection::Box) == 80);
+
+void ezVolumeCollection::Shape::SetGlobalToLocalTransform(const ezSimdMat4f& t)
+{
+  ezSimdVec4f r0, r1, r2, r3;
+  t.GetRows(r0, r1, r2, r3);
+
+  m_GlobalToLocalTransform0 = ezSimdConversion::ToVec4(r0);
+  m_GlobalToLocalTransform1 = ezSimdConversion::ToVec4(r1);
+  m_GlobalToLocalTransform2 = ezSimdConversion::ToVec4(r2);
+}
+
+ezSimdMat4f ezVolumeCollection::Shape::GetGlobalToLocalTransform() const
+{
+  ezSimdMat4f m;
+  m.SetRows(ezSimdConversion::ToVec4(m_GlobalToLocalTransform0),
+    ezSimdConversion::ToVec4(m_GlobalToLocalTransform1),
+    ezSimdConversion::ToVec4(m_GlobalToLocalTransform2),
+    ezSimdVec4f(0, 0, 0, 1));
+
+  return m;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVolumeCollection, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -44,28 +70,32 @@ float ezVolumeCollection::EvaluateAtGlobalPosition(const ezVec3& vPosition, floa
   ezSimdVec4f globalPos = ezSimdConversion::ToVec3(vPosition);
   float fValue = fInitialValue;
 
-  for (auto& sphere : m_Spheres)
+  for (auto pShape : m_SortedShapes)
   {
-    const ezSimdVec4f localPos = sphere.m_GlobalToLocalTransform.TransformPosition(globalPos);
-    const float distSquared = localPos.GetLengthSquared<3>();
-    if (distSquared <= 1.0f)
+    if (pShape->m_Type == ShapeType::Sphere)
     {
-      const float fNewValue = ApplyValue(sphere.m_BlendMode, fValue, sphere.m_fValue);
-      const float fAlpha = ezMath::Saturate(ezMath::Sqrt(distSquared) * sphere.m_fFadeOutScale + sphere.m_fFadeOutBias);
-      fValue = ezMath::Lerp(fValue, fNewValue, fAlpha);
+      auto& sphere = *static_cast<const Sphere*>(pShape);
+      const ezSimdVec4f localPos = sphere.GetGlobalToLocalTransform().TransformPosition(globalPos);
+      const float distSquared = localPos.GetLengthSquared<3>();
+      if (distSquared <= 1.0f)
+      {
+        const float fNewValue = ApplyValue(sphere.m_BlendMode, fValue, sphere.m_fValue);
+        const float fAlpha = ezMath::Saturate(ezMath::Sqrt(distSquared) * sphere.m_fFadeOutScale + sphere.m_fFadeOutBias);
+        fValue = ezMath::Lerp(fValue, fNewValue, fAlpha);
+      }
     }
-  }
-
-  for (auto& box : m_Boxes)
-  {
-    const ezSimdVec4f absLocalPos = box.m_GlobalToLocalTransform.TransformPosition(globalPos).Abs();
-    if ((absLocalPos <= ezSimdVec4f(1.0f)).AllSet<3>())
+    else if (pShape->m_Type == ShapeType::Box)
     {
-      const float fNewValue = ApplyValue(box.m_BlendMode, fValue, box.m_fValue);
-      ezSimdVec4f vAlpha = absLocalPos.CompMul(ezSimdConversion::ToVec3(box.m_vFadeOutScale)) + ezSimdConversion::ToVec3(box.m_vFadeOutBias);
-      vAlpha = vAlpha.CompMin(ezSimdVec4f(1.0f)).CompMax(ezSimdVec4f::ZeroVector());
-      const float fAlpha = vAlpha.x() * vAlpha.y() * vAlpha.z();
-      fValue = ezMath::Lerp(fValue, fNewValue, fAlpha);
+      auto& box = *static_cast<const Box*>(pShape);
+      const ezSimdVec4f absLocalPos = box.GetGlobalToLocalTransform().TransformPosition(globalPos).Abs();
+      if ((absLocalPos <= ezSimdVec4f(1.0f)).AllSet<3>())
+      {
+        const float fNewValue = ApplyValue(box.m_BlendMode, fValue, box.m_fValue);
+        ezSimdVec4f vAlpha = absLocalPos.CompMul(ezSimdConversion::ToVec3(box.m_vFadeOutScale)) + ezSimdConversion::ToVec3(box.m_vFadeOutBias);
+        vAlpha = vAlpha.CompMin(ezSimdVec4f(1.0f)).CompMax(ezSimdVec4f::ZeroVector());
+        const float fAlpha = vAlpha.x() * vAlpha.y() * vAlpha.z();
+        fValue = ezMath::Lerp(fValue, fNewValue, fAlpha);
+      }
     }
   }
 
@@ -117,7 +147,7 @@ void ezMsgExtractVolumes::AddSphere(const ezSimdTransform& transform, float fRad
   scaledTransform.m_Scale *= fRadius;
 
   auto& sphere = m_pCollection->m_Spheres.ExpandAndGetRef();
-  sphere.m_GlobalToLocalTransform = scaledTransform.GetAsMat4().GetInverse();
+  sphere.SetGlobalToLocalTransform(scaledTransform.GetAsMat4().GetInverse());
   sphere.m_BlendMode = blendMode;
   sphere.m_fValue = fValue;
   sphere.m_uiSortingKey = ezVolumeCollection::ComputeSortingKey(fSortOrder, scaledTransform.GetMaxScale());
@@ -132,7 +162,7 @@ void ezMsgExtractVolumes::AddBox(const ezSimdTransform& transform, const ezVec3&
   scaledTransform.m_Scale = scaledTransform.m_Scale.CompMul(ezSimdConversion::ToVec3(vExtents)) * 0.5f;
 
   auto& box = m_pCollection->m_Boxes.ExpandAndGetRef();
-  box.m_GlobalToLocalTransform = scaledTransform.GetAsMat4().GetInverse();
+  box.SetGlobalToLocalTransform(scaledTransform.GetAsMat4().GetInverse());
   box.m_BlendMode = blendMode;
   box.m_fValue = fValue;
   box.m_uiSortingKey = ezVolumeCollection::ComputeSortingKey(fSortOrder, scaledTransform.GetMaxScale());
