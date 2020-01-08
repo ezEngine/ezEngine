@@ -20,6 +20,13 @@ export function BOOL(condition: boolean) {
     }
 }
 
+export function INT(i1: number, i2: number) {
+
+    if (i1 != i2) {
+        TestFailed(i1 + " does not equal " + i2);
+    }
+}
+
 export function FLOAT(f1: number, f2: number, epsilon: number = 0.001) {
 
     if (!ez.Utils.IsNumberEqual(f1, f2, epsilon)) {
@@ -58,4 +65,11 @@ export function ARRAY(N: number, v1: number[], v2: number[], epsilon: number = 0
         }
     }
 
+}
+
+export function COLOR(c1: ez.Color, c2: ez.Color, epsilon: number = 0.001) {
+
+    if (!c1.IsEqualRGBA(c2, epsilon)) {
+        TestFailed("(" + c1.r + ", " + c1.g + ", " + c1.b + ", "  + c1.a + ") does not equal (" + c2.r + ", " + c2.g + ", " + c2.b + ", "  + c2.a + ")");
+    }
 }

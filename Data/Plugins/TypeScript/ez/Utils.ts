@@ -25,4 +25,18 @@ export namespace Utils {
     export function StringToHash(text: string): number {
         return __CPP_Utils_StringToHash(text);
     }
+
+    /**
+     * Returns value clamped to the range [low; high]
+     */
+    export function Clamp(value: number, low: number, high: number) {
+        return Math.min(Math.max(value, low), high);
+    }
+
+    /**
+     * Returns value clamped to the range [0; 1]
+     */
+    export function Saturate(value: number) {
+        return Math.min(Math.max(value, 0.0), 1.0);
+    }
 }
