@@ -28,6 +28,8 @@ public:
     Mat4,
     Transform,
     Color,
+    GameObject,
+    Component,
   };
 
 private:

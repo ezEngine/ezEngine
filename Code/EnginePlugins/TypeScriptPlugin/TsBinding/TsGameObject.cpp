@@ -389,7 +389,7 @@ static int __CPP_GameObject_GetX_Quat(duk_context* pDuk)
       break;
 
     case GameObject_X::GlobalRotation:
-      pGameObject->GetGlobalRotation();
+      value = pGameObject->GetGlobalRotation();
       break;
 
     default:
@@ -676,7 +676,7 @@ static int __CPP_GameObject_CheckTags(duk_context* pDuk)
 
   const ezUInt32 uiMagic = duk.GetFunctionMagicValue();
 
-  bool result = false;
+  bool result = (uiMagic == 1);
 
   for (ezUInt32 i = 1; i < duk.GetNumVarArgFunctionParameters(); ++i)
   {
