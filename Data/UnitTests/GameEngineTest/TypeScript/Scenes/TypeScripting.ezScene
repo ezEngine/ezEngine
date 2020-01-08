@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12887889684847103107,5243788855127965982}}
-		u4 %Hash{3504936745854921954}
+		u4 %Hash{2359097934922327143}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -19,6 +19,7 @@ o
 			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
 			s{"{ 37ae1ab9-ca55-423d-b2ae-498ca03fd9ef }"}
 			s{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
+			s{"{ 6d619c33-6611-432b-a924-27b1b9bfd8db }"}
 			s{"{ 91979f46-9b9f-4742-8ff7-6fe0f955e4df }"}
 			s{"{ a549b116-4636-45db-bf2b-d6bf33e4ce62 }"}
 			s{"{ bb2318f7-7aae-4b3e-8dc6-4d018f39ae4a }"}
@@ -148,6 +149,22 @@ o
 		b %HandleGlobalEvents{0}
 		VarDict %Parameters{}
 		s %Script{"{ ffcdde61-8d61-4482-9be1-c3fa7009031b }"}
+	}
+}
+o
+{
+	Uuid %id{u4{1976234503782554287,4692039428036134677}}
+	s %t{"ezDebugTextComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{0}
+		ColorGamma %Color{u1{255,255,255,255}}
+		s %Text{"Component"}
+		f %Value0{0}
+		f %Value1{0}
+		f %Value2{0}
+		f %Value3{0}
 	}
 }
 o
@@ -366,6 +383,19 @@ o
 }
 o
 {
+	Uuid %id{u4{9226334673383624612,4927103941650998755}}
+	s %t{"ezMeshComponent"}
+	u3 %v{3}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		VarArray %Materials{}
+		s %Mesh{"{ 6d619c33-6611-432b-a924-27b1b9bfd8db }"}
+	}
+}
+o
+{
 	Uuid %id{u4{3252122202181534086,4940991609346302417}}
 	s %t{"ezAmbientLightComponent"}
 	u3 %v{2}
@@ -546,6 +576,8 @@ o
 		VarArray %Components
 		{
 			Uuid{u4{10590597928519418525,5762998801050855821}}
+			Uuid{u4{1976234503782554287,4692039428036134677}}
+			Uuid{u4{9226334673383624612,4927103941650998755}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0}}
@@ -948,6 +980,24 @@ o
 		s %TypeName{"ezMeshComponent"}
 		u3 %TypeSize{104}
 		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{912538319015526284,3456678183054942297}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezDebugTextComponent"}
+		u3 %TypeSize{136}
+		u3 %TypeVersion{1}
 	}
 }
 o
