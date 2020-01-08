@@ -87,7 +87,7 @@ ezResult ezTexConvProcessor::Process()
 
     EZ_SUCCEED_OR_RETURN(AdjustHdrExposure(assembledImg));
 
-    EZ_SUCCEED_OR_RETURN(GenerateMipmaps(assembledImg));
+    EZ_SUCCEED_OR_RETURN(GenerateMipmaps(assembledImg, uiNumChannelsUsed));
 
     EZ_SUCCEED_OR_RETURN(PremultiplyAlpha(assembledImg));
 
