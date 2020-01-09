@@ -35,6 +35,22 @@ export class Corridor extends ez.TickedTypescriptComponent {
             }
         }
 
+        if (msg.Message == "MoveA" || msg.Message == "MoveB") {
+            let obj = ez.World.TryGetObjectWithGlobalKey("Obj");
+
+            let move = obj.TryGetComponentOfBaseType(ez.MoveToComponent);
+
+            move.Running = true;
+
+            if (msg.Message == "MoveA")
+            {
+                move.SetTargetPosition(new ez.Vec3(10, -1, 1.5));
+            }
+            else
+            {
+                move.SetTargetPosition(new ez.Vec3(10, 3, 1.5));
+            }
+        }
     }
 
     Tick(): void {

@@ -1,6 +1,7 @@
 #include <GameEngineTestPCH.h>
 
 #include "TypeScriptTest.h"
+#include <Core/Messages/CommonMessages.h>
 #include <Core/Messages/EventMessage.h>
 #include <Core/Scripting/DuktapeFunction.h>
 #include <Core/Scripting/DuktapeHelper.h>
