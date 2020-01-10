@@ -21,12 +21,14 @@ static int __CPP_GameObject_TryGetComponentOfBaseTypeName(duk_context* pDuk);
 static int __CPP_GameObject_TryGetComponentOfBaseTypeNameHash(duk_context* pDuk);
 static int __CPP_GameObject_SearchForChildByNameSequence(duk_context* pDuk);
 static int __CPP_GameObject_SendMessage(duk_context* pDuk);
-static int __CPP_GameObject_SetName(duk_context* pDuk);
-static int __CPP_GameObject_GetName(duk_context* pDuk);
+static int __CPP_GameObject_SetString(duk_context* pDuk);
+static int __CPP_GameObject_GetString(duk_context* pDuk);
 static int __CPP_GameObject_SetTeamID(duk_context* pDuk);
 static int __CPP_GameObject_GetTeamID(duk_context* pDuk);
 static int __CPP_GameObject_ChangeTags(duk_context* pDuk);
 static int __CPP_GameObject_CheckTags(duk_context* pDuk);
+static int __CPP_GameObject_GetParent(duk_context* pDuk);
+static int __CPP_GameObject_SetX_GameObject(duk_context* pDuk);
 
 enum GameObject_X
 {
@@ -42,6 +44,10 @@ enum GameObject_X
   GlobalDirUp,
   Velocity,
   Active,
+  ChildCount,
+  SetParent,
+  AddChild,
+  DetachChild,
 };
 
 ezResult ezTypeScriptBinding::Init_GameObject()
@@ -75,10 +81,17 @@ ezResult ezTypeScriptBinding::Init_GameObject()
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetGlobalDirUp", __CPP_GameObject_GetX_Vec3, 1, GameObject_X::GlobalDirUp);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_SetVelocity", __CPP_GameObject_SetX_Vec3, 2, GameObject_X::Velocity);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetVelocity", __CPP_GameObject_GetX_Vec3, 1, GameObject_X::Velocity);
-  m_Duk.RegisterGlobalFunction("__CPP_GameObject_SetName", __CPP_GameObject_SetName, 2);
-  m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetName", __CPP_GameObject_GetName, 1);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_SetName", __CPP_GameObject_SetString, 2, 0);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetName", __CPP_GameObject_GetString, 1, 0);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_SetGlobalKey", __CPP_GameObject_SetString, 2, 1);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetGlobalKey", __CPP_GameObject_GetString, 1, 1);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_SetTeamID", __CPP_GameObject_SetTeamID, 2);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetTeamID", __CPP_GameObject_GetTeamID, 1);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetParent", __CPP_GameObject_GetParent, 1);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_SetParent", __CPP_GameObject_SetX_GameObject, 3, GameObject_X::SetParent);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_AddChild", __CPP_GameObject_SetX_GameObject, 3, GameObject_X::AddChild);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_DetachChild", __CPP_GameObject_SetX_GameObject, 3, GameObject_X::DetachChild);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetChildCount", __CPP_GameObject_GetX_Float, 1, GameObject_X::ChildCount);
   m_Duk.RegisterGlobalFunctionWithVarArgs("__CPP_GameObject_SetTags", __CPP_GameObject_ChangeTags, 0);
   m_Duk.RegisterGlobalFunctionWithVarArgs("__CPP_GameObject_AddTags", __CPP_GameObject_ChangeTags, 1);
   m_Duk.RegisterGlobalFunctionWithVarArgs("__CPP_GameObject_RemoveTags", __CPP_GameObject_ChangeTags, 2);
@@ -336,6 +349,10 @@ static int __CPP_GameObject_GetX_Float(duk_context* pDuk)
       value = pGameObject->GetLocalUniformScaling();
       break;
 
+    case GameObject_X::ChildCount:
+      value = pGameObject->GetChildCount();
+      break;
+
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
   }
@@ -589,24 +606,44 @@ static int __CPP_GameObject_SendMessage(duk_context* pDuk)
   return duk.ReturnVoid();
 }
 
-static int __CPP_GameObject_SetName(duk_context* pDuk)
+static int __CPP_GameObject_SetString(duk_context* pDuk)
 {
   ezDuktapeFunction duk(pDuk);
 
   ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
 
-  pGameObject->SetName(duk.GetStringValue(1));
+  switch (duk.GetFunctionMagicValue())
+  {
+    case 0:
+      pGameObject->SetName(duk.GetStringValue(1));
+      break;
+    case 1:
+      pGameObject->SetGlobalKey(duk.GetStringValue(1));
+      break;
+  }
 
   return duk.ReturnVoid();
 }
 
-static int __CPP_GameObject_GetName(duk_context* pDuk)
+static int __CPP_GameObject_GetString(duk_context* pDuk)
 {
   ezDuktapeFunction duk(pDuk);
 
   ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
 
-  return duk.ReturnString(pGameObject->GetName());
+  const char* res = "";
+
+  switch (duk.GetFunctionMagicValue())
+  {
+    case 0:
+      res = pGameObject->GetName();
+      break;
+    case 1:
+      res = pGameObject->GetGlobalKey();
+      break;
+  }
+
+  return duk.ReturnString(res);
 }
 
 static int __CPP_GameObject_SetTeamID(duk_context* pDuk)
@@ -711,3 +748,47 @@ static int __CPP_GameObject_CheckTags(duk_context* pDuk)
 
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnBool(result), +1);
 }
+
+static int __CPP_GameObject_GetParent(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk);
+
+  ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
+
+  ezGameObject* pParent = pGameObject->GetParent();
+
+  ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(pDuk);
+  pBinding->DukPutGameObject(pParent);
+
+  EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnCustom(), +1);
+}
+
+static int __CPP_GameObject_SetX_GameObject(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk);
+
+  ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
+
+  ezGameObjectHandle hObject = ezTypeScriptBinding::RetrieveGameObjectHandle(pDuk, 1);
+
+  const ezGameObject::TransformPreservation preserve = duk.GetBoolValue(2) ? ezGameObject::TransformPreservation::PreserveGlobal : ezGameObject::TransformPreservation::PreserveLocal;
+
+  switch (duk.GetFunctionMagicValue())
+  {
+    case GameObject_X::SetParent:
+      pGameObject->SetParent(hObject, preserve);
+      break;
+
+    case GameObject_X::AddChild:
+      pGameObject->AddChild(hObject, preserve);
+      break;
+
+    case GameObject_X::DetachChild:
+      pGameObject->DetachChild(hObject, preserve);
+      break;
+  }
+
+  EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnVoid(), 0);
+}
+
+

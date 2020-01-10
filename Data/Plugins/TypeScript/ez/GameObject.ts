@@ -46,6 +46,8 @@ declare function __CPP_GameObject_IsActive(_this: GameObject): boolean;
 
 declare function __CPP_GameObject_SetName(_this: GameObject, value: string): void;
 declare function __CPP_GameObject_GetName(_this: GameObject): string;
+declare function __CPP_GameObject_SetGlobalKey(_this: GameObject, value: string): void;
+declare function __CPP_GameObject_GetGlobalKey(_this: GameObject): string;
 
 declare function __CPP_GameObject_SetTeamID(_this: GameObject, value: number): void;
 declare function __CPP_GameObject_GetTeamID(_this: GameObject): number;
@@ -66,6 +68,13 @@ declare function __CPP_GameObject_RemoveTags(_this: GameObject, ...tags: string[
 declare function __CPP_GameObject_HasAnyTags(_this: GameObject, ...tags: string[]): boolean;
 declare function __CPP_GameObject_HasAllTags(_this: GameObject, ...tags: string[]): boolean;
 
+declare function __CPP_GameObject_GetParent(_this: GameObject): GameObject;
+declare function __CPP_GameObject_SetParent(_this: GameObject, parent: GameObject, preserveGlobalTransform: boolean): void;
+declare function __CPP_GameObject_AddChild(_this: GameObject, child: GameObject, preserveGlobalTransform: boolean): void;
+declare function __CPP_GameObject_DetachChild(_this: GameObject, child: GameObject, preserveGlobalTransform: boolean): void;
+declare function __CPP_GameObject_GetChildCount(_this: GameObject): number;
+
+
 /**
  * Represents a C++ ezGameObject on the TypeScript side.
  * 
@@ -79,9 +88,8 @@ declare function __CPP_GameObject_HasAllTags(_this: GameObject, ...tags: string[
 export class GameObject {
 
     // TODO:
-    // SetGlobalTransform / GetGlobalTransform
     // GetComponents
-    // GetTags
+    // GetChildIterator
 
     /**
      * If the GameObject is not null, it may still be 'dead' on the C++ side. This function checks whether that is the case.
@@ -443,5 +451,67 @@ export class GameObject {
      */
     HasAllTags(...tags: string[]): boolean { // [tested]
         return __CPP_GameObject_HasAllTags(this, ...tags);
+    }
+
+    /**
+     * Changes the global key of the GameObject.
+     */
+    SetGlobalKey(name: string): void {
+        __CPP_GameObject_SetGlobalKey(this, name);
+    }
+
+    /**
+     * Returns the global key of the GameObject.
+     */
+    GetGlobalKey(): string {
+        return __CPP_GameObject_GetGlobalKey(this);
+    }
+
+    /**
+     * Returns the parent game object or null if this object has no parent.
+     */
+    GetParent(): GameObject {
+        return __CPP_GameObject_GetParent(this);
+    }
+
+    /**
+     * Attaches this object to anoter game object as its child.
+     * 
+     * @param parent The object to attach this object to.
+     * @param preserveGlobalTransform If true, the global transform of this is preserved and the local transform is adjusted as needed.
+     *  If false, the local transform is preserved and the global transform is computed accordingly.
+     */
+    SetParent(parent: GameObject, preserveGlobalTransform: boolean = true): void {
+        __CPP_GameObject_SetParent(this, parent, preserveGlobalTransform);
+    }
+
+    /**
+     * Attaches the given object to this object as a child.
+     * 
+     * @param child The object to attach to this object.
+     * @param preserveGlobalTransform If true, the global transform of the child is preserved and the local transform is adjusted as needed.
+     *  If false, the local transform is preserved and the global transform is computed accordingly.
+     */
+    AddChild(child: GameObject, preserveGlobalTransform: boolean = true): void {
+        __CPP_GameObject_AddChild(this, child, preserveGlobalTransform);
+    }
+
+    /**
+     * Detaches the given child object from this object.
+     * This is similar to child.SetParent(null), but only detaches the child, if it is indeed attached to this object.
+     * 
+     * @param child The object to detach from this object.
+     * @param preserveGlobalTransform If true, the global transform of the child is preserved and the local transform is adjusted as needed.
+     *  If false, the local transform is preserved and the global transform is computed accordingly.
+     */
+    DetachChild(child: GameObject, preserveGlobalTransform: boolean = true): void {
+        __CPP_GameObject_DetachChild(this, child, preserveGlobalTransform);
+    }
+
+    /**
+     * Returns the number of objects attached to this as children.
+     */
+    GetChildCount(): number {
+        return __CPP_GameObject_GetChildCount(this);
     }
 }
