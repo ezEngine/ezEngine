@@ -1,9 +1,12 @@
 import ez = require("TypeScript/ez")
+import monitor = require("Features/RenderToTexture/Monitor_data/Monitor")
 
 export class Corridor extends ez.TickedTypescriptComponent {
 
     /* BEGIN AUTO-GENERATED: VARIABLES */
     /* END AUTO-GENERATED: VARIABLES */
+
+    monitor1State: number = 0;
 
     constructor() {
         super()
@@ -42,13 +45,48 @@ export class Corridor extends ez.TickedTypescriptComponent {
 
             move.Running = true;
 
-            if (msg.Message == "MoveA")
-            {
+            if (msg.Message == "MoveA") {
                 move.SetTargetPosition(new ez.Vec3(10, -1, 1.5));
             }
-            else
-            {
+            else {
                 move.SetTargetPosition(new ez.Vec3(10, 3, 1.5));
+            }
+        }
+
+        if (msg.Message == "SwitchMonitor1") {
+
+            ++this.monitor1State;
+
+            if (this.monitor1State > 2)
+                this.monitor1State = 0;
+
+            ez.Log.Info("SwitchMonitor1: " + this.monitor1State);
+
+            let msg = new monitor.MsgSwitchMonitor();
+
+            switch (this.monitor1State) {
+                case 0:
+                    msg.screenMaterial = "{ 6c56721b-d71a-4795-88ac-39cae26c39f1 }";
+                    msg.renderTarget = "{ 2fe9db45-6e52-4e17-8e27-5744f9e8ada6 }";
+                    break;
+                case 1:
+                    msg.screenMaterial = "{ eb4cb027-44b2-4f69-8f88-3d5594f0fa9d }";
+                    msg.renderTarget = "{ 852fa58a-7bea-4486-832b-3a2b2792fea3 }";
+                    break;
+                case 2:
+                    msg.screenMaterial = "{ eb842e16-7314-4f8a-8479-0f92e43ca708 }";
+                    msg.renderTarget = "{ 673e8ea0-b70e-4e47-a72b-037d67024a71 }";
+                    break;
+            }
+
+            let monitorObj = ez.World.TryGetObjectWithGlobalKey("Monitor1");
+
+            if (monitorObj != null) {
+                let root = monitorObj.FindChildByName("root");
+
+                if (root != null) {
+                    root.SendMessage(msg);
+                }
             }
         }
     }

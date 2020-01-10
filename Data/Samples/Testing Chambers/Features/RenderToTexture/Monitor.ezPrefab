@@ -2,6 +2,16 @@ HeaderV2
 {
 o
 {
+	Uuid %id{u4{13381168819629279085,877665232662194703}}
+	s %t{"ezAssetBrowserAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Filter{";Material;"}
+	}
+}
+o
+{
 	Uuid %id{u4{5626082822448812211,4990603051938895891}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
@@ -11,7 +21,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5626082822448812211,4990603051938895891}}
-		u4 %Hash{16058777697460205100}
+		u4 %Hash{3369211887909601845}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{7031288620226640771,10500390495068248024}}
@@ -22,6 +32,7 @@ o
 			s{"{ 2fe9db45-6e52-4e17-8e27-5744f9e8ada6 }"}
 			s{"{ 3dcd468c-57a7-4cde-9f7f-63b549fffcee }"}
 			s{"{ 6c56721b-d71a-4795-88ac-39cae26c39f1 }"}
+			s{"{ db0fc18f-90c2-4f57-9aeb-0c97afb0eb20 }"}
 			s{"{ e9e6b167-c18c-4260-9b0e-4cf4503c1463 }"}
 		}
 	}
@@ -33,7 +44,53 @@ o
 	u3 %v{3}
 	p
 	{
-		VarArray %Parameters{}
+		VarArray %Parameters
+		{
+			Uuid{u4{6687438405455051730,10656636343245417218}}
+			Uuid{u4{17350961637538548939,11438798462946859034}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{6687438405455051730,10656636343245417218}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{13381168819629279085,877665232662194703}}
+		}
+		s %DefaultValue{"{ 6c56721b-d71a-4795-88ac-39cae26c39f1 }"}
+		s %Name{"ScreenMaterial"}
+		s %Type{"ezConstCharPtr"}
+	}
+}
+o
+{
+	Uuid %id{u4{17350961637538548939,11438798462946859034}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{5325587363308653479,16712525319600715230}}
+		}
+		s %DefaultValue{"{ 2fe9db45-6e52-4e17-8e27-5744f9e8ada6 }"}
+		s %Name{"RenderTarget"}
+		s %Type{"ezConstCharPtr"}
+	}
+}
+o
+{
+	Uuid %id{u4{5325587363308653479,16712525319600715230}}
+	s %t{"ezAssetBrowserAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %Filter{";Render Target;"}
 	}
 }
 }
@@ -41,12 +98,40 @@ Objects
 {
 o
 {
+	Uuid %id{u4{2464326940569104316,4829473286800927230}}
+	s %t{"ezExposedSceneProperty"}
+	u3 %v{1}
+	p
+	{
+		s %Name{"ScreenMaterial"}
+		Uuid %Object{u4{14812147898064678484,10644944903913777966}}
+		s %PropertyPath{"Materials[0]"}
+	}
+}
+o
+{
+	Uuid %id{u4{15072648105391949209,4898497947658322152}}
+	s %t{"ezExposedSceneProperty"}
+	u3 %v{1}
+	p
+	{
+		s %Name{"RenderTarget"}
+		Uuid %Object{u4{15567457466344502921,5091195801123351971}}
+		s %PropertyPath{"RenderTarget"}
+	}
+}
+o
+{
 	Uuid %id{u4{18060679973621900730,4902118481445871398}}
 	s %t{"ezSceneDocumentSettings"}
 	u3 %v{1}
 	p
 	{
-		VarArray %ExposedProperties{}
+		VarArray %ExposedProperties
+		{
+			Uuid{u4{2464326940569104316,4829473286800927230}}
+			Uuid{u4{15072648105391949209,4898497947658322152}}
+		}
 	}
 }
 o
@@ -74,6 +159,7 @@ o
 		VarArray %Components
 		{
 			Uuid{u4{2867365200215968173,5441790497899038927}}
+			Uuid{u4{1988503975885608593,5531953487429157397}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0xCDCCCC3C,0,0}}
@@ -81,7 +167,7 @@ o
 		Vec3 %LocalScaling{f{0xCDCC4C3D,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
+		s %Name{"root"}
 		VarArray %Tags
 		{
 			s{"CastShadow"}
@@ -103,6 +189,19 @@ o
 			s{"{ 3dcd468c-57a7-4cde-9f7f-63b549fffcee }"}
 		}
 		s %Mesh{"{ e9e6b167-c18c-4260-9b0e-4cf4503c1463 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{1988503975885608593,5531953487429157397}}
+	s %t{"ezTypeScriptComponent"}
+	u3 %v{3}
+	p
+	{
+		b %Active{1}
+		b %HandleGlobalEvents{0}
+		VarDict %Parameters{}
+		s %Script{"{ db0fc18f-90c2-4f57-9aeb-0c97afb0eb20 }"}
 	}
 }
 o
@@ -139,7 +238,7 @@ o
 		Vec3 %LocalScaling{f{0x0000803F,0x6666663F,0x6666663F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
+		s %Name{"Display"}
 		VarArray %Tags
 		{
 			s{"CastShadow"}
@@ -218,6 +317,24 @@ o
 		s %TypeName{"ezMeshComponent"}
 		u3 %TypeSize{104}
 		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{5109955776826617296,6026817826851389185}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezEventMessageHandlerComponent"}
+		u3 %TypeSize{56}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -344,6 +461,24 @@ o
 		s %TypeName{"ezObjectMode"}
 		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{11568452837770943362,10420668725217181016}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEventMessageHandlerComponent"}
+		s %PluginName{"ezEditorPluginTypeScript"}
+		VarArray %Properties{}
+		s %TypeName{"ezTypeScriptComponent"}
+		u3 %TypeSize{184}
+		u3 %TypeVersion{3}
 	}
 }
 o
