@@ -16,7 +16,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezTypeScriptComponent, 3, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezTypeScriptComponent, 4, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -43,6 +43,8 @@ ezTypeScriptComponent::~ezTypeScriptComponent() = default;
 
 void ezTypeScriptComponent::SerializeComponent(ezWorldWriter& stream) const
 {
+  SUPER::SerializeComponent(stream);
+
   auto& s = stream.GetStream();
 
   s << m_TypeScriptComponentGuid;
@@ -61,6 +63,11 @@ void ezTypeScriptComponent::SerializeComponent(ezWorldWriter& stream) const
 void ezTypeScriptComponent::DeserializeComponent(ezWorldReader& stream)
 {
   const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+
+  if (uiVersion >= 4)
+  {
+    SUPER::DeserializeComponent(stream);
+  }
 
   auto& s = stream.GetStream();
 

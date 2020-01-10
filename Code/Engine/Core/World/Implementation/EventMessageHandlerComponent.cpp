@@ -72,7 +72,7 @@ void ezEventMessageHandlerComponent::DeserializeComponent(ezWorldReader& stream)
     bool bGlobalEH;
     s >> bGlobalEH;
 
-    SetGlobalEventHandlerMode(m_bIsGlobalEventHandler);
+    SetGlobalEventHandlerMode(bGlobalEH);
   }
 }
 
