@@ -6,6 +6,21 @@
 #include <ProcGenPlugin/Tasks/VertexColorTask.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
 
+namespace
+{
+  EZ_ALWAYS_INLINE float Remap(ezEnum<ezProcVertexColorChannelMapping> channelMapping, const ezColor& srcColor)
+  {
+    if (channelMapping >= ezProcVertexColorChannelMapping::R && channelMapping <= ezProcVertexColorChannelMapping::A)
+    {
+      return (&srcColor.r)[channelMapping];
+    }
+    else
+    {
+      return channelMapping == ezProcVertexColorChannelMapping::White ? 1.0f : 0.0f;
+    }
+  }
+} // namespace
+
 using namespace ezProcGenInternal;
 
 VertexColorTask::VertexColorTask()
@@ -17,7 +32,7 @@ VertexColorTask::VertexColorTask()
 VertexColorTask::~VertexColorTask() = default;
 
 void VertexColorTask::Prepare(const ezWorld& world, const ezMeshBufferResourceDescriptor& mbDesc, const ezTransform& transform,
-  ezArrayPtr<ezSharedPtr<const VertexColorOutput>> outputs, ezArrayPtr<ezUInt32> outputVertexColors)
+  ezArrayPtr<ezSharedPtr<const VertexColorOutput>> outputs, ezArrayPtr<ezProcVertexColorMapping> outputMappings, ezArrayPtr<ezUInt32> outputVertexColors)
 {
   EZ_PROFILE_SCOPE("VertexColorPrepare");
 
@@ -79,6 +94,7 @@ void VertexColorTask::Prepare(const ezWorld& world, const ezMeshBufferResourceDe
   }
 
   m_Outputs = outputs;
+  m_OutputMappings = outputMappings;
   m_OutputVertexColors = outputVertexColors;
 
   //////////////////////////////////////////////////////////////////////////
@@ -141,9 +157,17 @@ void VertexColorTask::Execute()
     // Execute expression bytecode
     m_VM.Execute(*(pOutput->m_pByteCode), inputs, outputs, uiNumVertices, m_GlobalData);
 
+    auto& outputMapping = m_OutputMappings[uiOutputIndex];
     for (ezUInt32 i = 0; i < uiNumVertices; ++i)
     {
-      ezColorLinearUB vertexColor = m_TempData[i];
+      ezColor srcColor = m_TempData[i];
+      ezColor remappedColor;
+      remappedColor.r = Remap(outputMapping.m_R, srcColor);
+      remappedColor.g = Remap(outputMapping.m_G, srcColor);
+      remappedColor.b = Remap(outputMapping.m_B, srcColor);
+      remappedColor.a = Remap(outputMapping.m_A, srcColor);
+
+      ezColorLinearUB vertexColor = remappedColor;
 
       // Store output vertex colors interleaved
       m_OutputVertexColors[i * uiNumOutputs + uiOutputIndex] = *reinterpret_cast<ezUInt32*>(&vertexColor.r);

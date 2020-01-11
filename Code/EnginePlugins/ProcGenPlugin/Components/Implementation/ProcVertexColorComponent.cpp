@@ -109,6 +109,7 @@ void ezProcVertexColorComponentManager::UpdateVertexColors(const ezWorldModule::
 void ezProcVertexColorComponentManager::UpdateComponentVertexColors(ezProcVertexColorComponent* pComponent)
 {
   pComponent->m_Outputs.Clear();
+  ezHybridArray<ezProcVertexColorMapping, 2> outputMappings;
 
   {
     ezResourceLock<ezProcGenGraphResource> pResource(pComponent->m_hResource, ezResourceAcquireMode::BlockTillLoaded);
@@ -135,6 +136,8 @@ void ezProcVertexColorComponentManager::UpdateComponentVertexColors(ezProcVertex
       {
         pComponent->m_Outputs.PushBack(nullptr);
       }
+
+      outputMappings.PushBack(outputDesc.m_Mapping);
     }
   }
 
@@ -180,7 +183,7 @@ void ezProcVertexColorComponentManager::UpdateComponentVertexColors(ezProcVertex
   pUpdateTask->SetTaskName(taskName);
 
   pUpdateTask->Prepare(*GetWorld(), mbDesc, pComponent->GetOwner()->GetGlobalTransform(), pComponent->m_Outputs,
-    m_VertexColorData.GetArrayPtr().GetSubArray(uiBufferOffset, uiVertexColorCount));
+    outputMappings, m_VertexColorData.GetArrayPtr().GetSubArray(uiBufferOffset, uiVertexColorCount));
 
   ezTaskSystem::AddTaskToGroup(m_UpdateTaskGroupID, pUpdateTask.Borrow());
 
@@ -283,20 +286,12 @@ void ezProcVertexColorComponentManager::OnAreaInvalidated(const ezProcGenInterna
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezProcVertexColorMapping, 1)
-  EZ_ENUM_CONSTANTS(ezProcVertexColorMapping::R, ezProcVertexColorMapping::G, ezProcVertexColorMapping::B, ezProcVertexColorMapping::A)
-  EZ_ENUM_CONSTANTS(ezProcVertexColorMapping::Black, ezProcVertexColorMapping::White)
-EZ_END_STATIC_REFLECTED_ENUM;
-
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProcVertexColorOutputDesc, ezNoBase, 1, ezRTTIDefaultAllocator<ezProcVertexColorOutputDesc>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Name", GetName, SetName),
-    EZ_ENUM_MEMBER_PROPERTY("MapR", ezProcVertexColorMapping, m_MappingR)->AddAttributes(new ezDefaultValueAttribute(ezProcVertexColorMapping::R)),
-    EZ_ENUM_MEMBER_PROPERTY("MapG", ezProcVertexColorMapping, m_MappingG)->AddAttributes(new ezDefaultValueAttribute(ezProcVertexColorMapping::G)),
-    EZ_ENUM_MEMBER_PROPERTY("MapB", ezProcVertexColorMapping, m_MappingB)->AddAttributes(new ezDefaultValueAttribute(ezProcVertexColorMapping::B)),
-    EZ_ENUM_MEMBER_PROPERTY("MapA", ezProcVertexColorMapping, m_MappingA)->AddAttributes(new ezDefaultValueAttribute(ezProcVertexColorMapping::A)),
+    EZ_MEMBER_PROPERTY("Mapping", m_Mapping),
   }
   EZ_END_PROPERTIES;
 }
@@ -313,11 +308,8 @@ ezResult ezProcVertexColorOutputDesc::Serialize(ezStreamWriter& stream) const
 {
   stream.WriteVersion(s_ProcVertexColorOutputDescVersion);
   stream << m_sName;
-  stream << m_MappingR;
-  stream << m_MappingG;
-  stream << m_MappingB;
-  stream << m_MappingA;
-
+  EZ_SUCCEED_OR_RETURN(m_Mapping.Serialize(stream));
+  
   return EZ_SUCCESS;
 }
 
@@ -325,10 +317,7 @@ ezResult ezProcVertexColorOutputDesc::Deserialize(ezStreamReader& stream)
 {
   /*ezTypeVersion version =*/ stream.ReadVersion(s_ProcVertexColorOutputDescVersion);
   stream >> m_sName;
-  stream >> m_MappingR;
-  stream >> m_MappingG;
-  stream >> m_MappingB;
-  stream >> m_MappingA;
+  EZ_SUCCEED_OR_RETURN(m_Mapping.Deserialize(stream));
 
   return EZ_SUCCESS;
 }

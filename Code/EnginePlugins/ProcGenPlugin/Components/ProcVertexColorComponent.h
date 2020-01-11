@@ -68,32 +68,10 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-struct ezProcVertexColorMapping
-{
-  typedef ezUInt8 StorageType;
-
-  enum Enum
-  {
-    R,
-    G,
-    B,
-    A,
-    Black,
-    White,
-
-    Default = R
-  };
-};
-
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCGENPLUGIN_DLL, ezProcVertexColorMapping);
-
 struct ezProcVertexColorOutputDesc
 {
   ezHashedString m_sName;
-  ezEnum<ezProcVertexColorMapping> m_MappingR = ezProcVertexColorMapping::R;
-  ezEnum<ezProcVertexColorMapping> m_MappingG = ezProcVertexColorMapping::G;
-  ezEnum<ezProcVertexColorMapping> m_MappingB = ezProcVertexColorMapping::B;
-  ezEnum<ezProcVertexColorMapping> m_MappingA = ezProcVertexColorMapping::A;
+  ezProcVertexColorMapping m_Mapping;
 
   void SetName(const char* szName);
   const char* GetName() const { return m_sName; }

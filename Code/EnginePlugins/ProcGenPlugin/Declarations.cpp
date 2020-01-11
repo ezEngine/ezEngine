@@ -5,11 +5,52 @@
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezProcGenBlendMode, 1)
-EZ_ENUM_CONSTANTS(ezProcGenBlendMode::Add, ezProcGenBlendMode::Subtract, ezProcGenBlendMode::Multiply, ezProcGenBlendMode::Divide)
-EZ_ENUM_CONSTANTS(ezProcGenBlendMode::Max, ezProcGenBlendMode::Min)
-EZ_ENUM_CONSTANTS(ezProcGenBlendMode::Set)
+  EZ_ENUM_CONSTANTS(ezProcGenBlendMode::Add, ezProcGenBlendMode::Subtract, ezProcGenBlendMode::Multiply, ezProcGenBlendMode::Divide)
+  EZ_ENUM_CONSTANTS(ezProcGenBlendMode::Max, ezProcGenBlendMode::Min)
+  EZ_ENUM_CONSTANTS(ezProcGenBlendMode::Set)
 EZ_END_STATIC_REFLECTED_ENUM;
+
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezProcVertexColorChannelMapping, 1)
+  EZ_ENUM_CONSTANTS(ezProcVertexColorChannelMapping::R, ezProcVertexColorChannelMapping::G, ezProcVertexColorChannelMapping::B, ezProcVertexColorChannelMapping::A)
+  EZ_ENUM_CONSTANTS(ezProcVertexColorChannelMapping::Black, ezProcVertexColorChannelMapping::White)
+EZ_END_STATIC_REFLECTED_ENUM;
+
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProcVertexColorMapping, ezNoBase, 1, ezRTTIDefaultAllocator<ezProcVertexColorMapping>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ENUM_MEMBER_PROPERTY("R", ezProcVertexColorChannelMapping, m_R)->AddAttributes(new ezDefaultValueAttribute(ezProcVertexColorChannelMapping::R)),
+    EZ_ENUM_MEMBER_PROPERTY("G", ezProcVertexColorChannelMapping, m_G)->AddAttributes(new ezDefaultValueAttribute(ezProcVertexColorChannelMapping::G)),
+    EZ_ENUM_MEMBER_PROPERTY("B", ezProcVertexColorChannelMapping, m_B)->AddAttributes(new ezDefaultValueAttribute(ezProcVertexColorChannelMapping::B)),
+    EZ_ENUM_MEMBER_PROPERTY("A", ezProcVertexColorChannelMapping, m_A)->AddAttributes(new ezDefaultValueAttribute(ezProcVertexColorChannelMapping::A)),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
+
+static ezTypeVersion s_ProcVertexColorMappingVersion = 1;
+ezResult ezProcVertexColorMapping::Serialize(ezStreamWriter& stream) const
+{
+  stream.WriteVersion(s_ProcVertexColorMappingVersion);
+  stream << m_R;
+  stream << m_G;
+  stream << m_B;
+  stream << m_A;
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezProcVertexColorMapping::Deserialize(ezStreamReader& stream)
+{
+  /*ezTypeVersion version =*/stream.ReadVersion(s_ProcVertexColorMappingVersion);
+  stream >> m_R;
+  stream >> m_G;
+  stream >> m_B;
+  stream >> m_A;
+
+  return EZ_SUCCESS;
+}
 
 namespace ezProcGenInternal
 {

@@ -17,10 +17,11 @@ ezProcGenBlendMode::Min;Min
 ezProcGenBlendMode::Set;Set
 OutputDescs;Output Descriptions
 ezProcVertexColorOutputDesc;Output Description
-ezProcVertexColorMapping;Vertex Color Mapping
-ezProcVertexColorMapping::R;R
-ezProcVertexColorMapping::G;G
-ezProcVertexColorMapping::B;B
-ezProcVertexColorMapping::A;A
-ezProcVertexColorMapping::Black;Black
-ezProcVertexColorMapping::White;White
+Mapping;Mapping
+ezProcVertexColorChannelMapping;Vertex Color Channel Mapping
+ezProcVertexColorChannelMapping::R;R
+ezProcVertexColorChannelMapping::G;G
+ezProcVertexColorChannelMapping::B;B
+ezProcVertexColorChannelMapping::A;A
+ezProcVertexColorChannelMapping::Black;Black
+ezProcVertexColorChannelMapping::White;White
