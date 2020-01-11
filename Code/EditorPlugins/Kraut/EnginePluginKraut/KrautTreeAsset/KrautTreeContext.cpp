@@ -126,7 +126,9 @@ void ezKrautTreeContext::OnInitialize()
     {
       const char* szMeshBufferName = "KrautPreviewGroundMeshBuffer";
 
-      ezMeshBufferResourceHandle hMeshBuffer;
+      ezMeshBufferResourceHandle hMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szMeshBufferName);
+
+      if (!hMeshBuffer.IsValid())
       {
         // Build geometry
         ezMat4 t;

@@ -41,6 +41,12 @@ export class MsgAnimationPoseUpdated extends Message
   constructor() { super(); this.TypeNameHash = 3874463418; }
 }
 
+export class MsgAnimationReachedEnd extends EventMessage
+{
+  public static GetTypeNameHash(): number { return 3161817575; }
+  constructor() { super(); this.TypeNameHash = 3161817575; }
+}
+
 export class MsgBreakableSheetBroke extends EventMessage
 {
   public static GetTypeNameHash(): number { return 2481203103; }
@@ -168,12 +174,6 @@ export class MsgPhysicsAddImpulse extends Message
   GlobalPosition: Vec3 = new Vec3(0, 0, 0);
   Impulse: Vec3 = new Vec3(0, 0, 0);
   ShapeID: number = 0;
-}
-
-export class MsgPropertyAnimationEndReached extends EventMessage
-{
-  public static GetTypeNameHash(): number { return 3741310044; }
-  constructor() { super(); this.TypeNameHash = 3741310044; }
 }
 
 export class MsgPxTriggerTriggered extends EventMessage

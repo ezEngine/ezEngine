@@ -123,7 +123,9 @@ void ezParticleContext::OnInitialize()
   {
     const char* szMeshBufferName = "ParticlePreviewBackgroundMeshBuffer";
 
-    ezMeshBufferResourceHandle hMeshBuffer;
+    ezMeshBufferResourceHandle hMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szMeshBufferName);
+
+    if (!hMeshBuffer.IsValid())
     {
       // Build geometry
       ezGeometry geom;

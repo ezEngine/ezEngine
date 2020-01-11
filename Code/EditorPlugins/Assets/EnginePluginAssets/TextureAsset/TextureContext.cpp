@@ -110,6 +110,7 @@ void ezTextureContext::OnInitialize()
     const char* szMeshBufferName = "DefaultTexturePreviewMeshBuffer";
 
     ezMeshBufferResourceHandle hMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szMeshBufferName);
+
     if (!hMeshBuffer.IsValid())
     {
       // Build geometry
