@@ -75,7 +75,7 @@ declare function __CPP_GameObject_SetParent(_this: GameObject, parent: GameObjec
 declare function __CPP_GameObject_AddChild(_this: GameObject, child: GameObject, preserveGlobalTransform: boolean): void;
 declare function __CPP_GameObject_DetachChild(_this: GameObject, child: GameObject, preserveGlobalTransform: boolean): void;
 declare function __CPP_GameObject_GetChildCount(_this: GameObject): number;
-
+declare function __CPP_GameObject_GetChildren(__this: GameObject): GameObject[];
 
 /**
  * Represents a C++ ezGameObject on the TypeScript side.
@@ -532,5 +532,12 @@ export class GameObject {
      */
     GetChildCount(): number {
         return __CPP_GameObject_GetChildCount(this);
+    }
+
+    /**
+     * Returns all the child objects in an array.
+     */
+    GetChildren(): GameObject[] {
+        return __CPP_GameObject_GetChildren(this);
     }
 }

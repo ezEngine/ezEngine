@@ -30,6 +30,7 @@ static int __CPP_GameObject_ChangeTags(duk_context* pDuk);
 static int __CPP_GameObject_CheckTags(duk_context* pDuk);
 static int __CPP_GameObject_GetParent(duk_context* pDuk);
 static int __CPP_GameObject_SetX_GameObject(duk_context* pDuk);
+static int __CPP_GameObject_GetChildren(duk_context* pDuk);
 
 enum GameObject_X
 {
@@ -94,6 +95,7 @@ ezResult ezTypeScriptBinding::Init_GameObject()
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_AddChild", __CPP_GameObject_SetX_GameObject, 3, GameObject_X::AddChild);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_DetachChild", __CPP_GameObject_SetX_GameObject, 3, GameObject_X::DetachChild);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetChildCount", __CPP_GameObject_GetX_Float, 1, GameObject_X::ChildCount);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetChildren", __CPP_GameObject_GetChildren, 1);
   m_Duk.RegisterGlobalFunctionWithVarArgs("__CPP_GameObject_SetTags", __CPP_GameObject_ChangeTags, 0);
   m_Duk.RegisterGlobalFunctionWithVarArgs("__CPP_GameObject_AddTags", __CPP_GameObject_ChangeTags, 1);
   m_Duk.RegisterGlobalFunctionWithVarArgs("__CPP_GameObject_RemoveTags", __CPP_GameObject_ChangeTags, 2);
@@ -822,4 +824,23 @@ static int __CPP_GameObject_SetX_GameObject(duk_context* pDuk)
   }
 
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnVoid(), 0);
+}
+
+static int __CPP_GameObject_GetChildren(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk);
+
+  ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(pDuk);
+  ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
+
+  const int arrayObj = duk_push_array(pDuk);
+
+  int curIdx = 0;
+  for (auto it = pGameObject->GetChildren(); it.IsValid(); ++it, ++curIdx)
+  {
+    pBinding->DukPutGameObject(&it.Current());
+    duk_put_prop_index(pDuk, arrayObj, curIdx);
+  }
+
+  EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnCustom(), +1);
 }

@@ -21,7 +21,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5626082822448812211,4990603051938895891}}
-		u4 %Hash{3369211887909601845}
+		u4 %Hash{1062776582034348450}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{7031288620226640771,10500390495068248024}}
@@ -167,7 +167,7 @@ o
 		Vec3 %LocalScaling{f{0xCDCC4C3D,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{"root"}
+		s %Name{"Monitor"}
 		VarArray %Tags
 		{
 			s{"CastShadow"}
@@ -195,7 +195,7 @@ o
 {
 	Uuid %id{u4{1988503975885608593,5531953487429157397}}
 	s %t{"ezTypeScriptComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -478,7 +478,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezTypeScriptComponent"}
 		u3 %TypeSize{184}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{4}
 	}
 }
 o
