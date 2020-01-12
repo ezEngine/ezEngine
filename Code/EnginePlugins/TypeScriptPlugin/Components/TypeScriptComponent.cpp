@@ -268,7 +268,7 @@ void ezTypeScriptComponent::OnSimulationStarted()
   }
 
   ezUInt32 uiStashIdx = 0;
-  if (binding.RegisterComponent(m_ComponentTypeInfo.Value().m_sComponentTypeName, GetHandle(), uiStashIdx).Failed())
+  if (binding.RegisterComponent(m_ComponentTypeInfo.Value().m_sComponentTypeName, GetHandle(), uiStashIdx, false).Failed())
   {
     SetUserFlag(UserFlag::ScriptFailure, true);
     return;
