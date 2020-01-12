@@ -52,6 +52,8 @@ public:
   ezResult Initialize(ezWorld& world);
   ezResult LoadComponent(const ezUuid& typeGuid, TsComponentTypeInfo& out_TypeInfo);
 
+  ezResult FindScriptComponentInfo(const char* szComponentType, TsComponentTypeInfo& out_TypeInfo);
+
   void RegisterMessageHandlersForComponentType(const char* szComponent, const ezUuid& componentType);
 
   EZ_ALWAYS_INLINE ezDuktapeContext& GetDukTapeContext() { return m_Duk; }

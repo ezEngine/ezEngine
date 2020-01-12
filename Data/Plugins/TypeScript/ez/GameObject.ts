@@ -15,6 +15,7 @@ export import Message = __Message.Message;
 
 import __Component = require("./Component")
 export import Component = __Component.Component;
+export import TypescriptComponent = __Component.TypescriptComponent;
 
 declare function __CPP_GameObject_IsValid(_this: GameObject): boolean;
 
@@ -56,8 +57,9 @@ declare function __CPP_GameObject_FindChildByName(_this: GameObject, name: strin
 declare function __CPP_GameObject_FindChildByPath(_this: GameObject, path: string): GameObject;
 declare function __CPP_GameObject_SearchForChildByNameSequence(_this: GameObject, objectSequence: string, componentNameHash: number): GameObject;
 
-declare function __CPP_GameObject_TryGetComponentOfBaseTypeName(_this: GameObject, typeName: string);
-declare function __CPP_GameObject_TryGetComponentOfBaseTypeNameHash(_this: GameObject, nameHash: number);
+declare function __CPP_GameObject_TryGetComponentOfBaseTypeName(_this: GameObject, typeName: string): any;
+declare function __CPP_GameObject_TryGetComponentOfBaseTypeNameHash(_this: GameObject, nameHash: number): any;
+declare function __CPP_GameObject_TryGetScriptComponent(_this: GameObject, typeName: string): any;
 
 declare function __CPP_GameObject_SendMessage(_this: GameObject, typeNameHash: number, msg: Message, recursive: boolean, expectMsgResult: boolean): void;
 declare function __CPP_GameObject_PostMessage(_this: GameObject, typeNameHash: number, msg: Message, recursive: boolean, delay: number): void;
@@ -357,6 +359,9 @@ export class GameObject {
 
     /**
      * Tries to find a component of type 'typeName' in the object's components list and returns the first match.
+     * 
+     * This function only works for C++ components, not for script components (derived from TypescriptComponent).
+     * Use TryGetScriptComponent() for such use cases instead.
      */
     TryGetComponentOfBaseTypeName<TYPE extends Component>(typeName: string): TYPE { // [tested]
         return __CPP_GameObject_TryGetComponentOfBaseTypeName(this, typeName);
@@ -364,9 +369,23 @@ export class GameObject {
 
     /**
      * Tries to find a component of type 'typeClass' in the object's components list and returns the first match.
+     * 
+     * This function only works for C++ components, not for script components (derived from TypescriptComponent).
+     * Use TryGetScriptComponent() for such use cases instead.
      */
     TryGetComponentOfBaseType<TYPE extends Component>(typeClass: new () => TYPE): TYPE { // [tested]
         return __CPP_GameObject_TryGetComponentOfBaseTypeNameHash(this, typeClass.GetTypeNameHash());
+    }
+
+    /**
+     * Similar to TryGetComponentOfBaseType() but tries to find a component type written in TypeScript.
+     * 
+     * See also ez.Utils.FindPrefabRootScript() for the common use case to finding the script of a prefab instance.
+     * 
+     * @param typeName The name of the TypeScript component to find.
+     */
+    TryGetScriptComponent<TYPE extends TypescriptComponent>(typeName: string): TYPE {
+        return __CPP_GameObject_TryGetScriptComponent(this, typeName);
     }
 
     /**

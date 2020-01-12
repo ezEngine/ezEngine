@@ -19,6 +19,7 @@ static int __CPP_GameObject_FindChildByName(duk_context* pDuk);
 static int __CPP_GameObject_FindChildByPath(duk_context* pDuk);
 static int __CPP_GameObject_TryGetComponentOfBaseTypeName(duk_context* pDuk);
 static int __CPP_GameObject_TryGetComponentOfBaseTypeNameHash(duk_context* pDuk);
+static int __CPP_GameObject_TryGetScriptComponent(duk_context* pDuk);
 static int __CPP_GameObject_SearchForChildByNameSequence(duk_context* pDuk);
 static int __CPP_GameObject_SendMessage(duk_context* pDuk);
 static int __CPP_GameObject_SetString(duk_context* pDuk);
@@ -73,6 +74,7 @@ ezResult ezTypeScriptBinding::Init_GameObject()
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_FindChildByPath", __CPP_GameObject_FindChildByPath, 2);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_TryGetComponentOfBaseTypeName", __CPP_GameObject_TryGetComponentOfBaseTypeName, 2);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_TryGetComponentOfBaseTypeNameHash", __CPP_GameObject_TryGetComponentOfBaseTypeNameHash, 2);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_TryGetScriptComponent", __CPP_GameObject_TryGetScriptComponent, 2);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_SearchForChildByNameSequence", __CPP_GameObject_SearchForChildByNameSequence, 3);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_SendMessage", __CPP_GameObject_SendMessage, 5, 0);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_PostMessage", __CPP_GameObject_SendMessage, 5, 1);
@@ -545,6 +547,37 @@ static int __CPP_GameObject_TryGetComponentOfBaseTypeNameHash(duk_context* pDuk)
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnCustom(), +1);
 }
 
+static int __CPP_GameObject_TryGetScriptComponent(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk);
+
+  ezGameObject* pGameObject = ezTypeScriptBinding::ExpectGameObject(duk, 0 /*this*/);
+  const char* szTypeName = duk.GetStringValue(1);
+
+  ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(duk);
+
+  ezTypeScriptBinding::TsComponentTypeInfo info;
+  if (pBinding->FindScriptComponentInfo(szTypeName, info).Succeeded())
+  {
+    ezHybridArray<ezTypeScriptComponent*, 8> components;
+    pGameObject->TryGetComponentsOfBaseType(components);
+
+    for (auto* pTs : components)
+    {
+      if (pTs->GetTypeScriptComponentGuid() == info.Key())
+      {
+        pBinding->DukPutComponentObject(pTs);
+        goto found;
+      }
+    }
+  }
+
+  duk.PushNull();
+
+found:
+  EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnCustom(), +1);
+}
+
 static int __CPP_GameObject_SearchForChildByNameSequence(duk_context* pDuk)
 {
   ezDuktapeFunction duk(pDuk);
@@ -790,5 +823,3 @@ static int __CPP_GameObject_SetX_GameObject(duk_context* pDuk)
 
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnVoid(), 0);
 }
-
-

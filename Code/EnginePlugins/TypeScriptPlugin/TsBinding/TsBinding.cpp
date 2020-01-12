@@ -140,6 +140,20 @@ ezResult ezTypeScriptBinding::LoadComponent(const ezUuid& typeGuid, TsComponentT
   return EZ_SUCCESS;
 }
 
+ezResult ezTypeScriptBinding::FindScriptComponentInfo(const char* szComponentType, TsComponentTypeInfo& out_TypeInfo)
+{
+  for (auto it : m_TsComponentTypes)
+  {
+    if (it.Value().m_sComponentTypeName == szComponentType)
+    {
+      out_TypeInfo = it;
+      return EZ_SUCCESS;
+    }
+  }
+
+  return EZ_FAILURE;
+}
+
 void ezTypeScriptBinding::CleanupStash(ezUInt32 uiNumIterations)
 {
   if (!m_LastCleanupObj.IsValid())

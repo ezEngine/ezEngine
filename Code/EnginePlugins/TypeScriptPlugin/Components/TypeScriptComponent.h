@@ -81,6 +81,9 @@ public:
 
   void SetUpdateInterval(ezTime interval) { m_UpdateInterval = interval; }
 
+  void SetTypeScriptComponentGuid(const ezUuid& hResource);
+  const ezUuid& GetTypeScriptComponentGuid() const;
+
 private:
   struct EventSender
   {
@@ -98,9 +101,6 @@ private:
 
   void SetTypeScriptComponentFile(const char* szFile); // [ property ]
   const char* GetTypeScriptComponentFile() const;      // [ property ]
-
-  void SetTypeScriptComponentGuid(const ezUuid& hResource);
-  const ezUuid& GetTypeScriptComponentGuid() const;
 
   void OnMsgTypeScriptMsgProxy(ezMsgTypeScriptMsgProxy& msg); // [ message handler ]
 
