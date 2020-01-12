@@ -60,8 +60,6 @@ export class Corridor extends ez.TickedTypescriptComponent {
             if (this.monitor1State > 2)
                 this.monitor1State = 0;
 
-            ez.Log.Info("SwitchMonitor1: " + this.monitor1State);
-
             let msg = new monitor.MsgSwitchMonitor();
 
             switch (this.monitor1State) {
@@ -79,14 +77,14 @@ export class Corridor extends ez.TickedTypescriptComponent {
                     break;
             }
 
-            let monitorObj = ez.World.TryGetObjectWithGlobalKey("Monitor1");
+            let mon = ez.Utils.FindPrefabRootScript<monitor.Monitor>(ez.World.TryGetObjectWithGlobalKey("Monitor1"), "Monitor");
 
-            if (monitorObj != null) {
-                let root = monitorObj.FindChildByName("root");
+            if (mon != null) {
 
-                if (root != null) {
-                    root.SendMessage(msg);
-                }
+                // can call the function directly
+                mon.OnMsgSwitchMonitor(msg);
+
+                //monitor.SendMessage(msg);
             }
         }
     }

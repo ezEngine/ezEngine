@@ -23,7 +23,6 @@ export class Monitor extends ez.TypescriptComponent {
     }
 
     OnMsgSwitchMonitor(msg: MsgSwitchMonitor): void {
-        ez.Log.Info("Got MsgSwitchMonitor: " + msg.screenMaterial);
 
         let owner = this.GetOwner();
         let display = owner.FindChildByName("Display");
