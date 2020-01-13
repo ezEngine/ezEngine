@@ -55,12 +55,15 @@ public:
   ezSpawnComponent();
   ~ezSpawnComponent();
 
+  /// \brief Checks whether the last spawn time was long enough ago that a call to TriggerManualSpawn() would succeed.
+  bool CanTriggerManualSpawn() const; // [ scriptable ]
+
   /// \brief Spawns a new object, unless the minimum spawn delay has not been reached between calls to this function.
   ///
   /// Manual spawns and continuous (scheduled) spawns are independent from each other regarding minimum spawn delays.
   /// If this function is called in too short intervals, it is ignored and false is returned.
   /// Returns true, if an object was spawned.
-  bool TriggerManualSpawn(); // [ scriptable ]
+  bool TriggerManualSpawn(bool bIgnoreSpawnDelay = false, const ezVec3& vLocalOffset = ezVec3::ZeroVector()); // [ scriptable ]
 
   /// \brief Unless a spawn is already scheduled, this will schedule one within the configured time frame.
   ///
@@ -97,7 +100,7 @@ protected:
   ezBitflags<ezSpawnComponentFlags> m_SpawnFlags;
 
   virtual void DoSpawn(const ezTransform& tLocalSpawn);
-  bool SpawnOnce();
+  bool SpawnOnce(const ezVec3& vLocalOffset);
   void OnTriggered(ezMsgComponentInternalTrigger& msg);
 
   ezTime m_LastManualSpawn;
