@@ -2,6 +2,7 @@
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/Document/GameObjectDocument.h>
 #include <EditorPluginTypeScript/TypeScriptAsset/TypeScriptAsset.h>
 #include <EditorPluginTypeScript/TypeScriptAsset/TypeScriptAssetManager.h>
 #include <EditorPluginTypeScript/TypeScriptAsset/TypeScriptAssetWindow.moc.h>
@@ -33,6 +34,11 @@ ezTypeScriptAssetDocumentManager::ezTypeScriptAssetDocumentManager()
   ezQtImageCache::GetSingleton()->RegisterTypeImage("TypeScript", QPixmap(":/AssetIcons/TypeScript.png"));
 
   ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezTypeScriptAssetDocumentManager::ToolsProjectEventHandler, this));
+
+  ezGameObjectDocument::s_GameObjectDocumentEvents.AddEventHandler(ezMakeDelegate(&ezTypeScriptAssetDocumentManager::GameObjectDocumentEventHandler, this));
+
+  // make sure the preferences exist
+  ezPreferences::QueryPreferences<ezTypeScriptPreferences>();
 }
 
 ezTypeScriptAssetDocumentManager::~ezTypeScriptAssetDocumentManager()
@@ -42,6 +48,8 @@ ezTypeScriptAssetDocumentManager::~ezTypeScriptAssetDocumentManager()
   ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezTypeScriptAssetDocumentManager::ToolsProjectEventHandler, this));
 
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezTypeScriptAssetDocumentManager::OnDocumentManagerEvent, this));
+
+  ezGameObjectDocument::s_GameObjectDocumentEvents.RemoveEventHandler(ezMakeDelegate(&ezTypeScriptAssetDocumentManager::GameObjectDocumentEventHandler, this));
 }
 
 void ezTypeScriptAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
@@ -89,6 +97,30 @@ void ezTypeScriptAssetDocumentManager::ToolsProjectEventHandler(const ezToolsPro
   if (e.m_Type == ezToolsProjectEvent::Type::ProjectClosing)
   {
     ShutdownTranspiler();
+  }
+}
+
+void ezTypeScriptAssetDocumentManager::GameObjectDocumentEventHandler(const ezGameObjectDocumentEvent& e)
+{
+  switch (e.m_Type)
+  {
+    case ezGameObjectDocumentEvent::Type::GameMode_StartingSimulate:
+    {
+      if (ezPreferences::QueryPreferences<ezTypeScriptPreferences>()->m_bAutoUpdateScriptsForSimulation)
+      {
+        GenerateScriptCompendium(ezTransformFlags::Default);
+      }
+      break;
+    }
+
+    case ezGameObjectDocumentEvent::Type::GameMode_StartingPlay:
+    {
+      if (ezPreferences::QueryPreferences<ezTypeScriptPreferences>()->m_bAutoUpdateScriptsForPlayTheGame)
+      {
+        GenerateScriptCompendium(ezTransformFlags::Default);
+      }
+      break;
+    }
   }
 }
 
@@ -318,4 +350,24 @@ ezResult ezTypeScriptAssetDocumentManager::GenerateScriptCompendium(ezBitflags<e
   }
 
   return EZ_SUCCESS;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTypeScriptPreferences, 1, ezRTTIDefaultAllocator<ezTypeScriptPreferences>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("CompileForSimulation", m_bAutoUpdateScriptsForSimulation),
+    EZ_MEMBER_PROPERTY("CompileForPlayTheGame", m_bAutoUpdateScriptsForPlayTheGame),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezTypeScriptPreferences::ezTypeScriptPreferences()
+  : ezPreferences(ezPreferences::Domain::Application, "TypeScript")
+{
 }

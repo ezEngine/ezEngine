@@ -10,6 +10,7 @@
 
 class ezAssetFileHeader;
 class ezGameObjectEditTool;
+class ezGameObjectDocument;
 
 struct EZ_EDITORFRAMEWORK_DLL TransformationChanges
 {
@@ -43,14 +44,24 @@ struct EZ_EDITORFRAMEWORK_DLL ezGameObjectEvent
     TriggerSnapEachSelectedObjectToGrid,
 
     GameModeChanged,
-    BeforeTriggerGameModePlay,
-    TriggerGameModePlay,
-    TriggerStopGameModePlay,
 
     GizmoTransformMayBeInvalid, ///< Sent when a change was made that may affect the current gizmo / manipulator state (ie. objects have been moved)
   };
 
   Type m_Type;
+};
+
+struct ezGameObjectDocumentEvent
+{
+  enum class Type
+  {
+    GameMode_Stopped,
+    GameMode_StartingSimulate,
+    GameMode_StartingPlay,
+  };
+
+  Type m_Type;
+  ezGameObjectDocument* m_pDocument = nullptr;
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezGameObjectMetaData : public ezReflectedClass
@@ -212,6 +223,8 @@ public:
 public:
   mutable ezEvent<const ezGameObjectEvent&> m_GameObjectEvents;
   mutable ezObjectMetaData<ezUuid, ezGameObjectMetaData> m_GameObjectMetaData;
+
+  static ezEvent<const ezGameObjectDocumentEvent&> s_GameObjectDocumentEvents;
 
 protected:
   void InvalidateGlobalTransformValue(const ezDocumentObject* pObject) const;

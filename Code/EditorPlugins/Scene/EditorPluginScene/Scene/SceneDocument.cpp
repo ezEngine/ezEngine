@@ -522,6 +522,13 @@ void ezSceneDocument::StartSimulateWorld()
     return;
   }
 
+  {
+    ezGameObjectDocumentEvent e;
+    e.m_Type = ezGameObjectDocumentEvent::Type::GameMode_StartingSimulate;
+    e.m_pDocument = this;
+    s_GameObjectDocumentEvents.Broadcast(e);
+  }
+
   SetGameMode(GameMode::Simulate);
 }
 
@@ -535,9 +542,10 @@ void ezSceneDocument::TriggerGameModePlay(bool bUsePickedPositionAsStart)
   }
 
   {
-    ezGameObjectEvent e;
-    e.m_Type = ezGameObjectEvent::Type::BeforeTriggerGameModePlay;
-    m_GameObjectEvents.Broadcast(e);
+    ezGameObjectDocumentEvent e;
+    e.m_Type = ezGameObjectDocumentEvent::Type::GameMode_StartingPlay;
+    e.m_pDocument = this;
+    s_GameObjectDocumentEvents.Broadcast(e);
   }
 
   UpdateObjectDebugTargets();
@@ -568,12 +576,6 @@ void ezSceneDocument::TriggerGameModePlay(bool bUsePickedPositionAsStart)
 
     GetEditorEngineConnection()->SendMessage(&msg);
   }
-
-  {
-    ezGameObjectEvent e;
-    e.m_Type = ezGameObjectEvent::Type::TriggerGameModePlay;
-    m_GameObjectEvents.Broadcast(e);
-  }
 }
 
 
@@ -597,9 +599,13 @@ bool ezSceneDocument::StopGameMode()
       msg.m_bEnablePTG = false;
       GetEditorEngineConnection()->SendMessage(&msg);
     }
-    ezGameObjectEvent e;
-    e.m_Type = ezGameObjectEvent::Type::TriggerStopGameModePlay;
-    m_GameObjectEvents.Broadcast(e);
+  }
+
+  {
+    ezGameObjectDocumentEvent e;
+    e.m_Type = ezGameObjectDocumentEvent::Type::GameMode_Stopped;
+    e.m_pDocument = this;
+    s_GameObjectDocumentEvents.Broadcast(e);
   }
 
   return true;
