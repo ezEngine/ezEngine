@@ -49,12 +49,14 @@ private:
     ezProcGenNodeBase* m_pPPNode = nullptr;
   };
 
-  ezExpressionAST::Node* GenerateExpressionAST(const ezDocumentObject* outputNode, ezDocumentObjectConverterWriter& objectWriter,
-    ezRttiConverterReader& rttiConverter, ezHashTable<const ezDocumentObject*, CachedNode>& nodeCache, ezExpressionAST& out_Ast,
-    ezProcGenNodeBase::GenerateASTContext& context) const;
+  typedef ezHashTable<const ezDocumentObject*, CachedNode> NodeCache;
+
+  ezExpressionAST::Node* GenerateExpressionAST(const ezDocumentObject* outputNode, const char* szOutputName,
+    ezDocumentObjectConverterWriter& objectWriter, ezRttiConverterReader& rttiConverter, NodeCache& nodeCache,
+    ezExpressionAST& out_Ast, ezProcGenNodeBase::GenerateASTContext& context) const;
 
   ezExpressionAST::Node* GenerateDebugExpressionAST(ezDocumentObjectConverterWriter& objectWriter, ezRttiConverterReader& rttiConverter,
-    ezHashTable<const ezDocumentObject*, CachedNode>& nodeCache, ezExpressionAST& out_Ast, ezProcGenNodeBase::GenerateASTContext& context) const;
+    NodeCache& nodeCache, ezExpressionAST& out_Ast, ezProcGenNodeBase::GenerateASTContext& context) const;
 
   void DumpSelectedOutput(bool bAst, bool bDisassembly) const;
 

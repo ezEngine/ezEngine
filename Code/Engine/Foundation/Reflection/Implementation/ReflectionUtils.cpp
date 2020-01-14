@@ -1108,10 +1108,9 @@ bool ezReflectionUtils::StringToEnumeration(const ezRTTI* pEnumerationRtti, cons
       if (pProp->GetCategory() == ezPropertyCategory::Constant)
       {
         // Testing fully qualified and short value name
-        const ezInt32 uiMaxSearch = ezStringUtils::GetCharacterCount(pProp->GetPropertyName()) - 2;
-        const char* valueNameOnly =
-          ezStringUtils::FindLastSubString(pProp->GetPropertyName(), "::", nullptr, pProp->GetPropertyName() + uiMaxSearch) + 2;
-        if (ezStringUtils::IsEqual(pProp->GetPropertyName(), szValue) || ezStringUtils::IsEqual(valueNameOnly, szValue))
+        const char* valueNameOnly = ezStringUtils::FindLastSubString(pProp->GetPropertyName(), "::", nullptr);
+        if (ezStringUtils::IsEqual(pProp->GetPropertyName(), szValue) ||
+            (valueNameOnly != nullptr && ezStringUtils::IsEqual(valueNameOnly + 2, szValue)))
         {
           ezVariant value = static_cast<const ezAbstractConstantProperty*>(pProp)->GetConstant();
           out_iValue = value.ConvertTo<ezInt64>();
@@ -1133,10 +1132,9 @@ bool ezReflectionUtils::StringToEnumeration(const ezRTTI* pEnumerationRtti, cons
         if (pProp->GetCategory() == ezPropertyCategory::Constant)
         {
           // Testing fully qualified and short value name
-          const ezInt32 uiMaxSearch = ezStringUtils::GetStringElementCount(pProp->GetPropertyName());
-          const char* valueNameOnly =
-            ezStringUtils::FindLastSubString(pProp->GetPropertyName(), "::", nullptr, pProp->GetPropertyName() + uiMaxSearch) + 2;
-          if (sValue.IsEqual(pProp->GetPropertyName()) || sValue.IsEqual(valueNameOnly))
+          const char* valueNameOnly = ezStringUtils::FindLastSubString(pProp->GetPropertyName(), "::", nullptr);
+          if (sValue.IsEqual(pProp->GetPropertyName()) ||
+            (valueNameOnly != nullptr && sValue.IsEqual(valueNameOnly + 2)))
           {
             ezVariant value = static_cast<const ezAbstractConstantProperty*>(pProp)->GetConstant();
             out_iValue |= value.ConvertTo<ezInt64>();

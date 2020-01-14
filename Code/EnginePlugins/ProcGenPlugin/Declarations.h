@@ -32,6 +32,40 @@ struct ezProcGenBlendMode
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCGENPLUGIN_DLL, ezProcGenBlendMode);
 
+struct ezProcVertexColorChannelMapping
+{
+  typedef ezUInt8 StorageType;
+
+  enum Enum
+  {
+    R,
+    G,
+    B,
+    A,
+    Black,
+    White,
+
+    Default = R
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCGENPLUGIN_DLL, ezProcVertexColorChannelMapping);
+
+struct ezProcVertexColorMapping
+{
+  ezEnum<ezProcVertexColorChannelMapping> m_R = ezProcVertexColorChannelMapping::R;
+  ezEnum<ezProcVertexColorChannelMapping> m_G = ezProcVertexColorChannelMapping::G;
+  ezEnum<ezProcVertexColorChannelMapping> m_B = ezProcVertexColorChannelMapping::B;
+  ezEnum<ezProcVertexColorChannelMapping> m_A = ezProcVertexColorChannelMapping::A;
+
+  ezResult Serialize(ezStreamWriter& stream) const;
+  ezResult Deserialize(ezStreamReader& stream);
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCGENPLUGIN_DLL, ezProcVertexColorMapping);
+
+//////////////////////////////////////////////////////////////////////////
+
 namespace ezProcGenInternal
 {
   class PlacementTile;
@@ -119,6 +153,10 @@ namespace ezProcGenInternal
     static ezHashedString s_sNormalX;
     static ezHashedString s_sNormalY;
     static ezHashedString s_sNormalZ;
+    static ezHashedString s_sColorR;
+    static ezHashedString s_sColorG;
+    static ezHashedString s_sColorB;
+    static ezHashedString s_sColorA;
     static ezHashedString s_sPointIndex;
   };
 

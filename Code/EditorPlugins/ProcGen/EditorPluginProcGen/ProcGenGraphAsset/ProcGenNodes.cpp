@@ -145,9 +145,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenPlacementOutput, 1, ezRTTIDefaultAlloca
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezExpressionAST::Node* ezProcGenPlacementOutput::GenerateExpressionASTNode(ezArrayPtr<ezExpressionAST::Node*> inputs,
+ezExpressionAST::Node* ezProcGenPlacementOutput::GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs,
   ezExpressionAST& out_Ast, GenerateASTContext& context)
 {
+  EZ_ASSERT_DEBUG(sOutputName == "", "Implementation error");
+
   out_Ast.m_OutputNodes.Clear();
 
   // density
@@ -247,9 +249,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenVertexColorOutput, 1, ezRTTIDefaultAllo
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezExpressionAST::Node* ezProcGenVertexColorOutput::GenerateExpressionASTNode(ezArrayPtr<ezExpressionAST::Node*> inputs,
+ezExpressionAST::Node* ezProcGenVertexColorOutput::GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs,
   ezExpressionAST& out_Ast, GenerateASTContext& context)
 {
+  EZ_ASSERT_DEBUG(sOutputName == "", "Implementation error");
+
   out_Ast.m_OutputNodes.Clear();
 
   ezHashedString sOutputNames[4] = {ezProcGenInternal::ExpressionOutputs::s_sR, ezProcGenInternal::ExpressionOutputs::s_sG,
@@ -303,9 +307,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenRandom, 1, ezRTTIDefaultAllocator<ezPro
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezExpressionAST::Node* ezProcGenRandom::GenerateExpressionASTNode(ezArrayPtr<ezExpressionAST::Node*> inputs,
+ezExpressionAST::Node* ezProcGenRandom::GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs,
   ezExpressionAST& out_Ast, GenerateASTContext& context)
 {
+  EZ_ASSERT_DEBUG(sOutputName == "Value", "Implementation error");
+
   ezRandom rnd;
   rnd.Initialize(m_iSeed < 0 ? m_uiAutoSeed : m_iSeed);
 
@@ -344,9 +350,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenPerlinNoise, 1, ezRTTIDefaultAllocator<
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezExpressionAST::Node* ezProcGenPerlinNoise::GenerateExpressionASTNode(ezArrayPtr<ezExpressionAST::Node*> inputs,
+ezExpressionAST::Node* ezProcGenPerlinNoise::GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs,
   ezExpressionAST& out_Ast, GenerateASTContext& context)
 {
+  EZ_ASSERT_DEBUG(sOutputName == "Value", "Implementation error");
+
   ezExpressionAST::Node* pPosX = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sPositionX);
   ezExpressionAST::Node* pPosY = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sPositionY);
   ezExpressionAST::Node* pPosZ = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sPositionZ);
@@ -380,6 +388,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenBlend, 1, ezRTTIDefaultAllocator<ezProc
     EZ_ENUM_MEMBER_PROPERTY("Mode", ezProcGenBlendMode, m_BlendMode),
     EZ_MEMBER_PROPERTY("InputA", m_fInputValueA)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("InputB", m_fInputValueB)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+    EZ_MEMBER_PROPERTY("ClampOutput", m_bClampOutput),
 
     EZ_MEMBER_PROPERTY("A", m_InputValueAPin),
     EZ_MEMBER_PROPERTY("B", m_InputValueBPin),
@@ -396,9 +405,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenBlend, 1, ezRTTIDefaultAllocator<ezProc
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezExpressionAST::Node* ezProcGenBlend::GenerateExpressionASTNode(ezArrayPtr<ezExpressionAST::Node*> inputs,
+ezExpressionAST::Node* ezProcGenBlend::GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs,
   ezExpressionAST& out_Ast, GenerateASTContext& context)
 {
+  EZ_ASSERT_DEBUG(sOutputName == "Value", "Implementation error");
+
   auto pInputA = inputs[0];
   if (pInputA == nullptr)
   {
@@ -412,6 +423,13 @@ ezExpressionAST::Node* ezProcGenBlend::GenerateExpressionASTNode(ezArrayPtr<ezEx
   }
 
   auto pBlend = out_Ast.CreateBinaryOperator(GetBlendOperator(m_BlendMode), pInputA, pInputB);
+
+  if (m_bClampOutput)
+  {
+    pBlend = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Max, out_Ast.CreateConstant(0.0f), pBlend);
+    pBlend = out_Ast.CreateBinaryOperator(ezExpressionAST::NodeType::Min, out_Ast.CreateConstant(1.0f), pBlend);
+  }
+
   return pBlend;
 }
 
@@ -440,9 +458,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenHeight, 1, ezRTTIDefaultAllocator<ezPro
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezExpressionAST::Node* ezProcGenHeight::GenerateExpressionASTNode(ezArrayPtr<ezExpressionAST::Node*> inputs,
+ezExpressionAST::Node* ezProcGenHeight::GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs,
   ezExpressionAST& out_Ast, GenerateASTContext& context)
 {
+  EZ_ASSERT_DEBUG(sOutputName == "Value", "Implementation error");
+
   auto pHeight = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sPositionZ);
   return CreateRemapTo01WithFadeout(pHeight, m_fMinHeight, m_fMaxHeight, m_fLowerFade, m_fUpperFade, out_Ast);
 }
@@ -473,12 +493,59 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenSlope, 1, ezRTTIDefaultAllocator<ezProc
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezExpressionAST::Node* ezProcGenSlope::GenerateExpressionASTNode(ezArrayPtr<ezExpressionAST::Node*> inputs,
+ezExpressionAST::Node* ezProcGenSlope::GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs,
   ezExpressionAST& out_Ast, GenerateASTContext& context)
 {
+  EZ_ASSERT_DEBUG(sOutputName == "Value", "Implementation error");
+
   auto pNormalZ = out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sNormalZ);
   auto pAngle = out_Ast.CreateUnaryOperator(ezExpressionAST::NodeType::ACos, pNormalZ);
   return CreateRemapTo01WithFadeout(pAngle, m_MinSlope.GetRadian(), m_MaxSlope.GetRadian(), m_fLowerFade, m_fUpperFade, out_Ast);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenMeshVertexColor, 1, ezRTTIDefaultAllocator<ezProcGenMeshVertexColor>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("R", m_RPin)->AddAttributes(new ezColorAttribute(ezColor::LightCoral)),
+    EZ_MEMBER_PROPERTY("G", m_GPin)->AddAttributes(new ezColorAttribute(ezColor::LightGreen)),
+    EZ_MEMBER_PROPERTY("B", m_BPin)->AddAttributes(new ezColorAttribute(ezColor::LightSkyBlue)),
+    EZ_MEMBER_PROPERTY("A", m_APin)->AddAttributes(new ezColorAttribute(ezColor::White))
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezTitleAttribute("Mesh Vertex Color"),
+    new ezCategoryAttribute("Input"),
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezExpressionAST::Node* ezProcGenMeshVertexColor::GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs,
+  ezExpressionAST& out_Ast, GenerateASTContext& context)
+{
+  if (sOutputName == "R")
+  {
+    return out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sColorR);
+  }
+  else if (sOutputName == "G")
+  {
+    return out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sColorG);
+  }
+  else if (sOutputName == "B")
+  {
+    return out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sColorB);
+  }
+  else
+  {
+    EZ_ASSERT_DEBUG(sOutputName == "A", "Implementation error");
+    return out_Ast.CreateInput(ezProcGenInternal::ExpressionInputs::s_sColorA);
+  }
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -505,9 +572,11 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenApplyVolumes, 1, ezRTTIDefaultAllocator
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezExpressionAST::Node* ezProcGenApplyVolumes::GenerateExpressionASTNode(ezArrayPtr<ezExpressionAST::Node*> inputs,
+ezExpressionAST::Node* ezProcGenApplyVolumes::GenerateExpressionASTNode(ezTempHashedString sOutputName, ezArrayPtr<ezExpressionAST::Node*> inputs,
   ezExpressionAST& out_Ast, GenerateASTContext& context)
 {
+  EZ_ASSERT_DEBUG(sOutputName == "Value", "Implementation error");
+
   ezUInt32 tagSetIndex = context.m_SharedData.AddTagSet(m_IncludeTags);
   EZ_ASSERT_DEV(tagSetIndex <= 255, "Too many tag sets");
   if (!context.m_VolumeTagSetIndices.Contains(tagSetIndex))

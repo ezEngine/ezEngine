@@ -59,16 +59,20 @@ void ezProcVolumeComponent::OnDeactivated()
 {
   SUPER::OnDeactivated();
 
-  // Don't disable notifications as other components attached to the owner game object might need them too.
-  // GetOwner()->DisableStaticTransformChangesNotifications();
-
-  GetOwner()->UpdateLocalBounds();
-
   if (GetUniqueID() != ezInvalidIndex)
   {
     // Only necessary in Editor
-    InvalidateArea();
+    ezBoundingBoxSphere globalBounds = GetOwner()->GetGlobalBounds();
+    if (globalBounds.IsValid())
+    {
+      InvalidateArea(globalBounds.GetBox());
+    }
   }
+
+  // Don't disable notifications as other components attached to the owner game object might need them too.
+  // GetOwner()->DisableStaticTransformChangesNotifications();
+
+  GetOwner()->UpdateLocalBounds();  
 }
 
 void ezProcVolumeComponent::SetValue(float fValue)
@@ -237,7 +241,7 @@ void ezProcVolumeSphereComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& ms
 
 void ezProcVolumeSphereComponent::OnExtractVolumes(ezMsgExtractVolumes& msg) const
 {
-  msg.AddSphere(GetOwner()->GetGlobalTransformSimd(), m_fRadius, m_BlendMode, m_fSortOrder, m_fValue, m_fFadeOutStart);
+  msg.m_pCollection->AddSphere(GetOwner()->GetGlobalTransformSimd(), m_fRadius, m_BlendMode, m_fSortOrder, m_fValue, m_fFadeOutStart);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -323,5 +327,5 @@ void ezProcVolumeBoxComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) 
 
 void ezProcVolumeBoxComponent::OnExtractVolumes(ezMsgExtractVolumes& msg) const
 {
-  msg.AddBox(GetOwner()->GetGlobalTransformSimd(), m_vExtents, m_BlendMode, m_fSortOrder, m_fValue, m_vFadeOutStart);
+  msg.m_pCollection->AddBox(GetOwner()->GetGlobalTransformSimd(), m_vExtents, m_BlendMode, m_fSortOrder, m_fValue, m_vFadeOutStart);
 }
