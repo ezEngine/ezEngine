@@ -324,3 +324,19 @@ InputAction
 		float %Scale{1}
 	}
 }
+InputAction
+{
+	string %Set{"Player"}
+	string %Action{"Reload"}
+	bool %TimeScale{true}
+	Slot
+	{
+		string %Key{"keyboard_r"}
+		float %Scale{1}
+	}
+	Slot
+	{
+		string %Key{"controller0_button_x"}
+		float %Scale{1}
+	}
+}

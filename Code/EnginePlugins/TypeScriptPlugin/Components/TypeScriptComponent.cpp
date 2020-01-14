@@ -286,10 +286,10 @@ void ezTypeScriptComponent::OnSimulationStarted()
 
 void ezTypeScriptComponent::Update(ezTypeScriptBinding& binding)
 {
-  if (GetUserFlag(UserFlag::ScriptFailure))
+  if (GetUserFlag(UserFlag::ScriptFailure) || GetUserFlag(UserFlag::NoTsTick))
     return;
 
-  if (GetUserFlag(UserFlag::NoTsTick))
+  if (m_UpdateInterval.IsNegative())
     return;
 
   const ezTime tNow = GetWorld()->GetClock().GetAccumulatedTime();
