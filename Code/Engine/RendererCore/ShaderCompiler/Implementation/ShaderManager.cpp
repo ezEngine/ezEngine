@@ -18,39 +18,39 @@ namespace
   {
     ezHashedString m_sName;
     ezVariant m_DefaultValue;
-    ezDynamicArray<ezHashedString> m_EnumValues;
+    ezDynamicArray<ezHashedString, ezStaticAllocatorWrapper> m_EnumValues;
   };
 
-  // TODO: these two arrays will produce memory leak reports when any element resizes its own arrays
-  static ezHashTable<ezHashedString, ezUniquePtr<PermutationVarConfig>> s_PermutationVarConfigs;
+  static ezDeque<PermutationVarConfig, ezStaticAllocatorWrapper> s_PermutationVarConfigsStorage;
+  static ezHashTable<ezHashedString, PermutationVarConfig*> s_PermutationVarConfigs;
   static ezMutex s_PermutationVarConfigsMutex;
 
   const PermutationVarConfig* FindConfig(const char* szName, const ezTempHashedString& sHashedName)
   {
     EZ_LOCK(s_PermutationVarConfigsMutex);
 
-    ezUniquePtr<PermutationVarConfig>* ppConfig = nullptr;
-    if (!s_PermutationVarConfigs.TryGetValue(sHashedName, ppConfig))
+    PermutationVarConfig* pConfig = nullptr;
+    if (!s_PermutationVarConfigs.TryGetValue(sHashedName, pConfig))
     {
       ezShaderManager::ReloadPermutationVarConfig(szName, sHashedName);
-      s_PermutationVarConfigs.TryGetValue(sHashedName, ppConfig);
+      s_PermutationVarConfigs.TryGetValue(sHashedName, pConfig);
     }
 
-    return ppConfig->Borrow();
+    return pConfig;
   }
 
   const PermutationVarConfig* FindConfig(const ezHashedString& sName)
   {
     EZ_LOCK(s_PermutationVarConfigsMutex);
 
-    ezUniquePtr<PermutationVarConfig>* ppConfig = nullptr;
-    if (!s_PermutationVarConfigs.TryGetValue(sName, ppConfig))
+    PermutationVarConfig* pConfig = nullptr;
+    if (!s_PermutationVarConfigs.TryGetValue(sName, pConfig))
     {
       ezShaderManager::ReloadPermutationVarConfig(sName.GetData(), sName);
-      s_PermutationVarConfigs.TryGetValue(sName, ppConfig);
+      s_PermutationVarConfigs.TryGetValue(sName, pConfig);
     }
 
-    return ppConfig->Borrow();
+    return pConfig;
   }
 
   static ezHashedString s_sTrue = ezMakeHashedString("TRUE");
@@ -155,12 +155,13 @@ void ezShaderManager::ReloadPermutationVarConfig(const char* szName, const ezTem
   ezShaderParser::ParsePermutationVarConfig(sTemp, defaultValue, enumDef);
   if (defaultValue.IsValid())
   {
-    auto pConfig = EZ_DEFAULT_NEW(PermutationVarConfig);
+    EZ_LOCK(s_PermutationVarConfigsMutex);
+
+    auto pConfig = &s_PermutationVarConfigsStorage.ExpandAndGetRef();
     pConfig->m_sName.Assign(szName);
     pConfig->m_DefaultValue = defaultValue;
     pConfig->m_EnumValues = enumDef.m_Values;
-
-    EZ_LOCK(s_PermutationVarConfigsMutex);
+    
     s_PermutationVarConfigs.Insert(pConfig->m_sName, pConfig);
   }
 }
