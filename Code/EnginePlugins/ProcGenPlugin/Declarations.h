@@ -153,6 +153,10 @@ namespace ezProcGenInternal
     static ezHashedString s_sNormalX;
     static ezHashedString s_sNormalY;
     static ezHashedString s_sNormalZ;
+    static ezHashedString s_sColorR;
+    static ezHashedString s_sColorG;
+    static ezHashedString s_sColorB;
+    static ezHashedString s_sColorA;
     static ezHashedString s_sPointIndex;
   };
 

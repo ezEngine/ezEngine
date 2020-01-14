@@ -31,6 +31,7 @@ namespace ezProcGenInternal
 
       ezVec3 m_vPosition;
       ezVec3 m_vNormal;
+      ezColor m_Color;
       float m_fIndex;
     };
 

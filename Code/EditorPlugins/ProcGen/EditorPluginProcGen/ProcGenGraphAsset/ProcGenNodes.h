@@ -187,6 +187,21 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
+class ezProcGenMeshVertexColor : public ezProcGenNodeBase
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcGenMeshVertexColor, ezProcGenNodeBase);
+
+public:
+  virtual ezExpressionAST::Node* GenerateExpressionASTNode(ezArrayPtr<ezExpressionAST::Node*> inputs, ezExpressionAST& out_Ast, GenerateASTContext& context) override;
+
+  ezOutputNodePin m_RPin;
+  ezOutputNodePin m_GPin;
+  ezOutputNodePin m_BPin;
+  ezOutputNodePin m_APin;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
 class ezProcGenApplyVolumes : public ezProcGenNodeBase
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezProcGenApplyVolumes, ezProcGenNodeBase);

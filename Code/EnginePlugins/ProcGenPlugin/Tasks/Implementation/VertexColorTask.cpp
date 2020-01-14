@@ -44,6 +44,7 @@ void VertexColorTask::Prepare(const ezWorld& world, const ezMeshBufferResourceDe
 
   const float* pPositions = nullptr;
   const float* pNormals = nullptr;
+  const ezColorLinearUB* pColors = nullptr;
 
   for (ezUInt32 vs = 0; vs < vdi.m_VertexStreams.GetCount(); ++vs)
   {
@@ -51,27 +52,37 @@ void VertexColorTask::Prepare(const ezWorld& world, const ezMeshBufferResourceDe
     {
       if (vdi.m_VertexStreams[vs].m_Format != ezGALResourceFormat::RGBFloat)
       {
-        ezLog::Warning("Unsupported CPU mesh vertex position format {0}", (int)vdi.m_VertexStreams[vs].m_Format);
+        ezLog::Error("Unsupported CPU mesh vertex position format {0}", (int)vdi.m_VertexStreams[vs].m_Format);
         return; // other position formats are not supported
       }
 
-      pPositions = (const float*)(pRawVertexData + vdi.m_VertexStreams[vs].m_uiOffset);
+      pPositions = reinterpret_cast<const float*>(pRawVertexData + vdi.m_VertexStreams[vs].m_uiOffset);
     }
     else if (vdi.m_VertexStreams[vs].m_Semantic == ezGALVertexAttributeSemantic::Normal)
     {
       if (vdi.m_VertexStreams[vs].m_Format != ezGALResourceFormat::RGBFloat)
       {
-        ezLog::Warning("Unsupported CPU mesh vertex normal format {0}", (int)vdi.m_VertexStreams[vs].m_Format);
-        return; // other position formats are not supported
+        ezLog::Error("Unsupported CPU mesh vertex normal format {0}", (int)vdi.m_VertexStreams[vs].m_Format);
+        return; // other normal formats are not supported
       }
 
-      pNormals = (const float*)(pRawVertexData + vdi.m_VertexStreams[vs].m_uiOffset);
+      pNormals = reinterpret_cast<const float*>(pRawVertexData + vdi.m_VertexStreams[vs].m_uiOffset);
+    }
+    else if (vdi.m_VertexStreams[vs].m_Semantic == ezGALVertexAttributeSemantic::Color0)
+    {
+      if (vdi.m_VertexStreams[vs].m_Format != ezGALResourceFormat::RGBAUByteNormalized)
+      {
+        ezLog::Error("Unsupported CPU mesh vertex color format {0}", (int)vdi.m_VertexStreams[vs].m_Format);
+        return; // other color formats are not supported
+      }
+
+      pColors = reinterpret_cast<const ezColorLinearUB*>(pRawVertexData + vdi.m_VertexStreams[vs].m_uiOffset);
     }
   }
 
   if (pPositions == nullptr || pNormals == nullptr)
   {
-    ezLog::Warning("No position and normal stream found in CPU mesh");
+    ezLog::Error("No position and normal stream found in CPU mesh");
     return;
   }
 
@@ -87,10 +98,12 @@ void VertexColorTask::Prepare(const ezWorld& world, const ezMeshBufferResourceDe
     auto& vert = m_InputVertices.ExpandAndGetRef();
     vert.m_vPosition = transform.TransformPosition(ezVec3(pPositions[0], pPositions[1], pPositions[2]));
     vert.m_vNormal = normalTransform.TransformDirection(ezVec3(pNormals[0], pNormals[1], pNormals[2])).GetNormalized();
+    vert.m_Color = pColors != nullptr ? ezColor(*pColors) : ezColor::ZeroColor();
     vert.m_fIndex = i;
 
     pPositions = ezMemoryUtils::AddByteOffset(pPositions, uiElementStride);
     pNormals = ezMemoryUtils::AddByteOffset(pNormals, uiElementStride);
+    pColors = pColors != nullptr ? ezMemoryUtils::AddByteOffset(pColors, uiElementStride) : nullptr;
   }
 
   m_Outputs = outputs;
@@ -142,6 +155,11 @@ void VertexColorTask::Execute()
       inputs.PushBack(ezExpression::MakeStream(m_InputVertices.GetArrayPtr(), offsetof(InputVertex, m_vNormal.x), ExpressionInputs::s_sNormalX));
       inputs.PushBack(ezExpression::MakeStream(m_InputVertices.GetArrayPtr(), offsetof(InputVertex, m_vNormal.y), ExpressionInputs::s_sNormalY));
       inputs.PushBack(ezExpression::MakeStream(m_InputVertices.GetArrayPtr(), offsetof(InputVertex, m_vNormal.z), ExpressionInputs::s_sNormalZ));
+
+      inputs.PushBack(ezExpression::MakeStream(m_InputVertices.GetArrayPtr(), offsetof(InputVertex, m_Color.r), ExpressionInputs::s_sColorR));
+      inputs.PushBack(ezExpression::MakeStream(m_InputVertices.GetArrayPtr(), offsetof(InputVertex, m_Color.g), ExpressionInputs::s_sColorG));
+      inputs.PushBack(ezExpression::MakeStream(m_InputVertices.GetArrayPtr(), offsetof(InputVertex, m_Color.b), ExpressionInputs::s_sColorB));
+      inputs.PushBack(ezExpression::MakeStream(m_InputVertices.GetArrayPtr(), offsetof(InputVertex, m_Color.a), ExpressionInputs::s_sColorA));
 
       inputs.PushBack(ezExpression::MakeStream(m_InputVertices.GetArrayPtr(), offsetof(InputVertex, m_fIndex), ExpressionInputs::s_sPointIndex));
     }

@@ -62,8 +62,11 @@ namespace ezProcGenInternal
   ezHashedString ExpressionInputs::s_sNormalX = ezMakeHashedString("NormalX");
   ezHashedString ExpressionInputs::s_sNormalY = ezMakeHashedString("NormalY");
   ezHashedString ExpressionInputs::s_sNormalZ = ezMakeHashedString("NormalZ");
+  ezHashedString ExpressionInputs::s_sColorR = ezMakeHashedString("ColorR");
+  ezHashedString ExpressionInputs::s_sColorG = ezMakeHashedString("ColorG");
+  ezHashedString ExpressionInputs::s_sColorB = ezMakeHashedString("ColorB");
+  ezHashedString ExpressionInputs::s_sColorA = ezMakeHashedString("ColorA");
   ezHashedString ExpressionInputs::s_sPointIndex = ezMakeHashedString("PointIndex");
-
 
   ezHashedString ExpressionOutputs::s_sDensity = ezMakeHashedString("Density");
   ezHashedString ExpressionOutputs::s_sScale = ezMakeHashedString("Scale");

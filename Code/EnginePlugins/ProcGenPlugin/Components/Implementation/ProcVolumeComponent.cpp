@@ -59,16 +59,20 @@ void ezProcVolumeComponent::OnDeactivated()
 {
   SUPER::OnDeactivated();
 
-  // Don't disable notifications as other components attached to the owner game object might need them too.
-  // GetOwner()->DisableStaticTransformChangesNotifications();
-
-  GetOwner()->UpdateLocalBounds();
-
   if (GetUniqueID() != ezInvalidIndex)
   {
     // Only necessary in Editor
-    InvalidateArea();
+    ezBoundingBoxSphere globalBounds = GetOwner()->GetGlobalBounds();
+    if (globalBounds.IsValid())
+    {
+      InvalidateArea(globalBounds.GetBox());
+    }
   }
+
+  // Don't disable notifications as other components attached to the owner game object might need them too.
+  // GetOwner()->DisableStaticTransformChangesNotifications();
+
+  GetOwner()->UpdateLocalBounds();  
 }
 
 void ezProcVolumeComponent::SetValue(float fValue)
