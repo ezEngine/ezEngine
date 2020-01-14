@@ -418,8 +418,9 @@ public:
                 {
                   InteractionContact& ic = m_InteractionContacts.ExpandAndGetRef();
                   ic.m_vPosition = vAvgPos;
-                  ic.m_vNormal = vAvgNormal.GetNormalized();
-                  ic.m_fImpulseSqr = fMaxImpactSqr;
+                  ic.m_vNormal = vAvgNormal;
+                  ic.m_vNormal.NormalizeIfNotZero(ezVec3(0, 0, 1));
+                  ic.m_fImpulseSqr = fMaxImpactSqr;                  
 
                   // if one actor is static or kinematic, prefer to spawn the interaction from its surface definition
                   if (pairHeader.actors[0]->getType() == PxActorType::eRIGID_STATIC ||
