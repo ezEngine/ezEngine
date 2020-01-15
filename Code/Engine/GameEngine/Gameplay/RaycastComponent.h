@@ -55,9 +55,9 @@ public:
 
   void SetRaycastEndObject(const char* szReference); // [ property ]
 
-  ezGameObjectHandle m_hRaycastEndObject;
-  float m_fMaxDistance = 100.0f;
-  bool m_bDisableTargetObjectOnNoHit = false;
+  ezGameObjectHandle m_hRaycastEndObject; // [ property ]
+  float m_fMaxDistance = 100.0f; // [ property ]
+  bool m_bDisableTargetObjectOnNoHit = false; // [ property ]
   ezUInt8 m_uiCollisionLayerEndPoint = 0;     // [ property ]
   ezUInt8 m_uiCollisionLayerTrigger = 0;     // [ property ]
 
@@ -66,7 +66,7 @@ private:
 
   void Update();
 
-  ezHashedString m_sTriggerMessage;
+  ezHashedString m_sTriggerMessage; // [ property ]
   ezEventMessageSender<ezMsgTriggerTriggered> m_TriggerEventSender; // [ event ]
 
 
