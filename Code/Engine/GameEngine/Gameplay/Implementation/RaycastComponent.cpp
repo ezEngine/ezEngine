@@ -1,15 +1,15 @@
 
 #include <GameEnginePCH.h>
 
-#include <GameEngine/Gameplay/RaycastComponent.h>
-#include <GameEngine/Interfaces/PhysicsWorldModule.h>
+#include <Core/Messages/TriggerMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
-#include <Core/Messages/TriggerMessage.h>
+#include <GameEngine/Gameplay/RaycastComponent.h>
+#include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezRaycastComponent, 1, ezComponentMode::Dynamic)
+EZ_BEGIN_COMPONENT_TYPE(ezRaycastComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -40,6 +40,15 @@ void ezRaycastComponent::OnSimulationStarted()
 {
   m_pPhysicsWorldModule = GetWorld()->GetModule<ezPhysicsWorldModuleInterface>();
   m_hLastTriggerObjectInRay.Invalidate();
+
+  ezGameObject* pEndObject = nullptr;
+  if (GetWorld()->TryGetObject(m_hRaycastEndObject, pEndObject))
+  {
+    if (!pEndObject->IsDynamic())
+    {
+      pEndObject->MakeDynamic();
+    }
+  }
 }
 
 void ezRaycastComponent::SerializeComponent(ezWorldWriter& stream) const
