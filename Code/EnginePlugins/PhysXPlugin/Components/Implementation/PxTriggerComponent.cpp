@@ -42,23 +42,6 @@ void ezPxTriggerComponentManager::UpdateKinematicActors()
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgPxTriggerTriggered)
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgPxTriggerTriggered, 1, ezRTTIDefaultAllocator<ezMsgPxTriggerTriggered>)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_MEMBER_PROPERTY("MsgStringHash", m_uiMessageStringHash),
-    EZ_ENUM_MEMBER_PROPERTY("TriggerState", ezTriggerState, m_TriggerState),
-    //EZ_MEMBER_PROPERTY("GameObject", m_hTriggeringObject),
-  }
-  EZ_END_PROPERTIES;
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-// clang-format on
-
-//////////////////////////////////////////////////////////////////////////
-
-// clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezPxTriggerComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
@@ -196,7 +179,7 @@ void ezPxTriggerComponent::SetKinematic(bool b)
 
 void ezPxTriggerComponent::PostTriggerMessage(const ezComponent* pOtherComponent, ezTriggerState::Enum triggerState) const
 {
-  ezMsgPxTriggerTriggered msg;
+  ezMsgTriggerTriggered msg;
 
   msg.m_TriggerState = triggerState;
   msg.m_uiMessageStringHash = m_sTriggerMessage.GetHash();
