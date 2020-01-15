@@ -46,6 +46,7 @@
     <file>ezRenderTargetActivatorComponent.png</file>
     <file>ezGreyBoxComponent.png</file>
     <file>ezDebugTextComponent.png</file>
+    <file>ezRaycastComponent.png</file>
 	<file>ezVisualizeSkeletonComponent.png</file>
 	<file>ezSimpleWindComponent.png</file>
 	<file>ezPlayerStartPointComponent.png</file>

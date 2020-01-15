@@ -235,3 +235,4 @@ Scene.GameObject.CreateEmptyHere;Create Empty Object Here
 ezPlayerStartPointComponent;Player Start Point
 ezInstancedMeshComponent;Instanced Mesh
 ezMarkerComponent;Marker Component
+ezRaycastComponent;Raycast Placement Component
