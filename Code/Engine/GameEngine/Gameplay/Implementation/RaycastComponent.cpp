@@ -150,7 +150,7 @@ void ezRaycastComponent::Update()
   if (!m_sTriggerMessage.IsEmpty() && m_uiCollisionLayerEndPoint != m_uiCollisionLayerTrigger)
   {
     ezPhysicsHitResult triggerHit;
-    if (m_pPhysicsWorldModule->CastRay(rayStartPosition, rayDir, m_fMaxDistance, m_uiCollisionLayerTrigger, triggerHit) && triggerHit.m_fDistance < fHitDistance)
+    if (m_pPhysicsWorldModule->CastRay(rayStartPosition, rayDir, fHitDistance, m_uiCollisionLayerTrigger, triggerHit) && triggerHit.m_fDistance < fHitDistance)
     {
       // We have a hit, check the objects
       if (m_hLastTriggerObjectInRay != triggerHit.m_hActorObject)
