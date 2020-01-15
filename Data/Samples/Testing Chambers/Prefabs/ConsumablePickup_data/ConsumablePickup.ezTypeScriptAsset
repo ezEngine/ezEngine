@@ -11,10 +11,10 @@ o
 		s %AssetType{"TypeScript"}
 		VarArray %Dependencies
 		{
-			s{"Prefabs/Pickup_data/Pickup.ts"}
+			s{"Prefabs/ConsumablePickup_data/ConsumablePickup.ts"}
 		}
 		Uuid %DocumentID{u4{7635755329008314767,4989369311778397519}}
-		u4 %Hash{11140328035409149961}
+		u4 %Hash{10464636865595295129}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{17391110236746215650,16003275907833952401}}
@@ -32,7 +32,7 @@ o
 	{
 		VarArray %Attributes{}
 		d %DefaultValue{0}
-		s %Name{"AddAmmo"}
+		s %Name{"Amount"}
 		s %Type{""}
 	}
 }
@@ -58,8 +58,8 @@ o
 	p
 	{
 		VarArray %Attributes{}
-		d %DefaultValue{0x0000000000003940}
-		s %Name{"AddHealth"}
+		d %DefaultValue{0}
+		s %Name{"ConsumableType"}
 		s %Type{""}
 	}
 }
@@ -73,8 +73,8 @@ o
 	u3 %v{1}
 	p
 	{
-		d %Default{0x0000000000003940}
-		s %Name{"AddHealth"}
+		d %Default{0}
+		s %Name{"ConsumableType"}
 	}
 }
 o
@@ -85,7 +85,7 @@ o
 	p
 	{
 		d %Default{0}
-		s %Name{"AddAmmo"}
+		s %Name{"Amount"}
 	}
 }
 o
@@ -102,7 +102,7 @@ o
 			Uuid{u4{12183709913858369200,5111764183851240695}}
 			Uuid{u4{13096667019403582909,5304963774931387992}}
 		}
-		s %ScriptFile{"Prefabs/Pickup_data/Pickup.ts"}
+		s %ScriptFile{"Prefabs/ConsumablePickup_data/ConsumablePickup.ts"}
 		VarArray %StringParameters{}
 		VarArray %Vec3Parameters{}
 	}

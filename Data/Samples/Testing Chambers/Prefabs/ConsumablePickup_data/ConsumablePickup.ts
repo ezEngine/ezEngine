@@ -1,11 +1,11 @@
-import ez = require("../../TypeScript/ez")
-import msgs = require("Scripting/Messages")
+import ez = require("TypeScript/ez")
+import _gm = require("Scripting/GameMessages")
 
-export class Pickup extends ez.TypescriptComponent {
+export class ConsumablePickup extends ez.TypescriptComponent {
 
     /* BEGIN AUTO-GENERATED: VARIABLES */
-    AddHealth: number = 25;
-    AddAmmo: number = 0;
+    ConsumableType: number = 0;
+    Amount: number = 0;
     /* END AUTO-GENERATED: VARIABLES */
 
     constructor() {
@@ -26,8 +26,9 @@ export class Pickup extends ez.TypescriptComponent {
             if (player == null)
                 return;
 
-            let hm = new msgs.MsgAddHealth();
-            hm.addHealth = this.AddHealth;
+            let hm = new _gm.MsgAddConsumable();
+            hm.consumableType = this.ConsumableType;
+            hm.amount = this.Amount;
 
             player.SendMessage(hm, true);
 

@@ -18,7 +18,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{6046002851915323275,4632268703284350344}}
-		u4 %Hash{7347549696954427681}
+		u4 %Hash{5131448006048953354}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{18187993782677452318,14698659155014457594}}
@@ -71,7 +71,7 @@ o
 			Uuid{u4{3925248149050042854,13736273985075118640}}
 		}
 		d %DefaultValue{0x0000000000003940}
-		s %Name{"Health"}
+		s %Name{"Amount"}
 		s %Type{"ezVariant"}
 	}
 }
@@ -112,7 +112,7 @@ o
 			Uuid{u4{10574170567958493954,6222473871133250087}}
 		}
 		d %DefaultValue{0}
-		s %Name{"Ammo"}
+		s %Name{"ConsumableType"}
 		s %Type{"ezVariant"}
 	}
 }
@@ -128,7 +128,10 @@ o
 	{
 		b %Active{1}
 		b %HandleGlobalEvents{0}
-		VarDict %Parameters{}
+		VarDict %Parameters
+		{
+			d %Amount{0x0000000000003940}
+		}
 		s %Script{"{ 49c95d4f-ccf4-453d-8f29-560904a7f769 }"}
 	}
 }
@@ -183,7 +186,7 @@ o
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{"Pickup"}
+		s %Name{"ConsumablePickup"}
 		VarArray %Tags
 		{
 			s{"CastShadow"}
@@ -203,30 +206,6 @@ o
 		s %OnContact{""}
 		f %Radius{0xCDCCCC3E}
 		s %Surface{""}
-	}
-}
-o
-{
-	Uuid %id{u4{15986106973825700780,4719883636157823877}}
-	s %t{"ezExposedSceneProperty"}
-	u3 %v{1}
-	p
-	{
-		s %Name{"Ammo"}
-		Uuid %Object{u4{6842247696787688581,4053655554590390342}}
-		s %PropertyPath{"Parameters[AddAmmo]"}
-	}
-}
-o
-{
-	Uuid %id{u4{12415237498189016231,4737931988512765404}}
-	s %t{"ezExposedSceneProperty"}
-	u3 %v{1}
-	p
-	{
-		s %Name{"Health"}
-		Uuid %Object{u4{6842247696787688581,4053655554590390342}}
-		s %PropertyPath{"Parameters[AddHealth]"}
 	}
 }
 o
@@ -292,8 +271,8 @@ o
 		VarArray %ExposedProperties
 		{
 			Uuid{u4{1440415995861703837,5372844320251986126}}
-			Uuid{u4{15986106973825700780,4719883636157823877}}
-			Uuid{u4{12415237498189016231,4737931988512765404}}
+			Uuid{u4{8639711542571258530,5680868587783690817}}
+			Uuid{u4{4297615814747009925,5536156663104040752}}
 		}
 	}
 }
@@ -326,6 +305,30 @@ o
 		s %SoundEvent{"{ a59d471e-7f13-4ccf-9776-36a655519c87 }"}
 		b %UseOcclusion{0}
 		f %Volume{0x0000803F}
+	}
+}
+o
+{
+	Uuid %id{u4{4297615814747009925,5536156663104040752}}
+	s %t{"ezExposedSceneProperty"}
+	u3 %v{1}
+	p
+	{
+		s %Name{"Amount"}
+		Uuid %Object{u4{6842247696787688581,4053655554590390342}}
+		s %PropertyPath{"Parameters[Amount]"}
+	}
+}
+o
+{
+	Uuid %id{u4{8639711542571258530,5680868587783690817}}
+	s %t{"ezExposedSceneProperty"}
+	u3 %v{1}
+	p
+	{
+		s %Name{"ConsumableType"}
+		Uuid %Object{u4{6842247696787688581,4053655554590390342}}
+		s %PropertyPath{"Parameters[ConsumableType]"}
 	}
 }
 o
