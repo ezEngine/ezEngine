@@ -1,5 +1,6 @@
 #include <TypeScriptPluginPCH.h>
 
+#include <TypeScriptPlugin/Components/TypeScriptComponent.h>
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
 
 static int __CPP_Utils_StringToHash(duk_context* pDuk);
