@@ -11,14 +11,6 @@ struct ezMsgSetPlaying;
 
 typedef ezComponentManagerSimple<class ezPropertyAnimComponent, ezComponentUpdateType::WhenSimulating> ezPropertyAnimComponentManager;
 
-/// \brief Sent when a ezPropertyAnimComponent reaches the end of the property animation (either forwards or backwards playing)
-///
-/// This is sent regardless of whether the animation is played once, looped or back and forth.
-struct EZ_GAMEENGINE_DLL ezMsgPropertyAnimationEndReached : public ezEventMessage
-{
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgPropertyAnimationEndReached, ezEventMessage);
-};
-
 /// \brief Animates properties on other objects and components according to the property animation resource
 ///
 /// Notes:
@@ -64,8 +56,8 @@ public:
   bool m_bPlaying = true;                     // [ property ]
 
 protected:
-  ezEventMessageSender<ezMsgPropertyAnimationEndReached> m_ReachedEndMsgSender; // [ event ]
-  ezEventMessageSender<ezMsgGenericEvent> m_EventTrackMsgSender;                // [ event ]
+  ezEventMessageSender<ezMsgAnimationReachedEnd> m_ReachedEndMsgSender; // [ event ]
+  ezEventMessageSender<ezMsgGenericEvent> m_EventTrackMsgSender;        // [ event ]
 
   struct Binding
   {

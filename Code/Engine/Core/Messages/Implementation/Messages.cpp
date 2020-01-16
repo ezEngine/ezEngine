@@ -107,6 +107,38 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 //////////////////////////////////////////////////////////////////////////
 
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgGenericEvent);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgGenericEvent, 1, ezRTTIDefaultAllocator<ezMsgGenericEvent>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Message", m_sMessage),
+  }
+  EZ_END_PROPERTIES;
+
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezAutoGenVisScriptMsgSender,
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgAnimationReachedEnd);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgAnimationReachedEnd, 1, ezRTTIDefaultAllocator<ezMsgAnimationReachedEnd>)
+{
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezAutoGenVisScriptMsgHandler(),
+  }
+  EZ_END_ATTRIBUTES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+//////////////////////////////////////////////////////////////////////////
+
 // clang-format on
 
 EZ_STATICLINK_FILE(Core, Core_Messages_Implementation_Messages);

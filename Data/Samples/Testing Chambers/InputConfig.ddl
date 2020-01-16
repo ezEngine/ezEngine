@@ -167,6 +167,11 @@ InputAction
 		string %Key{"controller0_right_trigger"}
 		float %Scale{1}
 	}
+	Slot
+	{
+		string %Key{"keyboard_right_ctrl"}
+		float %Scale{1}
+	}
 }
 InputAction
 {
@@ -272,6 +277,66 @@ InputAction
 	Slot
 	{
 		string %Key{"keyboard_3"}
+		float %Scale{1}
+	}
+}
+InputAction
+{
+	string %Set{"Player"}
+	string %Action{"SwitchWeapon4"}
+	bool %TimeScale{true}
+	Slot
+	{
+		string %Key{"keyboard_4"}
+		float %Scale{1}
+	}
+}
+InputAction
+{
+	string %Set{"Player"}
+	string %Action{"SwitchWeapon5"}
+	bool %TimeScale{true}
+	Slot
+	{
+		string %Key{"keyboard_5"}
+		float %Scale{1}
+	}
+}
+InputAction
+{
+	string %Set{"Player"}
+	string %Action{"SwitchWeapon6"}
+	bool %TimeScale{true}
+	Slot
+	{
+		string %Key{"keyboard_6"}
+		float %Scale{1}
+	}
+}
+InputAction
+{
+	string %Set{"Player"}
+	string %Action{"SwitchWeapon7"}
+	bool %TimeScale{true}
+	Slot
+	{
+		string %Key{"keyboard_7"}
+		float %Scale{1}
+	}
+}
+InputAction
+{
+	string %Set{"Player"}
+	string %Action{"Reload"}
+	bool %TimeScale{true}
+	Slot
+	{
+		string %Key{"keyboard_r"}
+		float %Scale{1}
+	}
+	Slot
+	{
+		string %Key{"controller0_button_x"}
 		float %Scale{1}
 	}
 }

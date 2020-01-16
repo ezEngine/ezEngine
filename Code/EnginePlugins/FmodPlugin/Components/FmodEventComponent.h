@@ -159,7 +159,7 @@ protected:
   void OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg); // [ msg handler ]
 
   void Update();
-  void UpdateParameters();
+  void UpdateParameters(FMOD::Studio::EventInstance* pInstance);
   void UpdateOcclusion();
 
   /// Called when the event resource has been unloaded (for a reload)

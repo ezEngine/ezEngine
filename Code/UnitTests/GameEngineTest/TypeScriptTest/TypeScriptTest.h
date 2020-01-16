@@ -27,6 +27,9 @@ public:
     Mat3,
     Mat4,
     Transform,
+    Color,
+    GameObject,
+    Component,
   };
 
 private:

@@ -8,23 +8,6 @@
 EZ_IMPLEMENT_MESSAGE_TYPE(ezEventMessage);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEventMessage, 1, ezRTTIDefaultAllocator<ezEventMessage>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgGenericEvent);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgGenericEvent, 1, ezRTTIDefaultAllocator<ezMsgGenericEvent>)
-{
-  EZ_BEGIN_PROPERTIES
-  {
-    EZ_MEMBER_PROPERTY("Message", m_sMessage),
-  }
-  EZ_END_PROPERTIES;
-
-  EZ_BEGIN_ATTRIBUTES
-  {
-    new ezAutoGenVisScriptMsgSender,
-  }
-  EZ_END_ATTRIBUTES;
-}
-EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 EZ_CHECK_AT_COMPILETIME(sizeof(ezEventMessageSender<ezEventMessage>) == 8);

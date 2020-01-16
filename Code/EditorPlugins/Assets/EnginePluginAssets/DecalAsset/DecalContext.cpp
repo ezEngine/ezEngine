@@ -32,7 +32,9 @@ void ezDecalContext::OnInitialize()
   {
     const char* szMeshBufferName = "DefaultDecalPreviewMeshBuffer";
 
-    ezMeshBufferResourceHandle hMeshBuffer;
+    ezMeshBufferResourceHandle hMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szMeshBufferName);
+
+    if (!hMeshBuffer.IsValid())
     {
       // Build geometry
       ezGeometry geom;

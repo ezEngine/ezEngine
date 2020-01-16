@@ -1,3 +1,6 @@
+import __Vec2 = require("./Vec2")
+export import Vec2 = __Vec2.Vec2;
+
 import __Vec3 = require("./Vec3")
 export import Vec3 = __Vec3.Vec3;
 
@@ -15,12 +18,19 @@ declare function __CPP_Debug_DrawLines(lines: Debug.Line[], color: Color);
 declare function __CPP_Debug_DrawLineBox(min: Vec3, max: Vec3, color: Color, transform: Transform);
 declare function __CPP_Debug_DrawSolidBox(min: Vec3, max: Vec3, color: Color, transform: Transform)
 declare function __CPP_Debug_DrawLineSphere(center: Vec3, radius: number, color: Color, transform: Transform);
+declare function __CPP_Debug_Draw2DText(text: string, pos: Vec2, color: Color, sizeInPixel: number, alignHorz: Debug.HorizontalAlignment);
 declare function __CPP_Debug_Draw3DText(text: string, pos: Vec3, color: Color, sizeInPixel: number);
 
 /**
  * Debug visualization functionality.
  */
 export namespace Debug {
+
+    export enum HorizontalAlignment {
+        Left,
+        Center,
+        Right,
+    }
 
     // TODO:
     // DrawLineBoxCorners
@@ -97,10 +107,20 @@ export namespace Debug {
     }
 
     /**
+     * Draws text at a pixel position on screen.
+     * 
+     * @param pos The screen-space position where to render the text.
+     * @param sizeInPixel The size of the text in pixels.
+     */
+    export function Draw2DText(text: string, pos: Vec2, color: Color = null, sizeInPixel: number = 16, alignHorz: HorizontalAlignment = HorizontalAlignment.Left) {
+        __CPP_Debug_Draw2DText(text, pos, color, sizeInPixel, alignHorz);
+    }
+
+    /**
      * Draws text at a 3D position, always facing the camera.
      * 
      * @param pos The world-space position where to render the text.
-     * @param sizeInPixel The size of the text. The text will always be the same size and facing the camera.
+     * @param sizeInPixel The size of the text in pixels. The text will always be the same size and facing the camera.
      */
     export function Draw3DText(text: string, pos: Vec3, color: Color = null, sizeInPixel: number = 16) {
         __CPP_Debug_Draw3DText(text, pos, color, sizeInPixel);

@@ -4,6 +4,7 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Meshes/MeshComponentBase.h>
 #include <RendererCore/Messages/SetColorMessage.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Device/Device.h>
 
 //////////////////////////////////////////////////////////////////////////
@@ -234,6 +235,11 @@ void ezMeshComponentBase::SetMaterial(ezUInt32 uiIndex, const ezMaterialResource
   m_Materials.EnsureCount(uiIndex + 1);
 
   m_Materials[uiIndex] = hMaterial;
+
+  if (IsActiveAndInitialized())
+  {
+    ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+  }
 }
 
 ezMaterialResourceHandle ezMeshComponentBase::GetMaterial(ezUInt32 uiIndex) const

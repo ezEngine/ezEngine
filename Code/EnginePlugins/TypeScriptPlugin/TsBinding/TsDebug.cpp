@@ -8,6 +8,7 @@ static int __CPP_Debug_DrawCross(duk_context* pDuk);
 static int __CPP_Debug_DrawLines(duk_context* pDuk);
 static int __CPP_Debug_DrawBox(duk_context* pDuk);
 static int __CPP_Debug_DrawSphere(duk_context* pDuk);
+static int __CPP_Debug_Draw2DText(duk_context* pDuk);
 static int __CPP_Debug_Draw3DText(duk_context* pDuk);
 
 ezResult ezTypeScriptBinding::Init_Debug()
@@ -17,6 +18,7 @@ ezResult ezTypeScriptBinding::Init_Debug()
   m_Duk.RegisterGlobalFunction("__CPP_Debug_DrawLineBox", __CPP_Debug_DrawBox, 4, 0);
   m_Duk.RegisterGlobalFunction("__CPP_Debug_DrawSolidBox", __CPP_Debug_DrawBox, 4, 1);
   m_Duk.RegisterGlobalFunction("__CPP_Debug_DrawLineSphere", __CPP_Debug_DrawSphere, 4);
+  m_Duk.RegisterGlobalFunction("__CPP_Debug_Draw2DText", __CPP_Debug_Draw2DText, 5);
   m_Duk.RegisterGlobalFunction("__CPP_Debug_Draw3DText", __CPP_Debug_Draw3DText, 4);
 
   return EZ_SUCCESS;
@@ -109,6 +111,22 @@ static int __CPP_Debug_DrawSphere(duk_context* pDuk)
       ezDebugRenderer::DrawLineSphere(pWorld, ezBoundingSphere(vCenter, fRadius), color, transform);
       break;
   }
+
+  return duk.ReturnVoid();
+}
+
+static int __CPP_Debug_Draw2DText(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk);
+  ezWorld* pWorld = ezTypeScriptBinding::RetrieveWorld(duk);
+
+  const char* szText = duk.GetStringValue(0);
+  const ezVec2 vPos = ezTypeScriptBinding::GetVec2(pDuk, 1);
+  const ezColor color = ezTypeScriptBinding::GetColor(pDuk, 2);
+  const float fSize = duk.GetFloatValue(3, 16.0f);
+  ezDebugRenderer::HorizontalAlignment::Enum halign = (ezDebugRenderer::HorizontalAlignment::Enum)duk.GetIntValue(4);
+
+  ezDebugRenderer::Draw2DText(pWorld, szText, ezVec2I32((int)vPos.x, (int)vPos.y), color, fSize, halign, ezDebugRenderer::VerticalAlignment::Top);
 
   return duk.ReturnVoid();
 }

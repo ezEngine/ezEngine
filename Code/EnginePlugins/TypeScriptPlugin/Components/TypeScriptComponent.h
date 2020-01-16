@@ -81,6 +81,9 @@ public:
 
   void SetUpdateInterval(ezTime interval) { m_UpdateInterval = interval; }
 
+  void SetTypeScriptComponentGuid(const ezUuid& hResource);
+  const ezUuid& GetTypeScriptComponentGuid() const;
+
 private:
   struct EventSender
   {
@@ -99,9 +102,6 @@ private:
   void SetTypeScriptComponentFile(const char* szFile); // [ property ]
   const char* GetTypeScriptComponentFile() const;      // [ property ]
 
-  void SetTypeScriptComponentGuid(const ezUuid& hResource);
-  const ezUuid& GetTypeScriptComponentGuid() const;
-
   void OnMsgTypeScriptMsgProxy(ezMsgTypeScriptMsgProxy& msg); // [ message handler ]
 
   enum UserFlag
@@ -116,7 +116,7 @@ private:
 private:
   ezUuid m_TypeScriptComponentGuid;
   ezTime m_LastUpdate;
-  ezTime m_UpdateInterval = ezTime::Seconds(1);
+  ezTime m_UpdateInterval = ezTime::Seconds(-1); // deactivated by default
 
   //////////////////////////////////////////////////////////////////////////
   // Exposed Parameters

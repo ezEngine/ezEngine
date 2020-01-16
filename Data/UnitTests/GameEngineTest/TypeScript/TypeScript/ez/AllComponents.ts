@@ -465,6 +465,20 @@ export class MotionMatchingComponent extends SkinnedMeshComponent
   public static GetTypeNameHash(): number { return 187955417; }
 }
 
+export class MoveToComponent extends Component
+{
+  public static GetTypeNameHash(): number { return 627053851; }
+  SetTargetPosition(position: Vec3): void { __CPP_ComponentFunction_Call(this, 1756685125, position); }
+  get Running(): boolean { return __CPP_ComponentProperty_get(this, 983782906); }
+  set Running(value: boolean) { __CPP_ComponentProperty_set(this, 983782906, value); }
+  get TranslationSpeed(): number { return __CPP_ComponentProperty_get(this, 295886947); }
+  set TranslationSpeed(value: number) { __CPP_ComponentProperty_set(this, 295886947, value); }
+  get TranslationAcceleration(): number { return __CPP_ComponentProperty_get(this, 1179217999); }
+  set TranslationAcceleration(value: number) { __CPP_ComponentProperty_set(this, 1179217999, value); }
+  get TranslationDeceleration(): number { return __CPP_ComponentProperty_get(this, 497734128); }
+  set TranslationDeceleration(value: number) { __CPP_ComponentProperty_set(this, 497734128, value); }
+}
+
 export class NpcComponent extends Component
 {
   public static GetTypeNameHash(): number { return 25589817; }

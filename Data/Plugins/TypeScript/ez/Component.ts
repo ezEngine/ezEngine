@@ -38,14 +38,14 @@ export abstract class Component {
      * 
      * @returns True for live components. False for components that have been destroyed already on the C++ side.
      */
-    IsValid(): boolean {
+    IsValid(): boolean { // [tested]
         return __CPP_Component_IsValid(this);
     }
 
     /**
      * Returns the owning game object of this component.
      */
-    GetOwner(): GameObject {
+    GetOwner(): GameObject { // [tested]
         return __CPP_Component_GetOwner(this);
     }
 
@@ -53,28 +53,28 @@ export abstract class Component {
      * Activates or deactivates a component.
      * Deactivated components are present, but do not have any effect.
      */
-    SetActive(active: boolean): void {
+    SetActive(active: boolean): void { // [tested]
         __CPP_Component_SetActive(this, active);
     }
 
     /**
      * Checks whether this component is active. See 'SetActive()'.
      */
-    IsActive(): boolean {
+    IsActive(): boolean { // [tested]
         return __CPP_Component_IsActive(this);
     }
 
     /**
      * Checks whether this component is both active and has already been initialized.
      */
-    IsActiveAndInitialized(): boolean {
+    IsActiveAndInitialized(): boolean { // [tested]
         return __CPP_Component_IsActiveAndInitialized(this);
     }
 
     /**
      * Checks whether this component is active and has already been configured for game simulation.
      */
-    IsActiveAndSimulating(): boolean {
+    IsActiveAndSimulating(): boolean { // [tested]
         return __CPP_Component_IsActiveAndSimulating(this);
     }
 
@@ -102,7 +102,7 @@ export abstract class Component {
     /**
      * Returns an ID unique to this component.
      */
-    GetUniqueID(): number {
+    GetUniqueID(): number { // [tested]
         return __CPP_Component_GetUniqueID(this);
     }
 

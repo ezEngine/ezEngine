@@ -33,7 +33,7 @@ ezResult ezTypeScriptBinding::Init_Component()
   return EZ_SUCCESS;
 }
 
-ezResult ezTypeScriptBinding::RegisterComponent(const char* szTypeName, ezComponentHandle handle, ezUInt32& out_uiStashIdx)
+ezResult ezTypeScriptBinding::RegisterComponent(const char* szTypeName, ezComponentHandle handle, ezUInt32& out_uiStashIdx, bool bIsNativeComponent)
 {
   if (handle.IsInvalidated())
     return EZ_FAILURE;
@@ -65,9 +65,11 @@ ezResult ezTypeScriptBinding::RegisterComponent(const char* szTypeName, ezCompon
 
   ezStringBuilder sTypeName = szTypeName;
 
-  if (sTypeName.TrimWordStart("ez"))
+  if (bIsNativeComponent)
   {
-    EZ_SUCCEED_OR_RETURN(duk.PushLocalObject("__AllComponents")); // [ global __CompModule ]
+    sTypeName.TrimWordStart("ez");
+
+    EZ_SUCCEED_OR_RETURN(duk.PushLocalObject("__AllComponents")); // [ global __AllComponents ]
     EZ_DUK_VERIFY_STACK(duk, +2);
   }
   else
@@ -137,7 +139,7 @@ void ezTypeScriptBinding::DukPutComponentObject(ezComponent* pComponent)
   else
   {
     ezUInt32 uiStashIdx = 0;
-    if (RegisterComponent(pComponent->GetDynamicRTTI()->GetTypeName(), pComponent->GetHandle(), uiStashIdx).Failed())
+    if (RegisterComponent(pComponent->GetDynamicRTTI()->GetTypeName(), pComponent->GetHandle(), uiStashIdx, true).Failed())
     {
       m_Duk.PushNull(); // [ null ]
       return;

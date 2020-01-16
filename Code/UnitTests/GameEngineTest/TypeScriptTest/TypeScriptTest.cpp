@@ -1,6 +1,7 @@
 #include <GameEngineTestPCH.h>
 
 #include "TypeScriptTest.h"
+#include <Core/Messages/CommonMessages.h>
 #include <Core/Messages/EventMessage.h>
 #include <Core/Scripting/DuktapeFunction.h>
 #include <Core/Scripting/DuktapeHelper.h>
@@ -29,16 +30,14 @@ void ezGameEngineTestTypeScript::SetupSubTests()
   AddSubTest("Mat3", SubTests::Mat3);
   AddSubTest("Mat4", SubTests::Mat4);
   AddSubTest("Transform", SubTests::Transform);
+  AddSubTest("Color", SubTests::Color);
+  AddSubTest("GameObject", SubTests::GameObject);
+  AddSubTest("Component", SubTests::Component);
 }
 
 ezResult ezGameEngineTestTypeScript::InitializeSubTest(ezInt32 iIdentifier)
 {
-  if (iIdentifier == SubTests::Vec2 ||
-      iIdentifier == SubTests::Vec3 ||
-      iIdentifier == SubTests::Quat ||
-      iIdentifier == SubTests::Mat3 ||
-      iIdentifier == SubTests::Mat4 ||
-      iIdentifier == SubTests::Transform)
+  if (iIdentifier >= SubTests::Vec2 && iIdentifier <= SubTests::Component)
   {
     m_pOwnApplication->SubTestBasicsSetup();
     return EZ_SUCCESS;
@@ -49,22 +48,7 @@ ezResult ezGameEngineTestTypeScript::InitializeSubTest(ezInt32 iIdentifier)
 
 ezTestAppRun ezGameEngineTestTypeScript::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
 {
-  if (iIdentifier == SubTests::Vec2)
-    return m_pOwnApplication->SubTestBasisExec(iIdentifier);
-
-  if (iIdentifier == SubTests::Vec3)
-    return m_pOwnApplication->SubTestBasisExec(iIdentifier);
-
-  if (iIdentifier == SubTests::Quat)
-    return m_pOwnApplication->SubTestBasisExec(iIdentifier);
-
-  if (iIdentifier == SubTests::Mat3)
-    return m_pOwnApplication->SubTestBasisExec(iIdentifier);
-
-  if (iIdentifier == SubTests::Mat4)
-    return m_pOwnApplication->SubTestBasisExec(iIdentifier);
-
-  if (iIdentifier == SubTests::Transform)
+  if (iIdentifier >= SubTests::Vec2 && iIdentifier <= SubTests::Component)
     return m_pOwnApplication->SubTestBasisExec(iIdentifier);
 
   EZ_ASSERT_NOT_IMPLEMENTED;
@@ -118,68 +102,24 @@ ezTestAppRun ezGameEngineTestApplication_TypeScript::SubTestBasisExec(ezInt32 iI
     return ezTestAppRun::Quit;
   }
 
-  switch (iIdentifier)
-  {
-    case ezGameEngineTestTypeScript::SubTests::Vec2:
+  const char* szMsg[] =
     {
-      ezMsgGenericEvent msg;
-      msg.m_sMessage = "TestVec2";
-      pTests->SendMessageRecursive(msg);
+      "TestVec2",
+      "TestVec3",
+      "TestQuat",
+      "TestMat3",
+      "TestMat4",
+      "TestTransform",
+      "TestColor",
+      "TestGameObject",
+      "TestComponent",
+    };
 
-      EZ_TEST_STRING(msg.m_sMessage, "done");
-      break;
-    }
+  ezMsgGenericEvent msg;
+  msg.m_sMessage = szMsg[iIdentifier];
+  pTests->SendMessageRecursive(msg);
 
-    case ezGameEngineTestTypeScript::SubTests::Vec3:
-    {
-      ezMsgGenericEvent msg;
-      msg.m_sMessage = "TestVec3";
-      pTests->SendMessageRecursive(msg);
-
-      EZ_TEST_STRING(msg.m_sMessage, "done");
-      break;
-    }
-
-    case ezGameEngineTestTypeScript::SubTests::Quat:
-    {
-      ezMsgGenericEvent msg;
-      msg.m_sMessage = "TestQuat";
-      pTests->SendMessageRecursive(msg);
-
-      EZ_TEST_STRING(msg.m_sMessage, "done");
-      break;
-    }
-
-    case ezGameEngineTestTypeScript::SubTests::Mat3:
-    {
-      ezMsgGenericEvent msg;
-      msg.m_sMessage = "TestMat3";
-      pTests->SendMessageRecursive(msg);
-
-      EZ_TEST_STRING(msg.m_sMessage, "done");
-      break;
-    }
-
-    case ezGameEngineTestTypeScript::SubTests::Mat4:
-    {
-      ezMsgGenericEvent msg;
-      msg.m_sMessage = "TestMat4";
-      pTests->SendMessageRecursive(msg);
-
-      EZ_TEST_STRING(msg.m_sMessage, "done");
-      break;
-    }
-
-    case ezGameEngineTestTypeScript::SubTests::Transform:
-    {
-      ezMsgGenericEvent msg;
-      msg.m_sMessage = "TestTransform";
-      pTests->SendMessageRecursive(msg);
-
-      EZ_TEST_STRING(msg.m_sMessage, "done");
-      break;
-    }
-  }
+  EZ_TEST_STRING(msg.m_sMessage, "done");
 
   return ezTestAppRun::Quit;
 }

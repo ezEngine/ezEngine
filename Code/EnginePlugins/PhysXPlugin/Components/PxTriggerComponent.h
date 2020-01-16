@@ -54,9 +54,10 @@ public:
   void SetTriggerMessage(const char* sz) { m_sTriggerMessage.Assign(sz); }      // [ property ]
   const char* GetTriggerMessage() const { return m_sTriggerMessage.GetData(); } // [ property ]
 
-  bool m_bKinematic = false; // [ property ]
 
 protected:
+  bool m_bKinematic = false;
+
   friend class ezPxSimulationEventCallback;
 
   physx::PxRigidDynamic* m_pActor = nullptr;

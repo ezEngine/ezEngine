@@ -52,6 +52,8 @@ public:
   ezResult Initialize(ezWorld& world);
   ezResult LoadComponent(const ezUuid& typeGuid, TsComponentTypeInfo& out_TypeInfo);
 
+  ezResult FindScriptComponentInfo(const char* szComponentType, TsComponentTypeInfo& out_TypeInfo);
+
   void RegisterMessageHandlersForComponentType(const char* szComponent, const ezUuid& componentType);
 
   EZ_ALWAYS_INLINE ezDuktapeContext& GetDukTapeContext() { return m_Duk; }
@@ -269,7 +271,7 @@ public:
   ///@{
 public:
   bool RegisterGameObject(ezGameObjectHandle handle, ezUInt32& out_uiStashIdx);
-  ezResult RegisterComponent(const char* szTypeName, ezComponentHandle handle, ezUInt32& out_uiStashIdx);
+  ezResult RegisterComponent(const char* szTypeName, ezComponentHandle handle, ezUInt32& out_uiStashIdx, bool bIsNativeComponent);
 
   /// \brief Removes dead GameObject and Component references from the DukTape stash.
   void CleanupStash(ezUInt32 uiNumIterations);

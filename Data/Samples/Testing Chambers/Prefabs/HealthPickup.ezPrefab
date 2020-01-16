@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{17693388173142252989,5230219870400408339}}
-		u4 %Hash{1120515643704130978}
+		u4 %Hash{11586764236900121508}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{1506171518624449054,9081463127113414535}}
@@ -45,7 +45,7 @@ o
 {
 	Uuid %id{u4{42888944305066679,4651606721706448337}}
 	s %t{"ezTypeScriptComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -660,8 +660,8 @@ o
 		s %PluginName{"ezEditorPluginTypeScript"}
 		VarArray %Properties{}
 		s %TypeName{"ezTypeScriptComponent"}
-		u3 %TypeSize{176}
-		u3 %TypeVersion{3}
+		u3 %TypeSize{184}
+		u3 %TypeVersion{4}
 	}
 }
 o

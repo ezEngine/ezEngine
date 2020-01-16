@@ -16,7 +16,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezTypeScriptComponent, 3, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezTypeScriptComponent, 4, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -43,6 +43,8 @@ ezTypeScriptComponent::~ezTypeScriptComponent() = default;
 
 void ezTypeScriptComponent::SerializeComponent(ezWorldWriter& stream) const
 {
+  SUPER::SerializeComponent(stream);
+
   auto& s = stream.GetStream();
 
   s << m_TypeScriptComponentGuid;
@@ -61,6 +63,11 @@ void ezTypeScriptComponent::SerializeComponent(ezWorldWriter& stream) const
 void ezTypeScriptComponent::DeserializeComponent(ezWorldReader& stream)
 {
   const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+
+  if (uiVersion >= 4)
+  {
+    SUPER::DeserializeComponent(stream);
+  }
 
   auto& s = stream.GetStream();
 
@@ -261,7 +268,7 @@ void ezTypeScriptComponent::OnSimulationStarted()
   }
 
   ezUInt32 uiStashIdx = 0;
-  if (binding.RegisterComponent(m_ComponentTypeInfo.Value().m_sComponentTypeName, GetHandle(), uiStashIdx).Failed())
+  if (binding.RegisterComponent(m_ComponentTypeInfo.Value().m_sComponentTypeName, GetHandle(), uiStashIdx, false).Failed())
   {
     SetUserFlag(UserFlag::ScriptFailure, true);
     return;
@@ -279,10 +286,10 @@ void ezTypeScriptComponent::OnSimulationStarted()
 
 void ezTypeScriptComponent::Update(ezTypeScriptBinding& binding)
 {
-  if (GetUserFlag(UserFlag::ScriptFailure))
+  if (GetUserFlag(UserFlag::ScriptFailure) || GetUserFlag(UserFlag::NoTsTick))
     return;
 
-  if (GetUserFlag(UserFlag::NoTsTick))
+  if (m_UpdateInterval.IsNegative())
     return;
 
   const ezTime tNow = GetWorld()->GetClock().GetAccumulatedTime();

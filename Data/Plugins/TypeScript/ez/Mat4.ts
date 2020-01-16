@@ -378,7 +378,7 @@ export class Mat4 {
     /**
      * Checks whether this and rhs have equal values within a certain epsilon.
      */
-    IsEqual(rhs: Mat4, epsilon: number): boolean { // [tested]
+    IsEqual(rhs: Mat4, epsilon: number = 0.0001): boolean { // [tested]
 
         for (let i = 0; i < 16; ++i) {
             if (!Utils.IsNumberEqual(this.m_ElementsCM[i], rhs.m_ElementsCM[i], epsilon)) {

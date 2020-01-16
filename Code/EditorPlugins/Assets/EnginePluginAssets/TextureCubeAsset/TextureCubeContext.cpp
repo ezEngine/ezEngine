@@ -27,9 +27,9 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezTextureCubeContext::ezTextureCubeContext()
-    : m_TextureFormat(ezGALResourceFormat::Invalid)
-    , m_uiTextureWidthAndHeight(0)
-    , m_bAddedEventHandler(false)
+  : m_TextureFormat(ezGALResourceFormat::Invalid)
+  , m_uiTextureWidthAndHeight(0)
+  , m_bAddedEventHandler(false)
 {
 }
 
@@ -87,7 +87,9 @@ void ezTextureCubeContext::OnInitialize()
   {
     const char* szMeshBufferName = "DefaultTextureCubePreviewMeshBuffer";
 
-    ezMeshBufferResourceHandle hMeshBuffer;
+    ezMeshBufferResourceHandle hMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szMeshBufferName);
+
+    if (!hMeshBuffer.IsValid())
     {
       // Build geometry
       ezGeometry geom;

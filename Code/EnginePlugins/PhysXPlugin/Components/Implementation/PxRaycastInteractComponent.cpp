@@ -1,5 +1,6 @@
 #include <PhysXPluginPCH.h>
 
+#include <Core/Messages/CommonMessages.h>
 #include <Core/Messages/EventMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
