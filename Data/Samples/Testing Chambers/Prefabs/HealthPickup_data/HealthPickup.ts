@@ -20,7 +20,7 @@ export class HealthPickup extends ez.TypescriptComponent {
     static RegisterMessageHandlers() {
 
         ez.TypescriptComponent.RegisterMessageHandler(ez.MsgGenericEvent, "OnMsgGenericEvent");
-        ez.TypescriptComponent.RegisterMessageHandler(ez.MsgPxTriggerTriggered, "OnMsgPxTriggerTriggered");
+        ez.TypescriptComponent.RegisterMessageHandler(ez.MsgTriggerTriggered, "OnMsgTriggerTriggered");
     }
 
     OnMsgGenericEvent(msg: ez.MsgGenericEvent): void {
@@ -30,7 +30,7 @@ export class HealthPickup extends ez.TypescriptComponent {
         }
     }    
 
-    OnMsgPxTriggerTriggered(msg: ez.MsgPxTriggerTriggered): void {
+    OnMsgTriggerTriggered(msg: ez.MsgTriggerTriggered): void {
 
         if (msg.TriggerState == ez.TriggerState.Activated && msg.MsgStringHash == ez.Utils.StringToHash("Pickup")) {
 

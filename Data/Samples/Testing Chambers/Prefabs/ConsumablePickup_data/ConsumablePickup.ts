@@ -14,10 +14,10 @@ export class ConsumablePickup extends ez.TypescriptComponent {
 
     static RegisterMessageHandlers() {
 
-        ez.TypescriptComponent.RegisterMessageHandler(ez.MsgPxTriggerTriggered, "OnMsgPxTriggerTriggered");
+        ez.TypescriptComponent.RegisterMessageHandler(ez.MsgTriggerTriggered, "OnMsgTriggerTriggered");
     }
 
-    OnMsgPxTriggerTriggered(msg: ez.MsgPxTriggerTriggered): void {
+    OnMsgTriggerTriggered(msg: ez.MsgTriggerTriggered): void {
 
         if (msg.TriggerState == ez.TriggerState.Activated && msg.MsgStringHash == ez.Utils.StringToHash("Pickup")) {
 

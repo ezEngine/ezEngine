@@ -18,7 +18,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{6046002851915323275,4632268703284350344}}
-		u4 %Hash{5131448006048953354}
+		u4 %Hash{8941753434290866926}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{18187993782677452318,14698659155014457594}}
@@ -27,7 +27,7 @@ o
 		VarArray %References
 		{
 			s{"{ 49c95d4f-ccf4-453d-8f29-560904a7f769 }"}
-			s{"{ 6742f1c2-bd06-45e4-9126-8a3ce7ecb4dc }"}
+			s{"{ 7596f3db-f87e-4aa7-bf8d-66c9a10aae5b }"}
 			s{"{ a59d471e-7f13-4ccf-9776-36a655519c87 }"}
 			s{"{ e9e6b167-c18c-4260-9b0e-4cf4503c1463 }"}
 		}
@@ -54,7 +54,7 @@ o
 		{
 			Uuid{u4{977228517032407209,3418971632235181773}}
 		}
-		Color %DefaultValue{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Color %DefaultValue{f{0x64B25F40,0xC66CEC3D,0xB1ED9640,0x0000803F}}
 		s %Name{"Color"}
 		s %Type{"ezColor"}
 	}
@@ -143,10 +143,10 @@ o
 	p
 	{
 		b %Active{1}
-		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Color %Color{f{0x64B25F40,0xC66CEC3D,0xB1ED9640,0x0000803F}}
 		VarArray %Materials
 		{
-			s{"{ 6742f1c2-bd06-45e4-9126-8a3ce7ecb4dc }"}
+			s{"{ 7596f3db-f87e-4aa7-bf8d-66c9a10aae5b }"}
 		}
 		s %Mesh{"{ e9e6b167-c18c-4260-9b0e-4cf4503c1463 }"}
 	}
