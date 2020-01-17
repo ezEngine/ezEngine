@@ -111,6 +111,7 @@ protected:
 protected:
   const ezEngineProcessViewContext* GetViewContext(ezUInt32 uiView) const { return uiView >= m_ViewContexts.GetCount() ? nullptr : m_ViewContexts[uiView]; }
 
+  /// \brief Tries to resolve a 'reference' (given in pData) to an ezGameObject.
   ezGameObjectHandle ResolveStringToGameObjectHandle(const void* pString, ezComponentHandle hThis, const char* szProperty) const;
 
 private:
