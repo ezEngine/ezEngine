@@ -114,13 +114,13 @@ ezResult ezBeamComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlw
 
     ezBoundingBox box;
     box.SetFromPoints(pts, 2);
-    box.m_vMin -= ezVec3(m_fWidth * 0.5f);
-    box.m_vMax += ezVec3(m_fWidth * 0.5f);
+    const float fHalfWidth = m_fWidth * 0.5f;
+    box.m_vMin -= ezVec3(0, fHalfWidth, fHalfWidth);
+    box.m_vMax += ezVec3(0, fHalfWidth, fHalfWidth);
     bounds = box;
 
     return EZ_SUCCESS;
   }
-
 
   return EZ_FAILURE;
 }
@@ -266,16 +266,16 @@ void ezBeamComponent::CreateMeshes()
   //      x
   //
   //  4        2
-  ezVec3 crossVector1 = (0.5f * ezVec3::UnitXAxis() + 0.5f * ezVec3::UnitZAxis());
+  ezVec3 crossVector1 = (0.5f * ezVec3::UnitYAxis() + 0.5f * ezVec3::UnitZAxis());
   crossVector1.SetLength(m_fWidth * 0.5f);
 
-  ezVec3 crossVector2 = (0.5f * ezVec3::UnitXAxis() - 0.5f * ezVec3::UnitZAxis());
+  ezVec3 crossVector2 = (0.5f * ezVec3::UnitYAxis() - 0.5f * ezVec3::UnitZAxis());
   crossVector2.SetLength(m_fWidth * 0.5f);
 
-  ezVec3 crossVector3 = (-0.5f * ezVec3::UnitXAxis() + 0.5f * ezVec3::UnitZAxis());
+  ezVec3 crossVector3 = (-0.5f * ezVec3::UnitYAxis() + 0.5f * ezVec3::UnitZAxis());
   crossVector3.SetLength(m_fWidth * 0.5f);
 
-  ezVec3 crossVector4 = (-0.5f * ezVec3::UnitXAxis() - 0.5f * ezVec3::UnitZAxis());
+  ezVec3 crossVector4 = (-0.5f * ezVec3::UnitYAxis() - 0.5f * ezVec3::UnitZAxis());
   crossVector4.SetLength(m_fWidth * 0.5f);
 
   const float fDistance = (m_vLastOwnerPosition - m_vLastTargetPosition).GetLength();
