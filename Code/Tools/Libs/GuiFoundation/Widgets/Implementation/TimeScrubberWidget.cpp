@@ -53,7 +53,6 @@ void ezQtTimeScrubberWidget::paintEvent(QPaintEvent* event)
   QPainter p(this);
   p.setRenderHint(QPainter::Antialiasing);
   p.setRenderHint(QPainter::TextAntialiasing);
-  p.setRenderHint(QPainter::HighQualityAntialiasing);
   p.fillRect(rect(), palette().light());
   p.translate(0.5, 0.5);
 

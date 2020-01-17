@@ -48,7 +48,6 @@ ezQtEngineViewWidget::ezQtEngineViewWidget(QWidget* pParent, ezQtEngineDocumentW
 
   setAttribute(Qt::WA_PaintOnScreen, true);
   setAttribute(Qt::WA_NativeWindow, true);
-  setAttribute(Qt::WA_NoBackground);
   setAttribute(Qt::WA_NoSystemBackground);
 
   installEventFilter(this);

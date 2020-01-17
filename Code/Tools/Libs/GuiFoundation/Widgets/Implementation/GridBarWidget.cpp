@@ -59,7 +59,6 @@ void ezQGridBarWidget::paintEvent(QPaintEvent* e)
   QPainter* painter = &Painter;
   painter->setRenderHint(QPainter::Antialiasing);
   painter->setRenderHint(QPainter::TextAntialiasing);
-  painter->setRenderHint(QPainter::HighQualityAntialiasing);
 
   QRect areaRect = rect();
 

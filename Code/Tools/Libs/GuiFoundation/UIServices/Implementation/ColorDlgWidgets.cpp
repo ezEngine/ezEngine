@@ -45,7 +45,6 @@ void ezQtColorAreaWidget::paintEvent(QPaintEvent* event)
 {
   QPainter painter(this);
   painter.setRenderHint(QPainter::RenderHint::Antialiasing);
-  painter.setRenderHint(QPainter::RenderHint::HighQualityAntialiasing);
 
   const QRect area = rect();
 
@@ -128,7 +127,6 @@ void ezQtColorRangeWidget::paintEvent(QPaintEvent* event)
 {
   QPainter painter(this);
   painter.setRenderHint(QPainter::RenderHint::Antialiasing);
-  painter.setRenderHint(QPainter::RenderHint::HighQualityAntialiasing);
 
   const QRect area = rect();
 

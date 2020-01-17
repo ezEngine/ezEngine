@@ -17,7 +17,7 @@ ezQtGraphicsView::ezQtGraphicsView(QWidget* parent /*= nullptr*/)
   m_bDragging = false;
   m_bForwardMouseEvents = true;
 
-  setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::HighQualityAntialiasing);
+  setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
   setDragMode(QGraphicsView::DragMode::RubberBandDrag);
   setTransformationAnchor(QGraphicsView::ViewportAnchor::AnchorUnderMouse);
   setResizeAnchor(QGraphicsView::ViewportAnchor::AnchorUnderMouse);

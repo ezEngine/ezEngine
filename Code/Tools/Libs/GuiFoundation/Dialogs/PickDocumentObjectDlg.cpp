@@ -51,7 +51,7 @@ void ezQtPickDocumentObjectDlg::UpdateTable()
 
     QTreeWidgetItem* pItem = new QTreeWidgetItem();
     pItem->setText(0, e.m_sDisplayName.GetData());
-    pItem->setData(0, Qt::UserRole, qVariantFromValue<void*>((void*)e.m_pObject));
+    pItem->setData(0, Qt::UserRole, QVariant::fromValue<void*>((void*)e.m_pObject));
 
     pRoot->addChild(pItem);
 
