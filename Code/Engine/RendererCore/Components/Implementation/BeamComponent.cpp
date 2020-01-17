@@ -20,6 +20,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezBeamComponent, 1, ezComponentMode::Static)
   {
     EZ_ACCESSOR_PROPERTY("TargetObject", DummyGetter, SetTargetObject)->AddAttributes(new ezGameObjectReferenceAttribute()),
     EZ_ACCESSOR_PROPERTY("Material", GetMaterialFile, SetMaterialFile)->AddAttributes(new ezAssetBrowserAttribute("Material")),
+    EZ_MEMBER_PROPERTY("Color", m_Color)->AddAttributes(new ezDefaultValueAttribute(ezColor::White)),
     EZ_ACCESSOR_PROPERTY("Width", GetWidth, SetWidth)->AddAttributes(new ezDefaultValueAttribute(0.1f), new ezClampValueAttribute(0.001f, ezVariant()), new ezSuffixAttribute(" m")),
     EZ_ACCESSOR_PROPERTY("UVUnitsPerWorldUnit", GetUVUnitsPerWorldUnit, SetUVUnitsPerWorldUnit)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.01f, ezVariant())),
   }
@@ -66,8 +67,7 @@ void ezBeamComponent::Update()
 
     if (updateMesh)
     {
-      m_hMesh.Invalidate();
-      CreateMeshes();
+      ReinitMeshes();
     }
   }
   else
@@ -86,6 +86,7 @@ void ezBeamComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_fWidth;
   s << m_fUVUnitsPerWorldUnit;
   s << m_hMaterial;
+  s << m_Color;
 }
 
 void ezBeamComponent::DeserializeComponent(ezWorldReader& stream)
@@ -98,6 +99,7 @@ void ezBeamComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fWidth;
   s >> m_fUVUnitsPerWorldUnit;
   s >> m_hMaterial;
+  s >> m_Color;
 }
 
 ezResult ezBeamComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
@@ -124,20 +126,16 @@ ezResult ezBeamComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlw
 }
 
 
-void ezBeamComponent::Initialize()
+void ezBeamComponent::OnActivated()
 {
-  SUPER::Initialize();
+  SUPER::OnActivated();
 
-  CreateMeshes();
+  ReinitMeshes();
 }
 
-void ezBeamComponent::OnSimulationStarted()
+void ezBeamComponent::OnDeactivated()
 {
-}
-
-void ezBeamComponent::Deinitialize()
-{
-  SUPER::Deinitialize();
+  SUPER::OnDeactivated();
 
   Cleanup();
 }
@@ -156,14 +154,31 @@ void ezBeamComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
     pRenderData->m_GlobalBounds = GetOwner()->GetGlobalBounds();
     pRenderData->m_hMesh = m_hMesh;
     pRenderData->m_hMaterial = m_hMaterial;
-    pRenderData->m_Color = ezColor::White;
+    pRenderData->m_Color = m_Color;
     pRenderData->m_uiSubMeshIndex = 0;
     pRenderData->m_uiUniqueID = GetUniqueIdForRendering();
 
     pRenderData->FillBatchIdAndSortingKey();
   }
 
-  msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::SimpleTransparent, ezRenderData::Caching::Never);
+  // Determine render data category.
+  ezRenderData::Category category = ezDefaultRenderDataCategories::LitTransparent;
+  ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
+  ezTempHashedString blendModeValue = pMaterial->GetPermutationValue("BLEND_MODE");
+  if (blendModeValue == "BLEND_MODE_OPAQUE" || blendModeValue == "")
+  {
+    category = ezDefaultRenderDataCategories::LitOpaque;
+  }
+  else if (blendModeValue == "BLEND_MODE_MASKED")
+  {
+    category = ezDefaultRenderDataCategories::LitMasked;
+  }
+  else
+  {
+    category = ezDefaultRenderDataCategories::LitTransparent;
+  }
+
+  msg.AddRenderData(pRenderData, category, ezRenderData::Caching::Never);
 }
 
 void ezBeamComponent::SetTargetObject(const char* szReference)
@@ -233,14 +248,13 @@ ezMaterialResourceHandle ezBeamComponent::GetMaterial() const
 
 void ezBeamComponent::CreateMeshes()
 {
-  if (!GetOwner())
-    return;
+  ezVec3 targetPositionInOwnerSpace = GetOwner()->GetGlobalTransform().GetInverse().TransformPosition(m_vLastTargetPosition);
 
-  // Create the beam mesh
+  // Create the beam mesh name, it expresses the beam in local space with it's width
+  // this way multiple beams in a corridor can share the same mesh for example.
   ezStringBuilder meshName;
-  meshName.Format("ezBeamComponent_{0}_{1}_{2}_{3}_{4}_{5}_{6}.createdAtRuntime.ezMesh", m_fWidth,
-    ezArgF(m_vLastOwnerPosition.x, 2), ezArgF(m_vLastOwnerPosition.y, 2), ezArgF(m_vLastOwnerPosition.z, 2),
-    ezArgF(m_vLastTargetPosition.x, 2), ezArgF(m_vLastTargetPosition.y, 2), ezArgF(m_vLastTargetPosition.z, 2));
+  meshName.Format("ezBeamComponent_{0}_{1}_{2}_{3}.createdAtRuntime.ezMesh", m_fWidth,
+    ezArgF(targetPositionInOwnerSpace.x, 2), ezArgF(targetPositionInOwnerSpace.y, 2), ezArgF(targetPositionInOwnerSpace.z, 2));
 
   m_hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(meshName);
 
@@ -266,7 +280,7 @@ void ezBeamComponent::CreateMeshes()
 
   const float fDistance = (m_vLastOwnerPosition - m_vLastTargetPosition).GetLength();
 
-  ezVec3 targetPositionInOwnerSpace = GetOwner()->GetGlobalTransform().GetInverse().TransformPosition(m_vLastTargetPosition);
+  
 
   // Build mesh if no existing one is found
   if (!m_hMesh.IsValid())
@@ -329,7 +343,12 @@ void ezBeamComponent::BuildMeshResourceFromGeometry(ezGeometry& Geometry, ezMesh
 void ezBeamComponent::ReinitMeshes()
 {
   Cleanup();
-  CreateMeshes();
+
+  if (IsActiveAndInitialized())
+  {
+    CreateMeshes();
+    GetOwner()->UpdateLocalBounds();
+  }
 }
 
 void ezBeamComponent::Cleanup()

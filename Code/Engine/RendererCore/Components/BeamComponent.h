@@ -26,10 +26,8 @@ public:
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
 protected:
-  virtual void Initialize() override;
-  virtual void Deinitialize() override;
-  virtual void OnSimulationStarted() override;
-
+  virtual void OnActivated() override;
+  virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezRenderComponent
@@ -59,6 +57,8 @@ public:
   ezMaterialResourceHandle GetMaterial() const;
 
   ezGameObjectHandle m_hTargetObject; // [ property ]
+
+  ezColor m_Color; // [ property ]
 
 protected:
 
