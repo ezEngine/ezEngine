@@ -64,8 +64,7 @@ public:
   }
 
 private:
-  EZ_ALWAYS_INLINE void UpdateMessageAndCachedReceiver(ezEventMessage& msg, const ezComponent* pSenderComponent,
-    const ezGameObject* pSearchObject) const
+  void UpdateMessageAndCachedReceiver(ezEventMessage& msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject) const
   {
     msg.m_hSenderObject = pSenderComponent->GetOwner() != nullptr ? pSenderComponent->GetOwner()->GetHandle() : ezGameObjectHandle();
     msg.m_hSenderComponent = pSenderComponent->GetHandle();

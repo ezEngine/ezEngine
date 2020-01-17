@@ -189,6 +189,8 @@ void ezBeamComponent::SetTargetObject(const char* szReference)
     return;
 
   m_hTargetObject = resolver(szReference, GetHandle(), "TargetObject");
+
+  ReinitMeshes();
 }
 
 void ezBeamComponent::SetWidth(float fWidth)

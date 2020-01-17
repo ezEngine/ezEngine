@@ -183,7 +183,7 @@ public:
   /// that handles messages of the given type.
   ///
   /// \returns A non-null pointer if an event handler component was found that also handles this type of message. nullptr otherwise.
-  const ezEventMessageHandlerComponent* FindEventMsgHandler(ezEventMessage& msg, const ezGameObject* pSearchObject) const;
+  const ezComponent* FindEventMsgHandler(ezEventMessage& msg, const ezGameObject* pSearchObject) const;
 
   ///@}
 

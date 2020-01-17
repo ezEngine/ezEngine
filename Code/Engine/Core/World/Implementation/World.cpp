@@ -310,7 +310,7 @@ void ezWorld::PostMessage(const ezComponentHandle& receiverComponent, const ezMe
   }
 }
 
-const ezEventMessageHandlerComponent* ezWorld::FindEventMsgHandler(ezEventMessage& msg, const ezGameObject* pSearchObject) const
+const ezComponent* ezWorld::FindEventMsgHandler(ezEventMessage& msg, const ezGameObject* pSearchObject) const
 {
   ezWorld* pWorld = const_cast<ezWorld*>(this);
 

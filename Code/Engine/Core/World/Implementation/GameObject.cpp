@@ -825,7 +825,7 @@ void ezGameObject::PostMessageRecursive(const ezMessage& msg, ezObjectMsgQueueTy
 
 void ezGameObject::SendEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent)
 {
-  if (ezComponent* pReceiver = const_cast<ezEventMessageHandlerComponent*>(GetWorld()->FindEventMsgHandler(msg, this)))
+  if (ezComponent* pReceiver = const_cast<ezComponent*>(GetWorld()->FindEventMsgHandler(msg, this)))
   {
     if (pSenderComponent)
     {
