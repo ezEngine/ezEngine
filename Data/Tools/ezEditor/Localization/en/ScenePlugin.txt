@@ -236,3 +236,4 @@ ezPlayerStartPointComponent;Player Start Point
 ezInstancedMeshComponent;Instanced Mesh
 ezMarkerComponent;Marker Component
 ezRaycastComponent;Raycast Placement Component
+ezBeamComponent;Beam Component

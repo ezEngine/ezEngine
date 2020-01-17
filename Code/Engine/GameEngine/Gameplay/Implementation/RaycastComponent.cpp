@@ -38,7 +38,7 @@ ezRaycastComponent::~ezRaycastComponent() = default;
 
 void ezRaycastComponent::OnSimulationStarted()
 {
-  m_pPhysicsWorldModule = GetWorld()->GetModule<ezPhysicsWorldModuleInterface>();
+  m_pPhysicsWorldModule = GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
   m_hLastTriggerObjectInRay.Invalidate();
 
   ezGameObject* pEndObject = nullptr;
