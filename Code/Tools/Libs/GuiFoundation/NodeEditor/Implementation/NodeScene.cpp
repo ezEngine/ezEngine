@@ -699,7 +699,7 @@ void ezQtNodeScene::OpenSearchMenu(QPoint screenPos)
     sFullName = m_pManager->GetTypeCategory(pRtti);
     sFullName.AppendPath(sCleanName);
 
-    pSearchMenu->AddItem(sFullName, qVariantFromValue((void*)pRtti));
+    pSearchMenu->AddItem(sFullName, QVariant::fromValue((void*)pRtti));
   }
 
   pSearchMenu->Finalize(m_sContextMenuSearchText);

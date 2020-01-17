@@ -239,7 +239,7 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
         fullName = pCatA ? pCatA->GetCategory() : "";
         fullName.AppendPath(ezTranslate(pRtti->GetTypeName()));
 
-        m_pSearchableMenu->AddItem(fullName, qVariantFromValue((void*)pRtti), actionIcon);
+        m_pSearchableMenu->AddItem(fullName, QVariant::fromValue((void*)pRtti), actionIcon);
       }
       else
       {
@@ -247,7 +247,7 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
 
         // Add type action to current menu
         QAction* pAction = new QAction(QString::fromUtf8(ezTranslate(pRtti->GetTypeName())), m_pMenu);
-        pAction->setProperty("type", qVariantFromValue((void*)pRtti));
+        pAction->setProperty("type", QVariant::fromValue((void*)pRtti));
         EZ_VERIFY(connect(pAction, SIGNAL(triggered()), this, SLOT(OnMenuAction())) != nullptr, "connection failed");
 
         pAction->setIcon(actionIcon);

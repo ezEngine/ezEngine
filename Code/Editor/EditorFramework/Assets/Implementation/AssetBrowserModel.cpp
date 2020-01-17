@@ -346,11 +346,11 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int role) const
 
     case UserRoles::SubAssetGuid:
     {
-      return qVariantFromValue(pSubAsset->m_Data.m_Guid);
+      return QVariant::fromValue(pSubAsset->m_Data.m_Guid);
     }
     case UserRoles::AssetGuid:
     {
-      return qVariantFromValue(pSubAsset->m_pAssetInfo->m_Info->m_DocumentID);
+      return QVariant::fromValue(pSubAsset->m_pAssetInfo->m_Info->m_DocumentID);
     }
     case UserRoles::AbsolutePath:
       return QString::fromUtf8(pSubAsset->m_pAssetInfo->m_sAbsolutePath);
