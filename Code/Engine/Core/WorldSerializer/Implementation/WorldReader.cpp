@@ -96,15 +96,15 @@ void ezWorldReader::InstantiateWorld(ezWorld& world, const ezUInt16* pOverrideTe
 }
 
 void ezWorldReader::InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezGameObjectHandle hParent,
-                                      ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects,
-                                      ezHybridArray<ezGameObject*, 8>* out_CreatedChildObjects, const ezUInt16* pOverrideTeamID, bool bForceDynamic)
+  ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects,
+  ezHybridArray<ezGameObject*, 8>* out_CreatedChildObjects, const ezUInt16* pOverrideTeamID, bool bForceDynamic)
 {
   Instantiate(world, true, rootTransform, hParent, out_CreatedRootObjects, out_CreatedChildObjects, pOverrideTeamID, bForceDynamic);
 }
 
 void ezWorldReader::Instantiate(ezWorld& world, bool bUseTransform, const ezTransform& rootTransform, ezGameObjectHandle hParent,
-                                ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects,
-                                ezHybridArray<ezGameObject*, 8>* out_CreatedChildObjects, const ezUInt16* pOverrideTeamID, bool bForceDynamic)
+  ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects,
+  ezHybridArray<ezGameObject*, 8>* out_CreatedChildObjects, const ezUInt16* pOverrideTeamID, bool bForceDynamic)
 {
   m_pWorld = &world;
 
@@ -235,7 +235,7 @@ void ezWorldReader::ReadGameObjectDesc(GameObjectToCreate& godesc)
   *m_pStream >> desc.m_LocalScaling;
   *m_pStream >> desc.m_LocalUniformScaling;
 
-  *m_pStream >> desc.m_bActive;
+  *m_pStream >> desc.m_bEnabled;
   *m_pStream >> desc.m_bDynamic;
 
   if (m_uiVersion >= 3)
@@ -338,7 +338,7 @@ void ezWorldReader::ReadComponentsOfType(ezUInt32 uiComponentTypeIdx)
       auto hComponent = pManager->CreateComponent(pParentObject, pComponent);
       m_IndexToComponentHandle[uiComponentIdx] = hComponent;
 
-      pComponent->SetActive(bActive);
+      pComponent->SetEnabled(bActive);
 
       for (ezUInt8 j = 0; j < 8; ++j)
       {
@@ -361,7 +361,7 @@ void ezWorldReader::FulfillComponentHandleRequets()
 }
 
 void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, ezGameObjectHandle hParent,
-                                      ezHybridArray<ezGameObject*, 8>* out_CreatedObjects, const ezUInt16* pOverrideTeamID, bool bForceDynamic)
+  ezHybridArray<ezGameObject*, 8>* out_CreatedObjects, const ezUInt16* pOverrideTeamID, bool bForceDynamic)
 {
   if (hParent.IsInvalidated())
   {
@@ -410,8 +410,8 @@ void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& 
 
 
 void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, const ezTransform& rootTransform,
-                                      ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects,
-                                      const ezUInt16* pOverrideTeamID, bool bForceDynamic)
+  ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects,
+  const ezUInt16* pOverrideTeamID, bool bForceDynamic)
 {
   for (const auto& godesc : objects)
   {
@@ -445,4 +445,3 @@ void ezWorldReader::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& 
 }
 
 EZ_STATICLINK_FILE(Core, Core_WorldSerializer_Implementation_WorldReader);
-

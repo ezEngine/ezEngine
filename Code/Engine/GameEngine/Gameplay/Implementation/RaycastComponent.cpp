@@ -127,22 +127,22 @@ void ezRaycastComponent::Update()
   {
     fHitDistance = hit.m_fDistance;
 
-    if (!pEndObject->IsActive() && m_bDisableTargetObjectOnNoHit)
+    if (!pEndObject->IsEnabled() && m_bDisableTargetObjectOnNoHit)
     {
-      pEndObject->SetActive(true);
+      pEndObject->SetEnabled(true);
     }
   }
   else
   {
     if (m_bDisableTargetObjectOnNoHit)
     {
-      pEndObject->SetActive(false);
+      pEndObject->SetEnabled(false);
     }
     else
     {
-      if (!pEndObject->IsActive())
+      if (!pEndObject->IsEnabled())
       {
-        pEndObject->SetActive(true);
+        pEndObject->SetEnabled(true);
       }
     }
   }

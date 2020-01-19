@@ -3,26 +3,38 @@
 #include <Core/World/World.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezComponent, 1, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezComponent, 2, ezRTTINoAllocator)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Active", IsActive, SetActive)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_ACCESSOR_PROPERTY("Enabled", IsEnabled, SetEnabled)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezComponent::SetActive(bool bActive)
+void ezComponent::SetEnabled(bool bEnabled)
 {
-  if (m_ComponentFlags.IsSet(ezObjectFlags::Active) != bActive)
+  if (m_ComponentFlags.IsSet(ezObjectFlags::Enabled) != bEnabled)
   {
-    m_ComponentFlags.AddOrRemove(ezObjectFlags::Active, bActive);
+    m_ComponentFlags.AddOrRemove(ezObjectFlags::Enabled, bEnabled);
+
+    UpdateActiveState(GetOwner() == nullptr ? true : GetOwner()->IsActive());
+  }
+}
+
+void ezComponent::UpdateActiveState(bool bOwnerActive)
+{
+  const bool bSelfActive = bOwnerActive && m_ComponentFlags.IsSet(ezObjectFlags::Enabled);
+
+  if (m_ComponentFlags.IsSet(ezObjectFlags::Active) != bSelfActive)
+  {
+    m_ComponentFlags.AddOrRemove(ezObjectFlags::Active, bSelfActive);
 
     if (IsInitialized())
     {
-      if (bActive)
+      if (bSelfActive)
       {
         OnActivated();
 
@@ -172,10 +184,7 @@ void ezComponent::Deinitialize()
 {
   EZ_ASSERT_DEV(m_pOwner != nullptr, "Owner must still be valid");
 
-  if (IsActive())
-  {
-    SetActive(false);
-  }
+  SetEnabled(false);
 }
 
 void ezComponent::OnActivated() {}
@@ -212,5 +221,28 @@ bool ezComponent::GetUserFlag(ezUInt8 flagIndex) const
 
   return m_ComponentFlags.IsSet(static_cast<ezObjectFlags::Enum>(ezObjectFlags::UserFlag0 << flagIndex));
 }
+
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/GraphPatch.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+
+class ezComponentPatch_1_2 : public ezGraphPatch
+{
+public:
+  ezComponentPatch_1_2()
+    : ezGraphPatch("ezComponent", 2)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    pNode->RenameProperty("Active", "Enabled");
+  }
+};
+
+ezComponentPatch_1_2 g_ezComponentPatch_1_2;
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_Component);

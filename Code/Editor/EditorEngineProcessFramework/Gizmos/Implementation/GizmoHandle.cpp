@@ -679,7 +679,7 @@ void ezEngineGizmoHandle::UpdateForEngine(ezWorld* pWorld)
 
   m_pGizmoComponent->m_GizmoColor = m_Color;
   m_pGizmoComponent->m_bUseDepthPrepass = !m_bVisualizer;
-  m_pGizmoComponent->SetActive(m_bVisible);
+  m_pGizmoComponent->SetEnabled(m_bVisible);
 }
 
 void ezEngineGizmoHandle::SetColor(const ezColor& col)

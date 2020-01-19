@@ -25,9 +25,11 @@ struct ezEventMessage;
 /// Game objects only consists of hierarchical data like transformation and a list of components.
 /// You cannot derive from the game object class. To add functionality to an object you have to attach components to it.
 /// To create an object instance call CreateObject on the world. Never store a direct pointer to an object but store an
-/// object handle instead.
+/// ezGameObjectHandle instead.
+///
 /// \see ezWorld
 /// \see ezComponent
+/// \see ezGameObjectHandle
 class EZ_CORE_DLL ezGameObject
 {
 private:
@@ -112,10 +114,31 @@ public:
   /// \brief Returns whether this object is static.
   bool IsStatic() const;
 
-  /// \brief Activates the object and all its components.
-  void SetActive(bool bActive);
+  /// \brief Sets the enabled state of the game object.
+  ///
+  /// The enabled state affects the 'active' state of the game object and all its children and attached components.
+  /// When a game object gets disabled, it is switched to 'inactive'. The same happens for all its children and
+  /// all components attached to those game objects.
+  /// Thus disabling a game object recursively deactivates the entire sub-tree of objects and components.
+  ///
+  /// When a game object gets enabled, and none of its parent nodes is disabled, then the active state will be set to true
+  /// on it and all its children and attached components.
+  ///
+  /// \sa IsActive(), ezComponent::SetEnabled()
+  void SetEnabled(bool bEnabled);
 
-  /// \brief Returns whether this object is active.
+  /// \brief Checks whether the 'enabled' state is set on this game object. Note that this does not mean that the game object is also 'active'.
+  ///
+  /// \sa IsActive(), SetEnabled()
+  bool IsEnabled() const;
+
+  /// \brief Checks whether this game object is in an active state.
+  ///
+  /// The active state is determined by the active state of the parent game object and the enabled state of this game object.
+  /// Only if the parent game object is active (and thus all of its parent objects as well) and this game object is enabled,
+  /// will this be active.
+  ///
+  /// \sa ezGameObject::SetEnabled(), ezComponent::IsActive()
   bool IsActive() const;
 
   /// \brief Sets the name to identify this object. Does not have to be a unique name.
@@ -449,6 +472,9 @@ private:
   void AddComponent(ezComponent* pComponent);
   void RemoveComponent(ezComponent* pComponent);
   void FixComponentPointer(ezComponent* pOldPtr, ezComponent* pNewPtr);
+
+  // Updates the active state of this object and all children and attached components recursively, depending on the enabled states.
+  void UpdateActiveState(bool bParentActive);
 
   void SendNotificationMessage(ezMessage& msg);
 

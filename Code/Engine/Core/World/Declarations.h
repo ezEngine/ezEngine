@@ -175,19 +175,20 @@ struct ezObjectFlags
   enum Enum
   {
     None = 0,
-    Dynamic = EZ_BIT(0),                 ///< Usually detected automatically. A dynamic object will not cache render data across frames.
-    ForceDynamic = EZ_BIT(1),            ///< Set by the user to enforce the 'Dynamic' mode. Necessary when user code (or scripts) should change
-                                         ///< objects, and the automatic detection cannot know that.
-    Active = EZ_BIT(2),                  ///< The object/component is currently in the 'active' state
-    Initialized = EZ_BIT(3),             ///< The object/component has been initialized
-    Initializing = EZ_BIT(4),            ///< The object/component is currently initializing. Used to prevent recursions during initialization.
-    SimulationStarted = EZ_BIT(5),       ///< OnSimulationStarted() has been called on the component
-    SimulationStarting = EZ_BIT(6),      ///< Used to prevent recursion during OnSimulationStarted()
-    UnhandledMessageHandler = EZ_BIT(7), ///< For components, when a message is not handled, a virtual function is called
-
-    ChildChangesNotifications = EZ_BIT(8),            ///< The object should send a notification message when children are added or removed.
-    ComponentChangesNotifications = EZ_BIT(9),        ///< The object should send a notification message when components are added or removed.
-    StaticTransformChangesNotifications = EZ_BIT(10), ///< The object should send a notification message if it is static and its transform changes.
+    Dynamic = EZ_BIT(0),      ///< Usually detected automatically. A dynamic object will not cache render data across frames.
+    ForceDynamic = EZ_BIT(1), ///< Set by the user to enforce the 'Dynamic' mode. Necessary when user code (or scripts) should change
+                              ///< objects, and the automatic detection cannot know that.
+    Enabled = EZ_BIT(2),       ///< The object/component is currently in the 'active' state
+    Active = EZ_BIT(3),
+    Initialized = EZ_BIT(4),             ///< The object/component has been initialized
+    Initializing = EZ_BIT(5),            ///< The object/component is currently initializing. Used to prevent recursions during initialization.
+    SimulationStarted = EZ_BIT(6),       ///< OnSimulationStarted() has been called on the component
+    SimulationStarting = EZ_BIT(7),      ///< Used to prevent recursion during OnSimulationStarted()
+    UnhandledMessageHandler = EZ_BIT(8), ///< For components, when a message is not handled, a virtual function is called
+    
+    ChildChangesNotifications = EZ_BIT(9),            ///< The object should send a notification message when children are added or removed.
+    ComponentChangesNotifications = EZ_BIT(10),        ///< The object should send a notification message when components are added or removed.
+    StaticTransformChangesNotifications = EZ_BIT(11), ///< The object should send a notification message if it is static and its transform changes.
 
     UserFlag0 = EZ_BIT(24),
     UserFlag1 = EZ_BIT(25),
@@ -205,6 +206,7 @@ struct ezObjectFlags
   {
     StorageType Dynamic : 1;
     StorageType ForceDynamic : 1;
+    StorageType Enabled : 1;
     StorageType Active : 1;
     StorageType Initialized : 1;
     StorageType Initializing : 1;
@@ -215,7 +217,7 @@ struct ezObjectFlags
     StorageType ChildChangesNotifications : 1;
     StorageType ComponentChangesNotifications : 1;
 
-    StorageType Padding : 14;
+    StorageType Padding : 13;
 
     StorageType UserFlag0 : 1;
     StorageType UserFlag1 : 1;
