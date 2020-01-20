@@ -31,29 +31,29 @@ protected:
   virtual ~ezComponent();
 
 public:
-  /// \brief Sets the enabled state of the component.
+  /// \brief Sets the active flag of the component, which affects its active state.
   ///
-  /// The enabled state affects the 'active' state of the component. Ie. a disabled component will always be inactive.
+  /// The active flag affects the 'active state' of the component. Ie. a component without the active flag will always be inactive.
   /// However, the active state is also affected by the active state of the owning game object. Thus a component attached to an inactive
   /// game object, will also be inactive.
   ///
   /// Note that it is up to the component manager though, whether it differentiates between active and inactive components.
   ///
-  /// \sa ezGameObject::IsActive(), ezGameObject::SetEnabled()
+  /// \sa ezGameObject::IsActive(), ezGameObject::SetActiveFlag()
   void SetActiveFlag(bool bEnabled);
 
-  /// \brief Checks whether the 'enabled' state is set on this component. Note that this does not mean that the component is also 'active'.
+  /// \brief Checks whether the 'active flag' is set on this component. Note that this does not mean that the component is also 'active'.
   ///
-  /// \sa IsActive(), SetEnabled()
+  /// \sa IsActive(), SetActiveFlag()
   bool GetActiveFlag() const;
 
   /// \brief Checks whether this component is in an active state.
   ///
-  /// The active state is determined by the active state of the owning game object and the enabled state of this component.
-  /// Only if the owning game object is active (and thus all of its parent objects as well) and the component is enabled,
-  /// will this be active.
+  /// The active state is determined by the active state of the owning game object and the 'active flag' of this component.
+  /// Only if the owning game object is active (and thus all of its parent objects as well) and the component has the active flag set,
+  /// will this component be active.
   ///
-  /// \sa ezGameObject::IsActive(), ezGameObject::SetEnabled()
+  /// \sa ezGameObject::IsActive(), ezGameObject::SetActiveFlag()
   bool IsActive() const;
 
   /// \brief Returns whether this component is active and initialized.

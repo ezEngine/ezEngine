@@ -114,29 +114,29 @@ public:
   /// \brief Returns whether this object is static.
   bool IsStatic() const;
 
-  /// \brief Sets the enabled state of the game object.
+  /// \brief Sets the 'active flag' of the game object, which affects its final 'active state'.
   ///
-  /// The enabled state affects the 'active' state of the game object and all its children and attached components.
-  /// When a game object gets disabled, it is switched to 'inactive'. The same happens for all its children and
+  /// The active flag affects the 'active state' of the game object and all its children and attached components.
+  /// When a game object does not have the active flag, it is switched to 'inactive'. The same happens for all its children and
   /// all components attached to those game objects.
-  /// Thus disabling a game object recursively deactivates the entire sub-tree of objects and components.
+  /// Thus removing the active flag from a game object recursively deactivates the entire sub-tree of objects and components.
   ///
-  /// When a game object gets enabled, and none of its parent nodes is disabled, then the active state will be set to true
-  /// on it and all its children and attached components.
+  /// When the active flag is set on a game object, and all of its parent nodes have the flag set as well, then the active state
+  /// will be set to true on it and all its children and attached components.
   ///
   /// \sa IsActive(), ezComponent::SetActiveFlag()
   void SetActiveFlag(bool bEnabled);
 
-  /// \brief Checks whether the 'enabled' state is set on this game object. Note that this does not mean that the game object is also 'active'.
+  /// \brief Checks whether the 'active flag' is set on this game object. Note that this does not mean that the game object is also in an 'active state'.
   ///
   /// \sa IsActive(), SetActiveFlag()
   bool GetActiveFlag() const;
 
   /// \brief Checks whether this game object is in an active state.
   ///
-  /// The active state is determined by the active state of the parent game object and the enabled state of this game object.
-  /// Only if the parent game object is active (and thus all of its parent objects as well) and this game object is enabled,
-  /// will this be active.
+  /// The active state is determined by the active state of the parent game object and the 'active flag' of this game object.
+  /// Only if the parent game object is active (and thus all of its parent objects as well) and this game object has the active flag set,
+  /// will this game object be active.
   ///
   /// \sa ezGameObject::SetActiveFlag(), ezComponent::IsActive()
   bool IsActive() const;

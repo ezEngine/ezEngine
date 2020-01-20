@@ -12,8 +12,8 @@ declare function __CPP_Binding_RegisterMessageHandler(msgTypeNameHash: number, h
 declare function __CPP_Component_IsValid(component: Component): boolean;
 declare function __CPP_Component_GetUniqueID(component: Component): number;
 declare function __CPP_Component_GetOwner(component: Component): GameObject;
-declare function __CPP_Component_SetEnabled(component: Component, enabled: boolean): GameObject;
-declare function __CPP_Component_IsEnabled(component: Component): boolean;
+declare function __CPP_Component_SetActiveFlag(component: Component, active: boolean): GameObject;
+declare function __CPP_Component_GetActiveFlag(component: Component): boolean;
 declare function __CPP_Component_IsActive(component: Component): boolean;
 declare function __CPP_Component_IsActiveAndInitialized(component: Component): boolean;
 declare function __CPP_Component_IsActiveAndSimulating(component: Component): boolean;
@@ -51,22 +51,25 @@ export abstract class Component {
     }
 
     /**
-     * Enables or disables a component, which affects the component's 'active' state.
-     * Deactivated components are present, but do not have any effect.
+     * Sets the active flag for a component, which affects the component's final 'active state'.
+     * Inactive components are present, but do not have any effect.
      */
-    SetEnabled(enabled: boolean): void { // [tested]
-        __CPP_Component_SetEnabled(this, enabled);
+    SetActiveFlag(enabled: boolean): void { // [tested]
+        __CPP_Component_SetActiveFlag(this, enabled);
     }
 
     /**
-     * Checks whether this component is enabled. See 'SetEnabled()' and 'IsActive()'.
+     * Checks whether the active flag is set on this component. See 'SetActiveFlag()' and 'IsActive()'.
      */
-    IsEnabled(): boolean { // [tested]
-        return __CPP_Component_IsEnabled(this);
+    GetActiveFlag(): boolean { // [tested]
+        return __CPP_Component_GetActiveFlag(this);
     }
 
     /**
-     * Checks whether this component is active. See 'SetEnabled()'.
+     * Checks whether this component is in an 'active state'.
+     * A component is in the 'active state' if it has the active flag and its owning object is also in the active state.
+     * 
+     *  See 'SetActiveFlag()'.
      */
     IsActive(): boolean { // [tested]
         return __CPP_Component_IsActive(this);

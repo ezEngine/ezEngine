@@ -42,8 +42,8 @@ declare function __CPP_GameObject_GetGlobalDirUp(_this: GameObject): Vec3;
 declare function __CPP_GameObject_SetVelocity(_this: GameObject, value: Vec3): void;
 declare function __CPP_GameObject_GetVelocity(_this: GameObject): Vec3;
 
-declare function __CPP_GameObject_SetEnabled(_this: GameObject, active: boolean): void;
-declare function __CPP_GameObject_IsEnabled(_this: GameObject): boolean;
+declare function __CPP_GameObject_SetActiveFlag(_this: GameObject, active: boolean): void;
+declare function __CPP_GameObject_GetActiveFlag(_this: GameObject): boolean;
 
 declare function __CPP_GameObject_IsActive(_this: GameObject): boolean;
 
@@ -121,22 +121,22 @@ export class GameObject {
     }
 
     /**
-     * Activates or deactivates the GameObject.
-     * Deactivating a GameObject is similar to deactivating all components attached to that object.
+     * Sets the active flag for a game object, which affects the objects's final 'active state'.
+     * When a GameObject does not have the active flag, it and all its children get deactivated, as well as all attached components.
      */
-    SetEnabled(enabled: boolean): void { // [tested]
-        __CPP_GameObject_SetEnabled(this, enabled);
+    SetActiveFlag(enabled: boolean): void { // [tested]
+        __CPP_GameObject_SetActiveFlag(this, enabled);
     }
 
     /**
-     * Returns whether the GameObject is enabled.
+     * Returns whether the GameObject is has the active flag set.
      */
-    IsEnabled(): boolean { // [tested]
-        return __CPP_GameObject_IsEnabled(this);
+    GetActiveFlag(): boolean { // [tested]
+        return __CPP_GameObject_GetActiveFlag(this);
     }
 
     /**
-     * Returns whether the GameObject is active (it and all its parents are enabled).
+     * Returns whether the GameObject is active (it and all its parents have the active flag).
      */
     IsActive(): boolean { // [tested]
         return __CPP_GameObject_IsActive(this);
