@@ -1,4 +1,6 @@
-declare function __CPP_Time_Now(): number;
+declare function __CPP_Time_GetRealTime(): number;
+declare function __CPP_Time_GetGameTime(): number;
+declare function __CPP_Time_GetGameTimeDiff(): number;
 
 /**
  * Utility functions to work with time values.
@@ -7,10 +9,28 @@ declare function __CPP_Time_Now(): number;
 export class Time {
 
     /**
-     * Returns the current time.
+     * Returns the current time, independemt of game speed.
+     * This should be used for UI elements and other things that always advance at real time speeds.
      */
-    static Now(): number {
-        return __CPP_Time_Now();
+    static GetRealTime(): number {
+        return __CPP_Time_GetRealTime();
+    }
+
+    /**
+     * Returns the current game time. This depends on the speed at which the game is simulated (slow motion etc.).
+     * This should be used for most game mechanics that should speed up and slow down according to the game speed.
+     */
+    static GetGameTime(): number {
+        return __CPP_Time_GetGameTime();
+    }
+
+    /**
+     * Returns the amount of game time that has passed between this frame and the last frame.
+     * This should be used for game mechanics that are updated every single frame and need to change according to
+     * how much time has passed since the last frame.
+     */
+    static GetGameTimeDiff(): number {
+        return __CPP_Time_GetGameTimeDiff();
     }
 
     /**
