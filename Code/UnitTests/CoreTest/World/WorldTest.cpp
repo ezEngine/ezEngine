@@ -558,7 +558,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     EZ_TEST_VEC3(coordSys.m_vUpDir, ezVec3(0, 0, 1), ezMath::SmallEpsilon<float>());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Enabled / Active State")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Active Flag / Active State")
   {
     ezWorldDesc worldDesc("Test");
     ezWorld world(worldDesc);

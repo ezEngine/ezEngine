@@ -33,23 +33,23 @@ export class TestComponent extends ez.TypescriptComponent {
             EZ_TEST.BOOL(text.GetOwner() == owner);
         }
 
-        // Enabled / Active
+        // Active Flag / Active State
         {
             EZ_TEST.BOOL(mesh.IsActive());
             EZ_TEST.BOOL(mesh.IsActiveAndInitialized());
             EZ_TEST.BOOL(mesh.IsActiveAndSimulating());
             
-            EZ_TEST.BOOL(!text.IsEnabled());
+            EZ_TEST.BOOL(!text.GetActiveFlag());
             EZ_TEST.BOOL(!text.IsActive());
             EZ_TEST.BOOL(!text.IsActiveAndInitialized());
             
-            text.SetEnabled(true);
-            EZ_TEST.BOOL(text.IsEnabled());
+            text.SetActiveFlag(true);
+            EZ_TEST.BOOL(text.GetActiveFlag());
             EZ_TEST.BOOL(text.IsActive());
             EZ_TEST.BOOL(text.IsActiveAndInitialized());
             
-            mesh.SetEnabled(false);
-            EZ_TEST.BOOL(!mesh.IsEnabled());
+            mesh.SetActiveFlag(false);
+            EZ_TEST.BOOL(!mesh.GetActiveFlag());
             EZ_TEST.BOOL(!mesh.IsActive());
             EZ_TEST.BOOL(!mesh.IsActiveAndInitialized());
             EZ_TEST.BOOL(!mesh.IsActiveAndSimulating());

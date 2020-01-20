@@ -35,25 +35,25 @@ export class TestGameObject extends ez.TypescriptComponent {
             EZ_TEST.BOOL(owner.GetName() == "TestGameObject");
         }
 
-        // Enabled / Active
+        // Active Flag / Active State
         {
-            EZ_TEST.BOOL(child1.IsEnabled());
+            EZ_TEST.BOOL(child1.GetActiveFlag());
             EZ_TEST.BOOL(child1.IsActive());
-            EZ_TEST.BOOL(child2.IsEnabled());
+            EZ_TEST.BOOL(child2.GetActiveFlag());
             EZ_TEST.BOOL(child2.IsActive());
 
-            child2.SetEnabled(false);
+            child2.SetActiveFlag(false);
 
-            EZ_TEST.BOOL(child1.IsEnabled());
+            EZ_TEST.BOOL(child1.GetActiveFlag());
             EZ_TEST.BOOL(child1.IsActive());
-            EZ_TEST.BOOL(!child2.IsEnabled());
+            EZ_TEST.BOOL(!child2.GetActiveFlag());
             EZ_TEST.BOOL(!child2.IsActive());
 
-            child2.SetEnabled(true);
+            child2.SetActiveFlag(true);
 
-            EZ_TEST.BOOL(child1.IsEnabled());
+            EZ_TEST.BOOL(child1.GetActiveFlag());
             EZ_TEST.BOOL(child1.IsActive());
-            EZ_TEST.BOOL(child2.IsEnabled());
+            EZ_TEST.BOOL(child2.GetActiveFlag());
             EZ_TEST.BOOL(child2.IsActive());
         }
 
