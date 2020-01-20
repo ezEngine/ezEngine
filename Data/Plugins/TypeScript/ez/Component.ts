@@ -12,7 +12,8 @@ declare function __CPP_Binding_RegisterMessageHandler(msgTypeNameHash: number, h
 declare function __CPP_Component_IsValid(component: Component): boolean;
 declare function __CPP_Component_GetUniqueID(component: Component): number;
 declare function __CPP_Component_GetOwner(component: Component): GameObject;
-declare function __CPP_Component_SetActive(component: Component, active: boolean): GameObject;
+declare function __CPP_Component_SetActiveFlag(component: Component, active: boolean): GameObject;
+declare function __CPP_Component_GetActiveFlag(component: Component): boolean;
 declare function __CPP_Component_IsActive(component: Component): boolean;
 declare function __CPP_Component_IsActiveAndInitialized(component: Component): boolean;
 declare function __CPP_Component_IsActiveAndSimulating(component: Component): boolean;
@@ -50,15 +51,25 @@ export abstract class Component {
     }
 
     /**
-     * Activates or deactivates a component.
-     * Deactivated components are present, but do not have any effect.
+     * Sets the active flag for a component, which affects the component's final 'active state'.
+     * Inactive components are present, but do not have any effect.
      */
-    SetActive(active: boolean): void { // [tested]
-        __CPP_Component_SetActive(this, active);
+    SetActiveFlag(enabled: boolean): void { // [tested]
+        __CPP_Component_SetActiveFlag(this, enabled);
     }
 
     /**
-     * Checks whether this component is active. See 'SetActive()'.
+     * Checks whether the active flag is set on this component. See 'SetActiveFlag()' and 'IsActive()'.
+     */
+    GetActiveFlag(): boolean { // [tested]
+        return __CPP_Component_GetActiveFlag(this);
+    }
+
+    /**
+     * Checks whether this component is in an 'active state'.
+     * A component is in the 'active state' if it has the active flag and its owning object is also in the active state.
+     * 
+     *  See 'SetActiveFlag()'.
      */
     IsActive(): boolean { // [tested]
         return __CPP_Component_IsActive(this);
@@ -126,6 +137,8 @@ export abstract class Component {
         OnSimulationStarted(): void {
         }
     */
+
+   public static GetTypeNameHash(): number { return 0; }
 }
 
 /**

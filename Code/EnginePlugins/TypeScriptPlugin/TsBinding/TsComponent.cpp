@@ -10,7 +10,7 @@
 static int __CPP_Component_IsValid(duk_context* pDuk);
 static int __CPP_Component_GetUniqueID(duk_context* pDuk);
 static int __CPP_Component_GetOwner(duk_context* pDuk);
-static int __CPP_Component_SetActive(duk_context* pDuk);
+static int __CPP_Component_SetActiveFlag(duk_context* pDuk);
 static int __CPP_Component_IsActive(duk_context* pDuk);
 static int __CPP_Component_SendMessage(duk_context* pDuk);
 static int __CPP_TsComponent_BroadcastEvent(duk_context* pDuk);
@@ -21,7 +21,8 @@ ezResult ezTypeScriptBinding::Init_Component()
   m_Duk.RegisterGlobalFunction("__CPP_Component_IsValid", __CPP_Component_IsValid, 1);
   m_Duk.RegisterGlobalFunction("__CPP_Component_GetUniqueID", __CPP_Component_GetUniqueID, 1);
   m_Duk.RegisterGlobalFunction("__CPP_Component_GetOwner", __CPP_Component_GetOwner, 1);
-  m_Duk.RegisterGlobalFunction("__CPP_Component_SetActive", __CPP_Component_SetActive, 2);
+  m_Duk.RegisterGlobalFunction("__CPP_Component_SetActiveFlag", __CPP_Component_SetActiveFlag, 2);
+  m_Duk.RegisterGlobalFunction("__CPP_Component_GetActiveFlag", __CPP_Component_IsActive, 1, -1);
   m_Duk.RegisterGlobalFunction("__CPP_Component_IsActive", __CPP_Component_IsActive, 1, 0);
   m_Duk.RegisterGlobalFunction("__CPP_Component_IsActiveAndInitialized", __CPP_Component_IsActive, 1, 1);
   m_Duk.RegisterGlobalFunction("__CPP_Component_IsActiveAndSimulating", __CPP_Component_IsActive, 1, 2);
@@ -217,13 +218,13 @@ static int __CPP_Component_GetOwner(duk_context* pDuk)
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnCustom(), +1);
 }
 
-static int __CPP_Component_SetActive(duk_context* pDuk)
+static int __CPP_Component_SetActiveFlag(duk_context* pDuk)
 {
   ezDuktapeFunction duk(pDuk);
 
   ezComponent* pComponent = ezTypeScriptBinding::ExpectComponent<ezComponent>(pDuk);
 
-  pComponent->SetActive(duk.GetBoolValue(1, true));
+  pComponent->SetActiveFlag(duk.GetBoolValue(1, true));
 
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnVoid(), 0);
 }
@@ -236,6 +237,9 @@ static int __CPP_Component_IsActive(duk_context* pDuk)
 
   switch (duk.GetFunctionMagicValue())
   {
+    case -1:
+      EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnBool(pComponent->GetActiveFlag()), +1);
+
     case 0:
       EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnBool(pComponent->IsActive()), +1);
 

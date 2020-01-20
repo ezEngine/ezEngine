@@ -7,22 +7,34 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezComponent, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Active", IsActive, SetActive)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_ACCESSOR_PROPERTY("Active", GetActiveFlag, SetActiveFlag)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezComponent::SetActive(bool bActive)
+void ezComponent::SetActiveFlag(bool bEnabled)
 {
-  if (m_ComponentFlags.IsSet(ezObjectFlags::Active) != bActive)
+  if (m_ComponentFlags.IsSet(ezObjectFlags::ActiveFlag) != bEnabled)
   {
-    m_ComponentFlags.AddOrRemove(ezObjectFlags::Active, bActive);
+    m_ComponentFlags.AddOrRemove(ezObjectFlags::ActiveFlag, bEnabled);
+
+    UpdateActiveState(GetOwner() == nullptr ? true : GetOwner()->IsActive());
+  }
+}
+
+void ezComponent::UpdateActiveState(bool bOwnerActive)
+{
+  const bool bSelfActive = bOwnerActive && m_ComponentFlags.IsSet(ezObjectFlags::ActiveFlag);
+
+  if (m_ComponentFlags.IsSet(ezObjectFlags::ActiveState) != bSelfActive)
+  {
+    m_ComponentFlags.AddOrRemove(ezObjectFlags::ActiveState, bSelfActive);
 
     if (IsInitialized())
     {
-      if (bActive)
+      if (bSelfActive)
       {
         OnActivated();
 
@@ -172,10 +184,7 @@ void ezComponent::Deinitialize()
 {
   EZ_ASSERT_DEV(m_pOwner != nullptr, "Owner must still be valid");
 
-  if (IsActive())
-  {
-    SetActive(false);
-  }
+  SetActiveFlag(false);
 }
 
 void ezComponent::OnActivated() {}
@@ -212,5 +221,3 @@ bool ezComponent::GetUserFlag(ezUInt8 flagIndex) const
 
   return m_ComponentFlags.IsSet(static_cast<ezObjectFlags::Enum>(ezObjectFlags::UserFlag0 << flagIndex));
 }
-
-EZ_STATICLINK_FILE(Core, Core_World_Implementation_Component);

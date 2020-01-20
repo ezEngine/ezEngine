@@ -12,10 +12,30 @@ static ezHashTable<duk_context*, ezTypeScriptBinding*> s_DukToBinding;
 ezSet<const ezRTTI*> ezTypeScriptBinding::s_RequiredEnums;
 ezSet<const ezRTTI*> ezTypeScriptBinding::s_RequiredFlags;
 
-static int __CPP_Time_Now(duk_context* pDuk)
+static int __CPP_Time_Get(duk_context* pDuk)
 {
   ezDuktapeFunction duk(pDuk);
-  return duk.ReturnFloat(ezTime::Now().GetSeconds());
+
+  switch (duk.GetFunctionMagicValue())
+  {
+    case 0:
+      return duk.ReturnFloat(ezTime::Now().GetSeconds());
+
+    case 1:
+    {
+      ezWorld* pWorld = ezTypeScriptBinding::RetrieveWorld(pDuk);
+      return duk.ReturnFloat(pWorld->GetClock().GetAccumulatedTime().GetSeconds());
+    }
+
+    case 2:
+    {
+      ezWorld* pWorld = ezTypeScriptBinding::RetrieveWorld(pDuk);
+      return duk.ReturnFloat(pWorld->GetClock().GetTimeDiff().GetSeconds());
+    }
+  }
+
+  EZ_ASSERT_NOT_IMPLEMENTED;
+  return duk.ReturnFloat(0.0f);
 }
 
 ezTypeScriptBinding::ezTypeScriptBinding()
@@ -31,7 +51,9 @@ ezTypeScriptBinding::~ezTypeScriptBinding()
 
 ezResult ezTypeScriptBinding::Init_Time()
 {
-  m_Duk.RegisterGlobalFunction("__CPP_Time_Now", __CPP_Time_Now, 0);
+  m_Duk.RegisterGlobalFunction("__CPP_Time_GetRealTime", __CPP_Time_Get, 0);
+  m_Duk.RegisterGlobalFunction("__CPP_Time_GetGameTime", __CPP_Time_Get, 1);
+  m_Duk.RegisterGlobalFunction("__CPP_Time_GetGameTimeDiff", __CPP_Time_Get, 2);
 
   return EZ_SUCCESS;
 }

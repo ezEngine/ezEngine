@@ -20,7 +20,7 @@ class ezWorldReader;
 /// Also add a EZ_BEGIN_COMPONENT_TYPE/EZ_END_COMPONENT_TYPE block to a cpp file. In that block you can add reflected members or message
 /// handlers. Note that every component type needs a corresponding manager type. Take a look at ezComponentManagerSimple for a simple
 /// manager implementation that calls an update method on its components every frame. To create a component instance call CreateComponent on
-/// the corresponding manager. Never store a direct pointer to a component but store a component handle instead.
+/// the corresponding manager. Never store a direct pointer to a component but store an ezComponentHandle instead.
 class EZ_CORE_DLL ezComponent : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezComponent, ezReflectedClass);
@@ -31,17 +31,39 @@ protected:
   virtual ~ezComponent();
 
 public:
-  /// \brief Sets the active state of the component. Note that it is up to the manager if he differentiates between active and inactive
-  /// components.
-  void SetActive(bool bActive);
+  /// \brief Sets the active flag of the component, which affects its active state.
+  ///
+  /// The active flag affects the 'active state' of the component. Ie. a component without the active flag will always be inactive.
+  /// However, the active state is also affected by the active state of the owning game object. Thus a component attached to an inactive
+  /// game object, will also be inactive.
+  ///
+  /// Note that it is up to the component manager though, whether it differentiates between active and inactive components.
+  ///
+  /// \sa ezGameObject::IsActive(), ezGameObject::SetActiveFlag()
+  void SetActiveFlag(bool bEnabled);
 
-  /// \brief Returns whether this component is active.
+  /// \brief Checks whether the 'active flag' is set on this component. Note that this does not mean that the component is also 'active'.
+  ///
+  /// \sa IsActive(), SetActiveFlag()
+  bool GetActiveFlag() const;
+
+  /// \brief Checks whether this component is in an active state.
+  ///
+  /// The active state is determined by the active state of the owning game object and the 'active flag' of this component.
+  /// Only if the owning game object is active (and thus all of its parent objects as well) and the component has the active flag set,
+  /// will this component be active.
+  ///
+  /// \sa ezGameObject::IsActive(), ezGameObject::SetActiveFlag()
   bool IsActive() const;
 
   /// \brief Returns whether this component is active and initialized.
+  ///
+  /// \sa IsActive()
   bool IsActiveAndInitialized() const;
 
   /// \brief Whether the component is currently active and simulation has been started as well.
+  ///
+  /// \sa IsActive()
   bool IsActiveAndSimulating() const;
 
   /// \brief Returns the corresponding manager for this component.
@@ -197,6 +219,9 @@ private:
   bool IsInitialized() const;
   bool IsInitializing() const;
   bool IsSimulationStarted() const;
+
+  // updates the component's active state depending on the owner object's active state
+  void UpdateActiveState(bool bOwnerActive);
 
   bool SendMessageInternal(ezMessage& msg, bool bWasPostedMsg);
   bool SendMessageInternal(ezMessage& msg, bool bWasPostedMsg) const;

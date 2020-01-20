@@ -77,7 +77,7 @@ ezWorld::~ezWorld()
   // set all objects to inactive so components and children know that they shouldn't access the objects anymore.
   for (auto it = m_Data.m_ObjectStorage.GetIterator(); it.IsValid(); it.Next())
   {
-    it->m_Flags.Remove(ezObjectFlags::Active);
+    it->m_Flags.Remove(ezObjectFlags::ActiveFlag | ezObjectFlags::ActiveState);
   }
 
   // deinitialize all modules before we invalidate the world. Components can still access the world during deinitialization.
@@ -169,7 +169,7 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   pNewObject->m_InternalId = newId;
   pNewObject->m_Flags = ezObjectFlags::None;
   pNewObject->m_Flags.AddOrRemove(ezObjectFlags::Dynamic, bDynamic);
-  pNewObject->m_Flags.AddOrRemove(ezObjectFlags::Active, desc.m_bActive);
+  pNewObject->m_Flags.AddOrRemove(ezObjectFlags::ActiveFlag, desc.m_bActiveFlag);
   pNewObject->m_sName = desc.m_sName;
   pNewObject->m_pWorld = this;
   pNewObject->m_ParentIndex = uiParentIndex;
@@ -213,6 +213,8 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   // fix links
   LinkToParent(pNewObject);
 
+  pNewObject->UpdateActiveState(pParentObject == nullptr ? true : pParentObject->IsActive());
+
   out_pObject = pNewObject;
   return ezGameObjectHandle(newId);
 }
@@ -226,7 +228,7 @@ void ezWorld::DeleteObjectNow(const ezGameObjectHandle& object)
     return;
 
   // set object to inactive so components and children know that they shouldn't access the object anymore.
-  pObject->m_Flags.Remove(ezObjectFlags::Active);
+  pObject->m_Flags.Remove(ezObjectFlags::ActiveFlag | ezObjectFlags::ActiveState);
 
   // delete children
   for (auto it = pObject->GetChildren(); it.IsValid(); ++it)
@@ -521,8 +523,7 @@ const ezWorldModule* ezWorld::GetModule(const ezRTTI* pRtti) const
 void ezWorld::SetParent(ezGameObject* pObject, ezGameObject* pNewParent, ezGameObject::TransformPreservation preserve)
 {
   EZ_ASSERT_DEV(pObject != pNewParent, "Object can't be its own parent!");
-  EZ_ASSERT_DEV(
-    pNewParent == nullptr || pObject->IsDynamic() || pNewParent->IsStatic(), "Can't attach a static object to a dynamic parent!");
+  EZ_ASSERT_DEV(pNewParent == nullptr || pObject->IsDynamic() || pNewParent->IsStatic(), "Can't attach a static object to a dynamic parent!");
   CheckForWriteAccess();
 
   if (GetObjectUnchecked(pObject->m_ParentIndex) == pNewParent)
@@ -542,6 +543,12 @@ void ezWorld::SetParent(ezGameObject* pObject, ezGameObject* pNewParent, ezGameO
   }
 
   PatchHierarchyData(pObject, preserve);
+
+  // TODO: the functions above send messages such as ezMsgChildrenChanged, which will not arrive for inactive components, is that a problem ?
+  // 1) if a component was active before and now gets deactivated, it may not care about the message anymore anyway
+  // 2) if a component was inactive before, it did not get the message, but upon activation it can update the state for which it needed the message
+  // so probably it is fine, only components that were active and stay active need the message, and that will be the case
+  pObject->UpdateActiveState(pNewParent == nullptr ? true : pNewParent->IsActive());
 }
 
 void ezWorld::LinkToParent(ezGameObject* pObject)

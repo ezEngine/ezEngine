@@ -24,7 +24,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezRTTINoAllocator)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Name", GetName, SetName),
-    //EZ_ACCESSOR_PROPERTY("Active", IsActive, SetActive)->AddAttributes(new ezDefaultValueAttribute(true)), // does not work well in the editor
+    EZ_ACCESSOR_PROPERTY("Active", GetActiveFlag, SetActiveFlag)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_ACCESSOR_PROPERTY("GlobalKey", GetGlobalKey, SetGlobalKey),
     EZ_ENUM_ACCESSOR_PROPERTY("Mode", ezObjectMode, Reflection_GetMode, Reflection_SetMode),
     EZ_ACCESSOR_PROPERTY("LocalPosition", GetLocalPosition, SetLocalPosition)->AddAttributes(new ezSuffixAttribute(" m")),
@@ -307,13 +307,34 @@ void ezGameObject::MakeStatic()
   MakeStaticInternal();
 }
 
-void ezGameObject::SetActive(bool bActive)
+void ezGameObject::SetActiveFlag(bool bEnabled)
 {
-  m_Flags.AddOrRemove(ezObjectFlags::Active, bActive);
+  if (m_Flags.IsSet(ezObjectFlags::ActiveFlag) == bEnabled)
+    return;
 
-  for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
+  m_Flags.AddOrRemove(ezObjectFlags::ActiveFlag, bEnabled);
+
+  UpdateActiveState(GetParent() == nullptr ? true : GetParent()->IsActive());
+}
+
+void ezGameObject::UpdateActiveState(bool bParentActive)
+{
+  const bool bSelfActive = bParentActive && m_Flags.IsSet(ezObjectFlags::ActiveFlag);
+
+  if (bSelfActive != m_Flags.IsSet(ezObjectFlags::ActiveState))
   {
-    m_Components[i]->SetActive(bActive);
+    m_Flags.AddOrRemove(ezObjectFlags::ActiveState, bSelfActive);
+
+    for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
+    {
+      m_Components[i]->UpdateActiveState(bSelfActive);
+    }
+
+    // recursively update all children
+    for (auto it = GetChildren(); it.IsValid(); ++it)
+    {
+      it->UpdateActiveState(bSelfActive);
+    }
   }
 }
 
@@ -674,6 +695,8 @@ void ezGameObject::AddComponent(ezComponent* pComponent)
 
   pComponent->m_pOwner = this;
   m_Components.PushBack(pComponent);
+
+  pComponent->UpdateActiveState(IsActive());
 
   if (m_Flags.IsSet(ezObjectFlags::ComponentChangesNotifications))
   {

@@ -118,6 +118,21 @@ export class AreaDamageComponent extends Component
   set Impulse(value: number) { __CPP_ComponentProperty_set(this, 1590335605, value); }
 }
 
+export class BeamComponent extends RenderComponent
+{
+  public static GetTypeNameHash(): number { return 2607452950; }
+  get TargetObject(): string { return __CPP_ComponentProperty_get(this, 769921780); }
+  set TargetObject(value: string) { __CPP_ComponentProperty_set(this, 769921780, value); }
+  get Material(): string { return __CPP_ComponentProperty_get(this, 368388105); }
+  set Material(value: string) { __CPP_ComponentProperty_set(this, 368388105, value); }
+  get Color(): Color { return __CPP_ComponentProperty_get(this, 1875117162); }
+  set Color(value: Color) { __CPP_ComponentProperty_set(this, 1875117162, value); }
+  get Width(): number { return __CPP_ComponentProperty_get(this, 1079427631); }
+  set Width(value: number) { __CPP_ComponentProperty_set(this, 1079427631, value); }
+  get UVUnitsPerWorldUnit(): number { return __CPP_ComponentProperty_get(this, 426666172); }
+  set UVUnitsPerWorldUnit(value: number) { __CPP_ComponentProperty_set(this, 426666172, value); }
+}
+
 export class BreakableSheetComponent extends RenderComponent
 {
   public static GetTypeNameHash(): number { return 464038314; }
@@ -905,6 +920,23 @@ export class PxVisColMeshComponent extends RenderComponent
   set CollisionMesh(value: string) { __CPP_ComponentProperty_set(this, 1815135183, value); }
 }
 
+export class RaycastComponent extends Component
+{
+  public static GetTypeNameHash(): number { return 1153115930; }
+  get MaxDistance(): number { return __CPP_ComponentProperty_get(this, 2060514601); }
+  set MaxDistance(value: number) { __CPP_ComponentProperty_set(this, 2060514601, value); }
+  get DisableTargetObjectOnNoHit(): boolean { return __CPP_ComponentProperty_get(this, 1283920355); }
+  set DisableTargetObjectOnNoHit(value: boolean) { __CPP_ComponentProperty_set(this, 1283920355, value); }
+  get RaycastEndObject(): string { return __CPP_ComponentProperty_get(this, 2228349344); }
+  set RaycastEndObject(value: string) { __CPP_ComponentProperty_set(this, 2228349344, value); }
+  get CollisionLayerEndPoint(): number { return __CPP_ComponentProperty_get(this, 2451437346); }
+  set CollisionLayerEndPoint(value: number) { __CPP_ComponentProperty_set(this, 2451437346, value); }
+  get CollisionLayerTrigger(): number { return __CPP_ComponentProperty_get(this, 3526215642); }
+  set CollisionLayerTrigger(value: number) { __CPP_ComponentProperty_set(this, 3526215642, value); }
+  get TriggerMessage(): string { return __CPP_ComponentProperty_get(this, 829128084); }
+  set TriggerMessage(value: string) { __CPP_ComponentProperty_set(this, 829128084, value); }
+}
+
 export class RcAgentComponent extends AgentSteeringComponent
 {
   public static GetTypeNameHash(): number { return 3286434196; }
@@ -1041,7 +1073,8 @@ export class SpatialAnchorComponent extends Component
 export class SpawnComponent extends Component
 {
   public static GetTypeNameHash(): number { return 3190985319; }
-  TriggerManualSpawn(): boolean { return __CPP_ComponentFunction_Call(this, 988788857); }
+  CanTriggerManualSpawn(): boolean { return __CPP_ComponentFunction_Call(this, 223338000); }
+  TriggerManualSpawn(IgnoreSpawnDelay: boolean, LocalOffset: Vec3): boolean { return __CPP_ComponentFunction_Call(this, 988788857, IgnoreSpawnDelay, LocalOffset); }
   ScheduleSpawn(): void { __CPP_ComponentFunction_Call(this, 4073221374); }
   get Prefab(): string { return __CPP_ComponentProperty_get(this, 4180171245); }
   set Prefab(value: string) { __CPP_ComponentProperty_set(this, 4180171245, value); }

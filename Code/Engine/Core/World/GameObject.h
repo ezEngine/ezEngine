@@ -25,9 +25,11 @@ struct ezEventMessage;
 /// Game objects only consists of hierarchical data like transformation and a list of components.
 /// You cannot derive from the game object class. To add functionality to an object you have to attach components to it.
 /// To create an object instance call CreateObject on the world. Never store a direct pointer to an object but store an
-/// object handle instead.
+/// ezGameObjectHandle instead.
+///
 /// \see ezWorld
 /// \see ezComponent
+/// \see ezGameObjectHandle
 class EZ_CORE_DLL ezGameObject
 {
 private:
@@ -112,10 +114,31 @@ public:
   /// \brief Returns whether this object is static.
   bool IsStatic() const;
 
-  /// \brief Activates the object and all its components.
-  void SetActive(bool bActive);
+  /// \brief Sets the 'active flag' of the game object, which affects its final 'active state'.
+  ///
+  /// The active flag affects the 'active state' of the game object and all its children and attached components.
+  /// When a game object does not have the active flag, it is switched to 'inactive'. The same happens for all its children and
+  /// all components attached to those game objects.
+  /// Thus removing the active flag from a game object recursively deactivates the entire sub-tree of objects and components.
+  ///
+  /// When the active flag is set on a game object, and all of its parent nodes have the flag set as well, then the active state
+  /// will be set to true on it and all its children and attached components.
+  ///
+  /// \sa IsActive(), ezComponent::SetActiveFlag()
+  void SetActiveFlag(bool bEnabled);
 
-  /// \brief Returns whether this object is active.
+  /// \brief Checks whether the 'active flag' is set on this game object. Note that this does not mean that the game object is also in an 'active state'.
+  ///
+  /// \sa IsActive(), SetActiveFlag()
+  bool GetActiveFlag() const;
+
+  /// \brief Checks whether this game object is in an active state.
+  ///
+  /// The active state is determined by the active state of the parent game object and the 'active flag' of this game object.
+  /// Only if the parent game object is active (and thus all of its parent objects as well) and this game object has the active flag set,
+  /// will this game object be active.
+  ///
+  /// \sa ezGameObject::SetActiveFlag(), ezComponent::IsActive()
   bool IsActive() const;
 
   /// \brief Sets the name to identify this object. Does not have to be a unique name.
@@ -449,6 +472,9 @@ private:
   void AddComponent(ezComponent* pComponent);
   void RemoveComponent(ezComponent* pComponent);
   void FixComponentPointer(ezComponent* pOldPtr, ezComponent* pNewPtr);
+
+  // Updates the active state of this object and all children and attached components recursively, depending on the enabled states.
+  void UpdateActiveState(bool bParentActive);
 
   void SendNotificationMessage(ezMessage& msg);
 

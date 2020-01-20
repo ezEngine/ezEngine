@@ -215,7 +215,7 @@ void ezTypeScriptComponent::Deinitialize()
 
   if (IsActive())
   {
-    SetActive(false);
+    SetActiveFlag(false);
   }
 
   if (GetUserFlag(UserFlag::InitializedTS))
@@ -296,6 +296,8 @@ void ezTypeScriptComponent::Update(ezTypeScriptBinding& binding)
 
   if (m_LastUpdate + m_UpdateInterval > tNow)
     return;
+
+  EZ_PROFILE_SCOPE(GetOwner()->GetName());
 
   m_LastUpdate = tNow;
 
