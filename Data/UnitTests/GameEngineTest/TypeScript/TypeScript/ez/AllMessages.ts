@@ -176,14 +176,6 @@ export class MsgPhysicsAddImpulse extends Message
   ShapeID: number = 0;
 }
 
-export class MsgPxTriggerTriggered extends EventMessage
-{
-  public static GetTypeNameHash(): number { return 3270153082; }
-  constructor() { super(); this.TypeNameHash = 3270153082; }
-  MsgStringHash: number = 0;
-  TriggerState: Enum.TriggerState = 0;
-}
-
 export class MsgSetColor extends Message
 {
   public static GetTypeNameHash(): number { return 12434892; }
@@ -219,6 +211,14 @@ export class MsgTransformChanged extends Message
 {
   public static GetTypeNameHash(): number { return 769397284; }
   constructor() { super(); this.TypeNameHash = 769397284; }
+}
+
+export class MsgTriggerTriggered extends EventMessage
+{
+  public static GetTypeNameHash(): number { return 1755267521; }
+  constructor() { super(); this.TypeNameHash = 1755267521; }
+  MsgStringHash: number = 0;
+  TriggerState: Enum.TriggerState = 0;
 }
 
 export class MsgTypeScriptMsgProxy extends Message

@@ -60,7 +60,7 @@ static int __CPP_World_CreateObject(duk_context* pDuk)
 
   ezGameObjectDesc desc;
 
-  desc.m_bActive = duk.GetBoolProperty("Active", desc.m_bActive, 0);
+  desc.m_bEnabled = duk.GetBoolProperty("Enabled", desc.m_bEnabled, 0);
   desc.m_bDynamic = duk.GetBoolProperty("Dynamic", desc.m_bDynamic, 0);
   desc.m_LocalPosition = ezTypeScriptBinding::GetVec3Property(duk, "LocalPosition", 0, ezVec3(0.0f));
   desc.m_LocalScaling = ezTypeScriptBinding::GetVec3Property(duk, "LocalScaling", 0, ezVec3(1.0f));

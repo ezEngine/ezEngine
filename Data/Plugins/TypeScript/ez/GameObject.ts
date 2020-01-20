@@ -42,7 +42,9 @@ declare function __CPP_GameObject_GetGlobalDirUp(_this: GameObject): Vec3;
 declare function __CPP_GameObject_SetVelocity(_this: GameObject, value: Vec3): void;
 declare function __CPP_GameObject_GetVelocity(_this: GameObject): Vec3;
 
-declare function __CPP_GameObject_SetActive(_this: GameObject, active: boolean): void;
+declare function __CPP_GameObject_SetEnabled(_this: GameObject, active: boolean): void;
+declare function __CPP_GameObject_IsEnabled(_this: GameObject): boolean;
+
 declare function __CPP_GameObject_IsActive(_this: GameObject): boolean;
 
 declare function __CPP_GameObject_SetName(_this: GameObject, value: string): void;
@@ -122,12 +124,19 @@ export class GameObject {
      * Activates or deactivates the GameObject.
      * Deactivating a GameObject is similar to deactivating all components attached to that object.
      */
-    SetActive(active: boolean): void { // [tested]
-        __CPP_GameObject_SetActive(this, active);
+    SetEnabled(enabled: boolean): void { // [tested]
+        __CPP_GameObject_SetEnabled(this, enabled);
     }
 
     /**
-     * Returns whether the GameObject is active.
+     * Returns whether the GameObject is enabled.
+     */
+    IsEnabled(): boolean { // [tested]
+        return __CPP_GameObject_IsEnabled(this);
+    }
+
+    /**
+     * Returns whether the GameObject is active (it and all its parents are enabled).
      */
     IsActive(): boolean { // [tested]
         return __CPP_GameObject_IsActive(this);

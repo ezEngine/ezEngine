@@ -35,19 +35,25 @@ export class TestGameObject extends ez.TypescriptComponent {
             EZ_TEST.BOOL(owner.GetName() == "TestGameObject");
         }
 
-        // Active
+        // Enabled / Active
         {
+            EZ_TEST.BOOL(child1.IsEnabled());
             EZ_TEST.BOOL(child1.IsActive());
+            EZ_TEST.BOOL(child2.IsEnabled());
             EZ_TEST.BOOL(child2.IsActive());
 
-            child2.SetActive(false);
+            child2.SetEnabled(false);
 
+            EZ_TEST.BOOL(child1.IsEnabled());
             EZ_TEST.BOOL(child1.IsActive());
+            EZ_TEST.BOOL(!child2.IsEnabled());
             EZ_TEST.BOOL(!child2.IsActive());
 
-            child2.SetActive(true);
+            child2.SetEnabled(true);
 
+            EZ_TEST.BOOL(child1.IsEnabled());
             EZ_TEST.BOOL(child1.IsActive());
+            EZ_TEST.BOOL(child2.IsEnabled());
             EZ_TEST.BOOL(child2.IsActive());
         }
 
@@ -197,14 +203,14 @@ export class TestGameObject extends ez.TypescriptComponent {
             EZ_TEST.BOOL(owner.HasAnyTags("AutoColMesh", "NOTAG"));
             EZ_TEST.BOOL(owner.HasAnyTags("CastShadow", "NOTAG"));
             EZ_TEST.BOOL(owner.HasAnyTags("AutoColMesh", "CastShadow"));
-            
+
             owner.RemoveTags("CastShadow", "AutoColMesh");
             EZ_TEST.BOOL(!owner.HasAnyTags("AutoColMesh", "CastShadow"));
-            
+
             owner.AddTags("CastShadow", "TAG1");
             EZ_TEST.BOOL(owner.HasAnyTags("AutoColMesh", "CastShadow"));
             EZ_TEST.BOOL(!owner.HasAllTags("AutoColMesh", "CastShadow"));
-            
+
             owner.SetTags("TAG");
             EZ_TEST.BOOL(owner.HasAnyTags("TAG"));
             EZ_TEST.BOOL(!owner.HasAnyTags("AutoColMesh", "CastShadow", "TAG1"));

@@ -5,7 +5,7 @@
 export abstract class Message {
     TypeNameHash: number = 0;
 
-    GetTypeNameHash(): number { return 0; }
+    public static GetTypeNameHash(): number { return 0; }
 }
 
 /**

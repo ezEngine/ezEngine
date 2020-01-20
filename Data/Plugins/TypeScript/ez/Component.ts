@@ -12,7 +12,8 @@ declare function __CPP_Binding_RegisterMessageHandler(msgTypeNameHash: number, h
 declare function __CPP_Component_IsValid(component: Component): boolean;
 declare function __CPP_Component_GetUniqueID(component: Component): number;
 declare function __CPP_Component_GetOwner(component: Component): GameObject;
-declare function __CPP_Component_SetActive(component: Component, active: boolean): GameObject;
+declare function __CPP_Component_SetEnabled(component: Component, enabled: boolean): GameObject;
+declare function __CPP_Component_IsEnabled(component: Component): boolean;
 declare function __CPP_Component_IsActive(component: Component): boolean;
 declare function __CPP_Component_IsActiveAndInitialized(component: Component): boolean;
 declare function __CPP_Component_IsActiveAndSimulating(component: Component): boolean;
@@ -50,15 +51,22 @@ export abstract class Component {
     }
 
     /**
-     * Activates or deactivates a component.
+     * Enables or disables a component, which affects the component's 'active' state.
      * Deactivated components are present, but do not have any effect.
      */
-    SetActive(active: boolean): void { // [tested]
-        __CPP_Component_SetActive(this, active);
+    SetEnabled(enabled: boolean): void { // [tested]
+        __CPP_Component_SetEnabled(this, enabled);
     }
 
     /**
-     * Checks whether this component is active. See 'SetActive()'.
+     * Checks whether this component is enabled. See 'SetEnabled()' and 'IsActive()'.
+     */
+    IsEnabled(): boolean { // [tested]
+        return __CPP_Component_IsEnabled(this);
+    }
+
+    /**
+     * Checks whether this component is active. See 'SetEnabled()'.
      */
     IsActive(): boolean { // [tested]
         return __CPP_Component_IsActive(this);
@@ -126,6 +134,8 @@ export abstract class Component {
         OnSimulationStarted(): void {
         }
     */
+
+   public static GetTypeNameHash(): number { return 0; }
 }
 
 /**

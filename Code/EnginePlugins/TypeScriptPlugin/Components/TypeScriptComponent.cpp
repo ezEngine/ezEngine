@@ -215,7 +215,7 @@ void ezTypeScriptComponent::Deinitialize()
 
   if (IsActive())
   {
-    SetActive(false);
+    SetEnabled(false);
   }
 
   if (GetUserFlag(UserFlag::InitializedTS))
