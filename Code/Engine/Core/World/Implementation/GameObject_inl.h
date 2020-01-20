@@ -91,14 +91,14 @@ EZ_ALWAYS_INLINE bool ezGameObject::IsStatic() const
   return !m_Flags.IsSet(ezObjectFlags::Dynamic);
 }
 
-EZ_ALWAYS_INLINE bool ezGameObject::IsEnabled() const
+EZ_ALWAYS_INLINE bool ezGameObject::GetActiveFlag() const
 {
-  return m_Flags.IsSet(ezObjectFlags::Enabled);
+  return m_Flags.IsSet(ezObjectFlags::ActiveFlag);
 }
 
 EZ_ALWAYS_INLINE bool ezGameObject::IsActive() const
 {
-  return m_Flags.IsSet(ezObjectFlags::Active);
+  return m_Flags.IsSet(ezObjectFlags::ActiveState);
 }
 
 EZ_ALWAYS_INLINE void ezGameObject::SetName(const char* szName)

@@ -11,7 +11,7 @@ struct EZ_CORE_DLL ezGameObjectDesc
 {
   EZ_DECLARE_POD_TYPE();
 
-  bool m_bEnabled = true;
+  bool m_bActiveFlag = true;
   bool m_bDynamic = false;
   ezUInt16 m_uiTeamID = 0;
 

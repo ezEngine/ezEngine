@@ -40,12 +40,12 @@ public:
   /// Note that it is up to the component manager though, whether it differentiates between active and inactive components.
   ///
   /// \sa ezGameObject::IsActive(), ezGameObject::SetEnabled()
-  void SetEnabled(bool bEnabled);
+  void SetActiveFlag(bool bEnabled);
 
   /// \brief Checks whether the 'enabled' state is set on this component. Note that this does not mean that the component is also 'active'.
   ///
   /// \sa IsActive(), SetEnabled()
-  bool IsEnabled() const;
+  bool GetActiveFlag() const;
 
   /// \brief Checks whether this component is in an active state.
   ///

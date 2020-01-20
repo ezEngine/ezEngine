@@ -2,7 +2,7 @@
 
 EZ_ALWAYS_INLINE ezComponent::ezComponent()
   : m_pMessageDispatchType(nullptr)
-  , m_ComponentFlags(ezObjectFlags::Enabled)
+  , m_ComponentFlags(ezObjectFlags::ActiveFlag)
   , m_pManager(nullptr)
   , m_pOwner(nullptr)
 {
@@ -22,19 +22,19 @@ EZ_ALWAYS_INLINE bool ezComponent::IsDynamic() const
   return m_ComponentFlags.IsSet(ezObjectFlags::Dynamic);
 }
 
-EZ_ALWAYS_INLINE bool ezComponent::IsEnabled() const
+EZ_ALWAYS_INLINE bool ezComponent::GetActiveFlag() const
 {
-  return m_ComponentFlags.IsSet(ezObjectFlags::Enabled);
+  return m_ComponentFlags.IsSet(ezObjectFlags::ActiveFlag);
 }
 
 EZ_ALWAYS_INLINE bool ezComponent::IsActive() const
 {
-  return m_ComponentFlags.IsSet(ezObjectFlags::Active);
+  return m_ComponentFlags.IsSet(ezObjectFlags::ActiveState);
 }
 
 EZ_ALWAYS_INLINE bool ezComponent::IsActiveAndInitialized() const
 {
-  return m_ComponentFlags.AreAllSet(ezObjectFlags::Active | ezObjectFlags::Initialized);
+  return m_ComponentFlags.AreAllSet(ezObjectFlags::ActiveState | ezObjectFlags::Initialized);
 }
 
 EZ_ALWAYS_INLINE ezComponentManagerBase* ezComponent::GetOwningManager()
@@ -84,6 +84,6 @@ EZ_ALWAYS_INLINE bool ezComponent::IsSimulationStarted() const
 
 EZ_ALWAYS_INLINE bool ezComponent::IsActiveAndSimulating() const
 {
-  return m_ComponentFlags.AreAllSet(ezObjectFlags::Initialized | ezObjectFlags::Active) &&
+  return m_ComponentFlags.AreAllSet(ezObjectFlags::Initialized | ezObjectFlags::ActiveState) &&
          m_ComponentFlags.IsAnySet(ezObjectFlags::SimulationStarting | ezObjectFlags::SimulationStarted);
 }

@@ -40,7 +40,7 @@ void ezComponentManagerBase::DeleteComponent(ezComponent* pComponent)
   m_Components.Remove(pComponent->m_InternalId);
 
   pComponent->m_InternalId.Invalidate();
-  pComponent->m_ComponentFlags.Remove(ezObjectFlags::Enabled | ezObjectFlags::Active);
+  pComponent->m_ComponentFlags.Remove(ezObjectFlags::ActiveFlag | ezObjectFlags::ActiveState);
 
   GetWorld()->m_Data.m_DeadComponents.Insert(pComponent);
 }

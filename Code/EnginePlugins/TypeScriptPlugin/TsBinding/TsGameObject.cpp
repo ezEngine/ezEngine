@@ -46,7 +46,7 @@ enum GameObject_X
   GlobalDirRight,
   GlobalDirUp,
   Velocity,
-  Enabled,
+  ActiveFlag,
   Active,
   ChildCount,
   SetParent,
@@ -71,8 +71,8 @@ ezResult ezTypeScriptBinding::Init_GameObject()
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetLocalRotation", __CPP_GameObject_GetX_Quat, 1, GameObject_X::LocalRotation);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_SetGlobalRotation", __CPP_GameObject_SetX_Quat, 2, GameObject_X::GlobalRotation);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetGlobalRotation", __CPP_GameObject_GetX_Quat, 1, GameObject_X::GlobalRotation);
-  m_Duk.RegisterGlobalFunction("__CPP_GameObject_SetEnabled", __CPP_GameObject_SetX_Bool, 2, GameObject_X::Enabled);
-  m_Duk.RegisterGlobalFunction("__CPP_GameObject_IsEnabled", __CPP_GameObject_GetX_Bool, 1, GameObject_X::Enabled);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_SetActiveFlag", __CPP_GameObject_SetX_Bool, 2, GameObject_X::ActiveFlag);
+  m_Duk.RegisterGlobalFunction("__CPP_GameObject_GetActiveFlag", __CPP_GameObject_GetX_Bool, 1, GameObject_X::ActiveFlag);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_IsActive", __CPP_GameObject_GetX_Bool, 1, GameObject_X::Active);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_FindChildByName", __CPP_GameObject_FindChildByName, 3);
   m_Duk.RegisterGlobalFunction("__CPP_GameObject_FindChildByPath", __CPP_GameObject_FindChildByPath, 2);
@@ -435,8 +435,8 @@ static int __CPP_GameObject_SetX_Bool(duk_context* pDuk)
 
   switch (duk.GetFunctionMagicValue())
   {
-    case GameObject_X::Enabled:
-      pGameObject->SetEnabled(value);
+    case GameObject_X::ActiveFlag:
+      pGameObject->SetActiveFlag(value);
       break;
 
     default:
@@ -456,8 +456,8 @@ static int __CPP_GameObject_GetX_Bool(duk_context* pDuk)
 
   switch (duk.GetFunctionMagicValue())
   {
-    case GameObject_X::Enabled:
-      value = pGameObject->IsEnabled();
+    case GameObject_X::ActiveFlag:
+      value = pGameObject->GetActiveFlag();
       break;
 
     case GameObject_X::Active:

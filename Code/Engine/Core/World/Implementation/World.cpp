@@ -77,7 +77,7 @@ ezWorld::~ezWorld()
   // set all objects to inactive so components and children know that they shouldn't access the objects anymore.
   for (auto it = m_Data.m_ObjectStorage.GetIterator(); it.IsValid(); it.Next())
   {
-    it->m_Flags.Remove(ezObjectFlags::Enabled | ezObjectFlags::Active);
+    it->m_Flags.Remove(ezObjectFlags::ActiveFlag | ezObjectFlags::ActiveState);
   }
 
   // deinitialize all modules before we invalidate the world. Components can still access the world during deinitialization.
@@ -169,7 +169,7 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   pNewObject->m_InternalId = newId;
   pNewObject->m_Flags = ezObjectFlags::None;
   pNewObject->m_Flags.AddOrRemove(ezObjectFlags::Dynamic, bDynamic);
-  pNewObject->m_Flags.AddOrRemove(ezObjectFlags::Enabled, desc.m_bEnabled);
+  pNewObject->m_Flags.AddOrRemove(ezObjectFlags::ActiveFlag, desc.m_bActiveFlag);
   pNewObject->m_sName = desc.m_sName;
   pNewObject->m_pWorld = this;
   pNewObject->m_ParentIndex = uiParentIndex;
@@ -228,7 +228,7 @@ void ezWorld::DeleteObjectNow(const ezGameObjectHandle& object)
     return;
 
   // set object to inactive so components and children know that they shouldn't access the object anymore.
-  pObject->m_Flags.Remove(ezObjectFlags::Enabled | ezObjectFlags::Active);
+  pObject->m_Flags.Remove(ezObjectFlags::ActiveFlag | ezObjectFlags::ActiveState);
 
   // delete children
   for (auto it = pObject->GetChildren(); it.IsValid(); ++it)

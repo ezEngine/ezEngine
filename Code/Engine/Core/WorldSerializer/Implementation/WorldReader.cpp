@@ -235,7 +235,7 @@ void ezWorldReader::ReadGameObjectDesc(GameObjectToCreate& godesc)
   *m_pStream >> desc.m_LocalScaling;
   *m_pStream >> desc.m_LocalUniformScaling;
 
-  *m_pStream >> desc.m_bEnabled;
+  *m_pStream >> desc.m_bActiveFlag;
   *m_pStream >> desc.m_bDynamic;
 
   if (m_uiVersion >= 3)
@@ -338,7 +338,7 @@ void ezWorldReader::ReadComponentsOfType(ezUInt32 uiComponentTypeIdx)
       auto hComponent = pManager->CreateComponent(pParentObject, pComponent);
       m_IndexToComponentHandle[uiComponentIdx] = hComponent;
 
-      pComponent->SetEnabled(bActive);
+      pComponent->SetActiveFlag(bActive);
 
       for (ezUInt8 j = 0; j < 8; ++j)
       {

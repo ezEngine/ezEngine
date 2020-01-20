@@ -124,13 +124,13 @@ public:
   /// When a game object gets enabled, and none of its parent nodes is disabled, then the active state will be set to true
   /// on it and all its children and attached components.
   ///
-  /// \sa IsActive(), ezComponent::SetEnabled()
-  void SetEnabled(bool bEnabled);
+  /// \sa IsActive(), ezComponent::SetActiveFlag()
+  void SetActiveFlag(bool bEnabled);
 
   /// \brief Checks whether the 'enabled' state is set on this game object. Note that this does not mean that the game object is also 'active'.
   ///
-  /// \sa IsActive(), SetEnabled()
-  bool IsEnabled() const;
+  /// \sa IsActive(), SetActiveFlag()
+  bool GetActiveFlag() const;
 
   /// \brief Checks whether this game object is in an active state.
   ///
@@ -138,7 +138,7 @@ public:
   /// Only if the parent game object is active (and thus all of its parent objects as well) and this game object is enabled,
   /// will this be active.
   ///
-  /// \sa ezGameObject::SetEnabled(), ezComponent::IsActive()
+  /// \sa ezGameObject::SetActiveFlag(), ezComponent::IsActive()
   bool IsActive() const;
 
   /// \brief Sets the name to identify this object. Does not have to be a unique name.

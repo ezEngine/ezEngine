@@ -133,7 +133,7 @@ void ezBreakableSheetComponent::Update()
         }
         else
         {
-          SetEnabled(false);
+          SetActiveFlag(false);
         }
       }
     }

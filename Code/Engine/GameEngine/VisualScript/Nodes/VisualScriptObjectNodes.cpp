@@ -92,11 +92,11 @@ void ezVisualScriptNode_ActivateComponent::Execute(ezVisualScriptInstance* pInst
     {
       if (uiExecPin == 0)
       {
-        pComponent->SetEnabled(true);
+        pComponent->SetActiveFlag(true);
       }
       else
       {
-        pComponent->SetEnabled(false);
+        pComponent->SetActiveFlag(false);
       }
     }
   }
