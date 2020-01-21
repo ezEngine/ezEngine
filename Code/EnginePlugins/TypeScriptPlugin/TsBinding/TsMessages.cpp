@@ -1,6 +1,7 @@
 #include <TypeScriptPluginPCH.h>
 
 #include <Duktape/duktape.h>
+#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
@@ -53,14 +54,16 @@ import Flags = require("./AllFlags")
 
   GenerateAllMessagesCode(sFileContent);
 
-  ezFileWriter file;
-  if (file.Open(szFile).Failed())
-  {
-    ezLog::Error("Failed to open file '{}'", szFile);
-    return;
-  }
+  ezDeferredFileWriter file;
+  file.SetOutput(szFile, true);
 
   file.WriteBytes(sFileContent.GetData(), sFileContent.GetElementCount());
+
+  if (file.Close().Failed())
+  {
+    ezLog::Error("Failed to write file '{}'", szFile);
+    return;
+  }
 }
 
 static void CreateMessageTypeList(ezSet<const ezRTTI*>& found, ezDynamicArray<const ezRTTI*>& sorted, const ezRTTI* pRtti)
@@ -150,7 +153,7 @@ void ezTypeScriptBinding::GenerateMessagePropertiesCode(ezStringBuilder& out_Cod
   }
 }
 
-void ezTypeScriptBinding::InjectMessageImportExport(const char* szFile, const char* szMessageFile)
+void ezTypeScriptBinding::InjectMessageImportExport(ezStringBuilder& content, const char* szMessageFile)
 {
   ezSet<const ezRTTI*> found;
   ezDynamicArray<const ezRTTI*> sorted;
@@ -175,7 +178,7 @@ void ezTypeScriptBinding::InjectMessageImportExport(const char* szFile, const ch
       sTypeName);
   }
 
-  AppendToTextFile(szFile, sImportExport);
+  AppendToTextFile(content, sImportExport);
 }
 
 static ezUniquePtr<ezMessage> CreateMessage(ezUInt32 uiTypeHash, const ezRTTI*& pRtti)

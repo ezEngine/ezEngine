@@ -7,9 +7,13 @@
 #include <EditorPluginTypeScript/TypeScriptAsset/TypeScriptAssetManager.h>
 #include <EditorPluginTypeScript/TypeScriptAsset/TypeScriptAssetWindow.moc.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/IO/Stream.h>
 #include <Foundation/Utilities/Progress.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
+#include <ToolsFoundation/Application/ApplicationServices.h>
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <TypeScriptPlugin/Resources/ScriptCompendiumResource.h>
@@ -114,6 +118,7 @@ void ezTypeScriptAssetDocumentManager::GameObjectDocumentEventHandler(const ezGa
     }
 
     case ezGameObjectDocumentEvent::Type::GameMode_StartingPlay:
+    case ezGameObjectDocumentEvent::Type::GameMode_StartingExternal:
     {
       if (ezPreferences::QueryPreferences<ezTypeScriptPreferences>()->m_bAutoUpdateScriptsForPlayTheGame)
       {
@@ -227,6 +232,19 @@ ezResult ezTypeScriptAssetDocumentManager::GenerateScriptCompendium(ezBitflags<e
 
   SetupProjectForTypeScript(false);
 
+  // read m_CheckedTsFiles cache
+  if (m_CheckedTsFiles.IsEmpty())
+  {
+    ezStringBuilder sFile = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
+    sFile.AppendPath("LastTypeScriptChanges.tmp");
+
+    ezFileReader file;
+    if (file.Open(sFile).Succeeded())
+    {
+      file.ReadMap(m_CheckedTsFiles);
+    }
+  }
+
   ezScriptCompendiumResourceDesc compendium;
   bool bAnythingNew = false;
 
@@ -269,6 +287,18 @@ ezResult ezTypeScriptAssetDocumentManager::GenerateScriptCompendium(ezBitflags<e
   {
     if (bAnythingNew == false && ezFileSystem::ExistsFile(sOutFile))
       return EZ_SUCCESS;
+  }
+
+  // write m_CheckedTsFiles cache
+  {
+    ezStringBuilder sFile = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
+    sFile.AppendPath("LastTypeScriptChanges.tmp");
+
+    ezFileWriter file;
+    if (file.Open(sFile).Succeeded())
+    {
+      file.WriteMap(m_CheckedTsFiles);
+    }
   }
 
   ezMap<ezString, ezString> filenameToSourceTsPath;

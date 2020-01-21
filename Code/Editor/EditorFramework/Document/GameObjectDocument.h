@@ -1,7 +1,7 @@
 #pragma once
-#include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
 #include <Foundation/SimdMath/SimdTransform.h>
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
@@ -58,6 +58,7 @@ struct ezGameObjectDocumentEvent
     GameMode_Stopped,
     GameMode_StartingSimulate,
     GameMode_StartingPlay,
+    GameMode_StartingExternal, ///< ie. scene is exported for ezPlayer
   };
 
   Type m_Type;
@@ -69,7 +70,6 @@ class EZ_EDITORFRAMEWORK_DLL ezGameObjectMetaData : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezGameObjectMetaData, ezReflectedClass);
 
 public:
-
   enum ModifiedFlags
   {
     CachedName = EZ_BIT(2),
@@ -95,6 +95,7 @@ struct EZ_EDITORFRAMEWORK_DLL ezSelectedGameObject
 class EZ_EDITORFRAMEWORK_DLL ezGameObjectDocument : public ezAssetDocument
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezGameObjectDocument, ezAssetDocument);
+
 public:
   ezGameObjectDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType = ezAssetDocEngineConnection::FullObjectMirroring);
   ~ezGameObjectDocument();
@@ -104,7 +105,6 @@ public:
   /// \name Gizmo
   ///@{
 public:
-
   /// \brief Makes an edit tool of the given type active. Allocates a new one, if necessary. Only works when SetEditToolConfigDelegate() is set.
   void SetActiveEditTool(const ezRTTI* pEditToolType);
 

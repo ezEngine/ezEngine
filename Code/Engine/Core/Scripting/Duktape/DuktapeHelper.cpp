@@ -4,8 +4,8 @@
 
 #ifdef BUILDSYSTEM_ENABLE_DUKTAPE_SUPPORT
 
-#include <Duktape/duktape.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
+#  include <Duktape/duktape.h>
+#  include <Foundation/IO/FileSystem/FileReader.h>
 
 EZ_CHECK_AT_COMPILETIME(ezDuktapeTypeMask::None == DUK_TYPE_MASK_NONE);
 EZ_CHECK_AT_COMPILETIME(ezDuktapeTypeMask::Undefined == DUK_TYPE_MASK_UNDEFINED);
@@ -17,7 +17,7 @@ EZ_CHECK_AT_COMPILETIME(ezDuktapeTypeMask::Object == DUK_TYPE_MASK_OBJECT);
 EZ_CHECK_AT_COMPILETIME(ezDuktapeTypeMask::Buffer == DUK_TYPE_MASK_BUFFER);
 EZ_CHECK_AT_COMPILETIME(ezDuktapeTypeMask::Pointer == DUK_TYPE_MASK_POINTER);
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
 
 
 void ezDuktapeHelper::EnableStackChangeVerification() const
@@ -25,18 +25,18 @@ void ezDuktapeHelper::EnableStackChangeVerification() const
   m_bVerifyStackChange = true;
 }
 
-#endif
+#  endif
 
 ezDuktapeHelper::ezDuktapeHelper(duk_context* pContext)
   : m_pContext(pContext)
 {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   if (m_pContext)
   {
     m_bVerifyStackChange = false;
     m_iStackTopAtStart = duk_get_top(m_pContext);
   }
-#endif
+#  endif
 }
 
 ezDuktapeHelper::ezDuktapeHelper(const ezDuktapeHelper& rhs)
@@ -46,7 +46,7 @@ ezDuktapeHelper::ezDuktapeHelper(const ezDuktapeHelper& rhs)
 
 ezDuktapeHelper::~ezDuktapeHelper() = default;
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
 void ezDuktapeHelper::VerifyExpectedStackChange(ezInt32 iExpectedStackChange, const char* szFile, ezUInt32 uiLine, const char* szFunction) const
 {
   if (m_bVerifyStackChange && m_pContext)
@@ -60,7 +60,7 @@ void ezDuktapeHelper::VerifyExpectedStackChange(ezInt32 iExpectedStackChange, co
     }
   }
 }
-#endif
+#  endif
 
 void ezDuktapeHelper::Error(ezFormatString text)
 {
@@ -101,19 +101,23 @@ ezResult ezDuktapeHelper::PushLocalObject(const char* szName, ezInt32 iParentObj
 
 bool ezDuktapeHelper::HasProperty(const char* szPropertyName, ezInt32 iParentObjectIndex /*= -1*/) const
 {
-  return duk_has_prop_string(m_pContext, iParentObjectIndex, szPropertyName);
+  return duk_is_object(m_pContext, iParentObjectIndex) && duk_has_prop_string(m_pContext, iParentObjectIndex, szPropertyName);
 }
 
 bool ezDuktapeHelper::GetBoolProperty(const char* szPropertyName, bool fallback, ezInt32 iParentObjectIndex /*= -1*/) const
 {
   bool result = fallback;
 
-  if (duk_get_prop_string(m_pContext, iParentObjectIndex, szPropertyName)) // [ value/undef ]
+  if (duk_is_object(m_pContext, iParentObjectIndex))
   {
-    result = duk_get_boolean_default(m_pContext, -1, fallback); // [ value ]
+    if (duk_get_prop_string(m_pContext, iParentObjectIndex, szPropertyName)) // [ value/undef ]
+    {
+      result = duk_get_boolean_default(m_pContext, -1, fallback); // [ value ]
+    }
+
+    duk_pop(m_pContext); // [ ]
   }
 
-  duk_pop(m_pContext); // [ ]
   return result;
 }
 
@@ -121,12 +125,16 @@ ezInt32 ezDuktapeHelper::GetIntProperty(const char* szPropertyName, ezInt32 fall
 {
   ezInt32 result = fallback;
 
-  if (duk_get_prop_string(m_pContext, iParentObjectIndex, szPropertyName)) // [ value/undef ]
+  if (duk_is_object(m_pContext, iParentObjectIndex))
   {
-    result = duk_get_int_default(m_pContext, -1, fallback); // [ value ]
+    if (duk_get_prop_string(m_pContext, iParentObjectIndex, szPropertyName)) // [ value/undef ]
+    {
+      result = duk_get_int_default(m_pContext, -1, fallback); // [ value ]
+    }
+
+    duk_pop(m_pContext); // [ ]
   }
 
-  duk_pop(m_pContext); // [ ]
   return result;
 }
 
@@ -134,12 +142,16 @@ ezUInt32 ezDuktapeHelper::GetUIntProperty(const char* szPropertyName, ezUInt32 f
 {
   ezUInt32 result = fallback;
 
-  if (duk_get_prop_string(m_pContext, iParentObjectIndex, szPropertyName)) // [ value/undef ]
+  if (duk_is_object(m_pContext, iParentObjectIndex))
   {
-    result = duk_get_uint_default(m_pContext, -1, fallback); // [ value ]
+    if (duk_get_prop_string(m_pContext, iParentObjectIndex, szPropertyName)) // [ value/undef ]
+    {
+      result = duk_get_uint_default(m_pContext, -1, fallback); // [ value ]
+    }
+
+    duk_pop(m_pContext); // [ ]
   }
 
-  duk_pop(m_pContext); // [ ]
   return result;
 }
 
@@ -152,12 +164,16 @@ double ezDuktapeHelper::GetNumberProperty(const char* szPropertyName, double fal
 {
   double result = fallback;
 
-  if (duk_get_prop_string(m_pContext, iParentObjectIndex, szPropertyName)) // [ value/undef ]
+  if (duk_is_object(m_pContext, iParentObjectIndex))
   {
-    result = duk_get_number_default(m_pContext, -1, fallback); // [ value ]
+    if (duk_get_prop_string(m_pContext, iParentObjectIndex, szPropertyName)) // [ value/undef ]
+    {
+      result = duk_get_number_default(m_pContext, -1, fallback); // [ value ]
+    }
+
+    duk_pop(m_pContext); // [ ]
   }
 
-  duk_pop(m_pContext); // [ ]
   return result;
 }
 
@@ -165,12 +181,16 @@ const char* ezDuktapeHelper::GetStringProperty(const char* szPropertyName, const
 {
   const char* result = fallback;
 
-  if (duk_get_prop_string(m_pContext, iParentObjectIndex, szPropertyName)) // [ value/undef ]
+  if (duk_is_object(m_pContext, iParentObjectIndex))
   {
-    result = duk_get_string_default(m_pContext, -1, fallback); // [ value ]
+    if (duk_get_prop_string(m_pContext, iParentObjectIndex, szPropertyName)) // [ value/undef ]
+    {
+      result = duk_get_string_default(m_pContext, -1, fallback); // [ value ]
+    }
+
+    duk_pop(m_pContext); // [ ]
   }
 
-  duk_pop(m_pContext); // [ ]
   return result;
 }
 

@@ -320,8 +320,16 @@ void ezSceneAction::Execute(const ezVariant& value)
   switch (m_Type)
   {
     case ActionType::ExportScene:
+    {
       m_pSceneDocument->ExportScene(false);
+
+      ezGameObjectDocumentEvent e;
+      e.m_Type = ezGameObjectDocumentEvent::Type::GameMode_StartingExternal;
+      e.m_pDocument = m_pSceneDocument;
+      m_pSceneDocument->s_GameObjectDocumentEvents.Broadcast(e);
+
       return;
+    }
 
     case ActionType::RunScene:
     {
@@ -351,8 +359,8 @@ void ezSceneAction::Execute(const ezVariant& value)
 
       QProcess proc;
       proc.startDetached(QString::fromUtf8("Player.exe"), arguments);
-    }
       return;
+    }
 
     case ActionType::StartGameModePlay:
       m_pSceneDocument->TriggerGameModePlay(false);

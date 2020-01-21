@@ -2,6 +2,8 @@
 
 #include <Duktape/duktape.h>
 #include <RendererCore/Debug/DebugRenderer.h>
+#include <RendererCore/Pipeline/View.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
 
 static int __CPP_Debug_DrawCross(duk_context* pDuk);
@@ -10,16 +12,19 @@ static int __CPP_Debug_DrawBox(duk_context* pDuk);
 static int __CPP_Debug_DrawSphere(duk_context* pDuk);
 static int __CPP_Debug_Draw2DText(duk_context* pDuk);
 static int __CPP_Debug_Draw3DText(duk_context* pDuk);
+static int __CPP_Debug_GetResolution(duk_context* pDuk);
 
 ezResult ezTypeScriptBinding::Init_Debug()
 {
   m_Duk.RegisterGlobalFunction("__CPP_Debug_DrawCross", __CPP_Debug_DrawCross, 3);
-  m_Duk.RegisterGlobalFunction("__CPP_Debug_DrawLines", __CPP_Debug_DrawLines, 2);
+  m_Duk.RegisterGlobalFunction("__CPP_Debug_DrawLines", __CPP_Debug_DrawLines, 2, 0);
+  m_Duk.RegisterGlobalFunction("__CPP_Debug_DrawLines2D", __CPP_Debug_DrawLines, 2, 1);
   m_Duk.RegisterGlobalFunction("__CPP_Debug_DrawLineBox", __CPP_Debug_DrawBox, 4, 0);
   m_Duk.RegisterGlobalFunction("__CPP_Debug_DrawSolidBox", __CPP_Debug_DrawBox, 4, 1);
   m_Duk.RegisterGlobalFunction("__CPP_Debug_DrawLineSphere", __CPP_Debug_DrawSphere, 4);
   m_Duk.RegisterGlobalFunction("__CPP_Debug_Draw2DText", __CPP_Debug_Draw2DText, 5);
   m_Duk.RegisterGlobalFunction("__CPP_Debug_Draw3DText", __CPP_Debug_Draw3DText, 4);
+  m_Duk.RegisterGlobalFunction("__CPP_Debug_GetResolution", __CPP_Debug_GetResolution, 0);
 
   return EZ_SUCCESS;
 }
@@ -66,7 +71,14 @@ static int __CPP_Debug_DrawLines(duk_context* pDuk)
     duk_pop(pDuk);
   }
 
-  ezDebugRenderer::DrawLines(pWorld, lines, color);
+  if (duk.GetFunctionMagicValue() == 0)
+  {
+    ezDebugRenderer::DrawLines(pWorld, lines, color);
+  }
+  else
+  {
+    ezDebugRenderer::DrawLines2D(pWorld, lines, color);
+  }
 
   return duk.ReturnVoid();
 }
@@ -144,4 +156,25 @@ static int __CPP_Debug_Draw3DText(duk_context* pDuk)
   ezDebugRenderer::Draw3DText(pWorld, szText, vPos, color, fSize, ezDebugRenderer::HorizontalAlignment::Center, ezDebugRenderer::VerticalAlignment::Center);
 
   return duk.ReturnVoid();
+}
+
+static int __CPP_Debug_GetResolution(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk);
+  ezWorld* pWorld = ezTypeScriptBinding::RetrieveWorld(duk);
+
+  ezVec2 resolution;
+
+  for (const ezViewHandle& hView : ezRenderWorld::GetMainViews())
+  {
+    ezView* pView;
+    if (ezRenderWorld::TryGetView(hView, pView))
+    {
+      resolution.x = pView->GetViewport().width;
+      resolution.y = pView->GetViewport().height;
+    }
+  }
+
+  ezTypeScriptBinding::PushVec2(pDuk, resolution);
+  return duk.ReturnCustom();
 }
