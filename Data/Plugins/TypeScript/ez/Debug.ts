@@ -22,6 +22,16 @@ declare function __CPP_Debug_DrawLineSphere(center: Vec3, radius: number, color:
 declare function __CPP_Debug_Draw2DText(text: string, pos: Vec2, color: Color, sizeInPixel: number, alignHorz: Debug.HorizontalAlignment): void;
 declare function __CPP_Debug_Draw3DText(text: string, pos: Vec3, color: Color, sizeInPixel: number): void;
 declare function __CPP_Debug_GetResolution(): Vec2;
+declare function __CPP_Debug_ReadCVarBool(name: string): boolean;
+declare function __CPP_Debug_ReadCVarInt(name: string): number;
+declare function __CPP_Debug_ReadCVarFloat(name: string): number;
+declare function __CPP_Debug_ReadCVarString(name: string): string;
+declare function __CPP_Debug_WriteCVarBool(name: string, value: boolean): void;
+declare function __CPP_Debug_WriteCVarInt(name: string, value: number): void;
+declare function __CPP_Debug_WriteCVarFloat(name: string, value: number): void;
+declare function __CPP_Debug_WriteCVarString(name: string, value: string): void;
+
+
 
 /**
  * Debug visualization functionality.
@@ -137,5 +147,69 @@ export namespace Debug {
      */
     export function Draw3DText(text: string, pos: Vec3, color: Color = null, sizeInPixel: number = 16): void {
         __CPP_Debug_Draw3DText(text, pos, color, sizeInPixel);
+    }
+
+    /**
+     * Reads the boolean CVar of the given name and returns its value.
+     * If no CVar with this name exists or it uses a different type, 'undefined' is returned.
+     */
+    export function ReadCVar_Boolean(name: string): boolean {
+        return __CPP_Debug_ReadCVarBool(name);
+    }
+
+    /**
+     * Reads the boolean CVar of the given name and returns its value.
+     * If no CVar with this name exists or it uses a different type, 'undefined' is returned.
+     */
+    export function ReadCVar_Int(name: string): number {
+        return __CPP_Debug_ReadCVarInt(name);
+    }
+
+    /**
+     * Reads the boolean CVar of the given name and returns its value.
+     * If no CVar with this name exists or it uses a different type, 'undefined' is returned.
+     */
+    export function ReadCVar_Float(name: string): number {
+        return __CPP_Debug_ReadCVarFloat(name);
+    }
+
+    /**
+     * Reads the boolean CVar of the given name and returns its value.
+     * If no CVar with this name exists or it uses a different type, 'undefined' is returned.
+     */
+    export function ReadCVar_String(name: string): string {
+        return __CPP_Debug_ReadCVarString(name);
+    }
+
+    /**
+     * Stores the given value in the CVar with the provided name.
+     * Throws an error if no such CVar exists or the existing one is not of the expected type.
+     */
+    export function WriteCVar_Boolean(name: string, value: boolean): void {
+        return __CPP_Debug_WriteCVarBool(name, value);
+    }
+
+    /**
+     * Stores the given value in the CVar with the provided name.
+     * Throws an error if no such CVar exists or the existing one is not of the expected type.
+     */
+    export function WriteCVar_Int(name: string, value: number): void {
+        return __CPP_Debug_WriteCVarInt(name, value);
+    }
+
+    /**
+     * Stores the given value in the CVar with the provided name.
+     * Throws an error if no such CVar exists or the existing one is not of the expected type.
+     */
+    export function WriteCVar_Float(name: string, value: number): void {
+        return __CPP_Debug_WriteCVarFloat(name, value);
+    }
+
+    /**
+     * Stores the given value in the CVar with the provided name.
+     * Throws an error if no such CVar exists or the existing one is not of the expected type.
+     */
+    export function WriteCVar_String(name: string, value: string): void {
+        return __CPP_Debug_WriteCVarString(name, value);
     }
 }

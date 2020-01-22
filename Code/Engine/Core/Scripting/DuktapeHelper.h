@@ -96,7 +96,7 @@ public:
   /// \name Error Handling
   ///@{
 
-  void Error(ezFormatString text);
+  void Error(const ezFormatString& text);
 
 
   ///@}

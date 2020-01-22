@@ -62,12 +62,10 @@ void ezDuktapeHelper::VerifyExpectedStackChange(ezInt32 iExpectedStackChange, co
 }
 #  endif
 
-void ezDuktapeHelper::Error(ezFormatString text)
+void ezDuktapeHelper::Error(const ezFormatString& text)
 {
   ezStringBuilder tmp;
-  text.GetText(tmp);
-
-  duk_error(m_pContext, DUK_ERR_ERROR, tmp.GetData());
+  duk_error(m_pContext, DUK_ERR_ERROR, text.GetText(tmp));
 }
 
 void ezDuktapeHelper::PopStack(ezUInt32 n /*= 1*/)
