@@ -132,6 +132,8 @@ public:
   /// \brief Creates a new instance of the world module with the given type id and world.
   ezWorldModule* CreateWorldModule(ezUInt16 typeId, ezWorld* pWorld);
 
+  void RegisterInterfaceImplementation(ezStringView sInterfaceName, ezStringView sImplementationName);
+
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Core, WorldModuleFactory);
 
@@ -147,6 +149,14 @@ private:
   ezHashTable<const ezRTTI*, ezUInt16> m_TypeToId;
 
   ezDynamicArray<CreatorFunc> m_CreatorFuncs;
+
+  struct InterfaceImpl
+  {
+    ezString m_sInterfaceName;
+    ezString m_sImplementationName;
+  };
+
+  ezHybridArray<InterfaceImpl, 16> m_InterfaceImplementations;
 };
 
 /// \brief Add this macro to the declaration of your module type.

@@ -108,6 +108,20 @@ ezWorldModule* ezWorldModuleFactory::CreateWorldModule(ezUInt16 typeId, ezWorld*
   return nullptr;
 }
 
+void ezWorldModuleFactory::RegisterInterfaceImplementation(ezStringView sInterfaceName, ezStringView sImplementationName)
+{
+  for (auto& interfaceImpl : m_InterfaceImplementations)
+  {
+    if (interfaceImpl.m_sInterfaceName == sInterfaceName)
+    {
+      interfaceImpl.m_sImplementationName = sImplementationName;
+      return;
+    }
+  }
+
+  m_InterfaceImplementations.PushBack({sInterfaceName, sImplementationName});
+}
+
 ezUInt16 ezWorldModuleFactory::RegisterWorldModule(const ezRTTI* pRtti, CreatorFunc creatorFunc)
 {
   EZ_ASSERT_DEV(pRtti != ezGetStaticRTTI<ezWorldModule>(), "Trying to register a world module that is not reflected!");
