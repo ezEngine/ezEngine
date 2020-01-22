@@ -148,15 +148,17 @@ private:
 
   ezHashTable<const ezRTTI*, ezUInt16> m_TypeToId;
 
-  ezDynamicArray<CreatorFunc> m_CreatorFuncs;
-
-  struct InterfaceImpl
+  struct CreatorFuncContext
   {
-    ezString m_sInterfaceName;
-    ezString m_sImplementationName;
+    EZ_DECLARE_POD_TYPE();
+
+    CreatorFunc m_Func;
+    const ezRTTI* m_pRtti;
   };
 
-  ezHybridArray<InterfaceImpl, 16> m_InterfaceImplementations;
+  ezDynamicArray<CreatorFuncContext> m_CreatorFuncs;
+
+  ezHashTable<ezString, ezString> m_InterfaceImplementations;
 };
 
 /// \brief Add this macro to the declaration of your module type.
