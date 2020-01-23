@@ -3,7 +3,7 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Effects/Wind/SimpleWindComponent.h>
-#include <GameEngine/Interfaces/WindWorldModule.h>
+#include <GameEngine/Effects/Wind/SimpleWindWorldModule.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezSimpleWindComponent, 1, ezComponentMode::Static)
@@ -30,9 +30,9 @@ ezSimpleWindComponent::~ezSimpleWindComponent() = default;
 
 void ezSimpleWindComponent::Update()
 {
-  ezWindWorldModuleInterface* pWindInterface = GetWorld()->GetModule<ezWindWorldModuleInterface>();
+  ezSimpleWindWorldModule* pWindModule = GetWorld()->GetModule<ezSimpleWindWorldModule>();
 
-  if (pWindInterface == nullptr)
+  if (pWindModule == nullptr)
     return;
 
   const ezTime tCur = GetWorld()->GetClock().GetAccumulatedTime();
@@ -54,7 +54,7 @@ void ezSimpleWindComponent::Update()
     vCurWind = vCurDir * fCurStrength;
   }
 
-  pWindInterface->SetFallbackWind(vCurWind);
+  pWindModule->SetFallbackWind(vCurWind);
 }
 
 void ezSimpleWindComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -93,12 +93,12 @@ void ezSimpleWindComponent::OnDeactivated()
 {
   SUPER::OnDeactivated();
 
-  ezWindWorldModuleInterface* pWindInterface = GetWorld()->GetModule<ezWindWorldModuleInterface>();
+  ezSimpleWindWorldModule* pWindModule = GetWorld()->GetModule<ezSimpleWindWorldModule>();
 
-  if (pWindInterface == nullptr)
+  if (pWindModule == nullptr)
     return;
 
-  pWindInterface->SetFallbackWind(ezVec3::ZeroVector());
+  pWindModule->SetFallbackWind(ezVec3::ZeroVector());
 }
 
 void ezSimpleWindComponent::ComputeNextState()
