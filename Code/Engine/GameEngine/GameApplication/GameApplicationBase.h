@@ -221,7 +221,7 @@ protected:
   virtual void Init_LoadRequiredPlugins();
   virtual void Init_ConfigureAssetManagement();
   virtual void Init_FileSystem_ConfigureDataDirs();
-  virtual void Init_LoadWorldModuleInterfaceImpl();
+  virtual void Init_LoadWorldModuleConfig();
   virtual void Init_LoadProjectPlugins();
   virtual void Init_PlatformProfile_LoadForRuntime();
   virtual void Init_ConfigureInput();

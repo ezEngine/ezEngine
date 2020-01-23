@@ -1,19 +1,19 @@
 #include <CorePCH.h>
 
 #include <Core/World/WorldModule.h>
-#include <Core/World/WorldModuleInterfaceImplConfig.h>
+#include <Core/World/WorldModuleConfig.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/IO/OpenDdlUtils.h>
 #include <Foundation/IO/OpenDdlWriter.h>
 
-ezResult ezWorldModuleInterfaceImplConfig::Save()
+ezResult ezWorldModuleConfig::Save()
 {
   m_InterfaceImpls.Sort();
 
   ezStringBuilder sPath;
-  sPath = ":project/WorldModuleInterfaceImpl.ddl";
+  sPath = ":project/WorldModules.ddl";
 
   ezFileWriter file;
   if (file.Open(sPath).Failed())
@@ -37,14 +37,14 @@ ezResult ezWorldModuleInterfaceImplConfig::Save()
   return EZ_SUCCESS;
 }
 
-void ezWorldModuleInterfaceImplConfig::Load()
+void ezWorldModuleConfig::Load()
 {
-  EZ_LOG_BLOCK("ezWorldModuleInterfaceImplConfig::Load()");
+  EZ_LOG_BLOCK("ezWorldModuleConfig::Load()");
 
   m_InterfaceImpls.Clear();
 
   ezStringBuilder sPath;
-  sPath = ":project/WorldModuleInterfaceImpl.ddl";
+  sPath = ":project/WorldModules.ddl";
 
   ezFileReader file;
   if (file.Open(sPath).Failed())
@@ -68,16 +68,16 @@ void ezWorldModuleInterfaceImplConfig::Load()
       continue;
 
     const ezOpenDdlReaderElement* pInterface = pInterfaceImpl->FindChildOfType(ezOpenDdlPrimitiveType::String, "Interface");
-    const ezOpenDdlReaderElement* pImplementation = pInterfaceImpl->FindChildOfType(ezOpenDdlPrimitiveType::String, "Implementation");    
+    const ezOpenDdlReaderElement* pImplementation = pInterfaceImpl->FindChildOfType(ezOpenDdlPrimitiveType::String, "Implementation");
 
     // this prevents duplicates
     AddInterfaceImplementation(pInterface->GetPrimitivesString()[0], pImplementation->GetPrimitivesString()[0]);
   }
 }
 
-void ezWorldModuleInterfaceImplConfig::Apply()
+void ezWorldModuleConfig::Apply()
 {
-  EZ_LOG_BLOCK("ezWorldModuleInterfaceImplConfig::Apply");
+  EZ_LOG_BLOCK("ezWorldModuleConfig::Apply");
 
   for (const auto& interfaceImpl : m_InterfaceImpls)
   {
@@ -85,7 +85,7 @@ void ezWorldModuleInterfaceImplConfig::Apply()
   }
 }
 
-void ezWorldModuleInterfaceImplConfig::AddInterfaceImplementation(ezStringView sInterfaceName, ezStringView sImplementationName)
+void ezWorldModuleConfig::AddInterfaceImplementation(ezStringView sInterfaceName, ezStringView sImplementationName)
 {
   for (auto& interfaceImpl : m_InterfaceImpls)
   {
@@ -93,13 +93,13 @@ void ezWorldModuleInterfaceImplConfig::AddInterfaceImplementation(ezStringView s
     {
       interfaceImpl.m_sImplementationName = sImplementationName;
       return;
-      }
+    }
   }
 
   m_InterfaceImpls.PushBack({sInterfaceName, sImplementationName});
 }
 
-void ezWorldModuleInterfaceImplConfig::RemoveInterfaceImplementation(ezStringView sInterfaceName)
+void ezWorldModuleConfig::RemoveInterfaceImplementation(ezStringView sInterfaceName)
 {
   for (ezUInt32 i = 0; i < m_InterfaceImpls.GetCount(); ++i)
   {

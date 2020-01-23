@@ -4,7 +4,7 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/String.h>
 
-class EZ_CORE_DLL ezWorldModuleInterfaceImplConfig
+class EZ_CORE_DLL ezWorldModuleConfig
 {
 public:
   ezResult Save();

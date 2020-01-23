@@ -110,19 +110,28 @@ ezWorldModule* ezWorldModuleFactory::CreateWorldModule(ezUInt16 typeId, ezWorld*
 
 void ezWorldModuleFactory::RegisterInterfaceImplementation(ezStringView sInterfaceName, ezStringView sImplementationName)
 {
+  ezString sTemp = sInterfaceName;
+  const ezRTTI* pInterfaceRtti = ezRTTI::FindTypeByName(sTemp);
+
+  sTemp = sImplementationName;
+  const ezRTTI* pImplementationRtti = ezRTTI::FindTypeByName(sTemp);
+
+  if (pInterfaceRtti != nullptr && pImplementationRtti != nullptr)
+  {
+    m_TypeToId[pInterfaceRtti] = m_TypeToId[pImplementationRtti];
+    return;
+  }
+
   m_InterfaceImplementations.Insert(sInterfaceName, sImplementationName);
 
   // Clear existing mapping if it maps to the wrong type
-  ezString sTemp = sInterfaceName;
-  if (const ezRTTI* pInterfaceRtti = ezRTTI::FindTypeByName(sTemp))
+  ezUInt16 uiTypeId;
+  if (pInterfaceRtti != nullptr && m_TypeToId.TryGetValue(pInterfaceRtti, uiTypeId))
   {
-    ezUInt16 uiTypeId;
-    if (m_TypeToId.TryGetValue(pInterfaceRtti, uiTypeId))
+    if (m_CreatorFuncs[uiTypeId].m_pRtti->GetTypeName() != sImplementationName)
     {
-      if (m_CreatorFuncs[uiTypeId].m_pRtti->GetTypeName() != sImplementationName)
-      {
-        m_TypeToId.Remove(pInterfaceRtti);
-      }
+      EZ_ASSERT_DEV(pImplementationRtti == nullptr, "Implementation error");
+      m_TypeToId.Remove(pInterfaceRtti);
     }
   }
 }
@@ -186,6 +195,19 @@ void ezWorldModuleFactory::FillBaseTypeIds()
   ezHybridArray<NewEntry, 64, ezStaticAllocatorWrapper> newEntries;
   const ezRTTI* pModuleRtti = ezGetStaticRTTI<ezWorldModule>(); // base type where we want to stop iterating upwards
 
+  // explicit mappings
+  for (auto it = m_InterfaceImplementations.GetIterator(); it.IsValid(); ++it)
+  {
+    const ezRTTI* pInterfaceRtti = ezRTTI::FindTypeByName(it.Key());
+    const ezRTTI* pImplementationRtti = ezRTTI::FindTypeByName(it.Value());
+
+    if (pInterfaceRtti != nullptr && pImplementationRtti != nullptr)
+    {
+      m_TypeToId[pInterfaceRtti] = m_TypeToId[pImplementationRtti];
+    }
+  }
+
+  // automatic mappings
   for (auto it = m_TypeToId.GetIterator(); it.IsValid(); ++it)
   {
     const ezRTTI* pRtti = it.Key();
@@ -201,7 +223,11 @@ void ezWorldModuleFactory::FillBaseTypeIds()
       // we are only interested in parent types that are pure interfaces
       if (!pParentRtti->GetTypeFlags().IsSet(ezTypeFlags::Abstract))
         continue;
-      
+
+      // skip if we have an explicit mapping for this interface, they are already handled
+      if (m_InterfaceImplementations.GetValue(pParentRtti->GetTypeName()) != nullptr)
+        continue;
+        
       if (ezUInt16* pTypeId = m_TypeToId.GetValue(pParentRtti))
       {
         EZ_ASSERT_DEV(uiTypeId == *pTypeId, "Interface '{}' is already implemented by '{}'. Specify which implementation should be used via RegisterInterfaceImplementation().",
