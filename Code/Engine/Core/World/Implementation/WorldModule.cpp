@@ -110,7 +110,9 @@ ezWorldModule* ezWorldModuleFactory::CreateWorldModule(ezUInt16 typeId, ezWorld*
 
 void ezWorldModuleFactory::RegisterInterfaceImplementation(ezStringView sInterfaceName, ezStringView sImplementationName)
 {
-  ezString sTemp = sInterfaceName;
+  m_InterfaceImplementations.Insert(sInterfaceName, sImplementationName);
+
+  ezStringBuilder sTemp = sInterfaceName;
   const ezRTTI* pInterfaceRtti = ezRTTI::FindTypeByName(sTemp);
 
   sTemp = sImplementationName;
@@ -121,8 +123,6 @@ void ezWorldModuleFactory::RegisterInterfaceImplementation(ezStringView sInterfa
     m_TypeToId[pInterfaceRtti] = m_TypeToId[pImplementationRtti];
     return;
   }
-
-  m_InterfaceImplementations.Insert(sInterfaceName, sImplementationName);
 
   // Clear existing mapping if it maps to the wrong type
   ezUInt16 uiTypeId;
@@ -224,14 +224,18 @@ void ezWorldModuleFactory::FillBaseTypeIds()
       if (!pParentRtti->GetTypeFlags().IsSet(ezTypeFlags::Abstract))
         continue;
 
-      // skip if we have an explicit mapping for this interface, they are already handled
+      // skip if we have an explicit mapping for this interface, they are already handled above
       if (m_InterfaceImplementations.GetValue(pParentRtti->GetTypeName()) != nullptr)
         continue;
-        
-      if (ezUInt16* pTypeId = m_TypeToId.GetValue(pParentRtti))
+
+
+      if (ezUInt16* pParentTypeId = m_TypeToId.GetValue(pParentRtti))
       {
-        EZ_ASSERT_DEV(uiTypeId == *pTypeId, "Interface '{}' is already implemented by '{}'. Specify which implementation should be used via RegisterInterfaceImplementation().",
-          pParentRtti->GetTypeName(), m_CreatorFuncs[*pTypeId].m_pRtti->GetTypeName());
+        if (*pParentTypeId != uiTypeId)
+        {
+          ezLog::Error("Interface '{}' is already implemented by '{}'. Specify which implementation should be used via RegisterInterfaceImplementation() or WorldModules.dll config file.",
+            pParentRtti->GetTypeName(), m_CreatorFuncs[*pParentTypeId].m_pRtti->GetTypeName());
+        }
       }
       else
       {

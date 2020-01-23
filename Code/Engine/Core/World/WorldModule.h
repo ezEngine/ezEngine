@@ -132,6 +132,10 @@ public:
   /// \brief Creates a new instance of the world module with the given type id and world.
   ezWorldModule* CreateWorldModule(ezUInt16 typeId, ezWorld* pWorld);
 
+  /// \brief Register explicit a mapping of a world module interface to a specific implementation.
+  ///
+  /// This is necessary if there are multiple implementations of the same interface.
+  /// If there is only one implementation for an interface this implementation is registered automatically.
   void RegisterInterfaceImplementation(ezStringView sInterfaceName, ezStringView sImplementationName);
 
 private:
