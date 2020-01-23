@@ -7,10 +7,10 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Reflection/Implementation/PropertyAttributes.h>
-#include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Components/BeamComponent.h>
-#include <RendererFoundation/Device/Device.h>
+#include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Meshes/MeshComponentBase.h>
+#include <RendererFoundation/Device/Device.h>
 
 
 // clang-format off
@@ -50,6 +50,11 @@ void ezBeamComponent::Update()
   {
     ezVec3 currentOwnerPosition = GetOwner()->GetGlobalPosition();
     ezVec3 currentTargetPosition = pTargetObject->GetGlobalPosition();
+
+    if (!pTargetObject->IsActive())
+    {
+      currentTargetPosition = currentOwnerPosition;
+    }
 
     bool updateMesh = false;
 
@@ -110,7 +115,7 @@ ezResult ezBeamComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlw
     const ezVec3 currentTargetPosition = pTargetObject->GetGlobalPosition();
     const ezVec3 targetPositionInOwnerSpace = GetOwner()->GetGlobalTransform().GetInverse().TransformPosition(currentTargetPosition);
 
-    ezVec3 pts[] = { ezVec3::ZeroVector(), targetPositionInOwnerSpace };
+    ezVec3 pts[] = {ezVec3::ZeroVector(), targetPositionInOwnerSpace};
 
     ezBoundingBox box;
     box.SetFromPoints(pts, 2);
@@ -252,6 +257,9 @@ void ezBeamComponent::CreateMeshes()
 {
   ezVec3 targetPositionInOwnerSpace = GetOwner()->GetGlobalTransform().GetInverse().TransformPosition(m_vLastTargetPosition);
 
+  if (targetPositionInOwnerSpace.IsZero(0.01f))
+    return;
+
   // Create the beam mesh name, it expresses the beam in local space with it's width
   // this way multiple beams in a corridor can share the same mesh for example.
   ezStringBuilder meshName;
@@ -261,7 +269,7 @@ void ezBeamComponent::CreateMeshes()
   m_hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(meshName);
 
   // We build a cross mesh, thus we need the following vectors, x is the origin and we need to construct
-  // the star points. 
+  // the star points.
   //
   //  3        1
   //
@@ -282,7 +290,7 @@ void ezBeamComponent::CreateMeshes()
 
   const float fDistance = (m_vLastOwnerPosition - m_vLastTargetPosition).GetLength();
 
-  
+
 
   // Build mesh if no existing one is found
   if (!m_hMesh.IsValid())
@@ -296,7 +304,7 @@ void ezBeamComponent::CreateMeshes()
       ezUInt32 index2 = g.AddVertex(targetPositionInOwnerSpace + crossVector1, ezVec3::UnitXAxis(), ezVec2(fDistance * m_fUVUnitsPerWorldUnit, 0), ezColor::White);
       ezUInt32 index3 = g.AddVertex(targetPositionInOwnerSpace + crossVector4, ezVec3::UnitXAxis(), ezVec2(fDistance * m_fUVUnitsPerWorldUnit, 1), ezColor::White);
 
-      ezUInt32 indices[] = { index0, index2, index3, index1 };
+      ezUInt32 indices[] = {index0, index2, index3, index1};
       g.AddPolygon(ezArrayPtr(indices), false);
       g.AddPolygon(ezArrayPtr(indices), true);
     }
@@ -312,7 +320,7 @@ void ezBeamComponent::CreateMeshes()
       g.AddPolygon(ezArrayPtr(indices), false);
       g.AddPolygon(ezArrayPtr(indices), true);
     }
-    
+
     g.ComputeFaceNormals();
     g.ComputeTangents();
 

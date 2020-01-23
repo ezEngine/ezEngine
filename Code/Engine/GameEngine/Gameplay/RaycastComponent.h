@@ -10,7 +10,17 @@
 
 class ezPhysicsWorldModuleInterface;
 
-typedef ezComponentManagerSimple<class ezRaycastComponent, ezComponentUpdateType::WhenSimulating> ezRaycastComponentManager;
+class ezRaycastComponentManager : public ezComponentManager<class ezRaycastComponent, ezBlockStorageType::Compact>
+{
+  using SUPER = ezComponentManager<class ezRaycastComponent, ezBlockStorageType::Compact>;
+
+public:
+  ezRaycastComponentManager(ezWorld* pWorld);
+
+  virtual void Initialize() override;
+
+  void Update(const ezWorldModule::UpdateContext& context);
+};
 
 /// \brief A component which does a ray cast and positions a target object there.
 ///
@@ -33,50 +43,51 @@ class EZ_GAMEENGINE_DLL ezRaycastComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezRaycastComponent, ezComponent, ezRaycastComponentManager);
 
-public:
-
-  ezRaycastComponent();
-  ~ezRaycastComponent();
-
   //////////////////////////////////////////////////////////////////////////
   // ezComponent
 
 public:
-
   virtual void OnSimulationStarted() override;
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
-public:
+protected:
+  void Deinitialize() override;
 
-  void SetTriggerMessage(const char* sz);     // [ property ]
-  const char* GetTriggerMessage() const; // [ property ]
+  void OnActivated() override;
+  void OnDeactivated() override;
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezRaycastComponent
+
+public:
+  ezRaycastComponent();
+  ~ezRaycastComponent();
+
+  void SetTriggerMessage(const char* sz); // [ property ]
+  const char* GetTriggerMessage() const;  // [ property ]
 
   void SetRaycastEndObject(const char* szReference); // [ property ]
 
-  ezGameObjectHandle m_hRaycastEndObject; // [ property ]
-  float m_fMaxDistance = 100.0f; // [ property ]
+  ezGameObjectHandle m_hRaycastEndObject;     // [ property ]
+  float m_fMaxDistance = 100.0f;              // [ property ]
+  bool m_bForceTargetParentless = false;      // [ property ]
   bool m_bDisableTargetObjectOnNoHit = false; // [ property ]
   ezUInt8 m_uiCollisionLayerEndPoint = 0;     // [ property ]
-  ezUInt8 m_uiCollisionLayerTrigger = 0;     // [ property ]
-
+  ezUInt8 m_uiCollisionLayerTrigger = 0;      // [ property ]
 
 private:
-
   void Update();
 
-  ezHashedString m_sTriggerMessage; // [ property ]
+  ezHashedString m_sTriggerMessage;                                 // [ property ]
   ezEventMessageSender<ezMsgTriggerTriggered> m_TriggerEventSender; // [ event ]
 
-
 private:
-
   void PostTriggerMessage(ezTriggerState::Enum state, ezGameObjectHandle hObject);
 
   const char* DummyGetter() const { return nullptr; }
 
   ezPhysicsWorldModuleInterface* m_pPhysicsWorldModule = nullptr;
   ezGameObjectHandle m_hLastTriggerObjectInRay;
-
 };

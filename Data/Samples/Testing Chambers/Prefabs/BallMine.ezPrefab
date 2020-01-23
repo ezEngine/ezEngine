@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{3240016393175102390,5255434396666235364}}
-		u4 %Hash{6790662838222210239}
+		u4 %Hash{13727842671810998224}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{3592125670337764412,14541423594717597854}}
@@ -77,14 +77,14 @@ o
 {
 	Uuid %id{u4{13696233670827475584,5303212858188763775}}
 	s %t{"ezTypeScriptComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
 		b %HandleGlobalEvents{0}
 		VarDict %Parameters
 		{
-			d %RollForce{0x0000000000408F40}
+			d %RollForce{0x0000000000407F40}
 		}
 		s %Script{"{ 609ddb51-24cc-42eb-989a-882f07b3be48 }"}
 	}
@@ -127,6 +127,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children
 		{
 			Uuid{u4{1863836149863456701,5518568928747497678}}
@@ -159,6 +160,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -508,8 +510,8 @@ o
 		s %PluginName{"ezEditorPluginTypeScript"}
 		VarArray %Properties{}
 		s %TypeName{"ezTypeScriptComponent"}
-		u3 %TypeSize{176}
-		u3 %TypeVersion{3}
+		u3 %TypeSize{184}
+		u3 %TypeVersion{4}
 	}
 }
 o

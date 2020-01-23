@@ -21,7 +21,7 @@ export import Transform = __Transform.Transform;
  */
 export class GameObjectDesc {
 
-  ActiveFlag: boolean = false;      /** Whether the GO should start in an active state. */
+  ActiveFlag: boolean = true;       /** Whether the GO should start in an active state. */
   Dynamic: boolean = false;         /** Whether the GO should be considered 'dynamic', ie. can be moved around. */
   TeamID: number = 0;               /** The team index to give to this GO. */
   Name: string;                     /** An optional name for the GO. */

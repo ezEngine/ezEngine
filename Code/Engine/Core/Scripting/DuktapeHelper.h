@@ -98,6 +98,8 @@ public:
 
   void Error(const ezFormatString& text);
 
+  void LogStackTrace(ezInt32 iErrorObjIdx);
+
 
   ///@}
   /// \name Objects / Stash

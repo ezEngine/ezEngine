@@ -68,6 +68,27 @@ void ezDuktapeHelper::Error(const ezFormatString& text)
   duk_error(m_pContext, DUK_ERR_ERROR, text.GetText(tmp));
 }
 
+void ezDuktapeHelper::LogStackTrace(ezInt32 iErrorObjIdx)
+{
+  if (duk_is_error(m_pContext, iErrorObjIdx))
+  {
+    EZ_LOG_BLOCK("Stack Trace");
+
+    duk_get_prop_string(m_pContext, iErrorObjIdx, "stack");
+
+    const ezStringBuilder stack = duk_safe_to_string(m_pContext, iErrorObjIdx);
+    ezHybridArray<ezStringView, 32> lines;
+    stack.Split(false, lines, "\n", "\r");
+
+    for (ezStringView line : lines)
+    {
+      ezLog::Dev("{}", line);
+    }
+
+    duk_pop(m_pContext);
+  }
+}
+
 void ezDuktapeHelper::PopStack(ezUInt32 n /*= 1*/)
 {
   duk_pop_n(m_pContext, n);
@@ -425,8 +446,10 @@ ezResult ezDuktapeHelper::CallPreparedFunction()
   }
   else
   {
-    // TODO: could also create a stack trace using duk_is_error + duk_get_prop_string(ctx, -1, "stack");
     ezLog::Error("[duktape]{}", duk_safe_to_string(m_pContext, -1));
+
+    LogStackTrace(-1);
+
     return EZ_FAILURE; // [ error ]
   }
 }
@@ -466,23 +489,7 @@ ezResult ezDuktapeHelper::CallPreparedMethod()
   {
     ezLog::Error("[duktape]{}", duk_safe_to_string(m_pContext, -1));
 
-    if (duk_is_error(m_pContext, -1))
-    {
-      EZ_LOG_BLOCK("Stack Trace");
-
-      duk_get_prop_string(m_pContext, -1, "stack");
-
-      const ezStringBuilder stack = duk_safe_to_string(m_pContext, -1);
-      ezHybridArray<ezStringView, 32> lines;
-      stack.Split(false, lines, "\n", "\r");
-
-      for (ezStringView line : lines)
-      {
-        ezLog::Dev("{}", line);
-      }
-
-      duk_pop(m_pContext);
-    }
+    LogStackTrace(-1);
 
     return EZ_FAILURE; // [ error ]
   }
@@ -573,6 +580,9 @@ ezResult ezDuktapeHelper::ExecuteString(const char* szString, const char* szDebu
     EZ_LOG_BLOCK("DukTape::ExecuteString", "Compilation failed");
 
     ezLog::Error("[duktape]{}", duk_safe_to_string(m_pContext, -1)); // [ error ]
+
+    LogStackTrace(-1);
+
     // TODO: print out line by line
     ezLog::Info("[duktape]Source: {0}", szString);
 
@@ -587,6 +597,9 @@ ezResult ezDuktapeHelper::ExecuteString(const char* szString, const char* szDebu
     EZ_LOG_BLOCK("DukTape::ExecuteString", "Execution failed");
 
     ezLog::Error("[duktape]{}", duk_safe_to_string(m_pContext, -1)); // [ error ]
+
+    LogStackTrace(-1);
+
     // TODO: print out line by line
     ezLog::Info("[duktape]Source: {0}", szString);
 
