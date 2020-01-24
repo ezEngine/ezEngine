@@ -354,7 +354,7 @@ void ezDebugRenderer::DrawLines(const ezDebugRendererContext& context, ezArrayPt
   }
 }
 
-void ezDebugRenderer::DrawLines2D(const ezDebugRendererContext& context, ezArrayPtr<Line> lines, const ezColor& color)
+void ezDebugRenderer::Draw2DLines(const ezDebugRendererContext& context, ezArrayPtr<Line> lines, const ezColor& color)
 {
   if (lines.IsEmpty())
     return;

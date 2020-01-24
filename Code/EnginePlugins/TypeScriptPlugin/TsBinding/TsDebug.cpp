@@ -21,7 +21,7 @@ ezResult ezTypeScriptBinding::Init_Debug()
 {
   m_Duk.RegisterGlobalFunction("__CPP_Debug_DrawCross", __CPP_Debug_DrawCross, 3);
   m_Duk.RegisterGlobalFunction("__CPP_Debug_DrawLines", __CPP_Debug_DrawLines, 2, 0);
-  m_Duk.RegisterGlobalFunction("__CPP_Debug_DrawLines2D", __CPP_Debug_DrawLines, 2, 1);
+  m_Duk.RegisterGlobalFunction("__CPP_Debug_Draw2DLines", __CPP_Debug_DrawLines, 2, 1);
   m_Duk.RegisterGlobalFunction("__CPP_Debug_DrawLineBox", __CPP_Debug_DrawBox, 4, 0);
   m_Duk.RegisterGlobalFunction("__CPP_Debug_DrawSolidBox", __CPP_Debug_DrawBox, 4, 1);
   m_Duk.RegisterGlobalFunction("__CPP_Debug_DrawLineSphere", __CPP_Debug_DrawSphere, 4);
@@ -88,7 +88,7 @@ static int __CPP_Debug_DrawLines(duk_context* pDuk)
   }
   else
   {
-    ezDebugRenderer::DrawLines2D(pWorld, lines, color);
+    ezDebugRenderer::Draw2DLines(pWorld, lines, color);
   }
 
   return duk.ReturnVoid();

@@ -15,7 +15,7 @@ export import Transform = __Transform.Transform;
 
 declare function __CPP_Debug_DrawCross(pos: Vec3, size: number, color: Color): void;
 declare function __CPP_Debug_DrawLines(lines: Debug.Line[], color: Color): void;
-declare function __CPP_Debug_DrawLines2D(lines: Debug.Line[], color: Color): void;
+declare function __CPP_Debug_Draw2DLines(lines: Debug.Line[], color: Color): void;
 declare function __CPP_Debug_DrawLineBox(min: Vec3, max: Vec3, color: Color, transform: Transform): void;
 declare function __CPP_Debug_DrawSolidBox(min: Vec3, max: Vec3, color: Color, transform: Transform): void;
 declare function __CPP_Debug_DrawLineSphere(center: Vec3, radius: number, color: Color, transform: Transform): void;
@@ -86,8 +86,8 @@ export namespace Debug {
     /**
      * Draws a set of lines with one color in 2D screen space. Depth (z coordinate) is used for sorting but not for perspective.
      */
-    export function DrawLines2D(lines: Line[], color: Color = null): void {
-        __CPP_Debug_DrawLines2D(lines, color);
+    export function Draw2DLines(lines: Line[], color: Color = null): void {
+        __CPP_Debug_Draw2DLines(lines, color);
     }
 
     /**
