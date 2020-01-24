@@ -7,13 +7,18 @@
 #include <EditorPluginTypeScript/TypeScriptAsset/TypeScriptAssetManager.h>
 #include <EditorPluginTypeScript/TypeScriptAsset/TypeScriptAssetWindow.moc.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/IO/Stream.h>
 #include <Foundation/Utilities/Progress.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
+#include <ToolsFoundation/Application/ApplicationServices.h>
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <TypeScriptPlugin/Resources/ScriptCompendiumResource.h>
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
+#include <Foundation/Containers/ArrayMap.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTypeScriptAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezTypeScriptAssetDocumentManager>)
@@ -114,6 +119,7 @@ void ezTypeScriptAssetDocumentManager::GameObjectDocumentEventHandler(const ezGa
     }
 
     case ezGameObjectDocumentEvent::Type::GameMode_StartingPlay:
+    case ezGameObjectDocumentEvent::Type::GameMode_StartingExternal:
     {
       if (ezPreferences::QueryPreferences<ezTypeScriptPreferences>()->m_bAutoUpdateScriptsForPlayTheGame)
       {
@@ -227,6 +233,21 @@ ezResult ezTypeScriptAssetDocumentManager::GenerateScriptCompendium(ezBitflags<e
 
   SetupProjectForTypeScript(false);
 
+  // read m_CheckedTsFiles cache
+  if (m_CheckedTsFiles.IsEmpty())
+  {
+    ezStringBuilder sFile = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
+    sFile.AppendPath("LastTypeScriptChanges.tmp");
+
+    ezFileReader file;
+    if (file.Open(sFile).Succeeded())
+    {
+      file.ReadMap(m_CheckedTsFiles);
+    }
+  }
+
+  ezMap<ezString, ezUInt32> relPathToDataDirIdx;
+
   ezScriptCompendiumResourceDesc compendium;
   bool bAnythingNew = false;
 
@@ -250,6 +271,8 @@ ezResult ezTypeScriptAssetDocumentManager::GenerateScriptCompendium(ezBitflags<e
       fsIt.GetStats().GetFullPath(sTsFilePath);
 
       sTsFilePath.MakeRelativeTo(sDataDirPath);
+
+      relPathToDataDirIdx[sTsFilePath] = ddIdx;
 
       compendium.m_PathToSource.Insert(sTsFilePath, ezString());
 
@@ -282,11 +305,18 @@ ezResult ezTypeScriptAssetDocumentManager::GenerateScriptCompendium(ezBitflags<e
 
   // TODO: could multi-thread this, if we had multiple transpilers loaded
   {
+    ezStringBuilder sOutputFolder;
+
     ezStringBuilder sTranspiledJs;
     for (auto it : compendium.m_PathToSource)
     {
       if (!progress.BeginNextStep(it.Key()))
         return EZ_FAILURE;
+
+      sOutputFolder = ezFileSystem::GetDataDirectory(relPathToDataDirIdx[it.Key()])->GetRedirectedDataDirectoryPath();
+      sOutputFolder.MakeCleanPath();
+      sOutputFolder.AppendPath("AssetCache/Temp");
+      m_Transpiler.SetOutputFolder(sOutputFolder);
 
       if (m_Transpiler.TranspileFileAndStoreJS(it.Key(), sTranspiledJs).Failed())
       {
@@ -347,6 +377,18 @@ ezResult ezTypeScriptAssetDocumentManager::GenerateScriptCompendium(ezBitflags<e
     compendium.Serialize(file);
 
     EZ_SUCCEED_OR_RETURN(file.Close());
+  }
+
+  // write m_CheckedTsFiles cache
+  {
+    ezStringBuilder sFile = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
+    sFile.AppendPath("LastTypeScriptChanges.tmp");
+
+    ezFileWriter file;
+    if (file.Open(sFile).Succeeded())
+    {
+      file.WriteMap(m_CheckedTsFiles);
+    }
   }
 
   return EZ_SUCCESS;
