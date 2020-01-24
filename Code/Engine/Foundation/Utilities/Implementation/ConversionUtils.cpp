@@ -696,7 +696,7 @@ namespace ezConversionUtils
     return out_Result;
   }
 
-  ezUuid ConvertStringToUuid(const char* szText);
+  ezUuid ConvertStringToUuid(const ezStringView& sText);
 
   const ezStringBuilder& ToString(const ezUuid& value, ezStringBuilder& out_Result)
   {
@@ -724,15 +724,17 @@ namespace ezConversionUtils
     return out_Result;
   }
 
-  bool IsStringUuid(const char* szText)
+  bool IsStringUuid(const ezStringView& sText)
   {
-    if (ezStringUtils::IsNullOrEmpty(szText))
+    if (sText.IsEmpty())
       return false;
+
+    const char* szText = sText.GetStartPointer();
 
     if (szText[0] != '{')
       return false;
 
-    if (ezStringUtils::GetStringElementCount(szText) != 40)
+    if (sText.GetElementCount() != 40)
       return false;
 
     if ((szText[1] != ' ') || (szText[10] != '-') || (szText[15] != '-') || (szText[20] != '-') || (szText[25] != '-') ||
@@ -742,9 +744,11 @@ namespace ezConversionUtils
     return true;
   }
 
-  ezUuid ConvertStringToUuid(const char* szText)
+  ezUuid ConvertStringToUuid(const ezStringView& sText)
   {
-    EZ_ASSERT_DEBUG(IsStringUuid(szText), "The given string is not in the correct Uuid format: '{0}'", szText);
+    EZ_ASSERT_DEBUG(IsStringUuid(sText), "The given string is not in the correct Uuid format: '{0}'", sText);
+
+    const char* szText = sText.GetStartPointer();
 
     while (*szText == '{' || ezStringUtils::IsWhiteSpace(*szText))
       ++szText;
