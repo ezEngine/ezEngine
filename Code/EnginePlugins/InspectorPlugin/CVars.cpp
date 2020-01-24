@@ -165,6 +165,10 @@ namespace CVarsDetail
         SendCVarTelemetry(e.m_pCVar);
         break;
 
+      case ezCVarEvent::ListOfVarsChanged:
+        SendAllCVarTelemetry();
+        break;
+
       default:
         break;
     }
@@ -182,7 +186,7 @@ namespace CVarsDetail
         break;
     }
   }
-}
+} // namespace CVarsDetail
 
 void AddCVarEventHandler()
 {

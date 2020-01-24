@@ -486,23 +486,29 @@ void ezEngineProcessGameApplication::Deinit_ShutdownLogging()
 
 void ezEngineProcessGameApplication::EventHandlerCVar(const ezCVarEvent& e)
 {
-  if (e.m_EventType != ezCVarEvent::ValueChanged)
-    return;
+  if (e.m_EventType == ezCVarEvent::ValueChanged)
+  {
+    TransmitCVar(e.m_pCVar);
+  }
 
-  TransmitCVar(e.m_pCVar);
+  if (e.m_EventType == ezCVarEvent::ListOfVarsChanged)
+  {
+    // currently no way to remove CVars from the editor UI
+
+    for (ezCVar* pCVar = ezCVar::GetFirstInstance(); pCVar != nullptr; pCVar = pCVar->GetNextInstance())
+    {
+      TransmitCVar(pCVar);
+    }
+  }
 }
 
 void ezEngineProcessGameApplication::EventHandlerCVarPlugin(const ezPluginEvent& e)
 {
   if (e.m_EventType == ezPluginEvent::Type::AfterLoadingBeforeInit)
   {
-    ezCVar* pCVar = ezCVar::GetFirstInstance();
-
-    while (pCVar)
+    for (ezCVar* pCVar = ezCVar::GetFirstInstance(); pCVar != nullptr; pCVar = pCVar->GetNextInstance())
     {
       TransmitCVar(pCVar);
-
-      pCVar = pCVar->GetNextInstance();
     }
   }
 }

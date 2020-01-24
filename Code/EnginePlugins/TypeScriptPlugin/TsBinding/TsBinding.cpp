@@ -46,6 +46,13 @@ ezTypeScriptBinding::ezTypeScriptBinding()
 
 ezTypeScriptBinding::~ezTypeScriptBinding()
 {
+  if (!m_CVars.IsEmpty())
+  {
+    m_CVars.Clear();
+
+    ezCVar::ListOfCVarsChanged("invalid");
+  }
+
   s_DukToBinding.Remove(m_Duk);
 }
 

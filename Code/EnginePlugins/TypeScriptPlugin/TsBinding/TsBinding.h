@@ -6,6 +6,7 @@
 #include <Core/Scripting/DuktapeContext.h>
 #include <Core/World/Declarations.h>
 #include <Core/World/World.h>
+#include <Foundation/Configuration/CVar.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Math/Declarations.h>
 #include <Foundation/Types/Uuid.h>
@@ -265,6 +266,13 @@ public:
   static void SetVariantProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezVariant& value);
   static ezVariant GetVariant(duk_context* pDuk, ezInt32 iObjIdx, const ezRTTI* pType);
   static ezVariant GetVariantProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezRTTI* pType);
+
+  ///@}
+  /// \name Debug
+  ///@{
+
+public:
+  ezMap<ezString, ezUniquePtr<ezCVar>> m_CVars;
 
   ///@}
   /// \name C++ Object Registration

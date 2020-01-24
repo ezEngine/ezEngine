@@ -16,6 +16,7 @@ static int __CPP_Debug_Draw3DText(duk_context* pDuk);
 static int __CPP_Debug_GetResolution(duk_context* pDuk);
 static int __CPP_Debug_ReadCVar(duk_context* pDuk);
 static int __CPP_Debug_WriteCVar(duk_context* pDuk);
+static int __CPP_Debug_RegisterCVar(duk_context* pDuk);
 
 ezResult ezTypeScriptBinding::Init_Debug()
 {
@@ -36,6 +37,7 @@ ezResult ezTypeScriptBinding::Init_Debug()
   m_Duk.RegisterGlobalFunction("__CPP_Debug_WriteCVarInt", __CPP_Debug_WriteCVar, 2, ezCVarType::Int);
   m_Duk.RegisterGlobalFunction("__CPP_Debug_WriteCVarFloat", __CPP_Debug_WriteCVar, 2, ezCVarType::Float);
   m_Duk.RegisterGlobalFunction("__CPP_Debug_WriteCVarString", __CPP_Debug_WriteCVar, 2, ezCVarType::String);
+  m_Duk.RegisterGlobalFunction("__CPP_Debug_RegisterCVar", __CPP_Debug_RegisterCVar, 4);
 
   return EZ_SUCCESS;
 }
@@ -283,6 +285,47 @@ static int __CPP_Debug_WriteCVar(duk_context* pDuk)
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
   }
+
+  return duk.ReturnVoid();
+}
+
+
+static int __CPP_Debug_RegisterCVar(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk);
+
+  ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(pDuk);
+
+  const char* szVarName = duk.GetStringValue(0);
+  const ezCVarType::Enum type = (ezCVarType::Enum)duk.GetIntValue(1);
+  const char* szDesc = duk.GetStringValue(3);
+
+  auto& pCVar = pBinding->m_CVars[szVarName];
+
+  if (pCVar != nullptr)
+    return duk.ReturnVoid();
+
+  switch (type)
+  {
+    case ezCVarType::Int:
+      pCVar = EZ_DEFAULT_NEW(ezCVarInt, szVarName, duk.GetIntValue(2), ezCVarFlags::Default, szDesc);
+      break;
+    case ezCVarType::Float:
+      pCVar = EZ_DEFAULT_NEW(ezCVarFloat, szVarName, duk.GetFloatValue(2), ezCVarFlags::Default, szDesc);
+      break;
+    case ezCVarType::Bool:
+      pCVar = EZ_DEFAULT_NEW(ezCVarBool, szVarName, duk.GetBoolValue(2), ezCVarFlags::Default, szDesc);
+      break;
+    case ezCVarType::String:
+      pCVar = EZ_DEFAULT_NEW(ezCVarString, szVarName, duk.GetStringValue(2), ezCVarFlags::Default, szDesc);
+      break;
+
+    default:
+      duk.Error(ezFmt("CVar '{}': invalid type {}", szVarName, (int)type));
+      return duk.ReturnVoid();
+  }
+
+  ezCVar::ListOfCVarsChanged("Scripting");
 
   return duk.ReturnVoid();
 }

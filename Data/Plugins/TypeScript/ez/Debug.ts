@@ -30,6 +30,7 @@ declare function __CPP_Debug_WriteCVarBool(name: string, value: boolean): void;
 declare function __CPP_Debug_WriteCVarInt(name: string, value: number): void;
 declare function __CPP_Debug_WriteCVarFloat(name: string, value: number): void;
 declare function __CPP_Debug_WriteCVarString(name: string, value: string): void;
+declare function __CPP_Debug_RegisterCVar(name: string, type: number, defaultValue: any, description: string): void;
 
 
 
@@ -211,5 +212,21 @@ export namespace Debug {
      */
     export function WriteCVar_String(name: string, value: string): void {
         return __CPP_Debug_WriteCVarString(name, value);
+    }
+
+    export function RegisterCVar_Int(name: string, value: number, description: string): void {
+        __CPP_Debug_RegisterCVar(name, 0, value, description);
+    }
+
+    export function RegisterCVar_Float(name: string, value: number, description: string): void {
+        __CPP_Debug_RegisterCVar(name, 1, value, description);
+    }
+    
+    export function RegisterCVar_Boolean(name: string, value: boolean, description: string): void {
+        __CPP_Debug_RegisterCVar(name, 2, value, description);
+    }
+
+    export function RegisterCVar_String(name: string, value: string, description: string): void {
+        __CPP_Debug_RegisterCVar(name, 3, value, description);
     }
 }
