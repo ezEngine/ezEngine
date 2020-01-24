@@ -2,6 +2,7 @@
 
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/HashedString.h>
+#include <Foundation/Time/Timestamp.h>
 
 // ezAllocatorBase::Stats
 
@@ -278,4 +279,3 @@ void operator>>(ezStreamReader& Stream, ezTimestamp& Value)
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_StreamOperationsOther);
-

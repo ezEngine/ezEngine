@@ -25,9 +25,9 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezDiffOperation, ezNoBase, 1, ezRTTIDefaultAlloca
     EZ_END_PROPERTIES;
 }
 EZ_END_STATIC_REFLECTED_TYPE;
-    // clang-format on
+// clang-format on
 
-    ezAbstractObjectGraph::~ezAbstractObjectGraph()
+ezAbstractObjectGraph::~ezAbstractObjectGraph()
 {
   Clear();
 }
@@ -207,7 +207,7 @@ void ezAbstractObjectGraph::ReMapNodeGuids(const ezUuid& seedGuid, bool bRemapIn
   nodes.Reserve(m_Nodes.GetCount());
   ezHashTable<ezUuid, ezUuid> guidMap;
   guidMap.Reserve(m_Nodes.GetCount());
-  
+
   for (auto it = m_Nodes.GetIterator(); it.IsValid(); ++it)
   {
     ezUuid newGuid = it.Key();
@@ -240,7 +240,7 @@ void ezAbstractObjectGraph::ReMapNodeGuids(const ezUuid& seedGuid, bool bRemapIn
 
 
 void ezAbstractObjectGraph::ReMapNodeGuidsToMatchGraph(ezAbstractObjectNode* root, const ezAbstractObjectGraph& rhsGraph,
-                                                       const ezAbstractObjectNode* rhsRoot)
+  const ezAbstractObjectNode* rhsRoot)
 {
   ezHashTable<ezUuid, ezUuid> guidMap;
   EZ_ASSERT_DEV(ezStringUtils::IsEqual(root->GetType(), rhsRoot->GetType()), "Roots must have the same type to be able re-map guids!");
@@ -260,7 +260,7 @@ void ezAbstractObjectGraph::ReMapNodeGuidsToMatchGraph(ezAbstractObjectNode* roo
 }
 
 void ezAbstractObjectGraph::ReMapNodeGuidsToMatchGraphRecursive(ezHashTable<ezUuid, ezUuid>& guidMap, ezAbstractObjectNode* lhs,
-                                                                const ezAbstractObjectGraph& rhsGraph, const ezAbstractObjectNode* rhs)
+  const ezAbstractObjectGraph& rhsGraph, const ezAbstractObjectNode* rhs)
 {
   if (!ezStringUtils::IsEqual(lhs->GetType(), rhs->GetType()))
   {
@@ -442,7 +442,7 @@ ezAbstractObjectNode* ezAbstractObjectGraph::CopyNodeIntoGraph(const ezAbstractO
 
 
 void ezAbstractObjectGraph::CreateDiffWithBaseGraph(const ezAbstractObjectGraph& base,
-                                                    ezDeque<ezAbstractGraphDiffOperation>& out_DiffResult) const
+  ezDeque<ezAbstractGraphDiffOperation>& out_DiffResult) const
 {
   out_DiffResult.Clear();
 
@@ -574,7 +574,7 @@ void ezAbstractObjectGraph::ApplyDiff(ezDeque<ezAbstractGraphDiffOperation>& Dif
 
 
 void ezAbstractObjectGraph::MergeDiffs(const ezDeque<ezAbstractGraphDiffOperation>& lhs, const ezDeque<ezAbstractGraphDiffOperation>& rhs,
-                                       ezDeque<ezAbstractGraphDiffOperation>& out) const
+  ezDeque<ezAbstractGraphDiffOperation>& out) const
 {
   struct Prop
   {
@@ -698,6 +698,8 @@ void ezAbstractObjectGraph::MergeDiffs(const ezDeque<ezAbstractGraphDiffOperatio
 
 void ezAbstractObjectGraph::RemapVariant(ezVariant& value, const ezHashTable<ezUuid, ezUuid>& guidMap)
 {
+  ezStringBuilder tmp;
+
   // if the property is a guid, we check if we need to remap it
   if (value.IsA<ezUuid>())
   {
@@ -709,6 +711,16 @@ void ezAbstractObjectGraph::RemapVariant(ezVariant& value, const ezHashTable<ezU
       value = *found;
     }
   }
+  else if (value.IsA<ezString>() && ezConversionUtils::IsStringUuid(value.Get<ezString>()))
+  {
+    const ezUuid guid = ezConversionUtils::ConvertStringToUuid(value.Get<ezString>());
+
+    // if we find the guid in our map, replace it by the new guid
+    if (auto* found = guidMap.GetValue(guid))
+    {
+      value = ezConversionUtils::ToString(*found, tmp).GetData();
+    }
+  }
   // Arrays may be of uuids
   else if (value.IsA<ezVariantArray>())
   {
@@ -717,6 +729,11 @@ void ezAbstractObjectGraph::RemapVariant(ezVariant& value, const ezHashTable<ezU
     for (auto& subValue : values)
     {
       if (subValue.IsA<ezUuid>() && guidMap.Contains(subValue.Get<ezUuid>()))
+      {
+        bNeedToRemap = true;
+        break;
+      }
+      else if (subValue.IsA<ezString>() && ezConversionUtils::IsStringUuid(subValue.Get<ezString>()))
       {
         bNeedToRemap = true;
         break;
@@ -745,7 +762,14 @@ void ezAbstractObjectGraph::RemapVariant(ezVariant& value, const ezHashTable<ezU
     bool bNeedToRemap = false;
     for (auto it = values.GetIterator(); it.IsValid(); ++it)
     {
-      if (it.Value().IsA<ezUuid>() && guidMap.Contains(it.Value().Get<ezUuid>()))
+      const ezVariant& subValue = it.Value();
+
+      if (subValue.IsA<ezUuid>() && guidMap.Contains(subValue.Get<ezUuid>()))
+      {
+        bNeedToRemap = true;
+        break;
+      }
+      else if (subValue.IsA<ezString>() && ezConversionUtils::IsStringUuid(subValue.Get<ezString>()))
       {
         bNeedToRemap = true;
         break;
@@ -765,7 +789,7 @@ void ezAbstractObjectGraph::RemapVariant(ezVariant& value, const ezHashTable<ezU
 }
 
 void ezAbstractObjectGraph::MergeArrays(const ezDynamicArray<ezVariant>& baseArray, const ezDynamicArray<ezVariant>& leftArray,
-                                        const ezDynamicArray<ezVariant>& rightArray, ezDynamicArray<ezVariant>& out) const
+  const ezDynamicArray<ezVariant>& rightArray, ezDynamicArray<ezVariant>& out) const
 {
   // Find element type.
   ezVariantType::Enum type = ezVariantType::Invalid;
@@ -816,11 +840,11 @@ void ezAbstractObjectGraph::MergeArrays(const ezDynamicArray<ezVariant>& baseArr
   struct Element
   {
     Element(const ezVariant* pValue = nullptr, ezInt32 iBaseIndex = -1, ezInt32 iLeftIndex = -1, ezInt32 iRightIndex = -1)
-        : m_pValue(pValue)
-        , m_iBaseIndex(iBaseIndex)
-        , m_iLeftIndex(iLeftIndex)
-        , m_iRightIndex(iRightIndex)
-        , m_fIndex(ezMath::MaxValue<float>())
+      : m_pValue(pValue)
+      , m_iBaseIndex(iBaseIndex)
+      , m_iLeftIndex(iLeftIndex)
+      , m_iRightIndex(iRightIndex)
+      , m_fIndex(ezMath::MaxValue<float>())
     {
     }
     bool IsDeleted() const { return m_iBaseIndex != -1 && (m_iLeftIndex == -1 || m_iRightIndex == -1); }
@@ -965,4 +989,3 @@ void ezAbstractObjectGraph::MergeArrays(const ezDynamicArray<ezVariant>& baseArr
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Serialization_Implementation_AbstractObjectGraph);
-
