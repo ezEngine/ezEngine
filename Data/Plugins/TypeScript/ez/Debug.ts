@@ -13,6 +13,8 @@ export import Color = __Color.Color;
 import __Transform = require("./Transform")
 export import Transform = __Transform.Transform;
 
+import __Component = require("./Component")
+
 declare function __CPP_Debug_DrawCross(pos: Vec3, size: number, color: Color): void;
 declare function __CPP_Debug_DrawLines(lines: Debug.Line[], color: Color): void;
 declare function __CPP_Debug_Draw2DLines(lines: Debug.Line[], color: Color): void;
@@ -31,6 +33,7 @@ declare function __CPP_Debug_WriteCVarInt(name: string, value: number): void;
 declare function __CPP_Debug_WriteCVarFloat(name: string, value: number): void;
 declare function __CPP_Debug_WriteCVarString(name: string, value: string): void;
 declare function __CPP_Debug_RegisterCVar(name: string, type: number, defaultValue: any, description: string): void;
+declare function __CPP_Debug_RegisterCFunc(owner: __Component.TypescriptComponent, funcName: string, funcDesc: string, func: any, ...argTypes: Debug.ArgType[]): void;
 
 
 
@@ -244,4 +247,26 @@ export namespace Debug {
     export function RegisterCVar_String(name: string, value: string, description: string): void {
         __CPP_Debug_RegisterCVar(name, 3, value, description);
     }
+
+    export enum ArgType { // see ezVariant::Type for values
+        Boolean = 2,
+        Number = 12,
+        String = 27,
+    }
+
+    /**
+     * Registers a function as a console function.
+     * The function can be registered multiple times with different 'func' arguments, to bind the call to multiple objects,
+     * however, the list of argument types must be identical each time.
+     * 
+     * @param owner The component that owns this function. If the component dies, the function will not be called anymore.
+     * @param funcName The name under which to expose the function. E.g. "Print"
+     * @param funcDesc A description of the function. Should ideally begin with the argument list to call it by. E.g.: "(text: string): Prints 'text' on screen."
+     * @param func The typescript function to execute. Must accept the arguments as described by 'argTypes'. E.g. "function Print(text: string)".
+     * @param argTypes Variadic list describing the type of each argument. E.g. "ez.Debug.ArgType.String, ez.Debug.ArgType.Number"
+     */
+    export function RegisterConsoleFunc(owner: __Component.TypescriptComponent, funcName: string, funcDesc: string, func: any, ...argTypes: Debug.ArgType[]): void {
+        __CPP_Debug_RegisterCFunc(owner, funcName, funcDesc, func, ...argTypes);
+    }
+
 }

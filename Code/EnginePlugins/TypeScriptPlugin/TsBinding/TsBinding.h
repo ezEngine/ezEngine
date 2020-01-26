@@ -10,6 +10,7 @@
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Math/Declarations.h>
 #include <Foundation/Types/Uuid.h>
+#include <GameEngine/Console/ConsoleFunction.h>
 #include <TypeScriptPlugin/Resources/ScriptCompendiumResource.h>
 #include <TypeScriptPlugin/Transpiler/Transpiler.h>
 
@@ -59,6 +60,8 @@ public:
 
   EZ_ALWAYS_INLINE ezDuktapeContext& GetDukTapeContext() { return m_Duk; }
   EZ_ALWAYS_INLINE duk_context* GetDukContext() { return m_Duk.GetContext(); }
+
+  void Update();
 
 private:
   static void GetTsName(const ezRTTI* pRtti, ezStringBuilder& out_sName);
@@ -275,6 +278,33 @@ public:
 
 public:
   ezMap<ezString, ezUniquePtr<ezCVar>> m_CVars;
+
+  struct ConsoleFuncBinding2
+  {
+    ezComponentHandle m_hOwner;
+    ezUInt32 m_uiFuncStashIdx = 0;
+  };
+
+  struct ConsoleFuncBinding
+  {
+    ezUniquePtr<ezConsoleFunctionBase> m_pFunc;
+    ezHybridArray<ConsoleFuncBinding2, 4> m_Registered;
+  };
+
+  ezMap<ezString, ConsoleFuncBinding> m_ConsoleFuncs;
+
+  void StoreConsoleFuncCall(ezConsoleFunctionBase* pFunc, const ezArrayPtr<ezVariant>& params);
+
+private:
+  void ExecuteConsoleFuncs();
+
+  struct ConsoleFuncCall
+  {
+    ezConsoleFunctionBase* m_pFunc;
+    ezHybridArray<ezVariant, 4> m_Arguments;
+  };
+
+  ezHybridArray<ConsoleFuncCall, 4> m_CFuncCalls;
 
   ///@}
   /// \name C++ Object Registration

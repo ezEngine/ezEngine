@@ -183,6 +183,11 @@ ezResult ezTypeScriptBinding::FindScriptComponentInfo(const char* szComponentTyp
   return EZ_FAILURE;
 }
 
+void ezTypeScriptBinding::Update()
+{
+  ExecuteConsoleFuncs();
+}
+
 void ezTypeScriptBinding::CleanupStash(ezUInt32 uiNumIterations)
 {
   if (!m_LastCleanupObj.IsValid())
