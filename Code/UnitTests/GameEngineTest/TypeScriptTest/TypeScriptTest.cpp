@@ -31,6 +31,7 @@ void ezGameEngineTestTypeScript::SetupSubTests()
   AddSubTest("Mat4", SubTests::Mat4);
   AddSubTest("Transform", SubTests::Transform);
   AddSubTest("Color", SubTests::Color);
+  AddSubTest("Debug", SubTests::Debug);
   AddSubTest("GameObject", SubTests::GameObject);
   AddSubTest("Component", SubTests::Component);
 }
@@ -111,6 +112,7 @@ ezTestAppRun ezGameEngineTestApplication_TypeScript::SubTestBasisExec(ezInt32 iI
       "TestMat4",
       "TestTransform",
       "TestColor",
+      "TestDebug",
       "TestGameObject",
       "TestComponent",
     };

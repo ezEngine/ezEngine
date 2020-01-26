@@ -11,13 +11,14 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12887889684847103107,5243788855127965982}}
-		u4 %Hash{2359097934922327143}
+		u4 %Hash{15633905022833439380}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
 			s{"{ 37ae1ab9-ca55-423d-b2ae-498ca03fd9ef }"}
+			s{"{ 3f71fbdf-90a8-4c31-8505-90d81f85caaa }"}
 			s{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
 			s{"{ 6d619c33-6611-432b-a924-27b1b9bfd8db }"}
 			s{"{ 91979f46-9b9f-4742-8ff7-6fe0f955e4df }"}
@@ -41,6 +42,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -67,6 +69,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -93,6 +96,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -119,6 +123,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -140,9 +145,36 @@ o
 }
 o
 {
+	Uuid %id{u4{17668550041020302239,4649480971594730002}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{5213261785783957428,4763515433451837782}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"Debug"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{1968429638964108176,4660015146587840088}}
 	s %t{"ezTypeScriptComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -174,6 +206,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children
 		{
 			Uuid{u4{7607577296445734285,5266194358827816365}}
@@ -205,6 +238,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children
 		{
 			Uuid{u4{3948931869947515807,5361920650517681416}}
@@ -226,9 +260,22 @@ o
 }
 o
 {
+	Uuid %id{u4{5213261785783957428,4763515433451837782}}
+	s %t{"ezTypeScriptComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		b %HandleGlobalEvents{0}
+		VarDict %Parameters{}
+		s %Script{"{ 3f71fbdf-90a8-4c31-8505-90d81f85caaa }"}
+	}
+}
+o
+{
 	Uuid %id{u4{15053032658530598019,4775782259567829315}}
 	s %t{"ezTypeScriptComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -241,7 +288,7 @@ o
 {
 	Uuid %id{u4{16435044094538780092,4778781132823645085}}
 	s %t{"ezTypeScriptComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -257,6 +304,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -283,6 +331,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children
 		{
 			Uuid{u4{17667951033826224261,5471718445680757409}}
@@ -309,6 +358,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -414,6 +464,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -453,6 +504,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -479,6 +531,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -505,6 +558,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children
 		{
 			Uuid{u4{1995354303189858990,4744822368435201658}}
@@ -533,7 +587,7 @@ o
 {
 	Uuid %id{u4{10489671881922674360,5359533953546367188}}
 	s %t{"ezTypeScriptComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -549,6 +603,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components{}
 		s %GlobalKey{""}
@@ -572,6 +627,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -600,6 +656,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components{}
 		s %GlobalKey{""}
@@ -623,6 +680,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children
 		{
 			Uuid{u4{2113487223750869126,4886099596498488853}}
@@ -650,6 +708,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children
 		{
 			Uuid{u4{14640771179055165844,4630883920994583893}}
@@ -661,6 +720,7 @@ o
 			Uuid{u4{12376645044119784608,5089276645161881009}}
 			Uuid{u4{7203814472770778542,4713319862559126478}}
 			Uuid{u4{6185468482960480407,5370077640134023736}}
+			Uuid{u4{17668550041020302239,4649480971594730002}}
 		}
 		VarArray %Components{}
 		s %GlobalKey{"Tests"}
@@ -701,6 +761,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components{}
 		s %GlobalKey{""}
@@ -770,6 +831,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -794,7 +856,7 @@ o
 {
 	Uuid %id{u4{10590597928519418525,5762998801050855821}}
 	s %t{"ezTypeScriptComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -828,6 +890,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -851,7 +914,7 @@ o
 {
 	Uuid %id{u4{12497900811990745915,9923807962020928619}}
 	s %t{"ezTypeScriptComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -864,7 +927,7 @@ o
 {
 	Uuid %id{u4{16303911065009692632,14573970529156427756}}
 	s %t{"ezTypeScriptComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -880,6 +943,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -903,7 +967,7 @@ o
 {
 	Uuid %id{u4{5130226270515844288,14622763502008205931}}
 	s %t{"ezTypeScriptComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -916,7 +980,7 @@ o
 {
 	Uuid %id{u4{14614247312493420018,14854869766455824189}}
 	s %t{"ezTypeScriptComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -1177,7 +1241,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezTypeScriptComponent"}
 		u3 %TypeSize{184}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{4}
 	}
 }
 o

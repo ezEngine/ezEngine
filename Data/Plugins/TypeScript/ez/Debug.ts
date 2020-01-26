@@ -214,18 +214,33 @@ export namespace Debug {
         return __CPP_Debug_WriteCVarString(name, value);
     }
 
+    /**
+     * Creates a new CVar with the given name, value and description.
+     * If a CVar with this name was already created before, the call is ignored.
+     * The CVar can be modified like any other CVar and thus allows external configuration of the script code.
+     * When the world in which this script is executed is destroyed, the CVar will cease existing as well.
+     */
     export function RegisterCVar_Int(name: string, value: number, description: string): void {
         __CPP_Debug_RegisterCVar(name, 0, value, description);
     }
 
+    /**
+     * See RegisterCVar_Int
+     */
     export function RegisterCVar_Float(name: string, value: number, description: string): void {
         __CPP_Debug_RegisterCVar(name, 1, value, description);
     }
-    
+
+    /**
+     * See RegisterCVar_Int
+     */
     export function RegisterCVar_Boolean(name: string, value: boolean, description: string): void {
         __CPP_Debug_RegisterCVar(name, 2, value, description);
     }
 
+    /**
+     * See RegisterCVar_Int
+     */
     export function RegisterCVar_String(name: string, value: string, description: string): void {
         __CPP_Debug_RegisterCVar(name, 3, value, description);
     }

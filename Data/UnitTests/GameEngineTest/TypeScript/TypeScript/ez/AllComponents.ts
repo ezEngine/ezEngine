@@ -929,6 +929,8 @@ export class RaycastComponent extends Component
   set DisableTargetObjectOnNoHit(value: boolean) { __CPP_ComponentProperty_set(this, 1283920355, value); }
   get RaycastEndObject(): string { return __CPP_ComponentProperty_get(this, 2228349344); }
   set RaycastEndObject(value: string) { __CPP_ComponentProperty_set(this, 2228349344, value); }
+  get ForceTargetParentless(): boolean { return __CPP_ComponentProperty_get(this, 2183895383); }
+  set ForceTargetParentless(value: boolean) { __CPP_ComponentProperty_set(this, 2183895383, value); }
   get CollisionLayerEndPoint(): number { return __CPP_ComponentProperty_get(this, 2451437346); }
   set CollisionLayerEndPoint(value: number) { __CPP_ComponentProperty_set(this, 2451437346, value); }
   get CollisionLayerTrigger(): number { return __CPP_ComponentProperty_get(this, 3526215642); }
