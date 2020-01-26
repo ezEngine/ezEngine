@@ -1,7 +1,7 @@
 #pragma once
 
-#include <RendererCore/Pipeline/Declarations.h>
 #include <Core/ResourceManager/ResourceHandle.h>
+#include <RendererCore/Pipeline/Declarations.h>
 
 typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
 
@@ -20,7 +20,7 @@ public:
   static ezArrayPtr<ezViewHandle> GetMainViews();
 
   static void CacheRenderData(const ezView& view, const ezGameObjectHandle& hOwnerObject, const ezComponentHandle& hOwnerComponent,
-                              ezArrayPtr<ezInternal::RenderDataCacheEntry> cacheEntries);
+    ezArrayPtr<ezInternal::RenderDataCacheEntry> cacheEntries);
 
   static void DeleteAllCachedRenderData();
   static void DeleteCachedRenderData(const ezGameObjectHandle& hOwnerObject, const ezComponentHandle& hOwnerComponent);
@@ -40,11 +40,40 @@ public:
   static ezEvent<ezView*, ezMutex> s_ViewCreatedEvent;
   static ezEvent<ezView*, ezMutex> s_ViewDeletedEvent;
 
-  static ezEvent<ezUInt64> s_BeginExtractionEvent;
-  static ezEvent<ezUInt64> s_EndExtractionEvent;
+  struct ExtractionEvent
+  {
+    enum class Type
+    {
+      BeginExtraction,
+      BeforeViewExtraction,
+      AfterViewExtraction,
+      EndExtraction
+    };
 
-  static ezEvent<ezUInt64> s_BeginRenderEvent;
-  static ezEvent<ezUInt64> s_EndRenderEvent;
+    Type m_Type;
+    ezView* m_pView = nullptr;
+    ezUInt64 m_uiFrameCounter = 0;
+  };
+
+  static const ezEvent<ExtractionEvent>& GetExtractionEvent() { return s_ExtractionEvent; }
+
+  struct RenderEvent
+  {
+    enum class Type
+    {
+      BeginRender,
+      BeforePipelineExecution,
+      AfterPipelineExecution,
+      EndRender,
+    };
+
+    Type m_Type;
+    ezRenderPipeline* m_pPipeline = nullptr;
+    const ezRenderViewContext* m_pRenderViewContext = nullptr;
+    ezUInt64 m_uiFrameCounter = 0;
+  };
+  
+  static const ezEvent<RenderEvent>& GetRenderEvent() { return s_RenderEvent; }
 
   static bool GetUseMultithreadedRendering();
 
@@ -81,6 +110,7 @@ private:
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, RenderWorld);
   friend class ezView;
+  friend class ezRenderPipeline;
 
   static void ClearRenderDataCache();
   static void UpdateRenderDataCache();
@@ -91,6 +121,7 @@ private:
   static void OnEngineStartup();
   static void OnEngineShutdown();
 
+  static ezEvent<ExtractionEvent> s_ExtractionEvent;
+  static ezEvent<RenderEvent> s_RenderEvent;
   static ezUInt64 s_uiFrameCounter;
 };
-

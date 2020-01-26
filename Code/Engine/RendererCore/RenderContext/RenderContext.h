@@ -170,7 +170,7 @@ private:
 
   static void OnEngineShutdown();
 
-  void OnEndRender(ezUInt64);
+  void OnRenderEvent(const ezRenderWorld::RenderEvent& e);
 
 private:
 
