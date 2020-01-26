@@ -189,6 +189,8 @@ public:
   static ezWorld* RetrieveWorld(duk_context* pDuk);
   static ezTypeScriptBinding* RetrieveBinding(duk_context* pDuk);
 
+  ezWorld* GetWorld() { return m_pWorld; }
+
 private:
   void StoreWorld(ezWorld* pWorld);
 
@@ -283,6 +285,9 @@ public:
 
   /// \brief Removes dead GameObject and Component references from the DukTape stash.
   void CleanupStash(ezUInt32 uiNumIterations);
+
+  ezUInt32 AcquireStashObjIndex();
+  void ReleaseStashObjIndex(ezUInt32 idx);
 
 private:
   static void StoreReferenceInStash(duk_context* pDuk, ezUInt32 uiStashIdx);

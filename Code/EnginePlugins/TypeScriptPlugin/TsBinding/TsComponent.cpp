@@ -47,16 +47,7 @@ ezResult ezTypeScriptBinding::RegisterComponent(const char* szTypeName, ezCompon
     return EZ_SUCCESS;
   }
 
-  if (!m_FreeStashObjIdx.IsEmpty())
-  {
-    uiStashIdx = m_FreeStashObjIdx.PeekBack();
-    m_FreeStashObjIdx.PopBack();
-  }
-  else
-  {
-    uiStashIdx = m_uiNextStashObjIdx;
-    ++m_uiNextStashObjIdx;
-  }
+  uiStashIdx = AcquireStashObjIndex();
 
   ezDuktapeHelper duk(m_Duk);
   EZ_DUK_VERIFY_STACK(duk, 0);

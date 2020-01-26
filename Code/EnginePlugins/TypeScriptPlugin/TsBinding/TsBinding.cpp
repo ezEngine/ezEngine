@@ -199,7 +199,7 @@ void ezTypeScriptBinding::CleanupStash(ezUInt32 uiNumIterations)
       duk.PushNull();                                        // [ stash null ]
       duk_put_prop_index(duk, -2, m_LastCleanupObj.Value()); // [ stash ]
 
-      m_FreeStashObjIdx.PushBack(m_LastCleanupObj.Value());
+      ReleaseStashObjIndex(m_LastCleanupObj.Value());
       m_LastCleanupObj = m_GameObjectToStashIdx.Remove(m_LastCleanupObj);
     }
     else
@@ -219,7 +219,7 @@ void ezTypeScriptBinding::CleanupStash(ezUInt32 uiNumIterations)
       duk.PushNull();                                         // [ stash null ]
       duk_put_prop_index(duk, -2, m_LastCleanupComp.Value()); // [ stash ]
 
-      m_FreeStashObjIdx.PushBack(m_LastCleanupComp.Value());
+      ReleaseStashObjIndex(m_LastCleanupComp.Value());
       m_LastCleanupComp = m_ComponentToStashIdx.Remove(m_LastCleanupComp);
     }
     else
@@ -231,6 +231,29 @@ void ezTypeScriptBinding::CleanupStash(ezUInt32 uiNumIterations)
   duk.PopStack(); // [ ]
 
   EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, 0);
+}
+
+ezUInt32 ezTypeScriptBinding::AcquireStashObjIndex()
+{
+  ezUInt32 idx;
+
+  if (!m_FreeStashObjIdx.IsEmpty())
+  {
+    idx = m_FreeStashObjIdx.PeekBack();
+    m_FreeStashObjIdx.PopBack();
+  }
+  else
+  {
+    idx = m_uiNextStashObjIdx;
+    ++m_uiNextStashObjIdx;
+  }
+
+  return idx;
+}
+
+void ezTypeScriptBinding::ReleaseStashObjIndex(ezUInt32 idx)
+{
+  m_FreeStashObjIdx.PushBack(idx);
 }
 
 void ezTypeScriptBinding::StoreReferenceInStash(duk_context* pDuk, ezUInt32 uiStashIdx)
