@@ -71,8 +71,8 @@ public:
   static ezEvent<ezView*, ezMutex> s_ViewCreatedEvent;
   static ezEvent<ezView*, ezMutex> s_ViewDeletedEvent;
 
-  static const ezEvent<ezRenderWorldExtractionEvent, ezMutex>& GetExtractionEvent() { return s_ExtractionEvent; }
-  static const ezEvent<ezRenderWorldRenderEvent, ezMutex>& GetRenderEvent() { return s_RenderEvent; }
+  static const ezEvent<const ezRenderWorldExtractionEvent&, ezMutex>& GetExtractionEvent() { return s_ExtractionEvent; }
+  static const ezEvent<const ezRenderWorldRenderEvent&, ezMutex>& GetRenderEvent() { return s_RenderEvent; }
 
   static bool GetUseMultithreadedRendering();
 
@@ -120,7 +120,7 @@ private:
   static void OnEngineStartup();
   static void OnEngineShutdown();
 
-  static ezEvent<ezRenderWorldExtractionEvent, ezMutex> s_ExtractionEvent;
-  static ezEvent<ezRenderWorldRenderEvent, ezMutex> s_RenderEvent;
+  static ezEvent<const ezRenderWorldExtractionEvent&, ezMutex> s_ExtractionEvent;
+  static ezEvent<const ezRenderWorldRenderEvent&, ezMutex> s_RenderEvent;
   static ezUInt64 s_uiFrameCounter;
 };

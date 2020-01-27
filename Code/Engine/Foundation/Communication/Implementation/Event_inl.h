@@ -49,7 +49,7 @@ void ezEventBase<EventData, MutexType>::AddEventHandler(Handler handler, Unsubsc
 /// Use exactly the same combination of callback/pass-through-data to unregister an event handlers.
 /// Otherwise an error occurs.
 template <typename EventData, typename MutexType>
-void ezEventBase<EventData, MutexType>::RemoveEventHandler(Handler handler) const
+void ezEventBase<EventData, MutexType>::RemoveEventHandler(const Handler& handler) const
 {
   EZ_ASSERT_DEV(handler.IsComparable(), "Lambdas that capture data cannot be removed via function pointer. Use an ezEventSubscriptionID instead.");
 
@@ -89,7 +89,7 @@ void ezEventBase<EventData, MutexType>::RemoveEventHandler(ezEventSubscriptionID
 }
 
 template <typename EventData, typename MutexType>
-bool ezEventBase<EventData, MutexType>::HasEventHandler(Handler handler) const
+bool ezEventBase<EventData, MutexType>::HasEventHandler(const Handler& handler) const
 {
   EZ_ASSERT_DEV(handler.IsComparable(), "Lambdas that capture data cannot be checked via function pointer. Use an ezEventSubscriptionID instead.");
 

@@ -99,7 +99,7 @@ public:
   void AddEventHandler(Handler handler, Unsubscriber& unsubscriber) const; // [tested]
 
   /// \brief Removes a previously registered handler. It is an error to remove a handler that was not registered.
-  void RemoveEventHandler(Handler handler) const; // [tested]
+  void RemoveEventHandler(const Handler& handler) const; // [tested]
 
   /// \brief Removes a previously registered handler via the returned subscription ID.
   ///
@@ -108,7 +108,7 @@ public:
   void RemoveEventHandler(ezEventSubscriptionID& id) const;
 
   /// \brief Checks whether an event handler has already been registered.
-  bool HasEventHandler(Handler handler) const;
+  bool HasEventHandler(const Handler& handler) const;
 
   /// \brief Removes all registered event handlers.
   void Clear();
