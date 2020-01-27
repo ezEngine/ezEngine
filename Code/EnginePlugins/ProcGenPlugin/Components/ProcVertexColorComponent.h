@@ -36,8 +36,8 @@ private:
 
   void UpdateVertexColors(const ezWorldModule::UpdateContext& context);
   void UpdateComponentVertexColors(ezProcVertexColorComponent* pComponent);
-  void OnEndExtraction(ezUInt64 uiFrameCounter);
-  void OnBeginRender(ezUInt64 uiFrameCounter);
+  void OnExtractionEvent(const ezRenderWorldExtractionEvent& e);
+  void OnRenderEvent(const ezRenderWorldRenderEvent& e);
 
   void EnqueueUpdate(ezProcVertexColorComponent* pComponent);
   void RemoveComponent(ezProcVertexColorComponent* pComponent);
