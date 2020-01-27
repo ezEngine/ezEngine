@@ -5,6 +5,37 @@
 
 typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
 
+struct ezRenderWorldExtractionEvent
+{
+  enum class Type
+  {
+    BeginExtraction,
+    BeforeViewExtraction,
+    AfterViewExtraction,
+    EndExtraction
+  };
+
+  Type m_Type;
+  ezView* m_pView = nullptr;
+  ezUInt64 m_uiFrameCounter = 0;
+};
+
+struct ezRenderWorldRenderEvent
+{
+  enum class Type
+  {
+    BeginRender,
+    BeforePipelineExecution,
+    AfterPipelineExecution,
+    EndRender,
+  };
+
+  Type m_Type;
+  ezRenderPipeline* m_pPipeline = nullptr;
+  const ezRenderViewContext* m_pRenderViewContext = nullptr;
+  ezUInt64 m_uiFrameCounter = 0;
+};
+
 class EZ_RENDERERCORE_DLL ezRenderWorld
 {
 public:
@@ -40,40 +71,8 @@ public:
   static ezEvent<ezView*, ezMutex> s_ViewCreatedEvent;
   static ezEvent<ezView*, ezMutex> s_ViewDeletedEvent;
 
-  struct ExtractionEvent
-  {
-    enum class Type
-    {
-      BeginExtraction,
-      BeforeViewExtraction,
-      AfterViewExtraction,
-      EndExtraction
-    };
-
-    Type m_Type;
-    ezView* m_pView = nullptr;
-    ezUInt64 m_uiFrameCounter = 0;
-  };
-
-  static const ezEvent<ExtractionEvent>& GetExtractionEvent() { return s_ExtractionEvent; }
-
-  struct RenderEvent
-  {
-    enum class Type
-    {
-      BeginRender,
-      BeforePipelineExecution,
-      AfterPipelineExecution,
-      EndRender,
-    };
-
-    Type m_Type;
-    ezRenderPipeline* m_pPipeline = nullptr;
-    const ezRenderViewContext* m_pRenderViewContext = nullptr;
-    ezUInt64 m_uiFrameCounter = 0;
-  };
-  
-  static const ezEvent<RenderEvent>& GetRenderEvent() { return s_RenderEvent; }
+  static const ezEvent<ezRenderWorldExtractionEvent>& GetExtractionEvent() { return s_ExtractionEvent; }
+  static const ezEvent<ezRenderWorldRenderEvent>& GetRenderEvent() { return s_RenderEvent; }
 
   static bool GetUseMultithreadedRendering();
 
@@ -121,7 +120,7 @@ private:
   static void OnEngineStartup();
   static void OnEngineShutdown();
 
-  static ezEvent<ExtractionEvent> s_ExtractionEvent;
-  static ezEvent<RenderEvent> s_RenderEvent;
+  static ezEvent<ezRenderWorldExtractionEvent> s_ExtractionEvent;
+  static ezEvent<ezRenderWorldRenderEvent> s_RenderEvent;
   static ezUInt64 s_uiFrameCounter;
 };

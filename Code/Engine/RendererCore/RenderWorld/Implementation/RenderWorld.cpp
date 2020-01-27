@@ -19,8 +19,8 @@ ezEvent<void*> ezRenderWorld::s_CameraConfigsModifiedEvent;
 bool ezRenderWorld::s_bModifyingCameraConfigs = false;
 ezMap<ezString, ezRenderWorld::CameraConfig> ezRenderWorld::s_CameraConfigs;
 
-ezEvent<ezRenderWorld::ExtractionEvent> ezRenderWorld::s_ExtractionEvent;
-ezEvent<ezRenderWorld::RenderEvent> ezRenderWorld::s_RenderEvent;
+ezEvent<ezRenderWorldExtractionEvent> ezRenderWorld::s_ExtractionEvent;
+ezEvent<ezRenderWorldRenderEvent> ezRenderWorld::s_RenderEvent;
 ezUInt64 ezRenderWorld::s_uiFrameCounter;
 
 namespace
@@ -388,8 +388,8 @@ void ezRenderWorld::ExtractMainViews()
 
   s_bInExtract = true;
 
-  ExtractionEvent extractionEvent;
-  extractionEvent.m_Type = ExtractionEvent::Type::BeginExtraction;
+  ezRenderWorldExtractionEvent extractionEvent;
+  extractionEvent.m_Type = ezRenderWorldExtractionEvent::Type::BeginExtraction;
   extractionEvent.m_uiFrameCounter = s_uiFrameCounter;
   s_ExtractionEvent.Broadcast(extractionEvent);
 
@@ -466,7 +466,7 @@ void ezRenderWorld::ExtractMainViews()
     s_ViewsToRender.Clear();
   }
 
-  extractionEvent.m_Type = ExtractionEvent::Type::EndExtraction;
+  extractionEvent.m_Type = ezRenderWorldExtractionEvent::Type::EndExtraction;
   s_ExtractionEvent.Broadcast(extractionEvent);
 
   s_bInExtract = false;
@@ -480,8 +480,8 @@ void ezRenderWorld::Render(ezRenderContext* pRenderContext)
   sb.Format("FRAME {}", uiRenderFrame);
   EZ_PROFILE_AND_MARKER(ezGALDevice::GetDefaultDevice()->GetPrimaryContext(), sb.GetData());
 
-  RenderEvent renderEvent;
-  renderEvent.m_Type = RenderEvent::Type::BeginRender;
+  ezRenderWorldRenderEvent renderEvent;
+  renderEvent.m_Type = ezRenderWorldRenderEvent::Type::BeginRender;
   renderEvent.m_uiFrameCounter = s_uiFrameCounter;
   s_RenderEvent.Broadcast(renderEvent);
 
@@ -505,7 +505,7 @@ void ezRenderWorld::Render(ezRenderContext* pRenderContext)
 
   filteredRenderPipelines.Clear();
 
-  renderEvent.m_Type = RenderEvent::Type::EndRender;
+  renderEvent.m_Type = ezRenderWorldRenderEvent::Type::EndRender;
   s_RenderEvent.Broadcast(renderEvent);
 }
 

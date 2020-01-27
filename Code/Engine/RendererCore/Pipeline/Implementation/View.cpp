@@ -123,8 +123,8 @@ void ezView::ExtractData()
 {
   EZ_ASSERT_DEV(IsValid(), "Cannot extract data from an invalid view");
 
-  ezRenderWorld::ExtractionEvent extractionEvent;
-  extractionEvent.m_Type = ezRenderWorld::ExtractionEvent::Type::BeginViewExtraction;
+  ezRenderWorldExtractionEvent extractionEvent;
+  extractionEvent.m_Type = ezRenderWorldExtractionEvent::Type::BeforeViewExtraction;
   extractionEvent.m_pView = this;
   extractionEvent.m_uiFrameCounter = ezRenderWorld::GetFrameCounter();
   ezRenderWorld::s_ExtractionEvent.Broadcast(extractionEvent);
@@ -132,7 +132,7 @@ void ezView::ExtractData()
   m_pRenderPipeline->m_sName = m_sName;
   m_pRenderPipeline->ExtractData(*this);
 
-  extractionEvent.m_Type = ezRenderWorld::ExtractionEvent::Type::EndViewExtraction;
+  extractionEvent.m_Type = ezRenderWorldExtractionEvent::Type::AfterViewExtraction;
   ezRenderWorld::s_ExtractionEvent.Broadcast(extractionEvent);
 }
 

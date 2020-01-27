@@ -127,7 +127,7 @@ namespace
     return *pData;
   }
 
-  static void ClearRenderData(ezUInt64)
+  static void ClearRenderData()
   {
     EZ_LOCK(s_Mutex);
 
@@ -146,6 +146,14 @@ namespace
         pData->m_textLines2D.Clear();
         pData->m_textLines3D.Clear();
       }
+    }
+  }
+
+  static void OnRenderEvent(const ezRenderWorldRenderEvent& e)
+  {
+    if (e.m_Type == ezRenderWorldRenderEvent::Type::EndRender)
+    {
+      ClearRenderData();
     }
   }
 
@@ -1177,12 +1185,12 @@ void ezDebugRenderer::OnEngineStartup()
   s_hDebugTexturedPrimitiveShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Debug/DebugTexturedPrimitive.ezShader");
   s_hDebugTextShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Debug/DebugText.ezShader");
 
-  ezRenderWorld::s_EndRenderEvent.AddEventHandler(&ClearRenderData);
+  ezRenderWorld::GetRenderEvent().AddEventHandler(&OnRenderEvent);
 }
 
 void ezDebugRenderer::OnEngineShutdown()
 {
-  ezRenderWorld::s_EndRenderEvent.RemoveEventHandler(&ClearRenderData);
+  ezRenderWorld::GetRenderEvent().RemoveEventHandler(&OnRenderEvent);
 
   for (ezUInt32 i = 0; i < BufferType::Count; ++i)
   {

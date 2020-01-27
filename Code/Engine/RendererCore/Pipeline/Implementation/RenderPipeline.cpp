@@ -1043,8 +1043,8 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
   else
     pRenderContext->SetShaderPermutationVariable(sCameraMode, sPerspective);
 
-  ezRenderWorld::RenderEvent renderEvent;
-  renderEvent.m_Type = ezRenderWorld::RenderEvent::Type::BeforePipelineExecution;
+  ezRenderWorldRenderEvent renderEvent;
+  renderEvent.m_Type = ezRenderWorldRenderEvent::Type::BeforePipelineExecution;
   renderEvent.m_pPipeline = this;
   renderEvent.m_pRenderViewContext = &renderViewContext;
   renderEvent.m_uiFrameCounter = ezRenderWorld::GetFrameCounter();
@@ -1119,7 +1119,7 @@ void ezRenderPipeline::Render(ezRenderContext* pRenderContext)
   EZ_ASSERT_DEV(uiCurrentLastUsageIdx == m_TextureUsageIdxSortedByLastUsage.GetCount(),
     "Rendering all passes should have moved us through all texture usage blocks!");
 
-  renderEvent.m_Type = ezRenderWorld::RenderEvent::Type::AfterPipelineExecution;
+  renderEvent.m_Type = ezRenderWorldRenderEvent::Type::AfterPipelineExecution;
   ezRenderWorld::s_RenderEvent.Broadcast(renderEvent);
 
   data.Clear();

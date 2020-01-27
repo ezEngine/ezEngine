@@ -811,11 +811,11 @@ void ezRenderContext::OnEngineShutdown()
   }
 }
 
-void ezRenderContext::OnRenderEvent(const ezRenderWorld::RenderEvent& e)
+void ezRenderContext::OnRenderEvent(const ezRenderWorldRenderEvent& e)
 {
-  if (e.m_Type == ezRenderWorld::RenderEvent::Type::EndRender)
-    {
-  ResetContextState();
+  if (e.m_Type == ezRenderWorldRenderEvent::Type::EndRender)
+  {
+    ResetContextState();
   }
 }
 
