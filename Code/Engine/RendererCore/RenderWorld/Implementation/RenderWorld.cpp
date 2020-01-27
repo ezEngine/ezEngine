@@ -19,8 +19,8 @@ ezEvent<void*> ezRenderWorld::s_CameraConfigsModifiedEvent;
 bool ezRenderWorld::s_bModifyingCameraConfigs = false;
 ezMap<ezString, ezRenderWorld::CameraConfig> ezRenderWorld::s_CameraConfigs;
 
-ezEvent<ezRenderWorldExtractionEvent> ezRenderWorld::s_ExtractionEvent;
-ezEvent<ezRenderWorldRenderEvent> ezRenderWorld::s_RenderEvent;
+ezEvent<ezRenderWorldExtractionEvent, ezMutex> ezRenderWorld::s_ExtractionEvent;
+ezEvent<ezRenderWorldRenderEvent, ezMutex> ezRenderWorld::s_RenderEvent;
 ezUInt64 ezRenderWorld::s_uiFrameCounter;
 
 namespace
