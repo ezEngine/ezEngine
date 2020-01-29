@@ -17,6 +17,8 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
+struct ezRenderWorldExtractionEvent;
+struct ezRenderWorldRenderEvent;
 class ezProcVertexColorComponent;
 
 class EZ_PROCGENPLUGIN_DLL ezProcVertexColorComponentManager
