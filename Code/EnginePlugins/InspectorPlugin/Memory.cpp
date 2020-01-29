@@ -18,7 +18,7 @@ namespace MemoryDetail
       msg.SetMessageID(' MEM', 'BGN');
       ezTelemetry::Broadcast(ezTelemetry::Unreliable, msg);
     }
-       
+
     for (auto it = ezMemoryTracker::GetIterator(); it.IsValid(); ++it)
     {
       ezTelemetryMessage msg;
@@ -63,7 +63,7 @@ namespace MemoryDetail
         break;
     }
   }
-}
+} // namespace MemoryDetail
 
 
 void AddMemoryEventHandler()
@@ -71,12 +71,18 @@ void AddMemoryEventHandler()
   // We're handling the per frame update by a different event since
   // using ezTelemetry::TelemetryEventData::PerFrameUpdate can lead
   // to deadlocks between the ezStats and ezTelemetry system.
-  ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(MemoryDetail::PerframeUpdateHandler);
+  if (ezGameApplicationBase::GetGameApplicationBaseInstance() != nullptr)
+  {
+    ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(MemoryDetail::PerframeUpdateHandler);
+  }
 }
 
 void RemoveMemoryEventHandler()
 {
-  ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(MemoryDetail::PerframeUpdateHandler);
+  if (ezGameApplicationBase::GetGameApplicationBaseInstance() != nullptr)
+  {
+    ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(MemoryDetail::PerframeUpdateHandler);
+  }
 }
 
 

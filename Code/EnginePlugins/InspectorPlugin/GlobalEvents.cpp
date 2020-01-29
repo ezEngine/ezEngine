@@ -109,7 +109,7 @@ namespace GlobalEventsDetail
         break;
     }
   }
-}
+} // namespace GlobalEventsDetail
 
 void AddGlobalEventHandler()
 {
@@ -118,12 +118,18 @@ void AddGlobalEventHandler()
   // We're handling the per frame update by a different event since
   // using ezTelemetry::TelemetryEventData::PerFrameUpdate can lead
   // to deadlocks between the ezStats and ezTelemetry system.
-  ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(GlobalEventsDetail::PerframeUpdateHandler);
+  if (ezGameApplicationBase::GetGameApplicationBaseInstance() != nullptr)
+  {
+    ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(GlobalEventsDetail::PerframeUpdateHandler);
+  }
 }
 
 void RemoveGlobalEventHandler()
 {
-  ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(GlobalEventsDetail::PerframeUpdateHandler);
+  if (ezGameApplicationBase::GetGameApplicationBaseInstance() != nullptr)
+  {
+    ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(GlobalEventsDetail::PerframeUpdateHandler);
+  }
 
   ezTelemetry::RemoveEventHandler(GlobalEventsDetail::TelemetryEventsHandler);
 }
