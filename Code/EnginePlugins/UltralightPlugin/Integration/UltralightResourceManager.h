@@ -7,53 +7,39 @@
 #include <Foundation/Threading/ThreadSignal.h>
 #include <Foundation/Types/UniquePtr.h>
 
+#include <RendererFoundation/Resources/Texture.h>
+
 #include <Ultralight/Ultralight.h>
 
-class ezUltralightGPUDriver;
-class ezUltralightFileSystem;
 class ezUltralightHTMLResource;
-struct ezGALDeviceEvent;
 
-class EZ_ULTRALIGHTPLUGIN_DLL ezUltralightThread : public ezThreadWithDispatcher
+/// \brief A helper class to manage deferred Ultralight view creations etc.
+class EZ_ULTRALIGHTPLUGIN_DLL ezUltralightResourceManager final
 {
-  public:
+public:
 
-    ezUltralightThread();
-    ~ezUltralightThread();
+  ezUltralightResourceManager();
+  ~ezUltralightResourceManager();
 
-    virtual ezUInt32 Run() override;
+  void Update(ultralight::Renderer* pRenderer);
 
-    void DrawCommandLists();
+  static ezUltralightResourceManager* GetInstance();
 
-    void Wake();
+private:
+  friend ezUltralightHTMLResource;
 
-    void Quit();
+  void Register(ezUltralightHTMLResource* pResource);
+  void Unregister(ezUltralightHTMLResource* pResource);
 
-    void Register(ezUltralightHTMLResource* pResource);
-    void Unregister(ezUltralightHTMLResource* pResource);
+  bool IsRegistered(ezUltralightHTMLResource* pResource) const;
 
-    static ezUltralightThread* GetInstance();
+  void UpdateResource(ezUltralightHTMLResource* pResource);
 
-    static void AssertUltralightThread();
+private:
 
-  private:
-
-    void UpdateForRendering(const ezGALDeviceEvent& event);
-
-    ezThreadSignal m_Signal;
-    bool m_bRunning = true;
-
-    ultralight::RefPtr<ultralight::Renderer> m_pRenderer;
-    ezUniquePtr<ezUltralightGPUDriver> m_pGPUDriver;
-    ezUniquePtr<ezUltralightFileSystem> m_pFileSystem;
-
-    ezMutex m_ResourceMutex;
+    mutable ezMutex m_ResourceMutex;
     ezDynamicArray<ezUltralightHTMLResource*> m_PendingResourceRegistrations;
     ezDynamicArray<ezUltralightHTMLResource*> m_PendingResourceDeletions;
     ezDynamicArray<ezUltralightHTMLResource*> m_RegisteredResources;
-
-    ezMap<ezUltralightHTMLResource*, ezGALTextureHandle> m_TextureHandles;
-
+    ezDynamicArray<ezUltralightHTMLResource*> m_ResourcesWhichNeedUpdates;
 };
-
-

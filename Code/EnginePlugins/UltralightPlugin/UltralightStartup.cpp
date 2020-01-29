@@ -7,8 +7,8 @@
 
 #include <UltralightPlugin/Resources/UltralightHTMLResource.h>
 #include <UltralightPlugin/Integration/UltralightFileSystem.h>
-#include <UltralightPlugin/Integration/Renderer.h>
 #include <UltralightPlugin/Integration/GPUDriverEz.h>
+#include <UltralightPlugin/Integration/UltralightResourceManager.h>
 
 #include <GameEngine/GameApplication/GameApplication.h>
 
@@ -19,8 +19,17 @@ ultralight::RefPtr<ultralight::Renderer> s_pRenderer = nullptr;
 static ezUltralightFileSystem* s_pFileSystem = nullptr;
 static ezUltralightGPUDriver* s_pGPUDriver = nullptr;
 
+static ezUltralightResourceManager* s_pResourceManager = nullptr;
+
 static void UpdateUltralightRendering(const ezGALDeviceEvent& DeviceEvent)
 {
+  EZ_PROFILE_SCOPE("ezUltralightThread::UpdateForRendering::AfterBeginFrame");
+
+  if (DeviceEvent.m_Type == ezGALDeviceEvent::BeforeBeginFrame)
+  {
+    ezUltralightResourceManager::GetInstance()->Update(s_pRenderer.get());
+  }
+
   if (DeviceEvent.m_Type == ezGALDeviceEvent::AfterBeginFrame)
   {
     s_pRenderer->Update();
@@ -60,6 +69,11 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Ultralight, UltralightPlugin)
 
   ON_HIGHLEVELSYSTEMS_STARTUP
   {
+    if (!s_pResourceManager)
+    {
+      s_pResourceManager = EZ_DEFAULT_NEW(ezUltralightResourceManager);
+    }
+
     if (!s_pFileSystem)
     {
       s_pFileSystem = EZ_DEFAULT_NEW(ezUltralightFileSystem);
@@ -83,7 +97,6 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Ultralight, UltralightPlugin)
 
     s_pRenderer = ultralight::Renderer::Create();
 
-
     ezGALDevice::GetDefaultDevice()->m_Events.AddEventHandler(ezMakeDelegate(UpdateUltralightRendering));
   }
 
@@ -98,6 +111,9 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Ultralight, UltralightPlugin)
 
     EZ_DEFAULT_DELETE(s_pFileSystem);
     s_pFileSystem = nullptr;
+
+    EZ_DEFAULT_DELETE(s_pResourceManager);
+    s_pResourceManager = nullptr;
   }
 
 EZ_END_SUBSYSTEM_DECLARATION;

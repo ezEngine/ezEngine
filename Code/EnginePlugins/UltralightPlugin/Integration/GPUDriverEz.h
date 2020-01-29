@@ -13,6 +13,7 @@ class ezGALContext;
 
 EZ_DEFINE_AS_POD_TYPE(ultralight::Command);
 
+/// \brief The Ultralight GPU driver implementation which uses the ez rendering system.
 class ezUltralightGPUDriver : public ultralight::GPUDriver
 {
 public:

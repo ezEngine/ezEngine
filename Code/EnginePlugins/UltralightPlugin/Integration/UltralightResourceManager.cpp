@@ -5,160 +5,106 @@
 
 #include <RendererFoundation/Device/Device.h>
 
-#include <UltralightPlugin/Integration/UltralightThread.h>
+#include <UltralightPlugin/Integration/UltralightResourceManager.h>
 #include <UltralightPlugin/Integration/UltralightFileSystem.h>
 #include <UltralightPlugin/Integration/GPUDriverEz.h>
 #include <UltralightPlugin/Resources/UltralightHTMLResource.h>
 
-static ezUltralightThread* s_pInstance = nullptr;
-static ezThreadID s_ThreadId;
+static ezUltralightResourceManager* s_pInstance = nullptr;
 
-ezUltralightThread::ezUltralightThread()
-  : ezThreadWithDispatcher("ezUltralightThread")
+ezUltralightResourceManager::ezUltralightResourceManager()
 {
   s_pInstance = this;
-
-  ezGALDevice::GetDefaultDevice()->m_Events.AddEventHandler(ezMakeDelegate(&ezUltralightThread::UpdateForRendering, this));
 }
 
-ezUltralightThread::~ezUltralightThread()
+ezUltralightResourceManager::~ezUltralightResourceManager()
 {
   s_pInstance = nullptr;
 }
 
-ezUInt32 ezUltralightThread::Run()
+void ezUltralightResourceManager::Update(ultralight::Renderer* pRenderer)
 {
-  s_ThreadId = ezThread::GetThreadID();
+  EZ_ASSERT_DEV(ezThreadUtils::IsMainThread(), "Ultralight operations need to happen on the mainthread");
 
-  ultralight::Config config;
-  config.face_winding = ultralight::kFaceWinding_Clockwise; // CW in D3D, CCW in OGL
-  config.device_scale_hint = 1.0;                           // Set DPI to monitor DPI scale
-  config.font_family_standard = "Segoe UI";                 // Default font family
-  config.force_repaint = ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-ultralight-force-repaint");
-
-  m_pFileSystem = EZ_DEFAULT_NEW(ezUltralightFileSystem);
-
-  ultralight::Platform::instance().set_config(config);
-  ultralight::Platform::instance().set_file_system(m_pFileSystem.Borrow());
-
-  m_pGPUDriver = EZ_DEFAULT_NEW(ezUltralightGPUDriver);
-
-  ultralight::Platform::instance().set_gpu_driver(m_pGPUDriver.Borrow());
-
-  m_pRenderer = ultralight::Renderer::Create();
-
-  while (m_bRunning)
-  {
-    // Do pending resource deletions and registrations
-    {
-      EZ_LOCK(m_ResourceMutex);
-
-      // First remove any pending deletions from the pending
-      // registration queue (e.g. if they happened in the same frame)
-      for (auto pResource : m_PendingResourceDeletions)
-      {
-        m_PendingResourceRegistrations.RemoveAndSwap(pResource);
-
-        pResource->DestroyView();
-
-        m_RegisteredResources.RemoveAndCopy(pResource);
-        m_TextureHandles.Remove(pResource);
-      }
-
-      for (auto pResource : m_PendingResourceRegistrations)
-      {
-        pResource->CreateView(m_pRenderer.get());
-
-        m_RegisteredResources.PushBack(pResource);
-
-        m_TextureHandles.Insert(pResource, ezGALTextureHandle());
-      }
-
-      m_PendingResourceDeletions.Clear();
-      m_PendingResourceRegistrations.Clear();
-    }
-
-    DispatchQueue();
-
-    m_pRenderer->Update();
-
-    for (auto pResource : m_RegisteredResources)
-    {
-      auto hTex = static_cast<ezUltralightGPUDriver*>(ultralight::Platform::instance().gpu_driver())->GetTextureHandleForTextureId(pResource->GetView()->render_target().texture_id);
-
-      m_TextureHandles[pResource] = hTex;
-    }
-
-    m_Signal.WaitForSignal();
-  }
-
-  ezGALDevice::GetDefaultDevice()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezUltralightThread::UpdateForRendering, this));
-
-  m_pGPUDriver = nullptr;
-  m_pFileSystem = nullptr;
-
-  s_ThreadId = ezThreadID();
-
-  return 0;
-}
-
-void ezUltralightThread::DrawCommandLists()
-{
-  m_pGPUDriver->DrawCommandList();
-}
-
-void ezUltralightThread::Wake()
-{
-  m_Signal.RaiseSignal();
-}
-
-void ezUltralightThread::Quit()
-{
-  m_bRunning = false;
-  Wake();
-}
-
-void ezUltralightThread::Register(ezUltralightHTMLResource* pResource)
-{
-  EZ_LOCK(m_ResourceMutex);
-
-  m_PendingResourceRegistrations.PushBack(pResource);
-}
-
-void ezUltralightThread::Unregister(ezUltralightHTMLResource* pResource)
-{
-  EZ_LOCK(m_ResourceMutex);
-
-  m_PendingResourceDeletions.PushBack(pResource);
-}
-
-ezUltralightThread* ezUltralightThread::GetInstance()
-{
-  return s_pInstance;
-}
-
-void ezUltralightThread::AssertUltralightThread()
-{
-  EZ_ASSERT_DEV(s_ThreadId == ezThreadUtils::GetCurrentThreadID(), "Ultralight functions can only be used from the Ultralight thread. Use the Dispatch functionality to run the code on the correct thread.");
-}
-
-void ezUltralightThread::UpdateForRendering(const ezGALDeviceEvent& event)
-{
-  if (event.m_Type == ezGALDeviceEvent::AfterBeginFrame)
-  {
-    EZ_PROFILE_SCOPE("ezUltralightThread::UpdateForRendering::AfterBeginFrame");
-
-    m_pGPUDriver->BeginSynchronize();
-    m_pRenderer->Render();
-    m_pGPUDriver->EndSynchronize();
-  }
-  else if (event.m_Type == ezGALDeviceEvent::BeforeBeginFrame)
+  // Do pending resource deletions and registrations
   {
     EZ_LOCK(m_ResourceMutex);
 
-    for (auto& Association : m_TextureHandles)
+    // First remove any pending deletions from the pending
+    // registration queue (e.g. if they happened in the same frame)
+    for (auto pResource : m_PendingResourceDeletions)
     {
-      Association.Key()->SetTextureHandle(Association.Value());
+      m_PendingResourceRegistrations.RemoveAndSwap(pResource);
+      m_ResourcesWhichNeedUpdates.RemoveAndSwap(pResource);
+
+      pResource->DestroyView();
+
+      m_RegisteredResources.RemoveAndCopy(pResource);
     }
+
+    for (auto pResource : m_PendingResourceRegistrations)
+    {
+      pResource->CreateView(pRenderer);
+
+      m_RegisteredResources.PushBack(pResource);
+    }
+
+    for (auto pResource : m_ResourcesWhichNeedUpdates)
+    {
+      pResource->DestroyView();
+      pResource->CreateView(pRenderer);
+    }
+
+    m_PendingResourceDeletions.Clear();
+    m_PendingResourceRegistrations.Clear();
+    m_ResourcesWhichNeedUpdates.Clear();
   }
+
+  for (auto pResource : m_RegisteredResources)
+  {
+    auto hTex = static_cast<ezUltralightGPUDriver*>(ultralight::Platform::instance().gpu_driver())->GetTextureHandleForTextureId(pResource->GetView()->render_target().texture_id);
+    pResource->SetTextureHandle(hTex);
+  }
+}
+
+void ezUltralightResourceManager::Register(ezUltralightHTMLResource* pResource)
+{
+  EZ_LOCK(m_ResourceMutex);
+
+  EZ_ASSERT_DEV(m_RegisteredResources.IndexOf(pResource) == ezInvalidIndex, "");
+
+  if(m_PendingResourceRegistrations.IndexOf(pResource) == ezInvalidIndex)
+    m_PendingResourceRegistrations.PushBack(pResource);
+}
+
+void ezUltralightResourceManager::Unregister(ezUltralightHTMLResource* pResource)
+{
+  EZ_LOCK(m_ResourceMutex);
+
+  EZ_ASSERT_DEV(m_RegisteredResources.IndexOf(pResource) != ezInvalidIndex, "");
+
+  if(m_PendingResourceDeletions.IndexOf(pResource) == ezInvalidIndex)
+    m_PendingResourceDeletions.PushBack(pResource);
+}
+
+bool ezUltralightResourceManager::IsRegistered(ezUltralightHTMLResource* pResource) const
+{
+  EZ_LOCK(m_ResourceMutex);
+
+  return m_RegisteredResources.IndexOf(pResource) != ezInvalidIndex;
+}
+
+void ezUltralightResourceManager::UpdateResource(ezUltralightHTMLResource* pResource)
+{
+  EZ_LOCK(m_ResourceMutex);
+
+  EZ_ASSERT_DEV(m_RegisteredResources.IndexOf(pResource) != ezInvalidIndex, "");
+  EZ_ASSERT_DEV(m_ResourcesWhichNeedUpdates.IndexOf(pResource) == ezInvalidIndex, "");
+
+  m_ResourcesWhichNeedUpdates.PushBack(pResource);
+}
+
+ezUltralightResourceManager* ezUltralightResourceManager::GetInstance()
+{
+  return s_pInstance;
 }

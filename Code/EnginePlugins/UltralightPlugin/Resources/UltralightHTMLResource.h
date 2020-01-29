@@ -5,8 +5,10 @@
 #include <Ultralight/Ultralight.h>
 
 struct ezGALDeviceEvent;
-class ezUltralightThread;
+class ezUltralightResourceManager;
 
+/// \brief The resource descriptor for HTML resources
+/// Note that you can either set the HTML content or a file name
 struct EZ_ULTRALIGHTPLUGIN_DLL ezUltralightHTMLResourceDescriptor
 {
   ezString m_sHTMLContent;
@@ -23,6 +25,7 @@ struct EZ_ULTRALIGHTPLUGIN_DLL ezUltralightHTMLResourceDescriptor
 
 typedef ezTypedResourceHandle<class ezSkeletonResource> ezSkeletonResourceHandle;
 
+/// \brief A Ultralight HTML texture resource. Derives from ezTexture2DResource and can be used as such.
 class EZ_ULTRALIGHTPLUGIN_DLL ezUltralightHTMLResource : public ezTexture2DResource, public ultralight::LoadListener, public ultralight::ViewListener
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezUltralightHTMLResource, ezTexture2DResource);
@@ -53,7 +56,7 @@ public:
 
 protected:
 
-  friend ezUltralightThread;
+  friend ezUltralightResourceManager;
 
   void CreateView(ultralight::Renderer* pRenderer);
   void DestroyView();
@@ -63,8 +66,6 @@ private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
-
-  void HACK_UPDATE_METHOD(const ezGALDeviceEvent& event);
 
   ezUltralightHTMLResourceDescriptor m_Descriptor;
 

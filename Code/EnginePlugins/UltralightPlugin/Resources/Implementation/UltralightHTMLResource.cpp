@@ -9,7 +9,7 @@
 
 #include <UltralightPlugin/Resources/UltralightHTMLResource.h>
 #include <UltralightPlugin/Integration/GPUDriverEz.h>
-#include <UltralightPlugin/Integration/UltralightThread.h>
+#include <UltralightPlugin/Integration/UltralightResourceManager.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezUltralightHTMLResource, 1, ezRTTIDefaultAllocator<ezUltralightHTMLResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
@@ -21,7 +21,7 @@ ezUltralightHTMLResource::ezUltralightHTMLResource()
 
 ezUltralightHTMLResource::~ezUltralightHTMLResource()
 {
-  ezUltralightThread::GetInstance()->Unregister(this);
+  ezUltralightResourceManager::GetInstance()->Unregister(this);
 }
 
 
@@ -64,14 +64,13 @@ void ezUltralightHTMLResource::OnAddConsoleMessage(ultralight::View* caller, ult
 
 ultralight::View* ezUltralightHTMLResource::GetView()
 {
-  ezUltralightThread::AssertUltralightThread();
-
+  EZ_ASSERT_DEV(ezThreadUtils::IsMainThread(), "Ultralight operations need to happen on the mainthread");
   return m_View.get();
 }
 
 void ezUltralightHTMLResource::CreateView(ultralight::Renderer* pRenderer)
 {
-  ezUltralightThread::AssertUltralightThread();
+  EZ_ASSERT_DEV(ezThreadUtils::IsMainThread(), "Ultralight operations need to happen on the mainthread");
 
   m_View = pRenderer->CreateView(m_Descriptor.m_uiWidth, m_Descriptor.m_uiHeight, m_Descriptor.m_bTransparentBackground);
   m_View->set_load_listener(this);
@@ -94,7 +93,7 @@ void ezUltralightHTMLResource::CreateView(ultralight::Renderer* pRenderer)
 
 void ezUltralightHTMLResource::DestroyView()
 {
-  ezUltralightThread::AssertUltralightThread();
+  EZ_ASSERT_DEV(ezThreadUtils::IsMainThread(), "Ultralight operations need to happen on the mainthread");
 
   m_View = nullptr;
 }
@@ -115,7 +114,15 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezUltralightHTMLResource, ezUltralightHTMLResou
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-  ezUltralightThread::GetInstance()->Register(this);
+  if (!ezUltralightResourceManager::GetInstance()->IsRegistered(this))
+  {
+    ezUltralightResourceManager::GetInstance()->Register(this);
+  }
+  else
+  {
+    ezUltralightResourceManager::GetInstance()->UpdateResource(this);
+  }
+
   m_uiLoadedTextures++;
 
   if (!m_hSamplerState.IsInvalidated())
@@ -188,18 +195,6 @@ void ezUltralightHTMLResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage
 {
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
   out_NewMemoryUsage.m_uiMemoryCPU = 0; // TODO
-}
-
-void ezUltralightHTMLResource::HACK_UPDATE_METHOD(const ezGALDeviceEvent& event)
-{
-  if (event.m_Type == ezGALDeviceEvent::BeforeBeginFrame)
-  {
-    if (m_View.get() != nullptr)
-    {
-      m_View->set_needs_paint(true);
-      m_hGALTexture[0] = static_cast<ezUltralightGPUDriver*>(ultralight::Platform::instance().gpu_driver())->GetTextureHandleForTextureId(m_View->render_target().texture_id);
-    }
-  }
 }
 
 void ezUltralightHTMLResourceDescriptor::Save(ezStreamWriter& stream) const
