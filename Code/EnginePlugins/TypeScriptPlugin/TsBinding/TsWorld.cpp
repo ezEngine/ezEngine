@@ -21,8 +21,8 @@ ezResult ezTypeScriptBinding::Init_World()
   m_Duk.RegisterGlobalFunction("__CPP_World_CreateComponent", __CPP_World_CreateComponent, 2);
   m_Duk.RegisterGlobalFunction("__CPP_World_DeleteComponent", __CPP_World_DeleteComponent, 1);
   m_Duk.RegisterGlobalFunction("__CPP_World_TryGetObjectWithGlobalKey", __CPP_World_TryGetObjectWithGlobalKey, 1);
-  m_Duk.RegisterGlobalFunction("__CPP_World_FindObjectsInSphere", __CPP_World_FindObjectsInSphere, 3);
-  m_Duk.RegisterGlobalFunction("__CPP_World_FindObjectsInBox", __CPP_World_FindObjectsInBox, 3);
+  m_Duk.RegisterGlobalFunction("__CPP_World_FindObjectsInSphere", __CPP_World_FindObjectsInSphere, 4);
+  m_Duk.RegisterGlobalFunction("__CPP_World_FindObjectsInBox", __CPP_World_FindObjectsInBox, 4);
 
   return EZ_SUCCESS;
 }
@@ -60,7 +60,7 @@ static int __CPP_World_CreateObject(duk_context* pDuk)
 
   ezGameObjectDesc desc;
 
-  desc.m_bActive = duk.GetBoolProperty("Active", desc.m_bActive, 0);
+  desc.m_bActiveFlag = duk.GetBoolProperty("ActiveFlag", desc.m_bActiveFlag, 0);
   desc.m_bDynamic = duk.GetBoolProperty("Dynamic", desc.m_bDynamic, 0);
   desc.m_LocalPosition = ezTypeScriptBinding::GetVec3Property(duk, "LocalPosition", 0, ezVec3(0.0f));
   desc.m_LocalScaling = ezTypeScriptBinding::GetVec3Property(duk, "LocalScaling", 0, ezVec3(1.0f));
@@ -184,13 +184,14 @@ struct FindObjectsCallback
 
 static int __CPP_World_FindObjectsInSphere(duk_context* pDuk)
 {
-  duk_require_function(pDuk, 2);
+  duk_require_function(pDuk, -1); // last argument
 
   ezDuktapeFunction duk(pDuk);
   ezWorld* pWorld = ezTypeScriptBinding::RetrieveWorld(duk);
 
-  const ezVec3 vSphereCenter = ezTypeScriptBinding::GetVec3(pDuk, 0);
-  const float fRadius = duk.GetFloatValue(1);
+  const char* szType = duk.GetStringValue(0);
+  const ezVec3 vSphereCenter = ezTypeScriptBinding::GetVec3(pDuk, 1);
+  const float fRadius = duk.GetFloatValue(2);
 
   duk_dup(pDuk, -1);
   duk_put_global_string(pDuk, "callback");
@@ -199,21 +200,26 @@ static int __CPP_World_FindObjectsInSphere(duk_context* pDuk)
   cb.m_pDuk = pDuk;
   cb.m_pBinding = ezTypeScriptBinding::RetrieveBinding(pDuk);
 
-  pWorld->GetSpatialSystem()->FindObjectsInSphere(ezBoundingSphere(vSphereCenter, fRadius), ezDefaultSpatialDataCategories::RenderDynamic.GetBitmask(), ezMakeDelegate(&FindObjectsCallback::Callback, &cb));
+  auto category = ezSpatialData::FindCategory(szType);
 
+  if (category != ezInvalidSpatialDataCategory)
+  {
+    pWorld->GetSpatialSystem()->FindObjectsInSphere(ezBoundingSphere(vSphereCenter, fRadius), category.GetBitmask(), ezMakeDelegate(&FindObjectsCallback::Callback, &cb));
+  }
 
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnVoid(), 0);
 }
 
 static int __CPP_World_FindObjectsInBox(duk_context* pDuk)
 {
-  duk_require_function(pDuk, 2);
+  duk_require_function(pDuk, -1); // last argument
 
   ezDuktapeFunction duk(pDuk);
   ezWorld* pWorld = ezTypeScriptBinding::RetrieveWorld(duk);
 
-  const ezVec3 vBoxMin = ezTypeScriptBinding::GetVec3(pDuk, 0);
-  const ezVec3 vBoxMax = ezTypeScriptBinding::GetVec3(pDuk, 1);
+  const char* szType = duk.GetStringValue(0);
+  const ezVec3 vBoxMin = ezTypeScriptBinding::GetVec3(pDuk, 1);
+  const ezVec3 vBoxMax = ezTypeScriptBinding::GetVec3(pDuk, 2);
 
   duk_dup(pDuk, -1);
   duk_put_global_string(pDuk, "callback");
@@ -222,9 +228,12 @@ static int __CPP_World_FindObjectsInBox(duk_context* pDuk)
   cb.m_pDuk = pDuk;
   cb.m_pBinding = ezTypeScriptBinding::RetrieveBinding(pDuk);
 
-  pWorld->GetSpatialSystem()->FindObjectsInBox(ezBoundingBox(vBoxMin, vBoxMax), ezDefaultSpatialDataCategories::RenderDynamic.GetBitmask(), ezMakeDelegate(&FindObjectsCallback::Callback, &cb));
+  auto category = ezSpatialData::FindCategory(szType);
 
+  if (category != ezInvalidSpatialDataCategory)
+  {
+    pWorld->GetSpatialSystem()->FindObjectsInBox(ezBoundingBox(vBoxMin, vBoxMax), category.GetBitmask(), ezMakeDelegate(&FindObjectsCallback::Callback, &cb));
+  }
 
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnVoid(), 0);
 }
-

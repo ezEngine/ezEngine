@@ -4,6 +4,7 @@
 #include <Core/Messages/HierarchyChangedMessages.h>
 #include <Core/Messages/TransformChangedMessage.h>
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
+#include <Core/World/EventMessageHandlerComponent.h>
 #include <Core/World/World.h>
 
 namespace
@@ -23,6 +24,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezRTTINoAllocator)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Name", GetName, SetName),
+    EZ_ACCESSOR_PROPERTY("Active", GetActiveFlag, SetActiveFlag)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_ACCESSOR_PROPERTY("GlobalKey", GetGlobalKey, SetGlobalKey),
     EZ_ENUM_ACCESSOR_PROPERTY("Mode", ezObjectMode, Reflection_GetMode, Reflection_SetMode),
     EZ_ACCESSOR_PROPERTY("LocalPosition", GetLocalPosition, SetLocalPosition)->AddAttributes(new ezSuffixAttribute(" m")),
@@ -305,13 +307,34 @@ void ezGameObject::MakeStatic()
   MakeStaticInternal();
 }
 
-void ezGameObject::SetActive(bool bActive)
+void ezGameObject::SetActiveFlag(bool bEnabled)
 {
-  m_Flags.AddOrRemove(ezObjectFlags::Active, bActive);
+  if (m_Flags.IsSet(ezObjectFlags::ActiveFlag) == bEnabled)
+    return;
 
-  for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
+  m_Flags.AddOrRemove(ezObjectFlags::ActiveFlag, bEnabled);
+
+  UpdateActiveState(GetParent() == nullptr ? true : GetParent()->IsActive());
+}
+
+void ezGameObject::UpdateActiveState(bool bParentActive)
+{
+  const bool bSelfActive = bParentActive && m_Flags.IsSet(ezObjectFlags::ActiveFlag);
+
+  if (bSelfActive != m_Flags.IsSet(ezObjectFlags::ActiveState))
   {
-    m_Components[i]->SetActive(bActive);
+    m_Flags.AddOrRemove(ezObjectFlags::ActiveState, bSelfActive);
+
+    for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
+    {
+      m_Components[i]->UpdateActiveState(bSelfActive);
+    }
+
+    // recursively update all children
+    for (auto it = GetChildren(); it.IsValid(); ++it)
+    {
+      it->UpdateActiveState(bSelfActive);
+    }
   }
 }
 
@@ -673,6 +696,8 @@ void ezGameObject::AddComponent(ezComponent* pComponent)
   pComponent->m_pOwner = this;
   m_Components.PushBack(pComponent);
 
+  pComponent->UpdateActiveState(IsActive());
+
   if (m_Flags.IsSet(ezObjectFlags::ComponentChangesNotifications))
   {
     ezMsgComponentsChanged msg;
@@ -703,7 +728,7 @@ void ezGameObject::RemoveComponent(ezComponent* pComponent)
   }
 }
 
-bool ezGameObject::SendMessage(ezMessage& msg)
+bool ezGameObject::SendMessageInternal(ezMessage& msg, bool bWasPostedMsg)
 {
   bool bSentToAny = false;
 
@@ -713,7 +738,7 @@ bool ezGameObject::SendMessage(ezMessage& msg)
   for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
     ezComponent* pComponent = m_Components[i];
-    bSentToAny |= pComponent->SendMessage(msg);
+    bSentToAny |= pComponent->SendMessageInternal(msg, bWasPostedMsg);
   }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
@@ -727,7 +752,7 @@ bool ezGameObject::SendMessage(ezMessage& msg)
   return bSentToAny;
 }
 
-bool ezGameObject::SendMessage(ezMessage& msg) const
+bool ezGameObject::SendMessageInternal(ezMessage& msg, bool bWasPostedMsg) const
 {
   bool bSentToAny = false;
 
@@ -737,7 +762,7 @@ bool ezGameObject::SendMessage(ezMessage& msg) const
   for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
     ezComponent* pComponent = m_Components[i];
-    bSentToAny |= pComponent->SendMessage(msg);
+    bSentToAny |= pComponent->SendMessageInternal(msg, bWasPostedMsg);
   }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
@@ -751,7 +776,7 @@ bool ezGameObject::SendMessage(ezMessage& msg) const
   return bSentToAny;
 }
 
-bool ezGameObject::SendMessageRecursive(ezMessage& msg)
+bool ezGameObject::SendMessageRecursiveInternal(ezMessage& msg, bool bWasPostedMsg)
 {
   bool bSentToAny = false;
 
@@ -761,12 +786,12 @@ bool ezGameObject::SendMessageRecursive(ezMessage& msg)
   for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
     ezComponent* pComponent = m_Components[i];
-    bSentToAny |= pComponent->SendMessage(msg);
+    bSentToAny |= pComponent->SendMessageInternal(msg, bWasPostedMsg);
   }
 
   for (auto childIt = GetChildren(); childIt.IsValid(); ++childIt)
   {
-    bSentToAny |= childIt->SendMessageRecursive(msg);
+    bSentToAny |= childIt->SendMessageRecursiveInternal(msg, bWasPostedMsg);
   }
 
   // should only be evaluated at the top function call
@@ -781,7 +806,7 @@ bool ezGameObject::SendMessageRecursive(ezMessage& msg)
   return bSentToAny;
 }
 
-bool ezGameObject::SendMessageRecursive(ezMessage& msg) const
+bool ezGameObject::SendMessageRecursiveInternal(ezMessage& msg, bool bWasPostedMsg) const
 {
   bool bSentToAny = false;
 
@@ -791,12 +816,12 @@ bool ezGameObject::SendMessageRecursive(ezMessage& msg) const
   for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
     ezComponent* pComponent = m_Components[i];
-    bSentToAny |= pComponent->SendMessage(msg);
+    bSentToAny |= pComponent->SendMessageInternal(msg, bWasPostedMsg);
   }
 
   for (auto childIt = GetChildren(); childIt.IsValid(); ++childIt)
   {
-    bSentToAny |= childIt->SendMessageRecursive(msg);
+    bSentToAny |= childIt->SendMessageRecursiveInternal(msg, bWasPostedMsg);
   }
 
   // should only be evaluated at the top function call
@@ -819,6 +844,48 @@ void ezGameObject::PostMessage(const ezMessage& msg, ezObjectMsgQueueType::Enum 
 void ezGameObject::PostMessageRecursive(const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const
 {
   m_pWorld->PostMessageRecursive(GetHandle(), msg, queueType, delay);
+}
+
+void ezGameObject::SendEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent)
+{
+  if (ezComponent* pReceiver = const_cast<ezComponent*>(GetWorld()->FindEventMsgHandler(msg, this)))
+  {
+    if (pSenderComponent)
+    {
+      msg.m_hSenderComponent = pSenderComponent->GetHandle();
+      msg.m_hSenderObject = pSenderComponent->GetOwner()->GetHandle();
+    }
+
+    pReceiver->SendMessage(msg);
+  }
+}
+
+void ezGameObject::SendEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent) const
+{
+  if (const ezComponent* pReceiver = GetWorld()->FindEventMsgHandler(msg, const_cast<ezGameObject*>(this)))
+  {
+    if (pSenderComponent)
+    {
+      msg.m_hSenderComponent = pSenderComponent->GetHandle();
+      msg.m_hSenderObject = pSenderComponent->GetOwner()->GetHandle();
+    }
+
+    pReceiver->SendMessage(msg);
+  }
+}
+
+void ezGameObject::PostEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent, ezObjectMsgQueueType::Enum queueType, ezTime delay /*= ezTime()*/) const
+{
+  if (const ezComponent* pReceiver = GetWorld()->FindEventMsgHandler(msg, const_cast<ezGameObject*>(this)))
+  {
+    if (pSenderComponent)
+    {
+      msg.m_hSenderComponent = pSenderComponent->GetHandle();
+      msg.m_hSenderObject = pSenderComponent->GetOwner()->GetHandle();
+    }
+
+    pReceiver->PostMessage(msg, queueType, delay);
+  }
 }
 
 void ezGameObject::FixComponentPointer(ezComponent* pOldPtr, ezComponent* pNewPtr)

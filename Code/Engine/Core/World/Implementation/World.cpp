@@ -1,6 +1,7 @@
 #include <CorePCH.h>
 
 #include <Core/Messages/DeleteObjectMessage.h>
+#include <Core/Messages/EventMessage.h>
 #include <Core/Messages/HierarchyChangedMessages.h>
 #include <Core/World/World.h>
 #include <Core/World/WorldModule.h>
@@ -76,7 +77,7 @@ ezWorld::~ezWorld()
   // set all objects to inactive so components and children know that they shouldn't access the objects anymore.
   for (auto it = m_Data.m_ObjectStorage.GetIterator(); it.IsValid(); it.Next())
   {
-    it->m_Flags.Remove(ezObjectFlags::Active);
+    it->m_Flags.Remove(ezObjectFlags::ActiveFlag | ezObjectFlags::ActiveState);
   }
 
   // deinitialize all modules before we invalidate the world. Components can still access the world during deinitialization.
@@ -111,6 +112,10 @@ void ezWorld::Clear()
   {
     DeleteObjectNow(it->GetHandle());
   }
+
+  // make sure all dead objects and components are cleared right now
+  DeleteDeadObjects();
+  DeleteDeadComponents();
 }
 
 void ezWorld::SetCoordinateSystemProvider(const ezSharedPtr<ezCoordinateSystemProvider>& pProvider)
@@ -164,7 +169,7 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   pNewObject->m_InternalId = newId;
   pNewObject->m_Flags = ezObjectFlags::None;
   pNewObject->m_Flags.AddOrRemove(ezObjectFlags::Dynamic, bDynamic);
-  pNewObject->m_Flags.AddOrRemove(ezObjectFlags::Active, desc.m_bActive);
+  pNewObject->m_Flags.AddOrRemove(ezObjectFlags::ActiveFlag, desc.m_bActiveFlag);
   pNewObject->m_sName = desc.m_sName;
   pNewObject->m_pWorld = this;
   pNewObject->m_ParentIndex = uiParentIndex;
@@ -208,6 +213,8 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   // fix links
   LinkToParent(pNewObject);
 
+  pNewObject->UpdateActiveState(pParentObject == nullptr ? true : pParentObject->IsActive());
+
   out_pObject = pNewObject;
   return ezGameObjectHandle(newId);
 }
@@ -221,7 +228,7 @@ void ezWorld::DeleteObjectNow(const ezGameObjectHandle& object)
     return;
 
   // set object to inactive so components and children know that they shouldn't access the object anymore.
-  pObject->m_Flags.Remove(ezObjectFlags::Active);
+  pObject->m_Flags.Remove(ezObjectFlags::ActiveFlag | ezObjectFlags::ActiveState);
 
   // delete children
   for (auto it = pObject->GetChildren(); it.IsValid(); ++it)
@@ -255,8 +262,7 @@ void ezWorld::DeleteObjectDelayed(const ezGameObjectHandle& hObject)
   PostMessage(hObject, msg, ezObjectMsgQueueType::NextFrame);
 }
 
-void ezWorld::PostMessage(
-  const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay, bool bRecursive) const
+void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay, bool bRecursive) const
 {
   // This method is allowed to be called from multiple threads.
 
@@ -280,8 +286,7 @@ void ezWorld::PostMessage(
   }
 }
 
-void ezWorld::PostMessage(
-  const ezComponentHandle& receiverComponent, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const
+void ezWorld::PostMessage(const ezComponentHandle& receiverComponent, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const
 {
   // This method is allowed to be called from multiple threads.
 
@@ -305,6 +310,52 @@ void ezWorld::PostMessage(
     ezMessage* pMsgCopy = pMsgRTTIAllocator->Clone<ezMessage>(&msg, m_Data.m_StackAllocator.GetCurrentAllocator());
     m_Data.m_MessageQueues[queueType].Enqueue(pMsgCopy, metaData);
   }
+}
+
+const ezComponent* ezWorld::FindEventMsgHandler(ezEventMessage& msg, const ezGameObject* pSearchObject) const
+{
+  ezWorld* pWorld = const_cast<ezWorld*>(this);
+
+  // walk the graph upwards until an object is found with an ezEventMessageHandlerComponent that handles this type of message
+  {
+    const ezGameObject* pCurrentObject = pSearchObject;
+
+    while (pCurrentObject != nullptr)
+    {
+      const ezEventMessageHandlerComponent* pEventMessageHandlerComponent = nullptr;
+      if (pCurrentObject->TryGetComponentOfBaseType(pEventMessageHandlerComponent))
+      {
+        if (pEventMessageHandlerComponent->HandlesEventMessage(msg))
+        {
+          return pEventMessageHandlerComponent;
+        }
+
+        // found an ezEventMessageHandlerComponent -> stop searching
+        // even if it does not handle this type of message, we do not want to propagate the message to someone else
+        return nullptr;
+      }
+
+      pCurrentObject = pCurrentObject->GetParent();
+    }
+  }
+
+  // if no such object is found, check all objects that are registered as 'global event handlers'
+  {
+    auto globalEventMessageHandler = ezEventMessageHandlerComponent::GetAllGlobalEventHandler(this);
+    for (auto hEventMessageHandlerComponent : globalEventMessageHandler)
+    {
+      ezEventMessageHandlerComponent* pEventMessageHandlerComponent = nullptr;
+      if (pWorld->TryGetComponent(hEventMessageHandlerComponent, pEventMessageHandlerComponent))
+      {
+        if (pEventMessageHandlerComponent->HandlesEventMessage(msg))
+        {
+          return pEventMessageHandlerComponent;
+        }
+      }
+    }
+  }
+
+  return nullptr;
 }
 
 void ezWorld::Update()
@@ -472,8 +523,7 @@ const ezWorldModule* ezWorld::GetModule(const ezRTTI* pRtti) const
 void ezWorld::SetParent(ezGameObject* pObject, ezGameObject* pNewParent, ezGameObject::TransformPreservation preserve)
 {
   EZ_ASSERT_DEV(pObject != pNewParent, "Object can't be its own parent!");
-  EZ_ASSERT_DEV(
-    pNewParent == nullptr || pObject->IsDynamic() || pNewParent->IsStatic(), "Can't attach a static object to a dynamic parent!");
+  EZ_ASSERT_DEV(pNewParent == nullptr || pObject->IsDynamic() || pNewParent->IsStatic(), "Can't attach a static object to a dynamic parent!");
   CheckForWriteAccess();
 
   if (GetObjectUnchecked(pObject->m_ParentIndex) == pNewParent)
@@ -493,6 +543,12 @@ void ezWorld::SetParent(ezGameObject* pObject, ezGameObject* pNewParent, ezGameO
   }
 
   PatchHierarchyData(pObject, preserve);
+
+  // TODO: the functions above send messages such as ezMsgChildrenChanged, which will not arrive for inactive components, is that a problem ?
+  // 1) if a component was active before and now gets deactivated, it may not care about the message anymore anyway
+  // 2) if a component was inactive before, it did not get the message, but upon activation it can update the state for which it needed the message
+  // so probably it is fine, only components that were active and stay active need the message, and that will be the case
+  pObject->UpdateActiveState(pNewParent == nullptr ? true : pNewParent->IsActive());
 }
 
 void ezWorld::LinkToParent(ezGameObject* pObject)
@@ -622,7 +678,7 @@ void ezWorld::ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::En
     ezComponent* pReceiverComponent = nullptr;
     if (TryGetComponent(hComponent, pReceiverComponent))
     {
-      pReceiverComponent->SendMessage(*entry.m_pMessage);
+      pReceiverComponent->SendMessageInternal(*entry.m_pMessage, true);
     }
     else
     {
@@ -644,11 +700,11 @@ void ezWorld::ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::En
     {
       if (entry.m_MetaData.m_uiRecursive)
       {
-        pReceiverObject->SendMessageRecursive(*entry.m_pMessage);
+        pReceiverObject->SendMessageRecursiveInternal(*entry.m_pMessage, true);
       }
       else
       {
-        pReceiverObject->SendMessage(*entry.m_pMessage);
+        pReceiverObject->SendMessageInternal(*entry.m_pMessage, true);
       }
     }
     else

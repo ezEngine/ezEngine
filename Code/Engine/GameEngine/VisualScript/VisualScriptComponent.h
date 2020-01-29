@@ -31,8 +31,8 @@ public:
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
 protected:
-  virtual bool OnUnhandledMessage(ezMessage& msg) override;
-  virtual bool OnUnhandledMessage(ezMessage& msg) const override;
+  virtual bool OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg) override;
+  virtual bool OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg) const override;
 
 
   //////////////////////////////////////////////////////////////////////////

@@ -63,8 +63,8 @@ void ezProcVertexColorComponentManager::Initialize()
     this->RegisterUpdateFunction(desc);
   }
 
-  ezRenderWorld::s_BeginRenderEvent.AddEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnBeginRender, this));
-  ezRenderWorld::s_EndExtractionEvent.AddEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnEndExtraction, this));
+  ezRenderWorld::GetRenderEvent().AddEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnRenderEvent, this));
+  ezRenderWorld::GetExtractionEvent().AddEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnExtractionEvent, this));
 
   ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnResourceEvent, this));
 
@@ -76,8 +76,8 @@ void ezProcVertexColorComponentManager::Deinitialize()
   ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hVertexColorBuffer);
   m_hVertexColorBuffer.Invalidate();
 
-  ezRenderWorld::s_BeginRenderEvent.RemoveEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnBeginRender, this));
-  ezRenderWorld::s_EndExtractionEvent.RemoveEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnEndExtraction, this));
+  ezRenderWorld::GetRenderEvent().RemoveEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnRenderEvent, this));
+  ezRenderWorld::GetExtractionEvent().RemoveEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnExtractionEvent, this));
 
   ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnResourceEvent, this));
 
@@ -109,20 +109,21 @@ void ezProcVertexColorComponentManager::UpdateVertexColors(const ezWorldModule::
 void ezProcVertexColorComponentManager::UpdateComponentVertexColors(ezProcVertexColorComponent* pComponent)
 {
   pComponent->m_Outputs.Clear();
+  ezHybridArray<ezProcVertexColorMapping, 2> outputMappings;
 
   {
     ezResourceLock<ezProcGenGraphResource> pResource(pComponent->m_hResource, ezResourceAcquireMode::BlockTillLoaded);
     auto outputs = pResource->GetVertexColorOutputs();
 
-    for (auto& outputName : pComponent->m_OutputNames)
+    for (auto& outputDesc : pComponent->m_OutputDescs)
     {
       bool bOutputFound = false;
 
-      if (!outputName.IsEmpty())
+      if (!outputDesc.m_sName.IsEmpty())
       {
         for (auto& pOutput : outputs)
         {
-          if (pOutput->m_sName == outputName)
+          if (pOutput->m_sName == outputDesc.m_sName)
           {
             pComponent->m_Outputs.PushBack(pOutput);
             bOutputFound = true;
@@ -135,6 +136,8 @@ void ezProcVertexColorComponentManager::UpdateComponentVertexColors(ezProcVertex
       {
         pComponent->m_Outputs.PushBack(nullptr);
       }
+
+      outputMappings.PushBack(outputDesc.m_Mapping);
     }
   }
 
@@ -180,15 +183,18 @@ void ezProcVertexColorComponentManager::UpdateComponentVertexColors(ezProcVertex
   pUpdateTask->SetTaskName(taskName);
 
   pUpdateTask->Prepare(*GetWorld(), mbDesc, pComponent->GetOwner()->GetGlobalTransform(), pComponent->m_Outputs,
-    m_VertexColorData.GetArrayPtr().GetSubArray(uiBufferOffset, uiVertexColorCount));
+    outputMappings, m_VertexColorData.GetArrayPtr().GetSubArray(uiBufferOffset, uiVertexColorCount));
 
   ezTaskSystem::AddTaskToGroup(m_UpdateTaskGroupID, pUpdateTask.Borrow());
 
   ++m_uiNextTaskIndex;
 }
 
-void ezProcVertexColorComponentManager::OnEndExtraction(ezUInt64 uiFrameCounter)
+void ezProcVertexColorComponentManager::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
 {
+  if (e.m_Type != ezRenderWorldExtractionEvent::Type::EndExtraction)
+    return;
+
   ezTaskSystem::WaitForGroup(m_UpdateTaskGroupID);
   m_UpdateTaskGroupID.Invalidate();
   m_uiNextTaskIndex = 0;
@@ -202,8 +208,11 @@ void ezProcVertexColorComponentManager::OnEndExtraction(ezUInt64 uiFrameCounter)
   }
 }
 
-void ezProcVertexColorComponentManager::OnBeginRender(ezUInt64 uiFrameCounter)
+void ezProcVertexColorComponentManager::OnRenderEvent(const ezRenderWorldRenderEvent& e)
 {
+  if (e.m_Type != ezRenderWorldRenderEvent::Type::BeginRender)
+    return;
+
   auto& dataCopy = m_DataCopy[ezRenderWorld::GetDataIndexForRendering()];
   if (!dataCopy.m_Data.IsEmpty())
   {
@@ -283,12 +292,51 @@ void ezProcVertexColorComponentManager::OnAreaInvalidated(const ezProcGenInterna
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezProcVertexColorComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProcVertexColorOutputDesc, ezNoBase, 1, ezRTTIDefaultAllocator<ezProcVertexColorOutputDesc>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_ACCESSOR_PROPERTY("Name", GetName, SetName),
+    EZ_MEMBER_PROPERTY("Mapping", m_Mapping),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_STATIC_REFLECTED_TYPE;
+// clang-format on
+
+void ezProcVertexColorOutputDesc::SetName(const char* szName)
+{
+  m_sName.Assign(szName);
+}
+
+static ezTypeVersion s_ProcVertexColorOutputDescVersion = 1;
+ezResult ezProcVertexColorOutputDesc::Serialize(ezStreamWriter& stream) const
+{
+  stream.WriteVersion(s_ProcVertexColorOutputDescVersion);
+  stream << m_sName;
+  EZ_SUCCEED_OR_RETURN(m_Mapping.Serialize(stream));
+  
+  return EZ_SUCCESS;
+}
+
+ezResult ezProcVertexColorOutputDesc::Deserialize(ezStreamReader& stream)
+{
+  /*ezTypeVersion version =*/ stream.ReadVersion(s_ProcVertexColorOutputDescVersion);
+  stream >> m_sName;
+  EZ_SUCCEED_OR_RETURN(m_Mapping.Deserialize(stream));
+
+  return EZ_SUCCESS;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_COMPONENT_TYPE(ezProcVertexColorComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Resource", GetResourceFile, SetResourceFile)->AddAttributes(new ezAssetBrowserAttribute("ProcGen Graph")),
-    EZ_ARRAY_ACCESSOR_PROPERTY("OutputNames", OutputNames_GetCount, GetOutputName, SetOutputName, OutputNames_Insert, OutputNames_Remove),
+    EZ_ARRAY_ACCESSOR_PROPERTY("OutputDescs", OutputDescs_GetCount, GetOutputDesc, SetOutputDesc, OutputDescs_Insert, OutputDescs_Remove),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -361,18 +409,15 @@ void ezProcVertexColorComponent::SetResource(const ezProcGenGraphResourceHandle&
   }
 }
 
-const char* ezProcVertexColorComponent::GetOutputName(ezUInt32 uiIndex) const
+const ezProcVertexColorOutputDesc& ezProcVertexColorComponent::GetOutputDesc(ezUInt32 uiIndex) const
 {
-  if (uiIndex >= m_OutputNames.GetCount())
-    return nullptr;
-
-  return m_OutputNames[uiIndex];
+  return m_OutputDescs[uiIndex];
 }
 
-void ezProcVertexColorComponent::SetOutputName(ezUInt32 uiIndex, const char* szName)
+void ezProcVertexColorComponent::SetOutputDesc(ezUInt32 uiIndex, const ezProcVertexColorOutputDesc& outputDesc)
 {
-  m_OutputNames.EnsureCount(uiIndex + 1);
-  m_OutputNames[uiIndex].Assign(szName);
+  m_OutputDescs.EnsureCount(uiIndex + 1);
+  m_OutputDescs[uiIndex] = outputDesc;
 
   if (IsActiveAndInitialized())
   {
@@ -388,17 +433,31 @@ void ezProcVertexColorComponent::SerializeComponent(ezWorldWriter& stream) const
   ezStreamWriter& s = stream.GetStream();
 
   s << m_hResource;
-  s.WriteArray(m_OutputNames);
+  s.WriteArray(m_OutputDescs);
 }
 
 void ezProcVertexColorComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = stream.GetStream();
 
   s >> m_hResource;
-  s.ReadArray(m_OutputNames);
+  if (uiVersion >= 2)
+  {
+    s.ReadArray(m_OutputDescs);
+  }
+  else
+  {
+    ezHybridArray<ezHashedString, 2> outputNames;
+    s.ReadArray(outputNames);
+
+    for (auto& outputName : outputNames)
+    {
+      auto& outputDesc = m_OutputDescs.ExpandAndGetRef();
+      outputDesc.m_sName = outputName;
+    }
+  }
 }
 
 void ezProcVertexColorComponent::OnTransformChanged(ezMsgTransformChanged& msg)
@@ -420,19 +479,14 @@ ezMeshRenderData* ezProcVertexColorComponent::CreateRenderData() const
   return pRenderData;
 }
 
-ezUInt32 ezProcVertexColorComponent::OutputNames_GetCount() const
+ezUInt32 ezProcVertexColorComponent::OutputDescs_GetCount() const
 {
-  return m_OutputNames.GetCount();
+  return m_OutputDescs.GetCount();
 }
 
-void ezProcVertexColorComponent::OutputNames_Insert(ezUInt32 uiIndex, const char* szName)
+void ezProcVertexColorComponent::OutputDescs_Insert(ezUInt32 uiIndex, const ezProcVertexColorOutputDesc& outputDesc)
 {
-  ezHashedString sName;
-  if (!ezStringUtils::IsNullOrEmpty(szName))
-  {
-    sName.Assign(szName);
-  }
-  m_OutputNames.Insert(sName, uiIndex);
+  m_OutputDescs.Insert(outputDesc, uiIndex);
 
   if (IsActiveAndInitialized())
   {
@@ -441,9 +495,9 @@ void ezProcVertexColorComponent::OutputNames_Insert(ezUInt32 uiIndex, const char
   }
 }
 
-void ezProcVertexColorComponent::OutputNames_Remove(ezUInt32 uiIndex)
+void ezProcVertexColorComponent::OutputDescs_Remove(ezUInt32 uiIndex)
 {
-  m_OutputNames.RemoveAtAndCopy(uiIndex);
+  m_OutputDescs.RemoveAtAndCopy(uiIndex);
 
   if (IsActiveAndInitialized())
   {

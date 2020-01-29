@@ -209,12 +209,12 @@ void ezVisualScriptComponent::Update()
   }
 }
 
-bool ezVisualScriptComponent::OnUnhandledMessage(ezMessage& msg)
+bool ezVisualScriptComponent::OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg)
 {
   return m_Script->HandleMessage(msg);
 }
 
-bool ezVisualScriptComponent::OnUnhandledMessage(ezMessage& msg) const
+bool ezVisualScriptComponent::OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg) const
 {
   return m_Script->HandleMessage(msg);
 }

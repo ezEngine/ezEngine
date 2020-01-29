@@ -11,7 +11,7 @@ namespace ezInternal
   {
   public:
     DefaultCoordinateSystemProvider()
-        : ezCoordinateSystemProvider(nullptr)
+      : ezCoordinateSystemProvider(nullptr)
     {
     }
 
@@ -37,20 +37,20 @@ namespace ezInternal
   ////////////////////////////////////////////////////////////////////////////////////////////////////
 
   WorldData::WorldData(ezWorldDesc& desc)
-      : m_sName(desc.m_sName)
-      , m_Allocator(desc.m_sName, ezFoundation::GetDefaultAllocator())
-      , m_AllocatorWrapper(&m_Allocator)
-      , m_BlockAllocator(desc.m_sName, &m_Allocator)
-      , m_StackAllocator(ezFoundation::GetAlignedAllocator())
-      , m_ObjectStorage(&m_BlockAllocator, &m_Allocator)
-      , m_Clock(desc.m_sName)
-      , m_WriteThreadID((ezThreadID)0)
-      , m_iWriteCounter(0)
-      , m_bSimulateWorld(true)
-      , m_bReportErrorWhenStaticObjectMoves(desc.m_bReportErrorWhenStaticObjectMoves)
-      , m_ReadMarker(*this)
-      , m_WriteMarker(*this)
-      , m_pUserData(nullptr)
+    : m_sName(desc.m_sName)
+    , m_Allocator(desc.m_sName, ezFoundation::GetDefaultAllocator())
+    , m_AllocatorWrapper(&m_Allocator)
+    , m_BlockAllocator(desc.m_sName, &m_Allocator)
+    , m_StackAllocator(ezFoundation::GetAlignedAllocator())
+    , m_ObjectStorage(&m_BlockAllocator, &m_Allocator)
+    , m_Clock(desc.m_sName)
+    , m_WriteThreadID((ezThreadID)0)
+    , m_iWriteCounter(0)
+    , m_bSimulateWorld(true)
+    , m_bReportErrorWhenStaticObjectMoves(desc.m_bReportErrorWhenStaticObjectMoves)
+    , m_ReadMarker(*this)
+    , m_WriteMarker(*this)
+    , m_pUserData(nullptr)
   {
     m_AllocatorWrapper.Reset();
 
@@ -212,7 +212,7 @@ namespace ezInternal
     };
 
     const ezUInt32 uiMaxHierarchyLevel =
-        ezMath::Max(m_Hierarchies[HierarchyType::Static].m_Data.GetCount(), m_Hierarchies[HierarchyType::Dynamic].m_Data.GetCount());
+      ezMath::Max(m_Hierarchies[HierarchyType::Static].m_Data.GetCount(), m_Hierarchies[HierarchyType::Dynamic].m_Data.GetCount());
 
     for (ezUInt32 uiHierarchyLevel = 0; uiHierarchyLevel < uiMaxHierarchyLevel; ++uiHierarchyLevel)
     {
@@ -341,4 +341,3 @@ namespace ezInternal
 
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_WorldData);
-

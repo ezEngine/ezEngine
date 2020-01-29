@@ -52,6 +52,8 @@ struct ezStringView;
 /// To implement custom formatting see the various free standing 'BuildString' functions.
 class EZ_FOUNDATION_DLL ezFormatString
 {
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezFormatString); // pass by reference, never pass by value
+
 public:
   EZ_ALWAYS_INLINE ezFormatString() { m_szString = nullptr; }
   EZ_ALWAYS_INLINE ezFormatString(const char* szString) { m_szString = szString; }
@@ -65,7 +67,7 @@ public:
   ///
   /// \note Do not assume that the result is stored in \a sb. Always only use the return value. The string builder is only used
   /// when necessary.
-  virtual const char* GetText(ezStringBuilder& sb) const { return m_szString; }
+  [[nodiscard]] virtual const char* GetText(ezStringBuilder& sb) const { return m_szString; }
 
 protected:
   // out of line function so that we don't need to include ezStringBuilder here, to break include dependency cycle

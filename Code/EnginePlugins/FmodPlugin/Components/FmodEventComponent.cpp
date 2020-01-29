@@ -526,7 +526,7 @@ void ezFmodEventComponent::Restart()
 
   m_bPaused = false;
 
-  UpdateParameters();
+  UpdateParameters(m_pEventInstance);
 
   EZ_FMOD_ASSERT(m_pEventInstance->setPaused(false));
 
@@ -571,7 +571,7 @@ void ezFmodEventComponent::StartOneShot()
     return;
   }
 
-  UpdateParameters();
+  UpdateParameters(pEventInstance);
 
   EZ_FMOD_ASSERT(pEventInstance->start());
   EZ_FMOD_ASSERT(pEventInstance->release());
@@ -661,7 +661,7 @@ void ezFmodEventComponent::Update()
       return;
     }
 
-    UpdateParameters();
+    UpdateParameters(m_pEventInstance);
     if (GetUseOcclusion())
     {
       UpdateOcclusion();
@@ -752,7 +752,7 @@ void ezFmodEventComponent::Update()
 #endif
 }
 
-void ezFmodEventComponent::UpdateParameters()
+void ezFmodEventComponent::UpdateParameters(FMOD::Studio::EventInstance* pInstance)
 {
   const auto pos = GetOwner()->GetGlobalPosition();
   const auto vel = GetOwner()->GetVelocity();
@@ -774,9 +774,9 @@ void ezFmodEventComponent::UpdateParameters()
   attr.velocity.z = vel.z;
 
   // have to update pitch every time, in case the clock speed changes
-  EZ_FMOD_ASSERT(m_pEventInstance->setPitch(m_fPitch * (float)GetWorld()->GetClock().GetSpeed()));
-  EZ_FMOD_ASSERT(m_pEventInstance->setVolume(m_fVolume));
-  EZ_FMOD_ASSERT(m_pEventInstance->set3DAttributes(&attr));
+  EZ_FMOD_ASSERT(pInstance->setPitch(m_fPitch * (float)GetWorld()->GetClock().GetSpeed()));
+  EZ_FMOD_ASSERT(pInstance->setVolume(m_fVolume));
+  EZ_FMOD_ASSERT(pInstance->set3DAttributes(&attr));
 }
 
 void ezFmodEventComponent::UpdateOcclusion()

@@ -10,28 +10,31 @@
 static int __CPP_Component_IsValid(duk_context* pDuk);
 static int __CPP_Component_GetUniqueID(duk_context* pDuk);
 static int __CPP_Component_GetOwner(duk_context* pDuk);
-static int __CPP_Component_SetActive(duk_context* pDuk);
+static int __CPP_Component_SetActiveFlag(duk_context* pDuk);
 static int __CPP_Component_IsActive(duk_context* pDuk);
 static int __CPP_Component_SendMessage(duk_context* pDuk);
 static int __CPP_TsComponent_BroadcastEvent(duk_context* pDuk);
+static int __CPP_TsComponent_SetTickInterval(duk_context* pDuk);
 
 ezResult ezTypeScriptBinding::Init_Component()
 {
   m_Duk.RegisterGlobalFunction("__CPP_Component_IsValid", __CPP_Component_IsValid, 1);
   m_Duk.RegisterGlobalFunction("__CPP_Component_GetUniqueID", __CPP_Component_GetUniqueID, 1);
   m_Duk.RegisterGlobalFunction("__CPP_Component_GetOwner", __CPP_Component_GetOwner, 1);
-  m_Duk.RegisterGlobalFunction("__CPP_Component_SetActive", __CPP_Component_SetActive, 2);
+  m_Duk.RegisterGlobalFunction("__CPP_Component_SetActiveFlag", __CPP_Component_SetActiveFlag, 2);
+  m_Duk.RegisterGlobalFunction("__CPP_Component_GetActiveFlag", __CPP_Component_IsActive, 1, -1);
   m_Duk.RegisterGlobalFunction("__CPP_Component_IsActive", __CPP_Component_IsActive, 1, 0);
   m_Duk.RegisterGlobalFunction("__CPP_Component_IsActiveAndInitialized", __CPP_Component_IsActive, 1, 1);
   m_Duk.RegisterGlobalFunction("__CPP_Component_IsActiveAndSimulating", __CPP_Component_IsActive, 1, 2);
-  m_Duk.RegisterGlobalFunction("__CPP_Component_SendMessage", __CPP_Component_SendMessage, 3, 0);
-  m_Duk.RegisterGlobalFunction("__CPP_Component_SendMessage", __CPP_Component_SendMessage, 4, 1);
+  m_Duk.RegisterGlobalFunction("__CPP_Component_SendMessage", __CPP_Component_SendMessage, 4, 0);
+  m_Duk.RegisterGlobalFunction("__CPP_Component_PostMessage", __CPP_Component_SendMessage, 4, 1);
   m_Duk.RegisterGlobalFunction("__CPP_TsComponent_BroadcastEvent", __CPP_TsComponent_BroadcastEvent, 4);
+  m_Duk.RegisterGlobalFunction("__CPP_TsComponent_SetTickInterval", __CPP_TsComponent_SetTickInterval, 2);
 
   return EZ_SUCCESS;
 }
 
-ezResult ezTypeScriptBinding::RegisterComponent(const char* szTypeName, ezComponentHandle handle, ezUInt32& out_uiStashIdx)
+ezResult ezTypeScriptBinding::RegisterComponent(const char* szTypeName, ezComponentHandle handle, ezUInt32& out_uiStashIdx, bool bIsNativeComponent)
 {
   if (handle.IsInvalidated())
     return EZ_FAILURE;
@@ -63,9 +66,11 @@ ezResult ezTypeScriptBinding::RegisterComponent(const char* szTypeName, ezCompon
 
   ezStringBuilder sTypeName = szTypeName;
 
-  if (sTypeName.TrimWordStart("ez"))
+  if (bIsNativeComponent)
   {
-    EZ_SUCCEED_OR_RETURN(duk.PushLocalObject("__AllComponents")); // [ global __CompModule ]
+    sTypeName.TrimWordStart("ez");
+
+    EZ_SUCCEED_OR_RETURN(duk.PushLocalObject("__AllComponents")); // [ global __AllComponents ]
     EZ_DUK_VERIFY_STACK(duk, +2);
   }
   else
@@ -135,7 +140,7 @@ void ezTypeScriptBinding::DukPutComponentObject(ezComponent* pComponent)
   else
   {
     ezUInt32 uiStashIdx = 0;
-    if (RegisterComponent(pComponent->GetDynamicRTTI()->GetTypeName(), pComponent->GetHandle(), uiStashIdx).Failed())
+    if (RegisterComponent(pComponent->GetDynamicRTTI()->GetTypeName(), pComponent->GetHandle(), uiStashIdx, true).Failed())
     {
       m_Duk.PushNull(); // [ null ]
       return;
@@ -213,13 +218,13 @@ static int __CPP_Component_GetOwner(duk_context* pDuk)
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnCustom(), +1);
 }
 
-static int __CPP_Component_SetActive(duk_context* pDuk)
+static int __CPP_Component_SetActiveFlag(duk_context* pDuk)
 {
   ezDuktapeFunction duk(pDuk);
 
   ezComponent* pComponent = ezTypeScriptBinding::ExpectComponent<ezComponent>(pDuk);
 
-  pComponent->SetActive(duk.GetBoolValue(1, true));
+  pComponent->SetActiveFlag(duk.GetBoolValue(1, true));
 
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnVoid(), 0);
 }
@@ -232,6 +237,9 @@ static int __CPP_Component_IsActive(duk_context* pDuk)
 
   switch (duk.GetFunctionMagicValue())
   {
+    case -1:
+      EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnBool(pComponent->GetActiveFlag()), +1);
+
     case 0:
       EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnBool(pComponent->IsActive()), +1);
 
@@ -258,6 +266,12 @@ static int __CPP_Component_SendMessage(duk_context* pDuk)
   {
     ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, ezTime::Zero());
     pComponent->SendMessage(*pMsg);
+
+    if (duk.GetBoolValue(3)) // expect the message to have result values
+    {
+      // sync msg back to TS
+      ezTypeScriptBinding::SyncEzObjectToTsObject(pDuk, pMsg->GetDynamicRTTI(), pMsg.Borrow(), 1);
+    }
   }
   else // PostMessage
   {
@@ -280,6 +294,18 @@ static int __CPP_TsComponent_BroadcastEvent(duk_context* pDuk)
 
   ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, ezTime::Zero());
   pComponent->BroadcastEventMsg(*ezStaticCast<ezEventMessage*>(pMsg.Borrow()));
+
+  EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnVoid(), 0);
+}
+
+static int __CPP_TsComponent_SetTickInterval(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk);
+
+  ezTypeScriptComponent* pComponent = ezTypeScriptBinding::ExpectComponent<ezTypeScriptComponent>(duk, 0 /*this*/);
+
+  const ezTime interval = ezTime::Seconds(duk.GetFloatValue(1, 0.0f));
+  pComponent->SetUpdateInterval(interval);
 
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnVoid(), 0);
 }

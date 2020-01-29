@@ -47,12 +47,12 @@ void ezVisualScriptNode_PxTriggerEvent::Execute(ezVisualScriptInstance* pInstanc
 
 ezInt32 ezVisualScriptNode_PxTriggerEvent::HandlesMessagesWithID() const
 {
-  return ezMsgPxTriggerTriggered::GetTypeMsgId();
+  return ezMsgTriggerTriggered::GetTypeMsgId();
 }
 
 void ezVisualScriptNode_PxTriggerEvent::HandleMessage(ezMessage* pMsg)
 {
-  ezMsgPxTriggerTriggered& msg = *static_cast<ezMsgPxTriggerTriggered*>(pMsg);
+  ezMsgTriggerTriggered& msg = *static_cast<ezMsgTriggerTriggered*>(pMsg);
 
   if (msg.m_uiMessageStringHash == m_sTriggerMessage.GetHash())
   {

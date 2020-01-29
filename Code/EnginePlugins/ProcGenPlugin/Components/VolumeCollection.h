@@ -10,32 +10,46 @@ class EZ_PROCGENPLUGIN_DLL ezVolumeCollection : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezVolumeCollection, ezReflectedClass);
 
 public:
-  struct Sphere
+  struct ShapeType
   {
-    ezSimdMat4f m_GlobalToLocalTransform;
-    ezEnum<ezProcGenBlendMode> m_BlendMode;
-    ezFloat16 m_fValue;
-    ezUInt32 m_uiSortingKey;
-    float m_fFadeOutScale;
-    float m_fFadeOutBias;
+    typedef ezUInt8 StorageType;
 
-    EZ_ALWAYS_INLINE bool operator<(const Sphere& other) const { return m_uiSortingKey < other.m_uiSortingKey; }
+    enum Enum
+    {
+      Sphere,
+      Box,
+
+      Default = Sphere
+    };
   };
 
-  struct Box
+  struct Shape
   {
-    ezSimdMat4f m_GlobalToLocalTransform;
+    ezVec4 m_GlobalToLocalTransform0;
+    ezVec4 m_GlobalToLocalTransform1;
+    ezVec4 m_GlobalToLocalTransform2;
+    ezEnum<ShapeType> m_Type;
     ezEnum<ezProcGenBlendMode> m_BlendMode;
     ezFloat16 m_fValue;
     ezUInt32 m_uiSortingKey;
+
+    EZ_ALWAYS_INLINE bool operator<(const Shape& other) const { return m_uiSortingKey < other.m_uiSortingKey; }
+
+    void SetGlobalToLocalTransform(const ezSimdMat4f& t);
+    ezSimdMat4f GetGlobalToLocalTransform() const;
+  };
+
+  struct Sphere : public Shape
+  {    
+    float m_fFadeOutScale;
+    float m_fFadeOutBias;    
+  };
+
+  struct Box : public Shape
+  {
     ezVec3 m_vFadeOutScale;
     ezVec3 m_vFadeOutBias;
-
-    EZ_ALWAYS_INLINE bool operator<(const Box& other) const { return m_uiSortingKey < other.m_uiSortingKey; }
   };
-
-  ezDynamicArray<Sphere, ezAlignedAllocatorWrapper> m_Spheres;
-  ezDynamicArray<Box, ezAlignedAllocatorWrapper> m_Boxes;
 
   bool IsEmpty() { return m_Spheres.IsEmpty() && m_Boxes.IsEmpty(); }
 
@@ -45,11 +59,6 @@ public:
 
   static void ExtractVolumesInBox(const ezWorld& world, const ezBoundingBox& box, ezSpatialData::Category spatialCategory,
     const ezTagSet& includeTags, ezVolumeCollection& out_Collection, const ezRTTI* pComponentBaseType = nullptr);
-};
-
-struct EZ_PROCGENPLUGIN_DLL ezMsgExtractVolumes : public ezMessage
-{
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgExtractVolumes, ezMessage);
 
   void AddSphere(const ezSimdTransform& transform, float fRadius, ezEnum<ezProcGenBlendMode> blendMode, float fSortOrder,
     float fValue, float fFadeOutStart);
@@ -58,7 +67,15 @@ struct EZ_PROCGENPLUGIN_DLL ezMsgExtractVolumes : public ezMessage
     float fValue, const ezVec3& vFadeOutStart);
 
 private:
-  friend class ezVolumeCollection;
+  ezDynamicArray<Sphere, ezAlignedAllocatorWrapper> m_Spheres;
+  ezDynamicArray<Box, ezAlignedAllocatorWrapper> m_Boxes;
+
+  ezDynamicArray<const Shape*> m_SortedShapes;
+};
+
+struct EZ_PROCGENPLUGIN_DLL ezMsgExtractVolumes : public ezMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgExtractVolumes, ezMessage);
 
   ezVolumeCollection* m_pCollection = nullptr;
 };

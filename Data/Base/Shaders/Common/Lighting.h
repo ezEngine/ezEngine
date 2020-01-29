@@ -170,7 +170,7 @@ float SampleShadow(float3 shadowPosition, float2x2 randomRotation, float penumbr
 }
 
 float CalculateShadowTerm(ezMaterialData matData, float3 lightVector, float distanceToLight, uint type,
-  uint shadowDataOffset, float noise, float2x2 randomRotation, out float3 debugColor)
+  uint shadowDataOffset, float noise, float2x2 randomRotation, out float subsurfaceShadow, out float3 debugColor)
 {
   float3 debugColors[] =
   {
@@ -279,6 +279,9 @@ float CalculateShadowTerm(ezMaterialData matData, float3 lightVector, float dist
 
     // fade out
     shadowTerm = lerp(1.0f, shadowTerm, fadeOut);
+
+    subsurfaceShadow = shadowTerm;
+
     return shadowTerm;
   }
 
@@ -331,27 +334,29 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
       }
     }
 
-    attenuation *= saturate(dot(matData.worldNormal, lightVector));
+    float NdotL = saturate(dot(matData.worldNormal, lightVector));
 
+  #if !defined(USE_MATERIAL_SUBSURFACE_COLOR)
     [branch]
-    if (attenuation > 0.0f)
+    if (attenuation * NdotL > 0.0f)
+  #endif
     {
       attenuation *= MicroShadow(matData.occlusion, matData.worldNormal, lightVector);
 
       float3 debugColor = 1.0f;
+      float shadowTerm = 1.0;
+      float subsurfaceShadow = 1.0;
 
       [branch]
       if (lightData.shadowDataOffset != 0xFFFFFFFF)
       {
         uint shadowDataOffset = lightData.shadowDataOffset;
 
-        float shadowTerm = CalculateShadowTerm(matData, lightVector, distanceToLight, type,
-          shadowDataOffset, noise, randomRotation, debugColor);
-
-        attenuation *= shadowTerm;
+        shadowTerm = CalculateShadowTerm(matData, lightVector, distanceToLight, type,
+          shadowDataOffset, noise, randomRotation, subsurfaceShadow, debugColor);
       }
 
-      float intensity = lightData.intensity;
+      attenuation *= lightData.intensity;
       float3 lightColor = RGB8ToFloat3(lightData.colorAndType);
 
       // debug cascade or point face selection
@@ -359,11 +364,17 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
         lightColor = lerp(1.0f, debugColor, 0.5f);
       #endif
 
-      lightColor *= (intensity * attenuation * (1.0f / PI));
+      AccumulateLight(totalLight, DefaultShading(matData, lightVector, viewVector), lightColor * (attenuation * shadowTerm));
 
-      AccumulateLight(totalLight, DefaultShading(matData, lightVector, viewVector, float2(1.0f, 1.0f)), lightColor);
+      #if defined(USE_MATERIAL_SUBSURFACE_COLOR)
+        AccumulateLight(totalLight, SubsurfaceShading(matData, lightVector, viewVector), lightColor * (attenuation * subsurfaceShadow));        
+      #endif
     }
   }
+  
+  // normalize brdf
+  totalLight.diffuseLight *= (1.0f / PI);
+  totalLight.specularLight *= (1.0f / PI);
 
   float occlusion = matData.occlusion;
 
@@ -376,6 +387,12 @@ AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clus
   // sky light in ambient cube basis
   float3 skyLight = EvaluateAmbientCube(SkyIrradianceTexture, SkyIrradianceIndex, matData.worldNormal).rgb;
   totalLight.diffuseLight += matData.diffuseColor * skyLight * occlusion;
+  
+  // enable once we have proper sky visibility
+  /*#if defined(USE_MATERIAL_SUBSURFACE_COLOR)
+    skyLight = EvaluateAmbientCube(SkyIrradianceTexture, SkyIrradianceIndex, -matData.worldNormal).rgb;
+    totalLight.diffuseLight += matData.subsurfaceColor * skyLight * occlusion;
+  #endif*/
 
   return totalLight;
 }

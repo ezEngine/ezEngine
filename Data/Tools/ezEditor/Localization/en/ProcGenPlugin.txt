@@ -15,3 +15,13 @@ ezProcGenBlendMode::Divide;Divide
 ezProcGenBlendMode::Max;Max
 ezProcGenBlendMode::Min;Min
 ezProcGenBlendMode::Set;Set
+OutputDescs;Output Descriptions
+ezProcVertexColorOutputDesc;Output Description
+Mapping;Mapping
+ezProcVertexColorChannelMapping;Vertex Color Channel Mapping
+ezProcVertexColorChannelMapping::R;R
+ezProcVertexColorChannelMapping::G;G
+ezProcVertexColorChannelMapping::B;B
+ezProcVertexColorChannelMapping::A;A
+ezProcVertexColorChannelMapping::Black;Black
+ezProcVertexColorChannelMapping::White;White

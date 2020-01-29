@@ -12,6 +12,7 @@ target_link_libraries(${PROJECT_NAME}
   TestFramework
   GameEngine
   RendererDX11
+  TypeScriptPlugin
 )
 
 if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)

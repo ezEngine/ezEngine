@@ -77,11 +77,11 @@ float3 FresnelSchlick( float3 specularColor, float u )
   float f5 = ff * ff * f;
   
   // specularColor below 2% is considered to be shadowing
-  return saturate( 50.0 * specularColor.g ) * f5 + (1 - f5) * specularColor;
+  return saturate(50.0 * GetLuminance(specularColor)) * f5 + (1 - f5) * specularColor;
 }
 
-// note that N.L * 1/PI is already included in the light attenuation which is applied later
-AccumulatedLight DefaultShading( ezMaterialData matData, float3 L, float3 V, float2 diffSpecEnergy )
+// note that 1/PI is applied later
+AccumulatedLight DefaultShading(ezMaterialData matData, float3 L, float3 V)
 {
   float3 N = matData.worldNormal;
   float3 H = normalize(V + L);
@@ -102,5 +102,19 @@ AccumulatedLight DefaultShading( ezMaterialData matData, float3 L, float3 V, flo
 
   float3 diffuse = DiffuseLambert( matData.diffuseColor );
   
-  return InitializeLight(diffuse * diffSpecEnergy.x, F * (D * Vis * diffSpecEnergy.y));
+  return InitializeLight(diffuse * NdotL, F * (D * Vis * NdotL));
+}
+
+AccumulatedLight SubsurfaceShading(ezMaterialData matData, float3 L, float3 V)
+{
+  float3 N = matData.worldNormal;
+  float3 H = normalize(V + L);
+
+  float3 distortedLightDir = L + N * 0.1;
+  float inScatter = pow(saturate(dot(V, -distortedLightDir)), matData.subsurfaceScatterPower);
+
+  float wrapFactor = 0.5;
+  float wrappedNdotH = saturate( ( dot(N, H) * wrapFactor + 1 - wrapFactor )) / (PI * 2);
+	
+	return InitializeLight(matData.subsurfaceColor * lerp(wrappedNdotH, 1, inScatter), 0.0);
 }

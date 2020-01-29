@@ -139,6 +139,11 @@ public:
 
   EZ_ALWAYS_INLINE const ezArrayPtr<ezMessageSenderInfo>& GetMessageSender() const { return m_MessageSenders; }
 
+  /// \brief Writes all types derived from \a pBaseType to the provided array. Optionally sorts the array by type name to yield a stable result.
+  ///
+  /// Returns the provided array, such that the function can be used in a foreach loop right away.
+  static const ezDynamicArray<const ezRTTI*>& GetAllTypesDerivedFrom(const ezRTTI* pBaseType, ezDynamicArray<const ezRTTI*>& out_DerivedTypes, bool bSortByName);
+
 protected:
   const char* m_szPluginName;
   const char* m_szTypeName;

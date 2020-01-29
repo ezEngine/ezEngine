@@ -120,8 +120,11 @@ void ezInstancedMeshComponentManager::EnqueueUpdate(const ezInstancedMeshCompone
   pComponent->m_uiEnqueuedFrame = uiCurrentFrame;
 }
 
-void ezInstancedMeshComponentManager::OnRenderBegin(ezUInt64 uiFrameCounter)
+void ezInstancedMeshComponentManager::OnRenderEvent(const ezRenderWorldRenderEvent& e)
 {
+  if (e.m_Type != ezRenderWorldRenderEvent::Type::BeginRender)
+    return;
+
   EZ_LOCK(m_Mutex);
 
   if (m_RequireUpdate.IsEmpty())
@@ -150,12 +153,12 @@ void ezInstancedMeshComponentManager::Initialize()
 {
   SUPER::Initialize();
 
-  ezRenderWorld::s_BeginRenderEvent.AddEventHandler(ezMakeDelegate(&ezInstancedMeshComponentManager::OnRenderBegin, this));
+  ezRenderWorld::GetRenderEvent().AddEventHandler(ezMakeDelegate(&ezInstancedMeshComponentManager::OnRenderEvent, this));
 }
 
 void ezInstancedMeshComponentManager::Deinitialize()
 {
-  ezRenderWorld::s_BeginRenderEvent.RemoveEventHandler(ezMakeDelegate(&ezInstancedMeshComponentManager::OnRenderBegin, this));
+  ezRenderWorld::GetRenderEvent().RemoveEventHandler(ezMakeDelegate(&ezInstancedMeshComponentManager::OnRenderEvent, this));
 
   SUPER::Deinitialize();
 }

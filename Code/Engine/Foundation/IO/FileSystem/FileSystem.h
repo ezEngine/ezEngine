@@ -215,8 +215,10 @@ public:
   /// \param out_sDataDirRelativePath will contain the relative path to the file (from the data directory in which it might end up in). Might be nullptr.
   /// \param szPath can be a relative, an absolute or a rooted path. This can also be used to find the relative location to the data directory
   /// that would handle it.
-  /// The function will return EZ_FAILURE if it was not able to determine any location where the file could be read from or written to.
-  static ezResult ResolvePath(const char* szPath, ezStringBuilder* out_sAbsolutePath, ezStringBuilder* out_sDataDirRelativePath); // [tested]
+  /// \param out_ppDataDir If not null, it will be set to the data directory that would handle this path.
+  ///
+  /// \returns The function will return EZ_FAILURE if it was not able to determine any location where the file could be read from or written to.
+  static ezResult ResolvePath(const char* szPath, ezStringBuilder* out_sAbsolutePath, ezStringBuilder* out_sDataDirRelativePath, ezDataDirectoryType** out_ppDataDir = nullptr); // [tested]
 
   /// \brief Starts at szStartDirectory and goes up until it finds a folder that contains the given sub folder structure.
   /// Returns EZ_FAILURE if nothing is found. Otherwise \a result is the absolute path to the existing folder that has a given sub-folder.
@@ -335,4 +337,3 @@ struct ezFileSystem::FileEvent
   /// \brief The data-directory, that was involved.
   const ezDataDirectoryType* m_pDataDir = nullptr;
 };
-

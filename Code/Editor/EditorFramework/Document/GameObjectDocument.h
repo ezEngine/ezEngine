@@ -1,7 +1,7 @@
 #pragma once
-#include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
 #include <Foundation/SimdMath/SimdTransform.h>
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
@@ -10,6 +10,7 @@
 
 class ezAssetFileHeader;
 class ezGameObjectEditTool;
+class ezGameObjectDocument;
 
 struct EZ_EDITORFRAMEWORK_DLL TransformationChanges
 {
@@ -43,9 +44,6 @@ struct EZ_EDITORFRAMEWORK_DLL ezGameObjectEvent
     TriggerSnapEachSelectedObjectToGrid,
 
     GameModeChanged,
-    BeforeTriggerGameModePlay,
-    TriggerGameModePlay,
-    TriggerStopGameModePlay,
 
     GizmoTransformMayBeInvalid, ///< Sent when a change was made that may affect the current gizmo / manipulator state (ie. objects have been moved)
   };
@@ -53,12 +51,25 @@ struct EZ_EDITORFRAMEWORK_DLL ezGameObjectEvent
   Type m_Type;
 };
 
+struct ezGameObjectDocumentEvent
+{
+  enum class Type
+  {
+    GameMode_Stopped,
+    GameMode_StartingSimulate,
+    GameMode_StartingPlay,
+    GameMode_StartingExternal, ///< ie. scene is exported for ezPlayer
+  };
+
+  Type m_Type;
+  ezGameObjectDocument* m_pDocument = nullptr;
+};
+
 class EZ_EDITORFRAMEWORK_DLL ezGameObjectMetaData : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezGameObjectMetaData, ezReflectedClass);
 
 public:
-
   enum ModifiedFlags
   {
     CachedName = EZ_BIT(2),
@@ -84,6 +95,7 @@ struct EZ_EDITORFRAMEWORK_DLL ezSelectedGameObject
 class EZ_EDITORFRAMEWORK_DLL ezGameObjectDocument : public ezAssetDocument
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezGameObjectDocument, ezAssetDocument);
+
 public:
   ezGameObjectDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType = ezAssetDocEngineConnection::FullObjectMirroring);
   ~ezGameObjectDocument();
@@ -93,7 +105,6 @@ public:
   /// \name Gizmo
   ///@{
 public:
-
   /// \brief Makes an edit tool of the given type active. Allocates a new one, if necessary. Only works when SetEditToolConfigDelegate() is set.
   void SetActiveEditTool(const ezRTTI* pEditToolType);
 
@@ -212,6 +223,8 @@ public:
 public:
   mutable ezEvent<const ezGameObjectEvent&> m_GameObjectEvents;
   mutable ezObjectMetaData<ezUuid, ezGameObjectMetaData> m_GameObjectMetaData;
+
+  static ezEvent<const ezGameObjectDocumentEvent&> s_GameObjectDocumentEvents;
 
 protected:
   void InvalidateGlobalTransformValue(const ezDocumentObject* pObject) const;

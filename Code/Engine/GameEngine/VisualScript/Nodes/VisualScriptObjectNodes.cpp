@@ -92,11 +92,11 @@ void ezVisualScriptNode_ActivateComponent::Execute(ezVisualScriptInstance* pInst
     {
       if (uiExecPin == 0)
       {
-        pComponent->SetActive(true);
+        pComponent->SetActiveFlag(true);
       }
       else
       {
-        pComponent->SetActive(false);
+        pComponent->SetActiveFlag(false);
       }
     }
   }
@@ -158,8 +158,8 @@ void* ezVisualScriptNode_HasName::GetInputPinDataPointer(ezUInt8 uiPin)
 {
   switch (uiPin)
   {
-  case 0:
-    return &m_hObject;
+    case 0:
+      return &m_hObject;
   }
 
   return nullptr;
@@ -170,4 +170,3 @@ void* ezVisualScriptNode_HasName::GetInputPinDataPointer(ezUInt8 uiPin)
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_VisualScript_Nodes_VisualScriptObjectNodes);
-

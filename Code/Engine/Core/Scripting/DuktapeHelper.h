@@ -96,7 +96,9 @@ public:
   /// \name Error Handling
   ///@{
 
-  void Error(ezFormatString text);
+  void Error(const ezFormatString& text);
+
+  void LogStackTrace(ezInt32 iErrorObjIdx);
 
 
   ///@}

@@ -3,6 +3,7 @@
 #include <Core/CoreDLL.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/String.h>
+#include <Core/ResourceManager/Implementation/Declarations.h>
 
 /// \brief If this is set to EZ_ON, stack traces are recorded for every resource handle.
 ///

@@ -28,6 +28,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectDocument, 2, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
+ezEvent<const ezGameObjectDocumentEvent&> ezGameObjectDocument::s_GameObjectDocumentEvents;
+
 ezGameObjectDocument::ezGameObjectDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType)
     : ezAssetDocument(szDocumentPath, pObjectManager, engineConnectionType)
 {

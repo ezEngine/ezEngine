@@ -4,6 +4,7 @@
 #include <RendererCore/Meshes/MeshComponentBase.h>
 
 struct ezPerInstanceData;
+struct ezRenderWorldRenderEvent;
 class ezInstancedMeshComponent;
 struct ezMsgExtractGeometry;
 class ezStreamWriter;
@@ -66,7 +67,7 @@ private:
   mutable ezDeque<ComponentToUpdate> m_RequireUpdate;
 
 protected:
-  void OnRenderBegin(ezUInt64 uiFrameCounter);
+  void OnRenderEvent(const ezRenderWorldRenderEvent& e);
 
   virtual void Initialize() override;
   virtual void Deinitialize() override;

@@ -43,6 +43,7 @@ protected:
 
 public:
   ezAreaDamageComponent();
+  ~ezAreaDamageComponent();
 
   void ApplyAreaDamage(); // [ scriptable ]
 

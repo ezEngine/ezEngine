@@ -101,11 +101,39 @@ ezWorldModule* ezWorldModuleFactory::CreateWorldModule(ezUInt16 typeId, ezWorld*
 {
   if (typeId < m_CreatorFuncs.GetCount())
   {
-    CreatorFunc func = m_CreatorFuncs[typeId];
+    CreatorFunc func = m_CreatorFuncs[typeId].m_Func;
     return (*func)(pWorld->GetAllocator(), pWorld);
   }
 
   return nullptr;
+}
+
+void ezWorldModuleFactory::RegisterInterfaceImplementation(ezStringView sInterfaceName, ezStringView sImplementationName)
+{
+  m_InterfaceImplementations.Insert(sInterfaceName, sImplementationName);
+
+  ezStringBuilder sTemp = sInterfaceName;
+  const ezRTTI* pInterfaceRtti = ezRTTI::FindTypeByName(sTemp);
+
+  sTemp = sImplementationName;
+  const ezRTTI* pImplementationRtti = ezRTTI::FindTypeByName(sTemp);
+
+  if (pInterfaceRtti != nullptr && pImplementationRtti != nullptr)
+  {
+    m_TypeToId[pInterfaceRtti] = m_TypeToId[pImplementationRtti];
+    return;
+  }
+
+  // Clear existing mapping if it maps to the wrong type
+  ezUInt16 uiTypeId;
+  if (pInterfaceRtti != nullptr && m_TypeToId.TryGetValue(pInterfaceRtti, uiTypeId))
+  {
+    if (m_CreatorFuncs[uiTypeId].m_pRtti->GetTypeName() != sImplementationName)
+    {
+      EZ_ASSERT_DEV(pImplementationRtti == nullptr, "Implementation error");
+      m_TypeToId.Remove(pInterfaceRtti);
+    }
+  }
 }
 
 ezUInt16 ezWorldModuleFactory::RegisterWorldModule(const ezRTTI* pRtti, CreatorFunc creatorFunc)
@@ -123,7 +151,9 @@ ezUInt16 ezWorldModuleFactory::RegisterWorldModule(const ezRTTI* pRtti, CreatorF
 
   m_CreatorFuncs.EnsureCount(uiTypeId + 1);
 
-  m_CreatorFuncs[uiTypeId] = creatorFunc;
+  auto& creatorFuncContext = m_CreatorFuncs[uiTypeId];
+  creatorFuncContext.m_Func = creatorFunc;
+  creatorFuncContext.m_pRtti = pRtti;
 
   return uiTypeId;
 }
@@ -165,6 +195,19 @@ void ezWorldModuleFactory::FillBaseTypeIds()
   ezHybridArray<NewEntry, 64, ezStaticAllocatorWrapper> newEntries;
   const ezRTTI* pModuleRtti = ezGetStaticRTTI<ezWorldModule>(); // base type where we want to stop iterating upwards
 
+  // explicit mappings
+  for (auto it = m_InterfaceImplementations.GetIterator(); it.IsValid(); ++it)
+  {
+    const ezRTTI* pInterfaceRtti = ezRTTI::FindTypeByName(it.Key());
+    const ezRTTI* pImplementationRtti = ezRTTI::FindTypeByName(it.Value());
+
+    if (pInterfaceRtti != nullptr && pImplementationRtti != nullptr)
+    {
+      m_TypeToId[pInterfaceRtti] = m_TypeToId[pImplementationRtti];
+    }
+  }
+
+  // automatic mappings
   for (auto it = m_TypeToId.GetIterator(); it.IsValid(); ++it)
   {
     const ezRTTI* pRtti = it.Key();
@@ -177,10 +220,24 @@ void ezWorldModuleFactory::FillBaseTypeIds()
 
     for (const ezRTTI* pParentRtti = pRtti->GetParentType(); pParentRtti != pModuleRtti; pParentRtti = pParentRtti->GetParentType())
     {
-      // if we do not yet have a mapping for the parent type to TypeID, add it now
-      // and map it to the derived type, such that interfaces map to the derived implementation
-      // this is always a 1 to 1 mapping, each interface can only map to a single derived type
-      if (!m_TypeToId.Contains(pParentRtti))
+      // we are only interested in parent types that are pure interfaces
+      if (!pParentRtti->GetTypeFlags().IsSet(ezTypeFlags::Abstract))
+        continue;
+
+      // skip if we have an explicit mapping for this interface, they are already handled above
+      if (m_InterfaceImplementations.GetValue(pParentRtti->GetTypeName()) != nullptr)
+        continue;
+
+
+      if (ezUInt16* pParentTypeId = m_TypeToId.GetValue(pParentRtti))
+      {
+        if (*pParentTypeId != uiTypeId)
+        {
+          ezLog::Error("Interface '{}' is already implemented by '{}'. Specify which implementation should be used via RegisterInterfaceImplementation() or WorldModules.dll config file.",
+            pParentRtti->GetTypeName(), m_CreatorFuncs[*pParentTypeId].m_pRtti->GetTypeName());
+        }
+      }
+      else
       {
         auto& newEntry = newEntries.ExpandAndGetRef();
         newEntry.m_pRtti = pParentRtti;

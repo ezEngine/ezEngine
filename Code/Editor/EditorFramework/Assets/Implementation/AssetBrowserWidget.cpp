@@ -227,7 +227,7 @@ void ezQtAssetBrowserWidget::AddAssetCreatorMenu(QMenu* pMenu, bool useSelectedA
     QAction* pAction = pSubMenu->addAction(desc->m_sDocumentTypeName.GetData());
     pAction->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(desc->m_sIcon));
     pAction->setProperty("AssetType", desc->m_sDocumentTypeName.GetData());
-    pAction->setProperty("AssetManager", qVariantFromValue<void*>(desc->m_pManager));
+    pAction->setProperty("AssetManager", QVariant::fromValue<void*>(desc->m_pManager));
     pAction->setProperty("Extension", desc->m_sFileExtension.GetData());
     pAction->setProperty("UseSelection", useSelectedAsset);
 

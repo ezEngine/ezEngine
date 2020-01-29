@@ -557,4 +557,70 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     EZ_TEST_VEC3(coordSys.m_vForwardDir, (-pos).GetNormalized(), ezMath::SmallEpsilon<float>());
     EZ_TEST_VEC3(coordSys.m_vUpDir, ezVec3(0, 0, 1), ezMath::SmallEpsilon<float>());
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Active Flag / Active State")
+  {
+    ezWorldDesc worldDesc("Test");
+    ezWorld world(worldDesc);
+    EZ_LOCK(world.GetWriteMarker());
+
+    ezGameObjectHandle hParent;
+    ezGameObjectDesc desc;
+    ezGameObjectHandle hObjects[10];
+    ezGameObject* pObjects[10];
+
+    for (ezUInt32 i = 0; i < 10; ++i)
+    {
+      desc.m_hParent = hParent;
+      hObjects[i] = world.CreateObject(desc, pObjects[i]);
+      hParent = hObjects[i];
+
+      EZ_TEST_BOOL(pObjects[i]->GetActiveFlag());
+      EZ_TEST_BOOL(pObjects[i]->IsActive());
+    }
+
+    ezUInt32 iTopDisabled = 1;
+    pObjects[iTopDisabled]->SetActiveFlag(false);
+
+    for (ezUInt32 i = 0; i < 10; ++i)
+    {
+      EZ_TEST_BOOL(pObjects[i]->GetActiveFlag() == (i != iTopDisabled));
+      EZ_TEST_BOOL(pObjects[i]->IsActive() == (i < iTopDisabled));
+    }
+
+    pObjects[iTopDisabled]->SetActiveFlag(true);
+
+    for (ezUInt32 i = 0; i < 10; ++i)
+    {
+      EZ_TEST_BOOL(pObjects[i]->GetActiveFlag() == true);
+      EZ_TEST_BOOL(pObjects[i]->IsActive() == true);
+    }
+
+    iTopDisabled = 5;
+    pObjects[iTopDisabled]->SetActiveFlag(false);
+
+    for (ezUInt32 i = 0; i < 10; ++i)
+    {
+      EZ_TEST_BOOL(pObjects[i]->GetActiveFlag() == (i != iTopDisabled));
+      EZ_TEST_BOOL(pObjects[i]->IsActive() == (i < iTopDisabled));
+    }
+
+    iTopDisabled = 3;
+    pObjects[iTopDisabled]->SetActiveFlag(false);
+
+    for (ezUInt32 i = 0; i < 10; ++i)
+    {
+      EZ_TEST_BOOL(pObjects[i]->IsActive() == (i < iTopDisabled));
+    }
+
+    pObjects[iTopDisabled]->SetActiveFlag(true);
+
+    iTopDisabled = 5;
+    pObjects[iTopDisabled]->SetActiveFlag(false);
+
+    for (ezUInt32 i = 0; i < 10; ++i)
+    {
+      EZ_TEST_BOOL(pObjects[i]->IsActive() == (i < iTopDisabled));
+    }
+  }
 }

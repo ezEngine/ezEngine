@@ -8,6 +8,8 @@ class ezGALBufferHandle;
 class ezView;
 class ezWorld;
 class ezComponent;
+struct ezRenderWorldExtractionEvent;
+struct ezRenderWorldRenderEvent;
 struct ezMsgExtractRenderData;
 struct ezReflectionProbeData;
 
@@ -35,8 +37,8 @@ private:
   static void OnEngineStartup();
   static void OnEngineShutdown();
 
-  static void OnBeginExtraction(ezUInt64 uiFrameCounter);
-  static void OnBeginRender(ezUInt64 uiFrameCounter);
+  static void OnExtractionEvent(const ezRenderWorldExtractionEvent& e);
+  static void OnRenderEvent(const ezRenderWorldRenderEvent& e);
 
   struct Data;
   static Data* s_pData;

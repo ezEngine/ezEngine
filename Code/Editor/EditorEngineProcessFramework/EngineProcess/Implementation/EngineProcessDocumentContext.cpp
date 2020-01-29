@@ -693,26 +693,60 @@ void ezEngineProcessDocumentContext::WorldRttiConverterContextEventHandler(const
   }
 }
 
+/// Tries to resolve a 'reference' (given in pData) to an ezGameObject.
+/// hThis is the 'owner' of the reference and szComponentProperty is the name of the reference property in that component.
+///
+/// There are two different use cases:
+///
+///  1) hThis is invalid and szComponentProperty is null:
+///
+///     This is used by ezPrefabReferenceComponent::SerializeComponent() to check whether a string represents a game object reference.
+///     It may be any arbitrary string and thus must not assert.
+///     In this case a reference is always a stringyfied GUID.
+///     Since this is only used for scene export, only the lookup shall be done and nothing else.
+///
+///  2) hThis and szComponentProperty represent a valid component+property combination:
+///
+///     This is called at edit time whenever a reference property is queried, which also happens whenever a reference is modified.
+///     In this case we need to maintain two maps:
+///       one that know which object references which other objects
+///       one that knows by which other objects an object is referenced
+///     These are needed to fix up references during undo/redo when objects get deleted and recreated.
+///     Ie. when an object that has references or is referenced gets deleted and then undo restores it, the references should appear as well.
+///
 ezGameObjectHandle ezEngineProcessDocumentContext::ResolveStringToGameObjectHandle(const void* pData, ezComponentHandle hThis, const char* szComponentProperty) const
 {
-  // overview:
-  // check if m_GoRef_ReferencesTo[component] already maps from [ property ] to something -> update (remove if pData is empty/invalid)
-  // otherwise add reference
-  //
-  // if already mapped to something, remove reference from m_GoRef_ReferencedBy
-  // then add new reference to m_GoRef_ReferencedBy
-
   const char* szTargetGuid = reinterpret_cast<const char*>(pData);
+
+  if (hThis.IsInvalidated() && szComponentProperty == nullptr)
+  {
+    // This code path is used by ezPrefabReferenceComponent::SerializeComponent() to check whether an arbitrary string may
+    // represent a game object reference. References will always be stringyfied GUIDs.
+
+    if (!ezConversionUtils::IsStringUuid(szTargetGuid))
+      return ezGameObjectHandle();
+
+    // convert string to GUID and check if references a known object
+    return m_Context.m_GameObjectMap.GetHandle(ezConversionUtils::ConvertStringToUuid(szTargetGuid));
+  }
+
+
 
   ezUuid srcComponentGuid = m_Context.m_ComponentMap.GetGuid(hThis);
   if (!srcComponentGuid.IsValid())
   {
+    // if we do not know hThis, it is usually a component that was created by a prefab instance
+    // since we need hThis/srcComponentGuid to update our tables who references whom, we now try to walk up the node hierarchy
+    // until we find a known game object
+    // there, currently, we assume to find an ezPrefabReferenceComponent, which will be used as srcComponentGuid
+
     ezComponent* pComponent = nullptr;
     if (!m_pWorld->TryGetComponent(hThis, pComponent))
       return ezGameObjectHandle();
 
     ezGameObject* pOwner = pComponent->GetOwner();
 
+    // search the parents for a known game object
     while (pOwner)
     {
       srcComponentGuid = m_Context.m_GameObjectMap.GetGuid(pOwner->GetHandle());
@@ -727,6 +761,8 @@ ezGameObjectHandle ezEngineProcessDocumentContext::ResolveStringToGameObjectHand
     // have to check with reality, though
     EZ_ASSERT_DEV(pOwner != nullptr, "Expected a known top level object");
     EZ_ASSERT_DEV(srcComponentGuid.IsValid(), "Expected a known top level object");
+
+    // for the time being we assume to find a prefab component here, but this may change if new use cases come up
     ezPrefabReferenceComponent* pPrefabComponent;
     if (pOwner->TryGetComponentOfBaseType(pPrefabComponent))
     {
@@ -746,6 +782,7 @@ ezGameObjectHandle ezEngineProcessDocumentContext::ResolveStringToGameObjectHand
     }
   }
 
+
   ezUuid newTargetGuid;
   ezUuid oldTargetGuid;
 
@@ -755,8 +792,19 @@ ezGameObjectHandle ezEngineProcessDocumentContext::ResolveStringToGameObjectHand
   }
   else
   {
-    EZ_ASSERT_DEV(ezStringUtils::IsNullOrEmpty(szTargetGuid), "Assuming only GUID references");
+    EZ_ASSERT_DEV(ezStringUtils::IsNullOrEmpty(szTargetGuid), "Expected GUID references");
   }
+
+
+  // overview for the steps below:
+  //
+  // check if m_GoRef_ReferencesTo[srcComponentGuid] already maps from [szComponentProperty] to something -> update (remove if pData is empty/invalid)
+  // otherwise add reference
+  //
+  // if already mapped to something, remove reference from m_GoRef_ReferencedBy
+  // then add new reference to m_GoRef_ReferencedBy
+
+
 
   // update which object this component+property map to
   {

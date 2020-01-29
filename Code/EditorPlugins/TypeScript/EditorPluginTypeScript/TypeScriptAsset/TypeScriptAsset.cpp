@@ -31,7 +31,7 @@ const char* ezTypeScriptAssetDocument::QueryAssetType() const
 
 void ezTypeScriptAssetDocument::EditScript()
 {
-  ezStringBuilder sTsPath(":project/", GetProperties()->m_sScriptFile);
+  ezStringBuilder sTsPath(GetProperties()->m_sScriptFile);
 
   if (GetProperties()->m_sScriptFile.IsEmpty())
     return;
@@ -41,11 +41,33 @@ void ezTypeScriptAssetDocument::EditScript()
     CreateComponentFile(sTsPath);
   }
 
-  ezStringBuilder sAbsPath;
-  if (ezFileSystem::ResolvePath(sTsPath, &sAbsPath, nullptr).Failed())
+  ezStringBuilder sTsFileAbsPath;
+  if (ezFileSystem::ResolvePath(sTsPath, &sTsFileAbsPath, nullptr).Failed())
     return;
 
-  ezQtUiServices::OpenFileInDefaultProgram(sAbsPath);
+  static_cast<ezTypeScriptAssetDocumentManager*>(GetDocumentManager())->SetupProjectForTypeScript(false);
+
+  CreateTsConfigFiles();
+
+  {
+    QStringList args;
+
+    for (const auto& dd : ezQtEditorApp::GetSingleton()->GetFileSystemConfig().m_DataDirs)
+    {
+      ezStringBuilder path;
+      ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, path);
+
+      args.append(QString::fromUtf8(path));
+    }
+
+    args.append(sTsFileAbsPath.GetData());
+
+    if (ezQtUiServices::OpenInVsCode(args).Failed())
+    {
+      // try again with a different program
+      ezQtUiServices::OpenFileInDefaultProgram(sTsFileAbsPath);
+    }
+  }
 
   {
     ezTypeScriptAssetDocumentEvent e;
@@ -57,17 +79,14 @@ void ezTypeScriptAssetDocument::EditScript()
 
 void ezTypeScriptAssetDocument::CreateComponentFile(const char* szFile)
 {
-  ezStringBuilder sAbsPathToEzTs = ":project/TypeScript/ez";
+  ezStringBuilder sScriptFile = szFile;
 
-  ezStringBuilder sScriptFilePath = szFile;
-  sScriptFilePath.ChangeFileNameAndExtension("");
-
-  ezStringBuilder sRelPathToEzTS = sAbsPathToEzTs;
-  sRelPathToEzTS.MakeRelativeTo(sScriptFilePath);
-
-  if (!sRelPathToEzTS.StartsWith("."))
   {
-    sRelPathToEzTS.Prepend("./");
+    ezDataDirectoryType* pDataDir = nullptr;
+    if (ezFileSystem::ResolvePath(GetDocumentPath(), nullptr, nullptr, &pDataDir).Failed())
+      return;
+
+    sScriptFile.Prepend(pDataDir->GetRedirectedDataDirectoryPath(), "/");
   }
 
   const ezStringBuilder sComponentName = ezPathUtils::GetFileName(GetDocumentPath());
@@ -83,13 +102,13 @@ void ezTypeScriptAssetDocument::CreateComponentFile(const char* szFile)
     {
       sContent.ReadAll(fileIn);
       sContent.ReplaceAll("NewComponent", sComponentName.GetView());
-      sContent.ReplaceAll("<PATH-TO-EZ-TS>", sRelPathToEzTS.GetView());
+      sContent.ReplaceAll("<PATH-TO-EZ-TS>", "TypeScript/ez");
     }
   }
 
   {
     ezFileWriter file;
-    if (file.Open(szFile).Succeeded())
+    if (file.Open(sScriptFile).Succeeded())
     {
       file.WriteBytes(sContent.GetData(), sContent.GetElementCount());
     }
@@ -101,6 +120,71 @@ void ezTypeScriptAssetDocument::CreateComponentFile(const char* szFile)
     e.m_pDocument = this;
     m_Events.Broadcast(e);
   }
+}
+
+void ezTypeScriptAssetDocument::CreateTsConfigFiles()
+{
+  for (const auto& dd : ezQtEditorApp::GetSingleton()->GetFileSystemConfig().m_DataDirs)
+  {
+    if (dd.m_sRootName.IsEqual_NoCase("BASE"))
+      continue;
+
+    ezStringBuilder path;
+    ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, path);
+    path.MakeCleanPath();
+
+    CreateTsConfigFile(path);
+  }
+}
+
+ezResult ezTypeScriptAssetDocument::CreateTsConfigFile(const char* szDirectory)
+{
+  ezStringBuilder sTsConfig;
+  ezStringBuilder sTmp;
+
+  for (ezUInt32 iPlus1 = ezQtEditorApp::GetSingleton()->GetFileSystemConfig().m_DataDirs.GetCount(); iPlus1 > 0; --iPlus1)
+  {
+    const auto& dd = ezQtEditorApp::GetSingleton()->GetFileSystemConfig().m_DataDirs[iPlus1 - 1];
+
+    ezStringBuilder path;
+    ezFileSystem::ResolveSpecialDirectory(dd.m_sDataDirSpecialPath, path);
+    path.MakeCleanPath();
+    path.AppendPath("*");
+
+    sTmp.AppendWithSeparator(", ", "\"", path, "\"");
+  }
+
+  sTsConfig.Format(
+    R"({
+  "compilerOptions": {
+    "target": "es5",
+    "baseUrl": "",
+    "paths": {
+      "*": [{0}]
+    }    
+  }
+}
+)",
+    sTmp);
+
+
+  {
+    sTmp = szDirectory;
+    sTmp.AppendPath("tsconfig.json");
+
+    ezFileWriter file;
+    EZ_SUCCEED_OR_RETURN(file.Open(sTmp));
+    EZ_SUCCEED_OR_RETURN(file.WriteBytes(sTsConfig.GetData(), sTsConfig.GetElementCount()));
+  }
+
+  {
+    sTmp = szDirectory;
+    sTmp.AppendPath(".gitignore");
+
+    ezQtUiServices::AddToGitIgnore(sTmp, "tsconfig.json"); //.IgnoreFailure();
+  }
+
+  return EZ_SUCCESS;
 }
 
 void ezTypeScriptAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
@@ -236,12 +320,6 @@ ezStatus ezTypeScriptAssetDocument::AutoGenerateVariablesCode()
     }
   }
 
-  if (sAutoGen.IsEmpty())
-  {
-    // no auto-generated code at all? just finish up
-    return ezStatus(EZ_SUCCESS);
-  }
-
   // write back the modified file
   {
     sAutoGen.Prepend(szTagBegin, "\n");
@@ -285,7 +363,7 @@ void ezTypeScriptAssetDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 
     history->FinishTransaction();
 
-    ezStringBuilder sTsPath(":project/", GetProperties()->m_sScriptFile);
+    const ezString& sTsPath = GetProperties()->m_sScriptFile;
 
     if (!ezFileSystem::ExistsFile(sTsPath))
     {

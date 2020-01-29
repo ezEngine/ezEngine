@@ -1,5 +1,6 @@
 #include <PhysXPluginPCH.h>
 
+#include <Core/Messages/CommonMessages.h>
 #include <Core/Messages/EventMessage.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
@@ -93,5 +94,9 @@ void ezPxRaycastInteractComponent::SendMessage(const ezPhysicsHitResult& hit)
   ezMsgGenericEvent msg;
   msg.m_sMessage = m_sUserMessage;
 
-  GetWorld()->SendMessage(hit.m_hActorObject, msg);
+  ezGameObject* pShape;
+  if (GetWorld()->TryGetObject(hit.m_hShapeObject, pShape))
+  {
+    pShape->SendEventMessage(msg, this);
+  }
 }

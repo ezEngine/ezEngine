@@ -3,6 +3,7 @@
 #include <GameEngine/GameApplication/GameApplicationBase.h>
 
 #include <Core/ResourceManager/ResourceManager.h>
+#include <Core/World/WorldModuleConfig.h>
 #include <Foundation/Application/Config/FileSystemConfig.h>
 #include <Foundation/Application/Config/PluginConfig.h>
 #include <Foundation/Communication/Telemetry.h>
@@ -33,6 +34,7 @@ void ezGameApplicationBase::ExecuteInitFunctions()
   Init_LoadRequiredPlugins();
   Init_ConfigureAssetManagement();
   Init_FileSystem_ConfigureDataDirs();
+  Init_LoadWorldModuleConfig();
   Init_LoadProjectPlugins();
   Init_PlatformProfile_LoadForRuntime();
   Init_ConfigureInput();
@@ -135,7 +137,7 @@ void ezGameApplicationBase::Init_FileSystem_ConfigureDataDirs()
     {
       const ezString name = appFileSystemConfig.m_DataDirs[i - 1].m_sRootName;
       if (name.IsEqual_NoCase(":") || name.IsEqual_NoCase("bin") || name.IsEqual_NoCase("shadercache") || name.IsEqual_NoCase("appdata") ||
-          name.IsEqual_NoCase("base") || name.IsEqual_NoCase("project"))
+          name.IsEqual_NoCase("base") || name.IsEqual_NoCase("project") || name.IsEqual_NoCase("plugins"))
       {
         appFileSystemConfig.m_DataDirs.RemoveAtAndCopy(i - 1);
       }
@@ -143,6 +145,13 @@ void ezGameApplicationBase::Init_FileSystem_ConfigureDataDirs()
 
     appFileSystemConfig.Apply();
   }
+}
+
+void ezGameApplicationBase::Init_LoadWorldModuleConfig()
+{
+  ezWorldModuleConfig worldModuleConfig;
+  worldModuleConfig.Load();
+  worldModuleConfig.Apply();
 }
 
 void ezGameApplicationBase::Init_LoadProjectPlugins()

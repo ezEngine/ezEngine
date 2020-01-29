@@ -7,22 +7,34 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezComponent, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Active", IsActive, SetActive)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_ACCESSOR_PROPERTY("Active", GetActiveFlag, SetActiveFlag)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-void ezComponent::SetActive(bool bActive)
+void ezComponent::SetActiveFlag(bool bEnabled)
 {
-  if (m_ComponentFlags.IsSet(ezObjectFlags::Active) != bActive)
+  if (m_ComponentFlags.IsSet(ezObjectFlags::ActiveFlag) != bEnabled)
   {
-    m_ComponentFlags.AddOrRemove(ezObjectFlags::Active, bActive);
+    m_ComponentFlags.AddOrRemove(ezObjectFlags::ActiveFlag, bEnabled);
+
+    UpdateActiveState(GetOwner() == nullptr ? true : GetOwner()->IsActive());
+  }
+}
+
+void ezComponent::UpdateActiveState(bool bOwnerActive)
+{
+  const bool bSelfActive = bOwnerActive && m_ComponentFlags.IsSet(ezObjectFlags::ActiveFlag);
+
+  if (m_ComponentFlags.IsSet(ezObjectFlags::ActiveState) != bSelfActive)
+  {
+    m_ComponentFlags.AddOrRemove(ezObjectFlags::ActiveState, bSelfActive);
 
     if (IsInitialized())
     {
-      if (bActive)
+      if (bSelfActive)
       {
         OnActivated();
 
@@ -105,14 +117,14 @@ void ezComponent::EnsureSimulationStarted()
   }
 }
 
-bool ezComponent::SendMessage(ezMessage& msg)
+bool ezComponent::SendMessageInternal(ezMessage& msg, bool bWasPostedMsg)
 {
   if (!IsActiveAndInitialized() && !IsInitializing())
   {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
     if (msg.GetDebugMessageRouting())
       ezLog::Warning("Discarded message with ID {0} because component of type '{1}' is neither initialized nor active at the moment",
-                     msg.GetId(), GetDynamicRTTI()->GetTypeName());
+        msg.GetId(), GetDynamicRTTI()->GetTypeName());
 #endif
 
     return false;
@@ -121,26 +133,26 @@ bool ezComponent::SendMessage(ezMessage& msg)
   if (m_pMessageDispatchType->DispatchMessage(this, msg))
     return true;
 
-  if (m_ComponentFlags.IsSet(ezObjectFlags::UnhandledMessageHandler) && OnUnhandledMessage(msg))
+  if (m_ComponentFlags.IsSet(ezObjectFlags::UnhandledMessageHandler) && OnUnhandledMessage(msg, bWasPostedMsg))
     return true;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   if (msg.GetDebugMessageRouting())
     ezLog::Warning("Component type '{0}' does not have a message handler for messages of type {1}", GetDynamicRTTI()->GetTypeName(),
-                   msg.GetId());
+      msg.GetId());
 #endif
 
   return false;
 }
 
-bool ezComponent::SendMessage(ezMessage& msg) const
+bool ezComponent::SendMessageInternal(ezMessage& msg, bool bWasPostedMsg) const
 {
   if (!IsActiveAndInitialized() && !IsInitializing())
   {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
     if (msg.GetDebugMessageRouting())
       ezLog::Warning("Discarded message with ID {0} because component of type '{1}' is neither initialized nor active at the moment",
-                     msg.GetId(), GetDynamicRTTI()->GetTypeName());
+        msg.GetId(), GetDynamicRTTI()->GetTypeName());
 #endif
 
     return false;
@@ -149,21 +161,16 @@ bool ezComponent::SendMessage(ezMessage& msg) const
   if (m_pMessageDispatchType->DispatchMessage(this, msg))
     return true;
 
-  if (m_ComponentFlags.IsSet(ezObjectFlags::UnhandledMessageHandler) && OnUnhandledMessage(msg))
+  if (m_ComponentFlags.IsSet(ezObjectFlags::UnhandledMessageHandler) && OnUnhandledMessage(msg, bWasPostedMsg))
     return true;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   if (msg.GetDebugMessageRouting())
     ezLog::Warning("(const) Component type '{0}' does not have a CONST message handler for messages of type {1}",
-                   GetDynamicRTTI()->GetTypeName(), msg.GetId());
+      GetDynamicRTTI()->GetTypeName(), msg.GetId());
 #endif
 
   return false;
-}
-
-void ezComponent::PostMessage(const ezMessage& msg, ezObjectMsgQueueType::Enum queueType) const
-{
-  GetWorld()->PostMessage(GetHandle(), msg, queueType);
 }
 
 void ezComponent::PostMessage(const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const
@@ -177,10 +184,7 @@ void ezComponent::Deinitialize()
 {
   EZ_ASSERT_DEV(m_pOwner != nullptr, "Owner must still be valid");
 
-  if (IsActive())
-  {
-    SetActive(false);
-  }
+  SetActiveFlag(false);
 }
 
 void ezComponent::OnActivated() {}
@@ -194,12 +198,12 @@ void ezComponent::EnableUnhandledMessageHandler(bool enable)
   m_ComponentFlags.AddOrRemove(ezObjectFlags::UnhandledMessageHandler, enable);
 }
 
-bool ezComponent::OnUnhandledMessage(ezMessage& msg)
+bool ezComponent::OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg)
 {
   return false;
 }
 
-bool ezComponent::OnUnhandledMessage(ezMessage& msg) const
+bool ezComponent::OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg) const
 {
   return false;
 }
@@ -217,6 +221,3 @@ bool ezComponent::GetUserFlag(ezUInt8 flagIndex) const
 
   return m_ComponentFlags.IsSet(static_cast<ezObjectFlags::Enum>(ezObjectFlags::UserFlag0 << flagIndex));
 }
-
-EZ_STATICLINK_FILE(Core, Core_World_Implementation_Component);
-

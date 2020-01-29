@@ -133,7 +133,7 @@ void ezBreakableSheetComponent::Update()
         }
         else
         {
-          SetActive(false);
+          SetActiveFlag(false);
         }
       }
     }
@@ -576,7 +576,7 @@ void ezBreakableSheetComponent::BreakNow(const ezMsgCollision* pMessage /*= null
 
   DestroyUnbrokenPhysicsObject();
   CreatePiecesPhysicsObjects(pMessage ? pMessage->m_vImpulse : ezVec3::ZeroVector(),
-    pMessage ? pMessage->m_vPosition : ezVec3::ZeroVector());
+    pMessage ? pMessage->m_vPosition : GetOwner()->GetGlobalPosition());
 
   ezMsgBreakableSheetBroke msg;
 
@@ -1067,6 +1067,8 @@ void ezBreakableSheetComponent::CreatePiecesPhysicsObjects(ezVec3 vImpulse, ezVe
   ezRandom r;
   r.Initialize(0);
 
+  EZ_PX_WRITE_LOCK(*(pModule->GetPxScene()));
+
   for (ezUInt32 i = 0; i < m_PieceActors.GetCount(); ++i)
   {
     // We don't create a dynamic actor for the border
@@ -1120,22 +1122,16 @@ void ezBreakableSheetComponent::CreatePiecesPhysicsObjects(ezVec3 vImpulse, ezVe
     pActor->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, false);
 
     m_PieceActors[i] = pActor;
-    const float fExtentsLength = m_vExtents.GetLength();
-    const float fImpulseStrength = vImpulse.GetLength();
     {
-      EZ_PX_WRITE_LOCK(*(pModule->GetPxScene()));
       pModule->GetPxScene()->addActor(*pActor);
 
       // Add initial impulse
       {
-        const ezVec3 BoundingBoxCenter = m_PieceBoundingBoxes[i].GetCenter();
-        ezVec3 vec(BoundingBoxCenter - vPointOfBreakage);
-        float fStrength = static_cast<float>(r.DoubleMinMax(0.5, 1.0));
+        const float fStrength = static_cast<float>(r.DoubleMinMax(0.5, 1.0));
 
-        ezVec3 modifiedImpulse = vImpulse;
-        modifiedImpulse.SetLength(fImpulseStrength * fStrength);
+        const ezVec3 modifiedImpulse = vImpulse * fStrength;
 
-        PxRigidBodyExt::addForceAtPos(*pActor, ezPxConversionUtils::ToVec3(modifiedImpulse), ezPxConversionUtils::ToVec3(BoundingBoxCenter),
+        PxRigidBodyExt::addForceAtPos(*pActor, ezPxConversionUtils::ToVec3(modifiedImpulse), ezPxConversionUtils::ToVec3(vPointOfBreakage),
           PxForceMode::eIMPULSE);
       }
     }
@@ -1144,16 +1140,20 @@ void ezBreakableSheetComponent::CreatePiecesPhysicsObjects(ezVec3 vImpulse, ezVe
 
 void ezBreakableSheetComponent::DestroyPiecesPhysicsObjects()
 {
-  for (auto pActor : m_PieceActors)
+  ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
+
   {
-    if (pActor)
+    EZ_PX_WRITE_LOCK(*(pModule->GetPxScene()));
+
+    for (auto pActor : m_PieceActors)
     {
-      EZ_PX_WRITE_LOCK(*(pActor->getScene()));
-      pActor->release();
+      if (pActor)
+      {
+        pActor->release();
+      }
     }
   }
 
-  ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
   for (ezUInt32 uiShapeId : m_PieceShapeIds)
   {
     pModule->DeleteShapeId(uiShapeId);

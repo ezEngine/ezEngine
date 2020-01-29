@@ -14,15 +14,13 @@ ezCVarBool CVarCacheRenderData("r_CacheRenderData", true, ezCVarFlags::Default, 
 
 ezEvent<ezView*, ezMutex> ezRenderWorld::s_ViewCreatedEvent;
 ezEvent<ezView*, ezMutex> ezRenderWorld::s_ViewDeletedEvent;
-ezEvent<ezUInt64> ezRenderWorld::s_BeginExtractionEvent;
-ezEvent<ezUInt64> ezRenderWorld::s_EndExtractionEvent;
-ezEvent<ezUInt64> ezRenderWorld::s_BeginRenderEvent;
-ezEvent<ezUInt64> ezRenderWorld::s_EndRenderEvent;
 
 ezEvent<void*> ezRenderWorld::s_CameraConfigsModifiedEvent;
 bool ezRenderWorld::s_bModifyingCameraConfigs = false;
 ezMap<ezString, ezRenderWorld::CameraConfig> ezRenderWorld::s_CameraConfigs;
 
+ezEvent<const ezRenderWorldExtractionEvent&, ezMutex> ezRenderWorld::s_ExtractionEvent;
+ezEvent<const ezRenderWorldRenderEvent&, ezMutex> ezRenderWorld::s_RenderEvent;
 ezUInt64 ezRenderWorld::s_uiFrameCounter;
 
 namespace
@@ -70,7 +68,7 @@ namespace ezInternal
   struct RenderDataCache
   {
     RenderDataCache(ezAllocatorBase* pAllocator)
-        : m_EntriesPerObject(pAllocator)
+      : m_EntriesPerObject(pAllocator)
     {
       m_NewEntriesPerComponent.SetCount(m_NewEntriesPerComponent.GetCapacity());
       for (auto& newEntry : m_NewEntriesPerComponent)
@@ -178,7 +176,7 @@ bool ezRenderWorld::TryGetView(const ezViewHandle& hView, ezView*& out_pView)
 }
 
 ezView* ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::Enum usageHint,
-                                          ezCameraUsageHint::Enum alternativeUsageHint /*= ezCameraUsageHint::None*/)
+  ezCameraUsageHint::Enum alternativeUsageHint /*= ezCameraUsageHint::None*/)
 {
   EZ_LOCK(s_ViewsMutex);
 
@@ -231,7 +229,7 @@ ezArrayPtr<ezViewHandle> ezRenderWorld::GetMainViews()
 }
 
 void ezRenderWorld::CacheRenderData(const ezView& view, const ezGameObjectHandle& hOwnerObject, const ezComponentHandle& hOwnerComponent,
-                                    ezArrayPtr<ezInternal::RenderDataCacheEntry> cacheEntries)
+  ezArrayPtr<ezInternal::RenderDataCacheEntry> cacheEntries)
 {
   if (CVarCacheRenderData)
   {
@@ -390,7 +388,10 @@ void ezRenderWorld::ExtractMainViews()
 
   s_bInExtract = true;
 
-  s_BeginExtractionEvent.Broadcast(s_uiFrameCounter);
+  ezRenderWorldExtractionEvent extractionEvent;
+  extractionEvent.m_Type = ezRenderWorldExtractionEvent::Type::BeginExtraction;
+  extractionEvent.m_uiFrameCounter = s_uiFrameCounter;
+  s_ExtractionEvent.Broadcast(extractionEvent);
 
   if (CVarMultithreadedRendering)
   {
@@ -465,7 +466,8 @@ void ezRenderWorld::ExtractMainViews()
     s_ViewsToRender.Clear();
   }
 
-  s_EndExtractionEvent.Broadcast(s_uiFrameCounter);
+  extractionEvent.m_Type = ezRenderWorldExtractionEvent::Type::EndExtraction;
+  s_ExtractionEvent.Broadcast(extractionEvent);
 
   s_bInExtract = false;
 }
@@ -478,7 +480,10 @@ void ezRenderWorld::Render(ezRenderContext* pRenderContext)
   sb.Format("FRAME {}", uiRenderFrame);
   EZ_PROFILE_AND_MARKER(ezGALDevice::GetDefaultDevice()->GetPrimaryContext(), sb.GetData());
 
-  s_BeginRenderEvent.Broadcast(s_uiFrameCounter);
+  ezRenderWorldRenderEvent renderEvent;
+  renderEvent.m_Type = ezRenderWorldRenderEvent::Type::BeginRender;
+  renderEvent.m_uiFrameCounter = s_uiFrameCounter;
+  s_RenderEvent.Broadcast(renderEvent);
 
   if (!CVarMultithreadedRendering)
   {
@@ -500,7 +505,8 @@ void ezRenderWorld::Render(ezRenderContext* pRenderContext)
 
   filteredRenderPipelines.Clear();
 
-  s_EndRenderEvent.Broadcast(s_uiFrameCounter);
+  renderEvent.m_Type = ezRenderWorldRenderEvent::Type::EndRender;
+  s_RenderEvent.Broadcast(renderEvent);
 }
 
 void ezRenderWorld::BeginFrame()
@@ -728,4 +734,3 @@ const ezRenderWorld::CameraConfig* ezRenderWorld::FindCameraConfig(const char* s
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_RenderWorld_Implementation_RenderWorld);
-

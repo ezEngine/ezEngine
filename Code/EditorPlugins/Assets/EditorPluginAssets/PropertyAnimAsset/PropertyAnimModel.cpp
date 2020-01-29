@@ -44,10 +44,10 @@ QVariant ezQtPropertyAnimModel::data(const QModelIndex& index, int role) const
       return pItem->m_Icon;
 
     case UserRoles::TrackPtr:
-      return qVariantFromValue((void*)pItem->m_pTrack);
+      return QVariant::fromValue((void*)pItem->m_pTrack);
 
     case UserRoles::TreeItem:
-      return qVariantFromValue((void*)pItem);
+      return QVariant::fromValue((void*)pItem);
 
     case UserRoles::TrackIdx:
       return pItem->m_iTrackIdx;

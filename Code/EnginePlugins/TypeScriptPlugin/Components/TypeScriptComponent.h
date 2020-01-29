@@ -59,10 +59,10 @@ protected:
   virtual void OnDeactivated() override;
   virtual void OnSimulationStarted() override;
 
-  virtual bool OnUnhandledMessage(ezMessage& msg) override;
-  virtual bool OnUnhandledMessage(ezMessage& msg) const override;
+  virtual bool OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg) override;
+  virtual bool OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg) const override;
 
-  bool HandleUnhandledMessage(ezMessage& msg);
+  bool HandleUnhandledMessage(ezMessage& msg, bool bWasPostedMsg);
 
   //////////////////////////////////////////////////////////////////////////
   // ezEventMessageHandlerComponent
@@ -78,6 +78,11 @@ public:
   ~ezTypeScriptComponent();
 
   void BroadcastEventMsg(ezEventMessage& msg);
+
+  void SetUpdateInterval(ezTime interval) { m_UpdateInterval = interval; }
+
+  void SetTypeScriptComponentGuid(const ezUuid& hResource);
+  const ezUuid& GetTypeScriptComponentGuid() const;
 
 private:
   struct EventSender
@@ -97,9 +102,6 @@ private:
   void SetTypeScriptComponentFile(const char* szFile); // [ property ]
   const char* GetTypeScriptComponentFile() const;      // [ property ]
 
-  void SetTypeScriptComponentGuid(const ezUuid& hResource);
-  const ezUuid& GetTypeScriptComponentGuid() const;
-
   void OnMsgTypeScriptMsgProxy(ezMsgTypeScriptMsgProxy& msg); // [ message handler ]
 
   enum UserFlag
@@ -113,7 +115,8 @@ private:
 
 private:
   ezUuid m_TypeScriptComponentGuid;
-  ezTime m_NextUpdate;
+  ezTime m_LastUpdate;
+  ezTime m_UpdateInterval = ezTime::Seconds(-1); // deactivated by default
 
   //////////////////////////////////////////////////////////////////////////
   // Exposed Parameters

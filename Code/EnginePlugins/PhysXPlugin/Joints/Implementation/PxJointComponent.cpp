@@ -140,6 +140,19 @@ void ezPxJointComponent::SetChildActor(const char* szReference)
   m_hActorB = resolver(szReference, GetHandle(), "ChildActor");
 }
 
+void ezPxJointComponent::SetActors(ezGameObjectHandle hActorA, const ezTransform& localFrameA, ezGameObjectHandle hActorB, const ezTransform& localFrameB)
+{
+  m_hActorA = hActorA;
+  m_hActorB = hActorB;
+
+  // prevent FindParentBody() and FindChildBody() from overwriting the local frames
+  SetUserFlag(0, true);
+  SetUserFlag(1, true);
+
+  m_localFrameA = localFrameA;
+  m_localFrameB = localFrameB;
+}
+
 ezResult ezPxJointComponent::FindParentBody(physx::PxRigidActor*& pActor)
 {
   ezGameObject* pObject = nullptr;

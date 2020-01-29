@@ -18,15 +18,17 @@ namespace
   {
     ezHashedString m_sName;
     ezVariant m_DefaultValue;
-    ezDynamicArray<ezHashedString> m_EnumValues;
+    ezDynamicArray<ezHashedString, ezStaticAllocatorWrapper> m_EnumValues;
   };
 
-  // TODO: these two arrays will produce memory leak reports when any element resizes its own arrays
-  static ezHashTable<ezHashedString, PermutationVarConfig> s_PermutationVarConfigs;
-  static ezDynamicArray<ezPermutationVar> s_FilteredPermutationVariables;
+  static ezDeque<PermutationVarConfig, ezStaticAllocatorWrapper> s_PermutationVarConfigsStorage;
+  static ezHashTable<ezHashedString, PermutationVarConfig*> s_PermutationVarConfigs;
+  static ezMutex s_PermutationVarConfigsMutex;
 
   const PermutationVarConfig* FindConfig(const char* szName, const ezTempHashedString& sHashedName)
   {
+    EZ_LOCK(s_PermutationVarConfigsMutex);
+
     PermutationVarConfig* pConfig = nullptr;
     if (!s_PermutationVarConfigs.TryGetValue(sHashedName, pConfig))
     {
@@ -39,6 +41,8 @@ namespace
 
   const PermutationVarConfig* FindConfig(const ezHashedString& sName)
   {
+    EZ_LOCK(s_PermutationVarConfigsMutex);
+
     PermutationVarConfig* pConfig = nullptr;
     if (!s_PermutationVarConfigs.TryGetValue(sName, pConfig))
     {
@@ -121,11 +125,15 @@ void ezShaderManager::Configure(
 
 void ezShaderManager::ReloadPermutationVarConfig(const char* szName, const ezTempHashedString& sHashedName)
 {
+  // clear earlier data
+  {
+    EZ_LOCK(s_PermutationVarConfigsMutex);
+
+    s_PermutationVarConfigs.Remove(sHashedName);
+  }
+
   ezStringBuilder sPath;
   sPath.Format("{0}/{1}.ezPermVar", s_sPermVarSubDir, szName);
-
-  // clear earlier data
-  s_PermutationVarConfigs.Remove(sHashedName);
 
   ezStringBuilder sTemp = s_sPlatform;
   sTemp.Append(" 1");
@@ -147,13 +155,14 @@ void ezShaderManager::ReloadPermutationVarConfig(const char* szName, const ezTem
   ezShaderParser::ParsePermutationVarConfig(sTemp, defaultValue, enumDef);
   if (defaultValue.IsValid())
   {
-    ezHashedString sName;
-    sName.Assign(szName);
+    EZ_LOCK(s_PermutationVarConfigsMutex);
 
-    auto& config = s_PermutationVarConfigs[sName];
-    config.m_sName = sName;
-    config.m_DefaultValue = defaultValue;
-    config.m_EnumValues = enumDef.m_Values;
+    auto pConfig = &s_PermutationVarConfigsStorage.ExpandAndGetRef();
+    pConfig->m_sName.Assign(szName);
+    pConfig->m_DefaultValue = defaultValue;
+    pConfig->m_EnumValues = enumDef.m_Values;
+    
+    s_PermutationVarConfigs.Insert(pConfig->m_sName, pConfig);
   }
 }
 
@@ -255,6 +264,8 @@ ezArrayPtr<const ezHashedString> ezShaderManager::GetPermutationEnumValues(const
 void ezShaderManager::PreloadPermutations(
   ezShaderResourceHandle hShader, const ezHashTable<ezHashedString, ezHashedString>& permVars, ezTime tShouldBeAvailableIn)
 {
+  EZ_ASSERT_NOT_IMPLEMENTED;
+#if 0
   ezResourceLock<ezShaderResource> pShader(hShader, ezResourceAcquireMode::BlockTillLoaded);
 
   if (!pShader->IsShaderValid())
@@ -262,8 +273,6 @@ void ezShaderManager::PreloadPermutations(
 
   /*ezUInt32 uiPermutationHash = */ FilterPermutationVars(pShader->GetUsedPermutationVars(), permVars);
 
-  EZ_ASSERT_NOT_IMPLEMENTED;
-#if 0
   generator.RemoveUnusedPermutations(pShader->GetUsedPermutationVars());
 
   ezHybridArray<ezPermutationVar, 16> usedPermVars;
@@ -287,20 +296,19 @@ ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutation(ezSh
   if (!pShader->IsShaderValid())
     return ezShaderPermutationResourceHandle();
 
-  ezUInt32 uiPermutationHash = FilterPermutationVars(pShader->GetUsedPermutationVars(), permVars);
+  ezHybridArray<ezPermutationVar, 64> filteredPermutationVariables(ezFrameAllocator::GetCurrentAllocator());
+  ezUInt32 uiPermutationHash = FilterPermutationVars(pShader->GetUsedPermutationVars(), permVars, filteredPermutationVariables);
 
-  return PreloadSinglePermutationInternal(pShader->GetResourceID(), pShader->GetResourceIDHash(), uiPermutationHash);
+  return PreloadSinglePermutationInternal(pShader->GetResourceID(), pShader->GetResourceIDHash(), uiPermutationHash, filteredPermutationVariables);
 }
 
 
-ezUInt32 ezShaderManager::FilterPermutationVars(
-  const ezArrayPtr<const ezHashedString>& usedVars, const ezHashTable<ezHashedString, ezHashedString>& permVars)
+ezUInt32 ezShaderManager::FilterPermutationVars(ezArrayPtr<const ezHashedString> usedVars, const ezHashTable<ezHashedString, ezHashedString>& permVars,
+  ezDynamicArray<ezPermutationVar>& out_FilteredPermutationVariables)
 {
-  s_FilteredPermutationVariables.Clear();
-
   for (auto& sName : usedVars)
   {
-    auto& var = s_FilteredPermutationVariables.ExpandAndGetRef();
+    auto& var = out_FilteredPermutationVariables.ExpandAndGetRef();
     var.m_sName = sName;
 
     if (!permVars.TryGetValue(sName, var.m_sValue))
@@ -322,13 +330,13 @@ ezUInt32 ezShaderManager::FilterPermutationVars(
     }
   }
 
-  return ezShaderHelper::CalculateHash(s_FilteredPermutationVariables);
+  return ezShaderHelper::CalculateHash(out_FilteredPermutationVariables);
 }
 
 
 
-ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutationInternal(
-  const char* szResourceId, ezUInt32 uiResourceIdHash, ezUInt32 uiPermutationHash)
+ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutationInternal(const char* szResourceId, ezUInt32 uiResourceIdHash,
+  ezUInt32 uiPermutationHash, ezArrayPtr<ezPermutationVar> filteredPermutationVariables)
 {
   const ezUInt64 uiPermutationKey = (ezUInt64)uiResourceIdHash << 32 | uiPermutationHash;
 
@@ -353,7 +361,7 @@ ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutationInter
     ezResourceLock<ezShaderPermutationResource> pShaderPermutation(hShaderPermutation, ezResourceAcquireMode::PointerOnly);
     if (!pShaderPermutation->IsShaderValid())
     {
-      pShaderPermutation->m_PermutationVars = s_FilteredPermutationVariables;
+      pShaderPermutation->m_PermutationVars = filteredPermutationVariables;
     }
   }
 

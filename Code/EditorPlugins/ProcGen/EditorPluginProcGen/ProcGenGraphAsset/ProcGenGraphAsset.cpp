@@ -75,7 +75,7 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
   ezRttiConverterContext rttiConverterContext;
   ezRttiConverterReader rttiConverter(&graph, &rttiConverterContext);
 
-  ezHashTable<const ezDocumentObject*, CachedNode> nodeCache;
+  NodeCache nodeCache;
 
   ezDynamicArray<const ezDocumentObject*> placementNodes;
   ezDynamicArray<const ezDocumentObject*> vertexColorNodes;
@@ -93,7 +93,7 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
     context.m_VolumeTagSetIndices.Clear();
 
     ezExpressionAST ast;
-    GenerateExpressionAST(pOutputNode, objectWriter, rttiConverter, nodeCache, ast, context);
+    GenerateExpressionAST(pOutputNode, "", objectWriter, rttiConverter, nodeCache, ast, context);
 
     if (false)
     {
@@ -368,9 +368,9 @@ void ezProcGenGraphAssetDocument::GetAllOutputNodes(
   }
 }
 
-ezExpressionAST::Node* ezProcGenGraphAssetDocument::GenerateExpressionAST(const ezDocumentObject* outputNode,
-  ezDocumentObjectConverterWriter& objectWriter, ezRttiConverterReader& rttiConverter,
-  ezHashTable<const ezDocumentObject*, CachedNode>& nodeCache, ezExpressionAST& out_Ast, ezProcGenNodeBase::GenerateASTContext& context) const
+ezExpressionAST::Node* ezProcGenGraphAssetDocument::GenerateExpressionAST(const ezDocumentObject* outputNode, const char* szOutputName,
+  ezDocumentObjectConverterWriter& objectWriter, ezRttiConverterReader& rttiConverter, NodeCache& nodeCache,
+  ezExpressionAST& out_Ast, ezProcGenNodeBase::GenerateASTContext& context) const
 {
   const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
 
@@ -391,7 +391,7 @@ ezExpressionAST::Node* ezProcGenGraphAssetDocument::GenerateExpressionAST(const 
     EZ_ASSERT_DEBUG(pPinSource != nullptr, "Invalid connection");
 
     // recursively generate all dependent code
-    inputAstNodes[i] = GenerateExpressionAST(pPinSource->GetParent(), objectWriter, rttiConverter, nodeCache, out_Ast, context);
+    inputAstNodes[i] = GenerateExpressionAST(pPinSource->GetParent(), pPinSource->GetName(), objectWriter, rttiConverter, nodeCache, out_Ast, context);
   }
 
   CachedNode cachedNode;
@@ -403,12 +403,11 @@ ezExpressionAST::Node* ezProcGenGraphAssetDocument::GenerateExpressionAST(const 
     nodeCache.Insert(outputNode, cachedNode);
   }
 
-  return cachedNode.m_pPPNode->GenerateExpressionASTNode(inputAstNodes, out_Ast, context);
+  return cachedNode.m_pPPNode->GenerateExpressionASTNode(ezTempHashedString(szOutputName), inputAstNodes, out_Ast, context);
 }
 
 ezExpressionAST::Node* ezProcGenGraphAssetDocument::GenerateDebugExpressionAST(ezDocumentObjectConverterWriter& objectWriter,
-  ezRttiConverterReader& rttiConverter, ezHashTable<const ezDocumentObject*, CachedNode>& nodeCache, ezExpressionAST& out_Ast,
-  ezProcGenNodeBase::GenerateASTContext& context) const
+  ezRttiConverterReader& rttiConverter, NodeCache& nodeCache, ezExpressionAST& out_Ast, ezProcGenNodeBase::GenerateASTContext& context) const
 {
   EZ_ASSERT_DEV(m_pDebugPin != nullptr, "");
 
@@ -429,9 +428,9 @@ ezExpressionAST::Node* ezProcGenGraphAssetDocument::GenerateDebugExpressionAST(e
   inputAstNodes.SetCount(4); // placement output node has 4 inputs
 
   // Recursively generate all dependent code and pretend it is connected to the color index input of the debug placement output node.
-  inputAstNodes[2] = GenerateExpressionAST(pPinSource->GetParent(), objectWriter, rttiConverter, nodeCache, out_Ast, context);
+  inputAstNodes[2] = GenerateExpressionAST(pPinSource->GetParent(), pPinSource->GetName(), objectWriter, rttiConverter, nodeCache, out_Ast, context);
 
-  return m_pDebugNode->GenerateExpressionASTNode(inputAstNodes, out_Ast, context);
+  return m_pDebugNode->GenerateExpressionASTNode("", inputAstNodes, out_Ast, context);
 }
 
 void ezProcGenGraphAssetDocument::DumpSelectedOutput(bool bAst, bool bDisassembly) const
@@ -460,11 +459,11 @@ void ezProcGenGraphAssetDocument::DumpSelectedOutput(bool bAst, bool bDisassembl
   ezRttiConverterContext rttiConverterContext;
   ezRttiConverterReader rttiConverter(&graph, &rttiConverterContext);
 
-  ezHashTable<const ezDocumentObject*, CachedNode> nodeCache;
+  NodeCache nodeCache;
 
   ezExpressionAST ast;
   ezProcGenNodeBase::GenerateASTContext context;
-  GenerateExpressionAST(pSelectedNode, objectWriter, rttiConverter, nodeCache, ast, context);
+  GenerateExpressionAST(pSelectedNode, "", objectWriter, rttiConverter, nodeCache, ast, context);
 
   ezStringBuilder sDocumentPath = GetDocumentPath();
   ezStringView sAssetName = sDocumentPath.GetFileNameAndExtension();

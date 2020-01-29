@@ -585,7 +585,7 @@ ezDataDirectoryWriter* ezFileSystem::GetFileWriter(const char* szFile, ezFileSha
   return nullptr;
 }
 
-ezResult ezFileSystem::ResolvePath(const char* szPath, ezStringBuilder* out_sAbsolutePath, ezStringBuilder* out_sDataDirRelativePath)
+ezResult ezFileSystem::ResolvePath(const char* szPath, ezStringBuilder* out_sAbsolutePath, ezStringBuilder* out_sDataDirRelativePath, ezDataDirectoryType** out_ppDataDir /*= nullptr*/)
 {
   EZ_ASSERT_DEV(s_Data != nullptr, "FileSystem is not initialized.");
 
@@ -604,11 +604,42 @@ ezResult ezFileSystem::ResolvePath(const char* szPath, ezStringBuilder* out_sAbs
     if (pDataDir == nullptr)
       return EZ_FAILURE;
 
+    if (out_ppDataDir != nullptr)
+      *out_ppDataDir = pDataDir->m_pDataDirectory;
+
     relPath = &szPath[sRootName.GetElementCount() + 2];
 
-    absPath =
-      pDataDir->m_pDataDirectory->GetRedirectedDataDirectoryPath(); /// \todo We might also need the none-redirected path as an output
+    absPath = pDataDir->m_pDataDirectory->GetRedirectedDataDirectoryPath(); /// \todo We might also need the none-redirected path as an output
     absPath.AppendPath(relPath);
+  }
+  else if (ezPathUtils::IsAbsolutePath(szPath))
+  {
+    absPath = szPath;
+    absPath.MakeCleanPath();
+
+    for (ezUInt32 dd = s_Data->m_DataDirectories.GetCount(); dd > 0; --dd)
+    {
+      auto& dir = s_Data->m_DataDirectories[dd - 1];
+
+      if (ezPathUtils::IsSubPath(dir.m_pDataDirectory->GetRedirectedDataDirectoryPath(), absPath))
+      {
+        if (out_sAbsolutePath)
+          *out_sAbsolutePath = absPath;
+
+        if (out_sDataDirRelativePath)
+        {
+          *out_sDataDirRelativePath = absPath;
+          out_sDataDirRelativePath->MakeRelativeTo(dir.m_pDataDirectory->GetRedirectedDataDirectoryPath());
+        }
+
+        if (out_ppDataDir)
+          *out_ppDataDir = dir.m_pDataDirectory;
+
+        return EZ_SUCCESS;
+      }
+    }
+
+    return EZ_FAILURE;
   }
   else
   {
@@ -618,10 +649,12 @@ ezResult ezFileSystem::ResolvePath(const char* szPath, ezStringBuilder* out_sAbs
     if (!pReader)
       return EZ_FAILURE;
 
+    if (out_ppDataDir != nullptr)
+      *out_ppDataDir = pReader->GetDataDirectory();
+
     relPath = pReader->GetFilePath();
 
-    absPath =
-      pReader->GetDataDirectory()->GetRedirectedDataDirectoryPath(); /// \todo We might also need the none-redirected path as an output
+    absPath = pReader->GetDataDirectory()->GetRedirectedDataDirectoryPath(); /// \todo We might also need the none-redirected path as an output
     absPath.AppendPath(relPath);
 
     pReader->Close();

@@ -234,3 +234,6 @@ Scene.GameMode.PlayFromHere;Play From Here
 Scene.GameObject.CreateEmptyHere;Create Empty Object Here
 ezPlayerStartPointComponent;Player Start Point
 ezInstancedMeshComponent;Instanced Mesh
+ezMarkerComponent;Marker Component
+ezRaycastComponent;Raycast Placement Component
+ezBeamComponent;Beam Component

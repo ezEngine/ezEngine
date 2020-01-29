@@ -46,9 +46,12 @@
     <file>ezRenderTargetActivatorComponent.png</file>
     <file>ezGreyBoxComponent.png</file>
     <file>ezDebugTextComponent.png</file>
+    <file>ezRaycastComponent.png</file>
+    <file>ezBeamComponent.png</file>
 	<file>ezVisualizeSkeletonComponent.png</file>
 	<file>ezSimpleWindComponent.png</file>
 	<file>ezPlayerStartPointComponent.png</file>
 	<file>ezColorAnimationComponent.png</file>
+	<file>ezMarkerComponent.png</file>
   </qresource>  
 </RCC>

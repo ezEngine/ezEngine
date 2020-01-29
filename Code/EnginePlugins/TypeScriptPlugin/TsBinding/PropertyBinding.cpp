@@ -58,17 +58,20 @@ void ezTypeScriptBinding::GeneratePropertiesCode(ezStringBuilder& out_Code, cons
       continue;
 
     ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pProp);
-
-    const char* szTypeName = TsType(pMember->GetSpecificType());
-    if (szTypeName == nullptr)
-      continue;
+    const ezRTTI* pPropType = pProp->GetSpecificType();
 
     const ezUInt32 uiHash = ComputePropertyBindingHash(pRtti, pMember);
 
-    sProp.Format("  get {0}(): {1} { return __CPP_ComponentProperty_get(this, {2}); }\n", pMember->GetPropertyName(), szTypeName, uiHash);
+    ezStringBuilder sTypeName;
+
+    sTypeName = TsType(pPropType);
+    if (sTypeName.IsEmpty())
+      continue;
+
+    sProp.Format("  get {0}(): {1} { return __CPP_ComponentProperty_get(this, {2}); }\n", pMember->GetPropertyName(), sTypeName, uiHash);
     out_Code.Append(sProp.GetView());
 
-    sProp.Format("  set {0}(value: {1}) { __CPP_ComponentProperty_set(this, {2}, value); }\n", pMember->GetPropertyName(), szTypeName, uiHash);
+    sProp.Format("  set {0}(value: {1}) { __CPP_ComponentProperty_set(this, {2}, value); }\n", pMember->GetPropertyName(), sTypeName, uiHash);
     out_Code.Append(sProp.GetView());
   }
 }
@@ -117,8 +120,9 @@ int __CPP_ComponentProperty_set(duk_context* pDuk)
     return duk.ReturnVoid();
   }
 
-  const ezVariant value = ezTypeScriptBinding::GetVariant(duk, 2, pBinding->m_pMember->GetSpecificType()->GetVariantType());
+  const ezVariant value = ezTypeScriptBinding::GetVariant(duk, 2, pBinding->m_pMember->GetSpecificType());
 
   ezReflectionUtils::SetMemberPropertyValue(pBinding->m_pMember, pComponent, value);
+
   return duk.ReturnVoid();
 }

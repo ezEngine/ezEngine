@@ -6,7 +6,7 @@
 #include <Foundation/Strings/HashedString.h>
 #include <Core/World/Declarations.h>
 
-struct ezMsgPxTriggerTriggered;
+struct ezMsgTriggerTriggered;
 class ezVisualScriptInstance;
 
 //////////////////////////////////////////////////////////////////////////

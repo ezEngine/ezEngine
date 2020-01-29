@@ -8,6 +8,8 @@ class ezSpotLightComponent;
 class ezGALTextureHandle;
 class ezGALBufferHandle;
 class ezView;
+struct ezRenderWorldExtractionEvent;
+struct ezRenderWorldRenderEvent;
 
 class EZ_RENDERERCORE_DLL ezShadowPool
 {
@@ -26,8 +28,8 @@ private:
   static void OnEngineStartup();
   static void OnEngineShutdown();
 
-  static void OnEndExtraction(ezUInt64);
-  static void OnBeginRender(ezUInt64);
+  static void OnExtractionEvent(const ezRenderWorldExtractionEvent& e);
+  static void OnRenderEvent(const ezRenderWorldRenderEvent& e);
 
   struct Data;
   static Data* s_pData;

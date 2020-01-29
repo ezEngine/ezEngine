@@ -170,11 +170,11 @@ namespace ezConversionUtils
   inline void ConvertBinaryToHex(const void* pBinaryData, ezUInt32 uiBytes, APPEND_CONTAINER_LAMBDA append); // [tested]
 
   /// \brief Converts a string that was written with ezConversionUtils::ToString(ezUuid) back to an ezUuid object.
-  EZ_FOUNDATION_DLL ezUuid ConvertStringToUuid(const char* szUuidString); // [tested]
+  EZ_FOUNDATION_DLL ezUuid ConvertStringToUuid(const ezStringView& sText); // [tested]
 
   /// \brief Returns true when the given string is in the exact format "{ 05af8d07-0b38-44a6-8d50-49731ae2625d }"
   /// This includes braces, whitespaces and dashes. This is the format that ToString produces.
-  EZ_FOUNDATION_DLL bool IsStringUuid(const char* szText); // [tested]
+  EZ_FOUNDATION_DLL bool IsStringUuid(const ezStringView& sText); // [tested]
 
   /// \brief Converts a bool to a string
   EZ_ALWAYS_INLINE const ezStringBuilder& ToString(bool value, ezStringBuilder& out_Result) // [tested]

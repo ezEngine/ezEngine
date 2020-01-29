@@ -6,3 +6,4 @@ ezTypeScriptParameterColor;Color
 ezTypeScriptParameterNumber;Number
 ezTypeScriptParameterString;String
 ezTypeScriptParameterVec3;Vec3
+ezTypeScriptComponent;TypeScript Component

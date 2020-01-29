@@ -114,6 +114,13 @@ struct ezPxCharacterProxyData
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
+EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezPxCharacterCollisionFlags, 1)
+  EZ_ENUM_CONSTANT(ezPxCharacterCollisionFlags::None),
+  EZ_ENUM_CONSTANT(ezPxCharacterCollisionFlags::Sides),
+  EZ_ENUM_CONSTANT(ezPxCharacterCollisionFlags::Above),
+  EZ_ENUM_CONSTANT(ezPxCharacterCollisionFlags::Below),
+EZ_END_STATIC_REFLECTED_BITFLAGS;
+
 EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterProxyComponent, 3, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
@@ -136,10 +143,10 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterProxyComponent, 3, ezComponentMode::Dynamic
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_FUNCTIONS
   {
-    //EZ_SCRIPT_FUNCTION_PROPERTY(Move, In, "motion", In, "crouch"),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Move, In, "motion", In, "crouch"),
     EZ_SCRIPT_FUNCTION_PROPERTY(IsCrouching),
     EZ_SCRIPT_FUNCTION_PROPERTY(GetCurrentCapsuleHeight),
-    //EZ_SCRIPT_FUNCTION_PROPERTY(GetCollisionFlags),
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetCollisionFlags),
     EZ_SCRIPT_FUNCTION_PROPERTY(IsGrounded),
     EZ_SCRIPT_FUNCTION_PROPERTY(GetShapeId),
   }

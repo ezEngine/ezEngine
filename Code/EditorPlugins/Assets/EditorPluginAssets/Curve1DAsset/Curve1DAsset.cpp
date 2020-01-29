@@ -59,7 +59,6 @@ ezStatus ezCurve1DAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& Th
   QPainter* painter = &p;
   painter->setBrush(Qt::NoBrush);
   painter->setRenderHint(QPainter::Antialiasing);
-  painter->setRenderHint(QPainter::HighQualityAntialiasing);
 
   if (!pProp->m_Curves.IsEmpty())
   {

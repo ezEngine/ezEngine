@@ -4,6 +4,9 @@
 #include <Foundation/Time/Timestamp.h>
 #include <Foundation/Types/Status.h>
 #include <TypeScriptPlugin/Transpiler/Transpiler.h>
+#include <EditorFramework/Preferences/Preferences.h>
+
+struct ezGameObjectDocumentEvent;
 
 class ezTypeScriptAssetDocumentManager : public ezAssetDocumentManager
 {
@@ -22,6 +25,7 @@ public:
 
   ezTypeScriptTranspiler& GetTranspiler() { return m_Transpiler; }
 
+  void SetupProjectForTypeScript(bool bForce);
   ezResult GenerateScriptCompendium(ezBitflags<ezTransformFlags> transformFlags);
 
 private:
@@ -36,17 +40,31 @@ private:
 
 private:
   void ToolsProjectEventHandler(const ezToolsProjectEvent& e);
+  void GameObjectDocumentEventHandler(const ezGameObjectDocumentEvent& e);
+
   static void ModifyTsBeforeTranspilation(ezStringBuilder& source);
 
   void InitializeTranspiler();
   void ShutdownTranspiler();
 
   bool m_bTranspilerLoaded = false;
+  bool m_bProjectSetUp = false;
   ezTypeScriptTranspiler m_Transpiler;
-
-  void SetupProjectForTypeScript();
 
   ezDocumentTypeDescriptor m_AssetDesc;
 
   ezMap<ezString, ezTimestamp> m_CheckedTsFiles;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class ezTypeScriptPreferences : public ezPreferences
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezTypeScriptPreferences, ezPreferences);
+
+public:
+  ezTypeScriptPreferences();
+
+  bool m_bAutoUpdateScriptsForSimulation = true;
+  bool m_bAutoUpdateScriptsForPlayTheGame = true;
 };

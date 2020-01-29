@@ -2,17 +2,23 @@
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/Document/GameObjectDocument.h>
 #include <EditorPluginTypeScript/TypeScriptAsset/TypeScriptAsset.h>
 #include <EditorPluginTypeScript/TypeScriptAsset/TypeScriptAssetManager.h>
 #include <EditorPluginTypeScript/TypeScriptAsset/TypeScriptAssetWindow.moc.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/IO/Stream.h>
 #include <Foundation/Utilities/Progress.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
+#include <ToolsFoundation/Application/ApplicationServices.h>
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <TypeScriptPlugin/Resources/ScriptCompendiumResource.h>
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
+#include <Foundation/Containers/ArrayMap.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTypeScriptAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezTypeScriptAssetDocumentManager>)
@@ -33,6 +39,11 @@ ezTypeScriptAssetDocumentManager::ezTypeScriptAssetDocumentManager()
   ezQtImageCache::GetSingleton()->RegisterTypeImage("TypeScript", QPixmap(":/AssetIcons/TypeScript.png"));
 
   ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezTypeScriptAssetDocumentManager::ToolsProjectEventHandler, this));
+
+  ezGameObjectDocument::s_GameObjectDocumentEvents.AddEventHandler(ezMakeDelegate(&ezTypeScriptAssetDocumentManager::GameObjectDocumentEventHandler, this));
+
+  // make sure the preferences exist
+  ezPreferences::QueryPreferences<ezTypeScriptPreferences>();
 }
 
 ezTypeScriptAssetDocumentManager::~ezTypeScriptAssetDocumentManager()
@@ -42,6 +53,8 @@ ezTypeScriptAssetDocumentManager::~ezTypeScriptAssetDocumentManager()
   ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezTypeScriptAssetDocumentManager::ToolsProjectEventHandler, this));
 
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezTypeScriptAssetDocumentManager::OnDocumentManagerEvent, this));
+
+  ezGameObjectDocument::s_GameObjectDocumentEvents.RemoveEventHandler(ezMakeDelegate(&ezTypeScriptAssetDocumentManager::GameObjectDocumentEventHandler, this));
 }
 
 void ezTypeScriptAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
@@ -84,12 +97,36 @@ void ezTypeScriptAssetDocumentManager::ToolsProjectEventHandler(const ezToolsPro
   if (e.m_Type == ezToolsProjectEvent::Type::ProjectOpened)
   {
     InitializeTranspiler();
-    SetupProjectForTypeScript();
   }
 
   if (e.m_Type == ezToolsProjectEvent::Type::ProjectClosing)
   {
     ShutdownTranspiler();
+  }
+}
+
+void ezTypeScriptAssetDocumentManager::GameObjectDocumentEventHandler(const ezGameObjectDocumentEvent& e)
+{
+  switch (e.m_Type)
+  {
+    case ezGameObjectDocumentEvent::Type::GameMode_StartingSimulate:
+    {
+      if (ezPreferences::QueryPreferences<ezTypeScriptPreferences>()->m_bAutoUpdateScriptsForSimulation)
+      {
+        GenerateScriptCompendium(ezTransformFlags::Default);
+      }
+      break;
+    }
+
+    case ezGameObjectDocumentEvent::Type::GameMode_StartingPlay:
+    case ezGameObjectDocumentEvent::Type::GameMode_StartingExternal:
+    {
+      if (ezPreferences::QueryPreferences<ezTypeScriptPreferences>()->m_bAutoUpdateScriptsForPlayTheGame)
+      {
+        GenerateScriptCompendium(ezTransformFlags::Default);
+      }
+      break;
+    }
   }
 }
 
@@ -156,7 +193,10 @@ void ezTypeScriptAssetDocumentManager::InitializeTranspiler()
 
   m_bTranspilerLoaded = true;
 
-  ezFileSystem::AddDataDirectory(">sdk/Data/Tools/ezEditor/TypeScript", "TypeScript", "TypeScript");
+  if (ezFileSystem::FindDataDirectoryWithRoot("TypeScript") == nullptr)
+  {
+    ezFileSystem::AddDataDirectory(">sdk/Data/Tools/ezEditor/TypeScript", "TypeScript", "TypeScript");
+  }
 
   m_Transpiler.SetOutputFolder(":project/AssetCache/Temp");
   m_Transpiler.StartLoadTranspiler();
@@ -173,8 +213,13 @@ void ezTypeScriptAssetDocumentManager::ShutdownTranspiler()
   m_Transpiler.FinishLoadTranspiler();
 }
 
-void ezTypeScriptAssetDocumentManager::SetupProjectForTypeScript()
+void ezTypeScriptAssetDocumentManager::SetupProjectForTypeScript(bool bForce)
 {
+  if (m_bProjectSetUp && !bForce)
+    return;
+
+  m_bProjectSetUp = true;
+
   if (ezTypeScriptBinding::SetupProjectCode().Failed())
   {
     ezLog::Error("Could not setup Typescript data in project directory");
@@ -186,34 +231,58 @@ ezResult ezTypeScriptAssetDocumentManager::GenerateScriptCompendium(ezBitflags<e
 {
   EZ_LOG_BLOCK("Generating Script Compendium");
 
-  ezStringBuilder sProjectPath = ezToolsProject::GetSingleton()->GetProjectDirectory();
-  sProjectPath.MakeCleanPath();
+  SetupProjectForTypeScript(false);
 
-  ezFileSystemIterator fsIt;
-  fsIt.StartSearch(sProjectPath, ezFileSystemIteratorFlags::ReportFilesRecursive);
+  // read m_CheckedTsFiles cache
+  if (m_CheckedTsFiles.IsEmpty())
+  {
+    ezStringBuilder sFile = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
+    sFile.AppendPath("LastTypeScriptChanges.tmp");
+
+    ezFileReader file;
+    if (file.Open(sFile).Succeeded())
+    {
+      file.ReadMap(m_CheckedTsFiles);
+    }
+  }
+
+  ezMap<ezString, ezUInt32> relPathToDataDirIdx;
 
   ezScriptCompendiumResourceDesc compendium;
-
   bool bAnythingNew = false;
 
-  ezStringBuilder sTsFilePath;
-  for (; fsIt.IsValid(); fsIt.Next())
+  for (ezUInt32 ddIdx = 0; ddIdx < ezFileSystem::GetNumDataDirectories(); ++ddIdx)
   {
-    if (!fsIt.GetStats().m_sName.EndsWith_NoCase(".ts"))
+    ezStringBuilder sDataDirPath = ezFileSystem::GetDataDirectory(ddIdx)->GetRedirectedDataDirectoryPath();
+    sDataDirPath.MakeCleanPath();
+
+    if (!sDataDirPath.IsAbsolutePath())
       continue;
 
-    fsIt.GetStats().GetFullPath(sTsFilePath);
+    ezFileSystemIterator fsIt;
+    fsIt.StartSearch(sDataDirPath, ezFileSystemIteratorFlags::ReportFilesRecursive);
 
-    sTsFilePath.MakeRelativeTo(sProjectPath);
-
-    compendium.m_PathToSource.Insert(sTsFilePath, ezString());
-
-    ezTimestamp& lastModification = m_CheckedTsFiles[sTsFilePath];
-
-    if (!lastModification.Compare(fsIt.GetStats().m_LastModificationTime, ezTimestamp::CompareMode::FileTimeEqual))
+    ezStringBuilder sTsFilePath;
+    for (; fsIt.IsValid(); fsIt.Next())
     {
-      bAnythingNew = true;
-      lastModification = fsIt.GetStats().m_LastModificationTime;
+      if (!fsIt.GetStats().m_sName.EndsWith_NoCase(".ts"))
+        continue;
+
+      fsIt.GetStats().GetFullPath(sTsFilePath);
+
+      sTsFilePath.MakeRelativeTo(sDataDirPath);
+
+      relPathToDataDirIdx[sTsFilePath] = ddIdx;
+
+      compendium.m_PathToSource.Insert(sTsFilePath, ezString());
+
+      ezTimestamp& lastModification = m_CheckedTsFiles[sTsFilePath];
+
+      if (!lastModification.Compare(fsIt.GetStats().m_LastModificationTime, ezTimestamp::CompareMode::FileTimeEqual))
+      {
+        bAnythingNew = true;
+        lastModification = fsIt.GetStats().m_LastModificationTime;
+      }
     }
   }
 
@@ -236,11 +305,18 @@ ezResult ezTypeScriptAssetDocumentManager::GenerateScriptCompendium(ezBitflags<e
 
   // TODO: could multi-thread this, if we had multiple transpilers loaded
   {
+    ezStringBuilder sOutputFolder;
+
     ezStringBuilder sTranspiledJs;
     for (auto it : compendium.m_PathToSource)
     {
       if (!progress.BeginNextStep(it.Key()))
         return EZ_FAILURE;
+
+      sOutputFolder = ezFileSystem::GetDataDirectory(relPathToDataDirIdx[it.Key()])->GetRedirectedDataDirectoryPath();
+      sOutputFolder.MakeCleanPath();
+      sOutputFolder.AppendPath("AssetCache/Temp");
+      m_Transpiler.SetOutputFolder(sOutputFolder);
 
       if (m_Transpiler.TranspileFileAndStoreJS(it.Key(), sTranspiledJs).Failed())
       {
@@ -303,5 +379,37 @@ ezResult ezTypeScriptAssetDocumentManager::GenerateScriptCompendium(ezBitflags<e
     EZ_SUCCEED_OR_RETURN(file.Close());
   }
 
+  // write m_CheckedTsFiles cache
+  {
+    ezStringBuilder sFile = ezApplicationServices::GetSingleton()->GetProjectPreferencesFolder();
+    sFile.AppendPath("LastTypeScriptChanges.tmp");
+
+    ezFileWriter file;
+    if (file.Open(sFile).Succeeded())
+    {
+      file.WriteMap(m_CheckedTsFiles);
+    }
+  }
+
   return EZ_SUCCESS;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTypeScriptPreferences, 1, ezRTTIDefaultAllocator<ezTypeScriptPreferences>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("CompileForSimulation", m_bAutoUpdateScriptsForSimulation),
+    EZ_MEMBER_PROPERTY("CompileForPlayTheGame", m_bAutoUpdateScriptsForPlayTheGame),
+  }
+  EZ_END_PROPERTIES;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
+
+ezTypeScriptPreferences::ezTypeScriptPreferences()
+  : ezPreferences(ezPreferences::Domain::Application, "TypeScript")
+{
 }

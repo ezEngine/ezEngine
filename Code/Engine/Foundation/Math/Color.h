@@ -310,7 +310,7 @@ public:
   /// \brief Multiplies the given factor into red, green and blue, but not alpha.
   void ScaleRGB(float factor);
 
-  /// \brief Returns 1 for an LDR color (all components < 1). Otherwise the value of the largest component.
+  /// \brief Returns 1 for an LDR color (all ´RGB components < 1). Otherwise the value of the largest component. Ignores alpha.
   float ComputeHdrMultiplier() const;
 
   /// \brief Returns the base-2 logarithm of ComputeHdrMultiplier().

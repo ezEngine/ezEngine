@@ -26,7 +26,7 @@ ezResult ezTexConvProcessor::ForceSRGBFormats()
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::GenerateMipmaps(ezImage& img, ezUInt32 uiNumMips) const
+ezResult ezTexConvProcessor::GenerateMipmaps(ezImage& img, ezUInt32 uiNumChannels, ezUInt32 uiNumMips) const
 {
   ezImageUtils::MipMapOptions opt;
   opt.m_numMipMaps = uiNumMips;
@@ -58,6 +58,18 @@ ezResult ezTexConvProcessor::GenerateMipmaps(ezImage& img, ezUInt32 uiNumMips) c
   opt.m_renormalizeNormals =
     m_Descriptor.m_Usage == ezTexConvUsage::NormalMap || m_Descriptor.m_Usage == ezTexConvUsage::NormalMap_Inverted || m_Descriptor.m_Usage == ezTexConvUsage::BumpMap;
 
+  // Copy red to alpha channel if we only have a single channel input texture
+  if (opt.m_preserveCoverage && uiNumChannels == 1)
+  {
+    auto imgData = img.GetBlobPtr<ezColor>();
+    auto pData = imgData.GetPtr();
+    while (pData < imgData.GetEndPtr())
+    {
+      pData->a = pData->r;
+      ++pData;
+    }
+  }
+
   ezImage scratch;
   ezImageUtils::GenerateMipMaps(img, scratch, opt);
   img.ResetAndMove(std::move(scratch));
@@ -66,6 +78,18 @@ ezResult ezTexConvProcessor::GenerateMipmaps(ezImage& img, ezUInt32 uiNumMips) c
   {
     ezLog::Error("Mipmap generation failed.");
     return EZ_FAILURE;
+  }
+
+  // Copy alpha channel back to red
+  if (opt.m_preserveCoverage && uiNumChannels == 1)
+  {
+    auto imgData = img.GetBlobPtr<ezColor>();
+    auto pData = imgData.GetPtr();
+    while (pData < imgData.GetEndPtr())
+    {
+      pData->r = pData->a;
+      ++pData;
+    }
   }
 
   return EZ_SUCCESS;

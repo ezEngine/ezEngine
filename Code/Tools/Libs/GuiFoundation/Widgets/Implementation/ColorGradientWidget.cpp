@@ -336,7 +336,7 @@ void ezQtColorGradientWidget::PaintCoordinateStrip(QPainter& p, const QRect& are
   {
     const ezInt32 xPos = GradientToWindowCoord(fCurStop);
 
-    text.sprintf("%.2f", fCurStop);
+    text.asprintf("%.2f", fCurStop);
     QRectF r(xPos - 50, area.top(), 100, area.height());
     p.drawText(r, text, QTextOption(Qt::AlignCenter));
   }

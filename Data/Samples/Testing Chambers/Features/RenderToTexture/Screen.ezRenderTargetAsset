@@ -11,7 +11,7 @@ o
 		s %AssetType{"Render Target"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12010511938558044046,5627087558692952901}}
-		u4 %Hash{1139764045745227215}
+		u4 %Hash{9839214032475183640}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -27,13 +27,14 @@ o
 	u3 %v{5}
 	p
 	{
-		s %AddressModeU{"ezImageAddressMode::Repeat"}
-		s %AddressModeV{"ezImageAddressMode::Repeat"}
+		s %AddressModeU{"ezImageAddressMode::ClampBorder"}
+		s %AddressModeV{"ezImageAddressMode::ClampBorder"}
 		s %AddressModeW{"ezImageAddressMode::Repeat"}
 		f %AlphaThreshold{0x0000003F}
 		f %CVarResScale{0x0000803F}
 		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
 		s %CompressionMode{"ezTexConvCompressionMode::None"}
+		b %DilateColor{1}
 		b %FlipHorizontal{0}
 		s %Format{"ezRenderTargetFormat::RGBA8"}
 		f %HdrExposureBias{0}
@@ -45,7 +46,7 @@ o
 		s %MipmapMode{"ezTexConvMipmapMode::None"}
 		b %PremultipliedAlpha{0}
 		b %PreserveAlphaCoverage{0}
-		s %Resolution{"ezTexture2DResolution::Fixed1024x1024"}
+		s %Resolution{"ezTexture2DResolution::Fixed256x256"}
 		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
 		s %Usage{"ezTexConvUsage::Auto"}
 	}

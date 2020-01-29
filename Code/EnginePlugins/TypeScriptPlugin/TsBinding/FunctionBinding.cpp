@@ -51,6 +51,30 @@ const char* ezTypeScriptBinding::TsType(const ezRTTI* pRtti)
   if (pRtti == nullptr)
     return "void";
 
+  static ezStringBuilder res;
+
+  if (pRtti->IsDerivedFrom<ezEnumBase>())
+  {
+    s_RequiredEnums.Insert(pRtti);
+
+    res = pRtti->GetTypeName();
+    res.TrimWordStart("ez");
+    res.Prepend("Enum.");
+
+    return res;
+  }
+
+  if (pRtti->IsDerivedFrom<ezBitflagsBase>())
+  {
+    s_RequiredFlags.Insert(pRtti);
+
+    res = pRtti->GetTypeName();
+    res.TrimWordStart("ez");
+    res.Prepend("Flags.");
+
+    return res;
+  }
+
   switch (pRtti->GetVariantType())
   {
     case ezVariant::Type::Angle:
@@ -216,7 +240,7 @@ int __CPP_ComponentFunction_Call(duk_context* pDuk)
 
   for (ezUInt32 arg = 0; arg < uiNumArgs; ++arg)
   {
-    args[arg] = ezTypeScriptBinding::GetVariant(duk, 2 + arg, pBinding->m_pFunc->GetArgumentType(arg)->GetVariantType());
+    args[arg] = ezTypeScriptBinding::GetVariant(duk, 2 + arg, pBinding->m_pFunc->GetArgumentType(arg));
   }
 
   pBinding->m_pFunc->Execute(pComponent, args, ret);

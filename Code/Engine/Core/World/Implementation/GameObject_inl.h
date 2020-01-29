@@ -1,6 +1,6 @@
 
 EZ_ALWAYS_INLINE ezGameObject::ConstChildIterator::ConstChildIterator(ezGameObject* pObject)
-    : m_pObject(pObject)
+  : m_pObject(pObject)
 {
 }
 
@@ -32,7 +32,7 @@ EZ_ALWAYS_INLINE void ezGameObject::ConstChildIterator::operator++()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 EZ_ALWAYS_INLINE ezGameObject::ChildIterator::ChildIterator(ezGameObject* pObject)
-    : ConstChildIterator(pObject)
+  : ConstChildIterator(pObject)
 {
 }
 
@@ -91,9 +91,14 @@ EZ_ALWAYS_INLINE bool ezGameObject::IsStatic() const
   return !m_Flags.IsSet(ezObjectFlags::Dynamic);
 }
 
+EZ_ALWAYS_INLINE bool ezGameObject::GetActiveFlag() const
+{
+  return m_Flags.IsSet(ezObjectFlags::ActiveFlag);
+}
+
 EZ_ALWAYS_INLINE bool ezGameObject::IsActive() const
 {
-  return m_Flags.IsSet(ezObjectFlags::Active);
+  return m_Flags.IsSet(ezObjectFlags::ActiveState);
 }
 
 EZ_ALWAYS_INLINE void ezGameObject::SetName(const char* szName)
@@ -134,7 +139,7 @@ EZ_ALWAYS_INLINE void ezGameObject::DisableChildChangesNotifications()
 }
 
 EZ_ALWAYS_INLINE void ezGameObject::AddChildren(const ezArrayPtr<const ezGameObjectHandle>& children,
-                                                ezGameObject::TransformPreservation preserve)
+  ezGameObject::TransformPreservation preserve)
 {
   for (ezUInt32 i = 0; i < children.GetCount(); ++i)
   {
@@ -143,7 +148,7 @@ EZ_ALWAYS_INLINE void ezGameObject::AddChildren(const ezArrayPtr<const ezGameObj
 }
 
 EZ_ALWAYS_INLINE void ezGameObject::DetachChildren(const ezArrayPtr<const ezGameObjectHandle>& children,
-                                                   ezGameObject::TransformPreservation preserve)
+  ezGameObject::TransformPreservation preserve)
 {
   for (ezUInt32 i = 0; i < children.GetCount(); ++i)
   {
@@ -532,6 +537,27 @@ EZ_ALWAYS_INLINE const ezTagSet& ezGameObject::GetTags() const
   return m_Tags;
 }
 
+EZ_ALWAYS_INLINE bool ezGameObject::SendMessage(ezMessage& msg)
+{
+  return SendMessageInternal(msg, false);
+}
+
+EZ_ALWAYS_INLINE bool ezGameObject::SendMessage(ezMessage& msg) const
+{
+  return SendMessageInternal(msg, false);
+}
+
+EZ_ALWAYS_INLINE bool ezGameObject::SendMessageRecursive(ezMessage& msg)
+{
+  return SendMessageRecursiveInternal(msg, false);
+}
+
+EZ_ALWAYS_INLINE bool ezGameObject::SendMessageRecursive(ezMessage& msg) const
+{
+  return SendMessageRecursiveInternal(msg, false);
+}
+
+
 //////////////////////////////////////////////////////////////////////////
 
 EZ_ALWAYS_INLINE void ezGameObject::TransformationData::UpdateGlobalTransform()
@@ -565,8 +591,8 @@ EZ_FORCE_INLINE void ezGameObject::TransformationData::UpdateGlobalBoundsAndSpat
   ///\todo find a better place for this
   // Can't use ezSimdBBoxSphere::operator != because we want to include the w component of m_BoxHalfExtents
   if ((m_globalBounds.m_CenterAndRadius != oldGlobalBounds.m_CenterAndRadius ||
-       m_globalBounds.m_BoxHalfExtents != oldGlobalBounds.m_BoxHalfExtents)
-          .AnySet<4>())
+        m_globalBounds.m_BoxHalfExtents != oldGlobalBounds.m_BoxHalfExtents)
+        .AnySet<4>())
   {
     bool bWasAlwaysVisible = oldGlobalBounds.m_BoxHalfExtents.w() != ezSimdFloat::Zero();
     bool bIsAlwaysVisible = m_globalBounds.m_BoxHalfExtents.w() != ezSimdFloat::Zero();

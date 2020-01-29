@@ -82,6 +82,7 @@ namespace
     ezDynamicArray<Vertex, ezAlignedAllocatorWrapper> m_lineVertices;
     ezDynamicArray<Vertex, ezAlignedAllocatorWrapper> m_triangleVertices;
     ezDynamicArray<Vertex, ezAlignedAllocatorWrapper> m_triangle2DVertices;
+    ezDynamicArray<Vertex, ezAlignedAllocatorWrapper> m_line2DVertices;
     ezDynamicArray<BoxData, ezAlignedAllocatorWrapper> m_lineBoxes;
     ezDynamicArray<BoxData, ezAlignedAllocatorWrapper> m_solidBoxes;
     ezMap<ezTexture2DResourceHandle, ezDynamicArray<TexVertex, ezAlignedAllocatorWrapper>> m_texTriangle2DVertices;
@@ -126,7 +127,7 @@ namespace
     return *pData;
   }
 
-  static void ClearRenderData(ezUInt64)
+  static void ClearRenderData()
   {
     EZ_LOCK(s_Mutex);
 
@@ -136,6 +137,7 @@ namespace
       if (pData)
       {
         pData->m_lineVertices.Clear();
+        pData->m_line2DVertices.Clear();
         pData->m_lineBoxes.Clear();
         pData->m_solidBoxes.Clear();
         pData->m_triangleVertices.Clear();
@@ -144,6 +146,14 @@ namespace
         pData->m_textLines2D.Clear();
         pData->m_textLines3D.Clear();
       }
+    }
+  }
+
+  static void OnRenderEvent(const ezRenderWorldRenderEvent& e)
+  {
+    if (e.m_Type == ezRenderWorldRenderEvent::Type::EndRender)
+    {
+      ClearRenderData();
     }
   }
 
@@ -158,6 +168,7 @@ namespace
       Triangles2D,
       TexTriangles2D,
       Glyphs,
+      Lines2D,
 
       Count
     };
@@ -351,6 +362,28 @@ void ezDebugRenderer::DrawLines(const ezDebugRendererContext& context, ezArrayPt
   }
 }
 
+void ezDebugRenderer::Draw2DLines(const ezDebugRendererContext& context, ezArrayPtr<Line> lines, const ezColor& color)
+{
+  if (lines.IsEmpty())
+    return;
+
+  EZ_LOCK(s_Mutex);
+
+  auto& data = GetDataForExtraction(context);
+
+  for (auto& line : lines)
+  {
+    ezVec3* pPositions = &line.m_start;
+
+    for (ezUInt32 i = 0; i < 2; ++i)
+    {
+      auto& vertex = data.m_line2DVertices.ExpandAndGetRef();
+      vertex.m_position = pPositions[i];
+      vertex.m_color = color;
+    }
+  }
+}
+
 //static
 void ezDebugRenderer::DrawCross(const ezDebugRendererContext& context, const ezVec3& globalPosition, float fLineLength, const ezColor& color)
 {
@@ -363,11 +396,10 @@ void ezDebugRenderer::DrawCross(const ezDebugRendererContext& context, const ezV
   const ezVec3 zAxis = ezVec3::UnitZAxis() * fHalfLineLength;
 
   Line lines[3] =
-  {
-    {globalPosition - xAxis, globalPosition + xAxis},
-    {globalPosition - yAxis, globalPosition + yAxis},
-    {globalPosition - zAxis, globalPosition + zAxis}
-  };
+    {
+      {globalPosition - xAxis, globalPosition + xAxis},
+      {globalPosition - yAxis, globalPosition + yAxis},
+      {globalPosition - zAxis, globalPosition + zAxis}};
 
   DrawLines(context, lines, color);
 }
@@ -853,7 +885,7 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
     }
   }
 
-  // Lines
+  // 3D Lines
   {
     ezUInt32 uiNumLineVertices = pData->m_lineVertices.GetCount();
     if (uiNumLineVertices != 0)
@@ -871,6 +903,33 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
         pGALContext->UpdateBuffer(s_hDataBuffer[BufferType::Lines], 0, ezMakeArrayPtr(pLineData, uiNumLineVerticesInBatch).ToByteArray());
 
         renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDataBuffer[BufferType::Lines], ezGALBufferHandle(), &s_VertexDeclarationInfo,
+          ezGALPrimitiveTopology::Lines, uiNumLineVerticesInBatch / 2);
+        renderViewContext.m_pRenderContext->DrawMeshBuffer();
+
+        uiNumLineVertices -= uiNumLineVerticesInBatch;
+        pLineData += LINE_VERTICES_PER_BATCH;
+      }
+    }
+  }
+
+  // 2D Lines
+  {
+    ezUInt32 uiNumLineVertices = pData->m_line2DVertices.GetCount();
+    if (uiNumLineVertices != 0)
+    {
+      CreateVertexBuffer(BufferType::Lines2D, sizeof(Vertex));
+
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PRE_TRANSFORMED_VERTICES", "TRUE");
+      renderViewContext.m_pRenderContext->BindShader(s_hDebugPrimitiveShader);
+
+      const Vertex* pLineData = pData->m_line2DVertices.GetData();
+      while (uiNumLineVertices > 0)
+      {
+        const ezUInt32 uiNumLineVerticesInBatch = ezMath::Min<ezUInt32>(uiNumLineVertices, LINE_VERTICES_PER_BATCH);
+        EZ_ASSERT_DEV(uiNumLineVerticesInBatch % 2 == 0, "Vertex count must be a multiple of 2.");
+        pGALContext->UpdateBuffer(s_hDataBuffer[BufferType::Lines2D], 0, ezMakeArrayPtr(pLineData, uiNumLineVerticesInBatch).ToByteArray());
+
+        renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDataBuffer[BufferType::Lines2D], ezGALBufferHandle(), &s_VertexDeclarationInfo,
           ezGALPrimitiveTopology::Lines, uiNumLineVerticesInBatch / 2);
         renderViewContext.m_pRenderContext->DrawMeshBuffer();
 
@@ -1126,12 +1185,12 @@ void ezDebugRenderer::OnEngineStartup()
   s_hDebugTexturedPrimitiveShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Debug/DebugTexturedPrimitive.ezShader");
   s_hDebugTextShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Debug/DebugText.ezShader");
 
-  ezRenderWorld::s_EndRenderEvent.AddEventHandler(&ClearRenderData);
+  ezRenderWorld::GetRenderEvent().AddEventHandler(&OnRenderEvent);
 }
 
 void ezDebugRenderer::OnEngineShutdown()
 {
-  ezRenderWorld::s_EndRenderEvent.RemoveEventHandler(&ClearRenderData);
+  ezRenderWorld::GetRenderEvent().RemoveEventHandler(&OnRenderEvent);
 
   for (ezUInt32 i = 0; i < BufferType::Count; ++i)
   {

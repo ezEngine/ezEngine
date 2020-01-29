@@ -11,7 +11,11 @@ export class WallMine extends ez.TickedTypescriptComponent {
         super()
     }
 
-    Tick(): number {
+    OnSimulationStarted(): void {
+        this.SetTickInterval(ez.Time.Milliseconds(40));
+    }
+
+    Tick(): void {
 
         let owner = this.GetOwner();
         let pos = owner.GetGlobalPosition();
@@ -45,8 +49,6 @@ export class WallMine extends ez.TickedTypescriptComponent {
 
             this.distance = res.distance;
         }
-
-        return ez.Time.Milliseconds(50);
     }
 
     Explode(): void {

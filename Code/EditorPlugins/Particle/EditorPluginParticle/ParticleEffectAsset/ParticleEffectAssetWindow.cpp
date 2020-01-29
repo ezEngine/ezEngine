@@ -720,7 +720,7 @@ void ezQtParticleEffectAssetDocumentWindow::UpdateSystemList()
 
     for (auto it = m_ParticleSystems.GetIterator(); it.IsValid(); ++it)
     {
-      m_pSystemsCombo->addItem(it.Key().GetData(), qVariantFromValue<void*>(it.Value()));
+      m_pSystemsCombo->addItem(it.Key().GetData(), QVariant::fromValue<void*>(it.Value()));
     }
   }
 

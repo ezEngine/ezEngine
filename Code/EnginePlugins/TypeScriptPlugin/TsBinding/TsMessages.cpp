@@ -1,6 +1,7 @@
 #include <TypeScriptPluginPCH.h>
 
 #include <Duktape/duktape.h>
+#include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
@@ -14,52 +15,55 @@ void ezTypeScriptBinding::GenerateMessagesFile(const char* szFile)
   sFileContent =
     R"(// AUTO-GENERATED FILE
 
-import __Message = require("./Message")
+import __Message = require("TypeScript/ez/Message")
 export import Message = __Message.Message;
 export import EventMessage = __Message.EventMessage;
 
-import __Vec2 = require("./Vec2")
+import __Vec2 = require("TypeScript/ez/Vec2")
 export import Vec2 = __Vec2.Vec2;
 
-import __Vec3 = require("./Vec3")
+import __Vec3 = require("TypeScript/ez/Vec3")
 export import Vec3 = __Vec3.Vec3;
 
-import __Mat3 = require("./Mat3")
+import __Mat3 = require("TypeScript/ez/Mat3")
 export import Mat3 = __Mat3.Mat3;
 
-import __Mat4 = require("./Mat4")
+import __Mat4 = require("TypeScript/ez/Mat4")
 export import Mat4 = __Mat4.Mat4;
 
-import __Quat = require("./Quat")
+import __Quat = require("TypeScript/ez/Quat")
 export import Quat = __Quat.Quat;
 
-import __Transform = require("./Transform")
+import __Transform = require("TypeScript/ez/Transform")
 export import Transform = __Transform.Transform;
 
-import __Color = require("./Color")
+import __Color = require("TypeScript/ez/Color")
 export import Color = __Color.Color;
 
-import __Time = require("./Time")
+import __Time = require("TypeScript/ez/Time")
 export import Time = __Time.Time;
 
-import __Angle = require("./Angle")
+import __Angle = require("TypeScript/ez/Angle")
 export import Angle = __Angle.Angle;
 
 import Enum = require("./AllEnums")
+import Flags = require("./AllFlags")
 
 
 )";
 
   GenerateAllMessagesCode(sFileContent);
 
-  ezFileWriter file;
-  if (file.Open(szFile).Failed())
-  {
-    ezLog::Error("Failed to open file '{}'", szFile);
-    return;
-  }
+  ezDeferredFileWriter file;
+  file.SetOutput(szFile, true);
 
   file.WriteBytes(sFileContent.GetData(), sFileContent.GetElementCount());
+
+  if (file.Close().Failed())
+  {
+    ezLog::Error("Failed to write file '{}'", szFile);
+    return;
+  }
 }
 
 static void CreateMessageTypeList(ezSet<const ezRTTI*>& found, ezDynamicArray<const ezRTTI*>& sorted, const ezRTTI* pRtti)
@@ -85,8 +89,12 @@ void ezTypeScriptBinding::GenerateAllMessagesCode(ezStringBuilder& out_Code)
   ezDynamicArray<const ezRTTI*> sorted;
   sorted.Reserve(100);
 
-  for (auto pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
+  ezHybridArray<const ezRTTI*, 64> alphabetical;
+  for (auto pRtti : ezRTTI::GetAllTypesDerivedFrom(ezGetStaticRTTI<ezMessage>(), alphabetical, true))
   {
+    if (pRtti == ezGetStaticRTTI<ezMessage>() || pRtti == ezGetStaticRTTI<ezEventMessage>())
+      continue;
+
     CreateMessageTypeList(found, sorted, pRtti);
   }
 
@@ -123,67 +131,36 @@ void ezTypeScriptBinding::GenerateMessagePropertiesCode(ezStringBuilder& out_Cod
 
     const ezRTTI* pPropType = pProp->GetSpecificType();
 
-    if (pPropType->IsDerivedFrom<ezEnumBase>() || pPropType->IsDerivedFrom<ezBitflagsBase>())
-    {
-      s_RequiredEnums.Insert(pPropType);
+    ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pProp);
 
-      sDefault = pPropType->GetTypeName();
-      sDefault.TrimWordStart("ez");
-      sProp.Format("  {0}: Enum.{1};\n", pProp->GetPropertyName(), sDefault);
+    const char* szTypeName = TsType(pMember->GetSpecificType());
+    if (szTypeName == nullptr)
+      continue;
+
+    const ezVariant defaultValue = ezReflectionUtils::GetDefaultValue(pMember);
+    GenerateConstructorString(sDefault, defaultValue);
+
+    if (!sDefault.IsEmpty())
+    {
+      sProp.Format("  {0}: {1} = {2};\n", pMember->GetPropertyName(), szTypeName, sDefault);
     }
     else
     {
-      ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pProp);
-
-      const char* szTypeName = TsType(pMember->GetSpecificType());
-      if (szTypeName == nullptr)
-        continue;
-
-      const ezVariant def = ezReflectionUtils::GetDefaultValue(pMember);
-
-      if (def.CanConvertTo<ezString>())
-      {
-        sDefault = def.ConvertTo<ezString>();
-
-        EZ_ASSERT_DEV(sDefault != "N/A", "");
-      }
-
-      if (!sDefault.IsEmpty())
-      {
-        // TODO: make this prettier
-        if (def.GetType() == ezVariant::Type::Color)
-        {
-          ezColor c = def.Get<ezColor>();
-          sDefault.Format("new Color({}, {}, {}, {})", c.r, c.g, c.b, c.a);
-        }
-        else if (def.GetType() == ezVariant::Type::Time)
-        {
-          sDefault.Format("{0}", def.Get<ezTime>().GetSeconds());
-        }
-        else if (def.GetType() == ezVariant::Type::Angle)
-        {
-          sDefault.Format("{0}", def.Get<ezAngle>().GetRadian());
-        }
-
-        sProp.Format("  {0}: {1} = {2};\n", pMember->GetPropertyName(), szTypeName, sDefault);
-      }
-      else
-      {
-        sProp.Format("  {0}: {1};\n", pMember->GetPropertyName(), szTypeName);
-      }
+      sProp.Format("  {0}: {1};\n", pMember->GetPropertyName(), szTypeName);
     }
 
     out_Code.Append(sProp.GetView());
   }
 }
 
-void ezTypeScriptBinding::InjectMessageImportExport(const char* szFile, const char* szMessageFile)
+void ezTypeScriptBinding::InjectMessageImportExport(ezStringBuilder& content, const char* szMessageFile)
 {
   ezSet<const ezRTTI*> found;
   ezDynamicArray<const ezRTTI*> sorted;
   sorted.Reserve(100);
 
-  for (auto pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
+  ezHybridArray<const ezRTTI*, 64> alphabetical;
+  for (auto pRtti : ezRTTI::GetAllTypesDerivedFrom(ezGetStaticRTTI<ezMessage>(), alphabetical, true))
   {
     CreateMessageTypeList(found, sorted, pRtti);
   }
@@ -201,7 +178,7 @@ void ezTypeScriptBinding::InjectMessageImportExport(const char* szFile, const ch
       sTypeName);
   }
 
-  AppendToTextFile(szFile, sImportExport);
+  AppendToTextFile(content, sImportExport);
 }
 
 static ezUniquePtr<ezMessage> CreateMessage(ezUInt32 uiTypeHash, const ezRTTI*& pRtti)
@@ -239,19 +216,7 @@ ezUniquePtr<ezMessage> ezTypeScriptBinding::MessageFromParameter(duk_context* pD
 
   if (pMsg != nullptr)
   {
-    ezHybridArray<ezAbstractProperty*, 32> properties;
-    pRtti->GetAllProperties(properties);
-
-    for (ezAbstractProperty* pProp : properties)
-    {
-      if (pProp->GetCategory() != ezPropertyCategory::Member)
-        continue;
-
-      ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pProp);
-
-      const ezVariant value = ezTypeScriptBinding::GetVariantProperty(duk, pProp->GetPropertyName(), iObjIdx + 1, pMember->GetSpecificType()->GetVariantType());
-      ezReflectionUtils::SetMemberPropertyValue(pMember, pMsg.Borrow(), value);
-    }
+    SyncTsObjectEzTsObject(pDuk, pRtti, pMsg.Borrow(), iObjIdx + 1);
   }
   else
 
@@ -310,35 +275,7 @@ void ezTypeScriptBinding::DukPutMessage(duk_context* pDuk, const ezMessage& msg)
   duk_remove(duk, -2);                              // [ global msg ]
   duk_remove(duk, -2);                              // [ msg ]
 
-
-  ezHybridArray<ezAbstractProperty*, 32> properties;
-  pRtti->GetAllProperties(properties);
-
-  for (ezAbstractProperty* pProp : properties)
-  {
-    if (pProp->GetCategory() != ezPropertyCategory::Member)
-      continue;
-
-    ezAbstractMemberProperty* pMember = static_cast<ezAbstractMemberProperty*>(pProp);
-
-    const ezRTTI* pType = pMember->GetSpecificType();
-
-    if (pType->GetTypeFlags().IsAnySet(ezTypeFlags::IsEnum | ezTypeFlags::Bitflags))
-    {
-      const ezVariant val = ezReflectionUtils::GetMemberPropertyValue(pMember, &msg);
-
-      SetVariantProperty(duk, pMember->GetPropertyName(), -1, val);
-    }
-    else
-    {
-      if (pType->GetVariantType() == ezVariant::Type::Invalid)
-        continue;
-
-      const ezVariant val = ezReflectionUtils::GetMemberPropertyValue(pMember, &msg);
-
-      SetVariantProperty(duk, pMember->GetPropertyName(), -1, val);
-    }
-  }
+  SyncEzObjectToTsObject(pDuk, pRtti, &msg, -1);
 
   EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, +1);
 }
@@ -421,7 +358,7 @@ bool ezTypeScriptBinding::HasMessageHandler(const TsComponentTypeInfo& typeInfo,
   return false;
 }
 
-bool ezTypeScriptBinding::DeliverMessage(const TsComponentTypeInfo& typeInfo, ezTypeScriptComponent* pComponent, ezMessage& msg)
+bool ezTypeScriptBinding::DeliverMessage(const TsComponentTypeInfo& typeInfo, ezTypeScriptComponent* pComponent, ezMessage& msg, bool bSynchronizeAfterwards)
 {
   if (!typeInfo.IsValid())
     return false;
@@ -444,9 +381,26 @@ bool ezTypeScriptBinding::DeliverMessage(const TsComponentTypeInfo& typeInfo, ez
       if (duk.PrepareMethodCall(mh.m_sHandlerFunc).Succeeded()) // [ comp func comp ]
       {
         ezTypeScriptBinding::DukPutMessage(duk, msg); // [ comp func comp msg ]
-        duk.PushCustom();                             // [ comp func comp msg ]
-        duk.CallPreparedMethod();                     // [ comp result ]
-        duk.PopStack(2);                              // [ ]
+
+        if (bSynchronizeAfterwards)
+        {
+          duk.PushGlobalStash();                 // [ ... stash ]
+          duk_dup(duk, -2);                      // [ ... stash msg ]
+          duk_put_prop_string(duk, -2, "ezMsg"); // [ ... stash ]
+          duk_pop(duk);                          // [ ... ]
+        }
+
+        duk.PushCustom();         // [ comp func comp msg ]
+        duk.CallPreparedMethod(); // [ comp result ]
+        duk.PopStack(2);          // [ ]
+
+        if (bSynchronizeAfterwards)
+        {
+          duk.PushGlobalStash();                                                // [ ... stash ]
+          duk_get_prop_string(duk, -1, "ezMsg");                                // [ ... stash msg ]
+          ezTypeScriptBinding::SyncTsObjectEzTsObject(duk, pMsgRtti, &msg, -1); // [ ... stash msg ]
+          duk_pop_2(duk);                                                       // [ ... ]
+        }
 
         EZ_DUK_RETURN_AND_VERIFY_STACK(duk, true, 0);
       }

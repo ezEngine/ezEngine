@@ -250,7 +250,7 @@ void ezQtEventTrackEditorWidget::UpdateSpinBoxes()
 
 void ezQtEventTrackEditorWidget::DetermineAvailableEvents()
 {
-  m_EventSet.ReadFromDDL(":project/.editor/Events.ddl");
+  m_EventSet.ReadFromDDL(":project/Editor/Events.ddl");
 
   FillEventComboBox(nullptr);
 }

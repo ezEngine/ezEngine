@@ -343,6 +343,26 @@ bool ezRTTI::DispatchMessage(const void* pInstance, ezMessage& msg) const
   return false;
 }
 
+const ezDynamicArray<const ezRTTI*>& ezRTTI::GetAllTypesDerivedFrom(const ezRTTI* pBaseType, ezDynamicArray<const ezRTTI*>& out_DerivedTypes, bool bSortByName)
+{
+  for (auto pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
+  {
+    if (!pRtti->IsDerivedFrom(pBaseType))
+      continue;
+
+    out_DerivedTypes.PushBack(pRtti);
+  }
+
+  if (bSortByName)
+  {
+    out_DerivedTypes.Sort([](const ezRTTI* r1, const ezRTTI* r2) -> bool {
+      return ezStringUtils::Compare(r1->GetTypeName(), r2->GetTypeName()) < 0;
+    });
+  }
+
+  return out_DerivedTypes;
+}
+
 void ezRTTI::AssignPlugin(const char* szPluginName)
 {
   // assigns the given plugin name to every ezRTTI instance that has no plugin assigned yet

@@ -36,7 +36,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpawnComponent, 2, ezComponentMode::Static)
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_FUNCTIONS
   {
-    EZ_SCRIPT_FUNCTION_PROPERTY(TriggerManualSpawn),
+    EZ_SCRIPT_FUNCTION_PROPERTY(CanTriggerManualSpawn),
+    EZ_SCRIPT_FUNCTION_PROPERTY(TriggerManualSpawn, In, "IgnoreSpawnDelay", In, "LocalOffset"),
     EZ_SCRIPT_FUNCTION_PROPERTY(ScheduleSpawn),
   }
   EZ_END_FUNCTIONS;
@@ -58,12 +59,13 @@ void ezSpawnComponent::OnSimulationStarted()
 }
 
 
-bool ezSpawnComponent::SpawnOnce()
+bool ezSpawnComponent::SpawnOnce(const ezVec3& vLocalOffset)
 {
   if (m_hPrefab.IsValid())
   {
     ezTransform tLocalSpawn;
     tLocalSpawn.SetIdentity();
+    tLocalSpawn.m_vPosition = vLocalOffset;
 
     if (m_MaxDeviation.GetRadian() > 0)
     {
@@ -160,16 +162,22 @@ void ezSpawnComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_LastManualSpawn;
 }
 
-
-bool ezSpawnComponent::TriggerManualSpawn()
+bool ezSpawnComponent::CanTriggerManualSpawn() const
 {
   const ezTime tNow = GetWorld()->GetClock().GetAccumulatedTime();
 
-  if (tNow - m_LastManualSpawn < m_MinDelay)
+  return tNow - m_LastManualSpawn >= m_MinDelay;
+}
+
+bool ezSpawnComponent::TriggerManualSpawn(bool bIgnoreSpawnDelay /*= false*/, const ezVec3& vLocalOffset /*= ezVec3::ZeroVector()*/)
+{
+  const ezTime tNow = GetWorld()->GetClock().GetAccumulatedTime();
+
+  if (bIgnoreSpawnDelay == false && tNow - m_LastManualSpawn < m_MinDelay)
     return false;
 
   m_LastManualSpawn = tNow;
-  return SpawnOnce();
+  return SpawnOnce(vLocalOffset);
 }
 
 void ezSpawnComponent::SetPrefabFile(const char* szFile)
@@ -233,7 +241,7 @@ void ezSpawnComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
   {
     m_SpawnFlags.Remove(ezSpawnComponentFlags::SpawnInFlight);
 
-    SpawnOnce();
+    SpawnOnce(ezVec3::ZeroVector());
 
     // do it all again
     if (m_SpawnFlags.IsAnySet(ezSpawnComponentFlags::SpawnContinuously))

@@ -38,6 +38,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 static ezPhysicsOverlapResult g_OverlapResults;
 
 ezAreaDamageComponent::ezAreaDamageComponent() = default;
+ezAreaDamageComponent::~ezAreaDamageComponent() = default;
 
 void ezAreaDamageComponent::ApplyAreaDamage()
 {
@@ -95,6 +96,12 @@ void ezAreaDamageComponent::ApplyAreaDamage()
         {
           ezMsgDamage msg;
           msg.m_fDamage = m_fDamage * fScale;
+
+          ezGameObject* pShape = nullptr;
+          if (GetWorld()->TryGetObject(hit.m_hShapeObject, pShape))
+          {
+            msg.m_sHitObjectName = pShape->GetName();
+          }
 
           pObject->SendMessage(msg);
         }

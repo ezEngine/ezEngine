@@ -379,13 +379,13 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
       EZ_TEST_INT(TestComponent::s_iActivateCounter, 1);
       EZ_TEST_INT(TestComponent::s_iSimulationStartedCounter, 1);
 
-      pComponent->SetActive(false);
+      pComponent->SetActiveFlag(false);
 
       EZ_TEST_INT(TestComponent::s_iInitCounter, 1);
       EZ_TEST_INT(TestComponent::s_iActivateCounter, 0);
       EZ_TEST_INT(TestComponent::s_iSimulationStartedCounter, 1);
 
-      pComponent->SetActive(true);
+      pComponent->SetActiveFlag(true);
 
       EZ_TEST_INT(TestComponent::s_iInitCounter, 1);
       EZ_TEST_INT(TestComponent::s_iActivateCounter, 1);
@@ -403,7 +403,7 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
 
       TestComponent* pComponent = nullptr;
       TestComponent::CreateComponent(pObject, pComponent);
-      pComponent->SetActive(false);
+      pComponent->SetActiveFlag(false);
 
       EZ_TEST_INT(TestComponent::s_iInitCounter, 0);
       EZ_TEST_INT(TestComponent::s_iActivateCounter, 0);
@@ -415,13 +415,13 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
       EZ_TEST_INT(TestComponent::s_iActivateCounter, 0);
       EZ_TEST_INT(TestComponent::s_iSimulationStartedCounter, 0);
 
-      pComponent->SetActive(true);
+      pComponent->SetActiveFlag(true);
 
       EZ_TEST_INT(TestComponent::s_iInitCounter, 1);
       EZ_TEST_INT(TestComponent::s_iActivateCounter, 1);
       EZ_TEST_INT(TestComponent::s_iSimulationStartedCounter, 0);
 
-      pComponent->SetActive(false);
+      pComponent->SetActiveFlag(false);
 
       EZ_TEST_INT(TestComponent::s_iInitCounter, 1);
       EZ_TEST_INT(TestComponent::s_iActivateCounter, 0);
@@ -434,7 +434,7 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
       EZ_TEST_INT(TestComponent::s_iActivateCounter, 0);
       EZ_TEST_INT(TestComponent::s_iSimulationStartedCounter, 0);
 
-      pComponent->SetActive(true);
+      pComponent->SetActiveFlag(true);
 
       EZ_TEST_INT(TestComponent::s_iInitCounter, 1);
       EZ_TEST_INT(TestComponent::s_iActivateCounter, 1);
@@ -475,7 +475,7 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
 
       TestComponent* pComponent = nullptr;
       TestComponent::CreateComponent(pObject, pComponent);
-      pComponent->SetActive(false);
+      pComponent->SetActiveFlag(false);
 
       EZ_TEST_INT(TestComponent::s_iInitCounter, 0);
       EZ_TEST_INT(TestComponent::s_iActivateCounter, 0);
@@ -487,7 +487,7 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
       EZ_TEST_INT(TestComponent::s_iActivateCounter, 0);
       EZ_TEST_INT(TestComponent::s_iSimulationStartedCounter, 0);
 
-      pComponent->SetActive(true);
+      pComponent->SetActiveFlag(true);
 
       EZ_TEST_INT(TestComponent::s_iInitCounter, 1);
       EZ_TEST_INT(TestComponent::s_iActivateCounter, 1);

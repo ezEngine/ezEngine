@@ -36,6 +36,8 @@ void ezTypeScriptComponentManager::OnSimulationStarted()
 
 void ezTypeScriptComponentManager::Update(const ezWorldModule::UpdateContext& context)
 {
+  EZ_PROFILE_SCOPE("TypeScript Update");
+
   for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
   {
     if (it->IsActiveAndSimulating())
