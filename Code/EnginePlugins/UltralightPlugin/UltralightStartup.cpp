@@ -5,26 +5,33 @@
 
 #include <RendererFoundation/Device/Device.h>
 
+#include <UltralightPlugin/Resources/UltralightHTMLResource.h>
+#include <UltralightPlugin/Integration/UltralightFileSystem.h>
+#include <UltralightPlugin/Integration/Renderer.h>
+#include <UltralightPlugin/Integration/GPUDriverEz.h>
+
 #include <GameEngine/GameApplication/GameApplication.h>
 
-#include <UltralightPlugin/Resources/UltralightHTMLResource.h>
+#include <Ultralight/Ultralight.h>
 
-#include <UltralightPlugin/Integration/UltralightThread.h>
 
-static ezUltralightThread* s_pThread = nullptr;
+ultralight::RefPtr<ultralight::Renderer> s_pRenderer = nullptr;
+static ezUltralightFileSystem* s_pFileSystem = nullptr;
+static ezUltralightGPUDriver* s_pGPUDriver = nullptr;
 
 static void UpdateUltralightRendering(const ezGALDeviceEvent& DeviceEvent)
 {
-  if (DeviceEvent.m_Type == ezGALDeviceEvent::BeforeBeginFrame)
-  {
-    s_pThread->Wake();
-  }
-
   if (DeviceEvent.m_Type == ezGALDeviceEvent::AfterBeginFrame)
   {
-    if (s_pThread->IsRunning())
+    s_pRenderer->Update();
+
+    s_pGPUDriver->BeginSynchronize();
+    s_pRenderer->Render();
+    s_pGPUDriver->EndSynchronize();
+
+    if (s_pGPUDriver->HasCommandsPending())
     {
-      s_pThread->DrawCommandLists();
+      s_pGPUDriver->DrawCommandList();
     }
   }
 }
@@ -53,8 +60,29 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Ultralight, UltralightPlugin)
 
   ON_HIGHLEVELSYSTEMS_STARTUP
   {
-    s_pThread = EZ_DEFAULT_NEW(ezUltralightThread);
-    s_pThread->Start();
+    if (!s_pFileSystem)
+    {
+      s_pFileSystem = EZ_DEFAULT_NEW(ezUltralightFileSystem);
+    }
+
+    if (!s_pGPUDriver)
+    {
+      s_pGPUDriver = EZ_DEFAULT_NEW(ezUltralightGPUDriver);
+    }
+
+    ultralight::Config config;
+    config.face_winding = ultralight::kFaceWinding_Clockwise; // CW in D3D, CCW in OGL
+    config.device_scale_hint = 1.0;                           // Set DPI to monitor DPI scale
+    config.font_family_standard = "Segoe UI";                 // Default font family
+    config.force_repaint = ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-ultralight-force-repaint");
+
+    ultralight::Platform::instance().set_config(config);
+    ultralight::Platform::instance().set_file_system(s_pFileSystem);
+
+    ultralight::Platform::instance().set_gpu_driver(s_pGPUDriver);
+
+    s_pRenderer = ultralight::Renderer::Create();
+
 
     ezGALDevice::GetDefaultDevice()->m_Events.AddEventHandler(ezMakeDelegate(UpdateUltralightRendering));
   }
@@ -63,11 +91,13 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Ultralight, UltralightPlugin)
   {
     ezGALDevice::GetDefaultDevice()->m_Events.RemoveEventHandler(ezMakeDelegate(UpdateUltralightRendering));
 
-    s_pThread->Quit();
-    s_pThread->Join();
+    s_pRenderer = nullptr;
 
-    EZ_DEFAULT_DELETE(s_pThread);
-    s_pThread = nullptr;
+    EZ_DEFAULT_DELETE(s_pGPUDriver);
+    s_pGPUDriver = nullptr;
+
+    EZ_DEFAULT_DELETE(s_pFileSystem);
+    s_pFileSystem = nullptr;
   }
 
 EZ_END_SUBSYSTEM_DECLARATION;
