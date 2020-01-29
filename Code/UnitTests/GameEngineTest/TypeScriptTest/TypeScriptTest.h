@@ -28,6 +28,7 @@ public:
     Mat4,
     Transform,
     Color,
+    Debug,
     GameObject,
     Component,
   };

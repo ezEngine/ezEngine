@@ -2,6 +2,7 @@
 
 #include <Duktape/duktape.h>
 #include <Foundation/Configuration/CVar.h>
+#include <GameEngine/Console/ConsoleFunction.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
@@ -16,6 +17,8 @@ static int __CPP_Debug_Draw3DText(duk_context* pDuk);
 static int __CPP_Debug_GetResolution(duk_context* pDuk);
 static int __CPP_Debug_ReadCVar(duk_context* pDuk);
 static int __CPP_Debug_WriteCVar(duk_context* pDuk);
+static int __CPP_Debug_RegisterCVar(duk_context* pDuk);
+static int __CPP_Debug_RegisterCFunc(duk_context* pDuk);
 
 ezResult ezTypeScriptBinding::Init_Debug()
 {
@@ -36,6 +39,8 @@ ezResult ezTypeScriptBinding::Init_Debug()
   m_Duk.RegisterGlobalFunction("__CPP_Debug_WriteCVarInt", __CPP_Debug_WriteCVar, 2, ezCVarType::Int);
   m_Duk.RegisterGlobalFunction("__CPP_Debug_WriteCVarFloat", __CPP_Debug_WriteCVar, 2, ezCVarType::Float);
   m_Duk.RegisterGlobalFunction("__CPP_Debug_WriteCVarString", __CPP_Debug_WriteCVar, 2, ezCVarType::String);
+  m_Duk.RegisterGlobalFunction("__CPP_Debug_RegisterCVar", __CPP_Debug_RegisterCVar, 4);
+  m_Duk.RegisterGlobalFunctionWithVarArgs("__CPP_Debug_RegisterCFunc", __CPP_Debug_RegisterCFunc);
 
   return EZ_SUCCESS;
 }
@@ -282,6 +287,211 @@ static int __CPP_Debug_WriteCVar(duk_context* pDuk)
 
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
+  }
+
+  return duk.ReturnVoid();
+}
+
+
+static int __CPP_Debug_RegisterCVar(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk);
+
+  ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(pDuk);
+
+  const char* szVarName = duk.GetStringValue(0);
+  const ezCVarType::Enum type = (ezCVarType::Enum)duk.GetIntValue(1);
+  const char* szDesc = duk.GetStringValue(3);
+
+  auto& pCVar = pBinding->m_CVars[szVarName];
+
+  if (pCVar != nullptr)
+    return duk.ReturnVoid();
+
+  switch (type)
+  {
+    case ezCVarType::Int:
+      pCVar = EZ_DEFAULT_NEW(ezCVarInt, szVarName, duk.GetIntValue(2), ezCVarFlags::Default, szDesc);
+      break;
+    case ezCVarType::Float:
+      pCVar = EZ_DEFAULT_NEW(ezCVarFloat, szVarName, duk.GetFloatValue(2), ezCVarFlags::Default, szDesc);
+      break;
+    case ezCVarType::Bool:
+      pCVar = EZ_DEFAULT_NEW(ezCVarBool, szVarName, duk.GetBoolValue(2), ezCVarFlags::Default, szDesc);
+      break;
+    case ezCVarType::String:
+      pCVar = EZ_DEFAULT_NEW(ezCVarString, szVarName, duk.GetStringValue(2), ezCVarFlags::Default, szDesc);
+      break;
+
+    default:
+      duk.Error(ezFmt("CVar '{}': invalid type {}", szVarName, (int)type));
+      return duk.ReturnVoid();
+  }
+
+  ezCVar::ListOfCVarsChanged("Scripting");
+
+  return duk.ReturnVoid();
+}
+
+class TsConsoleFunc : public ezConsoleFunctionBase
+{
+
+public:
+  TsConsoleFunc(const char* szFunctionName, const char* szDescription)
+    : ezConsoleFunctionBase(szFunctionName, szDescription)
+  {
+  }
+
+  ezStaticArray<ezVariant::Type::Enum, 8> m_Args;
+
+  ezUInt32 GetNumParameters() const override
+  {
+    return m_Args.GetCount();
+  }
+
+
+  ezVariant::Type::Enum GetParameterType(ezUInt32 uiParam) const override
+  {
+    return m_Args[uiParam];
+  }
+
+  ezResult Call(ezArrayPtr<ezVariant> params) override
+  {
+    m_pBinding->StoreConsoleFuncCall(this, params);
+    return EZ_SUCCESS;
+  }
+
+  ezResult DoCall(const ezArrayPtr<ezVariant>& params)
+  {
+    auto& cm = m_pBinding->m_ConsoleFuncs[GetName()];
+
+    const ezUInt32 uiNumArgs = params.GetCount();
+
+    if (uiNumArgs != m_Args.GetCount())
+      return EZ_FAILURE;
+
+    ezDuktapeContext& duk = m_pBinding->GetDukTapeContext();
+
+    // accessing the ezWorld is the reason why the function call is stored and delayed
+    // otherwise this would hang indefinitely
+    EZ_LOCK(m_pBinding->GetWorld()->GetWriteMarker());
+
+    for (auto& reg : cm.m_Registered)
+    {
+      ezComponent* pComponent;
+      if (!reg.m_hOwner.IsInvalidated() && !m_pBinding->GetWorld()->TryGetComponent(reg.m_hOwner, pComponent))
+      {
+        reg.m_hOwner.Invalidate();
+        continue;
+      }
+
+      duk.PushGlobalStash();                             // [ stash ]
+      duk_get_prop_index(duk, -1, reg.m_uiFuncStashIdx); // [ stash func ]
+
+      for (ezUInt32 arg = 0; arg < uiNumArgs; ++arg)
+      {
+        ezResult r = EZ_FAILURE;
+
+        switch (m_Args[arg])
+        {
+          case ezVariant::Type::Bool:
+            duk.PushBool(params[arg].ConvertTo<bool>(&r));
+            break;
+          case ezVariant::Type::Double:
+            duk.PushNumber(params[arg].ConvertTo<double>(&r));
+            break;
+          case ezVariant::Type::String:
+            duk.PushString(params[arg].ConvertTo<ezString>(&r).GetData());
+            break;
+        }
+
+        if (r.Failed())
+        {
+          duk.Error(ezFmt("Could not convert cfunc argument {} to expected type {}", arg, (int)m_Args[arg]));
+          return EZ_FAILURE;
+        }
+      }
+
+      duk_call(duk, uiNumArgs); // [ stash result ]
+      duk.PopStack(2);          // [ ]
+    }
+
+    return EZ_SUCCESS;
+  }
+
+  ezTypeScriptBinding* m_pBinding = nullptr;
+};
+
+void ezTypeScriptBinding::StoreConsoleFuncCall(ezConsoleFunctionBase* pFunc, const ezArrayPtr<ezVariant>& params)
+{
+  auto& call = m_CFuncCalls.ExpandAndGetRef();
+  call.m_pFunc = pFunc;
+  call.m_Arguments = params;
+}
+
+void ezTypeScriptBinding::ExecuteConsoleFuncs()
+{
+  for (auto& call : m_CFuncCalls)
+  {
+    TsConsoleFunc* pFunc = static_cast<TsConsoleFunc*>(call.m_pFunc);
+    pFunc->DoCall(call.m_Arguments.GetArrayPtr());
+  }
+
+  m_CFuncCalls.Clear();
+}
+
+static int __CPP_Debug_RegisterCFunc(duk_context* pDuk)
+{
+  ezDuktapeFunction duk(pDuk);
+
+  ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(pDuk);
+
+  ezComponentHandle hComponent = ezTypeScriptBinding::ExpectComponent<ezComponent>(pDuk, 0)->GetHandle();
+  const char* szName = duk.GetStringValue(1);
+  const char* szDesc = duk.GetStringValue(2);
+
+  duk_require_function(pDuk, 3);
+
+  auto& fb1 = pBinding->m_ConsoleFuncs[szName];
+
+  if (fb1.m_pFunc == nullptr)
+  {
+    auto f = EZ_DEFAULT_NEW(TsConsoleFunc, szName, szDesc);
+    f->m_pBinding = pBinding;
+
+    for (ezUInt32 arg = 4; arg < duk.GetNumVarArgFunctionParameters(); ++arg)
+    {
+      const ezInt32 iArgType = duk.GetIntValue(arg, ezVariant::Type::Invalid);
+      f->m_Args.PushBack(static_cast<ezVariant::Type::Enum>(iArgType));
+    }
+
+    fb1.m_pFunc = f;
+  }
+  else
+  {
+    for (ezUInt32 arg = 4; arg < duk.GetNumVarArgFunctionParameters(); ++arg)
+    {
+      const ezInt32 iArgType = duk.GetIntValue(arg, ezVariant::Type::Invalid);
+      TsConsoleFunc* func = static_cast<TsConsoleFunc*>(fb1.m_pFunc.Borrow());
+
+      if (func->m_Args[arg - 4] != static_cast<ezVariant::Type::Enum>(iArgType))
+      {
+        duk.Error(ezFmt("Re-registering cfunc '{}' with differing argument {} ({} != {}).", szName, arg - 4, iArgType, func->m_Args[arg - 4]));
+        return duk.ReturnVoid();
+      }
+    }
+  }
+
+  auto& fb2 = fb1.m_Registered.ExpandAndGetRef();
+  fb2.m_hOwner = hComponent;
+  fb2.m_uiFuncStashIdx = pBinding->AcquireStashObjIndex();
+
+  // store a reference to the console function in the stash
+  {
+    duk.PushGlobalStash();                             // [ stash ]
+    duk_dup(duk, 3);                                   // [ stash func ]
+    duk_put_prop_index(duk, -2, fb2.m_uiFuncStashIdx); // [ stash ]
+    duk.PopStack();                                    // [ ]
   }
 
   return duk.ReturnVoid();

@@ -140,12 +140,18 @@ void AddStatsEventHandler()
   // We're handling the per frame update by a different event since
   // using ezTelemetry::TelemetryEventData::PerFrameUpdate can lead
   // to deadlocks between the ezStats and ezTelemetry system.
-  ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(PerFrameUpdateHandler);
+  if (ezGameApplicationBase::GetGameApplicationBaseInstance() != nullptr)
+  {
+    ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(PerFrameUpdateHandler);
+  }
 }
 
 void RemoveStatsEventHandler()
 {
-  ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(PerFrameUpdateHandler);
+  if (ezGameApplicationBase::GetGameApplicationBaseInstance() != nullptr)
+  {
+    ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(PerFrameUpdateHandler);
+  }
 
   ezTelemetry::RemoveEventHandler(TelemetryEventsHandler);
 

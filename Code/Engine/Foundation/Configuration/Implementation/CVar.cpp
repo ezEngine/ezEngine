@@ -499,4 +499,17 @@ void ezCVar::LoadCVarsFromCommandLine(bool bOnlyNewOnes /*= true*/, bool bSetAsC
   }
 }
 
+void ezCVar::ListOfCVarsChanged(const char* szSetPluginNameTo)
+{
+  AssignSubSystemPlugin(szSetPluginNameTo);
+
+  LoadCVars();
+
+  ezCVarEvent e(nullptr);
+  e.m_EventType = ezCVarEvent::Type::ListOfVarsChanged;
+
+  s_AllCVarEvents.Broadcast(e);
+}
+
+
 EZ_STATICLINK_FILE(Foundation, Foundation_Configuration_Implementation_CVar);

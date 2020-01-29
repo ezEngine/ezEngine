@@ -38,6 +38,8 @@ void ezTypeScriptComponentManager::Update(const ezWorldModule::UpdateContext& co
 {
   EZ_PROFILE_SCOPE("TypeScript Update");
 
+  m_TsBinding.Update();
+
   for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
   {
     if (it->IsActiveAndSimulating())

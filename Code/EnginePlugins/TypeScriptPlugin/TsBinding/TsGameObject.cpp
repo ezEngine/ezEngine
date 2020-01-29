@@ -148,16 +148,7 @@ bool ezTypeScriptBinding::RegisterGameObject(ezGameObjectHandle handle, ezUInt32
     return true;
   }
 
-  if (!m_FreeStashObjIdx.IsEmpty())
-  {
-    uiStashIdx = m_FreeStashObjIdx.PeekBack();
-    m_FreeStashObjIdx.PopBack();
-  }
-  else
-  {
-    uiStashIdx = m_uiNextStashObjIdx;
-    ++m_uiNextStashObjIdx;
-  }
+  uiStashIdx = AcquireStashObjIndex();
 
   ezDuktapeHelper duk(m_Duk);                                     // [ ]
   duk.PushGlobalObject();                                         // [ global ]
