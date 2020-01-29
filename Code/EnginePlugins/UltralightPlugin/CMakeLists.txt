@@ -12,14 +12,6 @@ include_directories ("${EZ_ULTRALIGHT_DIR}/include")
 
 set (EZ_ULTRALIGHT_LIB_DIR "${EZ_ULTRALIGHT_DIR}/lib")
 
-if (EZ_CMAKE_PLATFORM_WINDOWS)
-  if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-    SET (EZ_ULTRALIGHT_LIB_DIR "${EZ_ULTRALIGHT_LIB_DIR}/win/x64")
-  else()
-    SET (EZ_ULTRALIGHT_LIB_DIR "${EZ_ULTRALIGHT_LIB_DIR}/win/x86")
-  endif()
-endif()
-
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
   Foundation
