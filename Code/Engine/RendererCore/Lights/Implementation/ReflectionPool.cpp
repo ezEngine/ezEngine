@@ -679,22 +679,25 @@ void ezReflectionPool::OnEngineStartup()
 {
   s_pData = EZ_DEFAULT_NEW(ezReflectionPool::Data);
 
-  ezRenderWorld::s_BeginExtractionEvent.AddEventHandler(OnBeginExtraction);
-  ezRenderWorld::s_BeginRenderEvent.AddEventHandler(OnBeginRender);
+  ezRenderWorld::GetExtractionEvent().AddEventHandler(OnExtractionEvent);
+  ezRenderWorld::GetRenderEvent().AddEventHandler(OnRenderEvent);
 }
 
 // static
 void ezReflectionPool::OnEngineShutdown()
 {
-  ezRenderWorld::s_BeginExtractionEvent.RemoveEventHandler(OnBeginExtraction);
-  ezRenderWorld::s_BeginRenderEvent.RemoveEventHandler(OnBeginRender);
+  ezRenderWorld::GetExtractionEvent().RemoveEventHandler(OnExtractionEvent);
+  ezRenderWorld::GetRenderEvent().RemoveEventHandler(OnRenderEvent);
 
   EZ_DEFAULT_DELETE(s_pData);
 }
 
 // static
-void ezReflectionPool::OnBeginExtraction(ezUInt64 uiFrameCounter)
+void ezReflectionPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
 {
+  if (e.m_Type != ezRenderWorldExtractionEvent::Type::BeginExtraction)
+    return;
+
   EZ_PROFILE_SCOPE("Reflection Pool Update");
 
   s_pData->CreateSkyIrradianceTexture();
@@ -708,7 +711,7 @@ void ezReflectionPool::OnBeginExtraction(ezUInt64 uiFrameCounter)
 
   // generate possible update steps for active probes
   {
-    s_pData->SortActiveProbes(s_pData->m_ActiveDynamicProbes, uiFrameCounter);
+    s_pData->SortActiveProbes(s_pData->m_ActiveDynamicProbes, e.m_uiFrameCounter);
 
     s_pData->GenerateUpdateSteps();
 
@@ -717,8 +720,11 @@ void ezReflectionPool::OnBeginExtraction(ezUInt64 uiFrameCounter)
 }
 
 // static
-void ezReflectionPool::OnBeginRender(ezUInt64 uiFrameCounter)
+void ezReflectionPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
 {
+  if (e.m_Type != ezRenderWorldRenderEvent::Type::BeginRender)
+    return;
+
   if (s_pData->m_hSkyIrradianceTexture.IsInvalidated())
     return;
 

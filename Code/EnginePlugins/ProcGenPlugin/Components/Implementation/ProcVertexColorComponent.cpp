@@ -63,8 +63,8 @@ void ezProcVertexColorComponentManager::Initialize()
     this->RegisterUpdateFunction(desc);
   }
 
-  ezRenderWorld::s_BeginRenderEvent.AddEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnBeginRender, this));
-  ezRenderWorld::s_EndExtractionEvent.AddEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnEndExtraction, this));
+  ezRenderWorld::GetRenderEvent().AddEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnRenderEvent, this));
+  ezRenderWorld::GetExtractionEvent().AddEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnExtractionEvent, this));
 
   ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnResourceEvent, this));
 
@@ -76,8 +76,8 @@ void ezProcVertexColorComponentManager::Deinitialize()
   ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hVertexColorBuffer);
   m_hVertexColorBuffer.Invalidate();
 
-  ezRenderWorld::s_BeginRenderEvent.RemoveEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnBeginRender, this));
-  ezRenderWorld::s_EndExtractionEvent.RemoveEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnEndExtraction, this));
+  ezRenderWorld::GetRenderEvent().RemoveEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnRenderEvent, this));
+  ezRenderWorld::GetExtractionEvent().RemoveEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnExtractionEvent, this));
 
   ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezProcVertexColorComponentManager::OnResourceEvent, this));
 
@@ -190,8 +190,11 @@ void ezProcVertexColorComponentManager::UpdateComponentVertexColors(ezProcVertex
   ++m_uiNextTaskIndex;
 }
 
-void ezProcVertexColorComponentManager::OnEndExtraction(ezUInt64 uiFrameCounter)
+void ezProcVertexColorComponentManager::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
 {
+  if (e.m_Type != ezRenderWorldExtractionEvent::Type::EndExtraction)
+    return;
+
   ezTaskSystem::WaitForGroup(m_UpdateTaskGroupID);
   m_UpdateTaskGroupID.Invalidate();
   m_uiNextTaskIndex = 0;
@@ -205,8 +208,11 @@ void ezProcVertexColorComponentManager::OnEndExtraction(ezUInt64 uiFrameCounter)
   }
 }
 
-void ezProcVertexColorComponentManager::OnBeginRender(ezUInt64 uiFrameCounter)
+void ezProcVertexColorComponentManager::OnRenderEvent(const ezRenderWorldRenderEvent& e)
 {
+  if (e.m_Type != ezRenderWorldRenderEvent::Type::BeginRender)
+    return;
+
   auto& dataCopy = m_DataCopy[ezRenderWorld::GetDataIndexForRendering()];
   if (!dataCopy.m_Data.IsEmpty())
   {

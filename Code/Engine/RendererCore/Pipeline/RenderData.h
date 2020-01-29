@@ -54,7 +54,7 @@ public:
   ezGameObjectHandle m_hOwner;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  const ezGameObject* m_pOwner; ///< Debugging only. It is not allowed to access the game object during rendering.
+  const ezGameObject* m_pOwner = nullptr; ///< Debugging only. It is not allowed to access the game object during rendering.
 #endif
 
 private:

@@ -123,8 +123,17 @@ void ezView::ExtractData()
 {
   EZ_ASSERT_DEV(IsValid(), "Cannot extract data from an invalid view");
 
+  ezRenderWorldExtractionEvent extractionEvent;
+  extractionEvent.m_Type = ezRenderWorldExtractionEvent::Type::BeforeViewExtraction;
+  extractionEvent.m_pView = this;
+  extractionEvent.m_uiFrameCounter = ezRenderWorld::GetFrameCounter();
+  ezRenderWorld::s_ExtractionEvent.Broadcast(extractionEvent);
+
   m_pRenderPipeline->m_sName = m_sName;
   m_pRenderPipeline->ExtractData(*this);
+
+  extractionEvent.m_Type = ezRenderWorldExtractionEvent::Type::AfterViewExtraction;
+  ezRenderWorld::s_ExtractionEvent.Broadcast(extractionEvent);
 }
 
 void ezView::ComputeCullingFrustum(ezFrustum& out_Frustum) const

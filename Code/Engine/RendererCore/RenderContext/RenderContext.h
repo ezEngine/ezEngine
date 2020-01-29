@@ -13,6 +13,8 @@
 #include <RendererCore/../../../Data/Base/Shaders/Common/GlobalConstants.h>
 #include <RendererCore/RenderContext/Implementation/RenderContextStructs.h>
 
+struct ezRenderWorldRenderEvent;
+
 //////////////////////////////////////////////////////////////////////////
 // ezRenderContext
 //////////////////////////////////////////////////////////////////////////
@@ -170,7 +172,7 @@ private:
 
   static void OnEngineShutdown();
 
-  void OnEndRender(ezUInt64);
+  void OnRenderEvent(const ezRenderWorldRenderEvent& e);
 
 private:
 
