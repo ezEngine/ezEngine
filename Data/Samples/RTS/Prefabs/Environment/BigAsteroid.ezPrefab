@@ -2,9 +2,9 @@ HeaderV2
 {
 o
 {
-	Uuid %id{u4{18338539354296462158,2947849093090480068}}
+	Uuid %id{u4{8228820268970652244,3350166195583652862}}
 	s %t{"ezExposedParameters"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		VarArray %Parameters{}
@@ -21,10 +21,10 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{3616822117507341700,4754585100917291345}}
-		u4 %Hash{12776492012861184053}
+		u4 %Hash{718763238675639313}
 		VarArray %MetaInfo
 		{
-			Uuid{u4{18338539354296462158,2947849093090480068}}
+			Uuid{u4{8228820268970652244,3350166195583652862}}
 		}
 		VarArray %Outputs{}
 		VarArray %References
@@ -45,6 +45,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -68,7 +69,7 @@ o
 {
 	Uuid %id{u4{2180143235622883171,2594268424217912308}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -84,6 +85,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -107,7 +109,7 @@ o
 {
 	Uuid %id{u4{2353697643899870338,3035173402087524593}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -123,6 +125,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -146,7 +149,7 @@ o
 {
 	Uuid %id{u4{14016830041307575442,3479568835628866642}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -175,21 +178,12 @@ o
 }
 o
 {
-	Uuid %id{u4{16313813826764895147,4690052796073307168}}
-	s %t{"ezShapeIconComponent"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-	}
-}
-o
-{
 	Uuid %id{u4{2384810461551156903,4739185750550632581}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children
 		{
 			Uuid{u4{12064962942844461441,2651990730493606764}}
@@ -213,18 +207,18 @@ o
 {
 	Uuid %id{u4{8787206707442548414,4820297941345455543}}
 	s %t{"ezRotorComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		f %Acceleration{0}
 		b %Active{1}
-		b %AutoToggleDirection{0}
 		s %Axis{"ezBasisAxis::PositiveZ"}
+		Angle %AxisDeviation{f{0}}
 		f %Deceleration{0}
 		i3 %DegreesToRotate{0}
 		b %ReverseAtEnd{0}
 		b %ReverseAtStart{0}
-		b %RunAtStartup{1}
+		b %Running{1}
 		f %Speed{0x00005041}
 	}
 }
@@ -245,6 +239,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -271,6 +266,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -292,21 +288,12 @@ o
 }
 o
 {
-	Uuid %id{u4{11902555074944608436,5104652715948066652}}
-	s %t{"ezShapeIconComponent"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-	}
-}
-o
-{
 	Uuid %id{u4{5968598628090547361,5127227670335139897}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children
 		{
 			Uuid{u4{11427790549103905412,5609663839389360505}}
@@ -316,7 +303,6 @@ o
 		}
 		VarArray %Components
 		{
-			Uuid{u4{16313813826764895147,4690052796073307168}}
 			Uuid{u4{9527458135397808814,5482965124750661372}}
 		}
 		s %GlobalKey{""}
@@ -340,6 +326,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children
 		{
 			Uuid{u4{17776871575297633163,5555265615248056363}}
@@ -348,7 +335,6 @@ o
 		}
 		VarArray %Components
 		{
-			Uuid{u4{11902555074944608436,5104652715948066652}}
 			Uuid{u4{8787206707442548414,4820297941345455543}}
 		}
 		s %GlobalKey{""}
@@ -372,6 +358,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -395,7 +382,7 @@ o
 {
 	Uuid %id{u4{18373252929217246091,5431665695429596396}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -408,18 +395,18 @@ o
 {
 	Uuid %id{u4{9527458135397808814,5482965124750661372}}
 	s %t{"ezRotorComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		f %Acceleration{0}
 		b %Active{1}
-		b %AutoToggleDirection{0}
 		s %Axis{"ezBasisAxis::PositiveZ"}
+		Angle %AxisDeviation{f{0}}
 		f %Deceleration{0}
 		i3 %DegreesToRotate{0}
 		b %ReverseAtEnd{0}
 		b %ReverseAtStart{0}
-		b %RunAtStartup{1}
+		b %Running{1}
 		f %Speed{0x0000A040}
 	}
 }
@@ -427,7 +414,7 @@ o
 {
 	Uuid %id{u4{4654284432519004305,5543400309818964547}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -443,6 +430,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children
 		{
 			Uuid{u4{4277003623624528943,10718980546253126469}}
@@ -467,7 +455,7 @@ o
 {
 	Uuid %id{u4{3573297460015058327,5586141295718233001}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -483,6 +471,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children
 		{
 			Uuid{u4{13587984195012169348,5061175666029881496}}
@@ -518,6 +507,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children
 		{
 			Uuid{u4{1392987761065255445,7739045358785403810}}
@@ -544,18 +534,18 @@ o
 {
 	Uuid %id{u4{10670273545619105668,5728627703409946588}}
 	s %t{"ezRotorComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		f %Acceleration{0}
 		b %Active{1}
-		b %AutoToggleDirection{0}
 		s %Axis{"ezBasisAxis::PositiveZ"}
+		Angle %AxisDeviation{f{0}}
 		f %Deceleration{0}
 		i3 %DegreesToRotate{0}
 		b %ReverseAtEnd{0}
 		b %ReverseAtStart{0}
-		b %RunAtStartup{1}
+		b %Running{1}
 		f %Speed{0x00002041}
 	}
 }
@@ -581,6 +571,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -607,6 +598,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -630,7 +622,7 @@ o
 {
 	Uuid %id{u4{7133036925508022775,7988373526463918372}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -646,6 +638,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -669,7 +662,7 @@ o
 {
 	Uuid %id{u4{10128466535830215958,8122228030379321639}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -682,7 +675,7 @@ o
 {
 	Uuid %id{u4{1508480411732612134,8377995919023014176}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -698,6 +691,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -721,7 +715,7 @@ o
 {
 	Uuid %id{u4{9137080782798328883,10651420015806572187}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -737,6 +731,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -760,7 +755,7 @@ o
 {
 	Uuid %id{u4{13012482398389489456,11102163217847044298}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -776,6 +771,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -799,7 +795,7 @@ o
 {
 	Uuid %id{u4{14897108391506664139,15595578247661703903}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -815,6 +811,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -838,7 +835,7 @@ o
 {
 	Uuid %id{u4{15256525669964055518,16437886322413021366}}
 	s %t{"ezMeshComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -899,20 +896,31 @@ o
 		VarArray %Attributes{}
 		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
 		VarArray %Functions{}
-		s %ParentTypeName{"ezRenderComponent"}
+		s %ParentTypeName{"ezMeshComponentBase"}
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponent"}
-		u3 %TypeSize{128}
-		u3 %TypeVersion{2}
+		u3 %TypeSize{104}
+		u3 %TypeVersion{3}
 	}
 }
 o
 {
-	Uuid %id{u4{5356813224131044166,4948803236559932741}}
-	s %t{"ezHiddenAttribute"}
+	Uuid %id{u4{7605758958972330253,6687734095884105025}}
+	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
-	p{}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezMeshComponentBase"}
+		u3 %TypeSize{104}
+		u3 %TypeVersion{1}
+	}
 }
 o
 {
@@ -1060,27 +1068,6 @@ o
 }
 o
 {
-	Uuid %id{u4{12548802506357991701,12127202460150289855}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes
-		{
-			Uuid{u4{5356813224131044166,4948803236559932741}}
-		}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Phantom"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezComponent"}
-		s %PluginName{"ezEnginePluginScene"}
-		VarArray %Properties{}
-		s %TypeName{"ezShapeIconComponent"}
-		u3 %TypeSize{48}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
 	Uuid %id{u4{10519138687914176703,14437890910412567776}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1094,7 +1081,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezTransformComponent"}
 		u3 %TypeSize{64}
-		u3 %TypeVersion{2}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -1129,8 +1116,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezRotorComponent"}
-		u3 %TypeSize{96}
-		u3 %TypeVersion{2}
+		u3 %TypeSize{112}
+		u3 %TypeVersion{3}
 	}
 }
 o

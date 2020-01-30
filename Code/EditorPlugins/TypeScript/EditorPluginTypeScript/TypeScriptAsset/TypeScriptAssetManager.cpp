@@ -6,6 +6,7 @@
 #include <EditorPluginTypeScript/TypeScriptAsset/TypeScriptAsset.h>
 #include <EditorPluginTypeScript/TypeScriptAsset/TypeScriptAssetManager.h>
 #include <EditorPluginTypeScript/TypeScriptAsset/TypeScriptAssetWindow.moc.h>
+#include <Foundation/Containers/ArrayMap.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
@@ -18,7 +19,6 @@
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <TypeScriptPlugin/Resources/ScriptCompendiumResource.h>
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
-#include <Foundation/Containers/ArrayMap.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTypeScriptAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezTypeScriptAssetDocumentManager>)
@@ -231,6 +231,29 @@ ezResult ezTypeScriptAssetDocumentManager::GenerateScriptCompendium(ezBitflags<e
 {
   EZ_LOG_BLOCK("Generating Script Compendium");
 
+  ezHybridArray<ezAssetInfo*, 256> allTsAssets;
+
+  // keep this locked until the end of the function
+  ezAssetCurator::ezLockedSubAssetTable AllAssetsLocked = ezAssetCurator::GetSingleton()->GetKnownSubAssets();
+  const ezMap<ezUuid, ezSubAsset>& AllAssets = *AllAssetsLocked;
+
+  for (auto it = AllAssets.GetIterator(); it.IsValid(); ++it)
+  {
+    const ezSubAsset* pSub = &it.Value();
+
+    if (pSub->m_pAssetInfo->m_pManager == this)
+    {
+      allTsAssets.PushBack(pSub->m_pAssetInfo);
+    }
+  }
+
+  if (allTsAssets.IsEmpty())
+  {
+    ezLog::Debug("Skipping script compendium creation - no TypeScript assets in project.");
+    return EZ_SUCCESS;
+  }
+
+
   SetupProjectForTypeScript(false);
 
   // read m_CheckedTsFiles cache
@@ -344,18 +367,10 @@ ezResult ezTypeScriptAssetDocumentManager::GenerateScriptCompendium(ezBitflags<e
   // at runtime this 'path' is not used as an ezResource path/id, as would be common, but is used to look up the information
   // directly from the compendium
   {
-    ezAssetCurator* pCurator = ezAssetCurator::GetSingleton();
-    const auto& allAssets = pCurator->GetKnownSubAssets();
-
-    for (auto it = allAssets->GetIterator(); it.IsValid(); ++it)
+    for (auto pAssetInfo : allTsAssets)
     {
-      const auto& asset = it.Value();
-
-      if (asset.m_pAssetInfo->m_pManager != this)
-        continue;
-
-      const ezString& docPath = asset.m_pAssetInfo->m_sDataDirRelativePath;
-      const ezUuid& docGuid = asset.m_pAssetInfo->m_Info->m_DocumentID;
+      const ezString& docPath = pAssetInfo->m_sDataDirRelativePath;
+      const ezUuid& docGuid = pAssetInfo->m_Info->m_DocumentID;
 
       sFilename = ezPathUtils::GetFileName(docPath);
 
