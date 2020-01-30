@@ -11,10 +11,10 @@ o
 		s %AssetType{"Collision Mesh (Convex)"}
 		VarArray %Dependencies
 		{
-			s{"Prefabs/cc0Textures.com/ScannedRock01/ScannedRock01_LQ.obj"}
+			s{"Objects/cc0Textures.com/ScannedRock01/ScannedRock01_LQ.obj"}
 		}
 		Uuid %DocumentID{u4{11621667431150129544,5346005625936564324}}
-		u4 %Hash{5872664273695095755}
+		u4 %Hash{6081638364120870126}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -38,7 +38,7 @@ o
 		s %ForwardDir{"ezBasisAxis::NegativeZ"}
 		f %Height{0x0000803F}
 		b %IsConvexMesh{1}
-		s %MeshFile{"Prefabs/cc0Textures.com/ScannedRock01/ScannedRock01_LQ.obj"}
+		s %MeshFile{"Objects/cc0Textures.com/ScannedRock01/ScannedRock01_LQ.obj"}
 		Vec3 %NonUniformScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %Radius{0x0000003F}
 		f %Radius2{0x0000003F}

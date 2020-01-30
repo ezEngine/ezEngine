@@ -773,6 +773,18 @@ void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
 {
   SUPER::UpdateAssetDocumentInfo(pInfo);
 
+  if (GetProperties()->m_ShaderMode != ezMaterialShaderMode::BaseMaterial)
+  {
+    // remove base material dependency, if it isn't used
+    pInfo->m_AssetTransformDependencies.Remove(GetProperties()->GetBaseMaterial());
+  }
+
+  if (GetProperties()->m_ShaderMode != ezMaterialShaderMode::File)
+  {
+    // remove shader file dependency, if it isn't used
+    pInfo->m_AssetTransformDependencies.Remove(GetProperties()->GetShader());
+  }
+
   if (GetProperties()->m_ShaderMode == ezMaterialShaderMode::Custom)
   {
     // We write our own guid into the shader field so BaseMaterial materials can find the shader file.

@@ -34,6 +34,8 @@ protected:
 
   virtual ezStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 
+  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
+
 };
 
 //////////////////////////////////////////////////////////////////////////

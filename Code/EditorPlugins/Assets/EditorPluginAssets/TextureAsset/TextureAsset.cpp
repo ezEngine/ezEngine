@@ -357,6 +357,17 @@ ezStatus ezTextureAssetDocument::RunTexConv(
 }
 
 
+void ezTextureAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
+{
+  SUPER::UpdateAssetDocumentInfo(pInfo);
+
+  for (ezUInt32 i = GetProperties()->GetNumInputFiles(); i < 4; ++i)
+  {
+    // remove unused dependencies
+    pInfo->m_AssetTransformDependencies.Remove(GetProperties()->GetInputFile(i));
+  }
+}
+
 void ezTextureAssetDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 {
   SUPER::InitializeAfterLoading(bFirstTimeCreation);

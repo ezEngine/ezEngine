@@ -33,6 +33,9 @@ protected:
   virtual ezStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 
   bool m_bIsConvexMesh = false;
+
+  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
+
 };
 
 //////////////////////////////////////////////////////////////////////////

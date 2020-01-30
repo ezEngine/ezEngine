@@ -42,6 +42,9 @@ protected:
   virtual ezStatus InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
 
   ezStatus RunTexConv(const char* szTargetFile, const ezAssetFileHeader& AssetHeader, bool bUpdateThumbnail);
+
+  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
+
 };
 
 //////////////////////////////////////////////////////////////////////////

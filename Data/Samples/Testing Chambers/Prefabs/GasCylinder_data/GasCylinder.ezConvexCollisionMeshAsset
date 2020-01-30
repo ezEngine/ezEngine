@@ -9,10 +9,7 @@ o
 	p
 	{
 		s %AssetType{"Collision Mesh (Convex)"}
-		VarArray %Dependencies
-		{
-			s{"Prefabs/GasCylinder_data/GasCylinder.fbx"}
-		}
+		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12865027762212450468,4845243238091221157}}
 		u4 %Hash{9891614426007994340}
 		VarArray %MetaInfo{}

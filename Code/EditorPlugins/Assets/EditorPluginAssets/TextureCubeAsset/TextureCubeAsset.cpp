@@ -184,6 +184,33 @@ ezStatus ezTextureCubeAssetDocument::RunTexConv(const char* szTargetFile, const 
   return ezStatus(EZ_SUCCESS);
 }
 
+void ezTextureCubeAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
+{
+  SUPER::UpdateAssetDocumentInfo(pInfo);
+
+  switch (GetProperties()->m_ChannelMapping)
+  {
+    case ezTextureCubeChannelMappingEnum::RGB1:
+    case ezTextureCubeChannelMappingEnum::RGBA1:
+    {
+      // remove file dependencies, that aren't used
+      pInfo->m_AssetTransformDependencies.Remove(GetProperties()->GetInputFile1());
+      pInfo->m_AssetTransformDependencies.Remove(GetProperties()->GetInputFile2());
+      pInfo->m_AssetTransformDependencies.Remove(GetProperties()->GetInputFile3());
+      pInfo->m_AssetTransformDependencies.Remove(GetProperties()->GetInputFile4());
+      pInfo->m_AssetTransformDependencies.Remove(GetProperties()->GetInputFile5());
+      break;
+    }
+
+    case ezTextureCubeChannelMappingEnum::RGB1TO6:
+    case ezTextureCubeChannelMappingEnum::RGBA1TO6:
+      break;
+
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+  }
+}
+
 ezStatus ezTextureCubeAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag,
   const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {

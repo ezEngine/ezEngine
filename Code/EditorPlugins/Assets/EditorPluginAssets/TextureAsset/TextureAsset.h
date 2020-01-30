@@ -49,7 +49,7 @@ protected:
   ezStatus RunTexConv(const char* szTargetFile, const ezAssetFileHeader& AssetHeader, bool bUpdateThumbnail,
                       const ezTextureAssetProfileConfig* pAssetConfig);
 
-
+  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
 };
 
 //////////////////////////////////////////////////////////////////////////
