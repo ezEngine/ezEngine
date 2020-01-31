@@ -25,14 +25,17 @@ export class HelperComponent extends ez.TickedTypescriptComponent {
         this.SetTickInterval(ez.Time.Milliseconds(0));
     }
 
+    RaiseEvent(text: string): void {
+        let e = new ez.MsgGenericEvent;
+        e.Message = text;
+        this.BroadcastEvent(e);
+    }
+
     OnMsgGenericEvent(msg: ez.MsgGenericEvent): void {
 
         if (msg.Message == "Event1") {
 
-            let e = new ez.MsgGenericEvent;
-            e.Message = "e1";
-
-            this.BroadcastEvent(e);
+            this.RaiseEvent("e1");
         }
 
         // should not reach itself

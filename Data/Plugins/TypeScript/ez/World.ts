@@ -90,7 +90,7 @@ export namespace World {
    * can be messy and ensuring a global key is never used twice can be difficult, therefore it is advised to
    * use this concept with care.
    */
-  export function TryGetObjectWithGlobalKey(globalKey: string): GameObject {
+  export function TryGetObjectWithGlobalKey(globalKey: string): GameObject { // [tested]
     return __CPP_World_TryGetObjectWithGlobalKey(globalKey);
   }
 

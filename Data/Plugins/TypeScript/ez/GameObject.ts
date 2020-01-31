@@ -484,14 +484,14 @@ export class GameObject {
     /**
      * Changes the global key of the GameObject.
      */
-    SetGlobalKey(name: string): void {
+    SetGlobalKey(name: string): void { // [tested]
         __CPP_GameObject_SetGlobalKey(this, name);
     }
 
     /**
      * Returns the global key of the GameObject.
      */
-    GetGlobalKey(): string {
+    GetGlobalKey(): string { // [tested]
         return __CPP_GameObject_GetGlobalKey(this);
     }
 
@@ -509,7 +509,7 @@ export class GameObject {
      * @param preserveGlobalTransform If true, the global transform of this is preserved and the local transform is adjusted as needed.
      *  If false, the local transform is preserved and the global transform is computed accordingly.
      */
-    SetParent(parent: GameObject, preserveGlobalTransform: boolean = true): void {
+    SetParent(parent: GameObject, preserveGlobalTransform: boolean = true): void { // [tested]
         __CPP_GameObject_SetParent(this, parent, preserveGlobalTransform);
     }
 
@@ -520,7 +520,7 @@ export class GameObject {
      * @param preserveGlobalTransform If true, the global transform of the child is preserved and the local transform is adjusted as needed.
      *  If false, the local transform is preserved and the global transform is computed accordingly.
      */
-    AddChild(child: GameObject, preserveGlobalTransform: boolean = true): void {
+    AddChild(child: GameObject, preserveGlobalTransform: boolean = true): void { // [tested]
         __CPP_GameObject_AddChild(this, child, preserveGlobalTransform);
     }
 
@@ -532,21 +532,21 @@ export class GameObject {
      * @param preserveGlobalTransform If true, the global transform of the child is preserved and the local transform is adjusted as needed.
      *  If false, the local transform is preserved and the global transform is computed accordingly.
      */
-    DetachChild(child: GameObject, preserveGlobalTransform: boolean = true): void {
+    DetachChild(child: GameObject, preserveGlobalTransform: boolean = true): void { // [tested]
         __CPP_GameObject_DetachChild(this, child, preserveGlobalTransform);
     }
 
     /**
      * Returns the number of objects attached to this as children.
      */
-    GetChildCount(): number {
+    GetChildCount(): number { // [tested]
         return __CPP_GameObject_GetChildCount(this);
     }
 
     /**
      * Returns all the child objects in an array.
      */
-    GetChildren(): GameObject[] {
+    GetChildren(): GameObject[] { // [tested]
         return __CPP_GameObject_GetChildren(this);
     }
 }

@@ -117,6 +117,10 @@ export class TestMessaging extends ez.TypescriptComponent {
             hc.SendMessage(te);
 
             EZ_TEST.BOOL(this.gotEvent);
+            this.gotEvent = false;
+
+            hc.RaiseEvent("e1");
+            EZ_TEST.BOOL(this.gotEvent);
 
             return true;
         }

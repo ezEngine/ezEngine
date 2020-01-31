@@ -215,6 +215,42 @@ export class TestGameObject extends ez.TypescriptComponent {
             EZ_TEST.BOOL(owner.HasAnyTags("TAG"));
             EZ_TEST.BOOL(!owner.HasAnyTags("AutoColMesh", "CastShadow", "TAG1"));
         }
+
+        // Global Key
+        {
+            let obj = ez.World.TryGetObjectWithGlobalKey("Tests");
+            EZ_TEST.BOOL(obj != null);
+            EZ_TEST.BOOL(obj.GetName() == "All Tests");
+
+            this.GetOwner().SetGlobalKey("TestGameObjects");
+            EZ_TEST.BOOL(this.GetOwner().GetGlobalKey() == "TestGameObjects");
+            let tgo = ez.World.TryGetObjectWithGlobalKey("TestGameObjects");
+            EZ_TEST.BOOL(tgo == this.GetOwner());
+            this.GetOwner().SetGlobalKey("");
+            let tgo2 = ez.World.TryGetObjectWithGlobalKey("TestGameObjects");
+            EZ_TEST.BOOL(tgo2 == null);
+        }
+
+        // GetChildren
+        {
+            EZ_TEST.INT(this.GetOwner().GetChildCount(), 3);
+            
+            let children = this.GetOwner().GetChildren();
+            EZ_TEST.INT(this.GetOwner().GetChildCount(), children.length);
+            
+            this.GetOwner().DetachChild(children[0]);
+            EZ_TEST.INT(this.GetOwner().GetChildCount(), 2);
+            EZ_TEST.BOOL(children[0].GetParent() == null);
+            
+            children[0].SetParent(this.GetOwner());
+            EZ_TEST.INT(this.GetOwner().GetChildCount(), 3);
+            EZ_TEST.BOOL(children[0].GetParent() == this.GetOwner());
+            
+            this.GetOwner().DetachChild(children[2]);
+            EZ_TEST.BOOL(children[2].GetParent() == null);
+            this.GetOwner().AddChild(children[2]);
+            EZ_TEST.BOOL(children[2].GetParent() == this.GetOwner());
+        }
     }
 
     OnMsgGenericEvent(msg: ez.MsgGenericEvent): void {

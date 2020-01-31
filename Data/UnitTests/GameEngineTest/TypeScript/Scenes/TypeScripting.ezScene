@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12887889684847103107,5243788855127965982}}
-		u4 %Hash{2431649123735509059}
+		u4 %Hash{3136167219469675276}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -817,7 +817,7 @@ o
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{"Tests"}
+		s %Name{"All Tests"}
 		VarArray %Tags
 		{
 			s{"CastShadow"}
@@ -857,7 +857,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
+		s %Mode{"ezObjectMode::ForceDynamic"}
 		s %Name{"A"}
 		VarArray %Tags
 		{
