@@ -101,8 +101,10 @@ export namespace World {
    * @param center World-space center of the sphere.
    * @param radius Radius of the sphere.
    * @param callback A function that is used to report every overlapping GameObject.
+   *                 To pass in a member function that has access to your 'this' object, declare your callback like this: 
+   *                 FoundObjectCallback = (go: ez.GameObject): boolean => { ... }
    */
-  export function FindObjectsInSphere(type: string, center: Vec3, radius: number, callback: (go: GameObject) => boolean): void {
+  export function FindObjectsInSphere(type: string, center: Vec3, radius: number, callback: (go: GameObject) => boolean): void { // [tested]
     __CPP_World_FindObjectsInSphere(type, center, radius, callback);
   }
 
@@ -113,8 +115,10 @@ export namespace World {
    * @param min The minimum vertex of the AABB.
    * @param max The maximum vertex of the AABB.
    * @param callback A function that is used to report every overlapping GameObject.
+   *                 To pass in a member function that has access to your 'this' object, declare your callback like this: 
+   *                 FoundObjectCallback = (go: ez.GameObject): boolean => { ... }
    */
-  export function FindObjectsInBox(type: string, min: Vec3, max: Vec3, callback: (go: GameObject) => boolean): void {
+  export function FindObjectsInBox(type: string, min: Vec3, max: Vec3, callback: (go: GameObject) => boolean): void { // [tested]
     __CPP_World_FindObjectsInBox(type, min, max, callback);
   }
 };

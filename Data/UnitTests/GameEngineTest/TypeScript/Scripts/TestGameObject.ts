@@ -234,24 +234,55 @@ export class TestGameObject extends ez.TypescriptComponent {
         // GetChildren
         {
             EZ_TEST.INT(this.GetOwner().GetChildCount(), 3);
-            
+
             let children = this.GetOwner().GetChildren();
             EZ_TEST.INT(this.GetOwner().GetChildCount(), children.length);
-            
+
             this.GetOwner().DetachChild(children[0]);
             EZ_TEST.INT(this.GetOwner().GetChildCount(), 2);
             EZ_TEST.BOOL(children[0].GetParent() == null);
-            
+
             children[0].SetParent(this.GetOwner());
             EZ_TEST.INT(this.GetOwner().GetChildCount(), 3);
             EZ_TEST.BOOL(children[0].GetParent() == this.GetOwner());
-            
+
             this.GetOwner().DetachChild(children[2]);
             EZ_TEST.BOOL(children[2].GetParent() == null);
             this.GetOwner().AddChild(children[2]);
             EZ_TEST.BOOL(children[2].GetParent() == this.GetOwner());
         }
+
+        // FindObjectsInSphere
+        {
+            this.foundObjs = [];
+            ez.World.FindObjectsInSphere("Category1", new ez.Vec3(5, 0, 0), 3, this.FoundObjectCallback);
+            EZ_TEST.INT(this.foundObjs.length, 2);
+
+            this.foundObjs = [];
+            ez.World.FindObjectsInSphere("Category2", new ez.Vec3(5, 0, 0), 3, this.FoundObjectCallback);
+            EZ_TEST.INT(this.foundObjs.length, 1);
+        }
+
+        // FindObjectsInBox
+        {
+            this.foundObjs = [];
+            ez.World.FindObjectsInBox("Category1", new ez.Vec3(-10, 0, -5), new ez.Vec3(0, 10, 5), this.FoundObjectCallback);
+            EZ_TEST.INT(this.foundObjs.length, 3);
+
+            this.foundObjs = [];
+            ez.World.FindObjectsInBox("Category2", new ez.Vec3(-10, 0, -5), new ez.Vec3(0, 10, 5), this.FoundObjectCallback);
+            EZ_TEST.INT(this.foundObjs.length, 2);
+        }
     }
+
+    foundObjs: ez.GameObject[] = [];
+
+    FoundObjectCallback = (go: ez.GameObject): boolean => {
+
+        this.foundObjs.push(go);
+        return true;
+    }
+
 
     OnMsgGenericEvent(msg: ez.MsgGenericEvent): void {
 
