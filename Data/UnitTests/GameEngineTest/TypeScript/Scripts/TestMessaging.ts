@@ -1,17 +1,7 @@
 import ez = require("TypeScript/ez")
 import EZ_TEST = require("./TestFramework")
-
-class MyMessage extends ez.Message {
-    EZ_DECLARE_MESSAGE_TYPE;
-
-    text: string = "hello";
-}
-
-class MyMessage2 extends ez.Message {
-    EZ_DECLARE_MESSAGE_TYPE;
-
-    value: number = 0;
-}
+import shared = require("./Shared")
+import helper = require("./HelperComponent")
 
 export class TestMessaging extends ez.TypescriptComponent {
 
@@ -24,17 +14,18 @@ export class TestMessaging extends ez.TypescriptComponent {
 
     static RegisterMessageHandlers() {
         ez.TypescriptComponent.RegisterMessageHandler(ez.MsgGenericEvent, "OnMsgGenericEvent");
-        ez.TypescriptComponent.RegisterMessageHandler(MyMessage, "OnMyMessage");
-        ez.TypescriptComponent.RegisterMessageHandler(MyMessage2, "OnMyMessage2");
+        ez.TypescriptComponent.RegisterMessageHandler(shared.MyMessage, "OnMyMessage");
+        ez.TypescriptComponent.RegisterMessageHandler(shared.MyMessage2, "OnMyMessage2");
     }
 
     step: number = 0;
     msgCount: number = 0;
+    gotEvent: boolean = false;
 
     ExecuteTests(): boolean {
 
         if (this.step == 0) {
-            let m = new MyMessage();
+            let m = new shared.MyMessage();
 
             m.text = "hello 1";
             this.SendMessage(m, true);
@@ -56,7 +47,7 @@ export class TestMessaging extends ez.TypescriptComponent {
         }
 
         if (this.step == 1) {
-            let m = new MyMessage2;
+            let m = new shared.MyMessage2;
             m.value = 1;
 
             this.PostMessage(m);
@@ -67,56 +58,71 @@ export class TestMessaging extends ez.TypescriptComponent {
         }
 
         if (this.step == 2) {
-            
+
             EZ_TEST.INT(this.msgCount, 1);
-            
-            let m = new MyMessage2;
+
+            let m = new shared.MyMessage2;
             m.value = 1;
-            
+
             this.GetOwner().PostMessage(m);
-            
+
             EZ_TEST.INT(this.msgCount, 1);
 
             return true;
         }
 
         if (this.step == 3) {
-            
+
             EZ_TEST.INT(this.msgCount, 2);
-            
-            let m = new MyMessage2;
+
+            let m = new shared.MyMessage2;
             m.value = 1;
-            
+
             this.GetOwner().GetParent().PostMessage(m);
-            
+
             EZ_TEST.INT(this.msgCount, 2);
 
             return true;
         }
 
         if (this.step == 4) {
-            
+
             EZ_TEST.INT(this.msgCount, 2);
-            
-            let m = new MyMessage2;
+
+            let m = new shared.MyMessage2;
             m.value = 1;
-            
+
             this.GetOwner().GetParent().PostMessageRecursive(m);
-            
+
             EZ_TEST.INT(this.msgCount, 2);
 
             return true;
         }
 
         if (this.step == 5) {
-            
+
             EZ_TEST.INT(this.msgCount, 3);
+
+            let children = this.GetOwner().GetChildren();
+            EZ_TEST.INT(children.length, 1);
+
+            let hc: helper.HelperComponent = children[0].TryGetScriptComponent("HelperComponent");
+            EZ_TEST.BOOL(hc != null);
+
+            EZ_TEST.BOOL(!this.gotEvent);
+
+            let te = new ez.MsgGenericEvent;
+            te.Message = "Event1";
+
+            hc.SendMessage(te);
+
+            EZ_TEST.BOOL(this.gotEvent);
 
             return true;
         }
 
         if (this.step == 6) {
-            
+
             EZ_TEST.INT(this.msgCount, 3);
 
             return true;
@@ -125,12 +131,12 @@ export class TestMessaging extends ez.TypescriptComponent {
         return false;
     }
 
-    OnMyMessage(msg: MyMessage) {
+    OnMyMessage(msg: shared.MyMessage) {
 
         msg.text = "Got: " + msg.text;
     }
 
-    OnMyMessage2(msg: MyMessage2) {
+    OnMyMessage2(msg: shared.MyMessage2) {
         this.msgCount += msg.value;
     }
 
@@ -138,11 +144,12 @@ export class TestMessaging extends ez.TypescriptComponent {
 
         if (msg.Message == "TestMessaging") {
 
+
             if (this.ExecuteTests()) {
                 msg.Message = "repeat";
             }
             else {
-                
+
                 EZ_TEST.INT(this.msgCount, 3);
 
                 msg.Message = "done";
@@ -150,7 +157,10 @@ export class TestMessaging extends ez.TypescriptComponent {
 
             this.step += 1;
         }
-    }
 
+        if (msg.Message == "e1") {
+            this.gotEvent = true;
+        }
+    }
 }
 

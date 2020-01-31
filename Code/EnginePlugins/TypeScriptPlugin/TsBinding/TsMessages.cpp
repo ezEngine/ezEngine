@@ -5,6 +5,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
+#include <Foundation/Types/ScopeExit.h>
 #include <TypeScriptPlugin/Components/TypeScriptComponent.h>
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
 
@@ -219,7 +220,6 @@ ezUniquePtr<ezMessage> ezTypeScriptBinding::MessageFromParameter(duk_context* pD
     SyncTsObjectEzTsObject(pDuk, pRtti, pMsg.Borrow(), iObjIdx + 1);
   }
   else
-
   {
     ezUInt32 uiMsgStashIdx = 0xFFFFFFFF;
 
@@ -370,6 +370,12 @@ bool ezTypeScriptBinding::DeliverMessage(const TsComponentTypeInfo& typeInfo, ez
 
   const ezRTTI* pMsgRtti = msg.GetDynamicRTTI();
 
+  static ezInt32 iRecursion = 0;
+  ++iRecursion;
+  EZ_SCOPE_EXIT(--iRecursion);
+
+  ezStringBuilder sStashMsgName;
+
   for (auto& mh : tsc.m_MessageHandlers)
   {
     if (mh.m_pMessageType == pMsgRtti)
@@ -384,10 +390,12 @@ bool ezTypeScriptBinding::DeliverMessage(const TsComponentTypeInfo& typeInfo, ez
 
         if (bSynchronizeAfterwards)
         {
-          duk.PushGlobalStash();                 // [ ... stash ]
-          duk_dup(duk, -2);                      // [ ... stash msg ]
-          duk_put_prop_string(duk, -2, "ezMsg"); // [ ... stash ]
-          duk_pop(duk);                          // [ ... ]
+          sStashMsgName.Format("ezMsg-{}", iRecursion);
+
+          duk.PushGlobalStash();                       // [ ... stash ]
+          duk_dup(duk, -2);                            // [ ... stash msg ]
+          duk_put_prop_string(duk, -2, sStashMsgName); // [ ... stash ]
+          duk_pop(duk);                                // [ ... ]
         }
 
         duk.PushCustom();         // [ comp func comp msg ]
@@ -397,7 +405,7 @@ bool ezTypeScriptBinding::DeliverMessage(const TsComponentTypeInfo& typeInfo, ez
         if (bSynchronizeAfterwards)
         {
           duk.PushGlobalStash();                                                // [ ... stash ]
-          duk_get_prop_string(duk, -1, "ezMsg");                                // [ ... stash msg ]
+          duk_get_prop_string(duk, -1, sStashMsgName);                          // [ ... stash msg ]
           ezTypeScriptBinding::SyncTsObjectEzTsObject(duk, pMsgRtti, &msg, -1); // [ ... stash msg ]
           duk_pop_2(duk);                                                       // [ ... ]
         }
