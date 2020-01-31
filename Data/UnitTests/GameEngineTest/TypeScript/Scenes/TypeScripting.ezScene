@@ -11,12 +11,13 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12887889684847103107,5243788855127965982}}
-		u4 %Hash{15633905022833439380}
+		u4 %Hash{7843036254041834767}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
+			s{"{ 12187c47-4a97-4175-add4-8b45d395bb3e }"}
 			s{"{ 37ae1ab9-ca55-423d-b2ae-498ca03fd9ef }"}
 			s{"{ 3f71fbdf-90a8-4c31-8505-90d81f85caaa }"}
 			s{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
@@ -326,6 +327,33 @@ o
 }
 o
 {
+	Uuid %id{u4{2515927116124160942,4796434672985665463}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{4263333469666217109,5350127770785702351}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"Lifetime"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{1788259760507374486,4841411956456378242}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -585,6 +613,19 @@ o
 }
 o
 {
+	Uuid %id{u4{4263333469666217109,5350127770785702351}}
+	s %t{"ezTypeScriptComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		b %HandleGlobalEvents{0}
+		VarDict %Parameters{}
+		s %Script{"{ 12187c47-4a97-4175-add4-8b45d395bb3e }"}
+	}
+}
+o
+{
 	Uuid %id{u4{10489671881922674360,5359533953546367188}}
 	s %t{"ezTypeScriptComponent"}
 	u3 %v{4}
@@ -721,6 +762,7 @@ o
 			Uuid{u4{7203814472770778542,4713319862559126478}}
 			Uuid{u4{6185468482960480407,5370077640134023736}}
 			Uuid{u4{17668550041020302239,4649480971594730002}}
+			Uuid{u4{2515927116124160942,4796434672985665463}}
 		}
 		VarArray %Components{}
 		s %GlobalKey{"Tests"}

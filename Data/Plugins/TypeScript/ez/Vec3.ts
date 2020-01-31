@@ -287,7 +287,7 @@ export class Vec3 {
     /**
      * Checks whether this and rhs are approximately equal within a given epsilon.
      */
-    IsEqual(rhs: Vec3, epsilon: number): boolean { // [tested]
+    IsEqual(rhs: Vec3, epsilon: number = 0.0001): boolean { // [tested]
         return (this.x >= rhs.x - epsilon && this.x <= rhs.x + epsilon) &&
             (this.y >= rhs.y - epsilon && this.y <= rhs.y + epsilon) &&
             (this.z >= rhs.z - epsilon && this.z <= rhs.z + epsilon);

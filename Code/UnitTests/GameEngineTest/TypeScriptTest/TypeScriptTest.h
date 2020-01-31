@@ -10,7 +10,7 @@ public:
   ezGameEngineTestApplication_TypeScript();
 
   void SubTestBasicsSetup();
-  ezTestAppRun SubTestBasisExec(ezInt32 iIdentifier);
+  ezTestAppRun SubTestBasisExec(const char* szSubTestName);
 };
 
 class ezGameEngineTestTypeScript : public ezGameEngineTest
@@ -31,6 +31,7 @@ public:
     Debug,
     GameObject,
     Component,
+    Lifetime,
   };
 
 private:

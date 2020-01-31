@@ -50,7 +50,7 @@ export namespace World {
   /**
    * Creates a new GameObject on the C++ side and returns a TypeScript GameObject that links to that.
    */
-  export function CreateObject(desc: GameObjectDesc): GameObject {
+  export function CreateObject(desc: GameObjectDesc): GameObject { // [tested]
     return __CPP_World_CreateObject(desc);
   }
 
@@ -60,7 +60,7 @@ export namespace World {
    * 
    * @param object The object to be deleted.
    */
-  export function DeleteObjectDelayed(object: GameObject): void {
+  export function DeleteObjectDelayed(object: GameObject): void { // [tested]
     __CPP_World_DeleteObjectDelayed(object);
   }
 
@@ -73,14 +73,14 @@ export namespace World {
    * @param owner The GameObject to attach the component to.
    * @param typeClass The component class type to instantiate.
    */
-  export function CreateComponent<TYPE extends Component>(owner: GameObject, typeClass: new () => TYPE): TYPE {
+  export function CreateComponent<TYPE extends Component>(owner: GameObject, typeClass: new () => TYPE): TYPE { // [tested]
     return __CPP_World_CreateComponent(owner, typeClass.GetTypeNameHash());
   }
 
   /**
    * Instructs the C++ side to delete the given component.
    */
-  export function DeleteComponent(component: Component): void {
+  export function DeleteComponent(component: Component): void { // [tested]
     __CPP_World_DeleteComponent(component);
   }
 
