@@ -393,7 +393,7 @@ export class GameObject {
      * 
      * @param typeName The name of the TypeScript component to find.
      */
-    TryGetScriptComponent<TYPE extends TypescriptComponent>(typeName: string): TYPE {
+    TryGetScriptComponent<TYPE extends TypescriptComponent>(typeName: string): TYPE { // [tested]
         return __CPP_GameObject_TryGetScriptComponent(this, typeName);
     }
 
@@ -407,7 +407,7 @@ export class GameObject {
      *   (the default) the state of the message is not synchronized back into the TypeScript message after the message
      *   has been delivered and thus any data written into the message by the receiver, is lost.
      */
-    SendMessage(msg: Message, expectResultData: boolean = false): void {
+    SendMessage(msg: Message, expectResultData: boolean = false): void { // [tested]
         __CPP_GameObject_SendMessage(this, msg.TypeNameHash, msg, false, expectResultData);
     }
 
@@ -421,7 +421,7 @@ export class GameObject {
      *   (the default) the state of the message is not synchronized back into the TypeScript message after the message
      *   has been delivered and thus any data written into the message by the receiver, is lost.
      */
-    SendMessageRecursive(msg: Message, expectResultData: boolean = false): void {
+    SendMessageRecursive(msg: Message, expectResultData: boolean = false): void { // [tested]
         __CPP_GameObject_SendMessage(this, msg.TypeNameHash, msg, true, expectResultData);
     }
 
@@ -431,7 +431,7 @@ export class GameObject {
      * The message is delivered after the tiemout.
      * If the timeout is zero, the message is delivered within this frame, but not immediately.
      */
-    PostMessage(msg: Message, delay: number = Time.Zero()): void {
+    PostMessage(msg: Message, delay: number = Time.Zero()): void { // [tested]
         __CPP_GameObject_PostMessage(this, msg.TypeNameHash, msg, false, delay);
     }
 
@@ -441,7 +441,7 @@ export class GameObject {
      * The message is delivered after the tiemout.
      * If the timeout is zero, the message is delivered within this frame, but not immediately.
      */
-    PostMessageRecursive(msg: Message, delay: number = Time.Zero()): void {
+    PostMessageRecursive(msg: Message, delay: number = Time.Zero()): void { // [tested]
         __CPP_GameObject_PostMessage(this, msg.TypeNameHash, msg, true, delay);
     }
 
@@ -498,7 +498,7 @@ export class GameObject {
     /**
      * Returns the parent game object or null if this object has no parent.
      */
-    GetParent(): GameObject {
+    GetParent(): GameObject { // [tested]
         return __CPP_GameObject_GetParent(this);
     }
 

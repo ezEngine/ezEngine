@@ -32,6 +32,7 @@ public:
     GameObject,
     Component,
     Lifetime,
+    Messaging,
   };
 
 private:

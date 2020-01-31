@@ -35,6 +35,7 @@ void ezGameEngineTestTypeScript::SetupSubTests()
   AddSubTest("GameObject", SubTests::GameObject);
   AddSubTest("Component", SubTests::Component);
   AddSubTest("Lifetime", SubTests::Lifetime);
+  AddSubTest("Messaging", SubTests::Messaging);
 }
 
 ezResult ezGameEngineTestTypeScript::InitializeSubTest(ezInt32 iIdentifier)

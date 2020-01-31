@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12887889684847103107,5243788855127965982}}
-		u4 %Hash{7843036254041834767}
+		u4 %Hash{3654031875636932514}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -22,6 +22,7 @@ o
 			s{"{ 3f71fbdf-90a8-4c31-8505-90d81f85caaa }"}
 			s{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
 			s{"{ 6d619c33-6611-432b-a924-27b1b9bfd8db }"}
+			s{"{ 812b1617-9ef6-4f2a-b641-c98191b01d5e }"}
 			s{"{ 91979f46-9b9f-4742-8ff7-6fe0f955e4df }"}
 			s{"{ a549b116-4636-45db-bf2b-d6bf33e4ce62 }"}
 			s{"{ bb2318f7-7aae-4b3e-8dc6-4d018f39ae4a }"}
@@ -287,6 +288,33 @@ o
 }
 o
 {
+	Uuid %id{u4{10515101929075761803,4776239750908999954}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{2538916265937224081,5140912107128118538}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"Messaging"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{16435044094538780092,4778781132823645085}}
 	s %t{"ezTypeScriptComponent"}
 	u3 %v{4}
@@ -527,6 +555,19 @@ o
 }
 o
 {
+	Uuid %id{u4{2538916265937224081,5140912107128118538}}
+	s %t{"ezTypeScriptComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		b %HandleGlobalEvents{0}
+		VarDict %Parameters{}
+		s %Script{"{ 812b1617-9ef6-4f2a-b641-c98191b01d5e }"}
+	}
+}
+o
+{
 	Uuid %id{u4{11103650838448788919,5170186803244375368}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -681,7 +722,7 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
+		s %Mode{"ezObjectMode::ForceDynamic"}
 		s %Name{"Component"}
 		VarArray %Tags
 		{
@@ -763,6 +804,7 @@ o
 			Uuid{u4{6185468482960480407,5370077640134023736}}
 			Uuid{u4{17668550041020302239,4649480971594730002}}
 			Uuid{u4{2515927116124160942,4796434672985665463}}
+			Uuid{u4{10515101929075761803,4776239750908999954}}
 		}
 		VarArray %Components{}
 		s %GlobalKey{"Tests"}

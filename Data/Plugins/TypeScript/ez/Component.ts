@@ -97,7 +97,7 @@ export abstract class Component {
      *   (the default) the state of the message is not synchronized back into the TypeScript message after the message
      *   has been delivered and thus any data written into the message by the receiver, is lost.
      */
-    SendMessage(msg: Message, expectResultData: boolean = false): void {
+    SendMessage(msg: Message, expectResultData: boolean = false): void { // [tested]
         __CPP_Component_SendMessage(this, msg.TypeNameHash, msg, expectResultData);
     }
 
@@ -106,7 +106,7 @@ export abstract class Component {
      * The message is queued and delivered during the next convenient game update phase.
      * It may optionally be sent with a time delay.
      */
-    PostMessage(msg: Message, delay: number = Time.Zero()): void {
+    PostMessage(msg: Message, delay: number = Time.Zero()): void { // [tested]
         __CPP_Component_PostMessage(this, msg.TypeNameHash, msg, delay);
     }
 
