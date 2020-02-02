@@ -13,19 +13,23 @@ ezCollisionMeshAssetDocumentManager::ezCollisionMeshAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezCollisionMeshAssetDocumentManager::OnDocumentManagerEvent, this));
 
-  m_AssetDesc.m_bCanCreate = true;
-  m_AssetDesc.m_sDocumentTypeName = "Collision Mesh Asset";
-  m_AssetDesc.m_sFileExtension = "ezCollisionMeshAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/Collision_Mesh.png";
-  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezCollisionMeshAssetDocument>();
-  m_AssetDesc.m_pManager = this;
+  m_DocTypeDesc.m_sDocumentTypeName = "Collision Mesh";
+  m_DocTypeDesc.m_sFileExtension = "ezCollisionMeshAsset";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Collision_Mesh.png";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezCollisionMeshAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
 
-  m_ConvexAssetDesc.m_bCanCreate = true;
-  m_ConvexAssetDesc.m_sDocumentTypeName = "Collision Mesh Asset (Convex)";
-  m_ConvexAssetDesc.m_sFileExtension = "ezConvexCollisionMeshAsset";
-  m_ConvexAssetDesc.m_sIcon = ":/AssetIcons/Collision_Mesh_Convex.png";
-  m_ConvexAssetDesc.m_pDocumentType = ezGetStaticRTTI<ezCollisionMeshAssetDocument>();
-  m_ConvexAssetDesc.m_pManager = this;
+  m_DocTypeDesc.m_sResourceFileExtension = "ezPhysXMesh";
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;
+
+  m_DocTypeDesc2.m_sDocumentTypeName = "Collision Mesh (Convex)";
+  m_DocTypeDesc2.m_sFileExtension = "ezConvexCollisionMeshAsset";
+  m_DocTypeDesc2.m_sIcon = ":/AssetIcons/Collision_Mesh_Convex.png";
+  m_DocTypeDesc2.m_pDocumentType = ezGetStaticRTTI<ezCollisionMeshAssetDocument>();
+  m_DocTypeDesc2.m_pManager = this;
+
+  m_DocTypeDesc2.m_sResourceFileExtension = "ezPhysXMesh";
+  m_DocTypeDesc2.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;
 }
 
 ezCollisionMeshAssetDocumentManager::~ezCollisionMeshAssetDocumentManager()
@@ -49,10 +53,9 @@ void ezCollisionMeshAssetDocumentManager::OnDocumentManagerEvent(const ezDocumen
   }
 }
 
-ezStatus ezCollisionMeshAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath,
-                                                                     bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezCollisionMeshAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
-  if (ezStringUtils::IsEqual(szDocumentTypeName, "Collision Mesh Asset (Convex)"))
+  if (ezStringUtils::IsEqual(szDocumentTypeName, "Collision Mesh (Convex)"))
   {
     out_pDocument = new ezCollisionMeshAssetDocument(szPath, true);
   }
@@ -60,21 +63,12 @@ ezStatus ezCollisionMeshAssetDocumentManager::InternalCreateDocument(const char*
   {
     out_pDocument = new ezCollisionMeshAssetDocument(szPath, false);
   }
-  return ezStatus(EZ_SUCCESS);
 }
 
-void ezCollisionMeshAssetDocumentManager::InternalGetSupportedDocumentTypes(
-    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezCollisionMeshAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_AssetDesc);
-  inout_DocumentTypes.PushBack(&m_ConvexAssetDesc);
-}
-
-ezBitflags<ezAssetDocumentFlags>
-ezCollisionMeshAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
-{
-  EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
-  return ezAssetDocumentFlags::SupportsThumbnail;
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc2);
 }
 
 ezUInt64 ezCollisionMeshAssetDocumentManager::ComputeAssetProfileHashImpl(const ezPlatformProfile* pAssetProfile) const

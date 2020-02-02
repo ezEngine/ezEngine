@@ -23,37 +23,32 @@ void OnLoadPlugin(bool bReloading)
 
   ezToolsProject::GetSingleton()->s_Events.AddEventHandler(ToolsProjectEventHandler);
 
-  // Mesh Asset
-  {// Menu Bar
-    {ezActionMapManager::RegisterActionMap("SoundBankAssetMenuBar");
-  ezProjectActions::MapActions("SoundBankAssetMenuBar");
-  ezStandardMenus::MapActions("SoundBankAssetMenuBar",
-    ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
-  ezDocumentActions::MapActions("SoundBankAssetMenuBar", "Menu.File", false);
-  ezCommandHistoryActions::MapActions("SoundBankAssetMenuBar", "Menu.Edit");
-}
-
-// Tool Bar
-{
-  ezActionMapManager::RegisterActionMap("SoundBankAssetToolBar");
-  ezDocumentActions::MapActions("SoundBankAssetToolBar", "", true);
-  ezCommandHistoryActions::MapActions("SoundBankAssetToolBar", "");
-  ezAssetActions::MapActions("SoundBankAssetToolBar", true);
-}
-}
-
-// Scene
-{
-  // Menu Bar
+  // Mesh
   {
-    ezFmodActions::RegisterActions();
-    ezFmodActions::MapMenuActions();
+    // Menu Bar
+    ezActionMapManager::RegisterActionMap("SoundBankAssetMenuBar");
+    ezProjectActions::MapActions("SoundBankAssetMenuBar");
+    ezStandardMenus::MapActions("SoundBankAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+    ezDocumentActions::MapActions("SoundBankAssetMenuBar", "Menu.File", false);
+    ezCommandHistoryActions::MapActions("SoundBankAssetMenuBar", "Menu.Edit");
+
+    // Tool Bar
+    {
+      ezActionMapManager::RegisterActionMap("SoundBankAssetToolBar");
+      ezDocumentActions::MapActions("SoundBankAssetToolBar", "", true);
+      ezCommandHistoryActions::MapActions("SoundBankAssetToolBar", "");
+      ezAssetActions::MapActions("SoundBankAssetToolBar", true);
+    }
   }
 
-  // Tool Bar
+  // Scene
   {
+    // Menu Bar
+    {
+      ezFmodActions::RegisterActions();
+      ezFmodActions::MapMenuActions();
+    }
   }
-}
 }
 
 void OnUnloadPlugin(bool bReloading)

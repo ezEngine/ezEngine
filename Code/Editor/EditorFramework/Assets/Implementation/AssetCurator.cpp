@@ -82,7 +82,7 @@ void ezAssetInfo::Update(ezUniquePtr<ezAssetInfo>& rhs)
 {
   m_ExistanceState = rhs->m_ExistanceState;
   m_TransformState = rhs->m_TransformState;
-  m_pManager = rhs->m_pManager;
+  m_pDocumentTypeDescriptor = rhs->m_pDocumentTypeDescriptor;
   m_sAbsolutePath = std::move(rhs->m_sAbsolutePath);
   m_sDataDirRelativePath = std::move(rhs->m_sDataDirRelativePath);
   m_Info = std::move(rhs->m_Info);
@@ -657,8 +657,7 @@ ezUInt64 ezAssetCurator::GetAssetReferenceHash(ezUuid assetGuid)
   return GetAssetHash(assetGuid, true);
 }
 
-ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetGuid, const ezPlatformProfile* pAssetProfile,
-  const ezDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash)
+ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetGuid, const ezPlatformProfile* pAssetProfile, const ezAssetDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash)
 {
   CURATOR_PROFILE("IsAssetUpToDate");
 
@@ -679,7 +678,6 @@ ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetG
     return ezAssetInfo::TransformState::MissingReference;
   }
 
-  auto flags = pManager->GetAssetDocumentTypeFlags(pTypeDescriptor);
   ezString sAssetFile;
   ezSet<ezString> outputs;
   {
@@ -689,9 +687,9 @@ ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetG
     outputs = pAssetInfo->m_Info->m_Outputs;
   }
 
-  if (pManager->IsOutputUpToDate(sAssetFile, outputs, out_AssetHash, pTypeDescriptor->m_pDocumentType->GetTypeVersion()))
+  if (pManager->IsOutputUpToDate(sAssetFile, outputs, out_AssetHash, pTypeDescriptor))
   {
-    if (flags.IsSet(ezAssetDocumentFlags::SupportsThumbnail))
+    if (pTypeDescriptor->m_AssetDocumentFlags.IsSet(ezAssetDocumentFlags::SupportsThumbnail))
     {
       if (!ezAssetDocumentManager::IsThumbnailUpToDate(sAssetFile, out_ThumbHash, pTypeDescriptor->m_pDocumentType->GetTypeVersion()))
       {
@@ -927,18 +925,11 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformP
     }
   }
 
-  // Find the descriptor for the asset.
-  const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
-  if (ezDocumentManager::FindDocumentTypeFromPath(pAssetInfo->m_sAbsolutePath, false, pTypeDesc).Failed())
-  {
-    return ezStatus(ezFmt(
-      "The asset '{0}' could not be queried for its ezDocumentTypeDescriptor, skipping transform!", pAssetInfo->m_sDataDirRelativePath));
-  }
+  const ezAssetDocumentTypeDescriptor* pTypeDesc = pAssetInfo->m_pDocumentTypeDescriptor;
 
-  EZ_ASSERT_DEV(pTypeDesc->m_pDocumentType->IsDerivedFrom<ezAssetDocument>(),
-    "Asset document does not derive from correct base class ('{0}')", pAssetInfo->m_sDataDirRelativePath);
+  EZ_ASSERT_DEV(pTypeDesc->m_pDocumentType->IsDerivedFrom<ezAssetDocument>(), "Asset document does not derive from correct base class ('{0}')", pAssetInfo->m_sDataDirRelativePath);
 
-  auto assetFlags = static_cast<ezAssetDocumentManager*>(pTypeDesc->m_pManager)->GetAssetDocumentTypeFlags(pTypeDesc);
+  auto assetFlags = pTypeDesc->m_AssetDocumentFlags;
 
   // Skip assets that cannot be auto-transformed.
   {
@@ -1015,7 +1006,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformP
 ezStatus ezAssetCurator::ResaveAsset(ezAssetInfo* pAssetInfo)
 {
   bool bWasOpen = false;
-  ezDocument* pDoc = pAssetInfo->m_pManager->GetDocumentByPath(pAssetInfo->m_sAbsolutePath);
+  ezDocument* pDoc = pAssetInfo->GetManager()->GetDocumentByPath(pAssetInfo->m_sAbsolutePath);
   if (pDoc)
     bWasOpen = true;
   else
@@ -1218,7 +1209,7 @@ ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory, const ezPl
     if (!sTemp.IsPathBelowFolder(sDataDir))
       continue;
 
-    ezAssetDocumentManager* pManager = it.Value()->m_pManager;
+    ezAssetDocumentManager* pManager = it.Value()->GetManager();
 
     auto WriteEntry = [this, &sDataDir, &pAssetProfile, &GuidToPath, pManager, &sTemp, &sTemp2](const ezUuid& guid) {
       ezSubAsset* pSub = GetSubAssetInternal(guid);
@@ -1302,7 +1293,7 @@ void ezAssetCurator::ProcessAllCoreAssets()
           {
             if (ezAssetInfo* pInfo = GetAssetInfo(ref))
             {
-              if (name.GetHash() == 0 || pInfo->m_Info->m_sAssetTypeName == name)
+              if (name.GetHash() == 0 || pInfo->m_Info->m_sAssetsDocumentTypeName == name)
               {
                 resReferences = ProcessAsset(pInfo, pAssetProfile, ezTransformFlags::TriggeredManually);
                 if (resReferences.m_Result.Failed())
@@ -1440,8 +1431,10 @@ void ezAssetCurator::BuildFileExtensionSet(ezSet<ezString>& AllExtensions)
 
   const auto& allDesc = ezDocumentManager::GetAllDocumentDescriptors();
 
-  for (const auto& desc : allDesc)
+  for (auto it : allDesc)
   {
+    const auto desc = it.Value();
+
     if (desc->m_pManager->GetDynamicRTTI()->IsDerivedFrom<ezAssetDocumentManager>())
     {
       sTemp = desc->m_sFileExtension;

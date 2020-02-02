@@ -69,7 +69,16 @@ EZ_DECLARE_FLAGS_OPERATORS(ezTransformFlags);
 struct ezSubAssetData
 {
   ezUuid m_Guid;
-  ezHashedString m_sAssetTypeName;
+  ezHashedString m_sSubAssetsDocumentTypeName;
   ezString m_sName;
+};
+
+struct EZ_EDITORFRAMEWORK_DLL ezAssetDocumentTypeDescriptor : public ezDocumentTypeDescriptor
+{
+  ezAssetDocumentTypeDescriptor() = default;
+  ~ezAssetDocumentTypeDescriptor() = default;
+
+  ezString m_sResourceFileExtension;
+  ezBitflags<ezAssetDocumentFlags> m_AssetDocumentFlags;
 };
 

@@ -30,7 +30,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautTreeContext, 1, ezRTTIDefaultAllocator<ez
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Kraut Tree Asset"),
+    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Kraut Tree"),
   }
   EZ_END_PROPERTIES;
 }

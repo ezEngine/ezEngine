@@ -59,12 +59,14 @@ ezSoundBankAssetDocumentManager::ezSoundBankAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezSoundBankAssetDocumentManager::OnDocumentManagerEvent, this));
 
-  m_AssetDesc.m_bCanCreate = true;
-  m_AssetDesc.m_sDocumentTypeName = "Sound Bank Asset";
-  m_AssetDesc.m_sFileExtension = "ezSoundBankAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/Sound_Bank.png";
-  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezSoundBankAssetDocument>();
-  m_AssetDesc.m_pManager = this;
+  m_DocTypeDesc.m_sDocumentTypeName = "Sound Bank";
+  m_DocTypeDesc.m_sFileExtension = "ezSoundBankAsset";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Sound_Bank.png";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezSoundBankAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
+
+  m_DocTypeDesc.m_sResourceFileExtension = "ezFmodSoundBank";
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::None;
 
   ezQtImageCache::GetSingleton()->RegisterTypeImage("Sound Bank", QPixmap(":/AssetIcons/Sound_Bank.png"));
 
@@ -82,8 +84,8 @@ ezSoundBankAssetDocumentManager::~ezSoundBankAssetDocumentManager()
 void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentInfo& assetInfo,
                                                           ezHybridArray<ezSubAssetData, 4>& out_SubAssets) const
 {
-  ezHashedString sAssetTypeName;
-  sAssetTypeName.Assign("Sound Event");
+  ezHashedString sAssetsDocumentTypeName;
+  sAssetsDocumentTypeName.Assign("Sound Event");
 
   auto* pSystem = m_Fmod->GetSystem();
 
@@ -175,7 +177,7 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
           auto& sub = out_SubAssets.ExpandAndGetRef();
           sub.m_Guid = *ezGuid;
           sub.m_sName = sEventName;
-          sub.m_sAssetTypeName = sAssetTypeName;
+          sub.m_sSubAssetsDocumentTypeName = sAssetsDocumentTypeName;
         }
       }
     }
@@ -252,18 +254,14 @@ void ezSoundBankAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMan
   }
 }
 
-ezStatus ezSoundBankAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath,
-                                                                 bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezSoundBankAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezSoundBankAssetDocument(szPath);
-
-  return ezStatus(EZ_SUCCESS);
 }
 
-void ezSoundBankAssetDocumentManager::InternalGetSupportedDocumentTypes(
-    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezSoundBankAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_AssetDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }
 
 ezUInt64 ezSoundBankAssetDocumentManager::ComputeAssetProfileHashImpl(const ezPlatformProfile* pAssetProfile) const

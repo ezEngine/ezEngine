@@ -15,25 +15,19 @@ ezAnimatedMeshAssetDocumentManager::ezAnimatedMeshAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezAnimatedMeshAssetDocumentManager::OnDocumentManagerEvent, this));
 
-  m_AssetDesc.m_bCanCreate = true;
-  m_AssetDesc.m_sDocumentTypeName = "Animated Mesh Asset";
-  m_AssetDesc.m_sFileExtension = "ezAnimatedMeshAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/Animated_Mesh.png";
-  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezAnimatedMeshAssetDocument>();
-  m_AssetDesc.m_pManager = this;
+  m_DocTypeDesc.m_sDocumentTypeName = "Animated Mesh";
+  m_DocTypeDesc.m_sFileExtension = "ezAnimatedMeshAsset";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Animated_Mesh.png";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezAnimatedMeshAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
+
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;
+  m_DocTypeDesc.m_sResourceFileExtension = "ezAnimatedMesh";
 }
 
 ezAnimatedMeshAssetDocumentManager::~ezAnimatedMeshAssetDocumentManager()
 {
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezAnimatedMeshAssetDocumentManager::OnDocumentManagerEvent, this));
-}
-
-
-ezBitflags<ezAssetDocumentFlags>
-ezAnimatedMeshAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
-{
-  EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
-  return ezAssetDocumentFlags::SupportsThumbnail;
 }
 
 void ezAnimatedMeshAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
@@ -52,16 +46,12 @@ void ezAnimatedMeshAssetDocumentManager::OnDocumentManagerEvent(const ezDocument
   }
 }
 
-ezStatus ezAnimatedMeshAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath,
-                                                                    bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezAnimatedMeshAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezAnimatedMeshAssetDocument(szPath);
-
-  return ezStatus(EZ_SUCCESS);
 }
 
-void ezAnimatedMeshAssetDocumentManager::InternalGetSupportedDocumentTypes(
-    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezAnimatedMeshAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_AssetDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

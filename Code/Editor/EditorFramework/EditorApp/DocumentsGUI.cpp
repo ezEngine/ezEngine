@@ -70,8 +70,10 @@ ezString ezQtEditorApp::BuildDocumentTypeFileFilter(bool bForCreation)
 
   const auto& allDesc = ezDocumentManager::GetAllDocumentDescriptors();
 
-  for (auto desc : allDesc)
+  for (auto it : allDesc)
   {
+    auto desc = it.Value();
+
     if (bForCreation && !desc->m_bCanCreate)
       continue;
 

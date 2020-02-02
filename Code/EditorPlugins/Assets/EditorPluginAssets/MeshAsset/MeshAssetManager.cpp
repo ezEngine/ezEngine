@@ -18,24 +18,19 @@ ezMeshAssetDocumentManager::ezMeshAssetDocumentManager()
   // additional whitelist for non-asset files where an asset may be selected
   ezAssetFileExtensionWhitelist::AddAssetFileExtension("Mesh", "ezMesh");
 
-  m_AssetDesc.m_bCanCreate = true;
-  m_AssetDesc.m_sDocumentTypeName = "Mesh Asset";
-  m_AssetDesc.m_sFileExtension = "ezMeshAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/Mesh.png";
-  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezMeshAssetDocument>();
-  m_AssetDesc.m_pManager = this;
+  m_DocTypeDesc.m_sDocumentTypeName = "Mesh";
+  m_DocTypeDesc.m_sFileExtension = "ezMeshAsset";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Mesh.png";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezMeshAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
+
+  m_DocTypeDesc.m_sResourceFileExtension = "ezMesh";
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;
 }
 
 ezMeshAssetDocumentManager::~ezMeshAssetDocumentManager()
 {
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezMeshAssetDocumentManager::OnDocumentManagerEvent, this));
-}
-
-
-ezBitflags<ezAssetDocumentFlags> ezMeshAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
-{
-  EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
-  return ezAssetDocumentFlags::SupportsThumbnail;
 }
 
 ezResult ezMeshAssetDocumentManager::OpenPickedDocument(const ezDocumentObject* pPickedComponent, ezUInt32 uiPartIndex)
@@ -120,16 +115,12 @@ void ezMeshAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager:
   }
 }
 
-ezStatus ezMeshAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument,
-                                                            ezDocument*& out_pDocument)
+void ezMeshAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezMeshAssetDocument(szPath);
-
-  return ezStatus(EZ_SUCCESS);
 }
 
-void ezMeshAssetDocumentManager::InternalGetSupportedDocumentTypes(
-    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezMeshAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_AssetDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

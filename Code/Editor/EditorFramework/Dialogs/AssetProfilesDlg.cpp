@@ -30,8 +30,6 @@ public:
   {
   }
 
-  virtual const char* GetDocumentTypeDisplayString() const override { return "Asset Profile"; }
-
 public:
   virtual ezDocumentInfo* CreateDocumentInfo() override { return EZ_DEFAULT_NEW(ezDocumentInfo); }
 };

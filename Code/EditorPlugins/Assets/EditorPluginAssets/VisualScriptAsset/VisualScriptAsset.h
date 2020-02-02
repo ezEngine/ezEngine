@@ -56,8 +56,6 @@ class ezVisualScriptAssetDocument : public ezSimpleAssetDocument<ezVisualScriptA
 public:
   ezVisualScriptAssetDocument(const char* szDocumentPath);
 
-  virtual const char* QueryAssetType() const override { return "Visual Script"; }
-
   void HandleVsActivityMsg(const ezVisualScriptActivityMsgToEditor* pActivityMsg);
   void OnInterDocumentMessage(ezReflectedClass* pMessage, ezDocument* pSender) override;
 

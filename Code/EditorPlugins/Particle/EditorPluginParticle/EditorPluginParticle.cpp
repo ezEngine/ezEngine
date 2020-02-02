@@ -23,7 +23,7 @@ void OnLoadPlugin(bool bReloading)
 
   ezParticleActions::RegisterActions();
 
-  // Particle Effect Asset
+  // Particle Effect
   {
     // Menu Bar
     {

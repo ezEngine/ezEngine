@@ -30,8 +30,6 @@ public:
 
   static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
-  virtual const char* QueryAssetType() const override { return "Particle Effect"; }
-
   ezStatus WriteParticleEffectAsset(ezStreamWriter& stream, const ezPlatformProfile* pAssetProfile) const;
 
   void TriggerRestartEffect();

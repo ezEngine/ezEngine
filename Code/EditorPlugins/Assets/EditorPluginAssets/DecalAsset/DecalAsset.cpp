@@ -101,11 +101,6 @@ ezDecalAssetDocument::ezDecalAssetDocument(const char* szDocumentPath)
 {
 }
 
-const char* ezDecalAssetDocument::QueryAssetType() const
-{
-  return "Decal";
-}
-
 ezStatus ezDecalAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag,
   const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {

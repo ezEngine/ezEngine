@@ -22,7 +22,7 @@ void OnLoadPlugin(bool bReloading)
   ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginKraut", "ezEnginePluginKraut");
 
 
-  // Kraut Tree Asset
+  // Kraut Tree
   {
     // Menu Bar
     {

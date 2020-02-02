@@ -1,11 +1,11 @@
 #pragma once
 
+#include <EditorFramework/Assets/AssetDocumentInfo.h>
+#include <EditorFramework/Assets/Declarations.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
+#include <EditorFramework/IPC/IPCObjectMirrorEditor.h>
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
-#include <EditorFramework/Assets/Declarations.h>
-#include <EditorFramework/Assets/AssetDocumentInfo.h>
-#include <EditorFramework/IPC/IPCObjectMirrorEditor.h>
 
 class ezEditorEngineConnection;
 class ezEditorEngineSyncObject;
@@ -25,38 +25,35 @@ class EZ_EDITORFRAMEWORK_DLL ezAssetDocument : public ezDocument
   EZ_ADD_DYNAMIC_REFLECTION(ezAssetDocument, ezDocument);
 
 public:
-
   /// \brief The thumbnail info containing the hash of the file is appended to assets.
   /// The serialized size of this class can't change since it is found by seeking to the end of the file.
   class EZ_EDITORFRAMEWORK_DLL ThumbnailInfo
   {
-    public:
+  public:
+    ezResult Deserialize(ezStreamReader& Reader);
+    ezResult Serialize(ezStreamWriter& Writer) const;
 
-      ezResult Deserialize(ezStreamReader& Reader);
-      ezResult Serialize(ezStreamWriter& Writer) const;
+    /// \brief Checks whether the stored file contains the same hash.
+    bool IsThumbnailUpToDate(ezUInt64 uiExpectedHash, ezUInt16 uiVersion) const
+    {
+      return (m_uiHash == uiExpectedHash && m_uiVersion == uiVersion);
+    }
 
-      /// \brief Checks whether the stored file contains the same hash.
-      bool IsThumbnailUpToDate(ezUInt64 uiExpectedHash, ezUInt16 uiVersion) const
-      {
-        return (m_uiHash == uiExpectedHash && m_uiVersion == uiVersion);
-      }
+    /// \brief Sets the asset file hash
+    void SetFileHashAndVersion(ezUInt64 hash, ezUInt16 v)
+    {
+      m_uiHash = hash;
+      m_uiVersion = v;
+    }
 
-      /// \brief Sets the asset file hash
-      void SetFileHashAndVersion(ezUInt64 hash, ezUInt16 v)
-      {
-        m_uiHash = hash;
-        m_uiVersion = v;
-      }
+    /// \brief Returns the serialized size of the thumbnail info.
+    /// Used to seek to the end of the file and find the thumbnail info struct.
+    constexpr ezUInt32 GetSerializedSize() const { return 19; }
 
-      /// \brief Returns the serialized size of the thumbnail info.
-      /// Used to seek to the end of the file and find the thumbnail info struct.
-      constexpr ezUInt32 GetSerializedSize() const { return 19; }
-
-    private:
-
-      ezUInt64 m_uiHash = 0;
-      ezUInt16 m_uiVersion = 0;
-      ezUInt16 m_uiReserved = 0;
+  private:
+    ezUInt64 m_uiHash = 0;
+    ezUInt16 m_uiVersion = 0;
+    ezUInt16 m_uiReserved = 0;
   };
 
   ezAssetDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType);
@@ -70,14 +67,7 @@ public:
 
   ezBitflags<ezAssetDocumentFlags> GetAssetFlags() const;
 
-  /// \brief Returns one of the strings that ezAssetDocumentManager::QuerySupportedAssetTypes returned.
-  ///
-  /// This can be different for each instance of the same asset document type.
-  /// E.g. one texture resource may return 'Texture 2D' and another 'Texture 3D'.
-  /// Likewise completely different asset document types may use the same 'asset types'.
-  ///
-  /// This is mostly used for sorting and filtering in the asset browser.
-  virtual const char* QueryAssetType() const = 0;
+  const ezAssetDocumentTypeDescriptor* GetAssetDocumentTypeDescriptor() const { return static_cast<const ezAssetDocumentTypeDescriptor*>(GetDocumentTypeDescriptor()); }
 
   /// \brief Transforms an asset.
   ///   Typically not called manually but by the curator which takes care of dependencies first.
@@ -100,10 +90,10 @@ public:
 
   enum class EngineStatus
   {
-    Unsupported, ///< This document does not have engine IPC.
+    Unsupported,  ///< This document does not have engine IPC.
     Disconnected, ///< Engine process crashed or not started yet.
     Initializing, ///< Document is being initialized on the engine process side.
-    Loaded, ///< Any message sent after this state is reached will work on a fully loaded document.
+    Loaded,       ///< Any message sent after this state is reached will work on a fully loaded document.
   };
 
   /// \brief Returns the current state of the engine process side of this document.
@@ -133,9 +123,6 @@ public:
   ///@}
 
   ezEvent<const ezEditorEngineDocumentMsg*> m_ProcessMessageEvent;
-
-  /// \brief Uses the asset type name from QueryAssetType and appends "Asset" to it
-  virtual const char* GetDocumentTypeDisplayString() const override;
 
 protected:
   void EngineConnectionEventHandler(const ezEditorEngineProcessConnection::Event& e);
@@ -223,7 +210,6 @@ protected:
   ///@}
 
 protected:
-
   /// \brief Adds all prefab dependencies to the ezAssetDocumentInfo object. Called automatically by UpdateAssetDocumentInfo()
   void AddPrefabDependencies(const ezDocumentObject* pObject, ezAssetDocumentInfo* pInfo) const;
 
@@ -237,7 +223,6 @@ protected:
   virtual ezDocumentInfo* CreateDocumentInfo() override;
 
 private:
-
   ezStatus DoTransformAsset(const ezPlatformProfile* pAssetProfile, ezBitflags<ezTransformFlags> transformFlags);
 
   EngineStatus m_EngineStatus;
@@ -250,4 +235,3 @@ private:
 
   mutable ezHybridArray<ezUuid, 32> m_DeletedObjects;
 };
-

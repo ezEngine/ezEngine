@@ -15,24 +15,19 @@ ezTextureCubeAssetDocumentManager::ezTextureCubeAssetDocumentManager()
   // additional whitelist for non-asset files where an asset may be selected
   ezAssetFileExtensionWhitelist::AddAssetFileExtension("Texture Cube", "dds");
 
-  m_AssetDesc.m_bCanCreate = true;
-  m_AssetDesc.m_sDocumentTypeName = "TextureCube Asset";
-  m_AssetDesc.m_sFileExtension = "ezTextureCubeAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/Texture_Cube.png";
-  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezTextureCubeAssetDocument>();
-  m_AssetDesc.m_pManager = this;
+  m_DocTypeDesc.m_sDocumentTypeName = "Texture Cube";
+  m_DocTypeDesc.m_sFileExtension = "ezTextureCubeAsset";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Texture_Cube.png";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezTextureCubeAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
+
+  m_DocTypeDesc.m_sResourceFileExtension = "ezTextureCube";
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoThumbnailOnTransform;
 }
 
 ezTextureCubeAssetDocumentManager::~ezTextureCubeAssetDocumentManager()
 {
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezTextureCubeAssetDocumentManager::OnDocumentManagerEvent, this));
-}
-
-
-ezBitflags<ezAssetDocumentFlags>
-ezTextureCubeAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
-{
-  return ezAssetDocumentFlags::AutoThumbnailOnTransform;
 }
 
 void ezTextureCubeAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
@@ -51,18 +46,14 @@ void ezTextureCubeAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentM
   }
 }
 
-ezStatus ezTextureCubeAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath,
-                                                                   bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezTextureCubeAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezTextureCubeAssetDocument(szPath);
-
-  return ezStatus(EZ_SUCCESS);
 }
 
-void ezTextureCubeAssetDocumentManager::InternalGetSupportedDocumentTypes(
-    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezTextureCubeAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_AssetDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }
 
 ezUInt64 ezTextureCubeAssetDocumentManager::ComputeAssetProfileHashImpl(const ezPlatformProfile* pAssetProfile) const

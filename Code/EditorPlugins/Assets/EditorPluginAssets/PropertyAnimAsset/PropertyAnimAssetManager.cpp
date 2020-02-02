@@ -13,12 +13,14 @@ ezPropertyAnimAssetDocumentManager::ezPropertyAnimAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezPropertyAnimAssetDocumentManager::OnDocumentManagerEvent, this));
 
-  m_AssetDesc.m_bCanCreate = true;
-  m_AssetDesc.m_sDocumentTypeName = "PropertyAnim Asset";
-  m_AssetDesc.m_sFileExtension = "ezPropertyAnimAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/PropertyAnim.png";
-  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezPropertyAnimAssetDocument>();
-  m_AssetDesc.m_pManager = this;
+  m_DocTypeDesc.m_sDocumentTypeName = "PropertyAnim";
+  m_DocTypeDesc.m_sFileExtension = "ezPropertyAnimAsset";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/PropertyAnim.png";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezPropertyAnimAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
+
+  m_DocTypeDesc.m_sResourceFileExtension = "ezPropertyAnim";
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
 
   ezQtImageCache::GetSingleton()->RegisterTypeImage("PropertyAnim", QPixmap(":/AssetIcons/PropertyAnim.png"));
 }
@@ -26,14 +28,6 @@ ezPropertyAnimAssetDocumentManager::ezPropertyAnimAssetDocumentManager()
 ezPropertyAnimAssetDocumentManager::~ezPropertyAnimAssetDocumentManager()
 {
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezPropertyAnimAssetDocumentManager::OnDocumentManagerEvent, this));
-}
-
-
-ezBitflags<ezAssetDocumentFlags>
-ezPropertyAnimAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
-{
-  EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
-  return ezAssetDocumentFlags::AutoTransformOnSave;
 }
 
 void ezPropertyAnimAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
@@ -52,16 +46,12 @@ void ezPropertyAnimAssetDocumentManager::OnDocumentManagerEvent(const ezDocument
   }
 }
 
-ezStatus ezPropertyAnimAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath,
-                                                                    bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezPropertyAnimAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezPropertyAnimAssetDocument(szPath);
-
-  return ezStatus(EZ_SUCCESS);
 }
 
-void ezPropertyAnimAssetDocumentManager::InternalGetSupportedDocumentTypes(
-    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezPropertyAnimAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_AssetDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

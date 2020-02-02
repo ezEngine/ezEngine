@@ -19,7 +19,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureCubeContext, 1, ezRTTIDefaultAllocator<
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "TextureCube Asset"),
+    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Texture Cube"),
   }
   EZ_END_PROPERTIES;
 }

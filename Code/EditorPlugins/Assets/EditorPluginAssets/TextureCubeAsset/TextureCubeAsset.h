@@ -28,11 +28,6 @@ class ezTextureCubeAssetDocument : public ezSimpleAssetDocument<ezTextureCubeAss
 public:
   ezTextureCubeAssetDocument(const char* szDocumentPath);
 
-  /// \brief Overridden, because QueryAssetType() doesn't return a constant here
-  virtual const char* GetDocumentTypeDisplayString() const override { return "TextureCube Asset"; }
-
-  virtual const char* QueryAssetType() const override;
-
   // for previewing purposes
   ezEnum<ezTextureCubeChannelMode> m_ChannelMode;
   ezInt32 m_iTextureLod; // -1 == regular sampling, >= 0 == sample that level

@@ -16,12 +16,14 @@ ezProcGenGraphAssetDocumentManager::ezProcGenGraphAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezProcGenGraphAssetDocumentManager::OnDocumentManagerEvent, this));
 
-  m_AssetDesc.m_bCanCreate = true;
-  m_AssetDesc.m_sDocumentTypeName = "ProcGen Graph Asset";
-  m_AssetDesc.m_sFileExtension = "ezProcGenGraphAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/ProcGen_Graph.png";
-  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezProcGenGraphAssetDocument>();
-  m_AssetDesc.m_pManager = this;
+  m_DocTypeDesc.m_sDocumentTypeName = "ProcGen Graph";
+  m_DocTypeDesc.m_sFileExtension = "ezProcGenGraphAsset";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/ProcGen_Graph.png";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezProcGenGraphAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
+
+  m_DocTypeDesc.m_sResourceFileExtension = "ezProcGenGraph";
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
 
   ezQtImageCache::GetSingleton()->RegisterTypeImage("ProcGen Graph", QPixmap(":/AssetIcons/ProcGen_Graph.png"));
 }
@@ -29,12 +31,6 @@ ezProcGenGraphAssetDocumentManager::ezProcGenGraphAssetDocumentManager()
 ezProcGenGraphAssetDocumentManager::~ezProcGenGraphAssetDocumentManager()
 {
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezProcGenGraphAssetDocumentManager::OnDocumentManagerEvent, this));
-}
-
-ezBitflags<ezAssetDocumentFlags> ezProcGenGraphAssetDocumentManager::GetAssetDocumentTypeFlags(
-  const ezDocumentTypeDescriptor* pDescriptor) const
-{
-  return ezAssetDocumentFlags::AutoTransformOnSave;
 }
 
 void ezProcGenGraphAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
@@ -52,16 +48,12 @@ void ezProcGenGraphAssetDocumentManager::OnDocumentManagerEvent(const ezDocument
   }
 }
 
-ezStatus ezProcGenGraphAssetDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezProcGenGraphAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezProcGenGraphAssetDocument(szPath);
-
-  return ezStatus(EZ_SUCCESS);
 }
 
-void ezProcGenGraphAssetDocumentManager::InternalGetSupportedDocumentTypes(
-  ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezProcGenGraphAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_AssetDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

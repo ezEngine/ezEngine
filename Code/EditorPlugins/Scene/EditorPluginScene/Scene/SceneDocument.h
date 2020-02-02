@@ -24,9 +24,6 @@ public:
   ezSceneDocument(const char* szDocumentPath, bool bIsPrefab);
   ~ezSceneDocument();
 
-  virtual const char* GetDocumentTypeDisplayString() const override;
-
-
   enum class ShowOrHide
   {
     Show,
@@ -177,8 +174,6 @@ private:
   void ToolsProjectEventHandler(const ezToolsProjectEvent& e);
 
   ezStatus RequestExportScene(const char* szTargetFile, const ezAssetFileHeader& header);
-
-  virtual const char* QueryAssetType() const override;
 
   virtual ezStatus InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;

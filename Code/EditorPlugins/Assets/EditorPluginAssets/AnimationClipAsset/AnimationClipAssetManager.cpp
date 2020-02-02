@@ -14,12 +14,14 @@ ezAnimationClipAssetDocumentManager::ezAnimationClipAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezAnimationClipAssetDocumentManager::OnDocumentManagerEvent, this));
 
-  m_AssetDesc.m_bCanCreate = true;
-  m_AssetDesc.m_sDocumentTypeName = "Animation Clip Asset";
-  m_AssetDesc.m_sFileExtension = "ezAnimationClipAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/Animation_Clip.png";
-  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezAnimationClipAssetDocument>();
-  m_AssetDesc.m_pManager = this;
+  m_DocTypeDesc.m_sDocumentTypeName = "Animation Clip";
+  m_DocTypeDesc.m_sFileExtension = "ezAnimationClipAsset";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Animation_Clip.png";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezAnimationClipAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
+
+  m_DocTypeDesc.m_sResourceFileExtension = "ezAnimationClip";
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::None;
 
   ezQtImageCache::GetSingleton()->RegisterTypeImage("Animation Clip", QPixmap(":/AssetIcons/Animation_Clip.png"));
 }
@@ -27,14 +29,6 @@ ezAnimationClipAssetDocumentManager::ezAnimationClipAssetDocumentManager()
 ezAnimationClipAssetDocumentManager::~ezAnimationClipAssetDocumentManager()
 {
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezAnimationClipAssetDocumentManager::OnDocumentManagerEvent, this));
-}
-
-
-ezBitflags<ezAssetDocumentFlags>
-ezAnimationClipAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
-{
-  EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
-  return ezAssetDocumentFlags::None;
 }
 
 void ezAnimationClipAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
@@ -53,16 +47,12 @@ void ezAnimationClipAssetDocumentManager::OnDocumentManagerEvent(const ezDocumen
   }
 }
 
-ezStatus ezAnimationClipAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath,
-                                                                     bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezAnimationClipAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezAnimationClipAssetDocument(szPath);
-
-  return ezStatus(EZ_SUCCESS);
 }
 
-void ezAnimationClipAssetDocumentManager::InternalGetSupportedDocumentTypes(
-    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezAnimationClipAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_AssetDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

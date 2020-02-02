@@ -24,8 +24,6 @@ class ezMeshAssetDocument : public ezSimpleAssetDocument<ezMeshAssetProperties>
 public:
   ezMeshAssetDocument(const char* szDocumentPath);
 
-  virtual const char* QueryAssetType() const override { return "Mesh"; }
-
 protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
 

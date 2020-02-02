@@ -91,8 +91,6 @@ public:
   ezMaterialAssetDocument(const char* szDocumentPath);
   ~ezMaterialAssetDocument();
 
-  virtual const char* QueryAssetType() const override { return "Material"; }
-
   ezDocumentObject* GetShaderPropertyObject();
   const ezDocumentObject* GetShaderPropertyObject() const;
 

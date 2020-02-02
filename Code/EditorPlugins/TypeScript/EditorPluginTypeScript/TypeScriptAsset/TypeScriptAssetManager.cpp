@@ -29,12 +29,14 @@ ezTypeScriptAssetDocumentManager::ezTypeScriptAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezTypeScriptAssetDocumentManager::OnDocumentManagerEvent, this));
 
-  m_AssetDesc.m_bCanCreate = true;
-  m_AssetDesc.m_sDocumentTypeName = "TypeScript Asset";
-  m_AssetDesc.m_sFileExtension = "ezTypeScriptAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/TypeScript.png";
-  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezTypeScriptAssetDocument>();
-  m_AssetDesc.m_pManager = this;
+  m_DocTypeDesc.m_sDocumentTypeName = "TypeScript";
+  m_DocTypeDesc.m_sFileExtension = "ezTypeScriptAsset";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/TypeScript.png";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezTypeScriptAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
+
+  m_DocTypeDesc.m_sResourceFileExtension = "ezTypeScriptRes";
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::None;
 
   ezQtImageCache::GetSingleton()->RegisterTypeImage("TypeScript", QPixmap(":/AssetIcons/TypeScript.png"));
 
@@ -73,23 +75,14 @@ void ezTypeScriptAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMa
   }
 }
 
-ezStatus ezTypeScriptAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezTypeScriptAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezTypeScriptAssetDocument(szPath);
-
-  return ezStatus(EZ_SUCCESS);
 }
 
 void ezTypeScriptAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_AssetDesc);
-}
-
-ezBitflags<ezAssetDocumentFlags>
-ezTypeScriptAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
-{
-  EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
-  return ezAssetDocumentFlags::None;
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }
 
 void ezTypeScriptAssetDocumentManager::ToolsProjectEventHandler(const ezToolsProjectEvent& e)
@@ -241,7 +234,7 @@ ezResult ezTypeScriptAssetDocumentManager::GenerateScriptCompendium(ezBitflags<e
   {
     const ezSubAsset* pSub = &it.Value();
 
-    if (pSub->m_pAssetInfo->m_pManager == this)
+    if (pSub->m_pAssetInfo->GetManager() == this)
     {
       allTsAssets.PushBack(pSub->m_pAssetInfo);
     }
