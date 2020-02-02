@@ -19,7 +19,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureContext, 1, ezRTTIDefaultAllocator<ezTe
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Texture;Render Target"),
+    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Texture 2D;Render Target"),
   }
   EZ_END_PROPERTIES;
 }
