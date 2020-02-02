@@ -19,19 +19,15 @@ ezRenderPipelineAssetManager::ezRenderPipelineAssetManager()
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezRenderPipelineAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
 
+  m_DocTypeDesc.m_sResourceFileExtension = "ezRenderPipelineBin";
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
+
   ezQtImageCache::GetSingleton()->RegisterTypeImage("RenderPipeline", QPixmap(":/AssetIcons/RenderPipeline.png"));
 }
 
 ezRenderPipelineAssetManager::~ezRenderPipelineAssetManager()
 {
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezRenderPipelineAssetManager::OnDocumentManagerEvent, this));
-}
-
-
-ezBitflags<ezAssetDocumentFlags> ezRenderPipelineAssetManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
-{
-  EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
-  return ezAssetDocumentFlags::AutoTransformOnSave;
 }
 
 void ezRenderPipelineAssetManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)

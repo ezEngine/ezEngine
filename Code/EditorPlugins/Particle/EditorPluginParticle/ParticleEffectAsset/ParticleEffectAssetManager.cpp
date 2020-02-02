@@ -17,18 +17,14 @@ ezParticleEffectAssetDocumentManager::ezParticleEffectAssetDocumentManager()
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Particle_Effect.png";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezParticleEffectAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
+
+  m_DocTypeDesc.m_sResourceFileExtension = "ezParticleEffect"; 
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave | ezAssetDocumentFlags::SupportsThumbnail;
 }
 
 ezParticleEffectAssetDocumentManager::~ezParticleEffectAssetDocumentManager()
 {
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezParticleEffectAssetDocumentManager::OnDocumentManagerEvent, this));
-}
-
-
-ezBitflags<ezAssetDocumentFlags>
-ezParticleEffectAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
-{
-  return ezAssetDocumentFlags::AutoTransformOnSave | ezAssetDocumentFlags::SupportsThumbnail;
 }
 
 void ezParticleEffectAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)

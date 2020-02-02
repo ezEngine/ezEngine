@@ -17,8 +17,6 @@ public:
   ezAssetDocumentManager();
   ~ezAssetDocumentManager();
 
-  virtual ezBitflags<ezAssetDocumentFlags> GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const;
-
   /// \brief Opens the asset file and reads the "Header" into the given ezAssetDocumentInfo.
   virtual ezStatus ReadAssetDocumentInfo(ezUniquePtr<ezAssetDocumentInfo>& out_pInfo, ezStreamReader& stream) const;
   virtual void FillOutSubAssetList(const ezAssetDocumentInfo& assetInfo, ezHybridArray<ezSubAssetData, 4>& out_SubAssets) const {}
@@ -61,15 +59,14 @@ public:
   virtual ezString GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezPlatformProfile* pAssetProfile) const;
 
   /// \brief Calls GetRelativeOutputFileName and prepends [DataDir]/AssetCache/ .
-  ezString GetAbsoluteOutputFileName(const char* szDocumentPath, const char* szOutputTag, const ezPlatformProfile* pAssetProfile = nullptr) const;
+  ezString GetAbsoluteOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDesc, const char* szDocumentPath, const char* szOutputTag, const ezPlatformProfile* pAssetProfile = nullptr) const;
 
   /// \brief Relative to 'AssetCache' folder.
-  virtual ezString GetRelativeOutputFileName(const char* szDataDirectory, const char* szDocumentPath, const char* szOutputTag, const ezPlatformProfile* pAssetProfile = nullptr) const;
-  virtual ezString GetResourceTypeExtension(const char* szDocumentPath) const = 0;
+  virtual ezString GetRelativeOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDesc, const char* szDataDirectory, const char* szDocumentPath, const char* szOutputTag, const ezPlatformProfile* pAssetProfile = nullptr) const;
   virtual bool GeneratesProfileSpecificAssets() const = 0;
 
-  bool IsOutputUpToDate(const char* szDocumentPath, const ezSet<ezString>& outputs, ezUInt64 uiHash, ezUInt16 uiTypeVersion);
-  virtual bool IsOutputUpToDate(const char* szDocumentPath, const char* szOutputTag, ezUInt64 uiHash, ezUInt16 uiTypeVersion);
+  bool IsOutputUpToDate(const char* szDocumentPath, const ezSet<ezString>& outputs, ezUInt64 uiHash, const ezAssetDocumentTypeDescriptor* pTypeDescriptor);
+  virtual bool IsOutputUpToDate(const char* szDocumentPath, const char* szOutputTag, ezUInt64 uiHash, const ezAssetDocumentTypeDescriptor* pTypeDescriptor);
 
   ///@}
 
@@ -81,6 +78,5 @@ public:
 
 protected:
   static bool IsResourceUpToDate(const char* szResourceFile, ezUInt64 uiHash, ezUInt16 uiTypeVersion);
-  static void GenerateOutputFilename(ezStringBuilder& inout_sRelativeDocumentPath, const ezPlatformProfile* pAssetProfile,
-                                     const char* szExtension, bool bPlatformSpecific);
+  static void GenerateOutputFilename(ezStringBuilder& inout_sRelativeDocumentPath, const ezPlatformProfile* pAssetProfile, const char* szExtension, bool bPlatformSpecific);
 };

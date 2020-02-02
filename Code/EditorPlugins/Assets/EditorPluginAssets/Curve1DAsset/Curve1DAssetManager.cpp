@@ -17,18 +17,15 @@ ezCurve1DAssetDocumentManager::ezCurve1DAssetDocumentManager()
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Curve1D.png";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezCurve1DAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
+
+  m_DocTypeDesc.m_sResourceFileExtension = "ezCurve1D";
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave | ezAssetDocumentFlags::SupportsThumbnail;
+
 }
 
 ezCurve1DAssetDocumentManager::~ezCurve1DAssetDocumentManager()
 {
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezCurve1DAssetDocumentManager::OnDocumentManagerEvent, this));
-}
-
-
-ezBitflags<ezAssetDocumentFlags> ezCurve1DAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
-{
-  EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
-  return ezAssetDocumentFlags::AutoTransformOnSave | ezAssetDocumentFlags::SupportsThumbnail;
 }
 
 void ezCurve1DAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)

@@ -75,7 +75,7 @@ struct EZ_EDITORFRAMEWORK_DLL ezAssetInfo
   TransformState m_TransformState = TransformState::Unknown;
   ezDynamicArray<ezLogEntry> m_LogEntries;
 
-  const ezDocumentTypeDescriptor* m_pDocumentTypeDescriptor = nullptr;
+  const ezAssetDocumentTypeDescriptor* m_pDocumentTypeDescriptor = nullptr;
   ezString m_sAbsolutePath;
   ezString m_sDataDirRelativePath;
 
@@ -254,8 +254,7 @@ public:
   /// \brief Computes the combined hash for the asset and its references. Returns 0 if anything went wrong.
   ezUInt64 GetAssetReferenceHash(ezUuid assetGuid);
 
-  ezAssetInfo::TransformState IsAssetUpToDate(const ezUuid& assetGuid, const ezPlatformProfile* pAssetProfile,
-    const ezDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash,
+  ezAssetInfo::TransformState IsAssetUpToDate(const ezUuid& assetGuid, const ezPlatformProfile* pAssetProfile, const ezAssetDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash,
     ezUInt64& out_ThumbHash);
   /// \brief Returns the number of assets in the system and how many are in what transform state
   void GetAssetTransformStats(ezUInt32& out_uiNumAssets, ezHybridArray<ezUInt32, ezAssetInfo::TransformState::COUNT>& out_count);

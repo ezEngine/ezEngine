@@ -23,18 +23,14 @@ ezMeshAssetDocumentManager::ezMeshAssetDocumentManager()
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Mesh.png";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezMeshAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
+
+  m_DocTypeDesc.m_sResourceFileExtension = "ezMesh";
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;
 }
 
 ezMeshAssetDocumentManager::~ezMeshAssetDocumentManager()
 {
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezMeshAssetDocumentManager::OnDocumentManagerEvent, this));
-}
-
-
-ezBitflags<ezAssetDocumentFlags> ezMeshAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
-{
-  EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
-  return ezAssetDocumentFlags::SupportsThumbnail;
 }
 
 ezResult ezMeshAssetDocumentManager::OpenPickedDocument(const ezDocumentObject* pPickedComponent, ezUInt32 uiPartIndex)

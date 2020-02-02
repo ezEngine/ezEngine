@@ -13,8 +13,6 @@ public:
   ezSoundBankAssetDocumentManager();
   ~ezSoundBankAssetDocumentManager();
 
-  virtual ezString GetResourceTypeExtension(const char* szDocumentPath) const override { return "ezFmodSoundBank"; }
-
   virtual void FillOutSubAssetList(const ezAssetDocumentInfo& assetInfo, ezHybridArray<ezSubAssetData, 4>& out_SubAssets) const override;
   virtual ezString GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory,
                                       const ezPlatformProfile* pAssetProfile) const override;
@@ -30,7 +28,6 @@ private:
 
   virtual ezUInt64 ComputeAssetProfileHashImpl(const ezPlatformProfile* pAssetProfile) const override;
 
-private:
-  ezDocumentTypeDescriptor m_DocTypeDesc;
+  ezAssetDocumentTypeDescriptor m_DocTypeDesc;
   ezUniquePtr<ezSimpleFmod> m_Fmod;
 };

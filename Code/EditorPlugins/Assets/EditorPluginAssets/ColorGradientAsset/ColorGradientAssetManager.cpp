@@ -17,19 +17,14 @@ ezColorGradientAssetDocumentManager::ezColorGradientAssetDocumentManager()
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/ColorGradient.png";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezColorGradientAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
+
+  m_DocTypeDesc.m_sResourceFileExtension = "ezColorGradient";
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave | ezAssetDocumentFlags::SupportsThumbnail;
 }
 
 ezColorGradientAssetDocumentManager::~ezColorGradientAssetDocumentManager()
 {
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezColorGradientAssetDocumentManager::OnDocumentManagerEvent, this));
-}
-
-
-ezBitflags<ezAssetDocumentFlags>
-ezColorGradientAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
-{
-  EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
-  return ezAssetDocumentFlags::AutoTransformOnSave | ezAssetDocumentFlags::SupportsThumbnail;
 }
 
 void ezColorGradientAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)

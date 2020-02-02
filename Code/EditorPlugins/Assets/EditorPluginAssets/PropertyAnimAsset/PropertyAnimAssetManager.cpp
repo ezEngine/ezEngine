@@ -19,20 +19,15 @@ ezPropertyAnimAssetDocumentManager::ezPropertyAnimAssetDocumentManager()
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezPropertyAnimAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
 
+  m_DocTypeDesc.m_sResourceFileExtension = "ezPropertyAnim";
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
+
   ezQtImageCache::GetSingleton()->RegisterTypeImage("PropertyAnim", QPixmap(":/AssetIcons/PropertyAnim.png"));
 }
 
 ezPropertyAnimAssetDocumentManager::~ezPropertyAnimAssetDocumentManager()
 {
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezPropertyAnimAssetDocumentManager::OnDocumentManagerEvent, this));
-}
-
-
-ezBitflags<ezAssetDocumentFlags>
-ezPropertyAnimAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
-{
-  EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
-  return ezAssetDocumentFlags::AutoTransformOnSave;
 }
 
 void ezPropertyAnimAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)

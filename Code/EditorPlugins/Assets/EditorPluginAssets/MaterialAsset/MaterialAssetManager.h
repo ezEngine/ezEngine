@@ -11,13 +11,11 @@ public:
   ezMaterialAssetDocumentManager();
   ~ezMaterialAssetDocumentManager();
 
-  virtual ezString GetResourceTypeExtension(const char* szDocumentPath) const override { return "ezMaterialBin"; }
-
-  virtual ezBitflags<ezAssetDocumentFlags> GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const override;
-  virtual ezString GetRelativeOutputFileName(const char* szDataDirectory, const char* szDocumentPath, const char* szOutputTag, const ezPlatformProfile* pAssetProfile) const override;
-  virtual bool IsOutputUpToDate(const char* szDocumentPath, const char* szOutputTag, ezUInt64 uiHash, ezUInt16 uiTypeVersion) override;
+  virtual ezString GetRelativeOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDescriptor, const char* szDataDirectory, const char* szDocumentPath, const char* szOutputTag, const ezPlatformProfile* pAssetProfile) const override;
+  virtual bool IsOutputUpToDate(const char* szDocumentPath, const char* szOutputTag, ezUInt64 uiHash, const ezAssetDocumentTypeDescriptor* pTypeDescriptor) override;
 
   static const char* const s_szShaderOutputTag;
+
 private:
   void OnDocumentManagerEvent(const ezDocumentManager::Event& e);
 
@@ -27,6 +25,5 @@ private:
   virtual bool GeneratesProfileSpecificAssets() const override { return false; }
 
 private:
-  ezDocumentTypeDescriptor m_DocTypeDesc;
+  ezAssetDocumentTypeDescriptor m_DocTypeDesc;
 };
-

@@ -11,10 +11,6 @@ public:
   ezMeshAssetDocumentManager();
   ~ezMeshAssetDocumentManager();
 
-  virtual ezString GetResourceTypeExtension(const char* szDocumentPath) const override { return "ezMesh"; }
-
-  virtual ezBitflags<ezAssetDocumentFlags> GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const override;
-
   virtual ezResult OpenPickedDocument(const ezDocumentObject* pPickedComponent, ezUInt32 uiPartIndex) override;
 
 private:
@@ -26,6 +22,6 @@ private:
   virtual bool GeneratesProfileSpecificAssets() const override { return false; }
 
 private:
-  ezDocumentTypeDescriptor m_DocTypeDesc;
+  ezAssetDocumentTypeDescriptor m_DocTypeDesc;
 };
 

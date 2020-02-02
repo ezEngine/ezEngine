@@ -73,3 +73,12 @@ struct ezSubAssetData
   ezString m_sName;
 };
 
+struct EZ_EDITORFRAMEWORK_DLL ezAssetDocumentTypeDescriptor : public ezDocumentTypeDescriptor
+{
+  ezAssetDocumentTypeDescriptor() = default;
+  ~ezAssetDocumentTypeDescriptor() = default;
+
+  ezString m_sResourceFileExtension;
+  ezBitflags<ezAssetDocumentFlags> m_AssetDocumentFlags;
+};
+

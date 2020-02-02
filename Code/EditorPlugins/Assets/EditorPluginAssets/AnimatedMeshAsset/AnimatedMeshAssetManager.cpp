@@ -20,19 +20,14 @@ ezAnimatedMeshAssetDocumentManager::ezAnimatedMeshAssetDocumentManager()
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Animated_Mesh.png";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezAnimatedMeshAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
+
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;
+  m_DocTypeDesc.m_sResourceFileExtension = "ezAnimatedMesh";
 }
 
 ezAnimatedMeshAssetDocumentManager::~ezAnimatedMeshAssetDocumentManager()
 {
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezAnimatedMeshAssetDocumentManager::OnDocumentManagerEvent, this));
-}
-
-
-ezBitflags<ezAssetDocumentFlags>
-ezAnimatedMeshAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
-{
-  EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
-  return ezAssetDocumentFlags::SupportsThumbnail;
 }
 
 void ezAnimatedMeshAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)

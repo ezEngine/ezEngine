@@ -20,20 +20,15 @@ ezAnimationClipAssetDocumentManager::ezAnimationClipAssetDocumentManager()
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezAnimationClipAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
 
+  m_DocTypeDesc.m_sResourceFileExtension = "ezAnimationClip";
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::None;
+
   ezQtImageCache::GetSingleton()->RegisterTypeImage("Animation Clip", QPixmap(":/AssetIcons/Animation_Clip.png"));
 }
 
 ezAnimationClipAssetDocumentManager::~ezAnimationClipAssetDocumentManager()
 {
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezAnimationClipAssetDocumentManager::OnDocumentManagerEvent, this));
-}
-
-
-ezBitflags<ezAssetDocumentFlags>
-ezAnimationClipAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
-{
-  EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
-  return ezAssetDocumentFlags::None;
 }
 
 void ezAnimationClipAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)

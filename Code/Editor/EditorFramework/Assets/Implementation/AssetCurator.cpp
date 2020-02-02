@@ -657,8 +657,7 @@ ezUInt64 ezAssetCurator::GetAssetReferenceHash(ezUuid assetGuid)
   return GetAssetHash(assetGuid, true);
 }
 
-ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetGuid, const ezPlatformProfile* pAssetProfile,
-  const ezDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash)
+ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetGuid, const ezPlatformProfile* pAssetProfile, const ezAssetDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash)
 {
   CURATOR_PROFILE("IsAssetUpToDate");
 
@@ -679,7 +678,6 @@ ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetG
     return ezAssetInfo::TransformState::MissingReference;
   }
 
-  auto flags = pManager->GetAssetDocumentTypeFlags(pTypeDescriptor);
   ezString sAssetFile;
   ezSet<ezString> outputs;
   {
@@ -689,9 +687,9 @@ ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetG
     outputs = pAssetInfo->m_Info->m_Outputs;
   }
 
-  if (pManager->IsOutputUpToDate(sAssetFile, outputs, out_AssetHash, pTypeDescriptor->m_pDocumentType->GetTypeVersion()))
+  if (pManager->IsOutputUpToDate(sAssetFile, outputs, out_AssetHash, pTypeDescriptor))
   {
-    if (flags.IsSet(ezAssetDocumentFlags::SupportsThumbnail))
+    if (pTypeDescriptor->m_AssetDocumentFlags.IsSet(ezAssetDocumentFlags::SupportsThumbnail))
     {
       if (!ezAssetDocumentManager::IsThumbnailUpToDate(sAssetFile, out_ThumbHash, pTypeDescriptor->m_pDocumentType->GetTypeVersion()))
       {
@@ -927,11 +925,11 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformP
     }
   }
 
-  const ezDocumentTypeDescriptor* pTypeDesc = pAssetInfo->m_pDocumentTypeDescriptor;
+  const ezAssetDocumentTypeDescriptor* pTypeDesc = pAssetInfo->m_pDocumentTypeDescriptor;
 
   EZ_ASSERT_DEV(pTypeDesc->m_pDocumentType->IsDerivedFrom<ezAssetDocument>(), "Asset document does not derive from correct base class ('{0}')", pAssetInfo->m_sDataDirRelativePath);
 
-  auto assetFlags = static_cast<ezAssetDocumentManager*>(pTypeDesc->m_pManager)->GetAssetDocumentTypeFlags(pTypeDesc);
+  auto assetFlags = pTypeDesc->m_AssetDocumentFlags;
 
   // Skip assets that cannot be auto-transformed.
   {

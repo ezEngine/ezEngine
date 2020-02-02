@@ -19,19 +19,14 @@ ezSkeletonAssetDocumentManager::ezSkeletonAssetDocumentManager()
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Skeleton.png";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezSkeletonAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
+
+  m_DocTypeDesc.m_sResourceFileExtension = "ezSkeleton";
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;
 }
 
 ezSkeletonAssetDocumentManager::~ezSkeletonAssetDocumentManager()
 {
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSkeletonAssetDocumentManager::OnDocumentManagerEvent, this));
-}
-
-
-ezBitflags<ezAssetDocumentFlags>
-ezSkeletonAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
-{
-  EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
-  return ezAssetDocumentFlags::SupportsThumbnail;
 }
 
 void ezSkeletonAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)

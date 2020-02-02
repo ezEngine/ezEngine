@@ -16,8 +16,6 @@ public:
   ezTypeScriptAssetDocumentManager();
   ~ezTypeScriptAssetDocumentManager();
 
-  virtual ezString GetResourceTypeExtension(const char* szDocumentPath) const override { return "ezTypeScriptRes"; }
-
   ezTypeScriptTranspiler& GetTranspiler() { return m_Transpiler; }
 
   void SetupProjectForTypeScript(bool bForce);
@@ -28,8 +26,6 @@ private:
 
   virtual void InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument) override;
   virtual void InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const override;
-
-  ezBitflags<ezAssetDocumentFlags> GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const;
 
   virtual bool GeneratesProfileSpecificAssets() const override { return false; }
 
@@ -46,7 +42,7 @@ private:
   bool m_bProjectSetUp = false;
   ezTypeScriptTranspiler m_Transpiler;
 
-  ezDocumentTypeDescriptor m_DocTypeDesc;
+  ezAssetDocumentTypeDescriptor m_DocTypeDesc;
 
   ezMap<ezString, ezTimestamp> m_CheckedTsFiles;
 };

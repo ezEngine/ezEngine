@@ -18,6 +18,9 @@ ezKrautTreeAssetDocumentManager::ezKrautTreeAssetDocumentManager()
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Kraut_Tree.png";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezKrautTreeAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
+
+  m_DocTypeDesc.m_sResourceFileExtension = "ezKrautTree";
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;
 }
 
 ezKrautTreeAssetDocumentManager::~ezKrautTreeAssetDocumentManager()
@@ -51,10 +54,4 @@ void ezKrautTreeAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynami
   inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }
 
-ezBitflags<ezAssetDocumentFlags>
-ezKrautTreeAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
-{
-  EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
-  return ezAssetDocumentFlags::SupportsThumbnail;
-}
 

@@ -30,19 +30,15 @@ ezDecalAssetDocumentManager::ezDecalAssetDocumentManager()
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Decal.png";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezDecalAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
+
+  m_DocTypeDesc.m_sResourceFileExtension = "ezDecalStub";
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;
 }
 
 ezDecalAssetDocumentManager::~ezDecalAssetDocumentManager()
 {
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezDecalAssetDocumentManager::OnDocumentManagerEvent, this));
 }
-
-
-ezBitflags<ezAssetDocumentFlags> ezDecalAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
-{
-  return ezAssetDocumentFlags::SupportsThumbnail;
-}
-
 
 void ezDecalAssetDocumentManager::AddEntriesToAssetTable(
   const char* szDataDirectory, const ezPlatformProfile* pAssetProfile, ezMap<ezString, ezString>& inout_GuidToPath) const

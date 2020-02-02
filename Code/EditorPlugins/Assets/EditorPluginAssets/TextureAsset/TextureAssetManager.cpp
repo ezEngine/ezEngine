@@ -40,12 +40,16 @@ ezTextureAssetDocumentManager::ezTextureAssetDocumentManager()
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Texture_2D.png";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezTextureAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
+  m_DocTypeDesc.m_sResourceFileExtension = "ezTexture2D";
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoThumbnailOnTransform;
 
   m_DocTypeDesc2.m_sDocumentTypeName = "Render Target";
   m_DocTypeDesc2.m_sFileExtension = "ezRenderTargetAsset";
   m_DocTypeDesc2.m_sIcon = ":/AssetIcons/Render_Target.png";
   m_DocTypeDesc2.m_pDocumentType = ezGetStaticRTTI<ezTextureAssetDocument>();
   m_DocTypeDesc2.m_pManager = this;
+  m_DocTypeDesc2.m_sResourceFileExtension = "ezRenderTarget";
+  m_DocTypeDesc2.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
 
   ezQtImageCache::GetSingleton()->RegisterTypeImage("Render Target", QPixmap(":/AssetIcons/Render_Target.png"));
 }
@@ -55,31 +59,9 @@ ezTextureAssetDocumentManager::~ezTextureAssetDocumentManager()
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezTextureAssetDocumentManager::OnDocumentManagerEvent, this));
 }
 
-ezString ezTextureAssetDocumentManager::GetResourceTypeExtension(const char* szDocumentPath) const
-{
-  const ezStringView extension = ezPathUtils::GetFileExtension(szDocumentPath);
-
-  if (extension == "ezRenderTargetAsset")
-    return "ezRenderTarget";
-
-  return "ezTexture2D";
-}
-
 ezUInt64 ezTextureAssetDocumentManager::ComputeAssetProfileHashImpl(const ezPlatformProfile* pAssetProfile) const
 {
   return pAssetProfile->GetTypeConfig<ezTextureAssetProfileConfig>()->m_uiMaxResolution;
-}
-
-ezBitflags<ezAssetDocumentFlags> ezTextureAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
-{
-  if (pDescriptor->m_sDocumentTypeName == "Render Target")
-  {
-    return ezAssetDocumentFlags::AutoTransformOnSave;
-  }
-  else // Texture 2D
-  {
-    return ezAssetDocumentFlags::AutoThumbnailOnTransform;
-  }
 }
 
 void ezTextureAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)

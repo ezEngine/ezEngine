@@ -19,20 +19,15 @@ ezCollectionAssetDocumentManager::ezCollectionAssetDocumentManager()
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezCollectionAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
 
+  m_DocTypeDesc.m_sResourceFileExtension = "ezCollection";
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
+
   ezQtImageCache::GetSingleton()->RegisterTypeImage("Collection", QPixmap(":/AssetIcons/Collection.png"));
 }
 
 ezCollectionAssetDocumentManager::~ezCollectionAssetDocumentManager()
 {
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezCollectionAssetDocumentManager::OnDocumentManagerEvent, this));
-}
-
-
-ezBitflags<ezAssetDocumentFlags>
-ezCollectionAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
-{
-  EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
-  return ezAssetDocumentFlags::AutoTransformOnSave;
 }
 
 void ezCollectionAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)

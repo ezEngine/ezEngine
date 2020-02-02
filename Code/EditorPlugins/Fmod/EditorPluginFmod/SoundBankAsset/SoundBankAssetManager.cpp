@@ -65,6 +65,9 @@ ezSoundBankAssetDocumentManager::ezSoundBankAssetDocumentManager()
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezSoundBankAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
 
+  m_DocTypeDesc.m_sResourceFileExtension = "ezFmodSoundBank";
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::None;
+
   ezQtImageCache::GetSingleton()->RegisterTypeImage("Sound Bank", QPixmap(":/AssetIcons/Sound_Bank.png"));
 
   m_Fmod = EZ_DEFAULT_NEW(ezSimpleFmod);

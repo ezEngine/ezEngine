@@ -20,6 +20,9 @@ ezSoundEventAssetDocumentManager::ezSoundEventAssetDocumentManager()
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezSoundEventAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
 
+  m_DocTypeDesc.m_sResourceFileExtension = "ezFmodSoundEvent";
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::None;
+
   ezQtImageCache::GetSingleton()->RegisterTypeImage("Sound Event", QPixmap(":/AssetIcons/Sound_Event.png"));
 }
 

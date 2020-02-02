@@ -11,10 +11,6 @@ public:
   ezDecalAssetDocumentManager();
   ~ezDecalAssetDocumentManager();
 
-  virtual ezString GetResourceTypeExtension(const char* szDocumentPath) const override { return "ezDecalStub"; }
-
-  virtual ezBitflags<ezAssetDocumentFlags> GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const override;
-
   virtual void AddEntriesToAssetTable(const char* szDataDirectory, const ezPlatformProfile* pAssetProfile,
                                       ezMap<ezString, ezString>& inout_GuidToPath) const override;
   virtual ezString GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezPlatformProfile* pAssetProfile) const override;
@@ -35,7 +31,6 @@ private:
 
   virtual ezUInt64 ComputeAssetProfileHashImpl(const ezPlatformProfile* pAssetProfile) const override;
 
-private:
-  ezDocumentTypeDescriptor m_DocTypeDesc;
+  ezAssetDocumentTypeDescriptor m_DocTypeDesc;
 };
 

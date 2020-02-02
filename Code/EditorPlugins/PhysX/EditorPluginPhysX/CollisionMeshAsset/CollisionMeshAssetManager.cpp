@@ -19,11 +19,17 @@ ezCollisionMeshAssetDocumentManager::ezCollisionMeshAssetDocumentManager()
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezCollisionMeshAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
 
+  m_DocTypeDesc.m_sResourceFileExtension = "ezPhysXMesh";
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;
+
   m_DocTypeDesc2.m_sDocumentTypeName = "Collision Mesh (Convex)";
   m_DocTypeDesc2.m_sFileExtension = "ezConvexCollisionMeshAsset";
   m_DocTypeDesc2.m_sIcon = ":/AssetIcons/Collision_Mesh_Convex.png";
   m_DocTypeDesc2.m_pDocumentType = ezGetStaticRTTI<ezCollisionMeshAssetDocument>();
   m_DocTypeDesc2.m_pManager = this;
+
+  m_DocTypeDesc2.m_sResourceFileExtension = "ezPhysXMesh";
+  m_DocTypeDesc2.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;
 }
 
 ezCollisionMeshAssetDocumentManager::~ezCollisionMeshAssetDocumentManager()
@@ -63,13 +69,6 @@ void ezCollisionMeshAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDy
 {
   inout_DocumentTypes.PushBack(&m_DocTypeDesc);
   inout_DocumentTypes.PushBack(&m_DocTypeDesc2);
-}
-
-ezBitflags<ezAssetDocumentFlags>
-ezCollisionMeshAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
-{
-  EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
-  return ezAssetDocumentFlags::SupportsThumbnail;
 }
 
 ezUInt64 ezCollisionMeshAssetDocumentManager::ComputeAssetProfileHashImpl(const ezPlatformProfile* pAssetProfile) const

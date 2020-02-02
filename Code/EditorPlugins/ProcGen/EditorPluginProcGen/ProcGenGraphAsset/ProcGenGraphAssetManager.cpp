@@ -22,17 +22,15 @@ ezProcGenGraphAssetDocumentManager::ezProcGenGraphAssetDocumentManager()
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezProcGenGraphAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
 
+  m_DocTypeDesc.m_sResourceFileExtension = "ezProcGenGraph";
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
+
   ezQtImageCache::GetSingleton()->RegisterTypeImage("ProcGen Graph", QPixmap(":/AssetIcons/ProcGen_Graph.png"));
 }
 
 ezProcGenGraphAssetDocumentManager::~ezProcGenGraphAssetDocumentManager()
 {
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezProcGenGraphAssetDocumentManager::OnDocumentManagerEvent, this));
-}
-
-ezBitflags<ezAssetDocumentFlags> ezProcGenGraphAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
-{
-  return ezAssetDocumentFlags::AutoTransformOnSave;
 }
 
 void ezProcGenGraphAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)

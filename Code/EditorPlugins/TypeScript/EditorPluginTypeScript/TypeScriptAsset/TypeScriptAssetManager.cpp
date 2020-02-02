@@ -35,6 +35,9 @@ ezTypeScriptAssetDocumentManager::ezTypeScriptAssetDocumentManager()
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezTypeScriptAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
 
+  m_DocTypeDesc.m_sResourceFileExtension = "ezTypeScriptRes";
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::None;
+
   ezQtImageCache::GetSingleton()->RegisterTypeImage("TypeScript", QPixmap(":/AssetIcons/TypeScript.png"));
 
   ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezTypeScriptAssetDocumentManager::ToolsProjectEventHandler, this));
@@ -80,13 +83,6 @@ void ezTypeScriptAssetDocumentManager::InternalCreateDocument(const char* szDocu
 void ezTypeScriptAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_DocTypeDesc);
-}
-
-ezBitflags<ezAssetDocumentFlags>
-ezTypeScriptAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
-{
-  EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
-  return ezAssetDocumentFlags::None;
 }
 
 void ezTypeScriptAssetDocumentManager::ToolsProjectEventHandler(const ezToolsProjectEvent& e)

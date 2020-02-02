@@ -19,19 +19,15 @@ ezVisualScriptAssetManager::ezVisualScriptAssetManager()
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezVisualScriptAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
 
+  m_DocTypeDesc.m_sResourceFileExtension = "ezVisualScriptBin";
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
+
   ezQtImageCache::GetSingleton()->RegisterTypeImage("Visual Script", QPixmap(":/AssetIcons/Visual_Script.png"));
 }
 
 ezVisualScriptAssetManager::~ezVisualScriptAssetManager()
 {
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezVisualScriptAssetManager::OnDocumentManagerEvent, this));
-}
-
-
-ezBitflags<ezAssetDocumentFlags> ezVisualScriptAssetManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
-{
-  EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
-  return ezAssetDocumentFlags::AutoTransformOnSave;
 }
 
 void ezVisualScriptAssetManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)

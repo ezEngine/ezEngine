@@ -11,10 +11,6 @@ public:
   ezProcGenGraphAssetDocumentManager();
   ~ezProcGenGraphAssetDocumentManager();
 
-  virtual ezString GetResourceTypeExtension(const char* szDocumentPath) const override { return "ezProcGenGraph"; }
-
-  virtual ezBitflags<ezAssetDocumentFlags> GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const override;
-
 private:
   void OnDocumentManagerEvent(const ezDocumentManager::Event& e);
 
@@ -23,7 +19,6 @@ private:
 
   virtual bool GeneratesProfileSpecificAssets() const override { return false; }
 
-private:
-  ezDocumentTypeDescriptor m_DocTypeDesc;
+  ezAssetDocumentTypeDescriptor m_DocTypeDesc;
 };
 

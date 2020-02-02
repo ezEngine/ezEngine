@@ -22,6 +22,9 @@ ezSceneDocumentManager::ezSceneDocumentManager()
     m_DocTypeDesc.m_sIcon = ":/AssetIcons/Scene.png";
     m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezSceneDocument>();
     m_DocTypeDesc.m_pManager = this;
+
+    m_DocTypeDesc.m_sResourceFileExtension = "ezObjectGraph";
+    m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::OnlyTransformManually | ezAssetDocumentFlags::SupportsThumbnail;
   }
 
   {
@@ -30,21 +33,9 @@ ezSceneDocumentManager::ezSceneDocumentManager()
     m_DocTypeDesc2.m_sIcon = ":/AssetIcons/Prefab.png";
     m_DocTypeDesc2.m_pDocumentType = ezGetStaticRTTI<ezSceneDocument>();
     m_DocTypeDesc2.m_pManager = this;
-  }
-}
 
-
-ezBitflags<ezAssetDocumentFlags> ezSceneDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
-{
-  EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
-  if (pDescriptor == &m_DocTypeDesc2)
-  {
-    return ezAssetDocumentFlags::AutoTransformOnSave | ezAssetDocumentFlags::SupportsThumbnail;
-  }
-  else
-  {
-    // if scene thumbnails are desired, this needs to be added
-    return ezAssetDocumentFlags::OnlyTransformManually | ezAssetDocumentFlags::SupportsThumbnail;
+    m_DocTypeDesc2.m_sResourceFileExtension = "ezObjectGraph";
+    m_DocTypeDesc2.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave | ezAssetDocumentFlags::SupportsThumbnail;
   }
 }
 
@@ -69,11 +60,6 @@ void ezSceneDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<co
 {
   inout_DocumentTypes.PushBack(&m_DocTypeDesc);
   inout_DocumentTypes.PushBack(&m_DocTypeDesc2);
-}
-
-ezString ezSceneDocumentManager::GetResourceTypeExtension(const char* szDocumentPath) const
-{
-  return "ezObjectGraph";
 }
 
 void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)

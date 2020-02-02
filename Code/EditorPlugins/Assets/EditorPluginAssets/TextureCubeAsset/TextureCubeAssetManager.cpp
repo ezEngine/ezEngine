@@ -20,18 +20,14 @@ ezTextureCubeAssetDocumentManager::ezTextureCubeAssetDocumentManager()
   m_DocTypeDesc.m_sIcon = ":/AssetIcons/Texture_Cube.png";
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezTextureCubeAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
+
+  m_DocTypeDesc.m_sResourceFileExtension = "ezTextureCube";
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoThumbnailOnTransform;
 }
 
 ezTextureCubeAssetDocumentManager::~ezTextureCubeAssetDocumentManager()
 {
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezTextureCubeAssetDocumentManager::OnDocumentManagerEvent, this));
-}
-
-
-ezBitflags<ezAssetDocumentFlags>
-ezTextureCubeAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
-{
-  return ezAssetDocumentFlags::AutoThumbnailOnTransform;
 }
 
 void ezTextureCubeAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
