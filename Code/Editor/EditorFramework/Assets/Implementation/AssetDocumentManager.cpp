@@ -21,8 +21,7 @@ void ezAssetDocumentManager::ComputeAssetProfileHash(const ezPlatformProfile* pA
 
   if (GeneratesProfileSpecificAssets())
   {
-    EZ_ASSERT_DEBUG(m_uiAssetProfileHash != 0,
-                    "Assets that generate a profile-specific output must compute a hash for the profile settings.");
+    EZ_ASSERT_DEBUG(m_uiAssetProfileHash != 0, "Assets that generate a profile-specific output must compute a hash for the profile settings.");
   }
   else
   {
@@ -109,14 +108,12 @@ void ezAssetDocumentManager::AddEntriesToAssetTable(const char* szDataDirectory,
 {
 }
 
-ezString ezAssetDocumentManager::GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory,
-                                                    const ezPlatformProfile* pAssetProfile) const
+ezString ezAssetDocumentManager::GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezPlatformProfile* pAssetProfile) const
 {
   return GetRelativeOutputFileName(szDataDirectory, pSubAsset->m_pAssetInfo->m_sAbsolutePath, "", pAssetProfile);
 }
 
-ezString ezAssetDocumentManager::GetAbsoluteOutputFileName(const char* szDocumentPath, const char* szOutputTag,
-                                                           const ezPlatformProfile* pAssetProfile) const
+ezString ezAssetDocumentManager::GetAbsoluteOutputFileName(const char* szDocumentPath, const char* szOutputTag, const ezPlatformProfile* pAssetProfile) const
 {
   ezStringBuilder sProjectDir = ezAssetCurator::GetSingleton()->FindDataDirectoryForAsset(szDocumentPath);
 
@@ -131,8 +128,8 @@ ezString ezAssetDocumentManager::GetRelativeOutputFileName(const char* szDataDir
                                                            const ezPlatformProfile* pAssetProfile) const
 {
   const ezPlatformProfile* sPlatform = ezAssetDocumentManager::DetermineFinalTargetProfile(pAssetProfile);
-  EZ_ASSERT_DEBUG(ezStringUtils::IsNullOrEmpty(szOutputTag),
-                  "The output tag '%s' for '%s' is not supported, override GetRelativeOutputFileName", szOutputTag, szDocumentPath);
+  EZ_ASSERT_DEBUG(ezStringUtils::IsNullOrEmpty(szOutputTag), "The output tag '%s' for '%s' is not supported, override GetRelativeOutputFileName", szOutputTag, szDocumentPath);
+
   ezStringBuilder sRelativePath(szDocumentPath);
   sRelativePath.MakeRelativeTo(szDataDirectory);
   GenerateOutputFilename(sRelativePath, sPlatform, GetResourceTypeExtension(szDocumentPath), GeneratesProfileSpecificAssets());

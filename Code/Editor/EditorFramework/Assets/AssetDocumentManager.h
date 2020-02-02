@@ -57,17 +57,14 @@ public:
   /// \name Output Functions
   ///@{
 
-  virtual void AddEntriesToAssetTable(const char* szDataDirectory, const ezPlatformProfile* pAssetProfile,
-                                      ezMap<ezString, ezString>& inout_GuidToPath) const;
+  virtual void AddEntriesToAssetTable(const char* szDataDirectory, const ezPlatformProfile* pAssetProfile, ezMap<ezString, ezString>& inout_GuidToPath) const;
   virtual ezString GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezPlatformProfile* pAssetProfile) const;
 
   /// \brief Calls GetRelativeOutputFileName and prepends [DataDir]/AssetCache/ .
-  ezString GetAbsoluteOutputFileName(const char* szDocumentPath, const char* szOutputTag,
-                                     const ezPlatformProfile* pAssetProfile = nullptr) const;
+  ezString GetAbsoluteOutputFileName(const char* szDocumentPath, const char* szOutputTag, const ezPlatformProfile* pAssetProfile = nullptr) const;
 
   /// \brief Relative to 'AssetCache' folder.
-  virtual ezString GetRelativeOutputFileName(const char* szDataDirectory, const char* szDocumentPath, const char* szOutputTag,
-                                             const ezPlatformProfile* pAssetProfile = nullptr) const;
+  virtual ezString GetRelativeOutputFileName(const char* szDataDirectory, const char* szDocumentPath, const char* szOutputTag, const ezPlatformProfile* pAssetProfile = nullptr) const;
   virtual ezString GetResourceTypeExtension(const char* szDocumentPath) const = 0;
   virtual bool GeneratesProfileSpecificAssets() const = 0;
 

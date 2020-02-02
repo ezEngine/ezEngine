@@ -602,7 +602,7 @@ void ezAssetCurator::UpdateSubAssets(ezAssetInfo& assetInfo)
     mainSub.m_ExistanceState = ezAssetExistanceState::FileAdded;
     mainSub.m_pAssetInfo = &assetInfo;
     mainSub.m_Data.m_Guid = assetInfo.m_Info->m_DocumentID;
-    mainSub.m_Data.m_sAssetTypeName.Assign(assetInfo.m_Info->m_sAssetTypeName.GetData());
+    mainSub.m_Data.m_sAssetTypeName = assetInfo.m_Info->m_sAssetTypeName;
   }
 
   if (assetInfo.m_ExistanceState == ezAssetExistanceState::FileModified)
