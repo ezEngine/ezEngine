@@ -59,11 +59,11 @@ ezSoundBankAssetDocumentManager::ezSoundBankAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezSoundBankAssetDocumentManager::OnDocumentManagerEvent, this));
 
-  m_AssetDesc.m_sDocumentTypeName = "Sound Bank";
-  m_AssetDesc.m_sFileExtension = "ezSoundBankAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/Sound_Bank.png";
-  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezSoundBankAssetDocument>();
-  m_AssetDesc.m_pManager = this;
+  m_DocTypeDesc.m_sDocumentTypeName = "Sound Bank";
+  m_DocTypeDesc.m_sFileExtension = "ezSoundBankAsset";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Sound_Bank.png";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezSoundBankAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
 
   ezQtImageCache::GetSingleton()->RegisterTypeImage("Sound Bank", QPixmap(":/AssetIcons/Sound_Bank.png"));
 
@@ -258,7 +258,7 @@ void ezSoundBankAssetDocumentManager::InternalCreateDocument(const char* szDocum
 
 void ezSoundBankAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_AssetDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }
 
 ezUInt64 ezSoundBankAssetDocumentManager::ComputeAssetProfileHashImpl(const ezPlatformProfile* pAssetProfile) const

@@ -12,11 +12,11 @@ ezCurve1DAssetDocumentManager::ezCurve1DAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezCurve1DAssetDocumentManager::OnDocumentManagerEvent, this));
 
-  m_AssetDesc.m_sDocumentTypeName = "Curve1D";
-  m_AssetDesc.m_sFileExtension = "ezCurve1DAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/Curve1D.png";
-  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezCurve1DAssetDocument>();
-  m_AssetDesc.m_pManager = this;
+  m_DocTypeDesc.m_sDocumentTypeName = "Curve1D";
+  m_DocTypeDesc.m_sFileExtension = "ezCurve1DAsset";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Curve1D.png";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezCurve1DAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
 }
 
 ezCurve1DAssetDocumentManager::~ezCurve1DAssetDocumentManager()
@@ -53,5 +53,5 @@ void ezCurve1DAssetDocumentManager::InternalCreateDocument(const char* szDocumen
 
 void ezCurve1DAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_AssetDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

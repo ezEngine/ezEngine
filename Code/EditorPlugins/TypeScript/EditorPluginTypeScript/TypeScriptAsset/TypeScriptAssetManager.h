@@ -46,7 +46,7 @@ private:
   bool m_bProjectSetUp = false;
   ezTypeScriptTranspiler m_Transpiler;
 
-  ezDocumentTypeDescriptor m_AssetDesc;
+  ezDocumentTypeDescriptor m_DocTypeDesc;
 
   ezMap<ezString, ezTimestamp> m_CheckedTsFiles;
 };

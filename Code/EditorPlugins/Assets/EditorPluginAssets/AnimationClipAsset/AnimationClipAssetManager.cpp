@@ -14,11 +14,11 @@ ezAnimationClipAssetDocumentManager::ezAnimationClipAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezAnimationClipAssetDocumentManager::OnDocumentManagerEvent, this));
 
-  m_AssetDesc.m_sDocumentTypeName = "Animation Clip";
-  m_AssetDesc.m_sFileExtension = "ezAnimationClipAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/Animation_Clip.png";
-  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezAnimationClipAssetDocument>();
-  m_AssetDesc.m_pManager = this;
+  m_DocTypeDesc.m_sDocumentTypeName = "Animation Clip";
+  m_DocTypeDesc.m_sFileExtension = "ezAnimationClipAsset";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Animation_Clip.png";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezAnimationClipAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
 
   ezQtImageCache::GetSingleton()->RegisterTypeImage("Animation Clip", QPixmap(":/AssetIcons/Animation_Clip.png"));
 }
@@ -59,5 +59,5 @@ void ezAnimationClipAssetDocumentManager::InternalCreateDocument(const char* szD
 
 void ezAnimationClipAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_AssetDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

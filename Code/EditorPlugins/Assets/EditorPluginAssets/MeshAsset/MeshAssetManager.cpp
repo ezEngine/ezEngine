@@ -18,11 +18,11 @@ ezMeshAssetDocumentManager::ezMeshAssetDocumentManager()
   // additional whitelist for non-asset files where an asset may be selected
   ezAssetFileExtensionWhitelist::AddAssetFileExtension("Mesh", "ezMesh");
 
-  m_AssetDesc.m_sDocumentTypeName = "Mesh";
-  m_AssetDesc.m_sFileExtension = "ezMeshAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/Mesh.png";
-  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezMeshAssetDocument>();
-  m_AssetDesc.m_pManager = this;
+  m_DocTypeDesc.m_sDocumentTypeName = "Mesh";
+  m_DocTypeDesc.m_sFileExtension = "ezMeshAsset";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Mesh.png";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezMeshAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
 }
 
 ezMeshAssetDocumentManager::~ezMeshAssetDocumentManager()
@@ -126,5 +126,5 @@ void ezMeshAssetDocumentManager::InternalCreateDocument(const char* szDocumentTy
 
 void ezMeshAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_AssetDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

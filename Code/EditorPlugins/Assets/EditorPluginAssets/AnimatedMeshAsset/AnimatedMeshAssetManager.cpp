@@ -15,11 +15,11 @@ ezAnimatedMeshAssetDocumentManager::ezAnimatedMeshAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezAnimatedMeshAssetDocumentManager::OnDocumentManagerEvent, this));
 
-  m_AssetDesc.m_sDocumentTypeName = "Animated Mesh";
-  m_AssetDesc.m_sFileExtension = "ezAnimatedMeshAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/Animated_Mesh.png";
-  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezAnimatedMeshAssetDocument>();
-  m_AssetDesc.m_pManager = this;
+  m_DocTypeDesc.m_sDocumentTypeName = "Animated Mesh";
+  m_DocTypeDesc.m_sFileExtension = "ezAnimatedMeshAsset";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Animated_Mesh.png";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezAnimatedMeshAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
 }
 
 ezAnimatedMeshAssetDocumentManager::~ezAnimatedMeshAssetDocumentManager()
@@ -58,5 +58,5 @@ void ezAnimatedMeshAssetDocumentManager::InternalCreateDocument(const char* szDo
 
 void ezAnimatedMeshAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_AssetDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

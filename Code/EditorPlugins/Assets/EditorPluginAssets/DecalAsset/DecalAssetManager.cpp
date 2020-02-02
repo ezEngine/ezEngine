@@ -25,11 +25,11 @@ ezDecalAssetDocumentManager::ezDecalAssetDocumentManager()
   ezAssetFileExtensionWhitelist::AddAssetFileExtension("Image2D", "dds");
   ezAssetFileExtensionWhitelist::AddAssetFileExtension("Image2D", "tga");
 
-  m_AssetDesc.m_sDocumentTypeName = "Decal";
-  m_AssetDesc.m_sFileExtension = "ezDecalAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/Decal.png";
-  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezDecalAssetDocument>();
-  m_AssetDesc.m_pManager = this;
+  m_DocTypeDesc.m_sDocumentTypeName = "Decal";
+  m_DocTypeDesc.m_sFileExtension = "ezDecalAsset";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Decal.png";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezDecalAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
 }
 
 ezDecalAssetDocumentManager::~ezDecalAssetDocumentManager()
@@ -86,7 +86,7 @@ void ezDecalAssetDocumentManager::InternalCreateDocument(const char* szDocumentT
 
 void ezDecalAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_AssetDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }
 
 ezUInt64 ezDecalAssetDocumentManager::ComputeAssetProfileHashImpl(const ezPlatformProfile* pAssetProfile) const

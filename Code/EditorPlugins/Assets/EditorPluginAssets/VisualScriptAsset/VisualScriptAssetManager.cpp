@@ -13,11 +13,11 @@ ezVisualScriptAssetManager::ezVisualScriptAssetManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezVisualScriptAssetManager::OnDocumentManagerEvent, this));
 
-  m_AssetDesc.m_sDocumentTypeName = "Visual Script";
-  m_AssetDesc.m_sFileExtension = "ezVisualScriptAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/Visual_Script.png";
-  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezVisualScriptAssetDocument>();
-  m_AssetDesc.m_pManager = this;
+  m_DocTypeDesc.m_sDocumentTypeName = "Visual Script";
+  m_DocTypeDesc.m_sFileExtension = "ezVisualScriptAsset";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Visual_Script.png";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezVisualScriptAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
 
   ezQtImageCache::GetSingleton()->RegisterTypeImage("Visual Script", QPixmap(":/AssetIcons/Visual_Script.png"));
 }
@@ -56,5 +56,5 @@ void ezVisualScriptAssetManager::InternalCreateDocument(const char* szDocumentTy
 
 void ezVisualScriptAssetManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_AssetDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

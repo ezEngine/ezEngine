@@ -18,11 +18,11 @@ ezMaterialAssetDocumentManager::ezMaterialAssetDocumentManager()
   // additional whitelist for non-asset files where an asset may be selected
   ezAssetFileExtensionWhitelist::AddAssetFileExtension("Material", "ezMaterial");
 
-  m_AssetDesc.m_sDocumentTypeName = "Material";
-  m_AssetDesc.m_sFileExtension = "ezMaterialAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/Material.png";
-  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezMaterialAssetDocument>();
-  m_AssetDesc.m_pManager = this;
+  m_DocTypeDesc.m_sDocumentTypeName = "Material";
+  m_DocTypeDesc.m_sFileExtension = "ezMaterialAsset";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Material.png";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezMaterialAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
 }
 
 ezMaterialAssetDocumentManager::~ezMaterialAssetDocumentManager()
@@ -106,5 +106,5 @@ void ezMaterialAssetDocumentManager::InternalCreateDocument(const char* szDocume
 
 void ezMaterialAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_AssetDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

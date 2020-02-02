@@ -35,17 +35,17 @@ ezTextureAssetDocumentManager::ezTextureAssetDocumentManager()
   ezAssetFileExtensionWhitelist::AddAssetFileExtension("Image2D", "dds");
   ezAssetFileExtensionWhitelist::AddAssetFileExtension("Image2D", "tga");
 
-  m_AssetDesc.m_sDocumentTypeName = "Texture 2D";
-  m_AssetDesc.m_sFileExtension = "ezTextureAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/Texture_2D.png";
-  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezTextureAssetDocument>();
-  m_AssetDesc.m_pManager = this;
+  m_DocTypeDesc.m_sDocumentTypeName = "Texture 2D";
+  m_DocTypeDesc.m_sFileExtension = "ezTextureAsset";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Texture_2D.png";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezTextureAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
 
-  m_AssetDescRT.m_sDocumentTypeName = "Render Target";
-  m_AssetDescRT.m_sFileExtension = "ezRenderTargetAsset";
-  m_AssetDescRT.m_sIcon = ":/AssetIcons/Render_Target.png";
-  m_AssetDescRT.m_pDocumentType = ezGetStaticRTTI<ezTextureAssetDocument>();
-  m_AssetDescRT.m_pManager = this;
+  m_DocTypeDesc2.m_sDocumentTypeName = "Render Target";
+  m_DocTypeDesc2.m_sFileExtension = "ezRenderTargetAsset";
+  m_DocTypeDesc2.m_sIcon = ":/AssetIcons/Render_Target.png";
+  m_DocTypeDesc2.m_pDocumentType = ezGetStaticRTTI<ezTextureAssetDocument>();
+  m_DocTypeDesc2.m_pManager = this;
 
   ezQtImageCache::GetSingleton()->RegisterTypeImage("Render Target", QPixmap(":/AssetIcons/Render_Target.png"));
 }
@@ -110,6 +110,6 @@ void ezTextureAssetDocumentManager::InternalCreateDocument(const char* szDocumen
 
 void ezTextureAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_AssetDesc);
-  inout_DocumentTypes.PushBack(&m_AssetDescRT);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc2);
 }

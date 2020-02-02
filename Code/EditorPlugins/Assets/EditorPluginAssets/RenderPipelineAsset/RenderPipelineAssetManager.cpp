@@ -13,11 +13,11 @@ ezRenderPipelineAssetManager::ezRenderPipelineAssetManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezRenderPipelineAssetManager::OnDocumentManagerEvent, this));
 
-  m_AssetDesc.m_sDocumentTypeName = "RenderPipeline";
-  m_AssetDesc.m_sFileExtension = "ezRenderPipelineAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/RenderPipeline.png";
-  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezRenderPipelineAssetDocument>();
-  m_AssetDesc.m_pManager = this;
+  m_DocTypeDesc.m_sDocumentTypeName = "RenderPipeline";
+  m_DocTypeDesc.m_sFileExtension = "ezRenderPipelineAsset";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/RenderPipeline.png";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezRenderPipelineAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
 
   ezQtImageCache::GetSingleton()->RegisterTypeImage("RenderPipeline", QPixmap(":/AssetIcons/RenderPipeline.png"));
 }
@@ -56,5 +56,5 @@ void ezRenderPipelineAssetManager::InternalCreateDocument(const char* szDocument
 
 void ezRenderPipelineAssetManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_AssetDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

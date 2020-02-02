@@ -13,12 +13,12 @@ ezSoundEventAssetDocumentManager::ezSoundEventAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezSoundEventAssetDocumentManager::OnDocumentManagerEvent, this));
 
-  m_AssetDesc.m_bCanCreate = false;
-  m_AssetDesc.m_sDocumentTypeName = "Sound Event";
-  m_AssetDesc.m_sFileExtension = "ezSoundEventAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/Sound_Event.png";
-  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezSoundEventAssetDocument>();
-  m_AssetDesc.m_pManager = this;
+  m_DocTypeDesc.m_bCanCreate = false;
+  m_DocTypeDesc.m_sDocumentTypeName = "Sound Event";
+  m_DocTypeDesc.m_sFileExtension = "ezSoundEventAsset";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Sound_Event.png";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezSoundEventAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
 
   ezQtImageCache::GetSingleton()->RegisterTypeImage("Sound Event", QPixmap(":/AssetIcons/Sound_Event.png"));
 }
@@ -50,5 +50,5 @@ void ezSoundEventAssetDocumentManager::InternalCreateDocument(const char* szDocu
 
 void ezSoundEventAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_AssetDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

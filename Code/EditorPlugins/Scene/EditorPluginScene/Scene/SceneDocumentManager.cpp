@@ -17,19 +17,19 @@ ezSceneDocumentManager::ezSceneDocumentManager()
   s_pSingleton = this;
 
   {
-    m_SceneDesc.m_sDocumentTypeName = "Scene";
-    m_SceneDesc.m_sFileExtension = "ezScene";
-    m_SceneDesc.m_sIcon = ":/AssetIcons/Scene.png";
-    m_SceneDesc.m_pDocumentType = ezGetStaticRTTI<ezSceneDocument>();
-    m_SceneDesc.m_pManager = this;
+    m_DocTypeDesc.m_sDocumentTypeName = "Scene";
+    m_DocTypeDesc.m_sFileExtension = "ezScene";
+    m_DocTypeDesc.m_sIcon = ":/AssetIcons/Scene.png";
+    m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezSceneDocument>();
+    m_DocTypeDesc.m_pManager = this;
   }
 
   {
-    m_PrefabDesc.m_sDocumentTypeName = "Prefab";
-    m_PrefabDesc.m_sFileExtension = "ezPrefab";
-    m_PrefabDesc.m_sIcon = ":/AssetIcons/Prefab.png";
-    m_PrefabDesc.m_pDocumentType = ezGetStaticRTTI<ezSceneDocument>();
-    m_PrefabDesc.m_pManager = this;
+    m_DocTypeDesc2.m_sDocumentTypeName = "Prefab";
+    m_DocTypeDesc2.m_sFileExtension = "ezPrefab";
+    m_DocTypeDesc2.m_sIcon = ":/AssetIcons/Prefab.png";
+    m_DocTypeDesc2.m_pDocumentType = ezGetStaticRTTI<ezSceneDocument>();
+    m_DocTypeDesc2.m_pManager = this;
   }
 }
 
@@ -37,7 +37,7 @@ ezSceneDocumentManager::ezSceneDocumentManager()
 ezBitflags<ezAssetDocumentFlags> ezSceneDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
 {
   EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
-  if (pDescriptor == &m_PrefabDesc)
+  if (pDescriptor == &m_DocTypeDesc2)
   {
     return ezAssetDocumentFlags::AutoTransformOnSave | ezAssetDocumentFlags::SupportsThumbnail;
   }
@@ -67,8 +67,8 @@ void ezSceneDocumentManager::InternalCreateDocument(const char* szDocumentTypeNa
 
 void ezSceneDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_SceneDesc);
-  inout_DocumentTypes.PushBack(&m_PrefabDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc2);
 }
 
 ezString ezSceneDocumentManager::GetResourceTypeExtension(const char* szDocumentPath) const

@@ -13,11 +13,11 @@ ezSurfaceAssetDocumentManager::ezSurfaceAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezSurfaceAssetDocumentManager::OnDocumentManagerEvent, this));
 
-  m_AssetDesc.m_sDocumentTypeName = "Surface";
-  m_AssetDesc.m_sFileExtension = "ezSurfaceAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/Surface.png";
-  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezSurfaceAssetDocument>();
-  m_AssetDesc.m_pManager = this;
+  m_DocTypeDesc.m_sDocumentTypeName = "Surface";
+  m_DocTypeDesc.m_sFileExtension = "ezSurfaceAsset";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Surface.png";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezSurfaceAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
 
   ezQtImageCache::GetSingleton()->RegisterTypeImage("Surface", QPixmap(":/AssetIcons/Surface.png"));
 }
@@ -56,5 +56,5 @@ void ezSurfaceAssetDocumentManager::InternalCreateDocument(const char* szDocumen
 
 void ezSurfaceAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_AssetDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

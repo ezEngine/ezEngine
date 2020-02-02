@@ -15,11 +15,11 @@ ezTextureCubeAssetDocumentManager::ezTextureCubeAssetDocumentManager()
   // additional whitelist for non-asset files where an asset may be selected
   ezAssetFileExtensionWhitelist::AddAssetFileExtension("Texture Cube", "dds");
 
-  m_AssetDesc.m_sDocumentTypeName = "Texture Cube";
-  m_AssetDesc.m_sFileExtension = "ezTextureCubeAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/Texture_Cube.png";
-  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezTextureCubeAssetDocument>();
-  m_AssetDesc.m_pManager = this;
+  m_DocTypeDesc.m_sDocumentTypeName = "Texture Cube";
+  m_DocTypeDesc.m_sFileExtension = "ezTextureCubeAsset";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Texture_Cube.png";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezTextureCubeAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
 }
 
 ezTextureCubeAssetDocumentManager::~ezTextureCubeAssetDocumentManager()
@@ -57,7 +57,7 @@ void ezTextureCubeAssetDocumentManager::InternalCreateDocument(const char* szDoc
 
 void ezTextureCubeAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_AssetDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }
 
 ezUInt64 ezTextureCubeAssetDocumentManager::ComputeAssetProfileHashImpl(const ezPlatformProfile* pAssetProfile) const

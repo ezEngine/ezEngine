@@ -13,11 +13,11 @@ ezKrautTreeAssetDocumentManager::ezKrautTreeAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezKrautTreeAssetDocumentManager::OnDocumentManagerEvent, this));
 
-  m_AssetDesc.m_sDocumentTypeName = "Kraut Tree";
-  m_AssetDesc.m_sFileExtension = "ezKrautTreeAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/Kraut_Tree.png";
-  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezKrautTreeAssetDocument>();
-  m_AssetDesc.m_pManager = this;
+  m_DocTypeDesc.m_sDocumentTypeName = "Kraut Tree";
+  m_DocTypeDesc.m_sFileExtension = "ezKrautTreeAsset";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Kraut_Tree.png";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezKrautTreeAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
 }
 
 ezKrautTreeAssetDocumentManager::~ezKrautTreeAssetDocumentManager()
@@ -48,7 +48,7 @@ void ezKrautTreeAssetDocumentManager::InternalCreateDocument(const char* szDocum
 
 void ezKrautTreeAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_AssetDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }
 
 ezBitflags<ezAssetDocumentFlags>

@@ -13,11 +13,11 @@ ezPropertyAnimAssetDocumentManager::ezPropertyAnimAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezPropertyAnimAssetDocumentManager::OnDocumentManagerEvent, this));
 
-  m_AssetDesc.m_sDocumentTypeName = "PropertyAnim";
-  m_AssetDesc.m_sFileExtension = "ezPropertyAnimAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/PropertyAnim.png";
-  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezPropertyAnimAssetDocument>();
-  m_AssetDesc.m_pManager = this;
+  m_DocTypeDesc.m_sDocumentTypeName = "PropertyAnim";
+  m_DocTypeDesc.m_sFileExtension = "ezPropertyAnimAsset";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/PropertyAnim.png";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezPropertyAnimAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
 
   ezQtImageCache::GetSingleton()->RegisterTypeImage("PropertyAnim", QPixmap(":/AssetIcons/PropertyAnim.png"));
 }
@@ -58,5 +58,5 @@ void ezPropertyAnimAssetDocumentManager::InternalCreateDocument(const char* szDo
 
 void ezPropertyAnimAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_AssetDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

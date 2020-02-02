@@ -29,11 +29,11 @@ ezTypeScriptAssetDocumentManager::ezTypeScriptAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezTypeScriptAssetDocumentManager::OnDocumentManagerEvent, this));
 
-  m_AssetDesc.m_sDocumentTypeName = "TypeScript";
-  m_AssetDesc.m_sFileExtension = "ezTypeScriptAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/TypeScript.png";
-  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezTypeScriptAssetDocument>();
-  m_AssetDesc.m_pManager = this;
+  m_DocTypeDesc.m_sDocumentTypeName = "TypeScript";
+  m_DocTypeDesc.m_sFileExtension = "ezTypeScriptAsset";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/TypeScript.png";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezTypeScriptAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
 
   ezQtImageCache::GetSingleton()->RegisterTypeImage("TypeScript", QPixmap(":/AssetIcons/TypeScript.png"));
 
@@ -79,7 +79,7 @@ void ezTypeScriptAssetDocumentManager::InternalCreateDocument(const char* szDocu
 
 void ezTypeScriptAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_AssetDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }
 
 ezBitflags<ezAssetDocumentFlags>

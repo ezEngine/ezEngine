@@ -26,6 +26,6 @@ private:
   virtual ezUInt64 ComputeAssetProfileHashImpl(const ezPlatformProfile* pAssetProfile) const override;
 
 private:
-  ezDocumentTypeDescriptor m_AssetDesc;
+  ezDocumentTypeDescriptor m_DocTypeDesc;
 };
 

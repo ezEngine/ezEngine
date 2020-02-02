@@ -12,11 +12,11 @@ ezParticleEffectAssetDocumentManager::ezParticleEffectAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezParticleEffectAssetDocumentManager::OnDocumentManagerEvent, this));
 
-  m_AssetDesc.m_sDocumentTypeName = "Particle Effect";
-  m_AssetDesc.m_sFileExtension = "ezParticleEffectAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/Particle_Effect.png";
-  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezParticleEffectAssetDocument>();
-  m_AssetDesc.m_pManager = this;
+  m_DocTypeDesc.m_sDocumentTypeName = "Particle Effect";
+  m_DocTypeDesc.m_sFileExtension = "ezParticleEffectAsset";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Particle_Effect.png";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezParticleEffectAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
 }
 
 ezParticleEffectAssetDocumentManager::~ezParticleEffectAssetDocumentManager()
@@ -54,5 +54,5 @@ void ezParticleEffectAssetDocumentManager::InternalCreateDocument(const char* sz
 
 void ezParticleEffectAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_AssetDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

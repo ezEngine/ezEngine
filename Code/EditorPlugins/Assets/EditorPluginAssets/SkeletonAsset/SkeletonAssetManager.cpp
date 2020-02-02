@@ -14,11 +14,11 @@ ezSkeletonAssetDocumentManager::ezSkeletonAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezSkeletonAssetDocumentManager::OnDocumentManagerEvent, this));
 
-  m_AssetDesc.m_sDocumentTypeName = "Skeleton";
-  m_AssetDesc.m_sFileExtension = "ezSkeletonAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/Skeleton.png";
-  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezSkeletonAssetDocument>();
-  m_AssetDesc.m_pManager = this;
+  m_DocTypeDesc.m_sDocumentTypeName = "Skeleton";
+  m_DocTypeDesc.m_sFileExtension = "ezSkeletonAsset";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Skeleton.png";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezSkeletonAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
 }
 
 ezSkeletonAssetDocumentManager::~ezSkeletonAssetDocumentManager()
@@ -57,5 +57,5 @@ void ezSkeletonAssetDocumentManager::InternalCreateDocument(const char* szDocume
 
 void ezSkeletonAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_AssetDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

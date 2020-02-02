@@ -13,11 +13,11 @@ ezCollectionAssetDocumentManager::ezCollectionAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezCollectionAssetDocumentManager::OnDocumentManagerEvent, this));
 
-  m_AssetDesc.m_sDocumentTypeName = "Collection";
-  m_AssetDesc.m_sFileExtension = "ezCollectionAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/Collection.png";
-  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezCollectionAssetDocument>();
-  m_AssetDesc.m_pManager = this;
+  m_DocTypeDesc.m_sDocumentTypeName = "Collection";
+  m_DocTypeDesc.m_sFileExtension = "ezCollectionAsset";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Collection.png";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezCollectionAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
 
   ezQtImageCache::GetSingleton()->RegisterTypeImage("Collection", QPixmap(":/AssetIcons/Collection.png"));
 }
@@ -57,5 +57,5 @@ void ezCollectionAssetDocumentManager::InternalCreateDocument(const char* szDocu
 
 void ezCollectionAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_AssetDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

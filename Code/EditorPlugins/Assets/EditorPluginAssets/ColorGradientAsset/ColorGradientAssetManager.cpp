@@ -12,11 +12,11 @@ ezColorGradientAssetDocumentManager::ezColorGradientAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezColorGradientAssetDocumentManager::OnDocumentManagerEvent, this));
 
-  m_AssetDesc.m_sDocumentTypeName = "ColorGradient";
-  m_AssetDesc.m_sFileExtension = "ezColorGradientAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/ColorGradient.png";
-  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezColorGradientAssetDocument>();
-  m_AssetDesc.m_pManager = this;
+  m_DocTypeDesc.m_sDocumentTypeName = "ColorGradient";
+  m_DocTypeDesc.m_sFileExtension = "ezColorGradientAsset";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/ColorGradient.png";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezColorGradientAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
 }
 
 ezColorGradientAssetDocumentManager::~ezColorGradientAssetDocumentManager()
@@ -54,5 +54,5 @@ void ezColorGradientAssetDocumentManager::InternalCreateDocument(const char* szD
 
 void ezColorGradientAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_AssetDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

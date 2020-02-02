@@ -28,7 +28,7 @@ private:
 private:
   void SetupDefaultScene(ezDocument* pDocument);
 
-  ezDocumentTypeDescriptor m_SceneDesc;
-  ezDocumentTypeDescriptor m_PrefabDesc;
+  ezDocumentTypeDescriptor m_DocTypeDesc;
+  ezDocumentTypeDescriptor m_DocTypeDesc2;
 };
 

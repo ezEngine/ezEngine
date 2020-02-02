@@ -26,6 +26,6 @@ private:
   virtual bool GeneratesProfileSpecificAssets() const override { return false; }
 
 private:
-  ezDocumentTypeDescriptor m_AssetDesc;
+  ezDocumentTypeDescriptor m_DocTypeDesc;
 };
 

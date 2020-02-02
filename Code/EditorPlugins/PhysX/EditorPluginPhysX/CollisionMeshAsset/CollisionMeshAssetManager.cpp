@@ -13,17 +13,17 @@ ezCollisionMeshAssetDocumentManager::ezCollisionMeshAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezCollisionMeshAssetDocumentManager::OnDocumentManagerEvent, this));
 
-  m_AssetDesc.m_sDocumentTypeName = "Collision Mesh";
-  m_AssetDesc.m_sFileExtension = "ezCollisionMeshAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/Collision_Mesh.png";
-  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezCollisionMeshAssetDocument>();
-  m_AssetDesc.m_pManager = this;
+  m_DocTypeDesc.m_sDocumentTypeName = "Collision Mesh";
+  m_DocTypeDesc.m_sFileExtension = "ezCollisionMeshAsset";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Collision_Mesh.png";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezCollisionMeshAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
 
-  m_ConvexAssetDesc.m_sDocumentTypeName = "Collision Mesh (Convex)";
-  m_ConvexAssetDesc.m_sFileExtension = "ezConvexCollisionMeshAsset";
-  m_ConvexAssetDesc.m_sIcon = ":/AssetIcons/Collision_Mesh_Convex.png";
-  m_ConvexAssetDesc.m_pDocumentType = ezGetStaticRTTI<ezCollisionMeshAssetDocument>();
-  m_ConvexAssetDesc.m_pManager = this;
+  m_DocTypeDesc2.m_sDocumentTypeName = "Collision Mesh (Convex)";
+  m_DocTypeDesc2.m_sFileExtension = "ezConvexCollisionMeshAsset";
+  m_DocTypeDesc2.m_sIcon = ":/AssetIcons/Collision_Mesh_Convex.png";
+  m_DocTypeDesc2.m_pDocumentType = ezGetStaticRTTI<ezCollisionMeshAssetDocument>();
+  m_DocTypeDesc2.m_pManager = this;
 }
 
 ezCollisionMeshAssetDocumentManager::~ezCollisionMeshAssetDocumentManager()
@@ -61,8 +61,8 @@ void ezCollisionMeshAssetDocumentManager::InternalCreateDocument(const char* szD
 
 void ezCollisionMeshAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_AssetDesc);
-  inout_DocumentTypes.PushBack(&m_ConvexAssetDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc2);
 }
 
 ezBitflags<ezAssetDocumentFlags>
