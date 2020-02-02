@@ -366,12 +366,12 @@ void ezAssetCurator::TrackDependencies(ezAssetInfo* pAssetInfo)
   UpdateTrackedFiles(pAssetInfo->m_Info->m_DocumentID, pAssetInfo->m_Info->m_RuntimeDependencies, m_InverseReferences,
                      m_UnresolvedReferences, true);
 
-  const ezString sTargetFile = pAssetInfo->m_pManager->GetAbsoluteOutputFileName(pAssetInfo->m_sAbsolutePath, "");
+  const ezString sTargetFile = pAssetInfo->GetManager()->GetAbsoluteOutputFileName(pAssetInfo->m_sAbsolutePath, "");
   auto it = m_InverseReferences.FindOrAdd(sTargetFile);
   it.Value().PushBack(pAssetInfo->m_Info->m_DocumentID);
   for (auto outputIt = pAssetInfo->m_Info->m_Outputs.GetIterator(); outputIt.IsValid(); ++outputIt)
   {
-    const ezString sTargetFile = pAssetInfo->m_pManager->GetAbsoluteOutputFileName(pAssetInfo->m_sAbsolutePath, outputIt.Key());
+    const ezString sTargetFile = pAssetInfo->GetManager()->GetAbsoluteOutputFileName(pAssetInfo->m_sAbsolutePath, outputIt.Key());
     it = m_InverseReferences.FindOrAdd(sTargetFile);
     it.Value().PushBack(pAssetInfo->m_Info->m_DocumentID);
   }
@@ -387,12 +387,12 @@ void ezAssetCurator::UntrackDependencies(ezAssetInfo* pAssetInfo)
   UpdateTrackedFiles(pAssetInfo->m_Info->m_DocumentID, pAssetInfo->m_Info->m_RuntimeDependencies, m_InverseReferences,
                      m_UnresolvedReferences, false);
 
-  const ezString sTargetFile = pAssetInfo->m_pManager->GetAbsoluteOutputFileName(pAssetInfo->m_sAbsolutePath, "");
+  const ezString sTargetFile = pAssetInfo->GetManager()->GetAbsoluteOutputFileName(pAssetInfo->m_sAbsolutePath, "");
   auto it = m_InverseReferences.FindOrAdd(sTargetFile);
   it.Value().RemoveAndCopy(pAssetInfo->m_Info->m_DocumentID);
   for (auto outputIt = pAssetInfo->m_Info->m_Outputs.GetIterator(); outputIt.IsValid(); ++outputIt)
   {
-    const ezString sTargetFile = pAssetInfo->m_pManager->GetAbsoluteOutputFileName(pAssetInfo->m_sAbsolutePath, outputIt.Key());
+    const ezString sTargetFile = pAssetInfo->GetManager()->GetAbsoluteOutputFileName(pAssetInfo->m_sAbsolutePath, outputIt.Key());
     it = m_InverseReferences.FindOrAdd(sTargetFile);
     it.Value().RemoveAndCopy(pAssetInfo->m_Info->m_DocumentID);
   }
@@ -520,14 +520,14 @@ ezResult ezAssetCurator::ReadAssetDocumentInfo(const char* szAbsFilePath, ezFile
   // figure out which manager should handle this asset type
   {
     const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
-    if (out_assetInfo->m_pManager == nullptr)
+    if (out_assetInfo->m_pDocumentTypeDescriptor == nullptr)
     {
       if (ezDocumentManager::FindDocumentTypeFromPath(szAbsFilePath, false, pTypeDesc).Failed())
       {
         EZ_REPORT_FAILURE("Invalid asset setup");
       }
 
-      out_assetInfo->m_pManager = static_cast<ezAssetDocumentManager*>(pTypeDesc->m_pManager);
+      out_assetInfo->m_pDocumentTypeDescriptor = pTypeDesc;
     }
   }
 
@@ -556,7 +556,7 @@ ezResult ezAssetCurator::ReadAssetDocumentInfo(const char* szAbsFilePath, ezFile
   }
   else
   {
-    ezStatus ret = out_assetInfo->m_pManager->ReadAssetDocumentInfo(out_assetInfo->m_Info, MemReader);
+    ezStatus ret = out_assetInfo->GetManager()->ReadAssetDocumentInfo(out_assetInfo->m_Info, MemReader);
     if (ret.Failed())
     {
       ezLog::Error("Failed to read asset document info for asset file '{0}'", szAbsFilePath);
@@ -616,7 +616,7 @@ void ezAssetCurator::UpdateSubAssets(ezAssetInfo& assetInfo)
     ezHybridArray<ezSubAssetData, 4> subAssets;
     {
       CURATOR_PROFILE("FillOutSubAssetList");
-      assetInfo.m_pManager->FillOutSubAssetList(*assetInfo.m_Info.Borrow(), subAssets);
+      assetInfo.GetManager()->FillOutSubAssetList(*assetInfo.m_Info.Borrow(), subAssets);
     }
 
     for (const ezUuid& sub : assetInfo.m_SubAssets)
@@ -781,8 +781,7 @@ void ezAssetCurator::UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetI
 
         if (bStateChanged)
         {
-          ezString sThumbPath =
-              static_cast<ezAssetDocumentManager*>(pAssetInfo->m_pManager)->GenerateResourceThumbnailPath(pAssetInfo->m_sAbsolutePath);
+          ezString sThumbPath = static_cast<ezAssetDocumentManager*>(pAssetInfo->GetManager())->GenerateResourceThumbnailPath(pAssetInfo->m_sAbsolutePath);
           ezQtImageCache::GetSingleton()->InvalidateCache(sThumbPath);
         }
         break;

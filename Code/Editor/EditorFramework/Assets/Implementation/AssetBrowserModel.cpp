@@ -325,17 +325,14 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int role) const
         ezUInt64 uiUserData1, uiUserData2;
         AssetGuid.GetValues(uiUserData1, uiUserData2);
 
-        const QPixmap* pThumbnailPixmap =
-          ezQtImageCache::GetSingleton()->QueryPixmapForType(pSubAsset->m_Data.m_sSubAssetsDocumentTypeName, sThumbnailPath, index,
-            QVariant(uiUserData1), QVariant(uiUserData2), &asset.m_uiThumbnailID);
+        const QPixmap* pThumbnailPixmap = ezQtImageCache::GetSingleton()->QueryPixmapForType(pSubAsset->m_Data.m_sSubAssetsDocumentTypeName, sThumbnailPath, index,
+          QVariant(uiUserData1), QVariant(uiUserData2), &asset.m_uiThumbnailID);
 
         return *pThumbnailPixmap;
       }
       else
       {
-        const auto& sIconName = ezDocumentManager::GetDescriptorForDocumentType(pSubAsset->m_Data.m_sSubAssetsDocumentTypeName)->m_sIcon;
-
-        return ezQtUiServices::GetCachedPixmapResource(sIconName);
+        return ezQtUiServices::GetCachedPixmapResource(pSubAsset->m_pAssetInfo->m_pDocumentTypeDescriptor->m_sIcon);
       }
     }
     break;
@@ -355,11 +352,7 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int role) const
       return QString::fromUtf8(pSubAsset->m_pAssetInfo->m_sDataDirRelativePath);
 
     case UserRoles::AssetIconPath:
-    {
-      const auto& sIconName = ezDocumentManager::GetDescriptorForDocumentType(pSubAsset->m_Data.m_sSubAssetsDocumentTypeName)->m_sIcon;
-
-      return ezQtUiServices::GetCachedPixmapResource(sIconName);
-    }
+      return ezQtUiServices::GetCachedPixmapResource(pSubAsset->m_pAssetInfo->m_pDocumentTypeDescriptor->m_sIcon);
 
     case UserRoles::TransformState:
       return (int)pSubAsset->m_pAssetInfo->m_TransformState;

@@ -238,7 +238,7 @@ ezResult ezTypeScriptAssetDocumentManager::GenerateScriptCompendium(ezBitflags<e
   {
     const ezSubAsset* pSub = &it.Value();
 
-    if (pSub->m_pAssetInfo->m_pManager == this)
+    if (pSub->m_pAssetInfo->GetManager() == this)
     {
       allTsAssets.PushBack(pSub->m_pAssetInfo);
     }

@@ -333,11 +333,11 @@ ezString ezMaterialAssetProperties::ResolveRelativeShaderPath() const
     auto pAsset = ezAssetCurator::GetSingleton()->GetSubAsset(guid);
     if (pAsset)
     {
-      EZ_ASSERT_DEV(pAsset->m_pAssetInfo->m_pManager == m_pDocument->GetDocumentManager(),
-                    "Referenced shader via guid by this material is not of type material asset (ezMaterialShaderMode::Custom).");
+      EZ_ASSERT_DEV(pAsset->m_pAssetInfo->GetManager() == m_pDocument->GetDocumentManager(), "Referenced shader via guid by this material is not of type material asset (ezMaterialShaderMode::Custom).");
+
       ezStringBuilder sProjectDir = ezAssetCurator::GetSingleton()->FindDataDirectoryForAsset(pAsset->m_pAssetInfo->m_sAbsolutePath);
-      ezStringBuilder sResult = pAsset->m_pAssetInfo->m_pManager->GetRelativeOutputFileName(
-          sProjectDir, pAsset->m_pAssetInfo->m_sAbsolutePath, ezMaterialAssetDocumentManager::s_szShaderOutputTag);
+      ezStringBuilder sResult = pAsset->m_pAssetInfo->GetManager()->GetRelativeOutputFileName(sProjectDir, pAsset->m_pAssetInfo->m_sAbsolutePath, ezMaterialAssetDocumentManager::s_szShaderOutputTag);
+
       sResult.Prepend("AssetCache/");
       return sResult;
     }
@@ -980,7 +980,7 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream0, co
           if (!asset.isValid())
             continue;
 
-          sValue = asset->m_pAssetInfo->m_pManager->GetAbsoluteOutputFileName(asset->m_pAssetInfo->m_sAbsolutePath, "", pAssetProfile);
+          sValue = asset->m_pAssetInfo->GetManager()->GetAbsoluteOutputFileName(asset->m_pAssetInfo->m_sAbsolutePath, "", pAssetProfile);
 
           sFilename = sValue.GetFileName();
           sFilename.Append("-lowres");

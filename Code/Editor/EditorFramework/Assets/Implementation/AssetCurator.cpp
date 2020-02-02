@@ -82,7 +82,7 @@ void ezAssetInfo::Update(ezUniquePtr<ezAssetInfo>& rhs)
 {
   m_ExistanceState = rhs->m_ExistanceState;
   m_TransformState = rhs->m_TransformState;
-  m_pManager = rhs->m_pManager;
+  m_pDocumentTypeDescriptor = rhs->m_pDocumentTypeDescriptor;
   m_sAbsolutePath = std::move(rhs->m_sAbsolutePath);
   m_sDataDirRelativePath = std::move(rhs->m_sDataDirRelativePath);
   m_Info = std::move(rhs->m_Info);
@@ -1015,7 +1015,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformP
 ezStatus ezAssetCurator::ResaveAsset(ezAssetInfo* pAssetInfo)
 {
   bool bWasOpen = false;
-  ezDocument* pDoc = pAssetInfo->m_pManager->GetDocumentByPath(pAssetInfo->m_sAbsolutePath);
+  ezDocument* pDoc = pAssetInfo->GetManager()->GetDocumentByPath(pAssetInfo->m_sAbsolutePath);
   if (pDoc)
     bWasOpen = true;
   else
@@ -1218,7 +1218,7 @@ ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory, const ezPl
     if (!sTemp.IsPathBelowFolder(sDataDir))
       continue;
 
-    ezAssetDocumentManager* pManager = it.Value()->m_pManager;
+    ezAssetDocumentManager* pManager = it.Value()->GetManager();
 
     auto WriteEntry = [this, &sDataDir, &pAssetProfile, &GuidToPath, pManager, &sTemp, &sTemp2](const ezUuid& guid) {
       ezSubAsset* pSub = GetSubAssetInternal(guid);

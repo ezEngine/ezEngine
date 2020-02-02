@@ -106,7 +106,7 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
   {
     const auto& asset = it.Value();
 
-    if (asset.m_pAssetInfo->m_pManager != this)
+    if (asset.m_pAssetInfo->GetManager() != this)
       continue;
 
     uiSettingsHash += asset.m_pAssetInfo->m_Info->m_uiSettingsHash;
@@ -135,7 +135,7 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
     {
       const auto& asset = it.Value();
 
-      if (asset.m_pAssetInfo->m_pManager != this)
+      if (asset.m_pAssetInfo->GetManager() != this)
         continue;
 
       EZ_LOG_BLOCK("Decal", asset.m_pAssetInfo->m_sDataDirRelativePath.GetData());
