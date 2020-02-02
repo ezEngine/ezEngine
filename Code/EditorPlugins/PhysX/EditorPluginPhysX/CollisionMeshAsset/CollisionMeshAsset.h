@@ -16,9 +16,6 @@ class ezCollisionMeshAssetDocument : public ezSimpleAssetDocument<ezCollisionMes
 public:
   ezCollisionMeshAssetDocument(const char* szDocumentPath, bool bConvexMesh);
 
-  /// \brief Overridden, because QueryAssetType() doesn't return a constant here
-  virtual const char* GetDocumentTypeDisplayString() const override { return "Collision Mesh Asset"; }
-
   virtual const char* QueryAssetType() const override;
 
   static ezStatus WriteToStream(ezChunkStreamWriter& stream, const ezPhysXCookingMesh& mesh, const ezCollisionMeshAssetProperties* pProp);

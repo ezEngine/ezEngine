@@ -62,7 +62,6 @@ public:
   bool IsModified() const { return m_bModified; }
   bool IsReadOnly() const { return m_bReadOnly; }
   const ezUuid& GetGuid() const { return m_pDocumentInfo->m_DocumentID; }
-  virtual const char* GetDocumentTypeDisplayString() const = 0;
 
   const ezDocumentObjectManager* GetObjectManager() const { return m_pObjectManager; }
   ezDocumentObjectManager* GetObjectManager() { return m_pObjectManager; }

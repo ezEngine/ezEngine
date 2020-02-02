@@ -134,9 +134,6 @@ public:
 
   ezEvent<const ezEditorEngineDocumentMsg*> m_ProcessMessageEvent;
 
-  /// \brief Uses the asset type name from QueryAssetType and appends "Asset" to it
-  virtual const char* GetDocumentTypeDisplayString() const override;
-
 protected:
   void EngineConnectionEventHandler(const ezEditorEngineProcessConnection::Event& e);
 

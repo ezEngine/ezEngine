@@ -763,15 +763,6 @@ void ezAssetDocument::SyncObjectsToEngine()
   }
 }
 
-const char* ezAssetDocument::GetDocumentTypeDisplayString() const
-{
-  static ezStringBuilder dummy; // must be static to survive the function call
-  dummy = QueryAssetType();
-  dummy.Append(" Asset");
-
-  return dummy;
-}
-
 namespace
 {
   static const char* szThumbnailInfoTag = "ezThumb";

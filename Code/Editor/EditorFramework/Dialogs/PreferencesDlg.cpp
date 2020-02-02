@@ -32,8 +32,6 @@ public:
   {
   }
 
-  virtual const char* GetDocumentTypeDisplayString() const override { return "Preferences"; }
-
 public:
   virtual ezDocumentInfo* CreateDocumentInfo() override { return EZ_DEFAULT_NEW(ezDocumentInfo); }
 };

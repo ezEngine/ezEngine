@@ -24,9 +24,6 @@ public:
   ezSceneDocument(const char* szDocumentPath, bool bIsPrefab);
   ~ezSceneDocument();
 
-  virtual const char* GetDocumentTypeDisplayString() const override;
-
-
   enum class ShowOrHide
   {
     Show,

@@ -20,8 +20,6 @@ class ezSoundEventAssetDocument : public ezSimpleAssetDocument<ezSoundEventAsset
 public:
   ezSoundEventAssetDocument(const char* szDocumentPath);
 
-  virtual const char* GetDocumentTypeDisplayString() const override { return "Sound Event Asset"; }
-
   virtual const char* QueryAssetType() const override { return "Sound Event"; }
 
 protected:

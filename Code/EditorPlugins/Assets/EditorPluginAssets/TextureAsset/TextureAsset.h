@@ -31,9 +31,6 @@ class ezTextureAssetDocument : public ezSimpleAssetDocument<ezTextureAssetProper
 public:
   ezTextureAssetDocument(const char* szDocumentPath);
 
-  /// \brief Overridden, because QueryAssetType() doesn't return a constant here
-  virtual const char* GetDocumentTypeDisplayString() const override { return "Texture Asset"; }
-
   virtual const char* QueryAssetType() const override;
 
   // for previewing purposes
