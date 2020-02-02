@@ -53,6 +53,7 @@ public:
   virtual void OnAddConsoleMessage(ultralight::View* caller, ultralight::MessageSource source, ultralight::MessageLevel level, const ultralight::String& message, uint32_t line_number, uint32_t column_number, const ultralight::String& source_id) override;
 
   ultralight::View* GetView();
+  ultralight::Rect GetUVCoords() const { return m_UVCoords; }
 
 protected:
 
@@ -70,4 +71,5 @@ private:
   ezUltralightHTMLResourceDescriptor m_Descriptor;
 
   ultralight::RefPtr<ultralight::View> m_View;
+  ultralight::Rect m_UVCoords;
 };

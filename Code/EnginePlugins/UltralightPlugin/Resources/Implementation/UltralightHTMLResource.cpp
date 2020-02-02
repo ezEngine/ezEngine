@@ -11,6 +11,8 @@
 #include <UltralightPlugin/Integration/GPUDriverEz.h>
 #include <UltralightPlugin/Integration/UltralightResourceManager.h>
 
+#include <Ultralight/Ultralight.h>
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezUltralightHTMLResource, 1, ezRTTIDefaultAllocator<ezUltralightHTMLResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
@@ -87,6 +89,7 @@ void ezUltralightHTMLResource::CreateView(ultralight::Renderer* pRenderer)
   }
 
   auto renderTarget = m_View->render_target();
+  m_UVCoords = renderTarget.uv_coords;
 
   m_hGALTexture[m_uiLoadedTextures] = static_cast<ezUltralightGPUDriver*>(ultralight::Platform::instance().gpu_driver())->GetTextureHandleForTextureId(renderTarget.texture_id);
 }
@@ -101,6 +104,11 @@ void ezUltralightHTMLResource::DestroyView()
 void ezUltralightHTMLResource::SetTextureHandle(ezGALTextureHandle hTextureHandle)
 {
   m_hGALTexture[0] = hTextureHandle;
+
+  if (m_View)
+  {
+    m_UVCoords = m_View->render_target().uv_coords;
+  }
 }
 
 EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezUltralightHTMLResource);
