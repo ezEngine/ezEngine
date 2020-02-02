@@ -81,8 +81,8 @@ ezSoundBankAssetDocumentManager::~ezSoundBankAssetDocumentManager()
 void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentInfo& assetInfo,
                                                           ezHybridArray<ezSubAssetData, 4>& out_SubAssets) const
 {
-  ezHashedString sAssetTypeName;
-  sAssetTypeName.Assign("Sound Event");
+  ezHashedString sAssetsDocumentTypeName;
+  sAssetsDocumentTypeName.Assign("Sound Event");
 
   auto* pSystem = m_Fmod->GetSystem();
 
@@ -174,7 +174,7 @@ void ezSoundBankAssetDocumentManager::FillOutSubAssetList(const ezAssetDocumentI
           auto& sub = out_SubAssets.ExpandAndGetRef();
           sub.m_Guid = *ezGuid;
           sub.m_sName = sEventName;
-          sub.m_sAssetTypeName = sAssetTypeName;
+          sub.m_sSubAssetsDocumentTypeName = sAssetsDocumentTypeName;
         }
       }
     }

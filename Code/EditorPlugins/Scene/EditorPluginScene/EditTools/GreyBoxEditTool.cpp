@@ -158,7 +158,7 @@ void ezGreyBoxEditTool::GizmoEventHandler(const ezGizmoEvent& e)
       if (lastSelected.IsValid())
       {
         const auto pSubAsset = ezAssetCurator::GetSingleton()->GetSubAsset(lastSelected);
-        if (pSubAsset && ezStringUtils::IsEqual(pSubAsset->m_pAssetInfo->m_Info->GetAssetTypeName(), "Material"))
+        if (pSubAsset && ezStringUtils::IsEqual(pSubAsset->m_pAssetInfo->m_Info->GetAssetsDocumentTypeName(), "Material"))
         {
           materialGuid = lastSelected;
         }

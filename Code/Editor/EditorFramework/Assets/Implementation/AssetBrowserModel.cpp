@@ -326,7 +326,7 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int role) const
         AssetGuid.GetValues(uiUserData1, uiUserData2);
 
         const QPixmap* pThumbnailPixmap =
-            ezQtImageCache::GetSingleton()->QueryPixmapForType(pSubAsset->m_Data.m_sAssetTypeName, sThumbnailPath, index,
+            ezQtImageCache::GetSingleton()->QueryPixmapForType(pSubAsset->m_Data.m_sSubAssetsDocumentTypeName, sThumbnailPath, index,
                                                                QVariant(uiUserData1), QVariant(uiUserData2), &asset.m_uiThumbnailID);
 
         return *pThumbnailPixmap;
@@ -334,7 +334,7 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int role) const
       else
       {
         ezStringBuilder sIconName;
-        sIconName.Set(":/AssetIcons/", pSubAsset->m_Data.m_sAssetTypeName);
+        sIconName.Set(":/AssetIcons/", pSubAsset->m_Data.m_sSubAssetsDocumentTypeName);
         sIconName.ReplaceAll(" ", "_");
         sIconName.ReplaceAll("(", "");
         sIconName.ReplaceAll(")", "");
@@ -361,7 +361,7 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int role) const
     case UserRoles::AssetIconPath:
     {
       ezStringBuilder sIconName;
-      sIconName.Set(":/AssetIcons/", pSubAsset->m_Data.m_sAssetTypeName);
+      sIconName.Set(":/AssetIcons/", pSubAsset->m_Data.m_sSubAssetsDocumentTypeName);
       sIconName.ReplaceAll(" ", "_");
       sIconName.ReplaceAll("(", "");
       sIconName.ReplaceAll(")", "");

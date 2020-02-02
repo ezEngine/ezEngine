@@ -89,7 +89,7 @@ bool ezQtAssetPropertyWidget::IsValidAssetType(const char* szAssetReference) con
   if (ezStringUtils::IsEqual(pAssetAttribute->GetTypeFilter(), ";;")) // empty type list -> allows everything
     return true;
 
-  const ezStringBuilder sTypeFilter(";", pAsset->m_Data.m_sAssetTypeName.GetData(), ";");
+  const ezStringBuilder sTypeFilter(";", pAsset->m_Data.m_sSubAssetsDocumentTypeName.GetData(), ";");
   return ezStringUtils::FindSubString_NoCase(pAssetAttribute->GetTypeFilter(), sTypeFilter) != nullptr;
 }
 

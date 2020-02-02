@@ -69,7 +69,7 @@ EZ_DECLARE_FLAGS_OPERATORS(ezTransformFlags);
 struct ezSubAssetData
 {
   ezUuid m_Guid;
-  ezHashedString m_sAssetTypeName;
+  ezHashedString m_sSubAssetsDocumentTypeName;
   ezString m_sName;
 };
 

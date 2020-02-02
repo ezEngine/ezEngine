@@ -75,7 +75,7 @@ ezTaskGroupID ezAssetDocument::InternalSaveDocument(AfterSaveCallback callback)
   pInfo->m_RuntimeDependencies.Clear();
   pInfo->m_Outputs.Clear();
   pInfo->m_uiSettingsHash = GetDocumentHash();
-  pInfo->m_sAssetTypeName.Assign(GetDocumentTypeName());
+  pInfo->m_sAssetsDocumentTypeName.Assign(GetDocumentTypeName());
   pInfo->ClearMetaData();
   UpdateAssetDocumentInfo(pInfo);
 
