@@ -33,6 +33,8 @@ public:
     Component,
     Lifetime,
     Messaging,
+    World,
+    Utils,
   };
 
 private:

@@ -62,7 +62,7 @@ export namespace Utils {
      * 
      * @param prefabNode The object to search for the prefab root node. May be null.
      */
-    export function FindPrefabRootNode(prefabNode: GameObject): GameObject {
+    export function FindPrefabRootNode(prefabNode: GameObject): GameObject { // [tested]
 
         if (prefabNode == null)
             return null;
@@ -79,7 +79,7 @@ export namespace Utils {
      * @returns If either 'prefabNode' is null, or the script class name is unknown, or the prefab has no top-level node with
      * the requested script component attached, null is returned. Otherwise, the script component object.
      */
-    export function FindPrefabRootScript<TYPE extends TypescriptComponent>(prefabNode: GameObject, scriptComponentTypeName: string): TYPE {
+    export function FindPrefabRootScript<TYPE extends TypescriptComponent>(prefabNode: GameObject, scriptComponentTypeName: string): TYPE { // [tested]
 
         if (prefabNode == null)
             return null;

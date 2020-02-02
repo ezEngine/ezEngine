@@ -243,7 +243,7 @@ export class Color {
      * Checks whether this and rhs are approximately equal in RGB. Ignores Alpha.
      * @param epsilon In Linear space, [0; 1] range.
      */
-    IsEqualRGB(rhs: Color, epsilon: number): boolean { // [tested]
+    IsEqualRGB(rhs: Color, epsilon: number = 0.01): boolean { // [tested]
         return Utils.IsNumberEqual(this.r, rhs.r, epsilon) && Utils.IsNumberEqual(this.g, rhs.g, epsilon) && Utils.IsNumberEqual(this.b, rhs.b, epsilon);
     }
 
@@ -251,7 +251,7 @@ export class Color {
      * Checks whether this and rhs are approximately equal in RGB and Alpha.
      * @param epsilon In Linear space, [0; 1] range.
      */
-    IsEqualRGBA(rhs: Color, epsilon: number): boolean { // [tested]
+    IsEqualRGBA(rhs: Color, epsilon: number = 0.01): boolean { // [tested]
         return Utils.IsNumberEqual(this.r, rhs.r, epsilon) && Utils.IsNumberEqual(this.g, rhs.g, epsilon) && Utils.IsNumberEqual(this.b, rhs.b, epsilon) && Utils.IsNumberEqual(this.a, rhs.a, epsilon);
     }
 

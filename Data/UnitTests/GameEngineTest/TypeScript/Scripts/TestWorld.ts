@@ -44,7 +44,7 @@ export class TestWorld extends ez.TypescriptComponent {
             this.foundObjs = [];
             ez.World.FindObjectsInBox("Category2", new ez.Vec3(-10, 0, -5), new ez.Vec3(0, 10, 5), this.FoundObjectCallback);
             EZ_TEST.INT(this.foundObjs.length, 2);
-        }        
+        }
 
         return false;
     }
