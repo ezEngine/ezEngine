@@ -13,7 +13,6 @@ ezCollectionAssetDocumentManager::ezCollectionAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezCollectionAssetDocumentManager::OnDocumentManagerEvent, this));
 
-  m_AssetDesc.m_bCanCreate = true;
   m_AssetDesc.m_sDocumentTypeName = "Collection";
   m_AssetDesc.m_sFileExtension = "ezCollectionAsset";
   m_AssetDesc.m_sIcon = ":/AssetIcons/Collection.png";

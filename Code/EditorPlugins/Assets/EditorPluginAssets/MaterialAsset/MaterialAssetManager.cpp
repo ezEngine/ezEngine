@@ -18,7 +18,6 @@ ezMaterialAssetDocumentManager::ezMaterialAssetDocumentManager()
   // additional whitelist for non-asset files where an asset may be selected
   ezAssetFileExtensionWhitelist::AddAssetFileExtension("Material", "ezMaterial");
 
-  m_AssetDesc.m_bCanCreate = true;
   m_AssetDesc.m_sDocumentTypeName = "Material";
   m_AssetDesc.m_sFileExtension = "ezMaterialAsset";
   m_AssetDesc.m_sIcon = ":/AssetIcons/Material.png";

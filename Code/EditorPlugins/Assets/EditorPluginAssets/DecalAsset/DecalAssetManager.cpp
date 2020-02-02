@@ -25,7 +25,6 @@ ezDecalAssetDocumentManager::ezDecalAssetDocumentManager()
   ezAssetFileExtensionWhitelist::AddAssetFileExtension("Image2D", "dds");
   ezAssetFileExtensionWhitelist::AddAssetFileExtension("Image2D", "tga");
 
-  m_AssetDesc.m_bCanCreate = true;
   m_AssetDesc.m_sDocumentTypeName = "Decal";
   m_AssetDesc.m_sFileExtension = "ezDecalAsset";
   m_AssetDesc.m_sIcon = ":/AssetIcons/Decal.png";

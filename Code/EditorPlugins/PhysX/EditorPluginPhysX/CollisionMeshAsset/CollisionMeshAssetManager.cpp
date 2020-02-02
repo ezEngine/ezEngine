@@ -13,14 +13,12 @@ ezCollisionMeshAssetDocumentManager::ezCollisionMeshAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezCollisionMeshAssetDocumentManager::OnDocumentManagerEvent, this));
 
-  m_AssetDesc.m_bCanCreate = true;
   m_AssetDesc.m_sDocumentTypeName = "Collision Mesh";
   m_AssetDesc.m_sFileExtension = "ezCollisionMeshAsset";
   m_AssetDesc.m_sIcon = ":/AssetIcons/Collision_Mesh.png";
   m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezCollisionMeshAssetDocument>();
   m_AssetDesc.m_pManager = this;
 
-  m_ConvexAssetDesc.m_bCanCreate = true;
   m_ConvexAssetDesc.m_sDocumentTypeName = "Collision Mesh (Convex)";
   m_ConvexAssetDesc.m_sFileExtension = "ezConvexCollisionMeshAsset";
   m_ConvexAssetDesc.m_sIcon = ":/AssetIcons/Collision_Mesh_Convex.png";

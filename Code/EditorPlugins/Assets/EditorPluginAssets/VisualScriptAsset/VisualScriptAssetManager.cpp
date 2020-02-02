@@ -13,10 +13,6 @@ ezVisualScriptAssetManager::ezVisualScriptAssetManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezVisualScriptAssetManager::OnDocumentManagerEvent, this));
 
-  // additional whitelist for non-asset files where an asset may be selected
-  // ezAssetFileExtensionWhitelist::AddAssetFileExtension("Material", "ezMaterial");
-
-  m_AssetDesc.m_bCanCreate = true;
   m_AssetDesc.m_sDocumentTypeName = "Visual Script";
   m_AssetDesc.m_sFileExtension = "ezVisualScriptAsset";
   m_AssetDesc.m_sIcon = ":/AssetIcons/Visual_Script.png";

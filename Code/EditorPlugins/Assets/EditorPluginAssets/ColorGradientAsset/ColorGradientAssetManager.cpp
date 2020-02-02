@@ -12,7 +12,6 @@ ezColorGradientAssetDocumentManager::ezColorGradientAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezColorGradientAssetDocumentManager::OnDocumentManagerEvent, this));
 
-  m_AssetDesc.m_bCanCreate = true;
   m_AssetDesc.m_sDocumentTypeName = "ColorGradient";
   m_AssetDesc.m_sFileExtension = "ezColorGradientAsset";
   m_AssetDesc.m_sIcon = ":/AssetIcons/ColorGradient.png";

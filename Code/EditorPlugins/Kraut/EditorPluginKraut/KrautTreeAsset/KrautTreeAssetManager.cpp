@@ -13,7 +13,6 @@ ezKrautTreeAssetDocumentManager::ezKrautTreeAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezKrautTreeAssetDocumentManager::OnDocumentManagerEvent, this));
 
-  m_AssetDesc.m_bCanCreate = true;
   m_AssetDesc.m_sDocumentTypeName = "Kraut Tree";
   m_AssetDesc.m_sFileExtension = "ezKrautTreeAsset";
   m_AssetDesc.m_sIcon = ":/AssetIcons/Kraut_Tree.png";

@@ -13,7 +13,6 @@ ezPropertyAnimAssetDocumentManager::ezPropertyAnimAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezPropertyAnimAssetDocumentManager::OnDocumentManagerEvent, this));
 
-  m_AssetDesc.m_bCanCreate = true;
   m_AssetDesc.m_sDocumentTypeName = "PropertyAnim";
   m_AssetDesc.m_sFileExtension = "ezPropertyAnimAsset";
   m_AssetDesc.m_sIcon = ":/AssetIcons/PropertyAnim.png";

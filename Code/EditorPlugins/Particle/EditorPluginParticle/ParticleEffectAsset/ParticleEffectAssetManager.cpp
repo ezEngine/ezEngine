@@ -12,10 +12,6 @@ ezParticleEffectAssetDocumentManager::ezParticleEffectAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezParticleEffectAssetDocumentManager::OnDocumentManagerEvent, this));
 
-  // additional whitelist for non-asset files where an asset may be selected
-  // ezAssetFileExtensionWhitelist::AddAssetFileExtension("Collision Mesh", "ezPhysXMesh");
-
-  m_AssetDesc.m_bCanCreate = true;
   m_AssetDesc.m_sDocumentTypeName = "Particle Effect";
   m_AssetDesc.m_sFileExtension = "ezParticleEffectAsset";
   m_AssetDesc.m_sIcon = ":/AssetIcons/Particle_Effect.png";

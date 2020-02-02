@@ -15,7 +15,6 @@ ezTextureCubeAssetDocumentManager::ezTextureCubeAssetDocumentManager()
   // additional whitelist for non-asset files where an asset may be selected
   ezAssetFileExtensionWhitelist::AddAssetFileExtension("Texture Cube", "dds");
 
-  m_AssetDesc.m_bCanCreate = true;
   m_AssetDesc.m_sDocumentTypeName = "Texture Cube";
   m_AssetDesc.m_sFileExtension = "ezTextureCubeAsset";
   m_AssetDesc.m_sIcon = ":/AssetIcons/Texture_Cube.png";

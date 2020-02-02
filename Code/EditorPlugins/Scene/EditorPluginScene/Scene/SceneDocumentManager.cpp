@@ -17,7 +17,6 @@ ezSceneDocumentManager::ezSceneDocumentManager()
   s_pSingleton = this;
 
   {
-    m_SceneDesc.m_bCanCreate = true;
     m_SceneDesc.m_sDocumentTypeName = "Scene";
     m_SceneDesc.m_sFileExtension = "ezScene";
     m_SceneDesc.m_sIcon = ":/AssetIcons/Scene.png";
@@ -26,16 +25,12 @@ ezSceneDocumentManager::ezSceneDocumentManager()
   }
 
   {
-    m_PrefabDesc.m_bCanCreate = true;
     m_PrefabDesc.m_sDocumentTypeName = "Prefab";
     m_PrefabDesc.m_sFileExtension = "ezPrefab";
     m_PrefabDesc.m_sIcon = ":/AssetIcons/Prefab.png";
     m_PrefabDesc.m_pDocumentType = ezGetStaticRTTI<ezSceneDocument>();
     m_PrefabDesc.m_pManager = this;
   }
-
-  // if scene thumbnails are desired, this needs to be removed
-  // ezQtImageCache::GetSingleton()->RegisterTypeImage("Scene", QPixmap(":/AssetIcons/Scene.png"));
 }
 
 

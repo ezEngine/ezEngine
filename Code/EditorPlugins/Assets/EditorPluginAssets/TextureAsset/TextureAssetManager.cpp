@@ -35,14 +35,12 @@ ezTextureAssetDocumentManager::ezTextureAssetDocumentManager()
   ezAssetFileExtensionWhitelist::AddAssetFileExtension("Image2D", "dds");
   ezAssetFileExtensionWhitelist::AddAssetFileExtension("Image2D", "tga");
 
-  m_AssetDesc.m_bCanCreate = true;
   m_AssetDesc.m_sDocumentTypeName = "Texture 2D";
   m_AssetDesc.m_sFileExtension = "ezTextureAsset";
   m_AssetDesc.m_sIcon = ":/AssetIcons/Texture_2D.png";
   m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezTextureAssetDocument>();
   m_AssetDesc.m_pManager = this;
 
-  m_AssetDescRT.m_bCanCreate = true;
   m_AssetDescRT.m_sDocumentTypeName = "Render Target";
   m_AssetDescRT.m_sFileExtension = "ezRenderTargetAsset";
   m_AssetDescRT.m_sIcon = ":/AssetIcons/Render_Target.png";

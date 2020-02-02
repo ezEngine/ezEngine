@@ -13,9 +13,6 @@ ezSurfaceAssetDocumentManager::ezSurfaceAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezSurfaceAssetDocumentManager::OnDocumentManagerEvent, this));
 
-  // additional whitelist for non-asset files where an asset may be selected
-  // ezAssetFileExtensionWhitelist::AddAssetFileExtension("Surface", "ezSurface");
-  m_AssetDesc.m_bCanCreate = true;
   m_AssetDesc.m_sDocumentTypeName = "Surface";
   m_AssetDesc.m_sFileExtension = "ezSurfaceAsset";
   m_AssetDesc.m_sIcon = ":/AssetIcons/Surface.png";

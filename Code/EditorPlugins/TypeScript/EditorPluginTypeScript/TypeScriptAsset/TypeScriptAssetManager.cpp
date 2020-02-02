@@ -29,7 +29,6 @@ ezTypeScriptAssetDocumentManager::ezTypeScriptAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezTypeScriptAssetDocumentManager::OnDocumentManagerEvent, this));
 
-  m_AssetDesc.m_bCanCreate = true;
   m_AssetDesc.m_sDocumentTypeName = "TypeScript";
   m_AssetDesc.m_sFileExtension = "ezTypeScriptAsset";
   m_AssetDesc.m_sIcon = ":/AssetIcons/TypeScript.png";

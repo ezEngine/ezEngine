@@ -18,7 +18,6 @@ ezMeshAssetDocumentManager::ezMeshAssetDocumentManager()
   // additional whitelist for non-asset files where an asset may be selected
   ezAssetFileExtensionWhitelist::AddAssetFileExtension("Mesh", "ezMesh");
 
-  m_AssetDesc.m_bCanCreate = true;
   m_AssetDesc.m_sDocumentTypeName = "Mesh";
   m_AssetDesc.m_sFileExtension = "ezMeshAsset";
   m_AssetDesc.m_sIcon = ":/AssetIcons/Mesh.png";

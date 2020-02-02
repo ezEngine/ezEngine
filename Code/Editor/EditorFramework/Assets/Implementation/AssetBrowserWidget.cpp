@@ -221,12 +221,8 @@ void ezQtAssetBrowserWidget::AddAssetCreatorMenu(QMenu* pMenu, bool useSelectedA
 
   for (const ezDocumentTypeDescriptor* desc : documentTypes)
   {
-    if (!desc->m_bCanCreate)
+    if (!desc->m_bCanCreate || desc->m_sFileExtension.IsEmpty())
       continue;
-    if (desc->m_sFileExtension.IsEmpty())
-      continue;
-    // if (!sTypeFilter.IsEmpty() && !sTypeFilter.FindSubString(desc->m_sDocumentTypeName))
-    // continue;
 
     QAction* pAction = pSubMenu->addAction(desc->m_sDocumentTypeName.GetData());
     pAction->setIcon(ezQtUiServices::GetSingleton()->GetCachedIconResource(desc->m_sIcon));
