@@ -43,8 +43,10 @@ ezResult ezEditorTestProject::DeInitializeTest()
 ezTestAppRun ezEditorTestProject::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
 {
   const auto& allDesc = ezDocumentManager::GetAllDocumentDescriptors();
-  for (auto* pDesc : allDesc)
+  for (auto it : allDesc)
   {
+    auto pDesc = it.Value();
+
     if (pDesc->m_bCanCreate)
     {
       ezStringBuilder sName = m_sProjectPath;

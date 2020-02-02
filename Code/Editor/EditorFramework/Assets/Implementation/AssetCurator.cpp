@@ -1440,8 +1440,10 @@ void ezAssetCurator::BuildFileExtensionSet(ezSet<ezString>& AllExtensions)
 
   const auto& allDesc = ezDocumentManager::GetAllDocumentDescriptors();
 
-  for (const auto& desc : allDesc)
+  for (auto it : allDesc)
   {
+    const auto desc = it.Value();
+
     if (desc->m_pManager->GetDynamicRTTI()->IsDerivedFrom<ezAssetDocumentManager>())
     {
       sTemp = desc->m_sFileExtension;

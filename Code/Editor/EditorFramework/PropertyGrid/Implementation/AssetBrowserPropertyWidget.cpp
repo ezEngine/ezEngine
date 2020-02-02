@@ -364,7 +364,7 @@ void ezQtAssetPropertyWidget::OnCreateNewAsset()
 
 found:
 
-  ezDynamicArray<const ezDocumentTypeDescriptor*> documentTypes;
+  ezHybridArray<const ezDocumentTypeDescriptor*, 4> documentTypes;
   pAssetManToUse->GetSupportedDocumentTypes(documentTypes);
   const ezString sAssetType = documentTypes[0]->m_sDocumentTypeName;
   const ezString sExtension = documentTypes[0]->m_sFileExtension;

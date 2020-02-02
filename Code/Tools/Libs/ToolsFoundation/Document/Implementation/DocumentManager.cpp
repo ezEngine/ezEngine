@@ -36,7 +36,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 
 ezSet<const ezRTTI*> ezDocumentManager::s_KnownManagers;
 ezHybridArray<ezDocumentManager*, 16> ezDocumentManager::s_AllDocumentManagers;
-ezDynamicArray<const ezDocumentTypeDescriptor*> ezDocumentManager::s_AllDocumentDescriptors;
+ezMap<ezString, const ezDocumentTypeDescriptor*> ezDocumentManager::s_AllDocumentDescriptors; // maps from "sDocumentTypeName" to descriptor
 ezEvent<const ezDocumentManager::Event&> ezDocumentManager::s_Events;
 ezEvent<ezDocumentManager::Request&> ezDocumentManager::s_Requests;
 
@@ -147,7 +147,7 @@ void ezDocumentManager::GetSupportedDocumentTypes(ezDynamicArray<const ezDocumen
 
 ezStatus ezDocumentManager::CanOpenDocument(const char* szFilePath) const
 {
-  ezDynamicArray<const ezDocumentTypeDescriptor*> DocumentTypes;
+  ezHybridArray<const ezDocumentTypeDescriptor*, 4> DocumentTypes;
   GetSupportedDocumentTypes(DocumentTypes);
 
   ezStringBuilder sPath = szFilePath;
@@ -213,7 +213,7 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
 
   ezStatus status;
 
-  ezDynamicArray<const ezDocumentTypeDescriptor*> DocumentTypes;
+  ezHybridArray<const ezDocumentTypeDescriptor*, 4> DocumentTypes;
   GetSupportedDocumentTypes(DocumentTypes);
 
   for (ezUInt32 i = 0; i < DocumentTypes.GetCount(); ++i)
@@ -494,8 +494,10 @@ ezResult ezDocumentManager::FindDocumentTypeFromPath(const char* szPath, bool bF
 
   const auto& allDesc = GetAllDocumentDescriptors();
 
-  for (auto desc : allDesc)
+  for (auto it : allDesc)
   {
+    const auto* desc = it.Value();
+
     if (bForCreation && !desc->m_bCanCreate)
       continue;
 
@@ -509,20 +511,28 @@ ezResult ezDocumentManager::FindDocumentTypeFromPath(const char* szPath, bool bF
   return EZ_FAILURE;
 }
 
-const ezDynamicArray<const ezDocumentTypeDescriptor*>& ezDocumentManager::GetAllDocumentDescriptors()
+const ezMap<ezString, const ezDocumentTypeDescriptor*>& ezDocumentManager::GetAllDocumentDescriptors()
 {
   if (s_AllDocumentDescriptors.IsEmpty())
   {
     for (ezDocumentManager* pMan : ezDocumentManager::GetAllDocumentManagers())
     {
-      pMan->GetSupportedDocumentTypes(s_AllDocumentDescriptors);
-    }
+      ezHybridArray<const ezDocumentTypeDescriptor*, 4> descriptors;
+      pMan->GetSupportedDocumentTypes(descriptors);
 
-    s_AllDocumentDescriptors.Sort(
-      [](const auto& a, const auto& b) -> bool { return a->m_sDocumentTypeName.Compare_NoCase(b->m_sDocumentTypeName) < 0; });
+      for (auto pDesc : descriptors)
+      {
+        s_AllDocumentDescriptors[pDesc->m_sDocumentTypeName] = pDesc;
+      }
+    }
   }
 
   return s_AllDocumentDescriptors;
+}
+
+const ezDocumentTypeDescriptor* ezDocumentManager::GetDescriptorForDocumentType(const char* szDocumentType)
+{
+  return GetAllDocumentDescriptors().GetValueOrDefault(szDocumentType, nullptr);
 }
 
 /// \todo on close doc: remove from m_AllDocuments

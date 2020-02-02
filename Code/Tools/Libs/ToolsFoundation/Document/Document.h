@@ -226,9 +226,9 @@ protected:
 
   mutable ezSelectionManager m_SelectionManager;
   mutable ezCommandHistory m_CommandHistory;
-  ezDocumentInfo* m_pDocumentInfo;
-  const ezDocumentTypeDescriptor* m_pTypeDescriptor;
-  mutable ezObjectCommandAccessor* m_ObjectAccessor; ///< Default object accessor used by every doc.
+  ezDocumentInfo* m_pDocumentInfo = nullptr;
+  const ezDocumentTypeDescriptor* m_pTypeDescriptor = nullptr;
+  mutable ezObjectCommandAccessor* m_ObjectAccessor = nullptr; ///< Default object accessor used by every doc.
 
 private:
   friend class ezDocumentManager;
@@ -238,8 +238,8 @@ private:
 
   void SetupDocumentInfo(const ezDocumentTypeDescriptor* pTypeDescriptor);
 
-  ezDocumentManager* m_pDocumentManager;
-  ezDocumentObjectManager* m_pObjectManager;
+  ezDocumentManager* m_pDocumentManager = nullptr;
+  ezDocumentObjectManager* m_pObjectManager = nullptr;
 
   ezString m_sDocumentPath;
   bool m_bModified;
