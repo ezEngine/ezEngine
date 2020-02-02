@@ -36,14 +36,14 @@ ezTextureAssetDocumentManager::ezTextureAssetDocumentManager()
   ezAssetFileExtensionWhitelist::AddAssetFileExtension("Image2D", "tga");
 
   m_AssetDesc.m_bCanCreate = true;
-  m_AssetDesc.m_sDocumentTypeName = "Texture Asset";
+  m_AssetDesc.m_sDocumentTypeName = "Texture 2D";
   m_AssetDesc.m_sFileExtension = "ezTextureAsset";
   m_AssetDesc.m_sIcon = ":/AssetIcons/Texture_2D.png";
   m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezTextureAssetDocument>();
   m_AssetDesc.m_pManager = this;
 
   m_AssetDescRT.m_bCanCreate = true;
-  m_AssetDescRT.m_sDocumentTypeName = "Render Target Asset";
+  m_AssetDescRT.m_sDocumentTypeName = "Render Target";
   m_AssetDescRT.m_sFileExtension = "ezRenderTargetAsset";
   m_AssetDescRT.m_sIcon = ":/AssetIcons/Render_Target.png";
   m_AssetDescRT.m_pDocumentType = ezGetStaticRTTI<ezTextureAssetDocument>();
@@ -74,7 +74,7 @@ ezUInt64 ezTextureAssetDocumentManager::ComputeAssetProfileHashImpl(const ezPlat
 
 ezBitflags<ezAssetDocumentFlags> ezTextureAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
 {
-  if (pDescriptor->m_sDocumentTypeName == "Render Target Asset")
+  if (pDescriptor->m_sDocumentTypeName == "Render Target")
   {
     return ezAssetDocumentFlags::AutoTransformOnSave;
   }
@@ -104,7 +104,7 @@ void ezTextureAssetDocumentManager::InternalCreateDocument(const char* szDocumen
   ezTextureAssetDocument* pDoc = new ezTextureAssetDocument(szPath);
   out_pDocument = pDoc;
 
-  if (ezStringUtils::IsEqual(szDocumentTypeName, "Render Target Asset"))
+  if (ezStringUtils::IsEqual(szDocumentTypeName, "Render Target"))
   {
     pDoc->m_bIsRenderTarget = true;
   }

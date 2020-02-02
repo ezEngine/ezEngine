@@ -23,8 +23,6 @@ class ezAnimatedMeshAssetDocument : public ezSimpleAssetDocument<ezAnimatedMeshA
 public:
   ezAnimatedMeshAssetDocument(const char* szDocumentPath);
 
-  virtual const char* QueryAssetType() const override { return "Animated Mesh"; }
-
 protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
                                           const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;

@@ -17,7 +17,7 @@ ezProcGenGraphAssetDocumentManager::ezProcGenGraphAssetDocumentManager()
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezProcGenGraphAssetDocumentManager::OnDocumentManagerEvent, this));
 
   m_AssetDesc.m_bCanCreate = true;
-  m_AssetDesc.m_sDocumentTypeName = "ProcGen Graph Asset";
+  m_AssetDesc.m_sDocumentTypeName = "ProcGen Graph";
   m_AssetDesc.m_sFileExtension = "ezProcGenGraphAsset";
   m_AssetDesc.m_sIcon = ":/AssetIcons/ProcGen_Graph.png";
   m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezProcGenGraphAssetDocument>();

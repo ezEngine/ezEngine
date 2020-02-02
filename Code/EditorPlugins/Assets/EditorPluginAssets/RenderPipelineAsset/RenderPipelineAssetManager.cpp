@@ -17,7 +17,7 @@ ezRenderPipelineAssetManager::ezRenderPipelineAssetManager()
   // ezAssetFileExtensionWhitelist::AddAssetFileExtension("Material", "ezMaterial");
 
   m_AssetDesc.m_bCanCreate = true;
-  m_AssetDesc.m_sDocumentTypeName = "Render Pipeline Asset";
+  m_AssetDesc.m_sDocumentTypeName = "RenderPipeline";
   m_AssetDesc.m_sFileExtension = "ezRenderPipelineAsset";
   m_AssetDesc.m_sIcon = ":/AssetIcons/RenderPipeline.png";
   m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezRenderPipelineAssetDocument>();

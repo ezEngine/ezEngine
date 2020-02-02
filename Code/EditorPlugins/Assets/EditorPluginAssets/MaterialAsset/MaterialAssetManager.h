@@ -13,11 +13,6 @@ public:
 
   virtual ezString GetResourceTypeExtension(const char* szDocumentPath) const override { return "ezMaterialBin"; }
 
-  virtual void QuerySupportedAssetTypes(ezSet<ezString>& inout_AssetTypeNames) const override
-  {
-    inout_AssetTypeNames.Insert("Material");
-  }
-
   virtual ezBitflags<ezAssetDocumentFlags> GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const override;
   virtual ezString GetRelativeOutputFileName(const char* szDataDirectory, const char* szDocumentPath, const char* szOutputTag, const ezPlatformProfile* pAssetProfile) const override;
   virtual bool IsOutputUpToDate(const char* szDocumentPath, const char* szOutputTag, ezUInt64 uiHash, ezUInt16 uiTypeVersion) override;

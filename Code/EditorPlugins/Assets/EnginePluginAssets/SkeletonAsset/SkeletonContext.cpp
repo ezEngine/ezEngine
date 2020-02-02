@@ -28,7 +28,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonContext, 1, ezRTTIDefaultAllocator<ezS
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Skeleton Asset"),
+    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Skeleton"),
   }
   EZ_END_PROPERTIES;
 }

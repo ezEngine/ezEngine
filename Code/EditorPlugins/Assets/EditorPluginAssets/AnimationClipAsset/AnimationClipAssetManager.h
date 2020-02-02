@@ -13,11 +13,6 @@ public:
 
   virtual ezString GetResourceTypeExtension(const char* szDocumentPath) const override { return "ezAnimationClip"; }
 
-  virtual void QuerySupportedAssetTypes(ezSet<ezString>& inout_AssetTypeNames) const override
-  {
-    inout_AssetTypeNames.Insert("Animation Clip");
-  }
-
   virtual ezBitflags<ezAssetDocumentFlags> GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const override;
 
 private:

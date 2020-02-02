@@ -231,11 +231,6 @@ ezStatus ezTextureCubeAssetDocument::InternalTransformAsset(const char* szTarget
   return result;
 }
 
-const char* ezTextureCubeAssetDocument::QueryAssetType() const
-{
-  return "Texture Cube";
-}
-
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureCubeAssetDocumentGenerator, 1, ezRTTIDefaultAllocator<ezTextureCubeAssetDocumentGenerator>)

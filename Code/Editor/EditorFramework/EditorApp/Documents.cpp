@@ -47,8 +47,7 @@ ezDocument* ezQtEditorApp::OpenDocument(const char* szDocument, ezBitflags<ezDoc
       return nullptr;
     }
 
-    EZ_ASSERT_DEV(pDocument != nullptr, "Opening of document type '{0}' succeeded, but returned pointer is nullptr",
-      pTypeDesc->m_sDocumentTypeName);
+    EZ_ASSERT_DEV(pDocument != nullptr, "Opening of document type '{0}' succeeded, but returned pointer is nullptr", pTypeDesc->m_sDocumentTypeName);
 
     if (pDocument->GetUnknownObjectTypeInstances() > 0)
     {
@@ -100,8 +99,7 @@ ezDocument* ezQtEditorApp::CreateDocument(const char* szDocument, ezBitflags<ezD
       return nullptr;
     }
 
-    EZ_ASSERT_DEV(pDocument != nullptr, "Creation of document type '{0}' succeeded, but returned pointer is nullptr",
-      pTypeDesc->m_sDocumentTypeName);
+    EZ_ASSERT_DEV(pDocument != nullptr, "Creation of document type '{0}' succeeded, but returned pointer is nullptr", pTypeDesc->m_sDocumentTypeName);
     EZ_ASSERT_DEV(pDocument->GetUnknownObjectTypeInstances() == 0, "Newly created documents should not contain unknown types.");
   }
 

@@ -26,7 +26,7 @@ ezDecalAssetDocumentManager::ezDecalAssetDocumentManager()
   ezAssetFileExtensionWhitelist::AddAssetFileExtension("Image2D", "tga");
 
   m_AssetDesc.m_bCanCreate = true;
-  m_AssetDesc.m_sDocumentTypeName = "Decal Asset";
+  m_AssetDesc.m_sDocumentTypeName = "Decal";
   m_AssetDesc.m_sFileExtension = "ezDecalAsset";
   m_AssetDesc.m_sIcon = ":/AssetIcons/Decal.png";
   m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezDecalAssetDocument>();
@@ -139,7 +139,7 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
       if (asset.m_pAssetInfo->m_pManager != this)
         continue;
 
-      EZ_LOG_BLOCK("Decal Asset", asset.m_pAssetInfo->m_sDataDirRelativePath.GetData());
+      EZ_LOG_BLOCK("Decal", asset.m_pAssetInfo->m_sDataDirRelativePath.GetData());
 
       // does the document already exist and is it open ?
       bool bWasOpen = false;

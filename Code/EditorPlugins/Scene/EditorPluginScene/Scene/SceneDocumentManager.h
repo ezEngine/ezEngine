@@ -23,8 +23,6 @@ private:
 
   virtual ezString GetResourceTypeExtension(const char* szDocumentPath) const override;
 
-  virtual void QuerySupportedAssetTypes(ezSet<ezString>& inout_AssetTypeNames) const override;
-
   virtual bool GeneratesProfileSpecificAssets() const override { return false; }
 
 private:

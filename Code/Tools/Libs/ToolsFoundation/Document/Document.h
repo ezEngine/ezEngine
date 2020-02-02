@@ -99,6 +99,9 @@ public:
 
   const ezDocumentTypeDescriptor* GetDocumentTypeDescriptor() const { return m_pTypeDescriptor; }
 
+  /// \brief Returns the document's type name. Same as GetDocumentTypeDescriptor()->m_sDocumentTypeName.
+  const char* GetDocumentTypeName() const { return m_pTypeDescriptor->m_sDocumentTypeName; }
+
   const ezDocumentInfo* GetDocumentInfo() const { return m_pDocumentInfo; }
 
   ///@}

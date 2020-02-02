@@ -15,7 +15,7 @@ ezAnimationClipAssetDocumentManager::ezAnimationClipAssetDocumentManager()
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezAnimationClipAssetDocumentManager::OnDocumentManagerEvent, this));
 
   m_AssetDesc.m_bCanCreate = true;
-  m_AssetDesc.m_sDocumentTypeName = "Animation Clip Asset";
+  m_AssetDesc.m_sDocumentTypeName = "Animation Clip";
   m_AssetDesc.m_sFileExtension = "ezAnimationClipAsset";
   m_AssetDesc.m_sIcon = ":/AssetIcons/Animation_Clip.png";
   m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezAnimationClipAssetDocument>();

@@ -31,8 +31,6 @@ class ezTextureAssetDocument : public ezSimpleAssetDocument<ezTextureAssetProper
 public:
   ezTextureAssetDocument(const char* szDocumentPath);
 
-  virtual const char* QueryAssetType() const override;
-
   // for previewing purposes
   ezEnum<ezTextureChannelMode> m_ChannelMode;
   ezInt32 m_iTextureLod; // -1 == regular sampling, >= 0 == sample that level

@@ -16,7 +16,7 @@ ezAnimatedMeshAssetDocumentManager::ezAnimatedMeshAssetDocumentManager()
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezAnimatedMeshAssetDocumentManager::OnDocumentManagerEvent, this));
 
   m_AssetDesc.m_bCanCreate = true;
-  m_AssetDesc.m_sDocumentTypeName = "Animated Mesh Asset";
+  m_AssetDesc.m_sDocumentTypeName = "Animated Mesh";
   m_AssetDesc.m_sFileExtension = "ezAnimatedMeshAsset";
   m_AssetDesc.m_sIcon = ":/AssetIcons/Animated_Mesh.png";
   m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezAnimatedMeshAssetDocument>();

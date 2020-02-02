@@ -17,7 +17,7 @@ ezVisualScriptAssetManager::ezVisualScriptAssetManager()
   // ezAssetFileExtensionWhitelist::AddAssetFileExtension("Material", "ezMaterial");
 
   m_AssetDesc.m_bCanCreate = true;
-  m_AssetDesc.m_sDocumentTypeName = "Visual Script Asset";
+  m_AssetDesc.m_sDocumentTypeName = "Visual Script";
   m_AssetDesc.m_sFileExtension = "ezVisualScriptAsset";
   m_AssetDesc.m_sIcon = ":/AssetIcons/Visual_Script.png";
   m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezVisualScriptAssetDocument>();

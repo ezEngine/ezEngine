@@ -16,7 +16,7 @@ ezTextureCubeAssetDocumentManager::ezTextureCubeAssetDocumentManager()
   ezAssetFileExtensionWhitelist::AddAssetFileExtension("Texture Cube", "dds");
 
   m_AssetDesc.m_bCanCreate = true;
-  m_AssetDesc.m_sDocumentTypeName = "TextureCube Asset";
+  m_AssetDesc.m_sDocumentTypeName = "Texture Cube";
   m_AssetDesc.m_sFileExtension = "ezTextureCubeAsset";
   m_AssetDesc.m_sIcon = ":/AssetIcons/Texture_Cube.png";
   m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezTextureCubeAssetDocument>();

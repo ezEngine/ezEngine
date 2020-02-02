@@ -22,8 +22,6 @@ class ezRenderPipelineAssetDocument : public ezAssetDocument
 public:
   ezRenderPipelineAssetDocument(const char* szDocumentPath);
 
-  virtual const char* QueryAssetType() const override { return "RenderPipeline"; }
-
 protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
 

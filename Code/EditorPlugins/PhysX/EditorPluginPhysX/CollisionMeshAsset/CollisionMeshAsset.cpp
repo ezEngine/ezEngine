@@ -62,15 +62,6 @@ void ezCollisionMeshAssetDocument::InitializeAfterLoading(bool bFirstTimeCreatio
   GetProperties()->m_bIsConvexMesh = m_bIsConvexMesh;
 }
 
-const char* ezCollisionMeshAssetDocument::QueryAssetType() const
-{
-  if (m_bIsConvexMesh)
-    return "Collision Mesh (Convex)";
-
-  return "Collision Mesh";
-}
-
-
 
 //////////////////////////////////////////////////////////////////////////
 

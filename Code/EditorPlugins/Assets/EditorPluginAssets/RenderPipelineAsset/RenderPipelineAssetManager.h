@@ -13,11 +13,6 @@ public:
 
   virtual ezString GetResourceTypeExtension(const char* szDocumentPath) const override { return "ezRenderPipelineBin"; }
 
-  virtual void QuerySupportedAssetTypes(ezSet<ezString>& inout_AssetTypeNames) const override
-  {
-    inout_AssetTypeNames.Insert("RenderPipeline");
-  }
-
   virtual ezBitflags<ezAssetDocumentFlags> GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const override;
 
 private:

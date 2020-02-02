@@ -13,12 +13,6 @@ public:
 
   virtual ezString GetResourceTypeExtension(const char* szDocumentPath) const override { return "ezSurface"; }
 
-  virtual void QuerySupportedAssetTypes(ezSet<ezString>& inout_AssetTypeNames) const override
-  {
-    inout_AssetTypeNames.Insert("Surface");
-  }
-
-
   virtual ezBitflags<ezAssetDocumentFlags> GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const override;
 
 private:

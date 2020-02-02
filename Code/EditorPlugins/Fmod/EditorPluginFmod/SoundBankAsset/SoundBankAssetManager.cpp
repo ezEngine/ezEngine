@@ -60,7 +60,7 @@ ezSoundBankAssetDocumentManager::ezSoundBankAssetDocumentManager()
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezSoundBankAssetDocumentManager::OnDocumentManagerEvent, this));
 
   m_AssetDesc.m_bCanCreate = true;
-  m_AssetDesc.m_sDocumentTypeName = "Sound Bank Asset";
+  m_AssetDesc.m_sDocumentTypeName = "Sound Bank";
   m_AssetDesc.m_sFileExtension = "ezSoundBankAsset";
   m_AssetDesc.m_sIcon = ":/AssetIcons/Sound_Bank.png";
   m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezSoundBankAssetDocument>();

@@ -15,7 +15,7 @@ ezSkeletonAssetDocumentManager::ezSkeletonAssetDocumentManager()
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezSkeletonAssetDocumentManager::OnDocumentManagerEvent, this));
 
   m_AssetDesc.m_bCanCreate = true;
-  m_AssetDesc.m_sDocumentTypeName = "Skeleton Asset";
+  m_AssetDesc.m_sDocumentTypeName = "Skeleton";
   m_AssetDesc.m_sFileExtension = "ezSkeletonAsset";
   m_AssetDesc.m_sIcon = ":/AssetIcons/Skeleton.png";
   m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezSkeletonAssetDocument>();

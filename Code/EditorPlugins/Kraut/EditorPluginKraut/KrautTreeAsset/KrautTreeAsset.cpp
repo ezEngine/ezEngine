@@ -20,11 +20,6 @@ ezKrautTreeAssetDocument::ezKrautTreeAssetDocument(const char* szDocumentPath)
 {
 }
 
-const char* ezKrautTreeAssetDocument::QueryAssetType() const
-{
-  return "Kraut Tree";
-}
-
 //////////////////////////////////////////////////////////////////////////
 
 enum ezKrautImportMaterialType : ezUInt8

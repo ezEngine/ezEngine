@@ -70,15 +70,6 @@ public:
 
   ezBitflags<ezAssetDocumentFlags> GetAssetFlags() const;
 
-  /// \brief Returns one of the strings that ezAssetDocumentManager::QuerySupportedAssetTypes returned.
-  ///
-  /// This can be different for each instance of the same asset document type.
-  /// E.g. one texture resource may return 'Texture 2D' and another 'Texture 3D'.
-  /// Likewise completely different asset document types may use the same 'asset types'.
-  ///
-  /// This is mostly used for sorting and filtering in the asset browser.
-  virtual const char* QueryAssetType() const = 0;
-
   /// \brief Transforms an asset.
   ///   Typically not called manually but by the curator which takes care of dependencies first.
   ///

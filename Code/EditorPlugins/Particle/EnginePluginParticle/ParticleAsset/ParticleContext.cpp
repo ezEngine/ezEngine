@@ -26,7 +26,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleContext, 1, ezRTTIDefaultAllocator<ezP
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Particle Effect Asset"),
+    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Particle Effect"),
   }
   EZ_END_PROPERTIES;
 }

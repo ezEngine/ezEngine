@@ -16,8 +16,6 @@ public:
   ezSkeletonAssetDocument(const char* szDocumentPath);
   ~ezSkeletonAssetDocument();
 
-  virtual const char* QueryAssetType() const override { return "Skeleton"; }
-
   static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
 protected:

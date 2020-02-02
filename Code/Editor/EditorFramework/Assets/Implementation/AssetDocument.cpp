@@ -75,7 +75,7 @@ ezTaskGroupID ezAssetDocument::InternalSaveDocument(AfterSaveCallback callback)
   pInfo->m_RuntimeDependencies.Clear();
   pInfo->m_Outputs.Clear();
   pInfo->m_uiSettingsHash = GetDocumentHash();
-  pInfo->m_sAssetTypeName.Assign(QueryAssetType());
+  pInfo->m_sAssetTypeName.Assign(GetDocumentTypeName());
   pInfo->ClearMetaData();
   UpdateAssetDocumentInfo(pInfo);
 
@@ -545,11 +545,11 @@ ezStatus ezAssetDocument::RemoteExport(const ezAssetFileHeader& header, const ch
 {
   ezProgressRange range("Exporting Asset", 2, false);
 
-  ezLog::Info("Exporting {0} to \"{1}\"", QueryAssetType(), szOutputTarget);
+  ezLog::Info("Exporting {0} to \"{1}\"", GetDocumentTypeName(), szOutputTarget);
 
   if (GetEngineStatus() == ezAssetDocument::EngineStatus::Disconnected)
   {
-    return ezStatus(ezFmt("Exporting {0} to \"{1}\" failed, engine not started or crashed.", QueryAssetType(), szOutputTarget));
+    return ezStatus(ezFmt("Exporting {0} to \"{1}\" failed, engine not started or crashed.", GetDocumentTypeName(), szOutputTarget));
   }
   else if (GetEngineStatus() == ezAssetDocument::EngineStatus::Initializing)
   {
@@ -557,7 +557,7 @@ ezStatus ezAssetDocument::RemoteExport(const ezAssetFileHeader& header, const ch
             ->WaitForDocumentMessage(GetGuid(), ezDocumentOpenResponseMsgToEditor::GetStaticRTTI(), ezTime::Seconds(10))
             .Failed())
     {
-      return ezStatus(ezFmt("Exporting {0} to \"{1}\" failed, document initialization timed out.", QueryAssetType(), szOutputTarget));
+      return ezStatus(ezFmt("Exporting {0} to \"{1}\" failed, document initialization timed out.", GetDocumentTypeName(), szOutputTarget));
     }
     EZ_ASSERT_DEV(GetEngineStatus() == ezAssetDocument::EngineStatus::Loaded,
                   "After receiving ezDocumentOpenResponseMsgToEditor, the document should be in loaded state.");
@@ -583,18 +583,18 @@ ezStatus ezAssetDocument::RemoteExport(const ezAssetFileHeader& header, const ch
           ->WaitForDocumentMessage(GetGuid(), ezExportDocumentMsgToEditor::GetStaticRTTI(), ezTime::Seconds(60), &callback)
           .Failed())
   {
-    return ezStatus(ezFmt("Remote exporting {0} to \"{1}\" timed out.", QueryAssetType(), msg.m_sOutputFile));
+    return ezStatus(ezFmt("Remote exporting {0} to \"{1}\" timed out.", GetDocumentTypeName(), msg.m_sOutputFile));
   }
   else
   {
     if (!bSuccess)
     {
-      return ezStatus(ezFmt("Remote exporting {0} to \"{1}\" failed.", QueryAssetType(), msg.m_sOutputFile));
+      return ezStatus(ezFmt("Remote exporting {0} to \"{1}\" failed.", GetDocumentTypeName(), msg.m_sOutputFile));
     }
 
-    ezLog::Success("{0} \"{1}\" has been exported.", QueryAssetType(), msg.m_sOutputFile);
+    ezLog::Success("{0} \"{1}\" has been exported.", GetDocumentTypeName(), msg.m_sOutputFile);
 
-    ShowDocumentStatus(ezFmt("{0} exported successfully", QueryAssetType()));
+    ShowDocumentStatus(ezFmt("{0} exported successfully", GetDocumentTypeName()));
 
     return ezStatus(EZ_SUCCESS);
   }
@@ -610,11 +610,11 @@ ezStatus ezAssetDocument::RemoteCreateThumbnail(const ThumbnailInfo& thumbnailIn
 {
   ezAssetCurator::GetSingleton()->WriteAssetTables();
 
-  ezLog::Info("Create {0} thumbnail for \"{1}\"", QueryAssetType(), GetDocumentPath());
+  ezLog::Info("Create {0} thumbnail for \"{1}\"", GetDocumentTypeName(), GetDocumentPath());
 
   if (GetEngineStatus() == ezAssetDocument::EngineStatus::Disconnected)
   {
-    return ezStatus(ezFmt("Create {0} thumbnail for \"{1}\" failed, engine not started or crashed.", QueryAssetType(), GetDocumentPath()));
+    return ezStatus(ezFmt("Create {0} thumbnail for \"{1}\" failed, engine not started or crashed.", GetDocumentTypeName(), GetDocumentPath()));
   }
   else if (GetEngineStatus() == ezAssetDocument::EngineStatus::Initializing)
   {
@@ -623,7 +623,7 @@ ezStatus ezAssetDocument::RemoteCreateThumbnail(const ThumbnailInfo& thumbnailIn
             .Failed())
     {
       return ezStatus(
-          ezFmt("Create {0} thumbnail for \"{1}\" failed, document initialization timed out.", QueryAssetType(), GetDocumentPath()));
+          ezFmt("Create {0} thumbnail for \"{1}\" failed, document initialization timed out.", GetDocumentTypeName(), GetDocumentPath()));
     }
     EZ_ASSERT_DEV(GetEngineStatus() == ezAssetDocument::EngineStatus::Loaded,
                   "After receiving ezDocumentOpenResponseMsgToEditor, the document should be in loaded state.");
@@ -643,13 +643,13 @@ ezStatus ezAssetDocument::RemoteCreateThumbnail(const ThumbnailInfo& thumbnailIn
           ->WaitForDocumentMessage(GetGuid(), ezCreateThumbnailMsgToEditor::GetStaticRTTI(), ezTime::Seconds(60), &callback)
           .Failed())
   {
-    return ezStatus(ezFmt("Create {0} thumbnail for \"{1}\" failed timed out.", QueryAssetType(), GetDocumentPath()));
+    return ezStatus(ezFmt("Create {0} thumbnail for \"{1}\" failed timed out.", GetDocumentTypeName(), GetDocumentPath()));
   }
   else
   {
     if (data.GetCount() != msg.m_uiWidth * msg.m_uiHeight * 4)
     {
-      return ezStatus(ezFmt("Thumbnail generation for {0} failed, thumbnail data is empty.", QueryAssetType()));
+      return ezStatus(ezFmt("Thumbnail generation for {0} failed, thumbnail data is empty.", GetDocumentTypeName()));
     }
 
     ezImageHeader imgHeader;
@@ -663,9 +663,9 @@ ezStatus ezAssetDocument::RemoteCreateThumbnail(const ThumbnailInfo& thumbnailIn
     ezMemoryUtils::Copy(image.GetPixelPointer<ezUInt8>(), data.GetData(), msg.m_uiWidth * msg.m_uiHeight * 4);
     SaveThumbnail(image, thumbnailInfo);
 
-    ezLog::Success("{0} thumbnail for \"{1}\" has been exported.", QueryAssetType(), GetDocumentPath());
+    ezLog::Success("{0} thumbnail for \"{1}\" has been exported.", GetDocumentTypeName(), GetDocumentPath());
 
-    ShowDocumentStatus(ezFmt("{0} thumbnail created successfully", QueryAssetType()));
+    ShowDocumentStatus(ezFmt("{0} thumbnail created successfully", GetDocumentTypeName()));
 
     return ezStatus(EZ_SUCCESS);
   }

@@ -17,8 +17,6 @@ class ezProcGenGraphAssetDocument : public ezAssetDocument
 public:
   ezProcGenGraphAssetDocument(const char* szDocumentPath);
 
-  virtual const char* QueryAssetType() const override { return "ProcGen Graph"; }
-
   void SetDebugPin(const ezPin* pDebugPin);
 
   ezStatus WriteAsset(ezStreamWriter& stream, const ezPlatformProfile* pAssetProfile) const;

@@ -14,7 +14,7 @@ ezSoundEventAssetDocumentManager::ezSoundEventAssetDocumentManager()
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezSoundEventAssetDocumentManager::OnDocumentManagerEvent, this));
 
   m_AssetDesc.m_bCanCreate = false;
-  m_AssetDesc.m_sDocumentTypeName = "Sound Event Asset";
+  m_AssetDesc.m_sDocumentTypeName = "Sound Event";
   m_AssetDesc.m_sFileExtension = "ezSoundEventAsset";
   m_AssetDesc.m_sIcon = ":/AssetIcons/Sound_Event.png";
   m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezSoundEventAssetDocument>();

@@ -16,7 +16,7 @@ ezSurfaceAssetDocumentManager::ezSurfaceAssetDocumentManager()
   // additional whitelist for non-asset files where an asset may be selected
   // ezAssetFileExtensionWhitelist::AddAssetFileExtension("Surface", "ezSurface");
   m_AssetDesc.m_bCanCreate = true;
-  m_AssetDesc.m_sDocumentTypeName = "Surface Asset";
+  m_AssetDesc.m_sDocumentTypeName = "Surface";
   m_AssetDesc.m_sFileExtension = "ezSurfaceAsset";
   m_AssetDesc.m_sIcon = ":/AssetIcons/Surface.png";
   m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezSurfaceAssetDocument>();

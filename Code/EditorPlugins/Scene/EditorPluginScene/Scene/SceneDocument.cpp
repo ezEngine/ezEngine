@@ -1174,14 +1174,6 @@ ezStatus ezSceneDocument::RequestExportScene(const char* szTargetFile, const ezA
   return status;
 }
 
-const char* ezSceneDocument::QueryAssetType() const
-{
-  if (m_bIsPrefab)
-    return "Prefab";
-
-  return "Scene";
-}
-
 void ezSceneDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
 {
   SUPER::UpdateAssetDocumentInfo(pInfo);

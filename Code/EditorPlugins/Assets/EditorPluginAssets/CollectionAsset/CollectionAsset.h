@@ -29,8 +29,6 @@ class ezCollectionAssetDocument : public ezSimpleAssetDocument<ezCollectionAsset
 public:
   ezCollectionAssetDocument(const char* szDocumentPath);
 
-  virtual const char* QueryAssetType() const override { return "Collection"; }
-
 protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
     const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;

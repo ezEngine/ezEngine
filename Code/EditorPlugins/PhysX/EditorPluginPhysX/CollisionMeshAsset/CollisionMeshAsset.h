@@ -16,8 +16,6 @@ class ezCollisionMeshAssetDocument : public ezSimpleAssetDocument<ezCollisionMes
 public:
   ezCollisionMeshAssetDocument(const char* szDocumentPath, bool bConvexMesh);
 
-  virtual const char* QueryAssetType() const override;
-
   static ezStatus WriteToStream(ezChunkStreamWriter& stream, const ezPhysXCookingMesh& mesh, const ezCollisionMeshAssetProperties* pProp);
 
 protected:

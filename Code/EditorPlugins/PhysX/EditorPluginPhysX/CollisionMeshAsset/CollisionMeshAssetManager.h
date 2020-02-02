@@ -18,12 +18,6 @@ public:
     return "ezPhysXMesh";
   }
 
-  virtual void QuerySupportedAssetTypes(ezSet<ezString>& inout_AssetTypeNames) const override
-  {
-    inout_AssetTypeNames.Insert("Collision Mesh");
-    inout_AssetTypeNames.Insert("Collision Mesh (Convex)");
-  }
-
 private:
   void OnDocumentManagerEvent(const ezDocumentManager::Event& e);
 

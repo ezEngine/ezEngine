@@ -19,7 +19,7 @@ ezMeshAssetDocumentManager::ezMeshAssetDocumentManager()
   ezAssetFileExtensionWhitelist::AddAssetFileExtension("Mesh", "ezMesh");
 
   m_AssetDesc.m_bCanCreate = true;
-  m_AssetDesc.m_sDocumentTypeName = "Mesh Asset";
+  m_AssetDesc.m_sDocumentTypeName = "Mesh";
   m_AssetDesc.m_sFileExtension = "ezMeshAsset";
   m_AssetDesc.m_sIcon = ":/AssetIcons/Mesh.png";
   m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezMeshAssetDocument>();

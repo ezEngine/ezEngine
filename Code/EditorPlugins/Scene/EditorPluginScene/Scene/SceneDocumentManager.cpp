@@ -81,12 +81,6 @@ ezString ezSceneDocumentManager::GetResourceTypeExtension(const char* szDocument
   return "ezObjectGraph";
 }
 
-void ezSceneDocumentManager::QuerySupportedAssetTypes(ezSet<ezString>& inout_AssetTypeNames) const
-{
-  inout_AssetTypeNames.Insert("Scene");
-  inout_AssetTypeNames.Insert("Prefab");
-}
-
 void ezSceneDocumentManager::SetupDefaultScene(ezDocument* pDocument)
 {
   auto history = pDocument->GetCommandHistory();

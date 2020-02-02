@@ -13,7 +13,7 @@ ezCurve1DAssetDocumentManager::ezCurve1DAssetDocumentManager()
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezCurve1DAssetDocumentManager::OnDocumentManagerEvent, this));
 
   m_AssetDesc.m_bCanCreate = true;
-  m_AssetDesc.m_sDocumentTypeName = "Curve1D Asset";
+  m_AssetDesc.m_sDocumentTypeName = "Curve1D";
   m_AssetDesc.m_sFileExtension = "ezCurve1DAsset";
   m_AssetDesc.m_sIcon = ":/AssetIcons/Curve1D.png";
   m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezCurve1DAssetDocument>();

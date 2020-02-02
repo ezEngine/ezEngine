@@ -16,7 +16,7 @@ ezParticleEffectAssetDocumentManager::ezParticleEffectAssetDocumentManager()
   // ezAssetFileExtensionWhitelist::AddAssetFileExtension("Collision Mesh", "ezPhysXMesh");
 
   m_AssetDesc.m_bCanCreate = true;
-  m_AssetDesc.m_sDocumentTypeName = "Particle Effect Asset";
+  m_AssetDesc.m_sDocumentTypeName = "Particle Effect";
   m_AssetDesc.m_sFileExtension = "ezParticleEffectAsset";
   m_AssetDesc.m_sIcon = ":/AssetIcons/Particle_Effect.png";
   m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezParticleEffectAssetDocument>();

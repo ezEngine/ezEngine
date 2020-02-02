@@ -13,11 +13,6 @@ public:
 
   virtual ezString GetResourceTypeExtension(const char* szDocumentPath) const override { return "ezKrautTree"; }
 
-  virtual void QuerySupportedAssetTypes(ezSet<ezString>& inout_AssetTypeNames) const override
-  {
-    inout_AssetTypeNames.Insert("Kraut Tree");
-  }
-
 private:
   void OnDocumentManagerEvent(const ezDocumentManager::Event& e);
 

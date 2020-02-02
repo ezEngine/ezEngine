@@ -27,8 +27,6 @@ class ezTypeScriptAssetDocument : public ezSimpleAssetDocument<ezTypeScriptAsset
 public:
   ezTypeScriptAssetDocument(const char* szDocumentPath);
 
-  virtual const char* QueryAssetType() const override;
-
   void EditScript();
 
   const ezEvent<const ezTypeScriptAssetDocumentEvent&>& GetEvent() const { return m_Events; }

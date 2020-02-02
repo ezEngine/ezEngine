@@ -503,16 +503,6 @@ ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile
   }
 }
 
-const char* ezTextureAssetDocument::QueryAssetType() const
-{
-  if (m_bIsRenderTarget)
-  {
-    return "Render Target";
-  }
-
-  return "Texture 2D";
-}
-
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetDocumentGenerator, 1, ezRTTIDefaultAllocator<ezTextureAssetDocumentGenerator>)
