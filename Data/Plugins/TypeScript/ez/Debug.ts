@@ -36,7 +36,6 @@ declare function __CPP_Debug_RegisterCVar(name: string, type: number, defaultVal
 declare function __CPP_Debug_RegisterCFunc(owner: __Component.TypescriptComponent, funcName: string, funcDesc: string, func: any, ...argTypes: Debug.ArgType[]): void;
 
 
-
 /**
  * Debug visualization functionality.
  */
@@ -157,7 +156,7 @@ export namespace Debug {
      * Reads the boolean CVar of the given name and returns its value.
      * If no CVar with this name exists or it uses a different type, 'undefined' is returned.
      */
-    export function ReadCVar_Boolean(name: string): boolean {
+    export function ReadCVar_Boolean(name: string): boolean { // [tested]
         return __CPP_Debug_ReadCVarBool(name);
     }
 
@@ -165,7 +164,7 @@ export namespace Debug {
      * Reads the boolean CVar of the given name and returns its value.
      * If no CVar with this name exists or it uses a different type, 'undefined' is returned.
      */
-    export function ReadCVar_Int(name: string): number {
+    export function ReadCVar_Int(name: string): number { // [tested]
         return __CPP_Debug_ReadCVarInt(name);
     }
 
@@ -173,7 +172,7 @@ export namespace Debug {
      * Reads the boolean CVar of the given name and returns its value.
      * If no CVar with this name exists or it uses a different type, 'undefined' is returned.
      */
-    export function ReadCVar_Float(name: string): number {
+    export function ReadCVar_Float(name: string): number { // [tested]
         return __CPP_Debug_ReadCVarFloat(name);
     }
 
@@ -181,7 +180,7 @@ export namespace Debug {
      * Reads the boolean CVar of the given name and returns its value.
      * If no CVar with this name exists or it uses a different type, 'undefined' is returned.
      */
-    export function ReadCVar_String(name: string): string {
+    export function ReadCVar_String(name: string): string { // [tested]
         return __CPP_Debug_ReadCVarString(name);
     }
 
@@ -189,7 +188,7 @@ export namespace Debug {
      * Stores the given value in the CVar with the provided name.
      * Throws an error if no such CVar exists or the existing one is not of the expected type.
      */
-    export function WriteCVar_Boolean(name: string, value: boolean): void {
+    export function WriteCVar_Boolean(name: string, value: boolean): void { // [tested]
         return __CPP_Debug_WriteCVarBool(name, value);
     }
 
@@ -197,7 +196,7 @@ export namespace Debug {
      * Stores the given value in the CVar with the provided name.
      * Throws an error if no such CVar exists or the existing one is not of the expected type.
      */
-    export function WriteCVar_Int(name: string, value: number): void {
+    export function WriteCVar_Int(name: string, value: number): void { // [tested]
         return __CPP_Debug_WriteCVarInt(name, value);
     }
 
@@ -205,7 +204,7 @@ export namespace Debug {
      * Stores the given value in the CVar with the provided name.
      * Throws an error if no such CVar exists or the existing one is not of the expected type.
      */
-    export function WriteCVar_Float(name: string, value: number): void {
+    export function WriteCVar_Float(name: string, value: number): void { // [tested]
         return __CPP_Debug_WriteCVarFloat(name, value);
     }
 
@@ -213,7 +212,7 @@ export namespace Debug {
      * Stores the given value in the CVar with the provided name.
      * Throws an error if no such CVar exists or the existing one is not of the expected type.
      */
-    export function WriteCVar_String(name: string, value: string): void {
+    export function WriteCVar_String(name: string, value: string): void { // [tested]
         return __CPP_Debug_WriteCVarString(name, value);
     }
 
@@ -223,28 +222,28 @@ export namespace Debug {
      * The CVar can be modified like any other CVar and thus allows external configuration of the script code.
      * When the world in which this script is executed is destroyed, the CVar will cease existing as well.
      */
-    export function RegisterCVar_Int(name: string, value: number, description: string): void {
+    export function RegisterCVar_Int(name: string, value: number, description: string): void { // [tested]
         __CPP_Debug_RegisterCVar(name, 0, value, description);
     }
 
     /**
      * See RegisterCVar_Int
      */
-    export function RegisterCVar_Float(name: string, value: number, description: string): void {
+    export function RegisterCVar_Float(name: string, value: number, description: string): void { // [tested]
         __CPP_Debug_RegisterCVar(name, 1, value, description);
     }
 
     /**
      * See RegisterCVar_Int
      */
-    export function RegisterCVar_Boolean(name: string, value: boolean, description: string): void {
+    export function RegisterCVar_Boolean(name: string, value: boolean, description: string): void { // [tested]
         __CPP_Debug_RegisterCVar(name, 2, value, description);
     }
 
     /**
      * See RegisterCVar_Int
      */
-    export function RegisterCVar_String(name: string, value: string, description: string): void {
+    export function RegisterCVar_String(name: string, value: string, description: string): void { // [tested]
         __CPP_Debug_RegisterCVar(name, 3, value, description);
     }
 
@@ -265,7 +264,7 @@ export namespace Debug {
      * @param func The typescript function to execute. Must accept the arguments as described by 'argTypes'. E.g. "function Print(text: string)".
      * @param argTypes Variadic list describing the type of each argument. E.g. "ez.Debug.ArgType.String, ez.Debug.ArgType.Number"
      */
-    export function RegisterConsoleFunc(owner: __Component.TypescriptComponent, funcName: string, funcDesc: string, func: any, ...argTypes: Debug.ArgType[]): void {
+    export function RegisterConsoleFunc(owner: __Component.TypescriptComponent, funcName: string, funcDesc: string, func: any, ...argTypes: Debug.ArgType[]): void { // [tested]
         __CPP_Debug_RegisterCFunc(owner, funcName, funcDesc, func, ...argTypes);
     }
 

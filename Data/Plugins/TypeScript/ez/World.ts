@@ -50,7 +50,7 @@ export namespace World {
   /**
    * Creates a new GameObject on the C++ side and returns a TypeScript GameObject that links to that.
    */
-  export function CreateObject(desc: GameObjectDesc): GameObject {
+  export function CreateObject(desc: GameObjectDesc): GameObject { // [tested]
     return __CPP_World_CreateObject(desc);
   }
 
@@ -60,7 +60,7 @@ export namespace World {
    * 
    * @param object The object to be deleted.
    */
-  export function DeleteObjectDelayed(object: GameObject): void {
+  export function DeleteObjectDelayed(object: GameObject): void { // [tested]
     __CPP_World_DeleteObjectDelayed(object);
   }
 
@@ -73,14 +73,14 @@ export namespace World {
    * @param owner The GameObject to attach the component to.
    * @param typeClass The component class type to instantiate.
    */
-  export function CreateComponent<TYPE extends Component>(owner: GameObject, typeClass: new () => TYPE): TYPE {
+  export function CreateComponent<TYPE extends Component>(owner: GameObject, typeClass: new () => TYPE): TYPE { // [tested]
     return __CPP_World_CreateComponent(owner, typeClass.GetTypeNameHash());
   }
 
   /**
    * Instructs the C++ side to delete the given component.
    */
-  export function DeleteComponent(component: Component): void {
+  export function DeleteComponent(component: Component): void { // [tested]
     __CPP_World_DeleteComponent(component);
   }
 
@@ -90,7 +90,7 @@ export namespace World {
    * can be messy and ensuring a global key is never used twice can be difficult, therefore it is advised to
    * use this concept with care.
    */
-  export function TryGetObjectWithGlobalKey(globalKey: string): GameObject {
+  export function TryGetObjectWithGlobalKey(globalKey: string): GameObject { // [tested]
     return __CPP_World_TryGetObjectWithGlobalKey(globalKey);
   }
 
@@ -101,8 +101,10 @@ export namespace World {
    * @param center World-space center of the sphere.
    * @param radius Radius of the sphere.
    * @param callback A function that is used to report every overlapping GameObject.
+   *                 To pass in a member function that has access to your 'this' object, declare your callback like this: 
+   *                 FoundObjectCallback = (go: ez.GameObject): boolean => { ... }
    */
-  export function FindObjectsInSphere(type: string, center: Vec3, radius: number, callback: (go: GameObject) => boolean): void {
+  export function FindObjectsInSphere(type: string, center: Vec3, radius: number, callback: (go: GameObject) => boolean): void { // [tested]
     __CPP_World_FindObjectsInSphere(type, center, radius, callback);
   }
 
@@ -113,8 +115,10 @@ export namespace World {
    * @param min The minimum vertex of the AABB.
    * @param max The maximum vertex of the AABB.
    * @param callback A function that is used to report every overlapping GameObject.
+   *                 To pass in a member function that has access to your 'this' object, declare your callback like this: 
+   *                 FoundObjectCallback = (go: ez.GameObject): boolean => { ... }
    */
-  export function FindObjectsInBox(type: string, min: Vec3, max: Vec3, callback: (go: GameObject) => boolean): void {
+  export function FindObjectsInBox(type: string, min: Vec3, max: Vec3, callback: (go: GameObject) => boolean): void { // [tested]
     __CPP_World_FindObjectsInBox(type, min, max, callback);
   }
 };
