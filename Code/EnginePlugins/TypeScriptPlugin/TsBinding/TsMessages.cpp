@@ -370,9 +370,8 @@ bool ezTypeScriptBinding::DeliverMessage(const TsComponentTypeInfo& typeInfo, ez
 
   const ezRTTI* pMsgRtti = msg.GetDynamicRTTI();
 
-  static ezInt32 iRecursion = 0;
-  ++iRecursion;
-  EZ_SCOPE_EXIT(--iRecursion);
+  ++m_iMsgDeliveryRecursion;
+  EZ_SCOPE_EXIT(--m_iMsgDeliveryRecursion);
 
   ezStringBuilder sStashMsgName;
 
@@ -390,7 +389,7 @@ bool ezTypeScriptBinding::DeliverMessage(const TsComponentTypeInfo& typeInfo, ez
 
         if (bSynchronizeAfterwards)
         {
-          sStashMsgName.Format("ezMsg-{}", iRecursion);
+          sStashMsgName.Format("ezMsg-{}", m_iMsgDeliveryRecursion);
 
           duk.PushGlobalStash();                       // [ ... stash ]
           duk_dup(duk, -2);                            // [ ... stash msg ]

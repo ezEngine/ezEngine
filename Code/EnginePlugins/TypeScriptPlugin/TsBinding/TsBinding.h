@@ -156,6 +156,7 @@ private:
   static void GenerateMessageCode(ezStringBuilder& out_Code, const ezRTTI* pRtti);
   static void GenerateMessagePropertiesCode(ezStringBuilder& out_Code, const ezRTTI* pRtti);
 
+  ezInt32 m_iMsgDeliveryRecursion = 0;
   ezUuid m_CurrentTsMsgHandlerRegistrator;
   ezMap<ezUuid, TsComponentInfo> m_TsComponentTypes;
 
