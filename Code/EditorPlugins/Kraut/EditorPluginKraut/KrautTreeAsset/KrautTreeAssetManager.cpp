@@ -42,16 +42,12 @@ void ezKrautTreeAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMan
   }
 }
 
-ezStatus ezKrautTreeAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath,
-                                                                     bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezKrautTreeAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezKrautTreeAssetDocument(szPath);
-
-  return ezStatus(EZ_SUCCESS);
 }
 
-void ezKrautTreeAssetDocumentManager::InternalGetSupportedDocumentTypes(
-    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezKrautTreeAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_AssetDesc);
 }

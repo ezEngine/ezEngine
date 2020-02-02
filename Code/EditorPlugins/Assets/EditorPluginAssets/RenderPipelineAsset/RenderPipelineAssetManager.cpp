@@ -53,16 +53,12 @@ void ezRenderPipelineAssetManager::OnDocumentManagerEvent(const ezDocumentManage
   }
 }
 
-ezStatus ezRenderPipelineAssetManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument,
-                                                              ezDocument*& out_pDocument)
+void ezRenderPipelineAssetManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezRenderPipelineAssetDocument(szPath);
-
-  return ezStatus(EZ_SUCCESS);
 }
 
-void ezRenderPipelineAssetManager::InternalGetSupportedDocumentTypes(
-    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezRenderPipelineAssetManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_AssetDesc);
 }

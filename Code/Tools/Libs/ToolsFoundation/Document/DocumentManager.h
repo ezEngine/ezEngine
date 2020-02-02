@@ -81,9 +81,7 @@ public:
   void GetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const;
 
 private:
-  virtual ezStatus InternalCanOpenDocument(const char* szDocumentTypeName, const char* szFilePath) const { return ezStatus(EZ_SUCCESS); }
-  virtual ezStatus InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument,
-    ezDocument*& out_pDocument) = 0;
+  virtual void InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument) = 0;
   virtual void InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const = 0;
 
 private:

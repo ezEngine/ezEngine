@@ -47,16 +47,12 @@ void ezCurve1DAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManag
   }
 }
 
-ezStatus ezCurve1DAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument,
-                                                               ezDocument*& out_pDocument)
+void ezCurve1DAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezCurve1DAssetDocument(szPath);
-
-  return ezStatus(EZ_SUCCESS);
 }
 
-void ezCurve1DAssetDocumentManager::InternalGetSupportedDocumentTypes(
-    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezCurve1DAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_AssetDesc);
 }

@@ -43,16 +43,12 @@ void ezSoundEventAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMa
   }
 }
 
-ezStatus ezSoundEventAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath,
-                                                                  bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezSoundEventAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezSoundEventAssetDocument(szPath);
-
-  return ezStatus(EZ_SUCCESS);
 }
 
-void ezSoundEventAssetDocumentManager::InternalGetSupportedDocumentTypes(
-    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezSoundEventAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_AssetDesc);
 }

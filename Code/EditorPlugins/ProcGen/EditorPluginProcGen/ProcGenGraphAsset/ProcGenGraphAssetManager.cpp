@@ -31,8 +31,7 @@ ezProcGenGraphAssetDocumentManager::~ezProcGenGraphAssetDocumentManager()
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezProcGenGraphAssetDocumentManager::OnDocumentManagerEvent, this));
 }
 
-ezBitflags<ezAssetDocumentFlags> ezProcGenGraphAssetDocumentManager::GetAssetDocumentTypeFlags(
-  const ezDocumentTypeDescriptor* pDescriptor) const
+ezBitflags<ezAssetDocumentFlags> ezProcGenGraphAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
 {
   return ezAssetDocumentFlags::AutoTransformOnSave;
 }
@@ -52,16 +51,12 @@ void ezProcGenGraphAssetDocumentManager::OnDocumentManagerEvent(const ezDocument
   }
 }
 
-ezStatus ezProcGenGraphAssetDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezProcGenGraphAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezProcGenGraphAssetDocument(szPath);
-
-  return ezStatus(EZ_SUCCESS);
 }
 
-void ezProcGenGraphAssetDocumentManager::InternalGetSupportedDocumentTypes(
-  ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezProcGenGraphAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_AssetDesc);
 }

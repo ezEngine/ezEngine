@@ -52,16 +52,12 @@ void ezPropertyAnimAssetDocumentManager::OnDocumentManagerEvent(const ezDocument
   }
 }
 
-ezStatus ezPropertyAnimAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath,
-                                                                    bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezPropertyAnimAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezPropertyAnimAssetDocument(szPath);
-
-  return ezStatus(EZ_SUCCESS);
 }
 
-void ezPropertyAnimAssetDocumentManager::InternalGetSupportedDocumentTypes(
-    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezPropertyAnimAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_AssetDesc);
 }

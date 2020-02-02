@@ -120,16 +120,12 @@ void ezMeshAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager:
   }
 }
 
-ezStatus ezMeshAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument,
-                                                            ezDocument*& out_pDocument)
+void ezMeshAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezMeshAssetDocument(szPath);
-
-  return ezStatus(EZ_SUCCESS);
 }
 
-void ezMeshAssetDocumentManager::InternalGetSupportedDocumentTypes(
-    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezMeshAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_AssetDesc);
 }

@@ -99,8 +99,7 @@ void ezTextureAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManag
   }
 }
 
-ezStatus ezTextureAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument,
-                                                               ezDocument*& out_pDocument)
+void ezTextureAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   ezTextureAssetDocument* pDoc = new ezTextureAssetDocument(szPath);
   out_pDocument = pDoc;
@@ -109,12 +108,9 @@ ezStatus ezTextureAssetDocumentManager::InternalCreateDocument(const char* szDoc
   {
     pDoc->m_bIsRenderTarget = true;
   }
-
-  return ezStatus(EZ_SUCCESS);
 }
 
-void ezTextureAssetDocumentManager::InternalGetSupportedDocumentTypes(
-    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezTextureAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_AssetDesc);
   inout_DocumentTypes.PushBack(&m_AssetDescRT);

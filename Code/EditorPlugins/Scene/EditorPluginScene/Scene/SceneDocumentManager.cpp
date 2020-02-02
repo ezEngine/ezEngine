@@ -53,11 +53,8 @@ ezBitflags<ezAssetDocumentFlags> ezSceneDocumentManager::GetAssetDocumentTypeFla
   }
 }
 
-ezStatus ezSceneDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument,
-                                                        ezDocument*& out_pDocument)
+void ezSceneDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
-  ezStatus status;
-
   if (ezStringUtils::IsEqual(szDocumentTypeName, "Scene"))
   {
     out_pDocument = new ezSceneDocument(szPath, false);
@@ -71,18 +68,6 @@ ezStatus ezSceneDocumentManager::InternalCreateDocument(const char* szDocumentTy
   {
     out_pDocument = new ezSceneDocument(szPath, true);
   }
-  else
-  {
-    status.m_sMessage = "Unknown Document Type";
-  }
-
-  if (out_pDocument)
-  {
-    status.m_Result = EZ_SUCCESS;
-    // out_pDocument->SetFilePath(szPath);
-  }
-
-  return status;
 }
 
 void ezSceneDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const

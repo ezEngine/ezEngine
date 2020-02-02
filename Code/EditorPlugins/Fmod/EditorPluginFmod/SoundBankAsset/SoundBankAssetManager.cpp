@@ -252,16 +252,12 @@ void ezSoundBankAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMan
   }
 }
 
-ezStatus ezSoundBankAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath,
-                                                                 bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezSoundBankAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezSoundBankAssetDocument(szPath);
-
-  return ezStatus(EZ_SUCCESS);
 }
 
-void ezSoundBankAssetDocumentManager::InternalGetSupportedDocumentTypes(
-    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezSoundBankAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_AssetDesc);
 }

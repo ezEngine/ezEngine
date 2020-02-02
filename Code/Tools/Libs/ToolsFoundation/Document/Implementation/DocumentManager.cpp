@@ -2,12 +2,12 @@
 
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Configuration/SubSystem.h>
-#include <Foundation/Profiling/Profiling.h>
-#include <ToolsFoundation/Document/DocumentManager.h>
-#include <Foundation/IO/OSFile.h>
-#include <Foundation/Serialization/RttiConverter.h>
-#include <Foundation/Serialization/DdlSerializer.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
+#include <Foundation/IO/OSFile.h>
+#include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Serialization/DdlSerializer.h>
+#include <Foundation/Serialization/RttiConverter.h>
+#include <ToolsFoundation/Document/DocumentManager.h>
 #include <ToolsFoundation/Document/DocumentUtils.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 
@@ -159,7 +159,7 @@ ezStatus ezDocumentManager::CanOpenDocument(const char* szFilePath) const
   {
     if (DocumentTypes[i]->m_sFileExtension.IsEqual_NoCase(sExt))
     {
-      return InternalCanOpenDocument(DocumentTypes[i]->m_sDocumentTypeName, szFilePath);
+      return ezStatus(EZ_SUCCESS);
     }
   }
 
@@ -187,8 +187,8 @@ void ezDocumentManager::EnsureWindowRequested(ezDocument* pDocument, const ezDoc
 }
 
 ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDocumentTypeName, const char* szPath,
-                                                 ezDocument*& out_pDocument, ezBitflags<ezDocumentFlags> flags,
-                                                 const ezDocumentObject* pOpenContext /*= nullptr*/)
+  ezDocument*& out_pDocument, ezBitflags<ezDocumentFlags> flags,
+  const ezDocumentObject* pOpenContext /*= nullptr*/)
 {
   ezFileStats fs;
   ezStringBuilder sPath = szPath;
@@ -240,7 +240,7 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
           {
             status = OpenDocument(szDocumentTypeName, sPath, out_pDocument, flags, pOpenContext);
 
-            if(status.Failed())
+            if (status.Failed())
             {
               ezLog::SeriousWarning("Couldn't open cloned template document, proceeding with normal creation behavior.");
             }
@@ -260,9 +260,8 @@ ezStatus ezDocumentManager::CreateOrOpenDocument(bool bCreate, const char* szDoc
 
       {
         EZ_PROFILE_SCOPE(szDocumentTypeName);
-        status = InternalCreateDocument(szDocumentTypeName, sPath, bCreate, out_pDocument);
-        EZ_ASSERT_DEV(status.m_Result == EZ_FAILURE || out_pDocument != nullptr,
-                      "Status was success, but the document manager returned a nullptr document.");
+        status = ezStatus(EZ_SUCCESS);
+        InternalCreateDocument(szDocumentTypeName, sPath, bCreate, out_pDocument);
       }
       out_pDocument->SetAddToResetFilesList(flags.IsSet(ezDocumentFlags::AddToRecentFilesList));
 
@@ -520,7 +519,7 @@ const ezDynamicArray<const ezDocumentTypeDescriptor*>& ezDocumentManager::GetAll
     }
 
     s_AllDocumentDescriptors.Sort(
-        [](const auto& a, const auto& b) -> bool { return a->m_sDocumentTypeName.Compare_NoCase(b->m_sDocumentTypeName) < 0; });
+      [](const auto& a, const auto& b) -> bool { return a->m_sDocumentTypeName.Compare_NoCase(b->m_sDocumentTypeName) < 0; });
   }
 
   return s_AllDocumentDescriptors;

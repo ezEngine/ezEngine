@@ -53,16 +53,12 @@ void ezSkeletonAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMana
   }
 }
 
-ezStatus ezSkeletonAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument,
-                                                                ezDocument*& out_pDocument)
+void ezSkeletonAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezSkeletonAssetDocument(szPath);
-
-  return ezStatus(EZ_SUCCESS);
 }
 
-void ezSkeletonAssetDocumentManager::InternalGetSupportedDocumentTypes(
-    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezSkeletonAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_AssetDesc);
 }

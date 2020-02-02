@@ -73,11 +73,9 @@ void ezTypeScriptAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMa
   }
 }
 
-ezStatus ezTypeScriptAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezTypeScriptAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezTypeScriptAssetDocument(szPath);
-
-  return ezStatus(EZ_SUCCESS);
 }
 
 void ezTypeScriptAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const

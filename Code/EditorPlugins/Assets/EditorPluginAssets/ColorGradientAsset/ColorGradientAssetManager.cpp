@@ -48,16 +48,12 @@ void ezColorGradientAssetDocumentManager::OnDocumentManagerEvent(const ezDocumen
   }
 }
 
-ezStatus ezColorGradientAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath,
-                                                                     bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezColorGradientAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezColorGradientAssetDocument(szPath);
-
-  return ezStatus(EZ_SUCCESS);
 }
 
-void ezColorGradientAssetDocumentManager::InternalGetSupportedDocumentTypes(
-    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezColorGradientAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_AssetDesc);
 }

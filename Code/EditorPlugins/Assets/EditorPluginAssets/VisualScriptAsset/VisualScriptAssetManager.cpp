@@ -53,16 +53,12 @@ void ezVisualScriptAssetManager::OnDocumentManagerEvent(const ezDocumentManager:
   }
 }
 
-ezStatus ezVisualScriptAssetManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument,
-                                                            ezDocument*& out_pDocument)
+void ezVisualScriptAssetManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezVisualScriptAssetDocument(szPath);
-
-  return ezStatus(EZ_SUCCESS);
 }
 
-void ezVisualScriptAssetManager::InternalGetSupportedDocumentTypes(
-    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezVisualScriptAssetManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_AssetDesc);
 }

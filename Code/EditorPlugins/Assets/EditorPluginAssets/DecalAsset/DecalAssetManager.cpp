@@ -80,16 +80,12 @@ void ezDecalAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager
   }
 }
 
-ezStatus ezDecalAssetDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezDecalAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezDecalAssetDocument(szPath);
-
-  return ezStatus(EZ_SUCCESS);
 }
 
-void ezDecalAssetDocumentManager::InternalGetSupportedDocumentTypes(
-  ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezDecalAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_AssetDesc);
 }

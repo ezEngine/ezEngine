@@ -51,16 +51,12 @@ void ezParticleEffectAssetDocumentManager::OnDocumentManagerEvent(const ezDocume
   }
 }
 
-ezStatus ezParticleEffectAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath,
-                                                                      bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezParticleEffectAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezParticleEffectAssetDocument(szPath);
-
-  return ezStatus(EZ_SUCCESS);
 }
 
-void ezParticleEffectAssetDocumentManager::InternalGetSupportedDocumentTypes(
-    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezParticleEffectAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_AssetDesc);
 }
