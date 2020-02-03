@@ -10,6 +10,7 @@ struct ezShaderPermutationBinaryVersion
     Version2 = 2,
     Version3 = 3,
     Version4 = 4,
+    Version5 = 5,
 
     // Increase this version number to trigger shader recompilation
 

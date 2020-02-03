@@ -20,11 +20,13 @@ ezUltralightHTMLAssetDocumentManager::ezUltralightHTMLAssetDocumentManager()
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezUltralightHTMLAssetDocumentManager::OnDocumentManagerEvent, this));
 
   m_AssetDesc.m_bCanCreate = true;
-  m_AssetDesc.m_sDocumentTypeName = "HTML Texture Asset";
+  m_AssetDesc.m_sDocumentTypeName = "HTML Texture";
   m_AssetDesc.m_sFileExtension = "ezUltralightHTMLAsset";
   m_AssetDesc.m_sIcon = ":/AssetIcons/HTML_Page.png";
   m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezUltralightHTMLAssetDocument>();
   m_AssetDesc.m_pManager = this;
+
+  m_AssetDesc.m_sResourceFileExtension = "ezUltralightHTML";
 
   ezQtImageCache::GetSingleton()->RegisterTypeImage("HTML Texture", QPixmap(":/AssetIcons/HTML_Page.png"));
 }
@@ -49,12 +51,10 @@ void ezUltralightHTMLAssetDocumentManager::OnDocumentManagerEvent(const ezDocume
   }
 }
 
-ezStatus ezUltralightHTMLAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath,
+void ezUltralightHTMLAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath,
                                                                  bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezUltralightHTMLAssetDocument(szPath);
-
-  return ezStatus(EZ_SUCCESS);
 }
 
 void ezUltralightHTMLAssetDocumentManager::InternalGetSupportedDocumentTypes(

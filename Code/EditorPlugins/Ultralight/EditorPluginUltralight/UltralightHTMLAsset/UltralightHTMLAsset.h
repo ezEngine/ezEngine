@@ -25,10 +25,6 @@ class ezUltralightHTMLAssetDocument : public ezSimpleAssetDocument<ezUltralightH
 public:
   ezUltralightHTMLAssetDocument(const char* szDocumentPath);
 
-  virtual const char* GetDocumentTypeDisplayString() const override { return "Ultralight HTML Asset"; }
-
-  virtual const char* QueryAssetType() const override { return "HTML Texture"; }
-
 protected:
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
