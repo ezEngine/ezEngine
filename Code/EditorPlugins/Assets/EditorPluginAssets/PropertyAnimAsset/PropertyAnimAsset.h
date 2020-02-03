@@ -67,7 +67,6 @@ public:
   ezPropertyAnimAssetDocument(const char* szDocumentPath);
   ~ezPropertyAnimAssetDocument();
 
-  virtual const char* QueryAssetType() const override { return "PropertyAnim"; }
   virtual ezObjectAccessorBase* GetObjectAccessor() const override;
 
   void SetAnimationDurationTicks(ezUInt64 uiNumTicks);

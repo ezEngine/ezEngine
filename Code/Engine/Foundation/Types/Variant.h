@@ -346,6 +346,8 @@ private:
 
 using ezVariantType = ezVariant::Type;
 
+EZ_DEFINE_AS_POD_TYPE(ezVariant::Type::Enum);
+
 /// \brief An overload of ezDynamicCast for dynamic casting a variant to a type derived from ezReflectedClass.
 ///
 /// If the ezVariant stores an ezReflectedClass pointer, this pointer will be dynamicly cast to T*.

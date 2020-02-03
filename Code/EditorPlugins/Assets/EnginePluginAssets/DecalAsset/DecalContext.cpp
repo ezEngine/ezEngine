@@ -14,7 +14,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalContext, 1, ezRTTIDefaultAllocator<ezDeca
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Decal Asset"),
+    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Decal"),
   }
   EZ_END_PROPERTIES;
 }

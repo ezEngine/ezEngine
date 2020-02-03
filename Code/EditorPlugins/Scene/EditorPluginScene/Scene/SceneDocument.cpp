@@ -93,15 +93,6 @@ ezSceneDocument::~ezSceneDocument()
   m_ObjectMirror.DeInit();
 }
 
-
-const char* ezSceneDocument::GetDocumentTypeDisplayString() const
-{
-  if (m_bIsPrefab)
-    return "Prefab";
-
-  return "Scene";
-}
-
 void ezSceneDocument::GroupSelection()
 {
   const auto& sel = GetSelectionManager()->GetTopLevelSelection(ezGetStaticRTTI<ezGameObject>());
@@ -1181,14 +1172,6 @@ ezStatus ezSceneDocument::RequestExportScene(const char* szTargetFile, const ezA
   SendGameWorldToEngine();
 
   return status;
-}
-
-const char* ezSceneDocument::QueryAssetType() const
-{
-  if (m_bIsPrefab)
-    return "Prefab";
-
-  return "Scene";
 }
 
 void ezSceneDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const

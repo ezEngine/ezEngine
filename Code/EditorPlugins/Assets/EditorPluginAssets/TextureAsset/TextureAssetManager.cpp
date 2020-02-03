@@ -35,19 +35,21 @@ ezTextureAssetDocumentManager::ezTextureAssetDocumentManager()
   ezAssetFileExtensionWhitelist::AddAssetFileExtension("Image2D", "dds");
   ezAssetFileExtensionWhitelist::AddAssetFileExtension("Image2D", "tga");
 
-  m_AssetDesc.m_bCanCreate = true;
-  m_AssetDesc.m_sDocumentTypeName = "Texture Asset";
-  m_AssetDesc.m_sFileExtension = "ezTextureAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/Texture_2D.png";
-  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezTextureAssetDocument>();
-  m_AssetDesc.m_pManager = this;
+  m_DocTypeDesc.m_sDocumentTypeName = "Texture 2D";
+  m_DocTypeDesc.m_sFileExtension = "ezTextureAsset";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Texture_2D.png";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezTextureAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
+  m_DocTypeDesc.m_sResourceFileExtension = "ezTexture2D";
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoThumbnailOnTransform;
 
-  m_AssetDescRT.m_bCanCreate = true;
-  m_AssetDescRT.m_sDocumentTypeName = "Render Target Asset";
-  m_AssetDescRT.m_sFileExtension = "ezRenderTargetAsset";
-  m_AssetDescRT.m_sIcon = ":/AssetIcons/Render_Target.png";
-  m_AssetDescRT.m_pDocumentType = ezGetStaticRTTI<ezTextureAssetDocument>();
-  m_AssetDescRT.m_pManager = this;
+  m_DocTypeDesc2.m_sDocumentTypeName = "Render Target";
+  m_DocTypeDesc2.m_sFileExtension = "ezRenderTargetAsset";
+  m_DocTypeDesc2.m_sIcon = ":/AssetIcons/Render_Target.png";
+  m_DocTypeDesc2.m_pDocumentType = ezGetStaticRTTI<ezTextureAssetDocument>();
+  m_DocTypeDesc2.m_pManager = this;
+  m_DocTypeDesc2.m_sResourceFileExtension = "ezRenderTarget";
+  m_DocTypeDesc2.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
 
   ezQtImageCache::GetSingleton()->RegisterTypeImage("Render Target", QPixmap(":/AssetIcons/Render_Target.png"));
 }
@@ -57,31 +59,9 @@ ezTextureAssetDocumentManager::~ezTextureAssetDocumentManager()
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezTextureAssetDocumentManager::OnDocumentManagerEvent, this));
 }
 
-ezString ezTextureAssetDocumentManager::GetResourceTypeExtension(const char* szDocumentPath) const
-{
-  const ezStringView extension = ezPathUtils::GetFileExtension(szDocumentPath);
-
-  if (extension == "ezRenderTargetAsset")
-    return "ezRenderTarget";
-
-  return "ezTexture2D";
-}
-
 ezUInt64 ezTextureAssetDocumentManager::ComputeAssetProfileHashImpl(const ezPlatformProfile* pAssetProfile) const
 {
   return pAssetProfile->GetTypeConfig<ezTextureAssetProfileConfig>()->m_uiMaxResolution;
-}
-
-ezBitflags<ezAssetDocumentFlags> ezTextureAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
-{
-  if (pDescriptor->m_sDocumentTypeName == "Render Target Asset")
-  {
-    return ezAssetDocumentFlags::AutoTransformOnSave;
-  }
-  else // Texture 2D
-  {
-    return ezAssetDocumentFlags::AutoThumbnailOnTransform;
-  }
 }
 
 void ezTextureAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
@@ -99,23 +79,19 @@ void ezTextureAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManag
   }
 }
 
-ezStatus ezTextureAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument,
-                                                               ezDocument*& out_pDocument)
+void ezTextureAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   ezTextureAssetDocument* pDoc = new ezTextureAssetDocument(szPath);
   out_pDocument = pDoc;
 
-  if (ezStringUtils::IsEqual(szDocumentTypeName, "Render Target Asset"))
+  if (ezStringUtils::IsEqual(szDocumentTypeName, "Render Target"))
   {
     pDoc->m_bIsRenderTarget = true;
   }
-
-  return ezStatus(EZ_SUCCESS);
 }
 
-void ezTextureAssetDocumentManager::InternalGetSupportedDocumentTypes(
-    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezTextureAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_AssetDesc);
-  inout_DocumentTypes.PushBack(&m_AssetDescRT);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc2);
 }

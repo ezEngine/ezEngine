@@ -45,6 +45,7 @@ export import GameObjectDesc = __World.GameObjectDesc;
 
 import __Message = require("TypeScript/ez/Message")
 export import Message = __Message.Message;
+//export import EventMessage = __Message.EventMessage; // not supported yet, to write custom TS event messages
 
 import __Debug = require("TypeScript/ez/Debug")
 export import Debug = __Debug.Debug;

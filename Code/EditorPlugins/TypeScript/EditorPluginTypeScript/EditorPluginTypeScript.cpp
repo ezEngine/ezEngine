@@ -22,7 +22,7 @@ void OnLoadPlugin(bool bReloading)
 
   ezTypeScriptActions::RegisterActions();
 
-  // TypeScript Asset
+  // TypeScript
   {
     // Menu Bar
     {

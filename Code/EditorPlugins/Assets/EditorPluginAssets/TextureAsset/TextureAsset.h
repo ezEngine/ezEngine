@@ -31,11 +31,6 @@ class ezTextureAssetDocument : public ezSimpleAssetDocument<ezTextureAssetProper
 public:
   ezTextureAssetDocument(const char* szDocumentPath);
 
-  /// \brief Overridden, because QueryAssetType() doesn't return a constant here
-  virtual const char* GetDocumentTypeDisplayString() const override { return "Texture Asset"; }
-
-  virtual const char* QueryAssetType() const override;
-
   // for previewing purposes
   ezEnum<ezTextureChannelMode> m_ChannelMode;
   ezInt32 m_iTextureLod; // -1 == regular sampling, >= 0 == sample that level
@@ -49,7 +44,7 @@ protected:
   ezStatus RunTexConv(const char* szTargetFile, const ezAssetFileHeader& AssetHeader, bool bUpdateThumbnail,
                       const ezTextureAssetProfileConfig* pAssetConfig);
 
-
+  virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
 };
 
 //////////////////////////////////////////////////////////////////////////

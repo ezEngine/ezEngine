@@ -237,3 +237,6 @@ ezInstancedMeshComponent;Instanced Mesh
 ezMarkerComponent;Marker Component
 ezRaycastComponent;Raycast Placement Component
 ezBeamComponent;Beam Component
+ezMoveToComponent;Move To
+ezDeviceTrackingComponent;Device Tracking
+ezStageSpaceComponent;Stage Space

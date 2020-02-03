@@ -24,11 +24,6 @@ ezTypeScriptAssetDocument::ezTypeScriptAssetDocument(const char* szDocumentPath)
 {
 }
 
-const char* ezTypeScriptAssetDocument::QueryAssetType() const
-{
-  return "TypeScript";
-}
-
 void ezTypeScriptAssetDocument::EditScript()
 {
   ezStringBuilder sTsPath(GetProperties()->m_sScriptFile);

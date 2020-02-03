@@ -34,9 +34,9 @@ ezString ezAssetDragDropHandler::GetAssetGuidString(const ezDragDropInfo* pInfo)
   return sGuid.toUtf8().data();
 }
 
-ezString ezAssetDragDropHandler::GetAssetTypeName(const ezUuid& assetTypeGuid) const
+ezString ezAssetDragDropHandler::GetAssetsDocumentTypeName(const ezUuid& assetTypeGuid) const
 {
-  return ezAssetCurator::GetSingleton()->GetSubAsset(assetTypeGuid)->m_Data.m_sAssetTypeName.GetData();
+  return ezAssetCurator::GetSingleton()->GetSubAsset(assetTypeGuid)->m_Data.m_sSubAssetsDocumentTypeName.GetData();
 }
 
 bool ezAssetDragDropHandler::IsSpecificAssetType(const ezDragDropInfo* pInfo, const char* szType) const
@@ -46,5 +46,5 @@ bool ezAssetDragDropHandler::IsSpecificAssetType(const ezDragDropInfo* pInfo, co
 
   const ezUuid guid = GetAssetGuid(pInfo);
 
-  return GetAssetTypeName(guid) == szType;
+  return GetAssetsDocumentTypeName(guid) == szType;
 }

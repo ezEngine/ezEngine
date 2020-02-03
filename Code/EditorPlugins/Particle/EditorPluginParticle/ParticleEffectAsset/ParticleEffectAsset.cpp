@@ -8,6 +8,8 @@
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <GuiFoundation/PropertyGrid/VisualizerManager.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior_ColorGradient.h>
+#include <ParticlePlugin/Effect/ParticleEffectDescriptor.h>
+#include <ParticlePlugin/System/ParticleSystemDescriptor.h>
 #include <ParticlePlugin/Type/Quad/ParticleTypeQuad.h>
 #include <ParticlePlugin/Type/Trail/ParticleTypeTrail.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
@@ -19,7 +21,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezParticleEffectAssetDocument::ezParticleEffectAssetDocument(const char* szDocumentPath)
-    : ezSimpleAssetDocument<ezParticleEffectDescriptor>(szDocumentPath, ezAssetDocEngineConnection::Simple)
+  : ezSimpleAssetDocument<ezParticleEffectDescriptor>(szDocumentPath, ezAssetDocEngineConnection::Simple)
 {
   ezVisualizerManager::GetSingleton()->SetVisualizersActive(this, m_bRenderVisualizers);
 }
@@ -47,13 +49,11 @@ void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMeta
     props["DistortionTexture"].m_Visibility = ezPropertyUiState::Invisible;
     props["DistortionStrength"].m_Visibility = ezPropertyUiState::Invisible;
     props["ParticleStretch"].m_Visibility =
-        (orientation == ezQuadParticleOrientation::FixedAxis_EmitterDir || orientation == ezQuadParticleOrientation::FixedAxis_ParticleDir)
-            ? ezPropertyUiState::Default
-            : ezPropertyUiState::Invisible;
-    props["NumSpritesX"].m_Visibility =
-        (textureAtlas == (int)ezParticleTextureAtlasType::None) ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
-    props["NumSpritesY"].m_Visibility =
-        (textureAtlas == (int)ezParticleTextureAtlasType::None) ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
+      (orientation == ezQuadParticleOrientation::FixedAxis_EmitterDir || orientation == ezQuadParticleOrientation::FixedAxis_ParticleDir)
+        ? ezPropertyUiState::Default
+        : ezPropertyUiState::Invisible;
+    props["NumSpritesX"].m_Visibility = (textureAtlas == (int)ezParticleTextureAtlasType::None) ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
+    props["NumSpritesY"].m_Visibility = (textureAtlas == (int)ezParticleTextureAtlasType::None) ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
 
 
     if (orientation == ezQuadParticleOrientation::Fixed_EmitterDir || orientation == ezQuadParticleOrientation::Fixed_WorldUp)
@@ -76,10 +76,8 @@ void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMeta
 
     // props["DistortionTexture"].m_Visibility = ezPropertyUiState::Invisible;
     // props["DistortionStrength"].m_Visibility = ezPropertyUiState::Invisible;
-    props["NumSpritesX"].m_Visibility =
-        (textureAtlas == (int)ezParticleTextureAtlasType::None) ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
-    props["NumSpritesY"].m_Visibility =
-        (textureAtlas == (int)ezParticleTextureAtlasType::None) ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
+    props["NumSpritesX"].m_Visibility = (textureAtlas == (int)ezParticleTextureAtlasType::None) ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
+    props["NumSpritesY"].m_Visibility = (textureAtlas == (int)ezParticleTextureAtlasType::None) ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
 
     // if (renderMode == ezParticleTypeRenderMode::Distortion)
     //{
@@ -94,7 +92,7 @@ void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMeta
     ezInt64 mode = e.m_pObject->GetTypeAccessor().GetValue("ColorGradientMode").ConvertTo<ezInt64>();
 
     props["GradientMaxSpeed"].m_Visibility =
-        (mode == ezParticleColorGradientMode::Speed) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+      (mode == ezParticleColorGradientMode::Speed) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
   }
 }
 
@@ -191,32 +189,47 @@ void ezParticleEffectAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo*
 
   auto* desc = GetProperties();
 
+  for (const auto& system : desc->GetParticleSystems())
+  {
+    for (const auto& type : system->GetTypeFactories())
+    {
+      if (auto* pType = ezDynamicCast<ezParticleTypeQuadFactory*>(type))
+      {
+        if (pType->m_RenderMode != ezParticleTypeRenderMode::Distortion)
+        {
+          // remove unused dependencies
+          pInfo->m_AssetTransformDependencies.Remove(pType->m_sDistortionTexture);
+        }
+      }
+    }
+  }
+
   // shared effects do not support parameters
-  if (desc->m_bAlwaysShared)
-    return;
-
-  ezExposedParameters* pExposedParams = EZ_DEFAULT_NEW(ezExposedParameters);
-  for (auto it = desc->m_FloatParameters.GetIterator(); it.IsValid(); ++it)
+  if (!desc->m_bAlwaysShared)
   {
-    ezExposedParameter* param = EZ_DEFAULT_NEW(ezExposedParameter);
-    pExposedParams->m_Parameters.PushBack(param);
-    param->m_sName = it.Key();
-    param->m_DefaultValue = it.Value();
-  }
-  for (auto it = desc->m_ColorParameters.GetIterator(); it.IsValid(); ++it)
-  {
-    ezExposedParameter* param = EZ_DEFAULT_NEW(ezExposedParameter);
-    pExposedParams->m_Parameters.PushBack(param);
-    param->m_sName = it.Key();
-    param->m_DefaultValue = it.Value();
-  }
+    ezExposedParameters* pExposedParams = EZ_DEFAULT_NEW(ezExposedParameters);
+    for (auto it = desc->m_FloatParameters.GetIterator(); it.IsValid(); ++it)
+    {
+      ezExposedParameter* param = EZ_DEFAULT_NEW(ezExposedParameter);
+      pExposedParams->m_Parameters.PushBack(param);
+      param->m_sName = it.Key();
+      param->m_DefaultValue = it.Value();
+    }
+    for (auto it = desc->m_ColorParameters.GetIterator(); it.IsValid(); ++it)
+    {
+      ezExposedParameter* param = EZ_DEFAULT_NEW(ezExposedParameter);
+      pExposedParams->m_Parameters.PushBack(param);
+      param->m_sName = it.Key();
+      param->m_DefaultValue = it.Value();
+    }
 
-  // Info takes ownership of meta data.
-  pInfo->m_MetaInfo.PushBack(pExposedParams);
+    // Info takes ownership of meta data.
+    pInfo->m_MetaInfo.PushBack(pExposedParams);
+  }
 }
 
 ezStatus ezParticleEffectAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-                                                               const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   return WriteParticleEffectAsset(stream, pAssetProfile);
 }

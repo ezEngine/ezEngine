@@ -27,7 +27,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialContext, 1, ezRTTIDefaultAllocator<ezM
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Material Asset"),
+    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Material"),
   }
   EZ_END_PROPERTIES;
 }

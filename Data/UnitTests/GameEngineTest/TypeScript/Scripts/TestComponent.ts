@@ -61,6 +61,28 @@ export class TestComponent extends ez.TypescriptComponent {
             EZ_TEST.INT(mesh.GetUniqueID(), 4294967295);
             EZ_TEST.INT(text.GetUniqueID(), 4294967295);
         }
+
+        // TryGetScriptComponent
+        {
+            let sc = this.GetOwner().TryGetScriptComponent("TestComponent");
+
+            EZ_TEST.BOOL(sc == this);
+        }
+
+        // interact with C++ components
+        {
+            let c = ez.World.CreateComponent(this.GetOwner(), ez.MoveToComponent);
+
+            // execute function
+            c.SetTargetPosition(new ez.Vec3(1, 2, 3));
+
+            // get/set properties
+            c.TranslationSpeed = 23;
+            EZ_TEST.FLOAT(c.TranslationSpeed, 23);
+            
+            c.TranslationSpeed = 17;
+            EZ_TEST.FLOAT(c.TranslationSpeed, 17);
+        }
     }
 
     OnMsgGenericEvent(msg: ez.MsgGenericEvent): void {

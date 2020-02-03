@@ -31,28 +31,24 @@ void ezGameEngineTestTypeScript::SetupSubTests()
   AddSubTest("Mat4", SubTests::Mat4);
   AddSubTest("Transform", SubTests::Transform);
   AddSubTest("Color", SubTests::Color);
+  AddSubTest("Debug", SubTests::Debug);
   AddSubTest("GameObject", SubTests::GameObject);
   AddSubTest("Component", SubTests::Component);
+  AddSubTest("Lifetime", SubTests::Lifetime);
+  AddSubTest("Messaging", SubTests::Messaging);
+  AddSubTest("World", SubTests::World);
+  AddSubTest("Utils", SubTests::Utils);
 }
 
 ezResult ezGameEngineTestTypeScript::InitializeSubTest(ezInt32 iIdentifier)
 {
-  if (iIdentifier >= SubTests::Vec2 && iIdentifier <= SubTests::Component)
-  {
-    m_pOwnApplication->SubTestBasicsSetup();
-    return EZ_SUCCESS;
-  }
-
-  return EZ_FAILURE;
+  m_pOwnApplication->SubTestBasicsSetup();
+  return EZ_SUCCESS;
 }
 
 ezTestAppRun ezGameEngineTestTypeScript::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
 {
-  if (iIdentifier >= SubTests::Vec2 && iIdentifier <= SubTests::Component)
-    return m_pOwnApplication->SubTestBasisExec(iIdentifier);
-
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return ezTestAppRun::Quit;
+  return m_pOwnApplication->SubTestBasisExec(GetSubTestName(iIdentifier));
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -88,7 +84,7 @@ void ezGameEngineTestApplication_TypeScript::SubTestBasicsSetup()
   pMan->GetTsBinding().GetDukTapeContext().RegisterGlobalFunction("ezTestFailure", Duk_TestFailure, 4);
 }
 
-ezTestAppRun ezGameEngineTestApplication_TypeScript::SubTestBasisExec(ezInt32 iIdentifier)
+ezTestAppRun ezGameEngineTestApplication_TypeScript::SubTestBasisExec(const char* szSubTestName)
 {
   if (Run() == ezApplication::Quit)
     return ezTestAppRun::Quit;
@@ -102,22 +98,14 @@ ezTestAppRun ezGameEngineTestApplication_TypeScript::SubTestBasisExec(ezInt32 iI
     return ezTestAppRun::Quit;
   }
 
-  const char* szMsg[] =
-    {
-      "TestVec2",
-      "TestVec3",
-      "TestQuat",
-      "TestMat3",
-      "TestMat4",
-      "TestTransform",
-      "TestColor",
-      "TestGameObject",
-      "TestComponent",
-    };
+  const ezStringBuilder sMsg("Test", szSubTestName);
 
   ezMsgGenericEvent msg;
-  msg.m_sMessage = szMsg[iIdentifier];
+  msg.m_sMessage = sMsg;
   pTests->SendMessageRecursive(msg);
+
+  if (msg.m_sMessage == "repeat")
+    return ezTestAppRun::Continue;
 
   EZ_TEST_STRING(msg.m_sMessage, "done");
 

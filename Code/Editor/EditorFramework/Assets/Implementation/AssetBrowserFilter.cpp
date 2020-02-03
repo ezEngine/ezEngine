@@ -134,7 +134,7 @@ bool ezQtAssetBrowserFilter::IsAssetFiltered(const ezSubAsset* pInfo) const
 
   if (!m_sTypeFilter.IsEmpty())
   {
-    m_sTemp.Set(";", pInfo->m_Data.m_sAssetTypeName, ";");
+    m_sTemp.Set(";", pInfo->m_Data.m_sSubAssetsDocumentTypeName, ";");
 
     if (!m_sTypeFilter.FindSubString(m_sTemp))
       return true;

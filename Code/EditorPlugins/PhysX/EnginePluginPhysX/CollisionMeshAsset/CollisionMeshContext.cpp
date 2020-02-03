@@ -28,7 +28,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollisionMeshContext, 1, ezRTTIDefaultAllocato
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Collision Mesh Asset;Collision Mesh Asset (Convex)"),
+    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Collision Mesh;Collision Mesh (Convex)"),
   }
   EZ_END_PROPERTIES;
 }

@@ -6,6 +6,7 @@
 #include <EditorPluginTypeScript/TypeScriptAsset/TypeScriptAsset.h>
 #include <EditorPluginTypeScript/TypeScriptAsset/TypeScriptAssetManager.h>
 #include <EditorPluginTypeScript/TypeScriptAsset/TypeScriptAssetWindow.moc.h>
+#include <Foundation/Containers/ArrayMap.h>
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
@@ -18,7 +19,6 @@
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <TypeScriptPlugin/Resources/ScriptCompendiumResource.h>
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
-#include <Foundation/Containers/ArrayMap.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTypeScriptAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezTypeScriptAssetDocumentManager>)
@@ -29,12 +29,14 @@ ezTypeScriptAssetDocumentManager::ezTypeScriptAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezTypeScriptAssetDocumentManager::OnDocumentManagerEvent, this));
 
-  m_AssetDesc.m_bCanCreate = true;
-  m_AssetDesc.m_sDocumentTypeName = "TypeScript Asset";
-  m_AssetDesc.m_sFileExtension = "ezTypeScriptAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/TypeScript.png";
-  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezTypeScriptAssetDocument>();
-  m_AssetDesc.m_pManager = this;
+  m_DocTypeDesc.m_sDocumentTypeName = "TypeScript";
+  m_DocTypeDesc.m_sFileExtension = "ezTypeScriptAsset";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/TypeScript.png";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezTypeScriptAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
+
+  m_DocTypeDesc.m_sResourceFileExtension = "ezTypeScriptRes";
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::None;
 
   ezQtImageCache::GetSingleton()->RegisterTypeImage("TypeScript", QPixmap(":/AssetIcons/TypeScript.png"));
 
@@ -73,23 +75,14 @@ void ezTypeScriptAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMa
   }
 }
 
-ezStatus ezTypeScriptAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezTypeScriptAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezTypeScriptAssetDocument(szPath);
-
-  return ezStatus(EZ_SUCCESS);
 }
 
 void ezTypeScriptAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_AssetDesc);
-}
-
-ezBitflags<ezAssetDocumentFlags>
-ezTypeScriptAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
-{
-  EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
-  return ezAssetDocumentFlags::None;
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }
 
 void ezTypeScriptAssetDocumentManager::ToolsProjectEventHandler(const ezToolsProjectEvent& e)
@@ -231,6 +224,29 @@ ezResult ezTypeScriptAssetDocumentManager::GenerateScriptCompendium(ezBitflags<e
 {
   EZ_LOG_BLOCK("Generating Script Compendium");
 
+  ezHybridArray<ezAssetInfo*, 256> allTsAssets;
+
+  // keep this locked until the end of the function
+  ezAssetCurator::ezLockedSubAssetTable AllAssetsLocked = ezAssetCurator::GetSingleton()->GetKnownSubAssets();
+  const ezMap<ezUuid, ezSubAsset>& AllAssets = *AllAssetsLocked;
+
+  for (auto it = AllAssets.GetIterator(); it.IsValid(); ++it)
+  {
+    const ezSubAsset* pSub = &it.Value();
+
+    if (pSub->m_pAssetInfo->GetManager() == this)
+    {
+      allTsAssets.PushBack(pSub->m_pAssetInfo);
+    }
+  }
+
+  if (allTsAssets.IsEmpty())
+  {
+    ezLog::Debug("Skipping script compendium creation - no TypeScript assets in project.");
+    return EZ_SUCCESS;
+  }
+
+
   SetupProjectForTypeScript(false);
 
   // read m_CheckedTsFiles cache
@@ -344,18 +360,10 @@ ezResult ezTypeScriptAssetDocumentManager::GenerateScriptCompendium(ezBitflags<e
   // at runtime this 'path' is not used as an ezResource path/id, as would be common, but is used to look up the information
   // directly from the compendium
   {
-    ezAssetCurator* pCurator = ezAssetCurator::GetSingleton();
-    const auto& allAssets = pCurator->GetKnownSubAssets();
-
-    for (auto it = allAssets->GetIterator(); it.IsValid(); ++it)
+    for (auto pAssetInfo : allTsAssets)
     {
-      const auto& asset = it.Value();
-
-      if (asset.m_pAssetInfo->m_pManager != this)
-        continue;
-
-      const ezString& docPath = asset.m_pAssetInfo->m_sDataDirRelativePath;
-      const ezUuid& docGuid = asset.m_pAssetInfo->m_Info->m_DocumentID;
+      const ezString& docPath = pAssetInfo->m_sDataDirRelativePath;
+      const ezUuid& docGuid = pAssetInfo->m_Info->m_DocumentID;
 
       sFilename = ezPathUtils::GetFileName(docPath);
 

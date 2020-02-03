@@ -184,3 +184,5 @@ ezTexConvUsage::Hdr;HDR
 ezTexConvUsage::NormalMap;Normal Map
 ezTexConvUsage::NormalMap_Inverted; Normal Map (inverted)
 ezTexConvUsage::BumpMap;Bump Map
+ezColorAnimationComponent;Color Animation
+ezJointAttachmentComponent;Joint Attachment

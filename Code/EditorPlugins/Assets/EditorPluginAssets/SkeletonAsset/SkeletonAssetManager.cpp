@@ -14,27 +14,19 @@ ezSkeletonAssetDocumentManager::ezSkeletonAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezSkeletonAssetDocumentManager::OnDocumentManagerEvent, this));
 
-  m_AssetDesc.m_bCanCreate = true;
-  m_AssetDesc.m_sDocumentTypeName = "Skeleton Asset";
-  m_AssetDesc.m_sFileExtension = "ezSkeletonAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/Skeleton.png";
-  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezSkeletonAssetDocument>();
-  m_AssetDesc.m_pManager = this;
+  m_DocTypeDesc.m_sDocumentTypeName = "Skeleton";
+  m_DocTypeDesc.m_sFileExtension = "ezSkeletonAsset";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Skeleton.png";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezSkeletonAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
 
-  // ezQtImageCache::GetSingleton()->RegisterTypeImage("Skeleton", QPixmap(":/AssetIcons/Skeleton.png"));
+  m_DocTypeDesc.m_sResourceFileExtension = "ezSkeleton";
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;
 }
 
 ezSkeletonAssetDocumentManager::~ezSkeletonAssetDocumentManager()
 {
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSkeletonAssetDocumentManager::OnDocumentManagerEvent, this));
-}
-
-
-ezBitflags<ezAssetDocumentFlags>
-ezSkeletonAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
-{
-  EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
-  return ezAssetDocumentFlags::SupportsThumbnail;
 }
 
 void ezSkeletonAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
@@ -53,16 +45,12 @@ void ezSkeletonAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMana
   }
 }
 
-ezStatus ezSkeletonAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument,
-                                                                ezDocument*& out_pDocument)
+void ezSkeletonAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezSkeletonAssetDocument(szPath);
-
-  return ezStatus(EZ_SUCCESS);
 }
 
-void ezSkeletonAssetDocumentManager::InternalGetSupportedDocumentTypes(
-    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezSkeletonAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_AssetDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

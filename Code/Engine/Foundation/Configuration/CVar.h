@@ -65,6 +65,7 @@ struct ezCVarEvent
   {
     ValueChanged,        ///< Sent whenever the 'Current' value of the CVar is changed.
     RestartValueChanged, ///< Sent whenever the 'Restart' value of the CVar changes. It might actually change back to the 'Current' value though.
+    ListOfVarsChanged,   ///< A CVar was added or removed dynamically (not just by loading a plugin), some stuff may need to update its state
   };
 
   /// \brief The type of this event.
@@ -175,6 +176,11 @@ public:
   /// \brief Returns the name of the plugin which this CVar is declared in.
   const char* GetPluginName() const { return m_szPluginName; }
 
+  /// \brief Call this after creating or destroying CVars dynamically (not through loading plugins) to allow UIs to update their state.
+  ///
+  /// Broadcasts ezCVarEvent::ListOfVarsChanged.
+  static void ListOfCVarsChanged(const char* szSetPluginNameTo);
+
 protected:
   ezCVar(const char* szName, ezBitflags<ezCVarFlags> Flags, const char* szDescription);
 
@@ -254,4 +260,3 @@ typedef ezTypedCVar<ezHybridString<32>, ezCVarType::String> ezCVarString;
 
 
 #include <Foundation/Configuration/Implementation/CVar_inl.h>
-

@@ -13,15 +13,14 @@ ezVisualScriptAssetManager::ezVisualScriptAssetManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezVisualScriptAssetManager::OnDocumentManagerEvent, this));
 
-  // additional whitelist for non-asset files where an asset may be selected
-  // ezAssetFileExtensionWhitelist::AddAssetFileExtension("Material", "ezMaterial");
+  m_DocTypeDesc.m_sDocumentTypeName = "Visual Script";
+  m_DocTypeDesc.m_sFileExtension = "ezVisualScriptAsset";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Visual_Script.png";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezVisualScriptAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
 
-  m_AssetDesc.m_bCanCreate = true;
-  m_AssetDesc.m_sDocumentTypeName = "Visual Script Asset";
-  m_AssetDesc.m_sFileExtension = "ezVisualScriptAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/Visual_Script.png";
-  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezVisualScriptAssetDocument>();
-  m_AssetDesc.m_pManager = this;
+  m_DocTypeDesc.m_sResourceFileExtension = "ezVisualScriptBin";
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave;
 
   ezQtImageCache::GetSingleton()->RegisterTypeImage("Visual Script", QPixmap(":/AssetIcons/Visual_Script.png"));
 }
@@ -29,13 +28,6 @@ ezVisualScriptAssetManager::ezVisualScriptAssetManager()
 ezVisualScriptAssetManager::~ezVisualScriptAssetManager()
 {
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezVisualScriptAssetManager::OnDocumentManagerEvent, this));
-}
-
-
-ezBitflags<ezAssetDocumentFlags> ezVisualScriptAssetManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
-{
-  EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
-  return ezAssetDocumentFlags::AutoTransformOnSave;
 }
 
 void ezVisualScriptAssetManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
@@ -53,16 +45,12 @@ void ezVisualScriptAssetManager::OnDocumentManagerEvent(const ezDocumentManager:
   }
 }
 
-ezStatus ezVisualScriptAssetManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument,
-                                                            ezDocument*& out_pDocument)
+void ezVisualScriptAssetManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezVisualScriptAssetDocument(szPath);
-
-  return ezStatus(EZ_SUCCESS);
 }
 
-void ezVisualScriptAssetManager::InternalGetSupportedDocumentTypes(
-    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezVisualScriptAssetManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_AssetDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

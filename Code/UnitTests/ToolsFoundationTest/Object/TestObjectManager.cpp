@@ -76,11 +76,6 @@ void ezTestDocument::ApplyNativePropertyChangesToObjectManager(ezDocumentObject*
   m_ObjectMirror.SendDocument();
 }
 
-const char* ezTestDocument::GetDocumentTypeDisplayString() const
-{
-  return "Test";
-}
-
 ezDocumentInfo* ezTestDocument::CreateDocumentInfo()
 {
   return EZ_DEFAULT_NEW(ezDocumentInfo);

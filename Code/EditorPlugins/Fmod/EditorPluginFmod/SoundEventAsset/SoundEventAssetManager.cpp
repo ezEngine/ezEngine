@@ -13,12 +13,15 @@ ezSoundEventAssetDocumentManager::ezSoundEventAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezSoundEventAssetDocumentManager::OnDocumentManagerEvent, this));
 
-  m_AssetDesc.m_bCanCreate = false;
-  m_AssetDesc.m_sDocumentTypeName = "Sound Event Asset";
-  m_AssetDesc.m_sFileExtension = "ezSoundEventAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/Sound_Event.png";
-  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezSoundEventAssetDocument>();
-  m_AssetDesc.m_pManager = this;
+  m_DocTypeDesc.m_bCanCreate = false;
+  m_DocTypeDesc.m_sDocumentTypeName = "Sound Event";
+  m_DocTypeDesc.m_sFileExtension = "ezSoundEventAsset";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Sound_Event.png";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezSoundEventAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
+
+  m_DocTypeDesc.m_sResourceFileExtension = "ezFmodSoundEvent";
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::None;
 
   ezQtImageCache::GetSingleton()->RegisterTypeImage("Sound Event", QPixmap(":/AssetIcons/Sound_Event.png"));
 }
@@ -43,16 +46,12 @@ void ezSoundEventAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMa
   }
 }
 
-ezStatus ezSoundEventAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath,
-                                                                  bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezSoundEventAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezSoundEventAssetDocument(szPath);
-
-  return ezStatus(EZ_SUCCESS);
 }
 
-void ezSoundEventAssetDocumentManager::InternalGetSupportedDocumentTypes(
-    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezSoundEventAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_AssetDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

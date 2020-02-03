@@ -298,8 +298,7 @@ void ezMaterialAssetProperties::LoadOldValues()
 ezString ezMaterialAssetProperties::GetAutoGenShaderPathAbs() const
 {
   ezAssetDocumentManager* pManager = ezDynamicCast<ezAssetDocumentManager*>(m_pDocument->GetDocumentManager());
-  ezString sAbsOutputPath =
-      pManager->GetAbsoluteOutputFileName(m_pDocument->GetDocumentPath(), ezMaterialAssetDocumentManager::s_szShaderOutputTag);
+  ezString sAbsOutputPath = pManager->GetAbsoluteOutputFileName(m_pDocument->GetAssetDocumentTypeDescriptor(), m_pDocument->GetDocumentPath(), ezMaterialAssetDocumentManager::s_szShaderOutputTag);
   return sAbsOutputPath;
 }
 
@@ -333,11 +332,11 @@ ezString ezMaterialAssetProperties::ResolveRelativeShaderPath() const
     auto pAsset = ezAssetCurator::GetSingleton()->GetSubAsset(guid);
     if (pAsset)
     {
-      EZ_ASSERT_DEV(pAsset->m_pAssetInfo->m_pManager == m_pDocument->GetDocumentManager(),
-                    "Referenced shader via guid by this material is not of type material asset (ezMaterialShaderMode::Custom).");
+      EZ_ASSERT_DEV(pAsset->m_pAssetInfo->GetManager() == m_pDocument->GetDocumentManager(), "Referenced shader via guid by this material is not of type material asset (ezMaterialShaderMode::Custom).");
+
       ezStringBuilder sProjectDir = ezAssetCurator::GetSingleton()->FindDataDirectoryForAsset(pAsset->m_pAssetInfo->m_sAbsolutePath);
-      ezStringBuilder sResult = pAsset->m_pAssetInfo->m_pManager->GetRelativeOutputFileName(
-          sProjectDir, pAsset->m_pAssetInfo->m_sAbsolutePath, ezMaterialAssetDocumentManager::s_szShaderOutputTag);
+      ezStringBuilder sResult = pAsset->m_pAssetInfo->GetManager()->GetRelativeOutputFileName(m_pDocument->GetAssetDocumentTypeDescriptor(), sProjectDir, pAsset->m_pAssetInfo->m_sAbsolutePath, ezMaterialAssetDocumentManager::s_szShaderOutputTag);
+
       sResult.Prepend("AssetCache/");
       return sResult;
     }
@@ -358,7 +357,7 @@ ezString ezMaterialAssetProperties::ResolveRelativeShaderPath() const
 //////////////////////////////////////////////////////////////////////////
 
 ezMaterialAssetDocument::ezMaterialAssetDocument(const char* szDocumentPath)
-    : ezSimpleAssetDocument<ezMaterialAssetProperties>(EZ_DEFAULT_NEW(ezMaterialObjectManager), szDocumentPath, ezAssetDocEngineConnection::Simple)
+  : ezSimpleAssetDocument<ezMaterialAssetProperties>(EZ_DEFAULT_NEW(ezMaterialObjectManager), szDocumentPath, ezAssetDocEngineConnection::Simple)
 {
   ezQtEditorApp::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezMaterialAssetDocument::EditorEventHandler, this));
 }
@@ -471,7 +470,7 @@ ezUuid ezMaterialAssetDocument::GetMaterialNodeGuid(const ezAbstractObjectGraph&
 }
 
 void ezMaterialAssetDocument::UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed,
-                                                 const char* szBasePrefab)
+  const char* szBasePrefab)
 {
   // Base
   ezAbstractObjectGraph baseGraph;
@@ -599,7 +598,7 @@ public:
   ezResult m_Status;
 
   ezVisualShaderErrorLog()
-      : m_Status(EZ_SUCCESS)
+    : m_Status(EZ_SUCCESS)
   {
   }
 
@@ -624,8 +623,8 @@ public:
 };
 
 ezStatus ezMaterialAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag,
-                                                         const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader,
-                                                         ezBitflags<ezTransformFlags> transformFlags)
+  const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader,
+  ezBitflags<ezTransformFlags> transformFlags)
 {
   if (ezStringUtils::IsEqual(szOutputTag, ezMaterialAssetDocumentManager::s_szShaderOutputTag))
   {
@@ -690,7 +689,7 @@ ezStatus ezMaterialAssetDocument::InternalTransformAsset(const char* szTargetFil
           else
           {
             e.m_Type =
-                log.m_Status.Succeeded() ? ezMaterialVisualShaderEvent::TransformSucceeded : ezMaterialVisualShaderEvent::TransformFailed;
+              log.m_Status.Succeeded() ? ezMaterialVisualShaderEvent::TransformSucceeded : ezMaterialVisualShaderEvent::TransformFailed;
             e.m_sTransformError = log.m_sResult;
             ezLog::Info("Compiled Visual Shader.");
           }
@@ -718,7 +717,7 @@ ezStatus ezMaterialAssetDocument::InternalTransformAsset(const char* szTargetFil
 }
 
 ezStatus ezMaterialAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag,
-                                                         const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader,
+  const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader,
   ezBitflags<ezTransformFlags> transformFlags)
 {
   EZ_ASSERT_DEV(ezStringUtils::IsNullOrEmpty(szOutputTag), "Additional output '{0}' not implemented!", szOutputTag);
@@ -747,9 +746,9 @@ void ezMaterialAssetDocument::InternalGetMetaDataHash(const ezDocumentObject* pO
         inout_uiHash = ezHashingUtils::xxHash64(&pPinSource->GetParent()->GetGuid(), sizeof(ezUuid), inout_uiHash);
         inout_uiHash = ezHashingUtils::xxHash64(&pPinTarget->GetParent()->GetGuid(), sizeof(ezUuid), inout_uiHash);
         inout_uiHash =
-            ezHashingUtils::xxHash64(pPinSource->GetName(), ezStringUtils::GetStringElementCount(pPinSource->GetName()), inout_uiHash);
+          ezHashingUtils::xxHash64(pPinSource->GetName(), ezStringUtils::GetStringElementCount(pPinSource->GetName()), inout_uiHash);
         inout_uiHash =
-            ezHashingUtils::xxHash64(pPinTarget->GetName(), ezStringUtils::GetStringElementCount(pPinTarget->GetName()), inout_uiHash);
+          ezHashingUtils::xxHash64(pPinTarget->GetName(), ezStringUtils::GetStringElementCount(pPinTarget->GetName()), inout_uiHash);
       }
     }
   }
@@ -772,6 +771,18 @@ void ezMaterialAssetDocument::RestoreMetaDataAfterLoading(const ezAbstractObject
 void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
 {
   SUPER::UpdateAssetDocumentInfo(pInfo);
+
+  if (GetProperties()->m_ShaderMode != ezMaterialShaderMode::BaseMaterial)
+  {
+    // remove base material dependency, if it isn't used
+    pInfo->m_AssetTransformDependencies.Remove(GetProperties()->GetBaseMaterial());
+  }
+
+  if (GetProperties()->m_ShaderMode != ezMaterialShaderMode::File)
+  {
+    // remove shader file dependency, if it isn't used
+    pInfo->m_AssetTransformDependencies.Remove(GetProperties()->GetShader());
+  }
 
   if (GetProperties()->m_ShaderMode == ezMaterialShaderMode::Custom)
   {
@@ -797,7 +808,7 @@ void ezMaterialAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo
 }
 
 ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream0, const ezPlatformProfile* pAssetProfile,
-                                                     bool bEmbedLowResData) const
+  bool bEmbedLowResData) const
 {
   const ezMaterialAssetProperties* pProp = GetProperties();
 
@@ -887,7 +898,7 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream0, co
         {
           ezStringBuilder s;
           ezReflectionUtils::EnumerationToString(Permutation[p]->GetSpecificType(),
-                                                 pObject->GetTypeAccessor().GetValue(szName).ConvertTo<ezInt64>(), s);
+            pObject->GetTypeAccessor().GetValue(szName).ConvertTo<ezInt64>(), s);
 
           sValue = s.FindLastSubString("::") + 2;
         }
@@ -968,7 +979,7 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream0, co
           if (!asset.isValid())
             continue;
 
-          sValue = asset->m_pAssetInfo->m_pManager->GetAbsoluteOutputFileName(asset->m_pAssetInfo->m_sAbsolutePath, "", pAssetProfile);
+          sValue = asset->m_pAssetInfo->GetManager()->GetAbsoluteOutputFileName(asset->m_pAssetInfo->m_pDocumentTypeDescriptor, asset->m_pAssetInfo->m_sAbsolutePath, "", pAssetProfile);
 
           sFilename = sValue.GetFileName();
           sFilename.Append("-lowres");
@@ -997,8 +1008,8 @@ ezStatus ezMaterialAssetDocument::WriteMaterialAsset(ezStreamWriter& stream0, co
     stream.FinishCompressedStream();
 
     ezLog::Dev("Compressed material data from {0} KB to {1} KB ({2}%%)", ezArgF((float)stream.GetUncompressedSize() / 1024.0f, 1),
-               ezArgF((float)stream.GetCompressedSize() / 1024.0f, 1),
-               ezArgF(100.0f * stream.GetCompressedSize() / stream.GetUncompressedSize(), 1));
+      ezArgF((float)stream.GetCompressedSize() / 1024.0f, 1),
+      ezArgF(100.0f * stream.GetCompressedSize() / stream.GetUncompressedSize(), 1));
 #endif
   }
 
@@ -1011,7 +1022,7 @@ void ezMaterialAssetDocument::TagVisualShaderFileInvalid(const ezPlatformProfile
     return;
 
   ezAssetDocumentManager* pManager = ezDynamicCast<ezAssetDocumentManager*>(GetDocumentManager());
-  ezString sAutoGenShader = pManager->GetAbsoluteOutputFileName(GetDocumentPath(), ezMaterialAssetDocumentManager::s_szShaderOutputTag);
+  ezString sAutoGenShader = pManager->GetAbsoluteOutputFileName(GetAssetDocumentTypeDescriptor(), GetDocumentPath(), ezMaterialAssetDocumentManager::s_szShaderOutputTag);
 
   ezStringBuilder all;
 
@@ -1044,7 +1055,7 @@ ezStatus ezMaterialAssetDocument::RecreateVisualShaderFile(const ezAssetFileHead
   }
 
   ezAssetDocumentManager* pManager = ezDynamicCast<ezAssetDocumentManager*>(GetDocumentManager());
-  ezString sAutoGenShader = pManager->GetAbsoluteOutputFileName(GetDocumentPath(), ezMaterialAssetDocumentManager::s_szShaderOutputTag);
+  ezString sAutoGenShader = pManager->GetAbsoluteOutputFileName(GetAssetDocumentTypeDescriptor(), GetDocumentPath(), ezMaterialAssetDocumentManager::s_szShaderOutputTag);
 
   ezVisualShaderCodeGenerator codeGen;
 
@@ -1074,7 +1085,7 @@ void ezMaterialAssetDocument::InvalidateCachedShader()
 
   if (GetProperties()->m_ShaderMode == ezMaterialShaderMode::Custom)
   {
-    sShader = pManager->GetAbsoluteOutputFileName(GetDocumentPath(), ezMaterialAssetDocumentManager::s_szShaderOutputTag);
+    sShader = pManager->GetAbsoluteOutputFileName(GetAssetDocumentTypeDescriptor(), GetDocumentPath(), ezMaterialAssetDocumentManager::s_szShaderOutputTag);
   }
   else
   {
@@ -1094,7 +1105,7 @@ void ezMaterialAssetDocument::EditorEventHandler(const ezEditorAppEvent& e)
 }
 
 static void MarkReachableNodes(ezMap<const ezDocumentObject*, bool>& AllNodes, const ezDocumentObject* pRoot,
-                               ezDocumentNodeManager* pNodeManager)
+  ezDocumentNodeManager* pNodeManager)
 {
   if (AllNodes[pRoot])
     return;
@@ -1245,7 +1256,7 @@ bool ezMaterialAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& out_obj
 }
 
 bool ezMaterialAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition,
-                                    const char* szMimeType)
+  const char* szMimeType)
 {
   bool bAddedAll = true;
 
@@ -1311,7 +1322,7 @@ class ezMaterialAssetPropertiesPatch_1_2 : public ezGraphPatch
 {
 public:
   ezMaterialAssetPropertiesPatch_1_2()
-      : ezGraphPatch("ezMaterialAssetProperties", 2)
+    : ezGraphPatch("ezMaterialAssetProperties", 2)
   {
   }
 
@@ -1329,7 +1340,7 @@ class ezMaterialAssetPropertiesPatch_2_3 : public ezGraphPatch
 {
 public:
   ezMaterialAssetPropertiesPatch_2_3()
-      : ezGraphPatch("ezMaterialAssetProperties", 3)
+    : ezGraphPatch("ezMaterialAssetProperties", 3)
   {
   }
 

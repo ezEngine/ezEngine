@@ -76,14 +76,13 @@ public:
   static ezEvent<const Event&> s_Events;
   static ezEvent<Request&> s_Requests;
 
-  static const ezDynamicArray<const ezDocumentTypeDescriptor*>& GetAllDocumentDescriptors();
+  static const ezDocumentTypeDescriptor* GetDescriptorForDocumentType(const char* szDocumentType);
+  static const ezMap<ezString, const ezDocumentTypeDescriptor*>& GetAllDocumentDescriptors();
 
   void GetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const;
 
 private:
-  virtual ezStatus InternalCanOpenDocument(const char* szDocumentTypeName, const char* szFilePath) const { return ezStatus(EZ_SUCCESS); }
-  virtual ezStatus InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument,
-    ezDocument*& out_pDocument) = 0;
+  virtual void InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument) = 0;
   virtual void InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const = 0;
 
 private:
@@ -103,5 +102,5 @@ private:
   static ezSet<const ezRTTI*> s_KnownManagers;
   static ezHybridArray<ezDocumentManager*, 16> s_AllDocumentManagers;
 
-  static ezDynamicArray<const ezDocumentTypeDescriptor*> s_AllDocumentDescriptors;
+  static ezMap<ezString, const ezDocumentTypeDescriptor*> s_AllDocumentDescriptors;
 };

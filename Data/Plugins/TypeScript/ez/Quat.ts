@@ -348,7 +348,7 @@ export class Quat {
     /**
      * Checks whether this and 'other' are approximately the equal rotation.
      */
-    IsEqualRotation(other: Quat, epsilon: number): boolean { // [tested]
+    IsEqualRotation(other: Quat, epsilon: number = 0.0001): boolean { // [tested]
         const res1 = this.GetRotationAxisAndAngle();
         const res2 = other.GetRotationAxisAndAngle();
 

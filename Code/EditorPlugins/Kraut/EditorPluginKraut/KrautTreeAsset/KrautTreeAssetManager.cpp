@@ -13,12 +13,14 @@ ezKrautTreeAssetDocumentManager::ezKrautTreeAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezKrautTreeAssetDocumentManager::OnDocumentManagerEvent, this));
 
-  m_AssetDesc.m_bCanCreate = true;
-  m_AssetDesc.m_sDocumentTypeName = "Kraut Tree Asset";
-  m_AssetDesc.m_sFileExtension = "ezKrautTreeAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/Kraut_Tree.png";
-  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezKrautTreeAssetDocument>();
-  m_AssetDesc.m_pManager = this;
+  m_DocTypeDesc.m_sDocumentTypeName = "Kraut Tree";
+  m_DocTypeDesc.m_sFileExtension = "ezKrautTreeAsset";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Kraut_Tree.png";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezKrautTreeAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
+
+  m_DocTypeDesc.m_sResourceFileExtension = "ezKrautTree";
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;
 }
 
 ezKrautTreeAssetDocumentManager::~ezKrautTreeAssetDocumentManager()
@@ -42,24 +44,14 @@ void ezKrautTreeAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMan
   }
 }
 
-ezStatus ezKrautTreeAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath,
-                                                                     bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezKrautTreeAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezKrautTreeAssetDocument(szPath);
-
-  return ezStatus(EZ_SUCCESS);
 }
 
-void ezKrautTreeAssetDocumentManager::InternalGetSupportedDocumentTypes(
-    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezKrautTreeAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_AssetDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }
 
-ezBitflags<ezAssetDocumentFlags>
-ezKrautTreeAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
-{
-  EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
-  return ezAssetDocumentFlags::SupportsThumbnail;
-}
 

@@ -357,6 +357,17 @@ ezStatus ezTextureAssetDocument::RunTexConv(
 }
 
 
+void ezTextureAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
+{
+  SUPER::UpdateAssetDocumentInfo(pInfo);
+
+  for (ezUInt32 i = GetProperties()->GetNumInputFiles(); i < 4; ++i)
+  {
+    // remove unused dependencies
+    pInfo->m_AssetTransformDependencies.Remove(GetProperties()->GetInputFile(i));
+  }
+}
+
 void ezTextureAssetDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 {
   SUPER::InitializeAfterLoading(bFirstTimeCreation);
@@ -373,8 +384,7 @@ void ezTextureAssetDocument::InitializeAfterLoading(bool bFirstTimeCreation)
   }
 }
 
-ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag,
-  const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   // EZ_ASSERT_DEV(ezStringUtils::IsEqual(szPlatform, "PC"), "Platform '{0}' is not supported", szPlatform);
 
@@ -490,16 +500,6 @@ ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile
 
     return result;
   }
-}
-
-const char* ezTextureAssetDocument::QueryAssetType() const
-{
-  if (m_bIsRenderTarget)
-  {
-    return "Render Target";
-  }
-
-  return "Texture 2D";
 }
 
 //////////////////////////////////////////////////////////////////////////

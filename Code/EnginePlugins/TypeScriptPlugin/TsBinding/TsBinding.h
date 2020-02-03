@@ -6,9 +6,11 @@
 #include <Core/Scripting/DuktapeContext.h>
 #include <Core/World/Declarations.h>
 #include <Core/World/World.h>
+#include <Foundation/Configuration/CVar.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Math/Declarations.h>
 #include <Foundation/Types/Uuid.h>
+#include <GameEngine/Console/ConsoleFunction.h>
 #include <TypeScriptPlugin/Resources/ScriptCompendiumResource.h>
 #include <TypeScriptPlugin/Transpiler/Transpiler.h>
 
@@ -58,6 +60,8 @@ public:
 
   EZ_ALWAYS_INLINE ezDuktapeContext& GetDukTapeContext() { return m_Duk; }
   EZ_ALWAYS_INLINE duk_context* GetDukContext() { return m_Duk.GetContext(); }
+
+  void Update();
 
 private:
   static void GetTsName(const ezRTTI* pRtti, ezStringBuilder& out_sName);
@@ -152,6 +156,7 @@ private:
   static void GenerateMessageCode(ezStringBuilder& out_Code, const ezRTTI* pRtti);
   static void GenerateMessagePropertiesCode(ezStringBuilder& out_Code, const ezRTTI* pRtti);
 
+  ezInt32 m_iMsgDeliveryRecursion = 0;
   ezUuid m_CurrentTsMsgHandlerRegistrator;
   ezMap<ezUuid, TsComponentInfo> m_TsComponentTypes;
 
@@ -187,6 +192,8 @@ private:
 public:
   static ezWorld* RetrieveWorld(duk_context* pDuk);
   static ezTypeScriptBinding* RetrieveBinding(duk_context* pDuk);
+
+  ezWorld* GetWorld() { return m_pWorld; }
 
 private:
   void StoreWorld(ezWorld* pWorld);
@@ -267,6 +274,40 @@ public:
   static ezVariant GetVariantProperty(duk_context* pDuk, const char* szPropertyName, ezInt32 iObjIdx, const ezRTTI* pType);
 
   ///@}
+  /// \name Debug
+  ///@{
+
+public:
+  ezMap<ezString, ezUniquePtr<ezCVar>> m_CVars;
+
+  struct ConsoleFuncBinding2
+  {
+    ezComponentHandle m_hOwner;
+    ezUInt32 m_uiFuncStashIdx = 0;
+  };
+
+  struct ConsoleFuncBinding
+  {
+    ezUniquePtr<ezConsoleFunctionBase> m_pFunc;
+    ezHybridArray<ConsoleFuncBinding2, 4> m_Registered;
+  };
+
+  ezMap<ezString, ConsoleFuncBinding> m_ConsoleFuncs;
+
+  void StoreConsoleFuncCall(ezConsoleFunctionBase* pFunc, const ezArrayPtr<ezVariant>& params);
+
+private:
+  void ExecuteConsoleFuncs();
+
+  struct ConsoleFuncCall
+  {
+    ezConsoleFunctionBase* m_pFunc;
+    ezHybridArray<ezVariant, 4> m_Arguments;
+  };
+
+  ezHybridArray<ConsoleFuncCall, 4> m_CFuncCalls;
+
+  ///@}
   /// \name C++ Object Registration
   ///@{
 public:
@@ -275,6 +316,9 @@ public:
 
   /// \brief Removes dead GameObject and Component references from the DukTape stash.
   void CleanupStash(ezUInt32 uiNumIterations);
+
+  ezUInt32 AcquireStashObjIndex();
+  void ReleaseStashObjIndex(ezUInt32 idx);
 
 private:
   static void StoreReferenceInStash(duk_context* pDuk, ezUInt32 uiStashIdx);
