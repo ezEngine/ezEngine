@@ -53,5 +53,17 @@
 	<file>ezPlayerStartPointComponent.png</file>
 	<file>ezColorAnimationComponent.png</file>
 	<file>ezMarkerComponent.png</file>
+	<file>ezAnimatedMeshComponent.png</file>
+	<file>ezInstancedMeshComponent.png</file>
+	<file>ezJointAttachmentComponent.png</file>
+	<file>ezMoveToComponent.png</file>
+	<file>ezSkyLightComponent.png</file>
+	<file>ezAlwaysVisibleComponent.png</file>
+	<file>ezLineToComponent.png</file>
+	<file>ezSpatialAnchorComponent.png</file>
+	<file>ezDeviceTrackingComponent.png</file>
+	<file>ezStageSpaceComponent.png</file>
+	<file>ezSrmRenderComponent.png</file>
+	<file>ezMotionMatchingComponent.png</file>
   </qresource>  
 </RCC>
