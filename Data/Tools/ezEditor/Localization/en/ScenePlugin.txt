@@ -263,3 +263,4 @@ ezVRTransformSpace::Local;Local Space
 ezVRTransformSpace::Global;Global Space
 ezVRStageSpace::Seated;Seated
 ezVRStageSpace::Standing;Standing
+InstanceData;Instance Data

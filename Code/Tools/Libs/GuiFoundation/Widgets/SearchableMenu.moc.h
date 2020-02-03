@@ -46,6 +46,7 @@ private Q_SLOTS:
   void OnEnterPressed();
   void OnSpecialKeyPressed(Qt::Key key);
   void OnSearchChanged(const QString& text);
+  void OnShow();
 
 protected:
   virtual bool eventFilter(QObject*, QEvent*) override;
