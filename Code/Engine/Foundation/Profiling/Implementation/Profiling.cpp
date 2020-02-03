@@ -78,7 +78,7 @@ namespace
   EZ_CHECK_AT_COMPILETIME(sizeof(ezProfilingSystem::Event) == 64);
   EZ_CHECK_AT_COMPILETIME(sizeof(ezProfilingSystem::GPUData) == 64);
 #  endif
-   
+
   static thread_local ::EventBuffer* s_EventBuffers = nullptr;
   static ezDynamicArray<::EventBuffer*> s_AllEventBuffers;
   static ezMutex s_AllEventBuffersMutex;
@@ -132,194 +132,194 @@ ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& outputStream) c
       // Frames thread
       {
         writer.BeginObject();
-        writer.AddVariableString("name", "thread_name");
-        writer.AddVariableString("cat", "__metadata");
-        writer.AddVariableUInt32("pid", m_uiProcessID);
-        writer.AddVariableUInt64("tid", m_uiFramesThreadID);
-        writer.AddVariableString("ph", "M");
+    writer.AddVariableString("name", "thread_name");
+    writer.AddVariableString("cat", "__metadata");
+    writer.AddVariableUInt32("pid", m_uiProcessID);
+    writer.AddVariableUInt64("tid", m_uiFramesThreadID);
+    writer.AddVariableString("ph", "M");
 
-        writer.BeginObject("args");
-        writer.AddVariableString("name", "Frames");
-        writer.EndObject();
+    writer.BeginObject("args");
+    writer.AddVariableString("name", "Frames");
+    writer.EndObject();
 
-        writer.EndObject();
+    writer.EndObject();
 
-        writer.BeginObject();
-        writer.AddVariableString("name", "thread_sort_index");
-        writer.AddVariableString("cat", "__metadata");
-        writer.AddVariableUInt32("pid", m_uiProcessID);
-        writer.AddVariableUInt64("tid", m_uiFramesThreadID);
-        writer.AddVariableString("ph", "M");
+    writer.BeginObject();
+    writer.AddVariableString("name", "thread_sort_index");
+    writer.AddVariableString("cat", "__metadata");
+    writer.AddVariableUInt32("pid", m_uiProcessID);
+    writer.AddVariableUInt64("tid", m_uiFramesThreadID);
+    writer.AddVariableString("ph", "M");
 
-        writer.BeginObject("args");
-        writer.AddVariableInt32("sort_index", -1);
-        writer.EndObject();
+    writer.BeginObject("args");
+    writer.AddVariableInt32("sort_index", -1);
+    writer.EndObject();
 
-        writer.EndObject();
+    writer.EndObject();
 
-        if (writer.HadWriteError())
-        {
-          return EZ_FAILURE;
-        }
-      }
-
-      // GPU thread
-      {
-        writer.BeginObject();
-        writer.AddVariableString("name", "thread_name");
-        writer.AddVariableString("cat", "__metadata");
-        writer.AddVariableUInt32("pid", m_uiProcessID);
-        writer.AddVariableUInt64("tid", m_uiGPUThreadID);
-        writer.AddVariableString("ph", "M");
-
-        writer.BeginObject("args");
-        writer.AddVariableString("name", "GPU");
-        writer.EndObject();
-
-        writer.EndObject();
-
-        writer.BeginObject();
-        writer.AddVariableString("name", "thread_sort_index");
-        writer.AddVariableString("cat", "__metadata");
-        writer.AddVariableUInt32("pid", m_uiProcessID);
-        writer.AddVariableUInt64("tid", m_uiGPUThreadID);
-        writer.AddVariableString("ph", "M");
-
-        writer.BeginObject("args");
-        writer.AddVariableInt32("sort_index", -2);
-        writer.EndObject();
-
-        writer.EndObject();
-        if (writer.HadWriteError())
-        {
-          return EZ_FAILURE;
-        }
-      }
-
-      {
-        for (const ThreadInfo& info : m_ThreadInfos)
-        {
-          writer.BeginObject();
-          writer.AddVariableString("name", "thread_name");
-          writer.AddVariableString("cat", "__metadata");
-          writer.AddVariableUInt32("pid", m_uiProcessID);
-          writer.AddVariableUInt64("tid", info.m_uiThreadId + 2);
-          writer.AddVariableString("ph", "M");
-
-          writer.BeginObject("args");
-          writer.AddVariableString("name", info.m_sName);
-          writer.EndObject();
-
-          writer.EndObject();
-
-          if (writer.HadWriteError())
-          {
-            return EZ_FAILURE;
-          }
-        }
-      }
-    }
-
+    if (writer.HadWriteError())
     {
-      for (const auto& eventBuffer : m_AllEventBuffers)
-      {
-        const ezUInt64 uiThreadId = eventBuffer.m_uiThreadId + 2;
-        for (ezUInt32 i = 0; i < eventBuffer.m_Data.GetCount(); ++i)
-        {
-          const Event& e = eventBuffer.m_Data[i];
-
-          writer.BeginObject();
-          writer.AddVariableString("name", e.m_szName);
-          writer.AddVariableUInt32("pid", m_uiProcessID);
-          writer.AddVariableUInt64("tid", uiThreadId);
-          writer.AddVariableUInt64("ts", static_cast<ezUInt64>(e.m_TimeStamp.GetMicroseconds()));
-          writer.AddVariableString("ph", e.m_Type == Event::Begin ? "B" : "E");
-
-          if (e.m_szFunctionName != nullptr)
-          {
-            writer.BeginObject("args");
-            writer.AddVariableString("function", e.m_szFunctionName);
-            writer.EndObject();
-          }
-
-          writer.EndObject();
-          if (writer.HadWriteError())
-          {
-            return EZ_FAILURE;
-          }
-        }
-      }
+      return EZ_FAILURE;
     }
-
-    // frame start/end
-    {
-      ezStringBuilder sFrameName;
-
-      const ezUInt32 uiNumFrames = m_FrameStartTimes.GetCount();
-      for (ezUInt32 i = 1; i < uiNumFrames; ++i)
-      {
-        const ezTime t0 = m_FrameStartTimes[i - 1];
-        const ezTime t1 = m_FrameStartTimes[i];
-
-        const ezUInt64 localFrameID = uiNumFrames - i - 1;
-        sFrameName.Format("Frame {}", m_uiFrameCount - localFrameID);
-
-        writer.BeginObject();
-        writer.AddVariableString("name", sFrameName);
-        writer.AddVariableUInt32("pid", m_uiProcessID);
-        writer.AddVariableUInt64("tid", m_uiFramesThreadID);
-        writer.AddVariableUInt64("ts", static_cast<ezUInt64>(t0.GetMicroseconds()));
-        writer.AddVariableString("ph", "B");
-        writer.EndObject();
-
-        writer.BeginObject();
-        writer.AddVariableString("name", sFrameName);
-        writer.AddVariableUInt32("pid", m_uiProcessID);
-        writer.AddVariableUInt64("tid", m_uiFramesThreadID);
-        writer.AddVariableUInt64("ts", static_cast<ezUInt64>(t1.GetMicroseconds()));
-        writer.AddVariableString("ph", "E");
-        writer.EndObject();
-        if (writer.HadWriteError())
-        {
-          return EZ_FAILURE;
-        }
-      }
-    }
-
-    // GPU data
-    {
-      for (ezUInt32 i = 0; i < m_GPUData.GetCount(); ++i)
-      {
-        const auto& e = m_GPUData[i];
-
-        writer.BeginObject();
-        writer.AddVariableString("name", e.m_szName);
-        writer.AddVariableUInt32("pid", m_uiProcessID);
-        writer.AddVariableUInt64("tid", m_uiGPUThreadID);
-        writer.AddVariableUInt64("ts", static_cast<ezUInt64>(e.m_BeginTime.GetMicroseconds()));
-        writer.AddVariableString("ph", "B");
-        writer.EndObject();
-
-        writer.BeginObject();
-        writer.AddVariableString("name", e.m_szName);
-        writer.AddVariableUInt32("pid", m_uiProcessID);
-        writer.AddVariableUInt64("tid", m_uiGPUThreadID);
-        writer.AddVariableUInt64("ts", static_cast<ezUInt64>(e.m_EndTime.GetMicroseconds()));
-        writer.AddVariableString("ph", "E");
-        writer.EndObject();
-        if (writer.HadWriteError())
-        {
-          return EZ_FAILURE;
-        }
-      }
-    }
-
-    writer.EndArray();
   }
 
-  writer.EndObject();
+  // GPU thread
+  {
+    writer.BeginObject();
+    writer.AddVariableString("name", "thread_name");
+    writer.AddVariableString("cat", "__metadata");
+    writer.AddVariableUInt32("pid", m_uiProcessID);
+    writer.AddVariableUInt64("tid", m_uiGPUThreadID);
+    writer.AddVariableString("ph", "M");
 
-  return writer.HadWriteError() ? EZ_FAILURE : EZ_SUCCESS;
+    writer.BeginObject("args");
+    writer.AddVariableString("name", "GPU");
+    writer.EndObject();
+
+    writer.EndObject();
+
+    writer.BeginObject();
+    writer.AddVariableString("name", "thread_sort_index");
+    writer.AddVariableString("cat", "__metadata");
+    writer.AddVariableUInt32("pid", m_uiProcessID);
+    writer.AddVariableUInt64("tid", m_uiGPUThreadID);
+    writer.AddVariableString("ph", "M");
+
+    writer.BeginObject("args");
+    writer.AddVariableInt32("sort_index", -2);
+    writer.EndObject();
+
+    writer.EndObject();
+    if (writer.HadWriteError())
+    {
+      return EZ_FAILURE;
+    }
+  }
+
+  {
+    for (const ThreadInfo& info : m_ThreadInfos)
+    {
+      writer.BeginObject();
+      writer.AddVariableString("name", "thread_name");
+      writer.AddVariableString("cat", "__metadata");
+      writer.AddVariableUInt32("pid", m_uiProcessID);
+      writer.AddVariableUInt64("tid", info.m_uiThreadId + 2);
+      writer.AddVariableString("ph", "M");
+
+      writer.BeginObject("args");
+      writer.AddVariableString("name", info.m_sName);
+      writer.EndObject();
+
+      writer.EndObject();
+
+      if (writer.HadWriteError())
+      {
+        return EZ_FAILURE;
+      }
+    }
+  }
+}
+
+{
+  for (const auto& eventBuffer : m_AllEventBuffers)
+  {
+    const ezUInt64 uiThreadId = eventBuffer.m_uiThreadId + 2;
+    for (ezUInt32 i = 0; i < eventBuffer.m_Data.GetCount(); ++i)
+    {
+      const Event& e = eventBuffer.m_Data[i];
+
+      writer.BeginObject();
+      writer.AddVariableString("name", e.m_szName);
+      writer.AddVariableUInt32("pid", m_uiProcessID);
+      writer.AddVariableUInt64("tid", uiThreadId);
+      writer.AddVariableUInt64("ts", static_cast<ezUInt64>(e.m_TimeStamp.GetMicroseconds()));
+      writer.AddVariableString("ph", e.m_Type == Event::Begin ? "B" : "E");
+
+      if (e.m_szFunctionName != nullptr)
+      {
+        writer.BeginObject("args");
+        writer.AddVariableString("function", e.m_szFunctionName);
+        writer.EndObject();
+      }
+
+      writer.EndObject();
+      if (writer.HadWriteError())
+      {
+        return EZ_FAILURE;
+      }
+    }
+  }
+}
+
+// frame start/end
+{
+  ezStringBuilder sFrameName;
+
+  const ezUInt32 uiNumFrames = m_FrameStartTimes.GetCount();
+  for (ezUInt32 i = 1; i < uiNumFrames; ++i)
+  {
+    const ezTime t0 = m_FrameStartTimes[i - 1];
+    const ezTime t1 = m_FrameStartTimes[i];
+
+    const ezUInt64 localFrameID = uiNumFrames - i - 1;
+    sFrameName.Format("Frame {}", m_uiFrameCount - localFrameID);
+
+    writer.BeginObject();
+    writer.AddVariableString("name", sFrameName);
+    writer.AddVariableUInt32("pid", m_uiProcessID);
+    writer.AddVariableUInt64("tid", m_uiFramesThreadID);
+    writer.AddVariableUInt64("ts", static_cast<ezUInt64>(t0.GetMicroseconds()));
+    writer.AddVariableString("ph", "B");
+    writer.EndObject();
+
+    writer.BeginObject();
+    writer.AddVariableString("name", sFrameName);
+    writer.AddVariableUInt32("pid", m_uiProcessID);
+    writer.AddVariableUInt64("tid", m_uiFramesThreadID);
+    writer.AddVariableUInt64("ts", static_cast<ezUInt64>(t1.GetMicroseconds()));
+    writer.AddVariableString("ph", "E");
+    writer.EndObject();
+    if (writer.HadWriteError())
+    {
+      return EZ_FAILURE;
+    }
+  }
+}
+
+// GPU data
+{
+  for (ezUInt32 i = 0; i < m_GPUData.GetCount(); ++i)
+  {
+    const auto& e = m_GPUData[i];
+
+    writer.BeginObject();
+    writer.AddVariableString("name", e.m_szName);
+    writer.AddVariableUInt32("pid", m_uiProcessID);
+    writer.AddVariableUInt64("tid", m_uiGPUThreadID);
+    writer.AddVariableUInt64("ts", static_cast<ezUInt64>(e.m_BeginTime.GetMicroseconds()));
+    writer.AddVariableString("ph", "B");
+    writer.EndObject();
+
+    writer.BeginObject();
+    writer.AddVariableString("name", e.m_szName);
+    writer.AddVariableUInt32("pid", m_uiProcessID);
+    writer.AddVariableUInt64("tid", m_uiGPUThreadID);
+    writer.AddVariableUInt64("ts", static_cast<ezUInt64>(e.m_EndTime.GetMicroseconds()));
+    writer.AddVariableString("ph", "E");
+    writer.EndObject();
+    if (writer.HadWriteError())
+    {
+      return EZ_FAILURE;
+    }
+  }
+}
+
+writer.EndArray();
+}
+
+writer.EndObject();
+
+return writer.HadWriteError() ? EZ_FAILURE : EZ_SUCCESS;
 }
 
 // static
@@ -329,11 +329,11 @@ ezProfilingSystem::ProfilingData ezProfilingSystem::Capture()
 
   profilingData.m_uiFramesThreadID = 1;
   profilingData.m_uiGPUThreadID = 0;
-#if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
+#  if EZ_ENABLED(EZ_SUPPORTS_PROCESSES)
   profilingData.m_uiProcessID = ezProcess::GetCurrentProcessID();
-#else
+#  else
   profilingData.m_uiProcessID = 0;
-#endif
+#  endif
 
   {
     EZ_LOCK(s_ThreadInfosMutex);
@@ -377,17 +377,20 @@ ezProfilingSystem::ProfilingData ezProfilingSystem::Capture()
     profilingData.m_FrameStartTimes.PushBack(s_FrameStartTimes[i]);
   }
 
-  profilingData.m_GPUData.Reserve(s_GPUData->GetCount());
-  for (ezUInt32 i = 0; i < s_GPUData->GetCount(); ++i)
+  if (s_GPUData)
   {
-    const GPUData& sourceGpuDat = (*s_GPUData)[i];
+    profilingData.m_GPUData.Reserve(s_GPUData->GetCount());
+    for (ezUInt32 i = 0; i < s_GPUData->GetCount(); ++i)
+    {
+      const GPUData& sourceGpuDat = (*s_GPUData)[i];
 
-    GPUData copiedGpuData;
-    copiedGpuData.m_BeginTime = sourceGpuDat.m_BeginTime;
-    copiedGpuData.m_EndTime = sourceGpuDat.m_EndTime;
-    ezStringUtils::Copy(copiedGpuData.m_szName, GPUData::NAME_SIZE, sourceGpuDat.m_szName);
+      GPUData copiedGpuData;
+      copiedGpuData.m_BeginTime = sourceGpuDat.m_BeginTime;
+      copiedGpuData.m_EndTime = sourceGpuDat.m_EndTime;
+      ezStringUtils::Copy(copiedGpuData.m_szName, GPUData::NAME_SIZE, sourceGpuDat.m_szName);
 
-    profilingData.m_GPUData.PushBack(std::move(copiedGpuData));
+      profilingData.m_GPUData.PushBack(std::move(copiedGpuData));
+    }
   }
 
   return profilingData;
@@ -577,9 +580,15 @@ void ezProfilingSystem::Initialize() {}
 
 void ezProfilingSystem::Reset() {}
 
-ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& outputStream) const { return EZ_FAILURE; }
+ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& outputStream) const
+{
+  return EZ_FAILURE;
+}
 
-ezProfilingSystem::ProfilingData ezProfilingSystem::Capture() { return {}; }
+ezProfilingSystem::ProfilingData ezProfilingSystem::Capture()
+{
+  return {};
+}
 
 void ezProfilingSystem::RemoveThread() {}
 
@@ -600,4 +609,3 @@ ezProfilingSystem::GPUData& ezProfilingSystem::AllocateGPUData()
 #endif
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Profiling_Implementation_Profiling);
-

@@ -121,7 +121,7 @@ void ezProjectActions::RegisterActions()
   s_hLaunchInspector = EZ_REGISTER_ACTION_1(
     "Editor.LaunchInspector", ezActionScope::Global, "Engine", "", ezProjectAction, ezProjectAction::ButtonType::LaunchInspector);
   s_hSaveProfiling = EZ_REGISTER_ACTION_1(
-    "Editor.SaveProfiling", ezActionScope::Global, "Engine", "Alt+S", ezProjectAction, ezProjectAction::ButtonType::SaveProfiling);
+    "Editor.SaveProfiling", ezActionScope::Global, "Engine", "Ctrl+Alt+P", ezProjectAction, ezProjectAction::ButtonType::SaveProfiling);
   s_hOpenVsCode = EZ_REGISTER_ACTION_1(
     "Editor.OpenVsCode", ezActionScope::Global, "Project", "Ctrl+Alt+O", ezProjectAction, ezProjectAction::ButtonType::OpenVsCode);
 }
