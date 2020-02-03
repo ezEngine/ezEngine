@@ -111,7 +111,8 @@ void ezTextureContext::OnInitialize()
 
     ezMeshBufferResourceHandle hMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szMeshBufferName);
 
-    if (!hMeshBuffer.IsValid())
+
+    if(!hMeshBuffer.IsValid())
     {
       // Build geometry
       ezGeometry geom;

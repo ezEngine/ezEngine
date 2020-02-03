@@ -23,13 +23,11 @@ EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezTexture2DResource);
 ezTexture2DResource::ezTexture2DResource()
   : ezResource(DoUpdate::OnAnyThread, ezTextureUtils::s_bForceFullQualityAlways ? 1 : 2)
 {
-  m_uiLoadedTextures = 0;
-  m_uiMemoryGPU[0] = 0;
-  m_uiMemoryGPU[1] = 0;
-  m_Format = ezGALResourceFormat::Invalid;
-  m_uiWidth = 0;
-  m_uiHeight = 0;
-  m_Type = ezGALTextureType::Invalid;
+}
+
+ezTexture2DResource::ezTexture2DResource(ezResource::DoUpdate ResourceUpdateThread)
+  : ezResource(ResourceUpdateThread, ezTextureUtils::s_bForceFullQualityAlways ? 1 : 2) 
+{
 }
 
 ezResourceLoadDesc ezTexture2DResource::UnloadData(Unload WhatToUnload)

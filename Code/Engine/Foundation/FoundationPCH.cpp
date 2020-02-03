@@ -141,6 +141,7 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_Thread);
   EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_ThreadSignal);
   EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_ThreadUtils);
+  EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_ThreadWithDispatcher);
   EZ_STATICLINK_REFERENCE(Foundation_Time_Implementation_Clock);
   EZ_STATICLINK_REFERENCE(Foundation_Time_Implementation_DefaultTimeStepSmoothing);
   EZ_STATICLINK_REFERENCE(Foundation_Time_Implementation_Stopwatch);

@@ -105,7 +105,7 @@ ezResult ezMeshResourceDescriptor::Save(const char* szFile)
 
 void ezMeshResourceDescriptor::Save(ezStreamWriter& stream)
 {
-  ezUInt8 uiVersion = 6;
+  ezUInt8 uiVersion = 7;
   stream << uiVersion;
 
   ezUInt8 uiCompressionMode = 0;
@@ -408,6 +408,17 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
         chunk >> iSemantic;
         chunk >> uiElementSize; // not needed, but can be used to check that memory layout has not changed
         chunk >> uiOffset;      // not needed, but can be used to check that memory layout has not changed
+
+        if (uiVersion < 7)
+        {
+          // ezGALVertexAttributeSemantic got new elements inserted
+          // need to adjust old file formats accordingly
+
+          if (iSemantic >= ezGALVertexAttributeSemantic::Color2) // should be ezGALVertexAttributeSemantic::TexCoord0 instead
+          {
+            iSemantic += 6;
+          }
+        }
 
         m_MeshBufferDescriptor.AddStream((ezGALVertexAttributeSemantic::Enum)iSemantic, (ezGALResourceFormat::Enum)iFormat);
       }
