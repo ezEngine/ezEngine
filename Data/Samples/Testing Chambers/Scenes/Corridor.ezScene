@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7297922959506964864,5177324930371449723}}
-		u4 %Hash{5435209012890199654}
+		u4 %Hash{4900434280294383056}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -8769,6 +8769,43 @@ o
 }
 o
 {
+	Uuid %id{u4{6094145351979312774,5444782508650746264}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{11461303605780321466,5445978294978976300}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x0000BC41,0x00003040,0x13FC0040}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{11461303605780321466,5445978294978976300}}
+	s %t{"ezShapeIconComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+	}
+}
+o
+{
 	Uuid %id{u4{359763624790532506,5450759507445345527}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -11418,6 +11455,7 @@ o
 			Uuid{u4{4908614590023437887,10511872146638138582}}
 			Uuid{u4{9549899467927124434,16088521832636900521}}
 			Uuid{u4{16323009171006588253,2813705403826275678}}
+			Uuid{u4{6094145351979312774,5444782508650746264}}
 		}
 		Uuid %Settings{u4{11204937990389899402,5417500911553874876}}
 	}
@@ -25798,7 +25836,7 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezBreakableSheetComponent"}
-		u3 %TypeSize{456}
+		u3 %TypeSize{464}
 		u3 %TypeVersion{1}
 	}
 }
