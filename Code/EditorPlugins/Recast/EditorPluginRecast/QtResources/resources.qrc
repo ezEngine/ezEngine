@@ -1,0 +1,13 @@
+<RCC>
+  <qresource prefix="AssetIcons">
+  </qresource>
+  <qresource prefix="TypeIcons">
+    <file>ezRcNavMeshComponent.png</file>
+    <file>ezSoldierComponent.png</file>
+    <file>ezRcAgentComponent.png</file>
+    <file>ezRcMarkPoiVisibleComponent.png</file>
+  </qresource>
+  <qresource prefix="Icons">
+  </qresource>
+</RCC>
+

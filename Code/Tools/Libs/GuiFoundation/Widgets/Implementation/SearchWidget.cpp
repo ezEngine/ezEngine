@@ -94,3 +94,10 @@ bool ezQtSearchWidget::eventFilter(QObject* obj, QEvent* e)
 
   return false;
 }
+
+void ezQtSearchWidget::showEvent(QShowEvent* e)
+{
+  QWidget::showEvent(e);
+
+  Q_EMIT visibleEvent();
+}

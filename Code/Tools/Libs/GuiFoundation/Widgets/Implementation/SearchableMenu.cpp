@@ -13,24 +13,20 @@ class QNullWidget : public QWidget
 {
 public:
   QNullWidget()
-      : QWidget(nullptr)
+    : QWidget(nullptr)
   {
   }
 
 protected:
   virtual void mousePressEvent(QMouseEvent* e) override { e->accept(); }
-
   virtual void mouseReleaseEvent(QMouseEvent* e) override { e->accept(); }
-
   virtual void mouseDoubleClickEvent(QMouseEvent* e) override { e->accept(); }
 };
 
 
-
 ezQtSearchableMenu::ezQtSearchableMenu(QObject* parent)
-    : QWidgetAction(parent)
+  : QWidgetAction(parent)
 {
-
   m_pGroup = new QNullWidget();
   m_pGroup->setLayout(new QVBoxLayout(m_pGroup));
   m_pGroup->setContentsMargins(0, 0, 0, 0);
@@ -39,6 +35,7 @@ ezQtSearchableMenu::ezQtSearchableMenu(QObject* parent)
   connect(m_pSearch, &ezQtSearchWidget::enterPressed, this, &ezQtSearchableMenu::OnEnterPressed);
   connect(m_pSearch, &ezQtSearchWidget::specialKeyPressed, this, &ezQtSearchableMenu::OnSpecialKeyPressed);
   connect(m_pSearch, &ezQtSearchWidget::textChanged, this, &ezQtSearchableMenu::OnSearchChanged);
+  connect(m_pSearch, &ezQtSearchWidget::visibleEvent, this, &ezQtSearchableMenu::OnShow);
 
   m_pGroup->layout()->addWidget(m_pSearch);
   m_pGroup->layout()->setContentsMargins(1, 1, 1, 1);
@@ -56,6 +53,7 @@ ezQtSearchableMenu::ezQtSearchableMenu(QObject* parent)
   m_pTreeView->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
   m_pTreeView->setSelectionMode(QAbstractItemView::SelectionMode::SingleSelection);
   connect(m_pTreeView, &QTreeView::activated, this, &ezQtSearchableMenu::OnItemActivated);
+
 
   m_pGroup->layout()->addWidget(m_pTreeView);
 
@@ -109,7 +107,7 @@ bool ezQtSearchableMenu::SelectFirstLeaf(QModelIndex parent)
       {
         // set this one item as the new selection
         m_pTreeView->selectionModel()->setCurrentIndex(child, QItemSelectionModel::ClearAndSelect |
-                                                                  QItemSelectionModel::SelectionFlag::SelectCurrent);
+                                                                QItemSelectionModel::SelectionFlag::SelectCurrent);
         m_pTreeView->scrollTo(child, QAbstractItemView::EnsureVisible);
         return true;
       }
@@ -225,4 +223,9 @@ void ezQtSearchableMenu::OnSearchChanged(const QString& text)
   }
 
   Q_EMIT SearchTextChanged(text);
+}
+
+void ezQtSearchableMenu::OnShow()
+{
+  m_pSearch->setFocus();
 }

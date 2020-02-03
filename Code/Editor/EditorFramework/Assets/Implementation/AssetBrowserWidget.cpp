@@ -81,28 +81,12 @@ ezQtAssetBrowserWidget::~ezQtAssetBrowserWidget()
 
 void ezQtAssetBrowserWidget::UpdateAssetTypes()
 {
-  ezSet<ezString> KnownAssetTypes;
-
-  for (auto docman : ezDocumentManager::GetAllDocumentManagers())
-  {
-    if (auto pAssetDocMan = ezDynamicCast<const ezAssetDocumentManager*>(docman))
-    {
-      ezHybridArray<const ezDocumentTypeDescriptor*, 4> documentTypes;
-      pAssetDocMan->GetSupportedDocumentTypes(documentTypes);
-
-      for (auto pType : documentTypes)
-      {
-        KnownAssetTypes.Insert(pType->m_sDocumentTypeName);
-      }
-    }
-  }
+  const auto& assetTypes = ezAssetDocumentManager::GetAllDocumentDescriptors();
 
   {
     ezQtScopedBlockSignals block(ListTypeFilter);
 
     ListTypeFilter->clear();
-
-    ezStringBuilder sIconName;
 
     // 'All' Filter
     {
@@ -113,14 +97,9 @@ void ezQtAssetBrowserWidget::UpdateAssetTypes()
       ListTypeFilter->addItem(pItem);
     }
 
-    for (const auto& key : KnownAssetTypes)
+    for (const auto& it : assetTypes)
     {
-      sIconName.Set(":/AssetIcons/", key);
-      sIconName.ReplaceAll(" ", "_");
-      sIconName.ReplaceAll("(", "");
-      sIconName.ReplaceAll(")", "");
-
-      QListWidgetItem* pItem = new QListWidgetItem(ezQtUiServices::GetCachedIconResource(sIconName), QString::fromUtf8(key.GetData()));
+      QListWidgetItem* pItem = new QListWidgetItem(ezQtUiServices::GetCachedIconResource(it.Value()->m_sIcon), QString::fromUtf8(it.Key()));
       pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsUserCheckable);
       pItem->setCheckState(Qt::CheckState::Unchecked);
 
