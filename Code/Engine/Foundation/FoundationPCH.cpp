@@ -86,6 +86,7 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_StreamOperationsOther);
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_StringDeduplicationContext);
   EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_ConsoleWriter);
+  EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_ETWWriter);
   EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_HTMLWriter);
   EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_Log);
   EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_LogEntry);

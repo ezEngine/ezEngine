@@ -434,7 +434,7 @@ void ezRTTI::SanityCheckType(ezRTTI* pType)
     //  ezStringBuilder s;
     //  s.Format("RTTI: {0}\n", pProp->GetPropertyName());
 
-    //  OutputDebugStringA(s.GetData());
+    //  ezLog::Print(s.GetData());
     //}
 
     if (pProp->GetCategory() != ezPropertyCategory::Function)

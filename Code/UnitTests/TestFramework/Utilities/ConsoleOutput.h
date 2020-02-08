@@ -8,11 +8,12 @@
 #  include <android/log.h>
 #endif
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#  include <Foundation/Logging/ETWWriter.h>
 inline void SetConsoleColorInl(WORD ui)
 {
-#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
+#  if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
   SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), ui);
-#endif
+#  endif
 }
 #else
 inline void SetConsoleColorInl(ezUInt8 ui) {}
@@ -76,9 +77,51 @@ inline void OutputToConsole(ezTestOutput::Enum Type, const char* szMsg)
   printf("%*s%s\n", iIndentation, "", szMsg);
   SetConsoleColorInl(0x07);
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
+  ezLogMsgType::Enum logType = ezLogMsgType::None;
+  switch (Type)
+  {
+    case ezTestOutput::StartOutput:
+    case ezTestOutput::InvalidType:
+    case ezTestOutput::AllOutputTypes:
+      logType = ezLogMsgType::None;
+      break;
+    case ezTestOutput::BeginBlock:
+      logType = ezLogMsgType::BeginGroup;
+      break;
+    case ezTestOutput::EndBlock:
+      logType = ezLogMsgType::EndGroup;
+      break;
+    case ezTestOutput::ImportantInfo:
+    case ezTestOutput::Details:
+    case ezTestOutput::Message:
+    case ezTestOutput::Duration:
+    case ezTestOutput::FinalResult:
+      logType = ezLogMsgType::InfoMsg;
+      break;
+    case ezTestOutput::Success:
+      logType = ezLogMsgType::SuccessMsg;
+      break;
+    case ezTestOutput::Warning:
+      logType = ezLogMsgType::WarningMsg;
+      break;
+    case ezTestOutput::Error:
+      logType = ezLogMsgType::ErrorMsg;
+      break;
+    case ezTestOutput::ImageDiffFile:
+      logType = ezLogMsgType::DevMsg;
+      break;
+    default:
+      break;
+  }
+  if (logType != ezLogMsgType::None)
+  {
+    ezLogWriter::ETW::LogMessage(ezLogMsgType::InfoMsg, iIndentation, szMsg);
+  }
+#endif
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   char sz[4096];
-  ezStringUtils::snprintf(sz, 1024, "%*s%s\n", iIndentation, "", szMsg);
+  ezStringUtils::snprintf(sz, 4096, "%*s%s\n", iIndentation, "", szMsg);
   OutputDebugStringW(ezStringWChar(sz).GetData());
 #endif
 #if EZ_ENABLED(EZ_PLATFORM_ANDROID)
@@ -90,4 +133,3 @@ inline void OutputToConsole(ezTestOutput::Enum Type, const char* szMsg)
     fflush(stdout);
   }
 }
-

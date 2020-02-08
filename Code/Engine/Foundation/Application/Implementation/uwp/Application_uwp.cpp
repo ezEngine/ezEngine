@@ -98,7 +98,7 @@ EZ_FOUNDATION_DLL ezResult ezUWPRun(ezApplication* pApp)
       HStringReference(RuntimeClass_Windows_ApplicationModel_Core_CoreApplication).Get(), &coreApplication);
   if (FAILED(result))
   {
-    printf("Failed to create core application: %i\n", result);
+    ezLog::Printf("Failed to create core application: %i\n", result);
     return EZ_FAILURE;
   }
 

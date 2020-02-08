@@ -279,7 +279,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> flags, const char* sz
       CreateOrOpenProject(false, s_RecentProjects.GetFileList()[0].m_File);
     }
   }
-  else
+  else if (!m_bHeadless)
   {
     if (ezQtContainerWindow::GetContainerWindow())
     {

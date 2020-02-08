@@ -8,6 +8,7 @@
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/Mutex.h>
 #include <Foundation/System/StackTracer.h>
+#include <Foundation/Logging/Log.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
@@ -83,28 +84,20 @@ namespace
     s_bIsInitializing = false;
   }
 
-  static void PrintHelper(const char* szText)
-  {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    OutputDebugStringW(ezStringWChar(szText).GetData());
-#endif
-    printf("%s", szText);
-  };
-
   static void DumpLeak(const ezMemoryTracker::AllocationInfo& info, const char* szAllocatorName)
   {
     char szBuffer[512];
     ezUInt64 uiSize = info.m_uiSize;
     ezStringUtils::snprintf(szBuffer, EZ_ARRAY_SIZE(szBuffer), "Leaked %llu bytes allocated by '%s'\n", uiSize, szAllocatorName);
 
-    PrintHelper(szBuffer);
+    ezLog::Print(szBuffer);
 
     if (info.GetStackTrace().GetPtr() != nullptr)
     {
-      ezStackTracer::ResolveStackTrace(info.GetStackTrace(), &PrintHelper);
+      ezStackTracer::ResolveStackTrace(info.GetStackTrace(), &ezLog::Print);
     }
 
-    PrintHelper("--------------------------------------------------------------------\n\n");
+    ezLog::Print("--------------------------------------------------------------------\n\n");
   }
 }
 
@@ -370,9 +363,9 @@ void ezMemoryTracker::DumpMemoryLeaks()
     {
       if (uiNumLeaks == 0)
       {
-        PrintHelper("\n\n--------------------------------------------------------------------\n"
-                    "Memory Leak Report:"
-                    "\n--------------------------------------------------------------------\n\n");
+        ezLog::Print("\n\n--------------------------------------------------------------------\n"
+                     "Memory Leak Report:"
+                     "\n--------------------------------------------------------------------\n\n");
       }
 
       const AllocatorData& data = s_pTrackerData->m_AllocatorData[leak.m_AllocatorId];
@@ -387,14 +380,10 @@ void ezMemoryTracker::DumpMemoryLeaks()
 
   if (uiNumLeaks > 0)
   {
-    char szBuffer[512];
-    ezStringUtils::snprintf(szBuffer, EZ_ARRAY_SIZE(szBuffer),
-                            "\n--------------------------------------------------------------------\n"
-                            "Found %llu root memory leak(s)."
-                            "\n--------------------------------------------------------------------\n\n",
-                            uiNumLeaks);
-
-    PrintHelper(szBuffer);
+    ezLog::Printf("\n--------------------------------------------------------------------\n"
+                  "Found %llu root memory leak(s)."
+                  "\n--------------------------------------------------------------------\n\n",
+      uiNumLeaks);
 
     EZ_REPORT_FAILURE("Found {0} root memory leak(s).", uiNumLeaks);
   }

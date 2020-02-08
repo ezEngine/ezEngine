@@ -4,6 +4,7 @@
 /// \file
 
 #include <Foundation/Memory/MemoryTracker.h>
+#include <Foundation/Logging/Log.h>
 
 // Disable C++/CX adds.
 #pragma warning(disable : 4447)
