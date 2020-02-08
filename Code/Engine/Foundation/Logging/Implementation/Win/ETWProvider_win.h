@@ -15,7 +15,7 @@ public:
   ezETWProvider();
   ~ezETWProvider();
 
-  void LogMessge(ezLogMsgType::Enum eventType, ezUInt8 uiIndentation, const char* szText, const char* szTag = "");
+  void LogMessge(ezLogMsgType::Enum eventType, ezUInt8 uiIndentation, const char* szText);
 
   static ezETWProvider& GetInstance();
 };

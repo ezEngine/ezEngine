@@ -11,15 +11,15 @@ void ezLogWriter::ETW::LogMessageHandler(const ezLoggingEventData& eventData)
   if (eventData.m_EventType == ezLogMsgType::Flush)
     return;
 
-  ezETWProvider::GetInstance().LogMessge(eventData.m_EventType, eventData.m_uiIndentation, eventData.m_szText, eventData.m_szTag);
+  ezETWProvider::GetInstance().LogMessge(eventData.m_EventType, eventData.m_uiIndentation, eventData.m_szText);
 }
 
-void ezLogWriter::ETW::LogMessage(ezLogMsgType::Enum eventType, ezUInt8 uiIndentation, const char* szText, const char* szTag)
+void ezLogWriter::ETW::LogMessage(ezLogMsgType::Enum eventType, ezUInt8 uiIndentation, const char* szText)
 {
   if (eventType == ezLogMsgType::Flush)
     return;
 
-  ezETWProvider::GetInstance().LogMessge(eventType, uiIndentation, szText, szTag);
+  ezETWProvider::GetInstance().LogMessge(eventType, uiIndentation, szText);
 }
 
 #else

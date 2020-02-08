@@ -34,14 +34,13 @@ ezETWProvider::~ezETWProvider()
   TraceLoggingUnregister(g_ezETWLogProvider);
 }
 
-void ezETWProvider::LogMessge(ezLogMsgType::Enum eventType, ezUInt8 uiIndentation, const char* szText, const char* szTag)
+void ezETWProvider::LogMessge(ezLogMsgType::Enum eventType, ezUInt8 uiIndentation, const char* szText)
 {
   TraceLoggingWrite(g_ezETWLogProvider,
     "LogMessge",
     TraceLoggingValue((int)eventType, "Type"),
     TraceLoggingValue(uiIndentation, "Indentation"),
-    TraceLoggingValue(szText, "Text"),
-    TraceLoggingValue(szTag, "Tag"));
+    TraceLoggingValue(szText, "Text"));
 }
 
 ezETWProvider& ezETWProvider::GetInstance()

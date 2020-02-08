@@ -13,7 +13,7 @@ namespace ezLogWriter
     static void LogMessageHandler(const ezLoggingEventData& eventData);
 
     /// \brief Log Message to ETW.
-    static void LogMessage(ezLogMsgType::Enum eventType, ezUInt8 uiIndentation, const char* szText, const char* szTag = "");
+    static void LogMessage(ezLogMsgType::Enum eventType, ezUInt8 uiIndentation, const char* szText);
 
   };
 }

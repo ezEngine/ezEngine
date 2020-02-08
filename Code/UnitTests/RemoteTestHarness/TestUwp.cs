@@ -246,7 +246,6 @@ class ezTestUWP
           int Type = (int)data.PayloadByName("Type");
           byte Indentation = (byte)data.PayloadByName("Indentation");
           string Text = (string)data.PayloadByName("Text");
-          string Tag = (string)data.PayloadByName("Tag");
           if (Type != (int)ezLogMsgType.EndGroup)
           {
             Console.Out.WriteLine("".PadLeft(Indentation) + Text);
