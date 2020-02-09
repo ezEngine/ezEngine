@@ -11,7 +11,7 @@ namespace ezApplicationDetails
     HRESULT result = RoInitialize(RO_INIT_MULTITHREADED);
     if (FAILED(result))
     {
-      printf("Failed to init WinRT: %i", result);
+      ezLog::Printf("Failed to init WinRT: %i", result);
       return EZ_FAILURE;
     }
 

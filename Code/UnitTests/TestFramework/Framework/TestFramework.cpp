@@ -9,6 +9,7 @@
 #include <Foundation/System/StackTracer.h>
 #include <Foundation/Threading/ThreadUtils.h>
 #include <Foundation/Types/ScopeExit.h>
+#include <Foundation/Logging/Log.h>
 #include <TestFramework/Utilities/TestOrder.h>
 
 #include <cstdlib>
@@ -32,16 +33,6 @@ ezLog::TimestampMode ezTestFramework::s_LogTimestampMode = ezLog::TimestampMode:
 
 constexpr int s_iMaxErrorMessageLength = 512;
 
-static void PrintCallstack(const char* szText)
-{
-  printf("%s", szText);
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  OutputDebugStringW(ezStringWChar(szText).GetData());
-#endif
-  fflush(stdout);
-  fflush(stderr);
-};
-
 static bool TestAssertHandler(
   const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
 {
@@ -50,7 +41,7 @@ static bool TestAssertHandler(
     void* pBuffer[64];
     ezArrayPtr<void*> tempTrace(pBuffer);
     const ezUInt32 uiNumTraces = ezStackTracer::GetStackTrace(tempTrace, nullptr);
-    ezStackTracer::ResolveStackTrace(tempTrace.GetSubArray(0, uiNumTraces), &PrintCallstack);
+    ezStackTracer::ResolveStackTrace(tempTrace.GetSubArray(0, uiNumTraces), &ezLog::Print);
   }
 
   ezTestFramework::Error(szExpression, szSourceFile, (ezInt32)uiLine, szFunction, szAssertMsg);

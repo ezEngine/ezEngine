@@ -309,11 +309,15 @@ public:
 
   /// \brief Calls low-level OS functionality to print a string to the typical outputs, e.g. printf and OutputDebugString.
   ///
+  /// Use this function to log unrecoverable errors like asserts, crash handlers etc.
   /// This function is meant for short term debugging when actual printing to the console is desired. Code using it should be temporary.
   /// This function flushes the output immediately, to ensure output is never lost during a crash. Consequently it has a high performance
   /// overhead.
-  ///
+  static void Print(const char* szText);
+  
+  /// \brief Calls low-level OS functionality to print a string to the typical outputs. Forwards to Print.
   /// \note This function uses actual printf formatting, not ezFormatString syntax.
+  /// \sa ezLog::Print
   static void Printf(const char* szFormat, ...);
 
   /// \brief This enum is used in context of outputting timestamp information to indicate a formatting for said timestamps.

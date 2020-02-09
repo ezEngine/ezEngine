@@ -174,7 +174,7 @@ void ezStackTracer::OnPluginEvent(const ezPluginEvent& e)
       char errStr[1024];
       sprintf_s(errStr, "StackTracer could not get module info for '%s'. Error-Code %u (\"%s\")\n", e.m_szPluginFile, err,
                 static_cast<char*>(lpMsgBuf));
-      OutputDebugStringA(errStr);
+      ezLog::Print(errStr);
 
       LocalFree(lpMsgBuf);
     }

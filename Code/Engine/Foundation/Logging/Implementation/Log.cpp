@@ -4,7 +4,11 @@
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Time/Time.h>
 #include <Foundation/Time/Timestamp.h>
+#include <Foundation/Strings/StringConversion.h>
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#  include <Foundation/Logging/Implementation/Win/ETWProvider_win.h>
+#endif
 #if EZ_ENABLED(EZ_PLATFORM_ANDROID)
 #  include <android/log.h>
 #endif
@@ -212,27 +216,35 @@ void ezLog::BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum
   pInterface->m_uiLoggedMsgsSinceFlush++;
 }
 
+void ezLog::Print(const char* szText)
+{
+  printf("%s", szText);
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+    ezETWProvider::GetInstance().LogMessge(ezLogMsgType::ErrorMsg, 0, szText);
+#endif
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+    OutputDebugStringW(ezStringWChar(szText).GetData());
+#endif
+#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+  __android_log_print(ANDROID_LOG_ERROR, "ezEngine", "%s", szText);
+#endif
+
+  fflush(stdout);
+  fflush(stderr);
+}
+
 void ezLog::Printf(const char* szFormat, ...)
 {
   va_list args;
   va_start(args, szFormat);
 
-  char buffer[1024];
+  char buffer[4096];
   ezStringUtils::vsnprintf(buffer, EZ_ARRAY_SIZE(buffer), szFormat, args);
 
-  printf("%s", buffer);
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  OutputDebugStringA(buffer);
-#endif
-#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
-  __android_log_print(ANDROID_LOG_ERROR, "ezEngine", "%s", buffer);
-#endif
+  Print(buffer);
 
   va_end(args);
-
-  fflush(stdout);
-  fflush(stderr);
 }
 
 void ezLog::GenerateFormattedTimestamp(TimestampMode mode, ezStringBuilder& sTimestampOut)

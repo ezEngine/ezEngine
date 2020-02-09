@@ -24,6 +24,12 @@ namespace ezUwpTestHarness
 
     static void Main(string[] args)
     {
+      if (!(Microsoft.Diagnostics.Tracing.Session.TraceEventSession.IsElevated() ?? false))
+      {
+        Console.Out.WriteLine("To turn on ETW events you need to be Administrator, please run from an Admin process.");
+        Debugger.Break();
+      }
+
       AppDomain.CurrentDomain.UnhandledException += (object sender, UnhandledExceptionEventArgs eventArgs) =>
       {
         Environment.ExitCode = 1;

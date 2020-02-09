@@ -22,10 +22,10 @@ namespace ezApplicationDetails
 
       if (!fpStdout || !fpStderr || !fpStdin)
       {
-        printf("\nCouldn't reopen console output in AttachToConsoleWindow()\n");
+        ezLog::Print("\nCouldn't reopen console output in AttachToConsoleWindow()\n");
       }
 
-      printf("\n");
+      ezLog::Print("\n");
     }
   }
 

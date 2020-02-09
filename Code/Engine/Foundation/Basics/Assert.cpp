@@ -5,6 +5,7 @@
 #include <Foundation/Strings/StringUtils.h>
 #include <Foundation/System/SystemInformation.h>
 #include <Foundation/Utilities/ConversionUtils.h>
+#include <Foundation/Logging/Log.h>
 
 #include <cstdio>
 #include <cstdlib>
@@ -23,12 +24,8 @@ bool ezDefaultAssertHandler(
     szExpression, szFunction, szSourceFile, uiLine, szAssertMsg);
   szTemp[1024 * 4 - 1] = '\0';
 
-  printf("%s", szTemp);
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  OutputDebugStringW(ezStringWChar(szTemp).GetData());
-#endif
-
+  ezLog::Print(szTemp);
+  
   if (ezSystemInformation::IsDebuggerAttached())
     return true;
 

@@ -7,6 +7,7 @@
 #include <Foundation/Memory/MemoryTracker.h>
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/Mutex.h>
+#include <Foundation/Logging/Log.h>
 
 namespace ezApplicationDetails
 {
@@ -24,7 +25,7 @@ namespace ezApplicationDetails
     {
       std::string text = pApp->TranslateReturnCode();
       if (!text.empty())
-        printf("Return Code: '%s'\n", text.c_str());
+        ezLog::Printf("Return Code: '%s'\n", text.c_str());
     }
 
     const bool memLeaks = pApp->IsMemoryLeakReportingEnabled();
@@ -70,7 +71,7 @@ namespace ezApplicationDetails
     {
       std::string text = pApp->TranslateReturnCode();
       if (!text.empty())
-        printf("Return Code: '%s'\n", text.c_str());
+        ezLog::Printf("Return Code: '%s'\n", text.c_str());
     }
 
     const bool memLeaks = pApp->IsMemoryLeakReportingEnabled();
