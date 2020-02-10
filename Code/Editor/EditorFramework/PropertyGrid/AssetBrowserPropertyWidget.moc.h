@@ -37,11 +37,13 @@ protected slots:
 protected:
   virtual void OnInit() override;
   virtual void InternalSetValue(const ezVariant& value) override;
+  virtual void showEvent(QShowEvent* event) override;
   void FillAssetMenu(QMenu& menu);
 
 protected:
   void UpdateThumbnail(const ezUuid& guid, const char* szThumbnailPath);
 
+  QPalette m_pal;
   QHBoxLayout* m_pLayout;
   ezQtAssetLineEdit* m_pWidget;
   QToolButton* m_pButton;

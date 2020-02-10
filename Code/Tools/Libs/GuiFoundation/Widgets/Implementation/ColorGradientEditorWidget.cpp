@@ -224,6 +224,13 @@ void ezQtColorGradientEditorWidget::on_ButtonNormalize_clicked()
   Q_EMIT NormalizeRange();
 }
 
+void ezQtColorGradientEditorWidget::showEvent(QShowEvent* event)
+{
+  // Use of style sheets (ADS) breaks previously set palette.
+  ButtonColor->setPalette(m_pal);
+  QWidget::showEvent(event);
+}
+
 void ezQtColorGradientEditorWidget::UpdateCpUi()
 {
   ezQtScopedBlockSignals bs(this);
@@ -239,9 +246,8 @@ void ezQtColorGradientEditorWidget::UpdateCpUi()
     col.setRgb(cp.m_GammaRed, cp.m_GammaGreen, cp.m_GammaBlue);
 
     ButtonColor->setAutoFillBackground(true);
-    QPalette pal = ButtonColor->palette();
-    pal.setColor(QPalette::Button, col);
-    ButtonColor->setPalette(pal);
+    m_pal.setColor(QPalette::Button, col);
+    ButtonColor->setPalette(m_pal);
   }
 
   if (m_iSelectedAlphaCP != -1)

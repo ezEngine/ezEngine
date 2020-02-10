@@ -761,8 +761,9 @@ void ezQtColorButtonWidget::SetColor(const ezVariant& color)
 
 void ezQtColorButtonWidget::showEvent(QShowEvent* event)
 {
-  // Use of Style sheets (ADS) breaks previously set palette.
+  // Use of style sheets (ADS) breaks previously set palette.
   setPalette(m_pal);
+  QFrame::showEvent(event);
 }
 
 void ezQtColorButtonWidget::mouseReleaseEvent(QMouseEvent* event)

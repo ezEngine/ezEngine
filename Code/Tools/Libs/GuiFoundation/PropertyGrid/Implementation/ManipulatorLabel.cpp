@@ -66,9 +66,8 @@ void ezQtManipulatorLabel::SetIsDefault(bool bIsDefault)
   if (m_bIsDefault != bIsDefault)
   {
     m_bIsDefault = bIsDefault;
-    QFont f = font();
-    f.setBold(!m_bIsDefault);
-    setFont(f);
+    m_font.setBold(!m_bIsDefault);
+    setFont(m_font);
   }
 }
 
@@ -76,6 +75,13 @@ void ezQtManipulatorLabel::SetIsDefault(bool bIsDefault)
 void ezQtManipulatorLabel::contextMenuEvent(QContextMenuEvent* ev)
 {
   Q_EMIT customContextMenuRequested(ev->globalPos());
+}
+
+void ezQtManipulatorLabel::showEvent(QShowEvent* event)
+{
+  // Use of style sheets (ADS) breaks previously set font.
+  setFont(m_font);
+  QLabel::showEvent(event);
 }
 
 void ezQtManipulatorLabel::mousePressEvent(QMouseEvent* ev)
@@ -98,9 +104,8 @@ void ezQtManipulatorLabel::enterEvent(QEvent* ev)
 {
   if (m_pManipulator)
   {
-    QFont f = font();
-    f.setUnderline(true);
-    setFont(f);
+    m_font.setUnderline(true);
+    setFont(m_font);
   }
 
   QLabel::enterEvent(ev);
@@ -110,9 +115,8 @@ void ezQtManipulatorLabel::leaveEvent(QEvent* ev)
 {
   if (m_pManipulator)
   {
-    QFont f = font();
-    f.setUnderline(false);
-    setFont(f);
+    m_font.setUnderline(false);
+    setFont(m_font);
   }
 
   QLabel::leaveEvent(ev);

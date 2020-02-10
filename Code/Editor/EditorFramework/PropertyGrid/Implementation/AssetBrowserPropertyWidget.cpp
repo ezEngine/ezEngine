@@ -159,9 +159,8 @@ void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
         m_pButton->setIcon(QIcon());
         m_pButton->setToolButtonStyle(Qt::ToolButtonStyle::ToolButtonTextOnly);
 
-        auto pal = m_pWidget->palette();
-        pal.setColor(QPalette::Text, Qt::red);
-        m_pWidget->setPalette(pal);
+        m_pal.setColor(QPalette::Text, Qt::red);
+        m_pWidget->setPalette(m_pal);
 
         return;
       }
@@ -183,9 +182,8 @@ void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
     UpdateThumbnail(m_AssetGuid, sThumbnailPath);
 
     {
-      auto pal = m_pWidget->palette();
-      pal.setColor(QPalette::Text, m_AssetGuid.IsValid() ? QColor::fromRgb(182, 255, 0) : QColor::fromRgb(255, 170, 0));
-      m_pWidget->setPalette(pal);
+      m_pal.setColor(QPalette::Text, m_AssetGuid.IsValid() ? QColor::fromRgb(182, 255, 0) : QColor::fromRgb(255, 170, 0));
+      m_pWidget->setPalette(m_pal);
 
       if (m_AssetGuid.IsValid())
         m_pWidget->setToolTip(QStringLiteral("The selected file resolved to a valid asset GUID"));
@@ -196,6 +194,13 @@ void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
     m_pWidget->setPlaceholderText(QString());
     m_pWidget->setText(QString::fromUtf8(sText.GetData()));
   }
+}
+
+void ezQtAssetPropertyWidget::showEvent(QShowEvent* event)
+{
+  // Use of style sheets (ADS) breaks previously set palette.
+  m_pWidget->setPalette(m_pal);
+  ezQtStandardPropertyWidget::showEvent(event);
 }
 
 void ezQtAssetPropertyWidget::FillAssetMenu(QMenu& menu)

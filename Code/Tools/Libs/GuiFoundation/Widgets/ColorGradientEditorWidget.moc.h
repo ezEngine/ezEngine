@@ -61,9 +61,13 @@ private Q_SLOTS:
   void onColorReset();
   void on_ButtonNormalize_clicked();
 
+protected:
+  virtual void showEvent(QShowEvent* event) override;
+
 private:
   void UpdateCpUi();
 
+  QPalette m_pal;
   ezInt32 m_iSelectedColorCP;
   ezInt32 m_iSelectedAlphaCP;
   ezInt32 m_iSelectedIntensityCP;
