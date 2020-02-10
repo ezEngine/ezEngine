@@ -10,7 +10,7 @@ class ezAssetFileHeader;
 
 struct ezAssetExistanceState
 {
-  enum Enum
+  enum Enum : ezUInt8
   {
     FileAdded,
     FileRemoved,

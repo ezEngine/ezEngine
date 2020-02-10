@@ -59,7 +59,7 @@ struct EZ_EDITORFRAMEWORK_DLL ezAssetInfo
     return static_cast<ezAssetDocumentManager*>(m_pDocumentTypeDescriptor->m_pManager);
   }
 
-  enum TransformState
+  enum TransformState : ezUInt8
   {
     Unknown = 0,
     UpToDate,
@@ -71,8 +71,12 @@ struct EZ_EDITORFRAMEWORK_DLL ezAssetInfo
     MissingReference,
     COUNT,
   };
+  ezUInt8 m_LastStateUpdate = 0; ///< Changes every time m_TransformState is modified. Used to detect stale computations done outside the lock.
   ezAssetExistanceState::Enum m_ExistanceState = ezAssetExistanceState::FileAdded;
   TransformState m_TransformState = TransformState::Unknown;
+  ezUInt64 m_AssetHash = 0; ///< Valid if m_TransformState != Unknown and asset not in Curator's m_TransformStateStale list.
+  ezUInt64 m_ThumbHash = 0; ///< Valid if m_TransformState != Unknown and asset not in Curator's m_TransformStateStale list.
+
   ezDynamicArray<ezLogEntry> m_LogEntries;
 
   const ezAssetDocumentTypeDescriptor* m_pDocumentTypeDescriptor = nullptr;
@@ -81,7 +85,6 @@ struct EZ_EDITORFRAMEWORK_DLL ezAssetInfo
 
   ezUniquePtr<ezAssetDocumentInfo> m_Info;
 
-  ezUInt64 m_LastAssetDependencyHash = 0; ///< For debugging only.
   ezSet<ezString> m_MissingDependencies;
   ezSet<ezString> m_MissingReferences;
 
@@ -327,8 +330,9 @@ private:
   /// \name Asset Hashing and Status Updates (AssetUpdates.cpp)
   ///@{
 
-  ezUInt64 GetAssetHash(ezUuid assetGuid, bool bReferences);
-  bool AddAssetHash(ezString& sPath, bool bReferences, ezUInt64& uiHashResult);
+  ezAssetInfo::TransformState HashAsset(ezUInt64 uiSettingsHash, const ezHybridArray<ezString, 16>& assetTransformDependencies, const ezHybridArray<ezString, 16>& runtimeDependencies,
+    ezSet<ezString>& missingDependencies, ezSet<ezString>& missingReferences, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash);
+  bool AddAssetHash(ezString& sPath, bool bIsReference, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash);
 
   ezResult EnsureAssetInfoUpdated(const ezUuid& assetGuid);
   ezResult EnsureAssetInfoUpdated(const char* szAbsFilePath);
@@ -345,6 +349,7 @@ private:
 
   void RemoveAssetTransformState(const ezUuid& assetGuid);
   void InvalidateAssetTransformState(const ezUuid& assetGuid);
+  ezAssetInfo::TransformState UpdateAssetTransformState(ezUuid assetGuid, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash);
   void UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetInfo::TransformState state);
   void UpdateAssetTransformLog(const ezUuid& assetGuid, ezDynamicArray<ezLogEntry>& logEntries);
   void SetAssetExistanceState(ezAssetInfo& assetInfo, ezAssetExistanceState::Enum state);

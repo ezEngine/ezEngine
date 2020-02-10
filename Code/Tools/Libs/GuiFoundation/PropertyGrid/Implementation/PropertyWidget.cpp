@@ -698,7 +698,7 @@ void ezQtPropertyEditorLineEditWidget::OnInit()
     ezQtScopedBlockSignals bs(m_pWidget);
 
     m_pWidget->setReadOnly(true);
-    auto palette = m_pWidget->palette();
+    QPalette palette = m_pWidget->palette();
     palette.setColor(QPalette::Base, QColor(0, 0, 0, 0));
     m_pWidget->setPalette(palette);
   }
@@ -750,18 +750,19 @@ void ezQtColorButtonWidget::SetColor(const ezVariant& color)
     QColor qol;
     qol.setRgb(col.r, col.g, col.b, col.a);
 
-    QPalette pal = palette();
-    pal.setBrush(QPalette::Window, QBrush(qol, Qt::SolidPattern));
-
-    setPalette(pal);
+    m_pal.setBrush(QPalette::Window, QBrush(qol, Qt::SolidPattern));
+    setPalette(m_pal);
   }
   else
-  {
-    QPalette pal = palette();
-    pal.setBrush(QPalette::Window, QBrush(pal.windowText().color(), Qt::DiagCrossPattern));
-
-    setPalette(pal);
+  { 
+    setPalette(m_pal);
   }
+}
+
+void ezQtColorButtonWidget::showEvent(QShowEvent* event)
+{
+  // Use of Style sheets (ADS) breaks previously set palette.
+  setPalette(m_pal);
 }
 
 void ezQtColorButtonWidget::mouseReleaseEvent(QMouseEvent* event)

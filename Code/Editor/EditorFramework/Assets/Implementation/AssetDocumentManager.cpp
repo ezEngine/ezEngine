@@ -131,15 +131,15 @@ ezString ezAssetDocumentManager::GetRelativeOutputFileName(const ezAssetDocument
   return sRelativePath;
 }
 
-bool ezAssetDocumentManager::IsOutputUpToDate(const char* szDocumentPath, const ezSet<ezString>& outputs, ezUInt64 uiHash, const ezAssetDocumentTypeDescriptor* pTypeDescriptor)
+bool ezAssetDocumentManager::IsOutputUpToDate(const char* szDocumentPath, const ezDynamicArray<ezString>& outputs, ezUInt64 uiHash, const ezAssetDocumentTypeDescriptor* pTypeDescriptor)
 {
   CURATOR_PROFILE(szDocumentPath);
   if (!IsOutputUpToDate(szDocumentPath, "", uiHash, pTypeDescriptor))
     return false;
 
-  for (auto it = outputs.GetIterator(); it.IsValid(); ++it)
+  for (const ezString& sOutput : outputs)
   {
-    if (!IsOutputUpToDate(szDocumentPath, it.Key(), uiHash, pTypeDescriptor))
+    if (!IsOutputUpToDate(szDocumentPath, sOutput, uiHash, pTypeDescriptor))
       return false;
   }
   return true;

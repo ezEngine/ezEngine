@@ -11,115 +11,53 @@
 // ezAssetCurator Asset Hashing and Status Updates
 ////////////////////////////////////////////////////////////////////////
 
-ezUInt64 ezAssetCurator::GetAssetHash(ezUuid assetGuid, bool bReferences)
+ezAssetInfo::TransformState ezAssetCurator::HashAsset(ezUInt64 uiSettingsHash, const ezHybridArray<ezString, 16>& assetTransformDependencies, const ezHybridArray<ezString, 16>& runtimeDependencies,
+  ezSet<ezString>& missingDependencies, ezSet<ezString>& missingReferences, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash)
 {
-  CURATOR_PROFILE("GetAssetHash");
+  CURATOR_PROFILE("HashAsset");
   ezStringBuilder tmp;
-
-  {
-    // If assetGuid is a sub-asset, redirect to main asset.
-    EZ_LOCK(m_CuratorMutex);
-    auto it = m_KnownSubAssets.Find(assetGuid);
-    if (it.IsValid())
-    {
-      assetGuid = it.Value().m_pAssetInfo->m_Info->m_DocumentID;
-    }
-  }
-
-  // Do this before copying the ezAssetDocumentInfo as this may change it. So we can't cache it in
-  // the lock above.
-  if (EnsureAssetInfoUpdated(assetGuid).Failed())
-  {
-    ezLog::Error("Asset with GUID {0} is unknown", ezConversionUtils::ToString(assetGuid, tmp));
-    return 0;
-  }
-
-  ezString sAbsolutePath;
-  ezAssetDocumentInfo Info;
-  {
-    EZ_LOCK(m_CuratorMutex);
-    ezAssetInfo* pInfo = nullptr;
-    if (!m_KnownAssets.TryGetValue(assetGuid, pInfo))
-    {
-      ezLog::Error("Asset with GUID {0} is unknown", ezConversionUtils::ToString(assetGuid, tmp));
-      return 0;
-    }
-
-    if (pInfo->m_TransformState == ezAssetInfo::TransformError)
-      return 0;
-
-    pInfo->m_Info->CreateShallowClone(Info);
-    sAbsolutePath = pInfo->m_sAbsolutePath;
-  }
-
-  EZ_LOG_BLOCK("ezAssetCurator::GetAssetHash", sAbsolutePath.GetData());
-
-
-  ezUInt64 uiHashResult = 0;
-  ezSet<ezString> missingDependencies;
-  ezSet<ezString> missingReferences;
+  ezAssetInfo::TransformState state = ezAssetInfo::Unknown;
   {
     // hash of the main asset file
-    uiHashResult = Info.m_uiSettingsHash;
+    out_AssetHash = uiSettingsHash;
+    out_ThumbHash = uiSettingsHash;
 
     // Iterate dependencies
-    ezSet<ezString>& files = bReferences ? Info.m_RuntimeDependencies : Info.m_AssetTransformDependencies;
-
-    for (const auto& dep : Info.m_AssetTransformDependencies)
+    for (const auto& dep : assetTransformDependencies)
     {
       ezString sPath = dep;
-      if (!AddAssetHash(sPath, bReferences, uiHashResult))
+      if (!AddAssetHash(sPath, false, out_AssetHash, out_ThumbHash))
       {
         missingDependencies.Insert(sPath);
       }
     }
 
-    if (bReferences)
+    for (const auto& dep : runtimeDependencies)
     {
-      for (const auto& dep : Info.m_RuntimeDependencies)
+      ezString sPath = dep;
+      if (!AddAssetHash(sPath, true, out_AssetHash, out_ThumbHash))
       {
-        ezString sPath = dep;
-        // Already hashed in the dependency list.
-        if (Info.m_AssetTransformDependencies.Contains(sPath))
-          continue;
-
-        if (!AddAssetHash(sPath, bReferences, uiHashResult))
-        {
-          missingReferences.Insert(sPath);
-        }
+        missingReferences.Insert(sPath);
       }
     }
   }
 
-  if (!missingDependencies.IsEmpty() || !missingReferences.IsEmpty())
+  if (!missingReferences.IsEmpty())
   {
-    uiHashResult = 0;
+    out_ThumbHash = 0;
+    state = ezAssetInfo::MissingReference;
+  }
+  if (!missingDependencies.IsEmpty())
+  {
+    out_AssetHash = 0;
+    out_ThumbHash = 0;
+    state = ezAssetInfo::MissingDependency;
   }
 
-  {
-    EZ_LOCK(m_CuratorMutex);
-    ezAssetInfo* pInfo = nullptr;
-    if (!m_KnownAssets.TryGetValue(assetGuid, pInfo))
-    {
-      ezLog::Error("Asset with GUID {0} is unknown", ezConversionUtils::ToString(assetGuid, tmp));
-      return 0;
-    }
-    pInfo->m_MissingDependencies = missingDependencies;
-    pInfo->m_MissingReferences = missingReferences;
-    if (!bReferences)
-    {
-      // Write back result hash for debugging.
-      if (pInfo->m_LastAssetDependencyHash != uiHashResult)
-      {
-        pInfo->m_LastAssetDependencyHash = uiHashResult;
-      }
-    }
-  }
-
-  return uiHashResult;
+  return state;
 }
 
-bool ezAssetCurator::AddAssetHash(ezString& sPath, bool bReferences, ezUInt64& uiHashResult)
+bool ezAssetCurator::AddAssetHash(ezString& sPath, bool bIsReference, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash)
 {
   if (sPath.IsEmpty())
     return true;
@@ -127,13 +65,22 @@ bool ezAssetCurator::AddAssetHash(ezString& sPath, bool bReferences, ezUInt64& u
   if (ezConversionUtils::IsStringUuid(sPath))
   {
     const ezUuid guid = ezConversionUtils::ConvertStringToUuid(sPath);
-    ezUInt64 uiAssetHash = GetAssetHash(guid, bReferences);
-    if (uiAssetHash == 0)
+    ezUInt64 assetHash = 0;
+    ezUInt64 thumbHash = 0;
+    ezAssetInfo::TransformState state = UpdateAssetTransformState(guid, assetHash, thumbHash);
+    if (assetHash == 0)
     {
       ezLog::Error("Failed to hash dependency asset '{0}'", sPath);
       return false;
     }
-    uiHashResult += uiAssetHash;
+
+    // Thumbs hash is affected by both transform dependencies and references.
+    out_ThumbHash += thumbHash;
+    if (!bIsReference)
+    {
+      // References do not affect the asset hash.
+      out_AssetHash += assetHash;
+    }
     return true;
   }
 
@@ -155,9 +102,11 @@ bool ezAssetCurator::AddAssetHash(ezString& sPath, bool bReferences, ezUInt64& u
   }
 
   ezFileStatus fileStatus;
+  ezTimestamp previousModificationTime;
   {
     EZ_LOCK(m_CuratorMutex);
     fileStatus = m_ReferencedFiles[sPath];
+    previousModificationTime = fileStatus.m_Timestamp;
   }
 
   // if the file has been modified, make sure to get updated data
@@ -178,11 +127,20 @@ bool ezAssetCurator::AddAssetHash(ezString& sPath, bool bReferences, ezUInt64& u
   {
     EZ_LOCK(m_CuratorMutex);
     ezFileStatus& refFile = m_ReferencedFiles[sPath];
-    refFile = fileStatus;
+    // Only update the status if the file status has not been changed between the locks or we might write stale data to it.
+    if (refFile.m_Timestamp.Compare(previousModificationTime, ezTimestamp::CompareMode::Identical))
+    {
+      refFile = fileStatus;
+    }
   }
 
-  // combine all hashes
-  uiHashResult += fileStatus.m_uiHash;
+  // Thumbs hash is affected by both transform dependencies and references.
+  out_ThumbHash += fileStatus.m_uiHash;
+  if (!bIsReference)
+  {
+    // References do not affect the asset hash.
+    out_AssetHash += fileStatus.m_uiHash;
+  }
   return true;
 }
 
@@ -224,9 +182,11 @@ ezResult ezAssetCurator::EnsureAssetInfoUpdated(const char* szAbsFilePath)
 {
   CURATOR_PROFILE(szAbsFilePath);
   ezFileStats fs;
-  if (ezOSFile::GetFileStats(szAbsFilePath, fs).Failed())
-    return EZ_FAILURE;
-
+  {
+    CURATOR_PROFILE("GetFileStats");
+    if (ezOSFile::GetFileStats(szAbsFilePath, fs).Failed())
+      return EZ_FAILURE;
+  }
   {
     // If the file stat matches our stored timestamp, we are still up to date.
     EZ_LOCK(m_CuratorMutex);
@@ -697,8 +657,15 @@ void ezAssetCurator::InvalidateAssetTransformState(const ezUuid& assetGuid)
   ezAssetInfo* pAssetInfo = nullptr;
   if (m_KnownAssets.TryGetValue(assetGuid, pAssetInfo))
   {
+    // We do not set pAssetInfo->m_TransformState because that is user facing and
+    // as after updating the state it might just be the same as before we instead add
+    // it to the queue here to prevent flickering in the GUI.
     m_TransformStateStale.Insert(assetGuid);
-
+    // Increasing m_LastStateUpdate will ensure that asset hash/state computations
+    // that are in flight will not be written back to the asset.
+    pAssetInfo->m_LastStateUpdate++;
+    pAssetInfo->m_AssetHash = 0;
+    pAssetInfo->m_ThumbHash = 0;
     auto it = m_InverseDependency.Find(pAssetInfo->m_sAbsolutePath);
     if (it.IsValid())
     {
@@ -837,5 +804,12 @@ void ezUpdateTask::Execute()
 
   ezUInt64 uiAssetHash = 0;
   ezUInt64 uiThumbHash = 0;
+
+  // Do not log update errors done on the background thread. Only if done explicitly on the main thread or the GUI will not be responsive
+  // if the user deleted some base asset and everything starts complaining about it.
+  ezLogEntryDelegate logger(
+    [&](ezLogEntry& entry) -> void {}, ezLogMsgType::All);
+  ezLogSystemScope logScope(&logger);
+
   ezAssetCurator::GetSingleton()->IsAssetUpToDate(assetGuid, ezAssetCurator::GetSingleton()->GetActiveAssetProfile(), static_cast<const ezAssetDocumentTypeDescriptor*>(pTypeDescriptor), uiAssetHash, uiThumbHash);
 }
