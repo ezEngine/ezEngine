@@ -284,9 +284,14 @@ export class TestQuat extends ez.TypescriptComponent {
 
             q.SetFromEulerAngles(0, ez.Angle.DegreeToRadian(90), 0);
             euler = q.GetAsEulerAngles();
-            EZ_TEST.FLOAT(euler.roll, ez.Angle.DegreeToRadian(180), 0.001);
             EZ_TEST.FLOAT(euler.pitch, ez.Angle.DegreeToRadian(90), 0.001);
-            EZ_TEST.FLOAT(euler.yaw, ez.Angle.DegreeToRadian(180), 0.001);
+
+            // due to compilation differences, this the result for this computation can be very different (but equivalent)
+            EZ_TEST.BOOL((ez.Utils.IsNumberEqual(euler.roll, ez.Angle.DegreeToRadian(180), 0.001) && 
+                          ez.Utils.IsNumberEqual(euler.yaw, ez.Angle.DegreeToRadian(180), 0.001)) ||
+                          (ez.Utils.IsNumberEqual(euler.roll, ez.Angle.DegreeToRadian(0), 0.001) && 
+                          ez.Utils.IsNumberEqual(euler.yaw, ez.Angle.DegreeToRadian(0), 0.001)));
+
 
             q.SetFromEulerAngles(0, 0, ez.Angle.DegreeToRadian(90));
             euler = q.GetAsEulerAngles();
