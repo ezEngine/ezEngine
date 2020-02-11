@@ -265,11 +265,8 @@ ezResult ezMeshResourceDescriptor::Load(ezStreamReader& stream)
   ezUInt8 uiVersion = 0;
   stream >> uiVersion;
 
-  // version 4 is broken
-  if (uiVersion == 4)
-    return EZ_FAILURE;
-
-  if (uiVersion != 3 && uiVersion != 5 && uiVersion != 6)
+  // version 4 and below is broken
+  if (uiVersion <= 4)
     return EZ_FAILURE;
 
   ezUInt8 uiCompressionMode = 0;

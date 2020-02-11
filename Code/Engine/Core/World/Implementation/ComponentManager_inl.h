@@ -177,7 +177,7 @@ ezComponentManagerSimple<ComponentType, UpdateType, StorageType>::ezComponentMan
 template <typename ComponentType, ezComponentUpdateType::Enum UpdateType, ezBlockStorageType::Enum StorageType>
 void ezComponentManagerSimple<ComponentType, UpdateType, StorageType>::Initialize()
 {
-  typedef ezComponentManagerSimple<ComponentType, UpdateType> OwnType;
+  typedef ezComponentManagerSimple<ComponentType, UpdateType, StorageType> OwnType;
 
   ezStringBuilder functionName;
   SimpleUpdateName(functionName);
