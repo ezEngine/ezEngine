@@ -1,6 +1,7 @@
 #include <CorePCH.h>
 
 #include <Core/Messages/DeleteObjectMessage.h>
+#include <Core/Messages/EventMessage.h>
 #include <Core/Messages/HierarchyChangedMessages.h>
 #include <Core/World/World.h>
 #include <Core/World/WorldModule.h>
@@ -12,7 +13,7 @@ ezStaticArray<ezWorld*, 64> ezWorld::s_Worlds;
 
 const ezUInt16 c_InvalidWorldIndex = 0xFFFFu;
 
-static ezGameObjectHandle DefaultGameObjectReferenceResolver(const void* pData)
+static ezGameObjectHandle DefaultGameObjectReferenceResolver(const void* pData, ezComponentHandle hThis, const char* szProperty)
 {
   const char* szRef = reinterpret_cast<const char*>(pData);
 
@@ -76,7 +77,7 @@ ezWorld::~ezWorld()
   // set all objects to inactive so components and children know that they shouldn't access the objects anymore.
   for (auto it = m_Data.m_ObjectStorage.GetIterator(); it.IsValid(); it.Next())
   {
-    it->m_Flags.Remove(ezObjectFlags::Active);
+    it->m_Flags.Remove(ezObjectFlags::ActiveFlag | ezObjectFlags::ActiveState);
   }
 
   // deinitialize all modules before we invalidate the world. Components can still access the world during deinitialization.
@@ -111,6 +112,10 @@ void ezWorld::Clear()
   {
     DeleteObjectNow(it->GetHandle());
   }
+
+  // make sure all dead objects and components are cleared right now
+  DeleteDeadObjects();
+  DeleteDeadComponents();
 }
 
 void ezWorld::SetCoordinateSystemProvider(const ezSharedPtr<ezCoordinateSystemProvider>& pProvider)
@@ -164,7 +169,7 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   pNewObject->m_InternalId = newId;
   pNewObject->m_Flags = ezObjectFlags::None;
   pNewObject->m_Flags.AddOrRemove(ezObjectFlags::Dynamic, bDynamic);
-  pNewObject->m_Flags.AddOrRemove(ezObjectFlags::Active, desc.m_bActive);
+  pNewObject->m_Flags.AddOrRemove(ezObjectFlags::ActiveFlag, desc.m_bActiveFlag);
   pNewObject->m_sName = desc.m_sName;
   pNewObject->m_pWorld = this;
   pNewObject->m_ParentIndex = uiParentIndex;
@@ -180,11 +185,14 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   pTransformationData->m_localRotation = ezSimdConversion::ToQuat(desc.m_LocalRotation);
   pTransformationData->m_localScaling = ezSimdConversion::ToVec4(desc.m_LocalScaling.GetAsVec4(desc.m_LocalUniformScaling));
   pTransformationData->m_globalTransform.SetIdentity();
+#if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
   pTransformationData->m_velocity.SetZero();
+#endif
   pTransformationData->m_localBounds.SetInvalid();
   pTransformationData->m_localBounds.m_BoxHalfExtents.SetW(ezSimdFloat::Zero());
   pTransformationData->m_globalBounds = pTransformationData->m_localBounds;
   pTransformationData->m_hSpatialData.Invalidate();
+  pTransformationData->m_uiSpatialDataCategoryBitmask = 0;
 
   if (pParentData != nullptr)
   {
@@ -195,13 +203,17 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
     pTransformationData->UpdateGlobalTransform();
   }
 
+#if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
   pTransformationData->m_lastGlobalPosition = pTransformationData->m_globalTransform.m_Position;
+#endif
 
   // link the transformation data to the game object
   pNewObject->m_pTransformationData = pTransformationData;
 
   // fix links
   LinkToParent(pNewObject);
+
+  pNewObject->UpdateActiveState(pParentObject == nullptr ? true : pParentObject->IsActive());
 
   out_pObject = pNewObject;
   return ezGameObjectHandle(newId);
@@ -216,7 +228,7 @@ void ezWorld::DeleteObjectNow(const ezGameObjectHandle& object)
     return;
 
   // set object to inactive so components and children know that they shouldn't access the object anymore.
-  pObject->m_Flags.Remove(ezObjectFlags::Active);
+  pObject->m_Flags.Remove(ezObjectFlags::ActiveFlag | ezObjectFlags::ActiveState);
 
   // delete children
   for (auto it = pObject->GetChildren(); it.IsValid(); ++it)
@@ -225,10 +237,9 @@ void ezWorld::DeleteObjectNow(const ezGameObjectHandle& object)
   }
 
   // delete attached components
-  const ezArrayPtr<ezComponent*> components = pObject->m_Components;
-  for (ezUInt32 c = 0; c < components.GetCount(); ++c)
+  while (!pObject->m_Components.IsEmpty())
   {
-    ezComponent* pComponent = components[c];
+    ezComponent* pComponent = pObject->m_Components[0];
     pComponent->GetOwningManager()->DeleteComponent(pComponent->GetHandle());
   }
   EZ_ASSERT_DEV(pObject->m_Components.GetCount() == 0, "Components should already be removed");
@@ -241,7 +252,7 @@ void ezWorld::DeleteObjectNow(const ezGameObjectHandle& object)
 
   // invalidate and remove from id table
   pObject->m_InternalId.Invalidate();
-  m_Data.m_DeadObjects.PushBack(pObject);
+  m_Data.m_DeadObjects.Insert(pObject);
   EZ_VERIFY(m_Data.m_Objects.Remove(object), "Implementation error.");
 }
 
@@ -251,8 +262,7 @@ void ezWorld::DeleteObjectDelayed(const ezGameObjectHandle& hObject)
   PostMessage(hObject, msg, ezObjectMsgQueueType::NextFrame);
 }
 
-void ezWorld::PostMessage(
-  const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay, bool bRecursive) const
+void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay, bool bRecursive) const
 {
   // This method is allowed to be called from multiple threads.
 
@@ -276,8 +286,7 @@ void ezWorld::PostMessage(
   }
 }
 
-void ezWorld::PostMessage(
-  const ezComponentHandle& receiverComponent, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const
+void ezWorld::PostMessage(const ezComponentHandle& receiverComponent, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const
 {
   // This method is allowed to be called from multiple threads.
 
@@ -301,6 +310,52 @@ void ezWorld::PostMessage(
     ezMessage* pMsgCopy = pMsgRTTIAllocator->Clone<ezMessage>(&msg, m_Data.m_StackAllocator.GetCurrentAllocator());
     m_Data.m_MessageQueues[queueType].Enqueue(pMsgCopy, metaData);
   }
+}
+
+const ezComponent* ezWorld::FindEventMsgHandler(ezEventMessage& msg, const ezGameObject* pSearchObject) const
+{
+  ezWorld* pWorld = const_cast<ezWorld*>(this);
+
+  // walk the graph upwards until an object is found with an ezEventMessageHandlerComponent that handles this type of message
+  {
+    const ezGameObject* pCurrentObject = pSearchObject;
+
+    while (pCurrentObject != nullptr)
+    {
+      const ezEventMessageHandlerComponent* pEventMessageHandlerComponent = nullptr;
+      if (pCurrentObject->TryGetComponentOfBaseType(pEventMessageHandlerComponent))
+      {
+        if (pEventMessageHandlerComponent->HandlesEventMessage(msg))
+        {
+          return pEventMessageHandlerComponent;
+        }
+
+        // found an ezEventMessageHandlerComponent -> stop searching
+        // even if it does not handle this type of message, we do not want to propagate the message to someone else
+        return nullptr;
+      }
+
+      pCurrentObject = pCurrentObject->GetParent();
+    }
+  }
+
+  // if no such object is found, check all objects that are registered as 'global event handlers'
+  {
+    auto globalEventMessageHandler = ezEventMessageHandlerComponent::GetAllGlobalEventHandler(this);
+    for (auto hEventMessageHandlerComponent : globalEventMessageHandler)
+    {
+      ezEventMessageHandlerComponent* pEventMessageHandlerComponent = nullptr;
+      if (pWorld->TryGetComponent(hEventMessageHandlerComponent, pEventMessageHandlerComponent))
+      {
+        if (pEventMessageHandlerComponent->HandlesEventMessage(msg))
+        {
+          return pEventMessageHandlerComponent;
+        }
+      }
+    }
+  }
+
+  return nullptr;
 }
 
 void ezWorld::Update()
@@ -468,8 +523,7 @@ const ezWorldModule* ezWorld::GetModule(const ezRTTI* pRtti) const
 void ezWorld::SetParent(ezGameObject* pObject, ezGameObject* pNewParent, ezGameObject::TransformPreservation preserve)
 {
   EZ_ASSERT_DEV(pObject != pNewParent, "Object can't be its own parent!");
-  EZ_ASSERT_DEV(
-    pNewParent == nullptr || pObject->IsDynamic() || pNewParent->IsStatic(), "Can't attach a static object to a dynamic parent!");
+  EZ_ASSERT_DEV(pNewParent == nullptr || pObject->IsDynamic() || pNewParent->IsStatic(), "Can't attach a static object to a dynamic parent!");
   CheckForWriteAccess();
 
   if (GetObjectUnchecked(pObject->m_ParentIndex) == pNewParent)
@@ -489,6 +543,12 @@ void ezWorld::SetParent(ezGameObject* pObject, ezGameObject* pNewParent, ezGameO
   }
 
   PatchHierarchyData(pObject, preserve);
+
+  // TODO: the functions above send messages such as ezMsgChildrenChanged, which will not arrive for inactive components, is that a problem ?
+  // 1) if a component was active before and now gets deactivated, it may not care about the message anymore anyway
+  // 2) if a component was inactive before, it did not get the message, but upon activation it can update the state for which it needed the message
+  // so probably it is fine, only components that were active and stay active need the message, and that will be the case
+  pObject->UpdateActiveState(pNewParent == nullptr ? true : pNewParent->IsActive());
 }
 
 void ezWorld::LinkToParent(ezGameObject* pObject)
@@ -618,7 +678,7 @@ void ezWorld::ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::En
     ezComponent* pReceiverComponent = nullptr;
     if (TryGetComponent(hComponent, pReceiverComponent))
     {
-      pReceiverComponent->SendMessage(*entry.m_pMessage);
+      pReceiverComponent->SendMessageInternal(*entry.m_pMessage, true);
     }
     else
     {
@@ -640,11 +700,11 @@ void ezWorld::ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::En
     {
       if (entry.m_MetaData.m_uiRecursive)
       {
-        pReceiverObject->SendMessageRecursive(*entry.m_pMessage);
+        pReceiverObject->SendMessageRecursiveInternal(*entry.m_pMessage, true);
       }
       else
       {
-        pReceiverObject->SendMessage(*entry.m_pMessage);
+        pReceiverObject->SendMessageInternal(*entry.m_pMessage, true);
       }
     }
     else
@@ -734,7 +794,7 @@ void ezWorld::RegisterUpdateFunction(const ezComponentManagerBase::UpdateFunctio
     "Granularity must be 0 for synchronous update functions");
   EZ_ASSERT_DEV(desc.m_Phase != ezComponentManagerBase::UpdateFunctionDesc::Phase::Async || desc.m_DependsOn.GetCount() == 0,
     "Asynchronous update functions must not have dependencies");
-  EZ_ASSERT_DEV(!desc.m_Function.IsHeapAllocated(), "Delegates with captures are not allowed as ezWorld update functions.");
+  EZ_ASSERT_DEV(desc.m_Function.IsComparable(), "Delegates with captures are not allowed as ezWorld update functions.");
 
   m_Data.m_UpdateFunctionsToRegister.PushBack(desc);
 }
@@ -747,7 +807,7 @@ void ezWorld::DeregisterUpdateFunction(const ezComponentManagerBase::UpdateFunct
 
   for (ezUInt32 i = updateFunctions.GetCount(); i-- > 0;)
   {
-    if (updateFunctions[i].m_Function.IsEqualIfNotHeapAllocated(desc.m_Function))
+    if (updateFunctions[i].m_Function.IsEqualIfComparable(desc.m_Function))
     {
       updateFunctions.RemoveAtAndCopy(i);
     }
@@ -879,7 +939,6 @@ void ezWorld::ProcessComponentsToInitialize()
     {
       pComponent->OnActivated();
 
-      EZ_ASSERT_DEBUG(!m_Data.m_ComponentsToStartSimulation.Contains(hComponent), "Must not be added twice to start simulation list");
       m_Data.m_ComponentsToStartSimulation.PushBack(hComponent);
     }
   }
@@ -993,8 +1052,7 @@ void ezWorld::DeleteDeadObjects()
 {
   while (!m_Data.m_DeadObjects.IsEmpty())
   {
-    ezGameObject* pObject = m_Data.m_DeadObjects.PeekBack();
-    m_Data.m_DeadObjects.PopBack();
+    ezGameObject* pObject = m_Data.m_DeadObjects.GetIterator().Key();
 
     if (!pObject->m_pTransformationData->m_hSpatialData.IsInvalidated())
     {
@@ -1014,16 +1072,15 @@ void ezWorld::DeleteDeadObjects()
       if (id.m_InstanceIndex != ezGameObjectId::INVALID_INSTANCE_INDEX)
         m_Data.m_Objects[id] = pObject;
 
-      // the moved object might be deleted as well so we need to patch the dead objects list
-      for (ezUInt32 i = 0; i < m_Data.m_DeadObjects.GetCount(); ++i)
+      // The moved object might be deleted as well so we remove it from the dead objects set instead.
+      // If that is not the case we remove the original object from the set.
+      if (m_Data.m_DeadObjects.Remove(pMovedObject))
       {
-        if (m_Data.m_DeadObjects[i] == pMovedObject)
-        {
-          m_Data.m_DeadObjects[i] = pObject;
-          break;
-        }
+        continue;
       }
     }
+
+    m_Data.m_DeadObjects.Remove(pObject);
   }
 }
 
@@ -1031,8 +1088,7 @@ void ezWorld::DeleteDeadComponents()
 {
   while (!m_Data.m_DeadComponents.IsEmpty())
   {
-    ezComponent* pComponent = m_Data.m_DeadComponents.PeekBack();
-    m_Data.m_DeadComponents.PopBack();
+    ezComponent* pComponent = m_Data.m_DeadComponents.GetIterator().Key();
 
     ezComponentManagerBase* pManager = pComponent->GetOwningManager();
     ezComponent* pMovedComponent = nullptr;
@@ -1048,16 +1104,15 @@ void ezWorld::DeleteDeadComponents()
         pOwner->FixComponentPointer(pMovedComponent, pComponent);
       }
 
-      // the moved component might be deleted as well so we need to patch the dead components list
-      for (ezUInt32 i = 0; i < m_Data.m_DeadComponents.GetCount(); ++i)
+      // The moved component might be deleted as well so we remove it from the dead components set instead.
+      // If that is not the case we remove the original component from the set.
+      if (m_Data.m_DeadComponents.Remove(pMovedComponent))
       {
-        if (m_Data.m_DeadComponents[i] == pMovedComponent)
-        {
-          m_Data.m_DeadComponents[i] = pComponent;
-          break;
-        }
+        continue;
       }
     }
+
+    m_Data.m_DeadComponents.Remove(pComponent);
   }
 }
 

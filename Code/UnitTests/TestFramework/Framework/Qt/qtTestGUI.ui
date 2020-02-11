@@ -114,6 +114,7 @@
     <addaction name="actionOpenHTMLOutput"/>
     <addaction name="actionKeepConsoleOpen"/>
     <addaction name="actionShowMessageBox"/>
+    <addaction name="actionDisableSuccessfulTests"/>
     <addaction name="separator"/>
     <addaction name="actionSaveTestSettingsAs"/>
    </widget>
@@ -123,6 +124,7 @@
     </property>
     <addaction name="actionOpenTestDataFolder"/>
     <addaction name="actionOpenOutputFolder"/>
+    <addaction name="actionOpenHTMLFile"/>
    </widget>
    <addaction name="menuRun"/>
    <addaction name="menuSettings"/>
@@ -141,7 +143,7 @@
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>Open HTML Output</string>
+    <string>Open HTML on Error</string>
    </property>
   </action>
   <action name="actionKeepConsoleOpen">
@@ -236,15 +238,15 @@
    </property>
   </action>
   <action name="actionSaveTestSettingsAs">
-    <property name="text">
-      <string>Save Test Settings As</string>
-    </property>
-    <property name="toolTip">
-      <string>Save Test Settings As</string>
-    </property>
-    <property name="shortcut">
-      <string>Ctrl+S</string>
-    </property>
+   <property name="text">
+    <string>Save Test Settings As</string>
+   </property>
+   <property name="toolTip">
+    <string>Save Test Settings As</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
   </action>
   <action name="actionEnableOnlyFailed">
    <property name="text">
@@ -265,6 +267,22 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionDisableSuccessfulTests">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Disable Successful Tests</string>
+   </property>
+   <property name="toolTip">
+    <string>This will automatically disable successfully executed tests and save the current state, while running tests.</string>
+   </property>
+  </action>
+  <action name="actionOpenHTMLFile">
+   <property name="text">
+    <string>Open HTML Output</string>
    </property>
   </action>
  </widget>
@@ -321,5 +339,4 @@
    </hints>
   </connection>
  </connections>
-</ui> 
-
+</ui>

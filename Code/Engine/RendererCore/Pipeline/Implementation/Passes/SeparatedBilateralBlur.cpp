@@ -100,7 +100,6 @@ void ezSeparatedBilateralBlurPass::Execute(const ezRenderViewContext& renderView
   if (outputs[m_PinOutput.m_uiOutputIndex])
   {
     ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-    ezGALContext* pGALContext = renderViewContext.m_pRenderContext->GetGALContext();
 
     // Setup input view and sampler
     ezGALResourceViewCreationDescription rvcd;

@@ -11,7 +11,7 @@
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetDocument, 9, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetDocument, 9, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -31,7 +31,7 @@ ezMeshAssetDocument::ezMeshAssetDocument(const char* szDocumentPath)
 }
 
 ezStatus ezMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag,
-  const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+  const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   ezProgressRange range("Transforming Asset", 2, false);
 
@@ -204,6 +204,18 @@ ezStatus ezMeshAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& Thumb
 }
 
 
+void ezMeshAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
+{
+  SUPER::UpdateAssetDocumentInfo(pInfo);
+
+  if (GetProperties()->m_PrimitiveType != ezMeshPrimitive::File)
+  {
+    // remove the mesh file dependency, if it is not actually used
+    const auto& sMeshFile = GetProperties()->m_sMeshFile;
+    pInfo->m_AssetTransformDependencies.Remove(sMeshFile);
+  }
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetDocumentGenerator, 1, ezRTTIDefaultAllocator<ezMeshAssetDocumentGenerator>)
@@ -214,6 +226,7 @@ ezMeshAssetDocumentGenerator::ezMeshAssetDocumentGenerator()
   AddSupportedFileType("obj");
   AddSupportedFileType("fbx");
   AddSupportedFileType("ply");
+  AddSupportedFileType("blend");
 }
 
 ezMeshAssetDocumentGenerator::~ezMeshAssetDocumentGenerator() {}

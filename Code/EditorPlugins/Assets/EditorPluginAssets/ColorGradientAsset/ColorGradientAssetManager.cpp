@@ -12,25 +12,19 @@ ezColorGradientAssetDocumentManager::ezColorGradientAssetDocumentManager()
 {
   ezDocumentManager::s_Events.AddEventHandler(ezMakeDelegate(&ezColorGradientAssetDocumentManager::OnDocumentManagerEvent, this));
 
-  m_AssetDesc.m_bCanCreate = true;
-  m_AssetDesc.m_sDocumentTypeName = "ColorGradient Asset";
-  m_AssetDesc.m_sFileExtension = "ezColorGradientAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/ColorGradient.png";
-  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezColorGradientAssetDocument>();
-  m_AssetDesc.m_pManager = this;
+  m_DocTypeDesc.m_sDocumentTypeName = "ColorGradient";
+  m_DocTypeDesc.m_sFileExtension = "ezColorGradientAsset";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/ColorGradient.png";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezColorGradientAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
+
+  m_DocTypeDesc.m_sResourceFileExtension = "ezColorGradient";
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave | ezAssetDocumentFlags::SupportsThumbnail;
 }
 
 ezColorGradientAssetDocumentManager::~ezColorGradientAssetDocumentManager()
 {
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezColorGradientAssetDocumentManager::OnDocumentManagerEvent, this));
-}
-
-
-ezBitflags<ezAssetDocumentFlags>
-ezColorGradientAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
-{
-  EZ_ASSERT_DEBUG(pDescriptor->m_pManager == this, "Given type descriptor is not part of this document manager!");
-  return ezAssetDocumentFlags::AutoTransformOnSave | ezAssetDocumentFlags::SupportsThumbnail;
 }
 
 void ezColorGradientAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
@@ -48,16 +42,12 @@ void ezColorGradientAssetDocumentManager::OnDocumentManagerEvent(const ezDocumen
   }
 }
 
-ezStatus ezColorGradientAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath,
-                                                                     bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezColorGradientAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezColorGradientAssetDocument(szPath);
-
-  return ezStatus(EZ_SUCCESS);
 }
 
-void ezColorGradientAssetDocumentManager::InternalGetSupportedDocumentTypes(
-    ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezColorGradientAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_AssetDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }

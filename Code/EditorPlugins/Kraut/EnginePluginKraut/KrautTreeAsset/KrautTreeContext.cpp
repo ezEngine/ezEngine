@@ -30,7 +30,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautTreeContext, 1, ezRTTIDefaultAllocator<ez
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Kraut Tree Asset"),
+    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Kraut Tree"),
   }
   EZ_END_PROPERTIES;
 }
@@ -67,7 +67,7 @@ void ezKrautTreeContext::OnInitialize()
     obj.m_sName.Assign("KrautTreePreview");
     // TODO: making the object dynamic is a workaround!
     // without it, shadows keep disappearing when switching between tree documents
-    // triggering resource reload will also trigger ezKrautTreeComponent::OnExtractRenderData,
+    // triggering resource reload will also trigger ezKrautTreeComponent::OnMsgExtractRenderData,
     // which fixes the shadows for a while, but not caching the render-data (ezRenderData::Caching::IfStatic)
     // 'solves' the issue in the preview
     obj.m_bDynamic = true;
@@ -120,13 +120,15 @@ void ezKrautTreeContext::OnInitialize()
   // ground
   {
     const char* szMeshName = "KrautPreviewGroundMesh";
-    ezMeshResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(szMeshName);
+    m_hPreviewMeshResource = ezResourceManager::GetExistingResource<ezMeshResource>(szMeshName);
 
-    if (!hMesh.IsValid())
+    if (!m_hPreviewMeshResource.IsValid())
     {
       const char* szMeshBufferName = "KrautPreviewGroundMeshBuffer";
 
-      ezMeshBufferResourceHandle hMeshBuffer;
+      ezMeshBufferResourceHandle hMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szMeshBufferName);
+
+      if (!hMeshBuffer.IsValid())
       {
         // Build geometry
         ezMat4 t;
@@ -157,7 +159,7 @@ void ezKrautTreeContext::OnInitialize()
         md.SetMaterial(0, "{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }"); // Pattern.ezMaterialAsset
         md.ComputeBounds();
 
-        hMesh = ezResourceManager::CreateResource<ezMeshResource>(szMeshName, std::move(md), pMeshBuffer->GetResourceDescription());
+        m_hPreviewMeshResource = ezResourceManager::CreateResource<ezMeshResource>(szMeshName, std::move(md), pMeshBuffer->GetResourceDescription());
       }
     }
 
@@ -171,7 +173,7 @@ void ezKrautTreeContext::OnInitialize()
 
       ezMeshComponent* pMesh;
       ezMeshComponent::CreateComponent(pObj, pMesh);
-      pMesh->SetMesh(hMesh);
+      pMesh->SetMesh(m_hPreviewMeshResource);
     }
   }
 }

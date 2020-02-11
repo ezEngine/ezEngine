@@ -35,4 +35,18 @@ public:
   ezEditorGuidEngineHandleMap<ezUInt32> m_ComponentPickingMap;
   ezUInt32 m_uiNextComponentPickingID;
   ezUInt32 m_uiHighlightID;
+
+  struct Event
+  {
+    enum class Type
+    {
+      GameObjectCreated,
+      GameObjectDeleted,
+    };
+
+    Type m_Type;
+    ezUuid m_ObjectGuid;
+  };
+
+  ezEvent<const Event&> m_Events;
 };

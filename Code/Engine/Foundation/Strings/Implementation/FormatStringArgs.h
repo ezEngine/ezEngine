@@ -116,12 +116,12 @@ struct ezArgHumanReadable
 
   const double m_Value;
   const ezUInt64 m_Base;
-  const char* const * const m_Suffixes;
+  const char* const* const m_Suffixes;
   const char* const m_DefaultSuffixes[6] = {"", "K", "M", "G", "T", "P"};
   const ezUInt32 m_SuffixCount;
 };
 
- struct ezArgFileSize : public ezArgHumanReadable
+struct ezArgFileSize : public ezArgHumanReadable
 {
   inline explicit ezArgFileSize(const ezUInt64 value)
     : ezArgHumanReadable(static_cast<double>(value), 1024u, m_ByteSuffixes, EZ_ARRAY_SIZE(m_ByteSuffixes))
@@ -152,6 +152,7 @@ EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, ezUInt6
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, ezUInt32 arg);
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgF& arg);
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, double arg);
+EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, bool arg);
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const char* arg);
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezStringBuilder& arg);
 EZ_FOUNDATION_DLL const ezStringView& BuildString(char* tmp, ezUInt32 uiLength, const ezStringView& arg);
@@ -164,3 +165,18 @@ EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const e
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezTime& arg);
 
 
+#if EZ_ENABLED(EZ_COMPILER_GCC) || EZ_ENABLED(EZ_COMPILER_CLANG)
+
+// on these platforms "long int" is a different type from "long long int"
+
+EZ_ALWAYS_INLINE ezStringView BuildString(char* tmp, ezUInt32 uiLength, long int arg)
+{
+  return BuildString(tmp, uiLength, static_cast<ezInt64>(arg));
+}
+
+EZ_ALWAYS_INLINE ezStringView BuildString(char* tmp, ezUInt32 uiLength, unsigned long int arg)
+{
+  return BuildString(tmp, uiLength, static_cast<ezUInt64>(arg));
+}
+
+#endif

@@ -85,16 +85,10 @@ void ezFallbackGameState::ConfigureInputActions()
     RegisterInputAction("Game", "MoveDown", ezInputSlot_KeyE);
     RegisterInputAction("Game", "Run", ezInputSlot_KeyLeftShift);
 
-    RegisterInputAction("Game", "TurnLeft", ezInputSlot_KeyLeft);
-    RegisterInputAction("Game", "TurnRight", ezInputSlot_KeyRight);
-    RegisterInputAction("Game", "TurnUp", ezInputSlot_KeyUp);
-    RegisterInputAction("Game", "TurnDown", ezInputSlot_KeyDown);
-
-    RegisterInputAction("Game", "TurnLeft", ezInputSlot_MouseMoveNegX);
-    RegisterInputAction("Game", "TurnRight", ezInputSlot_MouseMovePosX);
-    RegisterInputAction("Game", "TurnUp", ezInputSlot_MouseMoveNegY);
-    RegisterInputAction("Game", "TurnDown", ezInputSlot_MouseMovePosY);
-
+    RegisterInputAction("Game", "TurnLeft", ezInputSlot_MouseMoveNegX, ezInputSlot_KeyLeft);
+    RegisterInputAction("Game", "TurnRight", ezInputSlot_MouseMovePosX, ezInputSlot_KeyRight);
+    RegisterInputAction("Game", "TurnUp", ezInputSlot_MouseMoveNegY, ezInputSlot_KeyUp);
+    RegisterInputAction("Game", "TurnDown", ezInputSlot_MouseMovePosY, ezInputSlot_KeyDown);
 
     RegisterInputAction("Game", "NextCamera", ezInputSlot_KeyPageDown);
     RegisterInputAction("Game", "PrevCamera", ezInputSlot_KeyPageUp);
@@ -217,9 +211,9 @@ void ezFallbackGameState::ProcessInput()
   if (ezInputManager::GetInputActionState("Game", "TurnRight", &fInput) != ezKeyState::Up)
     m_MainCamera.RotateGlobally(ezAngle(), ezAngle(), ezAngle::Degree(fRotateSpeed * fInput));
   if (ezInputManager::GetInputActionState("Game", "TurnUp", &fInput) != ezKeyState::Up)
-    m_MainCamera.RotateLocally(ezAngle(), ezAngle::Degree(-fRotateSpeed * fInput), ezAngle());
-  if (ezInputManager::GetInputActionState("Game", "TurnDown", &fInput) != ezKeyState::Up)
     m_MainCamera.RotateLocally(ezAngle(), ezAngle::Degree(fRotateSpeed * fInput), ezAngle());
+  if (ezInputManager::GetInputActionState("Game", "TurnDown", &fInput) != ezKeyState::Up)
+    m_MainCamera.RotateLocally(ezAngle(), ezAngle::Degree(-fRotateSpeed * fInput), ezAngle());
 }
 
 void ezFallbackGameState::AfterWorldUpdate()

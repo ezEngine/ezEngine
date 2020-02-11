@@ -26,7 +26,7 @@
     {                                                                                                                                      \
       const char* szReturnCode = pApp->TranslateReturnCode();                                                                              \
       if (szReturnCode != nullptr && szReturnCode[0] != '\0')                                                                              \
-        printf("Return Code: '%s'\n", szReturnCode);                                                                                       \
+        ezLog::Printf("Return Code: '%s'\n", szReturnCode);                                                                                       \
     }                                                                                                                                      \
     pApp->~AppClass();                                                                                                                     \
     memset(pApp, 0, sizeof(AppClass));                                                                                                     \

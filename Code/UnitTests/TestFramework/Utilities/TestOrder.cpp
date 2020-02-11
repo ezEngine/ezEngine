@@ -38,11 +38,13 @@ void SaveTestOrder(const char* szFile, const std::deque<ezTestEntry>& AllTests, 
   {
     sprintf(szTemp, "  AssertOnTestFail = %s\n", testSettings.m_bAssertOnTestFail ? "on" : "off");
     fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
-    sprintf(szTemp, "  OpenHtmlOutput = %s\n", testSettings.m_bOpenHtmlOutput ? "on" : "off");
+    sprintf(szTemp, "  OpenHtmlOutputOnError = %s\n", testSettings.m_bOpenHtmlOutputOnError ? "on" : "off");
     fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
     sprintf(szTemp, "  KeepConsoleOpen = %s\n", testSettings.m_bKeepConsoleOpen ? "on" : "off");
     fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
     sprintf(szTemp, "  ShowMessageBox = %s\n", testSettings.m_bShowMessageBox ? "on" : "off");
+    fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
+    sprintf(szTemp, "  DisableSuccessfulTests = %s\n", testSettings.m_bAutoDisableSuccessfulTests ? "on" : "off");
     fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
   }
 
@@ -182,9 +184,9 @@ void LoadTestOrder(const char* szFile, std::deque<ezTestEntry>& AllTests, TestSe
           {
             testSettings.m_bAssertOnTestFail = !bIsOff;
           }
-          else if (strcmp("OpenHtmlOutput", szTestName) == 0)
+          else if (strcmp("OpenHtmlOutputOnError", szTestName) == 0)
           {
-            testSettings.m_bOpenHtmlOutput = !bIsOff;
+            testSettings.m_bOpenHtmlOutputOnError = !bIsOff;
           }
           else if (strcmp("KeepConsoleOpen", szTestName) == 0)
           {
@@ -193,6 +195,10 @@ void LoadTestOrder(const char* szFile, std::deque<ezTestEntry>& AllTests, TestSe
           else if (strcmp("ShowMessageBox", szTestName) == 0)
           {
             testSettings.m_bShowMessageBox = !bIsOff;
+          }
+          else if (strcmp("DisableSuccessfulTests", szTestName) == 0)
+          {
+            testSettings.m_bAutoDisableSuccessfulTests = !bIsOff;
           }
         }
         // We are in a test block

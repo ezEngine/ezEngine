@@ -73,8 +73,8 @@ void ezBoundingBoxTemplate<Type>::SetCenterAndHalfExtents(const ezVec3Template<T
 template <typename Type>
 void ezBoundingBoxTemplate<Type>::SetInvalid()
 {
-  m_vMin.Set(ezMath::BasicType<Type>::MaxValue());
-  m_vMax.Set(-ezMath::BasicType<Type>::MaxValue());
+  m_vMin.Set(ezMath::MaxValue<Type>());
+  m_vMax.Set(-ezMath::MaxValue<Type>());
 }
 
 template <typename Type>
@@ -255,15 +255,23 @@ template <typename Type>
 void ezBoundingBoxTemplate<Type>::ScaleFromCenter(const ezVec3Template<Type>& vScale)
 {
   const ezVec3Template<Type> vCenter = GetCenter();
-  m_vMin = vCenter + (m_vMin - vCenter).CompMul(vScale);
-  m_vMax = vCenter + (m_vMax - vCenter).CompMul(vScale);
+  const ezVec3 vNewMin = vCenter + (m_vMin - vCenter).CompMul(vScale);
+  const ezVec3 vNewMax = vCenter + (m_vMax - vCenter).CompMul(vScale);
+
+  // this is necessary for negative scalings to work as expected
+  m_vMin = vNewMin.CompMin(vNewMax);
+  m_vMax = vNewMin.CompMax(vNewMax);
 }
 
 template <typename Type>
 EZ_FORCE_INLINE void ezBoundingBoxTemplate<Type>::ScaleFromOrigin(const ezVec3Template<Type>& vScale)
 {
-  m_vMin = m_vMin.CompMul(vScale);
-  m_vMax = m_vMax.CompMul(vScale);
+  const ezVec3 vNewMin = m_vMin.CompMul(vScale);
+  const ezVec3 vNewMax = m_vMax.CompMul(vScale);
+
+  // this is necessary for negative scalings to work as expected
+  m_vMin = vNewMin.CompMin(vNewMax);
+  m_vMax = vNewMin.CompMax(vNewMax);
 }
 
 template <typename Type>
@@ -373,7 +381,7 @@ bool ezBoundingBoxTemplate<Type>::GetRayIntersection(const ezVec3Template<Type>&
   // Contrary to previous implementation, this one actually works with ray/box configurations
   // that produce division by zero and multiplication with infinity (which can produce NaNs).
 
-  EZ_ASSERT_DEBUG(ezMath::BasicType<Type>::SupportsInfinity(), "This type does not support infinite values, which is required for this algorithm.");
+  EZ_ASSERT_DEBUG(ezMath::SupportsInfinity<Type>(), "This type does not support infinite values, which is required for this algorithm.");
   EZ_ASSERT_DEBUG(vStartPos.IsValid(), "Ray start position must be valid.");
   EZ_ASSERT_DEBUG(vRayDir.IsValid(), "Ray direction must be valid.");
 

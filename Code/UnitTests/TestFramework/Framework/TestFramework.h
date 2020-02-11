@@ -11,6 +11,7 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/String.h>
 
+#include <atomic>
 #include <condition_variable>
 #include <functional>
 #include <mutex>
@@ -58,7 +59,7 @@ public:
   ezUInt32 GetTestCount() const;
   ezUInt32 GetTestEnabledCount() const;
   ezUInt32 GetSubTestEnabledCount(ezUInt32 uiTestIndex) const;
-  const ezStatus& IsTestAvailable(ezUInt32 uiTestIndex) const;
+  const std::string& IsTestAvailable(ezUInt32 uiTestIndex) const;
   bool IsTestEnabled(ezUInt32 uiTestIndex) const;
   bool IsSubTestEnabled(ezUInt32 uiTestIndex, ezUInt32 uiSubTestIndex) const;
   void SetTestEnabled(ezUInt32 uiTestIndex, bool bEnabled);
@@ -119,12 +120,14 @@ protected:
   virtual void TestResultImpl(ezInt32 iSubTestIndex, bool bSuccess, double fDuration);
   void FlushAsserts();
   void TimeoutThread();
+  void UpdateTestTimeout();
 
   // ignore this for now
 public:
   static const char* s_szTestBlockName;
   static int s_iAssertCounter;
   static bool s_bCallstackOnAssert;
+  static ezLog::TimestampMode s_LogTimestampMode;
 
   // static functions
 public:
@@ -152,6 +155,7 @@ private:
   ezInt32 m_iTestsFailed = 0;
   ezInt32 m_iTestsPassed = 0;
   TestSettings m_Settings;
+  std::recursive_mutex m_outputMutex;
   std::deque<OutputHandler> m_OutputHandlers;
   std::deque<ezTestEntry> m_TestEntries;
   ezTestFrameworkResult m_Result;
@@ -162,6 +166,7 @@ private:
   std::mutex m_timeoutLock;
   ezUInt32 m_timeoutMS = 5 * 60 * 1000; // 5 min default timeout
   bool m_useTimeout = false;
+  bool m_reArm = false;
   std::condition_variable m_timeoutCV;
   std::thread m_timeoutThread;
 
@@ -195,39 +200,96 @@ protected:
 #endif
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#include <Foundation/Basics/Platform/Win/MinWindows.h>
-#  define EZ_NV_OPTIMUS                                                                                                                    \
-    extern "C"                                                                                                                             \
-    {                                                                                                                                      \
-      _declspec(dllexport) ezMinWindows::DWORD NvOptimusEnablement = 0x00000001;                                                           \
+#  include <Foundation/Basics/Platform/Win/MinWindows.h>
+#  define EZ_NV_OPTIMUS                                                          \
+    extern "C"                                                                   \
+    {                                                                            \
+      _declspec(dllexport) ezMinWindows::DWORD NvOptimusEnablement = 0x00000001; \
     }
 #else
 #  define EZ_NV_OPTIMUS
 #endif
 
+#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#  include <Foundation/Basics/Platform/Android/AndroidUtils.h>
+#  include <android/log.h>
+#  include <android/native_activity.h>
+#  include <android_native_app_glue.h>
+
+
+#  define EZ_TESTFRAMEWORK_ENTRY_POINT_BEGIN(szTestName, szNiceTestName)                                                   \
+    int ezAndroidMain(int argc, char** argv);                                                                              \
+    extern "C" void android_main(struct android_app* app)                                                                  \
+    {                                                                                                                      \
+      ezAndroidUtils::SetAndroidApp(app);                                                                                  \
+      /* TODO: do something with the return value of ezAndroidMain?  */                                                    \
+      /* TODO: can we get somehow get the command line arguments to the android app? Is there even something like that? */ \
+      int iReturnCode = ezAndroidMain(0, nullptr);                                                                         \
+      __android_log_print(ANDROID_LOG_ERROR, "ezEngine", "Test framework exited with return code: '%d'", iReturnCode);     \
+    }                                                                                                                      \
+                                                                                                                           \
+    int ezAndroidMain(int argc, char** argv)                                                                               \
+    {                                                                                                                      \
+      ezTestSetup::InitTestFramework(szTestName, szNiceTestName, 0, nullptr);                                              \
+      /* Execute custom init code here by using the BEGIN/END macros directly */
+
+#else
 /// \brief Macro to define the application entry point for all test applications
-#define EZ_TESTFRAMEWORK_ENTRY_POINT_BEGIN(szTestName, szNiceTestName)                                                                     \
-  /* Enables that on machines with multiple GPUs the NVIDIA GPU is preferred */                                                            \
-  EZ_NV_OPTIMUS                                                                                                                            \
-  int main(int argc, char** argv)                                                                                                          \
-  {                                                                                                                                        \
-    ezTestSetup::InitTestFramework(szTestName, szNiceTestName, argc, (const char**)argv);                                                  \
-    /* Execute custom init code here by using the BEGIN/END macros directly */
+#  define EZ_TESTFRAMEWORK_ENTRY_POINT_BEGIN(szTestName, szNiceTestName)                    \
+    /* Enables that on machines with multiple GPUs the NVIDIA GPU is preferred */           \
+    EZ_NV_OPTIMUS                                                                           \
+    int main(int argc, char** argv)                                                         \
+    {                                                                                       \
+      ezTestSetup::InitTestFramework(szTestName, szNiceTestName, argc, (const char**)argv); \
+      /* Execute custom init code here by using the BEGIN/END macros directly */
+
+#endif
+
+#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#  define EZ_TESTFRAMEWORK_ENTRY_POINT_END()                                       \
+    /* TODO: This is too big for a macro now */                                    \
+    auto app = ezAndroidUtils::GetAndroidApp();                                    \
+    bool bRun = true;                                                              \
+    while (true)                                                                   \
+    {                                                                              \
+      struct android_poll_source* source = nullptr;                                \
+      int ident = 0;                                                               \
+      int events = 0;                                                              \
+      while ((ident = ALooper_pollAll(0, nullptr, &events, (void**)&source)) >= 0) \
+      {                                                                            \
+        if (source != nullptr)                                                     \
+          source->process(app, source);                                            \
+      }                                                                            \
+      if (bRun && ezTestSetup::RunTests() != ezTestAppRun::Continue)               \
+      {                                                                            \
+        bRun = false;                                                              \
+        ANativeActivity_finish(app->activity);                                     \
+      }                                                                            \
+      if (app->destroyRequested)                                                   \
+      {                                                                            \
+        const ezInt32 iFailedTests = ezTestSetup::GetFailedTestCount();            \
+        ezTestSetup::DeInitTestFramework();                                        \
+        return iFailedTests;                                                       \
+      }                                                                            \
+    }                                                                              \
+    } 
+
+#else
+#  define EZ_TESTFRAMEWORK_ENTRY_POINT_END()                        \
+    while (ezTestSetup::RunTests() == ezTestAppRun::Continue)       \
+    {                                                               \
+    }                                                               \
+    const ezInt32 iFailedTests = ezTestSetup::GetFailedTestCount(); \
+    ezTestSetup::DeInitTestFramework();                             \
+    return iFailedTests;                                            \
+    }
+
+#endif
 
 
-#define EZ_TESTFRAMEWORK_ENTRY_POINT_END()                                                                                                 \
-  while (ezTestSetup::RunTests() == ezTestAppRun::Continue)                                                                                \
-  {                                                                                                                                        \
-  }                                                                                                                                        \
-  const ezInt32 iFailedTests = ezTestSetup::GetFailedTestCount();                                                                          \
-  ezTestSetup::DeInitTestFramework();                                                                                                      \
-  return iFailedTests;                                                                                                                     \
-  }
-
-
-#define EZ_TESTFRAMEWORK_ENTRY_POINT(szTestName, szNiceTestName)                                                                           \
-  EZ_TESTFRAMEWORK_ENTRY_POINT_BEGIN(szTestName, szNiceTestName)                                                                           \
-  /* Execute custom init code here by using the BEGIN/END macros directly */                                                               \
+#define EZ_TESTFRAMEWORK_ENTRY_POINT(szTestName, szNiceTestName)             \
+  EZ_TESTFRAMEWORK_ENTRY_POINT_BEGIN(szTestName, szNiceTestName)             \
+  /* Execute custom init code here by using the BEGIN/END macros directly */ \
   EZ_TESTFRAMEWORK_ENTRY_POINT_END()
 
 /// \brief Enum for usage in EZ_TEST_BLOCK to enable or disable the block.
@@ -249,29 +311,29 @@ struct ezTestBlock
 /// First parameter allows to quickly disable a block depending on a condition (e.g. platform).
 /// Second parameter just gives it a name for better error reporting.
 /// Also skipped tests are highlighted in the output, such that people can quickly see when a test is currently deactivated.
-#define EZ_TEST_BLOCK(enable, name)                                                                                                        \
-  ezTestFramework::s_szTestBlockName = name;                                                                                               \
-  if (enable == ezTestBlock::Disabled)                                                                                                     \
-  {                                                                                                                                        \
-    ezTestFramework::s_szTestBlockName = "";                                                                                               \
-    ezTestFramework::Output(ezTestOutput::Warning, "Skipped Test Block '%s'", name);                                                       \
-  }                                                                                                                                        \
-  else if (enable == ezTestBlock::DisabledNoWarning)                                                                                       \
-  {                                                                                                                                        \
-    ezTestFramework::s_szTestBlockName = "";                                                                                               \
-  }                                                                                                                                        \
+#define EZ_TEST_BLOCK(enable, name)                                                  \
+  ezTestFramework::s_szTestBlockName = name;                                         \
+  if (enable == ezTestBlock::Disabled)                                               \
+  {                                                                                  \
+    ezTestFramework::s_szTestBlockName = "";                                         \
+    ezTestFramework::Output(ezTestOutput::Warning, "Skipped Test Block '%s'", name); \
+  }                                                                                  \
+  else if (enable == ezTestBlock::DisabledNoWarning)                                 \
+  {                                                                                  \
+    ezTestFramework::s_szTestBlockName = "";                                         \
+  }                                                                                  \
   else
 
 
 /// \brief Will trigger a debug break, if the test framework is configured to do so on test failure
-#define EZ_TEST_DEBUG_BREAK                                                                                                                \
-  if (ezTestFramework::GetAssertOnTestFail())                                                                                              \
+#define EZ_TEST_DEBUG_BREAK                   \
+  if (ezTestFramework::GetAssertOnTestFail()) \
   EZ_DEBUG_BREAK
 
-#define EZ_TEST_FAILURE(erroroutput, msg, ...)                                                                                             \
-  {                                                                                                                                        \
-    ezTestFramework::Error(erroroutput, EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__);                           \
-    EZ_TEST_DEBUG_BREAK                                                                                                                    \
+#define EZ_TEST_FAILURE(erroroutput, msg, ...)                                                                   \
+  {                                                                                                              \
+    ezTestFramework::Error(erroroutput, EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__); \
+    EZ_TEST_DEBUG_BREAK                                                                                          \
   }
 
 //////////////////////////////////////////////////////////////////////////
@@ -283,8 +345,20 @@ EZ_TEST_DLL ezResult ezTestBool(
 #define EZ_TEST_BOOL(condition) EZ_TEST_BOOL_MSG(condition, "")
 
 /// \brief Tests for a boolean condition, outputs a custom message on failure.
-#define EZ_TEST_BOOL_MSG(condition, msg, ...)                                                                                              \
+#define EZ_TEST_BOOL_MSG(condition, msg, ...) \
   ezTestBool(condition, "Test failed: " EZ_STRINGIZE(condition), EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_TEST_DLL ezResult ezTestResult(
+  ezResult bCondition, const char* szErrorText, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...);
+
+/// \brief Tests for a boolean condition, does not output an extra message.
+#define EZ_TEST_RESULT(condition) EZ_TEST_RESULT_MSG(condition, "")
+
+/// \brief Tests for a boolean condition, outputs a custom message on failure.
+#define EZ_TEST_RESULT_MSG(condition, msg, ...)                                                                                              \
+  ezTestResult(condition, "Test failed: " EZ_STRINGIZE(condition), EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -311,8 +385,8 @@ EZ_TEST_DLL ezResult ezTestDouble(double f1, double f2, double fEps, const char*
 
 /// \brief Tests two floats for equality, within a given epsilon. On failure both actual and expected values are output, also a custom
 /// message is printed.
-#define EZ_TEST_FLOAT_MSG(f1, f2, epsilon, msg, ...)                                                                                       \
-  ezTestDouble(ToFloat(f1), ToFloat(f2), ToFloat(epsilon), EZ_STRINGIZE(f1), EZ_STRINGIZE(f2), EZ_SOURCE_FILE, EZ_SOURCE_LINE,             \
+#define EZ_TEST_FLOAT_MSG(f1, f2, epsilon, msg, ...)                                                                           \
+  ezTestDouble(ToFloat(f1), ToFloat(f2), ToFloat(epsilon), EZ_STRINGIZE(f1), EZ_STRINGIZE(f2), EZ_SOURCE_FILE, EZ_SOURCE_LINE, \
     EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
 
 
@@ -323,8 +397,8 @@ EZ_TEST_DLL ezResult ezTestDouble(double f1, double f2, double fEps, const char*
 
 /// \brief Tests two doubles for equality, within a given epsilon. On failure both actual and expected values are output, also a custom
 /// message is printed.
-#define EZ_TEST_DOUBLE_MSG(f1, f2, epsilon, msg, ...)                                                                                      \
-  ezTestDouble(ToFloat(f1), ToFloat(f2), ToFloat(epsilon), EZ_STRINGIZE(f1), EZ_STRINGIZE(f2), EZ_SOURCE_FILE, EZ_SOURCE_LINE,             \
+#define EZ_TEST_DOUBLE_MSG(f1, f2, epsilon, msg, ...)                                                                          \
+  ezTestDouble(ToFloat(f1), ToFloat(f2), ToFloat(epsilon), EZ_STRINGIZE(f1), EZ_STRINGIZE(f2), EZ_SOURCE_FILE, EZ_SOURCE_LINE, \
     EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
 
 //////////////////////////////////////////////////////////////////////////
@@ -336,7 +410,7 @@ EZ_TEST_DLL ezResult ezTestInt(ezInt64 i1, ezInt64 i2, const char* szI1, const c
 #define EZ_TEST_INT(i1, i2) EZ_TEST_INT_MSG(i1, i2, "")
 
 /// \brief Tests two ints for equality. On failure both actual and expected values are output, also a custom message is printed.
-#define EZ_TEST_INT_MSG(i1, i2, msg, ...)                                                                                                  \
+#define EZ_TEST_INT_MSG(i1, i2, msg, ...) \
   ezTestInt(i1, i2, EZ_STRINGIZE(i1), EZ_STRINGIZE(i2), EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
 
 //////////////////////////////////////////////////////////////////////////
@@ -348,8 +422,8 @@ EZ_TEST_DLL ezResult ezTestString(std::string s1, std::string s2, const char* sz
 #define EZ_TEST_STRING(i1, i2) EZ_TEST_STRING_MSG(i1, i2, "")
 
 /// \brief Tests two strings for equality. On failure both actual and expected values are output, also a custom message is printed.
-#define EZ_TEST_STRING_MSG(s1, s2, msg, ...)                                                                                               \
-  ezTestString(static_cast<const char*>(s1), static_cast<const char*>(s2), EZ_STRINGIZE(s1), EZ_STRINGIZE(s2), EZ_SOURCE_FILE,             \
+#define EZ_TEST_STRING_MSG(s1, s2, msg, ...)                                                                                   \
+  ezTestString(static_cast<const char*>(s1), static_cast<const char*>(s2), EZ_STRINGIZE(s1), EZ_STRINGIZE(s2), EZ_SOURCE_FILE, \
     EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
 
 //////////////////////////////////////////////////////////////////////////
@@ -360,8 +434,8 @@ EZ_TEST_DLL ezResult ezTestString(std::string s1, std::string s2, const char* sz
 
 /// \brief Tests two strings for equality. On failure both actual and expected values are output, also a custom message is printed. Does not
 /// embed the original expression to work around issues with the current code page and unicode literals.
-#define EZ_TEST_STRING_UNICODE_MSG(s1, s2, msg, ...)                                                                                       \
-  ezTestString(static_cast<const char*>(s1), static_cast<const char*>(s2), "", "", EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION,     \
+#define EZ_TEST_STRING_UNICODE_MSG(s1, s2, msg, ...)                                                                                   \
+  ezTestString(static_cast<const char*>(s1), static_cast<const char*>(s2), "", "", EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, \
     msg, ##__VA_ARGS__)
 
 //////////////////////////////////////////////////////////////////////////
@@ -373,8 +447,8 @@ EZ_TEST_DLL ezResult ezTestVector(ezVec4d v1, ezVec4d v2, double fEps, const cha
 #define EZ_TEST_VEC2(i1, i2, epsilon) EZ_TEST_VEC2_MSG(i1, i2, epsilon, "")
 
 /// \brief Tests two ezVec2's for equality. On failure both actual and expected values are output, also a custom message is printed.
-#define EZ_TEST_VEC2_MSG(r1, r2, epsilon, msg, ...)                                                                                        \
-  ezTestVector(ezVec4d(ToFloat((r1).x), ToFloat((r1).y), 0, 0), ezVec4d(ToFloat((r2).x), ToFloat((r2).y), 0, 0), ToFloat(epsilon),         \
+#define EZ_TEST_VEC2_MSG(r1, r2, epsilon, msg, ...)                                                                                \
+  ezTestVector(ezVec4d(ToFloat((r1).x), ToFloat((r1).y), 0, 0), ezVec4d(ToFloat((r2).x), ToFloat((r2).y), 0, 0), ToFloat(epsilon), \
     EZ_STRINGIZE(r1) " == " EZ_STRINGIZE(r2), EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
 
 //////////////////////////////////////////////////////////////////////////
@@ -383,9 +457,9 @@ EZ_TEST_DLL ezResult ezTestVector(ezVec4d v1, ezVec4d v2, double fEps, const cha
 #define EZ_TEST_VEC3(i1, i2, epsilon) EZ_TEST_VEC3_MSG(i1, i2, epsilon, "")
 
 /// \brief Tests two ezVec3's for equality. On failure both actual and expected values are output, also a custom message is printed.
-#define EZ_TEST_VEC3_MSG(r1, r2, epsilon, msg, ...)                                                                                        \
-  ezTestVector(ezVec4d(ToFloat((r1).x), ToFloat((r1).y), ToFloat((r1).z), 0),                                                              \
-    ezVec4d(ToFloat((r2).x), ToFloat((r2).y), ToFloat((r2).z), 0), ToFloat(epsilon), EZ_STRINGIZE(r1) " == " EZ_STRINGIZE(r2),             \
+#define EZ_TEST_VEC3_MSG(r1, r2, epsilon, msg, ...)                                                                            \
+  ezTestVector(ezVec4d(ToFloat((r1).x), ToFloat((r1).y), ToFloat((r1).z), 0),                                                  \
+    ezVec4d(ToFloat((r2).x), ToFloat((r2).y), ToFloat((r2).z), 0), ToFloat(epsilon), EZ_STRINGIZE(r1) " == " EZ_STRINGIZE(r2), \
     EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
 
 //////////////////////////////////////////////////////////////////////////
@@ -394,9 +468,9 @@ EZ_TEST_DLL ezResult ezTestVector(ezVec4d v1, ezVec4d v2, double fEps, const cha
 #define EZ_TEST_VEC4(i1, i2, epsilon) EZ_TEST_VEC4_MSG(i1, i2, epsilon, "")
 
 /// \brief Tests two ezVec4's for equality. On failure both actual and expected values are output, also a custom message is printed.
-#define EZ_TEST_VEC4_MSG(r1, r2, epsilon, msg, ...)                                                                                        \
-  ezTestVector(ezVec4d(ToFloat((r1).x), ToFloat((r1).y), ToFloat((r1).z), ToFloat((r1).w)),                                                \
-    ezVec4d(ToFloat((r2).x), ToFloat((r2).y), ToFloat((r2).z), ToFloat((r2).w)), ToFloat(epsilon),                                         \
+#define EZ_TEST_VEC4_MSG(r1, r2, epsilon, msg, ...)                                                \
+  ezTestVector(ezVec4d(ToFloat((r1).x), ToFloat((r1).y), ToFloat((r1).z), ToFloat((r1).w)),        \
+    ezVec4d(ToFloat((r2).x), ToFloat((r2).y), ToFloat((r2).z), ToFloat((r2).w)), ToFloat(epsilon), \
     EZ_STRINGIZE(r1) " == " EZ_STRINGIZE(r2), EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
 
 //////////////////////////////////////////////////////////////////////////
@@ -404,7 +478,7 @@ EZ_TEST_DLL ezResult ezTestVector(ezVec4d v1, ezVec4d v2, double fEps, const cha
 EZ_TEST_DLL ezResult ezTestFiles(
   const char* szFile1, const char* szFile2, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...);
 
-#define EZ_TEST_FILES(szFile1, szFile2, msg, ...)                                                                                          \
+#define EZ_TEST_FILES(szFile1, szFile2, msg, ...) \
   ezTestFiles(szFile1, szFile2, EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
 
 //////////////////////////////////////////////////////////////////////////
@@ -430,7 +504,7 @@ EZ_TEST_DLL ezResult ezTestImage(
 ///
 /// \note Some tests need to know at the start, whether an image comparison will be done at the end, so they
 /// can capture the image first. For such use cases, use EZ_SCHEDULE_IMAGE_TEST at the start of a sub-test instead.
-#define EZ_TEST_IMAGE_MSG(ImageNumber, MaxError, msg, ...)                                                                                 \
+#define EZ_TEST_IMAGE_MSG(ImageNumber, MaxError, msg, ...) \
   ezTestImage(ImageNumber, MaxError, EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
 
 /// \brief Schedules an EZ_TEST_IMAGE to be executed after the current sub-test execution finishes.

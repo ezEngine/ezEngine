@@ -25,25 +25,20 @@ ezDecalAssetDocumentManager::ezDecalAssetDocumentManager()
   ezAssetFileExtensionWhitelist::AddAssetFileExtension("Image2D", "dds");
   ezAssetFileExtensionWhitelist::AddAssetFileExtension("Image2D", "tga");
 
-  m_AssetDesc.m_bCanCreate = true;
-  m_AssetDesc.m_sDocumentTypeName = "Decal Asset";
-  m_AssetDesc.m_sFileExtension = "ezDecalAsset";
-  m_AssetDesc.m_sIcon = ":/AssetIcons/Decal.png";
-  m_AssetDesc.m_pDocumentType = ezGetStaticRTTI<ezDecalAssetDocument>();
-  m_AssetDesc.m_pManager = this;
+  m_DocTypeDesc.m_sDocumentTypeName = "Decal";
+  m_DocTypeDesc.m_sFileExtension = "ezDecalAsset";
+  m_DocTypeDesc.m_sIcon = ":/AssetIcons/Decal.png";
+  m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezDecalAssetDocument>();
+  m_DocTypeDesc.m_pManager = this;
+
+  m_DocTypeDesc.m_sResourceFileExtension = "ezDecalStub";
+  m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::SupportsThumbnail;
 }
 
 ezDecalAssetDocumentManager::~ezDecalAssetDocumentManager()
 {
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezDecalAssetDocumentManager::OnDocumentManagerEvent, this));
 }
-
-
-ezBitflags<ezAssetDocumentFlags> ezDecalAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
-{
-  return ezAssetDocumentFlags::SupportsThumbnail;
-}
-
 
 void ezDecalAssetDocumentManager::AddEntriesToAssetTable(
   const char* szDataDirectory, const ezPlatformProfile* pAssetProfile, ezMap<ezString, ezString>& inout_GuidToPath) const
@@ -80,18 +75,14 @@ void ezDecalAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager
   }
 }
 
-ezStatus ezDecalAssetDocumentManager::InternalCreateDocument(
-  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezDecalAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezDecalAssetDocument(szPath);
-
-  return ezStatus(EZ_SUCCESS);
 }
 
-void ezDecalAssetDocumentManager::InternalGetSupportedDocumentTypes(
-  ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezDecalAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
-  inout_DocumentTypes.PushBack(&m_AssetDesc);
+  inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }
 
 ezUInt64 ezDecalAssetDocumentManager::ComputeAssetProfileHashImpl(const ezPlatformProfile* pAssetProfile) const
@@ -102,8 +93,6 @@ ezUInt64 ezDecalAssetDocumentManager::ComputeAssetProfileHashImpl(const ezPlatfo
 
 ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfile* pAssetProfile)
 {
-  const ezDynamicArray<ezDocument*>& docs = GetAllDocuments();
-
   ezAssetCurator* pCurator = ezAssetCurator::GetSingleton();
   const auto& allAssets = pCurator->GetKnownSubAssets();
 
@@ -113,7 +102,7 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
   {
     const auto& asset = it.Value();
 
-    if (asset.m_pAssetInfo->m_pManager != this)
+    if (asset.m_pAssetInfo->GetManager() != this)
       continue;
 
     uiSettingsHash += asset.m_pAssetInfo->m_Info->m_uiSettingsHash;
@@ -142,10 +131,10 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
     {
       const auto& asset = it.Value();
 
-      if (asset.m_pAssetInfo->m_pManager != this)
+      if (asset.m_pAssetInfo->GetManager() != this)
         continue;
 
-      EZ_LOG_BLOCK("Decal Asset", asset.m_pAssetInfo->m_sDataDirRelativePath.GetData());
+      EZ_LOG_BLOCK("Decal", asset.m_pAssetInfo->m_sDataDirRelativePath.GetData());
 
       // does the document already exist and is it open ?
       bool bWasOpen = false;
@@ -293,9 +282,9 @@ ezStatus ezDecalAssetDocumentManager::RunTexConv(const char* szTargetFile, const
   for (ezInt32 i = 0; i < arguments.size(); ++i)
     cmd.Append(" ", arguments[i].toUtf8().data());
 
-  ezLog::Debug("TexConv2.exe{0}", cmd);
+  ezLog::Debug("TexConv.exe{0}", cmd);
 
-  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv2.exe", arguments, 60, ezLog::GetThreadLocalLogSystem()));
+  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv.exe", arguments, 60, ezLog::GetThreadLocalLogSystem()));
 
   return ezStatus(EZ_SUCCESS);
 }

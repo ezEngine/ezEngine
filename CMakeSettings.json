@@ -1,0 +1,196 @@
+{
+  "configurations": [
+    {
+      "name": "Android-arm-Debug",
+      "generator": "Ninja",
+      "configurationType": "Debug",
+      "inheritEnvironments": [ "vsdev" ],
+      "buildRoot": "${workspaceRoot}\\build\\${name}",
+      "installRoot": "${workspaceRoot}\\install\\${name}",
+      "variables": [
+        {
+          "name": "CMAKE_TOOLCHAIN_FILE",
+          "value": "${env.ANDROID_NDK}\\build\\cmake\\android.toolchain.cmake",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "ANDROID_PLATFORM",
+          "value": "23"
+        },
+        {
+          "name": "EZ_ENABLE_QT_SUPPORT",
+          "value": "0"
+        },
+        {
+          "name": "EZ_BUILD_SAMPLES",
+          "value": "1"
+        }
+      ],
+      "buildCommandArgs": "-v",
+      "ctestCommandArgs": "",
+      "intelliSenseMode": "android-clang-arm"
+    },
+    {
+      "name": "Android-arm-RelWithDebInfo",
+      "generator": "Ninja",
+      "configurationType": "RelWithDebInfo",
+      "inheritEnvironments": [ "vsdev" ],
+      "buildRoot": "${workspaceRoot}\\build\\${name}",
+      "installRoot": "${workspaceRoot}\\install\\${name}",
+      "variables": [
+        {
+          "name": "CMAKE_TOOLCHAIN_FILE",
+          "value": "${env.ANDROID_NDK}\\build\\cmake\\android.toolchain.cmake",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "ANDROID_PLATFORM",
+          "value": "23"
+        },
+        {
+          "name": "EZ_ENABLE_QT_SUPPORT",
+          "value": "0"
+        },
+        {
+          "name": "EZ_BUILD_SAMPLES",
+          "value": "1"
+        }
+      ],
+      "buildCommandArgs": "-v",
+      "ctestCommandArgs": "",
+      "intelliSenseMode": "android-clang-arm"
+    },
+    {
+      "name": "Android-arm-Release",
+      "generator": "Ninja",
+      "configurationType": "Release",
+      "inheritEnvironments": [ "vsdev" ],
+      "buildRoot": "${workspaceRoot}\\build\\${name}",
+      "installRoot": "${workspaceRoot}\\install\\${name}",
+      "variables": [
+        {
+          "name": "CMAKE_TOOLCHAIN_FILE",
+          "value": "${env.ANDROID_NDK}\\build\\cmake\\android.toolchain.cmake",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "ANDROID_PLATFORM",
+          "value": "23"
+        },
+        {
+          "name": "EZ_ENABLE_QT_SUPPORT",
+          "value": "0"
+        },
+        {
+          "name": "EZ_BUILD_SAMPLES",
+          "value": "1"
+        }
+      ],
+      "buildCommandArgs": "-v",
+      "ctestCommandArgs": "",
+      "intelliSenseMode": "android-clang-arm"
+    },
+    {
+      "name": "Android-x86-Debug",
+      "generator": "Ninja",
+      "configurationType": "Debug",
+      "inheritEnvironments": [ "vsdev" ],
+      "buildRoot": "${workspaceRoot}\\build\\${name}",
+      "installRoot": "${workspaceRoot}\\install\\${name}",
+      "variables": [
+        {
+          "name": "CMAKE_TOOLCHAIN_FILE",
+          "value": "${env.ANDROID_NDK}\\build\\cmake\\android.toolchain.cmake",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "ANDROID_ABI",
+          "value": "x86"
+        },
+        {
+          "name": "ANDROID_PLATFORM",
+          "value": "23"
+        },
+        {
+          "name": "EZ_ENABLE_QT_SUPPORT",
+          "value": "0"
+        },
+        {
+          "name": "EZ_BUILD_SAMPLES",
+          "value": "1"
+        }
+      ],
+      "buildCommandArgs": "-v",
+      "ctestCommandArgs": "",
+      "intelliSenseMode": "android-clang-x86"
+    },
+    {
+      "name": "Android-x86-RelWithDebInfo",
+      "generator": "Ninja",
+      "configurationType": "RelWithDebInfo",
+      "inheritEnvironments": [ "vsdev" ],
+      "buildRoot": "${workspaceRoot}\\build\\${name}",
+      "installRoot": "${workspaceRoot}\\install\\${name}",
+      "variables": [
+        {
+          "name": "CMAKE_TOOLCHAIN_FILE",
+          "value": "${env.ANDROID_NDK}\\build\\cmake\\android.toolchain.cmake",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "ANDROID_ABI",
+          "value": "x86"
+        },
+        {
+          "name": "ANDROID_PLATFORM",
+          "value": "23"
+        },
+        {
+          "name": "EZ_ENABLE_QT_SUPPORT",
+          "value": "0"
+        },
+        {
+          "name": "EZ_BUILD_SAMPLES",
+          "value": "1"
+        }
+      ],
+      "buildCommandArgs": "-v",
+      "ctestCommandArgs": "",
+      "intelliSenseMode": "android-clang-x86"
+    },
+    {
+      "name": "Android-x86-Release",
+      "generator": "Ninja",
+      "configurationType": "Release",
+      "inheritEnvironments": [ "vsdev" ],
+      "buildRoot": "${workspaceRoot}\\build\\${name}",
+      "installRoot": "${workspaceRoot}\\install\\${name}",
+      "variables": [
+        {
+          "name": "CMAKE_TOOLCHAIN_FILE",
+          "value": "${env.ANDROID_NDK}\\build\\cmake\\android.toolchain.cmake",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "ANDROID_ABI",
+          "value": "x86"
+        },
+        {
+          "name": "ANDROID_PLATFORM",
+          "value": "23"
+        },
+        {
+          "name": "EZ_ENABLE_QT_SUPPORT",
+          "value": "0"
+        },
+        {
+          "name": "EZ_BUILD_SAMPLES",
+          "value": "1"
+        }
+      ],
+      "buildCommandArgs": "-v",
+      "ctestCommandArgs": "",
+      "intelliSenseMode": "android-clang-x86"
+    }
+  ]
+}

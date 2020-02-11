@@ -17,6 +17,7 @@
 #include <System/Window/Window.h>
 
 #include <d3d11.h>
+#include <d3d11_3.h>
 #include <dxgidebug.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
@@ -26,6 +27,7 @@
 ezGALDeviceDX11::ezGALDeviceDX11(const ezGALDeviceCreationDescription& Description)
   : ezGALDevice(Description)
   , m_pDevice(nullptr)
+  , m_pDevice3(nullptr)
   , m_pDebug(nullptr)
   , m_pDXGIFactory(nullptr)
   , m_pDXGIAdapter(nullptr)
@@ -147,6 +149,11 @@ retry:
     return EZ_FAILURE;
   }
 
+  if (FAILED(m_pDevice->QueryInterface(__uuidof(ID3D11Device3), (void**)&m_pDevice3)))
+  {
+    ezLog::Info("D3D device doesn't support ID3D11Device3, some features might be unavailable.");
+  }
+
   if (FAILED(m_pDXGIDevice->SetMaximumFrameLatency(1)))
   {
     ezLog::Warning("Failed to set max frames latency");
@@ -165,7 +172,7 @@ retry:
   // Fill lookup table
   FillFormatLookupTable();
 
-  ezProjectionDepthRange::Default = ezProjectionDepthRange::ZeroToOne;
+  ezClipSpaceDepthRange::Default = ezClipSpaceDepthRange::ZeroToOne;
 
   // Per frame data & timer data
   D3D11_QUERY_DESC disjointQueryDesc;
@@ -298,6 +305,7 @@ ezResult ezGALDeviceDX11::ShutdownPlatform()
 
   EZ_DELETE(&m_Allocator, m_pPrimaryContext);
 
+  EZ_GAL_DX11_RELEASE(m_pDevice3);
   EZ_GAL_DX11_RELEASE(m_pDevice);
   EZ_GAL_DX11_RELEASE(m_pDebug);
   EZ_GAL_DX11_RELEASE(m_pDXGIFactory);
@@ -899,6 +907,15 @@ void ezGALDeviceDX11::FillCapabilitiesPlatform()
       EZ_ASSERT_NOT_IMPLEMENTED;
       break;
   }
+
+  if (m_pDevice3)
+  {
+    D3D11_FEATURE_DATA_D3D11_OPTIONS2 featureOpts2;
+    if (SUCCEEDED(m_pDevice3->CheckFeatureSupport(D3D11_FEATURE_D3D11_OPTIONS2, &featureOpts2, sizeof(featureOpts2))))
+    {
+      m_Capabilities.m_bConservativeRasterization = (featureOpts2.ConservativeRasterizationTier != D3D11_CONSERVATIVE_RASTERIZATION_NOT_SUPPORTED);
+    }
+  }
 }
 
 ID3D11Resource* ezGALDeviceDX11::FindTempBuffer(ezUInt32 uiSize)
@@ -1242,7 +1259,7 @@ void ezGALDeviceDX11::FillFormatLookupTable()
     ezGALFormatLookupEntryDX11(DXGI_FORMAT_R8_TYPELESS).RT(DXGI_FORMAT_R8_SNORM).VA(DXGI_FORMAT_R8_SNORM).RV(DXGI_FORMAT_R8_SNORM));
 
   m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::AUByteNormalized,
-    ezGALFormatLookupEntryDX11(DXGI_FORMAT_R8_TYPELESS).RT(DXGI_FORMAT_A8_UNORM).VA(DXGI_FORMAT_A8_UNORM).RV(DXGI_FORMAT_A8_UNORM));
+    ezGALFormatLookupEntryDX11(DXGI_FORMAT_A8_UNORM).RT(DXGI_FORMAT_A8_UNORM).VA(DXGI_FORMAT_A8_UNORM).RV(DXGI_FORMAT_A8_UNORM));
 
   m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::D16,
     ezGALFormatLookupEntryDX11(DXGI_FORMAT_R16_TYPELESS).RV(DXGI_FORMAT_R16_UNORM).DS(DXGI_FORMAT_D16_UNORM).D(DXGI_FORMAT_R16_UNORM));

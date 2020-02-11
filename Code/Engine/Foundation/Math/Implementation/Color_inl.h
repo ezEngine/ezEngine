@@ -4,7 +4,7 @@ inline ezColor::ezColor()
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
-  const float TypeNaN = ezMath::BasicType<float>::GetNaN();
+  const float TypeNaN = ezMath::NaN<float>();
   r = TypeNaN;
   g = TypeNaN;
   b = TypeNaN;
@@ -43,6 +43,11 @@ inline void ezColor::SetRGBA(float fLinearRed, float fLinearGreen, float fLinear
   g = fLinearGreen;
   b = fLinearBlue;
   a = fLinearAlpha;
+}
+
+inline void ezColor::SetZero()
+{
+  *this = ZeroColor();
 }
 
 // http://en.wikipedia.org/wiki/Luminance_%28relative%29

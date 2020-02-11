@@ -5,6 +5,7 @@
 #include <RendererDX11/State/StateDX11.h>
 
 #include <d3d11.h>
+#include <d3d11_3.h>
 
 
 // Mapping tables to map ezGAL constants to DX11 constants
@@ -180,25 +181,65 @@ ezGALRasterizerStateDX11::~ezGALRasterizerStateDX11() {}
 
 ezResult ezGALRasterizerStateDX11::InitPlatform(ezGALDevice* pDevice)
 {
-  D3D11_RASTERIZER_DESC DXDesc;
-  DXDesc.CullMode = GALCullModeToDX11[m_Description.m_CullMode];
-  DXDesc.DepthBias = m_Description.m_iDepthBias;
-  DXDesc.DepthBiasClamp = m_Description.m_fDepthBiasClamp;
-  DXDesc.DepthClipEnable = TRUE;
-  DXDesc.FillMode = m_Description.m_bWireFrame ? D3D11_FILL_WIREFRAME : D3D11_FILL_SOLID;
-  DXDesc.FrontCounterClockwise = m_Description.m_bFrontCounterClockwise;
-  DXDesc.MultisampleEnable = TRUE;
-  DXDesc.AntialiasedLineEnable = TRUE;
-  DXDesc.ScissorEnable = m_Description.m_bScissorTest;
-  DXDesc.SlopeScaledDepthBias = m_Description.m_fSlopeScaledDepthBias;
+  const bool NeedsStateDesc2 = m_Description.m_bConservativeRasterization;
 
-  if (FAILED(static_cast<ezGALDeviceDX11*>(pDevice)->GetDXDevice()->CreateRasterizerState(&DXDesc, &m_pDXRasterizerState)))
+  if (NeedsStateDesc2)
   {
-    return EZ_FAILURE;
+    D3D11_RASTERIZER_DESC2 DXDesc2;
+    DXDesc2.CullMode = GALCullModeToDX11[m_Description.m_CullMode];
+    DXDesc2.DepthBias = m_Description.m_iDepthBias;
+    DXDesc2.DepthBiasClamp = m_Description.m_fDepthBiasClamp;
+    DXDesc2.DepthClipEnable = TRUE;
+    DXDesc2.FillMode = m_Description.m_bWireFrame ? D3D11_FILL_WIREFRAME : D3D11_FILL_SOLID;
+    DXDesc2.FrontCounterClockwise = m_Description.m_bFrontCounterClockwise;
+    DXDesc2.MultisampleEnable = TRUE;
+    DXDesc2.AntialiasedLineEnable = TRUE;
+    DXDesc2.ScissorEnable = m_Description.m_bScissorTest;
+    DXDesc2.SlopeScaledDepthBias = m_Description.m_fSlopeScaledDepthBias;
+    DXDesc2.ConservativeRaster = m_Description.m_bConservativeRasterization ? D3D11_CONSERVATIVE_RASTERIZATION_MODE_ON : D3D11_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+    DXDesc2.ForcedSampleCount = 0;
+
+    if (!pDevice->GetCapabilities().m_bConservativeRasterization && m_Description.m_bConservativeRasterization)
+    {
+      ezLog::Error("Rasterizer state description enables conservative rasterization which is not available!");
+      return EZ_FAILURE;
+    }
+
+    ID3D11RasterizerState2* pDXRasterizerState2 = nullptr;
+
+    if (FAILED(static_cast<ezGALDeviceDX11*>(pDevice)->GetDXDevice3()->CreateRasterizerState2(&DXDesc2, &pDXRasterizerState2)))
+    {
+      return EZ_FAILURE;
+    }
+    else
+    {
+      m_pDXRasterizerState = pDXRasterizerState2;
+      return EZ_SUCCESS;
+    }
+
   }
   else
   {
-    return EZ_SUCCESS;
+    D3D11_RASTERIZER_DESC DXDesc;
+    DXDesc.CullMode = GALCullModeToDX11[m_Description.m_CullMode];
+    DXDesc.DepthBias = m_Description.m_iDepthBias;
+    DXDesc.DepthBiasClamp = m_Description.m_fDepthBiasClamp;
+    DXDesc.DepthClipEnable = TRUE;
+    DXDesc.FillMode = m_Description.m_bWireFrame ? D3D11_FILL_WIREFRAME : D3D11_FILL_SOLID;
+    DXDesc.FrontCounterClockwise = m_Description.m_bFrontCounterClockwise;
+    DXDesc.MultisampleEnable = TRUE;
+    DXDesc.AntialiasedLineEnable = TRUE;
+    DXDesc.ScissorEnable = m_Description.m_bScissorTest;
+    DXDesc.SlopeScaledDepthBias = m_Description.m_fSlopeScaledDepthBias;
+
+    if (FAILED(static_cast<ezGALDeviceDX11*>(pDevice)->GetDXDevice()->CreateRasterizerState(&DXDesc, &m_pDXRasterizerState)))
+    {
+      return EZ_FAILURE;
+    }
+    else
+    {
+      return EZ_SUCCESS;
+    }
   }
 }
 

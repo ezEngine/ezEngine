@@ -23,8 +23,10 @@
 #  include <Foundation/IO/CompressedStreamZstd.h>
 #endif
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollisionMeshAssetDocument, 6, ezRTTINoAllocator);
+// clang-format off
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollisionMeshAssetDocument, 6, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 static ezMat3 CalculateTransformationMatrix(const ezCollisionMeshAssetProperties* pProp)
 {
@@ -37,14 +39,14 @@ static ezMat3 CalculateTransformationMatrix(const ezCollisionMeshAssetProperties
 }
 
 ezCollisionMeshAssetDocument::ezCollisionMeshAssetDocument(const char* szDocumentPath, bool bConvexMesh)
-    : ezSimpleAssetDocument<ezCollisionMeshAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::Simple)
+  : ezSimpleAssetDocument<ezCollisionMeshAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::Simple)
 {
   m_bIsConvexMesh = bConvexMesh;
 }
 
-void ezCollisionMeshAssetDocument::InitializeAfterLoading()
+void ezCollisionMeshAssetDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 {
-  SUPER::InitializeAfterLoading();
+  SUPER::InitializeAfterLoading(bFirstTimeCreation);
 
   // this logic is for backwards compatibility, to sync the convex state with existing data
   if (m_bIsConvexMesh)
@@ -60,22 +62,13 @@ void ezCollisionMeshAssetDocument::InitializeAfterLoading()
   GetProperties()->m_bIsConvexMesh = m_bIsConvexMesh;
 }
 
-const char* ezCollisionMeshAssetDocument::QueryAssetType() const
-{
-  if (m_bIsConvexMesh)
-    return "Collision Mesh (Convex)";
-
-  return "Collision Mesh";
-}
-
-
 
 //////////////////////////////////////////////////////////////////////////
 
 
 ezStatus ezCollisionMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag,
-                                                              const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader,
-                                                              bool bTriggeredManually)
+  const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader,
+  ezBitflags<ezTransformFlags> transformFlags)
 {
   ezProgressRange range("Transforming Asset", 2, false);
 
@@ -121,7 +114,7 @@ ezStatus ezCollisionMeshAssetDocument::InternalTransformAsset(ezStreamWriter& st
       if (pProp->m_ConvexMeshType == ezConvexCollisionMeshType::Cylinder)
       {
         geom.AddCylinderOnePiece(pProp->m_fRadius, pProp->m_fRadius2, pProp->m_fHeight * 0.5f, pProp->m_fHeight * 0.5f,
-                                 ezMath::Clamp<ezUInt16>(pProp->m_uiDetail, 3, 32), ezColor::White, mTrans);
+          ezMath::Clamp<ezUInt16>(pProp->m_uiDetail, 3, 32), ezColor::White, mTrans);
       }
 
       EZ_SUCCEED_OR_RETURN(CreateMeshFromGeom(geom, xMesh));
@@ -137,8 +130,8 @@ ezStatus ezCollisionMeshAssetDocument::InternalTransformAsset(ezStreamWriter& st
   compressor.FinishCompressedStream();
 
   ezLog::Dev("Compressed collision mesh data from {0} KB to {1} KB ({2}%%)", ezArgF((float)compressor.GetUncompressedSize() / 1024.0f, 1),
-             ezArgF((float)compressor.GetCompressedSize() / 1024.0f, 1),
-             ezArgF(100.0f * compressor.GetCompressedSize() / compressor.GetUncompressedSize(), 1));
+    ezArgF((float)compressor.GetCompressedSize() / 1024.0f, 1),
+    ezArgF(100.0f * compressor.GetCompressedSize() / compressor.GetUncompressedSize(), 1));
 
 #endif
 
@@ -146,7 +139,7 @@ ezStatus ezCollisionMeshAssetDocument::InternalTransformAsset(ezStreamWriter& st
 }
 
 static ezStatus ImportMesh(const char* filename, const char* subMeshFilename, ezSharedPtr<ezModelImporter::Scene>& outScene,
-                           ezModelImporter::Mesh*& outMesh, ezString& outMeshFileAbs)
+  ezModelImporter::Mesh*& outMesh, ezString& outMeshFileAbs)
 {
   ezStopwatch timer;
 
@@ -284,7 +277,7 @@ ezStatus ezCollisionMeshAssetDocument::CreateMeshFromGeom(ezGeometry& geom, ezPh
 }
 
 ezStatus ezCollisionMeshAssetDocument::WriteToStream(ezChunkStreamWriter& stream, const ezPhysXCookingMesh& mesh,
-                                                     const ezCollisionMeshAssetProperties* pProp)
+  const ezCollisionMeshAssetProperties* pProp)
 {
   ezHybridArray<ezString, 32> surfaces;
 
@@ -302,6 +295,18 @@ ezStatus ezCollisionMeshAssetDocument::InternalCreateThumbnail(const ThumbnailIn
   return status;
 }
 
+void ezCollisionMeshAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
+{
+  SUPER::UpdateAssetDocumentInfo(pInfo);
+
+  if (GetProperties()->m_ConvexMeshType != ezConvexCollisionMeshType::ConvexHull)
+  {
+    // remove the mesh file dependency, if it is not actually used
+    const auto& sMeshFile = GetProperties()->m_sMeshFile;
+    pInfo->m_AssetTransformDependencies.Remove(sMeshFile);
+  }
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollisionMeshAssetDocumentGenerator, 1, ezRTTIDefaultAllocator<ezCollisionMeshAssetDocumentGenerator>)
@@ -312,12 +317,13 @@ ezCollisionMeshAssetDocumentGenerator::ezCollisionMeshAssetDocumentGenerator()
   AddSupportedFileType("obj");
   AddSupportedFileType("fbx");
   AddSupportedFileType("ply");
+  AddSupportedFileType("blend");
 }
 
 ezCollisionMeshAssetDocumentGenerator::~ezCollisionMeshAssetDocumentGenerator() = default;
 
 void ezCollisionMeshAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath,
-                                                           ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+  ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
   baseOutputFile.ChangeFileExtension("ezCollisionMeshAsset");
@@ -332,7 +338,7 @@ void ezCollisionMeshAssetDocumentGenerator::GetImportModes(const char* szParentD
 }
 
 ezStatus ezCollisionMeshAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info,
-                                                         ezDocument*& out_pGeneratedDocument)
+  ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
 
@@ -354,7 +360,7 @@ ezStatus ezCollisionMeshAssetDocumentGenerator::Generate(const char* szDataDirRe
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConvexCollisionMeshAssetDocumentGenerator, 1,
-                                ezRTTIDefaultAllocator<ezConvexCollisionMeshAssetDocumentGenerator>)
+  ezRTTIDefaultAllocator<ezConvexCollisionMeshAssetDocumentGenerator>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezConvexCollisionMeshAssetDocumentGenerator::ezConvexCollisionMeshAssetDocumentGenerator()
@@ -362,12 +368,13 @@ ezConvexCollisionMeshAssetDocumentGenerator::ezConvexCollisionMeshAssetDocumentG
   AddSupportedFileType("obj");
   AddSupportedFileType("fbx");
   AddSupportedFileType("ply");
+  AddSupportedFileType("blend");
 }
 
 ezConvexCollisionMeshAssetDocumentGenerator::~ezConvexCollisionMeshAssetDocumentGenerator() = default;
 
 void ezConvexCollisionMeshAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath,
-                                                                 ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+  ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
   baseOutputFile.ChangeFileExtension("ezConvexCollisionMeshAsset");
@@ -382,8 +389,8 @@ void ezConvexCollisionMeshAssetDocumentGenerator::GetImportModes(const char* szP
 }
 
 ezStatus ezConvexCollisionMeshAssetDocumentGenerator::Generate(const char* szDataDirRelativePath,
-                                                               const ezAssetDocumentGenerator::Info& info,
-                                                               ezDocument*& out_pGeneratedDocument)
+  const ezAssetDocumentGenerator::Info& info,
+  ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
 

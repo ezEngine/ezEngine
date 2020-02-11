@@ -1,5 +1,7 @@
 #pragma once
 
+/// \file
+
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/SimdMath/SimdConversion.h>
 #include <Foundation/Time/Time.h>
@@ -8,20 +10,26 @@
 #include <Core/World/ComponentManager.h>
 #include <Core/World/GameObjectDesc.h>
 
+struct ezEventMessage;
+
 // Avoid conflicts with windows.h
 #ifdef SendMessage
 #  undef SendMessage
 #endif
+
+/// \brief Build switch to disable velocity on game objects if it is not needed
+#define EZ_GAMEOBJECT_VELOCITY EZ_ON
 
 /// \brief This class represents an object inside the world.
 ///
 /// Game objects only consists of hierarchical data like transformation and a list of components.
 /// You cannot derive from the game object class. To add functionality to an object you have to attach components to it.
 /// To create an object instance call CreateObject on the world. Never store a direct pointer to an object but store an
-/// object handle instead.
+/// ezGameObjectHandle instead.
+///
 /// \see ezWorld
 /// \see ezComponent
-
+/// \see ezGameObjectHandle
 class EZ_CORE_DLL ezGameObject
 {
 private:
@@ -106,14 +114,31 @@ public:
   /// \brief Returns whether this object is static.
   bool IsStatic() const;
 
+  /// \brief Sets the 'active flag' of the game object, which affects its final 'active state'.
+  ///
+  /// The active flag affects the 'active state' of the game object and all its children and attached components.
+  /// When a game object does not have the active flag, it is switched to 'inactive'. The same happens for all its children and
+  /// all components attached to those game objects.
+  /// Thus removing the active flag from a game object recursively deactivates the entire sub-tree of objects and components.
+  ///
+  /// When the active flag is set on a game object, and all of its parent nodes have the flag set as well, then the active state
+  /// will be set to true on it and all its children and attached components.
+  ///
+  /// \sa IsActive(), ezComponent::SetActiveFlag()
+  void SetActiveFlag(bool bEnabled);
 
-  /// \brief Activates the object and all its components.
-  void Activate();
+  /// \brief Checks whether the 'active flag' is set on this game object. Note that this does not mean that the game object is also in an 'active state'.
+  ///
+  /// \sa IsActive(), SetActiveFlag()
+  bool GetActiveFlag() const;
 
-  /// \brief Deactivates the object and all its components.
-  void Deactivate();
-
-  /// \brief Returns whether this object is active.
+  /// \brief Checks whether this game object is in an active state.
+  ///
+  /// The active state is determined by the active state of the parent game object and the 'active flag' of this game object.
+  /// Only if the parent game object is active (and thus all of its parent objects as well) and this game object has the active flag set,
+  /// will this game object be active.
+  ///
+  /// \sa ezGameObject::SetActiveFlag(), ezComponent::IsActive()
   bool IsActive() const;
 
   /// \brief Sets the name to identify this object. Does not have to be a unique name.
@@ -199,6 +224,13 @@ public:
   const ezWorld* GetWorld() const;
 
 
+  /// \brief Defines update behavior for global transforms when changing the local transform on a static game object
+  enum class UpdateBehaviorIfStatic
+  {
+    None,              ///< Only sets the local transform, does not update
+    UpdateImmediately, ///< Updates the hierarchy underneath the object immediately
+  };
+
   /// \brief Changes the position of the object local to its parent.
   /// \note The rotation of the object itself does not affect the final global position!
   /// The local position is always in the space of the parent object. If there is no parent, local position and global position are
@@ -215,6 +247,8 @@ public:
   void SetLocalUniformScaling(float scaling);
   float GetLocalUniformScaling() const;
 
+  ezTransform GetLocalTransform() const;
+
   void SetGlobalPosition(const ezVec3& position);
   ezVec3 GetGlobalPosition() const;
 
@@ -228,17 +262,19 @@ public:
   ezTransform GetGlobalTransform() const;
 
   // Simd variants of above methods
-  void SetLocalPosition(const ezSimdVec4f& position);
+  void SetLocalPosition(const ezSimdVec4f& position, UpdateBehaviorIfStatic updateBehavior = UpdateBehaviorIfStatic::UpdateImmediately);
   const ezSimdVec4f& GetLocalPositionSimd() const;
 
-  void SetLocalRotation(const ezSimdQuat& rotation);
+  void SetLocalRotation(const ezSimdQuat& rotation, UpdateBehaviorIfStatic updateBehavior = UpdateBehaviorIfStatic::UpdateImmediately);
   const ezSimdQuat& GetLocalRotationSimd() const;
 
-  void SetLocalScaling(const ezSimdVec4f& scaling);
+  void SetLocalScaling(const ezSimdVec4f& scaling, UpdateBehaviorIfStatic updateBehavior = UpdateBehaviorIfStatic::UpdateImmediately);
   const ezSimdVec4f& GetLocalScalingSimd() const;
 
-  void SetLocalUniformScaling(const ezSimdFloat& scaling);
+  void SetLocalUniformScaling(const ezSimdFloat& scaling, UpdateBehaviorIfStatic updateBehavior = UpdateBehaviorIfStatic::UpdateImmediately);
   ezSimdFloat GetLocalUniformScalingSimd() const;
+
+  ezSimdTransform GetLocalTransformSimd() const;
 
   void SetGlobalPosition(const ezSimdVec4f& position);
   const ezSimdVec4f& GetGlobalPositionSimd() const;
@@ -259,6 +295,7 @@ public:
   /// \brief Returns the 'up' direction of the world's ezCoordinateSystem, rotated into the object's global space
   ezVec3 GetGlobalDirUp() const;
 
+#if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
   /// \brief Sets the object's velocity.
   ///
   /// This is used for some rendering techniques or for the computation of sound Doppler effect.
@@ -269,6 +306,7 @@ public:
   /// frame's position, but
   ///        also the time difference is divided out.
   ezVec3 GetVelocity() const;
+#endif
 
   /// \brief Updates the global transform immediately. Usually this done during the world update after the "Post-async" phase.
   void UpdateGlobalTransform();
@@ -353,6 +391,40 @@ public:
   /// \brief Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
   void PostMessageRecursive(const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
 
+  /// \brief Delivers an ezEventMessage to the closest (parent) object containing an ezEventMessageHandlerComponent.
+  ///
+  /// Regular SendMessage() and PostMessage() send a message directly to the target object (and all attached components).
+  /// SendMessageRecursive() and PostMessageRecursive() send a message 'down' the graph to the target object and all children.
+  ///
+  /// In contrast, SendEventMessage() / PostEventMessage() bubble the message 'up' the graph.
+  /// They do so by inspecting the chain of parent objects for the existence of an ezEventMessageHandlerComponent
+  /// (typically a script component). If such a component is found, the message is delivered to it directly, and no other component.
+  /// If it is found, but does not handle this type of message, the message is discarded and NOT tried to be delivered
+  /// to anyone else.
+  ///
+  /// If no such component is found in all parent objects, the message is delivered to one ezEventMessageHandlerComponent
+  /// instances that is set to 'handle global events' (typically used for level-logic scripts), no matter where in the graph it resides.
+  /// If multiple global event handler component exist that handle the same message type, the result is non-deterministic.
+  ///
+  /// \param msg The message to deliver.
+  /// \param senderComponent The component that triggered the event in the first place. May be nullptr.
+  ///        If not null, this information is stored in \a msg as ezEventMessage::m_hSenderObject and ezEventMessage::m_hSenderComponent.
+  ///        This information is used to pass through more contextual information for the event handler.
+  ///        For instance, a trigger would pass through which object entered the trigger.
+  ///        A projectile component sending a 'take damage event' to the hit object, would pass through itself (the projectile)
+  ///        such that the handling code can detect which object was responsible for the damage (and using the ezGameObject's team-ID,
+  ///        it can detect which player fired the projectile).
+  void SendEventMessage(ezEventMessage& msg, const ezComponent* senderComponent);
+
+  /// \copydoc ezGameObject::SendEventMessage()
+  void SendEventMessage(ezEventMessage& msg, const ezComponent* senderComponent) const;
+
+  /// \copydoc ezGameObject::SendEventMessage()
+  ///
+  /// \param queueType In which update phase to deliver the message.
+  /// \param delay An optional delay before delivering the message.
+  void PostEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
+
   /// \brief Returns the tag set associated with this object.
   ezTagSet& GetTags();
   const ezTagSet& GetTags() const;
@@ -369,6 +441,11 @@ public:
 private:
   friend class ezComponentManagerBase;
   friend class ezGameObjectTest;
+
+  bool SendMessageInternal(ezMessage& msg, bool bWasPostedMsg);
+  bool SendMessageInternal(ezMessage& msg, bool bWasPostedMsg) const;
+  bool SendMessageRecursiveInternal(ezMessage& msg, bool bWasPostedMsg);
+  bool SendMessageRecursiveInternal(ezMessage& msg, bool bWasPostedMsg) const;
 
   EZ_ALLOW_PRIVATE_PROPERTIES(ezGameObject);
 
@@ -390,11 +467,14 @@ private:
 
   void UpdateGlobalTransformAndBoundsRecursive();
 
-  void OnDeleteObject(ezMsgDeleteGameObject& msg);
+  void OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg);
 
   void AddComponent(ezComponent* pComponent);
   void RemoveComponent(ezComponent* pComponent);
   void FixComponentPointer(ezComponent* pOldPtr, ezComponent* pNewPtr);
+
+  // Updates the active state of this object and all children and attached components recursively, depending on the enabled states.
+  void UpdateActiveState(bool bParentActive);
 
   void SendNotificationMessage(ezMessage& msg);
 
@@ -414,15 +494,19 @@ private:
     ezSimdVec4f m_localScaling; // x,y,z = non-uniform scaling, w = uniform scaling
 
     ezSimdTransform m_globalTransform;
+
+#if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
     ezSimdVec4f m_lastGlobalPosition;
     ezSimdVec4f m_velocity; // w != 0 indicates custom velocity
+#endif
 
     ezSimdBBoxSphere m_localBounds; // m_BoxHalfExtents.w != 0 indicates that the object should be always visible
     ezSimdBBoxSphere m_globalBounds;
 
     ezSpatialDataHandle m_hSpatialData;
+    ezUInt32 m_uiSpatialDataCategoryBitmask;
 
-    ezUInt32 m_uiPadding2[3];
+    ezUInt32 m_uiPadding2[2];
 
     void UpdateLocalTransform();
 
@@ -432,6 +516,7 @@ private:
 
     void ConditionalUpdateGlobalBounds();
     void UpdateGlobalBounds();
+    void UpdateGlobalBoundsAndSpatialData();
 
     void UpdateVelocity(const ezSimdFloat& fInvDeltaSeconds);
 

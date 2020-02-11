@@ -132,6 +132,12 @@ public:
   /// \brief Creates a new instance of the world module with the given type id and world.
   ezWorldModule* CreateWorldModule(ezUInt16 typeId, ezWorld* pWorld);
 
+  /// \brief Register explicit a mapping of a world module interface to a specific implementation.
+  ///
+  /// This is necessary if there are multiple implementations of the same interface.
+  /// If there is only one implementation for an interface this implementation is registered automatically.
+  void RegisterInterfaceImplementation(ezStringView sInterfaceName, ezStringView sImplementationName);
+
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Core, WorldModuleFactory);
 
@@ -140,13 +146,23 @@ private:
   ezWorldModuleFactory();
   ezUInt16 RegisterWorldModule(const ezRTTI* pRtti, CreatorFunc creatorFunc);
 
-  static void PluginEventHandler(const ezPlugin::PluginEvent& EventData);
+  static void PluginEventHandler(const ezPluginEvent& EventData);
   void FillBaseTypeIds();
   void ClearUnloadedTypeToIDs();
 
   ezHashTable<const ezRTTI*, ezUInt16> m_TypeToId;
 
-  ezDynamicArray<CreatorFunc> m_CreatorFuncs;
+  struct CreatorFuncContext
+  {
+    EZ_DECLARE_POD_TYPE();
+
+    CreatorFunc m_Func;
+    const ezRTTI* m_pRtti;
+  };
+
+  ezDynamicArray<CreatorFuncContext> m_CreatorFuncs;
+
+  ezHashTable<ezString, ezString> m_InterfaceImplementations;
 };
 
 /// \brief Add this macro to the declaration of your module type.

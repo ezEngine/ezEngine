@@ -19,19 +19,7 @@ ezSettingsComponent::ezSettingsComponent()
   SetModified();
 }
 
-void ezSettingsComponent::SerializeComponent(ezWorldWriter& stream) const
-{
-  SUPER::SerializeComponent(stream);
-}
-
-
-void ezSettingsComponent::DeserializeComponent(ezWorldReader& stream)
-{
-  SUPER::DeserializeComponent(stream);
-  // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-}
-
+ezSettingsComponent::~ezSettingsComponent() = default;
 
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_SettingsComponent);
-

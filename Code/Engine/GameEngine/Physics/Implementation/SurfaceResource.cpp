@@ -1,6 +1,7 @@
 #include <GameEnginePCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
+#include <Core/Messages/CommonMessages.h>
 #include <GameEngine/Physics/SurfaceResource.h>
 #include <GameEngine/Prefabs/PrefabResource.h>
 #include <RendererCore/Messages/ApplyOnlyToMessage.h>
@@ -126,7 +127,7 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezSurfaceResource, ezSurfaceResourceDescriptor)
   return res;
 }
 
-const ezSurfaceInteraction* ezSurfaceResource::FindInteraction(const ezSurfaceResource* pCurSurf, ezUInt32 uiHash, float fImpulseSqr)
+const ezSurfaceInteraction* ezSurfaceResource::FindInteraction(const ezSurfaceResource* pCurSurf, ezUInt32 uiHash, float fImpulseSqr, float& out_fImpulseParamValue)
 {
   while (true)
   {
@@ -144,7 +145,12 @@ const ezSurfaceInteraction* ezSurfaceResource::FindInteraction(const ezSurfaceRe
 
         // only use it if the threshold is large enough
         if (fImpulseSqr >= ezMath::Square(interaction.m_pInteraction->m_fImpulseThreshold))
+        {
+          const float fImpulse = ezMath::Sqrt(fImpulseSqr);
+          out_fImpulseParamValue = (fImpulse - interaction.m_pInteraction->m_fImpulseThreshold) * interaction.m_pInteraction->m_fImpulseScale;
+
           return interaction.m_pInteraction;
+        }
       }
     }
 
@@ -170,7 +176,8 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
   const ezVec3& vSurfaceNormal, const ezVec3& vIncomingDirection,
   const ezTempHashedString& sInteraction, const ezUInt16* pOverrideTeamID, float fImpulseSqr /*= 0.0f*/)
 {
-  const ezSurfaceInteraction* pIA = FindInteraction(this, sInteraction.GetHash(), fImpulseSqr);
+  float fImpulseParam = 0;
+  const ezSurfaceInteraction* pIA = FindInteraction(this, sInteraction.GetHash(), fImpulseSqr, fImpulseParam);
 
   if (pIA == nullptr)
     return false;
@@ -217,7 +224,7 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
 
   // random rotation around the spawn direction
   {
-    double randomAngle = pWorld->GetRandomNumberGenerator().DoubleInRange(0.0, ezMath::BasicType<double>::Pi() * 2.0);
+    double randomAngle = pWorld->GetRandomNumberGenerator().DoubleInRange(0.0, ezMath::Pi<double>() * 2.0);
 
     ezMat3 rotMat;
     rotMat.SetRotationMatrix(vDir, ezAngle::Radian((float)randomAngle));
@@ -236,7 +243,7 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
       case ezSurfaceInteractionAlignment::ReverseReflectedDirection:
       {
         const float fCosAngle = vDir.Dot(-vSurfaceNormal);
-        const float fMaxDeviation = ezMath::BasicType<float>::Pi() - ezMath::ACos(fCosAngle).GetRadian();
+        const float fMaxDeviation = ezMath::Pi<float>() - ezMath::ACos(fCosAngle).GetRadian();
 
         maxDeviation = ezMath::Min(pIA->m_Deviation, ezAngle::Radian(fMaxDeviation));
       }
@@ -246,7 +253,7 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
       case ezSurfaceInteractionAlignment::ReverseIncidentDirection:
       {
         const float fCosAngle = vDir.Dot(vSurfaceNormal);
-        const float fMaxDeviation = ezMath::BasicType<float>::Pi() - ezMath::ACos(fCosAngle).GetRadian();
+        const float fMaxDeviation = ezMath::Pi<float>() - ezMath::ACos(fCosAngle).GetRadian();
 
         maxDeviation = ezMath::Min(pIA->m_Deviation, ezAngle::Radian(fMaxDeviation));
       }
@@ -292,7 +299,18 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
   }
 
   ezHybridArray<ezGameObject*, 8> rootObjects;
-  pPrefab->InstantiatePrefab(*pWorld, t, hParent, &rootObjects, pOverrideTeamID, nullptr);
+  pPrefab->InstantiatePrefab(*pWorld, t, hParent, &rootObjects, pOverrideTeamID, nullptr, false);
+
+  {
+    ezMsgSetFloatParameter msgSetFloat;
+    msgSetFloat.m_sParameterName = "Impulse";
+    msgSetFloat.m_fValue = fImpulseParam;
+
+    for (auto pRootObject : rootObjects)
+    {
+      pRootObject->PostMessageRecursive(msgSetFloat, ezObjectMsgQueueType::AfterInitialized);
+    }
+  }
 
   if (pObject != nullptr && pObject->IsDynamic())
   {

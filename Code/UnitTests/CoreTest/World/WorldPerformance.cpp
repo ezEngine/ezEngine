@@ -56,7 +56,7 @@ namespace
   EZ_END_COMPONENT_TYPE;
   // clang-format on
 
-  void AddNodesToWorld(ezWorld& world, bool bDynamic, ezUInt32 uiNumNodes, ezUInt32 uiTreeLevelNumNodeDiv, ezUInt32 uiTreeDepth, ezInt32 iAttachCompsDepth,
+  void AddObjectsToWorld(ezWorld& world, bool bDynamic, ezUInt32 uiNumObjects, ezUInt32 uiTreeLevelNumNodeDiv, ezUInt32 uiTreeDepth, ezInt32 iAttachCompsDepth,
                        ezGameObjectHandle hParent = ezGameObjectHandle())
   {
     if (uiTreeDepth == 0)
@@ -71,7 +71,7 @@ namespace
 
     ezTestComponentManager* pMan = world.GetOrCreateComponentManager<ezTestComponentManager>();
 
-    for (ezUInt32 i = 0; i < uiNumNodes; ++i)
+    for (ezUInt32 i = 0; i < uiNumObjects; ++i)
     {
       gd.m_LocalPosition.Set(posX, posY, 0);
       posX += 5.0f;
@@ -85,11 +85,11 @@ namespace
         pMan->CreateComponent(pObj, comp);
       }
 
-      AddNodesToWorld(world, bDynamic, ezMath::Max(uiNumNodes / uiTreeLevelNumNodeDiv, 1U), uiTreeLevelNumNodeDiv, uiTreeDepth - 1, iAttachCompsDepth - 1, hObj);
+      AddObjectsToWorld(world, bDynamic, ezMath::Max(uiNumObjects / uiTreeLevelNumNodeDiv, 1U), uiTreeLevelNumNodeDiv, uiTreeDepth - 1, iAttachCompsDepth - 1, hObj);
     }
   }
 
-  void MeasureCreationTime(bool bDynamic, ezUInt32 uiNumNodes, ezUInt32 uiTreeLevelNumNodeDiv, ezUInt32 uiTreeDepth, ezInt32 iAttachCompsDepth,
+  void MeasureCreationTime(bool bDynamic, ezUInt32 uiNumObjects, ezUInt32 uiTreeLevelNumNodeDiv, ezUInt32 uiTreeDepth, ezInt32 iAttachCompsDepth,
                            ezWorld* pWorld = nullptr)
   {
     ezWorldDesc worldDesc("Test");
@@ -105,11 +105,11 @@ namespace
     {
       ezStopwatch sw;
 
-      AddNodesToWorld(*pWorld, bDynamic, uiNumNodes, uiTreeLevelNumNodeDiv, uiTreeDepth, iAttachCompsDepth);
+      AddObjectsToWorld(*pWorld, bDynamic, uiNumObjects, uiTreeLevelNumNodeDiv, uiTreeDepth, iAttachCompsDepth);
 
       const ezTime tDiff = sw.Checkpoint();
 
-      ezTestFramework::Output(ezTestOutput::Duration, "Creating %u %s nodes (depth: %u): %.2fms", pWorld->GetObjectCount(),
+      ezTestFramework::Output(ezTestOutput::Duration, "Creating %u %s objects (depth: %u): %.2fms", pWorld->GetObjectCount(),
                               bDynamic ? "dynamic" : "static", uiTreeDepth, tDiff.GetMilliseconds());
     }
   }
@@ -125,9 +125,9 @@ static const ezTestBlock::Enum EnableInRelease = ezTestBlock::Enabled;
 
 EZ_CREATE_SIMPLE_TEST(World, Profile_Creation)
 {
-  EZ_TEST_BLOCK(EnableInRelease, "Create many nodes")
+  EZ_TEST_BLOCK(EnableInRelease, "Create many objects")
   {
-    // it makes no difference whether we create static or dynamic nodes
+    // it makes no difference whether we create static or dynamic objects
     static bool bDynamic = true;
     bDynamic = !bDynamic;
 
@@ -143,9 +143,30 @@ EZ_CREATE_SIMPLE_TEST(World, Profile_Creation)
   }
 }
 
+EZ_CREATE_SIMPLE_TEST(World, Profile_Deletion)
+{
+  EZ_TEST_BLOCK(EnableInRelease, "Delete many objects")
+  {
+    ezWorldDesc worldDesc("Test");
+    ezWorld world(worldDesc);
+    MeasureCreationTime(true, 10, 1, 5, 2, &world);
+
+    ezStopwatch sw;
+
+    EZ_LOCK(world.GetWriteMarker());
+    ezUInt32 uiNumObjects = world.GetObjectCount();
+
+    world.Clear();
+    world.Update();    
+
+    const ezTime tDiff = sw.Checkpoint();
+    ezTestFramework::Output(ezTestOutput::Duration, "Deleting %u objects: %.2fms", uiNumObjects, tDiff.GetMilliseconds());
+  }
+}
+
 EZ_CREATE_SIMPLE_TEST(World, Profile_Update)
 {
-  EZ_TEST_BLOCK(EnableInRelease, "Update 1,000,000 static nodes")
+  EZ_TEST_BLOCK(EnableInRelease, "Update 1,000,000 static objects")
   {
     ezWorldDesc worldDesc("Test");
     ezWorld world(worldDesc);
@@ -161,11 +182,11 @@ EZ_CREATE_SIMPLE_TEST(World, Profile_Update)
 
       const ezTime tDiff = sw.Checkpoint();
 
-      ezTestFramework::Output(ezTestOutput::Duration, "Updating %u nodes: %.2fms", world.GetObjectCount(), tDiff.GetMilliseconds());
+      ezTestFramework::Output(ezTestOutput::Duration, "Updating %u objects: %.2fms", world.GetObjectCount(), tDiff.GetMilliseconds());
     }
   }
 
-  EZ_TEST_BLOCK(EnableInRelease, "Update 100,000 dynamic nodes")
+  EZ_TEST_BLOCK(EnableInRelease, "Update 100,000 dynamic objects")
   {
     ezWorldDesc worldDesc("Test");
     ezWorld world(worldDesc);
@@ -181,11 +202,11 @@ EZ_CREATE_SIMPLE_TEST(World, Profile_Update)
 
       const ezTime tDiff = sw.Checkpoint();
 
-      ezTestFramework::Output(ezTestOutput::Duration, "Updating %u nodes: %.2fms", world.GetObjectCount(), tDiff.GetMilliseconds());
+      ezTestFramework::Output(ezTestOutput::Duration, "Updating %u objects: %.2fms", world.GetObjectCount(), tDiff.GetMilliseconds());
     }
   }
 
-  EZ_TEST_BLOCK(EnableInRelease, "Update 100,000 dynamic nodes with components")
+  EZ_TEST_BLOCK(EnableInRelease, "Update 100,000 dynamic objects with components")
   {
     ezWorldDesc worldDesc("Test");
     ezWorld world(worldDesc);
@@ -201,11 +222,11 @@ EZ_CREATE_SIMPLE_TEST(World, Profile_Update)
 
       const ezTime tDiff = sw.Checkpoint();
 
-      ezTestFramework::Output(ezTestOutput::Duration, "Updating %u nodes: %.2fms", world.GetObjectCount(), tDiff.GetMilliseconds());
+      ezTestFramework::Output(ezTestOutput::Duration, "Updating %u objects: %.2fms", world.GetObjectCount(), tDiff.GetMilliseconds());
     }
   }
 
-  EZ_TEST_BLOCK(EnableInRelease, "Update 250,000 dynamic nodes")
+  EZ_TEST_BLOCK(EnableInRelease, "Update 250,000 dynamic objects")
   {
     ezWorldDesc worldDesc("Test");
     ezWorld world(worldDesc);
@@ -221,13 +242,35 @@ EZ_CREATE_SIMPLE_TEST(World, Profile_Update)
 
       const ezTime tDiff = sw.Checkpoint();
 
-      ezTestFramework::Output(ezTestOutput::Duration, "Updating %u nodes: %.2fms", world.GetObjectCount(), tDiff.GetMilliseconds());
+      ezTestFramework::Output(ezTestOutput::Duration, "Updating %u objects: %.2fms", world.GetObjectCount(), tDiff.GetMilliseconds());
     }
   }
 
-  EZ_TEST_BLOCK(EnableInRelease, "Update 1,000,000 dynamic nodes")
+  EZ_TEST_BLOCK(EnableInRelease, "MT Update 250,000 dynamic objects")
   {
     ezWorldDesc worldDesc("Test");
+    worldDesc.m_bAutoCreateSpatialSystem = false; // allows multi-threaded update
+    ezWorld world(worldDesc);
+    MeasureCreationTime(true, 200, 5, 6, 0, &world);
+
+    ezStopwatch sw;
+
+    // first round always has some overhead
+    for (ezUInt32 i = 0; i < 3; ++i)
+    {
+      EZ_LOCK(world.GetWriteMarker());
+      world.Update();
+
+      const ezTime tDiff = sw.Checkpoint();
+
+      ezTestFramework::Output(ezTestOutput::Duration, "Updating %u objects (MT): %.2fms", world.GetObjectCount(), tDiff.GetMilliseconds());
+    }
+  }
+
+  EZ_TEST_BLOCK(EnableInRelease, "MT Update 1,000,000 dynamic objects")
+  {
+    ezWorldDesc worldDesc("Test");
+    worldDesc.m_bAutoCreateSpatialSystem = false; // allows multi-threaded update
     ezWorld world(worldDesc);
     MeasureCreationTime(true, 100, 1, 3, 1, &world);
 
@@ -241,7 +284,7 @@ EZ_CREATE_SIMPLE_TEST(World, Profile_Update)
 
       const ezTime tDiff = sw.Checkpoint();
 
-      ezTestFramework::Output(ezTestOutput::Duration, "Updating %u nodes: %.2fms", world.GetObjectCount(), tDiff.GetMilliseconds());
+      ezTestFramework::Output(ezTestOutput::Duration, "Updating %u objects (MT): %.2fms", world.GetObjectCount(), tDiff.GetMilliseconds());
     }
   }
 }

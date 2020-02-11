@@ -91,23 +91,18 @@ void ezDecalAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEv
   }
 }
 
-
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetDocument, 3, ezRTTINoAllocator)
-  ;
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezDecalAssetDocument::ezDecalAssetDocument(const char* szDocumentPath)
   : ezSimpleAssetDocument<ezDecalAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::Simple)
 {
 }
 
-const char* ezDecalAssetDocument::QueryAssetType() const
-{
-  return "Decal";
-}
-
 ezStatus ezDecalAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag,
-  const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+  const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   return static_cast<ezDecalAssetDocumentManager*>(GetAssetDocumentManager())->GenerateDecalTexture(pAssetProfile);
 }
@@ -158,9 +153,9 @@ ezStatus ezDecalAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& Unus
   for (ezInt32 i = 0; i < arguments.size(); ++i)
     cmd.Append(" ", arguments[i].toUtf8().data());
 
-  ezLog::Debug("TexConv2.exe{0}", cmd);
+  ezLog::Debug("TexConv.exe{0}", cmd);
 
-  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv2.exe", arguments, 60, ezLog::GetThreadLocalLogSystem()));
+  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv.exe", arguments, 60, ezLog::GetThreadLocalLogSystem()));
 
   {
     ezUInt64 uiThumbnailHash = ezAssetCurator::GetSingleton()->GetAssetReferenceHash(GetGuid());

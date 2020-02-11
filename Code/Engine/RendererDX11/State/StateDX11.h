@@ -1,4 +1,4 @@
-﻿
+
 #pragma once
 
 #include <RendererFoundation/State/State.h>
@@ -7,6 +7,7 @@
 struct ID3D11BlendState;
 struct ID3D11DepthStencilState;
 struct ID3D11RasterizerState;
+struct ID3D11RasterizerState2;
 struct ID3D11SamplerState;
 
 class EZ_RENDERERDX11_DLL ezGALBlendStateDX11 : public ezGALBlendState

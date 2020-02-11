@@ -361,7 +361,7 @@ void ezGeometry::SetAllVertexTexCoord(const ezVec2& texCoord, ezUInt32 uiFirstVe
 
 void ezGeometry::TransformVertices(const ezMat4& mTransform, ezUInt32 uiFirstVertex)
 {
-  if (mTransform.IsIdentity(ezMath::BasicType<float>::SmallEpsilon()))
+  if (mTransform.IsIdentity(ezMath::SmallEpsilon<float>()))
     return;
 
   for (ezUInt32 v = uiFirstVertex; v < m_Vertices.GetCount(); ++v)
@@ -864,8 +864,10 @@ void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fPosit
                              ezAngle fraction)
 {
   EZ_ASSERT_DEV(uiSegments >= 3, "Cannot create a cylinder with only {0} segments", uiSegments);
-  EZ_ASSERT_DEV(fraction.GetDegree() >= 0.0f, "A cylinder cannot be built with more less than 0 degree");
-  EZ_ASSERT_DEV(fraction.GetDegree() <= 360.0f, "A cylinder cannot be built with more than 360 degree");
+  EZ_ASSERT_DEV(fraction.GetDegree() >= -0.01f, "A cylinder cannot be built with more less than 0 degree");
+  EZ_ASSERT_DEV(fraction.GetDegree() <= 360.01f, "A cylinder cannot be built with more than 360 degree");
+
+  fraction = ezMath::Clamp(fraction, ezAngle(), ezAngle::Degree(360.0f));
 
   bool bFlipWinding = mTransform.GetRotationalPart().GetDeterminant() < 0;
   const bool bIsFraction = fraction.GetDegree() < 360.0f;

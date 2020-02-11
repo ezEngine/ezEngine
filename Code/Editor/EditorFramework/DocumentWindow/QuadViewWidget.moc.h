@@ -23,6 +23,8 @@ public:
     ViewFactory viewFactory, const char* szViewToolBarMapping);
   ~ezQtQuadViewWidget();
 
+  const ezHybridArray<ezQtViewWidgetContainer*, 4>& GetActiveMainViews() { return m_ActiveMainViews; }
+
 public Q_SLOTS:
   void ToggleViews(QWidget* pView);
 

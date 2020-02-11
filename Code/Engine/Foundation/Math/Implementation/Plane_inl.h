@@ -7,7 +7,7 @@ EZ_FORCE_INLINE ezPlaneTemplate<Type>::ezPlaneTemplate()
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
-  const Type TypeNaN = ezMath::BasicType<Type>::GetNaN();
+  const Type TypeNaN = ezMath::NaN<Type>();
   m_vNormal.Set(TypeNaN);
   m_fNegDistance = TypeNaN;
 #endif
@@ -35,6 +35,12 @@ template <typename Type>
 ezPlaneTemplate<Type>::ezPlaneTemplate(const ezVec3Template<Type>* const pVertices, ezUInt32 iMaxVertices)
 {
   SetFromPoints(pVertices, iMaxVertices);
+}
+
+template <typename Type>
+ezVec4Template<Type> ezPlaneTemplate<Type>::GetAsVec4() const
+{
+  return ezVec4(m_vNormal.x, m_vNormal.y, m_vNormal.z, m_fNegDistance);
 }
 
 template <typename Type>
@@ -194,7 +200,7 @@ void ezPlaneTemplate<Type>::SetInvalid()
 template <typename Type>
 bool ezPlaneTemplate<Type>::IsValid() const
 {
-  return ezMath::IsFinite(m_fNegDistance) && m_vNormal.IsNormalized(ezMath::BasicType<Type>::DefaultEpsilon());
+  return ezMath::IsFinite(m_fNegDistance) && m_vNormal.IsNormalized(ezMath::DefaultEpsilon<Type>());
 }
 
 template <typename Type>
@@ -402,7 +408,7 @@ Type ezPlaneTemplate<Type>::GetMinimumDistanceTo(const ezVec3Template<Type>* pPo
   EZ_ASSERT_DEBUG(uiStride >= sizeof(ezVec3Template<Type>), "Stride must be at least sizeof(ezVec3Template) to not have overlapping data.");
   EZ_ASSERT_DEBUG(uiNumPoints >= 1, "Array must contain at least one point.");
 
-  Type fMinDist = ezMath::BasicType<Type>::MaxValue();
+  Type fMinDist = ezMath::MaxValue<Type>();
 
   const ezVec3Template<Type>* pCurPoint = pPoints;
 
@@ -423,8 +429,8 @@ void ezPlaneTemplate<Type>::GetMinMaxDistanceTo(Type& out_fMin, Type& out_fMax, 
   EZ_ASSERT_DEBUG(uiStride >= sizeof(ezVec3Template<Type>), "Stride must be at least sizeof(ezVec3Template) to not have overlapping data.");
   EZ_ASSERT_DEBUG(uiNumPoints >= 1, "Array must contain at least one point.");
 
-  out_fMin = ezMath::BasicType<Type>::MaxValue();
-  out_fMax = -ezMath::BasicType<Type>::MaxValue();
+  out_fMin = ezMath::MaxValue<Type>();
+  out_fMax = -ezMath::MaxValue<Type>();
 
   const ezVec3Template<Type>* pCurPoint = pPoints;
 
@@ -451,7 +457,7 @@ ezResult ezPlaneTemplate<Type>::GetPlanesIntersectionPoint(const ezPlaneTemplate
 
   const Type det = n1.Dot(n2.CrossRH(n3));
 
-  if (ezMath::IsZero<Type>(det, ezMath::BasicType<Type>::LargeEpsilon()))
+  if (ezMath::IsZero<Type>(det, ezMath::LargeEpsilon<Type>()))
     return EZ_FAILURE;
 
   out_Result = (-p0.m_fNegDistance * n2.CrossRH(n3) +

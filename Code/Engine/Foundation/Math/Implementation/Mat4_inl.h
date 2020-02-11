@@ -7,7 +7,7 @@ ezMat4Template<Type>::ezMat4Template()
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
-  const Type TypeNaN = ezMath::BasicType<Type>::GetNaN();
+  const Type TypeNaN = ezMath::NaN<Type>();
   SetElements(TypeNaN, TypeNaN, TypeNaN, TypeNaN,
               TypeNaN, TypeNaN, TypeNaN, TypeNaN,
               TypeNaN, TypeNaN, TypeNaN, TypeNaN,
@@ -701,7 +701,7 @@ const ezVec3Template<Type> ezMat4Template<Type>::GetScalingFactors() const
 }
 
 template <typename Type>
-ezResult ezMat4Template<Type>::SetScalingFactors(const ezVec3Template<Type>& vXYZ, Type fEpsilon /* = ezMath::BasicType<Type>::DefaultEpsilon() */)
+ezResult ezMat4Template<Type>::SetScalingFactors(const ezVec3Template<Type>& vXYZ, Type fEpsilon /* = ezMath::DefaultEpsilon<Type>() */)
 {
   ezVec3Template<Type> tx(Element(0, 0), Element(0, 1), Element(0, 2));
   ezVec3Template<Type> ty(Element(1, 0), Element(1, 1), Element(1, 2));

@@ -1,6 +1,7 @@
 #include <EditorPluginProcGenPCH.h>
 
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
+#include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenGraphAsset.h>
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenGraphQt.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Strings/TranslationLookup.h>
@@ -8,13 +9,12 @@
 #include <GuiFoundation/NodeEditor/Pin.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <ToolsFoundation/Command/NodeCommands.h>
-#include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenGraphAsset.h>
 
 
-#include <QPainter>
-#include <QTimer>
 #include <QAction>
 #include <QMenu>
+#include <QPainter>
+#include <QTimer>
 
 namespace
 {
@@ -57,6 +57,7 @@ void ezQtProcGenNode::UpdateState()
   ezStringBuilder sTitle;
 
   const ezRTTI* pRtti = GetObject()->GetType();
+  auto& typeAccessor = GetObject()->GetTypeAccessor();
 
   if (const ezTitleAttribute* pAttr = pRtti->GetAttributeByType<ezTitleAttribute>())
   {
@@ -89,25 +90,45 @@ void ezQtProcGenNode::UpdateState()
 
     for (const auto& prop : properties)
     {
-      val = GetObject()->GetTypeAccessor().GetValue(prop->GetPropertyName());
-
-      if (prop->GetSpecificType()->IsDerivedFrom<ezEnumBase>() || prop->GetSpecificType()->IsDerivedFrom<ezBitflagsBase>())
+      if (prop->GetCategory() == ezPropertyCategory::Set)
       {
-        ezReflectionUtils::EnumerationToString(prop->GetSpecificType(), val.ConvertTo<ezInt64>(), sEnumVal);
-        sVal = ezTranslate(sEnumVal);
-      }
-      else if (prop->GetSpecificType() == ezGetStaticRTTI<bool>())
-      {
-        sVal = val.Get<bool>() ? "[x]" : "[ ]";
+        sVal = "{";
 
-        if (ezStringUtils::IsEqual(prop->GetPropertyName(), "Active"))
+        ezHybridArray<ezVariant, 16> values;
+        typeAccessor.GetValues(prop->GetPropertyName(), values);
+        for (auto& setVal : values)
         {
-          SetActive(val.Get<bool>());
+          if (sVal.GetElementCount() > 1)
+          {
+            sVal.Append(", ");
+          }
+          sVal.Append(setVal.ConvertTo<ezString>().GetView());
         }
+
+        sVal.Append("}");
       }
-      else if (val.CanConvertTo<ezString>())
+      else
       {
-        sVal = val.ConvertTo<ezString>();
+        val = typeAccessor.GetValue(prop->GetPropertyName());
+
+        if (prop->GetSpecificType()->IsDerivedFrom<ezEnumBase>() || prop->GetSpecificType()->IsDerivedFrom<ezBitflagsBase>())
+        {
+          ezReflectionUtils::EnumerationToString(prop->GetSpecificType(), val.ConvertTo<ezInt64>(), sEnumVal);
+          sVal = ezTranslate(sEnumVal);
+        }
+        else if (prop->GetSpecificType() == ezGetStaticRTTI<bool>())
+        {
+          sVal = val.Get<bool>() ? "[x]" : "[ ]";
+
+          if (ezStringUtils::IsEqual(prop->GetPropertyName(), "Active"))
+          {
+            SetActive(val.Get<bool>());
+          }
+        }
+        else if (val.CanConvertTo<ezString>())
+        {
+          sVal = val.ConvertTo<ezString>();
+        }
       }
 
       temp.Set("{", prop->GetPropertyName(), "}");
@@ -116,10 +137,10 @@ void ezQtProcGenNode::UpdateState()
   }
   else
   {
-    sTitle = GetObject()->GetTypeAccessor().GetType()->GetTypeName();
+    sTitle = pRtti->GetTypeName();
     if (sTitle.StartsWith_NoCase("ezProcGen"))
     {
-      sTitle.Shrink(21, 0);
+      sTitle.Shrink(9, 0);
     }
   }
 

@@ -8,7 +8,7 @@ EZ_ALWAYS_INLINE ezQuatTemplate<Type>::ezQuatTemplate()
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
-  const Type TypeNaN = ezMath::BasicType<Type>::GetNaN();
+  const Type TypeNaN = ezMath::NaN<Type>();
   w = TypeNaN;
 #endif
 }
@@ -63,14 +63,14 @@ void ezQuatTemplate<Type>::Normalize()
 }
 
 template <typename Type>
-ezResult ezQuatTemplate<Type>::GetRotationAxisAndAngle(ezVec3Template<Type>& vAxis, ezAngle& angle) const
+ezResult ezQuatTemplate<Type>::GetRotationAxisAndAngle(ezVec3Template<Type>& vAxis, ezAngle& angle, float fEpsilon) const
 {
   EZ_NAN_ASSERT(this);
 
   const ezAngle acos = ezMath::ACos(w);
   const float d = ezMath::Sin(acos);
 
-  if (d == 0)
+  if (d < fEpsilon)
   {
     vAxis.Set(1, 0, 0);
   }
@@ -298,9 +298,9 @@ void ezQuatTemplate<Type>::SetShortestRotation(const ezVec3Template<Type>& vDirF
   {
     // find an axis, that is not identical and not opposing, ezVec3Template::Cross-product to find perpendicular vector, rotate around that
     if (ezMath::Abs(v0.Dot(ezVec3Template<Type>(1, 0, 0))) < (Type)0.8)
-      SetFromAxisAndAngle(v0.CrossRH(ezVec3Template<Type>(1, 0, 0)).GetNormalized(), ezAngle::Radian(ezMath::BasicType<float>::Pi()));
+      SetFromAxisAndAngle(v0.CrossRH(ezVec3Template<Type>(1, 0, 0)).GetNormalized(), ezAngle::Radian(ezMath::Pi<float>()));
     else
-      SetFromAxisAndAngle(v0.CrossRH(ezVec3Template<Type>(0, 1, 0)).GetNormalized(), ezAngle::Radian(ezMath::BasicType<float>::Pi()));
+      SetFromAxisAndAngle(v0.CrossRH(ezVec3Template<Type>(0, 1, 0)).GetNormalized(), ezAngle::Radian(ezMath::Pi<float>()));
 
     return;
   }
@@ -405,7 +405,7 @@ void ezQuatTemplate<Type>::GetAsEulerAngles(ezAngle& out_x, ezAngle& out_y, ezAn
   // pitch (y-axis rotation)
   const double sinp = 2.0 * (w * v.y - v.z * v.x);
   if (ezMath::Abs(sinp) >= 1.0)
-    pitch = ezAngle::Radian(copysign(ezMath::BasicType<float>::Pi() / 2.0f, (float)sinp)); // use 90 degrees if out of range
+    pitch = ezAngle::Radian(copysign(ezMath::Pi<float>() / 2.0f, (float)sinp)); // use 90 degrees if out of range
   else
     pitch = ezMath::ASin((float)sinp);
 

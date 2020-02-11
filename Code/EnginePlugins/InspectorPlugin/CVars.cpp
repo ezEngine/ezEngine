@@ -154,27 +154,18 @@ namespace CVarsDetail
     }
   }
 
-  static void CVarEventHandler(const ezCVar::CVarEvent& e)
+  static void CVarEventHandler(const ezCVarEvent& e)
   {
     if (!ezTelemetry::IsConnectedToClient())
       return;
 
     switch (e.m_EventType)
     {
-      case ezCVar::CVarEvent::ValueChanged:
+      case ezCVarEvent::ValueChanged:
         SendCVarTelemetry(e.m_pCVar);
         break;
 
-      default:
-        break;
-    }
-  }
-
-  static void PluginEventHandler(const ezPlugin::PluginEvent& e)
-  {
-    switch (e.m_EventType)
-    {
-      case ezPlugin::PluginEvent::AfterPluginChanges:
+      case ezCVarEvent::ListOfVarsChanged:
         SendAllCVarTelemetry();
         break;
 
@@ -182,7 +173,20 @@ namespace CVarsDetail
         break;
     }
   }
-}
+
+  static void PluginEventHandler(const ezPluginEvent& e)
+  {
+    switch (e.m_EventType)
+    {
+      case ezPluginEvent::AfterPluginChanges:
+        SendAllCVarTelemetry();
+        break;
+
+      default:
+        break;
+    }
+  }
+} // namespace CVarsDetail
 
 void AddCVarEventHandler()
 {

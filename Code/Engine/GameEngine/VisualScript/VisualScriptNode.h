@@ -28,7 +28,10 @@ public:
   virtual void HandleMessage(ezMessage* pMsg);
 
   /// \brief Whether the node has an execution pin (input or output) and thus must be stepped manually. Otherwise it will be implicitly executed on demand.
-  bool IsManuallyStepped() const;
+  ///
+  /// By default this is determined by checking the properties of the ezVisualScriptNode for attributes of type ezVisScriptExecPinOutAttribute
+  /// and ezVisScriptExecPinInAttribute. If those exist, it is a manually stepped node. However, derived types can override this to use other criteria.
+  virtual bool IsManuallyStepped() const;
 
 protected:
 
@@ -61,12 +64,41 @@ public:
 
   virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
   virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override;
+  virtual bool IsManuallyStepped() const override { return true; }
 
   ezGameObjectHandle m_hObject;
   ezComponentHandle m_hComponent;
   ezTime m_Delay;
   bool m_bRecursive;
   ezMessage* m_pMessageToSend = nullptr;
+};
+
+//////////////////////////////////////////////////////////////////////////
+
+class EZ_GAMEENGINE_DLL ezVisualScriptNode_FunctionCall : public ezVisualScriptNode
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_FunctionCall, ezVisualScriptNode);
+
+public:
+  ezVisualScriptNode_FunctionCall();
+  ~ezVisualScriptNode_FunctionCall();
+
+  virtual void Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin) override;
+  virtual void* GetInputPinDataPointer(ezUInt8 uiPin) override;
+  virtual bool IsManuallyStepped() const override { return true; }
+
+  static ezResult ConvertArgumentToRequiredType(ezVariant& var, ezVariantType::Enum type);
+
+  /// \brief Enforces m_ReturnValue and m_Arguments to be supported types, ie. mostly doubles for number types
+  static void EnforceVariantTypeForInputPins(ezVariant& var);
+
+  const ezRTTI* m_pExpectedType = nullptr;
+  const ezAbstractFunctionProperty* m_pFunctionToCall = nullptr;
+  ezGameObjectHandle m_hObject;
+  ezComponentHandle m_hComponent;
+  ezVariant m_ReturnValue;
+  ezHybridArray<ezVariant, 4> m_Arguments;
+  ezUInt16 m_ArgumentIsOutParamMask = 0; // the n-th EZ_BIT is set if m_Arguments[n] represents an out or inout parameter
 };
 
 

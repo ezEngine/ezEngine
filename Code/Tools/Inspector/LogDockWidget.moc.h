@@ -1,13 +1,13 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <QDockWidget>
 #include <Tools/Inspector/ui_LogDockWidget.h>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Logging/Log.h>
+#include <ads/DockWidget.h>
 
-class ezQtLogDockWidget : public QDockWidget, public Ui_LogDockWidget
+class ezQtLogDockWidget : public ads::CDockWidget, public Ui_LogDockWidget
 {
 public:
   Q_OBJECT

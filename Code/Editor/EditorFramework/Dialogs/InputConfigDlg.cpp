@@ -94,7 +94,7 @@ void ezQtInputConfigDlg::on_ButtonNewInputSet_clicked()
     m_InputSetToItem[sName] = pItem;
   }
 
-  TreeActions->setItemSelected(m_InputSetToItem[sName], true);
+  m_InputSetToItem[sName]->setSelected(true);
 }
 
 void ezQtInputConfigDlg::on_ButtonNewAction_clicked()
@@ -115,7 +115,7 @@ void ezQtInputConfigDlg::on_ButtonNewAction_clicked()
   pItem->setExpanded(true);
 
   TreeActions->clearSelection();
-  TreeActions->setItemSelected(pNewItem, true);
+  pNewItem->setSelected(true);
   TreeActions->editItem(pNewItem);
 }
 
@@ -301,9 +301,12 @@ QTreeWidgetItem* ezQtInputConfigDlg::CreateActionItem(QTreeWidgetItem* pParentIt
     TreeActions->setItemWidget(pItem, 3 + 2 * i, spin);
 
     QComboBox* combo = new QComboBox(TreeActions);
-    combo->setAutoCompletion(true);
-    combo->setAutoCompletionCaseSensitivity(Qt::CaseInsensitive);
     combo->setEditable(true);
+
+    QCompleter* completer = new QCompleter(this);
+    completer->setModel(combo->model());
+    combo->setCompleter(completer);
+    combo->completer()->setCaseSensitivity(Qt::CaseInsensitive);
     combo->setInsertPolicy(QComboBox::InsertAtBottom);
     combo->setMaxVisibleItems(15);
 

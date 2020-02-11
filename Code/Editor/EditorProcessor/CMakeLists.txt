@@ -20,7 +20,7 @@ add_dependencies(${PROJECT_NAME}
   EditorEngineProcess
   EditorPluginScene
   EditorPluginAssets
-  TexConv2
+  TexConv
 )
 
 if (EZ_BUILD_FMOD)

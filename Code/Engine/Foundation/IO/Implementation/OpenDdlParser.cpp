@@ -737,6 +737,10 @@ void ezOpenDdlParser::PurgeCachedPrimitives(bool bThisIsAll)
       case State::ReadingDouble:
         OnPrimitiveDouble(m_uiNumCachedPrimitives, m_pDoubleCache, bThisIsAll);
         break;
+
+      default:
+        EZ_ASSERT_NOT_IMPLEMENTED;
+        break;
     }
   }
 
@@ -1024,6 +1028,10 @@ void ezOpenDdlParser::ContinueInt()
 
       break;
     }
+
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+      break;
   }
 }
 
@@ -1125,6 +1133,10 @@ void ezOpenDdlParser::ContinueFloat()
 
       break;
     }
+
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+      break;
   }
 }
 
@@ -1202,4 +1214,3 @@ ezUInt64 ezOpenDdlParser::ReadDecimalLiteral()
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_OpenDdlParser);
-

@@ -1,12 +1,14 @@
 #pragma once
 
 #include <EditorFramework/Assets/AssetDocument.h>
-#include <ProcGenPlugin/VM/ExpressionAST.h>
+#include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenNodes.h>
 
 class ezDocumentObjectConverterWriter;
 class ezProcGenNodeBase;
 class ezProcGenPlacementOutput;
 class ezPin;
+
+class ezProcGenGraphSharedData;
 
 class ezProcGenGraphAssetDocument : public ezAssetDocument
 {
@@ -15,10 +17,6 @@ class ezProcGenGraphAssetDocument : public ezAssetDocument
 public:
   ezProcGenGraphAssetDocument(const char* szDocumentPath);
 
-  virtual const char* GetDocumentTypeDisplayString() const override { return "ProcGen Graph Asset"; }
-
-  virtual const char* QueryAssetType() const override { return "ProcGen Graph"; }
-
   void SetDebugPin(const ezPin* pDebugPin);
 
   ezStatus WriteAsset(ezStreamWriter& stream, const ezPlatformProfile* pAssetProfile) const;
@@ -26,7 +24,7 @@ public:
 protected:
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-    const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
+    const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
 
   virtual void GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const override;
   virtual bool CopySelectedObjects(ezAbstractObjectGraph& out_objectGraph, ezStringBuilder& out_MimeType) const override;
@@ -45,14 +43,16 @@ private:
   struct CachedNode
   {
     ezProcGenNodeBase* m_pPPNode = nullptr;
-    ezExpressionAST::Node* m_pASTNode = nullptr;
   };
 
-  ezExpressionAST::Node* GenerateExpressionAST(const ezDocumentObject* outputNode, ezDocumentObjectConverterWriter& objectWriter,
-    ezRttiConverterReader& rttiConverter, ezHashTable<const ezDocumentObject*, CachedNode>& nodeCache, ezExpressionAST& out_Ast) const;
+  typedef ezHashTable<const ezDocumentObject*, CachedNode> NodeCache;
+
+  ezExpressionAST::Node* GenerateExpressionAST(const ezDocumentObject* outputNode, const char* szOutputName,
+    ezDocumentObjectConverterWriter& objectWriter, ezRttiConverterReader& rttiConverter, NodeCache& nodeCache,
+    ezExpressionAST& out_Ast, ezProcGenNodeBase::GenerateASTContext& context) const;
 
   ezExpressionAST::Node* GenerateDebugExpressionAST(ezDocumentObjectConverterWriter& objectWriter, ezRttiConverterReader& rttiConverter,
-    ezHashTable<const ezDocumentObject*, CachedNode>& nodeCache, ezExpressionAST& out_Ast) const;
+    NodeCache& nodeCache, ezExpressionAST& out_Ast, ezProcGenNodeBase::GenerateASTContext& context) const;
 
   void DumpSelectedOutput(bool bAst, bool bDisassembly) const;
 

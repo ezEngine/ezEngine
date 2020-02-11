@@ -3,10 +3,22 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Time/Time.h>
+#include <Foundation/Time/Timestamp.h>
+#include <Foundation/Strings/StringConversion.h>
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#  include <Foundation/Logging/Implementation/Win/ETWProvider_win.h>
+#endif
+#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#  include <android/log.h>
+#endif
 
 ezLogMsgType::Enum ezLog::s_DefaultLogLevel = ezLogMsgType::All;
 ezAtomicInteger32 ezGlobalLog::s_uiMessageCount[ezLogMsgType::ENUM_COUNT];
 ezLoggingEvent ezGlobalLog::s_LoggingEvent;
+ezLogInterface* ezGlobalLog::s_pOverrideLog = nullptr;
+static thread_local bool s_bAllowOverrideLog = true;
+static ezMutex s_OverrideLogMutex;
 
 /// \brief The log system that messages are sent to when the user specifies no system himself.
 static thread_local ezLogInterface* s_DefaultLogSystem = nullptr;
@@ -27,14 +39,45 @@ void ezGlobalLog::RemoveLogWriter(ezEventSubscriptionID subscriptionID)
   s_LoggingEvent.RemoveEventHandler(subscriptionID);
 }
 
+void ezGlobalLog::SetGlobalLogOverride(ezLogInterface* pInterface)
+{
+  EZ_LOCK(s_OverrideLogMutex);
+
+  EZ_ASSERT_DEV(pInterface == nullptr || s_pOverrideLog == nullptr, "Only one override log can be set at a time");
+  s_pOverrideLog = pInterface;
+}
+
 void ezGlobalLog::HandleLogMessage(const ezLoggingEventData& le)
 {
-  const ezLogMsgType::Enum ThisType = le.m_EventType;
+  if (s_pOverrideLog != nullptr && s_pOverrideLog != this && s_bAllowOverrideLog)
+  {
+    // only enter the lock when really necessary
+    EZ_LOCK(s_OverrideLogMutex);
 
-  if ((ThisType > ezLogMsgType::None) && (ThisType < ezLogMsgType::All))
-    s_uiMessageCount[ThisType].Increment();
+    // since s_bAllowOverrideLog is thread_local we do not need to re-check it
 
-  s_LoggingEvent.Broadcast(le);
+    // check this again under the lock, to be safe
+    if (s_pOverrideLog != nullptr && s_pOverrideLog != this)
+    {
+      // disable the override log for the period in which it handles the event
+      // to prevent infinite recursions
+      s_bAllowOverrideLog = false;
+      s_pOverrideLog->HandleLogMessage(le);
+      s_bAllowOverrideLog = true;
+
+      return;
+    }
+  }
+
+  // else
+  {
+    const ezLogMsgType::Enum ThisType = le.m_EventType;
+
+    if ((ThisType > ezLogMsgType::None) && (ThisType < ezLogMsgType::All))
+      s_uiMessageCount[ThisType].Increment();
+
+    s_LoggingEvent.Broadcast(le);
+  }
 }
 
 ezLogBlock::ezLogBlock(const char* szName, const char* szContextInfo)
@@ -170,28 +213,66 @@ void ezLog::BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum
   le.m_szTag = szTag;
 
   pInterface->HandleLogMessage(le);
+  pInterface->m_uiLoggedMsgsSinceFlush++;
 }
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+void ezLog::Print(const char* szText)
+{
+  printf("%s", szText);
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+    ezETWProvider::GetInstance().LogMessge(ezLogMsgType::ErrorMsg, 0, szText);
+#endif
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+    OutputDebugStringW(ezStringWChar(szText).GetData());
+#endif
+#if EZ_ENABLED(EZ_PLATFORM_ANDROID)
+  __android_log_print(ANDROID_LOG_ERROR, "ezEngine", "%s", szText);
+#endif
+
+  fflush(stdout);
+  fflush(stderr);
+}
 
 void ezLog::Printf(const char* szFormat, ...)
 {
   va_list args;
   va_start(args, szFormat);
 
-  char buffer[1024];
+  char buffer[4096];
   ezStringUtils::vsnprintf(buffer, EZ_ARRAY_SIZE(buffer), szFormat, args);
 
-  printf("%s", buffer);
-
-#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  OutputDebugStringA(buffer);
-#  endif
+  Print(buffer);
 
   va_end(args);
 }
 
-#endif
+void ezLog::GenerateFormattedTimestamp(TimestampMode mode, ezStringBuilder& sTimestampOut)
+{
+  // if mode is 'None', early out to not even retrieve a timestamp
+  if (mode == TimestampMode::None)
+  {
+    return;
+  }
+
+  const ezDateTime dateTime(ezTimestamp::CurrentTimestamp());
+
+  switch (mode)
+  {
+    case TimestampMode::Numeric:
+      sTimestampOut.Format("[{}] ", ezArgDateTime(dateTime, ezArgDateTime::ShowDate | ezArgDateTime::ShowMilliseconds | ezArgDateTime::ShowTimeZone));
+      break;
+    case TimestampMode::TimeOnly:
+      sTimestampOut.Format("[{}] ", ezArgDateTime(dateTime, ezArgDateTime::ShowMilliseconds));
+      break;
+    case TimestampMode::Textual:
+      sTimestampOut.Format("[{}] ", ezArgDateTime(dateTime, ezArgDateTime::TextualDate | ezArgDateTime::ShowMilliseconds | ezArgDateTime::ShowTimeZone));
+      break;
+    default:
+      EZ_ASSERT_DEV(false, "Unknown timestamp mode.");
+      break;
+  }
+}
 
 void ezLog::SetThreadLocalLogSystem(ezLogInterface* pInterface)
 {
@@ -288,5 +369,21 @@ void ezLog::Debug(ezLogInterface* pInterface, const ezFormatString& string)
 }
 
 #endif
+
+bool ezLog::Flush(ezUInt32 uiNumNewMsgThreshold, ezTime timeIntervalThreshold, ezLogInterface* pInterface /*= GetThreadLocalLogSystem()*/)
+{
+  if (pInterface == nullptr || pInterface->m_uiLoggedMsgsSinceFlush == 0) // if really nothing was logged, don't execute a flush
+    return false;
+
+  if (pInterface->m_uiLoggedMsgsSinceFlush <= uiNumNewMsgThreshold && ezTime::Now() - pInterface->m_LastFlushTime < timeIntervalThreshold)
+    return false;
+
+  BroadcastLoggingEvent(pInterface, ezLogMsgType::Flush, nullptr);
+
+  pInterface->m_uiLoggedMsgsSinceFlush = 0;
+  pInterface->m_LastFlushTime = ezTime::Now();
+
+  return true;
+}
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Logging_Implementation_Log);

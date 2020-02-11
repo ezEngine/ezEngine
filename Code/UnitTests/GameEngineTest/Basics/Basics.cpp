@@ -61,18 +61,27 @@ ezResult TranformProject(const char* szProjectPath)
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 EZ_CREATE_SIMPLE_TEST_GROUP(00_Init);
+
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformBase)
 {
   EZ_TEST_BOOL(TranformProject("Data/Base/ezProject").Succeeded());
 }
+
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformBasics)
 {
   EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Basics/ezProject").Succeeded());
 }
+
 EZ_CREATE_SIMPLE_TEST(00_Init, TransformParticles)
 {
   EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Particles/ezProject").Succeeded());
 }
+
+EZ_CREATE_SIMPLE_TEST(00_Init, TransformTypeScript)
+{
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/TypeScript/ezProject").Succeeded());
+}
+
 #endif
 
 
@@ -359,7 +368,7 @@ ezTestAppRun ezGameEngineTestApplication_Basics::SubTestDebugRenderingExec(ezInt
   // Frustum
   {
     ezFrustum f;
-    f.SetFrustum(ezVec3(5, 7, 3), ezVec3(0, -1, 0), ezVec3(0, 0, 1), ezAngle::Degree(30), ezAngle::Degree(20), 5.0f);
+    f.SetFrustum(ezVec3(5, 7, 3), ezVec3(0, -1, 0), ezVec3(0, 0, 1), ezAngle::Degree(30), ezAngle::Degree(20), 0.1f, 5.0f);
     ezDebugRenderer::DrawLineFrustum(m_pWorld.Borrow(), f, ezColor::Cornsilk);
   }
 

@@ -179,7 +179,7 @@ ezResult ezApplicationFileSystemConfig::CreateDataDirStubFiles()
     s.AppendPath("DataDir.ezManifest");
 
     ezOSFile file;
-    if (file.Open(s, ezFileMode::Write).Failed())
+    if (file.Open(s, ezFileOpenMode::Write).Failed())
     {
       ezLog::Error("Failed to create stub file '{0}'", s);
       res = EZ_FAILURE;

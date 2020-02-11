@@ -137,7 +137,7 @@ ezResourceLoadDesc ezTextureCubeResource::UpdateContent(ezStreamReader* Stream)
 
         id.m_pData = pImage->GetPixelPointer<ezUInt8>(mip, face, array_index);
 
-        EZ_ASSERT_DEV(pImage->GetDepthPitch(mip) < ezMath::BasicType<ezUInt32>::MaxValue(), "Depth pitch exceeds ezGAL limits.");
+        EZ_ASSERT_DEV(pImage->GetDepthPitch(mip) < ezMath::MaxValue<ezUInt32>(), "Depth pitch exceeds ezGAL limits.");
 
         if (ezImageFormat::GetType(pImage->GetImageFormat()) == ezImageFormatType::BLOCK_COMPRESSED)
         {

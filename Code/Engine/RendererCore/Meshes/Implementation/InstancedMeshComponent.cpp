@@ -120,8 +120,11 @@ void ezInstancedMeshComponentManager::EnqueueUpdate(const ezInstancedMeshCompone
   pComponent->m_uiEnqueuedFrame = uiCurrentFrame;
 }
 
-void ezInstancedMeshComponentManager::OnRenderBegin(ezUInt64 uiFrameCounter)
+void ezInstancedMeshComponentManager::OnRenderEvent(const ezRenderWorldRenderEvent& e)
 {
+  if (e.m_Type != ezRenderWorldRenderEvent::Type::BeginRender)
+    return;
+
   EZ_LOCK(m_Mutex);
 
   if (m_RequireUpdate.IsEmpty())
@@ -150,12 +153,12 @@ void ezInstancedMeshComponentManager::Initialize()
 {
   SUPER::Initialize();
 
-  ezRenderWorld::s_BeginRenderEvent.AddEventHandler(ezMakeDelegate(&ezInstancedMeshComponentManager::OnRenderBegin, this));
+  ezRenderWorld::GetRenderEvent().AddEventHandler(ezMakeDelegate(&ezInstancedMeshComponentManager::OnRenderEvent, this));
 }
 
 void ezInstancedMeshComponentManager::Deinitialize()
 {
-  ezRenderWorld::s_BeginRenderEvent.RemoveEventHandler(ezMakeDelegate(&ezInstancedMeshComponentManager::OnRenderBegin, this));
+  ezRenderWorld::GetRenderEvent().RemoveEventHandler(ezMakeDelegate(&ezInstancedMeshComponentManager::OnRenderEvent, this));
 
   SUPER::Deinitialize();
 }
@@ -176,8 +179,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezInstancedMeshComponent, 1, ezComponentMode::Static)
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnExtractGeometry),
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnMsgExtractGeometry),
+    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
   }
   EZ_END_MESSAGEHANDLERS;
 }
@@ -217,7 +220,7 @@ void ezInstancedMeshComponent::OnDeactivated()
   SUPER::OnDeactivated();
 }
 
-void ezInstancedMeshComponent::OnExtractGeometry(ezMsgExtractGeometry& msg) {}
+void ezInstancedMeshComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) {}
 
 ezResult ezInstancedMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
 {
@@ -241,12 +244,12 @@ ezResult ezInstancedMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, b
   return EZ_FAILURE;
 }
 
-void ezInstancedMeshComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
+void ezInstancedMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   if (!m_hMesh.IsValid())
     return;
 
-  SUPER::OnExtractRenderData(msg);
+  SUPER::OnMsgExtractRenderData(msg);
 
   static_cast<const ezInstancedMeshComponentManager*>(GetOwningManager())->EnqueueUpdate(this);
 }

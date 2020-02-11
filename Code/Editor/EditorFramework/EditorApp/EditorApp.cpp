@@ -4,6 +4,8 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <GuiFoundation/UIServices/DynamicStringEnum.h>
 #include <QProcess>
 #include <QTextStream>
 #include <QTimer>
@@ -86,7 +88,7 @@ void ezQtEditorApp::SaveAllOpenDocuments()
 {
   for (auto pMan : ezDocumentManager::GetAllDocumentManagers())
   {
-    for (auto pDoc : pMan->ezDocumentManager::GetAllDocuments())
+    for (auto pDoc : pMan->ezDocumentManager::GetAllOpenDocuments())
     {
       ezQtDocumentWindow* pWnd = ezQtDocumentWindow::FindWindowByDocument(pDoc);
       if (pWnd)
@@ -99,6 +101,29 @@ void ezQtEditorApp::SaveAllOpenDocuments()
       {
         pDoc->SaveDocument();
       }
+    }
+  }
+}
+
+void ezQtEditorApp::OnDemandDynamicStringEnumLoad(const char* szEnumName, ezDynamicStringEnum& e)
+{
+  ezStringBuilder sFile, tmp;
+  sFile.Format("Editor/{}.txt", szEnumName);
+
+  ezFileReader file;
+  if (file.Open(sFile).Succeeded())
+  {
+    m_DynamicEnumStringsToClear.Insert(szEnumName);
+
+    sFile.ReadAll(file);
+
+    ezHybridArray<ezStringView, 32> values;
+
+    sFile.Split(false, values, "\n", "\r");
+
+    for (auto val : values)
+    {
+      e.AddValidValue(val.GetData(tmp));
     }
   }
 }

@@ -1,12 +1,12 @@
 #pragma once
 
+#include <Core/ResourceManager/ResourceHandle.h>
+#include <Core/Utils/WorldGeoExtractionUtil.h>
 #include <KrautPlugin/KrautDeclarations.h>
 #include <KrautPlugin/Renderer/KrautRenderData.h>
 #include <RendererCore/Components/RenderComponent.h>
-#include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Meshes/MeshResource.h>
-#include <Core/ResourceManager/ResourceHandle.h>
-#include <Core/Utils/WorldGeoExtractionUtil.h>
+#include <RendererCore/Pipeline/RenderData.h>
 
 struct ezMsgExtractGeometry;
 struct ezMsgBuildStaticMesh;
@@ -20,7 +20,7 @@ public:
   typedef ezComponentManager<ezKrautTreeComponent, ezBlockStorageType::Compact> SUPER;
 
   ezKrautTreeComponentManager(ezWorld* pWorld)
-      : SUPER(pWorld)
+    : SUPER(pWorld)
   {
   }
 
@@ -42,46 +42,39 @@ class EZ_KRAUTPLUGIN_DLL ezKrautTreeComponent : public ezRenderComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezKrautTreeComponent, ezRenderComponent, ezKrautTreeComponentManager);
 
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent
+
+public:
+  virtual void SerializeComponent(ezWorldWriter& stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& stream) override;
+
+protected:
+  virtual void Initialize() override;
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezRenderComponent
+
+protected:
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
+  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezKrautTreeComponent
+
 public:
   ezKrautTreeComponent();
   ~ezKrautTreeComponent();
 
-  //////////////////////////////////////////////////////////////////////////
-  // ezComponent interface
-
-protected:
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
-  virtual void Initialize() override;
-
-  //////////////////////////////////////////////////////////////////////////
-  // ezRenderComponent interface
-
-public:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
-  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
-
-  //////////////////////////////////////////////////////////////////////////
-  // ezKrautTreeComponent interface
-public:
-
   // see ezKrautTreeComponent::GetLocalBounds for details
   static const int s_iLocalBoundsScale = 3;
 
-  void OnExtractGeometry(ezMsgExtractGeometry& msg) const;
+  void OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const;
   void OnBuildStaticMesh(ezMsgBuildStaticMesh& msg) const;
-  
-  // ************************************* PROPERTIES ***********************************
-public:
 
-  void SetKrautTreeFile(const char* szFile);
-  const char* GetKrautTreeFile() const;
+  void SetKrautTreeFile(const char* szFile); // [ property ]
+  const char* GetKrautTreeFile() const;      // [ property ]
 
-protected:
-
-  // ************************************* FUNCTIONS *****************************
-
-public:
   void SetKrautTree(const ezKrautTreeResourceHandle& hTree);
   EZ_ALWAYS_INLINE const ezKrautTreeResourceHandle& GetKrautTree() const { return m_hKrautTree; }
 

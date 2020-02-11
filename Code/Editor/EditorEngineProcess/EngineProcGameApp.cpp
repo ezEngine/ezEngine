@@ -60,8 +60,6 @@ void ezEngineProcessGameApplication::AfterCoreSystemsStartup()
   ezTaskSystem::SetTargetFrameTime(1000.0 / 20.0);
 
   ConnectToHost();
-
-  ezRTTI::s_TypeUpdatedEvent.AddEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerTypeUpdated, this));
 }
 
 
@@ -102,7 +100,6 @@ void ezEngineProcessGameApplication::BeforeCoreSystemsShutdown()
 
   m_LongOpWorkerManager.Shutdown();
 
-  ezRTTI::s_TypeUpdatedEvent.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerTypeUpdated, this));
   m_IPC.m_Events.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessGameApplication::EventHandlerIPC, this));
 
   SUPER::BeforeCoreSystemsShutdown();
@@ -370,17 +367,6 @@ void ezEngineProcessGameApplication::EventHandlerIPC(const ezEngineProcessCommun
   }
 }
 
-
-void ezEngineProcessGameApplication::EventHandlerTypeUpdated(const ezRTTI* pType)
-{
-  if (ezEditorEngineProcessApp::GetSingleton()->IsRemoteMode())
-    return;
-
-  ezUpdateReflectionTypeMsgToEditor TypeMsg;
-  ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(pType, TypeMsg.m_desc);
-  m_IPC.SendMessage(&TypeMsg);
-}
-
 ezEngineProcessDocumentContext* ezEngineProcessGameApplication::CreateDocumentContext(const ezDocumentOpenMsgToEngine* pMsg)
 {
   ezDocumentOpenResponseMsgToEditor m;
@@ -498,25 +484,31 @@ void ezEngineProcessGameApplication::Deinit_ShutdownLogging()
   SUPER::Deinit_ShutdownLogging();
 }
 
-void ezEngineProcessGameApplication::EventHandlerCVar(const ezCVar::CVarEvent& e)
+void ezEngineProcessGameApplication::EventHandlerCVar(const ezCVarEvent& e)
 {
-  if (e.m_EventType != ezCVar::CVarEvent::ValueChanged)
-    return;
-
-  TransmitCVar(e.m_pCVar);
-}
-
-void ezEngineProcessGameApplication::EventHandlerCVarPlugin(const ezPlugin::PluginEvent& e)
-{
-  if (e.m_EventType == ezPlugin::PluginEvent::Type::AfterLoadingBeforeInit)
+  if (e.m_EventType == ezCVarEvent::ValueChanged)
   {
-    ezCVar* pCVar = ezCVar::GetFirstInstance();
+    TransmitCVar(e.m_pCVar);
+  }
 
-    while (pCVar)
+  if (e.m_EventType == ezCVarEvent::ListOfVarsChanged)
+  {
+    // currently no way to remove CVars from the editor UI
+
+    for (ezCVar* pCVar = ezCVar::GetFirstInstance(); pCVar != nullptr; pCVar = pCVar->GetNextInstance())
     {
       TransmitCVar(pCVar);
+    }
+  }
+}
 
-      pCVar = pCVar->GetNextInstance();
+void ezEngineProcessGameApplication::EventHandlerCVarPlugin(const ezPluginEvent& e)
+{
+  if (e.m_EventType == ezPluginEvent::Type::AfterLoadingBeforeInit)
+  {
+    for (ezCVar* pCVar = ezCVar::GetFirstInstance(); pCVar != nullptr; pCVar = pCVar->GetNextInstance())
+    {
+      TransmitCVar(pCVar);
     }
   }
 }

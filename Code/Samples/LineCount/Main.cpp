@@ -177,7 +177,7 @@ FileStats GetFileStats(const char* szFile)
 class ezLineCountApp : public ezApplication
 {
 private:
-  const char* m_szSearchDir;
+  ezString m_sSearchDir;
 
 public:
   typedef ezApplication SUPER;
@@ -185,18 +185,27 @@ public:
   ezLineCountApp()
     : ezApplication("LineCountApp")
   {
-    m_szSearchDir = "";
+    m_sSearchDir = "";
   }
 
   virtual void AfterCoreSystemsStartup() override
   {
-    // pass the absolute path to the directory that should be scanned as the first parameter to this application
-    if (GetArgumentCount() >= 2)
-      m_szSearchDir = GetArgument(1);
+    auto pCmd = ezCommandLineUtils::GetGlobalInstance();
 
-    // Since we want to read/write files through the filesystem, we need to set that up too
-    // First add a Factory that can create data directory types that handle normal folders
-    ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
+    // pass the absolute path to the directory that should be scanned as the first parameter to this application
+    if (pCmd->GetParameterCount() > 1)
+      m_sSearchDir = ezCommandLineUtils::GetGlobalInstance()->GetParameter(1);
+
+    if (m_sSearchDir.IsEmpty())
+    {
+      ezStringBuilder sEzCode = ezFileSystem::GetSdkRootDirectory();
+      sEzCode.AppendPath("Code");
+      sEzCode.MakeCleanPath();
+
+      m_sSearchDir = sEzCode;
+    }
+
+    ezLog::Info("Search-dir: {}", m_sSearchDir);
 
     // Then add a folder as a data directory (the previously registered Factory will take care of creating the proper handler)
     // As we only need access to files through global paths, we add the "empty data directory"
@@ -207,7 +216,7 @@ public:
   
     // now we can set up the logging system (we could do it earlier, but the HTML writer needs access to the file system)
 
-    ezStringBuilder sLogPath = m_szSearchDir;
+    ezStringBuilder sLogPath = m_sSearchDir;
     sLogPath.PathParentDirectory(); // go one folder up
     sLogPath.AppendPath("CodeStatistics.htm");
 
@@ -228,15 +237,15 @@ public:
 
   virtual ezApplication::ApplicationExecution Run() override
   {
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) || defined(EZ_DOCS)
+
     ezUInt32 uiDirectories = 0;
     ezUInt32 uiFiles = 0;
     ezMap<ezString, FileStats> FileTypeStatistics;
 
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) || defined(EZ_DOCS)
-
     // get a directory iterator for the search directory
     ezFileSystemIterator it;
-    if (it.StartSearch(m_szSearchDir) == EZ_SUCCESS)
+    if (it.StartSearch(m_sSearchDir) == EZ_SUCCESS)
     {
       ezStringBuilder b, sExt;
 
@@ -290,7 +299,7 @@ public:
       ezLog::Info("File Type: '{0}': {1} Files, {2} Lines, {3} Empty Lines, All Lines: {4}, Bytes: {5}, Non-ASCII Characters: {6}, Words: {7}", "all", AllTypes.m_uiFileCount, AllTypes.m_uiLines, AllTypes.m_uiEmptyLines, AllTypes.m_uiLines + AllTypes.m_uiEmptyLines, AllTypes.m_uiBytes, AllTypes.m_uiBytes - AllTypes.m_uiCharacters, AllTypes.m_uiWords);
     }
     else
-      ezLog::Error("Could not search the directory '{0}'", m_szSearchDir);
+      ezLog::Error("Could not search the directory '{0}'", m_sSearchDir);
 #else
     EZ_REPORT_FAILURE("No file system iterator support, LineCount sample can't run.");
 #endif

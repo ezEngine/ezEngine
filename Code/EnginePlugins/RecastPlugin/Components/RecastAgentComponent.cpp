@@ -584,12 +584,12 @@ void ezRcAgentComponentManager::Initialize()
 
   RegisterUpdateFunction(desc);
 
-  ezResourceManager::s_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezRcAgentComponentManager::ResourceEventHandler, this));
+  ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezRcAgentComponentManager::ResourceEventHandler, this));
 }
 
 void ezRcAgentComponentManager::Deinitialize()
 {
-  ezResourceManager::s_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezRcAgentComponentManager::ResourceEventHandler, this));
+  ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezRcAgentComponentManager::ResourceEventHandler, this));
 
   SUPER::Deinitialize();
 }

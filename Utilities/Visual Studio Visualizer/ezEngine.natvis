@@ -4,13 +4,13 @@
 	<!-- Strings-->
 	<Type Name="ezHybridStringBase&lt;*&gt;">
 		<AlternativeType Name="ezStringBuilder" />
-		<DisplayString Condition="m_Data.m_pElements != 0">{m_Data.m_pElements,s8}</DisplayString>
-		<DisplayString Condition="m_Data.m_pElements == 0">{m_Data.m_StaticData,s8}</DisplayString>
-		<StringView Condition="m_Data.m_pElements != 0">m_Data.m_pElements,s8</StringView>
-		<StringView Condition="m_Data.m_pElements == 0">m_Data.m_StaticData,s8</StringView>
+		<DisplayString Condition="((intptr_t)m_Data.m_pAllocator.m_ptr &amp; 0x1) == 0">{m_Data.m_pElements,s8}</DisplayString>
+		<DisplayString Condition="((intptr_t)m_Data.m_pAllocator.m_ptr &amp; 0x1) != 0">{m_Data.m_StaticData,s8}</DisplayString>
+		<StringView Condition="((intptr_t)m_Data.m_pAllocator.m_ptr &amp; 0x1) == 0">m_Data.m_pElements,s8</StringView>
+		<StringView Condition="((intptr_t)m_Data.m_pAllocator.m_ptr &amp; 0x1) != 0">m_Data.m_StaticData,s8</StringView>
 		<Expand>
-			<Item Condition="m_Data.m_pElements != 0" Name="String">m_Data.m_pElements,s8</Item>
-			<Item Condition="m_Data.m_pElements == 0" Name="String">m_Data.m_StaticData,s8</Item>
+			<Item Condition="((intptr_t)m_Data.m_pAllocator.m_ptr &amp; 0x1) == 0" Name="String">m_Data.m_pElements,s8</Item>
+			<Item Condition="((intptr_t)m_Data.m_pAllocator.m_ptr &amp; 0x1) != 0" Name="String">m_Data.m_StaticData,s8</Item>
 			<Item Name="CharacterCount">m_uiCharacterCount</Item>
 			<Item Name="ElementCount">m_Data.m_uiCount</Item>
 		</Expand>
@@ -47,14 +47,14 @@
 	</Type>
 	
 	<!-- Container & Arrays-->
-	<Type Name="ezHybridArrayBase&lt;*,*&gt;">
+	<Type Name="ezDynamicArrayBase&lt;*&gt;">
 		<DisplayString>{{ count={m_uiCount} }}</DisplayString>
 		<Expand>
 			<Item Name="count">m_uiCount</Item>
 			<Item Name="capacity">m_uiCapacity</Item>
 			<ArrayItems>
 				<Size>m_uiCount</Size>
-				<ValuePointer>(m_pElements == 0) ? ($T1*)&amp;m_StaticData[0] : m_pElements</ValuePointer>
+				<ValuePointer>(((int64_t)m_pAllocator.m_ptr &amp; 0x1) != 0) ? ($T1*)((intptr_t)this + (intptr_t)m_pElements) : m_pElements</ValuePointer>
 			</ArrayItems>
 		</Expand>
 	</Type>
@@ -262,6 +262,16 @@
 			<Item Name="Column3">&amp;m_fElementsCM[12],4</Item>
 		</Expand>
 	</Type>
+
+	<Type Name="ezResource">
+		<DisplayString>{{ID = {m_UniqueID} }}</DisplayString>
+		<Expand>
+			<Item Name="ID">m_UniqueID</Item>
+			<Item Name="Desc">m_sResourceDescription</Item>
+			<Item Name="State">m_LoadingState</Item>
+			<Item Name="RefCount">m_iReferenceCount</Item>
+		</Expand>
+	</Type>		
 </AutoVisualizer>
 
 

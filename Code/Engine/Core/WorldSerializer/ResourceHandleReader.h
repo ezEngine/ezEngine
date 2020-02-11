@@ -40,6 +40,11 @@ public:
     ReadHandle(pStream, &ResourceHandle.m_Typeless);
   }
 
+  /// \brief Reads handle data from the stream, but does not try to restore the handle
+  ///
+  /// Useful when reading old versions of a file where the file format has changed and the resource handle is not needed anymore.
+  static void ReadAndDiscardHandle(ezStreamReader* pStream);
+
   /// \brief Call this before doing the first call to ReadHandle(). In a typical scenario that is immediately after
   /// BeginReadingFromStream().
   ///
@@ -82,3 +87,7 @@ void operator>>(ezStreamReader& Stream, ezTypedResourceHandle<ResourceType>& Val
   ezResourceHandleReadContext::ReadHandle(&Stream, Value);
 }
 
+inline void operator>>(ezStreamReader& Stream, ezTypelessResourceHandle& Value)
+{
+  ezResourceHandleReadContext::ReadAndDiscardHandle(&Stream);
+}

@@ -27,7 +27,7 @@ public:                                                                         
   virtual const ezRTTI* GetDynamicRTTI() const override { return &SELF::s_RTTI; }
 
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG) && EZ_ENABLED(EZ_COMPILER_MSVC)
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT) && EZ_ENABLED(EZ_COMPILER_MSVC)
 
 #define EZ_REFLECTION_DEBUG_CODE                                                                                                           \
   static const ezRTTI* ReflectionDebug_GetParentType() { return __super::GetStaticRTTI(); }

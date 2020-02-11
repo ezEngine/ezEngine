@@ -6,6 +6,10 @@
 #include <QComboBox>
 #include <qgraphicsitem.h>
 
+#include <GuiFoundation/GuiFoundationDLL.h>
+#include <QDesktopServices>
+#include <QFileDialog>
+
 /// \todo Refcount ? (Max?)
 /// \todo Select Resource -> send to App for preview
 
@@ -14,11 +18,12 @@ void FormatSize(ezStringBuilder& s, const char* szPrefix, ezUInt64 uiSize);
 ezQtResourceWidget* ezQtResourceWidget::s_pWidget = nullptr;
 
 ezQtResourceWidget::ezQtResourceWidget(QWidget* parent)
-    : QDockWidget(parent)
+  : ads::CDockWidget("Resource Widget", parent)
 {
   s_pWidget = this;
 
   setupUi(this);
+  setWidget(ResourceWidgetFrame);
 
   m_bShowDeleted = true;
 
@@ -71,7 +76,7 @@ class ByteSizeItem : public QTableWidgetItem
 {
 public:
   ByteSizeItem(ezUInt32 uiBytes, const char* szString)
-      : QTableWidgetItem(szString)
+    : QTableWidgetItem(szString)
   {
     m_uiBytes = uiBytes;
   }
@@ -93,7 +98,7 @@ void ezQtResourceWidget::UpdateTable()
 
   if (m_bUpdateTypeBox)
   {
-    ComboResourceTypes->blockSignals(true);
+    ezQtScopedUpdatesDisabled _1(ComboResourceTypes);
 
     m_bUpdateTypeBox = false;
 
@@ -120,15 +125,14 @@ void ezQtResourceWidget::UpdateTable()
 
     ComboResourceTypes->setCurrentIndex(uiSelected);
 
-    ComboResourceTypes->blockSignals(false);
-
     bResizeFirstColumn = true;
   }
 
   m_LastTableUpdate = ezTime::Now();
   m_bUpdateTable = false;
 
-  Table->blockSignals(true);
+  ezQtScopedUpdatesDisabled _2(Table);
+
   Table->setSortingEnabled(false);
 
   ezStringBuilder sTemp;
@@ -231,34 +235,34 @@ void ezQtResourceWidget::UpdateTable()
       {
         case ezResourcePriority::Critical:
           pItem->setText("Critical");
-          pItem->setTextColor(QColor::fromRgb(255, 0, 0));
+          pItem->setForeground(QColor::fromRgb(255, 0, 0));
           break;
         case ezResourcePriority::VeryHigh:
           pItem->setText("Highest");
-          pItem->setTextColor(QColor::fromRgb(255, 106, 0));
+          pItem->setForeground(QColor::fromRgb(255, 106, 0));
           break;
         case ezResourcePriority::High:
           pItem->setText("High");
-          pItem->setTextColor(QColor::fromRgb(255, 216, 0));
+          pItem->setForeground(QColor::fromRgb(255, 216, 0));
           break;
         case ezResourcePriority::Medium:
           pItem->setText("Normal");
-          pItem->setTextColor(QColor::fromRgb(0, 148, 255));
+          pItem->setForeground(QColor::fromRgb(0, 148, 255));
           break;
         case ezResourcePriority::Low:
           pItem->setText("Low");
-          pItem->setTextColor(QColor::fromRgb(127, 146, 255));
+          pItem->setForeground(QColor::fromRgb(127, 146, 255));
           break;
         case ezResourcePriority::VeryLow:
           pItem->setText("Lowest");
-          pItem->setTextColor(QColor::fromRgb(127, 201, 255));
+          pItem->setForeground(QColor::fromRgb(127, 201, 255));
           break;
       }
 
-      //if (res.m_Flags.IsAnySet(ezResourceFlags::IsPreloading))
+      // if (res.m_Flags.IsAnySet(ezResourceFlags::IsPreloading))
       //{
       //  pItem->setText("Preloading");
-      //  pItem->setTextColor(QColor::fromRgb(86, 255, 25));
+      //  pItem->setForeground(QColor::fromRgb(86, 255, 25));
       //}
 
       pItem = Table->item(iTableRow, 2);
@@ -267,19 +271,19 @@ void ezQtResourceWidget::UpdateTable()
       {
         case ezResourceState::Invalid:
           pItem->setText("Deleted");
-          pItem->setTextColor(QColor::fromRgb(128, 128, 128));
+          pItem->setForeground(QColor::fromRgb(128, 128, 128));
           break;
         case ezResourceState::Unloaded:
           pItem->setText("Unloaded");
-          pItem->setTextColor(QColor::fromRgb(255, 216, 0));
+          pItem->setForeground(QColor::fromRgb(255, 216, 0));
           break;
         case ezResourceState::Loaded:
           pItem->setText("Loaded");
-          pItem->setTextColor(QColor::fromRgb(182, 255, 0));
+          pItem->setForeground(QColor::fromRgb(182, 255, 0));
           break;
         case ezResourceState::LoadedResourceMissing:
           pItem->setText("Missing");
-          pItem->setTextColor(QColor::fromRgb(255, 0, 0));
+          pItem->setForeground(QColor::fromRgb(255, 0, 0));
           break;
       }
 
@@ -317,7 +321,7 @@ void ezQtResourceWidget::UpdateTable()
         // Table->item(iTableRow, 4)->setText(""); // QL L
 
         for (int i = 0; i < 8; ++i)
-          Table->item(iTableRow, i)->setTextColor(QColor::fromRgb(128, 128, 128));
+          Table->item(iTableRow, i)->setForeground(QColor::fromRgb(128, 128, 128));
       }
     }
   }
@@ -328,7 +332,6 @@ void ezQtResourceWidget::UpdateTable()
   }
 
   Table->setSortingEnabled(true);
-  Table->blockSignals(false);
 }
 
 void ezQtResourceWidget::UpdateAll()
@@ -362,6 +365,90 @@ void ezQtResourceWidget::on_CheckShowDeleted_toggled(bool checked)
 {
   m_bShowDeleted = checked;
   UpdateAll();
+}
+
+static const char* StateToString(ezResourceState state)
+{
+  switch (state)
+  {
+    case ezResourceState::Invalid:
+      return "Deleted";
+    case ezResourceState::Unloaded:
+      return "Unloaded";
+    case ezResourceState::Loaded:
+      return "Loaded";
+    case ezResourceState::LoadedResourceMissing:
+      return "Missing";
+  }
+
+  return "unknown";
+}
+
+static const char* PriorityToString(ezResourcePriority priority)
+{
+  switch (priority)
+  {
+    case ezResourcePriority::Critical:
+      return "Critical";
+    case ezResourcePriority::VeryHigh:
+      return "Very High";
+    case ezResourcePriority::High:
+      return "High";
+    case ezResourcePriority::Medium:
+      return "Normal";
+    case ezResourcePriority::Low:
+      return "Low";
+    case ezResourcePriority::VeryLow:
+      return "Lowest";
+  }
+
+  return "unknown";
+}
+
+void ezQtResourceWidget::on_ButtonSave_clicked()
+{
+  static QString sLastDir;
+
+  QString sFile = QFileDialog::getSaveFileName(this, "Save Resource Table", sLastDir, "CSV (*.csv)\nAll Files (*.*)", nullptr);
+
+  if (sFile.isEmpty())
+    return;
+
+  sLastDir = sFile;
+
+
+  QFile file(sFile);
+  if (!file.open(QIODevice::WriteOnly))
+    return;
+
+  ezStringBuilder sLine;
+
+  sLine = "sep=,\n";
+  file.write(sLine);
+
+  sLine = "Resource Type, Priority, State, CPU, GPU, Resource ID, Description\n";
+  file.write(sLine);
+
+  for (auto it = m_Resources.GetIterator(); it.IsValid(); ++it)
+  {
+    auto& res = it.Value();
+
+    if (!m_bShowDeleted && res.m_LoadingState.m_State == ezResourceState::Invalid)
+      continue;
+
+    if (!m_sTypeFilter.IsEmpty() && res.m_sResourceType != m_sTypeFilter)
+      continue;
+
+    if (!m_sNameFilter.IsEmpty() && res.m_sResourceID.FindSubString_NoCase(m_sNameFilter) == nullptr &&
+        res.m_sResourceDescription.FindSubString_NoCase(m_sNameFilter) == nullptr)
+      continue;
+
+    sLine.Format("{}, {}, {}, {}, {}, {}, {}\n", res.m_sResourceType, PriorityToString(res.m_Priority), StateToString(res.m_LoadingState.m_State),
+      res.m_Memory.m_uiMemoryCPU, res.m_Memory.m_uiMemoryGPU, res.m_sResourceID, res.m_sResourceDescription);
+    file.write(sLine);
+  }
+
+  QDesktopServices::openUrl(QUrl::fromLocalFile(sFile));
 }
 
 void ezQtResourceWidget::ProcessTelemetry(void* pUnuseed)
@@ -438,7 +525,7 @@ void ezQtResourceWidget::ProcessTelemetry(void* pUnuseed)
 
     if (Msg.GetMessageID() == ' DEL')
     {
-      rd.m_Flags.Remove(ezResourceFlags::IsPreloading);
+      rd.m_Flags.Remove(ezResourceFlags::IsQueuedForLoading);
       rd.m_LoadingState.m_State = ezResourceState::Invalid;
     }
   }

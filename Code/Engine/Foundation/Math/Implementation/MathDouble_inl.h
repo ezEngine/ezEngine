@@ -2,27 +2,14 @@
 
 namespace ezMath
 {
-  template <>
-  constexpr inline bool BasicType<double>::SupportsInfinity()
-  {
-    return true;
-  }
-
-  template <>
-  constexpr inline bool BasicType<double>::SupportsNaN()
-  {
-    return true;
-  }
-
   EZ_ALWAYS_INLINE bool IsFinite(double value)
   {
     // Check the 11 exponent bits.
     // NAN -> (exponent = all 1, mantissa = non-zero)
     // INF -> (exponent = all 1, mantissa = zero)
 
-    ezInt64DoubleUnion i2f;
-    i2f.f = value;
-    return ((i2f.i & 0x7FF0000000000000LL) != 0x7FF0000000000000LL);
+    ezInt64DoubleUnion i2f(value);
+    return ((i2f.i & 0x7FF0000000000000ull) != 0x7FF0000000000000ull);
   }
 
   EZ_ALWAYS_INLINE bool IsNaN(double value)
@@ -31,44 +18,8 @@ namespace ezMath
     // NAN -> (exponent = all 1, mantissa = non-zero)
     // INF -> (exponent = all 1, mantissa = zero)
 
-    ezInt64DoubleUnion i2f;
-    i2f.f = value;
-
-    return (((i2f.i & 0x7FF0000000000000LL) == 0x7FF0000000000000LL) && ((i2f.i & 0xFFFFFFFFFFFFFLL) != 0));
-  }
-
-  template <>
-  EZ_ALWAYS_INLINE double BasicType<double>::GetNaN()
-  {
-    // NAN -> (exponent = all 1, mantissa = non-zero)
-    // INF -> (exponent = all 1, mantissa = zero)
-
-    // NaN = 0111 1111 1111 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0001
-
-    ezInt64DoubleUnion i2f;
-    i2f.i = 0x7FF0000000000042LL;
-
-    return i2f.f;
-  };
-
-  template <>
-  EZ_ALWAYS_INLINE double BasicType<double>::GetInfinity()
-  {
-    // NAN -> (exponent = all 1, mantissa = non-zero)
-    // INF -> (exponent = all 1, mantissa = zero)
-
-    // INF = 0111 1111 1111 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000 0000
-
-    ezInt64DoubleUnion i2f;
-    i2f.i = 0x7FF0000000000000LL; // bitwise representation of double infinity (positive)
-
-    return i2f.f;
-  }
-
-  template <>
-  EZ_ALWAYS_INLINE double BasicType<double>::MaxValue()
-  {
-    return 1.7976931348623158e+307;
+    ezInt64DoubleUnion i2f(value);
+    return (((i2f.i & 0x7FF0000000000000ull) == 0x7FF0000000000000ull) && ((i2f.i & 0xFFFFFFFFFFFFFull) != 0));
   }
 
   EZ_ALWAYS_INLINE double Floor(double f) { return floor(f); }

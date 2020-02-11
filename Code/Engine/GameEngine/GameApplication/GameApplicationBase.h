@@ -67,15 +67,14 @@ public:
 protected:
   static ezGameApplicationBase* s_pGameApplicationBaseInstance;
 
+  ///@}
+  /// \name Capturing Data
+  ///@{
+
 public:
   /// \brief Does a profiling capture and writes it to disk at ':appdata'
   void TakeProfilingCapture();
 
-  ///@}
-  /// \name Screenshots
-  ///@{
-
-public:
   /// \brief Schedules a screenshot to be taken at the end of the frame.
   ///
   /// After taking a screenshot, StoreScreenshot() is executed, which may decide where to write the result to.
@@ -219,10 +218,10 @@ protected:
   virtual void Init_PlatformProfile_SetPreferred();
   virtual void Init_ConfigureTelemetry();
   virtual void Init_FileSystem_SetSpecialDirs();
-  virtual void Init_FileSystem_SetDataDirFactories();
   virtual void Init_LoadRequiredPlugins();
   virtual void Init_ConfigureAssetManagement();
   virtual void Init_FileSystem_ConfigureDataDirs();
+  virtual void Init_LoadWorldModuleConfig();
   virtual void Init_LoadProjectPlugins();
   virtual void Init_PlatformProfile_LoadForRuntime();
   virtual void Init_ConfigureInput();
@@ -253,6 +252,8 @@ public:
 
   ezEvent<const ezGameApplicationExecutionEvent&> m_ExecutionEvents;
 
+  ezTime GetFrameTime() const { return m_FrameTime; }
+
 protected:
   virtual bool IsGameUpdateEnabled() const { return true; }
 
@@ -261,9 +262,12 @@ protected:
   virtual void Run_WorldUpdateAndRender() = 0;
   virtual void Run_BeforeWorldUpdate();
   virtual void Run_AfterWorldUpdate();
-  virtual void Run_UpdatePlugins();
+  virtual void Run_UpdatePlugins();  
+  virtual void Run_Present();
   virtual void Run_FinishFrame();
 
+  void UpdateFrameTime();
+
+  ezTime m_FrameTime;
   ///@}
 };
-

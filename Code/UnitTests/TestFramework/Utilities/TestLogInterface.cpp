@@ -4,33 +4,39 @@
 
 #include <TestFramework/Framework/TestFramework.h>
 
- ezTestLogInterface::~ezTestLogInterface()
+ezTestLogInterface::~ezTestLogInterface()
 {
   for (const ExpectedMsg& msg : m_expectedMessages)
   {
     ezInt32 count = msg.m_iCount;
     EZ_TEST_BOOL_MSG(count == 0, "Message \"%s\" was logged %d times %s than expected.", msg.m_sMsgSubString.GetData(),
-            count < 0 ? -count : count, count < 0 ? "more" : "less");
+      count < 0 ? -count : count, count < 0 ? "more" : "less");
   }
 }
 
 void ezTestLogInterface::HandleLogMessage(const ezLoggingEventData& le)
 {
-  for (ExpectedMsg& msg : m_expectedMessages)
   {
-    if (msg.m_Type != ezLogMsgType::All && le.m_EventType != msg.m_Type)
-      continue;
+    // in case this interface is used with ezTestLogSystemScope to override the ezGlobalLog (see ezGlobalLog::SetGlobalLogOverride)
+    // it must be thread-safe
+    EZ_LOCK(m_Mutex);
 
-    if (ezStringUtils::FindSubString(le.m_szText, msg.m_sMsgSubString))
+    for (ExpectedMsg& msg : m_expectedMessages)
     {
-      --msg.m_iCount;
+      if (msg.m_Type != ezLogMsgType::All && le.m_EventType != msg.m_Type)
+        continue;
 
-      // filter out error and warning messages entirely
-      if (le.m_EventType >= ezLogMsgType::ErrorMsg && le.m_EventType <= ezLogMsgType::WarningMsg)
-        return;
+      if (ezStringUtils::FindSubString(le.m_szText, msg.m_sMsgSubString))
+      {
+        --msg.m_iCount;
 
-      // pass all other messages along to the parent log
-      break;
+        // filter out error and warning messages entirely
+        if (le.m_EventType >= ezLogMsgType::ErrorMsg && le.m_EventType <= ezLogMsgType::WarningMsg)
+          return;
+
+        // pass all other messages along to the parent log
+        break;
+      }
     }
   }
 
@@ -42,6 +48,8 @@ void ezTestLogInterface::HandleLogMessage(const ezLoggingEventData& le)
 
 void ezTestLogInterface::ExpectMessage(const char* msg, ezLogMsgType::Enum type /*= ezLogMsgType::All*/, ezInt32 count /*= 1*/)
 {
+  EZ_LOCK(m_Mutex);
+
   // Do not allow initial count to be less than 1, but use signed int to keep track
   // of error messages that were encountered more often than expected.
   EZ_ASSERT_DEV(count >= 1, "Message needs to be expected at least once");
@@ -54,4 +62,3 @@ void ezTestLogInterface::ExpectMessage(const char* msg, ezLogMsgType::Enum type 
 
 
 EZ_STATICLINK_FILE(TestFramework, TestFramework_Utilities_TestLogInterface);
-

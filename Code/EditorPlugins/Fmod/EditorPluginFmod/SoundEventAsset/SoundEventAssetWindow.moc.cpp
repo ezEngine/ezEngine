@@ -9,10 +9,10 @@
 #include <QLayout>
 
 ezSoundEventAssetDocumentWindow::ezSoundEventAssetDocumentWindow(ezDocument* pDocument)
-    : ezQtDocumentWindow(pDocument)
+  : ezQtDocumentWindow(pDocument)
 {
   GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(
-      ezMakeDelegate(&ezSoundEventAssetDocumentWindow::PropertyEventHandler, this));
+    ezMakeDelegate(&ezSoundEventAssetDocumentWindow::PropertyEventHandler, this));
 
   // Menu Bar
   {
@@ -50,12 +50,15 @@ ezSoundEventAssetDocumentWindow::ezSoundEventAssetDocumentWindow(ezDocument* pDo
     pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
   }
 
+  // central widget
+  {
+    m_pLabelInfo = new QLabel(this);
+    setCentralWidget(m_pLabelInfo);
+
+    m_pLabelInfo->setText("<Information>");
+  }
+
   m_pAssetDoc = static_cast<ezSoundEventAssetDocument*>(pDocument);
-
-  m_pLabelInfo = new QLabel(this);
-  setCentralWidget(m_pLabelInfo);
-
-  m_pLabelInfo->setText("<Information>");
 
   FinishWindowCreation();
 
@@ -65,7 +68,7 @@ ezSoundEventAssetDocumentWindow::ezSoundEventAssetDocumentWindow(ezDocument* pDo
 ezSoundEventAssetDocumentWindow::~ezSoundEventAssetDocumentWindow()
 {
   GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(
-      ezMakeDelegate(&ezSoundEventAssetDocumentWindow::PropertyEventHandler, this));
+    ezMakeDelegate(&ezSoundEventAssetDocumentWindow::PropertyEventHandler, this));
 }
 
 void ezSoundEventAssetDocumentWindow::UpdatePreview()

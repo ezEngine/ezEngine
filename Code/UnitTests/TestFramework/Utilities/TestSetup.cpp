@@ -5,7 +5,7 @@
 #include <TestFramework/Utilities/ConsoleOutput.h>
 #include <TestFramework/Utilities/HTMLOutput.h>
 
-#include <Foundation/Utilities/ExceptionHandler.h>
+#include <Foundation/System/CrashHandler.h>
 
 #ifdef EZ_USE_QT
 #  include <TestFramework/Framework/Qt/qtTestFramework.h>
@@ -56,7 +56,9 @@ ezTestFramework* ezTestSetup::InitTestFramework(const char* szTestName, const ch
   pTestFramework->RegisterOutputHandler(OutputToConsole);
   pTestFramework->RegisterOutputHandler(ezOutputToHTML::OutputToHTML);
 
-  ezExceptionHandler::SetExceptionHandler(ezExceptionHandler::DefaultExceptionHandler, szTestName, pTestFramework->GetAbsOutputPath());
+  ezCrashHandler_WriteMiniDump::g_Instance.SetDumpFilePath(pTestFramework->GetAbsOutputPath(), szTestName);
+  ezCrashHandler::SetCrashHandler(&ezCrashHandler_WriteMiniDump::g_Instance);
+
   return pTestFramework;
 }
 

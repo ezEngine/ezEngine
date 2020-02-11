@@ -67,6 +67,10 @@ namespace ezMemoryPolicies
     return ptr;
   }
 
+// deactivate analysis warning for VirtualFree flags, it is needed for the specific functionality
+EZ_MSVC_ANALYSIS_WARNING_PUSH
+EZ_MSVC_ANALYSIS_WARNING_DISABLE(6250)
+
   void ezGuardedAllocation::Deallocate(void* ptr)
   {
     ezLock<ezMutex> lock(m_mutex);
@@ -99,5 +103,7 @@ namespace ezMemoryPolicies
     void* pMemory = ezMemoryUtils::AddByteOffset(ptr, -((ptrdiff_t)uiPageSize));
     m_AllocationsToFreeLater.PushBack(pMemory);
   }
+
+EZ_MSVC_ANALYSIS_WARNING_POP
 }
 

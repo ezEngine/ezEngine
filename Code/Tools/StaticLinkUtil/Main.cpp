@@ -128,9 +128,6 @@ public:
 
     m_sSearchDir = sSearchDir;
 
-    // Add standard folder factory
-    ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-
     // Add the empty data directory to access files via absolute paths
     ezFileSystem::AddDataDirectory("", "App", ":", ezFileSystem::AllowWrites);
 
@@ -615,12 +612,12 @@ public:
     if (m_bHadSeriousWarnings || m_bHadErrors)
       return;
 
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) || defined(EZ_DOCS)
     const ezUInt32 uiSearchDirLength = m_sSearchDir.GetElementCount() + 1;
 
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) || defined(EZ_DOCS)
     // get a directory iterator for the search directory
     ezFileSystemIterator it;
-    if (it.StartSearch(m_sSearchDir.GetData(), true, false) == EZ_SUCCESS)
+    if (it.StartSearch(m_sSearchDir.GetData(), ezFileSystemIteratorFlags::ReportFilesRecursive) == EZ_SUCCESS)
     {
       ezStringBuilder b, sExt;
 
@@ -700,7 +697,7 @@ public:
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) || defined(EZ_DOCS)
     // get a directory iterator for the search directory
     ezFileSystemIterator it;
-    if (it.StartSearch(m_sSearchDir.GetData(), true, false) == EZ_SUCCESS)
+    if (it.StartSearch(m_sSearchDir.GetData(), ezFileSystemIteratorFlags::ReportFilesRecursive) == EZ_SUCCESS)
     {
       ezStringBuilder sFile, sExt;
 

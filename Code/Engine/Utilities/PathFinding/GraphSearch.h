@@ -41,7 +41,7 @@ public:
   ///
   /// The path search is stopped (and thus fails) if the path reaches costs of \a fMaxPathCost or higher.
   ezResult FindPath(ezInt64 iStartNodeIndex, const PathStateType& StartState, ezInt64 iTargetNodeIndex, ezDeque<PathResultData>& out_Path,
-                    float fMaxPathCost = ezMath::BasicType<float>::GetInfinity());
+                    float fMaxPathCost = ezMath::Infinity<float>());
 
   /// \brief Searches for a path that starts at the graph node \a iStartNodeIndex with the start state \a StartState and shall terminate
   /// when a graph node is reached for which \a Callback return true.
@@ -51,7 +51,7 @@ public:
   ///
   /// The path search is stopped (and thus fails) if the path reaches costs of \a fMaxPathCost or higher.
   ezResult FindClosest(ezInt64 iStartNodeIndex, const PathStateType& StartState, IsSearchedObjectCallback Callback,
-                       ezDeque<PathResultData>& out_Path, float fMaxPathCost = ezMath::BasicType<float>::GetInfinity());
+                       ezDeque<PathResultData>& out_Path, float fMaxPathCost = ezMath::Infinity<float>());
 
   /// \brief Needs to be called by the used ezPathStateGenerator to add nodes to evaluate.
   void AddPathNode(ezInt64 iNodeIndex, const PathStateType& NewState);

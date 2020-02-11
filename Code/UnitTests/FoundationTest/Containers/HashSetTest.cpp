@@ -173,51 +173,51 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashSet)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Collision Tests")
   {
-    ezHashSet<Collision> map2;
+    ezHashSet<Collision> set2;
 
-    map2.Insert(Collision(0, 0));
-    map2.Insert(Collision(1, 1));
-    map2.Insert(Collision(0, 2));
-    map2.Insert(Collision(1, 3));
-    map2.Insert(Collision(1, 4));
-    map2.Insert(Collision(0, 5));
+    set2.Insert(Collision(0, 0));
+    set2.Insert(Collision(1, 1));
+    set2.Insert(Collision(0, 2));
+    set2.Insert(Collision(1, 3));
+    set2.Insert(Collision(1, 4));
+    set2.Insert(Collision(0, 5));
 
-    EZ_TEST_BOOL(map2.Contains(Collision(0, 0)));
-    EZ_TEST_BOOL(map2.Contains(Collision(1, 1)));
-    EZ_TEST_BOOL(map2.Contains(Collision(0, 2)));
-    EZ_TEST_BOOL(map2.Contains(Collision(1, 3)));
-    EZ_TEST_BOOL(map2.Contains(Collision(1, 4)));
-    EZ_TEST_BOOL(map2.Contains(Collision(0, 5)));
+    EZ_TEST_BOOL(set2.Contains(Collision(0, 0)));
+    EZ_TEST_BOOL(set2.Contains(Collision(1, 1)));
+    EZ_TEST_BOOL(set2.Contains(Collision(0, 2)));
+    EZ_TEST_BOOL(set2.Contains(Collision(1, 3)));
+    EZ_TEST_BOOL(set2.Contains(Collision(1, 4)));
+    EZ_TEST_BOOL(set2.Contains(Collision(0, 5)));
 
-    EZ_TEST_BOOL(map2.Remove(Collision(0, 0)));
-    EZ_TEST_BOOL(map2.Remove(Collision(1, 1)));
+    EZ_TEST_BOOL(set2.Remove(Collision(0, 0)));
+    EZ_TEST_BOOL(set2.Remove(Collision(1, 1)));
 
-    EZ_TEST_BOOL(!map2.Contains(Collision(0, 0)));
-    EZ_TEST_BOOL(!map2.Contains(Collision(1, 1)));
-    EZ_TEST_BOOL(map2.Contains(Collision(0, 2)));
-    EZ_TEST_BOOL(map2.Contains(Collision(1, 3)));
-    EZ_TEST_BOOL(map2.Contains(Collision(1, 4)));
-    EZ_TEST_BOOL(map2.Contains(Collision(0, 5)));
+    EZ_TEST_BOOL(!set2.Contains(Collision(0, 0)));
+    EZ_TEST_BOOL(!set2.Contains(Collision(1, 1)));
+    EZ_TEST_BOOL(set2.Contains(Collision(0, 2)));
+    EZ_TEST_BOOL(set2.Contains(Collision(1, 3)));
+    EZ_TEST_BOOL(set2.Contains(Collision(1, 4)));
+    EZ_TEST_BOOL(set2.Contains(Collision(0, 5)));
 
-    map2.Insert(Collision(0, 6));
-    map2.Insert(Collision(1, 7));
+    set2.Insert(Collision(0, 6));
+    set2.Insert(Collision(1, 7));
 
-    EZ_TEST_BOOL(map2.Contains(Collision(0, 2)));
-    EZ_TEST_BOOL(map2.Contains(Collision(1, 3)));
-    EZ_TEST_BOOL(map2.Contains(Collision(1, 4)));
-    EZ_TEST_BOOL(map2.Contains(Collision(0, 5)));
-    EZ_TEST_BOOL(map2.Contains(Collision(0, 6)));
-    EZ_TEST_BOOL(map2.Contains(Collision(1, 7)));
+    EZ_TEST_BOOL(set2.Contains(Collision(0, 2)));
+    EZ_TEST_BOOL(set2.Contains(Collision(1, 3)));
+    EZ_TEST_BOOL(set2.Contains(Collision(1, 4)));
+    EZ_TEST_BOOL(set2.Contains(Collision(0, 5)));
+    EZ_TEST_BOOL(set2.Contains(Collision(0, 6)));
+    EZ_TEST_BOOL(set2.Contains(Collision(1, 7)));
 
-    EZ_TEST_BOOL(map2.Remove(Collision(1, 4)));
-    EZ_TEST_BOOL(map2.Remove(Collision(0, 6)));
+    EZ_TEST_BOOL(set2.Remove(Collision(1, 4)));
+    EZ_TEST_BOOL(set2.Remove(Collision(0, 6)));
 
-    EZ_TEST_BOOL(!map2.Contains(Collision(1, 4)));
-    EZ_TEST_BOOL(!map2.Contains(Collision(0, 6)));
-    EZ_TEST_BOOL(map2.Contains(Collision(0, 2)));
-    EZ_TEST_BOOL(map2.Contains(Collision(1, 3)));
-    EZ_TEST_BOOL(map2.Contains(Collision(0, 5)));
-    EZ_TEST_BOOL(map2.Contains(Collision(1, 7)));
+    EZ_TEST_BOOL(!set2.Contains(Collision(1, 4)));
+    EZ_TEST_BOOL(!set2.Contains(Collision(0, 6)));
+    EZ_TEST_BOOL(set2.Contains(Collision(0, 2)));
+    EZ_TEST_BOOL(set2.Contains(Collision(1, 3)));
+    EZ_TEST_BOOL(set2.Contains(Collision(0, 5)));
+    EZ_TEST_BOOL(set2.Contains(Collision(1, 7)));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Clear")
@@ -362,5 +362,39 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashSet)
       tmp.Format("{0}{0}{0}", i);
       EZ_TEST_BOOL(set1.Contains(tmp));
     }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "foreach")
+  {
+    ezStringBuilder tmp;
+    ezHashSet<ezString> set;
+    ezHashSet<ezString> set2;
+
+    for (ezUInt32 i = 0; i < 1000; ++i)
+    {
+      tmp.Format("stuff{}bla", i);
+      set.Insert(tmp);
+    }
+
+    EZ_TEST_INT(set.GetCount(), 1000);
+
+    set2 = set;
+    EZ_TEST_INT(set2.GetCount(), set.GetCount());
+
+    for (ezHashSet<ezString>::ConstIterator it = begin(set); it != end(set); ++it)
+    {
+      const ezString& k = it.Key();
+      set2.Remove(k);
+    }
+
+    EZ_TEST_BOOL(set2.IsEmpty());
+    set2 = set;
+
+    for (auto key : set)
+    {
+      set2.Remove(key);
+    }
+
+    EZ_TEST_BOOL(set2.IsEmpty());
   }
 }

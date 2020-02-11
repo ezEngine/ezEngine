@@ -38,7 +38,7 @@ namespace ezInternal
     ezIdTable<ezGameObjectId, ezGameObject*, ezLocalAllocatorWrapper> m_Objects;
     ObjectStorage m_ObjectStorage;
 
-    ezDynamicArray<ezGameObject*, ezLocalAllocatorWrapper> m_DeadObjects;
+    ezSet<ezGameObject*, ezCompareHelper<ezGameObject*>, ezLocalAllocatorWrapper> m_DeadObjects;
 
     // hierarchy structures
     struct Hierarchy
@@ -69,6 +69,8 @@ namespace ezInternal
 
     template <typename VISITOR>
     static ezVisitorExecution::Enum TraverseHierarchyLevel(Hierarchy::DataBlockArray& blocks, void* pUserData = nullptr);
+    template <typename VISITOR>
+    static ezVisitorExecution::Enum TraverseHierarchyLevelMultiThreaded(Hierarchy::DataBlockArray& blocks, void* pUserData = nullptr);
 
     typedef ezDelegate<ezVisitorExecution::Enum(ezGameObject*)> VisitorFunc;
     void TraverseBreadthFirst(VisitorFunc& func);
@@ -77,6 +79,9 @@ namespace ezInternal
 
     static void UpdateGlobalTransform(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds);
     static void UpdateGlobalTransformWithParent(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds);
+
+    static void UpdateGlobalTransformAndSpatialData(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds);
+    static void UpdateGlobalTransformWithParentAndSpatialData(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds);
 
     void UpdateGlobalTransforms(float fInvDeltaSeconds);
 
@@ -89,7 +94,7 @@ namespace ezInternal
     ezDynamicArray<ezWorldModule*, ezLocalAllocatorWrapper> m_ModulesToStartSimulation;
 
     // component management
-    ezDynamicArray<ezComponent*, ezLocalAllocatorWrapper> m_DeadComponents;
+    ezSet<ezComponent*, ezCompareHelper<ezComponent*>, ezLocalAllocatorWrapper> m_DeadComponents;
 
     ezDynamicArray<ezComponentHandle, ezLocalAllocatorWrapper> m_ComponentsToInitialize;
     ezDynamicArray<ezComponentHandle, ezLocalAllocatorWrapper> m_ComponentsToStartSimulation;
@@ -132,7 +137,7 @@ namespace ezInternal
       EZ_DECLARE_POD_TYPE();
 
       EZ_ALWAYS_INLINE QueuedMsgMetaData()
-          : m_uiReceiverData(0)
+        : m_uiReceiverData(0)
       {
       }
 
@@ -164,7 +169,7 @@ namespace ezInternal
     bool m_bReportErrorWhenStaticObjectMoves;
 
     /// \brief Maps some data (given as void*) to an ezGameObjectHandle. Only available in special situations (e.g. editor use cases).
-    ezDelegate<ezGameObjectHandle(const void*)> m_GameObjectReferenceResolver;
+    ezDelegate<ezGameObjectHandle(const void*, ezComponentHandle, const char*)> m_GameObjectReferenceResolver;
 
   public:
     class ReadMarker
@@ -199,7 +204,6 @@ namespace ezInternal
 
     void* m_pUserData;
   };
-}
+} // namespace ezInternal
 
 #include <Core/World/Implementation/WorldData_inl.h>
-

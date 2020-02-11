@@ -2,8 +2,11 @@
 
 #include <Foundation/Communication/Message.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMessage, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+// clang-format on
 
 ezMessageId ezMessage::s_uiNextMsgId = 0;
 

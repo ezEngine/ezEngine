@@ -39,7 +39,7 @@ ezStatus ezPropertyAnimObjectAccessor::SetValue(const ezDocumentObject* pObject,
         const double fOldValue = ezReflectionUtils::GetComponent(oldValue, c);
         const double fValue = ezReflectionUtils::GetComponent(newValue, c);
 
-        if (ezMath::IsEqual(fOldValue, fValue, ezMath::BasicType<double>::SmallEpsilon()))
+        if (ezMath::IsEqual(fOldValue, fValue, ezMath::SmallEpsilon<double>()))
           continue;
 
         EZ_SUCCEED_OR_RETURN(SetCurveCp(
@@ -70,7 +70,7 @@ ezStatus ezPropertyAnimObjectAccessor::SetValue(const ezDocumentObject* pObject,
       {
         res = SetAlphaCurveCp(pObject, pProp, index, oldAlpha, newAlpha);
       }
-      if (!ezMath::IsEqual(oldIntensity, newIntensity, ezMath::BasicType<float>::SmallEpsilon()) && res.Succeeded())
+      if (!ezMath::IsEqual(oldIntensity, newIntensity, ezMath::SmallEpsilon<float>()) && res.Succeeded())
       {
         res = SetIntensityCurveCp(pObject, pProp, index, oldIntensity, newIntensity);
       }

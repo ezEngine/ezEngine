@@ -78,7 +78,7 @@ ezQtShortcutEditorDlg::ezQtShortcutEditorDlg(QWidget* parent)
         if (item->m_sShortcut == item->m_sDefaultShortcut)
           pItem->setBackground(2, QBrush());
         else
-          pItem->setBackgroundColor(2, Qt::darkYellow);
+          pItem->setBackground(2, Qt::darkYellow);
 
         sTemp.Set("Default: ", item->m_sDefaultShortcut.IsEmpty() ? "<none>" : item->m_sDefaultShortcut.GetData());
 
@@ -119,7 +119,7 @@ void ezQtShortcutEditorDlg::UpdateTable()
       if (item->m_sShortcut == item->m_sDefaultShortcut)
         pChild->setBackground(2, QBrush());
       else
-        pChild->setBackgroundColor(2, Qt::darkYellow);
+        pChild->setBackground(2, Qt::darkYellow);
     }
   }
 

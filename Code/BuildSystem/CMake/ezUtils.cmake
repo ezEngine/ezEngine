@@ -8,6 +8,7 @@ include("ezUtilsNuGet")
 include("ezUtilsAssImp")
 include("ezUtilsCI")
 include("ezUtilsCppFlags")
+include("ezUtilsAndroid")
 include("ezUtilsUWP")
 include("ezUtilsTarget")
 include("ezUtilsTargetCS")
@@ -38,11 +39,34 @@ function(ez_set_target_output_dirs TARGET_NAME LIB_OUTPUT_DIR DLL_OUTPUT_DIR)
 	set (OUTPUT_DLL_MINSIZE     "${DLL_OUTPUT_DIR}/${EZ_CMAKE_PLATFORM_PREFIX}${EZ_CMAKE_GENERATOR_PREFIX}${EZ_CMAKE_COMPILER_POSTFIX}MinSize${EZ_CMAKE_ARCHITECTURE_POSTFIX}${SUB_DIR}")
 	set (OUTPUT_DLL_RELWITHDEB  "${DLL_OUTPUT_DIR}/${EZ_CMAKE_PLATFORM_PREFIX}${EZ_CMAKE_GENERATOR_PREFIX}${EZ_CMAKE_COMPILER_POSTFIX}RelDeb${EZ_CMAKE_ARCHITECTURE_POSTFIX}${SUB_DIR}")
 
-	set_target_properties(${TARGET_NAME} PROPERTIES
-	  RUNTIME_OUTPUT_DIRECTORY "${OUTPUT_DLL_DEBUG}"
-    LIBRARY_OUTPUT_DIRECTORY "${OUTPUT_LIB_DEBUG}"
-    ARCHIVE_OUTPUT_DIRECTORY "${OUTPUT_LIB_DEBUG}"
-	)
+	# If we can't use generator expressions the non-generator expression version of the
+	# output directory should point to the version matching CMAKE_BUILD_TYPE. This is the case for
+	# add_custom_command BYPRODUCTS for example needed by Ninja.
+	if (${CMAKE_BUILD_TYPE} STREQUAL "Debug")
+		set_target_properties(${TARGET_NAME} PROPERTIES
+			RUNTIME_OUTPUT_DIRECTORY "${OUTPUT_DLL_DEBUG}"
+			LIBRARY_OUTPUT_DIRECTORY "${OUTPUT_LIB_DEBUG}"
+			ARCHIVE_OUTPUT_DIRECTORY "${OUTPUT_LIB_DEBUG}"
+		)
+	elseif (${CMAKE_BUILD_TYPE} STREQUAL "Release")
+		set_target_properties(${TARGET_NAME} PROPERTIES
+			RUNTIME_OUTPUT_DIRECTORY "${OUTPUT_DLL_RELEASE}"
+			LIBRARY_OUTPUT_DIRECTORY "${OUTPUT_LIB_RELEASE}"
+			ARCHIVE_OUTPUT_DIRECTORY "${OUTPUT_LIB_RELEASE}"
+		)
+	elseif (${CMAKE_BUILD_TYPE} STREQUAL "MinSizeRel")
+		set_target_properties(${TARGET_NAME} PROPERTIES
+			RUNTIME_OUTPUT_DIRECTORY "${OUTPUT_DLL_MINSIZE}"
+			LIBRARY_OUTPUT_DIRECTORY "${OUTPUT_LIB_MINSIZE}"
+			ARCHIVE_OUTPUT_DIRECTORY "${OUTPUT_LIB_MINSIZE}"
+		)
+	elseif (${CMAKE_BUILD_TYPE} STREQUAL "RelWithDebInfo")
+		set_target_properties(${TARGET_NAME} PROPERTIES
+			RUNTIME_OUTPUT_DIRECTORY "${OUTPUT_DLL_RELWITHDEB}"
+			LIBRARY_OUTPUT_DIRECTORY "${OUTPUT_LIB_RELWITHDEB}"
+			ARCHIVE_OUTPUT_DIRECTORY "${OUTPUT_LIB_RELWITHDEB}"
+		)
+	endif()	
 
 	set_target_properties(${TARGET_NAME} PROPERTIES
 	  RUNTIME_OUTPUT_DIRECTORY_DEBUG "${OUTPUT_DLL_DEBUG}"
@@ -391,7 +415,9 @@ function(ez_add_external_projects_folder PROJECT_NUMBER)
 		return()
 	endif()
 
+	set_property(GLOBAL PROPERTY "GATHER_EXTERNAL_PROJECTS" TRUE)
 	add_subdirectory(${CACHE_VAR_VALUE} "${CMAKE_BINARY_DIR}/ExternalProject${PROJECT_NUMBER}")
+	set_property(GLOBAL PROPERTY "GATHER_EXTERNAL_PROJECTS" FALSE)
 
 endfunction()
 
@@ -403,6 +429,24 @@ function(ez_init_projects)
 
 	# find all init.cmake files below this directory
 	file (GLOB_RECURSE INIT_FILES "init.cmake")
+
+	foreach (INIT_FILE ${INIT_FILES})
+
+		message(STATUS "Including '${INIT_FILE}'")
+		include("${INIT_FILE}")
+
+	endforeach ()
+	
+endfunction()
+
+######################################
+### ez_finalize_projects()
+######################################
+
+function(ez_finalize_projects)
+
+	# find all init.cmake files below this directory
+	file (GLOB_RECURSE INIT_FILES "finalize.cmake")
 
 	foreach (INIT_FILE ${INIT_FILES})
 

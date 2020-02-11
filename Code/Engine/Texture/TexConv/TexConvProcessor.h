@@ -45,8 +45,9 @@ private:
   ezResult Assemble3DTexture(ezImage& dst) const;
   ezResult AdjustHdrExposure(ezImage& img) const;
   ezResult PremultiplyAlpha(ezImage& image) const;
+  ezResult DilateColor2D(ezImage& img) const;
   ezResult Assemble2DSlice(const ezTexConvSliceChannelMapping& mapping, ezUInt32 uiResolutionX, ezUInt32 uiResolutionY, ezColor* pPixelOut) const;
-  ezResult GenerateMipmaps(ezImage& img, ezUInt32 uiNumMips = 0) const;
+  ezResult GenerateMipmaps(ezImage& img, ezUInt32 uiNumChannels, ezUInt32 uiNumMips = 0) const;
 
   //////////////////////////////////////////////////////////////////////////
   // Purely functional

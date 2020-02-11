@@ -6,7 +6,7 @@ EZ_ALWAYS_INLINE ezSimdVec4f::ezSimdVec4f()
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
-  m_v = _mm_set1_ps(ezMath::BasicType<float>::GetNaN());
+  m_v = _mm_set1_ps(ezMath::NaN<float>());
 #endif
 }
 
@@ -159,6 +159,27 @@ template <>
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::GetSqrt<ezMathAcc::FULL>() const
 {
   return _mm_sqrt_ps(m_v);
+}
+
+template <>
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::GetInvSqrt<ezMathAcc::FULL>() const
+{
+  return _mm_div_ps(_mm_set1_ps(1.0f), _mm_sqrt_ps(m_v));
+}
+
+template <>
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::GetInvSqrt<ezMathAcc::BITS_23>() const
+{
+  const __m128 x0 = _mm_rsqrt_ps(m_v);
+
+  // One iteration of Newton-Raphson
+  return _mm_mul_ps(_mm_mul_ps(_mm_set1_ps(0.5f), x0), _mm_sub_ps(_mm_set1_ps(3.0f), _mm_mul_ps(_mm_mul_ps(m_v, x0), x0)));
+}
+
+template <>
+EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4f::GetInvSqrt<ezMathAcc::BITS_12>() const
+{
+  return _mm_rsqrt_ps(m_v);
 }
 
 template <int N, ezMathAcc::Enum acc>

@@ -21,12 +21,13 @@ constexpr int COL_DURATION = 3;
 constexpr int COL_BUTTON = 4;
 
 ezQtLongOpsPanel ::ezQtLongOpsPanel()
-  : ezQtApplicationPanel("Panel.Log")
+  : ezQtApplicationPanel("Panel.LongOps")
   , m_SingletonRegistrar(this)
 {
   setupUi(this);
 
-  setWindowIcon(ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/Log.png"));
+  setWidget(dockWidgetContents);
+  setIcon(ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/Log.png"));
   setWindowTitle(QString::fromUtf8(ezTranslate("Panel.LongOps")));
 
   // setup table

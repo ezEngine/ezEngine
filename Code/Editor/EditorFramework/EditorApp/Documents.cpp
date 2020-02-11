@@ -47,8 +47,7 @@ ezDocument* ezQtEditorApp::OpenDocument(const char* szDocument, ezBitflags<ezDoc
       return nullptr;
     }
 
-    EZ_ASSERT_DEV(pDocument != nullptr, "Opening of document type '{0}' succeeded, but returned pointer is nullptr",
-      pTypeDesc->m_sDocumentTypeName);
+    EZ_ASSERT_DEV(pDocument != nullptr, "Opening of document type '{0}' succeeded, but returned pointer is nullptr", pTypeDesc->m_sDocumentTypeName);
 
     if (pDocument->GetUnknownObjectTypeInstances() > 0)
     {
@@ -100,8 +99,7 @@ ezDocument* ezQtEditorApp::CreateDocument(const char* szDocument, ezBitflags<ezD
       return nullptr;
     }
 
-    EZ_ASSERT_DEV(pDocument != nullptr, "Creation of document type '{0}' succeeded, but returned pointer is nullptr",
-      pTypeDesc->m_sDocumentTypeName);
+    EZ_ASSERT_DEV(pDocument != nullptr, "Creation of document type '{0}' succeeded, but returned pointer is nullptr", pTypeDesc->m_sDocumentTypeName);
     EZ_ASSERT_DEV(pDocument->GetUnknownObjectTypeInstances() == 0, "Newly created documents should not contain unknown types.");
   }
 
@@ -139,9 +137,11 @@ void ezQtEditorApp::DocumentManagerEventHandler(const ezDocumentManager::Event& 
       if (r.m_pDocument->GetAddToRecentFilesList())
       {
         ezQtDocumentWindow* pWindow = ezQtDocumentWindow::FindWindowByDocument(r.m_pDocument);
-        s_RecentDocuments.Insert(r.m_pDocument->GetDocumentPath(),
-                                 (pWindow && pWindow->GetContainerWindow()) ? pWindow->GetContainerWindow()->GetUniqueIdentifier() : 0);
-        SaveOpenDocumentsList();
+        s_RecentDocuments.Insert(r.m_pDocument->GetDocumentPath(), 0);
+        if (!m_bLoadingProjectInProgress)
+        {
+          SaveOpenDocumentsList();
+        }
       }
     }
     break;
@@ -159,8 +159,7 @@ void ezQtEditorApp::DocumentManagerEventHandler(const ezDocumentManager::Event& 
       {
         // again, insert it into the recent documents list, such that the LAST CLOSED document is the LAST USED
         ezQtDocumentWindow* pWindow = ezQtDocumentWindow::FindWindowByDocument(r.m_pDocument);
-        s_RecentDocuments.Insert(r.m_pDocument->GetDocumentPath(),
-                                 (pWindow && pWindow->GetContainerWindow()) ? pWindow->GetContainerWindow()->GetUniqueIdentifier() : 0);
+        s_RecentDocuments.Insert(r.m_pDocument->GetDocumentPath(), 0);
       }
     }
     break;

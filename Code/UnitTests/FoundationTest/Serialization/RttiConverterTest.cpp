@@ -128,7 +128,7 @@ void TestSerialize(T* pObject)
 
     if (storage.GetStorageSize() == storage2.GetStorageSize())
     {
-      EZ_TEST_BOOL(ezMemoryUtils::ByteCompare<ezUInt8>(storage.GetData(), storage2.GetData(), storage.GetStorageSize()) == 0);
+      EZ_TEST_BOOL(ezMemoryUtils::Compare<ezUInt8>(storage.GetData(), storage2.GetData(), storage.GetStorageSize()) == 0);
     }
   }
 }

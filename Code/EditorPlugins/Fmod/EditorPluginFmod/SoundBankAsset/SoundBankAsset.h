@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 
@@ -19,12 +19,8 @@ class ezSoundBankAssetDocument : public ezSimpleAssetDocument<ezSoundBankAssetPr
 public:
   ezSoundBankAssetDocument(const char* szDocumentPath);
 
-  virtual const char* GetDocumentTypeDisplayString() const override { return "Sound Bank Asset"; }
-
-  virtual const char* QueryAssetType() const override { return "Sound Bank"; }
-
 protected:
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
-  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
+  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
 
 };

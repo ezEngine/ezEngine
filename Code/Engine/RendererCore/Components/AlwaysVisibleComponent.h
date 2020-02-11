@@ -4,26 +4,21 @@
 
 typedef ezComponentManager<class ezAlwaysVisibleComponent, ezBlockStorageType::Compact> ezAlwaysVisibleComponentManager;
 
+/// \brief Attaching this component to a game object makes the renderer consider it always visible, ie. disables culling
 class EZ_RENDERERCORE_DLL ezAlwaysVisibleComponent : public ezRenderComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezAlwaysVisibleComponent, ezRenderComponent, ezAlwaysVisibleComponentManager);
 
-public:
-  ezAlwaysVisibleComponent();
-  ~ezAlwaysVisibleComponent();
-
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent Interface
-public:
-
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
-
-
-  //////////////////////////////////////////////////////////////////////////
-  // ezRenderComponent Interface
+  // ezRenderComponent
 
 public:
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
-};
 
+  //////////////////////////////////////////////////////////////////////////
+  // ezAlwaysVisibleComponent
+
+public:
+  ezAlwaysVisibleComponent();
+  ~ezAlwaysVisibleComponent();
+};

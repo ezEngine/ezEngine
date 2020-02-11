@@ -6,8 +6,8 @@
 #include <RendererCore/AnimationSystem/AnimationPose.h>
 #include <RendererCore/AnimationSystem/SkeletonBuilder.h>
 #include <RendererCore/AnimationSystem/VisualizeSkeletonComponent.h>
-#include <RendererCore/Debug/DebugRendererContext.h>
 #include <RendererCore/Debug/DebugRenderer.h>
+#include <RendererCore/Debug/DebugRendererContext.h>
 #include <RendererCore/Pipeline/RenderData.h>
 
 // clang-format off
@@ -18,12 +18,12 @@ EZ_BEGIN_COMPONENT_TYPE(ezVisualizeSkeletonComponent, 1, ezComponentMode::Static
     EZ_ACCESSOR_PROPERTY("Skeleton", GetSkeletonFile, SetSkeletonFile)->AddAttributes(new ezAssetBrowserAttribute("Skeleton")),
   }
   EZ_END_PROPERTIES;
-    EZ_BEGIN_MESSAGEHANDLERS
+  EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
   }
   EZ_END_MESSAGEHANDLERS;
-    EZ_BEGIN_ATTRIBUTES
+  EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Animation"),
   }
@@ -33,7 +33,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezVisualizeSkeletonComponentManager::ezVisualizeSkeletonComponentManager(ezWorld* pWorld)
-    : SUPER(pWorld)
+  : SUPER(pWorld)
 {
 }
 
@@ -194,7 +194,7 @@ void ezVisualizeSkeletonComponent::CreateRenderMesh()
 
   ezStringBuilder sVisMeshName = pSkeleton->GetResourceID();
   sVisMeshName.AppendFormat("_{0}_VisSkeletonMesh",
-                            pSkeleton->GetCurrentResourceChangeCounter()); // the change counter allows to react to resource updates
+    pSkeleton->GetCurrentResourceChangeCounter()); // the change counter allows to react to resource updates
 
   m_hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(sVisMeshName);
 
@@ -305,7 +305,7 @@ void ezVisualizeSkeletonComponent::CreateHitBoxGeometry(const ezSkeletonResource
       case ezSkeletonJointGeometryType::Capsule:
       {
         geo.AddCapsule(jointGeo.m_Transform.m_vScale.z, jointGeo.m_Transform.m_vScale.x, 16, 4, ezColor::White,
-                       jointTransform.GetAsMat4() * mRotCapsule, jointGeo.m_uiAttachedToJoint);
+          jointTransform.GetAsMat4() * mRotCapsule, jointGeo.m_uiAttachedToJoint);
       }
       break;
 
@@ -318,7 +318,7 @@ void ezVisualizeSkeletonComponent::CreateHitBoxGeometry(const ezSkeletonResource
   }
 }
 
-void ezVisualizeSkeletonComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
+void ezVisualizeSkeletonComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   if (!m_hMesh.IsValid())
     return;
@@ -358,14 +358,14 @@ void ezVisualizeSkeletonComponentManager::Initialize()
 
   RegisterUpdateFunction(desc);
 
-  ezResourceManager::s_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezVisualizeSkeletonComponentManager::ResourceEventHandler, this));
+  ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezVisualizeSkeletonComponentManager::ResourceEventHandler, this));
 }
 
 void ezVisualizeSkeletonComponentManager::Deinitialize()
 {
   EZ_LOCK(m_Mutex);
 
-  ezResourceManager::s_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezVisualizeSkeletonComponentManager::ResourceEventHandler, this));
+  ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezVisualizeSkeletonComponentManager::ResourceEventHandler, this));
 
   SUPER::Deinitialize();
 }
@@ -418,4 +418,3 @@ void ezVisualizeSkeletonComponentManager::ResourceEventHandler(const ezResourceE
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_Implementation_VisualizeSkeletonComponent);
-

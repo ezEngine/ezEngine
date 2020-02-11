@@ -5,6 +5,7 @@
 #include <ProcGenPlugin/VM/ExpressionVM.h>
 
 struct ezMeshBufferResourceDescriptor;
+class ezVolumeCollection;
 
 namespace ezProcGenInternal
 {
@@ -14,13 +15,15 @@ namespace ezProcGenInternal
     VertexColorTask();
     ~VertexColorTask();
 
-    void Prepare(const ezMeshBufferResourceDescriptor& mbDesc, const ezTransform& transform,
-      ezArrayPtr<ezSharedPtr<const VertexColorOutput>> outputs, ezArrayPtr<ezUInt32> outputVertexColors);
+    void Prepare(const ezWorld& world, const ezMeshBufferResourceDescriptor& mbDesc, const ezTransform& transform,
+      ezArrayPtr<ezSharedPtr<const VertexColorOutput>> outputs, ezArrayPtr<ezProcVertexColorMapping> outputMappings,
+      ezArrayPtr<ezUInt32> outputVertexColors);
 
   private:
     virtual void Execute() override;
 
     ezHybridArray<ezSharedPtr<const VertexColorOutput>, 2> m_Outputs;
+    ezHybridArray<ezProcVertexColorMapping, 2> m_OutputMappings;
 
     struct InputVertex
     {
@@ -28,6 +31,7 @@ namespace ezProcGenInternal
 
       ezVec3 m_vPosition;
       ezVec3 m_vNormal;
+      ezColor m_Color;
       float m_fIndex;
     };
 
@@ -35,6 +39,9 @@ namespace ezProcGenInternal
 
     ezDynamicArray<ezColor> m_TempData;
     ezArrayPtr<ezUInt32> m_OutputVertexColors;
+
+    ezDynamicArray<ezVolumeCollection> m_VolumeCollections;
+    ezExpression::GlobalData m_GlobalData;
 
     ezExpressionVM m_VM;
   };

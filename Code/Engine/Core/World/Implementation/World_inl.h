@@ -381,18 +381,18 @@ EZ_ALWAYS_INLINE ezTask* ezWorld::GetUpdateTask()
   return &m_UpdateTask;
 }
 
-EZ_FORCE_INLINE ezSpatialSystem& ezWorld::GetSpatialSystem()
+EZ_FORCE_INLINE ezSpatialSystem* ezWorld::GetSpatialSystem()
 {
   CheckForWriteAccess();
 
-  return *(m_Data.m_pSpatialSystem.Borrow());
+  return m_Data.m_pSpatialSystem.Borrow();
 }
 
-EZ_FORCE_INLINE const ezSpatialSystem& ezWorld::GetSpatialSystem() const
+EZ_FORCE_INLINE const ezSpatialSystem* ezWorld::GetSpatialSystem() const
 {
   CheckForReadAccess();
 
-  return *(m_Data.m_pSpatialSystem.Borrow());
+  return m_Data.m_pSpatialSystem.Borrow();
 }
 
 EZ_ALWAYS_INLINE void ezWorld::GetCoordinateSystem(const ezVec3& vGlobalPosition, ezCoordinateSystem& out_CoordinateSystem) const

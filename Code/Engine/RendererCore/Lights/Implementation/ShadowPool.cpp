@@ -637,22 +637,25 @@ void ezShadowPool::OnEngineStartup()
 {
   s_pData = EZ_DEFAULT_NEW(ezShadowPool::Data);
 
-  ezRenderWorld::s_EndExtractionEvent.AddEventHandler(OnEndExtraction);
-  ezRenderWorld::s_BeginRenderEvent.AddEventHandler(OnBeginRender);
+  ezRenderWorld::GetExtractionEvent().AddEventHandler(OnExtractionEvent);
+  ezRenderWorld::GetRenderEvent().AddEventHandler(OnRenderEvent);
 }
 
 // static
 void ezShadowPool::OnEngineShutdown()
 {
-  ezRenderWorld::s_EndExtractionEvent.RemoveEventHandler(OnEndExtraction);
-  ezRenderWorld::s_BeginRenderEvent.RemoveEventHandler(OnBeginRender);
+  ezRenderWorld::GetExtractionEvent().RemoveEventHandler(OnExtractionEvent);
+  ezRenderWorld::GetRenderEvent().RemoveEventHandler(OnRenderEvent);
 
   EZ_DEFAULT_DELETE(s_pData);
 }
 
 // static
-void ezShadowPool::OnEndExtraction(ezUInt64 uiFrameCounter)
+void ezShadowPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
 {
+  if (e.m_Type != ezRenderWorldExtractionEvent::Type::EndExtraction)
+    return;
+
   EZ_PROFILE_SCOPE("Shadow Pool Update");
 
   ezUInt32 uiDataIndex = ezRenderWorld::GetDataIndexForExtraction();
@@ -930,8 +933,11 @@ void ezShadowPool::OnEndExtraction(ezUInt64 uiFrameCounter)
 }
 
 // static
-void ezShadowPool::OnBeginRender(ezUInt64 uiFrameCounter)
+void ezShadowPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
 {
+  if (e.m_Type != ezRenderWorldRenderEvent::Type::BeginRender)
+    return;
+
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALContext* pGALContext = pDevice->GetPrimaryContext();
 

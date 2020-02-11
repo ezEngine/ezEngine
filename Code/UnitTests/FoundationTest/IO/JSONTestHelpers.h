@@ -16,7 +16,7 @@ public:
     if (m_bOnlyWriteResult)
     {
       ezOSFile f;
-      f.Open("C:\\Code\\JSON.txt", ezFileMode::Write);
+      f.Open("C:\\Code\\JSON.txt", ezFileOpenMode::Write);
       f.Write(m_sResult.GetData(), m_sResult.GetElementCount());
       f.Close();
     }

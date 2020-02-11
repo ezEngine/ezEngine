@@ -562,7 +562,7 @@ ezEditorInput ezCameraMoveContext::DoMouseMoveEvent(QMouseEvent* e)
       }
 
       float fRotateHorizontal = diff.x * fMouseRotateSensitivityX;
-      float fRotateVertical = diff.y * fMouseRotateSensitivityY;
+      float fRotateVertical = -diff.y * fMouseRotateSensitivityY;
 
       m_pCamera->RotateLocally(ezAngle::Radian(0), ezAngle::Radian(fRotateVertical), ezAngle::Radian(0));
       m_pCamera->RotateGlobally(ezAngle::Radian(0), ezAngle::Radian(0), ezAngle::Radian(fRotateHorizontal));

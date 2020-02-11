@@ -1,9 +1,9 @@
 #include <RendererCorePCH.h>
 
 #include <Core/Utils/WorldGeoExtractionUtil.h>
+#include <Foundation/Utilities/GraphicsUtils.h>
 #include <RendererCore/Meshes/CpuMeshResource.h>
 #include <RendererCore/Meshes/MeshComponent.h>
-#include <Foundation/Utilities/GraphicsUtils.h>
 
 namespace
 {
@@ -20,7 +20,7 @@ namespace
       tri.m_uiVertexIndices[2] = uiVertexIdxOffset + pTypedIndices[p * 3 + (flip ? 0 : 2)];
     }
   }
-}
+} // namespace
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -37,7 +37,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezMeshComponent, 3, ezComponentMode::Static)
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnExtractGeometry)
+    EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnMsgExtractGeometry)
   }
   EZ_END_MESSAGEHANDLERS;
 }
@@ -47,7 +47,7 @@ EZ_END_COMPONENT_TYPE
 ezMeshComponent::ezMeshComponent() = default;
 ezMeshComponent::~ezMeshComponent() = default;
 
-void ezMeshComponent::OnExtractGeometry(ezMsgExtractGeometry& msg) const
+void ezMeshComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
 {
   if (msg.m_Mode != ezWorldGeoExtractionUtil::ExtractionMode::RenderMesh)
     return;
@@ -157,4 +157,3 @@ void ezMeshComponent::OnExtractGeometry(ezMsgExtractGeometry& msg) const
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_MeshComponent);
-

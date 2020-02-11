@@ -1,3 +1,6 @@
+#include <Foundation/FoundationInternal.h>
+EZ_FOUNDATION_INTERNAL_HEADER
+
 #include <Foundation/System/Process.h>
 
 struct ezProcessImpl
@@ -90,8 +93,5 @@ ezOsProcessID ezProcess::GetProcessID() const
 
 ezOsProcessID ezProcess::GetCurrentProcessID()
 {
-  /// \todo Implement ezProcess::GetCurrentProcessID on Posix
-
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return 0;
+  return getpid();
 }

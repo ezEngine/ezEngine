@@ -8,22 +8,10 @@
 using namespace physx;
 
 EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPxActorComponent, 1)
-// EZ_BEGIN_PROPERTIES
-// EZ_END_PROPERTIES;
 EZ_END_ABSTRACT_COMPONENT_TYPE
 
-ezPxActorComponent::ezPxActorComponent() {}
-
-void ezPxActorComponent::SerializeComponent(ezWorldWriter& stream) const
-{
-  SUPER::SerializeComponent(stream);
-}
-
-void ezPxActorComponent::DeserializeComponent(ezWorldReader& stream)
-{
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-}
+ezPxActorComponent::ezPxActorComponent() = default;
+ezPxActorComponent::~ezPxActorComponent() = default;
 
 void ezPxActorComponent::AddShapesFromObject(ezGameObject* pObject, PxRigidActor* pRigidActor, const ezSimdTransform& ParentTransform)
 {

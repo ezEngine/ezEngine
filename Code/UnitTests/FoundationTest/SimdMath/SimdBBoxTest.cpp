@@ -31,27 +31,27 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdBBox)
     EZ_TEST_BOOL(!b.IsNaN());
 
     b.SetInvalid();
-    b.m_Min.SetX(ezMath::BasicType<ezMathTestType>::GetNaN());
+    b.m_Min.SetX(ezMath::NaN<ezMathTestType>());
     EZ_TEST_BOOL(b.IsNaN());
 
     b.SetInvalid();
-    b.m_Min.SetY(ezMath::BasicType<ezMathTestType>::GetNaN());
+    b.m_Min.SetY(ezMath::NaN<ezMathTestType>());
     EZ_TEST_BOOL(b.IsNaN());
 
     b.SetInvalid();
-    b.m_Min.SetZ(ezMath::BasicType<ezMathTestType>::GetNaN());
+    b.m_Min.SetZ(ezMath::NaN<ezMathTestType>());
     EZ_TEST_BOOL(b.IsNaN());
 
     b.SetInvalid();
-    b.m_Max.SetX(ezMath::BasicType<ezMathTestType>::GetNaN());
+    b.m_Max.SetX(ezMath::NaN<ezMathTestType>());
     EZ_TEST_BOOL(b.IsNaN());
 
     b.SetInvalid();
-    b.m_Max.SetY(ezMath::BasicType<ezMathTestType>::GetNaN());
+    b.m_Max.SetY(ezMath::NaN<ezMathTestType>());
     EZ_TEST_BOOL(b.IsNaN());
 
     b.SetInvalid();
-    b.m_Max.SetZ(ezMath::BasicType<ezMathTestType>::GetNaN());
+    b.m_Max.SetZ(ezMath::NaN<ezMathTestType>());
     EZ_TEST_BOOL(b.IsNaN());
   }
 

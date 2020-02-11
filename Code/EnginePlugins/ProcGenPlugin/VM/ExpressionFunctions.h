@@ -1,28 +1,24 @@
 #pragma once
 
-#include <ProcGenPlugin/Declarations.h>
 #include <Foundation/Types/Delegate.h>
+#include <ProcGenPlugin/Declarations.h>
 
 namespace ezExpression
 {
   typedef ezArrayPtr<ezSimdVec4f> Output;
   typedef ezArrayPtr<ezArrayPtr<const ezSimdVec4f>> Inputs; // Inputs are in SOA form, means inner array contains all values for one input parameter, one for each instance.
-  typedef ezArrayPtr<const ezUInt8> UserData;
-}
+  typedef ezHashTable<ezHashedString, ezVariant> GlobalData;
+} // namespace ezExpression
 
 /// \brief defines an external function that can be called in expressions.
 ///  These functions need to be state-less and thread-safe.
-typedef ezDelegate<void(ezExpression::Inputs, ezExpression::Output, ezExpression::UserData)> ezExpressionFunction;
+typedef ezDelegate<void(ezExpression::Inputs, ezExpression::Output, const ezExpression::GlobalData&)> ezExpressionFunction;
 
-class EZ_PROCGENPLUGIN_DLL ezExpressionFunctionRegistry
+/// \brief defines an optional validation function used to validate required global data for an expression function
+typedef ezDelegate<ezResult(const ezExpression::GlobalData&)> ezExpressionValidateGlobalData;
+
+struct EZ_PROCGENPLUGIN_DLL ezDefaultExpressionFunctions
 {
-public:
-  static bool RegisterFunction(const char* szName, ezExpressionFunction func);
-
-  static const char* GetName(ezUInt32 uiNameHash);
-  static ezExpressionFunction GetFunction(ezUInt32 uiNameHash);
-  static ezExpressionFunction GetFunction(const char* szName);
+  static void Random(ezExpression::Inputs inputs, ezExpression::Output output, const ezExpression::GlobalData& globalData);
+  static void PerlinNoise(ezExpression::Inputs inputs, ezExpression::Output output, const ezExpression::GlobalData& globalData);
 };
-
-#define EZ_REGISTER_EXPRESSION_FUNCTION(name, func) \
-  static bool EZ_CONCAT(s_bExpRegisterDummy, EZ_SOURCE_LINE) = ezExpressionFunctionRegistry::RegisterFunction(name, func)

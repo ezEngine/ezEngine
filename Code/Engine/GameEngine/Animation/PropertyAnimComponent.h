@@ -1,32 +1,15 @@
 #pragma once
 
-#include <GameEngine/GameEngineDLL.h>
-#include <Core/World/World.h>
-#include <Core/World/Component.h>
-#include <GameEngine/Animation/PropertyAnimResource.h>
-#include <Foundation/Types/SharedPtr.h>
 #include <Core/Messages/EventMessage.h>
+#include <Core/World/Component.h>
+#include <Core/World/World.h>
+#include <Foundation/Types/SharedPtr.h>
+#include <GameEngine/Animation/PropertyAnimResource.h>
+#include <GameEngine/GameEngineDLL.h>
 
 struct ezMsgSetPlaying;
 
 typedef ezComponentManagerSimple<class ezPropertyAnimComponent, ezComponentUpdateType::WhenSimulating> ezPropertyAnimComponentManager;
-
-/// \brief Sent when a ezPropertyAnimComponent reaches the end of the property animation (either forwards or backwards playing)
-///
-/// This is sent regardless of whether the animation is played once, looped or back and forth.
-struct EZ_GAMEENGINE_DLL ezMsgPropertyAnimationEndReached : public ezEventMessage
-{
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgPropertyAnimationEndReached, ezEventMessage);
-
-};
-
-struct EZ_GAMEENGINE_DLL ezMsgPropertyAnimationPlayRange : public ezMessage
-{
-  EZ_DECLARE_MESSAGE_TYPE(ezMsgPropertyAnimationPlayRange, ezMessage);
-
-  ezTime m_RangeLow;
-  ezTime m_RangeHigh;
-};
 
 /// \brief Animates properties on other objects and components according to the property animation resource
 ///
@@ -36,54 +19,46 @@ class EZ_GAMEENGINE_DLL ezPropertyAnimComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezPropertyAnimComponent, ezComponent, ezPropertyAnimComponentManager);
 
-public:
-  ezPropertyAnimComponent();
-
-
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent interface
-  //
+  // ezComponent
 
 public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
 protected:
-
   virtual void OnSimulationStarted() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezPropertyAnimComponent interface
-  //
+  // ezPropertyAnimComponent
 
 public:
+  ezPropertyAnimComponent();
+  ~ezPropertyAnimComponent();
 
-  void SetPropertyAnimFile(const char* szFile);
-  const char* GetPropertyAnimFile() const;
+  void SetPropertyAnimFile(const char* szFile); // [ property ]
+  const char* GetPropertyAnimFile() const;      // [ property ]
 
-  void SetPropertyAnim(const ezPropertyAnimResourceHandle& hResource);
-  EZ_ALWAYS_INLINE const ezPropertyAnimResourceHandle& GetPropertyAnim() const { return m_hPropertyAnim; }
+  void SetPropertyAnim(const ezPropertyAnimResourceHandle& hResource);                                     // [ property ]
+  EZ_ALWAYS_INLINE const ezPropertyAnimResourceHandle& GetPropertyAnim() const { return m_hPropertyAnim; } // [ property ]
 
   /// \brief Sets the animation playback range and resets the playing position to the range start position. Also activates the component if it isn't.
-  void OnPlayAnimationRange(ezMsgPropertyAnimationPlayRange& msg);
+  void PlayAnimationRange(ezTime RangeLow, ezTime RangeHigh); // [ scriptable ]
 
   /// \brief Pauses or resumes animation playback. Does not reset any state.
-  void OnSetPlaying(ezMsgSetPlaying& msg);
+  void OnMsgSetPlaying(ezMsgSetPlaying& msg); // [ msg handler ]
 
-  // public properties:
-  ezEnum<ezPropertyAnimMode> m_AnimationMode;
-  ezTime m_RandomOffset;
-  float m_fSpeed = 1.0f;
-  // for only playing a sub-set of the animation
-  ezTime m_AnimationRangeLow;
-  ezTime m_AnimationRangeHigh;
-  
-protected:
-  ezEventMessageSender<ezMsgPropertyAnimationEndReached> m_ReachedEndMsgSender;
-  ezEventMessageSender<ezMsgGenericEvent> m_EventTrackMsgSender;
-
+  ezEnum<ezPropertyAnimMode> m_AnimationMode; // [ property ]
+  ezTime m_RandomOffset;                      // [ property ]
+  float m_fSpeed = 1.0f;                      // [ property ]
+  ezTime m_AnimationRangeLow;                 // [ property ]
+  ezTime m_AnimationRangeHigh;                // [ property ]
+  bool m_bPlaying = true;                     // [ property ]
 
 protected:
+  ezEventMessageSender<ezMsgAnimationReachedEnd> m_ReachedEndMsgSender; // [ event ]
+  ezEventMessageSender<ezMsgGenericEvent> m_EventTrackMsgSender;        // [ event ]
+
   struct Binding
   {
     ezAbstractMemberProperty* m_pMemberProperty = nullptr;
@@ -92,7 +67,7 @@ protected:
 
   struct FloatBinding : public Binding
   {
-    const ezFloatPropertyAnimEntry* m_pAnimation[4] = { nullptr, nullptr, nullptr, nullptr };
+    const ezFloatPropertyAnimEntry* m_pAnimation[4] = {nullptr, nullptr, nullptr, nullptr};
   };
 
   struct ComponentFloatBinding : public FloatBinding
@@ -124,7 +99,6 @@ protected:
   void EvaluateEventTrack(ezTime startTime, ezTime endTime);
   void StartPlayback();
 
-  bool m_bPlaying = true;
   bool m_bReverse = false;
 
   ezTime m_AnimationTime;
@@ -143,4 +117,3 @@ protected:
   // that means you need to restart a level to see the updated animation
   ezSharedPtr<ezPropertyAnimResourceDescriptor> m_AnimDesc;
 };
-

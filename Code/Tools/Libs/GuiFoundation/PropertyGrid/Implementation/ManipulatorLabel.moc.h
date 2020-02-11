@@ -25,6 +25,7 @@ public:
 
 protected:
   virtual void contextMenuEvent(QContextMenuEvent *ev) override;
+  virtual void showEvent(QShowEvent* event) override;
 
 private:
   virtual void mousePressEvent(QMouseEvent *ev) override;
@@ -34,6 +35,7 @@ private:
 private:
   const ezHybridArray<ezPropertySelection, 8>* m_pItems;
   const ezManipulatorAttribute* m_pManipulator;
+  QFont m_font;
   bool m_bActive;
   bool m_bIsDefault;
 };

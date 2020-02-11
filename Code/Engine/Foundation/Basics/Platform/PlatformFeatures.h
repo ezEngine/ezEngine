@@ -6,6 +6,8 @@
 #include <Foundation/Basics/Platform/OSX/PlatformFeatures_OSX.h>
 #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
 #include <Foundation/Basics/Platform/Linux/PlatformFeatures_Linux.h>
+#elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#include <Foundation/Basics/Platform/Android/PlatformFeatures_Android.h>
 #else
 #error "Undefined platform!"
 #endif
@@ -23,6 +25,14 @@
 
 #ifndef EZ_SUPPORTS_FILE_STATS
 #error "EZ_SUPPORTS_FILE_STATS is not defined."
+#endif
+
+#ifndef EZ_SUPPORTS_MEMORY_MAPPED_FILE
+#error "EZ_SUPPORTS_MEMORY_MAPPED_FILE is not defined."
+#endif
+
+#ifndef EZ_SUPPORTS_SHARED_MEMORY
+#error "EZ_SUPPORTS_SHARED_MEMORY is not defined."
 #endif
 
 #ifndef EZ_SUPPORTS_DYNAMIC_PLUGINS

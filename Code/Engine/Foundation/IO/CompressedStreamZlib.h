@@ -9,6 +9,33 @@
 
 struct z_stream_s;
 
+class EZ_FOUNDATION_DLL ezCompressedStreamReaderZip : public ezStreamReader
+{
+public:
+  ezCompressedStreamReaderZip();
+  ~ezCompressedStreamReaderZip();
+
+  /// \brief Configures the reader to decompress the data from the given input stream.
+  ///
+  /// Calling this a second time on the same instance is valid and allows to reuse the decoder, which is more efficient than creating a new
+  /// one.
+  void SetInputStream(ezStreamReader* pInputStream, ezUInt64 uiInputSize);
+
+  /// \brief Reads either uiBytesToRead or the amount of remaining bytes in the stream into pReadBuffer.
+  ///
+  /// It is valid to pass nullptr for pReadBuffer, in this case the memory stream position is only advanced by the given number of bytes.
+  /// However, since this is a compressed stream, the decompression still needs to be done, so this won't save any time.
+  virtual ezUInt64 ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead) override; // [tested]
+
+private:
+  ezUInt64 m_uiRemainingInputSize = 0;
+  bool m_bReachedEnd = false;
+  ezDynamicArray<ezUInt8> m_CompressedCache;
+  ezStreamReader* m_pInputStream = nullptr;
+  z_stream_s* m_pZLibStream = nullptr;
+};
+
+
 /// \brief A stream reader that will decompress data that was stored using the ezCompressedStreamWriterZlib.
 ///
 /// The reader takes another reader as its data source (e.g. a file or a memory stream). The compressed reader
@@ -30,7 +57,7 @@ public:
 private:
   bool m_bReachedEnd = false;
   ezDynamicArray<ezUInt8> m_CompressedCache;
-  ezStreamReader* m_pInputStream;
+  ezStreamReader* m_pInputStream = nullptr;
   z_stream_s* m_pZLibStream = nullptr;
 };
 

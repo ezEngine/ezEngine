@@ -641,11 +641,11 @@ void ezStandardInputDevice::WindowMessage(
             static const ezInt32 iVirtualDesktopW = GetSystemMetrics(SM_CXVIRTUALSCREEN);
             static const ezInt32 iVirtualDesktopH = GetSystemMetrics(SM_CYVIRTUALSCREEN);
 
-            static ezVec2 vLastPos(ezMath::BasicType<float>::MaxValue());
+            static ezVec2 vLastPos(ezMath::MaxValue<float>());
             const ezVec2 vNewPos(
               (raw->data.mouse.lLastX / 65535.0f) * iVirtualDesktopW, (raw->data.mouse.lLastY / 65535.0f) * iVirtualDesktopH);
 
-            if (vLastPos.x != ezMath::BasicType<float>::MaxValue())
+            if (vLastPos.x != ezMath::MaxValue<float>())
             {
               const ezVec2 vDiff = vNewPos - vLastPos;
 

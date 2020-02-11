@@ -215,8 +215,10 @@ public:
   /// \param out_sDataDirRelativePath will contain the relative path to the file (from the data directory in which it might end up in). Might be nullptr.
   /// \param szPath can be a relative, an absolute or a rooted path. This can also be used to find the relative location to the data directory
   /// that would handle it.
-  /// The function will return EZ_FAILURE if it was not able to determine any location where the file could be read from or written to.
-  static ezResult ResolvePath(const char* szPath, ezStringBuilder* out_sAbsolutePath, ezStringBuilder* out_sDataDirRelativePath); // [tested]
+  /// \param out_ppDataDir If not null, it will be set to the data directory that would handle this path.
+  ///
+  /// \returns The function will return EZ_FAILURE if it was not able to determine any location where the file could be read from or written to.
+  static ezResult ResolvePath(const char* szPath, ezStringBuilder* out_sAbsolutePath, ezStringBuilder* out_sDataDirRelativePath, ezDataDirectoryType** out_ppDataDir = nullptr); // [tested]
 
   /// \brief Starts at szStartDirectory and goes up until it finds a folder that contains the given sub folder structure.
   /// Returns EZ_FAILURE if nothing is found. Otherwise \a result is the absolute path to the existing folder that has a given sub-folder.
@@ -237,7 +239,7 @@ private:
   /// If bAllowFileEvents is true, the file system will broadcast events about its activity.
   /// This should usually be set to true, unless code is already acting on a file event and needs to do a file operation
   /// itself, which should not trigger an endless recursion of file events.
-  static ezDataDirectoryReader* GetFileReader(const char* szFile, bool bAllowFileEvents);
+  static ezDataDirectoryReader* GetFileReader(const char* szFile, ezFileShareMode::Enum FileShareMode, bool bAllowFileEvents);
 
   /// \brief This is used by the actual file writers (like ezFileWriter) to get an abstract file writer.
   ///
@@ -246,7 +248,7 @@ private:
   /// If bAllowFileEvents is true, the file system will broadcast events about its activity.
   /// This should usually be set to true, unless code is already acting on a file event and needs to do a file operation
   /// itself, which should not trigger an endless recursion of file events.
-  static ezDataDirectoryWriter* GetFileWriter(const char* szFile, bool bAllowFileEvents);
+  static ezDataDirectoryWriter* GetFileWriter(const char* szFile, ezFileShareMode::Enum FileShareMode, bool bAllowFileEvents);
 
 
 private:
@@ -335,4 +337,3 @@ struct ezFileSystem::FileEvent
   /// \brief The data-directory, that was involved.
   const ezDataDirectoryType* m_pDataDir = nullptr;
 };
-

@@ -2,6 +2,7 @@
 
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/HashedString.h>
+#include <Foundation/Time/Timestamp.h>
 
 // ezAllocatorBase::Stats
 
@@ -262,5 +263,19 @@ void operator>>(ezStreamReader& Stream, ezVariant& Value)
   }
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_StreamOperationsOther);
+// ezTimestamp
 
+void operator<<(ezStreamWriter& Stream, ezTimestamp Value)
+{
+  Stream << Value.GetInt64(ezSIUnitOfTime::Microsecond);
+}
+
+void operator>>(ezStreamReader& Stream, ezTimestamp& Value)
+{
+  ezInt64 value;
+  Stream >> value;
+
+  Value.SetInt64(value, ezSIUnitOfTime::Microsecond);
+}
+
+EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_StreamOperationsOther);

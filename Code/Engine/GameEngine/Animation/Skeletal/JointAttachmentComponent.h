@@ -10,29 +10,26 @@ class EZ_GAMEENGINE_DLL ezJointAttachmentComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezJointAttachmentComponent, ezComponent, ezJointAttachmentComponentManager);
 
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent
+
+public:
+  virtual void SerializeComponent(ezWorldWriter& stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& stream) override;
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezJointAttachmentComponent
+
 public:
   ezJointAttachmentComponent();
   ~ezJointAttachmentComponent();
 
-  //////////////////////////////////////////////////////////////////////////
-  // ezComponent Interface
-  //
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
-
-
-  //////////////////////////////////////////////////////////////////////////
-  // Properties
-  //
-  void SetJointName(const char* szName);
-  const char* GetJointName() const;
-
-  //////////////////////////////////////////////////////////////////////////
-  //
-  void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg);
+  void SetJointName(const char* szName); // [ property ]
+  const char* GetJointName() const;      // [ property ]
 
 protected:
+  void OnAnimationPoseUpdated(ezMsgAnimationPoseUpdated& msg); // [ msg handler ]
+
   ezHashedString m_sJointToAttachTo;
   ezUInt16 m_uiJointIndex = ezInvalidJointIndex;
 };
-

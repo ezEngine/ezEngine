@@ -10,7 +10,7 @@
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 ezCVarBool CVarVisLightSize("r_VisLightScreenSpaceSize", false, ezCVarFlags::Default,
-                            "Enables debug visualization of light screen space size calculation");
+  "Enables debug visualization of light screen space size calculation");
 #endif
 
 // clang-format off
@@ -29,7 +29,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpotLightComponent, 2, ezComponentMode::Static)
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
   }
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
@@ -45,14 +45,11 @@ EZ_END_COMPONENT_TYPE
 // clang-format on
 
 ezSpotLightComponent::ezSpotLightComponent()
-    : m_fRange(0.0f)
-    , m_InnerSpotAngle(ezAngle::Degree(15.0f))
-    , m_OuterSpotAngle(ezAngle::Degree(30.0f))
 {
   m_fEffectiveRange = CalculateEffectiveRange(m_fRange, m_fIntensity);
 }
 
-ezSpotLightComponent::~ezSpotLightComponent() {}
+ezSpotLightComponent::~ezSpotLightComponent() = default;
 
 ezResult ezSpotLightComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
 {
@@ -131,7 +128,7 @@ const char* ezSpotLightComponent::GetProjectedTextureFile() const
   return m_hProjectedTexture.GetResourceID();
 }
 
-void ezSpotLightComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
+void ezSpotLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   // Don't extract light render data for selection or in shadow views.
   if (msg.m_OverrideCategory != ezInvalidRenderDataCategory || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)
@@ -226,18 +223,18 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpotLightVisualizerAttribute, 1, ezRTTIDefault
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezSpotLightVisualizerAttribute::ezSpotLightVisualizerAttribute()
-    : ezVisualizerAttribute(nullptr)
+  : ezVisualizerAttribute(nullptr)
 {
 }
 
 ezSpotLightVisualizerAttribute::ezSpotLightVisualizerAttribute(const char* szAngleProperty, const char* szRangeProperty,
-                                                               const char* szIntensityProperty, const char* szColorProperty)
-    : ezVisualizerAttribute(szAngleProperty, szRangeProperty, szIntensityProperty, szColorProperty)
+  const char* szIntensityProperty, const char* szColorProperty)
+  : ezVisualizerAttribute(szAngleProperty, szRangeProperty, szIntensityProperty, szColorProperty)
 {
 }
 
-  //////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
@@ -246,7 +243,7 @@ class ezSpotLightComponentPatch_1_2 : public ezGraphPatch
 {
 public:
   ezSpotLightComponentPatch_1_2()
-      : ezGraphPatch("ezSpotLightComponent", 2)
+    : ezGraphPatch("ezSpotLightComponent", 2)
   {
   }
 
@@ -263,4 +260,3 @@ ezSpotLightComponentPatch_1_2 g_ezSpotLightComponentPatch_1_2;
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_SpotLightComponent);
-

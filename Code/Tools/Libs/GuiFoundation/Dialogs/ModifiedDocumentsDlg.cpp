@@ -47,7 +47,7 @@ ezQtModifiedDocumentsDlg::ezQtModifiedDocumentsDlg(QWidget* parent, const ezHybr
     QPushButton* pButtonSave = new QPushButton(QLatin1String("Save"));
     EZ_VERIFY(connect(pButtonSave, SIGNAL(clicked()), this, SLOT(SlotSaveDocument())) != nullptr, "signal/slot connection failed");
 
-    pButtonSave->setProperty("document", qVariantFromValue((void*)pDoc));
+    pButtonSave->setProperty("document", QVariant::fromValue((void*)pDoc));
 
     pButtonSave->setMinimumWidth(100);
     pButtonSave->setMaximumWidth(100);
@@ -55,7 +55,7 @@ ezQtModifiedDocumentsDlg::ezQtModifiedDocumentsDlg(QWidget* parent, const ezHybr
     TableDocuments->setCellWidget(iRow, 2, pButtonSave);
 
     QTableWidgetItem* pItem0 = new QTableWidgetItem();
-    pItem0->setData(Qt::DisplayRole, QString::fromUtf8(pDoc->GetDocumentTypeDisplayString()));
+    pItem0->setData(Qt::DisplayRole, QString::fromUtf8(pDoc->GetDocumentTypeDescriptor()->m_sDocumentTypeName));
     pItem0->setIcon(ezQtUiServices::GetCachedIconResource(pDoc->GetDocumentTypeDescriptor()->m_sIcon));
     TableDocuments->setItem(iRow, 0, pItem0);
 

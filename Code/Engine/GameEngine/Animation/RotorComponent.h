@@ -10,22 +10,33 @@ class EZ_GAMEENGINE_DLL ezRotorComponent : public ezTransformComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezRotorComponent, ezTransformComponent, ezRotorComponentManager);
 
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent
+
 public:
-  ezRotorComponent();
-
-  void Update();
-
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
-  // ************************************* PROPERTIES ***********************************
+protected:
+  virtual void OnSimulationStarted() override;
+
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezRotorComponent
 
 public:
-  ezInt32 m_iDegreeToRotate;
-  float m_fAcceleration;
-  float m_fDeceleration;
-  ezEnum<ezBasisAxis> m_Axis;
+  ezRotorComponent();
+  ~ezRotorComponent();
 
-private:
-  ezQuat m_LastRotation;
+  ezInt32 m_iDegreeToRotate = 0;                       // [ property ]
+  float m_fAcceleration = 1.0f;                        // [ property ]
+  float m_fDeceleration = 1.0f;                        // [ property ]
+  ezEnum<ezBasisAxis> m_Axis = ezBasisAxis::PositiveZ; // [ property ]
+  ezAngle m_AxisDeviation;                             // [ property ]
+
+protected:
+  void Update();
+
+  ezVec3 m_vRotationAxis = ezVec3(0, 0, 1);
+  ezQuat m_LastRotation = ezQuat::IdentityQuaternion();
 };

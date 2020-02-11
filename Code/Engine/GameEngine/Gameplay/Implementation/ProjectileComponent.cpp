@@ -44,12 +44,12 @@ EZ_BEGIN_COMPONENT_TYPE(ezProjectileComponent, 4, ezComponentMode::Dynamic)
     EZ_ARRAY_MEMBER_PROPERTY("Interactions", m_SurfaceInteractions),
   }
   EZ_END_PROPERTIES;
-    EZ_BEGIN_MESSAGEHANDLERS
+  EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgComponentInternalTrigger, OnTriggered),
   }
   EZ_END_MESSAGEHANDLERS;
-    EZ_BEGIN_ATTRIBUTES
+  EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Gameplay"),
     new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.2f, ezColor::OrangeRed),
@@ -86,6 +86,8 @@ ezProjectileComponent::ezProjectileComponent()
   m_fGravityMultiplier = 0.0f;
   m_vVelocity.SetZero();
 }
+
+ezProjectileComponent::~ezProjectileComponent() = default;
 
 void ezProjectileComponent::Update()
 {
@@ -158,12 +160,18 @@ void ezProjectileComponent::Update()
           if (interaction.m_fDamage > 0.0f)
           {
             // skip the TryGetObject if we already did that above
-            if (pObject != nullptr || GetWorld()->TryGetObject(hitResult.m_hActorObject, pObject))
+            if (pObject != nullptr || GetWorld()->TryGetObject(hitResult.m_hShapeObject, pObject))
             {
               ezMsgDamage msg;
               msg.m_fDamage = interaction.m_fDamage;
 
-              pObject->SendMessage(msg);
+              ezGameObject* pHitShape = nullptr;
+              if (GetWorld()->TryGetObject(hitResult.m_hShapeObject, pHitShape))
+              {
+                msg.m_sHitObjectName = pHitShape->GetName();
+              }
+
+              pObject->SendEventMessage(msg, this);
             }
           }
         }
@@ -354,7 +362,7 @@ void ezProjectileComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
     ezResourceLock<ezPrefabResource> pPrefab(m_hTimeoutPrefab, ezResourceAcquireMode::AllowLoadingFallback);
 
     pPrefab->InstantiatePrefab(
-      *GetWorld(), GetOwner()->GetGlobalTransform(), ezGameObjectHandle(), nullptr, &GetOwner()->GetTeamID(), nullptr);
+      *GetWorld(), GetOwner()->GetGlobalTransform(), ezGameObjectHandle(), nullptr, &GetOwner()->GetTeamID(), nullptr, false);
   }
 
   GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());

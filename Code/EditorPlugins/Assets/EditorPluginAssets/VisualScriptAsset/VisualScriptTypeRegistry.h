@@ -7,6 +7,8 @@
 #include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 
+class ezAbstractFunctionProperty;
+
 struct ezVisualScriptPinDescriptor
 {
   enum PinType { Execution, Data };
@@ -52,6 +54,7 @@ private:
   const ezRTTI* GenerateTypeFromDesc(const ezVisualScriptNodeDescriptor& desc);
   void CreateMessageNodeType(const ezRTTI* pRtti);
   void CreateEventMessageNodeType(const ezRTTI* pRtti);
+  void CreateFunctionCallNodeType(const ezRTTI* pRtti, const ezAbstractFunctionProperty* pFunction);
 
     ezMap<const ezRTTI*, ezVisualScriptNodeDescriptor> m_NodeDescriptors;
 

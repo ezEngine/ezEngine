@@ -3,6 +3,8 @@
 #include <Foundation/Communication/GlobalEvent.h>
 #include <Foundation/Communication/Telemetry.h>
 
+#include <GameEngine/GameApplication/GameApplicationBase.h>
+
 static ezGlobalEvent::EventMap s_LastState;
 
 static void SendGlobalEventTelemetry(const char* szEvent, const ezGlobalEvent::EventData& ed)
@@ -68,7 +70,7 @@ static void SendChangedGlobalEventTelemetry()
     const ezGlobalEvent::EventData& currentEventData = it.Value();
     ezGlobalEvent::EventData& lastEventData = s_LastState[it.Key()];
 
-    if (ezMemoryUtils::ByteCompare(&currentEventData, &lastEventData) != 0)
+    if (ezMemoryUtils::Compare(&currentEventData, &lastEventData) != 0)
     {
       SendGlobalEventTelemetry(it.Key().GetData(), it.Value());
 
@@ -89,23 +91,46 @@ namespace GlobalEventsDetail
       case ezTelemetry::TelemetryEventData::ConnectedToClient:
         SendAllGlobalEventTelemetry();
         break;
-      case ezTelemetry::TelemetryEventData::PerFrameUpdate:
-        SendChangedGlobalEventTelemetry();
-        break;
 
       default:
         break;
     }
   }
-}
+
+  static void PerframeUpdateHandler(const ezGameApplicationExecutionEvent& e)
+  {
+    if (!ezTelemetry::IsConnectedToClient())
+      return;
+
+    switch (e.m_Type)
+    {
+      case ezGameApplicationExecutionEvent::Type::AfterPresent:
+        SendChangedGlobalEventTelemetry();
+        break;
+    }
+  }
+} // namespace GlobalEventsDetail
 
 void AddGlobalEventHandler()
 {
   ezTelemetry::AddEventHandler(GlobalEventsDetail::TelemetryEventsHandler);
+
+  // We're handling the per frame update by a different event since
+  // using ezTelemetry::TelemetryEventData::PerFrameUpdate can lead
+  // to deadlocks between the ezStats and ezTelemetry system.
+  if (ezGameApplicationBase::GetGameApplicationBaseInstance() != nullptr)
+  {
+    ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(GlobalEventsDetail::PerframeUpdateHandler);
+  }
 }
 
 void RemoveGlobalEventHandler()
 {
+  if (ezGameApplicationBase::GetGameApplicationBaseInstance() != nullptr)
+  {
+    ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(GlobalEventsDetail::PerframeUpdateHandler);
+  }
+
   ezTelemetry::RemoveEventHandler(GlobalEventsDetail::TelemetryEventsHandler);
 }
 

@@ -118,6 +118,16 @@ constexpr EZ_ALWAYS_INLINE bool ezAngle::operator>(const ezAngle& r) const
   return m_fRadian > r.m_fRadian;
 }
 
+constexpr EZ_ALWAYS_INLINE bool ezAngle::operator<=(const ezAngle& r) const
+{
+  return m_fRadian <= r.m_fRadian;
+}
+
+constexpr EZ_ALWAYS_INLINE bool ezAngle::operator>=(const ezAngle& r) const
+{
+  return m_fRadian >= r.m_fRadian;
+}
+
 constexpr inline ezAngle operator*(ezAngle a, float f)
 {
   return ezAngle::Radian(a.GetRadian() * f);

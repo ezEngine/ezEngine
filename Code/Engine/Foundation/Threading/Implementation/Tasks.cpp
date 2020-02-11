@@ -6,6 +6,8 @@
 #include <Foundation/Time/Timestamp.h>
 #include <Foundation/Utilities/DGMLWriter.h>
 
+static thread_local ezHybridArray<ezTask*, 8> s_currentRunningTask;
+
 ezTask::ezTask(const char* szTaskName /*= nullptr*/)
 {
   Reset();
@@ -19,6 +21,7 @@ void ezTask::Reset()
   m_iRemainingRuns = (int)ezMath::Max(1u, m_uiMultiplicity);
   m_bCancelExecution = false;
   m_bTaskIsScheduled = false;
+  m_bUsesMultiplicity = m_uiMultiplicity > 0;
 }
 
 void ezTask::SetTaskName(const char* szName)
@@ -28,9 +31,8 @@ void ezTask::SetTaskName(const char* szName)
 
 void ezTask::SetMultiplicity(ezUInt32 uiMultiplicity)
 {
-  EZ_ASSERT_DEV(!m_bTaskIsScheduled, "This task has already been scheduled to run, the multiplicity cannot be changed anymore.");
-
   m_uiMultiplicity = uiMultiplicity;
+  m_bUsesMultiplicity = m_uiMultiplicity > 0;
 }
 
 void ezTask::SetOnTaskFinished(OnTaskFinished Callback)
@@ -50,12 +52,12 @@ void ezTask::Run(ezUInt32 uiInvocation)
   {
     ezStringBuilder scopeName = m_sTaskName;
 
-    if (m_uiMultiplicity > 0)
+    if (m_bUsesMultiplicity)
       scopeName.AppendFormat("-{}", uiInvocation);
 
     EZ_PROFILE_SCOPE(scopeName.GetData());
 
-    if (m_uiMultiplicity > 0)
+    if (m_bUsesMultiplicity)
     {
       ExecuteWithMultiplicity(uiInvocation);
     }
@@ -191,7 +193,11 @@ bool ezTaskSystem::ExecuteTask(ezTaskPriority::Enum FirstPriority, ezTaskPriorit
   if (td.m_pTask == nullptr)
     return false;
 
+  s_currentRunningTask.PushBack(td.m_pTask);
+
   td.m_pTask->Run(td.m_uiInvocation);
+
+  s_currentRunningTask.PopBack();
 
   // notify the group, that a task is finished, which might trigger other tasks to be executed
   TaskHasFinished(td.m_pTask, td.m_pBelongsToGroup);
@@ -203,6 +209,8 @@ void ezTaskSystem::WaitForTask(ezTask* pTask)
 {
   if (pTask->IsTaskFinished())
     return;
+
+  EZ_ASSERT_DEV(!ezTaskSystem::IsTaskRunningOnCurrentThread(pTask), "Trying to wait for a task that is currently executing on the same thread (self-dependency)");
 
   EZ_PROFILE_SCOPE("WaitForTask");
 
@@ -220,10 +228,11 @@ ezResult ezTaskSystem::CancelTask(ezTask* pTask, ezOnTaskRunning::Enum OnTaskRun
   if (pTask->IsTaskFinished())
     return EZ_SUCCESS;
 
-  EZ_PROFILE_SCOPE("CancelTask");
+  // pTask may actually finish between here and the lock below
+  // in that case we will return failure, as in we had to 'wait' for a task,
+  // but it will be handled correctly
 
-  EZ_ASSERT_DEV(pTask->m_BelongsToGroup.m_pTaskGroup->m_uiGroupCounter == pTask->m_BelongsToGroup.m_uiGroupCounter,
-    "The task to be removed is in an invalid group.");
+  EZ_PROFILE_SCOPE("CancelTask");
 
   // we set the cancel flag, to make sure that tasks that support canceling will terminate asap
   pTask->m_bCancelExecution = true;
@@ -291,6 +300,11 @@ bool ezTaskSystem::HelpExecutingTasks(ezTask* pPrioritizeThis)
   }
 
   return false;
+}
+
+bool ezTaskSystem::IsTaskRunningOnCurrentThread(ezTask* pTask)
+{
+  return s_currentRunningTask.Contains(pTask);
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_Tasks);

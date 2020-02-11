@@ -62,6 +62,7 @@ void ezQtEditorApp::SetupDataDirectories()
   m_Events.Broadcast(e);
 
   ezQtEditorApp::GetSingleton()->AddPluginDataDirDependency(">sdk/Data/Base", "base", false);
+  ezQtEditorApp::GetSingleton()->AddPluginDataDirDependency(">sdk/Data/Plugins", "plugins", false);
   ezQtEditorApp::GetSingleton()->AddPluginDataDirDependency(">project/", "project", true);
 
   // Tell the tools project that all data directories are ok to put documents in

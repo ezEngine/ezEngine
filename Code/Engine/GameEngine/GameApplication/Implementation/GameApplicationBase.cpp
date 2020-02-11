@@ -1,6 +1,5 @@
 #include <GameEnginePCH.h>
 
-#include <GameEngine/ActorSystem/ActorManager.h>
 #include <Core/Input/InputManager.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Foundation/Communication/GlobalEvent.h>
@@ -13,6 +12,7 @@
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Time/Clock.h>
 #include <Foundation/Time/Timestamp.h>
+#include <GameEngine/ActorSystem/ActorManager.h>
 #include <GameEngine/GameApplication/GameApplicationBase.h>
 #include <GameEngine/Interfaces/FrameCaptureInterface.h>
 #include <System/Window/Window.h>
@@ -32,8 +32,6 @@ ezGameApplicationBase::~ezGameApplicationBase()
 {
   s_pGameApplicationBaseInstance = nullptr;
 }
-
-//////////////////////////////////////////////////////////////////////////
 
 void AppendCurrentTimestamp(ezStringBuilder& out_String)
 {
@@ -325,23 +323,26 @@ void ezGameApplicationBase::BeforeHighLevelSystemsShutdown()
     // make sure that no resources continue to be streamed in, while the engine shuts down
     ezResourceManager::EngineAboutToShutdown();
     ezResourceManager::ExecuteAllResourceCleanupCallbacks();
-    ezResourceManager::FreeUnusedResources(true);
+    ezResourceManager::FreeAllUnusedResources();
   }
 }
 
 void ezGameApplicationBase::BeforeCoreSystemsShutdown()
 {
   // shut down all actors and APIs that may have been in use
-  ezActorManager::GetSingleton()->Shutdown();
+  if (ezActorManager::GetSingleton() != nullptr)
+  {
+    ezActorManager::GetSingleton()->Shutdown();
+  }
 
   {
     ezFrameAllocator::Reset();
-    ezResourceManager::FreeUnusedResources(true);
+    ezResourceManager::FreeAllUnusedResources();
   }
 
   {
     Deinit_ShutdownGraphicsDevice();
-    ezResourceManager::FreeUnusedResources(true);
+    ezResourceManager::FreeAllUnusedResources();
   }
 
   Deinit_UnloadPlugins();
@@ -369,8 +370,6 @@ ezApplication::ApplicationExecution ezGameApplicationBase::Run()
     return ezApplication::Quit;
 
   s_bUpdatePluginsExecuted = false;
-
-  ezClock::GetGlobalClock()->Update();
 
   ezActorManager::GetSingleton()->Update();
 
@@ -404,6 +403,23 @@ ezApplication::ApplicationExecution ezGameApplicationBase::Run()
 
     ezGameApplicationExecutionEvent e;
     e.m_Type = ezGameApplicationExecutionEvent::Type::EndAppTick;
+    m_ExecutionEvents.Broadcast(e);
+  }
+
+  {
+    ezGameApplicationExecutionEvent e;
+    e.m_Type = ezGameApplicationExecutionEvent::Type::BeforePresent;
+    m_ExecutionEvents.Broadcast(e);
+  }
+
+  Run_Present();
+
+  ezClock::GetGlobalClock()->Update();
+  UpdateFrameTime();
+
+  {
+    ezGameApplicationExecutionEvent e;
+    e.m_Type = ezGameApplicationExecutionEvent::Type::AfterPresent;
     m_ExecutionEvents.Broadcast(e);
   }
 
@@ -480,6 +496,10 @@ void ezGameApplicationBase::Run_UpdatePlugins()
   }
 }
 
+void ezGameApplicationBase::Run_Present()
+{
+}
+
 void ezGameApplicationBase::Run_FinishFrame()
 {
   ezTelemetry::PerFrameUpdate();
@@ -488,10 +508,21 @@ void ezGameApplicationBase::Run_FinishFrame()
   ezFrameAllocator::Swap();
   ezProfilingSystem::StartNewFrame();
 
+  // if many messages have been logged, make sure they get written to disk
+  ezLog::Flush(100, ezTime::Seconds(10));
+
   // reset this state
   m_bTakeScreenshot = false;
 }
 
+void ezGameApplicationBase::UpdateFrameTime()
+{
+  // Do not use ezClock for this, it smooths and clamps the timestep
+  const ezTime tNow = ezTime::Now();
 
+  static ezTime tLast = tNow;
+  m_FrameTime = tNow - tLast;
+  tLast = tNow;
+}
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_GameApplication_Implementation_GameApplicationBase);

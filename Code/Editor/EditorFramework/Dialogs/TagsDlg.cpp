@@ -41,7 +41,7 @@ void ezQtTagsDlg::on_ButtonNewCategory_clicked()
     m_CategoryToItem[sName] = pItem;
   }
 
-  TreeTags->setItemSelected(m_CategoryToItem[sName], true);
+  m_CategoryToItem[sName]->setSelected(true);
 }
 
 void ezQtTagsDlg::on_ButtonNewTag_clicked()
@@ -66,7 +66,7 @@ void ezQtTagsDlg::on_ButtonNewTag_clicked()
   pItem->setExpanded(true);
 
   TreeTags->clearSelection();
-  TreeTags->setItemSelected(pNewItem, true);
+  pNewItem->setSelected(true);
   // TreeTags->editItem(pNewItem);
 }
 

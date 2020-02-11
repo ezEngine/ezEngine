@@ -67,7 +67,6 @@ public:
   ezPropertyAnimAssetDocument(const char* szDocumentPath);
   ~ezPropertyAnimAssetDocument();
 
-  virtual const char* QueryAssetType() const override { return "PropertyAnim"; }
   virtual ezObjectAccessorBase* GetObjectAccessor() const override;
 
   void SetAnimationDurationTicks(ezUInt64 uiNumTicks);
@@ -112,8 +111,8 @@ public:
 
 protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-    const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
-  virtual void InitializeAfterLoading() override;
+    const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+  virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;
 
 private:
   void GameObjectContextEventHandler(const ezGameObjectContextEvent& e);

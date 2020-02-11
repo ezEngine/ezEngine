@@ -14,7 +14,7 @@
 
 
 ezDecalComponentManager::ezDecalComponentManager(ezWorld* pWorld)
-    : ezComponentManager<ezDecalComponent, ezBlockStorageType::Compact>(pWorld)
+  : ezComponentManager<ezDecalComponent, ezBlockStorageType::Compact>(pWorld)
 {
 }
 
@@ -46,7 +46,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 3, ezComponentMode::Static)
     EZ_ENUM_MEMBER_PROPERTY("OnFinishedAction", ezOnComponentFinishedAction, m_OnFinishedAction),
   }
   EZ_END_PROPERTIES;
-    EZ_BEGIN_ATTRIBUTES
+  EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Effects"),
     new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.5f, ezColor::LightSteelBlue),
@@ -54,18 +54,18 @@ EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 3, ezComponentMode::Static)
     new ezBoxVisualizerAttribute("Extents"),
   }
   EZ_END_ATTRIBUTES;
-    EZ_BEGIN_FUNCTIONS
+  EZ_BEGIN_FUNCTIONS
   {
     EZ_FUNCTION_PROPERTY(OnObjectCreated),
   }
   EZ_END_FUNCTIONS;
-    EZ_BEGIN_MESSAGEHANDLERS
+  EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
     EZ_MESSAGE_HANDLER(ezMsgComponentInternalTrigger, OnTriggered),
-    EZ_MESSAGE_HANDLER(ezMsgDeleteGameObject, OnDeleteObject),
-    EZ_MESSAGE_HANDLER(ezMsgOnlyApplyToObject, OnApplyOnlyTo),
-    EZ_MESSAGE_HANDLER(ezMsgSetColor, OnSetColor),
+    EZ_MESSAGE_HANDLER(ezMsgDeleteGameObject, OnMsgDeleteGameObject),
+    EZ_MESSAGE_HANDLER(ezMsgOnlyApplyToObject, OnMsgOnlyApplyToObject),
+    EZ_MESSAGE_HANDLER(ezMsgSetColor, OnMsgSetColor),
   }
   EZ_END_MESSAGEHANDLERS;
 }
@@ -75,19 +75,11 @@ EZ_END_COMPONENT_TYPE
 ezUInt16 ezDecalComponent::s_uiNextSortKey = 0;
 
 ezDecalComponent::ezDecalComponent()
-    : m_vExtents(1.0f)
-    , m_fSizeVariance(0.0f)
-    , m_Color(ezColor::White)
-    , m_InnerFadeAngle(ezAngle::Degree(50.0f))
-    , m_OuterFadeAngle(ezAngle::Degree(80.0f))
-    , m_fSortOrder(0.0f)
-    , m_bWrapAround(false)
-    , m_uiApplyOnlyToId(0)
-    , m_uiInternalSortKey(s_uiNextSortKey++)
+  : m_uiInternalSortKey(s_uiNextSortKey++)
 {
 }
 
-ezDecalComponent::~ezDecalComponent() {}
+ezDecalComponent::~ezDecalComponent() = default;
 
 void ezDecalComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -269,7 +261,7 @@ ezGameObjectHandle ezDecalComponent::GetApplyOnlyTo() const
   return m_hApplyOnlyToObject;
 }
 
-void ezDecalComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
+void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   // Don't extract decal render data for selection.
   if (msg.m_OverrideCategory != ezInvalidRenderDataCategory)
@@ -328,11 +320,11 @@ void ezDecalComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
   pRenderData->m_InnerFadeAngle = m_InnerFadeAngle;
   pRenderData->m_OuterFadeAngle = m_OuterFadeAngle;
   pRenderData->m_vBaseAtlasScale = baseAtlasScale;
-  pRenderData->m_vBaseAtlasOffset = baseAtlasOffset;  
-  
+  pRenderData->m_vBaseAtlasOffset = baseAtlasOffset;
+
   ezRenderData::Caching::Enum caching = (m_FadeOutDelay.m_Value.GetSeconds() > 0.0 || m_FadeOutDuration.GetSeconds() > 0.0)
-                                            ? ezRenderData::Caching::Never
-                                            : ezRenderData::Caching::IfStatic;
+                                          ? ezRenderData::Caching::Never
+                                          : ezRenderData::Caching::IfStatic;
   msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Decal, caching);
 }
 
@@ -348,12 +340,12 @@ void ezDecalComponent::OnSimulationStarted()
 
   // no fade out -> fade out pretty late
   m_StartFadeOutTime =
-      ezTime::Seconds(60.0 * 60.0 * 24.0 * 365.0 * 100.0); // 100 years should be enough for everybody (ignoring leap years)
+    ezTime::Seconds(60.0 * 60.0 * 24.0 * 365.0 * 100.0); // 100 years should be enough for everybody (ignoring leap years)
 
   if (m_FadeOutDelay.m_Value.GetSeconds() > 0.0 || m_FadeOutDuration.GetSeconds() > 0.0)
   {
     const ezTime tFadeOutDelay =
-        ezTime::Seconds(pWorld->GetRandomNumberGenerator().DoubleVariance(m_FadeOutDelay.m_Value.GetSeconds(), m_FadeOutDelay.m_fVariance));
+      ezTime::Seconds(pWorld->GetRandomNumberGenerator().DoubleVariance(m_FadeOutDelay.m_Value.GetSeconds(), m_FadeOutDelay.m_fVariance));
     m_StartFadeOutTime = pWorld->GetClock().GetAccumulatedTime() + tFadeOutDelay;
 
     if (m_OnFinishedAction != ezOnComponentFinishedAction::None)
@@ -384,17 +376,17 @@ void ezDecalComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
   ezOnComponentFinishedAction::HandleFinishedAction(this, m_OnFinishedAction);
 }
 
-void ezDecalComponent::OnDeleteObject(ezMsgDeleteGameObject& msg)
+void ezDecalComponent::OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg)
 {
   ezOnComponentFinishedAction::HandleDeleteObjectMsg(msg, m_OnFinishedAction);
 }
 
-void ezDecalComponent::OnApplyOnlyTo(ezMsgOnlyApplyToObject& msg)
+void ezDecalComponent::OnMsgOnlyApplyToObject(ezMsgOnlyApplyToObject& msg)
 {
   SetApplyOnlyTo(msg.m_hObject);
 }
 
-void ezDecalComponent::OnSetColor(ezMsgSetColor& msg)
+void ezDecalComponent::OnMsgSetColor(ezMsgSetColor& msg)
 {
   msg.ModifyColor(m_Color);
 }
@@ -402,4 +394,3 @@ void ezDecalComponent::OnSetColor(ezMsgSetColor& msg)
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Decals_Implementation_DecalComponent);
-

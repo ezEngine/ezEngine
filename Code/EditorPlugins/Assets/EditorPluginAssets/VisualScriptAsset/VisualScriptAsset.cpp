@@ -118,7 +118,7 @@ void ezVisualScriptAssetDocument::HandleVsActivityMsg(const ezVisualScriptActivi
 }
 
 ezStatus ezVisualScriptAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-                                                             const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+                                                             const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   ezVisualScriptResourceDescriptor desc;
   if (GenerateVisualScriptDescriptor(desc).Failed())
@@ -189,9 +189,9 @@ ezResult ezVisualScriptAssetDocument::GenerateVisualScriptDescriptor(ezVisualScr
     const ezDocumentObject* pObject = allNodes[i];
     const ezVisualScriptNodeDescriptor* pDesc = pTypeRegistry->GetDescriptorForType(pObject->GetType());
 
-    if (!pDesc)
+    if (pDesc == nullptr)
     {
-      ezLog::SeriousWarning("Couldn't get descriptor from type registry. Are all plugins loaded?");
+      ezLog::Error("Couldn't get descriptor from type registry. Are all required plugins loaded?");
       return EZ_FAILURE;
     }
 
@@ -213,6 +213,11 @@ ezResult ezVisualScriptAssetDocument::GenerateVisualScriptDescriptor(ezVisualScr
         auto& ref = desc.m_Properties.ExpandAndGetRef();
         ref.m_sName = pProp->GetPropertyName();
         ref.m_Value = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName());
+
+        if (const  ezVisScriptMappingAttribute* pMappingAttr = pProp->GetAttributeByType<ezVisScriptMappingAttribute>())
+        {
+          ref.m_iMappingIndex = pMappingAttr->m_iMapping;
+        }
 
         node.m_uiNumProperties++;
       }

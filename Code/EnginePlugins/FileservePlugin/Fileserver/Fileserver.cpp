@@ -426,7 +426,7 @@ void ezFileserver::HandleUploadFileFinished(ezFileserveClientContext& client, ez
 
   {
     ezOSFile file;
-    if (file.Open(sOutputFile, ezFileMode::Write).Failed())
+    if (file.Open(sOutputFile, ezFileOpenMode::Write).Failed())
     {
       ezLog::Error("Could not write uploaded file to '{0}'", sOutputFile);
       return;

@@ -94,11 +94,11 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #  define EZ_FASTCALL __fastcall
 #  define EZ_NO_INLINE __declspec(noinline)
-#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
-#  if EZ_ENABLED(EZ_PLATFORM_64BIT)
-#    define EZ_FASTCALL
-#  else
+#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#  if EZ_ENABLED(EZ_PLATFORM_ARCH_X86) && EZ_ENABLED(EZ_PLATFORM_32BIT)
 #    define EZ_FASTCALL __attribute((fastcall)) // Fastcall only relevant on x86-32 and would otherwise generate warnings
+#  else
+#    define EZ_FASTCALL
 #  endif
 #  define EZ_NO_INLINE __attribute__((noinline))
 #else

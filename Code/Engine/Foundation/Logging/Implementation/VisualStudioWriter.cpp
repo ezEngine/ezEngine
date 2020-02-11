@@ -4,10 +4,13 @@
 #include <Foundation/Strings/StringConversion.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 
 void ezLogWriter::VisualStudio::LogMessageHandler(const ezLoggingEventData& eventData)
 {
+  if (eventData.m_EventType == ezLogMsgType::Flush)
+    return;
+
   static ezMutex WriterLock; // will only be created if this writer is used at all
   EZ_LOCK(WriterLock);
 
@@ -25,42 +28,51 @@ void ezLogWriter::VisualStudio::LogMessageHandler(const ezLoggingEventData& even
       ezStringUtils::snprintf(sz, 1024, "+++++ %s (%s) +++++\n", eventData.m_szText, eventData.m_szTag);
       OutputDebugStringW(ezStringWChar(sz).GetData());
       break;
+
     case ezLogMsgType::EndGroup:
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+#  if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
       ezStringUtils::snprintf(sz, 1024, "----- %s (%.6f sec) -----\n\n", eventData.m_szText, eventData.m_fSeconds);
-#else
+#  else
       ezStringUtils::snprintf(sz, 1024, "----- %s (%s) -----\n\n", eventData.m_szText, "timing info not available");
-#endif
+#  endif
       OutputDebugStringW(ezStringWChar(sz).GetData());
       break;
+
     case ezLogMsgType::ErrorMsg:
       ezStringUtils::snprintf(sz, 1024, "Error: %s\n", eventData.m_szText);
       OutputDebugStringW(ezStringWChar(sz).GetData());
       break;
+
     case ezLogMsgType::SeriousWarningMsg:
       ezStringUtils::snprintf(sz, 1024, "Seriously: %s\n", eventData.m_szText);
       OutputDebugStringW(ezStringWChar(sz).GetData());
       break;
+
     case ezLogMsgType::WarningMsg:
       ezStringUtils::snprintf(sz, 1024, "Warning: %s\n", eventData.m_szText);
       OutputDebugStringW(ezStringWChar(sz).GetData());
       break;
+
     case ezLogMsgType::SuccessMsg:
       ezStringUtils::snprintf(sz, 1024, "%s\n", eventData.m_szText);
       OutputDebugStringW(ezStringWChar(sz).GetData());
       break;
+
     case ezLogMsgType::InfoMsg:
       ezStringUtils::snprintf(sz, 1024, "%s\n", eventData.m_szText);
       OutputDebugStringW(ezStringWChar(sz).GetData());
       break;
+
     case ezLogMsgType::DevMsg:
       ezStringUtils::snprintf(sz, 1024, "%s\n", eventData.m_szText);
       OutputDebugStringW(ezStringWChar(sz).GetData());
       break;
+
     case ezLogMsgType::DebugMsg:
       ezStringUtils::snprintf(sz, 1024, "%s\n", eventData.m_szText);
       OutputDebugStringW(ezStringWChar(sz).GetData());
       break;
+
     default:
       ezStringUtils::snprintf(sz, 1024, "%s\n", eventData.m_szText);
       OutputDebugStringW(ezStringWChar(sz).GetData());
@@ -81,4 +93,3 @@ void ezLogWriter::VisualStudio::LogMessageHandler(const ezLoggingEventData& even
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Logging_Implementation_VisualStudioWriter);
-

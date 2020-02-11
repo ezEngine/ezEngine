@@ -54,7 +54,7 @@ void ezMathExpression::Reset(const char* szExpressionString)
 
 double ezMathExpression::Evaluate(const ezDelegate<double(const ezStringView&)>& variableResolveFunction) const
 {
-  static const double errorOutput = ezMath::BasicType<double>::GetNaN();
+  static const double errorOutput = ezMath::NaN<double>();
 
   if (!IsValid() || m_InstructionStream.IsEmpty())
   {
@@ -100,6 +100,9 @@ double ezMathExpression::Evaluate(const ezDelegate<double(const ezStringView&)>&
             break;
           case InstructionType::Divide:
             evaluationStack.PeekBack() = operand0 / operand1;
+            break;
+
+          default:
             break;
         }
       }

@@ -3,23 +3,18 @@
 
 #include <Foundation/Threading/AtomicUtils.h>
 
-/// \brief Base class for reference counted objects.
-class EZ_FOUNDATION_DLL ezRefCounted
+class EZ_FOUNDATION_DLL ezRefCountingImpl
 {
 public:
   /// \brief Constructor
-  ezRefCounted()
-      : m_iRefCount(0) // [tested]
-  {
-  }
+  ezRefCountingImpl() = default; // [tested]
 
-  ezRefCounted(const ezRefCounted& rhs)
-      : m_iRefCount(0) // [tested]
+  ezRefCountingImpl(const ezRefCountingImpl& rhs) // [tested]
   {
     // do not copy the ref count
   }
 
-  void operator=(const ezRefCounted& rhs) // [tested]
+  void operator=(const ezRefCountingImpl& rhs) // [tested]
   {
     // do not copy the ref count
   }
@@ -49,7 +44,15 @@ public:
   }
 
 private:
-  mutable ezInt32 m_iRefCount; ///< Stores the current reference count
+  mutable ezInt32 m_iRefCount = 0; ///< Stores the current reference count
+};
+
+/// \brief Base class for reference counted objects.
+class EZ_FOUNDATION_DLL ezRefCounted : public ezRefCountingImpl
+{
+public:
+  /// \brief Adds a virtual destructor.
+  virtual ~ezRefCounted() = default;
 };
 
 /// \brief Stores a pointer to a reference counted object and automatically increases / decreases the reference count.
@@ -63,13 +66,13 @@ class ezScopedRefPointer
 public:
   /// \brief Constructor.
   ezScopedRefPointer()
-      : m_pReferencedObject(nullptr)
+    : m_pReferencedObject(nullptr)
   {
   }
 
   /// \brief Constructor, increases the ref count of the given object.
   ezScopedRefPointer(T* pReferencedObject)
-      : m_pReferencedObject(pReferencedObject)
+    : m_pReferencedObject(pReferencedObject)
   {
     AddReferenceIfValid();
   }
@@ -161,4 +164,3 @@ class ezRefCountedContainer : public ezRefCounted
 public:
   TYPE m_Content;
 };
-

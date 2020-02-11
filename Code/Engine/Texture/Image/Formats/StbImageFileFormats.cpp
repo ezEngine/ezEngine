@@ -163,7 +163,7 @@ ezResult ezStbImageFileFormats::WriteImage(
   if (ezStringUtils::IsEqual_NoCase(szFileExtension, "png"))
   {
     if (stbi_write_png_to_func(write_func, &stream, image.GetWidth(), image.GetHeight(),
-          ezImageFormat::GetNumChannels(image.GetImageFormat()), image.GetBlobPtr<void>().GetPtr(), 0))
+          ezImageFormat::GetNumChannels(image.GetImageFormat()), image.GetByteBlobPtr().GetPtr(), 0))
     {
       return EZ_SUCCESS;
     }
@@ -172,7 +172,7 @@ ezResult ezStbImageFileFormats::WriteImage(
   if (ezStringUtils::IsEqual_NoCase(szFileExtension, "jpg") || ezStringUtils::IsEqual_NoCase(szFileExtension, "jpeg"))
   {
     if (stbi_write_jpg_to_func(write_func, &stream, image.GetWidth(), image.GetHeight(),
-          ezImageFormat::GetNumChannels(image.GetImageFormat()), image.GetBlobPtr<void>().GetPtr(), 95))
+          ezImageFormat::GetNumChannels(image.GetImageFormat()), image.GetByteBlobPtr().GetPtr(), 95))
     {
       return EZ_SUCCESS;
     }

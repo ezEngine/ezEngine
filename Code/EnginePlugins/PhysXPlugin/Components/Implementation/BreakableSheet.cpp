@@ -2,6 +2,7 @@
 
 #include <Core/Graphics/Geometry.h>
 #include <Core/Messages/CollisionMessage.h>
+#include <Core/Utils/WorldGeoExtractionUtil.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Profiling/Profiling.h>
@@ -13,7 +14,6 @@
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Meshes/SkinnedMeshComponent.h>
 #include <RendererFoundation/Device/Device.h>
-#include <Core/Utils/WorldGeoExtractionUtil.h>
 
 #define JC_VORONOI_IMPLEMENTATION
 #include <PhysXPlugin/ThirdParty/jc_voronoi.h>
@@ -69,21 +69,29 @@ EZ_BEGIN_COMPONENT_TYPE(ezBreakableSheetComponent, 1, ezComponentMode::Dynamic)
   EZ_END_MESSAGESENDERS
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
-    EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnExtractGeometry),
+    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMsgExtractGeometry, OnMsgExtractGeometry),
     EZ_MESSAGE_HANDLER(ezMsgCollision, OnCollision),
     EZ_MESSAGE_HANDLER(ezMsgPhysicsAddImpulse, AddImpulseAtPos),
   }
   EZ_END_MESSAGEHANDLERS;
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_SCRIPT_FUNCTION_PROPERTY(IsBroken),
+    EZ_SCRIPT_FUNCTION_PROPERTY(Break)
+  }
+  EZ_END_FUNCTIONS;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezBreakableSheetComponent::ezBreakableSheetComponent()
-    : m_UnbrokenUserData(this)
+  : m_UnbrokenUserData(this)
 {
   m_vExtents = ezVec3(m_fWidth, m_fThickness, m_fHeight);
 }
+
+ezBreakableSheetComponent::~ezBreakableSheetComponent() = default;
 
 void ezBreakableSheetComponent::Update()
 {
@@ -125,7 +133,7 @@ void ezBreakableSheetComponent::Update()
         }
         else
         {
-          Deactivate();
+          SetActiveFlag(false);
         }
       }
     }
@@ -196,7 +204,7 @@ ezResult ezBreakableSheetComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, 
   return EZ_FAILURE;
 }
 
-void ezBreakableSheetComponent::OnExtractGeometry(ezMsgExtractGeometry& msg) const
+void ezBreakableSheetComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
 {
   if (!m_bIncludeInNavmesh)
     return;
@@ -246,7 +254,7 @@ void ezBreakableSheetComponent::Deinitialize()
   Cleanup();
 }
 
-void ezBreakableSheetComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
+void ezBreakableSheetComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   if (!m_hUnbrokenMesh.IsValid())
     return;
@@ -336,7 +344,7 @@ void ezBreakableSheetComponent::OnCollision(ezMsgCollision& msg)
 
   if (fImpulse > m_fBreakImpulseStrength)
   {
-    Break();
+    BreakNow();
   }
 }
 
@@ -353,7 +361,7 @@ void ezBreakableSheetComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg)
       fakeMsg.m_vPosition = msg.m_vGlobalPosition;
       fakeMsg.m_vImpulse = msg.m_vImpulse;
 
-      Break(&fakeMsg);
+      BreakNow(&fakeMsg);
     }
   }
   else
@@ -365,9 +373,14 @@ void ezBreakableSheetComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg)
       EZ_PX_WRITE_LOCK(*pActor->getScene());
 
       PxRigidBodyExt::addForceAtPos(*pActor, ezPxConversionUtils::ToVec3(msg.m_vImpulse),
-                                    ezPxConversionUtils::ToVec3(msg.m_vGlobalPosition), PxForceMode::eIMPULSE);
+        ezPxConversionUtils::ToVec3(msg.m_vGlobalPosition), PxForceMode::eIMPULSE);
     }
   }
+}
+
+void ezBreakableSheetComponent::Break()
+{
+  BreakNow(nullptr);
 }
 
 void ezBreakableSheetComponent::SetWidth(float fWidth)
@@ -552,7 +565,7 @@ ezMaterialResourceHandle ezBreakableSheetComponent::GetBrokenMaterial() const
   return m_hBrokenMaterial;
 }
 
-void ezBreakableSheetComponent::Break(const ezMsgCollision* pMessage /*= nullptr*/)
+void ezBreakableSheetComponent::BreakNow(const ezMsgCollision* pMessage /*= nullptr*/)
 {
   if (m_bBroken)
     return;
@@ -563,7 +576,7 @@ void ezBreakableSheetComponent::Break(const ezMsgCollision* pMessage /*= nullptr
 
   DestroyUnbrokenPhysicsObject();
   CreatePiecesPhysicsObjects(pMessage ? pMessage->m_vImpulse : ezVec3::ZeroVector(),
-                             pMessage ? pMessage->m_vPosition : ezVec3::ZeroVector());
+    pMessage ? pMessage->m_vPosition : GetOwner()->GetGlobalPosition());
 
   ezMsgBreakableSheetBroke msg;
 
@@ -589,7 +602,7 @@ void ezBreakableSheetComponent::CreateMeshes()
   {
     ezStringBuilder unbrokenMeshName;
     unbrokenMeshName.Format("ezBreakableSheetComponent_unbroken_{0}_{1}_{2}_{3}.createdAtRuntime.ezMesh", m_fWidth, m_fThickness, m_fHeight,
-                            m_bFixedBorder);
+      m_bFixedBorder);
 
     m_hUnbrokenMesh = ezResourceManager::GetExistingResource<ezMeshResource>(unbrokenMeshName);
 
@@ -613,7 +626,7 @@ void ezBreakableSheetComponent::CreateMeshes()
   {
     ezStringBuilder piecesMeshName;
     piecesMeshName.Format("ezBreakableSheetComponent_pieces_{0}_{1}_{2}_{3}_{4}_{5}.createdAtRuntime.ezMesh", m_fWidth, m_fThickness,
-                          m_fHeight, m_uiNumPieces, m_uiRandomSeedUsed, m_bFixedBorder);
+      m_fHeight, m_uiNumPieces, m_uiRandomSeedUsed, m_bFixedBorder);
 
     m_hPiecesMesh = ezResourceManager::GetExistingResource<ezMeshResource>(piecesMeshName);
 
@@ -742,29 +755,29 @@ void ezBreakableSheetComponent::CreateMeshes()
             // Front side
             ezUInt32 frontIdx[3];
             frontIdx[0] = g.AddVertex(ezVec3(site->p.x, fHalfThickness, site->p.y), ezVec3(0, 1, 0),
-                                      ezVec2((site->p.x + halfSize.x) * fInvWidth, (site->p.y + halfSize.z) * fInvHeight), ezColor::White,
-                                      iPieceMatrixIndex);
+              ezVec2((site->p.x + halfSize.x) * fInvWidth, (site->p.y + halfSize.z) * fInvHeight), ezColor::White,
+              iPieceMatrixIndex);
             frontIdx[1] = g.AddVertex(ezVec3(e->pos[0].x, fHalfThickness, e->pos[0].y), ezVec3(0, 1, 0),
-                                      ezVec2((e->pos[0].x + halfSize.x) * fInvWidth, (e->pos[0].y + halfSize.z) * fInvHeight),
-                                      ezColor::White, iPieceMatrixIndex);
+              ezVec2((e->pos[0].x + halfSize.x) * fInvWidth, (e->pos[0].y + halfSize.z) * fInvHeight),
+              ezColor::White, iPieceMatrixIndex);
             frontIdx[2] = g.AddVertex(ezVec3(e->pos[1].x, fHalfThickness, e->pos[1].y), ezVec3(0, 1, 0),
-                                      ezVec2((e->pos[1].x + halfSize.x) * fInvWidth, (e->pos[1].y + halfSize.z) * fInvHeight),
-                                      ezColor::White, iPieceMatrixIndex);
+              ezVec2((e->pos[1].x + halfSize.x) * fInvWidth, (e->pos[1].y + halfSize.z) * fInvHeight),
+              ezColor::White, iPieceMatrixIndex);
             g.AddPolygon(frontIdx, true);
 
             // Back side
             ezUInt32 backIdx[3];
             backIdx[0] = g.AddVertex(ezVec3(site->p.x, -fHalfThickness, site->p.y), ezVec3(0, -1, 0),
-                                     ezVec2(1.0f - ((site->p.x + halfSize.x) * fInvWidth), 1.0f - ((site->p.y + halfSize.z) * fInvHeight)),
-                                     ezColor::White, iPieceMatrixIndex);
+              ezVec2(1.0f - ((site->p.x + halfSize.x) * fInvWidth), 1.0f - ((site->p.y + halfSize.z) * fInvHeight)),
+              ezColor::White, iPieceMatrixIndex);
             backIdx[1] =
-                g.AddVertex(ezVec3(e->pos[0].x, -fHalfThickness, e->pos[0].y), ezVec3(0, -1, 0),
-                            ezVec2(1.0f - ((e->pos[0].x + halfSize.x) * fInvWidth), 1.0f - ((e->pos[0].y + halfSize.z) * fInvHeight)),
-                            ezColor::White, iPieceMatrixIndex);
+              g.AddVertex(ezVec3(e->pos[0].x, -fHalfThickness, e->pos[0].y), ezVec3(0, -1, 0),
+                ezVec2(1.0f - ((e->pos[0].x + halfSize.x) * fInvWidth), 1.0f - ((e->pos[0].y + halfSize.z) * fInvHeight)),
+                ezColor::White, iPieceMatrixIndex);
             backIdx[2] =
-                g.AddVertex(ezVec3(e->pos[1].x, -fHalfThickness, e->pos[1].y), ezVec3(0, -1, 0),
-                            ezVec2(1.0f - ((e->pos[1].x + halfSize.x) * fInvWidth), 1.0f - ((e->pos[1].y + halfSize.z) * fInvHeight)),
-                            ezColor::White, iPieceMatrixIndex);
+              g.AddVertex(ezVec3(e->pos[1].x, -fHalfThickness, e->pos[1].y), ezVec3(0, -1, 0),
+                ezVec2(1.0f - ((e->pos[1].x + halfSize.x) * fInvWidth), 1.0f - ((e->pos[1].y + halfSize.z) * fInvHeight)),
+                ezColor::White, iPieceMatrixIndex);
             g.AddPolygon(backIdx, false);
 
             // Add skirt connecting front and back side
@@ -824,7 +837,7 @@ void ezBreakableSheetComponent::CreateMeshes()
   BufferDesc.m_ResourceAccess.m_bImmutable = false;
 
   m_hPieceTransformsBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(
-      BufferDesc, ezArrayPtr<ezUInt8>(reinterpret_cast<ezUInt8*>(m_PieceTransforms.GetData()), BufferDesc.m_uiTotalSize));
+    BufferDesc, ezArrayPtr<ezUInt8>(reinterpret_cast<ezUInt8*>(m_PieceTransforms.GetData()), BufferDesc.m_uiTotalSize));
   if (m_hPieceTransformsBuffer.IsInvalidated())
   {
     ezLog::Warning("Couldn't allocate buffer for piece transforms of breakable sheet.");
@@ -832,7 +845,7 @@ void ezBreakableSheetComponent::CreateMeshes()
 }
 
 void ezBreakableSheetComponent::AddSkirtPolygons(ezVec2 Point0, ezVec2 Point1, float fHalfThickness, ezInt32 iPieceMatrixIndex,
-                                                 ezGeometry& Geometry) const
+  ezGeometry& Geometry) const
 {
   const float fSpanX = ezMath::Abs(Point0.x - Point1.x);
   const float fSpanY = ezMath::Abs(Point0.y - Point1.y);
@@ -867,7 +880,7 @@ void ezBreakableSheetComponent::AddSkirtPolygons(ezVec2 Point0, ezVec2 Point1, f
 }
 
 void ezBreakableSheetComponent::BuildMeshResourceFromGeometry(ezGeometry& Geometry, ezMeshResourceDescriptor& MeshDesc,
-                                                              bool bWithSkinningData) const
+  bool bWithSkinningData) const
 {
   Geometry.ComputeFaceNormals();
   Geometry.ComputeTangents();
@@ -1054,6 +1067,8 @@ void ezBreakableSheetComponent::CreatePiecesPhysicsObjects(ezVec3 vImpulse, ezVe
   ezRandom r;
   r.Initialize(0);
 
+  EZ_PX_WRITE_LOCK(*(pModule->GetPxScene()));
+
   for (ezUInt32 i = 0; i < m_PieceActors.GetCount(); ++i)
   {
     // We don't create a dynamic actor for the border
@@ -1107,23 +1122,17 @@ void ezBreakableSheetComponent::CreatePiecesPhysicsObjects(ezVec3 vImpulse, ezVe
     pActor->setRigidBodyFlag(PxRigidBodyFlag::eKINEMATIC, false);
 
     m_PieceActors[i] = pActor;
-    const float fExtentsLength = m_vExtents.GetLength();
-    const float fImpulseStrength = vImpulse.GetLength();
     {
-      EZ_PX_WRITE_LOCK(*(pModule->GetPxScene()));
       pModule->GetPxScene()->addActor(*pActor);
 
       // Add initial impulse
       {
-        const ezVec3 BoundingBoxCenter = m_PieceBoundingBoxes[i].GetCenter();
-        ezVec3 vec(BoundingBoxCenter - vPointOfBreakage);
-        float fStrength = static_cast<float>(r.DoubleMinMax(0.5, 1.0));
+        const float fStrength = static_cast<float>(r.DoubleMinMax(0.5, 1.0));
 
-        ezVec3 modifiedImpulse = vImpulse;
-        modifiedImpulse.SetLength(fImpulseStrength * fStrength);
+        const ezVec3 modifiedImpulse = vImpulse * fStrength;
 
-        PxRigidBodyExt::addForceAtPos(*pActor, ezPxConversionUtils::ToVec3(modifiedImpulse), ezPxConversionUtils::ToVec3(BoundingBoxCenter),
-                                      PxForceMode::eIMPULSE);
+        PxRigidBodyExt::addForceAtPos(*pActor, ezPxConversionUtils::ToVec3(modifiedImpulse), ezPxConversionUtils::ToVec3(vPointOfBreakage),
+          PxForceMode::eIMPULSE);
       }
     }
   }
@@ -1131,16 +1140,20 @@ void ezBreakableSheetComponent::CreatePiecesPhysicsObjects(ezVec3 vImpulse, ezVe
 
 void ezBreakableSheetComponent::DestroyPiecesPhysicsObjects()
 {
-  for (auto pActor : m_PieceActors)
+  ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
+
   {
-    if (pActor)
+    EZ_PX_WRITE_LOCK(*(pModule->GetPxScene()));
+
+    for (auto pActor : m_PieceActors)
     {
-      EZ_PX_WRITE_LOCK(*(pActor->getScene()));
-      pActor->release();
+      if (pActor)
+      {
+        pActor->release();
+      }
     }
   }
 
-  ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
   for (ezUInt32 uiShapeId : m_PieceShapeIds)
   {
     pModule->DeleteShapeId(uiShapeId);

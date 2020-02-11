@@ -41,7 +41,7 @@ ezCollectionAssetDocument::ezCollectionAssetDocument(const char* szDocumentPath)
 }
 
 ezStatus ezCollectionAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-                                                           const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+                                                           const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   const ezCollectionAssetData* pProp = GetProperties();
 
@@ -63,7 +63,7 @@ ezStatus ezCollectionAssetDocument::InternalTransformAsset(ezStreamWriter& strea
 
     entry.m_sOptionalNiceLookupName = e.m_sLookupName;
     entry.m_sResourceID = e.m_sRedirectionAsset;
-    entry.m_sAssetTypeName = pInfo->m_Data.m_sAssetTypeName;
+    entry.m_sAssetTypeName = pInfo->m_Data.m_sSubAssetsDocumentTypeName;
 
     desc.m_Resources.PushBack(entry);
   }

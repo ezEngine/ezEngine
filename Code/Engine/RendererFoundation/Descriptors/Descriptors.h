@@ -110,6 +110,7 @@ struct ezGALRasterizerStateCreationDescription : public ezHashableStruct<ezGALRa
   bool m_bFrontCounterClockwise;  ///< Sets which triangle winding order defines the 'front' of a triangle. If true, the front of a triangle
                                   ///< is the one where the vertices appear in counter clockwise order. Default is false
   bool m_bScissorTest;
+  bool m_bConservativeRasterization; ///< Whether conservative rasterization is enabled
 };
 
 struct ezGALSamplerStateCreationDescription : public ezHashableStruct<ezGALSamplerStateCreationDescription>
@@ -142,6 +143,12 @@ struct ezGALVertexAttributeSemantic
     Tangent,
     Color0,
     Color1,
+    Color2,
+    Color3,
+    Color4,
+    Color5,
+    Color6,
+    Color7,
     TexCoord0,
     TexCoord1,
     TexCoord2,

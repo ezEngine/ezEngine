@@ -1,9 +1,3 @@
-#ifdef EZ_OSTHREAD_WIN_INL_H_INCLUDED
-#error "This file must not be included twice."
-#endif
-
-#define EZ_OSTHREAD_WIN_INL_H_INCLUDED
-
 #include <Foundation/FoundationInternal.h>
 EZ_FOUNDATION_INTERNAL_HEADER
 
@@ -61,6 +55,8 @@ ezOSThread::ezOSThread(ezOSThreadEntryPoint pThreadEntryPoint, void* pUserData /
                        ezUInt32 uiStackSize /*= 128 * 1024*/)
 {
   s_iThreadCount.Increment();
+
+  EZ_ASSERT_ALWAYS(pThreadEntryPoint != nullptr, "Thread entry point is invalid.");
 
   m_Handle = CreateThread(nullptr, uiStackSize, pThreadEntryPoint, pUserData, CREATE_SUSPENDED, nullptr);
   EZ_ASSERT_RELEASE(m_Handle != INVALID_HANDLE_VALUE, "Thread creation failed!");

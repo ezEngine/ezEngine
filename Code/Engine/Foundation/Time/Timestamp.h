@@ -145,6 +145,12 @@ public:
   /// \brief Sets the day to the given value, will be clamped to valid range [1, 31].
   void SetDay(ezUInt8 uiDay); // [tested]
 
+  /// \brief Returns the currently set day of week.
+  ezUInt8 GetDayOfWeek() const;
+
+  /// \brief Sets the day of week to the given value, will be clamped to valid range [0, 6].
+  void SetDayOfWeek(ezUInt8 uiDayOfWeek);
+
   /// \brief Returns the currently set hour.
   ezUInt8 GetHour() const; // [tested]
 
@@ -178,6 +184,8 @@ private:
   ezUInt8 m_uiMonth;
   /// \brief The day of this date [1, 31].
   ezUInt8 m_uiDay;
+  /// \brief The day of week of this date [0, 6].
+  ezUInt8 m_uiDayOfWeek;
   /// \brief The hour of this date [0, 23].
   ezUInt8 m_uiHour;
   /// \brief The number of minutes of this date [0, 59].
@@ -188,5 +196,37 @@ private:
 
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezDateTime& arg);
 
-#include <Foundation/Time/Implementation/Timestamp_inl.h>
+struct ezArgDateTime
+{
+  enum FormattingFlags
+  {
+    ShowDate = EZ_BIT(0),
+    TextualDate = ShowDate | EZ_BIT(1),
+    ShowWeekday = EZ_BIT(2),
+    ShowTime = EZ_BIT(3),
+    ShowSeconds = ShowTime | EZ_BIT(4),
+    ShowMilliseconds = ShowSeconds | EZ_BIT(5),
+    ShowTimeZone = EZ_BIT(6),
 
+    Default = ShowDate | ShowSeconds,
+    DefaultTextual = TextualDate | ShowSeconds,
+  };
+
+  /// \brief Initialized a formatting object for an ezDateTime instance.
+  /// \param dateTime The ezDateTime instance to format.
+  /// \param bUseNames Indicates whether to use names for days of week and months (true)
+  ///        or a purely numerical representation (false).
+  /// \param bShowTimeZoneIndicator Whether to indicate the timezone of the ezDateTime object.
+  inline explicit ezArgDateTime(const ezDateTime& dateTime, ezUInt32 uiFormattingFlags = Default)
+    : m_Value(dateTime)
+    , m_uiFormattingFlags(uiFormattingFlags)
+  {
+  }
+
+  ezDateTime m_Value;
+  ezUInt32 m_uiFormattingFlags;
+};
+
+EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgDateTime& arg);
+
+#include <Foundation/Time/Implementation/Timestamp_inl.h>

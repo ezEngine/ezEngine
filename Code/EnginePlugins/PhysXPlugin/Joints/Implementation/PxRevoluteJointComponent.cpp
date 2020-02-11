@@ -58,8 +58,7 @@ void ezPxRevoluteJointComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fDriveVelocity;
 }
 
-PxJoint* ezPxRevoluteJointComponent::CreateJointType(PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1,
-                                                     const PxTransform& localFrame1)
+PxJoint* ezPxRevoluteJointComponent::CreateJointType(PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
 {
   PxRevoluteJoint* pJoint = PxRevoluteJointCreate(*(ezPhysX::GetSingleton()->GetPhysXAPI()), actor0, localFrame0, actor1, localFrame1);
 
@@ -76,7 +75,7 @@ PxJoint* ezPxRevoluteJointComponent::CreateJointType(PxRigidActor* actor0, const
       if (low > high)
         ezMath::Swap(low, high);
 
-      const float range = ezMath::Min(high - low, 1.99f * ezMath::BasicType<float>::Pi());
+      const float range = ezMath::Min(high - low, 1.99f * ezMath::Pi<float>());
       high = low + range;
 
       PxJointAngularLimitPair limit(low, high);
@@ -96,4 +95,3 @@ PxJoint* ezPxRevoluteJointComponent::CreateJointType(PxRigidActor* actor0, const
 
   return pJoint;
 }
-

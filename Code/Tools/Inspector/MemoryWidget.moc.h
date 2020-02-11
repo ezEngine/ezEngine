@@ -1,17 +1,19 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/Time/Time.h>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
-#include <QDockWidget>
-#include <Tools/Inspector/ui_MemoryWidget.h>
+#include <Foundation/Time/Time.h>
 #include <QGraphicsView>
+#include <Tools/Inspector/ui_MemoryWidget.h>
+#include <ads/DockWidget.h>
+#include <QAction>
+#include <QPointer>
 
 class QTreeWidgetItem;
 
-class ezQtMemoryWidget : public QDockWidget, public Ui_MemoryWidget
+class ezQtMemoryWidget : public ads::CDockWidget, public Ui_MemoryWidget
 {
 public:
   Q_OBJECT
@@ -27,6 +29,9 @@ private Q_SLOTS:
 
   void on_ListAllocators_itemChanged(QTreeWidgetItem* item);
   void on_ComboTimeframe_currentIndexChanged(int index);
+  void on_actionEnableOnlyThis_triggered(bool);
+  void on_actionEnableAll_triggered(bool);
+  void on_actionDisableAll_triggered(bool);
 
 public:
   static void ProcessTelemetry(void* pUnuseed);
@@ -35,6 +40,7 @@ public:
   void UpdateStats();
 
 private:
+  void CustomContextMenuRequested(const QPoint& pos);
 
   QGraphicsPathItem* m_pPath[s_uiMaxColors];
   QGraphicsPathItem* m_pPathMax;
@@ -54,35 +60,20 @@ private:
     ezDeque<ezUInt64> m_UsedMemory;
     ezString m_sName;
 
-    bool m_bReceivedData;
-    bool m_bDisplay;
-    ezInt8 m_iColor;
-    ezUInt32 m_uiParentId;
-    ezUInt64 m_uiAllocs;
-    ezUInt64 m_uiDeallocs;
-    ezUInt64 m_uiLiveAllocs;
-    ezUInt64 m_uiMaxUsedMemoryRecently;
-    ezUInt64 m_uiMaxUsedMemory;
-    QTreeWidgetItem* m_pTreeItem;
-
-    AllocatorData()
-    {
-      m_bReceivedData = false;
-      m_bDisplay = true;
-      m_iColor = -1;
-      m_uiParentId = ezInvalidIndex;
-      m_uiAllocs = 0;
-      m_uiDeallocs = 0;
-      m_uiLiveAllocs = 0;
-      m_uiMaxUsedMemoryRecently = 0;
-      m_uiMaxUsedMemory = 0;
-      m_pTreeItem = nullptr;
-    }
+    bool m_bStillInUse = true;
+    bool m_bReceivedData = false;
+    bool m_bDisplay = true;
+    ezInt8 m_iColor = -1;
+    ezUInt32 m_uiParentId = ezInvalidIndex;
+    ezUInt64 m_uiAllocs = 0;
+    ezUInt64 m_uiDeallocs = 0;
+    ezUInt64 m_uiLiveAllocs = 0;
+    ezUInt64 m_uiMaxUsedMemoryRecently = 0;
+    ezUInt64 m_uiMaxUsedMemory = 0;
+    QTreeWidgetItem* m_pTreeItem = nullptr;
   };
 
   AllocatorData m_Accu;
 
   ezMap<ezUInt32, AllocatorData> m_AllocatorData;
 };
-
-

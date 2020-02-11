@@ -35,6 +35,11 @@ public:
   /// Sends a kill command to all processes and then waits indefinitely for them to terminate.
   ezResult TerminateAll(ezInt32 iForcedExitCode = -2);
 
+  /// \brief Returns the container holding all processes of this group.
+  ///
+  /// This can be used to query per-process information such as exit codes.
+  const ezHybridArray<ezProcess, 8>& GetProcesses() const;
+
 private:
   ezUniquePtr<struct ezProcessGroupImpl> m_impl;
 

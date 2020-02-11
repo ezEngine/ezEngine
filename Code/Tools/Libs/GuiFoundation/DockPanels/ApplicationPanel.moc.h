@@ -3,12 +3,12 @@
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
-#include <QDockWidget>
+#include <ads/DockWidget.h>
 
 class ezQtContainerWindow;
 
 /// \brief Base class for all panels that are supposed to be application wide (not tied to some document).
-class EZ_GUIFOUNDATION_DLL ezQtApplicationPanel : public QDockWidget
+class EZ_GUIFOUNDATION_DLL ezQtApplicationPanel : public ads::CDockWidget
 {
 public:
   Q_OBJECT

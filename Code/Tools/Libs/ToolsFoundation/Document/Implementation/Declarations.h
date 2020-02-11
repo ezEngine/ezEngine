@@ -33,7 +33,7 @@ struct EZ_TOOLSFOUNDATION_DLL ezDocumentTypeDescriptor
 {
   ezString m_sFileExtension;
   ezString m_sDocumentTypeName;
-  bool m_bCanCreate = false;
+  bool m_bCanCreate = true;
   ezString m_sIcon;
   const ezRTTI* m_pDocumentType = nullptr;
   ezDocumentManager* m_pManager = nullptr;

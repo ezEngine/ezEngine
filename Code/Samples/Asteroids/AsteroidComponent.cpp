@@ -7,8 +7,8 @@
 EZ_BEGIN_COMPONENT_TYPE(AsteroidComponent, 1, ezComponentMode::Dynamic);
 EZ_END_COMPONENT_TYPE
 
-ezCVarFloat CVar_AsteroidMaxDist("g_AsteroidMaxDist", 4.0f, ezCVarFlags::Default, "");
-ezCVarFloat CVar_AsteroidPush("g_AsteroidPush", 0.06f, ezCVarFlags::Default, "");
+ezCVarFloat CVar_AsteroidMaxDist("g_AsteroidMaxDist", 4.0f, ezCVarFlags::Default, "The radius at which an asteroid pushes ships away.");
+ezCVarFloat CVar_AsteroidPush("g_AsteroidPush", 0.06f, ezCVarFlags::Default, "The strength with which an asteroid pushes a ship away.");
 
 AsteroidComponent::AsteroidComponent()
 {

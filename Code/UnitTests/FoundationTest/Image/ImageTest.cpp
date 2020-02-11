@@ -26,7 +26,6 @@ EZ_CREATE_SIMPLE_TEST(Image, Image)
 
   EZ_TEST_BOOL(ezOSFile::CreateDirectoryStructure(sWriteDir) == EZ_SUCCESS);
 
-  ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
   EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sReadDir, "ImageTest") == EZ_SUCCESS);
   EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sWriteDir, "ImageTest", "output", ezFileSystem::AllowWrites) == EZ_SUCCESS);
 

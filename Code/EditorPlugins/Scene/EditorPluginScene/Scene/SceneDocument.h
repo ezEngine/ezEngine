@@ -24,9 +24,6 @@ public:
   ezSceneDocument(const char* szDocumentPath, bool bIsPrefab);
   ~ezSceneDocument();
 
-  virtual const char* GetDocumentTypeDisplayString() const override;
-
-
   enum class ShowOrHide
   {
     Show,
@@ -144,7 +141,7 @@ public:
   void RestoreFavouriteCamera(ezUInt8 uiSlot);
 
   /// \brief Searches for an ezCameraComponent with the 'EditorShortcut' property set to \a uiSlot and moves the editor camera to that position.
-  ezResult JumpToLevelCamera(ezUInt8 uiSlot);
+  ezResult JumpToLevelCamera(ezUInt8 uiSlot, bool bImmediate);
 
   /// \brief Creates an object with an ezCameraComponent at the current editor camera position and sets the 'EditorShortcut' property to \a uiSlot.
   void CreateLevelCamera(ezUInt8 uiSlot);
@@ -154,7 +151,7 @@ public:
 protected:
   void SetGameMode(GameMode::Enum mode);
 
-  virtual void InitializeAfterLoading() override;
+  virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;
   virtual void UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, const char* szBasePrefab) override;
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
 
@@ -178,10 +175,8 @@ private:
 
   ezStatus RequestExportScene(const char* szTargetFile, const ezAssetFileHeader& header);
 
-  virtual const char* QueryAssetType() const override;
-
-  virtual ezStatus InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
-  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
+  virtual ezStatus InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
   ezStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 
   void SyncObjectHiddenState();

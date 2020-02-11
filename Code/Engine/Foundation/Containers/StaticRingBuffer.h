@@ -32,6 +32,9 @@ public:
   /// \brief Appends an element at the end of the ring-buffer. Asserts that CanAppend() is true.
   void PushBack(const T& element); // [tested]
 
+  /// \brief Appends an element at the end of the ring-buffer. Asserts that CanAppend() is true.
+  void PushBack(T&& element); // [tested]
+
   /// \brief Accesses the latest element in the ring-buffer.
   T& PeekBack(); // [tested]
 

@@ -30,8 +30,6 @@ public:
 
   static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
-  virtual const char* QueryAssetType() const override { return "Particle Effect"; }
-
   ezStatus WriteParticleEffectAsset(ezStreamWriter& stream, const ezPlatformProfile* pAssetProfile) const;
 
   void TriggerRestartEffect();
@@ -56,7 +54,7 @@ public:
 protected:
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-                                          const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
+                                          const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
   virtual ezStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 
 private:

@@ -4,7 +4,9 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/Preferences.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Types/ScopeExit.h>
 #include <GuiFoundation/Dialogs/ModifiedDocumentsDlg.moc.h>
+#include <GuiFoundation/UIServices/DynamicStringEnum.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 
 void UpdateInputDynamicEnumValues();
@@ -39,6 +41,8 @@ void ezQtEditorApp::SlotQueuedOpenProject(QString sProject)
 ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
 {
   EZ_PROFILE_SCOPE("CreateOrOpenProject");
+  m_bLoadingProjectInProgress = true;
+  EZ_SCOPE_EXIT(m_bLoadingProjectInProgress = false;);
 
   if (ezToolsProject::IsProjectOpen() && ezToolsProject::GetSingleton()->GetProjectFile() == szFile)
   {
@@ -77,8 +81,9 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
       // break;
 
       // range.BeginNextStep(doc.m_File);
-      OpenDocumentQueued(doc.m_File);
+      SlotQueuedOpenDocument(doc.m_File.GetData(), nullptr);
     }
+    ezQtContainerWindow::GetContainerWindow()->ScheduleRestoreWindowLayout();
   }
   return EZ_SUCCESS;
 }
@@ -94,6 +99,7 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
     case ezToolsProjectEvent::Type::ProjectOpened:
     {
       EZ_PROFILE_SCOPE("ProjectOpened");
+      ezDynamicStringEnum::s_RequestUnknownCallback = ezMakeDelegate(&ezQtEditorApp::OnDemandDynamicStringEnumLoad, this);
       LoadProjectPreferences();
       SetupDataDirectories();
       ReadEnginePluginConfig();
@@ -123,20 +129,12 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
 
       s_RecentProjects.Insert(ezToolsProject::GetSingleton()->GetProjectFile(), 0);
 
-      // make sure preferences are saved, this is important when the project was just created
-      // however, if we switch to an existing project, no documents are yet open and saving the preferences now
-      // would then store that "no documents were open", so don't save stuff right away in the regular case
+      // Make sure preferences are saved, this is important when the project was just created.
       if (m_bSavePreferencesAfterOpenProject)
       {
         m_bSavePreferencesAfterOpenProject = false;
         SaveSettings();
       }
-      else
-      {
-        // instead, save the settings after a short delay, by then all documents should have been opened
-        QTimer::singleShot(1000, this, SLOT(SlotSaveSettings()));
-      }
-
       break;
     }
 
@@ -166,6 +164,15 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
 
       ezPreferences::ClearProjectPreferences();
 
+      // remove all dynamic enums that were dynamically loaded from the project directory
+      {
+        for (const auto& val : m_DynamicEnumStringsToClear)
+        {
+          ezDynamicStringEnum::RemoveEnum(val);
+        }
+        m_DynamicEnumStringsToClear.Clear();
+      }
+
       break;
     }
 
@@ -193,7 +200,7 @@ void ezQtEditorApp::ProjectRequestHandler(ezToolsProjectRequest& r)
       {
         for (ezDocumentManager* pMan : ezDocumentManager::GetAllDocumentManagers())
         {
-          for (ezDocument* pDoc : pMan->GetAllDocuments())
+          for (ezDocument* pDoc : pMan->GetAllOpenDocuments())
           {
             if (pDoc->IsModified())
               ModifiedDocs.PushBack(pDoc);

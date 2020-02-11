@@ -5,14 +5,16 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
-#include <Foundation/Utilities/ExceptionHandler.h>
-#include <Foundation/Utilities/StackTracer.h>
+#include <Foundation/System/CrashHandler.h>
+#include <Foundation/System/StackTracer.h>
+#include <Foundation/Threading/ThreadUtils.h>
+#include <Foundation/Types/ScopeExit.h>
+#include <Foundation/Logging/Log.h>
 #include <TestFramework/Utilities/TestOrder.h>
-#include <Texture/Image/Image.h>
-#include <Texture/Image/ImageConversion.h>
-#include <Texture/Image/ImageUtils.h>
 
 #include <cstdlib>
+#include <stdexcept>
+#include <stdlib.h>
 
 #ifdef EZ_TESTFRAMEWORK_USE_FILESERVE
 #  include <FileservePlugin/Client/FileserveClient.h>
@@ -27,18 +29,9 @@ ezTestFramework* ezTestFramework::s_pInstance = nullptr;
 const char* ezTestFramework::s_szTestBlockName = "";
 int ezTestFramework::s_iAssertCounter = 0;
 bool ezTestFramework::s_bCallstackOnAssert = false;
+ezLog::TimestampMode ezTestFramework::s_LogTimestampMode = ezLog::TimestampMode::None;
 
 constexpr int s_iMaxErrorMessageLength = 512;
-
-static void PrintCallstack(const char* szText)
-{
-  printf("%s", szText);
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  OutputDebugStringW(ezStringWChar(szText).GetData());
-#endif
-  fflush(stdout);
-  fflush(stderr);
-};
 
 static bool TestAssertHandler(
   const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
@@ -48,21 +41,18 @@ static bool TestAssertHandler(
     void* pBuffer[64];
     ezArrayPtr<void*> tempTrace(pBuffer);
     const ezUInt32 uiNumTraces = ezStackTracer::GetStackTrace(tempTrace, nullptr);
-    ezStackTracer::ResolveStackTrace(tempTrace.GetSubArray(0, uiNumTraces), &PrintCallstack);
+    ezStackTracer::ResolveStackTrace(tempTrace.GetSubArray(0, uiNumTraces), &ezLog::Print);
   }
+
   ezTestFramework::Error(szExpression, szSourceFile, (ezInt32)uiLine, szFunction, szAssertMsg);
 
   // if a debugger is attached, one typically always wants to know about asserts
   if (ezSystemInformation::IsDebuggerAttached())
     return true;
 
-  return ezTestFramework::GetAssertOnTestFail();
-}
+  ezTestFramework::GetInstance()->AbortTests();
 
-static bool EmptyAssertHandler(
-  const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
-{
-  return false;
+  return ezTestFramework::GetAssertOnTestFail();
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -100,8 +90,15 @@ void ezTestFramework::Initialize()
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
     // Not supported
 #else
-    putenv("EZ_SILENT_ASSERTS=1");
+    /// \todo Need a platform abstraction for setting/retrieving environmment variables
+    setenv("EZ_SILENT_ASSERTS", "1", 1);
 #endif
+  }
+
+  if (m_Settings.m_bShowTimestampsInLog)
+  {
+    ezTestFramework::s_LogTimestampMode = ezLog::TimestampMode::TimeOnly;
+    ezLogWriter::Console::SetTimestampMode(ezLog::TimestampMode::TimeOnly);
   }
 
   // Don't do this, it will spam the log with sub-system messages
@@ -110,6 +107,7 @@ void ezTestFramework::Initialize()
 
   ezStartup::AddApplicationTag("testframework");
   ezStartup::StartupCoreSystems();
+  EZ_SCOPE_EXIT(ezStartup::ShutdownCoreSystems());
 
   // if tests need to write data back through Fileserve (e.g. image comparison results), they can do that through a data dir mounted with
   // this path
@@ -226,7 +224,7 @@ void ezTestFramework::GatherAllTests()
     ezTestEntry e;
     e.m_pTest = pTestClass;
     e.m_szTestName = pTestClass->GetTestName();
-    e.m_available = pTestClass->IsTestAvailable();
+    e.m_sNotAvailableReason = pTestClass->IsTestAvailable();
 
     for (ezUInt32 i = 0; i < pTestClass->m_Entries.size(); ++i)
     {
@@ -258,9 +256,11 @@ void ezTestFramework::GetTestSettingsFromCommandLine(int argc, const char** argv
   m_Settings.m_bNoGUI = cmd.GetBoolOption("-nogui", false);
 
   m_Settings.m_bAssertOnTestFail = cmd.GetBoolOption("-assert", m_Settings.m_bAssertOnTestFail);
-  m_Settings.m_bOpenHtmlOutput = cmd.GetBoolOption("-html", m_Settings.m_bOpenHtmlOutput);
+  m_Settings.m_bOpenHtmlOutputOnError = cmd.GetBoolOption("-html", m_Settings.m_bOpenHtmlOutputOnError);
   m_Settings.m_bKeepConsoleOpen = cmd.GetBoolOption("-console", m_Settings.m_bKeepConsoleOpen);
+  m_Settings.m_bShowTimestampsInLog = cmd.GetBoolOption("-timestamps", m_Settings.m_bShowTimestampsInLog);
   m_Settings.m_bShowMessageBox = cmd.GetBoolOption("-msgbox", m_Settings.m_bShowMessageBox);
+  m_Settings.m_bAutoDisableSuccessfulTests = cmd.GetBoolOption("-disableSuccessful", m_Settings.m_bAutoDisableSuccessfulTests);
   m_Settings.m_iRevision = cmd.GetIntOption("-rev", -1);
   m_Settings.m_bEnableAllTests = cmd.GetBoolOption("-all", false);
   m_Settings.m_uiFullPasses = cmd.GetIntOption("-passes", 1, false);
@@ -353,9 +353,7 @@ void ezTestFramework::SetAllFailedTestsEnabledStatus()
 
 void ezTestFramework::SetTestTimeout(ezUInt32 testTimeoutMS)
 {
-  std::scoped_lock lock(m_timeoutLock);
   m_timeoutMS = testTimeoutMS;
-  m_timeoutCV.notify_one();
 }
 
 void ezTestFramework::TimeoutThread()
@@ -371,7 +369,7 @@ void ezTestFramework::TimeoutThread()
     // We want to be notified when we reach the timeout and not when we are spuriously woken up.
     // Thus we continue waiting via the predicate if we are still using a timeout until we are either
     // woken up via the CV or reach the timeout.
-    else if (!m_timeoutCV.wait_for(lock, std::chrono::milliseconds(m_timeoutMS), [this] { return !m_useTimeout; }))
+    else if (!m_timeoutCV.wait_for(lock, std::chrono::milliseconds(m_timeoutMS), [this] { return !m_useTimeout || m_reArm; }))
     {
       if (ezSystemInformation::IsDebuggerAttached())
       {
@@ -381,19 +379,22 @@ void ezTestFramework::TimeoutThread()
 
       // CV was not signaled until the timeout was reached.
       ezTestFramework::Output(ezTestOutput::Error, "Timeout reached, terminating app.");
-
-      ezExceptionHandler::WriteDump();
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-      // Make sure that Windows doesn't show a default message box when we call abort
-      _set_abort_behavior(0, _WRITE_ABORT_MSG);
-#endif
-      // The OS will still call destructors for our objects (even though we called abort ... what a pointless design).
-      // Our code might assert on destruction, so make sure our assert handler doesn't show anything.
-      ezSetAssertHandler(EmptyAssertHandler);
-      abort();
+      // The top level exception handler takes care of all the shutdown logic already (app specific logic, crash dump, callstack etc)
+      // which we do not want to duplicate here so we simply throw an unhandled exception.
+      throw new std::runtime_error("Timeout reached, terminating app.");
     }
+    m_reArm = false;
   }
+}
+
+
+void ezTestFramework::UpdateTestTimeout()
+{
+  {
+    std::scoped_lock<std::mutex> lock(m_timeoutLock);
+    m_reArm = true;
+  }
+  m_timeoutCV.notify_one();
 }
 
 void ezTestFramework::ResetTests()
@@ -486,6 +487,7 @@ void ezTestFramework::StartTests()
   // Start timeout thread.
   std::scoped_lock lock(m_timeoutLock);
   m_useTimeout = true;
+  m_reArm = false;
   m_timeoutThread = std::thread(&ezTestFramework::TimeoutThread, this);
 }
 
@@ -560,18 +562,18 @@ void ezTestFramework::ExecuteNextTest()
       ezTestFramework::Output(ezTestOutput::BeginBlock, "Executing Test: '%s'", TestEntry.m_szTestName);
 
       // *** Test Initialization ***
-      if (TestEntry.m_available.Succeeded())
+      if (TestEntry.m_sNotAvailableReason.empty())
       {
-        m_timeoutCV.notify_one();
+        UpdateTestTimeout();
         if (pTestClass->DoTestInitialization().Failed())
         {
-          m_iExecutingSubTest = (ezInt32)TestEntry.m_SubTests.size(); // make sure all subtests are skipped
+          m_iExecutingSubTest = (ezInt32)TestEntry.m_SubTests.size(); // make sure all sub-tests are skipped
         }
       }
       else
       {
-        ezTestFramework::Output(ezTestOutput::ImportantInfo, "Test not available: %s", TestEntry.m_available.m_sMessage.GetData());
-        m_iExecutingSubTest = (ezInt32)TestEntry.m_SubTests.size(); // make sure all subtests are skipped
+        ezTestFramework::Output(ezTestOutput::ImportantInfo, "Test not available: %s", TestEntry.m_sNotAvailableReason.c_str());
+        m_iExecutingSubTest = (ezInt32)TestEntry.m_SubTests.size(); // make sure all sub-tests are skipped
       }
     }
 
@@ -606,7 +608,7 @@ void ezTestFramework::ExecuteNextTest()
         ezTestFramework::Output(ezTestOutput::BeginBlock, "Executing Sub-Test: '%s'", subTest.m_szSubTestName);
 
         // *** Sub-Test Initialization ***
-        m_timeoutCV.notify_one();
+        UpdateTestTimeout();
         m_bSubTestInitialized = pTestClass->DoSubTestInitialization(iSubTestIdentifier).Succeeded();
       }
 
@@ -620,8 +622,9 @@ void ezTestFramework::ExecuteNextTest()
         // start with 1
         ++m_uiSubTestInvocationCount;
 
-        m_timeoutCV.notify_one();
+        UpdateTestTimeout();
         subTestResult = pTestClass->DoSubTestRun(iSubTestIdentifier, fDuration, m_uiSubTestInvocationCount);
+        s_szTestBlockName = "";
 
         if (m_bImageComparisonScheduled)
         {
@@ -640,7 +643,7 @@ void ezTestFramework::ExecuteNextTest()
       if (subTestResult == ezTestAppRun::Quit)
       {
         // *** Sub-Test De-Initialization ***
-        m_timeoutCV.notify_one();
+        UpdateTestTimeout();
         pTestClass->DoSubTestDeInitialization(iSubTestIdentifier);
 
         bool bSubTestSuccess = m_bSubTestInitialized && (m_Result.GetErrorMessageCount(m_iExecutingTest, m_iExecutingSubTest) == 0);
@@ -659,10 +662,10 @@ void ezTestFramework::ExecuteNextTest()
       }
     }
 
-    if (m_iExecutingSubTest >= (ezInt32)TestEntry.m_SubTests.size())
+    if (m_bAbortTests || m_iExecutingSubTest >= (ezInt32)TestEntry.m_SubTests.size())
     {
       // *** Test De-Initialization ***
-      m_timeoutCV.notify_one();
+      UpdateTestTimeout();
       pTestClass->DoTestDeInitialization();
       // Third and last flush of assert counter, these are all asserts for the test de-init.
       FlushAsserts();
@@ -740,10 +743,10 @@ ezUInt32 ezTestFramework::GetSubTestEnabledCount(ezUInt32 uiTestIndex) const
   return uiEnabledCount;
 }
 
-const ezStatus& ezTestFramework::IsTestAvailable(ezUInt32 uiTestIndex) const
+const std::string& ezTestFramework::IsTestAvailable(ezUInt32 uiTestIndex) const
 {
   EZ_ASSERT_DEV(uiTestIndex < GetTestCount(), "Test index {0} is larger than number of tests {1}.", uiTestIndex, GetTestCount());
-  return m_TestEntries[uiTestIndex].m_available;
+  return m_TestEntries[uiTestIndex].m_sNotAvailableReason;
 }
 
 bool ezTestFramework::IsTestEnabled(ezUInt32 uiTestIndex) const
@@ -837,6 +840,8 @@ static bool g_bBlockOutput = false;
 
 void ezTestFramework::OutputImpl(ezTestOutput::Enum Type, const char* szMsg)
 {
+  std::scoped_lock _(m_outputMutex);
+
   if (Type == ezTestOutput::Error)
   {
     m_iErrorCount++;
@@ -855,6 +860,8 @@ void ezTestFramework::OutputImpl(ezTestOutput::Enum Type, const char* szMsg)
 
 void ezTestFramework::ErrorImpl(const char* szError, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg)
 {
+  std::scoped_lock _(m_outputMutex);
+
   m_Result.TestError(
     m_iCurrentTestIndex, m_iCurrentSubTestIndex, szError, ezTestFramework::s_szTestBlockName, szFile, iLine, szFunction, szMsg);
 
@@ -870,7 +877,7 @@ void ezTestFramework::ErrorImpl(const char* szError, const char* szFile, ezInt32
     ezTestFramework::Output(ezTestOutput::ImportantInfo, "Function: %s", szFunction);
 
     if ((szMsg != nullptr) && (szMsg[0] != '\0'))
-      ezTestFramework::Output(ezTestOutput::Message, "Message: %s", szMsg);
+      ezTestFramework::Output(ezTestOutput::Message, "Error: %s", szMsg);
   }
   ezTestFramework::Output(ezTestOutput::EndBlock, "");
   g_bBlockOutput = false;
@@ -878,6 +885,8 @@ void ezTestFramework::ErrorImpl(const char* szError, const char* szFile, ezInt32
 
 void ezTestFramework::TestResultImpl(ezInt32 iSubTestIndex, bool bSuccess, double fDuration)
 {
+  std::scoped_lock _(m_outputMutex);
+
   m_Result.TestResult(m_iCurrentTestIndex, iSubTestIndex, bSuccess, fDuration);
 
   const ezUInt32 uiMin = (ezUInt32)(fDuration / 1000.0 / 60.0);
@@ -893,6 +902,12 @@ void ezTestFramework::TestResultImpl(ezInt32 iSubTestIndex, bool bSuccess, doubl
     {
       m_iTestsPassed++;
       ezTestFramework::Output(ezTestOutput::Success, "Test '%s' succeeded", szTestName);
+
+      if (GetSettings().m_bAutoDisableSuccessfulTests)
+      {
+        m_TestEntries[m_iCurrentTestIndex].m_bEnableTest = false;
+        ezTestFramework::AutoSaveTestOrder();
+      }
     }
     else
     {
@@ -907,6 +922,12 @@ void ezTestFramework::TestResultImpl(ezInt32 iSubTestIndex, bool bSuccess, doubl
     if (bSuccess)
     {
       ezTestFramework::Output(ezTestOutput::Success, "Sub-Test '%s' succeeded.", szSubTestName);
+
+      if (GetSettings().m_bAutoDisableSuccessfulTests)
+      {
+        m_TestEntries[m_iCurrentTestIndex].m_SubTests[iSubTestIndex].m_bEnableTest = false;
+        ezTestFramework::AutoSaveTestOrder();
+      }
     }
     else
     {
@@ -918,6 +939,7 @@ void ezTestFramework::TestResultImpl(ezInt32 iSubTestIndex, bool bSuccess, doubl
 
 void ezTestFramework::FlushAsserts()
 {
+  std::scoped_lock _(m_outputMutex);
   m_Result.AddAsserts(m_iCurrentTestIndex, m_iCurrentSubTestIndex, s_iAssertCounter);
   s_iAssertCounter = 0;
 }
@@ -933,9 +955,7 @@ void ezTestFramework::GenerateComparisonImageName(ezUInt32 uiImageNumber, ezStri
 {
   const char* szTestName = GetTest(GetCurrentTestIndex())->m_szTestName;
   const char* szSubTestName = GetTest(GetCurrentTestIndex())->m_SubTests[GetCurrentSubTestIndex()].m_szSubTestName;
-
-  sImgName.Format("{0}_{1}_{2}", szTestName, szSubTestName, ezArgI(uiImageNumber, 3, true));
-  sImgName.ReplaceAll(" ", "_");
+  GetTest(GetCurrentTestIndex())->m_pTest->MapImageNumberToString(szTestName, szSubTestName, uiImageNumber, sImgName);
 }
 
 void ezTestFramework::GetCurrentComparisonImageName(ezStringBuilder& sImgName)
@@ -951,6 +971,11 @@ void ezTestFramework::SetImageReferenceFolderName(const char* szFolderName)
 void ezTestFramework::SetImageReferenceOverrideFolderName(const char* szFolderName)
 {
   m_sImageReferenceOverrideFolderName = szFolderName;
+
+  if (!m_sImageReferenceOverrideFolderName.empty())
+  {
+    Output(ezTestOutput::Message, "Using ImageReference override folder '%s'", szFolderName);
+  }
 }
 
 static const ezUInt8 s_Base64EncodingTable[64] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
@@ -1261,7 +1286,7 @@ bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezI
     imgRgba.SaveTo(sImgPathResult);
 
     safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Comparison Image '%s' size (%ix%i) does not match captured image size (%ix%i)",
-      sImgPathReference.GetData(), imgRgba.GetWidth(), imgRgba.GetHeight(), imgExpRgba.GetWidth(), imgExpRgba.GetHeight());
+      sImgPathReference.GetData(), imgExpRgba.GetWidth(), imgExpRgba.GetHeight(), imgRgba.GetWidth(), imgRgba.GetHeight());
     return false;
   }
 
@@ -1306,7 +1331,7 @@ bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezI
     WriteImageDiffHtml(sDiffHtmlPath, imgExpRgb, imgExpAlpha, imgRgb, imgAlpha, imgDiffRgb, imgDiffAlpha, uiMeanError, uiMaxError,
       uiMinDiffRgb, uiMaxDiffRgb, uiMinDiffAlpha, uiMaxDiffAlpha);
 
-    safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Image Comparison Failed: Error of %u exceeds threshold of %u for image '%s'.",
+    safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Error: Image Comparison Failed: MSE of %u exceeds threshold of %u for image '%s'.",
       uiMeanError, uiMaxError, sImgName.GetData());
 
     ezStringBuilder sDataDirRelativePath;
@@ -1367,8 +1392,7 @@ void ezTestFramework::SetImageComparisonCallback(const ImageComparisonCallback& 
   m_ImageComparisonCallback = callback;
 }
 
-ezResult ezTestFramework::CaptureRegressionStat(ezStringView testName, ezStringView name, ezStringView unit,
-  float value, ezInt32 testId)
+ezResult ezTestFramework::CaptureRegressionStat(ezStringView testName, ezStringView name, ezStringView unit, float value, ezInt32 testId)
 {
   ezStringBuilder strippedTestName = testName;
   strippedTestName.ReplaceAll(" ", "");
@@ -1412,7 +1436,27 @@ void ezTestFramework::OutputArgs(ezTestOutput::Enum Type, const char* szMsg, va_
 {
   // format the output text
   char szBuffer[1024 * 10];
-  ezStringUtils::vsnprintf(szBuffer, EZ_ARRAY_SIZE(szBuffer), szMsg, args);
+  ezInt32 pos = 0;
+
+  if (ezTestFramework::s_LogTimestampMode != ezLog::TimestampMode::None)
+  {
+    if (Type == ezTestOutput::BeginBlock ||
+        Type == ezTestOutput::EndBlock ||
+        Type == ezTestOutput::ImportantInfo ||
+        Type == ezTestOutput::Details ||
+        Type == ezTestOutput::Success ||
+        Type == ezTestOutput::Message ||
+        Type == ezTestOutput::Warning ||
+        Type == ezTestOutput::Error ||
+        Type == ezTestOutput::FinalResult)
+    {
+      ezStringBuilder timestamp;
+
+      ezLog::GenerateFormattedTimestamp(ezTestFramework::s_LogTimestampMode, timestamp);
+      pos = ezStringUtils::snprintf(szBuffer, EZ_ARRAY_SIZE(szBuffer), "%s", timestamp.GetData());
+    }
+  }
+  ezStringUtils::vsnprintf(szBuffer + pos, EZ_ARRAY_SIZE(szBuffer) - pos, szMsg, args);
 
   GetInstance()->OutputImpl(Type, szBuffer);
 }
@@ -1461,6 +1505,19 @@ ezResult ezTestBool(
   ezTestFramework::s_iAssertCounter++;
 
   if (!bCondition)
+  {
+    // if the test breaks here, go one up in the callstack to see where it exactly failed
+    OUTPUT_TEST_ERROR
+  }
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezTestResult(ezResult bCondition, const char* szErrorText, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
+{
+  ezTestFramework::s_iAssertCounter++;
+
+  if (bCondition.Failed())
   {
     // if the test breaks here, go one up in the callstack to see where it exactly failed
     OUTPUT_TEST_ERROR

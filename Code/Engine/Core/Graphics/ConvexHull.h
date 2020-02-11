@@ -23,13 +23,16 @@ public:
   };
 
   ezConvexHullGenerator();
+  ~ezConvexHullGenerator();
 
   /// \brief Used to remove degenerate and unnecessary triangles that have corners with very little angle change.
   /// Ie. specifying 10 degree, means that all triangle corners must have at least a 10 degree change (and inner angle of 170 degree).
+  /// Default is 22 degree.
   void SetSimplificationMinTriangleAngle(ezAngle angle) { m_MinTriangleAngle = angle; }
 
   /// \brief Used to remove vertices that do not contribute much to the silhouette.
   /// Vertices whose adjacent triangle normals do not differ by more than angle, will be discarded.
+  /// Default is 5 degree.
   void SetSimplificationFlatVertexNormalThreshold(ezAngle angle) { m_FlatVertexNormalThreshold = angle; }
 
   /// \brief The minimum triangle edge length. Every edge shorter than this will be discarded and replaced by a single vertex at the
@@ -87,9 +90,9 @@ private:
   };
 
   // used for mesh simplification
-  ezAngle m_MinTriangleAngle;
-  ezAngle m_FlatVertexNormalThreshold;
-  double m_fMinTriangleEdgeLength;
+  ezAngle m_MinTriangleAngle = ezAngle::Degree(22.0f);
+  ezAngle m_FlatVertexNormalThreshold = ezAngle::Degree(5);
+  double m_fMinTriangleEdgeLength = 0.05;
 
   ezVec3d m_vCenter;
   double m_fScale;
@@ -107,4 +110,3 @@ private:
 
   ezDeque<Triangle> m_Triangles;
 };
-

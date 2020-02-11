@@ -111,7 +111,7 @@ QVariant ezQtLogModel::data(const QModelIndex& index, int role) const
     {
       return QString::fromUtf8(msg.m_sMsg.GetData());
     }
-    case Qt::TextColorRole:
+    case Qt::ForegroundRole:
     {
       switch (msg.m_Type)
       {

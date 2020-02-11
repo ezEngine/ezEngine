@@ -10,7 +10,6 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdNoise)
   ezStringBuilder sReadDir(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath());
   ezStringBuilder sWriteDir = ezTestFramework::GetInstance()->GetAbsOutputPath();
 
-  ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
   EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sReadDir, "SimdNoise") == EZ_SUCCESS);
   EZ_TEST_BOOL_MSG(ezFileSystem::AddDataDirectory(sWriteDir, "SimdNoise", "output", ezFileSystem::AllowWrites) == EZ_SUCCESS,
     "Failed to mount data dir '%s'", sWriteDir.GetData());
@@ -57,7 +56,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdNoise)
       }
 
       ezStringBuilder sOutFile;
-      sOutFile.Format(":output/SimdNoise/perlin_{}.tga", uiNumOctaves);
+      sOutFile.Format(":output/SimdNoise/result-perlin_{}.tga", uiNumOctaves);
 
       EZ_TEST_BOOL(image.SaveTo(sOutFile).Succeeded());
 

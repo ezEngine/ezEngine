@@ -1,5 +1,6 @@
 #include <TexturePCH.h>
 
+#include <Foundation/Reflection/ReflectionUtils.h>
 #include <Texture/Image/ImageUtils.h>
 #include <Texture/TexConv/TexConvProcessor.h>
 
@@ -38,17 +39,25 @@ ezResult ezTexConvProcessor::Process()
 
     EZ_SUCCEED_OR_RETURN(AdjustUsage(m_Descriptor.m_InputFiles[0], m_Descriptor.m_InputImages[0], m_Descriptor.m_Usage));
 
+    ezStringBuilder sUsage;
+    ezReflectionUtils::EnumerationToString(ezGetStaticRTTI<ezTexConvUsage>(), m_Descriptor.m_Usage.GetValue(), sUsage, ezReflectionUtils::EnumConversionMode::ValueNameOnly);
+    ezLog::Info("-usage is '{}'", sUsage);
+
     EZ_SUCCEED_OR_RETURN(ForceSRGBFormats());
 
     ezEnum<ezImageFormat> OutputImageFormat;
 
     EZ_SUCCEED_OR_RETURN(ChooseOutputFormat(OutputImageFormat, m_Descriptor.m_Usage, uiNumChannelsUsed));
 
+    ezLog::Info("Output image format is '{}'", ezImageFormat::GetName(OutputImageFormat));
+
     ezUInt32 uiTargetResolutionX = 0;
     ezUInt32 uiTargetResolutionY = 0;
 
     EZ_SUCCEED_OR_RETURN(
       DetermineTargetResolution(m_Descriptor.m_InputImages[0], OutputImageFormat, uiTargetResolutionX, uiTargetResolutionY));
+
+    ezLog::Info("Target resolution is '{} x {}'", uiTargetResolutionX, uiTargetResolutionY);
 
     EZ_SUCCEED_OR_RETURN(ConvertAndScaleInputImages(uiTargetResolutionX, uiTargetResolutionY));
 
@@ -64,6 +73,8 @@ ezResult ezTexConvProcessor::Process()
     if (m_Descriptor.m_OutputType == ezTexConvOutputType::Texture2D || m_Descriptor.m_OutputType == ezTexConvOutputType::None)
     {
       EZ_SUCCEED_OR_RETURN(Assemble2DTexture(m_Descriptor.m_InputImages[0].GetHeader(), assembledImg));
+
+      EZ_SUCCEED_OR_RETURN(DilateColor2D(assembledImg));
     }
     else if (m_Descriptor.m_OutputType == ezTexConvOutputType::Cubemap)
     {
@@ -76,7 +87,7 @@ ezResult ezTexConvProcessor::Process()
 
     EZ_SUCCEED_OR_RETURN(AdjustHdrExposure(assembledImg));
 
-    EZ_SUCCEED_OR_RETURN(GenerateMipmaps(assembledImg));
+    EZ_SUCCEED_OR_RETURN(GenerateMipmaps(assembledImg, uiNumChannelsUsed));
 
     EZ_SUCCEED_OR_RETURN(PremultiplyAlpha(assembledImg));
 

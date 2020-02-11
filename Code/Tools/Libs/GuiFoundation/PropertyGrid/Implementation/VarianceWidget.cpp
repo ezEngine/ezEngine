@@ -15,8 +15,8 @@ ezQtVarianceTypeWidget::ezQtVarianceTypeWidget()
   setLayout(m_pLayout);
 
   m_pValueWidget = new ezQtDoubleSpinBox(this);
-  m_pValueWidget->setMinimum(-ezMath::BasicType<double>::GetInfinity());
-  m_pValueWidget->setMaximum(ezMath::BasicType<double>::GetInfinity());
+  m_pValueWidget->setMinimum(-ezMath::Infinity<double>());
+  m_pValueWidget->setMaximum(ezMath::Infinity<double>());
   m_pValueWidget->setSingleStep(0.1f);
   m_pValueWidget->setAccelerated(true);
   m_pValueWidget->setDecimals(2);

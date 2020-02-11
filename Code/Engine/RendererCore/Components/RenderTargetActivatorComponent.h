@@ -12,37 +12,35 @@ class EZ_RENDERERCORE_DLL ezRenderTargetActivatorComponent : public ezRenderComp
 {
   EZ_DECLARE_COMPONENT_TYPE(ezRenderTargetActivatorComponent, ezRenderComponent, ezRenderTargetComponentManager);
 
-public:
-  ezRenderTargetActivatorComponent();
-  ~ezRenderTargetActivatorComponent();
-
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent Interface
+  // ezComponent
 public:
-
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
 
   //////////////////////////////////////////////////////////////////////////
-  // ezRenderComponent Interface
+  // ezRenderComponent
 
 public:
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
-  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
+
 
   //////////////////////////////////////////////////////////////////////////
-  // ezRenderTargetActivatorComponent Interface
+  // ezRenderTargetActivatorComponent
 
 public:
+  ezRenderTargetActivatorComponent();
+  ~ezRenderTargetActivatorComponent();
+
+  void SetRenderTargetFile(const char* szFile); // [ property ]
+  const char* GetRenderTargetFile() const;      // [ property ]
 
   void SetRenderTarget(const ezRenderToTexture2DResourceHandle& hResource);
   ezRenderToTexture2DResourceHandle GetRenderTarget() const { return m_hRenderTarget; }
 
-  void SetRenderTargetFile(const char* szFile);
-  const char* GetRenderTargetFile() const;
-
 private:
+  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
+
   ezRenderToTexture2DResourceHandle m_hRenderTarget;
 };
-

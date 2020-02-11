@@ -30,14 +30,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPxJointComponent, 2)
 EZ_END_ABSTRACT_COMPONENT_TYPE
 // clang-format on
 
-ezPxJointComponent::ezPxJointComponent()
-{
-  m_fBreakForce = 0.0f;
-  m_fBreakTorque = 0.0f;
-  m_bPairCollision = false;
-  m_pJoint = nullptr;
-}
-
+ezPxJointComponent::ezPxJointComponent() = default;
 ezPxJointComponent::~ezPxJointComponent() = default;
 
 void ezPxJointComponent::OnSimulationStarted()
@@ -60,8 +53,8 @@ void ezPxJointComponent::OnSimulationStarted()
   m_pJoint = CreateJointType(pActorA, tLocalToActorA, pActorB, tLocalToActorB);
   EZ_ASSERT_DEV(m_pJoint != nullptr, "Joint creation failed");
 
-  const float fBreakForce = m_fBreakForce <= 0.0f ? ezMath::BasicType<float>::MaxValue() : m_fBreakForce;
-  const float fBreakTorque = m_fBreakTorque <= 0.0f ? ezMath::BasicType<float>::MaxValue() : m_fBreakTorque;
+  const float fBreakForce = m_fBreakForce <= 0.0f ? ezMath::MaxValue<float>() : m_fBreakForce;
+  const float fBreakTorque = m_fBreakTorque <= 0.0f ? ezMath::MaxValue<float>() : m_fBreakTorque;
 
   m_pJoint->setBreakForce(fBreakForce, fBreakTorque);
   m_pJoint->setConstraintFlag(PxConstraintFlag::eCOLLISION_ENABLED, m_bPairCollision);
@@ -133,7 +126,7 @@ void ezPxJointComponent::SetParentActor(const char* szReference)
     return;
 
   SetUserFlag(0, false);
-  m_hActorA = resolver(szReference);
+  m_hActorA = resolver(szReference, GetHandle(), "ParentActor");
 }
 
 void ezPxJointComponent::SetChildActor(const char* szReference)
@@ -144,11 +137,10 @@ void ezPxJointComponent::SetChildActor(const char* szReference)
     return;
 
   SetUserFlag(1, false);
-  m_hActorB = resolver(szReference);
+  m_hActorB = resolver(szReference, GetHandle(), "ChildActor");
 }
 
-void ezPxJointComponent::SetActors(ezGameObjectHandle hActorA, const ezTransform& localFrameA, ezGameObjectHandle hActorB,
-  const ezTransform& localFrameB)
+void ezPxJointComponent::SetActors(ezGameObjectHandle hActorA, const ezTransform& localFrameA, ezGameObjectHandle hActorB, const ezTransform& localFrameB)
 {
   m_hActorA = hActorA;
   m_hActorB = hActorB;

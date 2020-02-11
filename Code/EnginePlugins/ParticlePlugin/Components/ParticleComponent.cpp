@@ -37,22 +37,24 @@ EZ_BEGIN_COMPONENT_TYPE(ezParticleComponent, 3, ezComponentMode::Static)
   EZ_END_ATTRIBUTES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgSetPlaying, OnSetPlaying),
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
-    EZ_MESSAGE_HANDLER(ezMsgDeleteGameObject, OnDeleteObject),
+    EZ_MESSAGE_HANDLER(ezMsgSetPlaying, OnMsgSetPlaying),
+    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMsgDeleteGameObject, OnMsgDeleteGameObject),
   }
   EZ_END_MESSAGEHANDLERS;
-
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_SCRIPT_FUNCTION_PROPERTY(StartEffect),
+    EZ_SCRIPT_FUNCTION_PROPERTY(StopEffect),
+    EZ_SCRIPT_FUNCTION_PROPERTY(InterruptEffect),
+    EZ_SCRIPT_FUNCTION_PROPERTY(IsEffectActive),
+  }
+  EZ_END_FUNCTIONS;
 }
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
-ezParticleComponent::ezParticleComponent()
-{
-  m_uiRandomSeed = 0;
-  m_bSpawnAtStart = true;
-}
-
+ezParticleComponent::ezParticleComponent() = default;
 ezParticleComponent::~ezParticleComponent() = default;
 
 void ezParticleComponent::OnDeactivated()
@@ -193,7 +195,7 @@ bool ezParticleComponent::IsEffectActive() const
 }
 
 
-void ezParticleComponent::OnSetPlaying(ezMsgSetPlaying& msg)
+void ezParticleComponent::OnMsgSetPlaying(ezMsgSetPlaying& msg)
 {
   if (msg.m_bPlay)
   {
@@ -254,7 +256,7 @@ ezResult ezParticleComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& 
 }
 
 
-void ezParticleComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
+void ezParticleComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   // do not extract particles during shadow map rendering
   if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)
@@ -263,7 +265,7 @@ void ezParticleComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
   m_EffectController.SetIsInView();
 }
 
-void ezParticleComponent::OnDeleteObject(ezMsgDeleteGameObject& msg)
+void ezParticleComponent::OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg)
 {
   ezOnComponentFinishedAction2::HandleDeleteObjectMsg(msg, m_OnFinishedAction);
 }
@@ -297,7 +299,7 @@ void ezParticleComponent::Update()
     if (m_RestartTime == ezTime())
     {
       const ezTime tDiff = ezTime::Seconds(
-          GetWorld()->GetRandomNumberGenerator().DoubleInRange(m_MinRestartDelay.GetSeconds(), m_RestartDelayRange.GetSeconds()));
+        GetWorld()->GetRandomNumberGenerator().DoubleInRange(m_MinRestartDelay.GetSeconds(), m_RestartDelayRange.GetSeconds()));
 
       m_RestartTime = tNow + tDiff;
     }
@@ -383,14 +385,14 @@ void ezParticleComponent::CheckBVolumeUpdate()
 const ezRangeView<const char*, ezUInt32> ezParticleComponent::GetParameters() const
 {
   return ezRangeView<const char*, ezUInt32>([this]() -> ezUInt32 { return 0; },
-                                            [this]() -> ezUInt32 { return m_FloatParams.GetCount() + m_ColorParams.GetCount(); },
-                                            [this](ezUInt32& it) { ++it; },
-                                            [this](const ezUInt32& it) -> const char* {
-                                              if (it < m_FloatParams.GetCount())
-                                                return m_FloatParams[it].m_sName.GetData();
-                                              else
-                                                return m_ColorParams[it - m_FloatParams.GetCount()].m_sName.GetData();
-                                            });
+    [this]() -> ezUInt32 { return m_FloatParams.GetCount() + m_ColorParams.GetCount(); },
+    [this](ezUInt32& it) { ++it; },
+    [this](const ezUInt32& it) -> const char* {
+      if (it < m_FloatParams.GetCount())
+        return m_FloatParams[it].m_sName.GetData();
+      else
+        return m_ColorParams[it - m_FloatParams.GetCount()].m_sName.GetData();
+    });
 }
 
 void ezParticleComponent::SetParameter(const char* szKey, const ezVariant& var)

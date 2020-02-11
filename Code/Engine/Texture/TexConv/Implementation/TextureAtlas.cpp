@@ -36,8 +36,6 @@ ezResult ezTexConvProcessor::GenerateTextureAtlas(ezMemoryStreamWriter& stream)
   ezDdsFileFormat ddsWriter;
   ezImage atlasImg;
 
-  bool bDebugOutput = true;
-
   for (ezUInt32 layerIdx = 0; layerIdx < atlasDesc.m_Layers.GetCount(); ++layerIdx)
   {
     EZ_SUCCEED_OR_RETURN(CreateAtlasLayerTexture(atlasDesc, atlasItems, layerIdx, atlasImg, 4));

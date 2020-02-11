@@ -37,6 +37,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProperties, 5, ezRTTIDefaultAlloca
     EZ_MEMBER_PROPERTY("AlphaThreshold", m_fAlphaThreshold)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_ENUM_MEMBER_PROPERTY("CompressionMode", ezTexConvCompressionMode, m_CompressionMode),
     EZ_MEMBER_PROPERTY("PremultipliedAlpha", m_bPremultipliedAlpha),
+    EZ_MEMBER_PROPERTY("DilateColor", m_bDilateColor)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_MEMBER_PROPERTY("FlipHorizontal", m_bFlipHorizontal),
     EZ_MEMBER_PROPERTY("HdrExposureBias", m_fHdrExposureBias)->AddAttributes(new ezClampValueAttribute(-20.0f, 20.0f)),
 
@@ -143,10 +144,14 @@ void ezTextureAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaState
           break;
       }
 
-      if (mapping == ezTexture2DChannelMappingEnum::RGBA1 || mapping == ezTexture2DChannelMappingEnum::R1_G2_B3_A4 ||
+      if (mapping == ezTexture2DChannelMappingEnum::R1 ||
+          mapping == ezTexture2DChannelMappingEnum::RGBA1 || mapping == ezTexture2DChannelMappingEnum::R1_G2_B3_A4 ||
           mapping == ezTexture2DChannelMappingEnum::RGB1_A2 || mapping == ezTexture2DChannelMappingEnum::R1_G2_B3_A4)
       {
-        props["PremultipliedAlpha"].m_Visibility = ezPropertyUiState::Default;
+        if (mapping != ezTexture2DChannelMappingEnum::R1)
+        {
+          props["PremultipliedAlpha"].m_Visibility = ezPropertyUiState::Default;
+        }
 
         if (hasMips)
         {
@@ -178,6 +183,9 @@ ezString ezTextureAssetProperties::GetAbsoluteInputFilePath(ezInt32 iInput) cons
 
 ezInt32 ezTextureAssetProperties::GetNumInputFiles() const
 {
+  if (m_bIsRenderTarget)
+    return 0;
+
   switch (m_ChannelMapping)
   {
     case ezTexture2DChannelMappingEnum::R1:

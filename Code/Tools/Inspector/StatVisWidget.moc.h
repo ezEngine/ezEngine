@@ -5,12 +5,12 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Time/Time.h>
 #include <QAction>
-#include <QDockWidget>
+#include <Tools/Inspector/ui_StatVisWidget.h>
 #include <QGraphicsView>
 #include <QListWidgetItem>
-#include <Tools/Inspector/ui_StatVisWidget.h>
+#include <ads/DockWidget.h>
 
-class ezQtStatVisWidget : public QDockWidget, public Ui_StatVisWidget
+class ezQtStatVisWidget : public ads::CDockWidget, public Ui_StatVisWidget
 {
 public:
   Q_OBJECT
@@ -19,6 +19,7 @@ public:
   static const ezUInt8 s_uiMaxColors = 9;
 
   ezQtStatVisWidget(QWidget* parent, ezInt32 iWindowNumber);
+  ~ezQtStatVisWidget();
 
   void UpdateStats();
 

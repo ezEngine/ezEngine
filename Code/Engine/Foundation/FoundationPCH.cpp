@@ -11,6 +11,7 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Application_Config_Implementation_PluginConfig);
   EZ_STATICLINK_REFERENCE(Foundation_Application_Implementation_Application);
   EZ_STATICLINK_REFERENCE(Foundation_Application_Implementation_MainLoop);
+  EZ_STATICLINK_REFERENCE(Foundation_Application_Implementation_Android_Application_android);
   EZ_STATICLINK_REFERENCE(Foundation_Application_Implementation_uwp_Application_uwp);
   EZ_STATICLINK_REFERENCE(Foundation_Basics_Assert);
   EZ_STATICLINK_REFERENCE(Foundation_Basics_Basics);
@@ -85,6 +86,7 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_StreamOperationsOther);
   EZ_STATICLINK_REFERENCE(Foundation_IO_Implementation_StringDeduplicationContext);
   EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_ConsoleWriter);
+  EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_ETWWriter);
   EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_HTMLWriter);
   EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_Log);
   EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_LogEntry);
@@ -140,6 +142,7 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_Thread);
   EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_ThreadSignal);
   EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_ThreadUtils);
+  EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_ThreadWithDispatcher);
   EZ_STATICLINK_REFERENCE(Foundation_Time_Implementation_Clock);
   EZ_STATICLINK_REFERENCE(Foundation_Time_Implementation_DefaultTimeStepSmoothing);
   EZ_STATICLINK_REFERENCE(Foundation_Time_Implementation_Stopwatch);

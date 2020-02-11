@@ -109,9 +109,7 @@ void ezMemoryStreamWriter::SetWritePosition(ezUInt32 uiWritePosition)
 
 ezUInt32 ezMemoryStreamWriter::GetByteCount() const
 {
-  EZ_ASSERT_RELEASE(m_pStreamStorage != nullptr, "The memory stream writer needs a valid memory storage object!");
-
-  return m_pStreamStorage->GetStorageSize();
+  return m_uiWritePosition;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -203,4 +201,54 @@ void ezRawMemoryStreamReader::SetDebugSourceInformation(const char* szDebugSourc
 //////////////////////////////////////////////////////////////////////////
 
 
+ezRawMemoryStreamWriter::ezRawMemoryStreamWriter() = default;
+
+ezRawMemoryStreamWriter::ezRawMemoryStreamWriter(void* pData, ezUInt64 uiDataSize)
+{
+  Reset(pData, uiDataSize);
+}
+
+ezRawMemoryStreamWriter::~ezRawMemoryStreamWriter() = default;
+
+void ezRawMemoryStreamWriter::Reset(void* pData, ezUInt64 uiDataSize)
+{
+  EZ_ASSERT_DEV(pData != nullptr, "Invalid memory stream storage");
+
+  m_pRawMemory = static_cast<ezUInt8*>(pData);
+  m_uiChunkSize = uiDataSize;
+  m_uiWritePosition = 0;
+}
+
+ezResult ezRawMemoryStreamWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite)
+{
+  const ezUInt64 uiBytes = ezMath::Min<ezUInt64>(uiBytesToWrite, m_uiChunkSize - m_uiWritePosition);
+
+  ezMemoryUtils::Copy(&m_pRawMemory[m_uiWritePosition], static_cast<const ezUInt8*>(pWriteBuffer), uiBytes);
+
+  m_uiWritePosition += uiBytes;
+
+  if (uiBytes < uiBytesToWrite)
+    return EZ_FAILURE;
+
+  return EZ_SUCCESS;
+}
+
+ezUInt64 ezRawMemoryStreamWriter::GetStorageSize() const
+{
+  return m_uiChunkSize;
+}
+
+ezUInt64 ezRawMemoryStreamWriter::GetNumWrittenBytes() const
+{
+  return m_uiWritePosition;
+}
+
+void ezRawMemoryStreamWriter::SetDebugSourceInformation(const char* szDebugSourceInformation)
+{
+  m_DebugSourceInformation = szDebugSourceInformation;
+}
+
+
+
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_MemoryStream);
+

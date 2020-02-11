@@ -339,10 +339,10 @@ bool ezDynamicOctree::FindObjectsInRange(const ezVec3& vPoint, EZ_VISIBLE_OBJ_CA
 
   {
     {
-      ezDynamicTree::ezMultiMapKey mmk;
-      mmk.m_uiKey = uiNodeID + 1;
+      ezDynamicTree::ezMultiMapKey mmk2;
+      mmk2.m_uiKey = uiNodeID + 1;
 
-      const ezDynamicTreeObjectConst itlast = m_NodeMap.LowerBound(mmk);
+      const ezDynamicTreeObjectConst itlast = m_NodeMap.LowerBound(mmk2);
 
       while (it1 != itlast)
       {

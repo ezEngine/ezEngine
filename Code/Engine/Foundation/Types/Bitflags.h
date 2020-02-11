@@ -87,12 +87,17 @@ private:
 public:
   /// \brief Constructor. Initializes the flags to the default value.
   EZ_ALWAYS_INLINE ezBitflags()
-      : m_Value(T::Default) // [tested]
+    : m_Value(T::Default) // [tested]
   {
   }
 
   /// \brief Converts the incoming type to ezBitflags<T>
   EZ_ALWAYS_INLINE ezBitflags(Enum flag1) // [tested]
+  {
+    m_Value = (StorageType)flag1;
+  }
+
+  EZ_ALWAYS_INLINE void operator=(Enum flag1)
   {
     m_Value = (StorageType)flag1;
   }
@@ -128,6 +133,12 @@ public:
   EZ_ALWAYS_INLINE bool AreAllSet(const ezBitflags<T>& rhs) const // [tested]
   {
     return (m_Value & rhs.m_Value) == rhs.m_Value;
+  }
+
+  /// \brief Returns whether none of the given flags is set.
+  EZ_ALWAYS_INLINE bool AreNoneSet(const ezBitflags<T>& rhs) const // [tested]
+  {
+    return (m_Value & rhs.m_Value) == 0;
   }
 
   /// \brief  Returns whether any of the given flags is set.
@@ -196,9 +207,21 @@ public:
     m_Value = value;
   }
 
+  /// \brief Returns true if not a single bit is set.
+  EZ_ALWAYS_INLINE bool IsNoFlagSet() const // [tested]
+  {
+    return m_Value == 0;
+  }
+
+  /// \brief Returns true if any bitflag is set.
+  EZ_ALWAYS_INLINE bool IsAnyFlagSet() const // [tested]
+  {
+    return m_Value != 0;
+  }
+
 private:
   EZ_ALWAYS_INLINE explicit ezBitflags(StorageType flags)
-      : m_Value(flags)
+    : m_Value(flags)
   {
   }
 
@@ -211,15 +234,15 @@ private:
 
 /// \brief This macro will define the operator| and operator& function that is required for class \a FlagsType to work with ezBitflags.
 /// See class ezBitflags for more information.
-#define EZ_DECLARE_FLAGS_OPERATORS(FlagsType)                                                                                              \
-  inline ezBitflags<FlagsType> operator|(FlagsType::Enum lhs, FlagsType::Enum rhs)                                                         \
-  {                                                                                                                                        \
-    return (ezBitflags<FlagsType>(lhs) | ezBitflags<FlagsType>(rhs));                                                                      \
-  }                                                                                                                                        \
-                                                                                                                                           \
-  inline ezBitflags<FlagsType> operator&(FlagsType::Enum lhs, FlagsType::Enum rhs)                                                         \
-  {                                                                                                                                        \
-    return (ezBitflags<FlagsType>(lhs) & ezBitflags<FlagsType>(rhs));                                                                      \
+#define EZ_DECLARE_FLAGS_OPERATORS(FlagsType)                                      \
+  inline ezBitflags<FlagsType> operator|(FlagsType::Enum lhs, FlagsType::Enum rhs) \
+  {                                                                                \
+    return (ezBitflags<FlagsType>(lhs) | ezBitflags<FlagsType>(rhs));              \
+  }                                                                                \
+                                                                                   \
+  inline ezBitflags<FlagsType> operator&(FlagsType::Enum lhs, FlagsType::Enum rhs) \
+  {                                                                                \
+    return (ezBitflags<FlagsType>(lhs) & ezBitflags<FlagsType>(rhs));              \
   }
 
 
@@ -240,22 +263,22 @@ private:
 /// Each flag will use a different bit. If you need to define flags that are combinations of several
 /// other flags, you need to declare the bitflag struct manually. See the ezBitflags class for more
 /// information on how to do that.
-#define EZ_DECLARE_FLAGS_WITH_DEFAULT(InternalStorageType, BitflagsTypeName, DefaultValue, ...)                                            \
-  struct BitflagsTypeName                                                                                                                  \
-  {                                                                                                                                        \
-    static const ezUInt32 Count = EZ_VA_NUM_ARGS(__VA_ARGS__);                                                                             \
-    typedef InternalStorageType StorageType;                                                                                               \
-    enum Enum                                                                                                                              \
-    {                                                                                                                                      \
-      EZ_EXPAND_ARGS_WITH_INDEX(EZ_DECLARE_FLAGS_ENUM, ##__VA_ARGS__)                                                                      \
-      Default = DefaultValue                                                                                                               \
-    };                                                                                                                                     \
-    struct Bits                                                                                                                            \
-    {                                                                                                                                      \
-      EZ_EXPAND_ARGS(EZ_DECLARE_FLAGS_BITS, ##__VA_ARGS__)                                                                                 \
-    };                                                                                                                                     \
-    EZ_ENUM_TO_STRING(__VA_ARGS__)                                                                                                         \
-  };                                                                                                                                       \
+#define EZ_DECLARE_FLAGS_WITH_DEFAULT(InternalStorageType, BitflagsTypeName, DefaultValue, ...) \
+  struct BitflagsTypeName                                                                       \
+  {                                                                                             \
+    static const ezUInt32 Count = EZ_VA_NUM_ARGS(__VA_ARGS__);                                  \
+    typedef InternalStorageType StorageType;                                                    \
+    enum Enum                                                                                   \
+    {                                                                                           \
+      EZ_EXPAND_ARGS_WITH_INDEX(EZ_DECLARE_FLAGS_ENUM, ##__VA_ARGS__)                           \
+        Default = DefaultValue                                                                  \
+    };                                                                                          \
+    struct Bits                                                                                 \
+    {                                                                                           \
+      EZ_EXPAND_ARGS(EZ_DECLARE_FLAGS_BITS, ##__VA_ARGS__)                                      \
+    };                                                                                          \
+    EZ_ENUM_TO_STRING(__VA_ARGS__)                                                              \
+  };                                                                                            \
   EZ_DECLARE_FLAGS_OPERATORS(BitflagsTypeName)
 
 #define EZ_DECLARE_FLAGS(InternalStorageType, BitflagsTypeName, ...) \
@@ -270,3 +293,136 @@ private:
 
 /// \endcond
 
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
+/// \brief Similar to ezBitflags but without type-safety.
+///
+/// This class is intended for use cases where type-safety can get in the way,
+/// for example when it is intended for the user to extend a flags enum with custom flags a separate file / enum.
+template <typename T>
+struct ezTypelessBitflags
+{
+public:
+  using StorageType = T;
+
+  /// \brief Initializes the flags zero.
+  EZ_ALWAYS_INLINE ezTypelessBitflags() // [tested]
+    : m_Value(0)
+  {
+  }
+
+  EZ_ALWAYS_INLINE ezTypelessBitflags(StorageType flags) // [tested]
+  {
+    m_Value = flags;
+  }
+
+  EZ_ALWAYS_INLINE void operator=(StorageType flags) // [tested]
+  {
+    m_Value = flags;
+  }
+
+  EZ_ALWAYS_INLINE bool operator==(const StorageType rhs) const { return m_Value == rhs; }                              // [tested]
+  EZ_ALWAYS_INLINE bool operator!=(const StorageType rhs) const { return m_Value != rhs; }                              // [tested]
+  EZ_ALWAYS_INLINE bool operator==(const ezTypelessBitflags<StorageType>& rhs) const { return m_Value == rhs.m_Value; } // [tested]
+  EZ_ALWAYS_INLINE bool operator!=(const ezTypelessBitflags<StorageType>& rhs) const { return m_Value != rhs.m_Value; } // [tested]
+
+  /// \brief Clears all flags
+  EZ_ALWAYS_INLINE void Clear() { m_Value = 0; } // [tested]
+
+  /// \brief Returns whether all the given flags are set.
+  EZ_ALWAYS_INLINE bool AreAllSet(const ezTypelessBitflags<StorageType>& rhs) const // [tested]
+  {
+    return (m_Value & rhs.m_Value) == rhs.m_Value;
+  }
+
+  /// \brief Returns whether none of the given flags is set.
+  EZ_ALWAYS_INLINE bool AreNoneSet(const ezTypelessBitflags<StorageType>& rhs) const // [tested]
+  {
+    return (m_Value & rhs.m_Value) == 0;
+  }
+
+  /// \brief  Returns whether any of the given flags is set.
+  EZ_ALWAYS_INLINE bool IsAnySet(const ezTypelessBitflags<StorageType>& rhs) const // [tested]
+  {
+    return (m_Value & rhs.m_Value) != 0;
+  }
+
+  /// \brief Sets the given flag.
+  EZ_ALWAYS_INLINE void Add(const ezTypelessBitflags<StorageType>& rhs) // [tested]
+  {
+    m_Value |= rhs.m_Value;
+  }
+
+  /// \brief Removes the given flag.
+  EZ_ALWAYS_INLINE void Remove(const ezTypelessBitflags<StorageType>& rhs) // [tested]
+  {
+    m_Value &= (~rhs.m_Value);
+  }
+
+  /// \brief Toggles the state of the given flag.
+  EZ_ALWAYS_INLINE void Toggle(const ezTypelessBitflags<StorageType>& rhs) // [tested]
+  {
+    m_Value ^= rhs.m_Value;
+  }
+
+  /// \brief Sets or clears the given flag.
+  EZ_ALWAYS_INLINE void AddOrRemove(const ezTypelessBitflags<StorageType>& rhs, bool state) // [tested]
+  {
+    m_Value = (state) ? m_Value | rhs.m_Value : m_Value & (~rhs.m_Value);
+  }
+
+  /// \brief Returns an object that has the flags of \a this and \a rhs combined.
+  EZ_ALWAYS_INLINE ezTypelessBitflags<StorageType> operator|(const ezTypelessBitflags<StorageType>& rhs) const // [tested]
+  {
+    return ezTypelessBitflags<StorageType>(m_Value | rhs.m_Value);
+  }
+
+  /// \brief Returns an object that has the flags that were set both in \a this and \a rhs.
+  EZ_ALWAYS_INLINE ezTypelessBitflags<StorageType> operator&(const ezTypelessBitflags<StorageType>& rhs) const // [tested]
+  {
+    return ezTypelessBitflags<StorageType>(m_Value & rhs.m_Value);
+  }
+
+  /// \brief Modifies \a this to also contain the bits from \a rhs.
+  EZ_ALWAYS_INLINE void operator|=(const ezTypelessBitflags<StorageType>& rhs) // [tested]
+  {
+    m_Value |= rhs.m_Value;
+  }
+
+  /// \brief Modifies \a this to only contain the bits that were set in \a this and \a rhs.
+  EZ_ALWAYS_INLINE void operator&=(const ezTypelessBitflags<StorageType>& rhs) // [tested]
+  {
+    m_Value &= rhs.m_Value;
+  }
+
+  /// \brief Returns the stored value as the underlying integer type.
+  EZ_ALWAYS_INLINE StorageType GetValue() const // [tested]
+  {
+    return m_Value;
+  }
+
+  /// \brief Overwrites the flags with a new value.
+  EZ_ALWAYS_INLINE void SetValue(StorageType value) // [tested]
+  {
+    m_Value = value;
+  }
+
+  /// \brief Returns true if not a single bit is set.
+  EZ_ALWAYS_INLINE bool IsNoFlagSet() const // [tested]
+  {
+    return m_Value == 0;
+  }
+
+  /// \brief Returns true if any bitflag is set.
+  EZ_ALWAYS_INLINE bool IsAnyFlagSet() const // [tested]
+  {
+    return m_Value != 0;
+  }
+
+private:
+  StorageType m_Value;
+};

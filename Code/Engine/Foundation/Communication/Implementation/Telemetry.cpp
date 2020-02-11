@@ -2,7 +2,10 @@
 
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Threading/ThreadUtils.h>
+
+#ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
 #include <enet/enet.h>
+#endif
 
 class ezTelemetryThread;
 
@@ -72,7 +75,7 @@ void ezTelemetry::UpdateNetwork()
         if (s_ConnectionMode == Client)
         {
           char szHostIP[64] = "<unknown>";
-          char szHostName[64] = "<unknown>";
+          //char szHostName[64] = "<unknown>";
 
           enet_address_get_host_ip(&NetworkEvent.peer->address, szHostIP, 63);
 
@@ -324,7 +327,12 @@ ezResult ezTelemetry::OpenConnection(ConnectionMode Mode, const char* szConnectT
 
   if (!g_bInitialized)
   {
-    EZ_VERIFY(enet_initialize() == 0, "Enet could not be initialized.");
+    if (enet_initialize() != 0)
+    {
+      ezLog::Error("Enet could not be initialized.");
+      return EZ_FAILURE;
+    }
+
     g_bInitialized = true;
   }
 

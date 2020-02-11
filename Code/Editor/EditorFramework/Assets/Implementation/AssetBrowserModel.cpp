@@ -9,7 +9,7 @@
 #include <QUrl>
 
 ezQtAssetFilter::ezQtAssetFilter(QObject* pParent)
-    : QObject(pParent)
+  : QObject(pParent)
 {
 }
 
@@ -20,8 +20,8 @@ ezQtAssetFilter::ezQtAssetFilter(QObject* pParent)
 struct AssetComparer
 {
   AssetComparer(ezQtAssetBrowserModel* model, const ezMap<ezUuid, ezSubAsset>& allAssets)
-      : m_Model(model)
-      , m_AllAssets(allAssets)
+    : m_Model(model)
+    , m_AllAssets(allAssets)
   {
   }
 
@@ -43,8 +43,8 @@ struct AssetComparer
 };
 
 ezQtAssetBrowserModel::ezQtAssetBrowserModel(QObject* pParent, ezQtAssetFilter* pFilter)
-    : QAbstractItemModel(pParent)
-    , m_pFilter(pFilter)
+  : QAbstractItemModel(pParent)
+  , m_pFilter(pFilter)
 {
   EZ_ASSERT_DEBUG(pFilter != nullptr, "ezQtAssetBrowserModel requires a valid filter.");
   connect(pFilter, &ezQtAssetFilter::FilterChanged, this, [this]() { resetModel(); });
@@ -55,10 +55,10 @@ ezQtAssetBrowserModel::ezQtAssetBrowserModel(QObject* pParent, ezQtAssetFilter* 
   SetIconMode(true);
 
   EZ_VERIFY(connect(ezQtImageCache::GetSingleton(), &ezQtImageCache::ImageLoaded, this, &ezQtAssetBrowserModel::ThumbnailLoaded) != nullptr,
-            "signal/slot connection failed");
+    "signal/slot connection failed");
   EZ_VERIFY(connect(ezQtImageCache::GetSingleton(), &ezQtImageCache::ImageInvalidated, this,
-                    &ezQtAssetBrowserModel::ThumbnailInvalidated) != nullptr,
-            "signal/slot connection failed");
+              &ezQtAssetBrowserModel::ThumbnailInvalidated) != nullptr,
+    "signal/slot connection failed");
 }
 
 ezQtAssetBrowserModel::~ezQtAssetBrowserModel()
@@ -325,32 +325,25 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int role) const
         ezUInt64 uiUserData1, uiUserData2;
         AssetGuid.GetValues(uiUserData1, uiUserData2);
 
-        const QPixmap* pThumbnailPixmap =
-            ezQtImageCache::GetSingleton()->QueryPixmapForType(pSubAsset->m_Data.m_sAssetTypeName, sThumbnailPath, index,
-                                                               QVariant(uiUserData1), QVariant(uiUserData2), &asset.m_uiThumbnailID);
+        const QPixmap* pThumbnailPixmap = ezQtImageCache::GetSingleton()->QueryPixmapForType(pSubAsset->m_Data.m_sSubAssetsDocumentTypeName, sThumbnailPath, index,
+          QVariant(uiUserData1), QVariant(uiUserData2), &asset.m_uiThumbnailID);
 
         return *pThumbnailPixmap;
       }
       else
       {
-        ezStringBuilder sIconName;
-        sIconName.Set(":/AssetIcons/", pSubAsset->m_Data.m_sAssetTypeName);
-        sIconName.ReplaceAll(" ", "_");
-        sIconName.ReplaceAll("(", "");
-        sIconName.ReplaceAll(")", "");
-
-        return ezQtUiServices::GetCachedPixmapResource(sIconName.GetData());
+        return ezQtUiServices::GetCachedPixmapResource(pSubAsset->m_pAssetInfo->m_pDocumentTypeDescriptor->m_sIcon);
       }
     }
     break;
 
     case UserRoles::SubAssetGuid:
     {
-      return qVariantFromValue(pSubAsset->m_Data.m_Guid);
+      return QVariant::fromValue(pSubAsset->m_Data.m_Guid);
     }
     case UserRoles::AssetGuid:
     {
-      return qVariantFromValue(pSubAsset->m_pAssetInfo->m_Info->m_DocumentID);
+      return QVariant::fromValue(pSubAsset->m_pAssetInfo->m_Info->m_DocumentID);
     }
     case UserRoles::AbsolutePath:
       return QString::fromUtf8(pSubAsset->m_pAssetInfo->m_sAbsolutePath);
@@ -359,15 +352,7 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int role) const
       return QString::fromUtf8(pSubAsset->m_pAssetInfo->m_sDataDirRelativePath);
 
     case UserRoles::AssetIconPath:
-    {
-      ezStringBuilder sIconName;
-      sIconName.Set(":/AssetIcons/", pSubAsset->m_Data.m_sAssetTypeName);
-      sIconName.ReplaceAll(" ", "_");
-      sIconName.ReplaceAll("(", "");
-      sIconName.ReplaceAll(")", "");
-
-      return ezQtUiServices::GetCachedPixmapResource(sIconName.GetData());
-    }
+      return ezQtUiServices::GetCachedPixmapResource(pSubAsset->m_pAssetInfo->m_pDocumentTypeDescriptor->m_sIcon);
 
     case UserRoles::TransformState:
       return (int)pSubAsset->m_pAssetInfo->m_TransformState;

@@ -13,8 +13,6 @@ EZ_CREATE_SIMPLE_TEST(Image, ImageUtils)
 
   EZ_TEST_BOOL(ezOSFile::CreateDirectoryStructure(sWriteDir.GetData()) == EZ_SUCCESS);
 
-  ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-
   ezResult addDir = ezFileSystem::AddDataDirectory(sReadDir.GetData(), "ImageTest");
   EZ_TEST_BOOL(addDir == EZ_SUCCESS);
 

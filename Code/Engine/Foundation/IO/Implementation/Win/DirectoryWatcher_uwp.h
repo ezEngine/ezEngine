@@ -21,7 +21,7 @@ ezDirectoryWatcher::~ezDirectoryWatcher()
   CloseDirectory();
 }
 
-void ezDirectoryWatcher::EnumerateChanges(ezDelegate<void(const char* filename, ezDirectoryWatcherAction action)> func)
+void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func)
 {
 }
 

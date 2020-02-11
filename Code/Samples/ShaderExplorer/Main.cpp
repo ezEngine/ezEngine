@@ -73,9 +73,9 @@ ezApplication::ApplicationExecution ezShaderExplorerApp::Run()
     if (ezInputManager::GetInputActionState("Main", "LookNegX", &fInputValue) != ezKeyState::Up)
       mouseMotion.x -= fInputValue * fMouseSpeed;
     if (ezInputManager::GetInputActionState("Main", "LookPosY", &fInputValue) != ezKeyState::Up)
-      mouseMotion.y += fInputValue * fMouseSpeed;
-    if (ezInputManager::GetInputActionState("Main", "LookNegY", &fInputValue) != ezKeyState::Up)
       mouseMotion.y -= fInputValue * fMouseSpeed;
+    if (ezInputManager::GetInputActionState("Main", "LookNegY", &fInputValue) != ezKeyState::Up)
+      mouseMotion.y += fInputValue * fMouseSpeed;
 
     m_camera->RotateLocally(ezAngle::Radian(0.0), ezAngle::Radian(mouseMotion.y), ezAngle::Radian(0.0));
     m_camera->RotateGlobally(ezAngle::Radian(0.0), ezAngle::Radian(mouseMotion.x), ezAngle::Radian(0.0));
@@ -197,8 +197,6 @@ void ezShaderExplorerApp::AfterCoreSystemsStartup()
     m_directoryWatcher->OpenDirectory(sProjectDirResolved, ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories)
       .Succeeded(),
     "Failed to watch project directory");
-
-  ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
 
   ezFileSystem::AddDataDirectory("", "", ":", ezFileSystem::AllowWrites);
   ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezFileSystem::AllowWrites);              // writing to the binary directory

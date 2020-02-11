@@ -47,8 +47,8 @@ void ezColorGradient::AddIntensityControlPoint(double x, float intensity)
 
 bool ezColorGradient::GetExtents(double& minx, double& maxx) const
 {
-  minx = ezMath::BasicType<float>::MaxValue();
-  maxx = -ezMath::BasicType<float>::MaxValue();
+  minx = ezMath::MaxValue<float>();
+  maxx = -ezMath::MaxValue<float>();
 
   for (const auto& cp : m_ColorCPs)
   {

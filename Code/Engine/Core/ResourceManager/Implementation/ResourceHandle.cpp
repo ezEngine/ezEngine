@@ -7,13 +7,17 @@ ezTypelessResourceHandle::ezTypelessResourceHandle(ezResource* pResource)
   m_pResource = pResource;
 
   if (m_pResource)
-    IncreaseResourceRefCount(m_pResource);
+  {
+    IncreaseResourceRefCount(m_pResource, this);
+  }
 }
 
 void ezTypelessResourceHandle::Invalidate()
 {
   if (m_pResource)
-    DecreaseResourceRefCount(m_pResource);
+  {
+    DecreaseResourceRefCount(m_pResource, this);
+  }
 
   m_pResource = nullptr;
 }
@@ -37,7 +41,9 @@ void ezTypelessResourceHandle::operator=(const ezTypelessResourceHandle& rhs)
   m_pResource = rhs.m_pResource;
 
   if (m_pResource)
-    IncreaseResourceRefCount(reinterpret_cast<ezResource*>(m_pResource));
+  {
+    IncreaseResourceRefCount(reinterpret_cast<ezResource*>(m_pResource), this);
+  }
 }
 
 void ezTypelessResourceHandle::operator=(ezTypelessResourceHandle&& rhs)
@@ -46,6 +52,11 @@ void ezTypelessResourceHandle::operator=(ezTypelessResourceHandle&& rhs)
 
   m_pResource = rhs.m_pResource;
   rhs.m_pResource = nullptr;
+
+  if (m_pResource)
+  {
+    MigrateResourceRefCount(m_pResource, &rhs, this);
+  }
 }
 
 

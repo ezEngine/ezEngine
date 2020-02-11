@@ -1,6 +1,6 @@
 
 EZ_ALWAYS_INLINE ezGameObject::ConstChildIterator::ConstChildIterator(ezGameObject* pObject)
-    : m_pObject(pObject)
+  : m_pObject(pObject)
 {
 }
 
@@ -32,7 +32,7 @@ EZ_ALWAYS_INLINE void ezGameObject::ConstChildIterator::operator++()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 EZ_ALWAYS_INLINE ezGameObject::ChildIterator::ChildIterator(ezGameObject* pObject)
-    : ConstChildIterator(pObject)
+  : ConstChildIterator(pObject)
 {
 }
 
@@ -91,9 +91,14 @@ EZ_ALWAYS_INLINE bool ezGameObject::IsStatic() const
   return !m_Flags.IsSet(ezObjectFlags::Dynamic);
 }
 
+EZ_ALWAYS_INLINE bool ezGameObject::GetActiveFlag() const
+{
+  return m_Flags.IsSet(ezObjectFlags::ActiveFlag);
+}
+
 EZ_ALWAYS_INLINE bool ezGameObject::IsActive() const
 {
-  return m_Flags.IsSet(ezObjectFlags::Active);
+  return m_Flags.IsSet(ezObjectFlags::ActiveState);
 }
 
 EZ_ALWAYS_INLINE void ezGameObject::SetName(const char* szName)
@@ -134,7 +139,7 @@ EZ_ALWAYS_INLINE void ezGameObject::DisableChildChangesNotifications()
 }
 
 EZ_ALWAYS_INLINE void ezGameObject::AddChildren(const ezArrayPtr<const ezGameObjectHandle>& children,
-                                                ezGameObject::TransformPreservation preserve)
+  ezGameObject::TransformPreservation preserve)
 {
   for (ezUInt32 i = 0; i < children.GetCount(); ++i)
   {
@@ -143,7 +148,7 @@ EZ_ALWAYS_INLINE void ezGameObject::AddChildren(const ezArrayPtr<const ezGameObj
 }
 
 EZ_ALWAYS_INLINE void ezGameObject::DetachChildren(const ezArrayPtr<const ezGameObjectHandle>& children,
-                                                   ezGameObject::TransformPreservation preserve)
+  ezGameObject::TransformPreservation preserve)
 {
   for (ezUInt32 i = 0; i < children.GetCount(); ++i)
   {
@@ -210,6 +215,11 @@ EZ_ALWAYS_INLINE float ezGameObject::GetLocalUniformScaling() const
   return m_pTransformationData->m_localScaling.w();
 }
 
+EZ_ALWAYS_INLINE ezTransform ezGameObject::GetLocalTransform() const
+{
+  return ezSimdConversion::ToTransform(GetLocalTransformSimd());
+}
+
 
 EZ_ALWAYS_INLINE void ezGameObject::SetGlobalPosition(const ezVec3& position)
 {
@@ -255,11 +265,11 @@ EZ_ALWAYS_INLINE ezTransform ezGameObject::GetGlobalTransform() const
 }
 
 
-EZ_ALWAYS_INLINE void ezGameObject::SetLocalPosition(const ezSimdVec4f& position)
+EZ_ALWAYS_INLINE void ezGameObject::SetLocalPosition(const ezSimdVec4f& position, UpdateBehaviorIfStatic updateBehavior)
 {
   m_pTransformationData->m_localPosition = position;
 
-  if (IsStatic())
+  if (IsStatic() && updateBehavior == UpdateBehaviorIfStatic::UpdateImmediately)
   {
     UpdateGlobalTransformAndBoundsRecursive();
   }
@@ -271,11 +281,11 @@ EZ_ALWAYS_INLINE const ezSimdVec4f& ezGameObject::GetLocalPositionSimd() const
 }
 
 
-EZ_ALWAYS_INLINE void ezGameObject::SetLocalRotation(const ezSimdQuat& rotation)
+EZ_ALWAYS_INLINE void ezGameObject::SetLocalRotation(const ezSimdQuat& rotation, UpdateBehaviorIfStatic updateBehavior)
 {
   m_pTransformationData->m_localRotation = rotation;
 
-  if (IsStatic())
+  if (IsStatic() && updateBehavior == UpdateBehaviorIfStatic::UpdateImmediately)
   {
     UpdateGlobalTransformAndBoundsRecursive();
   }
@@ -287,13 +297,13 @@ EZ_ALWAYS_INLINE const ezSimdQuat& ezGameObject::GetLocalRotationSimd() const
 }
 
 
-EZ_ALWAYS_INLINE void ezGameObject::SetLocalScaling(const ezSimdVec4f& scaling)
+EZ_ALWAYS_INLINE void ezGameObject::SetLocalScaling(const ezSimdVec4f& scaling, UpdateBehaviorIfStatic updateBehavior)
 {
   ezSimdFloat uniformScale = m_pTransformationData->m_localScaling.w();
   m_pTransformationData->m_localScaling = scaling;
   m_pTransformationData->m_localScaling.SetW(uniformScale);
 
-  if (IsStatic())
+  if (IsStatic() && updateBehavior == UpdateBehaviorIfStatic::UpdateImmediately)
   {
     UpdateGlobalTransformAndBoundsRecursive();
   }
@@ -305,11 +315,11 @@ EZ_ALWAYS_INLINE const ezSimdVec4f& ezGameObject::GetLocalScalingSimd() const
 }
 
 
-EZ_ALWAYS_INLINE void ezGameObject::SetLocalUniformScaling(const ezSimdFloat& scaling)
+EZ_ALWAYS_INLINE void ezGameObject::SetLocalUniformScaling(const ezSimdFloat& scaling, UpdateBehaviorIfStatic updateBehavior)
 {
   m_pTransformationData->m_localScaling.SetW(scaling);
 
-  if (IsStatic())
+  if (IsStatic() && updateBehavior == UpdateBehaviorIfStatic::UpdateImmediately)
   {
     UpdateGlobalTransformAndBoundsRecursive();
   }
@@ -318,6 +328,12 @@ EZ_ALWAYS_INLINE void ezGameObject::SetLocalUniformScaling(const ezSimdFloat& sc
 EZ_ALWAYS_INLINE ezSimdFloat ezGameObject::GetLocalUniformScalingSimd() const
 {
   return m_pTransformationData->m_localScaling.w();
+}
+
+EZ_ALWAYS_INLINE ezSimdTransform ezGameObject::GetLocalTransformSimd() const
+{
+  const ezSimdVec4f vScale = m_pTransformationData->m_localScaling * m_pTransformationData->m_localScaling.w();
+  return ezSimdTransform(m_pTransformationData->m_localPosition, m_pTransformationData->m_localRotation, vScale);
 }
 
 
@@ -392,7 +408,7 @@ EZ_ALWAYS_INLINE const ezSimdTransform& ezGameObject::GetGlobalTransformSimd() c
   return m_pTransformationData->m_globalTransform;
 }
 
-
+#if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
 EZ_ALWAYS_INLINE void ezGameObject::SetVelocity(const ezVec3& vVelocity)
 {
   m_pTransformationData->m_velocity = ezSimdVec4f(vVelocity.x, vVelocity.y, vVelocity.z, 1.0f);
@@ -402,6 +418,7 @@ EZ_ALWAYS_INLINE ezVec3 ezGameObject::GetVelocity() const
 {
   return ezSimdConversion::ToVec3(m_pTransformationData->m_velocity);
 }
+#endif
 
 EZ_ALWAYS_INLINE void ezGameObject::UpdateGlobalTransform()
 {
@@ -520,6 +537,27 @@ EZ_ALWAYS_INLINE const ezTagSet& ezGameObject::GetTags() const
   return m_Tags;
 }
 
+EZ_ALWAYS_INLINE bool ezGameObject::SendMessage(ezMessage& msg)
+{
+  return SendMessageInternal(msg, false);
+}
+
+EZ_ALWAYS_INLINE bool ezGameObject::SendMessage(ezMessage& msg) const
+{
+  return SendMessageInternal(msg, false);
+}
+
+EZ_ALWAYS_INLINE bool ezGameObject::SendMessageRecursive(ezMessage& msg)
+{
+  return SendMessageRecursiveInternal(msg, false);
+}
+
+EZ_ALWAYS_INLINE bool ezGameObject::SendMessageRecursive(ezMessage& msg) const
+{
+  return SendMessageRecursiveInternal(msg, false);
+}
+
+
 //////////////////////////////////////////////////////////////////////////
 
 EZ_ALWAYS_INLINE void ezGameObject::TransformationData::UpdateGlobalTransform()
@@ -538,18 +576,23 @@ EZ_ALWAYS_INLINE void ezGameObject::TransformationData::UpdateGlobalTransformWit
 
 EZ_FORCE_INLINE void ezGameObject::TransformationData::UpdateGlobalBounds()
 {
-  ezSimdBBoxSphere oldGlobalBounds = m_globalBounds;
-
   m_globalBounds = m_localBounds;
   m_globalBounds.Transform(m_globalTransform);
 
   m_globalBounds.m_BoxHalfExtents.SetW(m_localBounds.m_BoxHalfExtents.w());
+}
+
+EZ_FORCE_INLINE void ezGameObject::TransformationData::UpdateGlobalBoundsAndSpatialData()
+{
+  ezSimdBBoxSphere oldGlobalBounds = m_globalBounds;
+
+  UpdateGlobalBounds();
 
   ///\todo find a better place for this
   // Can't use ezSimdBBoxSphere::operator != because we want to include the w component of m_BoxHalfExtents
   if ((m_globalBounds.m_CenterAndRadius != oldGlobalBounds.m_CenterAndRadius ||
-       m_globalBounds.m_BoxHalfExtents != oldGlobalBounds.m_BoxHalfExtents)
-          .AnySet<4>())
+        m_globalBounds.m_BoxHalfExtents != oldGlobalBounds.m_BoxHalfExtents)
+        .AnySet<4>())
   {
     bool bWasAlwaysVisible = oldGlobalBounds.m_BoxHalfExtents.w() != ezSimdFloat::Zero();
     bool bIsAlwaysVisible = m_globalBounds.m_BoxHalfExtents.w() != ezSimdFloat::Zero();
@@ -560,6 +603,7 @@ EZ_FORCE_INLINE void ezGameObject::TransformationData::UpdateGlobalBounds()
 
 EZ_ALWAYS_INLINE void ezGameObject::TransformationData::UpdateVelocity(const ezSimdFloat& fInvDeltaSeconds)
 {
+#if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
   // A w value != 0 indicates a custom velocity, don't overwrite it.
   ezSimdVec4b customVel = (m_velocity.Get<ezSwizzle::WWWW>() != ezSimdVec4f::ZeroVector());
   ezSimdVec4f newVel = (m_globalTransform.m_Position - m_lastGlobalPosition) * fInvDeltaSeconds;
@@ -567,5 +611,5 @@ EZ_ALWAYS_INLINE void ezGameObject::TransformationData::UpdateVelocity(const ezS
 
   m_lastGlobalPosition = m_globalTransform.m_Position;
   m_velocity.SetW(ezSimdFloat::Zero());
+#endif
 }
-

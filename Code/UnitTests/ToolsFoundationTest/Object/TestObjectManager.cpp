@@ -25,9 +25,9 @@ ezTestDocument::~ezTestDocument()
   }
 }
 
-void ezTestDocument::InitializeAfterLoading()
+void ezTestDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 {
-  SUPER::InitializeAfterLoading();
+  SUPER::InitializeAfterLoading(bFirstTimeCreation);
 
   if (m_bUseIPCObjectMirror)
   {
@@ -74,11 +74,6 @@ void ezTestDocument::ApplyNativePropertyChangesToObjectManager(ezDocumentObject*
   m_ObjectMirror.InitSender(GetObjectManager());
   m_ObjectMirror.InitReceiver(&m_Context);
   m_ObjectMirror.SendDocument();
-}
-
-const char* ezTestDocument::GetDocumentTypeDisplayString() const
-{
-  return "Test";
 }
 
 ezDocumentInfo* ezTestDocument::CreateDocumentInfo()

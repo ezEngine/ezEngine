@@ -28,7 +28,10 @@ AssetProfiles
 				uint32 %v{1}
 				p
 				{
-					VarDict %CameraPipelines{}
+					VarDict %CameraPipelines
+					{
+						string %Camera{"{ c5f16f65-8940-4283-9f91-b316dfa39e81 }"}
+					}
 					string %MainRenderPipeline{"{ c533e113-2a4c-4f42-a546-653c78f5e8a7 }"}
 				}
 			}

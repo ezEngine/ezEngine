@@ -37,7 +37,6 @@ EZ_STATICLINK_LIBRARY(Core)
   EZ_STATICLINK_REFERENCE(Core_WorldSerializer_Implementation_ResourceHandleWriter);
   EZ_STATICLINK_REFERENCE(Core_WorldSerializer_Implementation_WorldReader);
   EZ_STATICLINK_REFERENCE(Core_WorldSerializer_Implementation_WorldWriter);
-  EZ_STATICLINK_REFERENCE(Core_World_Implementation_Component);
   EZ_STATICLINK_REFERENCE(Core_World_Implementation_ComponentManager);
   EZ_STATICLINK_REFERENCE(Core_World_Implementation_Declarations);
   EZ_STATICLINK_REFERENCE(Core_World_Implementation_EventMessageHandlerComponent);

@@ -3,16 +3,17 @@
 #include <Foundation/IO/Archive/ArchiveReader.h>
 #include <Foundation/IO/Archive/ArchiveUtils.h>
 
-#include <Foundation/IO/MemoryStream.h>
+#include <Foundation/IO/Archive/ArchiveUtils.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Types/Types.h>
-#include <Foundation/IO/Archive/ArchiveUtils.h>
 
 #include <Foundation/Logging/Log.h>
 
 ezResult ezArchiveReader::OpenArchive(const char* szPath)
 {
+#if EZ_ENABLED(EZ_SUPPORTS_MEMORY_MAPPED_FILE)
   EZ_LOG_BLOCK("OpenArchive", szPath);
 
   EZ_SUCCEED_OR_RETURN(m_MemFile.Open(szPath, ezMemoryMappedFile::Mode::ReadOnly));
@@ -21,24 +22,43 @@ ezResult ezArchiveReader::OpenArchive(const char* szPath)
   {
     ezRawMemoryStreamReader reader(m_MemFile.GetReadPointer(), m_MemFile.GetFileSize());
 
-    EZ_SUCCEED_OR_RETURN(ezArchiveUtils::ReadHeader(reader, m_uiArchiveVersion));
-
-    if (m_uiArchiveVersion != 1)
+    ezStringView extension = ezPathUtils::GetFileExtension(szPath);
+    if (extension == "ezArchive")
     {
-      ezLog::Error("Unknown ezArchive version");
+      EZ_SUCCEED_OR_RETURN(ezArchiveUtils::ReadHeader(reader, m_uiArchiveVersion));
+
+      m_pDataStart = m_MemFile.GetReadPointer(16, ezMemoryMappedFile::OffsetBase::Start);
+
+      EZ_SUCCEED_OR_RETURN(ezArchiveUtils::ExtractTOC(m_MemFile, m_ArchiveTOC, m_uiArchiveVersion));
+    }
+#  ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
+    else if (extension == "zip" || extension == "apk")
+    {
+      EZ_SUCCEED_OR_RETURN(ezArchiveUtils::ReadZipHeader(reader, m_uiArchiveVersion));
+      if (m_uiArchiveVersion != 0)
+      {
+        ezLog::Error("Unknown zip version '{}'", m_uiArchiveVersion);
+        return EZ_FAILURE;
+      }
+      m_pDataStart = m_MemFile.GetReadPointer(0, ezMemoryMappedFile::OffsetBase::Start);
+
+      if (ezArchiveUtils::ExtractZipTOC(m_MemFile, m_ArchiveTOC).Failed())
+      {
+        ezLog::Error("Failed to deserialize zip TOC");
+        return EZ_FAILURE;
+      }
+    }
+#  endif
+    else
+    {
       return EZ_FAILURE;
     }
   }
-
-  m_pDataStart = m_MemFile.GetReadPointer(16, ezMemoryMappedFile::OffsetBase::Start);
-
-  if (ezArchiveUtils::ExtractTOC(m_MemFile, m_ArchiveTOC).Failed())
-  {
-    ezLog::Error("Failed to deserialize ezArchive TOC");
-    return EZ_FAILURE;
-  }
-
   return EZ_SUCCESS;
+#else
+  EZ_REPORT_FAILURE("Memory mapped files are unsupported on this platform.");
+  return EZ_FAILURE;
+#endif
 }
 
 const ezArchiveTOC& ezArchiveReader::GetArchiveTOC()
@@ -88,7 +108,7 @@ ezResult ezArchiveReader::ExtractFile(ezUInt32 uiEntryIdx, const char* szTargetF
   ezFileWriter file;
   EZ_SUCCEED_OR_RETURN(file.Open(sOutputFile));
 
-  ezUInt8 uiTemp[1024 * 64];
+  ezUInt8 uiTemp[1024 * 8];
 
   ezUInt64 uiRead = 0;
   ezUInt64 uiReadTotal = 0;
@@ -124,4 +144,3 @@ bool ezArchiveReader::ExtractFileProgressCallback(ezUInt64 bytesWritten, ezUInt6
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Archive_Implementation_ArchiveReader);
-

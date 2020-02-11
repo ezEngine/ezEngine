@@ -134,7 +134,7 @@ public:
   }
 
 protected:
-  virtual void InitializeAfterLoading() override
+  virtual void InitializeAfterLoading(bool bFirstTimeCreation) override
   {
     EnsureSettingsObjectExist();
 
@@ -142,7 +142,7 @@ protected:
     m_ObjectMirror.InitReceiver(&m_Context);
     m_ObjectMirror.SendDocument();
 
-    BaseClass::InitializeAfterLoading();
+    BaseClass::InitializeAfterLoading(bFirstTimeCreation);
   }
 
   virtual ezStatus InternalLoadDocument() override
@@ -214,12 +214,13 @@ private:
     }
   }
 
+protected:
+
   virtual ezDocumentInfo* CreateDocumentInfo() override
   {
     return EZ_DEFAULT_NEW(ezAssetDocumentInfo);
   }
 
-protected:
   ezDocumentObjectMirror m_ObjectMirror;
   ezRttiConverterContext m_Context;
 };

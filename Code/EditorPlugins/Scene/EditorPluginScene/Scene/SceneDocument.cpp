@@ -55,7 +55,7 @@ ezSceneDocument::ezSceneDocument(const char* szDocumentPath, bool bIsPrefab)
 }
 
 
-void ezSceneDocument::InitializeAfterLoading()
+void ezSceneDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 {
   // (Local mirror only mirrors settings)
   m_ObjectMirror.SetFilterFunction([this](const ezDocumentObject* pObject, const char* szProperty) -> bool {
@@ -66,7 +66,7 @@ void ezSceneDocument::InitializeAfterLoading()
     return GetObjectManager()->IsUnderRootProperty("Children", pObject, szProperty);
   });
 
-  SUPER::InitializeAfterLoading();
+  SUPER::InitializeAfterLoading(bFirstTimeCreation);
   EnsureSettingsObjectExist();
 
   m_DocumentObjectMetaData.m_DataModifiedEvent.AddEventHandler(ezMakeDelegate(&ezSceneDocument::DocumentObjectMetaDataEventHandler, this));
@@ -91,15 +91,6 @@ ezSceneDocument::~ezSceneDocument()
 
   m_ObjectMirror.Clear();
   m_ObjectMirror.DeInit();
-}
-
-
-const char* ezSceneDocument::GetDocumentTypeDisplayString() const
-{
-  if (m_bIsPrefab)
-    return "Prefab";
-
-  return "Scene";
 }
 
 void ezSceneDocument::GroupSelection()
@@ -522,6 +513,13 @@ void ezSceneDocument::StartSimulateWorld()
     return;
   }
 
+  {
+    ezGameObjectDocumentEvent e;
+    e.m_Type = ezGameObjectDocumentEvent::Type::GameMode_StartingSimulate;
+    e.m_pDocument = this;
+    s_GameObjectDocumentEvents.Broadcast(e);
+  }
+
   SetGameMode(GameMode::Simulate);
 }
 
@@ -535,9 +533,10 @@ void ezSceneDocument::TriggerGameModePlay(bool bUsePickedPositionAsStart)
   }
 
   {
-    ezGameObjectEvent e;
-    e.m_Type = ezGameObjectEvent::Type::BeforeTriggerGameModePlay;
-    m_GameObjectEvents.Broadcast(e);
+    ezGameObjectDocumentEvent e;
+    e.m_Type = ezGameObjectDocumentEvent::Type::GameMode_StartingPlay;
+    e.m_pDocument = this;
+    s_GameObjectDocumentEvents.Broadcast(e);
   }
 
   UpdateObjectDebugTargets();
@@ -568,12 +567,6 @@ void ezSceneDocument::TriggerGameModePlay(bool bUsePickedPositionAsStart)
 
     GetEditorEngineConnection()->SendMessage(&msg);
   }
-
-  {
-    ezGameObjectEvent e;
-    e.m_Type = ezGameObjectEvent::Type::TriggerGameModePlay;
-    m_GameObjectEvents.Broadcast(e);
-  }
 }
 
 
@@ -597,9 +590,13 @@ bool ezSceneDocument::StopGameMode()
       msg.m_bEnablePTG = false;
       GetEditorEngineConnection()->SendMessage(&msg);
     }
-    ezGameObjectEvent e;
-    e.m_Type = ezGameObjectEvent::Type::TriggerStopGameModePlay;
-    m_GameObjectEvents.Broadcast(e);
+  }
+
+  {
+    ezGameObjectDocumentEvent e;
+    e.m_Type = ezGameObjectDocumentEvent::Type::GameMode_Stopped;
+    e.m_pDocument = this;
+    s_GameObjectDocumentEvents.Broadcast(e);
   }
 
   return true;
@@ -917,7 +914,7 @@ void ezSceneDocument::RestoreFavouriteCamera(ezUInt8 uiSlot)
   }
 }
 
-ezResult ezSceneDocument::JumpToLevelCamera(ezUInt8 uiSlot)
+ezResult ezSceneDocument::JumpToLevelCamera(ezUInt8 uiSlot, bool bImmediate)
 {
   EZ_ASSERT_DEBUG(uiSlot < 10, "Invalid slot");
 
@@ -959,7 +956,7 @@ ezResult ezSceneDocument::JumpToLevelCamera(ezUInt8 uiSlot)
   const ezTransform tCam = GetGlobalTransform(pCamObj);
 
   ezVec3 vUp = tCam.m_qRotation * ezVec3(0, 0, 1);
-  pView->InterpolateCameraTo(tCam.m_vPosition, tCam.m_qRotation * ezVec3(1, 0, 0), pView->m_pViewConfig->m_Camera.GetFovOrDim(), &vUp);
+  pView->InterpolateCameraTo(tCam.m_vPosition, tCam.m_qRotation * ezVec3(1, 0, 0), pView->m_pViewConfig->m_Camera.GetFovOrDim(), &vUp, bImmediate);
 
   return EZ_SUCCESS;
 }
@@ -1177,14 +1174,6 @@ ezStatus ezSceneDocument::RequestExportScene(const char* szTargetFile, const ezA
   return status;
 }
 
-const char* ezSceneDocument::QueryAssetType() const
-{
-  if (m_bIsPrefab)
-    return "Prefab";
-
-  return "Scene";
-}
-
 void ezSceneDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
 {
   SUPER::UpdateAssetDocumentInfo(pInfo);
@@ -1271,10 +1260,10 @@ ezStatus ezSceneDocument::ExportScene(bool bCreateThumbnail)
   if (bCreateThumbnail)
   {
     // this is needed to generate a scene thumbnail, however that has a larger overhead (1 sec or so)
-    res = ezAssetCurator::GetSingleton()->TransformAsset(GetGuid(), true);
+    res = ezAssetCurator::GetSingleton()->TransformAsset(GetGuid(), ezTransformFlags::ForceTransform | ezTransformFlags::TriggeredManually);
   }
   else
-    res = TransformAsset(true);
+    res = TransformAsset(ezTransformFlags::ForceTransform | ezTransformFlags::TriggeredManually);
 
   if (res.m_Result.Failed())
     ezLog::Error(res.m_sMessage);
@@ -1327,7 +1316,7 @@ void ezSceneDocument::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
 }
 
 ezStatus ezSceneDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-  const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   const ezSceneDocumentSettings* pSettings = GetSettings();
 
@@ -1344,7 +1333,7 @@ ezStatus ezSceneDocument::InternalTransformAsset(const char* szTargetFile, const
 
 
 ezStatus ezSceneDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-  const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
 

@@ -73,6 +73,10 @@ public:
   /// the end of the deque are destructed.
   void SetCount(ezUInt32 uiCount); // [tested]
 
+  /// \Same as SetCount(), but new elements do not get default constructed.
+  template <typename = void> // Template is used to only conditionally compile this function in when it is actually used.
+  void SetCountUninitialized(ezUInt32 uiCount); // [tested]
+
   /// \brief Ensures the container has at least \a uiCount elements. Ie. calls SetCount() if the container has fewer elements, does nothing
   /// otherwise.
   void EnsureCount(ezUInt32 uiCount); // [tested]

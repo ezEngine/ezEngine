@@ -28,6 +28,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectDocument, 2, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
+ezEvent<const ezGameObjectDocumentEvent&> ezGameObjectDocument::s_GameObjectDocumentEvents;
+
 ezGameObjectDocument::ezGameObjectDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType)
     : ezAssetDocument(szDocumentPath, pObjectManager, engineConnectionType)
 {
@@ -475,9 +477,9 @@ void ezGameObjectDocument::DeallocateEditTools()
   m_CreatedEditTools.Clear();
 }
 
-void ezGameObjectDocument::InitializeAfterLoading()
+void ezGameObjectDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 {
-  SUPER::InitializeAfterLoading();
+  SUPER::InitializeAfterLoading(bFirstTimeCreation);
   GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezGameObjectDocument::SelectionManagerEventHandler, this));
   GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezGameObjectDocument::ObjectPropertyEventHandler, this));
   GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezGameObjectDocument::ObjectStructureEventHandler, this));

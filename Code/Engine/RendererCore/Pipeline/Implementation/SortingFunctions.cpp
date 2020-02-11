@@ -16,7 +16,7 @@ namespace
   {
     ///\todo farplane is not enough to normalize distance
     const float fDistance = (camera.GetPosition() - pRenderData->m_GlobalTransform.m_vPosition).GetLength();
-    const float fNormalizedDistance = ezMath::Min(fDistance / camera.GetFarPlane(), 1.0f);
+    const float fNormalizedDistance = ezMath::Clamp(fDistance / camera.GetFarPlane(), 0.0f, 1.0f);
     return static_cast<ezUInt32>(fNormalizedDistance * 65535.0f);
   }
 }

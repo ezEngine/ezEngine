@@ -486,26 +486,35 @@ ezResult ezImageUtils::ExtractLowerMipChain(const ezImageView& srcImg, ezImage& 
 {
   const ezImageHeader& srcImgHeader = srcImg.GetHeader();
 
-  // only power-of-two resolutions are supported atm
-  if (!ezMath::IsPowerOf2(srcImgHeader.GetWidth()) || !ezMath::IsPowerOf2(srcImgHeader.GetHeight()))
+  if (srcImgHeader.GetNumFaces() != 1 || srcImgHeader.GetNumArrayIndices() != 1)
+  {
+    // Lower mips aren't stored contiguously for array/cube textures and would require copying. This isn't implemented yet.
     return EZ_FAILURE;
+  }
 
   uiNumMips = ezMath::Min(uiNumMips, srcImgHeader.GetNumMipLevels());
 
   ezUInt32 startMipLevel = srcImgHeader.GetNumMipLevels() - uiNumMips;
 
-  // block compressed image formats require resolutions that are divisible by 4
-  // therefore, adjust startMipLevel accordingly
-  while (srcImgHeader.GetWidth(startMipLevel) % 4 != 0 || srcImgHeader.GetHeight(startMipLevel) % 4 != 0)
+  ezImageFormat::Enum format = srcImgHeader.GetImageFormat();
+
+  if (ezImageFormat::RequiresFirstLevelBlockAlignment(format))
   {
-    if (uiNumMips >= srcImgHeader.GetNumMipLevels())
-      return EZ_FAILURE;
+    // Some block compressed image formats require resolutions that are divisible by block size,
+    // therefore adjust startMipLevel accordingly
+    while (
+      srcImgHeader.GetWidth(startMipLevel) % ezImageFormat::GetBlockWidth(format) != 0 ||
+      srcImgHeader.GetHeight(startMipLevel) % ezImageFormat::GetBlockHeight(format) != 0)
+    {
+      if (uiNumMips >= srcImgHeader.GetNumMipLevels())
+        return EZ_FAILURE;
 
-    if (startMipLevel == 0)
-      return EZ_FAILURE;
+      if (startMipLevel == 0)
+        return EZ_FAILURE;
 
-    ++uiNumMips;
-    --startMipLevel;
+      ++uiNumMips;
+      --startMipLevel;
+    }
   }
 
   ezImageHeader dstImgHeader = srcImgHeader;
@@ -516,11 +525,11 @@ ezResult ezImageUtils::ExtractLowerMipChain(const ezImageView& srcImg, ezImage& 
   dstImgHeader.SetNumArrayIndices(srcImgHeader.GetNumArrayIndices());
   dstImgHeader.SetNumMipLevels(uiNumMips);
 
-  const void* pDataBegin = srcImg.GetPixelPointer<void>(startMipLevel);
-  const void* pDataEnd = srcImg.GetBlobPtr<void>().GetEndPtr();
+  const ezUInt8* pDataBegin = srcImg.GetPixelPointer<ezUInt8>(startMipLevel);
+  const ezUInt8* pDataEnd = srcImg.GetByteBlobPtr().GetEndPtr();
   const ptrdiff_t dataSize = reinterpret_cast<ptrdiff_t>(pDataEnd) - reinterpret_cast<ptrdiff_t>(pDataBegin);
 
-  const ezBlobPtr<const void> lowResData(pDataBegin, static_cast<ezUInt64>(dataSize));
+  const ezConstByteBlobPtr lowResData(pDataBegin, static_cast<ezUInt64>(dataSize));
 
   ezImageView dataview;
   dataview.ResetAndViewExternalStorage(dstImgHeader, lowResData);
@@ -529,8 +538,6 @@ ezResult ezImageUtils::ExtractLowerMipChain(const ezImageView& srcImg, ezImage& 
 
   return EZ_SUCCESS;
 }
-
-
 
 ezUInt32 ezImageUtils::GetSampleIndex(ezUInt32 numTexels, ezInt32 index, ezImageAddressMode::Enum addressMode, bool& outUseBorderColor)
 {
@@ -713,8 +720,8 @@ static void DownScaleFast(const ezImageView& image, ezImage& out_Result, ezUInt3
 
   out_Result.ResetAndAlloc(outHeader);
 
-  EZ_ASSERT_DEBUG(intermediate.GetRowPitch() < ezMath::BasicType<ezUInt32>::MaxValue(), "Row pitch exceeds ezUInt32 max value.");
-  EZ_ASSERT_DEBUG(out_Result.GetRowPitch() < ezMath::BasicType<ezUInt32>::MaxValue(), "Row pitch exceeds ezUInt32 max value.");
+  EZ_ASSERT_DEBUG(intermediate.GetRowPitch() < ezMath::MaxValue<ezUInt32>(), "Row pitch exceeds ezUInt32 max value.");
+  EZ_ASSERT_DEBUG(out_Result.GetRowPitch() < ezMath::MaxValue<ezUInt32>(), "Row pitch exceeds ezUInt32 max value.");
 
   for (ezUInt32 arrayIndex = 0; arrayIndex < numArrayElements; arrayIndex++)
   {
@@ -1053,6 +1060,9 @@ void ezImageUtils::GenerateMipMaps(const ezImageView& source, ezImage& target, c
   // Make a local copy to be able to tweak some of the options
   ezImageUtils::MipMapOptions mipMapOptions = options;
 
+  // alpha thresholds with extreme values are not supported at the moment
+  mipMapOptions.m_alphaThreshold = ezMath::Clamp(mipMapOptions.m_alphaThreshold, 0.05f, 0.95f);
+
   // Enforce CLAMP addressing mode for cubemaps
   if (source.GetNumFaces() == 6)
   {
@@ -1078,8 +1088,8 @@ void ezImageUtils::GenerateMipMaps(const ezImageView& source, ezImage& target, c
       currentMipMapHeader.SetNumFaces(1);
       currentMipMapHeader.SetNumArrayIndices(1);
 
-      auto sourceView = source.GetSubImageView(0, face, arrayIndex).GetBlobPtr<void>();
-      auto targetView = target.GetSubImageView(0, face, arrayIndex).GetBlobPtr<ezUInt8>();
+      auto sourceView = source.GetSubImageView(0, face, arrayIndex).GetByteBlobPtr();
+      auto targetView = target.GetSubImageView(0, face, arrayIndex).GetByteBlobPtr();
 
       memcpy(targetView.GetPtr(), sourceView.GetPtr(), targetView.GetCount());
 
@@ -1097,11 +1107,11 @@ void ezImageUtils::GenerateMipMaps(const ezImageView& source, ezImage& target, c
         nextMipMapHeader.SetHeight(ezMath::Max(1u, nextMipMapHeader.GetHeight() / 2));
         nextMipMapHeader.SetDepth(ezMath::Max(1u, nextMipMapHeader.GetDepth() / 2));
 
-        auto sourceData = target.GetSubImageView(mipMapLevel, face, arrayIndex).GetBlobPtr<void>();
+        auto sourceData = target.GetSubImageView(mipMapLevel, face, arrayIndex).GetByteBlobPtr();
         ezImage currentMipMap;
         currentMipMap.ResetAndUseExternalStorage(currentMipMapHeader, sourceData);
 
-        auto dstData = target.GetSubImageView(mipMapLevel + 1, face, arrayIndex).GetBlobPtr<void>();
+        auto dstData = target.GetSubImageView(mipMapLevel + 1, face, arrayIndex).GetByteBlobPtr();
         ezImage nextMipMap;
         nextMipMap.ResetAndUseExternalStorage(nextMipMapHeader, dstData);
 
@@ -1417,7 +1427,7 @@ ezResult ezImageUtils::CreateCubemapFromSingleFile(ezImage& dstImg, const ezImag
       const ezUInt64 faceRowPitch = dstImg.GetRowPitch() / sizeof(ezColor);
 
       const ezColor* srcData = srcImg.GetPixelPointer<ezColor>();
-      const float InvPi = 1.0f / ezMath::BasicType<float>::Pi();
+      const float InvPi = 1.0f / ezMath::Pi<float>();
 
       for (ezUInt32 faceIndex = 0; faceIndex < 6; faceIndex++)
       {
@@ -1432,12 +1442,12 @@ ezResult ezImageUtils::CreateCubemapFromSingleFile(ezImage& dstImg, const ezImag
             const ezVec3 modelSpacePos = faceCorners[faceIndex] + dstU * faceAxis[faceIndex * 2] + dstV * faceAxis[faceIndex * 2 + 1];
             const ezVec3 modelSpaceDir = modelSpacePos.GetNormalized();
 
-            const float phi = ezMath::ATan2(modelSpaceDir.x, modelSpaceDir.z).GetRadian() + ezMath::BasicType<float>::Pi();
+            const float phi = ezMath::ATan2(modelSpaceDir.x, modelSpaceDir.z).GetRadian() + ezMath::Pi<float>();
             const float r = ezMath::Sqrt(modelSpaceDir.x * modelSpaceDir.x + modelSpaceDir.z * modelSpaceDir.z);
-            const float theta = ezMath::ATan2(modelSpaceDir.y, r).GetRadian() + ezMath::BasicType<float>::Pi() * 0.5f;
+            const float theta = ezMath::ATan2(modelSpaceDir.y, r).GetRadian() + ezMath::Pi<float>() * 0.5f;
 
-            EZ_ASSERT_DEBUG(phi >= 0.0f && phi <= 2.0f * ezMath::BasicType<float>::Pi(), "");
-            EZ_ASSERT_DEBUG(theta >= 0.0f && theta <= ezMath::BasicType<float>::Pi(), "");
+            EZ_ASSERT_DEBUG(phi >= 0.0f && phi <= 2.0f * ezMath::Pi<float>(), "");
+            EZ_ASSERT_DEBUG(theta >= 0.0f && theta <= ezMath::Pi<float>(), "");
 
             const float srcU = phi * InvPi * fHalfSrcWidth;
             const float srcV = (1.0f - theta * InvPi) * fSrcHeight;

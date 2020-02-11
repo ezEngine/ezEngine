@@ -99,7 +99,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBoxSphere)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsNaN")
   {
-    if (ezMath::BasicType<ezMathTestType>::SupportsNaN())
+    if (ezMath::SupportsNaN<ezMathTestType>())
     {
       ezBoundingBoxSphereT b;
 
@@ -107,31 +107,31 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBoxSphere)
       EZ_TEST_BOOL(!b.IsNaN());
 
       b.SetInvalid();
-      b.m_vCenter.x = ezMath::BasicType<ezMathTestType>::GetNaN();
+      b.m_vCenter.x = ezMath::NaN<ezMathTestType>();
       EZ_TEST_BOOL(b.IsNaN());
 
       b.SetInvalid();
-      b.m_vCenter.y = ezMath::BasicType<ezMathTestType>::GetNaN();
+      b.m_vCenter.y = ezMath::NaN<ezMathTestType>();
       EZ_TEST_BOOL(b.IsNaN());
 
       b.SetInvalid();
-      b.m_vCenter.z = ezMath::BasicType<ezMathTestType>::GetNaN();
+      b.m_vCenter.z = ezMath::NaN<ezMathTestType>();
       EZ_TEST_BOOL(b.IsNaN());
 
       b.SetInvalid();
-      b.m_vBoxHalfExtends.x = ezMath::BasicType<ezMathTestType>::GetNaN();
+      b.m_vBoxHalfExtends.x = ezMath::NaN<ezMathTestType>();
       EZ_TEST_BOOL(b.IsNaN());
 
       b.SetInvalid();
-      b.m_vBoxHalfExtends.y = ezMath::BasicType<ezMathTestType>::GetNaN();
+      b.m_vBoxHalfExtends.y = ezMath::NaN<ezMathTestType>();
       EZ_TEST_BOOL(b.IsNaN());
 
       b.SetInvalid();
-      b.m_vBoxHalfExtends.z = ezMath::BasicType<ezMathTestType>::GetNaN();
+      b.m_vBoxHalfExtends.z = ezMath::NaN<ezMathTestType>();
       EZ_TEST_BOOL(b.IsNaN());
 
       b.SetInvalid();
-      b.m_fSphereRadius = ezMath::BasicType<ezMathTestType>::GetNaN();
+      b.m_fSphereRadius = ezMath::NaN<ezMathTestType>();
       EZ_TEST_BOOL(b.IsNaN());
     }
   }

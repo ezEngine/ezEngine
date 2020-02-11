@@ -79,7 +79,7 @@ void ezPrefabReferenceComponent::SerializeComponent(ezWorldWriter& stream) const
         if (var.IsA<ezString>())
         {
           // and the resolver CAN map this string to a game object handle
-          ezGameObjectHandle hObject = resolver(var.Get<ezString>().GetData());
+          ezGameObjectHandle hObject = resolver(var.Get<ezString>().GetData(), ezComponentHandle(), nullptr);
           if (!hObject.IsInvalidated())
           {
             // write the handle properly to file (this enables correct remapping during deserialization)
@@ -245,7 +245,7 @@ void ezPrefabReferenceComponent::InstantiatePrefab()
     {
       ezHybridArray<ezGameObject*, 8> createdRootObjects;
 
-      pResource->InstantiatePrefab(*GetWorld(), id, GetOwner()->GetHandle(), &createdRootObjects, &GetOwner()->GetTeamID(), &m_Parameters);
+      pResource->InstantiatePrefab(*GetWorld(), id, GetOwner()->GetHandle(), &createdRootObjects, &GetOwner()->GetTeamID(), &m_Parameters, false);
 
       // while exporting a scene all game objects with this tag are ignored and not exported
       // set this tag on all game objects that were created by instantiating this prefab
@@ -260,7 +260,7 @@ void ezPrefabReferenceComponent::InstantiatePrefab()
     }
     else
     {
-      pResource->InstantiatePrefab(*GetWorld(), id, GetOwner()->GetHandle(), nullptr, &GetOwner()->GetTeamID(), &m_Parameters);
+      pResource->InstantiatePrefab(*GetWorld(), id, GetOwner()->GetHandle(), nullptr, &GetOwner()->GetTeamID(), &m_Parameters, false);
     }
   }
 }
@@ -375,13 +375,13 @@ bool ezPrefabReferenceComponent::GetParameter(const char* szKey, ezVariant& out_
 ezPrefabReferenceComponentManager::ezPrefabReferenceComponentManager(ezWorld* pWorld)
   : ezComponentManager<ComponentType, ezBlockStorageType::Compact>(pWorld)
 {
-  ezResourceManager::s_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezPrefabReferenceComponentManager::ResourceEventHandler, this));
+  ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezPrefabReferenceComponentManager::ResourceEventHandler, this));
 }
 
 
 ezPrefabReferenceComponentManager::~ezPrefabReferenceComponentManager()
 {
-  ezResourceManager::s_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezPrefabReferenceComponentManager::ResourceEventHandler, this));
+  ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezPrefabReferenceComponentManager::ResourceEventHandler, this));
 }
 
 void ezPrefabReferenceComponentManager::Initialize()

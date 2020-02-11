@@ -15,7 +15,7 @@ public:
   ezImageView();
 
   /// \brief Constructs an image view with the given header and image data.
-  ezImageView(const ezImageHeader& header, ezBlobPtr<const void> imageData);
+  ezImageView(const ezImageHeader& header, ezConstByteBlobPtr imageData);
 
   /// \brief Constructs an empty image view.
   void Clear();
@@ -24,7 +24,7 @@ public:
   bool IsValid() const;
 
   /// \brief Constructs an image view with the given header and image data.
-  void ResetAndViewExternalStorage(const ezImageHeader& header, ezBlobPtr<const void> imageData);
+  void ResetAndViewExternalStorage(const ezImageHeader& header, ezConstByteBlobPtr imageData);
 
   /// \brief Convenience function to save the image to the given file.
   ezResult SaveTo(const char* szFileName, ezLogInterface* pLog = ezLog::GetThreadLocalLogSystem()) const;
@@ -35,6 +35,8 @@ public:
   /// \brief Returns a view to the entire data contained in this image.
   template <typename T>
   ezBlobPtr<const T> GetBlobPtr() const;
+
+  ezConstByteBlobPtr GetByteBlobPtr() const;
 
   /// \brief Returns a view to the given sub-image.
   ezImageView GetSubImageView(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0) const;
@@ -104,7 +106,7 @@ class EZ_TEXTURE_DLL ezImage : public ezImageView
   explicit ezImage(const ezImageHeader& header);
 
   /// \brief Constructs an image with the given header backed by user-supplied external storage.
-  explicit ezImage(const ezImageHeader& header, ezBlobPtr<void> externalData);
+  explicit ezImage(const ezImageHeader& header, ezByteBlobPtr externalData);
   
   /// \brief Constructor from image view (copies the image data to internal storage)
   explicit ezImage(const ezImageView& other);
@@ -132,7 +134,7 @@ public:
   /// \brief Constructs an image with the given header and attaches to the user-supplied external storage.
   ///
   /// The user is responsible to keep the external storage alive as long as this ezImage is alive.
-  void ResetAndUseExternalStorage(const ezImageHeader& header, ezBlobPtr<void> externalData);
+  void ResetAndUseExternalStorage(const ezImageHeader& header, ezByteBlobPtr externalData);
 
   /// \brief Moves the given data into this object.
   ///
@@ -155,7 +157,10 @@ public:
   template <typename T>
   ezBlobPtr<T> GetBlobPtr();
 
+  ezByteBlobPtr GetByteBlobPtr();
+
   using ezImageView::GetBlobPtr;
+  using ezImageView::GetByteBlobPtr;
 
   /// \brief Returns a view to the given sub-image.
   ezImage GetSubImageView(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0);

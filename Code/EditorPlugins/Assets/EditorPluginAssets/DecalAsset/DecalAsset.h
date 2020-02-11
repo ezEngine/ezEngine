@@ -54,10 +54,8 @@ class ezDecalAssetDocument : public ezSimpleAssetDocument<ezDecalAssetProperties
 public:
   ezDecalAssetDocument(const char* szDocumentPath);
 
-  virtual const char* QueryAssetType() const override;
-
 protected:
-  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
+  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
 
   virtual ezStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 };

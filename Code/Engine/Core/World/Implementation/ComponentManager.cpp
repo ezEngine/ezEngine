@@ -27,14 +27,22 @@ void ezComponentManagerBase::DeleteComponent(const ezComponentHandle& component)
   if (!m_Components.TryGetValue(component, pComponent))
     return;
 
+  DeleteComponent(pComponent);
+}
+
+void ezComponentManagerBase::DeleteComponent(ezComponent* pComponent)
+{
+  if (pComponent == nullptr)
+    return;
+
   DeinitializeComponent(pComponent);
 
   m_Components.Remove(pComponent->m_InternalId);
 
   pComponent->m_InternalId.Invalidate();
-  pComponent->m_ComponentFlags.Remove(ezObjectFlags::Active);
+  pComponent->m_ComponentFlags.Remove(ezObjectFlags::ActiveFlag | ezObjectFlags::ActiveState);
 
-  GetWorld()->m_Data.m_DeadComponents.PushBack(pComponent);
+  GetWorld()->m_Data.m_DeadComponents.Insert(pComponent);
 }
 
 void ezComponentManagerBase::DeinitializeInternal()

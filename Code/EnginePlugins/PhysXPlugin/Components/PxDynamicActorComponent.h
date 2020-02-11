@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <PhysXPlugin/Components/PxActorComponent.h>
 #include <PhysXPlugin/Utilities/PxUserData.h>
@@ -33,63 +33,63 @@ class EZ_PHYSXPLUGIN_DLL ezPxDynamicActorComponent : public ezPxActorComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezPxDynamicActorComponent, ezPxActorComponent, ezPxDynamicActorComponentManager);
 
-public:
-  ezPxDynamicActorComponent();
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent
 
+public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
-  void AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg);
-  void AddForceAtPos(ezMsgPhysicsAddForce& msg);
+  virtual void OnSimulationStarted() override;
+  virtual void Deinitialize() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // Properties
-
-  bool GetKinematic() const { return m_bKinematic; }
-  void SetKinematic(bool b);
-
-  bool GetDisableGravity() const { return m_bDisableGravity; }
-  void SetDisableGravity(bool b);
-
-  bool GetContinuousCollisionDetection() const { return m_bCCD; }
-  void SetContinuousCollisionDetection(bool b);
-
-  float GetMass() const { return m_fMass; }
-  void SetMass(float fMass);
-
-  float m_fDensity;
-  float m_fLinearDamping;
-  float m_fAngularDamping;
-  float m_fMaxContactImpulse;
+  // ezPxDynamicActorComponent
 
 public:
-  virtual void OnSimulationStarted() override;
-
-  virtual void Deinitialize() override;
+  ezPxDynamicActorComponent();
+  ~ezPxDynamicActorComponent();
 
   physx::PxRigidDynamic* GetActor() const { return m_pActor; }
 
-  ezVec3 GetLocalCenterOfMass() const;
-  ezVec3 GetGlobalCenterOfMass() const;
+  void AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg); // [ message ]
+  void AddForceAtPos(ezMsgPhysicsAddForce& msg);     // [ message ]
 
-  /// \todo Turn these into messages ?
+  bool GetKinematic() const { return m_bKinematic; } // [ property ]
+  void SetKinematic(bool b);                         // [ property ]
 
-  void AddLinearForce(const ezVec3& vForce);
-  void AddLinearImpulse(const ezVec3& vImpulse);
+  bool GetDisableGravity() const { return m_bDisableGravity; } // [ property ]
+  void SetDisableGravity(bool b);                              // [ property ]
 
-  void AddAngularForce(const ezVec3& vForce);
-  void AddAngularImpulse(const ezVec3& vImpulse);
+  bool GetContinuousCollisionDetection() const { return m_bCCD; } // [ property ]
+  void SetContinuousCollisionDetection(bool b);                   // [ property ]
+
+  float GetMass() const { return m_fMass; } // [ property ]
+  void SetMass(float fMass);                // [ property ]
+
+  float m_fDensity = 1.0f;                 // [ property ]
+  float m_fLinearDamping = 0.1f;           // [ property ]
+  float m_fAngularDamping = 0.05f;         // [ property ]
+  float m_fMaxContactImpulse = 1000000.0f; // [ property ]
+
+  ezVec3 GetLocalCenterOfMass() const;  // [ scriptable ]
+  ezVec3 GetGlobalCenterOfMass() const; // [ scriptable ]
+
+  void AddLinearForce(const ezVec3& vForce);      // [ scriptable ]
+  void AddLinearImpulse(const ezVec3& vImpulse);  // [ scriptable ]
+  void AddAngularForce(const ezVec3& vForce);     // [ scriptable ]
+  void AddAngularImpulse(const ezVec3& vImpulse); // [ scriptable ]
 
 protected:
   bool FindCenterOfMass(ezGameObject* pRoot, ezVec3& out_CoM) const;
 
-  physx::PxRigidDynamic* m_pActor;
+  physx::PxRigidDynamic* m_pActor = nullptr;
 
 private:
-  float m_fMass;
-  bool m_bDisableGravity;
-  bool m_bKinematic;
-  bool m_bCCD;
+  float m_fMass = 0.0f;
+  bool m_bDisableGravity = false;
+  bool m_bKinematic = false;
+  bool m_bCCD = false;
 
   ezPxUserData m_UserData;
 };

@@ -1,13 +1,13 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <QDockWidget>
 #include <Tools/Inspector/ui_SubsystemsWidget.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Configuration/Startup.h>
+#include <ads/DockWidget.h>
 
-class ezQtSubsystemsWidget : public QDockWidget, public Ui_SubsystemsWidget
+class ezQtSubsystemsWidget : public ads::CDockWidget, public Ui_SubsystemsWidget
 {
 public:
   Q_OBJECT

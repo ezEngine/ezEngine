@@ -17,7 +17,7 @@ ezQtNode::ezQtNode()
   setFlag(QGraphicsItem::ItemIsSelectable);
   setFlag(QGraphicsItem::ItemSendsGeometryChanges);
 
-  setBrush(palette.background());
+  setBrush(palette.window());
   QPen pen(palette.light().color(), 3, Qt::SolidLine);
   setPen(pen);
 

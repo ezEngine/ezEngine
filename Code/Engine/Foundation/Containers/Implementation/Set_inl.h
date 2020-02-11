@@ -2,6 +2,8 @@
 
 #include <Foundation/Math/Math.h>
 
+#define STACK_SIZE 64
+
 // ***** Const Iterator *****
 
 template <typename KeyType, typename Comparer>
@@ -115,7 +117,9 @@ void ezSetBase<KeyType, Comparer>::Iterator::Prev()
 // ***** ezSetBase *****
 
 template <typename KeyType, typename Comparer>
-EZ_ALWAYS_INLINE ezSetBase<KeyType, Comparer>::NilNode::NilNode() : m_uiLevel(0), m_pParent(nullptr)
+EZ_ALWAYS_INLINE ezSetBase<KeyType, Comparer>::NilNode::NilNode()
+  : m_uiLevel(0)
+  , m_pParent(nullptr)
 {
   m_pLink[0] = nullptr;
   m_pLink[1] = nullptr;
@@ -136,13 +140,16 @@ void ezSetBase<KeyType, Comparer>::Constructor()
 }
 
 template <typename KeyType, typename Comparer>
-ezSetBase<KeyType, Comparer>::ezSetBase(const Comparer& comparer, ezAllocatorBase* pAllocator) : m_Elements(pAllocator), m_Comparer(comparer)
+ezSetBase<KeyType, Comparer>::ezSetBase(const Comparer& comparer, ezAllocatorBase* pAllocator)
+  : m_Elements(pAllocator)
+  , m_Comparer(comparer)
 {
   Constructor();
 }
 
 template <typename KeyType, typename Comparer>
-ezSetBase<KeyType, Comparer>::ezSetBase(const ezSetBase<KeyType, Comparer>& cc, ezAllocatorBase* pAllocator) : m_Elements(pAllocator)
+ezSetBase<KeyType, Comparer>::ezSetBase(const ezSetBase<KeyType, Comparer>& cc, ezAllocatorBase* pAllocator)
+  : m_Elements(pAllocator)
 {
   Constructor();
 
@@ -506,13 +513,14 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Inser
   else
   {
     Node* it = root;
-    Node* up[32];
+    Node* up[STACK_SIZE];
 
     ezInt32 top = 0;
     ezInt32 dir = 0;
 
     while (true)
     {
+      EZ_ASSERT_DEBUG(top < STACK_SIZE, "ezSetBase's internal stack is not large enough to be able to sort {0} elements.", GetCount());
       up[top++] = it;
       dir = m_Comparer.Less(it->m_Key, key) ? 1 : 0;
 
@@ -565,12 +573,13 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Remov
   if (root != &m_NilNode)
   {
     Node* it = root;
-    Node* up[32];
+    Node* up[STACK_SIZE];
     ezInt32 top = 0;
     ezInt32 dir = 0;
 
     while (true)
     {
+      EZ_ASSERT_DEBUG(top >= 0 && top < STACK_SIZE, "Implementation error");
       up[top++] = it;
 
       if (it == &m_NilNode)
@@ -594,6 +603,7 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Remov
 
       if (--top != 0)
       {
+        EZ_ASSERT_DEBUG(top >= 1 && top < STACK_SIZE, "Implementation error");
         up[top - 1]->m_pLink[dir] = it->m_pLink[dir2];
         up[top - 1]->m_pLink[dir]->m_pParent = up[top - 1];
       }
@@ -607,6 +617,7 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Remov
 
       while (heir->m_pLink[0] != &m_NilNode)
       {
+        EZ_ASSERT_DEBUG(top >= 0 && top < STACK_SIZE, "Implementation error");
         up[top++] = prev = heir;
 
         heir = heir->m_pLink[0];
@@ -622,7 +633,12 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Remov
     while (--top >= 0)
     {
       if (top != 0)
+      {
+        EZ_ASSERT_DEBUG(top >= 1 && top < STACK_SIZE, "Implementation error");
         dir = up[top - 1]->m_pLink[1] == up[top];
+      }
+
+      EZ_ASSERT_DEBUG(top >= 0 && top < STACK_SIZE, "Implementation error");
 
       if ((up[top]->m_pLink[0]->m_uiLevel < up[top]->m_uiLevel - 1) || (up[top]->m_pLink[1]->m_uiLevel < up[top]->m_uiLevel - 1))
       {
@@ -641,11 +657,16 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Remov
 
       if (top != 0)
       {
+        EZ_ASSERT_DEBUG(top >= 1 && top < STACK_SIZE, "Implementation error");
+
         up[top - 1]->m_pLink[dir] = up[top];
         up[top - 1]->m_pLink[dir]->m_pParent = up[top - 1];
       }
       else
+      {
+        EZ_ASSERT_DEBUG(top >= 0 && top < STACK_SIZE, "Implementation error");
         root = up[top];
+      }
     }
   }
 
@@ -728,25 +749,37 @@ bool ezSetBase<KeyType, Comparer>::operator!=(const ezSetBase<KeyType, Comparer>
   return !operator==(rhs);
 }
 
+#undef STACK_SIZE
+
 
 
 template <typename KeyType, typename Comparer, typename AllocatorWrapper>
-ezSet<KeyType, Comparer, AllocatorWrapper>::ezSet() : ezSetBase<KeyType, Comparer>(Comparer(), AllocatorWrapper::GetAllocator())
+ezSet<KeyType, Comparer, AllocatorWrapper>::ezSet()
+  : ezSetBase<KeyType, Comparer>(Comparer(), AllocatorWrapper::GetAllocator())
 {
 }
 
 template <typename KeyType, typename Comparer, typename AllocatorWrapper>
-ezSet<KeyType, Comparer, AllocatorWrapper>::ezSet(const Comparer& comparer, ezAllocatorBase* pAllocator) : ezSetBase<KeyType, Comparer>(comparer, pAllocator)
+ezSet<KeyType, Comparer, AllocatorWrapper>::ezSet(ezAllocatorBase* pAllocator)
+  : ezSetBase<KeyType, Comparer>(Comparer(), pAllocator)
 {
 }
 
 template <typename KeyType, typename Comparer, typename AllocatorWrapper>
-ezSet<KeyType, Comparer, AllocatorWrapper>::ezSet(const ezSet<KeyType, Comparer, AllocatorWrapper>& other) : ezSetBase<KeyType, Comparer>(other, AllocatorWrapper::GetAllocator())
+ezSet<KeyType, Comparer, AllocatorWrapper>::ezSet(const Comparer& comparer, ezAllocatorBase* pAllocator)
+  : ezSetBase<KeyType, Comparer>(comparer, pAllocator)
 {
 }
 
 template <typename KeyType, typename Comparer, typename AllocatorWrapper>
-ezSet<KeyType, Comparer, AllocatorWrapper>::ezSet(const ezSetBase<KeyType, Comparer>& other) : ezSetBase<KeyType, Comparer>(other, AllocatorWrapper::GetAllocator())
+ezSet<KeyType, Comparer, AllocatorWrapper>::ezSet(const ezSet<KeyType, Comparer, AllocatorWrapper>& other)
+  : ezSetBase<KeyType, Comparer>(other, AllocatorWrapper::GetAllocator())
+{
+}
+
+template <typename KeyType, typename Comparer, typename AllocatorWrapper>
+ezSet<KeyType, Comparer, AllocatorWrapper>::ezSet(const ezSetBase<KeyType, Comparer>& other)
+  : ezSetBase<KeyType, Comparer>(other, AllocatorWrapper::GetAllocator())
 {
 }
 
@@ -773,6 +806,10 @@ void ezSetBase<KeyType, Comparer>::Swap(ezSetBase<KeyType, Comparer>& other)
   ezMath::Swap(this->m_pFreeElementStack, other.m_pFreeElementStack);
   ezMath::Swap(this->m_Comparer, other.m_Comparer);
 
+  // after we swapped the root nodes, fix up their parent nodes
+  this->m_pRoot->m_pParent = reinterpret_cast<Node*>(&this->m_NilNode);
+  other.m_pRoot->m_pParent = reinterpret_cast<Node*>(&other.m_NilNode);
+
   // the set allocator is stored in this array
   m_Elements.Swap(other.m_Elements);
 }
@@ -789,4 +826,3 @@ void ezSetBase<KeyType, Comparer>::SwapNilNode(Node*& pCurNode, NilNode* pOld, N
   SwapNilNode(pCurNode->m_pLink[0], pOld, pNew);
   SwapNilNode(pCurNode->m_pLink[1], pOld, pNew);
 }
-

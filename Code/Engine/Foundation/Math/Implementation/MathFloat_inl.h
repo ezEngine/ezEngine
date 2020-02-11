@@ -4,27 +4,14 @@
 
 namespace ezMath
 {
-  template <>
-  constexpr inline bool BasicType<float>::SupportsInfinity()
-  {
-    return true;
-  }
-
-  template <>
-  constexpr inline bool BasicType<float>::SupportsNaN()
-  {
-    return true;
-  }
-
   EZ_ALWAYS_INLINE bool IsFinite(float value)
   {
     // Check the 8 exponent bits.
     // NAN -> (exponent = all 1, mantissa = non-zero)
     // INF -> (exponent = all 1, mantissa = zero)
 
-    ezIntFloatUnion i2f;
-    i2f.f = value;
-    return ((i2f.i & 0x7f800000) != 0x7f800000);
+    ezIntFloatUnion i2f(value);
+    return ((i2f.i & 0x7f800000u) != 0x7f800000u);
   }
 
   EZ_ALWAYS_INLINE bool IsNaN(float value)
@@ -33,44 +20,8 @@ namespace ezMath
     // NAN -> (exponent = all 1, mantissa = non-zero)
     // INF -> (exponent = all 1, mantissa = zero)
 
-    ezIntFloatUnion i2f;
-    i2f.f = value;
-
-    return (((i2f.i & 0x7f800000) == 0x7f800000) && ((i2f.i & 0x7FFFFF) != 0));
-  }
-
-  template <>
-  EZ_ALWAYS_INLINE float BasicType<float>::GetNaN()
-  {
-    // NAN -> (exponent = all 1, mantissa = non-zero)
-    // INF -> (exponent = all 1, mantissa = zero)
-
-    // NaN = 0111 1111 1000 0000 0000 0000 0000 0001
-
-    ezIntFloatUnion i2f;
-    i2f.i = 0x7f800042;
-
-    return i2f.f;
-  };
-
-  template <>
-  EZ_ALWAYS_INLINE float BasicType<float>::GetInfinity()
-  {
-    // NAN -> (exponent = all 1, mantissa = non-zero)
-    // INF -> (exponent = all 1, mantissa = zero)
-
-    // INF = 0111 1111 1000 0000 0000 0000 0000 0000
-
-    ezIntFloatUnion i2f;
-    i2f.i = 0x7f800000; // bitwise representation of float infinity (positive)
-
-    return i2f.f;
-  }
-
-  template <>
-  EZ_ALWAYS_INLINE float BasicType<float>::MaxValue()
-  {
-    return 3.402823465e+38F;
+    ezIntFloatUnion i2f(value);
+    return (((i2f.i & 0x7f800000u) == 0x7f800000u) && ((i2f.i & 0x7FFFFFu) != 0));
   }
 
   EZ_ALWAYS_INLINE float Floor(float f) { return floorf(f); }

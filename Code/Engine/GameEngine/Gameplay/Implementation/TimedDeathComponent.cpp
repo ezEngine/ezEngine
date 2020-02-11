@@ -18,12 +18,12 @@ EZ_BEGIN_COMPONENT_TYPE(ezTimedDeathComponent, 2, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("TimeoutPrefab", GetTimeoutPrefab, SetTimeoutPrefab)->AddAttributes(new ezAssetBrowserAttribute("Prefab")),
   }
   EZ_END_PROPERTIES;
-    EZ_BEGIN_MESSAGEHANDLERS
+  EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgComponentInternalTrigger, OnTriggered),
   }
   EZ_END_MESSAGEHANDLERS;
-    EZ_BEGIN_ATTRIBUTES
+  EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Gameplay"),
   }
@@ -32,11 +32,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezTimedDeathComponent, 2, ezComponentMode::Static)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezTimedDeathComponent::ezTimedDeathComponent()
-{
-  m_MinDelay = ezTime::Seconds(1.0);
-  m_DelayRange = ezTime::Seconds(0.0);
-}
+ezTimedDeathComponent::ezTimedDeathComponent() = default;
+ezTimedDeathComponent::~ezTimedDeathComponent() = default;
 
 void ezTimedDeathComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -89,7 +86,7 @@ void ezTimedDeathComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
     ezResourceLock<ezPrefabResource> pPrefab(m_hTimeoutPrefab, ezResourceAcquireMode::AllowLoadingFallback);
 
     pPrefab->InstantiatePrefab(
-      *GetWorld(), GetOwner()->GetGlobalTransform(), ezGameObjectHandle(), nullptr, &GetOwner()->GetTeamID(), nullptr);
+      *GetWorld(), GetOwner()->GetGlobalTransform(), ezGameObjectHandle(), nullptr, &GetOwner()->GetTeamID(), nullptr, false);
   }
 
   GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());

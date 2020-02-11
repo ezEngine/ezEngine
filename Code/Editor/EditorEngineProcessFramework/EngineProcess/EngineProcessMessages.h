@@ -238,6 +238,13 @@ public:
   ezMat4 m_ProjMatrix;
 };
 
+class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezViewScreenshotMsgToEngine : public ezEditorEngineViewMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezViewScreenshotMsgToEngine, ezEditorEngineViewMsg);
+public:
+  ezString m_sOutputFile;
+};
+
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezActivateRemoteViewMsgToEngine : public ezEditorEngineViewMsg
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezActivateRemoteViewMsgToEngine, ezEditorEngineViewMsg);

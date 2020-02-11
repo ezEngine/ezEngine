@@ -21,6 +21,8 @@
 #error "Missing code for ezWindow!"
 #endif
 
+ezUInt32 ezWindow::s_uiNextUnusedWindowNumber = 0;
+
 ezResult ezWindowCreationDesc::AdjustWindowSizeAndPosition()
 {
   if (m_WindowMode == ezWindowMode::WindowFixedResolution || m_WindowMode == ezWindowMode::WindowResizable)
@@ -198,7 +200,10 @@ ezResult ezWindowCreationDesc::LoadFromDDL(const char* szFile)
   return EZ_SUCCESS;
 }
 
-ezWindow::ezWindow() {}
+ezWindow::ezWindow()
+{
+  ++s_uiNextUnusedWindowNumber;
+}
 
 ezWindow::~ezWindow()
 {
@@ -211,6 +216,12 @@ void ezWindow::OnWindowMessage(ezMinWindows::HWND hWnd, ezMinWindows::UINT Msg, 
 {
 
 }
+
+ezUInt32 ezWindow::GetNextUnusedWindowNumber()
+{
+  return s_uiNextUnusedWindowNumber;
+}
+
 
 EZ_STATICLINK_FILE(System, System_Window_Implementation_Window);
 

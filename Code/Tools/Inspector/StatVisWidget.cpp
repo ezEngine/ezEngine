@@ -1,8 +1,10 @@
 #include <InspectorPCH.h>
 
 #include <Foundation/Communication/Telemetry.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <Inspector/MainWindow.moc.h>
 #include <Inspector/StatVisWidget.moc.h>
+#include <Inspector/MainWidget.moc.h>
 #include <QGraphicsPathItem>
 #include <QGraphicsView>
 #include <QSettings>
@@ -13,21 +15,21 @@ ezInt32 ezQtStatVisWidget::s_iCurColor = 0;
 namespace StatVisWidgetDetail
 {
   static QColor s_Colors[ezQtStatVisWidget::s_uiMaxColors] = {
-      QColor(255, 106, 0), // orange
-      QColor(182, 255, 0), // lime green
-      QColor(255, 0, 255), // pink
-      QColor(0, 148, 255), // light blue
-      QColor(255, 0, 0),   // red
-      QColor(0, 255, 255), // turquoise
-      QColor(178, 0, 255), // purple
-      QColor(0, 38, 255),  // dark blue
-      QColor(72, 0, 255),  // lilac
+    QColor(255, 106, 0), // orange
+    QColor(182, 255, 0), // lime green
+    QColor(255, 0, 255), // pink
+    QColor(0, 148, 255), // light blue
+    QColor(255, 0, 0),   // red
+    QColor(0, 255, 255), // turquoise
+    QColor(178, 0, 255), // purple
+    QColor(0, 38, 255),  // dark blue
+    QColor(72, 0, 255),  // lilac
   };
 }
 
 ezQtStatVisWidget::ezQtStatVisWidget(QWidget* parent, ezInt32 iWindowNumber)
-    : QDockWidget(parent)
-    , m_ShowWindowAction(parent)
+  : ads::CDockWidget(QString("StatVisWidget") + QString::number(iWindowNumber), parent)
+  , m_ShowWindowAction(parent)
 {
   m_iWindowNumber = iWindowNumber;
   m_DisplayInterval = ezTime::Seconds(60.0);
@@ -35,20 +37,23 @@ ezQtStatVisWidget::ezQtStatVisWidget(QWidget* parent, ezInt32 iWindowNumber)
   s_pWidget = this;
 
   setupUi(this);
+  setWidget(StatVisWidgetFrame);
 
-  ComboTimeframe->blockSignals(true);
-  ComboTimeframe->addItem("Timeframe: 1 minute");
-  ComboTimeframe->addItem("Timeframe: 2 minutes");
-  ComboTimeframe->addItem("Timeframe: 3 minutes");
-  ComboTimeframe->addItem("Timeframe: 4 minutes");
-  ComboTimeframe->addItem("Timeframe: 5 minutes");
-  ComboTimeframe->addItem("Timeframe: 6 minutes");
-  ComboTimeframe->addItem("Timeframe: 7 minutes");
-  ComboTimeframe->addItem("Timeframe: 8 minutes");
-  ComboTimeframe->addItem("Timeframe: 9 minutes");
-  ComboTimeframe->addItem("Timeframe: 10 minutes");
-  ComboTimeframe->setCurrentIndex(0);
-  ComboTimeframe->blockSignals(false);
+  {
+    ezQtScopedUpdatesDisabled _1(ComboTimeframe);
+
+    ComboTimeframe->addItem("Timeframe: 1 minute");
+    ComboTimeframe->addItem("Timeframe: 2 minutes");
+    ComboTimeframe->addItem("Timeframe: 3 minutes");
+    ComboTimeframe->addItem("Timeframe: 4 minutes");
+    ComboTimeframe->addItem("Timeframe: 5 minutes");
+    ComboTimeframe->addItem("Timeframe: 6 minutes");
+    ComboTimeframe->addItem("Timeframe: 7 minutes");
+    ComboTimeframe->addItem("Timeframe: 8 minutes");
+    ComboTimeframe->addItem("Timeframe: 9 minutes");
+    ComboTimeframe->addItem("Timeframe: 10 minutes");
+    ComboTimeframe->setCurrentIndex(0);
+  }
 
   ButtonRemove->setEnabled(false);
 
@@ -81,6 +86,11 @@ ezQtStatVisWidget::ezQtStatVisWidget(QWidget* parent, ezInt32 iWindowNumber)
   Settings.endGroup();
 
   EZ_VERIFY(nullptr != QWidget::connect(&m_ShowWindowAction, SIGNAL(triggered()), this, SLOT(on_ToggleVisible())), "");
+}
+
+
+ ezQtStatVisWidget::~ezQtStatVisWidget()
+{
 }
 
 void ezQtStatVisWidget::on_ComboTimeframe_currentIndexChanged(int index)
@@ -126,9 +136,9 @@ void ezQtStatVisWidget::on_SpinMax_valueChanged(double val)
 
 void ezQtStatVisWidget::on_ToggleVisible()
 {
-  setVisible(!isVisible());
+  toggleView(isClosed());
 
-  if (isVisible())
+  if (!isClosed())
     raise();
 }
 
@@ -225,7 +235,7 @@ void ezQtStatVisWidget::AddStat(const ezString& sStatPath, bool bEnabled, bool b
 {
   if (bRaiseWindow)
   {
-    setVisible(true);
+    toggleView(true);
     raise();
   }
 
@@ -240,7 +250,7 @@ void ezQtStatVisWidget::AddStat(const ezString& sStatPath, bool bEnabled, bool b
     Stat.m_pListItem->setText(sStatPath.GetData());
     Stat.m_pListItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable);
     Stat.m_pListItem->setCheckState(bEnabled ? Qt::Checked : Qt::Unchecked);
-    Stat.m_pListItem->setTextColor(StatVisWidgetDetail::s_Colors[Stat.m_uiColor]);
+    Stat.m_pListItem->setForeground(StatVisWidgetDetail::s_Colors[Stat.m_uiColor]);
 
     ListStats->addItem(Stat.m_pListItem);
   }
@@ -248,7 +258,7 @@ void ezQtStatVisWidget::AddStat(const ezString& sStatPath, bool bEnabled, bool b
 
 void ezQtStatVisWidget::UpdateStats()
 {
-  if (!isVisible())
+  if (isClosed())
     return;
 
   QPainterPath pp[s_uiMaxColors];
@@ -258,7 +268,7 @@ void ezQtStatVisWidget::UpdateStats()
     if (it.Value().m_pListItem->checkState() != Qt::Checked)
       continue;
 
-    const ezDeque<ezQtMainWindow::StatSample>& Samples = ezQtMainWindow::s_pWidget->m_Stats[it.Key()].m_History;
+    const ezDeque<ezQtMainWidget::StatSample>& Samples = ezQtMainWidget::s_pWidget->m_Stats[it.Key()].m_History;
 
     if (Samples.IsEmpty())
       continue;
@@ -267,7 +277,7 @@ void ezQtStatVisWidget::UpdateStats()
 
     ezUInt32 uiFirstSample = 0;
 
-    const ezTime MaxGlobalTime = ezQtMainWindow::s_pWidget->m_MaxGlobalTime;
+    const ezTime MaxGlobalTime = ezQtMainWidget::s_pWidget->m_MaxGlobalTime;
 
     while ((uiFirstSample + 1 < Samples.GetCount()) && (MaxGlobalTime - Samples[uiFirstSample + 1].m_AtGlobalTime > m_DisplayInterval))
       ++uiFirstSample;

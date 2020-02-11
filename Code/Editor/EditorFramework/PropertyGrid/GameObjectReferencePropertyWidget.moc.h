@@ -32,8 +32,10 @@ protected:
   void SetValue(const QString& sText);
   void ClearPicking();
   void SelectionManagerEventHandler(const ezSelectionManagerEvent& e);
+  virtual void showEvent(QShowEvent* event) override;
 
 protected:
+  QPalette m_pal;
   QHBoxLayout* m_pLayout = nullptr;
   QLabel* m_pWidget = nullptr;
   QString m_sInternalValue;

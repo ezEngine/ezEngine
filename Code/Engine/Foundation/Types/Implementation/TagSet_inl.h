@@ -15,7 +15,7 @@ struct ezContainerSubTypeResolver<ezTagSetTemplate<T>>
 
 template <typename Class>
 class ezMemberSetProperty<Class, ezTagSet, const char*>
-    : public ezTypedSetProperty<typename ezTypeTraits<const char*>::NonConstReferenceType>
+  : public ezTypedSetProperty<typename ezTypeTraits<const char*>::NonConstReferenceType>
 {
 public:
   typedef ezTagSet Container;
@@ -25,7 +25,7 @@ public:
   typedef Container& (*GetContainerFunc)(Class* pInstance);
 
   ezMemberSetProperty(const char* szPropertyName, GetConstContainerFunc constGetter, GetContainerFunc getter)
-      : ezTypedSetProperty<RealType>(szPropertyName)
+    : ezTypedSetProperty<RealType>(szPropertyName)
   {
     EZ_ASSERT_DEBUG(constGetter != nullptr, "The const get count function of an set property cannot be nullptr.");
 
@@ -41,21 +41,21 @@ public:
   virtual void Clear(void* pInstance) override
   {
     EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.",
-                    ezAbstractProperty::GetPropertyName());
+      ezAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance)).Clear();
   }
 
   virtual void Insert(void* pInstance, void* pObject) override
   {
     EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.",
-                    ezAbstractProperty::GetPropertyName());
+      ezAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance)).SetByName(*static_cast<const RealType*>(pObject));
   }
 
   virtual void Remove(void* pInstance, void* pObject) override
   {
     EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.",
-                    ezAbstractProperty::GetPropertyName());
+      ezAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance)).RemoveByName(*static_cast<const RealType*>(pObject));
   }
 
@@ -81,8 +81,8 @@ private:
 
 template <typename BlockStorageAllocator>
 ezTagSetTemplate<BlockStorageAllocator>::Iterator::Iterator(const ezTagSetTemplate<BlockStorageAllocator>* pSet, bool bEnd)
-    : m_pTagSet(pSet)
-    , m_uiIndex(0)
+  : m_pTagSet(pSet)
+  , m_uiIndex(0)
 {
   if (!bEnd)
   {
@@ -139,8 +139,20 @@ const ezTag* ezTagSetTemplate<BlockStorageAllocator>::Iterator::operator->() con
 
 template <typename BlockStorageAllocator>
 ezTagSetTemplate<BlockStorageAllocator>::ezTagSetTemplate()
-    : m_uiTagBlockStart(0xFFFFFFFFu)
+  : m_uiTagBlockStart(0xFFFFFFFFu)
 {
+}
+
+template <typename BlockStorageAllocator>
+bool ezTagSetTemplate<BlockStorageAllocator>::operator==(const ezTagSetTemplate& other) const
+{
+  return m_TagBlocks == other.m_TagBlocks && m_uiTagBlockStart == m_uiTagBlockStart;
+}
+
+template <typename BlockStorageAllocator>
+bool ezTagSetTemplate<BlockStorageAllocator>::operator!=(const ezTagSetTemplate& other) const
+{
+  return !(*this == other);
 }
 
 template <typename BlockStorageAllocator>
@@ -151,9 +163,9 @@ void ezTagSetTemplate<BlockStorageAllocator>::Set(const ezTag& Tag)
   if (!IsTagInAllocatedRange(Tag))
   {
     const ezUInt32 uiNewBlockStart =
-        (m_uiTagBlockStart != 0xFFFFFFFFu) ? ezMath::Min(Tag.m_uiBlockIndex, m_uiTagBlockStart) : Tag.m_uiBlockIndex;
+      (m_uiTagBlockStart != 0xFFFFFFFFu) ? ezMath::Min(Tag.m_uiBlockIndex, m_uiTagBlockStart) : Tag.m_uiBlockIndex;
     const ezUInt32 uiNewBlockIndex =
-        (m_uiTagBlockStart != 0xFFFFFFFFu) ? ezMath::Max(Tag.m_uiBlockIndex, m_uiTagBlockStart) : Tag.m_uiBlockIndex;
+      (m_uiTagBlockStart != 0xFFFFFFFFu) ? ezMath::Max(Tag.m_uiBlockIndex, m_uiTagBlockStart) : Tag.m_uiBlockIndex;
 
     Reallocate(uiNewBlockStart, uiNewBlockIndex);
   }
@@ -197,7 +209,7 @@ bool ezTagSetTemplate<BlockStorageAllocator>::IsAnySet(const ezTagSetTemplate& O
   // Calculate range to compare
   const ezUInt32 uiMaxBlockStart = ezMath::Max(m_uiTagBlockStart, OtherSet.m_uiTagBlockStart);
   const ezUInt32 uiMinBlockEnd =
-      ezMath::Min(m_uiTagBlockStart + m_TagBlocks.GetCount(), OtherSet.m_uiTagBlockStart + OtherSet.m_TagBlocks.GetCount());
+    ezMath::Min(m_uiTagBlockStart + m_TagBlocks.GetCount(), OtherSet.m_uiTagBlockStart + OtherSet.m_TagBlocks.GetCount());
 
   if (uiMaxBlockStart > uiMinBlockEnd)
     return false;
@@ -378,4 +390,3 @@ void ezTagSetTemplate<BlockStorageAllocator>::Load(ezStreamReader& stream, const
       Set(*pTag);
   }
 }
-

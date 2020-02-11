@@ -27,10 +27,15 @@ namespace ezLogWriter
     /// \brief Returns the name of the log-file that was really opened. Might be slightly different than what was given to BeginLog, to allow parallel execution of the same application.
     const ezFileWriter& GetOpenedLogFile() const;
 
+    /// \brief Allows to indicate in what form timestamps should be added to log messages.
+    void SetTimestampMode(ezLog::TimestampMode mode);
+
   private:
     void WriteString(const char* szString, ezUInt32 uiColor);
 
     ezFileWriter m_File;
+
+    ezLog::TimestampMode m_TimestampMode = ezLog::TimestampMode::None;
   };
 }
 

@@ -19,7 +19,7 @@ void ezSimdQuat::SetShortestRotation(const ezSimdVec4f& vDirFrom, const ezSimdVe
   }
   else if (fDot.IsEqual(-1.0f, 0.0001f)) // if both vectors are opposing
   {
-    SetFromAxisAndAngle(v0.GetOrthogonalVector().GetNormalized<3>(), ezAngle::Radian(ezMath::BasicType<float>::Pi()));
+    SetFromAxisAndAngle(v0.GetOrthogonalVector().GetNormalized<3>(), ezAngle::Radian(ezMath::Pi<float>()));
     return;
   }
 

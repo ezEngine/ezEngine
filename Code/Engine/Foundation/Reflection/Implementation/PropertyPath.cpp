@@ -232,15 +232,15 @@ void ezPropertyPath::ResolvePath(void* pCurrentObject, const ezRTTI* pType, cons
           // If the property is behind an accessor, we need to retrieve it first.
           else if (pPropType->GetAllocator()->CanAllocate())
           {
-            void* pSubObject = pPropType->GetAllocator()->Allocate<void>();
-            pSpecific->GetValuePtr(pCurrentObject, pSubObject);
+            void* pRetrievedSubObject = pPropType->GetAllocator()->Allocate<void>();
+            pSpecific->GetValuePtr(pCurrentObject, pRetrievedSubObject);
 
-            ResolvePath(pSubObject, pProp->GetSpecificType(), path.GetSubArray(1), bWriteToObject, func);
+            ResolvePath(pRetrievedSubObject, pProp->GetSpecificType(), path.GetSubArray(1), bWriteToObject, func);
 
             if (bWriteToObject)
-              pSpecific->SetValuePtr(pCurrentObject, pSubObject);
+              pSpecific->SetValuePtr(pCurrentObject, pRetrievedSubObject);
 
-            pPropType->GetAllocator()->Deallocate(pSubObject);
+            pPropType->GetAllocator()->Deallocate(pRetrievedSubObject);
           }
           else
           {

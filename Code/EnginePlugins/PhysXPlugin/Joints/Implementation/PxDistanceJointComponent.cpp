@@ -23,15 +23,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxDistanceJointComponent, 1, ezComponentMode::Static)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezPxDistanceJointComponent::ezPxDistanceJointComponent()
-{
-  m_fMinDistance = 0.0f;
-  m_fMaxDistance = 1.0f;
-  m_fSpringStiffness = 0.0f;
-  m_fSpringDamping = 0.0f;
-  m_fSpringTolerance = 0.0f;
-}
-
+ezPxDistanceJointComponent::ezPxDistanceJointComponent() = default;
+ezPxDistanceJointComponent::~ezPxDistanceJointComponent() = default;
 
 void ezPxDistanceJointComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -45,7 +38,6 @@ void ezPxDistanceJointComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_fSpringDamping;
   s << m_fSpringTolerance;
 }
-
 
 void ezPxDistanceJointComponent::DeserializeComponent(ezWorldReader& stream)
 {
@@ -62,8 +54,7 @@ void ezPxDistanceJointComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fSpringTolerance;
 }
 
-PxJoint* ezPxDistanceJointComponent::CreateJointType(PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1,
-                                                     const PxTransform& localFrame1)
+PxJoint* ezPxDistanceJointComponent::CreateJointType(PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
 {
   PxDistanceJoint* pJoint = PxDistanceJointCreate(*(ezPhysX::GetSingleton()->GetPhysXAPI()), actor0, localFrame0, actor1, localFrame1);
 

@@ -56,8 +56,6 @@ class ezVisualScriptAssetDocument : public ezSimpleAssetDocument<ezVisualScriptA
 public:
   ezVisualScriptAssetDocument(const char* szDocumentPath);
 
-  virtual const char* QueryAssetType() const override { return "Visual Script"; }
-
   void HandleVsActivityMsg(const ezVisualScriptActivityMsgToEditor* pActivityMsg);
   void OnInterDocumentMessage(ezReflectedClass* pMessage, ezDocument* pSender) override;
 
@@ -65,7 +63,7 @@ public:
   ezEvent<ezReflectedClass*> m_InterDocumentMessages;
 
 protected:
-  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
+  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
 
   virtual void GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const override;

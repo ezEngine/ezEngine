@@ -26,6 +26,7 @@
 #define EZ_PLATFORM_OSX EZ_OFF
 #define EZ_PLATFORM_LINUX EZ_OFF
 #define EZ_PLATFORM_IOS EZ_OFF
+#define EZ_PLATFORM_ANDROID EZ_OFF
 
 // Different Bit OSes
 #define EZ_PLATFORM_32BIT EZ_OFF
@@ -55,9 +56,12 @@
 #define EZ_USE_POSIX_FILE_API EZ_OFF
 #define EZ_SUPPORTS_FILE_ITERATORS EZ_OFF
 #define EZ_SUPPORTS_FILE_STATS EZ_OFF
+#define EZ_SUPPORTS_MEMORY_MAPPED_FILE EZ_OFF
+#define EZ_SUPPORTS_SHARED_MEMORY EZ_OFF
 #define EZ_SUPPORTS_DYNAMIC_PLUGINS EZ_OFF
 #define EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS EZ_OFF
 #define EZ_SUPPORTS_CASE_INSENSITIVE_PATHS EZ_OFF
+#define EZ_SUPPORTS_CRASH_DUMPS EZ_OFF
 
 // Allocators
 #define EZ_USE_ALLOCATION_TRACKING EZ_OFF
@@ -68,7 +72,7 @@
 #define EZ_USE_PROFILING EZ_OFF
 
 // Hashed String
-/// \brief Ref counting on hashed strings adds the possibility to cleanup unused strings. Since ref counting has a performance overhead it is disabled by default. 
+/// \brief Ref counting on hashed strings adds the possibility to cleanup unused strings. Since ref counting has a performance overhead it is disabled by default.
 #define EZ_HASHED_STRING_REF_COUNTING EZ_OFF
 
 // Math Debug Checks

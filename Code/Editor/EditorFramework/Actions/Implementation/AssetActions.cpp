@@ -109,7 +109,7 @@ void ezAssetAction::Execute(const ezVariant& value)
         }
       }
 
-      auto ret = ezAssetCurator::GetSingleton()->TransformAsset(m_Context.m_pDocument->GetGuid(), true);
+      auto ret = ezAssetCurator::GetSingleton()->TransformAsset(m_Context.m_pDocument->GetGuid(), ezTransformFlags::ForceTransform | ezTransformFlags::TriggeredManually);
 
       if (ret.m_Result.Failed())
       {
@@ -124,7 +124,7 @@ void ezAssetAction::Execute(const ezVariant& value)
 
     case ezAssetAction::ButtonType::TransformAllAssets:
     {
-      ezAssetCurator::GetSingleton()->TransformAllAssets();
+      ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::None);
     }
     break;
 

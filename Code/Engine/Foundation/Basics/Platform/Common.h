@@ -45,7 +45,6 @@
 
 /// \brief Disallow the copy constructor and the assignment operator for this type.
 #define EZ_DISALLOW_COPY_AND_ASSIGN(type) \
-private:                                  \
   type(const type&) = delete;             \
   void operator=(const type&) = delete
 
@@ -79,6 +78,17 @@ private:                                  \
   EZ_CHECK_AT_COMPILETIME_MSG(EZ_CONCAT(EZ_WINCHECK_, EZ_CONCAT(EZ_WINH_INCLUDED, WINH_INCLUDED)) == 1, \
     "Windows.h has been included but not through ez. #include <Foundation/Basics/Platform/Win/IncludeWindows.h> instead of Windows.h");
 
+
+/// \brief Define some macros to work with the MSVC analysis warning
+/// Note that the StaticAnalysis.h in Basics/Compiler/MSVC will define the MSVC specific versions.
+#define EZ_MSVC_ANALYSIS_WARNING_PUSH
+#define EZ_MSVC_ANALYSIS_WARNING_POP
+#define EZ_MSVC_ANALYSIS_WARNING_DISABLE(warningNumber)
+#define EZ_MSVC_ANALYSIS_ASSUME(expression)
+
+#if defined(_MSC_VER)
+  #include <Foundation/Basics/Compiler/MSVC/StaticAnalysis.h>
+#endif
 
 #if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
 

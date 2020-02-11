@@ -5,10 +5,30 @@ using System.IO;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
+using Microsoft.Diagnostics.Tracing;
+using Microsoft.Diagnostics.Tracing.Session;
+using System.IO.MemoryMappedFiles;
+using System.Threading;
 
 namespace ezUwpTestHarness
 {
-  class ezTestUWP
+  enum ezLogMsgType
+  {  
+      Flush = -3,
+      BeginGroup = -2,
+      EndGroup = -1,
+      None = 0,
+      ErrorMsg = 1,
+      SeriousWarningMsg = 2,
+      WarningMsg = 3,
+      SuccessMsg = 4,
+      InfoMsg = 5,
+      DevMsg = 6,
+      DebugMsg = 7,
+      All = 8,
+  };
+
+class ezTestUWP
   {
     #region Activation Manager COM definitions
 
@@ -217,67 +237,94 @@ namespace ezUwpTestHarness
         return ezProcessHelper.RunExternalExe(absFilerserveFilename, args, absBinDir, 200000);
       };
 
-      using (Task<ezProcessHelper.ProcessResult> runFileServe = Task.Factory.StartNew(startFileserve, System.Threading.Tasks.TaskCreationOptions.LongRunning))
+      // create a real time user mode session
+      using (var session = new TraceEventSession("ezETWMonitorSession"))
       {
-        runFileServe.Wait(5000);
-
-        // Start AppX
-        uint appXPid;
-        StartAppX(fullPackageName, $"-json {outputFilename} -nogui -rev 0 -all", out appXPid);
-
-        Process appXProcess;
-        appXProcess = Process.GetProcessById((int)appXPid);
-        Console.WriteLine($"AppX pid: {appXPid}.");
-
-        if (!runFileServe.Wait(60000))
+        session.EnableProvider(new Guid("BFD4350A-BA77-463D-B4BE-E30374E42494")); //ezLogProvider
+        session.Source.Dynamic.AddCallbackForProviderEvent("ezLogProvider", "LogMessge", delegate (TraceEvent data)
         {
-          Console.WriteLine(string.Format("Fileserve did not terminate within 10 minutes."));
+          int Type = (int)data.PayloadByName("Type");
+          byte Indentation = (byte)data.PayloadByName("Indentation");
+          string Text = (string)data.PayloadByName("Text");
+          if (Type != (int)ezLogMsgType.EndGroup)
+          {
+            Console.Out.WriteLine("".PadLeft(Indentation) + Text);
+          }
+        });
+
+        //// Set up Ctrl-C to stop the session
+        Console.CancelKeyPress += (object s, ConsoleCancelEventArgs a) => session.Dispose();
+        var thread = new Thread(() =>
+        {
+          session.Source.Process();
+        });
+        thread.Start();
+
+        using (Task<ezProcessHelper.ProcessResult> runFileServe = Task.Factory.StartNew(startFileserve, System.Threading.Tasks.TaskCreationOptions.LongRunning))
+        {
+          runFileServe.Wait(8000);
+
+          // Start AppX
+          uint appXPid;
+          StartAppX(fullPackageName, $"-json {outputFilename} -nogui -rev 0 -all", out appXPid);
+
+          Process appXProcess;
+          appXProcess = Process.GetProcessById((int)appXPid);
+          Console.WriteLine($"AppX pid: {appXPid}.");
+
+          if (!runFileServe.Wait(60000))
+          {
+            Console.WriteLine(string.Format("Fileserve did not terminate within 10 minutes."));
+          }
+          Task.WaitAll(runFileServe);
+
+          // Check whether the AppX is dead by now.
+          if (!appXProcess.WaitForExit(5000))
+          {
+            Console.WriteLine(string.Format("Fileserve is no longer running but the AppX is."));
+            try
+            {
+              string args = string.Format("-accepteula -ma {0}", appXPid);
+              ezProcessHelper.RunExternalExe("procdump", args, absBinDir);
+            }
+            catch (Exception e)
+            {
+              Console.WriteLine(string.Format("Failed to run procdump: '{0}'", e.ToString()));
+            }
+            appXProcess.Kill();
+          }
+          // Can't read exit code: "Process was not started by this object, so requested information cannot be determined"
+          appXProcess.Dispose();
+          appXProcess = null;
         }
-        Task.WaitAll(runFileServe);
 
-        // Check whether the AppX is dead by now.
-        if (!appXProcess.WaitForExit(5000))
+        // Wait for ETW events to trickle through.
+        Thread.Sleep(5000);
+
+        // Read test output.
+        if (File.Exists(absOutputPath))
         {
-          Console.WriteLine(string.Format("Fileserve is no longer running but the AppX is."));
+          string TestResultJSON = File.ReadAllText(absOutputPath, Encoding.UTF8);
+
           try
           {
-            string args = string.Format("-accepteula -ma {0}", appXPid);
-            ezProcessHelper.RunExternalExe("procdump", args, absBinDir);
+            // Parse test output to figure out what the result is as we can't use the exit code.
+            var values = Newtonsoft.Json.JsonConvert.DeserializeObject<System.Collections.Generic.Dictionary<string, dynamic>>(TestResultJSON);
+            var errors = values["errors"] as Newtonsoft.Json.Linq.JArray;
+            Console.WriteLine(string.Format("Errors during test: '{0}'", errors.Count));
+            Environment.ExitCode = errors.Count;
           }
           catch (Exception e)
           {
-            Console.WriteLine(string.Format("Failed to run procdump: '{0}'", e.ToString()));
+            Environment.ExitCode = 1;
+            Console.WriteLine(string.Format("Failed to parse test output: '{0}'", e.ToString()));
           }
-          appXProcess.Kill();
         }
-        // Can't read exit code: "Process was not started by this object, so requested information cannot be determined"
-        appXProcess.Dispose();
-        appXProcess = null;
-      }
-
-      // Read test output.
-      if (File.Exists(absOutputPath))
-      {
-        string TestResultJSON = File.ReadAllText(absOutputPath, Encoding.UTF8);
-
-        try
-        {
-          // Parse test output to figure out what the result is as we can't use the exit code.
-          var values = Newtonsoft.Json.JsonConvert.DeserializeObject<System.Collections.Generic.Dictionary<string, dynamic>>(TestResultJSON);
-          var errors = values["errors"] as Newtonsoft.Json.Linq.JArray;
-          Console.WriteLine(string.Format("Errors during test: '{0}'", errors.Count));
-          Environment.ExitCode = errors.Count;
-        }
-        catch (Exception e)
+        else
         {
           Environment.ExitCode = 1;
-          Console.WriteLine(string.Format("Failed to parse test output: '{0}'", e.ToString()));
+          Console.WriteLine(string.Format("No test output file present!"));
         }
-      }
-      else
-      {
-        Environment.ExitCode = 1;
-        Console.WriteLine(string.Format("No test output file present!"));
       }
     }
   }

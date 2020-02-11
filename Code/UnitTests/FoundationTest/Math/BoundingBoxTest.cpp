@@ -24,7 +24,12 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetFromPoints")
   {
     ezVec3T p[6] = {
-        ezVec3T(-4, 0, 0), ezVec3T(5, 0, 0), ezVec3T(0, -6, 0), ezVec3T(0, 7, 0), ezVec3T(0, 0, -8), ezVec3T(0, 0, 9),
+      ezVec3T(-4, 0, 0),
+      ezVec3T(5, 0, 0),
+      ezVec3T(0, -6, 0),
+      ezVec3T(0, 7, 0),
+      ezVec3T(0, 0, -8),
+      ezVec3T(0, 0, 9),
     };
 
     ezBoundingBoxT b;
@@ -134,8 +139,8 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
 
     b.ExpandToCube();
 
-    EZ_TEST_VEC3(b.GetCenter(), ezVec3T(1, 2, 3), ezMath::BasicType<ezMathTestType>::DefaultEpsilon());
-    EZ_TEST_VEC3(b.GetHalfExtents(), ezVec3T(6, 6, 6), ezMath::BasicType<ezMathTestType>::DefaultEpsilon());
+    EZ_TEST_VEC3(b.GetCenter(), ezVec3T(1, 2, 3), ezMath::DefaultEpsilon<ezMathTestType>());
+    EZ_TEST_VEC3(b.GetHalfExtents(), ezVec3T(6, 6, 6), ezMath::DefaultEpsilon<ezMathTestType>());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Grow")
@@ -323,22 +328,42 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ScaleFromCenter")
   {
-    ezBoundingBoxT b(ezVec3T(3), ezVec3T(5));
+    {
+      ezBoundingBoxT b(ezVec3T(3), ezVec3T(5));
 
-    b.ScaleFromCenter(ezVec3T(1, 2, 3));
+      b.ScaleFromCenter(ezVec3T(1, 2, 3));
 
-    EZ_TEST_BOOL(b.m_vMin == ezVec3T(3, 2, 1));
-    EZ_TEST_BOOL(b.m_vMax == ezVec3T(5, 6, 7));
+      EZ_TEST_BOOL(b.m_vMin == ezVec3T(3, 2, 1));
+      EZ_TEST_BOOL(b.m_vMax == ezVec3T(5, 6, 7));
+    }
+    {
+      ezBoundingBoxT b(ezVec3T(3), ezVec3T(5));
+
+      b.ScaleFromCenter(ezVec3T(-1, -2, -3));
+
+      EZ_TEST_BOOL(b.m_vMin == ezVec3T(3, 2, 1));
+      EZ_TEST_BOOL(b.m_vMax == ezVec3T(5, 6, 7));
+    }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ScaleFromOrigin")
   {
-    ezBoundingBoxT b(ezVec3T(3), ezVec3T(5));
+    {
+      ezBoundingBoxT b(ezVec3T(3), ezVec3T(5));
 
-    b.ScaleFromOrigin(ezVec3T(1, 2, 3));
+      b.ScaleFromOrigin(ezVec3T(1, 2, 3));
 
-    EZ_TEST_BOOL(b.m_vMin == ezVec3T(3, 6, 9));
-    EZ_TEST_BOOL(b.m_vMax == ezVec3T(5, 10, 15));
+      EZ_TEST_BOOL(b.m_vMin == ezVec3T(3, 6, 9));
+      EZ_TEST_BOOL(b.m_vMax == ezVec3T(5, 10, 15));
+    }
+    {
+      ezBoundingBoxT b(ezVec3T(3), ezVec3T(5));
+
+      b.ScaleFromOrigin(ezVec3T(-1, -2, -3));
+
+      EZ_TEST_BOOL(b.m_vMin == ezVec3T(-5, -10, -15));
+      EZ_TEST_BOOL(b.m_vMax == ezVec3T(-3, -6, -9));
+    }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "TransformFromOrigin")
@@ -459,7 +484,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetRayIntersection")
   {
-    if (ezMath::BasicType<ezMathTestType>::SupportsInfinity())
+    if (ezMath::SupportsInfinity<ezMathTestType>())
     {
       const ezVec3T c = ezVec3T(10);
 
@@ -499,7 +524,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetLineSegmentIntersection")
   {
-    if (ezMath::BasicType<ezMathTestType>::SupportsInfinity())
+    if (ezMath::SupportsInfinity<ezMathTestType>())
     {
       const ezVec3T c = ezVec3T(10);
 
@@ -537,7 +562,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsNaN")
   {
-    if (ezMath::BasicType<ezMathTestType>::SupportsNaN())
+    if (ezMath::SupportsNaN<ezMathTestType>())
     {
       ezBoundingBoxT b;
 
@@ -545,27 +570,27 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
       EZ_TEST_BOOL(!b.IsNaN());
 
       b.SetInvalid();
-      b.m_vMin.x = ezMath::BasicType<ezMathTestType>::GetNaN();
+      b.m_vMin.x = ezMath::NaN<ezMathTestType>();
       EZ_TEST_BOOL(b.IsNaN());
 
       b.SetInvalid();
-      b.m_vMin.y = ezMath::BasicType<ezMathTestType>::GetNaN();
+      b.m_vMin.y = ezMath::NaN<ezMathTestType>();
       EZ_TEST_BOOL(b.IsNaN());
 
       b.SetInvalid();
-      b.m_vMin.z = ezMath::BasicType<ezMathTestType>::GetNaN();
+      b.m_vMin.z = ezMath::NaN<ezMathTestType>();
       EZ_TEST_BOOL(b.IsNaN());
 
       b.SetInvalid();
-      b.m_vMax.x = ezMath::BasicType<ezMathTestType>::GetNaN();
+      b.m_vMax.x = ezMath::NaN<ezMathTestType>();
       EZ_TEST_BOOL(b.IsNaN());
 
       b.SetInvalid();
-      b.m_vMax.y = ezMath::BasicType<ezMathTestType>::GetNaN();
+      b.m_vMax.y = ezMath::NaN<ezMathTestType>();
       EZ_TEST_BOOL(b.IsNaN());
 
       b.SetInvalid();
-      b.m_vMax.z = ezMath::BasicType<ezMathTestType>::GetNaN();
+      b.m_vMax.z = ezMath::NaN<ezMathTestType>();
       EZ_TEST_BOOL(b.IsNaN());
     }
   }

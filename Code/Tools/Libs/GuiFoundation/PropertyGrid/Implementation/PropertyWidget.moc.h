@@ -198,8 +198,11 @@ Q_SIGNALS:
   void clicked();
 
 protected:
+  virtual void showEvent(QShowEvent* event) override;
   virtual void mouseReleaseEvent(QMouseEvent* event) override;
 
+private:
+  QPalette m_pal;
 };
 
 class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorColorWidget : public ezQtStandardPropertyWidget

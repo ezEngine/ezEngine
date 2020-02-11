@@ -25,71 +25,6 @@ namespace ezArrayPtrDetail
   {
     typedef const ezUInt8 type;
   };
-
-  template <typename U>
-  struct VoidTypeHelper2
-  {
-    typedef void type;
-  };
-
-  template <typename U>
-  struct VoidTypeHelper2<const U>
-  {
-    typedef const void type;
-  };
-
-  /// \brief Helper to allow simple pointer arithmetic in case the ArrayPtr's type is
-  ///    is void or const void.
-  template <typename U>
-  struct VoidPtrHelper
-  {
-  public:
-    EZ_DECLARE_POD_TYPE();
-
-    VoidPtrHelper() {}
-    VoidPtrHelper(U* p)
-      : m_ptr(p)
-    {
-    }
-    operator U*() const { return m_ptr; }
-    template <typename V, typename = std::enable_if_t<sizeof(V) == 1 && !std::is_const<U>::value>>
-    explicit operator V*() const
-    {
-      return static_cast<V*>(m_ptr);
-    }
-    template <typename V, typename = std::enable_if_t<sizeof(V) == 1>>
-    explicit operator const V*() const
-    {
-      return static_cast<const V*>(m_ptr);
-    }
-    U* operator+(ptrdiff_t off) const { return (U*)((ptrdiff_t(m_ptr) + off)); }
-    U* operator-(ptrdiff_t off) const { return (U*)((ptrdiff_t(m_ptr) - off)); }
-    ptrdiff_t operator-(const void* other) const { return ptrdiff_t(m_ptr) - ptrdiff_t(other); }
-
-  private:
-    U* m_ptr;
-  };
-
-  template <typename U>
-  struct VoidTypeHelper
-  {
-    typedef U valueType;
-    typedef U* pointerType;
-  };
-
-  template <>
-  struct VoidTypeHelper<void>
-  {
-    typedef ezUInt8 valueType;
-    typedef VoidPtrHelper<void> pointerType;
-  };
-
-  template <>
-  struct VoidTypeHelper<const void>
-  {
-    typedef const ezUInt8 valueType;
-    typedef VoidPtrHelper<const void> pointerType;
-  };
 } // namespace ezArrayPtrDetail
 
 /// \brief This class encapsulates an array and it's size. It is recommended to use this class instead of plain C arrays.
@@ -98,17 +33,18 @@ namespace ezArrayPtrDetail
 template <typename T>
 class ezArrayPtr
 {
+  template <typename U>
+  friend class ezArrayPtr;
+
 public:
   EZ_DECLARE_POD_TYPE();
 
-  typedef T ElementType;
-  typedef typename ezTypeTraits<T>::NonConstType MutableElementType;
+  static_assert(!std::is_same_v<T, void>, "ezArrayPtr<void> is not allowed (anymore)");
+  static_assert(!std::is_same_v<T, const void>, "ezArrayPtr<void> is not allowed (anymore)");
 
-public:
-  typedef typename ezArrayPtrDetail::ByteTypeHelper<T>::type ByteType;
-  typedef typename ezArrayPtrDetail::VoidTypeHelper2<T>::type VoidType;
-  typedef typename ezArrayPtrDetail::VoidTypeHelper<T>::valueType ValueType;
-  typedef typename ezArrayPtrDetail::VoidTypeHelper<T>::pointerType PointerType;
+  using ByteType = typename ezArrayPtrDetail::ByteTypeHelper<T>::type;
+  using ValueType = T;
+  using PointerType = T*;
 
   /// \brief Initializes the ezArrayPtr to be empty.
   EZ_ALWAYS_INLINE ezArrayPtr() // [tested]
@@ -118,11 +54,7 @@ public:
   }
 
   /// \brief Initializes the ezArrayPtr with the given pointer and number of elements. No memory is allocated or copied.
-  /// \note For ArrayPtr<void> and ArrayPtr<const void>, this constructor is only available if ptr is of
-  ///    type void*, const void*, or any T* with sizeof(T) == 1
-  template <typename U, typename = std::enable_if_t<!std::is_same<std::remove_cv_t<T>, void>::value ||
-                                                    sizeof(typename ezArrayPtrDetail::VoidTypeHelper<U>::valueType) == 1>>
-  inline ezArrayPtr(U* ptr, ezUInt32 uiCount) // [tested]
+  inline ezArrayPtr(T* ptr, ezUInt32 uiCount) // [tested]
     : m_ptr(ptr)
     , m_uiCount(uiCount)
   {
@@ -136,14 +68,15 @@ public:
 
   /// \brief Initializes the ezArrayPtr to encapsulate the given array.
   template <size_t N>
-  EZ_ALWAYS_INLINE ezArrayPtr(ValueType (&staticArray)[N]) // [tested]
+  EZ_ALWAYS_INLINE ezArrayPtr(T (&staticArray)[N]) // [tested]
     : m_ptr(staticArray)
     , m_uiCount(static_cast<ezUInt32>(N))
   {
   }
 
   /// \brief Initializes the ezArrayPtr to be a copy of \a other. No memory is allocated or copied.
-  EZ_ALWAYS_INLINE ezArrayPtr(const ezArrayPtr<T>& other) // [tested]
+  template <typename U>
+  EZ_ALWAYS_INLINE ezArrayPtr(const ezArrayPtr<U>& other) // [tested]
     : m_ptr(other.m_ptr)
     , m_uiCount(other.m_uiCount)
   {
@@ -230,30 +163,12 @@ public:
     return ezArrayPtr<ByteType>(reinterpret_cast<ByteType*>(GetPtr()), GetCount() * sizeof(T));
   }
 
-  /// \brief Reinterprets this array as an ezArrayPtr<const void>
-  EZ_ALWAYS_INLINE ezArrayPtr<const VoidType> ToVoidArray() const
-  {
-    return ezArrayPtr<const VoidType>(reinterpret_cast<const VoidType*>(GetPtr()), GetCount() * sizeof(T));
-  }
-
-  /// \brief Reinterprets this array as an ezArrayPtr<void>
-  EZ_ALWAYS_INLINE ezArrayPtr<VoidType> ToVoidArray()
-  {
-    return ezArrayPtr<VoidType>(reinterpret_cast<VoidType*>(GetPtr()), GetCount() * sizeof(T));
-  }
-
-  /// \brief Reinterprets this array as an ezArrayPtr<const void>
-  EZ_ALWAYS_INLINE ezArrayPtr<const VoidType> ToConstVoidArray() const
-  {
-    return ezArrayPtr<const VoidType>(reinterpret_cast<const VoidType*>(GetPtr()), GetCount() * sizeof(T));
-  }
 
   /// \brief Cast an ArrayPtr to an ArrayPtr to a different, but same size, type
   template <typename U>
   EZ_ALWAYS_INLINE ezArrayPtr<U> Cast()
   {
-    static_assert(sizeof(ezArrayPtrDetail::VoidTypeHelper<T>::valueType) == sizeof(ezArrayPtrDetail::VoidTypeHelper<U>::valueType),
-      "Can only cast with equivalent element size.");
+    static_assert(sizeof(T) == sizeof(U), "Can only cast with equivalent element size.");
     return ezArrayPtr<U>(reinterpret_cast<U*>(GetPtr()), GetCount());
   }
 
@@ -261,8 +176,7 @@ public:
   template <typename U>
   EZ_ALWAYS_INLINE ezArrayPtr<const U> Cast() const
   {
-    static_assert(sizeof(ezArrayPtrDetail::VoidTypeHelper<T>::valueType) == sizeof(ezArrayPtrDetail::VoidTypeHelper<U>::valueType),
-      "Can only cast with equivalent element size.");
+    static_assert(sizeof(T) == sizeof(U), "Can only cast with equivalent element size.");
     return ezArrayPtr<const U>(reinterpret_cast<const U*>(GetPtr()), GetCount());
   }
 
@@ -323,6 +237,13 @@ private:
   ezUInt32 m_uiCount;
 };
 
+//////////////////////////////////////////////////////////////////////////
+
+using ezByteArrayPtr = ezArrayPtr<ezUInt8>;
+using ezConstByteArrayPtr = ezArrayPtr<const ezUInt8>;
+
+//////////////////////////////////////////////////////////////////////////
+
 /// \brief Helper function to create ezArrayPtr from a pointer of some type and a count.
 template <typename T>
 EZ_ALWAYS_INLINE ezArrayPtr<T> ezMakeArrayPtr(T* ptr, ezUInt32 uiCount)
@@ -337,73 +258,101 @@ EZ_ALWAYS_INLINE ezArrayPtr<T> ezMakeArrayPtr(T (&staticArray)[N])
   return ezArrayPtr<T>(staticArray);
 }
 
-template <typename T, typename = std::enable_if_t<!std::is_same<std::remove_cv_t<T>, void>::value>>
+/// \brief Helper function to create ezConstByteArrayPtr from a pointer of some type and a count.
+template <typename T>
+EZ_ALWAYS_INLINE ezConstByteArrayPtr ezMakeByteArrayPtr(const T* ptr, ezUInt32 uiCount)
+{
+  return ezConstByteArrayPtr(static_cast<const ezUInt8*>(ptr), uiCount * sizeof(T));
+}
+
+/// \brief Helper function to create ezByteArrayPtr from a pointer of some type and a count.
+template <typename T>
+EZ_ALWAYS_INLINE ezByteArrayPtr ezMakeByteArrayPtr(T* ptr, ezUInt32 uiCount)
+{
+  return ezByteArrayPtr(reinterpret_cast<ezUInt8*>(ptr), uiCount * sizeof(T));
+}
+
+/// \brief Helper function to create ezByteArrayPtr from a void pointer and a count.
+EZ_ALWAYS_INLINE ezByteArrayPtr ezMakeByteArrayPtr(void* ptr, ezUInt32 uiBytes)
+{
+  return ezByteArrayPtr(reinterpret_cast<ezUInt8*>(ptr), uiBytes);
+}
+
+/// \brief Helper function to create ezConstByteArrayPtr from a const void pointer and a count.
+EZ_ALWAYS_INLINE ezConstByteArrayPtr ezMakeByteArrayPtr(const void* ptr, ezUInt32 uiBytes)
+{
+  return ezConstByteArrayPtr(static_cast<const ezUInt8*>(ptr), uiBytes);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+template <typename T>
 typename ezArrayPtr<T>::iterator begin(ezArrayPtr<T>& container)
 {
   return container.GetPtr();
 }
 
-template <typename T, typename = std::enable_if_t<!std::is_same<std::remove_cv_t<T>, void>::value>>
+template <typename T>
 typename ezArrayPtr<T>::const_iterator begin(const ezArrayPtr<T>& container)
 {
   return container.GetPtr();
 }
 
-template <typename T, typename = std::enable_if_t<!std::is_same<std::remove_cv_t<T>, void>::value>>
+template <typename T>
 typename ezArrayPtr<T>::const_iterator cbegin(const ezArrayPtr<T>& container)
 {
   return container.GetPtr();
 }
 
-template <typename T, typename = std::enable_if_t<!std::is_same<std::remove_cv_t<T>, void>::value>>
+template <typename T>
 typename ezArrayPtr<T>::reverse_iterator rbegin(ezArrayPtr<T>& container)
 {
   return typename ezArrayPtr<T>::reverse_iterator(container.GetPtr() + container.GetCount() - 1);
 }
 
-template <typename T, typename = std::enable_if_t<!std::is_same<std::remove_cv_t<T>, void>::value>>
+template <typename T>
 typename ezArrayPtr<T>::const_reverse_iterator rbegin(const ezArrayPtr<T>& container)
 {
   return typename ezArrayPtr<T>::const_reverse_iterator(container.GetPtr() + container.GetCount() - 1);
 }
 
-template <typename T, typename = std::enable_if_t<!std::is_same<std::remove_cv_t<T>, void>::value>>
+template <typename T>
 typename ezArrayPtr<T>::const_reverse_iterator crbegin(const ezArrayPtr<T>& container)
 {
   return typename ezArrayPtr<T>::const_reverse_iterator(container.GetPtr() + container.GetCount() - 1);
 }
 
-template <typename T, typename = std::enable_if_t<!std::is_same<std::remove_cv_t<T>, void>::value>>
+template <typename T>
 typename ezArrayPtr<T>::iterator end(ezArrayPtr<T>& container)
 {
   return container.GetPtr() + container.GetCount();
 }
 
-template <typename T, typename = std::enable_if_t<!std::is_same<std::remove_cv_t<T>, void>::value>>
+template <typename T>
 typename ezArrayPtr<T>::const_iterator end(const ezArrayPtr<T>& container)
 {
   return container.GetPtr() + container.GetCount();
 }
 
-template <typename T, typename = std::enable_if_t<!std::is_same<std::remove_cv_t<T>, void>::value>>
+template <typename T>
 typename ezArrayPtr<T>::const_iterator cend(const ezArrayPtr<T>& container)
 {
   return container.GetPtr() + container.GetCount();
 }
 
-template <typename T, typename = std::enable_if_t<!std::is_same<std::remove_cv_t<T>, void>::value>>
+template <typename T>
 typename ezArrayPtr<T>::reverse_iterator rend(ezArrayPtr<T>& container)
 {
   return typename ezArrayPtr<T>::reverse_iterator(container.GetPtr() - 1);
 }
 
-template <typename T, typename = std::enable_if_t<!std::is_same<std::remove_cv_t<T>, void>::value>>
+template <typename T>
 typename ezArrayPtr<T>::const_reverse_iterator rend(const ezArrayPtr<T>& container)
 {
   return typename ezArrayPtr<T>::const_reverse_iterator(container.GetPtr() - 1);
 }
 
-template <typename T, typename = std::enable_if_t<!std::is_same<std::remove_cv_t<T>, void>::value>>
+template <typename T>
 typename ezArrayPtr<T>::const_reverse_iterator crend(const ezArrayPtr<T>& container)
 {
   return typename ezArrayPtr<T>::const_reverse_iterator(container.GetPtr() - 1);

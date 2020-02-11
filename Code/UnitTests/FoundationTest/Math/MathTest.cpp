@@ -376,6 +376,15 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_BOOL(ezMath::Trunc(-12.34f) == -12);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FloatToInt")
+  {
+    EZ_TEST_BOOL(ezMath::FloatToInt(12.34f) == 12);
+    EZ_TEST_BOOL(ezMath::FloatToInt(-12.34f) == -12);
+
+    EZ_TEST_BOOL(ezMath::FloatToInt(12000000000000.34) == 12000000000000);
+    EZ_TEST_BOOL(ezMath::FloatToInt(-12000000000000.34) == -12000000000000);
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Round")
   {
     EZ_TEST_BOOL(ezMath::Round(12.34f) == 12);
@@ -601,21 +610,21 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "NaN_Infinity")
   {
-    if (ezMath::BasicType<ezMathTestType>::SupportsNaN())
+    if (ezMath::SupportsNaN<ezMathTestType>())
     {
-      EZ_TEST_BOOL(ezMath::IsNaN(ezMath::BasicType<ezMathTestType>::GetNaN()) == true);
+      EZ_TEST_BOOL(ezMath::IsNaN(ezMath::NaN<ezMathTestType>()) == true);
 
-      EZ_TEST_BOOL(ezMath::BasicType<ezMathTestType>::GetInfinity() ==
-                   ezMath::BasicType<ezMathTestType>::GetInfinity() - (ezMathTestType)1);
-      EZ_TEST_BOOL(ezMath::BasicType<ezMathTestType>::GetInfinity() ==
-                   ezMath::BasicType<ezMathTestType>::GetInfinity() + (ezMathTestType)1);
+      EZ_TEST_BOOL(ezMath::Infinity<ezMathTestType>() ==
+                   ezMath::Infinity<ezMathTestType>() - (ezMathTestType)1);
+      EZ_TEST_BOOL(ezMath::Infinity<ezMathTestType>() ==
+                   ezMath::Infinity<ezMathTestType>() + (ezMathTestType)1);
 
-      EZ_TEST_BOOL(ezMath::IsNaN(ezMath::BasicType<ezMathTestType>::GetInfinity() - ezMath::BasicType<ezMathTestType>::GetInfinity()));
+      EZ_TEST_BOOL(ezMath::IsNaN(ezMath::Infinity<ezMathTestType>() - ezMath::Infinity<ezMathTestType>()));
 
-      EZ_TEST_BOOL(!ezMath::IsFinite(ezMath::BasicType<ezMathTestType>::GetInfinity()));
-      EZ_TEST_BOOL(!ezMath::IsFinite(-ezMath::BasicType<ezMathTestType>::GetInfinity()));
-      EZ_TEST_BOOL(!ezMath::IsFinite(ezMath::BasicType<ezMathTestType>::GetNaN()));
-      EZ_TEST_BOOL(!ezMath::IsNaN(ezMath::BasicType<ezMathTestType>::GetInfinity()));
+      EZ_TEST_BOOL(!ezMath::IsFinite(ezMath::Infinity<ezMathTestType>()));
+      EZ_TEST_BOOL(!ezMath::IsFinite(-ezMath::Infinity<ezMathTestType>()));
+      EZ_TEST_BOOL(!ezMath::IsFinite(ezMath::NaN<ezMathTestType>()));
+      EZ_TEST_BOOL(!ezMath::IsNaN(ezMath::Infinity<ezMathTestType>()));
     }
   }
 
@@ -638,7 +647,7 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ColorFloatToByte")
   {
-    EZ_TEST_INT(ezMath::ColorFloatToByte(ezMath::BasicType<float>::GetNaN()), 0);
+    EZ_TEST_INT(ezMath::ColorFloatToByte(ezMath::NaN<float>()), 0);
     EZ_TEST_INT(ezMath::ColorFloatToByte(-1.0f), 0);
     EZ_TEST_INT(ezMath::ColorFloatToByte(0.0f), 0);
     EZ_TEST_INT(ezMath::ColorFloatToByte(0.4f), 102);
@@ -648,7 +657,7 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ColorFloatToShort")
   {
-    EZ_TEST_INT(ezMath::ColorFloatToShort(ezMath::BasicType<float>::GetNaN()), 0);
+    EZ_TEST_INT(ezMath::ColorFloatToShort(ezMath::NaN<float>()), 0);
     EZ_TEST_INT(ezMath::ColorFloatToShort(-1.0f), 0);
     EZ_TEST_INT(ezMath::ColorFloatToShort(0.0f), 0);
     EZ_TEST_INT(ezMath::ColorFloatToShort(0.4f), 26214);
@@ -658,7 +667,7 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ColorFloatToSignedByte")
   {
-    EZ_TEST_INT(ezMath::ColorFloatToSignedByte(ezMath::BasicType<float>::GetNaN()), 0);
+    EZ_TEST_INT(ezMath::ColorFloatToSignedByte(ezMath::NaN<float>()), 0);
     EZ_TEST_INT(ezMath::ColorFloatToSignedByte(-1.0f), -127);
     EZ_TEST_INT(ezMath::ColorFloatToSignedByte(0.0f), 0);
     EZ_TEST_INT(ezMath::ColorFloatToSignedByte(0.4f), 51);
@@ -703,5 +712,43 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
       const ezVec2 r = ezMath::EvaluateBezierCurve<ezVec2>(step * i, ezVec2(1, 5), ezVec2(0, 3), ezVec2(6, 3), ezVec2(3, 1));
       EZ_TEST_VEC2(r, res[i], 0.001f);
     }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FirstBitLow")
+  {
+    EZ_TEST_INT(ezMath::FirstBitLow(0b1111), 0);
+    EZ_TEST_INT(ezMath::FirstBitLow(0b1110), 1);
+    EZ_TEST_INT(ezMath::FirstBitLow(0b1100), 2);
+    EZ_TEST_INT(ezMath::FirstBitLow(0b1000), 3);
+    EZ_TEST_INT(ezMath::FirstBitLow(0xFFFFFFFF), 0);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FirstBitHigh")
+  {
+    EZ_TEST_INT(ezMath::FirstBitHigh(0b1111), 3);
+    EZ_TEST_INT(ezMath::FirstBitHigh(0b0111), 2);
+    EZ_TEST_INT(ezMath::FirstBitHigh(0b0011), 1);
+    EZ_TEST_INT(ezMath::FirstBitHigh(0b0001), 0);
+    EZ_TEST_INT(ezMath::FirstBitHigh(0xFFFFFFFF), 31);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "CountTrailingZeros")
+  {
+    EZ_TEST_INT(ezMath::CountTrailingZeros(0b1111), 0);
+    EZ_TEST_INT(ezMath::CountTrailingZeros(0b1110), 1);
+    EZ_TEST_INT(ezMath::CountTrailingZeros(0b1100), 2);
+    EZ_TEST_INT(ezMath::CountTrailingZeros(0b1000), 3);
+    EZ_TEST_INT(ezMath::CountTrailingZeros(0xFFFFFFFF), 0);
+    EZ_TEST_INT(ezMath::CountTrailingZeros(0), 32);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "CountLeadingZeros")
+  {
+    EZ_TEST_INT(ezMath::CountLeadingZeros(0b1111), 28);
+    EZ_TEST_INT(ezMath::CountLeadingZeros(0b0111), 29);
+    EZ_TEST_INT(ezMath::CountLeadingZeros(0b0011), 30);
+    EZ_TEST_INT(ezMath::CountLeadingZeros(0b0001), 31);
+    EZ_TEST_INT(ezMath::CountLeadingZeros(0xFFFFFFFF), 0);
+    EZ_TEST_INT(ezMath::CountLeadingZeros(0), 32);
   }
 }

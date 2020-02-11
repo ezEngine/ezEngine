@@ -1,9 +1,9 @@
 #pragma once
 
+#include <Core/Graphics/Camera.h>
+#include <Core/World/World.h>
 #include <RendererCore/Declarations.h>
 #include <RendererCore/Pipeline/Declarations.h>
-#include <Core/World/World.h>
-#include <Core/Graphics/Camera.h>
 
 class ezView;
 struct ezResourceEvent;
@@ -42,13 +42,8 @@ class EZ_RENDERERCORE_DLL ezCameraComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezCameraComponent, ezComponent, ezCameraComponentManager);
 
-public:
-  ezCameraComponent();
-  ~ezCameraComponent();
-
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent interface
-  // 
+  // ezComponent
 
 public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
@@ -59,88 +54,92 @@ protected:
   virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezCameraComponent interface
-  // 
+  // ezCameraComponent
 
 public:
-  void UpdateRenderTargetCamera();
+  ezCameraComponent();
+  ~ezCameraComponent();
 
-  ezEnum<ezCameraUsageHint> GetUsageHint() const { return m_UsageHint; }
-  void SetUsageHint(ezEnum<ezCameraUsageHint> val);
+  ezEnum<ezCameraUsageHint> GetUsageHint() const { return m_UsageHint; } // [ property ]
+  void SetUsageHint(ezEnum<ezCameraUsageHint> val);                      // [ property ]
 
-  void SetRenderTargetFile(const char* szFile);
-  const char* GetRenderTargetFile() const;
+  void SetRenderTargetFile(const char* szFile); // [ property ]
+  const char* GetRenderTargetFile() const;      // [ property ]
 
-  void SetRenderTargetRectOffset(ezVec2 value);
-  ezVec2 GetRenderTargetRectOffset() const { return m_RenderTargetRectOffset; }
+  void SetRenderTargetRectOffset(ezVec2 value);                                 // [ property ]
+  ezVec2 GetRenderTargetRectOffset() const { return m_RenderTargetRectOffset; } // [ property ]
 
-  void SetRenderTargetRectSize(ezVec2 value);
-  ezVec2 GetRenderTargetRectSize() const { return m_RenderTargetRectSize; }
+  void SetRenderTargetRectSize(ezVec2 value);                               // [ property ]
+  ezVec2 GetRenderTargetRectSize() const { return m_RenderTargetRectSize; } // [ property ]
 
-  ezEnum<ezCameraMode> GetCameraMode() const { return m_Mode; }
-  void SetCameraMode(ezEnum<ezCameraMode> val);
+  ezEnum<ezCameraMode> GetCameraMode() const { return m_Mode; } // [ property ]
+  void SetCameraMode(ezEnum<ezCameraMode> val);                 // [ property ]
 
-  float GetNearPlane() const { return m_fNearPlane; }
-  void SetNearPlane(float val);
+  float GetNearPlane() const { return m_fNearPlane; } // [ property ]
+  void SetNearPlane(float val);                       // [ property ]
 
-  float GetFarPlane() const { return m_fFarPlane; }
-  void SetFarPlane(float val);
+  float GetFarPlane() const { return m_fFarPlane; } // [ property ]
+  void SetFarPlane(float val);                      // [ property ]
 
-  float GetFieldOfView() const { return m_fPerspectiveFieldOfView; }
-  void SetFieldOfView(float val);
+  float GetFieldOfView() const { return m_fPerspectiveFieldOfView; } // [ property ]
+  void SetFieldOfView(float val);                                    // [ property ]
 
-  float GetOrthoDimension() const { return m_fOrthoDimension; }
-  void SetOrthoDimension(float val);
+  float GetOrthoDimension() const { return m_fOrthoDimension; } // [ property ]
+  void SetOrthoDimension(float val);                            // [ property ]
 
-  ezRenderPipelineResourceHandle GetRenderPipeline() const;
+  ezRenderPipelineResourceHandle GetRenderPipeline() const; // [ property ]
 
-  const char* GetRenderPipelineEnum() const;
-  void SetRenderPipelineEnum(const char* szFile);
+  const char* GetRenderPipelineEnum() const;      // [ property ]
+  void SetRenderPipelineEnum(const char* szFile); // [ property ]
 
-  float GetAperture() const { return m_fAperture; }
-  void SetAperture(float fAperture);
+  float GetAperture() const { return m_fAperture; } // [ property ]
+  void SetAperture(float fAperture);                // [ property ]
 
-  ezTime GetShutterTime() const { return m_ShutterTime; }
-  void SetShutterTime(ezTime ShutterTime);
+  ezTime GetShutterTime() const { return m_ShutterTime; } // [ property ]
+  void SetShutterTime(ezTime ShutterTime);                // [ property ]
 
-  float GetISO() const { return m_fISO; }
-  void SetISO(float fISO);
+  float GetISO() const { return m_fISO; } // [ property ]
+  void SetISO(float fISO);                // [ property ]
 
-  float GetExposureCompensation() const { return m_fExposureCompensation; }
-  void SetExposureCompensation(float fEC);
+  float GetExposureCompensation() const { return m_fExposureCompensation; } // [ property ]
+  void SetExposureCompensation(float fEC);                                  // [ property ]
 
-  float GetEV100() const;
-  float GetExposure() const;
+  float GetEV100() const;    // [ property ]
+  float GetExposure() const; // [ property ]
+
+  ezTagSet m_IncludeTags; // [ property ]
+  ezTagSet m_ExcludeTags; // [ property ]
 
   void ApplySettingsToView(ezView* pView) const;
 
-  ezTagSet m_IncludeTags;
-  ezTagSet m_ExcludeTags;
-
 private:
+  void UpdateRenderTargetCamera();
+
   void ResourceChangeEventHandler(const ezResourceEvent& e);
 
   ezEnum<ezCameraUsageHint> m_UsageHint;
   ezEnum<ezCameraMode> m_Mode;
   ezRenderToTexture2DResourceHandle m_hRenderTarget;
-  float m_fNearPlane;
-  float m_fFarPlane;
-  float m_fPerspectiveFieldOfView;
-  float m_fOrthoDimension;
+  float m_fNearPlane = 0.25f;
+  float m_fFarPlane = 1000.0f;
+  float m_fPerspectiveFieldOfView = 60.0f;
+  float m_fOrthoDimension = 10.0f;
   ezRenderPipelineResourceHandle m_hCachedRenderPipeline;
 
-  float m_fAperture;
-  ezTime m_ShutterTime;
-  float m_fISO;
-  float m_fExposureCompensation;
+  float m_fAperture = 1.0f;
+  ezTime m_ShutterTime = ezTime::Seconds(1.0f);
+  float m_fISO = 100.0f;
+  float m_fExposureCompensation = 0.0f;
 
   void MarkAsModified();
   void MarkAsModified(ezCameraComponentManager* pCameraManager);
 
-  bool m_bIsModified;
-  bool m_bShowStats;
+  bool m_bIsModified = false;
+  bool m_bShowStats = false;
   bool m_bRenderTargetInitialized = false;
-  ezInt8 m_iEditorShortcut = -1; // -1 for none, 0 to 9 for ALT+Number
+
+  // -1 for none, 0 to 9 for ALT+Number
+  ezInt8 m_iEditorShortcut = -1; // [ property ]
 
   void ActivateRenderToTexture();
   void DeactivateRenderToTexture();
@@ -151,4 +150,3 @@ private:
   ezCamera m_RenderTargetCamera;
   ezHashedString m_sRenderPipeline;
 };
-

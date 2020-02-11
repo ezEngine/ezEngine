@@ -58,6 +58,7 @@
 #include <QClipboard>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 #include <ToolsFoundation/Factory/RttiMappedObjectFactory.h>
+#include <ads/DockManager.h>
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
@@ -152,10 +153,11 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> flags, const char* sz
 {
   EZ_PROFILE_SCOPE("StartupEditor");
 
+  m_bUnitTestMode = flags.IsSet(StartupFlags::UnitTest);
+
   m_bHeadless = flags.IsSet(StartupFlags::Headless);
   if (!m_bHeadless)
   {
-    // ezUniquePtr does not work with forward declared classes :-(
     m_pProgressbar = EZ_DEFAULT_NEW(ezProgress);
     m_pQtProgressbar = EZ_DEFAULT_NEW(ezQtProgressbar);
 
@@ -170,7 +172,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> flags, const char* sz
   }
 
   m_bSafeMode = flags.IsSet(StartupFlags::SafeMode);
-  const bool bNoRecent = m_bSafeMode || m_bHeadless || flags.IsSet(StartupFlags::NoRecent);
+  const bool bNoRecent = m_bUnitTestMode || m_bSafeMode || m_bHeadless || flags.IsSet(StartupFlags::NoRecent);
 
   ezString sApplicationName = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-appname", 0, "ezEditor");
   ezApplicationServices::GetSingleton()->SetApplicationName(sApplicationName);
@@ -193,7 +195,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> flags, const char* sz
     EZ_PROFILE_SCOPE("ezQtContainerWindow");
     SetStyleSheet();
 
-    ezQtContainerWindow* pContainer = new ezQtContainerWindow(0);
+    ezQtContainerWindow* pContainer = new ezQtContainerWindow();
     pContainer->show();
   }
 
@@ -218,8 +220,6 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> flags, const char* sz
     // make sure these folders exist
     ezFileSystem::CreateDirectoryStructure(sAppDir);
     ezFileSystem::CreateDirectoryStructure(sUserData);
-
-    ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
 
     ezFileSystem::AddDataDirectory("", "AbsPaths", ":", ezFileSystem::AllowWrites);             // for absolute paths
     ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezFileSystem::AllowWrites);     // writing to the binary directory
@@ -271,12 +271,19 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> flags, const char* sz
 
   ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
 
-  if (!bNoRecent && pPreferences->m_bLoadLastProjectAtStartup && !m_WhatsNew.HasChanged())
+  if (!bNoRecent && !m_bUnitTestMode && pPreferences->m_bLoadLastProjectAtStartup && !m_WhatsNew.HasChanged())
   {
     // first open the project, so that the data directory list is read
     if (!s_RecentProjects.GetFileList().IsEmpty())
     {
       CreateOrOpenProject(false, s_RecentProjects.GetFileList()[0].m_File);
+    }
+  }
+  else if (!m_bHeadless)
+  {
+    if (ezQtContainerWindow::GetContainerWindow())
+    {
+      ezQtContainerWindow::GetContainerWindow()->ScheduleRestoreWindowLayout();
     }
   }
 
@@ -288,7 +295,7 @@ void ezQtEditorApp::ShutdownEditor()
 {
   ezToolsProject::CloseProject();
 
-  if (!m_bHeadless)
+  if (!m_bHeadless && !m_bUnitTestMode)
   {
     m_WhatsNew.StoreLastRead();
   }
@@ -313,10 +320,7 @@ void ezQtEditorApp::ShutdownEditor()
 
   if (!m_bHeadless)
   {
-    while (!ezQtContainerWindow::GetAllContainerWindows().IsEmpty())
-    {
-      delete ezQtContainerWindow::GetAllContainerWindows()[0];
-    }
+    delete ezQtContainerWindow::GetContainerWindow();
   }
   // HACK to figure out why the panels are not always properly destroyed together with the ContainerWindows
   // if you run into this, please try to figure this out
@@ -375,12 +379,13 @@ void ezQtEditorApp::CreatePanels()
   ezQtApplicationPanel* pCVarPanel = new ezQtCVarPanel();
   ezQtApplicationPanel* pAssetCuratorPanel = new ezQtAssetCuratorPanel();
 
-  QMainWindow* pMainWnd = ezQtContainerWindow::GetAllContainerWindows()[0];
-
-  pMainWnd->tabifyDockWidget(pAssetBrowserPanel, pLogPanel);
-  pMainWnd->tabifyDockWidget(pAssetBrowserPanel, pAssetCuratorPanel);
-  pMainWnd->tabifyDockWidget(pAssetBrowserPanel, pCVarPanel);
-  pMainWnd->tabifyDockWidget(pAssetBrowserPanel, pLongOpsPanel);
+  ezQtContainerWindow* pMainWnd = ezQtContainerWindow::GetContainerWindow();
+  ads::CDockManager* pDockManager = pMainWnd->GetDockManager();
+  pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pAssetBrowserPanel);
+  pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pLogPanel);
+  pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pAssetCuratorPanel);
+  pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pCVarPanel);
+  pDockManager->addDockWidgetTab(ads::RightDockWidgetArea, pLongOpsPanel);
 
   pAssetBrowserPanel->raise();
 }

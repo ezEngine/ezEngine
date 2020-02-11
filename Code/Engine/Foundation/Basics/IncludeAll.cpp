@@ -12,6 +12,7 @@
 #include <Foundation/Types/Bitflags.h>
 #include <Foundation/Types/Delegate.h>
 #include <Foundation/Types/Id.h>
+#include <Foundation/Types/PointerWithFlags.h>
 #include <Foundation/Types/RefCounted.h>
 #include <Foundation/Types/Status.h>
 #include <Foundation/Types/TypeTraits.h>
@@ -19,7 +20,6 @@
 #include <Foundation/Types/Uuid.h>
 #include <Foundation/Types/VarianceTypes.h>
 #include <Foundation/Types/Variant.h>
-#include <Foundation/Types/PointerWithFlags.h>
 
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Communication/GlobalEvent.h>
@@ -86,6 +86,7 @@
 #include <Foundation/Math/Color.h>
 #include <Foundation/Math/Color16f.h>
 #include <Foundation/Math/Color8UNorm.h>
+#include <Foundation/Math/Constants.h>
 #include <Foundation/Math/Declarations.h>
 #include <Foundation/Math/FixedPoint.h>
 #include <Foundation/Math/Float16.h>
@@ -163,7 +164,7 @@
 #include <Foundation/Utilities/ConversionUtils.h>
 #include <Foundation/Utilities/EnumerableClass.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
-#include <Foundation/Utilities/StackTracer.h>
+#include <Foundation/System/StackTracer.h>
 #include <Foundation/Utilities/Stats.h>
 
 

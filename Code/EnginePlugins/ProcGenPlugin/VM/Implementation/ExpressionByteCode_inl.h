@@ -1,4 +1,4 @@
-﻿
+
 EZ_ALWAYS_INLINE const ezExpressionByteCode::StorageType* ezExpressionByteCode::GetByteCode() const
 {
   return m_ByteCode.GetData();
@@ -29,6 +29,11 @@ EZ_ALWAYS_INLINE ezArrayPtr<const ezHashedString> ezExpressionByteCode::GetOutpu
   return m_Outputs;
 }
 
+EZ_ALWAYS_INLINE ezArrayPtr<const ezHashedString> ezExpressionByteCode::GetFunctions() const
+{
+  return m_Functions;
+}
+
 // static
 EZ_ALWAYS_INLINE ezExpressionByteCode::OpCode::Enum ezExpressionByteCode::GetOpCode(const StorageType*& pByteCode)
 {
@@ -54,11 +59,11 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezExpressionByteCode::GetConstant(const StorageType
 }
 
 // static
-EZ_ALWAYS_INLINE ezUInt32 ezExpressionByteCode::GetFunctionNameHash(const StorageType*& pByteCode)
+EZ_ALWAYS_INLINE ezUInt32 ezExpressionByteCode::GetFunctionIndex(const StorageType*& pByteCode)
 {
-  ezUInt32 uiNameHash = *pByteCode;
+  ezUInt32 uiIndex = *pByteCode;
   ++pByteCode;
-  return uiNameHash;
+  return uiIndex;
 }
 
 // static

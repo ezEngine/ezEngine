@@ -126,7 +126,7 @@ ezStringView ezPathUtils::GetFileDirectory(const char* szPath, const char* szPat
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 const char ezPathUtils::OsSpecificPathSeparator = '\\';
-#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+#elif EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
 const char ezPathUtils::OsSpecificPathSeparator = '/';
 #elif EZ_ENABLED(EZ_PLATFORM_OSX)
 const char ezPathUtils::OsSpecificPathSeparator = '/';
@@ -146,7 +146,7 @@ bool ezPathUtils::IsAbsolutePath(const char* szPath)
   /// checks for local paths, i.e. 'C:\stuff' and UNC paths, i.e. '\\server\stuff'
   /// not sure if we should handle '//' identical to '\\' (currently we do)
   return ((szPath[1] == ':') || (IsPathSeparator(szPath[0]) && IsPathSeparator(szPath[1])));
-#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+#elif EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
   return (szPath[0] == '/');
 #elif EZ_ENABLED(EZ_PLATFORM_OSX)
   return (szPath[0] == '/');
@@ -172,11 +172,13 @@ bool ezPathUtils::IsRootedPath(const char* szPath)
   return szPath != nullptr && szPath[0] == ':';
 }
 
-
-ezStringView ezPathUtils::GetRootedPathRootName(const char* szPath)
+void ezPathUtils::GetRootedPathParts(const char* szPath, ezStringView& root, ezStringView& relPath)
 {
+  root = ezStringView();
+  relPath = ezStringView(szPath);
+
   if (!IsRootedPath(szPath))
-    return ezStringView();
+    return;
 
   const char* szStart = szPath;
 
@@ -185,7 +187,8 @@ ezStringView ezPathUtils::GetRootedPathRootName(const char* szPath)
     ezUnicodeUtils::MoveToNextUtf8(szStart);
 
     if (*szStart == '\0')
-      return ezStringView();
+      return;
+
   } while (IsPathSeparator(*szStart));
 
   const char* szEnd = szStart;
@@ -194,7 +197,24 @@ ezStringView ezPathUtils::GetRootedPathRootName(const char* szPath)
   while (*szEnd != '\0' && !IsPathSeparator(*szEnd))
     ezUnicodeUtils::MoveToNextUtf8(szEnd);
 
-  return ezStringView(szStart, szEnd);
+  root = ezStringView(szStart, szEnd);
+  if (*szEnd == '\0')
+  {
+    relPath = ezStringView();
+  }
+  else
+  {
+    // skip path separator for the relative path
+    ezUnicodeUtils::MoveToNextUtf8(szEnd);
+    relPath = ezStringView(szEnd);
+  }
+}
+
+ezStringView ezPathUtils::GetRootedPathRootName(const char* szPath)
+{
+  ezStringView root, relPath;
+  GetRootedPathParts(szPath, root, relPath);
+  return root;
 }
 
 bool ezPathUtils::IsValidFilenameChar(ezUInt32 character)
@@ -254,6 +274,17 @@ ezResult ezPathUtils::MakeValidFilename(const char* szFilename, ezUInt32 replace
   } while (*szFilename != '\0');
 
   return EZ_SUCCESS;
+}
+
+bool ezPathUtils::IsSubPath(const ezStringView& sPrefixPath, const ezStringView& sFullPath)
+{
+  /// \test this is new
+
+  ezStringBuilder tmp = sPrefixPath;
+  tmp.MakeCleanPath();
+  tmp.AppendPath("");
+
+  return sFullPath.StartsWith_NoCase(tmp);
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_PathUtils);

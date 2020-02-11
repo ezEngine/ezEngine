@@ -484,7 +484,7 @@ namespace
     ezUInt32 m_iComponent;
     double m_fValue;
   };
-}
+} // namespace
 
 const ezRTTI* ezReflectionUtils::GetCommonBaseType(const ezRTTI* pRtti1, const ezRTTI* pRtti2)
 {
@@ -1061,11 +1061,10 @@ bool ezReflectionUtils::EnumerationToString(const ezRTTI* pEnumerationRtti, ezIn
         ezVariant value = static_cast<const ezAbstractConstantProperty*>(pProp)->GetConstant();
         if (value.ConvertTo<ezInt64>() == iValue)
         {
-          const ezInt32 uiMaxSearch = ezStringUtils::GetCharacterCount(pProp->GetPropertyName()) - 2;
           out_sOutput =
             conversionMode == EnumConversionMode::FullyQualifiedName
               ? pProp->GetPropertyName()
-              : ezStringUtils::FindLastSubString(pProp->GetPropertyName(), "::", nullptr, pProp->GetPropertyName() + uiMaxSearch) + 2;
+              : ezStringUtils::FindLastSubString(pProp->GetPropertyName(), "::") + 2;
           return true;
         }
       }
@@ -1081,11 +1080,10 @@ bool ezReflectionUtils::EnumerationToString(const ezRTTI* pEnumerationRtti, ezIn
         ezVariant value = static_cast<const ezAbstractConstantProperty*>(pProp)->GetConstant();
         if ((value.ConvertTo<ezInt64>() & iValue) != 0)
         {
-          const ezInt32 uiMaxSearch = ezStringUtils::GetCharacterCount(pProp->GetPropertyName()) - 2;
           out_sOutput.Append(
             conversionMode == EnumConversionMode::FullyQualifiedName
               ? pProp->GetPropertyName()
-              : ezStringUtils::FindLastSubString(pProp->GetPropertyName(), "::", nullptr, pProp->GetPropertyName() + uiMaxSearch) + 2,
+              : ezStringUtils::FindLastSubString(pProp->GetPropertyName(), "::") + 2,
             "|");
         }
       }
@@ -1110,10 +1108,9 @@ bool ezReflectionUtils::StringToEnumeration(const ezRTTI* pEnumerationRtti, cons
       if (pProp->GetCategory() == ezPropertyCategory::Constant)
       {
         // Testing fully qualified and short value name
-        const ezInt32 uiMaxSearch = ezStringUtils::GetCharacterCount(pProp->GetPropertyName()) - 2;
-        const char* valueNameOnly =
-          ezStringUtils::FindLastSubString(pProp->GetPropertyName(), "::", nullptr, pProp->GetPropertyName() + uiMaxSearch) + 2;
-        if (ezStringUtils::IsEqual(pProp->GetPropertyName(), szValue) || ezStringUtils::IsEqual(valueNameOnly, szValue))
+        const char* valueNameOnly = ezStringUtils::FindLastSubString(pProp->GetPropertyName(), "::", nullptr);
+        if (ezStringUtils::IsEqual(pProp->GetPropertyName(), szValue) ||
+            (valueNameOnly != nullptr && ezStringUtils::IsEqual(valueNameOnly + 2, szValue)))
         {
           ezVariant value = static_cast<const ezAbstractConstantProperty*>(pProp)->GetConstant();
           out_iValue = value.ConvertTo<ezInt64>();
@@ -1135,10 +1132,9 @@ bool ezReflectionUtils::StringToEnumeration(const ezRTTI* pEnumerationRtti, cons
         if (pProp->GetCategory() == ezPropertyCategory::Constant)
         {
           // Testing fully qualified and short value name
-          const ezInt32 uiMaxSearch = ezStringUtils::GetStringElementCount(pProp->GetPropertyName());
-          const char* valueNameOnly =
-            ezStringUtils::FindLastSubString(pProp->GetPropertyName(), "::", nullptr, pProp->GetPropertyName() + uiMaxSearch) + 2;
-          if (sValue.IsEqual(pProp->GetPropertyName()) || sValue.IsEqual(valueNameOnly))
+          const char* valueNameOnly = ezStringUtils::FindLastSubString(pProp->GetPropertyName(), "::", nullptr);
+          if (sValue.IsEqual(pProp->GetPropertyName()) ||
+            (valueNameOnly != nullptr && sValue.IsEqual(valueNameOnly + 2)))
           {
             ezVariant value = static_cast<const ezAbstractConstantProperty*>(pProp)->GetConstant();
             out_iValue |= value.ConvertTo<ezInt64>();
@@ -1161,7 +1157,7 @@ ezInt64 ezReflectionUtils::DefaultEnumerationValue(const ezRTTI* pEnumerationRtt
   {
     auto pProp = pEnumerationRtti->GetProperties()[0];
     EZ_ASSERT_DEBUG(pProp->GetCategory() == ezPropertyCategory::Constant && ezStringUtils::EndsWith(pProp->GetPropertyName(), "::Default"),
-                    "First enumeration property must be the default value constant.");
+      "First enumeration property must be the default value constant.");
     return static_cast<const ezAbstractConstantProperty*>(pProp)->GetConstant().ConvertTo<ezInt64>();
   }
   else
@@ -1476,8 +1472,7 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbs
             }
             else
             {
-              ezLog::Error("The property '{0}' can not be compared as the type '{1}' cannot be allocated.", pProp->GetPropertyName(),
-                           pPropType->GetTypeName());
+              ezLog::Error("The property '{0}' can not be compared as the type '{1}' cannot be allocated.", pProp->GetPropertyName(), pPropType->GetTypeName());
             }
           }
           if (!bEqual)
@@ -1487,6 +1482,10 @@ bool ezReflectionUtils::IsEqual(const void* pObject, const void* pObject2, ezAbs
       }
     }
     break;
+
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+      break;
   }
   return true;
 }
@@ -1586,9 +1585,9 @@ ezVariant ezReflectionUtils::GetDefaultVariantFromType(ezVariant::Type::Enum typ
     case ezVariant::Type::Transform:
       return ezVariant(ezTransform::IdentityTransform());
     case ezVariant::Type::String:
-      return ezVariant("");
+      return ezVariant(ezString());
     case ezVariant::Type::StringView:
-      return ezVariant("");
+      return ezVariant(ezStringView());
     case ezVariant::Type::DataBuffer:
       return ezVariant(ezDataBuffer());
     case ezVariant::Type::Time:
@@ -1602,9 +1601,9 @@ ezVariant ezReflectionUtils::GetDefaultVariantFromType(ezVariant::Type::Enum typ
     case ezVariant::Type::VariantDictionary:
       return ezVariantDictionary();
     case ezVariant::Type::ReflectedPointer:
-      return ezVariant();
+      return ezVariant(static_cast<ezReflectedClass*>(nullptr));
     case ezVariant::Type::VoidPointer:
-      return ezVariant();
+      return ezVariant(static_cast<void*>(nullptr));
 
     default:
       EZ_REPORT_FAILURE("Invalid case statement");
@@ -1617,7 +1616,7 @@ ezVariant ezReflectionUtils::GetDefaultValue(const ezAbstractProperty* pProperty
 {
   const ezDefaultValueAttribute* pAttrib = pProperty->GetAttributeByType<ezDefaultValueAttribute>();
   auto type =
-      pProperty->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProperty->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
+    pProperty->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProperty->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
   if (pProperty->GetSpecificType()->GetTypeFlags().IsSet(ezTypeFlags::StandardType))
   {
     if (pAttrib)
@@ -1665,4 +1664,3 @@ void ezReflectionUtils::SetAllMemberPropertiesToDefault(const ezRTTI* pRtti, voi
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Reflection_Implementation_ReflectionUtils);
-

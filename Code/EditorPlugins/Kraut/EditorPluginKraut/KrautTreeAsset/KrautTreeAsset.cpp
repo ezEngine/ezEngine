@@ -20,11 +20,6 @@ ezKrautTreeAssetDocument::ezKrautTreeAssetDocument(const char* szDocumentPath)
 {
 }
 
-const char* ezKrautTreeAssetDocument::QueryAssetType() const
-{
-  return "Kraut Tree";
-}
-
 //////////////////////////////////////////////////////////////////////////
 
 enum ezKrautImportMaterialType : ezUInt8
@@ -44,7 +39,7 @@ enum ezKrautImportLodType : ezUInt8
 
 ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag,
                                                           const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader,
-                                                          bool bTriggeredManually)
+                                                          ezBitflags<ezTransformFlags> transformFlags)
 {
   ezProgressRange range("Transforming Asset", 2, false);
 

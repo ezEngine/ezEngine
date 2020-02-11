@@ -91,6 +91,13 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, double arg)
   return ezStringView(tmp, tmp + writepos);
 }
 
+ezStringView BuildString(char* tmp, ezUInt32 uiLength, bool arg)
+{
+  if (arg)
+    return "true";
+
+  return "false";
+}
 
 ezStringView BuildString(char* tmp, ezUInt32 uiLength, const char* arg)
 {
@@ -262,13 +269,13 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgHumanReadable&
 }
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 
 ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgErrorCode& arg)
 {
   LPVOID lpMsgBuf = nullptr;
   if (FormatMessageW(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr, arg.m_ErrorCode,
-    MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), (LPWSTR)&lpMsgBuf, 0, nullptr) == 0)
+        MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), (LPWSTR)&lpMsgBuf, 0, nullptr) == 0)
   {
     DWORD err = GetLastError();
     ezStringUtils::snprintf(tmp, uiLength, "%i (FormatMessageW failed with error code %i)", arg.m_ErrorCode, err);

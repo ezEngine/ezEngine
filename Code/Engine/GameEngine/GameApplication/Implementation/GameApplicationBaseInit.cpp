@@ -2,9 +2,10 @@
 
 #include <GameEngine/GameApplication/GameApplicationBase.h>
 
+#include <Core/ResourceManager/ResourceManager.h>
+#include <Core/World/WorldModuleConfig.h>
 #include <Foundation/Application/Config/FileSystemConfig.h>
 #include <Foundation/Application/Config/PluginConfig.h>
-#include <Core/ResourceManager/ResourceManager.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/IO/Archive/DataDirTypeArchive.h>
@@ -30,10 +31,10 @@ void ezGameApplicationBase::ExecuteInitFunctions()
   Init_PlatformProfile_SetPreferred();
   Init_ConfigureTelemetry();
   Init_FileSystem_SetSpecialDirs();
-  Init_FileSystem_SetDataDirFactories();
   Init_LoadRequiredPlugins();
   Init_ConfigureAssetManagement();
   Init_FileSystem_ConfigureDataDirs();
+  Init_LoadWorldModuleConfig();
   Init_LoadProjectPlugins();
   Init_PlatformProfile_LoadForRuntime();
   Init_ConfigureInput();
@@ -71,18 +72,12 @@ void ezGameApplicationBase::Init_FileSystem_SetSpecialDirs()
   ezFileSystem::SetSpecialDirectory("project", FindProjectDirectory());
 }
 
-void ezGameApplicationBase::Init_FileSystem_SetDataDirFactories()
-{
-  ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-  ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::ArchiveType::Factory);
-}
-
 void ezGameApplicationBase::Init_ConfigureAssetManagement() {}
 
 void ezGameApplicationBase::Init_LoadRequiredPlugins()
 {
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  ezPlugin::LoadPlugin("XBoxControllerPlugin");
+  ezPlugin::LoadOptionalPlugin("XBoxControllerPlugin");
 #endif
 }
 
@@ -123,6 +118,16 @@ void ezGameApplicationBase::Init_FileSystem_ConfigureDataDirs()
   // ":project/" for reading the project specific files
   ezFileSystem::AddDataDirectory(GetProjectDataDirectoryPath(), "GameApplicationBase", "project", ezFileSystem::DataDirUsage::ReadOnly);
 
+  // ":plugins/" for plugin specific data (optional, if it exists)
+  {
+    ezStringBuilder dir;
+    ezFileSystem::ResolveSpecialDirectory(">sdk/Data/Plugins", dir);
+    if (ezOSFile::ExistsDirectory(dir))
+    {
+      ezFileSystem::AddDataDirectory(">sdk/Data/Plugins", "GameApplicationBase", "plugins", ezFileSystem::DataDirUsage::ReadOnly);
+    }
+  }
+
   {
     ezApplicationFileSystemConfig appFileSystemConfig;
     appFileSystemConfig.Load();
@@ -132,7 +137,7 @@ void ezGameApplicationBase::Init_FileSystem_ConfigureDataDirs()
     {
       const ezString name = appFileSystemConfig.m_DataDirs[i - 1].m_sRootName;
       if (name.IsEqual_NoCase(":") || name.IsEqual_NoCase("bin") || name.IsEqual_NoCase("shadercache") || name.IsEqual_NoCase("appdata") ||
-          name.IsEqual_NoCase("base") || name.IsEqual_NoCase("project"))
+          name.IsEqual_NoCase("base") || name.IsEqual_NoCase("project") || name.IsEqual_NoCase("plugins"))
       {
         appFileSystemConfig.m_DataDirs.RemoveAtAndCopy(i - 1);
       }
@@ -140,6 +145,13 @@ void ezGameApplicationBase::Init_FileSystem_ConfigureDataDirs()
 
     appFileSystemConfig.Apply();
   }
+}
+
+void ezGameApplicationBase::Init_LoadWorldModuleConfig()
+{
+  ezWorldModuleConfig worldModuleConfig;
+  worldModuleConfig.Load();
+  worldModuleConfig.Apply();
 }
 
 void ezGameApplicationBase::Init_LoadProjectPlugins()
@@ -205,7 +217,11 @@ void ezGameApplicationBase::Init_ConfigureCVars()
   ezCVar::LoadCVars();
 }
 
-void ezGameApplicationBase::Init_SetupDefaultResources() {}
+void ezGameApplicationBase::Init_SetupDefaultResources()
+{
+  // continuously unload resources that are not in use anymore
+  ezResourceManager::SetAutoFreeUnused(ezTime::Microseconds(100), ezTime::Seconds(10.0f));
+}
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -215,33 +231,7 @@ void ezGameApplicationBase::Init_SetupDefaultResources() {}
 
 void ezGameApplicationBase::Deinit_UnloadPlugins()
 {
-  ezSet<ezString> ToUnload;
-
-  // if a plugin is linked statically (which happens mostly in an editor context)
-  // then it cannot be unloaded and the ezPlugin instance won't ever go away
-  // however, ezPlugin::UnloadPlugin will always return that it is already unloaded, so we can just skip it there
-  // all other plugins must be unloaded as often as their refcount, though
-  ezStringBuilder s;
-  ezPlugin* pPlugin = ezPlugin::GetFirstInstance();
-  while (pPlugin != nullptr)
-  {
-    s = pPlugin->GetPluginName();
-    ToUnload.Insert(s);
-
-    pPlugin = pPlugin->GetNextInstance();
-  }
-
-  ezString temp;
-  while (!ToUnload.IsEmpty())
-  {
-    auto it = ToUnload.GetIterator();
-
-    ezInt32 iRefCount = 0;
-    EZ_VERIFY(ezPlugin::UnloadPlugin(it.Key(), &iRefCount).Succeeded(), "Failed to unload plugin '{0}'", s);
-
-    if (iRefCount == 0)
-      ToUnload.Remove(it);
-  }
+  ezPlugin::UnloadAllPlugins();
 }
 
 void ezGameApplicationBase::Deinit_ShutdownLogging()

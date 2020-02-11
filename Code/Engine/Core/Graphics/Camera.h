@@ -175,7 +175,7 @@ public:
   /// If the camera is stereo and the given aspect ratio is close to the aspect ratio passed in SetStereoProjection,
   /// the matrix set in SetStereoProjection will be used.
   void GetProjectionMatrix(float fAspectRatioWidthDivHeight, ezMat4& out_projectionMatrix, ezCameraEye eye = ezCameraEye::Left,
-    ezProjectionDepthRange::Enum depthRange = ezProjectionDepthRange::Default) const;
+    ezClipSpaceDepthRange::Enum depthRange = ezClipSpaceDepthRange::Default) const;
 
   float GetExposure() const;
 

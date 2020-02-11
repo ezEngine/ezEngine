@@ -70,7 +70,7 @@ public:
           ezAssetCurator::GetSingleton()->SetActiveAssetProfileByIndex(uiPlatform);
 
           const ezStatus res = ezAssetCurator::GetSingleton()->TransformAsset(
-            pMsg->m_AssetGuid, false, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform));
+            pMsg->m_AssetGuid, ezTransformFlags::None, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform));
 
           msg.m_bSuccess = res.m_Result.Succeeded();
 
@@ -121,7 +121,7 @@ public:
           }
           else
           {
-            ezAssetCurator::GetSingleton()->TransformAllAssets(ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform));
+            ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::TriggeredManually, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform));
           }
 
           QApplication::quit();

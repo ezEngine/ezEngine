@@ -265,20 +265,30 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
       ezSimdVec4f a(1.0f, 2.0f, 4.0f, 8.0f);
       ezSimdVec4f b(1.0f, 0.5f, 0.25f, 0.125f);
 
-      EZ_TEST_BOOL(a.GetReciprocal().IsEqual(b, ezMath::BasicType<float>::SmallEpsilon()).AllSet());
-      EZ_TEST_BOOL(a.GetReciprocal<ezMathAcc::FULL>().IsEqual(b, ezMath::BasicType<float>::SmallEpsilon()).AllSet());
-      EZ_TEST_BOOL(a.GetReciprocal<ezMathAcc::BITS_23>().IsEqual(b, ezMath::BasicType<float>::DefaultEpsilon()).AllSet());
-      EZ_TEST_BOOL(a.GetReciprocal<ezMathAcc::BITS_12>().IsEqual(b, ezMath::BasicType<float>::HugeEpsilon()).AllSet());
+      EZ_TEST_BOOL(a.GetReciprocal().IsEqual(b, ezMath::SmallEpsilon<float>()).AllSet());
+      EZ_TEST_BOOL(a.GetReciprocal<ezMathAcc::FULL>().IsEqual(b, ezMath::SmallEpsilon<float>()).AllSet());
+      EZ_TEST_BOOL(a.GetReciprocal<ezMathAcc::BITS_23>().IsEqual(b, ezMath::DefaultEpsilon<float>()).AllSet());
+      EZ_TEST_BOOL(a.GetReciprocal<ezMathAcc::BITS_12>().IsEqual(b, ezMath::HugeEpsilon<float>()).AllSet());
     }
 
     {
       ezSimdVec4f a(1.0f, 2.0f, 4.0f, 8.0f);
       ezSimdVec4f b(1.0f, ezMath::Sqrt(2.0f), ezMath::Sqrt(4.0f), ezMath::Sqrt(8.0f));
 
-      EZ_TEST_BOOL(a.GetSqrt().IsEqual(b, ezMath::BasicType<float>::SmallEpsilon()).AllSet());
-      EZ_TEST_BOOL(a.GetSqrt<ezMathAcc::FULL>().IsEqual(b, ezMath::BasicType<float>::SmallEpsilon()).AllSet());
-      EZ_TEST_BOOL(a.GetSqrt<ezMathAcc::BITS_23>().IsEqual(b, ezMath::BasicType<float>::DefaultEpsilon()).AllSet());
-      EZ_TEST_BOOL(a.GetSqrt<ezMathAcc::BITS_12>().IsEqual(b, ezMath::BasicType<float>::HugeEpsilon()).AllSet());
+      EZ_TEST_BOOL(a.GetSqrt().IsEqual(b, ezMath::SmallEpsilon<float>()).AllSet());
+      EZ_TEST_BOOL(a.GetSqrt<ezMathAcc::FULL>().IsEqual(b, ezMath::SmallEpsilon<float>()).AllSet());
+      EZ_TEST_BOOL(a.GetSqrt<ezMathAcc::BITS_23>().IsEqual(b, ezMath::DefaultEpsilon<float>()).AllSet());
+      EZ_TEST_BOOL(a.GetSqrt<ezMathAcc::BITS_12>().IsEqual(b, ezMath::HugeEpsilon<float>()).AllSet());
+    }
+
+    {
+      ezSimdVec4f a(1.0f, 2.0f, 4.0f, 8.0f);
+      ezSimdVec4f b(1.0f, 1.0f / ezMath::Sqrt(2.0f), 1.0f / ezMath::Sqrt(4.0f), 1.0f / ezMath::Sqrt(8.0f));
+
+      EZ_TEST_BOOL(a.GetInvSqrt().IsEqual(b, ezMath::SmallEpsilon<float>()).AllSet());
+      EZ_TEST_BOOL(a.GetInvSqrt<ezMathAcc::FULL>().IsEqual(b, ezMath::SmallEpsilon<float>()).AllSet());
+      EZ_TEST_BOOL(a.GetInvSqrt<ezMathAcc::BITS_23>().IsEqual(b, ezMath::DefaultEpsilon<float>()).AllSet());
+      EZ_TEST_BOOL(a.GetInvSqrt<ezMathAcc::BITS_12>().IsEqual(b, ezMath::HugeEpsilon<float>()).AllSet());
     }
 
     {
@@ -289,13 +299,13 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
       r[2] = ezVec3(a.x(), a.y(), a.z()).GetLength();
       r[3] = ezVec4(a.x(), a.y(), a.z(), a.w()).GetLength();
 
-      EZ_TEST_FLOAT(a.GetLength<1>(), r[0], ezMath::BasicType<float>::SmallEpsilon());
-      EZ_TEST_FLOAT(a.GetLength<2>(), r[1], ezMath::BasicType<float>::SmallEpsilon());
-      EZ_TEST_FLOAT(a.GetLength<3>(), r[2], ezMath::BasicType<float>::SmallEpsilon());
-      EZ_TEST_FLOAT(a.GetLength<4>(), r[3], ezMath::BasicType<float>::SmallEpsilon());
+      EZ_TEST_FLOAT(a.GetLength<1>(), r[0], ezMath::SmallEpsilon<float>());
+      EZ_TEST_FLOAT(a.GetLength<2>(), r[1], ezMath::SmallEpsilon<float>());
+      EZ_TEST_FLOAT(a.GetLength<3>(), r[2], ezMath::SmallEpsilon<float>());
+      EZ_TEST_FLOAT(a.GetLength<4>(), r[3], ezMath::SmallEpsilon<float>());
 
-      TestLength<ezMathAcc::FULL>(a, r, ezMath::BasicType<float>::SmallEpsilon());
-      TestLength<ezMathAcc::BITS_23>(a, r, ezMath::BasicType<float>::DefaultEpsilon());
+      TestLength<ezMathAcc::FULL>(a, r, ezMath::SmallEpsilon<float>());
+      TestLength<ezMathAcc::BITS_23>(a, r, ezMath::DefaultEpsilon<float>());
       TestLength<ezMathAcc::BITS_12>(a, r, 0.01f);
     }
 
@@ -307,14 +317,14 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
       r[2] = 1.0f / ezVec3(a.x(), a.y(), a.z()).GetLength();
       r[3] = 1.0f / ezVec4(a.x(), a.y(), a.z(), a.w()).GetLength();
 
-      EZ_TEST_FLOAT(a.GetInvLength<1>(), r[0], ezMath::BasicType<float>::SmallEpsilon());
-      EZ_TEST_FLOAT(a.GetInvLength<2>(), r[1], ezMath::BasicType<float>::SmallEpsilon());
-      EZ_TEST_FLOAT(a.GetInvLength<3>(), r[2], ezMath::BasicType<float>::SmallEpsilon());
-      EZ_TEST_FLOAT(a.GetInvLength<4>(), r[3], ezMath::BasicType<float>::SmallEpsilon());
+      EZ_TEST_FLOAT(a.GetInvLength<1>(), r[0], ezMath::SmallEpsilon<float>());
+      EZ_TEST_FLOAT(a.GetInvLength<2>(), r[1], ezMath::SmallEpsilon<float>());
+      EZ_TEST_FLOAT(a.GetInvLength<3>(), r[2], ezMath::SmallEpsilon<float>());
+      EZ_TEST_FLOAT(a.GetInvLength<4>(), r[3], ezMath::SmallEpsilon<float>());
 
-      TestInvLength<ezMathAcc::FULL>(a, r, ezMath::BasicType<float>::SmallEpsilon());
-      TestInvLength<ezMathAcc::BITS_23>(a, r, ezMath::BasicType<float>::DefaultEpsilon());
-      TestInvLength<ezMathAcc::BITS_12>(a, r, ezMath::BasicType<float>::HugeEpsilon());
+      TestInvLength<ezMathAcc::FULL>(a, r, ezMath::SmallEpsilon<float>());
+      TestInvLength<ezMathAcc::BITS_23>(a, r, ezMath::DefaultEpsilon<float>());
+      TestInvLength<ezMathAcc::BITS_12>(a, r, ezMath::HugeEpsilon<float>());
     }
 
     {
@@ -325,10 +335,10 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
       r[2] = ezVec3(a.x(), a.y(), a.z()).GetLengthSquared();
       r[3] = ezVec4(a.x(), a.y(), a.z(), a.w()).GetLengthSquared();
 
-      EZ_TEST_FLOAT(a.GetLengthSquared<1>(), r[0], ezMath::BasicType<float>::SmallEpsilon());
-      EZ_TEST_FLOAT(a.GetLengthSquared<2>(), r[1], ezMath::BasicType<float>::SmallEpsilon());
-      EZ_TEST_FLOAT(a.GetLengthSquared<3>(), r[2], ezMath::BasicType<float>::SmallEpsilon());
-      EZ_TEST_FLOAT(a.GetLengthSquared<4>(), r[3], ezMath::BasicType<float>::SmallEpsilon());
+      EZ_TEST_FLOAT(a.GetLengthSquared<1>(), r[0], ezMath::SmallEpsilon<float>());
+      EZ_TEST_FLOAT(a.GetLengthSquared<2>(), r[1], ezMath::SmallEpsilon<float>());
+      EZ_TEST_FLOAT(a.GetLengthSquared<3>(), r[2], ezMath::SmallEpsilon<float>());
+      EZ_TEST_FLOAT(a.GetLengthSquared<4>(), r[3], ezMath::SmallEpsilon<float>());
     }
 
     {
@@ -345,8 +355,8 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
       n[2] = a / r[2];
       n[3] = a / r[3];
 
-      TestNormalize<ezMathAcc::FULL>(a, n, r, ezMath::BasicType<float>::SmallEpsilon());
-      TestNormalize<ezMathAcc::BITS_23>(a, n, r, ezMath::BasicType<float>::DefaultEpsilon());
+      TestNormalize<ezMathAcc::FULL>(a, n, r, ezMath::SmallEpsilon<float>());
+      TestNormalize<ezMathAcc::BITS_23>(a, n, r, ezMath::DefaultEpsilon<float>());
       TestNormalize<ezMathAcc::BITS_12>(a, n, r, 0.01f);
     }
 
@@ -358,9 +368,9 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
       n[2] = a / ezVec3(a.x(), a.y(), a.z()).GetLength();
       n[3] = a / ezVec4(a.x(), a.y(), a.z(), a.w()).GetLength();
 
-      TestNormalizeIfNotZero<ezMathAcc::FULL>(a, n, ezMath::BasicType<float>::SmallEpsilon());
-      TestNormalizeIfNotZero<ezMathAcc::BITS_23>(a, n, ezMath::BasicType<float>::DefaultEpsilon());
-      TestNormalizeIfNotZero<ezMathAcc::BITS_12>(a, n, ezMath::BasicType<float>::HugeEpsilon());
+      TestNormalizeIfNotZero<ezMathAcc::FULL>(a, n, ezMath::SmallEpsilon<float>());
+      TestNormalizeIfNotZero<ezMathAcc::BITS_23>(a, n, ezMath::DefaultEpsilon<float>());
+      TestNormalizeIfNotZero<ezMathAcc::BITS_12>(a, n, ezMath::HugeEpsilon<float>());
     }
 
     {
@@ -378,25 +388,25 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
       EZ_TEST_BOOL(a.IsZero<3>());
       EZ_TEST_BOOL(!a.IsZero<4>());
 
-      float smallEps = ezMath::BasicType<float>::SmallEpsilon();
+      float smallEps = ezMath::SmallEpsilon<float>();
       a.Set(smallEps, 2.0f, smallEps, smallEps);
-      EZ_TEST_BOOL(a.IsZero<1>(ezMath::BasicType<float>::DefaultEpsilon()));
-      EZ_TEST_BOOL(!a.IsZero<2>(ezMath::BasicType<float>::DefaultEpsilon()));
+      EZ_TEST_BOOL(a.IsZero<1>(ezMath::DefaultEpsilon<float>()));
+      EZ_TEST_BOOL(!a.IsZero<2>(ezMath::DefaultEpsilon<float>()));
 
       a.Set(smallEps, smallEps, 3.0f, smallEps);
-      EZ_TEST_BOOL(a.IsZero<2>(ezMath::BasicType<float>::DefaultEpsilon()));
-      EZ_TEST_BOOL(!a.IsZero<3>(ezMath::BasicType<float>::DefaultEpsilon()));
+      EZ_TEST_BOOL(a.IsZero<2>(ezMath::DefaultEpsilon<float>()));
+      EZ_TEST_BOOL(!a.IsZero<3>(ezMath::DefaultEpsilon<float>()));
 
       a.Set(smallEps, smallEps, smallEps, 4.0f);
-      EZ_TEST_BOOL(a.IsZero<3>(ezMath::BasicType<float>::DefaultEpsilon()));
-      EZ_TEST_BOOL(!a.IsZero<4>(ezMath::BasicType<float>::DefaultEpsilon()));
+      EZ_TEST_BOOL(a.IsZero<3>(ezMath::DefaultEpsilon<float>()));
+      EZ_TEST_BOOL(!a.IsZero<4>(ezMath::DefaultEpsilon<float>()));
     }
 
     {
       ezSimdVec4f a;
 
-      float NaN = ezMath::BasicType<float>::GetNaN();
-      float Inf = ezMath::BasicType<float>::GetInfinity();
+      float NaN = ezMath::NaN<float>();
+      float Inf = ezMath::Infinity<float>();
 
       a.Set(NaN, 1.0f, NaN, NaN);
       EZ_TEST_BOOL(a.IsNaN<1>());
@@ -467,9 +477,9 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
       ezSimdVec4f d3 = a.CompDiv<ezMathAcc::BITS_23>(b);
       ezSimdVec4f d4 = a.CompDiv<ezMathAcc::BITS_12>(b);
 
-      EZ_TEST_BOOL(d1.IsEqual(divRes, ezMath::BasicType<float>::SmallEpsilon()).AllSet());
-      EZ_TEST_BOOL(d2.IsEqual(divRes, ezMath::BasicType<float>::SmallEpsilon()).AllSet());
-      EZ_TEST_BOOL(d3.IsEqual(divRes, ezMath::BasicType<float>::DefaultEpsilon()).AllSet());
+      EZ_TEST_BOOL(d1.IsEqual(divRes, ezMath::SmallEpsilon<float>()).AllSet());
+      EZ_TEST_BOOL(d2.IsEqual(divRes, ezMath::SmallEpsilon<float>()).AllSet());
+      EZ_TEST_BOOL(d3.IsEqual(divRes, ezMath::DefaultEpsilon<float>()).AllSet());
       EZ_TEST_BOOL(d4.IsEqual(divRes, 0.01f).AllSet());
     }
 

@@ -8,23 +8,17 @@
 
 #include <Foundation/UserConfig.h>
 
-#ifdef BUILDSYSTEM_BUILDING_FOUNDATION_LIB
-#define EZ_FOUNDATION_INTERNAL_HEADER_ALLOWED 1
-#else
-#define EZ_FOUNDATION_INTERNAL_HEADER_ALLOWED 0
-#endif
-
-#define EZ_FOUNDATION_INTERNAL_HEADER static_assert(EZ_FOUNDATION_INTERNAL_HEADER_ALLOWED, "This is a internal header which may only be used when compiling ezFoundation");
+#include <Foundation/FoundationInternal.h>
 
 // include the different headers for the supported platforms
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#include <Foundation/Basics/Platform/Win/Platform_win.h>
+#  include <Foundation/Basics/Platform/Win/Platform_win.h>
 #elif EZ_ENABLED(EZ_PLATFORM_OSX)
-#include <Foundation/Basics/Platform/OSX/Platform_OSX.h>
-#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
-#include <Foundation/Basics/Platform/Linux/Platform_Linux.h>
+#  include <Foundation/Basics/Platform/OSX/Platform_OSX.h>
+#elif EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#  include <Foundation/Basics/Platform/Linux/Platform_Linux.h>
 #else
-#error "Undefined platform!"
+#  error "Undefined platform!"
 #endif
 
 // Here all the different features that each platform supports are declared.
@@ -43,23 +37,24 @@
 #include <Foundation/Types/Types.h>
 
 #ifdef BUILDSYSTEM_BUILDING_FOUNDATION_LIB
-#if BUILDSYSTEM_COMPILE_ENGINE_AS_DLL && EZ_DISABLED(EZ_COMPILE_ENGINE_AS_DLL)
-#error "The Buildsystem is configured to build the Engine as a shared library, but EZ_COMPILE_ENGINE_AS_DLL is not defined in UserConfig.h"
-#endif
-#if !BUILDSYSTEM_COMPILE_ENGINE_AS_DLL && EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
-#error "The Buildsystem is configured to build the Engine as a static library, but EZ_COMPILE_ENGINE_AS_DLL is defined in UserConfig.h"
-#endif
+#  if BUILDSYSTEM_COMPILE_ENGINE_AS_DLL && EZ_DISABLED(EZ_COMPILE_ENGINE_AS_DLL)
+#    error \
+      "The Buildsystem is configured to build the Engine as a shared library, but EZ_COMPILE_ENGINE_AS_DLL is not defined in UserConfig.h"
+#  endif
+#  if !BUILDSYSTEM_COMPILE_ENGINE_AS_DLL && EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
+#    error "The Buildsystem is configured to build the Engine as a static library, but EZ_COMPILE_ENGINE_AS_DLL is defined in UserConfig.h"
+#  endif
 #endif
 
 // Configure the DLL Import/Export Define
 #if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
-#ifdef BUILDSYSTEM_BUILDING_FOUNDATION_LIB
-#define EZ_FOUNDATION_DLL __declspec(dllexport)
+#  ifdef BUILDSYSTEM_BUILDING_FOUNDATION_LIB
+#    define EZ_FOUNDATION_DLL __declspec(dllexport)
+#  else
+#    define EZ_FOUNDATION_DLL __declspec(dllimport)
+#  endif
 #else
-#define EZ_FOUNDATION_DLL __declspec(dllimport)
-#endif
-#else
-#define EZ_FOUNDATION_DLL
+#  define EZ_FOUNDATION_DLL
 #endif
 
 // Finally include the rest of basics
@@ -87,7 +82,7 @@ public:
       return GetStaticAllocator();
   }
 
-  /// \brief The aligned allocator should be used for any allocations which need an alignment
+  /// \brief The aligned allocator should be used for all allocations which need alignment
   EZ_ALWAYS_INLINE static ezAllocatorBase* GetAlignedAllocator()
   {
     EZ_ASSERT_RELEASE(s_pAlignedAllocator != nullptr, "ezFoundation must have been initialized before this function can be called. This "
@@ -103,9 +98,8 @@ private:
 
   static void Initialize();
 
-  /// \brief Returns the allocator that is used to by global data and static members before the default allocator is created.
+  /// \brief Returns the allocator that is used by global data and static members before the default allocator is created.
   static ezAllocatorBase* GetStaticAllocator();
 
   static bool s_bIsInitialized;
 };
-

@@ -18,7 +18,8 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezNpcComponent, 1)
 EZ_END_ABSTRACT_COMPONENT_TYPE
 // clang-format on
 
-ezNpcComponent::ezNpcComponent() {}
+ezNpcComponent::ezNpcComponent() = default;
+ezNpcComponent::~ezNpcComponent() = default;
 
 void ezNpcComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -36,4 +37,3 @@ void ezNpcComponent::DeserializeComponent(ezWorldReader& stream)
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_NpcComponent);
-

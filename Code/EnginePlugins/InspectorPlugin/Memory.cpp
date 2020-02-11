@@ -4,12 +4,20 @@
 #include <Foundation/Memory/MemoryTracker.h>
 #include <Foundation/Utilities/Stats.h>
 
+#include <GameEngine/GameApplication/GameApplicationBase.h>
+
 namespace MemoryDetail
 {
 
   static void BroadcastMemoryStats()
   {
     ezUInt64 uiTotalAllocations = 0;
+
+    {
+      ezTelemetryMessage msg;
+      msg.SetMessageID(' MEM', 'BGN');
+      ezTelemetry::Broadcast(ezTelemetry::Unreliable, msg);
+    }
 
     for (auto it = ezMemoryTracker::GetIterator(); it.IsValid(); ++it)
     {
@@ -25,6 +33,12 @@ namespace MemoryDetail
       ezTelemetry::Broadcast(ezTelemetry::Unreliable, msg);
     }
 
+    {
+      ezTelemetryMessage msg;
+      msg.SetMessageID(' MEM', 'END');
+      ezTelemetry::Broadcast(ezTelemetry::Unreliable, msg);
+    }
+
     static ezUInt64 uiLastTotalAllocations = 0;
 
     ezStringBuilder s;
@@ -34,14 +48,14 @@ namespace MemoryDetail
     uiLastTotalAllocations = uiTotalAllocations;
   }
 
-  static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
+  static void PerframeUpdateHandler(const ezGameApplicationExecutionEvent& e)
   {
     if (!ezTelemetry::IsConnectedToClient())
       return;
 
-    switch (e.m_EventType)
+    switch (e.m_Type)
     {
-      case ezTelemetry::TelemetryEventData::PerFrameUpdate:
+      case ezGameApplicationExecutionEvent::Type::AfterPresent:
         BroadcastMemoryStats();
         break;
 
@@ -49,17 +63,26 @@ namespace MemoryDetail
         break;
     }
   }
-}
+} // namespace MemoryDetail
 
 
 void AddMemoryEventHandler()
 {
-  ezTelemetry::AddEventHandler(MemoryDetail::TelemetryEventsHandler);
+  // We're handling the per frame update by a different event since
+  // using ezTelemetry::TelemetryEventData::PerFrameUpdate can lead
+  // to deadlocks between the ezStats and ezTelemetry system.
+  if (ezGameApplicationBase::GetGameApplicationBaseInstance() != nullptr)
+  {
+    ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(MemoryDetail::PerframeUpdateHandler);
+  }
 }
 
 void RemoveMemoryEventHandler()
 {
-  ezTelemetry::RemoveEventHandler(MemoryDetail::TelemetryEventsHandler);
+  if (ezGameApplicationBase::GetGameApplicationBaseInstance() != nullptr)
+  {
+    ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(MemoryDetail::PerframeUpdateHandler);
+  }
 }
 
 

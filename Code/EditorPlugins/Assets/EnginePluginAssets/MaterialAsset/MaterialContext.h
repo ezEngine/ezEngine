@@ -3,6 +3,7 @@
 #include <EnginePluginAssets/EnginePluginAssetsDLL.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
+#include <RendererCore/Meshes/MeshResource.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Declarations.h>
@@ -28,6 +29,7 @@ protected:
 
 private:
   ezMaterialResourceHandle m_hMaterial;
+  ezMeshResourceHandle m_hPreviewMeshResource;
 };
 
 

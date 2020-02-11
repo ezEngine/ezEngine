@@ -7,13 +7,13 @@
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptGraphQt.moc.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptTypeRegistry.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
 #include <ToolsFoundation/Application/ApplicationServices.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>
-#include <Foundation/Profiling/Profiling.h>
 
 EZ_IMPLEMENT_SINGLETON(ezVisualScriptTypeRegistry);
 
@@ -54,18 +54,17 @@ EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 ezVisualScriptTypeRegistry::ezVisualScriptTypeRegistry()
-    : m_SingletonRegistrar(this)
+  : m_SingletonRegistrar(this)
 {
   m_pBaseType = nullptr;
   ezPhantomRttiManager::s_Events.AddEventHandler(ezMakeDelegate(&ezVisualScriptTypeRegistry::PhantomTypeRegistryEventHandler, this));
-
 }
 
 
- ezVisualScriptTypeRegistry::~ezVisualScriptTypeRegistry()
- {
-   ezPhantomRttiManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezVisualScriptTypeRegistry::PhantomTypeRegistryEventHandler, this));
- }
+ezVisualScriptTypeRegistry::~ezVisualScriptTypeRegistry()
+{
+  ezPhantomRttiManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezVisualScriptTypeRegistry::PhantomTypeRegistryEventHandler, this));
+}
 
 const ezVisualScriptNodeDescriptor* ezVisualScriptTypeRegistry::GetDescriptorForType(const ezRTTI* pRtti) const
 {
@@ -154,6 +153,14 @@ void ezVisualScriptTypeRegistry::UpdateNodeType(const ezRTTI* pRtti)
     if (pRtti->GetAttributeByType<ezAutoGenVisScriptMsgHandler>())
     {
       CreateEventMessageNodeType(pRtti);
+    }
+  }
+
+  // expose reflected functions to visual scripts
+  {
+    for (const ezAbstractFunctionProperty* pFuncProp : pRtti->GetFunctions())
+    {
+      CreateFunctionCallNodeType(pRtti, pFuncProp);
     }
   }
 
@@ -533,6 +540,199 @@ void ezVisualScriptTypeRegistry::CreateEventMessageNodeType(const ezRTTI* pRtti)
     pid.m_Color = PinTypeColor(pid.m_DataType);
     pid.m_uiPinIndex = iDataPinIndex;
     nd.m_OutputPins.PushBack(pid);
+  }
+
+  m_NodeDescriptors.Insert(GenerateTypeFromDesc(nd), nd);
+}
+
+static ezVisualScriptDataPinType::Enum GetDataPinTypeForVariant(ezVariantType::Enum varType)
+{
+  switch (varType)
+  {
+    case ezVariantType::Bool:
+      return ezVisualScriptDataPinType::Boolean;
+
+    case ezVariantType::Vector3:
+      return ezVisualScriptDataPinType::Vec3;
+
+    default:
+      return ezVisualScriptDataPinType::Number;
+  }
+}
+
+static bool IsVariantTypeSupported(ezVariantType::Enum varType)
+{
+  if (varType > ezVariant::Type::FirstStandardType && varType <= ezVariant::Type::Double)
+  {
+    return true;
+  }
+
+  return false;
+}
+
+void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti, const ezAbstractFunctionProperty* pFunction)
+{
+  if (pFunction->GetFunctionType() != ezFunctionType::Member)
+    return;
+
+  const ezScriptableFunctionAttribute* pAttr = pFunction->GetAttributeByType<ezScriptableFunctionAttribute>();
+  if (pAttr == nullptr)
+    return;
+
+  ezStringBuilder tmp(pRtti->GetTypeName(), "::", pFunction->GetPropertyName(), "<call>");
+
+  ezVisualScriptNodeDescriptor nd;
+  nd.m_sTypeName = tmp;
+  nd.m_Color = ezColor::RoyalBlue;
+
+  tmp.Format("Components/{}", pRtti->GetTypeName());
+  nd.m_sCategory = tmp;
+
+  if (const ezCategoryAttribute* pAttr = pFunction->GetAttributeByType<ezCategoryAttribute>())
+  {
+    nd.m_sCategory = pAttr->GetCategory();
+  }
+
+  if (const ezColorAttribute* pAttr = pFunction->GetAttributeByType<ezColorAttribute>())
+  {
+    nd.m_Color = pAttr->GetColor();
+  }
+
+  // Add an input execution pin
+  {
+    static const ezColor ExecutionPinColor = ezColor::LightSlateGrey;
+
+    ezVisualScriptPinDescriptor pd;
+    pd.m_sName = "call";
+    pd.m_sTooltip = "When executed, the message is sent to the object or component.";
+    pd.m_PinType = ezVisualScriptPinDescriptor::Execution;
+    pd.m_Color = ExecutionPinColor;
+    pd.m_uiPinIndex = 0;
+    nd.m_InputPins.PushBack(pd);
+  }
+
+  // Add an output execution pin
+  {
+    static const ezColor ExecutionPinColor = ezColor::LightSlateGrey;
+
+    ezVisualScriptPinDescriptor pd;
+    pd.m_sName = "then";
+    pd.m_sTooltip = "";
+    pd.m_PinType = ezVisualScriptPinDescriptor::Execution;
+    pd.m_Color = ExecutionPinColor;
+    pd.m_uiPinIndex = 0;
+    nd.m_OutputPins.PushBack(pd);
+  }
+
+  // Add an input data pin for the target object
+  {
+    ezVisualScriptPinDescriptor pd;
+    pd.m_sName = "Object";
+    pd.m_sTooltip = "When the object is given, the function is called on the first matching component.";
+    pd.m_PinType = ezVisualScriptPinDescriptor::Data;
+    pd.m_DataType = ezVisualScriptDataPinType::GameObjectHandle;
+    pd.m_Color = PinTypeColor(pd.m_DataType);
+    pd.m_uiPinIndex = 0;
+    nd.m_InputPins.PushBack(pd);
+  }
+
+  // Add an input data pin for the target component
+  {
+    ezVisualScriptPinDescriptor pd;
+    pd.m_sName = "Component";
+    pd.m_sTooltip = "When the component is given, the function is called directly on it.";
+    pd.m_PinType = ezVisualScriptPinDescriptor::Data;
+    pd.m_DataType = ezVisualScriptDataPinType::ComponentHandle;
+    pd.m_Color = PinTypeColor(pd.m_DataType);
+    pd.m_uiPinIndex = 1;
+    nd.m_InputPins.PushBack(pd);
+  }
+
+  ezInt32 iDataPinIndexOut = 0;
+
+  ezStringBuilder sName;
+
+  if (pFunction->GetReturnType() != nullptr && IsVariantTypeSupported(pFunction->GetReturnType()->GetVariantType()))
+  {
+    tmp.Set(pRtti->GetTypeName(), "::", pFunction->GetPropertyName(), "->Return");
+
+    ezVisualScriptPinDescriptor pd;
+    pd.m_sName = "Result";
+    pd.m_sTooltip = ezTranslateTooltip(tmp);
+    pd.m_PinType = ezVisualScriptPinDescriptor::Data;
+    pd.m_DataType = GetDataPinTypeForVariant(pFunction->GetReturnType()->GetVariantType());
+    pd.m_Color = PinTypeColor(pd.m_DataType);
+    pd.m_uiPinIndex = iDataPinIndexOut; // result is always on pin 0
+    nd.m_OutputPins.PushBack(pd);
+
+    ++iDataPinIndexOut;
+  }
+
+  for (ezUInt32 argIdx = 0; argIdx < pFunction->GetArgumentCount(); ++argIdx)
+  {
+    if (pFunction->GetArgumentFlags(argIdx).IsAnySet(ezPropertyFlags::StandardType) == false)
+    {
+      ezLog::Error("Script function '{}' uses non-standard type for argument {}", nd.m_sTypeName, argIdx + 1);
+      return;
+    }
+
+    sName = pAttr->GetArgumentName(argIdx);
+    if (sName.IsEmpty())
+      sName.Format("arg{}", argIdx);
+
+    const ezScriptableFunctionAttribute::ArgType argType = pAttr->GetArgumentType(argIdx);
+
+    // add the inputs as properties
+    if (argType != ezScriptableFunctionAttribute::Out) // in or inout
+    {
+      ezReflectedPropertyDescriptor prd;
+      prd.m_Flags = pFunction->GetArgumentFlags(argIdx);
+      prd.m_Category = ezPropertyCategory::Member;
+      prd.m_sName = sName;
+      prd.m_sType = pFunction->GetArgumentType(argIdx)->GetTypeName();
+
+      ezVisScriptMappingAttribute* pMappingAttr = ezVisScriptMappingAttribute::GetStaticRTTI()->GetAllocator()->Allocate<ezVisScriptMappingAttribute>();
+      pMappingAttr->m_iMapping = argIdx;
+      prd.m_Attributes.PushBack(pMappingAttr);
+
+      nd.m_Properties.PushBack(prd);
+    }
+
+    const auto varType = pFunction->GetArgumentType(argIdx)->GetVariantType();
+
+    if (!IsVariantTypeSupported(varType))
+      continue;
+
+    tmp.Set(pRtti->GetTypeName(), "::", pFunction->GetPropertyName(), "->", sName);
+
+    ezVisualScriptPinDescriptor pid;
+    pid.m_DataType = GetDataPinTypeForVariant(varType);
+    pid.m_sName = sName;
+    pid.m_sTooltip = ezTranslateTooltip(tmp);
+    pid.m_PinType = ezVisualScriptPinDescriptor::Data;
+    pid.m_Color = PinTypeColor(pid.m_DataType);
+    pid.m_uiPinIndex = 2 + argIdx; // TODO: document what m_uiPinIndex is for
+
+    if (argType != ezScriptableFunctionAttribute::Out) // in or inout
+    {
+      nd.m_InputPins.PushBack(pid);
+    }
+
+    if (argType != ezScriptableFunctionAttribute::In /* out or inout */)
+    {
+      if (!pFunction->GetArgumentFlags(argIdx).IsSet(ezPropertyFlags::Reference))
+      {
+        // TODO: ezPropertyFlags::Reference is also set for const-ref parameters, should we change that ?
+
+        ezLog::Error("Script function '{}' argument {} is marked 'out' but is not a non-const reference value", nd.m_sTypeName, argIdx + 1);
+        return;
+      }
+
+      pid.m_uiPinIndex = iDataPinIndexOut;
+      nd.m_OutputPins.PushBack(pid);
+
+      ++iDataPinIndexOut;
+    }
   }
 
   m_NodeDescriptors.Insert(GenerateTypeFromDesc(nd), nd);

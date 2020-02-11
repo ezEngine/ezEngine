@@ -1,9 +1,40 @@
 #pragma once
 
-#include <RendererCore/Pipeline/Declarations.h>
 #include <Core/ResourceManager/ResourceHandle.h>
+#include <RendererCore/Pipeline/Declarations.h>
 
 typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
+
+struct ezRenderWorldExtractionEvent
+{
+  enum class Type
+  {
+    BeginExtraction,
+    BeforeViewExtraction,
+    AfterViewExtraction,
+    EndExtraction
+  };
+
+  Type m_Type;
+  ezView* m_pView = nullptr;
+  ezUInt64 m_uiFrameCounter = 0;
+};
+
+struct ezRenderWorldRenderEvent
+{
+  enum class Type
+  {
+    BeginRender,
+    BeforePipelineExecution,
+    AfterPipelineExecution,
+    EndRender,
+  };
+
+  Type m_Type;
+  ezRenderPipeline* m_pPipeline = nullptr;
+  const ezRenderViewContext* m_pRenderViewContext = nullptr;
+  ezUInt64 m_uiFrameCounter = 0;
+};
 
 class EZ_RENDERERCORE_DLL ezRenderWorld
 {
@@ -20,7 +51,7 @@ public:
   static ezArrayPtr<ezViewHandle> GetMainViews();
 
   static void CacheRenderData(const ezView& view, const ezGameObjectHandle& hOwnerObject, const ezComponentHandle& hOwnerComponent,
-                              ezArrayPtr<ezInternal::RenderDataCacheEntry> cacheEntries);
+    ezArrayPtr<ezInternal::RenderDataCacheEntry> cacheEntries);
 
   static void DeleteAllCachedRenderData();
   static void DeleteCachedRenderData(const ezGameObjectHandle& hOwnerObject, const ezComponentHandle& hOwnerComponent);
@@ -37,14 +68,11 @@ public:
   static void BeginFrame();
   static void EndFrame();
 
-  static ezEvent<ezView*> s_ViewCreatedEvent;
-  static ezEvent<ezView*> s_ViewDeletedEvent;
+  static ezEvent<ezView*, ezMutex> s_ViewCreatedEvent;
+  static ezEvent<ezView*, ezMutex> s_ViewDeletedEvent;
 
-  static ezEvent<ezUInt64> s_BeginExtractionEvent;
-  static ezEvent<ezUInt64> s_EndExtractionEvent;
-
-  static ezEvent<ezUInt64> s_BeginRenderEvent;
-  static ezEvent<ezUInt64> s_EndRenderEvent;
+  static const ezEvent<const ezRenderWorldExtractionEvent&, ezMutex>& GetExtractionEvent() { return s_ExtractionEvent; }
+  static const ezEvent<const ezRenderWorldRenderEvent&, ezMutex>& GetRenderEvent() { return s_RenderEvent; }
 
   static bool GetUseMultithreadedRendering();
 
@@ -81,6 +109,7 @@ private:
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, RenderWorld);
   friend class ezView;
+  friend class ezRenderPipeline;
 
   static void ClearRenderDataCache();
   static void UpdateRenderDataCache();
@@ -91,6 +120,7 @@ private:
   static void OnEngineStartup();
   static void OnEngineShutdown();
 
+  static ezEvent<const ezRenderWorldExtractionEvent&, ezMutex> s_ExtractionEvent;
+  static ezEvent<const ezRenderWorldRenderEvent&, ezMutex> s_RenderEvent;
   static ezUInt64 s_uiFrameCounter;
 };
-

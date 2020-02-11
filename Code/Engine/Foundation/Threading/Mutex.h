@@ -13,8 +13,13 @@ public:
   ezMutex();
   ~ezMutex();
 
-  /// \brief Attempts to acquire an exclusive lock for this mutex object
+  /// \brief Acquires an exclusive lock for this mutex object
   void Acquire();
+
+  /// \brief Attempts to acquire an exclusive lock for this mutex object. Returns true on success.
+  ///
+  /// If the mutex is already acquired by another thread, the function returns immediately and returns false.
+  bool TryAcquire();
 
   /// \brief Releases a lock that has been previously acquired
   void Release();
@@ -39,6 +44,9 @@ public:
   /// \brief Implements the 'Acquire' interface function, but does nothing.
   EZ_ALWAYS_INLINE void Acquire() {}
 
+  /// \brief Implements the 'TryAcquire' interface function, but does nothing.
+  EZ_ALWAYS_INLINE bool TryAcquire() { return true; }
+
   /// \brief Implements the 'Release' interface function, but does nothing.
   EZ_ALWAYS_INLINE void Release() {}
 
@@ -47,7 +55,7 @@ public:
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #  include <Foundation/Threading/Implementation/Win/Mutex_win.h>
-#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
+#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
 #  include <Foundation/Threading/Implementation/Posix/Mutex_posix.h>
 #else
 #  error "Mutex is not implemented on current platform"

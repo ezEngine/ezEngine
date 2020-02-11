@@ -47,6 +47,7 @@ private Q_SLOTS:
   void on_actionOpenHTMLOutput_triggered(bool bChecked);
   void on_actionKeepConsoleOpen_triggered(bool bChecked);
   void on_actionShowMessageBox_triggered(bool bChecked);
+  void on_actionDisableSuccessfulTests_triggered(bool bChecked);
   void on_actionSaveTestSettingsAs_triggered();
   void on_actionRunTests_triggered();
   void on_actionAbort_triggered();
@@ -68,6 +69,7 @@ private Q_SLOTS:
 
   void on_actionOpenTestDataFolder_triggered();
   void on_actionOpenOutputFolder_triggered();
+  void on_actionOpenHTMLFile_triggered();
 
 private:
   void UpdateButtonStates();
@@ -92,6 +94,8 @@ private:
   QLabel* m_pStatusText = nullptr;
   bool m_bExpandedCurrentTest = false;
   bool m_bAbort = false;
+  ezUInt32 m_uiTestsEnabledCount = 0;
+  ezUInt32 m_uiSubTestsEnabledCount = 0;
 
 #  if EZ_ENABLED(USE_WIN_EXTRAS)
   QWinTaskbarButton* m_pWinTaskBarButton = nullptr;
@@ -102,3 +106,4 @@ private:
 };
 
 #endif
+

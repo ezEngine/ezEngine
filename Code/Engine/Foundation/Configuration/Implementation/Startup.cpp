@@ -37,17 +37,17 @@ void ezStartup::PrintAllSubsystems()
 
   while (pSub)
   {
-    ezLog::Info("Subsystem: '{0}::{1}'", pSub->GetGroupName(), pSub->GetSubSystemName());
+    ezLog::Debug("Subsystem: '{0}::{1}'", pSub->GetGroupName(), pSub->GetSubSystemName());
 
     if (pSub->GetDependency(0) == nullptr)
-      ezLog::Dev("  <no dependencies>");
+      ezLog::Debug("  <no dependencies>");
     else
     {
       for (ezInt32 i = 0; pSub->GetDependency(i) != nullptr; ++i)
-        ezLog::Dev("  depends on '{0}'", pSub->GetDependency(i));
+        ezLog::Debug("  depends on '{0}'", pSub->GetDependency(i));
     }
 
-    ezLog::Dev("");
+    ezLog::Debug("");
 
     pSub = pSub->GetNextInstance();
   }
@@ -69,17 +69,17 @@ void ezStartup::AssignSubSystemPlugin(const char* szPluginName)
   }
 }
 
-void ezStartup::PluginEventHandler(const ezPlugin::PluginEvent& EventData)
+void ezStartup::PluginEventHandler(const ezPluginEvent& EventData)
 {
   switch (EventData.m_EventType)
   {
-    case ezPlugin::PluginEvent::BeforeLoading:
+    case ezPluginEvent::BeforeLoading:
     {
       AssignSubSystemPlugin("Static");
     }
     break;
 
-    case ezPlugin::PluginEvent::AfterLoadingBeforeInit:
+    case ezPluginEvent::AfterLoadingBeforeInit:
     {
       if (EventData.m_pPluginObject)
       {
@@ -88,7 +88,7 @@ void ezStartup::PluginEventHandler(const ezPlugin::PluginEvent& EventData)
     }
     break;
 
-    case ezPlugin::PluginEvent::StartupShutdown:
+    case ezPluginEvent::StartupShutdown:
     {
       if (EventData.m_pPluginObject)
       {
@@ -97,7 +97,7 @@ void ezStartup::PluginEventHandler(const ezPlugin::PluginEvent& EventData)
     }
     break;
 
-    case ezPlugin::PluginEvent::AfterPluginChanges:
+    case ezPluginEvent::AfterPluginChanges:
     {
       ezStartup::ReinitToCurrentState();
     }
@@ -257,15 +257,15 @@ void ezStartup::Startup(ezStartupStage::Enum stage)
       switch (stage)
       {
         case ezStartupStage::BaseSystems:
-          ezLog::Dev("Executing 'Base' startup for sub-system '{1}::{0}'", Order[i]->GetSubSystemName(), Order[i]->GetGroupName());
+          ezLog::Debug("Executing 'Base' startup for sub-system '{1}::{0}'", Order[i]->GetSubSystemName(), Order[i]->GetGroupName());
           Order[i]->OnBaseSystemsStartup();
           break;
         case ezStartupStage::CoreSystems:
-          ezLog::Dev("Executing 'Core' startup for sub-system '{1}::{0}'", Order[i]->GetSubSystemName(), Order[i]->GetGroupName());
+          ezLog::Debug("Executing 'Core' startup for sub-system '{1}::{0}'", Order[i]->GetSubSystemName(), Order[i]->GetGroupName());
           Order[i]->OnCoreSystemsStartup();
           break;
         case ezStartupStage::HighLevelSystems:
-          ezLog::Dev("Executing 'Engine' startup for sub-system '{1}::{0}'", Order[i]->GetSubSystemName(), Order[i]->GetGroupName());
+          ezLog::Debug("Executing 'Engine' startup for sub-system '{1}::{0}'", Order[i]->GetSubSystemName(), Order[i]->GetGroupName());
           Order[i]->OnHighLevelSystemsStartup();
           break;
 
@@ -380,12 +380,12 @@ void ezStartup::Shutdown(ezStartupStage::Enum stage)
         switch (stage)
         {
           case ezStartupStage::CoreSystems:
-            ezLog::Dev("Executing 'Core' shutdown of sub-system '{0}::{1}'", Order[i]->GetGroupName(), Order[i]->GetSubSystemName());
+            ezLog::Debug("Executing 'Core' shutdown of sub-system '{0}::{1}'", Order[i]->GetGroupName(), Order[i]->GetSubSystemName());
             Order[i]->OnCoreSystemsShutdown();
             break;
 
           case ezStartupStage::HighLevelSystems:
-            ezLog::Dev("Executing 'Engine' shutdown of sub-system '{0}::{1}'", Order[i]->GetGroupName(), Order[i]->GetSubSystemName());
+            ezLog::Debug("Executing 'Engine' shutdown of sub-system '{0}::{1}'", Order[i]->GetGroupName(), Order[i]->GetSubSystemName());
             Order[i]->OnHighLevelSystemsShutdown();
             break;
 

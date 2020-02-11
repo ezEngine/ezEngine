@@ -91,8 +91,6 @@ public:
   ezMaterialAssetDocument(const char* szDocumentPath);
   ~ezMaterialAssetDocument();
 
-  virtual const char* QueryAssetType() const override { return "Material"; }
-
   ezDocumentObject* GetShaderPropertyObject();
   const ezDocumentObject* GetShaderPropertyObject() const;
 
@@ -127,12 +125,12 @@ protected:
   static ezUuid GetMaterialNodeGuid(const ezAbstractObjectGraph& graph);
   virtual void UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed,
                                   const char* szBasePrefab) override;
-  virtual void InitializeAfterLoading() override;
+  virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;
 
   virtual ezStatus InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-                                          const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
+                                          const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-                                          const ezAssetFileHeader& AssetHeader, bool bTriggeredManually) override;
+                                          const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
   virtual ezStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 
   virtual void InternalGetMetaDataHash(const ezDocumentObject* pObject, ezUInt64& inout_uiHash) const override;

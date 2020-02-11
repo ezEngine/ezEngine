@@ -5,7 +5,7 @@ EZ_ALWAYS_INLINE ezVec2Template<Type>::ezVec2Template()
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
-  const Type TypeNaN = ezMath::BasicType<Type>::GetNaN();
+  const Type TypeNaN = ezMath::NaN<Type>();
   x = TypeNaN;
   y = TypeNaN;
 #endif
@@ -13,15 +13,15 @@ EZ_ALWAYS_INLINE ezVec2Template<Type>::ezVec2Template()
 
 template <typename Type>
 EZ_ALWAYS_INLINE ezVec2Template<Type>::ezVec2Template(Type X, Type Y)
-    : x(X)
-    , y(Y)
+  : x(X)
+  , y(Y)
 {
 }
 
 template <typename Type>
 EZ_ALWAYS_INLINE ezVec2Template<Type>::ezVec2Template(Type V)
-    : x(V)
-    , y(V)
+  : x(V)
+  , y(V)
 {
 }
 
@@ -101,7 +101,7 @@ inline ezResult ezVec2Template<Type>::NormalizeIfNotZero(const ezVec2Template<Ty
   length is between a lower and upper limit.
 */
 template <typename Type>
-inline bool ezVec2Template<Type>::IsNormalized(Type fEpsilon /* = ezMath::BasicType<Type>::HugeEpsilon() */) const
+inline bool ezVec2Template<Type>::IsNormalized(Type fEpsilon /* = ezMath::HugeEpsilon<Type>() */) const
 {
   const Type t = GetLengthSquared();
   return ezMath::IsEqual(t, (Type)(1), fEpsilon);
@@ -118,8 +118,7 @@ inline bool ezVec2Template<Type>::IsZero(Type fEpsilon) const
 {
   EZ_NAN_ASSERT(this);
 
-  return (ezMath::IsZero(x, fEpsilon) &&
-          ezMath::IsZero(y, fEpsilon));
+  return (ezMath::IsZero(x, fEpsilon) && ezMath::IsZero(y, fEpsilon));
 }
 
 template <typename Type>
@@ -203,7 +202,7 @@ template <typename Type>
 EZ_FORCE_INLINE const ezVec2Template<Type> ezVec2Template<Type>::GetOrthogonalVector() const
 {
   EZ_NAN_ASSERT(this);
-  EZ_ASSERT_DEBUG(!IsZero(ezMath::BasicType<Type>::SmallEpsilon()), "The vector must not be zero to be able to compute an orthogonal vector.");
+  EZ_ASSERT_DEBUG(!IsZero(ezMath::SmallEpsilon<Type>()), "The vector must not be zero to be able to compute an orthogonal vector.");
 
   return ezVec2Template<Type>(-y, x);
 }
@@ -250,6 +249,17 @@ EZ_FORCE_INLINE const ezVec2Template<Type> ezVec2Template<Type>::CompMax(const e
   EZ_NAN_ASSERT(&rhs);
 
   return ezVec2Template<Type>(ezMath::Max(x, rhs.x), ezMath::Max(y, rhs.y));
+}
+
+template <typename Type>
+EZ_FORCE_INLINE const ezVec2Template<Type> ezVec2Template<Type>::CompClamp(
+  const ezVec2Template<Type>& low, const ezVec2Template<Type>& high) const
+{
+  EZ_NAN_ASSERT(this);
+  EZ_NAN_ASSERT(&low);
+  EZ_NAN_ASSERT(&high);
+
+  return ezVec2Template<Type>(ezMath::Clamp(x, low.x, high.x), ezMath::Clamp(y, low.y, high.y));
 }
 
 template <typename Type>
@@ -337,8 +347,7 @@ inline bool ezVec2Template<Type>::IsEqual(const ezVec2Template<Type>& rhs, Type 
   EZ_NAN_ASSERT(this);
   EZ_NAN_ASSERT(&rhs);
 
-  return (ezMath::IsEqual(x, rhs.x, fEpsilon) &&
-          ezMath::IsEqual(y, rhs.y, fEpsilon));
+  return (ezMath::IsEqual(x, rhs.x, fEpsilon) && ezMath::IsEqual(y, rhs.y, fEpsilon));
 }
 
 template <typename Type>
@@ -366,4 +375,3 @@ EZ_FORCE_INLINE bool operator<(const ezVec2Template<Type>& v1, const ezVec2Templ
 
   return (v1.y < v2.y);
 }
-

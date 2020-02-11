@@ -12,7 +12,11 @@
 #  error "ProcessGroup functions are not implemented on current platform"
 #endif
 
+const ezHybridArray<ezProcess, 8>& ezProcessGroup::GetProcesses() const
+{
+  return m_Processes;
+}
+
 #endif
 
 EZ_STATICLINK_FILE(Foundation, Foundation_System_Implementation_ProcessGroup);
-

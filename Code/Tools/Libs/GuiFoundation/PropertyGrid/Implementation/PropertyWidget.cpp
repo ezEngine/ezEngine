@@ -89,8 +89,8 @@ ezQtPropertyEditorDoubleSpinboxWidget::ezQtPropertyEditorDoubleSpinboxWidget(ezI
   for (ezInt32 c = 0; c < m_iNumComponents; ++c)
   {
     m_pWidget[c] = new ezQtDoubleSpinBox(this);
-    m_pWidget[c]->setMinimum(-ezMath::BasicType<double>::GetInfinity());
-    m_pWidget[c]->setMaximum(ezMath::BasicType<double>::GetInfinity());
+    m_pWidget[c]->setMinimum(-ezMath::Infinity<double>());
+    m_pWidget[c]->setMaximum(ezMath::Infinity<double>());
     m_pWidget[c]->setSingleStep(0.1f);
     m_pWidget[c]->setAccelerated(true);
 
@@ -363,8 +363,8 @@ ezQtPropertyEditorTimeWidget::ezQtPropertyEditorTimeWidget()
   {
     m_pWidget = new ezQtDoubleSpinBox(this);
     m_pWidget->setDisplaySuffix(" sec");
-    m_pWidget->setMinimum(-ezMath::BasicType<double>::GetInfinity());
-    m_pWidget->setMaximum(ezMath::BasicType<double>::GetInfinity());
+    m_pWidget->setMinimum(-ezMath::Infinity<double>());
+    m_pWidget->setMaximum(ezMath::Infinity<double>());
     m_pWidget->setSingleStep(0.1f);
     m_pWidget->setAccelerated(true);
 
@@ -439,8 +439,8 @@ ezQtPropertyEditorAngleWidget::ezQtPropertyEditorAngleWidget()
   {
     m_pWidget = new ezQtDoubleSpinBox(this);
     m_pWidget->setDisplaySuffix(ezStringUtf8(L"\u00B0").GetData());
-    m_pWidget->setMinimum(-ezMath::BasicType<double>::GetInfinity());
-    m_pWidget->setMaximum(ezMath::BasicType<double>::GetInfinity());
+    m_pWidget->setMinimum(-ezMath::Infinity<double>());
+    m_pWidget->setMaximum(ezMath::Infinity<double>());
     m_pWidget->setSingleStep(0.1f);
     m_pWidget->setAccelerated(true);
 
@@ -603,8 +603,8 @@ ezQtPropertyEditorQuaternionWidget::ezQtPropertyEditorQuaternionWidget()
   for (ezInt32 c = 0; c < 3; ++c)
   {
     m_pWidget[c] = new ezQtDoubleSpinBox(this);
-    m_pWidget[c]->setMinimum(-ezMath::BasicType<double>::GetInfinity());
-    m_pWidget[c]->setMaximum(ezMath::BasicType<double>::GetInfinity());
+    m_pWidget[c]->setMinimum(-ezMath::Infinity<double>());
+    m_pWidget[c]->setMaximum(ezMath::Infinity<double>());
     m_pWidget[c]->setSingleStep(1.0);
     m_pWidget[c]->setAccelerated(true);
     m_pWidget[c]->setDisplaySuffix("\xC2\xB0");
@@ -698,7 +698,7 @@ void ezQtPropertyEditorLineEditWidget::OnInit()
     ezQtScopedBlockSignals bs(m_pWidget);
 
     m_pWidget->setReadOnly(true);
-    auto palette = m_pWidget->palette();
+    QPalette palette = m_pWidget->palette();
     palette.setColor(QPalette::Base, QColor(0, 0, 0, 0));
     m_pWidget->setPalette(palette);
   }
@@ -750,18 +750,20 @@ void ezQtColorButtonWidget::SetColor(const ezVariant& color)
     QColor qol;
     qol.setRgb(col.r, col.g, col.b, col.a);
 
-    QPalette pal = palette();
-    pal.setBrush(QPalette::Window, QBrush(qol, Qt::SolidPattern));
-
-    setPalette(pal);
+    m_pal.setBrush(QPalette::Window, QBrush(qol, Qt::SolidPattern));
+    setPalette(m_pal);
   }
   else
-  {
-    QPalette pal = palette();
-    pal.setBrush(QPalette::Window, QBrush(pal.foreground().color(), Qt::DiagCrossPattern));
-
-    setPalette(pal);
+  { 
+    setPalette(m_pal);
   }
+}
+
+void ezQtColorButtonWidget::showEvent(QShowEvent* event)
+{
+  // Use of style sheets (ADS) breaks previously set palette.
+  setPalette(m_pal);
+  QFrame::showEvent(event);
 }
 
 void ezQtColorButtonWidget::mouseReleaseEvent(QMouseEvent* event)

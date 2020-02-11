@@ -24,43 +24,54 @@ class EZ_RENDERERCORE_DLL ezSpotLightComponent : public ezLightComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezSpotLightComponent, ezLightComponent, ezSpotLightComponentManager);
 
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent
+
+public:
+  virtual void SerializeComponent(ezWorldWriter& stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& stream) override;
+
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezRenderComponent
+
+public:
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
+
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezSpotLightComponent
+
 public:
   ezSpotLightComponent();
   ~ezSpotLightComponent();
 
-  // ezRenderComponent interface
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
+  void SetRange(float fRange); // [ property ]
+  float GetRange() const;      // [ property ]
 
-  void SetRange(float fRange);
-  float GetRange() const;
   float GetEffectiveRange() const;
 
-  void SetInnerSpotAngle(ezAngle fSpotAngle);
-  ezAngle GetInnerSpotAngle() const;
+  void SetInnerSpotAngle(ezAngle fSpotAngle); // [ property ]
+  ezAngle GetInnerSpotAngle() const;          // [ property ]
 
-  void SetOuterSpotAngle(ezAngle fSpotAngle);
-  ezAngle GetOuterSpotAngle() const;
+  void SetOuterSpotAngle(ezAngle fSpotAngle); // [ property ]
+  ezAngle GetOuterSpotAngle() const;          // [ property ]
+
+  void SetProjectedTextureFile(const char* szFile); // [ property ]
+  const char* GetProjectedTextureFile() const;      // [ property ]
 
   void SetProjectedTexture(const ezTexture2DResourceHandle& hProjectedTexture);
   const ezTexture2DResourceHandle& GetProjectedTexture() const;
 
-  void SetProjectedTextureFile(const char* szFile);
-  const char* GetProjectedTextureFile() const;
-
-  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
-
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
-
-private:
-
+protected:
+  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
   ezBoundingSphere CalculateBoundingSphere(const ezTransform& t, float fRange) const;
 
-  float m_fRange;
-  float m_fEffectiveRange;
+  float m_fRange = 0.0f;
+  float m_fEffectiveRange = 0.0f;
 
-  ezAngle m_InnerSpotAngle;
-  ezAngle m_OuterSpotAngle;
+  ezAngle m_InnerSpotAngle = ezAngle::Degree(15.0f);
+  ezAngle m_OuterSpotAngle = ezAngle::Degree(30.0f);
 
   ezTexture2DResourceHandle m_hProjectedTexture;
 };
@@ -79,4 +90,3 @@ public:
   const ezUntrackedString& GetIntensityProperty() const { return m_sProperty3; }
   const ezUntrackedString& GetColorProperty() const { return m_sProperty4; }
 };
-

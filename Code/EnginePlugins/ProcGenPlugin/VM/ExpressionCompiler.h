@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include <ProcGenPlugin/VM/ExpressionAST.h>
 
@@ -24,6 +24,7 @@ private:
 
   ezHashTable<ezHashedString, ezUInt32> m_InputToIndex;
   ezHashTable<ezHashedString, ezUInt32> m_OutputToIndex;
+  ezHashTable<ezHashedString, ezUInt32> m_FunctionToIndex;
 
   struct LiveInterval
   {
@@ -36,4 +37,3 @@ private:
 
   ezDynamicArray<LiveInterval> m_LiveIntervals;
 };
-

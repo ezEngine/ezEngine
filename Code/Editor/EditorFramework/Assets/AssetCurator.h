@@ -1,11 +1,11 @@
 #pragma once
 
-#include <Foundation/Application/Config/FileSystemConfig.h>
 #include <EditorFramework/Assets/AssetDocumentInfo.h>
-#include <GameEngine/Configuration/PlatformProfile.h>
+#include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <EditorFramework/Assets/Declarations.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <Foundation/Algorithm/HashHelperString.h>
+#include <Foundation/Application/Config/FileSystemConfig.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Logging/LogEntry.h>
@@ -16,6 +16,7 @@
 #include <Foundation/Threading/Mutex.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Time/Timestamp.h>
+#include <GameEngine/Configuration/PlatformProfile.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
 #include <tuple>
 
@@ -53,7 +54,12 @@ struct EZ_EDITORFRAMEWORK_DLL ezAssetInfo
   ezAssetInfo() = default;
   void Update(ezUniquePtr<ezAssetInfo>& rhs);
 
-  enum TransformState
+  ezAssetDocumentManager* GetManager()
+  {
+    return static_cast<ezAssetDocumentManager*>(m_pDocumentTypeDescriptor->m_pManager);
+  }
+
+  enum TransformState : ezUInt8
   {
     Unknown = 0,
     UpToDate,
@@ -65,17 +71,20 @@ struct EZ_EDITORFRAMEWORK_DLL ezAssetInfo
     MissingReference,
     COUNT,
   };
+  ezUInt8 m_LastStateUpdate = 0; ///< Changes every time m_TransformState is modified. Used to detect stale computations done outside the lock.
   ezAssetExistanceState::Enum m_ExistanceState = ezAssetExistanceState::FileAdded;
   TransformState m_TransformState = TransformState::Unknown;
+  ezUInt64 m_AssetHash = 0; ///< Valid if m_TransformState != Unknown and asset not in Curator's m_TransformStateStale list.
+  ezUInt64 m_ThumbHash = 0; ///< Valid if m_TransformState != Unknown and asset not in Curator's m_TransformStateStale list.
+
   ezDynamicArray<ezLogEntry> m_LogEntries;
 
-  ezAssetDocumentManager* m_pManager = nullptr;
+  const ezAssetDocumentTypeDescriptor* m_pDocumentTypeDescriptor = nullptr;
   ezString m_sAbsolutePath;
   ezString m_sDataDirRelativePath;
 
   ezUniquePtr<ezAssetDocumentInfo> m_Info;
 
-  ezUInt64 m_LastAssetDependencyHash = 0; ///< For debugging only.
   ezSet<ezString> m_MissingDependencies;
   ezSet<ezString> m_MissingReferences;
 
@@ -214,11 +223,10 @@ private:
   ///@{
 
 public:
-
   /// \brief Transforms all assets and writes the lookup tables. If the given platform is empty, the active platform is used.
-  void TransformAllAssets(const ezPlatformProfile* pAssetProfile = nullptr);
+  void TransformAllAssets(ezBitflags<ezTransformFlags> transformFlags, const ezPlatformProfile* pAssetProfile = nullptr);
   void ResaveAllAssets();
-  ezStatus TransformAsset(const ezUuid& assetGuid, bool bTriggeredManually, const ezPlatformProfile* pAssetProfile = nullptr);
+  ezStatus TransformAsset(const ezUuid& assetGuid, ezBitflags<ezTransformFlags> transformFlags, const ezPlatformProfile* pAssetProfile = nullptr);
   ezStatus CreateThumbnail(const ezUuid& assetGuid);
 
   /// \brief Writes the asset lookup table for the given platform, or the currently active platform if nullptr is passed.
@@ -249,9 +257,8 @@ public:
   /// \brief Computes the combined hash for the asset and its references. Returns 0 if anything went wrong.
   ezUInt64 GetAssetReferenceHash(ezUuid assetGuid);
 
-  ezAssetInfo::TransformState IsAssetUpToDate(const ezUuid& assetGuid, const ezPlatformProfile* pAssetProfile,
-                                              const ezDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash,
-                                              ezUInt64& out_ThumbHash);
+  ezAssetInfo::TransformState IsAssetUpToDate(const ezUuid& assetGuid, const ezPlatformProfile* pAssetProfile, const ezAssetDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash,
+    ezUInt64& out_ThumbHash);
   /// \brief Returns the number of assets in the system and how many are in what transform state
   void GetAssetTransformStats(ezUInt32& out_uiNumAssets, ezHybridArray<ezUInt32, ezAssetInfo::TransformState::COUNT>& out_count);
 
@@ -291,7 +298,7 @@ private:
   /// \name Processing
   ///@{
 
-  ezStatus ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformProfile* pAssetProfile, bool bTriggeredManually);
+  ezStatus ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformProfile* pAssetProfile, ezBitflags<ezTransformFlags> transformFlags);
   ezStatus ResaveAsset(ezAssetInfo* pAssetInfo);
   /// \brief Returns the asset info for the asset with the given GUID or nullptr if no such asset exists.
   ezAssetInfo* GetAssetInfo(const ezUuid& assetGuid);
@@ -323,17 +330,18 @@ private:
   /// \name Asset Hashing and Status Updates (AssetUpdates.cpp)
   ///@{
 
-  ezUInt64 GetAssetHash(ezUuid assetGuid, bool bReferences);
-  bool AddAssetHash(ezString& sPath, bool bReferences, ezUInt64& uiHashResult);
+  ezAssetInfo::TransformState HashAsset(ezUInt64 uiSettingsHash, const ezHybridArray<ezString, 16>& assetTransformDependencies, const ezHybridArray<ezString, 16>& runtimeDependencies,
+    ezSet<ezString>& missingDependencies, ezSet<ezString>& missingReferences, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash);
+  bool AddAssetHash(ezString& sPath, bool bIsReference, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash);
 
   ezResult EnsureAssetInfoUpdated(const ezUuid& assetGuid);
   ezResult EnsureAssetInfoUpdated(const char* szAbsFilePath);
   void TrackDependencies(ezAssetInfo* pAssetInfo);
   void UntrackDependencies(ezAssetInfo* pAssetInfo);
   void UpdateTrackedFiles(const ezUuid& assetGuid, const ezSet<ezString>& files, ezMap<ezString, ezHybridArray<ezUuid, 1>>& inverseTracker,
-                          ezSet<std::tuple<ezUuid, ezUuid>>& unresolved, bool bAdd);
+    ezSet<std::tuple<ezUuid, ezUuid>>& unresolved, bool bAdd);
   void UpdateUnresolvedTrackedFiles(ezMap<ezString, ezHybridArray<ezUuid, 1>>& inverseTracker,
-                                    ezSet<std::tuple<ezUuid, ezUuid>>& unresolved);
+    ezSet<std::tuple<ezUuid, ezUuid>>& unresolved);
   ezResult ReadAssetDocumentInfo(const char* szAbsFilePath, ezFileStatus& stat, ezUniquePtr<ezAssetInfo>& assetInfo);
   void UpdateSubAssets(ezAssetInfo& assetInfo);
   /// \brief Computes the hash of the given file. Optionally passes the data stream through into another stream writer.
@@ -341,6 +349,7 @@ private:
 
   void RemoveAssetTransformState(const ezUuid& assetGuid);
   void InvalidateAssetTransformState(const ezUuid& assetGuid);
+  ezAssetInfo::TransformState UpdateAssetTransformState(ezUuid assetGuid, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash);
   void UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetInfo::TransformState state);
   void UpdateAssetTransformLog(const ezUuid& assetGuid, ezDynamicArray<ezLogEntry>& logEntries);
   void SetAssetExistanceState(ezAssetInfo& assetInfo, ezAssetExistanceState::Enum state);
@@ -364,7 +373,7 @@ private:
   friend class ezAssetProcessor;
 
   ezAtomicInteger32 m_bInitStarted =
-      false; // Used to figure out whether the task system has already started the init task so we don't still its lock.
+    false; // Used to figure out whether the task system has already started the init task so we don't still its lock.
   bool m_bRunUpdateTask;
   bool m_bNeedToReloadResources;
 
@@ -377,7 +386,7 @@ private:
   ezMap<ezString, ezHybridArray<ezUuid, 1>> m_InverseDependency;
   ezMap<ezString, ezHybridArray<ezUuid, 1>> m_InverseReferences;
   ezSet<std::tuple<ezUuid, ezUuid>>
-      m_UnresolvedDependencies; ///< If a dependency wasn't known yet when an asset info was loaded, it is put in here.
+    m_UnresolvedDependencies; ///< If a dependency wasn't known yet when an asset info was loaded, it is put in here.
   ezSet<std::tuple<ezUuid, ezUuid>> m_UnresolvedReferences;
 
   // State caches

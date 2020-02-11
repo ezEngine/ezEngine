@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef BUILDSYSTEM_ENABLE_IMGUI_SUPPORT
+
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Math/Size.h>
@@ -86,3 +88,5 @@ private:
   ezMutex m_ViewToContextTableMutex;
   ezHashTable<ezViewHandle, Context> m_ViewToContextTable;
 };
+
+#endif

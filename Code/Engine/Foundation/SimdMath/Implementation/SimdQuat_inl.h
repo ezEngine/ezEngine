@@ -34,13 +34,13 @@ EZ_ALWAYS_INLINE void ezSimdQuat::Normalize()
   m_v.Normalize<4>();
 }
 
-inline ezResult ezSimdQuat::GetRotationAxisAndAngle(ezSimdVec4f& vAxis, ezSimdFloat& angle) const
+inline ezResult ezSimdQuat::GetRotationAxisAndAngle(ezSimdVec4f& vAxis, ezSimdFloat& angle, const ezSimdFloat& fEpsilon) const
 {
   ///\todo optimize
   const ezAngle acos = ezMath::ACos(m_v.w());
   const float d = ezMath::Sin(acos);
 
-  if (d == 0)
+  if (d < fEpsilon)
   {
     vAxis.Set(1.0f, 0.0f, 0.0f, 0.0f);
   }

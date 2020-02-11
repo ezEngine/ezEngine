@@ -36,17 +36,17 @@ public:
   ezSimdMat4f GetTranspose() const; // [tested]
 
   /// \brief Inverts this matrix. Return value indicates whether the matrix could be inverted.
-  ezResult Invert(const ezSimdFloat& fEpsilon = ezMath::BasicType<float>::SmallEpsilon()); // [tested]
+  ezResult Invert(const ezSimdFloat& fEpsilon = ezMath::SmallEpsilon<float>()); // [tested]
 
   /// \brief Returns the inverse of this matrix.
-  ezSimdMat4f GetInverse(const ezSimdFloat& fEpsilon = ezMath::BasicType<float>::SmallEpsilon()) const; // [tested]
+  ezSimdMat4f GetInverse(const ezSimdFloat& fEpsilon = ezMath::SmallEpsilon<float>()) const; // [tested]
 
 public:
   /// \brief Equality Check with epsilon
   bool IsEqual(const ezSimdMat4f& rhs, const ezSimdFloat& fEpsilon) const; // [tested]
 
   /// \brief Checks whether this is an identity matrix.
-  bool IsIdentity(const ezSimdFloat& fEpsilon = ezMath::BasicType<float>::DefaultEpsilon()) const; // [tested]
+  bool IsIdentity(const ezSimdFloat& fEpsilon = ezMath::DefaultEpsilon<float>()) const; // [tested]
 
   /// \brief Checks whether all components are finite numbers.
   bool IsValid() const; // [tested]

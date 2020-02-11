@@ -1,5 +1,7 @@
 #include <GuiFoundationPCH.h>
 
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QDesktopServices>
 #include <QDir>
@@ -20,7 +22,7 @@ bool ezQtUiServices::s_bHeadless;
 static ezQtUiServices g_instance;
 
 ezQtUiServices::ezQtUiServices()
-    : m_SingletonRegistrar(this)
+  : m_SingletonRegistrar(this)
 {
   int id = qRegisterMetaType<ezUuid>();
   m_pColorDlg = nullptr;
@@ -86,7 +88,6 @@ const QImage& ezQtUiServices::GetCachedImageResource(const char* szIdentifier)
   return map[sIdentifier];
 }
 
-
 const QPixmap& ezQtUiServices::GetCachedPixmapResource(const char* szIdentifier)
 {
   const ezString sIdentifier = szIdentifier;
@@ -100,6 +101,50 @@ const QPixmap& ezQtUiServices::GetCachedPixmapResource(const char* szIdentifier)
   map[sIdentifier] = QPixmap(QString::fromUtf8(szIdentifier));
 
   return map[sIdentifier];
+}
+
+ezResult ezQtUiServices::AddToGitIgnore(const char* szGitIgnoreFile, const char* szPattern)
+{
+  ezStringBuilder ignoreFile;
+
+  {
+    ezFileReader file;
+    if (file.Open(szGitIgnoreFile).Succeeded())
+    {
+      ignoreFile.ReadAll(file);
+    }
+  }
+
+  ignoreFile.Trim("\n\r");
+
+  const ezUInt32 len = ezStringUtils::GetStringElementCount(szPattern);
+
+  // pattern already present ?
+  if (const char* szFound = ignoreFile.FindSubString(szPattern))
+  {
+    if (szFound == ignoreFile.GetData() || // right at the start
+        *(szFound - 1) == '\n')            // after a new line
+    {
+      const char end = *(szFound + len);
+
+      if (end == '\0' || end == '\r' || end == '\n') // line does not continue with an extended pattern
+      {
+        return EZ_SUCCESS;
+      }
+    }
+  }
+
+  ignoreFile.AppendWithSeparator("\n", szPattern);
+  ignoreFile.Append("\n\n");
+
+  {
+    ezFileWriter file;
+    EZ_SUCCEED_OR_RETURN(file.Open(szGitIgnoreFile));
+
+    EZ_SUCCEED_OR_RETURN(file.WriteBytes(ignoreFile.GetData(), ignoreFile.GetElementCount()));
+  }
+
+  return EZ_SUCCESS;
 }
 
 void ezQtUiServices::LoadState()
@@ -152,4 +197,23 @@ void ezQtUiServices::OpenInExplorer(const char* szPath, bool bIsFile)
   args << QDir::toNativeSeparators(szPath);
 
   QProcess::startDetached("explorer", args);
+}
+
+ezStatus ezQtUiServices::OpenInVsCode(const QStringList& arguments)
+{
+  QString sVsCodeExe = QStandardPaths::locate(QStandardPaths::GenericDataLocation, "Programs/Microsoft VS Code/Code.exe", QStandardPaths::LocateOption::LocateFile);
+
+  if (!QFile().exists(sVsCodeExe))
+  {
+    return ezStatus("Installation of Visual Studio Code could not be located.\n"
+                    "Please visit 'https://code.visualstudio.com/download' to download the 'User Installer' of Visual Studio Code.");
+  }
+
+  QProcess proc;
+  if (proc.startDetached(sVsCodeExe, arguments) == false)
+  {
+    return ezStatus("Failed to launch Visual Studio Code.");
+  }
+
+  return ezStatus(EZ_SUCCESS);
 }

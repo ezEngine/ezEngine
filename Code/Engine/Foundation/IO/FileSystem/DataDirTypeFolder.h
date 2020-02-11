@@ -43,10 +43,10 @@ namespace ezDataDirectory
   protected:
     // The implementations of the abstract functions.
 
-    virtual ezDataDirectoryReader* OpenFileToRead(const char* szFile, bool bSpecificallyThisDataDir) override;
+    virtual ezDataDirectoryReader* OpenFileToRead(const char* szFile, ezFileShareMode::Enum FileShareMode, bool bSpecificallyThisDataDir) override;
 
     virtual bool ResolveAssetRedirection(const char* szPathOrAssetGuid, ezStringBuilder& out_sRedirection) override;
-    virtual ezDataDirectoryWriter* OpenFileToWrite(const char* szFile) override;
+    virtual ezDataDirectoryWriter* OpenFileToWrite(const char* szFile, ezFileShareMode::Enum FileShareMode) override;
     virtual void RemoveDataDirectory() override;
     virtual void DeleteFile(const char* szFile) override;
     virtual bool ExistsFile(const char* szFile, bool bOneSpecificDataDir) override;
@@ -88,7 +88,7 @@ namespace ezDataDirectory
     virtual ezUInt64 GetFileSize() const override;
 
   protected:
-    virtual ezResult InternalOpen() override;
+    virtual ezResult InternalOpen(ezFileShareMode::Enum FileShareMode) override;
     virtual void InternalClose() override;
 
     friend class FolderType;
@@ -113,7 +113,7 @@ namespace ezDataDirectory
     virtual ezUInt64 GetFileSize() const override;
 
   protected:
-    virtual ezResult InternalOpen() override;
+    virtual ezResult InternalOpen(ezFileShareMode::Enum FileShareMode) override;
     virtual void InternalClose() override;
 
     friend class FolderType;

@@ -43,6 +43,9 @@ public:
   template <ezMathAcc::Enum acc = ezMathAcc::FULL>
   ezSimdVec4f GetSqrt() const; // [tested]
 
+  template <ezMathAcc::Enum acc = ezMathAcc::FULL>
+  ezSimdVec4f GetInvSqrt() const; // [tested]
+
   template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
   ezSimdFloat GetLength() const; // [tested]
 
@@ -62,7 +65,7 @@ public:
   void Normalize(); // [tested]
 
   template <int N, ezMathAcc::Enum acc = ezMathAcc::FULL>
-  void NormalizeIfNotZero(const ezSimdFloat& fEpsilon = ezMath::BasicType<float>::SmallEpsilon()); // [tested]
+  void NormalizeIfNotZero(const ezSimdFloat& fEpsilon = ezMath::SmallEpsilon<float>()); // [tested]
 
   template <int N>
   bool IsZero() const; // [tested]
@@ -71,7 +74,7 @@ public:
   bool IsZero(const ezSimdFloat& fEpsilon) const; // [tested]
 
   template <int N>
-  bool IsNormalized(const ezSimdFloat& fEpsilon = ezMath::BasicType<float>::HugeEpsilon()) const; // [tested]
+  bool IsNormalized(const ezSimdFloat& fEpsilon = ezMath::HugeEpsilon<float>()) const; // [tested]
 
   template <int N>
   bool IsNaN() const; // [tested]

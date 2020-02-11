@@ -1,12 +1,12 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <QDockWidget>
 #include <Tools/Inspector/ui_PluginsWidget.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
+#include <ads/DockWidget.h>
 
-class ezQtPluginsWidget : public QDockWidget, public Ui_PluginsWidget
+class ezQtPluginsWidget : public ads::CDockWidget, public Ui_PluginsWidget
 {
 public:
   Q_OBJECT

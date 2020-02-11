@@ -1,10 +1,10 @@
 #pragma once
 
-#include <RendererFoundation/Shader/ShaderUtils.h>
 #include <RendererCore/Decals/DecalComponent.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
 #include <RendererCore/Lights/PointLightComponent.h>
 #include <RendererCore/Lights/SpotLightComponent.h>
+#include <RendererFoundation/Shader/ShaderUtils.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Common/LightData.h>
 EZ_DEFINE_AS_POD_TYPE(ezPerLightData);
@@ -15,6 +15,7 @@ EZ_DEFINE_AS_POD_TYPE(ezPerClusterData);
 #include <Foundation/Math/Float16.h>
 #include <Foundation/SimdMath/SimdConversion.h>
 #include <Foundation/SimdMath/SimdVec4i.h>
+#include <Foundation/Utilities/GraphicsUtils.h>
 
 namespace
 {
@@ -42,7 +43,7 @@ namespace
 
   // in order: tlf, trf, blf, brf, tln, trn, bln, brn
   EZ_FORCE_INLINE void GetClusterCornerPoints(const ezCamera& camera, float fZf, float fZn, float fTanFovX, float fTanFovY, ezInt32 x,
-                                              ezInt32 y, ezInt32 z, ezVec3* out_pCorners)
+    ezInt32 y, ezInt32 z, ezVec3* out_pCorners)
   {
     const ezVec3& pos = camera.GetPosition();
     const ezVec3& dirForward = camera.GetDirForwards();
@@ -183,13 +184,12 @@ namespace
     // if negative scaling should be allowed, this would need to be changed
     scale = ezVec3(1.0f).CompDiv(scale.CompMax(ezVec3(0.00001f)));
 
-    ezMat4 lookAt;
-    lookAt.SetLookAtMatrix(position, position + dirForwards, dirUp);
+    const ezMat4 lookAt = ezGraphicsUtils::CreateLookAtViewMatrix(position, position + dirForwards, dirUp);
     ezMat4 scaleMat;
     scaleMat.SetScalingMatrix(ezVec3(scale.y, -scale.z, scale.x));
 
     const bool bNoFade =
-        pDecalRenderData->m_InnerFadeAngle == ezAngle::Radian(0.0f) && pDecalRenderData->m_OuterFadeAngle == ezAngle::Radian(0.0f);
+      pDecalRenderData->m_InnerFadeAngle == ezAngle::Radian(0.0f) && pDecalRenderData->m_OuterFadeAngle == ezAngle::Radian(0.0f);
     const float fCosInner = ezMath::Cos(pDecalRenderData->m_InnerFadeAngle);
     const float fCosOuter = ezMath::Cos(pDecalRenderData->m_OuterFadeAngle);
     const float fFadeParamScale = bNoFade ? 0.0f : (1.0f / ezMath::Max(0.001f, (fCosInner - fCosOuter)));
@@ -208,7 +208,7 @@ namespace
 
 
   EZ_FORCE_INLINE ezSimdBBox GetScreenSpaceBounds(const ezSimdBSphere& sphere, const ezSimdMat4f& viewMatrix,
-                                                  const ezSimdMat4f& projectionMatrix)
+    const ezSimdMat4f& projectionMatrix)
   {
     ezSimdVec4f viewSpaceCenter = viewMatrix.TransformPosition(sphere.GetCenter());
     ezSimdFloat depth = viewSpaceCenter.z();
@@ -250,7 +250,7 @@ namespace
 
   template <typename Cluster, typename IntersectionFunc>
   EZ_FORCE_INLINE void FillCluster(const ezSimdBBox& screenSpaceBounds, ezUInt32 uiBlockIndex, ezUInt32 uiMask, Cluster* clusters,
-                                   IntersectionFunc func)
+    IntersectionFunc func)
   {
     ezSimdVec4f scale = ezSimdVec4f(0.5f * NUM_CLUSTERS_X, -0.5f * NUM_CLUSTERS_Y, 1.0f, 1.0f);
     ezSimdVec4f bias = ezSimdVec4f(0.5f * NUM_CLUSTERS_X, 0.5f * NUM_CLUSTERS_Y, 0.0f, 0.0f);
@@ -291,7 +291,7 @@ namespace
 
   template <typename Cluster>
   void RasterizePointLight(const ezSimdBSphere& pointLightSphere, ezUInt32 uiLightIndex, const ezSimdMat4f& viewMatrix,
-                           const ezSimdMat4f& projectionMatrix, Cluster* clusters, ezSimdBSphere* clusterBoundingSpheres)
+    const ezSimdMat4f& projectionMatrix, Cluster* clusters, ezSimdBSphere* clusterBoundingSpheres)
   {
     ezSimdBBox screenSpaceBounds = GetScreenSpaceBounds(pointLightSphere, viewMatrix, projectionMatrix);
 
@@ -299,7 +299,7 @@ namespace
     const ezUInt32 uiMask = 1 << (uiLightIndex - uiBlockIndex * 32);
 
     FillCluster(screenSpaceBounds, uiBlockIndex, uiMask, clusters,
-                [&](ezUInt32 uiClusterIndex) { return pointLightSphere.Overlaps(clusterBoundingSpheres[uiClusterIndex]); });
+      [&](ezUInt32 uiClusterIndex) { return pointLightSphere.Overlaps(clusterBoundingSpheres[uiClusterIndex]); });
   }
 
   struct BoundingCone
@@ -312,7 +312,7 @@ namespace
 
   template <typename Cluster>
   void RasterizeSpotLight(const BoundingCone& spotLightCone, ezUInt32 uiLightIndex, const ezSimdMat4f& viewMatrix,
-                          const ezSimdMat4f& projectionMatrix, Cluster* clusters, ezSimdBSphere* clusterBoundingSpheres)
+    const ezSimdMat4f& projectionMatrix, Cluster* clusters, ezSimdBSphere* clusterBoundingSpheres)
   {
     ezSimdVec4f position = spotLightCone.m_PositionAndRange;
     ezSimdFloat range = spotLightCone.m_PositionAndRange.w();
@@ -371,7 +371,7 @@ namespace
 
   template <typename Cluster>
   void RasterizeDecal(const ezDecalRenderData* pDecalRenderData, ezUInt32 uiDecalIndex, const ezSimdMat4f& viewProjectionMatrix,
-                      Cluster* clusters, ezSimdBSphere* clusterBoundingSpheres)
+    Cluster* clusters, ezSimdBSphere* clusterBoundingSpheres)
   {
     ezSimdTransform decalToWorld = ezSimdConversion::ToTransform(pDecalRenderData->m_GlobalTransform);
     ezSimdTransform worldToDecal = decalToWorld.GetInverse();
@@ -416,5 +416,4 @@ namespace
       return localDecalBounds.Overlaps(clusterSphere);
     });
   }
-}
-
+} // namespace

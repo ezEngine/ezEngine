@@ -1,6 +1,7 @@
 #include <InspectorPCH.h>
 
 #include <Foundation/Communication/Telemetry.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <Inspector/PluginsWidget.moc.h>
 #include <MainWindow.moc.h>
@@ -8,11 +9,12 @@
 ezQtPluginsWidget* ezQtPluginsWidget::s_pWidget = nullptr;
 
 ezQtPluginsWidget::ezQtPluginsWidget(QWidget* parent)
-    : QDockWidget(parent)
+  : ads::CDockWidget("Plugins Widget", parent)
 {
   s_pWidget = this;
 
   setupUi(this);
+  setWidget(TablePlugins);
 
   ResetStats();
 }
@@ -36,7 +38,8 @@ void ezQtPluginsWidget::UpdatePlugins()
 
   m_bUpdatePlugins = false;
 
-  TablePlugins->blockSignals(true);
+  ezQtScopedUpdatesDisabled _1(TablePlugins);
+
   TablePlugins->clear();
 
   TablePlugins->setRowCount(m_Plugins.GetCount());
@@ -79,8 +82,6 @@ void ezQtPluginsWidget::UpdatePlugins()
   }
 
   TablePlugins->resizeColumnsToContents();
-
-  TablePlugins->blockSignals(false);
 }
 
 void ezQtPluginsWidget::ProcessTelemetry(void* pUnuseed)

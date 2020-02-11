@@ -87,18 +87,18 @@ const char* ToUsageMode(ezTexConvUsage::Enum mode)
 {
   switch (mode)
   {
-  case ezTexConvUsage::Auto:
-    return "Auto";
-  case ezTexConvUsage::Color:
-    return "Color";
-  case ezTexConvUsage::Linear:
-    return "Linear";
-  case ezTexConvUsage::Hdr:
-    return "Hdr";
-  case ezTexConvUsage::NormalMap:
-    return "NormalMap";
-  case ezTexConvUsage::NormalMap_Inverted:
-    return "NormalMap_Inverted";
+    case ezTexConvUsage::Auto:
+      return "Auto";
+    case ezTexConvUsage::Color:
+      return "Color";
+    case ezTexConvUsage::Linear:
+      return "Linear";
+    case ezTexConvUsage::Hdr:
+      return "Hdr";
+    case ezTexConvUsage::NormalMap:
+      return "NormalMap";
+    case ezTexConvUsage::NormalMap_Inverted:
+      return "NormalMap_Inverted";
   }
 
   EZ_ASSERT_NOT_IMPLEMENTED;
@@ -107,14 +107,14 @@ const char* ToUsageMode(ezTexConvUsage::Enum mode)
 
 const char* ToMipmapMode(ezTexConvMipmapMode::Enum mode)
 {
-  switch(mode)
+  switch (mode)
   {
-  case ezTexConvMipmapMode::None:
-    return "None";
-  case ezTexConvMipmapMode::Linear:
-    return "Linear";
-  case ezTexConvMipmapMode::Kaiser:
-    return "Kaiser";
+    case ezTexConvMipmapMode::None:
+      return "None";
+    case ezTexConvMipmapMode::Linear:
+      return "Linear";
+    case ezTexConvMipmapMode::Kaiser:
+      return "Kaiser";
   }
 
   EZ_ASSERT_NOT_IMPLEMENTED;
@@ -209,6 +209,12 @@ ezStatus ezTextureAssetDocument::RunTexConv(
 
   if (pProp->m_bPremultipliedAlpha)
     arguments << "-premulalpha";
+
+  if (pProp->m_bDilateColor)
+  {
+    arguments << "-dilate";
+    //arguments << "8"; // default value
+  }
 
   if (pProp->m_bFlipHorizontal)
     arguments << "-flip_horz";
@@ -333,8 +339,8 @@ ezStatus ezTextureAssetDocument::RunTexConv(
   for (ezInt32 i = 0; i < arguments.size(); ++i)
     cmd.Append(" ", arguments[i].toUtf8().data());
 
-  ezLog::Debug("TexConv2.exe{0}", cmd);
-  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv2.exe", arguments, 60, ezLog::GetThreadLocalLogSystem()));
+  ezLog::Debug("TexConv.exe{0}", cmd);
+  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv.exe", arguments, 60, ezLog::GetThreadLocalLogSystem()));
 
   if (bUpdateThumbnail)
   {
@@ -351,9 +357,20 @@ ezStatus ezTextureAssetDocument::RunTexConv(
 }
 
 
-void ezTextureAssetDocument::InitializeAfterLoading()
+void ezTextureAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
 {
-  SUPER::InitializeAfterLoading();
+  SUPER::UpdateAssetDocumentInfo(pInfo);
+
+  for (ezUInt32 i = GetProperties()->GetNumInputFiles(); i < 4; ++i)
+  {
+    // remove unused dependencies
+    pInfo->m_AssetTransformDependencies.Remove(GetProperties()->GetInputFile(i));
+  }
+}
+
+void ezTextureAssetDocument::InitializeAfterLoading(bool bFirstTimeCreation)
+{
+  SUPER::InitializeAfterLoading(bFirstTimeCreation);
 
   if (m_bIsRenderTarget)
   {
@@ -367,8 +384,7 @@ void ezTextureAssetDocument::InitializeAfterLoading()
   }
 }
 
-ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag,
-  const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   // EZ_ASSERT_DEV(ezStringUtils::IsEqual(szPlatform, "PC"), "Platform '{0}' is not supported", szPlatform);
 
@@ -484,16 +500,6 @@ ezStatus ezTextureAssetDocument::InternalTransformAsset(const char* szTargetFile
 
     return result;
   }
-}
-
-const char* ezTextureAssetDocument::QueryAssetType() const
-{
-  if (m_bIsRenderTarget)
-  {
-    return "Render Target";
-  }
-
-  return "Texture 2D";
 }
 
 //////////////////////////////////////////////////////////////////////////

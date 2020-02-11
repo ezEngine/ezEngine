@@ -140,6 +140,133 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
     EZ_TEST_INT(iRes, 42);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "StringToUInt")
+  {
+    const char* szString = "1a";
+    const char* szResultPos = nullptr;
+
+    ezUInt32 uiRes = 42;
+    szString = "01234";
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt(szString, uiRes, &szResultPos) == EZ_SUCCESS);
+    EZ_TEST_INT(uiRes, 1234);
+    EZ_TEST_BOOL(szResultPos == szString + 5);
+
+    uiRes = 42;
+    szString = "0";
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt(szString, uiRes, &szResultPos) == EZ_SUCCESS);
+    EZ_TEST_INT(uiRes, 0);
+    EZ_TEST_BOOL(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));
+
+    uiRes = 42;
+    szString = "0000";
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt(szString, uiRes, &szResultPos) == EZ_SUCCESS);
+    EZ_TEST_INT(uiRes, 0);
+    EZ_TEST_BOOL(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));
+
+    uiRes = 42;
+    szString = "-999999";
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt(szString, uiRes, &szResultPos) == EZ_FAILURE);
+    EZ_TEST_INT(uiRes, 42);
+    EZ_TEST_BOOL(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));
+
+    uiRes = 42;
+    szString = "-+999999";
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt(szString, uiRes, &szResultPos) == EZ_FAILURE);
+    EZ_TEST_INT(uiRes, 42);
+    EZ_TEST_BOOL(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));
+
+    uiRes = 42;
+    szString = "--999999";
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt(szString, uiRes, &szResultPos) == EZ_SUCCESS);
+    EZ_TEST_INT(uiRes, 999999);
+    EZ_TEST_BOOL(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));
+
+    uiRes = 42;
+    szString = "++---+--+--999999";
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt(szString, uiRes, &szResultPos) == EZ_FAILURE);
+    EZ_TEST_INT(uiRes, 42);
+    EZ_TEST_BOOL(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));
+
+    uiRes = 42;
+    szString = "++--+--+--999999";
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt(szString, uiRes, &szResultPos) == EZ_SUCCESS);
+    EZ_TEST_INT(uiRes, 999999);
+    EZ_TEST_BOOL(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));
+
+    uiRes = 42;
+    szString = "123+456";
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt(szString, uiRes, &szResultPos) == EZ_SUCCESS);
+    EZ_TEST_INT(uiRes, 123);
+    EZ_TEST_BOOL(szResultPos == szString + 3);
+
+    uiRes = 42;
+    szString = "123_456";
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt(szString, uiRes, &szResultPos) == EZ_SUCCESS);
+    EZ_TEST_INT(uiRes, 123);
+    EZ_TEST_BOOL(szResultPos == szString + 3);
+
+    uiRes = 42;
+    szString = "-123-456";
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt(szString, uiRes, &szResultPos) == EZ_FAILURE);
+    EZ_TEST_INT(uiRes, 42);
+    EZ_TEST_BOOL(szResultPos == szString + 4);
+
+
+    uiRes = 42;
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt(nullptr, uiRes) == EZ_FAILURE);
+    EZ_TEST_INT(uiRes, 42);
+
+    uiRes = 42;
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt("", uiRes) == EZ_FAILURE);
+    EZ_TEST_INT(uiRes, 42);
+
+    uiRes = 42;
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt("a", uiRes) == EZ_FAILURE);
+    EZ_TEST_INT(uiRes, 42);
+
+    uiRes = 42;
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt("a15", uiRes) == EZ_FAILURE);
+    EZ_TEST_INT(uiRes, 42);
+
+    uiRes = 42;
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt("+", uiRes) == EZ_FAILURE);
+    EZ_TEST_INT(uiRes, 42);
+
+    uiRes = 42;
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt("-", uiRes) == EZ_FAILURE);
+    EZ_TEST_INT(uiRes, 42);
+
+    uiRes = 42;
+    szString = "1a";
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt(szString, uiRes, &szResultPos) == EZ_SUCCESS);
+    EZ_TEST_INT(uiRes, 1);
+    EZ_TEST_BOOL(szResultPos == szString + 1);
+
+    uiRes = 42;
+    szString = "0 23";
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt(szString, uiRes, &szResultPos) == EZ_SUCCESS);
+    EZ_TEST_INT(uiRes, 0);
+    EZ_TEST_BOOL(szResultPos == szString + 1);
+
+    // overflow check
+
+    uiRes = 42;
+    szString = "0004294967295"; // valid
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt(szString, uiRes, &szResultPos) == EZ_SUCCESS);
+    EZ_TEST_INT(uiRes, 4294967295u);
+    EZ_TEST_BOOL(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));
+
+    uiRes = 42;
+    szString = "0004294967296"; // invalid
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt(szString, uiRes, &szResultPos) == EZ_FAILURE);
+    EZ_TEST_INT(uiRes, 42);
+
+    uiRes = 42;
+    szString = "-1"; // invalid
+    EZ_TEST_BOOL(ezConversionUtils::StringToUInt(szString, uiRes, &szResultPos) == EZ_FAILURE);
+    EZ_TEST_INT(uiRes, 42);
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "StringToInt64")
   {
     // overflow check
@@ -456,6 +583,51 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
     EZ_TEST_INT(ezConversionUtils::ConvertHexStringToUInt32("100000000"), 0);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ConvertHexStringToUInt64")
+  {
+    ezUInt64 res;
+
+    EZ_TEST_BOOL(ezConversionUtils::ConvertHexStringToUInt64("", res).Succeeded());
+    EZ_TEST_BOOL(res == 0);
+
+    EZ_TEST_BOOL(ezConversionUtils::ConvertHexStringToUInt64("0x", res).Succeeded());
+    EZ_TEST_BOOL(res == 0);
+
+    EZ_TEST_BOOL(ezConversionUtils::ConvertHexStringToUInt64("0", res).Succeeded());
+    EZ_TEST_BOOL(res == 0);
+
+    EZ_TEST_BOOL(ezConversionUtils::ConvertHexStringToUInt64("0x0", res).Succeeded());
+    EZ_TEST_BOOL(res == 0);
+
+    EZ_TEST_BOOL(ezConversionUtils::ConvertHexStringToUInt64("a", res).Succeeded());
+    EZ_TEST_BOOL(res == 10);
+
+    EZ_TEST_BOOL(ezConversionUtils::ConvertHexStringToUInt64("0xb", res).Succeeded());
+    EZ_TEST_BOOL(res == 11);
+
+    EZ_TEST_BOOL(ezConversionUtils::ConvertHexStringToUInt64("000c", res).Succeeded());
+    EZ_TEST_BOOL(res == 12);
+
+    EZ_TEST_BOOL(ezConversionUtils::ConvertHexStringToUInt64("AA", res).Succeeded());
+    EZ_TEST_BOOL(res == 170);
+
+    EZ_TEST_BOOL(ezConversionUtils::ConvertHexStringToUInt64("aAjbB", res).Failed());
+
+    EZ_TEST_BOOL(ezConversionUtils::ConvertHexStringToUInt64("aAbB", res).Succeeded());
+    EZ_TEST_BOOL(res == 43707);
+
+    EZ_TEST_BOOL(ezConversionUtils::ConvertHexStringToUInt64("FFFFffff", res).Succeeded());
+    EZ_TEST_BOOL(res == 4294967295);
+
+    EZ_TEST_BOOL(ezConversionUtils::ConvertHexStringToUInt64("0000FFFFffff", res).Succeeded());
+    EZ_TEST_BOOL(res == 4294967295);
+
+    EZ_TEST_BOOL(ezConversionUtils::ConvertHexStringToUInt64("0xfffffffffffffffy", res).Failed());
+
+    EZ_TEST_BOOL(ezConversionUtils::ConvertHexStringToUInt64("0xffffffffffffffffy", res).Succeeded());
+    EZ_TEST_BOOL(res == 0xFFFFFFFFFFFFFFFFllu);
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ConvertBinaryToHex and ConvertHexStringToBinary")
   {
     ezDynamicArray<ezUInt8> binary;
@@ -556,22 +728,22 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetColorByName and GetColorName")
   {
-#define Check(name)                                                                                                                        \
-  {                                                                                                                                        \
-    bool valid = false;                                                                                                                    \
-    const ezColor c = ezConversionUtils::GetColorByName(EZ_STRINGIZE(name), &valid);                                                       \
-    EZ_TEST_BOOL(valid);                                                                                                                   \
-    ezString sName = ezConversionUtils::GetColorName(c);                                                                                   \
-    EZ_TEST_STRING(sName, EZ_STRINGIZE(name));                                                                                             \
+#define Check(name)                                                                  \
+  {                                                                                  \
+    bool valid = false;                                                              \
+    const ezColor c = ezConversionUtils::GetColorByName(EZ_STRINGIZE(name), &valid); \
+    EZ_TEST_BOOL(valid);                                                             \
+    ezString sName = ezConversionUtils::GetColorName(c);                             \
+    EZ_TEST_STRING(sName, EZ_STRINGIZE(name));                                       \
   }
 
-#define Check2(name, otherName)                                                                                                            \
-  {                                                                                                                                        \
-    bool valid = false;                                                                                                                    \
-    const ezColor c = ezConversionUtils::GetColorByName(EZ_STRINGIZE(name), &valid);                                                       \
-    EZ_TEST_BOOL(valid);                                                                                                                   \
-    ezString sName = ezConversionUtils::GetColorName(c);                                                                                   \
-    EZ_TEST_STRING(sName, EZ_STRINGIZE(otherName));                                                                                        \
+#define Check2(name, otherName)                                                      \
+  {                                                                                  \
+    bool valid = false;                                                              \
+    const ezColor c = ezConversionUtils::GetColorByName(EZ_STRINGIZE(name), &valid); \
+    EZ_TEST_BOOL(valid);                                                             \
+    ezString sName = ezConversionUtils::GetColorName(c);                             \
+    EZ_TEST_STRING(sName, EZ_STRINGIZE(otherName));                                  \
   }
 
     Check(AliceBlue);

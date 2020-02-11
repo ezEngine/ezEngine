@@ -2,6 +2,7 @@
 
 #include <Foundation/Containers/ArrayBase.h>
 #include <Foundation/Memory/AllocatorWrapper.h>
+#include <Foundation/Types/PointerWithFlags.h>
 
 /// \brief Implementation a dynamically growing array.
 ///
@@ -14,6 +15,8 @@ class ezDynamicArrayBase : public ezArrayBase<T, ezDynamicArrayBase<T>>
 protected:
   /// \brief Creates an empty array. Does not allocate any data yet.
   ezDynamicArrayBase(ezAllocatorBase* pAllocator); // [tested]
+
+  ezDynamicArrayBase(T* pInplaceStorage, ezUInt32 uiCapacity, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Creates a copy of the given array.
   ezDynamicArrayBase(const ezDynamicArrayBase<T>& other, ezAllocatorBase* pAllocator); // [tested]
@@ -46,7 +49,7 @@ public:
   void Compact(); // [tested]
 
   /// \brief Returns the allocator that is used by this instance.
-  ezAllocatorBase* GetAllocator() const { return m_pAllocator; }
+  ezAllocatorBase* GetAllocator() const { return const_cast<ezAllocatorBase*>(m_pAllocator.GetPtr()); }
 
   /// \brief Returns the amount of bytes that are currently allocated on the heap.
   ezUInt64 GetHeapMemoryUsage() const; // [tested]
@@ -55,7 +58,13 @@ public:
   void Swap(ezDynamicArrayBase<T>& other); // [tested]
 
 private:
-  ezAllocatorBase* m_pAllocator;
+  enum Storage
+  {
+    Owned = 0,
+    External = 1
+  };
+
+  ezPointerWithFlags<ezAllocatorBase, 1> m_pAllocator;
 
   enum
   {
@@ -72,12 +81,13 @@ class ezDynamicArray : public ezDynamicArrayBase<T>
 public:
   EZ_DECLARE_MEM_RELOCATABLE_TYPE();
 
+
   ezDynamicArray();
   ezDynamicArray(ezAllocatorBase* pAllocator);
 
   ezDynamicArray(const ezDynamicArray<T, AllocatorWrapper>& other);
   ezDynamicArray(const ezDynamicArrayBase<T>& other);
-  explicit ezDynamicArray(const ezArrayPtr<const T>& other);
+  ezDynamicArray(const ezArrayPtr<const T>& other);
 
   ezDynamicArray(ezDynamicArray<T, AllocatorWrapper>&& other);
   ezDynamicArray(ezDynamicArrayBase<T>&& other);
@@ -88,6 +98,12 @@ public:
 
   void operator=(ezDynamicArray<T, AllocatorWrapper>&& rhs);
   void operator=(ezDynamicArrayBase<T>&& rhs);
+
+protected:
+  ezDynamicArray(T* pInplaceStorage, ezUInt32 uiCapacity, ezAllocatorBase* pAllocator)
+    : ezDynamicArrayBase<T>(pInplaceStorage, uiCapacity, pAllocator)
+  {
+  }
 };
 
 /// Overload of ezMakeArrayPtr for const dynamic arrays of pointer pointing to const type.
@@ -106,4 +122,3 @@ ezArrayPtr<T> ezMakeArrayPtr(ezDynamicArray<T, AllocatorWrapper>& dynArray);
 EZ_CHECK_AT_COMPILETIME_MSG(ezGetTypeClass<ezDynamicArray<int>>::value == 2, "dynamic array is not memory relocatable");
 
 #include <Foundation/Containers/Implementation/DynamicArray_inl.h>
-

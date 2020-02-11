@@ -46,6 +46,7 @@ public:
   static ezActionDescriptorHandle s_hLaunchFileserve;
   static ezActionDescriptorHandle s_hLaunchInspector;
   static ezActionDescriptorHandle s_hSaveProfiling;
+  static ezActionDescriptorHandle s_hOpenVsCode;
   static ezActionDescriptorHandle s_hImportAsset;
 };
 
@@ -86,6 +87,7 @@ public:
     LaunchFileserve,
     LaunchInspector,
     SaveProfiling,
+    OpenVsCode,
     Shortcuts,
     EditorPlugins,
     DataDirectories,

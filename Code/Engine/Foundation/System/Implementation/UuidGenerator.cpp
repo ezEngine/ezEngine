@@ -10,6 +10,8 @@
 #include <Foundation/System/Implementation/Posix/UuidGenerator_posix.h>
 #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
 #include <Foundation/System/Implementation/Posix/UuidGenerator_posix.h>
+#elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
+#include <Foundation/System/Implementation/Android/UuidGenerator_android.h>
 #else
 #error "Uuid generation functions are not implemented on current platform"
 #endif

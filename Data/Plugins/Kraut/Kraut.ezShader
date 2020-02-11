@@ -1,0 +1,299 @@
+[PLATFORMS]
+ALL
+
+[PERMUTATIONS]
+
+BLEND_MODE
+RENDER_PASS
+SHADING_MODE
+TWO_SIDED
+FLIP_WINDING = FALSE
+MSAA
+CAMERA_MODE
+SHADING_QUALITY
+FORWARD_PASS_WRITE_DEPTH
+
+[MATERIALPARAMETER]
+
+int KrautTreeMode; // 0 == regular mesh, 1 == frond, 2 == leaf, 3 == static impostor, 4 == billboard impostor
+
+[RENDERSTATE]
+
+#include <Shaders/Materials/MaterialState.h>
+
+[VERTEXSHADER]
+
+#define USE_COLOR0
+#define USE_NORMAL
+#define USE_TANGENT
+#define USE_TEXCOORD0
+#define USE_TEXCOORD1
+#define CUSTOM_INTERPOLATOR float3 LeafNormal : TEXCOORD2;
+
+#if RENDER_PASS == RENDER_PASS_EDITOR
+  #define USE_DEBUG_INTERPOLATOR
+#endif
+
+#include <Shaders/Common/GlobalConstants.h>
+
+CONSTANT_BUFFER(ezMaterialConstants, 1)
+{
+  COLOR4F(BaseColor);
+  FLOAT1(MetallicValue);
+  FLOAT1(ReflectanceValue);
+  FLOAT1(RoughnessValue);
+  FLOAT1(MaskThreshold);
+  BOOL1(UseBaseTexture);
+  BOOL1(UseMetallicTexture);
+  BOOL1(UseNormalAndRoughnessTexture);
+  BOOL1(UseEmissiveTexture);
+  COLOR4F(EmissiveColor);
+  BOOL1(UseOcclusionTexture);
+  
+  INT1(KrautTreeMode);
+};
+
+#include <Shaders/Materials/MaterialVertexShader.h>
+#include "TreeShaderData.h"
+
+VS_OUT main(VS_IN Input)
+{
+  VS_OUT result = FillVertexData(Input);
+
+  ezPerInstanceData data = GetInstanceData();
+  float4x4 objectToWorld = TransformToMatrix(data.ObjectToWorld);
+  float4 worldPosition = mul(objectToWorld, float4(Input.Position.xyz, 1));
+
+  result.LeafNormal = float3(0, 0, 0);
+  
+  float3 scale;
+  scale.x = length(objectToWorld._m00_m10_m20);
+  scale.y = length(objectToWorld._m01_m11_m21);
+  scale.z = length(objectToWorld._m02_m12_m22);
+  
+  float globalUniformScale = dot(scale, 1.0 / 3.0);
+
+  [branch]
+  if (KrautTreeMode == 4) // Billboard Impostor
+  {
+    worldPosition.xyz += GetCameraDirRight() * result.TexCoord1.x * globalUniformScale;
+    result.TexCoord1.x = 1.0;
+    result.Normal = -GetCameraDirForwards();
+    result.Normal.z = 0;
+    result.Normal = normalize(result.Normal);
+    result.Tangent = GetCameraDirRight();
+    result.BiTangent = float3(0, 0, 1);
+
+    float3 camDir = mul(-GetCameraDirForwards(), objectToWorld);
+    float3 mainDirs[8] =
+    {
+      float3(0, +1, 0),
+      float3(0.7071, 0.7071, 0),
+      float3(+1, 0, 0),
+      float3(0.7071, -0.7071, 0),
+      float3(0, -1, 0),
+      float3(-0.7071, -0.7071, 0),
+      float3(-1, 0, 0),
+      float3(-0.7071, +0.7071, 0)
+    };
+
+    int impostorFace = 0;
+    float bestDist = dot(mainDirs[0], camDir);
+
+    for (int i = 1; i < 8; ++i)
+    {
+      float dist = dot(mainDirs[i], camDir);
+
+      if (dist > bestDist)
+      {
+        impostorFace = i;
+        bestDist = dist;
+      }
+    }
+
+    // flip the texture along X if necessary
+    [flatten]
+    if (impostorFace >= 4)
+    {
+      // for billboards this is eiter 0 or 0.25
+      float xcoord = result.TexCoord0.x;
+
+      result.TexCoord0.x -= xcoord * 2.0;
+      // also flip the tangent to fix the lighting
+      result.Tangent = -result.Tangent;
+    }
+
+    float impostorXoffset[8] = { 0.0, 0.25, 0.5, 0.75, 0.25, 0.5, 0.75, 1.0 };
+    result.TexCoord0.x += impostorXoffset[impostorFace];
+
+  }
+
+  [branch]
+  if (KrautTreeMode == 2) // Leaf
+  {
+    result.LeafNormal = worldPosition.xyz - mul(objectToWorld, float4(LeafCenter, 1));
+
+    float2 span = result.TexCoord0.xy * 2.0 - 1.0;
+    float size = result.TexCoord1.x * globalUniformScale;
+
+    worldPosition.xyz += span.x * GetCameraDirRight() * size;
+    worldPosition.xyz += span.y * GetCameraDirUp() * size;
+
+    result.TexCoord1.x = 1.0;
+    result.Normal = -GetCameraDirForwards();
+    result.Normal.z = 0;
+    result.Normal = normalize(result.Normal);
+    result.Tangent = GetCameraDirRight();
+    result.BiTangent = float3(0, 0, 1);
+
+    [branch]
+    if (LeafShadowOffset > 0.0)
+    {
+      worldPosition.xyz += GetCameraDirForwards() * size;
+    }
+  }
+
+  result.WorldPosition = worldPosition;
+
+  float4 cameraPosition = mul(GetWorldToCameraMatrix(), worldPosition);
+  float4 screenPosition = mul(GetCameraToScreenMatrix(), cameraPosition);
+  result.Position = screenPosition;
+
+  return result;
+}
+
+[GEOMETRYSHADER]
+
+#define USE_COLOR0
+#define USE_NORMAL
+#define USE_TANGENT
+#define USE_TEXCOORD0
+#define USE_TEXCOORD1
+#define CUSTOM_INTERPOLATOR float3 LeafNormal : TEXCOORD2;
+
+#include <Shaders/Materials/MaterialStereoGeometryShader.h>
+
+[PIXELSHADER]
+
+#define USE_COLOR0
+#define USE_NORMAL
+#define USE_TANGENT
+#define USE_TEXCOORD0
+#define USE_TEXCOORD1
+#define USE_SIMPLE_MATERIAL_MODEL
+#define USE_MATERIAL_OCCLUSION
+#define USE_TWO_SIDED_LIGHTING
+#define USE_FOG
+#define CUSTOM_INTERPOLATOR float3 LeafNormal : TEXCOORD2;
+
+#if RENDER_PASS == RENDER_PASS_EDITOR
+  #define USE_DEBUG_INTERPOLATOR
+#endif
+
+#include <Shaders/Common/GlobalConstants.h>
+
+CONSTANT_BUFFER(ezMaterialConstants, 1)
+{
+  COLOR4F(BaseColor);
+  FLOAT1(MetallicValue);
+  FLOAT1(ReflectanceValue);
+  FLOAT1(RoughnessValue);
+  FLOAT1(MaskThreshold);
+  BOOL1(UseBaseTexture);
+  BOOL1(UseMetallicTexture);
+  BOOL1(UseNormalAndRoughnessTexture);
+  BOOL1(UseEmissiveTexture);
+  COLOR4F(EmissiveColor);
+  BOOL1(UseOcclusionTexture);
+  
+  INT1(KrautTreeMode);
+};
+
+#include <Shaders/Materials/MaterialPixelShader.h>
+
+Texture2D BaseTexture;
+SamplerState BaseTexture_AutoSampler;
+
+Texture2D NormalTexture;
+SamplerState NormalTexture_AutoSampler;
+
+//Texture2D RoughnessTexture;
+//SamplerState RoughnessTexture_AutoSampler;
+
+float2 GetTexCoord()
+{
+  float2 tc = G.Input.TexCoord0.xy;
+  // unfortunately we have to DIVIDE in the pixel shader with the original value
+  // if we use the inverse of TexCoords.z and interpolate that in the vertex-shader
+  // the result has a slightly different value in the pixel shader,
+  // resulting in drastically reduced quality
+  tc = tc / G.Input.TexCoord1.x;
+  tc.y = 1.0 - tc.y;
+
+  return tc;
+}
+
+float3 GetBaseColor()
+{
+  float3 variationColor = BaseColor.rgb;
+  float variationStrength = BaseColor.a;
+  float vertexStrength = G.Input.Color0.a;
+
+  //float3 baseColor = BaseColor.rgb * GetInstanceData().Color0.rgb;
+  float3 texColor = BaseTexture.Sample(BaseTexture_AutoSampler, GetTexCoord()).rgb;
+
+  float3 finalColor = lerp(texColor, variationColor, vertexStrength * variationStrength);
+  finalColor *= G.Input.Color0.rgb;
+
+  return finalColor;
+}
+
+float3 GetNormal()
+{
+  float3 normalTS = DecodeNormalTexture(NormalTexture.Sample(NormalTexture_AutoSampler, GetTexCoord()));
+
+  // TODO: validate / preprocess: since we flip sampling the textures, the normal is also pointing in the other direction
+  normalTS.y = -normalTS.y;
+
+  float3 wsNormal = TangentToWorldSpace(normalTS);
+
+  [branch]
+  if (KrautTreeMode == 2) // Leaf
+  {
+    wsNormal += normalize(G.Input.LeafNormal);
+  }
+
+  return normalize(wsNormal);
+}
+
+float GetMetallic()
+{
+  return 0;
+}
+
+float GetReflectance()
+{
+  return 0.5f;
+}
+
+float GetRoughness()
+{
+  return 1.0f;
+}
+
+float GetOpacity()
+{
+  float opacity = BaseTexture.Sample(BaseTexture_AutoSampler, GetTexCoord()).a;
+
+  #if BLEND_MODE == BLEND_MODE_MASKED
+     return opacity - 0.5;
+   #else
+    return opacity;
+  #endif
+}
+
+
+float GetOcclusion()
+{
+  return G.Input.TexCoord1.y;
+}

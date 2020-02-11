@@ -102,8 +102,7 @@ void ezPxPrismaticJointComponent::ApplyLimits(physx::PxJoint* pJoint0)
   }
 }
 
-PxJoint* ezPxPrismaticJointComponent::CreateJointType(PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1,
-  const PxTransform& localFrame1)
+PxJoint* ezPxPrismaticJointComponent::CreateJointType(PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
 {
   PxPrismaticJoint* pJoint = PxPrismaticJointCreate(*(ezPhysX::GetSingleton()->GetPhysXAPI()), actor0, localFrame0, actor1, localFrame1);
 

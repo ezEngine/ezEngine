@@ -28,7 +28,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshContext, 1, ezRTTIDefaultAllocator<ezMeshC
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Mesh Asset;Animated Mesh Asset"),
+    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Mesh;Animated Mesh"),
   }
   EZ_END_PROPERTIES;
 }

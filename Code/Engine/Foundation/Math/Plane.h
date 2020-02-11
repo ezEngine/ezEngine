@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Math/Vec3.h>
+#include <Foundation/Math/Vec4.h>
 
 /// \brief Describes on which side of a plane a point or an object is located.
 struct ezPositionOnPlane
@@ -53,6 +54,9 @@ public:
     EZ_ASSERT_ALWAYS(!IsNaN(), "This object contains NaN values. This can happen when you forgot to initialize it before using it. Please check that all code-paths properly initialize this object.");
   }
 #endif
+
+  /// \brief Returns an ezVec4 with the plane normal in x,y,z and the negative distance in w.
+  ezVec4Template<Type> GetAsVec4() const;
 
   /// \brief Creates the plane-equation from a normal and a point on the plane.
   void SetFromNormalAndPoint(const ezVec3Template<Type>& vNormal, const ezVec3Template<Type>& vPointOnPlane); // [tested]
@@ -122,7 +126,7 @@ public:
   bool IsIdentical(const ezPlaneTemplate<Type>& rhs) const; // [tested]
 
   /// \brief Checks whether this plane and the other are equal within some threshold.
-  bool IsEqual(const ezPlaneTemplate<Type>& rhs, Type fEpsilon = ezMath::BasicType<Type>::DefaultEpsilon()) const; // [tested]
+  bool IsEqual(const ezPlaneTemplate<Type>& rhs, Type fEpsilon = ezMath::DefaultEpsilon<Type>()) const; // [tested]
 
   /// \brief Checks whether the plane has valid values (not NaN, or infinite, normalized normal).
   bool IsValid() const; // [tested]

@@ -10,12 +10,9 @@ class EZ_GAMEENGINE_DLL ezSliderComponent : public ezTransformComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezSliderComponent, ezTransformComponent, ezSliderComponentManager);
 
-public:
-  ezSliderComponent();
-
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent interface
-  //
+  // ezComponent
+
 public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
@@ -23,19 +20,22 @@ public:
 protected:
   virtual void OnSimulationStarted() override;
 
+
   //////////////////////////////////////////////////////////////////////////
-  // ezSliderComponent interface
-  //
+  // ezSliderComponent
 
 public:
+  ezSliderComponent();
+  ~ezSliderComponent();
+
+  float m_fDistanceToTravel = 1.0f;                    // [ property ]
+  float m_fAcceleration = 0.0f;                        // [ property ]
+  float m_fDeceleration = 0.0;                         // [ property ]
+  ezEnum<ezBasisAxis> m_Axis = ezBasisAxis::PositiveZ; // [ property ]
+  ezTime m_RandomStart;                                // [ property ]
+
+protected:
   void Update();
 
-  float m_fDistanceToTravel;
-  float m_fAcceleration;
-  float m_fDeceleration;
-  ezEnum<ezBasisAxis> m_Axis;
-  ezTime m_RandomStart;
-
-private:
-  float m_fLastDistance;
+  float m_fLastDistance = 0.0f;
 };

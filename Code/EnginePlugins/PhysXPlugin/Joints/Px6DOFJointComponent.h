@@ -33,34 +33,33 @@ class EZ_PHYSXPLUGIN_DLL ezPx6DOFJointComponent : public ezPxJointComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezPx6DOFJointComponent, ezPxJointComponent, ezPx6DOFJointComponentManager);
 
-public:
-  ezPx6DOFJointComponent();
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent
 
+public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
-  // ************************************* PROPERTIES ***********************************
-public:
 
-  ezBitflags<ezPxAxis> m_FreeLinearAxis;
-  ezBitflags<ezPxAxis> m_FreeAngularAxis;
-
-  float m_fLinearStiffness;
-  float m_fLinearDamping;
-  float m_fAngularStiffness;
-  float m_fAngularDamping;
-
+  //////////////////////////////////////////////////////////////////////////
+  // ezPxJointComponent
 
 protected:
-
-
-  // ************************************* FUNCTIONS *****************************
-
-public:
-
-protected:
-
   virtual physx::PxJoint* CreateJointType(physx::PxRigidActor* actor0, const physx::PxTransform& localFrame0, physx::PxRigidActor* actor1, const physx::PxTransform& localFrame1) override;
+
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezPx6DOFJointComponent
+
+public:
+  ezPx6DOFJointComponent();
+  ~ezPx6DOFJointComponent();
+
+  ezBitflags<ezPxAxis> m_FreeLinearAxis;  // [ property ]
+  ezBitflags<ezPxAxis> m_FreeAngularAxis; // [ property ]
+
+  float m_fLinearStiffness = 0.0f;  // [ property ]
+  float m_fLinearDamping = 0.0f;    // [ property ]
+  float m_fAngularStiffness = 0.0f; // [ property ]
+  float m_fAngularDamping = 0.0f;   // [ property ]
 };
-
-

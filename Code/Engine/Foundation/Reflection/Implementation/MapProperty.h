@@ -11,13 +11,13 @@ class ezTypedMapProperty : public ezAbstractMapProperty
 {
 public:
   ezTypedMapProperty(const char* szPropertyName)
-      : ezAbstractMapProperty(szPropertyName)
+    : ezAbstractMapProperty(szPropertyName)
   {
     m_Flags = ezPropertyFlags::GetParameterFlags<Type>();
     EZ_CHECK_AT_COMPILETIME_MSG(!std::is_pointer<Type>::value ||
-                                    ezVariant::TypeDeduction<typename ezTypeTraits<Type>::NonConstReferencePointerType>::value ==
-                                        ezVariantType::Invalid,
-                                "Pointer to standard types are not supported.");
+                                  ezVariant::TypeDeduction<typename ezTypeTraits<Type>::NonConstReferencePointerType>::value ==
+                                    ezVariantType::Invalid,
+      "Pointer to standard types are not supported.");
   }
 
   virtual const ezRTTI* GetSpecificType() const override
@@ -40,7 +40,7 @@ public:
   typedef Container (Class::*GetKeyRangeFunc)() const;
 
   ezAccessorMapProperty(const char* szPropertyName, GetKeyRangeFunc getKeys, GetValueFunc getValue, InsertFunc insert, RemoveFunc remove)
-      : ezTypedMapProperty<Type>(szPropertyName)
+    : ezTypedMapProperty<Type>(szPropertyName)
   {
     EZ_ASSERT_DEBUG(getKeys != nullptr, "The getKeys function of a map property cannot be nullptr.");
     EZ_ASSERT_DEBUG(getValue != nullptr, "The GetValueFunc function of a map property cannot be nullptr.");
@@ -56,7 +56,9 @@ public:
 
   virtual bool IsEmpty(const void* pInstance) const override
   {
-    decltype(auto) c = (static_cast<const Class*>(pInstance)->*m_GetKeyRange)();
+    // this should be decltype(auto) c = ...; but MSVC 16 is too dumb for that (MSVC 15 works fine)
+    decltype((static_cast<const Class*>(pInstance)->*m_GetKeyRange)()) c = (static_cast<const Class*>(pInstance)->*m_GetKeyRange)();
+
     return begin(c) == end(c);
   }
 
@@ -64,7 +66,9 @@ public:
   {
     while (true)
     {
-      decltype(auto) c = (static_cast<const Class*>(pInstance)->*m_GetKeyRange)();
+      // this should be decltype(auto) c = ...; but MSVC 16 is too dumb for that (MSVC 15 works fine)
+      decltype((static_cast<const Class*>(pInstance)->*m_GetKeyRange)()) c = (static_cast<const Class*>(pInstance)->*m_GetKeyRange)();
+
       auto it = begin(c);
       if (it != end(c))
         Remove(pInstance, *it);
@@ -76,14 +80,14 @@ public:
   virtual void Insert(void* pInstance, const char* szKey, const void* pObject) override
   {
     EZ_ASSERT_DEBUG(m_Insert != nullptr, "The property '{0}' has no insert function, thus it is read-only.",
-                    ezAbstractProperty::GetPropertyName());
+      ezAbstractProperty::GetPropertyName());
     (static_cast<Class*>(pInstance)->*m_Insert)(szKey, *static_cast<const RealType*>(pObject));
   }
 
   virtual void Remove(void* pInstance, const char* szKey) override
   {
     EZ_ASSERT_DEBUG(m_Remove != nullptr, "The property '{0}' has no remove function, thus it is read-only.",
-                    ezAbstractProperty::GetPropertyName());
+      ezAbstractProperty::GetPropertyName());
     (static_cast<Class*>(pInstance)->*m_Remove)(szKey);
   }
 
@@ -129,7 +133,7 @@ public:
   typedef Container (Class::*GetContainerFunc)() const;
 
   ezWriteAccessorMapProperty(const char* szPropertyName, GetContainerFunc getContainer, InsertFunc insert, RemoveFunc remove)
-      : ezTypedMapProperty<Type>(szPropertyName)
+    : ezTypedMapProperty<Type>(szPropertyName)
   {
     EZ_ASSERT_DEBUG(getContainer != nullptr, "The get count function of a map property cannot be nullptr.");
 
@@ -156,14 +160,14 @@ public:
   virtual void Insert(void* pInstance, const char* szKey, const void* pObject) override
   {
     EZ_ASSERT_DEBUG(m_Insert != nullptr, "The property '{0}' has no insert function, thus it is read-only.",
-                    ezAbstractProperty::GetPropertyName());
+      ezAbstractProperty::GetPropertyName());
     (static_cast<Class*>(pInstance)->*m_Insert)(szKey, *static_cast<const RealType*>(pObject));
   }
 
   virtual void Remove(void* pInstance, const char* szKey) override
   {
     EZ_ASSERT_DEBUG(m_Remove != nullptr, "The property '{0}' has no remove function, thus it is read-only.",
-                    ezAbstractProperty::GetPropertyName());
+      ezAbstractProperty::GetPropertyName());
     (static_cast<Class*>(pInstance)->*m_Remove)(szKey);
   }
 
@@ -222,7 +226,7 @@ public:
   typedef Container& (*GetContainerFunc)(Class* pInstance);
 
   ezMemberMapProperty(const char* szPropertyName, GetConstContainerFunc constGetter, GetContainerFunc getter)
-      : ezTypedMapProperty<RealType>(szPropertyName)
+    : ezTypedMapProperty<RealType>(szPropertyName)
   {
     EZ_ASSERT_DEBUG(constGetter != nullptr, "The const get count function of an array property cannot be nullptr.");
 
@@ -238,21 +242,21 @@ public:
   virtual void Clear(void* pInstance) override
   {
     EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.",
-                    ezAbstractProperty::GetPropertyName());
+      ezAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance)).Clear();
   }
 
   virtual void Insert(void* pInstance, const char* szKey, const void* pObject) override
   {
     EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.",
-                    ezAbstractProperty::GetPropertyName());
+      ezAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance)).Insert(szKey, *static_cast<const RealType*>(pObject));
   }
 
   virtual void Remove(void* pInstance, const char* szKey) override
   {
     EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.",
-                    ezAbstractProperty::GetPropertyName());
+      ezAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance)).Remove(szKey);
   }
 
@@ -285,4 +289,3 @@ private:
   GetConstContainerFunc m_ConstGetter;
   GetContainerFunc m_Getter;
 };
-

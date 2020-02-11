@@ -1,6 +1,6 @@
 #pragma once
 
-#if EZ_DISABLED(EZ_PLATFORM_LINUX)
+#if EZ_DISABLED(EZ_PLATFORM_LINUX) && EZ_DISABLED(EZ_PLATFORM_ANDROID)
 #  error "This header should only be included on Linux"
 #endif
 

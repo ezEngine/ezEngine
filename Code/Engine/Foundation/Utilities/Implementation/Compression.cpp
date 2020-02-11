@@ -1,23 +1,20 @@
-
 #include <FoundationPCH.h>
-#include <Foundation/Utilities/Compression.h>
+
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Utilities/Compression.h>
 
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
-#define ZSTD_STATIC_LINKING_ONLY // ZSTD_findDecompressedSize
+#  define ZSTD_STATIC_LINKING_ONLY // ZSTD_findDecompressedSize
 #  include <zstd/zstd.h>
 #endif
 
-
 namespace ezCompressionUtils
 {
-
-
 #ifdef BUILDSYSTEM_ENABLE_ZSTD_SUPPORT
   static ezResult CompressZStd(ezArrayPtr<const ezUInt8> pUncompressedData, ezDynamicArray<ezUInt8>& out_Data)
   {
     size_t uiSizeBound = ZSTD_compressBound(pUncompressedData.GetCount());
-    if(uiSizeBound > std::numeric_limits<ezUInt32>::max())
+    if (uiSizeBound > ezMath::MaxValue<ezUInt32>())
     {
       ezLog::Error("Can't compress since the output container can't hold enough elements ({0})", static_cast<ezUInt64>(uiSizeBound));
       return EZ_FAILURE;
@@ -52,7 +49,7 @@ namespace ezCompressionUtils
       return EZ_FAILURE;
     }
 
-    if (uiSize > std::numeric_limits<ezUInt32>::max())
+    if (uiSize > ezMath::MaxValue<ezUInt32>())
     {
       ezLog::Error("Can't compress since the output container can't hold enough elements ({0})", static_cast<ezUInt64>(uiSize));
       return EZ_FAILURE;
@@ -119,8 +116,7 @@ namespace ezCompressionUtils
         return EZ_FAILURE;
     }
   }
-}
+} // namespace ezCompressionUtils
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Utilities_Implementation_Compression);
-

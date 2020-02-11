@@ -9,9 +9,9 @@ using namespace ezTokenParseUtils;
 ezPreprocessor::ezPreprocessor()
   : m_ClassAllocator("ezPreprocessor", ezFoundation::GetDefaultAllocator())
   , m_sCurrentFileStack(&m_ClassAllocator)
-  , m_Macros(ezCompareHelper<ezString256>(), &m_ClassAllocator)
   , m_CustomDefines(&m_ClassAllocator)
   , m_IfdefActiveStack(&m_ClassAllocator)
+  , m_Macros(ezCompareHelper<ezString256>(), &m_ClassAllocator)
   , m_MacroParamStack(&m_ClassAllocator)
   , m_MacroParamStackExpanded(&m_ClassAllocator)
   , m_CustomTokens(&m_ClassAllocator)
@@ -552,4 +552,3 @@ ezResult ezPreprocessor::HandleWarningDirective(const TokenStream& Tokens, ezUIn
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Implementation_Preprocessor);
-

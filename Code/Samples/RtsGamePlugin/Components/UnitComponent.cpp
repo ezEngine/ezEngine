@@ -131,7 +131,7 @@ void RtsUnitComponent::OnUnitDestroyed()
   {
     ezResourceLock<ezPrefabResource> pPrefab(m_hOnDestroyedPrefab, ezResourceAcquireMode::AllowLoadingFallback);
 
-    pPrefab->InstantiatePrefab(*GetWorld(), GetOwner()->GetGlobalTransform(), ezGameObjectHandle(), nullptr, &GetOwner()->GetTeamID(), nullptr);
+    pPrefab->InstantiatePrefab(*GetWorld(), GetOwner()->GetGlobalTransform(), ezGameObjectHandle(), nullptr, &GetOwner()->GetTeamID(), nullptr, false);
   }
 
   GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());

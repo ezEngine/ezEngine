@@ -15,7 +15,7 @@
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
 ezQtAssetPropertyWidget::ezQtAssetPropertyWidget()
-    : ezQtStandardPropertyWidget()
+  : ezQtStandardPropertyWidget()
 {
   m_uiThumbnailID = 0;
 
@@ -31,9 +31,9 @@ ezQtAssetPropertyWidget::ezQtAssetPropertyWidget()
   setFocusProxy(m_pWidget);
 
   EZ_VERIFY(connect(m_pWidget, SIGNAL(editingFinished()), this, SLOT(on_TextFinished_triggered())) != nullptr,
-            "signal/slot connection failed");
+    "signal/slot connection failed");
   EZ_VERIFY(connect(m_pWidget, SIGNAL(textChanged(const QString&)), this, SLOT(on_TextChanged_triggered(const QString&))) != nullptr,
-            "signal/slot connection failed");
+    "signal/slot connection failed");
 
   m_pButton = new QToolButton(this);
   m_pButton->setText(QStringLiteral("..."));
@@ -42,18 +42,18 @@ ezQtAssetPropertyWidget::ezQtAssetPropertyWidget()
 
   EZ_VERIFY(connect(m_pButton, SIGNAL(clicked()), this, SLOT(on_BrowseFile_clicked())) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(m_pButton, &QWidget::customContextMenuRequested, this, &ezQtAssetPropertyWidget::on_customContextMenuRequested) !=
-                nullptr,
-            "signal/slot connection failed");
+              nullptr,
+    "signal/slot connection failed");
 
   m_pLayout->addWidget(m_pWidget);
   m_pLayout->addWidget(m_pButton);
 
   EZ_VERIFY(connect(ezQtImageCache::GetSingleton(), &ezQtImageCache::ImageLoaded, this, &ezQtAssetPropertyWidget::ThumbnailLoaded) !=
-                nullptr,
-            "signal/slot connection failed");
+              nullptr,
+    "signal/slot connection failed");
   EZ_VERIFY(connect(ezQtImageCache::GetSingleton(), &ezQtImageCache::ImageInvalidated, this,
-                    &ezQtAssetPropertyWidget::ThumbnailInvalidated) != nullptr,
-            "signal/slot connection failed");
+              &ezQtAssetPropertyWidget::ThumbnailInvalidated) != nullptr,
+    "signal/slot connection failed");
 }
 
 
@@ -89,14 +89,14 @@ bool ezQtAssetPropertyWidget::IsValidAssetType(const char* szAssetReference) con
   if (ezStringUtils::IsEqual(pAssetAttribute->GetTypeFilter(), ";;")) // empty type list -> allows everything
     return true;
 
-  const ezStringBuilder sTypeFilter(";", pAsset->m_Data.m_sAssetTypeName.GetData(), ";");
+  const ezStringBuilder sTypeFilter(";", pAsset->m_Data.m_sSubAssetsDocumentTypeName.GetData(), ";");
   return ezStringUtils::FindSubString_NoCase(pAssetAttribute->GetTypeFilter(), sTypeFilter) != nullptr;
 }
 
 void ezQtAssetPropertyWidget::OnInit()
 {
   EZ_ASSERT_DEV(m_pProp->GetAttributeByType<ezAssetBrowserAttribute>() != nullptr,
-                "ezQtAssetPropertyWidget was created without a ezAssetBrowserAttribute!");
+    "ezQtAssetPropertyWidget was created without a ezAssetBrowserAttribute!");
 }
 
 void ezQtAssetPropertyWidget::UpdateThumbnail(const ezUuid& guid, const char* szThumbnailPath)
@@ -115,7 +115,7 @@ void ezQtAssetPropertyWidget::UpdateThumbnail(const ezUuid& guid, const char* sz
     sTypeFilter.Trim(" ;");
 
     pThumbnailPixmap = ezQtImageCache::GetSingleton()->QueryPixmapForType(sTypeFilter, szThumbnailPath, QModelIndex(),
-                                                                          QVariant(uiUserData1), QVariant(uiUserData2), &m_uiThumbnailID);
+      QVariant(uiUserData1), QVariant(uiUserData2), &m_uiThumbnailID);
   }
 
   m_pButton->setCursor(Qt::WhatsThisCursor);
@@ -159,9 +159,8 @@ void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
         m_pButton->setIcon(QIcon());
         m_pButton->setToolButtonStyle(Qt::ToolButtonStyle::ToolButtonTextOnly);
 
-        auto pal = m_pWidget->palette();
-        pal.setColor(QPalette::Text, Qt::red);
-        m_pWidget->setPalette(pal);
+        m_pal.setColor(QPalette::Text, Qt::red);
+        m_pWidget->setPalette(m_pal);
 
         return;
       }
@@ -183,9 +182,8 @@ void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
     UpdateThumbnail(m_AssetGuid, sThumbnailPath);
 
     {
-      auto pal = m_pWidget->palette();
-      pal.setColor(QPalette::Text, m_AssetGuid.IsValid() ? QColor::fromRgb(182, 255, 0) : QColor::fromRgb(255, 170, 0));
-      m_pWidget->setPalette(pal);
+      m_pal.setColor(QPalette::Text, m_AssetGuid.IsValid() ? QColor::fromRgb(182, 255, 0) : QColor::fromRgb(255, 170, 0));
+      m_pWidget->setPalette(m_pal);
 
       if (m_AssetGuid.IsValid())
         m_pWidget->setToolTip(QStringLiteral("The selected file resolved to a valid asset GUID"));
@@ -198,6 +196,13 @@ void ezQtAssetPropertyWidget::InternalSetValue(const ezVariant& value)
   }
 }
 
+void ezQtAssetPropertyWidget::showEvent(QShowEvent* event)
+{
+  // Use of style sheets (ADS) breaks previously set palette.
+  m_pWidget->setPalette(m_pal);
+  ezQtStandardPropertyWidget::showEvent(event);
+}
+
 void ezQtAssetPropertyWidget::FillAssetMenu(QMenu& menu)
 {
   if (!menu.isEmpty())
@@ -206,13 +211,13 @@ void ezQtAssetPropertyWidget::FillAssetMenu(QMenu& menu)
   const bool bAsset = m_AssetGuid.IsValid();
   menu.setDefaultAction(menu.addAction(QIcon(), QLatin1String("Select Asset"), this, SLOT(on_BrowseFile_clicked())));
   menu.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document16.png")), QLatin1String("Open Asset"), this,
-                 SLOT(OnOpenAssetDocument()))
-      ->setEnabled(bAsset);
+        SLOT(OnOpenAssetDocument()))
+    ->setEnabled(bAsset);
   menu.addAction(QIcon(), QLatin1String("Select in Asset Browser"), this, SLOT(OnSelectInAssetBrowser()))->setEnabled(bAsset);
   menu.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder16.png")), QLatin1String("Open in Explorer"), this,
-                 SLOT(OnOpenExplorer()));
+    SLOT(OnOpenExplorer()));
   menu.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/DocumentGuid16.png")), QLatin1String("Copy Asset Guid"), this,
-                 SLOT(OnCopyAssetGuid()));
+    SLOT(OnCopyAssetGuid()));
   menu.addAction(QIcon(), QLatin1String("Create New Asset"), this, SLOT(OnCreateNewAsset()));
   menu.addAction(QIcon(":/GuiFoundation/Icons/Delete16.png"), QLatin1String("Clear Asset Reference"), this, SLOT(OnClearReference()));
 }
@@ -269,7 +274,7 @@ void ezQtAssetPropertyWidget::on_customContextMenuRequested(const QPoint& pt)
 void ezQtAssetPropertyWidget::OnOpenAssetDocument()
 {
   ezQtEditorApp::GetSingleton()->OpenDocumentQueued(ezAssetCurator::GetSingleton()->GetSubAsset(m_AssetGuid)->m_pAssetInfo->m_sAbsolutePath,
-                                              GetSelection()[0].m_pObject);
+    GetSelection()[0].m_pObject);
 }
 
 void ezQtAssetPropertyWidget::OnSelectInAssetBrowser()
@@ -341,25 +346,21 @@ void ezQtAssetPropertyWidget::OnCreateNewAsset()
   {
     const ezHybridArray<ezDocumentManager*, 16>& managers = ezDocumentManager::GetAllDocumentManagers();
 
-    ezSet<ezString> documentTypes;
-
     for (ezDocumentManager* pMan : managers)
     {
-      if (!pMan->GetDynamicRTTI()->IsDerivedFrom<ezAssetDocumentManager>())
-        continue;
-
-      ezAssetDocumentManager* pAssetMan = static_cast<ezAssetDocumentManager*>(pMan);
-
-      documentTypes.Clear();
-      pAssetMan->QuerySupportedAssetTypes(documentTypes);
-
-      for (const ezString& assetType : documentTypes)
+      if (auto pAssetMan = ezDynamicCast<ezAssetDocumentManager*>(pMan))
       {
-        if (!sTypeFilter.FindSubString(assetType))
-          continue;
+        ezHybridArray<const ezDocumentTypeDescriptor*, 4> documentTypes;
+        pAssetMan->GetSupportedDocumentTypes(documentTypes);
 
-        pAssetManToUse = pAssetMan;
-        goto found;
+        for (auto pType : documentTypes)
+        {
+          if (!sTypeFilter.FindSubString(pType->m_sDocumentTypeName))
+            continue;
+
+          pAssetManToUse = pAssetMan;
+          goto found;
+        }
       }
     }
   }
@@ -368,7 +369,7 @@ void ezQtAssetPropertyWidget::OnCreateNewAsset()
 
 found:
 
-  ezDynamicArray<const ezDocumentTypeDescriptor*> documentTypes;
+  ezHybridArray<const ezDocumentTypeDescriptor*, 4> documentTypes;
   pAssetManToUse->GetSupportedDocumentTypes(documentTypes);
   const ezString sAssetType = documentTypes[0]->m_sDocumentTypeName;
   const ezString sExtension = documentTypes[0]->m_sFileExtension;
@@ -383,9 +384,9 @@ found:
     QString sStartDir = sTemp.GetData();
     QString sSelectedFilter = sExtension.GetData();
     sOutput = QFileDialog::getSaveFileName(QApplication::activeWindow(), title.GetData(), sStartDir, sFilter.GetData(), &sSelectedFilter,
-                                           QFileDialog::Option::DontResolveSymlinks)
-                  .toUtf8()
-                  .data();
+      QFileDialog::Option::DontResolveSymlinks)
+                .toUtf8()
+                .data();
 
     if (sOutput.IsEmpty())
       return;

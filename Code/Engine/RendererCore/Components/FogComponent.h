@@ -23,34 +23,40 @@ class EZ_RENDERERCORE_DLL ezFogComponent : public ezSettingsComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezFogComponent, ezSettingsComponent, ezFogComponentManager);
 
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent
+
+public:
+  virtual void SerializeComponent(ezWorldWriter& stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& stream) override;
+
+protected:
+  virtual void Deinitialize() override;
+  virtual void OnActivated() override;
+  virtual void OnDeactivated() override;
+
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezFogComponent
+
 public:
   ezFogComponent();
   ~ezFogComponent();
 
-  virtual void Deinitialize() override;
+  void SetColor(ezColor color); // [ property ]
+  ezColor GetColor() const;     // [ property ]
 
-  virtual void OnActivated() override;
-  virtual void OnDeactivated() override;
+  void SetDensity(float fDensity); // [ property ]
+  float GetDensity() const;        // [ property ]
 
-  void SetColor(ezColor color);
-  ezColor GetColor() const;
+  void SetHeightFalloff(float fHeightFalloff); // [ property ]
+  float GetHeightFalloff() const;              // [ property ]
 
-  void SetDensity(float fDensity);
-  float GetDensity() const;
-
-  void SetHeightFalloff(float fHeightFalloff);
-  float GetHeightFalloff() const;
-
+protected:
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
-  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
 
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
-
-private:
-
-  ezColor m_Color;
-  float m_fDensity;
-  float m_fHeightFalloff;
+  ezColor m_Color = ezColor(0.2f, 0.2f, 0.3f);
+  float m_fDensity = 1.0f;
+  float m_fHeightFalloff = 10.0f;
 };
-

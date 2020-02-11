@@ -86,7 +86,7 @@ static ezStatus ImportSkeleton(const char* filename, ezSharedPtr<ezModelImporter
 }
 
 ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-                                                         const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+                                                         const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   ezProgressRange range("Transforming Asset", 2, false);
 

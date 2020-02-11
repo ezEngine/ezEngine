@@ -79,7 +79,7 @@ void ezLineToComponent::SetLineToTargetGuid(const char* szTargetGuid)
   if (!resolver.IsValid())
     return;
 
-  m_hTargetObject = resolver(szTargetGuid);
+  m_hTargetObject = resolver(szTargetGuid, GetHandle(), "Target");
 }
 
 const char* ezLineToComponent::GetLineToTargetGuid() const

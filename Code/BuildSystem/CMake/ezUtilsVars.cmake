@@ -33,6 +33,8 @@ mark_as_advanced(FORCE EZ_USE_PCH)
 
 set (EZ_ENABLE_FOLDER_UNITY_FILES ON CACHE BOOL "Whether unity cpp files should be created per folder")
 
+mark_as_advanced(FORCE EZ_ENABLE_FOLDER_UNITY_FILES)
+
 ######################################
 ### PVS Studio support
 ######################################
@@ -42,10 +44,18 @@ set (EZ_ENABLE_PVS_STUDIO_HEADER_IN_UNITY_FILES ON CACHE BOOL "Adds the necessar
 mark_as_advanced(FORCE EZ_ENABLE_PVS_STUDIO_HEADER_IN_UNITY_FILES)
 
 ######################################
+### Static analysis support
+######################################
+set (EZ_ENABLE_COMPILER_STATIC_ANALYSIS OFF CACHE BOOL "Enables static analysis in the compiler options")
+
+mark_as_advanced(FORCE EZ_ENABLE_COMPILER_STATIC_ANALYSIS)
+
+
+######################################
 ### vcpkg
 ######################################
 
 ### Qt
-set (EZ_VCPKG_INSTALL_QT OFF CACHE BOOL "Whether to install Qt via vcpkg.")
+# set (EZ_VCPKG_INSTALL_QT OFF CACHE BOOL "Whether to install Qt via vcpkg.")
 
 

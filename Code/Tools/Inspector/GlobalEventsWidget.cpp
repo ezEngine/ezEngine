@@ -5,15 +5,17 @@
 #include <Inspector/GlobalEventsWidget.moc.h>
 #include <MainWindow.moc.h>
 #include <qlistwidget.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 
 ezQtGlobalEventsWidget* ezQtGlobalEventsWidget::s_pWidget = nullptr;
 
 ezQtGlobalEventsWidget::ezQtGlobalEventsWidget(QWidget* parent)
-    : QDockWidget(parent)
+    : ads::CDockWidget("Global Events", parent)
 {
   s_pWidget = this;
 
   setupUi(this);
+  setWidget(GlobalEventsFrame);
 
   ResetStats();
 }
@@ -80,7 +82,7 @@ void ezQtGlobalEventsWidget::ProcessTelemetry(void* pUnuseed)
 
 void ezQtGlobalEventsWidget::UpdateTable(bool bRecreate)
 {
-  TableEvents->blockSignals(true);
+  ezQtScopedUpdatesDisabled _1(TableEvents);
 
   if (bRecreate)
   {
@@ -147,6 +149,4 @@ void ezQtGlobalEventsWidget::UpdateTable(bool bRecreate)
       ++iRow;
     }
   }
-
-  TableEvents->blockSignals(false);
 }

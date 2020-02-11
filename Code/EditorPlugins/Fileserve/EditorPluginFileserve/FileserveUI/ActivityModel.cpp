@@ -70,7 +70,7 @@ QVariant ezQtFileserveActivityModel::data(const QModelIndex& index, int role /*=
       }
     }
 
-    if (role == Qt::TextColorRole)
+    if (role == Qt::ForegroundRole)
     {
       switch (item.m_Type)
       {

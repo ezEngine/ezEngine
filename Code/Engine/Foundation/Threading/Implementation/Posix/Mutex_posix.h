@@ -21,6 +21,16 @@ EZ_ALWAYS_INLINE void ezMutex::Acquire()
   ++m_iLockCount;
 }
 
+EZ_ALWAYS_INLINE bool ezMutex::TryAcquire()
+{
+  if (pthread_mutex_trylock(&m_Handle) == 0)
+  {
+    ++m_iLockCount;
+    return true;
+  }
+
+  return false;
+}
 EZ_ALWAYS_INLINE void ezMutex::Release()
 {
   --m_iLockCount;

@@ -33,7 +33,7 @@ public:
   };
 
   // Do NOT use a hash-table! The map does not relocate memory when it resizes, which is a vital aspect for the hashed strings to work.
-  typedef ezMap<ezUInt32, HashedData> StringStorage;
+  typedef ezMap<ezUInt32, HashedData, ezCompareHelper<ezUInt32>, ezStaticAllocatorWrapper> StringStorage;
   typedef StringStorage::Iterator HashedType;
 
 #if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
@@ -75,6 +75,9 @@ public:
   /// the strings hash value, but does not require any thread synchronization.
   template <size_t N>
   void Assign(const char (&szString)[N]); // [tested]
+
+  template <size_t N>
+  void Assign(char (&szString)[N]) = delete;
 
   /// \brief Assigning a new string from a non-hashed string is a very slow operation, this should be used rarely.
   ///
@@ -156,6 +159,9 @@ public:
   /// \brief Creates an ezTempHashedString object from the given string constant. The hash can be computed at compile time.
   template <size_t N>
   ezTempHashedString(const char (&szString)[N]); // [tested]
+
+  template <size_t N>
+  ezTempHashedString(char (&szString)[N]) = delete;
 
   /// \brief Creates an ezTempHashedString object from the given string. Computes the hash of the given string during runtime, which might
   /// be slow.

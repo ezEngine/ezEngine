@@ -21,8 +21,7 @@ void ezAssetDocumentManager::ComputeAssetProfileHash(const ezPlatformProfile* pA
 
   if (GeneratesProfileSpecificAssets())
   {
-    EZ_ASSERT_DEBUG(m_uiAssetProfileHash != 0,
-                    "Assets that generate a profile-specific output must compute a hash for the profile settings.");
+    EZ_ASSERT_DEBUG(m_uiAssetProfileHash != 0, "Assets that generate a profile-specific output must compute a hash for the profile settings.");
   }
   else
   {
@@ -34,11 +33,6 @@ void ezAssetDocumentManager::ComputeAssetProfileHash(const ezPlatformProfile* pA
 ezUInt64 ezAssetDocumentManager::ComputeAssetProfileHashImpl(const ezPlatformProfile* pAssetProfile) const
 {
   return 0;
-}
-
-ezBitflags<ezAssetDocumentFlags> ezAssetDocumentManager::GetAssetDocumentTypeFlags(const ezDocumentTypeDescriptor* pDescriptor) const
-{
-  return ezAssetDocumentFlags::Default;
 }
 
 ezStatus ezAssetDocumentManager::ReadAssetDocumentInfo(ezUniquePtr<ezAssetDocumentInfo>& out_pInfo, ezStreamReader& stream) const
@@ -109,56 +103,52 @@ void ezAssetDocumentManager::AddEntriesToAssetTable(const char* szDataDirectory,
 {
 }
 
-ezString ezAssetDocumentManager::GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory,
-                                                    const ezPlatformProfile* pAssetProfile) const
+ezString ezAssetDocumentManager::GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezPlatformProfile* pAssetProfile) const
 {
-  return GetRelativeOutputFileName(szDataDirectory, pSubAsset->m_pAssetInfo->m_sAbsolutePath, "", pAssetProfile);
+  return GetRelativeOutputFileName(pSubAsset->m_pAssetInfo->m_pDocumentTypeDescriptor, szDataDirectory, pSubAsset->m_pAssetInfo->m_sAbsolutePath, "", pAssetProfile);
 }
 
-ezString ezAssetDocumentManager::GetAbsoluteOutputFileName(const char* szDocumentPath, const char* szOutputTag,
-                                                           const ezPlatformProfile* pAssetProfile) const
+ezString ezAssetDocumentManager::GetAbsoluteOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDesc, const char* szDocumentPath, const char* szOutputTag, const ezPlatformProfile* pAssetProfile) const
 {
   ezStringBuilder sProjectDir = ezAssetCurator::GetSingleton()->FindDataDirectoryForAsset(szDocumentPath);
 
-  ezString sRelativePath = GetRelativeOutputFileName(sProjectDir, szDocumentPath, szOutputTag, pAssetProfile);
+  ezString sRelativePath = GetRelativeOutputFileName(pTypeDesc, sProjectDir, szDocumentPath, szOutputTag, pAssetProfile);
   ezStringBuilder sFinalPath(sProjectDir, "/AssetCache/", sRelativePath);
   sFinalPath.MakeCleanPath();
 
   return sFinalPath;
 }
 
-ezString ezAssetDocumentManager::GetRelativeOutputFileName(const char* szDataDirectory, const char* szDocumentPath, const char* szOutputTag,
-                                                           const ezPlatformProfile* pAssetProfile) const
+ezString ezAssetDocumentManager::GetRelativeOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDesc, const char* szDataDirectory, const char* szDocumentPath, const char* szOutputTag, const ezPlatformProfile* pAssetProfile) const
 {
   const ezPlatformProfile* sPlatform = ezAssetDocumentManager::DetermineFinalTargetProfile(pAssetProfile);
-  EZ_ASSERT_DEBUG(ezStringUtils::IsNullOrEmpty(szOutputTag),
-                  "The output tag '%s' for '%s' is not supported, override GetRelativeOutputFileName", szOutputTag, szDocumentPath);
+  EZ_ASSERT_DEBUG(ezStringUtils::IsNullOrEmpty(szOutputTag), "The output tag '%s' for '%s' is not supported, override GetRelativeOutputFileName", szOutputTag, szDocumentPath);
+
   ezStringBuilder sRelativePath(szDocumentPath);
   sRelativePath.MakeRelativeTo(szDataDirectory);
-  GenerateOutputFilename(sRelativePath, sPlatform, GetResourceTypeExtension(szDocumentPath), GeneratesProfileSpecificAssets());
+  GenerateOutputFilename(sRelativePath, sPlatform, pTypeDesc->m_sResourceFileExtension, GeneratesProfileSpecificAssets());
 
   return sRelativePath;
 }
 
-bool ezAssetDocumentManager::IsOutputUpToDate(const char* szDocumentPath, const ezSet<ezString>& outputs, ezUInt64 uiHash,
-                                              ezUInt16 uiTypeVersion)
+bool ezAssetDocumentManager::IsOutputUpToDate(const char* szDocumentPath, const ezDynamicArray<ezString>& outputs, ezUInt64 uiHash, const ezAssetDocumentTypeDescriptor* pTypeDescriptor)
 {
   CURATOR_PROFILE(szDocumentPath);
-  if (!IsOutputUpToDate(szDocumentPath, "", uiHash, uiTypeVersion))
+  if (!IsOutputUpToDate(szDocumentPath, "", uiHash, pTypeDescriptor))
     return false;
 
-  for (auto it = outputs.GetIterator(); it.IsValid(); ++it)
+  for (const ezString& sOutput : outputs)
   {
-    if (!IsOutputUpToDate(szDocumentPath, it.Key(), uiHash, uiTypeVersion))
+    if (!IsOutputUpToDate(szDocumentPath, sOutput, uiHash, pTypeDescriptor))
       return false;
   }
   return true;
 }
 
-bool ezAssetDocumentManager::IsOutputUpToDate(const char* szDocumentPath, const char* szOutputTag, ezUInt64 uiHash, ezUInt16 uiTypeVersion)
+bool ezAssetDocumentManager::IsOutputUpToDate(const char* szDocumentPath, const char* szOutputTag, ezUInt64 uiHash, const ezAssetDocumentTypeDescriptor* pTypeDescriptor)
 {
-  const ezString sTargetFile = GetAbsoluteOutputFileName(szDocumentPath, szOutputTag);
-  return ezAssetDocumentManager::IsResourceUpToDate(sTargetFile, uiHash, uiTypeVersion);
+  const ezString sTargetFile = GetAbsoluteOutputFileName(pTypeDescriptor, szDocumentPath, szOutputTag);
+  return ezAssetDocumentManager::IsResourceUpToDate(sTargetFile, uiHash, pTypeDescriptor->m_pDocumentType->GetTypeVersion());
 }
 
 const ezPlatformProfile* ezAssetDocumentManager::DetermineFinalTargetProfile(const ezPlatformProfile* pAssetProfile)

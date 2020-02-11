@@ -23,12 +23,8 @@ EZ_BEGIN_COMPONENT_TYPE(RecursiveGrowthComponent, 2, ezComponentMode::Static)
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
-RecursiveGrowthComponent::RecursiveGrowthComponent()
-{
-  m_uiNumChildren = 2;
-  m_uiRecursionDepth = 2;
-  m_uiChild = 0;
-}
+RecursiveGrowthComponent::RecursiveGrowthComponent() = default;
+RecursiveGrowthComponent::~RecursiveGrowthComponent() = default;
 
 void RecursiveGrowthComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -41,10 +37,7 @@ void RecursiveGrowthComponent::SerializeComponent(ezWorldWriter& stream) const
 
   // Version 2
   s << m_uiRecursionDepth;
-
-  // Version 3
 }
-
 
 void RecursiveGrowthComponent::DeserializeComponent(ezWorldReader& stream)
 {

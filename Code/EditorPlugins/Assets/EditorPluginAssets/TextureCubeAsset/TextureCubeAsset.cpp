@@ -166,9 +166,9 @@ ezStatus ezTextureCubeAssetDocument::RunTexConv(const char* szTargetFile, const 
   for (ezInt32 i = 0; i < arguments.size(); ++i)
     cmd.Append(" ", arguments[i].toUtf8().data());
 
-  ezLog::Debug("TexConv2.exe{0}", cmd);
+  ezLog::Debug("TexConv.exe{0}", cmd);
 
-  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv2.exe", arguments, 60, ezLog::GetThreadLocalLogSystem()));
+  EZ_SUCCEED_OR_RETURN(ezQtEditorApp::GetSingleton()->ExecuteTool("TexConv.exe", arguments, 60, ezLog::GetThreadLocalLogSystem()));
 
   if (bUpdateThumbnail)
   {
@@ -184,8 +184,35 @@ ezStatus ezTextureCubeAssetDocument::RunTexConv(const char* szTargetFile, const 
   return ezStatus(EZ_SUCCESS);
 }
 
+void ezTextureCubeAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
+{
+  SUPER::UpdateAssetDocumentInfo(pInfo);
+
+  switch (GetProperties()->m_ChannelMapping)
+  {
+    case ezTextureCubeChannelMappingEnum::RGB1:
+    case ezTextureCubeChannelMappingEnum::RGBA1:
+    {
+      // remove file dependencies, that aren't used
+      pInfo->m_AssetTransformDependencies.Remove(GetProperties()->GetInputFile1());
+      pInfo->m_AssetTransformDependencies.Remove(GetProperties()->GetInputFile2());
+      pInfo->m_AssetTransformDependencies.Remove(GetProperties()->GetInputFile3());
+      pInfo->m_AssetTransformDependencies.Remove(GetProperties()->GetInputFile4());
+      pInfo->m_AssetTransformDependencies.Remove(GetProperties()->GetInputFile5());
+      break;
+    }
+
+    case ezTextureCubeChannelMappingEnum::RGB1TO6:
+    case ezTextureCubeChannelMappingEnum::RGBA1TO6:
+      break;
+
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+  }
+}
+
 ezStatus ezTextureCubeAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag,
-  const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, bool bTriggeredManually)
+  const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   // EZ_ASSERT_DEV(ezStringUtils::IsEqual(szPlatform, "PC"), "Platform '{0}' is not supported", szPlatform);
   const bool bUpdateThumbnail = pAssetProfile == ezAssetCurator::GetSingleton()->GetDevelopmentAssetProfile();
@@ -202,11 +229,6 @@ ezStatus ezTextureCubeAssetDocument::InternalTransformAsset(const char* szTarget
   }
 
   return result;
-}
-
-const char* ezTextureCubeAssetDocument::QueryAssetType() const
-{
-  return "Texture Cube";
 }
 
 //////////////////////////////////////////////////////////////////////////

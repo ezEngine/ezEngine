@@ -22,7 +22,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDebugTextComponent, 1, ezComponentMode::Static)
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
   }
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
@@ -35,16 +35,16 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezDebugTextComponent::ezDebugTextComponent()
-    : m_sText("Value0: {0}, Value1: {1}, Value2: {2}, Value3: {3}")
-    , m_fValue0(0.0f)
-    , m_fValue1(0.0f)
-    , m_fValue2(0.0f)
-    , m_fValue3(0.0f)
-    , m_Color(ezColor::White)
+  : m_sText("Value0: {0}, Value1: {1}, Value2: {2}, Value3: {3}")
+  , m_fValue0(0.0f)
+  , m_fValue1(0.0f)
+  , m_fValue2(0.0f)
+  , m_fValue3(0.0f)
+  , m_Color(ezColor::White)
 {
 }
 
-ezDebugTextComponent::~ezDebugTextComponent() {}
+ezDebugTextComponent::~ezDebugTextComponent() = default;
 
 void ezDebugTextComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -74,7 +74,7 @@ void ezDebugTextComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_Color;
 }
 
-void ezDebugTextComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
+void ezDebugTextComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   if (msg.m_OverrideCategory != ezInvalidRenderDataCategory || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)
     return;
@@ -85,11 +85,10 @@ void ezDebugTextComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) cons
     sb.Format(m_sText, m_fValue0, m_fValue1, m_fValue2, m_fValue3);
 
     ezDebugRenderer::Draw3DText(msg.m_pView->GetHandle(), sb, GetOwner()->GetGlobalPosition(), m_Color, 16,
-                                ezDebugRenderer::HorizontalAlignment::Center, ezDebugRenderer::VerticalAlignment::Bottom);
+      ezDebugRenderer::HorizontalAlignment::Center, ezDebugRenderer::VerticalAlignment::Bottom);
   }
 }
 
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Debug_Implementation_DebugTextComponent);
-

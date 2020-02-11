@@ -112,8 +112,8 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
 
   for (ezUInt32 i = 0; i < uiNumBlurPasses; ++i)
   {
-    uiWidth = uiWidth / 2;
-    uiHeight = uiHeight / 2;
+    uiWidth = ezMath::Max(uiWidth / 2, 1u);
+    uiHeight = ezMath::Max(uiHeight / 2, 1u);
     targetSizes.PushBack(ezVec2((float)uiWidth, (float)uiHeight));
     auto uiSliceCount = pColorOutput->m_Desc.m_uiArraySize;
 

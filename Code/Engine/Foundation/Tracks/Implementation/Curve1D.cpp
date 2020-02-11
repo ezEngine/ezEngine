@@ -276,8 +276,8 @@ void ezCurve1D::CreateLinearApproximation(double fMaxError /*= 0.01f*/, ezUInt8 
 
 void ezCurve1D::RecomputeExtents()
 {
-  m_fMinX = ezMath::BasicType<float>::MaxValue();
-  m_fMaxX = -ezMath::BasicType<float>::MaxValue();
+  m_fMinX = ezMath::MaxValue<float>();
+  m_fMaxX = -ezMath::MaxValue<float>();
 
   for (const auto& cp : m_ControlPoints)
   {
@@ -298,8 +298,8 @@ void ezCurve1D::RecomputeExtents()
 
 void ezCurve1D::RecomputeLinearApproxExtremes()
 {
-  m_fMinY = ezMath::BasicType<float>::MaxValue();
-  m_fMaxY = -ezMath::BasicType<float>::MaxValue();
+  m_fMinY = ezMath::MaxValue<float>();
+  m_fMaxY = -ezMath::MaxValue<float>();
 
   for (const auto& cp : m_LinearApproximation)
   {

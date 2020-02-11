@@ -34,10 +34,10 @@ class EZ_FOUNDATION_DLL ezRTTI : public ezEnumerable<ezRTTI>
 public:
   /// \brief The constructor requires all the information about the type that this object represents.
   ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType,
-         ezBitflags<ezTypeFlags> flags, ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> properties,
-         ezArrayPtr<ezAbstractFunctionProperty*> functions, ezArrayPtr<ezPropertyAttribute*> attributes,
-         ezArrayPtr<ezAbstractMessageHandler*> messageHandlers, ezArrayPtr<ezMessageSenderInfo> messageSenders,
-         const ezRTTI* (*fnVerifyParent)());
+    ezBitflags<ezTypeFlags> flags, ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> properties,
+    ezArrayPtr<ezAbstractProperty*> functions, ezArrayPtr<ezPropertyAttribute*> attributes,
+    ezArrayPtr<ezAbstractMessageHandler*> messageHandlers, ezArrayPtr<ezMessageSenderInfo> messageSenders,
+    const ezRTTI* (*fnVerifyParent)());
 
 
   ~ezRTTI();
@@ -65,10 +65,10 @@ public:
 
   /// \brief Returns true if this type is derived from or identical to the given type.
   template <typename BASE>
-  EZ_ALWAYS_INLINE bool IsDerivedFrom() const
+  EZ_ALWAYS_INLINE bool IsDerivedFrom() const // [tested]
   {
     return IsDerivedFrom(ezGetStaticRTTI<BASE>());
-  } // [tested]
+  }
 
   /// \brief Returns the object through which instances of this type can be allocated.
   EZ_ALWAYS_INLINE ezRTTIAllocator* GetAllocator() const { return m_pAllocator; } // [tested]
@@ -129,7 +129,9 @@ public:
   /// \brief Returns whether this type can handle the message type with the given id.
   inline bool CanHandleMessage(ezMessageId id) const
   {
-    EZ_ASSERT_DEBUG(m_bGatheredDynamicMessageHandlers, "Message handler table should have been gathered at this point");
+    EZ_ASSERT_DEBUG(m_bGatheredDynamicMessageHandlers, "Message handler table should have been gathered at this point.\n"
+                                                       "If this assert is triggered for a type loaded from a dynamic plugin,\n"
+                                                       "you may have forgotten to instantiate an ezPlugin object inside your plugin DLL.");
 
     const ezUInt32 uiIndex = id - m_uiMsgIdOffset;
     return uiIndex < m_DynamicMessageHandlers.GetCount() && m_DynamicMessageHandlers[uiIndex] != nullptr;
@@ -137,8 +139,10 @@ public:
 
   EZ_ALWAYS_INLINE const ezArrayPtr<ezMessageSenderInfo>& GetMessageSender() const { return m_MessageSenders; }
 
-  /// \brief Fire this if a type was dynamically added or changed outside of plugin registration.
-  static ezEvent<const ezRTTI*> s_TypeUpdatedEvent;
+  /// \brief Writes all types derived from \a pBaseType to the provided array. Optionally sorts the array by type name to yield a stable result.
+  ///
+  /// Returns the provided array, such that the function can be used in a foreach loop right away.
+  static const ezDynamicArray<const ezRTTI*>& GetAllTypesDerivedFrom(const ezRTTI* pBaseType, ezDynamicArray<const ezRTTI*>& out_DerivedTypes, bool bSortByName);
 
 protected:
   const char* m_szPluginName;
@@ -147,7 +151,7 @@ protected:
   ezArrayPtr<ezAbstractFunctionProperty*> m_Functions;
   ezArrayPtr<ezPropertyAttribute*> m_Attributes;
   void UpdateType(const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType,
-                  ezBitflags<ezTypeFlags> flags);
+    ezBitflags<ezTypeFlags> flags);
   void RegisterType(ezRTTI* pType);
   void UnregisterType(ezRTTI* pType);
 
@@ -172,7 +176,7 @@ protected:
 
   ezArrayPtr<ezAbstractMessageHandler*> m_MessageHandlers;
   ezDynamicArray<ezAbstractMessageHandler*, ezStaticAllocatorWrapper>
-      m_DynamicMessageHandlers; // do not track this data, it won't be deallocated before shutdown
+    m_DynamicMessageHandlers; // do not track this data, it won't be deallocated before shutdown
 
   ezArrayPtr<ezMessageSenderInfo> m_MessageSenders;
 
@@ -185,7 +189,7 @@ private:
   static void SanityCheckType(ezRTTI* pType);
 
   /// \brief Handles events by ezPlugin, to figure out which types were provided by which plugin
-  static void PluginEventHandler(const ezPlugin::PluginEvent& EventData);
+  static void PluginEventHandler(const ezPluginEvent& EventData);
 };
 
 
@@ -295,4 +299,3 @@ private:
     return EZ_NEW(pAllocator, CLASS, *static_cast<const CLASS*>(pObject));
   }
 };
-

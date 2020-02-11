@@ -45,12 +45,3 @@ if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
 
   endif()
 endif()
-
-add_dependencies(${PROJECT_NAME}
-  ShaderCompilerHLSL
-  EnginePluginScene
-  EnginePluginAssets
-  EnginePluginParticle
-  RecastPlugin
-  InspectorPlugin
-)

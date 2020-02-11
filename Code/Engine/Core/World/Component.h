@@ -9,13 +9,18 @@ class ezMessage;
 class ezWorldWriter;
 class ezWorldReader;
 
+// TODO: windows.h workaround
+#ifdef SendMessage
+#  undef SendMessage
+#endif
+
 /// \brief Base class of all component types.
 ///
 /// Derive from this class to implement custom component types. Also add the EZ_DECLARE_COMPONENT_TYPE macro to your class declaration.
 /// Also add a EZ_BEGIN_COMPONENT_TYPE/EZ_END_COMPONENT_TYPE block to a cpp file. In that block you can add reflected members or message
 /// handlers. Note that every component type needs a corresponding manager type. Take a look at ezComponentManagerSimple for a simple
 /// manager implementation that calls an update method on its components every frame. To create a component instance call CreateComponent on
-/// the corresponding manager. Never store a direct pointer to a component but store a component handle instead.
+/// the corresponding manager. Never store a direct pointer to a component but store an ezComponentHandle instead.
 class EZ_CORE_DLL ezComponent : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezComponent, ezReflectedClass);
@@ -26,23 +31,39 @@ protected:
   virtual ~ezComponent();
 
 public:
-  /// \brief Sets the active state of the component. Note that it is up to the manager if he differentiates between active and inactive
-  /// components.
-  void SetActive(bool bActive);
+  /// \brief Sets the active flag of the component, which affects its active state.
+  ///
+  /// The active flag affects the 'active state' of the component. Ie. a component without the active flag will always be inactive.
+  /// However, the active state is also affected by the active state of the owning game object. Thus a component attached to an inactive
+  /// game object, will also be inactive.
+  ///
+  /// Note that it is up to the component manager though, whether it differentiates between active and inactive components.
+  ///
+  /// \sa ezGameObject::IsActive(), ezGameObject::SetActiveFlag()
+  void SetActiveFlag(bool bEnabled);
 
-  /// \brief Activates the component. Note that it is up to the manager if he differentiates between active and inactive components.
-  void Activate();
+  /// \brief Checks whether the 'active flag' is set on this component. Note that this does not mean that the component is also 'active'.
+  ///
+  /// \sa IsActive(), SetActiveFlag()
+  bool GetActiveFlag() const;
 
-  /// \brief Deactivates the component.
-  void Deactivate();
-
-  /// \brief Returns whether this component is active.
+  /// \brief Checks whether this component is in an active state.
+  ///
+  /// The active state is determined by the active state of the owning game object and the 'active flag' of this component.
+  /// Only if the owning game object is active (and thus all of its parent objects as well) and the component has the active flag set,
+  /// will this component be active.
+  ///
+  /// \sa ezGameObject::IsActive(), ezGameObject::SetActiveFlag()
   bool IsActive() const;
 
   /// \brief Returns whether this component is active and initialized.
+  ///
+  /// \sa IsActive()
   bool IsActiveAndInitialized() const;
 
   /// \brief Whether the component is currently active and simulation has been started as well.
+  ///
+  /// \sa IsActive()
   bool IsActiveAndSimulating() const;
 
   /// \brief Returns the corresponding manager for this component.
@@ -93,14 +114,11 @@ public:
 
 
   /// \brief Sends a message to this component.
-  bool SendMessage(ezMessage& msg);
-  bool SendMessage(ezMessage& msg) const;
-
-  /// \brief Queues the message for the given phase and processes it later in that phase.
-  void PostMessage(const ezMessage& msg, ezObjectMsgQueueType::Enum queueType) const;
+  EZ_ALWAYS_INLINE bool SendMessage(ezMessage& msg) { return SendMessageInternal(msg, false); }
+  EZ_ALWAYS_INLINE bool SendMessage(ezMessage& msg) const { return SendMessageInternal(msg, false); }
 
   /// \brief Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
-  void PostMessage(const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const;
+  void PostMessage(const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime::Zero()) const;
 
   /// \brief Stores a custom flag. Index must be between 0 and 7.
   ///
@@ -183,11 +201,15 @@ protected:
   /// \brief By default disabled. Enable to have OnUnhandledMessage() called for every unhandled message.
   void EnableUnhandledMessageHandler(bool enable);
 
-  /// \brief When EnableUnhandledMessageHandler() was activated, called for messages all unhandled messages.
-  virtual bool OnUnhandledMessage(ezMessage& msg);
+  /// \brief When EnableUnhandledMessageHandler() was activated, this is called for all messages for which there is no dedicated message handler.
+  ///
+  /// \return Should return true if the given message was handled, false otherwise.
+  virtual bool OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg);
 
-  /// \brief When EnableUnhandledMessageHandler() was activated, called for messages all unhandled messages.
-  virtual bool OnUnhandledMessage(ezMessage& msg) const;
+  /// \brief When EnableUnhandledMessageHandler() was activated, this is called for all messages for which there is no dedicated message handler.
+  ///
+  /// \return Should return true if the given message was handled, false otherwise.
+  virtual bool OnUnhandledMessage(ezMessage& msg, bool bWasPostedMsg) const;
 
 protected:
   /// Messages will be dispatched to this type. Default is what GetDynamicRTTI() returns, can be redirected if necessary.
@@ -197,6 +219,12 @@ private:
   bool IsInitialized() const;
   bool IsInitializing() const;
   bool IsSimulationStarted() const;
+
+  // updates the component's active state depending on the owner object's active state
+  void UpdateActiveState(bool bOwnerActive);
+
+  bool SendMessageInternal(ezMessage& msg, bool bWasPostedMsg);
+  bool SendMessageInternal(ezMessage& msg, bool bWasPostedMsg) const;
 
   ezBitflags<ezObjectFlags> m_ComponentFlags;
 

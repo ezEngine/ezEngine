@@ -1,5 +1,7 @@
 #include <GameEnginePCH.h>
 
+#ifdef BUILDSYSTEM_ENABLE_IMGUI_SUPPORT
+
 #include <GameEngine/DearImgui/DearImgui.h>
 
 #include <Core/Input/InputManager.h>
@@ -260,5 +262,7 @@ void ezImgui::BeginFrame(const ezViewHandle& hView)
 
   m_bImguiWantsInput = cfg.WantCaptureKeyboard || cfg.WantCaptureMouse;
 }
+
+#endif
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_DearImgui_DearImgui);

@@ -8,26 +8,39 @@ class EZ_PHYSXPLUGIN_DLL ezPxPrismaticJointComponent : public ezPxJointComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezPxPrismaticJointComponent, ezPxJointComponent, ezPxPrismaticJointComponentManager);
 
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent
+
+public:
+  virtual void SerializeComponent(ezWorldWriter& stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& stream) override;
+
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezPxJointComponent
+
+protected:
+  virtual physx::PxJoint* CreateJointType(physx::PxRigidActor* actor0, const physx::PxTransform& localFrame0, physx::PxRigidActor* actor1, const physx::PxTransform& localFrame1) override;
+
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezPxPrismaticJointComponent
+
 public:
   ezPxPrismaticJointComponent();
   ~ezPxPrismaticJointComponent();
 
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
+  void SetLowerLimitDistance(float f);                                  // [ property ]
+  float GetLowerLimitDistance() const { return m_fLowerLimitDistance; } // [ property ]
 
-  // ************************************* PROPERTIES ***********************************
-public:
-  void SetLowerLimitDistance(float f);
-  float GetLowerLimitDistance() const { return m_fLowerLimitDistance; }
+  void SetUpperLimitDistance(float f);                                  // [ property ]
+  float GetUpperLimitDistance() const { return m_fUpperLimitDistance; } // [ property ]
 
-  void SetUpperLimitDistance(float f);
-  float GetUpperLimitDistance() const { return m_fUpperLimitDistance; }
+  void SetSpringStiffness(float f);                               // [ property ]
+  float GetSpringStiffness() const { return m_fSpringStiffness; } // [ property ]
 
-  void SetSpringStiffness(float f);
-  float GetSpringStiffness() const { return m_fSpringStiffness; }
-
-  void SetSpringDamping(float f);
-  float GetSpringDamping() const { return m_fSpringDamping; }
+  void SetSpringDamping(float f);                             // [ property ]
+  float GetSpringDamping() const { return m_fSpringDamping; } // [ property ]
 
 protected:
   float m_fLowerLimitDistance = 0;
@@ -36,6 +49,4 @@ protected:
   float m_fSpringDamping = 0;
 
   void ApplyLimits(physx::PxJoint* pJoint);
-
-  virtual physx::PxJoint* CreateJointType(physx::PxRigidActor* actor0, const physx::PxTransform& localFrame0, physx::PxRigidActor* actor1, const physx::PxTransform& localFrame1) override;
 };

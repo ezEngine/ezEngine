@@ -1,3 +1,25 @@
+<H2>February 2020</H2>
+
+<ul>
+<li>Finished a new scripting system that uses TypeScript as the scripting language.</li>
+<li>The 'Testing Chambers' project now demonstrates the new scripting system with various features. See the 'Corridor' scene.</li>
+<li>Improved asset transform performance.</li>
+<li>GameObjects now have an 'enabled' state that affects the entire sub-tree.</li>
+<li>Added a BeamComponent for laser effects.</li>
+<li>Added a RaycastComponent to move an object to the closest hit surface. Works well with the BeamComponent.</li>
+<li>Added support for 'template asset documents'.</li>
+</ul>
+
+<H2>November 2019</H2>
+
+<ul>
+<li>ezEditor now uses the <A HREF="https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System">Qt Advanced Docking System</A> for better window docking.
+You can now simply drag document windows onto separate screens and dock them with more flexibility.</li>
+<li>Texture conversion now automatically dilates the color channel when an alpha mask is used. This can be disabled in the Texture Asset settings.</li>
+<li>The 'Editor' project in Visual Studio now contains an 'Editor Data' folder which lists files such as this WhatsNew.txt and the localization files, to improve the workflow.</li>
+<li>Added action <i>Tools > Open in Visual Studio Code</i> which will launch VS Code pointed at the project folder.</li>
+</ul>
+
 <H2>November 2018</H2>
 
 <ul>

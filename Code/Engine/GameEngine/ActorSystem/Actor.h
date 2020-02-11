@@ -3,18 +3,15 @@
 #include <GameEngine/GameEngineDLL.h>
 
 #include <GameEngine/ActorSystem/ActorPlugin.h>
-#include <Foundation/Communication/Event.h>
-#include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Types/UniquePtr.h>
-#include <GameEngine/GameApplication/WindowOutputTargetBase.h>
-#include <System/Window/Window.h>
 
-class ezActor;
 struct ezActorImpl;
 
 class EZ_GAMEENGINE_DLL ezActor : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezActor, ezReflectedClass);
+
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezActor);
 
 public:
   ezActor(const char* szActorName, const void* pCreatedBy);
@@ -45,16 +42,31 @@ public:
   /// \brief Fills the list with all plugins that have been added to the actor.
   void GetAllPlugins(ezHybridArray<ezActorPlugin*, 8>& out_AllPlugins);
 
-  ezUniquePtr<ezWindowBase> m_pWindow;
-  ezUniquePtr<ezWindowOutputTargetBase> m_pWindowOutputTarget;
-
 protected:
   void UpdateAllPlugins();
 
-private: // directly touched by ezActorManager
+ 
+protected: // directly touched by ezActorManager
   friend class ezActorManager;
 
+  /// \brief Called shortly before the first call to Update()
+  virtual void Activate();
+
+  /// \brief Called once per frame to update the actor state.
+  ///
+  /// By default this calls UpdateAllPlugins() internally.
   virtual void Update();
+
+private: // directly touched by ezActorManager
+
+  enum class State
+  {
+    New,
+    Active,
+    QueuedForDestruction
+  };
+
+  State m_State = State::New;
 
 private:
   ezUniquePtr<ezActorImpl> m_pImpl;

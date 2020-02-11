@@ -9,12 +9,12 @@ inline ezDataDirectoryReaderWriterBase::ezDataDirectoryReaderWriterBase(ezInt32 
   m_bIsReader = bIsReader;
 }
 
-inline ezResult ezDataDirectoryReaderWriterBase::Open(const char* szResourcePath, ezDataDirectoryType* pDataDirectory)
+inline ezResult ezDataDirectoryReaderWriterBase::Open(const char* szResourcePath, ezDataDirectoryType* pDataDirectory, ezFileShareMode::Enum FileShareMode)
 {
   m_pDataDirectory = pDataDirectory;
   m_sFilePath = szResourcePath;
 
-  return InternalOpen();
+  return InternalOpen(FileShareMode);
 }
 
 inline const ezString128& ezDataDirectoryReaderWriterBase::GetFilePath() const

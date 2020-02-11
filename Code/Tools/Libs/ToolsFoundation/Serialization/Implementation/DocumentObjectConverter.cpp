@@ -380,7 +380,6 @@ void ezDocumentObjectConverterReader::ApplyDiff(ezObjectAccessorBase* pObjectAcc
       {
         for (const ezVariant& key : keys)
         {
-          const ezString& sKey = key.Get<ezString>();
           ezVariant value;
           EZ_VERIFY(pObjectAccessor->GetValue(pObject, pProp, value, key).Succeeded(), "");
           if (NeedsToBeDeleted(value.Get<ezUuid>()))
@@ -493,7 +492,6 @@ void ezDocumentObjectConverterReader::ApplyProperty(ezDocumentObject* pObject, e
             auto* pSubNode = m_pGraph->GetNode(guid);
             EZ_ASSERT_DEV(pSubNode != nullptr, "invalid document");
 
-            ezDocumentObject* pSubObject = nullptr;
             if (i < (ezUInt32)iCurrentCount)
             {
               // Overwrite existing object

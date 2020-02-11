@@ -55,32 +55,41 @@ class EZ_GAMEENGINE_DLL ezProjectileComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezProjectileComponent, ezComponent, ezProjectileComponentManager);
 
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent
+
 public:
-  ezProjectileComponent();
-
-  void Update();
-
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
-  void OnTriggered(ezMsgComponentInternalTrigger& msg);
+protected:
+  virtual void OnSimulationStarted() override;
 
-  // ************************************* PROPERTIES ***********************************
 
-  float m_fMetersPerSecond;   ///< The speed at which the projectile flies
-  float m_fGravityMultiplier; ///< If 0, the projectile is not affected by gravity.
-  ezUInt8 m_uiCollisionLayer;
-  ezTime m_MaxLifetime; ///< After this time the projectile is killed, if it didn't die already
-  ezSurfaceResourceHandle m_hFallbackSurface;
-  ezHybridArray<ezProjectileSurfaceInteraction, 12> m_SurfaceInteractions;
+  //////////////////////////////////////////////////////////////////////////
+  // ezProjectileComponent
 
-  void SetTimeoutPrefab(const char* szPrefab);
-  const char* GetTimeoutPrefab() const;
+public:
+  ezProjectileComponent();
+  ~ezProjectileComponent();
 
-  void SetFallbackSurfaceFile(const char* szFile);
-  const char* GetFallbackSurfaceFile() const;
+  float m_fMetersPerSecond;                                                ///< [ property ] The speed at which the projectile flies
+  float m_fGravityMultiplier;                                              ///< [ property ] If 0, the projectile is not affected by gravity.
+  ezUInt8 m_uiCollisionLayer;                                              ///< [ property ]
+  ezTime m_MaxLifetime;                                                    ///< [ property ] After this time the projectile is killed, if it didn't die already
+  ezSurfaceResourceHandle m_hFallbackSurface;                              ///< [ property ]
+  ezHybridArray<ezProjectileSurfaceInteraction, 12> m_SurfaceInteractions; ///< [ property ]
+
+  void SetTimeoutPrefab(const char* szPrefab); // [ property ]
+  const char* GetTimeoutPrefab() const;        // [ property ]
+
+  void SetFallbackSurfaceFile(const char* szFile); // [ property ]
+  const char* GetFallbackSurfaceFile() const;      // [ property ]
 
 private:
+  void Update();
+  void OnTriggered(ezMsgComponentInternalTrigger& msg); // [ msg handler ]
+
   ezPrefabResourceHandle m_hTimeoutPrefab; ///< Spawned when the projectile is killed due to m_MaxLifetime coming to an end
 
   /// \brief If an unknown surface type is hit, the projectile will just delete itself without further interaction
@@ -88,9 +97,6 @@ private:
 
   void TriggerSurfaceInteraction(const ezSurfaceResourceHandle& hSurface, ezGameObjectHandle hObject, const ezVec3& vPos,
     const ezVec3& vNormal, const ezVec3& vDirection, const char* szInteraction);
-
-protected:
-  virtual void OnSimulationStarted() override;
 
   ezVec3 m_vVelocity;
 };

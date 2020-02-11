@@ -115,6 +115,11 @@ EZ_ALWAYS_INLINE ezMemoryUtils::DestructorFunction ezMemoryUtils::MakeDestructor
   return MakeDestructorFunction<T>(ezIsPodType<T>());
 }
 
+EZ_ALWAYS_INLINE void ezMemoryUtils::RawByteCopy(void* pDestination, const void* pSource, size_t uiNumBytesToCopy)
+{
+  memcpy(pDestination, pSource, uiNumBytesToCopy);
+}
+
 template <typename T>
 EZ_ALWAYS_INLINE void ezMemoryUtils::Copy(T* pDestination, const T* pSource, size_t uiCount)
 {
@@ -173,9 +178,26 @@ EZ_ALWAYS_INLINE void ezMemoryUtils::ZeroFill(T (&destination)[N])
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE ezInt32 ezMemoryUtils::ByteCompare(const T* a, const T* b, size_t uiCount /*= 1*/)
+EZ_ALWAYS_INLINE void ezMemoryUtils::PatternFill(T* pDestination, ezUInt8 uiBytePattern, size_t uiCount)
+{
+  memset(pDestination, uiBytePattern, uiCount * sizeof(T));
+}
+
+template <typename T, size_t N>
+EZ_ALWAYS_INLINE void ezMemoryUtils::PatternFill(T (&destination)[N], ezUInt8 uiBytePattern)
+{
+  return PatternFill(destination, uiBytePattern, N);
+}
+
+template <typename T>
+EZ_ALWAYS_INLINE ezInt32 ezMemoryUtils::Compare(const T* a, const T* b, size_t uiCount /*= 1*/)
 {
   return memcmp(a, b, uiCount * sizeof(T));
+}
+
+EZ_ALWAYS_INLINE ezInt32 ezMemoryUtils::RawByteCompare(const void* a, const void* b, size_t uiNumBytesToCompare)
+{
+  return memcmp(a, b, uiNumBytesToCompare);
 }
 
 template <typename T>

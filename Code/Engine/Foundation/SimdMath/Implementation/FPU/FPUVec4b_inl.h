@@ -97,7 +97,7 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4b::operator!() const
 }
 
 template <int N>
-EZ_ALWAYS_INLINE bool ezSimdVec4b::AllSet()
+EZ_ALWAYS_INLINE bool ezSimdVec4b::AllSet() const
 {
   for (int i = 0; i < N; ++i)
   {
@@ -109,7 +109,7 @@ EZ_ALWAYS_INLINE bool ezSimdVec4b::AllSet()
 }
 
 template <int N>
-EZ_ALWAYS_INLINE bool ezSimdVec4b::AnySet()
+EZ_ALWAYS_INLINE bool ezSimdVec4b::AnySet() const
 {
   for (int i = 0; i < N; ++i)
   {
@@ -121,7 +121,7 @@ EZ_ALWAYS_INLINE bool ezSimdVec4b::AnySet()
 }
 
 template <int N>
-EZ_ALWAYS_INLINE bool ezSimdVec4b::NoneSet()
+EZ_ALWAYS_INLINE bool ezSimdVec4b::NoneSet() const
 {
   return !AnySet<N>();
 }

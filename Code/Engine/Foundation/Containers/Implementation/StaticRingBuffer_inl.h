@@ -66,6 +66,17 @@ void ezStaticRingBuffer<T, C>::PushBack(const T& element)
 }
 
 template <typename T, ezUInt32 C>
+void ezStaticRingBuffer<T, C>::PushBack(T&& element)
+{
+  EZ_ASSERT_DEV(CanAppend(), "The ring-buffer is full, no elements can be appended before removing one.");
+
+  const ezUInt32 uiLastElement = (m_uiFirstElement + m_uiCount) % C;
+
+  ezMemoryUtils::MoveConstruct(&m_pElements[uiLastElement], std::move(element));
+  ++m_uiCount;
+}
+
+template <typename T, ezUInt32 C>
 T& ezStaticRingBuffer<T, C>::PeekBack()
 {
   EZ_ASSERT_DEV(!IsEmpty(), "The ring-buffer is empty, cannot peek at the last element.");

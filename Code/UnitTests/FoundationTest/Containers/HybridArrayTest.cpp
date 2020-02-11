@@ -14,18 +14,18 @@ namespace HybridArrayTestDetail
     std::string s;
 
     Dummy()
-        : a(0)
-        , s("Test")
+      : a(0)
+      , s("Test")
     {
     }
     Dummy(int a)
-        : a(a)
-        , s("Test")
+      : a(a)
+      , s("Test")
     {
     }
     Dummy(const Dummy& other)
-        : a(other.a)
-        , s(other.s)
+      : a(other.a)
+      , s(other.s)
     {
     }
     ~Dummy() {}
@@ -42,6 +42,30 @@ namespace HybridArrayTestDetail
     bool operator>(const Dummy& dummy) const { return a > dummy.a; }
     bool operator<(const Dummy& dummy) const { return a < dummy.a; }
     bool operator==(const Dummy& dummy) const { return a == dummy.a; }
+  };
+
+  class NonMovableClass
+  {
+  public:
+    NonMovableClass(int val)
+    {
+      m_val = val;
+      m_pVal = &m_val;
+    }
+
+    NonMovableClass(const NonMovableClass& other)
+    {
+      m_val = other.m_val;
+      m_pVal = &m_val;
+    }
+
+    void operator=(const NonMovableClass& other)
+    {
+      m_val = other.m_val;
+    }
+
+    int m_val = 0;
+    int* m_pVal = nullptr;
   };
 
   template <typename T>
@@ -63,25 +87,30 @@ namespace HybridArrayTestDetail
     ExternalCounter() = default;
 
     ExternalCounter(int& counter)
-        : m_counter{&counter}
+      : m_counter{&counter}
     {
-
     }
 
     ~ExternalCounter()
     {
-      if(m_counter) (*m_counter)++;
+      if (m_counter)
+        (*m_counter)++;
     }
 
     int* m_counter{};
   };
-}
+} // namespace HybridArrayTestDetail
+
+static void TakesDynamicArray(ezDynamicArray<int>& ar, int num, int start);
 
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
-EZ_CHECK_AT_COMPILETIME(sizeof(ezHybridArray<ezInt32, 1>) == 32);
+static_assert(sizeof(ezHybridArray<ezInt32, 1>) == 32);
 #else
-EZ_CHECK_AT_COMPILETIME(sizeof(ezHybridArray<ezInt32, 1>) == 20);
+static_assert(sizeof(ezHybridArray<ezInt32, 1>) == 20);
 #endif
+
+static_assert(ezGetTypeClass<ezHybridArray<ezInt32, 1>>::value == ezTypeIsMemRelocatable::value);
+static_assert(ezGetTypeClass<ezHybridArray<HybridArrayTestDetail::NonMovableClass, 1>>::value == ezTypeIsClass::value);
 
 EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
 {
@@ -641,10 +670,11 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
     for (ezInt32 i = 0; i < 1000; ++i)
       EZ_TEST_INT(a[i], i);
 
-    // this tests whether the static array is reused properly (well, I stepped through it in the debugger to check it)
+    // this tests whether the static array is reused properly (not the case anymore with new implementation that derives from ezDynamicArray)
     a.SetCount(15);
     a.Compact();
-    EZ_TEST_BOOL(a.GetHeapMemoryUsage() == 0);
+    //EZ_TEST_BOOL(a.GetHeapMemoryUsage() == 0);
+    EZ_TEST_BOOL(a.GetHeapMemoryUsage() > 0);
 
     for (ezInt32 i = 0; i < 15; ++i)
       EZ_TEST_INT(a[i], i);
@@ -937,7 +967,8 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
 
     {
       // local <-> local
-      ezHybridArray<ezInt32, 8> a1, a2;
+      ezHybridArray<ezInt32, 8> a1;
+      ezHybridArray<ezInt32, 16> a2;
       a1 = ezMakeArrayPtr(content1);
       a2 = ezMakeArrayPtr(content2);
 
@@ -953,11 +984,15 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
       // The data however should be swapped
       EZ_TEST_BOOL(a1.GetArrayPtr() == ezMakeArrayPtr(content2));
       EZ_TEST_BOOL(a2.GetArrayPtr() == ezMakeArrayPtr(content1));
+
+      EZ_TEST_INT(a1.GetCapacity(), 8);
+      EZ_TEST_INT(a2.GetCapacity(), 16);
     }
 
     {
       // local <-> heap
-      ezHybridArray<ezInt32, 8> a1, a2;
+      ezHybridArray<ezInt32, 8> a1;
+      ezDynamicArray<ezInt32> a2;
       a1 = ezMakeArrayPtr(content1);
       a2 = ezMakeArrayPtr(contentHeap1);
       ezInt32* a1Ptr = a1.GetData();
@@ -967,11 +1002,15 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
       EZ_TEST_BOOL(a2Ptr != a2.GetData());
       EZ_TEST_BOOL(a1.GetArrayPtr() == ezMakeArrayPtr(contentHeap1));
       EZ_TEST_BOOL(a2.GetArrayPtr() == ezMakeArrayPtr(content1));
+
+      EZ_TEST_INT(a1.GetCapacity(), 16);
+      EZ_TEST_INT(a2.GetCapacity(), 16);
     }
 
     {
       // heap <-> local
-      ezHybridArray<ezInt32, 8> a1, a2;
+      ezHybridArray<ezInt32, 8> a1;
+      ezHybridArray<ezInt32, 7> a2;
       a1 = ezMakeArrayPtr(content1);
       a2 = ezMakeArrayPtr(contentHeap1);
       ezInt32* a1Ptr = a1.GetData();
@@ -981,11 +1020,15 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
       EZ_TEST_BOOL(a2Ptr != a2.GetData());
       EZ_TEST_BOOL(a1.GetArrayPtr() == ezMakeArrayPtr(contentHeap1));
       EZ_TEST_BOOL(a2.GetArrayPtr() == ezMakeArrayPtr(content1));
+
+      EZ_TEST_INT(a1.GetCapacity(), 16);
+      EZ_TEST_INT(a2.GetCapacity(), 16);
     }
 
     {
       // heap <-> heap
-      ezHybridArray<ezInt32, 8> a1, a2;
+      ezDynamicArray<ezInt32> a1;
+      ezHybridArray<ezInt32, 8> a2;
       a1 = ezMakeArrayPtr(contentHeap1);
       a2 = ezMakeArrayPtr(contentHeap2);
       ezInt32* a1Ptr = a1.GetData();
@@ -995,6 +1038,9 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
       EZ_TEST_BOOL(a2Ptr != a2.GetData());
       EZ_TEST_BOOL(a1.GetArrayPtr() == ezMakeArrayPtr(contentHeap2));
       EZ_TEST_BOOL(a2.GetArrayPtr() == ezMakeArrayPtr(contentHeap1));
+
+      EZ_TEST_INT(a1.GetCapacity(), 16);
+      EZ_TEST_INT(a2.GetCapacity(), 16);
     }
 
     {
@@ -1004,6 +1050,20 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
       a1.Swap(a2);
       EZ_TEST_BOOL(a1.GetArrayPtr() == ezMakeArrayPtr(content2));
       EZ_TEST_BOOL(a2.IsEmpty());
+
+      EZ_TEST_INT(a1.GetCapacity(), 8);
+      EZ_TEST_INT(a2.GetCapacity(), 8);
+    }
+
+    {
+      // empty <-> empty
+      ezHybridArray<ezInt32, 8> a1, a2;
+      a1.Swap(a2);
+      EZ_TEST_BOOL(a1.IsEmpty());
+      EZ_TEST_BOOL(a2.IsEmpty());
+
+      EZ_TEST_INT(a1.GetCapacity(), 8);
+      EZ_TEST_INT(a2.GetCapacity(), 8);
     }
   }
 
@@ -1037,5 +1097,66 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
       EZ_TEST_BOOL(counter == 4);
     }
     EZ_TEST_BOOL(counter == 8);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Use ezHybridArray with ezDynamicArray")
+  {
+    ezHybridArray<int, 16> a;
+
+    TakesDynamicArray(a, 4, a.GetCount());
+    EZ_TEST_INT(a.GetCount(), 4);
+    EZ_TEST_INT(a.GetCapacity(), 16);
+
+    for (int i = 0; i < (int)a.GetCount(); ++i)
+    {
+      EZ_TEST_INT(a[i], i);
+    }
+
+    TakesDynamicArray(a, 12, a.GetCount());
+    EZ_TEST_INT(a.GetCount(), 16);
+    EZ_TEST_INT(a.GetCapacity(), 16);
+
+    for (int i = 0; i < (int)a.GetCount(); ++i)
+    {
+      EZ_TEST_INT(a[i], i);
+    }
+
+    TakesDynamicArray(a, 8, a.GetCount());
+    EZ_TEST_INT(a.GetCount(), 24);
+    EZ_TEST_INT(a.GetCapacity(), 32);
+
+    for (int i = 0; i < (int)a.GetCount(); ++i)
+    {
+      EZ_TEST_INT(a[i], i);
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Nested arrays")
+  {
+    ezDynamicArray<ezHybridArray<HybridArrayTestDetail::NonMovableClass, 4>> a;
+
+    for (int i = 0; i < 100; ++i)
+    {
+      ezHybridArray<HybridArrayTestDetail::NonMovableClass, 4> b;
+      b.PushBack(HybridArrayTestDetail::NonMovableClass(i));
+
+      a.PushBack(std::move(b));
+    }
+
+    for (int i = 0; i < 100; ++i)
+    {
+      auto& nonMoveable = a[i][0];
+
+      EZ_TEST_INT(nonMoveable.m_val, i);
+      EZ_TEST_BOOL(nonMoveable.m_pVal == &nonMoveable.m_val);
+    }
+  }
+}
+
+void TakesDynamicArray(ezDynamicArray<int>& ar, int num, int start)
+{
+  for (int i = 0; i < num; ++i)
+  {
+    ar.PushBack(start + i);
   }
 }

@@ -348,3 +348,6 @@ MigrationBackup/
 /Workspace
 /Output
 AssetCache
+/build/
+/buildUWP/
+Data/Samples/Testing Chambers/TypeScript/

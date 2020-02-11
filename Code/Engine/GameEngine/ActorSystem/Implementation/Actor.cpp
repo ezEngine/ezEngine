@@ -91,12 +91,11 @@ void ezActor::UpdateAllPlugins()
   }
 }
 
+void ezActor::Activate()
+{
+}
+
 void ezActor::Update()
 {
-  if (m_pWindow)
-  {
-    m_pWindow->ProcessWindowMessages();
-  }
-
   UpdateAllPlugins();
 }

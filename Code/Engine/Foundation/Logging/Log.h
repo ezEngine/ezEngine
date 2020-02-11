@@ -4,6 +4,7 @@
 #include <Foundation/Strings/FormatString.h>
 #include <Foundation/Strings/StringUtils.h>
 #include <Foundation/Threading/AtomicInteger.h>
+#include <Foundation/Time/Time.h>
 
 /// \brief Use this helper macro to easily create a scoped logging group. Will generate unique variable names to make the static code
 /// analysis happy.
@@ -20,6 +21,7 @@ struct EZ_FOUNDATION_DLL ezLogMsgType
 
   enum Enum : ezInt8
   {
+    Flush = -3,            ///< The user explicitly called ezLog::Flush() to instruct log writers to flush any cached output
     BeginGroup = -2,       ///< A logging group has been opened.
     EndGroup = -1,         ///< A logging group has been closed.
     None = 0,              ///< Can be used to disable all log message types.
@@ -82,6 +84,8 @@ private:
   friend class ezLogBlock;
   ezLogBlock* m_pCurrentBlock = nullptr;
   ezLogMsgType::Enum m_LogLevel = ezLogMsgType::All;
+  ezUInt32 m_uiLoggedMsgsSinceFlush = 0;
+  ezTime m_LastFlushTime;
 };
 
 /// \brief This is the standard log system that ezLog sends all messages to.
@@ -105,12 +109,22 @@ public:
   /// \brief Returns how many message of the given type occurred.
   static ezUInt32 GetMessageCount(ezLogMsgType::Enum MessageType) { return s_uiMessageCount[MessageType]; }
 
+  /// ezLogInterfaces are thread_local and therefore a dedicated ezGlobalLog is created per thread.
+  /// Especially during testing one may want to replace the log system everywhere, to catch certain messages, no matter on which thread they
+  /// happen. Unfortunately that is not so easy, as one cannot modify the thread_local system for all the other threads. This function makes
+  /// it possible to at least force all messages that go through any ezGlobalLog to be redirected to one other log interface. Be aware that
+  /// that interface has to be thread-safe. Also, only one override can be set at a time, SetGlobalLogOverride() will assert that no other
+  /// override is set at the moment.
+  static void SetGlobalLogOverride(ezLogInterface* pInterface);
+
 private:
   /// \brief Counts the number of messages of each type.
   static ezAtomicInteger32 s_uiMessageCount[ezLogMsgType::ENUM_COUNT];
 
   /// \brief Manages all the Event Handlers for the logging events.
   static ezLoggingEvent s_LoggingEvent;
+
+  static ezLogInterface* s_pOverrideLog;
 
 private:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezGlobalLog);
@@ -271,17 +285,51 @@ public:
     Debug(pInterface, ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
+  /// \brief Instructs log writers to flush their caches, to ensure all log output (even non-critical information) is written.
+  ///
+  /// On some log writers this has no effect.
+  /// Do not call this too frequently as it incurs a performance penalty.
+  ///
+  /// \param uiNumNewMsgThreshold
+  ///   If this is set to a number larger than zero, the flush may be ignored if the given ezLogInterface
+  ///   has logged fewer than this many messages since the last flush.
+  /// \param timeIntervalThreshold
+  ///   The flush may be ignored if less time has past than this, since the last flush.
+  ///
+  /// If either enough messages have been logged, or the flush interval has been exceeded, the flush is executed.
+  /// To force a flush, set \a uiNumNewMsgThreshold  to zero.
+  /// However, a flush is always ignored if not a single message was logged in between.
+  ///
+  /// \return Returns true if the flush is executed.
+  static bool Flush(ezUInt32 uiNumNewMsgThreshold = 0, ezTime timeIntervalThreshold = ezTime::Seconds(10), ezLogInterface* pInterface = GetThreadLocalLogSystem());
+
   /// \brief Usually called internally by the other log functions, but can be called directly, if the message type is already known.
   /// pInterface must be != nullptr.
   static void BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum type, const char* szString);
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   /// \brief Calls low-level OS functionality to print a string to the typical outputs, e.g. printf and OutputDebugString.
   ///
+  /// Use this function to log unrecoverable errors like asserts, crash handlers etc.
   /// This function is meant for short term debugging when actual printing to the console is desired. Code using it should be temporary.
+  /// This function flushes the output immediately, to ensure output is never lost during a crash. Consequently it has a high performance
+  /// overhead.
+  static void Print(const char* szText);
+  
+  /// \brief Calls low-level OS functionality to print a string to the typical outputs. Forwards to Print.
   /// \note This function uses actual printf formatting, not ezFormatString syntax.
+  /// \sa ezLog::Print
   static void Printf(const char* szFormat, ...);
-#endif
+
+  /// \brief This enum is used in context of outputting timestamp information to indicate a formatting for said timestamps.
+  enum class TimestampMode
+  {
+    None = 0,     ///< No timestamp will be added at all.
+    Numeric = 1,  ///< A purely numeric timestamp will be added. Ex.: [2019-08-16 13:40:30.345 (UTC)] Log message.
+    Textual = 2,  ///< A timestamp with textual fields will be added. Ex.: [2019 Aug 16 (Fri) 13:40:30.345 (UTC)] Log message.
+    TimeOnly = 3, ///< A short timestamp (time only, no timezone indicator) is added. Ex: [13:40:30.345] Log message.
+  };
+
+  static void GenerateFormattedTimestamp(TimestampMode mode, ezStringBuilder& sTimestampOut);
 
 private:
   // Needed to call 'EndLogBlock'

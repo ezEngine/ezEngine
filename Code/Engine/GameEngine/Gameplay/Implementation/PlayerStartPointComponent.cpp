@@ -1,8 +1,8 @@
 #include <GameEnginePCH.h>
 
+#include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Gameplay/PlayerStartPointComponent.h>
-#include <Core/WorldSerializer/WorldReader.h>
 #include <GameEngine/Prefabs/PrefabResource.h>
 
 //////////////////////////////////////////////////////////////////////////
@@ -26,7 +26,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezPlayerStartPointComponent::ezPlayerStartPointComponent() = default;
- ezPlayerStartPointComponent::~ezPlayerStartPointComponent() = default;
+ezPlayerStartPointComponent::~ezPlayerStartPointComponent() = default;
 
 void ezPlayerStartPointComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -34,7 +34,6 @@ void ezPlayerStartPointComponent::SerializeComponent(ezWorldWriter& stream) cons
   auto& s = stream.GetStream();
 
   s << m_hPlayerPrefab;
-
 }
 
 void ezPlayerStartPointComponent::DeserializeComponent(ezWorldReader& stream)
@@ -77,7 +76,4 @@ const ezPrefabResourceHandle& ezPlayerStartPointComponent::GetPlayerPrefab() con
   return m_hPlayerPrefab;
 }
 
-
-
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_PlayerStartPointComponent);
-

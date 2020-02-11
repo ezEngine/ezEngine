@@ -39,7 +39,7 @@ public:
   const ezMat4& GetTransform(ezUInt16 uiJointIndex) const { return m_Transforms[uiJointIndex]; }
 
   ezArrayPtr<const ezMat4> GetAllTransforms() const { return m_Transforms.GetArrayPtr(); }
-  bool IsTransformValid(ezUInt16 uiIndex) const { return m_TransformsValid.IsSet(uiIndex); }
+  bool IsTransformValid(ezUInt16 uiIndex) const { return m_TransformsValid.IsBitSet(uiIndex); }
 
   /// \brief Sets the transform for the given index.
   /// This will also set the flag indicating that the transform is valid.

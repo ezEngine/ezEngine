@@ -254,7 +254,7 @@ void ezWorldWriter::WriteGameObject(const ezGameObject* pObject)
   s << pObject->GetLocalRotation();
   s << pObject->GetLocalScaling();
   s << pObject->GetLocalUniformScaling();
-  s << pObject->IsActive();
+  s << pObject->GetActiveFlag();
   s << pObject->IsDynamic();
   pObject->GetTags().Save(s);
   s << pObject->GetTeamID();
@@ -290,7 +290,7 @@ void ezWorldWriter::WriteComponentsOfType(const ezRTTI* pRtti, const ezDeque<con
       WriteGameObjectHandle(pComp->GetOwner()->GetHandle());
       WriteComponentHandle(pComp->GetHandle());
 
-      s << pComp->IsActive();
+      s << pComp->GetActiveFlag();
 
       // version 7
       {

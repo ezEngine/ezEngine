@@ -16,7 +16,7 @@ public:
   ~ezDeferredFileWriter() { Close(); }
 
   /// \brief This must be configured before anything is written to the file.
-  void SetOutput(const char* szFileToWriteTo); // [tested]
+  void SetOutput(const char* szFileToWriteTo, bool bOnlyWriteIfDifferent = false); // [tested]
 
   virtual ezResult WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite) override; // [tested]
 
@@ -29,6 +29,8 @@ public:
   void Discard(); // [tested]
 
 private:
+  bool m_bOnlyWriteIfDifferent = false;
+  bool m_bAlreadyClosed = false;
   ezString m_sOutputFile;
   ezMemoryStreamStorage m_Storage;
   ezMemoryStreamWriter m_Writer;

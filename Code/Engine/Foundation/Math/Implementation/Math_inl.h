@@ -89,22 +89,38 @@ namespace ezMath
     _BitScanReverse(&uiIndex, value);
     return uiIndex;
 #elif EZ_ENABLED(EZ_COMPILER_GCC) || EZ_ENABLED(EZ_COMPILER_CLANG)
-    return __builtin_clz(value);
+    return 31 - __builtin_clz(value);
 #else
     EZ_ASSERT_NOT_IMPLEMENTED;
     return 0;
 #endif
   }
 
+  EZ_ALWAYS_INLINE ezUInt32 CountTrailingZeros(ezUInt32 bitmask)
+  {
+    return (bitmask == 0) ? 32 : FirstBitLow(bitmask);
+  }
+
+  EZ_ALWAYS_INLINE ezUInt32 CountLeadingZeros(ezUInt32 bitmask)
+  {
+    return (bitmask == 0) ? 32 : (31u - FirstBitHigh(bitmask));
+  }
+
+
   EZ_ALWAYS_INLINE ezUInt32 CountBits(ezUInt32 value)
   {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if EZ_ENABLED(EZ_COMPILER_MSVC) && (EZ_ENABLED(EZ_PLATFORM_ARCH_X86) || EZ_ENABLED(EZ_PLATFORM_ARCH_ARM))
+#  if EZ_ENABLED(EZ_PLATFORM_ARCH_X86)
     return __popcnt(value);
+#  else
+    return _CountOneBits(value);
+#  endif
 #elif EZ_ENABLED(EZ_COMPILER_GCC) || EZ_ENABLED(EZ_COMPILER_CLANG)
     return __builtin_popcount(value);
 #else
-    EZ_ASSERT_NOT_IMPLEMENTED;
-    return 0;
+    value = value - ((value >> 1) & 0x55555555u);
+    value = (value & 0x33333333u) + ((value >> 2) & 0x33333333u);
+    return ((value + (value >> 4) & 0xF0F0F0Fu) * 0x1010101u) >> 24;
 #endif
   }
 
@@ -290,3 +306,12 @@ constexpr EZ_FORCE_INLINE ezAngle ezAngle::AngleBetween(ezAngle a, ezAngle b)
   return ezAngle(Pi<float>() - ezMath::Abs(ezMath::Abs(a.GetRadian() - b.GetRadian()) - Pi<float>()));
 }
 
+constexpr EZ_FORCE_INLINE ezInt32 ezMath::FloatToInt(float value)
+{
+  return static_cast<ezInt32>(value);
+}
+
+constexpr EZ_FORCE_INLINE ezInt64 ezMath::FloatToInt(double value)
+{
+  return static_cast<ezInt64>(value);
+}

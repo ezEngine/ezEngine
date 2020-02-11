@@ -3,8 +3,8 @@
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <GameEngine/Animation/Skeletal/JointAttachmentComponent.h>
-#include <RendererCore/AnimationSystem/Skeleton.h>
 #include <RendererCore/AnimationSystem/AnimationPose.h>
+#include <RendererCore/AnimationSystem/Skeleton.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezJointAttachmentComponent, 2, ezComponentMode::Dynamic);
@@ -85,7 +85,4 @@ void ezJointAttachmentComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdate
   pOwner->SetLocalRotation(t.m_qRotation);
 }
 
-
-
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Implementation_JointAttachmentComponent);
-

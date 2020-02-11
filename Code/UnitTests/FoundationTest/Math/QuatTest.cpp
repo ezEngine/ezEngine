@@ -7,7 +7,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Default Constructor")
   {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-    if (ezMath::BasicType<ezMat3T::ComponentType>::SupportsNaN())
+    if (ezMath::SupportsNaN<ezMat3T::ComponentType>())
     {
       // In debug the default constructor initializes everything with NaN.
       ezQuatT p;
@@ -90,10 +90,11 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
     q2.SetFromAxisAndAngle(ezVec3T(0, 0, -1), ezAngle::Degree(90));
     q3.SetFromAxisAndAngle(ezVec3T(0, 0, 1), ezAngle::Degree(-90));
 
-    EZ_TEST_BOOL(q1.IsEqualRotation(q2, ezMath::BasicType<float>::LargeEpsilon()));
-    EZ_TEST_BOOL(q1.IsEqualRotation(q3, ezMath::BasicType<float>::LargeEpsilon()));
+    EZ_TEST_BOOL(q1.IsEqualRotation(q2, ezMath::LargeEpsilon<float>()));
+    EZ_TEST_BOOL(q1.IsEqualRotation(q3, ezMath::LargeEpsilon<float>()));
 
-    EZ_TEST_BOOL(ezQuatT::IdentityQuaternion().IsEqualRotation(ezQuatT::IdentityQuaternion(), ezMath::BasicType<float>::LargeEpsilon()));
+    EZ_TEST_BOOL(ezQuatT::IdentityQuaternion().IsEqualRotation(ezQuatT::IdentityQuaternion(), ezMath::LargeEpsilon<float>()));
+    EZ_TEST_BOOL(ezQuatT::IdentityQuaternion().IsEqualRotation(ezQuatT(0, 0, 0, -1), ezMath::LargeEpsilon<float>()));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetFromMat3")
@@ -106,8 +107,8 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
     q2.SetFromAxisAndAngle(ezVec3T(0, 0, -1), ezAngle::Degree(90));
     q3.SetFromAxisAndAngle(ezVec3T(0, 0, 1), ezAngle::Degree(-90));
 
-    EZ_TEST_BOOL(q1.IsEqualRotation(q2, ezMath::BasicType<float>::LargeEpsilon()));
-    EZ_TEST_BOOL(q1.IsEqualRotation(q3, ezMath::BasicType<float>::LargeEpsilon()));
+    EZ_TEST_BOOL(q1.IsEqualRotation(q2, ezMath::LargeEpsilon<float>()));
+    EZ_TEST_BOOL(q1.IsEqualRotation(q3, ezMath::LargeEpsilon<float>()));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetSlerp")
@@ -134,19 +135,24 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
 
     EZ_TEST_BOOL(q1.GetRotationAxisAndAngle(axis, angle) == EZ_SUCCESS);
     EZ_TEST_VEC3(axis, ezVec3T(0, 0, -1), 0.001f);
-    EZ_TEST_FLOAT(angle.GetDegree(), 90, ezMath::BasicType<ezMat3T::ComponentType>::LargeEpsilon());
+    EZ_TEST_FLOAT(angle.GetDegree(), 90, ezMath::LargeEpsilon<ezMat3T::ComponentType>());
 
     EZ_TEST_BOOL(q2.GetRotationAxisAndAngle(axis, angle) == EZ_SUCCESS);
     EZ_TEST_VEC3(axis, ezVec3T(0, 0, -1), 0.001f);
-    EZ_TEST_FLOAT(angle.GetDegree(), 90, ezMath::BasicType<ezMat3T::ComponentType>::LargeEpsilon());
+    EZ_TEST_FLOAT(angle.GetDegree(), 90, ezMath::LargeEpsilon<ezMat3T::ComponentType>());
 
     EZ_TEST_BOOL(q3.GetRotationAxisAndAngle(axis, angle) == EZ_SUCCESS);
     EZ_TEST_VEC3(axis, ezVec3T(0, 0, -1), 0.001f);
-    EZ_TEST_FLOAT(angle.GetDegree(), 90, ezMath::BasicType<ezMat3T::ComponentType>::LargeEpsilon());
+    EZ_TEST_FLOAT(angle.GetDegree(), 90, ezMath::LargeEpsilon<ezMat3T::ComponentType>());
 
     EZ_TEST_BOOL(ezQuatT::IdentityQuaternion().GetRotationAxisAndAngle(axis, angle) == EZ_SUCCESS);
     EZ_TEST_VEC3(axis, ezVec3T(1, 0, 0), 0.001f);
-    EZ_TEST_FLOAT(angle.GetDegree(), 0, ezMath::BasicType<ezMat3T::ComponentType>::LargeEpsilon());
+    EZ_TEST_FLOAT(angle.GetDegree(), 0, ezMath::LargeEpsilon<ezMat3T::ComponentType>());
+
+    ezQuatT otherIdentity(0, 0, 0, -1);
+    EZ_TEST_BOOL(otherIdentity.GetRotationAxisAndAngle(axis, angle) == EZ_SUCCESS);
+    EZ_TEST_VEC3(axis, ezVec3T(1, 0, 0), 0.001f);
+    EZ_TEST_FLOAT(angle.GetDegree(), 360, ezMath::LargeEpsilon<ezMat3T::ComponentType>());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetAsMat3")
@@ -159,7 +165,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
 
     ezMat3T m = q.GetAsMat3();
 
-    EZ_TEST_BOOL(mr.IsEqual(m, ezMath::BasicType<ezMat3T::ComponentType>::DefaultEpsilon()));
+    EZ_TEST_BOOL(mr.IsEqual(m, ezMath::DefaultEpsilon<ezMat3T::ComponentType>()));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetAsMat4")
@@ -172,7 +178,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
 
     ezMat4T m = q.GetAsMat4();
 
-    EZ_TEST_BOOL(mr.IsEqual(m, ezMath::BasicType<ezMat3T::ComponentType>::DefaultEpsilon()));
+    EZ_TEST_BOOL(mr.IsEqual(m, ezMath::DefaultEpsilon<ezMat3T::ComponentType>()));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsValid / Normalize")
@@ -222,7 +228,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsNaN")
   {
-    if (ezMath::BasicType<ezMathTestType>::SupportsNaN())
+    if (ezMath::SupportsNaN<ezMathTestType>())
     {
       ezQuatT q;
 
@@ -230,19 +236,19 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
       EZ_TEST_BOOL(!q.IsNaN());
 
       q.SetIdentity();
-      q.w = ezMath::BasicType<ezMathTestType>::GetNaN();
+      q.w = ezMath::NaN<ezMathTestType>();
       EZ_TEST_BOOL(q.IsNaN());
 
       q.SetIdentity();
-      q.v.x = ezMath::BasicType<ezMathTestType>::GetNaN();
+      q.v.x = ezMath::NaN<ezMathTestType>();
       EZ_TEST_BOOL(q.IsNaN());
 
       q.SetIdentity();
-      q.v.y = ezMath::BasicType<ezMathTestType>::GetNaN();
+      q.v.y = ezMath::NaN<ezMathTestType>();
       EZ_TEST_BOOL(q.IsNaN());
 
       q.SetIdentity();
-      q.v.z = ezMath::BasicType<ezMathTestType>::GetNaN();
+      q.v.z = ezMath::NaN<ezMathTestType>();
       EZ_TEST_BOOL(q.IsNaN());
     }
   }

@@ -22,16 +22,21 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPxShapeComponent, 5)
     new ezCategoryAttribute("Physics/Shapes"),
   }
   EZ_END_ATTRIBUTES;
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_SCRIPT_FUNCTION_PROPERTY(GetShapeId),
+  }
+  EZ_END_FUNCTIONS;
 }
 EZ_END_ABSTRACT_COMPONENT_TYPE
 // clang-format on
 
 ezPxShapeComponent::ezPxShapeComponent()
-    : m_UserData(this)
+  : m_UserData(this)
 {
 }
 
-ezPxShapeComponent::~ezPxShapeComponent() {}
+ezPxShapeComponent::~ezPxShapeComponent() = default;
 
 void ezPxShapeComponent::SerializeComponent(ezWorldWriter& stream) const
 {

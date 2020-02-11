@@ -103,11 +103,11 @@ namespace ResourceManagerDetail
 void AddResourceManagerEventHandler()
 {
   ezTelemetry::AddEventHandler(ResourceManagerDetail::TelemetryEventsHandler);
-  ezResourceManager::s_ResourceEvents.AddEventHandler(ResourceManagerDetail::ResourceManagerEventHandler);
+  ezResourceManager::GetResourceEvents().AddEventHandler(ResourceManagerDetail::ResourceManagerEventHandler);
 }
 
 void RemoveResourceManagerEventHandler()
 {
-  ezResourceManager::s_ResourceEvents.RemoveEventHandler(ResourceManagerDetail::ResourceManagerEventHandler);
+  ezResourceManager::GetResourceEvents().RemoveEventHandler(ResourceManagerDetail::ResourceManagerEventHandler);
   ezTelemetry::RemoveEventHandler(ResourceManagerDetail::TelemetryEventsHandler);
 }

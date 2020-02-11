@@ -86,6 +86,18 @@ namespace ezConversionUtils
     return EZ_FAILURE;
   }
 
+  ezResult StringToUInt(const char* szString, ezUInt32& out_Res, const char** out_LastParsePosition)
+  {
+    ezInt64 tmp = out_Res;
+    if (StringToInt64(szString, tmp, out_LastParsePosition) == EZ_SUCCESS && tmp <= (ezUInt32)0xFFFFFFFF && tmp >= 0)
+    {
+      out_Res = (ezUInt32)tmp;
+      return EZ_SUCCESS;
+    }
+
+    return EZ_FAILURE;
+  }
+
   ezResult StringToInt64(const char* szString, ezInt64& out_Res, const char** out_LastParsePosition)
   {
     if (ezStringUtils::IsNullOrEmpty(szString))
@@ -413,7 +425,7 @@ namespace ezConversionUtils
     return uiFloatsFound;
   }
 
-  ezInt8 HexCharacterToIntValue(char Character)
+  ezInt8 HexCharacterToIntValue(ezUInt32 Character)
   {
     if (Character >= '0' && Character <= '9')
       return Character - '0';
@@ -444,7 +456,7 @@ namespace ezConversionUtils
     {
       ezUInt8 uiValue = ezConversionUtils::HexCharacterToIntValue(*szHEX);
 
-      uiResult <<= 4;
+      uiResult <<= 4; // 4 Bits, ie. half a byte
       uiResult += uiValue;
 
       szHEX += 1;
@@ -453,6 +465,41 @@ namespace ezConversionUtils
     return uiResult;
   }
 
+
+  ezResult ConvertHexStringToUInt64(ezStringView sHex, ezUInt64& out_uiResult)
+  {
+    out_uiResult = 0;
+
+    // skip 0x
+    if (sHex.StartsWith_NoCase("0x"))
+      sHex.Shrink(2, 0);
+
+    // convert two characters to one byte, at a time
+    for (ezUInt32 i = 0; i < 16; ++i)
+    {
+      if (sHex.IsEmpty())
+      {
+        // a shorter/empty string is valid and is just interpreted as a smaller value (e.g. a 32 Bit HEX value)
+        break;
+      }
+
+      const ezInt8 iValue = ezConversionUtils::HexCharacterToIntValue(sHex.GetCharacter());
+
+      if (iValue < 0)
+      {
+        // invalid HEX character
+        out_uiResult = 0;
+        return EZ_FAILURE;
+      }
+
+      out_uiResult <<= 4; // 4 Bits, ie. half a byte
+      out_uiResult += iValue;
+
+      sHex.Shrink(1, 0);
+    }
+
+    return EZ_SUCCESS;
+  }
 
   void ConvertHexToBinary(const char* szHEX, ezUInt8* pBinary, ezUInt32 uiBinaryBuffer)
   {
@@ -598,8 +645,8 @@ namespace ezConversionUtils
     out_Result.Printf("{ c1r1=%f, c2r1=%f, c3r1=%f, "
                       "c1r2=%f, c2r2=%f, c3r2=%f, "
                       "c1r3=%f, c2r3=%f, c3r3=%f }",
-                      value.Element(0, 0), value.Element(1, 0), value.Element(2, 0), value.Element(0, 1), value.Element(1, 1),
-                      value.Element(2, 1), value.Element(0, 2), value.Element(1, 2), value.Element(2, 2));
+      value.Element(0, 0), value.Element(1, 0), value.Element(2, 0), value.Element(0, 1), value.Element(1, 1),
+      value.Element(2, 1), value.Element(0, 2), value.Element(1, 2), value.Element(2, 2));
     return out_Result;
   }
 
@@ -609,10 +656,10 @@ namespace ezConversionUtils
                       "c1r2=%f, c2r2=%f, c3r2=%f, c4r2=%f, "
                       "c1r3=%f, c2r3=%f, c3r3=%f, c4r3=%f, "
                       "c1r4=%f, c2r4=%f, c3r4=%f, c4r4=%f }",
-                      value.Element(0, 0), value.Element(1, 0), value.Element(2, 0), value.Element(3, 0), value.Element(0, 1),
-                      value.Element(1, 1), value.Element(2, 1), value.Element(3, 1), value.Element(0, 2), value.Element(1, 2),
-                      value.Element(2, 2), value.Element(3, 2), value.Element(0, 3), value.Element(1, 3), value.Element(2, 3),
-                      value.Element(3, 3));
+      value.Element(0, 0), value.Element(1, 0), value.Element(2, 0), value.Element(3, 0), value.Element(0, 1),
+      value.Element(1, 1), value.Element(2, 1), value.Element(3, 1), value.Element(0, 2), value.Element(1, 2),
+      value.Element(2, 2), value.Element(3, 2), value.Element(0, 3), value.Element(1, 3), value.Element(2, 3),
+      value.Element(3, 3));
     return out_Result;
   }
 
@@ -620,17 +667,21 @@ namespace ezConversionUtils
   {
     ezStringBuilder tmp1, tmp2, tmp3;
     out_Result.Format("{ position={0}, rotation={1}, scale={2} }", ToString(value.m_vPosition, tmp1), ToString(value.m_qRotation, tmp2),
-                      ToString(value.m_vScale, tmp3));
+      ToString(value.m_vScale, tmp3));
     return out_Result;
   }
 
   const ezStringBuilder& ToString(const ezAngle& value, ezStringBuilder& out_Result)
   {
     out_Result.Format("{0}", value);
-
     return out_Result;
   }
 
+  const ezStringBuilder& ToString(const ezTime& value, ezStringBuilder& out_Result)
+  {
+    out_Result.Format("{0}", value);
+    return out_Result;
+  }
 
   const ezStringBuilder& ToString(const ezDynamicArray<ezVariant>& value, ezStringBuilder& out_Result)
   {
@@ -645,7 +696,7 @@ namespace ezConversionUtils
     return out_Result;
   }
 
-  ezUuid ConvertStringToUuid(const char* szText);
+  ezUuid ConvertStringToUuid(const ezStringView& sText);
 
   const ezStringBuilder& ToString(const ezUuid& value, ezStringBuilder& out_Result)
   {
@@ -661,8 +712,8 @@ namespace ezConversionUtils
     const GUID* pGuid = reinterpret_cast<const GUID*>(&value);
 
     out_Result.Printf("{ %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x }", pGuid->Data1, pGuid->Data2, pGuid->Data3, pGuid->Data4[0],
-                      pGuid->Data4[1], pGuid->Data4[2], pGuid->Data4[3], pGuid->Data4[4], pGuid->Data4[5], pGuid->Data4[6],
-                      pGuid->Data4[7]);
+      pGuid->Data4[1], pGuid->Data4[2], pGuid->Data4[3], pGuid->Data4[4], pGuid->Data4[5], pGuid->Data4[6],
+      pGuid->Data4[7]);
 
     return out_Result;
   }
@@ -673,15 +724,17 @@ namespace ezConversionUtils
     return out_Result;
   }
 
-  bool IsStringUuid(const char* szText)
+  bool IsStringUuid(const ezStringView& sText)
   {
-    if (ezStringUtils::IsNullOrEmpty(szText))
+    if (sText.IsEmpty())
       return false;
+
+    const char* szText = sText.GetStartPointer();
 
     if (szText[0] != '{')
       return false;
 
-    if (ezStringUtils::GetStringElementCount(szText) != 40)
+    if (sText.GetElementCount() != 40)
       return false;
 
     if ((szText[1] != ' ') || (szText[10] != '-') || (szText[15] != '-') || (szText[20] != '-') || (szText[25] != '-') ||
@@ -691,9 +744,11 @@ namespace ezConversionUtils
     return true;
   }
 
-  ezUuid ConvertStringToUuid(const char* szText)
+  ezUuid ConvertStringToUuid(const ezStringView& sText)
   {
-    EZ_ASSERT_DEBUG(IsStringUuid(szText), "The given string is not in the correct Uuid format: '{0}'", szText);
+    EZ_ASSERT_DEBUG(IsStringUuid(sText), "The given string is not in the correct Uuid format: '{0}'", sText);
+
+    const char* szText = sText.GetStartPointer();
 
     while (*szText == '{' || ezStringUtils::IsWhiteSpace(*szText))
       ++szText;
@@ -762,8 +817,8 @@ namespace ezConversionUtils
     return result;
   }
 
-#define Check(name)                                                                                                                        \
-  if (ezStringUtils::IsEqual_NoCase(szColorName, EZ_STRINGIZE(name)))                                                                      \
+#define Check(name)                                                   \
+  if (ezStringUtils::IsEqual_NoCase(szColorName, EZ_STRINGIZE(name))) \
   return ezColor::name
 
   ezColor GetColorByName(const char* szColorName, bool* out_ValidColorName)
@@ -960,8 +1015,8 @@ namespace ezConversionUtils
 
 #undef Check
 
-#define Check(name)                                                                                                                        \
-  if (ezColor::name == col)                                                                                                                \
+#define Check(name)         \
+  if (ezColor::name == col) \
   return #name
 
   ezString GetColorName(const ezColor& col)
@@ -1119,7 +1174,7 @@ namespace ezConversionUtils
     else
     {
       s.Format("#{0}{1}{2}{3}", ezArgU(cg.r, 2, true, 16, true), ezArgU(cg.g, 2, true, 16, true), ezArgU(cg.b, 2, true, 16, true),
-               ezArgU(cg.a, 2, true, 16, true));
+        ezArgU(cg.a, 2, true, 16, true));
     }
 
     return s;
@@ -1127,8 +1182,7 @@ namespace ezConversionUtils
 
 #undef Check
 
-} // namespace ezConvertionUtils
+} // namespace ezConversionUtils
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Utilities_Implementation_ConversionUtils);
-

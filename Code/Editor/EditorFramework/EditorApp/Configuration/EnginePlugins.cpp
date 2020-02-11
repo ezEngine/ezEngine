@@ -16,7 +16,7 @@ void ezQtEditorApp::DetectAvailableEnginePlugins()
     sSearch.AppendPath("*.dll");
 
     ezFileSystemIterator fsit;
-    if (fsit.StartSearch(sSearch.GetData(), false, false).Succeeded())
+    if (fsit.StartSearch(sSearch.GetData(), ezFileSystemIteratorFlags::ReportFiles).Succeeded())
     {
       do
       {

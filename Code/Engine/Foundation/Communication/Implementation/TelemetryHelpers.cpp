@@ -77,7 +77,11 @@ ezResult ezTelemetry::ConnectToServer(const char* szConnectTo)
 void ezTelemetry::CreateServer()
 {
 #ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
-  EZ_VERIFY(OpenConnection(Server) == EZ_SUCCESS, "Opening a connection as a server should not be possible to fail.");
+  if (OpenConnection(Server).Failed())
+  {
+    ezLog::Error("ezTelemetry: Failed to open a connection as a server.");
+    s_ConnectionMode = ConnectionMode::None;
+  }
 #else
   ezLog::SeriousWarning("Enet is not compiled into this build, ezTelemetry::CreateServer() will be ignored.");
 #endif // BUILDSYSTEM_ENABLE_ENET_SUPPORT

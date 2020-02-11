@@ -43,6 +43,10 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel()
 {
   setupUi(this);
 
+  setWidget(dockWidgetContents);
+  setIcon(ezQtUiServices::GetCachedIconResource(":/EditorFramework/Icons/Asset16.png"));
+  setWindowTitle(QString::fromUtf8(ezTranslate("Panel.AssetCurator")));
+
   ezAssetProcessor::GetSingleton()->AddLogWriter(ezMakeDelegate(&ezQtAssetCuratorPanel::LogWriter, this));
 
   m_pFilter = new ezQtAssetCuratorFilter(this);

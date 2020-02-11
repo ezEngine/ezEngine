@@ -3,6 +3,7 @@
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 #include <ToolsFoundation/Basics/RecentFilesList.h>
@@ -59,11 +60,17 @@ void ezRecentFilesList::Load(const char* szFile)
   ezHybridArray<ezStringView, 16> Lines;
   sAllLines.Split(false, Lines, "\n");
 
+  ezStringBuilder sTemp, sTemp2;
+
   for (const ezStringView& sv : Lines)
   {
-    ezStringBuilder sTemp = sv;
+    sTemp = sv;
     ezHybridArray<ezStringView, 2> Parts;
     sTemp.Split(false, Parts, "|");
+
+    if (!ezOSFile::ExistsFile(Parts[0].GetData(sTemp2)))
+      continue;
+
     if (Parts.GetCount() == 1)
     {
       m_Files.PushBack(RecentFile(Parts[0], 0));

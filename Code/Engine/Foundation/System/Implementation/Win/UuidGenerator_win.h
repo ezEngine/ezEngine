@@ -15,7 +15,8 @@ void ezUuid::CreateNewUuid()
 
   // this also works on UWP
   GUID* guid = reinterpret_cast<GUID*>(&uiUuidData[0]);
-  CoCreateGuid(guid);
+  HRESULT hr = CoCreateGuid(guid);
+  EZ_ASSERT_DEBUG(SUCCEEDED(hr), "CoCreateGuid failed, guid might be invalid!");
 
   m_uiHigh = uiUuidData[0];
   m_uiLow = uiUuidData[1];

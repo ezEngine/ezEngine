@@ -8,8 +8,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 const char* const ezTestOutput::s_Names[] = {"StartOutput", "BeginBlock", "EndBlock", "ImportantInfo", "Details",    "Success",
-                                             "Message",     "Warning",    "Error", "ImageDiffFile",    "Duration",  "FinalResult"};
-EZ_CHECK_AT_COMPILETIME(EZ_ARRAY_SIZE(ezTestOutput::s_Names) == ezTestOutput::AllOutputTypes);
+                                             "Message",     "Warning",    "Error",    "Duration",      "FinalResult"};
 
 const char* ezTestOutput::ToString(Enum type)
 {
@@ -115,9 +114,6 @@ bool ezTestFrameworkResult::WriteJsonToFile(const char* szFileName) const
 {
   ezStartup::StartupCoreSystems();
   EZ_SCOPE_EXIT(ezStartup::ShutdownCoreSystems());
-
-
-  ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
 
   {
     ezStringBuilder jsonFilename;

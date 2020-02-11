@@ -6,7 +6,7 @@ EZ_FORCE_INLINE ezBoundingBoxSphereTemplate<Type>::ezBoundingBoxSphereTemplate()
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
   // m_vOrigin and m_vBoxHalfExtends are already initialized to NaN by their own constructor.
-  const Type TypeNaN = ezMath::BasicType<Type>::GetNaN();
+  const Type TypeNaN = ezMath::NaN<Type>();
   m_fSphereRadius = TypeNaN;
 #endif
 }
@@ -48,7 +48,7 @@ EZ_FORCE_INLINE void ezBoundingBoxSphereTemplate<Type>::SetInvalid()
 {
   m_vCenter.SetZero();
   m_fSphereRadius = -1.0f;
-  m_vBoxHalfExtends.Set(-ezMath::BasicType<Type>::MaxValue());
+  m_vBoxHalfExtends.Set(-ezMath::MaxValue<Type>());
 }
 
 template <typename Type>

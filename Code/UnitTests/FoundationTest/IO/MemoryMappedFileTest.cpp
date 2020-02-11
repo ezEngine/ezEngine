@@ -3,6 +3,8 @@
 #include <Foundation/IO/MemoryMappedFile.h>
 #include <Foundation/IO/OSFile.h>
 
+#if EZ_ENABLED(EZ_SUPPORTS_MEMORY_MAPPED_FILE)
+
 EZ_CREATE_SIMPLE_TEST(IO, MemoryMappedFile)
 {
   ezStringBuilder sOutputFile = ezTestFramework::GetInstance()->GetAbsOutputPath();
@@ -15,7 +17,7 @@ EZ_CREATE_SIMPLE_TEST(IO, MemoryMappedFile)
   // generate test data
   {
     ezOSFile file;
-    if (EZ_TEST_BOOL_MSG(file.Open(sOutputFile, ezFileMode::Write).Succeeded(), "File for memory mapping could not be created").Failed())
+    if (EZ_TEST_BOOL_MSG(file.Open(sOutputFile, ezFileOpenMode::Write).Succeeded(), "File for memory mapping could not be created").Failed())
       return;
 
     ezDynamicArray<ezUInt32> data;
@@ -29,9 +31,6 @@ EZ_CREATE_SIMPLE_TEST(IO, MemoryMappedFile)
     file.Write(data.GetData(), data.GetCount() * sizeof(ezUInt32));
     file.Close();
   }
-
-  /// \todo Enable on POSIX / UWP once ezMemoryMappedFile is implemented there as well
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Memory map for writing")
   {
@@ -72,7 +71,6 @@ EZ_CREATE_SIMPLE_TEST(IO, MemoryMappedFile)
     }
   }
 
-#endif
-
   ezOSFile::DeleteFile(sOutputFile);
 }
+#endif

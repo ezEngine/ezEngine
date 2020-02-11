@@ -62,7 +62,6 @@ public:
   bool IsModified() const { return m_bModified; }
   bool IsReadOnly() const { return m_bReadOnly; }
   const ezUuid& GetGuid() const { return m_pDocumentInfo->m_DocumentID; }
-  virtual const char* GetDocumentTypeDisplayString() const = 0;
 
   const ezDocumentObjectManager* GetObjectManager() const { return m_pObjectManager; }
   ezDocumentObjectManager* GetObjectManager() { return m_pObjectManager; }
@@ -99,6 +98,9 @@ public:
   bool HasWindowBeenRequested() const { return m_bWindowRequested; }
 
   const ezDocumentTypeDescriptor* GetDocumentTypeDescriptor() const { return m_pTypeDescriptor; }
+
+  /// \brief Returns the document's type name. Same as GetDocumentTypeDescriptor()->m_sDocumentTypeName.
+  const char* GetDocumentTypeName() const { return m_pTypeDescriptor->m_sDocumentTypeName; }
 
   const ezDocumentInfo* GetDocumentInfo() const { return m_pDocumentInfo; }
 
@@ -209,7 +211,7 @@ protected:
   virtual void AttachMetaDataBeforeSaving(ezAbstractObjectGraph& graph) const;
   virtual void RestoreMetaDataAfterLoading(const ezAbstractObjectGraph& graph, bool bUndoable);
 
-  virtual void InitializeAfterLoading() {}
+  virtual void InitializeAfterLoading(bool bFirstTimeCreation) {}
   virtual void InitializeAfterLoadingAndSaving() {}
 
   void SetUnknownObjectTypes(const ezSet<ezString>& Types, ezUInt32 uiInstances);
@@ -224,9 +226,9 @@ protected:
 
   mutable ezSelectionManager m_SelectionManager;
   mutable ezCommandHistory m_CommandHistory;
-  ezDocumentInfo* m_pDocumentInfo;
-  const ezDocumentTypeDescriptor* m_pTypeDescriptor;
-  mutable ezObjectCommandAccessor* m_ObjectAccessor; ///< Default object accessor used by every doc.
+  ezDocumentInfo* m_pDocumentInfo = nullptr;
+  const ezDocumentTypeDescriptor* m_pTypeDescriptor = nullptr;
+  mutable ezObjectCommandAccessor* m_ObjectAccessor = nullptr; ///< Default object accessor used by every doc.
 
 private:
   friend class ezDocumentManager;
@@ -236,8 +238,8 @@ private:
 
   void SetupDocumentInfo(const ezDocumentTypeDescriptor* pTypeDescriptor);
 
-  ezDocumentManager* m_pDocumentManager;
-  ezDocumentObjectManager* m_pObjectManager;
+  ezDocumentManager* m_pDocumentManager = nullptr;
+  ezDocumentObjectManager* m_pObjectManager = nullptr;
 
   ezString m_sDocumentPath;
   bool m_bModified;

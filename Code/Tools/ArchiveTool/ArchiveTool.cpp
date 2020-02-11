@@ -8,6 +8,7 @@
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Strings/StringBuilder.h>
+#include <Foundation/System/SystemInformation.h>
 
 /* ezArchiveTool command line options:
 
@@ -116,6 +117,8 @@ public:
 
     m_sOutput = cmd.GetStringOption("-out");
 
+    ezStringBuilder path;
+
     if (cmd.GetStringOptionArguments("-pack") > 0)
     {
       m_Mode = ArchiveMode::Pack;
@@ -129,7 +132,7 @@ public:
 
       for (ezUInt32 a = 0; a < args; ++a)
       {
-        m_sInputs.PushBack(cmd.GetStringOption("-pack", a));
+        m_sInputs.PushBack(cmd.GetAbsolutePathOption("-pack", a));
 
         if (!ezOSFile::ExistsDirectory(m_sInputs.PeekBack()))
         {
@@ -151,7 +154,7 @@ public:
 
       for (ezUInt32 a = 0; a < args; ++a)
       {
-        m_sInputs.PushBack(cmd.GetStringOption("-unpack", a));
+        m_sInputs.PushBack(cmd.GetAbsolutePathOption("-unpack", a));
 
         if (!ezOSFile::ExistsFile(m_sInputs.PeekBack()))
         {
@@ -172,7 +175,7 @@ public:
         if (ezStringUtils::IsEqual_NoCase(szArg, "-out"))
           break;
 
-        m_sInputs.PushBack(szArg);
+        m_sInputs.PushBack(ezOSFile::MakePathAbsoluteWithCWD(szArg));
 
         if (!ezOSFile::ExistsDirectory(m_sInputs.PeekBack()))
           bInputsFolders = false;
@@ -211,9 +214,6 @@ public:
 
   virtual void AfterCoreSystemsStartup() override
   {
-    // Add standard folder factory
-    ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-
     // Add the empty data directory to access files via absolute paths
     ezFileSystem::AddDataDirectory("", "App", ":", ezFileSystem::AllowWrites);
 
@@ -262,6 +262,8 @@ public:
 
       m_sOutput = sArchive;
     }
+
+    m_sOutput = ezOSFile::MakePathAbsoluteWithCWD(m_sOutput);
 
     ezLog::Info("Writing archive to '{}'", m_sOutput);
     if (archive.WriteArchive(m_sOutput).Failed())

@@ -69,23 +69,16 @@ EZ_BEGIN_COMPONENT_TYPE(ezSpriteComponent, 3, ezComponentMode::Static)
   EZ_END_ATTRIBUTES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnExtractRenderData),
-    EZ_MESSAGE_HANDLER(ezMsgSetColor, OnSetColor),
+    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMsgSetColor, OnMsgSetColor),
   }
   EZ_END_MESSAGEHANDLERS;
 }
 EZ_END_COMPONENT_TYPE;
 // clang-format on
 
-ezSpriteComponent::ezSpriteComponent()
-    : m_Color(ezColor::White)
-    , m_fSize(1.0f)
-    , m_fMaxScreenSize(64.0f)
-    , m_fAspectRatio(1.0f)
-{
-}
-
-ezSpriteComponent::~ezSpriteComponent() {}
+ezSpriteComponent::ezSpriteComponent() = default;
+ezSpriteComponent::~ezSpriteComponent() = default;
 
 ezResult ezSpriteComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
 {
@@ -93,7 +86,7 @@ ezResult ezSpriteComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bA
   return EZ_SUCCESS;
 }
 
-void ezSpriteComponent::OnExtractRenderData(ezMsgExtractRenderData& msg) const
+void ezSpriteComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
   // Don't render in orthographic views
   if (msg.m_pView->GetCamera()->IsOrthographic() || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::Shadow)
@@ -233,14 +226,14 @@ float ezSpriteComponent::GetMaxScreenSize() const
   return m_fMaxScreenSize;
 }
 
-void ezSpriteComponent::OnSetColor(ezMsgSetColor& msg)
+void ezSpriteComponent::OnMsgSetColor(ezMsgSetColor& msg)
 {
   msg.ModifyColor(m_Color);
 }
 
-  //////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
@@ -249,7 +242,7 @@ class ezSpriteComponentPatch_1_2 : public ezGraphPatch
 {
 public:
   ezSpriteComponentPatch_1_2()
-      : ezGraphPatch("ezSpriteComponent", 2)
+    : ezGraphPatch("ezSpriteComponent", 2)
   {
   }
 
@@ -264,4 +257,3 @@ ezSpriteComponentPatch_1_2 g_ezSpriteComponentPatch_1_2;
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Components_Implementation_SpriteComponent);
-

@@ -66,31 +66,31 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdFloat)
     ezSimdFloat a = 5.0f;
     ezSimdFloat b = 2.0f;
 
-    EZ_TEST_FLOAT(a + b, 7.0f, ezMath::BasicType<float>::SmallEpsilon());
-    EZ_TEST_FLOAT(a - b, 3.0f, ezMath::BasicType<float>::SmallEpsilon());
-    EZ_TEST_FLOAT(a * b, 10.0f, ezMath::BasicType<float>::SmallEpsilon());
-    EZ_TEST_FLOAT(a / b, 2.5f, ezMath::BasicType<float>::SmallEpsilon());
+    EZ_TEST_FLOAT(a + b, 7.0f, ezMath::SmallEpsilon<float>());
+    EZ_TEST_FLOAT(a - b, 3.0f, ezMath::SmallEpsilon<float>());
+    EZ_TEST_FLOAT(a * b, 10.0f, ezMath::SmallEpsilon<float>());
+    EZ_TEST_FLOAT(a / b, 2.5f, ezMath::SmallEpsilon<float>());
 
     ezSimdFloat c = 1.0f;
     c += a;
-    EZ_TEST_FLOAT(c, 6.0f, ezMath::BasicType<float>::SmallEpsilon());
+    EZ_TEST_FLOAT(c, 6.0f, ezMath::SmallEpsilon<float>());
 
     c = 1.0f;
     c -= b;
-    EZ_TEST_FLOAT(c, -1.0f, ezMath::BasicType<float>::SmallEpsilon());
+    EZ_TEST_FLOAT(c, -1.0f, ezMath::SmallEpsilon<float>());
 
     c = 1.0f;
     c *= a;
-    EZ_TEST_FLOAT(c, 5.0f, ezMath::BasicType<float>::SmallEpsilon());
+    EZ_TEST_FLOAT(c, 5.0f, ezMath::SmallEpsilon<float>());
 
     c = 1.0f;
     c /= a;
-    EZ_TEST_FLOAT(c, 0.2f, ezMath::BasicType<float>::SmallEpsilon());
+    EZ_TEST_FLOAT(c, 0.2f, ezMath::SmallEpsilon<float>());
 
-    EZ_TEST_BOOL(c.IsEqual(0.201f, ezMath::BasicType<float>::HugeEpsilon()));
-    EZ_TEST_BOOL(c.IsEqual(0.199f, ezMath::BasicType<float>::HugeEpsilon()));
-    EZ_TEST_BOOL(!c.IsEqual(0.202f, ezMath::BasicType<float>::HugeEpsilon()));
-    EZ_TEST_BOOL(!c.IsEqual(0.198f, ezMath::BasicType<float>::HugeEpsilon()));
+    EZ_TEST_BOOL(c.IsEqual(0.201f, ezMath::HugeEpsilon<float>()));
+    EZ_TEST_BOOL(c.IsEqual(0.199f, ezMath::HugeEpsilon<float>()));
+    EZ_TEST_BOOL(!c.IsEqual(0.202f, ezMath::HugeEpsilon<float>()));
+    EZ_TEST_BOOL(!c.IsEqual(0.198f, ezMath::HugeEpsilon<float>()));
 
     c = b;
     EZ_TEST_BOOL(c == b);
@@ -112,26 +112,26 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdFloat)
   {
     ezSimdFloat a = 2.0f;
 
-    EZ_TEST_FLOAT(a.GetReciprocal(), 0.5f, ezMath::BasicType<float>::SmallEpsilon());
-    EZ_TEST_FLOAT(a.GetReciprocal<ezMathAcc::FULL>(), 0.5f, ezMath::BasicType<float>::SmallEpsilon());
-    EZ_TEST_FLOAT(a.GetReciprocal<ezMathAcc::BITS_23>(), 0.5f, ezMath::BasicType<float>::DefaultEpsilon());
-    EZ_TEST_FLOAT(a.GetReciprocal<ezMathAcc::BITS_12>(), 0.5f, ezMath::BasicType<float>::HugeEpsilon());
+    EZ_TEST_FLOAT(a.GetReciprocal(), 0.5f, ezMath::SmallEpsilon<float>());
+    EZ_TEST_FLOAT(a.GetReciprocal<ezMathAcc::FULL>(), 0.5f, ezMath::SmallEpsilon<float>());
+    EZ_TEST_FLOAT(a.GetReciprocal<ezMathAcc::BITS_23>(), 0.5f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(a.GetReciprocal<ezMathAcc::BITS_12>(), 0.5f, ezMath::HugeEpsilon<float>());
 
-    EZ_TEST_FLOAT(a.GetSqrt(), 1.41421356f, ezMath::BasicType<float>::SmallEpsilon());
-    EZ_TEST_FLOAT(a.GetSqrt<ezMathAcc::FULL>(), 1.41421356f, ezMath::BasicType<float>::SmallEpsilon());
-    EZ_TEST_FLOAT(a.GetSqrt<ezMathAcc::BITS_23>(), 1.41421356f, ezMath::BasicType<float>::DefaultEpsilon());
-    EZ_TEST_FLOAT(a.GetSqrt<ezMathAcc::BITS_12>(), 1.41421356f, ezMath::BasicType<float>::HugeEpsilon());
+    EZ_TEST_FLOAT(a.GetSqrt(), 1.41421356f, ezMath::SmallEpsilon<float>());
+    EZ_TEST_FLOAT(a.GetSqrt<ezMathAcc::FULL>(), 1.41421356f, ezMath::SmallEpsilon<float>());
+    EZ_TEST_FLOAT(a.GetSqrt<ezMathAcc::BITS_23>(), 1.41421356f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(a.GetSqrt<ezMathAcc::BITS_12>(), 1.41421356f, ezMath::HugeEpsilon<float>());
 
-    EZ_TEST_FLOAT(a.GetInvSqrt(), 0.70710678f, ezMath::BasicType<float>::SmallEpsilon());
-    EZ_TEST_FLOAT(a.GetInvSqrt<ezMathAcc::FULL>(), 0.70710678f, ezMath::BasicType<float>::SmallEpsilon());
-    EZ_TEST_FLOAT(a.GetInvSqrt<ezMathAcc::BITS_23>(), 0.70710678f, ezMath::BasicType<float>::DefaultEpsilon());
-    EZ_TEST_FLOAT(a.GetInvSqrt<ezMathAcc::BITS_12>(), 0.70710678f, ezMath::BasicType<float>::HugeEpsilon());
+    EZ_TEST_FLOAT(a.GetInvSqrt(), 0.70710678f, ezMath::SmallEpsilon<float>());
+    EZ_TEST_FLOAT(a.GetInvSqrt<ezMathAcc::FULL>(), 0.70710678f, ezMath::SmallEpsilon<float>());
+    EZ_TEST_FLOAT(a.GetInvSqrt<ezMathAcc::BITS_23>(), 0.70710678f, ezMath::DefaultEpsilon<float>());
+    EZ_TEST_FLOAT(a.GetInvSqrt<ezMathAcc::BITS_12>(), 0.70710678f, ezMath::HugeEpsilon<float>());
 
     ezSimdFloat b = 5.0f;
     EZ_TEST_BOOL(a.Max(b) == b);
     EZ_TEST_BOOL(a.Min(b) == a);
 
     ezSimdFloat c = -4.0f;
-    EZ_TEST_FLOAT(c.Abs(), 4.0f, ezMath::BasicType<float>::SmallEpsilon());
+    EZ_TEST_FLOAT(c.Abs(), 4.0f, ezMath::SmallEpsilon<float>());
   }
 }

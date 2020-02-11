@@ -11,6 +11,8 @@ ResourceType* ezResourceManager::GetResource(const char* szResourceID, bool bIsR
 template <typename ResourceType>
 ezTypedResourceHandle<ResourceType> ezResourceManager::LoadResource(const char* szResourceID)
 {
+  // the mutex here is necessary to prevent a race between resource unloading and storing the pointer in the handle
+  EZ_LOCK(s_ResourceMutex);
   return ezTypedResourceHandle<ResourceType>(GetResource<ResourceType>(szResourceID, true));
 }
 
@@ -18,10 +20,14 @@ template <typename ResourceType>
 ezTypedResourceHandle<ResourceType> ezResourceManager::LoadResource(
   const char* szResourceID, ezTypedResourceHandle<ResourceType> hLoadingFallback)
 {
-  ezTypedResourceHandle<ResourceType> hResource(GetResource<ResourceType>(szResourceID, true));
+  ezTypedResourceHandle<ResourceType> hResource;
+  {
+    // the mutex here is necessary to prevent a race between resource unloading and storing the pointer in the handle
+    EZ_LOCK(s_ResourceMutex);
+    hResource = ezTypedResourceHandle<ResourceType>(GetResource<ResourceType>(szResourceID, true));
+  }
 
-  ResourceType* pResource =
-    ezResourceManager::BeginAcquireResource(hResource, ezResourceAcquireMode::PointerOnly, ezTypedResourceHandle<ResourceType>());
+  ResourceType* pResource = ezResourceManager::BeginAcquireResource(hResource, ezResourceAcquireMode::PointerOnly, ezTypedResourceHandle<ResourceType>());
 
   if (hLoadingFallback.IsValid())
   {
@@ -44,7 +50,7 @@ ezTypedResourceHandle<ResourceType> ezResourceManager::GetExistingResource(const
 
   const ezRTTI* pRtti = FindResourceTypeOverride(ezGetStaticRTTI<ResourceType>(), szResourceID);
 
-  if (s_LoadedResources[pRtti].m_Resources.TryGetValue(sResourceHash, pResource))
+  if (GetLoadedResources()[pRtti].m_Resources.TryGetValue(sResourceHash, pResource))
     return ezTypedResourceHandle<ResourceType>((ResourceType*)pResource);
 
   return ezTypedResourceHandle<ResourceType>();
@@ -98,7 +104,7 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
     "The requested resource does not have the same type ('{0}') as the resource handle ('{1}').",
     pResource->GetDynamicRTTI()->GetTypeName(), ezGetStaticRTTI<ResourceType>()->GetTypeName());
 
-  if (mode == ezResourceAcquireMode::AllowLoadingFallback && s_uiForceNoFallbackAcquisition > 0)
+  if (mode == ezResourceAcquireMode::AllowLoadingFallback && GetForceNoFallbackAcquisition() > 0)
   {
     mode = ezResourceAcquireMode::BlockTillLoaded;
   }
@@ -114,7 +120,7 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
 
   // only set the last accessed time stamp, if it is actually needed, pointer-only access might not mean that the resource is used
   // productively
-  pResource->m_LastAcquire = s_LastFrameUpdate;
+  pResource->m_LastAcquire = GetLastFrameUpdate();
 
   if (pResource->GetLoadingState() != ezResourceState::LoadedResourceMissing)
   {
@@ -149,7 +155,9 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
     else
     {
       // as long as there are more quality levels available, schedule the resource for more loading
-      if (pResource->m_Flags.IsSet(ezResourceFlags::IsPreloading) == false && pResource->GetNumQualityLevelsLoadable() > 0)
+      // accessing IsQueuedForLoading without a lock here is save because InternalPreloadResource() will lock and early out if necessary
+      // and accidentally skipping InternalPreloadResource() is no problem
+      if (IsQueuedForLoading(pResource) == false && pResource->GetNumQualityLevelsLoadable() > 0)
         InternalPreloadResource(pResource, false);
     }
   }
@@ -206,17 +214,17 @@ ezLockedObject<ezMutex, ezDynamicArray<ezResource*>> ezResourceManager::GetAllRe
   // and thus does not extend the data life-time. It is safe to do this, as the
   // locked object holding the container ensures the container will not be
   // accessed concurrently.
-  ezLockedObject<ezMutex, ezDynamicArray<ezResource*>> loadedResourcesLock(s_ResourceMutex, &s_LoadedResourceOfTypeTempContainer);
+  ezLockedObject<ezMutex, ezDynamicArray<ezResource*>> loadedResourcesLock(s_ResourceMutex, &GetLoadedResourceOfTypeTempContainer());
 
-  s_LoadedResourceOfTypeTempContainer.Clear();
+  GetLoadedResourceOfTypeTempContainer().Clear();
 
-  for (auto itType = s_LoadedResources.GetIterator(); itType.IsValid(); itType.Next())
+  for (auto itType = GetLoadedResources().GetIterator(); itType.IsValid(); itType.Next())
   {
     const ezRTTI* pDerivedType = itType.Key();
 
     if (pDerivedType->IsDerivedFrom(pBaseType))
     {
-      const LoadedResources& lr = s_LoadedResources[pDerivedType];
+      const LoadedResources& lr = GetLoadedResources()[pDerivedType];
 
       if (lr.m_Resources.IsEmpty())
       {
@@ -224,11 +232,11 @@ ezLockedObject<ezMutex, ezDynamicArray<ezResource*>> ezResourceManager::GetAllRe
         continue;
       }
 
-      s_LoadedResourceOfTypeTempContainer.Reserve(s_LoadedResourceOfTypeTempContainer.GetCount() + lr.m_Resources.GetCount());
+      GetLoadedResourceOfTypeTempContainer().Reserve(GetLoadedResourceOfTypeTempContainer().GetCount() + lr.m_Resources.GetCount());
 
       for (auto itResource = lr.m_Resources.GetIterator(); itResource.IsValid(); itResource.Next())
       {
-        s_LoadedResourceOfTypeTempContainer.PushBack(itResource.Value());
+        GetLoadedResourceOfTypeTempContainer().PushBack(itResource.Value());
       }
     }
   }
@@ -259,20 +267,19 @@ void ezResourceManager::SetResourceTypeLoader(ezResourceTypeLoader* creator)
 {
   EZ_LOCK(s_ResourceMutex);
 
-  s_ResourceTypeLoader[ezGetStaticRTTI<ResourceType>()] = creator;
-}
-
-inline void ezResourceManager::SetDefaultResourceLoader(ezResourceTypeLoader* pDefaultLoader)
-{
-  EZ_LOCK(s_ResourceMutex);
-
-  s_pDefaultResourceLoader = pDefaultLoader;
+  GetResourceTypeLoaders()[ezGetStaticRTTI<ResourceType>()] = creator;
 }
 
 template <typename ResourceType>
 ezTypedResourceHandle<ResourceType> ezResourceManager::GetResourceHandleForExport(const char* szResourceID)
 {
-  EZ_ASSERT_DEV(s_bExportMode, "Export mode needs to be enabled");
+  EZ_ASSERT_DEV(IsExportModeEnabled(), "Export mode needs to be enabled");
 
   return LoadResource<ResourceType>(szResourceID);
+}
+
+template <typename ResourceType>
+void ezResourceManager::SetIncrementalUnloadForResourceType(bool bActive)
+{
+  GetResourceTypeInfo(ezGetStaticRTTI<ResourceType>()).m_bIncrementalUnload = bActive;
 }

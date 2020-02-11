@@ -15,7 +15,7 @@ class EZ_RENDERERCORE_DLL ezMeshRenderData : public ezRenderData
 
 public:
   virtual void FillBatchIdAndSortingKey();
-  
+
   ezMeshResourceHandle m_hMesh;
   ezMaterialResourceHandle m_hMaterial;
   ezColor m_Color = ezColor::White;
@@ -62,27 +62,26 @@ class EZ_RENDERERCORE_DLL ezMeshComponentBase : public ezRenderComponent
 {
   EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezMeshComponentBase, ezRenderComponent);
 
-public:
-  ezMeshComponentBase();
-  ~ezMeshComponentBase();
-
   //////////////////////////////////////////////////////////////////////////
-  // ezComponent Interface
+  // ezComponent
+
 public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezRenderComponent Interface
+  // ezRenderComponent
 
 public:
   virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
-  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
 
   //////////////////////////////////////////////////////////////////////////
-  // ezRenderMeshComponent Interface
+  // ezRenderMeshComponent
 
 public:
+  ezMeshComponentBase();
+  ~ezMeshComponentBase();
+
   void SetMesh(const ezMeshResourceHandle& hMesh);
   EZ_ALWAYS_INLINE const ezMeshResourceHandle& GetMesh() const { return m_hMesh; }
 
@@ -91,27 +90,28 @@ public:
 
   EZ_ALWAYS_INLINE void SetRenderDataCategory(ezRenderData::Category category) { m_RenderDataCategory = category; }
 
-  void SetMeshFile(const char* szFile);
-  const char* GetMeshFile() const;
+  void SetMeshFile(const char* szFile); // [ property ]
+  const char* GetMeshFile() const;      // [ property ]
 
-  void SetColor(const ezColor& color);
-  const ezColor& GetColor() const;
+  void SetColor(const ezColor& color); // [ property ]
+  const ezColor& GetColor() const;     // [ property ]
 
-  void OnSetMaterial(ezMsgSetMeshMaterial& msg);
-  void OnSetColor(ezMsgSetColor& msg);
+  void OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& msg); // [ msg handler ]
+  void OnMsgSetColor(ezMsgSetColor& msg);               // [ msg handler ]
 
 protected:
   virtual ezMeshRenderData* CreateRenderData() const;
 
-  ezUInt32 Materials_GetCount() const;
-  const char* Materials_GetValue(ezUInt32 uiIndex) const;
-  void Materials_SetValue(ezUInt32 uiIndex, const char* value);
-  void Materials_Insert(ezUInt32 uiIndex, const char* value);
-  void Materials_Remove(ezUInt32 uiIndex);
+  ezUInt32 Materials_GetCount() const;                          // [ property ]
+  const char* Materials_GetValue(ezUInt32 uiIndex) const;       // [ property ]
+  void Materials_SetValue(ezUInt32 uiIndex, const char* value); // [ property ]
+  void Materials_Insert(ezUInt32 uiIndex, const char* value);   // [ property ]
+  void Materials_Remove(ezUInt32 uiIndex);                      // [ property ]
 
-  ezRenderData::Category m_RenderDataCategory;
+  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
+
+  ezRenderData::Category m_RenderDataCategory = ezInvalidRenderDataCategory;
   ezMeshResourceHandle m_hMesh;
   ezDynamicArray<ezMaterialResourceHandle> m_Materials;
-  ezColor m_Color;
+  ezColor m_Color = ezColor::White;
 };
-

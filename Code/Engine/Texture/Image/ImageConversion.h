@@ -21,8 +21,12 @@ struct ezImageConversionEntry
   const ezImageFormat::Enum m_sourceFormat;
   const ezImageFormat::Enum m_targetFormat;
   const ezBitflags<ezImageConversionFlags> m_flags;
-};
 
+  /// This member adds an additional amount to the cost estimate for this conversion step.
+  /// It can be used to bias the choice between steps when there are comparable conversion
+  /// steps available.
+  float m_additionalPenalty = 0.0f;
+};
 
 /// \brief Interface for a single image conversion step.
 ///
@@ -49,7 +53,7 @@ class EZ_TEXTURE_DLL ezImageConversionStepLinear : public ezImageConversionStep
 {
 public:
   /// \brief Converts a batch of pixels.
-  virtual ezResult ConvertPixels(ezBlobPtr<const void> source, ezBlobPtr<void> target, ezUInt64 numElements,
+  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 numElements,
                                  ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const = 0;
 };
 
@@ -58,7 +62,7 @@ class EZ_TEXTURE_DLL ezImageConversionStepDecompressBlocks : public ezImageConve
 {
 public:
   /// \brief Decompresses the given number of blocks.
-  virtual ezResult DecompressBlocks(ezBlobPtr<const void> source, ezBlobPtr<void> target, ezUInt32 numBlocks,
+  virtual ezResult DecompressBlocks(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 numBlocks,
                                     ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const = 0;
 };
 
@@ -67,7 +71,7 @@ class EZ_TEXTURE_DLL ezImageConversionStepCompressBlocks : public ezImageConvers
 {
 public:
   /// \brief Compresses the given number of blocks.
-  virtual ezResult CompressBlocks(ezBlobPtr<const void> source, ezBlobPtr<void> target, ezUInt32 numBlocksX, ezUInt32 numBlocksY,
+  virtual ezResult CompressBlocks(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 numBlocksX, ezUInt32 numBlocksY,
                                   ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const = 0;
 };
 
@@ -121,11 +125,11 @@ public:
   static ezResult Convert(const ezImageView& source, ezImage& target, ezArrayPtr<ConversionPathNode> path, ezUInt32 numScratchBuffers);
 
   /// \brief Converts the raw source data into a target data buffer with the given format. Source and target may be the same.
-  static ezResult ConvertRaw(ezBlobPtr<const void> source, ezBlobPtr<void> target, ezUInt32 numElements, ezImageFormat::Enum sourceFormat,
+  static ezResult ConvertRaw(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 numElements, ezImageFormat::Enum sourceFormat,
                              ezImageFormat::Enum targetFormat);
 
   /// \brief Converts the raw source data into a target data buffer using a precomputed conversion path.
-  static ezResult ConvertRaw(ezBlobPtr<const void> source, ezBlobPtr<void> target, ezUInt32 numElements,
+  static ezResult ConvertRaw(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 numElements,
                              ezArrayPtr<ConversionPathNode> path, ezUInt32 numScratchBuffers);
 
 private:

@@ -34,11 +34,11 @@ void ezGALContextState::Invalidate()
 
   m_ScissorRect = ezRectU32(0xFFFFFFFF, 0xFFFFFFFF, 0, 0);
 
-  m_ViewPortRect = ezRectFloat(ezMath::BasicType<float>::MaxValue(), ezMath::BasicType<float>::MaxValue(), 0.0f, 0.0f);
+  m_ViewPortRect = ezRectFloat(ezMath::MaxValue<float>(), ezMath::MaxValue<float>(), 0.0f, 0.0f);
 
-  m_fViewPortMinDepth = ezMath::BasicType<float>::MaxValue();
+  m_fViewPortMinDepth = ezMath::MaxValue<float>();
 
-  m_fViewPortMaxDepth = -ezMath::BasicType<float>::MaxValue();
+  m_fViewPortMaxDepth = -ezMath::MaxValue<float>();
 
   m_Topology = ezGALPrimitiveTopology::ENUM_COUNT;
 }

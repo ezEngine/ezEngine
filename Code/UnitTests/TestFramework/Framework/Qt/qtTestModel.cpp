@@ -149,7 +149,7 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
   bool bTestEnabled = true;
   bool bParentEnabled = true;
   bool bIsSubTest = entryType == ezQtTestModelEntry::SubTestNode;
-  const ezStatus& testAvailable = m_pTestFramework->IsTestAvailable(bIsSubTest ? pParentEntry->GetTestIndex() : pEntry->GetTestIndex());
+  const std::string& testUnavailableReason = m_pTestFramework->IsTestAvailable(bIsSubTest ? pParentEntry->GetTestIndex() : pEntry->GetTestIndex());
 
   if (bIsSubTest)
   {
@@ -182,7 +182,7 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
       }
       case Qt::ForegroundRole:
       {
-        if (testAvailable.Failed())
+        if (!testUnavailableReason.empty())
         {
           QPalette palette = QApplication::palette();
           return palette.color(QPalette::Disabled, QPalette::Text);
@@ -190,9 +190,9 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
       }
       case Qt::ToolTipRole:
       {
-        if (testAvailable.Failed())
+        if (!testUnavailableReason.empty())
         {
-          return QString("Test not available: %1").arg(testAvailable.m_sMessage.GetData());
+          return QString("Test not available: %1").arg(testUnavailableReason.c_str());
         }
       }
       default:
@@ -206,9 +206,9 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
     {
       case Qt::DisplayRole:
       {
-        if (testAvailable.Failed())
+        if (!testUnavailableReason.empty())
         {
-          return QString("Test not available: %1").arg(testAvailable.m_sMessage.GetData());
+          return QString("Test not available: %1").arg(testUnavailableReason.c_str());
         }
         else if (bTestEnabled && bParentEnabled)
         {
@@ -256,7 +256,7 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
       {
         return Qt::AlignRight;
       }
-      /*case Qt::BackgroundColorRole:
+      /*case Qt::BackgroundRole:
         {
           QPalette palette = QApplication::palette();
           return palette.alternateBase().color();
@@ -296,12 +296,12 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
             .arg(m_pResult->GetErrorMessageCount(pEntry->GetTestIndex(), pEntry->GetSubTestIndex()))
             .arg(m_pResult->GetOutputMessageCount(pEntry->GetTestIndex(), pEntry->GetSubTestIndex()));
       }
-      case Qt::BackgroundColorRole:
+      case Qt::BackgroundRole:
       {
         QPalette palette = QApplication::palette();
         return palette.alternateBase().color();
       }
-      case Qt::TextColorRole:
+      case Qt::ForegroundRole:
       {
         if (TestResult.m_bExecuted)
         {
@@ -327,7 +327,7 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
       {
         return QString("%1").arg(TestResult.m_iTestAsserts);
       }
-      case Qt::BackgroundColorRole:
+      case Qt::BackgroundRole:
       {
         QPalette palette = QApplication::palette();
         return palette.alternateBase().color();
@@ -348,9 +348,9 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
     {
       case Qt::DisplayRole:
       {
-        if (testAvailable.Failed())
+        if (!testUnavailableReason.empty())
         {
-          return QString("Test not available: %1").arg(testAvailable.m_sMessage.GetData());
+          return QString("Test not available: %1").arg(testUnavailableReason.c_str());
         }
         else if (bTestEnabled && bParentEnabled)
         {
@@ -388,14 +388,14 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
           return QString("Disabled");
         }
       }
-      case Qt::BackgroundColorRole:
+      case Qt::BackgroundRole:
       {
         QPalette palette = QApplication::palette();
         return palette.alternateBase().color();
       }
-      case Qt::TextColorRole:
+      case Qt::ForegroundRole:
       {
-        if (testAvailable.Failed())
+        if (!testUnavailableReason.empty())
         {
           QPalette palette = QApplication::palette();
           return palette.color(QPalette::Disabled, QPalette::Text);

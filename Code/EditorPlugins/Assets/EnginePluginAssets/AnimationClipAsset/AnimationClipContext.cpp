@@ -27,7 +27,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipContext, 1, ezRTTIDefaultAllocato
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Animation Clip Asset"),
+    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Animation Clip"),
   }
   EZ_END_PROPERTIES;
 }

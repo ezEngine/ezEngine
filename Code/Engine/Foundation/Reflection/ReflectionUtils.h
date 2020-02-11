@@ -82,10 +82,27 @@ public:
   /// The type of pEnumerationRtti will be automatically detected. The syntax of out_sOutput equals MSVC debugger output.
   static bool EnumerationToString(const ezRTTI* pEnumerationRtti, ezInt64 iValue, ezStringBuilder& out_sOutput, ezEnum<EnumConversionMode> conversionMode = EnumConversionMode::Default); // [tested]
 
+  /// \brief Helper template to shorten the call for ezEnums
+  template<typename T>
+  static bool EnumerationToString(ezEnum<T> value, ezStringBuilder& out_sOutput, ezEnum<EnumConversionMode> conversionMode = EnumConversionMode::Default)
+  {
+    return EnumerationToString(ezGetStaticRTTI<T>(), value.GetValue(), out_sOutput, conversionMode);
+  }
+
   /// \brief Converts an enum or bitfield in its string representation to its value.
   ///
   /// The type of pEnumerationRtti will be automatically detected. The syntax of szValue must equal the MSVC debugger output.
   static bool StringToEnumeration(const ezRTTI* pEnumerationRtti, const char* szValue, ezInt64& out_iValue); // [tested]
+
+  /// \brief Helper template to shorten the call for ezEnums
+  template<typename T>
+  static bool StringToEnumeration(const char* szValue, ezEnum<T>& out_iValue)
+  {
+    ezInt64 value;
+    const auto retval = StringToEnumeration(ezGetStaticRTTI<T>(), szValue, value);
+    out_iValue = static_cast<typename T::Enum>(value);
+    return retval;
+  }
 
   /// \brief Returns the default value (Enum::Default) for the given enumeration type.
   static ezInt64 DefaultEnumerationValue(const ezRTTI* pEnumerationRtti); // [tested]

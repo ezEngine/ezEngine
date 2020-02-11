@@ -73,7 +73,7 @@ void ezVisualShaderTypeRegistry::UpdateNodeData()
   sSearchDir.AppendPath("VisualShader/*.ddl");
 
   ezFileSystemIterator it;
-  if (it.StartSearch(sSearchDir, false, false).Succeeded())
+  if (it.StartSearch(sSearchDir, ezFileSystemIteratorFlags::ReportFiles).Succeeded())
   {
     do
     {

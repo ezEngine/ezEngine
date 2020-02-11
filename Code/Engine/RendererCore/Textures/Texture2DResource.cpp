@@ -23,13 +23,11 @@ EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezTexture2DResource);
 ezTexture2DResource::ezTexture2DResource()
   : ezResource(DoUpdate::OnAnyThread, ezTextureUtils::s_bForceFullQualityAlways ? 1 : 2)
 {
-  m_uiLoadedTextures = 0;
-  m_uiMemoryGPU[0] = 0;
-  m_uiMemoryGPU[1] = 0;
-  m_Format = ezGALResourceFormat::Invalid;
-  m_uiWidth = 0;
-  m_uiHeight = 0;
-  m_Type = ezGALTextureType::Invalid;
+}
+
+ezTexture2DResource::ezTexture2DResource(ezResource::DoUpdate ResourceUpdateThread)
+  : ezResource(ResourceUpdateThread, ezTextureUtils::s_bForceFullQualityAlways ? 1 : 2) 
+{
 }
 
 ezResourceLoadDesc ezTexture2DResource::UnloadData(Unload WhatToUnload)
@@ -116,7 +114,7 @@ void ezTexture2DResource::FillOutDescriptor(ezTexture2DResourceDescriptor& td, c
           id.m_uiRowPitch = static_cast<ezUInt32>(pImage->GetRowPitch(mip));
         }
 
-        EZ_ASSERT_DEV(pImage->GetDepthPitch(mip) < ezMath::BasicType<ezUInt32>::MaxValue(), "Depth pitch exceeds ezGAL limits.");
+        EZ_ASSERT_DEV(pImage->GetDepthPitch(mip) < ezMath::MaxValue<ezUInt32>(), "Depth pitch exceeds ezGAL limits.");
         id.m_uiSlicePitch = static_cast<ezUInt32>(pImage->GetDepthPitch(mip));
 
         out_MemoryUsed += id.m_uiSlicePitch;

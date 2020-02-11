@@ -307,7 +307,7 @@ ezResult ezAbstractGraphDdlSerializer::ReadDocument(ezStreamReader& stream, ezUn
     ezAbstractObjectGraph& graph = *pOB->m_Graph.Borrow();
     auto* pHeaderNode = graph.GetNodeByName("Header");
     ezAbstractObjectGraph& headerGraph = *pHB->m_Graph.Borrow();
-    auto* pNewHeaderNode = headerGraph.CopyNodeIntoGraph(pHeaderNode);
+    /*auto* pNewHeaderNode =*/ headerGraph.CopyNodeIntoGraph(pHeaderNode);
     // pNewHeaderNode->AddProperty("DocVersion", iVersion);
     graph.RemoveNode(pHeaderNode->GetGuid());
   }
@@ -321,7 +321,11 @@ ezResult ezAbstractGraphDdlSerializer::ReadDocument(ezStreamReader& stream, ezUn
 
   pHeader = std::move(pHB->m_Graph);
   pGraph = std::move(pOB->m_Graph);
-  pTypes = std::move(pTB->m_Graph);
+  if (pTB)
+  {
+    pTypes = std::move(pTB->m_Graph);
+  }
+
   return EZ_SUCCESS;
 }
 

@@ -72,11 +72,12 @@ public:
   ezUInt32 GetNumTempRegisters() const;
   ezArrayPtr<const ezHashedString> GetInputs() const;
   ezArrayPtr<const ezHashedString> GetOutputs() const;
+  ezArrayPtr<const ezHashedString> GetFunctions() const;
 
   static OpCode::Enum GetOpCode(const StorageType*& pByteCode);
   static ezUInt32 GetRegisterIndex(const StorageType*& pByteCode, ezUInt32 uiNumRegisters);
   static ezSimdVec4f GetConstant(const StorageType*& pByteCode);
-  static ezUInt32 GetFunctionNameHash(const StorageType*& pByteCode);
+  static ezUInt32 GetFunctionIndex(const StorageType*& pByteCode);
   static ezUInt32 GetFunctionArgCount(const StorageType*& pByteCode);
 
   void Disassemble(ezStringBuilder& out_sDisassembly) const;
@@ -90,6 +91,7 @@ private:
   ezDynamicArray<StorageType> m_ByteCode;
   ezDynamicArray<ezHashedString> m_Inputs;
   ezDynamicArray<ezHashedString> m_Outputs;
+  ezDynamicArray<ezHashedString> m_Functions;
 
   ezUInt32 m_uiNumInstructions;
   ezUInt32 m_uiNumTempRegisters;

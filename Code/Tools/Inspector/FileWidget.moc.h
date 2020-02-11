@@ -1,20 +1,20 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <QDockWidget>
 #include <Tools/Inspector/ui_FileWidget.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Time/Time.h>
+#include <ads/DockWidget.h>
 
-class ezQtFileWidget : public QDockWidget, public Ui_FileWidget
+class ezQtFileWidget : public ads::CDockWidget, public Ui_FileWidget
 {
 public:
   Q_OBJECT
 
 public:
   ezQtFileWidget(QWidget* parent = 0);
-
+  ~ezQtFileWidget();
   static ezQtFileWidget* s_pWidget;
 
 private Q_SLOTS:

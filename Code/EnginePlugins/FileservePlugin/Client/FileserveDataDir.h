@@ -32,8 +32,8 @@ namespace ezDataDirectory
     void FinishedWriting(FolderWriter* pWriter);
 
   protected:
-    virtual ezDataDirectoryReader* OpenFileToRead(const char* szFile, bool bSpecificallyThisDataDir) override;
-    virtual ezDataDirectoryWriter* OpenFileToWrite(const char* szFile) override;
+    virtual ezDataDirectoryReader* OpenFileToRead(const char* szFile, ezFileShareMode::Enum FileShareMode, bool bSpecificallyThisDataDir) override;
+    virtual ezDataDirectoryWriter* OpenFileToWrite(const char* szFile, ezFileShareMode::Enum FileShareMode) override;
     virtual ezResult InternalInitializeDataDirectory(const char* szDirectory) override;
     virtual void RemoveDataDirectory() override;
     virtual void DeleteFile(const char* szFile) override;

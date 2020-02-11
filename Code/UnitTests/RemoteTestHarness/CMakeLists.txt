@@ -1,6 +1,7 @@
 ez_cmake_init()
 
 ez_requires(EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
+ez_requires(EZ_3RDPARTY_ENET_SUPPORT)
 
 ez_nuget_init()
 
@@ -9,9 +10,7 @@ get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
 ez_create_target_cs(APPLICATION ${PROJECT_NAME})
 
-add_dependencies(${PROJECT_NAME}
-  Fileserve
-)
+add_dependencies(${PROJECT_NAME} Fileserve)
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DOTNET_REFERENCES
   "System"
@@ -19,6 +18,7 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY VS_DOTNET_REFERENCES
   "System.Data"
   "${CMAKE_CURRENT_BINARY_DIR}/packages/CommandLineParser.2.5.0/lib/net461/CommandLine.dll"
   "${CMAKE_CURRENT_BINARY_DIR}/packages/Newtonsoft.Json.4.5.1/lib/net40/Newtonsoft.Json.dll"
+  "${CMAKE_CURRENT_BINARY_DIR}/packages/Microsoft.Diagnostics.Tracing.TraceEvent.2.0.49/lib/net45/Microsoft.Diagnostics.Tracing.TraceEvent.dll"
 )
 
 add_custom_command(TARGET ${PROJECT_NAME}

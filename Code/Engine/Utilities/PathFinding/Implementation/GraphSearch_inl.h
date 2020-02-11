@@ -10,7 +10,7 @@ void ezPathSearch<PathStateType>::ClearPathStates()
 template <typename PathStateType>
 ezInt64 ezPathSearch<PathStateType>::FindBestNodeToExpand(PathStateType*& out_pPathState)
 {
-  float fLowestEstimation = ezMath::BasicType<float>::GetInfinity();
+  float fLowestEstimation = ezMath::Infinity<float>();
   out_pPathState = nullptr;
   ezUInt32 iBestInQueue = 0;
 

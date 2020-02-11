@@ -8,34 +8,35 @@ class EZ_PHYSXPLUGIN_DLL ezPxShapeBoxComponent : public ezPxShapeComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezPxShapeBoxComponent, ezPxShapeComponent, ezPxShapeBoxComponentManager);
 
-public:
-  ezPxShapeBoxComponent();
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent
 
+public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
-  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const;
-  
 
-  // ************************************* PROPERTIES ***********************************
-public:
-
-  void SetExtents(const ezVec3& value);
-  const ezVec3& GetExtents() const { return m_vExtents; }
+  //////////////////////////////////////////////////////////////////////////
+  // ezPxShapeComponent
 
 protected:
-  ezVec3 m_vExtents;
+  virtual physx::PxShape* CreateShape(physx::PxRigidActor* pActor, physx::PxTransform& out_ShapeTransform) override;
 
 
-  // ************************************* FUNCTIONS *****************************
+  //////////////////////////////////////////////////////////////////////////
+  // ezPxShapeBoxComponent
 
 public:
+  ezPxShapeBoxComponent();
+  ~ezPxShapeBoxComponent();
 
-  virtual physx::PxShape* CreateShape(physx::PxRigidActor* pActor, physx::PxTransform& out_ShapeTransform) override;
+  void SetExtents(const ezVec3& value);                   // [ property ]
+  const ezVec3& GetExtents() const { return m_vExtents; } // [ property ]
+
   virtual void ExtractGeometry(ezMsgExtractGeometry& msg) const override;
 
 protected:
+  void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const;
 
+  ezVec3 m_vExtents = ezVec3(1.0f);
 };
-
-

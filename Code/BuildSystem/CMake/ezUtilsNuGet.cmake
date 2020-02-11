@@ -21,4 +21,6 @@ function(ez_nuget_init)
             HINTS ${CMAKE_BINARY_DIR})
     endif()
 
+    mark_as_advanced(FORCE NUGET)
+
 endfunction()

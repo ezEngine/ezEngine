@@ -428,7 +428,9 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
     for (ezInt32 i = 0; i < 128; ++i)
     {
       a1.SetCount(i + 1);
+      EZ_TEST_INT(a1[i], 0); // default init
       a1[i] = i;
+      EZ_TEST_INT(a1[i], i);
 
       EZ_TEST_INT(a1.GetCount(), i + 1);
       EZ_TEST_BOOL(!a1.IsEmpty());
@@ -440,6 +442,39 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
     for (ezInt32 i = 128; i >= 0; --i)
     {
       a1.SetCount(i);
+
+      EZ_TEST_INT(a1.GetCount(), i);
+
+      for (ezInt32 i2 = 0; i2 < i; ++i2)
+        EZ_TEST_INT(a1[i2], i2);
+    }
+
+    EZ_TEST_BOOL(a1.IsEmpty());
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetCountUninitialized")
+  {
+    ezDeque<ezInt32> a1;
+
+    EZ_TEST_BOOL(a1.IsEmpty());
+
+    for (ezInt32 i = 0; i < 128; ++i)
+    {
+      a1.SetCountUninitialized(i + 1);
+      // no default init
+      a1[i] = i;
+      EZ_TEST_INT(a1[i], i);
+
+      EZ_TEST_INT(a1.GetCount(), i + 1);
+      EZ_TEST_BOOL(!a1.IsEmpty());
+    }
+
+    for (ezInt32 i = 0; i < 128; ++i)
+      EZ_TEST_INT(a1[i], i);
+
+    for (ezInt32 i = 128; i >= 0; --i)
+    {
+      a1.SetCountUninitialized(i);
 
       EZ_TEST_INT(a1.GetCount(), i);
 

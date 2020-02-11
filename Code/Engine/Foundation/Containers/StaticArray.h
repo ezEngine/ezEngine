@@ -12,7 +12,8 @@ template <typename T, ezUInt32 Capacity>
 class ezStaticArray : public ezArrayBase<T, ezStaticArray<T, Capacity>>
 {
 public:
-  EZ_DECLARE_MEM_RELOCATABLE_TYPE();
+  // Only if the stored type is either POD or relocatable the hybrid array itself is also relocatable.
+  EZ_DECLARE_MEM_RELOCATABLE_TYPE_CONDITIONAL(T);
 
   /// \brief Creates an empty array.
   ezStaticArray(); // [tested]

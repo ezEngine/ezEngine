@@ -1,14 +1,14 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <QDockWidget>
 #include <Tools/Inspector/ui_ResourceWidget.h>
 #include <Foundation/Containers/Set.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Time/Time.h>
 #include <Core/ResourceManager/Resource.h>
+#include <ads/DockWidget.h>
 
-class ezQtResourceWidget : public QDockWidget, public Ui_ResourceWidget
+class ezQtResourceWidget : public ads::CDockWidget, public Ui_ResourceWidget
 {
 public:
   Q_OBJECT
@@ -20,9 +20,10 @@ public:
 
 private Q_SLOTS:
 
-  virtual void on_LineFilterByName_textChanged();
-  virtual void on_ComboResourceTypes_currentIndexChanged(int state);
-  virtual void on_CheckShowDeleted_toggled(bool checked);
+  void on_LineFilterByName_textChanged();
+  void on_ComboResourceTypes_currentIndexChanged(int state);
+  void on_CheckShowDeleted_toggled(bool checked);
+  void on_ButtonSave_clicked();
 
 public:
   static void ProcessTelemetry(void* pUnuseed);

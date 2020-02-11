@@ -168,7 +168,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
     js.SetOutputStream(&sc);
 
     js.AddVariableAngle("var1", ezAngle::Degree(90.0f));
-    js.AddVariableAngle("var2", ezAngle::Radian(1.0f * ezMath::BasicType<float>::Pi()));
+    js.AddVariableAngle("var2", ezAngle::Radian(1.0f * ezMath::Pi<float>()));
   }
 
 

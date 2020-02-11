@@ -42,7 +42,7 @@ double ezVisualScriptNode_MathExpression::ResolveVariable(const ezStringView& va
   else if (variableString == "d")
     return m_ValueD;
   else
-    return ezMath::BasicType<double>::GetNaN();
+    return ezMath::NaN<double>();
 }
 
 void ezVisualScriptNode_MathExpression::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)

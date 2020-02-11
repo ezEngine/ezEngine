@@ -23,6 +23,8 @@ public:
 
   void SetActionContext(const ezActionContext& context);
 
+  virtual void setVisible(bool visible) override;
+
 private:
   void TreeEventHandler(const ezDocumentObjectStructureEvent& e);
   void TreePropertyEventHandler(const ezDocumentObjectPropertyEvent& e);

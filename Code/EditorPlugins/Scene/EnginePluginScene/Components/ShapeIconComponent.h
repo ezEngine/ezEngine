@@ -1,9 +1,9 @@
 #pragma once
 
-#include <GameEngine/GameEngineDLL.h>
-#include <Core/World/World.h>
 #include <Core/World/Component.h>
+#include <Core/World/World.h>
 #include <EditorEngineProcessFramework/SceneExport/SceneExportModifier.h>
+#include <GameEngine/GameEngineDLL.h>
 
 typedef ezComponentManager<class ezShapeIconComponent, ezBlockStorageType::Compact> ezShapeIconComponentManager;
 
@@ -14,20 +14,18 @@ class EZ_ENGINEPLUGINSCENE_DLL ezShapeIconComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezShapeIconComponent, ezComponent, ezShapeIconComponentManager);
 
+  //////////////////////////////////////////////////////////////////////////
+  // ezShapeIconComponent
+
 public:
   ezShapeIconComponent();
   ~ezShapeIconComponent();
-
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
-
 };
 
 class EZ_ENGINEPLUGINSCENE_DLL ezSceneExportModifier_RemoveShapeIconComponents : public ezSceneExportModifier
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSceneExportModifier_RemoveShapeIconComponents, ezSceneExportModifier);
-public:
 
+public:
   virtual void ModifyWorld(ezWorld& world, const ezUuid& documentGuid) override;
 };
-

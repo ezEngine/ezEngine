@@ -109,7 +109,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, PathUtils)
     EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath("\\temp.stuff"));
     EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath("..\\temp.stuff"));
     EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath(".\\temp.stuff"));
-#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
+#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
     EZ_TEST_BOOL(ezPathUtils::IsAbsolutePath("/usr/local/.stuff"));
     EZ_TEST_BOOL(ezPathUtils::IsAbsolutePath("/file.test"));
     EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath("./file.stuff"));
@@ -118,4 +118,17 @@ EZ_CREATE_SIMPLE_TEST(Strings, PathUtils)
 #error "Unknown platform."
 #endif
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetRootedPathParts")
+  {
+    ezStringView root, relPath;
+    ezPathUtils::GetRootedPathParts(":MyRoot\\folder\\file.txt", root, relPath);
+    EZ_TEST_BOOL(ezPathUtils::GetRootedPathRootName(":MyRoot\\folder\\file.txt") == root);
+    EZ_TEST_BOOL(root == "MyRoot");
+    EZ_TEST_BOOL(relPath == "folder\\file.txt");
+    ezPathUtils::GetRootedPathParts("folder\\file2.txt", root, relPath);
+    EZ_TEST_BOOL(root.IsEmpty());
+    EZ_TEST_BOOL(relPath == "folder\\file2.txt");
+  }
+
 }

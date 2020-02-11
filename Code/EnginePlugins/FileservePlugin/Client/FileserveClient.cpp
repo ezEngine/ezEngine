@@ -554,7 +554,7 @@ void ezFileserveClient::HandleFileTransferFinishedMsg(ezRemoteMessage& msg)
 void ezFileserveClient::WriteMetaFile(ezStringBuilder sCachedMetaFile, ezInt64 iFileTimeStamp, ezUInt64 uiFileHash)
 {
   ezOSFile file;
-  if (file.Open(sCachedMetaFile, ezFileMode::Write).Succeeded())
+  if (file.Open(sCachedMetaFile, ezFileOpenMode::Write).Succeeded())
   {
     file.Write(&iFileTimeStamp, sizeof(ezInt64));
     file.Write(&uiFileHash, sizeof(ezUInt64));
@@ -571,7 +571,7 @@ void ezFileserveClient::WriteDownloadToDisk(ezStringBuilder sCachedFile)
 {
   EZ_LOCK(m_Mutex);
   ezOSFile file;
-  if (file.Open(sCachedFile, ezFileMode::Write).Succeeded())
+  if (file.Open(sCachedFile, ezFileOpenMode::Write).Succeeded())
   {
     if (!m_Download.IsEmpty())
       file.Write(m_Download.GetData(), m_Download.GetCount());
@@ -675,7 +675,7 @@ void ezFileserveClient::DetermineCacheStatus(ezUInt16 uiDataDirID, const char* s
   if (ezOSFile::ExistsFile(sAbsPathFile))
   {
     ezOSFile meta;
-    if (meta.Open(sAbsPathMeta, ezFileMode::Read).Failed())
+    if (meta.Open(sAbsPathMeta, ezFileOpenMode::Read).Failed())
     {
       // cleanup, when the meta file does not exist, the data file is useless
       ezOSFile::DeleteFile(sAbsPathFile);
@@ -690,7 +690,7 @@ void ezFileserveClient::DetermineCacheStatus(ezUInt16 uiDataDirID, const char* s
 ezResult ezFileserveClient::TryReadFileserveConfig(const char* szFile, ezStringBuilder& out_Result)
 {
   ezOSFile file;
-  if (file.Open(szFile, ezFileMode::Read).Succeeded())
+  if (file.Open(szFile, ezFileOpenMode::Read).Succeeded())
   {
     ezUInt8 data[64]; // an IP + port should not be longer than 22 characters
 
@@ -863,7 +863,7 @@ ezResult ezFileserveClient::SaveCurrentConnectionInfoToDisk() const
   EZ_LOCK(m_Mutex);
   ezStringBuilder sFile = ezOSFile::GetUserDataFolder("ezFileserve.txt");
   ezOSFile file;
-  EZ_SUCCEED_OR_RETURN(file.Open(sFile, ezFileMode::Write));
+  EZ_SUCCEED_OR_RETURN(file.Open(sFile, ezFileOpenMode::Write));
 
   file.Write(m_sServerConnectionAddress.GetData(), m_sServerConnectionAddress.GetElementCount());
   file.Close();

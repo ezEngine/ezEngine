@@ -160,7 +160,7 @@ public:
   /// \brief Returns the one instance of ezApplication that is available.
   static ezApplication* GetApplicationInstance() { return s_pApplicationInstance; }
 
-  /// \brief Returns the number of command lien arguments that were passed to the application.
+  /// \brief Returns the number of command line arguments that were passed to the application.
   ///
   /// Note that the very first command line argument is typically the path to the application itself.
   ezUInt32 GetArgumentCount() const { return m_uiArgumentCount; }

@@ -86,6 +86,12 @@ void ezExpressionByteCode::Disassemble(ezStringBuilder& out_sDisassembly) const
     out_sDisassembly.AppendFormat("//  {0}: {1}\n", i, m_Outputs[i]);
   }
 
+  out_sDisassembly.Append("\n// Functions:\n");
+  for (ezUInt32 i = 0; i < m_Functions.GetCount(); ++i)
+  {
+    out_sDisassembly.AppendFormat("//  {0}: {1}\n", i, m_Functions[i]);
+  }
+
   out_sDisassembly.AppendFormat("\n// Temp Registers: {0}\n", m_uiNumTempRegisters);
   out_sDisassembly.AppendFormat("// Instructions: {0}\n\n", m_uiNumInstructions);
 
@@ -140,13 +146,13 @@ void ezExpressionByteCode::Disassemble(ezStringBuilder& out_sDisassembly) const
     }
     else if (opCode == OpCode::Call)
     {
-      ezUInt32 uiNameHash = GetFunctionNameHash(pByteCode);
-      const char* szName = ezExpressionFunctionRegistry::GetName(uiNameHash);
+      ezUInt32 uiIndex = GetFunctionIndex(pByteCode);
+      const char* szName = m_Functions[uiIndex];
 
       ezStringBuilder sName;
       if (ezStringUtils::IsNullOrEmpty(szName))
       {
-        sName.Format("Unknown_{0}", ezArgU(uiNameHash, 8, true, 16));
+        sName.Format("Unknown_{0}", uiIndex);
       }
       else
       {
@@ -180,12 +186,13 @@ void ezExpressionByteCode::Save(ezStreamWriter& stream) const
   chunk.BeginStream(1);
 
   {
-    chunk.BeginChunk("MetaData", 2);
+    chunk.BeginChunk("MetaData", 3);
 
     chunk << m_uiNumInstructions;
     chunk << m_uiNumTempRegisters;
     chunk.WriteArray(m_Inputs);
     chunk.WriteArray(m_Outputs);
+    chunk.WriteArray(m_Functions);
 
     chunk.EndChunk();
   }
@@ -213,16 +220,20 @@ ezResult ezExpressionByteCode::Load(ezStreamReader& stream)
   {
     if (chunk.GetCurrentChunk().m_sChunkName == "MetaData")
     {
-      if (chunk.GetCurrentChunk().m_uiChunkVersion >= 2)
+      if (chunk.GetCurrentChunk().m_uiChunkVersion >= 3)
       {
         chunk >> m_uiNumInstructions;
         chunk >> m_uiNumTempRegisters;
         EZ_SUCCEED_OR_RETURN(chunk.ReadArray(m_Inputs));
         EZ_SUCCEED_OR_RETURN(chunk.ReadArray(m_Outputs));
+        EZ_SUCCEED_OR_RETURN(chunk.ReadArray(m_Functions));
       }
       else
       {
-        ezLog::Error("Invalid MetaData Chunk Version {0}. Expected >= 2", chunk.GetCurrentChunk().m_uiChunkVersion);
+        ezLog::Error("Invalid MetaData Chunk Version {0}. Expected >= 3", chunk.GetCurrentChunk().m_uiChunkVersion);
+
+        chunk.EndStream();
+        return EZ_FAILURE;
       }
     }
     else if (chunk.GetCurrentChunk().m_sChunkName == "Code")
@@ -238,6 +249,9 @@ ezResult ezExpressionByteCode::Load(ezStreamReader& stream)
       else
       {
         ezLog::Error("Invalid Code Chunk Version {0}. Expected >= 2", chunk.GetCurrentChunk().m_uiChunkVersion);
+
+        chunk.EndStream();
+        return EZ_FAILURE;
       }
     }
 

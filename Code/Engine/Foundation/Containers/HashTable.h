@@ -28,10 +28,10 @@ public:
     bool IsValid() const; // [tested]
 
     /// \brief Checks whether the two iterators point to the same element.
-    bool operator==(const typename ezHashTableBase<KeyType, ValueType, Hasher>::ConstIterator& it2) const;
+    bool operator==(const typename ezHashTableBase<KeyType, ValueType, Hasher>::ConstIterator& rhs) const;
 
     /// \brief Checks whether the two iterators point to the same element.
-    bool operator!=(const typename ezHashTableBase<KeyType, ValueType, Hasher>::ConstIterator& it2) const;
+    bool operator!=(const typename ezHashTableBase<KeyType, ValueType, Hasher>::ConstIterator& rhs) const;
 
     /// \brief Returns the 'key' of the element that this iterator points to.
     const KeyType& Key() const; // [tested]
@@ -45,14 +45,19 @@ public:
     /// \brief Shorthand for 'Next'
     void operator++(); // [tested]
 
+    /// \brief Returns '*this' to enable foreach
+    EZ_ALWAYS_INLINE ConstIterator& operator*() { return *this; } // [tested]
+
   protected:
     friend class ezHashTableBase<KeyType, ValueType, Hasher>;
 
     explicit ConstIterator(const ezHashTableBase<KeyType, ValueType, Hasher>& hashTable);
+    void SetToBegin();
+    void SetToEnd();
 
-    const ezHashTableBase<KeyType, ValueType, Hasher>* m_hashTable;
-    ezUInt32 m_uiCurrentIndex; // current element index that this iterator points to.
-    ezUInt32 m_uiCurrentCount; // current number of valid elements that this iterator has found so far.
+    const ezHashTableBase<KeyType, ValueType, Hasher>* m_hashTable = nullptr;
+    ezUInt32 m_uiCurrentIndex = 0; // current element index that this iterator points to.
+    ezUInt32 m_uiCurrentCount = 0; // current number of valid elements that this iterator has found so far.
   };
 
   /// \brief Iterator with write access.
@@ -72,8 +77,8 @@ public:
     /// \brief Returns the 'value' of the element that this iterator points to.
     EZ_FORCE_INLINE ValueType& Value(); // [tested]
 
-    /// \brief Returns the 'value' of the element that this iterator points to.
-    EZ_ALWAYS_INLINE ValueType& operator*() { return Value(); }
+    /// \brief Returns '*this' to enable foreach
+    EZ_ALWAYS_INLINE Iterator& operator*() { return *this; } // [tested]
 
   private:
     friend class ezHashTableBase<KeyType, ValueType, Hasher>;
@@ -131,12 +136,15 @@ public:
   template <typename CompatibleKeyType, typename CompatibleValueType>
   bool Insert(CompatibleKeyType&& key, CompatibleValueType&& value, ValueType* out_oldValue = nullptr); // [tested]
 
-  /// \brief Removes the entry with the given key. Returns if an entry was removed and optionally writes out the old value to out_oldValue.
+  /// \brief Removes the entry with the given key. Returns whether an entry was removed and optionally writes out the old value to out_oldValue.
   template <typename CompatibleKeyType>
   bool Remove(const CompatibleKeyType& key, ValueType* out_oldValue = nullptr); // [tested]
 
   /// \brief Erases the key/value pair at the given Iterator. Returns an iterator to the element after the given iterator.
   Iterator Remove(const Iterator& pos); // [tested]
+
+  /// \brief Cannot remove an element with just a ConstIterator
+  void Remove(const ConstIterator& pos) = delete;
 
   /// \brief Returns if an entry with the given key was found and if found writes out the corresponding value to out_value.
   template <typename CompatibleKeyType>
@@ -149,6 +157,14 @@ public:
   /// \brief Returns if an entry with the given key was found and if found writes out the pointer to the corresponding value to out_pValue.
   template <typename CompatibleKeyType>
   bool TryGetValue(const CompatibleKeyType& key, ValueType*& out_pValue); // [tested]
+
+  /// \brief Searches for key, returns a ConstIterator to it or an invalid iterator, if no such key is found. O(1) operation.
+  template <typename CompatibleKeyType>
+  ConstIterator Find(const CompatibleKeyType& key) const;
+
+  /// \brief Searches for key, returns an Iterator to it or an invalid iterator, if no such key is found. O(1) operation.
+  template <typename CompatibleKeyType>
+  Iterator Find(const CompatibleKeyType& key);
 
   /// \brief Returns a pointer to the value of the entry with the given key if found, otherwise returns nullptr.
   template <typename CompatibleKeyType>
@@ -168,8 +184,14 @@ public:
   /// \brief Returns an Iterator to the very first element.
   Iterator GetIterator(); // [tested]
 
+  /// \brief Returns an Iterator to the first element that is not part of the hash-table. Needed to support range based for loops.
+  Iterator GetEndIterator(); // [tested]
+
   /// \brief Returns a constant Iterator to the very first element.
   ConstIterator GetIterator() const; // [tested]
+
+  /// \brief Returns a ConstIterator to the first element that is not part of the hash-table. Needed to support range based for loops.
+  ConstIterator GetEndIterator() const; // [tested]
 
   /// \brief Returns the allocator that is used by this instance.
   ezAllocatorBase* GetAllocator() const;
@@ -249,5 +271,43 @@ public:
   void operator=(ezHashTableBase<KeyType, ValueType, Hasher>&& rhs);
 };
 
-#include <Foundation/Containers/Implementation/HashTable_inl.h>
+//////////////////////////////////////////////////////////////////////////
+// begin() /end() for range-based for-loop support
 
+template <typename KeyType, typename ValueType, typename Hasher>
+typename ezHashTableBase<KeyType, ValueType, Hasher>::Iterator begin(ezHashTableBase<KeyType, ValueType, Hasher>& container)
+{
+  return container.GetIterator();
+}
+
+template <typename KeyType, typename ValueType, typename Hasher>
+typename ezHashTableBase<KeyType, ValueType, Hasher>::ConstIterator begin(const ezHashTableBase<KeyType, ValueType, Hasher>& container)
+{
+  return container.GetIterator();
+}
+
+template <typename KeyType, typename ValueType, typename Hasher>
+typename ezHashTableBase<KeyType, ValueType, Hasher>::ConstIterator cbegin(const ezHashTableBase<KeyType, ValueType, Hasher>& container)
+{
+  return container.GetIterator();
+}
+
+template <typename KeyType, typename ValueType, typename Hasher>
+typename ezHashTableBase<KeyType, ValueType, Hasher>::Iterator end(ezHashTableBase<KeyType, ValueType, Hasher>& container)
+{
+  return container.GetEndIterator();
+}
+
+template <typename KeyType, typename ValueType, typename Hasher>
+typename ezHashTableBase<KeyType, ValueType, Hasher>::ConstIterator end(const ezHashTableBase<KeyType, ValueType, Hasher>& container)
+{
+  return container.GetEndIterator();
+}
+
+template <typename KeyType, typename ValueType, typename Hasher>
+typename ezHashTableBase<KeyType, ValueType, Hasher>::ConstIterator cend(const ezHashTableBase<KeyType, ValueType, Hasher>& container)
+{
+  return container.GetEndIterator();
+}
+
+#include <Foundation/Containers/Implementation/HashTable_inl.h>

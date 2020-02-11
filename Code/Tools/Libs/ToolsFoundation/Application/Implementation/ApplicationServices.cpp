@@ -53,9 +53,15 @@ ezString ezApplicationServices::GetProjectPreferencesFolder() const
   ezStringBuilder path = GetApplicationUserDataFolder();
 
   ezStringBuilder ProjectName = ezToolsProject::GetSingleton()->GetProjectDirectory();
+
+  ezStringBuilder ProjectPath = ProjectName;
+  ProjectPath.PathParentDirectory();
+
+  const ezUInt32 uiPathHash = ezTempHashedString::ComputeHash(ProjectPath.GetData());
+
   ProjectName = ProjectName.GetFileName();
 
-  path.AppendPath("Projects", ProjectName);
+  path.AppendFormat("/Projects/{}_{}", uiPathHash, ProjectName);
 
   path.MakeCleanPath();
   return path;

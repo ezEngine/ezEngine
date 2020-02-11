@@ -22,32 +22,44 @@ class EZ_RENDERERCORE_DLL ezPointLightComponent : public ezLightComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezPointLightComponent, ezLightComponent, ezPointLightComponentManager);
 
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent
+
+public:
+  virtual void SerializeComponent(ezWorldWriter& stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& stream) override;
+
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezRenderComponent
+
+public:
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
+
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezPointLightComponent
+
 public:
   ezPointLightComponent();
   ~ezPointLightComponent();
 
-  // ezRenderComponent interface
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
+  void SetRange(float fRange); // [ property ]
+  float GetRange() const;      // [ property ]
 
-  void SetRange(float fRange);
-  float GetRange() const;
   float GetEffectiveRange() const;
+
+  void SetProjectedTextureFile(const char* szFile); // [ property ]
+  const char* GetProjectedTextureFile() const;      // [ property ]
 
   void SetProjectedTexture(const ezTextureCubeResourceHandle& hProjectedTexture);
   const ezTextureCubeResourceHandle& GetProjectedTexture() const;
 
-  void SetProjectedTextureFile(const char* szFile);
-  const char* GetProjectedTextureFile() const;
+protected:
+  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
 
-  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
-
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
-
-private:
-
-  float m_fRange;
-  float m_fEffectiveRange;
+  float m_fRange = 0.0f;
+  float m_fEffectiveRange = 0.0f;
 
   ezTextureCubeResourceHandle m_hProjectedTexture;
 };
@@ -65,4 +77,3 @@ public:
   const ezUntrackedString& GetIntensityProperty() const { return m_sProperty2; }
   const ezUntrackedString& GetColorProperty() const { return m_sProperty3; }
 };
-

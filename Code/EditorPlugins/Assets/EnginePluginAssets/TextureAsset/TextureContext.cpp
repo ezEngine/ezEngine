@@ -19,7 +19,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureContext, 1, ezRTTIDefaultAllocator<ezTe
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Texture Asset;Render Target Asset"),
+    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Texture 2D;Render Target"),
   }
   EZ_END_PROPERTIES;
 }
@@ -80,12 +80,10 @@ void ezTextureContext::GetTextureStats(ezGALResourceFormat::Enum& format, ezUInt
 
 void ezTextureContext::OnInitialize()
 {
-  const char* szMeshName = "DefaultTexturePreviewMesh";
   ezStringBuilder sTextureGuid;
   ezConversionUtils::ToString(GetDocumentGuid(), sTextureGuid);
   const ezStringBuilder sMaterialResource(sTextureGuid.GetData(), " - Texture Preview");
 
-  ezMeshResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(szMeshName);
   m_hMaterial = ezResourceManager::GetExistingResource<ezMaterialResource>(sMaterialResource);
 
   m_hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(sTextureGuid);
@@ -104,11 +102,17 @@ void ezTextureContext::OnInitialize()
   }
 
   // Preview Mesh
-  if (!hMesh.IsValid())
+  const char* szMeshName = "DefaultTexturePreviewMesh";
+  m_hPreviewMeshResource = ezResourceManager::GetExistingResource<ezMeshResource>(szMeshName);
+
+  if (!m_hPreviewMeshResource.IsValid())
   {
     const char* szMeshBufferName = "DefaultTexturePreviewMeshBuffer";
 
-    ezMeshBufferResourceHandle hMeshBuffer;
+    ezMeshBufferResourceHandle hMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szMeshBufferName);
+
+
+    if(!hMeshBuffer.IsValid())
     {
       // Build geometry
       ezGeometry geom;
@@ -133,7 +137,7 @@ void ezTextureContext::OnInitialize()
       md.SetMaterial(0, "");
       md.ComputeBounds();
 
-      hMesh = ezResourceManager::CreateResource<ezMeshResource>(szMeshName, std::move(md), pMeshBuffer->GetResourceDescription());
+      m_hPreviewMeshResource = ezResourceManager::CreateResource<ezMeshResource>(szMeshName, std::move(md), pMeshBuffer->GetResourceDescription());
     }
   }
 
@@ -167,7 +171,7 @@ void ezTextureContext::OnInitialize()
 
     ezMeshComponent* pMesh;
     m_hPreviewMesh2D = ezMeshComponent::CreateComponent(pObj, pMesh);
-    pMesh->SetMesh(hMesh);
+    pMesh->SetMesh(m_hPreviewMeshResource);
     pMesh->SetMaterial(0, m_hMaterial);
   }
 

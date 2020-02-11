@@ -5,12 +5,12 @@
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
-#include <QDockWidget>
 #include <Tools/Inspector/ui_TimeWidget.h>
 #include <QGraphicsView>
 #include <QListWidgetItem>
+#include <ads/DockWidget.h>
 
-class ezQtTimeWidget : public QDockWidget, public Ui_TimeWidget
+class ezQtTimeWidget : public ads::CDockWidget, public Ui_TimeWidget
 {
 public:
   Q_OBJECT

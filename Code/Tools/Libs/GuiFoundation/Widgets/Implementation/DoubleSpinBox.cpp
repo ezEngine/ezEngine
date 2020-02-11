@@ -1,6 +1,7 @@
 #include <GuiFoundationPCH.h>
 
 #include <GuiFoundation/Widgets/DoubleSpinBox.moc.h>
+#include <GuiFoundation/Widgets/WidgetUtils.h>
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QLineEdit>
@@ -8,11 +9,11 @@
 #include <QStyleOption>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 
-inline ezQtDoubleSpinBox::ezQtDoubleSpinBox(QWidget* pParent, bool bIntMode)
-    : QDoubleSpinBox(pParent)
+ezQtDoubleSpinBox::ezQtDoubleSpinBox(QWidget* pParent, bool bIntMode)
+  : QDoubleSpinBox(pParent)
 {
   m_fDefaultValue = 0.0;
-  m_fDisplayedValue = ezMath::BasicType<float>::GetNaN();
+  m_fDisplayedValue = ezMath::NaN<float>();
   m_bInvalid = false;
   m_bModified = false;
   m_bIntMode = bIntMode;
@@ -143,7 +144,7 @@ void ezQtDoubleSpinBox::setValueInvalid()
 {
   m_bInvalid = true;
   m_sDisplayedText = QString();
-  m_fDisplayedValue = ezMath::BasicType<float>::GetNaN();
+  m_fDisplayedValue = ezMath::NaN<float>();
   QDoubleSpinBox::setValue(minimum());
 }
 
@@ -151,7 +152,7 @@ void ezQtDoubleSpinBox::setValue(double val)
 {
   EZ_ASSERT_DEBUG(ezMath::IsFinite(val), "Spin box value must be finite!");
   m_bInvalid = false;
-  m_fDisplayedValue = ezMath::BasicType<float>::GetNaN();
+  m_fDisplayedValue = ezMath::NaN<float>();
   QDoubleSpinBox::setValue(val);
 }
 
@@ -269,7 +270,7 @@ void ezQtDoubleSpinBox::mouseMoveEvent(QMouseEvent* event)
       m_iDragDelta += iDelta;
       {
         m_LastDragPos = event->globalPos();
-        const QRect dsize = QApplication::desktop()->availableGeometry(m_LastDragPos);
+        const QRect dsize = ezWidgetUtils::GetClosestScreen(event->globalPos()).availableGeometry();
         if (m_LastDragPos.y() < (dsize.top() + 10))
         {
           m_LastDragPos.setY(dsize.bottom() - 10);

@@ -205,7 +205,7 @@ ezUInt32 ezStringUtils::ToUpperString(char* pString, const char* pStringEnd)
   char* pWriteStart = pString;
   const char* pReadStart = pString;
 
-  while (*pReadStart != '\0' && pReadStart < pStringEnd)
+  while (pReadStart < pStringEnd && *pReadStart != '\0')
   {
     const ezUInt32 uiChar = ezUnicodeUtils::DecodeUtf8ToUtf32(pReadStart);
     const ezUInt32 uiCharUpper = ezStringUtils::ToUpperChar(uiChar);
@@ -223,7 +223,7 @@ ezUInt32 ezStringUtils::ToLowerString(char* pString, const char* pStringEnd)
   char* pWriteStart = pString;
   const char* pReadStart = pString;
 
-  while (*pReadStart != '\0' && pReadStart < pStringEnd)
+  while (pReadStart < pStringEnd && *pReadStart != '\0')
   {
     const ezUInt32 uiChar = ezUnicodeUtils::DecodeUtf8ToUtf32(pReadStart);
     const ezUInt32 uiCharUpper = ezStringUtils::ToLowerChar(uiChar);

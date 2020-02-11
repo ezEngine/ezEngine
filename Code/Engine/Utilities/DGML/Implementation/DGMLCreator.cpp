@@ -31,10 +31,10 @@ void ezDGMLGraphCreator::FillGraphFromWorld(ezWorld* pWorld, ezDGMLGraph& Graph)
       name.Format("GameObject: \"{0}\"", ezStringUtils::IsNullOrEmpty(pObject->GetName()) ? "<Unnamed>" : pObject->GetName());
 
       // Create node for game object
-      ezDGMLGraph::NodeDesc nd;
-      nd.m_Color = ezColor::CornflowerBlue;
-      nd.m_Shape = ezDGMLGraph::NodeShape::Rectangle;
-      auto gameObjectNodeId = m_Graph.AddNode(name.GetData(), &nd);
+      ezDGMLGraph::NodeDesc gameobjectND;
+      gameobjectND.m_Color = ezColor::CornflowerBlue;
+      gameobjectND.m_Shape = ezDGMLGraph::NodeShape::Rectangle;
+      auto gameObjectNodeId = m_Graph.AddNode(name.GetData(), &gameobjectND);
 
       m_VisitedObjects.Insert(pObject, gameObjectNodeId);
 
@@ -59,10 +59,10 @@ void ezDGMLGraphCreator::FillGraphFromWorld(ezWorld* pWorld, ezDGMLGraph& Graph)
       {
         auto szComponentName = component->GetDynamicRTTI()->GetTypeName();
 
-        ezDGMLGraph::NodeDesc nd;
-        nd.m_Color = ezColor::LimeGreen;
-        nd.m_Shape = ezDGMLGraph::NodeShape::RoundedRectangle;
-        auto componentNodeId = m_Graph.AddNode(szComponentName, &nd);
+        ezDGMLGraph::NodeDesc componentND;
+        componentND.m_Color = ezColor::LimeGreen;
+        componentND.m_Shape = ezDGMLGraph::NodeShape::RoundedRectangle;
+        auto componentNodeId = m_Graph.AddNode(szComponentName, &componentND);
 
         // And add the link to the game object
 

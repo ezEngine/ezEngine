@@ -28,19 +28,23 @@ public:
            ///< of the memory.
   };
 
+#if EZ_ENABLED(EZ_SUPPORTS_MEMORY_MAPPED_FILE) || defined(EZ_DOCS)
   /// \brief Attempts to open the given file and map it into memory
   ///
   /// \param szAbsolutePath must be an absolute path to the file that should be mapped.
   ///        The file also must exist and have a size larger than zero bytes.
   /// \param mode How to map the file into memory.
   ezResult Open(const char* szAbsolutePath, Mode mode);
+#endif
 
+#if EZ_ENABLED(EZ_SUPPORTS_SHARED_MEMORY) || defined(EZ_DOCS)
   /// \brief Attempts to open or create the given shared memory block addressed by szSharedName
   ///
   /// \param szSharedName The name of the shared memory region.
   /// \param uiSize The size of the memory which should be mapped.
   /// \param mode How to map the file into memory.
   ezResult OpenShared(const char* szSharedName, ezUInt64 uiSize, Mode mode);
+#endif
 
   /// \brief Removes the memory mapping. Outstanding modifications will be written back to disk at this point.
   void Close();

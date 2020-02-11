@@ -29,7 +29,7 @@ public:
   mutable ezEvent<const ezGameObjectContextEvent&> m_GameObjectContextEvents;
 
 protected:
-  virtual void InitializeAfterLoading() override;
+  virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;
 
 private:
   void ClearContext();

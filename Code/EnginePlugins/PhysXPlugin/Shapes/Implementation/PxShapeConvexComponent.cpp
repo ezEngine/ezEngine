@@ -1,11 +1,11 @@
 #include <PhysXPluginPCH.h>
 
+#include <Core/Utils/WorldGeoExtractionUtil.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <PhysXPlugin/Shapes/PxShapeConvexComponent.h>
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
-#include <Core/Utils/WorldGeoExtractionUtil.h>
 
 using namespace physx;
 
@@ -21,8 +21,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxShapeConvexComponent, 1, ezComponentMode::Static)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezPxShapeConvexComponent::ezPxShapeConvexComponent() {}
-
+ezPxShapeConvexComponent::ezPxShapeConvexComponent() = default;
+ezPxShapeConvexComponent::~ezPxShapeConvexComponent() = default;
 
 void ezPxShapeConvexComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -32,7 +32,6 @@ void ezPxShapeConvexComponent::SerializeComponent(ezWorldWriter& stream) const
 
   s << m_hCollisionMesh;
 }
-
 
 void ezPxShapeConvexComponent::DeserializeComponent(ezWorldReader& stream)
 {
@@ -52,7 +51,6 @@ void ezPxShapeConvexComponent::SetMeshFile(const char* szFile)
   }
 }
 
-
 const char* ezPxShapeConvexComponent::GetMeshFile() const
 {
   if (!m_hCollisionMesh.IsValid())
@@ -60,7 +58,6 @@ const char* ezPxShapeConvexComponent::GetMeshFile() const
 
   return m_hCollisionMesh.GetResourceID();
 }
-
 
 PxShape* ezPxShapeConvexComponent::CreateShape(PxRigidActor* pActor, PxTransform& out_ShapeTransform)
 {
@@ -75,7 +72,7 @@ PxShape* ezPxShapeConvexComponent::CreateShape(PxRigidActor* pActor, PxTransform
   if (!pMesh->GetConvexMesh())
   {
     ezLog::Warning("ezPxShapeConvexComponent '{0}' has a collision mesh set that does not contain a convex mesh: '{1}' ('{2}')",
-                   GetOwner()->GetName(), pMesh->GetResourceID(), pMesh->GetResourceDescription());
+      GetOwner()->GetName(), pMesh->GetResourceID(), pMesh->GetResourceDescription());
     return nullptr;
   }
 
@@ -87,7 +84,6 @@ PxShape* ezPxShapeConvexComponent::CreateShape(PxRigidActor* pActor, PxTransform
   }
   else
   {
-    ezResourceLock<ezPxMeshResource> pMesh(m_hCollisionMesh, ezResourceAcquireMode::AllowLoadingFallback);
     const auto& surfaces = pMesh->GetSurfaces();
 
     if (!surfaces.IsEmpty() && surfaces[0].IsValid())

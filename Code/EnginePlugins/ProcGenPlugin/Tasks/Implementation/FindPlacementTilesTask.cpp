@@ -28,7 +28,7 @@ void FindPlacementTilesTask::Execute()
   m_NewTiles.Clear();
   m_OldTileKeys.Clear();
 
-  ezHybridArray<ezSimdTransform, 8, ezAlignedAllocatorWrapper> globalToLocalBoxTransforms;
+  ezHybridArray<ezSimdMat4f, 8, ezAlignedAllocatorWrapper> globalToLocalBoxTransforms;
 
   auto& outputContext = m_pComponent->m_OutputContexts[m_uiOutputIndex];
 
@@ -105,7 +105,7 @@ void FindPlacementTilesTask::Execute()
               newTile.m_fMinZ = minZ;
               newTile.m_fMaxZ = maxZ;
               newTile.m_fPatternSize = fPatternSize;
-              newTile.m_fDistanceToCamera = ezMath::BasicType<float>::MaxValue();
+              newTile.m_fDistanceToCamera = ezMath::MaxValue<float>();
               newTile.m_GlobalToLocalBoxTransforms = globalToLocalBoxTransforms;
             }
           }

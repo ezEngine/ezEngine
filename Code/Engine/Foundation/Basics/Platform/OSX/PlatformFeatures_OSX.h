@@ -12,6 +12,14 @@
 #undef EZ_SUPPORTS_FILE_STATS
 #define EZ_SUPPORTS_FILE_STATS EZ_ON
 
+/// Memory mapping a file is supported.
+#undef EZ_SUPPORTS_MEMORY_MAPPED_FILE
+#define EZ_SUPPORTS_MEMORY_MAPPED_FILE EZ_ON
+
+/// Shared memory IPC is supported.
+#undef EZ_SUPPORTS_SHARED_MEMORY
+#define EZ_SUPPORTS_SHARED_MEMORY EZ_ON
+
 /// Whether dynamic plugins (through DLLs loaded/unloaded at runtime) are supported
 #undef EZ_SUPPORTS_DYNAMIC_PLUGINS
 #define EZ_SUPPORTS_DYNAMIC_PLUGINS EZ_OFF

@@ -50,14 +50,20 @@ CONSTANT_BUFFER(ezObjectConstants, 2)
   
   #define VERTEX_COLOR_ACCESS_OFFSET_BITS 28
   #define VERTEX_COLOR_ACCESS_OFFSET_MASK ((1 << VERTEX_COLOR_ACCESS_OFFSET_BITS) - 1)
+  
+  uint GetNumInstanceVertexColorsHelper(uint accessData)
+  {
+    return accessData >> VERTEX_COLOR_ACCESS_OFFSET_BITS;
+  }    
 
   uint GetInstanceVertexColorsHelper(uint accessData, uint vertexID, uint colorIndex)
   {
-    uint numColorsPerVertex = accessData >> VERTEX_COLOR_ACCESS_OFFSET_BITS;
+    uint numColorsPerVertex = GetNumInstanceVertexColorsHelper(accessData);
     uint offset = (accessData & VERTEX_COLOR_ACCESS_OFFSET_MASK) + (vertexID * numColorsPerVertex + colorIndex);
     return colorIndex < numColorsPerVertex ? perInstanceVertexColors[offset] : 0;
   }
   
+  #define GetNumInstanceVertexColors() GetNumInstanceVertexColorsHelper(GetInstanceData().VertexColorAccessData)
   #define GetInstanceVertexColors(colorIndex) GetInstanceVertexColorsHelper(GetInstanceData().VertexColorAccessData, G.Input.VertexID, colorIndex)
 
 #endif

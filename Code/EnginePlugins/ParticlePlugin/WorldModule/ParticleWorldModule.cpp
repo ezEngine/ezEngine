@@ -50,7 +50,7 @@ void ezParticleWorldModule::Initialize()
     RegisterUpdateFunction(finishDesc);
   }
 
-  ezResourceManager::s_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezParticleWorldModule::ResourceEventHandler, this));
+  ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezParticleWorldModule::ResourceEventHandler, this));
 }
 
 
@@ -58,7 +58,7 @@ void ezParticleWorldModule::Deinitialize()
 {
   EZ_LOCK(m_Mutex);
 
-  ezResourceManager::s_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezParticleWorldModule::ResourceEventHandler, this));
+  ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezParticleWorldModule::ResourceEventHandler, this));
 
   m_ParticleSystemFreeList.Clear();
   m_FinishingEffects.Clear();

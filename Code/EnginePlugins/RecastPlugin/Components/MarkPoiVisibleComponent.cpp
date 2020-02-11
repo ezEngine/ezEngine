@@ -22,8 +22,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezRcMarkPoiVisibleComponent, 1, ezComponentMode::Static)
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
-ezRcMarkPoiVisibleComponent::ezRcMarkPoiVisibleComponent() {}
-ezRcMarkPoiVisibleComponent::~ezRcMarkPoiVisibleComponent() {}
+ezRcMarkPoiVisibleComponent::ezRcMarkPoiVisibleComponent() = default;
+ezRcMarkPoiVisibleComponent::~ezRcMarkPoiVisibleComponent() = default;
 
 void ezRcMarkPoiVisibleComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -109,8 +109,8 @@ void ezRcMarkPoiVisibleComponent::Update()
 
       --iPointsToCheck;
 
-      ezPhysicsHitResult hit;
-      if (m_pPhysicsModule->CastRay(vOwnPos, vDirToTop, fRayLenTop, m_uiCollisionLayer, hit, ezPhysicsShapeType::Static))
+      ezPhysicsHitResult hit2;
+      if (m_pPhysicsModule->CastRay(vOwnPos, vDirToTop, fRayLenTop, m_uiCollisionLayer, hit2, ezPhysicsShapeType::Static))
       {
         poi.m_uiVisibleMarker = uiCheckTimeStamp;
       }

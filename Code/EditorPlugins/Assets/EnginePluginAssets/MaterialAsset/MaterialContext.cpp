@@ -27,7 +27,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialContext, 1, ezRTTIDefaultAllocator<ezM
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Material Asset"),
+    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Material"),
   }
   EZ_END_PROPERTIES;
 }
@@ -50,13 +50,15 @@ void ezMaterialContext::OnInitialize()
 {
 
   const char* szMeshName = "DefaultMaterialPreviewMesh";
-  ezMeshResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(szMeshName);
+  m_hPreviewMeshResource = ezResourceManager::GetExistingResource<ezMeshResource>(szMeshName);
 
-  if (!hMesh.IsValid())
+  if (!m_hPreviewMeshResource.IsValid())
   {
     const char* szMeshBufferName = "DefaultMaterialPreviewMeshBuffer";
 
-    ezMeshBufferResourceHandle hMeshBuffer;
+    ezMeshBufferResourceHandle hMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szMeshBufferName);
+
+    if (!hMeshBuffer.IsValid())
     {
       // Build geometry
       ezGeometry geom;
@@ -75,6 +77,7 @@ void ezMaterialContext::OnInitialize()
 
       hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(szMeshBufferName, std::move(desc), szMeshBufferName);
     }
+
     {
       ezResourceLock<ezMeshBufferResource> pMeshBuffer(hMeshBuffer, ezResourceAcquireMode::AllowLoadingFallback);
 
@@ -84,7 +87,7 @@ void ezMaterialContext::OnInitialize()
       md.SetMaterial(0, "");
       md.ComputeBounds();
 
-      hMesh = ezResourceManager::CreateResource<ezMeshResource>(szMeshName, std::move(md), pMeshBuffer->GetResourceDescription());
+      m_hPreviewMeshResource = ezResourceManager::CreateResource<ezMeshResource>(szMeshName, std::move(md), pMeshBuffer->GetResourceDescription());
     }
   }
 
@@ -102,7 +105,7 @@ void ezMaterialContext::OnInitialize()
 
     ezMeshComponent* pMesh;
     ezMeshComponent::CreateComponent(pObj, pMesh);
-    pMesh->SetMesh(hMesh);
+    pMesh->SetMesh(m_hPreviewMeshResource);
     ezStringBuilder sMaterialGuid;
     ezConversionUtils::ToString(GetDocumentGuid(), sMaterialGuid);
     m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>(sMaterialGuid);

@@ -143,7 +143,7 @@ QVariant ezQtLogMessageModel::data(const QModelIndex& index, int role) const
       }
       return QString(uiIndention * 3, ' ') + QString(Message.m_sMessage.c_str());
     }
-    case Qt::TextColorRole:
+    case Qt::ForegroundRole:
     {
       switch (Message.m_Type)
       {
@@ -167,7 +167,7 @@ QVariant ezQtLogMessageModel::data(const QModelIndex& index, int role) const
           return QVariant();
       }
     }
-    case Qt::BackgroundColorRole:
+    case Qt::BackgroundRole:
     {
       QPalette palette = QApplication::palette();
       if (pCurrentTestSelection != nullptr && pCurrentTestSelection->m_iFirstOutput != -1)

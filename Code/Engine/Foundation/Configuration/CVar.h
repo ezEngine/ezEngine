@@ -6,6 +6,8 @@
 #include <Foundation/Types/Bitflags.h>
 #include <Foundation/Utilities/EnumerableClass.h>
 
+class ezCVar;
+
 /// \brief Describes of which type a CVar is. Use that info to cast an ezCVar* to the proper derived class.
 struct ezCVarType
 {
@@ -49,6 +51,29 @@ struct ezCVarFlags
 };
 
 EZ_DECLARE_FLAGS_OPERATORS(ezCVarFlags);
+
+/// \brief The data that is broadcast whenever a cvar is changed.
+struct ezCVarEvent
+{
+  ezCVarEvent(ezCVar* pCVar)
+    : m_EventType(ValueChanged)
+    , m_pCVar(pCVar)
+  {
+  }
+
+  enum Type
+  {
+    ValueChanged,        ///< Sent whenever the 'Current' value of the CVar is changed.
+    RestartValueChanged, ///< Sent whenever the 'Restart' value of the CVar changes. It might actually change back to the 'Current' value though.
+    ListOfVarsChanged,   ///< A CVar was added or removed dynamically (not just by loading a plugin), some stuff may need to update its state
+  };
+
+  /// \brief The type of this event.
+  Type m_EventType;
+
+  /// \brief Which CVar is involved. This is only for convenience, it is always the CVar on which the event is triggered.
+  ezCVar* m_pCVar;
+};
 
 /// \brief CVars are global variables that are used for configuring the engine.
 ///
@@ -142,32 +167,19 @@ public:
   /// \brief Returns all the CVar flags.
   ezBitflags<ezCVarFlags> GetFlags() const { return m_Flags; } // [tested]
 
-  /// \brief The data that is broadcast whenever a cvar is changed.
-  struct CVarEvent
-  {
-    CVarEvent(ezCVar* pCVar) : m_EventType(ValueChanged), m_pCVar(pCVar) {}
-
-    enum Type
-    {
-      ValueChanged,        ///< Sent whenever the 'Current' value of the CVar is changed.
-      RestartValueChanged, ///< Sent whenever the 'Restart' value of the CVar changes. It might actually change back to the 'Current' value though.
-    };
-
-    /// \brief The type of this event.
-    Type m_EventType;
-
-    /// \brief Which CVar is involved. This is only for convenience, it is always the CVar on which the event is triggered.
-    ezCVar* m_pCVar;
-  };
-
   /// \brief Code that needs to be execute whenever a cvar is changed can register itself here to be notified of such events.
-  ezEvent<const CVarEvent&, ezNoMutex, ezStaticAllocatorWrapper> m_CVarEvents; // [tested]
+  ezEvent<const ezCVarEvent&, ezNoMutex, ezStaticAllocatorWrapper> m_CVarEvents; // [tested]
 
   /// \brief Broadcasts changes to ANY CVar. Thus code that needs to update when any one of them changes can use this to be notified.
-  static ezEvent<const CVarEvent&> s_AllCVarEvents;
+  static ezEvent<const ezCVarEvent&> s_AllCVarEvents;
 
   /// \brief Returns the name of the plugin which this CVar is declared in.
   const char* GetPluginName() const { return m_szPluginName; }
+
+  /// \brief Call this after creating or destroying CVars dynamically (not through loading plugins) to allow UIs to update their state.
+  ///
+  /// Broadcasts ezCVarEvent::ListOfVarsChanged.
+  static void ListOfCVarsChanged(const char* szSetPluginNameTo);
 
 protected:
   ezCVar(const char* szName, ezBitflags<ezCVarFlags> Flags, const char* szDescription);
@@ -180,7 +192,7 @@ private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, CVars);
 
   static void AssignSubSystemPlugin(const char* szPluginName);
-  static void PluginEventHandler(const ezPlugin::PluginEvent& EventData);
+  static void PluginEventHandler(const ezPluginEvent& EventData);
 
 
   bool m_bHasNeverBeenLoaded;
@@ -248,4 +260,3 @@ typedef ezTypedCVar<ezHybridString<32>, ezCVarType::String> ezCVarString;
 
 
 #include <Foundation/Configuration/Implementation/CVar_inl.h>
-

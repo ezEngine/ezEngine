@@ -33,7 +33,7 @@ EZ_ALWAYS_INLINE ezSimdBBoxSphere::ezSimdBBoxSphere(const ezSimdBSphere& sphere)
 EZ_ALWAYS_INLINE void ezSimdBBoxSphere::SetInvalid()
 {
   m_CenterAndRadius.Set(0.0f, 0.0f, 0.0f, -1.0f);
-  m_BoxHalfExtents.Set(-ezMath::BasicType<float>::MaxValue());
+  m_BoxHalfExtents.Set(-ezMath::MaxValue<float>());
 }
 
 EZ_ALWAYS_INLINE bool ezSimdBBoxSphere::IsValid() const

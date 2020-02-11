@@ -146,12 +146,15 @@ ezTypeVersion ezStreamReader::ReadVersion(ezTypeVersion uiExpectedMaxVersion)
   ReadWordValue(&v);
 
   EZ_ASSERT_ALWAYS(v <= uiExpectedMaxVersion, "Read version ({0}) is larger than expected max version ({1}).", v, uiExpectedMaxVersion);
+  EZ_ASSERT_ALWAYS(v > 0, "Invalid version.");
 
   return v;
 }
 
 void ezStreamWriter::WriteVersion(ezTypeVersion uiVersion)
 {
+  EZ_ASSERT_ALWAYS(uiVersion > 0, "Version cannot be zero.");
+
   WriteWordValue(&uiVersion);
 }
 
@@ -292,7 +295,7 @@ ezResult ezStreamReader::ReadArray(ezArrayBase<ValueType, ArrayType>& Array)
   ezUInt64 uiCount = 0;
   ReadQWordValue(&uiCount);
 
-  EZ_ASSERT_DEV(uiCount < std::numeric_limits<ezUInt32>::max(),
+  EZ_ASSERT_DEV(uiCount < ezMath::MaxValue<ezUInt32>(),
                 "Containers currently use 32 bit for counts internally. Value from file is too large.");
 
   Array.Clear();
@@ -316,7 +319,7 @@ ezResult ezStreamReader::ReadArray(ValueType (&Array)[uiSize])
   ezUInt64 uiCount = 0;
   ReadQWordValue(&uiCount);
 
-  EZ_ASSERT_DEV(uiCount < std::numeric_limits<ezUInt32>::max(),
+  EZ_ASSERT_DEV(uiCount < ezMath::MaxValue<ezUInt32>(),
                 "Containers currently use 32 bit for counts internally. Value from file is too large.");
 
   if (static_cast<ezUInt32>(uiCount) != uiSize)
@@ -336,7 +339,7 @@ ezResult ezStreamReader::ReadSet(ezSetBase<KeyType, Comparer>& Set)
   ezUInt64 uiCount = 0;
   ReadQWordValue(&uiCount);
 
-  EZ_ASSERT_DEV(uiCount < std::numeric_limits<ezUInt32>::max(),
+  EZ_ASSERT_DEV(uiCount < ezMath::MaxValue<ezUInt32>(),
                 "Containers currently use 32 bit for counts internally. Value from file is too large.");
 
   Set.Clear();
@@ -358,7 +361,7 @@ ezResult ezStreamReader::ReadMap(ezMapBase<KeyType, ValueType, Comparer>& Map)
   ezUInt64 uiCount = 0;
   ReadQWordValue(&uiCount);
 
-  EZ_ASSERT_DEV(uiCount < std::numeric_limits<ezUInt32>::max(),
+  EZ_ASSERT_DEV(uiCount < ezMath::MaxValue<ezUInt32>(),
                 "Containers currently use 32 bit for counts internally. Value from file is too large.");
 
   Map.Clear();
@@ -383,7 +386,7 @@ ezResult ezStreamReader::ReadHashTable(ezHashTableBase<KeyType, ValueType, Hashe
   ReadQWordValue(&uiCount);
 
   EZ_ASSERT_DEV(
-    uiCount < std::numeric_limits<ezUInt32>::max(), "Containers currently use 32 bit for counts internally. Value from file is too large.");
+    uiCount < ezMath::MaxValue<ezUInt32>(), "Containers currently use 32 bit for counts internally. Value from file is too large.");
 
   HashTable.Clear();
   HashTable.Reserve(static_cast<ezUInt32>(uiCount));

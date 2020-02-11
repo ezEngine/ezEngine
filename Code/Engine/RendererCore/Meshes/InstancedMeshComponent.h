@@ -4,6 +4,7 @@
 #include <RendererCore/Meshes/MeshComponentBase.h>
 
 struct ezPerInstanceData;
+struct ezRenderWorldRenderEvent;
 class ezInstancedMeshComponent;
 struct ezMsgExtractGeometry;
 class ezStreamWriter;
@@ -66,7 +67,7 @@ private:
   mutable ezDeque<ComponentToUpdate> m_RequireUpdate;
 
 protected:
-  void OnRenderBegin(ezUInt64 uiFrameCounter);
+  void OnRenderEvent(const ezRenderWorldRenderEvent& e);
 
   virtual void Initialize() override;
   virtual void Deinitialize() override;
@@ -76,34 +77,49 @@ class EZ_RENDERERCORE_DLL ezInstancedMeshComponent : public ezMeshComponentBase
 {
   EZ_DECLARE_COMPONENT_TYPE(ezInstancedMeshComponent, ezMeshComponentBase, ezInstancedMeshComponentManager);
 
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent
+
+public:
+  virtual void SerializeComponent(ezWorldWriter& stream) const override;
+  virtual void DeserializeComponent(ezWorldReader& stream) override;
+
+protected:
+  virtual void OnActivated() override;
+  virtual void OnDeactivated() override;
+
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezRenderComponent
+
+public:
+  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezMeshComponentBase
+
+protected:
+  virtual ezMeshRenderData* CreateRenderData() const override;
+
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezInstancedMeshComponent
+
 public:
   ezInstancedMeshComponent();
   ~ezInstancedMeshComponent();
 
-  //////////////////////////////////////////////////////////////////////////
-  // ezComponent Interface
-  //
-  virtual void SerializeComponent(ezWorldWriter& stream) const override;
-  virtual void DeserializeComponent(ezWorldReader& stream) override;
-
-  virtual void OnActivated() override;
-  virtual void OnDeactivated() override;
-
   /// \brief Extracts the render geometry for export etc.
-  void OnExtractGeometry(ezMsgExtractGeometry& msg);
-
-public:
-  virtual ezResult GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible) override;
-  void OnExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void OnMsgExtractGeometry(ezMsgExtractGeometry& msg); // [ msg handler ]
 
 protected:
-  virtual ezMeshRenderData* CreateRenderData() const;
+  void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
 
-  ezUInt32 Instances_GetCount() const;
-  ezMeshInstanceData Instances_GetValue(ezUInt32 uiIndex) const;
-  void Instances_SetValue(ezUInt32 uiIndex, ezMeshInstanceData value);
-  void Instances_Insert(ezUInt32 uiIndex, ezMeshInstanceData value);
-  void Instances_Remove(ezUInt32 uiIndex);
+  ezUInt32 Instances_GetCount() const;                                 // [ property ]
+  ezMeshInstanceData Instances_GetValue(ezUInt32 uiIndex) const;       // [ property ]
+  void Instances_SetValue(ezUInt32 uiIndex, ezMeshInstanceData value); // [ property ]
+  void Instances_Insert(ezUInt32 uiIndex, ezMeshInstanceData value);   // [ property ]
+  void Instances_Remove(ezUInt32 uiIndex);                             // [ property ]
 
   ezArrayPtr<ezPerInstanceData> GetInstanceData() const;
 

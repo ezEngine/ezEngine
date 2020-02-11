@@ -1,8 +1,5 @@
-#ifdef EZ_THREAD_WIN_INL_H_INCLUDED
-#error "This file must not be included twice."
-#endif
-
-#define EZ_THREAD_WIN_INL_H_INCLUDED
+#include <Foundation/FoundationInternal.h>
+EZ_FOUNDATION_INTERNAL_HEADER
 
 // Deactivate Doxygen document generation for the following block.
 /// \cond

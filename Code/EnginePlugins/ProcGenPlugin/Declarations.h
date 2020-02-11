@@ -24,12 +24,47 @@ struct ezProcGenBlendMode
     Divide,
     Max,
     Min,
+    Set,
 
     Default = Multiply
   };
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCGENPLUGIN_DLL, ezProcGenBlendMode);
+
+struct ezProcVertexColorChannelMapping
+{
+  typedef ezUInt8 StorageType;
+
+  enum Enum
+  {
+    R,
+    G,
+    B,
+    A,
+    Black,
+    White,
+
+    Default = R
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCGENPLUGIN_DLL, ezProcVertexColorChannelMapping);
+
+struct ezProcVertexColorMapping
+{
+  ezEnum<ezProcVertexColorChannelMapping> m_R = ezProcVertexColorChannelMapping::R;
+  ezEnum<ezProcVertexColorChannelMapping> m_G = ezProcVertexColorChannelMapping::G;
+  ezEnum<ezProcVertexColorChannelMapping> m_B = ezProcVertexColorChannelMapping::B;
+  ezEnum<ezProcVertexColorChannelMapping> m_A = ezProcVertexColorChannelMapping::A;
+
+  ezResult Serialize(ezStreamWriter& stream) const;
+  ezResult Deserialize(ezStreamReader& stream);
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCGENPLUGIN_DLL, ezProcVertexColorMapping);
+
+//////////////////////////////////////////////////////////////////////////
 
 namespace ezProcGenInternal
 {
@@ -38,6 +73,13 @@ namespace ezProcGenInternal
   class PreparePlacementTask;
   class PlacementTask;
   class VertexColorTask;
+  struct PlacementData;
+
+  struct InvalidatedArea
+  {
+    ezBoundingBox m_Box;
+    ezWorld* m_pWorld = nullptr;
+  };
 
   struct Pattern
   {
@@ -51,7 +93,23 @@ namespace ezProcGenInternal
     float m_fSize;
   };
 
-  struct PlacementOutput : public ezRefCounted
+  struct EZ_PROCGENPLUGIN_DLL GraphSharedDataBase : public ezRefCounted
+  {
+  };
+
+  struct Output : public ezRefCounted
+  {
+    virtual ~Output();
+
+    ezHashedString m_sName;
+
+    ezHybridArray<ezUInt8, 4> m_VolumeTagSetIndices;
+    ezSharedPtr<const GraphSharedDataBase> m_pGraphSharedData;
+
+    ezUniquePtr<ezExpressionByteCode> m_pByteCode;
+  };
+
+  struct PlacementOutput : public Output
   {
     float GetTileSize() const { return m_pPattern->m_fSize * m_fFootprint; }
 
@@ -60,8 +118,6 @@ namespace ezProcGenInternal
       return !m_ObjectsToPlace.IsEmpty() && m_pPattern != nullptr && m_fFootprint > 0.0f && m_fCullDistance > 0.0f &&
              m_pByteCode != nullptr;
     }
-
-    ezHashedString m_sName;
 
     ezHybridArray<ezPrefabResourceHandle, 4> m_ObjectsToPlace;
 
@@ -83,15 +139,10 @@ namespace ezProcGenInternal
     ezColorGradientResourceHandle m_hColorGradient;
 
     ezSurfaceResourceHandle m_hSurface;
-
-    ezExpressionByteCode* m_pByteCode = nullptr;
   };
 
-  struct VertexColorOutput : public ezRefCounted
+  struct VertexColorOutput : public Output
   {
-    ezHashedString m_sName;
-
-    ezExpressionByteCode* m_pByteCode = nullptr;
   };
 
   struct EZ_PROCGENPLUGIN_DLL ExpressionInputs
@@ -102,6 +153,10 @@ namespace ezProcGenInternal
     static ezHashedString s_sNormalX;
     static ezHashedString s_sNormalY;
     static ezHashedString s_sNormalZ;
+    static ezHashedString s_sColorR;
+    static ezHashedString s_sColorG;
+    static ezHashedString s_sColorB;
+    static ezHashedString s_sColorA;
     static ezHashedString s_sPointIndex;
   };
 
@@ -151,6 +206,6 @@ namespace ezProcGenInternal
     float m_fPatternSize;
     float m_fDistanceToCamera;
 
-    ezHybridArray<ezSimdTransform, 8, ezAlignedAllocatorWrapper> m_GlobalToLocalBoxTransforms;
+    ezHybridArray<ezSimdMat4f, 8, ezAlignedAllocatorWrapper> m_GlobalToLocalBoxTransforms;
   };
 } // namespace ezProcGenInternal

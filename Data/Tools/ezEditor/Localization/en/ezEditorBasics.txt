@@ -92,6 +92,7 @@ Editor.Plugins;Editor Pl&ugins...;Opens the editor plugins dialog
 Editor.Shortcuts;Shortcuts...;Opens the shortcut configuration dialog
 Editor.Preferences;Preferences...;Opens the preferences dialog
 Editor.SaveProfiling;Save Editor Profiling Data;Saves profiling information about editor performance to file. See log for details.
+Editor.OpenVsCode;Open in Visual Studio Code
 Engine.Plugins;Engine Pl&ugins...;Opens the engine plugins dialog
 Engine.Tags;Tags...;Opens the tags configuration dialog
 ezCameraMode::PerspectiveFixedFovX;Perspective Fixed X
@@ -124,3 +125,4 @@ ezTextureAssetProfileConfig;Texture Assets
 ezRenderPipelineProfileConfig;Render Pipelines
 Configs;Configs
 CameraPipelines;Camera Pipelines
+Help.OpenWiki;Open ezEngine Wiki

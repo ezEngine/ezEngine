@@ -1,5 +1,6 @@
 #include <RtsGamePluginPCH.h>
 
+#include <GameEngine/DearImgui/DearImgui.h>
 #include <RtsGamePlugin/Components/ComponentMessages.h>
 #include <RtsGamePlugin/Components/SelectableComponent.h>
 #include <RtsGamePlugin/GameMode/GameMode.h>
@@ -332,7 +333,6 @@ ezGameObject* RtsGameState::PickSelectableObject() const
     return nullptr;
 
   ezSpatialSystem::QueryCallback cb = [&pl](ezGameObject* pObject) {
-
     RtsSelectableComponent* pSelectable = nullptr;
     if (pObject->TryGetComponentOfBaseType(pSelectable))
     {
@@ -357,7 +357,8 @@ ezGameObject* RtsGameState::PickSelectableObject() const
 void RtsGameState::InspectObjectsInArea(const ezVec2& position, float radius, ezSpatialSystem::QueryCallback callback) const
 {
   ezBoundingSphere sphere(position.GetAsVec3(0), radius);
-  m_pMainWorld->GetSpatialSystem().FindObjectsInSphere(sphere, callback, nullptr);
+  ezUInt32 uiCategoryBitmask = RtsSelectableComponent::s_SelectableCategory.GetBitmask();
+  m_pMainWorld->GetSpatialSystem()->FindObjectsInSphere(sphere, uiCategoryBitmask, callback, nullptr);
 }
 
 ezGameObject* RtsGameState::SpawnNamedObjectAt(const ezTransform& transform, const char* szObjectName, ezUInt16 uiTeamID)
@@ -367,7 +368,7 @@ ezGameObject* RtsGameState::SpawnNamedObjectAt(const ezTransform& transform, con
   ezResourceLock<ezPrefabResource> pPrefab(hPrefab, ezResourceAcquireMode::BlockTillLoaded);
 
   ezHybridArray<ezGameObject*, 8> CreatedRootObjects;
-  pPrefab->InstantiatePrefab(*m_pMainWorld, transform, ezGameObjectHandle(), &CreatedRootObjects, &uiTeamID, nullptr);
+  pPrefab->InstantiatePrefab(*m_pMainWorld, transform, ezGameObjectHandle(), &CreatedRootObjects, &uiTeamID, nullptr, false);
 
   return CreatedRootObjects[0];
 }

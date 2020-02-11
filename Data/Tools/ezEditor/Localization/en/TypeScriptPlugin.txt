@@ -1,0 +1,9 @@
+TypeScript.Edit;Edit Script;Edit Script - Creates the script file if necessary
+StringParameters;String Variables
+Vec3Parameters;Vec3 Variables
+ezTypeScriptParameterBool;Boolean
+ezTypeScriptParameterColor;Color
+ezTypeScriptParameterNumber;Number
+ezTypeScriptParameterString;String
+ezTypeScriptParameterVec3;Vec3
+ezTypeScriptComponent;TypeScript Component

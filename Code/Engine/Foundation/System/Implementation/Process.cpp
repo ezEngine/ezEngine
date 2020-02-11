@@ -6,7 +6,7 @@
 #    include <Foundation/System/Implementation/Win/Process_win.h>
 #  elif EZ_ENABLED(EZ_PLATFORM_OSX)
 #    include <Foundation/System/Implementation/OSX/Process_OSX.h>
-#  elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+#  elif EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
 #    include <Foundation/System/Implementation/Posix/Process_posix.h>
 #  else
 #    error "Process functions are not implemented on current platform"
@@ -18,11 +18,11 @@ ezProcess::ezProcess(ezProcess&& rhs) = default;
 
 void ezProcessOptions::AddArgument(const ezFormatString& arg)
 {
-  ezStringBuilder sb;
-  arg.GetText(sb);
-  sb.Trim(" \t\n");
+  ezStringBuilder formatted, tmp;
+  formatted = arg.GetText(tmp);
+  formatted.Trim(" \t\n");
 
-  m_Arguments.PushBack(sb);
+  m_Arguments.PushBack(formatted);
 }
 
 void ezProcessOptions::AddCommandLine(const char* szCmdLine)

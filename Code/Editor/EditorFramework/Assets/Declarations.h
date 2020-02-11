@@ -10,7 +10,7 @@ class ezAssetFileHeader;
 
 struct ezAssetExistanceState
 {
-  enum Enum
+  enum Enum : ezUInt8
   {
     FileAdded,
     FileRemoved,
@@ -39,15 +39,46 @@ struct ezAssetDocumentFlags
     StorageType AutoTransformOnSave : 1;
     StorageType DisableTransform : 1;
     StorageType OnlyTransformManually : 1;
+    StorageType SupportsThumbnail : 1;
+    StorageType AutoThumbnailOnTransform : 1;
   };
 };
 
 EZ_DECLARE_FLAGS_OPERATORS(ezAssetDocumentFlags);
 
+struct ezTransformFlags
+{
+  typedef ezUInt8 StorageType;
+
+  enum Enum
+  {
+    None = 0,
+    TriggeredManually = EZ_BIT(0), ///< Transform triggered by user directly. Needs to be set to transform assets marked with ezAssetDocumentFlags::Enum::OnlyTransformManually.
+    ForceTransform = EZ_BIT(1), ///< Will transform the asset regardless of its current transform state.
+    Default = None
+  };
+
+  struct Bits
+  {
+    StorageType TriggeredManually : 1;
+    StorageType ForceTransform : 1;
+  };
+};
+EZ_DECLARE_FLAGS_OPERATORS(ezTransformFlags);
+
 struct ezSubAssetData
 {
   ezUuid m_Guid;
-  ezHashedString m_sAssetTypeName;
+  ezHashedString m_sSubAssetsDocumentTypeName;
   ezString m_sName;
+};
+
+struct EZ_EDITORFRAMEWORK_DLL ezAssetDocumentTypeDescriptor : public ezDocumentTypeDescriptor
+{
+  ezAssetDocumentTypeDescriptor() = default;
+  ~ezAssetDocumentTypeDescriptor() = default;
+
+  ezString m_sResourceFileExtension;
+  ezBitflags<ezAssetDocumentFlags> m_AssetDocumentFlags;
 };
 

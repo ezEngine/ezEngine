@@ -86,7 +86,7 @@ void ezFmod::Startup()
   EZ_FMOD_ASSERT(FMOD::Studio::System::create(&m_pStudioSystem));
 
   // The example Studio project is authored for 5.1 sound, so set up the system output mode to match
-  EZ_FMOD_ASSERT(m_pStudioSystem->getLowLevelSystem(&m_pLowLevelSystem));
+  EZ_FMOD_ASSERT(m_pStudioSystem->getCoreSystem(&m_pLowLevelSystem));
   EZ_FMOD_ASSERT(m_pLowLevelSystem->setSoftwareFormat(config.m_uiSamplerRate, fmodMode, 0));
 
   void* extraDriverData = nullptr;
@@ -99,18 +99,22 @@ void ezFmod::Startup()
   {
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     // mutex handle will be closed automatically on process termination
-    GetLastError();
+    DWORD err = GetLastError();
     g_hLiveUpdateMutex = CreateMutexW(nullptr, TRUE, L"ezFmodLiveUpdate");
 
-    if (g_hLiveUpdateMutex != NULL && GetLastError() != ERROR_ALREADY_EXISTS)
+    err = GetLastError();
+    if (g_hLiveUpdateMutex != NULL && err != ERROR_ALREADY_EXISTS)
     {
       studioflags |= FMOD_STUDIO_INIT_LIVEUPDATE;
     }
     else
     {
       ezLog::Warning("Fmod Live-Update not available for this process, another process using fmod is already running.");
-      CloseHandle(g_hLiveUpdateMutex); // we didn't create it, so don't keep it alive
-      g_hLiveUpdateMutex = NULL;
+      if (g_hLiveUpdateMutex != NULL)
+      {
+        CloseHandle(g_hLiveUpdateMutex); // we didn't create it, so don't keep it alive
+        g_hLiveUpdateMutex = NULL;
+      }
     }
 #else
     studioflags |= FMOD_STUDIO_INIT_LIVEUPDATE;
@@ -141,14 +145,14 @@ void ezFmod::Shutdown()
   if (m_bInitialized)
   {
     // delete all fmod resources, except the master bank
-    ezResourceManager::FreeUnusedResources(true);
+    ezResourceManager::FreeAllUnusedResources();
 
     m_bInitialized = false;
     m_pData->m_hMasterBank.Invalidate();
     m_pData->m_hMasterBankStrings.Invalidate();
 
     // now also delete the master bank
-    ezResourceManager::FreeUnusedResources(true);
+    ezResourceManager::FreeAllUnusedResources();
 
     // now actually delete the sound bank data
     ClearSoundBankDataDeletionQueue();

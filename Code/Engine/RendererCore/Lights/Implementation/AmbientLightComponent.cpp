@@ -31,14 +31,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezAmbientLightComponent, 2, ezComponentMode::Static)
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
-ezAmbientLightComponent::ezAmbientLightComponent()
-  : m_TopColor(ezColor(0.2f, 0.2f, 0.3f))
-  , m_BottomColor(ezColor(0.1f, 0.1f, 0.15f))
-  , m_fIntensity(1.0f)
-{
-}
-
-ezAmbientLightComponent::~ezAmbientLightComponent() {}
+ezAmbientLightComponent::ezAmbientLightComponent() = default;
+ezAmbientLightComponent::~ezAmbientLightComponent() = default;
 
 void ezAmbientLightComponent::Deinitialize()
 {
@@ -108,7 +102,7 @@ float ezAmbientLightComponent::GetIntensity() const
 
 void ezAmbientLightComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
 {
-  msg.SetAlwaysVisible();
+  msg.SetAlwaysVisible(GetOwner()->IsDynamic() ? ezDefaultSpatialDataCategories::RenderDynamic : ezDefaultSpatialDataCategories::RenderStatic);
 }
 
 void ezAmbientLightComponent::SerializeComponent(ezWorldWriter& stream) const

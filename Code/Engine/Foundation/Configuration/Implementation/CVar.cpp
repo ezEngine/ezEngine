@@ -53,7 +53,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 
 
 ezString ezCVar::s_StorageFolder;
-ezEvent<const ezCVar::CVarEvent&> ezCVar::s_AllCVarEvents;
+ezEvent<const ezCVarEvent&> ezCVar::s_AllCVarEvents;
 
 void ezCVar::AssignSubSystemPlugin(const char* szPluginName)
 {
@@ -68,11 +68,11 @@ void ezCVar::AssignSubSystemPlugin(const char* szPluginName)
   }
 }
 
-void ezCVar::PluginEventHandler(const ezPlugin::PluginEvent& EventData)
+void ezCVar::PluginEventHandler(const ezPluginEvent& EventData)
 {
   switch (EventData.m_EventType)
   {
-    case ezPlugin::PluginEvent::BeforeLoading:
+    case ezPluginEvent::BeforeLoading:
     {
       // before a new plugin is loaded, make sure all currently available CVars
       // are assigned to the proper plugin
@@ -81,7 +81,7 @@ void ezCVar::PluginEventHandler(const ezPlugin::PluginEvent& EventData)
     }
     break;
 
-    case ezPlugin::PluginEvent::AfterLoadingBeforeInit:
+    case ezPluginEvent::AfterLoadingBeforeInit:
     {
       // after we loaded a new plugin, but before it is initialized,
       // find all new CVars and assign them to that new plugin
@@ -93,7 +93,7 @@ void ezCVar::PluginEventHandler(const ezPlugin::PluginEvent& EventData)
     }
     break;
 
-    case ezPlugin::PluginEvent::BeforeUnloading:
+    case ezPluginEvent::BeforeUnloading:
     {
       SaveCVars();
     }
@@ -498,5 +498,18 @@ void ezCVar::LoadCVarsFromCommandLine(bool bOnlyNewOnes /*= true*/, bool bSetAsC
     }
   }
 }
+
+void ezCVar::ListOfCVarsChanged(const char* szSetPluginNameTo)
+{
+  AssignSubSystemPlugin(szSetPluginNameTo);
+
+  LoadCVars();
+
+  ezCVarEvent e(nullptr);
+  e.m_EventType = ezCVarEvent::Type::ListOfVarsChanged;
+
+  s_AllCVarEvents.Broadcast(e);
+}
+
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Configuration_Implementation_CVar);

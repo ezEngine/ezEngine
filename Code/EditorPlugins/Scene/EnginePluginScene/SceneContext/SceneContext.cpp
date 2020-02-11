@@ -30,7 +30,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneContext, 1, ezRTTIDefaultAllocator<ezScen
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Scene;Prefab;PropertyAnim Asset"),
+    EZ_CONSTANT_PROPERTY("DocumentType", (const char*) "Scene;Prefab;PropertyAnim"),
   }
   EZ_END_PROPERTIES;
 }
@@ -85,14 +85,14 @@ ezSceneContext::ezSceneContext()
   m_GridTransform.SetIdentity();
   m_pWorld = nullptr;
 
-  ezVisualScriptComponent::s_ActivityEvents.AddEventHandler(ezMakeDelegate(&ezSceneContext::OnVisualScriptActivity, this));
-  ezResourceManager::s_ManagerEvents.AddEventHandler(ezMakeDelegate(&ezSceneContext::OnResourceManagerEvent, this));
+  ezVisualScriptComponent::GetActivityEvents().AddEventHandler(ezMakeDelegate(&ezSceneContext::OnVisualScriptActivity, this));
+  ezResourceManager::GetManagerEvents().AddEventHandler(ezMakeDelegate(&ezSceneContext::OnResourceManagerEvent, this));
 }
 
 ezSceneContext::~ezSceneContext()
 {
-  ezVisualScriptComponent::s_ActivityEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneContext::OnVisualScriptActivity, this));
-  ezResourceManager::s_ManagerEvents.RemoveEventHandler(ezMakeDelegate(&ezSceneContext::OnResourceManagerEvent, this));
+  ezVisualScriptComponent::GetActivityEvents().RemoveEventHandler(ezMakeDelegate(&ezSceneContext::OnVisualScriptActivity, this));
+  ezResourceManager::GetManagerEvents().RemoveEventHandler(ezMakeDelegate(&ezSceneContext::OnResourceManagerEvent, this));
 }
 
 void ezSceneContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
@@ -540,7 +540,7 @@ void ezSceneContext::HandleObjectsForDebugVisMsg(const ezObjectsForDebugVisMsgTo
   EZ_LOCK(GetWorld()->GetWriteMarker());
 
   const ezArrayPtr<const ezUuid> guids(reinterpret_cast<const ezUuid*>(pMsg->m_Objects.GetData()),
-                                       pMsg->m_Objects.GetCount() / sizeof(ezUuid));
+    pMsg->m_Objects.GetCount() / sizeof(ezUuid));
 
   for (auto guid : guids)
   {
@@ -847,10 +847,10 @@ void ezSceneContext::HandleSceneGeometryMsg(const ezExportSceneGeometryMsgToEngi
 
   if (pMsg->m_bSelectionOnly)
     ezWorldGeoExtractionUtil::ExtractWorldGeometry(
-        geo, *m_pWorld, static_cast<ezWorldGeoExtractionUtil::ExtractionMode>(pMsg->m_iExtractionMode), m_SelectionWithChildren);
+      geo, *m_pWorld, static_cast<ezWorldGeoExtractionUtil::ExtractionMode>(pMsg->m_iExtractionMode), m_SelectionWithChildren);
   else
     ezWorldGeoExtractionUtil::ExtractWorldGeometry(
-        geo, *m_pWorld, static_cast<ezWorldGeoExtractionUtil::ExtractionMode>(pMsg->m_iExtractionMode), &excludeTags);
+      geo, *m_pWorld, static_cast<ezWorldGeoExtractionUtil::ExtractionMode>(pMsg->m_iExtractionMode), &excludeTags);
 
   ezWorldGeoExtractionUtil::WriteWorldGeometryToOBJ(pMsg->m_sOutputFile, geo, pMsg->m_Transform);
 }

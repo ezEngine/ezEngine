@@ -129,7 +129,7 @@ void ezTaskSystem::StartTaskGroup(ezTaskGroupID Group)
 
   if (iActiveDependencies == 0)
   {
-    ScheduleGroupTasks(Group.m_pTaskGroup);
+    ScheduleGroupTasks(Group.m_pTaskGroup, false);
   }
 }
 
@@ -149,7 +149,7 @@ bool ezTaskSystem::IsTaskGroupFinished(ezTaskGroupID Group)
   return (Group.m_pTaskGroup == nullptr) || (Group.m_pTaskGroup->m_uiGroupCounter != Group.m_uiGroupCounter);
 }
 
-void ezTaskSystem::ScheduleGroupTasks(ezTaskGroup* pGroup)
+void ezTaskSystem::ScheduleGroupTasks(ezTaskGroup* pGroup, bool bHighPriority)
 {
   if (pGroup->m_Tasks.IsEmpty())
   {
@@ -189,7 +189,11 @@ void ezTaskSystem::ScheduleGroupTasks(ezTaskGroup* pGroup)
         td.m_pTask = pTask;
         td.m_pTask->m_bTaskIsScheduled = true;
         td.m_uiInvocation = mult;
-        s_Tasks[pGroup->m_Priority].PushBack(td);
+
+        if (bHighPriority)
+          s_Tasks[pGroup->m_Priority].PushFront(td);
+        else
+          s_Tasks[pGroup->m_Priority].PushBack(td);
       }
     }
   }
@@ -259,7 +263,7 @@ void ezTaskSystem::DependencyHasFinished(ezTaskGroup* pGroup)
   if (pGroup->m_iActiveDependencies.Decrement() == 0)
   {
     // if there are no remaining dependencies, kick off all tasks in this group
-    ScheduleGroupTasks(pGroup);
+    ScheduleGroupTasks(pGroup, true);
   }
 }
 

@@ -51,7 +51,6 @@
 #include <QAbstractItemModel>
 #include <QIcon>
 #include <QStringList>
-#include <QToolBar>
 #include <QPushButton>
 #include <qevent.h>
 #include <QInputDialog>

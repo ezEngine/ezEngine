@@ -176,9 +176,6 @@ public:
     if (GetArgumentCount() < 2)
       ezLog::Error("This tool requires at leas one command-line argument: An absolute path to the top-level folder of a library.");
 
-    // Add standard folder factory
-    ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-
     // Add the empty data directory to access files via absolute paths
     ezFileSystem::AddDataDirectory("", "App", ":", ezFileSystem::AllowWrites);
 
@@ -329,7 +326,7 @@ public:
 
     // get a directory iterator for the search directory
     ezFileSystemIterator it;
-    if (it.StartSearch(m_sSearchDir.GetData(), true, false) == EZ_SUCCESS)
+    if (it.StartSearch(m_sSearchDir.GetData(), ezFileSystemIteratorFlags::ReportFilesRecursive) == EZ_SUCCESS)
     {
       ezStringBuilder currentFile, sExt;
 
@@ -408,8 +405,8 @@ public:
       if (!ignore)
       {
         ezLog::Error(
-          "Including '{0}' in {1}:{2} leaks underlying implementation detail. Including system or thirdparty headers in public easy header "
-          "files is not allowed. Please use an interface, factory or pimpl to hide the implementation and avoid the include. See the Documentation Chapter 'General->Header Files' for details.",
+          "Including '{0}' in {1}:{2} leaks underlying implementation details. Including system or thirdparty headers in public ez header "
+          "files is not allowed. Please use an interface, factory or pimpl pattern to hide the implementation and avoid the include. See the Documentation Chapter 'General->Header Files' for details.",
           includePath.GetView(), currentFile.GetView(), line);
       }
     }

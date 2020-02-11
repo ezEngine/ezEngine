@@ -266,7 +266,7 @@ void ezQtVisualScriptNode::InitNode(const ezDocumentNodeManager* pManager, const
 {
   ezQtNode::InitNode(pManager, pObject);
 
-  const auto* pDesc = ezVisualScriptTypeRegistry::GetSingleton()->GetDescriptorForType(pObject->GetType());
+  const ezVisualScriptNodeDescriptor* pDesc = ezVisualScriptTypeRegistry::GetSingleton()->GetDescriptorForType(pObject->GetType());
 
   if (pDesc != nullptr)
   {
@@ -283,7 +283,7 @@ void ezQtVisualScriptNode::UpdateState()
 {
   ezStringBuilder sTitle;
 
-  const auto* pDesc = ezVisualScriptTypeRegistry::GetSingleton()->GetDescriptorForType(GetObject()->GetType());
+  const ezVisualScriptNodeDescriptor* pDesc = ezVisualScriptTypeRegistry::GetSingleton()->GetDescriptorForType(GetObject()->GetType());
 
   if (pDesc == nullptr)
     return;

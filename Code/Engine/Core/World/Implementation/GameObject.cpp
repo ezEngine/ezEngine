@@ -4,6 +4,7 @@
 #include <Core/Messages/HierarchyChangedMessages.h>
 #include <Core/Messages/TransformChangedMessage.h>
 #include <Core/Messages/UpdateLocalBoundsMessage.h>
+#include <Core/World/EventMessageHandlerComponent.h>
 #include <Core/World/World.h>
 
 namespace
@@ -23,6 +24,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezRTTINoAllocator)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Name", GetName, SetName),
+    EZ_ACCESSOR_PROPERTY("Active", GetActiveFlag, SetActiveFlag)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_ACCESSOR_PROPERTY("GlobalKey", GetGlobalKey, SetGlobalKey),
     EZ_ENUM_ACCESSOR_PROPERTY("Mode", ezObjectMode, Reflection_GetMode, Reflection_SetMode),
     EZ_ACCESSOR_PROPERTY("LocalPosition", GetLocalPosition, SetLocalPosition)->AddAttributes(new ezSuffixAttribute(" m")),
@@ -36,7 +38,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezRTTINoAllocator)
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgDeleteGameObject, OnDeleteObject),
+    EZ_MESSAGE_HANDLER(ezMsgDeleteGameObject, OnMsgDeleteGameObject),
   }
   EZ_END_MESSAGEHANDLERS;
 }
@@ -83,6 +85,9 @@ ezHybridArray<ezGameObject*, 8> ezGameObject::Reflection_GetChildren() const
 
 void ezGameObject::Reflection_AddComponent(ezComponent* pComponent)
 {
+  if (pComponent == nullptr)
+    return;
+
   if (pComponent->IsDynamic())
   {
     MakeDynamic();
@@ -93,6 +98,9 @@ void ezGameObject::Reflection_AddComponent(ezComponent* pComponent)
 
 void ezGameObject::Reflection_RemoveComponent(ezComponent* pComponent)
 {
+  if (pComponent == nullptr)
+    return;
+
   /*Don't call RemoveComponent here, Component is automatically removed when deleted.*/
 
   if (pComponent->IsDynamic())
@@ -207,7 +215,14 @@ void ezGameObject::UpdateGlobalTransformAndBoundsRecursive()
     m_pTransformationData->UpdateGlobalTransform();
   }
 
-  m_pTransformationData->UpdateGlobalBounds();
+  if (GetWorld()->GetSpatialSystem() == nullptr)
+  {
+    m_pTransformationData->UpdateGlobalBounds();
+  }
+  else
+  {
+    m_pTransformationData->UpdateGlobalBoundsAndSpatialData();
+  }
 
   if (IsStatic() && m_Flags.IsSet(ezObjectFlags::StaticTransformChangesNotifications) && oldGlobalTransform != GetGlobalTransformSimd())
   {
@@ -251,9 +266,10 @@ void ezGameObject::operator=(const ezGameObject& other)
   m_pTransformationData = other.m_pTransformationData;
   m_pTransformationData->m_pObject = this;
 
-  if (!m_pTransformationData->m_hSpatialData.IsInvalidated())
+  if (!m_pTransformationData->m_hSpatialData.IsInvalidated() && m_pWorld->GetSpatialSystem() != nullptr)
   {
-    m_pWorld->GetSpatialSystem().UpdateSpatialData(m_pTransformationData->m_hSpatialData, m_pTransformationData->m_globalBounds, this);
+    m_pWorld->GetSpatialSystem()->UpdateSpatialData(m_pTransformationData->m_hSpatialData, m_pTransformationData->m_globalBounds, this,
+      m_pTransformationData->m_uiSpatialDataCategoryBitmask);
   }
 
   m_Components = other.m_Components;
@@ -291,23 +307,34 @@ void ezGameObject::MakeStatic()
   MakeStaticInternal();
 }
 
-void ezGameObject::Activate()
+void ezGameObject::SetActiveFlag(bool bEnabled)
 {
-  m_Flags.Add(ezObjectFlags::Active);
+  if (m_Flags.IsSet(ezObjectFlags::ActiveFlag) == bEnabled)
+    return;
 
-  for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
-  {
-    m_Components[i]->Activate();
-  }
+  m_Flags.AddOrRemove(ezObjectFlags::ActiveFlag, bEnabled);
+
+  UpdateActiveState(GetParent() == nullptr ? true : GetParent()->IsActive());
 }
 
-void ezGameObject::Deactivate()
+void ezGameObject::UpdateActiveState(bool bParentActive)
 {
-  m_Flags.Remove(ezObjectFlags::Active);
+  const bool bSelfActive = bParentActive && m_Flags.IsSet(ezObjectFlags::ActiveFlag);
 
-  for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
+  if (bSelfActive != m_Flags.IsSet(ezObjectFlags::ActiveState))
   {
-    m_Components[i]->Deactivate();
+    m_Flags.AddOrRemove(ezObjectFlags::ActiveState, bSelfActive);
+
+    for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
+    {
+      m_Components[i]->UpdateActiveState(bSelfActive);
+    }
+
+    // recursively update all children
+    for (auto it = GetChildren(); it.IsValid(); ++it)
+    {
+      it->UpdateActiveState(bSelfActive);
+    }
   }
 }
 
@@ -573,12 +600,25 @@ void ezGameObject::UpdateLocalBounds()
 
   SendMessage(msg);
 
+  if (m_pTransformationData->m_uiSpatialDataCategoryBitmask != msg.m_uiSpatialDataCategoryBitmask)
+  {
+    m_pTransformationData->m_globalBounds.SetInvalid(); // force spatial data update
+  }
+
   m_pTransformationData->m_localBounds = ezSimdConversion::ToBBoxSphere(msg.m_ResultingLocalBounds);
   m_pTransformationData->m_localBounds.m_BoxHalfExtents.SetW(msg.m_bAlwaysVisible ? 1.0f : 0.0f);
+  m_pTransformationData->m_uiSpatialDataCategoryBitmask = msg.m_uiSpatialDataCategoryBitmask;
 
   if (IsStatic())
   {
-    m_pTransformationData->UpdateGlobalBounds();
+    if (GetWorld()->GetSpatialSystem() == nullptr)
+    {
+      m_pTransformationData->UpdateGlobalBounds();
+    }
+    else
+    {
+      m_pTransformationData->UpdateGlobalBoundsAndSpatialData();
+    }
   }
 }
 
@@ -643,7 +683,7 @@ void ezGameObject::TryGetComponentsOfBaseType(const ezRTTI* pType, ezHybridArray
   }
 }
 
-void ezGameObject::OnDeleteObject(ezMsgDeleteGameObject& msg)
+void ezGameObject::OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg)
 {
   m_pWorld->DeleteObjectNow(GetHandle());
 }
@@ -655,6 +695,8 @@ void ezGameObject::AddComponent(ezComponent* pComponent)
 
   pComponent->m_pOwner = this;
   m_Components.PushBack(pComponent);
+
+  pComponent->UpdateActiveState(IsActive());
 
   if (m_Flags.IsSet(ezObjectFlags::ComponentChangesNotifications))
   {
@@ -686,7 +728,7 @@ void ezGameObject::RemoveComponent(ezComponent* pComponent)
   }
 }
 
-bool ezGameObject::SendMessage(ezMessage& msg)
+bool ezGameObject::SendMessageInternal(ezMessage& msg, bool bWasPostedMsg)
 {
   bool bSentToAny = false;
 
@@ -696,7 +738,7 @@ bool ezGameObject::SendMessage(ezMessage& msg)
   for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
     ezComponent* pComponent = m_Components[i];
-    bSentToAny |= pComponent->SendMessage(msg);
+    bSentToAny |= pComponent->SendMessageInternal(msg, bWasPostedMsg);
   }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
@@ -710,7 +752,7 @@ bool ezGameObject::SendMessage(ezMessage& msg)
   return bSentToAny;
 }
 
-bool ezGameObject::SendMessage(ezMessage& msg) const
+bool ezGameObject::SendMessageInternal(ezMessage& msg, bool bWasPostedMsg) const
 {
   bool bSentToAny = false;
 
@@ -720,7 +762,7 @@ bool ezGameObject::SendMessage(ezMessage& msg) const
   for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
     ezComponent* pComponent = m_Components[i];
-    bSentToAny |= pComponent->SendMessage(msg);
+    bSentToAny |= pComponent->SendMessageInternal(msg, bWasPostedMsg);
   }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
@@ -734,7 +776,7 @@ bool ezGameObject::SendMessage(ezMessage& msg) const
   return bSentToAny;
 }
 
-bool ezGameObject::SendMessageRecursive(ezMessage& msg)
+bool ezGameObject::SendMessageRecursiveInternal(ezMessage& msg, bool bWasPostedMsg)
 {
   bool bSentToAny = false;
 
@@ -744,12 +786,12 @@ bool ezGameObject::SendMessageRecursive(ezMessage& msg)
   for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
     ezComponent* pComponent = m_Components[i];
-    bSentToAny |= pComponent->SendMessage(msg);
+    bSentToAny |= pComponent->SendMessageInternal(msg, bWasPostedMsg);
   }
 
   for (auto childIt = GetChildren(); childIt.IsValid(); ++childIt)
   {
-    bSentToAny |= childIt->SendMessageRecursive(msg);
+    bSentToAny |= childIt->SendMessageRecursiveInternal(msg, bWasPostedMsg);
   }
 
   // should only be evaluated at the top function call
@@ -764,7 +806,7 @@ bool ezGameObject::SendMessageRecursive(ezMessage& msg)
   return bSentToAny;
 }
 
-bool ezGameObject::SendMessageRecursive(ezMessage& msg) const
+bool ezGameObject::SendMessageRecursiveInternal(ezMessage& msg, bool bWasPostedMsg) const
 {
   bool bSentToAny = false;
 
@@ -774,12 +816,12 @@ bool ezGameObject::SendMessageRecursive(ezMessage& msg) const
   for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
     ezComponent* pComponent = m_Components[i];
-    bSentToAny |= pComponent->SendMessage(msg);
+    bSentToAny |= pComponent->SendMessageInternal(msg, bWasPostedMsg);
   }
 
   for (auto childIt = GetChildren(); childIt.IsValid(); ++childIt)
   {
-    bSentToAny |= childIt->SendMessageRecursive(msg);
+    bSentToAny |= childIt->SendMessageRecursiveInternal(msg, bWasPostedMsg);
   }
 
   // should only be evaluated at the top function call
@@ -802,6 +844,48 @@ void ezGameObject::PostMessage(const ezMessage& msg, ezObjectMsgQueueType::Enum 
 void ezGameObject::PostMessageRecursive(const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const
 {
   m_pWorld->PostMessageRecursive(GetHandle(), msg, queueType, delay);
+}
+
+void ezGameObject::SendEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent)
+{
+  if (ezComponent* pReceiver = const_cast<ezComponent*>(GetWorld()->FindEventMsgHandler(msg, this)))
+  {
+    if (pSenderComponent)
+    {
+      msg.m_hSenderComponent = pSenderComponent->GetHandle();
+      msg.m_hSenderObject = pSenderComponent->GetOwner()->GetHandle();
+    }
+
+    pReceiver->SendMessage(msg);
+  }
+}
+
+void ezGameObject::SendEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent) const
+{
+  if (const ezComponent* pReceiver = GetWorld()->FindEventMsgHandler(msg, const_cast<ezGameObject*>(this)))
+  {
+    if (pSenderComponent)
+    {
+      msg.m_hSenderComponent = pSenderComponent->GetHandle();
+      msg.m_hSenderObject = pSenderComponent->GetOwner()->GetHandle();
+    }
+
+    pReceiver->SendMessage(msg);
+  }
+}
+
+void ezGameObject::PostEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent, ezObjectMsgQueueType::Enum queueType, ezTime delay /*= ezTime()*/) const
+{
+  if (const ezComponent* pReceiver = GetWorld()->FindEventMsgHandler(msg, const_cast<ezGameObject*>(this)))
+  {
+    if (pSenderComponent)
+    {
+      msg.m_hSenderComponent = pSenderComponent->GetHandle();
+      msg.m_hSenderObject = pSenderComponent->GetOwner()->GetHandle();
+    }
+
+    pReceiver->PostMessage(msg, queueType, delay);
+  }
 }
 
 void ezGameObject::FixComponentPointer(ezComponent* pOldPtr, ezComponent* pNewPtr)
@@ -861,12 +945,19 @@ void ezGameObject::TransformationData::ConditionalUpdateGlobalBounds()
   // Ensure that global transform is updated
   ConditionalUpdateGlobalTransform();
 
-  UpdateGlobalBounds();
+  if (m_pObject->GetWorld()->GetSpatialSystem() == nullptr)
+  {
+    UpdateGlobalBounds();
+  }
+  else
+  {
+    UpdateGlobalBoundsAndSpatialData();
+  }
 }
 
 void ezGameObject::TransformationData::UpdateSpatialData(bool bWasAlwaysVisible, bool bIsAlwaysVisible)
 {
-  ezSpatialSystem& spatialSystem = m_pObject->GetWorld()->GetSpatialSystem();
+  ezSpatialSystem& spatialSystem = *m_pObject->GetWorld()->GetSpatialSystem();
 
   if (bWasAlwaysVisible != bIsAlwaysVisible)
   {
@@ -881,7 +972,7 @@ void ezGameObject::TransformationData::UpdateSpatialData(bool bWasAlwaysVisible,
   {
     if (m_hSpatialData.IsInvalidated())
     {
-      m_hSpatialData = spatialSystem.CreateSpatialDataAlwaysVisible(m_pObject);
+      m_hSpatialData = spatialSystem.CreateSpatialDataAlwaysVisible(m_pObject, m_uiSpatialDataCategoryBitmask);
     }
   }
   else
@@ -890,11 +981,11 @@ void ezGameObject::TransformationData::UpdateSpatialData(bool bWasAlwaysVisible,
     {
       if (m_hSpatialData.IsInvalidated())
       {
-        m_hSpatialData = spatialSystem.CreateSpatialData(m_globalBounds, m_pObject);
+        m_hSpatialData = spatialSystem.CreateSpatialData(m_globalBounds, m_pObject, m_uiSpatialDataCategoryBitmask);
       }
       else
       {
-        spatialSystem.UpdateSpatialData(m_hSpatialData, m_globalBounds, m_pObject);
+        spatialSystem.UpdateSpatialData(m_hSpatialData, m_globalBounds, m_pObject, m_uiSpatialDataCategoryBitmask);
       }
     }
     else

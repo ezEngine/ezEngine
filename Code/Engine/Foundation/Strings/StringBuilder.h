@@ -46,16 +46,16 @@ public:
   /// \brief Copies the given string into this one.
   template <ezUInt16 Size>
   ezStringBuilder(const ezHybridStringBase<Size>& rhs)
-      : m_uiCharacterCount(rhs.m_uiCharacterCount)
-      , m_Data(rhs.m_Data)
+    : m_uiCharacterCount(rhs.m_uiCharacterCount)
+    , m_Data(rhs.m_Data)
   {
   }
 
   /// \brief Copies the given string into this one.
   template <ezUInt16 Size, typename A>
   ezStringBuilder(const ezHybridString<Size, A>& rhs)
-      : m_uiCharacterCount(rhs.m_uiCharacterCount)
-      , m_Data(rhs.m_Data)
+    : m_uiCharacterCount(rhs.m_uiCharacterCount)
+    , m_Data(rhs.m_Data)
   {
   }
 
@@ -63,22 +63,22 @@ public:
   /// \brief Moves the given string into this one.
   template <ezUInt16 Size>
   ezStringBuilder(ezHybridStringBase<Size>&& rhs)
-      : m_uiCharacterCount(rhs.m_uiCharacterCount)
-      , m_Data(std::move(rhs.m_Data))
+    : m_uiCharacterCount(rhs.m_uiCharacterCount)
+    , m_Data(std::move(rhs.m_Data))
   {
   }
 
   /// \brief Moves the given string into this one.
   template <ezUInt16 Size, typename A>
   ezStringBuilder(ezHybridString<Size, A>&& rhs)
-      : m_uiCharacterCount(rhs.m_uiCharacterCount)
-      , m_Data(std::move(rhs.m_Data))
+    : m_uiCharacterCount(rhs.m_uiCharacterCount)
+    , m_Data(std::move(rhs.m_Data))
   {
   }
 
   /// \brief Constructor that appends all the given strings.
   ezStringBuilder(const char* pData1, const char* pData2, const char* pData3 = nullptr, const char* pData4 = nullptr,
-                  const char* pData5 = nullptr, const char* pData6 = nullptr); // [tested]
+    const char* pData5 = nullptr, const char* pData6 = nullptr); // [tested]
 
   /// \brief Copies the given Utf8 string into this one.
   /* implicit */ ezStringBuilder(const char* szUTF8, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
@@ -184,7 +184,7 @@ public:
 
   /// \brief Sets the string by concatenating all given strings.
   void Set(const char* pData1, const char* pData2 = nullptr, const char* pData3 = nullptr, const char* pData4 = nullptr,
-           const char* pData5 = nullptr, const char* pData6 = nullptr);
+    const char* pData5 = nullptr, const char* pData6 = nullptr);
 
   /// \brief Copies the string starting at \a pStart up to \a pEnd (exclusive).
   void SetSubString_FromTo(const char* pStart, const char* pEnd);
@@ -200,11 +200,11 @@ public:
 
   /// \brief Appends all the given strings at the back of this string in one operation.
   void Append(const wchar_t* pData1, const wchar_t* pData2 = nullptr, const wchar_t* pData3 = nullptr, const wchar_t* pData4 = nullptr,
-              const wchar_t* pData5 = nullptr, const wchar_t* pData6 = nullptr); // [tested]
+    const wchar_t* pData5 = nullptr, const wchar_t* pData6 = nullptr); // [tested]
 
   /// \brief Appends all the given strings at the back of this string in one operation.
   void Append(const char* pData1, const char* pData2 = nullptr, const char* pData3 = nullptr, const char* pData4 = nullptr,
-              const char* pData5 = nullptr, const char* pData6 = nullptr); // [tested]
+    const char* pData5 = nullptr, const char* pData6 = nullptr); // [tested]
 
   /// \brief Appends the given string at the back of this string.
   void Append(const ezStringView& view);
@@ -214,42 +214,42 @@ public:
 
   /// \brief Prepends all the given strings to the front of this string in one operation.
   void Prepend(const wchar_t* pData1, const wchar_t* pData2 = nullptr, const wchar_t* pData3 = nullptr, const wchar_t* pData4 = nullptr,
-               const wchar_t* pData5 = nullptr, const wchar_t* pData6 = nullptr); // [tested]
+    const wchar_t* pData5 = nullptr, const wchar_t* pData6 = nullptr); // [tested]
 
   /// \brief Prepends all the given strings to the front of this string in one operation.
   void Prepend(const char* pData1, const char* pData2 = nullptr, const char* pData3 = nullptr, const char* pData4 = nullptr,
-               const char* pData5 = nullptr, const char* pData6 = nullptr); // [tested]
+    const char* pData5 = nullptr, const char* pData6 = nullptr); // [tested]
 
-  /// \brief Sets this string to the formatted string.
+  /// \brief Sets this string to the formatted string, uses printf-style formatting.
   void Printf(const char* szUtf8Format, ...); // [tested]
 
-  /// \brief Sets this string to the formatted string.
+  /// \brief Sets this string to the formatted string, uses printf-style formatting.
   void PrintfArgs(const char* szUtf8Format, va_list args); // [tested]
 
-  /// \brief A type safe version of sprintf, see ezFormatString for details
+  /// \brief Replaces this with a formatted string. Uses '{}' formatting placeholders, see ezFormatString for details.
   void Format(const ezFormatString& string);
 
-  /// \brief A type safe version of sprintf, see ezFormatString for details
+  /// \brief Replaces this with a formatted string. Uses '{}' formatting placeholders, see ezFormatString for details.
   template <typename... ARGS>
   void Format(const char* szFormat, ARGS&&... args)
   {
     Format(ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
-  /// \brief A type safe version of sprintf, see ezFormatString for details
+  /// \brief Appends a formatted string. Uses '{}' formatting placeholders, see ezFormatString for details.
   void AppendFormat(const ezFormatString& string);
 
-  /// \brief A type safe version of sprintf, see ezFormatString for details
+  /// \brief Appends a formatted string. Uses '{}' formatting placeholders, see ezFormatString for details.
   template <typename... ARGS>
   void AppendFormat(const char* szFormat, ARGS&&... args)
   {
     AppendFormat(ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...));
   }
 
-  /// \brief A type safe version of sprintf, see ezFormatString for details
+  /// \brief Prepends a formatted string. Uses '{}' formatting placeholders, see ezFormatString for details.
   void PrependFormat(const ezFormatString& string);
 
-  /// \brief A type safe version of sprintf, see ezFormatString for details
+  /// \brief Prepends a formatted string. Uses '{}' formatting placeholders, see ezFormatString for details.
   template <typename... ARGS>
   void PrependFormat(const char* szFormat, ARGS&&... args)
   {
@@ -284,7 +284,7 @@ public:
 
   /// \brief Case-insensitive version of ReplaceFirst.
   const char* ReplaceFirst_NoCase(const char* szSearchFor, const ezStringView& szReplacement,
-                                  const char* szStartSearchAt = nullptr); // [tested]
+    const char* szStartSearchAt = nullptr); // [tested]
 
   /// \brief Replaces the last occurrence of szSearchFor by szReplacement. Optionally starts searching at szStartSearchAt (or the end).
   ///
@@ -293,7 +293,7 @@ public:
 
   /// \brief Case-insensitive version of ReplaceLast.
   const char* ReplaceLast_NoCase(const char* szSearchFor, const ezStringView& szReplacement,
-                                 const char* szStartSearchAt = nullptr); // [tested]
+    const char* szStartSearchAt = nullptr); // [tested]
 
   /// \brief Replaces all occurrences of szSearchFor by szReplacement. Returns the number of replacements.
   ezUInt32 ReplaceAll(const char* szSearchFor, const ezStringView& szReplacement); // [tested]
@@ -304,20 +304,20 @@ public:
   /// \brief Replaces the first occurrence of szSearchFor by szReplaceWith, if szSearchFor was found to be a 'whole word', as indicated by
   /// the delimiter function IsDelimiterCB.
   const char* ReplaceWholeWord(const char* szSearchFor, const ezStringView& szReplaceWith,
-                               ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB); // [tested]
+    ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB); // [tested]
 
   /// \brief Case-insensitive version of ReplaceWholeWord.
   const char* ReplaceWholeWord_NoCase(const char* szSearchFor, const ezStringView& szReplaceWith,
-                                      ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB); // [tested]
+    ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB); // [tested]
 
   /// \brief Replaces all occurrences of szSearchFor by szReplaceWith, if szSearchFor was found to be a 'whole word', as indicated by the
   /// delimiter function IsDelimiterCB.
   ezUInt32 ReplaceWholeWordAll(const char* szSearchFor, const ezStringView& szReplaceWith,
-                               ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB); // [tested]
+    ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB); // [tested]
 
   /// \brief Case-insensitive version of ReplaceWholeWordAll.
   ezUInt32 ReplaceWholeWordAll_NoCase(const char* szSearchFor, const ezStringView& szReplaceWith,
-                                      ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB); // [tested]
+    ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB); // [tested]
 
   /// \brief Fills the given container with ezStringView's which represent each found substring.
   /// If bReturnEmptyStrings is true, even empty strings between separators are returned.
@@ -326,8 +326,8 @@ public:
   /// This string itself will not be modified.
   template <typename Container>
   void Split(bool bReturnEmptyStrings, Container& Output, const char* szSeparator1, const char* szSeparator2 = nullptr,
-             const char* szSeparator3 = nullptr, const char* szSeparator4 = nullptr, const char* szSeparator5 = nullptr,
-             const char* szSeparator6 = nullptr) const; // [tested]
+    const char* szSeparator3 = nullptr, const char* szSeparator4 = nullptr, const char* szSeparator5 = nullptr,
+    const char* szSeparator6 = nullptr) const; // [tested]
 
   /// \brief Replaces the current string with the content from the stream. Reads the stream to its end.
   void ReadAll(ezStreamReader& Stream);
@@ -401,8 +401,15 @@ public:
   /// \brief Appends several path pieces. Makes sure they are always properly separated by a slash.
   ///
   /// Will call 'MakeCleanPath' internally, so the representation of the path might change.
-  void AppendPath(const char* szPath1, const char* szPath2 = nullptr, const char* szPath3 = nullptr,
-                  const char* szPath4 = nullptr); // [tested]
+  void AppendPath(const char* szPath1, const char* szPath2 = nullptr, const char* szPath3 = nullptr, const char* szPath4 = nullptr); // [tested]
+
+  /// \brief Similar to Append() but the very first argument is a separator that is only appended (once) if the existing string is not empty and does not already end with the separator.
+  ///
+  /// This is useful when one wants to append entries that require a separator like a comma in between items. E.g. calling
+  /// AppendWithSeparator(", ", "a", "b");
+  /// AppendWithSeparator(", ", "c", "d");
+  /// results in the string "ab, cd"
+  void AppendWithSeparator(ezStringView separator, ezStringView sText1, ezStringView sText2 = ezStringView(), ezStringView sText3 = ezStringView(), ezStringView sText4 = ezStringView(), ezStringView sText5 = ezStringView(), ezStringView sText6 = ezStringView());
 
   /// \brief Changes the file name part of the path, keeps the extension intact (if there is any).
   void ChangeFileName(const char* szNewFileName); // [tested]
@@ -443,6 +450,12 @@ public:
   /// \brief Removes all characters from the start and/or end that appear in the given strings.
   void Trim(const char* szTrimCharsStart, const char* szTrimCharsEnd); // [tested]
 
+  /// \brief If the string starts with one of the given words (case insensitive), it is removed and the function returns true.
+  bool TrimWordStart(const char* szWord1, const char* szWord2 = nullptr, const char* szWord3 = nullptr, const char* szWord4 = nullptr, const char* szWord5 = nullptr);
+
+  /// \brief If the string ends with one of the given words (case insensitive), it is removed and the function returns true.
+  bool TrimWordEnd(const char* szWord1, const char* szWord2 = nullptr, const char* szWord3 = nullptr, const char* szWord4 = nullptr, const char* szWord5 = nullptr);
+
 private:
   /// \brief Will remove all double path separators (slashes and backslashes) in a path, except if the path starts with two (back-)slashes,
   /// those are kept, as they might indicate a UNC path.
@@ -462,4 +475,3 @@ private:
 };
 
 #include <Foundation/Strings/Implementation/StringBuilder_inl.h>
-

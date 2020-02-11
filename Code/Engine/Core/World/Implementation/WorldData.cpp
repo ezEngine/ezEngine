@@ -11,7 +11,7 @@ namespace ezInternal
   {
   public:
     DefaultCoordinateSystemProvider()
-        : ezCoordinateSystemProvider(nullptr)
+      : ezCoordinateSystemProvider(nullptr)
     {
     }
 
@@ -37,20 +37,20 @@ namespace ezInternal
   ////////////////////////////////////////////////////////////////////////////////////////////////////
 
   WorldData::WorldData(ezWorldDesc& desc)
-      : m_sName(desc.m_sName)
-      , m_Allocator(desc.m_sName, ezFoundation::GetDefaultAllocator())
-      , m_AllocatorWrapper(&m_Allocator)
-      , m_BlockAllocator(desc.m_sName, &m_Allocator)
-      , m_StackAllocator(ezFoundation::GetAlignedAllocator())
-      , m_ObjectStorage(&m_BlockAllocator, &m_Allocator)
-      , m_Clock(desc.m_sName)
-      , m_WriteThreadID((ezThreadID)0)
-      , m_iWriteCounter(0)
-      , m_bSimulateWorld(true)
-      , m_bReportErrorWhenStaticObjectMoves(desc.m_bReportErrorWhenStaticObjectMoves)
-      , m_ReadMarker(*this)
-      , m_WriteMarker(*this)
-      , m_pUserData(nullptr)
+    : m_sName(desc.m_sName)
+    , m_Allocator(desc.m_sName, ezFoundation::GetDefaultAllocator())
+    , m_AllocatorWrapper(&m_Allocator)
+    , m_BlockAllocator(desc.m_sName, &m_Allocator)
+    , m_StackAllocator(ezFoundation::GetAlignedAllocator())
+    , m_ObjectStorage(&m_BlockAllocator, &m_Allocator)
+    , m_Clock(desc.m_sName)
+    , m_WriteThreadID((ezThreadID)0)
+    , m_iWriteCounter(0)
+    , m_bSimulateWorld(true)
+    , m_bReportErrorWhenStaticObjectMoves(desc.m_bReportErrorWhenStaticObjectMoves)
+    , m_ReadMarker(*this)
+    , m_WriteMarker(*this)
+    , m_pUserData(nullptr)
   {
     m_AllocatorWrapper.Reset();
 
@@ -66,14 +66,19 @@ namespace ezInternal
     // insert dummy entry to save some checks
     m_Objects.Insert(nullptr);
 
+#if EZ_ENABLED(EZ_GAMEOBJECT_VELOCITY)
     EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject::TransformationData) == 224);
+#else
+    EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject::TransformationData) == 192);
+#endif
+
     // EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject) == 128); /// \todo get game object size back to 128
     EZ_CHECK_AT_COMPILETIME(sizeof(QueuedMsgMetaData) == 16);
 
     m_pSpatialSystem = std::move(desc.m_pSpatialSystem);
     m_pCoordinateSystemProvider = desc.m_pCoordinateSystemProvider;
 
-    if (m_pSpatialSystem == nullptr)
+    if (m_pSpatialSystem == nullptr && desc.m_bAutoCreateSpatialSystem)
     {
       m_pSpatialSystem = EZ_NEW(ezFoundation::GetAlignedAllocator(), ezSpatialSystem_RegularGrid);
     }
@@ -207,7 +212,7 @@ namespace ezInternal
     };
 
     const ezUInt32 uiMaxHierarchyLevel =
-        ezMath::Max(m_Hierarchies[HierarchyType::Static].m_Data.GetCount(), m_Hierarchies[HierarchyType::Dynamic].m_Data.GetCount());
+      ezMath::Max(m_Hierarchies[HierarchyType::Static].m_Data.GetCount(), m_Hierarchies[HierarchyType::Dynamic].m_Data.GetCount());
 
     for (ezUInt32 uiHierarchyLevel = 0; uiHierarchyLevel < uiMaxHierarchyLevel; ++uiHierarchyLevel)
     {
@@ -285,6 +290,24 @@ namespace ezInternal
       }
     };
 
+    struct RootLevelWithSpatialData
+    {
+      EZ_ALWAYS_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData)
+      {
+        WorldData::UpdateGlobalTransformAndSpatialData(pData, *static_cast<ezSimdFloat*>(pUserData));
+        return ezVisitorExecution::Continue;
+      }
+    };
+
+    struct WithParentWithSpatialData
+    {
+      EZ_ALWAYS_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData)
+      {
+        WorldData::UpdateGlobalTransformWithParentAndSpatialData(pData, *static_cast<ezSimdFloat*>(pUserData));
+        return ezVisitorExecution::Continue;
+      }
+    };
+
     ezSimdFloat fInvDt = fInvDeltaSeconds;
 
     Hierarchy& hierarchy = m_Hierarchies[HierarchyType::Dynamic];
@@ -292,11 +315,25 @@ namespace ezInternal
     {
       auto dataPtr = hierarchy.m_Data.GetData();
 
-      TraverseHierarchyLevel<RootLevel>(*dataPtr[0], &fInvDt);
-
-      for (ezUInt32 i = 1; i < hierarchy.m_Data.GetCount(); ++i)
+      // If we have no spatial system, we perform multi-threaded update as we do not
+      // have to acquire a write lock in the process.
+      if (m_pSpatialSystem == nullptr)
       {
-        TraverseHierarchyLevel<WithParent>(*dataPtr[i], &fInvDt);
+        TraverseHierarchyLevelMultiThreaded<RootLevel>(*dataPtr[0], &fInvDt);
+
+        for (ezUInt32 i = 1; i < hierarchy.m_Data.GetCount(); ++i)
+        {
+          TraverseHierarchyLevelMultiThreaded<WithParent>(*dataPtr[i], &fInvDt);
+        }
+      }
+      else
+      {
+        TraverseHierarchyLevel<RootLevelWithSpatialData>(*dataPtr[0], &fInvDt);
+
+        for (ezUInt32 i = 1; i < hierarchy.m_Data.GetCount(); ++i)
+        {
+          TraverseHierarchyLevel<WithParentWithSpatialData>(*dataPtr[i], &fInvDt);
+        }
       }
     }
   }
@@ -304,4 +341,3 @@ namespace ezInternal
 
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_WorldData);
-

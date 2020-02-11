@@ -7,12 +7,8 @@
 #include <Foundation/Math/BoundingBox.h>
 #include <Foundation/Math/Plane.h>
 
-ezConvexHullGenerator::ezConvexHullGenerator()
-{
-  m_MinTriangleAngle = ezAngle::Degree(22.0f);
-  m_FlatVertexNormalThreshold = ezAngle::Degree(5);
-  m_fMinTriangleEdgeLength = 0.05;
-}
+ezConvexHullGenerator::ezConvexHullGenerator() = default;
+ezConvexHullGenerator::~ezConvexHullGenerator() = default;
 
 ezResult ezConvexHullGenerator::ComputeCenterAndScale(const ezArrayPtr<const ezVec3> vertices)
 {
@@ -532,7 +528,7 @@ bool ezConvexHullGenerator::PruneDegenerateTriangles(double fMaxCosAngle)
   {
     for (ezUInt32 n = discardVtx.GetCount(); n > 0; --n)
     {
-      if (discardVtx.IsSet(n - 1))
+      if (discardVtx.IsBitSet(n - 1))
       {
         m_Vertices.RemoveAtAndSwap(n - 1);
       }
@@ -616,7 +612,7 @@ bool ezConvexHullGenerator::PruneSmallTriangles(double fMaxEdgeLen)
   {
     for (ezUInt32 n = discardVtx.GetCount(); n > 0; --n)
     {
-      if (discardVtx.IsSet(n - 1))
+      if (discardVtx.IsBitSet(n - 1))
       {
         m_Vertices.RemoveAtAndSwap(n - 1);
       }
@@ -769,4 +765,3 @@ void ezConvexHullGenerator::RetrieveVertices(ezDynamicArray<ezVec3>& out_Vertice
 
 
 EZ_STATICLINK_FILE(Core, Core_Graphics_Implementation_ConvexHull);
-

@@ -17,12 +17,15 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
+struct ezRenderWorldExtractionEvent;
+struct ezRenderWorldRenderEvent;
 class ezProcVertexColorComponent;
 
 class EZ_PROCGENPLUGIN_DLL ezProcVertexColorComponentManager
   : public ezComponentManager<ezProcVertexColorComponent, ezBlockStorageType::Compact>
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezProcVertexColorComponentManager);
+
 public:
   ezProcVertexColorComponentManager(ezWorld* pWorld);
   ~ezProcVertexColorComponentManager();
@@ -35,13 +38,15 @@ private:
 
   void UpdateVertexColors(const ezWorldModule::UpdateContext& context);
   void UpdateComponentVertexColors(ezProcVertexColorComponent* pComponent);
-  void OnEndExtraction(ezUInt64 uiFrameCounter);
-  void OnBeginRender(ezUInt64 uiFrameCounter);
+  void OnExtractionEvent(const ezRenderWorldExtractionEvent& e);
+  void OnRenderEvent(const ezRenderWorldRenderEvent& e);
 
-  void EnqueueUpdate(ezProcVertexColorComponent* pComponent);  
+  void EnqueueUpdate(ezProcVertexColorComponent* pComponent);
   void RemoveComponent(ezProcVertexColorComponent* pComponent);
 
   void OnResourceEvent(const ezResourceEvent& resourceEvent);
+
+  void OnAreaInvalidated(const ezProcGenInternal::InvalidatedArea& area);
 
   ezDynamicArray<ezComponentHandle> m_ComponentsToUpdate;
 
@@ -65,6 +70,22 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
+struct ezProcVertexColorOutputDesc
+{
+  ezHashedString m_sName;
+  ezProcVertexColorMapping m_Mapping;
+
+  void SetName(const char* szName);
+  const char* GetName() const { return m_sName; }
+
+  ezResult Serialize(ezStreamWriter& stream) const;
+  ezResult Deserialize(ezStreamReader& stream);
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_PROCGENPLUGIN_DLL, ezProcVertexColorOutputDesc);
+
+//////////////////////////////////////////////////////////////////////////
+
 struct ezMsgTransformChanged;
 
 class EZ_PROCGENPLUGIN_DLL ezProcVertexColorComponent : public ezMeshComponent
@@ -84,8 +105,8 @@ public:
   void SetResource(const ezProcGenGraphResourceHandle& hResource);
   const ezProcGenGraphResourceHandle& GetResource() const { return m_hResource; }
 
-  const char* GetOutputName(ezUInt32 uiIndex) const;
-  void SetOutputName(ezUInt32 uiIndex, const char* szName);
+  const ezProcVertexColorOutputDesc& GetOutputDesc(ezUInt32 uiIndex) const;
+  void SetOutputDesc(ezUInt32 uiIndex, const ezProcVertexColorOutputDesc& outputDesc);
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
@@ -96,14 +117,14 @@ protected:
   virtual ezMeshRenderData* CreateRenderData() const override;
 
 private:
-  ezUInt32 OutputNames_GetCount() const;
-  void OutputNames_Insert(ezUInt32 uiIndex, const char* szName);
-  void OutputNames_Remove(ezUInt32 uiIndex);
+  ezUInt32 OutputDescs_GetCount() const;
+  void OutputDescs_Insert(ezUInt32 uiIndex, const ezProcVertexColorOutputDesc& outputDesc);
+  void OutputDescs_Remove(ezUInt32 uiIndex);
 
   bool HasValidOutputs() const;
 
   ezProcGenGraphResourceHandle m_hResource;
-  ezHybridArray<ezHashedString, 2> m_OutputNames;
+  ezHybridArray<ezProcVertexColorOutputDesc, 2> m_OutputDescs;
 
   ezHybridArray<ezSharedPtr<const ezProcGenInternal::VertexColorOutput>, 2> m_Outputs;
 

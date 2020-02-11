@@ -31,6 +31,8 @@
 /// That means, when you query the first parameter or return-value passed to your function, you need to query for value 0, not for value 1.
 class EZ_CORE_DLL ezLuaWrapper
 {
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezLuaWrapper);
+
 public:
   /// \name Setting up the Script
   /// @{

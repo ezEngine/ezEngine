@@ -1,15 +1,15 @@
 #pragma once
 
-#include <ToolsFoundation/ToolsFoundationDLL.h>
 #include <Foundation/Types/Status.h>
 #include <ToolsFoundation/Document/Document.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 
 class EZ_TOOLSFOUNDATION_DLL ezDocumentManager : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezDocumentManager, ezReflectedClass);
 
 public:
-  virtual ~ezDocumentManager() { }
+  virtual ~ezDocumentManager() {}
 
   static const ezHybridArray<ezDocumentManager*, 16>& GetAllDocumentManagers() { return s_AllDocumentManagers; }
 
@@ -24,7 +24,8 @@ public:
   void CloseDocument(ezDocument* pDocument);
   void EnsureWindowRequested(ezDocument* pDocument, const ezDocumentObject* pOpenContext = nullptr);
 
-  const ezDynamicArray<ezDocument*>& GetAllDocuments() const { return m_AllDocuments; }
+  /// \brief Returns a list of all currently open documents that are managed by this document manager
+  const ezDynamicArray<ezDocument*>& GetAllOpenDocuments() const { return m_AllOpenDocuments; }
 
   ezDocument* GetDocumentByPath(const char* szPath) const;
 
@@ -47,11 +48,11 @@ public:
       DocumentTypesRemoved,
       DocumentTypesAdded,
       DocumentOpened,
-      DocumentWindowRequested, ///< Sent when the window for a document is needed. Each plugin should check this and see if it can create the desired window type
+      DocumentWindowRequested,      ///< Sent when the window for a document is needed. Each plugin should check this and see if it can create the desired window type
       AfterDocumentWindowRequested, ///< Sent after a document window was requested. Can be used to do things after the new window has been opened
       DocumentClosing,
       DocumentClosing2, // sent after DocumentClosing but before removing the document, use this to do stuff that depends on code executed during DocumentClosing
-      DocumentClosed, // this will not point to a valid document anymore, as the document is deleted, use DocumentClosing to get the event before it is deleted
+      DocumentClosed,   // this will not point to a valid document anymore, as the document is deleted, use DocumentClosing to get the event before it is deleted
     };
 
     Type m_Type;
@@ -75,14 +76,13 @@ public:
   static ezEvent<const Event&> s_Events;
   static ezEvent<Request&> s_Requests;
 
-  static const ezDynamicArray<const ezDocumentTypeDescriptor*>& GetAllDocumentDescriptors();
+  static const ezDocumentTypeDescriptor* GetDescriptorForDocumentType(const char* szDocumentType);
+  static const ezMap<ezString, const ezDocumentTypeDescriptor*>& GetAllDocumentDescriptors();
 
   void GetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const;
 
 private:
-  virtual ezStatus InternalCanOpenDocument(const char* szDocumentTypeName, const char* szFilePath) const { return ezStatus(EZ_SUCCESS); }
-  virtual ezStatus InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument,
-                                          ezDocument*& out_pDocument) = 0;
+  virtual void InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument) = 0;
   virtual void InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const = 0;
 
 private:
@@ -92,15 +92,15 @@ private:
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(ToolsFoundation, DocumentManager);
 
-  static void OnPluginEvent(const ezPlugin::PluginEvent& e);
+  static void OnPluginEvent(const ezPluginEvent& e);
 
-  static void UpdateBeforeUnloadingPlugins(const ezPlugin::PluginEvent& e);
+  static void UpdateBeforeUnloadingPlugins(const ezPluginEvent& e);
   static void UpdatedAfterLoadingPlugins();
 
-  ezDynamicArray<ezDocument*> m_AllDocuments;
+  ezDynamicArray<ezDocument*> m_AllOpenDocuments;
 
   static ezSet<const ezRTTI*> s_KnownManagers;
   static ezHybridArray<ezDocumentManager*, 16> s_AllDocumentManagers;
 
-  static ezDynamicArray<const ezDocumentTypeDescriptor*> s_AllDocumentDescriptors;
+  static ezMap<ezString, const ezDocumentTypeDescriptor*> s_AllDocumentDescriptors;
 };

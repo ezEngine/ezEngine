@@ -20,7 +20,7 @@ protected:
     return ezConversionUtils::ConvertStringToUuid(GetAssetGuidString(pInfo));
   }
 
-  ezString GetAssetTypeName(const ezUuid& assetTypeGuid) const;
+  ezString GetAssetsDocumentTypeName(const ezUuid& assetTypeGuid) const;
 
   bool IsSpecificAssetType(const ezDragDropInfo* pInfo, const char* szType) const;
 

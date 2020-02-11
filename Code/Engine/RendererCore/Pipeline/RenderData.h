@@ -54,13 +54,13 @@ public:
   ezGameObjectHandle m_hOwner;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  const ezGameObject* m_pOwner; ///< Debugging only. It is not allowed to access the game object during rendering.
+  const ezGameObject* m_pOwner = nullptr; ///< Debugging only. It is not allowed to access the game object during rendering.
 #endif
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(RendererCore, RenderData);
 
-  static void PluginEventHandler(const ezPlugin::PluginEvent& e);
+  static void PluginEventHandler(const ezPluginEvent& e);
   static void UpdateRendererTypes();
 
   static void CreateRendererInstances();

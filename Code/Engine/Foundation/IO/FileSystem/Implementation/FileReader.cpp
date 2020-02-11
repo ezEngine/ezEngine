@@ -2,13 +2,13 @@
 
 #include <Foundation/IO/FileSystem/FileReader.h>
 
-ezResult ezFileReader::Open(const char* szFile, ezUInt32 uiCacheSize, bool bAllowFileEvents)
+ezResult ezFileReader::Open(const char* szFile, ezUInt32 uiCacheSize /*= 1024 * 64*/, ezFileShareMode::Enum FileShareMode /*= ezFileShareMode::SharedReads*/, bool bAllowFileEvents /*= true*/)
 {
   EZ_ASSERT_DEV(m_pDataDirReader == nullptr, "The file reader is already open. (File: '{0}')", szFile);
 
   uiCacheSize = ezMath::Clamp<ezUInt32>(uiCacheSize, 1024, 1024 * 1024 * 32);
 
-  m_pDataDirReader = GetFileReader(szFile, bAllowFileEvents);
+  m_pDataDirReader = GetFileReader(szFile, FileShareMode, bAllowFileEvents);
 
   if (!m_pDataDirReader)
     return EZ_FAILURE;

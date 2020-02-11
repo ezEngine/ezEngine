@@ -926,6 +926,10 @@ ezResult ezOpenDdlUtils::ConvertToVariant(const ezOpenDdlReaderElement* pElement
       case ezOpenDdlPrimitiveType::String:
         out_result = ezString(pElement->GetPrimitivesString()[0]); // make sure this isn't stored as a string view by copying to to an ezString first
         return EZ_SUCCESS;
+
+      default:
+        EZ_ASSERT_NOT_IMPLEMENTED;
+        break;
     }
   }
 
@@ -1459,4 +1463,3 @@ void ezOpenDdlUtils::StoreUInt64(ezOpenDdlWriter& writer, ezUInt64 value, const 
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_OpenDdlUtils);
-

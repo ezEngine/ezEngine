@@ -3,6 +3,7 @@
 #include <EnginePluginParticle/EnginePluginParticleDLL.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
+#include <RendererCore/Meshes/MeshResource.h>
 
 class ezParticleComponent;
 
@@ -29,6 +30,7 @@ protected:
 
 private:
   ezParticleEffectResourceHandle m_hParticle;
+  ezMeshResourceHandle m_hPreviewMeshResource;
   ezParticleComponent* m_pComponent;
 };
 

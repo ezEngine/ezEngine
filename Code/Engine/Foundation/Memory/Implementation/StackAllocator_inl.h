@@ -48,6 +48,12 @@ void ezStackAllocator<TrackingFlags>::Deallocate(void* ptr)
   ezAllocator<ezMemoryPolicies::ezStackAllocation, TrackingFlags>::Deallocate(ptr);
 }
 
+EZ_MSVC_ANALYSIS_WARNING_PUSH
+
+// Disable warning for incorrect operator (compiler complains about the TrackingFlags bitwise and in the case that flags = None)
+// even with the added guard of a check that it can't be 0.
+EZ_MSVC_ANALYSIS_WARNING_DISABLE(6313) 
+
 template <ezUInt32 TrackingFlags>
 void ezStackAllocator<TrackingFlags>::Reset()
 {
@@ -63,9 +69,10 @@ void ezStackAllocator<TrackingFlags>::Reset()
   m_PtrToDestructDataIndexTable.Clear();
 
   this->m_allocator.Reset();
-  if (TrackingFlags & ezMemoryTrackingFlags::EnableTracking)
+  if (TrackingFlags != ezMemoryTrackingFlags::None && (TrackingFlags & ezMemoryTrackingFlags::EnableTracking))
   {
     ezMemoryTracker::RemoveAllAllocations(this->m_Id);
   }
 }
 
+EZ_MSVC_ANALYSIS_WARNING_POP

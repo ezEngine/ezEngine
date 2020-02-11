@@ -27,14 +27,14 @@ static ezInt32 iChangedRestart = 0;
 
 #if EZ_ENABLED(EZ_SUPPORTS_DYNAMIC_PLUGINS)
 
-static void ChangedCVar(const ezCVar::CVarEvent& e)
+static void ChangedCVar(const ezCVarEvent& e)
 {
   switch (e.m_EventType)
   {
-    case ezCVar::CVarEvent::ValueChanged:
+    case ezCVarEvent::ValueChanged:
       ++iChangedValue;
       break;
-    case ezCVar::CVarEvent::RestartValueChanged:
+    case ezCVarEvent::RestartValueChanged:
       ++iChangedRestart;
       break;
   }
@@ -51,8 +51,6 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
   // we need it to test the storing of cvars (during plugin reloading)
 
   ezStringBuilder sOutputFolder1 = ezTestFramework::GetInstance()->GetAbsOutputPath();
-
-  ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
 
   EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder1.GetData(), "test", "output", ezFileSystem::AllowWrites) == EZ_SUCCESS);
 
@@ -362,5 +360,4 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
 #endif
 
   ezFileSystem::ClearAllDataDirectories();
-  ezFileSystem::ClearAllDataDirectoryFactories();
 }

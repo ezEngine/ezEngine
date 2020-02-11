@@ -1,7 +1,8 @@
 #include <GameEnginePCH.h>
 
-#include <GameEngine/Gameplay/InputComponent.h>
+#include <Core/Messages/CommonMessages.h>
 #include <Core/World/World.h>
+#include <GameEngine/Gameplay/InputComponent.h>
 #include <GameEngine/VisualScript/Nodes/VisualScriptMessageNodes.h>
 #include <GameEngine/VisualScript/VisualScriptInstance.h>
 
@@ -266,4 +267,3 @@ void ezVisualScriptNode_InputEvent::HandleMessage(ezMessage* pMsg)
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_VisualScript_Nodes_VisualScriptMessageNodes);
-

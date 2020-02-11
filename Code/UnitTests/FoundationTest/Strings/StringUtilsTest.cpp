@@ -473,31 +473,31 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
 
 
     // NaN and Infinity
-    ezStringUtils::snprintf(sz, 256, "NaN Value: %.2f", ezMath::BasicType<float>::GetNaN());
+    ezStringUtils::snprintf(sz, 256, "NaN Value: %.2f", ezMath::NaN<float>());
     EZ_TEST_STRING(sz, "NaN Value: NaN");
 
-    ezStringUtils::snprintf(sz, 256, "Inf Value: %.2f", +ezMath::BasicType<float>::GetInfinity());
+    ezStringUtils::snprintf(sz, 256, "Inf Value: %.2f", +ezMath::Infinity<float>());
     EZ_TEST_STRING(sz, "Inf Value: Infinity");
 
-    ezStringUtils::snprintf(sz, 256, "Inf Value: %.2f", -ezMath::BasicType<float>::GetInfinity());
+    ezStringUtils::snprintf(sz, 256, "Inf Value: %.2f", -ezMath::Infinity<float>());
     EZ_TEST_STRING(sz, "Inf Value: -Infinity");
 
-    ezStringUtils::snprintf(sz, 256, "NaN Value: %.2e", ezMath::BasicType<float>::GetNaN());
+    ezStringUtils::snprintf(sz, 256, "NaN Value: %.2e", ezMath::NaN<float>());
     EZ_TEST_STRING(sz, "NaN Value: NaN");
 
-    ezStringUtils::snprintf(sz, 256, "Inf Value: %.2e", +ezMath::BasicType<float>::GetInfinity());
+    ezStringUtils::snprintf(sz, 256, "Inf Value: %.2e", +ezMath::Infinity<float>());
     EZ_TEST_STRING(sz, "Inf Value: Infinity");
 
-    ezStringUtils::snprintf(sz, 256, "Inf Value: %.2e", -ezMath::BasicType<float>::GetInfinity());
+    ezStringUtils::snprintf(sz, 256, "Inf Value: %.2e", -ezMath::Infinity<float>());
     EZ_TEST_STRING(sz, "Inf Value: -Infinity");
 
-    ezStringUtils::snprintf(sz, 256, "NaN Value: %+10.2f", ezMath::BasicType<float>::GetNaN());
+    ezStringUtils::snprintf(sz, 256, "NaN Value: %+10.2f", ezMath::NaN<float>());
     EZ_TEST_STRING(sz, "NaN Value:       +NaN");
 
-    ezStringUtils::snprintf(sz, 256, "Inf Value: %+10.2f", +ezMath::BasicType<float>::GetInfinity());
+    ezStringUtils::snprintf(sz, 256, "Inf Value: %+10.2f", +ezMath::Infinity<float>());
     EZ_TEST_STRING(sz, "Inf Value:  +Infinity");
 
-    ezStringUtils::snprintf(sz, 256, "Inf Value: %+10.2f", -ezMath::BasicType<float>::GetInfinity());
+    ezStringUtils::snprintf(sz, 256, "Inf Value: %+10.2f", -ezMath::Infinity<float>());
     EZ_TEST_STRING(sz, "Inf Value:  -Infinity");
   }
 

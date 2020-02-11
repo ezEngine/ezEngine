@@ -5,17 +5,24 @@
 #include <Inspector/FileWidget.moc.h>
 #include <MainWindow.moc.h>
 #include <qgraphicsitem.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 
 ezQtFileWidget* ezQtFileWidget::s_pWidget = nullptr;
 
 ezQtFileWidget::ezQtFileWidget(QWidget* parent)
-    : QDockWidget(parent)
+    : ads::CDockWidget("File Operations", parent)
 {
   s_pWidget = this;
 
   setupUi(this);
+  setWidget(Frame);
 
   ResetStats();
+}
+
+
+ezQtFileWidget::~ezQtFileWidget()
+{
 }
 
 void ezQtFileWidget::ResetStats()
@@ -79,11 +86,11 @@ void ezQtFileWidget::ProcessTelemetry(void* pUnuseed)
 
         switch (uiMode)
         {
-          case ezFileMode::Write:
-          case ezFileMode::Append:
+          case ezFileOpenMode::Write:
+          case ezFileOpenMode::Append:
             data.m_State = bSuccess ? OpenWriting : OpenWritingFailed;
             break;
-          case ezFileMode::Read:
+          case ezFileOpenMode::Read:
             data.m_State = bSuccess ? OpenReading : OpenReadingFailed;
             break;
           default:
@@ -231,79 +238,79 @@ QTableWidgetItem* ezQtFileWidget::GetStateString(FileOpState State) const
   {
     case None:
       pItem->setText("Unknown");
-      pItem->setTextColor(Qt::red);
+      pItem->setForeground(Qt::red);
       break;
     case ClosedReading:
       pItem->setText("Read");
-      pItem->setTextColor(QColor::fromRgb(110, 60, 185));
+      pItem->setForeground(QColor::fromRgb(110, 60, 185));
       break;
     case ClosedWriting:
       pItem->setText("Write");
-      pItem->setTextColor(QColor::fromRgb(255, 140, 0));
+      pItem->setForeground(QColor::fromRgb(255, 140, 0));
       break;
     case CreateDirs:
       pItem->setText("MakeDir");
-      pItem->setTextColor(Qt::darkYellow);
+      pItem->setForeground(Qt::darkYellow);
       break;
     case CreateDirsFailed:
       pItem->setText("MakeDir (fail)");
-      pItem->setTextColor(Qt::red);
+      pItem->setForeground(Qt::red);
       break;
     case FileCopy:
       pItem->setText("Copy");
-      pItem->setTextColor(QColor::fromRgb(255, 0, 255));
+      pItem->setForeground(QColor::fromRgb(255, 0, 255));
       break;
     case FileCopyFailed:
       pItem->setText("Copy (fail)");
-      pItem->setTextColor(Qt::red);
+      pItem->setForeground(Qt::red);
       break;
     case FileDelete:
       pItem->setText("Delete");
-      pItem->setTextColor(Qt::darkYellow);
+      pItem->setForeground(Qt::darkYellow);
       break;
     case FileDeleteFailed:
       pItem->setText("Delete (fail)");
-      pItem->setTextColor(Qt::red);
+      pItem->setForeground(Qt::red);
       break;
     case FileExists:
       pItem->setText("Exists");
-      pItem->setTextColor(Qt::lightGray);
+      pItem->setForeground(Qt::lightGray);
       break;
     case FileExistsFailed:
       pItem->setText("Exists (not)");
-      pItem->setTextColor(Qt::red);
+      pItem->setForeground(Qt::red);
       break;
     case OpenReading:
       pItem->setText("Read (Open)");
-      pItem->setTextColor(QColor::fromRgb(160, 90, 255));
+      pItem->setForeground(QColor::fromRgb(160, 90, 255));
       break;
     case OpenReadingFailed:
       pItem->setText("Read (fail)");
-      pItem->setTextColor(Qt::red);
+      pItem->setForeground(Qt::red);
       break;
     case OpenWriting:
       pItem->setText("Write (Open)");
-      pItem->setTextColor(QColor::fromRgb(255, 64, 0));
+      pItem->setForeground(QColor::fromRgb(255, 64, 0));
       break;
     case OpenWritingFailed:
       pItem->setText("Write (fail)");
-      pItem->setTextColor(Qt::red);
+      pItem->setForeground(Qt::red);
       break;
     case FileStat:
       pItem->setText("Stat");
-      pItem->setTextColor(QColor::fromRgb(128, 128, 128));
+      pItem->setForeground(QColor::fromRgb(128, 128, 128));
       break;
     case FileStatFailed:
       pItem->setText("Stat (fail)");
-      pItem->setTextColor(Qt::red);
+      pItem->setForeground(Qt::red);
       break;
     case FileCasing:
       pItem->setText("Casing");
-      pItem->setTextColor(Qt::cyan);
+      pItem->setForeground(Qt::cyan);
       break;
     case FileCasingFailed:
       pItem->setText("Casing (fail)");
-      pItem->setTextColor(Qt::red);
+      pItem->setForeground(Qt::red);
       break;
     default:
       EZ_REPORT_FAILURE("Unknown File Operation {0}", (ezInt32)State);
@@ -325,7 +332,8 @@ void ezQtFileWidget::UpdateTable()
 
   m_bUpdateTable = false;
 
-  Table->blockSignals(true);
+  ezQtScopedUpdatesDisabled _1(Table);
+
   Table->setSortingEnabled(false);
   Table->clear();
 
@@ -391,11 +399,11 @@ void ezQtFileWidget::UpdateTable()
     ezStringBuilder sThread;
 
     if ((it.Value().m_uiThreadTypes & (1 << 0)) != 0) // Main Thread
-      pItem->setTextColor(QColor::fromRgb(255, 64, 0));
+      pItem->setForeground(QColor::fromRgb(255, 64, 0));
     else if ((it.Value().m_uiThreadTypes & (1 << 2)) != 0) // Other Thread
-      pItem->setTextColor(QColor::fromRgb(160, 90, 255));
+      pItem->setForeground(QColor::fromRgb(160, 90, 255));
     else // Task Loading Thread
-      pItem->setTextColor(QColor::fromRgb(0, 255, 0));
+      pItem->setForeground(QColor::fromRgb(0, 255, 0));
 
     if ((it.Value().m_uiThreadTypes & (1 << 0)) != 0) // Main Thread
       sThread.Append(" Main ");
@@ -416,7 +424,6 @@ void ezQtFileWidget::UpdateTable()
 
   Table->setRowCount(uiRow);
   Table->setSortingEnabled(true);
-  Table->blockSignals(false);
 }
 
 void ezQtFileWidget::UpdateStats()

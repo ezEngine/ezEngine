@@ -8,32 +8,31 @@ class EZ_PHYSXPLUGIN_DLL ezPxDistanceJointComponent : public ezPxJointComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezPxDistanceJointComponent, ezPxJointComponent, ezPxDistanceJointComponentManager);
 
-public:
-  ezPxDistanceJointComponent();
+  //////////////////////////////////////////////////////////////////////////
+  // ezComponent
 
+public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
-  // ************************************* PROPERTIES ***********************************
-public:
 
-  float m_fMinDistance;
-  float m_fMaxDistance;
-  float m_fSpringStiffness;
-  float m_fSpringDamping;
-  float m_fSpringTolerance;
-
+  //////////////////////////////////////////////////////////////////////////
+  // ezPxJointComponent
 
 protected:
-
-
-  // ************************************* FUNCTIONS *****************************
-
-public:
-
-protected:
-
   virtual physx::PxJoint* CreateJointType(physx::PxRigidActor* actor0, const physx::PxTransform& localFrame0, physx::PxRigidActor* actor1, const physx::PxTransform& localFrame1) override;
+
+
+  //////////////////////////////////////////////////////////////////////////
+  // ezPxDistanceJointComponent
+
+public:
+  ezPxDistanceJointComponent();
+  ~ezPxDistanceJointComponent();
+
+  float m_fMinDistance = 0.0f;     // [ property ]
+  float m_fMaxDistance = 1.0f;     // [ property ]
+  float m_fSpringStiffness = 0.0f; // [ property ]
+  float m_fSpringDamping = 0.0f;   // [ property ]
+  float m_fSpringTolerance = 0.0f; // [ property ]
 };
-
-

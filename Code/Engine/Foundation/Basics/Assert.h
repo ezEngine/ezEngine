@@ -62,13 +62,15 @@ inline const char* ezFmt(const char* szFormat)
 #define EZ_ASSERT_ALWAYS(bCondition, szErrorMsg, ...)                                                                       \
   do                                                                                                                        \
   {                                                                                                                         \
+    EZ_MSVC_ANALYSIS_WARNING_PUSH                                                                                           \
+    EZ_MSVC_ANALYSIS_WARNING_DISABLE(6326) /* disable static analysis for the comparison */                                 \
     if (!!(bCondition) == false)                                                                                            \
     {                                                                                                                       \
       if (ezFailedCheck(EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, #bCondition, ezFmt(szErrorMsg, ##__VA_ARGS__))) \
         EZ_DEBUG_BREAK;                                                                                                     \
     }                                                                                                                       \
+    EZ_MSVC_ANALYSIS_WARNING_POP                                                                                            \
   } while (false)
-
 
 /// \brief This type of assert can be used to mark code as 'not (yet) implemented' and makes it easier to find it later on by just searching for these asserts.
 #define EZ_ASSERT_NOT_IMPLEMENTED EZ_REPORT_FAILURE("Not implemented");

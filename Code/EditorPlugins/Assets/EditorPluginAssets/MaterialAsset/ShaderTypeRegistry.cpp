@@ -188,7 +188,7 @@ namespace
       if (def.m_sType.IsEqual("Texture2D"))
       {
         attributes.PushBack(EZ_DEFAULT_NEW(ezCategoryAttribute, "Texture 2D"));
-        attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "Texture 2D;Render Target"));
+        attributes.PushBack(EZ_DEFAULT_NEW(ezAssetBrowserAttribute, "Texture 2D;Render Target;HTML Texture"));
       }
       else if (def.m_sType.IsEqual("Texture3D"))
       {

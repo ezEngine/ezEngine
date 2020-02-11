@@ -7,8 +7,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezDragDropInfo::ezDragDropInfo()
 {
-  m_vDropPosition.Set(ezMath::BasicType<float>::GetNaN());
-  m_vDropNormal.Set(ezMath::BasicType<float>::GetNaN());
+  m_vDropPosition.Set(ezMath::NaN<float>());
+  m_vDropNormal.Set(ezMath::NaN<float>());
   m_iTargetObjectSubID = -1;
   m_iTargetObjectInsertChildIndex = -1;
   m_bShiftKeyDown = false;

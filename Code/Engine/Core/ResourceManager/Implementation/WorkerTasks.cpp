@@ -1,5 +1,6 @@
 #include <CorePCH.h>
 
+#include <Core/ResourceManager/Implementation/ResourceManagerState.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Profiling/Profiling.h>
@@ -23,21 +24,21 @@ void ezResourceManagerWorkerDataLoad::DoWork(bool bCalledExternally)
   {
     EZ_LOCK(ezResourceManager::s_ResourceMutex);
 
-    if (ezResourceManager::s_RequireLoading.IsEmpty())
+    if (ezResourceManager::s_State->s_LoadingQueue.IsEmpty())
     {
-      ezResourceManager::s_bTaskRunning = false;
+      ezResourceManager::s_State->s_bDataLoadTaskRunning = false;
       return;
     }
 
     ezResourceManager::UpdateLoadingDeadlines();
 
-    auto it = ezResourceManager::s_RequireLoading.PeekFront();
+    auto it = ezResourceManager::s_State->s_LoadingQueue.PeekFront();
     pResourceToLoad = it.m_pResource;
-    ezResourceManager::s_RequireLoading.PopFront();
+    ezResourceManager::s_State->s_LoadingQueue.PopFront();
 
     if (pResourceToLoad->m_Flags.IsSet(ezResourceFlags::HasCustomDataLoader))
     {
-      pCustomLoader = std::move(ezResourceManager::s_CustomLoaders[pResourceToLoad]);
+      pCustomLoader = std::move(ezResourceManager::s_State->s_CustomLoaders[pResourceToLoad]);
       pLoader = pCustomLoader.Borrow();
       pResourceToLoad->m_Flags.Remove(ezResourceFlags::HasCustomDataLoader);
       pResourceToLoad->m_Flags.Add(ezResourceFlags::PreventFileReload);
@@ -64,9 +65,9 @@ void ezResourceManagerWorkerDataLoad::DoWork(bool bCalledExternally)
     EZ_LOCK(ezResourceManager::s_ResourceMutex);
 
     // take the oldest task from the queue, in hopes that it is the most likely one to have finished by now
-    pWorkerMainThread = &ezResourceManager::s_WorkerTasksUpdateContent[ezResourceManager::s_uiCurrentUpdateContentWorkerTask];
-    ezResourceManager::s_uiCurrentUpdateContentWorkerTask =
-      (ezResourceManager::s_uiCurrentUpdateContentWorkerTask + 1) % ezResourceManager::MaxUpdateContentTasks;
+    pWorkerMainThread = &ezResourceManager::s_State->s_WorkerTasksUpdateContent[ezResourceManager::s_State->s_uiCurrentUpdateContentWorkerTask];
+    ezResourceManager::s_State->s_uiCurrentUpdateContentWorkerTask =
+      (ezResourceManager::s_State->s_uiCurrentUpdateContentWorkerTask + 1) % ezResourceManager::s_State->MaxUpdateContentTasks;
   }
 
   // make sure the task that we grabbed has finished, before reusing it
@@ -92,7 +93,7 @@ void ezResourceManagerWorkerDataLoad::DoWork(bool bCalledExternally)
     if (!bCalledExternally)
     {
       // restart the next loading task (this one is about to finish)
-      ezResourceManager::s_bTaskRunning = false;
+      ezResourceManager::s_State->s_bDataLoadTaskRunning = false;
       ezResourceManager::RunWorkerTask(nullptr);
     }
 
@@ -144,8 +145,9 @@ void ezResourceManagerWorkerUpdateContent::Execute()
 
   {
     EZ_LOCK(ezResourceManager::s_ResourceMutex);
-    EZ_ASSERT_DEV(m_pResourceToLoad->m_Flags.IsSet(ezResourceFlags::IsPreloading) == true, "");
-    m_pResourceToLoad->m_Flags.Remove(ezResourceFlags::IsPreloading);
+    EZ_ASSERT_DEV(ezResourceManager::IsQueuedForLoading(m_pResourceToLoad), "Multi-threaded access detected");
+    m_pResourceToLoad->m_Flags.Remove(ezResourceFlags::IsQueuedForLoading);
+    m_pResourceToLoad->m_LastAcquire = ezResourceManager::GetLastFrameUpdate();
   }
 
   m_pLoader = nullptr;
@@ -154,4 +156,3 @@ void ezResourceManagerWorkerUpdateContent::Execute()
 
 
 EZ_STATICLINK_FILE(Core, Core_ResourceManager_Implementation_WorkerTasks);
-

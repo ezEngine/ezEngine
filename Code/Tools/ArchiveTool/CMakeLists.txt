@@ -10,5 +10,5 @@ ez_create_target(APPLICATION ${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME}
   PRIVATE
-  Core
+  Foundation
 )

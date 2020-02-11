@@ -382,6 +382,10 @@ void ezRttiConverterReader::ApplyProperty(void* pObject, ezAbstractProperty* pPr
       }
     }
     break;
+
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+      break;
   }
 }
 
@@ -402,4 +406,3 @@ void ezRttiConverterReader::CallOnObjectCreated(const ezAbstractObjectNode* pNod
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Serialization_Implementation_RttiConverterReader);
-

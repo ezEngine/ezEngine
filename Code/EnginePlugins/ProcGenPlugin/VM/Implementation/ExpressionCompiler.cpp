@@ -234,8 +234,10 @@ ezResult ezExpressionCompiler::GenerateByteCode(const ezExpressionAST& ast, ezEx
 
   m_InputToIndex.Clear();
   m_OutputToIndex.Clear();
+  m_FunctionToIndex.Clear();
   ezUInt32 uiNextInputIndex = 0;
   ezUInt32 uiNextOutputIndex = 0;
+  ezUInt32 uiNextFunctionIndex = 0;
 
   for (auto pCurrentNode : m_NodeInstructions)
   {
@@ -318,9 +320,18 @@ ezResult ezExpressionCompiler::GenerateByteCode(const ezExpressionAST& ast, ezEx
     else if (nodeType == ezExpressionAST::NodeType::FunctionCall)
     {
       auto pFunctionCall = static_cast<const ezExpressionAST::FunctionCall*>(pCurrentNode);
+      const ezHashedString& sName = pFunctionCall->m_sName;
+      ezUInt32 uiFunctionIndex = 0;
+      if (!m_FunctionToIndex.TryGetValue(sName, uiFunctionIndex))
+      {
+        uiFunctionIndex = uiNextFunctionIndex;
+        m_FunctionToIndex.Insert(sName, uiFunctionIndex);
+
+        ++uiNextFunctionIndex;
+      }
 
       byteCode.PushBack(ezExpressionByteCode::OpCode::Call);
-      byteCode.PushBack(pFunctionCall->m_sName.GetHash());
+      byteCode.PushBack(uiFunctionIndex);
       byteCode.PushBack(uiTargetRegister);
 
       byteCode.PushBack(pFunctionCall->m_Arguments.GetCount());
@@ -349,6 +360,12 @@ ezResult ezExpressionCompiler::GenerateByteCode(const ezExpressionAST& ast, ezEx
   for (auto it = m_OutputToIndex.GetIterator(); it.IsValid(); ++it)
   {
     out_byteCode.m_Outputs[it.Value()] = it.Key();
+  }
+
+  out_byteCode.m_Functions.SetCount(m_FunctionToIndex.GetCount());
+  for (auto it = m_FunctionToIndex.GetIterator(); it.IsValid(); ++it)
+  {
+    out_byteCode.m_Functions[it.Value()] = it.Key();
   }
 
   return EZ_SUCCESS;
