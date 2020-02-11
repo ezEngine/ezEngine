@@ -1,5 +1,10 @@
 cmake_minimum_required(VERSION 3.12...3.14)
 
+if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
+	message(FATAL_ERROR "In-source builds are not supported. Please choose a different binary directory.")
+	return()
+endif()
+
 set(EZ_CMAKE_UTILS_PATH "${CMAKE_CURRENT_SOURCE_DIR}/Code/BuildSystem/CMake" CACHE INTERNAL "The path where ez stores CMake utility functions.")
 
 # Required to find cmake modules like 'FindDirectX.cmake'
