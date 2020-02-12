@@ -1550,10 +1550,13 @@ ezResult ezImageUtils::CreateVolumeTextureFromSingleFile(ezImage& dstImg, const 
 
 ezColor ezImageUtils::BilinearSample(const ezImageView& image, ezImageAddressMode::Enum addressMode, ezVec2 uv)
 {
-  EZ_ASSERT_DEBUG(image.GetDepth() == 1 && image.GetNumFaces() == 1 && image.GetNumArrayIndices() == 1, "Only 2d texture are supported");
+  EZ_ASSERT_DEBUG(image.GetDepth() == 1 && image.GetNumFaces() == 1 && image.GetNumArrayIndices() == 1, "Only 2d images are supported");
   EZ_ASSERT_DEBUG(image.GetImageFormat() == ezImageFormat::R32G32B32A32_FLOAT, "Unsupported format");
 
-  uv = uv.CompMul(ezVec2(image.GetWidth(), image.GetHeight()));
+  ezInt32 w = image.GetWidth();
+  ezInt32 h = image.GetHeight();
+
+  uv = uv.CompMul(ezVec2(w, h)) - ezVec2(0.5f);
   float floorX = ezMath::Floor(uv.x);
   float floorY = ezMath::Floor(uv.y);
   float fractionX = uv.x - floorX;
@@ -1569,13 +1572,15 @@ ezColor ezImageUtils::BilinearSample(const ezImageView& image, ezImageAddressMod
 
     if (addressMode == ezImageAddressMode::Clamp)
     {
-      x = ezMath::Clamp(x, 0, (ezInt32)image.GetWidth() - 1);
-      y = ezMath::Clamp(y, 0, (ezInt32)image.GetHeight() - 1);
+      x = ezMath::Clamp(x, 0, w - 1);
+      y = ezMath::Clamp(y, 0, h - 1);
     }
     else
     {
-      x = x % image.GetWidth();
-      y = y % image.GetHeight();
+      x = x % w;
+      x = x < 0 ? x + w : x;
+      y = y % h;
+      y = y < 0 ? y + w : y;
     }
 
     c[i] = *image.GetPixelPointer<ezColor>(0, 0, 0, x, y);
