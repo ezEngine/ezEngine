@@ -10,9 +10,16 @@ set(EZ_CMAKE_UTILS_PATH "${CMAKE_CURRENT_SOURCE_DIR}/Code/BuildSystem/CMake" CAC
 # Required to find cmake modules like 'FindDirectX.cmake'
 set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${EZ_CMAKE_UTILS_PATH})
 
-set (EZ_SUBMODULE_MODE OFF CACHE BOOL "Assume that ezEngine is included into another cmake project via a git submodule")
-
 include("ezUtils")
+
+file(RELATIVE_PATH EZ_SUBMODULE_PREFIX_PATH ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+set_property(GLOBAL PROPERTY EZ_SUBMODULE_PREFIX_PATH ${EZ_SUBMODULE_PREFIX_PATH})
+if(EZ_SUBMODULE_PREFIX_PATH STREQUAL "")
+	set(EZ_SUBMODULE_MODE FALSE)
+else()
+	set(EZ_SUBMODULE_MODE TRUE)
+endif()
+set_property(GLOBAL PROPERTY EZ_SUBMODULE_MODE ${EZ_SUBMODULE_MODE})
 
 ez_build_filter_init()
 

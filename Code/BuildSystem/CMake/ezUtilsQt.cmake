@@ -124,10 +124,11 @@ function(ez_link_target_qt)
 
     if (EZ_CMAKE_PLATFORM_WINDOWS)
         mark_as_advanced(FORCE Qt5WinExtras_DIR)
-    endif()    
+    endif()
+	
+    get_property(EZ_SUBMODULE_PREFIX_PATH GLOBAL PROPERTY EZ_SUBMODULE_PREFIX_PATH)
 
-
-    file(RELATIVE_PATH SUB_FOLDER ${CMAKE_SOURCE_DIR} "${CMAKE_CURRENT_SOURCE_DIR}/..")
+    file(RELATIVE_PATH SUB_FOLDER "${CMAKE_SOURCE_DIR}/${EZ_SUBMODULE_PREFIX_PATH}" "${CMAKE_CURRENT_SOURCE_DIR}/..")
 
     target_include_directories(${FN_ARG_TARGET} PUBLIC ${CMAKE_BINARY_DIR}/${SUB_FOLDER})
 

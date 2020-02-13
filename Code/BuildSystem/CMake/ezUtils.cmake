@@ -196,7 +196,13 @@ function(ez_set_project_ide_folder TARGET_NAME PROJECT_SOURCE_DIR)
 
 	endif()
 
-	set_property(TARGET ${TARGET_NAME} PROPERTY FOLDER ${IDE_FOLDER})
+	get_property(EZ_SUBMODULE_MODE GLOBAL PROPERTY EZ_SUBMODULE_MODE)
+	
+	if(EZ_SUBMODULE_MODE)
+		set_property(TARGET ${TARGET_NAME} PROPERTY FOLDER "ezEngine/${IDE_FOLDER}")
+	else()
+		set_property(TARGET ${TARGET_NAME} PROPERTY FOLDER ${IDE_FOLDER})
+	endif()
 
 endfunction()
 
