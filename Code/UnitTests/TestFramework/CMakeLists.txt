@@ -1,5 +1,7 @@
 ez_cmake_init()
 
+ez_build_filter_foundation()
+
 set(EZ_TESTFRAMEWORK_USE_FILESERVE OFF)
 
 if(EZ_CMAKE_PLATFORM_WINDOWS_UWP)

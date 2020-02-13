@@ -1,5 +1,6 @@
 ez_cmake_init()
 
+ez_build_filter_everything()
 ez_requires_windows()
 
 # Get the name of this folder as the project name

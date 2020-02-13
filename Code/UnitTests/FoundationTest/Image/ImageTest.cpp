@@ -1,5 +1,6 @@
 #include <FoundationTestPCH.h>
 
+
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
@@ -190,3 +191,4 @@ EZ_CREATE_SIMPLE_TEST(Image, Image)
 
   ezFileSystem::RemoveDataDirectoryGroup("ImageTest");
 }
+

@@ -1417,7 +1417,6 @@ bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezI
     ezTestFramework::Output(ezTestOutput::ImageDiffFile, sDataDirRelativePath);
     return false;
   }
-
   return true;
 }
 

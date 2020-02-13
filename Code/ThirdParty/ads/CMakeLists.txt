@@ -1,5 +1,7 @@
 ez_cmake_init()
 
+ez_build_filter_everything()
+
 ez_requires(EZ_3RDPARTY_ADS_SUPPORT)
 
 ez_requires_qt()

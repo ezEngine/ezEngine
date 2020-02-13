@@ -9,7 +9,7 @@
 #include <Foundation/System/Process.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 
-#if (EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) && EZ_ENABLED(EZ_SUPPORTS_FILE_STATS))
+#if (EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) && EZ_ENABLED(EZ_SUPPORTS_FILE_STATS) && defined(BUILDSYSTEM_HAS_ARCHIVE_TOOL))
 
 EZ_CREATE_SIMPLE_TEST(IO, Archive)
 {

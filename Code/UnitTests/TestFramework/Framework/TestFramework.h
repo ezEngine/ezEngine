@@ -279,7 +279,7 @@ protected:
         return iFailedTests;                                                       \
       }                                                                            \
     }                                                                              \
-    } 
+    }
 
 #else
 #  define EZ_TESTFRAMEWORK_ENTRY_POINT_END()                        \
@@ -364,7 +364,7 @@ EZ_TEST_DLL ezResult ezTestResult(
 #define EZ_TEST_RESULT(condition) EZ_TEST_RESULT_MSG(condition, "")
 
 /// \brief Tests for a boolean condition, outputs a custom message on failure.
-#define EZ_TEST_RESULT_MSG(condition, msg, ...)                                                                                              \
+#define EZ_TEST_RESULT_MSG(condition, msg, ...) \
   ezTestResult(condition, "Test failed: " EZ_STRINGIZE(condition), EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
 
 //////////////////////////////////////////////////////////////////////////
