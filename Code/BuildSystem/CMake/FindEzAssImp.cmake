@@ -6,9 +6,11 @@ if (TARGET EzAssImp::EzAssImp)
 	return()
 endif()
 
+get_property(EZ_SUBMODULE_PREFIX_PATH GLOBAL PROPERTY EZ_SUBMODULE_PREFIX_PATH)
+
 find_path(EZ_ASSIMP_DIR assimp/ai_assert.h
   PATHS
-  ${CMAKE_SOURCE_DIR}/Code/ThirdParty/AssImp
+  ${CMAKE_SOURCE_DIR}/${EZ_SUBMODULE_PREFIX_PATH}/Code/ThirdParty/AssImp
 )
 
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)

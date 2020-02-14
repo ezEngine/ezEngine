@@ -13,6 +13,7 @@ include("ezUtilsUWP")
 include("ezUtilsTarget")
 include("ezUtilsTargetCS")
 include("ezUtilsVcpkg")
+include("ezUtilsSubmodule")
 
 ######################################
 ### ez_set_target_output_dirs(<target> <lib-output-dir> <dll-output-dir>)

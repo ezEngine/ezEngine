@@ -29,13 +29,9 @@ ez_build_filter_init()
 
 ez_detect_project_name(DETECTED_NAME)
 
-set(EZ_LANGUAGES C CXX)
-message(STATUS "CMAKE_GENERATOR: ${CMAKE_GENERATOR}")
-if ((CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows") AND (NOT CMAKE_GENERATOR STREQUAL "Ninja"))
-    set(EZ_LANGUAGES C CXX CSharp)
-endif()
-
 if(NOT EZ_SUBMODULE_MODE)
+	ez_detect_languages()
+
 	set (EZ_SOLUTION_NAME ${DETECTED_NAME} CACHE STRING "The name of the solution")
 	project (${EZ_SOLUTION_NAME}
 		VERSION 1.0
