@@ -332,7 +332,7 @@ QVariant ezQtAssetBrowserModel::data(const QModelIndex& index, int role) const
       }
       else
       {
-        return ezQtUiServices::GetCachedPixmapResource(pSubAsset->m_pAssetInfo->m_pDocumentTypeDescriptor->m_sIcon);
+        return ezQtUiServices::GetCachedIconResource(pSubAsset->m_pAssetInfo->m_pDocumentTypeDescriptor->m_sIcon);
       }
     }
     break;
