@@ -2,9 +2,9 @@
 
 #include <Foundation/Communication/Telemetry.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
+#include <Inspector/MainWidget.moc.h>
 #include <Inspector/MainWindow.moc.h>
 #include <Inspector/StatVisWidget.moc.h>
-#include <Inspector/MainWidget.moc.h>
 #include <QGraphicsPathItem>
 #include <QGraphicsView>
 #include <QSettings>
@@ -42,17 +42,13 @@ ezQtStatVisWidget::ezQtStatVisWidget(QWidget* parent, ezInt32 iWindowNumber)
   {
     ezQtScopedUpdatesDisabled _1(ComboTimeframe);
 
+    ComboTimeframe->addItem("Timeframe: 10 seconds");
+    ComboTimeframe->addItem("Timeframe: 30 seconds");
     ComboTimeframe->addItem("Timeframe: 1 minute");
     ComboTimeframe->addItem("Timeframe: 2 minutes");
-    ComboTimeframe->addItem("Timeframe: 3 minutes");
-    ComboTimeframe->addItem("Timeframe: 4 minutes");
     ComboTimeframe->addItem("Timeframe: 5 minutes");
-    ComboTimeframe->addItem("Timeframe: 6 minutes");
-    ComboTimeframe->addItem("Timeframe: 7 minutes");
-    ComboTimeframe->addItem("Timeframe: 8 minutes");
-    ComboTimeframe->addItem("Timeframe: 9 minutes");
     ComboTimeframe->addItem("Timeframe: 10 minutes");
-    ComboTimeframe->setCurrentIndex(0);
+    ComboTimeframe->setCurrentIndex(2);
   }
 
   ButtonRemove->setEnabled(false);
@@ -89,13 +85,23 @@ ezQtStatVisWidget::ezQtStatVisWidget(QWidget* parent, ezInt32 iWindowNumber)
 }
 
 
- ezQtStatVisWidget::~ezQtStatVisWidget()
+ezQtStatVisWidget::~ezQtStatVisWidget()
 {
 }
 
 void ezQtStatVisWidget::on_ComboTimeframe_currentIndexChanged(int index)
 {
-  m_DisplayInterval = ezTime::Seconds(60.0) * (index + 1);
+  const ezUInt32 uiSeconds[] =
+    {
+      10,
+      30,
+      60 * 1,
+      60 * 2,
+      60 * 5,
+      60 * 10,
+    };
+
+  m_DisplayInterval = ezTime::Seconds(uiSeconds[index]);
 }
 
 void ezQtStatVisWidget::on_LineName_textChanged(const QString& text)

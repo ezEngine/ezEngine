@@ -31,17 +31,13 @@ ezQtTimeWidget::ezQtTimeWidget(QWidget* parent)
   {
     ezQtScopedUpdatesDisabled _1(ComboTimeframe);
 
+    ComboTimeframe->addItem("Timeframe: 10 seconds");
+    ComboTimeframe->addItem("Timeframe: 30 seconds");
     ComboTimeframe->addItem("Timeframe: 1 minute");
     ComboTimeframe->addItem("Timeframe: 2 minutes");
-    ComboTimeframe->addItem("Timeframe: 3 minutes");
-    ComboTimeframe->addItem("Timeframe: 4 minutes");
     ComboTimeframe->addItem("Timeframe: 5 minutes");
-    ComboTimeframe->addItem("Timeframe: 6 minutes");
-    ComboTimeframe->addItem("Timeframe: 7 minutes");
-    ComboTimeframe->addItem("Timeframe: 8 minutes");
-    ComboTimeframe->addItem("Timeframe: 9 minutes");
     ComboTimeframe->addItem("Timeframe: 10 minutes");
-    ComboTimeframe->setCurrentIndex(0);
+    ComboTimeframe->setCurrentIndex(2);
   }
 
   m_pPathMax = m_Scene.addPath(QPainterPath(), QPen(QBrush(QColor(64, 64, 64)), 0));
@@ -278,5 +274,15 @@ void ezQtTimeWidget::on_ListClocks_itemChanged(QListWidgetItem* item)
 
 void ezQtTimeWidget::on_ComboTimeframe_currentIndexChanged(int index)
 {
-  m_DisplayInterval = ezTime::Seconds(60.0) * (index + 1);
+  const ezUInt32 uiSeconds[] =
+    {
+      10,
+      30,
+      60 * 1,
+      60 * 2,
+      60 * 5,
+      60 * 10,
+    };
+
+  m_DisplayInterval = ezTime::Seconds(uiSeconds[index]);
 }

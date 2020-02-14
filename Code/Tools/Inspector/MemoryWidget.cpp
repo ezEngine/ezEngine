@@ -47,17 +47,13 @@ ezQtMemoryWidget::ezQtMemoryWidget(QWidget* parent)
   {
     ezQtScopedUpdatesDisabled _1(ComboTimeframe);
 
+    ComboTimeframe->addItem("Timeframe: 10 seconds");
+    ComboTimeframe->addItem("Timeframe: 30 seconds");
     ComboTimeframe->addItem("Timeframe: 1 minute");
     ComboTimeframe->addItem("Timeframe: 2 minutes");
-    ComboTimeframe->addItem("Timeframe: 3 minutes");
-    ComboTimeframe->addItem("Timeframe: 4 minutes");
     ComboTimeframe->addItem("Timeframe: 5 minutes");
-    ComboTimeframe->addItem("Timeframe: 6 minutes");
-    ComboTimeframe->addItem("Timeframe: 7 minutes");
-    ComboTimeframe->addItem("Timeframe: 8 minutes");
-    ComboTimeframe->addItem("Timeframe: 9 minutes");
     ComboTimeframe->addItem("Timeframe: 10 minutes");
-    ComboTimeframe->setCurrentIndex(0);
+    ComboTimeframe->setCurrentIndex(2);
   }
 
   m_pPathMax = m_Scene.addPath(QPainterPath(), QPen(QBrush(QColor(255, 255, 255)), 0));
@@ -473,7 +469,17 @@ void ezQtMemoryWidget::on_ListAllocators_itemChanged(QTreeWidgetItem* item)
 
 void ezQtMemoryWidget::on_ComboTimeframe_currentIndexChanged(int index)
 {
-  m_uiDisplaySamples = 5 * 60 * (index + 1); // 5 samples per second, 60 seconds
+  const ezUInt32 uiSeconds[] =
+    {
+      10,
+      30,
+      60 * 1,
+      60 * 2,
+      60 * 5,
+      60 * 10,
+    };
+
+  m_uiDisplaySamples = 5 * uiSeconds[index]; // 5 samples per second
 }
 
 void ezQtMemoryWidget::on_actionEnableOnlyThis_triggered(bool)
