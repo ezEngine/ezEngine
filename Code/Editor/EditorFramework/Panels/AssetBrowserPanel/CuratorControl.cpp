@@ -102,7 +102,10 @@ void ezQtCuratorControl::UpdateBackgroundProcessState()
 void ezQtCuratorControl::BackgroundProcessClicked(bool checked)
 {
   if (checked)
+  {
+    ezAssetCurator::GetSingleton()->CheckFileSystem();
     ezAssetProcessor::GetSingleton()->RestartProcessTask();
+  }
   else
     ezAssetProcessor::GetSingleton()->ShutdownProcessTask();
 }

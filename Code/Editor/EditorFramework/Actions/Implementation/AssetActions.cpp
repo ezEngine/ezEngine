@@ -124,6 +124,7 @@ void ezAssetAction::Execute(const ezVariant& value)
 
     case ezAssetAction::ButtonType::TransformAllAssets:
     {
+      ezAssetCurator::GetSingleton()->CheckFileSystem();
       ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::None);
     }
     break;

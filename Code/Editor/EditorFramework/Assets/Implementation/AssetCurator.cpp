@@ -688,7 +688,7 @@ ezAssetInfo::TransformState ezAssetCurator::UpdateAssetTransformState(ezUuid ass
     // Setting an asset to unknown actually does not change the m_TransformState but merely adds it to the m_TransformStateStale list.
     // This is to prevent the user facing state to constantly fluctuate if something is tagged as modified but not actually changed (E.g. saving a file without modifying the content).
     // Thus we need to check for m_TransformStateStale as well as for the set state.
-    if (pAssetInfo->m_TransformState != ezAssetInfo::Unknown && pAssetInfo->m_TransformState != ezAssetInfo::Updating && !m_TransformStateStale.Contains(assetGuid))
+    if (pAssetInfo->m_TransformState != ezAssetInfo::Unknown && !m_TransformStateStale.Contains(assetGuid))
     {
       out_AssetHash = pAssetInfo->m_AssetHash;
       out_ThumbHash = pAssetInfo->m_ThumbHash;
@@ -783,6 +783,10 @@ ezAssetInfo::TransformState ezAssetCurator::UpdateAssetTransformState(ezUuid ass
         pAssetInfo->m_ThumbHash = out_ThumbHash;
         pAssetInfo->m_MissingDependencies = std::move(missingDependencies);
         pAssetInfo->m_MissingReferences = std::move(missingReferences);
+        if (state == ezAssetInfo::TransformState::UpToDate)
+        {
+          UpdateSubAssets(*pAssetInfo);
+        }
       }
     }
     else
