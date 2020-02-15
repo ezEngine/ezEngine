@@ -746,20 +746,23 @@ ezAssetInfo::TransformState ezAssetCurator::UpdateAssetTransformState(ezUuid ass
     state = HashAsset(uiSettingsHash, assetTransformDependencies, runtimeDependencies, missingDependencies, missingReferences, out_AssetHash, out_ThumbHash);
     EZ_ASSERT_DEV(state == ezAssetInfo::Unknown || state == ezAssetInfo::MissingDependency || state == ezAssetInfo::MissingReference, "Unhandled case of HashAsset return value.");
 
-    if (state == ezAssetInfo::Unknown && pManager->IsOutputUpToDate(sAssetFile, outputs, out_AssetHash, pTypeDescriptor))
+    if (state == ezAssetInfo::Unknown)
     {
-      state = ezAssetInfo::TransformState::UpToDate;
-      if (pTypeDescriptor->m_AssetDocumentFlags.IsSet(ezAssetDocumentFlags::SupportsThumbnail))
+      if (pManager->IsOutputUpToDate(sAssetFile, outputs, out_AssetHash, pTypeDescriptor))
       {
-        if (!ezAssetDocumentManager::IsThumbnailUpToDate(sAssetFile, out_ThumbHash, pTypeDescriptor->m_pDocumentType->GetTypeVersion()))
+        state = ezAssetInfo::TransformState::UpToDate;
+        if (pTypeDescriptor->m_AssetDocumentFlags.IsSet(ezAssetDocumentFlags::SupportsThumbnail))
         {
-          state = ezAssetInfo::TransformState::NeedsThumbnail;
+          if (!ezAssetDocumentManager::IsThumbnailUpToDate(sAssetFile, out_ThumbHash, pTypeDescriptor->m_pDocumentType->GetTypeVersion()))
+          {
+            state = ezAssetInfo::TransformState::NeedsThumbnail;
+          }
         }
       }
-    }
-    else
-    {
-      state = ezAssetInfo::TransformState::NeedsTransform;
+      else
+      {
+        state = ezAssetInfo::TransformState::NeedsTransform;
+      }
     }
   }
 
