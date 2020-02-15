@@ -773,7 +773,16 @@ void ezAssetCurator::UpdateAssetTransformLog(const ezUuid& assetGuid, ezDynamicA
 
 void ezAssetCurator::SetAssetExistanceState(ezAssetInfo& assetInfo, ezAssetExistanceState::Enum state)
 {
+  EZ_ASSERT_DEBUG(m_CuratorMutex.IsLocked(), "");
+
   assetInfo.m_ExistanceState = state;
+  for (ezUuid subGuid : assetInfo.m_SubAssets)
+  {
+    GetSubAssetInternal(subGuid)->m_ExistanceState = state;
+    m_SubAssetChanged.Insert(subGuid);
+  }
+
+  GetSubAssetInternal(assetInfo.m_Info->m_DocumentID)->m_ExistanceState = state;
   m_SubAssetChanged.Insert(assetInfo.m_Info->m_DocumentID);
 }
 
