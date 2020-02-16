@@ -299,7 +299,7 @@ static bool FillAvgImageColor(ezImage& img)
     }
   }
 
-  if (uiValidCount == img.GetBlobPtr<ezColor>().GetCount())
+  if (uiValidCount == 0 || uiValidCount == img.GetBlobPtr<ezColor>().GetCount())
   {
     // nothing to do
     return false;

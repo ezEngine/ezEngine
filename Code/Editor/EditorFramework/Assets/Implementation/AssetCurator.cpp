@@ -743,8 +743,8 @@ ezAssetInfo::TransformState ezAssetCurator::UpdateAssetTransformState(ezUuid ass
   ezSet<ezString> missingReferences;
   // Compute final state and hashes.
   {
-    state = HashAsset(uiSettingsHash, assetTransformDependencies, runtimeDependencies, missingDependencies, missingReferences, out_AssetHash, out_ThumbHash);
-    EZ_ASSERT_DEV(state == ezAssetInfo::Unknown || state == ezAssetInfo::MissingDependency || state == ezAssetInfo::MissingReference, "Unhandled case of HashAsset return value.");
+      state = HashAsset(uiSettingsHash, assetTransformDependencies, runtimeDependencies, missingDependencies, missingReferences, out_AssetHash, out_ThumbHash);
+      EZ_ASSERT_DEV(state == ezAssetInfo::Unknown || state == ezAssetInfo::MissingDependency || state == ezAssetInfo::MissingReference, "Unhandled case of HashAsset return value.");
 
     if (state == ezAssetInfo::Unknown)
     {
@@ -1179,6 +1179,24 @@ void ezAssetCurator::HandleSingleFile(const ezString& sAbsolutePath)
         RemoveAssetTransformState(guid);
         SetAssetExistanceState(*pAssetInfo, ezAssetExistanceState::FileRemoved);
         pFileStatus->m_AssetGuid = ezUuid();
+      }
+
+      auto it = m_InverseDependency.Find(sAbsolutePath);
+      if (it.IsValid())
+      {
+        for (const ezUuid& guid : it.Value())
+        {
+          InvalidateAssetTransformState(guid);
+        }
+      }
+
+      auto it2 = m_InverseReferences.Find(sAbsolutePath);
+      if (it2.IsValid())
+      {
+        for (const ezUuid& guid : it2.Value())
+        {
+          InvalidateAssetTransformState(guid);
+        }
       }
     }
     return;

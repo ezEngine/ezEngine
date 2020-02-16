@@ -68,7 +68,7 @@ bool ezAssetCurator::AddAssetHash(ezString& sPath, bool bIsReference, ezUInt64& 
     ezUInt64 assetHash = 0;
     ezUInt64 thumbHash = 0;
     ezAssetInfo::TransformState state = UpdateAssetTransformState(guid, assetHash, thumbHash);
-    if (assetHash == 0)
+    if (state == ezAssetInfo::Unknown || state == ezAssetInfo::MissingDependency || state == ezAssetInfo::MissingReference)
     {
       ezLog::Error("Failed to hash dependency asset '{0}'", sPath);
       return false;
