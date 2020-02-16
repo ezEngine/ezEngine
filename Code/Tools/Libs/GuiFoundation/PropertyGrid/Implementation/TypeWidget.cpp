@@ -95,85 +95,154 @@ void ezQtTypeWidget::PrepareToDie()
 }
 
 void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const ezMap<ezString, const ezManipulatorAttribute*>& manipulatorMap,
-                             const char* szIncludeProperties, const char* szExcludeProperties)
+  const ezDynamicArray<ezUniquePtr<PropertyGroup>>& groups, const char* szIncludeProperties, const char* szExcludeProperties)
 {
   ezQtScopedUpdatesDisabled _(this);
 
-  const ezRTTI* pParentType = pType->GetParentType();
-  if (pParentType != nullptr)
-    BuildUI(pParentType, manipulatorMap, szIncludeProperties, szExcludeProperties);
-
-  ezUInt32 iRows = m_pLayout->rowCount();
-  for (ezUInt32 i = 0; i < pType->GetProperties().GetCount(); ++i)
+  for (ezUInt32 p = 0; p < groups.GetCount(); p++)
   {
-    const ezAbstractProperty* pProp = pType->GetProperties()[i];
+    const ezUniquePtr<PropertyGroup>& group = groups[p];
 
-    if (pProp->GetFlags().IsSet(ezPropertyFlags::Hidden))
-      continue;
-
-    if (pProp->GetAttributeByType<ezHiddenAttribute>() != nullptr)
-      continue;
-
-    if (pProp->GetSpecificType()->GetAttributeByType<ezHiddenAttribute>() != nullptr)
-      continue;
-
-    if (pProp->GetCategory() == ezPropertyCategory::Constant)
-      continue;
-
-    if (szIncludeProperties != nullptr && ezStringUtils::FindSubString(szIncludeProperties, pProp->GetPropertyName()) == nullptr)
-      continue;
-
-    if (szExcludeProperties != nullptr && ezStringUtils::FindSubString(szExcludeProperties, pProp->GetPropertyName()) != nullptr)
-      continue;
-
-    ezQtPropertyWidget* pNewWidget = ezQtPropertyGridWidget::CreatePropertyWidget(pProp);
-    EZ_ASSERT_DEV(pNewWidget != nullptr, "No property editor defined for '{0}'", pProp->GetPropertyName());
-    pNewWidget->setParent(this);
-    pNewWidget->Init(m_pGrid, m_pObjectAccessor, pType, pProp);
-    auto& ref = m_PropertyWidgets[pProp->GetPropertyName()];
-
-    ref.m_pWidget = pNewWidget;
-    ref.m_pLabel = nullptr;
-
-    if (pNewWidget->HasLabel())
+    ezQtCollapsibleGroupBox* pGroupBox = new ezQtCollapsibleGroupBox(this);
+    pGroupBox->setContentsMargins(0, 0, 0, 0);
+    pGroupBox->layout()->setSpacing(0);
+    if (group->m_sGroup.IsEmpty())
     {
-      ezQtManipulatorLabel* pLabel = new ezQtManipulatorLabel(this);
-      pLabel->setText(QString::fromUtf8(pNewWidget->GetLabel()));
-      pLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
-      pLabel->setContentsMargins(0, 0, 0, 0); // 18 is a hacked value to align label with group boxes.
-      pLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
-
-      connect(pLabel, &QWidget::customContextMenuRequested, pNewWidget, &ezQtPropertyWidget::OnCustomContextMenu);
-
-      m_pLayout->addWidget(pLabel, iRows + i, 0, 1, 1);
-      m_pLayout->addWidget(pNewWidget, iRows + i, 2, 1, 1);
-
-      auto itManip = manipulatorMap.Find(pProp->GetPropertyName());
-      if (itManip.IsValid())
-      {
-        pLabel->SetManipulator(itManip.Value());
-      }
-
-      ref.m_pLabel = pLabel;
-      ref.m_sOriginalLabelText = pNewWidget->GetLabel();
+      pGroupBox->GetHeader()->hide();
     }
     else
     {
-      m_pLayout->addWidget(pNewWidget, iRows + i, 0, 1, 3);
-    }
-  }
-}
+      pGroupBox->SetTitle(group->m_sGroup.GetData());
+      pGroupBox->SetBoldTitle(true);
 
+      m_pGrid->SetCollapseState(pGroupBox);
+      connect(pGroupBox, &ezQtGroupBoxBase::CollapseStateChanged, m_pGrid, &ezQtPropertyGridWidget::OnCollapseStateChanged);
+
+      if (!group->m_sIconName.IsEmpty())
+      {
+        ezStringBuilder sIcon(":/GroupIcons/", group->m_sIconName, ".png");
+        pGroupBox->SetIcon(ezQtUiServices::GetCachedIconResource(sIcon));
+      }
+    }
+    QGridLayout* pLayout = new QGridLayout(pGroupBox);
+    pLayout->setColumnStretch(0, 1);
+    pLayout->setColumnStretch(1, 0);
+    pLayout->setColumnMinimumWidth(1, 5);
+    pLayout->setColumnStretch(2, 2);
+    pLayout->setMargin(0);
+    pLayout->setSpacing(0);
+    pGroupBox->GetContent()->setLayout(pLayout);
+
+    for (ezUInt32 i = 0; i < group->m_Properties.GetCount(); ++i)
+    {
+      const ezAbstractProperty* pProp = group->m_Properties[i];
+
+      ezQtPropertyWidget* pNewWidget = ezQtPropertyGridWidget::CreatePropertyWidget(pProp);
+      EZ_ASSERT_DEV(pNewWidget != nullptr, "No property editor defined for '{0}'", pProp->GetPropertyName());
+      pNewWidget->setParent(this);
+      pNewWidget->Init(m_pGrid, m_pObjectAccessor, pType, pProp);
+      auto& ref = m_PropertyWidgets[pProp->GetPropertyName()];
+
+      ref.m_pWidget = pNewWidget;
+      ref.m_pLabel = nullptr;
+
+      if (pNewWidget->HasLabel())
+      {
+        ezQtManipulatorLabel* pLabel = new ezQtManipulatorLabel(this);
+        pLabel->setText(QString::fromUtf8(pNewWidget->GetLabel()));
+        pLabel->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+        pLabel->setContentsMargins(0, 0, 0, 0); // 18 is a hacked value to align label with group boxes.
+        pLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+
+        connect(pLabel, &QWidget::customContextMenuRequested, pNewWidget, &ezQtPropertyWidget::OnCustomContextMenu);
+
+        pLayout->addWidget(pLabel, i, 0, 1, 1);
+        pLayout->addWidget(pNewWidget, i, 2, 1, 1);
+
+        auto itManip = manipulatorMap.Find(pProp->GetPropertyName());
+        if (itManip.IsValid())
+        {
+          pLabel->SetManipulator(itManip.Value());
+        }
+
+        ref.m_pLabel = pLabel;
+        ref.m_sOriginalLabelText = pNewWidget->GetLabel();
+      }
+      else
+      {
+        pLayout->addWidget(pNewWidget, i, 0, 1, 3);
+      }
+    }
+    if (p != groups.GetCount() - 1)
+    {
+      pLayout->addItem(new QSpacerItem(0, 5, QSizePolicy::Fixed, QSizePolicy::Fixed), group->m_Properties.GetCount(), 0, 1, 3);
+    }
+    ezUInt32 iRows = m_pLayout->rowCount();
+    m_pLayout->addWidget(pGroupBox, iRows, 0, 1, 3);
+  }
+
+
+}
 
 void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const char* szIncludeProperties, const char* szExcludeProperties)
 {
   ezMap<ezString, const ezManipulatorAttribute*> manipulatorMap;
+  ezHybridArray<ezUniquePtr<PropertyGroup>, 6> groups;
+  PropertyGroup* pCurrentGroup = nullptr;
+  float fOrder = -1.0f;
 
+  auto AddProperty = [&](const ezAbstractProperty* pProp)
+  {
+    const ezGroupAttribute* pGroup = pProp->GetAttributeByType<ezGroupAttribute>();
+    if (pGroup != nullptr)
+    {
+      ezUniquePtr<PropertyGroup>* pFound = std::find_if(begin(groups), end(groups), [&](const ezUniquePtr<PropertyGroup>& g) { return g->m_sGroup == pGroup->GetGroup(); });
+      if (pFound != end(groups))
+      {
+        pCurrentGroup = pFound->Borrow();
+        pCurrentGroup->MergeGroup(pGroup);
+      }
+      else
+      {
+        ezUniquePtr<PropertyGroup> group = EZ_DEFAULT_NEW(PropertyGroup, pGroup, fOrder);
+        pCurrentGroup = group.Borrow();
+        groups.PushBack(std::move(group));
+      }
+    }
+    if (pCurrentGroup == nullptr)
+    {
+      ezUniquePtr<PropertyGroup>* pFound = std::find_if(begin(groups), end(groups), [&](const ezUniquePtr<PropertyGroup>& g) { return g->m_sGroup.IsEmpty(); });
+      if (pFound != end(groups))
+      {
+        pCurrentGroup = pFound->Borrow();
+      }
+      else
+      {
+        ezUniquePtr<PropertyGroup> group = EZ_DEFAULT_NEW(PropertyGroup, nullptr, fOrder);
+        pCurrentGroup = group.Borrow();
+        groups.PushBack(std::move(group));
+      }
+    }
+
+    pCurrentGroup->m_Properties.PushBack(pProp);
+  };
+
+  // Build type hierarchy array.
+  ezHybridArray<const ezRTTI*, 6> typeHierarchy;
   const ezRTTI* pParentType = pType;
   while (pParentType != nullptr)
   {
-    const auto& attr = pParentType->GetAttributes();
+    typeHierarchy.PushBack(pParentType);
+    pParentType = pParentType->GetParentType();
+  }
 
+  // Build UI starting from base class.
+  for (ezInt32 i = (ezInt32)typeHierarchy.GetCount() - 1; i >= 0; --i)
+  {
+    const ezRTTI* pCurrentType = typeHierarchy[i];
+    const auto& attr = pCurrentType->GetAttributes();
+
+    // Traverse type attributes
     for (ezPropertyAttribute* pAttr : attr)
     {
       if (pAttr->GetDynamicRTTI()->IsDerivedFrom<ezManipulatorAttribute>())
@@ -195,10 +264,41 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const char* szIncludePropertie
       }
     }
 
-    pParentType = pParentType->GetParentType();
+    // Traverse properties
+    for (ezUInt32 i = 0; i < pCurrentType->GetProperties().GetCount(); ++i)
+    {
+      const ezAbstractProperty* pProp = pCurrentType->GetProperties()[i];
+
+      if (pProp->GetFlags().IsSet(ezPropertyFlags::Hidden))
+        continue;
+
+      if (pProp->GetAttributeByType<ezHiddenAttribute>() != nullptr)
+        continue;
+
+      if (pProp->GetSpecificType()->GetAttributeByType<ezHiddenAttribute>() != nullptr)
+        continue;
+
+      if (pProp->GetCategory() == ezPropertyCategory::Constant)
+        continue;
+
+      if (szIncludeProperties != nullptr && ezStringUtils::FindSubString(szIncludeProperties, pProp->GetPropertyName()) == nullptr)
+        continue;
+
+      if (szExcludeProperties != nullptr && ezStringUtils::FindSubString(szExcludeProperties, pProp->GetPropertyName()) != nullptr)
+        continue;
+
+      AddProperty(pProp);
+    }
+
+    // Groups should not be inherited by derived class properties
+    pCurrentGroup = nullptr;
   }
 
-  BuildUI(pType, manipulatorMap, szIncludeProperties, szExcludeProperties);
+  groups.Sort([](const ezUniquePtr<PropertyGroup>& lhs, const ezUniquePtr<PropertyGroup>& rhs) -> bool {
+    return lhs->m_fOrder < rhs->m_fOrder;
+  });
+
+  BuildUI(pType, manipulatorMap, groups, szIncludeProperties, szExcludeProperties);
 }
 
 void ezQtTypeWidget::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)

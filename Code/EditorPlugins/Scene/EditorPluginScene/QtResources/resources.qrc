@@ -65,5 +65,8 @@
 	<file>ezStageSpaceComponent.png</file>
 	<file>ezSrmRenderComponent.png</file>
 	<file>ezMotionMatchingComponent.png</file>
-  </qresource>  
+  </qresource>
+  <qresource prefix="GroupIcons">
+    <file>Size.png</file>
+  </qresource>
 </RCC>

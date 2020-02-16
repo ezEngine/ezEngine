@@ -46,7 +46,9 @@ private:
   ezUntrackedString m_sCategory;
 };
 
-/// \brief Used to categorize types (e.g. add component menu)
+/// \brief Used for dynamic titles of visual script nodes.
+/// E.g. "Set Bool Property '{Name}'" will allow the title to by dynamic
+/// by reading the current value of the 'Name' property.
 class EZ_FOUNDATION_DLL ezTitleAttribute : public ezPropertyAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezTitleAttribute, ezPropertyAttribute);
@@ -149,6 +151,25 @@ private:
   ezVariant m_MaxValue;
 };
 
+/// \brief Used to categorize properties into groups
+class EZ_FOUNDATION_DLL ezGroupAttribute : public ezPropertyAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezGroupAttribute, ezPropertyAttribute);
+
+public:
+  ezGroupAttribute();
+  ezGroupAttribute(const char* szGroup, float fOrder = -1.0f);
+  ezGroupAttribute(const char* szGroup, const char* szIconName, float fOrder = -1.0f);
+
+  const char* GetGroup() const { return m_sGroup; }
+  const char* GetIconName() const { return m_sIconName; }
+  float GetOrder() const { return m_fOrder; }
+
+private:
+  ezUntrackedString m_sGroup;
+  ezUntrackedString m_sIconName;
+  float m_fOrder = -1.0f;
+};
 
 /// \brief Derive from this class if you want to define an attribute that replaces the property type widget.
 ///

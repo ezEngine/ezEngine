@@ -525,7 +525,7 @@ ezUInt32 ezQtPropertyGridWidget::GetGroupBoxHash(ezQtGroupBoxBase* pBox) const
     if (pCurBox != nullptr)
     {
       const QByteArray name = pCurBox->GetTitle().toUtf8().data();
-      uiHash = ezHashingUtils::xxHash32(name, name.length());
+      uiHash += ezHashingUtils::xxHash32(name, name.length());
     }
     pCur = pCur->parentWidget();
   }

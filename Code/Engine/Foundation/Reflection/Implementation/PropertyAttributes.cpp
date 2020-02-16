@@ -124,6 +124,40 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezClampValueAttribute, 1, ezRTTIDefaultAllocator
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGroupAttribute, 1, ezRTTIDefaultAllocator<ezGroupAttribute>)
+{
+  EZ_BEGIN_PROPERTIES
+  {
+    EZ_MEMBER_PROPERTY("Group", m_sGroup),
+  }
+  EZ_END_PROPERTIES;
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_CONSTRUCTOR_PROPERTY(const char*, float),
+    EZ_CONSTRUCTOR_PROPERTY(const char*, const char*, float),
+  }
+  EZ_END_FUNCTIONS;
+}
+EZ_END_DYNAMIC_REFLECTED_TYPE;
+
+ezGroupAttribute::ezGroupAttribute()
+{
+
+}
+
+ezGroupAttribute::ezGroupAttribute(const char* szGroup, float fOrder)
+{
+  m_sGroup = szGroup;
+  m_fOrder = fOrder;
+}
+
+ezGroupAttribute::ezGroupAttribute(const char* szGroup, const char* szIconName, float fOrder)
+{
+  m_sGroup = szGroup;
+  m_sIconName = szIconName;
+  m_fOrder = fOrder;
+}
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTypeWidgetAttribute, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
