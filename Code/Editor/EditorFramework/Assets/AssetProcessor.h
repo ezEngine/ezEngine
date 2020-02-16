@@ -81,8 +81,8 @@ private:
   void ShutdownProcess();
   void EventHandlerIPC(const ezProcessCommunicationChannel::Event& e);
 
-  bool GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, ezStringBuilder& out_sAbsPath);
-  bool GetNextAssetToProcess(ezUuid& out_guid, ezStringBuilder& out_sAbsPath);
+  bool GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, ezStringBuilder& out_sAbsPath, ezStringBuilder& out_sRelPath);
+  bool GetNextAssetToProcess(ezUuid& out_guid, ezStringBuilder& out_sAbsPath, ezStringBuilder& out_sRelPath);
   void OnProcessCrashed();
 
   ezUInt32 m_uiProcessorID;

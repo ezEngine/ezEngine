@@ -11,11 +11,40 @@ ezQtAssetCuratorFilter::ezQtAssetCuratorFilter(QObject* pParent)
 {
 }
 
+void ezQtAssetCuratorFilter::SetFilterTransitive(bool bFilterTransitive)
+{
+  m_bFilterTransitive = bFilterTransitive;
+}
+
 bool ezQtAssetCuratorFilter::IsAssetFiltered(const ezSubAsset* pInfo) const
 {
-  return !pInfo->m_bMainAsset || !(pInfo->m_pAssetInfo->m_TransformState == ezAssetInfo::MissingDependency ||
-                                   pInfo->m_pAssetInfo->m_TransformState == ezAssetInfo::MissingReference ||
-                                   pInfo->m_pAssetInfo->m_TransformState == ezAssetInfo::TransformError);
+  if (!pInfo->m_bMainAsset)
+    return true;
+
+  if (pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::MissingDependency &&
+      pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::MissingReference &&
+      pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::TransformError)
+  {
+    return true;
+  }
+
+  if (m_bFilterTransitive)
+  {
+    if (pInfo->m_pAssetInfo->m_TransformState == ezAssetInfo::MissingReference)
+    {
+      for (auto& ref : pInfo->m_pAssetInfo->m_MissingReferences)
+      {
+        if (!ezAssetCurator::GetSingleton()->FindSubAsset(ref).isValid())
+        {
+          return false;
+        }
+      }
+
+      return true;
+    }
+  }
+
+  return false;
 }
 
 bool ezQtAssetCuratorFilter::Less(const ezSubAsset* pInfoA, const ezSubAsset* pInfoB) const
@@ -52,6 +81,8 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel()
   m_pFilter = new ezQtAssetCuratorFilter(this);
   m_pModel = new ezQtAssetBrowserModel(this, m_pFilter);
   m_pModel->SetIconMode(false);
+
+  TransformLog->ShowControls(false);
 
   ListAssets->setModel(m_pModel);
   ListAssets->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
@@ -92,6 +123,12 @@ void ezQtAssetCuratorPanel::on_ListAssets_doubleClicked(const QModelIndex& index
   QString sAbsPath = m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString();
 
   ezQtEditorApp::GetSingleton()->OpenDocumentQueued(sAbsPath.toUtf8().data());
+}
+
+void ezQtAssetCuratorPanel::on_CheckIndirect_toggled(bool checked)
+{
+  m_pFilter->SetFilterTransitive(!checked);
+  m_pModel->resetModel();
 }
 
 void ezQtAssetCuratorPanel::LogWriter(const ezLoggingEventData& e)

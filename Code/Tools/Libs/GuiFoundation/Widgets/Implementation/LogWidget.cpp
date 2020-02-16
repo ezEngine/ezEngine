@@ -21,7 +21,14 @@ ezQtLogWidget::ezQtLogWidget(QWidget* parent)
   ComboFilter->setCurrentIndex(logIndex);
 }
 
-ezQtLogWidget::~ezQtLogWidget() {}
+ezQtLogWidget::~ezQtLogWidget() = default;
+
+void ezQtLogWidget::ShowControls(bool show)
+{
+  ButtonClearLog->setVisible(show);
+  ComboFilter->setVisible(show);
+  Search->setVisible(show);
+}
 
 ezQtLogModel* ezQtLogWidget::GetLog()
 {

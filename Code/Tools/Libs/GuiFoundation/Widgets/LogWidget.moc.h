@@ -18,6 +18,8 @@ public:
   ezQtLogWidget(QWidget* parent);
   ~ezQtLogWidget();
 
+  void ShowControls(bool show);
+
   ezQtLogModel* GetLog();
   ezQtSearchWidget* GetSearchWidget();
   void SetLogLevel(ezLogMsgType::Enum logLevel);

@@ -63,7 +63,7 @@ void ezAssetProcessorLog::RemoveLogWriter(ezLoggingEvent::Handler handler)
 ////////////////////////////////////////////////////////////////////////
 
 ezAssetProcessor::ezAssetProcessor()
-    : m_SingletonRegistrar(this)
+  : m_SingletonRegistrar(this)
 {
   ezAssetCurator::GetSingleton()->m_Events.AddEventHandler(ezMakeDelegate(&ezAssetProcessor::AssetCuratorEventHandler, this));
 }
@@ -202,11 +202,11 @@ void ezAssetProcessor::AssetCuratorEventHandler(const ezAssetCuratorEvent& e)
 ////////////////////////////////////////////////////////////////////////
 
 ezProcessTask::ezProcessTask(ezUInt32 uiProcessorID)
-    : m_uiProcessorID(uiProcessorID)
-    , m_bProcessShouldBeRunning(false)
-    , m_bProcessCrashed(false)
-    , m_bWaiting(false)
-    , m_bSuccess(true)
+  : m_uiProcessorID(uiProcessorID)
+  , m_bProcessShouldBeRunning(false)
+  , m_bProcessCrashed(false)
+  , m_bWaiting(false)
+  , m_bSuccess(true)
 {
   SetTaskName("ezProcessTask");
   m_pIPC = EZ_DEFAULT_NEW(ezEditorProcessCommunicationChannel);
@@ -259,7 +259,7 @@ void ezProcessTask::EventHandlerIPC(const ezProcessCommunicationChannel::Event& 
   }
 }
 
-bool ezProcessTask::GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, ezStringBuilder& out_sAbsPath)
+bool ezProcessTask::GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, ezStringBuilder& out_sAbsPath, ezStringBuilder& out_sRelPath)
 {
   bool bComplete = true;
 
@@ -304,25 +304,26 @@ bool ezProcessTask::GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, 
 
   if (ezAssetInfo* pDepInfo = TestFunc(pInfo->m_Info->m_AssetTransformDependencies))
   {
-    return GetNextAssetToProcess(pDepInfo, out_guid, out_sAbsPath);
+    return GetNextAssetToProcess(pDepInfo, out_guid, out_sAbsPath, out_sRelPath);
   }
 
   if (ezAssetInfo* pDepInfo = TestFunc(pInfo->m_Info->m_RuntimeDependencies))
   {
-    return GetNextAssetToProcess(pDepInfo, out_guid, out_sAbsPath);
+    return GetNextAssetToProcess(pDepInfo, out_guid, out_sAbsPath, out_sRelPath);
   }
 
   if (bComplete)
   {
     out_guid = pInfo->m_Info->m_DocumentID;
     out_sAbsPath = pInfo->m_sAbsolutePath;
+    out_sRelPath = pInfo->m_sDataDirRelativePath;
     return true;
   }
 
   return false;
 }
 
-bool ezProcessTask::GetNextAssetToProcess(ezUuid& out_guid, ezStringBuilder& out_sAbsPath)
+bool ezProcessTask::GetNextAssetToProcess(ezUuid& out_guid, ezStringBuilder& out_sAbsPath, ezStringBuilder& out_sRelPath)
 {
   EZ_LOCK(ezAssetCurator::GetSingleton()->m_CuratorMutex);
 
@@ -332,7 +333,7 @@ bool ezProcessTask::GetNextAssetToProcess(ezUuid& out_guid, ezStringBuilder& out
     ezAssetInfo* pInfo = ezAssetCurator::GetSingleton()->GetAssetInfo(it.Key());
     if (pInfo)
     {
-      bool bRes = GetNextAssetToProcess(pInfo, out_guid, out_sAbsPath);
+      bool bRes = GetNextAssetToProcess(pInfo, out_guid, out_sAbsPath, out_sRelPath);
       if (bRes)
         return true;
     }
@@ -344,7 +345,7 @@ bool ezProcessTask::GetNextAssetToProcess(ezUuid& out_guid, ezStringBuilder& out
     ezAssetInfo* pInfo = ezAssetCurator::GetSingleton()->GetAssetInfo(it.Key());
     if (pInfo)
     {
-      bool bRes = GetNextAssetToProcess(pInfo, out_guid, out_sAbsPath);
+      bool bRes = GetNextAssetToProcess(pInfo, out_guid, out_sAbsPath, out_sRelPath);
       if (bRes)
         return true;
     }
@@ -364,12 +365,14 @@ void ezProcessTask::OnProcessCrashed()
 
 void ezProcessTask::Execute()
 {
+  ezStringBuilder sAssetRelPath;
+
   m_LogEntries.Clear();
   m_bSuccess = true;
   {
     EZ_LOCK(ezAssetCurator::GetSingleton()->m_CuratorMutex);
 
-    if (!GetNextAssetToProcess(m_assetGuid, m_sAssetPath))
+    if (!GetNextAssetToProcess(m_assetGuid, m_sAssetPath, sAssetRelPath))
     {
       m_assetGuid = ezUuid();
       m_sAssetPath.Clear();
@@ -391,7 +394,7 @@ void ezProcessTask::Execute()
   }
   else
   {
-    ezLog::Info(&ezAssetProcessor::GetSingleton()->m_CuratorLog, "Processing '{0}'", m_sAssetPath);
+    ezLog::Info(&ezAssetProcessor::GetSingleton()->m_CuratorLog, "Processing '{0}'", sAssetRelPath);
     // Send and wait
     ezProcessAssetMsg msg;
     msg.m_AssetGuid = m_assetGuid;
