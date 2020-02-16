@@ -90,6 +90,7 @@ void ezAssetDocument::InternalAfterSaveDocument()
 {
   const auto flags = GetAssetFlags();
   ezAssetCurator::GetSingleton()->NotifyOfFileChange(GetDocumentPath());
+  ezAssetCurator::GetSingleton()->MainThreadTick(false);
 
   // If we request an engine connection but the mirror is not set up yet we are still
   // creating the document and TransformAsset will most likely fail.

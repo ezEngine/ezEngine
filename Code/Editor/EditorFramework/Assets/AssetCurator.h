@@ -164,7 +164,7 @@ public:
   void WaitForInitialize();
   void Deinitialize();
 
-  void MainThreadTick();
+  void MainThreadTick(bool bTopLevel);
 
   ///@}
   /// \name Asset Platform Configurations
@@ -288,6 +288,9 @@ public:
   /// \brief Checks file system for any changes. Call in case the file system watcher does not pick up certain changes.
   void CheckFileSystem();
 
+  void NeedsFileSystemCheck();
+  void NeedsReloadResources();
+
   ///@}
 
 
@@ -372,10 +375,12 @@ private:
   friend class ezProcessTask;
   friend class ezAssetProcessor;
 
-  ezAtomicInteger32 m_bInitStarted =
-    false; // Used to figure out whether the task system has already started the init task so we don't still its lock.
-  bool m_bRunUpdateTask;
-  bool m_bNeedToReloadResources;
+  ezAtomicInteger32 m_bInitStarted = false; // Used to figure out whether the task system has already started the init task so we don't still its lock.
+  bool m_bRunUpdateTask = false;
+  bool m_bNeedToReloadResources = false;
+  bool m_bNeedCheckFileSystem = false;
+  ezTime m_NextReloadResources;
+  ezTime m_NextCheckFileSystem;
 
   // Actual data stored in the curator
   ezHashTable<ezUuid, ezAssetInfo*> m_KnownAssets;
@@ -385,8 +390,7 @@ private:
   // Derived dependency lookup tables
   ezMap<ezString, ezHybridArray<ezUuid, 1>> m_InverseDependency;
   ezMap<ezString, ezHybridArray<ezUuid, 1>> m_InverseReferences;
-  ezSet<std::tuple<ezUuid, ezUuid>>
-    m_UnresolvedDependencies; ///< If a dependency wasn't known yet when an asset info was loaded, it is put in here.
+  ezSet<std::tuple<ezUuid, ezUuid>> m_UnresolvedDependencies; ///< If a dependency wasn't known yet when an asset info was loaded, it is put in here.
   ezSet<std::tuple<ezUuid, ezUuid>> m_UnresolvedReferences;
 
   // State caches
@@ -411,7 +415,7 @@ private:
   ezTaskGroupID m_WatcherGroup;
   ezDynamicArray<ezString> m_WatcherResults;
 
-  ezUpdateTask* m_pUpdateTask;
+  ezUpdateTask* m_pUpdateTask = nullptr;
 };
 
 class ezUpdateTask : public ezTask

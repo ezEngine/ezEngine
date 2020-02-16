@@ -420,7 +420,7 @@ void ezProcessTask::Execute()
   if (m_bSuccess)
   {
     ezAssetCurator::GetSingleton()->NotifyOfAssetChange(m_assetGuid);
-    ezAssetCurator::GetSingleton()->m_bNeedToReloadResources = true;
+    ezAssetCurator::GetSingleton()->NeedsReloadResources();
   }
   else
   {

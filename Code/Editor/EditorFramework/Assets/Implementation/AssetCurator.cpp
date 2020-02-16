@@ -121,9 +121,6 @@ void ezSubAsset::GetSubAssetIdentifier(ezStringBuilder& out_sPath) const
 ezAssetCurator::ezAssetCurator()
   : m_SingletonRegistrar(this)
 {
-  m_bRunUpdateTask = false;
-  m_bNeedToReloadResources = false;
-  m_pUpdateTask = nullptr;
 }
 
 ezAssetCurator::~ezAssetCurator()
@@ -181,6 +178,13 @@ void ezAssetCurator::StartInitialize(const ezApplicationFileSystemConfig& cfg)
         pWatcher->EnumerateChanges([pWatcher, this](const char* szFilename, ezDirectoryWatcherAction action) {
           ezStringBuilder sTemp = pWatcher->GetDirectory();
           sTemp.AppendPath(szFilename);
+
+          if (action == ezDirectoryWatcherAction::Modified)
+          {
+            if (ezOSFile::ExistsDirectory(sTemp))
+              return;
+          }
+
           m_WatcherResults.PushBack(sTemp);
         });
       }
@@ -290,7 +294,7 @@ void ezAssetCurator::Deinitialize()
   ClearAssetProfiles();
 }
 
-void ezAssetCurator::MainThreadTick()
+void ezAssetCurator::MainThreadTick(bool bTopLevel)
 {
   CURATOR_PROFILE("MainThreadTick");
 
@@ -365,12 +369,22 @@ void ezAssetCurator::MainThreadTick()
 
   if (!ezQtEditorApp::GetSingleton()->IsInHeadlessMode())
   {
-    if (m_bNeedToReloadResources)
+    if (bTopLevel && m_bNeedToReloadResources && ezTime::Now() > m_NextReloadResources)
     {
       m_bNeedToReloadResources = false;
       WriteAssetTables();
     }
   }
+
+  if (bTopLevel && m_bNeedCheckFileSystem && ezTime::Now() > m_NextCheckFileSystem)
+  {
+    m_bNeedCheckFileSystem = false;
+
+    m_CuratorMutex.Release();
+    CheckFileSystem();
+    m_CuratorMutex.Acquire();
+  }
+
   bReentry = false;
 }
 
@@ -510,6 +524,7 @@ ezStatus ezAssetCurator::CreateThumbnail(const ezUuid& assetGuid)
 
 ezResult ezAssetCurator::WriteAssetTables(const ezPlatformProfile* pAssetProfile /* = nullptr*/)
 {
+  CURATOR_PROFILE("WriteAssetTables");
   EZ_LOG_BLOCK("ezAssetCurator::WriteAssetTables");
 
   // TODO: figure out a way to early out this function, if nothing can have changed
@@ -548,6 +563,7 @@ ezResult ezAssetCurator::WriteAssetTables(const ezPlatformProfile* pAssetProfile
 
 const ezAssetCurator::ezLockedSubAsset ezAssetCurator::FindSubAsset(const char* szPathOrGuid) const
 {
+  CURATOR_PROFILE("FindSubAsset");
   EZ_LOCK(m_CuratorMutex);
 
   if (ezConversionUtils::IsStringUuid(szPathOrGuid))
@@ -916,7 +932,7 @@ void ezAssetCurator::NotifyOfFileChange(const char* szAbsolutePath)
   ezStringBuilder sPath(szAbsolutePath);
   sPath.MakeCleanPath();
   HandleSingleFile(sPath);
-  MainThreadTick();
+  //MainThreadTick();
 }
 
 void ezAssetCurator::NotifyOfAssetChange(const ezUuid& assetGuid)
@@ -982,6 +998,24 @@ void ezAssetCurator::CheckFileSystem()
   RestartUpdateTask();
 
   ezLog::Debug("Asset Curator Refresh Time: {0} ms", ezArgF(sw.GetRunningTotal().GetMilliseconds(), 3));
+}
+
+void ezAssetCurator::NeedsFileSystemCheck()
+{
+  if (m_bNeedCheckFileSystem)
+    return;
+
+  m_bNeedCheckFileSystem = true;
+  m_NextCheckFileSystem = ezTime::Now() + ezTime::Seconds(2);
+}
+
+void ezAssetCurator::NeedsReloadResources()
+{
+  if (m_bNeedToReloadResources)
+    return;
+
+  m_bNeedToReloadResources = true;
+  m_NextReloadResources = ezTime::Now() + ezTime::Seconds(1.5);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -1199,7 +1233,22 @@ void ezAssetCurator::HandleSingleFile(const ezString& sAbsolutePath)
         }
       }
     }
+    else
+    {
+      // directory was removed -> check the entire filesystem
+      NeedsFileSystemCheck();
+    }
+
     return;
+  }
+  else
+  {
+    // directory was added -> check the entire filesystem
+    if (Stats.m_bIsDirectory)
+    {
+      NeedsFileSystemCheck();
+      return;
+    }
   }
 
   // make sure the set exists, but don't update it
