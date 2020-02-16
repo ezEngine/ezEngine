@@ -120,4 +120,7 @@ public:
   static ezResult CreateVolumeTextureFromSingleFile(ezImage& dstImg, const ezImageView& srcImg);
 
   static ezUInt32 GetSampleIndex(ezUInt32 numTexels, ezInt32 index, ezImageAddressMode::Enum addressMode, bool& outUseBorderColor);
+
+  /// \brief Samples the given image at the given uv coords with bilinear filtering.
+  static ezColor BilinearSample(const ezImageView& image, ezImageAddressMode::Enum addressMode, ezVec2 uv);
 };
