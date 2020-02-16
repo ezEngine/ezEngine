@@ -1,5 +1,6 @@
 #include <EditorFrameworkPCH.h>
 
+#include <Assets/AssetProcessor.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/Preferences.h>
@@ -128,6 +129,11 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
       m_sLastProjectFolder = ezToolsProject::GetSingleton()->GetProjectFile();
 
       s_RecentProjects.Insert(ezToolsProject::GetSingleton()->GetProjectFile(), 0);
+
+      if (!m_bHeadless)
+      {
+        QTimer::singleShot(1000, this, [this]() { ezAssetProcessor::GetSingleton()->RestartProcessTask(); });
+      }
 
       // Make sure preferences are saved, this is important when the project was just created.
       if (m_bSavePreferencesAfterOpenProject)

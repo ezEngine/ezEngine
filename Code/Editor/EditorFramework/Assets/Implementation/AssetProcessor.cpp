@@ -312,8 +312,10 @@ bool ezProcessTask::GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, 
     return GetNextAssetToProcess(pDepInfo, out_guid, out_sAbsPath, out_sRelPath);
   }
 
-  if (bComplete)
+  if (bComplete && !ezAssetCurator::GetSingleton()->m_Updating.Contains(pInfo->m_Info->m_DocumentID)
+    && !ezAssetCurator::GetSingleton()->m_TransformStateStale.Contains(pInfo->m_Info->m_DocumentID))
   {
+    ezAssetCurator::GetSingleton()->m_Updating.Insert(pInfo->m_Info->m_DocumentID);
     out_guid = pInfo->m_Info->m_DocumentID;
     out_sAbsPath = pInfo->m_sAbsolutePath;
     out_sRelPath = pInfo->m_sDataDirRelativePath;
@@ -380,7 +382,8 @@ void ezProcessTask::Execute()
       return;
     }
     m_bDidWork = true;
-    ezAssetCurator::GetSingleton()->UpdateAssetTransformState(m_assetGuid, ezAssetInfo::TransformState::Updating);
+    ezAssetInfo::TransformState state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(m_assetGuid, nullptr, nullptr, m_AssetHash, m_ThumbHash);
+    EZ_ASSERT_DEV(state == ezAssetInfo::TransformState::NeedsTransform || state == ezAssetInfo::TransformState::NeedsThumbnail, "An asset was selected that is already up to date.");
   }
 
   if (!m_bProcessShouldBeRunning)
@@ -398,6 +401,8 @@ void ezProcessTask::Execute()
     // Send and wait
     ezProcessAssetMsg msg;
     msg.m_AssetGuid = m_assetGuid;
+    msg.m_AssetHash = m_AssetHash;
+    msg.m_ThumbHash = m_ThumbHash;
     msg.m_sAssetPath = m_sAssetPath;
     msg.m_sPlatform = ezAssetCurator::GetSingleton()->GetActiveAssetProfile()->GetConfigName();
 
@@ -427,4 +432,7 @@ void ezProcessTask::Execute()
     ezAssetCurator::GetSingleton()->UpdateAssetTransformLog(m_assetGuid, m_LogEntries);
     ezAssetCurator::GetSingleton()->UpdateAssetTransformState(m_assetGuid, ezAssetInfo::TransformState::TransformError);
   }
+
+  EZ_LOCK(ezAssetCurator::GetSingleton()->m_CuratorMutex);
+  ezAssetCurator::GetSingleton()->m_Updating.Remove(m_assetGuid);
 }

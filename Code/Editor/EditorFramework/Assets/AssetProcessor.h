@@ -88,6 +88,8 @@ private:
   ezUInt32 m_uiProcessorID;
 
   ezUuid m_assetGuid;
+  ezUInt64 m_AssetHash = 0;
+  ezUInt64 m_ThumbHash = 0;
   ezStringBuilder m_sAssetPath;
   ezEditorProcessCommunicationChannel* m_pIPC;
   bool m_bProcessShouldBeRunning;

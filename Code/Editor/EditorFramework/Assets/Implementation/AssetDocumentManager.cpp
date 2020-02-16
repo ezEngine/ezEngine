@@ -59,7 +59,6 @@ ezStatus ezAssetDocumentManager::ReadAssetDocumentInfo(ezUniquePtr<ezAssetDocume
 ezString ezAssetDocumentManager::GenerateResourceThumbnailPath(const char* szDocumentPath)
 {
   ezStringBuilder sProjectDir = ezAssetCurator::GetSingleton()->FindDataDirectoryForAsset(szDocumentPath);
-  ;
 
   ezStringBuilder sRelativePath = szDocumentPath;
 

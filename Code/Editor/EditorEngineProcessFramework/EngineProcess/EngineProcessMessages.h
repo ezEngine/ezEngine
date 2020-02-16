@@ -19,6 +19,8 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezProcessAssetMsg : public ezProcessMe
   EZ_ADD_DYNAMIC_REFLECTION(ezProcessAssetMsg, ezProcessMessage);
 public:
   ezUuid m_AssetGuid;
+  ezUInt64 m_AssetHash = 0;
+  ezUInt64 m_ThumbHash = 0;
   ezString m_sAssetPath;
   ezString m_sPlatform;
 };

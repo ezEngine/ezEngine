@@ -12,7 +12,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 ezAssetInfo::TransformState ezAssetCurator::HashAsset(ezUInt64 uiSettingsHash, const ezHybridArray<ezString, 16>& assetTransformDependencies, const ezHybridArray<ezString, 16>& runtimeDependencies,
-  ezSet<ezString>& missingDependencies, ezSet<ezString>& missingReferences, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash)
+  ezSet<ezString>& missingDependencies, ezSet<ezString>& missingReferences, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, bool bForce)
 {
   CURATOR_PROFILE("HashAsset");
   ezStringBuilder tmp;
@@ -26,7 +26,7 @@ ezAssetInfo::TransformState ezAssetCurator::HashAsset(ezUInt64 uiSettingsHash, c
     for (const auto& dep : assetTransformDependencies)
     {
       ezString sPath = dep;
-      if (!AddAssetHash(sPath, false, out_AssetHash, out_ThumbHash))
+      if (!AddAssetHash(sPath, false, out_AssetHash, out_ThumbHash, bForce))
       {
         missingDependencies.Insert(sPath);
       }
@@ -35,7 +35,7 @@ ezAssetInfo::TransformState ezAssetCurator::HashAsset(ezUInt64 uiSettingsHash, c
     for (const auto& dep : runtimeDependencies)
     {
       ezString sPath = dep;
-      if (!AddAssetHash(sPath, true, out_AssetHash, out_ThumbHash))
+      if (!AddAssetHash(sPath, true, out_AssetHash, out_ThumbHash, bForce))
       {
         missingReferences.Insert(sPath);
       }
@@ -57,7 +57,7 @@ ezAssetInfo::TransformState ezAssetCurator::HashAsset(ezUInt64 uiSettingsHash, c
   return state;
 }
 
-bool ezAssetCurator::AddAssetHash(ezString& sPath, bool bIsReference, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash)
+bool ezAssetCurator::AddAssetHash(ezString& sPath, bool bIsReference, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, bool bForce)
 {
   if (sPath.IsEmpty())
     return true;
@@ -67,7 +67,7 @@ bool ezAssetCurator::AddAssetHash(ezString& sPath, bool bIsReference, ezUInt64& 
     const ezUuid guid = ezConversionUtils::ConvertStringToUuid(sPath);
     ezUInt64 assetHash = 0;
     ezUInt64 thumbHash = 0;
-    ezAssetInfo::TransformState state = UpdateAssetTransformState(guid, assetHash, thumbHash);
+    ezAssetInfo::TransformState state = UpdateAssetTransformState(guid, assetHash, thumbHash, bForce);
     if (state == ezAssetInfo::Unknown || state == ezAssetInfo::MissingDependency || state == ezAssetInfo::MissingReference)
     {
       ezLog::Error("Failed to hash dependency asset '{0}'", sPath);

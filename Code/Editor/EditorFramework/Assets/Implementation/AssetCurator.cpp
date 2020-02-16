@@ -16,6 +16,7 @@
 #include <Foundation/Utilities/Progress.h>
 #include <QDir>
 #include <atomic>
+#include <Foundation/Types/ScopeExit.h>
 
 #define EZ_CURATOR_CACHE_VERSION 2
 #define EZ_CURATOR_CACHE_FILE_VERSION 6
@@ -178,6 +179,12 @@ void ezAssetCurator::StartInitialize(const ezApplicationFileSystemConfig& cfg)
         pWatcher->EnumerateChanges([pWatcher, this](const char* szFilename, ezDirectoryWatcherAction action) {
           ezStringBuilder sTemp = pWatcher->GetDirectory();
           sTemp.AppendPath(szFilename);
+          sTemp.MakeCleanPath();
+
+          if (sTemp.FindSubString("AssetCache/Thumbnails/") != nullptr)
+          {
+            return;
+          }
 
           if (action == ezDirectoryWatcherAction::Modified)
           {
@@ -669,7 +676,7 @@ ezUInt64 ezAssetCurator::GetAssetDependencyHash(ezUuid assetGuid)
 {
   ezUInt64 assetHash = 0;
   ezUInt64 thumbHash = 0;
-  ezAssetCurator::UpdateAssetTransformState(assetGuid, assetHash, thumbHash);
+  ezAssetCurator::UpdateAssetTransformState(assetGuid, assetHash, thumbHash, false);
   return assetHash;
 }
 
@@ -677,17 +684,17 @@ ezUInt64 ezAssetCurator::GetAssetReferenceHash(ezUuid assetGuid)
 {
   ezUInt64 assetHash = 0;
   ezUInt64 thumbHash = 0;
-  ezAssetCurator::UpdateAssetTransformState(assetGuid, assetHash, thumbHash);
+  ezAssetCurator::UpdateAssetTransformState(assetGuid, assetHash, thumbHash, false);
   return thumbHash;
 }
 
-ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetGuid, const ezPlatformProfile*, const ezAssetDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash)
+ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetGuid, const ezPlatformProfile*, const ezAssetDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, bool bForce)
 {
-  ezAssetInfo::TransformState res = ezAssetCurator::UpdateAssetTransformState(assetGuid, out_AssetHash, out_ThumbHash);
+  ezAssetInfo::TransformState res = ezAssetCurator::UpdateAssetTransformState(assetGuid, out_AssetHash, out_ThumbHash, bForce);
   return res;
 }
 
-ezAssetInfo::TransformState ezAssetCurator::UpdateAssetTransformState(ezUuid assetGuid, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash)
+ezAssetInfo::TransformState ezAssetCurator::UpdateAssetTransformState(ezUuid assetGuid, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, bool bForce)
 {
   CURATOR_PROFILE("UpdateAssetTransformState");
   {
@@ -704,7 +711,7 @@ ezAssetInfo::TransformState ezAssetCurator::UpdateAssetTransformState(ezUuid ass
     // Setting an asset to unknown actually does not change the m_TransformState but merely adds it to the m_TransformStateStale list.
     // This is to prevent the user facing state to constantly fluctuate if something is tagged as modified but not actually changed (E.g. saving a file without modifying the content).
     // Thus we need to check for m_TransformStateStale as well as for the set state.
-    if (pAssetInfo->m_TransformState != ezAssetInfo::Unknown && !m_TransformStateStale.Contains(assetGuid))
+    if (!bForce && pAssetInfo->m_TransformState != ezAssetInfo::Unknown && !m_TransformStateStale.Contains(assetGuid))
     {
       out_AssetHash = pAssetInfo->m_AssetHash;
       out_ThumbHash = pAssetInfo->m_ThumbHash;
@@ -759,7 +766,7 @@ ezAssetInfo::TransformState ezAssetCurator::UpdateAssetTransformState(ezUuid ass
   ezSet<ezString> missingReferences;
   // Compute final state and hashes.
   {
-      state = HashAsset(uiSettingsHash, assetTransformDependencies, runtimeDependencies, missingDependencies, missingReferences, out_AssetHash, out_ThumbHash);
+      state = HashAsset(uiSettingsHash, assetTransformDependencies, runtimeDependencies, missingDependencies, missingReferences, out_AssetHash, out_ThumbHash, bForce);
       EZ_ASSERT_DEV(state == ezAssetInfo::Unknown || state == ezAssetInfo::MissingDependency || state == ezAssetInfo::MissingReference, "Unhandled case of HashAsset return value.");
 
     if (state == ezAssetInfo::Unknown)
@@ -772,6 +779,13 @@ ezAssetInfo::TransformState ezAssetCurator::UpdateAssetTransformState(ezUuid ass
           if (!ezAssetDocumentManager::IsThumbnailUpToDate(sAssetFile, out_ThumbHash, pTypeDescriptor->m_pDocumentType->GetTypeVersion()))
           {
             state = ezAssetInfo::TransformState::NeedsThumbnail;
+          }
+        }
+        else if (pTypeDescriptor->m_AssetDocumentFlags.IsSet(ezAssetDocumentFlags::AutoThumbnailOnTransform))
+        {
+          if (!ezAssetDocumentManager::IsThumbnailUpToDate(sAssetFile, out_ThumbHash, pTypeDescriptor->m_pDocumentType->GetTypeVersion()))
+          {
+            state = ezAssetInfo::TransformState::NeedsTransform;
           }
         }
       }
@@ -1099,6 +1113,11 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformP
   if (pDoc == nullptr)
     return ezStatus(ezFmt("Could not open asset document '{0}'", pAssetInfo->m_sDataDirRelativePath));
 
+  EZ_SCOPE_EXIT(
+    if (!pDoc->HasWindowBeenRequested() && !bWasOpen)
+      pDoc->GetDocumentManager()->CloseDocument(pDoc);
+  );
+
   ezStatus ret(EZ_SUCCESS);
   ezAssetDocument* pAsset = static_cast<ezAssetDocument*>(pDoc);
   if (state == ezAssetInfo::TransformState::NeedsTransform ||
@@ -1120,9 +1139,6 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformP
       ret = pAsset->CreateThumbnail();
     }
   }
-
-  if (!pDoc->HasWindowBeenRequested() && !bWasOpen)
-    pDoc->GetDocumentManager()->CloseDocument(pDoc);
 
   return ret;
 }
