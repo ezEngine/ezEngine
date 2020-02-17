@@ -381,8 +381,10 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_BOOL(ezMath::FloatToInt(12.34f) == 12);
     EZ_TEST_BOOL(ezMath::FloatToInt(-12.34f) == -12);
 
+#if EZ_ENABLED(EZ_PLATFORM_ARCH_X86) && (!defined(_MSC_VER) || _MSC_VER <= 1916) || EZ_DISABLED(EZ_PLATFORM_ARCH_X86)
     EZ_TEST_BOOL(ezMath::FloatToInt(12000000000000.34) == 12000000000000);
     EZ_TEST_BOOL(ezMath::FloatToInt(-12000000000000.34) == -12000000000000);
+#endif
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Round")

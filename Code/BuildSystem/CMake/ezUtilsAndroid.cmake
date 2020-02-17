@@ -8,9 +8,11 @@ function(ez_android_add_default_content TARGET_NAME)
 	if (NOT EZ_CMAKE_PLATFORM_ANDROID)
 		return()
 	endif()
+	
+  get_property(EZ_SUBMODULE_PREFIX_PATH GLOBAL PROPERTY EZ_SUBMODULE_PREFIX_PATH)
 
   set(CONTENT_DIRECTORY_DST "${CMAKE_CURRENT_BINARY_DIR}/package")
-  set(CONTENT_DIRECTORY_SRC "${CMAKE_SOURCE_DIR}/Data/Platform/Android")
+  set(CONTENT_DIRECTORY_SRC "${CMAKE_SOURCE_DIR}/${EZ_SUBMODULE_PREFIX_PATH}/Data/Platform/Android")
 
   # Copy content files.
   set(ANDROID_ASSET_NAMES

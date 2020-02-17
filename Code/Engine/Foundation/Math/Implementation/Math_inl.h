@@ -109,7 +109,7 @@ namespace ezMath
 
   EZ_ALWAYS_INLINE ezUInt32 CountBits(ezUInt32 value)
   {
-#if EZ_ENABLED(EZ_COMPILER_MSVC) && (EZ_ENABLED(EZ_PLATFORM_ARCH_X86) || EZ_ENABLED(EZ_PLATFORM_ARCH_ARM))
+#if EZ_ENABLED(EZ_COMPILER_MSVC) && (EZ_ENABLED(EZ_PLATFORM_ARCH_X86) || (EZ_ENABLED(EZ_PLATFORM_ARCH_ARM) && EZ_ENABLED(EZ_PLATFORM_32BIT)))
 #  if EZ_ENABLED(EZ_PLATFORM_ARCH_X86)
     return __popcnt(value);
 #  else
@@ -311,7 +311,7 @@ constexpr EZ_FORCE_INLINE ezInt32 ezMath::FloatToInt(float value)
   return static_cast<ezInt32>(value);
 }
 
-#if EZ_DISABLED(EZ_PLATFORM_ARCH_X86) || (_MSC_VER <= 1916)
+#if EZ_ENABLED(EZ_PLATFORM_ARCH_X86) && (!defined(_MSC_VER) || _MSC_VER <= 1916) || EZ_DISABLED(EZ_PLATFORM_ARCH_X86)
 constexpr EZ_FORCE_INLINE ezInt64 ezMath::FloatToInt(double value)
 {
   return static_cast<ezInt64>(value);

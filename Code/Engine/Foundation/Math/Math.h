@@ -152,8 +152,8 @@ namespace ezMath
   constexpr ezInt32 FloatToInt(float value);
 
   // There is a compiler bug in VS 2019 targeting 32-bit that causes an internal compiler error when casting double to long long.
-  // FloatToInt(double) is not available on these version of the MSVC compiler.
-#if EZ_DISABLED(EZ_PLATFORM_ARCH_X86) || (_MSC_VER <= 1916)
+  // FloatToInt(double) is not available on these version of the msvc compiler.
+#if EZ_ENABLED(EZ_PLATFORM_ARCH_X86) && (!defined(_MSC_VER) || _MSC_VER <= 1916) || EZ_DISABLED(EZ_PLATFORM_ARCH_X86)
   /// \brief Casts the float to an integer, removes the fractional part
   ///
   /// \sa Trunc, Round, Floor, Ceil
@@ -329,4 +329,3 @@ namespace ezMath
 #include <Foundation/Math/Implementation/MathFloat_inl.h>
 #include <Foundation/Math/Implementation/MathInt32_inl.h>
 #include <Foundation/Math/Implementation/Math_inl.h>
-
