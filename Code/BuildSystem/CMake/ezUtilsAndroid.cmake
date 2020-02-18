@@ -3,12 +3,12 @@
 ######################################
 function(ez_android_add_default_content TARGET_NAME)
 
-	ez_pull_all_vars()
+  ez_pull_all_vars()
 
-	if (NOT EZ_CMAKE_PLATFORM_ANDROID)
-		return()
-	endif()
-	
+  if (NOT EZ_CMAKE_PLATFORM_ANDROID)
+    return()
+  endif()
+    
   get_property(EZ_SUBMODULE_PREFIX_PATH GLOBAL PROPERTY EZ_SUBMODULE_PREFIX_PATH)
 
   set(CONTENT_DIRECTORY_DST "${CMAKE_CURRENT_BINARY_DIR}/package")
@@ -43,10 +43,16 @@ function(ez_android_add_default_content TARGET_NAME)
     message(FATAL_ERROR "Could not find ANDROID_BUILD_TOOLS environment variable (should contain aapt.exe)")
   endif()
   set(ANDROID_BUILD_TOOLS $ENV{ANDROID_BUILD_TOOLS})
+  
+  string(FIND "${ANDROID_PLATFORM}" "android" out)
+  if(${out} EQUAL 0)
+    set(_PLATFORM ${ANDROID_SDK}/platforms/${ANDROID_PLATFORM}/android.jar)
+  else()
+    set(_PLATFORM ${ANDROID_SDK}/platforms/android-${ANDROID_PLATFORM}/android.jar)
+  endif()
 
   set(_AAPT ${ANDROID_BUILD_TOOLS}/aapt.exe)
   set(_APKSIGNER ${ANDROID_BUILD_TOOLS}/apksigner.bat)
-  set(_PLATFORM ${ANDROID_SDK}/platforms/android-${ANDROID_PLATFORM}/android.jar)
   set(_ZIPALIGN ${ANDROID_BUILD_TOOLS}/zipalign.exe)
   set(_ADB ${ANDROID_SDK}/platform-tools/adb.exe)
 
