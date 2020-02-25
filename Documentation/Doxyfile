@@ -38,7 +38,7 @@ PROJECT_NAME           = ezEngine
 # could be handy for archiving the generated documentation or if some version
 # control system is used.
 
-PROJECT_NUMBER         = "Milestone 9"
+PROJECT_NUMBER         = "Release 20.2"
 
 # Using the PROJECT_BRIEF tag one can provide an optional one line description
 # for a project that appears at the top of each page and should give viewer a
@@ -51,7 +51,7 @@ PROJECT_BRIEF          =
 # pixels and the maximum width should not exceed 200 pixels. Doxygen will copy
 # the logo to the output directory.
 
-PROJECT_LOGO           = C:/ezEngine/Trunk/Documentation/ezLogoSmall.png
+PROJECT_LOGO           = C:/GitHub/ezEngine/Documentation/ezLogoSmall.png
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute) path
 # into which the generated documentation will be written. If a relative path is
@@ -162,7 +162,7 @@ FULL_PATH_NAMES        = YES
 # will be relative from the directory where doxygen is started.
 # This tag requires that the tag FULL_PATH_NAMES is set to YES.
 
-STRIP_FROM_PATH        = C:/ezEngine/Trunk/
+STRIP_FROM_PATH        = C:/GitHub/ezEngine/
 
 # The STRIP_FROM_INC_PATH tag can be used to strip a user-defined part of the
 # path mentioned in the documentation of a class, which tells the reader which
@@ -673,14 +673,14 @@ SHOW_USED_FILES        = YES
 # (if specified).
 # The default value is: YES.
 
-SHOW_FILES             = YES
+SHOW_FILES             = NO
 
 # Set the SHOW_NAMESPACES tag to NO to disable the generation of the Namespaces
 # page. This will remove the Namespaces entry from the Quick Index and from the
 # Folder Tree View (if specified).
 # The default value is: YES.
 
-SHOW_NAMESPACES        = YES
+SHOW_NAMESPACES        = NO
 
 # The FILE_VERSION_FILTER tag can be used to specify a program or script that
 # doxygen should invoke to get the current version for each file (typically from
@@ -840,7 +840,6 @@ FILE_PATTERNS          = *.c \
                          *.inc \
                          *.m \
                          *.markdown \
-                         *.md \
                          *.mm \
                          *.dox \
                          *.py \
@@ -864,8 +863,7 @@ RECURSIVE              = YES
 # Note that relative paths are relative to the directory from which doxygen is
 # run.
 
-EXCLUDE                = ../Code/Engine/ThirdParty \
-                         ../Code/Games \
+EXCLUDE                = ../Code/Games \
                          ../Code/BuildSystem \
                          ../Code/UnitTests \
                          ../Code/Samples \
@@ -874,7 +872,10 @@ EXCLUDE                = ../Code/Engine/ThirdParty \
                          ../Code/Engine/Texture/DirectXTex \
                          ../Code/Engine/RendererGL \
                          ../Code/Engine/RendererGL3 \
-                         ../Code/Engine/RendererGL4
+                         ../Code/Engine/RendererGL4 \
+                         ../Code/Engine/Foundation/ThirdParty \
+                         ../Code/EnginePlugins/PhysXPlugin/ThirdParty \
+                         ../Code/EnginePlugins/RenderDocPlugin/ThirdParty
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded
