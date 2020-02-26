@@ -83,9 +83,13 @@ function(ez_android_add_default_content TARGET_NAME)
   
   string(FIND "${ANDROID_PLATFORM}" "android" out)
   if(${out} EQUAL 0)
-    set(_PLATFORM ${ANDROID_SDK}/platforms/${ANDROID_PLATFORM}/android.jar)
+    set(ANDROID_PLATFORM_ROOT ${ANDROID_SDK}/platforms/${ANDROID_PLATFORM})
   else()
-    set(_PLATFORM ${ANDROID_SDK}/platforms/android-${ANDROID_PLATFORM}/android.jar)
+    set(ANDROID_PLATFORM_ROOT ${ANDROID_SDK}/platforms/android-${ANDROID_PLATFORM})
+  endif()
+  
+  if(NOT EXISTS "${ANDROID_PLATFORM_ROOT}")
+    message(FATAL_ERROR "Android platform '${ANDROID_PLATFORM}' is not installed. Please use the sdk manager to install it to '${ANDROID_PLATFORM_ROOT}'")
   endif()
 
   set(_AAPT ${ANDROID_BUILD_TOOLS}/aapt.exe)
@@ -101,7 +105,7 @@ function(ez_android_add_default_content TARGET_NAME)
   add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
     BYPRODUCTS ${APK_OUTPUT_DIR}/${TARGET_NAME}.apk ${APK_OUTPUT_DIR}/${TARGET_NAME}.unaligned.apk
     COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:${TARGET_NAME}> ${CONTENT_DIRECTORY_DST}/lib/${ANDROID_ABI}/lib${TARGET_NAME}.so
-    COMMAND ${_AAPT} package --debug-mode -f -M ${CMAKE_CURRENT_BINARY_DIR}/AndroidManifest.xml -S ${CONTENT_DIRECTORY_DST}/res -I ${_PLATFORM} -F $<TARGET_FILE_DIR:${TARGET_NAME}>/${TARGET_NAME}.unaligned.apk ${CONTENT_DIRECTORY_DST}
+    COMMAND ${_AAPT} package --debug-mode -f -M ${CMAKE_CURRENT_BINARY_DIR}/AndroidManifest.xml -S ${CONTENT_DIRECTORY_DST}/res -I "${ANDROID_PLATFORM_ROOT}/android.jar" -F $<TARGET_FILE_DIR:${TARGET_NAME}>/${TARGET_NAME}.unaligned.apk ${CONTENT_DIRECTORY_DST}
     COMMAND ${_ZIPALIGN} -f 4 $<TARGET_FILE_DIR:${TARGET_NAME}>/${TARGET_NAME}.unaligned.apk $<TARGET_FILE_DIR:${TARGET_NAME}>/${TARGET_NAME}.apk
     COMMAND ${_APKSIGNER} sign --ks ${CONTENT_DIRECTORY_SRC}/debug.keystore --ks-pass "pass:android" $<TARGET_FILE_DIR:${TARGET_NAME}>/${TARGET_NAME}.apk
     )
