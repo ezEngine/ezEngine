@@ -130,10 +130,10 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
 
       s_RecentProjects.Insert(ezToolsProject::GetSingleton()->GetProjectFile(), 0);
 
-      if (!m_bHeadless)
+      /*if (!m_bHeadless)
       {
         QTimer::singleShot(1000, this, [this]() { ezAssetProcessor::GetSingleton()->RestartProcessTask(); });
-      }
+      }*/
 
       // Make sure preferences are saved, this is important when the project was just created.
       if (m_bSavePreferencesAfterOpenProject)
