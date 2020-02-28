@@ -259,7 +259,7 @@ void ezStringBuilder::Split(bool bReturnEmptyStrings, Container& Output, const c
 
   while (true)
   {
-    const char* szFoundPos = ezMaxStringEnd;
+    const char* szFoundPos = ezUnicodeUtils::GetMaxStringEnd<char>();
     ezInt32 iFoundSeparator = 0;
 
     for (ezInt32 i = 0; i < uiParams; ++i)
@@ -274,7 +274,7 @@ void ezStringBuilder::Split(bool bReturnEmptyStrings, Container& Output, const c
     }
 
     // nothing found
-    if (szFoundPos == ezMaxStringEnd)
+    if (szFoundPos == ezUnicodeUtils::GetMaxStringEnd<char>())
     {
       const ezUInt32 uiLen = ezStringUtils::GetStringElementCount(szReadPos);
 

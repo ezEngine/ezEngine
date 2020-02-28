@@ -37,10 +37,10 @@ EZ_ALWAYS_INLINE bool ezStringUtils::IsNullOrEmpty(const T* pString, const T* pS
 template <typename T>
 EZ_ALWAYS_INLINE void ezStringUtils::UpdateStringEnd(const T* szStringStart, const T*& szStringEnd)
 {
-  if (szStringEnd != ezMaxStringEnd)
+  if (szStringEnd != ezUnicodeUtils::GetMaxStringEnd<T>())
     return;
 
-  szStringEnd = szStringStart + GetStringElementCount(szStringStart, ezMaxStringEnd);
+  szStringEnd = szStringStart + GetStringElementCount(szStringStart, ezUnicodeUtils::GetMaxStringEnd<T>());
 }
 
 
@@ -50,7 +50,7 @@ ezUInt32 ezStringUtils::GetStringElementCount(const T* pString, const T* pString
   if (IsNullOrEmpty(pString))
     return 0;
 
-  if (pStringEnd != (const T*)ezMaxStringEnd)
+  if (pStringEnd != ezUnicodeUtils::GetMaxStringEnd<T>())
     return (ezUInt32)(pStringEnd - pString);
 
   ezUInt32 uiCount = 0;
@@ -140,4 +140,3 @@ EZ_ALWAYS_INLINE bool ezStringUtils::IsHexDigit(ezUInt32 uiChar)
 {
   return IsDecimalDigit(uiChar) || (uiChar >= 'A' && uiChar <= 'F') || (uiChar >= 'a' && uiChar <= 'f');
 }
-

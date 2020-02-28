@@ -130,7 +130,7 @@ inline ezUInt32 ezUnicodeUtils::GetSizeForCharacterInUtf8(ezUInt32 uiCharacter)
 
 inline bool ezUnicodeUtils::IsValidUtf8(const char* szString, const char* szStringEnd)
 {
-  if (szStringEnd == ezMaxStringEnd)
+  if (szStringEnd == GetMaxStringEnd<char>())
     szStringEnd = szString + strlen(szString);
 
   return utf8::is_valid(szString, szStringEnd);
@@ -207,3 +207,8 @@ inline void ezUnicodeUtils::MoveToPriorUtf8(const char*& szUtf8, ezUInt32 uiNumC
   }
 }
 
+template <typename T>
+constexpr T* ezUnicodeUtils::GetMaxStringEnd()
+{
+  return reinterpret_cast<T*>(-1);
+}
