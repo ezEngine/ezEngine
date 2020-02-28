@@ -416,7 +416,7 @@ ezUInt32 ezStringUtils::Copy(char* szDest, ezUInt32 uiDstSize, const char* szSou
     return 0;
   }
 
-  ezUInt32 uiSourceLen = static_cast<ezUInt32>((pSourceEnd == ezMaxStringEnd) ? strlen(szSource) : pSourceEnd - szSource);
+  ezUInt32 uiSourceLen = static_cast<ezUInt32>((pSourceEnd == ezUnicodeUtils::GetMaxStringEnd<char>()) ? strlen(szSource) : pSourceEnd - szSource);
   ezUInt32 uiBytesToCopy = ezMath::Min(uiDstSize - 1, uiSourceLen);
 
   // simply copy all bytes

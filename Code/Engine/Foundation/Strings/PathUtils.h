@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Strings/StringView.h>
+#include <Foundation/Strings/UnicodeUtils.h>
 
 class ezStringBuilder;
 
@@ -25,31 +26,31 @@ public:
   /// \brief Checks every character in the string with IsValidFilenameChar()
   ///
   /// This is a basic check, only because each character passes the test, it does not guarantee that the full string is a valid path.
-  static bool ContainsInvalidFilenameChars(const char* szPath, const char* szPathEnd = ezMaxStringEnd);
+  static bool ContainsInvalidFilenameChars(const char* szPath, const char* szPathEnd = ezUnicodeUtils::GetMaxStringEnd<char>());
 
   /// \brief Searches for the previous path separator before szStartSearchAt. Will return nullptr if it reaches szPathStart before finding
   /// any separator.
   static const char* FindPreviousSeparator(const char* szPathStart, const char* szStartSearchAt); // [tested]
 
   /// \brief Checks whether the given path has any file extension
-  static bool HasAnyExtension(const char* szPath, const char* szPathEnd = ezMaxStringEnd); // [tested]
+  static bool HasAnyExtension(const char* szPath, const char* szPathEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
 
   /// \brief Checks whether the given path ends with the given extension. szExtension should start with a '.' for performance reasons, but
   /// it will work without a '.' too.
-  static bool HasExtension(const char* szPath, const char* szExtension, const char* szPathEnd = ezMaxStringEnd); // [tested]
+  static bool HasExtension(const char* szPath, const char* szExtension, const char* szPathEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
 
   /// \brief Returns the file extension of the given path. Will be empty, if the path does not end with a proper extension.
-  static ezStringView GetFileExtension(const char* szPath, const char* szPathEnd = ezMaxStringEnd); // [tested]
+  static ezStringView GetFileExtension(const char* szPath, const char* szPathEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
 
   /// \brief Returns the file name of a path, excluding the path and extension.
   ///
   /// If the path already ends with a path separator, the result will be empty.
-  static ezStringView GetFileName(const char* szPath, const char* szPathEnd = ezMaxStringEnd); // [tested]
+  static ezStringView GetFileName(const char* szPath, const char* szPathEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
 
   /// \brief Returns the substring that represents the file name including the file extension.
   ///
   /// Returns an empty string, if sPath already ends in a path separator, or is empty itself.
-  static ezStringView GetFileNameAndExtension(const char* szPath, const char* szPathEnd = ezMaxStringEnd); // [tested]
+  static ezStringView GetFileNameAndExtension(const char* szPath, const char* szPathEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
 
   /// \brief Returns the directory of the given file, which is the substring up to the last path separator.
   ///
@@ -58,7 +59,7 @@ public:
   /// "path/to/folder/" -> "path/to/folder/"
   /// "filename" -> ""
   /// "/file_at_root_level" -> "/"
-  static ezStringView GetFileDirectory(const char* szPath, const char* szPathEnd = ezMaxStringEnd); // [tested]
+  static ezStringView GetFileDirectory(const char* szPath, const char* szPathEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
 
   /// \brief Returns true, if the given path represents an absolute path on the current OS.
   static bool IsAbsolutePath(const char* szPath); // [tested]

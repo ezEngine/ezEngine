@@ -1,4 +1,4 @@
-﻿#include <FoundationTestPCH.h>
+#include <FoundationTestPCH.h>
 
 // NOTE: Always save this file as "Unicode (UTF-8 with signature)"
 // otherwise important Unicode characters are not encoded
@@ -45,7 +45,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "UpdateStringEnd")
   {
     const char* sz = "Test test";
-    const char* szEnd = ezMaxStringEnd;
+    const char* szEnd = ezUnicodeUtils::GetMaxStringEnd<char>();
 
     ezStringUtils::UpdateStringEnd(sz, szEnd);
     EZ_TEST_BOOL(szEnd == sz + ezStringUtils::GetStringElementCount(sz));
