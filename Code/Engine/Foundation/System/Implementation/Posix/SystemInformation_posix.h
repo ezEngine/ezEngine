@@ -59,10 +59,11 @@ void ezSystemInformation::Initialize()
 
 ezUInt64 ezSystemInformation::GetAvailableMainMemory() const
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  return static_cast<ezUInt64>(sysconf(_SC_AVPHYS_PAGES)) * static_cast<ezUInt64>(sysconf(_SC_PAGESIZE));
 }
 
 float ezSystemInformation::GetCPUUtilization() const
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
+  return 0.0f;
 }
