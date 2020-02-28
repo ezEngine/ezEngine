@@ -10,7 +10,17 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(SampleGameState, 1, ezRTTIDefaultAllocator<SampleGameState>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-SampleGameState::SampleGameState() {}
+// BEGIN-DOCS-CODE-SNIPPET: confunc-impl
+SampleGameState::SampleGameState()
+  : m_ConFunc_Print("Print", "(string arg1): Prints 'arg1' to the log", ezMakeDelegate(&SampleGameState::ConFunc_Print, this))
+{
+}
+
+void SampleGameState::ConFunc_Print(ezString sText)
+{
+  ezLog::Info("Text: '{}'", sText);
+}
+// END-DOCS-CODE-SNIPPET
 
 void SampleGameState::OnActivation(ezWorld* pWorld, const ezTransform* pStartPosition)
 {
@@ -58,6 +68,8 @@ void SampleGameState::AfterWorldUpdate()
   }
   // END-DOCS-CODE-SNIPPET
 }
+
+
 
 void SampleGameState::BeforeWorldUpdate()
 {

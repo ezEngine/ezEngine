@@ -28,4 +28,9 @@ private:
   virtual void OnDeactivation() override;
   virtual void BeforeWorldUpdate() override;
   virtual void AfterWorldUpdate() override;
+
+  // BEGIN-DOCS-CODE-SNIPPET: confunc-decl
+  void ConFunc_Print(ezString sText);
+  ezConsoleFunction<void(ezString)> m_ConFunc_Print;
+  // END-DOCS-CODE-SNIPPET
 };
