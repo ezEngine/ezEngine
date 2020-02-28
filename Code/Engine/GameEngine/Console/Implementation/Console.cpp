@@ -4,6 +4,7 @@
 
 ezConsole::ezConsole()
 {
+  // BEGIN-DOCS-CODE-SNIPPET: console-demo1
   ClearInputLine();
 
   m_bLogOutputEnabled = false;
@@ -11,6 +12,7 @@ ezConsole::ezConsole()
   m_uiMaxConsoleStrings = 1000;
 
   EnableLogOutput(true);
+  // END-DOCS-CODE-SNIPPET
 
 #ifdef BUILDSYSTEM_ENABLE_LUA_SUPPORT
   SetCommandInterpreter(ezConsoleInterpreter::Lua);
