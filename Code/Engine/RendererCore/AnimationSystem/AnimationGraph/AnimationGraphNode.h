@@ -11,7 +11,7 @@ class EZ_RENDERERCORE_DLL ezAnimationGraphNode
 {
 public:
   ezAnimationGraphNode();
-  ~ezAnimationGraphNode();
+  virtual ~ezAnimationGraphNode();
 
   virtual void Step(ezTime tDiff);
   virtual bool Execute(const ezSkeleton& skeleton, ezAnimationPose& currentPose, ezTransform* pRootMotion) = 0;

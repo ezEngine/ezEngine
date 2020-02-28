@@ -1379,8 +1379,8 @@ void ezGeometry::AddCapsule(float fRadius, float fHeight, ezUInt16 uiSegments, e
   }
 
   // now create the stacks in the middle
-
-  for (ezUInt16 st = 0; st < uiStacks * 2 - 1; ++st)
+  ezUInt16 uiMaxStacks = static_cast<ezUInt16>(uiStacks * 2 - 1);
+  for (ezUInt16 st = 0; st < uiMaxStacks; ++st)
   {
     const ezUInt32 uiRowBottom = uiSegments * st;
     const ezUInt32 uiRowTop = uiSegments * (st + 1);

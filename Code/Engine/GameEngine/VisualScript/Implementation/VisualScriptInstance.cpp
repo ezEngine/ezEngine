@@ -29,7 +29,7 @@ bool ezVisualScriptAssignBoolBool(const void* src, void* dst)
 
 bool ezVisualScriptAssignNumberBool(const void* src, void* dst)
 {
-  const bool res = *reinterpret_cast<bool*>(dst) != *reinterpret_cast<const double*>(src) > 0.0;
+  const bool res = (*reinterpret_cast<bool*>(dst) != (*reinterpret_cast<const double*>(src) > 0.0));
   *reinterpret_cast<bool*>(dst) = *reinterpret_cast<const double*>(src) > 0.0;
   return res;
 }

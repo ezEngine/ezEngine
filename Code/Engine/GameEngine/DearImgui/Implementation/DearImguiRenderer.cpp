@@ -166,7 +166,7 @@ void ezImguiRenderer::RenderBatch(
 
   for (auto it = batch.GetIterator<ezImguiRenderData>(); it.IsValid(); ++it)
   {
-    const ezImguiRenderData* pRenderData = pRenderData = it;
+    const ezImguiRenderData* pRenderData = it;
 
     EZ_ASSERT_DEV(pRenderData->m_Vertices.GetCount() < VertexBufferSize, "GUI has too many elements to render in one drawcall");
     EZ_ASSERT_DEV(pRenderData->m_Indices.GetCount() < IndexBufferSize, "GUI has too many elements to render in one drawcall");

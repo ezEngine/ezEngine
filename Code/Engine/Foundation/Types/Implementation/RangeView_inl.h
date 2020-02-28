@@ -15,7 +15,7 @@ EZ_FORCE_INLINE void ezRangeView<ValueType, IteratorType>::ConstIterator::Next()
 }
 
 template <typename ValueType, typename IteratorType>
-EZ_FORCE_INLINE const ValueType ezRangeView<ValueType, IteratorType>::ConstIterator::Value() const
+EZ_FORCE_INLINE ValueType ezRangeView<ValueType, IteratorType>::ConstIterator::Value() const
 {
   return this->m_View->m_value(this->m_Pos);
 }

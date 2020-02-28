@@ -254,7 +254,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
 
     for (ezInt32 i = 0; i < 1000; ++i)
     {
-      EZ_TEST_BOOL(m.Remove(i + 500) == i < 500);
+      EZ_TEST_BOOL(m.Remove(i + 500) == (i < 500));
     }
   }
 

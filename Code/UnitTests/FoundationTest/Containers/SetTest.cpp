@@ -226,7 +226,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
       EZ_TEST_BOOL(base.ContainsSet(res));
       res.Difference(subSet);
       EZ_TEST_INT(res.GetCount(), 1);
-      res.Contains(3);
+      EZ_TEST_BOOL(res.Contains(3));
     }
 
     // Intersection
@@ -271,7 +271,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
       m.Insert(i);
 
     for (ezInt32 i = 0; i < 1000; ++i)
-      EZ_TEST_BOOL(m.Remove(i + 500) == i < 500);
+      EZ_TEST_BOOL(m.Remove(i + 500) == (i < 500));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Remove (Iterator)")

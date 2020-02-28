@@ -66,16 +66,16 @@ public:
   const ezHashedString& GetName() const { return m_Name; }
 
   /// \brief Returns the alignment which was used to allocate the stream.
-  const ezUInt64 GetAlignment() const { return m_uiAlignment; }
+  ezUInt64 GetAlignment() const { return m_uiAlignment; }
 
   /// \brief Returns the data type of the stream.
   DataType GetDataType() const { return m_Type; }
 
   /// \brief Returns the size of one stream element.
-  const ezUInt64 GetElementSize() const { return m_uiTypeSize; }
+  ezUInt64 GetElementSize() const { return m_uiTypeSize; }
 
   /// \brief Returns the stride between two elements of the stream.
-  const ezUInt64 GetElementStride() const
+  ezUInt64 GetElementStride() const
   {
     // For now this is the type size, but this method will help with introduction of interleaved streams etc.
     return m_uiTypeSize;
