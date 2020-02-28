@@ -420,7 +420,7 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uin
     if (any(abs(decalPosition) >= 1.0f))
       continue;
 
-    uint decalModeAndFlags = decalData.decalModeAndFlags;
+    uint decalFlags = decalData.decalFlags;
     float2 angleFadeParams = RG16FToFloat2(decalData.angleFadeParams);
 
     float3 decalNormal = normalize(mul((float3x3)worldToDecalMatrix, matData.vertexNormal));
@@ -434,20 +434,28 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uin
 
     if (fade > 0.0f)
     {
-      if (decalModeAndFlags & DECAL_WRAP_AROUND_FLAG)
+      if (decalFlags & DECAL_WRAP_AROUND_FLAG)
       {
         decalPosition.xy += decalNormal.xy * decalPosition.z;
         decalPosition.xy = clamp(decalPosition.xy, -1.0f, 1.0f);
       }
 
-      float2 baseAtlasScale = RG16FToFloat2(decalData.baseAtlasScale);
-      float2 baseAtlasOffset = RG16FToFloat2(decalData.baseAtlasOffset);
+      float2 baseAtlasScale = RG16FToFloat2(decalData.baseColorAtlasScale);
+      float2 baseAtlasOffset = RG16FToFloat2(decalData.baseColorAtlasOffset);
 
       float4 decalBaseColor = RGBA16FToFloat4(decalData.colorRG, decalData.colorBA);
       decalBaseColor *= DecalAtlasBaseColorTexture.Sample(LinearClampSampler, decalPosition.xy * baseAtlasScale + baseAtlasOffset);
       fade *= decalBaseColor.a;
 
-      matData.diffuseColor = lerp(matData.diffuseColor, decalBaseColor.rgb, fade);
+      if (decalFlags & DECAL_BLEND_MODE_MODULATE)
+      {
+        matData.diffuseColor *= lerp(1.0, decalBaseColor.rgb, fade);
+      }
+      else
+      {
+        matData.diffuseColor = lerp(matData.diffuseColor, decalBaseColor.rgb, fade);
+      }
+      
       matData.opacity = max(matData.opacity, fade);
       //matData.specularColor = lerp(matData.specularColor, 0.04f, fade);
 

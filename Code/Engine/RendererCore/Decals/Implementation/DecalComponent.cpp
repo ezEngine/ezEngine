@@ -12,6 +12,7 @@
 #include <RendererCore/Messages/ApplyOnlyToMessage.h>
 #include <RendererCore/Messages/SetColorMessage.h>
 
+#include <RendererCore/../../../Data/Base/Shaders/Common/LightData.h>
 
 ezDecalComponentManager::ezDecalComponentManager(ezWorld* pWorld)
   : ezComponentManager<ezDecalComponent, ezBlockStorageType::Compact>(pWorld)
@@ -287,6 +288,7 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
   auto hDecalAtlas = GetWorld()->GetComponentManager<ezDecalComponentManager>()->m_hDecalAtlas;
   ezVec2 baseAtlasScale = ezVec2(0.5f);
   ezVec2 baseAtlasOffset = ezVec2(0.5f);
+  ezUInt32 uiDecalFlags = 0;
 
   {
     ezResourceLock<ezDecalAtlasResource> pDecalAtlas(hDecalAtlas, ezResourceAcquireMode::BlockTillLoaded);
@@ -298,6 +300,7 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
     if (decalIdx != ezInvalidIndex)
     {
       const auto& item = atlas.m_Items.GetValue(decalIdx);
+      uiDecalFlags = item.m_uiFlags;
 
       baseAtlasScale.x = (float)item.m_LayerRects[0].width / baseTextureSize.x * 0.5f;
       baseAtlasScale.y = (float)item.m_LayerRects[0].height / baseTextureSize.y * 0.5f;
@@ -314,13 +317,13 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
   pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
   pRenderData->m_vHalfExtents = m_vExtents * 0.5f;
   pRenderData->m_uiApplyOnlyToId = m_uiApplyOnlyToId;
-  pRenderData->m_uiDecalMode = 0;
-  pRenderData->m_bWrapAround = m_bWrapAround;
+  pRenderData->m_uiFlags = uiDecalFlags;
+  pRenderData->m_uiFlags |= (m_bWrapAround ? DECAL_WRAP_AROUND_FLAG : 0);
   pRenderData->m_Color = finalColor;
   pRenderData->m_InnerFadeAngle = m_InnerFadeAngle;
   pRenderData->m_OuterFadeAngle = m_OuterFadeAngle;
-  pRenderData->m_vBaseAtlasScale = baseAtlasScale;
-  pRenderData->m_vBaseAtlasOffset = baseAtlasOffset;
+  pRenderData->m_vBaseColorAtlasScale = baseAtlasScale;
+  pRenderData->m_vBaseColorAtlasOffset = baseAtlasOffset;
 
   ezRenderData::Caching::Enum caching = (m_FadeOutDelay.m_Value.GetSeconds() > 0.0 || m_FadeOutDuration.GetSeconds() > 0.0)
                                           ? ezRenderData::Caching::Never

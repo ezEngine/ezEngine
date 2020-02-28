@@ -69,6 +69,7 @@ private:
   struct TextureAtlasItem
   {
     ezUInt32 m_uiUniqueID = 0;
+    ezUInt32 m_uiFlags = 0;
     ezImage m_InputImage[4];
     ezRectU32 m_AtlasRect[4];
   };

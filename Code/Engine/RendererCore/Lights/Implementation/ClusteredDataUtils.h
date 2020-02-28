@@ -197,13 +197,13 @@ namespace
 
     perDecalData.worldToDecalMatrix = scaleMat * lookAt;
     perDecalData.applyOnlyToId = pDecalRenderData->m_uiApplyOnlyToId;
-    perDecalData.decalModeAndFlags = pDecalRenderData->m_uiDecalMode | (pDecalRenderData->m_bWrapAround ? DECAL_WRAP_AROUND_FLAG : 0);
+    perDecalData.decalFlags = pDecalRenderData->m_uiFlags;
     perDecalData.angleFadeParams = ezShaderUtils::Float2ToRG16F(ezVec2(fFadeParamScale, fFadeParamOffset));
     perDecalData.padding0 = 0;
     perDecalData.colorRG = ezShaderUtils::Float2ToRG16F(ezVec2(pDecalRenderData->m_Color.r, pDecalRenderData->m_Color.g));
     perDecalData.colorBA = ezShaderUtils::Float2ToRG16F(ezVec2(pDecalRenderData->m_Color.b, pDecalRenderData->m_Color.a));
-    perDecalData.baseAtlasScale = ezShaderUtils::Float2ToRG16F(pDecalRenderData->m_vBaseAtlasScale);
-    perDecalData.baseAtlasOffset = ezShaderUtils::Float2ToRG16F(pDecalRenderData->m_vBaseAtlasOffset);
+    perDecalData.baseColorAtlasScale = ezShaderUtils::Float2ToRG16F(pDecalRenderData->m_vBaseColorAtlasScale);
+    perDecalData.baseColorAtlasOffset = ezShaderUtils::Float2ToRG16F(pDecalRenderData->m_vBaseColorAtlasOffset);
   }
 
 

@@ -30,7 +30,7 @@ ezResult ezTexConvProcessor::GenerateTextureAtlas(ezMemoryStreamWriter& stream)
 
   EZ_SUCCEED_OR_RETURN(LoadAtlasInputs(atlasDesc, atlasItems));
 
-  const ezUInt8 uiVersion = 2;
+  const ezUInt8 uiVersion = 3;
   stream << uiVersion;
 
   ezDdsFileFormat ddsWriter;
@@ -60,6 +60,7 @@ ezResult ezTexConvProcessor::LoadAtlasInputs(const ezTextureAtlasCreationDesc& a
   {
     auto& item = items.ExpandAndGetRef();
     item.m_uiUniqueID = srcItem.m_uiUniqueID;
+    item.m_uiFlags = srcItem.m_uiFlags;
 
     for (ezUInt32 layer = 0; layer < atlasDesc.m_Layers.GetCount(); ++layer)
     {
@@ -93,6 +94,7 @@ ezResult ezTexConvProcessor::WriteTextureAtlasInfo(
   for (const auto& item : atlasItems)
   {
     auto& e = runtimeAtlas.m_Items[item.m_uiUniqueID];
+    e.m_uiFlags = item.m_uiFlags;
 
     for (ezUInt32 l = 0; l < uiNumLayers; ++l)
     {

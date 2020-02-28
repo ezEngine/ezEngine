@@ -29,13 +29,12 @@ class EZ_RENDERERCORE_DLL ezDecalRenderData : public ezRenderData
 public:
   ezVec3 m_vHalfExtents;
   ezUInt32 m_uiApplyOnlyToId;
-  ezUInt8 m_uiDecalMode;
-  bool m_bWrapAround;
+  ezUInt32 m_uiFlags;
   ezColor m_Color;
   ezAngle m_InnerFadeAngle;
   ezAngle m_OuterFadeAngle;
-  ezVec2 m_vBaseAtlasScale;
-  ezVec2 m_vBaseAtlasOffset;
+  ezVec2 m_vBaseColorAtlasScale;
+  ezVec2 m_vBaseColorAtlasOffset;
 };
 
 class EZ_RENDERERCORE_DLL ezDecalComponent : public ezRenderComponent
