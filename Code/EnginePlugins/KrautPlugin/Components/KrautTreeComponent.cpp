@@ -140,7 +140,8 @@ void ezKrautTreeComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) c
 
   // TODO: handle fallback case properly
 
-  for (ezUInt8 uiCurLod = 0; uiCurLod < pTree->GetTreeLODs().GetCount(); ++uiCurLod)
+  const ezUInt8 uiMaxLods = static_cast<ezUInt8>(pTree->GetTreeLODs().GetCount());
+  for (ezUInt8 uiCurLod = 0; uiCurLod < uiMaxLods; ++uiCurLod)
   {
     const auto& lodData = pTree->GetTreeLODs()[uiCurLod];
 

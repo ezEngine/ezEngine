@@ -229,7 +229,8 @@ ezResult ezPlugin::LoadPluginInternal(const char* szPluginFile, bool bLoadCopy, 
   if (bLoadCopy)
   {
     // create a copy of the original plugin file
-    for (uiFileNumber = 0; uiFileNumber < ezPlugin::m_uiMaxParallelInstances; ++uiFileNumber)
+    const ezUInt8 uiMaxParallelInstances = static_cast<ezUInt8>(ezPlugin::m_uiMaxParallelInstances);
+    for (uiFileNumber = 0; uiFileNumber < uiMaxParallelInstances; ++uiFileNumber)
     {
       GetPluginPaths(szPluginFile, sOldPlugin, sNewPlugin, uiFileNumber);
       if (ezOSFile::CopyFile(sOldPlugin.GetData(), sNewPlugin.GetData()) == EZ_SUCCESS)

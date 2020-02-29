@@ -74,7 +74,7 @@ private:
   friend class ezSingletonRegistrar;
 
   template <typename Interface>
-  inline static const size_t GetHash()
+  inline static size_t GetHash()
   {
     static const size_t hash = typeid(Interface).hash_code();
     return hash;

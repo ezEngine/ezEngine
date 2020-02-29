@@ -60,7 +60,7 @@ ezUInt32 ezStringUtils::ToUpperChar(ezUInt32 wc)
   }
   else if (wc >= 0x00E0)
   {
-    if ((wc >= 0x00E0 && wc <= 0x00F6) || (wc >= 0x00F8 && wc <= 0x00FE))
+    if ((/*wc >= 0x00E0 &&*/ wc <= 0x00F6) || (wc >= 0x00F8 && wc <= 0x00FE))
     {
       wc -= 32;
     }
@@ -140,7 +140,7 @@ ezUInt32 ezStringUtils::ToLowerChar(ezUInt32 wc)
   }
   else if (wc >= 0x00C0)
   {
-    if ((wc >= 0x00C0 && wc <= 0x00D6) || (wc >= 0x00D8 && wc <= 0x00DE))
+    if ((/*wc >= 0x00C0 &&*/ wc <= 0x00D6) || (wc >= 0x00D8 && wc <= 0x00DE))
     {
       wc += 32;
     }

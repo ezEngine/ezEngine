@@ -381,7 +381,7 @@ void ezTestFramework::TimeoutThread()
       ezTestFramework::Output(ezTestOutput::Error, "Timeout reached, terminating app.");
       // The top level exception handler takes care of all the shutdown logic already (app specific logic, crash dump, callstack etc)
       // which we do not want to duplicate here so we simply throw an unhandled exception.
-      throw new std::runtime_error("Timeout reached, terminating app.");
+      throw std::runtime_error("Timeout reached, terminating app.");
     }
     m_reArm = false;
   }

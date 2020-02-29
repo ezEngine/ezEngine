@@ -49,7 +49,8 @@ ezWorld::ezWorld(ezWorldDesc& desc)
   m_uiIndex = c_InvalidWorldIndex;
 
   // find a free world slot
-  for (ezUInt16 i = 0; i < static_cast<ezUInt16>(s_Worlds.GetCount()); i++)
+  const ezUInt16 uiWorldCount = static_cast<ezUInt16>(s_Worlds.GetCount());
+  for (ezUInt16 i = 0; i < uiWorldCount; i++)
   {
     if (s_Worlds[i] == nullptr)
     {

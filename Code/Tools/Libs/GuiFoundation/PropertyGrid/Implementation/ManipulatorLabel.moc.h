@@ -16,7 +16,7 @@ public:
   const ezManipulatorAttribute* GetManipulator() const;
   void SetManipulator(const ezManipulatorAttribute* pManipulator);
 
-  const bool GetManipulatorActive() const;
+  bool GetManipulatorActive() const;
   void SetManipulatorActive(bool bActive);
 
   void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items);

@@ -43,7 +43,7 @@ public:
 
     EZ_ALWAYS_INLINE ConstIterator(const ConstIterator& rhs) = default;
     EZ_FORCE_INLINE void Next();
-    EZ_FORCE_INLINE const ValueType Value() const;
+    EZ_FORCE_INLINE ValueType Value() const;
     EZ_ALWAYS_INLINE const ValueType operator*() const { return Value(); }
     EZ_ALWAYS_INLINE void operator++() { Next(); }
     EZ_FORCE_INLINE bool operator==(const typename ezRangeView<ValueType, IteratorType>::ConstIterator& it2) const;

@@ -106,7 +106,7 @@ public:
   }
 
   /// \brief Returns the pointer to the array.
-  EZ_ALWAYS_INLINE const PointerType GetPtr() const // [tested]
+  EZ_ALWAYS_INLINE PointerType GetPtr() const // [tested]
   {
     return m_ptr;
   }
@@ -121,7 +121,7 @@ public:
   EZ_ALWAYS_INLINE PointerType GetEndPtr() { return m_ptr + m_uiCount; }
 
   /// \brief Returns the pointer behind the last element of the array
-  EZ_ALWAYS_INLINE const PointerType GetEndPtr() const { return m_ptr + m_uiCount; }
+  EZ_ALWAYS_INLINE PointerType GetEndPtr() const { return m_ptr + m_uiCount; }
 
   /// \brief Returns whether the array is empty.
   EZ_ALWAYS_INLINE bool IsEmpty() const // [tested]

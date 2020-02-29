@@ -79,7 +79,7 @@ public:
   ezDataTransfer();
 
   /// \brief Deactivates the data transfer (sends this info via ezTelemetry).
-  ~ezDataTransfer();
+  virtual ~ezDataTransfer();
   
   /// \brief Disables the data transfer. It will not show up in ezInspector anymore and calling Transfer() on it will be ignored.
   void DisableDataTransfer();
