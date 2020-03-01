@@ -1260,7 +1260,7 @@ void ezAssetCurator::HandleSingleFile(const ezString& sAbsolutePath)
   else
   {
     // directory was added -> check the entire filesystem
-    if (Stats.m_bIsDirectory)
+    if (Stats.m_bIsDirectory && Stats.m_sParentPath.FindSubString("AssetCache") == nullptr)
     {
       NeedsFileSystemCheck();
       return;

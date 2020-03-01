@@ -71,6 +71,7 @@ bool ezDateTime::SetTimestamp(ezTimestamp timestamp)
   m_uiHour = timeinfo.tm_hour;
   m_uiMinute = timeinfo.tm_min;
   m_uiSecond = timeinfo.tm_sec;
+  m_uiDayOfWeek = ezMath::MaxValue<ezUInt8>(); // TODO: no day of week exists, setting to uint8 max.
   m_uiMicroseconds = 0;
 
   return true;

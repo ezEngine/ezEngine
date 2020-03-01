@@ -45,10 +45,13 @@ ezInt32 ezQtEditorApp::RunEditor()
 
 void ezQtEditorApp::SlotTimedUpdate()
 {
-  if (ezEditorEngineProcessConnection::GetSingleton())
-    ezEditorEngineProcessConnection::GetSingleton()->Update();
+  if (ezToolsProject::IsProjectOpen())
+  {
+    if (ezEditorEngineProcessConnection::GetSingleton())
+      ezEditorEngineProcessConnection::GetSingleton()->Update();
 
-  ezAssetCurator::GetSingleton()->MainThreadTick(true);
+    ezAssetCurator::GetSingleton()->MainThreadTick(true);
+  }
   ezTaskSystem::FinishFrameTasks();
 
   Q_EMIT IdleEvent();

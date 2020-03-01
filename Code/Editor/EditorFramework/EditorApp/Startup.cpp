@@ -293,6 +293,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> flags, const char* sz
 
 void ezQtEditorApp::ShutdownEditor()
 {
+  m_pTimer->stop();
   ezToolsProject::CloseProject();
 
   if (!m_bHeadless && !m_bUnitTestMode)
