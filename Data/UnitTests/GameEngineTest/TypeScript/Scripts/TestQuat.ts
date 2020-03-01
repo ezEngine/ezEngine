@@ -220,7 +220,6 @@ export class TestQuat extends ez.TypescriptComponent {
             let q2 = new ez.Quat();
             let q3 = new ez.Quat();
             let qr = new ez.Quat();
-            let qr2 = new ez.Quat();
 
             q1.SetFromAxisAndAngle(new ez.Vec3(0, 0, 1), ez.Angle.DegreeToRadian(60));
             q2.SetFromAxisAndAngle(new ez.Vec3(0, 0, 1), ez.Angle.DegreeToRadian(30));
@@ -230,7 +229,7 @@ export class TestQuat extends ez.TypescriptComponent {
 
             EZ_TEST.BOOL(qr.IsEqualRotation(q3, 0.0001));
 
-            qr2 = q1.Clone();
+            let qr2 = q1.Clone();
             qr2.ConcatenateRotations(q2);
 
             EZ_TEST.QUAT(qr, qr2, 0.001);
