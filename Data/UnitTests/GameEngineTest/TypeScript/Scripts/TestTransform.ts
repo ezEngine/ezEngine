@@ -318,7 +318,6 @@ export class TestTransform extends ez.TypescriptComponent {
             let m = t.GetAsMat4();
 
             // reference
-            let refM = new ez.Mat4();
             {
                 let q = new ez.Quat();
                 q.SetFromAxisAndAngle(new ez.Vec3(0, 1, 0), ez.Angle.DegreeToRadian(34));
@@ -328,9 +327,10 @@ export class TestTransform extends ez.TypescriptComponent {
                 referenceTransform.rotation.SetQuat(q);
                 referenceTransform.scale.Set(2, -1, 5);
 
-                refM = referenceTransform.GetAsMat4();
+                let refM = referenceTransform.GetAsMat4();
+
+                EZ_TEST.BOOL(m.IsEqual(refM));
             }
-            EZ_TEST.BOOL(m.IsEqual(refM));
 
             let p: ez.Vec3[] = [new ez.Vec3(- 4, 0, 0), new ez.Vec3(5, 0, 0), new ez.Vec3(0, -6, 0), new ez.Vec3(0, 7, 0),
             new ez.Vec3(0, 0, -8), new ez.Vec3(0, 0, 9), new ez.Vec3(1, -2, 3), new ez.Vec3(-4, 5, 7)];

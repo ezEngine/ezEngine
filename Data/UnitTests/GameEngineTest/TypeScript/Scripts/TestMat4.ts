@@ -519,10 +519,9 @@ export class TestMat4 extends ez.TypescriptComponent {
                 for (let y = 2.0; y < 360.0; y += 37.0) {
                     for (let z = 3.0; z < 360.0; z += 53.0) {
                         let m = new ez.Mat4();
-                        let inv = new ez.Mat4();
 
                         m.SetRotationMatrix(new ez.Vec3(x, y, z).GetNormalized(), ez.Angle.DegreeToRadian(19.0));
-                        inv = m.Clone();
+                        let inv = m.Clone();
                         EZ_TEST.BOOL(inv.Invert());
 
                         let v = mul(m, new ez.Vec3(1, 1, 1));
@@ -540,10 +539,9 @@ export class TestMat4 extends ez.TypescriptComponent {
                 for (let y = 2.0; y < 360.0; y += 29.0) {
                     for (let z = 3.0; z < 360.0; z += 51.0) {
                         let m = new ez.Mat4();
-                        let inv = new ez.Mat4();
 
                         m.SetRotationMatrix(new ez.Vec3(x, y, z).GetNormalized(), ez.Angle.DegreeToRadian(83.0));
-                        inv = m.GetInverse();
+                        let inv = m.GetInverse();
 
                         let v = mul(m, new ez.Vec3(1, 1, 1));
                         let vinv = mul(inv, v);

@@ -178,7 +178,7 @@ export class Player2 extends ez.TickedTypescriptComponent {
 
         if (this.health <= 0) {
 
-            ez.Log.Info("Player died.")
+            ez.Log.Info("Player died.");
 
             let owner = this.GetOwner();
 
