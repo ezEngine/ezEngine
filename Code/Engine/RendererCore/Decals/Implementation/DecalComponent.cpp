@@ -11,6 +11,7 @@
 #include <RendererCore/Decals/DecalResource.h>
 #include <RendererCore/Messages/ApplyOnlyToMessage.h>
 #include <RendererCore/Messages/SetColorMessage.h>
+#include <RendererFoundation/Shader/ShaderUtils.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Common/LightData.h>
 
@@ -285,14 +286,20 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
   if (finalColor.a <= 0.0f)
     return;
 
+  const bool bNoFade = m_InnerFadeAngle == ezAngle::Radian(0.0f) && m_OuterFadeAngle == ezAngle::Radian(0.0f);
+  const float fCosInner = ezMath::Cos(m_InnerFadeAngle);
+  const float fCosOuter = ezMath::Cos(m_OuterFadeAngle);
+  const float fFadeParamScale = bNoFade ? 0.0f : (1.0f / ezMath::Max(0.001f, (fCosInner - fCosOuter)));
+  const float fFadeParamOffset = bNoFade ? 1.0f : (-fCosOuter * fFadeParamScale);
+
   auto hDecalAtlas = GetWorld()->GetComponentManager<ezDecalComponentManager>()->m_hDecalAtlas;
-  ezVec2 baseAtlasScale = ezVec2(0.5f);
-  ezVec2 baseAtlasOffset = ezVec2(0.5f);
+  ezVec4 baseAtlasScaleOffset = ezVec4(0.5f);
+  ezVec4 normalAtlasScaleOffset = ezVec4(0.5f);
+  ezVec4 ormAtlasScaleOffset = ezVec4(0.5f);
   ezUInt32 uiDecalFlags = 0;
 
   {
     ezResourceLock<ezDecalAtlasResource> pDecalAtlas(hDecalAtlas, ezResourceAcquireMode::BlockTillLoaded);
-    ezVec2U32 baseTextureSize = pDecalAtlas->GetBaseColorTextureSize();
 
     const auto& atlas = pDecalAtlas->GetAtlas();
     const ezUInt32 decalIdx = atlas.m_Items.Find(m_hDecal.GetResourceIDHash());
@@ -302,10 +309,19 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
       const auto& item = atlas.m_Items.GetValue(decalIdx);
       uiDecalFlags = item.m_uiFlags;
 
-      baseAtlasScale.x = (float)item.m_LayerRects[0].width / baseTextureSize.x * 0.5f;
-      baseAtlasScale.y = (float)item.m_LayerRects[0].height / baseTextureSize.y * 0.5f;
-      baseAtlasOffset.x = (float)item.m_LayerRects[0].x / baseTextureSize.x + baseAtlasScale.x;
-      baseAtlasOffset.y = (float)item.m_LayerRects[0].y / baseTextureSize.y + baseAtlasScale.y;
+      auto layerRectToScaleOffset = [](ezRectU32 layerRect, ezVec2U32 textureSize)
+      {
+        ezVec4 result;
+        result.x = (float)layerRect.width / textureSize.x * 0.5f;
+        result.y = (float)layerRect.height / textureSize.y * 0.5f;
+        result.z = (float)layerRect.x / textureSize.x + result.x;
+        result.w = (float)layerRect.y / textureSize.y + result.y;
+        return result;
+      };
+
+      baseAtlasScaleOffset = layerRectToScaleOffset(item.m_LayerRects[0], pDecalAtlas->GetBaseColorTextureSize());
+      normalAtlasScaleOffset = layerRectToScaleOffset(item.m_LayerRects[1], pDecalAtlas->GetNormalTextureSize());
+      ormAtlasScaleOffset = layerRectToScaleOffset(item.m_LayerRects[2], pDecalAtlas->GetORMTextureSize());
     }
   }
 
@@ -319,11 +335,11 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
   pRenderData->m_uiApplyOnlyToId = m_uiApplyOnlyToId;
   pRenderData->m_uiFlags = uiDecalFlags;
   pRenderData->m_uiFlags |= (m_bWrapAround ? DECAL_WRAP_AROUND_FLAG : 0);
+  pRenderData->m_uiAngleFadeParams = ezShaderUtils::Float2ToRG16F(ezVec2(fFadeParamScale, fFadeParamOffset));
   pRenderData->m_Color = finalColor;
-  pRenderData->m_InnerFadeAngle = m_InnerFadeAngle;
-  pRenderData->m_OuterFadeAngle = m_OuterFadeAngle;
-  pRenderData->m_vBaseColorAtlasScale = baseAtlasScale;
-  pRenderData->m_vBaseColorAtlasOffset = baseAtlasOffset;
+  ezShaderUtils::Float4ToRGBA16F(baseAtlasScaleOffset, pRenderData->m_uiBaseColorAtlasScale, pRenderData->m_uiBaseColorAtlasOffset);
+  ezShaderUtils::Float4ToRGBA16F(normalAtlasScaleOffset, pRenderData->m_uiNormalAtlasScale, pRenderData->m_uiNormalAtlasOffset);
+  ezShaderUtils::Float4ToRGBA16F(ormAtlasScaleOffset, pRenderData->m_uiORMAtlasScale, pRenderData->m_uiORMAtlasOffset);  
 
   ezRenderData::Caching::Enum caching = (m_FadeOutDelay.m_Value.GetSeconds() > 0.0 || m_FadeOutDuration.GetSeconds() > 0.0)
                                           ? ezRenderData::Caching::Never

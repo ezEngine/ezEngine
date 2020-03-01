@@ -188,22 +188,19 @@ namespace
     ezMat4 scaleMat;
     scaleMat.SetScalingMatrix(ezVec3(scale.y, -scale.z, scale.x));
 
-    const bool bNoFade =
-      pDecalRenderData->m_InnerFadeAngle == ezAngle::Radian(0.0f) && pDecalRenderData->m_OuterFadeAngle == ezAngle::Radian(0.0f);
-    const float fCosInner = ezMath::Cos(pDecalRenderData->m_InnerFadeAngle);
-    const float fCosOuter = ezMath::Cos(pDecalRenderData->m_OuterFadeAngle);
-    const float fFadeParamScale = bNoFade ? 0.0f : (1.0f / ezMath::Max(0.001f, (fCosInner - fCosOuter)));
-    const float fFadeParamOffset = bNoFade ? 1.0f : (-fCosOuter * fFadeParamScale);
-
     perDecalData.worldToDecalMatrix = scaleMat * lookAt;
     perDecalData.applyOnlyToId = pDecalRenderData->m_uiApplyOnlyToId;
     perDecalData.decalFlags = pDecalRenderData->m_uiFlags;
-    perDecalData.angleFadeParams = ezShaderUtils::Float2ToRG16F(ezVec2(fFadeParamScale, fFadeParamOffset));
+    perDecalData.angleFadeParams = pDecalRenderData->m_uiAngleFadeParams;
     perDecalData.padding0 = 0;
-    perDecalData.colorRG = ezShaderUtils::Float2ToRG16F(ezVec2(pDecalRenderData->m_Color.r, pDecalRenderData->m_Color.g));
-    perDecalData.colorBA = ezShaderUtils::Float2ToRG16F(ezVec2(pDecalRenderData->m_Color.b, pDecalRenderData->m_Color.a));
-    perDecalData.baseColorAtlasScale = ezShaderUtils::Float2ToRG16F(pDecalRenderData->m_vBaseColorAtlasScale);
-    perDecalData.baseColorAtlasOffset = ezShaderUtils::Float2ToRG16F(pDecalRenderData->m_vBaseColorAtlasOffset);
+    perDecalData.colorRG = ezShaderUtils::PackFloat16intoUint(pDecalRenderData->m_Color.r, pDecalRenderData->m_Color.g);
+    perDecalData.colorBA = ezShaderUtils::PackFloat16intoUint(pDecalRenderData->m_Color.b, pDecalRenderData->m_Color.a);
+    perDecalData.baseColorAtlasScale = pDecalRenderData->m_uiBaseColorAtlasScale;
+    perDecalData.baseColorAtlasOffset = pDecalRenderData->m_uiBaseColorAtlasOffset;
+    perDecalData.normalAtlasScale = pDecalRenderData->m_uiNormalAtlasScale;
+    perDecalData.normalAtlasOffset = pDecalRenderData->m_uiNormalAtlasOffset;
+    perDecalData.ormAtlasScale = pDecalRenderData->m_uiORMAtlasScale;
+    perDecalData.ormAtlasOffset = pDecalRenderData->m_uiORMAtlasOffset;
   }
 
 
@@ -373,13 +370,13 @@ namespace
   void RasterizeDecal(const ezDecalRenderData* pDecalRenderData, ezUInt32 uiDecalIndex, const ezSimdMat4f& viewProjectionMatrix,
     Cluster* clusters, ezSimdBSphere* clusterBoundingSpheres)
   {
-    ezSimdTransform decalToWorld = ezSimdConversion::ToTransform(pDecalRenderData->m_GlobalTransform);
-    ezSimdTransform worldToDecal = decalToWorld.GetInverse();
+    ezSimdMat4f decalToWorld = ezSimdConversion::ToTransform(pDecalRenderData->m_GlobalTransform).GetAsMat4();
+    ezSimdMat4f worldToDecal = decalToWorld.GetInverse();
 
     ezVec3 corners[8];
     ezBoundingBox(-pDecalRenderData->m_vHalfExtents, pDecalRenderData->m_vHalfExtents).GetCorners(corners);
 
-    ezSimdMat4f decalToScreen = viewProjectionMatrix * decalToWorld.GetAsMat4();
+    ezSimdMat4f decalToScreen = viewProjectionMatrix * decalToWorld;
     ezSimdBBox screenSpaceBounds;
     screenSpaceBounds.SetInvalid();
     bool bInsideBox = false;

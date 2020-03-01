@@ -131,9 +131,8 @@ TextureImport.Metalness;Metalness Texture
 TextureImport.Roughness;Roughness Texture
 ezDecalMode::All;All
 ezDecalMode::BaseColor;Base Color
+ezDecalMode::BaseColorNormal;Base Color, Normal
 ezDecalMode::BaseColorORM;Base Color, ORM
-ezDecalMode::Normal;Normal
-ezDecalMode::NormalORM;Normal, ORM
 ezDecalMode::Emissive;Emissive
 MeshImport.WithMaterials;Mesh and Materials
 MeshImport.NoMaterials;Mesh only

@@ -12,9 +12,8 @@
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezDecalMode, 1)
   EZ_ENUM_CONSTANT(ezDecalMode::All),
   EZ_ENUM_CONSTANT(ezDecalMode::BaseColor),
+  EZ_ENUM_CONSTANT(ezDecalMode::BaseColorNormal),
   EZ_ENUM_CONSTANT(ezDecalMode::BaseColorORM),
-  EZ_ENUM_CONSTANT(ezDecalMode::Normal),
-  EZ_ENUM_CONSTANT(ezDecalMode::NormalORM),
   EZ_ENUM_CONSTANT(ezDecalMode::Emissive)
 EZ_END_STATIC_REFLECTED_ENUM;
 
@@ -56,18 +55,14 @@ void ezDecalAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEv
       {
         props["BaseColor"].m_Visibility = ezPropertyUiState::Default;
       }
+      else if (mode == ezDecalMode::BaseColorNormal)
+      {
+        props["BaseColor"].m_Visibility = ezPropertyUiState::Default;
+        props["Normal"].m_Visibility = ezPropertyUiState::Default;
+      }
       else if (mode == ezDecalMode::BaseColorORM)
       {
         props["BaseColor"].m_Visibility = ezPropertyUiState::Default;
-        props["ORM"].m_Visibility = ezPropertyUiState::Default;
-      }
-      else if (mode == ezDecalMode::Normal)
-      {
-        props["Normal"].m_Visibility = ezPropertyUiState::Default;
-      }
-      else if (mode == ezDecalMode::NormalORM)
-      {
-        props["Normal"].m_Visibility = ezPropertyUiState::Default;
         props["ORM"].m_Visibility = ezPropertyUiState::Default;
       }
       else if (mode == ezDecalMode::Emissive)

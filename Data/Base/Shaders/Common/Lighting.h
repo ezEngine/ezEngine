@@ -16,6 +16,7 @@ SamplerComparisonState ShadowSampler;
 
 Texture2D DecalAtlasBaseColorTexture;
 Texture2D DecalAtlasNormalTexture;
+Texture2D DecalAtlasORMTexture;
 
 TextureCubeArray ReflectionSpecularTexture;
 Texture2D SkyIrradianceTexture;
@@ -439,30 +440,65 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uin
         decalPosition.xy += decalNormal.xy * decalPosition.z;
         decalPosition.xy = clamp(decalPosition.xy, -1.0f, 1.0f);
       }
-
+      
       float2 baseAtlasScale = RG16FToFloat2(decalData.baseColorAtlasScale);
       float2 baseAtlasOffset = RG16FToFloat2(decalData.baseColorAtlasOffset);
 
       float4 decalBaseColor = RGBA16FToFloat4(decalData.colorRG, decalData.colorBA);
       decalBaseColor *= DecalAtlasBaseColorTexture.Sample(LinearClampSampler, decalPosition.xy * baseAtlasScale + baseAtlasOffset);
       fade *= decalBaseColor.a;
-
+      
+      if (decalFlags & DECAL_USE_NORMAL)
+      {
+        float2 normalAtlasScale = RG16FToFloat2(decalData.normalAtlasScale);
+        float2 normalAtlasOffset = RG16FToFloat2(decalData.normalAtlasOffset);
+        
+        float3 decalTangentNormal = DecodeNormalTexture(DecalAtlasNormalTexture.Sample(LinearClampSampler, decalPosition.xy * normalAtlasScale + normalAtlasOffset));
+        
+        float3 xAxis = worldToDecalMatrix._m00_m01_m02;
+        float3 yAxis = worldToDecalMatrix._m10_m11_m12;
+        float3 zAxis = worldToDecalMatrix._m20_m21_m22;
+        
+        float3 decalWorldNormal = decalTangentNormal.x * xAxis + decalTangentNormal.y * yAxis - decalTangentNormal.z * zAxis;
+        matData.worldNormal = lerp(matData.worldNormal, decalWorldNormal, fade);
+      }
+      
+      float decalMetallic = 0.0f;
+      if (decalFlags & DECAL_USE_ORM)
+      {
+        float2 ormAtlasScale = RG16FToFloat2(decalData.ormAtlasScale);
+        float2 ormAtlasOffset = RG16FToFloat2(decalData.ormAtlasOffset);
+        
+        float3 decalORM = DecalAtlasORMTexture.Sample(LinearClampSampler, decalPosition.xy * ormAtlasScale + ormAtlasOffset).rgb;
+        
+        matData.occlusion = lerp(matData.occlusion, decalORM.r, fade);
+        matData.roughness = lerp(matData.roughness, decalORM.g, fade);
+        decalMetallic = decalORM.b;
+      }
+      
+      float3 decalDiffuseColor = lerp(decalBaseColor.rgb, 0.0f, decalMetallic);
       if (decalFlags & DECAL_BLEND_MODE_MODULATE)
       {
-        matData.diffuseColor *= lerp(1.0, decalBaseColor.rgb, fade);
+        matData.diffuseColor *= lerp(1.0, decalDiffuseColor, fade);
       }
       else
       {
-        matData.diffuseColor = lerp(matData.diffuseColor, decalBaseColor.rgb, fade);
+        matData.diffuseColor = lerp(matData.diffuseColor, decalDiffuseColor, fade);
       }
       
-      matData.opacity = max(matData.opacity, fade);
-      //matData.specularColor = lerp(matData.specularColor, 0.04f, fade);
-
-      //matData.worldNormal = normalize(lerp(matData.worldNormal, matData.vertexNormal, fade));
-      //matData.occlusion = lerp(matData.occlusion, 1.0f, fade);
+      float3 decalSpecularColor = lerp(0.04f, decalBaseColor.rgb, decalMetallic);
+      matData.specularColor = lerp(matData.specularColor, decalSpecularColor, fade);
+      
+      if (decalFlags & DECAL_USE_EMISSIVE)
+      {
+        matData.emissiveColor += decalBaseColor.rgb * fade;
+      }
+      
+      matData.opacity = max(matData.opacity, fade);      
     }
   }
+  
+  matData.worldNormal = normalize(matData.worldNormal);
 }
 
 float4 CalculateRefraction(float3 worldPosition, float3 worldNormal, float IoR, float thickness, float3 tintColor, float newOpacity = 1.0f)

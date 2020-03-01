@@ -81,6 +81,13 @@ float3 CubeMapDirection(float3 inDirection)
   return float3(inDirection.x, inDirection.z, -inDirection.y);
 }
 
+float3 DecodeNormalTexture(float4 normalTex)
+{
+  float2 xy = normalTex.xy * 2.0f - 1.0f;
+  float z = sqrt(max(1.0f - dot(xy, xy), 0.0));
+  return float3(xy, z);
+}
+
 float InterleavedGradientNoise(float2 screenSpacePosition)
 {
   float3 magic = float3(0.06711056, 0.00583715, 52.9829189);

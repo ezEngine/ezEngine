@@ -106,6 +106,19 @@ inline void ezSimdBSphere::Transform(const ezSimdTransform& t)
   m_CenterAndRadius = newCenterAndRadius;
 }
 
+inline void ezSimdBSphere::Transform(const ezSimdMat4f& mat)
+{
+  ezSimdFloat radius = m_CenterAndRadius.w();
+  m_CenterAndRadius = mat.TransformPosition(m_CenterAndRadius);
+
+  ezSimdFloat maxRadius = mat.m_col0.Dot<3>(mat.m_col0);
+  maxRadius = maxRadius.Max(mat.m_col1.Dot<3>(mat.m_col1));
+  maxRadius = maxRadius.Max(mat.m_col2.Dot<3>(mat.m_col2));
+  radius *= maxRadius.GetSqrt();
+
+  m_CenterAndRadius.SetW(radius);
+}
+
 EZ_ALWAYS_INLINE ezSimdFloat ezSimdBSphere::GetDistanceTo(const ezSimdVec4f& vPoint) const
 {
   return (vPoint - m_CenterAndRadius).GetLength<3>() - GetRadius();

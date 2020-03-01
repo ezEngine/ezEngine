@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Foundation/Math/Color16f.h>
 #include <Foundation/Types/VarianceTypes.h>
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Declarations.h>
@@ -28,13 +29,21 @@ class EZ_RENDERERCORE_DLL ezDecalRenderData : public ezRenderData
 
 public:
   ezVec3 m_vHalfExtents;
+
   ezUInt32 m_uiApplyOnlyToId;
   ezUInt32 m_uiFlags;
-  ezColor m_Color;
-  ezAngle m_InnerFadeAngle;
-  ezAngle m_OuterFadeAngle;
-  ezVec2 m_vBaseColorAtlasScale;
-  ezVec2 m_vBaseColorAtlasOffset;
+  ezUInt32 m_uiAngleFadeParams;
+
+  ezColorLinear16f m_Color;
+
+  ezUInt32 m_uiBaseColorAtlasScale;
+  ezUInt32 m_uiBaseColorAtlasOffset;
+
+  ezUInt32 m_uiNormalAtlasScale;
+  ezUInt32 m_uiNormalAtlasOffset;
+
+  ezUInt32 m_uiORMAtlasScale;
+  ezUInt32 m_uiORMAtlasOffset;
 };
 
 class EZ_RENDERERCORE_DLL ezDecalComponent : public ezRenderComponent

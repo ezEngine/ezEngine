@@ -164,7 +164,6 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
 
         auto pDecalProps = pDecalAsset->GetProperties();
         item.m_uiFlags = 0;
-        item.m_uiFlags |= pDecalProps->NeedsBaseColor() ? DECAL_USE_BASE_COLOR : 0;
         item.m_uiFlags |= pDecalProps->NeedsNormal() ? DECAL_USE_NORMAL : 0;
         item.m_uiFlags |= pDecalProps->NeedsORM() ? DECAL_USE_ORM : 0;
         item.m_uiFlags |= pDecalProps->NeedsEmissive() ? DECAL_USE_EMISSIVE : 0;

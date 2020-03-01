@@ -14,9 +14,8 @@ struct ezDecalMode
   {
     All,
     BaseColor,
+    BaseColorNormal,
     BaseColorORM,
-    Normal,
-    NormalORM,
     Emissive,
 
     Default = BaseColor
@@ -42,9 +41,9 @@ public:
   ezString m_sORM;
   ezString m_sEmissive;
 
-  bool NeedsBaseColor() const { return m_Mode == ezDecalMode::All || m_Mode == ezDecalMode::BaseColor || m_Mode == ezDecalMode::BaseColorORM; }
-  bool NeedsNormal() const { return m_Mode == ezDecalMode::All || m_Mode == ezDecalMode::Normal || m_Mode == ezDecalMode::NormalORM; }
-  bool NeedsORM() const { return m_Mode == ezDecalMode::All || m_Mode == ezDecalMode::BaseColorORM || m_Mode == ezDecalMode::NormalORM; }
+  bool NeedsBaseColor() const { return m_Mode != ezDecalMode::Emissive; }
+  bool NeedsNormal() const { return m_Mode == ezDecalMode::All || m_Mode == ezDecalMode::BaseColorNormal; }
+  bool NeedsORM() const { return m_Mode == ezDecalMode::All || m_Mode == ezDecalMode::BaseColorORM; }
   bool NeedsEmissive() const { return m_Mode == ezDecalMode::Emissive; }
 };
 
