@@ -16,6 +16,9 @@
 #pragma warning(disable: 4505)  // Unreferenced local function has been removed
 
 #include "stb_image.h"
+
+#undef EZ_THIRDPARTY_DLL
+
 #include "stb_image_write.h"
 
 #pragma warning(pop)
