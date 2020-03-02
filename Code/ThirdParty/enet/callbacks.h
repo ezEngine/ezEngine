@@ -1,10 +1,7 @@
-/**
+/** 
  @file  callbacks.h
  @brief ENet callbacks
 */
-
-#ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
-
 #ifndef __ENET_CALLBACKS_H__
 #define __ENET_CALLBACKS_H__
 
@@ -28,4 +25,3 @@ extern void   enet_free (void *);
 
 #endif /* __ENET_CALLBACKS_H__ */
 
-#endif // BUILDSYSTEM_ENABLE_ENET_SUPPORT

@@ -1,10 +1,7 @@
-/**
+/** 
  @file  time.h
  @brief ENet time constants and macros
 */
-
-#ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
-
 #ifndef __ENET_TIME_H__
 #define __ENET_TIME_H__
 
@@ -18,6 +15,4 @@
 #define ENET_TIME_DIFFERENCE(a, b) ((a) - (b) >= ENET_TIME_OVERFLOW ? (b) - (a) : (a) - (b))
 
 #endif /* __ENET_TIME_H__ */
-
-#endif // BUILDSYSTEM_ENABLE_ENET_SUPPORT
 

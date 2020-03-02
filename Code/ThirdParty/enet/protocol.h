@@ -1,14 +1,11 @@
-/**
+/** 
  @file  protocol.h
  @brief ENet protocol
 */
-
-#ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
-
 #ifndef __ENET_PROTOCOL_H__
 #define __ENET_PROTOCOL_H__
 
-#include <enet/types.h>
+#include "enet/types.h"
 
 enum
 {
@@ -16,11 +13,10 @@ enum
    ENET_PROTOCOL_MAXIMUM_MTU             = 4096,
    ENET_PROTOCOL_MAXIMUM_PACKET_COMMANDS = 32,
    ENET_PROTOCOL_MINIMUM_WINDOW_SIZE     = 4096,
-   ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE     = 32768,
+   ENET_PROTOCOL_MAXIMUM_WINDOW_SIZE     = 65536,
    ENET_PROTOCOL_MINIMUM_CHANNEL_COUNT   = 1,
    ENET_PROTOCOL_MAXIMUM_CHANNEL_COUNT   = 255,
    ENET_PROTOCOL_MAXIMUM_PEER_ID         = 0xFFF,
-   ENET_PROTOCOL_MAXIMUM_PACKET_SIZE     = 1024 * 1024 * 1024,
    ENET_PROTOCOL_MAXIMUM_FRAGMENT_COUNT  = 1024 * 1024
 };
 
@@ -57,7 +53,7 @@ typedef enum _ENetProtocolFlag
    ENET_PROTOCOL_HEADER_SESSION_SHIFT   = 12
 } ENetProtocolFlag;
 
-#ifdef _MSC_VER_
+#ifdef _MSC_VER
 #pragma pack(push, 1)
 #define ENET_PACKED
 #elif defined(__GNUC__) || defined(__clang__)
@@ -194,11 +190,9 @@ typedef union _ENetProtocol
    ENetProtocolThrottleConfigure throttleConfigure;
 } ENET_PACKED ENetProtocol;
 
-#ifdef _MSC_VER_
+#ifdef _MSC_VER
 #pragma pack(pop)
 #endif
 
 #endif /* __ENET_PROTOCOL_H__ */
-
-#endif // BUILDSYSTEM_ENABLE_ENET_SUPPORT
 
