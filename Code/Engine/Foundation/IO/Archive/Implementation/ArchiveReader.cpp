@@ -17,6 +17,7 @@ ezResult ezArchiveReader::OpenArchive(const char* szPath)
   EZ_LOG_BLOCK("OpenArchive", szPath);
 
   EZ_SUCCEED_OR_RETURN(m_MemFile.Open(szPath, ezMemoryMappedFile::Mode::ReadOnly));
+  m_uiMemFileSize = m_MemFile.GetFileSize();
 
   // validate the archive
   {
@@ -54,6 +55,34 @@ ezResult ezArchiveReader::OpenArchive(const char* szPath)
       return EZ_FAILURE;
     }
   }
+
+  // validate the entries
+  {
+    const ezUInt32 uiMaxPathString = m_ArchiveTOC.m_AllPathStrings.GetCount();
+    const ezUInt64 uiValidSize = m_uiMemFileSize - uiMaxPathString;
+
+    for (const auto& e : m_ArchiveTOC.m_Entries)
+    {
+      if (e.m_uiDataStartOffset + e.m_uiStoredDataSize > uiValidSize)
+      {
+        ezLog::Error("Archive is corrupt. Invalid entry data range.");
+        return EZ_FAILURE;
+      }
+
+      if (e.m_uiUncompressedDataSize < e.m_uiStoredDataSize)
+      {
+        ezLog::Error("Archive is corrupt. Invalid compression info.");
+        return EZ_FAILURE;
+      }
+
+      if (e.m_uiPathStringOffset >= uiMaxPathString)
+      {
+        ezLog::Error("Archive is corrupt. Invalid entry path-string offset.");
+        return EZ_FAILURE;
+      }
+    }
+  }
+
   return EZ_SUCCESS;
 #else
   EZ_REPORT_FAILURE("Memory mapped files are unsupported on this platform.");

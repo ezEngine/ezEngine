@@ -1,6 +1,7 @@
 #include <FoundationPCH.h>
 
 #include <Foundation/IO/Archive/Archive.h>
+#include <Foundation/Logging/Log.h>
 
 void operator<<(ezStreamWriter& stream, const ezArchiveStoredString& value)
 {
@@ -57,6 +58,8 @@ ezResult ezArchiveTOC::Deserialize(ezStreamReader& stream)
 
   if (version == 1)
   {
+    // TODO: we should consider removing this code path
+
     // read and discard the data, it is regenerated below
     ezHashTable<ezTempHashedString, ezUInt32> m_PathToIndex;
     EZ_SUCCEED_OR_RETURN(stream.ReadHashTable(m_PathToIndex));
@@ -94,6 +97,13 @@ ezResult ezArchiveTOC::Deserialize(ezStreamReader& stream)
       // Verify that the conversion worked
       EZ_ASSERT_DEBUG(FindEntry(szEntryString) == i, "Hashed path retrieval did not yield inserted index");
     }
+  }
+
+  // path strings mustn't be empty and must be zero-terminated
+  if (m_AllPathStrings.IsEmpty() || m_AllPathStrings.PeekBack() != '\0')
+  {
+    ezLog::Error("Archive is corrupt. Invalid string data.");
+    return EZ_FAILURE;
   }
 
   return EZ_SUCCESS;
