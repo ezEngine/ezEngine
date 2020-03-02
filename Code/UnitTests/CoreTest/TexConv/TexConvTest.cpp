@@ -28,6 +28,7 @@ private:
     Combine4,
     LinearUsage,
     ExtractChannel,
+    TGA,
   };
 
   virtual void SetupSubTests() override;
@@ -107,6 +108,7 @@ void ezTexConvTest::SetupSubTests()
   AddSubTest("Combine4 - DDS", SubTest::Combine4);
   AddSubTest("Linear Usage", SubTest::LinearUsage);
   AddSubTest("Extract Channel", SubTest::ExtractChannel);
+  AddSubTest("TGA loading", SubTest::TGA);
 }
 
 ezTestAppRun ezTexConvTest::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount)
@@ -118,6 +120,9 @@ ezTestAppRun ezTexConvTest::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocatio
   const ezStringBuilder sPathE(sImageData, "/E.png");
   const ezStringBuilder sPathZ(sImageData, "/Z.png");
   const ezStringBuilder sPathShape(sImageData, "/Shape.png");
+  const ezStringBuilder sPathTGAv(sImageData, "/EZ_flipped_v.tga");
+  const ezStringBuilder sPathTGAh(sImageData, "/EZ_flipped_h.tga");
+  const ezStringBuilder sPathTGAvhCompressed(sImageData, "/EZ_flipped_vh.tga");
 
   if (iIdentifier == SubTest::RgbaToRgbPNG)
   {
@@ -242,6 +247,57 @@ ezTestAppRun ezTexConvTest::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocatio
     RunTexConv(opt, "ExtractChannel.dds");
 
     EZ_TEST_IMAGE(3, 10);
+  }
+
+  if (iIdentifier == SubTest::TGA)
+  {
+    {
+      ezProcessOptions opt;
+      opt.AddArgument("-in0");
+      opt.AddArgument(sPathTGAv);
+
+      opt.AddArgument("-rgba");
+      opt.AddArgument("in0");
+
+      opt.AddArgument("-usage");
+      opt.AddArgument("linear");
+
+      RunTexConv(opt, "EZ_flipped_v.dds");
+
+      EZ_TEST_IMAGE(3, 10);
+    }
+
+    {
+      ezProcessOptions opt;
+      opt.AddArgument("-in0");
+      opt.AddArgument(sPathTGAh);
+
+      opt.AddArgument("-rgba");
+      opt.AddArgument("in0");
+
+      opt.AddArgument("-usage");
+      opt.AddArgument("linear");
+
+      RunTexConv(opt, "EZ_flipped_h.dds");
+
+      EZ_TEST_IMAGE(4, 10);
+    }
+
+    {
+      ezProcessOptions opt;
+      opt.AddArgument("-in0");
+      opt.AddArgument(sPathTGAvhCompressed);
+
+      opt.AddArgument("-rgba");
+      opt.AddArgument("in0");
+
+      opt.AddArgument("-usage");
+      opt.AddArgument("linear");
+
+      RunTexConv(opt, "EZ_flipped_vh.dds");
+
+      EZ_TEST_IMAGE(5, 10);
+    }
   }
 
   return ezTestAppRun::Quit;
