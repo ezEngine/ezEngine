@@ -6,6 +6,7 @@
 
 // This #include is quite vital, do not remove it!
 #include <Foundation/Strings/FormatString.h>
+#include <Foundation/Math/Math.h>
 
 /// \brief Value used by containers for indices to indicate an invalid index.
 #ifndef ezInvalidIndex
@@ -223,8 +224,8 @@ public:
 
   EZ_ALWAYS_INLINE void Swap(ezArrayPtr<T>& other)
   {
-    ezMath::Swap(m_ptr, other.m_ptr);
-    ezMath::Swap(m_uiCount, other.m_uiCount);
+    ::ezMath::Swap(m_ptr, other.m_ptr);
+    ::ezMath::Swap(m_uiCount, other.m_uiCount);
   }
 
   typedef const T* const_iterator;

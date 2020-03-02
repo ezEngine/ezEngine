@@ -179,7 +179,9 @@ ezTestAppRun ezTexConvTest::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocatio
 
     RunTexConv(opt, "Combine4.dds");
 
-    EZ_TEST_IMAGE(1, 10);
+    // Threshold needs to be higher here since we might fall back to software dxt compression
+    // which results in slightly different results than GPU dxt compression.
+    EZ_TEST_IMAGE(1, 100);
   }
 
   if (iIdentifier == SubTest::LinearUsage)

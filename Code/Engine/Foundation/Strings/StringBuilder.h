@@ -41,7 +41,7 @@ public:
   ezStringBuilder(const ezStringBuilder& rhs); // [tested]
 
   /// \brief Moves the given string into this one.
-  ezStringBuilder(ezStringBuilder&& rhs);
+  ezStringBuilder(ezStringBuilder&& rhs) noexcept;
 
   /// \brief Copies the given string into this one.
   template <ezUInt16 Size>
@@ -93,7 +93,7 @@ public:
   void operator=(const ezStringBuilder& rhs); // [tested]
 
   /// \brief Moves the given string into this one.
-  void operator=(ezStringBuilder&& rhs);
+  void operator=(ezStringBuilder&& rhs) noexcept;
 
   /// \brief Copies the given Utf8 string into this one.
   void operator=(const char* szUTF8); // [tested]
@@ -130,7 +130,7 @@ public:
 
   /// \brief Moves the given string into this one.
   template <ezUInt16 Size, typename A>
-  void operator=(ezHybridString<Size, A>&& rhs)
+  void operator=(ezHybridString<Size, A>&& rhs) noexcept
   {
     m_uiCharacterCount = rhs.m_uiCharacterCount;
     m_Data = std::move(rhs.m_Data);

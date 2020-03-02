@@ -102,12 +102,12 @@ ezStatus ezRemoveNodeCommand::DoInternal(bool bRedo)
     {
       while (true)
       {
-        auto inputs = pPinSource->GetConnections();
+        auto inputs2 = pPinSource->GetConnections();
 
-        if (inputs.IsEmpty())
+        if (inputs2.IsEmpty())
           break;
 
-        const ezPin* pPinTarget = inputs[0]->GetTargetPin();
+        const ezPin* pPinTarget = inputs2[0]->GetTargetPin();
         ezDisconnectNodePinsCommand cmd;
         cmd.m_ObjectSource = pPinSource->GetParent()->GetGuid();
         cmd.m_ObjectTarget = pPinTarget->GetParent()->GetGuid();

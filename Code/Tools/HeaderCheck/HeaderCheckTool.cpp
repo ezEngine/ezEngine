@@ -59,7 +59,7 @@ public:
   typedef ezApplication SUPER;
 
   ezHeaderCheckApp()
-    : ezApplication("StaticLinkerApp")
+    : ezApplication("HeaderCheck")
   {
     m_bHadErrors = false;
     m_bHadSeriousWarnings = false;

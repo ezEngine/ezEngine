@@ -17,6 +17,14 @@ void TestFormat(const ezFormatString& str, const char* szExpected)
   EZ_TEST_STRING(szText, szExpected);
 }
 
+void TestFormatWChar(const ezFormatString& str, const wchar_t* szExpected)
+{
+  ezStringBuilder sb;
+  const char* szText = str.GetText(sb);
+
+  EZ_TEST_WSTRING(ezStringWChar(szText), szExpected);
+}
+
 void CompareSnprintf(ezStringBuilder& log, const ezFormatString& str, const char* szFormat, ...)
 {
   va_list args;
@@ -117,6 +125,18 @@ EZ_CREATE_SIMPLE_TEST(Strings, FormatString)
     TestFormat(ezFmt("'{0}'", sv), "'view'");
 
     TestFormat(ezFmt("{3}, {1}, {0}, {2}", ezArgF(23.12345f, 1), ezArgI(42), 17, 12.34f), "12.34, 42, 23.1, 17");
+
+    const wchar_t* wsz = L"wsz";
+    TestFormatWChar(ezFmt("'{0}, {1}'", "inl", wsz), L"'inl, wsz'");
+    TestFormatWChar(ezFmt("'{0}, {1}'", L"inl", wsz), L"'inl, wsz'");
+    // Temp buffer limit is 63 byte (64 including trailing zero). Each character in UTF-8 can potentially use 4 byte.
+    // All input characters are 1 byte, so the 60th character is the last with 4 bytes left in the buffer.
+    // Thus we end up with truncation after 60 characters. 
+    const wchar_t* wszTooLong = L"123456789.123456789.123456789.123456789.123456789.123456789.WAAAAAAAAAAAAAAH";
+    const wchar_t* wszTooLongExpected = L"123456789.123456789.123456789.123456789.123456789.123456789.";
+    const wchar_t* wszTooLongExpected2 = L"'123456789.123456789.123456789.123456789.123456789.123456789., 123456789.123456789.123456789.123456789.123456789.123456789.'";
+    TestFormatWChar(ezFmt("{0}", wszTooLong), wszTooLongExpected);
+    TestFormatWChar(ezFmt("'{0}, {1}'", wszTooLong, wszTooLong), wszTooLongExpected2);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::DisabledNoWarning, "Compare Performance")
@@ -131,8 +151,8 @@ EZ_CREATE_SIMPLE_TEST(Strings, FormatString)
     CompareSnprintf(perfLog, ezFmt("{0}", ezArgF(23.123456789, 2)), "%.2f", 23.123456789);
     CompareSnprintf(perfLog, ezFmt("{0}", ezArgI(123456789, 20, true)), "%020i", 123456789);
     CompareSnprintf(perfLog, ezFmt("{0}", ezArgI(123456789, 20, true, 16)), "%020X", 123456789);
-    CompareSnprintf(perfLog, ezFmt("{0}", ezArgU(1234567890987ll, 30, false, 16)), "% 30llx", 1234567890987ll);
-    CompareSnprintf(perfLog, ezFmt("{0}", ezArgU(1234567890987ll, 30, false, 16, true)), "% 30llX", 1234567890987ll);
+    CompareSnprintf(perfLog, ezFmt("{0}", ezArgU(1234567890987ll, 30, false, 16)), "% 30x", 1234567890987ll);
+    CompareSnprintf(perfLog, ezFmt("{0}", ezArgU(1234567890987ll, 30, false, 16, true)), "% 30X", 1234567890987ll);
     CompareSnprintf(perfLog, ezFmt("{0}, {1}, {2}, {3}, {4}", 0, 1, 2, 3, 4), "%i, %i, %i, %i, %i", 0, 1, 2, 3, 4);
     CompareSnprintf(
       perfLog, ezFmt("{0}, {1}, {2}, {3}, {4}", 0.1, 1.1, 2.1, 3.1, 4.1), "%.1f, %.1f, %.1f, %.1f, %.1f", 0.1, 1.1, 2.1, 3.1, 4.1);

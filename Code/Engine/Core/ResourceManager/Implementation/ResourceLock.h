@@ -26,6 +26,16 @@ public:
     m_pResource = ezResourceManager::BeginAcquireResource(hResource, mode, hFallbackResource, &m_AcquireResult);
   }
 
+  ezResourceLock(const ezResourceLock&) = delete;
+
+  ezResourceLock(ezResourceLock&& other)
+    : m_AcquireResult(other.m_AcquireResult)
+    , m_pResource(other.m_pResource)
+  {
+    other.m_pResource = nullptr;
+    other.m_AcquireResult = ezResourceAcquireResult::None;
+  }
+
   EZ_ALWAYS_INLINE ~ezResourceLock()
   {
     if (m_pResource)

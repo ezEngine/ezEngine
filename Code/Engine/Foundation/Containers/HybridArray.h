@@ -36,7 +36,7 @@ public:
   void operator=(const ezArrayPtr<const T>& rhs); // [tested]
 
   /// \brief Moves the data from some other contiguous array into this one.
-  void operator=(ezHybridArray<T, Size, AllocatorWrapper>&& rhs); // [tested]
+  void operator=(ezHybridArray<T, Size, AllocatorWrapper>&& rhs) noexcept; // [tested]
 
 protected:
 

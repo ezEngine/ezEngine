@@ -84,7 +84,7 @@ void ezQtDocumentWindow::SetVisibleInContainer(bool bVisible)
   {
     // if the window is now visible, immediately do a redraw and trigger the timers
 
-    // \todo While testing with Kraut it had to be like this (with comments), to not crash:
+    // \todo While testing with existing editor plug-ins it had to be like this (with comments), to not crash:
     /*
     //m_bIsDrawingATM = true;
     //InternalRedraw();

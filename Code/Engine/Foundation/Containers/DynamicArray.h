@@ -34,7 +34,7 @@ protected:
   void operator=(const ezDynamicArrayBase<T>& rhs); // [tested]
 
   /// \brief Moves the data from some other contiguous array into this one.
-  void operator=(ezDynamicArrayBase<T>&& rhs); // [tested]
+  void operator=(ezDynamicArrayBase<T>&& rhs) noexcept; // [tested]
 
   T* GetElementsPtr();
   const T* GetElementsPtr() const;
@@ -96,8 +96,8 @@ public:
   void operator=(const ezDynamicArrayBase<T>& rhs);
   void operator=(const ezArrayPtr<const T>& rhs);
 
-  void operator=(ezDynamicArray<T, AllocatorWrapper>&& rhs);
-  void operator=(ezDynamicArrayBase<T>&& rhs);
+  void operator=(ezDynamicArray<T, AllocatorWrapper>&& rhs) noexcept;
+  void operator=(ezDynamicArrayBase<T>&& rhs) noexcept;
 
 protected:
   ezDynamicArray(T* pInplaceStorage, ezUInt32 uiCapacity, ezAllocatorBase* pAllocator)

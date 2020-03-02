@@ -104,6 +104,30 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const char* arg)
   return arg;
 }
 
+ezStringView BuildString(char* tmp, ezUInt32 uiLength, const wchar_t* arg)
+{
+  const char* start = tmp;
+  if (arg != nullptr)
+  {
+    // Code points in UTF-8 can be up to 4 byte, so the end pointer is 3 byte "earlier" than for
+    // for a single byte character. One byte for trailing zero is already accounted for in uiLength.
+    const char* tmpEnd = tmp + uiLength - 3u;
+    while (*arg != '\0' && tmp < tmpEnd)
+    {
+      // decode utf8 to utf32
+      const ezUInt32 uiUtf32 = ezUnicodeUtils::DecodeWCharToUtf32(arg);
+
+      // encode utf32 to wchar_t
+      ezUnicodeUtils::EncodeUtf32ToUtf8(uiUtf32, tmp);
+    }
+  }
+
+  // Append terminator. As the extra byte for trailing zero is accounted for in uiLength, this is safe.
+  *tmp = '\0';
+
+  return start;
+}
+
 ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezString& arg)
 {
   return ezStringView(arg.GetData(), arg.GetData() + arg.GetElementCount());

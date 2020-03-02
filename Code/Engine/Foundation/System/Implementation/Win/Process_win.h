@@ -249,8 +249,9 @@ ezResult ezProcess::Launch(const ezProcessOptions& opt, ezBitflags<ezProcessLaun
     dwCreationFlags |= CREATE_SUSPENDED;
   }
 
-
-  if (!CreateProcessWithExplicitHandles(ezStringWChar(sProcess).GetData(), const_cast<wchar_t*>(ezStringWChar(sCmdLine).GetData()),
+  // We pass nullptr as lpApplicationName as setting it would prevent OpenProcess to run system apps or apps in PATH.
+  // Instead, the module name is pre-pended to lpCommandLine in BuildFullCommandLineString.
+  if (!CreateProcessWithExplicitHandles(nullptr, const_cast<wchar_t*>(ezStringWChar(sCmdLine).GetData()),
         nullptr,                              // lpProcessAttributes
         nullptr,                              // lpThreadAttributes
         uiNumHandlesToInherit > 0 ? TRUE : FALSE, // bInheritHandles

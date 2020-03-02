@@ -167,7 +167,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticArray)
       EZ_TEST_INT(a1[i], 0);
       a1[i] = i;
 
-      EZ_TEST_INT(a1.GetCount(), i + 1);
+      EZ_TEST_INT((int)a1.GetCount(), i + 1);
       EZ_TEST_BOOL(!a1.IsEmpty());
     }
 

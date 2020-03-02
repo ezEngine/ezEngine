@@ -421,7 +421,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
     ezVec3T v;
 
     ezRandom rng;
-    rng.InitializeFromCurrentTime();
+    rng.Initialize(0xEEFF0011AABBCCDDULL);
 
     ezVec3T avg;
     avg.SetZero();
@@ -431,7 +431,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
     {
       v = ezVec3T::CreateRandomPointInSphere(rng);
 
-      EZ_TEST_BOOL(v.GetLength() <= 1.0f);
+      EZ_TEST_BOOL(v.GetLength() <= 1.0f + ezMath::SmallEpsilon<float>());
       EZ_TEST_BOOL(!v.IsZero());
 
       avg += v;

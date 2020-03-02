@@ -91,7 +91,7 @@ HRESULT ezUwpTestApplication::OnActivated(ICoreApplicationView* applicationView,
     ezCommandLineUtils::SplitCommandLineString(ezStringUtf8(argHString).GetData(), true, commandLineArgs, argv);
 
     ezCommandLineUtils cmd;
-    cmd.SetCommandLine(argv.GetData(), argv.GetCount(), ezCommandLineUtils::PreferOsArgs);
+    cmd.SetCommandLine(argv.GetCount(), argv.GetData(), ezCommandLineUtils::PreferOsArgs);
 
     m_testFramework.GetTestSettingsFromCommandLine(cmd);
 

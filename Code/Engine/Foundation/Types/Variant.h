@@ -115,7 +115,7 @@ public:
   ezVariant(const ezVariant& other); // [tested]
 
   /// \brief Moves the data from the other variant.
-  ezVariant(ezVariant&& other); // [tested]
+  ezVariant(ezVariant&& other) noexcept; // [tested]
 
   ezVariant(const bool& value);
   ezVariant(const ezInt8& value);
@@ -166,7 +166,7 @@ public:
   void operator=(const ezVariant& other); // [tested]
 
   /// \brief Moves the data from the \a other variant into this one.
-  void operator=(ezVariant&& other); // [tested]
+  void operator=(ezVariant&& other) noexcept; // [tested]
 
   /// \brief Deduces the type of \a T and stores \a value.
   ///

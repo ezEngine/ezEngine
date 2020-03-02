@@ -11,7 +11,7 @@ class ezAtomicInteger
 public:
   EZ_DECLARE_POD_TYPE();
 
-  /// \brief Default constructor
+  /// \brief Initializes the value to zero.
   ezAtomicInteger(); // [tested]
 
   /// \brief Initializes the object with a value

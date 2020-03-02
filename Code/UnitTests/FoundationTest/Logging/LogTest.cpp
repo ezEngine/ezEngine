@@ -121,7 +121,7 @@ EZ_CREATE_SIMPLE_TEST(Logging, Log)
         ezLog::Debug("for the people who are still alive.");
 
         {
-          ezLogSystemScope logScope(&log2);
+          ezLogSystemScope logScope2(&log2);
           EZ_LOG_BLOCK("Interlude");
           ezLog::Info("Well here we are again. It's always such a pleasure.");
           ezLog::Error("Remember when you tried to kill me twice?");

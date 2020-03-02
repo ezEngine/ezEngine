@@ -293,113 +293,137 @@ template <typename ArrayType, typename ValueType>
 ezResult ezStreamReader::ReadArray(ezArrayBase<ValueType, ArrayType>& Array)
 {
   ezUInt64 uiCount = 0;
-  ReadQWordValue(&uiCount);
+  EZ_SUCCEED_OR_RETURN(ReadQWordValue(&uiCount));
 
-  EZ_ASSERT_DEV(uiCount < ezMath::MaxValue<ezUInt32>(),
-                "Containers currently use 32 bit for counts internally. Value from file is too large.");
-
-  Array.Clear();
-
-  if (uiCount > 0)
+  if (uiCount < ezMath::MaxValue<ezUInt32>())
   {
-    static_cast<ArrayType&>(Array).Reserve(static_cast<ezUInt32>(uiCount));
+    Array.Clear();
 
-    for (ezUInt32 i = 0; i < static_cast<ezUInt32>(uiCount); ++i)
+    if (uiCount > 0)
     {
-      EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::Deserialize<ValueType>(*this, Array.ExpandAndGetRef()));
-    }
-  }
+      static_cast<ArrayType&>(Array).Reserve(static_cast<ezUInt32>(uiCount));
 
-  return EZ_SUCCESS;
+      for (ezUInt32 i = 0; i < static_cast<ezUInt32>(uiCount); ++i)
+      {
+        EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::Deserialize<ValueType>(*this, Array.ExpandAndGetRef()));
+      }
+    }
+
+    return EZ_SUCCESS;
+  }
+  else
+  {
+    // Containers currently use 32 bit for counts internally. Value from file is too large.
+    return EZ_FAILURE;
+  }
 }
 
 template <typename ValueType, ezUInt32 uiSize>
 ezResult ezStreamReader::ReadArray(ValueType (&Array)[uiSize])
 {
   ezUInt64 uiCount = 0;
-  ReadQWordValue(&uiCount);
-
-  EZ_ASSERT_DEV(uiCount < ezMath::MaxValue<ezUInt32>(),
-                "Containers currently use 32 bit for counts internally. Value from file is too large.");
+  EZ_SUCCEED_OR_RETURN(ReadQWordValue(&uiCount));
 
   if (static_cast<ezUInt32>(uiCount) != uiSize)
     return EZ_FAILURE;
 
-  for (ezUInt32 i = 0; i < static_cast<ezUInt32>(uiCount); ++i)
+  if (uiCount < ezMath::MaxValue<ezUInt32>())
   {
-    EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::Deserialize<ValueType>(*this, Array[i]));
+    for (ezUInt32 i = 0; i < static_cast<ezUInt32>(uiCount); ++i)
+    {
+      EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::Deserialize<ValueType>(*this, Array[i]));
+    }
+
+    return EZ_SUCCESS;
   }
 
-  return EZ_SUCCESS;
+  // Containers currently use 32 bit for counts internally. Value from file is too large.
+  return EZ_FAILURE;
 }
 
 template <typename KeyType, typename Comparer>
 ezResult ezStreamReader::ReadSet(ezSetBase<KeyType, Comparer>& Set)
 {
   ezUInt64 uiCount = 0;
-  ReadQWordValue(&uiCount);
+  EZ_SUCCEED_OR_RETURN(ReadQWordValue(&uiCount));
 
-  EZ_ASSERT_DEV(uiCount < ezMath::MaxValue<ezUInt32>(),
-                "Containers currently use 32 bit for counts internally. Value from file is too large.");
-
-  Set.Clear();
-
-  for (ezUInt32 i = 0; i < static_cast<ezUInt32>(uiCount); ++i)
+  if (uiCount < ezMath::MaxValue<ezUInt32>())
   {
-    KeyType Item;
-    EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::Deserialize(*this, Item));
+    Set.Clear();
 
-    Set.Insert(std::move(Item));
+    for (ezUInt32 i = 0; i < static_cast<ezUInt32>(uiCount); ++i)
+    {
+      KeyType Item;
+      EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::Deserialize(*this, Item));
+
+      Set.Insert(std::move(Item));
+    }
+
+    return EZ_SUCCESS;
   }
-
-  return EZ_SUCCESS;
+  else
+  {
+    // Containers currently use 32 bit for counts internally. Value from file is too large.
+    return EZ_FAILURE;
+  }
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
 ezResult ezStreamReader::ReadMap(ezMapBase<KeyType, ValueType, Comparer>& Map)
 {
   ezUInt64 uiCount = 0;
-  ReadQWordValue(&uiCount);
+  EZ_SUCCEED_OR_RETURN(ReadQWordValue(&uiCount));
 
-  EZ_ASSERT_DEV(uiCount < ezMath::MaxValue<ezUInt32>(),
-                "Containers currently use 32 bit for counts internally. Value from file is too large.");
-
-  Map.Clear();
-
-  for (ezUInt32 i = 0; i < static_cast<ezUInt32>(uiCount); ++i)
+  if (uiCount < ezMath::MaxValue<ezUInt32>())
   {
-    KeyType Key;
-    ValueType Value;
-    EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::Deserialize(*this, Key));
-    EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::Deserialize(*this, Value));
+    Map.Clear();
 
-    Map.Insert(std::move(Key), std::move(Value));
+    for (ezUInt32 i = 0; i < static_cast<ezUInt32>(uiCount); ++i)
+    {
+      KeyType Key;
+      ValueType Value;
+      EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::Deserialize(*this, Key));
+      EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::Deserialize(*this, Value));
+
+      Map.Insert(std::move(Key), std::move(Value));
+    }
+
+    return EZ_SUCCESS;
   }
-
-  return EZ_SUCCESS;
+  else
+  {
+    // Containers currently use 32 bit for counts internally. Value from file is too large.
+    return EZ_FAILURE;
+  }
 }
 
 template <typename KeyType, typename ValueType, typename Hasher>
 ezResult ezStreamReader::ReadHashTable(ezHashTableBase<KeyType, ValueType, Hasher>& HashTable)
 {
   ezUInt64 uiCount = 0;
-  ReadQWordValue(&uiCount);
+  EZ_SUCCEED_OR_RETURN(ReadQWordValue(&uiCount));
 
-  EZ_ASSERT_DEV(
-    uiCount < ezMath::MaxValue<ezUInt32>(), "Containers currently use 32 bit for counts internally. Value from file is too large.");
-
-  HashTable.Clear();
-  HashTable.Reserve(static_cast<ezUInt32>(uiCount));
-
-  for (ezUInt32 i = 0; i < static_cast<ezUInt32>(uiCount); ++i)
+  if (uiCount < ezMath::MaxValue<ezUInt32>())
   {
-    KeyType Key;
-    ValueType Value;
-    EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::Deserialize(*this, Key));
-    EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::Deserialize(*this, Value));
+    HashTable.Clear();
+    HashTable.Reserve(static_cast<ezUInt32>(uiCount));
 
-    HashTable.Insert(std::move(Key), std::move(Value));
+    for (ezUInt32 i = 0; i < static_cast<ezUInt32>(uiCount); ++i)
+    {
+      KeyType Key;
+      ValueType Value;
+      EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::Deserialize(*this, Key));
+      EZ_SUCCEED_OR_RETURN(ezStreamReaderUtil::Deserialize(*this, Value));
+
+      HashTable.Insert(std::move(Key), std::move(Value));
+    }
+
+    return EZ_SUCCESS;
+  }
+  else
+  {
+    // Containers currently use 32 bit for counts internally. Value from file is too large.
+    return EZ_FAILURE;
   }
 
-  return EZ_SUCCESS;
 }

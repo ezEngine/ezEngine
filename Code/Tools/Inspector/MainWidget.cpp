@@ -138,8 +138,8 @@ void ezQtMainWidget::on_ButtonConnect_clicked()
 void ezQtMainWidget::SaveFavourites()
 {
   QString sFile = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-  QDir d;
-  d.mkpath(sFile);
+  QDir dir;
+  dir.mkpath(sFile);
 
   sFile.append("/Favourites.stats");
 
@@ -164,8 +164,8 @@ void ezQtMainWidget::SaveFavourites()
 void ezQtMainWidget::LoadFavourites()
 {
   QString sFile = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-  QDir d;
-  d.mkpath(sFile);
+  QDir dir;
+  dir.mkpath(sFile);
   sFile.append("/Favourites.stats");
 
   QFile f(sFile);
