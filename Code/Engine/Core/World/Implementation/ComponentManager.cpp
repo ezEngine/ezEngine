@@ -55,8 +55,26 @@ void ezComponentManagerBase::DeinitializeInternal()
   SUPER::DeinitializeInternal();
 }
 
-void ezComponentManagerBase::InitializeComponent(ezGameObject* pOwnerObject, ezComponent* pComponent)
+ezComponentHandle ezComponentManagerBase::CreateComponentNoInit(ezGameObject* pOwnerObject, ezComponent*& out_pComponent)
 {
+  EZ_ASSERT_DEV(m_Components.GetCount() < ezWorld::GetMaxNumComponentsPerType(), "Max number of components per type reached: {}",
+    ezWorld::GetMaxNumComponentsPerType());
+
+  ezComponent* pComponent = CreateComponentStorage();
+  if (pComponent == nullptr)
+  {
+    return ezComponentHandle();
+  }
+
+  ezComponentId newId = m_Components.Insert(pComponent);
+  newId.m_WorldIndex = GetWorldIndex();
+  newId.m_TypeId = pComponent->GetTypeId();
+
+  pComponent->m_pManager = this;
+  pComponent->m_InternalId = newId;
+  pComponent->m_ComponentFlags.AddOrRemove(ezObjectFlags::Dynamic, pComponent->GetMode() == ezComponentMode::Dynamic);
+  pComponent->UpdateActiveState(pOwnerObject);
+
   // In Editor we add components via reflection so it is fine to have a nullptr here.
   // We check for a valid owner before the Initialize() callback.
   if (pOwnerObject != nullptr)
@@ -64,6 +82,12 @@ void ezComponentManagerBase::InitializeComponent(ezGameObject* pOwnerObject, ezC
     pOwnerObject->AddComponent(pComponent);
   }
 
+  out_pComponent = pComponent;
+  return pComponent->GetHandle();
+}
+
+void ezComponentManagerBase::InitializeComponent(ezComponent* pComponent)
+{
   GetWorld()->AddComponentToInitialize(pComponent->GetHandle());
 }
 
@@ -83,8 +107,8 @@ void ezComponentManagerBase::DeinitializeComponent(ezComponent* pComponent)
 
 void ezComponentManagerBase::PatchIdTable(ezComponent* pComponent)
 {
-  ezGenericComponentId id = pComponent->m_InternalId;
-  if (id.m_InstanceIndex != ezGenericComponentId::INVALID_INSTANCE_INDEX)
+  ezComponentId id = pComponent->m_InternalId;
+  if (id.m_InstanceIndex != ezComponentId::INVALID_INSTANCE_INDEX)
     m_Components[id] = pComponent;
 }
 

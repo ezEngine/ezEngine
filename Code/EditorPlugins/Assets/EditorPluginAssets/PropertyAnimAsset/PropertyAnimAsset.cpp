@@ -1,7 +1,6 @@
 #include <EditorPluginAssetsPCH.h>
 
 #include <Core/World/GameObject.h>
-#include <Core/WorldSerializer/ResourceHandleWriter.h>
 #include <EditorFramework/Object/ObjectPropertyPath.h>
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimAsset.h>
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimObjectAccessor.h>
@@ -38,7 +37,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAnimationTrackGroup, 1, ezRTTIDefaultA
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAnimAssetDocument, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAnimAssetDocument, 2, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -176,9 +175,6 @@ ezStatus ezPropertyAnimAssetDocument::InternalTransformAsset(ezStreamWriter& str
 {
   const ezPropertyAnimationTrackGroup* pProp = GetProperties();
 
-  ezResourceHandleWriteContext HandleContext;
-  HandleContext.BeginWritingToStream(&stream);
-
   ezPropertyAnimResourceDescriptor desc;
   desc.m_AnimationDuration = GetAnimationDurationTime();
 
@@ -236,8 +232,6 @@ ezStatus ezPropertyAnimAssetDocument::InternalTransformAsset(ezStreamWriter& str
   pProp->m_EventTrack.ConvertToRuntimeData(desc.m_EventTrack);
 
   desc.Save(stream);
-
-  HandleContext.EndWritingToStream(&stream);
 
   return ezStatus(EZ_SUCCESS);
 }

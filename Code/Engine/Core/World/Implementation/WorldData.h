@@ -15,6 +15,7 @@ namespace ezInternal
 {
   class EZ_CORE_DLL WorldData
   {
+  private:
     friend class ::ezWorld;
     friend class ::ezComponentManagerBase;
 
@@ -40,6 +41,58 @@ namespace ezInternal
 
     ezSet<ezGameObject*, ezCompareHelper<ezGameObject*>, ezLocalAllocatorWrapper> m_DeadObjects;
 
+  public:
+    class EZ_CORE_DLL ConstObjectIterator
+    {
+    public:
+      const ezGameObject& operator*() const;
+      const ezGameObject* operator->() const;
+
+      operator const ezGameObject*() const;
+
+      /// \brief Advances the iterator to the next object. The iterator will not be valid anymore, if the last object is reached.
+      void Next();
+
+      /// \brief Checks whether this iterator points to a valid object.
+      bool IsValid() const;
+
+      /// \brief Shorthand for 'Next'
+      void operator++();
+
+    private:
+      friend class ::ezWorld;
+
+      ConstObjectIterator(ObjectStorage::ConstIterator iterator);
+
+      ObjectStorage::ConstIterator m_Iterator;
+    };
+
+    class EZ_CORE_DLL ObjectIterator
+    {
+    public:
+      ezGameObject& operator*();
+      ezGameObject* operator->();
+
+      operator ezGameObject*();
+
+      /// \brief Advances the iterator to the next object. The iterator will not be valid anymore, if the last object is reached.
+      void Next();
+
+      /// \brief Checks whether this iterator points to a valid object.
+      bool IsValid() const;
+
+      /// \brief Shorthand for 'Next'
+      void operator++();
+
+    private:
+      friend class ::ezWorld;
+
+      ObjectIterator(ObjectStorage::Iterator iterator);
+
+      ObjectStorage::Iterator m_Iterator;
+    };
+
+  private:
     // hierarchy structures
     struct Hierarchy
     {
@@ -80,8 +133,8 @@ namespace ezInternal
     static void UpdateGlobalTransform(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds);
     static void UpdateGlobalTransformWithParent(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds);
 
-    static void UpdateGlobalTransformAndSpatialData(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds);
-    static void UpdateGlobalTransformWithParentAndSpatialData(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds);
+    static void UpdateGlobalTransformAndSpatialData(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds, ezSpatialSystem& spatialSystem);
+    static void UpdateGlobalTransformWithParentAndSpatialData(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds, ezSpatialSystem& spatialSystem);
 
     void UpdateGlobalTransforms(float fInvDeltaSeconds);
 
@@ -96,8 +149,24 @@ namespace ezInternal
     // component management
     ezSet<ezComponent*, ezCompareHelper<ezComponent*>, ezLocalAllocatorWrapper> m_DeadComponents;
 
-    ezDynamicArray<ezComponentHandle, ezLocalAllocatorWrapper> m_ComponentsToInitialize;
-    ezDynamicArray<ezComponentHandle, ezLocalAllocatorWrapper> m_ComponentsToStartSimulation;
+    struct InitBatch
+    {
+      InitBatch(ezAllocatorBase* pAllocator, const char* szName, bool bMustFinishWithinOneFrame);
+
+      ezHashedString m_sName;
+      bool m_bMustFinishWithinOneFrame = true;
+      bool m_bIsReady = false;      
+
+      ezUInt32 m_uiNextComponentToInitialize = 0;
+      ezUInt32 m_uiNextComponentToStartSimulation = 0;
+      ezDynamicArray<ezComponentHandle> m_ComponentsToInitialize;
+      ezDynamicArray<ezComponentHandle> m_ComponentsToStartSimulation;
+    };
+
+    ezTime m_MaxInitializationTimePerFrame;
+    ezIdTable<ezComponentInitBatchId, ezUniquePtr<InitBatch>, ezLocalAllocatorWrapper> m_InitBatches;
+    InitBatch* m_pDefaultInitBatch = nullptr;
+    InitBatch* m_pCurrentInitBatch = nullptr;
 
     struct RegisteredUpdateFunction
     {
@@ -142,11 +211,9 @@ namespace ezInternal
       }
 
       union {
-        ezUInt32 m_uiReceiverObject;
-
         struct
         {
-          ezUInt64 m_uiReceiverComponent : 62;
+          ezUInt64 m_uiReceiverObjectOrComponent : 62;
           ezUInt64 m_uiReceiverIsComponent : 1;
           ezUInt64 m_uiRecursive : 1;
         };

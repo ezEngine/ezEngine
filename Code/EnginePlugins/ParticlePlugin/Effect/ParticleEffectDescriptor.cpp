@@ -1,14 +1,13 @@
 #include <ParticlePluginPCH.h>
 
 #include <Core/WorldSerializer/ResourceHandleReader.h>
-#include <Core/WorldSerializer/ResourceHandleWriter.h>
 #include <Foundation/Types/ScopeExit.h>
 #include <ParticlePlugin/Effect/ParticleEffectDescriptor.h>
 #include <ParticlePlugin/Events/ParticleEventReaction.h>
 #include <ParticlePlugin/System/ParticleSystemDescriptor.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectDescriptor, 1, ezRTTIDefaultAllocator<ezParticleEffectDescriptor>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectDescriptor, 2, ezRTTIDefaultAllocator<ezParticleEffectDescriptor>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -67,6 +66,7 @@ enum class ParticleEffectVersion
   Version_6, // added parameters
   Version_7, // added instance velocity
   Version_8, // added event reactions
+  Version_9, // breaking change
 
   // insert new version numbers above
   Version_Count,
@@ -82,9 +82,6 @@ void ezParticleEffectDescriptor::Save(ezStreamWriter& stream) const
   const ezUInt32 uiNumSystems = m_ParticleSystems.GetCount();
 
   stream << uiNumSystems;
-
-  ezResourceHandleWriteContext context;
-  context.BeginWritingToStream(&stream);
 
   // Version 3
   stream << m_bSimulateInLocalSpace;
@@ -136,8 +133,6 @@ void ezParticleEffectDescriptor::Save(ezStreamWriter& stream) const
       pReaction->Save(stream);
     }
   }
-
-  context.EndWritingToStream(&stream);
 }
 
 
@@ -150,7 +145,7 @@ void ezParticleEffectDescriptor::Load(ezStreamReader& stream)
   stream >> uiVersion;
   EZ_ASSERT_DEV(uiVersion <= (int)ParticleEffectVersion::Version_Current, "Unknown particle effect template version {0}", uiVersion);
 
-  if (uiVersion == 1)
+  if (uiVersion < (int)ParticleEffectVersion::Version_9)
   {
     ezLog::SeriousWarning("Unsupported old particle effect version");
     return;
@@ -158,10 +153,6 @@ void ezParticleEffectDescriptor::Load(ezStreamReader& stream)
 
   ezUInt32 uiNumSystems = 0;
   stream >> uiNumSystems;
-
-  ezResourceHandleReadContext context;
-  context.BeginReadingFromStream(&stream);
-  context.BeginRestoringHandles(&stream);
 
   if (uiVersion >= 3)
   {
@@ -246,9 +237,6 @@ void ezParticleEffectDescriptor::Load(ezStreamReader& stream)
       pReaction->Load(stream);
     }
   }
-
-  context.EndReadingFromStream(&stream);
-  context.EndRestoringHandles();
 }
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Effect_ParticleEffectDescriptor);

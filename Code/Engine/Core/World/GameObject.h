@@ -36,7 +36,7 @@ private:
   enum
   {
 #if EZ_ENABLED(EZ_PLATFORM_32BIT)
-    NUM_INPLACE_COMPONENTS = 12
+    NUM_INPLACE_COMPONENTS = 14
 #else
     NUM_INPLACE_COMPONENTS = 6
 #endif
@@ -68,18 +68,16 @@ public:
     /// \brief Checks whether this iterator points to a valid object.
     bool IsValid() const;
 
-    /// \brief Returns the current object
-    const ezGameObject& Current() const { return *m_pObject; }
-
     /// \brief Shorthand for 'Next'
     void operator++();
 
   private:
     friend class ezGameObject;
 
-    ConstChildIterator(ezGameObject* pObject);
+    ConstChildIterator(ezGameObject* pObject, const ezWorld* pWorld);
 
-    ezGameObject* m_pObject;
+    ezGameObject* m_pObject = nullptr;
+    const ezWorld* m_pWorld = nullptr;
   };
 
   class EZ_CORE_DLL ChildIterator : public ConstChildIterator
@@ -88,15 +86,12 @@ public:
     ezGameObject& operator*();
     ezGameObject* operator->();
 
-    /// \brief Returns the current object
-    ezGameObject& Current() { return *m_pObject; }
-
     operator ezGameObject*();
 
   private:
     friend class ezGameObject;
 
-    ChildIterator(ezGameObject* pObject);
+    ChildIterator(ezGameObject* pObject, const ezWorld* pWorld);
   };
 
   /// \brief Returns a handle to this object.
@@ -514,56 +509,48 @@ private:
     void UpdateGlobalTransform();
     void UpdateGlobalTransformWithParent();
 
-    void ConditionalUpdateGlobalBounds();
+    void ConditionalUpdateGlobalBounds(ezSpatialSystem* pSpatialSytem);
     void UpdateGlobalBounds();
-    void UpdateGlobalBoundsAndSpatialData();
+    void UpdateGlobalBoundsAndSpatialData(ezSpatialSystem& spatialSytem);
 
     void UpdateVelocity(const ezSimdFloat& fInvDeltaSeconds);
 
-    void UpdateSpatialData(bool bWasAlwaysVisible, bool bIsAlwaysVisible);
+    void UpdateSpatialData(ezSpatialSystem& spatialSystem, bool bWasAlwaysVisible, bool bIsAlwaysVisible);
   };
 
   ezGameObjectId m_InternalId;
-  ezBitflags<ezObjectFlags> m_Flags;
   ezHashedString m_sName;
 
 #if EZ_ENABLED(EZ_PLATFORM_32BIT)
   ezUInt32 m_uiNamePadding;
 #endif
 
-  struct
-  {
-    ezUInt64 m_ParentIndex : 20;
-    ezUInt64 m_FirstChildIndex : 20;
-    ezUInt64 m_LastChildIndex : 20;
-  };
+  ezBitflags<ezObjectFlags> m_Flags;
 
-  struct
-  {
-    ezUInt64 m_NextSiblingIndex : 20;
-    ezUInt64 m_PrevSiblingIndex : 20;
-    ezUInt64 m_ChildCount : 20;
-  };
+  ezUInt32 m_ParentIndex = 0;
+  ezUInt32 m_FirstChildIndex = 0;
+  ezUInt32 m_LastChildIndex = 0;
+  
+  ezUInt32 m_NextSiblingIndex = 0;
+  ezUInt32 m_PrevSiblingIndex = 0;
+  ezUInt32 m_ChildCount = 0;
 
-  ezUInt32 m_uiReserved;
+  ezUInt16 m_uiHierarchyLevel = 0;
 
   /// An int that will be passed on to objects spawned from this one, which allows to identify which team or player it belongs to.
-  ezUInt16 m_uiTeamID;
-
-  ezUInt16 m_uiHierarchyLevel;
-  TransformationData* m_pTransformationData;
-
-  ezWorld* m_pWorld;
+  ezUInt16 m_uiTeamID = 0;
+  
+  TransformationData* m_pTransformationData = nullptr;
 
 #if EZ_ENABLED(EZ_PLATFORM_32BIT)
-  ezUInt64 m_uiPadding;
+  ezUInt32 m_uiPadding = 0;
 #endif
 
   /// \todo small array class to reduce memory overhead
   ezHybridArray<ezComponent*, NUM_INPLACE_COMPONENTS> m_Components;
 
 #if EZ_ENABLED(EZ_PLATFORM_32BIT)
-  ezUInt64 m_uiPadding2;
+  ezUInt64 m_uiPadding2 = 0;
 #endif
 
   /// \todo somehow make this more compact

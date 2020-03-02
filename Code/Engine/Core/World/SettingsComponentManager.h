@@ -20,7 +20,7 @@ public:
   ComponentType* GetSingletonComponent();
   const ComponentType* GetSingletonComponent() const;
 
-  static ezUInt16 TypeId();
+  static ezWorldModuleTypeId TypeId();
 
   // ezComponentManagerBase implementation
   virtual void CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_AllComponents, bool bOnlyActive) override;

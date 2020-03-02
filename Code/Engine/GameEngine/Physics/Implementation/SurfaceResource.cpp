@@ -68,15 +68,8 @@ ezResourceLoadDesc ezSurfaceResource::UpdateContent(ezStreamReader* Stream)
   AssetHash.Read(*Stream);
 
   {
-    ezResourceHandleReadContext context;
-    context.BeginReadingFromStream(Stream);
-    context.BeginRestoringHandles(Stream);
-
     ezSurfaceResourceDescriptor dummy;
     dummy.Load(*Stream);
-
-    context.EndReadingFromStream(Stream);
-    context.EndRestoringHandles();
 
     CreateResource(std::move(dummy));
   }

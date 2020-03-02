@@ -57,6 +57,11 @@ EZ_ALWAYS_INLINE const ezGameObject* ezComponent::GetOwner() const
   return m_pOwner;
 }
 
+EZ_ALWAYS_INLINE ezComponentHandle ezComponent::GetHandle() const
+{
+  return ezComponentHandle(m_InternalId);
+}
+
 EZ_ALWAYS_INLINE ezUInt32 ezComponent::GetUniqueID() const
 {
   return m_uiUniqueID;

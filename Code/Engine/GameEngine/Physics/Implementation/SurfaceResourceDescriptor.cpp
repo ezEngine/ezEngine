@@ -1,6 +1,5 @@
 #include <GameEnginePCH.h>
 
-#include <Core/WorldSerializer/ResourceHandleWriter.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <GameEngine/Physics/SurfaceResource.h>
 #include <GameEngine/Prefabs/PrefabResource.h>

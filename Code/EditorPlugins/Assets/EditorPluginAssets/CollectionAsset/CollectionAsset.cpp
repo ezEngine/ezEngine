@@ -1,6 +1,5 @@
 #include <EditorPluginAssetsPCH.h>
 
-#include <Core/WorldSerializer/ResourceHandleWriter.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/CollectionAsset/CollectionAsset.h>

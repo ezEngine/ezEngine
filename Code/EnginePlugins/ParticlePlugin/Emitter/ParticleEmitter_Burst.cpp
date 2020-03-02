@@ -2,7 +2,6 @@
 
 #include <Core/World/World.h>
 #include <Core/WorldSerializer/ResourceHandleReader.h>
-#include <Core/WorldSerializer/ResourceHandleWriter.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <Foundation/Math/Random.h>
 #include <Foundation/Profiling/Profiling.h>

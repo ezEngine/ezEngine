@@ -485,6 +485,23 @@ EZ_CREATE_SIMPLE_TEST(World, World)
       world.Traverse(ezWorld::VisitorFunc(&DepthFirstTest::Visit, &dft), ezWorld::DepthFirst);
       EZ_TEST_INT(dft.m_uiCounter, EZ_ARRAY_SIZE(o.pObjects));
     }
+
+    {
+      EZ_TEST_INT(world.GetObjectCount(), 5);
+      world.DeleteObjectNow(o.pChild11->GetHandle());
+      EZ_TEST_INT(world.GetObjectCount(), 4);
+
+      for (auto it = world.GetObjects(); it.IsValid(); ++it)
+      {
+        EZ_TEST_BOOL(!it->GetHandle().IsInvalidated());
+      }
+
+      const ezWorld& constWorld = world;
+      for (auto it = constWorld.GetObjects(); it.IsValid(); ++it)
+      {
+        EZ_TEST_BOOL(!it->GetHandle().IsInvalidated());
+      }
+    }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Multiple Worlds")

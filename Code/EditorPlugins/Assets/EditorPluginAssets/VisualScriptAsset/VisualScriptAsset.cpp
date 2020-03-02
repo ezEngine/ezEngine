@@ -1,6 +1,5 @@
 #include <EditorPluginAssetsPCH.h>
 
-#include <Core/WorldSerializer/ResourceHandleWriter.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/GUI/ExposedParameters.h>
@@ -69,7 +68,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // ezVisualScriptAssetDocument
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptAssetDocument, 4, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptAssetDocument, 5, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptAssetDocument::ezVisualScriptAssetDocument(const char* szDocumentPath)
@@ -127,12 +126,7 @@ ezStatus ezVisualScriptAssetDocument::InternalTransformAsset(ezStreamWriter& str
     return ezStatus(EZ_FAILURE);
   }
 
-  ezResourceHandleWriteContext context;
-  context.BeginWritingToStream(&stream);
-
   desc.Save(stream);
-
-  context.EndWritingToStream(&stream);
 
   return ezStatus(EZ_SUCCESS);
 }

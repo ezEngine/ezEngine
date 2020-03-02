@@ -63,11 +63,6 @@ const ezWorld* ezComponent::GetWorld() const
   return m_pManager->GetWorld();
 }
 
-ezComponentHandle ezComponent::GetHandle() const
-{
-  return ezComponentHandle(ezComponentId(m_InternalId, GetTypeId(), GetWorld()->GetIndex()));
-}
-
 void ezComponent::SerializeComponent(ezWorldWriter& stream) const {}
 
 void ezComponent::DeserializeComponent(ezWorldReader& stream) {}
