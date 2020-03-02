@@ -49,3 +49,7 @@ ezETWProvider& ezETWProvider::GetInstance()
   return instance;
 }
 #endif
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Logging_Implementation_Win_ETWProvider_win);
+

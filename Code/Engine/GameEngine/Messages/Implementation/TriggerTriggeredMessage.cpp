@@ -17,3 +17,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgTriggerTriggered, 1, ezRTTIDefaultAllocator
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Messages_Implementation_TriggerTriggeredMessage);
+

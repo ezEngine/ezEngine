@@ -103,3 +103,7 @@ void ezTaskSystem::ParallelForIndexed(ezUInt32 uiStartIndex, ezUInt32 uiNumItems
     ezTaskSystem::WaitForGroup(taskGroupId);
   }
 }
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_ParallelFor);
+

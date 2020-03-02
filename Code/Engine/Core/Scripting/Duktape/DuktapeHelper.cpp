@@ -628,3 +628,7 @@ ezResult ezDuktapeHelper::ExecuteFile(const char* szFile)
 }
 
 #endif
+
+
+EZ_STATICLINK_FILE(Core, Core_Scripting_Duktape_DuktapeHelper);
+

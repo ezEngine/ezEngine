@@ -169,4 +169,4 @@ public:
 ezSliderComponentPatch_1_2 g_ezSliderComponentPatch_1_2;
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_SliderComponent);
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Implementation_SliderComponent);

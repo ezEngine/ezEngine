@@ -207,4 +207,4 @@ void ezPropertyAnimResourceDescriptor::Load(ezStreamReader& stream)
 
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Resources_Implementation_PropertyAnimResource);
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Implementation_PropertyAnimResource);

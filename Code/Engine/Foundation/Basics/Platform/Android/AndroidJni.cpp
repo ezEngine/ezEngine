@@ -719,3 +719,7 @@ bool ezJniClass::IsPrimitive()
   return UnsafeCall<bool>("isPrimitive", "()Z");
 }
 #endif
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Basics_Platform_Android_AndroidJni);
+

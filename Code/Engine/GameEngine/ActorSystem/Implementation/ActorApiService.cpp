@@ -10,3 +10,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
  ezActorApiService::ezActorApiService() = default;
  ezActorApiService::~ezActorApiService() = default;
 
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_ActorSystem_Implementation_ActorApiService);
+

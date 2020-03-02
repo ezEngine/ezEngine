@@ -285,3 +285,7 @@ void ezRaycastComponent::PostTriggerMessage(ezTriggerState::Enum state, ezGameOb
 
   m_TriggerEventSender.PostMessage(msg, this, GetOwner(), ezObjectMsgQueueType::PostTransform);
 }
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_RaycastComponent);
+

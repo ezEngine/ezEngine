@@ -28,13 +28,16 @@ EZ_STATICLINK_LIBRARY(Core)
   EZ_STATICLINK_REFERENCE(Core_ResourceManager_Implementation_ResourceManager);
   EZ_STATICLINK_REFERENCE(Core_ResourceManager_Implementation_ResourceTypeLoader);
   EZ_STATICLINK_REFERENCE(Core_ResourceManager_Implementation_WorkerTasks);
+  EZ_STATICLINK_REFERENCE(Core_Scripting_Duktape_DuktapeContext);
+  EZ_STATICLINK_REFERENCE(Core_Scripting_Duktape_DuktapeFunction);
+  EZ_STATICLINK_REFERENCE(Core_Scripting_Duktape_DuktapeHelper);
   EZ_STATICLINK_REFERENCE(Core_Scripting_LuaWrapper_CFunctions);
   EZ_STATICLINK_REFERENCE(Core_Scripting_LuaWrapper_Initialize);
   EZ_STATICLINK_REFERENCE(Core_Scripting_LuaWrapper_Tables);
   EZ_STATICLINK_REFERENCE(Core_Scripting_LuaWrapper_Variables);
   EZ_STATICLINK_REFERENCE(Core_Utils_Implementation_WorldGeoExtractionUtil);
   EZ_STATICLINK_REFERENCE(Core_WorldSerializer_Implementation_ResourceHandleReader);
-  EZ_STATICLINK_REFERENCE(Core_WorldSerializer_Implementation_ResourceHandleWriter);
+  EZ_STATICLINK_REFERENCE(Core_WorldSerializer_Implementation_ResourceHandleStreamOperations);
   EZ_STATICLINK_REFERENCE(Core_WorldSerializer_Implementation_WorldReader);
   EZ_STATICLINK_REFERENCE(Core_WorldSerializer_Implementation_WorldWriter);
   EZ_STATICLINK_REFERENCE(Core_World_Implementation_Component);
@@ -43,10 +46,13 @@ EZ_STATICLINK_LIBRARY(Core)
   EZ_STATICLINK_REFERENCE(Core_World_Implementation_EventMessageHandlerComponent);
   EZ_STATICLINK_REFERENCE(Core_World_Implementation_GameObject);
   EZ_STATICLINK_REFERENCE(Core_World_Implementation_SettingsComponent);
+  EZ_STATICLINK_REFERENCE(Core_World_Implementation_SpatialData);
   EZ_STATICLINK_REFERENCE(Core_World_Implementation_SpatialSystem);
   EZ_STATICLINK_REFERENCE(Core_World_Implementation_SpatialSystem_RegularGrid);
   EZ_STATICLINK_REFERENCE(Core_World_Implementation_World);
   EZ_STATICLINK_REFERENCE(Core_World_Implementation_WorldData);
   EZ_STATICLINK_REFERENCE(Core_World_Implementation_WorldModule);
+  EZ_STATICLINK_REFERENCE(Core_World_Implementation_WorldModuleConfig);
 }
+
 

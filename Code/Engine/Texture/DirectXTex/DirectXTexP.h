@@ -121,7 +121,7 @@
 
 #include <wincodec.h>
 
-#include <wrl\client.h>
+#include <wrl/client.h>
 
 #include "scoped.h"
 

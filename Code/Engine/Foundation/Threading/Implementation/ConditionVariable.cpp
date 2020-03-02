@@ -36,4 +36,4 @@ void ezConditionVariable::Unlock()
 
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_ThreadSignal);
+EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_ConditionVariable);

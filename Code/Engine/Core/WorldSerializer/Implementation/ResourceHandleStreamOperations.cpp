@@ -19,3 +19,7 @@ void ezResourceHandleStreamOperations::WriteHandle(ezStreamWriter& Stream, const
     Stream << szEmpty;
   }
 }
+
+
+EZ_STATICLINK_FILE(Core, Core_WorldSerializer_Implementation_ResourceHandleStreamOperations);
+

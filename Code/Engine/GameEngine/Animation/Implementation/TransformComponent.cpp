@@ -232,4 +232,4 @@ public:
 
 ezTransformComponentPatch_2_3 g_ezTransformComponentPatch_2_3;
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_TransformComponent);
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Implementation_TransformComponent);

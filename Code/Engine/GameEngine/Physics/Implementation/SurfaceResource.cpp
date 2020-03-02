@@ -341,4 +341,4 @@ bool ezSurfaceResource::IsBasedOn(const ezSurfaceResourceHandle hThisOrBaseSurfa
   return IsBasedOn(pThisOrBaseSurface.GetPointer());
 }
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Surfaces_SurfaceResource);
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Physics_Implementation_SurfaceResource);

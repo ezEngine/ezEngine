@@ -76,4 +76,4 @@ const ezPrefabResourceHandle& ezPlayerStartPointComponent::GetPlayerPrefab() con
   return m_hPlayerPrefab;
 }
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_PlayerStartPointComponent);
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_PlayerStartPointComponent);

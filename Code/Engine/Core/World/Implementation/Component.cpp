@@ -216,3 +216,7 @@ bool ezComponent::GetUserFlag(ezUInt8 flagIndex) const
 
   return m_ComponentFlags.IsSet(static_cast<ezObjectFlags::Enum>(ezObjectFlags::UserFlag0 << flagIndex));
 }
+
+
+EZ_STATICLINK_FILE(Core, Core_World_Implementation_Component);
+

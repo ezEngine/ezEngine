@@ -436,4 +436,4 @@ void ezPrefabReferenceComponentManager::AddToUpdateList(ezPrefabReferenceCompone
 
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_PrefabReferenceComponent);
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Prefabs_Implementation_PrefabReferenceComponent);

@@ -193,4 +193,4 @@ ezSurfaceResourceDescriptorPatch_1_2 g_ezSurfaceResourceDescriptorPatch_1_2;
 
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Surfaces_SurfaceResourceDescriptor);
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Physics_Implementation_SurfaceResourceDescriptor);

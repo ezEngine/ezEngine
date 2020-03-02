@@ -227,4 +227,4 @@ void ezSrmRenderComponent::CreateSurfaceRepresentation(const ezUuid& guid, SrmRe
 
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_MixedReality_Components_SrmRenderComponent);
+EZ_STATICLINK_FILE(GameEngine, GameEngine_MixedReality_Implementation_SrmRenderComponent);
