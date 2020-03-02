@@ -38,10 +38,7 @@ public:
 
         if (!beginTime.IsZero() && !endTime.IsZero())
         {
-          auto& gpuData = ezProfilingSystem::AllocateGPUData();
-          gpuData.m_BeginTime = beginTime;
-          gpuData.m_EndTime = endTime;
-          ezMemoryUtils::Copy(gpuData.m_szName, timingScope.m_szName, EZ_ARRAY_SIZE(gpuData.m_szName));
+          ezProfilingSystem::AddGPUScope(timingScope.m_szName, beginTime, endTime);
         }
 
         m_TimingScopes.PopFront();
@@ -108,7 +105,7 @@ ezProfilingScopeAndMarker::ezProfilingScopeAndMarker(ezGALContext* pGALContext, 
 
   auto& timingScope = GPUProfilingSystem::AllocateScope();
   timingScope.m_BeginTimestamp = m_pGALContext->InsertTimestamp();
-  ezStringUtils::CopyN(timingScope.m_szName, EZ_ARRAY_SIZE(timingScope.m_szName), m_szName, m_uiNameLength);
+  ezStringUtils::Copy(timingScope.m_szName, EZ_ARRAY_SIZE(timingScope.m_szName), m_szName);
 
   m_pTimingScope = &timingScope;
 }
