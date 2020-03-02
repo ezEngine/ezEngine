@@ -96,6 +96,9 @@ public:
   void SetWrapAround(bool bWrapAround); // [ property ]
   bool GetWrapAround() const;           // [ property ]
 
+  void SetMapNormalToGeometry(bool bMapNormal); // [ property ]
+  bool GetMapNormalToGeometry() const;           // [ property ]
+
   void SetDecal(const ezDecalResourceHandle& hResource); // [ property ]
   const ezDecalResourceHandle& GetDecal() const;         // [ property ]
 
@@ -123,6 +126,7 @@ protected:
   ezAngle m_OuterFadeAngle = ezAngle::Degree(80.0f);
   float m_fSortOrder = 0;
   bool m_bWrapAround = false;
+  bool m_bMapNormalToGeometry = false;
   ezDecalResourceHandle m_hDecal;
 
   ezGameObjectHandle m_hApplyOnlyToObject;

@@ -31,7 +31,7 @@ void ezDecalComponentManager::Initialize()
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalRenderData, 1, ezRTTIDefaultAllocator<ezDecalRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 3, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 4, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -41,6 +41,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 3, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("Decal", GetDecalFile, SetDecalFile)->AddAttributes(new ezAssetBrowserAttribute("Decal")),
     EZ_ACCESSOR_PROPERTY("SortOrder", GetSortOrder, SetSortOrder)->AddAttributes(new ezClampValueAttribute(-64.0f, 64.0f)),
     EZ_ACCESSOR_PROPERTY("WrapAround", GetWrapAround, SetWrapAround),
+    EZ_ACCESSOR_PROPERTY("MapNormalToGeometry", GetMapNormalToGeometry, SetMapNormalToGeometry),
     EZ_ACCESSOR_PROPERTY("InnerFadeAngle", GetInnerFadeAngle, SetInnerFadeAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(90.0f)), new ezDefaultValueAttribute(ezAngle::Degree(50.0f))),
     EZ_ACCESSOR_PROPERTY("OuterFadeAngle", GetOuterFadeAngle, SetOuterFadeAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(90.0f)), new ezDefaultValueAttribute(ezAngle::Degree(80.0f))),
     EZ_MEMBER_PROPERTY("FadeOutDelay", m_FadeOutDelay),
@@ -102,6 +103,7 @@ void ezDecalComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_fSizeVariance;
   s << m_OnFinishedAction;
   s << m_bWrapAround;
+  s << m_bMapNormalToGeometry;
 }
 
 void ezDecalComponent::DeserializeComponent(ezWorldReader& stream)
@@ -128,6 +130,11 @@ void ezDecalComponent::DeserializeComponent(ezWorldReader& stream)
   if (uiVersion >= 3)
   {
     s >> m_bWrapAround;
+  }
+
+  if (uiVersion >= 4)
+  {
+    s >> m_bMapNormalToGeometry;
   }
 }
 
@@ -207,6 +214,16 @@ void ezDecalComponent::SetWrapAround(bool bWrapAround)
 bool ezDecalComponent::GetWrapAround() const
 {
   return m_bWrapAround;
+}
+
+void ezDecalComponent::SetMapNormalToGeometry(bool bMapNormal)
+{
+  m_bMapNormalToGeometry = bMapNormal;
+}
+
+bool ezDecalComponent::GetMapNormalToGeometry() const
+{
+  return m_bMapNormalToGeometry;
 }
 
 void ezDecalComponent::SetDecal(const ezDecalResourceHandle& hDecal)
@@ -309,8 +326,7 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
       const auto& item = atlas.m_Items.GetValue(decalIdx);
       uiDecalFlags = item.m_uiFlags;
 
-      auto layerRectToScaleOffset = [](ezRectU32 layerRect, ezVec2U32 textureSize)
-      {
+      auto layerRectToScaleOffset = [](ezRectU32 layerRect, ezVec2U32 textureSize) {
         ezVec4 result;
         result.x = (float)layerRect.width / textureSize.x * 0.5f;
         result.y = (float)layerRect.height / textureSize.y * 0.5f;
@@ -334,12 +350,13 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
   pRenderData->m_vHalfExtents = m_vExtents * 0.5f;
   pRenderData->m_uiApplyOnlyToId = m_uiApplyOnlyToId;
   pRenderData->m_uiFlags = uiDecalFlags;
-  pRenderData->m_uiFlags |= (m_bWrapAround ? DECAL_WRAP_AROUND_FLAG : 0);
+  pRenderData->m_uiFlags |= (m_bWrapAround ? DECAL_WRAP_AROUND : 0);
+  pRenderData->m_uiFlags |= (m_bMapNormalToGeometry ? DECAL_MAP_NORMAL_TO_GEOMETRY : 0);
   pRenderData->m_uiAngleFadeParams = ezShaderUtils::Float2ToRG16F(ezVec2(fFadeParamScale, fFadeParamOffset));
   pRenderData->m_Color = finalColor;
   ezShaderUtils::Float4ToRGBA16F(baseAtlasScaleOffset, pRenderData->m_uiBaseColorAtlasScale, pRenderData->m_uiBaseColorAtlasOffset);
   ezShaderUtils::Float4ToRGBA16F(normalAtlasScaleOffset, pRenderData->m_uiNormalAtlasScale, pRenderData->m_uiNormalAtlasOffset);
-  ezShaderUtils::Float4ToRGBA16F(ormAtlasScaleOffset, pRenderData->m_uiORMAtlasScale, pRenderData->m_uiORMAtlasOffset);  
+  ezShaderUtils::Float4ToRGBA16F(ormAtlasScaleOffset, pRenderData->m_uiORMAtlasScale, pRenderData->m_uiORMAtlasOffset);
 
   ezRenderData::Caching::Enum caching = (m_FadeOutDelay.m_Value.GetSeconds() > 0.0 || m_FadeOutDuration.GetSeconds() > 0.0)
                                           ? ezRenderData::Caching::Never

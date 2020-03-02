@@ -435,7 +435,7 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uin
 
     if (fade > 0.0f)
     {
-      if (decalFlags & DECAL_WRAP_AROUND_FLAG)
+      if (decalFlags & DECAL_WRAP_AROUND)
       {
         decalPosition.xy += decalNormal.xy * decalPosition.z;
         decalPosition.xy = clamp(decalPosition.xy, -1.0f, 1.0f);
@@ -455,11 +455,22 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uin
         
         float3 decalTangentNormal = DecodeNormalTexture(DecalAtlasNormalTexture.Sample(LinearClampSampler, decalPosition.xy * normalAtlasScale + normalAtlasOffset));
         
-        float3 xAxis = worldToDecalMatrix._m00_m01_m02;
-        float3 yAxis = worldToDecalMatrix._m10_m11_m12;
-        float3 zAxis = worldToDecalMatrix._m20_m21_m22;
+        float3 xAxis, yAxis, zAxis;
         
-        float3 decalWorldNormal = decalTangentNormal.x * xAxis + decalTangentNormal.y * yAxis - decalTangentNormal.z * zAxis;
+        if (decalFlags & DECAL_MAP_NORMAL_TO_GEOMETRY)
+        {
+          xAxis = normalize(cross(worldToDecalMatrix._m10_m11_m12, matData.vertexNormal));
+          yAxis = cross(matData.vertexNormal, xAxis);
+          zAxis = matData.vertexNormal;
+        }
+        else
+        {
+          xAxis = worldToDecalMatrix._m00_m01_m02;
+          yAxis = worldToDecalMatrix._m10_m11_m12;
+          zAxis = -worldToDecalMatrix._m20_m21_m22;
+        }
+        
+        float3 decalWorldNormal = decalTangentNormal.x * xAxis + decalTangentNormal.y * yAxis + decalTangentNormal.z * zAxis;
         matData.worldNormal = lerp(matData.worldNormal, decalWorldNormal, fade);
       }
       

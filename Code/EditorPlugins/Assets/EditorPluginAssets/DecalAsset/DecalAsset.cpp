@@ -17,7 +17,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezDecalMode, 1)
   EZ_ENUM_CONSTANT(ezDecalMode::Emissive)
 EZ_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetProperties, 1, ezRTTIDefaultAllocator<ezDecalAssetProperties>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetProperties, 2, ezRTTIDefaultAllocator<ezDecalAssetProperties>)
 {
   EZ_BEGIN_PROPERTIES
   {
