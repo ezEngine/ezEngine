@@ -107,6 +107,9 @@ public:
   /// \param pProgressbar can be specified, if available, otherwise the currently active ezProgress instance is used.
   ezProgressRange(const char* szDisplayText, ezUInt32 uiSteps, bool bAllowCancel, ezProgress* pProgressbar = nullptr);
 
+  /// \brief Creates a progress range scope without steps. Use SetCompletion to manually set the completion value.
+  ezProgressRange(const char* szDisplayText, bool bAllowCancel, ezProgress* pProgressbar = nullptr);
+
   /// \brief The destructor closes the current range. All progress in this range is assumed to have completed,
   /// even if BeginNextStep() has not been called once for every subdivision step.
   ~ezProgressRange();
@@ -118,8 +121,8 @@ public:
   ///
   /// This makes it possible to divide an operation into two steps, but have one part take up 90% and the other 10%.
   /// \param uiStep The index for the step to set the weight
-  /// \param fWeigth The weighting in [0; 1] range
-  void SetStepWeighting(ezUInt32 uiStep, float fWeigth);
+  /// \param fWeight The weighting in [0; 1] range
+  void SetStepWeighting(ezUInt32 uiStep, float fWeight);
 
   /// \brief Should be called whenever a new sub-step is started to advance the progress.
   ///
@@ -128,26 +131,31 @@ public:
   /// \return Returns false if the user clicked cancel.
   bool BeginNextStep(const char* szStepDisplayText, ezUInt32 uiNumSteps = 1);
 
+  /// \brief Manually set the completion value between 0..1.
+  bool SetCompletion(double fCompletionFactor);
+
   /// \brief Whether the user requested to cancel the operation.
   bool WasCanceled() const;
 
 private:
   friend class ezProgress;
 
+  void Init(const char* szDisplayText, bool bAllowCancel, ezProgress* pProgressbar);
+  float GetStepWeight(ezUInt32 uiStep) const;
   void ComputeCurStepBaseAndRange(double& out_base, double& out_range);
-  double ComputeInternalCompletion() const;
 
-  ezProgressRange* m_pParentRange;
-  ezProgress* m_pProgressbar;
+  ezProgressRange* m_pParentRange = nullptr;
+  ezProgress* m_pProgressbar = nullptr;
 
-  ezUInt32 m_uiCurrentStep;
+  ezInt32 m_iCurrentStep = 0;
   ezString m_sDisplayText;
   ezString m_sStepDisplayText;
-  ezHybridArray<float, 16> m_StepWeights;
+  ezHashTable<ezUInt32, float> m_StepWeights;
 
-  bool m_bAllowCancel;
-  double m_PercentageBase;
-  double m_PercentageRange;
-  double m_SummedWeight;
+  bool m_bAllowCancel = false;
+  double m_fPercentageBase = 0.0;
+  double m_fPercentageRange = 0.0;
+  double m_fWeightedCompletion = 0.0;
+  double m_fSummedWeight = 0.0;
 };
 
