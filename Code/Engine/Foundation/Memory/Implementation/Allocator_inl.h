@@ -44,7 +44,7 @@ EZ_FORCE_INLINE ezInternal::ezAllocatorImpl<A, TrackingFlags>::ezAllocatorImpl(c
     : m_allocator(pParent)
     , m_ThreadID(ezThreadUtils::GetCurrentThreadID())
 {
-  if ((TrackingFlags & ezMemoryTrackingFlags::EnableTracking) != 0)
+  if ((TrackingFlags & ezMemoryTrackingFlags::RegisterAllocator) != 0)
   {
     EZ_CHECK_AT_COMPILETIME_MSG((TrackingFlags & ~ezMemoryTrackingFlags::All) == 0, "Invalid tracking flags");
     const ezUInt32 uiTrackingFlags = TrackingFlags;
@@ -58,7 +58,7 @@ ezInternal::ezAllocatorImpl<A, TrackingFlags>::~ezAllocatorImpl()
 {
   //EZ_ASSERT_RELEASE(m_ThreadID == ezThreadUtils::GetCurrentThreadID(), "Allocator is deleted from another thread");
 
-  if ((TrackingFlags & ezMemoryTrackingFlags::EnableTracking) != 0)
+  if ((TrackingFlags & ezMemoryTrackingFlags::RegisterAllocator) != 0)
   {
     ezMemoryTracker::DeregisterAllocator(this->m_Id);
   }
@@ -73,12 +73,17 @@ void* ezInternal::ezAllocatorImpl<A, TrackingFlags>::Allocate(size_t uiSize, siz
 
   EZ_ASSERT_DEBUG(ezMath::IsPowerOf2((ezUInt32)uiAlign), "Alignment must be power of two");
 
+  ezTime fAllocationTime = ezTime::Now();
+
   void* ptr = m_allocator.Allocate(uiSize, uiAlign);
   EZ_ASSERT_DEV(ptr != nullptr, "Could not allocate {0} bytes. Out of memory?", uiSize);
 
-  if ((TrackingFlags & ezMemoryTrackingFlags::EnableTracking) != 0)
+  if ((TrackingFlags & ezMemoryTrackingFlags::EnableAllocationTracking) != 0)
   {
-    ezMemoryTracker::AddAllocation(this->m_Id, ptr, uiSize, uiAlign);
+    ezBitflags<ezMemoryTrackingFlags> flags;
+    flags.SetValue(TrackingFlags);
+
+    ezMemoryTracker::AddAllocation(this->m_Id, flags, ptr, uiSize, uiAlign, ezTime::Now() - fAllocationTime);
   }
 
   return ptr;
@@ -87,7 +92,7 @@ void* ezInternal::ezAllocatorImpl<A, TrackingFlags>::Allocate(size_t uiSize, siz
 template <typename A, ezUInt32 TrackingFlags>
 void ezInternal::ezAllocatorImpl<A, TrackingFlags>::Deallocate(void* ptr)
 {
-  if ((TrackingFlags & ezMemoryTrackingFlags::EnableTracking) != 0)
+  if ((TrackingFlags & ezMemoryTrackingFlags::EnableAllocationTracking) != 0)
   {
     ezMemoryTracker::RemoveAllocation(this->m_Id, ptr);
   }
@@ -98,7 +103,7 @@ void ezInternal::ezAllocatorImpl<A, TrackingFlags>::Deallocate(void* ptr)
 template <typename A, ezUInt32 TrackingFlags>
 size_t ezInternal::ezAllocatorImpl<A, TrackingFlags>::AllocatedSize(const void* ptr)
 {
-  if ((TrackingFlags & ezMemoryTrackingFlags::EnableTracking) != 0)
+  if ((TrackingFlags & ezMemoryTrackingFlags::EnableAllocationTracking) != 0)
   {
     return ezMemoryTracker::GetAllocationInfo(this->m_Id, ptr).m_uiSize;
   }
@@ -115,7 +120,7 @@ ezAllocatorId ezInternal::ezAllocatorImpl<A, TrackingFlags>::GetId() const
 template <typename A, ezUInt32 TrackingFlags>
 ezAllocatorBase::Stats ezInternal::ezAllocatorImpl<A, TrackingFlags>::GetStats() const
 {
-  if ((TrackingFlags & ezMemoryTrackingFlags::EnableTracking) != 0)
+  if ((TrackingFlags & ezMemoryTrackingFlags::RegisterAllocator) != 0)
   {
     return ezMemoryTracker::GetAllocatorStats(this->m_Id);
   }
@@ -144,16 +149,21 @@ ezInternal::ezAllocatorMixinReallocate<A, TrackingFlags, true>::ezAllocatorMixin
 template <typename A, ezUInt32 TrackingFlags>
 void* ezInternal::ezAllocatorMixinReallocate<A, TrackingFlags, true>::Reallocate(void* ptr, size_t uiCurrentSize, size_t uiNewSize, size_t uiAlign)
 {
-  if ((TrackingFlags & ezMemoryTrackingFlags::EnableTracking) != 0)
+  if ((TrackingFlags & ezMemoryTrackingFlags::EnableAllocationTracking) != 0)
   {
     ezMemoryTracker::RemoveAllocation(this->m_Id, ptr);
   }
 
+  ezTime fAllocationTime = ezTime::Now();
+
   void* pNewMem = this->m_allocator.Reallocate(ptr, uiCurrentSize, uiNewSize, uiAlign);
 
-  if ((TrackingFlags & ezMemoryTrackingFlags::EnableTracking) != 0)
+  if ((TrackingFlags & ezMemoryTrackingFlags::EnableAllocationTracking) != 0)
   {
-    ezMemoryTracker::AddAllocation(this->m_Id, pNewMem, uiNewSize, uiAlign);
+    ezBitflags<ezMemoryTrackingFlags> flags;
+    flags.SetValue(TrackingFlags);
+
+    ezMemoryTracker::AddAllocation(this->m_Id, flags, pNewMem, uiNewSize, uiAlign, ezTime::Now() - fAllocationTime);
   }
   return pNewMem;
 }

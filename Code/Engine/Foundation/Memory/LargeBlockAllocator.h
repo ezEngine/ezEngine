@@ -61,6 +61,7 @@ private:
   void Deallocate(void* ptr);
 
   ezAllocatorId m_Id;
+  ezBitflags<ezMemoryTrackingFlags> m_TrackingFlags;
 
   ezMutex m_mutex;
   ezThreadID m_ThreadID;

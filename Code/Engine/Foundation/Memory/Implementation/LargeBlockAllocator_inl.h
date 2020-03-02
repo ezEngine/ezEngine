@@ -36,8 +36,7 @@ EZ_ALWAYS_INLINE bool ezDataBlock<T, SizeInBytes>::IsFull() const
 template <typename T, ezUInt32 SizeInBytes>
 EZ_FORCE_INLINE T& ezDataBlock<T, SizeInBytes>::operator[](ezUInt32 uiIndex) const
 {
-  EZ_ASSERT_DEV(uiIndex < m_uiCount, "Out of bounds access. Data block has {0} elements, trying to access element at index {1}.", m_uiCount,
-                uiIndex);
+  EZ_ASSERT_DEV(uiIndex < m_uiCount, "Out of bounds access. Data block has {0} elements, trying to access element at index {1}.", m_uiCount, uiIndex);
   return m_pData[uiIndex];
 }
 
@@ -45,9 +44,10 @@ EZ_FORCE_INLINE T& ezDataBlock<T, SizeInBytes>::operator[](ezUInt32 uiIndex) con
 
 template <ezUInt32 BlockSize>
 ezLargeBlockAllocator<BlockSize>::ezLargeBlockAllocator(const char* szName, ezAllocatorBase* pParent,
-                                                        ezBitflags<ezMemoryTrackingFlags> flags)
-    : m_superBlocks(pParent)
-    , m_freeBlocks(pParent)
+  ezBitflags<ezMemoryTrackingFlags> flags)
+  : m_TrackingFlags(flags)
+  , m_superBlocks(pParent)
+  , m_freeBlocks(pParent)
 {
   EZ_CHECK_AT_COMPILETIME_MSG(BlockSize >= 4096, "Block size must be 4096 or bigger");
 
@@ -84,9 +84,8 @@ EZ_FORCE_INLINE ezDataBlock<T, BlockSize> ezLargeBlockAllocator<BlockSize>::Allo
     };
   };
 
-  EZ_CHECK_AT_COMPILETIME_MSG(
-      Helper::BLOCK_CAPACITY >= 1,
-      "Type is too big for block allocation. Consider using regular heap allocation instead or increase the block size.");
+  EZ_CHECK_AT_COMPILETIME_MSG(Helper::BLOCK_CAPACITY >= 1,
+    "Type is too big for block allocation. Consider using regular heap allocation instead or increase the block size.");
 
   ezDataBlock<T, BlockSize> block(static_cast<T*>(Allocate(EZ_ALIGNMENT_OF(T))), 0);
   return block;
@@ -123,6 +122,8 @@ template <ezUInt32 BlockSize>
 void* ezLargeBlockAllocator<BlockSize>::Allocate(size_t uiAlign)
 {
   EZ_ASSERT_RELEASE(ezMath::IsPowerOf2((ezUInt32)uiAlign), "Alignment must be power of two");
+
+  ezTime fAllocationTime = ezTime::Now();
 
   EZ_LOCK(m_mutex);
 
@@ -162,7 +163,7 @@ void* ezLargeBlockAllocator<BlockSize>::Allocate(size_t uiAlign)
     ptr = pMemory;
   }
 
-  ezMemoryTracker::AddAllocation(m_Id, ptr, BlockSize, uiAlign);
+  ezMemoryTracker::AddAllocation(m_Id, m_TrackingFlags, ptr, BlockSize, uiAlign, ezTime::Now() - fAllocationTime);
 
   return ptr;
 }
