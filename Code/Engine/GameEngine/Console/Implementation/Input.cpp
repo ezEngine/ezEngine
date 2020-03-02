@@ -59,7 +59,10 @@ void ezConsole::MoveCaret(ezInt32 iMoveOffset)
 
 void ezConsole::Scroll(ezInt32 iLines)
 {
-  m_iScrollPosition = ezMath::Clamp<ezInt32>(m_iScrollPosition + iLines, 0, ezMath::Max<ezInt32>(m_ConsoleStrings.GetCount() - 10, 0));
+  if (m_bUseFilteredStrings)
+    m_iScrollPosition = ezMath::Clamp<ezInt32>(m_iScrollPosition + iLines, 0, ezMath::Max<ezInt32>(m_FilteredConsoleStrings.GetCount() - 10, 0));
+  else
+    m_iScrollPosition = ezMath::Clamp<ezInt32>(m_iScrollPosition + iLines, 0, ezMath::Max<ezInt32>(m_ConsoleStrings.GetCount() - 10, 0));
 }
 
 void ezConsole::ClearInputLine()
@@ -68,11 +71,18 @@ void ezConsole::ClearInputLine()
   m_iCaretPosition = 0;
   m_iScrollPosition = 0;
   m_iCurrentInputHistoryElement = -1;
+
+  m_FilteredConsoleStrings.Clear();
+  m_bUseFilteredStrings = false;
+
+  InputStringChanged();
 }
 
 void ezConsole::ClearConsoleStrings()
 {
   m_ConsoleStrings.Clear();
+  m_FilteredConsoleStrings.Clear();
+  m_bUseFilteredStrings = false;
   m_iScrollPosition = 0;
 }
 
@@ -93,6 +103,8 @@ void ezConsole::RemoveCharacter(ezUInt32 uiInputLinePosition)
   ++itNext;
 
   m_sInputLine.Remove(it.GetData(), itNext.GetData());
+
+  InputStringChanged();
 }
 
 void ezConsole::AddInputCharacter(ezUInt32 uiChar)
@@ -116,6 +128,8 @@ void ezConsole::AddInputCharacter(ezUInt32 uiChar)
   m_sInputLine.Insert(it.GetData(), ezStringUtf8(uiString).GetData());
 
   MoveCaret(1);
+
+  InputStringChanged();
 }
 
 void ezConsole::DoDefaultInputHandling(bool bConsoleOpen)
@@ -216,4 +230,3 @@ void ezConsole::DoDefaultInputHandling(bool bConsoleOpen)
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Console_Implementation_Input);
-
