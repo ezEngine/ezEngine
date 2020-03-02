@@ -34,7 +34,8 @@
 			"pthread.h",
 			"stdarg.h",
 			"time.h",
-			"unistd.h"
+			"unistd.h",
+			"jni.h"
 		]
 	},
 	"includeSource" : 
@@ -42,7 +43,8 @@
 		"byName" : [
 			"IncludeWindows.h",
 			"UWPUtils.h",
-			"ThreadingDeclarations_posix.h"
+			"ThreadingDeclarations_posix.h",
+			"xxhash.h"
 		]
 	}
 }
