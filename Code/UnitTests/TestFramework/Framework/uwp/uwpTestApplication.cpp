@@ -90,7 +90,10 @@ HRESULT ezUwpTestApplication::OnActivated(ICoreApplicationView* applicationView,
     ezDynamicArray<const char*> argv;
     ezCommandLineUtils::SplitCommandLineString(ezStringUtf8(argHString).GetData(), true, commandLineArgs, argv);
 
-    m_testFramework.GetTestSettingsFromCommandLine(argv.GetCount(), argv.GetData());
+    ezCommandLineUtils cmd;
+    cmd.SetCommandLine(argv.GetData(), argv.GetCount(), ezCommandLineUtils::PreferOsArgs);
+
+    m_testFramework.GetTestSettingsFromCommandLine(cmd);
 
     // Setup an extended execution session to prevent app from going to sleep during testing.
     ezUwpUtils::CreateInstance<IExtendedExecutionSession>(RuntimeClass_Windows_ApplicationModel_ExtendedExecution_ExtendedExecutionSession,

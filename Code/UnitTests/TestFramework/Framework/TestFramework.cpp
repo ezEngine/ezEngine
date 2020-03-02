@@ -69,7 +69,7 @@ ezTestFramework::ezTestFramework(
 
   ezCommandLineUtils::GetGlobalInstance()->SetCommandLine(argc, argv, ezCommandLineUtils::PreferOsArgs);
 
-  GetTestSettingsFromCommandLine(argc, argv);
+  GetTestSettingsFromCommandLine(*ezCommandLineUtils::GetGlobalInstance());
 }
 
 ezTestFramework::~ezTestFramework()
@@ -119,11 +119,23 @@ void ezTestFramework::Initialize()
 
   CreateOutputFolder();
 
+  ezCommandLineUtils& cmd = *ezCommandLineUtils::GetGlobalInstance();
   // figure out which tests exist
   GatherAllTests();
+  if (!m_Settings.m_bNoGUI || cmd.GetStringOptionArguments("-order") == 1)
+  {
+    // load the test order from file, if that file does not exist, the array is not modified.
+    LoadTestOrder();
+  }
+  ApplyTestOrderFromCommandLine(cmd);
 
-  // load the test order from file, if that file does not exist, the array is not modified
-  LoadTestOrder();
+  if (!m_Settings.m_bNoGUI || cmd.GetStringOptionArguments("-settings") == 1)
+  {
+    // Load the test settings from file, if that file does not exist, the settings are not modified.
+    LoadTestSettings();
+    // Overwrite loaded test settings with command line
+    GetTestSettingsFromCommandLine(cmd);
+  }
 
   // save the current order back to the same file
   AutoSaveTestOrder();
@@ -157,6 +169,10 @@ const char* ezTestFramework::GetRelTestDataPath() const
   return m_sRelTestDataDir.c_str();
 }
 
+const char* ezTestFramework::GetAbsTestOrderFilePath() const
+{
+  return m_sAbsTestOrderFilePath.c_str();
+}
 
 const char* ezTestFramework::GetAbsTestSettingsFilePath() const
 {
@@ -183,10 +199,16 @@ void ezTestFramework::SetImageDiffExtraInfoCallback(ImageDiffExtraInfoCallback p
 
 bool ezTestFramework::GetAssertOnTestFail()
 {
-  if (!ezSystemInformation::IsDebuggerAttached())
+  switch (s_pInstance->m_Settings.m_AssertOnTestFail)
+  {
+  case AssertOnTestFail::DoNotAssert:
     return false;
-
-  return s_pInstance->m_Settings.m_bAssertOnTestFail;
+  case AssertOnTestFail::AssertIfDebuggerAttached:
+    return ezSystemInformation::IsDebuggerAttached();
+  case AssertOnTestFail::AlwaysAssert:
+    return true;
+  }
+  return false;
 }
 
 void ezTestFramework::GatherAllTests()
@@ -244,18 +266,32 @@ void ezTestFramework::GatherAllTests()
   m_Result.SetupTests(m_TestEntries, config);
 }
 
-void ezTestFramework::GetTestSettingsFromCommandLine(int argc, const char** argv)
+void ezTestFramework::GetTestSettingsFromCommandLine(const ezCommandLineUtils& cmd)
 {
   // use a local instance of ezCommandLineUtils as global instance is not guaranteed to have been set up
   // for all call sites of this method.
-  ezCommandLineUtils cmd;
-  cmd.SetCommandLine(argc, argv, ezCommandLineUtils::PreferOsArgs);
 
   m_Settings.m_bRunTests = cmd.GetBoolOption("-run", false);
   m_Settings.m_bCloseOnSuccess = cmd.GetBoolOption("-close", false);
   m_Settings.m_bNoGUI = cmd.GetBoolOption("-nogui", false);
 
-  m_Settings.m_bAssertOnTestFail = cmd.GetBoolOption("-assert", m_Settings.m_bAssertOnTestFail);
+  if (cmd.GetOptionIndex("-assert") >= 0)
+  {
+    const int assertOnTestFailure = cmd.GetIntOption("-assert", (int)AssertOnTestFail::AssertIfDebuggerAttached);
+    switch (assertOnTestFailure)
+    {
+    case 0:
+      m_Settings.m_AssertOnTestFail = AssertOnTestFail::DoNotAssert;
+      break;
+    case 1:
+      m_Settings.m_AssertOnTestFail = AssertOnTestFail::AssertIfDebuggerAttached;
+      break;
+    case 2:
+      m_Settings.m_AssertOnTestFail = AssertOnTestFail::AlwaysAssert;
+      break;
+    }
+  }
+
   m_Settings.m_bOpenHtmlOutputOnError = cmd.GetBoolOption("-html", m_Settings.m_bOpenHtmlOutputOnError);
   m_Settings.m_bKeepConsoleOpen = cmd.GetBoolOption("-console", m_Settings.m_bKeepConsoleOpen);
   m_Settings.m_bShowTimestampsInLog = cmd.GetBoolOption("-timestamps", m_Settings.m_bShowTimestampsInLog);
@@ -264,6 +300,7 @@ void ezTestFramework::GetTestSettingsFromCommandLine(int argc, const char** argv
   m_Settings.m_iRevision = cmd.GetIntOption("-rev", -1);
   m_Settings.m_bEnableAllTests = cmd.GetBoolOption("-all", false);
   m_Settings.m_uiFullPasses = cmd.GetIntOption("-passes", 1, false);
+  m_Settings.m_sTestFilter = cmd.GetStringOption("-filter", 0, "");
 
   if (cmd.GetStringOptionArguments("-json") == 1)
     m_Settings.m_sJsonOutput = cmd.GetStringOption("-json", 0, "");
@@ -273,27 +310,63 @@ void ezTestFramework::GetTestSettingsFromCommandLine(int argc, const char** argv
     m_sAbsTestOutputDir = cmd.GetStringOption("-outputDir", 0, "");
   }
 
+  bool bNoAutoSave = false;
+  if (cmd.GetStringOptionArguments("-order") == 1)
+  {
+    m_sAbsTestOrderFilePath = cmd.GetStringOption("-order", 0, "");
+    // If a custom order file was provided, default to -nosave as to not overwrite that file with additional
+    // parameters from command line. Use "-nosave false" to explicitly enable auto save in this case.
+    bNoAutoSave = true;
+  }
+  else
+  {
+    m_sAbsTestOrderFilePath = m_sAbsTestOutputDir + std::string("/TestOrder.txt");
+  }
+
   if (cmd.GetStringOptionArguments("-settings") == 1)
   {
     m_sAbsTestSettingsFilePath = cmd.GetStringOption("-settings", 0, "");
     // If a custom settings file was provided, default to -nosave as to not overwrite that file with additional
-    // parameters from command line. Use "-nosave false" to explicitely enable auto save in this case.
-    m_Settings.m_bNoAutomaticSaving = cmd.GetBoolOption("-nosave", true);
+    // parameters from command line. Use "-nosave false" to explicitly enable auto save in this case.
+    bNoAutoSave = true;
   }
   else
   {
     m_sAbsTestSettingsFilePath = m_sAbsTestOutputDir + std::string("/TestSettings.txt");
-    m_Settings.m_bNoAutomaticSaving = cmd.GetBoolOption("-nosave", false);
   }
+  m_Settings.m_bNoAutomaticSaving = cmd.GetBoolOption("-nosave", bNoAutoSave);
 
   m_uiPassesLeft = m_Settings.m_uiFullPasses;
 }
 
 void ezTestFramework::LoadTestOrder()
 {
-  ::LoadTestOrder(m_sAbsTestSettingsFilePath.c_str(), m_TestEntries, m_Settings);
+  ::LoadTestOrder(m_sAbsTestOrderFilePath.c_str(), m_TestEntries);
+}
+
+void ezTestFramework::ApplyTestOrderFromCommandLine(const ezCommandLineUtils& cmd)
+{
   if (m_Settings.m_bEnableAllTests)
     SetAllTestsEnabledStatus(true);
+  if (!m_Settings.m_sTestFilter.empty())
+  {
+    const ezUInt32 uiTestCount = GetTestCount();
+    for (ezUInt32 uiTestIdx = 0; uiTestIdx < uiTestCount; ++uiTestIdx)
+    {
+      const bool bEnable = ezStringUtils::FindSubString_NoCase(m_TestEntries[uiTestIdx].m_szTestName, m_Settings.m_sTestFilter.c_str()) != nullptr;
+      m_TestEntries[uiTestIdx].m_bEnableTest = bEnable;
+      const ezUInt32 uiSubTestCount = (ezUInt32)m_TestEntries[uiTestIdx].m_SubTests.size();
+      for (ezUInt32 uiSubTest = 0; uiSubTest < uiSubTestCount; ++uiSubTest)
+      {
+        m_TestEntries[uiTestIdx].m_SubTests[uiSubTest].m_bEnableTest = bEnable;
+      }
+    }
+  }
+}
+
+void ezTestFramework::LoadTestSettings()
+{
+  ::LoadTestSettings(m_sAbsTestSettingsFilePath.c_str(), m_Settings);
 }
 
 void ezTestFramework::CreateOutputFolder()
@@ -309,13 +382,18 @@ void ezTestFramework::AutoSaveTestOrder()
   if (m_Settings.m_bNoAutomaticSaving)
     return;
 
-  SaveTestOrder(m_sAbsTestSettingsFilePath.c_str());
+  SaveTestOrder(m_sAbsTestOrderFilePath.c_str());
+  SaveTestSettings(m_sAbsTestSettingsFilePath.c_str());
 }
-
 
 void ezTestFramework::SaveTestOrder(const char* const filePath)
 {
-  ::SaveTestOrder(filePath, m_TestEntries, m_Settings);
+  ::SaveTestOrder(filePath, m_TestEntries);
+}
+
+void ezTestFramework::SaveTestSettings(const char* const filePath)
+{
+  ::SaveTestSettings(filePath, m_Settings);
 }
 
 void ezTestFramework::SetAllTestsEnabledStatus(bool bEnable)
@@ -1553,6 +1631,23 @@ ezResult ezTestInt(ezInt64 i1, ezInt64 i2, const char* szI1, const char* szI2, c
   {
     char szErrorText[256];
     safeprintf(szErrorText, 256, "Failure: '%s' (%i) does not equal '%s' (%i)", szI1, i1, szI2, i2);
+
+    OUTPUT_TEST_ERROR
+  }
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezTestWString(std::wstring ws1, std::wstring ws2, const char* szWString1, const char* szWString2, const char* szFile, ezInt32 iLine,
+  const char* szFunction, const char* szMsg, ...)
+{
+  ezTestFramework::s_iAssertCounter++;
+
+  if (ws1 != ws2)
+  {
+    char szErrorText[2048];
+    safeprintf(szErrorText, 2048, "Failure: '%s' (%s) does not equal '%s' (%s)",
+      szWString1, ezStringUtf8(ws1.c_str()).GetData(), szWString2, ezStringUtf8(ws2.c_str()).GetData());
 
     OUTPUT_TEST_ERROR
   }
