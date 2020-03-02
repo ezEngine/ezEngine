@@ -2,6 +2,7 @@
 EZ_FOUNDATION_INTERNAL_HEADER
 
 #include <Foundation/Basics/Platform/Win/MinWindows.h>
+#include <Foundation/IO/Implementation/Win/DosDevicePath_win.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/System/MiniDumpUtils.h>
 #include <Foundation/System/ProcessGroup.h>
@@ -39,8 +40,7 @@ ezMinWindows::HANDLE ezMiniDumpUtils::GetProcessHandleWithNecessaryRights(ezUInt
   return hProcess;
 }
 
-ezStatus ezMiniDumpUtils::WriteProcessMiniDump(
-  const char* szDumpFile, ezUInt32 uiProcessID, ezMinWindows::HANDLE hProcess, struct _EXCEPTION_POINTERS* pExceptionInfo)
+ezStatus ezMiniDumpUtils::WriteProcessMiniDump(const char* szDumpFile, ezUInt32 uiProcessID, ezMinWindows::HANDLE hProcess, struct _EXCEPTION_POINTERS* pExceptionInfo)
 {
   HMODULE hDLL = ::LoadLibraryA("dbghelp.dll");
 
@@ -70,7 +70,7 @@ ezStatus ezMiniDumpUtils::WriteProcessMiniDump(
     ezOSFile::CreateDirectoryStructure(folder);
   }
 
-  HANDLE hFile = CreateFileW(ezStringWChar(szDumpFile).GetData(), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+  HANDLE hFile = CreateFileW(ezDosDevicePath(szDumpFile), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
 
   if (hFile == INVALID_HANDLE_VALUE)
   {
