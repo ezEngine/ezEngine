@@ -123,14 +123,14 @@ namespace ezInternal
   {
   }
 
-  EZ_FORCE_INLINE void WorldData::ReadMarker::Acquire()
+  EZ_FORCE_INLINE void WorldData::ReadMarker::Lock()
   {
     EZ_ASSERT_DEV(m_Data.m_WriteThreadID == (ezThreadID)0 || m_Data.m_WriteThreadID == ezThreadUtils::GetCurrentThreadID(),
       "World '{0}' cannot be marked for reading because it is already marked for writing by another thread.", m_Data.m_sName);
     m_Data.m_iReadCounter.Increment();
   }
 
-  EZ_ALWAYS_INLINE void WorldData::ReadMarker::Release() { m_Data.m_iReadCounter.Decrement(); }
+  EZ_ALWAYS_INLINE void WorldData::ReadMarker::Unlock() { m_Data.m_iReadCounter.Decrement(); }
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -139,7 +139,7 @@ namespace ezInternal
   {
   }
 
-  EZ_FORCE_INLINE void WorldData::WriteMarker::Acquire()
+  EZ_FORCE_INLINE void WorldData::WriteMarker::Lock()
   {
     // already locked by this thread?
     if (m_Data.m_WriteThreadID != ezThreadUtils::GetCurrentThreadID())
@@ -156,7 +156,7 @@ namespace ezInternal
     m_Data.m_iWriteCounter++;
   }
 
-  EZ_FORCE_INLINE void WorldData::WriteMarker::Release()
+  EZ_FORCE_INLINE void WorldData::WriteMarker::Unlock()
   {
     m_Data.m_iWriteCounter--;
 

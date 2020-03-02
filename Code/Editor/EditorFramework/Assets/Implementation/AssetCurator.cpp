@@ -387,9 +387,9 @@ void ezAssetCurator::MainThreadTick(bool bTopLevel)
   {
     m_bNeedCheckFileSystem = false;
 
-    m_CuratorMutex.Release();
+    m_CuratorMutex.Unlock();
     CheckFileSystem();
-    m_CuratorMutex.Acquire();
+    m_CuratorMutex.Lock();
   }
 
   bReentry = false;

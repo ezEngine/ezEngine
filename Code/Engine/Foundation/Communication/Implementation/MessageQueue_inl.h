@@ -133,15 +133,15 @@ EZ_ALWAYS_INLINE void ezMessageQueueBase<MetaDataType>::Sort(const Comparer& com
 }
 
 template <typename MetaDataType>
-void ezMessageQueueBase<MetaDataType>::Acquire()
+void ezMessageQueueBase<MetaDataType>::Lock()
 {
-  m_Mutex.Acquire();
+  m_Mutex.Lock();
 }
 
 template <typename MetaDataType>
-void ezMessageQueueBase<MetaDataType>::Release()
+void ezMessageQueueBase<MetaDataType>::Unlock()
 {
-  m_Mutex.Release();
+  m_Mutex.Unlock();
 }
 
 

@@ -175,8 +175,8 @@ namespace ezInternal
     class ReadMarker
     {
     public:
-      void Acquire();
-      void Release();
+      void Lock();
+      void Unlock();
 
     private:
       friend class ::ezInternal::WorldData;
@@ -188,8 +188,8 @@ namespace ezInternal
     class WriteMarker
     {
     public:
-      void Acquire();
-      void Release();
+      void Lock();
+      void Unlock();
 
     private:
       friend class ::ezInternal::WorldData;

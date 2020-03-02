@@ -43,8 +43,8 @@ namespace
 
   struct TrackerData
   {
-    EZ_ALWAYS_INLINE void Acquire() { m_Mutex.Acquire(); }
-    EZ_ALWAYS_INLINE void Release() { m_Mutex.Release(); }
+    EZ_ALWAYS_INLINE void Lock() { m_Mutex.Lock(); }
+    EZ_ALWAYS_INLINE void Unlock() { m_Mutex.Unlock(); }
 
     ezMutex m_Mutex;
 

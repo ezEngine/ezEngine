@@ -6,12 +6,12 @@ class ezLock
 {
 public:
   EZ_ALWAYS_INLINE explicit ezLock(T& lock)
-      : m_lock(lock)
+    : m_lock(lock)
   {
-    m_lock.Acquire();
+    m_lock.Lock();
   }
 
-  EZ_ALWAYS_INLINE ~ezLock() { m_lock.Release(); }
+  EZ_ALWAYS_INLINE ~ezLock() { m_lock.Unlock(); }
 
 private:
   ezLock();
@@ -23,4 +23,3 @@ private:
 
 /// \brief Shortcut for ezLock<Type> l(lock)
 #define EZ_LOCK(lock) ezLock<decltype(lock)> EZ_CONCAT(l_, EZ_SOURCE_LINE)(lock)
-
