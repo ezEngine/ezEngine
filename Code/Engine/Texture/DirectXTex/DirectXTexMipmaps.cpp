@@ -13,7 +13,7 @@
 // http://go.microsoft.com/fwlink/?LinkId=248926
 //-------------------------------------------------------------------------------------
 
-#include "DirectXTexp.h"
+#include "DirectXTexP.h"
 
 #include "filters.h"
 
@@ -22,13 +22,13 @@ using Microsoft::WRL::ComPtr;
 
 namespace
 {
-    inline bool ispow2(_In_ size_t x)
+    inline bool ispow2(_In_ size_t x) noexcept
     {
         return ((x != 0) && !(x & (x - 1)));
     }
 
 
-    size_t CountMips(_In_ size_t width, _In_ size_t height)
+    size_t CountMips(_In_ size_t width, _In_ size_t height) noexcept
     {
         size_t mipLevels = 1;
 
@@ -47,7 +47,7 @@ namespace
     }
 
 
-    size_t CountMips3D(_In_ size_t width, _In_ size_t height, _In_ size_t depth)
+    size_t CountMips3D(_In_ size_t width, _In_ size_t height, _In_ size_t depth) noexcept
     {
         size_t mipLevels = 1;
 
@@ -74,7 +74,7 @@ namespace
         _In_ IWICBitmap* src,
         _In_ DWORD filter,
         _In_ const WICPixelFormatGUID& desiredPixelFormat,
-        _Deref_out_ IWICBitmap** dest)
+        _Deref_out_ IWICBitmap** dest) noexcept
     {
         if (!pWIC || !src || !dest)
             return E_POINTER;
@@ -141,7 +141,7 @@ namespace
     HRESULT ScaleAlpha(
         const Image& srcImage,
         float alphaScale,
-        const Image& destImage)
+        const Image& destImage) noexcept
     {
         assert(srcImage.width == destImage.width);
         assert(srcImage.height == destImage.height);
@@ -191,7 +191,7 @@ namespace
 
     void GenerateAlphaCoverageConvolutionVectors(
         _In_ size_t N,
-        _Out_writes_(N*N) XMVECTOR* vectors)
+        _Out_writes_(N*N) XMVECTOR* vectors) noexcept
     {
         for (size_t sy = 0; sy < N; ++sy)
         {
@@ -214,7 +214,7 @@ namespace
         const Image& srcImage,
         float alphaReference,
         float alphaScale,
-        float& coverage)
+        float& coverage) noexcept
     {
         coverage = 0.0f;
 
@@ -303,7 +303,7 @@ namespace
             const Image& srcImage,
             float alphaReference,
             float targetCoverage,
-            float& alphaScale)
+            float& alphaScale) noexcept
     {
         float minAlphaScale = 0.0f;
         float maxAlphaScale = 4.0f;
@@ -352,7 +352,15 @@ namespace
 
 namespace DirectX
 {
-    bool _CalculateMipLevels(_In_ size_t width, _In_ size_t height, _Inout_ size_t& mipLevels)
+    bool _CalculateMipLevels(_In_ size_t width, _In_ size_t height, _Inout_ size_t& mipLevels) noexcept;
+    bool _CalculateMipLevels3D(_In_ size_t width, _In_ size_t height, _In_ size_t depth, _Inout_ size_t& mipLevels) noexcept;
+        // Also used by Compress
+
+    HRESULT _ResizeSeparateColorAndAlpha(_In_ IWICImagingFactory* pWIC, _In_ bool iswic2, _In_ IWICBitmap* original,
+        _In_ size_t newWidth, _In_ size_t newHeight, _In_ DWORD filter, _Inout_ const Image* img) noexcept;
+        // Also used by Resize
+
+    bool _CalculateMipLevels(_In_ size_t width, _In_ size_t height, _Inout_ size_t& mipLevels) noexcept
     {
         if (mipLevels > 1)
         {
@@ -371,7 +379,7 @@ namespace DirectX
         return true;
     }
 
-    bool _CalculateMipLevels3D(_In_ size_t width, _In_ size_t height, _In_ size_t depth, _Inout_ size_t& mipLevels)
+    bool _CalculateMipLevels3D(_In_ size_t width, _In_ size_t height, _In_ size_t depth, _Inout_ size_t& mipLevels) noexcept
     {
         if (mipLevels > 1)
         {
@@ -391,14 +399,15 @@ namespace DirectX
     }
 
     //--- Resizing color and alpha channels separately using WIC ---
+    _Use_decl_annotations_
     HRESULT _ResizeSeparateColorAndAlpha(
-        _In_ IWICImagingFactory* pWIC,
-        _In_ bool iswic2,
-        _In_ IWICBitmap* original,
-        _In_ size_t newWidth,
-        _In_ size_t newHeight,
-        _In_ DWORD filter,
-        _Inout_ const Image* img)
+        IWICImagingFactory* pWIC,
+        bool iswic2,
+        IWICBitmap* original,
+        size_t newWidth,
+        size_t newHeight,
+        DWORD filter,
+        const Image* img) noexcept
     {
         if (!pWIC || !original || !img)
             return E_POINTER;
@@ -610,7 +619,7 @@ namespace DirectX
 namespace
 {
     //--- determine when to use WIC vs. non-WIC paths ---
-    bool UseWICFiltering(_In_ DXGI_FORMAT format, _In_ DWORD filter)
+    bool UseWICFiltering(_In_ DXGI_FORMAT format, _In_ DWORD filter) noexcept
     {
         if (filter & TEX_FILTER_FORCE_NON_WIC)
         {
@@ -687,7 +696,7 @@ namespace
         _In_ size_t levels,
         _In_ const WICPixelFormatGUID& pfGUID,
         _In_ const ScratchImage& mipChain,
-        _In_ size_t item)
+        _In_ size_t item) noexcept
     {
         assert(levels > 1);
 
@@ -829,7 +838,7 @@ namespace
         _In_reads_(nimages) const Image* baseImages,
         _In_ size_t nimages,
         _In_ const TexMetadata& mdata,
-        _Out_ ScratchImage& mipChain)
+        _Out_ ScratchImage& mipChain) noexcept
     {
         if (!baseImages || !nimages)
             return E_INVALIDARG;
@@ -881,7 +890,7 @@ namespace
     }
 
     //--- 2D Point Filter ---
-    HRESULT Generate2DMipsPointFilter(size_t levels, const ScratchImage& mipChain, size_t item)
+    HRESULT Generate2DMipsPointFilter(size_t levels, const ScratchImage& mipChain, size_t item) noexcept
     {
         if (!mipChain.GetImages())
             return E_INVALIDARG;
@@ -965,7 +974,7 @@ namespace
 
 
     //--- 2D Box Filter ---
-    HRESULT Generate2DMipsBoxFilter(size_t levels, DWORD filter, const ScratchImage& mipChain, size_t item)
+    HRESULT Generate2DMipsBoxFilter(size_t levels, DWORD filter, const ScratchImage& mipChain, size_t item) noexcept
     {
         if (!mipChain.GetImages())
             return E_INVALIDARG;
@@ -1039,7 +1048,7 @@ namespace
                 {
                     size_t x2 = x << 1;
 
-                    AVERAGE4(target[x], urow0[x2], urow1[x2], urow2[x2], urow3[x2]);
+                    AVERAGE4(target[x], urow0[x2], urow1[x2], urow2[x2], urow3[x2])
                 }
 
                 if (!_StoreScanlineLinear(pDest, dest->rowPitch, dest->format, target, nwidth, filter))
@@ -1059,7 +1068,7 @@ namespace
 
 
     //--- 2D Linear Filter ---
-    HRESULT Generate2DMipsLinearFilter(size_t levels, DWORD filter, const ScratchImage& mipChain, size_t item)
+    HRESULT Generate2DMipsLinearFilter(size_t levels, DWORD filter, const ScratchImage& mipChain, size_t item) noexcept
     {
         if (!mipChain.GetImages())
             return E_INVALIDARG;
@@ -1151,7 +1160,7 @@ namespace
                 {
                     auto& toX = lfX[x];
 
-                    BILINEAR_INTERPOLATE(target[x], toX, toY, row0, row1);
+                    BILINEAR_INTERPOLATE(target[x], toX, toY, row0, row1)
                 }
 
                 if (!_StoreScanlineLinear(pDest, dest->rowPitch, dest->format, target, nwidth, filter))
@@ -1170,7 +1179,7 @@ namespace
     }
 
     //--- 2D Cubic Filter ---
-    HRESULT Generate2DMipsCubicFilter(size_t levels, DWORD filter, const ScratchImage& mipChain, size_t item)
+    HRESULT Generate2DMipsCubicFilter(size_t levels, DWORD filter, const ScratchImage& mipChain, size_t item) noexcept
     {
         if (!mipChain.GetImages())
             return E_INVALIDARG;
@@ -1331,12 +1340,12 @@ namespace
 
                     XMVECTOR C0, C1, C2, C3;
 
-                    CUBIC_INTERPOLATE(C0, toX.x, row0[toX.u0], row0[toX.u1], row0[toX.u2], row0[toX.u3]);
-                    CUBIC_INTERPOLATE(C1, toX.x, row1[toX.u0], row1[toX.u1], row1[toX.u2], row1[toX.u3]);
-                    CUBIC_INTERPOLATE(C2, toX.x, row2[toX.u0], row2[toX.u1], row2[toX.u2], row2[toX.u3]);
-                    CUBIC_INTERPOLATE(C3, toX.x, row3[toX.u0], row3[toX.u1], row3[toX.u2], row3[toX.u3]);
+                    CUBIC_INTERPOLATE(C0, toX.x, row0[toX.u0], row0[toX.u1], row0[toX.u2], row0[toX.u3])
+                    CUBIC_INTERPOLATE(C1, toX.x, row1[toX.u0], row1[toX.u1], row1[toX.u2], row1[toX.u3])
+                    CUBIC_INTERPOLATE(C2, toX.x, row2[toX.u0], row2[toX.u1], row2[toX.u2], row2[toX.u3])
+                    CUBIC_INTERPOLATE(C3, toX.x, row3[toX.u0], row3[toX.u1], row3[toX.u2], row3[toX.u3])
 
-                    CUBIC_INTERPOLATE(target[x], toY.x, C0, C1, C2, C3);
+                    CUBIC_INTERPOLATE(target[x], toY.x, C0, C1, C2, C3)
                 }
 
                 if (!_StoreScanlineLinear(pDest, dest->rowPitch, dest->format, target, nwidth, filter))
@@ -1356,7 +1365,7 @@ namespace
 
 
     //--- 2D Triangle Filter ---
-    HRESULT Generate2DMipsTriangleFilter(size_t levels, DWORD filter, const ScratchImage& mipChain, size_t item)
+    HRESULT Generate2DMipsTriangleFilter(size_t levels, DWORD filter, const ScratchImage& mipChain, size_t item) noexcept
     {
         if (!mipChain.GetImages())
             return E_INVALIDARG;
@@ -1575,7 +1584,7 @@ namespace
         _In_reads_(depth) const Image* baseImages,
         size_t depth,
         size_t levels,
-        _Out_ ScratchImage& mipChain)
+        _Out_ ScratchImage& mipChain) noexcept
     {
         if (!baseImages || !depth)
             return E_INVALIDARG;
@@ -1626,7 +1635,7 @@ namespace
 
 
     //--- 3D Point Filter ---
-    HRESULT Generate3DMipsPointFilter(size_t depth, size_t levels, const ScratchImage& mipChain)
+    HRESULT Generate3DMipsPointFilter(size_t depth, size_t levels, const ScratchImage& mipChain) noexcept
     {
         if (!depth || !mipChain.GetImages())
             return E_INVALIDARG;
@@ -1772,7 +1781,7 @@ namespace
 
 
     //--- 3D Box Filter ---
-    HRESULT Generate3DMipsBoxFilter(size_t depth, size_t levels, DWORD filter, const ScratchImage& mipChain)
+    HRESULT Generate3DMipsBoxFilter(size_t depth, size_t levels, DWORD filter, const ScratchImage& mipChain) noexcept
     {
         if (!depth || !mipChain.GetImages())
             return E_INVALIDARG;
@@ -1877,7 +1886,7 @@ namespace
                             size_t x2 = x << 1;
 
                             AVERAGE8(target[x], urow0[x2], urow1[x2], urow2[x2], urow3[x2],
-                                vrow0[x2], vrow1[x2], vrow2[x2], vrow3[x2]);
+                                vrow0[x2], vrow1[x2], vrow2[x2], vrow3[x2])
                         }
 
                         if (!_StoreScanlineLinear(pDest, dest->rowPitch, dest->format, target, nwidth, filter))
@@ -1920,7 +1929,7 @@ namespace
                     {
                         size_t x2 = x << 1;
 
-                        AVERAGE4(target[x], urow0[x2], urow1[x2], urow2[x2], urow3[x2]);
+                        AVERAGE4(target[x], urow0[x2], urow1[x2], urow2[x2], urow3[x2])
                     }
 
                     if (!_StoreScanlineLinear(pDest, dest->rowPitch, dest->format, target, nwidth, filter))
@@ -1944,7 +1953,7 @@ namespace
 
 
     //--- 3D Linear Filter ---
-    HRESULT Generate3DMipsLinearFilter(size_t depth, size_t levels, DWORD filter, const ScratchImage& mipChain)
+    HRESULT Generate3DMipsLinearFilter(size_t depth, size_t levels, DWORD filter, const ScratchImage& mipChain) noexcept
     {
         if (!depth || !mipChain.GetImages())
             return E_INVALIDARG;
@@ -2053,7 +2062,7 @@ namespace
                         {
                             auto& toX = lfX[x];
 
-                            TRILINEAR_INTERPOLATE(target[x], toX, toY, toZ, urow0, urow1, vrow0, vrow1);
+                            TRILINEAR_INTERPOLATE(target[x], toX, toY, toZ, urow0, urow1, vrow0, vrow1)
                         }
 
                         if (!_StoreScanlineLinear(pDest, dest->rowPitch, dest->format, target, nwidth, filter))
@@ -2113,7 +2122,7 @@ namespace
                     {
                         auto& toX = lfX[x];
 
-                        BILINEAR_INTERPOLATE(target[x], toX, toY, urow0, urow1);
+                        BILINEAR_INTERPOLATE(target[x], toX, toY, urow0, urow1)
                     }
 
                     if (!_StoreScanlineLinear(pDest, dest->rowPitch, dest->format, target, nwidth, filter))
@@ -2137,7 +2146,7 @@ namespace
 
 
     //--- 3D Cubic Filter ---
-    HRESULT Generate3DMipsCubicFilter(size_t depth, size_t levels, DWORD filter, const ScratchImage& mipChain)
+    HRESULT Generate3DMipsCubicFilter(size_t depth, size_t levels, DWORD filter, const ScratchImage& mipChain) noexcept
     {
         if (!depth || !mipChain.GetImages())
             return E_INVALIDARG;
@@ -2355,15 +2364,15 @@ namespace
                             for (size_t j = 0; j < 4; ++j)
                             {
                                 XMVECTOR C0, C1, C2, C3;
-                                CUBIC_INTERPOLATE(C0, toX.x, urow[j][toX.u0], urow[j][toX.u1], urow[j][toX.u2], urow[j][toX.u3]);
-                                CUBIC_INTERPOLATE(C1, toX.x, vrow[j][toX.u0], vrow[j][toX.u1], vrow[j][toX.u2], vrow[j][toX.u3]);
-                                CUBIC_INTERPOLATE(C2, toX.x, srow[j][toX.u0], srow[j][toX.u1], srow[j][toX.u2], srow[j][toX.u3]);
-                                CUBIC_INTERPOLATE(C3, toX.x, trow[j][toX.u0], trow[j][toX.u1], trow[j][toX.u2], trow[j][toX.u3]);
+                                CUBIC_INTERPOLATE(C0, toX.x, urow[j][toX.u0], urow[j][toX.u1], urow[j][toX.u2], urow[j][toX.u3])
+                                CUBIC_INTERPOLATE(C1, toX.x, vrow[j][toX.u0], vrow[j][toX.u1], vrow[j][toX.u2], vrow[j][toX.u3])
+                                CUBIC_INTERPOLATE(C2, toX.x, srow[j][toX.u0], srow[j][toX.u1], srow[j][toX.u2], srow[j][toX.u3])
+                                CUBIC_INTERPOLATE(C3, toX.x, trow[j][toX.u0], trow[j][toX.u1], trow[j][toX.u2], trow[j][toX.u3])
 
-                                CUBIC_INTERPOLATE(D[j], toY.x, C0, C1, C2, C3);
+                                CUBIC_INTERPOLATE(D[j], toY.x, C0, C1, C2, C3)
                             }
 
-                            CUBIC_INTERPOLATE(target[x], toZ.x, D[0], D[1], D[2], D[3]);
+                            CUBIC_INTERPOLATE(target[x], toZ.x, D[0], D[1], D[2], D[3])
                         }
 
                         if (!_StoreScanlineLinear(pDest, dest->rowPitch, dest->format, target, nwidth, filter))
@@ -2487,12 +2496,12 @@ namespace
                         auto& toX = cfX[x];
 
                         XMVECTOR C0, C1, C2, C3;
-                        CUBIC_INTERPOLATE(C0, toX.x, urow[0][toX.u0], urow[0][toX.u1], urow[0][toX.u2], urow[0][toX.u3]);
-                        CUBIC_INTERPOLATE(C1, toX.x, vrow[0][toX.u0], vrow[0][toX.u1], vrow[0][toX.u2], vrow[0][toX.u3]);
-                        CUBIC_INTERPOLATE(C2, toX.x, srow[0][toX.u0], srow[0][toX.u1], srow[0][toX.u2], srow[0][toX.u3]);
-                        CUBIC_INTERPOLATE(C3, toX.x, trow[0][toX.u0], trow[0][toX.u1], trow[0][toX.u2], trow[0][toX.u3]);
+                        CUBIC_INTERPOLATE(C0, toX.x, urow[0][toX.u0], urow[0][toX.u1], urow[0][toX.u2], urow[0][toX.u3])
+                        CUBIC_INTERPOLATE(C1, toX.x, vrow[0][toX.u0], vrow[0][toX.u1], vrow[0][toX.u2], vrow[0][toX.u3])
+                        CUBIC_INTERPOLATE(C2, toX.x, srow[0][toX.u0], srow[0][toX.u1], srow[0][toX.u2], srow[0][toX.u3])
+                        CUBIC_INTERPOLATE(C3, toX.x, trow[0][toX.u0], trow[0][toX.u1], trow[0][toX.u2], trow[0][toX.u3])
 
-                        CUBIC_INTERPOLATE(target[x], toY.x, C0, C1, C2, C3);
+                        CUBIC_INTERPOLATE(target[x], toY.x, C0, C1, C2, C3)
                     }
 
                     if (!_StoreScanlineLinear(pDest, dest->rowPitch, dest->format, target, nwidth, filter))
@@ -2516,7 +2525,7 @@ namespace
 
 
     //--- 3D Triangle Filter ---
-    HRESULT Generate3DMipsTriangleFilter(size_t depth, size_t levels, DWORD filter, const ScratchImage& mipChain)
+    HRESULT Generate3DMipsTriangleFilter(size_t depth, size_t levels, DWORD filter, const ScratchImage& mipChain) noexcept
     {
         if (!depth || !mipChain.GetImages())
             return E_INVALIDARG;
@@ -2772,7 +2781,7 @@ HRESULT DirectX::GenerateMipMaps(
     DWORD filter,
     size_t levels,
     ScratchImage& mipChain,
-    bool allow1D)
+    bool allow1D) noexcept
 {
     if (!IsValid(baseImage.format))
         return E_INVALIDARG;
@@ -3194,7 +3203,7 @@ HRESULT DirectX::GenerateMipMaps3D(
     size_t depth,
     DWORD filter,
     size_t levels,
-    ScratchImage& mipChain)
+    ScratchImage& mipChain) noexcept
 {
     if (!baseImages || !depth)
         return E_INVALIDARG;
@@ -3418,7 +3427,7 @@ HRESULT DirectX::ScaleMipMapsAlphaForCoverage(
     const TexMetadata& metadata,
     size_t item,
     float alphaReference,
-    ScratchImage& mipChain)
+    ScratchImage& mipChain) noexcept
 {
     if (!srcImages || !nimages || !IsValid(metadata.format) || nimages > metadata.mipLevels || !mipChain.GetImages())
         return E_INVALIDARG;

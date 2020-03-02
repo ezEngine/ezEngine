@@ -13,7 +13,7 @@
 // http://go.microsoft.com/fwlink/?LinkId=248926
 //-------------------------------------------------------------------------------------
 
-#include "DirectXTexp.h"
+#include "DirectXTexP.h"
 
 using namespace DirectX;
 
@@ -21,7 +21,7 @@ namespace
 {
     //---------------------------------------------------------------------------------
     // NonPremultiplied alpha -> Premultiplied alpha
-    HRESULT PremultiplyAlpha_(const Image& srcImage, const Image& destImage)
+    HRESULT PremultiplyAlpha_(const Image& srcImage, const Image& destImage) noexcept
     {
         assert(srcImage.width == destImage.width);
         assert(srcImage.height == destImage.height);
@@ -59,7 +59,7 @@ namespace
         return S_OK;
     }
 
-    HRESULT PremultiplyAlphaLinear(const Image& srcImage, DWORD flags, const Image& destImage)
+    HRESULT PremultiplyAlphaLinear(const Image& srcImage, DWORD flags, const Image& destImage) noexcept
     {
         assert(srcImage.width == destImage.width);
         assert(srcImage.height == destImage.height);
@@ -104,7 +104,7 @@ namespace
 
     //---------------------------------------------------------------------------------
     // Premultiplied alpha -> NonPremultiplied alpha (a.k.a. Straight alpha)
-    HRESULT DemultiplyAlpha(const Image& srcImage, const Image& destImage)
+    HRESULT DemultiplyAlpha(const Image& srcImage, const Image& destImage) noexcept
     {
         assert(srcImage.width == destImage.width);
         assert(srcImage.height == destImage.height);
@@ -142,7 +142,7 @@ namespace
         return S_OK;
     }
 
-    HRESULT DemultiplyAlphaLinear(const Image& srcImage, DWORD flags, const Image& destImage)
+    HRESULT DemultiplyAlphaLinear(const Image& srcImage, DWORD flags, const Image& destImage) noexcept
     {
         assert(srcImage.width == destImage.width);
         assert(srcImage.height == destImage.height);
@@ -198,7 +198,7 @@ _Use_decl_annotations_
 HRESULT DirectX::PremultiplyAlpha(
     const Image& srcImage,
     DWORD flags,
-    ScratchImage& image)
+    ScratchImage& image) noexcept
 {
     if (!srcImage.pixels)
         return E_POINTER;
@@ -251,7 +251,7 @@ HRESULT DirectX::PremultiplyAlpha(
     size_t nimages,
     const TexMetadata& metadata,
     DWORD flags,
-    ScratchImage& result)
+    ScratchImage& result) noexcept
 {
     if (!srcImages || !nimages)
         return E_INVALIDARG;

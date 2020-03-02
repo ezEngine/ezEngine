@@ -9,8 +9,8 @@
 
 #pragma once
 
-#include <directxmath.h>
-#include <directxpackedvector.h>
+#include <DirectXMath.h>
+#include <DirectXPackedVector.h>
 
 #include <memory>
 
@@ -59,7 +59,7 @@ struct LinearFilter
     float   weight1;
 };
 
-inline void _CreateLinearFilter(_In_ size_t source, _In_ size_t dest, _In_ bool wrap, _Out_writes_(dest) LinearFilter* lf)
+inline void _CreateLinearFilter(_In_ size_t source, _In_ size_t dest, _In_ bool wrap, _Out_writes_(dest) LinearFilter* lf) noexcept
 {
     assert(source > 0);
     assert(dest > 0);
@@ -78,12 +78,12 @@ inline void _CreateLinearFilter(_In_ size_t source, _In_ size_t dest, _In_ bool 
 
         if (isrcA < 0)
         {
-            isrcA = (wrap) ? (source - 1) : 0;
+            isrcA = (wrap) ? (ptrdiff_t(source) - 1) : 0;
         }
 
         if (size_t(isrcB) >= source)
         {
-            isrcB = (wrap) ? 0 : (source - 1);
+            isrcB = (wrap) ? 0 : (ptrdiff_t(source) - 1);
         }
 
         float weight = 1.0f + float(isrcB) - srcB;
@@ -99,7 +99,7 @@ inline void _CreateLinearFilter(_In_ size_t source, _In_ size_t dest, _In_ bool 
 
 #define BILINEAR_INTERPOLATE( res, x, y, r0, r1 ) \
     res = XMVectorAdd(XMVectorScale(XMVectorAdd(XMVectorScale((r0)[ x.u0 ], x.weight0), XMVectorScale((r0)[ x.u1 ], x.weight1)), y.weight0), \
-                      XMVectorScale(XMVectorAdd(XMVectorScale((r1)[ x.u0 ], x.weight0), XMVectorScale((r1)[ x.u1 ], x.weight1)), y.weight1) )
+                      XMVectorScale(XMVectorAdd(XMVectorScale((r1)[ x.u0 ], x.weight0), XMVectorScale((r1)[ x.u1 ], x.weight1)), y.weight1) );
 
 #define TRILINEAR_INTERPOLATE( res, x, y, z, r0, r1, r2, r3 ) \
 {\
@@ -118,7 +118,7 @@ XMGLOBALCONST XMVECTORF32 g_cubicThird = { { { 1.f / 3.f, 1.f / 3.f, 1.f / 3.f, 
 XMGLOBALCONST XMVECTORF32 g_cubicSixth = { { { 1.f / 6.f, 1.f / 6.f, 1.f / 6.f, 1.f / 6.f } } };
 XMGLOBALCONST XMVECTORF32 g_cubicHalf  = { { { 1.f / 2.f, 1.f / 2.f, 1.f / 2.f, 1.f / 2.f } } };
 
-inline ptrdiff_t bounduvw(ptrdiff_t u, ptrdiff_t maxu, bool wrap, bool mirror)
+inline ptrdiff_t bounduvw(ptrdiff_t u, ptrdiff_t maxu, bool wrap, bool mirror) noexcept
 {
     if (wrap)
     {
@@ -159,7 +159,7 @@ struct CubicFilter
     float   x;
 };
 
-inline void _CreateCubicFilter(_In_ size_t source, _In_ size_t dest, _In_ bool wrap, _In_ bool mirror, _Out_writes_(dest) CubicFilter* cf)
+inline void _CreateCubicFilter(_In_ size_t source, _In_ size_t dest, _In_ bool wrap, _In_ bool mirror, _Out_writes_(dest) CubicFilter* cf) noexcept
 {
     assert(source > 0);
     assert(dest > 0);
@@ -171,10 +171,10 @@ inline void _CreateCubicFilter(_In_ size_t source, _In_ size_t dest, _In_ bool w
     {
         float srcB = (float(u) + 0.5f) * scale - 0.5f;
 
-        ptrdiff_t isrcB = bounduvw(ptrdiff_t(srcB), source - 1, wrap, mirror);
-        ptrdiff_t isrcA = bounduvw(isrcB - 1, source - 1, wrap, mirror);
-        ptrdiff_t isrcC = bounduvw(isrcB + 1, source - 1, wrap, mirror);
-        ptrdiff_t isrcD = bounduvw(isrcB + 2, source - 1, wrap, mirror);
+        ptrdiff_t isrcB = bounduvw(ptrdiff_t(srcB), ptrdiff_t(source) - 1, wrap, mirror);
+        ptrdiff_t isrcA = bounduvw(isrcB - 1, ptrdiff_t(source) - 1, wrap, mirror);
+        ptrdiff_t isrcC = bounduvw(isrcB + 1, ptrdiff_t(source) - 1, wrap, mirror);
+        ptrdiff_t isrcD = bounduvw(isrcB + 2, ptrdiff_t(source) - 1, wrap, mirror);
 
         auto& entry = cf[u];
         entry.u0 = size_t(isrcA);
@@ -246,7 +246,7 @@ namespace TriangleFilter
 
     static const float TF_EPSILON = 0.00001f;
 
-    inline HRESULT _Create(_In_ size_t source, _In_ size_t dest, _In_ bool wrap, _Inout_ std::unique_ptr<Filter>& tf)
+    inline HRESULT _Create(_In_ size_t source, _In_ size_t dest, _In_ bool wrap, _Inout_ std::unique_ptr<Filter>& tf) noexcept
     {
         assert(source > 0);
         assert(dest > 0);
@@ -295,7 +295,7 @@ namespace TriangleFilter
         }
 
         assert(pFilter != nullptr);
-        _Analysis_assume_(pFilter != 0);
+        _Analysis_assume_(pFilter != nullptr);
 
         // Filter setup
         size_t sizeInBytes = TF_FILTER_SIZE;
@@ -421,4 +421,3 @@ namespace TriangleFilter
 } // namespace TriangleFilter
 
 } // namespace DirectX
-

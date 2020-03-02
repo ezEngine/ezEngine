@@ -16,13 +16,13 @@
 //=====================================================================================
 
 _Use_decl_annotations_
-inline bool __cdecl IsValid(DXGI_FORMAT fmt)
+inline bool __cdecl IsValid(DXGI_FORMAT fmt) noexcept
 {
     return (static_cast<size_t>(fmt) >= 1 && static_cast<size_t>(fmt) <= 190);
 }
 
 _Use_decl_annotations_
-inline bool __cdecl IsCompressed(DXGI_FORMAT fmt)
+inline bool __cdecl IsCompressed(DXGI_FORMAT fmt) noexcept
 {
     switch (fmt)
     {
@@ -55,7 +55,7 @@ inline bool __cdecl IsCompressed(DXGI_FORMAT fmt)
 }
 
 _Use_decl_annotations_
-inline bool __cdecl IsPalettized(DXGI_FORMAT fmt)
+inline bool __cdecl IsPalettized(DXGI_FORMAT fmt) noexcept
 {
     switch (fmt)
     {
@@ -71,7 +71,7 @@ inline bool __cdecl IsPalettized(DXGI_FORMAT fmt)
 }
 
 _Use_decl_annotations_
-inline bool __cdecl IsSRGB(DXGI_FORMAT fmt)
+inline bool __cdecl IsSRGB(DXGI_FORMAT fmt) noexcept
 {
     switch (fmt)
     {
@@ -94,7 +94,7 @@ inline bool __cdecl IsSRGB(DXGI_FORMAT fmt)
 // Image I/O
 //=====================================================================================
 _Use_decl_annotations_
-inline HRESULT __cdecl SaveToDDSMemory(const Image& image, DWORD flags, Blob& blob)
+inline HRESULT __cdecl SaveToDDSMemory(const Image& image, DWORD flags, Blob& blob) noexcept
 {
     TexMetadata mdata = {};
     mdata.width = image.width;
@@ -109,7 +109,7 @@ inline HRESULT __cdecl SaveToDDSMemory(const Image& image, DWORD flags, Blob& bl
 }
 
 _Use_decl_annotations_
-inline HRESULT __cdecl SaveToDDSFile(const Image& image, DWORD flags, const wchar_t* szFile)
+inline HRESULT __cdecl SaveToDDSFile(const Image& image, DWORD flags, const wchar_t* szFile) noexcept
 {
     TexMetadata mdata = {};
     mdata.width = image.width;
@@ -122,4 +122,3 @@ inline HRESULT __cdecl SaveToDDSFile(const Image& image, DWORD flags, const wcha
 
     return SaveToDDSFile(&image, 1, mdata, flags, szFile);
 }
-

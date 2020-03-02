@@ -13,7 +13,7 @@
 // http://go.microsoft.com/fwlink/?LinkId=248926
 //-------------------------------------------------------------------------------------
 
-#include "DirectXTexp.h"
+#include "DirectXTexP.h"
 
 #if !defined(_XBOX_ONE) || !defined(_TITLE)
 #include <d3d10.h>
@@ -36,7 +36,7 @@ namespace
         _In_ ID3D11DeviceContext* pContext,
         _In_ ID3D11Resource* pSource,
         const TexMetadata& metadata,
-        const ScratchImage& result)
+        const ScratchImage& result) noexcept
     {
         if (!pContext || !pSource || !result.GetPixels())
             return E_POINTER;
@@ -206,7 +206,7 @@ namespace
 _Use_decl_annotations_
 bool DirectX::IsSupportedTexture(
     ID3D11Device* pDevice,
-    const TexMetadata& metadata)
+    const TexMetadata& metadata) noexcept
 {
     if (!pDevice)
         return false;
@@ -407,7 +407,7 @@ HRESULT DirectX::CreateTexture(
     const Image* srcImages,
     size_t nimages,
     const TexMetadata& metadata,
-    ID3D11Resource** ppResource)
+    ID3D11Resource** ppResource) noexcept
 {
     return CreateTextureEx(
         pDevice, srcImages, nimages, metadata,
@@ -426,7 +426,7 @@ HRESULT DirectX::CreateTextureEx(
     unsigned int cpuAccessFlags,
     unsigned int miscFlags,
     bool forceSRGB,
-    ID3D11Resource** ppResource)
+    ID3D11Resource** ppResource) noexcept
 {
     if (!pDevice || !srcImages || !nimages || !ppResource)
         return E_INVALIDARG;
@@ -557,7 +557,7 @@ HRESULT DirectX::CreateTextureEx(
         desc.Usage = usage;
         desc.BindFlags = bindFlags;
         desc.CPUAccessFlags = cpuAccessFlags;
-        desc.MiscFlags = miscFlags & ~D3D11_RESOURCE_MISC_TEXTURECUBE;
+        desc.MiscFlags = miscFlags & ~static_cast<uint32_t>(D3D11_RESOURCE_MISC_TEXTURECUBE);
 
         hr = pDevice->CreateTexture1D(&desc, initData.get(), reinterpret_cast<ID3D11Texture1D**>(ppResource));
     }
@@ -579,7 +579,7 @@ HRESULT DirectX::CreateTextureEx(
         if (metadata.IsCubemap())
             desc.MiscFlags = miscFlags | D3D11_RESOURCE_MISC_TEXTURECUBE;
         else
-            desc.MiscFlags = miscFlags & ~D3D11_RESOURCE_MISC_TEXTURECUBE;
+            desc.MiscFlags = miscFlags & ~static_cast<uint32_t>(D3D11_RESOURCE_MISC_TEXTURECUBE);
 
         hr = pDevice->CreateTexture2D(&desc, initData.get(), reinterpret_cast<ID3D11Texture2D**>(ppResource));
     }
@@ -596,7 +596,7 @@ HRESULT DirectX::CreateTextureEx(
         desc.Usage = usage;
         desc.BindFlags = bindFlags;
         desc.CPUAccessFlags = cpuAccessFlags;
-        desc.MiscFlags = miscFlags & ~D3D11_RESOURCE_MISC_TEXTURECUBE;
+        desc.MiscFlags = miscFlags & ~static_cast<uint32_t>(D3D11_RESOURCE_MISC_TEXTURECUBE);
 
         hr = pDevice->CreateTexture3D(&desc, initData.get(), reinterpret_cast<ID3D11Texture3D**>(ppResource));
     }
@@ -616,7 +616,7 @@ HRESULT DirectX::CreateShaderResourceView(
     const Image* srcImages,
     size_t nimages,
     const TexMetadata& metadata,
-    ID3D11ShaderResourceView** ppSRV)
+    ID3D11ShaderResourceView** ppSRV) noexcept
 {
     return CreateShaderResourceViewEx(
         pDevice, srcImages, nimages, metadata,
@@ -635,12 +635,15 @@ HRESULT DirectX::CreateShaderResourceViewEx(
     unsigned int cpuAccessFlags,
     unsigned int miscFlags,
     bool forceSRGB,
-    ID3D11ShaderResourceView** ppSRV)
+    ID3D11ShaderResourceView** ppSRV) noexcept
 {
     if (!ppSRV)
         return E_INVALIDARG;
 
     *ppSRV = nullptr;
+
+    if (!(bindFlags & D3D11_BIND_SHADER_RESOURCE))
+        return E_INVALIDARG;
 
     ComPtr<ID3D11Resource> resource;
     HRESULT hr = CreateTextureEx(pDevice, srcImages, nimages, metadata,
@@ -730,7 +733,7 @@ HRESULT DirectX::CaptureTexture(
     ID3D11Device* pDevice,
     ID3D11DeviceContext* pContext,
     ID3D11Resource* pSource,
-    ScratchImage& result)
+    ScratchImage& result) noexcept
 {
     if (!pDevice || !pContext || !pSource)
         return E_INVALIDARG;
@@ -887,7 +890,7 @@ HRESULT DirectX::CaptureTexture(
         mdata.depth = 1;
         mdata.arraySize = desc.ArraySize;
         mdata.mipLevels = desc.MipLevels;
-        mdata.miscFlags = (desc.MiscFlags & D3D11_RESOURCE_MISC_TEXTURECUBE) ? TEX_MISC_TEXTURECUBE : 0;
+        mdata.miscFlags = (desc.MiscFlags & D3D11_RESOURCE_MISC_TEXTURECUBE) ? TEX_MISC_TEXTURECUBE : 0u;
         mdata.miscFlags2 = 0;
         mdata.format = desc.Format;
         mdata.dimension = TEX_DIMENSION_TEXTURE2D;

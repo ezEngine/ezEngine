@@ -12,7 +12,7 @@
 #pragma once
 
 // Off by default warnings
-#pragma warning(disable : 4619 4616 4061 4265 4365 4571 4623 4625 4626 4628 4668 4710 4711 4746 4774 4820 4987 5026 5027 5031 5032 5039 5045)
+#pragma warning(disable : 4619 4616 4061 4265 4365 4571 4623 4625 4626 4628 4668 4710 4711 4746 4774 4820 4987 5026 5027 5031 5032 5039 5045 26812)
 // C4619/4616 #pragma warning warnings
 // C4061 enumerator 'X' in switch of enum 'X' is not explicitly handled by a case label
 // C4265 class has virtual functions, but destructor is not virtual
@@ -34,6 +34,7 @@
 // C5031/5032 push/pop mismatches in windows headers
 // C5039 pointer or reference to potentially throwing function passed to extern C function under - EHc
 // C5045 Spectre mitigation warning
+// 26812: The enum type 'x' is unscoped. Prefer 'enum class' over 'enum' (Enum.3).
 
 // Windows 8.1 SDK related Off by default warnings
 #pragma warning(disable : 4471 4917 4986 5029)
@@ -51,9 +52,29 @@
 // warning #161: unrecognized #pragma
 #endif
 
+#ifdef __clang__
+#pragma clang diagnostic ignored "-Wc++98-compat"
+#pragma clang diagnostic ignored "-Wc++98-compat-pedantic"
+#pragma clang diagnostic ignored "-Wc++98-compat-local-type-template-args"
+#pragma clang diagnostic ignored "-Wcovered-switch-default"
+#pragma clang diagnostic ignored "-Wfloat-equal"
+#pragma clang diagnostic ignored "-Wglobal-constructors"
+#pragma clang diagnostic ignored "-Wgnu-anonymous-struct"
+#pragma clang diagnostic ignored "-Wlanguage-extension-token"
+#pragma clang diagnostic ignored "-Wmissing-variable-declarations"
+#pragma clang diagnostic ignored "-Wnested-anon-types"
+#pragma clang diagnostic ignored "-Wreserved-id-macro"
+#pragma clang diagnostic ignored "-Wswitch-enum"
+#pragma clang diagnostic ignored "-Wtautological-type-limit-compare"
+#pragma clang diagnostic ignored "-Wunknown-pragmas"
+#endif
+
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
 #pragma warning(push)
 #pragma warning(disable : 4005)
-#define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #define NODRAWTEXT
 #define NOGDI
@@ -67,7 +88,7 @@
 #define _WIN32_WINNT_WIN10 0x0A00
 #endif
 
-#include <windows.h>
+#include <Windows.h>
 
 #if defined(_XBOX_ONE) && defined(_TITLE)
 #include <d3d12_x.h>
@@ -81,8 +102,8 @@
 
 #define _XM_NO_XMVECTOR_OVERLOADS_
 
-#include <directxmath.h>
-#include <directxpackedvector.h>
+#include <DirectXMath.h>
+#include <DirectXPackedVector.h>
 #include <assert.h>
 
 #include <malloc.h>
@@ -90,16 +111,17 @@
 
 #include <vector>
 
+#include <time.h>
 #include <stdlib.h>
 #include <search.h>
 
-#include <ole2.h>
+#include <Ole2.h>
 
-#include "directxtex.h"
+#include "DirectXTex.h"
 
 #include <wincodec.h>
 
-#include <wrl/client.h>
+#include <wrl\client.h>
 
 #include "scoped.h"
 
@@ -125,12 +147,12 @@ namespace DirectX
 {
     //---------------------------------------------------------------------------------
     // WIC helper functions
-    DXGI_FORMAT __cdecl _WICToDXGI(_In_ const GUID& guid);
-    bool __cdecl _DXGIToWIC(_In_ DXGI_FORMAT format, _Out_ GUID& guid, _In_ bool ignoreRGBvsBGR = false);
+    DXGI_FORMAT __cdecl _WICToDXGI(_In_ const GUID& guid) noexcept;
+    bool __cdecl _DXGIToWIC(_In_ DXGI_FORMAT format, _Out_ GUID& guid, _In_ bool ignoreRGBvsBGR = false) noexcept;
 
-    DWORD __cdecl _CheckWICColorSpace(_In_ const GUID& sourceGUID, _In_ const GUID& targetGUID);
+    DWORD __cdecl _CheckWICColorSpace(_In_ const GUID& sourceGUID, _In_ const GUID& targetGUID) noexcept;
 
-    inline WICBitmapDitherType __cdecl _GetWICDither(_In_ DWORD flags)
+    inline WICBitmapDitherType __cdecl _GetWICDither(_In_ DWORD flags) noexcept
     {
         static_assert(TEX_FILTER_DITHER == 0x10000, "TEX_FILTER_DITHER* flag values don't match mask");
 
@@ -150,7 +172,7 @@ namespace DirectX
         }
     }
 
-    inline WICBitmapInterpolationMode __cdecl _GetWICInterp(_In_ DWORD flags)
+    inline WICBitmapInterpolationMode __cdecl _GetWICInterp(_In_ DWORD flags) noexcept
     {
         static_assert(TEX_FILTER_POINT == 0x100000, "TEX_FILTER_ flag values don't match TEX_FILTER_MASK");
 
@@ -180,12 +202,12 @@ namespace DirectX
     // Image helper functions
     _Success_(return != false) bool __cdecl _DetermineImageArray(
         _In_ const TexMetadata& metadata, _In_ DWORD cpFlags,
-        _Out_ size_t& nImages, _Out_ size_t& pixelSize);
+        _Out_ size_t& nImages, _Out_ size_t& pixelSize) noexcept;
 
     _Success_(return != false) bool __cdecl _SetupImageArray(
         _In_reads_bytes_(pixelSize) uint8_t *pMemory, _In_ size_t pixelSize,
         _In_ const TexMetadata& metadata, _In_ DWORD cpFlags,
-        _Out_writes_(nImages) Image* images, _In_ size_t nImages);
+        _Out_writes_(nImages) Image* images, _In_ size_t nImages) noexcept;
 
     //---------------------------------------------------------------------------------
     // Conversion helper functions
@@ -221,60 +243,60 @@ namespace DirectX
         CONVF_RGBA_MASK = 0xF0000,
     };
 
-    DWORD __cdecl _GetConvertFlags(_In_ DXGI_FORMAT format);
+    DWORD __cdecl _GetConvertFlags(_In_ DXGI_FORMAT format) noexcept;
 
     void __cdecl _CopyScanline(
         _When_(pDestination == pSource, _Inout_updates_bytes_(outSize))
         _When_(pDestination != pSource, _Out_writes_bytes_(outSize))
         void* pDestination, _In_ size_t outSize,
         _In_reads_bytes_(inSize) const void* pSource, _In_ size_t inSize,
-        _In_ DXGI_FORMAT format, _In_ DWORD flags);
+        _In_ DXGI_FORMAT format, _In_ DWORD flags) noexcept;
 
     void __cdecl _SwizzleScanline(
         _When_(pDestination == pSource, _In_)
         _When_(pDestination != pSource, _Out_writes_bytes_(outSize))
         void* pDestination, _In_ size_t outSize,
         _In_reads_bytes_(inSize) const void* pSource, _In_ size_t inSize,
-        _In_ DXGI_FORMAT format, _In_ DWORD flags);
+        _In_ DXGI_FORMAT format, _In_ DWORD flags) noexcept;
  
     _Success_(return != false) bool __cdecl _ExpandScanline(
         _Out_writes_bytes_(outSize) void* pDestination, _In_ size_t outSize,
         _In_ DXGI_FORMAT outFormat,
         _In_reads_bytes_(inSize) const void* pSource, _In_ size_t inSize,
-        _In_ DXGI_FORMAT inFormat, _In_ DWORD flags);
+        _In_ DXGI_FORMAT inFormat, _In_ DWORD flags) noexcept;
 
     _Success_(return != false) bool __cdecl _LoadScanline(
         _Out_writes_(count) XMVECTOR* pDestination, _In_ size_t count,
-        _In_reads_bytes_(size) const void* pSource, _In_ size_t size, _In_ DXGI_FORMAT format);
+        _In_reads_bytes_(size) const void* pSource, _In_ size_t size, _In_ DXGI_FORMAT format) noexcept;
 
     _Success_(return != false) bool __cdecl _LoadScanlineLinear(
         _Out_writes_(count) XMVECTOR* pDestination, _In_ size_t count,
-        _In_reads_bytes_(size) const void* pSource, _In_ size_t size, _In_ DXGI_FORMAT format, _In_ DWORD flags);
+        _In_reads_bytes_(size) const void* pSource, _In_ size_t size, _In_ DXGI_FORMAT format, _In_ DWORD flags) noexcept;
 
     _Success_(return != false) bool __cdecl _StoreScanline(
         _Out_writes_bytes_(size) void* pDestination, _In_ size_t size, _In_ DXGI_FORMAT format,
-        _In_reads_(count) const XMVECTOR* pSource, _In_ size_t count, _In_ float threshold = 0);
+        _In_reads_(count) const XMVECTOR* pSource, _In_ size_t count, _In_ float threshold = 0) noexcept;
 
     _Success_(return != false) bool __cdecl _StoreScanlineLinear(
         _Out_writes_bytes_(size) void* pDestination, _In_ size_t size, _In_ DXGI_FORMAT format,
-        _Inout_updates_all_(count) XMVECTOR* pSource, _In_ size_t count, _In_ DWORD flags, _In_ float threshold = 0);
+        _Inout_updates_all_(count) XMVECTOR* pSource, _In_ size_t count, _In_ DWORD flags, _In_ float threshold = 0) noexcept;
 
     _Success_(return != false) bool __cdecl _StoreScanlineDither(
         _Out_writes_bytes_(size) void* pDestination, _In_ size_t size, _In_ DXGI_FORMAT format,
         _Inout_updates_all_(count) XMVECTOR* pSource, _In_ size_t count, _In_ float threshold, size_t y, size_t z,
-        _Inout_updates_all_opt_(count + 2) XMVECTOR* pDiffusionErrors);
+        _Inout_updates_all_opt_(count + 2) XMVECTOR* pDiffusionErrors) noexcept;
 
-    HRESULT __cdecl _ConvertToR32G32B32A32(_In_ const Image& srcImage, _Inout_ ScratchImage& image);
+    HRESULT __cdecl _ConvertToR32G32B32A32(_In_ const Image& srcImage, _Inout_ ScratchImage& image) noexcept;
 
-    HRESULT __cdecl _ConvertFromR32G32B32A32(_In_ const Image& srcImage, _In_ const Image& destImage);
-    HRESULT __cdecl _ConvertFromR32G32B32A32(_In_ const Image& srcImage, _In_ DXGI_FORMAT format, _Inout_ ScratchImage& image);
+    HRESULT __cdecl _ConvertFromR32G32B32A32(_In_ const Image& srcImage, _In_ const Image& destImage) noexcept;
+    HRESULT __cdecl _ConvertFromR32G32B32A32(_In_ const Image& srcImage, _In_ DXGI_FORMAT format, _Inout_ ScratchImage& image) noexcept;
     HRESULT __cdecl _ConvertFromR32G32B32A32(
         _In_reads_(nimages) const Image* srcImages, _In_ size_t nimages, _In_ const TexMetadata& metadata,
-        _In_ DXGI_FORMAT format, _Out_ ScratchImage& result);
+        _In_ DXGI_FORMAT format, _Out_ ScratchImage& result) noexcept;
 
-    HRESULT __cdecl _ConvertToR16G16B16A16(_In_ const Image& srcImage, _Inout_ ScratchImage& image);
+    HRESULT __cdecl _ConvertToR16G16B16A16(_In_ const Image& srcImage, _Inout_ ScratchImage& image) noexcept;
 
-    HRESULT __cdecl _ConvertFromR16G16B16A16(_In_ const Image& srcImage, _In_ const Image& destImage);
+    HRESULT __cdecl _ConvertFromR16G16B16A16(_In_ const Image& srcImage, _In_ const Image& destImage) noexcept;
 
     void __cdecl _ConvertScanline(
         _Inout_updates_all_(count) XMVECTOR* pBuffer, _In_ size_t count,
@@ -284,7 +306,6 @@ namespace DirectX
     // DDS helper functions
     HRESULT __cdecl _EncodeDDSHeader(
         _In_ const TexMetadata& metadata, DWORD flags,
-        _Out_writes_bytes_to_opt_(maxsize, required) void* pDestination, _In_ size_t maxsize, _Out_ size_t& required);
+        _Out_writes_bytes_to_opt_(maxsize, required) void* pDestination, _In_ size_t maxsize, _Out_ size_t& required) noexcept;
 
 } // namespace
-
