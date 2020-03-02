@@ -15,15 +15,15 @@
 /// ********************************************************************
 #define OCT__(n) 0##n##LU
 
-#define EZ_8BIT__(iBits)                                                                                                                   \
-  (((iBits & 000000001) ? 1 : 0) + ((iBits & 000000010) ? 2 : 0) + ((iBits & 000000100) ? 4 : 0) + ((iBits & 000001000) ? 8 : 0) +         \
-   ((iBits & 000010000) ? 16 : 0) + ((iBits & 000100000) ? 32 : 0) + ((iBits & 001000000) ? 64 : 0) + ((iBits & 010000000) ? 128 : 0))
+#define EZ_8BIT__(iBits)                                                                                                           \
+  (((iBits & 000000001) ? 1 : 0) + ((iBits & 000000010) ? 2 : 0) + ((iBits & 000000100) ? 4 : 0) + ((iBits & 000001000) ? 8 : 0) + \
+    ((iBits & 000010000) ? 16 : 0) + ((iBits & 000100000) ? 32 : 0) + ((iBits & 001000000) ? 64 : 0) + ((iBits & 010000000) ? 128 : 0))
 
 #define EZ_8BIT(B) ((ezUInt8)EZ_8BIT__(OCT__(B)))
 
 #define EZ_16BIT(B2, B1) (((ezUInt8)EZ_8BIT(B2) << 8) + EZ_8BIT(B1))
 
-#define EZ_32BIT(B4, B3, B2, B1)                                                                                                           \
+#define EZ_32BIT(B4, B3, B2, B1) \
   ((unsigned long)EZ_8BIT(B4) << 24) + ((unsigned long)EZ_8BIT(B3) << 16) + ((unsigned long)EZ_8BIT(B2) << 8) + ((unsigned long)EZ_8BIT(B1))
 
 namespace
@@ -32,8 +32,8 @@ namespace
   {
     int i, id;
     UniqueInt(int i, int id)
-        : i(i)
-        , id(id)
+      : i(i)
+      , id(id)
     {
     }
 
@@ -592,7 +592,8 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_BOOL(ezMath::PowerOfTwo_Ceil(0) == 1);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GreatestCommonDivisor") {
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GreatestCommonDivisor")
+  {
     EZ_TEST_INT(ezMath::GreatestCommonDivisor(13, 13), 13);
     EZ_TEST_INT(ezMath::GreatestCommonDivisor(37, 600), 1);
     EZ_TEST_INT(ezMath::GreatestCommonDivisor(20, 100), 20);
@@ -702,9 +703,9 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
   {
     // Determined through the scientific method of manually comparing the result of the function with an online Bezier curve generator:
     // https://www.desmos.com/calculator/cahqdxeshd
-    const ezVec2 res[] = {ezVec2(1, 5),         ezVec2(0.893, 4.455), ezVec2(1.112, 4.008), ezVec2(1.557, 3.631),
-                          ezVec2(2.136, 3.304), ezVec2(2.750, 3.000), ezVec2(3.303, 2.695), ezVec2(3.701, 2.368),
-                          ezVec2(3.847, 1.991), ezVec2(3.645, 1.543), ezVec2(3, 1)};
+    const ezVec2 res[] = {ezVec2(1, 5), ezVec2(0.893, 4.455), ezVec2(1.112, 4.008), ezVec2(1.557, 3.631),
+      ezVec2(2.136, 3.304), ezVec2(2.750, 3.000), ezVec2(3.303, 2.695), ezVec2(3.701, 2.368),
+      ezVec2(3.847, 1.991), ezVec2(3.645, 1.543), ezVec2(3, 1)};
 
     const float step = 1.0f / (EZ_ARRAY_SIZE(res) - 1);
     for (int i = 0; i < EZ_ARRAY_SIZE(res); ++i)
@@ -750,5 +751,72 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_INT(ezMath::CountLeadingZeros(0b0001), 31);
     EZ_TEST_INT(ezMath::CountLeadingZeros(0xFFFFFFFF), 0);
     EZ_TEST_INT(ezMath::CountLeadingZeros(0), 32);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "TryMultiply32")
+  {
+    ezUInt32 res;
+
+    res = 0;
+    EZ_TEST_BOOL(ezMath::TryMultiply32(res, 1, 1, 2, 3).Succeeded());
+    EZ_TEST_INT(res, 6);
+
+    res = 0;
+    EZ_TEST_BOOL(ezMath::TryMultiply32(res, 1, 1, 1, 0xFFFFFFFF).Succeeded());
+    EZ_TEST_BOOL(res == 0xFFFFFFFF);
+
+    res = 0;
+    EZ_TEST_BOOL(ezMath::TryMultiply32(res, 0xFFFF, 0x10001).Succeeded());
+    EZ_TEST_BOOL(res == 0xFFFFFFFF);
+
+    res = 0;
+    EZ_TEST_BOOL(ezMath::TryMultiply32(res, 0x3FFFFFF, 2, 4, 8).Succeeded());
+    EZ_TEST_BOOL(res == 0xFFFFFFC0);
+
+    res = 1;
+    EZ_TEST_BOOL(ezMath::TryMultiply32(res, 0xFFFFFFFF, 2).Failed());
+    EZ_TEST_BOOL(res == 1);
+
+    res = 0;
+    EZ_TEST_BOOL(ezMath::TryMultiply32(res, 0x80000000, 2).Failed()); // slightly above 0xFFFFFFFF
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "TryMultiply64")
+  {
+    ezUInt64 res;
+
+    res = 0;
+    EZ_TEST_BOOL(ezMath::TryMultiply64(res, 1, 1, 2, 3).Succeeded());
+    EZ_TEST_INT(res, 6);
+
+    res = 0;
+    EZ_TEST_BOOL(ezMath::TryMultiply64(res, 1, 1, 1, 0xFFFFFFFF).Succeeded());
+    EZ_TEST_BOOL(res == 0xFFFFFFFF);
+
+    res = 0;
+    EZ_TEST_BOOL(ezMath::TryMultiply64(res, 0xFFFF, 0x10001).Succeeded());
+    EZ_TEST_BOOL(res == 0xFFFFFFFF);
+
+    res = 0;
+    EZ_TEST_BOOL(ezMath::TryMultiply64(res, 0x3FFFFFF, 2, 4, 8).Succeeded());
+    EZ_TEST_BOOL(res == 0xFFFFFFC0);
+
+    res = 0;
+    EZ_TEST_BOOL(ezMath::TryMultiply64(res, 0xFFFFFFFF, 2).Succeeded());
+    EZ_TEST_BOOL(res == 0x1FFFFFFFE);
+
+    res = 0;
+    EZ_TEST_BOOL(ezMath::TryMultiply64(res, 0x80000000, 2).Succeeded());
+    EZ_TEST_BOOL(res == 0x100000000);
+
+    res = 0;
+    EZ_TEST_BOOL(ezMath::TryMultiply64(res, 0xFFFFFFFF, 0xFFFFFFFF).Succeeded());
+    EZ_TEST_BOOL(res == 0xFFFFFFFE00000001);
+
+    res = 0;
+    EZ_TEST_BOOL(ezMath::TryMultiply64(res, 0xFFFFFFFFFFFFFFFF, 2).Failed());
+
+    res = 0;
+    EZ_TEST_BOOL(ezMath::TryMultiply64(res, 0xFFFFFFFF, 0xFFFFFFFF, 2).Failed());
   }
 }

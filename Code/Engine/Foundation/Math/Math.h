@@ -2,8 +2,8 @@
 
 #include <Foundation/Basics.h>
 #include <Foundation/Math/Angle.h>
-#include <Foundation/Math/Declarations.h>
 #include <Foundation/Math/Constants.h>
+#include <Foundation/Math/Declarations.h>
 
 
 /// \brief This namespace provides common math-functionality as functions.
@@ -309,6 +309,19 @@ namespace ezMath
   /// Can be used with T as float, vec2, vec3 or vec4
   template <typename T, typename T2>
   T EvaluateBezierCurve(T2 t, const T& startPoint, const T& controlPoint1, const T& controlPoint2, const T& endPoint);
+
+  /// \brief out_Result = \a a * \a b. If an overflow happens, EZ_FAILURE is returned.
+  EZ_FOUNDATION_DLL ezResult TryMultiply32(ezUInt32& out_Result, ezUInt32 a, ezUInt32 b, ezUInt32 c = 1, ezUInt32 d = 1); // [tested]
+
+  /// \brief returns \a a * \a b. If an overflow happens, the program is terminated.
+  EZ_FOUNDATION_DLL ezUInt32 SafeMultiply32(ezUInt32 a, ezUInt32 b, ezUInt32 c = 1, ezUInt32 d = 1);
+
+  /// \brief out_Result = \a a * \a b. If an overflow happens, EZ_FAILURE is returned.
+  EZ_FOUNDATION_DLL ezResult TryMultiply64(ezUInt64& out_Result, ezUInt64 a, ezUInt64 b, ezUInt64 c = 1, ezUInt64 d = 1); // [tested]
+
+  /// \brief returns \a a * \a b. If an overflow happens, the program is terminated.
+  EZ_FOUNDATION_DLL ezUInt64 SafeMultiply64(ezUInt64 a, ezUInt64 b, ezUInt64 c = 1, ezUInt64 d = 1);
+
 } // namespace ezMath
 
 #include <Foundation/Math/Implementation/MathDouble_inl.h>
