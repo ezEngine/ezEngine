@@ -760,9 +760,7 @@ static void FormatUFloatScientific(char* szOutputBuffer, unsigned int uiBufferSi
     exp++;
   }
 
-  if (FormatUFloat(szOutputBuffer, uiBufferSize, uiWritePos, dSci, iPrecision, Flags, bRemoveZeroes))
-  {
-  }
+  FormatUFloat(szOutputBuffer, uiBufferSize, uiWritePos, dSci, iPrecision, Flags, bRemoveZeroes);
 
   OutputChar(szOutputBuffer, uiBufferSize, uiWritePos, bUpperCase ? 'E' : 'e');
   OutputInt(szOutputBuffer, uiBufferSize, uiWritePos, exp, 0, 3, sprintfFlags::ForceZeroSign, 10);
