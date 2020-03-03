@@ -58,19 +58,27 @@ namespace
     return SUCCEEDED(s_CreateDXGIFactory1(IID_PPV_ARGS(pFactory)));
   }
 
-  /// Tries to create a hardware device
-  ezResult CreateDevice(ComPtr<ID3D11Device>& pDevice)
+  enum class TypeOfDeviceCreated
+  {
+    None,
+    Hardware,
+    Software
+  };
+
+  /// Tries to create a hardware device, but falls back to a software device if there is one.
+  TypeOfDeviceCreated CreateDevice(ComPtr<ID3D11Device>& pDevice)
   {
     pDevice = nullptr;
 
     // Find a hardware adapter if possible, otherwise find any adapter.
-    ComPtr<IDXGIAdapter1> pAdapter1;
-    bool isHardwareAdapter = false;
+    ComPtr<IDXGIAdapter1> pHardwareAdapter1;
+    ComPtr<IDXGIAdapter1> pFallbackAdapter1;
     {
       int adapter = 0;
       ComPtr<IDXGIFactory1> dxgiFactory;
       if (GetDXGIFactory(dxgiFactory.GetAddressOf()))
       {
+        ComPtr<IDXGIAdapter1> pAdapter1;
         while (dxgiFactory->EnumAdapters1(adapter, pAdapter1.ReleaseAndGetAddressOf()) != DXGI_ERROR_NOT_FOUND)
         {
           DXGI_ADAPTER_DESC1 desc1;
@@ -82,18 +90,37 @@ namespace
           constexpr auto basicDriverString = L"Microsoft Basic Render Driver";
           if ((desc1.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) == 0 && _wcsicmp(basicDriverString, desc1.Description) != 0)
           {
-            isHardwareAdapter = true;
-            // We found a hardware adapter, so stop searching.
-            break;
+            if (pHardwareAdapter1 == nullptr)
+            {
+              pHardwareAdapter1 = pAdapter1;
+            }
           }
+          else if (pFallbackAdapter1 == nullptr)
+          {
+            pFallbackAdapter1 = pAdapter1;
+          }
+
           ++adapter;
         }
       }
     }
 
-    if (!isHardwareAdapter)
+    ComPtr<IDXGIAdapter1> pAdapter1;
+    TypeOfDeviceCreated deviceType = TypeOfDeviceCreated::None;
+    if (pHardwareAdapter1 != nullptr)
     {
-      return EZ_FAILURE;
+      pAdapter1 = pHardwareAdapter1;
+      deviceType = TypeOfDeviceCreated::Hardware;
+    }
+    else if (pFallbackAdapter1 != nullptr)
+    {
+      pAdapter1 = pFallbackAdapter1;
+      deviceType = TypeOfDeviceCreated::Software;
+    }
+
+    if (pAdapter1 == nullptr)
+    {
+      return TypeOfDeviceCreated::None;
     }
 
     // Get the IDXGIAdapter interface from the IDXGIAdapter1.
@@ -112,12 +139,12 @@ namespace
     {
       HMODULE hModD3D11 = LoadLibraryA("d3d11.dll");
       if (!hModD3D11)
-        return EZ_FAILURE;
+        return TypeOfDeviceCreated::None;
 
       s_DynamicD3D11CreateDevice =
         reinterpret_cast<PFN_D3D11_CREATE_DEVICE>(reinterpret_cast<void*>(GetProcAddress(hModD3D11, "D3D11CreateDevice")));
       if (!s_DynamicD3D11CreateDevice)
-        return EZ_FAILURE;
+        return TypeOfDeviceCreated::None;
     }
 
     D3D_FEATURE_LEVEL featureLevels[] = {
@@ -161,10 +188,12 @@ namespace
         ezLog::Info("Using DirectCompute on \"{0}\"", sDesc.GetData());
       }
 
-      return EZ_SUCCESS;
+      return deviceType;
     }
-
-    return EZ_FAILURE;
+    else
+    {
+      return TypeOfDeviceCreated::None;
+    }
   }
 
   /// Ensures a device and its corresponding conversion table are constructed together.
@@ -210,14 +239,15 @@ namespace
       if (!m_supportedConversions.IsEmpty())
         return;
 
-      float devicePenalty = 0.0f;
+      // A high penalty for software devices.
+      // The number chosen is greater than (32 * 4) * 2 * 2 * 2 = 1024, the estimated cost of the
+      // currently largest step, making software DX conversions available but highly undesirable.
+      float devicePenalty = 2000.0f;
 
-      if (CreateDevice(m_pD3dDevice).Failed())
+      if (CreateDevice(m_pD3dDevice) == TypeOfDeviceCreated::Hardware)
       {
-        // A high penalty for software devices.
-        // The number chosen is greater than (32 * 4) * 2 * 2 * 2 = 1024, the estimated cost of the
-        // currently largest step, making software DX conversions available but highly undesirable.
-        devicePenalty = 2000.0f;
+        // No penalty for hardware devices.
+        devicePenalty = 0.0f;
       }
 
       for (auto& entry : ezArrayPtr<ezImageConversionEntry>(s_sourceConversions))
@@ -231,6 +261,7 @@ namespace
     void Deinit()
     {
       m_pD3dDevice = nullptr;
+      m_supportedConversions.Clear();
     }
 
   private:
