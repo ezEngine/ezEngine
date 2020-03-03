@@ -129,11 +129,11 @@ TextureImport.AO;Ambient Occlusion Texture
 TextureImport.Height;Height Map Texture
 TextureImport.Metalness;Metalness Texture
 TextureImport.Roughness;Roughness Texture
-ezDecalMode::All;All
 ezDecalMode::BaseColor;Base Color
 ezDecalMode::BaseColorNormal;Base Color, Normal
 ezDecalMode::BaseColorORM;Base Color, ORM
-ezDecalMode::Emissive;Emissive
+ezDecalMode::BaseColorNormalORM;Base Color, Normal, ORM
+ezDecalMode::BaseColorEmissive;BaseColor, Emissive
 MeshImport.WithMaterials;Mesh and Materials
 MeshImport.NoMaterials;Mesh only
 DecalImport.All;Decal

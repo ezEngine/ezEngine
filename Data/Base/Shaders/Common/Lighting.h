@@ -444,7 +444,7 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uin
       float2 baseAtlasScale = RG16FToFloat2(decalData.baseColorAtlasScale);
       float2 baseAtlasOffset = RG16FToFloat2(decalData.baseColorAtlasOffset);
 
-      float4 decalBaseColor = RGBA16FToFloat4(decalData.colorRG, decalData.colorBA);
+      float4 decalBaseColor = RGBA8ToFloat4(decalData.baseColor);
       decalBaseColor *= DecalAtlasBaseColorTexture.Sample(LinearClampSampler, decalPosition.xy * baseAtlasScale + baseAtlasOffset);
       fade *= decalBaseColor.a;
       
@@ -500,10 +500,16 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uin
       float3 decalSpecularColor = lerp(0.04f, decalBaseColor.rgb, decalMetallic);
       matData.specularColor = lerp(matData.specularColor, decalSpecularColor, fade);
       
+      float3 decalEmissiveColor = RGBA16FToFloat4(decalData.emissiveColorRG, decalData.emissiveColorBA).rgb;
+      
       if (decalFlags & DECAL_USE_EMISSIVE)
       {
-        matData.emissiveColor += decalBaseColor.rgb * fade;
+        float2 ormAtlasScale = RG16FToFloat2(decalData.ormAtlasScale);
+        float2 ormAtlasOffset = RG16FToFloat2(decalData.ormAtlasOffset);
+        
+        decalEmissiveColor *= DecalAtlasORMTexture.Sample(LinearClampSampler, decalPosition.xy * ormAtlasScale + ormAtlasOffset).rgb;
       }
+      matData.emissiveColor += decalEmissiveColor * fade;
       
       matData.opacity = max(matData.opacity, fade);      
     }

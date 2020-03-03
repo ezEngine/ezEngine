@@ -83,10 +83,10 @@ struct EZ_ALIGN_16(ezPerDecalData)
   UINT1(applyOnlyToId);
   UINT1(decalFlags);
   UINT1(angleFadeParams); // scale and offset as 16 bit floats
-  UINT1(padding0);
+  UINT1(baseColor);
 
-  UINT1(colorRG); // as 16 bit floats
-  UINT1(colorBA); // as 16 bit floats
+  UINT1(emissiveColorRG); // as 16 bit floats
+  UINT1(emissiveColorBA); // as 16 bit floats
 
   UINT1(baseColorAtlasScale); // xy as 16 bit floats
   UINT1(baseColorAtlasOffset); // xy as 16 bit floats

@@ -10,11 +10,11 @@
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezDecalMode, 1)
-  EZ_ENUM_CONSTANT(ezDecalMode::All),
   EZ_ENUM_CONSTANT(ezDecalMode::BaseColor),
   EZ_ENUM_CONSTANT(ezDecalMode::BaseColorNormal),
   EZ_ENUM_CONSTANT(ezDecalMode::BaseColorORM),
-  EZ_ENUM_CONSTANT(ezDecalMode::Emissive)
+  EZ_ENUM_CONSTANT(ezDecalMode::BaseColorNormalORM),
+  EZ_ENUM_CONSTANT(ezDecalMode::BaseColorEmissive)
 EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetProperties, 2, ezRTTIDefaultAllocator<ezDecalAssetProperties>)
@@ -43,32 +43,26 @@ void ezDecalAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEv
 
     auto& props = *e.m_pPropertyStates;
 
+    props["Normal"].m_Visibility = ezPropertyUiState::Invisible;
+    props["ORM"].m_Visibility = ezPropertyUiState::Invisible;
     props["Emissive"].m_Visibility = ezPropertyUiState::Invisible;
 
-    if (mode != ezDecalMode::All)
+    if (mode == ezDecalMode::BaseColorNormal)
     {
-      props["BaseColor"].m_Visibility = ezPropertyUiState::Invisible;
-      props["Normal"].m_Visibility = ezPropertyUiState::Invisible;
-      props["ORM"].m_Visibility = ezPropertyUiState::Invisible;
-
-      if (mode == ezDecalMode::BaseColor)
-      {
-        props["BaseColor"].m_Visibility = ezPropertyUiState::Default;
-      }
-      else if (mode == ezDecalMode::BaseColorNormal)
-      {
-        props["BaseColor"].m_Visibility = ezPropertyUiState::Default;
-        props["Normal"].m_Visibility = ezPropertyUiState::Default;
-      }
-      else if (mode == ezDecalMode::BaseColorORM)
-      {
-        props["BaseColor"].m_Visibility = ezPropertyUiState::Default;
-        props["ORM"].m_Visibility = ezPropertyUiState::Default;
-      }
-      else if (mode == ezDecalMode::Emissive)
-      {
-        props["Emissive"].m_Visibility = ezPropertyUiState::Default;
-      }
+      props["Normal"].m_Visibility = ezPropertyUiState::Default;
+    }
+    else if (mode == ezDecalMode::BaseColorORM)
+    {
+      props["ORM"].m_Visibility = ezPropertyUiState::Default;
+    }
+    else if (mode == ezDecalMode::BaseColorNormalORM)
+    {
+      props["Normal"].m_Visibility = ezPropertyUiState::Default;
+      props["ORM"].m_Visibility = ezPropertyUiState::Default;
+    }
+    else if (mode == ezDecalMode::BaseColorEmissive)
+    {
+      props["Emissive"].m_Visibility = ezPropertyUiState::Default;
     }
   }
 }

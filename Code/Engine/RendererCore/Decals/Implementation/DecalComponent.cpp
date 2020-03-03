@@ -38,6 +38,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 4, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("Extents", GetExtents, SetExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f)), new ezClampValueAttribute(ezVec3(0.01), ezVariant(25.0f))),
     EZ_ACCESSOR_PROPERTY("SizeVariance", GetSizeVariance, SetSizeVariance)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
+    EZ_ACCESSOR_PROPERTY("EmissiveColor", GetEmissiveColor, SetEmissiveColor),
     EZ_ACCESSOR_PROPERTY("Decal", GetDecalFile, SetDecalFile)->AddAttributes(new ezAssetBrowserAttribute("Decal")),
     EZ_ACCESSOR_PROPERTY("SortOrder", GetSortOrder, SetSortOrder)->AddAttributes(new ezClampValueAttribute(-64.0f, 64.0f)),
     EZ_ACCESSOR_PROPERTY("WrapAround", GetWrapAround, SetWrapAround),
@@ -91,6 +92,7 @@ void ezDecalComponent::SerializeComponent(ezWorldWriter& stream) const
 
   s << m_vExtents;
   s << m_Color;
+  s << m_EmissiveColor;
   s << m_InnerFadeAngle;
   s << m_OuterFadeAngle;
   s << m_fSortOrder;
@@ -114,7 +116,19 @@ void ezDecalComponent::DeserializeComponent(ezWorldReader& stream)
   ezStreamReader& s = stream.GetStream();
 
   s >> m_vExtents;
-  s >> m_Color;
+  
+  if (uiVersion >= 4)
+  {
+    s >> m_Color;
+    s >> m_EmissiveColor;
+  }
+  else
+  {
+    ezColor tmp;
+    s >> tmp;
+    m_Color = tmp;
+  }
+
   s >> m_InnerFadeAngle;
   s >> m_OuterFadeAngle;
   s >> m_fSortOrder;
@@ -166,14 +180,24 @@ float ezDecalComponent::GetSizeVariance() const
   return m_fSizeVariance;
 }
 
-void ezDecalComponent::SetColor(ezColor color)
+void ezDecalComponent::SetColor(ezColorGammaUB color)
 {
   m_Color = color;
 }
 
-ezColor ezDecalComponent::GetColor() const
+ezColorGammaUB ezDecalComponent::GetColor() const
 {
   return m_Color;
+}
+
+void ezDecalComponent::SetEmissiveColor(ezColor color)
+{
+  m_EmissiveColor = color;
+}
+
+ezColor ezDecalComponent::GetEmissiveColor() const
+{
+  return m_EmissiveColor;
 }
 
 void ezDecalComponent::SetInnerFadeAngle(ezAngle spotAngle)
@@ -353,7 +377,8 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
   pRenderData->m_uiFlags |= (m_bWrapAround ? DECAL_WRAP_AROUND : 0);
   pRenderData->m_uiFlags |= (m_bMapNormalToGeometry ? DECAL_MAP_NORMAL_TO_GEOMETRY : 0);
   pRenderData->m_uiAngleFadeParams = ezShaderUtils::Float2ToRG16F(ezVec2(fFadeParamScale, fFadeParamOffset));
-  pRenderData->m_Color = finalColor;
+  pRenderData->m_BaseColor = finalColor;
+  pRenderData->m_EmissiveColor = m_EmissiveColor;
   ezShaderUtils::Float4ToRGBA16F(baseAtlasScaleOffset, pRenderData->m_uiBaseColorAtlasScale, pRenderData->m_uiBaseColorAtlasOffset);
   ezShaderUtils::Float4ToRGBA16F(normalAtlasScaleOffset, pRenderData->m_uiNormalAtlasScale, pRenderData->m_uiNormalAtlasOffset);
   ezShaderUtils::Float4ToRGBA16F(ormAtlasScaleOffset, pRenderData->m_uiORMAtlasScale, pRenderData->m_uiORMAtlasOffset);

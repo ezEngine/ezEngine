@@ -192,9 +192,9 @@ namespace
     perDecalData.applyOnlyToId = pDecalRenderData->m_uiApplyOnlyToId;
     perDecalData.decalFlags = pDecalRenderData->m_uiFlags;
     perDecalData.angleFadeParams = pDecalRenderData->m_uiAngleFadeParams;
-    perDecalData.padding0 = 0;
-    perDecalData.colorRG = ezShaderUtils::PackFloat16intoUint(pDecalRenderData->m_Color.r, pDecalRenderData->m_Color.g);
-    perDecalData.colorBA = ezShaderUtils::PackFloat16intoUint(pDecalRenderData->m_Color.b, pDecalRenderData->m_Color.a);
+    perDecalData.baseColor = *reinterpret_cast<const ezUInt32*>(&pDecalRenderData->m_BaseColor.r);
+    perDecalData.emissiveColorRG = ezShaderUtils::PackFloat16intoUint(pDecalRenderData->m_EmissiveColor.r, pDecalRenderData->m_EmissiveColor.g);
+    perDecalData.emissiveColorBA = ezShaderUtils::PackFloat16intoUint(pDecalRenderData->m_EmissiveColor.b, pDecalRenderData->m_EmissiveColor.a);
     perDecalData.baseColorAtlasScale = pDecalRenderData->m_uiBaseColorAtlasScale;
     perDecalData.baseColorAtlasOffset = pDecalRenderData->m_uiBaseColorAtlasOffset;
     perDecalData.normalAtlasScale = pDecalRenderData->m_uiNormalAtlasScale;

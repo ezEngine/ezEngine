@@ -34,7 +34,8 @@ public:
   ezUInt32 m_uiFlags;
   ezUInt32 m_uiAngleFadeParams;
 
-  ezColorLinear16f m_Color;
+  ezColorLinearUB m_BaseColor;
+  ezColorLinear16f m_EmissiveColor;
 
   ezUInt32 m_uiBaseColorAtlasScale;
   ezUInt32 m_uiBaseColorAtlasOffset;
@@ -81,8 +82,11 @@ public:
   void SetSizeVariance(float fVariance); // [ property ]
   float GetSizeVariance() const;         // [ property ]
 
-  void SetColor(ezColor color); // [ property ]
-  ezColor GetColor() const;     // [ property ]
+  void SetColor(ezColorGammaUB color); // [ property ]
+  ezColorGammaUB GetColor() const;     // [ property ]
+
+  void SetEmissiveColor(ezColor color); // [ property ]
+  ezColor GetEmissiveColor() const;     // [ property ]
 
   void SetInnerFadeAngle(ezAngle fFadeAngle); // [ property ]
   ezAngle GetInnerFadeAngle() const;          // [ property ]
@@ -121,7 +125,8 @@ protected:
 
   ezVec3 m_vExtents = ezVec3(1.0f);
   float m_fSizeVariance = 0;
-  ezColor m_Color = ezColor::White;
+  ezColorGammaUB m_Color = ezColor::White;
+  ezColor m_EmissiveColor = ezColor::Black;
   ezAngle m_InnerFadeAngle = ezAngle::Degree(50.0f);
   ezAngle m_OuterFadeAngle = ezAngle::Degree(80.0f);
   float m_fSortOrder = 0;

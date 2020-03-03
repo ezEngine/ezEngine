@@ -210,7 +210,7 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
             return ezStatus(ezFmt("Invalid emissive texture path '{0}'", sAbsPath));
           }
 
-          item.m_sLayerInput[0] = sAbsPath;
+          item.m_sLayerInput[2] = sAbsPath;
         }
       }
 
