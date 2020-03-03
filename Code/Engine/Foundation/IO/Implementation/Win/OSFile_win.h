@@ -390,6 +390,23 @@ ezResult ezFileSystemIterator::StartSearch(const char* szSearchStart, ezBitflags
 
 ezResult ezFileSystemIterator::Next()
 {
+  while (true)
+  {
+    const ezInt32 res = InternalNext();
+
+    if (res == EZ_SUCCESS)
+      return EZ_SUCCESS;
+
+    if (res == EZ_FAILURE)
+      return EZ_FAILURE;
+  }
+}
+
+
+ezInt32 ezFileSystemIterator::InternalNext()
+{
+  constexpr ezInt32 CallInternalNext = 2;
+
   if (m_Data.m_Handles.IsEmpty())
     return EZ_FAILURE;
 
@@ -414,17 +431,17 @@ ezResult ezFileSystemIterator::Next()
       m_Data.m_Handles.PushBack(hSearch);
 
       if ((m_CurFile.m_sName == "..") || (m_CurFile.m_sName == "."))
-        return Next(); // will search for the next file or folder that is not ".." or "." ; might return false though
+        return CallInternalNext; // will search for the next file or folder that is not ".." or "." ; might return false though
 
       if (m_CurFile.m_bIsDirectory)
       {
         if (!m_Flags.IsSet(ezFileSystemIteratorFlags::ReportFolders))
-          return Next();
+          return CallInternalNext;
       }
       else
       {
         if (!m_Flags.IsSet(ezFileSystemIteratorFlags::ReportFiles))
-          return Next();
+          return CallInternalNext;
       }
 
       return EZ_SUCCESS;
@@ -445,7 +462,7 @@ ezResult ezFileSystemIterator::Next()
 
     m_sCurPath.PathParentDirectory();
 
-    return Next();
+    return CallInternalNext;
   }
 
   m_CurFile.m_uiFileSize = HighLowToUInt64(data.nFileSizeHigh, data.nFileSizeLow);
@@ -455,17 +472,17 @@ ezResult ezFileSystemIterator::Next()
   m_CurFile.m_LastModificationTime.SetInt64(FileTimeToEpoch(data.ftLastWriteTime), ezSIUnitOfTime::Microsecond);
 
   if ((m_CurFile.m_sName == "..") || (m_CurFile.m_sName == "."))
-    return Next();
+    return CallInternalNext;
 
   if (m_CurFile.m_bIsDirectory)
   {
     if (!m_Flags.IsSet(ezFileSystemIteratorFlags::ReportFolders))
-      return Next();
+      return CallInternalNext;
   }
   else
   {
     if (!m_Flags.IsSet(ezFileSystemIteratorFlags::ReportFiles))
-      return Next();
+      return CallInternalNext;
   }
 
   return EZ_SUCCESS;

@@ -132,6 +132,8 @@ public:
   bool IsValid() const;
 
 private:
+  ezInt32 InternalNext();
+
   /// \brief The current path of the folder, in which the iterator currently is.
   ezStringBuilder m_sCurPath;
 
