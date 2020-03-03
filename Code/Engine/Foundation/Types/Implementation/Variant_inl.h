@@ -6,199 +6,166 @@ EZ_ALWAYS_INLINE ezVariant::ezVariant()
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezVariant& other)
-  : ezVariant()
 {
   CopyFrom(other);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(ezVariant&& other) noexcept
-  : ezVariant()
 {
   MoveFrom(std::move(other));
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const bool& value)
-  : ezVariant()
 {
   InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezInt8& value)
-  : ezVariant()
 {
   InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezUInt8& value)
-  : ezVariant()
 {
   InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezInt16& value)
-  : ezVariant()
 {
   InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezUInt16& value)
-  : ezVariant()
 {
   InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezInt32& value)
-  : ezVariant()
 {
   InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezUInt32& value)
-  : ezVariant()
 {
   InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezInt64& value)
-  : ezVariant()
 {
   InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezUInt64& value)
-  : ezVariant()
 {
   InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const float& value)
-  : ezVariant()
 {
   InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const double& value)
-  : ezVariant()
 {
   InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezColor& value)
-  : ezVariant()
 {
   InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezVec2& value)
-  : ezVariant()
 {
   InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezVec3& value)
-  : ezVariant()
 {
   InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezVec4& value)
-  : ezVariant()
 {
   InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezVec2I32& value)
-  : ezVariant()
 {
   InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezVec3I32& value)
-  : ezVariant()
 {
   InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezVec4I32& value)
-  : ezVariant()
 {
   InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezVec2U32& value)
-  : ezVariant()
 {
   InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezVec3U32& value)
-  : ezVariant()
 {
   InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezVec4U32& value)
-  : ezVariant()
 {
   InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezQuat& value)
-  : ezVariant()
 {
   InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezStringView& value)
-  : ezVariant()
 {
   InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezTime& value)
-  : ezVariant()
 {
   InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezUuid& value)
-  : ezVariant()
 {
   InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezAngle& value)
-  : ezVariant()
 {
   InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezColorGammaUB& value)
-  : ezVariant()
 {
   InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(ezReflectedClass* value)
-  : ezVariant()
 {
   InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezReflectedClass* value)
-  : ezVariant()
 {
   InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(void* value)
-  : ezVariant()
 {
   InitInplace(value);
 }
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const void* value)
-  : ezVariant()
 {
   InitInplace(value);
 }

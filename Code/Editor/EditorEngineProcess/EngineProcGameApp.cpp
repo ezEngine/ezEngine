@@ -148,7 +148,7 @@ bool ezEngineProcessGameApplication::ProcessIPCMessages(bool bPendingOpInProgres
     // The OS will still call destructors for our objects (even though we called abort ... what a pointless design).
     // Our code might assert on destruction, so make sure our assert handler doesn't show anything.
     ezSetAssertHandler(EmptyAssertHandler);
-    abort();
+    std::abort();
 
     RequestQuit();
     return false;
