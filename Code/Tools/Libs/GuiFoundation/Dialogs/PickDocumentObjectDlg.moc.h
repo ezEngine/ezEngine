@@ -2,7 +2,7 @@
 
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <QDialog>
-#include <Tools/Libs/GuiFoundation/ui_PickDocumentObjectDlg.h>
+#include <GuiFoundation/ui_PickDocumentObjectDlg.h>
 #include <Foundation/Strings/String.h>
 
 class ezDocumentObject;

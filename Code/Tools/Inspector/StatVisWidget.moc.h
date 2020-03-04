@@ -5,7 +5,7 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Time/Time.h>
 #include <QAction>
-#include <Tools/Inspector/ui_StatVisWidget.h>
+#include <Inspector/ui_StatVisWidget.h>
 #include <QGraphicsView>
 #include <QListWidgetItem>
 #include <ads/DockWidget.h>

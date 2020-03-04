@@ -2,7 +2,7 @@
 
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <QDialog>
-#include <Editor/EditorFramework/ui_InputConfigDlg.h>
+#include <EditorFramework/ui_InputConfigDlg.h>
 #include <GameEngine/Configuration/InputConfig.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/Set.h>

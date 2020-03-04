@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Tools/Inspector/ui_SubsystemsWidget.h>
+#include <Inspector/ui_SubsystemsWidget.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Configuration/Startup.h>

@@ -6,7 +6,7 @@
 #include <Foundation/Containers/Set.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Types/Variant.h>
-#include <Tools/Inspector/ui_MainWidget.h>
+#include <Inspector/ui_MainWidget.h>
 #include <QMainWindow>
 
 class QTreeWidgetItem;

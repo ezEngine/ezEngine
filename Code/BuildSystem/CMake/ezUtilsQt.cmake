@@ -126,8 +126,10 @@ function(ez_link_target_qt)
         mark_as_advanced(FORCE Qt5WinExtras_DIR)
     endif()    
 
-    target_include_directories(${FN_ARG_TARGET} PRIVATE ${CMAKE_BINARY_DIR})
-    target_include_directories(${FN_ARG_TARGET} PRIVATE ${CMAKE_BINARY_DIR}/Code)
+
+    file(RELATIVE_PATH SUB_FOLDER ${CMAKE_SOURCE_DIR} "${CMAKE_CURRENT_SOURCE_DIR}/..")
+
+    target_include_directories(${FN_ARG_TARGET} PUBLIC ${CMAKE_BINARY_DIR}/${SUB_FOLDER})
 
     target_compile_definitions(${FN_ARG_TARGET} PUBLIC EZ_USE_QT)
 

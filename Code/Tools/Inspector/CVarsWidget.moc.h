@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Tools/Inspector/ui_CVarsWidget.h>
+#include <Inspector/ui_CVarsWidget.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Configuration/CVar.h>

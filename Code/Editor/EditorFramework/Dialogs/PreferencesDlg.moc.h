@@ -2,7 +2,7 @@
 
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <QDialog>
-#include <Editor/EditorFramework/ui_PreferencesDlg.h>
+#include <EditorFramework/ui_PreferencesDlg.h>
 #include <Foundation/Strings/String.h>
 
 class ezPreferencesDocument;
