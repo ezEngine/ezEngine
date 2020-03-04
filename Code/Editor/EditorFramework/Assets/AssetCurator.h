@@ -40,13 +40,13 @@ class ezAssetProcessorLog;
 class ezCuratorMutex : public ezMutex
 {
 public:
-  void Acquire()
+  void Lock()
   {
     CURATOR_PROFILE("ezCuratorMutex");
-    ezMutex::Acquire();
+    ezMutex::Lock();
   }
 
-  void Release() { ezMutex::Release(); }
+  void Unlock() { ezMutex::Unlock(); }
 };
 
 struct EZ_EDITORFRAMEWORK_DLL ezAssetInfo

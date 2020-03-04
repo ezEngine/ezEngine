@@ -46,7 +46,7 @@ void ezHybridArray<T, Size, AllocatorWrapper>::operator=(const ezArrayPtr<const 
 }
 
 template <typename T, ezUInt32 Size, typename AllocatorWrapper /*= ezDefaultAllocatorWrapper*/>
-void ezHybridArray<T, Size, AllocatorWrapper>::operator=(ezHybridArray<T, Size, AllocatorWrapper>&& rhs)
+void ezHybridArray<T, Size, AllocatorWrapper>::operator=(ezHybridArray<T, Size, AllocatorWrapper>&& rhs) noexcept
 {
   ezDynamicArray<T, AllocatorWrapper>::operator=(std::move(rhs));
 }

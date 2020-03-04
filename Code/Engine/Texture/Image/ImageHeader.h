@@ -4,8 +4,8 @@
 #include <Foundation/Math/Color8UNorm.h>
 #include <Foundation/Math/Math.h>
 
-#include <Texture/TextureDLL.h>
 #include <Texture/Image/ImageFormat.h>
+#include <Texture/TextureDLL.h>
 
 /// \brief A class containing image meta data, such as format and dimensions.
 ///
@@ -117,7 +117,7 @@ public:
       uiDataSize += GetDepthPitch(uiMipLevel) * static_cast<ezUInt64>(GetDepth(uiMipLevel));
     }
 
-    return uiDataSize * GetNumArrayIndices() * GetNumFaces();
+    return ezMath::SafeMultiply64(uiDataSize, ezMath::SafeMultiply32(GetNumArrayIndices(), GetNumFaces()));
   }
 
   /// \brief Computes the number of mip maps in the full mip chain.
@@ -151,4 +151,3 @@ protected:
 
   ezImageFormat::Enum m_format;
 };
-

@@ -1,11 +1,9 @@
 #pragma once
 
 #include <Core/World/World.h>
-#include <Core/WorldSerializer/ResourceHandleWriter.h>
+#include <Core/WorldSerializer/ResourceHandleStreamOperations.h>
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Types/TagSet.h>
-
-class ezResourceHandleWriteContext;
 
 /// \brief Stores an entire ezWorld in a stream.
 ///
@@ -50,7 +48,7 @@ public:
 
 private:
   void Clear();
-  void WriteToStream();
+  ezResult WriteToStream();
   void AssignGameObjectIndices();
   void AssignComponentHandleIndices();
   void IncludeAllComponentBaseTypes();
@@ -59,19 +57,23 @@ private:
 
   ezVisitorExecution::Enum ObjectTraverser(ezGameObject* pObject);
   void WriteGameObject(const ezGameObject* pObject);
-  void WriteComponentInfo(const ezRTTI* pRtti);
-  void WriteComponentsOfType(const ezRTTI* pRtti, const ezDeque<const ezComponent*>& components,
-                             ezResourceHandleWriteContext& ResHandleWriter);
+  void WriteComponentTypeInfo(const ezRTTI* pRtti);
+  void WriteComponentCreationData(const ezDeque<const ezComponent*>& components);
+  void WriteComponentSerializationData(const ezDeque<const ezComponent*>& components);
 
   ezStreamWriter* m_pStream = nullptr;
   const ezTagSet* m_pExclude = nullptr;
 
   ezDeque<const ezGameObject*> m_AllRootObjects;
   ezDeque<const ezGameObject*> m_AllChildObjects;
-  ezHashTable<const ezRTTI*, ezDeque<const ezComponent*>> m_AllComponents;
-  ezUInt32 m_uiNumComponents;
-
   ezMap<ezGameObjectHandle, ezUInt32> m_WrittenGameObjectHandles;
-  ezMap<ezComponentHandle, ezUInt32> m_WrittenComponentHandles;
-};
 
+  struct Components
+  {
+    ezUInt16 m_uiSerializedTypeIndex = 0;
+    ezDeque<const ezComponent*> m_Components;
+    ezMap<ezComponentHandle, ezUInt32> m_HandleToIndex;
+  };
+
+  ezHashTable<const ezRTTI*, Components> m_AllComponents;
+};

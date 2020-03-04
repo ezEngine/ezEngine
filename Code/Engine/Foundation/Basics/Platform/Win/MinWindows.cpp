@@ -43,3 +43,7 @@ void ezCheckWindowsTypeSizes()
     EZ_WINDOWS_INVALID_HANDLE_VALUE == INVALID_HANDLE_VALUE, "EZ_WINDOWS_INVALID_HANDLE_VALUE does not match INVALID_HANDLE_VALUE");
 }
 #endif
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Basics_Platform_Win_MinWindows);
+

@@ -29,4 +29,6 @@ struct ezWorldDesc
   ezUniquePtr<ezTimeStepSmoothing> m_pTimeStepSmoothing; ///< if nullptr, ezDefaultTimeStepSmoothing will be used
 
   bool m_bReportErrorWhenStaticObjectMoves = true;
+
+  ezTime m_MaxComponentInitializationTimePerFrame = ezTime::Hours(10000); // max time to spend on component initialization per frame
 };

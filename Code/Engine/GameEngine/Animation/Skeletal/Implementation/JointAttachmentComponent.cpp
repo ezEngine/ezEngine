@@ -85,4 +85,4 @@ void ezJointAttachmentComponent::OnAnimationPoseUpdated(ezMsgAnimationPoseUpdate
   pOwner->SetLocalRotation(t.m_qRotation);
 }
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Implementation_JointAttachmentComponent);
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_JointAttachmentComponent);

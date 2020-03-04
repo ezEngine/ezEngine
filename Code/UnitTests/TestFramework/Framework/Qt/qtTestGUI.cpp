@@ -77,7 +77,7 @@ ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& testFramework)
 
   // Sync actions with test framework settings
   TestSettings settings = m_pTestFramework->GetSettings();
-  this->actionAssertOnTestFail->setChecked(settings.m_bAssertOnTestFail);
+  this->actionAssertOnTestFail->setChecked(settings.m_AssertOnTestFail != AssertOnTestFail::DoNotAssert);
   this->actionOpenHTMLOutput->setChecked(settings.m_bOpenHtmlOutputOnError);
   this->actionKeepConsoleOpen->setChecked(settings.m_bKeepConsoleOpen);
   this->actionShowMessageBox->setChecked(settings.m_bShowMessageBox);
@@ -128,6 +128,11 @@ ezQtTestGUI::~ezQtTestGUI()
 
 void ezQtTestGUI::closeEvent(QCloseEvent* e)
 {
+  if (m_pTestFramework->GetTestsRunning())
+  {
+    m_pTestFramework->AbortTests();
+  }
+
   m_pTestFramework->AutoSaveTestOrder();
   SaveGUILayout();
 }
@@ -139,7 +144,7 @@ void ezQtTestGUI::closeEvent(QCloseEvent* e)
 void ezQtTestGUI::on_actionAssertOnTestFail_triggered(bool bChecked)
 {
   TestSettings settings = m_pTestFramework->GetSettings();
-  settings.m_bAssertOnTestFail = bChecked;
+  settings.m_AssertOnTestFail = bChecked ? AssertOnTestFail::AssertIfDebuggerAttached : AssertOnTestFail::DoNotAssert;
   m_pTestFramework->SetSettings(settings);
 }
 
@@ -185,12 +190,35 @@ void ezQtTestGUI::on_actionSaveTestSettingsAs_triggered()
   QString dir = defaultDir.IsValid() ? defaultDir.GetData(tmp) : QString();
 
   QString sAllFilters;
-  sAllFilters += "Settings (*.txt)\n";
+  sAllFilters += "Settings File (*.txt)\n";
   sAllFilters += "All Files (*.*)";
 
   QString selectedFilter;
 
   QString sSavePath = QFileDialog::getSaveFileName(this, "Save Test Settings As", dir, sAllFilters, &selectedFilter,
+    // for some reason on some PCs this function hangs with the native dialog
+    // pretty much exactly this: https://forum.qt.io/topic/49209/qfiledialog-getopenfilename-hangs-in-windows-when-using-the-native-dialog/18
+    QFileDialog::Option::DontUseNativeDialog);
+
+  if (!sSavePath.isEmpty())
+  {
+    m_pTestFramework->SaveTestSettings(sSavePath.toUtf8().data());
+  }
+}
+
+void ezQtTestGUI::on_actionSaveTestOrderAs_triggered()
+{
+  ezStringBuilder tmp;
+  ezStringView defaultDir = ezPathUtils::GetFileDirectory(m_pTestFramework->GetAbsTestSettingsFilePath());
+  QString dir = defaultDir.IsValid() ? defaultDir.GetData(tmp) : QString();
+
+  QString sAllFilters;
+  sAllFilters += "Order File (*.txt)\n";
+  sAllFilters += "All Files (*.*)";
+
+  QString selectedFilter;
+
+  QString sSavePath = QFileDialog::getSaveFileName(this, "Save Test Order As", dir, sAllFilters, &selectedFilter,
     // for some reason on some PCs this function hangs with the native dialog
     // pretty much exactly this: https://forum.qt.io/topic/49209/qfiledialog-getopenfilename-hangs-in-windows-when-using-the-native-dialog/18
     QFileDialog::Option::DontUseNativeDialog);

@@ -9,14 +9,19 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Algorithm_Implementation_HashingUtils);
   EZ_STATICLINK_REFERENCE(Foundation_Application_Config_Implementation_FileSystemConfig);
   EZ_STATICLINK_REFERENCE(Foundation_Application_Config_Implementation_PluginConfig);
+  EZ_STATICLINK_REFERENCE(Foundation_Application_Implementation_Android_Application_android);
   EZ_STATICLINK_REFERENCE(Foundation_Application_Implementation_Application);
   EZ_STATICLINK_REFERENCE(Foundation_Application_Implementation_MainLoop);
-  EZ_STATICLINK_REFERENCE(Foundation_Application_Implementation_Android_Application_android);
+  EZ_STATICLINK_REFERENCE(Foundation_Application_Implementation_Win_ApplicationEntryPoint_win);
+  EZ_STATICLINK_REFERENCE(Foundation_Application_Implementation_uwp_ApplicationEntryPoint_uwp);
   EZ_STATICLINK_REFERENCE(Foundation_Application_Implementation_uwp_Application_uwp);
   EZ_STATICLINK_REFERENCE(Foundation_Basics_Assert);
   EZ_STATICLINK_REFERENCE(Foundation_Basics_Basics);
   EZ_STATICLINK_REFERENCE(Foundation_Basics_IncludeAll);
+  EZ_STATICLINK_REFERENCE(Foundation_Basics_Platform_Android_AndroidJni);
+  EZ_STATICLINK_REFERENCE(Foundation_Basics_Platform_Android_AndroidUtils);
   EZ_STATICLINK_REFERENCE(Foundation_Basics_Platform_Win_HResultUtils);
+  EZ_STATICLINK_REFERENCE(Foundation_Basics_Platform_Win_MinWindows);
   EZ_STATICLINK_REFERENCE(Foundation_Basics_Platform_uwp_UWPUtils);
   EZ_STATICLINK_REFERENCE(Foundation_CodeUtils_Implementation_Conditions);
   EZ_STATICLINK_REFERENCE(Foundation_CodeUtils_Implementation_Defines);
@@ -91,6 +96,7 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_Log);
   EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_LogEntry);
   EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_VisualStudioWriter);
+  EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_Win_ETWProvider_win);
   EZ_STATICLINK_REFERENCE(Foundation_Math_Implementation_Color);
   EZ_STATICLINK_REFERENCE(Foundation_Math_Implementation_Float16);
   EZ_STATICLINK_REFERENCE(Foundation_Math_Implementation_Frustum);
@@ -120,6 +126,7 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Serialization_Implementation_RttiConverterReader);
   EZ_STATICLINK_REFERENCE(Foundation_Serialization_Implementation_RttiConverterWriter);
   EZ_STATICLINK_REFERENCE(Foundation_SimdMath_Implementation_SimdMat4f);
+  EZ_STATICLINK_REFERENCE(Foundation_SimdMath_Implementation_SimdNoise);
   EZ_STATICLINK_REFERENCE(Foundation_SimdMath_Implementation_SimdQuat);
   EZ_STATICLINK_REFERENCE(Foundation_Strings_Implementation_FormatString);
   EZ_STATICLINK_REFERENCE(Foundation_Strings_Implementation_HashedString);
@@ -130,11 +137,16 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Strings_Implementation_StringView);
   EZ_STATICLINK_REFERENCE(Foundation_Strings_Implementation_TranslationLookup);
   EZ_STATICLINK_REFERENCE(Foundation_Strings_Implementation_snprintf);
+  EZ_STATICLINK_REFERENCE(Foundation_System_Implementation_CrashHandler);
+  EZ_STATICLINK_REFERENCE(Foundation_System_Implementation_MiniDumpUtils);
   EZ_STATICLINK_REFERENCE(Foundation_System_Implementation_Process);
   EZ_STATICLINK_REFERENCE(Foundation_System_Implementation_ProcessGroup);
+  EZ_STATICLINK_REFERENCE(Foundation_System_Implementation_StackTracer);
   EZ_STATICLINK_REFERENCE(Foundation_System_Implementation_SystemInformation);
   EZ_STATICLINK_REFERENCE(Foundation_System_Implementation_UuidGenerator);
+  EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_ConditionVariable);
   EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_OSThread);
+  EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_ParallelFor);
   EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_TaskGroups);
   EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_TaskSystem);
   EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_TaskWorkers);
@@ -143,6 +155,7 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_ThreadSignal);
   EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_ThreadUtils);
   EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_ThreadWithDispatcher);
+  EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_Win_Mutex_win);
   EZ_STATICLINK_REFERENCE(Foundation_Time_Implementation_Clock);
   EZ_STATICLINK_REFERENCE(Foundation_Time_Implementation_DefaultTimeStepSmoothing);
   EZ_STATICLINK_REFERENCE(Foundation_Time_Implementation_Stopwatch);
@@ -159,11 +172,10 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_Compression);
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_ConversionUtils);
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_DGMLWriter);
-  EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_ExceptionHandler);
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_GraphicsUtils);
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_Node);
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_Progress);
-  EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_StackTracer);
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_Stats);
 }
+
 

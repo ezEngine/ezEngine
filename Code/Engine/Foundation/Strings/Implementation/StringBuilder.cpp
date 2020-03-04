@@ -700,9 +700,13 @@ void ezStringBuilder::MakeCleanPath()
   if (IsEmpty())
     return;
 
+  Trim(" \t\r\n");
+
   RemoveDoubleSlashesInPath();
 
-  Trim(" \t\r\n");
+  // remove Windows specific DOS device path indicators from the start
+  TrimWordStart("//?/");
+  TrimWordStart("//./");
 
   const char* const szEndPos = &m_Data[m_Data.GetCount() - 1];
   const char* szCurReadPos = &m_Data[0];
@@ -944,8 +948,6 @@ ezResult ezStringBuilder::MakeRelativeTo(const char* szAbsolutePathToMakeThisRel
   {
     sAbsThis.Append("/");
 
-
-    // this is an ugly hack, because I currently can't think of a nicer way to compute this correctly (in vino veritas my ass)
     if (sAbsBase.StartsWith(sAbsThis.GetData()))
     {
       Clear();

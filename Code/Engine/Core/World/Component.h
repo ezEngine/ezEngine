@@ -137,7 +137,7 @@ protected:
   /// \brief Returns whether this component is dynamic and thus can only be attached to dynamic game objects.
   bool IsDynamic() const;
 
-  virtual ezUInt16 GetTypeId() const = 0;
+  virtual ezWorldModuleTypeId GetTypeId() const = 0;
   virtual ezComponentMode::Enum GetMode() const = 0;
 
   /// \brief Can be overridden for basic initialization that depends on a valid hierarchy and position.
@@ -226,15 +226,14 @@ private:
   bool SendMessageInternal(ezMessage& msg, bool bWasPostedMsg);
   bool SendMessageInternal(ezMessage& msg, bool bWasPostedMsg) const;
 
+  ezComponentId m_InternalId;
   ezBitflags<ezObjectFlags> m_ComponentFlags;
-
-  ezGenericComponentId m_InternalId;
   ezUInt32 m_uiUniqueID;
 
   ezComponentManagerBase* m_pManager = nullptr;
   ezGameObject* m_pOwner = nullptr;
 
-  static ezUInt16 TYPE_ID;
+  static ezWorldModuleTypeId TYPE_ID;
 };
 
 #include <Core/World/Implementation/Component_inl.h>

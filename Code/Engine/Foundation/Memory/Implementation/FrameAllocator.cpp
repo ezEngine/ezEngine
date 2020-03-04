@@ -5,10 +5,17 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Strings/StringBuilder.h>
 
-ezDoubleBufferedStackAllocator::ezDoubleBufferedStackAllocator(ezAllocatorBase* pParent)
+ezDoubleBufferedStackAllocator::ezDoubleBufferedStackAllocator(const char* szName, ezAllocatorBase* pParent)
 {
-  m_pCurrentAllocator = EZ_DEFAULT_NEW(StackAllocatorType, "StackAllocator0", pParent);
-  m_pOtherAllocator = EZ_DEFAULT_NEW(StackAllocatorType, "StackAllocator1", pParent);
+  ezStringBuilder sName = szName;
+  sName.Append("0");
+
+  m_pCurrentAllocator = EZ_DEFAULT_NEW(StackAllocatorType, sName, pParent);
+
+  sName = szName;
+  sName.Append("1");
+
+  m_pOtherAllocator = EZ_DEFAULT_NEW(StackAllocatorType, sName, pParent);
 }
 
 ezDoubleBufferedStackAllocator::~ezDoubleBufferedStackAllocator()
@@ -69,7 +76,7 @@ void ezFrameAllocator::Reset()
 // static
 void ezFrameAllocator::Startup()
 {
-  s_pAllocator = EZ_DEFAULT_NEW(ezDoubleBufferedStackAllocator, ezFoundation::GetAlignedAllocator());
+  s_pAllocator = EZ_DEFAULT_NEW(ezDoubleBufferedStackAllocator, "FrameAllocator", ezFoundation::GetAlignedAllocator());
 }
 
 // static

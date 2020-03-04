@@ -537,4 +537,4 @@ void ezGreyBoxComponent::GenerateRenderMesh() const
 
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_GreyBoxComponent);
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_GreyBoxComponent);

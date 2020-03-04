@@ -21,7 +21,8 @@ public:
 
 protected:
   const char* m_szName;
-  ezUInt32 m_uiNameLength;
+  const char* m_szFunction;
+  ezTime m_BeginTime;
 };
 
 /// \brief This class implements a profiling scope similar to ezProfilingScope, but with additional sub-scopes which can be added easily without introducing actual C++ scopes.
@@ -45,10 +46,11 @@ protected:
   ezProfilingListScope* m_pPreviousList;
 
   const char* m_szListName;
-  ezUInt32 m_uiListNameLength;
+  const char* m_szListFunction;
+  ezTime m_ListBeginTime;
 
   const char* m_szCurSectionName;
-  ezUInt32 m_uiCurSectionNameLength;
+  ezTime m_CurSectionBeginTime;
 };
 
 /// \brief Helper functionality of the profiling system.
@@ -61,33 +63,29 @@ public:
     ezString m_sName;
   };
 
-  struct Event
+  struct CPUScope
   {
     EZ_DECLARE_POD_TYPE();
 
-    enum Type
-    {
-      Begin,
-      End
-    };
-
-    static constexpr ezUInt32 NAME_SIZE = 47;
+    static constexpr ezUInt32 NAME_SIZE = 40;
 
     const char* m_szFunctionName;
-    ezTime m_TimeStamp;
+    ezTime m_BeginTime;
+    ezTime m_EndTime;
     char m_szName[NAME_SIZE];
-    ezUInt8 m_Type;
   };
 
-  struct EventBufferFlat
+  struct CPUScopesBufferFlat
   {
-    ezDynamicArray<Event> m_Data;
+    ezDynamicArray<CPUScope> m_Data;
     ezUInt64 m_uiThreadId = 0;
   };
 
   /// \brief Helper struct to hold GPU profiling data.
-  struct GPUData
+  struct GPUScope
   {
+    EZ_DECLARE_POD_TYPE();
+
     static constexpr ezUInt32 NAME_SIZE = 48;
 
     ezTime m_BeginTime;
@@ -103,28 +101,30 @@ public:
 
     ezHybridArray<ThreadInfo, 16> m_ThreadInfos;
 
-    ezDynamicArray<EventBufferFlat> m_AllEventBuffers;
+    ezDynamicArray<CPUScopesBufferFlat> m_AllEventBuffers;
 
     ezUInt64 m_uiFrameCount;
     ezDynamicArray<ezTime> m_FrameStartTimes;
 
-    ezDynamicArray<GPUData> m_GPUData;
+    ezDynamicArray<GPUScope> m_GPUScopes;
 
     /// \brief Writes profiling data as JSON to the output stream.
     ezResult Write(ezStreamWriter& outputStream) const;
   };
 
 public:
+  static void Clear();
+
   static ProfilingData Capture();
+
+  /// \brief Scopes are discarded if their duration is shorter than the specified threshold. Default is 0.1ms.
+  static void SetDiscardThreshold(ezTime threshold);
 
   /// \brief Should be called once per frame to capture the timestamp of the new frame.
   static void StartNewFrame();
 
-  /// \brief Creates a new scope in the profiling system
-  static void BeginScope(const char* szName, ezUInt32 uiNameLength, const char* szFunctionName);
-
-  /// \brief Pops scope with given name
-  static void EndScope(const char* szName, ezUInt32 uiNameLegth);
+  /// \brief Adds a new scoped event for the calling thread in the profiling system
+  static void AddCPUScope(const char* szName, const char* szFunctionName, ezTime beginTime, ezTime endTime);
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, ProfilingSystem);
@@ -144,8 +144,8 @@ public:
   /// \brief Initialized internal data structures for GPU profiling data. Needs to be called before adding any data.
   static void InitializeGPUData();
 
-  /// \brief Allocates GPU profiling data in the internal event ringbuffer.
-  static GPUData& AllocateGPUData();
+  /// \brief Adds a Gpu profiling scope in the internal event ringbuffer.
+  static void AddGPUScope(const char* szName, ezTime beginTime, ezTime endTime);
 };
 
 #if EZ_ENABLED(EZ_USE_PROFILING) || defined(EZ_DOCS)

@@ -38,7 +38,7 @@ EZ_ALWAYS_INLINE const ComponentType* ezSettingsComponentManager<ComponentType>:
 
 // static
 template <typename ComponentType>
-EZ_ALWAYS_INLINE ezUInt16 ezSettingsComponentManager<ComponentType>::TypeId()
+EZ_ALWAYS_INLINE ezWorldModuleTypeId ezSettingsComponentManager<ComponentType>::TypeId()
 {
   return ComponentType::TypeId();
 }

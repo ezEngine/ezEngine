@@ -5,6 +5,7 @@
 #include <Foundation/Strings/StringConversion.h>
 #include <Foundation/Strings/StringUtils.h>
 #include <Foundation/Strings/StringView.h>
+#include <Foundation/Algorithm/HashingUtils.h>
 
 class ezStringBuilder;
 class ezStreamReader;

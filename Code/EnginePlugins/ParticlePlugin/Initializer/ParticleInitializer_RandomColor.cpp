@@ -6,7 +6,6 @@
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
 #include <GameEngine/Curves/ColorGradientResource.h>
 #include <Core/WorldSerializer/ResourceHandleReader.h>
-#include <Core/WorldSerializer/ResourceHandleWriter.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Math/Color16f.h>
 

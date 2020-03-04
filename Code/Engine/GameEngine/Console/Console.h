@@ -192,7 +192,7 @@ public:
   void AddConsoleString(const char* szText, const ezColor& color = ezColor(1, 1, 1), bool bShowOnScreen = false);
 
   /// \brief Returns all current console strings. Use GetScrollPosition() to know which one should be displayed as the first one.
-  const ezDeque<ConsoleString>& GetConsoleStrings() const { return m_ConsoleStrings; }
+  const ezDeque<ConsoleString>& GetConsoleStrings() const;
 
   /// \brief Deletes all console strings, making the console empty.
   void ClearConsoleStrings();
@@ -244,13 +244,15 @@ protected:
   ezInt32 m_iCaretPosition;
   ezStringBuilder m_sInputLine;
 
-private:
   virtual bool ProcessInputCharacter(ezUInt32 uiChar);
   virtual bool FilterInputCharacter(ezUInt32 uiChar);
+  virtual void InputStringChanged();
 
   mutable ezMutex m_Mutex;
   ezCommandProcessor m_CommandProcessor;
   ezDeque<ConsoleString> m_ConsoleStrings;
+  bool m_bUseFilteredStrings = false;
+  ezDeque<ConsoleString> m_FilteredConsoleStrings;
   ezUInt32 m_uiMaxConsoleStrings;
   ezInt32 m_iScrollPosition;
   ezInt32 m_iCurrentInputHistoryElement;

@@ -47,6 +47,16 @@ void ezConsole::AddConsoleString(const char* szText, const ezColor& color, bool 
     m_ConsoleStrings.PopBack(m_ConsoleStrings.GetCount() - m_uiMaxConsoleStrings);
 }
 
+const ezDeque<ezConsole::ezConsole::ConsoleString>& ezConsole::GetConsoleStrings() const
+{
+  if (m_bUseFilteredStrings)
+  {
+    return m_FilteredConsoleStrings;
+  }
+
+  return m_ConsoleStrings;
+}
+
 void ezConsole::AddToInputHistory(const char* szString)
 {
   EZ_LOCK(m_Mutex);
@@ -140,6 +150,36 @@ void ezConsole::LogHandler(const ezLoggingEventData& data)
   sFormat.Printf("%*s%s", data.m_uiIndentation, "", data.m_szText);
 
   AddConsoleString(sFormat.GetData(), color, bShow);
+}
+
+void ezConsole::InputStringChanged()
+{
+  m_bUseFilteredStrings = false;
+  m_FilteredConsoleStrings.Clear();
+
+  if (m_sInputLine.StartsWith("*"))
+  {
+    ezStringBuilder input = m_sInputLine;
+
+    input.Shrink(1, 0);
+    input.Trim(" ");
+
+    if (input.IsEmpty())
+      return;
+
+    m_FilteredConsoleStrings.Clear();
+    m_bUseFilteredStrings = true;
+
+    for (const auto& e : m_ConsoleStrings)
+    {
+      if (e.m_sText.FindSubString_NoCase(input))
+      {
+        m_FilteredConsoleStrings.PushBack(e);
+      }
+    }
+
+    Scroll(0); // clamp scroll position
+  }
 }
 
 void ezConsole::EnableLogOutput(bool bEnable)

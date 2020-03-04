@@ -63,11 +63,6 @@ const ezWorld* ezComponent::GetWorld() const
   return m_pManager->GetWorld();
 }
 
-ezComponentHandle ezComponent::GetHandle() const
-{
-  return ezComponentHandle(ezComponentId(m_InternalId, GetTypeId(), GetWorld()->GetIndex()));
-}
-
 void ezComponent::SerializeComponent(ezWorldWriter& stream) const {}
 
 void ezComponent::DeserializeComponent(ezWorldReader& stream) {}
@@ -221,3 +216,7 @@ bool ezComponent::GetUserFlag(ezUInt8 flagIndex) const
 
   return m_ComponentFlags.IsSet(static_cast<ezObjectFlags::Enum>(ezObjectFlags::UserFlag0 << flagIndex));
 }
+
+
+EZ_STATICLINK_FILE(Core, Core_World_Implementation_Component);
+

@@ -2,6 +2,7 @@
 
 #include <Core/CoreDLL.h>
 #include <Core/ResourceManager/ResourceHandle.h>
+#include <Core/WorldSerializer/ResourceHandleStreamOperations.h>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Containers/DynamicArray.h>
 
@@ -16,6 +17,8 @@ class ezStreamReader;
 /// Reading the vital information for restoring handles, and actually restoring handles is separated into two operations
 /// which can be done interleaved (standard sequential reading from a file), or in separate steps, to allow to apply the handle
 /// restoration multiple times (for instantiating the same data over and over, ie. for prefab creation).
+///
+/// DEPRECATED
 class EZ_CORE_DLL ezResourceHandleReadContext
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezResourceHandleReadContext);
@@ -25,25 +28,10 @@ public:
   ~ezResourceHandleReadContext();
 
   /// \brief Call this at the equivalent point where ezResourceHandleWriteContext::BeginWritingToStream() was called.
-  void BeginReadingFromStream(ezStreamReader* pStream);
+  ezResult BeginReadingFromStream(ezStreamReader* pStream);
 
   /// \brief Call this at the equivalent point where ezResourceHandleWriteContext::EndWritingToStream() was called.
-  void EndReadingFromStream(ezStreamReader* pStream);
-
-  /// \brief Call this to queue a resource handle for restoration, that was written with ezResourceHandleWriteContext::WriteHandle().
-  ///
-  /// Note that the handle is NOT valid after this call. Resource handles are only restored during EndRestoringHandles() and thus
-  /// will only become valid after that.
-  template <typename ResourceType>
-  static void ReadHandle(ezStreamReader* pStream, ezTypedResourceHandle<ResourceType>& ResourceHandle)
-  {
-    ReadHandle(pStream, &ResourceHandle.m_Typeless);
-  }
-
-  /// \brief Reads handle data from the stream, but does not try to restore the handle
-  ///
-  /// Useful when reading old versions of a file where the file format has changed and the resource handle is not needed anymore.
-  static void ReadAndDiscardHandle(ezStreamReader* pStream);
+  ezResult EndReadingFromStream(ezStreamReader* pStream);
 
   /// \brief Call this before doing the first call to ReadHandle(). In a typical scenario that is immediately after
   /// BeginReadingFromStream().
@@ -62,7 +50,7 @@ public:
   void Reset();
 
 private:
-  static void ReadHandle(ezStreamReader* pStream, ezTypelessResourceHandle* pResourceHandle);
+  friend class ezResourceHandleStreamOperations;
   void ReadResourceReference(ezStreamReader* pStream, ezTypelessResourceHandle* pResourceHandle);
 
   struct HandleData
@@ -78,16 +66,3 @@ private:
   ezUInt8 m_uiVersion;
   bool m_bReadData;
 };
-
-
-/// \brief Operator to serialize resource handles
-template <typename ResourceType>
-void operator>>(ezStreamReader& Stream, ezTypedResourceHandle<ResourceType>& Value)
-{
-  ezResourceHandleReadContext::ReadHandle(&Stream, Value);
-}
-
-inline void operator>>(ezStreamReader& Stream, ezTypelessResourceHandle& Value)
-{
-  ezResourceHandleReadContext::ReadAndDiscardHandle(&Stream);
-}

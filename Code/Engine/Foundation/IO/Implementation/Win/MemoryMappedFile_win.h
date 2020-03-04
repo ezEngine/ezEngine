@@ -1,3 +1,4 @@
+#include <Foundation/IO/Implementation/Win/DosDevicePath_win.h>
 #include <Foundation/IO/MemoryMappedFile.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/PathUtils.h>
@@ -62,8 +63,7 @@ ezResult ezMemoryMappedFile::Open(const char* szAbsolutePath, Mode mode)
     access |= GENERIC_WRITE;
   }
 
-  m_Impl->m_hFile =
-    CreateFileW(ezStringWChar(szAbsolutePath).GetData(), access, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+  m_Impl->m_hFile = CreateFileW(ezDosDevicePath(szAbsolutePath), access, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 
   DWORD errorCode = GetLastError();
 
@@ -81,8 +81,7 @@ ezResult ezMemoryMappedFile::Open(const char* szAbsolutePath, Mode mode)
     return EZ_FAILURE;
   }
 
-  m_Impl->m_hMapping =
-    CreateFileMappingW(m_Impl->m_hFile, nullptr, m_Impl->m_Mode == Mode::ReadOnly ? PAGE_READONLY : PAGE_READWRITE, 0, 0, nullptr);
+  m_Impl->m_hMapping = CreateFileMappingW(m_Impl->m_hFile, nullptr, m_Impl->m_Mode == Mode::ReadOnly ? PAGE_READONLY : PAGE_READWRITE, 0, 0, nullptr);
 
   if (m_Impl->m_hMapping == nullptr || m_Impl->m_hMapping == INVALID_HANDLE_VALUE)
   {

@@ -35,16 +35,16 @@ static int __CPP_Utils_FindPrefabRootNode(duk_context* pDuk)
 
     if (pObject->GetChildCount() == 1)
     {
-      pBinding->DukPutGameObject(&pObject->GetChildren().Current());
+      pBinding->DukPutGameObject(pObject->GetChildren());
       goto found;
     }
     else
     {
       for (auto it = pObject->GetChildren(); it.IsValid(); ++it)
       {
-        if (ezStringUtils::IsEqual(it.Current().GetName(), "root"))
+        if (ezStringUtils::IsEqual(it->GetName(), "root"))
         {
-          pBinding->DukPutGameObject(&pObject->GetChildren().Current());
+          pBinding->DukPutGameObject(pObject->GetChildren());
           goto found;
         }
       }
@@ -75,7 +75,7 @@ static int __CPP_Utils_FindPrefabRootScript(duk_context* pDuk)
 
       for (auto it = pObject->GetChildren(); it.IsValid(); ++it)
       {
-        it.Current().TryGetComponentsOfBaseType(components);
+        it->TryGetComponentsOfBaseType(components);
 
         for (auto* pTs : components)
         {

@@ -520,4 +520,4 @@ ezUInt32 ezMotionMatchingComponent::FindBestKeyframe(const TargetKeyframe& curre
 
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Implementation_MotionMatchingComponent);
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_MotionMatchingComponent);

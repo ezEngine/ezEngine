@@ -202,28 +202,29 @@ bool ezPhantomRTTI::IsEqualToDescriptor(const ezReflectedTypeDescriptor& desc)
 
     if (desc.m_Functions.GetCount() != GetFunctions().GetCount())
       return false;
-    for (ezUInt32 i = 0; i < GetFunctions().GetCount(); i++)
+
+    for (ezUInt32 j = 0; j < GetFunctions().GetCount(); j++)
     {
-      const ezAbstractFunctionProperty* pProp = GetFunctions()[i];
-      if (desc.m_Functions[i].m_sName != pProp->GetPropertyName())
+      const ezAbstractFunctionProperty* pProp = GetFunctions()[j];
+      if (desc.m_Functions[j].m_sName != pProp->GetPropertyName())
         return false;
-      if ((desc.m_Functions[i].m_Flags.GetValue() & ~ezPropertyFlags::Phantom) !=
+      if ((desc.m_Functions[j].m_Flags.GetValue() & ~ezPropertyFlags::Phantom) !=
           (pProp->GetFlags().GetValue() & ~ezPropertyFlags::Phantom))
         return false;
-      if (desc.m_Functions[i].m_Type != pProp->GetFunctionType())
+      if (desc.m_Functions[j].m_Type != pProp->GetFunctionType())
         return false;
 
-      if (pProp->GetReturnType() != ezRTTI::FindTypeByName(desc.m_Functions[i].m_ReturnValue.m_sType))
+      if (pProp->GetReturnType() != ezRTTI::FindTypeByName(desc.m_Functions[j].m_ReturnValue.m_sType))
         return false;
-      if (pProp->GetReturnFlags() != desc.m_Functions[i].m_ReturnValue.m_Flags)
+      if (pProp->GetReturnFlags() != desc.m_Functions[j].m_ReturnValue.m_Flags)
         return false;
-      if (desc.m_Functions[i].m_Arguments.GetCount() != pProp->GetArgumentCount())
+      if (desc.m_Functions[j].m_Arguments.GetCount() != pProp->GetArgumentCount())
         return false;
       for (ezUInt32 a = 0; a < pProp->GetArgumentCount(); a++)
       {
-        if (pProp->GetArgumentType(a) != ezRTTI::FindTypeByName(desc.m_Functions[i].m_Arguments[a].m_sType))
+        if (pProp->GetArgumentType(a) != ezRTTI::FindTypeByName(desc.m_Functions[j].m_Arguments[a].m_sType))
           return false;
-        if (pProp->GetArgumentFlags(a) != desc.m_Functions[i].m_Arguments[a].m_Flags)
+        if (pProp->GetArgumentFlags(a) != desc.m_Functions[j].m_Arguments[a].m_Flags)
           return false;
       }
     }

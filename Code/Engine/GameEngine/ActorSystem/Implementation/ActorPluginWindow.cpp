@@ -50,3 +50,7 @@ ezWindowOutputTargetBase* ezActorPluginWindowShared::GetOutputTarget() const
 {
   return m_pWindowOutputTarget;
 }
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_ActorSystem_Implementation_ActorPluginWindow);
+

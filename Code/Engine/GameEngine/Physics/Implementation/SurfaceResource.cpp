@@ -68,15 +68,8 @@ ezResourceLoadDesc ezSurfaceResource::UpdateContent(ezStreamReader* Stream)
   AssetHash.Read(*Stream);
 
   {
-    ezResourceHandleReadContext context;
-    context.BeginReadingFromStream(Stream);
-    context.BeginRestoringHandles(Stream);
-
     ezSurfaceResourceDescriptor dummy;
     dummy.Load(*Stream);
-
-    context.EndReadingFromStream(Stream);
-    context.EndRestoringHandles();
 
     CreateResource(std::move(dummy));
   }
@@ -348,4 +341,4 @@ bool ezSurfaceResource::IsBasedOn(const ezSurfaceResourceHandle hThisOrBaseSurfa
   return IsBasedOn(pThisOrBaseSurface.GetPointer());
 }
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Surfaces_SurfaceResource);
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Physics_Implementation_SurfaceResource);

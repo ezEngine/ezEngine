@@ -612,7 +612,7 @@ void ezEngineProcessDocumentContext::SetTagRecursive(ezGameObject* pObject, cons
   for (auto itChild = pObject->GetChildren(); itChild.IsValid(); ++itChild)
   {
 
-    SetTagRecursive(&itChild.Current(), tag);
+    SetTagRecursive(itChild, tag);
   }
 }
 
@@ -622,7 +622,7 @@ void ezEngineProcessDocumentContext::ClearTagRecursive(ezGameObject* pObject, co
 
   for (auto itChild = pObject->GetChildren(); itChild.IsValid(); ++itChild)
   {
-    ClearTagRecursive(&itChild.Current(), tag);
+    ClearTagRecursive(itChild, tag);
   }
 }
 

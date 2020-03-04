@@ -1,7 +1,6 @@
 #include <ParticlePluginPCH.h>
 
 #include <Core/WorldSerializer/ResourceHandleReader.h>
-#include <Core/WorldSerializer/ResourceHandleWriter.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamIterator.h>
 #include <Foundation/Math/Color16f.h>
 #include <Foundation/Profiling/Profiling.h>

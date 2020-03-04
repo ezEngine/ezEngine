@@ -86,3 +86,7 @@ const char* ezLineToComponent::GetLineToTargetGuid() const
 {
   return "REMEMBER ME!";
 }
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Debugging_Implementation_LineToComponent);
+

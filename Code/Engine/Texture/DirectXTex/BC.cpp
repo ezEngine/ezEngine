@@ -13,7 +13,7 @@
 // http://go.microsoft.com/fwlink/?LinkId=248926
 //-------------------------------------------------------------------------------------
 
-#include "DirectXTexp.h"
+#include "DirectXTexP.h"
 
 // Experiemental encoding variants, not enabled by default
 //#define COLOR_WEIGHTS
@@ -37,7 +37,7 @@ namespace
     //-------------------------------------------------------------------------------------
     // Decode/Encode RGB 5/6/5 colors
     //-------------------------------------------------------------------------------------
-    inline void Decode565(_Out_ HDRColorA *pColor, _In_ const uint16_t w565)
+    inline void Decode565(_Out_ HDRColorA *pColor, _In_ const uint16_t w565) noexcept
     {
         pColor->r = static_cast<float>((w565 >> 11) & 31) * (1.0f / 31.0f);
         pColor->g = static_cast<float>((w565 >> 5) & 63) * (1.0f / 63.0f);
@@ -45,7 +45,7 @@ namespace
         pColor->a = 1.0f;
     }
 
-    inline uint16_t Encode565(_In_ const HDRColorA *pColor)
+    inline uint16_t Encode565(_In_ const HDRColorA *pColor) noexcept
     {
         HDRColorA Color;
 
@@ -71,7 +71,7 @@ namespace
         _Out_ HDRColorA *pY,
         _In_reads_(NUM_PIXELS_PER_BLOCK) const HDRColorA *pPoints,
         uint32_t cSteps,
-        DWORD flags)
+        DWORD flags) noexcept
     {
         static const float fEpsilon = (0.25f / 64.0f) * (0.25f / 64.0f);
         static const float pC3[] = { 2.0f / 2.0f, 1.0f / 2.0f, 0.0f / 2.0f };
@@ -322,7 +322,7 @@ namespace
     inline void DecodeBC1(
         _Out_writes_(NUM_PIXELS_PER_BLOCK) XMVECTOR *pColor,
         _In_ const D3DX_BC1 *pBC,
-        bool isbc1)
+        bool isbc1) noexcept
     {
         assert(pColor && pBC);
         static_assert(sizeof(D3DX_BC1) == 8, "D3DX_BC1 should be 8 bytes");
@@ -376,7 +376,7 @@ namespace
         _In_reads_(NUM_PIXELS_PER_BLOCK) const HDRColorA *pColor,
         bool bColorKey,
         float threshold,
-        DWORD flags)
+        DWORD flags) noexcept
     {
         assert(pBC && pColor);
         static_assert(sizeof(D3DX_BC1) == 8, "D3DX_BC1 should be 8 bytes");
@@ -402,11 +402,11 @@ namespace
                 return;
             }
 
-            uSteps = (uColorKey > 0) ? 3 : 4;
+            uSteps = (uColorKey > 0) ? 3u : 4u;
         }
         else
         {
-            uSteps = 4;
+            uSteps = 4u;
         }
 
         // Quantize block to R56B5, using Floyd Stienberg error diffusion.  This 
@@ -732,14 +732,14 @@ namespace
 // BC1 Compression
 //-------------------------------------------------------------------------------------
 _Use_decl_annotations_
-void DirectX::D3DXDecodeBC1(XMVECTOR *pColor, const uint8_t *pBC)
+void DirectX::D3DXDecodeBC1(XMVECTOR *pColor, const uint8_t *pBC) noexcept
 {
     auto pBC1 = reinterpret_cast<const D3DX_BC1 *>(pBC);
     DecodeBC1(pColor, pBC1, true);
 }
 
 _Use_decl_annotations_
-void DirectX::D3DXEncodeBC1(uint8_t *pBC, const XMVECTOR *pColor, float threshold, DWORD flags)
+void DirectX::D3DXEncodeBC1(uint8_t *pBC, const XMVECTOR *pColor, float threshold, DWORD flags) noexcept
 {
     assert(pBC && pColor);
 
@@ -803,7 +803,7 @@ void DirectX::D3DXEncodeBC1(uint8_t *pBC, const XMVECTOR *pColor, float threshol
 // BC2 Compression
 //-------------------------------------------------------------------------------------
 _Use_decl_annotations_
-void DirectX::D3DXDecodeBC2(XMVECTOR *pColor, const uint8_t *pBC)
+void DirectX::D3DXDecodeBC2(XMVECTOR *pColor, const uint8_t *pBC) noexcept
 {
     assert(pColor && pBC);
     static_assert(sizeof(D3DX_BC2) == 16, "D3DX_BC2 should be 16 bytes");
@@ -829,7 +829,7 @@ void DirectX::D3DXDecodeBC2(XMVECTOR *pColor, const uint8_t *pBC)
 }
 
 _Use_decl_annotations_
-void DirectX::D3DXEncodeBC2(uint8_t *pBC, const XMVECTOR *pColor, DWORD flags)
+void DirectX::D3DXEncodeBC2(uint8_t *pBC, const XMVECTOR *pColor, DWORD flags) noexcept
 {
     assert(pBC && pColor);
     static_assert(sizeof(D3DX_BC2) == 16, "D3DX_BC2 should be 16 bytes");
@@ -903,7 +903,7 @@ void DirectX::D3DXEncodeBC2(uint8_t *pBC, const XMVECTOR *pColor, DWORD flags)
 // BC3 Compression
 //-------------------------------------------------------------------------------------
 _Use_decl_annotations_
-void DirectX::D3DXDecodeBC3(XMVECTOR *pColor, const uint8_t *pBC)
+void DirectX::D3DXDecodeBC3(XMVECTOR *pColor, const uint8_t *pBC) noexcept
 {
     assert(pColor && pBC);
     static_assert(sizeof(D3DX_BC3) == 16, "D3DX_BC3 should be 16 bytes");
@@ -933,19 +933,19 @@ void DirectX::D3DXDecodeBC3(XMVECTOR *pColor, const uint8_t *pBC)
         fAlpha[7] = 1.0f;
     }
 
-    DWORD dw = pBC3->bitmap[0] | (pBC3->bitmap[1] << 8) | (pBC3->bitmap[2] << 16);
+    DWORD dw = uint32_t(pBC3->bitmap[0]) | uint32_t(pBC3->bitmap[1] << 8) | uint32_t(pBC3->bitmap[2] << 16);
 
     for (size_t i = 0; i < 8; ++i, dw >>= 3)
         pColor[i] = XMVectorSetW(pColor[i], fAlpha[dw & 0x7]);
 
-    dw = pBC3->bitmap[3] | (pBC3->bitmap[4] << 8) | (pBC3->bitmap[5] << 16);
+    dw = uint32_t(pBC3->bitmap[3]) | uint32_t(pBC3->bitmap[4] << 8) | uint32_t(pBC3->bitmap[5] << 16);
 
     for (size_t i = 8; i < NUM_PIXELS_PER_BLOCK; ++i, dw >>= 3)
         pColor[i] = XMVectorSetW(pColor[i], fAlpha[dw & 0x7]);
 }
 
 _Use_decl_annotations_
-void DirectX::D3DXEncodeBC3(uint8_t *pBC, const XMVECTOR *pColor, DWORD flags)
+void DirectX::D3DXEncodeBC3(uint8_t *pBC, const XMVECTOR *pColor, DWORD flags) noexcept
 {
     assert(pBC && pColor);
     static_assert(sizeof(D3DX_BC3) == 16, "D3DX_BC3 should be 16 bytes");
@@ -1031,7 +1031,7 @@ void DirectX::D3DXEncodeBC3(uint8_t *pBC, const XMVECTOR *pColor, DWORD flags)
     }
 
     // Optimize and Quantize Min and Max values
-    uint32_t uSteps = ((0.0f == fMinAlpha) || (1.0f == fMaxAlpha)) ? 6 : 8;
+    uint32_t uSteps = ((0.0f == fMinAlpha) || (1.0f == fMaxAlpha)) ? 6u : 8u;
 
     float fAlphaA, fAlphaB;
     OptimizeAlpha<false>(&fAlphaA, &fAlphaB, fAlpha, uSteps);
@@ -1110,9 +1110,9 @@ void DirectX::D3DXEncodeBC3(uint8_t *pBC, const XMVECTOR *pColor, DWORD flags)
 
             uint32_t iStep;
             if (fDot <= 0.0f)
-                iStep = ((6 == uSteps) && (fAlph <= fStep[0] * 0.5f)) ? 6 : 0;
+                iStep = ((6 == uSteps) && (fAlph <= fStep[0] * 0.5f)) ? 6u : 0u;
             else if (fDot >= fSteps)
-                iStep = ((6 == uSteps) && (fAlph >= (fStep[1] + 1.0f) * 0.5f)) ? 7 : 1;
+                iStep = ((6 == uSteps) && (fAlph >= (fStep[1] + 1.0f) * 0.5f)) ? 7u : 1u;
             else
                 iStep = uint32_t(pSteps[uint32_t(fDot + 0.5f)]);
 

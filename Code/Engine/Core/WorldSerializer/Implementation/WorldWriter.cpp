@@ -1,15 +1,14 @@
 #include <CorePCH.h>
 
-#include <Core/WorldSerializer/ResourceHandleWriter.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/IO/MemoryStream.h>
+#include <Foundation/IO/StringDeduplicationContext.h>
 
 void ezWorldWriter::Clear()
 {
   m_AllRootObjects.Clear();
   m_AllChildObjects.Clear();
   m_AllComponents.Clear();
-  m_uiNumComponents = 0;
 
   m_pStream = nullptr;
   m_pExclude = nullptr;
@@ -17,10 +16,7 @@ void ezWorldWriter::Clear()
   // invalid handles
   {
     m_WrittenGameObjectHandles.Clear();
-    m_WrittenComponentHandles.Clear();
-
     m_WrittenGameObjectHandles[ezGameObjectHandle()] = 0;
-    m_WrittenComponentHandles[ezComponentHandle()] = 0;
   }
 }
 
@@ -68,26 +64,30 @@ void ezWorldWriter::WriteObjects(ezStreamWriter& stream, ezArrayPtr<const ezGame
   WriteToStream();
 }
 
-void ezWorldWriter::WriteToStream()
+ezResult ezWorldWriter::WriteToStream()
 {
-  auto& stream = *m_pStream;
+  const ezUInt8 uiVersion = 8;
+  *m_pStream << uiVersion;
 
-  const ezUInt8 uiVersion = 7;
-  stream << uiVersion;
+  // version 8: use string dedup instead of handle writer
+  ezStringDeduplicationWriteContext stringDedupWriteContext(*m_pStream);
+  m_pStream = &stringDedupWriteContext.Begin();
 
   IncludeAllComponentBaseTypes();
 
   // write the current tag registry
-  ezTagRegistry::GetGlobalRegistry().Save(stream);
+  ezTagRegistry::GetGlobalRegistry().Save(*m_pStream);
 
-  stream << m_AllRootObjects.GetCount();
-  stream << m_AllChildObjects.GetCount();
-  stream << m_AllComponents.GetCount();
-  stream << m_uiNumComponents;
+  ezUInt32 uiNumRootObjects = m_AllRootObjects.GetCount();
+  ezUInt32 uiNumChildObjects = m_AllChildObjects.GetCount();
+  ezUInt32 uiNumComponentTypes = m_AllComponents.GetCount();
+
+  *m_pStream << uiNumRootObjects;
+  *m_pStream << uiNumChildObjects;
+  *m_pStream << uiNumComponentTypes;
 
   AssignGameObjectIndices();
   AssignComponentHandleIndices();
-
 
   for (const auto* pObject : m_AllRootObjects)
   {
@@ -101,20 +101,23 @@ void ezWorldWriter::WriteToStream()
 
   for (auto it = m_AllComponents.GetIterator(); it.IsValid(); ++it)
   {
-    WriteComponentInfo(it.Key());
+    WriteComponentTypeInfo(it.Key());
   }
 
+  for (auto it = m_AllComponents.GetIterator(); it.IsValid(); ++it)
   {
-    ezResourceHandleWriteContext ResHandleWriter;
-    ResHandleWriter.BeginWritingToStream(m_pStream);
-
-    for (auto it = m_AllComponents.GetIterator(); it.IsValid(); ++it)
-    {
-      WriteComponentsOfType(it.Key(), it.Value(), ResHandleWriter);
-    }
-
-    ResHandleWriter.EndWritingToStream(m_pStream);
+    WriteComponentCreationData(it.Value().m_Components);
   }
+
+  for (auto it = m_AllComponents.GetIterator(); it.IsValid(); ++it)
+  {
+    WriteComponentSerializationData(it.Value().m_Components);
+  }
+
+  EZ_SUCCEED_OR_RETURN(stringDedupWriteContext.End());
+  m_pStream = &stringDedupWriteContext.GetOriginalStream();
+
+  return EZ_SUCCESS;
 }
 
 
@@ -136,13 +139,22 @@ void ezWorldWriter::AssignGameObjectIndices()
 
 void ezWorldWriter::AssignComponentHandleIndices()
 {
+  ezUInt32 uiTypeIndex = 0;
+
   // assign the component handle indices in the order in which the components are written
-  ezUInt32 uiComponentIndex = 1;
   for (auto it = m_AllComponents.GetIterator(); it.IsValid(); ++it)
   {
-    for (const auto* pComp : it.Value())
+    auto& components = it.Value();
+
+    components.m_uiSerializedTypeIndex = uiTypeIndex;
+    ++uiTypeIndex;
+
+    ezUInt32 uiComponentIndex = 1;
+    components.m_HandleToIndex[ezComponentHandle()] = 0;
+
+    for (const ezComponent* pComp : components.m_Components)
     {
-      m_WrittenComponentHandles[pComp->GetHandle()] = uiComponentIndex;
+      components.m_HandleToIndex[pComp->GetHandle()] = uiComponentIndex;
       ++uiComponentIndex;
     }
   }
@@ -204,17 +216,27 @@ void ezWorldWriter::WriteGameObjectHandle(const ezGameObjectHandle& hObject)
 
 void ezWorldWriter::WriteComponentHandle(const ezComponentHandle& hComponent)
 {
-  auto it = m_WrittenComponentHandles.Find(hComponent);
+  ezUInt16 uiTypeIndex = 0;
+  ezUInt32 uiIndex = 0;
 
-  EZ_ASSERT_DEBUG(it.IsValid(), "Handle should always be in the written map at this point");
-
-  if (it.IsValid())
-    *m_pStream << it.Value();
-  else
+  ezComponent* pComponent = nullptr;
+  if (ezWorld::GetWorld(hComponent)->TryGetComponent(hComponent, pComponent))
   {
-    const ezUInt32 uiInvalid = 0;
-    *m_pStream << uiInvalid;
+    if (auto* components = m_AllComponents.GetValue(pComponent->GetDynamicRTTI()))
+    {
+      auto it = components->m_HandleToIndex.Find(hComponent);
+      EZ_ASSERT_DEBUG(it.IsValid(), "Handle should always be in the written map at this point");
+
+      if (it.IsValid())
+      {
+        uiTypeIndex = components->m_uiSerializedTypeIndex;
+        uiIndex = it.Value();
+      }
+    }
   }
+
+  *m_pStream << uiTypeIndex;
+  *m_pStream << uiIndex;
 }
 
 ezVisitorExecution::Enum ezWorldWriter::ObjectTraverser(ezGameObject* pObject)
@@ -229,12 +251,10 @@ ezVisitorExecution::Enum ezWorldWriter::ObjectTraverser(ezGameObject* pObject)
 
   auto components = pObject->GetComponents();
 
-  for (const auto* pComp : components)
+  for (const ezComponent* pComp : components)
   {
-    m_AllComponents[pComp->GetDynamicRTTI()].PushBack(pComp);
+    m_AllComponents[pComp->GetDynamicRTTI()].m_Components.PushBack(pComp);
   }
-
-  m_uiNumComponents += components.GetCount();
 
   return ezVisitorExecution::Continue;
 }
@@ -258,12 +278,9 @@ void ezWorldWriter::WriteGameObject(const ezGameObject* pObject)
   s << pObject->IsDynamic();
   pObject->GetTags().Save(s);
   s << pObject->GetTeamID();
-
-  /// \todo write strings only once
 }
 
-
-void ezWorldWriter::WriteComponentInfo(const ezRTTI* pRtti)
+void ezWorldWriter::WriteComponentTypeInfo(const ezRTTI* pRtti)
 {
   ezStreamWriter& s = *m_pStream;
 
@@ -271,8 +288,7 @@ void ezWorldWriter::WriteComponentInfo(const ezRTTI* pRtti)
   s << pRtti->GetTypeVersion();
 }
 
-void ezWorldWriter::WriteComponentsOfType(const ezRTTI* pRtti, const ezDeque<const ezComponent*>& components,
-                                          ezResourceHandleWriteContext& ResHandleWriter)
+void ezWorldWriter::WriteComponentCreationData(const ezDeque<const ezComponent*>& components)
 {
   ezMemoryStreamStorage storage;
   ezMemoryStreamWriter memWriter(&storage);
@@ -285,25 +301,25 @@ void ezWorldWriter::WriteComponentsOfType(const ezRTTI* pRtti, const ezDeque<con
     ezStreamWriter& s = *m_pStream;
     s << components.GetCount();
 
-    for (const auto* pComp : components)
+    ezUInt32 uiComponentIndex = 1;
+    for (auto pComponent : components)
     {
-      WriteGameObjectHandle(pComp->GetOwner()->GetHandle());
-      WriteComponentHandle(pComp->GetHandle());
+      WriteGameObjectHandle(pComponent->GetOwner()->GetHandle());
+      s << uiComponentIndex;
+      ++uiComponentIndex;
 
-      s << pComp->GetActiveFlag();
+      s << pComponent->GetActiveFlag();
 
       // version 7
       {
         ezUInt8 userFlags = 0;
         for (ezUInt8 i = 0; i < 8; ++i)
         {
-          userFlags |= pComp->GetUserFlag(i) ? EZ_BIT(i) : 0;
+          userFlags |= pComponent->GetUserFlag(i) ? EZ_BIT(i) : 0;
         }
 
         s << userFlags;
       }
-
-      pComp->SerializeComponent(*this);
     }
   }
 
@@ -318,5 +334,29 @@ void ezWorldWriter::WriteComponentsOfType(const ezRTTI* pRtti, const ezDeque<con
   }
 }
 
-EZ_STATICLINK_FILE(Core, Core_WorldSerializer_Implementation_WorldWriter);
+void ezWorldWriter::WriteComponentSerializationData(const ezDeque<const ezComponent*>& components)
+{
+  ezMemoryStreamStorage storage;
+  ezMemoryStreamWriter memWriter(&storage);
 
+  ezStreamWriter* pPrevStream = m_pStream;
+  m_pStream = &memWriter;
+
+  // write to memory stream
+  for (auto pComp : components)
+  {
+    pComp->SerializeComponent(*this);
+  }
+
+  m_pStream = pPrevStream;
+
+  // write result to actual stream
+  {
+    ezStreamWriter& s = *m_pStream;
+    s << storage.GetStorageSize();
+
+    s.WriteBytes(storage.GetData(), storage.GetStorageSize());
+  }
+}
+
+EZ_STATICLINK_FILE(Core, Core_WorldSerializer_Implementation_WorldWriter);

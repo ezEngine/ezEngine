@@ -22,6 +22,17 @@
 // include c++11 specific header
 #include <type_traits>
 
+#ifndef __has_cpp_attribute
+#  define __has_cpp_attribute(name) 0
+#endif
+
+// [[nodiscard]] helper
+#if __has_cpp_attribute(nodiscard)
+  #define EZ_NODISCARD [[nodiscard]]
+#else
+  #define EZ_NODISCARD
+#endif
+
 #ifndef __INTELLISENSE__
 
 // Macros to do compile-time checks, such as to ensure sizes of types

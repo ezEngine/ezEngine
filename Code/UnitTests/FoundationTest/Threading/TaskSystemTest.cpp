@@ -181,6 +181,16 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     ezTaskSystem::WaitForGroup(g[0]);
 
     EZ_TEST_INT(TasksFinished, 8);
+
+    // It is not guaranteed that group finished callback is called after WaitForGroup returned so we need to wait a bit here.
+    for (int i = 0; i < 10; i++)
+    {
+      if (GroupsFinished == 4)
+      {
+        break;
+      }
+      ezThreadUtils::Sleep(ezTime::Milliseconds(10));
+    }
     EZ_TEST_INT(GroupsFinished, 4);
 
     for (int i = 0; i < 4; ++i)

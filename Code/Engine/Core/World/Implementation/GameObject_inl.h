@@ -1,6 +1,7 @@
 
-EZ_ALWAYS_INLINE ezGameObject::ConstChildIterator::ConstChildIterator(ezGameObject* pObject)
+EZ_ALWAYS_INLINE ezGameObject::ConstChildIterator::ConstChildIterator(ezGameObject* pObject, const ezWorld* pWorld)
   : m_pObject(pObject)
+  , m_pWorld(pWorld)
 {
 }
 
@@ -31,8 +32,8 @@ EZ_ALWAYS_INLINE void ezGameObject::ConstChildIterator::operator++()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-EZ_ALWAYS_INLINE ezGameObject::ChildIterator::ChildIterator(ezGameObject* pObject)
-  : ConstChildIterator(pObject)
+EZ_ALWAYS_INLINE ezGameObject::ChildIterator::ChildIterator(ezGameObject* pObject, const ezWorld* pWorld)
+  : ConstChildIterator(pObject, pWorld)
 {
 }
 
@@ -53,21 +54,7 @@ EZ_ALWAYS_INLINE ezGameObject::ChildIterator::operator ezGameObject*()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-inline ezGameObject::ezGameObject()
-{
-  m_ParentIndex = 0;
-  m_FirstChildIndex = 0;
-  m_LastChildIndex = 0;
-
-  m_NextSiblingIndex = 0;
-  m_PrevSiblingIndex = 0;
-  m_ChildCount = 0;
-
-  m_uiHierarchyLevel = 0;
-
-  m_pTransformationData = nullptr;
-  m_pWorld = nullptr;
-}
+inline ezGameObject::ezGameObject() = default;
 
 EZ_ALWAYS_INLINE ezGameObject::ezGameObject(const ezGameObject& other)
 {
@@ -159,16 +146,6 @@ EZ_ALWAYS_INLINE void ezGameObject::DetachChildren(const ezArrayPtr<const ezGame
 EZ_ALWAYS_INLINE ezUInt32 ezGameObject::GetChildCount() const
 {
   return m_ChildCount;
-}
-
-EZ_ALWAYS_INLINE ezWorld* ezGameObject::GetWorld()
-{
-  return m_pWorld;
-}
-
-EZ_ALWAYS_INLINE const ezWorld* ezGameObject::GetWorld() const
-{
-  return m_pWorld;
 }
 
 
@@ -455,11 +432,6 @@ EZ_ALWAYS_INLINE const ezSimdBBoxSphere& ezGameObject::GetGlobalBoundsSimd() con
   return m_pTransformationData->m_globalBounds;
 }
 
-EZ_ALWAYS_INLINE void ezGameObject::UpdateGlobalTransformAndBounds()
-{
-  m_pTransformationData->ConditionalUpdateGlobalBounds();
-}
-
 EZ_ALWAYS_INLINE ezSpatialDataHandle ezGameObject::GetSpatialData() const
 {
   return m_pTransformationData->m_hSpatialData;
@@ -582,7 +554,7 @@ EZ_FORCE_INLINE void ezGameObject::TransformationData::UpdateGlobalBounds()
   m_globalBounds.m_BoxHalfExtents.SetW(m_localBounds.m_BoxHalfExtents.w());
 }
 
-EZ_FORCE_INLINE void ezGameObject::TransformationData::UpdateGlobalBoundsAndSpatialData()
+EZ_FORCE_INLINE void ezGameObject::TransformationData::UpdateGlobalBoundsAndSpatialData(ezSpatialSystem& spatialSytem)
 {
   ezSimdBBoxSphere oldGlobalBounds = m_globalBounds;
 
@@ -597,7 +569,7 @@ EZ_FORCE_INLINE void ezGameObject::TransformationData::UpdateGlobalBoundsAndSpat
     bool bWasAlwaysVisible = oldGlobalBounds.m_BoxHalfExtents.w() != ezSimdFloat::Zero();
     bool bIsAlwaysVisible = m_globalBounds.m_BoxHalfExtents.w() != ezSimdFloat::Zero();
 
-    UpdateSpatialData(bWasAlwaysVisible, bIsAlwaysVisible);
+    UpdateSpatialData(spatialSytem, bWasAlwaysVisible, bIsAlwaysVisible);
   }
 }
 

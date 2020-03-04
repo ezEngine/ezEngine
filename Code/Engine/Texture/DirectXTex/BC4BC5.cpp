@@ -13,7 +13,7 @@
 // http://go.microsoft.com/fwlink/?LinkId=248926
 //-------------------------------------------------------------------------------------
 
-#include "DirectXTexp.h"
+#include "DirectXTexP.h"
 
 #include "BC.h"
 
@@ -42,13 +42,13 @@ namespace
     // BC4U/BC5U
     struct BC4_UNORM
     {
-        float R(size_t uOffset) const
+        float R(size_t uOffset) const noexcept
         {
             size_t uIndex = GetIndex(uOffset);
             return DecodeFromIndex(uIndex);
         }
 
-        float DecodeFromIndex(size_t uIndex) const
+        float DecodeFromIndex(size_t uIndex) const noexcept
         {
             if (uIndex == 0)
                 return red_0 / 255.0f;
@@ -72,12 +72,12 @@ namespace
             }
         }
 
-        size_t GetIndex(size_t uOffset) const
+        size_t GetIndex(size_t uOffset) const noexcept
         {
             return static_cast<size_t>((data >> (3 * uOffset + 16)) & 0x07);
         }
 
-        void SetIndex(size_t uOffset, size_t uIndex)
+        void SetIndex(size_t uOffset, size_t uIndex) noexcept
         {
             data &= ~(uint64_t(0x07) << (3 * uOffset + 16));
             data |= (uint64_t(uIndex) << (3 * uOffset + 16));
@@ -98,13 +98,13 @@ namespace
     // BC4S/BC5S
     struct BC4_SNORM
     {
-        float R(size_t uOffset) const
+        float R(size_t uOffset) const noexcept
         {
             size_t uIndex = GetIndex(uOffset);
             return DecodeFromIndex(uIndex);
         }
 
-        float DecodeFromIndex(size_t uIndex) const
+        float DecodeFromIndex(size_t uIndex) const noexcept
         {
             int8_t sred_0 = (red_0 == -128) ? -127 : red_0;
             int8_t sred_1 = (red_1 == -128) ? -127 : red_1;
@@ -131,12 +131,12 @@ namespace
             }
         }
 
-        size_t GetIndex(size_t uOffset) const
+        size_t GetIndex(size_t uOffset) const noexcept
         {
             return static_cast<size_t>((data >> (3 * uOffset + 16)) & 0x07);
         }
 
-        void SetIndex(size_t uOffset, size_t uIndex)
+        void SetIndex(size_t uOffset, size_t uIndex) noexcept
         {
             data &= ~(uint64_t(0x07) << (3 * uOffset + 16));
             data |= (uint64_t(uIndex) << (3 * uOffset + 16));
@@ -159,11 +159,11 @@ namespace
     //-------------------------------------------------------------------------------------
     // Convert a floating point value to an 8-bit SNORM
     //-------------------------------------------------------------------------------------
-    void inline FloatToSNorm(_In_ float fVal, _Out_ int8_t *piSNorm)
+    void inline FloatToSNorm(_In_ float fVal, _Out_ int8_t *piSNorm) noexcept
     {
         const uint32_t dwMostNeg = (1 << (8 * sizeof(int8_t) - 1));
 
-        if (_isnan(fVal))
+        if (isnan(fVal))
             fVal = 0;
         else
             if (fVal > 1)
@@ -187,7 +187,7 @@ namespace
     void FindEndPointsBC4U(
         _In_reads_(BLOCK_SIZE) const float theTexelsU[],
         _Out_ uint8_t &endpointU_0,
-        _Out_ uint8_t &endpointU_1)
+        _Out_ uint8_t &endpointU_1) noexcept
     {
         // The boundary of codec for signed/unsigned format
         const float MIN_NORM = 0.f;
@@ -242,7 +242,7 @@ namespace
     void FindEndPointsBC4S(
         _In_reads_(BLOCK_SIZE) const float theTexelsU[],
         _Out_ int8_t &endpointU_0,
-        _Out_ int8_t &endpointU_1)
+        _Out_ int8_t &endpointU_1) noexcept
     {
         //  The boundary of codec for signed/unsigned format
         const float MIN_NORM = -1.f;
@@ -304,7 +304,7 @@ namespace
         _Out_ uint8_t &endpointU_0,
         _Out_ uint8_t &endpointU_1,
         _Out_ uint8_t &endpointV_0,
-        _Out_ uint8_t &endpointV_1)
+        _Out_ uint8_t &endpointV_1) noexcept
     {
         //Encoding the U and V channel by BC4 codec separately.
         FindEndPointsBC4U(theTexelsU, endpointU_0, endpointU_1);
@@ -317,7 +317,7 @@ namespace
         _Out_ int8_t &endpointU_0,
         _Out_ int8_t &endpointU_1,
         _Out_ int8_t &endpointV_0,
-        _Out_ int8_t &endpointV_1)
+        _Out_ int8_t &endpointV_1) noexcept
     {
         //Encoding the U and V channel by BC4 codec separately.
         FindEndPointsBC4S(theTexelsU, endpointU_0, endpointU_1);
@@ -328,7 +328,7 @@ namespace
     //------------------------------------------------------------------------------
     void FindClosestUNORM(
         _Inout_ BC4_UNORM* pBC,
-        _In_reads_(NUM_PIXELS_PER_BLOCK) const float theTexelsU[])
+        _In_reads_(NUM_PIXELS_PER_BLOCK) const float theTexelsU[]) noexcept
     {
         float rGradient[8];
         for (size_t i = 0; i < 8; ++i)
@@ -355,7 +355,7 @@ namespace
 
     void FindClosestSNORM(
         _Inout_ BC4_SNORM* pBC,
-        _In_reads_(NUM_PIXELS_PER_BLOCK) const float theTexelsU[])
+        _In_reads_(NUM_PIXELS_PER_BLOCK) const float theTexelsU[]) noexcept
     {
         float rGradient[8];
         for (size_t i = 0; i < 8; ++i)
@@ -390,7 +390,7 @@ namespace
 // BC4 Compression
 //-------------------------------------------------------------------------------------
 _Use_decl_annotations_
-void DirectX::D3DXDecodeBC4U(XMVECTOR *pColor, const uint8_t *pBC)
+void DirectX::D3DXDecodeBC4U(XMVECTOR *pColor, const uint8_t *pBC) noexcept
 {
     assert(pColor && pBC);
     static_assert(sizeof(BC4_UNORM) == 8, "BC4_UNORM should be 8 bytes");
@@ -405,7 +405,7 @@ void DirectX::D3DXDecodeBC4U(XMVECTOR *pColor, const uint8_t *pBC)
 }
 
 _Use_decl_annotations_
-void DirectX::D3DXDecodeBC4S(XMVECTOR *pColor, const uint8_t *pBC)
+void DirectX::D3DXDecodeBC4S(XMVECTOR *pColor, const uint8_t *pBC) noexcept
 {
     assert(pColor && pBC);
     static_assert(sizeof(BC4_SNORM) == 8, "BC4_SNORM should be 8 bytes");
@@ -420,7 +420,7 @@ void DirectX::D3DXDecodeBC4S(XMVECTOR *pColor, const uint8_t *pBC)
 }
 
 _Use_decl_annotations_
-void DirectX::D3DXEncodeBC4U(uint8_t *pBC, const XMVECTOR *pColor, DWORD flags)
+void DirectX::D3DXEncodeBC4U(uint8_t *pBC, const XMVECTOR *pColor, DWORD flags) noexcept
 {
     UNREFERENCED_PARAMETER(flags);
 
@@ -441,7 +441,7 @@ void DirectX::D3DXEncodeBC4U(uint8_t *pBC, const XMVECTOR *pColor, DWORD flags)
 }
 
 _Use_decl_annotations_
-void DirectX::D3DXEncodeBC4S(uint8_t *pBC, const XMVECTOR *pColor, DWORD flags)
+void DirectX::D3DXEncodeBC4S(uint8_t *pBC, const XMVECTOR *pColor, DWORD flags) noexcept
 {
     UNREFERENCED_PARAMETER(flags);
 
@@ -466,7 +466,7 @@ void DirectX::D3DXEncodeBC4S(uint8_t *pBC, const XMVECTOR *pColor, DWORD flags)
 // BC5 Compression
 //-------------------------------------------------------------------------------------
 _Use_decl_annotations_
-void DirectX::D3DXDecodeBC5U(XMVECTOR *pColor, const uint8_t *pBC)
+void DirectX::D3DXDecodeBC5U(XMVECTOR *pColor, const uint8_t *pBC) noexcept
 {
     assert(pColor && pBC);
     static_assert(sizeof(BC4_UNORM) == 8, "BC4_UNORM should be 8 bytes");
@@ -482,7 +482,7 @@ void DirectX::D3DXDecodeBC5U(XMVECTOR *pColor, const uint8_t *pBC)
 }
 
 _Use_decl_annotations_
-void DirectX::D3DXDecodeBC5S(XMVECTOR *pColor, const uint8_t *pBC)
+void DirectX::D3DXDecodeBC5S(XMVECTOR *pColor, const uint8_t *pBC) noexcept
 {
     assert(pColor && pBC);
     static_assert(sizeof(BC4_SNORM) == 8, "BC4_SNORM should be 8 bytes");
@@ -498,7 +498,7 @@ void DirectX::D3DXDecodeBC5S(XMVECTOR *pColor, const uint8_t *pBC)
 }
 
 _Use_decl_annotations_
-void DirectX::D3DXEncodeBC5U(uint8_t *pBC, const XMVECTOR *pColor, DWORD flags)
+void DirectX::D3DXEncodeBC5U(uint8_t *pBC, const XMVECTOR *pColor, DWORD flags) noexcept
 {
     UNREFERENCED_PARAMETER(flags);
 
@@ -532,7 +532,7 @@ void DirectX::D3DXEncodeBC5U(uint8_t *pBC, const XMVECTOR *pColor, DWORD flags)
 }
 
 _Use_decl_annotations_
-void DirectX::D3DXEncodeBC5S(uint8_t *pBC, const XMVECTOR *pColor, DWORD flags)
+void DirectX::D3DXEncodeBC5S(uint8_t *pBC, const XMVECTOR *pColor, DWORD flags) noexcept
 {
     UNREFERENCED_PARAMETER(flags);
 

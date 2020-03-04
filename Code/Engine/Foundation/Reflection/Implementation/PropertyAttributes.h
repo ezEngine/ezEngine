@@ -239,7 +239,7 @@ class EZ_FOUNDATION_DLL ezContainerAttribute : public ezPropertyAttribute
   EZ_ADD_DYNAMIC_REFLECTION(ezContainerAttribute, ezPropertyAttribute);
 
 public:
-  ezContainerAttribute() {}
+  ezContainerAttribute() = default;
   ezContainerAttribute(bool bCanAdd, bool bCanDelete, bool bCanMove)
   {
     m_bCanAdd = bCanAdd;
@@ -252,9 +252,9 @@ public:
   bool CanMove() const { return m_bCanMove; }
 
 private:
-  bool m_bCanAdd;
-  bool m_bCanDelete;
-  bool m_bCanMove;
+  bool m_bCanAdd = false;
+  bool m_bCanDelete = false;
+  bool m_bCanMove = false;
 };
 
 /// \brief Limits setting of pointer properties to derived types that have the given constant property and value
@@ -702,13 +702,13 @@ class EZ_FOUNDATION_DLL ezMaxArraySizeAttribute : public ezPropertyAttribute
   EZ_ADD_DYNAMIC_REFLECTION(ezMaxArraySizeAttribute, ezPropertyAttribute);
 
 public:
-  ezMaxArraySizeAttribute() {}
+  ezMaxArraySizeAttribute() = default;
   ezMaxArraySizeAttribute(ezUInt32 uiMaxSize) { m_uiMaxSize = uiMaxSize; }
 
   const ezUInt32& GetMaxSize() const { return m_uiMaxSize; }
 
 private:
-  ezUInt32 m_uiMaxSize;
+  ezUInt32 m_uiMaxSize = 0;
 };
 
 //////////////////////////////////////////////////////////////////////////

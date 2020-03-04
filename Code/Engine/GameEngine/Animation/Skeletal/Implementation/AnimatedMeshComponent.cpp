@@ -236,4 +236,4 @@ ezAnimatedMeshComponentPatch_4_5 g_ezAnimatedMeshComponentPatch_4_5;
 
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Implementation_AnimatedMeshComponent);
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Skeletal_Implementation_AnimatedMeshComponent);

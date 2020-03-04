@@ -23,24 +23,6 @@ void ezResourceHandleReadContext::Reset()
   m_AllResources.Clear();
 }
 
-
-void ezResourceHandleReadContext::ReadHandle(ezStreamReader* pStream, ezTypelessResourceHandle* pResourceHandle)
-{
-  ezResourceHandleReadContext* pContext = s_pActiveReadContext;
-  EZ_ASSERT_DEBUG(pContext != nullptr, "No ezResourceHandleReadContext is active on this thread");
-
-  pContext->ReadResourceReference(pStream, pResourceHandle);
-}
-
-void ezResourceHandleReadContext::ReadAndDiscardHandle(ezStreamReader* pStream)
-{
-  ezResourceHandleReadContext* pContext = s_pActiveReadContext;
-  EZ_ASSERT_DEBUG(pContext != nullptr, "No ezResourceHandleReadContext is active on this thread");
-
-  ezUInt32 uiID = 0;
-  *pStream >> uiID;
-}
-
 void ezResourceHandleReadContext::ReadResourceReference(ezStreamReader* pStream, ezTypelessResourceHandle* pResourceHandle)
 {
   ezUInt32 uiID = 0;
@@ -87,15 +69,25 @@ void ezResourceHandleReadContext::EndRestoringHandles()
   s_pActiveReadContext = nullptr;
 }
 
-void ezResourceHandleReadContext::BeginReadingFromStream(ezStreamReader* pStream)
+ezResult ezResourceHandleReadContext::BeginReadingFromStream(ezStreamReader* pStream)
 {
   EZ_ASSERT_DEV(m_uiVersion == 0, "ezResourceHandleReadContext::BeginReadingFromStream cannot be called twice on the same instance");
 
+  //ezLog::Warning("File uses deprecated ezResourceHandleReadContext, please re-export.");
+
   *pStream >> m_uiVersion;
-  EZ_ASSERT_DEV(m_uiVersion == 1, "Invalid version {0} of ezResourceHandleReadContext", m_uiVersion);
+  if(m_uiVersion == 1)
+  {
+    return EZ_SUCCESS;
+  }
+  else
+  {
+    ezLog::Error("Invalid version {0} of ezResourceHandleReadContext", m_uiVersion);
+    return EZ_FAILURE;
+  }
 }
 
-void ezResourceHandleReadContext::EndReadingFromStream(ezStreamReader* pStream)
+ezResult ezResourceHandleReadContext::EndReadingFromStream(ezStreamReader* pStream)
 {
   EZ_ASSERT_DEV(!m_bReadData, "ezResourceHandleReadContext::EndReadingFromStream cannot be called twice on the same instance");
   m_bReadData = true;
@@ -108,6 +100,12 @@ void ezResourceHandleReadContext::EndReadingFromStream(ezStreamReader* pStream)
 
   ezUInt32 uiNumTypes = 0;
   *pStream >> uiNumTypes;
+
+  if (uiNumTypes > 16 * 1024)
+  {
+    ezLog::Error("Unreasonable amount of types in resource handle context, got {0}", uiNumTypes);
+    return EZ_FAILURE;
+  }
 
   // for each type
   {
@@ -132,26 +130,70 @@ void ezResourceHandleReadContext::EndReadingFromStream(ezStreamReader* pStream)
         ezUInt32 uiInternalID = 0;
         *pStream >> uiInternalID;
 
-        // read unique ID for restoring the resource (from file)
-        *pStream >> sTemp;
-
-        if (pRtti != nullptr)
+        if (uiInternalID < uiAllResourcesCount)
         {
-          // load the resource of the given type
-          const ezTypelessResourceHandle hResource(ezResourceManager::LoadResourceByType(pRtti, sTemp));
+          // read unique ID for restoring the resource (from file)
+          *pStream >> sTemp;
 
-          m_AllResources[uiInternalID] = hResource;
+          if (pRtti != nullptr)
+          {
+            // load the resource of the given type
+            const ezTypelessResourceHandle hResource(ezResourceManager::LoadResourceByType(pRtti, sTemp));
+
+            m_AllResources[uiInternalID] = hResource;
+          }
+          else
+          {
+            // store an invalid handle, hope this doesn't break somewhere later
+            m_AllResources[uiInternalID].Invalidate();
+          }
         }
         else
         {
-          // store an invalid handle, hope this doesn't break somewhere later
-          m_AllResources[uiInternalID].Invalidate();
+          ezLog::Error("Resource id out of range ({0}, {1})", uiInternalID, uiAllResourcesCount);
+          return EZ_FAILURE;
         }
       }
     }
   }
+
+  return EZ_FAILURE;
 }
 
+// TODO: move to ResourceHandleStreamOperations.cpp once ezResourceHandleReadContext is not used anymore
+// static
+void ezResourceHandleStreamOperations::ReadHandle(ezStreamReader& Stream, ezTypelessResourceHandle& ResourceHandle)
+{
+  if (ezResourceHandleReadContext* pContext = s_pActiveReadContext)
+  {
+    pContext->ReadResourceReference(&Stream, &ResourceHandle);
+  }
+  else
+  {
+    ezStringBuilder sTemp;
 
+    Stream >> sTemp;
+    if (sTemp.IsEmpty())
+    {
+      ResourceHandle.Invalidate();
+      return;
+    }
+
+    const ezRTTI* pRtti = ezRTTI::FindTypeByName(sTemp);
+    if (pRtti == nullptr)
+    {
+      ezLog::Error("Unknown resource type '{0}'", sTemp);
+      ResourceHandle.Invalidate();
+    }
+
+    // read unique ID for restoring the resource (from file)
+    Stream >> sTemp;
+
+    if (pRtti != nullptr)
+    {
+      ResourceHandle = ezResourceManager::LoadResourceByType(pRtti, sTemp);
+    }
+  }
+}
 
 EZ_STATICLINK_FILE(Core, Core_WorldSerializer_Implementation_ResourceHandleReader);

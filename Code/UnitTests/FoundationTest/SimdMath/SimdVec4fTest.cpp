@@ -239,22 +239,22 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
       float testBlock[4] = {7, 7, 7, 7};
       float mem[4] = {};
 
-      ezSimdVec4f a(1, 2, 3, 4);
+      ezSimdVec4f b(1, 2, 3, 4);
 
       memcpy(mem, testBlock, 16);
-      a.Store<1>(mem);
+      b.Store<1>(mem);
       EZ_TEST_BOOL(mem[0] == 1.0f && mem[1] == 7.0f && mem[2] == 7.0f && mem[3] == 7.0f);
 
       memcpy(mem, testBlock, 16);
-      a.Store<2>(mem);
+      b.Store<2>(mem);
       EZ_TEST_BOOL(mem[0] == 1.0f && mem[1] == 2.0f && mem[2] == 7.0f && mem[3] == 7.0f);
 
       memcpy(mem, testBlock, 16);
-      a.Store<3>(mem);
+      b.Store<3>(mem);
       EZ_TEST_BOOL(mem[0] == 1.0f && mem[1] == 2.0f && mem[2] == 3.0f && mem[3] == 7.0f);
 
       memcpy(mem, testBlock, 16);
-      a.Store<4>(mem);
+      b.Store<4>(mem);
       EZ_TEST_BOOL(mem[0] == 1.0f && mem[1] == 2.0f && mem[2] == 3.0f && mem[3] == 4.0f);
     }
   }

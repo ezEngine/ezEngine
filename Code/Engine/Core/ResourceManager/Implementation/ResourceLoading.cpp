@@ -108,7 +108,7 @@ void ezResourceManager::RunWorkerTask(ezResource* pResource)
     // but we need to release the mutex between every loop iteration to prevent deadlocks
     EZ_ASSERT_DEV(s_ResourceMutex.IsLocked(), "Mutex must be locked");
 
-    s_ResourceMutex.Release();
+    s_ResourceMutex.Unlock();
 
     while (true)
     {
@@ -126,7 +126,7 @@ void ezResourceManager::RunWorkerTask(ezResource* pResource)
     }
 
     // reacquire to get into the proper state
-    s_ResourceMutex.Acquire();
+    s_ResourceMutex.Lock();
   }
 }
 

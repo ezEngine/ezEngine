@@ -15,13 +15,13 @@ EZ_ALWAYS_INLINE ezMutex::~ezMutex()
   pthread_mutex_destroy(&m_Handle);
 }
 
-EZ_ALWAYS_INLINE void ezMutex::Acquire()
+EZ_ALWAYS_INLINE void ezMutex::Lock()
 {
   pthread_mutex_lock(&m_Handle);
   ++m_iLockCount;
 }
 
-EZ_ALWAYS_INLINE bool ezMutex::TryAcquire()
+EZ_ALWAYS_INLINE bool ezMutex::TryLock()
 {
   if (pthread_mutex_trylock(&m_Handle) == 0)
   {
@@ -31,7 +31,7 @@ EZ_ALWAYS_INLINE bool ezMutex::TryAcquire()
 
   return false;
 }
-EZ_ALWAYS_INLINE void ezMutex::Release()
+EZ_ALWAYS_INLINE void ezMutex::Unlock()
 {
   --m_iLockCount;
   pthread_mutex_unlock(&m_Handle);

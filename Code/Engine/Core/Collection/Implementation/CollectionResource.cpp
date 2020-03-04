@@ -19,7 +19,15 @@ void ezCollectionResource::PreloadResources()
   EZ_LOCK(m_preloadMutex);
   EZ_PROFILE_SCOPE("Inject Resources to Preload");
 
-  m_hPreloadedResources.Clear();
+  if (!m_hPreloadedResources.IsEmpty())
+  {
+    // PreloadResources has already been called so there is no need
+    // to redo the work. Clearing the array would in fact potentially
+    // trigger one of the resources to be unloaded, undoing the work
+    // that was already done to preload the collection.
+    return;
+  }
+
   m_hPreloadedResources.Reserve(m_Collection.m_Resources.GetCount());
 
   for (const auto& e : m_Collection.m_Resources)

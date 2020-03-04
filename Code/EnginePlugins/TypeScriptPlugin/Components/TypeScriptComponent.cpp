@@ -71,15 +71,7 @@ void ezTypeScriptComponent::DeserializeComponent(ezWorldReader& stream)
 
   auto& s = stream.GetStream();
 
-  if (uiVersion == 1)
-  {
-    ezTypelessResourceHandle hDummy;
-    s >> hDummy;
-  }
-  else
-  {
-    s >> m_TypeScriptComponentGuid;
-  }
+  s >> m_TypeScriptComponentGuid;
 
   if (uiVersion >= 3)
   {

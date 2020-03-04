@@ -91,7 +91,6 @@ ezResult ezTexConv::BeforeCoreSystemsStartup()
 
 void ezTexConv::AfterCoreSystemsStartup()
 {
-  ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
   ezFileSystem::AddDataDirectory("", "App", ":", ezFileSystem::AllowWrites);
 
   ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
@@ -259,6 +258,15 @@ ezApplication::ApplicationExecution ezTexConv::Run()
     header.Write(file);
 
     file.WriteBytes(m_Processor.m_TextureAtlas.GetData(), m_Processor.m_TextureAtlas.GetStorageSize());
+
+    if (file.Close().Succeeded())
+    {
+      SetReturnCode(0);
+    }
+    else
+    {
+      ezLog::Error("Failed to write atlas output image.");
+    }
 
     return ezApplication::ApplicationExecution::Quit;
   }

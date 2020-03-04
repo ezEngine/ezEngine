@@ -18,7 +18,7 @@ inline ezStringBuilder::ezStringBuilder(const ezStringBuilder& rhs)
   *this = rhs;
 }
 
-inline ezStringBuilder::ezStringBuilder(ezStringBuilder&& rhs)
+inline ezStringBuilder::ezStringBuilder(ezStringBuilder&& rhs) noexcept
     : m_Data(rhs.GetAllocator())
 {
   m_uiCharacterCount = 0;
@@ -77,7 +77,7 @@ EZ_ALWAYS_INLINE void ezStringBuilder::operator=(const ezStringBuilder& rhs)
   m_Data = rhs.m_Data;
 }
 
-EZ_ALWAYS_INLINE void ezStringBuilder::operator=(ezStringBuilder&& rhs)
+EZ_ALWAYS_INLINE void ezStringBuilder::operator=(ezStringBuilder&& rhs) noexcept
 {
   m_uiCharacterCount = rhs.m_uiCharacterCount;
   m_Data = std::move(rhs.m_Data);

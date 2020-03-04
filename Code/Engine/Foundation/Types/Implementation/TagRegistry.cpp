@@ -90,16 +90,27 @@ void ezTagRegistry::Save(ezStreamWriter& stream) const
   }
 }
 
-void ezTagRegistry::Load(ezStreamReader& stream)
+ezResult ezTagRegistry::Load(ezStreamReader& stream)
 {
   EZ_LOCK(m_TagRegistryMutex);
 
   ezUInt8 uiVersion = 0;
   stream >> uiVersion;
-  EZ_ASSERT_DEV(uiVersion == 1, "Invalid ezTagRegistry version {0}", uiVersion);
+
+  if (uiVersion != 1)
+  {
+    ezLog::Error("Invalid ezTagRegistry version {0}", uiVersion);
+    return EZ_FAILURE;
+  }
 
   ezUInt32 uiNumTags = 0;
   stream >> uiNumTags;
+
+  if (uiNumTags > 16 * 1024)
+  {
+    ezLog::Error("ezTagRegistry::Load, unreasonable amount of tags {0}, cancelling load.", uiNumTags);
+    return EZ_FAILURE;
+  }
 
   ezStringBuilder temp;
   for (ezUInt32 i = 0; i < uiNumTags; ++i)
@@ -108,6 +119,8 @@ void ezTagRegistry::Load(ezStreamReader& stream)
 
     RegisterTag(temp);
   }
+
+  return EZ_SUCCESS;
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Types_Implementation_TagRegistry);

@@ -82,4 +82,4 @@ void ezHeadBoneComponent::ChangeVerticalRotation(float radians)
   m_NewVerticalRotation += ezAngle::Radian(radians);
 }
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_HeadBoneComponent);
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_HeadBoneComponent);

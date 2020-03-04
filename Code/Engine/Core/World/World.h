@@ -73,10 +73,10 @@ public:
   ezUInt32 GetObjectCount() const;
 
   /// \brief Returns an iterator over all objects in this world in no specific order.
-  ezInternal::WorldData::ObjectStorage::Iterator GetObjects();
+  ezInternal::WorldData::ObjectIterator GetObjects();
 
   /// \brief Returns an iterator over all objects in this world in no specific order.
-  ezInternal::WorldData::ObjectStorage::ConstIterator GetObjects() const;
+  ezInternal::WorldData::ConstObjectIterator GetObjects() const;
 
   /// \brief Defines a visitor function that is called for every game-object when using the traverse method.
   /// The function takes a pointer to the game object as argument and returns a bool which indicates whether to continue (true) or abort
@@ -152,6 +152,29 @@ public:
   /// \brief Returns if a component with the given handle exists and if so writes out the corresponding pointer to out_pComponent.
   template <typename ComponentType>
   bool TryGetComponent(const ezComponentHandle& component, const ComponentType*& out_pComponent) const;
+
+  /// \brief Creates a new component init batch.
+  /// It is ensured that the Initialize function is called for all components in a batch before the OnSimulationStarted is called.
+  /// If bMustFinishWithinOneFrame is set to false the processing of an init batch can be distributed over multiple frames if
+  /// m_MaxComponentInitializationTimePerFrame in the world desc is set to a reasonable value.
+  ezComponentInitBatchHandle CreateComponentInitBatch(const char* szBatchName, bool bMustFinishWithinOneFrame = true);
+
+  /// \brief Deletes a component init batch. It must be completely processed before it can be deleted.
+  void DeleteComponentInitBatch(const ezComponentInitBatchHandle& batch);
+
+  /// \brief All components that are created between an BeginAddingComponentsToInitBatch/EndAddingComponentsToInitBatch scope are added to the
+  /// given init batch.
+  void BeginAddingComponentsToInitBatch(const ezComponentInitBatchHandle& batch);
+
+  /// \brief End adding components to the given batch. Components created after this call are added to the default init batch.
+  void EndAddingComponentsToInitBatch(const ezComponentInitBatchHandle& batch);
+
+  /// \brief After all components have been added to the init batch call submit to start processing the batch.
+  void SubmitComponentInitBatch(const ezComponentInitBatchHandle& batch);
+
+  /// \brief Returns whether the init batch has been completely processed and all corresponding components are initialized
+  /// and their OnSimulationStarted function was called.
+  bool IsComponentInitBatchCompleted(const ezComponentInitBatchHandle& batch, double* pCompletionFactor = nullptr);
 
   ///@}
   /// \name Message Functions
@@ -267,12 +290,28 @@ public:
   /// \sa SetGameObjectReferenceResolver()
   const ReferenceResolver& GetGameObjectReferenceResolver() const;
 
+  /// \name Helper methods to query ezWorld limits
+  ///@{
+  static constexpr ezUInt64 GetMaxNumGameObjects();
+  static constexpr ezUInt64 GetMaxNumHierarchyLevels();
+  static constexpr ezUInt64 GetMaxNumComponentsPerType();
+  static constexpr ezUInt64 GetMaxNumWorldModules();
+  static constexpr ezUInt64 GetMaxNumComponentTypes();
+  static constexpr ezUInt64 GetMaxNumWorlds();
+  ///@}
+
 public:
   /// \brief Returns the number of active worlds.
   static ezUInt32 GetWorldCount();
 
   /// \brief Returns the world with the given index.
   static ezWorld* GetWorld(ezUInt32 uiIndex);
+
+  /// \brief Returns the world for the given game object handle.
+  static ezWorld* GetWorld(const ezGameObjectHandle& object);
+
+  /// \brief Returns the world for the given component handle.
+  static ezWorld* GetWorld(const ezComponentHandle& component);
 
 private:
   friend class ezGameObject;
@@ -312,6 +351,8 @@ private:
   void UpdateSynchronous(const ezArrayPtr<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions);
   void UpdateAsynchronous();
 
+  // returns if the batch was completely initialized
+  bool ProcessInitializationBatch(ezInternal::WorldData::InitBatch& batch, ezTime endTime);
   void ProcessComponentsToInitialize();
   void ProcessUpdateFunctionsToRegister();
   ezResult RegisterUpdateFunctionInternal(const ezWorldModule::UpdateFunctionDesc& desc);
@@ -331,7 +372,7 @@ private:
   typedef ezInternal::WorldData::QueuedMsgMetaData QueuedMsgMetaData;
 
   ezUInt16 m_uiIndex;
-  static ezStaticArray<ezWorld*, 64> s_Worlds;
+  static ezStaticArray<ezWorld*, 256> s_Worlds;
 };
 
 #include <Core/World/Implementation/World_inl.h>

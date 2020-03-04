@@ -3,6 +3,7 @@
 #include <Foundation/FoundationInternal.h>
 EZ_FOUNDATION_INTERNAL_HEADER
 
+#include <Foundation/IO/Implementation/Win/DosDevicePath_win.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/StringConversion.h>
 #include <Foundation/Threading/ThreadUtils.h>
@@ -52,20 +53,21 @@ ezResult ezOSFile::InternalOpen(const char* szFile, ezFileOpenMode::Enum OpenMod
 
   while (iRetries > 0)
   {
-    DWORD error = GetLastError();
-
-    ezStringWChar s = szFile;
+    SetLastError(ERROR_SUCCESS);
+    DWORD error = 0;
 
     switch (OpenMode)
     {
       case ezFileOpenMode::Read:
-        m_FileData.m_pFileHandle = CreateFileW(s.GetData(), GENERIC_READ, dwSharedMode, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+        m_FileData.m_pFileHandle = CreateFileW(ezDosDevicePath(szFile), GENERIC_READ, dwSharedMode, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
         break;
+
       case ezFileOpenMode::Write:
-        m_FileData.m_pFileHandle = CreateFileW(s.GetData(), GENERIC_WRITE, dwSharedMode, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+        m_FileData.m_pFileHandle = CreateFileW(ezDosDevicePath(szFile), GENERIC_WRITE, dwSharedMode, nullptr, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
         break;
+
       case ezFileOpenMode::Append:
-        m_FileData.m_pFileHandle = CreateFileW(s.GetData(), FILE_APPEND_DATA, dwSharedMode, nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
+        m_FileData.m_pFileHandle = CreateFileW(ezDosDevicePath(szFile), FILE_APPEND_DATA, dwSharedMode, nullptr, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
 
         // in append mode we need to set the file pointer to the end explicitly, otherwise GetFilePosition might return 0 the first time
         if ((m_FileData.m_pFileHandle != nullptr) && (m_FileData.m_pFileHandle != INVALID_HANDLE_VALUE))
@@ -210,24 +212,21 @@ void ezOSFile::InternalSetFilePosition(ezInt64 iDistance, ezFileSeekMode::Enum P
 
 bool ezOSFile::InternalExistsFile(const char* szFile)
 {
-  ezStringWChar sPath(szFile);
-  DWORD dwAttrib = GetFileAttributesW(sPath.GetData());
+  const DWORD dwAttrib = GetFileAttributesW(ezDosDevicePath(szFile).GetData());
 
   return ((dwAttrib != INVALID_FILE_ATTRIBUTES) && ((dwAttrib & FILE_ATTRIBUTE_DIRECTORY) == 0));
 }
 
 bool ezOSFile::InternalExistsDirectory(const char* szDirectory)
 {
-  ezStringWChar sPath(szDirectory);
-  DWORD dwAttrib = GetFileAttributesW(sPath.GetData());
+  const DWORD dwAttrib = GetFileAttributesW(ezDosDevicePath(szDirectory));
 
   return ((dwAttrib != INVALID_FILE_ATTRIBUTES) && ((dwAttrib & FILE_ATTRIBUTE_DIRECTORY) != 0));
 }
 
 ezResult ezOSFile::InternalDeleteFile(const char* szFile)
 {
-  ezStringWChar s = szFile;
-  if (DeleteFileW(s.GetData()) == FALSE)
+  if (DeleteFileW(ezDosDevicePath(szFile)) == FALSE)
   {
     if (GetLastError() == ERROR_FILE_NOT_FOUND)
       return EZ_SUCCESS;
@@ -244,10 +243,9 @@ ezResult ezOSFile::InternalCreateDirectory(const char* szDirectory)
   if (ezStringUtils::GetCharacterCount(szDirectory) <= 3) // 'C:\'
     return EZ_SUCCESS;
 
-  ezStringWChar s = szDirectory;
-  if (CreateDirectoryW(s.GetData(), nullptr) == FALSE)
+  if (CreateDirectoryW(ezDosDevicePath(szDirectory), nullptr) == FALSE)
   {
-    DWORD uiError = GetLastError();
+    const DWORD uiError = GetLastError();
     if (uiError == ERROR_ALREADY_EXISTS)
       return EZ_SUCCESS;
 
@@ -280,7 +278,7 @@ ezResult ezOSFile::InternalGetFileStats(const char* szFileOrFolder, ezFileStats&
   }
 
   WIN32_FIND_DATAW data;
-  HANDLE hSearch = FindFirstFileW(ezStringWChar(s.GetData()).GetData(), &data);
+  HANDLE hSearch = FindFirstFileW(ezDosDevicePath(s), &data);
 
   if ((hSearch == nullptr) || (hSearch == INVALID_HANDLE_VALUE))
     return EZ_FAILURE;
@@ -341,7 +339,7 @@ ezResult ezFileSystemIterator::StartSearch(const char* szSearchStart, ezBitflags
   m_Flags = flags;
 
   WIN32_FIND_DATAW data;
-  HANDLE hSearch = FindFirstFileW(ezStringWChar(sSearch.GetData()).GetData(), &data);
+  HANDLE hSearch = FindFirstFileW(ezDosDevicePath(sSearch), &data);
 
   if ((hSearch == nullptr) || (hSearch == INVALID_HANDLE_VALUE))
     return EZ_FAILURE;
@@ -392,6 +390,23 @@ ezResult ezFileSystemIterator::StartSearch(const char* szSearchStart, ezBitflags
 
 ezResult ezFileSystemIterator::Next()
 {
+  while (true)
+  {
+    const ezInt32 res = InternalNext();
+
+    if (res == EZ_SUCCESS)
+      return EZ_SUCCESS;
+
+    if (res == EZ_FAILURE)
+      return EZ_FAILURE;
+  }
+}
+
+
+ezInt32 ezFileSystemIterator::InternalNext()
+{
+  constexpr ezInt32 CallInternalNext = 2;
+
   if (m_Data.m_Handles.IsEmpty())
     return EZ_FAILURE;
 
@@ -403,7 +418,7 @@ ezResult ezFileSystemIterator::Next()
     sNewSearch.AppendPath("*");
 
     WIN32_FIND_DATAW data;
-    HANDLE hSearch = FindFirstFileW(ezStringWChar(sNewSearch.GetData()).GetData(), &data);
+    HANDLE hSearch = FindFirstFileW(ezDosDevicePath(sNewSearch), &data);
 
     if ((hSearch != nullptr) && (hSearch != INVALID_HANDLE_VALUE))
     {
@@ -416,17 +431,17 @@ ezResult ezFileSystemIterator::Next()
       m_Data.m_Handles.PushBack(hSearch);
 
       if ((m_CurFile.m_sName == "..") || (m_CurFile.m_sName == "."))
-        return Next(); // will search for the next file or folder that is not ".." or "." ; might return false though
+        return CallInternalNext; // will search for the next file or folder that is not ".." or "." ; might return false though
 
       if (m_CurFile.m_bIsDirectory)
       {
         if (!m_Flags.IsSet(ezFileSystemIteratorFlags::ReportFolders))
-          return Next();
+          return CallInternalNext;
       }
       else
       {
         if (!m_Flags.IsSet(ezFileSystemIteratorFlags::ReportFiles))
-          return Next();
+          return CallInternalNext;
       }
 
       return EZ_SUCCESS;
@@ -447,7 +462,7 @@ ezResult ezFileSystemIterator::Next()
 
     m_sCurPath.PathParentDirectory();
 
-    return Next();
+    return CallInternalNext;
   }
 
   m_CurFile.m_uiFileSize = HighLowToUInt64(data.nFileSizeHigh, data.nFileSizeLow);
@@ -457,17 +472,17 @@ ezResult ezFileSystemIterator::Next()
   m_CurFile.m_LastModificationTime.SetInt64(FileTimeToEpoch(data.ftLastWriteTime), ezSIUnitOfTime::Microsecond);
 
   if ((m_CurFile.m_sName == "..") || (m_CurFile.m_sName == "."))
-    return Next();
+    return CallInternalNext;
 
   if (m_CurFile.m_bIsDirectory)
   {
     if (!m_Flags.IsSet(ezFileSystemIteratorFlags::ReportFolders))
-      return Next();
+      return CallInternalNext;
   }
   else
   {
     if (!m_Flags.IsSet(ezFileSystemIteratorFlags::ReportFiles))
-      return Next();
+      return CallInternalNext;
   }
 
   return EZ_SUCCESS;
@@ -493,11 +508,35 @@ const char* ezOSFile::GetApplicationDirectory()
 {
   if (s_ApplicationPath.IsEmpty())
   {
-    wchar_t szFilename[256];
-    GetModuleFileNameW(nullptr, szFilename, 256);
+    ezUInt32 uiRequiredLength = 512;
+    ezHybridArray<wchar_t, 1024> tmp;
 
-    ezStringBuilder sPath = ezStringUtf8(szFilename).GetData();
-    s_ApplicationPath = sPath.GetFileDirectory();
+    while (true)
+    {
+      tmp.SetCountUninitialized(uiRequiredLength);
+
+      // reset last error code
+      SetLastError(ERROR_SUCCESS);
+
+      const ezUInt32 uiLength = GetModuleFileNameW(nullptr, tmp.GetData(), tmp.GetCount() - 1);
+      const DWORD error = GetLastError();
+
+      if (error == ERROR_SUCCESS)
+      {
+        tmp[uiLength] = L'\0';
+        break;
+      }
+
+      if (error == ERROR_INSUFFICIENT_BUFFER)
+      {
+        uiRequiredLength += 512;
+        continue;
+      }
+
+      EZ_REPORT_FAILURE("GetModuleFileNameW failed: {0}", ezArgErrorCode(error));
+    }
+
+    s_ApplicationPath = ezPathUtils::GetFileDirectory(ezStringUtf8(tmp.GetData()));
   }
 
   return s_ApplicationPath.GetData();
@@ -533,9 +572,16 @@ ezString ezOSFile::GetUserDataFolder(const char* szSubFolder)
       }
     }
 #else
-    WCHAR szPath[MAX_PATH];
-    SHGetFolderPathW(NULL, CSIDL_APPDATA, NULL, SHGFP_TYPE_CURRENT, szPath);
-    s_UserDataPath = ezStringWChar(szPath).GetData();
+    wchar_t* pPath = nullptr;
+    if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_RoamingAppData, KF_FLAG_DEFAULT, nullptr, &pPath)))
+    {
+      s_UserDataPath = ezStringWChar(pPath);
+    }
+
+    if (pPath != nullptr)
+    {
+      CoTaskMemFree(pPath);
+    }
 #endif
   }
 
@@ -573,11 +619,18 @@ ezString ezOSFile::GetTempDataFolder(const char* szSubFolder /*= nullptr*/)
       }
     }
 #else
-    WCHAR szPath[MAX_PATH];
-    SHGetFolderPathW(NULL, CSIDL_LOCAL_APPDATA, NULL, SHGFP_TYPE_CURRENT, szPath);
-    s = ezStringWChar(szPath).GetData();
-    s.AppendPath("Temp");
-    s_TempDataPath = s;
+    wchar_t* pPath = nullptr;
+    if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_LocalAppData, KF_FLAG_DEFAULT, nullptr, &pPath)))
+    {
+      s = ezStringWChar(pPath);
+      s.AppendPath("Temp");
+      s_TempDataPath = s;
+    }
+
+    if (pPath != nullptr)
+    {
+      CoTaskMemFree(pPath);
+    }
 #endif
   }
 
@@ -589,10 +642,20 @@ ezString ezOSFile::GetTempDataFolder(const char* szSubFolder /*= nullptr*/)
 
 const ezString ezOSFile::GetCurrentWorkingDirectory()
 {
-  wchar_t tmp[1024];
-  GetCurrentDirectoryW(EZ_ARRAY_SIZE(tmp), tmp);
+  const ezUInt32 uiRequiredLength = GetCurrentDirectoryW(0, nullptr);
 
-  ezStringBuilder clean = ezStringUtf8(tmp).GetData();
+  ezHybridArray<wchar_t, 1024> tmp;
+  tmp.SetCountUninitialized(uiRequiredLength + 16);
+
+  if (GetCurrentDirectoryW(tmp.GetCount() - 1, tmp.GetData()) == 0)
+  {
+    EZ_REPORT_FAILURE("GetCurrentDirectoryW failed: {}", ezArgErrorCode(GetLastError()));
+    return ezString();
+  }
+
+  tmp[uiRequiredLength] = L'\0';
+
+  ezStringBuilder clean = ezStringUtf8(tmp.GetData()).GetData();
   clean.MakeCleanPath();
 
   return clean;

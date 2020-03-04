@@ -25,8 +25,9 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #endif
 
 #if EZ_ENABLED(EZ_PLATFORM_ANDROID)
-#  include <Foundation/Basics/Platform/Android/AndroidUtils.h>
 #  include <android_native_app_glue.h>
+#  include <Foundation/Basics/Platform/Android/AndroidUtils.h>
+#  include <Foundation/Basics/Platform/Android/AndroidJni.h>
 #endif
 
 #ifndef PATH_MAX
@@ -301,20 +302,16 @@ const char* ezOSFile::GetApplicationDirectory()
     CFRelease(bundleURL);
     CFRelease(appBundle);
 #  elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
-    android_app* app = ezAndroidUtils::GetAndroidApp();
-    JNIEnv* env = nullptr;
-    app->activity->vm->AttachCurrentThread(&env, nullptr);
+    {
+      ezJniAttachment attachment;
 
-    jclass activityClass = env->GetObjectClass(app->activity->clazz);
-    jmethodID getPackageCodePath = env->GetMethodID(activityClass, "getPackageCodePath", "()Ljava/lang/String;");
-    jobject result = env->CallObjectMethod(app->activity->clazz, getPackageCodePath);
-    jboolean isCopy;
-    // By convention, android requires assets to be placed in the 'Assets' folder
-    // inside the apk thus we use that as our SDK root.
-    ezStringBuilder sTemp = env->GetStringUTFChars((jstring)result, &isCopy);
-    sTemp.AppendPath("Assets");
-    s_Path = sTemp;
-    app->activity->vm->DetachCurrentThread();
+      ezJniString packagePath = attachment.GetActivity().Call<ezJniString>("getPackageCodePath");
+      // By convention, android requires assets to be placed in the 'Assets' folder
+      // inside the apk thus we use that as our SDK root.
+      ezStringBuilder sTemp = packagePath.GetData();
+      sTemp.AppendPath("Assets");
+      s_Path = sTemp;
+    }
 #  else
     char result[PATH_MAX];
     ssize_t length = readlink("/proc/self/exe", result, PATH_MAX);
@@ -352,23 +349,11 @@ ezString ezOSFile::GetTempDataFolder(const char* szSubFolder)
   if (s_TempDataPath.IsEmpty())
   {
 #  if EZ_ENABLED(EZ_PLATFORM_ANDROID)
-    android_app* app = ezAndroidUtils::GetAndroidApp();
-    JNIEnv* env = nullptr;
-    app->activity->vm->AttachCurrentThread(&env, nullptr);
+    ezJniAttachment attachment;
 
-    jclass activityClass = env->FindClass("android/app/NativeActivity");
-    jmethodID getCacheDir = env->GetMethodID(activityClass, "getCacheDir", "()Ljava/io/File;");
-    jobject cacheDir = env->CallObjectMethod(app->activity->clazz, getCacheDir);
-
-    jclass fileClass = env->FindClass("java/io/File");
-    jmethodID getPath = env->GetMethodID(fileClass, "getPath", "()Ljava/lang/String;");
-    jstring path = (jstring)env->CallObjectMethod(cacheDir, getPath);
-
-    const char* path_chars = env->GetStringUTFChars(path, NULL);
-    s_TempDataPath = path_chars;
-
-    env->ReleaseStringUTFChars(path, path_chars);
-    app->activity->vm->DetachCurrentThread();
+    ezJniObject cacheDir = attachment.GetActivity().Call<ezJniObject>("getCacheDir");
+    ezJniString path = cacheDir.Call<ezJniString>("getPath");
+    s_TempDataPath = path.GetData();
 #  else
     s_TempDataPath = GetUserDataFolder(".cache").GetData();
 #  endif

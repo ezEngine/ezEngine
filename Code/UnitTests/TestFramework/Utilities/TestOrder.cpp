@@ -24,29 +24,13 @@ void SortTestsAlphabetically(std::deque<ezTestEntry>& inout_Tests)
 }
 
 /// Writes the given test order to a simple config file
-void SaveTestOrder(const char* szFile, const std::deque<ezTestEntry>& AllTests, TestSettings& testSettings)
+void SaveTestOrder(const char* szFile, const std::deque<ezTestEntry>& AllTests)
 {
   FILE* pFile = fopen(szFile, "wb");
   if (!pFile)
     return;
 
   char szTemp[256] = "";
-
-  // Settings
-  sprintf(szTemp, "Settings\n");
-  fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
-  {
-    sprintf(szTemp, "  AssertOnTestFail = %s\n", testSettings.m_bAssertOnTestFail ? "on" : "off");
-    fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
-    sprintf(szTemp, "  OpenHtmlOutputOnError = %s\n", testSettings.m_bOpenHtmlOutputOnError ? "on" : "off");
-    fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
-    sprintf(szTemp, "  KeepConsoleOpen = %s\n", testSettings.m_bKeepConsoleOpen ? "on" : "off");
-    fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
-    sprintf(szTemp, "  ShowMessageBox = %s\n", testSettings.m_bShowMessageBox ? "on" : "off");
-    fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
-    sprintf(szTemp, "  DisableSuccessfulTests = %s\n", testSettings.m_bAutoDisableSuccessfulTests ? "on" : "off");
-    fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
-  }
 
   // Test order
   for (ezUInt32 t = 0; t < AllTests.size(); ++t)
@@ -124,7 +108,7 @@ inline void StripWhitespaces(char* szString)
   szString[uiWritePos] = '\0';
 }
 
-void LoadTestOrder(const char* szFile, std::deque<ezTestEntry>& AllTests, TestSettings& testSettings)
+void LoadTestOrder(const char* szFile, std::deque<ezTestEntry>& AllTests)
 {
   FILE* pFile = fopen(szFile, "rb");
   if (!pFile)
@@ -177,32 +161,8 @@ void LoadTestOrder(const char* szFile, std::deque<ezTestEntry>& AllTests, TestSe
       }
       else
       {
-        // We are in the settings block
-        if (iLastMainTest == -1)
-        {
-          if (strcmp("AssertOnTestFail", szTestName) == 0)
-          {
-            testSettings.m_bAssertOnTestFail = !bIsOff;
-          }
-          else if (strcmp("OpenHtmlOutputOnError", szTestName) == 0)
-          {
-            testSettings.m_bOpenHtmlOutputOnError = !bIsOff;
-          }
-          else if (strcmp("KeepConsoleOpen", szTestName) == 0)
-          {
-            testSettings.m_bKeepConsoleOpen = !bIsOff;
-          }
-          else if (strcmp("ShowMessageBox", szTestName) == 0)
-          {
-            testSettings.m_bShowMessageBox = !bIsOff;
-          }
-          else if (strcmp("DisableSuccessfulTests", szTestName) == 0)
-          {
-            testSettings.m_bAutoDisableSuccessfulTests = !bIsOff;
-          }
-        }
         // We are in a test block
-        else if (iLastMainTest >= 0)
+        if (iLastMainTest >= 0)
         {
           for (ezUInt32 t = 0; t < AllTests[iLastMainTest].m_SubTests.size(); ++t)
           {
@@ -224,7 +184,96 @@ void LoadTestOrder(const char* szFile, std::deque<ezTestEntry>& AllTests, TestSe
   SortTestsAlphabetically(AllTests);
 }
 
+void SaveTestSettings(const char* szFile, TestSettings& testSettings)
+{
+  FILE* pFile = fopen(szFile, "wb");
+  if (!pFile)
+    return;
 
+  char szTemp[256] = "";
+
+  // Settings
+  sprintf(szTemp, "Settings\n");
+  fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
+  {
+    sprintf(szTemp, "  AssertOnTestFail = %s\n", testSettings.m_AssertOnTestFail != AssertOnTestFail::DoNotAssert ? "on" : "off");
+    fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
+    sprintf(szTemp, "  OpenHtmlOutputOnError = %s\n", testSettings.m_bOpenHtmlOutputOnError ? "on" : "off");
+    fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
+    sprintf(szTemp, "  KeepConsoleOpen = %s\n", testSettings.m_bKeepConsoleOpen ? "on" : "off");
+    fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
+    sprintf(szTemp, "  ShowMessageBox = %s\n", testSettings.m_bShowMessageBox ? "on" : "off");
+    fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
+    sprintf(szTemp, "  DisableSuccessfulTests = %s\n", testSettings.m_bAutoDisableSuccessfulTests ? "on" : "off");
+    fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
+  }
+
+  fclose(pFile);
+}
+
+void LoadTestSettings(const char* szFile, TestSettings& testSettings)
+{
+  FILE* pFile = fopen(szFile, "rb");
+  if (!pFile)
+  {
+    return;
+  }
+
+  bool bInSettings = false;
+
+  while (!feof(pFile))
+  {
+    char szTestName[256] = "";
+    char szOtherName[256] = "";
+
+    const bool bIndented = ReadLine(pFile, szTestName, 256);
+    const bool bIsOff = strstr(szTestName, "=off") != nullptr;
+    const char* pEnd = strstr(szTestName, "=");
+    if (pEnd)
+    {
+      ezInt32 iPos = (ezInt32)(pEnd - szTestName);
+      szTestName[iPos] = '\0';
+    }
+
+    if (szTestName[0] != '\0')
+    {
+      if (!bIndented)
+      {
+        // Are we in the settings block?
+        bInSettings = strcmp("Settings", szTestName) == 0;
+      }
+      else
+      {
+        // We are in the settings block
+        if (bInSettings)
+        {
+          if (strcmp("AssertOnTestFail", szTestName) == 0)
+          {
+            testSettings.m_AssertOnTestFail = bIsOff ? AssertOnTestFail::DoNotAssert : AssertOnTestFail::AssertIfDebuggerAttached;
+          }
+          else if (strcmp("OpenHtmlOutputOnError", szTestName) == 0)
+          {
+            testSettings.m_bOpenHtmlOutputOnError = !bIsOff;
+          }
+          else if (strcmp("KeepConsoleOpen", szTestName) == 0)
+          {
+            testSettings.m_bKeepConsoleOpen = !bIsOff;
+          }
+          else if (strcmp("ShowMessageBox", szTestName) == 0)
+          {
+            testSettings.m_bShowMessageBox = !bIsOff;
+          }
+          else if (strcmp("DisableSuccessfulTests", szTestName) == 0)
+          {
+            testSettings.m_bAutoDisableSuccessfulTests = !bIsOff;
+          }
+        }
+      }
+    }
+  }
+
+  fclose(pFile);
+}
 
 EZ_STATICLINK_FILE(TestFramework, TestFramework_Utilities_TestOrder);
 

@@ -11,10 +11,29 @@
 
 namespace ezApplicationDetails
 {
+  EZ_FOUNDATION_DLL void SetConsoleCtrlHandler(ezMinWindows::BOOL(EZ_WINDOWS_WINAPI* consoleHandler)(ezMinWindows::DWORD dwCtrlType));
+
   template <typename AppClass, typename... Args>
   int ConsoleEntry(int argc, const char** argv, Args&&... arguments)
   {
     static char appBuffer[sizeof(AppClass)]; // Not on the stack to cope with smaller stacks.
+
+    // This mutex will prevent the console shutdown handler to return
+    // as long as this entry point is not finished executing
+    // (see consoleHandler below).
+    static ezMutex shutdownMutex;
+    EZ_LOCK(shutdownMutex);
+
+    // This handler overrides the default handler (which would
+    // call ExitProcess which leads to unorderly engine shutdowns)
+    const auto consoleHandler = [](ezMinWindows::DWORD dwCtrlType) -> ezMinWindows::BOOL {
+      // We have to wait until the application has shut down orderly
+      // since Windows will kill everything after this handler returns
+      reinterpret_cast<AppClass*>(appBuffer)->RequestQuit();
+      EZ_LOCK(shutdownMutex);
+      return 1;
+    };
+    SetConsoleCtrlHandler(consoleHandler);
 
     AppClass* pApp = new (appBuffer) AppClass(std::forward<Args>(arguments)...);
     pApp->SetCommandLineArguments((ezUInt32)argc, argv);
@@ -37,30 +56,10 @@ namespace ezApplicationDetails
     return iReturnCode;
   }
 
-  EZ_FOUNDATION_DLL void AttachToConsoleWindow(ezMinWindows::BOOL(EZ_WINDOWS_WINAPI* consoleHandler)(ezMinWindows::DWORD dwCtrlType));
-  EZ_FOUNDATION_DLL void DetachFromConsoleWindow();
-
   template <typename AppClass, typename... Args>
   int ApplicationEntry(Args&&... arguments)
   {
     static char appBuffer[sizeof(AppClass)]; // Not on the stack to cope with smaller stacks.
-
-    // This mutex will prevent the console shutdown handler to return
-    // as long as this entry point is not finished executing
-    // (see consoleHandler below).
-    static ezMutex shutdownMutex;
-    EZ_LOCK(shutdownMutex);
-
-    // This handler overrides the default handler (which would
-    // call ExitProcess which leads to unorderly engine shutdowns)
-    const auto consoleHandler = [](ezMinWindows::DWORD dwCtrlType) -> ezMinWindows::BOOL {
-      // We have to wait until the application has shut down orderly
-      // since Windows will kill everything after this handler returns
-      reinterpret_cast<AppClass*>(appBuffer)->RequestQuit();
-      EZ_LOCK(shutdownMutex);
-      return 1;
-    };
-    AttachToConsoleWindow(consoleHandler);
 
     AppClass* pApp = new (appBuffer) AppClass(std::forward<Args>(arguments)...);
     pApp->SetCommandLineArguments((ezUInt32)__argc, const_cast<const char**>(__argv));
@@ -79,8 +78,6 @@ namespace ezApplicationDetails
     memset(pApp, 0, sizeof(AppClass));
     if (memLeaks)
       ezMemoryTracker::DumpMemoryLeaks();
-
-    DetachFromConsoleWindow();
 
     return iReturnCode;
   }

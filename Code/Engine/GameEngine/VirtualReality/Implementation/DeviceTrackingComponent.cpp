@@ -108,5 +108,5 @@ void ezDeviceTrackingComponent::Update()
   }
 }
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_VirtualReality_Components_DeviceTrackingComponent);
+EZ_STATICLINK_FILE(GameEngine, GameEngine_VirtualReality_Implementation_DeviceTrackingComponent);
 

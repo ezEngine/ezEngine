@@ -57,8 +57,6 @@ ezResult ezStringDeduplicationWriteContext::End()
 
 void ezStringDeduplicationWriteContext::SerializeString(const ezStringView& String, ezStreamWriter& Writer)
 {
-  EZ_ASSERT_DEV(&Writer == &m_TempStreamWriter, "The writer passed to the context needs to be the same as the writer returned by Begin().");
-
   bool bAlreadDeduplicated = false;
   auto it = m_DeduplicatedStrings.FindOrAdd(String, &bAlreadDeduplicated);
 

@@ -241,5 +241,5 @@ void ezMixedRealityFramework::SynchronizeCameraOrientationToGameObject(ezGameObj
 
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_MixedReality_MixedRealityFramework);
+EZ_STATICLINK_FILE(GameEngine, GameEngine_MixedReality_Implementation_MixedRealityFramework);
 

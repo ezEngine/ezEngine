@@ -147,6 +147,7 @@ void ezIdTableBase<IdType, ValueType>::Reserve(IndexType uiCapacity)
 
   IndexType uiNewCapacity = ezMath::Max(m_uiCapacity + (m_uiCapacity / 2), uiCapacity + CAPACITY_ALIGNMENT);
   uiNewCapacity = (uiNewCapacity + (CAPACITY_ALIGNMENT - 1)) & ~(CAPACITY_ALIGNMENT - 1);
+  EZ_ASSERT_ALWAYS(uiNewCapacity >= uiCapacity, "Capacity overflow");
   SetCapacity(uiNewCapacity);
 }
 

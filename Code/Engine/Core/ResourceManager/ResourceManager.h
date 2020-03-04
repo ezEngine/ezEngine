@@ -164,6 +164,10 @@ public:
   /// BeginAcquireResource.
   static void ForceNoFallbackAcquisition(ezUInt32 uiNumFrames = 0xFFFFFFFF);
 
+  /// \brief If the returned number is greater 0 the resource manager treats ezResourceAcquireMode::AllowLoadingFallback as
+  /// ezResourceAcquireMode::BlockTillLoaded on BeginAcquireResource.
+  static ezUInt32 GetForceNoFallbackAcquisition();
+
   /// \brief Retrieves an array of pointers to resources of the indicated type which
   /// are loaded at the moment. Destroy the returned object as soon as possible as it
   /// holds the entire resource manager locked.
@@ -428,7 +432,6 @@ private:
   static bool ReloadResource(ezResource* pResource, bool bForce);
 
   static void SetupWorkerTasks();
-  static ezUInt32 GetForceNoFallbackAcquisition();
   static ezTime GetLastFrameUpdate();
   static ezHashTable<const ezRTTI*, LoadedResources>& GetLoadedResources();
   static ezDynamicArray<ezResource*>& GetLoadedResourceOfTypeTempContainer();

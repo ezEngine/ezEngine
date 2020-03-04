@@ -1,10 +1,7 @@
-/**
+/** 
  @file  unix.h
  @brief ENet Unix header
 */
-
-#ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
-
 #ifndef __ENET_UNIX_H__
 #define __ENET_UNIX_H__
 
@@ -12,6 +9,7 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <arpa/inet.h>
 #include <netinet/in.h>
 #include <unistd.h>
 
@@ -21,10 +19,7 @@
 
 typedef int ENetSocket;
 
-enum
-{
-    ENET_SOCKET_NULL = -1
-};
+#define ENET_SOCKET_NULL -1
 
 #define ENET_HOST_TO_NET_16(value) (htons (value)) /**< macro that converts host to net byte-order of a 16-bit value */
 #define ENET_HOST_TO_NET_32(value) (htonl (value)) /**< macro that converts host to net byte-order of a 32-bit value */
@@ -46,10 +41,8 @@ typedef fd_set ENetSocketSet;
 
 #define ENET_SOCKETSET_EMPTY(sockset)          FD_ZERO (& (sockset))
 #define ENET_SOCKETSET_ADD(sockset, socket)    FD_SET (socket, & (sockset))
-#define ENET_SOCKETSET_REMOVE(sockset, socket) FD_CLEAR (socket, & (sockset))
+#define ENET_SOCKETSET_REMOVE(sockset, socket) FD_CLR (socket, & (sockset))
 #define ENET_SOCKETSET_CHECK(sockset, socket)  FD_ISSET (socket, & (sockset))
-
+    
 #endif /* __ENET_UNIX_H__ */
-
-#endif // BUILDSYSTEM_ENABLE_ENET_SUPPORT
 

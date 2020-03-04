@@ -7,7 +7,6 @@
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
 #include <Foundation/IO/Stream.h>
 #include <Core/WorldSerializer/ResourceHandleReader.h>
-#include <Core/WorldSerializer/ResourceHandleWriter.h>
 
 ezAnimationClipSampler::ezAnimationClipSampler() = default;
 ezAnimationClipSampler::~ezAnimationClipSampler() = default;

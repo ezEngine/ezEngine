@@ -193,19 +193,19 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::UpdateInstances
           continue;
 
         // Same conversion logic as for ezPropertyCategory::Member, but for each element instead.
-        for (auto it = values.GetIterator(); it.IsValid(); ++it)
+        for (auto it2 = values.GetIterator(); it2.IsValid(); ++it2)
         {
-          if (it.Value().GetType() == SpecVarType)
+          if (it2.Value().GetType() == SpecVarType)
           {
             continue;
           }
           else
           {
             ezResult res(EZ_FAILURE);
-            it.Value() = it.Value().ConvertTo(SpecVarType, &res);
+            it2.Value() = it2.Value().ConvertTo(SpecVarType, &res);
             if (res == EZ_FAILURE)
             {
-              it.Value() = ezReflectionUtils::GetDefaultValue(pProperty);
+              it2.Value() = ezReflectionUtils::GetDefaultValue(pProperty);
             }
           }
         }

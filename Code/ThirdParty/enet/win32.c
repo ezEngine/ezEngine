@@ -1,26 +1,36 @@
-﻿/**
+/** 
  @file  win32.c
  @brief ENet Win32 system specific functions
 */
-
-#ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
-
 #ifdef _WIN32
-#define _WINSOCK_DEPRECATED_NO_WARNINGS
-#define _CRT_SECURE_NO_WARNINGS
 
-#include <time.h>
 #define ENET_BUILDING_LIB 1
-#include <enet/enet.h>
+#include "enet/enet.h"
+#include <windows.h>
+#include <mmsystem.h>
 
 static enet_uint32 timeBase = 0;
+
+#if defined(WINAPI_FAMILY) && WINAPI_FAMILY == WINAPI_FAMILY_APP
+// if we are compiling for the Universal Windows Platform (UWP)
+// the functions timeBeginPeriod, timeEndPeriod and timeGetTime are not available
+
+void timeBeginPeriod(int) {}
+void timeEndPeriod(int) {}
+
+enet_uint32 timeGetTime()
+{
+  return static_cast<enet_uint32>(GetTickCount64());
+}
+
+#endif
 
 int
 enet_initialize (void)
 {
     WORD versionRequested = MAKEWORD (1, 1);
     WSADATA wsaData;
-
+   
     if (WSAStartup (versionRequested, & wsaData))
        return -1;
 
@@ -28,9 +38,11 @@ enet_initialize (void)
         HIBYTE (wsaData.wVersion) != 1)
     {
        WSACleanup ();
-
+       
        return -1;
     }
+
+    timeBeginPeriod (1);
 
     return 0;
 }
@@ -38,19 +50,53 @@ enet_initialize (void)
 void
 enet_deinitialize (void)
 {
+    timeEndPeriod (1);
+
     WSACleanup ();
+}
+
+enet_uint32
+enet_host_random_seed (void)
+{
+    return (enet_uint32) timeGetTime ();
 }
 
 enet_uint32
 enet_time_get (void)
 {
-    return (enet_uint32) (clock() * (CLOCKS_PER_SEC / 1000)) - timeBase;
+    return (enet_uint32) timeGetTime () - timeBase;
 }
 
 void
 enet_time_set (enet_uint32 newTimeBase)
 {
-    timeBase = (enet_uint32) (clock() * (CLOCKS_PER_SEC / 1000)) - newTimeBase;
+    timeBase = (enet_uint32) timeGetTime () - newTimeBase;
+}
+
+int
+enet_address_set_host_ip (ENetAddress * address, const char * name)
+{
+    enet_uint8 vals [4] = { 0, 0, 0, 0 };
+    int i;
+
+    for (i = 0; i < 4; ++ i)
+    {
+        const char * next = name + 1;
+        if (* name != '0')
+        {
+            long val = strtol (name, (char **) & next, 10);
+            if (val < 0 || val > 255 || next == name || next - name > 3)
+              return -1;
+            vals [i] = (enet_uint8) val;
+        }
+
+        if (* next != (i < 3 ? '.' : '\0'))
+          return -1;
+        name = next + 1;
+    }
+
+    memcpy (& address -> host, vals, sizeof (enet_uint32));
+    return 0;
 }
 
 int
@@ -61,13 +107,7 @@ enet_address_set_host (ENetAddress * address, const char * name)
     hostEntry = gethostbyname (name);
     if (hostEntry == NULL ||
         hostEntry -> h_addrtype != AF_INET)
-    {
-        unsigned long host = inet_addr (name);
-        if (host == INADDR_NONE)
-            return -1;
-        address -> host = host;
-        return 0;
-    }
+      return enet_address_set_host_ip (address, name);
 
     address -> host = * (enet_uint32 *) hostEntry -> h_addr_list [0];
 
@@ -80,7 +120,13 @@ enet_address_get_host_ip (const ENetAddress * address, char * name, size_t nameL
     char * addr = inet_ntoa (* (struct in_addr *) & address -> host);
     if (addr == NULL)
         return -1;
-    strncpy (name, addr, nameLength);
+    else
+    {
+        size_t addrLen = strlen(addr);
+        if (addrLen >= nameLength)
+          return -1;
+        memcpy (name, addr, addrLen + 1);
+    }
     return 0;
 }
 
@@ -89,14 +135,19 @@ enet_address_get_host (const ENetAddress * address, char * name, size_t nameLeng
 {
     struct in_addr in;
     struct hostent * hostEntry;
-
+ 
     in.s_addr = address -> host;
-
+    
     hostEntry = gethostbyaddr ((char *) & in, sizeof (struct in_addr), AF_INET);
     if (hostEntry == NULL)
       return enet_address_get_host_ip (address, name, nameLength);
-
-    strncpy (name, hostEntry -> h_name, nameLength);
+    else
+    {
+       size_t hostLen = strlen (hostEntry -> h_name);
+       if (hostLen >= nameLength)
+         return -1;
+       memcpy (name, hostEntry -> h_name, hostLen + 1);
+    }
 
     return 0;
 }
@@ -190,6 +241,27 @@ enet_socket_set_option (ENetSocket socket, ENetSocketOption option, int value)
             result = setsockopt (socket, SOL_SOCKET, SO_SNDTIMEO, (char *) & value, sizeof (int));
             break;
 
+        case ENET_SOCKOPT_NODELAY:
+            result = setsockopt (socket, IPPROTO_TCP, TCP_NODELAY, (char *) & value, sizeof (int));
+            break;
+
+        default:
+            break;
+    }
+    return result == SOCKET_ERROR ? -1 : 0;
+}
+
+int
+enet_socket_get_option (ENetSocket socket, ENetSocketOption option, int * value)
+{
+    int result = SOCKET_ERROR, len;
+    switch (option)
+    {
+        case ENET_SOCKOPT_ERROR:
+            len = sizeof(int);
+            result = getsockopt (socket, SOL_SOCKET, SO_ERROR, (char *) value, & len);
+            break;
+
         default:
             break;
     }
@@ -222,8 +294,8 @@ enet_socket_accept (ENetSocket socket, ENetAddress * address)
     struct sockaddr_in sin;
     int sinLength = sizeof (struct sockaddr_in);
 
-    result = accept (socket,
-                     address != NULL ? (struct sockaddr *) & sin : NULL,
+    result = accept (socket, 
+                     address != NULL ? (struct sockaddr *) & sin : NULL, 
                      address != NULL ? & sinLength : NULL);
 
     if (result == INVALID_SOCKET)
@@ -269,7 +341,7 @@ enet_socket_send (ENetSocket socket,
         sin.sin_addr.s_addr = address -> host;
     }
 
-    if (WSASendTo (socket,
+    if (WSASendTo (socket, 
                    (LPWSABUF) buffers,
                    (DWORD) bufferCount,
                    & sentLength,
@@ -348,10 +420,10 @@ enet_socket_wait (ENetSocket socket, enet_uint32 * condition, enet_uint32 timeou
     fd_set readSet, writeSet;
     struct timeval timeVal;
     int selectCount;
-
+    
     timeVal.tv_sec = timeout / 1000;
     timeVal.tv_usec = (timeout % 1000) * 1000;
-
+    
     FD_ZERO (& readSet);
     FD_ZERO (& writeSet);
 
@@ -373,14 +445,12 @@ enet_socket_wait (ENetSocket socket, enet_uint32 * condition, enet_uint32 timeou
 
     if (FD_ISSET (socket, & writeSet))
       * condition |= ENET_SOCKET_WAIT_SEND;
-
+    
     if (FD_ISSET (socket, & readSet))
       * condition |= ENET_SOCKET_WAIT_RECEIVE;
 
     return 0;
-}
+} 
 
 #endif
-
-#endif // BUILDSYSTEM_ENABLE_ENET_SUPPORT
 

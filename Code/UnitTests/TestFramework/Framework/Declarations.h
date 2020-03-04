@@ -40,10 +40,16 @@ struct ezTestEntry
   bool m_bEnableTest;
 };
 
+enum class AssertOnTestFail
+{
+  DoNotAssert,
+  AssertIfDebuggerAttached,
+  AlwaysAssert,
+};
 struct TestSettings
 {
   // The following settings are stored in the settings file.
-  bool m_bAssertOnTestFail = false;
+  AssertOnTestFail m_AssertOnTestFail = AssertOnTestFail::DoNotAssert;
   bool m_bOpenHtmlOutputOnError = false;
   bool m_bKeepConsoleOpen = false;
   bool m_bShowTimestampsInLog = false;
@@ -59,5 +65,6 @@ struct TestSettings
   int m_iRevision = -1;      /// Revision in the RCS of this test run. Will be written into the test results json file for later reference.
   std::string m_sJsonOutput; /// Absolute path to the json file the results should be written to.
   bool m_bEnableAllTests = false; /// Enables all test.
+  std::string m_sTestFilter; /// Filter that does a 'contains' test on each test name.
   ezUInt8 m_uiFullPasses = 1;     /// All tests are done this often, to check whether some tests fail only when executed multiple times.
 };

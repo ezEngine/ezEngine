@@ -836,7 +836,7 @@ static int __CPP_GameObject_GetChildren(duk_context* pDuk)
   int curIdx = 0;
   for (auto it = pGameObject->GetChildren(); it.IsValid(); ++it, ++curIdx)
   {
-    pBinding->DukPutGameObject(&it.Current());
+    pBinding->DukPutGameObject(it);
     duk_put_prop_index(pDuk, arrayObj, curIdx);
   }
 

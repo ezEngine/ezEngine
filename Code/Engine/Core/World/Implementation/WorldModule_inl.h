@@ -12,7 +12,7 @@ EZ_ALWAYS_INLINE const ezWorld* ezWorldModule::GetWorld() const
 //////////////////////////////////////////////////////////////////////////
 
 template <typename ModuleType, typename RTTIType>
-ezUInt16 ezWorldModuleFactory::RegisterWorldModule()
+ezWorldModuleTypeId ezWorldModuleFactory::RegisterWorldModule()
 {
   struct Helper
   {

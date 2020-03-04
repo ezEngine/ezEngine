@@ -354,7 +354,7 @@ void ezPreprocessor::MergeTokens(const ezToken* pFirst, const ezToken* pSecond, 
 
     if (uiParam < m_MacroParamStack.PeekBack()->GetCount())
     {
-      // fucking var-args
+      // lovely var-args
       if (Macro.m_bHasVarArgs && uiParam + 1 == Macro.m_iNumParameters)
       {
         for (ezUInt32 i = uiParam; i < m_MacroParamStack.PeekBack()->GetCount() - 1; ++i)
@@ -389,7 +389,7 @@ void ezPreprocessor::MergeTokens(const ezToken* pFirst, const ezToken* pSecond, 
       for (ezUInt32 i = 1; i < (*m_MacroParamStack.PeekBack())[uiParam].GetCount(); ++i)
         Output.PushBack((*m_MacroParamStack.PeekBack())[uiParam][i]);
 
-      // fucking var-args
+      // lovely var-args
       if (Macro.m_bHasVarArgs && uiParam + 1 == Macro.m_iNumParameters)
       {
         for (ezUInt32 i = uiParam + 1; i < m_MacroParamStack.PeekBack()->GetCount(); ++i)

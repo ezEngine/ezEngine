@@ -797,4 +797,4 @@ void ezPropertyAnimComponent::Update()
 
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_PropertyAnimComponent);
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Implementation_PropertyAnimComponent);

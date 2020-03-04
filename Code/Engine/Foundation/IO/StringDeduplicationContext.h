@@ -35,6 +35,9 @@ public:
   /// \brief Returns the number of unique strings which were serialized with this instance.
   ezUInt32 GetUniqueStringCount() const;
 
+  /// \brief Returns the original stream that was passed to the constructor.
+  ezStreamWriter& GetOriginalStream() { return m_OriginalStream; }
+
 protected:
 
   ezStreamWriter& m_OriginalStream;

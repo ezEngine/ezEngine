@@ -14,3 +14,7 @@ ezActor* ezActorPlugin::GetActor() const
 {
   return m_pOwningActor;
 }
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_ActorSystem_Implementation_ActorPlugin);
+

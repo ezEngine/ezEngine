@@ -13,7 +13,7 @@
 // http://go.microsoft.com/fwlink/?LinkId=248926
 //-------------------------------------------------------------------------------------
 
-#include "DirectXTexp.h"
+#include "DirectXTexP.h"
 
 using namespace DirectX;
 
@@ -27,7 +27,7 @@ namespace
         const Image& image2,
         float& mse,
         _Out_writes_opt_(4) float* mseV,
-        DWORD flags)
+        DWORD flags) noexcept
     {
         if (!image1.pixels || !image2.pixels)
             return E_POINTER;
@@ -326,7 +326,7 @@ HRESULT DirectX::CopyRectangle(
             if (((pSrc + copyW) > pEndSrc) || (pDest > pEndDest))
                 return E_FAIL;
 
-            memcpy_s(pDest, pEndDest - pDest, pSrc, copyW);
+            memcpy_s(pDest, size_t(pEndDest - pDest), pSrc, copyW);
 
             pSrc += srcImage.rowPitch;
             pDest += dstImage.rowPitch;
@@ -388,7 +388,7 @@ HRESULT DirectX::ComputeMSE(
     const Image& image2,
     float& mse,
     float* mseV,
-    DWORD flags)
+    DWORD flags) noexcept
 {
     if (!image1.pixels || !image2.pixels)
         return E_POINTER;

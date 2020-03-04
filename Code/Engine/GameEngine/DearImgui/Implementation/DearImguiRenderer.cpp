@@ -259,4 +259,4 @@ void ezImguiRenderer::SetupRenderer()
 
 #endif
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_DearImgui_DearImguiRenderer);
+EZ_STATICLINK_FILE(GameEngine, GameEngine_DearImgui_Implementation_DearImguiRenderer);

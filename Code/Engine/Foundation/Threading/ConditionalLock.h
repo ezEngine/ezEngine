@@ -7,17 +7,21 @@ class ezConditionalLock
 {
 public:
   EZ_ALWAYS_INLINE explicit ezConditionalLock(T& lock, bool bCondition)
-      : m_lock(lock)
-      , m_bCondition(bCondition)
+    : m_lock(lock)
+    , m_bCondition(bCondition)
   {
     if (m_bCondition)
-      m_lock.Acquire();
+    {
+      m_lock.Lock();
+    }
   }
 
   EZ_ALWAYS_INLINE ~ezConditionalLock()
   {
     if (m_bCondition)
-      m_lock.Release();
+    {
+      m_lock.Unlock();
+    }
   }
 
 private:
@@ -28,4 +32,3 @@ private:
   T& m_lock;
   bool m_bCondition;
 };
-

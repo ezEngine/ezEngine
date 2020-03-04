@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
+#include <Foundation/Time/Time.h>
 #include <Foundation/Types/Bitflags.h>
 
 struct ezMemoryTrackingFlags
@@ -10,14 +11,15 @@ struct ezMemoryTrackingFlags
   enum Enum
   {
     None,
-    EnableTracking = EZ_BIT(0),
-    EnableStackTrace = EZ_BIT(1),
+    RegisterAllocator = EZ_BIT(0), ///< Register the allocator with the memory tracker. If EnableAllocationTracking is not set as well it is up to the allocator implementation whether it collects usable stats or not.
+    EnableAllocationTracking = EZ_BIT(1), ///< Enable tracking of individual allocations
+    EnableStackTrace = EZ_BIT(2), ///< Enable stack traces for each allocation
 
-    All = EnableTracking | EnableStackTrace,
+    All = RegisterAllocator | EnableAllocationTracking | EnableStackTrace,
 
     Default = 0
 #if EZ_ENABLED(EZ_USE_ALLOCATION_TRACKING)
-              | EnableTracking
+              | RegisterAllocator | EnableAllocationTracking
 #endif
 #if EZ_ENABLED(EZ_USE_ALLOCATION_STACK_TRACING)
               | EnableStackTrace
@@ -26,12 +28,13 @@ struct ezMemoryTrackingFlags
 
   struct Bits
   {
-    StorageType EnableTracking : 1;
+    StorageType RegisterAllocator : 1;
+    StorageType EnableAllocationTracking : 1;
     StorageType EnableStackTrace : 1;
   };
 };
 
-EZ_DECLARE_FLAGS_OPERATORS(ezMemoryTrackingFlags);
+//EZ_DECLARE_FLAGS_OPERATORS(ezMemoryTrackingFlags);
 
 #define EZ_STATIC_ALLOCATOR_NAME "Statics"
 
@@ -100,9 +103,13 @@ public:
   static ezAllocatorId RegisterAllocator(const char* szName, ezBitflags<ezMemoryTrackingFlags> flags, ezAllocatorId parentId);
   static void DeregisterAllocator(ezAllocatorId allocatorId);
 
-  static void AddAllocation(ezAllocatorId allocatorId, const void* ptr, size_t uiSize, size_t uiAlign);
+  static void AddAllocation(ezAllocatorId allocatorId, ezBitflags<ezMemoryTrackingFlags> flags, const void* ptr, size_t uiSize, size_t uiAlign,
+    ezTime allocationTime);
   static void RemoveAllocation(ezAllocatorId allocatorId, const void* ptr);
   static void RemoveAllAllocations(ezAllocatorId allocatorId);
+  static void SetAllocatorStats(ezAllocatorId allocatorId, const ezAllocatorBase::Stats& stats);
+
+  static void ResetPerFrameAllocatorStats();
 
   static const char* GetAllocatorName(ezAllocatorId allocatorId);
   static const ezAllocatorBase::Stats& GetAllocatorStats(ezAllocatorId allocatorId);

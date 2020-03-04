@@ -13,7 +13,7 @@
 // http://go.microsoft.com/fwlink/?LinkId=248926
 //-------------------------------------------------------------------------------------
 
-#include "DirectXTexp.h"
+#include "DirectXTexP.h"
 
 #include "filters.h"
 
@@ -23,7 +23,7 @@ using Microsoft::WRL::ComPtr;
 namespace DirectX
 {
     extern HRESULT _ResizeSeparateColorAndAlpha(_In_ IWICImagingFactory* pWIC, _In_ bool iswic2, _In_ IWICBitmap* original,
-        _In_ size_t newWidth, _In_ size_t newHeight, _In_ DWORD filter, _Inout_ const Image* img);
+        _In_ size_t newWidth, _In_ size_t newHeight, _In_ DWORD filter, _Inout_ const Image* img) noexcept;
 }
 
 namespace
@@ -33,7 +33,7 @@ namespace
         const Image& srcImage,
         DWORD filter,
         const WICPixelFormatGUID& pfGUID,
-        const Image& destImage)
+        const Image& destImage) noexcept
     {
         if (!srcImage.pixels || !destImage.pixels)
             return E_POINTER;
@@ -133,7 +133,7 @@ namespace
     HRESULT PerformResizeViaF32(
         const Image& srcImage,
         DWORD filter,
-        const Image& destImage)
+        const Image& destImage) noexcept
     {
         if (!srcImage.pixels || !destImage.pixels)
             return E_POINTER;
@@ -174,7 +174,7 @@ namespace
 
 
     //--- determine when to use WIC vs. non-WIC paths ---
-    bool UseWICFiltering(_In_ DXGI_FORMAT format, _In_ DWORD filter)
+    bool UseWICFiltering(_In_ DXGI_FORMAT format, _In_ DWORD filter) noexcept
     {
         if (filter & TEX_FILTER_FORCE_NON_WIC)
         {
@@ -249,7 +249,7 @@ namespace
     //-------------------------------------------------------------------------------------
 
     //--- Point Filter ---
-    HRESULT ResizePointFilter(const Image& srcImage, const Image& destImage)
+    HRESULT ResizePointFilter(const Image& srcImage, const Image& destImage) noexcept
     {
         assert(srcImage.pixels && destImage.pixels);
         assert(srcImage.format == destImage.format);
@@ -307,7 +307,7 @@ namespace
 
 
     //--- Box Filter ---
-    HRESULT ResizeBoxFilter(const Image& srcImage, DWORD filter, const Image& destImage)
+    HRESULT ResizeBoxFilter(const Image& srcImage, DWORD filter, const Image& destImage) noexcept
     {
         assert(srcImage.pixels && destImage.pixels);
         assert(srcImage.format == destImage.format);
@@ -356,7 +356,7 @@ namespace
             {
                 size_t x2 = x << 1;
 
-                AVERAGE4(target[x], urow0[x2], urow1[x2], urow2[x2], urow3[x2]);
+                AVERAGE4(target[x], urow0[x2], urow1[x2], urow2[x2], urow3[x2])
             }
 
             if (!_StoreScanlineLinear(pDest, destImage.rowPitch, destImage.format, target, destImage.width, filter))
@@ -369,7 +369,7 @@ namespace
 
 
     //--- Linear Filter ---
-    HRESULT ResizeLinearFilter(const Image& srcImage, DWORD filter, const Image& destImage)
+    HRESULT ResizeLinearFilter(const Image& srcImage, DWORD filter, const Image& destImage) noexcept
     {
         assert(srcImage.pixels && destImage.pixels);
         assert(srcImage.format == destImage.format);
@@ -442,7 +442,7 @@ namespace
             {
                 auto& toX = lfX[x];
 
-                BILINEAR_INTERPOLATE(target[x], toX, toY, row0, row1);
+                BILINEAR_INTERPOLATE(target[x], toX, toY, row0, row1)
             }
 
             if (!_StoreScanlineLinear(pDest, destImage.rowPitch, destImage.format, target, destImage.width, filter))
@@ -455,7 +455,7 @@ namespace
 
 
     //--- Cubic Filter ---
-    HRESULT ResizeCubicFilter(const Image& srcImage, DWORD filter, const Image& destImage)
+    HRESULT ResizeCubicFilter(const Image& srcImage, DWORD filter, const Image& destImage) noexcept
     {
         assert(srcImage.pixels && destImage.pixels);
         assert(srcImage.format == destImage.format);
@@ -597,12 +597,12 @@ namespace
 
                 XMVECTOR C0, C1, C2, C3;
 
-                CUBIC_INTERPOLATE(C0, toX.x, row0[toX.u0], row0[toX.u1], row0[toX.u2], row0[toX.u3]);
-                CUBIC_INTERPOLATE(C1, toX.x, row1[toX.u0], row1[toX.u1], row1[toX.u2], row1[toX.u3]);
-                CUBIC_INTERPOLATE(C2, toX.x, row2[toX.u0], row2[toX.u1], row2[toX.u2], row2[toX.u3]);
-                CUBIC_INTERPOLATE(C3, toX.x, row3[toX.u0], row3[toX.u1], row3[toX.u2], row3[toX.u3]);
+                CUBIC_INTERPOLATE(C0, toX.x, row0[toX.u0], row0[toX.u1], row0[toX.u2], row0[toX.u3])
+                CUBIC_INTERPOLATE(C1, toX.x, row1[toX.u0], row1[toX.u1], row1[toX.u2], row1[toX.u3])
+                CUBIC_INTERPOLATE(C2, toX.x, row2[toX.u0], row2[toX.u1], row2[toX.u2], row2[toX.u3])
+                CUBIC_INTERPOLATE(C3, toX.x, row3[toX.u0], row3[toX.u1], row3[toX.u2], row3[toX.u3])
 
-                CUBIC_INTERPOLATE(target[x], toY.x, C0, C1, C2, C3);
+                CUBIC_INTERPOLATE(target[x], toY.x, C0, C1, C2, C3)
             }
 
             if (!_StoreScanlineLinear(pDest, destImage.rowPitch, destImage.format, target, destImage.width, filter))
@@ -615,7 +615,7 @@ namespace
 
 
     //--- Triangle Filter ---
-    HRESULT ResizeTriangleFilter(const Image& srcImage, DWORD filter, const Image& destImage)
+    HRESULT ResizeTriangleFilter(const Image& srcImage, DWORD filter, const Image& destImage) noexcept
     {
         assert(srcImage.pixels && destImage.pixels);
         assert(srcImage.format == destImage.format);
@@ -794,7 +794,7 @@ namespace
 
 
     //--- Custom filter resize ---
-    HRESULT PerformResizeUsingCustomFilters(const Image& srcImage, DWORD filter, const Image& destImage)
+    HRESULT PerformResizeUsingCustomFilters(const Image& srcImage, DWORD filter, const Image& destImage) noexcept
     {
         if (!srcImage.pixels || !destImage.pixels)
             return E_POINTER;
@@ -846,7 +846,7 @@ HRESULT DirectX::Resize(
     size_t width,
     size_t height,
     DWORD filter,
-    ScratchImage& image)
+    ScratchImage& image) noexcept
 {
     if (width == 0 || height == 0)
         return E_INVALIDARG;
@@ -933,7 +933,7 @@ HRESULT DirectX::Resize(
     size_t width,
     size_t height,
     DWORD filter,
-    ScratchImage& result)
+    ScratchImage& result) noexcept
 {
     if (!srcImages || !nimages || width == 0 || height == 0)
         return E_INVALIDARG;

@@ -25,7 +25,7 @@ public:
   EZ_ALWAYS_INLINE Type& Element(ezInt32 column, ezInt32 row) { return m_fElementsCM[column * 4 + row]; }
   EZ_ALWAYS_INLINE Type Element(ezInt32 column, ezInt32 row) const { return m_fElementsCM[column * 4 + row]; }
 
-  // *** Constructors ***rac
+  // *** Constructors ***
 public:
   /// \brief Default Constructor DOES NOT INITIALIZE the matrix, at all.
   ezMat4Template(); // [tested]

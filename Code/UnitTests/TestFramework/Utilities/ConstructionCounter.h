@@ -34,7 +34,7 @@ struct ezConstructionCounter
   }
 
   /// Move construction counts as a construction as well.
-  ezConstructionCounter(ezConstructionCounter&& cc)
+  ezConstructionCounter(ezConstructionCounter&& cc) noexcept
       : m_iData(cc.m_iData)
       , m_valid(true)
   {
@@ -53,7 +53,7 @@ struct ezConstructionCounter
   /// Assignment does not change the construction counter, because it is only executed on already constructed objects.
   void operator=(const ezConstructionCounter& cc) { m_iData = cc.m_iData; }
   /// Move assignment does not change the construction counter, because it is only executed on already constructed objects.
-  void operator=(const ezConstructionCounter&& cc) { m_iData = cc.m_iData; }
+  void operator=(const ezConstructionCounter&& cc) noexcept { m_iData = cc.m_iData; }
 
   bool operator==(const ezConstructionCounter& cc) const { return m_iData == cc.m_iData; }
 
@@ -156,7 +156,7 @@ struct ezConstructionCounterRelocatable
 
   ezConstructionCounterRelocatable(const ezConstructionCounterRelocatable& other) = delete;
 
-  ezConstructionCounterRelocatable(ezConstructionCounterRelocatable&& other)
+  ezConstructionCounterRelocatable(ezConstructionCounterRelocatable&& other) noexcept
   {
     m_iData = other.m_iData;
     m_valid = other.m_valid;
@@ -170,7 +170,7 @@ struct ezConstructionCounterRelocatable
       s_iDestructions++;
   }
 
-  void operator=(ezConstructionCounterRelocatable&& other)
+  void operator=(ezConstructionCounterRelocatable&& other) noexcept
   {
     m_iData = other.m_iData;
     m_valid = other.m_valid;

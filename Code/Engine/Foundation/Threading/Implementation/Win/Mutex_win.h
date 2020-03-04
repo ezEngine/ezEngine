@@ -8,7 +8,7 @@
 
 extern "C"
 {
-  // The main purpose of this little hack here is to have Mutex::Acquire and Mutex::Release inline-able without including windows.h
+  // The main purpose of this little hack here is to have Mutex::Lock and Mutex::Unlock inline-able without including windows.h
   // The hack however does only work on the MSVC compiler. See fall back code below.
 
   // First define two functions which are binary compatible with EnterCriticalSection and LeaveCriticalSection
@@ -28,19 +28,19 @@ extern "C"
 #  endif
 }
 
-inline void ezMutex::Acquire()
+inline void ezMutex::Lock()
 {
   ezWinEnterCriticalSection(&m_Handle);
   ++m_iLockCount;
 }
 
-inline void ezMutex::Release()
+inline void ezMutex::Unlock()
 {
   --m_iLockCount;
   ezWinLeaveCriticalSection(&m_Handle);
 }
 
-inline bool ezMutex::TryAcquire()
+inline bool ezMutex::TryLock()
 {
   if (ezWinTryEnterCriticalSection(&m_Handle) != 0)
   {
@@ -55,19 +55,19 @@ inline bool ezMutex::TryAcquire()
 
 #  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 
-inline void ezMutex::Acquire()
+inline void ezMutex::Lock()
 {
   EnterCriticalSection((CRITICAL_SECTION*)&m_Handle);
   ++m_iLockCount;
 }
 
-inline void ezMutex::Release()
+inline void ezMutex::Unlock()
 {
   --m_iLockCount;
   LeaveCriticalSection((CRITICAL_SECTION*)&m_Handle);
 }
 
-inline bool ezMutex::TryAcquire()
+inline bool ezMutex::TryLock()
 {
   if (TryEnterCriticalSection((CRITICAL_SECTION*)&m_Handle) != 0)
   {
