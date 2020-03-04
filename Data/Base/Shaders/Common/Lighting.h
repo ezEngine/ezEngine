@@ -488,9 +488,9 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uin
       }
       
       float3 decalDiffuseColor = lerp(decalBaseColor.rgb, 0.0f, decalMetallic);
-      if (decalFlags & DECAL_BLEND_MODE_MODULATE)
+      if (decalFlags & DECAL_BLEND_MODE_COLORIZE)
       {
-        matData.diffuseColor *= lerp(1.0, decalDiffuseColor, fade);
+        matData.diffuseColor = Colorize(matData.diffuseColor, decalDiffuseColor, fade);
       }
       else
       {
@@ -507,7 +507,7 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uin
         float2 ormAtlasScale = RG16FToFloat2(decalData.ormAtlasScale);
         float2 ormAtlasOffset = RG16FToFloat2(decalData.ormAtlasOffset);
         
-        decalEmissiveColor *= DecalAtlasORMTexture.Sample(LinearClampSampler, decalPosition.xy * ormAtlasScale + ormAtlasOffset).rgb;
+        decalEmissiveColor *= SrgbToLinear(DecalAtlasORMTexture.Sample(LinearClampSampler, decalPosition.xy * ormAtlasScale + ormAtlasOffset).rgb);
       }
       matData.emissiveColor += decalEmissiveColor * fade;
       

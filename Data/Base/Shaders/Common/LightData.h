@@ -72,7 +72,7 @@ struct EZ_ALIGN_16(ezDirShadowData)
 #define DECAL_USE_NORMAL (1 << 0)
 #define DECAL_USE_ORM (1 << 1)
 #define DECAL_USE_EMISSIVE (1 << 2)
-#define DECAL_BLEND_MODE_MODULATE (1 << 7)
+#define DECAL_BLEND_MODE_COLORIZE (1 << 7)
 #define DECAL_WRAP_AROUND (1 << 8)
 #define DECAL_MAP_NORMAL_TO_GEOMETRY (1 << 9)
 

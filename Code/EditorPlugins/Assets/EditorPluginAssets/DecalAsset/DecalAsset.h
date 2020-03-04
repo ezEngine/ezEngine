@@ -34,7 +34,7 @@ public:
   static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
   ezEnum<ezDecalMode> m_Mode;
-  bool m_bBlendModeModulate = false;
+  bool m_bBlendModeColorize = false;
 
   ezString m_sBaseColor;
   ezString m_sNormal;

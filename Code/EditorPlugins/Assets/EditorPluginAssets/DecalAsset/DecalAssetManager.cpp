@@ -167,7 +167,7 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
         item.m_uiFlags |= pDecalProps->NeedsNormal() ? DECAL_USE_NORMAL : 0;
         item.m_uiFlags |= pDecalProps->NeedsORM() ? DECAL_USE_ORM : 0;
         item.m_uiFlags |= pDecalProps->NeedsEmissive() ? DECAL_USE_EMISSIVE : 0;
-        item.m_uiFlags |= pDecalProps->m_bBlendModeModulate ? DECAL_BLEND_MODE_MODULATE : 0;
+        item.m_uiFlags |= pDecalProps->m_bBlendModeColorize ? DECAL_BLEND_MODE_COLORIZE : 0;
 
         if (pDecalProps->NeedsBaseColor())
         {

@@ -125,3 +125,9 @@ float AdjustContrast(float value, float contrast)
   float b = contrast + 1;
   return saturate(lerp(a, b, value));
 }
+
+float3 Colorize(float3 baseColor, float3 color, float mask)
+{
+  return baseColor * lerp(1, 2 * color, mask);
+}
+
