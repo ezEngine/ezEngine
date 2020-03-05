@@ -96,7 +96,7 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
   ezAssetCurator* pCurator = ezAssetCurator::GetSingleton();
   const auto& allAssets = pCurator->GetKnownSubAssets();
 
-  ezUInt64 uiSettingsHash = 1;
+  ezUInt64 uiAssetHash = 1;
 
   for (auto it = allAssets->GetIterator(); it.IsValid(); ++it)
   {
@@ -105,13 +105,13 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
     if (asset.m_pAssetInfo->GetManager() != this)
       continue;
 
-    uiSettingsHash += asset.m_pAssetInfo->m_Info->m_uiSettingsHash;
+    uiAssetHash += pCurator->GetAssetDependencyHash(it.Key());
   }
 
   ezStringBuilder decalFile = ezToolsProject::GetSingleton()->GetProjectDirectory();
   decalFile.AppendPath("AssetCache", GetDecalTexturePath(pAssetProfile));
 
-  if (IsDecalTextureUpToDate(decalFile, uiSettingsHash))
+  if (IsDecalTextureUpToDate(decalFile, uiAssetHash))
     return ezStatus(EZ_SUCCESS);
 
   ezTextureAtlasCreationDesc atlasDesc;
@@ -188,7 +188,7 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
     ezUInt16 uiVersion = ezGetStaticRTTI<ezDecalAssetDocument>()->GetTypeVersion() & 0xFF;
     uiVersion |= (ezGetStaticRTTI<ezDecalAssetProperties>()->GetTypeVersion() & 0xFF) << 8;
 
-    header.SetFileHashAndVersion(uiSettingsHash, uiVersion);
+    header.SetFileHashAndVersion(uiAssetHash, uiVersion);
   }
 
   ezStatus result;
@@ -217,7 +217,7 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
   return result;
 }
 
-bool ezDecalAssetDocumentManager::IsDecalTextureUpToDate(const char* szDecalFile, ezUInt64 uiSettingsHash) const
+bool ezDecalAssetDocumentManager::IsDecalTextureUpToDate(const char* szDecalFile, ezUInt64 uiAssetHash) const
 {
   ezFileReader file;
   if (file.Open(szDecalFile).Succeeded())
@@ -226,7 +226,7 @@ bool ezDecalAssetDocumentManager::IsDecalTextureUpToDate(const char* szDecalFile
     header.Read(file);
 
     // file still valid
-    if (header.GetFileHash() == uiSettingsHash)
+    if (header.GetFileHash() == uiAssetHash)
       return true;
   }
 
