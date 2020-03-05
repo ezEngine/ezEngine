@@ -26,7 +26,7 @@ ezResult ezTexConvProcessor::ForceSRGBFormats()
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::GenerateMipmaps(ezImage& img, ezUInt32 uiNumChannels, ezUInt32 uiNumMips) const
+ezResult ezTexConvProcessor::GenerateMipmaps(ezImage& img, ezUInt32 uiNumMips, MipmapChannelMode channelMode) const
 {
   ezImageUtils::MipMapOptions opt;
   opt.m_numMipMaps = uiNumMips;
@@ -59,7 +59,7 @@ ezResult ezTexConvProcessor::GenerateMipmaps(ezImage& img, ezUInt32 uiNumChannel
     m_Descriptor.m_Usage == ezTexConvUsage::NormalMap || m_Descriptor.m_Usage == ezTexConvUsage::NormalMap_Inverted || m_Descriptor.m_Usage == ezTexConvUsage::BumpMap;
 
   // Copy red to alpha channel if we only have a single channel input texture
-  if (opt.m_preserveCoverage && uiNumChannels == 1)
+  if (opt.m_preserveCoverage && channelMode == MipmapChannelMode::SingleChannel)
   {
     auto imgData = img.GetBlobPtr<ezColor>();
     auto pData = imgData.GetPtr();
@@ -81,7 +81,7 @@ ezResult ezTexConvProcessor::GenerateMipmaps(ezImage& img, ezUInt32 uiNumChannel
   }
 
   // Copy alpha channel back to red
-  if (opt.m_preserveCoverage && uiNumChannels == 1)
+  if (opt.m_preserveCoverage && channelMode == MipmapChannelMode::SingleChannel)
   {
     auto imgData = img.GetBlobPtr<ezColor>();
     auto pData = imgData.GetPtr();

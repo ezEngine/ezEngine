@@ -47,7 +47,14 @@ private:
   ezResult PremultiplyAlpha(ezImage& image) const;
   ezResult DilateColor2D(ezImage& img) const;
   ezResult Assemble2DSlice(const ezTexConvSliceChannelMapping& mapping, ezUInt32 uiResolutionX, ezUInt32 uiResolutionY, ezColor* pPixelOut) const;
-  ezResult GenerateMipmaps(ezImage& img, ezUInt32 uiNumChannels, ezUInt32 uiNumMips = 0) const;
+
+  enum class MipmapChannelMode
+  {
+    AllChannels,
+    SingleChannel
+  };
+
+  ezResult GenerateMipmaps(ezImage& img, ezUInt32 uiNumMips /*= 0*/, MipmapChannelMode channelMode = MipmapChannelMode::AllChannels) const;
 
   //////////////////////////////////////////////////////////////////////////
   // Purely functional
@@ -80,7 +87,7 @@ private:
   static ezResult WriteTextureAtlasInfo(const ezDynamicArray<TextureAtlasItem>& atlasItems, ezUInt32 uiNumLayers, ezStreamWriter& stream);
   static ezResult TrySortItemsIntoAtlas(ezDynamicArray<TextureAtlasItem>& items, ezUInt32 uiWidth, ezUInt32 uiHeight, ezInt32 layer, ezUInt32 uiPixelAlign);
   static ezResult SortItemsIntoAtlas(ezDynamicArray<TextureAtlasItem>& items, ezUInt32& out_ResX, ezUInt32& out_ResY, ezInt32 layer, ezUInt32 uiPixelAlign);
-  static ezResult CreateAtlasTexture(ezDynamicArray<TextureAtlasItem>& items, ezUInt32 uiResX, ezUInt32 uiResY, ezImage& atlas, ezInt32 layer);
+  static ezResult CreateAtlasTexture(ezDynamicArray<TextureAtlasItem>& items, ezUInt32 uiResX, ezUInt32 uiResY, ezImage& atlas, ezInt32 layer, ezUInt32 uiBorderPixels);
 
   //////////////////////////////////////////////////////////////////////////
   // Texture Atlas

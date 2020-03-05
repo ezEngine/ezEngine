@@ -16,6 +16,7 @@
 #include <RendererCore/../../../Data/Base/Shaders/Common/LightData.h>
 
 const char* ToCompressionMode(ezTexConvCompressionMode::Enum mode);
+const char* ToMipmapMode(ezTexConvMipmapMode::Enum mode);
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezDecalAssetDocumentManager>);
@@ -127,6 +128,7 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
     atlasDesc.m_Layers[0].m_Usage = ezTexConvUsage::Color;
     atlasDesc.m_Layers[1].m_Usage = ezTexConvUsage::NormalMap;
     atlasDesc.m_Layers[2].m_Usage = ezTexConvUsage::Linear;
+    atlasDesc.m_Layers[2].m_uiNumChannels = 3;
 
     atlasDesc.m_Items.Reserve(64);
 
@@ -314,6 +316,9 @@ ezStatus ezDecalAssetDocumentManager::RunTexConv(const char* szTargetFile, const
 
   arguments << "-compression";
   arguments << ToCompressionMode(ezTexConvCompressionMode::High);
+
+  arguments << "-mipmaps";
+  arguments << ToMipmapMode(ezTexConvMipmapMode::Linear);
 
   arguments << "-atlasDesc";
   arguments << QString(szInputFile);

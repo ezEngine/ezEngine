@@ -178,16 +178,14 @@ ezResult ezTexConvProcessor::SortItemsIntoAtlas(
   return EZ_FAILURE;
 }
 
-ezResult ezTexConvProcessor::CreateAtlasTexture(
-  ezDynamicArray<TextureAtlasItem>& items, ezUInt32 uiResX, ezUInt32 uiResY, ezImage& atlas, ezInt32 layer)
+ezResult ezTexConvProcessor::CreateAtlasTexture(ezDynamicArray<TextureAtlasItem>& items, ezUInt32 uiResX, ezUInt32 uiResY,
+  ezImage& atlas, ezInt32 layer, ezUInt32 uiBorderPixels)
 {
   ezImageHeader imgHeader;
   imgHeader.SetWidth(uiResX);
   imgHeader.SetHeight(uiResY);
   imgHeader.SetImageFormat(ezImageFormat::R32G32B32A32_FLOAT);
   atlas.ResetAndAlloc(imgHeader);
-
-  const ezColor fill(0, 0, 0, 0);
 
   // make sure the target texture is filled with all black
   {
@@ -204,24 +202,25 @@ ezResult ezTexConvProcessor::CreateAtlasTexture(
       ezUInt32 uiSourceWidth = itemImage.GetWidth();
       ezUInt32 uiSourceHeight = itemImage.GetHeight();
 
-      // fill the border of the source image with black
+      // fill the border of the source image with alpha 0 to prevent bleeding into other decals in the atlas
+      for (ezUInt32 i = 0; i < uiBorderPixels; ++i)
       {
         for (ezUInt32 y = 0; y < uiSourceHeight; ++y)
         {
-          ezColor* pColor1 = itemImage.GetPixelPointer<ezColor>(0, 0, 0, 0, y);
-          ezColor* pColor2 = itemImage.GetPixelPointer<ezColor>(0, 0, 0, uiSourceWidth - 1, y);
+          ezColor* pColor1 = itemImage.GetPixelPointer<ezColor>(0, 0, 0, i, y);
+          ezColor* pColor2 = itemImage.GetPixelPointer<ezColor>(0, 0, 0, uiSourceWidth - 1 - i, y);
 
-          *pColor1 = fill;
-          *pColor2 = fill;
+          pColor1->a = 0.0f;
+          pColor2->a = 0.0f;
         }
 
         for (ezUInt32 x = 0; x < uiSourceWidth; ++x)
         {
-          ezColor* pColor1 = itemImage.GetPixelPointer<ezColor>(0, 0, 0, x, 0);
-          ezColor* pColor2 = itemImage.GetPixelPointer<ezColor>(0, 0, 0, x, uiSourceHeight - 1);
+          ezColor* pColor1 = itemImage.GetPixelPointer<ezColor>(0, 0, 0, x, i);
+          ezColor* pColor2 = itemImage.GetPixelPointer<ezColor>(0, 0, 0, x, uiSourceHeight - 1 - i);
 
-          *pColor1 = fill;
-          *pColor2 = fill;
+          pColor1->a = 0.0f;
+          pColor2->a = 0.0f;
         }
       }
 
@@ -243,7 +242,7 @@ ezResult ezTexConvProcessor::CreateAtlasLayerTexture(const ezTextureAtlasCreatio
 {
   EZ_ASSERT_DEV(uiNumMipmaps > 0, "Number of mipmaps to generate must be at least 1");
 
-  const ezUInt32 uiPixelAlign = ezMath::Pow2((int)uiNumMipmaps);
+  const ezUInt32 uiPixelAlign = ezMath::Pow2((int)uiNumMipmaps - 1);
 
   ezUInt32 uiTexWidth, uiTexHeight;
   EZ_SUCCEED_OR_RETURN(SortItemsIntoAtlas(atlasItems, uiTexWidth, uiTexHeight, layer, uiPixelAlign));
@@ -251,7 +250,7 @@ ezResult ezTexConvProcessor::CreateAtlasLayerTexture(const ezTextureAtlasCreatio
   ezLog::Success("Required Resolution for Texture Atlas: {0} x {1}", uiTexWidth, uiTexHeight);
 
   ezImage atlasImg;
-  EZ_SUCCEED_OR_RETURN(CreateAtlasTexture(atlasItems, uiTexWidth, uiTexHeight, atlasImg, layer));
+  EZ_SUCCEED_OR_RETURN(CreateAtlasTexture(atlasItems, uiTexWidth, uiTexHeight, atlasImg, layer, uiPixelAlign));
 
   EZ_SUCCEED_OR_RETURN(GenerateMipmaps(atlasImg, uiNumMipmaps));
 
