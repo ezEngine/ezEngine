@@ -734,9 +734,9 @@ void ezQtAssetBrowserWidget::OnNewAsset()
   {
     if (TreeFolderFilter->currentItem())
     {
-      ezString sPath = TreeFolderFilter->currentItem()->data(0, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().data();
+      ezStringBuilder sPath = TreeFolderFilter->currentItem()->data(0, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().data();
 
-      if (!sPath.IsEmpty() && ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath))
+      if (!sPath.IsEmpty() && ezQtEditorApp::GetSingleton()->MakeParentDataDirectoryRelativePathAbsolute(sPath, true))
         sStartDir = sPath.GetData();
     }
 
