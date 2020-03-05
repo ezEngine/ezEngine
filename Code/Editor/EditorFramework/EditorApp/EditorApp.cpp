@@ -20,8 +20,6 @@ ezQtEditorApp::ezQtEditorApp()
 {
   m_pProgressbar = nullptr;
   m_pQtProgressbar = nullptr;
-  m_bSafeMode = false;
-  m_bHeadless = false;
   m_bSavePreferencesAfterOpenProject = false;
 
   ezApplicationServices::GetSingleton()->SetApplicationName("ezEditor");

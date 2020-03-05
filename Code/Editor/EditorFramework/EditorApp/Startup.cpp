@@ -138,25 +138,24 @@ EZ_END_SUBSYSTEM_DECLARATION;
 
 void ezQtEditorApp::StartupEditor()
 {
-  ezBitflags<StartupFlags> flags;
-  if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-safe"))
-    flags.Add(StartupFlags::SafeMode);
-  if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-norecent"))
-    flags.Add(StartupFlags::NoRecent);
-  if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-debug"))
-    flags.Add(StartupFlags::Debug);
+  ezBitflags<StartupFlags> startupFlags;
 
-  StartupEditor(flags);
+  startupFlags.AddOrRemove(StartupFlags::SafeMode, ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-safe"));
+  startupFlags.AddOrRemove(StartupFlags::NoRecent, ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-norecent"));
+  startupFlags.AddOrRemove(StartupFlags::Debug, ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-debug"));
+
+  StartupEditor(startupFlags);
 }
 
-void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> flags, const char* szUserDataFolder)
+void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const char* szUserDataFolder)
 {
   EZ_PROFILE_SCOPE("StartupEditor");
 
-  m_bUnitTestMode = flags.IsSet(StartupFlags::UnitTest);
+  m_StartupFlags = startupFlags;
 
-  m_bHeadless = flags.IsSet(StartupFlags::Headless);
-  if (!m_bHeadless)
+  auto* pCmd = ezCommandLineUtils::GetGlobalInstance();
+
+  if (!IsInHeadlessMode())
   {
     m_pProgressbar = EZ_DEFAULT_NEW(ezProgress);
     m_pQtProgressbar = EZ_DEFAULT_NEW(ezQtProgressbar);
@@ -168,20 +167,19 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> flags, const char* sz
   // custom command line arguments
   {
     // Make sure to disable the fileserve plugin
-    ezCommandLineUtils::GetGlobalInstance()->InjectCustomArgument("-fs_off");
+    pCmd->InjectCustomArgument("-fs_off");
   }
 
-  m_bSafeMode = flags.IsSet(StartupFlags::SafeMode);
-  const bool bNoRecent = m_bUnitTestMode || m_bSafeMode || m_bHeadless || flags.IsSet(StartupFlags::NoRecent);
+  const bool bNoRecent = m_StartupFlags.IsAnySet(StartupFlags::UnitTest | StartupFlags::SafeMode | StartupFlags::Headless | StartupFlags::NoRecent);
 
-  ezString sApplicationName = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-appname", 0, "ezEditor");
+  ezString sApplicationName = pCmd->GetStringOption("-appname", 0, "ezEditor");
   ezApplicationServices::GetSingleton()->SetApplicationName(sApplicationName);
 
   QLocale::setDefault(QLocale(QLocale::English));
 
   s_pEngineViewProcess = new ezEditorEngineProcessConnection;
 
-  s_pEngineViewProcess->SetWaitForDebugger(flags.IsSet(StartupFlags::Debug));
+  s_pEngineViewProcess->SetWaitForDebugger(m_StartupFlags.IsSet(StartupFlags::Debug));
 
   m_LongOpControllerManager.Startup(&s_pEngineViewProcess->GetCommunicationChannel());
 
@@ -190,7 +188,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> flags, const char* sz
   QCoreApplication::setApplicationName(ezApplicationServices::GetSingleton()->GetApplicationName());
   QCoreApplication::setApplicationVersion("1.0.0");
 
-  if (!m_bHeadless)
+  if (!IsInHeadlessMode())
   {
     EZ_PROFILE_SCOPE("ezQtContainerWindow");
     SetStyleSheet();
@@ -229,7 +227,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> flags, const char* sz
 
   {
     EZ_PROFILE_SCOPE("Logging");
-    ezString sApplicationID = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-appid", 0, "ezEditor");
+    ezString sApplicationID = pCmd->GetStringOption("-appid", 0, "ezEditor");
     ezStringBuilder sLogFile;
     sLogFile.Format(":appdata/Log_{0}.htm", sApplicationID);
     m_LogHTML.BeginLog(sLogFile, sApplicationID);
@@ -254,7 +252,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> flags, const char* sz
 
   ezQtUiServices::GetSingleton()->LoadState();
 
-  if (!m_bHeadless)
+  if (!IsInHeadlessMode())
   {
     ezActionManager::LoadShortcutAssignment();
 
@@ -271,15 +269,23 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> flags, const char* sz
 
   ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
 
-  if (!bNoRecent && !m_bUnitTestMode && pPreferences->m_bLoadLastProjectAtStartup && !m_WhatsNew.HasChanged())
+  if (pCmd->GetStringOptionArguments("-project") > 0)
   {
-    // first open the project, so that the data directory list is read
+    for (ezUInt32 doc = 0; doc < pCmd->GetStringOptionArguments("-documents"); ++doc)
+    {
+      m_DocumentsToOpen.PushBack(pCmd->GetStringOption("-documents", doc));
+    }
+
+    CreateOrOpenProject(false, pCmd->GetAbsolutePathOption("-project"));
+  }
+  else if (!bNoRecent && !m_StartupFlags.IsSet(StartupFlags::Debug) && pPreferences->m_bLoadLastProjectAtStartup && !m_WhatsNew.HasChanged())
+  {
     if (!s_RecentProjects.GetFileList().IsEmpty())
     {
       CreateOrOpenProject(false, s_RecentProjects.GetFileList()[0].m_File);
     }
   }
-  else if (!m_bHeadless)
+  else if (!IsInHeadlessMode())
   {
     if (ezQtContainerWindow::GetContainerWindow())
     {
@@ -296,7 +302,7 @@ void ezQtEditorApp::ShutdownEditor()
   m_pTimer->stop();
   ezToolsProject::CloseProject();
 
-  if (!m_bHeadless && !m_bUnitTestMode)
+  if (m_StartupFlags.AreNoneSet(StartupFlags::Headless | StartupFlags::UnitTest))
   {
     m_WhatsNew.StoreLastRead();
   }
@@ -319,7 +325,7 @@ void ezQtEditorApp::ShutdownEditor()
 
   CloseSettingsDocument();
 
-  if (!m_bHeadless)
+  if (!IsInHeadlessMode())
   {
     delete ezQtContainerWindow::GetContainerWindow();
   }
