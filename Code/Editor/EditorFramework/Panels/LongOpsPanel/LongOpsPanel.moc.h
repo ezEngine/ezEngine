@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Editor/EditorFramework/ui_LongOpsPanel.h>
+#include <EditorFramework/ui_LongOpsPanel.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <Foundation/Basics.h>
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>

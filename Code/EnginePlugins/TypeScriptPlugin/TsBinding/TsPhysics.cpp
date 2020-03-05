@@ -4,14 +4,14 @@
 #include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <TypeScriptPlugin/TsBinding/TsBinding.h>
 
-static int __CPP_Physics_CastRay(duk_context* pDuk);
+static int __CPP_Physics_Raycast(duk_context* pDuk);
 static int __CPP_Physics_SweepTestSphere(duk_context* pDuk);
 static int __CPP_Physics_SweepTestBox(duk_context* pDuk);
 static int __CPP_Physics_SweepTestCapsule(duk_context* pDuk);
 static int __CPP_Physics_OverlapTestSphere(duk_context* pDuk);
 static int __CPP_Physics_OverlapTestCapsule(duk_context* pDuk);
 static int __CPP_Physics_GetGravity(duk_context* pDuk);
-static int __CPP_Physics_QueryDynamicShapesInSphere(duk_context* pDuk);
+static int __CPP_Physics_QueryShapesInSphere(duk_context* pDuk);
 
 #define GetPhysicsModule()                                    \
   pWorld->GetOrCreateModule<ezPhysicsWorldModuleInterface>(); \
@@ -24,19 +24,19 @@ static int __CPP_Physics_QueryDynamicShapesInSphere(duk_context* pDuk);
 
 ezResult ezTypeScriptBinding::Init_Physics()
 {
-  m_Duk.RegisterGlobalFunction("__CPP_Physics_CastRay", __CPP_Physics_CastRay, 6);
+  m_Duk.RegisterGlobalFunction("__CPP_Physics_Raycast", __CPP_Physics_Raycast, 6);
   m_Duk.RegisterGlobalFunction("__CPP_Physics_SweepTestSphere", __CPP_Physics_SweepTestSphere, 6);
   m_Duk.RegisterGlobalFunction("__CPP_Physics_SweepTestBox", __CPP_Physics_SweepTestBox, 6);
   m_Duk.RegisterGlobalFunction("__CPP_Physics_SweepTestCapsule", __CPP_Physics_SweepTestCapsule, 7);
   m_Duk.RegisterGlobalFunction("__CPP_Physics_OverlapTestSphere", __CPP_Physics_OverlapTestSphere, 4);
   m_Duk.RegisterGlobalFunction("__CPP_Physics_OverlapTestCapsule", __CPP_Physics_OverlapTestCapsule, 5);
   m_Duk.RegisterGlobalFunction("__CPP_Physics_GetGravity", __CPP_Physics_GetGravity, 0);
-  m_Duk.RegisterGlobalFunction("__CPP_Physics_QueryDynamicShapesInSphere", __CPP_Physics_QueryDynamicShapesInSphere, 5);
+  m_Duk.RegisterGlobalFunction("__CPP_Physics_QueryShapesInSphere", __CPP_Physics_QueryShapesInSphere, 5);
 
   return EZ_SUCCESS;
 }
 
-static void PutHitResult(ezDuktapeHelper& duk, const ezPhysicsHitResult& res)
+static void PutHitResult(ezDuktapeHelper& duk, const ezPhysicsCastResult& res)
 {
   ezTypeScriptBinding* pBinding = ezTypeScriptBinding::RetrieveBinding(duk);
 
@@ -65,7 +65,7 @@ static void PutHitResult(ezDuktapeHelper& duk, const ezPhysicsHitResult& res)
   duk.SetCustomProperty("actorObject", -1);               // [ HitResultObj ]
 }
 
-static int __CPP_Physics_CastRay(duk_context* pDuk)
+static int __CPP_Physics_Raycast(duk_context* pDuk)
 {
   ezDuktapeFunction duk(pDuk);
   ezWorld* pWorld = ezTypeScriptBinding::RetrieveWorld(duk);
@@ -76,11 +76,11 @@ static int __CPP_Physics_CastRay(duk_context* pDuk)
   const ezVec3 vDir = ezTypeScriptBinding::GetVec3(duk, 1);
   const float fDistance = duk.GetFloatValue(2);
   const ezUInt32 uiCollisionLayer = duk.GetUIntValue(3);
-  const ezUInt32 uiShapeTypes = duk.GetUIntValue(4);
+  const ezPhysicsShapeType::Enum shapeTypes = static_cast<ezPhysicsShapeType::Enum>(duk.GetUIntValue(4));
   const ezUInt32 uiIgnoreShapeID = duk.GetIntValue(5);
 
-  ezPhysicsHitResult res;
-  if (!pModule->CastRay(vStart, vDir, fDistance, uiCollisionLayer, res, static_cast<ezPhysicsShapeType::Enum>(uiShapeTypes), uiIgnoreShapeID))
+  ezPhysicsCastResult res;
+  if (!pModule->Raycast(res, vStart, vDir, fDistance, ezPhysicsQueryParameters(uiCollisionLayer, shapeTypes, uiIgnoreShapeID)))
   {
     return duk.ReturnNull();
   }
@@ -104,8 +104,8 @@ static int __CPP_Physics_SweepTestSphere(duk_context* pDuk)
   const ezUInt32 uiCollisionLayer = duk.GetUIntValue(4);
   const ezUInt32 uiIgnoreShapeID = duk.GetIntValue(5);
 
-  ezPhysicsHitResult res;
-  if (!pModule->SweepTestSphere(fRadius, vStart, vDir, fDistance, uiCollisionLayer, res, uiIgnoreShapeID))
+  ezPhysicsCastResult res;
+  if (!pModule->SweepTestSphere(res, fRadius, vStart, vDir, fDistance, ezPhysicsQueryParameters(uiCollisionLayer, uiIgnoreShapeID)))
   {
     return duk.ReturnNull();
   }
@@ -129,8 +129,8 @@ static int __CPP_Physics_SweepTestBox(duk_context* pDuk)
   const ezUInt32 uiCollisionLayer = duk.GetUIntValue(4);
   const ezUInt32 uiIgnoreShapeID = duk.GetIntValue(5);
 
-  ezPhysicsHitResult res;
-  if (!pModule->SweepTestBox(vExtents, transform, vDir, fDistance, uiCollisionLayer, res, uiIgnoreShapeID))
+  ezPhysicsCastResult res;
+  if (!pModule->SweepTestBox(res, vExtents, transform, vDir, fDistance, ezPhysicsQueryParameters(uiCollisionLayer, uiIgnoreShapeID)))
   {
     return duk.ReturnNull();
   }
@@ -155,8 +155,8 @@ static int __CPP_Physics_SweepTestCapsule(duk_context* pDuk)
   const ezUInt32 uiCollisionLayer = duk.GetUIntValue(5);
   const ezUInt32 uiIgnoreShapeID = duk.GetIntValue(6);
 
-  ezPhysicsHitResult res;
-  if (!pModule->SweepTestCapsule(fCapsuleRadius, fCapsuleHeight, transform, vDir, fDistance, uiCollisionLayer, res, uiIgnoreShapeID))
+  ezPhysicsCastResult res;
+  if (!pModule->SweepTestCapsule(res, fCapsuleRadius, fCapsuleHeight, transform, vDir, fDistance, ezPhysicsQueryParameters(uiCollisionLayer, uiIgnoreShapeID)))
   {
     return duk.ReturnNull();
   }
@@ -178,7 +178,7 @@ static int __CPP_Physics_OverlapTestSphere(duk_context* pDuk)
   const ezUInt32 uiCollisionLayer = duk.GetUIntValue(2);
   const ezUInt32 uiIgnoreShapeID = duk.GetIntValue(3);
 
-  return duk.ReturnBool(pModule->OverlapTestSphere(fRadius, vPos, uiCollisionLayer, uiIgnoreShapeID));
+  return duk.ReturnBool(pModule->OverlapTestSphere(fRadius, vPos, ezPhysicsQueryParameters(uiCollisionLayer, uiIgnoreShapeID)));
 }
 
 static int __CPP_Physics_OverlapTestCapsule(duk_context* pDuk)
@@ -194,7 +194,7 @@ static int __CPP_Physics_OverlapTestCapsule(duk_context* pDuk)
   const ezUInt32 uiCollisionLayer = duk.GetUIntValue(3);
   const ezUInt32 uiIgnoreShapeID = duk.GetIntValue(4);
 
-  return duk.ReturnBool(pModule->OverlapTestCapsule(fCapsuleRadius, fCapsuleHeight, transform, uiCollisionLayer, uiIgnoreShapeID));
+  return duk.ReturnBool(pModule->OverlapTestCapsule(fCapsuleRadius, fCapsuleHeight, transform, ezPhysicsQueryParameters(uiCollisionLayer, uiIgnoreShapeID)));
 }
 
 static int __CPP_Physics_GetGravity(duk_context* pDuk)
@@ -208,7 +208,7 @@ static int __CPP_Physics_GetGravity(duk_context* pDuk)
   return duk.ReturnCustom();
 }
 
-int __CPP_Physics_QueryDynamicShapesInSphere(duk_context* pDuk)
+int __CPP_Physics_QueryShapesInSphere(duk_context* pDuk)
 {
   duk_require_function(pDuk, -1);
 
@@ -224,8 +224,8 @@ int __CPP_Physics_QueryDynamicShapesInSphere(duk_context* pDuk)
   const ezUInt8 uiCollisionLayer = duk.GetUIntValue(2);
   const ezUInt32 uiIgnoreShapeID = duk.GetIntValue(3);
 
-  ezPhysicsOverlapResult result;
-  pModule->QueryDynamicShapesInSphere(fRadius, vPos, uiCollisionLayer, result, uiIgnoreShapeID);
+  ezPhysicsOverlapResultArray result;
+  pModule->QueryShapesInSphere(result, fRadius, vPos, ezPhysicsQueryParameters(uiCollisionLayer, ezPhysicsShapeType::Dynamic, uiIgnoreShapeID));
 
   // forward the results via a callback
   for (const auto& res : result.m_Results)

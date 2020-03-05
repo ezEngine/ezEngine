@@ -1,7 +1,7 @@
 #pragma once
 
 #include <EditorPluginPhysX/EditorPluginPhysXDLL.h>
-#include <EditorPlugins/PhysX/EditorPluginPhysX/ui_PhysXProjectSettingsDlg.h>
+#include <EditorPluginPhysX/ui_PhysXProjectSettingsDlg.h>
 #include <GameEngine/Physics/CollisionFilter.h>
 #include <QDialog>
 

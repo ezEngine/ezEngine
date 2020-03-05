@@ -2,7 +2,7 @@
 
 #include <Foundation/Basics.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
-#include <Tools/Libs/GuiFoundation/ui_LogWidget.h>
+#include <GuiFoundation/ui_LogWidget.h>
 #include <Foundation/Logging/Log.h>
 #include <QWidget>
 

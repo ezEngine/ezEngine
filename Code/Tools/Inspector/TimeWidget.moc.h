@@ -5,7 +5,7 @@
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
-#include <Tools/Inspector/ui_TimeWidget.h>
+#include <Inspector/ui_TimeWidget.h>
 #include <QGraphicsView>
 #include <QListWidgetItem>
 #include <ads/DockWidget.h>

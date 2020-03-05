@@ -2,7 +2,7 @@
 
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <Foundation/Math/Color.h>
-#include <Tools/Libs/GuiFoundation/ui_ColorDialog.h>
+#include <GuiFoundation/ui_ColorDialog.h>
 #include <GuiFoundation/UIServices/ColorDlgWidgets.moc.h>
 #include <QDialog>
 

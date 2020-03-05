@@ -22,5 +22,9 @@ add_dependencies(${PROJECT_NAME}
   FoundationTest_Plugin2
 )
 
+if (EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
+  add_dependencies(${PROJECT_NAME} ArchiveTool)
+endif()
+
 ez_ci_add_test(${PROJECT_NAME})
 

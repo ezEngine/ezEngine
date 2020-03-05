@@ -2,7 +2,7 @@
 
 #include <Foundation/Basics.h>
 #include <QDialog>
-#include <Editor/EditorFramework/ui_EditorPluginConfigDlg.h>
+#include <EditorFramework/ui_EditorPluginConfigDlg.h>
 
 class ezQtEditorPluginConfigDlg : public QDialog, public Ui_ezQtEditorPluginConfigDlg
 {

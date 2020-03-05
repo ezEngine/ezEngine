@@ -2,7 +2,7 @@
 
 #include <EditorPluginFmod/EditorPluginFmodDLL.h>
 #include <QDialog>
-#include <EditorPlugins/Fmod/EditorPluginFmod/ui_FmodProjectSettingsDlg.h>
+#include <EditorPluginFmod/ui_FmodProjectSettingsDlg.h>
 #include <FmodPlugin/FmodSingleton.h>
 
 class ezQtFmodProjectSettingsDlg : public QDialog, public Ui_FmodProjectSettingsDlg

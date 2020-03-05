@@ -35,7 +35,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezAreaDamageComponent, 1, ezComponentMode::Static)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-static ezPhysicsOverlapResult g_OverlapResults;
+static ezPhysicsOverlapResultArray g_OverlapResults;
 
 ezAreaDamageComponent::ezAreaDamageComponent() = default;
 ezAreaDamageComponent::~ezAreaDamageComponent() = default;
@@ -52,7 +52,7 @@ void ezAreaDamageComponent::ApplyAreaDamage()
 
   const ezVec3 vOwnPosition = GetOwner()->GetGlobalPosition();
 
-  pPhysicsInterface->QueryDynamicShapesInSphere(m_fRadius, vOwnPosition, m_uiCollisionLayer, g_OverlapResults);
+  pPhysicsInterface->QueryShapesInSphere(g_OverlapResults, m_fRadius, vOwnPosition, ezPhysicsQueryParameters(m_uiCollisionLayer, ezPhysicsShapeType::Dynamic));
 
   const float fInvRadius = 1.0f / m_fRadius;
 

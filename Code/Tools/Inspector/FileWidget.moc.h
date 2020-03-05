@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Tools/Inspector/ui_FileWidget.h>
+#include <Inspector/ui_FileWidget.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Time/Time.h>

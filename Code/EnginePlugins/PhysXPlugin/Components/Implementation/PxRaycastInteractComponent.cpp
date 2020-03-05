@@ -79,9 +79,8 @@ void ezPxRaycastInteractComponent::ExecuteInteraction()
     pCur = pCur->GetParent();
   }
 
-  ezPhysicsHitResult res;
-  if (!pModule->CastRay(GetOwner()->GetGlobalPosition(), vDirection, m_fMaxDistance, m_uiCollisionLayer, res,
-        ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic, uiIgnoreShapeID))
+  ezPhysicsCastResult res;
+  if (!pModule->Raycast(res, GetOwner()->GetGlobalPosition(), vDirection, m_fMaxDistance, ezPhysicsQueryParameters(m_uiCollisionLayer, uiIgnoreShapeID)))
   {
     return;
   }
@@ -89,7 +88,7 @@ void ezPxRaycastInteractComponent::ExecuteInteraction()
   SendMessage(res);
 }
 
-void ezPxRaycastInteractComponent::SendMessage(const ezPhysicsHitResult& hit)
+void ezPxRaycastInteractComponent::SendMessage(const ezPhysicsCastResult& hit)
 {
   ezMsgGenericEvent msg;
   msg.m_sMessage = m_sUserMessage;

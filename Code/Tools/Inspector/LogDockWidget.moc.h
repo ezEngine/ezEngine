@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Tools/Inspector/ui_LogDockWidget.h>
+#include <Inspector/ui_LogDockWidget.h>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Logging/Log.h>

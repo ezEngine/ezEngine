@@ -2,7 +2,7 @@
 
 #ifdef EZ_USE_QT
 
-#include <UnitTests/TestFramework/ui_qtLogMessageDock.h>
+#include <TestFramework/ui_qtLogMessageDock.h>
 #include <QAbstractItemModel>
 #include <QDockWidget>
 #include <TestFramework/TestFrameworkDLL.h>

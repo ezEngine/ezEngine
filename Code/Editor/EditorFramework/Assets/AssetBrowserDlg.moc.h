@@ -1,7 +1,7 @@
 #pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
-#include <Editor/EditorFramework/ui_AssetBrowserDlg.h>
+#include <EditorFramework/ui_AssetBrowserDlg.h>
 #include <QDialog>
 
 class ezQtAssetBrowserDlg : public QDialog, public Ui_AssetBrowserDlg

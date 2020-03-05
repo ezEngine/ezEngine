@@ -1,7 +1,7 @@
 #pragma once
 
 #include <GuiFoundation/GuiFoundationDLL.h>
-#include <Tools/Libs/GuiFoundation/ui_ImageWidget.h>
+#include <GuiFoundation/ui_ImageWidget.h>
 #include <QGraphicsScene>
 
 class QGraphicsPixmapItem;

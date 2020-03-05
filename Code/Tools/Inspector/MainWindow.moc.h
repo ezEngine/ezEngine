@@ -3,7 +3,7 @@
 #include <ads/DockManager.h>
 #include <Foundation/Basics.h>
 #include <Inspector/StatVisWidget.moc.h>
-#include <Tools/Inspector/ui_MainWindow.h>
+#include <Inspector/ui_MainWindow.h>
 #include <QMainWindow>
 
 class ezQtMainWindow : public QMainWindow, public Ui_MainWindow
