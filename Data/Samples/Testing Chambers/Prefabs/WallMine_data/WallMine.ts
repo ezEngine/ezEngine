@@ -27,7 +27,7 @@ export class WallMine extends ez.TickedTypescriptComponent {
             shapeId = staticactor.GetShapeId();
         }
 
-        let res = ez.Physics.CastRay(pos, dir, 10, 0, ez.Physics.ShapeType.Static | ez.Physics.ShapeType.Dynamic, shapeId);
+        let res = ez.Physics.Raycast(pos, dir, 10, 0, ez.Physics.ShapeType.Static | ez.Physics.ShapeType.Dynamic, shapeId);
 
         if (res == null) {
             return;

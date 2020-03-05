@@ -344,7 +344,7 @@ ezBitflags<ezPxCharacterCollisionFlags> ezPxCharacterProxyComponent::Move(const 
 
         // make sure the character controller does not overlap with anything when standing up
         ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
-        if (!pModule->OverlapTestCapsule(m_fCapsuleRadius, m_fCapsuleHeight, t, m_uiCollisionLayer, GetShapeId()))
+        if (!pModule->OverlapTestCapsule(m_fCapsuleRadius, m_fCapsuleHeight, t, ezPhysicsQueryParameters(m_uiCollisionLayer, GetShapeId())))
         {
           m_bIsCrouching = false;
           m_pController->resize(m_fCapsuleHeight);

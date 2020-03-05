@@ -115,17 +115,17 @@ void ezProjectileComponent::Update()
     if (!vCurDirection.IsZero())
       fDistance = vCurDirection.GetLengthAndNormalize();
 
-    ezPhysicsHitResult hitResult;
-    if (pPhysicsInterface->CastRay(pEntity->GetGlobalPosition(), vCurDirection, fDistance, m_uiCollisionLayer, hitResult))
+    ezPhysicsCastResult castResult;
+    if (pPhysicsInterface->Raycast(castResult, pEntity->GetGlobalPosition(), vCurDirection, fDistance, ezPhysicsQueryParameters(m_uiCollisionLayer)))
     {
-      const ezSurfaceResourceHandle hSurface = hitResult.m_hSurface.IsValid() ? hitResult.m_hSurface : m_hFallbackSurface;
+      const ezSurfaceResourceHandle hSurface = castResult.m_hSurface.IsValid() ? castResult.m_hSurface : m_hFallbackSurface;
 
       const ezInt32 iInteraction = FindSurfaceInteraction(hSurface);
 
       if (iInteraction == -1)
       {
         GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
-        vNewPosition = hitResult.m_vPosition;
+        vNewPosition = castResult.m_vPosition;
       }
       else
       {
@@ -133,24 +133,23 @@ void ezProjectileComponent::Update()
 
         if (!interaction.m_sInteraction.IsEmpty())
         {
-          TriggerSurfaceInteraction(
-            hSurface, hitResult.m_hActorObject, hitResult.m_vPosition, hitResult.m_vNormal, vCurDirection, interaction.m_sInteraction);
+          TriggerSurfaceInteraction(hSurface, castResult.m_hActorObject, castResult.m_vPosition, castResult.m_vNormal, vCurDirection, interaction.m_sInteraction);
         }
 
         // if we hit some valid object
-        if (!hitResult.m_hActorObject.IsInvalidated())
+        if (!castResult.m_hActorObject.IsInvalidated())
         {
           ezGameObject* pObject = nullptr;
 
           // apply a physical impulse
           if (interaction.m_fImpulse > 0.0f)
           {
-            if (GetWorld()->TryGetObject(hitResult.m_hActorObject, pObject))
+            if (GetWorld()->TryGetObject(castResult.m_hActorObject, pObject))
             {
               ezMsgPhysicsAddImpulse msg;
-              msg.m_vGlobalPosition = hitResult.m_vPosition;
+              msg.m_vGlobalPosition = castResult.m_vPosition;
               msg.m_vImpulse = vCurDirection * interaction.m_fImpulse;
-              msg.m_uiShapeId = hitResult.m_uiShapeId;
+              msg.m_uiShapeId = castResult.m_uiShapeId;
 
               pObject->SendMessage(msg);
             }
@@ -160,13 +159,13 @@ void ezProjectileComponent::Update()
           if (interaction.m_fDamage > 0.0f)
           {
             // skip the TryGetObject if we already did that above
-            if (pObject != nullptr || GetWorld()->TryGetObject(hitResult.m_hShapeObject, pObject))
+            if (pObject != nullptr || GetWorld()->TryGetObject(castResult.m_hShapeObject, pObject))
             {
               ezMsgDamage msg;
               msg.m_fDamage = interaction.m_fDamage;
 
               ezGameObject* pHitShape = nullptr;
-              if (GetWorld()->TryGetObject(hitResult.m_hShapeObject, pHitShape))
+              if (GetWorld()->TryGetObject(castResult.m_hShapeObject, pHitShape))
               {
                 msg.m_sHitObjectName = pHitShape->GetName();
               }
@@ -179,7 +178,7 @@ void ezProjectileComponent::Update()
         if (interaction.m_Reaction == ezProjectileReaction::Absorb)
         {
           GetWorld()->DeleteObjectDelayed(GetOwner()->GetHandle());
-          vNewPosition = hitResult.m_vPosition;
+          vNewPosition = castResult.m_vPosition;
         }
         else if (interaction.m_Reaction == ezProjectileReaction::Reflect)
         {
@@ -190,7 +189,7 @@ void ezProjectileComponent::Update()
 
           vNewPosition = pEntity->GetGlobalPosition(); // vPos;
 
-          const ezVec3 vNewDirection = vCurDirection.GetReflectedVector(hitResult.m_vNormal);
+          const ezVec3 vNewDirection = vCurDirection.GetReflectedVector(castResult.m_vNormal);
 
           ezQuat qRot;
           qRot.SetShortestRotation(vCurDirection, vNewDirection);
@@ -202,10 +201,10 @@ void ezProjectileComponent::Update()
         else if (interaction.m_Reaction == ezProjectileReaction::Attach)
         {
           m_fMetersPerSecond = 0.0f;
-          vNewPosition = hitResult.m_vPosition;
+          vNewPosition = castResult.m_vPosition;
 
           ezGameObject* pObject;
-          if (GetWorld()->TryGetObject(hitResult.m_hActorObject, pObject))
+          if (GetWorld()->TryGetObject(castResult.m_hActorObject, pObject))
           {
             pObject->AddChild(GetOwner()->GetHandle(), ezGameObject::TransformPreservation::PreserveGlobal);
           }

@@ -40,4 +40,3 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Interfaces_PhysicsWorldModule);
-
