@@ -88,26 +88,26 @@ void ezParticleInitializer_VelocityCone::InitializeElements(ezUInt64 uiStartInde
 
   ezRandom& rng = GetRNG();
 
-  const float dist = 1.0f / ezMath::Tan(m_Angle);
+  //const float dist = 1.0f / ezMath::Tan(m_Angle);
 
   for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
   {
-    ezVec3 dir;
-    dir.z = 0;
-    float len = 0.0f;
+    const ezVec3 dir = ezVec3::CreateRandomDeviationZ(rng, m_Angle);
+    //dir.z = 0;
+    //float len = 0.0f;
 
-    do
-    {
-      // random point in a rectangle
-      dir.x = (float)rng.DoubleMinMax(-1.0, 1.0);
-      dir.y = (float)rng.DoubleMinMax(-1.0, 1.0);
+    //do
+    //{
+    //  // random point in a rectangle
+    //  dir.x = (float)rng.DoubleMinMax(-1.0, 1.0);
+    //  dir.y = (float)rng.DoubleMinMax(-1.0, 1.0);
 
-      // discard points outside the circle
-      len = dir.GetLengthSquared();
-    } while (len > 1.0f);
+    //  // discard points outside the circle
+    //  len = dir.GetLengthSquared();
+    //} while (len > 1.0f);
 
-    dir.z = dist;
-    dir.Normalize();
+    //dir.z = dist;
+    //dir.Normalize();
 
     const float fSpeed = (float)rng.DoubleVariance(m_Speed.m_Value, m_Speed.m_fVariance);
 
