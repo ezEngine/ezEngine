@@ -8,6 +8,7 @@
 #include <RendererCore/Lights/Implementation/ShadowPool.h>
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/Textures/TextureUtils.h>
 #include <RendererFoundation/Profiling/Profiling.h>
 
 ezClusteredDataGPU::ezClusteredDataGPU()
@@ -67,6 +68,17 @@ ezClusteredDataGPU::ezClusteredDataGPU()
   }
 
   m_hDecalAtlas = ezDecalAtlasResource::GetDecalAtlasResource();
+
+  {
+    ezGALSamplerStateCreationDescription desc;
+    desc.m_AddressU = ezImageAddressMode::Clamp;
+    desc.m_AddressV = ezImageAddressMode::Clamp;
+    desc.m_AddressW = ezImageAddressMode::Clamp;
+
+    ezTextureUtils::ConfigureSampler(ezTextureFilterSetting::DefaultQuality, desc);
+
+    m_hDecalAtlasSampler = pDevice->CreateSamplerState(desc);
+  }
 }
 
 ezClusteredDataGPU::~ezClusteredDataGPU()
@@ -78,6 +90,7 @@ ezClusteredDataGPU::~ezClusteredDataGPU()
   pDevice->DestroyBuffer(m_hClusterDataBuffer);
   pDevice->DestroyBuffer(m_hClusterItemBuffer);
   pDevice->DestroySamplerState(m_hShadowSampler);
+  pDevice->DestroySamplerState(m_hDecalAtlasSampler);
 
   ezRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
 }
@@ -105,6 +118,7 @@ void ezClusteredDataGPU::BindResources(ezRenderContext* pRenderContext)
   pRenderContext->BindTexture2D("DecalAtlasBaseColorTexture", pDecalAtlas->GetBaseColorTexture());
   pRenderContext->BindTexture2D("DecalAtlasNormalTexture", pDecalAtlas->GetNormalTexture());
   pRenderContext->BindTexture2D("DecalAtlasORMTexture", pDecalAtlas->GetORMTexture());
+  pRenderContext->BindSamplerState("DecalAtlasSampler", m_hDecalAtlasSampler);
 
   pRenderContext->BindTextureCube("ReflectionSpecularTexture", hReflectionSpecularTextureView);
   pRenderContext->BindTexture2D("SkyIrradianceTexture", hSkyIrradianceTextureView);

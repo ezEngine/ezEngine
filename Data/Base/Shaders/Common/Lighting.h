@@ -17,6 +17,7 @@ SamplerComparisonState ShadowSampler;
 Texture2D DecalAtlasBaseColorTexture;
 Texture2D DecalAtlasNormalTexture;
 Texture2D DecalAtlasORMTexture;
+SamplerState DecalAtlasSampler;
 
 TextureCubeArray ReflectionSpecularTexture;
 Texture2D SkyIrradianceTexture;
@@ -457,7 +458,7 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uin
         float2 normalAtlasDdx = decalPositionDdx * normalAtlasScale;
         float2 normalAtlasDdy = decalPositionDdy * normalAtlasScale;
         
-        float3 decalTangentNormal = DecodeNormalTexture(DecalAtlasNormalTexture.SampleGrad(LinearClampSampler, normalAtlasUv, normalAtlasDdx, normalAtlasDdy));
+        float3 decalTangentNormal = DecodeNormalTexture(DecalAtlasNormalTexture.SampleGrad(DecalAtlasSampler, normalAtlasUv, normalAtlasDdx, normalAtlasDdy));
         
         [branch]
         if (decalFlags & DECAL_MAP_NORMAL_TO_GEOMETRY)
@@ -482,7 +483,7 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uin
       float2 baseAtlasDdy = decalPositionDdy * baseAtlasScale;
 
       float4 decalBaseColor = RGBA8ToFloat4(decalData.baseColor);
-      decalBaseColor *= DecalAtlasBaseColorTexture.SampleGrad(LinearClampSampler, baseAtlasUv, baseAtlasDdx, baseAtlasDdy);
+      decalBaseColor *= DecalAtlasBaseColorTexture.SampleGrad(DecalAtlasSampler, baseAtlasUv, baseAtlasDdx, baseAtlasDdy);
       fade *= decalBaseColor.a;
       
       if (decalFlags & DECAL_USE_NORMAL)
@@ -499,7 +500,7 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uin
         float2 ormAtlasDdx = decalPositionDdx * ormAtlasScale;
         float2 ormAtlasDdy = decalPositionDdy * ormAtlasScale;
         
-        float3 decalORM = DecalAtlasORMTexture.SampleGrad(LinearClampSampler, ormAtlasUv, ormAtlasDdx, ormAtlasDdy).rgb;
+        float3 decalORM = DecalAtlasORMTexture.SampleGrad(DecalAtlasSampler, ormAtlasUv, ormAtlasDdx, ormAtlasDdy).rgb;
         
         matData.occlusion = lerp(matData.occlusion, decalORM.r, fade);
         matData.roughness = lerp(matData.roughness, decalORM.g, fade);
@@ -529,7 +530,7 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uin
         float2 ormAtlasDdx = decalPositionDdx * ormAtlasScale;
         float2 ormAtlasDdy = decalPositionDdy * ormAtlasScale;
         
-        decalEmissiveColor *= SrgbToLinear(DecalAtlasORMTexture.SampleGrad(LinearClampSampler, ormAtlasUv, ormAtlasDdx, ormAtlasDdy).rgb);
+        decalEmissiveColor *= SrgbToLinear(DecalAtlasORMTexture.SampleGrad(DecalAtlasSampler, ormAtlasUv, ormAtlasDdx, ormAtlasDdy).rgb);
       }
       matData.emissiveColor += decalEmissiveColor * fade;
       

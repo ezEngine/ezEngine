@@ -22,6 +22,7 @@ public:
   ezGALSamplerStateHandle m_hShadowSampler;
 
   ezDecalAtlasResourceHandle m_hDecalAtlas;
+  ezGALSamplerStateHandle m_hDecalAtlasSampler;
 
   void BindResources(ezRenderContext* pRenderContext);
 };
