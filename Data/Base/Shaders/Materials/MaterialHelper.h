@@ -86,8 +86,6 @@ ezMaterialData FillMaterialData()
     matData.worldPosition = float3(0.0, 0.0, 0.0);
   #endif
 
-  matData.normalizedViewVector = NormalizeAndGetLength(GetCameraPosition() - matData.worldPosition, matData.viewDistance);
-
   float3 worldNormal = normalize(GetNormal());
   #if TWO_SIDED == TRUE && defined(USE_TWO_SIDED_LIGHTING)
     #if FLIP_WINDING == TRUE
@@ -135,7 +133,8 @@ ezMaterialData FillMaterialData()
 
   #if defined(USE_MATERIAL_OCCLUSION)
     #if defined(USE_NORMAL)
-      float occlusionFade = saturate(dot(matData.vertexNormal, matData.normalizedViewVector));
+      float3 viewVector = normalize(GetCameraPosition() - matData.worldPosition);
+      float occlusionFade = saturate(dot(matData.vertexNormal, viewVector));
     #else
       float occlusionFade = 1.0f;
     #endif

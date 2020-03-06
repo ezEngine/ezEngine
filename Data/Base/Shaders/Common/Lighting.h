@@ -229,7 +229,8 @@ float CalculateShadowTerm(ezMaterialData matData, float3 lightVector, float dist
     }
 
     constantBias /= penumbraSizeScale;
-    penumbraSize = (penumbraSize + shadowParams2.w * matData.viewDistance) * penumbraSizeScale;
+    float viewDistance = length(GetCameraPosition() - matData.worldPosition);
+    penumbraSize = (penumbraSize + shadowParams2.w * viewDistance) * penumbraSizeScale;
 
     if (cascadeIndex == lastCascadeIndex)
     {
@@ -291,7 +292,7 @@ float CalculateShadowTerm(ezMaterialData matData, float3 lightVector, float dist
 
 AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clusterData, float3 screenPosition, bool applySSAO)
 {
-  float3 viewVector = matData.normalizedViewVector;
+  float3 viewVector = normalize(GetCameraPosition() - matData.worldPosition);
 
   AccumulatedLight totalLight = InitializeLight(0.0f, 0.0f);
 
@@ -458,22 +459,20 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uin
         
         float3 decalTangentNormal = DecodeNormalTexture(DecalAtlasNormalTexture.SampleGrad(LinearClampSampler, normalAtlasUv, normalAtlasDdx, normalAtlasDdy));
         
-        float3 xAxis, yAxis, zAxis;
-        
+        [branch]
         if (decalFlags & DECAL_MAP_NORMAL_TO_GEOMETRY)
         {
-          xAxis = normalize(cross(worldToDecalMatrix._m10_m11_m12, matData.vertexNormal));
-          yAxis = cross(matData.vertexNormal, xAxis);
-          zAxis = matData.vertexNormal;
+          float3 xAxis = normalize(cross(worldToDecalMatrix._m10_m11_m12, matData.vertexNormal));
+          decalWorldNormal = decalTangentNormal.x * xAxis;          
+          decalWorldNormal += decalTangentNormal.y * cross(matData.vertexNormal, xAxis);
+          decalWorldNormal += decalTangentNormal.z * matData.vertexNormal;
         }
         else
         {
-          xAxis = worldToDecalMatrix._m00_m01_m02;
-          yAxis = worldToDecalMatrix._m10_m11_m12;
-          zAxis = -worldToDecalMatrix._m20_m21_m22;
+          decalWorldNormal = decalTangentNormal.x * worldToDecalMatrix._m00_m01_m02;
+          decalWorldNormal += decalTangentNormal.y * worldToDecalMatrix._m10_m11_m12;
+          decalWorldNormal -= decalTangentNormal.z * worldToDecalMatrix._m20_m21_m22;
         }
-        
-        decalWorldNormal = decalTangentNormal.x * xAxis + decalTangentNormal.y * yAxis + decalTangentNormal.z * zAxis;
       }
       
       float2 baseAtlasScale = RG16FToFloat2(decalData.baseColorAtlasScale);
