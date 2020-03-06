@@ -96,16 +96,14 @@ void ezParticleInitializer_RandomRotationSpeed::InitializeElements(ezUInt64 uiSt
 
     for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
     {
-      pSpeed[i] = (float)rng.DoubleVariance(m_RotationSpeed.m_Value.GetRadian(), m_RotationSpeed.m_fVariance);
+      const float value = (float)rng.DoubleVariance(m_RotationSpeed.m_Value.GetRadian(), m_RotationSpeed.m_fVariance);
 
-      // this can certainly be done more elegantly
-      if (ezMath::IsEven(rng.UInt()))
-        pSpeed[i] = -pSpeed[i];
+      pSpeed[i] = m_bPositiveSign ? value : -value;
+      m_bPositiveSign = !m_bPositiveSign;
     }
   }
   else
   {
-
     for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
     {
       pSpeed[i] = 0;
@@ -122,6 +120,15 @@ void ezParticleInitializer_RandomRotationSpeed::InitializeElements(ezUInt64 uiSt
     for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
     {
       pOffset[i] = (float)rng.DoubleInRange(-ezMath::Pi<double>(), +ezMath::Pi<double>());
+    }
+  }
+  else
+  {
+    ezFloat16* pOffset = m_pStreamRotationOffset->GetWritableData<ezFloat16>();
+
+    for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
+    {
+      pOffset[i] = 0;
     }
   }
 }
