@@ -19,7 +19,15 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezAttributeHolder, ezNoBase, 1, ezRTTINoAllocator
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-ezAttributeHolder::ezAttributeHolder() {}
+ezAttributeHolder::ezAttributeHolder() = default;
+
+ezAttributeHolder::ezAttributeHolder(const ezAttributeHolder& rhs)
+{
+  m_Attributes = rhs.m_Attributes;
+  rhs.m_Attributes.Clear();
+
+  m_ReferenceAttributes = rhs.m_ReferenceAttributes;
+}
 
 ezAttributeHolder::~ezAttributeHolder()
 {
@@ -31,6 +39,9 @@ ezAttributeHolder::~ezAttributeHolder()
 
 void ezAttributeHolder::operator=(const ezAttributeHolder& rhs)
 {
+  if (this == &rhs)
+    return;
+
   m_Attributes = rhs.m_Attributes;
   rhs.m_Attributes.Clear();
 

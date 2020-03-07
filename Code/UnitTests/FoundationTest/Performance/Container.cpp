@@ -58,6 +58,19 @@ namespace
       this->i7 = rh.i7;
       this->i8 = rh.i8;
     }
+
+    void operator = (const SomeBigObject& rh)
+    {
+      constructionCount++;
+      this->i1 = rh.i1;
+      this->i2 = rh.i2;
+      this->i3 = rh.i3;
+      this->i4 = rh.i4;
+      this->i5 = rh.i5;
+      this->i6 = rh.i6;
+      this->i7 = rh.i7;
+      this->i8 = rh.i8;
+    }
   };
 
   ezUInt32 SomeBigObject::constructionCount = 0;
