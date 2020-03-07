@@ -223,12 +223,12 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   return ezGameObjectHandle(newId);
 }
 
-void ezWorld::DeleteObjectNow(const ezGameObjectHandle& object)
+void ezWorld::DeleteObjectNow(const ezGameObjectHandle& hObject)
 {
   CheckForWriteAccess();
 
   ezGameObject* pObject = nullptr;
-  if (!m_Data.m_Objects.TryGetValue(object, pObject))
+  if (!m_Data.m_Objects.TryGetValue(hObject, pObject))
     return;
 
   // set object to inactive so components and children know that they shouldn't access the object anymore.
@@ -254,10 +254,12 @@ void ezWorld::DeleteObjectNow(const ezGameObjectHandle& object)
   // remove from global key tables
   SetObjectGlobalKey(pObject, ezHashedString());
 
-  // invalidate and remove from id table
+  // invalidate (but preserve world index) and remove from id table
   pObject->m_InternalId.Invalidate();
+  pObject->m_InternalId.m_WorldIndex = m_uiIndex;
+
   m_Data.m_DeadObjects.Insert(pObject);
-  EZ_VERIFY(m_Data.m_Objects.Remove(object), "Implementation error.");
+  EZ_VERIFY(m_Data.m_Objects.Remove(hObject), "Implementation error.");
 }
 
 void ezWorld::DeleteObjectDelayed(const ezGameObjectHandle& hObject)
