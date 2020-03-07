@@ -154,21 +154,10 @@ void ezParticleEffectDescriptor::Load(ezStreamReader& stream)
   ezUInt32 uiNumSystems = 0;
   stream >> uiNumSystems;
 
-  if (uiVersion >= 3)
-  {
-    stream >> m_bSimulateInLocalSpace;
-    stream >> m_PreSimulateDuration;
-  }
-
-  if (uiVersion >= 4)
-  {
-    stream >> m_InvisibleUpdateRate;
-  }
-
-  if (uiVersion >= 5)
-  {
-    stream >> m_bAlwaysShared;
-  }
+  stream >> m_bSimulateInLocalSpace;
+  stream >> m_PreSimulateDuration;
+  stream >> m_InvisibleUpdateRate;
+  stream >> m_bAlwaysShared;
 
   m_ParticleSystems.SetCountUninitialized(uiNumSystems);
 
@@ -186,56 +175,47 @@ void ezParticleEffectDescriptor::Load(ezStreamReader& stream)
     pSystem->Load(stream);
   }
 
-  if (uiVersion >= 6)
+  ezStringBuilder key;
+  m_ColorParameters.Clear();
+  m_FloatParameters.Clear();
+
+  ezUInt8 paramCol;
+  stream >> paramCol;
+  for (ezUInt32 i = 0; i < paramCol; ++i)
   {
-    ezStringBuilder key;
-    m_ColorParameters.Clear();
-    m_FloatParameters.Clear();
-
-    ezUInt8 paramCol;
-    stream >> paramCol;
-    for (ezUInt32 i = 0; i < paramCol; ++i)
-    {
-      ezColor val;
-      stream >> key;
-      stream >> val;
-      m_ColorParameters[key] = val;
-    }
-
-    ezUInt8 paramFloat;
-    stream >> paramFloat;
-    for (ezUInt32 i = 0; i < paramFloat; ++i)
-    {
-      float val;
-      stream >> key;
-      stream >> val;
-      m_FloatParameters[key] = val;
-    }
+    ezColor val;
+    stream >> key;
+    stream >> val;
+    m_ColorParameters[key] = val;
   }
 
-  if (uiVersion >= 7)
+  ezUInt8 paramFloat;
+  stream >> paramFloat;
+  for (ezUInt32 i = 0; i < paramFloat; ++i)
   {
-    stream >> m_fApplyInstanceVelocity;
+    float val;
+    stream >> key;
+    stream >> val;
+    m_FloatParameters[key] = val;
   }
 
-  if (uiVersion >= 8)
+  stream >> m_fApplyInstanceVelocity;
+
+  ezUInt32 uiNumReactions = 0;
+  stream >> uiNumReactions;
+
+  m_EventReactions.SetCountUninitialized(uiNumReactions);
+
+  for (auto& pReaction : m_EventReactions)
   {
-    ezUInt32 uiNumReactions = 0;
-    stream >> uiNumReactions;
+    stream >> sType;
 
-    m_EventReactions.SetCountUninitialized(uiNumReactions);
+    const ezRTTI* pRtti = ezRTTI::FindTypeByName(sType);
+    EZ_ASSERT_DEBUG(pRtti != nullptr, "Unknown particle effect event reaction type '{0}'", sType);
 
-    for (auto& pReaction : m_EventReactions)
-    {
-      stream >> sType;
+    pReaction = pRtti->GetAllocator()->Allocate<ezParticleEventReactionFactory>();
 
-      const ezRTTI* pRtti = ezRTTI::FindTypeByName(sType);
-      EZ_ASSERT_DEBUG(pRtti != nullptr, "Unknown particle effect event reaction type '{0}'", sType);
-
-      pReaction = pRtti->GetAllocator()->Allocate<ezParticleEventReactionFactory>();
-
-      pReaction->Load(stream);
-    }
+    pReaction->Load(stream);
   }
 }
 

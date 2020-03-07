@@ -7,7 +7,8 @@ ezSkeleton::~ezSkeleton() = default;
 
 ezUInt16 ezSkeleton::FindJointByName(const ezTempHashedString& sJointName) const
 {
-  for (ezUInt16 i = 0; i < m_Joints.GetCount(); ++i)
+  const ezUInt16 uiJointCount = static_cast<ezUInt16>(m_Joints.GetCount());
+  for (ezUInt16 i = 0; i < uiJointCount; ++i)
   {
     if (m_Joints[i].GetName() == sJointName)
     {

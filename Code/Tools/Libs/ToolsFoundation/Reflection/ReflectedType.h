@@ -22,6 +22,7 @@ struct EZ_TOOLSFOUNDATION_DLL ezPhantomTypeChange
 struct EZ_TOOLSFOUNDATION_DLL ezAttributeHolder
 {
   ezAttributeHolder();
+  ezAttributeHolder(const ezAttributeHolder& rhs);
   virtual ~ezAttributeHolder();
 
   ezUInt32 GetCount() const;

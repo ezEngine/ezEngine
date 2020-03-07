@@ -95,7 +95,7 @@ void ezAreaDamageComponent::ApplyAreaDamage()
         if (m_fDamage > 0.0f)
         {
           ezMsgDamage msg;
-          msg.m_fDamage = m_fDamage * fScale;
+          msg.m_fDamage = static_cast<double>(m_fDamage) * static_cast<double>(fScale);
 
           ezGameObject* pShape = nullptr;
           if (GetWorld()->TryGetObject(hit.m_hShapeObject, pShape))

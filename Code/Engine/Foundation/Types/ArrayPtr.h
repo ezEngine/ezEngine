@@ -54,6 +54,13 @@ public:
   {
   }
 
+  /// \brief Copies the pointer and size of /a other. Does not allocate any data.
+  EZ_ALWAYS_INLINE ezArrayPtr(const ezArrayPtr<T>& other) // [tested]
+  {
+    m_ptr = other.m_ptr;
+    m_uiCount = other.m_uiCount;
+  }
+
   /// \brief Initializes the ezArrayPtr with the given pointer and number of elements. No memory is allocated or copied.
   inline ezArrayPtr(T* ptr, ezUInt32 uiCount) // [tested]
     : m_ptr(ptr)

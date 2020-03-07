@@ -78,6 +78,7 @@ public:
   ezDuktapeHelper(duk_context* pContext);
   ezDuktapeHelper(const ezDuktapeHelper& rhs);
   ~ezDuktapeHelper();
+  void operator = (const ezDuktapeHelper& rhs);
 
   /// \name Basics
   ///@{

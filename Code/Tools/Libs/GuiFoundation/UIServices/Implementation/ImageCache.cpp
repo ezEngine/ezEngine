@@ -1,6 +1,8 @@
 #include <GuiFoundationPCH.h>
 
 #include <Foundation/Threading/ThreadUtils.h>
+#include <Foundation/Math/Math.h>
+
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <QtConcurrent/qtconcurrentrun.h>
 
@@ -237,7 +239,7 @@ void ezQtImageCache::LoadingTask(QString sPath, QModelIndex index, QVariant User
   auto& entry = pCache->m_ImageCache[sPath];
   entry.m_uiImageID = ++pCache->m_uiCurImageID;
 
-  pCache->m_iCurrentMemoryUsage -= entry.m_Pixmap.width() * entry.m_Pixmap.height() * 4;
+  pCache->m_iCurrentMemoryUsage -= ezMath::SafeMultiply64(entry.m_Pixmap.width(), entry.m_Pixmap.height(), 4);
 
   if (bImageAvailable)
     entry.m_Pixmap = QPixmap::fromImage(Image);
@@ -246,7 +248,7 @@ void ezQtImageCache::LoadingTask(QString sPath, QModelIndex index, QVariant User
 
   entry.m_LastAccess = ezTime::Now();
 
-  pCache->m_iCurrentMemoryUsage += entry.m_Pixmap.width() * entry.m_Pixmap.height() * 4;
+  pCache->m_iCurrentMemoryUsage += ezMath::SafeMultiply64(entry.m_Pixmap.width(), entry.m_Pixmap.height(), 4);
 
   // send event that something has been loaded
   g_ImageCacheSingleton.EmitLoadedSignal(sPath, index, UserData1, UserData2);
@@ -282,7 +284,7 @@ void ezQtImageCache::CleanupCache()
       {
         // this image has not been accessed in a while, get rid of it
 
-        m_iCurrentMemoryUsage -= it.Value().m_Pixmap.width() * it.Value().m_Pixmap.height() * 4;
+        m_iCurrentMemoryUsage -= ezMath::SafeMultiply64(it.Value().m_Pixmap.width(), it.Value().m_Pixmap.height(), 4);
 
         it = m_ImageCache.Remove(it);
       }

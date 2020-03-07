@@ -45,6 +45,12 @@ public:
   {
   } // [tested]
 
+  /// \brief Copy constructor
+  EZ_ALWAYS_INLINE ezEnum(const SelfType& rh)
+    : m_value(rh.m_value)
+  {
+  }
+
   /// \brief Construct from a C++ enum, and implicit conversion from enum type
   EZ_ALWAYS_INLINE ezEnum(typename Derived::Enum init)
       : m_value((StorageType)init)

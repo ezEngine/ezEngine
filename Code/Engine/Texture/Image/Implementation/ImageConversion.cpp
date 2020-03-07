@@ -1,6 +1,8 @@
 #include <TexturePCH.h>
 
 #include <Foundation/Containers/HashTable.h>
+#include <Foundation/Math/Math.h>
+
 #include <Texture/Image/ImageConversion.h>
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezImageConversionStep);
@@ -588,7 +590,7 @@ ezResult ezImageConversion::ConvertSingleStepDecompress(const ezImageView& sourc
               for (ezUInt32 row = 0; row < copyHeight; row++)
               {
                 memcpy(targetPointer, &tempBuffer[(blockX * blockSizeX + row) * blockSizeY * targetBytesPerPixel],
-                       copyWidth * targetBytesPerPixel);
+                       ezMath::SafeMultiply32(copyWidth, targetBytesPerPixel));
                 targetPointer += targetRowPitch;
               }
             }
