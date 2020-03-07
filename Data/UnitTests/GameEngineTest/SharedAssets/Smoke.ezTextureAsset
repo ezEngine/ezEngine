@@ -9,9 +9,12 @@ o
 	p
 	{
 		s %AssetType{"Texture 2D"}
-		VarArray %Dependencies{}
+		VarArray %Dependencies
+		{
+			s{"Smoke.jpg"}
+		}
 		Uuid %DocumentID{u4{12408923997110485645,4745139354522054012}}
-		u4 %Hash{523023869072060978}
+		u4 %Hash{13913729869385526431}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -27,12 +30,12 @@ o
 	u3 %v{5}
 	p
 	{
-		s %AddressModeU{"ezImageAddressMode::ClampBorder"}
-		s %AddressModeV{"ezImageAddressMode::ClampBorder"}
+		s %AddressModeU{"ezImageAddressMode::Clamp"}
+		s %AddressModeV{"ezImageAddressMode::Clamp"}
 		s %AddressModeW{"ezImageAddressMode::Repeat"}
 		f %AlphaThreshold{0x0000003F}
 		f %CVarResScale{0x0000803F}
-		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
+		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1_A2"}
 		s %CompressionMode{"ezTexConvCompressionMode::None"}
 		b %DilateColor{0}
 		b %FlipHorizontal{0}
@@ -48,7 +51,7 @@ o
 		b %PreserveAlphaCoverage{0}
 		s %Resolution{"ezTexture2DResolution::Fixed256x256"}
 		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
-		s %Usage{"ezTexConvUsage::Color"}
+		s %Usage{"ezTexConvUsage::Linear"}
 	}
 }
 o
