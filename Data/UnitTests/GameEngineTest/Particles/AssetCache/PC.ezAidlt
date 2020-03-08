@@ -1,5 +1,7 @@
 { 08b3e790-2832-4083-93ec-133a93054c4c };Common/BillboardRenderer.ezParticleEffect
 { 29d5bcf8-3903-4d66-85f6-1297f7c01c52 };Common/Billboards.ezParticleEffect
+{ 3673cc69-2ac0-463a-b9b3-207cc30b7f25 };Common/EffectRenderer.ezParticleEffect
+{ 4d939507-b459-400a-906e-d67d806cdd3f };Common/Particles1.ezObjectGraph
 { 4ff34107-3159-4357-b4eb-9652b0888a16 };Common/Raycast.ezParticleEffect
 { 54f8f8f5-15e4-46c3-a80e-d5a6e2d6b693 };Common/MeshRenderer.ezParticleEffect
 { 58bf4d72-aa09-404f-81b8-13965d3e2286 };Common/SizeCurve.ezParticleEffect

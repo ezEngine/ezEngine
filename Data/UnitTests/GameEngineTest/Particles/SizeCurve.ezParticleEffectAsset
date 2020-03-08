@@ -11,7 +11,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9665356321961261185,4634109498707889522}}
-		u4 %Hash{6351598338132056776}
+		u4 %Hash{11061810445529357341}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{12960756980667939713,9587361796579175665}}
@@ -85,7 +85,7 @@ o
 	p
 	{
 		b %OnSurface{1}
-		Vec3 %PositionOffset{f{0,0,0x0000A040}}
+		Vec3 %PositionOffset{f{0x00004040,0,0x00004040}}
 		f %Radius{0x0000E040}
 		s %ScaleRadiusParam{""}
 		b %SetVelocity{1}
@@ -123,7 +123,7 @@ o
 		{
 			Uuid{u4{10058364434640923317,5721415533216603827}}
 		}
-		Time %PreSimulateDuration{d{0}}
+		Time %PreSimulateDuration{d{0x0000000000000040}}
 		b %SimulateInLocalSpace{0}
 		s %WhenInvisible{"ezEffectInvisibleUpdateRate::Max10fps"}
 	}
