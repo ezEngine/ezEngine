@@ -1,8 +1,8 @@
 #pragma once
 
-template <typename EventData, typename MutexType>
-ezEventBase<EventData, MutexType>::ezEventBase(ezAllocatorBase* pAllocator)
-    : m_EventHandlers(pAllocator)
+template <typename EventData, typename MutexType, bool CopyOnBroadcast>
+ezEventBase<EventData, MutexType, CopyOnBroadcast>::ezEventBase(ezAllocatorBase* pAllocator)
+  : m_EventHandlers(pAllocator)
 {
   m_uiRecursionDepth = 0;
 
@@ -11,8 +11,8 @@ ezEventBase<EventData, MutexType>::ezEventBase(ezAllocatorBase* pAllocator)
 #endif
 }
 
-template <typename EventData, typename MutexType>
-ezEventBase<EventData, MutexType>::~ezEventBase()
+template <typename EventData, typename MutexType, bool CopyOnBroadcast>
+ezEventBase<EventData, MutexType, CopyOnBroadcast>::~ezEventBase()
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   EZ_ASSERT_ALWAYS(m_pSelf == this, "The ezEvent was relocated in memory. This is not allowed, as it breaks the Unsubscribers.");
@@ -21,8 +21,8 @@ ezEventBase<EventData, MutexType>::~ezEventBase()
 
 /// A callback can be registered multiple times with different pass-through data (or even with the same,
 /// though that is less useful).
-template <typename EventData, typename MutexType>
-ezEventSubscriptionID ezEventBase<EventData, MutexType>::AddEventHandler(Handler handler) const
+template <typename EventData, typename MutexType, bool CopyOnBroadcast>
+ezEventSubscriptionID ezEventBase<EventData, MutexType, CopyOnBroadcast>::AddEventHandler(Handler handler) const
 {
   EZ_LOCK(m_Mutex);
 
@@ -35,8 +35,8 @@ ezEventSubscriptionID ezEventBase<EventData, MutexType>::AddEventHandler(Handler
   return item.m_SubscriptionID;
 }
 
-template <typename EventData, typename MutexType>
-void ezEventBase<EventData, MutexType>::AddEventHandler(Handler handler, Unsubscriber& unsubscriber) const
+template <typename EventData, typename MutexType, bool CopyOnBroadcast>
+void ezEventBase<EventData, MutexType, CopyOnBroadcast>::AddEventHandler(Handler handler, Unsubscriber& unsubscriber) const
 {
   EZ_LOCK(m_Mutex);
 
@@ -48,8 +48,8 @@ void ezEventBase<EventData, MutexType>::AddEventHandler(Handler handler, Unsubsc
 
 /// Use exactly the same combination of callback/pass-through-data to unregister an event handlers.
 /// Otherwise an error occurs.
-template <typename EventData, typename MutexType>
-void ezEventBase<EventData, MutexType>::RemoveEventHandler(const Handler& handler) const
+template <typename EventData, typename MutexType, bool CopyOnBroadcast>
+void ezEventBase<EventData, MutexType, CopyOnBroadcast>::RemoveEventHandler(const Handler& handler) const
 {
   EZ_ASSERT_DEV(handler.IsComparable(), "Lambdas that capture data cannot be removed via function pointer. Use an ezEventSubscriptionID instead.");
 
@@ -59,6 +59,7 @@ void ezEventBase<EventData, MutexType>::RemoveEventHandler(const Handler& handle
   {
     if (m_EventHandlers[idx].m_Handler.IsEqualIfComparable(handler))
     {
+      EZ_ASSERT_DEV(!m_bCurrentlyBroadcasting, "Can not remove event handlers while broadcasting. Use the CopyOnBroadcast = true version to modify the event during broadcasting.");
       m_EventHandlers.RemoveAtAndCopy(idx);
       return;
     }
@@ -67,8 +68,8 @@ void ezEventBase<EventData, MutexType>::RemoveEventHandler(const Handler& handle
   EZ_ASSERT_DEV(false, "ezEvent::RemoveEventHandler: Handler has not been registered or already been unregistered.");
 }
 
-template <typename EventData, typename MutexType>
-void ezEventBase<EventData, MutexType>::RemoveEventHandler(ezEventSubscriptionID& id) const
+template <typename EventData, typename MutexType, bool CopyOnBroadcast>
+void ezEventBase<EventData, MutexType, CopyOnBroadcast>::RemoveEventHandler(ezEventSubscriptionID& id) const
 {
   if (id == 0)
     return;
@@ -79,6 +80,7 @@ void ezEventBase<EventData, MutexType>::RemoveEventHandler(ezEventSubscriptionID
   {
     if (m_EventHandlers[idx].m_SubscriptionID == id)
     {
+      EZ_ASSERT_DEV(!m_bCurrentlyBroadcasting, "Can not remove event handlers while broadcasting. Use the CopyOnBroadcast = true version to modify the event during broadcasting.");
       m_EventHandlers.RemoveAtAndCopy(idx);
       id = 0;
       return;
@@ -88,8 +90,8 @@ void ezEventBase<EventData, MutexType>::RemoveEventHandler(ezEventSubscriptionID
   EZ_ASSERT_DEV(false, "ezEvent::RemoveEventHandler: Invalid subscription ID '{0}'.", (ezInt32)id);
 }
 
-template <typename EventData, typename MutexType>
-bool ezEventBase<EventData, MutexType>::HasEventHandler(const Handler& handler) const
+template <typename EventData, typename MutexType, bool CopyOnBroadcast>
+bool ezEventBase<EventData, MutexType, CopyOnBroadcast>::HasEventHandler(const Handler& handler) const
 {
   EZ_ASSERT_DEV(handler.IsComparable(), "Lambdas that capture data cannot be checked via function pointer. Use an ezEventSubscriptionID instead.");
 
@@ -104,46 +106,87 @@ bool ezEventBase<EventData, MutexType>::HasEventHandler(const Handler& handler) 
   return false;
 }
 
-template <typename EventData, typename MutexType>
-void ezEventBase<EventData, MutexType>::Clear()
+template <typename EventData, typename MutexType, bool CopyOnBroadcast>
+void ezEventBase<EventData, MutexType, CopyOnBroadcast>::Clear()
 {
   m_EventHandlers.Clear();
 }
 
 /// The notification is sent to all event handlers in the order that they were registered.
-template <typename EventData, typename MutexType>
-void ezEventBase<EventData, MutexType>::Broadcast(EventData eventData, ezUInt8 uiMaxRecursionDepth)
+template <typename EventData, typename MutexType, bool CopyOnBroadcast>
+void ezEventBase<EventData, MutexType, CopyOnBroadcast>::Broadcast(EventData eventData, ezUInt8 uiMaxRecursionDepth)
 {
-  EZ_LOCK(m_Mutex);
+  if constexpr (CopyOnBroadcast == false)
+  {
+    EZ_LOCK(m_Mutex);
 
-  EZ_ASSERT_DEV(m_uiRecursionDepth <= uiMaxRecursionDepth,
-                "The event has been triggered recursively or from several threads simultaneously.");
+    EZ_ASSERT_DEV(m_uiRecursionDepth <= uiMaxRecursionDepth,
+      "The event has been triggered recursively or from several threads simultaneously.");
 
-  if (m_uiRecursionDepth > uiMaxRecursionDepth)
-    return;
+    if (m_uiRecursionDepth > uiMaxRecursionDepth)
+      return;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  EZ_ASSERT_ALWAYS(m_pSelf == this, "The ezEvent was relocated in memory. This is not allowed, as it breaks the Unsubscribers.");
+    EZ_ASSERT_ALWAYS(m_pSelf == this, "The ezEvent was relocated in memory. This is not allowed, as it breaks the Unsubscribers.");
+    if (m_uiRecursionDepth == 0)
+    {
+      m_bCurrentlyBroadcasting = true;
+    }
 #endif
 
-  ++m_uiRecursionDepth;
+    m_uiRecursionDepth.Increment();
 
-  for (ezUInt32 ui = 0; ui < m_EventHandlers.GetCount(); ++ui)
-    m_EventHandlers[ui].m_Handler(eventData);
+    for (ezUInt32 ui = 0; ui < m_EventHandlers.GetCount(); ++ui)
+      m_EventHandlers[ui].m_Handler(eventData);
 
-  --m_uiRecursionDepth;
+    m_uiRecursionDepth.Decrement();
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    if (m_uiRecursionDepth == 0)
+    {
+      m_bCurrentlyBroadcasting = false;
+    }
+#endif
+  }
+  else
+  {
+    ezHybridArray<HandlerData, 16> eventHandlers;
+    {
+      EZ_LOCK(m_Mutex);
+
+      EZ_ASSERT_DEV(m_uiRecursionDepth <= uiMaxRecursionDepth,
+        "The event has been triggered recursively or from several threads simultaneously.");
+
+      if (m_uiRecursionDepth > uiMaxRecursionDepth)
+        return;
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+      EZ_ASSERT_ALWAYS(m_pSelf == this, "The ezEvent was relocated in memory. This is not allowed, as it breaks the Unsubscribers.");
+#endif
+
+      eventHandlers = m_EventHandlers;
+
+      m_uiRecursionDepth.Increment();
+    }
+
+    ezUInt32 uiHandlerCount = eventHandlers.GetCount();
+    for (ezUInt32 ui = 0; ui < uiHandlerCount; ++ui)
+    {
+      eventHandlers[ui].m_Handler(eventData);
+    }
+
+    m_uiRecursionDepth.Decrement();
+  }
 }
 
 
-template <typename EventData, typename MutexType, typename AllocatorWrapper>
-ezEvent<EventData, MutexType, AllocatorWrapper>::ezEvent()
-    : ezEventBase<EventData, MutexType>(AllocatorWrapper::GetAllocator())
+template <typename EventData, typename MutexType, typename AllocatorWrapper, bool CopyOnBroadcast>
+ezEvent<EventData, MutexType, AllocatorWrapper, CopyOnBroadcast>::ezEvent()
+  : ezEventBase<EventData, MutexType, CopyOnBroadcast>(AllocatorWrapper::GetAllocator())
 {
 }
 
-template <typename EventData, typename MutexType, typename AllocatorWrapper>
-ezEvent<EventData, MutexType, AllocatorWrapper>::ezEvent(ezAllocatorBase* pAllocator)
-    : ezEventBase<EventData, MutexType>(pAllocator)
+template <typename EventData, typename MutexType, typename AllocatorWrapper, bool CopyOnBroadcast>
+ezEvent<EventData, MutexType, AllocatorWrapper, CopyOnBroadcast>::ezEvent(ezAllocatorBase* pAllocator)
+  : ezEventBase<EventData, MutexType, CopyOnBroadcast>(pAllocator)
 {
 }
-

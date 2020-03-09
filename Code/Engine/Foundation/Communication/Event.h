@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/Mutex.h>
 #include <Foundation/Types/Delegate.h>
@@ -21,7 +22,7 @@ typedef ezUInt32 ezEventSubscriptionID;
 /// be able to register as an event handler. To make it possible to prevent external code from also raising events,
 /// all functions that are needed for listening are const, and all others are non-const.
 /// Therefore, simply make event members private and provide const reference access through a public getter.
-template <typename EventData, typename MutexType>
+template <typename EventData, typename MutexType, bool CopyOnBroadcast = false>
 class ezEventBase
 {
 protected:
@@ -118,13 +119,14 @@ public:
 
 private:
   /// \brief Used to detect recursive broadcasts and then throw asserts at you.
-  ezUInt8 m_uiRecursionDepth;
+  ezAtomicInteger32 m_uiRecursionDepth;
   mutable ezEventSubscriptionID m_NextSubscriptionID = 0;
 
   mutable MutexType m_Mutex;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   const void* m_pSelf = nullptr;
+  bool m_bCurrentlyBroadcasting = false;
 #endif
 
   struct HandlerData
@@ -138,8 +140,8 @@ private:
 };
 
 /// \brief \see ezEventBase
-template <typename EventData, typename MutexType = ezNoMutex, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
-class ezEvent : public ezEventBase<EventData, MutexType>
+template <typename EventData, typename MutexType = ezNoMutex, typename AllocatorWrapper = ezDefaultAllocatorWrapper, bool CopyOnBroadcast = false>
+class ezEvent : public ezEventBase<EventData, MutexType, CopyOnBroadcast>
 {
 public:
   ezEvent();
