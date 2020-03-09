@@ -40,8 +40,8 @@ public:
 protected:
   virtual void Process(ezUInt64 uiNumElements) override;
 
-  ezProcessingStream* m_pStreamPosition;
-  ezProcessingStream* m_pStreamVelocity;
+  ezProcessingStream* m_pStreamPosition = nullptr;
+  ezProcessingStream* m_pStreamVelocity = nullptr;
 
   ezTime m_TimeToChangeDir;
 };

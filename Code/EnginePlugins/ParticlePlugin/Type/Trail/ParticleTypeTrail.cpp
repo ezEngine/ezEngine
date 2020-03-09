@@ -68,7 +68,7 @@ void ezParticleTypeTrailFactory::CopyTypeProperties(ezParticleType* pObject, boo
   {
     pType->GetOwnerSystem()->AddParticleDeathEventHandler(ezMakeDelegate(&ezParticleTypeTrail::OnParticleDeath, pType));
 
-    pType->m_LastSnapshot = pType->GetOwnerSystem()->GetWorld()->GetClock().GetAccumulatedTime();
+    pType->m_LastSnapshot = pType->GetOwnerEffect()->GetTotalEffectLifeTime();
   }
 
   // m_uiMaxPoints = ezMath::Min<ezUInt16>(8, m_uiMaxPoints);
@@ -176,8 +176,7 @@ void ezParticleTypeTrail::CreateRequiredStreams()
   }
 }
 
-void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData,
-                                                const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
+void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
 {
   EZ_PROFILE_SCOPE("PFX: Trail");
 
@@ -312,7 +311,7 @@ void ezParticleTypeTrail::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiN
 
 void ezParticleTypeTrail::Process(ezUInt64 uiNumElements)
 {
-  const ezTime tNow = GetOwnerSystem()->GetWorld()->GetClock().GetAccumulatedTime();
+  const ezTime tNow = GetOwnerEffect()->GetTotalEffectLifeTime();
 
   TrailData* pTrailData = m_pStreamTrailData->GetWritableData<TrailData>();
   const ezVec4* pPosData = m_pStreamPosition->GetData<ezVec4>();

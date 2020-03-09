@@ -265,7 +265,7 @@ void ezParticleTypeQuad::CreateExtractedData(const ezView& view, ezExtractedRend
   const ezVec3 vEmitterDir = GetOwnerSystem()->GetTransform().m_qRotation * ezVec3(0, 0, 1); // Z axis
   const ezVec3 vEmitterDirOrtho = vEmitterDir.GetOrthogonalVector();
 
-  const ezTime tCur = GetOwnerSystem()->GetWorld()->GetClock().GetAccumulatedTime();
+  const ezTime tCur = GetOwnerEffect()->GetTotalEffectLifeTime();
   const ezColor tintColor = GetOwnerEffect()->GetColorParameter(m_sTintColorParameter, ezColor::White);
 
   const ezFloat16Vec2* pLifeTime = m_pStreamLifeTime->GetData<ezFloat16Vec2>();
@@ -296,8 +296,7 @@ void ezParticleTypeQuad::CreateExtractedData(const ezView& view, ezExtractedRend
     ezTransform trans;
 
     trans.m_vPosition = pPosition[srcIdx].GetAsVec3();
-    trans.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0),
-                                          ezAngle::Radian((float)(tCur.GetSeconds() * pRotationSpeed[srcIdx]) + pRotationOffset[srcIdx]));
+    trans.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Radian((float)(tCur.GetSeconds() * pRotationSpeed[srcIdx]) + pRotationOffset[srcIdx]));
     trans.m_vScale.Set(1.0f);
 
     m_BillboardParticleData[dstIdx].Position = pPosition[srcIdx].GetAsVec3();
@@ -308,8 +307,7 @@ void ezParticleTypeQuad::CreateExtractedData(const ezView& view, ezExtractedRend
   auto SetTangentDataEmitterDir = [&](ezUInt32 dstIdx, ezUInt32 srcIdx) {
 
     ezMat3 mRotation;
-    mRotation.SetRotationMatrix(vEmitterDir,
-                                ezAngle::Radian((float)(tCur.GetSeconds() * pRotationSpeed[srcIdx]) + pRotationOffset[srcIdx]));
+    mRotation.SetRotationMatrix(vEmitterDir, ezAngle::Radian((float)(tCur.GetSeconds() * pRotationSpeed[srcIdx]) + pRotationOffset[srcIdx]));
 
     m_TangentParticleData[dstIdx].Position = pPosition[srcIdx].GetAsVec3();
     m_TangentParticleData[dstIdx].TangentX = mRotation * vEmitterDirOrtho;

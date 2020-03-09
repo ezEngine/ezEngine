@@ -20,13 +20,13 @@ ezGameEngineTestApplication* ezGameEngineTestParticles::CreateApplication()
 
 void ezGameEngineTestParticles::SetupSubTests()
 {
-  //AddSubTest("Billboards", SubTests::Billboards);
+  AddSubTest("Billboards", SubTests::Billboards);
   AddSubTest("BillboardRenderer", SubTests::BillboardRenderer);
   AddSubTest("ColorGradient", SubTests::ColorGradient);
   AddSubTest("Flies", SubTests::Flies);
   AddSubTest("Gravity", SubTests::Gravity);
   AddSubTest("LightRenderer", SubTests::LightRenderer);
-  //AddSubTest("MeshRenderer", SubTests::MeshRenderer);
+  AddSubTest("MeshRenderer", SubTests::MeshRenderer);
   AddSubTest("Raycast", SubTests::Raycast);
   AddSubTest("SizeCurve", SubTests::SizeCurve);
   AddSubTest("TrailRenderer", SubTests::TrailRenderer);

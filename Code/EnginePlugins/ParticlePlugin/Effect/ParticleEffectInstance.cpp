@@ -448,6 +448,8 @@ bool ezParticleEffectInstance::Update(const ezTime& tDiff)
 
 bool ezParticleEffectInstance::StepSimulation(const ezTime& tDiff)
 {
+  m_TotalEffectLifeTime += tDiff;
+
   for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
   {
     if (m_ParticleSystems[i] != nullptr)

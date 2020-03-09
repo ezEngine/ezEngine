@@ -11,7 +11,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{783190008302175933,5143032635790321204}}
-		u4 %Hash{3047294091852786873}
+		u4 %Hash{5720198854385493119}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{7310943477430429366,10601221040223339128}}
@@ -109,7 +109,7 @@ o
 		{
 			Uuid{u4{6140730846779629494,5566904381549372431}}
 		}
-		Time %PreSimulateDuration{d{0x0000000000000040}}
+		Time %PreSimulateDuration{d{0x0000000000001440}}
 		b %SimulateInLocalSpace{0}
 		s %WhenInvisible{"ezEffectInvisibleUpdateRate::Max10fps"}
 	}
