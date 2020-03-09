@@ -249,6 +249,7 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
   pRenderData->m_uiSortingKey = ComputeSortingKey(m_RenderMode);
 
   pRenderData->m_bApplyObjectTransform = GetOwnerEffect()->NeedsToApplyTransform();
+  pRenderData->m_TotalEffectLifeTime = GetOwnerEffect()->GetTotalEffectLifeTime();
   pRenderData->m_RenderMode = m_RenderMode;
   pRenderData->m_GlobalTransform = instanceTransform;
   pRenderData->m_uiMaxTrailPoints = m_uiMaxPoints;

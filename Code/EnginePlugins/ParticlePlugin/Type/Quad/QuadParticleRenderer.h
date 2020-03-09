@@ -18,6 +18,7 @@ public:
   ezArrayPtr<ezBaseParticleShaderData> m_BaseParticleData;
   ezArrayPtr<ezBillboardQuadParticleShaderData> m_BillboardParticleData;
   ezArrayPtr<ezTangentQuadParticleShaderData> m_TangentParticleData;
+  ezTime m_TotalEffectLifeTime;
   bool m_bApplyObjectTransform = true;
   ezUInt8 m_uiNumVariationsX = 1;
   ezUInt8 m_uiNumVariationsY = 1;

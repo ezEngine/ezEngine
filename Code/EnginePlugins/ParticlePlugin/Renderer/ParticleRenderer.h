@@ -29,7 +29,7 @@ protected:
     TempSystemCB(ezRenderContext* pRenderContext);
     ~TempSystemCB();
 
-    void SetGenericData(bool bApplyObjectTransform, const ezTransform& ObjectTransform, ezUInt8 uiNumVariationsX, ezUInt8 uiNumVariationsY,
+    void SetGenericData(bool bApplyObjectTransform, const ezTransform& ObjectTransform, ezTime effectLifeTime, ezUInt8 uiNumVariationsX, ezUInt8 uiNumVariationsY,
                         ezUInt8 uiNumFlipbookAnimsX, ezUInt8 uiNumFlipbookAnimsY, float fDistortionStrength = 0);
     void SetTrailData(float fSnapshotFraction, ezInt32 iNumUsedTrailPoints);
 

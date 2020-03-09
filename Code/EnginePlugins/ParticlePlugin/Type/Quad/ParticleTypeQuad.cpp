@@ -293,12 +293,6 @@ void ezParticleTypeQuad::CreateExtractedData(const ezView& view, ezExtractedRend
 
   auto SetBillboardData = [&](ezUInt32 dstIdx, ezUInt32 srcIdx) {
 
-    ezTransform trans;
-
-    trans.m_vPosition = pPosition[srcIdx].GetAsVec3();
-    trans.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Radian((float)(tCur.GetSeconds() * pRotationSpeed[srcIdx]) + pRotationOffset[srcIdx]));
-    trans.m_vScale.Set(1.0f);
-
     m_BillboardParticleData[dstIdx].Position = pPosition[srcIdx].GetAsVec3();
     m_BillboardParticleData[dstIdx].RotationOffset = pRotationOffset[srcIdx];
     m_BillboardParticleData[dstIdx].RotationSpeed = pRotationSpeed[srcIdx];
@@ -427,6 +421,7 @@ void ezParticleTypeQuad::AddParticleRenderData(ezExtractedRenderData& extractedR
 
   pRenderData->m_bApplyObjectTransform = GetOwnerEffect()->NeedsToApplyTransform();
   pRenderData->m_GlobalTransform = instanceTransform;
+  pRenderData->m_TotalEffectLifeTime = GetOwnerEffect()->GetTotalEffectLifeTime();
   pRenderData->m_RenderMode = m_RenderMode;
   pRenderData->m_hTexture = m_hTexture;
   pRenderData->m_BaseParticleData = m_BaseParticleData;

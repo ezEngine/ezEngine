@@ -49,6 +49,7 @@ void ezParticleEffectInstance::Construct(ezParticleEffectHandle hEffectHandle, c
   m_iMinSimStepsToDo = 4;
   m_Transform.SetIdentity();
   m_vVelocity.SetZero();
+  m_TotalEffectLifeTime.SetZero();
 
   if (uiRandomSeed == 0)
     m_Random.InitializeFromCurrentTime();

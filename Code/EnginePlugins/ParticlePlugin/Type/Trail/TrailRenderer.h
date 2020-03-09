@@ -21,6 +21,7 @@ public:
   ezArrayPtr<ezVec4> m_TrailPointsShared;
   ezEnum<ezParticleTypeRenderMode> m_RenderMode;
   bool m_bApplyObjectTransform = true;
+  ezTime m_TotalEffectLifeTime;
   ezUInt8 m_uiNumVariationsX = 1;
   ezUInt8 m_uiNumVariationsY = 1;
   ezUInt8 m_uiNumFlipbookAnimationsX = 1;

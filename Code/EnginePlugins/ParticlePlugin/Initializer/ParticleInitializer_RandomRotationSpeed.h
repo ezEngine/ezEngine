@@ -37,6 +37,6 @@ protected:
   virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
 
   bool m_bPositiveSign = false;
-  ezProcessingStream* m_pStreamRotationSpeed;
-  ezProcessingStream* m_pStreamRotationOffset;
+  ezProcessingStream* m_pStreamRotationSpeed = nullptr;
+  ezProcessingStream* m_pStreamRotationOffset = nullptr;
 };
