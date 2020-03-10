@@ -21,6 +21,7 @@ public:
   ezArrayPtr<ezVec4> m_TrailPointsShared;
   ezEnum<ezParticleTypeRenderMode> m_RenderMode;
   bool m_bApplyObjectTransform = true;
+  ezTime m_TotalEffectLifeTime;
   ezUInt8 m_uiNumVariationsX = 1;
   ezUInt8 m_uiNumVariationsY = 1;
   ezUInt8 m_uiNumFlipbookAnimationsX = 1;
@@ -38,8 +39,7 @@ public:
   ~ezParticleTrailRenderer();
 
   virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) const override;
-  virtual void RenderBatch(
-    const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
+  virtual void RenderBatch(const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
 
 protected:
   bool ConfigureShader(const ezParticleTrailRenderData* pRenderData, const ezRenderViewContext& renderViewContext) const;

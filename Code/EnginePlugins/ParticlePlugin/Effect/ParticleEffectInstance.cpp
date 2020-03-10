@@ -49,6 +49,7 @@ void ezParticleEffectInstance::Construct(ezParticleEffectHandle hEffectHandle, c
   m_iMinSimStepsToDo = 4;
   m_Transform.SetIdentity();
   m_vVelocity.SetZero();
+  m_TotalEffectLifeTime.SetZero();
 
   if (uiRandomSeed == 0)
     m_Random.InitializeFromCurrentTime();
@@ -448,6 +449,8 @@ bool ezParticleEffectInstance::Update(const ezTime& tDiff)
 
 bool ezParticleEffectInstance::StepSimulation(const ezTime& tDiff)
 {
+  m_TotalEffectLifeTime += tDiff;
+
   for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
   {
     if (m_ParticleSystems[i] != nullptr)

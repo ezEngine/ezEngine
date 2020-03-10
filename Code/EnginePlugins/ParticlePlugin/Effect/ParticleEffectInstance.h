@@ -96,6 +96,12 @@ public:
   /// \brief Returns false when the effect is finished.
   bool Update(const ezTime& tDiff);
 
+  /// \brief Returns the total (game) time that the effect is alive and has been updated.
+  ///
+  /// Use this time, instead of a world clock, for time-dependent calculations. It is mostly tied to the world clock (game update),
+  /// but additionally includes pre-simulation timings, which would otherwise be left out which can break some calculations.
+  ezTime GetTotalEffectLifeTime() const { return m_TotalEffectLifeTime; }
+
 private: // friend ezParticleWorldModule
   /// \brief Whether this instance is in a state where its update task should be run
   bool ShouldBeUpdated() const;
@@ -111,7 +117,8 @@ private: // friend ezParticleffectUpdateTask
   bool StepSimulation(const ezTime& tDiff);
 
 private:
-  ezTime m_ElapsedTimeSinceUpdate;
+  ezTime m_TotalEffectLifeTime = ezTime::Zero();
+  ezTime m_ElapsedTimeSinceUpdate = ezTime::Zero();
 
 
   /// @}

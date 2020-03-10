@@ -76,7 +76,7 @@ float4 CalcQuadOutputPositionAsBillboard(uint vertexIndex, float3 centerPosition
   //float4 position = TransformToPosition(inTransform);
   float4 position = float4(centerPosition, 1);
   //float3x3 rotation = TransformToRotation(inTransform);
-  float3x3 rotation = CreateRotationMatrixY(rotationOffset + rotationSpeed * WorldTime);
+  float3x3 rotation = CreateRotationMatrixY(rotationOffset + rotationSpeed * TotalEffectLifeTime);
 
   float3 offsetRight = GetCameraDirRight() * (QuadTexCoords[vertexIndex].x - 0.5) * inSize;
   float3 offsetUp = GetCameraDirUp() * (QuadTexCoords[vertexIndex].y - 0.5) * -inSize;

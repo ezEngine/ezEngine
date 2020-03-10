@@ -21,5 +21,8 @@ CONSTANT_BUFFER(ezParticleSystemConstants, 2)
 
   // heat haze distortion (pixel offset in screen-space)
   FLOAT1(DistortionStrength);
+  
+  // use this instead of world clock for determinism
+  FLOAT1(TotalEffectLifeTime);
 };
 

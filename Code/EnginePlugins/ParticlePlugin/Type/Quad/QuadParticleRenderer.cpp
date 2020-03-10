@@ -34,8 +34,7 @@ void ezParticleQuadRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezR
   types.PushBack(ezGetStaticRTTI<ezParticleQuadRenderData>());
 }
 
-void ezParticleQuadRenderer::RenderBatch(
-  const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
+void ezParticleQuadRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
 {
   ezRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
@@ -47,8 +46,7 @@ void ezParticleQuadRenderer::RenderBatch(
 
   // make sure our structured buffer is allocated and bound
   {
-    pRenderContext->BindMeshBuffer(
-      ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, s_uiParticlesPerBatch * 2);
+    pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, s_uiParticlesPerBatch * 2);
 
     pRenderContext->BindBuffer("particleBaseData", pDevice->GetDefaultResourceView(m_hBaseDataBuffer));
     pRenderContext->BindBuffer("particleBillboardQuadData", pDevice->GetDefaultResourceView(m_hBillboardDataBuffer));
@@ -70,7 +68,7 @@ void ezParticleQuadRenderer::RenderBatch(
 
     ConfigureRenderMode(pRenderData, pRenderContext);
 
-    systemConstants.SetGenericData(pRenderData->m_bApplyObjectTransform, pRenderData->m_GlobalTransform, pRenderData->m_uiNumVariationsX,
+    systemConstants.SetGenericData(pRenderData->m_bApplyObjectTransform, pRenderData->m_GlobalTransform, pRenderData->m_TotalEffectLifeTime, pRenderData->m_uiNumVariationsX,
       pRenderData->m_uiNumVariationsY, pRenderData->m_uiNumFlipbookAnimationsX, pRenderData->m_uiNumFlipbookAnimationsY,
       pRenderData->m_fDistortionStrength);
 

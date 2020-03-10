@@ -14,6 +14,7 @@ target_link_libraries(${PROJECT_NAME}
   RendererDX11
   TypeScriptPlugin
   Utilities
+  ParticlePlugin
 )
 
 if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)

@@ -38,8 +38,7 @@ void ezParticlePointRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ez
   types.PushBack(ezGetStaticRTTI<ezParticlePointRenderData>());
 }
 
-void ezParticlePointRenderer::RenderBatch(
-  const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
+void ezParticlePointRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
 {
   ezRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
@@ -51,8 +50,7 @@ void ezParticlePointRenderer::RenderBatch(
 
   // make sure our structured buffer is allocated and bound
   {
-    pRenderContext->BindMeshBuffer(
-      ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Points, s_uiParticlesPerBatch);
+    pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Points, s_uiParticlesPerBatch);
     pRenderContext->BindBuffer("particleBaseData", pDevice->GetDefaultResourceView(m_hBaseDataBuffer));
     pRenderContext->BindBuffer("particleBillboardQuadData", pDevice->GetDefaultResourceView(m_hBillboardDataBuffer));
   }
@@ -67,7 +65,7 @@ void ezParticlePointRenderer::RenderBatch(
 
     ezUInt32 uiNumParticles = pRenderData->m_BaseParticleData.GetCount();
 
-    systemConstants.SetGenericData(pRenderData->m_bApplyObjectTransform, pRenderData->m_GlobalTransform, 1, 1, 1, 1);
+    systemConstants.SetGenericData(pRenderData->m_bApplyObjectTransform, pRenderData->m_GlobalTransform, pRenderData->m_TotalEffectLifeTime, 1, 1, 1, 1);
 
     while (uiNumParticles > 0)
     {

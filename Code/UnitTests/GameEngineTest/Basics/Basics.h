@@ -31,10 +31,10 @@ public:
 private:
   enum SubTests
   {
-    ST_ManyMeshes,
-    ST_Skybox,
-    ST_DebugRendering,
-    ST_LoadScene,
+    ManyMeshes,
+    Skybox,
+    DebugRendering,
+    LoadScene,
   };
 
   virtual void SetupSubTests() override;

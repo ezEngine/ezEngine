@@ -16,7 +16,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTrailRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTrailRenderer, 1, ezRTTIDefaultAllocator<ezParticleTrailRenderer>)
-  ;
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -51,8 +50,7 @@ void ezParticleTrailRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ez
   types.PushBack(ezGetStaticRTTI<ezParticleTrailRenderData>());
 }
 
-void ezParticleTrailRenderer::RenderBatch(
-  const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
+void ezParticleTrailRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
 {
   ezRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
   ezGALContext* pGALContext = pRenderContext->GetGALContext();
@@ -81,8 +79,7 @@ void ezParticleTrailRenderer::RenderBatch(
     const ezUInt32 uiMaxPrimitivesToRender = s_uiParticlesPerBatch * uiMaxTrailSegments * uiPrimFactor;
 
 
-    pRenderContext->BindMeshBuffer(
-      ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, uiMaxPrimitivesToRender);
+    pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, uiMaxPrimitivesToRender);
 
     const ezBaseParticleShaderData* pParticleBaseData = pRenderData->m_BaseParticleData.GetPtr();
     const ezTrailParticleShaderData* pParticleTrailData = pRenderData->m_TrailParticleData.GetPtr();
@@ -92,8 +89,7 @@ void ezParticleTrailRenderer::RenderBatch(
 
     pRenderContext->BindTexture2D("ParticleTexture", pRenderData->m_hTexture);
 
-    systemConstants.SetGenericData(pRenderData->m_bApplyObjectTransform, pRenderData->m_GlobalTransform, pRenderData->m_uiNumVariationsX,
-      pRenderData->m_uiNumVariationsY, pRenderData->m_uiNumFlipbookAnimationsX, pRenderData->m_uiNumFlipbookAnimationsY, 0.0f);
+    systemConstants.SetGenericData(pRenderData->m_bApplyObjectTransform, pRenderData->m_GlobalTransform, pRenderData->m_TotalEffectLifeTime, pRenderData->m_uiNumVariationsX, pRenderData->m_uiNumVariationsY, pRenderData->m_uiNumFlipbookAnimationsX, pRenderData->m_uiNumFlipbookAnimationsY, 0.0f);
     systemConstants.SetTrailData(pRenderData->m_fSnapshotFraction, pRenderData->m_uiMaxTrailPoints);
 
     ezUInt32 uiNumParticles = pRenderData->m_BaseParticleData.GetCount();
@@ -109,8 +105,7 @@ void ezParticleTrailRenderer::RenderBatch(
       pGALContext->UpdateBuffer(m_hTrailDataBuffer, 0, ezMakeArrayPtr(pParticleTrailData, uiNumParticlesInBatch).ToByteArray());
       pParticleTrailData += uiNumParticlesInBatch;
 
-      pGALContext->UpdateBuffer(
-        m_hActiveTrailPointsDataBuffer, 0, ezMakeArrayPtr(pParticlePointsData, uiNumParticlesInBatch * uiBucketSize).ToByteArray());
+      pGALContext->UpdateBuffer(m_hActiveTrailPointsDataBuffer, 0, ezMakeArrayPtr(pParticlePointsData, uiNumParticlesInBatch * uiBucketSize).ToByteArray());
       pParticlePointsData += uiNumParticlesInBatch;
 
       // do one drawcall
@@ -119,8 +114,7 @@ void ezParticleTrailRenderer::RenderBatch(
   }
 }
 
-bool ezParticleTrailRenderer::ConfigureShader(
-  const ezParticleTrailRenderData* pRenderData, const ezRenderViewContext& renderViewContext) const
+bool ezParticleTrailRenderer::ConfigureShader(const ezParticleTrailRenderData* pRenderData, const ezRenderViewContext& renderViewContext) const
 {
   switch (pRenderData->m_RenderMode)
   {
@@ -160,8 +154,7 @@ bool ezParticleTrailRenderer::ConfigureShader(
       return false;
   }
 
-  renderViewContext.m_pRenderContext->BindBuffer(
-    "particlePointsData", ezGALDevice::GetDefaultDevice()->GetDefaultResourceView(m_hActiveTrailPointsDataBuffer));
+  renderViewContext.m_pRenderContext->BindBuffer("particlePointsData", ezGALDevice::GetDefaultDevice()->GetDefaultResourceView(m_hActiveTrailPointsDataBuffer));
   return true;
 }
 

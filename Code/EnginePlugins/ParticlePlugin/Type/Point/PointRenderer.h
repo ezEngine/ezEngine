@@ -15,6 +15,7 @@ public:
   ezArrayPtr<ezBaseParticleShaderData> m_BaseParticleData;
   ezArrayPtr<ezBillboardQuadParticleShaderData> m_BillboardParticleData;
   bool m_bApplyObjectTransform = true;
+  ezTime m_TotalEffectLifeTime;
 };
 
 /// \brief Implements rendering of particle systems
