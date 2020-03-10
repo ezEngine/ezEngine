@@ -16,7 +16,7 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
 ezParticleEffectInstance::ezParticleEffectInstance()
-    : m_Task(this)
+  : m_Task(this)
 {
   m_pOwnerModule = nullptr;
   m_Task.SetTaskName("Particle Effect Update");
@@ -30,9 +30,9 @@ ezParticleEffectInstance::~ezParticleEffectInstance()
 }
 
 void ezParticleEffectInstance::Construct(ezParticleEffectHandle hEffectHandle, const ezParticleEffectResourceHandle& hResource,
-                                         ezWorld* pWorld, ezParticleWorldModule* pOwnerModule, ezUInt64 uiRandomSeed, bool bIsShared,
-                                         ezArrayPtr<ezParticleEffectFloatParam> floatParams,
-                                         ezArrayPtr<ezParticleEffectColorParam> colorParams)
+  ezWorld* pWorld, ezParticleWorldModule* pOwnerModule, ezUInt64 uiRandomSeed, bool bIsShared,
+  ezArrayPtr<ezParticleEffectFloatParam> floatParams,
+  ezArrayPtr<ezParticleEffectColorParam> colorParams)
 {
   m_hEffectHandle = hEffectHandle;
   m_pWorld = pWorld;
@@ -216,8 +216,18 @@ void ezParticleEffectInstance::SetIsVisible() const
 }
 
 
+void ezParticleEffectInstance::SetVisibleIf(ezParticleEffectInstance* pOtherVisible)
+{
+  m_pVisibleIf = pOtherVisible;
+}
+
 bool ezParticleEffectInstance::IsVisible() const
 {
+  if (m_pVisibleIf != nullptr)
+  {
+    return m_pVisibleIf->IsVisible();
+  }
+
   return m_EffectIsVisible >= ezClock::GetGlobalClock()->GetAccumulatedTime();
 }
 
@@ -318,7 +328,7 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
       const ezTime tLifetime = systems[i]->GetAvgLifetime();
 
       const ezUInt32 uiMaxParticles =
-          ezMath::Max(32u, ezMath::Max(uiMaxParticlesAbs, (ezUInt32)(uiMaxParticlesPerSec * tLifetime.GetSeconds())));
+        ezMath::Max(32u, ezMath::Max(uiMaxParticlesAbs, (ezUInt32)(uiMaxParticlesPerSec * tLifetime.GetSeconds())));
 
       float fMultiplier = 1.0f;
 
@@ -350,7 +360,7 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
       if (m_ParticleSystems[i] == nullptr)
       {
         m_ParticleSystems[i] =
-            m_pOwnerModule->CreateSystemInstance(systemMaxParticles[i].m_uiCount, m_pWorld, this, systemMaxParticles[i].m_fMultiplier);
+          m_pOwnerModule->CreateSystemInstance(systemMaxParticles[i].m_uiCount, m_pWorld, this, systemMaxParticles[i].m_fMultiplier);
       }
     }
   }
@@ -492,7 +502,7 @@ void ezParticleEffectInstance::AddParticleEvent(const ezParticleEvent& pe)
 }
 
 void ezParticleEffectInstance::SetTransform(const ezTransform& transform, const ezVec3& vParticleStartVelocity,
-                                            const void* pSharedInstanceOwner)
+  const void* pSharedInstanceOwner)
 {
   if (pSharedInstanceOwner == nullptr)
   {

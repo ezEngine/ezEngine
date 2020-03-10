@@ -147,6 +147,8 @@ public:
   /// This affects simulation update rates.
   void SetIsVisible() const;
 
+  void SetVisibleIf(ezParticleEffectInstance* pOtherVisible);
+
   /// \brief Whether the effect has been marked as visible recently.
   bool IsVisible() const;
 
@@ -164,6 +166,7 @@ private:
   ezTime m_LastBVolumeUpdate;
   ezBoundingBoxSphere m_BoundingVolume;
   mutable ezTime m_EffectIsVisible;
+  ezParticleEffectInstance* m_pVisibleIf = nullptr;
   ezEnum<ezEffectInvisibleUpdateRate> m_InvisibleUpdateRate;
 
   /// @}

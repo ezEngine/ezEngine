@@ -126,14 +126,14 @@ void ezParticleTypeEffect::Process(ezUInt64 uiNumElements)
 
   ezParticleWorldModule* pWorldModule = GetOwnerEffect()->GetOwnerWorldModule();
 
+  m_fMaxEffectRadius = 0.0f;
+
   for (ezUInt32 i = 0; i < uiNumElements; ++i)
   {
     if (pEffectID[i] == 0) // always an invalid ID
     {
       const void* pDummy = nullptr;
-      ezParticleEffectHandle hInstance =
-          pWorldModule->CreateEffectInstance(m_hEffect, m_uiRandomSeed, /*m_sSharedInstanceName*/ nullptr, pDummy,
-                                             ezArrayPtr<ezParticleEffectFloatParam>(), ezArrayPtr<ezParticleEffectColorParam>());
+      ezParticleEffectHandle hInstance = pWorldModule->CreateEffectInstance(m_hEffect, m_uiRandomSeed, /*m_sSharedInstanceName*/ nullptr, pDummy, ezArrayPtr<ezParticleEffectFloatParam>(), ezArrayPtr<ezParticleEffectColorParam>());
 
       pEffectID[i] = hInstance.GetInternalID().m_Data;
     }
@@ -149,7 +149,13 @@ void ezParticleTypeEffect::Process(ezUInt64 uiNumElements)
       t.m_vPosition = pPosition[i].GetAsVec3();
 
       // TODO: pass through velocity
+      pEffect->SetVisibleIf(GetOwnerEffect());
       pEffect->SetTransform(t, ezVec3::ZeroVector(), nullptr);
+
+      ezBoundingBoxSphere bounds;
+      pEffect->GetBoundingVolume(bounds);
+
+      m_fMaxEffectRadius = ezMath::Max(m_fMaxEffectRadius, bounds.m_fSphereRadius);
     }
   }
 }

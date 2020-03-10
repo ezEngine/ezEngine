@@ -38,6 +38,8 @@ public:
   virtual void CreateRequiredStreams() override;
   virtual void ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const override {}
 
+  virtual float GetMaxParticleRadius(float fParticleSize) const override { return m_fMaxEffectRadius; }
+
 protected:
   friend class ezParticleTypeEffectFactory;
 
@@ -46,6 +48,7 @@ protected:
   void OnParticleDeath(const ezStreamGroupElementRemovedEvent& e);
   void ClearEffects(bool bInterruptImmediately);
 
+  float m_fMaxEffectRadius = 1.0f;
   ezProcessingStream* m_pStreamPosition;
   ezProcessingStream* m_pStreamEffectID;
 };
