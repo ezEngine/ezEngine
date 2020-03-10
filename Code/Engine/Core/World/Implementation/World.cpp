@@ -111,9 +111,17 @@ void ezWorld::Clear()
 {
   CheckForWriteAccess();
 
-  for (auto it = GetObjects(); it.IsValid(); ++it)
+  while (GetObjectCount() > 0)
   {
-    DeleteObjectNow(it->GetHandle());
+    for (auto it = GetObjects(); it.IsValid(); ++it)
+    {
+      DeleteObjectNow(it->GetHandle());
+    }
+
+    if (GetObjectCount() > 0)
+    {
+      ezLog::Dev("Remaining objects after ezWorld::Clear: {}", GetObjectCount());
+    }
   }
 
   // make sure all dead objects and components are cleared right now
@@ -308,14 +316,12 @@ bool ezWorld::IsComponentInitBatchCompleted(const ezComponentInitBatchHandle& ba
   {
     if (pInitBatch->m_ComponentsToInitialize.IsEmpty())
     {
-      double fStartSimCompletion = pInitBatch->m_ComponentsToStartSimulation.IsEmpty() ? 1.0 :
-        (double)pInitBatch->m_uiNextComponentToStartSimulation / pInitBatch->m_ComponentsToStartSimulation.GetCount();
+      double fStartSimCompletion = pInitBatch->m_ComponentsToStartSimulation.IsEmpty() ? 1.0 : (double)pInitBatch->m_uiNextComponentToStartSimulation / pInitBatch->m_ComponentsToStartSimulation.GetCount();
       *pCompletionFactor = fStartSimCompletion * 0.5 + 0.5;
     }
     else
     {
-      double fInitCompletion = pInitBatch->m_ComponentsToInitialize.IsEmpty() ? 1.0 :
-        (double)pInitBatch->m_uiNextComponentToInitialize / pInitBatch->m_ComponentsToInitialize.GetCount();
+      double fInitCompletion = pInitBatch->m_ComponentsToInitialize.IsEmpty() ? 1.0 : (double)pInitBatch->m_uiNextComponentToInitialize / pInitBatch->m_ComponentsToInitialize.GetCount();
       *pCompletionFactor = fInitCompletion * 0.5;
     }
   }
@@ -1099,7 +1105,7 @@ void ezWorld::ProcessComponentsToInitialize()
       auto& pInitBatch = it.Value();
       if (!pInitBatch->m_bIsReady || pInitBatch->m_bMustFinishWithinOneFrame)
         continue;
-      
+
       if (!ProcessInitializationBatch(*pInitBatch, endTime))
         return;
     }
