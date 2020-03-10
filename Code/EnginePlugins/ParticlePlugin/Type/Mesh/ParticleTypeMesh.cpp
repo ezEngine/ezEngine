@@ -180,6 +180,12 @@ void ezParticleTypeMesh::ExtractTypeRenderData(const ezView& view, ezExtractedRe
   if (!m_hMaterial.IsValid())
     return;
 
+  if (m_RenderCategory.m_uiValue == 0xFFFF)
+  {
+    m_bRenderDataCached = false;
+    return;
+  }
+
   const ezUInt32 numParticles = (ezUInt32)GetOwnerSystem()->GetNumActiveParticles();
 
   if (numParticles == 0)
