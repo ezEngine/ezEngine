@@ -3,9 +3,9 @@
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/World/WorldModule.h>
 #include <Foundation/Containers/IdTable.h>
-#include <ParticlePlugin/ParticlePluginDLL.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <ParticlePlugin/Events/ParticleEvent.h>
+#include <ParticlePlugin/ParticlePluginDLL.h>
 
 typedef ezTypedResourceHandle<class ezParticleEffectResource> ezParticleEffectResourceHandle;
 class ezParticleEffectInstance;
@@ -34,10 +34,7 @@ public:
   virtual void Initialize() override;
   virtual void Deinitialize() override;
 
-  ezParticleEffectHandle CreateEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed,
-                                              const char* szSharedName /*= nullptr*/, const void*& inout_pSharedInstanceOwner,
-                                              ezArrayPtr<ezParticleEffectFloatParam> floatParams,
-                                              ezArrayPtr<ezParticleEffectColorParam> colorParams);
+  ezParticleEffectHandle CreateEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, const char* szSharedName /*= nullptr*/, const void*& inout_pSharedInstanceOwner, ezArrayPtr<ezParticleEffectFloatParam> floatParams, ezArrayPtr<ezParticleEffectColorParam> colorParams);
 
   /// \brief This does not actually the effect, it first stops it from emitting and destroys it once all particles have actually died of old
   /// age.
@@ -48,11 +45,13 @@ public:
   /// \brief Extracts render data for all effects that are currently active.
   void ExtractRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData) const;
 
-  ezParticleSystemInstance* CreateSystemInstance(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezParticleEffectInstance* pOwnerEffect,
-                                                 float fSpawnMultiplier);
+  ezParticleSystemInstance* CreateSystemInstance(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezParticleEffectInstance* pOwnerEffect, float fSpawnMultiplier);
   void DestroySystemInstance(ezParticleSystemInstance* pInstance);
 
   ezParticleStream* CreateStreamDefaultInitializer(ezParticleSystemInstance* pOwner, const char* szFullStreamName) const;
+
+  ezWorldModule* GetCachedWorldModule(const ezRTTI* pRtti) const;
+
 
 private:
   void UpdateEffects(const ezWorldModule::UpdateContext& context);
@@ -61,14 +60,10 @@ private:
   void DestroyFinishedEffects();
   void ResourceEventHandler(const ezResourceEvent& e);
   void ReconfigureEffects();
-  ezParticleEffectHandle InternalCreateSharedEffectInstance(const char* szSharedName, const ezParticleEffectResourceHandle& hResource,
-                                                            ezUInt64 uiRandomSeed, const void* pSharedInstanceOwner);
-  ezParticleEffectHandle InternalCreateEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed,
-                                                      bool bIsShared, ezArrayPtr<ezParticleEffectFloatParam> floatParams,
-                                                      ezArrayPtr<ezParticleEffectColorParam> colorParams);
+  ezParticleEffectHandle InternalCreateSharedEffectInstance(const char* szSharedName, const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, const void* pSharedInstanceOwner);
+  ezParticleEffectHandle InternalCreateEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, bool bIsShared, ezArrayPtr<ezParticleEffectFloatParam> floatParams, ezArrayPtr<ezParticleEffectColorParam> colorParams);
 
-  void ExtractEffectRenderData(const ezParticleEffectInstance* pEffect, const ezView& view, ezExtractedRenderData& extractedRenderData,
-                               const ezTransform& systemTransform) const;
+  void ExtractEffectRenderData(const ezParticleEffectInstance* pEffect, const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& systemTransform) const;
 
   void ConfigureParticleStreamFactories();
   void ClearParticleStreamFactories();
@@ -85,4 +80,5 @@ private:
   ezDynamicArray<ezParticleSystemInstance*> m_ParticleSystemFreeList;
   ezTaskGroupID m_EffectUpdateTaskGroup;
   ezMap<ezString, ezParticleStreamFactory*> m_StreamFactories;
+  ezHashTable<const ezRTTI*, ezWorldModule*> m_WorldModuleCache;
 };

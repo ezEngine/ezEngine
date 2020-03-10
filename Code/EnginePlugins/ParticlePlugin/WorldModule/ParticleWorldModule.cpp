@@ -13,10 +13,11 @@
 #include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
+// clang-format off
 EZ_IMPLEMENT_WORLD_MODULE(ezParticleWorldModule);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleWorldModule, 1, ezRTTINoAllocator);
-// no properties or message handlers
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleWorldModule, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 ezParticleWorldModule::ezParticleWorldModule(ezWorld* pWorld)
   : ezWorldModule(pWorld)
@@ -52,6 +53,8 @@ void ezParticleWorldModule::Initialize()
   }
 
   ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezParticleWorldModule::ResourceEventHandler, this));
+
+  m_WorldModuleCache[ezGetStaticRTTI<ezPhysicsWorldModuleInterface>()] = GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
 }
 
 
@@ -178,6 +181,13 @@ ezParticleStream* ezParticleWorldModule::CreateStreamDefaultInitializer(ezPartic
     return nullptr;
 
   return it.Value()->CreateParticleStream(pOwner);
+}
+
+ezWorldModule* ezParticleWorldModule::GetCachedWorldModule(const ezRTTI* pRtti) const
+{
+  ezWorldModule* pModule = nullptr;
+  m_WorldModuleCache.TryGetValue(pRtti, pModule);
+  return pModule;
 }
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_WorldModule_ParticleWorldModule);

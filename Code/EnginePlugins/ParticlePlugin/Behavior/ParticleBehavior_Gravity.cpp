@@ -9,6 +9,7 @@
 #include <ParticlePlugin/Behavior/ParticleBehavior_Gravity.h>
 #include <ParticlePlugin/Finalizer/ParticleFinalizer_ApplyVelocity.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
+#include <WorldModule/ParticleWorldModule.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Gravity, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_Gravity>)
@@ -41,7 +42,7 @@ void ezParticleBehaviorFactory_Gravity::CopyBehaviorProperties(ezParticleBehavio
 
   pBehavior->m_fGravityFactor = m_fGravityFactor;
 
-  pBehavior->m_pPhysicsModule = pBehavior->GetOwnerSystem()->GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
+  pBehavior->m_pPhysicsModule = (ezPhysicsWorldModuleInterface*)pBehavior->GetOwnerSystem()->GetOwnerWorldModule()->GetCachedWorldModule(ezGetStaticRTTI<ezPhysicsWorldModuleInterface>());
 }
 
 void ezParticleBehaviorFactory_Gravity::Save(ezStreamWriter& stream) const

@@ -44,11 +44,12 @@ void ezParticleBehaviorFactory_Velocity::CopyBehaviorProperties(ezParticleBehavi
   pBehavior->m_fFriction = m_fFriction;
   pBehavior->m_fWindInfluence = m_fWindInfluence;
 
-  pBehavior->m_pPhysicsModule = pBehavior->GetOwnerSystem()->GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
+  pBehavior->m_pPhysicsModule = (ezPhysicsWorldModuleInterface*)pBehavior->GetOwnerSystem()->GetOwnerWorldModule()->GetCachedWorldModule(ezGetStaticRTTI<ezPhysicsWorldModuleInterface>());
 
   if (m_fWindInfluence > 0)
   {
-    pBehavior->m_pWindModule = pBehavior->GetOwnerSystem()->GetWorld()->GetModule<ezWindWorldModuleInterface>();
+    // TODO
+    // pBehavior->m_pWindModule = pBehavior->GetOwnerSystem()->GetWorld()->GetModule<ezWindWorldModuleInterface>();
   }
 }
 
