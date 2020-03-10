@@ -16,6 +16,8 @@ SamplerComparisonState ShadowSampler;
 
 Texture2D DecalAtlasBaseColorTexture;
 Texture2D DecalAtlasNormalTexture;
+Texture2D DecalAtlasORMTexture;
+SamplerState DecalAtlasSampler;
 
 TextureCubeArray ReflectionSpecularTexture;
 Texture2D SkyIrradianceTexture;
@@ -228,7 +230,8 @@ float CalculateShadowTerm(ezMaterialData matData, float3 lightVector, float dist
     }
 
     constantBias /= penumbraSizeScale;
-    penumbraSize = (penumbraSize + shadowParams2.w * matData.viewDistance) * penumbraSizeScale;
+    float viewDistance = length(GetCameraPosition() - matData.worldPosition);
+    penumbraSize = (penumbraSize + shadowParams2.w * viewDistance) * penumbraSizeScale;
 
     if (cascadeIndex == lastCascadeIndex)
     {
@@ -290,7 +293,7 @@ float CalculateShadowTerm(ezMaterialData matData, float3 lightVector, float dist
 
 AccumulatedLight CalculateLighting(ezMaterialData matData, ezPerClusterData clusterData, float3 screenPosition, bool applySSAO)
 {
-  float3 viewVector = matData.normalizedViewVector;
+  float3 viewVector = normalize(GetCameraPosition() - matData.worldPosition);
 
   AccumulatedLight totalLight = InitializeLight(0.0f, 0.0f);
 
@@ -403,6 +406,9 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uin
   uint lastItemIndex = firstItemIndex + GET_DECAL_INDEX(clusterData.counts);
 
   uint applyOnlyToId = (gameObjectId & (1 << 31)) ? gameObjectId : 0;
+  
+  float3 worldPosDdx = ddx(matData.worldPosition);
+  float3 worldPosDdy = ddy(matData.worldPosition);
 
   [loop]
   for (uint i = firstItemIndex; i < lastItemIndex; ++i)
@@ -420,7 +426,7 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uin
     if (any(abs(decalPosition) >= 1.0f))
       continue;
 
-    uint decalModeAndFlags = decalData.decalModeAndFlags;
+    uint decalFlags = decalData.decalFlags;
     float2 angleFadeParams = RG16FToFloat2(decalData.angleFadeParams);
 
     float3 decalNormal = normalize(mul((float3x3)worldToDecalMatrix, matData.vertexNormal));
@@ -434,27 +440,105 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uin
 
     if (fade > 0.0f)
     {
-      if (decalModeAndFlags & DECAL_WRAP_AROUND_FLAG)
+      if (decalFlags & DECAL_WRAP_AROUND)
       {
         decalPosition.xy += decalNormal.xy * decalPosition.z;
         decalPosition.xy = clamp(decalPosition.xy, -1.0f, 1.0f);
       }
+      
+      float2 decalPositionDdx = mul((float3x3)worldToDecalMatrix, worldPosDdx).xy;
+      float2 decalPositionDdy = mul((float3x3)worldToDecalMatrix, worldPosDdy).xy;
+      
+      float3 decalWorldNormal;
+      if (decalFlags & DECAL_USE_NORMAL)
+      {
+        float2 normalAtlasScale = RG16FToFloat2(decalData.normalAtlasScale);
+        float2 normalAtlasOffset = RG16FToFloat2(decalData.normalAtlasOffset);
+        float2 normalAtlasUv = decalPosition.xy * normalAtlasScale + normalAtlasOffset;
+        float2 normalAtlasDdx = decalPositionDdx * normalAtlasScale;
+        float2 normalAtlasDdy = decalPositionDdy * normalAtlasScale;
+        
+        float3 decalTangentNormal = DecodeNormalTexture(DecalAtlasNormalTexture.SampleGrad(DecalAtlasSampler, normalAtlasUv, normalAtlasDdx, normalAtlasDdy));
+        
+        [branch]
+        if (decalFlags & DECAL_MAP_NORMAL_TO_GEOMETRY)
+        {
+          float3 xAxis = normalize(cross(worldToDecalMatrix._m10_m11_m12, matData.vertexNormal));
+          decalWorldNormal = decalTangentNormal.x * xAxis;          
+          decalWorldNormal += decalTangentNormal.y * cross(matData.vertexNormal, xAxis);
+          decalWorldNormal += decalTangentNormal.z * matData.vertexNormal;
+        }
+        else
+        {
+          decalWorldNormal = decalTangentNormal.x * worldToDecalMatrix._m00_m01_m02;
+          decalWorldNormal += decalTangentNormal.y * worldToDecalMatrix._m10_m11_m12;
+          decalWorldNormal -= decalTangentNormal.z * worldToDecalMatrix._m20_m21_m22;
+        }
+      }
+      
+      float2 baseAtlasScale = RG16FToFloat2(decalData.baseColorAtlasScale);
+      float2 baseAtlasOffset = RG16FToFloat2(decalData.baseColorAtlasOffset);
+      float2 baseAtlasUv = decalPosition.xy * baseAtlasScale + baseAtlasOffset;
+      float2 baseAtlasDdx = decalPositionDdx * baseAtlasScale;
+      float2 baseAtlasDdy = decalPositionDdy * baseAtlasScale;
 
-      float2 baseAtlasScale = RG16FToFloat2(decalData.baseAtlasScale);
-      float2 baseAtlasOffset = RG16FToFloat2(decalData.baseAtlasOffset);
-
-      float4 decalBaseColor = RGBA16FToFloat4(decalData.colorRG, decalData.colorBA);
-      decalBaseColor *= DecalAtlasBaseColorTexture.Sample(LinearClampSampler, decalPosition.xy * baseAtlasScale + baseAtlasOffset);
+      float4 decalBaseColor = RGBA8ToFloat4(decalData.baseColor);
+      decalBaseColor *= DecalAtlasBaseColorTexture.SampleGrad(DecalAtlasSampler, baseAtlasUv, baseAtlasDdx, baseAtlasDdy);
       fade *= decalBaseColor.a;
-
-      matData.diffuseColor = lerp(matData.diffuseColor, decalBaseColor.rgb, fade);
-      matData.opacity = max(matData.opacity, fade);
-      //matData.specularColor = lerp(matData.specularColor, 0.04f, fade);
-
-      //matData.worldNormal = normalize(lerp(matData.worldNormal, matData.vertexNormal, fade));
-      //matData.occlusion = lerp(matData.occlusion, 1.0f, fade);
+      
+      if (decalFlags & DECAL_USE_NORMAL)
+      {
+        matData.worldNormal = lerp(matData.worldNormal, decalWorldNormal, fade);
+      }
+      
+      float decalMetallic = 0.0f;
+      if (decalFlags & DECAL_USE_ORM)
+      {
+        float2 ormAtlasScale = RG16FToFloat2(decalData.ormAtlasScale);
+        float2 ormAtlasOffset = RG16FToFloat2(decalData.ormAtlasOffset);
+        float2 ormAtlasUv = decalPosition.xy * ormAtlasScale + ormAtlasOffset;
+        float2 ormAtlasDdx = decalPositionDdx * ormAtlasScale;
+        float2 ormAtlasDdy = decalPositionDdy * ormAtlasScale;
+        
+        float3 decalORM = DecalAtlasORMTexture.SampleGrad(DecalAtlasSampler, ormAtlasUv, ormAtlasDdx, ormAtlasDdy).rgb;
+        
+        matData.occlusion = lerp(matData.occlusion, decalORM.r, fade);
+        matData.roughness = lerp(matData.roughness, decalORM.g, fade);
+        decalMetallic = decalORM.b;
+      }
+      
+      float3 decalDiffuseColor = lerp(decalBaseColor.rgb, 0.0f, decalMetallic);
+      if (decalFlags & DECAL_BLEND_MODE_COLORIZE)
+      {
+        matData.diffuseColor = Colorize(matData.diffuseColor, decalDiffuseColor, fade);
+      }
+      else
+      {
+        matData.diffuseColor = lerp(matData.diffuseColor, decalDiffuseColor, fade);
+      }
+      
+      float3 decalSpecularColor = lerp(0.04f, decalBaseColor.rgb, decalMetallic);
+      matData.specularColor = lerp(matData.specularColor, decalSpecularColor, fade);
+      
+      float3 decalEmissiveColor = RGBA16FToFloat4(decalData.emissiveColorRG, decalData.emissiveColorBA).rgb;
+      
+      if (decalFlags & DECAL_USE_EMISSIVE)
+      {
+        float2 ormAtlasScale = RG16FToFloat2(decalData.ormAtlasScale);
+        float2 ormAtlasOffset = RG16FToFloat2(decalData.ormAtlasOffset);
+        float2 ormAtlasUv = decalPosition.xy * ormAtlasScale + ormAtlasOffset;
+        float2 ormAtlasDdx = decalPositionDdx * ormAtlasScale;
+        float2 ormAtlasDdy = decalPositionDdy * ormAtlasScale;
+        
+        decalEmissiveColor *= SrgbToLinear(DecalAtlasORMTexture.SampleGrad(DecalAtlasSampler, ormAtlasUv, ormAtlasDdx, ormAtlasDdy).rgb);
+      }
+      matData.emissiveColor += decalEmissiveColor * fade;
+      
+      matData.opacity = max(matData.opacity, fade);      
     }
   }
+  
+  matData.worldNormal = normalize(matData.worldNormal);
 }
 
 float4 CalculateRefraction(float3 worldPosition, float3 worldNormal, float IoR, float thickness, float3 tintColor, float newOpacity = 1.0f)

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Foundation/Math/Color16f.h>
 #include <Foundation/Types/VarianceTypes.h>
 #include <RendererCore/Components/RenderComponent.h>
 #include <RendererCore/Declarations.h>
@@ -28,14 +29,22 @@ class EZ_RENDERERCORE_DLL ezDecalRenderData : public ezRenderData
 
 public:
   ezVec3 m_vHalfExtents;
+
   ezUInt32 m_uiApplyOnlyToId;
-  ezUInt8 m_uiDecalMode;
-  bool m_bWrapAround;
-  ezColor m_Color;
-  ezAngle m_InnerFadeAngle;
-  ezAngle m_OuterFadeAngle;
-  ezVec2 m_vBaseAtlasScale;
-  ezVec2 m_vBaseAtlasOffset;
+  ezUInt32 m_uiFlags;
+  ezUInt32 m_uiAngleFadeParams;
+
+  ezColorLinearUB m_BaseColor;
+  ezColorLinear16f m_EmissiveColor;
+
+  ezUInt32 m_uiBaseColorAtlasScale;
+  ezUInt32 m_uiBaseColorAtlasOffset;
+
+  ezUInt32 m_uiNormalAtlasScale;
+  ezUInt32 m_uiNormalAtlasOffset;
+
+  ezUInt32 m_uiORMAtlasScale;
+  ezUInt32 m_uiORMAtlasOffset;
 };
 
 class EZ_RENDERERCORE_DLL ezDecalComponent : public ezRenderComponent
@@ -73,8 +82,11 @@ public:
   void SetSizeVariance(float fVariance); // [ property ]
   float GetSizeVariance() const;         // [ property ]
 
-  void SetColor(ezColor color); // [ property ]
-  ezColor GetColor() const;     // [ property ]
+  void SetColor(ezColorGammaUB color); // [ property ]
+  ezColorGammaUB GetColor() const;     // [ property ]
+
+  void SetEmissiveColor(ezColor color); // [ property ]
+  ezColor GetEmissiveColor() const;     // [ property ]
 
   void SetInnerFadeAngle(ezAngle fFadeAngle); // [ property ]
   ezAngle GetInnerFadeAngle() const;          // [ property ]
@@ -87,6 +99,9 @@ public:
 
   void SetWrapAround(bool bWrapAround); // [ property ]
   bool GetWrapAround() const;           // [ property ]
+
+  void SetMapNormalToGeometry(bool bMapNormal); // [ property ]
+  bool GetMapNormalToGeometry() const;           // [ property ]
 
   void SetDecal(const ezDecalResourceHandle& hResource); // [ property ]
   const ezDecalResourceHandle& GetDecal() const;         // [ property ]
@@ -110,11 +125,13 @@ protected:
 
   ezVec3 m_vExtents = ezVec3(1.0f);
   float m_fSizeVariance = 0;
-  ezColor m_Color = ezColor::White;
+  ezColorGammaUB m_Color = ezColor::White;
+  ezColor m_EmissiveColor = ezColor::Black;
   ezAngle m_InnerFadeAngle = ezAngle::Degree(50.0f);
   ezAngle m_OuterFadeAngle = ezAngle::Degree(80.0f);
   float m_fSortOrder = 0;
   bool m_bWrapAround = false;
+  bool m_bMapNormalToGeometry = false;
   ezDecalResourceHandle m_hDecal;
 
   ezGameObjectHandle m_hApplyOnlyToObject;

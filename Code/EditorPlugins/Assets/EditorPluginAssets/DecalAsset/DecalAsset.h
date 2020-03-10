@@ -12,13 +12,13 @@ struct ezDecalMode
 
   enum Enum
   {
-    All,
     BaseColor,
-    BaseColorRoughness,
-    NormalRoughnessOcclusion,
-    Emissive,
+    BaseColorNormal,
+    BaseColorORM,
+    BaseColorNormalORM,
+    BaseColorEmissive,
 
-    Default = All
+    Default = BaseColor
   };
 };
 
@@ -34,16 +34,17 @@ public:
   static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
   ezEnum<ezDecalMode> m_Mode;
+  bool m_bBlendModeColorize = false;
 
   ezString m_sBaseColor;
   ezString m_sNormal;
-  ezString m_sRoughness;
-  float m_fRoughnessValue;
-  ezString m_sMetallic;
-  float m_fMetallicValue;
+  ezString m_sORM;
   ezString m_sEmissive;
-  ezString m_sOcclusion;
-  float m_fOcclusionValue;
+
+  bool NeedsBaseColor() const { return true; }
+  bool NeedsNormal() const { return m_Mode == ezDecalMode::BaseColorNormal || m_Mode == ezDecalMode::BaseColorNormalORM; }
+  bool NeedsORM() const { return m_Mode == ezDecalMode::BaseColorORM || m_Mode == ezDecalMode::BaseColorNormalORM; }
+  bool NeedsEmissive() const { return m_Mode == ezDecalMode::BaseColorEmissive; }
 };
 
 

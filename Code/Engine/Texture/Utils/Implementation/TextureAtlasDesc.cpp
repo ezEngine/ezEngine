@@ -6,7 +6,7 @@
 
 ezResult ezTextureAtlasCreationDesc::Serialize(ezStreamWriter& stream) const
 {
-  stream.WriteVersion(1);
+  stream.WriteVersion(2);
 
   if(m_Layers.GetCount() > 255u)
     return EZ_FAILURE;
@@ -24,6 +24,7 @@ ezResult ezTextureAtlasCreationDesc::Serialize(ezStreamWriter& stream) const
   for (auto& item : m_Items)
   {
     stream << item.m_uiUniqueID;
+    stream << item.m_uiFlags;
 
     for (ezUInt32 l = 0; l < uiNumLayers; ++l)
     {
@@ -36,8 +37,8 @@ ezResult ezTextureAtlasCreationDesc::Serialize(ezStreamWriter& stream) const
 
 ezResult ezTextureAtlasCreationDesc::Deserialize(ezStreamReader& stream)
 {
-  const ezTypeVersion uiVersion = stream.ReadVersion(1);
-  EZ_ASSERT_DEV(uiVersion == 1, "Invalid texture atlas desc file version {0}", uiVersion);
+  const ezTypeVersion uiVersion = stream.ReadVersion(2);
+  EZ_ASSERT_DEV(uiVersion == 2, "Invalid texture atlas desc file version {0}", uiVersion);
 
   ezUInt8 uiNumLayers = 0;
   stream >> uiNumLayers;
@@ -57,6 +58,7 @@ ezResult ezTextureAtlasCreationDesc::Deserialize(ezStreamReader& stream)
   for (auto& item : m_Items)
   {
     stream >> item.m_uiUniqueID;
+    stream >> item.m_uiFlags;
 
     for (ezUInt32 l = 0; l < uiNumLayers; ++l)
     {
@@ -99,6 +101,7 @@ ezResult ezTextureAtlasRuntimeDesc::Serialize(ezStreamWriter& stream) const
   for (ezUInt32 i = 0; i < m_Items.GetCount(); ++i)
   {
     stream << m_Items.GetKey(i);
+    stream << m_Items.GetValue(i).m_uiFlags;
 
     for (ezUInt32 l = 0; l < m_uiNumLayers; ++l)
     {
@@ -129,6 +132,7 @@ ezResult ezTextureAtlasRuntimeDesc::Deserialize(ezStreamReader& stream)
     stream >> key;
 
     auto& item = m_Items[key];
+    stream >> item.m_uiFlags;
 
     for (ezUInt32 l = 0; l < m_uiNumLayers; ++l)
     {

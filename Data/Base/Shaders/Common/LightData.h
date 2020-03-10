@@ -69,33 +69,33 @@ struct EZ_ALIGN_16(ezDirShadowData)
   StructuredBuffer<float4> shadowDataBuffer;
 #endif
 
-#define DECAL_MODE_DEFAULT 0
-#define DECAL_MODE_BASE_COLOR_ONLY 1
-#define DECAL_MODE_NORMAL_ONLY 2
-#define DECAL_MODE_EMISSIVE 3
-#define DECAL_MODE_MASK 0xFF
-#define DECAL_WRAP_AROUND_FLAG (1 << 8)
+#define DECAL_USE_NORMAL (1 << 0)
+#define DECAL_USE_ORM (1 << 1)
+#define DECAL_USE_EMISSIVE (1 << 2)
+#define DECAL_BLEND_MODE_COLORIZE (1 << 7)
+#define DECAL_WRAP_AROUND (1 << 8)
+#define DECAL_MAP_NORMAL_TO_GEOMETRY (1 << 9)
 
 struct EZ_ALIGN_16(ezPerDecalData)
 {
   TRANSFORM(worldToDecalMatrix);
 
   UINT1(applyOnlyToId);
-  UINT1(decalModeAndFlags);
+  UINT1(decalFlags);
   UINT1(angleFadeParams); // scale and offset as 16 bit floats
-  UINT1(padding0);
+  UINT1(baseColor);
 
-  UINT1(colorRG); // as 16 bit floats
-  UINT1(colorBA); // as 16 bit floats
+  UINT1(emissiveColorRG); // as 16 bit floats
+  UINT1(emissiveColorBA); // as 16 bit floats
 
-  UINT1(baseAtlasScale); // xy as 16 bit floats
-  UINT1(baseAtlasOffset); // xy as 16 bit floats
+  UINT1(baseColorAtlasScale); // xy as 16 bit floats
+  UINT1(baseColorAtlasOffset); // xy as 16 bit floats
 
   UINT1(normalAtlasScale); // xy as 16 bit floats
   UINT1(normalAtlasOffset); // xy as 16 bit floats
 
-  UINT1(auxAtlasScale); // xy as 16 bit floats
-  UINT1(auxAtlasOffset); // xy as 16 bit floats
+  UINT1(ormAtlasScale); // xy as 16 bit floats
+  UINT1(ormAtlasOffset); // xy as 16 bit floats
 };
 
 #if EZ_ENABLED(PLATFORM_DX11)

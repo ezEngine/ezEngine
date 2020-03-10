@@ -11,7 +11,9 @@
 #include <RendererCore/Decals/DecalResource.h>
 #include <RendererCore/Messages/ApplyOnlyToMessage.h>
 #include <RendererCore/Messages/SetColorMessage.h>
+#include <RendererFoundation/Shader/ShaderUtils.h>
 
+#include <RendererCore/../../../Data/Base/Shaders/Common/LightData.h>
 
 ezDecalComponentManager::ezDecalComponentManager(ezWorld* pWorld)
   : ezComponentManager<ezDecalComponent, ezBlockStorageType::Compact>(pWorld)
@@ -29,16 +31,18 @@ void ezDecalComponentManager::Initialize()
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalRenderData, 1, ezRTTIDefaultAllocator<ezDecalRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 3, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 4, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("Extents", GetExtents, SetExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f)), new ezClampValueAttribute(ezVec3(0.01), ezVariant(25.0f))),
     EZ_ACCESSOR_PROPERTY("SizeVariance", GetSizeVariance, SetSizeVariance)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
+    EZ_ACCESSOR_PROPERTY("EmissiveColor", GetEmissiveColor, SetEmissiveColor)->AddAttributes(new ezDefaultValueAttribute(ezColor::Black)),
     EZ_ACCESSOR_PROPERTY("Decal", GetDecalFile, SetDecalFile)->AddAttributes(new ezAssetBrowserAttribute("Decal")),
     EZ_ACCESSOR_PROPERTY("SortOrder", GetSortOrder, SetSortOrder)->AddAttributes(new ezClampValueAttribute(-64.0f, 64.0f)),
     EZ_ACCESSOR_PROPERTY("WrapAround", GetWrapAround, SetWrapAround),
+    EZ_ACCESSOR_PROPERTY("MapNormalToGeometry", GetMapNormalToGeometry, SetMapNormalToGeometry),
     EZ_ACCESSOR_PROPERTY("InnerFadeAngle", GetInnerFadeAngle, SetInnerFadeAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(90.0f)), new ezDefaultValueAttribute(ezAngle::Degree(50.0f))),
     EZ_ACCESSOR_PROPERTY("OuterFadeAngle", GetOuterFadeAngle, SetOuterFadeAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(90.0f)), new ezDefaultValueAttribute(ezAngle::Degree(80.0f))),
     EZ_MEMBER_PROPERTY("FadeOutDelay", m_FadeOutDelay),
@@ -88,6 +92,7 @@ void ezDecalComponent::SerializeComponent(ezWorldWriter& stream) const
 
   s << m_vExtents;
   s << m_Color;
+  s << m_EmissiveColor;
   s << m_InnerFadeAngle;
   s << m_OuterFadeAngle;
   s << m_fSortOrder;
@@ -100,6 +105,7 @@ void ezDecalComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_fSizeVariance;
   s << m_OnFinishedAction;
   s << m_bWrapAround;
+  s << m_bMapNormalToGeometry;
 }
 
 void ezDecalComponent::DeserializeComponent(ezWorldReader& stream)
@@ -110,7 +116,19 @@ void ezDecalComponent::DeserializeComponent(ezWorldReader& stream)
   ezStreamReader& s = stream.GetStream();
 
   s >> m_vExtents;
-  s >> m_Color;
+  
+  if (uiVersion >= 4)
+  {
+    s >> m_Color;
+    s >> m_EmissiveColor;
+  }
+  else
+  {
+    ezColor tmp;
+    s >> tmp;
+    m_Color = tmp;
+  }
+
   s >> m_InnerFadeAngle;
   s >> m_OuterFadeAngle;
   s >> m_fSortOrder;
@@ -126,6 +144,11 @@ void ezDecalComponent::DeserializeComponent(ezWorldReader& stream)
   if (uiVersion >= 3)
   {
     s >> m_bWrapAround;
+  }
+
+  if (uiVersion >= 4)
+  {
+    s >> m_bMapNormalToGeometry;
   }
 }
 
@@ -157,14 +180,24 @@ float ezDecalComponent::GetSizeVariance() const
   return m_fSizeVariance;
 }
 
-void ezDecalComponent::SetColor(ezColor color)
+void ezDecalComponent::SetColor(ezColorGammaUB color)
 {
   m_Color = color;
 }
 
-ezColor ezDecalComponent::GetColor() const
+ezColorGammaUB ezDecalComponent::GetColor() const
 {
   return m_Color;
+}
+
+void ezDecalComponent::SetEmissiveColor(ezColor color)
+{
+  m_EmissiveColor = color;
+}
+
+ezColor ezDecalComponent::GetEmissiveColor() const
+{
+  return m_EmissiveColor;
 }
 
 void ezDecalComponent::SetInnerFadeAngle(ezAngle spotAngle)
@@ -205,6 +238,16 @@ void ezDecalComponent::SetWrapAround(bool bWrapAround)
 bool ezDecalComponent::GetWrapAround() const
 {
   return m_bWrapAround;
+}
+
+void ezDecalComponent::SetMapNormalToGeometry(bool bMapNormal)
+{
+  m_bMapNormalToGeometry = bMapNormal;
+}
+
+bool ezDecalComponent::GetMapNormalToGeometry() const
+{
+  return m_bMapNormalToGeometry;
 }
 
 void ezDecalComponent::SetDecal(const ezDecalResourceHandle& hDecal)
@@ -284,13 +327,20 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
   if (finalColor.a <= 0.0f)
     return;
 
+  const bool bNoFade = m_InnerFadeAngle == ezAngle::Radian(0.0f) && m_OuterFadeAngle == ezAngle::Radian(0.0f);
+  const float fCosInner = ezMath::Cos(m_InnerFadeAngle);
+  const float fCosOuter = ezMath::Cos(m_OuterFadeAngle);
+  const float fFadeParamScale = bNoFade ? 0.0f : (1.0f / ezMath::Max(0.001f, (fCosInner - fCosOuter)));
+  const float fFadeParamOffset = bNoFade ? 1.0f : (-fCosOuter * fFadeParamScale);
+
   auto hDecalAtlas = GetWorld()->GetComponentManager<ezDecalComponentManager>()->m_hDecalAtlas;
-  ezVec2 baseAtlasScale = ezVec2(0.5f);
-  ezVec2 baseAtlasOffset = ezVec2(0.5f);
+  ezVec4 baseAtlasScaleOffset = ezVec4(0.5f);
+  ezVec4 normalAtlasScaleOffset = ezVec4(0.5f);
+  ezVec4 ormAtlasScaleOffset = ezVec4(0.5f);
+  ezUInt32 uiDecalFlags = 0;
 
   {
     ezResourceLock<ezDecalAtlasResource> pDecalAtlas(hDecalAtlas, ezResourceAcquireMode::BlockTillLoaded);
-    ezVec2U32 baseTextureSize = pDecalAtlas->GetBaseColorTextureSize();
 
     const auto& atlas = pDecalAtlas->GetAtlas();
     const ezUInt32 decalIdx = atlas.m_Items.Find(m_hDecal.GetResourceIDHash());
@@ -298,11 +348,20 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
     if (decalIdx != ezInvalidIndex)
     {
       const auto& item = atlas.m_Items.GetValue(decalIdx);
+      uiDecalFlags = item.m_uiFlags;
 
-      baseAtlasScale.x = (float)item.m_LayerRects[0].width / baseTextureSize.x * 0.5f;
-      baseAtlasScale.y = (float)item.m_LayerRects[0].height / baseTextureSize.y * 0.5f;
-      baseAtlasOffset.x = (float)item.m_LayerRects[0].x / baseTextureSize.x + baseAtlasScale.x;
-      baseAtlasOffset.y = (float)item.m_LayerRects[0].y / baseTextureSize.y + baseAtlasScale.y;
+      auto layerRectToScaleOffset = [](ezRectU32 layerRect, ezVec2U32 textureSize) {
+        ezVec4 result;
+        result.x = (float)layerRect.width / textureSize.x * 0.5f;
+        result.y = (float)layerRect.height / textureSize.y * 0.5f;
+        result.z = (float)layerRect.x / textureSize.x + result.x;
+        result.w = (float)layerRect.y / textureSize.y + result.y;
+        return result;
+      };
+
+      baseAtlasScaleOffset = layerRectToScaleOffset(item.m_LayerRects[0], pDecalAtlas->GetBaseColorTextureSize());
+      normalAtlasScaleOffset = layerRectToScaleOffset(item.m_LayerRects[1], pDecalAtlas->GetNormalTextureSize());
+      ormAtlasScaleOffset = layerRectToScaleOffset(item.m_LayerRects[2], pDecalAtlas->GetORMTextureSize());
     }
   }
 
@@ -314,13 +373,15 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
   pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
   pRenderData->m_vHalfExtents = m_vExtents * 0.5f;
   pRenderData->m_uiApplyOnlyToId = m_uiApplyOnlyToId;
-  pRenderData->m_uiDecalMode = 0;
-  pRenderData->m_bWrapAround = m_bWrapAround;
-  pRenderData->m_Color = finalColor;
-  pRenderData->m_InnerFadeAngle = m_InnerFadeAngle;
-  pRenderData->m_OuterFadeAngle = m_OuterFadeAngle;
-  pRenderData->m_vBaseAtlasScale = baseAtlasScale;
-  pRenderData->m_vBaseAtlasOffset = baseAtlasOffset;
+  pRenderData->m_uiFlags = uiDecalFlags;
+  pRenderData->m_uiFlags |= (m_bWrapAround ? DECAL_WRAP_AROUND : 0);
+  pRenderData->m_uiFlags |= (m_bMapNormalToGeometry ? DECAL_MAP_NORMAL_TO_GEOMETRY : 0);
+  pRenderData->m_uiAngleFadeParams = ezShaderUtils::Float2ToRG16F(ezVec2(fFadeParamScale, fFadeParamOffset));
+  pRenderData->m_BaseColor = finalColor;
+  pRenderData->m_EmissiveColor = m_EmissiveColor;
+  ezShaderUtils::Float4ToRGBA16F(baseAtlasScaleOffset, pRenderData->m_uiBaseColorAtlasScale, pRenderData->m_uiBaseColorAtlasOffset);
+  ezShaderUtils::Float4ToRGBA16F(normalAtlasScaleOffset, pRenderData->m_uiNormalAtlasScale, pRenderData->m_uiNormalAtlasOffset);
+  ezShaderUtils::Float4ToRGBA16F(ormAtlasScaleOffset, pRenderData->m_uiORMAtlasScale, pRenderData->m_uiORMAtlasOffset);
 
   ezRenderData::Caching::Enum caching = (m_FadeOutDelay.m_Value.GetSeconds() > 0.0 || m_FadeOutDuration.GetSeconds() > 0.0)
                                           ? ezRenderData::Caching::Never

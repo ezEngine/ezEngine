@@ -34,5 +34,10 @@ namespace ezShaderUtils
 
     return r | (g << 16);
   }
-}
 
+  EZ_ALWAYS_INLINE void Float4ToRGBA16F(ezVec4 value, ezUInt32& out_RG, ezUInt32& out_BA)
+  {
+    out_RG = Float2ToRG16F(ezVec2(value.x, value.y));
+    out_BA = Float2ToRG16F(ezVec2(value.z, value.w));
+  }
+} // namespace ezShaderUtils
