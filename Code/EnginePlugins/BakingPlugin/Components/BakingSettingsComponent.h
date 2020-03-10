@@ -8,6 +8,7 @@
 
 struct ezMsgUpdateLocalBounds;
 struct ezMsgExtractRenderData;
+struct ezRenderWorldRenderEvent;
 class ezAbstractObjectNode;
 
 class EZ_BAKINGPLUGIN_DLL ezBakingSettingsComponentManager : public ezSettingsComponentManager<class ezBakingSettingsComponent>
@@ -24,7 +25,7 @@ public:
 
 private:
   void RenderDebug(const ezWorldModule::UpdateContext& updateContext);
-  void OnBeginRender(ezUInt64 uiFrameCounter);
+  void OnRenderEvent(const ezRenderWorldRenderEvent& e);
   void CreateDebugResources();
 };
 
