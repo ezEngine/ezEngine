@@ -28,6 +28,8 @@ ezEventSubscriptionID ezEventBase<EventData, MutexType, CopyOnBroadcast>::AddEve
 {
   EZ_LOCK(m_Mutex);
 
+  EZ_ASSERT_DEV(!m_bCurrentlyBroadcasting, "Can not add event handlers while broadcasting. Use the CopyOnBroadcast = true version to modify the event during broadcasting.");
+
   EZ_ASSERT_DEV(!handler.IsComparable() || !HasEventHandler(handler), "Event handler cannot be added twice");
 
   auto& item = m_EventHandlers.ExpandAndGetRef();
@@ -41,6 +43,8 @@ template <typename EventData, typename MutexType, bool CopyOnBroadcast>
 void ezEventBase<EventData, MutexType, CopyOnBroadcast>::AddEventHandler(Handler handler, Unsubscriber& unsubscriber) const
 {
   EZ_LOCK(m_Mutex);
+
+  EZ_ASSERT_DEV(!m_bCurrentlyBroadcasting, "Can not add event handlers while broadcasting. Use the CopyOnBroadcast = true version to modify the event during broadcasting.");
 
   unsubscriber.Unsubscribe();
   unsubscriber.m_pEvent = this;

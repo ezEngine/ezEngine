@@ -265,6 +265,8 @@ void ezOpenDdlReader::ClearDataChunks()
 
 ezUInt8* ezOpenDdlReader::AllocateBytes(ezUInt32 uiNumBytes)
 {
+  uiNumBytes = ezMemoryUtils::AlignSize(uiNumBytes, static_cast<ezUInt32>(EZ_ALIGNMENT_MINIMUM));
+
   // if the requested data is very large, just allocate it as an individual chunk
   if (uiNumBytes > s_uiChunkSize / 2)
   {

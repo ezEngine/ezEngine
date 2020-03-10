@@ -2,16 +2,16 @@
 
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Containers/IdTable.h>
+#include <Foundation/Logging/Log.h>
 #include <Foundation/Memory/Allocator.h>
 #include <Foundation/Memory/Policies/HeapAllocation.h>
 #include <Foundation/Strings/String.h>
+#include <Foundation/System/StackTracer.h>
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/Mutex.h>
-#include <Foundation/System/StackTracer.h>
-#include <Foundation/Logging/Log.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #endif
 
 namespace
@@ -68,14 +68,14 @@ namespace
 
     if (s_pTrackerDataAllocator == nullptr)
     {
-      static ezUInt8 TrackerDataAllocatorBuffer[sizeof(TrackerDataAllocator)];
+      EZ_ALIGN_VARIABLE(static ezUInt8 TrackerDataAllocatorBuffer[sizeof(TrackerDataAllocator)], EZ_ALIGNMENT_OF(TrackerDataAllocator));
       s_pTrackerDataAllocator = new (TrackerDataAllocatorBuffer) TrackerDataAllocator("MemoryTracker");
       EZ_ASSERT_DEV(s_pTrackerDataAllocator != nullptr, "MemoryTracker initialization failed");
     }
 
     if (s_pTrackerData == nullptr)
     {
-      static ezUInt8 TrackerDataBuffer[sizeof(TrackerData)];
+      EZ_ALIGN_VARIABLE(static ezUInt8 TrackerDataBuffer[sizeof(TrackerData)], EZ_ALIGNMENT_OF(TrackerData));
       s_pTrackerData = new (TrackerDataBuffer) TrackerData();
       EZ_ASSERT_DEV(s_pTrackerData != nullptr, "MemoryTracker initialization failed");
     }
@@ -99,7 +99,7 @@ namespace
 
     ezLog::Print("--------------------------------------------------------------------\n\n");
   }
-}
+} // namespace
 
 // Iterator
 #define CAST_ITER(ptr) static_cast<TrackerData::AllocatorTable::Iterator*>(ptr)

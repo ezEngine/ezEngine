@@ -11,6 +11,7 @@
 #define EZ_FORCE_INLINE inline
 
 #define EZ_ALIGN(decl, alignment) __attribute__((aligned(alignment))) decl
+#define EZ_ALIGN_VARIABLE(decl, alignment) decl __attribute__((aligned(alignment)))
 #define EZ_ALIGNMENT_OF(type) __alignof(type)
 
 #define EZ_DEBUG_BREAK \

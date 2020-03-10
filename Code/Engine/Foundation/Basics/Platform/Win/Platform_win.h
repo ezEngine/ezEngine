@@ -66,8 +66,10 @@
 
 #  ifdef __INTELLISENSE__
 #    define EZ_ALIGN(decl, alignment) decl
+#    define EZ_ALIGN_VARIABLE(decl, alignment) decl
 #  else
 #    define EZ_ALIGN(decl, alignment) __declspec(align(alignment)) decl
+#    define EZ_ALIGN_VARIABLE(decl, alignment) __declspec(align(alignment)) decl
 #  endif
 
 // workaround for msvc compiler issue with alignment determination of dependent types

@@ -52,7 +52,7 @@ namespace ezInternal
   template <typename T>
   EZ_FORCE_INLINE T* CreateRawBuffer(ezAllocatorBase* pAllocator, size_t uiCount)
   {
-    return static_cast<T*>(pAllocator->Allocate(sizeof(T) * uiCount, EZ_ALIGNMENT_OF(T)));
+    return static_cast<T*>(pAllocator->Allocate(sizeof(T) * uiCount, EZ_ALIGNMENT_OF(T) > EZ_ALIGNMENT_MINIMUM ? EZ_ALIGNMENT_OF(T) : EZ_ALIGNMENT_MINIMUM));
   }
 
   EZ_FORCE_INLINE void DeleteRawBuffer(ezAllocatorBase* pAllocator, void* ptr)
@@ -86,13 +86,13 @@ namespace ezInternal
   template <typename T>
   EZ_FORCE_INLINE T* ExtendRawBuffer(T* ptr, ezAllocatorBase* pAllocator, size_t uiCurrentCount, size_t uiNewCount, ezTypeIsPod)
   {
-    return (T*)pAllocator->Reallocate(ptr, uiCurrentCount * sizeof(T), uiNewCount * sizeof(T), EZ_ALIGNMENT_OF(T));
+    return (T*)pAllocator->Reallocate(ptr, uiCurrentCount * sizeof(T), uiNewCount * sizeof(T), EZ_ALIGNMENT_OF(T) > EZ_ALIGNMENT_MINIMUM ? EZ_ALIGNMENT_OF(T) : EZ_ALIGNMENT_MINIMUM);
   }
 
   template <typename T>
   EZ_FORCE_INLINE T* ExtendRawBuffer(T* ptr, ezAllocatorBase* pAllocator, size_t uiCurrentCount, size_t uiNewCount, ezTypeIsMemRelocatable)
   {
-    return (T*)pAllocator->Reallocate(ptr, uiCurrentCount * sizeof(T), uiNewCount * sizeof(T), EZ_ALIGNMENT_OF(T));
+    return (T*)pAllocator->Reallocate(ptr, uiCurrentCount * sizeof(T), uiNewCount * sizeof(T), EZ_ALIGNMENT_OF(T) > EZ_ALIGNMENT_MINIMUM ? EZ_ALIGNMENT_OF(T) : EZ_ALIGNMENT_MINIMUM);
   }
 
   template <typename T>

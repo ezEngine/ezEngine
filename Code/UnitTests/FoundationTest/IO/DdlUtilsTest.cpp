@@ -540,7 +540,7 @@ Angle $v12 { float { 45.23 } }\
   // this test also covers all the types that Variant supports
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "StoreVariant")
   {
-    ezUInt8 rawData[sizeof(float) * 16]; // enough for mat4
+    EZ_ALIGN_VARIABLE(ezUInt8 rawData[sizeof(float) * 16], EZ_ALIGNMENT_OF(float)); // enough for mat4
 
     for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(rawData); ++i)
       rawData[i] = i + 1;
