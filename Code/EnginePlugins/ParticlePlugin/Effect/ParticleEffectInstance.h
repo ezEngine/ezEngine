@@ -8,7 +8,7 @@
 
 class ezParticleEffectInstance;
 
-class ezParticleffectUpdateTask : public ezTask
+class ezParticleffectUpdateTask final : public ezTask
 {
 public:
   ezParticleffectUpdateTask(ezParticleEffectInstance* pEffect);

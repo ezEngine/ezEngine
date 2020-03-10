@@ -6,7 +6,7 @@
 
 typedef ezTypedResourceHandle<class ezCurve1DResource> ezCurve1DResourceHandle;
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleEmitterFactory_Continuous : public ezParticleEmitterFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleEmitterFactory_Continuous final : public ezParticleEmitterFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleEmitterFactory_Continuous, ezParticleEmitterFactory);
 
@@ -36,7 +36,7 @@ public:
 };
 
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleEmitter_Continuous : public ezParticleEmitter
+class EZ_PARTICLEPLUGIN_DLL ezParticleEmitter_Continuous final : public ezParticleEmitter
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleEmitter_Continuous, ezParticleEmitter);
 

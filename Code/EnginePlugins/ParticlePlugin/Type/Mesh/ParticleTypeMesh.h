@@ -8,7 +8,7 @@
 typedef ezTypedResourceHandle<class ezMeshResource> ezMeshResourceHandle;
 typedef ezTypedResourceHandle<class ezMaterialResource> ezMaterialResourceHandle;
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleTypeMeshFactory : public ezParticleTypeFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleTypeMeshFactory final : public ezParticleTypeFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypeMeshFactory, ezParticleTypeFactory);
 
@@ -24,7 +24,7 @@ public:
   ezString m_sTintColorParameter;
 };
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleTypeMesh : public ezParticleType
+class EZ_PARTICLEPLUGIN_DLL ezParticleTypeMesh final : public ezParticleType
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypeMesh, ezParticleType);
 
@@ -38,8 +38,7 @@ public:
   mutable ezMaterialResourceHandle m_hMaterial;
   ezTempHashedString m_sTintColorParameter;
 
-  virtual void ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform,
-                                     ezUInt64 uiExtractedFrame) const override;
+  virtual void ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const override;
 
 protected:
   virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;

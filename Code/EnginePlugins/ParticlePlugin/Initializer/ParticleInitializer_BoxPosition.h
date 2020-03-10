@@ -2,7 +2,7 @@
 
 #include <ParticlePlugin/Initializer/ParticleInitializer.h>
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleInitializerFactory_BoxPosition : public ezParticleInitializerFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleInitializerFactory_BoxPosition final : public ezParticleInitializerFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializerFactory_BoxPosition, ezParticleInitializerFactory);
 
@@ -25,7 +25,7 @@ public:
 };
 
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer_BoxPosition : public ezParticleInitializer
+class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer_BoxPosition final : public ezParticleInitializer
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializer_BoxPosition, ezParticleInitializer);
 

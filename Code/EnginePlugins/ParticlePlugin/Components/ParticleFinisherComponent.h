@@ -10,7 +10,7 @@ struct ezMsgExtractRenderData;
 
 typedef ezComponentManagerSimple<class ezParticleFinisherComponent, ezComponentUpdateType::WhenSimulating> ezParticleFinisherComponentManager;
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleFinisherComponent : public ezRenderComponent
+class EZ_PARTICLEPLUGIN_DLL ezParticleFinisherComponent final : public ezRenderComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezParticleFinisherComponent, ezRenderComponent, ezParticleFinisherComponentManager);
 

@@ -1,16 +1,16 @@
 #pragma once
 
-#include <ParticlePlugin/ParticlePluginDLL.h>
-#include <Foundation/Reflection/Reflection.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamProcessor.h>
+#include <Foundation/Reflection/Reflection.h>
 #include <ParticlePlugin/Module/ParticleModule.h>
+#include <ParticlePlugin/ParticlePluginDLL.h>
 
 // TODO: review this
 enum ezParticleTypeSortingKey
 {
   Opaque = 0,
   BlendedBackground = 10,
-  Additive  = 20,
+  Additive = 20,
   Blended = 30,
   BlendedForeground = 40,
 };
@@ -38,7 +38,6 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleType : public ezParticleModule
   friend class ezParticleSystemInstance;
 
 public:
-
   virtual float GetMaxParticleRadius(float fParticleSize) const { return fParticleSize * 0.5f; }
 
   virtual void ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const = 0;
@@ -54,5 +53,3 @@ protected:
   ezTime m_TimeDiff;
   mutable ezUInt64 m_uiLastExtractedFrame;
 };
-
-

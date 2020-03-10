@@ -5,7 +5,7 @@
 
 typedef ezTypedResourceHandle<class ezParticleEffectResource> ezParticleEffectResourceHandle;
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleTypeEffectFactory : public ezParticleTypeFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleTypeEffectFactory final : public ezParticleTypeFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypeEffectFactory, ezParticleTypeFactory);
 
@@ -23,7 +23,7 @@ public:
   ezString m_sSharedInstanceName; // to be removed
 };
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleTypeEffect : public ezParticleType
+class EZ_PARTICLEPLUGIN_DLL ezParticleTypeEffect final : public ezParticleType
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypeEffect, ezParticleType);
 

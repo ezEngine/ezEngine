@@ -3,7 +3,7 @@
 #include <ParticlePlugin/Behavior/ParticleBehavior.h>
 #include <GameEngine/Curves/ColorGradientResource.h>
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_ColorGradient : public ezParticleBehaviorFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_ColorGradient final : public ezParticleBehaviorFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_ColorGradient, ezParticleBehaviorFactory);
 
@@ -31,7 +31,7 @@ private:
 };
 
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_ColorGradient : public ezParticleBehavior
+class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_ColorGradient final : public ezParticleBehavior
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_ColorGradient, ezParticleBehavior);
 

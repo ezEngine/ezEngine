@@ -5,7 +5,7 @@
 
 class ezPhysicsWorldModuleInterface;
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizerFactory_Volume : public ezParticleFinalizerFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizerFactory_Volume final : public ezParticleFinalizerFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleFinalizerFactory_Volume, ezParticleFinalizerFactory);
 
@@ -18,7 +18,7 @@ public:
 };
 
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizer_Volume : public ezParticleFinalizer
+class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizer_Volume final : public ezParticleFinalizer
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleFinalizer_Volume, ezParticleFinalizer);
 public:

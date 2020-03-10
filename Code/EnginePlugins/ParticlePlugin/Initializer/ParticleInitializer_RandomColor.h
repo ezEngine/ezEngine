@@ -5,7 +5,7 @@
 
 typedef ezTypedResourceHandle<class ezColorGradientResource> ezColorGradientResourceHandle;
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleInitializerFactory_RandomColor : public ezParticleInitializerFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleInitializerFactory_RandomColor final : public ezParticleInitializerFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializerFactory_RandomColor, ezParticleInitializerFactory);
 
@@ -31,7 +31,7 @@ private:
 };
 
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer_RandomColor : public ezParticleInitializer
+class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer_RandomColor final : public ezParticleInitializer
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializer_RandomColor, ezParticleInitializer);
 

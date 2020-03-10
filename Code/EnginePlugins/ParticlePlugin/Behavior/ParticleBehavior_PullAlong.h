@@ -4,7 +4,7 @@
 
 class ezPhysicsWorldModuleInterface;
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_PullAlong : public ezParticleBehaviorFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_PullAlong final : public ezParticleBehaviorFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_PullAlong, ezParticleBehaviorFactory);
 
@@ -21,7 +21,7 @@ public:
 };
 
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_PullAlong : public ezParticleBehavior
+class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_PullAlong final : public ezParticleBehavior
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_PullAlong, ezParticleBehavior);
 

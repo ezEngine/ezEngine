@@ -209,7 +209,7 @@ void ezParticleEffectInstance::SetIsVisible() const
   //    ezParticleComponent to a ezParticleFinisherComponent
   //    though this would only need one frame overlap
   // 2) The bounding volume for culling is only computed every couple of frames
-  //    so it may be too small 100ms and culling could be imprecise
+  //    so it may be too small and culling could be imprecise
   //    by just rendering it the next 100ms, no matter what, the bounding volume
   //    does not need to be updated so frequently
   m_EffectIsVisible = ezClock::GetGlobalClock()->GetAccumulatedTime() + ezTime::Seconds(0.1);
@@ -221,8 +221,7 @@ bool ezParticleEffectInstance::IsVisible() const
   return m_EffectIsVisible >= ezClock::GetGlobalClock()->GetAccumulatedTime();
 }
 
-void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticleEffectFloatParam> floatParams,
-                                           ezArrayPtr<ezParticleEffectColorParam> colorParams)
+void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticleEffectFloatParam> floatParams, ezArrayPtr<ezParticleEffectColorParam> colorParams)
 {
   if (!m_hResource.IsValid())
   {

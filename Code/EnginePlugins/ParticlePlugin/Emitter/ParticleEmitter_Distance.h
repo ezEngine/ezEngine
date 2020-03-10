@@ -3,7 +3,7 @@
 #include <ParticlePlugin/Emitter/ParticleEmitter.h>
 #include <Foundation/Types/VarianceTypes.h>
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleEmitterFactory_Distance : public ezParticleEmitterFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleEmitterFactory_Distance final : public ezParticleEmitterFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleEmitterFactory_Distance, ezParticleEmitterFactory);
 
@@ -25,7 +25,7 @@ public:
 };
 
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleEmitter_Distance : public ezParticleEmitter
+class EZ_PARTICLEPLUGIN_DLL ezParticleEmitter_Distance final : public ezParticleEmitter
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleEmitter_Distance, ezParticleEmitter);
 

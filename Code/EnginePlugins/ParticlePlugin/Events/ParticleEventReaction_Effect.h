@@ -5,7 +5,7 @@
 #include <GameEngine/Physics/SurfaceResourceDescriptor.h>
 #include <ParticlePlugin/Events/ParticleEventReaction.h>
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleEventReactionFactory_Effect : public ezParticleEventReactionFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleEventReactionFactory_Effect final : public ezParticleEventReactionFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleEventReactionFactory_Effect, ezParticleEventReactionFactory);
 
@@ -33,7 +33,7 @@ private:
   ezSharedPtr<ezParticleEffectParameters> m_Parameters;
 };
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleEventReaction_Effect : public ezParticleEventReaction
+class EZ_PARTICLEPLUGIN_DLL ezParticleEventReaction_Effect final : public ezParticleEventReaction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleEventReaction_Effect, ezParticleEventReaction);
 

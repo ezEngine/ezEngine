@@ -559,7 +559,7 @@ void ezParticleTypeQuad::AllocateParticleData(const ezUInt32 numParticles, const
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <Foundation/Serialization/GraphPatch.h>
 
-class ezQuadParticleOrientationPatch_1_2 : public ezGraphPatch
+class ezQuadParticleOrientationPatch_1_2 final : public ezGraphPatch
 {
 public:
   ezQuadParticleOrientationPatch_1_2()
@@ -586,7 +586,7 @@ ezQuadParticleOrientationPatch_1_2 g_ezQuadParticleOrientationPatch_1_2;
 
 //////////////////////////////////////////////////////////////////////////
 
-class ezParticleTypeQuadFactory_1_2 : public ezGraphPatch
+class ezParticleTypeQuadFactory_1_2 final : public ezGraphPatch
 {
 public:
   ezParticleTypeQuadFactory_1_2()

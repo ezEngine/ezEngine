@@ -1,15 +1,16 @@
 #include <ParticlePluginPCH.h>
 
-#include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
-#include <Foundation/Threading/Lock.h>
-#include <Core/World/World.h>
-#include <ParticlePlugin/Effect/ParticleEffectInstance.h>
-#include <Core/ResourceManager/ResourceManager.h>
 #include <Core/ResourceManager/Resource.h>
-#include <ParticlePlugin/Resources/ParticleEffectResource.h>
-#include <RendererCore/Pipeline/ExtractedRenderData.h>
+#include <Core/ResourceManager/ResourceManager.h>
+#include <Core/World/World.h>
+#include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/TaskSystem.h>
+#include <GameEngine/Interfaces/PhysicsWorldModule.h>
+#include <ParticlePlugin/Effect/ParticleEffectInstance.h>
+#include <ParticlePlugin/Resources/ParticleEffectResource.h>
 #include <ParticlePlugin/Streams/ParticleStream.h>
+#include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
+#include <RendererCore/Pipeline/ExtractedRenderData.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
 EZ_IMPLEMENT_WORLD_MODULE(ezParticleWorldModule);
@@ -180,4 +181,3 @@ ezParticleStream* ezParticleWorldModule::CreateStreamDefaultInitializer(ezPartic
 }
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_WorldModule_ParticleWorldModule);
-

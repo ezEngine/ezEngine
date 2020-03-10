@@ -22,7 +22,7 @@ class ezParticleStreamFactory;
 /// When an effect is stopped, it only stops emitting new particles, but it lives on until all particles are dead.
 /// Therefore particle effects need to be managed outside of components. When a component dies, it only tells the
 /// world module to 'destroy' it's effect, the rest is handled behind the scenes.
-class EZ_PARTICLEPLUGIN_DLL ezParticleWorldModule : public ezWorldModule
+class EZ_PARTICLEPLUGIN_DLL ezParticleWorldModule final : public ezWorldModule
 {
   EZ_DECLARE_WORLD_MODULE();
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleWorldModule, ezWorldModule);

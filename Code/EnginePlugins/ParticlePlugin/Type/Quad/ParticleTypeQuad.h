@@ -30,7 +30,7 @@ struct EZ_PARTICLEPLUGIN_DLL ezQuadParticleOrientation
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezQuadParticleOrientation);
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleTypeQuadFactory : public ezParticleTypeFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleTypeQuadFactory final : public ezParticleTypeFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypeQuadFactory, ezParticleTypeFactory);
 
@@ -54,7 +54,7 @@ public:
   float m_fStretch = 1;
 };
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleTypeQuad : public ezParticleType
+class EZ_PARTICLEPLUGIN_DLL ezParticleTypeQuad final : public ezParticleType
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypeQuad, ezParticleType);
 
@@ -76,8 +76,7 @@ public:
   float m_fDistortionStrength = 0;
   float m_fStretch = 1;
 
-  virtual void ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform,
-                                     ezUInt64 uiExtractedFrame) const override;
+  virtual void ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const override;
 
   struct sod
   {
@@ -94,7 +93,7 @@ protected:
   void AllocateParticleData(const ezUInt32 numParticles, const bool bNeedsBillboardData, const bool bNeedsTangentData) const;
   void AddParticleRenderData(ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform) const;
   void CreateExtractedData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform,
-                           ezUInt64 uiExtractedFrame, const ezHybridArray<sod, 64>* pSorted) const;
+    ezUInt64 uiExtractedFrame, const ezHybridArray<sod, 64>* pSorted) const;
 
   ezProcessingStream* m_pStreamLifeTime = nullptr;
   ezProcessingStream* m_pStreamPosition = nullptr;

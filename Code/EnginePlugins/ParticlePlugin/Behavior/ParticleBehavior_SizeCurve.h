@@ -3,7 +3,7 @@
 #include <ParticlePlugin/Behavior/ParticleBehavior.h>
 #include <GameEngine/Curves/Curve1DResource.h>
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_SizeCurve : public ezParticleBehaviorFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_SizeCurve final : public ezParticleBehaviorFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_SizeCurve, ezParticleBehaviorFactory);
 
@@ -22,7 +22,7 @@ public:
   ezCurve1DResourceHandle m_hCurve;
 };
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_SizeCurve : public ezParticleBehavior
+class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_SizeCurve final : public ezParticleBehavior
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_SizeCurve, ezParticleBehavior);
 

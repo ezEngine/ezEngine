@@ -2,7 +2,7 @@
 
 #include <ParticlePlugin/Finalizer/ParticleFinalizer.h>
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizerFactory_LastPosition : public ezParticleFinalizerFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizerFactory_LastPosition final : public ezParticleFinalizerFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleFinalizerFactory_LastPosition, ezParticleFinalizerFactory);
 
@@ -14,7 +14,7 @@ public:
 };
 
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizer_LastPosition : public ezParticleFinalizer
+class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizer_LastPosition final : public ezParticleFinalizer
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleFinalizer_LastPosition, ezParticleFinalizer);
 public:

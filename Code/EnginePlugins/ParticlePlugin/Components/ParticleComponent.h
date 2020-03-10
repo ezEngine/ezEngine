@@ -20,7 +20,7 @@ typedef ezTypedResourceHandle<class ezParticleEffectResource> ezParticleEffectRe
 
 typedef ezComponentManagerSimple<ezParticleComponent, ezComponentUpdateType::WhenSimulating> ezParticleComponentManager;
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleComponent : public ezRenderComponent
+class EZ_PARTICLEPLUGIN_DLL ezParticleComponent final : public ezRenderComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezParticleComponent, ezRenderComponent, ezParticleComponentManager);
 

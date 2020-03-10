@@ -5,7 +5,7 @@
 class ezPhysicsWorldModuleInterface;
 class ezWindWorldModuleInterface;
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_Velocity : public ezParticleBehaviorFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_Velocity final : public ezParticleBehaviorFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_Velocity, ezParticleBehaviorFactory);
 
@@ -27,7 +27,7 @@ public:
 };
 
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_Velocity : public ezParticleBehavior
+class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_Velocity final : public ezParticleBehavior
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_Velocity, ezParticleBehavior);
 

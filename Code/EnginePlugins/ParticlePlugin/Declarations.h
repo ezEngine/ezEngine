@@ -165,7 +165,7 @@ struct ezParticleEffectColorParam
   ezColor m_Value;
 };
 
-class ezParticleEffectParameters : public ezRefCounted
+class ezParticleEffectParameters final : public ezRefCounted
 {
 public:
   ezHybridArray<ezParticleEffectFloatParam, 2> m_FloatParams;
