@@ -73,14 +73,14 @@ void ezBakingSettingsComponentManager::Initialize()
     this->RegisterUpdateFunction(desc);
   }
 
-  ezRenderWorld::s_BeginRenderEvent.AddEventHandler(ezMakeDelegate(&ezBakingSettingsComponentManager::OnBeginRender, this));
+  ezRenderWorld::GetRenderEvent().AddEventHandler(ezMakeDelegate(&ezBakingSettingsComponentManager::OnRenderEvent, this));
 
   CreateDebugResources();
 }
 
 void ezBakingSettingsComponentManager::Deinitialize()
 {
-  ezRenderWorld::s_BeginRenderEvent.RemoveEventHandler(ezMakeDelegate(&ezBakingSettingsComponentManager::OnBeginRender, this));
+  ezRenderWorld::GetRenderEvent().RemoveEventHandler(ezMakeDelegate(&ezBakingSettingsComponentManager::OnRenderEvent, this));
 }
 
 void ezBakingSettingsComponentManager::RenderDebug(const ezWorldModule::UpdateContext& updateContext)
@@ -94,8 +94,11 @@ void ezBakingSettingsComponentManager::RenderDebug(const ezWorldModule::UpdateCo
   }
 }
 
-void ezBakingSettingsComponentManager::OnBeginRender(ezUInt64 uiFrameCounter)
+void ezBakingSettingsComponentManager::OnRenderEvent(const ezRenderWorldRenderEvent& e)
 {
+  if (e.m_Type != ezRenderWorldRenderEvent::Type::BeginRender)
+    return;
+
   if (ezBakingSettingsComponent* pComponent = GetSingletonComponent())
   {
     auto& task = pComponent->m_pRenderDebugViewTask;
