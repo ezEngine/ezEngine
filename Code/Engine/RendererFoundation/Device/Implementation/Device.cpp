@@ -1190,10 +1190,13 @@ void ezGALDevice::BeginFrame()
     m_Events.Broadcast(e);
   }
 
-  EZ_ASSERT_DEV(!m_bFrameBeginCalled, "You must call ezGALDevice::End before you can call ezGALDevice::BeginFrame again");
-  m_bFrameBeginCalled = true;
+  {
+    EZ_GALDEVICE_LOCK_AND_CHECK();
+    EZ_ASSERT_DEV(!m_bFrameBeginCalled, "You must call ezGALDevice::End before you can call ezGALDevice::BeginFrame again");
+    m_bFrameBeginCalled = true;
 
-  BeginFramePlatform();
+    BeginFramePlatform();
+  }
   m_pPrimaryContext->ClearStatisticsCounters();
 
   {
@@ -1213,13 +1216,16 @@ void ezGALDevice::EndFrame()
     m_Events.Broadcast(e);
   }
 
-  EZ_ASSERT_DEV(m_bFrameBeginCalled, "You must have called ezGALDevice::Begin before you can call ezGALDevice::EndFrame");
+  {
+    EZ_GALDEVICE_LOCK_AND_CHECK();
+    EZ_ASSERT_DEV(m_bFrameBeginCalled, "You must have called ezGALDevice::Begin before you can call ezGALDevice::EndFrame");
 
-  DestroyDeadObjects();
+    DestroyDeadObjects();
 
-  EndFramePlatform();
+    EndFramePlatform();
 
-  m_bFrameBeginCalled = false;
+    m_bFrameBeginCalled = false;
+  }
 
   {
     ezGALDeviceEvent e;
