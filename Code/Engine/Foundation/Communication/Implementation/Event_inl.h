@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Foundation/Types/ScopeExit.h>
+
 template <typename EventData, typename MutexType, bool CopyOnBroadcast>
 ezEventBase<EventData, MutexType, CopyOnBroadcast>::ezEventBase(ezAllocatorBase* pAllocator)
   : m_EventHandlers(pAllocator)
@@ -136,10 +138,11 @@ void ezEventBase<EventData, MutexType, CopyOnBroadcast>::Broadcast(EventData eve
 
     m_uiRecursionDepth.Increment();
 
+    EZ_SCOPE_EXIT(m_uiRecursionDepth.Decrement());
+
     for (ezUInt32 ui = 0; ui < m_EventHandlers.GetCount(); ++ui)
       m_EventHandlers[ui].m_Handler(eventData);
 
-    m_uiRecursionDepth.Decrement();
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
     if (m_uiRecursionDepth == 0)
     {
@@ -168,13 +171,13 @@ void ezEventBase<EventData, MutexType, CopyOnBroadcast>::Broadcast(EventData eve
       m_uiRecursionDepth.Increment();
     }
 
+    EZ_SCOPE_EXIT(m_uiRecursionDepth.Decrement());
+
     ezUInt32 uiHandlerCount = eventHandlers.GetCount();
     for (ezUInt32 ui = 0; ui < uiHandlerCount; ++ui)
     {
       eventHandlers[ui].m_Handler(eventData);
     }
-
-    m_uiRecursionDepth.Decrement();
   }
 }
 
