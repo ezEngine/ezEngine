@@ -38,6 +38,42 @@
     },
     {
       "inheritEnvironments": [ "vsdev" ],
+      "name": "Android-arm64-Debug",
+      "includePath": [
+        "${env.INCLUDE}",
+        "${env.ANDROID_NDK}/sysroot/usr/include",
+        "${env.ANDROID_BUILD_TOOLS}/renderscript/clang-include"
+
+      ],
+      "defines": [],
+      "intelliSenseMode": "android-clang-arm64"
+    },
+    {
+      "inheritEnvironments": [ "vsdev" ],
+      "name": "Android-arm64-RelWithDebInfo",
+      "includePath": [
+        "${env.INCLUDE}",
+        "${env.ANDROID_NDK}/sysroot/usr/include",
+        "${env.ANDROID_BUILD_TOOLS}/renderscript/clang-include"
+
+      ],
+      "defines": [],
+      "intelliSenseMode": "android-clang-arm64"
+    },
+    {
+      "inheritEnvironments": [ "vsdev" ],
+      "name": "Android-arm64-Release",
+      "includePath": [
+        "${env.INCLUDE}",
+        "${env.ANDROID_NDK}/sysroot/usr/include",
+        "${env.ANDROID_BUILD_TOOLS}/renderscript/clang-include"
+
+      ],
+      "defines": [],
+      "intelliSenseMode": "android-clang-arm64"
+    },
+    {
+      "inheritEnvironments": [ "vsdev" ],
       "name": "Android-x86-Debug",
       "includePath": [
         "${env.INCLUDE}",
