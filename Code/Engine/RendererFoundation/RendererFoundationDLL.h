@@ -136,6 +136,8 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERFOUNDATION_DLL, ezGALMSAASampleCount);
 
 struct ezGALTextureType
 {
+  typedef ezUInt8 StorageType;
+
   enum Enum
   {
     Invalid = -1,
@@ -144,7 +146,9 @@ struct ezGALTextureType
     Texture3D,
     Texture2DProxy,
 
-    ENUM_COUNT
+    ENUM_COUNT,
+
+    Default = Texture2D
   };
 };
 
@@ -186,6 +190,8 @@ struct ezGALBlendOp
 
 struct ezGALStencilOp
 {
+  typedef ezUInt8 StorageType;
+
   enum Enum
   {
     Keep = 0,
@@ -197,12 +203,16 @@ struct ezGALStencilOp
     Increment,
     Decrement,
 
-    ENUM_COUNT
+    ENUM_COUNT,
+
+    Default = Keep
   };
 };
 
 struct ezGALCompareFunc
 {
+  typedef ezUInt8 StorageType;
+
   enum Enum
   {
     Never = 0,
@@ -214,13 +224,17 @@ struct ezGALCompareFunc
     GreaterEqual,
     Always,
 
-    ENUM_COUNT
+    ENUM_COUNT,
+
+    Default = Never
   };
 };
 
 /// \brief Defines which sides of a polygon gets culled by the graphics card
 struct ezGALCullMode
 {
+  typedef ezUInt8 StorageType;
+
   /// \brief Defines which sides of a polygon gets culled by the graphics card
   enum Enum
   {
@@ -228,7 +242,9 @@ struct ezGALCullMode
     Front = 1,  ///< When the 'front' of a triangle is visible, it gets culled. The rasterizer state defines which side is the 'front'. See ezGALRasterizerStateCreationDescription for details.
     Back = 2,   ///< When the 'back'  of a triangle is visible, it gets culled. The rasterizer state defines which side is the 'front'. See ezGALRasterizerStateCreationDescription for details.
 
-    ENUM_COUNT
+    ENUM_COUNT,
+
+    Default = Back
   };
 };
 
