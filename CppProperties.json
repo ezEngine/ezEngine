@@ -5,9 +5,8 @@
       "name": "Android-arm-Debug",
       "includePath": [
         "${env.INCLUDE}",
-        "${env.ANDROID_NDK}/sysroot/usr/include",
-        "${env.ANDROID_BUILD_TOOLS}/renderscript/clang-include"
-
+        "${env.ANDROID_NDK_HOME}/sysroot/usr/include",
+        "${env.ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/windows-x86_64/lib64/clang/9.0.8/include"
       ],
       "defines": [],
       "intelliSenseMode": "android-clang-arm"
@@ -17,9 +16,8 @@
       "name": "Android-arm-RelWithDebInfo",
       "includePath": [
         "${env.INCLUDE}",
-        "${env.ANDROID_NDK}/sysroot/usr/include",
-        "${env.ANDROID_BUILD_TOOLS}/renderscript/clang-include"
-
+        "${env.ANDROID_NDK_HOME}/sysroot/usr/include",
+        "${env.ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/windows-x86_64/lib64/clang/9.0.8/include"
       ],
       "defines": [],
       "intelliSenseMode": "android-clang-arm"
@@ -29,9 +27,8 @@
       "name": "Android-arm-Release",
       "includePath": [
         "${env.INCLUDE}",
-        "${env.ANDROID_NDK}/sysroot/usr/include",
-        "${env.ANDROID_BUILD_TOOLS}/renderscript/clang-include"
-
+        "${env.ANDROID_NDK_HOME}/sysroot/usr/include",
+        "${env.ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/windows-x86_64/lib64/clang/9.0.8/include"
       ],
       "defines": [],
       "intelliSenseMode": "android-clang-arm"
@@ -41,9 +38,8 @@
       "name": "Android-arm64-Debug",
       "includePath": [
         "${env.INCLUDE}",
-        "${env.ANDROID_NDK}/sysroot/usr/include",
-        "${env.ANDROID_BUILD_TOOLS}/renderscript/clang-include"
-
+        "${env.ANDROID_NDK_HOME}/sysroot/usr/include",
+        "${env.ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/windows-x86_64/lib64/clang/9.0.8/include"
       ],
       "defines": [],
       "intelliSenseMode": "android-clang-arm64"
@@ -53,9 +49,8 @@
       "name": "Android-arm64-RelWithDebInfo",
       "includePath": [
         "${env.INCLUDE}",
-        "${env.ANDROID_NDK}/sysroot/usr/include",
-        "${env.ANDROID_BUILD_TOOLS}/renderscript/clang-include"
-
+        "${env.ANDROID_NDK_HOME}/sysroot/usr/include",
+        "${env.ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/windows-x86_64/lib64/clang/9.0.8/include"
       ],
       "defines": [],
       "intelliSenseMode": "android-clang-arm64"
@@ -65,9 +60,8 @@
       "name": "Android-arm64-Release",
       "includePath": [
         "${env.INCLUDE}",
-        "${env.ANDROID_NDK}/sysroot/usr/include",
-        "${env.ANDROID_BUILD_TOOLS}/renderscript/clang-include"
-
+        "${env.ANDROID_NDK_HOME}/sysroot/usr/include",
+        "${env.ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/windows-x86_64/lib64/clang/9.0.8/include"
       ],
       "defines": [],
       "intelliSenseMode": "android-clang-arm64"
@@ -77,9 +71,8 @@
       "name": "Android-x86-Debug",
       "includePath": [
         "${env.INCLUDE}",
-        "${env.ANDROID_NDK}/sysroot/usr/include",
-        "${env.ANDROID_BUILD_TOOLS}/renderscript/clang-include"
-
+        "${env.ANDROID_NDK_HOME}/sysroot/usr/include",
+        "${env.ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/windows-x86_64/lib64/clang/9.0.8/include"
       ],
       "defines": [],
       "intelliSenseMode": "android-clang-x86"
@@ -89,9 +82,8 @@
       "name": "Android-x86-RelWithDebInfo",
       "includePath": [
         "${env.INCLUDE}",
-        "${env.ANDROID_NDK}/sysroot/usr/include",
-        "${env.ANDROID_BUILD_TOOLS}/renderscript/clang-include"
-
+        "${env.ANDROID_NDK_HOME}/sysroot/usr/include",
+        "${env.ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/windows-x86_64/lib64/clang/9.0.8/include"
       ],
       "defines": [],
       "intelliSenseMode": "android-clang-x86"
@@ -101,9 +93,8 @@
       "name": "Android-x86-Release",
       "includePath": [
         "${env.INCLUDE}",
-        "${env.ANDROID_NDK}/sysroot/usr/include",
-        "${env.ANDROID_BUILD_TOOLS}/renderscript/clang-include"
-
+        "${env.ANDROID_NDK_HOME}/sysroot/usr/include",
+        "${env.ANDROID_NDK_HOME}/toolchains/llvm/prebuilt/windows-x86_64/lib64/clang/9.0.8/include"
       ],
       "defines": [],
       "intelliSenseMode": "android-clang-x86"

@@ -10,7 +10,7 @@
       "variables": [
         {
           "name": "CMAKE_TOOLCHAIN_FILE",
-          "value": "${env.ANDROID_NDK}\\build\\cmake\\android.toolchain.cmake",
+          "value": "${env.ANDROID_NDK_HOME}\\build\\cmake\\android.toolchain.cmake",
           "type": "FILEPATH"
         },
         {
@@ -40,7 +40,7 @@
       "variables": [
         {
           "name": "CMAKE_TOOLCHAIN_FILE",
-          "value": "${env.ANDROID_NDK}\\build\\cmake\\android.toolchain.cmake",
+          "value": "${env.ANDROID_NDK_HOME}\\build\\cmake\\android.toolchain.cmake",
           "type": "FILEPATH"
         },
         {
@@ -70,7 +70,7 @@
       "variables": [
         {
           "name": "CMAKE_TOOLCHAIN_FILE",
-          "value": "${env.ANDROID_NDK}\\build\\cmake\\android.toolchain.cmake",
+          "value": "${env.ANDROID_NDK_HOME}\\build\\cmake\\android.toolchain.cmake",
           "type": "FILEPATH"
         },
         {
@@ -100,7 +100,7 @@
       "variables": [
         {
           "name": "CMAKE_TOOLCHAIN_FILE",
-          "value": "${env.ANDROID_NDK}\\build\\cmake\\android.toolchain.cmake",
+          "value": "${env.ANDROID_NDK_HOME}\\build\\cmake\\android.toolchain.cmake",
           "type": "FILEPATH"
         },
         {
@@ -134,7 +134,7 @@
       "variables": [
         {
           "name": "CMAKE_TOOLCHAIN_FILE",
-          "value": "${env.ANDROID_NDK}\\build\\cmake\\android.toolchain.cmake",
+          "value": "${env.ANDROID_NDK_HOME}\\build\\cmake\\android.toolchain.cmake",
           "type": "FILEPATH"
         },
         {
@@ -168,7 +168,7 @@
       "variables": [
         {
           "name": "CMAKE_TOOLCHAIN_FILE",
-          "value": "${env.ANDROID_NDK}\\build\\cmake\\android.toolchain.cmake",
+          "value": "${env.ANDROID_NDK_HOME}\\build\\cmake\\android.toolchain.cmake",
           "type": "FILEPATH"
         },
         {
@@ -202,7 +202,7 @@
       "variables": [
         {
           "name": "CMAKE_TOOLCHAIN_FILE",
-          "value": "${env.ANDROID_NDK}\\build\\cmake\\android.toolchain.cmake",
+          "value": "${env.ANDROID_NDK_HOME}\\build\\cmake\\android.toolchain.cmake",
           "type": "FILEPATH"
         },
         {
@@ -236,7 +236,7 @@
       "variables": [
         {
           "name": "CMAKE_TOOLCHAIN_FILE",
-          "value": "${env.ANDROID_NDK}\\build\\cmake\\android.toolchain.cmake",
+          "value": "${env.ANDROID_NDK_HOME}\\build\\cmake\\android.toolchain.cmake",
           "type": "FILEPATH"
         },
         {
@@ -270,7 +270,7 @@
       "variables": [
         {
           "name": "CMAKE_TOOLCHAIN_FILE",
-          "value": "${env.ANDROID_NDK}\\build\\cmake\\android.toolchain.cmake",
+          "value": "${env.ANDROID_NDK_HOME}\\build\\cmake\\android.toolchain.cmake",
           "type": "FILEPATH"
         },
         {
