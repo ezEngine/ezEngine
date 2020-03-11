@@ -67,6 +67,8 @@ public:
 
   ezRandom& GetRNG() { return m_Random; }
 
+  ezUInt64 GetRandomSeed() const { return m_uiRandomSeed; }
+
   /// @name Transform Related
   /// @{
 public:
@@ -168,6 +170,7 @@ private:
   mutable ezTime m_EffectIsVisible;
   ezParticleEffectInstance* m_pVisibleIf = nullptr;
   ezEnum<ezEffectInvisibleUpdateRate> m_InvisibleUpdateRate;
+  ezUInt64 m_uiRandomSeed = 0;
 
   /// @}
   /// \name Effect Parameters

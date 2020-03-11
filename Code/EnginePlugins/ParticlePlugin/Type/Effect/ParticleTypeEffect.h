@@ -11,6 +11,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleTypeEffectFactory final : public ezParticl
 
 public:
   ezParticleTypeEffectFactory();
+  ~ezParticleTypeEffectFactory();
 
   virtual const ezRTTI* GetTypeType() const override;
   virtual void CopyTypeProperties(ezParticleType* pObject, bool bFirstTime) const override;
@@ -19,7 +20,6 @@ public:
   virtual void Load(ezStreamReader& stream) override;
 
   ezString m_sEffect;
-  ezUInt64 m_uiRandomSeed;
   ezString m_sSharedInstanceName; // to be removed
 };
 
@@ -32,7 +32,6 @@ public:
   ~ezParticleTypeEffect();
 
   ezParticleEffectResourceHandle m_hEffect;
-  ezUInt64 m_uiRandomSeed;
   //ezString m_sSharedInstanceName;
 
   virtual void CreateRequiredStreams() override;
