@@ -166,6 +166,8 @@ struct ezGALVertexAttributeSemantic
 
 struct ezGALVertexAttribute
 {
+  ezGALVertexAttribute() = default;
+
   ezGALVertexAttribute(ezGALVertexAttributeSemantic::Enum eSemantic, ezGALResourceFormat::Enum eFormat, ezUInt16 uiOffset,
     ezUInt8 uiVertexBufferSlot, bool bInstanceData);
 
