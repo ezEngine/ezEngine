@@ -16,11 +16,13 @@ template <typename DERIVED>
 class ezHashableStruct
 {
 public:
-  EZ_ALWAYS_INLINE ezHashableStruct(); // [tested]
+  ezHashableStruct(); // [tested]
+  ezHashableStruct(const ezHashableStruct<DERIVED>& other); // [tested]
+
+  void operator=(const ezHashableStruct<DERIVED>& other); // [tested]
 
   /// \brief Calculates the 32 bit hash of the struct and returns it
-  EZ_ALWAYS_INLINE ezUInt32 CalculateHash() const; // [tested]
+  ezUInt32 CalculateHash() const; // [tested]
 };
 
 #include <Foundation/Algorithm/Implementation/HashableStruct_inl.h>
-
