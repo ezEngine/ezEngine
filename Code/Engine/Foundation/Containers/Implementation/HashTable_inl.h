@@ -325,7 +325,7 @@ bool ezHashTableBase<K, V, H>::Insert(CompatibleKeyType&& key, CompatibleValueTy
 {
   Reserve(m_uiCount + 1);
 
-  ezUInt32 uiIndex = H::Hash(key) % m_uiCapacity;
+  ezUInt32 uiIndex = H::Hash(key) & (m_uiCapacity - 1);
   ezUInt32 uiDeletedIndex = ezInvalidIndex;
 
   ezUInt32 uiCounter = 0;
@@ -532,7 +532,7 @@ inline V& ezHashTableBase<K, V, H>::operator[](const K& key)
     Reserve(m_uiCount + 1);
 
     // search for suitable insertion index again, table might have been resized
-    uiIndex = uiHash % m_uiCapacity;
+    uiIndex = uiHash & (m_uiCapacity - 1);
     while (IsValidEntry(uiIndex))
     {
       ++uiIndex;
@@ -643,7 +643,7 @@ inline ezUInt32 ezHashTableBase<K, V, H>::FindEntry(ezUInt32 uiHash, const Compa
 {
   if (m_uiCapacity > 0)
   {
-    ezUInt32 uiIndex = uiHash % m_uiCapacity;
+    ezUInt32 uiIndex = uiHash & (m_uiCapacity - 1);
     ezUInt32 uiCounter = 0;
     while (!IsFreeEntry(uiIndex) && uiCounter < m_uiCapacity)
     {
