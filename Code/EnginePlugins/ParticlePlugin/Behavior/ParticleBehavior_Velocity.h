@@ -43,6 +43,8 @@ protected:
 
   virtual void Process(ezUInt64 uiNumElements) override;
 
+  void RequestRequiredWorldModulesForCache(ezParticleWorldModule* pParticleModule) override;
+
   // used to rise/fall along the gravity vector
   ezPhysicsWorldModuleInterface* m_pPhysicsModule = nullptr;
   ezWindWorldModuleInterface* m_pWindModule = nullptr;

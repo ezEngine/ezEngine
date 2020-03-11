@@ -67,7 +67,7 @@ protected:
   ezProcessingStream* m_pStreamTrailData = nullptr;
   ezProcessingStream* m_pStreamVariation = nullptr;
   ezTime m_LastSnapshot;
-  ezUInt8 m_uiCurFirstIndex;
+  ezUInt8 m_uiCurFirstIndex = 0;
   float m_fSnapshotFraction;
 
   mutable ezArrayPtr<ezBaseParticleShaderData> m_BaseParticleData;

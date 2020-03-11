@@ -25,15 +25,16 @@ private:
   {
     Billboards,
     BillboardRenderer,
-    ColorGradient,
-    Flies,
-    Gravity,
+    ColorGradientBehavior,
+    FliesBehavior,
+    GravityBehavior,
     LightRenderer,
     MeshRenderer,
-    Raycast,
-    SizeCurve,
+    RaycastBehavior,
+    SizeCurveBehavior,
     TrailRenderer,
-    Velocity,
+    VelocityBehavior,
+    EffectRenderer,
   };
 
   virtual void SetupSubTests() override;

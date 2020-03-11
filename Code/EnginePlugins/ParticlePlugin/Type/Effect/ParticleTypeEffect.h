@@ -49,8 +49,8 @@ protected:
   void ClearEffects(bool bInterruptImmediately);
 
   float m_fMaxEffectRadius = 1.0f;
-  ezProcessingStream* m_pStreamPosition;
-  ezProcessingStream* m_pStreamEffectID;
+  ezProcessingStream* m_pStreamPosition = nullptr;
+  ezProcessingStream* m_pStreamEffectID = nullptr;
 };
 
 

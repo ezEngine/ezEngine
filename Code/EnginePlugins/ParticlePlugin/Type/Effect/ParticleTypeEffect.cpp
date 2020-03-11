@@ -90,17 +90,16 @@ void ezParticleTypeEffectFactory::Load(ezStreamReader& stream)
 }
 
 
-ezParticleTypeEffect::ezParticleTypeEffect()
-{
-  m_pStreamEffectID = nullptr;
-  m_pStreamPosition = nullptr;
-}
+ezParticleTypeEffect::ezParticleTypeEffect() = default;
 
 ezParticleTypeEffect::~ezParticleTypeEffect()
 {
-  GetOwnerSystem()->RemoveParticleDeathEventHandler(ezMakeDelegate(&ezParticleTypeEffect::OnParticleDeath, this));
+  if (m_pStreamPosition != nullptr)
+  {
+    GetOwnerSystem()->RemoveParticleDeathEventHandler(ezMakeDelegate(&ezParticleTypeEffect::OnParticleDeath, this));
 
-  ClearEffects(true);
+    ClearEffects(true);
+  }
 }
 
 void ezParticleTypeEffect::CreateRequiredStreams()
@@ -133,7 +132,7 @@ void ezParticleTypeEffect::Process(ezUInt64 uiNumElements)
     if (pEffectID[i] == 0) // always an invalid ID
     {
       const void* pDummy = nullptr;
-      ezParticleEffectHandle hInstance = pWorldModule->CreateEffectInstance(m_hEffect, m_uiRandomSeed, /*m_sSharedInstanceName*/ nullptr, pDummy, ezArrayPtr<ezParticleEffectFloatParam>(), ezArrayPtr<ezParticleEffectColorParam>());
+      ezParticleEffectHandle hInstance = pWorldModule->CreateEffectInstance(m_hEffect, m_uiRandomSeed == 0 ? 0 : m_uiRandomSeed + i, /*m_sSharedInstanceName*/ nullptr, pDummy, ezArrayPtr<ezParticleEffectFloatParam>(), ezArrayPtr<ezParticleEffectColorParam>());
 
       pEffectID[i] = hInstance.GetInternalID().m_Data;
     }

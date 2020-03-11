@@ -6,6 +6,7 @@
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <GameEngine/Interfaces/PhysicsWorldModule.h>
+#include <Module/ParticleModule.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
 #include <ParticlePlugin/Streams/ParticleStream.h>
@@ -54,7 +55,19 @@ void ezParticleWorldModule::Initialize()
 
   ezResourceManager::GetResourceEvents().AddEventHandler(ezMakeDelegate(&ezParticleWorldModule::ResourceEventHandler, this));
 
-  m_WorldModuleCache[ezGetStaticRTTI<ezPhysicsWorldModuleInterface>()] = GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
+  {
+    ezHybridArray<const ezRTTI*, 32> types;
+    ezRTTI::GetAllTypesDerivedFrom(ezGetStaticRTTI<ezParticleModule>(), types, false);
+
+    for (const ezRTTI* pRtti : types)
+    {
+      if (pRtti->GetAllocator()->CanAllocate())
+      {
+        ezUniquePtr<ezParticleModule> pModule = pRtti->GetAllocator()->Allocate<ezParticleModule>();
+        pModule->RequestRequiredWorldModulesForCache(this);
+      }
+    }
+  }
 }
 
 
@@ -188,6 +201,11 @@ ezWorldModule* ezParticleWorldModule::GetCachedWorldModule(const ezRTTI* pRtti) 
   ezWorldModule* pModule = nullptr;
   m_WorldModuleCache.TryGetValue(pRtti, pModule);
   return pModule;
+}
+
+void ezParticleWorldModule::CacheWorldModule(const ezRTTI* pRtti)
+{
+  m_WorldModuleCache[pRtti] = GetWorld()->GetOrCreateModule(pRtti);
 }
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_WorldModule_ParticleWorldModule);

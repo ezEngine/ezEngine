@@ -11,7 +11,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{2701891235674633145,5060404136339819625}}
-		u4 %Hash{15785946974300763515}
+		u4 %Hash{14758842398088005880}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{7592304777055616296,9284428240187614702}}
@@ -43,7 +43,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Time %Value{d{0x0000000000001440}}
+		Time %Value{d{0x0000000000000840}}
 		f %Variance{0x0000803E}
 	}
 }
@@ -151,7 +151,7 @@ o
 	{
 		s %CountCurve{""}
 		Time %CurveDuration{d{0x0000000000002440}}
-		u3 %SpawnCountPerSec{1}
+		u3 %SpawnCountPerSec{3}
 		u3 %SpawnCountPerSecRange{0}
 		s %SpawnCountScaleParam{""}
 		Time %StartDelay{d{0}}

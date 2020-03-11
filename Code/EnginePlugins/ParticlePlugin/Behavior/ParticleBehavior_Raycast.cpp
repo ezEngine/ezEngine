@@ -189,4 +189,9 @@ void ezParticleBehavior_Raycast::Process(ezUInt64 uiNumElements)
   }
 }
 
+void ezParticleBehavior_Raycast::RequestRequiredWorldModulesForCache(ezParticleWorldModule* pParticleModule)
+{
+  pParticleModule->CacheWorldModule<ezPhysicsWorldModuleInterface>();
+}
+
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Behavior_ParticleBehavior_Raycast);

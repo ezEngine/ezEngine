@@ -50,8 +50,19 @@ public:
 
   ezParticleStream* CreateStreamDefaultInitializer(ezParticleSystemInstance* pOwner, const char* szFullStreamName) const;
 
+  /// \brief Can be called at any time (e.g. during ezParticleBehaviorFactory::CopyBehaviorProperties()) to query a previously cached world module,
+  /// even if that happens on a thread which would not be allowed to query this from the ezWorld at that time.
   ezWorldModule* GetCachedWorldModule(const ezRTTI* pRtti) const;
 
+  /// \brief Should be called by ezParticleModule::RequestRequiredWorldModulesForCache() to cache a pointer to a world module that is needed later.
+  template <class T>
+  void CacheWorldModule()
+  {
+    CacheWorldModule(ezGetStaticRTTI<T>());
+  }
+
+  /// \brief Should be called by ezParticleModule::RequestRequiredWorldModulesForCache() to cache a pointer to a world module that is needed later.
+  void CacheWorldModule(const ezRTTI* pRtti);
 
 private:
   void UpdateEffects(const ezWorldModule::UpdateContext& context);

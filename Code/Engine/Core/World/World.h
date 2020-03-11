@@ -101,9 +101,15 @@ public:
   template <typename ModuleType>
   ModuleType* GetOrCreateModule();
 
+  /// \brief Creates an instance of the given module type or derived type or returns a pointer to an already existing instance.
+  ezWorldModule* GetOrCreateModule(const ezRTTI* pRtti);
+
   /// \brief Deletes the module of the given type or derived types.
   template <typename ModuleType>
   void DeleteModule();
+
+  /// \brief Deletes the module of the given type or derived types.
+  void DeleteModule(const ezRTTI* pRtti);
 
   /// \brief Returns the instance to the given module type or derived types.
   template <typename ModuleType>
@@ -112,6 +118,12 @@ public:
   /// \brief Returns the instance to the given module type or derived types.
   template <typename ModuleType>
   const ModuleType* GetModule() const;
+
+  /// \brief Returns the instance to the given module type or derived types.
+  ezWorldModule* GetModule(const ezRTTI* pRtti);
+
+  /// \brief Returns the instance to the given module type or derived types.
+  const ezWorldModule* GetModule(const ezRTTI* pRtti) const;
 
   ///@}
   /// \name Component Functions
@@ -323,11 +335,6 @@ private:
   void CheckForWriteAccess() const;
 
   ezGameObject* GetObjectUnchecked(ezUInt32 uiIndex) const;
-
-  ezWorldModule* GetOrCreateModule(const ezRTTI* pRtti);
-  void DeleteModule(const ezRTTI* pRtti);
-  ezWorldModule* GetModule(const ezRTTI* pRtti);
-  const ezWorldModule* GetModule(const ezRTTI* pRtti) const;
 
   void SetParent(ezGameObject* pObject, ezGameObject* pNewParent, ezGameObject::TransformPreservation preserve = ezGameObject::TransformPreservation::PreserveGlobal);
   void LinkToParent(ezGameObject* pObject);

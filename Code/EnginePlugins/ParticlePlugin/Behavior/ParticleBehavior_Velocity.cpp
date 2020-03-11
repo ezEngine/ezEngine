@@ -8,8 +8,8 @@
 #include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <GameEngine/Interfaces/WindWorldModule.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior_Velocity.h>
-#include <ParticlePlugin/System/ParticleSystemInstance.h>
 #include <ParticlePlugin/Finalizer/ParticleFinalizer_ApplyVelocity.h>
+#include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Velocity, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_Velocity>)
@@ -48,8 +48,7 @@ void ezParticleBehaviorFactory_Velocity::CopyBehaviorProperties(ezParticleBehavi
 
   if (m_fWindInfluence > 0)
   {
-    // TODO
-    // pBehavior->m_pWindModule = pBehavior->GetOwnerSystem()->GetWorld()->GetModule<ezWindWorldModuleInterface>();
+    pBehavior->m_pWindModule = (ezWindWorldModuleInterface*)pBehavior->GetOwnerSystem()->GetOwnerWorldModule()->GetCachedWorldModule(ezGetStaticRTTI<ezWindWorldModuleInterface>());
   }
 }
 
@@ -139,6 +138,11 @@ void ezParticleBehavior_Velocity::Process(ezUInt64 uiNumElements)
   }
 }
 
+void ezParticleBehavior_Velocity::RequestRequiredWorldModulesForCache(ezParticleWorldModule* pParticleModule)
+{
+  pParticleModule->CacheWorldModule<ezPhysicsWorldModuleInterface>();
+  pParticleModule->CacheWorldModule<ezWindWorldModuleInterface>();
+}
 
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Behavior_ParticleBehavior_Velocity);

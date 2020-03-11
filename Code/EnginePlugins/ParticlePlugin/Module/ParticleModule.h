@@ -2,14 +2,16 @@
 
 #include <Foundation/DataProcessing/Stream/ProcessingStream.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamProcessor.h>
-#include <ParticlePlugin/ParticlePluginDLL.h>
 #include <ParticlePlugin/Declarations.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
+#include <ParticlePlugin/ParticlePluginDLL.h>
 
 class ezProcessingStream;
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleModule : public ezProcessingStreamProcessor
 {
+  EZ_ADD_DYNAMIC_REFLECTION(ezParticleModule, ezProcessingStreamProcessor);
+
   friend class ezParticleSystemInstance;
 
 public:
@@ -32,6 +34,9 @@ public:
   const ezParticleSystemInstance* GetOwnerSystem() const { return m_pOwnerSystem; }
 
   ezParticleEffectInstance* GetOwnerEffect() const { return m_pOwnerSystem->GetOwnerEffect(); }
+
+  /// \brief Override this to cache world module pointers for later (through ezParticleWorldModule::GetCachedWorldModule()).
+  virtual void RequestRequiredWorldModulesForCache(ezParticleWorldModule* pParticleModule) {}
 
 protected:
   /// \brief Called by Reset()

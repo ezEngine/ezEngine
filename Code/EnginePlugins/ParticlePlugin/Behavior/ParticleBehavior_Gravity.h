@@ -38,6 +38,8 @@ protected:
 
   virtual void Process(ezUInt64 uiNumElements) override;
 
+  void RequestRequiredWorldModulesForCache(ezParticleWorldModule* pParticleModule) override;
+
   ezPhysicsWorldModuleInterface* m_pPhysicsModule;
 
   ezProcessingStream* m_pStreamVelocity;

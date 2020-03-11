@@ -149,14 +149,14 @@ void ezParticleTypeTrailFactory::Load(ezStreamReader& stream)
 
 //////////////////////////////////////////////////////////////////////////
 
-ezParticleTypeTrail::ezParticleTypeTrail()
-{
-  m_uiCurFirstIndex = 0;
-}
+ezParticleTypeTrail::ezParticleTypeTrail() = default;
 
 ezParticleTypeTrail::~ezParticleTypeTrail()
 {
-  GetOwnerSystem()->RemoveParticleDeathEventHandler(ezMakeDelegate(&ezParticleTypeTrail::OnParticleDeath, this));
+  if (m_pStreamPosition != nullptr)
+  {
+    GetOwnerSystem()->RemoveParticleDeathEventHandler(ezMakeDelegate(&ezParticleTypeTrail::OnParticleDeath, this));
+  }
 }
 
 void ezParticleTypeTrail::CreateRequiredStreams()
@@ -205,11 +205,11 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
 
     // this will automatically be deallocated at the end of the frame
     m_BaseParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezBaseParticleShaderData,
-                                      (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
+      (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
     m_TrailPointsShared =
-        EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezVec4, (ezUInt32)GetOwnerSystem()->GetNumActiveParticles() * uiBucketSize);
+      EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezVec4, (ezUInt32)GetOwnerSystem()->GetNumActiveParticles() * uiBucketSize);
     m_TrailParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezTrailParticleShaderData,
-                                       (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
+      (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
 
     for (ezUInt32 p = 0; p < numActiveParticles; ++p)
     {
