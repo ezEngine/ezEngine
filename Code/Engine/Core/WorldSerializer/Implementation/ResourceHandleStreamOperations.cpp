@@ -3,8 +3,6 @@
 #include <Core/ResourceManager/Resource.h>
 #include <Core/WorldSerializer/ResourceHandleStreamOperations.h>
 
-// ReadHandle Implementation is currently in ResourceHandleReader.cpp
-
 // static
 void ezResourceHandleStreamOperations::WriteHandle(ezStreamWriter& Stream, const ezResource* pResource)
 {
@@ -20,6 +18,33 @@ void ezResourceHandleStreamOperations::WriteHandle(ezStreamWriter& Stream, const
   }
 }
 
+// static
+void ezResourceHandleStreamOperations::ReadHandle(ezStreamReader& Stream, ezTypelessResourceHandle& ResourceHandle)
+{
+  ezStringBuilder sTemp;
+
+  Stream >> sTemp;
+  if (sTemp.IsEmpty())
+  {
+    ResourceHandle.Invalidate();
+    return;
+  }
+
+  const ezRTTI* pRtti = ezRTTI::FindTypeByName(sTemp);
+  if (pRtti == nullptr)
+  {
+    ezLog::Error("Unknown resource type '{0}'", sTemp);
+    ResourceHandle.Invalidate();
+  }
+
+  // read unique ID for restoring the resource (from file)
+  Stream >> sTemp;
+
+  if (pRtti != nullptr)
+  {
+    ResourceHandle = ezResourceManager::LoadResourceByType(pRtti, sTemp);
+  }
+}
+
 
 EZ_STATICLINK_FILE(Core, Core_WorldSerializer_Implementation_ResourceHandleStreamOperations);
-

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/World/World.h>
-#include <Core/WorldSerializer/ResourceHandleReader.h>
+#include <Core/WorldSerializer/ResourceHandleStreamOperations.h>
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Types/UniquePtr.h>
@@ -211,28 +211,4 @@ private:
     ezUniquePtr<ezProgressRange> m_pOverallProgressRange;
     ezUniquePtr<ezProgressRange> m_pSubProgressRange;
   };
-
-  // OLD SERIALIZATION DATA
-  // Remove after they are not needed anymore.
-  void ReadComponentDataToMemStreamOld();
-  void CreateAndReadComponentsOfTypeOld(ezUInt32 uiComponentTypeIdx);
-  void FulfillComponentHandleRequetsOld();
-  void InstantiateOld(ezWorld& world, bool bUseTransform, const ezTransform& rootTransform, ezGameObjectHandle hParent,
-    ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, ezHybridArray<ezGameObject*, 8>* out_CreatedChildObjects,
-    const ezUInt16* pOverrideTeamID, bool bForceDynamic);
-
-  ezResourceHandleReadContext m_HandleReadContext;
-
-  struct CompRequest
-  {
-    EZ_DECLARE_POD_TYPE();
-
-    ezComponentHandle* m_pWriteToComponent;
-    ezUInt32 m_uiComponentIndex;
-  };
-
-  ezHybridArray<CompRequest, 64> m_ComponentHandleRequests;
-
-  ezUInt32 m_uiMaxComponents = 0;
-  ezDynamicArray<ezComponentHandle> m_IndexToComponentHandle;
 };
