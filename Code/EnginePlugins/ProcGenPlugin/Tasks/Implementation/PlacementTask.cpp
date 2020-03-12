@@ -50,7 +50,7 @@ void PlacementTask::FindPlacementPoints()
   EZ_ASSERT_DEV(m_pData->m_pPhysicsModule != nullptr, "Physics module must be valid");
   auto pOutput = m_pData->m_pOutput;
 
-  ezSimdVec4i seed = ezSimdVec4i(m_pData->m_iTileSeed) + ezSimdVec4i(0, 3, 7, 11);
+  ezSimdVec4u seed = ezSimdVec4u(m_pData->m_iTileSeed) + ezSimdVec4u(0, 3, 7, 11);
 
   float fZRange = m_pData->m_TileBoundingBox.GetExtents().z;
   ezSimdFloat fZStart = m_pData->m_TileBoundingBox.m_vMax.z;
@@ -69,7 +69,7 @@ void PlacementTask::FindPlacementPoints()
     ezSimdVec4f patternCoords = ezSimdConversion::ToVec3(patternPoint.m_Coordinates.GetAsVec3(0.0f));
 
     ezSimdVec4f rayStart = (vXY + patternCoords * pOutput->m_fFootprint);
-    rayStart += ezSimdRandom::FloatMinMax(seed + ezSimdVec4i(i), vMinOffset, vMaxOffset);
+    rayStart += ezSimdRandom::FloatMinMax(seed + ezSimdVec4u(i), vMinOffset, vMaxOffset);
     rayStart.SetZ(fZStart);
 
     ezPhysicsCastResult hitResult;
@@ -194,7 +194,7 @@ void PlacementTask::ExecuteVM()
 
   m_OutputTransforms.SetCountUninitialized(m_ValidPoints.GetCount());
 
-  ezSimdVec4i seed = ezSimdVec4i(m_pData->m_iTileSeed) + ezSimdVec4i(0, 3, 7, 11);
+  ezSimdVec4u seed = ezSimdVec4u(m_pData->m_iTileSeed) + ezSimdVec4u(0, 3, 7, 11);
 
   float fMinAngle = 0.0f;
   float fMaxAngle = ezMath::Pi<float>() * 2.0f;
@@ -220,7 +220,7 @@ void PlacementTask::ExecuteVM()
     auto& placementPoint = m_InputPoints[uiInputPointIndex];
     auto& placementTransform = m_OutputTransforms[i];
 
-    ezSimdVec4f random = ezSimdRandom::FloatMinMax(seed + ezSimdVec4i(placementPoint.m_uiPointIndex), vMinValue, vMaxValue);
+    ezSimdVec4f random = ezSimdRandom::FloatMinMax(seed + ezSimdVec4u(placementPoint.m_uiPointIndex), vMinValue, vMaxValue);
 
     placementTransform.m_Transform.SetIdentity();
 
