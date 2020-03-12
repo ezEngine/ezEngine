@@ -1,12 +1,12 @@
 #include <RendererCorePCH.h>
 
 #include <Core/ResourceManager/ResourceManager.h>
+#include <Core/WorldSerializer/ResourceHandleStreamOperations.h>
+#include <Foundation/IO/Stream.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
 #include <RendererCore/AnimationSystem/AnimationGraph/AnimationClipSampler.h>
 #include <RendererCore/AnimationSystem/Skeleton.h>
 #include <RendererCore/AnimationSystem/SkeletonResource.h>
-#include <Foundation/IO/Stream.h>
-#include <Core/WorldSerializer/ResourceHandleReader.h>
 
 ezAnimationClipSampler::ezAnimationClipSampler() = default;
 ezAnimationClipSampler::~ezAnimationClipSampler() = default;
@@ -224,4 +224,3 @@ ezTransform ezAnimationClipSampler::ComputeRootMotion(const ezAnimationClipResou
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_AnimationGraph_Implementation_AnimationClipSampler);
-

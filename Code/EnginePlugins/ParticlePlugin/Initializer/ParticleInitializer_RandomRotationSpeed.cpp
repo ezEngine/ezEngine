@@ -1,6 +1,5 @@
 #include <ParticlePluginPCH.h>
 
-#include <Core/WorldSerializer/ResourceHandleReader.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <Foundation/Math/Float16.h>
 #include <Foundation/Math/Random.h>

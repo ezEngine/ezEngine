@@ -1,6 +1,5 @@
 #include <ParticlePluginPCH.h>
 
-#include <Core/WorldSerializer/ResourceHandleReader.h>
 #include <Foundation/Types/ScopeExit.h>
 #include <ParticlePlugin/Effect/ParticleEffectDescriptor.h>
 #include <ParticlePlugin/Events/ParticleEventReaction.h>

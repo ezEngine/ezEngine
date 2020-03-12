@@ -253,12 +253,16 @@ export class DecalComponent extends RenderComponent
   set SizeVariance(value: number) { __CPP_ComponentProperty_set(this, 1644122058, value); }
   get Color(): Color { return __CPP_ComponentProperty_get(this, 4010460738); }
   set Color(value: Color) { __CPP_ComponentProperty_set(this, 4010460738, value); }
+  get EmissiveColor(): Color { return __CPP_ComponentProperty_get(this, 3707224434); }
+  set EmissiveColor(value: Color) { __CPP_ComponentProperty_set(this, 3707224434, value); }
   get Decal(): string { return __CPP_ComponentProperty_get(this, 1185422148); }
   set Decal(value: string) { __CPP_ComponentProperty_set(this, 1185422148, value); }
   get SortOrder(): number { return __CPP_ComponentProperty_get(this, 3224004631); }
   set SortOrder(value: number) { __CPP_ComponentProperty_set(this, 3224004631, value); }
   get WrapAround(): boolean { return __CPP_ComponentProperty_get(this, 2245558943); }
   set WrapAround(value: boolean) { __CPP_ComponentProperty_set(this, 2245558943, value); }
+  get MapNormalToGeometry(): boolean { return __CPP_ComponentProperty_get(this, 4227102709); }
+  set MapNormalToGeometry(value: boolean) { __CPP_ComponentProperty_set(this, 4227102709, value); }
   get InnerFadeAngle(): number { return __CPP_ComponentProperty_get(this, 3131777915); }
   set InnerFadeAngle(value: number) { __CPP_ComponentProperty_set(this, 3131777915, value); }
   get OuterFadeAngle(): number { return __CPP_ComponentProperty_get(this, 775085950); }
