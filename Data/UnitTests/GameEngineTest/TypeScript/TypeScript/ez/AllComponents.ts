@@ -321,6 +321,46 @@ export class EventMessageHandlerComponent extends Component
   set HandleGlobalEvents(value: boolean) { __CPP_ComponentProperty_set(this, 910121982, value); }
 }
 
+export class FmodComponent extends Component
+{
+  public static GetTypeNameHash(): number { return 2042709018; }
+}
+
+export class FmodEventComponent extends FmodComponent
+{
+  public static GetTypeNameHash(): number { return 558378035; }
+  Restart(): void { __CPP_ComponentFunction_Call(this, 3278969315); }
+  StartOneShot(): void { __CPP_ComponentFunction_Call(this, 59512104); }
+  StopSound(Immediate: boolean): void { __CPP_ComponentFunction_Call(this, 3059346774, Immediate); }
+  SoundCue(): void { __CPP_ComponentFunction_Call(this, 2615422936); }
+  SetEventParameter(ParamName: string, Value: number): void { __CPP_ComponentFunction_Call(this, 2920137221, ParamName, Value); }
+  get Paused(): boolean { return __CPP_ComponentProperty_get(this, 1656273756); }
+  set Paused(value: boolean) { __CPP_ComponentProperty_set(this, 1656273756, value); }
+  get Volume(): number { return __CPP_ComponentProperty_get(this, 1025867988); }
+  set Volume(value: number) { __CPP_ComponentProperty_set(this, 1025867988, value); }
+  get Pitch(): number { return __CPP_ComponentProperty_get(this, 3452951144); }
+  set Pitch(value: number) { __CPP_ComponentProperty_set(this, 3452951144, value); }
+  get SoundEvent(): string { return __CPP_ComponentProperty_get(this, 3003562859); }
+  set SoundEvent(value: string) { __CPP_ComponentProperty_set(this, 3003562859, value); }
+  get UseOcclusion(): boolean { return __CPP_ComponentProperty_get(this, 2037892002); }
+  set UseOcclusion(value: boolean) { __CPP_ComponentProperty_set(this, 2037892002, value); }
+  get OcclusionThreshold(): number { return __CPP_ComponentProperty_get(this, 7389752); }
+  set OcclusionThreshold(value: number) { __CPP_ComponentProperty_set(this, 7389752, value); }
+  get OcclusionCollisionLayer(): number { return __CPP_ComponentProperty_get(this, 1847228176); }
+  set OcclusionCollisionLayer(value: number) { __CPP_ComponentProperty_set(this, 1847228176, value); }
+  get OnFinishedAction(): Enum.OnComponentFinishedAction { return __CPP_ComponentProperty_get(this, 3813182848); }
+  set OnFinishedAction(value: Enum.OnComponentFinishedAction) { __CPP_ComponentProperty_set(this, 3813182848, value); }
+  get ShowDebugInfo(): boolean { return __CPP_ComponentProperty_get(this, 2228978601); }
+  set ShowDebugInfo(value: boolean) { __CPP_ComponentProperty_set(this, 2228978601, value); }
+}
+
+export class FmodListenerComponent extends FmodComponent
+{
+  public static GetTypeNameHash(): number { return 1825899409; }
+  get ListenerIndex(): number { return __CPP_ComponentProperty_get(this, 4006526050); }
+  set ListenerIndex(value: number) { __CPP_ComponentProperty_set(this, 4006526050, value); }
+}
+
 export class FogComponent extends SettingsComponent
 {
   public static GetTypeNameHash(): number { return 3388463903; }
