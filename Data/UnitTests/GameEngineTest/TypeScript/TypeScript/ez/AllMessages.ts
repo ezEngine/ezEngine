@@ -116,12 +116,6 @@ export class MsgExtractVolumes extends Message
   constructor() { super(); this.TypeNameHash = 3796594901; }
 }
 
-export class MsgFmodSoundFinished extends EventMessage
-{
-  public static GetTypeNameHash(): number { return 4085975113; }
-  constructor() { super(); this.TypeNameHash = 4085975113; }
-}
-
 export class MsgGenericEvent extends EventMessage
 {
   public static GetTypeNameHash(): number { return 1061762376; }

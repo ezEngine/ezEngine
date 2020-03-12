@@ -253,12 +253,16 @@ export class DecalComponent extends RenderComponent
   set SizeVariance(value: number) { __CPP_ComponentProperty_set(this, 1644122058, value); }
   get Color(): Color { return __CPP_ComponentProperty_get(this, 4010460738); }
   set Color(value: Color) { __CPP_ComponentProperty_set(this, 4010460738, value); }
+  get EmissiveColor(): Color { return __CPP_ComponentProperty_get(this, 3707224434); }
+  set EmissiveColor(value: Color) { __CPP_ComponentProperty_set(this, 3707224434, value); }
   get Decal(): string { return __CPP_ComponentProperty_get(this, 1185422148); }
   set Decal(value: string) { __CPP_ComponentProperty_set(this, 1185422148, value); }
   get SortOrder(): number { return __CPP_ComponentProperty_get(this, 3224004631); }
   set SortOrder(value: number) { __CPP_ComponentProperty_set(this, 3224004631, value); }
   get WrapAround(): boolean { return __CPP_ComponentProperty_get(this, 2245558943); }
   set WrapAround(value: boolean) { __CPP_ComponentProperty_set(this, 2245558943, value); }
+  get MapNormalToGeometry(): boolean { return __CPP_ComponentProperty_get(this, 4227102709); }
+  set MapNormalToGeometry(value: boolean) { __CPP_ComponentProperty_set(this, 4227102709, value); }
   get InnerFadeAngle(): number { return __CPP_ComponentProperty_get(this, 3131777915); }
   set InnerFadeAngle(value: number) { __CPP_ComponentProperty_set(this, 3131777915, value); }
   get OuterFadeAngle(): number { return __CPP_ComponentProperty_get(this, 775085950); }
@@ -315,46 +319,6 @@ export class EventMessageHandlerComponent extends Component
   public static GetTypeNameHash(): number { return 155900694; }
   get HandleGlobalEvents(): boolean { return __CPP_ComponentProperty_get(this, 910121982); }
   set HandleGlobalEvents(value: boolean) { __CPP_ComponentProperty_set(this, 910121982, value); }
-}
-
-export class FmodComponent extends Component
-{
-  public static GetTypeNameHash(): number { return 2042709018; }
-}
-
-export class FmodEventComponent extends FmodComponent
-{
-  public static GetTypeNameHash(): number { return 558378035; }
-  Restart(): void { __CPP_ComponentFunction_Call(this, 3278969315); }
-  StartOneShot(): void { __CPP_ComponentFunction_Call(this, 59512104); }
-  StopSound(Immediate: boolean): void { __CPP_ComponentFunction_Call(this, 3059346774, Immediate); }
-  SoundCue(): void { __CPP_ComponentFunction_Call(this, 2615422936); }
-  SetEventParameter(ParamName: string, Value: number): void { __CPP_ComponentFunction_Call(this, 2920137221, ParamName, Value); }
-  get Paused(): boolean { return __CPP_ComponentProperty_get(this, 1656273756); }
-  set Paused(value: boolean) { __CPP_ComponentProperty_set(this, 1656273756, value); }
-  get Volume(): number { return __CPP_ComponentProperty_get(this, 1025867988); }
-  set Volume(value: number) { __CPP_ComponentProperty_set(this, 1025867988, value); }
-  get Pitch(): number { return __CPP_ComponentProperty_get(this, 3452951144); }
-  set Pitch(value: number) { __CPP_ComponentProperty_set(this, 3452951144, value); }
-  get SoundEvent(): string { return __CPP_ComponentProperty_get(this, 3003562859); }
-  set SoundEvent(value: string) { __CPP_ComponentProperty_set(this, 3003562859, value); }
-  get UseOcclusion(): boolean { return __CPP_ComponentProperty_get(this, 2037892002); }
-  set UseOcclusion(value: boolean) { __CPP_ComponentProperty_set(this, 2037892002, value); }
-  get OcclusionThreshold(): number { return __CPP_ComponentProperty_get(this, 7389752); }
-  set OcclusionThreshold(value: number) { __CPP_ComponentProperty_set(this, 7389752, value); }
-  get OcclusionCollisionLayer(): number { return __CPP_ComponentProperty_get(this, 1847228176); }
-  set OcclusionCollisionLayer(value: number) { __CPP_ComponentProperty_set(this, 1847228176, value); }
-  get OnFinishedAction(): Enum.OnComponentFinishedAction { return __CPP_ComponentProperty_get(this, 3813182848); }
-  set OnFinishedAction(value: Enum.OnComponentFinishedAction) { __CPP_ComponentProperty_set(this, 3813182848, value); }
-  get ShowDebugInfo(): boolean { return __CPP_ComponentProperty_get(this, 2228978601); }
-  set ShowDebugInfo(value: boolean) { __CPP_ComponentProperty_set(this, 2228978601, value); }
-}
-
-export class FmodListenerComponent extends FmodComponent
-{
-  public static GetTypeNameHash(): number { return 1825899409; }
-  get ListenerIndex(): number { return __CPP_ComponentProperty_get(this, 4006526050); }
-  set ListenerIndex(value: number) { __CPP_ComponentProperty_set(this, 4006526050, value); }
 }
 
 export class FogComponent extends SettingsComponent
