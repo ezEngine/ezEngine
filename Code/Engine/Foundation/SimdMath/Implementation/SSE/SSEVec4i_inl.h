@@ -212,9 +212,13 @@ EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::CompMax(const ezSimdVec4i& v) const
 
 EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::Abs() const
 {
+#if EZ_SSE_LEVEL >= EZ_SSE_31
+  return _mm_abs_epi32(m_v);
+#else
   __m128i negMask = _mm_cmplt_epi32(m_v, _mm_setzero_si128());
   __m128i neg = _mm_sub_epi32(_mm_setzero_si128(), m_v);
   return _mm_or_si128(_mm_and_si128(negMask, neg), _mm_andnot_si128(negMask, m_v));
+#endif
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4i::operator==(const ezSimdVec4i& v) const

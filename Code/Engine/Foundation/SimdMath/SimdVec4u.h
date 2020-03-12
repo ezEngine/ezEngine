@@ -1,0 +1,89 @@
+#pragma once
+
+#include <Foundation/SimdMath/SimdVec4f.h>
+
+/// \brief A SIMD 4-component vector class of unsigned 32b integers
+class EZ_FOUNDATION_DLL ezSimdVec4u
+{
+public:
+  EZ_DECLARE_POD_TYPE();
+
+  ezSimdVec4u(); // [tested]
+
+  explicit ezSimdVec4u(ezUInt32 xyzw); // [tested]
+
+  ezSimdVec4u(ezUInt32 x, ezUInt32 y, ezUInt32 z, ezUInt32 w = 1); // [tested]
+
+  ezSimdVec4u(ezInternal::QuadUInt v); // [tested]
+
+  void Set(ezUInt32 xyzw); // [tested]
+
+  void Set(ezUInt32 x, ezUInt32 y, ezUInt32 z, ezUInt32 w); // [tested]
+
+  void SetZero(); // [tested]
+
+public:
+  ezSimdVec4f ToFloat() const; // [tested]
+
+  static ezSimdVec4u Truncate(const ezSimdVec4f& f); // [tested]
+
+public:
+  template <int N>
+  ezUInt32 GetComponent() const; // [tested]
+
+  ezUInt32 x() const; // [tested]
+  ezUInt32 y() const; // [tested]
+  ezUInt32 z() const; // [tested]
+  ezUInt32 w() const; // [tested]
+
+  template <ezSwizzle::Enum s>
+  ezSimdVec4u Get() const; // [tested]
+
+public:
+  ezSimdVec4u operator+(const ezSimdVec4u& v) const; // [tested]
+  ezSimdVec4u operator-(const ezSimdVec4u& v) const; // [tested]
+
+  ezSimdVec4u CompMul(const ezSimdVec4u& v) const; // [tested]
+
+  ezSimdVec4u operator|(const ezSimdVec4u& v) const; // [tested]
+  ezSimdVec4u operator&(const ezSimdVec4u& v) const; // [tested]
+  ezSimdVec4u operator^(const ezSimdVec4u& v) const; // [tested]
+  ezSimdVec4u operator~() const;                     // [tested]
+
+  ezSimdVec4u operator<<(ezUInt32 uiShift) const; // [tested]
+  ezSimdVec4u operator>>(ezUInt32 uiShift) const; // [tested]
+
+  ezSimdVec4u& operator+=(const ezSimdVec4u& v); // [tested]
+  ezSimdVec4u& operator-=(const ezSimdVec4u& v); // [tested]
+
+  ezSimdVec4u& operator|=(const ezSimdVec4u& v); // [tested]
+  ezSimdVec4u& operator&=(const ezSimdVec4u& v); // [tested]
+  ezSimdVec4u& operator^=(const ezSimdVec4u& v); // [tested]
+
+  ezSimdVec4u& operator<<=(ezUInt32 uiShift); // [tested]
+  ezSimdVec4u& operator>>=(ezUInt32 uiShift); // [tested]
+
+  ezSimdVec4u CompMin(const ezSimdVec4u& v) const; // [tested]
+  ezSimdVec4u CompMax(const ezSimdVec4u& v) const; // [tested]
+
+  ezSimdVec4b operator==(const ezSimdVec4u& v) const; // [tested]
+  ezSimdVec4b operator!=(const ezSimdVec4u& v) const; // [tested]
+  ezSimdVec4b operator<=(const ezSimdVec4u& v) const; // [tested]
+  ezSimdVec4b operator<(const ezSimdVec4u& v) const;  // [tested]
+  ezSimdVec4b operator>=(const ezSimdVec4u& v) const; // [tested]
+  ezSimdVec4b operator>(const ezSimdVec4u& v) const;  // [tested]
+
+  static ezSimdVec4u ZeroVector(); // [tested]
+
+public:
+  ezInternal::QuadUInt m_v;
+};
+
+#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
+#  include <Foundation/SimdMath/Implementation/SSE/SSEVec4u_inl.h>
+#elif EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_FPU
+#  include <Foundation/SimdMath/Implementation/FPU/FPUVec4u_inl.h>
+#else
+#  error "Unknown SIMD implementation."
+#endif
+
