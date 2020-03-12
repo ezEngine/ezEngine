@@ -36,6 +36,12 @@ Plugin
 }
 Plugin
 {
+	string %Path{"ezFmodPlugin"}
+	bool %LoadCopy{false}
+	string %DependencyOf{"EditorPluginFmod"}
+}
+Plugin
+{
 	string %Path{"ezKrautPlugin"}
 	bool %LoadCopy{false}
 	string %DependencyOf{"EditorPluginKraut"}
