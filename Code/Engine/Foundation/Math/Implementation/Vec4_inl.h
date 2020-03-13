@@ -340,8 +340,8 @@ inline const ezVec4Template<Type> ezVec4Template<Type>::CompMul(const ezVec4Temp
   return ezVec4Template<Type>(x * rhs.x, y * rhs.y, z * rhs.z, w * rhs.w);
 }
 
-#pragma warning(push)
-#pragma warning(disable : 4723)
+EZ_MSVC_ANALYSIS_WARNING_PUSH
+EZ_MSVC_ANALYSIS_WARNING_DISABLE(4723)
 template <typename Type>
 inline const ezVec4Template<Type> ezVec4Template<Type>::CompDiv(const ezVec4Template<Type>& rhs) const
 {
@@ -350,7 +350,7 @@ inline const ezVec4Template<Type> ezVec4Template<Type>::CompDiv(const ezVec4Temp
 
   return ezVec4Template<Type>(x / rhs.x, y / rhs.y, z / rhs.z, w / rhs.w);
 }
-#pragma warning(pop)
+EZ_MSVC_ANALYSIS_WARNING_POP
 
 template <typename Type>
 inline const ezVec4Template<Type> ezVec4Template<Type>::Abs() const
