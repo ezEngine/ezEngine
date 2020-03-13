@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Foundation/SimdMath/SimdVec4f.h>
+#include <Foundation/SimdMath/SimdVec4i.h>
 
 /// \brief A SIMD 4-component vector class of unsigned 32b integers
 class EZ_FOUNDATION_DLL ezSimdVec4u

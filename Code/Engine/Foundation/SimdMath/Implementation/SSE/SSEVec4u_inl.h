@@ -45,13 +45,32 @@ EZ_ALWAYS_INLINE void ezSimdVec4u::SetZero()
 
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4u::ToFloat() const
 {
-  return _mm_cvtepi32_ps(m_v);
+  __m128 two16 = _mm_set1_ps((float)0x10000); //2^16
+  __m128i high = _mm_srli_epi32(m_v, 16);
+  __m128i low = _mm_srli_epi32(_mm_slli_epi32(m_v, 16), 16);
+  __m128 fHigh = _mm_mul_ps(_mm_cvtepi32_ps(high), two16);
+  __m128 fLow = _mm_cvtepi32_ps(low);
+
+  return _mm_add_ps(fHigh, fLow);
 }
 
 // static
 EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::Truncate(const ezSimdVec4f& f)
 {
-  return _mm_cvttps_epi32(f.m_v);
+  const float EZ_ALIGN_16(fmax[4]) = {2.14748364e+009f, 2.14748364e+009f, 2.14748364e+009f, 2.14748364e+009f};
+  const float EZ_ALIGN_16(fmax_unsigned[4]) = {4.29496729e+009f, 4.29496729e+009f, 4.29496729e+009f, 4.29496729e+009f};
+  __m128i zero = _mm_setzero_si128();
+  __m128i mask = _mm_cmpgt_epi32(_mm_castps_si128(f.m_v), zero);
+  __m128 min = _mm_and_ps(_mm_castsi128_ps(mask), f.m_v);
+  __m128 max = _mm_min_ps(min, _mm_load_ps(fmax_unsigned)); //clamped in 0 - 4.29496729+009
+
+  __m128 diff = _mm_sub_ps(max, _mm_load_ps(fmax));
+  mask = _mm_cmpgt_epi32(_mm_castps_si128(diff), zero);
+  diff = _mm_and_ps(_mm_castsi128_ps(mask), diff);
+
+  __m128i res1 = _mm_cvttps_epi32(diff);
+  __m128i res2 = ezSimdVec4i::Truncate(max).m_v;
+  return _mm_add_epi32(res1, res2);
 }
 
 template <int N>

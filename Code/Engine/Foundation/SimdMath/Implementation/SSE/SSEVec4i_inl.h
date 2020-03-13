@@ -51,7 +51,10 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4i::ToFloat() const
 // static
 EZ_ALWAYS_INLINE ezSimdVec4i ezSimdVec4i::Truncate(const ezSimdVec4f& f)
 {
-  return _mm_cvttps_epi32(f.m_v);
+  const float EZ_ALIGN_16(fmax[4]) = {2.14748364e+009f, 2.14748364e+009f, 2.14748364e+009f, 2.14748364e+009f};
+  __m128 diff = _mm_cmpge_ps(f.m_v, _mm_load_ps(fmax));
+  __m128i res = _mm_cvttps_epi32(f.m_v);
+  return _mm_xor_si128(res, _mm_castps_si128(diff));
 }
 
 template <int N>
