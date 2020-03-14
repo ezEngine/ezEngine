@@ -43,6 +43,17 @@ EZ_ALWAYS_INLINE void ezSimdVec4u::SetZero()
   m_v = _mm_setzero_si128();
 }
 
+// needs to be implemented here because of include dependencies
+EZ_ALWAYS_INLINE ezSimdVec4i::ezSimdVec4i(const ezSimdVec4u& u)
+  : m_v(u.m_v)
+{
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4u::ezSimdVec4u(const ezSimdVec4i& i)
+  : m_v(i.m_v)
+{
+}
+
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4u::ToFloat() const
 {
   __m128 two16 = _mm_set1_ps((float)0x10000); //2^16

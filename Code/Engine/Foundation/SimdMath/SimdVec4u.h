@@ -23,6 +23,9 @@ public:
   void SetZero(); // [tested]
 
 public:
+  explicit ezSimdVec4u(const ezSimdVec4i& i); // [tested]
+
+public:
   ezSimdVec4f ToFloat() const; // [tested]
 
   static ezSimdVec4u Truncate(const ezSimdVec4f& f); // [tested]

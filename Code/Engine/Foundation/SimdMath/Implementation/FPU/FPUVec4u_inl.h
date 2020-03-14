@@ -37,6 +37,17 @@ EZ_ALWAYS_INLINE void ezSimdVec4u::SetZero()
   m_v.SetZero();
 }
 
+// needs to be implemented here because of include dependencies
+EZ_ALWAYS_INLINE ezSimdVec4i::ezSimdVec4i(const ezSimdVec4u& u)
+  : m_v(u.m_v.x, u.m_v.y, u.m_v.z, u.m_v.w)
+{
+}
+
+EZ_ALWAYS_INLINE ezSimdVec4u::ezSimdVec4u(const ezSimdVec4i& i)
+  : m_v(i.m_v.x, i.m_v.y, i.m_v.z, i.m_v.w)
+{
+}
+
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4u::ToFloat() const
 {
   ezSimdVec4f result;

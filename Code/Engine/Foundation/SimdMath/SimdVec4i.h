@@ -2,6 +2,8 @@
 
 #include <Foundation/SimdMath/SimdVec4f.h>
 
+class ezSimdVec4u;
+
 /// \brief A SIMD 4-component vector class of signed 32b integers
 class EZ_FOUNDATION_DLL ezSimdVec4i
 {
@@ -21,6 +23,9 @@ public:
   void Set(ezInt32 x, ezInt32 y, ezInt32 z, ezInt32 w); // [tested]
 
   void SetZero(); // [tested]
+
+public:
+  explicit ezSimdVec4i(const ezSimdVec4u& u); // [tested]
 
 public:
   ezSimdVec4f ToFloat() const; // [tested]

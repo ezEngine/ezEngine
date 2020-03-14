@@ -1,6 +1,6 @@
 #include <FoundationTestPCH.h>
 
-#include <Foundation/SimdMath/SimdVec4i.h>
+#include <Foundation/SimdMath/SimdVec4u.h>
 
 EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4i)
 {
@@ -61,6 +61,9 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4i)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Conversion")
   {
     ezSimdVec4i ia(-3, 5, -7, 11);
+
+    ezSimdVec4u ua(ia);
+    EZ_TEST_BOOL(ua.x() == -3 && ua.y() == 5 && ua.z() == -7 && ua.w() == 11);
 
     ezSimdVec4f fa = ia.ToFloat();
     EZ_TEST_BOOL(fa.x() == -3.0f && fa.y() == 5.0f && fa.z() == -7.0f && fa.w() == 11.0f);

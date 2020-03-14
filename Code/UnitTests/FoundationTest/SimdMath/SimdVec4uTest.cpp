@@ -60,9 +60,12 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4u)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Conversion")
   {
-    ezSimdVec4u ia(-10000, 5, -7, 11);
+    ezSimdVec4u ua(-10000, 5, -7, 11);
 
-    ezSimdVec4f fa = ia.ToFloat();
+    ezSimdVec4i ia(ua);
+    EZ_TEST_BOOL(ia.x() == -10000 && ia.y() == 5 && ia.z() == -7 && ia.w() == 11);
+
+    ezSimdVec4f fa = ua.ToFloat();
     EZ_TEST_BOOL(fa.x() == 4294957296.0f && fa.y() == 5.0f && fa.z() == 4294967289.0f && fa.w() == 11.0f);
 
     fa = ezSimdVec4f(-2.3f, 5.7f, -4294967040.0f, 4294967040.0f);
