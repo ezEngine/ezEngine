@@ -16,7 +16,7 @@ void ezDefaultExpressionFunctions::Random(ezExpression::Inputs inputs, ezExpress
 
   while (pSeeds < pSeedsEnd)
   {
-    ezSimdVec4i seed = ezSimdVec4i::Truncate(*pSeeds);
+    ezSimdVec4u seed = ezSimdVec4u::Truncate(*pSeeds);
 
     *pOutput = ezSimdRandom::FloatZeroToOne(seed);
 
