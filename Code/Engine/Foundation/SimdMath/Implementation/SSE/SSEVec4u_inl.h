@@ -69,7 +69,7 @@ EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::Truncate(const ezSimdVec4f& f)
   diff = _mm_and_ps(_mm_castsi128_ps(mask), diff);
 
   __m128i res1 = _mm_cvttps_epi32(diff);
-  __m128i res2 = ezSimdVec4i::Truncate(max).m_v;
+  __m128i res2 = _mm_cvttps_epi32(max);
   return _mm_add_epi32(res1, res2);
 }
 
@@ -236,22 +236,38 @@ EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4u::operator!=(const ezSimdVec4u& v) const
 
 EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4u::operator<=(const ezSimdVec4u& v) const
 {
+#if EZ_SSE_LEVEL >= EZ_SSE_41
+  __m128i minValue = _mm_min_epu32(m_v, v.m_v);
+  return _mm_castsi128_ps(_mm_cmpeq_epi32(minValue, m_v));
+#else
   return !(*this > v);
+#endif
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4u::operator<(const ezSimdVec4u& v) const
 {
-  return _mm_castsi128_ps(_mm_cmplt_epi32(m_v, v.m_v));
+  __m128i signBit = _mm_set1_epi32(0x80000000);
+  __m128i a = _mm_sub_epi32(m_v, signBit);
+  __m128i b = _mm_sub_epi32(v.m_v, signBit);
+  return _mm_castsi128_ps(_mm_cmplt_epi32(a, b));
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4u::operator>=(const ezSimdVec4u& v) const
 {
+#if EZ_SSE_LEVEL >= EZ_SSE_41
+  __m128i maxValue = _mm_max_epu32(m_v, v.m_v);
+  return _mm_castsi128_ps(_mm_cmpeq_epi32(maxValue, m_v));
+#else
   return !(*this < v);
+#endif
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4b ezSimdVec4u::operator>(const ezSimdVec4u& v) const
 {
-  return _mm_castsi128_ps(_mm_cmpgt_epi32(m_v, v.m_v));
+  __m128i signBit = _mm_set1_epi32(0x80000000);
+  __m128i a = _mm_sub_epi32(m_v, signBit);
+  __m128i b = _mm_sub_epi32(v.m_v, signBit);
+  return _mm_castsi128_ps(_mm_cmpgt_epi32(a, b));
 }
 
 // static
@@ -275,4 +291,3 @@ void ezSimdVec4u::Transpose(ezSimdVec4u& v0, ezSimdVec4u& v1, ezSimdVec4u& v2, e
   v3.m_v = _mm_unpackhi_epi64(T2, T3);
 }
 #endif
-

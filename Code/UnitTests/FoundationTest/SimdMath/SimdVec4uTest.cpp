@@ -65,9 +65,12 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4u)
     ezSimdVec4f fa = ia.ToFloat();
     EZ_TEST_BOOL(fa.x() == 4294957296.0f && fa.y() == 5.0f && fa.z() == 4294967289.0f && fa.w() == 11.0f);
 
-    fa += ezSimdVec4f(0.7f);
+    fa = ezSimdVec4f(-2.3f, 5.7f, -4294967040.0f, 4294967040.0f);
     ezSimdVec4u b = ezSimdVec4u::Truncate(fa);
-    EZ_TEST_BOOL(b.x() == 4294957312 && b.y() == 5 && b.z() == 0 && b.w() == 11);
+    EZ_TEST_INT(b.x(), 0);
+    EZ_TEST_INT(b.y(), 5);
+    EZ_TEST_INT(b.z(), 0);
+    EZ_TEST_INT(b.w(), 4294967040);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Swizzle")
