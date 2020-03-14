@@ -170,7 +170,7 @@ EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator<<(ezUInt32 uiShift) const
 
 EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::operator>>(ezUInt32 uiShift) const
 {
-  return _mm_srai_epi32(m_v, uiShift);
+  return _mm_srli_epi32(m_v, uiShift);
 }
 
 EZ_ALWAYS_INLINE ezSimdVec4u& ezSimdVec4u::operator+=(const ezSimdVec4u& v)
