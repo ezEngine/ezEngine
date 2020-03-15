@@ -2,7 +2,9 @@
 
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/SimdMath/SimdNoise.h>
+#include <Foundation/SimdMath/SimdRandom.h>
 #include <Texture/Image/Image.h>
 
 EZ_CREATE_SIMPLE_TEST(SimdMath, SimdNoise)
@@ -66,6 +68,41 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdNoise)
 
       EZ_TEST_FILES(sOutFile, sInFile, "");
     }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Random")
+  {
+    ezUInt32 histogram[256] = {};
+
+    for (ezUInt32 i = 0; i < 10000; ++i)
+    {
+      ezSimdVec4u seed = ezSimdVec4u(i * 4) + ezSimdVec4u(0, 1, 2, 3);
+      ezSimdVec4f randomValues = ezSimdRandom::FloatMinMax(seed, ezSimdVec4f::ZeroVector(), ezSimdVec4f(256.0f));
+      ezSimdVec4i randomValuesAsInt = ezSimdVec4i::Truncate(randomValues);
+
+      ++histogram[randomValuesAsInt.x()];
+      ++histogram[randomValuesAsInt.y()];
+      ++histogram[randomValuesAsInt.z()];
+      ++histogram[randomValuesAsInt.w()];
+    }
+
+    const char* szOutFile = ":output/SimdNoise/result-random.csv";
+    {
+      ezFileWriter fileWriter;
+      EZ_TEST_BOOL(fileWriter.Open(szOutFile).Succeeded());
+
+      ezStringBuilder sLine;
+      for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(histogram); ++i)
+      {
+        sLine.Format("{},\n", histogram[i]);
+        fileWriter.WriteBytes(sLine.GetData(), sLine.GetElementCount());
+      }
+    }
+
+    const char* szInFile = "SimdNoise/random.csv";
+    EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(szInFile), "Random histogram file is missing: '%s'", szInFile);
+
+    EZ_TEST_TEXT_FILES(szOutFile, szInFile, "");
   }
 
   ezFileSystem::RemoveDataDirectoryGroup("SimdNoise");
