@@ -88,21 +88,21 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdNoise)
 
     const char* szOutFile = ":output/SimdNoise/result-random.csv";
     {
-    ezFileWriter fileWriter;
+      ezFileWriter fileWriter;
       EZ_TEST_BOOL(fileWriter.Open(szOutFile).Succeeded());
 
-    ezStringBuilder sLine;
-    for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(histogram); ++i)
-    {
-      sLine.Format("{},\n", histogram[i]);
-      fileWriter.WriteBytes(sLine.GetData(), sLine.GetElementCount());
-    }
+      ezStringBuilder sLine;
+      for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(histogram); ++i)
+      {
+        sLine.Format("{},\n", histogram[i]);
+        fileWriter.WriteBytes(sLine.GetData(), sLine.GetElementCount());
+      }
     }
 
     const char* szInFile = "SimdNoise/random.csv";
     EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(szInFile), "Random histogram file is missing: '%s'", szInFile);
 
-    EZ_TEST_FILES(szOutFile, szInFile, "");
+    EZ_TEST_TEXT_FILES(szOutFile, szInFile, "");
   }
 
   ezFileSystem::RemoveDataDirectoryGroup("SimdNoise");

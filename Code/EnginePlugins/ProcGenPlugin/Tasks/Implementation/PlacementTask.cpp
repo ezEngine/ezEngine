@@ -166,7 +166,7 @@ void PlacementTask::ExecuteVM()
     }
 
     // Test density against point threshold and fill remaining input point data from expression
-    float fMaxObjectIndex = static_cast<float>(pOutput->m_ObjectsToPlace.GetCount() - 1);
+    float fObjectCount = static_cast<float>(pOutput->m_ObjectsToPlace.GetCount());
     const Pattern* pPattern = pOutput->m_pPattern;
     for (ezUInt32 i = 0; i < uiNumInstances; ++i)
     {
@@ -177,8 +177,8 @@ void PlacementTask::ExecuteVM()
       if (density[i] >= fThreshold)
       {
         inputPoint.m_fScale = scale[i];
-        inputPoint.m_uiColorIndex = ezMath::ColorFloatToByte(colorIndex[i]);
-        inputPoint.m_uiObjectIndex = static_cast<ezUInt8>(ezMath::Saturate(objectIndex[i]) * fMaxObjectIndex + 0.5f);
+        inputPoint.m_uiColorIndex = static_cast<ezUInt8>(ezMath::Clamp(colorIndex[i] * 256.0f, 0.0f, 255.0f));
+        inputPoint.m_uiObjectIndex = static_cast<ezUInt8>(ezMath::Clamp(objectIndex[i] * fObjectCount, 0.0f, fObjectCount - 1.0f));
 
         m_ValidPoints.PushBack(i);
       }
@@ -205,7 +205,6 @@ void PlacementTask::ExecuteVM()
   ezSimdVec4f vAlignToNormal = ezSimdVec4f(pOutput->m_fAlignToNormal);
   ezSimdVec4f vMinScale = ezSimdConversion::ToVec3(pOutput->m_vMinScale);
   ezSimdVec4f vMaxScale = ezSimdConversion::ToVec3(pOutput->m_vMaxScale);
-  ezUInt8 uiMaxObjectIndex = (ezUInt8)(pOutput->m_ObjectsToPlace.GetCount() - 1);
 
   const ezColorGradient* pColorGradient = nullptr;
   if (pOutput->m_hColorGradient.IsValid())
@@ -249,7 +248,7 @@ void PlacementTask::ExecuteVM()
     }
     placementTransform.m_Color = objectColor;
 
-    placementTransform.m_uiObjectIndex = ezMath::Min(placementPoint.m_uiObjectIndex, uiMaxObjectIndex);
+    placementTransform.m_uiObjectIndex = placementPoint.m_uiObjectIndex;
     placementTransform.m_uiPointIndex = placementPoint.m_uiPointIndex;
   }
 }

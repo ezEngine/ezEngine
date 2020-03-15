@@ -513,6 +513,12 @@ EZ_TEST_DLL ezResult ezTestFiles(
 #define EZ_TEST_FILES(szFile1, szFile2, msg, ...) \
   ezTestFiles(szFile1, szFile2, EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
 
+EZ_TEST_DLL ezResult ezTestTextFiles(
+  const char* szFile1, const char* szFile2, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...);
+
+#define EZ_TEST_TEXT_FILES(szFile1, szFile2, msg, ...) \
+  ezTestTextFiles(szFile1, szFile2, EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
+
 //////////////////////////////////////////////////////////////////////////
 
 EZ_TEST_DLL ezResult ezTestImage(

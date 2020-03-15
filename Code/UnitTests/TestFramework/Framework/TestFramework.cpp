@@ -4,12 +4,12 @@
 
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/MemoryStream.h>
+#include <Foundation/Logging/Log.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/System/CrashHandler.h>
 #include <Foundation/System/StackTracer.h>
 #include <Foundation/Threading/ThreadUtils.h>
 #include <Foundation/Types/ScopeExit.h>
-#include <Foundation/Logging/Log.h>
 #include <TestFramework/Utilities/TestOrder.h>
 
 #include <cstdlib>
@@ -201,12 +201,12 @@ bool ezTestFramework::GetAssertOnTestFail()
 {
   switch (s_pInstance->m_Settings.m_AssertOnTestFail)
   {
-  case AssertOnTestFail::DoNotAssert:
-    return false;
-  case AssertOnTestFail::AssertIfDebuggerAttached:
-    return ezSystemInformation::IsDebuggerAttached();
-  case AssertOnTestFail::AlwaysAssert:
-    return true;
+    case AssertOnTestFail::DoNotAssert:
+      return false;
+    case AssertOnTestFail::AssertIfDebuggerAttached:
+      return ezSystemInformation::IsDebuggerAttached();
+    case AssertOnTestFail::AlwaysAssert:
+      return true;
   }
   return false;
 }
@@ -280,15 +280,15 @@ void ezTestFramework::GetTestSettingsFromCommandLine(const ezCommandLineUtils& c
     const int assertOnTestFailure = cmd.GetIntOption("-assert", (int)AssertOnTestFail::AssertIfDebuggerAttached);
     switch (assertOnTestFailure)
     {
-    case 0:
-      m_Settings.m_AssertOnTestFail = AssertOnTestFail::DoNotAssert;
-      break;
-    case 1:
-      m_Settings.m_AssertOnTestFail = AssertOnTestFail::AssertIfDebuggerAttached;
-      break;
-    case 2:
-      m_Settings.m_AssertOnTestFail = AssertOnTestFail::AlwaysAssert;
-      break;
+      case 0:
+        m_Settings.m_AssertOnTestFail = AssertOnTestFail::DoNotAssert;
+        break;
+      case 1:
+        m_Settings.m_AssertOnTestFail = AssertOnTestFail::AssertIfDebuggerAttached;
+        break;
+      case 2:
+        m_Settings.m_AssertOnTestFail = AssertOnTestFail::AlwaysAssert;
+        break;
     }
   }
 
@@ -1771,6 +1771,49 @@ ezResult ezTestFiles(
           OUTPUT_TEST_ERROR
         }
       }
+    }
+  }
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezTestTextFiles(
+  const char* szFile1, const char* szFile2, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
+{
+  ezTestFramework::s_iAssertCounter++;
+
+  char szErrorText[s_iMaxErrorMessageLength];
+
+  ezFileReader ReadFile1;
+  ezFileReader ReadFile2;
+
+  if (ReadFile1.Open(szFile1) == EZ_FAILURE)
+  {
+    safeprintf(szErrorText, s_iMaxErrorMessageLength, "Failure: File '%s' could not be read.", szFile1);
+
+    OUTPUT_TEST_ERROR
+  }
+  else if (ReadFile2.Open(szFile2) == EZ_FAILURE)
+  {
+    safeprintf(szErrorText, s_iMaxErrorMessageLength, "Failure: File '%s' could not be read.", szFile2);
+
+    OUTPUT_TEST_ERROR
+  }
+  else
+  {
+    ezStringBuilder sFile1;
+    sFile1.ReadAll(ReadFile1);
+    sFile1.ReplaceAll("\r\n", "\n");
+
+    ezStringBuilder sFile2;
+    sFile2.ReadAll(ReadFile2);
+    sFile2.ReplaceAll("\r\n", "\n");
+
+    if (sFile1 != sFile2)
+    {
+      safeprintf(szErrorText, s_iMaxErrorMessageLength, "Failure: Text files contents do not match: '%s' and '%s'", szFile1, szFile2);
+
+      OUTPUT_TEST_ERROR
     }
   }
 
