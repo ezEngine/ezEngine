@@ -73,7 +73,7 @@
 #  endif
 
 // workaround for msvc compiler issue with alignment determination of dependent types
-#  define EZ_ALIGNMENT_OF(type) EZ_COMPILE_TIME_MIN(sizeof(type), __alignof(type))
+#  define EZ_ALIGNMENT_OF(type) EZ_COMPILE_TIME_MAX(EZ_ALIGNMENT_MINIMUM, EZ_COMPILE_TIME_MIN(sizeof(type), __alignof(type)))
 
 #  define EZ_DEBUG_BREAK \
     {                    \

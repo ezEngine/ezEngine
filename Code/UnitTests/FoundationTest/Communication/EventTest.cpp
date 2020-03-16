@@ -141,7 +141,7 @@ EZ_CREATE_SIMPLE_TEST(Communication, Event)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Remove while iterate")
   {
-    typedef ezEvent<int, ezMutex, ezDefaultAllocatorWrapper, true> TestEvent;
+    typedef ezEvent<int, ezMutex, ezDefaultAllocatorWrapper, ezEventType::CopyOnBroadcast> TestEvent;
     TestEvent e;
 
     ezUInt32 callMap = 0;

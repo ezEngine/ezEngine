@@ -2,13 +2,6 @@ ez_cmake_init()
 
 ez_build_filter_foundation()
 
-set(EZ_TESTFRAMEWORK_USE_FILESERVE OFF)
-
-get_property(filterIndex GLOBAL PROPERTY EZ_BUILD_FILTER_INDEX)
-if(EZ_CMAKE_PLATFORM_WINDOWS_UWP AND filterIndex GREATER_EQUAL 1)
-  set(EZ_TESTFRAMEWORK_USE_FILESERVE ON)
-endif()
-
 # Get the name of this folder as the project name
 get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
@@ -30,16 +23,6 @@ target_link_libraries(${PROJECT_NAME}
   Texture
 )
 
-if(EZ_TESTFRAMEWORK_USE_FILESERVE)
-
-  target_link_libraries(${PROJECT_NAME}
-    PRIVATE
-    FileservePlugin
-  )
-
-endif()
-
-
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
   Foundation
@@ -47,9 +30,5 @@ target_link_libraries(${PROJECT_NAME}
 
 
 ez_link_target_qt(TARGET ${PROJECT_NAME} COMPONENTS Core Gui Widgets WinExtras COPY_DLLS)
-
-if(EZ_TESTFRAMEWORK_USE_FILESERVE)
-  target_compile_definitions (${PROJECT_NAME} PRIVATE EZ_TESTFRAMEWORK_USE_FILESERVE)
-endif()
 
 

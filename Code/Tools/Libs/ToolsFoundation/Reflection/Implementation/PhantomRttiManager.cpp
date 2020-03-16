@@ -2,13 +2,13 @@
 
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Memory/Allocator.h>
+#include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <ToolsFoundation/Reflection/PhantomRtti.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
-#include <Foundation/Profiling/Profiling.h>
 
-ezEvent<const ezPhantomRttiManagerEvent&> ezPhantomRttiManager::s_Events;
+ezCopyOnBroadcastEvent<const ezPhantomRttiManagerEvent&> ezPhantomRttiManager::s_Events;
 
 ezHashTable<const char*, ezPhantomRTTI*> ezPhantomRttiManager::m_NameToPhantom;
 
@@ -55,7 +55,7 @@ const ezRTTI* ezPhantomRttiManager::RegisterType(ezReflectedTypeDescriptor& desc
   if (pPhantom == nullptr)
   {
     pPhantom = EZ_DEFAULT_NEW(ezPhantomRTTI, desc.m_sTypeName.GetData(), ezRTTI::FindTypeByName(desc.m_sParentTypeName), desc.m_uiTypeSize,
-                              desc.m_uiTypeVersion, ezVariantType::Invalid, desc.m_Flags, desc.m_sPluginName.GetData());
+      desc.m_uiTypeVersion, ezVariantType::Invalid, desc.m_Flags, desc.m_sPluginName.GetData());
 
     pPhantom->SetProperties(desc.m_Properties);
     pPhantom->SetAttributes(desc.m_Attributes);

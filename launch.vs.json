@@ -4,7 +4,7 @@
   "configurations": [
     {
       "type": "cppdbg",
-      "name": "FoundationTest",
+      "name": "> FoundationTest",
       "project": "CMakeLists.txt",
       "projectTarget": "libFoundationTest.so (Code\\UnitTests\\FoundationTest\\libFoundationTest.so)",
       "cwd": "${workspaceRoot}",
@@ -34,7 +34,7 @@
     },
     {
       "type": "cppdbg",
-      "name": "FoundationTest (Don't deploy)",
+      "name": "> FoundationTest (Don't deploy)",
       "project": "CMakeLists.txt",
       "projectTarget": "libFoundationTest.so (Code\\UnitTests\\FoundationTest\\libFoundationTest.so)",
       "cwd": "${workspaceRoot}",

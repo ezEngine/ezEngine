@@ -1,8 +1,8 @@
 #pragma once
 
-#include <ToolsFoundation/Reflection/ReflectedType.h>
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Containers/IdTable.h>
+#include <ToolsFoundation/Reflection/ReflectedType.h>
 
 class ezPhantomRTTI;
 
@@ -15,7 +15,11 @@ struct ezPhantomRttiManagerEvent
     TypeChanged,
   };
 
-  ezPhantomRttiManagerEvent() : m_Type(Type::TypeAdded), m_pChangedType(nullptr) {}
+  ezPhantomRttiManagerEvent()
+    : m_Type(Type::TypeAdded)
+    , m_pChangedType(nullptr)
+  {
+  }
 
   Type m_Type;
   const ezRTTI* m_pChangedType;
@@ -53,12 +57,9 @@ private:
   static void PluginEventHandler(const ezPluginEvent& e);
 
 public:
-
-
-  static ezEvent<const ezPhantomRttiManagerEvent&> s_Events;
+  static ezCopyOnBroadcastEvent<const ezPhantomRttiManagerEvent&> s_Events;
 
 private:
   static ezSet<const ezRTTI*> m_RegisteredConcreteTypes;
   static ezHashTable<const char*, ezPhantomRTTI*> m_NameToPhantom;
 };
-

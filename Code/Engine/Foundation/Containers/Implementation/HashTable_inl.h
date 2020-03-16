@@ -285,7 +285,7 @@ void ezHashTableBase<K, V, H>::Compact()
   }
   else
   {
-    const ezUInt32 uiNewCapacity = (m_uiCount + (CAPACITY_ALIGNMENT - 1)) & ~(CAPACITY_ALIGNMENT - 1);
+    const ezUInt32 uiNewCapacity = ezMath::PowerOfTwo_Ceil(m_uiCount + (CAPACITY_ALIGNMENT - 1)) & ~(CAPACITY_ALIGNMENT - 1);
     if (m_uiCapacity != uiNewCapacity)
       SetCapacity(uiNewCapacity);
   }
@@ -604,6 +604,7 @@ ezUInt64 ezHashTableBase<K, V, H>::GetHeapMemoryUsage() const
 template <typename K, typename V, typename H>
 void ezHashTableBase<K, V, H>::SetCapacity(ezUInt32 uiCapacity)
 {
+  EZ_ASSERT_DEV(ezMath::IsPowerOf2(uiCapacity), "uiCapacity must be a power of two to avoid modulo during lookup.");
   const ezUInt32 uiOldCapacity = m_uiCapacity;
   m_uiCapacity = uiCapacity;
 

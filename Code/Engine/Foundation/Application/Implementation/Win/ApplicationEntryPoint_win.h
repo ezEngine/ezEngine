@@ -16,7 +16,11 @@ namespace ezApplicationDetails
   template <typename AppClass, typename... Args>
   int ConsoleEntry(int argc, const char** argv, Args&&... arguments)
   {
+#if EZ_ENABLED(EZ_COMPILER_MSVC)             // Internal compiler error in MSVC. Can not align buffer otherwise the compiler will crash.
+    static char appBuffer[sizeof(AppClass)]; // Not on the stack to cope with smaller stacks.
+#else
     EZ_ALIGN_VARIABLE(static char appBuffer[sizeof(AppClass)], EZ_ALIGNMENT_OF(AppClass)); // Not on the stack to cope with smaller stacks.
+#endif
 
     // This mutex will prevent the console shutdown handler to return
     // as long as this entry point is not finished executing
@@ -59,7 +63,11 @@ namespace ezApplicationDetails
   template <typename AppClass, typename... Args>
   int ApplicationEntry(Args&&... arguments)
   {
+#if EZ_ENABLED(EZ_COMPILER_MSVC)             // Internal compiler error in MSVC. Can not align buffer otherwise the compiler will crash.
+    static char appBuffer[sizeof(AppClass)]; // Not on the stack to cope with smaller stacks.
+#else
     EZ_ALIGN_VARIABLE(static char appBuffer[sizeof(AppClass)], EZ_ALIGNMENT_OF(AppClass)); // Not on the stack to cope with smaller stacks.
+#endif
 
     AppClass* pApp = new (appBuffer) AppClass(std::forward<Args>(arguments)...);
     pApp->SetCommandLineArguments((ezUInt32)__argc, const_cast<const char**>(__argv));

@@ -311,7 +311,7 @@ constexpr EZ_FORCE_INLINE ezInt32 ezMath::FloatToInt(float value)
   return static_cast<ezInt32>(value);
 }
 
-#if EZ_DISABLED(EZ_PLATFORM_ARCH_X86) || _MSC_VER <= 1916
+#if EZ_DISABLED(EZ_PLATFORM_ARCH_X86) || (_MSC_VER <= 1916)
 constexpr EZ_FORCE_INLINE ezInt64 ezMath::FloatToInt(double value)
 {
   return static_cast<ezInt64>(value);

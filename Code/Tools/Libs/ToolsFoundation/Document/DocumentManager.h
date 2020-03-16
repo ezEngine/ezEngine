@@ -73,7 +73,7 @@ public:
     ezStatus m_RequestStatus;
   };
 
-  static ezEvent<const Event&> s_Events;
+  static ezCopyOnBroadcastEvent<const Event&> s_Events;
   static ezEvent<Request&> s_Requests;
 
   static const ezDocumentTypeDescriptor* GetDescriptorForDocumentType(const char* szDocumentType);
