@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9806294794305770135,5052761689686868269}}
-		u4 %Hash{16342676453066710613}
+		u4 %Hash{4051821643761400090}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{11366851411833490850,7956656383203311022}}
@@ -40,7 +40,7 @@ Objects
 {
 o
 {
-	Uuid %id{u4{8611575857037159349,5671901329515601061}}
+	Uuid %id{u4{14136389488197483693,4639058958733131050}}
 	s %t{"ezParticleComponent"}
 	u3 %v{3}
 	p
@@ -48,7 +48,7 @@ o
 		b %Active{1}
 		s %Effect{"{ 1e69c43f-d80f-42f4-b5c2-fd8f6b6d986f }"}
 		Time %MinRestartDelay{d{0}}
-		s %OnFinishedAction{"ezOnComponentFinishedAction2::DeleteGameObject"}
+		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters
 		{
 			Color %Color{f{0x8EC2263F,0x6819173D,0x7EFF3A3F,0x0000803F}}
@@ -57,6 +57,33 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+	}
+}
+o
+{
+	Uuid %id{u4{17007485667008045995,5176320485630142652}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{14136389488197483693,4639058958733131050}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0x7AF065A8,0xEF0435BF,0xF10435B4,0xF104353F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
 	}
 }
 o
@@ -73,16 +100,18 @@ o
 {
 	Uuid %id{u4{3265851132939339666,5761399654097980371}}
 	s %t{"ezDecalComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
-		Color %Color{f{0xEBE38040,0,0xECF16C3F,0x0000803F}}
+		ColorGamma %Color{u1{255,0,246,255}}
 		s %Decal{"{ 0bbfbc3c-b5e2-4194-af38-84e13516bbc2 }"}
+		Color %EmissiveColor{f{0,0,0,0x0000803F}}
 		Vec3 %Extents{f{0x00004040,0x00004040,0x00004040}}
 		Uuid %FadeOutDelay{u4{6758112862617913812,9560086610158956678}}
 		Time %FadeOutDuration{d{0x0000000000000040}}
 		Angle %InnerFadeAngle{f{0xDB0FC93F}}
+		b %MapNormalToGeometry{0}
 		s %OnFinishedAction{"ezOnComponentFinishedAction::DeleteGameObject"}
 		Angle %OuterFadeAngle{f{0xDB0FC93F}}
 		f %SizeVariance{0x0000803F}
@@ -123,16 +152,19 @@ o
 	u3 %v{1}
 	p
 	{
-		VarArray %Children{}
+		b %Active{1}
+		VarArray %Children
+		{
+			Uuid{u4{17007485667008045995,5176320485630142652}}
+		}
 		VarArray %Components
 		{
 			Uuid{u4{72274847284918525,18432172149644490780}}
 			Uuid{u4{3265851132939339666,5761399654097980371}}
-			Uuid{u4{8611575857037159349,5671901329515601061}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0xCDCCCCBD,0,0}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Quat %LocalRotation{f{0,0xFFFF7FBF,0x00008033,0x2EBD3BB3}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
@@ -212,8 +244,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDecalComponent"}
-		u3 %TypeSize{160}
-		u3 %TypeVersion{3}
+		u3 %TypeSize{168}
+		u3 %TypeVersion{4}
 	}
 }
 o
