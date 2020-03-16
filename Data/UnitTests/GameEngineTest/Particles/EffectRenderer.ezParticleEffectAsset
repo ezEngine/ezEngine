@@ -11,7 +11,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{2701891235674633145,5060404136339819625}}
-		u4 %Hash{14488541421643351696}
+		u4 %Hash{12734218895234010061}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{7592304777055616296,9284428240187614702}}
@@ -20,7 +20,6 @@ o
 		VarArray %References
 		{
 			s{"{ 08b3e790-2832-4083-93ec-133a93054c4c }"}
-			s{"{ aa700289-9aae-4ec5-81ea-9c381ec8309e }"}
 		}
 	}
 }
@@ -71,26 +70,6 @@ o
 }
 o
 {
-	Uuid %id{u4{1488340342493880199,4803611233608902241}}
-	s %t{"ezParticleTypeQuadFactory"}
-	u3 %v{2}
-	p
-	{
-		Angle %Deviation{f{0}}
-		f %DistortionStrength{0x0000C842}
-		s %DistortionTexture{""}
-		u1 %NumSpritesX{1}
-		u1 %NumSpritesY{1}
-		s %Orientation{"ezQuadParticleOrientation::Billboard"}
-		f %ParticleStretch{0x0000803F}
-		s %RenderMode{"ezParticleTypeRenderMode::Additive"}
-		s %Texture{"{ aa700289-9aae-4ec5-81ea-9c381ec8309e }"}
-		s %TextureAtlas{"ezParticleTextureAtlasType::None"}
-		s %TintColorParam{""}
-	}
-}
-o
-{
 	Uuid %id{u4{17604778735605244824,5045220142719779714}}
 	s %t{"ezParticleSystemDescriptor"}
 	u3 %v{1}
@@ -115,7 +94,6 @@ o
 		s %OnDeathEvent{""}
 		VarArray %Types
 		{
-			Uuid{u4{1488340342493880199,4803611233608902241}}
 			Uuid{u4{8245846541039381640,5278777823855334586}}
 		}
 		b %Visible{1}
@@ -255,42 +233,6 @@ o
 }
 o
 {
-	Uuid %id{u4{202231826772630354,2539613828686993863}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezEnumBase"}
-		s %PluginName{"ezEditorPluginParticle"}
-		VarArray %Properties{}
-		s %TypeName{"ezQuadParticleOrientation"}
-		u3 %TypeSize{1}
-		u3 %TypeVersion{2}
-	}
-}
-o
-{
-	Uuid %id{u4{5113863563986418407,3006780394682237384}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezParticleTypeFactory"}
-		s %PluginName{"ezEditorPluginParticle"}
-		VarArray %Properties{}
-		s %TypeName{"ezParticleTypeQuadFactory"}
-		u3 %TypeSize{232}
-		u3 %TypeVersion{2}
-	}
-}
-o
-{
 	Uuid %id{u4{15360679658590108246,3534558875950442382}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -322,24 +264,6 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleBehaviorFactory"}
 		u3 %TypeSize{8}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{5814284155980160751,5759191340344101956}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezEnumBase"}
-		s %PluginName{"ezEditorPluginParticle"}
-		VarArray %Properties{}
-		s %TypeName{"ezParticleTextureAtlasType"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -501,24 +425,6 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
-		u3 %TypeSize{1}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{431725564760097241,15194337309386663092}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezEnumBase"}
-		s %PluginName{"ezEditorPluginParticle"}
-		VarArray %Properties{}
-		s %TypeName{"ezParticleTypeRenderMode"}
 		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}

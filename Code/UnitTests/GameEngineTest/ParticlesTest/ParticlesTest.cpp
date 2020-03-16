@@ -30,7 +30,7 @@ void ezGameEngineTestParticles::SetupSubTests()
   AddSubTest("SizeCurveBehavior", SubTests::SizeCurveBehavior);
   AddSubTest("TrailRenderer", SubTests::TrailRenderer);
   AddSubTest("VelocityBehavior", SubTests::VelocityBehavior);
-  //AddSubTest("EffectRenderer", SubTests::EffectRenderer);
+  AddSubTest("EffectRenderer", SubTests::EffectRenderer);
   AddSubTest("BoxPosInitializer", SubTests::BoxPositionInitializer);
   AddSubTest("SpherePosInitializer", SubTests::SpherePositionInitializer);
   AddSubTest("CylinderPosInitializer", SubTests::CylinderPositionInitializer);
@@ -40,7 +40,7 @@ void ezGameEngineTestParticles::SetupSubTests()
   AddSubTest("VelocityConeInitializer", SubTests::VelocityConeInitializer);
 
   AddSubTest("Billboards", SubTests::Billboards);
-  //AddSubTest("PullAlongBehavior", SubTests::PullAlongBehavior);
+  AddSubTest("PullAlongBehavior", SubTests::PullAlongBehavior);
 }
 
 ezResult ezGameEngineTestParticles::InitializeSubTest(ezInt32 iIdentifier)
@@ -70,7 +70,7 @@ ezResult ezGameEngineTestParticles::InitializeSubTest(ezInt32 iIdentifier)
       "{ 58bf4d72-aa09-404f-81b8-13965d3e2286 }", // SizeCurveBehavior
       "{ ec85e634-b8ee-475f-bd86-7cbc2973de0a }", // TrailRenderer
       "{ ba82b712-3af7-430d-91a6-492aa836dffb }", // VelocityBehavior
-      //"{ 3673cc69-2ac0-463a-b9b3-207cc30b7f25 }", // EffectRenderer
+      "{ 3673cc69-2ac0-463a-b9b3-207cc30b7f25 }", // EffectRenderer
       "{ e30bbbf2-9bda-45e0-8116-1ae8b998ce61 }", // BoxPositionInitializer
       "{ 536e7516-d811-4552-a3e9-5153dfdd5be1 }", // SpherePositionInitializer
       "{ 2fb51ce6-69fc-44ad-b453-2822e091916f }", // CylinderPositionInitializer

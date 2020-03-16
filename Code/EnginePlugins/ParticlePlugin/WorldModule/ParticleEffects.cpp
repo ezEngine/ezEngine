@@ -3,6 +3,7 @@
 #include <Core/World/World.h>
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 
 ezParticleEffectHandle ezParticleWorldModule::InternalCreateEffectInstance(const ezParticleEffectResourceHandle& hResource,
                                                                            ezUInt64 uiRandomSeed, bool bIsShared,
@@ -132,7 +133,7 @@ void ezParticleWorldModule::UpdateEffects(const ezWorldModule::UpdateContext& co
   DestroyFinishedEffects();
   ReconfigureEffects();
 
-  m_EffectUpdateTaskGroup = ezTaskSystem::CreateTaskGroup(ezTaskPriority::EarlyNextFrame);
+  m_EffectUpdateTaskGroup = ezTaskSystem::CreateTaskGroup(ezTaskPriority::LateThisFrame);
 
   const ezTime tDiff = GetWorld()->GetClock().GetTimeDiff();
   for (ezUInt32 i = 0; i < m_ParticleEffects.GetCount(); ++i)

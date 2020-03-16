@@ -35,7 +35,6 @@ protected:
   virtual void StepParticleSystem(const ezTime& tDiff, ezUInt32 uiNumNewParticles) override;
 
   bool m_bFirstTime = true;
-  ezUInt32 m_uiIgnoreNewParticles = 0;
   ezVec3 m_vLastEmitterPosition;
   ezVec3 m_vApplyPull;
   ezProcessingStream* m_pStreamPosition;

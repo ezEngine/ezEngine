@@ -33,7 +33,7 @@ private:
     SizeCurveBehavior,
     TrailRenderer,
     VelocityBehavior,
-    //EffectRenderer,
+    EffectRenderer,
     BoxPositionInitializer,
     SpherePositionInitializer,
     CylinderPositionInitializer,

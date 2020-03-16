@@ -11,14 +11,13 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12946327345995432336,5045665100133558312}}
-		u4 %Hash{13713394522666877853}
+		u4 %Hash{11369861463529126650}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 1ae9579a-d661-4b3f-b1b5-7983c0de0f61 }"}
 			s{"{ 1dd7dbfb-f712-0acc-d78b-cd7f36eddea1 }"}
-			s{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
 			s{"{ 3e1915f3-5a47-4377-9823-b6a61f4b9136 }"}
 			s{"{ 6d619c33-6611-432b-a924-27b1b9bfd8db }"}
 			s{"{ 9fc549fc-8c68-4e48-848d-170ca279f323 }"}
@@ -97,57 +96,6 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
-	}
-}
-o
-{
-	Uuid %id{u4{4531528897176100482,4894855899521256831}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		VarArray %Children{}
-		VarArray %Components
-		{
-			Uuid{u4{9929592632356483729,4983987187428241017}}
-		}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x00003040,0x0000E0BF,0}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
-		VarArray %Tags
-		{
-			s{"CastShadow"}
-			s{"AutoColMesh"}
-		}
-	}
-}
-o
-{
-	Uuid %id{u4{9929592632356483729,4983987187428241017}}
-	s %t{"ezGreyBoxComponent"}
-	u3 %v{3}
-	p
-	{
-		b %Active{1}
-		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
-		Angle %Curvature{f{0}}
-		u3 %Detail{16}
-		s %Material{"{ 3283e65f-79e2-ec9d-3f50-f14c56bac25f }"}
-		s %Shape{"ezGreyBoxShape::Box"}
-		f %SizeNegX{0x0000803F}
-		f %SizeNegY{0x00005040}
-		f %SizeNegZ{0}
-		f %SizePosX{0}
-		f %SizePosY{0x0000D840}
-		f %SizePosZ{0x00000040}
-		b %SlopedBottom{0}
-		b %SlopedTop{0}
-		f %Thickness{0x0000003F}
 	}
 }
 o
@@ -280,9 +228,25 @@ o
 			Uuid{u4{9837978910959666461,10179737614926785875}}
 			Uuid{u4{8513837013169516957,5728581531122670123}}
 			Uuid{u4{14691069812389286467,11318520580462520137}}
-			Uuid{u4{4531528897176100482,4894855899521256831}}
+			Uuid{u4{9579602804911369720,10284681127217128412}}
 		}
 		Uuid %Settings{u4{5444698764861214824,4604632800114435035}}
+	}
+}
+o
+{
+	Uuid %id{u4{10128629963110237205,9720373250406977122}}
+	s %t{"ezMeshComponent"}
+	u3 %v{3}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		VarArray %Materials
+		{
+			s{"{ 1dd7dbfb-f712-0acc-d78b-cd7f36eddea1 }"}
+		}
+		s %Mesh{"{ 6d619c33-6611-432b-a924-27b1b9bfd8db }"}
 	}
 }
 o
@@ -337,6 +301,33 @@ o
 		b %ShowStats{0}
 		Time %ShutterTime{d{0x000000000000F03F}}
 		s %UsageHint{"ezCameraUsageHint::MainView"}
+	}
+}
+o
+{
+	Uuid %id{u4{9579602804911369720,10284681127217128412}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{10128629963110237205,9720373250406977122}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x00002040,0,0}}
+		Quat %LocalRotation{f{0,0xF20435BF,0xF3043533,0xF304353F}}
+		Vec3 %LocalScaling{f{0x00002041,0x00002041,0xCDCCCC3D}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
 	}
 }
 o
@@ -451,24 +442,6 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezComponent"}
 		u3 %TypeSize{48}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{15501499876559131010,2215366623898344174}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezEnumBase"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezGreyBoxShape"}
-		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}
 }
@@ -757,24 +730,6 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezTransformComponent"}
 		u3 %TypeSize{64}
-		u3 %TypeVersion{3}
-	}
-}
-o
-{
-	Uuid %id{u4{10244937169896853361,14776906713232524690}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezRenderComponent"}
-		s %PluginName{"Static"}
-		VarArray %Properties{}
-		s %TypeName{"ezGreyBoxComponent"}
-		u3 %TypeSize{128}
 		u3 %TypeVersion{3}
 	}
 }

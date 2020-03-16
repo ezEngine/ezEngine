@@ -47,7 +47,8 @@ void ezParticleEffectInstance::Construct(ezParticleEffectHandle hEffectHandle, c
   m_ElapsedTimeSinceUpdate.SetZero();
   m_EffectIsVisible.SetZero();
   m_iMinSimStepsToDo = 4;
-  m_Transform.SetIdentity();
+  m_Transform[0].SetIdentity();
+  m_Transform[1].SetIdentity();
   m_vVelocity.SetZero();
   m_TotalEffectLifeTime.SetZero();
   m_pVisibleIf = nullptr;
@@ -68,7 +69,8 @@ void ezParticleEffectInstance::Destruct()
   m_SharedInstances.Clear();
   m_hEffectHandle.Invalidate();
 
-  m_Transform.SetIdentity();
+  m_Transform[0].SetIdentity();
+  m_Transform[1].SetIdentity();
   m_bIsSharedEffect = false;
   m_pWorld = nullptr;
   m_hResource.Invalidate();
@@ -246,7 +248,8 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
   const auto& desc = pResource->GetDescriptor().m_Effect;
   const auto& systems = desc.GetParticleSystems();
 
-  m_Transform.SetIdentity();
+  m_Transform[0].SetIdentity();
+  m_Transform[1].SetIdentity();
   m_vVelocity.SetZero();
   m_fApplyInstanceVelocity = desc.m_fApplyInstanceVelocity;
   m_bSimulateInLocalSpace = desc.m_bSimulateInLocalSpace;
@@ -372,7 +375,7 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
   for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
   {
     m_ParticleSystems[i]->ConfigureFromTemplate(systems[i]);
-    m_ParticleSystems[i]->SetTransform(m_Transform, vStartVelocity);
+    m_ParticleSystems[i]->SetTransform(m_Transform[m_uiDoubleBufferReadIdx], vStartVelocity);
     m_ParticleSystems[i]->SetEmitterEnabled(m_bEmitterEnabled);
     m_ParticleSystems[i]->Finalize();
   }
@@ -503,12 +506,11 @@ void ezParticleEffectInstance::AddParticleEvent(const ezParticleEvent& pe)
   m_EventQueue.PushBack(pe);
 }
 
-void ezParticleEffectInstance::SetTransform(const ezTransform& transform, const ezVec3& vParticleStartVelocity,
-  const void* pSharedInstanceOwner)
+void ezParticleEffectInstance::SetTransform(const ezTransform& transform, const ezVec3& vParticleStartVelocity, const void* pSharedInstanceOwner)
 {
   if (pSharedInstanceOwner == nullptr)
   {
-    m_Transform = transform;
+    m_Transform[m_uiDoubleBufferWriteIdx] = transform;
     m_vVelocity = vParticleStartVelocity;
   }
   else
@@ -517,7 +519,7 @@ void ezParticleEffectInstance::SetTransform(const ezTransform& transform, const 
     {
       if (info.m_pSharedInstanceOwner == pSharedInstanceOwner)
       {
-        info.m_Transform = transform;
+        info.m_Transform[m_uiDoubleBufferWriteIdx] = transform;
         return;
       }
     }
@@ -527,17 +529,17 @@ void ezParticleEffectInstance::SetTransform(const ezTransform& transform, const 
 const ezTransform& ezParticleEffectInstance::GetTransform(const void* pSharedInstanceOwner) const
 {
   if (pSharedInstanceOwner == nullptr)
-    return m_Transform;
+    return m_Transform[m_uiDoubleBufferReadIdx];
 
   for (auto& info : m_SharedInstances)
   {
     if (info.m_pSharedInstanceOwner == pSharedInstanceOwner)
     {
-      return info.m_Transform;
+      return info.m_Transform[m_uiDoubleBufferReadIdx];
     }
   }
 
-  return m_Transform;
+  return m_Transform[m_uiDoubleBufferReadIdx];
 }
 
 
@@ -551,7 +553,7 @@ void ezParticleEffectInstance::PassTransformToSystems()
     {
       if (m_ParticleSystems[i] != nullptr)
       {
-        m_ParticleSystems[i]->SetTransform(m_Transform, vStartVel);
+        m_ParticleSystems[i]->SetTransform(m_Transform[m_uiDoubleBufferReadIdx], vStartVel);
       }
     }
   }
@@ -567,7 +569,7 @@ void ezParticleEffectInstance::AddSharedInstance(const void* pSharedInstanceOwne
 
   auto& info = m_SharedInstances.ExpandAndGetRef();
   info.m_pSharedInstanceOwner = pSharedInstanceOwner;
-  info.m_Transform.SetIdentity();
+  info.m_Transform[m_uiDoubleBufferWriteIdx].SetIdentity();
 }
 
 void ezParticleEffectInstance::RemoveSharedInstance(const void* pSharedInstanceOwner)
@@ -649,6 +651,8 @@ ezTime ezParticleEffectInstance::GetBoundingVolume(ezBoundingBoxSphere& volume) 
 
 void ezParticleEffectInstance::ProcessEventQueues()
 {
+  ezMath::Swap(m_uiDoubleBufferReadIdx, m_uiDoubleBufferWriteIdx);
+
   if (m_EventQueue.IsEmpty())
     return;
 
