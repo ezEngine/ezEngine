@@ -12,6 +12,7 @@
 #include <ParticlePlugin/Finalizer/ParticleFinalizer_ApplyVelocity.h>
 #include <ParticlePlugin/Finalizer/ParticleFinalizer_LastPosition.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
+#include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Raycast, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_Raycast>)

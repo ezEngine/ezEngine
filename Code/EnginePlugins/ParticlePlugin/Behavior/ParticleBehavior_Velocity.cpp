@@ -10,6 +10,7 @@
 #include <ParticlePlugin/Behavior/ParticleBehavior_Velocity.h>
 #include <ParticlePlugin/Finalizer/ParticleFinalizer_ApplyVelocity.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
+#include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Velocity, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_Velocity>)
@@ -43,6 +44,7 @@ void ezParticleBehaviorFactory_Velocity::CopyBehaviorProperties(ezParticleBehavi
   pBehavior->m_fRiseSpeed = m_fRiseSpeed;
   pBehavior->m_fFriction = m_fFriction;
   pBehavior->m_fWindInfluence = m_fWindInfluence;
+
 
   pBehavior->m_pPhysicsModule = (ezPhysicsWorldModuleInterface*)pBehavior->GetOwnerSystem()->GetOwnerWorldModule()->GetCachedWorldModule(ezGetStaticRTTI<ezPhysicsWorldModuleInterface>());
 
