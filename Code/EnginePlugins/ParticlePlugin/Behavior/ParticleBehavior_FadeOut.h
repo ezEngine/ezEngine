@@ -2,7 +2,7 @@
 
 #include <ParticlePlugin/Behavior/ParticleBehavior.h>
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_FadeOut : public ezParticleBehaviorFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_FadeOut final : public ezParticleBehaviorFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_FadeOut, ezParticleBehaviorFactory);
 
@@ -20,7 +20,7 @@ public:
 };
 
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_FadeOut : public ezParticleBehavior
+class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_FadeOut final : public ezParticleBehavior
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_FadeOut, ezParticleBehavior);
 

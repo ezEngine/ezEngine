@@ -108,6 +108,9 @@ protected:
   /// initialization method.
   virtual void OnSimulationStarted() {}
 
+  /// \brief Called by ezWorld::Clear(). Can be used to clear cached data when a world is completely cleared of objects (but not deleted).
+  virtual void WorldClear() {}
+
   ezWorld* m_pWorld;
 };
 

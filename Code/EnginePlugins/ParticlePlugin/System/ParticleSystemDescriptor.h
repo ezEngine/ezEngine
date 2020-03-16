@@ -11,7 +11,7 @@ class ezParticleBehaviorFactory;
 class ezParticleInitializerFactory;
 class ezParticleTypeFactory;
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleSystemDescriptor : public ezReflectedClass
+class EZ_PARTICLEPLUGIN_DLL ezParticleSystemDescriptor final : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleSystemDescriptor, ezReflectedClass);
 

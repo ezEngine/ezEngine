@@ -124,6 +124,14 @@ void ezWorld::Clear()
     }
   }
 
+  for (ezWorldModule* pModule : m_Data.m_Modules)
+  {
+    if (pModule != nullptr)
+    {
+      pModule->WorldClear();
+    }
+  }
+
   // make sure all dead objects and components are cleared right now
   DeleteDeadObjects();
   DeleteDeadComponents();

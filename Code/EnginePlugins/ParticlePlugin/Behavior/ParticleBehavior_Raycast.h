@@ -21,7 +21,7 @@ struct EZ_PARTICLEPLUGIN_DLL ezParticleRaycastHitReaction
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezParticleRaycastHitReaction);
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_Raycast : public ezParticleBehaviorFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_Raycast final : public ezParticleBehaviorFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_Raycast, ezParticleBehaviorFactory);
 
@@ -44,7 +44,7 @@ public:
 };
 
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_Raycast : public ezParticleBehavior
+class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_Raycast final : public ezParticleBehavior
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_Raycast, ezParticleBehavior);
 
@@ -60,6 +60,8 @@ protected:
   friend class ezParticleBehaviorFactory_Raycast;
 
   virtual void Process(ezUInt64 uiNumElements) override;
+
+  void RequestRequiredWorldModulesForCache(ezParticleWorldModule* pParticleModule) override;
 
   ezPhysicsWorldModuleInterface* m_pPhysicsModule;
 

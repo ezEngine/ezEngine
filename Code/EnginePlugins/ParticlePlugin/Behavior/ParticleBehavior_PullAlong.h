@@ -4,7 +4,7 @@
 
 class ezPhysicsWorldModuleInterface;
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_PullAlong : public ezParticleBehaviorFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_PullAlong final : public ezParticleBehaviorFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_PullAlong, ezParticleBehaviorFactory);
 
@@ -21,7 +21,7 @@ public:
 };
 
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_PullAlong : public ezParticleBehavior
+class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_PullAlong final : public ezParticleBehavior
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_PullAlong, ezParticleBehavior);
 
@@ -35,7 +35,6 @@ protected:
   virtual void StepParticleSystem(const ezTime& tDiff, ezUInt32 uiNumNewParticles) override;
 
   bool m_bFirstTime = true;
-  ezUInt32 m_uiIgnoreNewParticles = 0;
   ezVec3 m_vLastEmitterPosition;
   ezVec3 m_vApplyPull;
   ezProcessingStream* m_pStreamPosition;

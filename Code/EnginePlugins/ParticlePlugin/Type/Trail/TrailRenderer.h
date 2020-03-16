@@ -8,7 +8,7 @@
 
 #include <RendererCore/../../../Data/Base/Shaders/Particles/TrailShaderData.h>
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleTrailRenderData : public ezRenderData
+class EZ_PARTICLEPLUGIN_DLL ezParticleTrailRenderData final : public ezRenderData
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTrailRenderData, ezRenderData);
 
@@ -29,7 +29,7 @@ public:
 };
 
 /// \brief Implements rendering of a trail particle systems
-class EZ_PARTICLEPLUGIN_DLL ezParticleTrailRenderer : public ezParticleRenderer
+class EZ_PARTICLEPLUGIN_DLL ezParticleTrailRenderer final : public ezParticleRenderer
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTrailRenderer, ezParticleRenderer);
   EZ_DISALLOW_COPY_AND_ASSIGN(ezParticleTrailRenderer);

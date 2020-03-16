@@ -4,7 +4,7 @@
 
 class ezPhysicsWorldModuleInterface;
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_Gravity : public ezParticleBehaviorFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_Gravity final : public ezParticleBehaviorFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_Gravity, ezParticleBehaviorFactory);
 
@@ -24,7 +24,7 @@ public:
 };
 
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_Gravity : public ezParticleBehavior
+class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_Gravity final : public ezParticleBehavior
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_Gravity, ezParticleBehavior);
 
@@ -37,6 +37,8 @@ protected:
   friend class ezParticleBehaviorFactory_Gravity;
 
   virtual void Process(ezUInt64 uiNumElements) override;
+
+  void RequestRequiredWorldModulesForCache(ezParticleWorldModule* pParticleModule) override;
 
   ezPhysicsWorldModuleInterface* m_pPhysicsModule;
 

@@ -8,7 +8,7 @@
 
 class ezParticleEffectInstance;
 
-class ezParticleffectUpdateTask : public ezTask
+class ezParticleffectUpdateTask final : public ezTask
 {
 public:
   ezParticleffectUpdateTask(ezParticleEffectInstance* pEffect);
@@ -30,7 +30,7 @@ public:
   struct SharedInstance
   {
     const void* m_pSharedInstanceOwner;
-    ezTransform m_Transform;
+    ezTransform m_Transform[2];
   };
 
 public:
@@ -67,6 +67,8 @@ public:
 
   ezRandom& GetRNG() { return m_Random; }
 
+  ezUInt64 GetRandomSeed() const { return m_uiRandomSeed; }
+
   /// @name Transform Related
   /// @{
 public:
@@ -85,7 +87,7 @@ public:
 private:
   void PassTransformToSystems();
 
-  ezTransform m_Transform;
+  ezTransform m_Transform[2];
   ezVec3 m_vVelocity;
 
   /// @}
@@ -147,6 +149,8 @@ public:
   /// This affects simulation update rates.
   void SetIsVisible() const;
 
+  void SetVisibleIf(ezParticleEffectInstance* pOtherVisible);
+
   /// \brief Whether the effect has been marked as visible recently.
   bool IsVisible() const;
 
@@ -164,7 +168,9 @@ private:
   ezTime m_LastBVolumeUpdate;
   ezBoundingBoxSphere m_BoundingVolume;
   mutable ezTime m_EffectIsVisible;
+  ezParticleEffectInstance* m_pVisibleIf = nullptr;
   ezEnum<ezEffectInvisibleUpdateRate> m_InvisibleUpdateRate;
+  ezUInt64 m_uiRandomSeed = 0;
 
   /// @}
   /// \name Effect Parameters
@@ -218,6 +224,8 @@ private:
   bool m_bIsFinishing = false;
   ezUInt8 m_uiReviveTimeout = 3;
   ezInt8 m_iMinSimStepsToDo = 0;
+  ezUInt8 m_uiDoubleBufferReadIdx = 0;
+  ezUInt8 m_uiDoubleBufferWriteIdx = 1;
   float m_fApplyInstanceVelocity = 0;
   ezTime m_PreSimulateDuration;
   ezParticleEffectResourceHandle m_hResource;

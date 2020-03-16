@@ -30,7 +30,6 @@ ezParticleFinisherComponent::~ezParticleFinisherComponent() = default;
 void ezParticleFinisherComponent::OnDeactivated()
 {
   m_EffectController.StopImmediate();
-  m_EffectController.Invalidate();
 
   ezRenderComponent::OnDeactivated();
 }

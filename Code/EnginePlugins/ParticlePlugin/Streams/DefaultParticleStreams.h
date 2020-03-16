@@ -6,7 +6,7 @@
 // ZERO-INIT STREAM
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleStream_ZeroInit : public ezParticleStream
+class EZ_PARTICLEPLUGIN_DLL ezParticleStream_ZeroInit final : public ezParticleStream
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleStream_ZeroInit, ezParticleStream);
 
@@ -19,7 +19,7 @@ protected:
 // POSITION STREAM
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Position : public ezParticleStreamFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Position final : public ezParticleStreamFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_Position, ezParticleStreamFactory);
 
@@ -27,7 +27,7 @@ public:
   ezParticleStreamFactory_Position();
 };
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleStream_Position : public ezParticleStream
+class EZ_PARTICLEPLUGIN_DLL ezParticleStream_Position final : public ezParticleStream
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleStream_Position, ezParticleStream);
 
@@ -42,7 +42,7 @@ protected:
 // SIZE STREAM
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Size : public ezParticleStreamFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Size final : public ezParticleStreamFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_Size, ezParticleStreamFactory);
 
@@ -50,7 +50,7 @@ public:
   ezParticleStreamFactory_Size();
 };
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleStream_Size : public ezParticleStream
+class EZ_PARTICLEPLUGIN_DLL ezParticleStream_Size final : public ezParticleStream
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleStream_Size, ezParticleStream);
 
@@ -62,7 +62,7 @@ protected:
 // COLOR STREAM
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Color : public ezParticleStreamFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Color final : public ezParticleStreamFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_Color, ezParticleStreamFactory);
 
@@ -70,7 +70,7 @@ public:
   ezParticleStreamFactory_Color();
 };
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleStream_Color : public ezParticleStream
+class EZ_PARTICLEPLUGIN_DLL ezParticleStream_Color final : public ezParticleStream
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleStream_Color, ezParticleStream);
 
@@ -82,7 +82,7 @@ protected:
 // VELOCITY STREAM
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Velocity : public ezParticleStreamFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Velocity final : public ezParticleStreamFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_Velocity, ezParticleStreamFactory);
 
@@ -90,7 +90,7 @@ public:
   ezParticleStreamFactory_Velocity();
 };
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleStream_Velocity : public ezParticleStream
+class EZ_PARTICLEPLUGIN_DLL ezParticleStream_Velocity final : public ezParticleStream
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleStream_Velocity, ezParticleStream);
 
@@ -111,7 +111,7 @@ protected:
 // LAST POSITION STREAM
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_LastPosition : public ezParticleStreamFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_LastPosition final : public ezParticleStreamFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_LastPosition, ezParticleStreamFactory);
 
@@ -123,7 +123,7 @@ public:
 // ROTATION SPEED STREAM
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_RotationSpeed : public ezParticleStreamFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_RotationSpeed final : public ezParticleStreamFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_RotationSpeed, ezParticleStreamFactory);
 
@@ -135,7 +135,7 @@ public:
 // ROTATION OFFSET STREAM
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_RotationOffset : public ezParticleStreamFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_RotationOffset final : public ezParticleStreamFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_RotationOffset, ezParticleStreamFactory);
 
@@ -147,7 +147,7 @@ public:
 // EFFECT ID STREAM
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_EffectID : public ezParticleStreamFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_EffectID final : public ezParticleStreamFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_EffectID, ezParticleStreamFactory);
 
@@ -159,7 +159,7 @@ public:
 // ON OFF STREAM
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_OnOff : public ezParticleStreamFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_OnOff final : public ezParticleStreamFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_OnOff, ezParticleStreamFactory);
 
@@ -171,7 +171,7 @@ public:
 // AXIS STREAM
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Axis : public ezParticleStreamFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Axis final : public ezParticleStreamFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_Axis, ezParticleStreamFactory);
 
@@ -179,7 +179,7 @@ public:
   ezParticleStreamFactory_Axis();
 };
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleStream_Axis : public ezParticleStream
+class EZ_PARTICLEPLUGIN_DLL ezParticleStream_Axis final : public ezParticleStream
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleStream_Axis, ezParticleStream);
 
@@ -191,7 +191,7 @@ protected:
 // TRAIL DATA STREAM
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_TrailData : public ezParticleStreamFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_TrailData final : public ezParticleStreamFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_TrailData, ezParticleStreamFactory);
 
@@ -203,7 +203,7 @@ public:
 // VARIATION STREAM
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Variation : public ezParticleStreamFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleStreamFactory_Variation final : public ezParticleStreamFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleStreamFactory_Variation, ezParticleStreamFactory);
 
@@ -211,7 +211,7 @@ public:
   ezParticleStreamFactory_Variation();
 };
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleStream_Variation : public ezParticleStream
+class EZ_PARTICLEPLUGIN_DLL ezParticleStream_Variation final : public ezParticleStream
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleStream_Variation, ezParticleStream);
 

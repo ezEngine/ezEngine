@@ -1,14 +1,14 @@
 #pragma once
 
-#include <ParticlePlugin/Type/ParticleType.h>
-#include <RendererFoundation/RendererFoundationDLL.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <ParticlePlugin/Type/ParticleType.h>
 #include <ParticlePlugin/Type/Trail/TrailRenderer.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 
 typedef ezTypedResourceHandle<class ezTexture2DResource> ezTexture2DResourceHandle;
 struct ezTrailParticleData;
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleTypeTrailFactory : public ezParticleTypeFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleTypeTrailFactory final : public ezParticleTypeFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypeTrailFactory, ezParticleTypeFactory);
 
@@ -29,7 +29,7 @@ public:
   ezString m_sTintColorParameter;
 };
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleTypeTrail : public ezParticleType
+class EZ_PARTICLEPLUGIN_DLL ezParticleTypeTrail final : public ezParticleType
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypeTrail, ezParticleType);
 
@@ -67,7 +67,7 @@ protected:
   ezProcessingStream* m_pStreamTrailData = nullptr;
   ezProcessingStream* m_pStreamVariation = nullptr;
   ezTime m_LastSnapshot;
-  ezUInt8 m_uiCurFirstIndex;
+  ezUInt8 m_uiCurFirstIndex = 0;
   float m_fSnapshotFraction;
 
   mutable ezArrayPtr<ezBaseParticleShaderData> m_BaseParticleData;
@@ -91,5 +91,3 @@ protected:
   ezDynamicArray<ezTrailParticlePointsData64, ezAlignedAllocatorWrapper> m_TrailPoints64;
   ezDynamicArray<ezUInt16> m_FreeTrailData;
 };
-
-

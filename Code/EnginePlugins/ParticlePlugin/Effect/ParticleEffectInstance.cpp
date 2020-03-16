@@ -16,7 +16,7 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
 ezParticleEffectInstance::ezParticleEffectInstance()
-    : m_Task(this)
+  : m_Task(this)
 {
   m_pOwnerModule = nullptr;
   m_Task.SetTaskName("Particle Effect Update");
@@ -30,9 +30,9 @@ ezParticleEffectInstance::~ezParticleEffectInstance()
 }
 
 void ezParticleEffectInstance::Construct(ezParticleEffectHandle hEffectHandle, const ezParticleEffectResourceHandle& hResource,
-                                         ezWorld* pWorld, ezParticleWorldModule* pOwnerModule, ezUInt64 uiRandomSeed, bool bIsShared,
-                                         ezArrayPtr<ezParticleEffectFloatParam> floatParams,
-                                         ezArrayPtr<ezParticleEffectColorParam> colorParams)
+  ezWorld* pWorld, ezParticleWorldModule* pOwnerModule, ezUInt64 uiRandomSeed, bool bIsShared,
+  ezArrayPtr<ezParticleEffectFloatParam> floatParams,
+  ezArrayPtr<ezParticleEffectColorParam> colorParams)
 {
   m_hEffectHandle = hEffectHandle;
   m_pWorld = pWorld;
@@ -47,9 +47,12 @@ void ezParticleEffectInstance::Construct(ezParticleEffectHandle hEffectHandle, c
   m_ElapsedTimeSinceUpdate.SetZero();
   m_EffectIsVisible.SetZero();
   m_iMinSimStepsToDo = 4;
-  m_Transform.SetIdentity();
+  m_Transform[0].SetIdentity();
+  m_Transform[1].SetIdentity();
   m_vVelocity.SetZero();
   m_TotalEffectLifeTime.SetZero();
+  m_pVisibleIf = nullptr;
+  m_uiRandomSeed = uiRandomSeed;
 
   if (uiRandomSeed == 0)
     m_Random.InitializeFromCurrentTime();
@@ -66,7 +69,8 @@ void ezParticleEffectInstance::Destruct()
   m_SharedInstances.Clear();
   m_hEffectHandle.Invalidate();
 
-  m_Transform.SetIdentity();
+  m_Transform[0].SetIdentity();
+  m_Transform[1].SetIdentity();
   m_bIsSharedEffect = false;
   m_pWorld = nullptr;
   m_hResource.Invalidate();
@@ -209,20 +213,30 @@ void ezParticleEffectInstance::SetIsVisible() const
   //    ezParticleComponent to a ezParticleFinisherComponent
   //    though this would only need one frame overlap
   // 2) The bounding volume for culling is only computed every couple of frames
-  //    so it may be too small 100ms and culling could be imprecise
+  //    so it may be too small and culling could be imprecise
   //    by just rendering it the next 100ms, no matter what, the bounding volume
   //    does not need to be updated so frequently
   m_EffectIsVisible = ezClock::GetGlobalClock()->GetAccumulatedTime() + ezTime::Seconds(0.1);
 }
 
 
+void ezParticleEffectInstance::SetVisibleIf(ezParticleEffectInstance* pOtherVisible)
+{
+  EZ_ASSERT_DEV(pOtherVisible != this, "Invalid effect");
+  m_pVisibleIf = pOtherVisible;
+}
+
 bool ezParticleEffectInstance::IsVisible() const
 {
+  if (m_pVisibleIf != nullptr)
+  {
+    return m_pVisibleIf->IsVisible();
+  }
+
   return m_EffectIsVisible >= ezClock::GetGlobalClock()->GetAccumulatedTime();
 }
 
-void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticleEffectFloatParam> floatParams,
-                                           ezArrayPtr<ezParticleEffectColorParam> colorParams)
+void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticleEffectFloatParam> floatParams, ezArrayPtr<ezParticleEffectColorParam> colorParams)
 {
   if (!m_hResource.IsValid())
   {
@@ -235,7 +249,8 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
   const auto& desc = pResource->GetDescriptor().m_Effect;
   const auto& systems = desc.GetParticleSystems();
 
-  m_Transform.SetIdentity();
+  m_Transform[0].SetIdentity();
+  m_Transform[1].SetIdentity();
   m_vVelocity.SetZero();
   m_fApplyInstanceVelocity = desc.m_fApplyInstanceVelocity;
   m_bSimulateInLocalSpace = desc.m_bSimulateInLocalSpace;
@@ -319,7 +334,7 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
       const ezTime tLifetime = systems[i]->GetAvgLifetime();
 
       const ezUInt32 uiMaxParticles =
-          ezMath::Max(32u, ezMath::Max(uiMaxParticlesAbs, (ezUInt32)(uiMaxParticlesPerSec * tLifetime.GetSeconds())));
+        ezMath::Max(32u, ezMath::Max(uiMaxParticlesAbs, (ezUInt32)(uiMaxParticlesPerSec * tLifetime.GetSeconds())));
 
       float fMultiplier = 1.0f;
 
@@ -351,7 +366,7 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
       if (m_ParticleSystems[i] == nullptr)
       {
         m_ParticleSystems[i] =
-            m_pOwnerModule->CreateSystemInstance(systemMaxParticles[i].m_uiCount, m_pWorld, this, systemMaxParticles[i].m_fMultiplier);
+          m_pOwnerModule->CreateSystemInstance(systemMaxParticles[i].m_uiCount, m_pWorld, this, systemMaxParticles[i].m_fMultiplier);
       }
     }
   }
@@ -361,7 +376,7 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
   for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
   {
     m_ParticleSystems[i]->ConfigureFromTemplate(systems[i]);
-    m_ParticleSystems[i]->SetTransform(m_Transform, vStartVelocity);
+    m_ParticleSystems[i]->SetTransform(m_Transform[m_uiDoubleBufferReadIdx], vStartVelocity);
     m_ParticleSystems[i]->SetEmitterEnabled(m_bEmitterEnabled);
     m_ParticleSystems[i]->Finalize();
   }
@@ -492,12 +507,11 @@ void ezParticleEffectInstance::AddParticleEvent(const ezParticleEvent& pe)
   m_EventQueue.PushBack(pe);
 }
 
-void ezParticleEffectInstance::SetTransform(const ezTransform& transform, const ezVec3& vParticleStartVelocity,
-                                            const void* pSharedInstanceOwner)
+void ezParticleEffectInstance::SetTransform(const ezTransform& transform, const ezVec3& vParticleStartVelocity, const void* pSharedInstanceOwner)
 {
   if (pSharedInstanceOwner == nullptr)
   {
-    m_Transform = transform;
+    m_Transform[m_uiDoubleBufferWriteIdx] = transform;
     m_vVelocity = vParticleStartVelocity;
   }
   else
@@ -506,7 +520,7 @@ void ezParticleEffectInstance::SetTransform(const ezTransform& transform, const 
     {
       if (info.m_pSharedInstanceOwner == pSharedInstanceOwner)
       {
-        info.m_Transform = transform;
+        info.m_Transform[m_uiDoubleBufferWriteIdx] = transform;
         return;
       }
     }
@@ -516,17 +530,17 @@ void ezParticleEffectInstance::SetTransform(const ezTransform& transform, const 
 const ezTransform& ezParticleEffectInstance::GetTransform(const void* pSharedInstanceOwner) const
 {
   if (pSharedInstanceOwner == nullptr)
-    return m_Transform;
+    return m_Transform[m_uiDoubleBufferReadIdx];
 
   for (auto& info : m_SharedInstances)
   {
     if (info.m_pSharedInstanceOwner == pSharedInstanceOwner)
     {
-      return info.m_Transform;
+      return info.m_Transform[m_uiDoubleBufferReadIdx];
     }
   }
 
-  return m_Transform;
+  return m_Transform[m_uiDoubleBufferReadIdx];
 }
 
 
@@ -540,7 +554,7 @@ void ezParticleEffectInstance::PassTransformToSystems()
     {
       if (m_ParticleSystems[i] != nullptr)
       {
-        m_ParticleSystems[i]->SetTransform(m_Transform, vStartVel);
+        m_ParticleSystems[i]->SetTransform(m_Transform[m_uiDoubleBufferReadIdx], vStartVel);
       }
     }
   }
@@ -556,7 +570,7 @@ void ezParticleEffectInstance::AddSharedInstance(const void* pSharedInstanceOwne
 
   auto& info = m_SharedInstances.ExpandAndGetRef();
   info.m_pSharedInstanceOwner = pSharedInstanceOwner;
-  info.m_Transform.SetIdentity();
+  info.m_Transform[m_uiDoubleBufferWriteIdx].SetIdentity();
 }
 
 void ezParticleEffectInstance::RemoveSharedInstance(const void* pSharedInstanceOwner)
@@ -638,6 +652,8 @@ ezTime ezParticleEffectInstance::GetBoundingVolume(ezBoundingBoxSphere& volume) 
 
 void ezParticleEffectInstance::ProcessEventQueues()
 {
+  ezMath::Swap(m_uiDoubleBufferReadIdx, m_uiDoubleBufferWriteIdx);
+
   if (m_EventQueue.IsEmpty())
     return;
 
@@ -692,7 +708,7 @@ void ezParticleffectUpdateTask::Execute()
       const ezParticleEffectHandle hEffect = m_pEffect->GetHandle();
       EZ_ASSERT_DEBUG(!hEffect.IsInvalidated(), "Invalid particle effect handle");
 
-      m_pEffect->GetOwnerWorldModule()->DestroyEffectInstance(hEffect, false, nullptr);
+      m_pEffect->GetOwnerWorldModule()->DestroyEffectInstance(hEffect, true, nullptr);
     }
   }
 }

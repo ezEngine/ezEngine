@@ -2,7 +2,7 @@ HeaderV2
 {
 o
 {
-	Uuid %id{u4{12408923997110485645,4745139354522054012}}
+	Uuid %id{u4{15238630097537281705,5044352021224455293}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
 	s %n{"Header"}
@@ -11,10 +11,10 @@ o
 		s %AssetType{"Texture 2D"}
 		VarArray %Dependencies
 		{
-			s{"Smoke.jpg"}
+			s{"Textures/Circle.png"}
 		}
-		Uuid %DocumentID{u4{12408923997110485645,4745139354522054012}}
-		u4 %Hash{13913729869385526431}
+		Uuid %DocumentID{u4{15238630097537281705,5044352021224455293}}
+		u4 %Hash{13801268433734429070}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -25,7 +25,7 @@ Objects
 {
 o
 {
-	Uuid %id{u4{12857801112520622753,4630194938722598772}}
+	Uuid %id{u4{8588807617905050010,5206778927010872556}}
 	s %t{"ezTextureAssetProperties"}
 	u3 %v{5}
 	p
@@ -41,8 +41,8 @@ o
 		b %FlipHorizontal{0}
 		s %Format{"ezRenderTargetFormat::RGBA8sRgb"}
 		f %HdrExposureBias{0}
-		s %Input1{"Smoke.jpg"}
-		s %Input2{"Smoke.jpg"}
+		s %Input1{"Textures/Circle.png"}
+		s %Input2{"Textures/Circle.png"}
 		s %Input3{""}
 		s %Input4{""}
 		b %IsRenderTarget{0}
@@ -64,7 +64,7 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{12857801112520622753,4630194938722598772}}
+			Uuid{u4{8588807617905050010,5206778927010872556}}
 		}
 	}
 }

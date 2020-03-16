@@ -14,7 +14,7 @@ struct EZ_PARTICLEPLUGIN_DLL ezParticleEffectResourceDescriptor
   ezParticleEffectDescriptor m_Effect;
 };
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleEffectResource : public ezResource
+class EZ_PARTICLEPLUGIN_DLL ezParticleEffectResource final : public ezResource
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleEffectResource, ezResource);
   EZ_RESOURCE_DECLARE_COMMON_CODE(ezParticleEffectResource);

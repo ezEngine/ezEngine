@@ -7,7 +7,7 @@
 
 #include <RendererCore/../../../Data/Base/Shaders/Particles/BillboardQuadParticleShaderData.h>
 
-class EZ_PARTICLEPLUGIN_DLL ezParticlePointRenderData : public ezRenderData
+class EZ_PARTICLEPLUGIN_DLL ezParticlePointRenderData final : public ezRenderData
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticlePointRenderData, ezRenderData);
 
@@ -19,7 +19,7 @@ public:
 };
 
 /// \brief Implements rendering of particle systems
-class EZ_PARTICLEPLUGIN_DLL ezParticlePointRenderer : public ezParticleRenderer
+class EZ_PARTICLEPLUGIN_DLL ezParticlePointRenderer final : public ezParticleRenderer
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticlePointRenderer, ezParticleRenderer);
   EZ_DISALLOW_COPY_AND_ASSIGN(ezParticlePointRenderer);

@@ -59,7 +59,7 @@ ezParticleComponent::~ezParticleComponent() = default;
 
 void ezParticleComponent::OnDeactivated()
 {
-  HandOffToFinisher();
+  m_EffectController.Invalidate();
 
   ezRenderComponent::OnDeactivated();
 }
@@ -159,7 +159,7 @@ void ezParticleComponent::DeserializeComponent(ezWorldReader& stream)
 bool ezParticleComponent::StartEffect()
 {
   // stop any previous effect
-  HandOffToFinisher();
+  m_EffectController.Invalidate();
 
   if (m_hEffectResource.IsValid())
   {
@@ -180,13 +180,12 @@ bool ezParticleComponent::StartEffect()
 
 void ezParticleComponent::StopEffect()
 {
-  HandOffToFinisher();
+  m_EffectController.Invalidate();
 }
 
 void ezParticleComponent::InterruptEffect()
 {
   m_EffectController.StopImmediate();
-  m_EffectController.Invalidate();
 }
 
 bool ezParticleComponent::IsEffectActive() const
@@ -209,8 +208,9 @@ void ezParticleComponent::OnMsgSetPlaying(ezMsgSetPlaying& msg)
 
 void ezParticleComponent::SetParticleEffect(const ezParticleEffectResourceHandle& hEffect)
 {
+  m_EffectController.Invalidate();
+
   m_hEffectResource = hEffect;
-  HandOffToFinisher();
 
   TriggerLocalBoundsUpdate();
 }
@@ -341,35 +341,6 @@ void ezParticleComponent::Update()
   {
     ezOnComponentFinishedAction2::HandleFinishedAction(this, m_OnFinishedAction);
   }
-}
-
-void ezParticleComponent::HandOffToFinisher()
-{
-  if (m_EffectController.IsAlive() && !m_EffectController.IsSharedInstance())
-  {
-    ezGameObject* pOwner = GetOwner();
-    ezWorld* pWorld = pOwner->GetWorld();
-
-    ezTransform transform = pOwner->GetGlobalTransform();
-
-    ezGameObjectDesc go;
-    go.m_LocalPosition = transform.m_vPosition;
-    go.m_LocalRotation = transform.m_qRotation;
-    go.m_LocalScaling = transform.m_vScale;
-    go.m_Tags = GetOwner()->GetTags();
-
-    ezGameObject* pFinisher;
-    pWorld->CreateObject(go, pFinisher);
-
-    ezParticleFinisherComponent* pFinisherComp;
-    ezParticleFinisherComponent::CreateComponent(pFinisher, pFinisherComp);
-
-    pFinisherComp->m_EffectController = m_EffectController;
-    pFinisherComp->m_EffectController.SetTransform(transform, ezVec3::ZeroVector()); // clear the velocity
-  }
-
-  // this will instruct the effect instance to cancel any further emission, thus continuous effects will stop in finite time
-  m_EffectController.Invalidate();
 }
 
 void ezParticleComponent::CheckBVolumeUpdate()
