@@ -64,7 +64,11 @@ public:
   /// \brief Should be called by ezParticleModule::RequestRequiredWorldModulesForCache() to cache a pointer to a world module that is needed later.
   void CacheWorldModule(const ezRTTI* pRtti);
 
+  void CreateFinisherComponent(ezParticleEffectInstance* pEffect);
+
 private:
+  virtual void WorldClear() override;
+
   void UpdateEffects(const ezWorldModule::UpdateContext& context);
   void EnsureUpdatesFinished(const ezWorldModule::UpdateContext& context);
 
@@ -82,6 +86,7 @@ private:
   mutable ezMutex m_Mutex;
   ezDeque<ezParticleEffectInstance> m_ParticleEffects;
   ezDynamicArray<ezParticleEffectInstance*> m_FinishingEffects;
+  ezDynamicArray<ezParticleEffectInstance*> m_NeedFinisherComponent;
   ezDynamicArray<ezParticleEffectInstance*> m_EffectsToReconfigure;
   ezDynamicArray<ezParticleEffectInstance*> m_ParticleEffectsFreeList;
   ezMap<ezString, ezParticleEffectHandle> m_SharedEffects;

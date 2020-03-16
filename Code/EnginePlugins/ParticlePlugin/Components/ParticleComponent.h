@@ -93,7 +93,6 @@ protected:
   void OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg);
 
   virtual void OnDeactivated() override;
-  void HandOffToFinisher();
 
   ezParticleEffectResourceHandle m_hEffectResource;
   ezTime m_RestartTime;

@@ -2,7 +2,7 @@ HeaderV2
 {
 o
 {
-	Uuid %id{u4{15238630097537281705,5044352021224455293}}
+	Uuid %id{u4{15768789185513003451,4920043893049495347}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
 	s %n{"Header"}
@@ -11,10 +11,10 @@ o
 		s %AssetType{"Texture 2D"}
 		VarArray %Dependencies
 		{
-			s{"Circle.png"}
+			s{"Textures/Explosion.jpg"}
 		}
-		Uuid %DocumentID{u4{15238630097537281705,5044352021224455293}}
-		u4 %Hash{3888706042718201643}
+		Uuid %DocumentID{u4{15768789185513003451,4920043893049495347}}
+		u4 %Hash{4253561672204611425}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -25,7 +25,7 @@ Objects
 {
 o
 {
-	Uuid %id{u4{8588807617905050010,5206778927010872556}}
+	Uuid %id{u4{33952229448327342,5306505632995422117}}
 	s %t{"ezTextureAssetProperties"}
 	u3 %v{5}
 	p
@@ -35,23 +35,23 @@ o
 		s %AddressModeW{"ezImageAddressMode::Repeat"}
 		f %AlphaThreshold{0x0000003F}
 		f %CVarResScale{0x0000803F}
-		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1_A2"}
-		s %CompressionMode{"ezTexConvCompressionMode::None"}
-		b %DilateColor{0}
+		s %ChannelMapping{"ezTexture2DChannelMappingEnum::RGB1"}
+		s %CompressionMode{"ezTexConvCompressionMode::Medium"}
+		b %DilateColor{1}
 		b %FlipHorizontal{0}
 		s %Format{"ezRenderTargetFormat::RGBA8sRgb"}
 		f %HdrExposureBias{0}
-		s %Input1{"Circle.png"}
-		s %Input2{"Circle.png"}
+		s %Input1{"Textures/Explosion.jpg"}
+		s %Input2{""}
 		s %Input3{""}
 		s %Input4{""}
 		b %IsRenderTarget{0}
-		s %MipmapMode{"ezTexConvMipmapMode::Linear"}
+		s %MipmapMode{"ezTexConvMipmapMode::Kaiser"}
 		b %PremultipliedAlpha{0}
 		b %PreserveAlphaCoverage{0}
 		s %Resolution{"ezTexture2DResolution::Fixed256x256"}
 		s %TextureFilter{"ezTextureFilterSetting::DefaultQuality"}
-		s %Usage{"ezTexConvUsage::Linear"}
+		s %Usage{"ezTexConvUsage::Color"}
 	}
 }
 o
@@ -64,7 +64,7 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{8588807617905050010,5206778927010872556}}
+			Uuid{u4{33952229448327342,5306505632995422117}}
 		}
 	}
 }

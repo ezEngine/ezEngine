@@ -222,6 +222,7 @@ void ezParticleEffectInstance::SetIsVisible() const
 
 void ezParticleEffectInstance::SetVisibleIf(ezParticleEffectInstance* pOtherVisible)
 {
+  EZ_ASSERT_DEV(pOtherVisible != this, "Invalid effect");
   m_pVisibleIf = pOtherVisible;
 }
 
@@ -707,7 +708,7 @@ void ezParticleffectUpdateTask::Execute()
       const ezParticleEffectHandle hEffect = m_pEffect->GetHandle();
       EZ_ASSERT_DEBUG(!hEffect.IsInvalidated(), "Invalid particle effect handle");
 
-      m_pEffect->GetOwnerWorldModule()->DestroyEffectInstance(hEffect, false, nullptr);
+      m_pEffect->GetOwnerWorldModule()->DestroyEffectInstance(hEffect, true, nullptr);
     }
   }
 }

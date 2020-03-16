@@ -46,8 +46,11 @@ public:
   ///@}
 
 private:
+  friend class ezParticleWorldModule;
+
   ezParticleEffectController(ezParticleWorldModule* pModule, ezParticleEffectHandle hEffect);
   ezParticleEffectInstance* GetInstance() const;
+  void HandOffToFinisher();
 
   const void* m_pSharedInstanceOwner = nullptr;
   ezParticleWorldModule* m_pModule = nullptr;

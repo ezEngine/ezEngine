@@ -88,8 +88,7 @@ ezParticleEffectHandle ezParticleWorldModule::CreateEffectInstance(const ezParti
   }
 }
 
-void ezParticleWorldModule::DestroyEffectInstance(const ezParticleEffectHandle& hEffect, bool bInterruptImmediately,
-                                                  const void* pSharedInstanceOwner)
+void ezParticleWorldModule::DestroyEffectInstance(const ezParticleEffectHandle& hEffect, bool bInterruptImmediately, const void* pSharedInstanceOwner)
 {
   EZ_LOCK(m_Mutex);
 
@@ -108,6 +107,11 @@ void ezParticleWorldModule::DestroyEffectInstance(const ezParticleEffectHandle& 
       pInstance->m_bIsFinishing = true;
       pInstance->SetEmitterEnabled(false);
       m_FinishingEffects.PushBack(pInstance);
+
+      if (!bInterruptImmediately)
+      {
+        m_NeedFinisherComponent.PushBack(pInstance);
+      }
     }
 
     if (bInterruptImmediately)
@@ -176,6 +180,15 @@ void ezParticleWorldModule::DestroyFinishedEffects()
       ++i;
     }
   }
+
+  for (ezUInt32 i = 0; i < m_NeedFinisherComponent.GetCount(); ++i)
+  {
+    ezParticleEffectInstance* pEffect = m_NeedFinisherComponent[i];
+
+    CreateFinisherComponent(pEffect);
+  }
+
+  m_NeedFinisherComponent.Clear();
 }
 
 void ezParticleWorldModule::ReconfigureEffects()
