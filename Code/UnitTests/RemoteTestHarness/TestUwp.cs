@@ -272,7 +272,7 @@ class ezTestUWP
           appXProcess = Process.GetProcessById((int)appXPid);
           Console.WriteLine($"AppX pid: {appXPid}.");
 
-          if (!runFileServe.Wait(60000))
+          if (!runFileServe.Wait(600000))
           {
             Console.WriteLine(string.Format("Fileserve did not terminate within 10 minutes."));
           }
