@@ -1,3 +1,4 @@
+{ 0881d8a5-3c3f-4868-8950-ee7402daa234 };Common/ContinuousEmitter.ezParticleEffect
 { 08b3e790-2832-4083-93ec-133a93054c4c };Common/BillboardRenderer.ezParticleEffect
 { 116d2eb4-e990-4796-ab0a-f6a42284feb7 };Common/QuadRotatingOrtho.ezParticleEffect
 { 1575de50-db7b-417e-bfef-5beeed034f2e };Common/QuadRotatingEmDir.ezParticleEffect
@@ -11,11 +12,11 @@
 { 536e7516-d811-4552-a3e9-5153dfdd5be1 };Common/SpherePositionInit.ezParticleEffect
 { 54f8f8f5-15e4-46c3-a80e-d5a6e2d6b693 };Common/MeshRenderer.ezParticleEffect
 { 58bf4d72-aa09-404f-81b8-13965d3e2286 };Common/SizeCurve.ezParticleEffect
+{ 5a8acf94-76da-4f67-8ba4-ac2693e747f5 };Common/OnEventEmitter.ezParticleEffect
 { 6b77708e-4c32-49a0-bc28-f63f693cc462 };Common/Particles3.ezObjectGraph
 { 856007bd-6f03-4bc0-bb61-f7fcc5a1575b };Common/LightRenderer.ezParticleEffect
 { 8bead6af-99d6-43cc-8660-da2e0e390dae };Common/QuadDistortion.ezParticleEffect
 { 8cfee0af-ac0e-452d-b13f-e67420497397 };Common/RandomColorInit.ezParticleEffect
-{ 8d4f6c3e-8d28-4834-ba93-52682a54d202 };Common/ContinuousEmitter.ezParticleEffect
 { 8f2115d8-88e4-4858-b357-3148fec8cc05 };Common/Billboards.ezObjectGraph
 { ProjectDecalAtlas };PC/Decals.ezTextureAtlas
 { abee6cd5-9d5a-4bd9-ae0a-af54dbbaaf8e };Common/BurstEmitter.ezParticleEffect

@@ -11,6 +11,7 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleEmitterFactory_OnEvent final : public ezPa
 
 public:
   ezParticleEmitterFactory_OnEvent();
+  ~ezParticleEmitterFactory_OnEvent();
 
   virtual const ezRTTI* GetEmitterType() const override;
   virtual void CopyEmitterProperties(ezParticleEmitter* pEmitter, bool bFirstTime) const override;
@@ -20,7 +21,9 @@ public:
   virtual void Load(ezStreamReader& stream) override;
 
   ezString m_sEventName;
-
+  ezUInt32 m_uiSpawnCountMin = 1;
+  ezUInt32 m_uiSpawnCountRange = 0;
+  ezString m_sSpawnCountScaleParameter;
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleEmitter_OnEvent final : public ezParticleEmitter
@@ -30,6 +33,9 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleEmitter_OnEvent final : public ezParticleE
 public:
 
   ezTempHashedString m_sEventName;
+  ezUInt32 m_uiSpawnCountMin = 1;
+  ezUInt32 m_uiSpawnCountRange = 0;
+  ezTempHashedString m_sSpawnCountScaleParameter;
 
   virtual void CreateRequiredStreams() override {}
 
@@ -41,5 +47,5 @@ protected:
 
   virtual void ProcessEventQueue(ezParticleEventQueue queue) override;
 
-  ezUInt32 m_uiSpawnCount = 0;
+  bool m_bSpawn = false;
 };
