@@ -23,7 +23,6 @@ public:
 
 };
 
-
 class EZ_PARTICLEPLUGIN_DLL ezParticleEmitter_OnEvent final : public ezParticleEmitter
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleEmitter_OnEvent, ezParticleEmitter);
@@ -32,18 +31,15 @@ public:
 
   ezTempHashedString m_sEventName;
 
-  virtual void CreateRequiredStreams() override;
+  virtual void CreateRequiredStreams() override {}
 
 protected:
-  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
+  virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override {}
 
   virtual ezParticleEmitterState IsFinished() override;
   virtual ezUInt32 ComputeSpawnCount(const ezTime& tDiff) override;
 
   virtual void ProcessEventQueue(ezParticleEventQueue queue) override;
 
-  ezProcessingStream* m_pStreamPosition;
-  ezProcessingStream* m_pStreamVelocity;
-
-  ezStaticArray<ezParticleEvent, 16> m_Events;
+  ezUInt32 m_uiSpawnCount = 0;
 };

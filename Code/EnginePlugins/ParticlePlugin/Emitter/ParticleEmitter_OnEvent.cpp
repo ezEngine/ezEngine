@@ -75,33 +75,6 @@ void ezParticleEmitterFactory_OnEvent::Load(ezStreamReader& stream)
   stream >> m_sEventName;
 }
 
-
-void ezParticleEmitter_OnEvent::CreateRequiredStreams()
-{
-  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, true);
-  CreateStream("Velocity", ezProcessingStream::DataType::Float3, &m_pStreamVelocity, true);
-}
-
-void ezParticleEmitter_OnEvent::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
-{
-  EZ_PROFILE_SCOPE("PFX: Event Emitter");
-
-  EZ_ASSERT_DEV(uiNumElements == m_Events.GetCount(), "Invalid spawn count");
-
-  ezVec4* pPosition = m_pStreamPosition->GetWritableData<ezVec4>();
-  ezVec3* pVelocity = m_pStreamVelocity->GetWritableData<ezVec3>();
-
-  for (ezUInt32 i = 0; i < uiNumElements; ++i)
-  {
-    const ezUInt64 index = uiStartIndex + i;
-
-    pPosition[index] = m_Events[i].m_vPosition.GetAsVec4(0);
-    pVelocity[index] = m_Events[i].m_vDirection; /// \todo whatever
-  }
-
-  m_Events.Clear();
-}
-
 ezParticleEmitterState ezParticleEmitter_OnEvent::IsFinished()
 {
   return ezParticleEmitterState::OnlyReacting;
@@ -109,7 +82,9 @@ ezParticleEmitterState ezParticleEmitter_OnEvent::IsFinished()
 
 ezUInt32 ezParticleEmitter_OnEvent::ComputeSpawnCount(const ezTime& tDiff)
 {
-  return m_Events.GetCount();
+  const ezUInt32 count = m_uiSpawnCount;
+  m_uiSpawnCount = 0;
+  return count;
 }
 
 void ezParticleEmitter_OnEvent::ProcessEventQueue(ezParticleEventQueue queue)
@@ -118,10 +93,7 @@ void ezParticleEmitter_OnEvent::ProcessEventQueue(ezParticleEventQueue queue)
   {
     if (e.m_EventType == m_sEventName) // this is the event type we are waiting for!
     {
-      if (m_Events.GetCount() == m_Events.GetCapacity())
-        return;
-
-      m_Events.PushBack(e);
+      ++m_uiSpawnCount;
     }
   }
 }
