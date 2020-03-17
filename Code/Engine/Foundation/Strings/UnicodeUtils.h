@@ -92,7 +92,7 @@ public:
   struct UtfInserter
   {
     typedef IntType InsertionType;
-    
+
     EZ_ALWAYS_INLINE UtfInserter(Container* pContainer) { m_pContainer = pContainer; }
     EZ_ALWAYS_INLINE void operator++() {}
     EZ_ALWAYS_INLINE UtfInserter& operator++(int) { return *this; }
@@ -109,4 +109,3 @@ public:
 
 
 #include <Foundation/Strings/Implementation/UnicodeUtils_inl.h>
-
