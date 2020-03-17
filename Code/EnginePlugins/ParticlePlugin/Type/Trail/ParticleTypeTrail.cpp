@@ -29,8 +29,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeTrailFactory, 1, ezRTTIDefaultAllo
     EZ_MEMBER_PROPERTY("NumSpritesX", m_uiNumSpritesX)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 16)),
     EZ_MEMBER_PROPERTY("NumSpritesY", m_uiNumSpritesY)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(1, 16)),
     EZ_MEMBER_PROPERTY("TintColorParam", m_sTintColorParameter),
-    // EZ_MEMBER_PROPERTY("UpdateTime", m_UpdateDiff)->AddAttributes(new ezDefaultValueAttribute(ezTime::Milliseconds(50)), new
-    // ezClampValueAttribute(ezTime::Milliseconds(20), ezTime::Milliseconds(300))),
+    EZ_MEMBER_PROPERTY("DistortionTexture", m_sDistortionTexture)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
+    EZ_MEMBER_PROPERTY("DistortionStrength", m_fDistortionStrength)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezClampValueAttribute(0.0f, 500.0f)),
   }
   EZ_END_PROPERTIES;
 }
@@ -56,13 +56,16 @@ void ezParticleTypeTrailFactory::CopyTypeProperties(ezParticleType* pObject, boo
   pType->m_uiNumSpritesX = m_uiNumSpritesX;
   pType->m_uiNumSpritesY = m_uiNumSpritesY;
   pType->m_sTintColorParameter = ezTempHashedString(m_sTintColorParameter.GetData());
+  pType->m_hDistortionTexture.Invalidate();
+  pType->m_fDistortionStrength = m_fDistortionStrength;
 
   // fixed 25 FPS for the update rate
   pType->m_UpdateDiff = ezTime::Seconds(1.0 / 25.0); // m_UpdateDiff;
 
   if (!m_sTexture.IsEmpty())
     pType->m_hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(m_sTexture);
-
+  if (!m_sDistortionTexture.IsEmpty())
+    pType->m_hDistortionTexture = ezResourceManager::LoadResource<ezTexture2DResource>(m_sDistortionTexture);
 
   if (bFirstTime)
   {
@@ -87,6 +90,7 @@ enum class TypeTrailVersion
   Version_2, // added render mode
   Version_3, // added texture atlas support
   Version_4, // added tint color
+  Version_5, // added distortion mode
 
   // insert new version numbers above
   Version_Count,
@@ -110,6 +114,10 @@ void ezParticleTypeTrailFactory::Save(ezStreamWriter& stream) const
 
   // version 4
   stream << m_sTintColorParameter;
+
+  // version 5
+  stream << m_sDistortionTexture;
+  stream << m_fDistortionStrength;
 }
 
 void ezParticleTypeTrailFactory::Load(ezStreamReader& stream)
@@ -144,6 +152,12 @@ void ezParticleTypeTrailFactory::Load(ezStreamReader& stream)
   if (uiVersion >= 4)
   {
     stream >> m_sTintColorParameter;
+  }
+
+  if (uiVersion >= 5)
+  {
+    stream >> m_sDistortionTexture;
+    stream >> m_fDistortionStrength;
   }
 }
 
@@ -258,6 +272,8 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
   pRenderData->m_TrailParticleData = m_TrailParticleData;
   pRenderData->m_TrailPointsShared = m_TrailPointsShared;
   pRenderData->m_fSnapshotFraction = m_fSnapshotFraction;
+  pRenderData->m_hDistortionTexture = m_hDistortionTexture;
+  pRenderData->m_fDistortionStrength = m_fDistortionStrength;
 
   pRenderData->m_uiNumVariationsX = 1;
   pRenderData->m_uiNumVariationsY = 1;
