@@ -13,6 +13,7 @@
 { 58bf4d72-aa09-404f-81b8-13965d3e2286 };Common/SizeCurve.ezParticleEffect
 { 6b77708e-4c32-49a0-bc28-f63f693cc462 };Common/Particles3.ezObjectGraph
 { 856007bd-6f03-4bc0-bb61-f7fcc5a1575b };Common/LightRenderer.ezParticleEffect
+{ 8bead6af-99d6-43cc-8660-da2e0e390dae };Common/QuadDistortion.ezParticleEffect
 { 8cfee0af-ac0e-452d-b13f-e67420497397 };Common/RandomColorInit.ezParticleEffect
 { 8d4f6c3e-8d28-4834-ba93-52682a54d202 };Common/ContinuousEmitter.ezParticleEffect
 { 8f2115d8-88e4-4858-b357-3148fec8cc05 };Common/Billboards.ezObjectGraph

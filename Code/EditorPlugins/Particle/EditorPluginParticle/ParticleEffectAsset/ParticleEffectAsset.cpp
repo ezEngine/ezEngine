@@ -9,6 +9,8 @@
 #include <GuiFoundation/PropertyGrid/VisualizerManager.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior_ColorGradient.h>
 #include <ParticlePlugin/Effect/ParticleEffectDescriptor.h>
+#include <ParticlePlugin/Initializer/ParticleInitializer_CylinderPosition.h>
+#include <ParticlePlugin/Initializer/ParticleInitializer_SpherePosition.h>
 #include <ParticlePlugin/System/ParticleSystemDescriptor.h>
 #include <ParticlePlugin/Type/Quad/ParticleTypeQuad.h>
 #include <ParticlePlugin/Type/Trail/ParticleTypeTrail.h>
@@ -91,8 +93,23 @@ void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMeta
 
     ezInt64 mode = e.m_pObject->GetTypeAccessor().GetValue("ColorGradientMode").ConvertTo<ezInt64>();
 
-    props["GradientMaxSpeed"].m_Visibility =
-      (mode == ezParticleColorGradientMode::Speed) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["GradientMaxSpeed"].m_Visibility = (mode == ezParticleColorGradientMode::Speed) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  }
+  else if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleInitializerFactory_CylinderPosition>())
+  {
+    auto& props = *e.m_pPropertyStates;
+
+    bool bSetVelocity = e.m_pObject->GetTypeAccessor().GetValue("SetVelocity").ConvertTo<bool>();
+
+    props["Speed"].m_Visibility = bSetVelocity ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  }
+  else if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleInitializerFactory_SpherePosition>())
+  {
+    auto& props = *e.m_pPropertyStates;
+
+    bool bSetVelocity = e.m_pObject->GetTypeAccessor().GetValue("SetVelocity").ConvertTo<bool>();
+
+    props["Speed"].m_Visibility = bSetVelocity ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
   }
 }
 
