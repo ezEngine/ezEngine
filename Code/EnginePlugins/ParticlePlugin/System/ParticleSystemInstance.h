@@ -81,6 +81,7 @@ private:
   bool IsInitializerConfigEqual(const ezParticleSystemDescriptor* pTemplate) const;
   bool IsBehaviorConfigEqual(const ezParticleSystemDescriptor* pTemplate) const;
   bool IsTypeConfigEqual(const ezParticleSystemDescriptor* pTemplate) const;
+  bool IsFinalizerConfigEqual(const ezParticleSystemDescriptor* pTemplate) const;
 
   void CreateStreamZeroInitializers();
 

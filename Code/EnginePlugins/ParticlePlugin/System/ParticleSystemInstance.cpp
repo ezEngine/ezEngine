@@ -87,6 +87,21 @@ bool ezParticleSystemInstance::IsTypeConfigEqual(const ezParticleSystemDescripto
   return true;
 }
 
+bool ezParticleSystemInstance::IsFinalizerConfigEqual(const ezParticleSystemDescriptor* pTemplate) const
+{
+  const auto& factories = pTemplate->GetFinalizerFactories();
+
+  if (factories.GetCount() != m_Finalizers.GetCount())
+    return false;
+
+  for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
+  {
+    if (factories[i]->GetFinalizerType() != m_Types[i]->GetDynamicRTTI())
+      return false;
+  }
+
+  return true;
+}
 
 void ezParticleSystemInstance::ConfigureFromTemplate(const ezParticleSystemDescriptor* pTemplate)
 {
@@ -99,7 +114,7 @@ void ezParticleSystemInstance::ConfigureFromTemplate(const ezParticleSystemDescr
   }
 
   const bool allProcessorsEqual = IsEmitterConfigEqual(pTemplate) && IsInitializerConfigEqual(pTemplate) &&
-                                  IsBehaviorConfigEqual(pTemplate) && IsTypeConfigEqual(pTemplate);
+                                  IsBehaviorConfigEqual(pTemplate) && IsTypeConfigEqual(pTemplate) && IsFinalizerConfigEqual(pTemplate);
 
   if (!allProcessorsEqual)
   {
@@ -327,7 +342,7 @@ ezParticleSystemInstance::ezParticleSystemInstance()
 }
 
 void ezParticleSystemInstance::Construct(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezParticleEffectInstance* pOwnerEffect,
-                                         float fSpawnCountMultiplier)
+  float fSpawnCountMultiplier)
 {
   m_Transform.SetIdentity();
   m_pOwnerEffect = pOwnerEffect;
@@ -450,7 +465,7 @@ const ezProcessingStream* ezParticleSystemInstance::QueryStream(const char* szNa
 }
 
 void ezParticleSystemInstance::CreateStream(const char* szName, ezProcessingStream::DataType Type, ezProcessingStream** ppStream,
-                                            ezParticleStreamBinding& binding, bool bWillInitializeElements)
+  ezParticleStreamBinding& binding, bool bWillInitializeElements)
 {
   EZ_ASSERT_DEV(ppStream != nullptr, "The pointer to the stream pointer must not be null");
 
@@ -574,7 +589,7 @@ ezParticleWorldModule* ezParticleSystemInstance::GetOwnerWorldModule() const
 }
 
 void ezParticleSystemInstance::ExtractSystemRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData,
-                                                       const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
+  const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
 {
   for (auto pType : m_Types)
   {
