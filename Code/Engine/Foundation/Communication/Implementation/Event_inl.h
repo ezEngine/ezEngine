@@ -188,10 +188,18 @@ void ezEventBase<EventData, MutexType, EventType>::Broadcast(EventData eventData
     }
 
     auto scopeExit = ezMakeScopeExit([&]() {
+    // Bug in MSVC 2017. Can't use if constexpr.
+#if EZ_ENABLED(EZ_COMPILER_MSVC) && _MSC_VER < 1920
+      if (RecursionDepthSupported)
+      {
+        m_uiRecursionDepth--;
+      }
+#else
       if constexpr (RecursionDepthSupported)
       {
         m_uiRecursionDepth--;
       }
+#endif
     });
 
     ezUInt32 uiHandlerCount = eventHandlers.GetCount();

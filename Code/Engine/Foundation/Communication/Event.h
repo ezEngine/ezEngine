@@ -12,7 +12,7 @@ typedef ezUInt32 ezEventSubscriptionID;
 /// \brief Specifies the type of ezEvent implementation to use
 enum class ezEventType
 {
-  Default,        /// Default implemetnation. Does not support modifying the event while broadcasting.
+  Default,        /// Default implementation. Does not support modifying the event while broadcasting.
   CopyOnBroadcast /// CopyOnBroadcast implementation. Supports modifying the event while broadcasting.
 };
 
@@ -101,7 +101,7 @@ public:
     /// If the uiMaxRecursionDepth parameter to Broadcast is supported in this implementation or not.
     RecursionDepthSupported = (EventType == ezEventType::Default || ezConversionTest<MutexType, ezNoMutex>::sameType == 1) ? 1 : 0,
 
-    /// Default value fro the maximum recursion depth of Broadcast.
+    /// Default value for the maximum recursion depth of Broadcast.
     /// As limiting the recursion depth is not supported when EventType == ezEventType::CopyAndBroadcast and MutexType != ezNoMutex
     /// the default value for that case is the maximum.
     MaxRecursionDepthDefault = RecursionDepthSupported ? 0 : 255
