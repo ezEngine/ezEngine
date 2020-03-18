@@ -44,7 +44,8 @@
 			"IncludeWindows.h",
 			"UWPUtils.h",
 			"ThreadingDeclarations_posix.h",
-			"xxhash.h"
+			"xxhash.h",
+			"cpp11.h"
 		]
 	}
 }
