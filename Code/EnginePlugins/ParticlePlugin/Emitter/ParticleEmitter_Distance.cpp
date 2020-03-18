@@ -106,7 +106,6 @@ void ezParticleEmitter_Distance::OnFinalize()
   }
 }
 
-
 ezParticleEmitterState ezParticleEmitter_Distance::IsFinished()
 {
   return ezParticleEmitterState::Active;

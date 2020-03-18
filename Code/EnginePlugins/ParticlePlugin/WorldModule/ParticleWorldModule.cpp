@@ -91,9 +91,7 @@ void ezParticleWorldModule::EnsureUpdatesFinished(const ezWorldModule::UpdateCon
 
     for (ezUInt32 i = 0; i < m_NeedFinisherComponent.GetCount(); ++i)
     {
-      ezParticleEffectInstance* pEffect = m_NeedFinisherComponent[i];
-
-      CreateFinisherComponent(pEffect);
+      CreateFinisherComponent(m_NeedFinisherComponent[i]);
     }
 
     m_NeedFinisherComponent.Clear();

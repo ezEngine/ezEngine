@@ -29,17 +29,15 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleEffectInstance
 public:
   struct SharedInstance
   {
-    const void* m_pSharedInstanceOwner;
-    ezTransform m_Transform[2];
+    const void* m_pSharedInstanceOwner = nullptr;
+    ezTransform m_Transform[2] = {ezTransform::IdentityTransform(), ezTransform::IdentityTransform()};
   };
 
 public:
   ezParticleEffectInstance();
   ~ezParticleEffectInstance();
 
-  void Construct(ezParticleEffectHandle hEffectHandle, const ezParticleEffectResourceHandle& hResource, ezWorld* pWorld,
-                 ezParticleWorldModule* pOwnerModule, ezUInt64 uiRandomSeed, bool bIsShared,
-                 ezArrayPtr<ezParticleEffectFloatParam> floatParams, ezArrayPtr<ezParticleEffectColorParam> colorParams);
+  void Construct(ezParticleEffectHandle hEffectHandle, const ezParticleEffectResourceHandle& hResource, ezWorld* pWorld, ezParticleWorldModule* pOwnerModule, ezUInt64 uiRandomSeed, bool bIsShared, ezArrayPtr<ezParticleEffectFloatParam> floatParams, ezArrayPtr<ezParticleEffectColorParam> colorParams);
   void Destruct();
 
   void Interrupt();

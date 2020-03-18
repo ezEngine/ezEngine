@@ -41,9 +41,17 @@ private:
     RandomSizeInitializer,
     RotationSpeedInitializer,
     VelocityConeInitializer,
+    BurstEmitter,
+    ContinuousEmitter,
+    OnEventEmitter,
+    QuadRotatingOrtho,
+    QuadFixedEmDir,
+    QuadAxisEmDir,
 
     Billboards,
     PullAlongBehavior,
+    DistanceEmitter,
+    SharedInstances,
   };
 
   virtual void SetupSubTests() override;

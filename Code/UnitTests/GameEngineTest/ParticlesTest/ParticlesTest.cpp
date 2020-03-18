@@ -38,9 +38,17 @@ void ezGameEngineTestParticles::SetupSubTests()
   AddSubTest("RandomSizeInitializer", SubTests::RandomSizeInitializer);
   AddSubTest("RotationSpeedInitializer", SubTests::RotationSpeedInitializer);
   AddSubTest("VelocityConeInitializer", SubTests::VelocityConeInitializer);
+  AddSubTest("BurstEmitter", SubTests::BurstEmitter);
+  AddSubTest("ContinuousEmitter", SubTests::ContinuousEmitter);
+  AddSubTest("OnEventEmitter", SubTests::OnEventEmitter);
+  AddSubTest("QuadRotatingOrtho", SubTests::QuadRotatingOrtho);
+  AddSubTest("QuadFixedEmDir", SubTests::QuadFixedEmDir);
+  AddSubTest("QuadAxisEmDir", SubTests::QuadAxisEmDir);
 
   AddSubTest("Billboards", SubTests::Billboards);
   AddSubTest("PullAlongBehavior", SubTests::PullAlongBehavior);
+  AddSubTest("DistanceEmitter", SubTests::DistanceEmitter);
+  AddSubTest("SharedInstances", SubTests::SharedInstances);
 }
 
 ezResult ezGameEngineTestParticles::InitializeSubTest(ezInt32 iIdentifier)
@@ -54,7 +62,17 @@ ezResult ezGameEngineTestParticles::InitializeSubTest(ezInt32 iIdentifier)
   }
   else if (iIdentifier == SubTests::PullAlongBehavior)
   {
-    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/Particles2.ezObjectGraph");
+    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/PullAlong.ezObjectGraph");
+    return EZ_SUCCESS;
+  }
+  else if (iIdentifier == SubTests::DistanceEmitter)
+  {
+    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/DistanceEmitter.ezObjectGraph");
+    return EZ_SUCCESS;
+  }
+  else if (iIdentifier == SubTests::SharedInstances)
+  {
+    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/SharedInstances.ezObjectGraph");
     return EZ_SUCCESS;
   }
   else
@@ -78,6 +96,12 @@ ezResult ezGameEngineTestParticles::InitializeSubTest(ezInt32 iIdentifier)
       "{ b4a3fc51-60ac-48b2-abec-5b2b6728676c }", // RandomSizeInitializer
       "{ f51d9d7b-0ad9-4f61-acb4-745c2b91a311 }", // RotationSpeedInitializer
       "{ c5a48c20-efab-4af5-a86b-91cd2241682e }", // VelocityConeInitializer
+      "{ abee6cd5-9d5a-4bd9-ae0a-af54dbbaaf8e }", // BurstEmitter
+      "{ 0881d8a5-3c3f-4868-8950-ee7402daa234 }", // ContinuousEmitter
+      "{ 5a8acf94-76da-4f67-8ba4-ac2693e747f5 }", // OnEventEmitter
+      "{ 116d2eb4-e990-4796-ab0a-f6a42284feb7 }", // QuadRotatingOrtho
+      "{ 81d2474b-8edd-464d-a828-7e398376ef5c }", // QuadFixedEmDir
+      "{ dfbb5432-f850-4e4b-b6b2-dcc1f10f3a3c }", // QuadAxisEmDir
     };
 
     m_pOwnApplication->SetupParticleSubTest(szEffects[iIdentifier]);

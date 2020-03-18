@@ -26,6 +26,8 @@ public:
   ezUInt8 m_uiNumVariationsY = 1;
   ezUInt8 m_uiNumFlipbookAnimationsX = 1;
   ezUInt8 m_uiNumFlipbookAnimationsY = 1;
+  ezTexture2DResourceHandle m_hDistortionTexture;
+  float m_fDistortionStrength = 0;
 };
 
 /// \brief Implements rendering of a trail particle systems

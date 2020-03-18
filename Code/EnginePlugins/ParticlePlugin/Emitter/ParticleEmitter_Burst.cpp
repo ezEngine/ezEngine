@@ -133,7 +133,7 @@ ezUInt32 ezParticleEmitter_Burst::ComputeSpawnCount(const ezTime& tDiff)
     return 0;
   }
 
-  ezUInt32 uiSpawn;
+  ezUInt32 uiSpawn = 0;
 
   if (m_Duration.IsZero())
   {

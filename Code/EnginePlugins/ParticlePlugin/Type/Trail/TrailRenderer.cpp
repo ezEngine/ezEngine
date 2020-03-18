@@ -89,7 +89,7 @@ void ezParticleTrailRenderer::RenderBatch(const ezRenderViewContext& renderViewC
 
     pRenderContext->BindTexture2D("ParticleTexture", pRenderData->m_hTexture);
 
-    systemConstants.SetGenericData(pRenderData->m_bApplyObjectTransform, pRenderData->m_GlobalTransform, pRenderData->m_TotalEffectLifeTime, pRenderData->m_uiNumVariationsX, pRenderData->m_uiNumVariationsY, pRenderData->m_uiNumFlipbookAnimationsX, pRenderData->m_uiNumFlipbookAnimationsY, 0.0f);
+    systemConstants.SetGenericData(pRenderData->m_bApplyObjectTransform, pRenderData->m_GlobalTransform, pRenderData->m_TotalEffectLifeTime, pRenderData->m_uiNumVariationsX, pRenderData->m_uiNumVariationsY, pRenderData->m_uiNumFlipbookAnimationsX, pRenderData->m_uiNumFlipbookAnimationsY, pRenderData->m_fDistortionStrength);
     systemConstants.SetTrailData(pRenderData->m_fSnapshotFraction, pRenderData->m_uiMaxTrailPoints);
 
     ezUInt32 uiNumParticles = pRenderData->m_BaseParticleData.GetCount();
@@ -128,6 +128,10 @@ bool ezParticleTrailRenderer::ConfigureShader(const ezParticleTrailRenderData* p
       break;
     case ezParticleTypeRenderMode::Opaque:
       renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "PARTICLE_RENDER_MODE_OPAQUE");
+      break;
+    case ezParticleTypeRenderMode::Distortion:
+      renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "PARTICLE_RENDER_MODE_DISTORTION");
+      renderViewContext.m_pRenderContext->BindTexture2D("ParticleDistortionTexture", pRenderData->m_hDistortionTexture);
       break;
   }
 
