@@ -8,7 +8,7 @@
 #include <Foundation/System/ProcessGroup.h>
 #include <Texture/Image/Image.h>
 
-#if EZ_ENABLED(EZ_SUPPORTS_PROCESSES) && EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if EZ_ENABLED(EZ_SUPPORTS_PROCESSES) && EZ_ENABLED(EZ_PLATFORM_WINDOWS) && defined(BUILDSYSTEM_TEXCONV_PRESENT)
 
 class ezTexConvTest : public ezTestBaseClass
 {

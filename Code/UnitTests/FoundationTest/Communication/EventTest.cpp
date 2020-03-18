@@ -138,4 +138,41 @@ EZ_CREATE_SIMPLE_TEST(Communication, Event)
       test.m_Event.RemoveEventHandler(TestRecursion::Event::Handler(&TestRecursion::DoStuff, &test));
     }
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Remove while iterate")
+  {
+    typedef ezEvent<int, ezMutex, ezDefaultAllocatorWrapper, ezEventType::CopyOnBroadcast> TestEvent;
+    TestEvent e;
+
+    ezUInt32 callMap = 0;
+
+    ezEventSubscriptionID subscriptions[4] = {};
+
+    subscriptions[0] = e.AddEventHandler(TestEvent::Handler([&](int i) { callMap |= EZ_BIT(0); }));
+
+    subscriptions[1] = e.AddEventHandler(TestEvent::Handler([&](int i) {
+      callMap |= EZ_BIT(1);
+      e.RemoveEventHandler(subscriptions[1]);
+    }));
+
+    subscriptions[2] = e.AddEventHandler(TestEvent::Handler([&](int i) {
+      callMap |= EZ_BIT(2);
+      e.RemoveEventHandler(subscriptions[2]);
+      e.RemoveEventHandler(subscriptions[3]);
+    }));
+
+    subscriptions[3] = e.AddEventHandler(TestEvent::Handler([&](int i) {
+      callMap |= EZ_BIT(3);
+    }));
+
+    e.Broadcast(0);
+
+    EZ_TEST_BOOL(callMap == (EZ_BIT(0) | EZ_BIT(1) | EZ_BIT(2) | EZ_BIT(3)));
+
+    callMap = 0;
+    e.Broadcast(0);
+    EZ_TEST_BOOL(callMap == EZ_BIT(0));
+
+    e.RemoveEventHandler(subscriptions[0]);
+  }
 }

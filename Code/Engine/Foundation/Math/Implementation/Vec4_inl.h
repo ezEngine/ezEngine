@@ -71,19 +71,19 @@ EZ_ALWAYS_INLINE ezVec4Template<Type>::ezVec4Template()
 
 template <typename Type>
 EZ_ALWAYS_INLINE ezVec4Template<Type>::ezVec4Template(Type X, Type Y, Type Z, Type W)
-    : x(X)
-    , y(Y)
-    , z(Z)
-    , w(W)
+  : x(X)
+  , y(Y)
+  , z(Z)
+  , w(W)
 {
 }
 
 template <typename Type>
 EZ_ALWAYS_INLINE ezVec4Template<Type>::ezVec4Template(Type V)
-    : x(V)
-    , y(V)
-    , z(V)
-    , w(V)
+  : x(V)
+  , y(V)
+  , z(V)
+  , w(V)
 {
 }
 
@@ -340,6 +340,8 @@ inline const ezVec4Template<Type> ezVec4Template<Type>::CompMul(const ezVec4Temp
   return ezVec4Template<Type>(x * rhs.x, y * rhs.y, z * rhs.z, w * rhs.w);
 }
 
+EZ_MSVC_ANALYSIS_WARNING_PUSH
+EZ_MSVC_ANALYSIS_WARNING_DISABLE(4723)
 template <typename Type>
 inline const ezVec4Template<Type> ezVec4Template<Type>::CompDiv(const ezVec4Template<Type>& rhs) const
 {
@@ -348,6 +350,7 @@ inline const ezVec4Template<Type> ezVec4Template<Type>::CompDiv(const ezVec4Temp
 
   return ezVec4Template<Type>(x / rhs.x, y / rhs.y, z / rhs.z, w / rhs.w);
 }
+EZ_MSVC_ANALYSIS_WARNING_POP
 
 template <typename Type>
 inline const ezVec4Template<Type> ezVec4Template<Type>::Abs() const
@@ -455,4 +458,3 @@ EZ_FORCE_INLINE bool operator<(const ezVec4Template<Type>& v1, const ezVec4Templ
 
   return (v1.w < v2.w);
 }
-

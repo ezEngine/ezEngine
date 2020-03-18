@@ -157,6 +157,15 @@ function(ez_detect_generator)
 	set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_XCODE OFF)
 	set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_MAKE OFF)
 	set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_NINJA OFF)
+	set_property(GLOBAL PROPERTY EZ_CMAKE_INSIDE_VS OFF) # if cmake is called through the visual studio open folder workflow
+	
+		
+	message (STATUS "CMAKE_VERSION is '${CMAKE_VERSION}'")
+	string(FIND ${CMAKE_VERSION} "MSVC" VERSION_CONTAINS_MSVC)
+	if(${VERSION_CONTAINS_MSVC} GREATER -1)
+		message(STATUS "cmake was called from visual studio open folder workflow")
+		set_property(GLOBAL PROPERTY EZ_CMAKE_INSIDE_VS ON)
+	endif()
 	
 	
 	message (STATUS "CMAKE_GENERATOR is '${CMAKE_GENERATOR}'")
@@ -243,6 +252,7 @@ macro(ez_pull_generator_vars)
 	get_property(EZ_CMAKE_GENERATOR_XCODE GLOBAL PROPERTY EZ_CMAKE_GENERATOR_XCODE)
 	get_property(EZ_CMAKE_GENERATOR_MAKE GLOBAL PROPERTY EZ_CMAKE_GENERATOR_MAKE)
 	get_property(EZ_CMAKE_GENERATOR_NINJA GLOBAL PROPERTY EZ_CMAKE_GENERATOR_NINJA)
+	get_property(EZ_CMAKE_INSIDE_VS GLOBAL PROPERTY EZ_CMAKE_INSIDE_VS)
 
 endmacro()
 
@@ -492,5 +502,7 @@ macro(ez_pull_all_vars)
 	ez_pull_compiler_vars()
 	ez_pull_generator_vars()
 	ez_pull_platform_vars()
+	
+	get_property(EZ_SUBMODULE_PREFIX_PATH GLOBAL PROPERTY EZ_SUBMODULE_PREFIX_PATH)
 
 endmacro()

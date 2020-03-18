@@ -40,7 +40,7 @@ struct PluginData
 static ezMap<ezString, PluginData> g_LoadedPlugins;
 ezInt32 ezPlugin::s_iPluginChangeRecursionCounter = 0;
 ezUInt32 ezPlugin::m_uiMaxParallelInstances = 32;
-ezEvent<const ezPluginEvent&> ezPlugin::s_PluginEvents;
+ezCopyOnBroadcastEvent<const ezPluginEvent&> ezPlugin::s_PluginEvents;
 
 
 void ezPlugin::SetMaxParallelInstances(ezUInt32 uiMaxParallelInstances)

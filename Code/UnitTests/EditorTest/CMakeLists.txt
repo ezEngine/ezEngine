@@ -1,5 +1,7 @@
 ez_cmake_init()
 
+ez_build_filter_everything()
+
 ez_requires_editor()
 
 ez_requires_windows()

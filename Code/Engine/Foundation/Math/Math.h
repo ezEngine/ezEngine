@@ -329,4 +329,3 @@ namespace ezMath
 #include <Foundation/Math/Implementation/MathFloat_inl.h>
 #include <Foundation/Math/Implementation/MathInt32_inl.h>
 #include <Foundation/Math/Implementation/Math_inl.h>
-

@@ -1,5 +1,7 @@
 ez_cmake_init()
 
+ez_build_filter_foundation()
+
 # Get the name of this folder as the project name
 get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
@@ -9,7 +11,7 @@ ez_create_target(APPLICATION ${PROJECT_NAME})
 #apk gen steps that happen in POST_BUILD and which are already done via ez_create_target. 
 add_custom_command(TARGET ${PROJECT_NAME} PRE_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy_directory
-                       ${CMAKE_SOURCE_DIR}/Data/UnitTests/FoundationTest/ ${CMAKE_CURRENT_BINARY_DIR}/package/Assets/Data/UnitTests/FoundationTest/)
+                       ${CMAKE_SOURCE_DIR}/${EZ_SUBMODULE_PREFIX_PATH}/Data/UnitTests/FoundationTest/ ${CMAKE_CURRENT_BINARY_DIR}/package/Assets/Data/UnitTests/FoundationTest/)
 
 target_link_libraries(${PROJECT_NAME}
   PUBLIC
@@ -17,14 +19,15 @@ target_link_libraries(${PROJECT_NAME}
   Texture
 )
 
+get_property(filterIndex GLOBAL PROPERTY EZ_BUILD_FILTER_INDEX)
+if(EZ_BUILD_TOOLS AND filterIndex GREATER_EQUAL 1)
+	target_compile_definitions(${PROJECT_NAME} PRIVATE BUILDSYSTEM_HAS_ARCHIVE_TOOL)
+endif()
+
 add_dependencies(${PROJECT_NAME}
   FoundationTest_Plugin1
   FoundationTest_Plugin2
 )
-
-if (EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
-  add_dependencies(${PROJECT_NAME} ArchiveTool)
-endif()
 
 ez_ci_add_test(${PROJECT_NAME})
 

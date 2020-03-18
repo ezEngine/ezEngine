@@ -10,7 +10,7 @@
       "variables": [
         {
           "name": "CMAKE_TOOLCHAIN_FILE",
-          "value": "${env.ANDROID_NDK}\\build\\cmake\\android.toolchain.cmake",
+          "value": "${env.ANDROID_NDK_HOME}\\build\\cmake\\android.toolchain.cmake",
           "type": "FILEPATH"
         },
         {
@@ -40,7 +40,7 @@
       "variables": [
         {
           "name": "CMAKE_TOOLCHAIN_FILE",
-          "value": "${env.ANDROID_NDK}\\build\\cmake\\android.toolchain.cmake",
+          "value": "${env.ANDROID_NDK_HOME}\\build\\cmake\\android.toolchain.cmake",
           "type": "FILEPATH"
         },
         {
@@ -70,12 +70,114 @@
       "variables": [
         {
           "name": "CMAKE_TOOLCHAIN_FILE",
-          "value": "${env.ANDROID_NDK}\\build\\cmake\\android.toolchain.cmake",
+          "value": "${env.ANDROID_NDK_HOME}\\build\\cmake\\android.toolchain.cmake",
           "type": "FILEPATH"
         },
         {
           "name": "ANDROID_PLATFORM",
           "value": "23"
+        },
+        {
+          "name": "EZ_ENABLE_QT_SUPPORT",
+          "value": "0"
+        },
+        {
+          "name": "EZ_BUILD_SAMPLES",
+          "value": "1"
+        }
+      ],
+      "buildCommandArgs": "-v",
+      "ctestCommandArgs": "",
+      "intelliSenseMode": "android-clang-arm"
+    },
+    {
+      "name": "Android-arm64-Debug",
+      "generator": "Ninja",
+      "configurationType": "Debug",
+      "inheritEnvironments": [ "vsdev" ],
+      "buildRoot": "${workspaceRoot}\\build\\${name}",
+      "installRoot": "${workspaceRoot}\\install\\${name}",
+      "variables": [
+        {
+          "name": "CMAKE_TOOLCHAIN_FILE",
+          "value": "${env.ANDROID_NDK_HOME}\\build\\cmake\\android.toolchain.cmake",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "ANDROID_PLATFORM",
+          "value": "23"
+        },
+        {
+          "name": "ANDROID_ABI",
+          "value": "arm64-v8a"
+        },
+        {
+          "name": "EZ_ENABLE_QT_SUPPORT",
+          "value": "0"
+        },
+        {
+          "name": "EZ_BUILD_SAMPLES",
+          "value": "1"
+        }
+      ],
+      "buildCommandArgs": "-v",
+      "ctestCommandArgs": "",
+      "intelliSenseMode": "android-clang-arm"
+    },
+    {
+      "name": "Android-arm64-RelWithDebInfo",
+      "generator": "Ninja",
+      "configurationType": "RelWithDebInfo",
+      "inheritEnvironments": [ "vsdev" ],
+      "buildRoot": "${workspaceRoot}\\build\\${name}",
+      "installRoot": "${workspaceRoot}\\install\\${name}",
+      "variables": [
+        {
+          "name": "CMAKE_TOOLCHAIN_FILE",
+          "value": "${env.ANDROID_NDK_HOME}\\build\\cmake\\android.toolchain.cmake",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "ANDROID_PLATFORM",
+          "value": "23"
+        },
+        {
+          "name": "ANDROID_ABI",
+          "value": "arm64-v8a"
+        },
+        {
+          "name": "EZ_ENABLE_QT_SUPPORT",
+          "value": "0"
+        },
+        {
+          "name": "EZ_BUILD_SAMPLES",
+          "value": "1"
+        }
+      ],
+      "buildCommandArgs": "-v",
+      "ctestCommandArgs": "",
+      "intelliSenseMode": "android-clang-arm"
+    },
+    {
+      "name": "Android-arm64-Release",
+      "generator": "Ninja",
+      "configurationType": "Release",
+      "inheritEnvironments": [ "vsdev" ],
+      "buildRoot": "${workspaceRoot}\\build\\${name}",
+      "installRoot": "${workspaceRoot}\\install\\${name}",
+      "variables": [
+        {
+          "name": "CMAKE_TOOLCHAIN_FILE",
+          "value": "${env.ANDROID_NDK_HOME}\\build\\cmake\\android.toolchain.cmake",
+          "type": "FILEPATH"
+        },
+        {
+          "name": "ANDROID_PLATFORM",
+          "value": "23"
+        },
+        {
+          "name": "ANDROID_ABI",
+          "value": "arm64-v8a"
         },
         {
           "name": "EZ_ENABLE_QT_SUPPORT",
@@ -100,7 +202,7 @@
       "variables": [
         {
           "name": "CMAKE_TOOLCHAIN_FILE",
-          "value": "${env.ANDROID_NDK}\\build\\cmake\\android.toolchain.cmake",
+          "value": "${env.ANDROID_NDK_HOME}\\build\\cmake\\android.toolchain.cmake",
           "type": "FILEPATH"
         },
         {
@@ -134,7 +236,7 @@
       "variables": [
         {
           "name": "CMAKE_TOOLCHAIN_FILE",
-          "value": "${env.ANDROID_NDK}\\build\\cmake\\android.toolchain.cmake",
+          "value": "${env.ANDROID_NDK_HOME}\\build\\cmake\\android.toolchain.cmake",
           "type": "FILEPATH"
         },
         {
@@ -168,7 +270,7 @@
       "variables": [
         {
           "name": "CMAKE_TOOLCHAIN_FILE",
-          "value": "${env.ANDROID_NDK}\\build\\cmake\\android.toolchain.cmake",
+          "value": "${env.ANDROID_NDK_HOME}\\build\\cmake\\android.toolchain.cmake",
           "type": "FILEPATH"
         },
         {

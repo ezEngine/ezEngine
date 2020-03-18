@@ -18,10 +18,10 @@ enum
   ALIGNED_ALLOCATOR_BUFFER_SIZE = sizeof(DefaultAlignedHeapType)
 };
 
-static ezUInt8 s_DefaultAllocatorBuffer[HEAP_ALLOCATOR_BUFFER_SIZE];
-static ezUInt8 s_StaticAllocatorBuffer[HEAP_ALLOCATOR_BUFFER_SIZE];
+EZ_ALIGN_VARIABLE(static ezUInt8 s_DefaultAllocatorBuffer[HEAP_ALLOCATOR_BUFFER_SIZE], EZ_ALIGNMENT_MINIMUM);
+EZ_ALIGN_VARIABLE(static ezUInt8 s_StaticAllocatorBuffer[HEAP_ALLOCATOR_BUFFER_SIZE], EZ_ALIGNMENT_MINIMUM);
 
-static ezUInt8 s_AlignedAllocatorBuffer[ALIGNED_ALLOCATOR_BUFFER_SIZE];
+EZ_ALIGN_VARIABLE(static ezUInt8 s_AlignedAllocatorBuffer[ALIGNED_ALLOCATOR_BUFFER_SIZE], EZ_ALIGNMENT_MINIMUM);
 
 bool ezFoundation::s_bIsInitialized = false;
 ezAllocatorBase* ezFoundation::s_pDefaultAllocator = nullptr;
@@ -61,9 +61,9 @@ ezAllocatorBase* ezFoundation::GetStaticAllocator()
   {
 #if defined(EZ_CUSTOM_STATIC_ALLOCATOR_FUNC)
 
-#if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
+#  if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#    if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     typedef ezAllocatorBase* (*GetStaticAllocatorFunc)();
 
     HMODULE hThisModule = GetModuleHandle(nullptr);
@@ -73,13 +73,13 @@ ezAllocatorBase* ezFoundation::GetStaticAllocator()
       pStaticAllocator = (*func)();
       return pStaticAllocator;
     }
-#else
-#error "Customizing static allocator not implemented"
-#endif
+#    else
+#      error "Customizing static allocator not implemented"
+#    endif
 
-#else
+#  else
     return EZ_CUSTOM_STATIC_ALLOCATOR_FUNC();
-#endif
+#  endif
 
 #endif
 
@@ -92,4 +92,3 @@ ezAllocatorBase* ezFoundation::GetStaticAllocator()
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Basics_Basics);
-

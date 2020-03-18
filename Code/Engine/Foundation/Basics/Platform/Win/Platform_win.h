@@ -33,7 +33,7 @@
 #endif
 
 #ifndef NULL
-#define NULL 0
+#  define NULL 0
 #endif
 
 #if defined(_MSC_VER)
@@ -66,16 +66,18 @@
 
 #  ifdef __INTELLISENSE__
 #    define EZ_ALIGN(decl, alignment) decl
+#    define EZ_ALIGN_VARIABLE(decl, alignment) decl
 #  else
 #    define EZ_ALIGN(decl, alignment) __declspec(align(alignment)) decl
+#    define EZ_ALIGN_VARIABLE(decl, alignment) __declspec(align(alignment)) decl
 #  endif
 
 // workaround for msvc compiler issue with alignment determination of dependent types
-#  define EZ_ALIGNMENT_OF(type) EZ_COMPILE_TIME_MIN(sizeof(type), __alignof(type))
+#  define EZ_ALIGNMENT_OF(type) EZ_COMPILE_TIME_MAX(EZ_ALIGNMENT_MINIMUM, EZ_COMPILE_TIME_MIN(sizeof(type), __alignof(type)))
 
-#  define EZ_DEBUG_BREAK                                                                                                                   \
-    {                                                                                                                                      \
-      __debugbreak();                                                                                                                      \
+#  define EZ_DEBUG_BREAK \
+    {                    \
+      __debugbreak();    \
     }
 
 #  if EZ_ENABLED(EZ_COMPILER_MSVC_CLANG)
@@ -145,7 +147,7 @@
 #    define EZ_VA_NUM_ARGS(...) EZ_VA_NUM_ARGS_HELPER EZ_LEFT_PARENTHESIS __VA_ARGS__, EZ_VA_NUM_ARGS_REVERSE_SEQUENCE EZ_RIGHT_PARENTHESIS
 #  endif
 
-#  if _M_ARM
+#  if _M_ARM || _M_ARM64
 #    undef EZ_PLATFORM_ARCH_ARM
 #    define EZ_PLATFORM_ARCH_ARM EZ_ON
 #  else
@@ -159,4 +161,3 @@
 
 #undef EZ_PLATFORM_LITTLE_ENDIAN
 #define EZ_PLATFORM_LITTLE_ENDIAN EZ_ON
-

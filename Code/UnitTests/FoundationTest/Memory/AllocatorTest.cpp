@@ -4,7 +4,7 @@
 #include <Foundation/Memory/LargeBlockAllocator.h>
 #include <Foundation/Memory/StackAllocator.h>
 
-struct NonAlignedVector
+struct EZ_ALIGN(NonAlignedVector, EZ_ALIGNMENT_MINIMUM)
 {
   EZ_DECLARE_POD_TYPE();
 
@@ -81,7 +81,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Alignment")
   {
-    TestAlignmentHelper<NonAlignedVector>(4);
+    TestAlignmentHelper<NonAlignedVector>(EZ_ALIGNMENT_MINIMUM);
     TestAlignmentHelper<AlignedVector>(16);
   }
 

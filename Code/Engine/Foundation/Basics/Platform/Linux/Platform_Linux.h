@@ -25,7 +25,7 @@
 #undef EZ_PLATFORM_LITTLE_ENDIAN
 #define EZ_PLATFORM_LITTLE_ENDIAN EZ_ON
 
-#if __x86_64
+#if __x86_64 || __aarch64__
 #  undef EZ_PLATFORM_64BIT
 #  define EZ_PLATFORM_64BIT EZ_ON
 #else
@@ -40,4 +40,3 @@
 #  undef EZ_PLATFORM_ARCH_X86
 #  define EZ_PLATFORM_ARCH_X86 EZ_ON
 #endif
-
