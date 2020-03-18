@@ -144,7 +144,7 @@ ezResult ezMath::TryMultiply64(ezUInt64& out_Result, ezUInt64 a, ezUInt64 b, ezU
     return EZ_SUCCESS;
   }
 
-#if EZ_ENABLED(EZ_PLATFORM_64BIT) && EZ_ENABLED(EZ_COMPILER_MSVC)
+#if EZ_ENABLED(EZ_PLATFORM_ARCH_X86) && EZ_ENABLED(EZ_PLATFORM_64BIT) && EZ_ENABLED(EZ_COMPILER_MSVC)
 
   ezUInt64 uiHighBits = 0;
 
