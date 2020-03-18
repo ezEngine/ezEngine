@@ -116,9 +116,9 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Decode")
   {
-    char utf8[] = {'a', 0};
-    ezUInt16 utf16[] = {'a', 0};
-    wchar_t wchar[] = {L'a', 0};
+    char utf8[] = {(char)0xc3, (char)0xb6, 0};
+    ezUInt16 utf16[] = {0xf6, 0};
+    wchar_t wchar[] = {L'ö', 0};
 
     char* szUtf8 = &utf8[0];
     ezUInt16* szUtf16 = &utf16[0];
@@ -142,13 +142,13 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
     ezUInt16* szUtf16 = &utf16[0];
     wchar_t* szWChar = &wchar[0];
 
-    ezUnicodeUtils::EncodeUtf32ToUtf8('a', szUtf8);
-    ezUnicodeUtils::EncodeUtf32ToUtf16('a', szUtf16);
-    ezUnicodeUtils::EncodeUtf32ToWChar('a', szWChar);
+    ezUnicodeUtils::EncodeUtf32ToUtf8(0xf6, szUtf8);
+    ezUnicodeUtils::EncodeUtf32ToUtf16(0xf6, szUtf16);
+    ezUnicodeUtils::EncodeUtf32ToWChar(0xf6, szWChar);
 
-    EZ_TEST_BOOL(utf8[0] == 'a');
-    EZ_TEST_BOOL(utf16[0] == 'a');
-    EZ_TEST_BOOL(wchar[0] == 'a');
+    EZ_TEST_BOOL(utf8[0] == (char)0xc3 && utf8[1] == (char)0xb6);
+    EZ_TEST_BOOL(utf16[0] == 0xf6);
+    EZ_TEST_BOOL(wchar[0] == L'ö');
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "MoveToNextUtf8")
