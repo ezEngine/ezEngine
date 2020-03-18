@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12772758285650494116,5193603208228074049}}
-		u4 %Hash{8662795775686005774}
+		u4 %Hash{3432198819989762455}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -282,8 +282,8 @@ o
 			Uuid{u4{11437288266203240986,10342328692810562792}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x000060C0,0,0x0000803F}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalPosition{f{0x7A0284C0,0x0C54CE40,0x0D818540}}
+		Quat %LocalRotation{f{0x8743DD3D,0xA444473E,0x504AF2BE,0x53345A3F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}

@@ -2,7 +2,7 @@ HeaderV2
 {
 o
 {
-	Uuid %id{u4{3336890169345961919,4719450781218365008}}
+	Uuid %id{u4{6696701476900579496,5065862237878634315}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
 	s %n{"Header"}
@@ -10,11 +10,11 @@ o
 	{
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
-		Uuid %DocumentID{u4{3336890169345961919,4719450781218365008}}
-		u4 %Hash{13700015108546514508}
+		Uuid %DocumentID{u4{6696701476900579496,5065862237878634315}}
+		u4 %Hash{375029842634275798}
 		VarArray %MetaInfo
 		{
-			Uuid{u4{12273255690344778416,9982188325600532161}}
+			Uuid{u4{12114396868059495232,13956055699725091525}}
 		}
 		VarArray %Outputs{}
 		VarArray %References
@@ -27,20 +27,20 @@ o
 }
 o
 {
-	Uuid %id{u4{12273255690344778416,9982188325600532161}}
+	Uuid %id{u4{12114396868059495232,13956055699725091525}}
 	s %t{"ezExposedParameters"}
 	u3 %v{3}
 	p
 	{
 		VarArray %Parameters
 		{
-			Uuid{u4{1407196360067448729,11444898394857360790}}
+			Uuid{u4{5485116928009222040,16377337742640382350}}
 		}
 	}
 }
 o
 {
-	Uuid %id{u4{1407196360067448729,11444898394857360790}}
+	Uuid %id{u4{5485116928009222040,16377337742640382350}}
 	s %t{"ezExposedParameter"}
 	u3 %v{2}
 	p
@@ -56,12 +56,12 @@ Objects
 {
 o
 {
-	Uuid %id{u4{7204373555641427908,4218168365994213473}}
+	Uuid %id{u4{10564184863196045485,4564579822654482780}}
 	s %t{"ezParticleEmitterFactory_Burst"}
 	u3 %v{1}
 	p
 	{
-		Time %Duration{d{0x000000000000F03F}}
+		Time %Duration{d{0x333333333333D33F}}
 		u3 %MinSpawnCount{1}
 		u3 %SpawnCountRange{0}
 		s %SpawnCountScaleParam{""}
@@ -70,18 +70,18 @@ o
 }
 o
 {
-	Uuid %id{u4{1556052787707670982,4370406690849922132}}
+	Uuid %id{u4{4915864095262288559,4716818147510191439}}
 	s %t{"ezParticleInitializerFactory_RandomRotationSpeed"}
 	u3 %v{1}
 	p
 	{
-		Uuid %DegreesPerSecond{u4{11853822025247372093,4694598365747759269}}
+		Uuid %DegreesPerSecond{u4{6038251069748588870,17828266013256300922}}
 		b %RandomStartAngle{0}
 	}
 }
 o
 {
-	Uuid %id{u4{8694753554031730090,4650689544627121187}}
+	Uuid %id{u4{12054564861586347667,4997101001287390494}}
 	s %t{"ezParticleBehaviorFactory_SizeCurve"}
 	u3 %v{1}
 	p
@@ -93,18 +93,7 @@ o
 }
 o
 {
-	Uuid %id{u4{11853822025247372093,4694598365747759269}}
-	s %t{"ezVarianceTypeAngle"}
-	u3 %v{1}
-	p
-	{
-		Angle %Value{f{0x58A08B41}}
-		f %Variance{0x295C8F3E}
-	}
-}
-o
-{
-	Uuid %id{u4{1873697837635141526,4940080167017749913}}
+	Uuid %id{u4{5233509145189759103,5286491623678019220}}
 	s %t{"ezParticleEffectDescriptor"}
 	u3 %v{2}
 	p
@@ -119,7 +108,7 @@ o
 		VarDict %FloatParameters{}
 		VarArray %ParticleSystems
 		{
-			Uuid{u4{15789925746516571567,5318321512557272778}}
+			Uuid{u4{702992980361637528,5664732969217542085}}
 		}
 		Time %PreSimulateDuration{d{0}}
 		b %SimulateInLocalSpace{0}
@@ -128,7 +117,7 @@ o
 }
 o
 {
-	Uuid %id{u4{4065093102470839173,5146317034447805112}}
+	Uuid %id{u4{7424904410025456750,5492728491108074419}}
 	s %t{"ezParticleInitializerFactory_RandomColor"}
 	u3 %v{1}
 	p
@@ -140,7 +129,7 @@ o
 }
 o
 {
-	Uuid %id{u4{12708511191440976039,5204433002054122535}}
+	Uuid %id{u4{16068322498995593616,5550844458714391842}}
 	s %t{"ezParticleTypeQuadFactory"}
 	u3 %v{2}
 	p
@@ -160,39 +149,39 @@ o
 }
 o
 {
-	Uuid %id{u4{15789925746516571567,5318321512557272778}}
+	Uuid %id{u4{702992980361637528,5664732969217542085}}
 	s %t{"ezParticleSystemDescriptor"}
 	u3 %v{1}
 	p
 	{
 		VarArray %Behaviors
 		{
-			Uuid{u4{8694753554031730090,4650689544627121187}}
-			Uuid{u4{9756086414510814124,5344813280101603739}}
+			Uuid{u4{12054564861586347667,4997101001287390494}}
+			Uuid{u4{13115897722065431701,5691224736761873046}}
 		}
 		VarArray %Emitters
 		{
-			Uuid{u4{7204373555641427908,4218168365994213473}}
+			Uuid{u4{10564184863196045485,4564579822654482780}}
 		}
 		VarArray %Initializers
 		{
-			Uuid{u4{1556052787707670982,4370406690849922132}}
-			Uuid{u4{4065093102470839173,5146317034447805112}}
+			Uuid{u4{4915864095262288559,4716818147510191439}}
+			Uuid{u4{7424904410025456750,5492728491108074419}}
 		}
 		s %LifeScaleParam{""}
-		Uuid %LifeTime{u4{12600194938429259061,16915429614584844460}}
+		Uuid %LifeTime{u4{8024758494444626280,6539780014714069670}}
 		s %Name{"system"}
 		s %OnDeathEvent{""}
 		VarArray %Types
 		{
-			Uuid{u4{12708511191440976039,5204433002054122535}}
+			Uuid{u4{16068322498995593616,5550844458714391842}}
 		}
 		b %Visible{1}
 	}
 }
 o
 {
-	Uuid %id{u4{9756086414510814124,5344813280101603739}}
+	Uuid %id{u4{13115897722065431701,5691224736761873046}}
 	s %t{"ezParticleBehaviorFactory_FadeOut"}
 	u3 %v{1}
 	p
@@ -211,19 +200,30 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{1873697837635141526,4940080167017749913}}
+			Uuid{u4{5233509145189759103,5286491623678019220}}
 		}
 	}
 }
 o
 {
-	Uuid %id{u4{12600194938429259061,16915429614584844460}}
+	Uuid %id{u4{8024758494444626280,6539780014714069670}}
 	s %t{"ezVarianceTypeTime"}
 	u3 %v{1}
 	p
 	{
-		Time %Value{d{0x9A9999999999D93F}}
+		Time %Value{d{0xCDCCCCCCCCCCFC3F}}
 		f %Variance{0}
+	}
+}
+o
+{
+	Uuid %id{u4{6038251069748588870,17828266013256300922}}
+	s %t{"ezVarianceTypeAngle"}
+	u3 %v{1}
+	p
+	{
+		Angle %Value{f{0xF366DF3F}}
+		f %Variance{0x295C8F3E}
 	}
 }
 }
