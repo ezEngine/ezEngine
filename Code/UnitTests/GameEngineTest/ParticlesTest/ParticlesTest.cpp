@@ -44,6 +44,7 @@ void ezGameEngineTestParticles::SetupSubTests()
   AddSubTest("QuadRotatingOrtho", SubTests::QuadRotatingOrtho);
   AddSubTest("QuadFixedEmDir", SubTests::QuadFixedEmDir);
   AddSubTest("QuadAxisEmDir", SubTests::QuadAxisEmDir);
+  AddSubTest("EventReactionEffect", SubTests::EventReactionEffect);
 
   AddSubTest("Billboards", SubTests::Billboards);
   AddSubTest("PullAlongBehavior", SubTests::PullAlongBehavior);
@@ -73,6 +74,11 @@ ezResult ezGameEngineTestParticles::InitializeSubTest(ezInt32 iIdentifier)
   else if (iIdentifier == SubTests::SharedInstances)
   {
     m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/SharedInstances.ezObjectGraph");
+    return EZ_SUCCESS;
+  }
+  else if (iIdentifier == SubTests::EventReactionEffect)
+  {
+    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/EventReactionEffect.ezObjectGraph");
     return EZ_SUCCESS;
   }
   else

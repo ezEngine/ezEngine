@@ -52,6 +52,7 @@ private:
     PullAlongBehavior,
     DistanceEmitter,
     SharedInstances,
+    EventReactionEffect,
   };
 
   virtual void SetupSubTests() override;
