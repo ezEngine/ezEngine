@@ -24,6 +24,7 @@
 { ba82b712-3af7-430d-91a6-492aa836dffb };Common/Velocity.ezParticleEffect
 { c5a48c20-efab-4af5-a86b-91cd2241682e };Common/VelocityConeInit.ezParticleEffect
 { cb01c6d9-b8ff-4347-ab8b-e94403c68aad };Common/Flies.ezParticleEffect
+{ dac37241-6299-4813-a402-20e2fcf341b1 };Common/SharedInstances.ezObjectGraph
 { dfbb5432-f850-4e4b-b6b2-dcc1f10f3a3c };Common/QuadAxisEmDir.ezParticleEffect
 { e2f1be77-a81b-4b6f-9ea1-481656dcac0b };Common/Burning.ezParticleEffect
 { e30bbbf2-9bda-45e0-8116-1ae8b998ce61 };Common/BoxPositionInit.ezParticleEffect
