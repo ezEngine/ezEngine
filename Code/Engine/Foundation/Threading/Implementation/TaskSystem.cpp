@@ -10,12 +10,15 @@
 
 ezMutex ezTaskSystem::s_TaskSystemMutex;
 double ezTaskSystem::s_fSmoothFrameMS = 1000.0 / 40.0; // => 25 ms
-ezThreadSignal ezTaskSystem::s_TasksAvailableSignal[ezWorkerThreadType::ENUM_COUNT];
+ezAtomicInteger32 ezTaskSystem::s_IdleWorkerThreads[ezWorkerThreadType::ENUM_COUNT];
 ezDynamicArray<ezTaskWorkerThread*> ezTaskSystem::s_WorkerThreads[ezWorkerThreadType::ENUM_COUNT];
+ezAtomicInteger32 ezTaskSystem::s_iNumWorkerThreads[ezWorkerThreadType::ENUM_COUNT];
 ezDeque<ezTaskGroup> ezTaskSystem::s_TaskGroups;
 ezList<ezTaskSystem::TaskData> ezTaskSystem::s_Tasks[ezTaskPriority::ENUM_COUNT];
+ezUInt32 ezTaskSystem::s_MaxWorkerThreadsToUse[ezWorkerThreadType::ENUM_COUNT] = {};
 
 thread_local ezWorkerThreadType::Enum g_ThreadTaskType = ezWorkerThreadType::Unknown;
+thread_local ezInt32 g_iWorkerThreadIdx = -1;
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, TaskSystem)
@@ -72,32 +75,6 @@ ezTaskGroupID ezTaskSystem::StartSingleTask(ezTask* pTask, ezTaskPriority::Enum 
   AddTaskToGroup(Group, pTask);
   StartTaskGroup(Group);
   return Group;
-}
-
-void ezTaskSystem::FinishMainThreadTasks()
-{
-  EZ_PROFILE_SCOPE("ThisFrameMainThreadTasks");
-
-  bool bGotStuffToDo = true;
-
-  while (bGotStuffToDo)
-  {
-    bGotStuffToDo = false;
-
-    // Prefer to work on main-thread tasks
-    if (ExecuteTask(ezTaskPriority::ThisFrameMainThread, ezTaskPriority::ThisFrameMainThread))
-    {
-      bGotStuffToDo = true;
-      continue;
-    }
-
-    // if there are none, help out with the other tasks for this frame
-    if (ExecuteTask(ezTaskPriority::EarlyThisFrame, ezTaskPriority::LateThisFrame))
-    {
-      bGotStuffToDo = true;
-      continue;
-    }
-  }
 }
 
 void ezTaskSystem::ReprioritizeFrameTasks()
@@ -186,7 +163,7 @@ void ezTaskSystem::ExecuteSomeFrameTasks(ezUInt32 uiSomeFrameTasks, double fSmoo
     // we execute one of these tasks, so reset the frame time threshold
     s_fFrameTimeThreshold = fSmoothFrameMS;
 
-    if (!ExecuteTask(ezTaskPriority::SomeFrameMainThread, ezTaskPriority::SomeFrameMainThread))
+    if (!ExecuteTask(ezTaskPriority::SomeFrameMainThread, ezTaskPriority::SomeFrameMainThread, false, ezTaskGroupID(), nullptr))
       return; // nothing left to do
 
     CurTime = ezTime::Now();
@@ -202,7 +179,7 @@ void ezTaskSystem::ExecuteSomeFrameTasks(ezUInt32 uiSomeFrameTasks, double fSmoo
     // we execute one of these tasks, so reset the frame time threshold
     s_fFrameTimeThreshold = fSmoothFrameMS;
 
-    ExecuteTask(ezTaskPriority::SomeFrameMainThread, ezTaskPriority::SomeFrameMainThread);
+    ExecuteTask(ezTaskPriority::SomeFrameMainThread, ezTaskPriority::SomeFrameMainThread, false, ezTaskGroupID(), nullptr);
   }
   else
   {
@@ -228,28 +205,14 @@ void ezTaskSystem::ExecuteSomeFrameTasks(ezUInt32 uiSomeFrameTasks, double fSmoo
   }
 }
 
-void ezTaskSystem::DetermineTasksToExecuteOnThread(
-  ezTaskPriority::Enum& out_FirstPriority, ezTaskPriority::Enum& out_LastPriority, bool& out_bAllowDefaultWork)
+void ezTaskSystem::DetermineTasksToExecuteOnThread(ezTaskPriority::Enum& out_FirstPriority, ezTaskPriority::Enum& out_LastPriority)
 {
-  // this specifies whether WaitForTask may fall back to processing standard tasks, when there is no more specific work available
-  // in some cases we absolutely want to avoid that, since it can produce deadlocks
-  // E.g. on the loading thread, if we are in the process of loading something and then we have to wait for something else,
-  // we must not start that work on the loading thread, because once THAT task runs into something where it has to wait for something
-  // to be loaded, we have a circular dependency on the thread itself and thus a deadlock
-  out_bAllowDefaultWork = true;
-
-  out_FirstPriority = ezTaskPriority::EarlyThisFrame;
-  out_LastPriority = ezTaskPriority::In9Frames;
-
   switch (g_ThreadTaskType)
   {
     case ezWorkerThreadType::MainThread:
     {
-      // if this is the main thread, we need to execute the main-thread tasks
-      // otherwise a dependency on which Group is waiting, might not get fulfilled
       out_FirstPriority = ezTaskPriority::ThisFrameMainThread;
       out_LastPriority = ezTaskPriority::SomeFrameMainThread;
-      out_bAllowDefaultWork = false;
       break;
     }
 
@@ -257,27 +220,28 @@ void ezTaskSystem::DetermineTasksToExecuteOnThread(
     {
       out_FirstPriority = ezTaskPriority::FileAccessHighPriority;
       out_LastPriority = ezTaskPriority::FileAccess;
-      out_bAllowDefaultWork = false;
       break;
     }
 
     case ezWorkerThreadType::LongTasks:
     {
-      // if this is a long-running thread, we need to execute the long-running tasks
-      // otherwise a dependency on which Group is waiting, might not get fulfilled
       out_FirstPriority = ezTaskPriority::LongRunningHighPriority;
       out_LastPriority = ezTaskPriority::LongRunning;
+      break;
+    }
+
+    case ezWorkerThreadType::ShortTasks:
+    {
+      out_FirstPriority = ezTaskPriority::EarlyThisFrame;
+      out_LastPriority = ezTaskPriority::In9Frames;
       break;
     }
 
     case ezWorkerThreadType::Unknown:
     {
       // probably a thread not launched through ez
-      [[fallthrough]];
-    }
-
-    case ezWorkerThreadType::ShortTasks:
-    {
+      out_FirstPriority = ezTaskPriority::EarlyThisFrame;
+      out_LastPriority = ezTaskPriority::In9Frames;
       break;
     }
 
@@ -298,12 +262,30 @@ void ezTaskSystem::FinishFrameTasks()
 {
   EZ_ASSERT_DEV(ezThreadUtils::IsMainThread(), "This function must be executed on the main thread.");
 
-  FinishMainThreadTasks();
+  // make sure all 'main thread' and 'short' tasks are either finished or being worked on by other threads already
+  {
+    while (true)
+    {
+      // Prefer to work on main-thread tasks
+      if (ExecuteTask(ezTaskPriority::ThisFrameMainThread, ezTaskPriority::ThisFrameMainThread, false, ezTaskGroupID(), nullptr))
+      {
+        continue;
+      }
+
+      // if there are none, help out with the other tasks for this frame
+      if (ExecuteTask(ezTaskPriority::EarlyThisFrame, ezTaskPriority::LateThisFrame, false, ezTaskGroupID(), nullptr))
+      {
+        continue;
+      }
+
+      break;
+    }
+  }
 
   ezUInt32 uiSomeFrameTasks = 0;
 
-  // now all the important tasks for this frame should be finished
-  // so now we re-prioritize the tasks for the next frame
+  // all the important tasks for this frame should be finished or worked on by now
+  // so we can now re-prioritize the tasks for the next frame
   {
     EZ_LOCK(s_TaskSystemMutex);
 
@@ -328,7 +310,9 @@ void ezTaskSystem::FinishFrameTasks()
 
       for (ezUInt32 type = 0; type < ezWorkerThreadType::ENUM_COUNT; ++type)
       {
-        for (ezUInt32 t = 0; t < s_WorkerThreads[type].GetCount(); ++t)
+        const ezUInt32 uiNumWorkers = s_iNumWorkerThreads[type];
+
+        for (ezUInt32 t = 0; t < uiNumWorkers; ++t)
         {
           s_WorkerThreads[type][t]->ComputeThreadUtilization(tDiff);
         }
@@ -478,4 +462,12 @@ ezWorkerThreadType::Enum ezTaskSystem::GetCurrentThreadWorkerType()
 }
 
 
+
 EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_TaskSystem);
+
+void ezTask::SetTaskNeverWaitsForOtherTasks()
+{
+  EZ_ASSERT_DEV(!m_bTaskIsScheduled, "This function must be called before the task is started.");
+
+  m_bNeverWaitsForOtherTasks = true;
+}

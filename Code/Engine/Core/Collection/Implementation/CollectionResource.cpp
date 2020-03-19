@@ -14,6 +14,11 @@ ezCollectionResource::ezCollectionResource()
 {
 }
 
+bool ezCollectionResource::AllowNestedResourceTypeAcquire(const ezRTTI* pResourceType)
+{
+  return false;
+}
+
 void ezCollectionResource::PreloadResources()
 {
   EZ_LOCK(m_preloadMutex);
@@ -183,7 +188,7 @@ void ezCollectionResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   EZ_LOCK(m_preloadMutex);
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
   out_NewMemoryUsage.m_uiMemoryCPU =
-      static_cast<ezUInt32>(m_hPreloadedResources.GetHeapMemoryUsage() + m_Collection.m_Resources.GetHeapMemoryUsage());
+    static_cast<ezUInt32>(m_hPreloadedResources.GetHeapMemoryUsage() + m_Collection.m_Resources.GetHeapMemoryUsage());
 }
 
 
@@ -251,7 +256,7 @@ void ezCollectionResourceDescriptor::Load(ezStreamReader& stream)
 
   stream >> uiVersion;
   stream >> uiIdentifier;
-  
+
   if (uiVersion == 1)
   {
     ezUInt16 uiNumResourcesShort;
@@ -283,4 +288,3 @@ void ezCollectionResourceDescriptor::Load(ezStreamReader& stream)
 
 
 EZ_STATICLINK_FILE(Core, Core_Collection_Implementation_CollectionResource);
-

@@ -91,13 +91,13 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     t[1].SetTaskName("Task 1");
     t[2].SetTaskName("Task 2");
 
-    ezTaskSystem::StartSingleTask(&t[0], ezTaskPriority::LateThisFrame);
-    ezTaskSystem::StartSingleTask(&t[1], ezTaskPriority::ThisFrame);
-    ezTaskSystem::StartSingleTask(&t[2], ezTaskPriority::EarlyThisFrame);
+    auto tg0 = ezTaskSystem::StartSingleTask(&t[0], ezTaskPriority::LateThisFrame);
+    auto tg1 = ezTaskSystem::StartSingleTask(&t[1], ezTaskPriority::ThisFrame);
+    auto tg2 = ezTaskSystem::StartSingleTask(&t[2], ezTaskPriority::EarlyThisFrame);
 
-    ezTaskSystem::WaitForTask(&t[0]);
-    ezTaskSystem::WaitForTask(&t[1]);
-    ezTaskSystem::WaitForTask(&t[2]);
+    ezTaskSystem::WaitForGroup(tg0);
+    ezTaskSystem::WaitForGroup(tg1);
+    ezTaskSystem::WaitForGroup(tg2);
 
     EZ_TEST_BOOL(t[0].IsDone());
     EZ_TEST_BOOL(t[1].IsDone());
@@ -114,8 +114,8 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     g[2] = ezTaskSystem::StartSingleTask(&t[2], ezTaskPriority::EarlyThisFrame, g[1]);
     g[3] = ezTaskSystem::StartSingleTask(&t[3], ezTaskPriority::EarlyThisFrame, g[0]);
 
-    ezTaskSystem::WaitForTask(&t[2]);
-    ezTaskSystem::WaitForTask(&t[3]);
+    ezTaskSystem::WaitForGroup(g[2]);
+    ezTaskSystem::WaitForGroup(g[3]);
 
     EZ_TEST_BOOL(t[0].IsDone());
     EZ_TEST_BOOL(t[1].IsDone());
@@ -207,52 +207,123 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
   {
     const int Tasks = 20;
     ezTestTask t[Tasks];
+    ezTaskGroupID tg[Tasks];
+    bool finished[Tasks];
 
     for (int i = 0; i < Tasks; i += 2)
     {
+      finished[i] = false;
+      finished[i + 1] = false;
+
       t[i].m_uiIterations = 10;
       t[i + 1].m_uiIterations = 20;
 
-      ezTaskSystem::StartSingleTask(&t[i], ezTaskPriority::ThisFrame);
-      ezTaskSystem::StartSingleTask(&t[i + 1], ezTaskPriority::NextFrame);
+      tg[i] = ezTaskSystem::StartSingleTask(&t[i], ezTaskPriority::ThisFrame);
+      tg[i + 1] = ezTaskSystem::StartSingleTask(&t[i + 1], ezTaskPriority::NextFrame);
     }
 
+    // 'finish' the first frame
     ezTaskSystem::FinishFrameTasks();
 
-    ezInt32 iNotAllThisTasksFinished = 0;
-
-    for (int i = 0; i < Tasks; i += 2)
     {
-      if (!t[i].IsTaskFinished())
-        ++iNotAllThisTasksFinished;
+      ezInt32 iNotAllThisTasksFinished = 0;
+      ezInt32 iNotAllNextTasksFinished = 0;
+
+      for (int i = 0; i < Tasks; i += 2)
+      {
+        if (!t[i].IsTaskFinished())
+        {
+          EZ_TEST_BOOL(!finished[i]);
+          ++iNotAllThisTasksFinished;
+        }
+        else
+        {
+          finished[i] = true;
+        }
+
+        if (!t[i + 1].IsTaskFinished())
+        {
+          EZ_TEST_BOOL(!finished[i + 1]);
+          ++iNotAllNextTasksFinished;
+        }
+        else
+        {
+          finished[i + 1] = true;
+        }
+      }
+
+      // up to the number of worker threads tasks can still be active
+      EZ_TEST_BOOL(iNotAllThisTasksFinished <= iWorkersShort);
+      EZ_TEST_BOOL(iNotAllNextTasksFinished <= Tasks);
     }
 
-    // up to the number of worker threads tasks can be still active
-    EZ_TEST_BOOL(iNotAllThisTasksFinished <= iWorkersShort);
 
-    ezInt32 iNotAllNextTasksFinished = 0;
-
-    for (int i = 0; i < Tasks; i += 2)
-    {
-      // ezTaskSystem::WaitForTask(&t[i]);
-      // EZ_TEST_BOOL(t[i].IsTaskFinished());
-
-      if (!t[i + 1].IsTaskFinished())
-        ++iNotAllNextTasksFinished;
-    }
-
-    EZ_TEST_BOOL_MSG(iNotAllNextTasksFinished > 0,
-      "This test CAN fail, if the PC is blocked just right. It does not matter though, it is not really a failure.");
-
+    // 'finish' the second frame
     ezTaskSystem::FinishFrameTasks();
 
-    for (int i = 0; i < Tasks; i += 2)
     {
-      EZ_TEST_BOOL(t[i].IsTaskFinished());
+      ezInt32 iNotAllThisTasksFinished = 0;
+      ezInt32 iNotAllNextTasksFinished = 0;
 
-      ezTaskSystem::WaitForTask(&t[i + 1]);
+      for (int i = 0; i < Tasks; i += 2)
+      {
+        if (!t[i].IsTaskFinished())
+        {
+          EZ_TEST_BOOL(!finished[i]);
+          ++iNotAllThisTasksFinished;
+        }
+        else
+        {
+          finished[i] = true;
+        }
 
-      EZ_TEST_BOOL(t[i + 1].IsTaskFinished());
+        if (!t[i + 1].IsTaskFinished())
+        {
+          EZ_TEST_BOOL(!finished[i + 1]);
+          ++iNotAllNextTasksFinished;
+        }
+        else
+        {
+          finished[i + 1] = true;
+        }
+      }
+
+      EZ_TEST_BOOL(iNotAllThisTasksFinished + iNotAllNextTasksFinished <= iWorkersShort);
+    }
+
+    // 'finish' all frames
+    ezTaskSystem::FinishFrameTasks();
+
+    {
+      ezInt32 iNotAllThisTasksFinished = 0;
+      ezInt32 iNotAllNextTasksFinished = 0;
+
+      for (int i = 0; i < Tasks; i += 2)
+      {
+        if (!t[i].IsTaskFinished())
+        {
+          EZ_TEST_BOOL(!finished[i]);
+          ++iNotAllThisTasksFinished;
+        }
+        else
+        {
+          finished[i] = true;
+        }
+
+        if (!t[i + 1].IsTaskFinished())
+        {
+          EZ_TEST_BOOL(!finished[i + 1]);
+          ++iNotAllNextTasksFinished;
+        }
+        else
+        {
+          finished[i + 1] = true;
+        }
+      }
+
+      // even after finishing multiple frames, the previous frame tasks may still be in execution
+      // since no N+x tasks enforce their completion in this test
+      EZ_TEST_BOOL(iNotAllThisTasksFinished + iNotAllNextTasksFinished <= iWorkersShort);
     }
   }
 
@@ -280,12 +351,13 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
   {
     const int Tasks = 20;
     ezTestTask t[Tasks];
+    ezTaskGroupID tg[Tasks];
 
     for (int i = 0; i < Tasks; ++i)
     {
       t[i].m_uiIterations = 50;
 
-      ezTaskSystem::StartSingleTask(&t[i], ezTaskPriority::ThisFrame);
+      tg[i] = ezTaskSystem::StartSingleTask(&t[i], ezTaskPriority::ThisFrame);
     }
 
     ezThreadUtils::Sleep(ezTime::Milliseconds(1));
@@ -303,7 +375,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
 
     for (int i = 0; i < Tasks; ++i)
     {
-      ezTaskSystem::WaitForTask(&t[i]);
+      ezTaskSystem::WaitForGroup(tg[i]);
       EZ_TEST_BOOL(t[i].IsTaskFinished());
 
       if (t[i].IsDone())
@@ -325,13 +397,14 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
   {
     const int Tasks = 20;
     ezTestTask t[Tasks];
+    ezTaskGroupID tg[Tasks];
 
     for (int i = 0; i < Tasks; ++i)
     {
       t[i].m_uiIterations = 50;
       t[i].m_bSupportCancel = true;
 
-      ezTaskSystem::StartSingleTask(&t[i], ezTaskPriority::ThisFrame);
+      tg[i] = ezTaskSystem::StartSingleTask(&t[i], ezTaskPriority::ThisFrame);
     }
 
     ezThreadUtils::Sleep(ezTime::Milliseconds(1));
@@ -349,7 +422,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
 
     for (int i = 0; i < Tasks; ++i)
     {
-      ezTaskSystem::WaitForTask(&t[i]);
+      ezTaskSystem::WaitForGroup(tg[i]);
       EZ_TEST_BOOL(t[i].IsTaskFinished());
 
       if (t[i].IsDone())
@@ -418,6 +491,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Tasks with Multiplicity")
   {
     ezTestTask t[3];
+    ezTaskGroupID tg[3];
 
     t[0].SetTaskName("Task 0");
     t[1].SetTaskName("Task 1");
@@ -427,13 +501,13 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     t[1].SetMultiplicity(100);
     t[2].SetMultiplicity(1000);
 
-    ezTaskSystem::StartSingleTask(&t[0], ezTaskPriority::LateThisFrame);
-    ezTaskSystem::StartSingleTask(&t[1], ezTaskPriority::ThisFrame);
-    ezTaskSystem::StartSingleTask(&t[2], ezTaskPriority::EarlyThisFrame);
+    tg[0] = ezTaskSystem::StartSingleTask(&t[0], ezTaskPriority::LateThisFrame);
+    tg[1] = ezTaskSystem::StartSingleTask(&t[1], ezTaskPriority::ThisFrame);
+    tg[2] = ezTaskSystem::StartSingleTask(&t[2], ezTaskPriority::EarlyThisFrame);
 
-    ezTaskSystem::WaitForTask(&t[0]);
-    ezTaskSystem::WaitForTask(&t[1]);
-    ezTaskSystem::WaitForTask(&t[2]);
+    ezTaskSystem::WaitForGroup(tg[0]);
+    ezTaskSystem::WaitForGroup(tg[1]);
+    ezTaskSystem::WaitForGroup(tg[2]);
 
     EZ_TEST_BOOL(t[0].IsMultiplicityDone());
     EZ_TEST_BOOL(t[1].IsMultiplicityDone());

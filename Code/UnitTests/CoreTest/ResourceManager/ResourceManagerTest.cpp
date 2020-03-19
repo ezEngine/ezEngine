@@ -84,6 +84,14 @@ namespace
     ezDynamicArray<ezUInt32> m_Data;
   };
 
+  bool TestResource::AllowNestedResourceTypeAcquire(const ezRTTI* pResourceType)
+  {
+    if (pResourceType->IsDerivedFrom<TestResource>())
+      return true;
+
+    return false;
+  }
+
   class TestResourceTypeLoader : public ezResourceTypeLoader
   {
   public:
@@ -239,7 +247,7 @@ EZ_CREATE_SIMPLE_TEST(ResourceManager, NestedLoading)
   }
 
   // Test disabled as it deadlocks
-  EZ_TEST_BLOCK(ezTestBlock::Disabled, "Blocking")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Blocking")
   {
     EZ_TEST_INT(ezResourceManager::GetAllResourcesOfType<TestResource>()->GetCount(), 0);
 

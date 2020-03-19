@@ -1,12 +1,12 @@
 #pragma once
 
 #include <Core/ResourceManager/Implementation/Declarations.h>
+#include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Types/UniquePtr.h>
-#include <Core/ResourceManager/ResourceTypeLoader.h>
 
 /// \brief [internal] Worker task for loading resources (typically from disk).
-class EZ_CORE_DLL ezResourceManagerWorkerDataLoad : public ezTask
+class EZ_CORE_DLL ezResourceManagerWorkerDataLoad final : public ezTask
 {
 private:
   friend class ezResourceManager;
@@ -15,14 +15,12 @@ private:
   ezResourceManagerWorkerDataLoad();
   ~ezResourceManagerWorkerDataLoad();
 
-  static void DoWork(bool bCalledExternally);
-
   virtual void Execute() override;
 };
 
 /// \brief [internal] Worker task for uploading resource data.
 /// Depending on the resource type, this may get scheduled to run on the main thread or on any thread.
-class EZ_CORE_DLL ezResourceManagerWorkerUpdateContent : public ezTask
+class EZ_CORE_DLL ezResourceManagerWorkerUpdateContent final : public ezTask
 {
 public:
   ~ezResourceManagerWorkerUpdateContent();
@@ -37,8 +35,8 @@ public:
 private:
   friend class ezResourceManager;
   friend class ezResourceManagerState;
+  friend class ezResourceManagerWorkerDataLoad;
   ezResourceManagerWorkerUpdateContent();
 
   virtual void Execute() override;
 };
-

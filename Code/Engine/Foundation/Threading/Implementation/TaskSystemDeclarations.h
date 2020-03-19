@@ -3,11 +3,13 @@
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/List.h>
 #include <Foundation/Strings/StringBuilder.h>
+#include <Foundation/Threading/ConditionVariable.h>
 #include <Foundation/Threading/Mutex.h>
 #include <Foundation/Threading/Thread.h>
 #include <Foundation/Threading/ThreadSignal.h>
 #include <Foundation/Time/Time.h>
 #include <Foundation/Types/Delegate.h>
+#include <Foundation/Types/UniquePtr.h>
 
 
 class ezTaskGroup;
@@ -95,23 +97,32 @@ struct ezWorkerThreadType
 };
 
 /// \internal Internal task worker thread class.
-class ezTaskWorkerThread : public ezThread
+class ezTaskWorkerThread final : public ezThread
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezTaskWorkerThread);
 
 private:
   friend class ezTaskSystem;
 
+  // used to wake up idle threads, see m_bIsIdle
+  ezThreadSignal m_WakeUpSignal;
+
+  // used to indicate whether this thread is currently idle
+  // if so, it can be woken up using m_WakeUpSignal
+  ezAtomicBool m_bIsIdle = false;
+
   /// \brief Tells the worker thread what tasks to execute and which thread index it has.
   ezTaskWorkerThread(ezWorkerThreadType::Enum ThreadType, ezUInt32 iThreadNumber);
 
   // Whether the thread is supposed to continue running.
-  volatile bool m_bActive;
+  volatile bool m_bActive = true;
 
   // Which types of tasks this thread should work on.
   ezWorkerThreadType::Enum m_WorkerType;
 
   virtual ezUInt32 Run() override;
+
+  void Idle();
 
   // Computes the thread utilization by dividing the thread active time by the time that has passed since the last update.
   void ComputeThreadUtilization(ezTime TimePassed);
@@ -119,12 +130,12 @@ private:
   // The thread keeps track of how much time it spends executing tasks. This function retrieves that time and resets it to zero.
   ezTime GetAndResetThreadActiveTime();
 
-  bool m_bExecutingTask;
+  bool m_bExecutingTask = false;
   ezTime m_StartedWorking;
   ezTime m_ThreadActiveTime;
-  double m_ThreadUtilization;
-  ezAtomicInteger32 m_iTasksExecutionCounter;
-  ezUInt32 m_uiNumTasksExecuted;
+  double m_ThreadUtilization = 0.0;
+  ezAtomicInteger32 m_iTasksExecutionCounter = 0;
+  ezUInt32 m_uiNumTasksExecuted = 0;
 
   // For display purposes.
   ezUInt32 m_uiWorkerThreadNumber;
@@ -144,6 +155,7 @@ public:
 
 private:
   friend class ezTaskSystem;
+  friend class ezTaskGroup;
 
   // the counter is used to determine whether this group id references the 'same' group, as m_pTaskGroup.
   // if m_pTaskGroup->m_uiGroupCounter is different to this->m_uiGroupCounter, then the group ID is not valid anymore.
@@ -158,14 +170,21 @@ class ezTaskGroup
 {
 public:
   ~ezTaskGroup();
+  ezTaskGroup(const ezTaskGroup& rhs) = default;
+  ezTaskGroup(ezTaskGroup&& rhs) = default;
+  ezTaskGroup& operator=(const ezTaskGroup& rhs) = default;
+  ezTaskGroup& operator=(ezTaskGroup&& rhs) = default;
 
   /// \brief The function type to use when one wants to get informed when a task group has been finished.
-  typedef ezDelegate<void()> OnTaskGroupFinished;
+  using OnTaskGroupFinished = ezDelegate<void()>;
 
 private:
   friend class ezTaskSystem;
 
   ezTaskGroup();
+
+  /// \brief Puts the calling thread to sleep until this group is fully finished.
+  void WaitForFinish(ezTaskGroupID group) const;
 
   bool m_bInUse = false;
   bool m_bStartedByUser = false;
@@ -178,6 +197,7 @@ private:
   ezAtomicInteger32 m_iRemainingTasks;
   OnTaskGroupFinished m_OnFinishedCallback;
   ezTaskPriority::Enum m_Priority = ezTaskPriority::ThisFrame;
+  ezUniquePtr<ezConditionVariable> m_CondVarGroupFinished;
 };
 
 struct ezTaskGroupDependency

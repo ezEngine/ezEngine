@@ -4,59 +4,43 @@
 #include <Foundation/Threading/TaskSystem.h>
 
 extern thread_local ezWorkerThreadType::Enum g_ThreadTaskType;
+extern thread_local ezInt32 g_iWorkerThreadIdx;
+
+static const char* GetThreadTypeName(ezWorkerThreadType::Enum ThreadType)
+{
+  switch (ThreadType)
+  {
+    case ezWorkerThreadType::ShortTasks:
+      return "Short Task";
+
+    case ezWorkerThreadType::LongTasks:
+      return "Long Task";
+
+    case ezWorkerThreadType::FileAccess:
+      return "File Access";
+  }
+
+  EZ_REPORT_FAILURE("Invalid Thread Type");
+  return "unknown";
+}
 
 // Helper function to generate a nice thread name.
 static const char* GenerateThreadName(ezWorkerThreadType::Enum ThreadType, ezUInt32 iThreadNumber)
 {
   static ezStringBuilder sTemp;
-
-  switch (ThreadType)
-  {
-    case ezWorkerThreadType::ShortTasks:
-      sTemp.Format("Short Tasks {0}", iThreadNumber + 1);
-      break;
-    case ezWorkerThreadType::LongTasks:
-      sTemp.Format("Long Tasks {0}", iThreadNumber + 1);
-      break;
-    case ezWorkerThreadType::FileAccess:
-      if (iThreadNumber > 0)
-        sTemp.Format("File Access {0}", iThreadNumber + 1);
-      else
-        sTemp = "File Access";
-      break;
-
-    default:
-      EZ_REPORT_FAILURE("Invalid Thread Type");
-      break;
-  }
-
+  sTemp.Format("{} {}", GetThreadTypeName(ThreadType), iThreadNumber);
   return sTemp.GetData();
 }
 
 ezTaskWorkerThread::ezTaskWorkerThread(ezWorkerThreadType::Enum ThreadType, ezUInt32 iThreadNumber)
   : ezThread(GenerateThreadName(ThreadType, iThreadNumber))
 {
-  m_bActive = true;
   m_WorkerType = ThreadType;
   m_uiWorkerThreadNumber = iThreadNumber;
-
-  m_bExecutingTask = false;
-  m_ThreadUtilization = 0.0;
-  m_iTasksExecutionCounter = 0;
-  m_uiNumTasksExecuted = 0;
 }
 
 void ezTaskSystem::StopWorkerThreads()
 {
-  // tell all threads that they should terminate
-  for (ezUInt32 type = 0; type < ezWorkerThreadType::ENUM_COUNT; ++type)
-  {
-    for (ezUInt32 i = 0; i < s_WorkerThreads[type].GetCount(); ++i)
-    {
-      s_WorkerThreads[type][i]->m_bActive = false;
-    }
-  }
-
   bool bWorkersStillRunning = true;
 
   // as long as any worker thread is still active, send the wake up signal
@@ -66,14 +50,21 @@ void ezTaskSystem::StopWorkerThreads()
 
     for (ezUInt32 type = 0; type < ezWorkerThreadType::ENUM_COUNT; ++type)
     {
-      for (ezUInt32 i = 0; i < s_WorkerThreads[type].GetCount(); ++i)
+      const ezUInt32 uiNumWorkers = s_iNumWorkerThreads[type];
+
+      for (ezUInt32 i = 0; i < uiNumWorkers; ++i)
       {
+        s_WorkerThreads[type][i]->m_bActive = false;
+
         if (s_WorkerThreads[type][i]->GetThreadStatus() != ezThread::Finished)
         {
           bWorkersStillRunning = true;
 
-          // send a signal
-          s_TasksAvailableSignal[type].RaiseSignal();
+          // wake this thread up if necessary
+          if (s_WorkerThreads[type][i]->m_bIsIdle.Set(false) == true)
+          {
+            s_WorkerThreads[type][i]->m_WakeUpSignal.RaiseSignal();
+          }
 
           // waste some time
           ezThreadUtils::YieldTimeSlice();
@@ -84,12 +75,17 @@ void ezTaskSystem::StopWorkerThreads()
 
   for (ezUInt32 type = 0; type < ezWorkerThreadType::ENUM_COUNT; ++type)
   {
-    for (ezUInt32 i = 0; i < s_WorkerThreads[type].GetCount(); ++i)
+    const ezUInt32 uiNumWorkers = s_iNumWorkerThreads[type];
+
+    for (ezUInt32 i = 0; i < uiNumWorkers; ++i)
     {
       s_WorkerThreads[type][i]->Join();
       EZ_DEFAULT_DELETE(s_WorkerThreads[type][i]);
     }
 
+    s_iNumWorkerThreads[type] = 0;
+    s_IdleWorkerThreads[type] = 0;
+    s_MaxWorkerThreadsToUse[type] = 0;
     s_WorkerThreads[type].Clear();
   }
 }
@@ -116,24 +112,49 @@ void ezTaskSystem::SetWorkerThreadCount(ezInt8 iShortTasks, ezInt8 iLongTasks)
   iLongTasks = ezMath::Max<ezInt8>(iLongTasks, 1);
 
   // if nothing has changed, do nothing
-  if (s_WorkerThreads[ezWorkerThreadType::ShortTasks].GetCount() == iShortTasks &&
-      s_WorkerThreads[ezWorkerThreadType::LongTasks].GetCount() == iLongTasks)
+  if (s_MaxWorkerThreadsToUse[ezWorkerThreadType::ShortTasks] == iShortTasks &&
+      s_MaxWorkerThreadsToUse[ezWorkerThreadType::LongTasks] == iLongTasks)
     return;
 
   StopWorkerThreads();
 
-  s_WorkerThreads[ezWorkerThreadType::ShortTasks].SetCount(iShortTasks);
-  s_WorkerThreads[ezWorkerThreadType::LongTasks].SetCount(iLongTasks);
-  s_WorkerThreads[ezWorkerThreadType::FileAccess].SetCount(1);
+  // this only allocates pointers, ie. the maximum possible number of threads that way may be able to realloc at runtime
+  s_WorkerThreads[ezWorkerThreadType::ShortTasks].SetCount(1024);
+  s_WorkerThreads[ezWorkerThreadType::LongTasks].SetCount(1024);
+  s_WorkerThreads[ezWorkerThreadType::FileAccess].SetCount(128);
 
-  for (ezUInt32 type = 0; type < ezWorkerThreadType::ENUM_COUNT; ++type)
+  s_MaxWorkerThreadsToUse[ezWorkerThreadType::ShortTasks] = iShortTasks;
+  s_MaxWorkerThreadsToUse[ezWorkerThreadType::LongTasks] = iLongTasks;
+  s_MaxWorkerThreadsToUse[ezWorkerThreadType::FileAccess] = 1;
+
+  AllocateThreads(ezWorkerThreadType::ShortTasks, s_MaxWorkerThreadsToUse[ezWorkerThreadType::ShortTasks]);
+  AllocateThreads(ezWorkerThreadType::LongTasks, s_MaxWorkerThreadsToUse[ezWorkerThreadType::LongTasks]);
+  AllocateThreads(ezWorkerThreadType::FileAccess, s_MaxWorkerThreadsToUse[ezWorkerThreadType::FileAccess]);
+}
+
+void ezTaskSystem::AllocateThreads(ezWorkerThreadType::Enum type, ezUInt32 uiAddThreads)
+{
   {
-    for (ezUInt32 i = 0; i < s_WorkerThreads[type].GetCount(); ++i)
+    // prevent concurrent thread allocation
+    EZ_LOCK(s_TaskSystemMutex);
+
+    ezUInt32 uiNextThreadIdx = s_iNumWorkerThreads[type];
+
+    EZ_ASSERT_ALWAYS(uiNextThreadIdx + uiAddThreads <= s_WorkerThreads[type].GetCount(), "Max number of worker threads ({}) exceeded.", s_WorkerThreads[type].GetCount());
+
+    for (ezUInt32 i = 0; i < uiAddThreads; ++i)
     {
-      s_WorkerThreads[type][i] = EZ_DEFAULT_NEW(ezTaskWorkerThread, (ezWorkerThreadType::Enum)type, i);
-      s_WorkerThreads[type][i]->Start();
+      s_WorkerThreads[type][uiNextThreadIdx] = EZ_DEFAULT_NEW(ezTaskWorkerThread, (ezWorkerThreadType::Enum)type, uiNextThreadIdx);
+      s_WorkerThreads[type][uiNextThreadIdx]->Start();
+
+      ++uiNextThreadIdx;
     }
+
+    // let others access the new threads now
+    s_iNumWorkerThreads[type] = uiNextThreadIdx;
   }
+
+  ezLog::Dev("Allocated {} additional '{}' worker threads ({} total)", uiAddThreads, GetThreadTypeName(type), s_iNumWorkerThreads[type]);
 }
 
 ezUInt32 ezTaskWorkerThread::Run()
@@ -144,11 +165,11 @@ ezUInt32 ezTaskWorkerThread::Run()
   // once this thread is running, store the worker type in the thread_local variable
   // such that the ezTaskSystem is able to look this up (e.g. in WaitForGroup) to know which types of tasks to help with
   g_ThreadTaskType = m_WorkerType;
+  g_iWorkerThreadIdx = m_uiWorkerThreadNumber;
 
-  bool bAllowDefaultWork;
   ezTaskPriority::Enum FirstPriority = ezTaskPriority::EarlyThisFrame;
   ezTaskPriority::Enum LastPriority = ezTaskPriority::In9Frames;
-  ezTaskSystem::DetermineTasksToExecuteOnThread(FirstPriority, LastPriority, bAllowDefaultWork);
+  ezTaskSystem::DetermineTasksToExecuteOnThread(FirstPriority, LastPriority);
 
   m_bExecutingTask = false;
 
@@ -160,19 +181,32 @@ ezUInt32 ezTaskWorkerThread::Run()
       m_StartedWorking = ezTime::Now();
     }
 
-    if (!ezTaskSystem::ExecuteTask(FirstPriority, LastPriority))
+    if (!ezTaskSystem::ExecuteTask(FirstPriority, LastPriority, false, ezTaskGroupID(), &m_bIsIdle))
     {
-      // if no work is currently available, wait for the signal that new work has been added
-
-      m_ThreadActiveTime += ezTime::Now() - m_StartedWorking;
-      m_bExecutingTask = false;
-      ezTaskSystem::s_TasksAvailableSignal[m_WorkerType].WaitForSignal();
+      Idle();
     }
     else
+    {
       m_iTasksExecutionCounter.Increment();
+    }
   }
 
   return 0;
+}
+
+void ezTaskWorkerThread::Idle()
+{
+  // m_bIsIdle usually will be true here, but may also already have been reset to false
+  // then the code below will just run through and continue
+
+  // if no work is currently available, wait for the signal that new work has been added
+
+  m_ThreadActiveTime += ezTime::Now() - m_StartedWorking;
+  m_bExecutingTask = false;
+  ezTaskSystem::s_IdleWorkerThreads[m_WorkerType].Increment();
+  m_WakeUpSignal.WaitForSignal();
+  EZ_ASSERT_DEV(m_bIsIdle == false, "Idle state should have been reset");
+  ezTaskSystem::s_IdleWorkerThreads[m_WorkerType].Decrement();
 }
 
 void ezTaskWorkerThread::ComputeThreadUtilization(ezTime TimePassed)
@@ -186,7 +220,7 @@ void ezTaskWorkerThread::ComputeThreadUtilization(ezTime TimePassed)
 ezTime ezTaskWorkerThread::GetAndResetThreadActiveTime()
 {
   ezTime tActive = m_ThreadActiveTime;
-  m_ThreadActiveTime = ezTime::Seconds(0.0);
+  m_ThreadActiveTime = ezTime::Zero();
 
   if (m_bExecutingTask)
   {

@@ -49,6 +49,11 @@ void ezGameApplicationBase::TakeProfilingCapture()
   public:
     ezProfilingSystem::ProfilingData m_profilingData;
 
+    WriteProfilingDataTask()
+    {
+      SetTaskNeverWaitsForOtherTasks();
+    }
+
   private:
     virtual void Execute() override
     {
@@ -91,6 +96,11 @@ void ezGameApplicationBase::StoreScreenshot(ezImage&& image, const char* szConte
   public:
     ezImage m_Image;
     ezStringBuilder m_sPath;
+
+    WriteFileTask()
+    {
+      SetTaskNeverWaitsForOtherTasks();
+    }
 
   private:
     virtual void Execute() override

@@ -1,6 +1,7 @@
 #include <GameEnginePCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
+#include <Core/WorldSerializer/ResourceHandleReader.h>
 #include <GameEngine/Animation/PropertyAnimResource.h>
 #include <GameEngine/Curves/ColorGradientResource.h>
 #include <GameEngine/Curves/Curve1DResource.h>
@@ -24,6 +25,11 @@ EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezPropertyAnimResource);
 ezPropertyAnimResource::ezPropertyAnimResource()
   : ezResource(DoUpdate::OnAnyThread, 1)
 {
+}
+
+bool ezPropertyAnimResource::AllowNestedResourceTypeAcquire(const ezRTTI* pResourceType)
+{
+  return false;
 }
 
 EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezPropertyAnimResource, ezPropertyAnimResourceDescriptor)

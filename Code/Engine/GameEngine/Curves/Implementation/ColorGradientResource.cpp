@@ -13,6 +13,11 @@ ezColorGradientResource::ezColorGradientResource()
 {
 }
 
+bool ezColorGradientResource::AllowNestedResourceTypeAcquire(const ezRTTI* pResourceType)
+{
+  return false;
+}
+
 EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezColorGradientResource, ezColorGradientResourceDescriptor)
 {
   m_Descriptor = descriptor;

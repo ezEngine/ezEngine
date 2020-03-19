@@ -419,7 +419,6 @@ private:
     EZ_ALWAYS_INLINE bool operator<(const LoadingInfo& rhs) const { return m_fPriority < rhs.m_fPriority; }
   };
   static void EnsureResourceLoadingState(ezResource* pResource, const ezResourceState RequestedState);
-  static bool HelpResourceLoading();
   static void PreloadResource(ezResource* pResource);
   static void InternalPreloadResource(ezResource* pResource, bool bHighestPriority);
 
@@ -437,7 +436,7 @@ private:
   static ezDynamicArray<ezResource*>& GetLoadedResourceOfTypeTempContainer();
 
   EZ_ALWAYS_INLINE static bool IsQueuedForLoading(ezResource* pResource) { return pResource->m_Flags.IsSet(ezResourceFlags::IsQueuedForLoading); }
-  static ezResult RemoveFromLoadingQueue(ezResource* pResource);
+  [[nodiscard]] static ezResult RemoveFromLoadingQueue(ezResource* pResource);
   static void AddToLoadingQueue(ezResource* pResource, bool bHighPriority);
 
   struct ResourceTypeInfo

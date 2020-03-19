@@ -10,11 +10,6 @@ ezResourceManagerWorkerDataLoad::~ezResourceManagerWorkerDataLoad() = default;
 
 void ezResourceManagerWorkerDataLoad::Execute()
 {
-  DoWork(false);
-}
-
-void ezResourceManagerWorkerDataLoad::DoWork(bool bCalledExternally)
-{
   EZ_PROFILE_SCOPE("LoadResourceFromDisk");
 
   ezResource* pResourceToLoad = nullptr;
@@ -51,51 +46,58 @@ void ezResourceManagerWorkerDataLoad::DoWork(bool bCalledExternally)
   if (pLoader == nullptr)
     pLoader = pResourceToLoad->GetDefaultResourceTypeLoader();
 
-  EZ_ASSERT_DEV(
-    pLoader != nullptr, "No Loader function available for Resource Type '{0}'", pResourceToLoad->GetDynamicRTTI()->GetTypeName());
+  EZ_ASSERT_DEV(pLoader != nullptr, "No Loader function available for Resource Type '{0}'", pResourceToLoad->GetDynamicRTTI()->GetTypeName());
 
   ezResourceLoadData LoaderData = pLoader->OpenDataStream(pResourceToLoad);
 
   // we need this info later to do some work in a lock, all the directly following code is outside the lock
   const bool bResourceIsLoadedOnMainThread = pResourceToLoad->GetBaseResourceFlags().IsAnySet(ezResourceFlags::UpdateOnMainThread);
 
-  ezResourceManagerWorkerUpdateContent* pWorkerMainThread = nullptr;
+  ezResourceManagerWorkerUpdateContent* pUpdateContentTask = nullptr;
+  ezTaskGroupID* pUpdateContentGroup = nullptr;
 
+  EZ_LOCK(ezResourceManager::s_ResourceMutex);
+
+  // try to find an update content task that has finished and can be reused
+  for (ezUInt32 i = 0; i < ezResourceManager::s_State->s_WorkerTasksUpdateContent.GetCount(); ++i)
   {
-    EZ_LOCK(ezResourceManager::s_ResourceMutex);
+    auto& td = ezResourceManager::s_State->s_WorkerTasksUpdateContent[i];
 
-    // take the oldest task from the queue, in hopes that it is the most likely one to have finished by now
-    pWorkerMainThread = &ezResourceManager::s_State->s_WorkerTasksUpdateContent[ezResourceManager::s_State->s_uiCurrentUpdateContentWorkerTask];
-    ezResourceManager::s_State->s_uiCurrentUpdateContentWorkerTask =
-      (ezResourceManager::s_State->s_uiCurrentUpdateContentWorkerTask + 1) % ezResourceManager::s_State->MaxUpdateContentTasks;
+    if (ezTaskSystem::IsTaskGroupFinished(td.m_GroupId))
+    {
+      pUpdateContentTask = td.m_pTask.Borrow();
+      pUpdateContentGroup = &td.m_GroupId;
+      break;
+    }
   }
 
-  // make sure the task that we grabbed has finished, before reusing it
-  ezTaskSystem::WaitForTask(pWorkerMainThread);
-
+  // if no such task could be found, we must allocate a new one
+  if (pUpdateContentTask == nullptr)
   {
-    EZ_LOCK(ezResourceManager::s_ResourceMutex);
+    ezStringBuilder s;
+    s.Format("Resource Content Updater {0}", ezResourceManager::s_State->s_WorkerTasksUpdateContent.GetCount());
 
-    pWorkerMainThread->m_LoaderData = LoaderData;
-    pWorkerMainThread->m_pLoader = pLoader;
-    pWorkerMainThread->m_pCustomLoader = std::move(pCustomLoader);
-    pWorkerMainThread->m_pResourceToLoad = pResourceToLoad;
+    auto& td = ezResourceManager::s_State->s_WorkerTasksUpdateContent.ExpandAndGetRef();
+    td.m_pTask = EZ_DEFAULT_NEW(ezResourceManagerWorkerUpdateContent);
+    td.m_pTask->SetTaskName(s);
+
+    pUpdateContentTask = td.m_pTask.Borrow();
+    pUpdateContentGroup = &td.m_GroupId;
+  }
+
+  // set up the data load task and launch it
+  {
+    pUpdateContentTask->m_LoaderData = LoaderData;
+    pUpdateContentTask->m_pLoader = pLoader;
+    pUpdateContentTask->m_pCustomLoader = std::move(pCustomLoader);
+    pUpdateContentTask->m_pResourceToLoad = pResourceToLoad;
 
     // schedule the task to run, either on the main thread or on some other thread
-    ezTaskSystem::StartSingleTask(
-      pWorkerMainThread, bResourceIsLoadedOnMainThread ? ezTaskPriority::SomeFrameMainThread : ezTaskPriority::LateNextFrame);
-  }
+    *pUpdateContentGroup = ezTaskSystem::StartSingleTask(pUpdateContentTask, bResourceIsLoadedOnMainThread ? ezTaskPriority::SomeFrameMainThread : ezTaskPriority::LateNextFrame);
 
-  // all this will happen inside a lock
-  {
-    EZ_LOCK(ezResourceManager::s_ResourceMutex);
-
-    if (!bCalledExternally)
-    {
-      // restart the next loading task (this one is about to finish)
-      ezResourceManager::s_State->s_bDataLoadTaskRunning = false;
-      ezResourceManager::RunWorkerTask(nullptr);
-    }
+    // restart the next loading task (this one is about to finish)
+    ezResourceManager::s_State->s_bDataLoadTaskRunning = false;
+    ezResourceManager::RunWorkerTask(nullptr);
 
     pCustomLoader.Clear();
   }
@@ -133,10 +135,8 @@ void ezResourceManagerWorkerUpdateContent::Execute()
     MemUsage.m_uiMemoryGPU = 0xFFFFFFFF;
     m_pResourceToLoad->UpdateMemoryUsage(MemUsage);
 
-    EZ_ASSERT_DEV(MemUsage.m_uiMemoryCPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its CPU memory usage",
-      m_pResourceToLoad->GetResourceID());
-    EZ_ASSERT_DEV(MemUsage.m_uiMemoryGPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its GPU memory usage",
-      m_pResourceToLoad->GetResourceID());
+    EZ_ASSERT_DEV(MemUsage.m_uiMemoryCPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its CPU memory usage", m_pResourceToLoad->GetResourceID());
+    EZ_ASSERT_DEV(MemUsage.m_uiMemoryGPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its GPU memory usage", m_pResourceToLoad->GetResourceID());
 
     m_pResourceToLoad->m_MemoryUsage = MemUsage;
   }

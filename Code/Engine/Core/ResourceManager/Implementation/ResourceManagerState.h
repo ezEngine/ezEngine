@@ -43,12 +43,18 @@ private:
 
   ezHashTable<const ezRTTI*, ezResourceManager::LoadedResources> s_LoadedResources;
   static const ezUInt32 MaxDataLoadTasks = 4;
-  static const ezUInt32 MaxUpdateContentTasks = 16;
   bool s_bDataLoadTaskRunning = false;
   bool s_bShutdown = false;
   ezResourceManagerWorkerDataLoad s_WorkerTasksDataLoad[MaxDataLoadTasks];
-  ezResourceManagerWorkerUpdateContent s_WorkerTasksUpdateContent[MaxUpdateContentTasks];
-  ezUInt8 s_uiCurrentUpdateContentWorkerTask = 0;
+
+  struct ContentTaskData
+  {
+    ezUniquePtr<ezResourceManagerWorkerUpdateContent> m_pTask;
+    ezTaskGroupID m_GroupId;
+  };
+
+  ezHybridArray<ContentTaskData, 16> s_WorkerTasksUpdateContent;
+  ezTaskGroupID s_WorkerTaskGroupsDataLoad[MaxDataLoadTasks];
   ezUInt8 s_uiCurrentLoadDataWorkerTask = 0;
   ezTime s_LastFrameUpdate;
   ezUInt32 s_uiLastResourcePriorityUpdateIdx = 0;

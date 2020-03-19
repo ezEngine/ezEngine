@@ -96,10 +96,19 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
 {
   EZ_ASSERT_DEV(hResource.IsValid(), "Cannot acquire a resource through an invalid handle!");
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  const ezResource* pCurrentlyUpdatingContent = ezResource::GetCurrentlyUpdatingContent();
+  if (pCurrentlyUpdatingContent != nullptr)
+  {
+    EZ_ASSERT_ALWAYS(pCurrentlyUpdatingContent->AllowNestedResourceAcquire(ezGetStaticRTTI<ResourceType>()),
+      "Trying to acquire a resource of type '{0}' during '{1}::UpdateContent()'. This is has to be enabled in '{1}::AllowNestedResourceTypeAcquire().",
+      ezGetStaticRTTI<ResourceType>()->GetTypeName(), pCurrentlyUpdatingContent->GetDynamicRTTI()->GetTypeName());
+  }
+#endif
+
   ResourceType* pResource = (ResourceType*)hResource.m_Typeless.m_pResource;
 
-  EZ_ASSERT_DEV(
-    pResource->m_iLockCount < 20, "You probably forgot somewhere to call 'EndAcquireResource' in sync with 'BeginAcquireResource'.");
+  //EZ_ASSERT_DEV(pResource->m_iLockCount < 20, "You probably forgot somewhere to call 'EndAcquireResource' in sync with 'BeginAcquireResource'.");
   EZ_ASSERT_DEBUG(pResource->GetDynamicRTTI()->IsDerivedFrom<ResourceType>(),
     "The requested resource does not have the same type ('{0}') as the resource handle ('{1}').",
     pResource->GetDynamicRTTI()->GetTypeName(), ezGetStaticRTTI<ResourceType>()->GetTypeName());
@@ -209,14 +218,16 @@ ezLockedObject<ezMutex, ezDynamicArray<ezResource*>> ezResourceManager::GetAllRe
 {
   const ezRTTI* pBaseType = ezGetStaticRTTI<ResourceType>();
 
+  auto& container = GetLoadedResourceOfTypeTempContainer();
+
   // We use a static container here to ensure its life-time is extended beyond
   // calls to this function as the locked object does not own the passed-in object
   // and thus does not extend the data life-time. It is safe to do this, as the
   // locked object holding the container ensures the container will not be
   // accessed concurrently.
-  ezLockedObject<ezMutex, ezDynamicArray<ezResource*>> loadedResourcesLock(s_ResourceMutex, &GetLoadedResourceOfTypeTempContainer());
+  ezLockedObject<ezMutex, ezDynamicArray<ezResource*>> loadedResourcesLock(s_ResourceMutex, &container);
 
-  GetLoadedResourceOfTypeTempContainer().Clear();
+  container.Clear();
 
   for (auto itType = GetLoadedResources().GetIterator(); itType.IsValid(); itType.Next())
   {
@@ -226,17 +237,11 @@ ezLockedObject<ezMutex, ezDynamicArray<ezResource*>> ezResourceManager::GetAllRe
     {
       const LoadedResources& lr = GetLoadedResources()[pDerivedType];
 
-      if (lr.m_Resources.IsEmpty())
-      {
-        // Nothing to do, avoid alloc/reserve below.
-        continue;
-      }
+      container.Reserve(container.GetCount() + lr.m_Resources.GetCount());
 
-      GetLoadedResourceOfTypeTempContainer().Reserve(GetLoadedResourceOfTypeTempContainer().GetCount() + lr.m_Resources.GetCount());
-
-      for (auto itResource = lr.m_Resources.GetIterator(); itResource.IsValid(); itResource.Next())
+      for (auto itResource : lr.m_Resources)
       {
-        GetLoadedResourceOfTypeTempContainer().PushBack(itResource.Value());
+        container.PushBack(itResource.Value());
       }
     }
   }

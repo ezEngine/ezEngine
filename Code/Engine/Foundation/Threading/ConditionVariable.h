@@ -8,7 +8,7 @@
 ///
 /// The ezConditionVariable works in conjunction with a mutex. When waiting for a signal,
 /// the OS typically puts the waiting thread to sleep.
-/// Using SignalOne() or SignalAll() other threads can wake up one more all threads that are
+/// Using SignalOne() or SignalAll() other threads can wake up one or all threads that are
 /// currently waiting on the condition variable.
 ///
 /// When a thread is woken up, it automatically holds the lock on the condition variable's mutex,

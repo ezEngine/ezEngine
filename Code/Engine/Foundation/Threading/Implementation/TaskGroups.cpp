@@ -1,11 +1,33 @@
 #include <FoundationPCH.h>
 
+#include <Foundation/Logging/Log.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/TaskSystem.h>
 
-ezTaskGroup::ezTaskGroup() = default;
+extern thread_local ezWorkerThreadType::Enum g_ThreadTaskType;
+extern thread_local ezInt32 g_iWorkerThreadIdx;
+extern thread_local bool g_bAllowWaitForOtherTasks;
+
+ezTaskGroup::ezTaskGroup()
+{
+  m_CondVarGroupFinished = EZ_DEFAULT_NEW(ezConditionVariable);
+}
+
 ezTaskGroup::~ezTaskGroup() = default;
+
+void ezTaskGroup::WaitForFinish(ezTaskGroupID group) const
+{
+  if (m_uiGroupCounter != group.m_uiGroupCounter)
+    return;
+
+  EZ_LOCK(*m_CondVarGroupFinished.Borrow());
+
+  while (m_uiGroupCounter == group.m_uiGroupCounter)
+  {
+    m_CondVarGroupFinished->UnlockWaitForSignalAndLock();
+  }
+}
 
 ezTaskGroupID ezTaskSystem::CreateTaskGroup(ezTaskPriority::Enum Priority, ezTaskGroup::OnTaskGroupFinished Callback)
 {
@@ -21,7 +43,7 @@ ezTaskGroupID ezTaskSystem::CreateTaskGroup(ezTaskPriority::Enum Priority, ezTas
   }
 
   // no free group found, create a new one
-  s_TaskGroups.PushBack(ezTaskGroup());
+  s_TaskGroups.PushBack(std::move(ezTaskGroup()));
   s_TaskGroups[i].m_uiTaskGroupIndex = static_cast<ezUInt16>(i);
 
 foundtaskgroup:
@@ -196,64 +218,104 @@ void ezTaskSystem::ScheduleGroupTasks(ezTaskGroup* pGroup, bool bHighPriority)
           s_Tasks[pGroup->m_Priority].PushBack(td);
       }
     }
+
+    // send the proper thread signal, to make sure one of the correct worker threads is awake
+    switch (pGroup->m_Priority)
+    {
+      case ezTaskPriority::EarlyThisFrame:
+      case ezTaskPriority::ThisFrame:
+      case ezTaskPriority::LateThisFrame:
+      case ezTaskPriority::EarlyNextFrame:
+      case ezTaskPriority::NextFrame:
+      case ezTaskPriority::LateNextFrame:
+      case ezTaskPriority::In2Frames:
+      case ezTaskPriority::In3Frames:
+      case ezTaskPriority::In4Frames:
+      case ezTaskPriority::In5Frames:
+      case ezTaskPriority::In6Frames:
+      case ezTaskPriority::In7Frames:
+      case ezTaskPriority::In8Frames:
+      case ezTaskPriority::In9Frames:
+      {
+        WakeUpThreads(ezWorkerThreadType::ShortTasks, iRemainingTasks, false);
+        break;
+      }
+
+      case ezTaskPriority::LongRunning:
+      case ezTaskPriority::LongRunningHighPriority:
+      {
+        WakeUpThreads(ezWorkerThreadType::LongTasks, iRemainingTasks, false);
+        break;
+      }
+
+      case ezTaskPriority::FileAccess:
+      case ezTaskPriority::FileAccessHighPriority:
+      {
+        WakeUpThreads(ezWorkerThreadType::FileAccess, iRemainingTasks, false);
+        break;
+      }
+
+      case ezTaskPriority::SomeFrameMainThread:
+      case ezTaskPriority::ThisFrameMainThread:
+      case ezTaskPriority::ENUM_COUNT:
+        // nothing to do for these enum values
+        break;
+    }
   }
+}
 
-  // send the proper thread signal, to make sure one of the correct worker threads is awake
-  switch (pGroup->m_Priority)
+void ezTaskSystem::WakeUpThreads(ezWorkerThreadType::Enum type, ezUInt32 uiNumThreads, bool bForce)
+{
+  if (!bForce)
   {
-    case ezTaskPriority::EarlyThisFrame:
-    case ezTaskPriority::ThisFrame:
-    case ezTaskPriority::LateThisFrame:
-    case ezTaskPriority::EarlyNextFrame:
-    case ezTaskPriority::NextFrame:
-    case ezTaskPriority::LateNextFrame:
-    case ezTaskPriority::In2Frames:
-    case ezTaskPriority::In3Frames:
-    case ezTaskPriority::In4Frames:
-    case ezTaskPriority::In5Frames:
-    case ezTaskPriority::In6Frames:
-    case ezTaskPriority::In7Frames:
-    case ezTaskPriority::In8Frames:
-    case ezTaskPriority::In9Frames:
-    {
-      const ezUInt32 uiNumSignals = ezMath::Min<ezUInt32>(iRemainingTasks, s_WorkerThreads[ezWorkerThreadType::ShortTasks].GetCount());
+    // in this case we only need to look at the first min(uiNumThreads, uiMaxThreads) threads and make sure none of them is idle
+    // they may still be blocked, but once a thread is blocked, it will wake up another thread, and once it becomes unblocked,
+    // it will pick up our new tasks anyway
 
-      for (ezUInt32 i = 0; i < uiNumSignals; ++i)
+    const ezUInt32 uiMaxThreads = s_MaxWorkerThreadsToUse[type];
+
+    for (ezUInt32 threadIdx = 0; threadIdx < uiMaxThreads && uiNumThreads > 0; ++threadIdx)
+    {
+      if (s_WorkerThreads[type][threadIdx]->m_bIsIdle.Set(false) == true) // was idle before
       {
-        s_TasksAvailableSignal[ezWorkerThreadType::ShortTasks].RaiseSignal();
+        // the thread index must be different, if it is the same, it must be an entirely different worker thread type
+        EZ_ASSERT_DEV(threadIdx != g_iWorkerThreadIdx || type != g_ThreadTaskType, "Calling thread was in idle state itself.");
+
+        --uiNumThreads;
+        s_WorkerThreads[type][threadIdx]->m_WakeUpSignal.RaiseSignal();
       }
+    }
+  }
+  else
+  {
+    // more than 1 thread can be woken up, but atm only this is used, so make sure this doesn't accidentally change
+    EZ_ASSERT_DEV(uiNumThreads == 1, "Unexpected number of threads to force wake up");
+
+    while (true)
+    {
+      const ezUInt32 uiMaxThreads = s_iNumWorkerThreads[type];
+
+      for (ezUInt32 threadIdx = 0; threadIdx < uiMaxThreads && uiNumThreads > 0; ++threadIdx)
+      {
+        if (s_WorkerThreads[type][threadIdx]->m_bIsIdle.Set(false) == true) // was idle before
+        {
+          // the thread index must be different, if it is the same, it must be an entirely different worker thread type
+          EZ_ASSERT_DEV(threadIdx != g_iWorkerThreadIdx || type != g_ThreadTaskType, "Calling thread was in idle state itself.");
+
+          --uiNumThreads;
+          s_WorkerThreads[type][threadIdx]->m_WakeUpSignal.RaiseSignal();
+        }
+      }
+
+      if (uiNumThreads > 0)
+      {
+        AllocateThreads(type, 1);
+        --uiNumThreads; // the new thread will start not-idle and take on some work
+        continue; // reevaluate uiMaxThreads
+      }
+
       break;
     }
-
-    case ezTaskPriority::LongRunning:
-    case ezTaskPriority::LongRunningHighPriority:
-    {
-      const ezUInt32 uiNumSignals = ezMath::Min<ezUInt32>(iRemainingTasks, s_WorkerThreads[ezWorkerThreadType::LongTasks].GetCount());
-
-      for (ezUInt32 i = 0; i < uiNumSignals; ++i)
-      {
-        s_TasksAvailableSignal[ezWorkerThreadType::LongTasks].RaiseSignal();
-      }
-      break;
-    }
-
-    case ezTaskPriority::FileAccess:
-    case ezTaskPriority::FileAccessHighPriority:
-    {
-      const ezUInt32 uiNumSignals = ezMath::Min<ezUInt32>(iRemainingTasks, s_WorkerThreads[ezWorkerThreadType::FileAccess].GetCount());
-
-      for (ezUInt32 i = 0; i < uiNumSignals; ++i)
-      {
-        s_TasksAvailableSignal[ezWorkerThreadType::FileAccess].RaiseSignal();
-      }
-      break;
-    }
-
-    case ezTaskPriority::SomeFrameMainThread:
-    case ezTaskPriority::ThisFrameMainThread:
-    case ezTaskPriority::ENUM_COUNT:
-      // nothing to do for these enum values
-      break;
   }
 }
 
@@ -267,35 +329,36 @@ void ezTaskSystem::DependencyHasFinished(ezTaskGroup* pGroup)
   }
 }
 
+extern thread_local ezWorkerThreadType::Enum g_ThreadTaskType;
+
 void ezTaskSystem::WaitForGroup(ezTaskGroupID Group)
 {
-  if (ezTaskSystem::IsTaskGroupFinished(Group))
-    return;
-
-  // This function does basically the same as 'WaitForTask' only that it waits until ALL tasks of an entire group are finished
-  // This function is less goal oriented, it does not try to pick out tasks that belong to the given group (at the moment)
-  // It simply helps running tasks, until the given Group has been finished as well
-
   EZ_PROFILE_SCOPE("WaitForGroup");
+
+  EZ_ASSERT_DEV(g_bAllowWaitForOtherTasks, "The executing task is flagged to never wait for other tasks but does so anyway. Remove the flag or remove the wait-dependency.");
+
+  const auto ThreadTaskType = g_ThreadTaskType;
+  const bool bAllowSleep = ThreadTaskType != ezWorkerThreadType::MainThread;
+  const bool bOnlyTasksThatNeverWait = ThreadTaskType != ezWorkerThreadType::MainThread;
 
   while (!ezTaskSystem::IsTaskGroupFinished(Group))
   {
-    if (!HelpExecutingTasks())
+    if (!HelpExecutingTasks(bOnlyTasksThatNeverWait, Group))
     {
-      // 'give up'
-      ezThreadUtils::YieldTimeSlice();
+      if (bAllowSleep)
+      {
+        const ezWorkerThreadType::Enum typeToWakeUp = (ThreadTaskType == ezWorkerThreadType::Unknown) ? ezWorkerThreadType::ShortTasks : ThreadTaskType;
 
-      // if the system hangs / deadlocks, check the following:
-      // is s_Tasks empty ? if so, no tasks are currently available to run
-      // what are the dependencies of Group.m_pTaskGroup (DependsOn)
-      // use the group counter member inside the ezTaskGroup to reference whether an ezTaskGroupID references the same group
-      // or whether it has already been reused (ie. it is finished)
-      // check the m_iActiveDependencies on an ezTaskgroup to see how many dependencies are really still waited for
-      // check that all dependencies have indeed been started by the user, (m_bStartedByUser), if not a task group may be added as a
-      // dependency, but forgotten to be launched, which can easily deadlock the system
-      // also check the various callstacks, that a task may not be waiting in a circular fashion on another task, which is executed
-      // on the same thread, but is also waiting for something else to finish. in that case you may need to handle dependencies and
-      // task priorities better
+        WakeUpThreads(ThreadTaskType, 1, true);
+
+        Group.m_pTaskGroup->WaitForFinish(Group);
+
+        break;
+      }
+      else
+      {
+        ezThreadUtils::YieldTimeSlice();
+      }
     }
   }
 }

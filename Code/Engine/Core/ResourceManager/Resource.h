@@ -128,6 +128,7 @@ public:
   /// Otherwise the function does nothing.
   void PrintHandleStackTraces();
 
+
   mutable ezEvent<const ezResourceEvent&, ezMutex> m_ResourceEvents;
 
 private:
@@ -227,6 +228,13 @@ private:
   ezTime m_LastAcquire;
   ezResourcePriority m_Priority = ezResourcePriority::Medium;
   ezTimestamp m_LoadedFileModificationTime;
+
+private:
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  static const ezResource* GetCurrentlyUpdatingContent();
+#endif
+
+  virtual bool AllowNestedResourceAcquire(const ezRTTI* pResource) const = 0;
 };
 
 
@@ -275,7 +283,17 @@ private:                                                                        
   static ezTypedResourceHandle<SELF> s_TypeLoadingFallback;                                                                              \
   static ezTypedResourceHandle<SELF> s_TypeMissingFallback;                                                                              \
                                                                                                                                          \
-  ezTypedResourceHandle<SELF> m_hLoadingFallback;
+  ezTypedResourceHandle<SELF> m_hLoadingFallback;                                                                                        \
+                                                                                                                                         \
+public:                                                                                                                                  \
+  static bool AllowNestedResourceTypeAcquire(const ezRTTI* pResource);                                                                   \
+                                                                                                                                         \
+private:                                                                                                                                 \
+  virtual bool AllowNestedResourceAcquire(const ezRTTI* pResource) const                                                                 \
+  {                                                                                                                                      \
+    return AllowNestedResourceTypeAcquire(pResource);                                                                                    \
+  }
+
 
 
 #define EZ_RESOURCE_IMPLEMENT_COMMON_CODE(SELF)                                             \

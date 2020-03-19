@@ -6,7 +6,7 @@
 #include <Foundation/Time/Timestamp.h>
 #include <Foundation/Utilities/DGMLWriter.h>
 
-static thread_local ezHybridArray<ezTask*, 8> s_currentRunningTask;
+thread_local bool g_bAllowWaitForOtherTasks = true;
 
 ezTask::ezTask(const char* szTaskName /*= nullptr*/)
 {
@@ -82,8 +82,14 @@ void ezTaskSystem::TaskHasFinished(ezTask* pTask, ezTaskGroup* pGroup)
   {
     // If this was the last task that had to be finished from this group, make sure all dependent groups are started
 
-    // set this task group to be finished such that no one tries to append further dependencies
-    pGroup->m_uiGroupCounter += 2;
+    {
+      // see ezTaskGroup::WaitForFinish() for why we need this lock here
+      // without it, there would be a race condition between these two places, reading and writing m_uiGroupCounter and waiting/signaling m_CondVarGroupFinished
+      EZ_LOCK(*pGroup->m_CondVarGroupFinished.Borrow());
+
+      // set this task group to be finished such that no one tries to append further dependencies
+      pGroup->m_uiGroupCounter += 2;
+    }
 
     {
       EZ_LOCK(s_TaskSystemMutex);
@@ -97,13 +103,15 @@ void ezTaskSystem::TaskHasFinished(ezTask* pTask, ezTaskGroup* pGroup)
     if (pGroup->m_OnFinishedCallback.IsValid())
       pGroup->m_OnFinishedCallback();
 
+    // wake up all threads that are waiting for this group
+    pGroup->m_CondVarGroupFinished->SignalAll();
+
     // set this task available for reuse
     pGroup->m_bInUse = false;
   }
 }
 
-ezTaskSystem::TaskData ezTaskSystem::GetNextTask(
-  ezTaskPriority::Enum FirstPriority, ezTaskPriority::Enum LastPriority, ezTask* pPrioritizeThis)
+ezTaskSystem::TaskData ezTaskSystem::GetNextTask(ezTaskPriority::Enum FirstPriority, ezTaskPriority::Enum LastPriority, bool bOnlyTasksThatNeverWait, const ezTaskGroupID& WaitingForGroup, ezAtomicBool* pIsIdleNow)
 {
   // this is the central function that selects tasks for the worker threads to work on
 
@@ -124,80 +132,56 @@ ezTaskSystem::TaskData ezTaskSystem::GetNextTask(
       goto foundany;
   }
 
+  if (pIsIdleNow)
   {
-    TaskData td;
-    td.m_pTask = nullptr;
-    td.m_pBelongsToGroup = nullptr;
-    return td;
+    EZ_VERIFY(pIsIdleNow->Set(true) == false, "Corrupt Idle State");
   }
 
+  return TaskData();
 
 foundany:
   // we have detected that there MIGHT be work
 
   EZ_LOCK(s_TaskSystemMutex);
 
-  // if there is a task that should be prioritized, check if it exists in any of the task lists
-  if (pPrioritizeThis != nullptr)
+  // go through all the task lists that this thread is willing to work on
+  for (ezUInt32 prio = FirstPriority; prio <= (ezUInt32)LastPriority; ++prio)
   {
-    // only search for the task in the lists that this thread is willing to work on
-    // otherwise we might execute a main-thread task in a thread that is not the main thread
-    for (ezUInt32 i = FirstPriority; i <= (ezUInt32)LastPriority; ++i)
+    for (auto it = s_Tasks[prio].GetIterator(); it.IsValid(); ++it)
     {
-      auto it = s_Tasks[i].GetIterator();
-
-      // just blindly search the entire list
-      while (it.IsValid())
+      if (!bOnlyTasksThatNeverWait || it->m_pTask->m_bNeverWaitsForOtherTasks || it->m_pBelongsToGroup == WaitingForGroup.m_pTaskGroup)
       {
-        // if we find that task, return it
-        // otherwise this whole search will do nothing and the default priority based
-        // system will take over
-        if (it->m_pTask == pPrioritizeThis)
-        {
-          TaskData td = *it;
+        TaskData td = *it;
 
-          s_Tasks[i].Remove(it);
-          return td;
-        }
-
-        ++it;
+        s_Tasks[prio].Remove(it);
+        return td;
       }
     }
   }
 
-  // go through all the task lists that this thread is willing to work on
-  for (ezUInt32 i = FirstPriority; i <= (ezUInt32)LastPriority; ++i)
+  if (pIsIdleNow)
   {
-    // if the list is not empty, just take the first task and execute that
-    if (!s_Tasks[i].IsEmpty())
-    {
-      TaskData td = *s_Tasks[i].GetIterator();
-
-      s_Tasks[i].Remove(s_Tasks[i].GetIterator());
-      return td;
-    }
+    EZ_VERIFY(pIsIdleNow->Set(true) == false, "Corrupt Idle State");
   }
 
-  {
-    TaskData td;
-    td.m_pTask = nullptr;
-    td.m_pBelongsToGroup = nullptr;
-    return td;
-  }
+  return TaskData();
 }
 
-bool ezTaskSystem::ExecuteTask(ezTaskPriority::Enum FirstPriority, ezTaskPriority::Enum LastPriority, ezTask* pPrioritizeThis)
+bool ezTaskSystem::ExecuteTask(ezTaskPriority::Enum FirstPriority, ezTaskPriority::Enum LastPriority, bool bOnlyTasksThatNeverWait, const ezTaskGroupID& WaitingForGroup, ezAtomicBool* pIsIdleNow)
 {
-  ezTaskSystem::TaskData td = GetNextTask(FirstPriority, LastPriority, pPrioritizeThis);
+  ezTaskSystem::TaskData td = GetNextTask(FirstPriority, LastPriority, bOnlyTasksThatNeverWait, WaitingForGroup, pIsIdleNow);
 
   if (td.m_pTask == nullptr)
     return false;
 
-  s_currentRunningTask.PushBack(td.m_pTask);
+  if (bOnlyTasksThatNeverWait && !td.m_pTask->m_bNeverWaitsForOtherTasks)
+  {
+    EZ_ASSERT_DEV(td.m_pBelongsToGroup == WaitingForGroup.m_pTaskGroup, "");
+  }
 
+  g_bAllowWaitForOtherTasks = !td.m_pTask->m_bNeverWaitsForOtherTasks;
   td.m_pTask->Run(td.m_uiInvocation);
-
-  s_currentRunningTask.PopBack();
+  g_bAllowWaitForOtherTasks = true;
 
   // notify the group, that a task is finished, which might trigger other tasks to be executed
   TaskHasFinished(td.m_pTask, td.m_pBelongsToGroup);
@@ -205,20 +189,40 @@ bool ezTaskSystem::ExecuteTask(ezTaskPriority::Enum FirstPriority, ezTaskPriorit
   return true;
 }
 
-void ezTaskSystem::WaitForTask(ezTask* pTask)
+extern thread_local ezWorkerThreadType::Enum g_ThreadTaskType;
+
+void ezTaskSystem::WaitForCondition(ezDelegate<bool()> condition)
 {
-  if (pTask->IsTaskFinished())
-    return;
+  EZ_PROFILE_SCOPE("WaitForCondition");
 
-  EZ_ASSERT_DEV(!ezTaskSystem::IsTaskRunningOnCurrentThread(pTask), "Trying to wait for a task that is currently executing on the same thread (self-dependency)");
+  EZ_ASSERT_DEV(g_bAllowWaitForOtherTasks, "The executing task is flagged to never wait for other tasks but does so anyway. Remove the flag or remove the wait-dependency.");
 
-  EZ_PROFILE_SCOPE("WaitForTask");
+  const auto ThreadTaskType = g_ThreadTaskType;
+  const bool bAllowSleep = ThreadTaskType != ezWorkerThreadType::MainThread;
+  const bool bOnlyTasksThatNeverWait = ThreadTaskType != ezWorkerThreadType::MainThread;
 
-  while (!pTask->IsTaskFinished())
+  while (!condition())
   {
-    if (!HelpExecutingTasks(pTask))
+    if (!HelpExecutingTasks(bOnlyTasksThatNeverWait, ezTaskGroupID()))
     {
-      ezThreadUtils::YieldTimeSlice();
+      if (bAllowSleep)
+      {
+        const ezWorkerThreadType::Enum typeToWakeUp = (ThreadTaskType == ezWorkerThreadType::Unknown) ? ezWorkerThreadType::ShortTasks : ThreadTaskType;
+
+        WakeUpThreads(ThreadTaskType, 1, true);
+
+        while (!condition())
+        {
+          // TODO: busy loop for now
+          ezThreadUtils::YieldTimeSlice();
+        }
+
+        break;
+      }
+      else
+      {
+        ezThreadUtils::YieldTimeSlice();
+      }
     }
   }
 }
@@ -279,32 +283,21 @@ ezResult ezTaskSystem::CancelTask(ezTask* pTask, ezOnTaskRunning::Enum OnTaskRun
   // thus we just wait for it to finish
 
   if (OnTaskRunning == ezOnTaskRunning::WaitTillFinished)
-    WaitForTask(pTask);
+  {
+    WaitForCondition([pTask]() { return pTask->IsTaskFinished(); });
+  }
 
   return EZ_FAILURE;
 }
 
-bool ezTaskSystem::HelpExecutingTasks(ezTask* pPrioritizeThis)
+
+bool ezTaskSystem::HelpExecutingTasks(bool bOnlyTasksThatNeverWait, const ezTaskGroupID& WaitingForGroup)
 {
-  bool bAllowDefaultWork;
   ezTaskPriority::Enum FirstPriority;
   ezTaskPriority::Enum LastPriority;
-  DetermineTasksToExecuteOnThread(FirstPriority, LastPriority, bAllowDefaultWork);
+  DetermineTasksToExecuteOnThread(FirstPriority, LastPriority);
 
-  if (ExecuteTask(FirstPriority, LastPriority, pPrioritizeThis))
-    return true;
-
-  if (bAllowDefaultWork)
-  {
-    return ExecuteTask(ezTaskPriority::EarlyThisFrame, ezTaskPriority::In9Frames, pPrioritizeThis);
-  }
-
-  return false;
-}
-
-bool ezTaskSystem::IsTaskRunningOnCurrentThread(ezTask* pTask)
-{
-  return s_currentRunningTask.Contains(pTask);
+  return ExecuteTask(FirstPriority, LastPriority, bOnlyTasksThatNeverWait, WaitingForGroup, nullptr);
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_Tasks);
