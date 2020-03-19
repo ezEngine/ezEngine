@@ -82,6 +82,9 @@ ezMaterialResource::~ezMaterialResource()
 
 bool ezMaterialResource::AllowNestedResourceTypeAcquire(const ezRTTI* pResourceType)
 {
+  if (pResourceType->IsDerivedFrom<ezMaterialResource>())
+    return true;
+
   return false;
 }
 

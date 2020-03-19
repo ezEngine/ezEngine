@@ -21,6 +21,12 @@ ezMeshResource::ezMeshResource()
 
 bool ezMeshResource::AllowNestedResourceTypeAcquire(const ezRTTI* pResourceType)
 {
+  if (pResourceType->IsDerivedFrom<ezMeshBufferResource>())
+    return true;
+
+  if (ezMeshBufferResource::AllowNestedResourceTypeAcquire(pResourceType))
+    return true;
+
   return false;
 }
 
