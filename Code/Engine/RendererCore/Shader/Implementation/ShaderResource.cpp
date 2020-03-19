@@ -16,6 +16,11 @@ ezShaderResource::ezShaderResource()
   m_bShaderResourceIsValid = false;
 }
 
+bool ezShaderResource::AllowNestedResourceTypeAcquire(const ezRTTI* pResourceType)
+{
+  return false;
+}
+
 ezResourceLoadDesc ezShaderResource::UnloadData(Unload WhatToUnload)
 {
   m_bShaderResourceIsValid = false;

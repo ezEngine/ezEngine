@@ -33,6 +33,11 @@ ezPxMeshResource::~ezPxMeshResource()
   EZ_ASSERT_DEBUG(m_pPxConvexMesh == nullptr, "Collision mesh was not unloaded correctly");
 }
 
+bool ezPxMeshResource::AllowNestedResourceTypeAcquire(const ezRTTI* pResourceType)
+{
+  return false;
+}
+
 ezResourceLoadDesc ezPxMeshResource::UnloadData(Unload WhatToUnload)
 {
   if (m_pPxTriangleMesh)

@@ -19,6 +19,11 @@ ezMeshResource::ezMeshResource()
   m_Bounds.SetInvalid();
 }
 
+bool ezMeshResource::AllowNestedResourceTypeAcquire(const ezRTTI* pResourceType)
+{
+  return false;
+}
+
 ezResourceLoadDesc ezMeshResource::UnloadData(Unload WhatToUnload)
 {
   ezResourceLoadDesc res;

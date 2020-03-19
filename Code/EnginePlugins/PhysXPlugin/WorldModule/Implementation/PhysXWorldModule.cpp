@@ -1352,7 +1352,7 @@ void ezPhysXWorldModule::SimulateStep(ezTime deltaTime)
     // Help executing tasks while we wait for the simulation to finish
     while (!m_pPxScene->checkResults(false))
     {
-      ezTaskSystem::HelpExecutingTasks();
+      ezTaskSystem::HelpExecutingTasks(true, ezTaskGroupID());
     }
 
     EZ_PX_WRITE_LOCK(*m_pPxScene);

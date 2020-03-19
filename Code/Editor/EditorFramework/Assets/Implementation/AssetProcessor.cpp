@@ -90,23 +90,22 @@ void ezAssetProcessor::RestartProcessTask()
 
 void ezAssetProcessor::ShutdownProcessTask()
 {
-  ezDynamicArray<ezProcessTask*> Tasks;
+  ezDynamicArray<TaskAndGroup> tasks;
   {
     EZ_LOCK(m_ProcessorMutex);
-    Tasks = m_ProcessTasks;
-    m_ProcessTasks.Clear();
+    tasks.Swap(m_ProcessTasks);
     m_bRunProcessTask = 0;
   }
 
-  if (!Tasks.IsEmpty())
+  if (!tasks.IsEmpty())
   {
-    for (ezProcessTask* pTask : Tasks)
+    for (auto& taskAndGroup : tasks)
     {
-      ezTaskSystem::WaitForTask((ezTask*)pTask);
+      ezTaskSystem::WaitForGroup(taskAndGroup.m_GroupID);
 
       // Delete and remove under lock.
       EZ_LOCK(m_ProcessorMutex);
-      EZ_DEFAULT_DELETE(pTask);
+      EZ_DEFAULT_DELETE(taskAndGroup.m_pTask);
     }
   }
 
@@ -156,7 +155,7 @@ void ezAssetProcessor::RunNextProcessTask()
     {
       ezProcessTask* pTask = EZ_DEFAULT_NEW(ezProcessTask, i);
       pTask->SetOnTaskFinished(ezMakeDelegate(&ezAssetProcessor::OnProcessTaskFinished, this));
-      m_ProcessTasks.PushBack(pTask);
+      m_ProcessTasks.ExpandAndGetRef().m_pTask = pTask;
     }
   }
 
@@ -166,7 +165,7 @@ void ezAssetProcessor::RunNextProcessTask()
   bool bAllIdle = true;
   for (ezUInt32 i = 0; i < m_ProcessTasks.GetCount(); ++i)
   {
-    if (m_ProcessTasks[i]->m_bDidWork)
+    if (m_ProcessTasks[i].m_pTask->m_bDidWork)
     {
       bAllIdle = false;
     }
@@ -180,9 +179,9 @@ void ezAssetProcessor::RunNextProcessTask()
 
   for (ezUInt32 i = 0; i < m_ProcessTasks.GetCount(); ++i)
   {
-    if (m_ProcessTasks[i]->IsTaskFinished())
+    if (m_ProcessTasks[i].m_pTask->IsTaskFinished())
     {
-      ezTaskSystem::StartSingleTask(m_ProcessTasks[i], ezTaskPriority::LongRunning);
+      m_ProcessTasks[i].m_GroupID = ezTaskSystem::StartSingleTask(m_ProcessTasks[i].m_pTask, ezTaskPriority::LongRunning);
     }
   }
 }

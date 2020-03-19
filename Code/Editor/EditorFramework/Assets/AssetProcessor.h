@@ -65,7 +65,14 @@ private:
   mutable ezMutex m_ProcessorMutex;
   ezAssetProcessorLog m_CuratorLog;
   ezAtomicInteger32 m_bRunProcessTask;
-  ezDynamicArray<ezProcessTask*> m_ProcessTasks;
+
+  struct TaskAndGroup
+  {
+    ezProcessTask* m_pTask = nullptr;
+    ezTaskGroupID m_GroupID;
+  };
+
+  ezDynamicArray<TaskAndGroup> m_ProcessTasks;
   ezAtomicInteger32 m_TicksWithIdleTasks;
 };
 

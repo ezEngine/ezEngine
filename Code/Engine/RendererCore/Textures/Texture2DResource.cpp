@@ -30,6 +30,11 @@ ezTexture2DResource::ezTexture2DResource(ezResource::DoUpdate ResourceUpdateThre
 {
 }
 
+bool ezTexture2DResource::AllowNestedResourceTypeAcquire(const ezRTTI* pResourceType)
+{
+  return false;
+}
+
 ezResourceLoadDesc ezTexture2DResource::UnloadData(Unload WhatToUnload)
 {
   if (m_uiLoadedTextures > 0)
@@ -335,6 +340,11 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezRenderToTexture2DResource, ezRenderToTexture2
   ++m_uiLoadedTextures;
 
   return ret;
+}
+
+bool ezRenderToTexture2DResource::AllowNestedResourceTypeAcquire(const ezRTTI* pResourceType)
+{
+  return false;
 }
 
 ezResourceLoadDesc ezRenderToTexture2DResource::UnloadData(Unload WhatToUnload)

@@ -417,6 +417,7 @@ private:
   ezDynamicArray<ezString> m_WatcherResults;
 
   ezUpdateTask* m_pUpdateTask = nullptr;
+  ezTaskGroupID m_UpdateTaskGroup;
 };
 
 class ezUpdateTask : public ezTask

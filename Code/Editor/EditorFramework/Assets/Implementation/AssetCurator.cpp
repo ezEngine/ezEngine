@@ -1502,7 +1502,7 @@ void ezAssetCurator::ShutdownUpdateTask()
 
   if (m_pUpdateTask)
   {
-    ezTaskSystem::WaitForTask((ezTask*)m_pUpdateTask);
+    ezTaskSystem::WaitForGroup(m_UpdateTaskGroup);
 
     EZ_LOCK(m_CuratorMutex);
     EZ_DEFAULT_DELETE(m_pUpdateTask);
@@ -1558,7 +1558,9 @@ void ezAssetCurator::RunNextUpdateTask()
   }
 
   if (m_pUpdateTask->IsTaskFinished())
-    ezTaskSystem::StartSingleTask(m_pUpdateTask, ezTaskPriority::FileAccess);
+  {
+    m_UpdateTaskGroup = ezTaskSystem::StartSingleTask(m_pUpdateTask, ezTaskPriority::FileAccess);
+  }
 }
 
 

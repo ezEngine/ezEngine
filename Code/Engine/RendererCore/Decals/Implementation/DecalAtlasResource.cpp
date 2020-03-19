@@ -65,6 +65,10 @@ ezDecalAtlasResource::ezDecalAtlasResource()
 {
 }
 
+bool ezDecalAtlasResource::AllowNestedResourceTypeAcquire(const ezRTTI* pResourceType)
+{
+  return false;
+}
 
 ezDecalAtlasResourceHandle ezDecalAtlasResource::GetDecalAtlasResource()
 {

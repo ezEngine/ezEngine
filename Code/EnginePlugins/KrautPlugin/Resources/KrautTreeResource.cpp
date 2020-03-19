@@ -24,6 +24,11 @@ ezKrautTreeResource::ezKrautTreeResource()
   m_Details.m_Bounds.SetInvalid();
 }
 
+bool ezKrautTreeResource::AllowNestedResourceTypeAcquire(const ezRTTI* pResourceType)
+{
+  return false;
+}
+
 ezResourceLoadDesc ezKrautTreeResource::UnloadData(Unload WhatToUnload)
 {
   ezResourceLoadDesc res;

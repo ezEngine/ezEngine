@@ -401,6 +401,11 @@ ezBoundingBoxSphere ezMeshBufferResourceDescriptor::ComputeBounds() const
   return bounds;
 }
 
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+
 ezMeshBufferResource::ezMeshBufferResource()
     : ezResource(DoUpdate::OnAnyThread, 1)
 {
@@ -410,6 +415,11 @@ ezMeshBufferResource::~ezMeshBufferResource()
 {
   EZ_ASSERT_DEBUG(m_hVertexBuffer.IsInvalidated(), "Implementation error");
   EZ_ASSERT_DEBUG(m_hIndexBuffer.IsInvalidated(), "Implementation error");
+}
+
+bool ezMeshBufferResource::AllowNestedResourceTypeAcquire(const ezRTTI* pResourceType)
+{
+  return false;
 }
 
 ezResourceLoadDesc ezMeshBufferResource::UnloadData(Unload WhatToUnload)

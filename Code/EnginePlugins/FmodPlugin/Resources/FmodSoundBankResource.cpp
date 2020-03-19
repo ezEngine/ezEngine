@@ -20,6 +20,11 @@ ezFmodSoundBankResource::~ezFmodSoundBankResource()
   EZ_ASSERT_DEV(m_pSoundBank == nullptr, "Soundbank has not been freed correctly");
 }
 
+bool ezFmodSoundBankResource::AllowNestedResourceTypeAcquire(const ezRTTI* pResourceType)
+{
+  return false;
+}
+
 ezResourceLoadDesc ezFmodSoundBankResource::UnloadData(Unload WhatToUnload)
 {
   if (m_pSoundBank)
