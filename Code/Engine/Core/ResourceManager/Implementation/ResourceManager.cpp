@@ -466,7 +466,7 @@ void ezResourceManager::OnCoreStartup()
   s_State = EZ_DEFAULT_NEW(ezResourceManagerState);
 
   EZ_LOCK(s_ResourceMutex);
-  s_State->s_bDataLoadTaskRunning = false;
+  s_State->s_bAllowLaunchDataLoadTask = true;
   s_State->s_bShutdown = false;
 
   ezPlugin::s_PluginEvents.AddEventHandler(PluginEventHandler);
@@ -483,13 +483,13 @@ void ezResourceManager::EngineAboutToShutdown()
       return;
     }
 
-    s_State->s_bDataLoadTaskRunning = true; // prevent a new one from starting
+    s_State->s_bAllowLaunchDataLoadTask = false; // prevent a new one from starting
     s_State->s_bShutdown = true;
   }
 
-  for (int i = 0; i < ezResourceManagerState::MaxDataLoadTasks; ++i)
+  for (ezUInt32 i = 0; i < s_State->s_WorkerTasksDataLoad.GetCount(); ++i)
   {
-    ezTaskSystem::CancelTask(&s_State->s_WorkerTasksDataLoad[i]);
+    ezTaskSystem::CancelTask(s_State->s_WorkerTasksDataLoad[i].m_pTask.Borrow());
   }
 
   for (ezUInt32 i = 0; i < s_State->s_WorkerTasksUpdateContent.GetCount(); ++i)
@@ -535,9 +535,9 @@ bool ezResourceManager::IsAnyLoadingInProgress()
     return true;
   }
 
-  for (int i = 0; i < ezResourceManagerState::MaxDataLoadTasks; ++i)
+  for (ezUInt32 i = 0; i < s_State->s_WorkerTasksDataLoad.GetCount(); ++i)
   {
-    if (!s_State->s_WorkerTasksDataLoad[i].IsTaskFinished())
+    if (!s_State->s_WorkerTasksDataLoad[i].m_pTask->IsTaskFinished())
     {
       return true;
     }

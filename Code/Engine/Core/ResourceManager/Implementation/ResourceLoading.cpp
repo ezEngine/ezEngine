@@ -51,6 +51,11 @@ void ezResourceManager::InternalPreloadResource(ezResource* pResource, bool bHig
   {
     AddToLoadingQueue(pResource, bHighestPriority);
 
+    if (bHighestPriority && ezTaskSystem::GetCurrentThreadWorkerType() == ezWorkerThreadType::FileAccess)
+    {
+      ezResourceManager::s_State->s_bAllowLaunchDataLoadTask = true;
+    }
+
     RunWorkerTask(pResource);
   }
 }
@@ -62,20 +67,28 @@ void ezResourceManager::SetupWorkerTasks()
     s_State->m_bTaskNamesInitialized = true;
     ezStringBuilder s;
 
-    for (ezUInt32 i = 0; i < s_State->MaxDataLoadTasks; ++i)
     {
-      s.Format("Resource Data Loader {0}", i);
-      s_State->s_WorkerTasksDataLoad[i].SetTaskName(s.GetData());
+      static const ezUInt32 InitialDataLoadTasks = 4;
+
+      for (ezUInt32 i = 0; i < InitialDataLoadTasks; ++i)
+      {
+        s.Format("Resource Data Loader {0}", i);
+        auto& data = s_State->s_WorkerTasksDataLoad.ExpandAndGetRef();
+        data.m_pTask = EZ_DEFAULT_NEW(ezResourceManagerWorkerDataLoad);
+        data.m_pTask->SetTaskName(s);
+      }
     }
 
-    static const ezUInt32 InitialUpdateContentTasks = 16;
-
-    for (ezUInt32 i = 0; i < InitialUpdateContentTasks; ++i)
     {
-      s.Format("Resource Content Updater {0}", i);
-      auto& data = s_State->s_WorkerTasksUpdateContent.ExpandAndGetRef();
-      data.m_pTask = EZ_DEFAULT_NEW(ezResourceManagerWorkerUpdateContent);
-      data.m_pTask->SetTaskName(s);
+      static const ezUInt32 InitialUpdateContentTasks = 16;
+
+      for (ezUInt32 i = 0; i < InitialUpdateContentTasks; ++i)
+      {
+        s.Format("Resource Content Updater {0}", i);
+        auto& data = s_State->s_WorkerTasksUpdateContent.ExpandAndGetRef();
+        data.m_pTask = EZ_DEFAULT_NEW(ezResourceManagerWorkerUpdateContent);
+        data.m_pTask->SetTaskName(s);
+      }
     }
   }
 }
@@ -89,11 +102,28 @@ void ezResourceManager::RunWorkerTask(ezResource* pResource)
 
   SetupWorkerTasks();
 
-  if (!s_State->s_bDataLoadTaskRunning && !s_State->s_LoadingQueue.IsEmpty())
+  if (s_State->s_bAllowLaunchDataLoadTask && !s_State->s_LoadingQueue.IsEmpty())
   {
-    s_State->s_bDataLoadTaskRunning = true;
-    s_State->s_uiCurrentLoadDataWorkerTask = (s_State->s_uiCurrentLoadDataWorkerTask + 1) % s_State->MaxDataLoadTasks;
-    s_State->s_WorkerTaskGroupsDataLoad[s_State->s_uiCurrentLoadDataWorkerTask] = ezTaskSystem::StartSingleTask(&s_State->s_WorkerTasksDataLoad[s_State->s_uiCurrentLoadDataWorkerTask], ezTaskPriority::FileAccess);
+    s_State->s_bAllowLaunchDataLoadTask = false;
+
+    for (ezUInt32 i = 0; i < s_State->s_WorkerTasksDataLoad.GetCount(); ++i)
+    {
+      if (s_State->s_WorkerTasksDataLoad[i].m_pTask->IsTaskFinished())
+      {
+        s_State->s_WorkerTasksDataLoad[i].m_GroupId = ezTaskSystem::StartSingleTask(s_State->s_WorkerTasksDataLoad[i].m_pTask.Borrow(), ezTaskPriority::FileAccess);
+        return;
+      }
+    }
+
+    // could not find any unused task -> need to create a new one
+    {
+      ezStringBuilder s;
+      s.Format("Resource Data Loader {0}", s_State->s_WorkerTasksDataLoad.GetCount());
+      auto& data = s_State->s_WorkerTasksDataLoad.ExpandAndGetRef();
+      data.m_pTask = EZ_DEFAULT_NEW(ezResourceManagerWorkerDataLoad);
+      data.m_pTask->SetTaskName(s);
+      data.m_GroupId = ezTaskSystem::StartSingleTask(data.m_pTask.Borrow(), ezTaskPriority::FileAccess);
+    }
   }
 }
 

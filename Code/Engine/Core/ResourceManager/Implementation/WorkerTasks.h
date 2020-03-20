@@ -8,12 +8,14 @@
 /// \brief [internal] Worker task for loading resources (typically from disk).
 class EZ_CORE_DLL ezResourceManagerWorkerDataLoad final : public ezTask
 {
+public:
+  ~ezResourceManagerWorkerDataLoad();
+
 private:
   friend class ezResourceManager;
   friend class ezResourceManagerState;
 
   ezResourceManagerWorkerDataLoad();
-  ~ezResourceManagerWorkerDataLoad();
 
   virtual void Execute() override;
 };

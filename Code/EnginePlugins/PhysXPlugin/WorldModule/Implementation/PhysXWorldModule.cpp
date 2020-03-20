@@ -1350,10 +1350,7 @@ void ezPhysXWorldModule::SimulateStep(ezTime deltaTime)
     EZ_PROFILE_SCOPE("FetchResult");
 
     // Help executing tasks while we wait for the simulation to finish
-    while (!m_pPxScene->checkResults(false))
-    {
-      ezTaskSystem::HelpExecutingTasks(true, ezTaskGroupID());
-    }
+    ezTaskSystem::WaitForCondition([&] { return m_pPxScene->checkResults(false); });
 
     EZ_PX_WRITE_LOCK(*m_pPxScene);
 

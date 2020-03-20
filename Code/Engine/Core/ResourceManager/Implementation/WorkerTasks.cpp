@@ -21,7 +21,7 @@ void ezResourceManagerWorkerDataLoad::Execute()
 
     if (ezResourceManager::s_State->s_LoadingQueue.IsEmpty())
     {
-      ezResourceManager::s_State->s_bDataLoadTaskRunning = false;
+      ezResourceManager::s_State->s_bAllowLaunchDataLoadTask = true;
       return;
     }
 
@@ -96,7 +96,7 @@ void ezResourceManagerWorkerDataLoad::Execute()
     *pUpdateContentGroup = ezTaskSystem::StartSingleTask(pUpdateContentTask, bResourceIsLoadedOnMainThread ? ezTaskPriority::SomeFrameMainThread : ezTaskPriority::LateNextFrame);
 
     // restart the next loading task (this one is about to finish)
-    ezResourceManager::s_State->s_bDataLoadTaskRunning = false;
+    ezResourceManager::s_State->s_bAllowLaunchDataLoadTask = true;
     ezResourceManager::RunWorkerTask(nullptr);
 
     pCustomLoader.Clear();
