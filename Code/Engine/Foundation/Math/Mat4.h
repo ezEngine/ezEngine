@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Foundation/Math/Math.h>
 #include <Foundation/Math/Angle.h>
 #include <Foundation/Math/Vec3.h>
 #include <Foundation/Math/Vec4.h>
