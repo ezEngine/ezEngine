@@ -13,22 +13,22 @@ using System.Threading;
 namespace ezUwpTestHarness
 {
   enum ezLogMsgType
-  {  
-      Flush = -3,
-      BeginGroup = -2,
-      EndGroup = -1,
-      None = 0,
-      ErrorMsg = 1,
-      SeriousWarningMsg = 2,
-      WarningMsg = 3,
-      SuccessMsg = 4,
-      InfoMsg = 5,
-      DevMsg = 6,
-      DebugMsg = 7,
-      All = 8,
+  {
+    Flush = -3,
+    BeginGroup = -2,
+    EndGroup = -1,
+    None = 0,
+    ErrorMsg = 1,
+    SeriousWarningMsg = 2,
+    WarningMsg = 3,
+    SuccessMsg = 4,
+    InfoMsg = 5,
+    DevMsg = 6,
+    DebugMsg = 7,
+    All = 8,
   };
 
-class ezTestUWP
+  class ezTestUWP
   {
     #region Activation Manager COM definitions
 
@@ -189,6 +189,8 @@ class ezTestUWP
       Console.WriteLine("AppX started.");
     }
 
+    static int fileserveTimeoutMS = 600000;
+
     public void ExecuteTest()
     {
       string absBinDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
@@ -226,15 +228,14 @@ class ezTestUWP
         throw new Exception(string.Format("No fileserver found. File '{0}' does not exist.", absFilerserveFilename));
       }
 
+
       Func<ezProcessHelper.ProcessResult> startFileserve = () =>
       {
         Console.WriteLine("Starting Fileserve ...");
 
-
-
         // 60s timeout for connect, 2s timeout for closing after connection loss.
         string args = string.Format("-specialdirs eztest \"{0}\" -fs_start -fs_wait_timeout 120 -fs_close_timeout 4", _absTestOutputDirectory);
-        return ezProcessHelper.RunExternalExe(absFilerserveFilename, args, absBinDir, 200000);
+        return ezProcessHelper.RunExternalExe(absFilerserveFilename, args, absBinDir, fileserveTimeoutMS);
       };
 
       // create a real time user mode session
@@ -272,9 +273,9 @@ class ezTestUWP
           appXProcess = Process.GetProcessById((int)appXPid);
           Console.WriteLine($"AppX pid: {appXPid}.");
 
-          if (!runFileServe.Wait(600000))
+          if (!runFileServe.Wait(fileserveTimeoutMS))
           {
-            Console.WriteLine(string.Format("Fileserve did not terminate within 10 minutes."));
+            Console.WriteLine(string.Format("Fileserve did not terminate within {0} minutes.", fileserveTimeoutMS / 60000.0));
           }
           Task.WaitAll(runFileServe);
 

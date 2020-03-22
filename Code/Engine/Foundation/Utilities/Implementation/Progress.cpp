@@ -39,7 +39,7 @@ void ezProgress::SetCompletion(float fCompletion)
     e.m_pProgressbar = this;
     e.m_Type = ezProgressEvent::Type::ProgressChanged;
 
-    m_Events.Broadcast(e);
+    m_Events.Broadcast(e, 1);
   }
 }
 

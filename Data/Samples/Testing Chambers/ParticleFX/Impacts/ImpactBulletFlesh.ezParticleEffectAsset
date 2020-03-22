@@ -24,7 +24,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{3750422148337051577,4755495847018279901}}
-		u4 %Hash{4770083609835347745}
+		u4 %Hash{951101370638227606}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{7083884799930403875,1064729614642923820}}
@@ -35,7 +35,7 @@ o
 			s{"{ 1dd7dbfb-f712-0acc-d78b-cd7f36eddea1 }"}
 			s{"{ 356ae27b-729d-48e7-9bf3-3aaefa239628 }"}
 			s{"{ a1c9c953-f4d3-4688-8e36-7b98d53d6606 }"}
-			s{"{ cdc91479-c231-4f30-a15a-813707ef161f }"}
+			s{"{ b6b27ea0-a039-42d6-834c-555de0f90c65 }"}
 			s{"{ f633ccad-b4d5-12e5-260a-bb050d602881 }"}
 		}
 	}
@@ -276,13 +276,13 @@ o
 		Angle %Deviation{f{0}}
 		f %DistortionStrength{0x0000C842}
 		s %DistortionTexture{""}
-		u1 %NumSpritesX{1}
-		u1 %NumSpritesY{1}
+		u1 %NumSpritesX{2}
+		u1 %NumSpritesY{2}
 		s %Orientation{"ezQuadParticleOrientation::Billboard"}
 		f %ParticleStretch{0x0000803F}
 		s %RenderMode{"ezParticleTypeRenderMode::Blended"}
-		s %Texture{"{ cdc91479-c231-4f30-a15a-813707ef161f }"}
-		s %TextureAtlas{"ezParticleTextureAtlasType::None"}
+		s %Texture{"{ b6b27ea0-a039-42d6-834c-555de0f90c65 }"}
+		s %TextureAtlas{"ezParticleTextureAtlasType::RandomVariations"}
 		s %TintColorParam{"Color"}
 	}
 }
@@ -290,7 +290,7 @@ o
 {
 	Uuid %id{u4{2710204805831008157,5500565074582831373}}
 	s %t{"ezParticleEffectDescriptor"}
-	u3 %v{1}
+	u3 %v{2}
 	p
 	{
 		b %AlwaysShared{0}
@@ -910,7 +910,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezParticleEffectDescriptor"}
 		u3 %TypeSize{360}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
