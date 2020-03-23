@@ -95,7 +95,7 @@ void ezTaskSystem::SetWorkerThreadCount(ezInt8 iShortTasks, ezInt8 iLongTasks)
   // these settings are supposed to be a sensible default for most applications
   // an app can of course change that to optimize for its own usage
   //
-  const ezInt8 iCpuCores = info.GetCPUCoreCount()
+  const ezInt8 iCpuCores = info.GetCPUCoreCount();
 
   // at least 2 threads, 4 on six cores, 6 on eight cores and up
   if (iShortTasks <= 0)
