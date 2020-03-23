@@ -414,6 +414,9 @@ private:
   // only for debugging
   static ezAtomicInteger32 s_IdleWorkerThreads[ezWorkerThreadType::ENUM_COUNT];
 
+  // need to know how many threads 
+  static ezAtomicInteger32 s_BlockedWorkerThreads[ezWorkerThreadType::ENUM_COUNT];
+
   // The target frame time used by FinishFrameTasks()
   static double s_fSmoothFrameMS;
 };

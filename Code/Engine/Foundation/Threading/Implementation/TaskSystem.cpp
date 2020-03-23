@@ -11,6 +11,7 @@
 ezMutex ezTaskSystem::s_TaskSystemMutex;
 double ezTaskSystem::s_fSmoothFrameMS = 1000.0 / 40.0; // => 25 ms
 ezAtomicInteger32 ezTaskSystem::s_IdleWorkerThreads[ezWorkerThreadType::ENUM_COUNT];
+ezAtomicInteger32 ezTaskSystem::s_BlockedWorkerThreads[ezWorkerThreadType::ENUM_COUNT];
 ezDynamicArray<ezTaskWorkerThread*> ezTaskSystem::s_WorkerThreads[ezWorkerThreadType::ENUM_COUNT];
 ezAtomicInteger32 ezTaskSystem::s_iNumWorkerThreads[ezWorkerThreadType::ENUM_COUNT];
 ezDeque<ezTaskGroup> ezTaskSystem::s_TaskGroups;

@@ -205,6 +205,9 @@ void ezTaskSystem::WaitForCondition(ezDelegate<bool()> condition)
   {
     if (!HelpExecutingTasks(bOnlyTasksThatNeverWait, ezTaskGroupID()))
     {
+      s_BlockedWorkerThreads[ThreadTaskType].Increment();
+      EZ_SCOPE_EXIT(s_BlockedWorkerThreads[ThreadTaskType].Decrement());
+
       if (bAllowSleep)
       {
         const ezWorkerThreadType::Enum typeToWakeUp = (ThreadTaskType == ezWorkerThreadType::Unknown) ? ezWorkerThreadType::ShortTasks : ThreadTaskType;

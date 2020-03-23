@@ -266,6 +266,11 @@ void ezTaskSystem::ScheduleGroupTasks(ezTaskGroup* pGroup, bool bHighPriority)
 
 void ezTaskSystem::WakeUpThreads(ezWorkerThreadType::Enum type, ezUInt32 uiNumThreads, bool bForce)
 {
+  if (!bForce && s_BlockedWorkerThreads[type] == s_MaxWorkerThreadsToUse[type])
+  {
+    bForce = true;
+  }
+
   if (!bForce)
   {
     // in this case we only need to look at the first min(uiNumThreads, uiMaxThreads) threads and make sure none of them is idle
@@ -311,7 +316,7 @@ void ezTaskSystem::WakeUpThreads(ezWorkerThreadType::Enum type, ezUInt32 uiNumTh
       {
         AllocateThreads(type, 1);
         --uiNumThreads; // the new thread will start not-idle and take on some work
-        continue; // reevaluate uiMaxThreads
+        continue;       // reevaluate uiMaxThreads
       }
 
       break;
@@ -345,14 +350,17 @@ void ezTaskSystem::WaitForGroup(ezTaskGroupID Group)
   {
     if (!HelpExecutingTasks(bOnlyTasksThatNeverWait, Group))
     {
+      s_BlockedWorkerThreads[ThreadTaskType].Increment();
+      EZ_SCOPE_EXIT(s_BlockedWorkerThreads[ThreadTaskType].Decrement());
+
       if (bAllowSleep)
       {
         const ezWorkerThreadType::Enum typeToWakeUp = (ThreadTaskType == ezWorkerThreadType::Unknown) ? ezWorkerThreadType::ShortTasks : ThreadTaskType;
 
+
         WakeUpThreads(ThreadTaskType, 1, true);
 
         Group.m_pTaskGroup->WaitForFinish(Group);
-
         break;
       }
       else
