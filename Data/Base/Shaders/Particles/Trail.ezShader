@@ -97,17 +97,17 @@ VS_OUT main(uint VertexID : SV_VertexID)
     float4 position = mul(ObjectToWorldMatrix, float4(position0, 1)) + offsetUp;
 
     ret.Position = mul(GetWorldToScreenMatrix(), position);
-    ret.TexCoord0.x = textureAtlasRect.x + uvCoord;
-    ret.TexCoord0.y = textureAtlasRect.y + textureAtlasRect.w * QuadTexCoords[vertexSubIndex].y;
+    ret.TexCoord0.y = textureAtlasRect.x + uvCoord;
+    ret.TexCoord0.x = textureAtlasRect.y + textureAtlasRect.w * QuadTexCoords[vertexSubIndex].y;
 
     // do NOT adjust the UV of the very first vertex, that is the one moves all the time and is always at UV.x == 0
     // however, DO adjust the coordinate of the LAST vertex, since that is not moving and needs to "fade away" (out of the UV space, ie > 1)
-    if (ret.TexCoord0.x > textureAtlasRect.x)
-      ret.TexCoord0.x -= uvSubtract;
+    if (ret.TexCoord0.y > textureAtlasRect.x)
+      ret.TexCoord0.y -= uvSubtract;
 
     // manually clamp the texCoords
-    // this could be set as a sampler state, but it would not work with sub-ranges (once we support texture atlases)
-    ret.TexCoord0.x = min(textureAtlasRect.x + textureAtlasRect.z, ret.TexCoord0.x);
+    // this could be set as a sampler state, but it would not work with sub-ranges
+    ret.TexCoord0.y = min(textureAtlasRect.x + textureAtlasRect.z, ret.TexCoord0.y);
 
     ret.FogAmount = GetFogAmount(position);
   }
