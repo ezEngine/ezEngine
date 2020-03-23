@@ -25,7 +25,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10281641925491493550,5465572635547954389}}
-		u4 %Hash{3725760011511622844}
+		u4 %Hash{13966698626338256650}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{17591377397262831892,3226929628638535679}}
@@ -156,7 +156,7 @@ o
 		u1 %NumSpritesX{6}
 		u1 %NumSpritesY{6}
 		s %Orientation{"ezQuadParticleOrientation::FixedAxis_ParticleDir"}
-		f %ParticleStretch{0x00000041}
+		f %ParticleStretch{0x000000C1}
 		s %RenderMode{"ezParticleTypeRenderMode::Additive"}
 		s %Texture{"{ 6c8b8f33-81da-4447-bb19-86b437fed5da }"}
 		s %TextureAtlas{"ezParticleTextureAtlasType::FlipbookAnimation"}
