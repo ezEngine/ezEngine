@@ -388,8 +388,10 @@ void ezTestFramework::UpdateReferenceImages()
   const ezStringBuilder sNewFiles(m_sAbsTestOutputDir.c_str(), "/Images_Result");
   const ezStringBuilder sRefFiles(sDir, "/Images_Reference");
 
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) && EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
   ezOSFile::CopyFolder(sNewFiles, sRefFiles);
   ezOSFile::DeleteFolder(sNewFiles);
+#endif
 }
 
 void ezTestFramework::AutoSaveTestOrder()
