@@ -148,8 +148,15 @@ public:
   /// it is a good idea to just use the default settings.
   static void SetWorkerThreadCount(ezInt8 iShortTasks = -1, ezInt8 iLongTasks = -1); // [tested]
 
-  /// \brief Returns the number of threads that are allocated to work on the given type of task.
-  static ezUInt32 GetWorkerThreadCount(ezWorkerThreadType::Enum type) { return s_iNumWorkerThreads[type]; }
+  /// \brief Returns the maximum number of threads that should work on the given type of task at the same time.
+  static ezUInt32 GetWorkerThreadCount(ezWorkerThreadType::Enum type) { return s_MaxWorkerThreadsToUse[type]; }
+
+  /// \brief Returns the number of threads that have been allocated to potentially work on the given type of task.
+  ///
+  /// CAREFUL! This is not the number of threads that will be active at the same time. Use GetWorkerThreadCount() for that.
+  /// This is the maximum number of threads that may jump in, if too many threads are blocked. This number will change dynamically
+  /// at runtime to prevent deadlocks and it can grow very, very large.
+  static ezUInt32 GetNumAllocatedWorkerThreads(ezWorkerThreadType::Enum type) { return s_iNumWorkerThreads[type]; }
 
   /// \brief A helper function to insert a single task into the system and start it right away. Returns ID of the Group into which the task
   /// has been put.

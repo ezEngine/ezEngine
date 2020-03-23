@@ -205,12 +205,12 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "This Frame Tasks / Next Frame Tasks")
   {
-    const int Tasks = 20;
-    ezTestTask t[Tasks];
-    ezTaskGroupID tg[Tasks];
-    bool finished[Tasks];
+    const ezUInt32 uiNumTasks = 20;
+    ezTestTask t[uiNumTasks];
+    ezTaskGroupID tg[uiNumTasks];
+    bool finished[uiNumTasks];
 
-    for (int i = 0; i < Tasks; i += 2)
+    for (ezUInt32 i = 0; i < uiNumTasks; i += 2)
     {
       finished[i] = false;
       finished[i + 1] = false;
@@ -226,15 +226,15 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     ezTaskSystem::FinishFrameTasks();
 
     {
-      ezInt32 iNotAllThisTasksFinished = 0;
-      ezInt32 iNotAllNextTasksFinished = 0;
+      ezUInt32 uiNotAllThisTasksFinished = 0;
+      ezUInt32 uiNotAllNextTasksFinished = 0;
 
-      for (int i = 0; i < Tasks; i += 2)
+      for (ezUInt32 i = 0; i < uiNumTasks; i += 2)
       {
         if (!t[i].IsTaskFinished())
         {
           EZ_TEST_BOOL(!finished[i]);
-          ++iNotAllThisTasksFinished;
+          ++uiNotAllThisTasksFinished;
         }
         else
         {
@@ -244,7 +244,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
         if (!t[i + 1].IsTaskFinished())
         {
           EZ_TEST_BOOL(!finished[i + 1]);
-          ++iNotAllNextTasksFinished;
+          ++uiNotAllNextTasksFinished;
         }
         else
         {
@@ -253,8 +253,8 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
       }
 
       // up to the number of worker threads tasks can still be active
-      EZ_TEST_BOOL(iNotAllThisTasksFinished <= iWorkersShort);
-      EZ_TEST_BOOL(iNotAllNextTasksFinished <= Tasks);
+      EZ_TEST_BOOL(uiNotAllThisTasksFinished <= ezTaskSystem::GetNumAllocatedWorkerThreads(ezWorkerThreadType::ShortTasks));
+      EZ_TEST_BOOL(uiNotAllNextTasksFinished <= uiNumTasks);
     }
 
 
@@ -262,15 +262,15 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     ezTaskSystem::FinishFrameTasks();
 
     {
-      ezInt32 iNotAllThisTasksFinished = 0;
-      ezInt32 iNotAllNextTasksFinished = 0;
+      ezUInt32 uiNotAllThisTasksFinished = 0;
+      ezUInt32 uiNotAllNextTasksFinished = 0;
 
-      for (int i = 0; i < Tasks; i += 2)
+      for (int i = 0; i < uiNumTasks; i += 2)
       {
         if (!t[i].IsTaskFinished())
         {
           EZ_TEST_BOOL(!finished[i]);
-          ++iNotAllThisTasksFinished;
+          ++uiNotAllThisTasksFinished;
         }
         else
         {
@@ -280,7 +280,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
         if (!t[i + 1].IsTaskFinished())
         {
           EZ_TEST_BOOL(!finished[i + 1]);
-          ++iNotAllNextTasksFinished;
+          ++uiNotAllNextTasksFinished;
         }
         else
         {
@@ -288,22 +288,22 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
         }
       }
 
-      EZ_TEST_BOOL(iNotAllThisTasksFinished + iNotAllNextTasksFinished <= iWorkersShort);
+      EZ_TEST_BOOL(uiNotAllThisTasksFinished + uiNotAllNextTasksFinished <= ezTaskSystem::GetNumAllocatedWorkerThreads(ezWorkerThreadType::ShortTasks));
     }
 
     // 'finish' all frames
     ezTaskSystem::FinishFrameTasks();
 
     {
-      ezInt32 iNotAllThisTasksFinished = 0;
-      ezInt32 iNotAllNextTasksFinished = 0;
+      ezUInt32 uiNotAllThisTasksFinished = 0;
+      ezUInt32 uiNotAllNextTasksFinished = 0;
 
-      for (int i = 0; i < Tasks; i += 2)
+      for (ezUInt32 i = 0; i < uiNumTasks; i += 2)
       {
         if (!t[i].IsTaskFinished())
         {
           EZ_TEST_BOOL(!finished[i]);
-          ++iNotAllThisTasksFinished;
+          ++uiNotAllThisTasksFinished;
         }
         else
         {
@@ -313,7 +313,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
         if (!t[i + 1].IsTaskFinished())
         {
           EZ_TEST_BOOL(!finished[i + 1]);
-          ++iNotAllNextTasksFinished;
+          ++uiNotAllNextTasksFinished;
         }
         else
         {
@@ -323,16 +323,16 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
 
       // even after finishing multiple frames, the previous frame tasks may still be in execution
       // since no N+x tasks enforce their completion in this test
-      EZ_TEST_BOOL(iNotAllThisTasksFinished + iNotAllNextTasksFinished <= iWorkersShort);
+      EZ_TEST_BOOL(uiNotAllThisTasksFinished + uiNotAllNextTasksFinished <= ezTaskSystem::GetNumAllocatedWorkerThreads(ezWorkerThreadType::ShortTasks));
     }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Main Thread Tasks")
   {
-    const int Tasks = 20;
-    ezTestTask t[Tasks];
+    const ezUInt32 uiNumTasks = 20;
+    ezTestTask t[uiNumTasks];
 
-    for (int i = 0; i < Tasks; ++i)
+    for (ezUInt32 i = 0; i < uiNumTasks; ++i)
     {
       t[i].m_uiIterations = 10;
 
@@ -341,7 +341,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
 
     ezTaskSystem::FinishFrameTasks();
 
-    for (int i = 0; i < Tasks; ++i)
+    for (ezUInt32 i = 0; i < uiNumTasks; ++i)
     {
       EZ_TEST_BOOL(t[i].IsTaskFinished());
     }
@@ -349,11 +349,11 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Canceling Tasks")
   {
-    const int Tasks = 20;
-    ezTestTask t[Tasks];
-    ezTaskGroupID tg[Tasks];
+    const ezUInt32 uiNumTasks = 20;
+    ezTestTask t[uiNumTasks];
+    ezTaskGroupID tg[uiNumTasks];
 
-    for (int i = 0; i < Tasks; ++i)
+    for (int i = 0; i < uiNumTasks; ++i)
     {
       t[i].m_uiIterations = 50;
 
@@ -362,44 +362,45 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
 
     ezThreadUtils::Sleep(ezTime::Milliseconds(1));
 
-    ezInt32 iCanceled = 0;
+    ezUInt32 uiCanceled = 0;
 
-    for (int i = Tasks - 1; i >= 0; --i)
+    for (ezUInt32 i0 = uiNumTasks; i0 > 0; --i0)
     {
+      const ezUInt32 i = i0 - 1;
+
       if (ezTaskSystem::CancelTask(&t[i], ezOnTaskRunning::ReturnWithoutBlocking) == EZ_SUCCESS)
-        ++iCanceled;
+        ++uiCanceled;
     }
 
-    ezInt32 iDone = 0;
-    ezInt32 iStarted = 0;
+    ezUInt32 uiDone = 0;
+    ezUInt32 uiStarted = 0;
 
-    for (int i = 0; i < Tasks; ++i)
+    for (int i = 0; i < uiNumTasks; ++i)
     {
       ezTaskSystem::WaitForGroup(tg[i]);
       EZ_TEST_BOOL(t[i].IsTaskFinished());
 
       if (t[i].IsDone())
-        ++iDone;
+        ++uiDone;
       if (t[i].IsStarted())
-        ++iStarted;
+        ++uiStarted;
     }
 
     // at least one task should have run and thus be 'done'
-    EZ_TEST_BOOL(iDone > 0);
-    EZ_TEST_BOOL(iDone < Tasks);
+    EZ_TEST_BOOL(uiDone > 0);
+    EZ_TEST_BOOL(uiDone < uiNumTasks);
 
-    EZ_TEST_BOOL(iStarted > 0);
-    EZ_TEST_BOOL_MSG(iStarted <= 4,
-      "This test can fail when the PC is under heavy load."); // should not have managed to start more tasks than there are threads
+    EZ_TEST_BOOL(uiStarted > 0);
+    EZ_TEST_BOOL_MSG(uiStarted <= ezTaskSystem::GetNumAllocatedWorkerThreads(ezWorkerThreadType::ShortTasks), "This test can fail when the PC is under heavy load."); // should not have managed to start more tasks than there are threads
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Canceling Tasks (forcefully)")
   {
-    const int Tasks = 20;
-    ezTestTask t[Tasks];
-    ezTaskGroupID tg[Tasks];
+    const ezUInt32 uiNumTasks = 20;
+    ezTestTask t[uiNumTasks];
+    ezTaskGroupID tg[uiNumTasks];
 
-    for (int i = 0; i < Tasks; ++i)
+    for (int i = 0; i < uiNumTasks; ++i)
     {
       t[i].m_uiIterations = 50;
       t[i].m_bSupportCancel = true;
@@ -409,41 +410,41 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
 
     ezThreadUtils::Sleep(ezTime::Milliseconds(1));
 
-    ezInt32 iCanceled = 0;
+    ezUInt32 uiCanceled = 0;
 
-    for (int i = Tasks - 1; i >= 0; --i)
+    for (int i = uiNumTasks - 1; i >= 0; --i)
     {
       if (ezTaskSystem::CancelTask(&t[i], ezOnTaskRunning::ReturnWithoutBlocking) == EZ_SUCCESS)
-        ++iCanceled;
+        ++uiCanceled;
     }
 
-    ezInt32 iDone = 0;
-    ezInt32 iStarted = 0;
+    ezUInt32 uiDone = 0;
+    ezUInt32 uiStarted = 0;
 
-    for (int i = 0; i < Tasks; ++i)
+    for (int i = 0; i < uiNumTasks; ++i)
     {
       ezTaskSystem::WaitForGroup(tg[i]);
       EZ_TEST_BOOL(t[i].IsTaskFinished());
 
       if (t[i].IsDone())
-        ++iDone;
+        ++uiDone;
       if (t[i].IsStarted())
-        ++iStarted;
+        ++uiStarted;
     }
 
     // not a single thread should have finished the execution
-    if (EZ_TEST_BOOL_MSG(iDone == 0, "This test can fail when the PC is under heavy load.").Succeeded())
+    if (EZ_TEST_BOOL_MSG(uiDone == 0, "This test can fail when the PC is under heavy load.").Succeeded())
     {
-      EZ_TEST_BOOL(iStarted > 0);
-      EZ_TEST_BOOL(iStarted <= 4); // should not have managed to start more tasks than there are threads
+      EZ_TEST_BOOL(uiStarted > 0);
+      EZ_TEST_BOOL(uiStarted <= ezTaskSystem::GetNumAllocatedWorkerThreads(ezWorkerThreadType::ShortTasks)); // should not have managed to start more tasks than there are threads
     }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Canceling Group")
   {
-    const int Tasks = 4;
-    ezTestTask t1[Tasks];
-    ezTestTask t2[Tasks];
+    const ezUInt32 uiNumTasks = 4;
+    ezTestTask t1[uiNumTasks];
+    ezTestTask t2[uiNumTasks];
 
     ezTaskGroupID g1, g2;
     g1 = ezTaskSystem::CreateTaskGroup(ezTaskPriority::ThisFrame);
@@ -451,11 +452,8 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
 
     ezTaskSystem::AddTaskGroupDependency(g2, g1);
 
-    for (int i = 0; i < Tasks; ++i)
+    for (ezUInt32 i = 0; i < uiNumTasks; ++i)
     {
-      // t1[i].m_iTaskID = i;
-      // t2[i].m_iTaskID = Tasks + i;
-
       ezTaskSystem::AddTaskToGroup(g1, &t1[i]);
       ezTaskSystem::AddTaskToGroup(g2, &t2[i]);
     }
@@ -467,7 +465,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
 
     EZ_TEST_BOOL(ezTaskSystem::CancelGroup(g2, ezOnTaskRunning::WaitTillFinished) == EZ_SUCCESS);
 
-    for (int i = 0; i < Tasks; ++i)
+    for (int i = 0; i < uiNumTasks; ++i)
     {
       EZ_TEST_BOOL(!t2[i].IsDone());
       EZ_TEST_BOOL(t2[i].IsTaskFinished());
@@ -477,7 +475,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
 
     EZ_TEST_BOOL(ezTaskSystem::CancelGroup(g1, ezOnTaskRunning::WaitTillFinished) == EZ_FAILURE);
 
-    for (int i = 0; i < Tasks; ++i)
+    for (int i = 0; i < uiNumTasks; ++i)
     {
       EZ_TEST_BOOL(!t2[i].IsDone());
 
