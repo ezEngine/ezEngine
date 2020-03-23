@@ -109,7 +109,7 @@ VS_OUT main(uint VertexID : SV_VertexID)
     // this could be set as a sampler state, but it would not work with sub-ranges
     ret.TexCoord0.y = min(textureAtlasRect.x + textureAtlasRect.z, ret.TexCoord0.y);
 
-    ret.FogAmount = GetFogAmount(position);
+    ret.FogAmount = GetFogAmount(position.xyz);
   }
 
   return ret;
