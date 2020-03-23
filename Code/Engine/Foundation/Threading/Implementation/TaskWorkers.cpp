@@ -62,10 +62,7 @@ void ezTaskSystem::StopWorkerThreads()
           bWorkersStillRunning = true;
 
           // wake this thread up if necessary
-          if (s_WorkerThreads[type][i]->m_bIsIdle.Set(false) == true)
-          {
-            s_WorkerThreads[type][i]->m_WakeUpSignal.RaiseSignal();
-          }
+          WakeUpIdleThread(static_cast<ezWorkerThreadType::Enum>(type), i);
 
           // waste some time
           ezThreadUtils::YieldTimeSlice();
@@ -135,6 +132,8 @@ void ezTaskSystem::SetWorkerThreadCount(ezInt8 iShortTasks, ezInt8 iLongTasks)
 
 void ezTaskSystem::AllocateThreads(ezWorkerThreadType::Enum type, ezUInt32 uiAddThreads)
 {
+  EZ_ASSERT_DEBUG(uiAddThreads > 0, "Invalid number of threads to allocate");
+
   {
     // prevent concurrent thread allocation
     EZ_LOCK(s_TaskSystemMutex);
@@ -199,8 +198,6 @@ void ezTaskWorkerThread::Idle()
 {
   // m_bIsIdle usually will be true here, but may also already have been reset to false
   // then the code below will just run through and continue
-
-  // if no work is currently available, wait for the signal that new work has been added
 
   m_ThreadActiveTime += ezTime::Now() - m_StartedWorking;
   m_bExecutingTask = false;

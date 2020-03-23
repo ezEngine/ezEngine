@@ -397,7 +397,12 @@ private:
 
   static void AllocateThreads(ezWorkerThreadType::Enum type, ezUInt32 uiAddThreads);
 
+  /// \brief Calculates how many worker threads may get activated. Number can be negative, when we are already above budget.
+  static ezInt32 CalcActivatableThreads(ezWorkerThreadType::Enum type);
+
   static void WakeUpThreads(ezWorkerThreadType::Enum type, ezUInt32 uiNumThreads);
+
+  static ezResult WakeUpIdleThread(ezWorkerThreadType::Enum type, ezUInt32 threadIdx);
 
 private:
   // *** Internal Data ***
