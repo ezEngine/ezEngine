@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Threading/ConditionVariable.h>
 #include <Foundation/Time/Time.h>
 #include <Foundation/Types/Delegate.h>

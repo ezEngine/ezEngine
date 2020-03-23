@@ -2,6 +2,7 @@
 
 #include <Foundation/Logging/Log.h>
 #include <Foundation/System/SystemInformation.h>
+#include <Foundation/Threading/Implementation/TaskWorkerThread.h>
 #include <Foundation/Threading/TaskSystem.h>
 
 extern thread_local ezWorkerThreadType::Enum g_ThreadTaskType;

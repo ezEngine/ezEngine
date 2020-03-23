@@ -1,6 +1,10 @@
 #include <FoundationPCH.h>
 
 #include <Foundation/Threading/Implementation/TaskWorkerThread.h>
+#include <Foundation/Threading/TaskSystem.h>
+
+extern thread_local ezWorkerThreadType::Enum g_ThreadTaskType;
+extern thread_local ezInt32 g_iWorkerThreadIdx;
 
 static const char* GenerateThreadName(ezWorkerThreadType::Enum ThreadType, ezUInt32 uiThreadNumber)
 {
@@ -124,4 +128,3 @@ double ezTaskWorkerThread::GetThreadUtilization(ezUInt32* pNumTasksExecuted /*= 
 
   return m_fLastThreadUtilization;
 }
-
