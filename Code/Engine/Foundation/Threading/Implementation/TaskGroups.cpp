@@ -237,21 +237,21 @@ void ezTaskSystem::ScheduleGroupTasks(ezTaskGroup* pGroup, bool bHighPriority)
       case ezTaskPriority::In8Frames:
       case ezTaskPriority::In9Frames:
       {
-        WakeUpThreads(ezWorkerThreadType::ShortTasks, iRemainingTasks, false);
+        WakeUpThreads(ezWorkerThreadType::ShortTasks, iRemainingTasks);
         break;
       }
 
       case ezTaskPriority::LongRunning:
       case ezTaskPriority::LongRunningHighPriority:
       {
-        WakeUpThreads(ezWorkerThreadType::LongTasks, iRemainingTasks, false);
+        WakeUpThreads(ezWorkerThreadType::LongTasks, iRemainingTasks);
         break;
       }
 
       case ezTaskPriority::FileAccess:
       case ezTaskPriority::FileAccessHighPriority:
       {
-        WakeUpThreads(ezWorkerThreadType::FileAccess, iRemainingTasks, false);
+        WakeUpThreads(ezWorkerThreadType::FileAccess, iRemainingTasks);
         break;
       }
 
@@ -264,63 +264,32 @@ void ezTaskSystem::ScheduleGroupTasks(ezTaskGroup* pGroup, bool bHighPriority)
   }
 }
 
-void ezTaskSystem::WakeUpThreads(ezWorkerThreadType::Enum type, ezUInt32 uiNumThreads, bool bForce)
+void ezTaskSystem::WakeUpThreads(ezWorkerThreadType::Enum type, ezUInt32 uiNumThreadsToWakeUp)
 {
-  if (!bForce && s_BlockedWorkerThreads[type] == s_MaxWorkerThreadsToUse[type])
+  const ezUInt32 uiTotal = s_iNumWorkerThreads[type];
+  const ezUInt32 uiBlocked = s_BlockedWorkerThreads[type];
+  const ezUInt32 uiIdle = s_IdleWorkerThreads[type];
+  const ezUInt32 uiMaxActive = s_MaxWorkerThreadsToUse[type];
+  const ezUInt32 uiActive = uiTotal - uiBlocked - uiIdle;
+  const ezUInt32 uiCanActivate = uiMaxActive - uiActive;
+  ezUInt32 uiShouldActivate = ezMath::Min(uiCanActivate, uiNumThreadsToWakeUp);
+
+  for (ezUInt32 threadIdx = 0; threadIdx < uiTotal && uiShouldActivate > 0; ++threadIdx)
   {
-    bForce = true;
-  }
-
-  if (!bForce)
-  {
-    // in this case we only need to look at the first min(uiNumThreads, uiMaxThreads) threads and make sure none of them is idle
-    // they may still be blocked, but once a thread is blocked, it will wake up another thread, and once it becomes unblocked,
-    // it will pick up our new tasks anyway
-
-    const ezUInt32 uiMaxThreads = s_MaxWorkerThreadsToUse[type];
-
-    for (ezUInt32 threadIdx = 0; threadIdx < uiMaxThreads && uiNumThreads > 0; ++threadIdx)
+    if (s_WorkerThreads[type][threadIdx]->m_bIsIdle.Set(false) == true) // was idle before
     {
-      if (s_WorkerThreads[type][threadIdx]->m_bIsIdle.Set(false) == true) // was idle before
-      {
-        // the thread index must be different, if it is the same, it must be an entirely different worker thread type
-        EZ_ASSERT_DEV(threadIdx != g_iWorkerThreadIdx || type != g_ThreadTaskType, "Calling thread was in idle state itself.");
+      // the thread index must be different, if it is the same, it must be an entirely different worker thread type
+      EZ_ASSERT_DEV(threadIdx != g_iWorkerThreadIdx || type != g_ThreadTaskType, "Calling thread was in idle state itself.");
 
-        --uiNumThreads;
-        s_WorkerThreads[type][threadIdx]->m_WakeUpSignal.RaiseSignal();
-      }
+      --uiShouldActivate;
+      s_WorkerThreads[type][threadIdx]->m_WakeUpSignal.RaiseSignal();
     }
   }
-  else
+
+  if (uiShouldActivate > 0)
   {
-    // more than 1 thread can be woken up, but atm only this is used, so make sure this doesn't accidentally change
-    EZ_ASSERT_DEV(uiNumThreads == 1, "Unexpected number of threads to force wake up");
-
-    while (true)
-    {
-      const ezUInt32 uiMaxThreads = s_iNumWorkerThreads[type];
-
-      for (ezUInt32 threadIdx = 0; threadIdx < uiMaxThreads && uiNumThreads > 0; ++threadIdx)
-      {
-        if (s_WorkerThreads[type][threadIdx]->m_bIsIdle.Set(false) == true) // was idle before
-        {
-          // the thread index must be different, if it is the same, it must be an entirely different worker thread type
-          EZ_ASSERT_DEV(threadIdx != g_iWorkerThreadIdx || type != g_ThreadTaskType, "Calling thread was in idle state itself.");
-
-          --uiNumThreads;
-          s_WorkerThreads[type][threadIdx]->m_WakeUpSignal.RaiseSignal();
-        }
-      }
-
-      if (uiNumThreads > 0)
-      {
-        AllocateThreads(type, 1);
-        --uiNumThreads; // the new thread will start not-idle and take on some work
-        continue;       // reevaluate uiMaxThreads
-      }
-
-      break;
-    }
+    // the new threads will start not-idle and take on some work
+    AllocateThreads(type, uiShouldActivate);
   }
 }
 
@@ -357,8 +326,7 @@ void ezTaskSystem::WaitForGroup(ezTaskGroupID Group)
       {
         const ezWorkerThreadType::Enum typeToWakeUp = (ThreadTaskType == ezWorkerThreadType::Unknown) ? ezWorkerThreadType::ShortTasks : ThreadTaskType;
 
-
-        WakeUpThreads(ThreadTaskType, 1, true);
+        WakeUpThreads(typeToWakeUp, 1);
 
         Group.m_pTaskGroup->WaitForFinish(Group);
         break;

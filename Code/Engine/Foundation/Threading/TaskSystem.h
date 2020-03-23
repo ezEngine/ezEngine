@@ -397,7 +397,7 @@ private:
 
   static void AllocateThreads(ezWorkerThreadType::Enum type, ezUInt32 uiAddThreads);
 
-  static void WakeUpThreads(ezWorkerThreadType::Enum type, ezUInt32 uiNumThreads, bool bForce);
+  static void WakeUpThreads(ezWorkerThreadType::Enum type, ezUInt32 uiNumThreads);
 
 private:
   // *** Internal Data ***
@@ -414,7 +414,7 @@ private:
   // only for debugging
   static ezAtomicInteger32 s_IdleWorkerThreads[ezWorkerThreadType::ENUM_COUNT];
 
-  // need to know how many threads 
+  // need to know how many threads are non-idle but blocked
   static ezAtomicInteger32 s_BlockedWorkerThreads[ezWorkerThreadType::ENUM_COUNT];
 
   // The target frame time used by FinishFrameTasks()

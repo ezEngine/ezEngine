@@ -212,7 +212,7 @@ void ezTaskSystem::WaitForCondition(ezDelegate<bool()> condition)
       {
         const ezWorkerThreadType::Enum typeToWakeUp = (ThreadTaskType == ezWorkerThreadType::Unknown) ? ezWorkerThreadType::ShortTasks : ThreadTaskType;
 
-        WakeUpThreads(ThreadTaskType, 1, true);
+        WakeUpThreads(typeToWakeUp, 1);
 
         while (!condition())
         {
