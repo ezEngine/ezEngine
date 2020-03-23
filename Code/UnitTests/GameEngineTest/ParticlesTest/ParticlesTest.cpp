@@ -50,6 +50,7 @@ void ezGameEngineTestParticles::SetupSubTests()
   AddSubTest("PullAlongBehavior", SubTests::PullAlongBehavior);
   AddSubTest("DistanceEmitter", SubTests::DistanceEmitter);
   AddSubTest("SharedInstances", SubTests::SharedInstances);
+  AddSubTest("LocalSpaceSim", SubTests::LocalSpaceSim);
 }
 
 ezResult ezGameEngineTestParticles::InitializeSubTest(ezInt32 iIdentifier)
@@ -79,6 +80,11 @@ ezResult ezGameEngineTestParticles::InitializeSubTest(ezInt32 iIdentifier)
   else if (iIdentifier == SubTests::EventReactionEffect)
   {
     m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/EventReactionEffect.ezObjectGraph");
+    return EZ_SUCCESS;
+  }
+  else if (iIdentifier == SubTests::LocalSpaceSim)
+  {
+    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/LocalSpaceSim.ezObjectGraph");
     return EZ_SUCCESS;
   }
   else

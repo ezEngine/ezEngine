@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{5995496585180667550,4890271506108354631}}
-		u4 %Hash{2192320157989554481}
+		u4 %Hash{11217493327959192362}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -200,7 +200,7 @@ o
 		}
 		s %GlobalKey{"Effect"}
 		Vec3 %LocalPosition{f{0,0x000000C0,0x0000C03F}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Quat %LocalRotation{f{0,0xE7329F3E,0xE8329FB2,0x744F733F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::ForceDynamic"}
@@ -282,8 +282,8 @@ o
 			Uuid{u4{4660026565733414420,10038996990690843374}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x7A0284C0,0x0C54CE40,0x0D818540}}
-		Quat %LocalRotation{f{0x8743DD3D,0xA444473E,0x504AF2BE,0x53345A3F}}
+		Vec3 %LocalPosition{f{0xA64541BF,0x66558340,0x87CB1F40}}
+		Quat %LocalRotation{f{0x6C1EC03D,0x0CB04E3E,0x9F7D1CBF,0x106C423F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
@@ -331,11 +331,11 @@ o
 	{
 		b %Active{1}
 		s %Effect{"{ b2416284-6da2-40af-a1a8-d58dc8ca5d64 }"}
-		Time %MinRestartDelay{d{0x9A9999999999B93F}}
+		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::Restart"}
 		VarDict %Parameters{}
-		u4 %RandomSeed{41}
-		Time %RestartDelayRange{d{0x9A9999999999B93F}}
+		u4 %RandomSeed{1}
+		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
 	}
@@ -427,7 +427,7 @@ o
 			Uuid{u4{11470293407619905852,10083575469752255164}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x00002040,0x00000040,0x0000403F}}
+		Vec3 %LocalPosition{f{0x642B2040,0xD8D147BF,0xD01BA63F}}
 		Quat %LocalRotation{f{0xE042003F,0xB81200BF,0x3B7AFFBE,0x4ADAFF3E}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}

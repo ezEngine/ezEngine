@@ -53,6 +53,7 @@ private:
     DistanceEmitter,
     SharedInstances,
     EventReactionEffect,
+    LocalSpaceSim,
   };
 
   virtual void SetupSubTests() override;
