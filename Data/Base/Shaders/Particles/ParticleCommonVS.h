@@ -46,7 +46,7 @@ float4 CalcQuadOutputPositionWithTangents(uint vertexIndex, float3 inPosition, f
 
 float4 CalcQuadOutputPositionWithAlignedAxis(uint vertexIndex, float3 inPosition, float3 inTangentX, float3 inTangentZ, float inSize)
 {
-  float stretch = inTangentZ.x;
+  float stretch = -inTangentZ.x;
 
   float4 position = float4(inPosition, 1);
 

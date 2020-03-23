@@ -377,6 +377,23 @@ void ezTestFramework::CreateOutputFolder()
     ezOSFile::ExistsDirectory(m_sAbsTestOutputDir.c_str()), "Failed to create output directory '{0}'", m_sAbsTestOutputDir.c_str());
 }
 
+void ezTestFramework::UpdateReferenceImages()
+{
+  ezStringBuilder sDir;
+  if (ezFileSystem::ResolveSpecialDirectory(">sdk", sDir).Failed())
+    return;
+
+  sDir.AppendPath(GetRelTestDataPath());
+
+  const ezStringBuilder sNewFiles(m_sAbsTestOutputDir.c_str(), "/Images_Result");
+  const ezStringBuilder sRefFiles(sDir, "/Images_Reference");
+
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) && EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
+  ezOSFile::CopyFolder(sNewFiles, sRefFiles);
+  ezOSFile::DeleteFolder(sNewFiles);
+#endif
+}
+
 void ezTestFramework::AutoSaveTestOrder()
 {
   if (m_Settings.m_bNoAutomaticSaving)
@@ -1341,6 +1358,9 @@ bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezI
   }
 
   sImgPathResult.Format(":imgout/Images_Result/{0}.png", sImgName);
+
+  // if a previous output image exists, get rid of it
+  ezFileSystem::DeleteFile(sImgPathResult);
 
   ezImage imgExp, imgExpRgba;
   if (imgExp.LoadFrom(sImgPathReference).Failed())

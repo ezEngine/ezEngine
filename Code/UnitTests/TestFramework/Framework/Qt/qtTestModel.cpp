@@ -32,8 +32,8 @@ void ezQtTestModelEntry::ClearEntries()
   }
   m_SubEntries.clear();
 }
-
 ezUInt32 ezQtTestModelEntry::GetNumSubEntries() const
+
 {
   return (ezInt32)m_SubEntries.size();
 }

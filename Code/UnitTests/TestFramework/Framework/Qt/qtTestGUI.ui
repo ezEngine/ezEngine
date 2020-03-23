@@ -126,6 +126,7 @@
     <addaction name="actionOpenTestDataFolder"/>
     <addaction name="actionOpenOutputFolder"/>
     <addaction name="actionOpenHTMLFile"/>
+    <addaction name="actionUpdateReferenceImages"/>
    </widget>
    <addaction name="menuRun"/>
    <addaction name="menuSettings"/>
@@ -280,15 +281,29 @@
    <property name="toolTip">
     <string>This will automatically disable successfully executed tests and save the current state, while running tests.</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
+   </property>
   </action>
   <action name="actionOpenHTMLFile">
    <property name="text">
     <string>Open HTML Output</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+H</string>
+   </property>
   </action>
   <action name="actionSaveTestOrderAs">
    <property name="text">
     <string>Save Test Order As...</string>
+   </property>
+  </action>
+  <action name="actionUpdateReferenceImages">
+   <property name="text">
+    <string>Update Reference Images</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+U</string>
    </property>
   </action>
  </widget>

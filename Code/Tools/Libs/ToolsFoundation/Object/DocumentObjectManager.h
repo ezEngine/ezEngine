@@ -114,7 +114,7 @@ class EZ_TOOLSFOUNDATION_DLL ezDocumentObjectManager
 {
 public:
   mutable ezCopyOnBroadcastEvent<const ezDocumentObjectStructureEvent&> m_StructureEvents;
-  mutable ezEvent<const ezDocumentObjectPropertyEvent&> m_PropertyEvents;
+  mutable ezCopyOnBroadcastEvent<const ezDocumentObjectPropertyEvent&> m_PropertyEvents;
   ezEvent<const ezDocumentObjectEvent&> m_ObjectEvents;
 
   ezDocumentObjectManager(const ezRTTI* pRootType = ezDocumentRoot::GetStaticRTTI());

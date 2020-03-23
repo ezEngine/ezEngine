@@ -71,6 +71,7 @@ private Q_SLOTS:
   void on_actionOpenTestDataFolder_triggered();
   void on_actionOpenOutputFolder_triggered();
   void on_actionOpenHTMLFile_triggered();
+  void on_actionUpdateReferenceImages_triggered();
 
 private:
   void UpdateButtonStates();

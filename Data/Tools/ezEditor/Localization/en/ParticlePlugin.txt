@@ -54,6 +54,7 @@ ezParticleTypeRenderMode::BlendedForeground;Blended (Foreground)
 ezParticleTypeRenderMode::BlendedBackground;Blended (Background)
 ezParticleTypeRenderMode::Opaque;Opaque
 ezParticleTypeRenderMode::Distortion;Distortion
+ezParticleTypeRenderMode::BlendAdd;Blend Add
 ezEffectInvisibleUpdateRate::FullUpdate;Full Update
 ezEffectInvisibleUpdateRate::Max20fps;Max 20 FPS
 ezEffectInvisibleUpdateRate::Max10fps;Max 10 FPS

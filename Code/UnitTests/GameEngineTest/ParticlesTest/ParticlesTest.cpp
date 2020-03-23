@@ -44,11 +44,13 @@ void ezGameEngineTestParticles::SetupSubTests()
   AddSubTest("QuadRotatingOrtho", SubTests::QuadRotatingOrtho);
   AddSubTest("QuadFixedEmDir", SubTests::QuadFixedEmDir);
   AddSubTest("QuadAxisEmDir", SubTests::QuadAxisEmDir);
+  AddSubTest("EventReactionEffect", SubTests::EventReactionEffect);
 
   AddSubTest("Billboards", SubTests::Billboards);
   AddSubTest("PullAlongBehavior", SubTests::PullAlongBehavior);
   AddSubTest("DistanceEmitter", SubTests::DistanceEmitter);
   AddSubTest("SharedInstances", SubTests::SharedInstances);
+  AddSubTest("LocalSpaceSim", SubTests::LocalSpaceSim);
 }
 
 ezResult ezGameEngineTestParticles::InitializeSubTest(ezInt32 iIdentifier)
@@ -73,6 +75,16 @@ ezResult ezGameEngineTestParticles::InitializeSubTest(ezInt32 iIdentifier)
   else if (iIdentifier == SubTests::SharedInstances)
   {
     m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/SharedInstances.ezObjectGraph");
+    return EZ_SUCCESS;
+  }
+  else if (iIdentifier == SubTests::EventReactionEffect)
+  {
+    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/EventReactionEffect.ezObjectGraph");
+    return EZ_SUCCESS;
+  }
+  else if (iIdentifier == SubTests::LocalSpaceSim)
+  {
+    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/LocalSpaceSim.ezObjectGraph");
     return EZ_SUCCESS;
   }
   else
@@ -155,15 +167,15 @@ ezTestAppRun ezGameEngineTestApplication_Particles::ExecParticleSubTest(ezInt32 
   switch (iCurFrame)
   {
     case 15:
-      EZ_TEST_IMAGE(0, 50);
+      EZ_TEST_IMAGE(0, 100);
       break;
 
     case 30:
-      EZ_TEST_IMAGE(1, 50);
+      EZ_TEST_IMAGE(1, 100);
       break;
 
     case 60:
-      EZ_TEST_IMAGE(2, 50);
+      EZ_TEST_IMAGE(2, 100);
       return ezTestAppRun::Quit;
   }
 
