@@ -320,9 +320,6 @@ public:
   /// If bWaitForIt is true, the function returns only after it is guaranteed that all tasks are properly terminated.
   static ezResult CancelGroup(ezTaskGroupID Group, ezOnTaskRunning::Enum OnTaskRunning = ezOnTaskRunning::WaitTillFinished); // [tested]
 
-  /// \brief Helps executing tasks that are suitable for the calling thread. Returns true if a task was found and executed.
-  static bool HelpExecutingTasks(bool bOnlyTasksThatNeverWait, const ezTaskGroupID& WaitingForGroup);
-
   /// \brief Returns the (thread local) type of tasks that would be executed on this thread
   static ezWorkerThreadType::Enum GetCurrentThreadWorkerType();
 
@@ -330,12 +327,7 @@ public:
   /// per frame.
   ///
   /// Also optionally returns the number of tasks that were finished during the last frame.
-  static double GetThreadUtilization(ezWorkerThreadType::Enum Type, ezUInt32 iThread, ezUInt32* pNumTasksExecuted = nullptr)
-  {
-    if (pNumTasksExecuted)
-      *pNumTasksExecuted = s_WorkerThreads[Type][iThread]->m_uiNumTasksExecuted;
-    return s_WorkerThreads[Type][iThread]->m_ThreadUtilization;
-  }
+  static double GetThreadUtilization(ezWorkerThreadType::Enum Type, ezUInt32 uiThreadIndex, ezUInt32* pNumTasksExecuted = nullptr);
 
   /// \brief Writes the internal state of the ezTaskSystem as a DGML graph.
   static void WriteStateSnapshotToDGML(ezDGMLGraph& graph);
@@ -402,6 +394,9 @@ private:
   template <typename ElemType>
   static void ParallelForInternal(ezArrayPtr<ElemType> taskItems, ParallelForFunction<ElemType> taskCallback, const char* taskName, ParallelForParams config);
 
+  /// \brief Helps executing tasks that are suitable for the calling thread. Returns true if a task was found and executed.
+  static bool HelpExecutingTasks(const ezTaskGroupID& WaitingForGroup);
+
   static void AllocateThreads(ezWorkerThreadType::Enum type, ezUInt32 uiAddThreads);
 
   /// \brief Calculates how many worker threads may get activated. Number can be negative, when we are already above budget.
@@ -409,7 +404,8 @@ private:
 
   static void WakeUpThreads(ezWorkerThreadType::Enum type, ezUInt32 uiNumThreads);
 
-  static ezResult WakeUpIdleThread(ezWorkerThreadType::Enum type, ezUInt32 threadIdx);
+  /// \brief If the given thread is currently idle, it will be woken up and EZ_SUCCESS is returned. Otherwise EZ_FAILURE is returned and no thread is woken up.
+  static ezResult WakeUpThreadIfIdle(ezWorkerThreadType::Enum type, ezUInt32 threadIdx);
 
 private:
   // *** Internal Data ***

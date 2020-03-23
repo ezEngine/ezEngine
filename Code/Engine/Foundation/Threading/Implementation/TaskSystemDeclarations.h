@@ -1,19 +1,13 @@
 #pragma once
 
-#include <Foundation/Containers/DynamicArray.h>
-#include <Foundation/Containers/List.h>
-#include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Threading/ConditionVariable.h>
-#include <Foundation/Threading/Mutex.h>
-#include <Foundation/Threading/Thread.h>
-#include <Foundation/Threading/ThreadSignal.h>
 #include <Foundation/Time/Time.h>
 #include <Foundation/Types/Delegate.h>
 #include <Foundation/Types/UniquePtr.h>
 
-
 class ezTaskGroup;
 class ezTask;
+class ezTaskWorkerThread;
 
 /// \brief Describes the priority with which to execute a task.
 ///
@@ -94,51 +88,8 @@ struct ezWorkerThreadType
     FileAccess,
     ENUM_COUNT
   };
-};
 
-/// \internal Internal task worker thread class.
-class ezTaskWorkerThread final : public ezThread
-{
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezTaskWorkerThread);
-
-private:
-  friend class ezTaskSystem;
-
-  // used to wake up idle threads, see m_bIsIdle
-  ezThreadSignal m_WakeUpSignal;
-
-  // used to indicate whether this thread is currently idle
-  // if so, it can be woken up using m_WakeUpSignal
-  ezAtomicBool m_bIsIdle = false;
-
-  /// \brief Tells the worker thread what tasks to execute and which thread index it has.
-  ezTaskWorkerThread(ezWorkerThreadType::Enum ThreadType, ezUInt32 iThreadNumber);
-
-  // Whether the thread is supposed to continue running.
-  volatile bool m_bActive = true;
-
-  // Which types of tasks this thread should work on.
-  ezWorkerThreadType::Enum m_WorkerType;
-
-  virtual ezUInt32 Run() override;
-
-  void Idle();
-
-  // Computes the thread utilization by dividing the thread active time by the time that has passed since the last update.
-  void ComputeThreadUtilization(ezTime TimePassed);
-
-  // The thread keeps track of how much time it spends executing tasks. This function retrieves that time and resets it to zero.
-  ezTime GetAndResetThreadActiveTime();
-
-  bool m_bExecutingTask = false;
-  ezTime m_StartedWorking;
-  ezTime m_ThreadActiveTime;
-  double m_ThreadUtilization = 0.0;
-  ezAtomicInteger32 m_iTasksExecutionCounter = 0;
-  ezUInt32 m_uiNumTasksExecuted = 0;
-
-  // For display purposes.
-  ezUInt32 m_uiWorkerThreadNumber;
+  static const char* GetThreadTypeName(ezWorkerThreadType::Enum ThreadType);
 };
 
 /// \brief Given out by ezTaskSystem::CreateTaskGroup to identify a task group.

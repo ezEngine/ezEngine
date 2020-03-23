@@ -2,6 +2,7 @@
 
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Threading/Implementation/TaskWorkerThread.h>
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/TaskSystem.h>
 
@@ -264,14 +265,13 @@ void ezTaskSystem::ScheduleGroupTasks(ezTaskGroup* pGroup, bool bHighPriority)
   }
 }
 
-ezResult ezTaskSystem::WakeUpIdleThread(ezWorkerThreadType::Enum type, ezUInt32 threadIdx)
+ezResult ezTaskSystem::WakeUpThreadIfIdle(ezWorkerThreadType::Enum type, ezUInt32 threadIdx)
 {
-  if (s_WorkerThreads[type][threadIdx]->m_bIsIdle.Set(false) == true) // was idle before
+  if (s_WorkerThreads[type][threadIdx]->WakeUpIfIdle().Succeeded())
   {
     // the thread index must be different, if it is the same, it must be an entirely different worker thread type
     EZ_ASSERT_DEV(threadIdx != g_iWorkerThreadIdx || type != g_ThreadTaskType, "Calling thread was in idle state itself.");
 
-    s_WorkerThreads[type][threadIdx]->m_WakeUpSignal.RaiseSignal();
     return EZ_SUCCESS;
   }
 
@@ -305,7 +305,7 @@ void ezTaskSystem::WakeUpThreads(ezWorkerThreadType::Enum type, ezUInt32 uiNumTh
 
   for (ezUInt32 threadIdx = 0; threadIdx < uiTotal && iShouldActivate > 0; ++threadIdx)
   {
-    if (WakeUpIdleThread(type, threadIdx).Succeeded())
+    if (WakeUpThreadIfIdle(type, threadIdx).Succeeded())
     {
       --iShouldActivate;
     }
@@ -338,22 +338,21 @@ void ezTaskSystem::WaitForGroup(ezTaskGroupID Group)
 
   const auto ThreadTaskType = g_ThreadTaskType;
   const bool bAllowSleep = ThreadTaskType != ezWorkerThreadType::MainThread;
-  const bool bOnlyTasksThatNeverWait = ThreadTaskType != ezWorkerThreadType::MainThread;
 
   while (!ezTaskSystem::IsTaskGroupFinished(Group))
   {
-    if (!HelpExecutingTasks(bOnlyTasksThatNeverWait, Group))
+    if (!HelpExecutingTasks(Group))
     {
-      s_BlockedWorkerThreads[ThreadTaskType].Increment();
-      EZ_SCOPE_EXIT(s_BlockedWorkerThreads[ThreadTaskType].Decrement());
-
       if (bAllowSleep)
       {
+        s_BlockedWorkerThreads[ThreadTaskType].Increment();
         const ezWorkerThreadType::Enum typeToWakeUp = (ThreadTaskType == ezWorkerThreadType::Unknown) ? ezWorkerThreadType::ShortTasks : ThreadTaskType;
 
         WakeUpThreads(typeToWakeUp, 1);
 
         Group.m_pTaskGroup->WaitForFinish(Group);
+
+        s_BlockedWorkerThreads[ThreadTaskType].Decrement();
         break;
       }
       else

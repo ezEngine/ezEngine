@@ -315,7 +315,7 @@ void ezTaskSystem::FinishFrameTasks()
 
         for (ezUInt32 t = 0; t < uiNumWorkers; ++t)
         {
-          s_WorkerThreads[type][t]->ComputeThreadUtilization(tDiff);
+          s_WorkerThreads[type][t]->UpdateThreadUtilization(tDiff);
         }
       }
     }
@@ -462,9 +462,10 @@ ezWorkerThreadType::Enum ezTaskSystem::GetCurrentThreadWorkerType()
   return g_ThreadTaskType;
 }
 
-
-
-EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_TaskSystem);
+double ezTaskSystem::GetThreadUtilization(ezWorkerThreadType::Enum Type, ezUInt32 uiThreadIndex, ezUInt32* pNumTasksExecuted /*= nullptr*/)
+{
+  return s_WorkerThreads[Type][uiThreadIndex]->GetThreadUtilization(pNumTasksExecuted);
+}
 
 void ezTask::SetTaskNeverWaitsForOtherTasks()
 {
@@ -472,3 +473,6 @@ void ezTask::SetTaskNeverWaitsForOtherTasks()
 
   m_bNeverWaitsForOtherTasks = true;
 }
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_TaskSystem);

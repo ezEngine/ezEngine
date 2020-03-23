@@ -199,17 +199,15 @@ void ezTaskSystem::WaitForCondition(ezDelegate<bool()> condition)
 
   const auto ThreadTaskType = g_ThreadTaskType;
   const bool bAllowSleep = ThreadTaskType != ezWorkerThreadType::MainThread;
-  const bool bOnlyTasksThatNeverWait = ThreadTaskType != ezWorkerThreadType::MainThread;
 
   while (!condition())
   {
-    if (!HelpExecutingTasks(bOnlyTasksThatNeverWait, ezTaskGroupID()))
+    if (!HelpExecutingTasks(ezTaskGroupID()))
     {
-      s_BlockedWorkerThreads[ThreadTaskType].Increment();
-      EZ_SCOPE_EXIT(s_BlockedWorkerThreads[ThreadTaskType].Decrement());
-
       if (bAllowSleep)
       {
+        s_BlockedWorkerThreads[ThreadTaskType].Increment();
+
         const ezWorkerThreadType::Enum typeToWakeUp = (ThreadTaskType == ezWorkerThreadType::Unknown) ? ezWorkerThreadType::ShortTasks : ThreadTaskType;
 
         WakeUpThreads(typeToWakeUp, 1);
@@ -220,6 +218,7 @@ void ezTaskSystem::WaitForCondition(ezDelegate<bool()> condition)
           ezThreadUtils::YieldTimeSlice();
         }
 
+        s_BlockedWorkerThreads[ThreadTaskType].Decrement();
         break;
       }
       else
@@ -294,8 +293,10 @@ ezResult ezTaskSystem::CancelTask(ezTask* pTask, ezOnTaskRunning::Enum OnTaskRun
 }
 
 
-bool ezTaskSystem::HelpExecutingTasks(bool bOnlyTasksThatNeverWait, const ezTaskGroupID& WaitingForGroup)
+bool ezTaskSystem::HelpExecutingTasks(const ezTaskGroupID& WaitingForGroup)
 {
+  const bool bOnlyTasksThatNeverWait = g_ThreadTaskType != ezWorkerThreadType::MainThread;
+
   ezTaskPriority::Enum FirstPriority;
   ezTaskPriority::Enum LastPriority;
   DetermineTasksToExecuteOnThread(FirstPriority, LastPriority);

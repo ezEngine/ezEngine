@@ -209,7 +209,9 @@ ezUInt32 ezResourceManager::FreeAllUnusedResources()
       // Therefore, help executing some tasks here, to unblock the task system.
 
       bAnyFailed = false;
-      ezTaskSystem::HelpExecutingTasks(false, ezTaskGroupID());
+
+      ezInt32 iHelpExecTasksRounds = 1;
+      ezTaskSystem::WaitForCondition([&iHelpExecTasksRounds]() { return iHelpExecTasksRounds-- <= 0; });
     }
 
   } while (bFreeAllUnused && bUnloadedAny);
