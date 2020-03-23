@@ -33,6 +33,7 @@ public:
 
   // Test management
   void CreateOutputFolder();
+  void UpdateReferenceImages();
   const char* GetTestName() const;
   const char* GetAbsOutputPath() const;
   const char* GetRelTestDataPath() const;

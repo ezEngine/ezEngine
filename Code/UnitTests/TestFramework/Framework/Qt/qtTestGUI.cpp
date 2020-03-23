@@ -546,6 +546,11 @@ void ezQtTestGUI::on_actionOpenHTMLFile_triggered()
   QDesktopServices::openUrl(QUrl::fromLocalFile(sOutputFile.c_str()));
 }
 
+void ezQtTestGUI::on_actionUpdateReferenceImages_triggered()
+{
+  m_pTestFramework->UpdateReferenceImages();
+}
+
 ////////////////////////////////////////////////////////////////////////
 // ezQtTestGUI private functions
 ////////////////////////////////////////////////////////////////////////
