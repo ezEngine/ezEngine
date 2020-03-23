@@ -199,7 +199,8 @@ void ezParticleTypeQuad::ExtractTypeRenderData(const ezView& view, ezExtractedRe
 
   const bool bNeedsSorting = (m_RenderMode == ezParticleTypeRenderMode::Blended) ||
                              (m_RenderMode == ezParticleTypeRenderMode::BlendedForeground) ||
-                             (m_RenderMode == ezParticleTypeRenderMode::BlendedBackground);
+                             (m_RenderMode == ezParticleTypeRenderMode::BlendedBackground) ||
+                             (m_RenderMode == ezParticleTypeRenderMode::BlendAdd);
 
   // don't copy the data multiple times in the same frame, if the effect is instanced
   if ((m_uiLastExtractedFrame != uiExtractedFrame)
@@ -470,9 +471,7 @@ void ezParticleTypeQuad::AddParticleRenderData(ezExtractedRenderData& extractedR
       break;
   }
 
-  extractedRenderData.AddRenderData(pRenderData,
-                                    /*m_RenderMode == ezParticleTypeRenderMode::Opaque ? ezDefaultRenderDataCategories::LitOpaque :*/
-                                    ezDefaultRenderDataCategories::LitTransparent);
+  extractedRenderData.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitTransparent);
 }
 
 void ezParticleTypeQuad::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)

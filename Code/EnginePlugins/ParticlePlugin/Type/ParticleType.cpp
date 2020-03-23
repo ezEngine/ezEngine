@@ -51,6 +51,9 @@ ezUInt32 ezParticleType::ComputeSortingKey(ezParticleTypeRenderMode::Enum mode)
 
     case ezParticleTypeRenderMode::Opaque:
       return ezParticleTypeSortingKey::Opaque;
+
+    case ezParticleTypeRenderMode::BlendAdd:
+      return ezParticleTypeSortingKey::BlendAdd;
   }
 
   return 0;

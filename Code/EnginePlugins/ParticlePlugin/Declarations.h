@@ -84,6 +84,7 @@ struct EZ_PARTICLEPLUGIN_DLL ezParticleTypeRenderMode
     Distortion,
     BlendedBackground,
     BlendedForeground,
+    BlendAdd,
     Default = Additive
   };
 };

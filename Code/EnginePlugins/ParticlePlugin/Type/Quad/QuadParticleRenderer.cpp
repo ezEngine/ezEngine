@@ -120,5 +120,8 @@ void ezParticleQuadRenderer::ConfigureRenderMode(const ezParticleQuadRenderData*
       pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "PARTICLE_RENDER_MODE_DISTORTION");
       pRenderContext->BindTexture2D("ParticleDistortionTexture", pRenderData->m_hDistortionTexture);
       break;
+    case ezParticleTypeRenderMode::BlendAdd:
+      pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "PARTICLE_RENDER_MODE_BLENDADD");
+      break;
   }
 }

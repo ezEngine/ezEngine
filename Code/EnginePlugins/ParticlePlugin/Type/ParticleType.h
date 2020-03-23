@@ -5,14 +5,14 @@
 #include <ParticlePlugin/Module/ParticleModule.h>
 #include <ParticlePlugin/ParticlePluginDLL.h>
 
-// TODO: review this
 enum ezParticleTypeSortingKey
 {
   Opaque = 0,
   BlendedBackground = 10,
   Additive = 20,
-  Blended = 30,
-  BlendedForeground = 40,
+  BlendAdd = 30,
+  Blended = 40,
+  BlendedForeground = 50,
 };
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypeFactory : public ezReflectedClass
