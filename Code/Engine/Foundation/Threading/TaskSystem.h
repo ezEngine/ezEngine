@@ -197,14 +197,14 @@ public:
   static void SetWorkerThreadCount(ezInt8 iShortTasks = -1, ezInt8 iLongTasks = -1); // [tested]
 
   /// \brief Returns the maximum number of threads that should work on the given type of task at the same time.
-  static ezUInt32 GetWorkerThreadCount(ezWorkerThreadType::Enum type) { return s_MaxWorkerThreadsToUse[type]; }
+  static ezUInt32 GetWorkerThreadCount(ezWorkerThreadType::Enum type);
 
   /// \brief Returns the number of threads that have been allocated to potentially work on the given type of task.
   ///
   /// CAREFUL! This is not the number of threads that will be active at the same time. Use GetWorkerThreadCount() for that.
   /// This is the maximum number of threads that may jump in, if too many threads are blocked. This number will change dynamically
   /// at runtime to prevent deadlocks and it can grow very, very large.
-  static ezUInt32 GetNumAllocatedWorkerThreads(ezWorkerThreadType::Enum type) { return s_iNumWorkerThreads[type]; }
+  static ezUInt32 GetNumAllocatedWorkerThreads(ezWorkerThreadType::Enum type);
 
   /// \brief Returns the (thread local) type of tasks that would be executed on this thread
   static ezWorkerThreadType::Enum GetCurrentThreadWorkerType();
@@ -237,20 +237,7 @@ private:
   static void DetermineTasksToExecuteOnThread(ezTaskPriority::Enum& out_FirstPriority, ezTaskPriority::Enum& out_LastPriority);
 
 private:
-  // only for debugging
-  static ezAtomicInteger32 s_IdleWorkerThreads[ezWorkerThreadType::ENUM_COUNT];
-
-  // need to know how many threads are non-idle but blocked
-  static ezAtomicInteger32 s_BlockedWorkerThreads[ezWorkerThreadType::ENUM_COUNT];
-
-  // The arrays of all the active worker threads.
-  static ezDynamicArray<ezTaskWorkerThread*> s_WorkerThreads[ezWorkerThreadType::ENUM_COUNT];
-
-  // the number of allocated (non-null) worker threads in s_WorkerThreads
-  static ezAtomicInteger32 s_iNumWorkerThreads[ezWorkerThreadType::ENUM_COUNT];
-
-  // the maximum number of worker threads that should be non-idle (and not blocked) at any time
-  static ezUInt32 s_MaxWorkerThreadsToUse[ezWorkerThreadType::ENUM_COUNT];
+  static ezUniquePtr<ezTaskSystemThreadState> s_ThreadState;
 
   ///@}
 

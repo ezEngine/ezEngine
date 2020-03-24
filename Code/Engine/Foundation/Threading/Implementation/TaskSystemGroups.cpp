@@ -3,6 +3,7 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Threading/Implementation/TaskGroup.h>
+#include <Foundation/Threading/Implementation/TaskSystemState.h>
 #include <Foundation/Threading/Implementation/TaskWorkerThread.h>
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/TaskSystem.h>
@@ -73,7 +74,7 @@ void ezTaskSystem::AddTaskGroupDependencyBatch(ezArrayPtr<const ezTaskGroupDepen
 
 void ezTaskSystem::StartTaskGroup(ezTaskGroupID groupID)
 {
-  if (s_WorkerThreads[ezWorkerThreadType::ShortTasks].GetCount() == 0)
+  if (s_ThreadState->s_WorkerThreads[ezWorkerThreadType::ShortTasks].GetCount() == 0)
     SetWorkerThreadCount(-1, -1); // set the default number of threads, if none are started yet
 
   ezTaskGroup::DebugCheckTaskGroup(groupID, s_TaskSystemMutex);
@@ -284,14 +285,14 @@ void ezTaskSystem::WaitForGroup(ezTaskGroupID Group)
     {
       if (bAllowSleep)
       {
-        s_BlockedWorkerThreads[ThreadTaskType].Increment();
+        s_ThreadState->s_BlockedWorkerThreads[ThreadTaskType].Increment();
         const ezWorkerThreadType::Enum typeToWakeUp = (ThreadTaskType == ezWorkerThreadType::Unknown) ? ezWorkerThreadType::ShortTasks : ThreadTaskType;
 
         WakeUpThreads(typeToWakeUp, 1);
 
         Group.m_pTaskGroup->WaitForFinish(Group);
 
-        s_BlockedWorkerThreads[ThreadTaskType].Decrement();
+        s_ThreadState->s_BlockedWorkerThreads[ThreadTaskType].Decrement();
         break;
       }
       else
@@ -317,7 +318,7 @@ void ezTaskSystem::WaitForCondition(ezDelegate<bool()> condition)
     {
       if (bAllowSleep)
       {
-        s_BlockedWorkerThreads[ThreadTaskType].Increment();
+        s_ThreadState->s_BlockedWorkerThreads[ThreadTaskType].Increment();
 
         const ezWorkerThreadType::Enum typeToWakeUp = (ThreadTaskType == ezWorkerThreadType::Unknown) ? ezWorkerThreadType::ShortTasks : ThreadTaskType;
 
@@ -329,7 +330,7 @@ void ezTaskSystem::WaitForCondition(ezDelegate<bool()> condition)
           ezThreadUtils::YieldTimeSlice();
         }
 
-        s_BlockedWorkerThreads[ThreadTaskType].Decrement();
+        s_ThreadState->s_BlockedWorkerThreads[ThreadTaskType].Decrement();
         break;
       }
       else

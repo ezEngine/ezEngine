@@ -6,10 +6,11 @@
 #include <Foundation/Types/Delegate.h>
 #include <Foundation/Types/UniquePtr.h>
 
-class ezDGMLGraph;
-class ezTaskGroup;
 class ezTask;
+class ezTaskGroup;
 class ezTaskWorkerThread;
+class ezTaskSystemThreadState;
+class ezDGMLGraph;
 
 /// \brief Describes the priority with which to execute a task.
 ///
@@ -99,12 +100,13 @@ class EZ_FOUNDATION_DLL ezTaskGroupID
 {
 public:
   EZ_ALWAYS_INLINE ezTaskGroupID() = default;
+  EZ_ALWAYS_INLINE ~ezTaskGroupID() = default;
 
   /// \brief Returns false, if the GroupID does not reference a valid ezTaskGroup
   EZ_ALWAYS_INLINE bool IsValid() const { return m_pTaskGroup != nullptr; }
 
   /// \brief Resets the GroupID into an invalid state.
-  void Invalidate() { m_pTaskGroup = nullptr; }
+  EZ_ALWAYS_INLINE void Invalidate() { m_pTaskGroup = nullptr; }
 
 private:
   friend class ezTaskSystem;
@@ -112,7 +114,7 @@ private:
 
   // the counter is used to determine whether this group id references the 'same' group, as m_pTaskGroup.
   // if m_pTaskGroup->m_uiGroupCounter is different to this->m_uiGroupCounter, then the group ID is not valid anymore.
-  volatile ezUInt32 m_uiGroupCounter = 0;
+  ezUInt32 m_uiGroupCounter = 0;
 
   // points to the actual task group object
   ezTaskGroup* m_pTaskGroup = nullptr;
@@ -123,12 +125,6 @@ using ezOnTaskGroupFinishedCallback = ezDelegate<void()>;
 
 /// \brief Callback type when a task has been finished (or canceled).
 using ezOnTaskFinishedCallback = ezDelegate<void(ezTask*)>;
-
-using ezParallelForIndexedFunction = ezDelegate<void(ezUInt32, ezUInt32), 48>;
-
-template <typename ElemType>
-using ezParallelForFunction = ezDelegate<void(ezUInt32, ezArrayPtr<ElemType>), 48>;
-
 
 struct ezTaskGroupDependency
 {
@@ -164,3 +160,8 @@ struct EZ_FOUNDATION_DLL ezParallelForParams
   /// This is aligned with the multiplicity, i.e., multiplicity * bin_size >= # task items.
   ezUInt32 DetermineItemsPerInvocation(ezUInt32 uiNumTaskItems, ezUInt32 uiMultiplicity) const;
 };
+
+using ezParallelForIndexedFunction = ezDelegate<void(ezUInt32, ezUInt32), 48>;
+
+template <typename ElemType>
+using ezParallelForFunction = ezDelegate<void(ezUInt32, ezArrayPtr<ElemType>), 48>;

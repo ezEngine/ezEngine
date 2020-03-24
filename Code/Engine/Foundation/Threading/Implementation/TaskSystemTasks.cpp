@@ -2,6 +2,7 @@
 
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Threading/Implementation/TaskGroup.h>
+#include <Foundation/Threading/Implementation/TaskSystemState.h>
 #include <Foundation/Threading/Implementation/TaskWorkerThread.h>
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/TaskSystem.h>
@@ -407,11 +408,11 @@ void ezTaskSystem::FinishFrameTasks()
 
       for (ezUInt32 type = 0; type < ezWorkerThreadType::ENUM_COUNT; ++type)
       {
-        const ezUInt32 uiNumWorkers = s_iNumWorkerThreads[type];
+        const ezUInt32 uiNumWorkers = s_ThreadState->s_iNumWorkerThreads[type];
 
         for (ezUInt32 t = 0; t < uiNumWorkers; ++t)
         {
-          s_WorkerThreads[type][t]->UpdateThreadUtilization(tDiff);
+          s_ThreadState->s_WorkerThreads[type][t]->UpdateThreadUtilization(tDiff);
         }
       }
     }

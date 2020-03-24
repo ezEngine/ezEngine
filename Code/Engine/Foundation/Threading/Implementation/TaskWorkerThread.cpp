@@ -1,6 +1,7 @@
 #include <FoundationPCH.h>
 
 #include <Foundation/Threading/Implementation/TaskWorkerThread.h>
+#include <Foundation/Threading/Implementation/TaskSystemState.h>
 #include <Foundation/Threading/TaskSystem.h>
 
 thread_local ezTaskWorkerInfo tl_TaskWorkerInfo;
@@ -80,10 +81,10 @@ void ezTaskWorkerThread::WaitForWork()
 
   m_ThreadActiveTime += ezTime::Now() - m_StartedWorkingTime;
   m_bExecutingTask = false;
-  ezTaskSystem::s_IdleWorkerThreads[m_WorkerType].Increment();
+  ezTaskSystem::s_ThreadState->s_IdleWorkerThreads[m_WorkerType].Increment();
   m_WakeUpSignal.WaitForSignal();
   EZ_ASSERT_DEBUG(m_bIsIdle == false, "Idle state should have been reset");
-  ezTaskSystem::s_IdleWorkerThreads[m_WorkerType].Decrement();
+  ezTaskSystem::s_ThreadState->s_IdleWorkerThreads[m_WorkerType].Decrement();
 }
 
 ezResult ezTaskWorkerThread::WakeUpIfIdle()
