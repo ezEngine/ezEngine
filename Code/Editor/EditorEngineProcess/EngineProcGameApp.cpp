@@ -57,7 +57,7 @@ void ezEngineProcessGameApplication::AfterCoreSystemsStartup()
 
   DisableErrorReport();
 
-  ezTaskSystem::SetTargetFrameTime(1000.0 / 20.0);
+  ezTaskSystem::SetTargetFrameTime(ezTime::Seconds(1.0 / 20.0));
 
   ConnectToHost();
 }

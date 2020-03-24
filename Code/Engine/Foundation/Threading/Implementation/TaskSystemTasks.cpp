@@ -6,6 +6,24 @@
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/TaskSystem.h>
 
+ezTaskGroupID ezTaskSystem::StartSingleTask(ezTask* pTask, ezTaskPriority::Enum Priority, ezTaskGroupID Dependency)
+{
+  ezTaskGroupID Group = CreateTaskGroup(Priority);
+  AddTaskGroupDependency(Group, Dependency);
+  AddTaskToGroup(Group, pTask);
+  StartTaskGroup(Group);
+  return Group;
+}
+
+ezTaskGroupID ezTaskSystem::StartSingleTask(ezTask* pTask, ezTaskPriority::Enum Priority)
+{
+  ezTaskGroupID Group = CreateTaskGroup(Priority);
+  AddTaskToGroup(Group, pTask);
+  StartTaskGroup(Group);
+  return Group;
+}
+
+
 
 void ezTaskSystem::TaskHasFinished(ezTask* pTask, ezTaskGroup* pGroup)
 {
@@ -208,24 +226,6 @@ bool ezTaskSystem::HelpExecutingTasks(const ezTaskGroupID& WaitingForGroup)
   return ExecuteTask(FirstPriority, LastPriority, bOnlyTasksThatNeverWait, WaitingForGroup, nullptr);
 }
 
-
-ezTaskGroupID ezTaskSystem::StartSingleTask(ezTask* pTask, ezTaskPriority::Enum Priority, ezTaskGroupID Dependency)
-{
-  ezTaskGroupID Group = CreateTaskGroup(Priority);
-  AddTaskGroupDependency(Group, Dependency);
-  AddTaskToGroup(Group, pTask);
-  StartTaskGroup(Group);
-  return Group;
-}
-
-ezTaskGroupID ezTaskSystem::StartSingleTask(ezTask* pTask, ezTaskPriority::Enum Priority)
-{
-  ezTaskGroupID Group = CreateTaskGroup(Priority);
-  AddTaskToGroup(Group, pTask);
-  StartTaskGroup(Group);
-  return Group;
-}
-
 void ezTaskSystem::ReprioritizeFrameTasks()
 {
   // There should usually be no 'this frame tasks' left at this time
@@ -281,7 +281,7 @@ void ezTaskSystem::ReprioritizeFrameTasks()
   }
 }
 
-void ezTaskSystem::ExecuteSomeFrameTasks(ezUInt32 uiSomeFrameTasks, double fSmoothFrameMS)
+void ezTaskSystem::ExecuteSomeFrameTasks(ezUInt32 uiSomeFrameTasks, ezTime smoothFrameTime)
 {
   if (uiSomeFrameTasks == 0)
     return;
@@ -298,7 +298,7 @@ void ezTaskSystem::ExecuteSomeFrameTasks(ezUInt32 uiSomeFrameTasks, double fSmoo
   // however in such instances, the 'frame time threshold' will increase and thus the chance that we skip this entirely becomes lower over
   // time that guarantees some progress, even if the frame rate is constantly low
 
-  static double s_fFrameTimeThreshold = fSmoothFrameMS;
+  static ezTime s_FrameTimeThreshold = smoothFrameTime;
 
   static ezTime s_LastFrame; // initializes to zero -> very large frame time difference at first
 
@@ -307,10 +307,10 @@ void ezTaskSystem::ExecuteSomeFrameTasks(ezUInt32 uiSomeFrameTasks, double fSmoo
   s_LastFrame = CurTime;
 
   // as long as we have a smooth frame rate, execute as many of these tasks, as possible
-  while ((uiSomeFrameTasks > 0) && ((CurTime - LastTime).GetMilliseconds() < fSmoothFrameMS))
+  while ((uiSomeFrameTasks > 0) && (CurTime - LastTime < smoothFrameTime))
   {
     // we execute one of these tasks, so reset the frame time threshold
-    s_fFrameTimeThreshold = fSmoothFrameMS;
+    s_FrameTimeThreshold = smoothFrameTime;
 
     if (!ExecuteTask(ezTaskPriority::SomeFrameMainThread, ezTaskPriority::SomeFrameMainThread, false, ezTaskGroupID(), nullptr))
       return; // nothing left to do
@@ -323,10 +323,10 @@ void ezTaskSystem::ExecuteSomeFrameTasks(ezUInt32 uiSomeFrameTasks, double fSmoo
   if (uiSomeFrameTasks == 0)
     return;
 
-  if ((CurTime - LastTime).GetMilliseconds() < s_fFrameTimeThreshold)
+  if (CurTime - LastTime < s_FrameTimeThreshold)
   {
     // we execute one of these tasks, so reset the frame time threshold
-    s_fFrameTimeThreshold = fSmoothFrameMS;
+    s_FrameTimeThreshold = smoothFrameTime;
 
     ExecuteTask(ezTaskPriority::SomeFrameMainThread, ezTaskPriority::SomeFrameMainThread, false, ezTaskGroupID(), nullptr);
   }
@@ -338,7 +338,7 @@ void ezTaskSystem::ExecuteSomeFrameTasks(ezUInt32 uiSomeFrameTasks, double fSmoo
     // however we increase the time threshold, at which we skip this, further and further
     // therefore at some point we will execute at least one such task, no matter how low the frame rate is
     // this guarantees at least some progress with these tasks
-    s_fFrameTimeThreshold += 5.0;
+    s_FrameTimeThreshold += ezTime::Milliseconds(5.0);
 
     //  25 ms -> 40 FPS
     //  30 ms -> 33 FPS
@@ -392,7 +392,7 @@ void ezTaskSystem::FinishFrameTasks()
     ReprioritizeFrameTasks();
   }
 
-  ExecuteSomeFrameTasks(uiSomeFrameTasks, s_fSmoothFrameMS);
+  ExecuteSomeFrameTasks(uiSomeFrameTasks, s_SmoothFrameTime);
 
   // Update the thread utilization
   {
@@ -420,4 +420,3 @@ void ezTaskSystem::FinishFrameTasks()
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_TaskSystemTasks);
-

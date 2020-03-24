@@ -46,8 +46,8 @@ ezUInt32 ezTaskWorkerThread::Run()
   tl_TaskWorkerInfo.m_WorkerType = m_WorkerType;
   tl_TaskWorkerInfo.m_iWorkerIndex = m_uiWorkerThreadNumber;
 
-  ezTaskPriority::Enum FirstPriority = ezTaskPriority::EarlyThisFrame;
-  ezTaskPriority::Enum LastPriority = ezTaskPriority::In9Frames;
+  ezTaskPriority::Enum FirstPriority;
+  ezTaskPriority::Enum LastPriority;
   ezTaskSystem::DetermineTasksToExecuteOnThread(FirstPriority, LastPriority);
 
   m_bExecutingTask = false;
@@ -82,7 +82,7 @@ void ezTaskWorkerThread::WaitForWork()
   m_bExecutingTask = false;
   ezTaskSystem::s_IdleWorkerThreads[m_WorkerType].Increment();
   m_WakeUpSignal.WaitForSignal();
-  EZ_ASSERT_DEV(m_bIsIdle == false, "Idle state should have been reset");
+  EZ_ASSERT_DEBUG(m_bIsIdle == false, "Idle state should have been reset");
   ezTaskSystem::s_IdleWorkerThreads[m_WorkerType].Decrement();
 }
 

@@ -6,7 +6,7 @@
 #include <Foundation/Threading/TaskSystem.h>
 
 ezMutex ezTaskSystem::s_TaskSystemMutex;
-double ezTaskSystem::s_fSmoothFrameMS = 1000.0 / 40.0; // => 25 ms
+ezTime ezTaskSystem::s_SmoothFrameTime = ezTime::Seconds(1.0 / 40.0); // => 25 ms
 ezAtomicInteger32 ezTaskSystem::s_IdleWorkerThreads[ezWorkerThreadType::ENUM_COUNT];
 ezAtomicInteger32 ezTaskSystem::s_BlockedWorkerThreads[ezWorkerThreadType::ENUM_COUNT];
 ezDynamicArray<ezTaskWorkerThread*> ezTaskSystem::s_WorkerThreads[ezWorkerThreadType::ENUM_COUNT];
@@ -56,47 +56,9 @@ void ezTaskSystem::Shutdown()
   s_TaskGroups.Compact();
 }
 
-void ezTaskSystem::SetTargetFrameTime(double fSmoothFrameMS)
+void ezTaskSystem::SetTargetFrameTime(ezTime smoothFrame)
 {
-  s_fSmoothFrameMS = fSmoothFrameMS;
-}
-
-void ezTaskSystem::WaitForCondition(ezDelegate<bool()> condition)
-{
-  EZ_PROFILE_SCOPE("WaitForCondition");
-
-  EZ_ASSERT_DEV(tl_TaskWorkerInfo.m_bAllowNestedTasks, "The executing task '{}' is flagged to never wait for other tasks but does so anyway. Remove the flag or remove the wait-dependency.", tl_TaskWorkerInfo.m_szTaskName);
-
-  const auto ThreadTaskType = tl_TaskWorkerInfo.m_WorkerType;
-  const bool bAllowSleep = ThreadTaskType != ezWorkerThreadType::MainThread;
-
-  while (!condition())
-  {
-    if (!HelpExecutingTasks(ezTaskGroupID()))
-    {
-      if (bAllowSleep)
-      {
-        s_BlockedWorkerThreads[ThreadTaskType].Increment();
-
-        const ezWorkerThreadType::Enum typeToWakeUp = (ThreadTaskType == ezWorkerThreadType::Unknown) ? ezWorkerThreadType::ShortTasks : ThreadTaskType;
-
-        WakeUpThreads(typeToWakeUp, 1);
-
-        while (!condition())
-        {
-          // TODO: busy loop for now
-          ezThreadUtils::YieldTimeSlice();
-        }
-
-        s_BlockedWorkerThreads[ThreadTaskType].Decrement();
-        break;
-      }
-      else
-      {
-        ezThreadUtils::YieldTimeSlice();
-      }
-    }
-  }
+  s_SmoothFrameTime = smoothFrame;
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_TaskSystem);

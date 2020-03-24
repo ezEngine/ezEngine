@@ -61,6 +61,7 @@ void ezTaskSystem::AddTaskGroupDependency(ezTaskGroupID groupID, ezTaskGroupID D
 void ezTaskSystem::AddTaskGroupDependencyBatch(ezArrayPtr<const ezTaskGroupDependency> batch)
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  // lock here once to reduce the overhead of ezTaskGroup::DebugCheckTaskGroup inside AddTaskGroupDependency
   EZ_LOCK(s_TaskSystemMutex);
 #endif
 
@@ -232,39 +233,6 @@ void ezTaskSystem::DependencyHasFinished(ezTaskGroup* pGroup)
   }
 }
 
-void ezTaskSystem::WaitForGroup(ezTaskGroupID Group)
-{
-  EZ_PROFILE_SCOPE("WaitForGroup");
-
-  EZ_ASSERT_DEV(tl_TaskWorkerInfo.m_bAllowNestedTasks, "The executing task '{}' is flagged to never wait for other tasks but does so anyway. Remove the flag or remove the wait-dependency.", tl_TaskWorkerInfo.m_szTaskName);
-
-  const auto ThreadTaskType = tl_TaskWorkerInfo.m_WorkerType;
-  const bool bAllowSleep = ThreadTaskType != ezWorkerThreadType::MainThread;
-
-  while (!ezTaskSystem::IsTaskGroupFinished(Group))
-  {
-    if (!HelpExecutingTasks(Group))
-    {
-      if (bAllowSleep)
-      {
-        s_BlockedWorkerThreads[ThreadTaskType].Increment();
-        const ezWorkerThreadType::Enum typeToWakeUp = (ThreadTaskType == ezWorkerThreadType::Unknown) ? ezWorkerThreadType::ShortTasks : ThreadTaskType;
-
-        WakeUpThreads(typeToWakeUp, 1);
-
-        Group.m_pTaskGroup->WaitForFinish(Group);
-
-        s_BlockedWorkerThreads[ThreadTaskType].Decrement();
-        break;
-      }
-      else
-      {
-        ezThreadUtils::YieldTimeSlice();
-      }
-    }
-  }
-}
-
 ezResult ezTaskSystem::CancelGroup(ezTaskGroupID Group, ezOnTaskRunning::Enum OnTaskRunning)
 {
   if (ezTaskSystem::IsTaskGroupFinished(Group))
@@ -301,6 +269,75 @@ ezResult ezTaskSystem::CancelGroup(ezTaskGroupID Group, ezOnTaskRunning::Enum On
   return res;
 }
 
+void ezTaskSystem::WaitForGroup(ezTaskGroupID Group)
+{
+  EZ_PROFILE_SCOPE("WaitForGroup");
+
+  EZ_ASSERT_DEV(tl_TaskWorkerInfo.m_bAllowNestedTasks, "The executing task '{}' is flagged to never wait for other tasks but does so anyway. Remove the flag or remove the wait-dependency.", tl_TaskWorkerInfo.m_szTaskName);
+
+  const auto ThreadTaskType = tl_TaskWorkerInfo.m_WorkerType;
+  const bool bAllowSleep = ThreadTaskType != ezWorkerThreadType::MainThread;
+
+  while (!ezTaskSystem::IsTaskGroupFinished(Group))
+  {
+    if (!HelpExecutingTasks(Group))
+    {
+      if (bAllowSleep)
+      {
+        s_BlockedWorkerThreads[ThreadTaskType].Increment();
+        const ezWorkerThreadType::Enum typeToWakeUp = (ThreadTaskType == ezWorkerThreadType::Unknown) ? ezWorkerThreadType::ShortTasks : ThreadTaskType;
+
+        WakeUpThreads(typeToWakeUp, 1);
+
+        Group.m_pTaskGroup->WaitForFinish(Group);
+
+        s_BlockedWorkerThreads[ThreadTaskType].Decrement();
+        break;
+      }
+      else
+      {
+        ezThreadUtils::YieldTimeSlice();
+      }
+    }
+  }
+}
+
+void ezTaskSystem::WaitForCondition(ezDelegate<bool()> condition)
+{
+  EZ_PROFILE_SCOPE("WaitForCondition");
+
+  EZ_ASSERT_DEV(tl_TaskWorkerInfo.m_bAllowNestedTasks, "The executing task '{}' is flagged to never wait for other tasks but does so anyway. Remove the flag or remove the wait-dependency.", tl_TaskWorkerInfo.m_szTaskName);
+
+  const auto ThreadTaskType = tl_TaskWorkerInfo.m_WorkerType;
+  const bool bAllowSleep = ThreadTaskType != ezWorkerThreadType::MainThread;
+
+  while (!condition())
+  {
+    if (!HelpExecutingTasks(ezTaskGroupID()))
+    {
+      if (bAllowSleep)
+      {
+        s_BlockedWorkerThreads[ThreadTaskType].Increment();
+
+        const ezWorkerThreadType::Enum typeToWakeUp = (ThreadTaskType == ezWorkerThreadType::Unknown) ? ezWorkerThreadType::ShortTasks : ThreadTaskType;
+
+        WakeUpThreads(typeToWakeUp, 1);
+
+        while (!condition())
+        {
+          // TODO: busy loop for now
+          ezThreadUtils::YieldTimeSlice();
+        }
+
+        s_BlockedWorkerThreads[ThreadTaskType].Decrement();
+        break;
+      }
+      else
+      {
+        ezThreadUtils::YieldTimeSlice();
+      }
+    }
+  }
+}
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_TaskSystemGroups);
-

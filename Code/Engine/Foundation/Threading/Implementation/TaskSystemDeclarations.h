@@ -137,3 +137,30 @@ struct ezTaskGroupDependency
   ezTaskGroupID m_TaskGroup;
   ezTaskGroupID m_DependsOn;
 };
+
+/// \brief Settings for ezTaskSystem::ParallelFor invocations.
+struct EZ_FOUNDATION_DLL ezParallelForParams
+{
+  ezParallelForParams() {} // do not remove, needed for Clang
+
+  /// The minimum number of items that must be processed by a task instance.
+  /// If the overall number of tasks lies below this value, all work will be executed purely serially
+  /// without involving any tasks at all.
+  ezUInt32 uiBinSize = 1;
+
+  /// Indicates how many tasks per thread may be spawned at most by a ParallelFor invocation.
+  /// Higher numbers give the scheduler more leeway to balance work across available threads.
+  /// Generally, if all task items are expected to take basically the same amount of time,
+  /// low numbers (usually 1) are recommended, while higher numbers (initially test with 2 or 3)
+  /// might yield better results for workloads where task items may take vastly different amounts
+  /// of time, such that scheduling in a balanced fashion becomes more difficult.
+  ezUInt32 uiMaxTasksPerThread = 2;
+
+  /// Returns the multiplicity to use for the given task. If 0 is returned,
+  /// serial execution is to be performed.
+  ezUInt32 DetermineMultiplicity(ezUInt32 uiNumTaskItems) const;
+
+  /// Returns the number of task items to work on per invocation (multiplicity).
+  /// This is aligned with the multiplicity, i.e., multiplicity * bin_size >= # task items.
+  ezUInt32 DetermineItemsPerInvocation(ezUInt32 uiNumTaskItems, ezUInt32 uiMultiplicity) const;
+};
