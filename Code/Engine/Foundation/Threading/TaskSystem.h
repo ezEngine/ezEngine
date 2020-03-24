@@ -71,7 +71,6 @@ public:
   /// in a way that allows for quick canceling.
   static ezResult CancelTask(ezTask* pTask, ezOnTaskRunning::Enum OnTaskRunning = ezOnTaskRunning::WaitTillFinished); // [tested]
 
-private:
   struct TaskData
   {
     ezTask* m_pTask = nullptr;
@@ -79,6 +78,7 @@ private:
     ezUInt32 m_uiInvocation = 0;
   };
 
+private:
   /// \brief Searches for a task of priority between \a FirstPriority and \a LastPriority (inclusive).
   static TaskData GetNextTask(ezTaskPriority::Enum FirstPriority, ezTaskPriority::Enum LastPriority, bool bOnlyTasksThatNeverWait, const ezTaskGroupID& WaitingForGroup, ezAtomicBool* pIsIdleNow);
 
@@ -96,10 +96,6 @@ private:
 
   /// \brief Helps executing tasks that are suitable for the calling thread. Returns true if a task was found and executed.
   static bool HelpExecutingTasks(const ezTaskGroupID& WaitingForGroup);
-
-private:
-  // The lists of all scheduled tasks, for each priority.
-  static ezList<TaskData> s_Tasks[ezTaskPriority::ENUM_COUNT];
 
   ///@}
 
@@ -172,10 +168,6 @@ private:
 
   /// \brief Is called whenever a dependency of pGroup has finished. Once all dependencies are finished, the group's tasks will get scheduled.
   static void DependencyHasFinished(ezTaskGroup* pGroup);
-
-private:
-  /// The deque can grow without relocating existing data, therefore the ezTaskGroupID's can store pointers directly to the data
-  static ezDeque<ezTaskGroup> s_TaskGroups;
 
   ///@}
 
@@ -296,7 +288,7 @@ public:
   /// \brief Sets the target frame time that is supposed to not be exceeded.
   ///
   /// \see FinishFrameTasks() for more details.
-  static void SetTargetFrameTime(ezTime smoothFrame = ezTime::Seconds(1.0 / 40.0) /* 40 FPS -> 25 ms */);
+  static void SetTargetFrameTime(ezTime targetFrameTime = ezTime::Seconds(1.0 / 40.0) /* 40 FPS -> 25 ms */);
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, TaskSystem);
@@ -308,8 +300,7 @@ private:
   /// One mutex to rule them all.
   static ezMutex s_TaskSystemMutex;
 
-  /// The target frame time used by FinishFrameTasks()
-  static ezTime s_SmoothFrameTime;
+  static ezUniquePtr<ezTaskSystemState> s_State;
 
   ///@}
 };

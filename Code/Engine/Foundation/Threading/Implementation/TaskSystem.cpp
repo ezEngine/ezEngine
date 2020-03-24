@@ -6,13 +6,9 @@
 #include <Foundation/Threading/Implementation/TaskWorkerThread.h>
 #include <Foundation/Threading/TaskSystem.h>
 
-ezUniquePtr<ezTaskSystemThreadState> ezTaskSystem::s_ThreadState;
-
 ezMutex ezTaskSystem::s_TaskSystemMutex;
-ezTime ezTaskSystem::s_SmoothFrameTime = ezTime::Seconds(1.0 / 40.0); // => 25 ms
-ezDeque<ezTaskGroup> ezTaskSystem::s_TaskGroups;
-
-ezList<ezTaskSystem::TaskData> ezTaskSystem::s_Tasks[ezTaskPriority::ENUM_COUNT];
+ezUniquePtr<ezTaskSystemState> ezTaskSystem::s_State;
+ezUniquePtr<ezTaskSystemThreadState> ezTaskSystem::s_ThreadState;
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, TaskSystem)
@@ -38,6 +34,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 void ezTaskSystem::Startup()
 {
   s_ThreadState = EZ_DEFAULT_NEW(ezTaskSystemThreadState);
+  s_State = EZ_DEFAULT_NEW(ezTaskSystemState);
 
   tl_TaskWorkerInfo.m_WorkerType = ezWorkerThreadType::MainThread;
   tl_TaskWorkerInfo.m_iWorkerIndex = 0;
@@ -47,21 +44,13 @@ void ezTaskSystem::Shutdown()
 {
   StopWorkerThreads();
 
-  for (ezUInt32 i = 0; i < ezTaskPriority::ENUM_COUNT; ++i)
-  {
-    s_Tasks[i].Clear();
-    s_Tasks[i].Compact();
-  }
-
-  s_TaskGroups.Clear();
-  s_TaskGroups.Compact();
-
+  s_State.Clear();
   s_ThreadState.Clear();
 }
 
-void ezTaskSystem::SetTargetFrameTime(ezTime smoothFrame)
+void ezTaskSystem::SetTargetFrameTime(ezTime targetFrameTime)
 {
-  s_SmoothFrameTime = smoothFrame;
+  s_State->m_TargetFrameTime = targetFrameTime;
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_TaskSystem);

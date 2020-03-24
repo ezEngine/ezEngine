@@ -3,6 +3,7 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Threading/Implementation/TaskGroup.h>
+#include <Foundation/Threading/Implementation/TaskSystemState.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Time/Timestamp.h>
 #include <Foundation/Utilities/DGMLWriter.h>
@@ -71,9 +72,9 @@ void ezTaskSystem::WriteStateSnapshotToDGML(ezDGMLGraph& graph)
   szTaskPriorityNames[ezTaskPriority::ThisFrameMainThread] = "ThisFrameMainThread";
   szTaskPriorityNames[ezTaskPriority::SomeFrameMainThread] = "SomeFrameMainThread";
 
-  for (ezUInt32 g = 0; g < s_TaskGroups.GetCount(); ++g)
+  for (ezUInt32 g = 0; g < s_State->m_TaskGroups.GetCount(); ++g)
   {
-    const ezTaskGroup& tg = s_TaskGroups[g];
+    const ezTaskGroup& tg = s_State->m_TaskGroups[g];
 
     if (!tg.m_bInUse)
       continue;
@@ -105,9 +106,9 @@ void ezTaskSystem::WriteStateSnapshotToDGML(ezDGMLGraph& graph)
     }
   }
 
-  for (ezUInt32 g = 0; g < s_TaskGroups.GetCount(); ++g)
+  for (ezUInt32 g = 0; g < s_State->m_TaskGroups.GetCount(); ++g)
   {
-    const ezTaskGroup& tg = s_TaskGroups[g];
+    const ezTaskGroup& tg = s_State->m_TaskGroups[g];
 
     if (!tg.m_bInUse)
       continue;
@@ -162,4 +163,3 @@ void ezTaskSystem::WriteStateSnapshotToFile(const char* szPath /*= nullptr*/)
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_TaskSystemUtils);
-

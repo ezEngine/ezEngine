@@ -81,10 +81,10 @@ void ezTaskWorkerThread::WaitForWork()
 
   m_ThreadActiveTime += ezTime::Now() - m_StartedWorkingTime;
   m_bExecutingTask = false;
-  ezTaskSystem::s_ThreadState->s_IdleWorkerThreads[m_WorkerType].Increment();
+  ezTaskSystem::s_ThreadState->m_iNumIdleWorkers[m_WorkerType].Increment();
   m_WakeUpSignal.WaitForSignal();
   EZ_ASSERT_DEBUG(m_bIsIdle == false, "Idle state should have been reset");
-  ezTaskSystem::s_ThreadState->s_IdleWorkerThreads[m_WorkerType].Decrement();
+  ezTaskSystem::s_ThreadState->m_iNumIdleWorkers[m_WorkerType].Decrement();
 }
 
 ezResult ezTaskWorkerThread::WakeUpIfIdle()

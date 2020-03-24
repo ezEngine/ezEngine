@@ -88,8 +88,10 @@ ezTaskSystem::TaskData ezTaskSystem::GetNextTask(ezTaskPriority::Enum FirstPrior
 
   for (ezUInt32 i = FirstPriority; i <= (ezUInt32)LastPriority; ++i)
   {
-    if (!s_Tasks[i].IsEmpty())
+    if (!s_State->m_Tasks[i].IsEmpty())
+    {
       goto foundany;
+    }
   }
 
   if (pIsIdleNow)
@@ -107,13 +109,13 @@ foundany:
   // go through all the task lists that this thread is willing to work on
   for (ezUInt32 prio = FirstPriority; prio <= (ezUInt32)LastPriority; ++prio)
   {
-    for (auto it = s_Tasks[prio].GetIterator(); it.IsValid(); ++it)
+    for (auto it = s_State->m_Tasks[prio].GetIterator(); it.IsValid(); ++it)
     {
       if (!bOnlyTasksThatNeverWait || (it->m_pTask->m_NestingMode == ezTaskNesting::Never) || it->m_pBelongsToGroup == WaitingForGroup.m_pTaskGroup)
       {
         TaskData td = *it;
 
-        s_Tasks[prio].Remove(it);
+        s_State->m_Tasks[prio].Remove(it);
         return td;
       }
     }
@@ -182,13 +184,13 @@ ezResult ezTaskSystem::CancelTask(ezTask* pTask, ezOnTaskRunning::Enum OnTaskRun
     {
       for (ezUInt32 i = 0; i < ezTaskPriority::ENUM_COUNT; ++i)
       {
-        auto it = s_Tasks[i].GetIterator();
+        auto it = s_State->m_Tasks[i].GetIterator();
 
         while (it.IsValid())
         {
           if (it->m_pTask == pTask)
           {
-            s_Tasks[i].Remove(it);
+            s_State->m_Tasks[i].Remove(it);
 
             // we set the task to finished, even though it was not executed
             pTask->m_iRemainingRuns = 0;
@@ -234,51 +236,51 @@ void ezTaskSystem::ReprioritizeFrameTasks()
   // In this case we move them into the highest-priority 'this frame' queue, to ensure they will be executed asap
   for (ezUInt32 i = (ezUInt32)ezTaskPriority::ThisFrame; i <= (ezUInt32)ezTaskPriority::LateThisFrame; ++i)
   {
-    auto it = s_Tasks[i].GetIterator();
+    auto it = s_State->m_Tasks[i].GetIterator();
 
     // move all 'this frame' tasks into the 'early this frame' queue
     while (it.IsValid())
     {
-      s_Tasks[ezTaskPriority::EarlyThisFrame].PushBack(*it);
+      s_State->m_Tasks[ezTaskPriority::EarlyThisFrame].PushBack(*it);
 
       ++it;
     }
 
     // remove the tasks from their current queue
-    s_Tasks[i].Clear();
+    s_State->m_Tasks[i].Clear();
   }
 
   for (ezUInt32 i = (ezUInt32)ezTaskPriority::EarlyNextFrame; i <= (ezUInt32)ezTaskPriority::LateNextFrame; ++i)
   {
-    auto it = s_Tasks[i].GetIterator();
+    auto it = s_State->m_Tasks[i].GetIterator();
 
     // move all 'next frame' tasks into the 'this frame' queues
     while (it.IsValid())
     {
-      s_Tasks[i - 3].PushBack(*it);
+      s_State->m_Tasks[i - 3].PushBack(*it);
 
       ++it;
     }
 
     // remove the tasks from their current queue
-    s_Tasks[i].Clear();
+    s_State->m_Tasks[i].Clear();
   }
 
   for (ezUInt32 i = (ezUInt32)ezTaskPriority::In2Frames; i <= (ezUInt32)ezTaskPriority::In9Frames; ++i)
   {
-    auto it = s_Tasks[i].GetIterator();
+    auto it = s_State->m_Tasks[i].GetIterator();
 
     // move all 'in N frames' tasks into the 'in N-1 frames' queues
     // moves 'In2Frames' into 'LateNextFrame'
     while (it.IsValid())
     {
-      s_Tasks[i - 1].PushBack(*it);
+      s_State->m_Tasks[i - 1].PushBack(*it);
 
       ++it;
     }
 
     // remove the tasks from their current queue
-    s_Tasks[i].Clear();
+    s_State->m_Tasks[i].Clear();
   }
 }
 
@@ -388,12 +390,12 @@ void ezTaskSystem::FinishFrameTasks()
     EZ_LOCK(s_TaskSystemMutex);
 
     // get this info once, it won't shrink (but might grow) while we are outside the lock
-    uiSomeFrameTasks = s_Tasks[ezTaskPriority::SomeFrameMainThread].GetCount();
+    uiSomeFrameTasks = s_State->m_Tasks[ezTaskPriority::SomeFrameMainThread].GetCount();
 
     ReprioritizeFrameTasks();
   }
 
-  ExecuteSomeFrameTasks(uiSomeFrameTasks, s_SmoothFrameTime);
+  ExecuteSomeFrameTasks(uiSomeFrameTasks, s_State->m_TargetFrameTime);
 
   // Update the thread utilization
   {
@@ -408,11 +410,11 @@ void ezTaskSystem::FinishFrameTasks()
 
       for (ezUInt32 type = 0; type < ezWorkerThreadType::ENUM_COUNT; ++type)
       {
-        const ezUInt32 uiNumWorkers = s_ThreadState->s_iNumWorkerThreads[type];
+        const ezUInt32 uiNumWorkers = s_ThreadState->m_iAllocatedWorkers[type];
 
         for (ezUInt32 t = 0; t < uiNumWorkers; ++t)
         {
-          s_ThreadState->s_WorkerThreads[type][t]->UpdateThreadUtilization(tDiff);
+          s_ThreadState->m_Workers[type][t]->UpdateThreadUtilization(tDiff);
         }
       }
     }

@@ -16,23 +16,25 @@ ezTaskGroupID ezTaskSystem::CreateTaskGroup(ezTaskPriority::Enum Priority, ezOnT
   ezUInt32 i = 0;
 
   // this search could be speed up with a stack of free groups
-  for (; i < s_TaskGroups.GetCount(); ++i)
+  for (; i < s_State->m_TaskGroups.GetCount(); ++i)
   {
-    if (!s_TaskGroups[i].m_bInUse)
+    if (!s_State->m_TaskGroups[i].m_bInUse)
+    {
       goto foundtaskgroup;
+    }
   }
 
   // no free group found, create a new one
-  s_TaskGroups.ExpandAndGetRef();
-  s_TaskGroups[i].m_uiTaskGroupIndex = static_cast<ezUInt16>(i);
+  s_State->m_TaskGroups.ExpandAndGetRef();
+  s_State->m_TaskGroups[i].m_uiTaskGroupIndex = static_cast<ezUInt16>(i);
 
 foundtaskgroup:
 
-  s_TaskGroups[i].Reuse(Priority, callback);
+  s_State->m_TaskGroups[i].Reuse(Priority, callback);
 
   ezTaskGroupID id;
-  id.m_pTaskGroup = &s_TaskGroups[i];
-  id.m_uiGroupCounter = s_TaskGroups[i].m_uiGroupCounter;
+  id.m_pTaskGroup = &s_State->m_TaskGroups[i];
+  id.m_uiGroupCounter = s_State->m_TaskGroups[i].m_uiGroupCounter;
   return id;
 }
 
@@ -74,7 +76,7 @@ void ezTaskSystem::AddTaskGroupDependencyBatch(ezArrayPtr<const ezTaskGroupDepen
 
 void ezTaskSystem::StartTaskGroup(ezTaskGroupID groupID)
 {
-  if (s_ThreadState->s_WorkerThreads[ezWorkerThreadType::ShortTasks].GetCount() == 0)
+  if (s_ThreadState->m_Workers[ezWorkerThreadType::ShortTasks].GetCount() == 0)
     SetWorkerThreadCount(-1, -1); // set the default number of threads, if none are started yet
 
   ezTaskGroup::DebugCheckTaskGroup(groupID, s_TaskSystemMutex);
@@ -173,9 +175,9 @@ void ezTaskSystem::ScheduleGroupTasks(ezTaskGroup* pGroup, bool bHighPriority)
         td.m_uiInvocation = mult;
 
         if (bHighPriority)
-          s_Tasks[pGroup->m_Priority].PushFront(td);
+          s_State->m_Tasks[pGroup->m_Priority].PushFront(td);
         else
-          s_Tasks[pGroup->m_Priority].PushBack(td);
+          s_State->m_Tasks[pGroup->m_Priority].PushBack(td);
       }
     }
 
@@ -285,14 +287,14 @@ void ezTaskSystem::WaitForGroup(ezTaskGroupID Group)
     {
       if (bAllowSleep)
       {
-        s_ThreadState->s_BlockedWorkerThreads[ThreadTaskType].Increment();
+        s_ThreadState->m_iNumBlockedWorkers[ThreadTaskType].Increment();
         const ezWorkerThreadType::Enum typeToWakeUp = (ThreadTaskType == ezWorkerThreadType::Unknown) ? ezWorkerThreadType::ShortTasks : ThreadTaskType;
 
         WakeUpThreads(typeToWakeUp, 1);
 
         Group.m_pTaskGroup->WaitForFinish(Group);
 
-        s_ThreadState->s_BlockedWorkerThreads[ThreadTaskType].Decrement();
+        s_ThreadState->m_iNumBlockedWorkers[ThreadTaskType].Decrement();
         break;
       }
       else
@@ -318,7 +320,7 @@ void ezTaskSystem::WaitForCondition(ezDelegate<bool()> condition)
     {
       if (bAllowSleep)
       {
-        s_ThreadState->s_BlockedWorkerThreads[ThreadTaskType].Increment();
+        s_ThreadState->m_iNumBlockedWorkers[ThreadTaskType].Increment();
 
         const ezWorkerThreadType::Enum typeToWakeUp = (ThreadTaskType == ezWorkerThreadType::Unknown) ? ezWorkerThreadType::ShortTasks : ThreadTaskType;
 
@@ -330,7 +332,7 @@ void ezTaskSystem::WaitForCondition(ezDelegate<bool()> condition)
           ezThreadUtils::YieldTimeSlice();
         }
 
-        s_ThreadState->s_BlockedWorkerThreads[ThreadTaskType].Decrement();
+        s_ThreadState->m_iNumBlockedWorkers[ThreadTaskType].Decrement();
         break;
       }
       else

@@ -9,6 +9,7 @@
 class ezTask;
 class ezTaskGroup;
 class ezTaskWorkerThread;
+class ezTaskSystemState;
 class ezTaskSystemThreadState;
 class ezDGMLGraph;
 
