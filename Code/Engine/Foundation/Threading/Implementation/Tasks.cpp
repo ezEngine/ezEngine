@@ -1,74 +1,11 @@
 #include <FoundationPCH.h>
 
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Threading/Implementation/TaskWorkerThread.h>
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Time/Timestamp.h>
 #include <Foundation/Utilities/DGMLWriter.h>
-
-thread_local bool g_bAllowWaitForOtherTasks = true;
-
-ezTask::ezTask(const char* szTaskName /*= nullptr*/)
-{
-  Reset();
-
-  m_iRemainingRuns = 0;
-  m_sTaskName = szTaskName;
-}
-
-void ezTask::Reset()
-{
-  m_iRemainingRuns = (int)ezMath::Max(1u, m_uiMultiplicity);
-  m_bCancelExecution = false;
-  m_bTaskIsScheduled = false;
-  m_bUsesMultiplicity = m_uiMultiplicity > 0;
-}
-
-void ezTask::SetTaskName(const char* szName)
-{
-  m_sTaskName = szName;
-}
-
-void ezTask::SetMultiplicity(ezUInt32 uiMultiplicity)
-{
-  m_uiMultiplicity = uiMultiplicity;
-  m_bUsesMultiplicity = m_uiMultiplicity > 0;
-}
-
-void ezTask::SetOnTaskFinished(OnTaskFinished Callback)
-{
-  m_OnTaskFinished = Callback;
-}
-
-void ezTask::Run(ezUInt32 uiInvocation)
-{
-  // actually this should not be possible to happen
-  if (m_iRemainingRuns == 0 || m_bCancelExecution)
-  {
-    m_iRemainingRuns = 0;
-    return;
-  }
-
-  {
-    ezStringBuilder scopeName = m_sTaskName;
-
-    if (m_bUsesMultiplicity)
-      scopeName.AppendFormat("-{}", uiInvocation);
-
-    EZ_PROFILE_SCOPE(scopeName.GetData());
-
-    if (m_bUsesMultiplicity)
-    {
-      ExecuteWithMultiplicity(uiInvocation);
-    }
-    else
-    {
-      Execute();
-    }
-  }
-
-  m_iRemainingRuns.Decrement();
-}
 
 void ezTaskSystem::TaskHasFinished(ezTask* pTask, ezTaskGroup* pGroup)
 {
@@ -126,6 +63,8 @@ ezTaskSystem::TaskData ezTaskSystem::GetNextTask(ezTaskPriority::Enum FirstPrior
   EZ_ASSERT_DEV(FirstPriority >= ezTaskPriority::EarlyThisFrame && LastPriority < ezTaskPriority::ENUM_COUNT,
     "Priority Range is invalid: {0} to {1}", FirstPriority, LastPriority);
 
+  // TODO: early out with pIsIdleNow = true, if too many threads are active
+
   for (ezUInt32 i = FirstPriority; i <= (ezUInt32)LastPriority; ++i)
   {
     if (!s_Tasks[i].IsEmpty())
@@ -149,7 +88,7 @@ foundany:
   {
     for (auto it = s_Tasks[prio].GetIterator(); it.IsValid(); ++it)
     {
-      if (!bOnlyTasksThatNeverWait || it->m_pTask->m_bNeverWaitsForOtherTasks || it->m_pBelongsToGroup == WaitingForGroup.m_pTaskGroup)
+      if (!bOnlyTasksThatNeverWait || (it->m_pTask->m_NestingMode == ezTaskNesting::Never) || it->m_pBelongsToGroup == WaitingForGroup.m_pTaskGroup)
       {
         TaskData td = *it;
 
@@ -174,14 +113,16 @@ bool ezTaskSystem::ExecuteTask(ezTaskPriority::Enum FirstPriority, ezTaskPriorit
   if (td.m_pTask == nullptr)
     return false;
 
-  if (bOnlyTasksThatNeverWait && !td.m_pTask->m_bNeverWaitsForOtherTasks)
+  if (bOnlyTasksThatNeverWait && td.m_pTask->m_NestingMode != ezTaskNesting::Never)
   {
     EZ_ASSERT_DEV(td.m_pBelongsToGroup == WaitingForGroup.m_pTaskGroup, "");
   }
 
-  g_bAllowWaitForOtherTasks = !td.m_pTask->m_bNeverWaitsForOtherTasks;
+  tl_TaskWorkerInfo.m_bAllowNestedTasks = td.m_pTask->m_NestingMode != ezTaskNesting::Never;
+  tl_TaskWorkerInfo.m_szTaskName = td.m_pTask->m_sTaskName;
   td.m_pTask->Run(td.m_uiInvocation);
-  g_bAllowWaitForOtherTasks = true;
+  tl_TaskWorkerInfo.m_bAllowNestedTasks = true;
+  tl_TaskWorkerInfo.m_szTaskName = nullptr;
 
   // notify the group, that a task is finished, which might trigger other tasks to be executed
   TaskHasFinished(td.m_pTask, td.m_pBelongsToGroup);
@@ -189,15 +130,13 @@ bool ezTaskSystem::ExecuteTask(ezTaskPriority::Enum FirstPriority, ezTaskPriorit
   return true;
 }
 
-extern thread_local ezWorkerThreadType::Enum g_ThreadTaskType;
-
 void ezTaskSystem::WaitForCondition(ezDelegate<bool()> condition)
 {
   EZ_PROFILE_SCOPE("WaitForCondition");
 
-  EZ_ASSERT_DEV(g_bAllowWaitForOtherTasks, "The executing task is flagged to never wait for other tasks but does so anyway. Remove the flag or remove the wait-dependency.");
+  EZ_ASSERT_DEV(tl_TaskWorkerInfo.m_bAllowNestedTasks, "The executing task '{}' is flagged to never wait for other tasks but does so anyway. Remove the flag or remove the wait-dependency.", tl_TaskWorkerInfo.m_szTaskName);
 
-  const auto ThreadTaskType = g_ThreadTaskType;
+  const auto ThreadTaskType = tl_TaskWorkerInfo.m_WorkerType;
   const bool bAllowSleep = ThreadTaskType != ezWorkerThreadType::MainThread;
 
   while (!condition())
@@ -295,7 +234,7 @@ ezResult ezTaskSystem::CancelTask(ezTask* pTask, ezOnTaskRunning::Enum OnTaskRun
 
 bool ezTaskSystem::HelpExecutingTasks(const ezTaskGroupID& WaitingForGroup)
 {
-  const bool bOnlyTasksThatNeverWait = g_ThreadTaskType != ezWorkerThreadType::MainThread;
+  const bool bOnlyTasksThatNeverWait = tl_TaskWorkerInfo.m_WorkerType != ezWorkerThreadType::MainThread;
 
   ezTaskPriority::Enum FirstPriority;
   ezTaskPriority::Enum LastPriority;

@@ -44,7 +44,7 @@ ezWorld::ezWorld(ezWorldDesc& desc)
 
   ezStringBuilder sb = desc.m_sName.GetString();
   sb.Append(".Update");
-  m_UpdateTask.SetTaskName(sb);
+  m_UpdateTask.ConfigureTask(sb, ezTaskNesting::Maybe);
 
   m_uiIndex = c_InvalidWorldIndex;
 
@@ -975,7 +975,7 @@ void ezWorld::UpdateAsynchronous()
         m_Data.m_UpdateTasks.PushBack(pTask);
       }
 
-      pTask->SetTaskName(updateFunction.m_sFunctionName);
+      pTask->ConfigureTask(updateFunction.m_sFunctionName, ezTaskNesting::Maybe);
       pTask->m_Function = updateFunction.m_Function;
       pTask->m_uiStartIndex = uiStartIndex;
       pTask->m_uiCount = (uiStartIndex + uiGranularity < uiTotalCount) ? uiGranularity : ezInvalidIndex;

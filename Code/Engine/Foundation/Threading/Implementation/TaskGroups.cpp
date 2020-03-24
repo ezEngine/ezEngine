@@ -6,10 +6,6 @@
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/TaskSystem.h>
 
-extern thread_local ezWorkerThreadType::Enum g_ThreadTaskType;
-extern thread_local ezInt32 g_iWorkerThreadIdx;
-extern thread_local bool g_bAllowWaitForOtherTasks;
-
 ezTaskGroup::ezTaskGroup()
 {
   m_CondVarGroupFinished = EZ_DEFAULT_NEW(ezConditionVariable);
@@ -270,7 +266,7 @@ ezResult ezTaskSystem::WakeUpThreadIfIdle(ezWorkerThreadType::Enum type, ezUInt3
   if (s_WorkerThreads[type][threadIdx]->WakeUpIfIdle().Succeeded())
   {
     // the thread index must be different, if it is the same, it must be an entirely different worker thread type
-    EZ_ASSERT_DEV(threadIdx != g_iWorkerThreadIdx || type != g_ThreadTaskType, "Calling thread was in idle state itself.");
+    EZ_ASSERT_DEV(threadIdx != tl_TaskWorkerInfo.m_iWorkerIndex || type != tl_TaskWorkerInfo.m_WorkerType, "Calling thread was in idle state itself.");
 
     return EZ_SUCCESS;
   }
@@ -328,15 +324,13 @@ void ezTaskSystem::DependencyHasFinished(ezTaskGroup* pGroup)
   }
 }
 
-extern thread_local ezWorkerThreadType::Enum g_ThreadTaskType;
-
 void ezTaskSystem::WaitForGroup(ezTaskGroupID Group)
 {
   EZ_PROFILE_SCOPE("WaitForGroup");
 
-  EZ_ASSERT_DEV(g_bAllowWaitForOtherTasks, "The executing task is flagged to never wait for other tasks but does so anyway. Remove the flag or remove the wait-dependency.");
+  EZ_ASSERT_DEV(tl_TaskWorkerInfo.m_bAllowNestedTasks, "The executing task '{}' is flagged to never wait for other tasks but does so anyway. Remove the flag or remove the wait-dependency.", tl_TaskWorkerInfo.m_szTaskName);
 
-  const auto ThreadTaskType = g_ThreadTaskType;
+  const auto ThreadTaskType = tl_TaskWorkerInfo.m_WorkerType;
   const bool bAllowSleep = ThreadTaskType != ezWorkerThreadType::MainThread;
 
   while (!ezTaskSystem::IsTaskGroupFinished(Group))

@@ -77,3 +77,13 @@ private:
 
   ///@}
 };
+
+struct ezTaskWorkerInfo
+{
+  ezWorkerThreadType::Enum m_WorkerType = ezWorkerThreadType::Unknown;
+  ezInt32 m_iWorkerIndex = -1;
+  bool m_bAllowNestedTasks = true;
+  const char* m_szTaskName = nullptr;
+};
+
+extern thread_local ezTaskWorkerInfo tl_TaskWorkerInfo;

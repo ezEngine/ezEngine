@@ -6,7 +6,7 @@
 #include <Foundation/Time/Time.h>
 #include <Foundation/Utilities/DGMLWriter.h>
 
-class ezTestTask : public ezTask
+class ezTestTask final : public ezTask
 {
 public:
   ezUInt32 m_uiIterations;
@@ -15,7 +15,6 @@ public:
   ezInt32 m_iTaskID;
 
   ezTestTask()
-    : ezTask("TestTask")
   {
     m_uiIterations = 50;
     m_pDependency = nullptr;
@@ -23,6 +22,8 @@ public:
     m_bDone = false;
     m_bSupportCancel = false;
     m_iTaskID = -1;
+
+    ConfigureTask("ezTestTask", ezTaskNesting::Never);
   }
 
   bool IsStarted() const { return m_bStarted; }
@@ -39,7 +40,7 @@ private:
   virtual void Execute() override
   {
     if (m_iTaskID >= 0)
-      printf("Starting Task %i at %.4f\n", m_iTaskID, ezTime::Now().GetSeconds());
+      ezLog::Printf("Starting Task %i at %.4f\n", m_iTaskID, ezTime::Now().GetSeconds());
 
     m_bStarted = true;
 
@@ -53,7 +54,7 @@ private:
       if (HasBeenCanceled() && m_bSupportCancel)
       {
         if (m_iTaskID >= 0)
-          printf("Canceling Task %i at %.4f\n", m_iTaskID, ezTime::Now().GetSeconds());
+          ezLog::Printf("Canceling Task %i at %.4f\n", m_iTaskID, ezTime::Now().GetSeconds());
         return;
       }
     }
@@ -61,7 +62,7 @@ private:
     m_bDone = true;
 
     if (m_iTaskID >= 0)
-      printf("Finishing Task %i at %.4f\n", m_iTaskID, ezTime::Now().GetSeconds());
+      ezLog::Printf("Finishing Task %i at %.4f\n", m_iTaskID, ezTime::Now().GetSeconds());
   }
 };
 
@@ -87,9 +88,9 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
   {
     ezTestTask t[3];
 
-    t[0].SetTaskName("Task 0");
-    t[1].SetTaskName("Task 1");
-    t[2].SetTaskName("Task 2");
+    t[0].ConfigureTask("Task 0", ezTaskNesting::Never);
+    t[1].ConfigureTask("Task 1", ezTaskNesting::Maybe);
+    t[2].ConfigureTask("Task 2", ezTaskNesting::Never);
 
     auto tg0 = ezTaskSystem::StartSingleTask(&t[0], ezTaskPriority::LateThisFrame);
     auto tg1 = ezTaskSystem::StartSingleTask(&t[1], ezTaskPriority::ThisFrame);
@@ -108,6 +109,11 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
   {
     ezTestTask t[4];
     ezTaskGroupID g[4];
+
+    t[0].ConfigureTask("Task 0", ezTaskNesting::Never);
+    t[1].ConfigureTask("Task 1", ezTaskNesting::Maybe);
+    t[2].ConfigureTask("Task 2", ezTaskNesting::Never);
+    t[3].ConfigureTask("Task 3", ezTaskNesting::Maybe);
 
     g[0] = ezTaskSystem::StartSingleTask(&t[0], ezTaskPriority::LateThisFrame);
     g[1] = ezTaskSystem::StartSingleTask(&t[1], ezTaskPriority::ThisFrame, g[0]);
@@ -162,7 +168,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
       EZ_TEST_BOOL(!t[i].IsTaskFinished());
       EZ_TEST_BOOL(!t[i].IsDone());
 
-      t[i].SetOnTaskFinished(ezMakeDelegate(&TaskCallbacks::TaskFinished, &callbackTask));
+      t[i].ConfigureTask("Test Task", ezTaskNesting::Maybe, ezMakeDelegate(&TaskCallbacks::TaskFinished, &callbackTask));
     }
 
     // do a snapshot
@@ -491,9 +497,9 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     ezTestTask t[3];
     ezTaskGroupID tg[3];
 
-    t[0].SetTaskName("Task 0");
-    t[1].SetTaskName("Task 1");
-    t[2].SetTaskName("Task 2");
+    t[0].ConfigureTask("Task 0", ezTaskNesting::Maybe);
+    t[1].ConfigureTask("Task 1", ezTaskNesting::Maybe);
+    t[2].ConfigureTask("Task 2", ezTaskNesting::Never);
 
     t[0].SetMultiplicity(1);
     t[1].SetMultiplicity(100);

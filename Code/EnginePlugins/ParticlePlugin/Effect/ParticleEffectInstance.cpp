@@ -19,7 +19,7 @@ ezParticleEffectInstance::ezParticleEffectInstance()
   : m_Task(this)
 {
   m_pOwnerModule = nullptr;
-  m_Task.SetTaskName("Particle Effect Update");
+  m_Task.ConfigureTask("Particle Effect Update", ezTaskNesting::Maybe);
 
   Destruct();
 }

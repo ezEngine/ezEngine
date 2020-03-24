@@ -3,8 +3,7 @@
 #include <Foundation/Threading/Implementation/TaskWorkerThread.h>
 #include <Foundation/Threading/TaskSystem.h>
 
-extern thread_local ezWorkerThreadType::Enum g_ThreadTaskType;
-extern thread_local ezInt32 g_iWorkerThreadIdx;
+thread_local ezTaskWorkerInfo tl_TaskWorkerInfo;
 
 static const char* GenerateThreadName(ezWorkerThreadType::Enum ThreadType, ezUInt32 uiThreadNumber)
 {
@@ -44,8 +43,8 @@ ezUInt32 ezTaskWorkerThread::Run()
 
   // once this thread is running, store the worker type in the thread_local variable
   // such that the ezTaskSystem is able to look this up (e.g. in WaitForGroup) to know which types of tasks to help with
-  g_ThreadTaskType = m_WorkerType;
-  g_iWorkerThreadIdx = m_uiWorkerThreadNumber;
+  tl_TaskWorkerInfo.m_WorkerType = m_WorkerType;
+  tl_TaskWorkerInfo.m_iWorkerIndex = m_uiWorkerThreadNumber;
 
   ezTaskPriority::Enum FirstPriority = ezTaskPriority::EarlyThisFrame;
   ezTaskPriority::Enum LastPriority = ezTaskPriority::In9Frames;

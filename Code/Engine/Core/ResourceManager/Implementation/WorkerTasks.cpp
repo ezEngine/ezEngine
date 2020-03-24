@@ -79,7 +79,7 @@ void ezResourceManagerWorkerDataLoad::Execute()
 
     auto& td = ezResourceManager::s_State->s_WorkerTasksUpdateContent.ExpandAndGetRef();
     td.m_pTask = EZ_DEFAULT_NEW(ezResourceManagerWorkerUpdateContent);
-    td.m_pTask->SetTaskName(s);
+    td.m_pTask->ConfigureTask(s, ezTaskNesting::Maybe);
 
     pUpdateContentTask = td.m_pTask.Borrow();
     pUpdateContentGroup = &td.m_GroupId;

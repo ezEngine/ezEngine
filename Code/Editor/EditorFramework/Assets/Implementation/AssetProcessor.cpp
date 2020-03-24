@@ -153,8 +153,7 @@ void ezAssetProcessor::RunNextProcessTask()
     const ezUInt32 uiWorkerCount = ezTaskSystem::GetWorkerThreadCount(ezWorkerThreadType::LongTasks);
     for (ezUInt32 i = 0; i < uiWorkerCount; ++i)
     {
-      ezProcessTask* pTask = EZ_DEFAULT_NEW(ezProcessTask, i);
-      pTask->SetOnTaskFinished(ezMakeDelegate(&ezAssetProcessor::OnProcessTaskFinished, this));
+      ezProcessTask* pTask = EZ_DEFAULT_NEW(ezProcessTask, i, ezMakeDelegate(&ezAssetProcessor::OnProcessTaskFinished, this));
       m_ProcessTasks.ExpandAndGetRef().m_pTask = pTask;
     }
   }
@@ -200,14 +199,14 @@ void ezAssetProcessor::AssetCuratorEventHandler(const ezAssetCuratorEvent& e)
 // ezProcessTask
 ////////////////////////////////////////////////////////////////////////
 
-ezProcessTask::ezProcessTask(ezUInt32 uiProcessorID)
+ezProcessTask::ezProcessTask(ezUInt32 uiProcessorID, ezTask::OnTaskFinished onFinished)
   : m_uiProcessorID(uiProcessorID)
   , m_bProcessShouldBeRunning(false)
   , m_bProcessCrashed(false)
   , m_bWaiting(false)
   , m_bSuccess(true)
 {
-  SetTaskName("ezProcessTask");
+  ConfigureTask("ezProcessTask", ezTaskNesting::Never, onFinished);
   m_pIPC = EZ_DEFAULT_NEW(ezEditorProcessCommunicationChannel);
   m_pIPC->m_Events.AddEventHandler(ezMakeDelegate(&ezProcessTask::EventHandlerIPC, this));
 }
@@ -311,8 +310,7 @@ bool ezProcessTask::GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, 
     return GetNextAssetToProcess(pDepInfo, out_guid, out_sAbsPath, out_sRelPath);
   }
 
-  if (bComplete && !ezAssetCurator::GetSingleton()->m_Updating.Contains(pInfo->m_Info->m_DocumentID)
-    && !ezAssetCurator::GetSingleton()->m_TransformStateStale.Contains(pInfo->m_Info->m_DocumentID))
+  if (bComplete && !ezAssetCurator::GetSingleton()->m_Updating.Contains(pInfo->m_Info->m_DocumentID) && !ezAssetCurator::GetSingleton()->m_TransformStateStale.Contains(pInfo->m_Info->m_DocumentID))
   {
     ezAssetCurator::GetSingleton()->m_Updating.Insert(pInfo->m_Info->m_DocumentID);
     out_guid = pInfo->m_Info->m_DocumentID;

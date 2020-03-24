@@ -75,7 +75,7 @@ void ezResourceManager::SetupWorkerTasks()
         s.Format("Resource Data Loader {0}", i);
         auto& data = s_State->s_WorkerTasksDataLoad.ExpandAndGetRef();
         data.m_pTask = EZ_DEFAULT_NEW(ezResourceManagerWorkerDataLoad);
-        data.m_pTask->SetTaskName(s);
+        data.m_pTask->ConfigureTask(s, ezTaskNesting::Maybe);
       }
     }
 
@@ -87,7 +87,7 @@ void ezResourceManager::SetupWorkerTasks()
         s.Format("Resource Content Updater {0}", i);
         auto& data = s_State->s_WorkerTasksUpdateContent.ExpandAndGetRef();
         data.m_pTask = EZ_DEFAULT_NEW(ezResourceManagerWorkerUpdateContent);
-        data.m_pTask->SetTaskName(s);
+        data.m_pTask->ConfigureTask(s, ezTaskNesting::Maybe);
       }
     }
   }
@@ -121,7 +121,7 @@ void ezResourceManager::RunWorkerTask(ezResource* pResource)
       s.Format("Resource Data Loader {0}", s_State->s_WorkerTasksDataLoad.GetCount());
       auto& data = s_State->s_WorkerTasksDataLoad.ExpandAndGetRef();
       data.m_pTask = EZ_DEFAULT_NEW(ezResourceManagerWorkerDataLoad);
-      data.m_pTask->SetTaskName(s);
+      data.m_pTask->ConfigureTask(s, ezTaskNesting::Maybe);
       data.m_GroupId = ezTaskSystem::StartSingleTask(data.m_pTask.Borrow(), ezTaskPriority::FileAccess);
     }
   }

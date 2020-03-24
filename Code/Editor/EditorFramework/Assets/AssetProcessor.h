@@ -76,10 +76,10 @@ private:
   ezAtomicInteger32 m_TicksWithIdleTasks;
 };
 
-class ezProcessTask : public ezTask
+class ezProcessTask final : public ezTask
 {
 public:
-  ezProcessTask(ezUInt32 uiProcessorID);
+  ezProcessTask(ezUInt32 uiProcessorID, ezTask::OnTaskFinished onFinished);
   ~ezProcessTask();
   ezAtomicInteger32 m_bDidWork = true;
 

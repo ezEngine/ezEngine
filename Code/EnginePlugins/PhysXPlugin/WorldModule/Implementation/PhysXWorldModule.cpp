@@ -27,7 +27,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE
 
 namespace
 {
-  class ezPxTask : public ezTask
+  class ezPxTask final : public ezTask
   {
   public:
     virtual void Execute() override
@@ -48,7 +48,6 @@ namespace
     virtual void submitTask(PxBaseTask& task) override
     {
       ezPxTask* pTask = nullptr;
-      // pTask = EZ_NEW(ezFrameAllocator::GetCurrentAllocator(), ezPxTask);
 
       {
         EZ_LOCK(m_Mutex);
@@ -56,7 +55,6 @@ namespace
         if (m_FreeTasks.IsEmpty())
         {
           pTask = &m_TaskStorage.ExpandAndGetRef();
-          pTask->SetOnTaskFinished([this](ezTask* pTask) { FinishTask(static_cast<ezPxTask*>(pTask)); });
         }
         else
         {
@@ -65,9 +63,8 @@ namespace
         }
       }
 
+      pTask->ConfigureTask(task.getName(), ezTaskNesting::Never, [this](ezTask* pTask) { FinishTask(static_cast<ezPxTask*>(pTask)); });
       pTask->m_pTask = &task;
-      pTask->SetTaskName(task.getName());
-
       ezTaskSystem::StartSingleTask(pTask, ezTaskPriority::EarlyThisFrame);
     }
 
@@ -562,8 +559,9 @@ ezPhysXWorldModule::ezPhysXWorldModule(ezWorld* pWorld)
   , m_FreeShapeIds(ezPhysX::GetSingleton()->GetAllocator())
   , m_ScratchMemory(ezPhysX::GetSingleton()->GetAllocator())
   , m_Settings()
-  , m_SimulateTask("PhysX Simulate", ezMakeDelegate(&ezPhysXWorldModule::Simulate, this))
+  , m_SimulateTask("", ezMakeDelegate(&ezPhysXWorldModule::Simulate, this))
 {
+  m_SimulateTask.ConfigureTask("PhysX Simulate", ezTaskNesting::Maybe);
 }
 
 ezPhysXWorldModule::~ezPhysXWorldModule() {}

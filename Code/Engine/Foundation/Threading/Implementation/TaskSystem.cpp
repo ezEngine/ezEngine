@@ -19,9 +19,6 @@ ezDeque<ezTaskGroup> ezTaskSystem::s_TaskGroups;
 ezList<ezTaskSystem::TaskData> ezTaskSystem::s_Tasks[ezTaskPriority::ENUM_COUNT];
 ezUInt32 ezTaskSystem::s_MaxWorkerThreadsToUse[ezWorkerThreadType::ENUM_COUNT] = {};
 
-thread_local ezWorkerThreadType::Enum g_ThreadTaskType = ezWorkerThreadType::Unknown;
-thread_local ezInt32 g_iWorkerThreadIdx = -1;
-
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, TaskSystem)
 
@@ -45,7 +42,8 @@ EZ_END_SUBSYSTEM_DECLARATION;
 
 void ezTaskSystem::Startup()
 {
-  g_ThreadTaskType = ezWorkerThreadType::MainThread;
+  tl_TaskWorkerInfo.m_WorkerType = ezWorkerThreadType::MainThread;
+  tl_TaskWorkerInfo.m_iWorkerIndex = 0;
 }
 
 void ezTaskSystem::Shutdown()
@@ -209,7 +207,7 @@ void ezTaskSystem::ExecuteSomeFrameTasks(ezUInt32 uiSomeFrameTasks, double fSmoo
 
 void ezTaskSystem::DetermineTasksToExecuteOnThread(ezTaskPriority::Enum& out_FirstPriority, ezTaskPriority::Enum& out_LastPriority)
 {
-  switch (g_ThreadTaskType)
+  switch (tl_TaskWorkerInfo.m_WorkerType)
   {
     case ezWorkerThreadType::MainThread:
     {
@@ -460,20 +458,12 @@ void ezTaskSystem::WriteStateSnapshotToFile(const char* szPath /*= nullptr*/)
 
 ezWorkerThreadType::Enum ezTaskSystem::GetCurrentThreadWorkerType()
 {
-  return g_ThreadTaskType;
+  return tl_TaskWorkerInfo.m_WorkerType;
 }
 
 double ezTaskSystem::GetThreadUtilization(ezWorkerThreadType::Enum Type, ezUInt32 uiThreadIndex, ezUInt32* pNumTasksExecuted /*= nullptr*/)
 {
   return s_WorkerThreads[Type][uiThreadIndex]->GetThreadUtilization(pNumTasksExecuted);
 }
-
-void ezTask::SetTaskNeverWaitsForOtherTasks()
-{
-  EZ_ASSERT_DEV(!m_bTaskIsScheduled, "This function must be called before the task is started.");
-
-  m_bNeverWaitsForOtherTasks = true;
-}
-
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_TaskSystem);

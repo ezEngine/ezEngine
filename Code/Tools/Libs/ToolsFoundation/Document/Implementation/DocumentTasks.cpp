@@ -1,11 +1,14 @@
 #include <ToolsFoundationPCH.h>
-#include <ToolsFoundation/Document/DocumentTasks.h>
-#include <Foundation/Serialization/DdlSerializer.h>
 
-ezSaveDocumentTask::ezSaveDocumentTask()
+#include <Foundation/Serialization/DdlSerializer.h>
+#include <ToolsFoundation/Document/DocumentTasks.h>
+
+ezSaveDocumentTask::ezSaveDocumentTask(ezTask::OnTaskFinished onTaskFinished)
 {
-  SetTaskName("ezSaveDocumentTask");
+  ConfigureTask("ezSaveDocumentTask", ezTaskNesting::Never, onTaskFinished);
 }
+
+ezSaveDocumentTask::~ezSaveDocumentTask() = default;
 
 void ezSaveDocumentTask::Execute()
 {
@@ -21,10 +24,12 @@ void ezSaveDocumentTask::Execute()
   }
 }
 
-ezAfterSaveDocumentTask::ezAfterSaveDocumentTask()
+ezAfterSaveDocumentTask::ezAfterSaveDocumentTask(ezTask::OnTaskFinished onTaskFinished)
 {
-  SetTaskName("ezAfterSaveDocumentTask");
+  ConfigureTask("ezAfterSaveDocumentTask", ezTaskNesting::Never, onTaskFinished);
 }
+
+ezAfterSaveDocumentTask::~ezAfterSaveDocumentTask() = default;
 
 void ezAfterSaveDocumentTask::Execute()
 {

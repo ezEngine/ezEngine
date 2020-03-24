@@ -44,15 +44,13 @@ void AppendCurrentTimestamp(ezStringBuilder& out_String)
 
 void ezGameApplicationBase::TakeProfilingCapture()
 {
-  class WriteProfilingDataTask : public ezTask
+  class WriteProfilingDataTask final : public ezTask
   {
   public:
     ezProfilingSystem::ProfilingData m_profilingData;
 
-    WriteProfilingDataTask()
-    {
-      SetTaskNeverWaitsForOtherTasks();
-    }
+    WriteProfilingDataTask() = default;
+    ~WriteProfilingDataTask() = default;
 
   private:
     virtual void Execute() override
@@ -75,9 +73,8 @@ void ezGameApplicationBase::TakeProfilingCapture()
   };
 
   WriteProfilingDataTask* pWriteProfilingDataTask = EZ_DEFAULT_NEW(WriteProfilingDataTask);
-  pWriteProfilingDataTask->SetTaskName("Write Profiling Data");
+  pWriteProfilingDataTask->ConfigureTask("Write Profiling Data", ezTaskNesting::Never, [](ezTask* pTask) { EZ_DEFAULT_DELETE(pTask); });
   pWriteProfilingDataTask->m_profilingData = ezProfilingSystem::Capture();
-  pWriteProfilingDataTask->SetOnTaskFinished([](ezTask* pTask) { EZ_DEFAULT_DELETE(pTask); });
 
   ezTaskSystem::StartSingleTask(pWriteProfilingDataTask, ezTaskPriority::LongRunning);
 }
@@ -91,16 +88,14 @@ void ezGameApplicationBase::TakeScreenshot()
 
 void ezGameApplicationBase::StoreScreenshot(ezImage&& image, const char* szContext /*= nullptr*/)
 {
-  class WriteFileTask : public ezTask
+  class WriteFileTask final : public ezTask
   {
   public:
     ezImage m_Image;
     ezStringBuilder m_sPath;
 
-    WriteFileTask()
-    {
-      SetTaskNeverWaitsForOtherTasks();
-    }
+    WriteFileTask() = default;
+    ~WriteFileTask() = default;
 
   private:
     virtual void Execute() override
@@ -116,9 +111,8 @@ void ezGameApplicationBase::StoreScreenshot(ezImage&& image, const char* szConte
   };
 
   WriteFileTask* pWriteTask = EZ_DEFAULT_NEW(WriteFileTask);
-  pWriteTask->SetTaskName("Write Screenshot");
+  pWriteTask->ConfigureTask("Write Screenshot", ezTaskNesting::Never, [](ezTask* pTask) { EZ_DEFAULT_DELETE(pTask); });
   pWriteTask->m_Image.ResetAndMove(std::move(image));
-  pWriteTask->SetOnTaskFinished([](ezTask* pTask) { EZ_DEFAULT_DELETE(pTask); });
 
   pWriteTask->m_sPath.Format(":appdata/Screenshots/{0} ", ezApplication::GetApplicationInstance()->GetApplicationName());
   AppendCurrentTimestamp(pWriteTask->m_sPath);

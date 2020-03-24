@@ -420,11 +420,11 @@ private:
   ezTaskGroupID m_UpdateTaskGroup;
 };
 
-class ezUpdateTask : public ezTask
+class ezUpdateTask final : public ezTask
 {
 public:
-  ezUpdateTask();
-
+  ezUpdateTask(ezTask::OnTaskFinished onTaskFinished);
+  ~ezUpdateTask();
 
 private:
   ezStringBuilder m_sAssetPath;

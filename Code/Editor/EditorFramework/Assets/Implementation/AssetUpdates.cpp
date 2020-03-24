@@ -767,10 +767,12 @@ void ezAssetCurator::SetAssetExistanceState(ezAssetInfo& assetInfo, ezAssetExist
 // ezUpdateTask
 ////////////////////////////////////////////////////////////////////////
 
-ezUpdateTask::ezUpdateTask()
+ezUpdateTask::ezUpdateTask(ezTask::OnTaskFinished onTaskFinished)
 {
-  SetTaskName("ezUpdateTask");
+  ConfigureTask("ezUpdateTask", ezTaskNesting::Never, onTaskFinished);
 }
+
+ezUpdateTask::~ezUpdateTask() = default;
 
 void ezUpdateTask::Execute()
 {

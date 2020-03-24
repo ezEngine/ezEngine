@@ -3,7 +3,7 @@
 #include <Foundation/Threading/TaskSystem.h>
 
 /// \brief This is a helper class that splits up task items via index ranges.
-class IndexedTask : public ezTask
+class IndexedTask final : public ezTask
 {
 public:
   IndexedTask(ezUInt32 uiStartIndex, ezUInt32 uiNumItems, ezTaskSystem::ParallelForIndexedFunction taskCallback, ezUInt32 uiItemsPerInvocation)
@@ -88,7 +88,7 @@ void ezTaskSystem::ParallelForIndexed(ezUInt32 uiStartIndex, ezUInt32 uiNumItems
   const ezUInt32 uiItemsPerInvocation = params.DetermineItemsPerInvocation(uiNumItems, uiMultiplicity);
 
   IndexedTask indexedTask(uiStartIndex, uiNumItems, std::move(taskCallback), uiItemsPerInvocation);
-  indexedTask.SetTaskName(taskName ? taskName : "Generic Indexed Task");
+  indexedTask.ConfigureTask(taskName ? taskName : "Generic Indexed Task", ezTaskNesting::Never);
 
   if (uiMultiplicity == 0)
   {
@@ -98,7 +98,6 @@ void ezTaskSystem::ParallelForIndexed(ezUInt32 uiStartIndex, ezUInt32 uiNumItems
   else
   {
     indexedTask.SetMultiplicity(uiMultiplicity);
-
     ezTaskGroupID taskGroupId = ezTaskSystem::StartSingleTask(&indexedTask, ezTaskPriority::EarlyThisFrame);
     ezTaskSystem::WaitForGroup(taskGroupId);
   }
@@ -106,4 +105,3 @@ void ezTaskSystem::ParallelForIndexed(ezUInt32 uiStartIndex, ezUInt32 uiNumItems
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_ParallelFor);
-

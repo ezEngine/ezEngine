@@ -282,7 +282,7 @@
     <string>This will automatically disable successfully executed tests and save the current state, while running tests.</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+D</string>
+    <string>Ctrl+T</string>
    </property>
   </action>
   <action name="actionOpenHTMLFile">
