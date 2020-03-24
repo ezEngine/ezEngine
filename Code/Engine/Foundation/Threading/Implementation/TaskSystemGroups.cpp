@@ -7,6 +7,7 @@
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/TaskSystem.h>
 
+
 ezTaskGroupID ezTaskSystem::CreateTaskGroup(ezTaskPriority::Enum Priority, ezOnTaskGroupFinishedCallback callback)
 {
   EZ_LOCK(s_TaskSystemMutex);
@@ -301,4 +302,5 @@ ezResult ezTaskSystem::CancelGroup(ezTaskGroupID Group, ezOnTaskRunning::Enum On
 }
 
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_TaskGroups);
+EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_TaskSystemGroups);
+

@@ -78,6 +78,7 @@ private:
   ///@}
 };
 
+/// \internal Thread local state used by the task system (and for better debugging)
 struct ezTaskWorkerInfo
 {
   ezWorkerThreadType::Enum m_WorkerType = ezWorkerThreadType::Unknown;

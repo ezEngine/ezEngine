@@ -159,3 +159,7 @@ void ezTaskSystem::WriteStateSnapshotToFile(const char* szPath /*= nullptr*/)
   ezFileSystem::ResolvePath(sPath, &absPath, nullptr);
   ezLog::Info("Task graph snapshot saved to '{}'", absPath);
 }
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_TaskSystemUtils);
+

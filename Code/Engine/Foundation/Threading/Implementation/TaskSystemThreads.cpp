@@ -16,11 +16,11 @@ void ezTaskSystem::SetWorkerThreadCount(ezInt8 iShortTasks, ezInt8 iLongTasks)
 
   // at least 2 threads, 4 on six cores, 6 on eight cores and up
   if (iShortTasks <= 0)
-    iShortTasks = ezMath::Clamp<ezInt8>(iCpuCores - 2, 2, 6);
+    iShortTasks = ezMath::Clamp<ezInt8>(iCpuCores - 2, 2, 8);
 
   // at least 2 threads, 4 on six cores, 6 on eight cores and up
   if (iLongTasks <= 0)
-    iLongTasks = ezMath::Clamp<ezInt8>(iCpuCores - 2, 2, 6);
+    iLongTasks = ezMath::Clamp<ezInt8>(iCpuCores - 2, 2, 8);
 
   // plus there is always one additional 'file access' thread
   // and the main thread, of course
@@ -181,3 +181,55 @@ double ezTaskSystem::GetThreadUtilization(ezWorkerThreadType::Enum Type, ezUInt3
 {
   return s_WorkerThreads[Type][uiThreadIndex]->GetThreadUtilization(pNumTasksExecuted);
 }
+
+void ezTaskSystem::DetermineTasksToExecuteOnThread(ezTaskPriority::Enum& out_FirstPriority, ezTaskPriority::Enum& out_LastPriority)
+{
+  switch (tl_TaskWorkerInfo.m_WorkerType)
+  {
+    case ezWorkerThreadType::MainThread:
+    {
+      out_FirstPriority = ezTaskPriority::ThisFrameMainThread;
+      out_LastPriority = ezTaskPriority::SomeFrameMainThread;
+      break;
+    }
+
+    case ezWorkerThreadType::FileAccess:
+    {
+      out_FirstPriority = ezTaskPriority::FileAccessHighPriority;
+      out_LastPriority = ezTaskPriority::FileAccess;
+      break;
+    }
+
+    case ezWorkerThreadType::LongTasks:
+    {
+      out_FirstPriority = ezTaskPriority::LongRunningHighPriority;
+      out_LastPriority = ezTaskPriority::LongRunning;
+      break;
+    }
+
+    case ezWorkerThreadType::ShortTasks:
+    {
+      out_FirstPriority = ezTaskPriority::EarlyThisFrame;
+      out_LastPriority = ezTaskPriority::In9Frames;
+      break;
+    }
+
+    case ezWorkerThreadType::Unknown:
+    {
+      // probably a thread not launched through ez
+      out_FirstPriority = ezTaskPriority::EarlyThisFrame;
+      out_LastPriority = ezTaskPriority::In9Frames;
+      break;
+    }
+
+    default:
+    {
+      EZ_ASSERT_NOT_IMPLEMENTED;
+      break;
+    }
+  }
+}
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_TaskSystemThreads);
+

@@ -147,10 +147,14 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_ConditionVariable);
   EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_OSThread);
   EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_ParallelFor);
-  EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_TaskGroups);
+  EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_Task);
+  EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_TaskGroup);
   EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_TaskSystem);
-  EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_TaskWorkers);
-  EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_Tasks);
+  EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_TaskSystemGroups);
+  EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_TaskSystemTasks);
+  EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_TaskSystemThreads);
+  EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_TaskSystemUtils);
+  EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_TaskWorkerThread);
   EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_Thread);
   EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_ThreadSignal);
   EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_ThreadUtils);
@@ -177,5 +181,6 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_Progress);
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_Stats);
 }
+
 
 

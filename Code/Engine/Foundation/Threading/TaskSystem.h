@@ -224,11 +224,6 @@ private:
   // fSmoothFrameMS.
   static void ExecuteSomeFrameTasks(ezUInt32 uiSomeFrameTasks, double fSmoothFrameMS);
 
-  // Figures out the range of tasks that this thread may execute when it has free cycles to help out.
-  // Uses a thread local variable to know whether this is the main thread / loading thread / long running thread and thus also decides
-  // whether the thread is allowed to fall back to 'default' work (short tasks).
-  static void DetermineTasksToExecuteOnThread(ezTaskPriority::Enum& out_FirstPriority, ezTaskPriority::Enum& out_LastPriority);
-
   template <typename ElemType>
   static void ParallelForInternal(ezArrayPtr<ElemType> taskItems, ezParallelForFunction<ElemType> taskCallback, const char* taskName, ezParallelForParams config);
 
@@ -304,6 +299,9 @@ private:
 
   /// \brief Shuts down all worker threads. Does NOT finish the remaining tasks that were not started yet. Does not clear them either, though.
   static void StopWorkerThreads();
+
+  /// \brief Uses a thread local variable to know the current thread type and to decide the range of task priorities that it may execute 
+  static void DetermineTasksToExecuteOnThread(ezTaskPriority::Enum& out_FirstPriority, ezTaskPriority::Enum& out_LastPriority);
 
 private:
   // only for debugging
