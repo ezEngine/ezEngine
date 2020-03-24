@@ -154,6 +154,11 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     ezTaskSystem::AddTaskGroupDependency(g[2], g[0]);
     ezTaskSystem::AddTaskGroupDependency(g[3], g[1]);
 
+    for (int i = 0; i < 8; ++i)
+    {
+      t[i].ConfigureTask("Test Task", ezTaskNesting::Maybe, ezMakeDelegate(&TaskCallbacks::TaskFinished, &callbackTask));
+    }
+
     ezTaskSystem::AddTaskToGroup(g[0], &t[0]);
     ezTaskSystem::AddTaskToGroup(g[1], &t[1]);
     ezTaskSystem::AddTaskToGroup(g[1], &t[2]);
@@ -167,8 +172,6 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     {
       EZ_TEST_BOOL(!t[i].IsTaskFinished());
       EZ_TEST_BOOL(!t[i].IsDone());
-
-      t[i].ConfigureTask("Test Task", ezTaskNesting::Maybe, ezMakeDelegate(&TaskCallbacks::TaskFinished, &callbackTask));
     }
 
     // do a snapshot
