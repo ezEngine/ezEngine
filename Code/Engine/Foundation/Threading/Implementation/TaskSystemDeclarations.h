@@ -6,6 +6,7 @@
 #include <Foundation/Types/Delegate.h>
 #include <Foundation/Types/UniquePtr.h>
 
+class ezDGMLGraph;
 class ezTaskGroup;
 class ezTask;
 class ezTaskWorkerThread;
@@ -118,10 +119,15 @@ private:
 };
 
 /// \brief Callback type when a task group has been finished (or canceled).
-using OnTaskGroupFinishedCallback = ezDelegate<void()>;
+using ezOnTaskGroupFinishedCallback = ezDelegate<void()>;
 
 /// \brief Callback type when a task has been finished (or canceled).
-using OnTaskFinishedCallback = ezDelegate<void(ezTask*)>;
+using ezOnTaskFinishedCallback = ezDelegate<void(ezTask*)>;
+
+using ezParallelForIndexedFunction = ezDelegate<void(ezUInt32, ezUInt32), 48>;
+
+template <typename ElemType>
+using ezParallelForFunction = ezDelegate<void(ezUInt32, ezArrayPtr<ElemType>), 48>;
 
 
 struct ezTaskGroupDependency

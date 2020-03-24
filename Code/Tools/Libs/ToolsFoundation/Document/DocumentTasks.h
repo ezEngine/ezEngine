@@ -9,7 +9,7 @@
 class ezSaveDocumentTask final : public ezTask
 {
 public:
-  ezSaveDocumentTask(OnTaskFinishedCallback onTaskFinished);
+  ezSaveDocumentTask(ezOnTaskFinishedCallback onTaskFinished);
   ~ezSaveDocumentTask();
 
   ezDeferredFileWriter file;
@@ -24,7 +24,7 @@ public:
 class ezAfterSaveDocumentTask final : public ezTask
 {
 public:
-  ezAfterSaveDocumentTask(OnTaskFinishedCallback onTaskFinished);
+  ezAfterSaveDocumentTask(ezOnTaskFinishedCallback onTaskFinished);
   ~ezAfterSaveDocumentTask();
 
   ezDocument* m_document = nullptr;

@@ -13,6 +13,9 @@ public:
   ezTaskGroup();
   ~ezTaskGroup();
 
+private:
+  friend class ezTaskSystem;
+
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   static void DebugCheckTaskGroup(ezTaskGroupID groupID, ezMutex& mutex);
 #else
@@ -21,11 +24,7 @@ public:
 
   /// \brief Puts the calling thread to sleep until this group is fully finished.
   void WaitForFinish(ezTaskGroupID group) const;
-
-  void Reuse(ezTaskPriority::Enum priority, OnTaskGroupFinishedCallback callback);
-
-private:
-  friend class ezTaskSystem;
+  void Reuse(ezTaskPriority::Enum priority, ezOnTaskGroupFinishedCallback callback);
 
   bool m_bInUse = true;
   bool m_bStartedByUser = false;
@@ -36,7 +35,7 @@ private:
   ezHybridArray<ezTaskGroupID, 8> m_OthersDependingOnMe;
   ezAtomicInteger32 m_iNumActiveDependencies;
   ezAtomicInteger32 m_iNumRemainingTasks;
-  OnTaskGroupFinishedCallback m_OnFinishedCallback;
+  ezOnTaskGroupFinishedCallback m_OnFinishedCallback;
   ezTaskPriority::Enum m_Priority = ezTaskPriority::ThisFrame;
   mutable ezConditionVariable m_CondVarGroupFinished;
 };

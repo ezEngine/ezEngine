@@ -423,7 +423,7 @@ private:
 class ezUpdateTask final : public ezTask
 {
 public:
-  ezUpdateTask(OnTaskFinishedCallback onTaskFinished);
+  ezUpdateTask(ezOnTaskFinishedCallback onTaskFinished);
   ~ezUpdateTask();
 
 private:

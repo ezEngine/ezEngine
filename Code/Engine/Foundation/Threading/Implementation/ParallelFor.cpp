@@ -6,7 +6,7 @@
 class IndexedTask final : public ezTask
 {
 public:
-  IndexedTask(ezUInt32 uiStartIndex, ezUInt32 uiNumItems, ezTaskSystem::ParallelForIndexedFunction taskCallback, ezUInt32 uiItemsPerInvocation)
+  IndexedTask(ezUInt32 uiStartIndex, ezUInt32 uiNumItems, ezParallelForIndexedFunction taskCallback, ezUInt32 uiItemsPerInvocation)
     : m_uiStartIndex(uiStartIndex)
     , m_uiNumItems(uiNumItems)
     , m_uiItemsPerInvocation(uiItemsPerInvocation)
@@ -33,10 +33,10 @@ private:
   ezUInt32 m_uiStartIndex;
   ezUInt32 m_uiNumItems;
   ezUInt32 m_uiItemsPerInvocation;
-  ezTaskSystem::ParallelForIndexedFunction m_TaskCallback;
+  ezParallelForIndexedFunction m_TaskCallback;
 };
 
-ezUInt32 ezTaskSystem::ParallelForParams::DetermineMultiplicity(ezUInt32 uiNumTaskItems)
+ezUInt32 ezParallelForParams::DetermineMultiplicity(ezUInt32 uiNumTaskItems)
 {
   // If we have not exceeded the threading threshold we will indicate to use serial execution.
   if (uiNumTaskItems < uiBinSize)
@@ -71,7 +71,7 @@ ezUInt32 ezTaskSystem::ParallelForParams::DetermineMultiplicity(ezUInt32 uiNumTa
   }
 }
 
-ezUInt32 ezTaskSystem::ParallelForParams::DetermineItemsPerInvocation(ezUInt32 uiNumTaskItems, ezUInt32 uiMultiplicity)
+ezUInt32 ezParallelForParams::DetermineItemsPerInvocation(ezUInt32 uiNumTaskItems, ezUInt32 uiMultiplicity)
 {
   if (uiMultiplicity == 0)
   {
@@ -82,7 +82,7 @@ ezUInt32 ezTaskSystem::ParallelForParams::DetermineItemsPerInvocation(ezUInt32 u
   return uiItemsPerInvocation;
 }
 
-void ezTaskSystem::ParallelForIndexed(ezUInt32 uiStartIndex, ezUInt32 uiNumItems, ParallelForIndexedFunction taskCallback, const char* taskName, ParallelForParams params)
+void ezTaskSystem::ParallelForIndexed(ezUInt32 uiStartIndex, ezUInt32 uiNumItems, ezParallelForIndexedFunction taskCallback, const char* taskName, ezParallelForParams params)
 {
   const ezUInt32 uiMultiplicity = params.DetermineMultiplicity(uiNumItems);
   const ezUInt32 uiItemsPerInvocation = params.DetermineItemsPerInvocation(uiNumItems, uiMultiplicity);

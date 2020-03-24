@@ -19,7 +19,7 @@ void ezTaskGroup::WaitForFinish(ezTaskGroupID group) const
   }
 }
 
-void ezTaskGroup::Reuse(ezTaskPriority::Enum priority, OnTaskGroupFinishedCallback callback)
+void ezTaskGroup::Reuse(ezTaskPriority::Enum priority, ezOnTaskGroupFinishedCallback callback)
 {
   m_bInUse = true;
   m_bStartedByUser = false;
