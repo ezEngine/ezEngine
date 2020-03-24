@@ -3,7 +3,7 @@
 #include <Foundation/Serialization/DdlSerializer.h>
 #include <ToolsFoundation/Document/DocumentTasks.h>
 
-ezSaveDocumentTask::ezSaveDocumentTask(ezTask::OnTaskFinished onTaskFinished)
+ezSaveDocumentTask::ezSaveDocumentTask(OnTaskFinishedCallback onTaskFinished)
 {
   ConfigureTask("ezSaveDocumentTask", ezTaskNesting::Never, onTaskFinished);
 }
@@ -24,7 +24,7 @@ void ezSaveDocumentTask::Execute()
   }
 }
 
-ezAfterSaveDocumentTask::ezAfterSaveDocumentTask(ezTask::OnTaskFinished onTaskFinished)
+ezAfterSaveDocumentTask::ezAfterSaveDocumentTask(OnTaskFinishedCallback onTaskFinished)
 {
   ConfigureTask("ezAfterSaveDocumentTask", ezTaskNesting::Never, onTaskFinished);
 }

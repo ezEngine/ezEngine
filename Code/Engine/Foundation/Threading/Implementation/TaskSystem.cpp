@@ -4,6 +4,7 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Threading/Implementation/TaskGroup.h>
 #include <Foundation/Threading/Implementation/TaskWorkerThread.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Time/Timestamp.h>
@@ -381,7 +382,7 @@ void ezTaskSystem::WriteStateSnapshotToDGML(ezDGMLGraph& graph)
 
     graph.AddNodeProperty(taskGroupId, startedByUserId, tg.m_bStartedByUser ? "true" : "false");
     graph.AddNodeProperty(taskGroupId, priorityId, szTaskPriorityNames[tg.m_Priority]);
-    graph.AddNodeProperty(taskGroupId, activeDepsId, ezFmt("{}", tg.m_iActiveDependencies));
+    graph.AddNodeProperty(taskGroupId, activeDepsId, ezFmt("{}", tg.m_iNumActiveDependencies));
 
     for (ezUInt32 t = 0; t < tg.m_Tasks.GetCount(); ++t)
     {
@@ -410,7 +411,7 @@ void ezTaskSystem::WriteStateSnapshotToDGML(ezDGMLGraph& graph)
 
     const ezDGMLGraph::NodeId ownNodeId = groupNodeIds[&tg];
 
-    for (const ezTaskGroupID& dependsOn : tg.m_DependsOn)
+    for (const ezTaskGroupID& dependsOn : tg.m_DependsOnGroups)
     {
       ezDGMLGraph::NodeId otherNodeId;
 

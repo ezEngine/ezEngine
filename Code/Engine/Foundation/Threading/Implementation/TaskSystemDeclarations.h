@@ -117,40 +117,12 @@ private:
   ezTaskGroup* m_pTaskGroup = nullptr;
 };
 
-/// \internal Should have been a nested struct in ezTaskSystem, but that does not work with forward declarations.
-class ezTaskGroup
-{
-public:
-  ~ezTaskGroup();
-  ezTaskGroup(const ezTaskGroup& rhs) = default;
-  ezTaskGroup(ezTaskGroup&& rhs) = default;
-  ezTaskGroup& operator=(const ezTaskGroup& rhs) = default;
-  ezTaskGroup& operator=(ezTaskGroup&& rhs) = default;
+/// \brief Callback type when a task group has been finished (or canceled).
+using OnTaskGroupFinishedCallback = ezDelegate<void()>;
 
-  /// \brief The function type to use when one wants to get informed when a task group has been finished.
-  using OnTaskGroupFinished = ezDelegate<void()>;
+/// \brief Callback type when a task has been finished (or canceled).
+using OnTaskFinishedCallback = ezDelegate<void(ezTask*)>;
 
-private:
-  friend class ezTaskSystem;
-
-  ezTaskGroup();
-
-  /// \brief Puts the calling thread to sleep until this group is fully finished.
-  void WaitForFinish(ezTaskGroupID group) const;
-
-  bool m_bInUse = false;
-  bool m_bStartedByUser = false;
-  ezUInt16 m_uiTaskGroupIndex = 0xFFFF; // only there as a debugging aid
-  ezUInt32 m_uiGroupCounter = 1;
-  ezHybridArray<ezTask*, 16> m_Tasks;
-  ezHybridArray<ezTaskGroupID, 4> m_DependsOn;
-  ezHybridArray<ezTaskGroupID, 8> m_OthersDependingOnMe;
-  ezAtomicInteger32 m_iActiveDependencies;
-  ezAtomicInteger32 m_iRemainingTasks;
-  OnTaskGroupFinished m_OnFinishedCallback;
-  ezTaskPriority::Enum m_Priority = ezTaskPriority::ThisFrame;
-  ezUniquePtr<ezConditionVariable> m_CondVarGroupFinished;
-};
 
 struct ezTaskGroupDependency
 {

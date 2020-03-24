@@ -199,7 +199,7 @@ void ezAssetProcessor::AssetCuratorEventHandler(const ezAssetCuratorEvent& e)
 // ezProcessTask
 ////////////////////////////////////////////////////////////////////////
 
-ezProcessTask::ezProcessTask(ezUInt32 uiProcessorID, ezTask::OnTaskFinished onFinished)
+ezProcessTask::ezProcessTask(ezUInt32 uiProcessorID, OnTaskFinishedCallback onFinished)
   : m_uiProcessorID(uiProcessorID)
   , m_bProcessShouldBeRunning(false)
   , m_bProcessCrashed(false)

@@ -21,8 +21,6 @@ class EZ_FOUNDATION_DLL ezTask
   EZ_DISALLOW_COPY_AND_ASSIGN(ezTask);
 
 public:
-  /// \brief Function type for callbacks when a task has been finished (or canceled).
-  typedef ezDelegate<void(ezTask*)> OnTaskFinished;
 
   ezTask();
   virtual ~ezTask();
@@ -38,7 +36,7 @@ public:
   /// \param Callback
   /// A callback to execute when the task is finished (or canceled).
   /// The most common use case for this is to deallocate the task at that time.
-  void ConfigureTask(const char* szTaskName, ezTaskNesting nestingMode, OnTaskFinished Callback = OnTaskFinished()); // [tested]
+  void ConfigureTask(const char* szTaskName, ezTaskNesting nestingMode, OnTaskFinishedCallback Callback = OnTaskFinishedCallback()); // [tested]
 
   /// \brief Changes the multiplicity of this task.
   ///
@@ -116,7 +114,7 @@ private:
   ezTaskNesting m_NestingMode = ezTaskNesting::Maybe;
 
   /// \brief Optional callback to be fired when the task has finished or was canceled.
-  OnTaskFinished m_OnTaskFinished;
+  OnTaskFinishedCallback m_OnTaskFinished;
 
   /// \brief The parent group to which this task belongs.
   ezTaskGroupID m_BelongsToGroup;

@@ -2,31 +2,12 @@
 
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Threading/Implementation/TaskGroup.h>
 #include <Foundation/Threading/Implementation/TaskWorkerThread.h>
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/TaskSystem.h>
 
-ezTaskGroup::ezTaskGroup()
-{
-  m_CondVarGroupFinished = EZ_DEFAULT_NEW(ezConditionVariable);
-}
-
-ezTaskGroup::~ezTaskGroup() = default;
-
-void ezTaskGroup::WaitForFinish(ezTaskGroupID group) const
-{
-  if (m_uiGroupCounter != group.m_uiGroupCounter)
-    return;
-
-  EZ_LOCK(*m_CondVarGroupFinished.Borrow());
-
-  while (m_uiGroupCounter == group.m_uiGroupCounter)
-  {
-    m_CondVarGroupFinished->UnlockWaitForSignalAndLock();
-  }
-}
-
-ezTaskGroupID ezTaskSystem::CreateTaskGroup(ezTaskPriority::Enum Priority, ezTaskGroup::OnTaskGroupFinished Callback)
+ezTaskGroupID ezTaskSystem::CreateTaskGroup(ezTaskPriority::Enum Priority, OnTaskGroupFinishedCallback callback)
 {
   EZ_LOCK(s_TaskSystemMutex);
 
@@ -40,19 +21,12 @@ ezTaskGroupID ezTaskSystem::CreateTaskGroup(ezTaskPriority::Enum Priority, ezTas
   }
 
   // no free group found, create a new one
-  s_TaskGroups.PushBack(std::move(ezTaskGroup()));
+  s_TaskGroups.ExpandAndGetRef();
   s_TaskGroups[i].m_uiTaskGroupIndex = static_cast<ezUInt16>(i);
 
 foundtaskgroup:
 
-  s_TaskGroups[i].m_bInUse = true;
-  s_TaskGroups[i].m_bStartedByUser = false;
-  s_TaskGroups[i].m_uiGroupCounter += 2; // even if it wraps around, it will never be zero, thus zero stays an invalid group counter
-  s_TaskGroups[i].m_Tasks.Clear();
-  s_TaskGroups[i].m_DependsOn.Clear();
-  s_TaskGroups[i].m_OthersDependingOnMe.Clear();
-  s_TaskGroups[i].m_Priority = Priority;
-  s_TaskGroups[i].m_OnFinishedCallback = Callback;
+  s_TaskGroups[i].Reuse(Priority, callback);
 
   ezTaskGroupID id;
   id.m_pTaskGroup = &s_TaskGroups[i];
@@ -60,40 +34,27 @@ foundtaskgroup:
   return id;
 }
 
-void ezTaskSystem::DebugCheckTaskGroup(ezTaskGroupID Group)
-{
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
-  EZ_LOCK(s_TaskSystemMutex);
-
-  EZ_ASSERT_DEV(Group.m_pTaskGroup != nullptr, "TaskGroupID is invalid.");
-  EZ_ASSERT_DEV(Group.m_pTaskGroup->m_uiGroupCounter == Group.m_uiGroupCounter, "The given TaskGroupID is not valid anymore.");
-  EZ_ASSERT_DEV(!Group.m_pTaskGroup->m_bStartedByUser, "The given TaskGroupID is already started, you cannot modify it anymore.");
-  EZ_ASSERT_DEV(Group.m_pTaskGroup->m_iActiveDependencies == 0, "Invalid active dependenices");
-#endif
-}
-
-void ezTaskSystem::AddTaskToGroup(ezTaskGroupID Group, ezTask* pTask)
+void ezTaskSystem::AddTaskToGroup(ezTaskGroupID groupID, ezTask* pTask)
 {
   EZ_ASSERT_DEBUG(pTask != nullptr, "Cannot add nullptr tasks.");
   EZ_ASSERT_DEV(pTask->IsTaskFinished(), "The given task is not finished! Cannot reuse a task before it is done.");
   EZ_ASSERT_DEBUG(!pTask->m_sTaskName.IsEmpty(), "Every task should have a name");
 
-  DebugCheckTaskGroup(Group);
+  ezTaskGroup::DebugCheckTaskGroup(groupID, s_TaskSystemMutex);
 
   pTask->Reset();
-  pTask->m_BelongsToGroup = Group;
-  Group.m_pTaskGroup->m_Tasks.PushBack(pTask);
+  pTask->m_BelongsToGroup = groupID;
+  groupID.m_pTaskGroup->m_Tasks.PushBack(pTask);
 }
 
-void ezTaskSystem::AddTaskGroupDependency(ezTaskGroupID Group, ezTaskGroupID DependsOn)
+void ezTaskSystem::AddTaskGroupDependency(ezTaskGroupID groupID, ezTaskGroupID DependsOn)
 {
   EZ_ASSERT_DEBUG(DependsOn.IsValid(), "Invalid dependency");
-  EZ_ASSERT_DEBUG(
-    Group.m_pTaskGroup != DependsOn.m_pTaskGroup || Group.m_uiGroupCounter != DependsOn.m_uiGroupCounter, "Group cannot depend on itselfs");
+  EZ_ASSERT_DEBUG(groupID.m_pTaskGroup != DependsOn.m_pTaskGroup || groupID.m_uiGroupCounter != DependsOn.m_uiGroupCounter, "Group cannot depend on itselfs");
 
-  DebugCheckTaskGroup(Group);
+  ezTaskGroup::DebugCheckTaskGroup(groupID, s_TaskSystemMutex);
 
-  Group.m_pTaskGroup->m_DependsOn.PushBack(DependsOn);
+  groupID.m_pTaskGroup->m_DependsOnGroups.PushBack(DependsOn);
 }
 
 void ezTaskSystem::AddTaskGroupDependencyBatch(ezArrayPtr<const ezTaskGroupDependency> batch)
@@ -108,31 +69,30 @@ void ezTaskSystem::AddTaskGroupDependencyBatch(ezArrayPtr<const ezTaskGroupDepen
   }
 }
 
-void ezTaskSystem::StartTaskGroup(ezTaskGroupID Group)
+void ezTaskSystem::StartTaskGroup(ezTaskGroupID groupID)
 {
   if (s_WorkerThreads[ezWorkerThreadType::ShortTasks].GetCount() == 0)
     SetWorkerThreadCount(-1, -1); // set the default number of threads, if none are started yet
 
-  DebugCheckTaskGroup(Group);
+  ezTaskGroup::DebugCheckTaskGroup(groupID, s_TaskSystemMutex);
 
   ezInt32 iActiveDependencies = 0;
 
   {
     EZ_LOCK(s_TaskSystemMutex);
 
-    ezTaskGroup& tg = *Group.m_pTaskGroup;
+    ezTaskGroup& tg = *groupID.m_pTaskGroup;
 
     tg.m_bStartedByUser = true;
 
-    for (ezUInt32 i = 0; i < tg.m_DependsOn.GetCount(); ++i)
+    for (ezUInt32 i = 0; i < tg.m_DependsOnGroups.GetCount(); ++i)
     {
-      // if the counters still match, the other task group has not yet been finished, and thus is a real dependency
-      if (!IsTaskGroupFinished(tg.m_DependsOn[i]))
+      if (!IsTaskGroupFinished(tg.m_DependsOnGroups[i]))
       {
-        ezTaskGroup& Dependency = *tg.m_DependsOn[i].m_pTaskGroup;
+        ezTaskGroup& Dependency = *tg.m_DependsOnGroups[i].m_pTaskGroup;
 
         // add this task group to the list of dependencies, such that when that group finishes, this task group can get woken up
-        Dependency.m_OthersDependingOnMe.PushBack(Group);
+        Dependency.m_OthersDependingOnMe.PushBack(groupID);
 
         // count how many other groups need to finish before this task group can be executed
         ++iActiveDependencies;
@@ -141,14 +101,14 @@ void ezTaskSystem::StartTaskGroup(ezTaskGroupID Group)
 
     if (iActiveDependencies != 0)
     {
-      // apparently atomic integers are quite slow, so do not use them in the loop, where they are not yet needed
-      tg.m_iActiveDependencies = iActiveDependencies;
+      // atomic integers are quite slow, so do not use them in the loop, where they are not yet needed
+      tg.m_iNumActiveDependencies = iActiveDependencies;
     }
   }
 
   if (iActiveDependencies == 0)
   {
-    ScheduleGroupTasks(Group.m_pTaskGroup, false);
+    ScheduleGroupTasks(groupID.m_pTaskGroup, false);
   }
 }
 
@@ -172,7 +132,7 @@ void ezTaskSystem::ScheduleGroupTasks(ezTaskGroup* pGroup, bool bHighPriority)
 {
   if (pGroup->m_Tasks.IsEmpty())
   {
-    pGroup->m_iRemainingTasks = 1;
+    pGroup->m_iNumRemainingTasks = 1;
 
     // "finish" one task -> will finish the task group and kick off dependent groups
     TaskHasFinished(nullptr, pGroup);
@@ -194,7 +154,7 @@ void ezTaskSystem::ScheduleGroupTasks(ezTaskGroup* pGroup, bool bHighPriority)
       pTask->m_iRemainingRuns = ezMath::Max(1u, pTask->m_uiMultiplicity);
     }
 
-    pGroup->m_iRemainingTasks = iRemainingTasks;
+    pGroup->m_iNumRemainingTasks = iRemainingTasks;
 
 
     for (ezUInt32 task = 0; task < pGroup->m_Tasks.GetCount(); ++task)
@@ -317,7 +277,7 @@ void ezTaskSystem::WakeUpThreads(ezWorkerThreadType::Enum type, ezUInt32 uiNumTh
 void ezTaskSystem::DependencyHasFinished(ezTaskGroup* pGroup)
 {
   // remove one dependency from the group
-  if (pGroup->m_iActiveDependencies.Decrement() == 0)
+  if (pGroup->m_iNumActiveDependencies.Decrement() == 0)
   {
     // if there are no remaining dependencies, kick off all tasks in this group
     ScheduleGroupTasks(pGroup, true);
@@ -374,7 +334,9 @@ ezResult ezTaskSystem::CancelGroup(ezTaskGroupID Group, ezOnTaskRunning::Enum On
   for (ezUInt32 task = 0; task < TasksCopy.GetCount(); ++task)
   {
     if (CancelTask(TasksCopy[task], ezOnTaskRunning::ReturnWithoutBlocking) == EZ_FAILURE)
+    {
       res = EZ_FAILURE;
+    }
   }
 
   // if all tasks could be removed without problems, we do not need to try it again with blocking
@@ -383,7 +345,9 @@ ezResult ezTaskSystem::CancelGroup(ezTaskGroupID Group, ezOnTaskRunning::Enum On
   {
     // now cancel the tasks in the group again, this time wait for those that are already running
     for (ezUInt32 task = 0; task < TasksCopy.GetCount(); ++task)
+    {
       CancelTask(TasksCopy[task], ezOnTaskRunning::WaitTillFinished);
+    }
   }
 
   return res;

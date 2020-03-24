@@ -423,7 +423,7 @@ private:
 class ezUpdateTask final : public ezTask
 {
 public:
-  ezUpdateTask(ezTask::OnTaskFinished onTaskFinished);
+  ezUpdateTask(OnTaskFinishedCallback onTaskFinished);
   ~ezUpdateTask();
 
 private:

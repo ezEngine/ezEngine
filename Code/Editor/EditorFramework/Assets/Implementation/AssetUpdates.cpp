@@ -767,7 +767,7 @@ void ezAssetCurator::SetAssetExistanceState(ezAssetInfo& assetInfo, ezAssetExist
 // ezUpdateTask
 ////////////////////////////////////////////////////////////////////////
 
-ezUpdateTask::ezUpdateTask(ezTask::OnTaskFinished onTaskFinished)
+ezUpdateTask::ezUpdateTask(OnTaskFinishedCallback onTaskFinished)
 {
   ConfigureTask("ezUpdateTask", ezTaskNesting::Never, onTaskFinished);
 }

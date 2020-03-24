@@ -14,7 +14,7 @@ void ezTask::Reset()
   m_bUsesMultiplicity = m_uiMultiplicity > 0;
 }
 
-void ezTask::ConfigureTask(const char* szTaskName, ezTaskNesting nestingMode, OnTaskFinished Callback /*= OnTaskFinished()*/)
+void ezTask::ConfigureTask(const char* szTaskName, ezTaskNesting nestingMode, OnTaskFinishedCallback Callback /*= OnTaskFinishedCallback()*/)
 {
   EZ_ASSERT_DEV(IsTaskFinished(), "This function must be called before the task is started.");
 

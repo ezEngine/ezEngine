@@ -1,6 +1,7 @@
 #include <FoundationPCH.h>
 
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Threading/Implementation/TaskGroup.h>
 #include <Foundation/Threading/Implementation/TaskWorkerThread.h>
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/TaskSystem.h>
@@ -15,18 +16,21 @@ void ezTaskSystem::TaskHasFinished(ezTask* pTask, ezTaskGroup* pGroup)
     pTask->m_OnTaskFinished(pTask);
   }
 
-  if (pGroup->m_iRemainingTasks.Decrement() == 0)
+  if (pGroup->m_iNumRemainingTasks.Decrement() == 0)
   {
     // If this was the last task that had to be finished from this group, make sure all dependent groups are started
 
     {
       // see ezTaskGroup::WaitForFinish() for why we need this lock here
       // without it, there would be a race condition between these two places, reading and writing m_uiGroupCounter and waiting/signaling m_CondVarGroupFinished
-      EZ_LOCK(*pGroup->m_CondVarGroupFinished.Borrow());
+      EZ_LOCK(pGroup->m_CondVarGroupFinished);
 
       // set this task group to be finished such that no one tries to append further dependencies
       pGroup->m_uiGroupCounter += 2;
     }
+
+    // wake up all threads that are waiting for this group
+    pGroup->m_CondVarGroupFinished.SignalAll();
 
     {
       EZ_LOCK(s_TaskSystemMutex);
@@ -38,10 +42,9 @@ void ezTaskSystem::TaskHasFinished(ezTask* pTask, ezTaskGroup* pGroup)
     }
 
     if (pGroup->m_OnFinishedCallback.IsValid())
+    {
       pGroup->m_OnFinishedCallback();
-
-    // wake up all threads that are waiting for this group
-    pGroup->m_CondVarGroupFinished->SignalAll();
+    }
 
     // set this task available for reuse
     pGroup->m_bInUse = false;

@@ -869,10 +869,8 @@ void ezWorld::RegisterUpdateFunction(const ezComponentManagerBase::UpdateFunctio
 {
   CheckForWriteAccess();
 
-  EZ_ASSERT_DEV(desc.m_Phase == ezComponentManagerBase::UpdateFunctionDesc::Phase::Async || desc.m_uiGranularity == 0,
-    "Granularity must be 0 for synchronous update functions");
-  EZ_ASSERT_DEV(desc.m_Phase != ezComponentManagerBase::UpdateFunctionDesc::Phase::Async || desc.m_DependsOn.GetCount() == 0,
-    "Asynchronous update functions must not have dependencies");
+  EZ_ASSERT_DEV(desc.m_Phase == ezComponentManagerBase::UpdateFunctionDesc::Phase::Async || desc.m_uiGranularity == 0, "Granularity must be 0 for synchronous update functions");
+  EZ_ASSERT_DEV(desc.m_Phase != ezComponentManagerBase::UpdateFunctionDesc::Phase::Async || desc.m_DependsOn.GetCount() == 0, "Asynchronous update functions must not have dependencies");
   EZ_ASSERT_DEV(desc.m_Function.IsComparable(), "Delegates with captures are not allowed as ezWorld update functions.");
 
   m_Data.m_UpdateFunctionsToRegister.PushBack(desc);

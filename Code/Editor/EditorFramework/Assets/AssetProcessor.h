@@ -79,7 +79,7 @@ private:
 class ezProcessTask final : public ezTask
 {
 public:
-  ezProcessTask(ezUInt32 uiProcessorID, ezTask::OnTaskFinished onFinished);
+  ezProcessTask(ezUInt32 uiProcessorID, OnTaskFinishedCallback onFinished);
   ~ezProcessTask();
   ezAtomicInteger32 m_bDidWork = true;
 

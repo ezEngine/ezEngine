@@ -115,7 +115,7 @@ public:
   ///
   /// All tasks that are added to this group will be run with the same given \a Priority.
   /// Once all tasks in the group are finished and thus the group is finished, an optional \a Callback can be executed.
-  static ezTaskGroupID CreateTaskGroup(ezTaskPriority::Enum Priority, ezTaskGroup::OnTaskGroupFinished Callback = ezTaskGroup::OnTaskGroupFinished()); // [tested]
+  static ezTaskGroupID CreateTaskGroup(ezTaskPriority::Enum Priority, OnTaskGroupFinishedCallback callback = OnTaskGroupFinishedCallback()); // [tested]
 
   /// \brief Adds a task to the given task group. The group must not yet have been started.
   static void AddTaskToGroup(ezTaskGroupID Group, ezTask* pTask); // [tested]
@@ -247,9 +247,6 @@ private:
   static ezAtomicInteger32 s_iNumWorkerThreads[ezWorkerThreadType::ENUM_COUNT];
   // the maximum number of worker threads that should be non-idle (and not blocked) at any time
   static ezUInt32 s_MaxWorkerThreadsToUse[ezWorkerThreadType::ENUM_COUNT];
-
-  // Checks that group are valid for configuration.
-  static void DebugCheckTaskGroup(ezTaskGroupID Group);
 
   // Takes all the tasks in the given group and schedules them for execution, by inserting them into the proper task lists.
   static void ScheduleGroupTasks(ezTaskGroup* pGroup, bool bHighPriority);
