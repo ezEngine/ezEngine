@@ -69,40 +69,11 @@ void ezTaskSystem::TaskHasFinished(ezTask* pTask, ezTaskGroup* pGroup)
   }
 }
 
-ezTaskSystem::TaskData ezTaskSystem::GetNextTask(ezTaskPriority::Enum FirstPriority, ezTaskPriority::Enum LastPriority, bool bOnlyTasksThatNeverWait, const ezTaskGroupID& WaitingForGroup, ezAtomicBool* pIsIdleNow)
+ezTaskSystem::TaskData ezTaskSystem::GetNextTask(ezTaskPriority::Enum FirstPriority, ezTaskPriority::Enum LastPriority, bool bOnlyTasksThatNeverWait, const ezTaskGroupID& WaitingForGroup, ezAtomicInteger32* pWorkerState)
 {
   // this is the central function that selects tasks for the worker threads to work on
 
-  // do a quick and dirty check, whether we would find any work (without a lock)
-  // if nothing is found, the thread can go to sleep, without entering the mutex
-
-  // note: There is NO race condition here. Even if this loop would miss a work item, because it is added after it looked at the
-  // corresponding queue, it will not be a problem. The function will return with 'no work' for the thread,  the thread will try to go to
-  // sleep, but the thread-signal will be signaled already and thus the thread will loop again, call 'GetNextTask' a second time and THEN
-  // detect the new work item
-
-  EZ_ASSERT_DEV(FirstPriority >= ezTaskPriority::EarlyThisFrame && LastPriority < ezTaskPriority::ENUM_COUNT,
-    "Priority Range is invalid: {0} to {1}", FirstPriority, LastPriority);
-
-  // TODO: early out with pIsIdleNow = true, if too many threads are active
-
-  for (ezUInt32 i = FirstPriority; i <= (ezUInt32)LastPriority; ++i)
-  {
-    if (!s_State->m_Tasks[i].IsEmpty())
-    {
-      goto foundany;
-    }
-  }
-
-  if (pIsIdleNow)
-  {
-    EZ_VERIFY(pIsIdleNow->Set(true) == false, "Corrupt Idle State");
-  }
-
-  return TaskData();
-
-foundany:
-  // we have detected that there MIGHT be work
+  EZ_ASSERT_DEV(FirstPriority >= ezTaskPriority::EarlyThisFrame && LastPriority < ezTaskPriority::ENUM_COUNT, "Priority Range is invalid: {0} to {1}", FirstPriority, LastPriority);
 
   EZ_LOCK(s_TaskSystemMutex);
 
@@ -121,17 +92,19 @@ foundany:
     }
   }
 
-  if (pIsIdleNow)
+  if (pWorkerState)
   {
-    EZ_VERIFY(pIsIdleNow->Set(true) == false, "Corrupt Idle State");
+    EZ_VERIFY(pWorkerState->Set((int)ezTaskWorkerState::Idle) == (int)ezTaskWorkerState::Active, "Corrupt Worker State");
   }
 
   return TaskData();
 }
 
-bool ezTaskSystem::ExecuteTask(ezTaskPriority::Enum FirstPriority, ezTaskPriority::Enum LastPriority, bool bOnlyTasksThatNeverWait, const ezTaskGroupID& WaitingForGroup, ezAtomicBool* pIsIdleNow)
+bool ezTaskSystem::ExecuteTask(ezTaskPriority::Enum FirstPriority, ezTaskPriority::Enum LastPriority, bool bOnlyTasksThatNeverWait, const ezTaskGroupID& WaitingForGroup, ezAtomicInteger32* pWorkerState)
 {
-  ezTaskSystem::TaskData td = GetNextTask(FirstPriority, LastPriority, bOnlyTasksThatNeverWait, WaitingForGroup, pIsIdleNow);
+  //const ezWorkerThreadType::Enum workerType = (tl_TaskWorkerInfo.m_WorkerType == ezWorkerThreadType::Unknown) ? ezWorkerThreadType::ShortTasks : tl_TaskWorkerInfo.m_WorkerType;
+
+  ezTaskSystem::TaskData td = GetNextTask(FirstPriority, LastPriority, bOnlyTasksThatNeverWait, WaitingForGroup, pWorkerState);
 
   if (td.m_pTask == nullptr)
     return false;

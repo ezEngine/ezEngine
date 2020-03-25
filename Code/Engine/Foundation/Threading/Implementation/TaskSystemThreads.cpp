@@ -97,7 +97,6 @@ void ezTaskSystem::StopWorkerThreads()
     }
 
     s_ThreadState->m_iAllocatedWorkers[type] = 0;
-    s_ThreadState->m_iNumIdleWorkers[type] = 0;
     s_ThreadState->m_uiMaxWorkersToUse[type] = 0;
     s_ThreadState->m_Workers[type].Clear();
   }
@@ -130,56 +129,42 @@ void ezTaskSystem::AllocateThreads(ezWorkerThreadType::Enum type, ezUInt32 uiAdd
   ezLog::Dev("Allocated {} additional '{}' worker threads ({} total)", uiAddThreads, ezWorkerThreadType::GetThreadTypeName(type), s_ThreadState->m_iAllocatedWorkers[type]);
 }
 
-ezInt32 ezTaskSystem::CalcActivatableThreads(ezWorkerThreadType::Enum type)
-{
-  const ezUInt32 uiTotal = s_ThreadState->m_iAllocatedWorkers[type];
-  const ezUInt32 uiBlocked = s_ThreadState->m_iNumBlockedWorkers[type];
-  const ezUInt32 uiIdle = s_ThreadState->m_iNumIdleWorkers[type];
-  const ezUInt32 uiMaxActive = s_ThreadState->m_uiMaxWorkersToUse[type];
-
-  EZ_ASSERT_DEV(uiBlocked <= uiTotal, "Incorrect worker thread statistics");
-  EZ_ASSERT_DEV(uiIdle <= uiTotal, "Incorrect worker thread statistics");
-  EZ_ASSERT_DEV(uiIdle + uiBlocked <= uiTotal, "Incorrect worker thread statistics");
-
-  const ezUInt32 uiActive = uiTotal - uiBlocked - uiIdle;
-
-  const ezInt32 iCanActivate = (ezInt32)uiMaxActive - (ezInt32)uiActive;
-
-  return iCanActivate;
-}
-
-ezResult ezTaskSystem::WakeUpThreadIfIdle(ezWorkerThreadType::Enum type, ezUInt32 threadIdx)
-{
-  if (s_ThreadState->m_Workers[type][threadIdx]->WakeUpIfIdle().Succeeded())
-  {
-    // the thread index must be different, if it is the same, it must be an entirely different worker thread type
-    EZ_ASSERT_DEV(threadIdx != tl_TaskWorkerInfo.m_iWorkerIndex || type != tl_TaskWorkerInfo.m_WorkerType, "Calling thread was in idle state itself.");
-
-    return EZ_SUCCESS;
-  }
-
-  return EZ_FAILURE;
-}
-
 void ezTaskSystem::WakeUpThreads(ezWorkerThreadType::Enum type, ezUInt32 uiNumThreadsToWakeUp)
 {
-  const ezInt32 iCanActivate = CalcActivatableThreads(type);
-  ezInt32 iShouldActivate = ezMath::Min<ezInt32>(iCanActivate, uiNumThreadsToWakeUp);
+  auto* s = ezTaskSystem::s_ThreadState.Borrow();
 
-  const ezUInt32 uiTotal = s_ThreadState->m_iAllocatedWorkers[type];
+  const ezUInt32 uiTotalThreads = s_ThreadState->m_iAllocatedWorkers[type];
+  ezUInt32 uiAllowedActiveThreads = s_ThreadState->m_uiMaxWorkersToUse[type];
 
-  for (ezUInt32 threadIdx = 0; threadIdx < uiTotal && iShouldActivate > 0; ++threadIdx)
+  for (ezUInt32 threadIdx = 0; threadIdx < uiTotalThreads; ++threadIdx)
   {
-    if (WakeUpThreadIfIdle(type, threadIdx).Succeeded())
+    switch (s->m_Workers[type][threadIdx]->WakeUpIfIdle())
     {
-      --iShouldActivate;
+      case ezTaskWorkerState::Idle:
+      {
+        // was idle before -> now it is active
+        if (--uiNumThreadsToWakeUp == 0)
+          return;
+
+        break;
+      }
+
+      case ezTaskWorkerState::Active:
+      {
+        // already active
+        if (--uiAllowedActiveThreads == 0)
+          return;
+
+        break;
+      }
     }
   }
 
-  if (iShouldActivate > 0)
+  // if the loop above did not find enough threads to wake up
+  if (uiNumThreadsToWakeUp > 0 && uiAllowedActiveThreads > 0)
   {
     // the new threads will start not-idle and take on some work
-    AllocateThreads(type, iShouldActivate);
+    AllocateThreads(type, ezMath::Min(uiNumThreadsToWakeUp, uiAllowedActiveThreads));
   }
 }
 

@@ -287,14 +287,22 @@ void ezTaskSystem::WaitForGroup(ezTaskGroupID Group)
     {
       if (bAllowSleep)
       {
-        s_ThreadState->m_iNumBlockedWorkers[ThreadTaskType].Increment();
         const ezWorkerThreadType::Enum typeToWakeUp = (ThreadTaskType == ezWorkerThreadType::Unknown) ? ezWorkerThreadType::ShortTasks : ThreadTaskType;
+
+        if (tl_TaskWorkerInfo.m_pWorkerState)
+        {
+          EZ_VERIFY(tl_TaskWorkerInfo.m_pWorkerState->Set((int)ezTaskWorkerState::Blocked) == (int)ezTaskWorkerState::Active, "Corrupt worker state");
+        }
 
         WakeUpThreads(typeToWakeUp, 1);
 
         Group.m_pTaskGroup->WaitForFinish(Group);
 
-        s_ThreadState->m_iNumBlockedWorkers[ThreadTaskType].Decrement();
+        if (tl_TaskWorkerInfo.m_pWorkerState)
+        {
+          EZ_VERIFY(tl_TaskWorkerInfo.m_pWorkerState->Set((int)ezTaskWorkerState::Active) == (int)ezTaskWorkerState::Blocked, "Corrupt worker state");
+        }
+
         break;
       }
       else
@@ -320,9 +328,12 @@ void ezTaskSystem::WaitForCondition(ezDelegate<bool()> condition)
     {
       if (bAllowSleep)
       {
-        s_ThreadState->m_iNumBlockedWorkers[ThreadTaskType].Increment();
-
         const ezWorkerThreadType::Enum typeToWakeUp = (ThreadTaskType == ezWorkerThreadType::Unknown) ? ezWorkerThreadType::ShortTasks : ThreadTaskType;
+
+        if (tl_TaskWorkerInfo.m_pWorkerState)
+        {
+          EZ_VERIFY(tl_TaskWorkerInfo.m_pWorkerState->Set((int)ezTaskWorkerState::Blocked) == (int)ezTaskWorkerState::Active, "Corrupt worker state");
+        }
 
         WakeUpThreads(typeToWakeUp, 1);
 
@@ -332,7 +343,11 @@ void ezTaskSystem::WaitForCondition(ezDelegate<bool()> condition)
           ezThreadUtils::YieldTimeSlice();
         }
 
-        s_ThreadState->m_iNumBlockedWorkers[ThreadTaskType].Decrement();
+        if (tl_TaskWorkerInfo.m_pWorkerState)
+        {
+          EZ_VERIFY(tl_TaskWorkerInfo.m_pWorkerState->Set((int)ezTaskWorkerState::Active) == (int)ezTaskWorkerState::Blocked, "Corrupt worker state");
+        }
+
         break;
       }
       else

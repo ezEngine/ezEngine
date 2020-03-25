@@ -46,6 +46,7 @@ ezUInt32 ezTaskWorkerThread::Run()
   // such that the ezTaskSystem is able to look this up (e.g. in WaitForGroup) to know which types of tasks to help with
   tl_TaskWorkerInfo.m_WorkerType = m_WorkerType;
   tl_TaskWorkerInfo.m_iWorkerIndex = m_uiWorkerThreadNumber;
+  tl_TaskWorkerInfo.m_pWorkerState = &m_WorkerState;
 
   ezTaskPriority::Enum FirstPriority;
   ezTaskPriority::Enum LastPriority;
@@ -61,13 +62,13 @@ ezUInt32 ezTaskWorkerThread::Run()
       m_StartedWorkingTime = ezTime::Now();
     }
 
-    if (!ezTaskSystem::ExecuteTask(FirstPriority, LastPriority, false, ezTaskGroupID(), &m_bIsIdle))
+    if (!ezTaskSystem::ExecuteTask(FirstPriority, LastPriority, false, ezTaskGroupID(), &m_WorkerState))
     {
       WaitForWork();
     }
     else
     {
-      m_iNumTasksExecuted.Increment();
+      ++m_uiNumTasksExecuted;
     }
   }
 
@@ -81,21 +82,19 @@ void ezTaskWorkerThread::WaitForWork()
 
   m_ThreadActiveTime += ezTime::Now() - m_StartedWorkingTime;
   m_bExecutingTask = false;
-  ezTaskSystem::s_ThreadState->m_iNumIdleWorkers[m_WorkerType].Increment();
   m_WakeUpSignal.WaitForSignal();
-  EZ_ASSERT_DEBUG(m_bIsIdle == false, "Idle state should have been reset");
-  ezTaskSystem::s_ThreadState->m_iNumIdleWorkers[m_WorkerType].Decrement();
+  EZ_ASSERT_DEBUG(m_WorkerState == (int)ezTaskWorkerState::Active, "Worker state should have been reset to 'active'");
 }
 
-ezResult ezTaskWorkerThread::WakeUpIfIdle()
+ezTaskWorkerState ezTaskWorkerThread::WakeUpIfIdle()
 {
-  if (m_bIsIdle.Set(false) == true) // was idle before
+  ezTaskWorkerState prev = (ezTaskWorkerState)m_WorkerState.CompareAndSwap((int)ezTaskWorkerState::Idle, (int)ezTaskWorkerState::Active);
+  if (prev == ezTaskWorkerState::Idle) // was idle before
   {
     m_WakeUpSignal.RaiseSignal();
-    return EZ_SUCCESS;
   }
 
-  return EZ_FAILURE;
+  return static_cast<ezTaskWorkerState>(prev);
 }
 
 void ezTaskWorkerThread::UpdateThreadUtilization(ezTime TimePassed)
@@ -116,7 +115,8 @@ void ezTaskWorkerThread::UpdateThreadUtilization(ezTime TimePassed)
   }
 
   m_fLastThreadUtilization = tActive.GetSeconds() / TimePassed.GetSeconds();
-  m_uiLastNumTasksExecuted = m_iNumTasksExecuted.Set(0);
+  m_uiLastNumTasksExecuted = m_uiNumTasksExecuted;
+  m_uiNumTasksExecuted = 0;
 }
 
 double ezTaskWorkerThread::GetThreadUtilization(ezUInt32* pNumTasksExecuted /*= nullptr*/)

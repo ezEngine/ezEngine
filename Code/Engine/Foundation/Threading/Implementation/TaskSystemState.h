@@ -8,12 +8,6 @@ private:
   friend class ezTaskSystem;
   friend class ezTaskWorkerThread;
 
-  // only for debugging
-  ezAtomicInteger32 m_iNumIdleWorkers[ezWorkerThreadType::ENUM_COUNT];
-
-  // need to know how many threads are non-idle but blocked
-  ezAtomicInteger32 m_iNumBlockedWorkers[ezWorkerThreadType::ENUM_COUNT];
-
   // The arrays of all the active worker threads.
   ezDynamicArray<ezTaskWorkerThread*> m_Workers[ezWorkerThreadType::ENUM_COUNT];
 

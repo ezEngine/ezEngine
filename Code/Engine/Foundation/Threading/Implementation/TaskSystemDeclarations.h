@@ -166,3 +166,10 @@ using ezParallelForIndexedFunction = ezDelegate<void(ezUInt32, ezUInt32), 48>;
 
 template <typename ElemType>
 using ezParallelForFunction = ezDelegate<void(ezUInt32, ezArrayPtr<ElemType>), 48>;
+
+enum class ezTaskWorkerState
+{
+  Active = 0,
+  Idle = 1,
+  Blocked = 2,
+};

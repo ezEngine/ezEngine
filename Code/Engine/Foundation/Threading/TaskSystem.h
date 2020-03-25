@@ -80,10 +80,10 @@ public:
 
 private:
   /// \brief Searches for a task of priority between \a FirstPriority and \a LastPriority (inclusive).
-  static TaskData GetNextTask(ezTaskPriority::Enum FirstPriority, ezTaskPriority::Enum LastPriority, bool bOnlyTasksThatNeverWait, const ezTaskGroupID& WaitingForGroup, ezAtomicBool* pIsIdleNow);
+  static TaskData GetNextTask(ezTaskPriority::Enum FirstPriority, ezTaskPriority::Enum LastPriority, bool bOnlyTasksThatNeverWait, const ezTaskGroupID& WaitingForGroup, ezAtomicInteger32* pWorkerState);
 
   /// \brief Executes some task of priority between \a FirstPriority and \a LastPriority (inclusive). Returns true, if any such task was available.
-  static bool ExecuteTask(ezTaskPriority::Enum FirstPriority, ezTaskPriority::Enum LastPriority, bool bOnlyTasksThatNeverWait, const ezTaskGroupID& WaitingForGroup, ezAtomicBool* pIsIdleNow);
+  static bool ExecuteTask(ezTaskPriority::Enum FirstPriority, ezTaskPriority::Enum LastPriority, bool bOnlyTasksThatNeverWait, const ezTaskGroupID& WaitingForGroup, ezAtomicInteger32* pWorkerState);
 
   /// \brief Called whenever a task has been finished/canceled. Makes sure that groups are marked as finished when all tasks are done.
   static void TaskHasFinished(ezTask* pTask, ezTaskGroup* pGroup);
@@ -213,14 +213,8 @@ private:
   /// \brief Allocates \a uiAddThreads additional threads of \a type
   static void AllocateThreads(ezWorkerThreadType::Enum type, ezUInt32 uiAddThreads);
 
-  /// \brief Calculates how many worker threads may get activated. Number can be negative, when we are already above budget.
-  static ezInt32 CalcActivatableThreads(ezWorkerThreadType::Enum type);
-
   /// \brief Wakes up or allocates up to \a uiNumThreads, unless enough threads are currently active and not blocked
   static void WakeUpThreads(ezWorkerThreadType::Enum type, ezUInt32 uiNumThreads);
-
-  /// \brief If the given thread is currently idle, it will be woken up and EZ_SUCCESS is returned. Otherwise EZ_FAILURE is returned and no thread is woken up.
-  static ezResult WakeUpThreadIfIdle(ezWorkerThreadType::Enum type, ezUInt32 threadIdx);
 
   /// \brief Shuts down all worker threads. Does NOT finish the remaining tasks that were not started yet. Does not clear them either, though.
   static void StopWorkerThreads();

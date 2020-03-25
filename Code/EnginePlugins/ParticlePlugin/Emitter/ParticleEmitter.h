@@ -25,7 +25,7 @@ public:
   virtual void Load(ezStreamReader& stream) = 0;
 };
 
-enum ezParticleEmitterState
+enum class ezParticleEmitterState
 {
   Active,
   Finished,

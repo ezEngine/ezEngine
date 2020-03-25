@@ -46,9 +46,9 @@ public:
 private:
   bool m_bExecutingTask = false;
   ezUInt16 m_uiLastNumTasksExecuted = 0;
+  ezUInt16 m_uiNumTasksExecuted = 0;
   ezTime m_StartedWorkingTime;
   ezTime m_ThreadActiveTime;
-  ezAtomicInteger32 m_iNumTasksExecuted;
   double m_fLastThreadUtilization = 0.0;
 
   ///@}
@@ -59,7 +59,7 @@ private:
 public:
 
   /// \brief If the thread is currently idle, this will wake it up and return EZ_SUCCESS.
-  ezResult WakeUpIfIdle();
+  ezTaskWorkerState WakeUpIfIdle();
 
 private:
 
@@ -68,12 +68,13 @@ private:
 
   virtual ezUInt32 Run() override;
 
-  // used to wake up idle threads, see m_bIsIdle
+  // used to wake up idle threads, see m_WorkerState
   ezThreadSignal m_WakeUpSignal;
 
   // used to indicate whether this thread is currently idle
   // if so, it can be woken up using m_WakeUpSignal
-  ezAtomicBool m_bIsIdle = false;
+  //ezAtomicBool m_bIsIdle = false;
+  ezAtomicInteger32 m_WorkerState; // ezTaskWorkerState
 
   ///@}
 };
@@ -85,6 +86,7 @@ struct ezTaskWorkerInfo
   ezInt32 m_iWorkerIndex = -1;
   bool m_bAllowNestedTasks = true;
   const char* m_szTaskName = nullptr;
+  ezAtomicInteger32* m_pWorkerState = nullptr;
 };
 
 extern thread_local ezTaskWorkerInfo tl_TaskWorkerInfo;
