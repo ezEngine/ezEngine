@@ -79,6 +79,8 @@ ezUInt32 ezTaskWorkerThread::Run()
         // if this thread is part of the reserve, then don't continue to process tasks indefinitely
         // instead, put this thread to sleep and wake up someone else
         // that someone else may be a thread at the front of the queue, it may also turn out to be this thread again
+        // either way, if at some point we woke up more threads than the maximum desired, this will move the active threads
+        // to the front of the list, because of the way ezTaskSystem::WakeUpThreads() works
         ezTaskSystem::WakeUpThreads(m_WorkerType, 1);
 
         WaitForWork();

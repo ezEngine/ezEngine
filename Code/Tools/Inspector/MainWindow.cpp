@@ -6,6 +6,7 @@
 #include <Inspector/GlobalEventsWidget.moc.h>
 #include <Inspector/InputWidget.moc.h>
 #include <Inspector/LogDockWidget.moc.h>
+#include <Inspector/MainWidget.moc.h>
 #include <Inspector/MainWindow.moc.h>
 #include <Inspector/MemoryWidget.moc.h>
 #include <Inspector/PluginsWidget.moc.h>
@@ -13,7 +14,8 @@
 #include <Inspector/ResourceWidget.moc.h>
 #include <Inspector/SubsystemsWidget.moc.h>
 #include <Inspector/TimeWidget.moc.h>
-#include <Inspector/MainWidget.moc.h>
+
+const int g_iDockingStateVersion = 1;
 
 ezQtMainWindow* ezQtMainWindow::s_pWidget = nullptr;
 
@@ -29,15 +31,19 @@ ezQtMainWindow::ezQtMainWindow()
     ads::CDockManager::DockAreaHasCloseButton |
     ads::CDockManager::DockAreaCloseButtonClosesTab |
     ads::CDockManager::OpaqueSplitterResize |
-    ads::CDockManager::AllTabsHaveCloseButton
-    ));
+    ads::CDockManager::AllTabsHaveCloseButton));
 
   QSettings Settings;
   SetAlwaysOnTop((OnTopMode)Settings.value("AlwaysOnTop", (int)WhenConnected).toInt());
 
   Settings.beginGroup("MainWindow");
 
-  restoreGeometry(Settings.value("WindowGeometry", saveGeometry()).toByteArray());
+  const bool bRestoreDockingState = Settings.value("DockingVersion") == g_iDockingStateVersion;
+
+  if (bRestoreDockingState)
+  {
+    restoreGeometry(Settings.value("WindowGeometry", saveGeometry()).toByteArray());
+  }
 
   // The dock manager will set ownership to null on add so there is no reason to provide an owner here.
   // Setting one will actually cause memory corruptions on shutdown for unknown reasons.
@@ -120,18 +126,24 @@ ezQtMainWindow::ezQtMainWindow()
   pLogWidget->raise();
   pCVarsWidget->raise();
 
-  auto dockState = Settings.value("DockManagerState");
-  if (dockState.isValid() && dockState.type() == QVariant::ByteArray)
+  if (bRestoreDockingState)
   {
-    m_DockManager->restoreState(dockState.toByteArray(), 1);
+    auto dockState = Settings.value("DockManagerState");
+    if (dockState.isValid() && dockState.type() == QVariant::ByteArray)
+    {
+      m_DockManager->restoreState(dockState.toByteArray(), 1);
+    }
+
+    move(Settings.value("WindowPosition", pos()).toPoint());
+    resize(Settings.value("WindowSize", size()).toSize());
+
+    if (Settings.value("IsMaximized", isMaximized()).toBool())
+    {
+      showMaximized();
+    }
+
+    restoreState(Settings.value("WindowState", saveState()).toByteArray());
   }
-
-  move(Settings.value("WindowPosition", pos()).toPoint());
-  resize(Settings.value("WindowSize", size()).toSize());
-  if (Settings.value("IsMaximized", isMaximized()).toBool())
-    showMaximized();
-
-  restoreState(Settings.value("WindowState", saveState()).toByteArray());
 
   Settings.endGroup();
 
@@ -166,6 +178,7 @@ void ezQtMainWindow::closeEvent(QCloseEvent* event)
 
   Settings.beginGroup("MainWindow");
 
+  Settings.setValue("DockingVersion", g_iDockingStateVersion);
   Settings.setValue("DockManagerState", m_DockManager->saveState(1));
   Settings.setValue("WindowGeometry", saveGeometry());
   Settings.setValue("WindowState", saveState());

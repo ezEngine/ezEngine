@@ -131,6 +131,13 @@ void ezTaskSystem::AllocateThreads(ezWorkerThreadType::Enum type, ezUInt32 uiAdd
 
 void ezTaskSystem::WakeUpThreads(ezWorkerThreadType::Enum type, ezUInt32 uiNumThreadsToWakeUp)
 {
+  // together with ezTaskWorkerThread::Run() this function will make sure to keep the number
+  // of active threads close to m_uiMaxWorkersToUse
+  // 
+  // threads that go into the 'blocked' state will raise the number of threads that get activated
+  // and when they are unblocked, together they may exceed the 'maximum' number of active threads
+  // but over time the threads at the end of the list will put themselves to sleep again
+
   auto* s = ezTaskSystem::s_ThreadState.Borrow();
 
   const ezUInt32 uiTotalThreads = s_ThreadState->m_iAllocatedWorkers[type];
