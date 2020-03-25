@@ -36,6 +36,7 @@ public:
   ezEnum<ezDecalMode> m_Mode;
   bool m_bBlendModeColorize = false;
 
+  ezString m_sAlphaMask;
   ezString m_sBaseColor;
   ezString m_sNormal;
   ezString m_sORM;

@@ -18,6 +18,7 @@ struct EZ_TEXTURE_DLL ezTextureAtlasCreationDesc
   {
     ezUInt32 m_uiUniqueID;
     ezUInt32 m_uiFlags;
+    ezString m_sAlphaInput;
     ezString m_sLayerInput[4];
   };
 

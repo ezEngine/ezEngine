@@ -58,8 +58,7 @@ ezResult ezTexConvProcessor::LoadInputImages()
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::ConvertAndScaleImage(
-  const char* szImageName, ezImage& inout_Image, ezUInt32 uiResolutionX, ezUInt32 uiResolutionY)
+ezResult ezTexConvProcessor::ConvertAndScaleImage(const char* szImageName, ezImage& inout_Image, ezUInt32 uiResolutionX, ezUInt32 uiResolutionY)
 {
   if (inout_Image.Convert(ezImageFormat::R32G32B32A32_FLOAT).Failed())
   {
@@ -69,9 +68,7 @@ ezResult ezTexConvProcessor::ConvertAndScaleImage(
 
   // some scale operations fail when they are done in place, so use a scratch image as destination for now
   ezImage scratch;
-  if (ezImageUtils::Scale(
-        inout_Image, scratch, uiResolutionX, uiResolutionY, nullptr, ezImageAddressMode::Clamp, ezImageAddressMode::Clamp)
-        .Failed())
+  if (ezImageUtils::Scale(inout_Image, scratch, uiResolutionX, uiResolutionY, nullptr, ezImageAddressMode::Clamp, ezImageAddressMode::Clamp).Failed())
   {
     ezLog::Error("Could not resize '{}' to {}x{}", szImageName, uiResolutionX, uiResolutionY);
     return EZ_FAILURE;

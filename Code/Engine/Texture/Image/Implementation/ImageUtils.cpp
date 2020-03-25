@@ -1592,4 +1592,39 @@ ezColor ezImageUtils::BilinearSample(const ezImageView& image, ezImageAddressMod
   return ezMath::Lerp(cr0, cr1, fractionY);
 }
 
+ezResult ezImageUtils::CopyChannel(ezImage& dstImg, const ezImage& srcImg, ezUInt8 uiChannelIdx)
+{
+  if (uiChannelIdx >= 4)
+    return EZ_FAILURE;
+
+  if (dstImg.GetImageFormat() != ezImageFormat::R32G32B32A32_FLOAT)
+    return EZ_FAILURE;
+
+  if (srcImg.GetImageFormat() != dstImg.GetImageFormat())
+    return EZ_FAILURE;
+
+  if (srcImg.GetWidth() != dstImg.GetWidth())
+    return EZ_FAILURE;
+
+  if (srcImg.GetHeight() != dstImg.GetHeight())
+    return EZ_FAILURE;
+
+  const ezUInt32 uiNumPixels = srcImg.GetWidth() * srcImg.GetHeight();
+  const float* pSrcPixel = srcImg.GetPixelPointer<float>();
+  float* pDstPixel = dstImg.GetPixelPointer<float>();
+
+  pSrcPixel += uiChannelIdx;
+  pDstPixel += uiChannelIdx;
+
+  for (ezUInt32 i = 0; i < uiNumPixels; ++i)
+  {
+    *pDstPixel = *pSrcPixel;
+
+    pSrcPixel += 4;
+    pDstPixel += 4;
+  }
+
+  return EZ_SUCCESS;
+}
+
 EZ_STATICLINK_FILE(Texture, Texture_Image_Implementation_ImageUtils);
