@@ -93,6 +93,9 @@ struct EZ_FOUNDATION_DLL ezAtomicUtils
 
   /// \brief Sets dest to value if dest is equal to expected and returns true, otherwise does nothing and returns false.
   static bool TestAndSet(void** volatile dest, void* expected, void* value); // [tested]
+
+  static ezInt32 CompareAndSwap(volatile ezInt32& dest, ezInt32 expected, ezInt32 value);
+  static ezInt64 CompareAndSwap(volatile ezInt64& dest, ezInt64 expected, ezInt64 value);
 };
 
 // Include inline file

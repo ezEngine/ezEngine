@@ -265,3 +265,12 @@ EZ_ALWAYS_INLINE bool ezAtomicUtils::TestAndSet(void** volatile dest, void* expe
   return _InterlockedCompareExchangePointer(dest, value, expected) == expected;
 }
 
+EZ_ALWAYS_INLINE ezInt32 ezAtomicUtils::CompareAndSwap(volatile ezInt32& dest, ezInt32 expected, ezInt32 value)
+{
+  return _InterlockedCompareExchange(reinterpret_cast<volatile long*>(&dest), value, expected);
+}
+
+EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::CompareAndSwap(volatile ezInt64& dest, ezInt64 expected, ezInt64 value)
+{
+  return _InterlockedCompareExchange64(&dest, value, expected);
+}

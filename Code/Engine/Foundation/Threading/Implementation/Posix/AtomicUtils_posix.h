@@ -188,3 +188,13 @@ EZ_ALWAYS_INLINE bool ezAtomicUtils::TestAndSet(void** volatile dest, void* expe
   return __sync_bool_compare_and_swap(puiTemp, reinterpret_cast<ezUInt32>(expected), reinterpret_cast<ezUInt32>(value));
 #endif
 }
+
+EZ_ALWAYS_INLINE ezInt32 ezAtomicUtils::CompareAndSwap(volatile ezInt32& dest, ezInt32 expected, ezInt32 value)
+{
+  return __sync_val_compare_and_swap(&dest, expected, value);
+}
+
+EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::CompareAndSwap(volatile ezInt64& dest, ezInt64 expected, ezInt64 value)
+{
+  return __sync_val_compare_and_swap_8(&dest, expected, value);
+}

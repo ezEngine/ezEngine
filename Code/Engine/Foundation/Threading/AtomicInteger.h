@@ -54,6 +54,8 @@ public:
   /// \brief Sets the internal value to x if the internal value is equal to expected and returns true, otherwise does nothing and returns false.
   bool TestAndSet(T expected, T x); // [tested]
 
+  T CompareAndSwap(T expected, T x);
+
   operator T() const; // [tested]
 
 private:

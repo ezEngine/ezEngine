@@ -110,6 +110,12 @@ EZ_ALWAYS_INLINE bool ezAtomicInteger<T>::TestAndSet(T expected, T x)
 }
 
 template <typename T>
+EZ_ALWAYS_INLINE T ezAtomicInteger<T>::CompareAndSwap(T expected, T x)
+{
+  return ezAtomicUtils::CompareAndSwap(m_value, expected, x);
+}
+
+template <typename T>
 EZ_ALWAYS_INLINE ezAtomicInteger<T>::operator T() const
 {
   return ezAtomicUtils::Read(m_value);
