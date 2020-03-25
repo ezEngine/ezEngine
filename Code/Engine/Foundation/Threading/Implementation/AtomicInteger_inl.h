@@ -44,6 +44,18 @@ EZ_ALWAYS_INLINE T ezAtomicInteger<T>::Decrement()
 }
 
 template <typename T>
+EZ_ALWAYS_INLINE T ezAtomicInteger<T>::PostIncrement()
+{
+  return ezAtomicUtils::PostIncrement(m_value);
+}
+
+template <typename T>
+EZ_ALWAYS_INLINE T ezAtomicInteger<T>::PostDecrement()
+{
+  return ezAtomicUtils::PostDecrement(m_value);
+}
+
+template <typename T>
 EZ_ALWAYS_INLINE void ezAtomicInteger<T>::Add(T x)
 {
   ezAtomicUtils::Add(m_value, x);

@@ -38,6 +38,26 @@ EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::Decrement(volatile ezInt64& dest)
   return __sync_add_and_fetch_8(&dest, -1);
 }
 
+EZ_ALWAYS_INLINE ezInt32 ezAtomicUtils::PostIncrement(volatile ezInt32& dest)
+{
+  return __sync_fetch_and_add(&dest, 1);
+}
+
+EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::PostIncrement(volatile ezInt64& dest)
+{
+  return __sync_fetch_and_add_8(&dest, 1);
+}
+
+
+EZ_ALWAYS_INLINE ezInt32 ezAtomicUtils::PostDecrement(volatile ezInt32& dest)
+{
+  return __sync_fetch_and_add(&dest, -1);
+}
+
+EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::PostDecrement(volatile ezInt64& dest)
+{
+  return __sync_fetch_and_add_8(&dest, -1);
+}
 
 EZ_ALWAYS_INLINE void ezAtomicUtils::Add(volatile ezInt32& dest, ezInt32 value)
 {

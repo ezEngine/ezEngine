@@ -32,6 +32,12 @@ public:
   /// \brief Decrements the internal value and returns the decremented value
   T Decrement(); // [tested]
 
+  /// \brief Increments the internal value and returns the value immediately before the increment
+  T PostIncrement(); // [tested]
+
+  /// \brief Decrements the internal value and returns the value immediately before the decrement
+  T PostDecrement(); // [tested]
+
   void Add(T x);      // [tested]
   void Subtract(T x); // [tested]
 
