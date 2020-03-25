@@ -17,7 +17,7 @@ namespace DequeTestDetail
 
     return a;
   }
-}
+} // namespace DequeTestDetail
 
 EZ_CREATE_SIMPLE_TEST(Containers, Deque)
 {
