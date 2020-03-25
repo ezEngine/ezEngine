@@ -1,5 +1,5 @@
 #ifdef EZ_ATOMICUTLS_POSIX_INL_H_INCLUDED
-#error "This file must not be included twice."
+#  error "This file must not be included twice."
 #endif
 
 #define EZ_ATOMICUTLS_POSIX_INL_H_INCLUDED
@@ -30,12 +30,12 @@ EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::Increment(volatile ezInt64& dest)
 
 EZ_ALWAYS_INLINE ezInt32 ezAtomicUtils::Decrement(volatile ezInt32& dest)
 {
-  return __sync_add_and_fetch(&dest, -1);
+  return __sync_sub_and_fetch(&dest, 1);
 }
 
 EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::Decrement(volatile ezInt64& dest)
 {
-  return __sync_add_and_fetch_8(&dest, -1);
+  return __sync_sub_and_fetch_8(&dest, 1);
 }
 
 EZ_ALWAYS_INLINE ezInt32 ezAtomicUtils::PostIncrement(volatile ezInt32& dest)
@@ -51,12 +51,12 @@ EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::PostIncrement(volatile ezInt64& dest)
 
 EZ_ALWAYS_INLINE ezInt32 ezAtomicUtils::PostDecrement(volatile ezInt32& dest)
 {
-  return __sync_fetch_and_add(&dest, -1);
+  return __sync_fetch_and_sub(&dest, 1);
 }
 
 EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::PostDecrement(volatile ezInt64& dest)
 {
-  return __sync_fetch_and_add_8(&dest, -1);
+  return __sync_fetch_and_sub_8(&dest, 1);
 }
 
 EZ_ALWAYS_INLINE void ezAtomicUtils::Add(volatile ezInt32& dest, ezInt32 value)
@@ -188,4 +188,3 @@ EZ_ALWAYS_INLINE bool ezAtomicUtils::TestAndSet(void** volatile dest, void* expe
   return __sync_bool_compare_and_swap(puiTemp, reinterpret_cast<ezUInt32>(expected), reinterpret_cast<ezUInt32>(value));
 #endif
 }
-

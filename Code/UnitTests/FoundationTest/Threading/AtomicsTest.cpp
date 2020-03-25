@@ -44,10 +44,10 @@ namespace
   void* g_pCompSwapPointer = nullptr;
   ezInt32 g_iCompSwapPointerCounter = 0;
 
-  class TestThread : public ezThread
+  class AtomicsTestThread : public ezThread
   {
   public:
-    TestThread(ezInt32 iIndex)
+    AtomicsTestThread(ezInt32 iIndex)
       : ezThread("Test Thread")
       , m_iIndex(iIndex)
     {
@@ -189,16 +189,16 @@ EZ_CREATE_SIMPLE_TEST(Threading, Atomics)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Thread")
   {
-    TestThread* pTestThread = nullptr;
-    TestThread* pTestThread2 = nullptr;
+    AtomicsTestThread* pTestThread = nullptr;
+    AtomicsTestThread* pTestThread2 = nullptr;
 
     /// the try-catch is necessary to quiet the static code analysis
 #if EZ_ENABLED(EZ_TESTFRAMEWORK_SUPPORT_EXCEPTIONS)
     try
 #endif
     {
-      pTestThread = new TestThread(1);
-      pTestThread2 = new TestThread(2);
+      pTestThread = new AtomicsTestThread(1);
+      pTestThread2 = new AtomicsTestThread(2);
     }
 #if EZ_ENABLED(EZ_TESTFRAMEWORK_SUPPORT_EXCEPTIONS)
     catch (...)
@@ -259,10 +259,36 @@ EZ_CREATE_SIMPLE_TEST(Threading, Atomics)
 
     EZ_TEST_BOOL(g_pCompSwapPointer != nullptr);
     EZ_TEST_INT(g_iCompSwapPointerCounter, 1); // only one thread should have set the variable
+
+    g_iDecVariable = 0;
+    EZ_TEST_INT(g_iDecVariable.Decrement(), -1);
+
+    g_iDecVariable64 = 0;
+    EZ_TEST_INT(g_iDecVariable64.Decrement(), -1);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Post Increment Atomics (basics)")
+  {
+    g_iPostIncVariable32 = 0;
+    EZ_TEST_INT(g_iPostIncVariable32.PostIncrement(), 0);
+    EZ_TEST_INT(g_iPostIncVariable32, 1);
+
+    g_iPostIncVariable64 = 0;
+    EZ_TEST_INT(g_iPostIncVariable64.PostIncrement(), 0);
+    EZ_TEST_INT(g_iPostIncVariable64, 1);
+
+    g_iPostDecVariable32 = 0;
+    EZ_TEST_INT(g_iPostDecVariable32.PostDecrement(), 0);
+    EZ_TEST_INT(g_iPostDecVariable32, -1);
+
+    g_iPostDecVariable64 = 0;
+    EZ_TEST_INT(g_iPostDecVariable64.PostDecrement(), 0);
+    EZ_TEST_INT(g_iPostDecVariable64, -1);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Post Increment Atomics")
   {
+
     const ezUInt32 numThreads = 64;
 
     // used to check that every integer value in range [0; numThreads] is returned exactly once
