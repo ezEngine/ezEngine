@@ -298,6 +298,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
     EZ_TEST_BOOL(*lb == ptr2[400]);
   }
 
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "STL Reverse Iterator")
   {
     ezDynamicArray<ezInt32> a1;
@@ -342,7 +343,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
   //  }
   //  {
   //    ezHybridArray<int*, 4> data;
-  //    //TakeConstArrayPtr2(data, data); // does not compile 
+  //    //TakeConstArrayPtr2(data, data); // does not compile
   //    TakeConstArrayPtr2(data.GetArrayPtr(), data.GetArrayPtr());
   //  }
   //}

@@ -11,18 +11,18 @@ namespace StaticArrayTestDetail
     std::string s;
 
     Dummy()
-        : a(0)
-        , s("Test")
+      : a(0)
+      , s("Test")
     {
     }
     Dummy(int a)
-        : a(a)
-        , s("Test")
+      : a(a)
+      , s("Test")
     {
     }
     Dummy(const Dummy& other)
-        : a(other.a)
-        , s(other.s)
+      : a(other.a)
+      , s(other.s)
     {
     }
     ~Dummy() {}
@@ -40,7 +40,7 @@ namespace StaticArrayTestDetail
     bool operator<(const Dummy& dummy) const { return a < dummy.a; }
     bool operator==(const Dummy& dummy) const { return a == dummy.a; }
   };
-}
+} // namespace StaticArrayTestDetail
 
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
 static_assert(sizeof(ezStaticArray<ezInt32, 1>) == 24);
