@@ -146,7 +146,7 @@ void ezTaskSystem::WakeUpThreads(ezWorkerThreadType::Enum type, ezUInt32 uiNumTh
         if (--uiNumThreadsToWakeUp == 0)
           return;
 
-        break;
+        [[fallthrough]];
       }
 
       case ezTaskWorkerState::Active:

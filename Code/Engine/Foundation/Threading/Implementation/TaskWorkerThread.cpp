@@ -1,7 +1,7 @@
 #include <FoundationPCH.h>
 
-#include <Foundation/Threading/Implementation/TaskWorkerThread.h>
 #include <Foundation/Threading/Implementation/TaskSystemState.h>
+#include <Foundation/Threading/Implementation/TaskWorkerThread.h>
 #include <Foundation/Threading/TaskSystem.h>
 
 thread_local ezTaskWorkerInfo tl_TaskWorkerInfo;
@@ -48,6 +48,8 @@ ezUInt32 ezTaskWorkerThread::Run()
   tl_TaskWorkerInfo.m_iWorkerIndex = m_uiWorkerThreadNumber;
   tl_TaskWorkerInfo.m_pWorkerState = &m_WorkerState;
 
+  const bool bIsReserve = m_uiWorkerThreadNumber >= ezTaskSystem::s_ThreadState->m_uiMaxWorkersToUse[m_WorkerType];
+
   ezTaskPriority::Enum FirstPriority;
   ezTaskPriority::Enum LastPriority;
   ezTaskSystem::DetermineTasksToExecuteOnThread(FirstPriority, LastPriority);
@@ -69,6 +71,18 @@ ezUInt32 ezTaskWorkerThread::Run()
     else
     {
       ++m_uiNumTasksExecuted;
+
+      if (bIsReserve)
+      {
+        EZ_VERIFY(m_WorkerState.Set((int)ezTaskWorkerState::Idle) == (int)ezTaskWorkerState::Active, "Corrupt worker state");
+
+        // if this thread is part of the reserve, then don't continue to process tasks indefinitely
+        // instead, put this thread to sleep and wake up someone else
+        // that someone else may be a thread at the front of the queue, it may also turn out to be this thread again
+        ezTaskSystem::WakeUpThreads(m_WorkerType, 1);
+
+        WaitForWork();
+      }
     }
   }
 
@@ -131,4 +145,3 @@ double ezTaskWorkerThread::GetThreadUtilization(ezUInt32* pNumTasksExecuted /*= 
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_TaskWorkerThread);
-
