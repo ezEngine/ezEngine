@@ -16,7 +16,7 @@ ezLongOpWorkerManager::ezLongOpWorkerManager()
 
 ezLongOpWorkerManager::~ezLongOpWorkerManager() = default;
 
-class ezLongOpTask : public ezTask
+class ezLongOpTask final : public ezTask
 {
 public:
   ezLongOpWorker* m_pWorkerOp = nullptr;
@@ -25,12 +25,12 @@ public:
 
   ezLongOpTask()
   {
-    SetOnTaskFinished([](ezTask* pThis) { EZ_DEFAULT_DELETE(pThis); });
-
     ezStringBuilder name;
     name.Format("Long Op: '{}'", "TODO: NAME"); // TODO
-    SetTaskName(name);
+    ConfigureTask(name, ezTaskNesting::Maybe, [](ezTask* pThis) { EZ_DEFAULT_DELETE(pThis); });
   }
+
+  ~ezLongOpTask() = default;
 
   virtual void Execute() override
   {

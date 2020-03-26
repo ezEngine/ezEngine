@@ -6,10 +6,11 @@
 #include <Foundation/Serialization/AbstractObjectGraph.h>
 #include <ToolsFoundation/Document/Document.h>
 
-class ezSaveDocumentTask : public ezTask
+class ezSaveDocumentTask final : public ezTask
 {
 public:
-  ezSaveDocumentTask();
+  ezSaveDocumentTask(ezOnTaskFinishedCallback onTaskFinished);
+  ~ezSaveDocumentTask();
 
   ezDeferredFileWriter file;
   ezAbstractObjectGraph headerGraph;
@@ -20,10 +21,11 @@ public:
   virtual void Execute() override;
 };
 
-class ezAfterSaveDocumentTask : public ezTask
+class ezAfterSaveDocumentTask final : public ezTask
 {
 public:
-  ezAfterSaveDocumentTask();
+  ezAfterSaveDocumentTask(ezOnTaskFinishedCallback onTaskFinished);
+  ~ezAfterSaveDocumentTask();
 
   ezDocument* m_document = nullptr;
   ezDocument::AfterSaveCallback m_callback;

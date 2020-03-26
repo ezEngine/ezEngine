@@ -16,14 +16,15 @@ EZ_CHECK_AT_COMPILETIME(sizeof(PlacementPoint) == 32);
 // EZ_CHECK_AT_COMPILETIME(sizeof(PlacementTransform) == 64); // TODO: Fails on Linux and Mac
 
 PlacementTask::PlacementTask(PlacementData* pData, const char* szName)
-  : ezTask(szName)
-  , m_pData(pData)
+  : m_pData(pData)
 {
+  ConfigureTask(szName, ezTaskNesting::Maybe);
+
   m_VM.RegisterDefaultFunctions();
   m_VM.RegisterFunction("ApplyVolumes", &ezProcGenExpressionFunctions::ApplyVolumes, &ezProcGenExpressionFunctions::ApplyVolumesValidate);
 }
 
-PlacementTask::~PlacementTask() {}
+PlacementTask::~PlacementTask() = default;
 
 void PlacementTask::Clear()
 {

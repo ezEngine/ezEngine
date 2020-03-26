@@ -24,7 +24,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, ParallelFor)
   ezUInt32 uiNumbersCheckSum = 0;
   ezStaticArray<ezUInt32, ::s_uiTotalNumberOfTaskItems> numbers;
 
-  ezTaskSystem::ParallelForParams parallelForParams;
+  ezParallelForParams parallelForParams;
   parallelForParams.uiBinSize = ::s_uiTaskItemSliceSize;
   parallelForParams.uiMaxTasksPerThread = 1;
 

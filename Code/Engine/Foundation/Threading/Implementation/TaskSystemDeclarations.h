@@ -1,17 +1,17 @@
 #pragma once
 
-#include <Foundation/Containers/DynamicArray.h>
-#include <Foundation/Containers/List.h>
-#include <Foundation/Strings/StringBuilder.h>
-#include <Foundation/Threading/Mutex.h>
-#include <Foundation/Threading/Thread.h>
-#include <Foundation/Threading/ThreadSignal.h>
+#include <Foundation/Containers/HybridArray.h>
+#include <Foundation/Threading/ConditionVariable.h>
 #include <Foundation/Time/Time.h>
 #include <Foundation/Types/Delegate.h>
+#include <Foundation/Types/UniquePtr.h>
 
-
-class ezTaskGroup;
 class ezTask;
+class ezTaskGroup;
+class ezTaskWorkerThread;
+class ezTaskSystemState;
+class ezTaskSystemThreadState;
+class ezDGMLGraph;
 
 /// \brief Describes the priority with which to execute a task.
 ///
@@ -92,42 +92,8 @@ struct ezWorkerThreadType
     FileAccess,
     ENUM_COUNT
   };
-};
 
-/// \internal Internal task worker thread class.
-class ezTaskWorkerThread : public ezThread
-{
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezTaskWorkerThread);
-
-private:
-  friend class ezTaskSystem;
-
-  /// \brief Tells the worker thread what tasks to execute and which thread index it has.
-  ezTaskWorkerThread(ezWorkerThreadType::Enum ThreadType, ezUInt32 iThreadNumber);
-
-  // Whether the thread is supposed to continue running.
-  volatile bool m_bActive;
-
-  // Which types of tasks this thread should work on.
-  ezWorkerThreadType::Enum m_WorkerType;
-
-  virtual ezUInt32 Run() override;
-
-  // Computes the thread utilization by dividing the thread active time by the time that has passed since the last update.
-  void ComputeThreadUtilization(ezTime TimePassed);
-
-  // The thread keeps track of how much time it spends executing tasks. This function retrieves that time and resets it to zero.
-  ezTime GetAndResetThreadActiveTime();
-
-  bool m_bExecutingTask;
-  ezTime m_StartedWorking;
-  ezTime m_ThreadActiveTime;
-  double m_ThreadUtilization;
-  ezAtomicInteger32 m_iTasksExecutionCounter;
-  ezUInt32 m_uiNumTasksExecuted;
-
-  // For display purposes.
-  ezUInt32 m_uiWorkerThreadNumber;
+  static const char* GetThreadTypeName(ezWorkerThreadType::Enum ThreadType);
 };
 
 /// \brief Given out by ezTaskSystem::CreateTaskGroup to identify a task group.
@@ -135,50 +101,31 @@ class EZ_FOUNDATION_DLL ezTaskGroupID
 {
 public:
   EZ_ALWAYS_INLINE ezTaskGroupID() = default;
+  EZ_ALWAYS_INLINE ~ezTaskGroupID() = default;
 
   /// \brief Returns false, if the GroupID does not reference a valid ezTaskGroup
   EZ_ALWAYS_INLINE bool IsValid() const { return m_pTaskGroup != nullptr; }
 
   /// \brief Resets the GroupID into an invalid state.
-  void Invalidate() { m_pTaskGroup = nullptr; }
+  EZ_ALWAYS_INLINE void Invalidate() { m_pTaskGroup = nullptr; }
 
 private:
   friend class ezTaskSystem;
+  friend class ezTaskGroup;
 
   // the counter is used to determine whether this group id references the 'same' group, as m_pTaskGroup.
   // if m_pTaskGroup->m_uiGroupCounter is different to this->m_uiGroupCounter, then the group ID is not valid anymore.
-  volatile ezUInt32 m_uiGroupCounter = 0;
+  ezUInt32 m_uiGroupCounter = 0;
 
   // points to the actual task group object
   ezTaskGroup* m_pTaskGroup = nullptr;
 };
 
-/// \internal Should have been a nested struct in ezTaskSystem, but that does not work with forward declarations.
-class ezTaskGroup
-{
-public:
-  ~ezTaskGroup();
+/// \brief Callback type when a task group has been finished (or canceled).
+using ezOnTaskGroupFinishedCallback = ezDelegate<void()>;
 
-  /// \brief The function type to use when one wants to get informed when a task group has been finished.
-  typedef ezDelegate<void()> OnTaskGroupFinished;
-
-private:
-  friend class ezTaskSystem;
-
-  ezTaskGroup();
-
-  bool m_bInUse = false;
-  bool m_bStartedByUser = false;
-  ezUInt16 m_uiTaskGroupIndex = 0xFFFF; // only there as a debugging aid
-  ezUInt32 m_uiGroupCounter = 1;
-  ezHybridArray<ezTask*, 16> m_Tasks;
-  ezHybridArray<ezTaskGroupID, 4> m_DependsOn;
-  ezHybridArray<ezTaskGroupID, 8> m_OthersDependingOnMe;
-  ezAtomicInteger32 m_iActiveDependencies;
-  ezAtomicInteger32 m_iRemainingTasks;
-  OnTaskGroupFinished m_OnFinishedCallback;
-  ezTaskPriority::Enum m_Priority = ezTaskPriority::ThisFrame;
-};
+/// \brief Callback type when a task has been finished (or canceled).
+using ezOnTaskFinishedCallback = ezDelegate<void(ezTask*)>;
 
 struct ezTaskGroupDependency
 {
@@ -186,4 +133,43 @@ struct ezTaskGroupDependency
 
   ezTaskGroupID m_TaskGroup;
   ezTaskGroupID m_DependsOn;
+};
+
+/// \brief Settings for ezTaskSystem::ParallelFor invocations.
+struct EZ_FOUNDATION_DLL ezParallelForParams
+{
+  ezParallelForParams() {} // do not remove, needed for Clang
+
+  /// The minimum number of items that must be processed by a task instance.
+  /// If the overall number of tasks lies below this value, all work will be executed purely serially
+  /// without involving any tasks at all.
+  ezUInt32 uiBinSize = 1;
+
+  /// Indicates how many tasks per thread may be spawned at most by a ParallelFor invocation.
+  /// Higher numbers give the scheduler more leeway to balance work across available threads.
+  /// Generally, if all task items are expected to take basically the same amount of time,
+  /// low numbers (usually 1) are recommended, while higher numbers (initially test with 2 or 3)
+  /// might yield better results for workloads where task items may take vastly different amounts
+  /// of time, such that scheduling in a balanced fashion becomes more difficult.
+  ezUInt32 uiMaxTasksPerThread = 2;
+
+  /// Returns the multiplicity to use for the given task. If 0 is returned,
+  /// serial execution is to be performed.
+  ezUInt32 DetermineMultiplicity(ezUInt32 uiNumTaskItems) const;
+
+  /// Returns the number of task items to work on per invocation (multiplicity).
+  /// This is aligned with the multiplicity, i.e., multiplicity * bin_size >= # task items.
+  ezUInt32 DetermineItemsPerInvocation(ezUInt32 uiNumTaskItems, ezUInt32 uiMultiplicity) const;
+};
+
+using ezParallelForIndexedFunction = ezDelegate<void(ezUInt32, ezUInt32), 48>;
+
+template <typename ElemType>
+using ezParallelForFunction = ezDelegate<void(ezUInt32, ezArrayPtr<ElemType>), 48>;
+
+enum class ezTaskWorkerState
+{
+  Active = 0,
+  Idle = 1,
+  Blocked = 2,
 };

@@ -9,7 +9,7 @@ class ezVolumeCollection;
 
 namespace ezProcGenInternal
 {
-  class VertexColorTask : public ezTask
+  class VertexColorTask final : public ezTask
   {
   public:
     VertexColorTask();

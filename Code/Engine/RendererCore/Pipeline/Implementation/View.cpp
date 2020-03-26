@@ -34,7 +34,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezView::ezView()
-    : m_ExtractTask("", ezMakeDelegate(&ezView::ExtractData, this))
+  : m_ExtractTask("", ezMakeDelegate(&ezView::ExtractData, this))
 {
   m_pWorld = nullptr;
   m_pCamera = nullptr;
@@ -55,7 +55,7 @@ void ezView::SetName(const char* szName)
 
   ezStringBuilder sb = szName;
   sb.Append(".ExtractData");
-  m_ExtractTask.SetTaskName(sb);
+  m_ExtractTask.ConfigureTask(sb, ezTaskNesting::Maybe);
 }
 
 void ezView::SetWorld(ezWorld* pWorld)
@@ -214,7 +214,7 @@ void ezView::UpdateCachedMatrices() const
   }
 
   const float fViewportAspectRatio =
-      m_Data.m_ViewPortRect.HasNonZeroArea() ? m_Data.m_ViewPortRect.width / m_Data.m_ViewPortRect.height : 1.0f;
+    m_Data.m_ViewPortRect.HasNonZeroArea() ? m_Data.m_ViewPortRect.width / m_Data.m_ViewPortRect.height : 1.0f;
   if (m_uiLastCameraSettingsModification != pCamera->GetSettingsModificationCounter() || m_fLastViewportAspectRatio != fViewportAspectRatio)
   {
     bUpdateVP = true;
@@ -283,7 +283,7 @@ void ezView::SetProperty(ezMap<ezString, PropertyValue>& map, const char* szPass
 
 
 void ezView::SetReadBackProperty(ezMap<ezString, PropertyValue>& map, const char* szPassName, const char* szPropertyName,
-                                 const ezVariant& value)
+  const ezVariant& value)
 {
   ezStringBuilder sKey(szPassName, "::", szPropertyName);
 
@@ -346,7 +346,7 @@ void ezView::ApplyRenderPassProperties()
     if (pObject == nullptr)
     {
       ezLog::Error("The render pass '{0}' does not exist. Property '{1}' cannot be applied.", propertyValue.m_sObjectName,
-                   propertyValue.m_sPropertyName);
+        propertyValue.m_sPropertyName);
 
       propertyValue.m_bIsValid = false;
       continue;
@@ -369,7 +369,7 @@ void ezView::ApplyExtractorProperties()
     if (pExtractor == nullptr)
     {
       ezLog::Error("The extractor '{0}' does not exist. Property '{1}' cannot be applied.", it.Value().m_sObjectName,
-                   it.Value().m_sPropertyName);
+        it.Value().m_sPropertyName);
 
       it.Value().m_bIsValid = false;
       continue;
@@ -385,7 +385,7 @@ void ezView::ApplyProperty(ezReflectedClass* pClass, PropertyValue& data, const 
   if (pAbstractProperty == nullptr)
   {
     ezLog::Error("The {0} '{1}' does not have a property called '{2}', it cannot be applied.", szTypeName, data.m_sObjectName,
-                 data.m_sPropertyName);
+      data.m_sPropertyName);
 
     data.m_bIsValid = false;
     return;
@@ -394,7 +394,7 @@ void ezView::ApplyProperty(ezReflectedClass* pClass, PropertyValue& data, const 
   if (pAbstractProperty->GetCategory() != ezPropertyCategory::Member)
   {
     ezLog::Error("The {0} property '{1}::{2}' is not a member property, it cannot be applied.", szTypeName, data.m_sObjectName,
-                 data.m_sPropertyName);
+      data.m_sPropertyName);
 
     data.m_bIsValid = false;
     return;
@@ -404,4 +404,3 @@ void ezView::ApplyProperty(ezReflectedClass* pClass, PropertyValue& data, const 
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_View);
-

@@ -9,7 +9,7 @@ class ezVolumeCollection;
 
 namespace ezProcGenInternal
 {
-  class PlacementTask : public ezTask
+  class PlacementTask final : public ezTask
   {
   public:
     PlacementTask(PlacementData* pData, const char* szName);

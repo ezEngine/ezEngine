@@ -180,7 +180,7 @@ namespace ezInternal
       bool operator<(const RegisteredUpdateFunction& other) const;
     };
 
-    struct UpdateTask : public ezTask
+    struct UpdateTask final : public ezTask
     {
       virtual void Execute() override;
 

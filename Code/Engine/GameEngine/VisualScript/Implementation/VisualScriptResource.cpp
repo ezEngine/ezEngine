@@ -23,7 +23,7 @@ ezVisualScriptResource::ezVisualScriptResource()
 {
 }
 
-ezVisualScriptResource::~ezVisualScriptResource() {}
+ezVisualScriptResource::~ezVisualScriptResource() = default;
 
 ezResourceLoadDesc ezVisualScriptResource::UnloadData(Unload WhatToUnload)
 {

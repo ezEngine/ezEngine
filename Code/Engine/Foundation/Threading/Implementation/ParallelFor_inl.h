@@ -4,10 +4,10 @@
 #include <Foundation/Profiling/Profiling.h>
 
 template <typename ElemType>
-class ArrayPtrTask : public ezTask
+class ArrayPtrTask final : public ezTask
 {
 public:
-  ArrayPtrTask(ezArrayPtr<ElemType> payload, ezTaskSystem::ParallelForFunction<ElemType> taskCallback, ezUInt32 uiItemsPerInvocation)
+  ArrayPtrTask(ezArrayPtr<ElemType> payload, ezParallelForFunction<ElemType> taskCallback, ezUInt32 uiItemsPerInvocation)
     : m_Payload(payload)
     , m_uiItemsPerInvocation(uiItemsPerInvocation)
     , m_TaskCallback(std::move(taskCallback))
@@ -38,18 +38,18 @@ public:
 private:
   ezArrayPtr<ElemType> m_Payload;
   ezUInt32 m_uiItemsPerInvocation;
-  ezTaskSystem::ParallelForFunction<ElemType> m_TaskCallback;
+  ezParallelForFunction<ElemType> m_TaskCallback;
 };
 
 template <typename ElemType>
-void ezTaskSystem::ParallelForInternal(ezArrayPtr<ElemType> taskItems, ParallelForFunction<ElemType> taskCallback, const char* taskName, ParallelForParams config)
+void ezTaskSystem::ParallelForInternal(ezArrayPtr<ElemType> taskItems, ezParallelForFunction<ElemType> taskCallback, const char* taskName, const ezParallelForParams& config)
 {
   const ezUInt32 uiMultiplicity = config.DetermineMultiplicity(taskItems.GetCount());
   const ezUInt32 uiItemsPerInvocation = config.DetermineItemsPerInvocation(taskItems.GetCount(), uiMultiplicity);
 
   ArrayPtrTask<ElemType> arrayPtrTask(taskItems, std::move(taskCallback), uiItemsPerInvocation);
-  arrayPtrTask.SetTaskName(taskName ? taskName : "Generic ArrayPtr Task");
-  
+  arrayPtrTask.ConfigureTask(taskName ? taskName : "Generic ArrayPtr Task", ezTaskNesting::Never);
+
   if (uiMultiplicity == 0)
   {
     EZ_PROFILE_SCOPE(arrayPtrTask.m_sTaskName);
@@ -58,28 +58,25 @@ void ezTaskSystem::ParallelForInternal(ezArrayPtr<ElemType> taskItems, ParallelF
   else
   {
     arrayPtrTask.SetMultiplicity(uiMultiplicity);
-
     ezTaskGroupID taskGroupId = ezTaskSystem::StartSingleTask(&arrayPtrTask, ezTaskPriority::EarlyThisFrame);
     ezTaskSystem::WaitForGroup(taskGroupId);
   }
 }
 
-template<typename ElemType, typename Callback>
-void ezTaskSystem::ParallelFor(ezArrayPtr<ElemType> taskItems, Callback taskCallback, const char* taskName, ParallelForParams params)
+template <typename ElemType, typename Callback>
+void ezTaskSystem::ParallelFor(ezArrayPtr<ElemType> taskItems, Callback taskCallback, const char* taskName, const ezParallelForParams& params)
 {
-  auto wrappedCallback = [taskCallback = std::move(taskCallback)](ezUInt32 /*uiBaseIndex*/, ezArrayPtr<ElemType> taskSlice)
-  {
+  auto wrappedCallback = [taskCallback = std::move(taskCallback)](ezUInt32 /*uiBaseIndex*/, ezArrayPtr<ElemType> taskSlice) {
     taskCallback(taskSlice);
   };
 
-  ParallelForInternal<ElemType>(taskItems, ParallelForFunction<ElemType>(std::move(wrappedCallback), ezFrameAllocator::GetCurrentAllocator()), taskName, params);
+  ParallelForInternal<ElemType>(taskItems, ezParallelForFunction<ElemType>(std::move(wrappedCallback), ezFrameAllocator::GetCurrentAllocator()), taskName, params);
 }
 
 template <typename ElemType, typename Callback>
-void ezTaskSystem::ParallelForSingle(ezArrayPtr<ElemType> taskItems, Callback taskCallback, const char* taskName, ParallelForParams params)
+void ezTaskSystem::ParallelForSingle(ezArrayPtr<ElemType> taskItems, Callback taskCallback, const char* taskName, const ezParallelForParams& params)
 {
-  auto wrappedCallback = [taskCallback = std::move(taskCallback)](ezUInt32 /*uiBaseIndex*/, ezArrayPtr<ElemType> taskSlice)
-  {
+  auto wrappedCallback = [taskCallback = std::move(taskCallback)](ezUInt32 /*uiBaseIndex*/, ezArrayPtr<ElemType> taskSlice) {
     // Handing in by non-const& allows to use callbacks with (non-)const& as well as value parameters.
     for (ElemType& taskItem : taskSlice)
     {
@@ -87,14 +84,13 @@ void ezTaskSystem::ParallelForSingle(ezArrayPtr<ElemType> taskItems, Callback ta
     }
   };
 
-  ParallelForInternal<ElemType>(taskItems, ParallelForFunction<ElemType>(std::move(wrappedCallback), ezFrameAllocator::GetCurrentAllocator()), taskName, params);
+  ParallelForInternal<ElemType>(taskItems, ezParallelForFunction<ElemType>(std::move(wrappedCallback), ezFrameAllocator::GetCurrentAllocator()), taskName, params);
 }
 
 template <typename ElemType, typename Callback>
-void ezTaskSystem::ParallelForSingleIndex(ezArrayPtr<ElemType> taskItems, Callback taskCallback, const char* taskName, ParallelForParams params)
+void ezTaskSystem::ParallelForSingleIndex(ezArrayPtr<ElemType> taskItems, Callback taskCallback, const char* taskName, const ezParallelForParams& params)
 {
-  auto wrappedCallback = [taskCallback = std::move(taskCallback)](ezUInt32 uiBaseIndex, ezArrayPtr<ElemType> taskSlice)
-  {
+  auto wrappedCallback = [taskCallback = std::move(taskCallback)](ezUInt32 uiBaseIndex, ezArrayPtr<ElemType> taskSlice) {
     for (ezUInt32 uiIndex = 0; uiIndex < taskSlice.GetCount(); ++uiIndex)
     {
       // Handing in by dereferenced pointer allows to use callbacks with (non-)const& as well as value parameters.
@@ -102,6 +98,5 @@ void ezTaskSystem::ParallelForSingleIndex(ezArrayPtr<ElemType> taskItems, Callba
     }
   };
 
-  ParallelForInternal<ElemType>(taskItems, ParallelForFunction<ElemType>(std::move(wrappedCallback), ezFrameAllocator::GetCurrentAllocator()), taskName, params);
+  ParallelForInternal<ElemType>(taskItems, ezParallelForFunction<ElemType>(std::move(wrappedCallback), ezFrameAllocator::GetCurrentAllocator()), taskName, params);
 }
-

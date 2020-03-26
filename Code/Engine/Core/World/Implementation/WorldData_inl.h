@@ -9,8 +9,7 @@ namespace ezInternal
 
   // static
   template <typename VISITOR>
-  EZ_FORCE_INLINE ezVisitorExecution::Enum WorldData::TraverseHierarchyLevel(Hierarchy::DataBlockArray& blocks,
-    void* pUserData /* = nullptr*/)
+  EZ_FORCE_INLINE ezVisitorExecution::Enum WorldData::TraverseHierarchyLevel(Hierarchy::DataBlockArray& blocks, void* pUserData /* = nullptr*/)
   {
     for (WorldData::Hierarchy::DataBlock& block : blocks)
     {
@@ -32,10 +31,9 @@ namespace ezInternal
 
   // static
   template <typename VISITOR>
-  EZ_FORCE_INLINE ezVisitorExecution::Enum WorldData::TraverseHierarchyLevelMultiThreaded(Hierarchy::DataBlockArray& blocks,
-    void* pUserData /* = nullptr*/)
+  EZ_FORCE_INLINE ezVisitorExecution::Enum WorldData::TraverseHierarchyLevelMultiThreaded(Hierarchy::DataBlockArray& blocks, void* pUserData /* = nullptr*/)
   {
-    ezTaskSystem::ParallelForParams parallelForParams;
+    ezParallelForParams parallelForParams;
     parallelForParams.uiBinSize = 100;
     parallelForParams.uiMaxTasksPerThread = 2;
 
@@ -67,8 +65,7 @@ namespace ezInternal
   }
 
   // static
-  EZ_FORCE_INLINE void WorldData::UpdateGlobalTransformWithParent(ezGameObject::TransformationData* pData,
-    const ezSimdFloat& fInvDeltaSeconds)
+  EZ_FORCE_INLINE void WorldData::UpdateGlobalTransformWithParent(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds)
   {
     pData->UpdateGlobalTransformWithParent();
     pData->UpdateVelocity(fInvDeltaSeconds);
@@ -85,8 +82,7 @@ namespace ezInternal
   }
 
   // static
-  EZ_FORCE_INLINE void WorldData::UpdateGlobalTransformWithParentAndSpatialData(ezGameObject::TransformationData* pData,
-    const ezSimdFloat& fInvDeltaSeconds, ezSpatialSystem& spatialSystem)
+  EZ_FORCE_INLINE void WorldData::UpdateGlobalTransformWithParentAndSpatialData(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds, ezSpatialSystem& spatialSystem)
   {
     pData->UpdateGlobalTransformWithParent();
     pData->UpdateVelocity(fInvDeltaSeconds);

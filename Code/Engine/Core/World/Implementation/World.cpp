@@ -44,7 +44,7 @@ ezWorld::ezWorld(ezWorldDesc& desc)
 
   ezStringBuilder sb = desc.m_sName.GetString();
   sb.Append(".Update");
-  m_UpdateTask.SetTaskName(sb);
+  m_UpdateTask.ConfigureTask(sb, ezTaskNesting::Maybe);
 
   m_uiIndex = c_InvalidWorldIndex;
 
@@ -869,10 +869,8 @@ void ezWorld::RegisterUpdateFunction(const ezComponentManagerBase::UpdateFunctio
 {
   CheckForWriteAccess();
 
-  EZ_ASSERT_DEV(desc.m_Phase == ezComponentManagerBase::UpdateFunctionDesc::Phase::Async || desc.m_uiGranularity == 0,
-    "Granularity must be 0 for synchronous update functions");
-  EZ_ASSERT_DEV(desc.m_Phase != ezComponentManagerBase::UpdateFunctionDesc::Phase::Async || desc.m_DependsOn.GetCount() == 0,
-    "Asynchronous update functions must not have dependencies");
+  EZ_ASSERT_DEV(desc.m_Phase == ezComponentManagerBase::UpdateFunctionDesc::Phase::Async || desc.m_uiGranularity == 0, "Granularity must be 0 for synchronous update functions");
+  EZ_ASSERT_DEV(desc.m_Phase != ezComponentManagerBase::UpdateFunctionDesc::Phase::Async || desc.m_DependsOn.GetCount() == 0, "Asynchronous update functions must not have dependencies");
   EZ_ASSERT_DEV(desc.m_Function.IsComparable(), "Delegates with captures are not allowed as ezWorld update functions.");
 
   m_Data.m_UpdateFunctionsToRegister.PushBack(desc);
@@ -975,7 +973,7 @@ void ezWorld::UpdateAsynchronous()
         m_Data.m_UpdateTasks.PushBack(pTask);
       }
 
-      pTask->SetTaskName(updateFunction.m_sFunctionName);
+      pTask->ConfigureTask(updateFunction.m_sFunctionName, ezTaskNesting::Maybe);
       pTask->m_Function = updateFunction.m_Function;
       pTask->m_uiStartIndex = uiStartIndex;
       pTask->m_uiCount = (uiStartIndex + uiGranularity < uiTotalCount) ? uiGranularity : ezInvalidIndex;

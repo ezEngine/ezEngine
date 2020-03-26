@@ -51,7 +51,11 @@ void ezResourceManager::InternalPreloadResource(ezResource* pResource, bool bHig
   {
     AddToLoadingQueue(pResource, bHighestPriority);
 
-    // the mutex will be released by RunWorkerTask
+    if (bHighestPriority && ezTaskSystem::GetCurrentThreadWorkerType() == ezWorkerThreadType::FileAccess)
+    {
+      ezResourceManager::s_State->s_bAllowLaunchDataLoadTask = true;
+    }
+
     RunWorkerTask(pResource);
   }
 }
@@ -63,16 +67,28 @@ void ezResourceManager::SetupWorkerTasks()
     s_State->m_bTaskNamesInitialized = true;
     ezStringBuilder s;
 
-    for (ezUInt32 i = 0; i < s_State->MaxDataLoadTasks; ++i)
     {
-      s.Format("Resource Data Loader {0}", i);
-      s_State->s_WorkerTasksDataLoad[i].SetTaskName(s.GetData());
+      static const ezUInt32 InitialDataLoadTasks = 4;
+
+      for (ezUInt32 i = 0; i < InitialDataLoadTasks; ++i)
+      {
+        s.Format("Resource Data Loader {0}", i);
+        auto& data = s_State->s_WorkerTasksDataLoad.ExpandAndGetRef();
+        data.m_pTask = EZ_DEFAULT_NEW(ezResourceManagerWorkerDataLoad);
+        data.m_pTask->ConfigureTask(s, ezTaskNesting::Maybe);
+      }
     }
 
-    for (ezUInt32 i = 0; i < s_State->MaxUpdateContentTasks; ++i)
     {
-      s.Format("Resource Content Updater {0}", i);
-      s_State->s_WorkerTasksUpdateContent[i].SetTaskName(s.GetData());
+      static const ezUInt32 InitialUpdateContentTasks = 16;
+
+      for (ezUInt32 i = 0; i < InitialUpdateContentTasks; ++i)
+      {
+        s.Format("Resource Content Updater {0}", i);
+        auto& data = s_State->s_WorkerTasksUpdateContent.ExpandAndGetRef();
+        data.m_pTask = EZ_DEFAULT_NEW(ezResourceManagerWorkerUpdateContent);
+        data.m_pTask->ConfigureTask(s, ezTaskNesting::Maybe);
+      }
     }
   }
 }
@@ -82,51 +98,32 @@ void ezResourceManager::RunWorkerTask(ezResource* pResource)
   if (s_State->s_bShutdown)
     return;
 
-  bool bDoItYourself = false;
+  EZ_ASSERT_DEV(s_ResourceMutex.IsLocked(), "");
 
-  // lock scope
+  SetupWorkerTasks();
+
+  if (s_State->s_bAllowLaunchDataLoadTask && !s_State->s_LoadingQueue.IsEmpty())
   {
-    EZ_LOCK(s_ResourceMutex);
+    s_State->s_bAllowLaunchDataLoadTask = false;
 
-    SetupWorkerTasks();
-
-    if (pResource != nullptr && ezTaskSystem::GetCurrentThreadWorkerType() == ezWorkerThreadType::FileAccess)
+    for (ezUInt32 i = 0; i < s_State->s_WorkerTasksDataLoad.GetCount(); ++i)
     {
-      bDoItYourself = true;
-    }
-    else if (!s_State->s_bDataLoadTaskRunning && !s_State->s_LoadingQueue.IsEmpty())
-    {
-      s_State->s_bDataLoadTaskRunning = true;
-      s_State->s_uiCurrentLoadDataWorkerTask = (s_State->s_uiCurrentLoadDataWorkerTask + 1) % s_State->MaxDataLoadTasks;
-      ezTaskSystem::StartSingleTask(&s_State->s_WorkerTasksDataLoad[s_State->s_uiCurrentLoadDataWorkerTask], ezTaskPriority::FileAccess);
-    }
-  }
-
-  if (bDoItYourself)
-  {
-    // this function is always called from within a mutex
-    // but we need to release the mutex between every loop iteration to prevent deadlocks
-    EZ_ASSERT_DEV(s_ResourceMutex.IsLocked(), "Mutex must be locked");
-
-    s_ResourceMutex.Unlock();
-
-    while (true)
-    {
-      ezResourceManagerWorkerDataLoad::DoWork(true);
-
+      if (s_State->s_WorkerTasksDataLoad[i].m_pTask->IsTaskFinished())
       {
-        EZ_LOCK(s_ResourceMutex);
-
-        // if some task (this or another) removed the resource from the loading queue we can stop
-        if (!pResource->m_Flags.IsAnySet(ezResourceFlags::IsQueuedForLoading))
-        {
-          break;
-        }
+        s_State->s_WorkerTasksDataLoad[i].m_GroupId = ezTaskSystem::StartSingleTask(s_State->s_WorkerTasksDataLoad[i].m_pTask.Borrow(), ezTaskPriority::FileAccess);
+        return;
       }
     }
 
-    // reacquire to get into the proper state
-    s_ResourceMutex.Lock();
+    // could not find any unused task -> need to create a new one
+    {
+      ezStringBuilder s;
+      s.Format("Resource Data Loader {0}", s_State->s_WorkerTasksDataLoad.GetCount());
+      auto& data = s_State->s_WorkerTasksDataLoad.ExpandAndGetRef();
+      data.m_pTask = EZ_DEFAULT_NEW(ezResourceManagerWorkerDataLoad);
+      data.m_pTask->ConfigureTask(s, ezTaskNesting::Maybe);
+      data.m_GroupId = ezTaskSystem::StartSingleTask(data.m_pTask.Borrow(), ezTaskPriority::FileAccess);
+    }
   }
 }
 
@@ -270,8 +267,6 @@ bool ezResourceManager::ReloadResource(ezResource* pResource, bool bForce)
 
   ezResourceTypeLoader* pLoader = ezResourceManager::GetResourceTypeLoader(pResource->GetDynamicRTTI());
 
-  /// \todo Do we need to handle HasCustomDataLoader here ?? (apparently not)
-
   if (pLoader == nullptr)
     pLoader = pResource->GetDefaultResourceTypeLoader();
 
@@ -342,18 +337,7 @@ bool ezResourceManager::ReloadResource(ezResource* pResource, bool bForce)
     // everything else will be loaded on demand
     if (pResource->GetLastAcquireTime() >= tNow - ezTime::Seconds(30.0))
     {
-      // this will deadlock fmod soundbank loading
-      // what happens is that PreloadResource sets the "IsPreloading" flag, because the soundbank is now in the queue
-      // in case a soundevent is needed right away (very likely), to load that soundevent, the soundbank is needed, so the soundevent loader
-      // blocks until the soundbank is loaded however, both loaders would currently run on the single "loading thread", so now the loading
-      // thread will wait for itself to finish, which never happens instead, it SHOULD just load the soundbank itself, which is
-      // theoretically implemented, but does not happen when the "IsPreloading" flag is already set there are multiple solutions
-      // 1. do not depend on other resources while loading a resource, though this does not work for fmod soundevents
-      // 2. trigger the 'bDoItYourself' code path above when on the loading thread, this would require InternalPreloadResource to somehow
-      // change
-      // 3. move the soundevent loader off the loading thread, ie. by finally implementing ezResourceFlags::NoFileAccessRequired
-
-      // PreloadResource(pResource, tNow - pResource->GetLastAcquireTime());
+      PreloadResource(pResource);
     }
   }
 
@@ -405,43 +389,6 @@ ezUInt32 ezResourceManager::ReloadAllResources(bool bForce)
   return count;
 }
 
-bool ezResourceManager::HelpResourceLoading()
-{
-  // the ezTaskSystem will take care of executing other tasks on this thread when we call WaitForTask
-  // so this function will 'help' by 'waiting' for some other task
-
-  for (ezUInt32 i = 0; i < s_State->MaxUpdateContentTasks; ++i)
-  {
-    // get the 'oldest' main thread task in the queue and try to finish that first
-    const ezInt32 iWorkerMainThread = (s_State->s_uiCurrentUpdateContentWorkerTask + i) % s_State->MaxUpdateContentTasks;
-
-    if (!s_State->s_WorkerTasksUpdateContent[iWorkerMainThread].IsTaskFinished())
-    {
-      // we must not wait on tasks that are already running on this thread
-      // otherwise we produce a deadlock
-      if (ezTaskSystem::IsTaskRunningOnCurrentThread(&s_State->s_WorkerTasksUpdateContent[iWorkerMainThread]))
-        continue;
-
-      ezTaskSystem::WaitForTask(&s_State->s_WorkerTasksUpdateContent[iWorkerMainThread]);
-      return true; // we waited for one of them, that's enough for this round
-    }
-  }
-
-  if (!s_State->s_WorkerTasksDataLoad[s_State->s_uiCurrentLoadDataWorkerTask].IsTaskFinished())
-  {
-    // we must not wait on tasks that are already running on this thread
-    // otherwise we produce a deadlock
-    if (ezTaskSystem::IsTaskRunningOnCurrentThread(&s_State->s_WorkerTasksDataLoad[s_State->s_uiCurrentLoadDataWorkerTask]))
-      return false;
-
-    ezTaskSystem::WaitForTask(&s_State->s_WorkerTasksDataLoad[s_State->s_uiCurrentLoadDataWorkerTask]);
-    return true;
-  }
-
-  return false;
-}
-
-
 void ezResourceManager::UpdateResourceWithCustomLoader(
   const ezTypelessResourceHandle& hResource, ezUniquePtr<ezResourceTypeLoader>&& loader)
 {
@@ -454,13 +401,44 @@ void ezResourceManager::UpdateResourceWithCustomLoader(
   ReloadResource(hResource.m_pResource, true);
 };
 
-void ezResourceManager::EnsureResourceLoadingState(ezResource* pResource, const ezResourceState RequestedState)
+void ezResourceManager::EnsureResourceLoadingState(ezResource* pResourceToLoad, const ezResourceState RequestedState)
 {
+  const ezRTTI* pOwnRtti = pResourceToLoad->GetDynamicRTTI();
+
   // help loading until the requested resource is available
-  while ((ezInt32)pResource->GetLoadingState() < (ezInt32)RequestedState &&
-         (pResource->GetLoadingState() != ezResourceState::LoadedResourceMissing))
+  while ((ezInt32)pResourceToLoad->GetLoadingState() < (ezInt32)RequestedState && (pResourceToLoad->GetLoadingState() != ezResourceState::LoadedResourceMissing))
   {
-    HelpResourceLoading();
+    ezTaskGroupID tgid;
+
+    {
+      EZ_LOCK(s_ResourceMutex);
+
+      for (ezUInt32 i = 0; i < s_State->s_WorkerTasksUpdateContent.GetCount(); ++i)
+      {
+        const ezResource* pQueuedResource = s_State->s_WorkerTasksUpdateContent[i].m_pTask->m_pResourceToLoad;
+
+        if (pQueuedResource != nullptr && pQueuedResource != pResourceToLoad && !s_State->s_WorkerTasksUpdateContent[i].m_pTask->IsTaskFinished())
+        {
+          if (!IsResourceTypeAcquireDuringUpdateContentAllowed(pQueuedResource->GetDynamicRTTI(), pOwnRtti))
+          {
+            tgid = s_State->s_WorkerTasksUpdateContent[i].m_GroupId;
+            break;
+          }
+        }
+      }
+    }
+
+    if (tgid.IsValid())
+    {
+      ezTaskSystem::WaitForGroup(tgid);
+    }
+    else
+    {
+      // do not use ezThreadUtils::YieldTimeSlice here, otherwise the thread is not tagged as 'blocked' in the TaskSystem
+      ezTaskSystem::WaitForCondition([=]() -> bool {
+        return (ezInt32)pResourceToLoad->GetLoadingState() >= (ezInt32)RequestedState || (pResourceToLoad->GetLoadingState() == ezResourceState::LoadedResourceMissing);
+      });
+    }
   }
 }
 

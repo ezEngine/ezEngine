@@ -23,6 +23,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetProperties, 2, ezRTTIDefaultAllocato
   {
     EZ_ENUM_MEMBER_PROPERTY("Mode", ezDecalMode, m_Mode),
     EZ_MEMBER_PROPERTY("BlendModeColorize", m_bBlendModeColorize),
+    EZ_MEMBER_PROPERTY("AlphaMask", m_sAlphaMask)->AddAttributes(new ezFileBrowserAttribute("Select Alpha Mask", "*.dds;*.tga;*.png;*.jpg;*.jpeg")),
     EZ_MEMBER_PROPERTY("BaseColor", m_sBaseColor)->AddAttributes(new ezFileBrowserAttribute("Select Base Color Map", "*.dds;*.tga;*.png;*.jpg;*.jpeg")),
     EZ_MEMBER_PROPERTY("Normal", m_sNormal)->AddAttributes(new ezFileBrowserAttribute("Select Normal Map", "*.dds;*.tga;*.png;*.jpg;*.jpeg"), new ezDefaultValueAttribute(ezStringView("Textures/NeutralNormal.tga"))), // wrap in ezStringView to prevent a memory leak report
     EZ_MEMBER_PROPERTY("ORM", m_sORM)->AddAttributes(new ezFileBrowserAttribute("Select ORM Map", "*.dds;*.tga;*.png;*.jpg;*.jpeg")),
@@ -115,14 +116,34 @@ ezStatus ezDecalAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& Unus
     ezStringBuilder sAbsPath = pProp->m_sBaseColor;
     if (!pEditorApp->MakeDataDirectoryRelativePathAbsolute(sAbsPath))
     {
-      return ezStatus("Failed to make path absolute");
+      return ezStatus(ezFmt("Failed to make path absolute: '{}'", sAbsPath));
     }
 
     arguments << temp.GetData();
     arguments << QString(sAbsPath.GetData());
 
-    arguments << "-rgba";
-    arguments << "in0.rgba";
+    if (!pProp->m_sAlphaMask.IsEmpty())
+    {
+      ezStringBuilder sAbsPath = pProp->m_sAlphaMask;
+      if (!pEditorApp->MakeDataDirectoryRelativePathAbsolute(sAbsPath))
+      {
+        return ezStatus(ezFmt("Failed to make path absolute: '{}'", sAbsPath));
+      }
+
+      arguments << "-in1";
+      arguments << QString(sAbsPath.GetData());
+
+      arguments << "-rgb";
+      arguments << "in0.rgb";
+
+      arguments << "-a";
+      arguments << "in1.a";
+    }
+    else
+    {
+      arguments << "-rgba";
+      arguments << "in0.rgba";
+    }
   }
 
   ezStringBuilder cmd;

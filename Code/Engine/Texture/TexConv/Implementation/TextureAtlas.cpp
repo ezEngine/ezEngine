@@ -72,19 +72,54 @@ ezResult ezTexConvProcessor::LoadAtlasInputs(const ezTextureAtlasCreationDesc& a
           return EZ_FAILURE;
         }
 
+        if (atlasDesc.m_Layers[layer].m_Usage == ezTexConvUsage::Color)
+        {
+          // enforce sRGB format for all color textures
+          item.m_InputImage[layer].ReinterpretAs(ezImageFormat::AsSrgb(item.m_InputImage[layer].GetImageFormat()));
+        }
+
         ezUInt32 uiResX = 0, uiResY = 0;
         EZ_SUCCEED_OR_RETURN(DetermineTargetResolution(item.m_InputImage[layer], ezImageFormat::UNKNOWN, uiResX, uiResY));
 
         EZ_SUCCEED_OR_RETURN(ConvertAndScaleImage(srcItem.m_sLayerInput[layer], item.m_InputImage[layer], uiResX, uiResY));
       }
     }
+
+
+    if (!srcItem.m_sAlphaInput.IsEmpty())
+    {
+      ezImage alphaImg;
+
+      if (alphaImg.LoadFrom(srcItem.m_sAlphaInput).Failed())
+      {
+        ezLog::Error("Failed to load texture atlas alpha mask '{0}'", srcItem.m_sAlphaInput);
+        return EZ_FAILURE;
+      }
+
+      ezUInt32 uiResX = 0, uiResY = 0;
+      EZ_SUCCEED_OR_RETURN(DetermineTargetResolution(alphaImg, ezImageFormat::UNKNOWN, uiResX, uiResY));
+
+      EZ_SUCCEED_OR_RETURN(ConvertAndScaleImage(srcItem.m_sAlphaInput, alphaImg, uiResX, uiResY));
+
+      // rescale all layers to be no larger than the alpha mask texture
+      for (ezUInt32 layer = 0; layer < atlasDesc.m_Layers.GetCount(); ++layer)
+      {
+        // layer 0 must have the exact same size
+        if (layer != 0 && (item.m_InputImage[layer].GetWidth() <= uiResX || item.m_InputImage[layer].GetHeight() <= uiResY))
+          continue;
+
+        EZ_SUCCEED_OR_RETURN(ConvertAndScaleImage(srcItem.m_sLayerInput[layer], item.m_InputImage[layer], uiResX, uiResY));
+      }
+
+      // copy alpha channel into layer 0
+      ezImageUtils::CopyChannel(item.m_InputImage[0], alphaImg, 3);
+    }
   }
 
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::WriteTextureAtlasInfo(
-  const ezDynamicArray<TextureAtlasItem>& atlasItems, ezUInt32 uiNumLayers, ezStreamWriter& stream)
+ezResult ezTexConvProcessor::WriteTextureAtlasInfo(const ezDynamicArray<TextureAtlasItem>& atlasItems, ezUInt32 uiNumLayers, ezStreamWriter& stream)
 {
   ezTextureAtlasRuntimeDesc runtimeAtlas;
   runtimeAtlas.m_uiNumLayers = uiNumLayers;
@@ -107,8 +142,7 @@ ezResult ezTexConvProcessor::WriteTextureAtlasInfo(
 
 constexpr ezUInt32 uiAtlasCellSize = 32;
 
-ezResult ezTexConvProcessor::TrySortItemsIntoAtlas(
-  ezDynamicArray<TextureAtlasItem>& items, ezUInt32 uiWidth, ezUInt32 uiHeight, ezInt32 layer)
+ezResult ezTexConvProcessor::TrySortItemsIntoAtlas(ezDynamicArray<TextureAtlasItem>& items, ezUInt32 uiWidth, ezUInt32 uiHeight, ezInt32 layer)
 {
   ezTexturePacker packer;
 
@@ -145,10 +179,9 @@ ezResult ezTexConvProcessor::TrySortItemsIntoAtlas(
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::SortItemsIntoAtlas(
-  ezDynamicArray<TextureAtlasItem>& items, ezUInt32& out_ResX, ezUInt32& out_ResY, ezInt32 layer)
+ezResult ezTexConvProcessor::SortItemsIntoAtlas(ezDynamicArray<TextureAtlasItem>& items, ezUInt32& out_ResX, ezUInt32& out_ResY, ezInt32 layer)
 {
-  for (ezUInt32 power = 8; power < 12; ++power)
+  for (ezUInt32 power = 8; power < 14; ++power)
   {
     const ezUInt32 halfRes = 1 << (power - 1);
     const ezUInt32 resolution = 1 << power;
@@ -177,11 +210,11 @@ ezResult ezTexConvProcessor::SortItemsIntoAtlas(
     }
   }
 
+  ezLog::Error("Could not sort items into texture atlas. Too many too large textures.");
   return EZ_FAILURE;
 }
 
-ezResult ezTexConvProcessor::CreateAtlasTexture(ezDynamicArray<TextureAtlasItem>& items, ezUInt32 uiResX, ezUInt32 uiResY,
-  ezImage& atlas, ezInt32 layer)
+ezResult ezTexConvProcessor::CreateAtlasTexture(ezDynamicArray<TextureAtlasItem>& items, ezUInt32 uiResX, ezUInt32 uiResY, ezImage& atlas, ezInt32 layer)
 {
   ezImageHeader imgHeader;
   imgHeader.SetWidth(uiResX);
@@ -268,8 +301,7 @@ ezResult ezTexConvProcessor::FillAtlasBorders(ezDynamicArray<TextureAtlasItem>& 
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::CreateAtlasLayerTexture(const ezTextureAtlasCreationDesc& atlasDesc,
-  ezDynamicArray<TextureAtlasItem>& atlasItems, ezInt32 layer, ezImage& dstImg)
+ezResult ezTexConvProcessor::CreateAtlasLayerTexture(const ezTextureAtlasCreationDesc& atlasDesc, ezDynamicArray<TextureAtlasItem>& atlasItems, ezInt32 layer, ezImage& dstImg)
 {
   ezUInt32 uiTexWidth, uiTexHeight;
   EZ_SUCCEED_OR_RETURN(SortItemsIntoAtlas(atlasItems, uiTexWidth, uiTexHeight, layer));

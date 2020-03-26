@@ -65,14 +65,21 @@ private:
   mutable ezMutex m_ProcessorMutex;
   ezAssetProcessorLog m_CuratorLog;
   ezAtomicInteger32 m_bRunProcessTask;
-  ezDynamicArray<ezProcessTask*> m_ProcessTasks;
+
+  struct TaskAndGroup
+  {
+    ezProcessTask* m_pTask = nullptr;
+    ezTaskGroupID m_GroupID;
+  };
+
+  ezDynamicArray<TaskAndGroup> m_ProcessTasks;
   ezAtomicInteger32 m_TicksWithIdleTasks;
 };
 
-class ezProcessTask : public ezTask
+class ezProcessTask final : public ezTask
 {
 public:
-  ezProcessTask(ezUInt32 uiProcessorID);
+  ezProcessTask(ezUInt32 uiProcessorID, ezOnTaskFinishedCallback onFinished);
   ~ezProcessTask();
   ezAtomicInteger32 m_bDidWork = true;
 

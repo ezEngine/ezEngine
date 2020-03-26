@@ -1,8 +1,9 @@
 #include <FoundationTestPCH.h>
 
 #include <Foundation/Threading/Thread.h>
+#include <Foundation/Types/UniquePtr.h>
 
-namespace AtomicsTestDetail
+namespace
 {
   ezAtomicInteger32 g_iIncVariable = 0;
   ezAtomicInteger32 g_iDecVariable = 0;
@@ -43,13 +44,12 @@ namespace AtomicsTestDetail
   void* g_pCompSwapPointer = nullptr;
   ezInt32 g_iCompSwapPointerCounter = 0;
 
-
-  class TestThread : public ezThread
+  class AtomicsTestThread : public ezThread
   {
   public:
-    TestThread(ezInt32 iIndex)
-        : ezThread("Test Thread")
-        , m_iIndex(iIndex)
+    AtomicsTestThread(ezInt32 iIndex)
+      : ezThread("Test Thread")
+      , m_iIndex(iIndex)
     {
     }
 
@@ -107,65 +107,98 @@ namespace AtomicsTestDetail
   private:
     ezInt32 m_iIndex;
   };
-}
+
+
+  ezAtomicInteger32 g_iPostIncVariable32 = 0;
+  ezAtomicInteger32 g_iPostDecVariable32 = 0;
+  ezAtomicInteger64 g_iPostIncVariable64 = 0;
+  ezAtomicInteger64 g_iPostDecVariable64 = 0;
+  ezDynamicArray<ezAtomicInteger32> g_PostIncValues32;
+  ezDynamicArray<ezAtomicInteger32> g_PostIncValues64;
+  ezDynamicArray<ezAtomicInteger32> g_PostDecValues32;
+  ezDynamicArray<ezAtomicInteger32> g_PostDecValues64;
+  ezDynamicArray<ezUniquePtr<ezThread>> g_PostIncDecThreads;
+
+  class PostIncDecThread : public ezThread
+  {
+  public:
+    PostIncDecThread(ezInt32 iIndex)
+      : ezThread("Test Thread")
+      , m_iIndex(iIndex)
+    {
+    }
+
+    virtual ezUInt32 Run()
+    {
+      g_PostIncValues32[g_iPostIncVariable32.PostIncrement()].Increment();
+      g_PostIncValues64[g_iPostIncVariable64.PostIncrement()].Increment();
+      g_PostDecValues32[g_iPostDecVariable32.PostDecrement()].Increment();
+      g_PostDecValues64[g_iPostDecVariable64.PostDecrement()].Increment();
+      return 0;
+    }
+
+  private:
+    ezInt32 m_iIndex;
+  };
+} // namespace
 
 EZ_CREATE_SIMPLE_TEST(Threading, Atomics)
 {
   // Initialization
   {
-    AtomicsTestDetail::g_iIncVariable = 0;
-    AtomicsTestDetail::g_iDecVariable = 0;
+    g_iIncVariable = 0;
+    g_iDecVariable = 0;
 
-    AtomicsTestDetail::g_iAddVariable = 0;
-    AtomicsTestDetail::g_iSubVariable = 0;
+    g_iAddVariable = 0;
+    g_iSubVariable = 0;
 
-    AtomicsTestDetail::g_iAndVariable = 0xFF;
-    AtomicsTestDetail::g_iOrVariable = 1;
-    AtomicsTestDetail::g_iXorVariable = 3;
+    g_iAndVariable = 0xFF;
+    g_iOrVariable = 1;
+    g_iXorVariable = 3;
 
-    AtomicsTestDetail::g_iMinVariable = 100;
-    AtomicsTestDetail::g_iMaxVariable = -100;
+    g_iMinVariable = 100;
+    g_iMaxVariable = -100;
 
-    AtomicsTestDetail::g_iSetVariable = 0;
+    g_iSetVariable = 0;
 
-    AtomicsTestDetail::g_iCompSwapVariable = 0;
-    AtomicsTestDetail::g_iCompSwapCounter = 0;
+    g_iCompSwapVariable = 0;
+    g_iCompSwapCounter = 0;
 
-    AtomicsTestDetail::g_iIncVariable64 = 0;
-    AtomicsTestDetail::g_iDecVariable64 = 0;
+    g_iIncVariable64 = 0;
+    g_iDecVariable64 = 0;
 
-    AtomicsTestDetail::g_iAddVariable64 = 0;
-    AtomicsTestDetail::g_iSubVariable64 = 0;
+    g_iAddVariable64 = 0;
+    g_iSubVariable64 = 0;
 
-    AtomicsTestDetail::g_iAndVariable64 = 0xFF;
-    AtomicsTestDetail::g_iOrVariable64 = 1;
-    AtomicsTestDetail::g_iXorVariable64 = 3;
+    g_iAndVariable64 = 0xFF;
+    g_iOrVariable64 = 1;
+    g_iXorVariable64 = 3;
 
-    AtomicsTestDetail::g_iMinVariable64 = 100;
-    AtomicsTestDetail::g_iMaxVariable64 = -100;
+    g_iMinVariable64 = 100;
+    g_iMaxVariable64 = -100;
 
-    AtomicsTestDetail::g_iSetVariable64 = 0;
+    g_iSetVariable64 = 0;
 
-    AtomicsTestDetail::g_iCompSwapVariable64 = 0;
-    AtomicsTestDetail::g_iCompSwapCounter64 = 0;
+    g_iCompSwapVariable64 = 0;
+    g_iCompSwapCounter64 = 0;
 
-    AtomicsTestDetail::g_pCompSwapPointer = nullptr;
-    AtomicsTestDetail::g_iCompSwapPointerCounter = 0;
+    g_pCompSwapPointer = nullptr;
+    g_iCompSwapPointerCounter = 0;
   }
 
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Thread")
   {
-    AtomicsTestDetail::TestThread* pTestThread = nullptr;
-    AtomicsTestDetail::TestThread* pTestThread2 = nullptr;
+    AtomicsTestThread* pTestThread = nullptr;
+    AtomicsTestThread* pTestThread2 = nullptr;
 
     /// the try-catch is necessary to quiet the static code analysis
 #if EZ_ENABLED(EZ_TESTFRAMEWORK_SUPPORT_EXCEPTIONS)
     try
 #endif
     {
-      pTestThread = new AtomicsTestDetail::TestThread(1);
-      pTestThread2 = new AtomicsTestDetail::TestThread(2);
+      pTestThread = new AtomicsTestThread(1);
+      pTestThread2 = new AtomicsTestThread(2);
     }
 #if EZ_ENABLED(EZ_TESTFRAMEWORK_SUPPORT_EXCEPTIONS)
     catch (...)
@@ -188,43 +221,119 @@ EZ_CREATE_SIMPLE_TEST(Threading, Atomics)
     delete pTestThread;
     delete pTestThread2;
 
-    EZ_TEST_INT(AtomicsTestDetail::g_iIncVariable, 2);
-    EZ_TEST_INT(AtomicsTestDetail::g_iDecVariable, -2);
+    EZ_TEST_INT(g_iIncVariable, 2);
+    EZ_TEST_INT(g_iDecVariable, -2);
 
-    EZ_TEST_INT(AtomicsTestDetail::g_iAddVariable, 3);
-    EZ_TEST_INT(AtomicsTestDetail::g_iSubVariable, -3);
+    EZ_TEST_INT(g_iAddVariable, 3);
+    EZ_TEST_INT(g_iSubVariable, -3);
 
-    EZ_TEST_INT(AtomicsTestDetail::g_iAndVariable, 0);
-    EZ_TEST_INT(AtomicsTestDetail::g_iOrVariable, 7);
-    EZ_TEST_INT(AtomicsTestDetail::g_iXorVariable, 5);
+    EZ_TEST_INT(g_iAndVariable, 0);
+    EZ_TEST_INT(g_iOrVariable, 7);
+    EZ_TEST_INT(g_iXorVariable, 5);
 
-    EZ_TEST_INT(AtomicsTestDetail::g_iMinVariable, 1);
-    EZ_TEST_INT(AtomicsTestDetail::g_iMaxVariable, 2);
+    EZ_TEST_INT(g_iMinVariable, 1);
+    EZ_TEST_INT(g_iMaxVariable, 2);
 
-    EZ_TEST_BOOL(AtomicsTestDetail::g_iSetVariable > 0);
+    EZ_TEST_BOOL(g_iSetVariable > 0);
 
-    EZ_TEST_BOOL(AtomicsTestDetail::g_iCompSwapVariable > 0);
-    EZ_TEST_INT(AtomicsTestDetail::g_iCompSwapCounter, 1); // only one thread should have set the variable
+    EZ_TEST_BOOL(g_iCompSwapVariable > 0);
+    EZ_TEST_INT(g_iCompSwapCounter, 1); // only one thread should have set the variable
 
-    EZ_TEST_INT(AtomicsTestDetail::g_iIncVariable64, 2);
-    EZ_TEST_INT(AtomicsTestDetail::g_iDecVariable64, -2);
+    EZ_TEST_INT(g_iIncVariable64, 2);
+    EZ_TEST_INT(g_iDecVariable64, -2);
 
-    EZ_TEST_INT(AtomicsTestDetail::g_iAddVariable64, 3);
-    EZ_TEST_INT(AtomicsTestDetail::g_iSubVariable64, -3);
+    EZ_TEST_INT(g_iAddVariable64, 3);
+    EZ_TEST_INT(g_iSubVariable64, -3);
 
-    EZ_TEST_INT(AtomicsTestDetail::g_iAndVariable64, 0);
-    EZ_TEST_INT(AtomicsTestDetail::g_iOrVariable64, 7);
-    EZ_TEST_INT(AtomicsTestDetail::g_iXorVariable64, 5);
+    EZ_TEST_INT(g_iAndVariable64, 0);
+    EZ_TEST_INT(g_iOrVariable64, 7);
+    EZ_TEST_INT(g_iXorVariable64, 5);
 
-    EZ_TEST_INT(AtomicsTestDetail::g_iMinVariable64, 1);
-    EZ_TEST_INT(AtomicsTestDetail::g_iMaxVariable64, 2);
+    EZ_TEST_INT(g_iMinVariable64, 1);
+    EZ_TEST_INT(g_iMaxVariable64, 2);
 
-    EZ_TEST_BOOL(AtomicsTestDetail::g_iSetVariable64 > 0);
+    EZ_TEST_BOOL(g_iSetVariable64 > 0);
 
-    EZ_TEST_BOOL(AtomicsTestDetail::g_iCompSwapVariable64 > 0);
-    EZ_TEST_INT(AtomicsTestDetail::g_iCompSwapCounter64, 1); // only one thread should have set the variable
+    EZ_TEST_BOOL(g_iCompSwapVariable64 > 0);
+    EZ_TEST_INT(g_iCompSwapCounter64, 1); // only one thread should have set the variable
 
-    EZ_TEST_BOOL(AtomicsTestDetail::g_pCompSwapPointer != nullptr);
-    EZ_TEST_INT(AtomicsTestDetail::g_iCompSwapPointerCounter, 1); // only one thread should have set the variable
+    EZ_TEST_BOOL(g_pCompSwapPointer != nullptr);
+    EZ_TEST_INT(g_iCompSwapPointerCounter, 1); // only one thread should have set the variable
+
+    g_iDecVariable = 0;
+    EZ_TEST_INT(g_iDecVariable.Decrement(), -1);
+
+    g_iDecVariable64 = 0;
+    EZ_TEST_INT(g_iDecVariable64.Decrement(), -1);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Post Increment Atomics (basics)")
+  {
+    g_iPostIncVariable32 = 0;
+    EZ_TEST_INT(g_iPostIncVariable32.PostIncrement(), 0);
+    EZ_TEST_INT(g_iPostIncVariable32, 1);
+
+    g_iPostIncVariable64 = 0;
+    EZ_TEST_INT(g_iPostIncVariable64.PostIncrement(), 0);
+    EZ_TEST_INT(g_iPostIncVariable64, 1);
+
+    g_iPostDecVariable32 = 0;
+    EZ_TEST_INT(g_iPostDecVariable32.PostDecrement(), 0);
+    EZ_TEST_INT(g_iPostDecVariable32, -1);
+
+    g_iPostDecVariable64 = 0;
+    EZ_TEST_INT(g_iPostDecVariable64.PostDecrement(), 0);
+    EZ_TEST_INT(g_iPostDecVariable64, -1);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Post Increment Atomics")
+  {
+
+    const ezUInt32 numThreads = 64;
+
+    // used to check that every integer value in range [0; numThreads] is returned exactly once
+    g_PostIncValues32.SetCount(numThreads);
+    g_PostIncValues64.SetCount(numThreads);
+    g_PostDecValues32.SetCount(numThreads);
+    g_PostDecValues64.SetCount(numThreads);
+    g_PostIncDecThreads.SetCount(numThreads);
+
+    // count up
+    g_iPostIncVariable32 = 0;
+    g_iPostIncVariable64 = 0;
+
+    // count down
+    g_iPostDecVariable32 = numThreads - 1;
+    g_iPostDecVariable64 = numThreads - 1;
+
+    for (ezUInt32 t = 0; t < numThreads; ++t)
+    {
+      g_PostIncDecThreads[t] = EZ_DEFAULT_NEW(PostIncDecThread, t);
+    }
+
+    for (ezUInt32 t = 0; t < numThreads; ++t)
+    {
+      g_PostIncDecThreads[t]->Start();
+    }
+
+    for (ezUInt32 t = 0; t < numThreads; ++t)
+    {
+      g_PostIncDecThreads[t]->Join();
+    }
+
+    // check that every value was returned exactly once
+    for (ezUInt32 t = 0; t < numThreads; ++t)
+    {
+      EZ_TEST_INT(g_PostIncValues32[t], 1);
+      EZ_TEST_INT(g_PostIncValues64[t], 1);
+      EZ_TEST_INT(g_PostDecValues32[t], 1);
+      EZ_TEST_INT(g_PostDecValues64[t], 1);
+    }
+
+    g_PostIncDecThreads.Clear();
+    g_PostIncValues32.Clear();
+    g_PostIncValues64.Clear();
+    g_PostDecValues32.Clear();
+    g_PostDecValues64.Clear();
   }
 }

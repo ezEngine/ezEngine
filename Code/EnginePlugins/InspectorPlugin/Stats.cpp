@@ -91,7 +91,7 @@ static void PerFrameUpdateHandler(const ezGameApplicationExecutionEvent& e)
 
       // Tasksystem Thread Utilization
       {
-        for (ezUInt32 t = 0; t < ezTaskSystem::GetWorkerThreadCount(ezWorkerThreadType::ShortTasks); ++t)
+        for (ezUInt32 t = 0; t < ezTaskSystem::GetNumAllocatedWorkerThreads(ezWorkerThreadType::ShortTasks); ++t)
         {
           ezUInt32 uiNumTasks = 0;
           const double Utilization = ezTaskSystem::GetThreadUtilization(ezWorkerThreadType::ShortTasks, t, &uiNumTasks);
@@ -103,7 +103,7 @@ static void PerFrameUpdateHandler(const ezGameApplicationExecutionEvent& e)
           ezStats::SetStat(s.GetData(), uiNumTasks);
         }
 
-        for (ezUInt32 t = 0; t < ezTaskSystem::GetWorkerThreadCount(ezWorkerThreadType::LongTasks); ++t)
+        for (ezUInt32 t = 0; t < ezTaskSystem::GetNumAllocatedWorkerThreads(ezWorkerThreadType::LongTasks); ++t)
         {
           ezUInt32 uiNumTasks = 0;
           const double Utilization = ezTaskSystem::GetThreadUtilization(ezWorkerThreadType::LongTasks, t, &uiNumTasks);
@@ -115,7 +115,7 @@ static void PerFrameUpdateHandler(const ezGameApplicationExecutionEvent& e)
           ezStats::SetStat(s.GetData(), uiNumTasks);
         }
 
-        for (ezUInt32 t = 0; t < ezTaskSystem::GetWorkerThreadCount(ezWorkerThreadType::FileAccess); ++t)
+        for (ezUInt32 t = 0; t < ezTaskSystem::GetNumAllocatedWorkerThreads(ezWorkerThreadType::FileAccess); ++t)
         {
           ezUInt32 uiNumTasks = 0;
           const double Utilization = ezTaskSystem::GetThreadUtilization(ezWorkerThreadType::FileAccess, t, &uiNumTasks);

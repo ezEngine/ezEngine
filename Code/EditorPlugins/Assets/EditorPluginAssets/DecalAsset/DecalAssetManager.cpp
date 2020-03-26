@@ -171,6 +171,17 @@ ezStatus ezDecalAssetDocumentManager::GenerateDecalTexture(const ezPlatformProfi
         item.m_uiFlags |= pDecalProps->NeedsEmissive() ? DECAL_USE_EMISSIVE : 0;
         item.m_uiFlags |= pDecalProps->m_bBlendModeColorize ? DECAL_BLEND_MODE_COLORIZE : 0;
 
+        if (!pDecalProps->m_sAlphaMask.IsEmpty())
+        {
+          sAbsPath = pDecalAsset->GetProperties()->m_sAlphaMask;
+          if (sAbsPath.IsEmpty() || !pEditorApp->MakeDataDirectoryRelativePathAbsolute(sAbsPath))
+          {
+            return ezStatus(ezFmt("Invalid alpha mask texture path '{0}'", sAbsPath));
+          }
+
+          item.m_sAlphaInput = sAbsPath;
+        }
+
         if (pDecalProps->NeedsBaseColor())
         {
           sAbsPath = pDecalAsset->GetProperties()->m_sBaseColor;

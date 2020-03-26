@@ -6,7 +6,7 @@
 
 namespace ezProcGenInternal
 {
-  class PreparePlacementTask : public ezTask
+  class PreparePlacementTask final : public ezTask
   {
   public:
     PreparePlacementTask(PlacementData* pData, const char* szName);

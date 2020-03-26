@@ -134,6 +134,7 @@ namespace
 EZ_CREATE_SIMPLE_TEST(ResourceManager, Basics)
 {
   TestResourceTypeLoader TypeLoader;
+  ezResourceManager::AllowResourceTypeAcquireDuringUpdateContent<TestResource, TestResource>();
   ezResourceManager::SetResourceTypeLoader<TestResource>(&TypeLoader);
   EZ_SCOPE_EXIT(ezResourceManager::SetResourceTypeLoader<TestResource>(nullptr));
 
@@ -195,6 +196,7 @@ EZ_CREATE_SIMPLE_TEST(ResourceManager, Basics)
 EZ_CREATE_SIMPLE_TEST(ResourceManager, NestedLoading)
 {
   TestResourceTypeLoader TypeLoader;
+  ezResourceManager::AllowResourceTypeAcquireDuringUpdateContent<TestResource, TestResource>();
   ezResourceManager::SetResourceTypeLoader<TestResource>(&TypeLoader);
   EZ_SCOPE_EXIT(ezResourceManager::SetResourceTypeLoader<TestResource>(nullptr));
 
@@ -239,7 +241,7 @@ EZ_CREATE_SIMPLE_TEST(ResourceManager, NestedLoading)
   }
 
   // Test disabled as it deadlocks
-  EZ_TEST_BLOCK(ezTestBlock::Disabled, "Blocking")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Blocking")
   {
     EZ_TEST_INT(ezResourceManager::GetAllResourcesOfType<TestResource>()->GetCount(), 0);
 

@@ -37,8 +37,10 @@ ezCVarBool CVarShowFPS("g_ShowFPS", false, ezCVarFlags::Save, "Show frames per s
 ezGameApplication::ezGameApplication(const char* szAppName, const char* szProjectPath /*= nullptr*/)
   : ezGameApplicationBase(szAppName)
   , m_sAppProjectPath(szProjectPath)
-  , m_UpdateTask("GameApplication.Update", ezMakeDelegate(&ezGameApplication::UpdateWorldsAndExtractViews, this))
+  , m_UpdateTask("", ezMakeDelegate(&ezGameApplication::UpdateWorldsAndExtractViews, this))
 {
+  m_UpdateTask.ConfigureTask("GameApplication.Update", ezTaskNesting::Maybe);
+
   s_pGameApplicationInstance = this;
   m_bWasQuitRequested = false;
 

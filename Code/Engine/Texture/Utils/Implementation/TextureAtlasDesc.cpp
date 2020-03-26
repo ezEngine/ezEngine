@@ -6,7 +6,7 @@
 
 ezResult ezTextureAtlasCreationDesc::Serialize(ezStreamWriter& stream) const
 {
-  stream.WriteVersion(2);
+  stream.WriteVersion(3);
 
   if(m_Layers.GetCount() > 255u)
     return EZ_FAILURE;
@@ -30,6 +30,8 @@ ezResult ezTextureAtlasCreationDesc::Serialize(ezStreamWriter& stream) const
     {
       stream << item.m_sLayerInput[l];
     }
+
+    stream << item.m_sAlphaInput;
   }
 
   return EZ_SUCCESS;
@@ -37,8 +39,7 @@ ezResult ezTextureAtlasCreationDesc::Serialize(ezStreamWriter& stream) const
 
 ezResult ezTextureAtlasCreationDesc::Deserialize(ezStreamReader& stream)
 {
-  const ezTypeVersion uiVersion = stream.ReadVersion(2);
-  EZ_ASSERT_DEV(uiVersion == 2, "Invalid texture atlas desc file version {0}", uiVersion);
+  const ezTypeVersion uiVersion = stream.ReadVersion(3);
 
   ezUInt8 uiNumLayers = 0;
   stream >> uiNumLayers;
@@ -63,6 +64,11 @@ ezResult ezTextureAtlasCreationDesc::Deserialize(ezStreamReader& stream)
     for (ezUInt32 l = 0; l < uiNumLayers; ++l)
     {
       stream >> item.m_sLayerInput[l];
+    }
+
+    if (uiVersion >= 3)
+    {
+      stream >> item.m_sAlphaInput;
     }
   }
 

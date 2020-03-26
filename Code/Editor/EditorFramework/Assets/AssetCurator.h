@@ -417,13 +417,14 @@ private:
   ezDynamicArray<ezString> m_WatcherResults;
 
   ezUpdateTask* m_pUpdateTask = nullptr;
+  ezTaskGroupID m_UpdateTaskGroup;
 };
 
-class ezUpdateTask : public ezTask
+class ezUpdateTask final : public ezTask
 {
 public:
-  ezUpdateTask();
-
+  ezUpdateTask(ezOnTaskFinishedCallback onTaskFinished);
+  ~ezUpdateTask();
 
 private:
   ezStringBuilder m_sAssetPath;

@@ -13,10 +13,10 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Foundation/Time/Stopwatch.h>
+#include <Foundation/Types/ScopeExit.h>
 #include <Foundation/Utilities/Progress.h>
 #include <QDir>
 #include <atomic>
-#include <Foundation/Types/ScopeExit.h>
 
 #define EZ_CURATOR_CACHE_VERSION 2
 #define EZ_CURATOR_CACHE_FILE_VERSION 6
@@ -198,7 +198,7 @@ void ezAssetCurator::StartInitialize(const ezApplicationFileSystemConfig& cfg)
     });
   }
 
-  ezDelegateTask<void>* pInitTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "Initialize Curator", [this]() {
+  ezDelegateTask<void>* pInitTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "", [this]() {
     EZ_LOCK(m_CuratorMutex);
     m_bInitStarted = true;
     LoadCaches();
@@ -222,7 +222,7 @@ void ezAssetCurator::StartInitialize(const ezApplicationFileSystemConfig& cfg)
     }
     SaveCaches();
   });
-  pInitTask->SetOnTaskFinished([](ezTask* pTask) { EZ_DEFAULT_DELETE(pTask); });
+  pInitTask->ConfigureTask("Initialize Curator", ezTaskNesting::Never, [](ezTask* pTask) { EZ_DEFAULT_DELETE(pTask); });
   m_bInitStarted = false;
   ezTaskSystem::StartSingleTask(pInitTask, ezTaskPriority::FileAccessHighPriority);
 
@@ -740,7 +740,7 @@ ezAssetInfo::TransformState ezAssetCurator::UpdateAssetTransformState(ezUuid ass
     CURATOR_PROFILE("CopyAssetData");
     EZ_LOCK(m_CuratorMutex);
     ezAssetInfo* pAssetInfo = GetAssetInfo(assetGuid);
-    
+
     pManager = pAssetInfo->GetManager();
     pTypeDescriptor = pAssetInfo->m_pDocumentTypeDescriptor;
     sAssetFile = pAssetInfo->m_sAbsolutePath;
@@ -766,8 +766,8 @@ ezAssetInfo::TransformState ezAssetCurator::UpdateAssetTransformState(ezUuid ass
   ezSet<ezString> missingReferences;
   // Compute final state and hashes.
   {
-      state = HashAsset(uiSettingsHash, assetTransformDependencies, runtimeDependencies, missingDependencies, missingReferences, out_AssetHash, out_ThumbHash, bForce);
-      EZ_ASSERT_DEV(state == ezAssetInfo::Unknown || state == ezAssetInfo::MissingDependency || state == ezAssetInfo::MissingReference, "Unhandled case of HashAsset return value.");
+    state = HashAsset(uiSettingsHash, assetTransformDependencies, runtimeDependencies, missingDependencies, missingReferences, out_AssetHash, out_ThumbHash, bForce);
+    EZ_ASSERT_DEV(state == ezAssetInfo::Unknown || state == ezAssetInfo::MissingDependency || state == ezAssetInfo::MissingReference, "Unhandled case of HashAsset return value.");
 
     if (state == ezAssetInfo::Unknown)
     {
@@ -1115,8 +1115,8 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformP
 
   EZ_SCOPE_EXIT(
     if (!pDoc->HasWindowBeenRequested() && !bWasOpen)
-      pDoc->GetDocumentManager()->CloseDocument(pDoc);
-  );
+      pDoc->GetDocumentManager()
+        ->CloseDocument(pDoc););
 
   ezStatus ret(EZ_SUCCESS);
   ezAssetDocument* pAsset = static_cast<ezAssetDocument*>(pDoc);
@@ -1502,7 +1502,7 @@ void ezAssetCurator::ShutdownUpdateTask()
 
   if (m_pUpdateTask)
   {
-    ezTaskSystem::WaitForTask((ezTask*)m_pUpdateTask);
+    ezTaskSystem::WaitForGroup(m_UpdateTaskGroup);
 
     EZ_LOCK(m_CuratorMutex);
     EZ_DEFAULT_DELETE(m_pUpdateTask);
@@ -1553,12 +1553,13 @@ void ezAssetCurator::RunNextUpdateTask()
 
   if (m_pUpdateTask == nullptr)
   {
-    m_pUpdateTask = EZ_DEFAULT_NEW(ezUpdateTask);
-    m_pUpdateTask->SetOnTaskFinished(ezMakeDelegate(&ezAssetCurator::OnUpdateTaskFinished, this));
+    m_pUpdateTask = EZ_DEFAULT_NEW(ezUpdateTask, ezMakeDelegate(&ezAssetCurator::OnUpdateTaskFinished, this));
   }
 
   if (m_pUpdateTask->IsTaskFinished())
-    ezTaskSystem::StartSingleTask(m_pUpdateTask, ezTaskPriority::FileAccess);
+  {
+    m_UpdateTaskGroup = ezTaskSystem::StartSingleTask(m_pUpdateTask, ezTaskPriority::FileAccess);
+  }
 }
 
 
