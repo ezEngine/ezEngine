@@ -727,8 +727,7 @@ ezDirectionVisualizerAttribute::ezDirectionVisualizerAttribute()
   m_fScale = 1.0f;
 }
 
-ezDirectionVisualizerAttribute::ezDirectionVisualizerAttribute(
-  ezEnum<ezBasisAxis> axis, float fScale, const char* szColorProperty, const char* szLengthProperty /*= nullptr*/)
+ezDirectionVisualizerAttribute::ezDirectionVisualizerAttribute(ezEnum<ezBasisAxis> axis, float fScale, const char* szColorProperty, const char* szLengthProperty /*= nullptr*/)
   : ezVisualizerAttribute(szColorProperty, szLengthProperty)
 {
   m_Axis = axis;
@@ -736,11 +735,18 @@ ezDirectionVisualizerAttribute::ezDirectionVisualizerAttribute(
   m_Color = ezColor::MediumVioletRed;
 }
 
-ezDirectionVisualizerAttribute::ezDirectionVisualizerAttribute(ezEnum<ezBasisAxis> axis, float fScale,
-  const ezColor& fixedColor /*= ezColor::MediumVioletRed*/, const char* szLengthProperty /*= nullptr*/)
+ezDirectionVisualizerAttribute::ezDirectionVisualizerAttribute(ezEnum<ezBasisAxis> axis, float fScale, const ezColor& fixedColor /*= ezColor::MediumVioletRed*/, const char* szLengthProperty /*= nullptr*/)
   : ezVisualizerAttribute(nullptr, szLengthProperty)
 {
   m_Axis = axis;
+  m_fScale = fScale;
+  m_Color = fixedColor;
+}
+
+ezDirectionVisualizerAttribute::ezDirectionVisualizerAttribute(const char* szAxisProperty, float fScale, const ezColor& fixedColor /*= ezColor::MediumVioletRed*/, const char* szLengthProperty /*= nullptr*/)
+  : ezVisualizerAttribute(nullptr, szLengthProperty, szAxisProperty)
+{
+  m_Axis = ezBasisAxis::PositiveX;
   m_fScale = fScale;
   m_Color = fixedColor;
 }
@@ -983,4 +989,3 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 //////////////////////////////////////////////////////////////////////////
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Reflection_Implementation_PropertyAttributes);
-

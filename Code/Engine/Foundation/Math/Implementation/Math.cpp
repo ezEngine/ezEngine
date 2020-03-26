@@ -2,6 +2,7 @@
 
 #include <Foundation/Math/Mat3.h>
 #include <Foundation/Math/Math.h>
+#include <Foundation/Math/Quat.h>
 #include <Foundation/Math/Vec3.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
@@ -259,6 +260,86 @@ ezMat3 ezBasisAxis::CalculateTransformationMatrix(Enum forwardDir, Enum rightDir
   mResult.SetRow(2, ezBasisAxis::GetBasisVector(upDir) * fUniformScale * fScaleZ);
 
   return mResult;
+}
+
+
+ezQuat ezBasisAxis::GetBasisRotation_PosX(Enum axis)
+{
+  ezQuat rotAxis;
+  switch (axis)
+  {
+    case ezBasisAxis::PositiveX:
+      rotAxis.SetIdentity();
+      break;
+    case ezBasisAxis::PositiveY:
+      rotAxis.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(90));
+      break;
+    case ezBasisAxis::PositiveZ:
+      rotAxis.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
+      break;
+    case ezBasisAxis::NegativeX:
+      rotAxis.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(180));
+      break;
+    case ezBasisAxis::NegativeY:
+      rotAxis.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(-90));
+      break;
+    case ezBasisAxis::NegativeZ:
+      rotAxis.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(90));
+      break;
+  }
+
+  return rotAxis;
+}
+
+ezQuat ezBasisAxis::GetBasisRotation(Enum identity, Enum axis)
+{
+  ezQuat rotId;
+  switch (identity)
+  {
+    case ezBasisAxis::PositiveX:
+      rotId.SetIdentity();
+      break;
+    case ezBasisAxis::PositiveY:
+      rotId.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(-90));
+      break;
+    case ezBasisAxis::PositiveZ:
+      rotId.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(90));
+      break;
+    case ezBasisAxis::NegativeX:
+      rotId.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(180));
+      break;
+    case ezBasisAxis::NegativeY:
+      rotId.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(90));
+      break;
+    case ezBasisAxis::NegativeZ:
+      rotId.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(90));
+      break;
+  }
+
+  ezQuat rotAxis;
+  switch (axis)
+  {
+    case ezBasisAxis::PositiveX:
+      rotAxis.SetIdentity();
+      break;
+    case ezBasisAxis::PositiveY:
+      rotAxis.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(90));
+      break;
+    case ezBasisAxis::PositiveZ:
+      rotAxis.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
+      break;
+    case ezBasisAxis::NegativeX:
+      rotAxis.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(180));
+      break;
+    case ezBasisAxis::NegativeY:
+      rotAxis.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(-90));
+      break;
+    case ezBasisAxis::NegativeZ:
+      rotAxis.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(90));
+      break;
+  }
+
+  return rotId * rotAxis;
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_Math);

@@ -101,7 +101,7 @@ public:
   bool GetWrapAround() const;           // [ property ]
 
   void SetMapNormalToGeometry(bool bMapNormal); // [ property ]
-  bool GetMapNormalToGeometry() const;           // [ property ]
+  bool GetMapNormalToGeometry() const;          // [ property ]
 
   void SetDecal(const ezDecalResourceHandle& hResource); // [ property ]
   const ezDecalResourceHandle& GetDecal() const;         // [ property ]
@@ -112,6 +112,8 @@ public:
   ezVarianceTypeTime m_FadeOutDelay;                      // [ property ]
   ezTime m_FadeOutDuration;                               // [ property ]
   ezEnum<ezOnComponentFinishedAction> m_OnFinishedAction; // [ property ]
+
+  ezEnum<ezBasisAxis> m_ProjectionAxis; // [ property ]
 
   void SetApplyOnlyTo(ezGameObjectHandle hObject);
   ezGameObjectHandle GetApplyOnlyTo() const;

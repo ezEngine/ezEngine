@@ -56,7 +56,21 @@ void ezDirectionVisualizerAdapter::UpdateGizmoTransform()
     fScale *= value.ConvertTo<float>();
   }
 
-  const ezQuat axisRotation = GetBasisRotation(ezBasisAxis::PositiveX, pAttr->m_Axis);
+  ezBasisAxis::Enum axis = pAttr->m_Axis;
+
+  if (!pAttr->GetAxisProperty().IsEmpty())
+  {
+    ezObjectAccessorBase* pObjectAccessor = GetObjectAccessor();
+
+    ezVariant value;
+    pObjectAccessor->GetValue(m_pObject, GetProperty(pAttr->GetAxisProperty()), value);
+
+    EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<ezInt32>(), "Invalid property bound to ezDirectionVisualizerAttribute 'length'");
+
+    axis = static_cast<ezBasisAxis::Enum>(value.ConvertTo<ezInt32>());
+  }
+
+  const ezQuat axisRotation = ezBasisAxis::GetBasisRotation_PosX(axis);
 
   ezTransform t;
   t.m_qRotation = axisRotation;

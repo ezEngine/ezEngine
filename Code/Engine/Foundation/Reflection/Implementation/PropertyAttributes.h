@@ -606,13 +606,13 @@ class EZ_FOUNDATION_DLL ezDirectionVisualizerAttribute : public ezVisualizerAttr
 
 public:
   ezDirectionVisualizerAttribute();
-  ezDirectionVisualizerAttribute(
-    ezEnum<ezBasisAxis> axis, float fScale, const char* szColorProperty, const char* szLengthProperty = nullptr);
-  ezDirectionVisualizerAttribute(
-    ezEnum<ezBasisAxis> axis, float fScale, const ezColor& fixedColor = ezColor::MediumVioletRed, const char* szLengthProperty = nullptr);
+  ezDirectionVisualizerAttribute(ezEnum<ezBasisAxis> axis, float fScale, const char* szColorProperty, const char* szLengthProperty = nullptr);
+  ezDirectionVisualizerAttribute(ezEnum<ezBasisAxis> axis, float fScale, const ezColor& fixedColor = ezColor::MediumVioletRed, const char* szLengthProperty = nullptr);
+  ezDirectionVisualizerAttribute(const char* szAxisProperty, float fScale, const ezColor& fixedColor = ezColor::MediumVioletRed, const char* szLengthProperty = nullptr);
 
   const ezUntrackedString& GetColorProperty() const { return m_sProperty1; }
   const ezUntrackedString& GetLengthProperty() const { return m_sProperty2; }
+  const ezUntrackedString& GetAxisProperty() const { return m_sProperty3; }
 
   ezEnum<ezBasisAxis> m_Axis;
   ezColor m_Color;
@@ -634,8 +634,7 @@ public:
   /// fScale will be multiplied with value of szRadiusProperty to determine the size of the cone
   /// szColorProperty may be nullptr. In this case it is ignored and fixedColor is used instead.
   /// fixedColor is ignored if szColorProperty is valid.
-  ezConeVisualizerAttribute(ezEnum<ezBasisAxis> axis, const char* szAngleProperty, float fScale, const char* szRadiusProperty,
-    const char* szColorProperty = nullptr, const ezColor& fixedColor = ezColor::MediumVioletRed);
+  ezConeVisualizerAttribute(ezEnum<ezBasisAxis> axis, const char* szAngleProperty, float fScale, const char* szRadiusProperty, const char* szColorProperty = nullptr, const ezColor& fixedColor = ezColor::MediumVioletRed);
 
   const ezUntrackedString& GetAngleProperty() const { return m_sProperty1; }
   const ezUntrackedString& GetRadiusProperty() const { return m_sProperty2; }
@@ -656,8 +655,7 @@ public:
   ezCameraVisualizerAttribute();
 
   /// \brief Attribute to add on an RTTI type to add a camera cone visualizer.
-  ezCameraVisualizerAttribute(const char* szModeProperty, const char* szFovProperty, const char* szOrthoDimProperty,
-    const char* szNearPlaneProperty, const char* szFarPlaneProperty);
+  ezCameraVisualizerAttribute(const char* szModeProperty, const char* szFovProperty, const char* szOrthoDimProperty, const char* szNearPlaneProperty, const char* szFarPlaneProperty);
 
   const ezUntrackedString& GetModeProperty() const { return m_sProperty1; }
   const ezUntrackedString& GetFovProperty() const { return m_sProperty2; }

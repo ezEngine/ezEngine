@@ -27,8 +27,6 @@ public:
 
   void SetVisualizer(const ezVisualizerAttribute* pAttribute, const ezDocumentObject* pObject);
 
-  static ezQuat GetBasisRotation(ezBasisAxis::Enum identity, ezBasisAxis::Enum axis);
-
 private:
   void DocumentObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
   void DocumentWindowEventHandler(const ezQtDocumentWindowEvent& e);
