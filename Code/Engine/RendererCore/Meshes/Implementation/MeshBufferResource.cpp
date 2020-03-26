@@ -417,11 +417,6 @@ ezMeshBufferResource::~ezMeshBufferResource()
   EZ_ASSERT_DEBUG(m_hIndexBuffer.IsInvalidated(), "Implementation error");
 }
 
-bool ezMeshBufferResource::AllowNestedResourceTypeAcquire(const ezRTTI* pResourceType)
-{
-  return false;
-}
-
 ezResourceLoadDesc ezMeshBufferResource::UnloadData(Unload WhatToUnload)
 {
   if (!m_hVertexBuffer.IsInvalidated())

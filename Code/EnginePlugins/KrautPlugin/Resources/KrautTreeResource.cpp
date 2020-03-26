@@ -24,23 +24,6 @@ ezKrautTreeResource::ezKrautTreeResource()
   m_Details.m_Bounds.SetInvalid();
 }
 
-bool ezKrautTreeResource::AllowNestedResourceTypeAcquire(const ezRTTI* pResourceType)
-{
-  if (pResourceType->IsDerivedFrom<ezMaterialResource>())
-    return true;
-
-  if (ezMaterialResource::AllowNestedResourceTypeAcquire(pResourceType))
-    return true;
-
-  if (pResourceType->IsDerivedFrom<ezMeshResource>())
-    return true;
-
-  if (ezMeshResource::AllowNestedResourceTypeAcquire(pResourceType))
-    return true;
-
-  return false;
-}
-
 ezResourceLoadDesc ezKrautTreeResource::UnloadData(Unload WhatToUnload)
 {
   ezResourceLoadDesc res;

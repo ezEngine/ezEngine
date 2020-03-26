@@ -17,11 +17,6 @@ ezAnimationClipResource::ezAnimationClipResource()
 {
 }
 
-bool ezAnimationClipResource::AllowNestedResourceTypeAcquire(const ezRTTI* pResourceType)
-{
-  return false;
-}
-
 EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezAnimationClipResource, ezAnimationClipResourceDescriptor)
 {
   m_Descriptor = descriptor;

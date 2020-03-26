@@ -17,11 +17,6 @@ ezSkeletonResource::ezSkeletonResource()
 
 ezSkeletonResource::~ezSkeletonResource() = default;
 
-bool ezSkeletonResource::AllowNestedResourceTypeAcquire(const ezRTTI* pResourceType)
-{
-  return false;
-}
-
 EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezSkeletonResource, ezSkeletonResourceDescriptor)
 {
   m_Descriptor = descriptor;

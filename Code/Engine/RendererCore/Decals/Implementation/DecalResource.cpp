@@ -58,11 +58,6 @@ ezDecalResource::ezDecalResource()
 {
 }
 
-bool ezDecalResource::AllowNestedResourceTypeAcquire(const ezRTTI* pResourceType)
-{
-  return false;
-}
-
 ezResourceLoadDesc ezDecalResource::UnloadData(Unload WhatToUnload)
 {
   ezResourceLoadDesc res;

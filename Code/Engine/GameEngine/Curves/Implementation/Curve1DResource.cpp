@@ -13,11 +13,6 @@ ezCurve1DResource::ezCurve1DResource()
 {
 }
 
-bool ezCurve1DResource::AllowNestedResourceTypeAcquire(const ezRTTI* pResourceType)
-{
-  return false;
-}
-
 EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezCurve1DResource, ezCurve1DResourceDescriptor)
 {
   m_Descriptor = descriptor;

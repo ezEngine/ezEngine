@@ -317,6 +317,65 @@ void ezResourceManager::SetAutoFreeUnused(ezTime timeout, ezTime lastAcquireThre
   s_State->m_AutoFreeUnusedThreshold = lastAcquireThreshold;
 }
 
+void ezResourceManager::AllowResourceTypeAcquireDuringUpdateContent(const ezRTTI* pTypeBeingUpdated, const ezRTTI* pTypeItWantsToAcquire)
+{
+  auto& info = s_State->m_TypeInfo[pTypeBeingUpdated];
+
+  EZ_ASSERT_DEV(info.m_bAllowNestedAcquireCached == false, "AllowResourceTypeAcquireDuringUpdateContent for type '{}' must be called before the resource info has been requested.", pTypeBeingUpdated->GetTypeName());
+
+  if (info.m_NestedTypes.IndexOf(pTypeItWantsToAcquire) == ezInvalidIndex)
+  {
+    info.m_NestedTypes.PushBack(pTypeItWantsToAcquire);
+  }
+}
+
+bool ezResourceManager::IsResourceTypeAcquireDuringUpdateContentAllowed(const ezRTTI* pTypeBeingUpdated, const ezRTTI* pTypeItWantsToAcquire)
+{
+  auto& info = s_State->m_TypeInfo[pTypeBeingUpdated];
+
+  if (!info.m_bAllowNestedAcquireCached)
+  {
+    info.m_bAllowNestedAcquireCached = true;
+
+    ezSet<const ezRTTI*> visited;
+    ezSet<const ezRTTI*> todo;
+    ezSet<const ezRTTI*> deps;
+
+    for (const ezRTTI* pRtti : info.m_NestedTypes)
+    {
+      todo.Insert(pRtti);
+    }
+
+    while (!todo.IsEmpty())
+    {
+      auto it = todo.GetIterator();
+      const ezRTTI* pRtti = it.Key();
+      todo.Remove(it);
+
+      if (visited.Contains(pRtti))
+        continue;
+
+      visited.Insert(pRtti);
+      deps.Insert(pRtti);
+
+      for (const ezRTTI* pNestedRtti : s_State->m_TypeInfo[pRtti].m_NestedTypes)
+      {
+        if (!visited.Contains(pNestedRtti))
+          todo.Insert(pNestedRtti);
+      }
+    }
+
+    info.m_NestedTypes.Clear();
+    for (const ezRTTI* pRtti : deps)
+    {
+      info.m_NestedTypes.PushBack(pRtti);
+    }
+    info.m_NestedTypes.Sort();
+  }
+
+  return info.m_NestedTypes.IndexOf(pTypeItWantsToAcquire) != ezInvalidIndex;
+}
+
 ezResult ezResourceManager::DeallocateResource(ezResource* pResource)
 {
   EZ_ASSERT_DEBUG(pResource->m_iLockCount == 0, "Resource '{0}' has a refcount of zero, but is still in an acquired state.", pResource->GetResourceID());

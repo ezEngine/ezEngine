@@ -17,11 +17,6 @@ ezScriptCompendiumResource::ezScriptCompendiumResource()
 
 ezScriptCompendiumResource::~ezScriptCompendiumResource() = default;
 
-bool ezScriptCompendiumResource::AllowNestedResourceTypeAcquire(const ezRTTI* pResourceType)
-{
-  return false;
-}
-
 ezResourceLoadDesc ezScriptCompendiumResource::UnloadData(Unload WhatToUnload)
 {
   ezResourceLoadDesc ld;

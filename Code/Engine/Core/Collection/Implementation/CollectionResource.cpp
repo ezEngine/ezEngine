@@ -14,11 +14,6 @@ ezCollectionResource::ezCollectionResource()
 {
 }
 
-bool ezCollectionResource::AllowNestedResourceTypeAcquire(const ezRTTI* pResourceType)
-{
-  return false;
-}
-
 void ezCollectionResource::PreloadResources()
 {
   EZ_LOCK(m_preloadMutex);

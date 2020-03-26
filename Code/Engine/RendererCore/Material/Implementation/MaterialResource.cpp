@@ -80,14 +80,6 @@ ezMaterialResource::~ezMaterialResource()
   ezResourceManager::GetResourceEvents().RemoveEventHandler(ezMakeDelegate(&ezMaterialResource::OnResourceEvent, this));
 }
 
-bool ezMaterialResource::AllowNestedResourceTypeAcquire(const ezRTTI* pResourceType)
-{
-  if (pResourceType->IsDerivedFrom<ezMaterialResource>())
-    return true;
-
-  return false;
-}
-
 ezHashedString ezMaterialResource::GetPermutationValue(const ezTempHashedString& sName)
 {
   auto pCachedValues = GetOrUpdateCachedValues();

@@ -65,17 +65,6 @@ ezDecalAtlasResource::ezDecalAtlasResource()
 {
 }
 
-bool ezDecalAtlasResource::AllowNestedResourceTypeAcquire(const ezRTTI* pResourceType)
-{
-  if (pResourceType->IsDerivedFrom<ezTexture2DResource>())
-    return true;
-
-  if (ezTexture2DResource::AllowNestedResourceTypeAcquire(pResourceType))
-    return true;
-
-  return false;
-}
-
 ezDecalAtlasResourceHandle ezDecalAtlasResource::GetDecalAtlasResource()
 {
   return ezResourceManager::LoadResource<ezDecalAtlasResource>("{ ProjectDecalAtlas }");

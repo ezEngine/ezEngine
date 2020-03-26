@@ -148,11 +148,6 @@ ezRecastNavMeshResource::~ezRecastNavMeshResource()
   EZ_DEFAULT_DELETE(m_pNavMesh);
 }
 
-bool ezRecastNavMeshResource::AllowNestedResourceTypeAcquire(const ezRTTI* pResourceType)
-{
-  return false;
-}
-
 ezResourceLoadDesc ezRecastNavMeshResource::UnloadData(Unload WhatToUnload)
 {
   ezResourceLoadDesc res;

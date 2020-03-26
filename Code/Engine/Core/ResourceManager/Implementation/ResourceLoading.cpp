@@ -419,7 +419,7 @@ void ezResourceManager::EnsureResourceLoadingState(ezResource* pResourceToLoad, 
 
         if (pQueuedResource != nullptr && pQueuedResource != pResourceToLoad && !s_State->s_WorkerTasksUpdateContent[i].m_pTask->IsTaskFinished())
         {
-          if (!pQueuedResource->AllowNestedResourceAcquire(pOwnRtti))
+          if (!IsResourceTypeAcquireDuringUpdateContentAllowed(pQueuedResource->GetDynamicRTTI(), pOwnRtti))
           {
             tgid = s_State->s_WorkerTasksUpdateContent[i].m_GroupId;
             break;

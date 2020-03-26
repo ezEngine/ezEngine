@@ -26,11 +26,6 @@ ezSurfaceResource::~ezSurfaceResource()
   EZ_ASSERT_DEV(m_pPhysicsMaterial == nullptr, "Physics material has not been cleaned up properly");
 }
 
-bool ezSurfaceResource::AllowNestedResourceTypeAcquire(const ezRTTI* pResourceType)
-{
-  return false;
-}
-
 ezResourceLoadDesc ezSurfaceResource::UnloadData(Unload WhatToUnload)
 {
   ezResourceLoadDesc res;

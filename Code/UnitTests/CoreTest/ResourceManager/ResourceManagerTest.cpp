@@ -84,14 +84,6 @@ namespace
     ezDynamicArray<ezUInt32> m_Data;
   };
 
-  bool TestResource::AllowNestedResourceTypeAcquire(const ezRTTI* pResourceType)
-  {
-    if (pResourceType->IsDerivedFrom<TestResource>())
-      return true;
-
-    return false;
-  }
-
   class TestResourceTypeLoader : public ezResourceTypeLoader
   {
   public:
@@ -142,6 +134,7 @@ namespace
 EZ_CREATE_SIMPLE_TEST(ResourceManager, Basics)
 {
   TestResourceTypeLoader TypeLoader;
+  ezResourceManager::AllowResourceTypeAcquireDuringUpdateContent<TestResource, TestResource>();
   ezResourceManager::SetResourceTypeLoader<TestResource>(&TypeLoader);
   EZ_SCOPE_EXIT(ezResourceManager::SetResourceTypeLoader<TestResource>(nullptr));
 
@@ -203,6 +196,7 @@ EZ_CREATE_SIMPLE_TEST(ResourceManager, Basics)
 EZ_CREATE_SIMPLE_TEST(ResourceManager, NestedLoading)
 {
   TestResourceTypeLoader TypeLoader;
+  ezResourceManager::AllowResourceTypeAcquireDuringUpdateContent<TestResource, TestResource>();
   ezResourceManager::SetResourceTypeLoader<TestResource>(&TypeLoader);
   EZ_SCOPE_EXIT(ezResourceManager::SetResourceTypeLoader<TestResource>(nullptr));
 

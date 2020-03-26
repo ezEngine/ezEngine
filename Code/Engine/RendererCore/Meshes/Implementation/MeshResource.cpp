@@ -19,17 +19,6 @@ ezMeshResource::ezMeshResource()
   m_Bounds.SetInvalid();
 }
 
-bool ezMeshResource::AllowNestedResourceTypeAcquire(const ezRTTI* pResourceType)
-{
-  if (pResourceType->IsDerivedFrom<ezMeshBufferResource>())
-    return true;
-
-  if (ezMeshBufferResource::AllowNestedResourceTypeAcquire(pResourceType))
-    return true;
-
-  return false;
-}
-
 ezResourceLoadDesc ezMeshResource::UnloadData(Unload WhatToUnload)
 {
   ezResourceLoadDesc res;

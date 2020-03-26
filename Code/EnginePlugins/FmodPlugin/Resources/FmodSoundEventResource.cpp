@@ -20,11 +20,6 @@ ezFmodSoundEventResource::~ezFmodSoundEventResource()
   EZ_ASSERT_DEV(m_pEventDescription == nullptr, "SoundEvent has not been freed correctly");
 }
 
-bool ezFmodSoundEventResource::AllowNestedResourceTypeAcquire(const ezRTTI* pResourceType)
-{
-  return false;
-}
-
 FMOD::Studio::EventInstance* ezFmodSoundEventResource::CreateInstance() const
 {
   if (m_pEventDescription)

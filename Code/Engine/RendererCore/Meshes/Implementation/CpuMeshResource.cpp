@@ -15,11 +15,6 @@ ezCpuMeshResource::ezCpuMeshResource()
 {
 }
 
-bool ezCpuMeshResource::AllowNestedResourceTypeAcquire(const ezRTTI* pResourceType)
-{
-  return false;
-}
-
 ezResourceLoadDesc ezCpuMeshResource::UnloadData(Unload WhatToUnload)
 {
   ezResourceLoadDesc res;

@@ -28,11 +28,6 @@ ezShaderPermutationResource::ezShaderPermutationResource()
   }
 }
 
-bool ezShaderPermutationResource::AllowNestedResourceTypeAcquire(const ezRTTI* pResourceType)
-{
-  return false;
-}
-
 ezResourceLoadDesc ezShaderPermutationResource::UnloadData(Unload WhatToUnload)
 {
   m_bShaderPermutationValid = false;

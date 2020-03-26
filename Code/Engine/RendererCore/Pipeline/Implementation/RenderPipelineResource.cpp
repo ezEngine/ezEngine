@@ -25,11 +25,6 @@ ezRenderPipelineResource::ezRenderPipelineResource()
 {
 }
 
-bool ezRenderPipelineResource::AllowNestedResourceTypeAcquire(const ezRTTI* pResourceType)
-{
-  return false;
-}
-
 ezInternal::NewInstance<ezRenderPipeline> ezRenderPipelineResource::CreateRenderPipeline() const
 {
   if (GetLoadingState() != ezResourceState::Loaded)

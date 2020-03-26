@@ -100,8 +100,8 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezTypedResourceHandl
   const ezResource* pCurrentlyUpdatingContent = ezResource::GetCurrentlyUpdatingContent();
   if (pCurrentlyUpdatingContent != nullptr)
   {
-    EZ_ASSERT_ALWAYS(pCurrentlyUpdatingContent->AllowNestedResourceAcquire(ezGetStaticRTTI<ResourceType>()),
-      "Trying to acquire a resource of type '{0}' during '{1}::UpdateContent()'. This is has to be enabled in '{1}::AllowNestedResourceTypeAcquire().",
+    EZ_ASSERT_ALWAYS(IsResourceTypeAcquireDuringUpdateContentAllowed(pCurrentlyUpdatingContent->GetDynamicRTTI(), ezGetStaticRTTI<ResourceType>()),
+      "Trying to acquire a resource of type '{0}' during '{1}::UpdateContent()'. This is has to be enabled by calling ezResourceManager::AllowResourceTypeAcquireDuringUpdateContent<{1}, {0}>(); at engine startup, for example in ezGameApplication::Init_SetupDefaultResources().",
       ezGetStaticRTTI<ResourceType>()->GetTypeName(), pCurrentlyUpdatingContent->GetDynamicRTTI()->GetTypeName());
   }
 #endif

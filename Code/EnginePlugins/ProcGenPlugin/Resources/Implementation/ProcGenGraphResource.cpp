@@ -30,11 +30,6 @@ ezProcGenGraphResource::ezProcGenGraphResource()
 
 ezProcGenGraphResource::~ezProcGenGraphResource() {}
 
-bool ezProcGenGraphResource::AllowNestedResourceTypeAcquire(const ezRTTI* pResourceType)
-{
-  return false;
-}
-
 const ezDynamicArray<ezSharedPtr<const PlacementOutput>>& ezProcGenGraphResource::GetPlacementOutputs() const
 {
   return m_PlacementOutputs;

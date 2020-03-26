@@ -26,11 +26,6 @@ ezPropertyAnimResource::ezPropertyAnimResource()
 {
 }
 
-bool ezPropertyAnimResource::AllowNestedResourceTypeAcquire(const ezRTTI* pResourceType)
-{
-  return false;
-}
-
 EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezPropertyAnimResource, ezPropertyAnimResourceDescriptor)
 {
   m_pDescriptor = EZ_DEFAULT_NEW(ezPropertyAnimResourceDescriptor);

@@ -25,11 +25,6 @@ ezVisualScriptResource::ezVisualScriptResource()
 
 ezVisualScriptResource::~ezVisualScriptResource() = default;
 
-bool ezVisualScriptResource::AllowNestedResourceTypeAcquire(const ezRTTI* pResourceType)
-{
-  return false;
-}
-
 ezResourceLoadDesc ezVisualScriptResource::UnloadData(Unload WhatToUnload)
 {
   ezResourceLoadDesc res;

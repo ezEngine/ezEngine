@@ -17,11 +17,6 @@ ezParticleEffectResource::ezParticleEffectResource()
 
 ezParticleEffectResource::~ezParticleEffectResource() {}
 
-bool ezParticleEffectResource::AllowNestedResourceTypeAcquire(const ezRTTI* pResourceType)
-{
-  return false;
-}
-
 ezResourceLoadDesc ezParticleEffectResource::UnloadData(Unload WhatToUnload)
 {
   /// \todo Clear something

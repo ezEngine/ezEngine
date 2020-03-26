@@ -17,11 +17,6 @@ ezPrefabResource::ezPrefabResource()
 {
 }
 
-bool ezPrefabResource::AllowNestedResourceTypeAcquire(const ezRTTI* pResourceType)
-{
-  return false;
-}
-
 void ezPrefabResource::InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezGameObjectHandle hParent,
                                          ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, const ezUInt16* pOverrideTeamID,
                                          const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues, bool bForceDynamic)

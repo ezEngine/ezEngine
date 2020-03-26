@@ -25,11 +25,6 @@ ezTextureCubeResource::ezTextureCubeResource()
   m_uiWidthAndHeight = 0;
 }
 
-bool ezTextureCubeResource::AllowNestedResourceTypeAcquire(const ezRTTI* pResourceType)
-{
-  return false;
-}
-
 ezResourceLoadDesc ezTextureCubeResource::UnloadData(Unload WhatToUnload)
 {
   if (m_uiLoadedTextures > 0)
