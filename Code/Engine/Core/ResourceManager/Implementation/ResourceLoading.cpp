@@ -267,8 +267,6 @@ bool ezResourceManager::ReloadResource(ezResource* pResource, bool bForce)
 
   ezResourceTypeLoader* pLoader = ezResourceManager::GetResourceTypeLoader(pResource->GetDynamicRTTI());
 
-  /// \todo Do we need to handle HasCustomDataLoader here ?? (apparently not)
-
   if (pLoader == nullptr)
     pLoader = pResource->GetDefaultResourceTypeLoader();
 
@@ -339,18 +337,7 @@ bool ezResourceManager::ReloadResource(ezResource* pResource, bool bForce)
     // everything else will be loaded on demand
     if (pResource->GetLastAcquireTime() >= tNow - ezTime::Seconds(30.0))
     {
-      // this will deadlock fmod soundbank loading
-      // what happens is that PreloadResource sets the "IsPreloading" flag, because the soundbank is now in the queue
-      // in case a soundevent is needed right away (very likely), to load that soundevent, the soundbank is needed, so the soundevent loader
-      // blocks until the soundbank is loaded however, both loaders would currently run on the single "loading thread", so now the loading
-      // thread will wait for itself to finish, which never happens instead, it SHOULD just load the soundbank itself, which is
-      // theoretically implemented, but does not happen when the "IsPreloading" flag is already set there are multiple solutions
-      // 1. do not depend on other resources while loading a resource, though this does not work for fmod soundevents
-      // 2. trigger the 'bDoItYourself' code path above when on the loading thread, this would require InternalPreloadResource to somehow
-      // change
-      // 3. move the soundevent loader off the loading thread, ie. by finally implementing ezResourceFlags::NoFileAccessRequired
-
-      // PreloadResource(pResource, tNow - pResource->GetLastAcquireTime());
+      PreloadResource(pResource);
     }
   }
 
@@ -419,8 +406,7 @@ void ezResourceManager::EnsureResourceLoadingState(ezResource* pResourceToLoad, 
   const ezRTTI* pOwnRtti = pResourceToLoad->GetDynamicRTTI();
 
   // help loading until the requested resource is available
-  while ((ezInt32)pResourceToLoad->GetLoadingState() < (ezInt32)RequestedState &&
-         (pResourceToLoad->GetLoadingState() != ezResourceState::LoadedResourceMissing))
+  while ((ezInt32)pResourceToLoad->GetLoadingState() < (ezInt32)RequestedState && (pResourceToLoad->GetLoadingState() != ezResourceState::LoadedResourceMissing))
   {
     ezTaskGroupID tgid;
 
@@ -431,15 +417,12 @@ void ezResourceManager::EnsureResourceLoadingState(ezResource* pResourceToLoad, 
       {
         const ezResource* pQueuedResource = s_State->s_WorkerTasksUpdateContent[i].m_pTask->m_pResourceToLoad;
 
-        if (pQueuedResource != nullptr)
+        if (pQueuedResource != nullptr && pQueuedResource != pResourceToLoad && !s_State->s_WorkerTasksUpdateContent[i].m_pTask->IsTaskFinished())
         {
-          if (pQueuedResource != pResourceToLoad && !s_State->s_WorkerTasksUpdateContent[i].m_pTask->IsTaskFinished())
+          if (!pQueuedResource->AllowNestedResourceAcquire(pOwnRtti))
           {
-            if (!pQueuedResource->AllowNestedResourceAcquire(pOwnRtti))
-            {
-              tgid = s_State->s_WorkerTasksUpdateContent[i].m_GroupId;
-              break;
-            }
+            tgid = s_State->s_WorkerTasksUpdateContent[i].m_GroupId;
+            break;
           }
         }
       }

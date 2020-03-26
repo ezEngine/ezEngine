@@ -14,7 +14,7 @@ static const char* GenerateThreadName(ezWorkerThreadType::Enum ThreadType, ezUIn
 }
 
 ezTaskWorkerThread::ezTaskWorkerThread(ezWorkerThreadType::Enum ThreadType, ezUInt32 uiThreadNumber)
-  : ezThread(GenerateThreadName(ThreadType, uiThreadNumber))
+  : ezThread(GenerateThreadName(ThreadType, uiThreadNumber), 32 * 1024) /* 32 KB of stack size */
 {
   m_WorkerType = ThreadType;
   m_uiWorkerThreadNumber = uiThreadNumber & 0xFFFF;
