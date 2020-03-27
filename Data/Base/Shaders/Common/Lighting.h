@@ -470,9 +470,9 @@ void ApplyDecals(inout ezMaterialData matData, ezPerClusterData clusterData, uin
         }
         else
         {
-          decalWorldNormal = decalTangentNormal.x * worldToDecalMatrix._m00_m01_m02;
-          decalWorldNormal += decalTangentNormal.y * worldToDecalMatrix._m10_m11_m12;
-          decalWorldNormal -= decalTangentNormal.z * worldToDecalMatrix._m20_m21_m22;
+          decalWorldNormal = decalTangentNormal.x * normalize(worldToDecalMatrix._m00_m01_m02);
+          decalWorldNormal += decalTangentNormal.y * normalize(worldToDecalMatrix._m10_m11_m12);
+          decalWorldNormal -= decalTangentNormal.z * normalize(worldToDecalMatrix._m20_m21_m22);
         }
       }
       
