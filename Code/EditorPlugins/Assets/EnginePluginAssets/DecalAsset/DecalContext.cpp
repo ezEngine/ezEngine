@@ -40,8 +40,8 @@ void ezDecalContext::OnInitialize()
       ezGeometry geom;
 
       ezMat4 t, r;
-
       t.SetIdentity();
+
       geom.AddTexturedBox(ezVec3(0.5f, 1.0f, 1.0f), ezColor::White, t);
 
       t.SetTranslationMatrix(ezVec3(0, 1.5f, 0));
@@ -100,9 +100,10 @@ void ezDecalContext::OnInitialize()
     ezStringBuilder sDecalGuid;
     ezConversionUtils::ToString(GetDocumentGuid(), sDecalGuid);
 
+    // box
     {
       obj.m_sName.Assign("Decal1");
-      obj.m_LocalPosition.Set(-0.5f, 0, 0);
+      obj.m_LocalPosition.Set(-0.25f, 0, 0);
       pWorld->CreateObject(obj, pObj);
 
       ezDecalComponent* pDecal;
@@ -110,9 +111,10 @@ void ezDecalContext::OnInitialize()
       pDecal->SetDecalFile(sDecalGuid);
     }
 
+    // torus
     {
       obj.m_sName.Assign("Decal2");
-      obj.m_LocalPosition.Set(-0.5f, -1.5f, 0);
+      obj.m_LocalPosition.Set(-0.2f, -1.5f, 0);
       pWorld->CreateObject(obj, pObj);
 
       ezDecalComponent* pDecal;
@@ -120,6 +122,7 @@ void ezDecalContext::OnInitialize()
       pDecal->SetDecalFile(sDecalGuid);
     }
 
+    // sphere
     {
       obj.m_sName.Assign("Decal3");
       obj.m_LocalPosition.Set(-0.5f, 1.5f, 0);
@@ -131,11 +134,11 @@ void ezDecalContext::OnInitialize()
     }
 
 
-
+    // box
     {
       obj.m_sName.Assign("Decal4");
       obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(180));
-      obj.m_LocalPosition.Set(0.5f, 0, 0);
+      obj.m_LocalPosition.Set(0.25f, 0, 0);
       pWorld->CreateObject(obj, pObj);
 
       ezDecalComponent* pDecal;
@@ -144,10 +147,11 @@ void ezDecalContext::OnInitialize()
       pDecal->SetDecalFile(sDecalGuid);
     }
 
+    // torus
     {
       obj.m_sName.Assign("Decal5");
       obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(180));
-      obj.m_LocalPosition.Set(0.5f, -1.5f, 0);
+      obj.m_LocalPosition.Set(0.2f, -1.5f, 0);
       pWorld->CreateObject(obj, pObj);
 
       ezDecalComponent* pDecal;
@@ -156,6 +160,7 @@ void ezDecalContext::OnInitialize()
       pDecal->SetDecalFile(sDecalGuid);
     }
 
+    // sphere
     {
       obj.m_sName.Assign("Decal6");
       obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(180));
