@@ -28,6 +28,7 @@ public:
   static ezActionDescriptorHandle s_hSimulationSpeedMenu;
   static ezActionDescriptorHandle s_hSimulationSpeed[10];
   static ezActionDescriptorHandle s_hCameraSpeed;
+  static ezActionDescriptorHandle s_hPickTranslucent;
 };
 
 ///
@@ -45,6 +46,7 @@ public:
     RenderGrid,
     AddAmbientLight,
     SimulationSpeed,
+    PickTranslucent,
   };
 
   ezGameObjectDocumentAction(const ezActionContext& context, const char* szName, ActionType type, float fSimSpeed = 1.0f);

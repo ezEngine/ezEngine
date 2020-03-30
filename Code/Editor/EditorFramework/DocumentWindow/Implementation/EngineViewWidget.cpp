@@ -108,9 +108,8 @@ void ezQtEngineViewWidget::SyncToEngine()
   cam.m_uiWindowWidth = width() * this->devicePixelRatio();
   cam.m_uiWindowHeight = height() * this->devicePixelRatio();
   cam.m_bUpdatePickingData = m_bUpdatePickingData;
-  cam.m_bEnablePickingSelected =
-    IsPickingAgainstSelectionAllowed() &&
-    (!ezEditorInputContext::IsAnyInputContextActive() || ezEditorInputContext::GetActiveInputContext()->IsPickingSelectedAllowed());
+  cam.m_bEnablePickingSelected = IsPickingAgainstSelectionAllowed() && (!ezEditorInputContext::IsAnyInputContextActive() || ezEditorInputContext::GetActiveInputContext()->IsPickingSelectedAllowed());
+  cam.m_bEnablePickTranslucent = m_bPickTranslucent;
 
   if (s_FixedResolution.HasNonZeroArea())
   {
@@ -199,6 +198,20 @@ void ezQtEngineViewWidget::InterpolateCameraTo(const ezVec3& vPosition, const ez
     m_LastCameraUpdate -= ezTime::Seconds(10);
     m_fCameraLerp = 0.9f;
   }
+}
+
+void ezQtEngineViewWidget::SetEnablePicking(bool bEnable)
+{
+  m_bUpdatePickingData = bEnable;
+}
+
+void ezQtEngineViewWidget::SetPickTranslucent(bool bEnable)
+{
+  if (m_bPickTranslucent == bEnable)
+    return;
+
+  m_bPickTranslucent = bEnable;
+  m_LastPickingResult.Reset();
 }
 
 void ezQtEngineViewWidget::OpenContextMenu(QPoint globalPos)
@@ -690,4 +703,3 @@ ezQtViewWidgetContainer::ezQtViewWidgetContainer(QWidget* pParent, ezQtEngineVie
 }
 
 ezQtViewWidgetContainer::~ezQtViewWidgetContainer() {}
-

@@ -61,7 +61,7 @@ DepthTestFunc = CompareFunc_LessEqual
 
 #endif
 
-#if (RENDER_PASS == RENDER_PASS_EDITOR)
+#if (RENDER_PASS == RENDER_PASS_EDITOR || RENDER_PASS == RENDER_PASS_PICKING || RENDER_PASS == RENDER_PASS_PICKING_WIREFRAME)
   // disable blending for all editor debug render modes
   BlendingEnabled0 = false
   DepthWrite = true

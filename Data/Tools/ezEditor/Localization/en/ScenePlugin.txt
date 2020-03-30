@@ -264,3 +264,4 @@ ezVRTransformSpace::Global;Global Space
 ezVRStageSpace::Seated;Seated
 ezVRStageSpace::Standing;Standing
 InstanceData;Instance Data
+Scene.Render.PickTranslucent;Select Translucent

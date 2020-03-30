@@ -130,6 +130,28 @@ void ezGameObjectDocument::SetAddAmbientLight(bool b)
   ezGameObjectEvent e;
   e.m_Type = ezGameObjectEvent::Type::AddAmbientLightChanged;
   m_GameObjectEvents.Broadcast(e);
+
+  ShowDocumentStatus(ezFmt("Ambient Light: {}", m_bPickTranslucent ? "ON" : "OFF"));
+}
+
+void ezGameObjectDocument::SetPickTranslucent(bool b)
+{
+  if (m_bPickTranslucent == b)
+    return;
+
+  m_bPickTranslucent = b;
+
+  ezGameObjectEvent e;
+  e.m_Type = ezGameObjectEvent::Type::PickTranslucentChanged;
+  m_GameObjectEvents.Broadcast(e);
+
+  ShowDocumentStatus(ezFmt("Select Translucent: {}", m_bPickTranslucent ? "ON" : "OFF"));
+
+  if (m_bPickTranslucent == false)
+  {
+    // make sure no translucent object is currently selected
+    GetSelectionManager()->Clear();
+  }
 }
 
 void ezGameObjectDocument::SetGizmoWorldSpace(bool bWorldSpace)
@@ -142,6 +164,8 @@ void ezGameObjectDocument::SetGizmoWorldSpace(bool bWorldSpace)
   ezGameObjectEvent e;
   e.m_Type = ezGameObjectEvent::Type::ActiveEditToolChanged;
   m_GameObjectEvents.Broadcast(e);
+
+  ShowDocumentStatus(ezFmt("Transform in: {}", m_bGizmoWorldSpace ? "World Space" : "Object Space"));
 }
 
 bool ezGameObjectDocument::GetGizmoWorldSpace() const
@@ -159,6 +183,8 @@ void ezGameObjectDocument::SetGizmoMoveParentOnly(bool bMoveParent)
   ezGameObjectEvent e;
   e.m_Type = ezGameObjectEvent::Type::ActiveEditToolChanged;
   m_GameObjectEvents.Broadcast(e);
+
+  ShowDocumentStatus(ezFmt("Move Parent Only: {}", m_bGizmoMoveParentOnly ? "ON" : "OFF"));
 }
 
 void ezGameObjectDocument::DetermineNodeName(const ezDocumentObject* pObject, const ezUuid& prefabGuid, ezStringBuilder& out_Result,
@@ -690,6 +716,8 @@ void ezGameObjectDocument::SetRenderSelectionOverlay(bool b)
   ezGameObjectEvent e;
   e.m_Type = ezGameObjectEvent::Type::RenderSelectionOverlayChanged;
   m_GameObjectEvents.Broadcast(e);
+
+  ShowDocumentStatus(ezFmt("Selection Overlay: {}", m_CurrentMode.m_bRenderSelectionOverlay ? "ON" : "OFF"));
 }
 
 
@@ -705,6 +733,8 @@ void ezGameObjectDocument::SetRenderVisualizers(bool b)
   ezGameObjectEvent e;
   e.m_Type = ezGameObjectEvent::Type::RenderVisualizersChanged;
   m_GameObjectEvents.Broadcast(e);
+
+  ShowDocumentStatus(ezFmt("Visualizers: {}", m_CurrentMode.m_bRenderVisualizers ? "ON" : "OFF"));
 }
 
 void ezGameObjectDocument::SetRenderShapeIcons(bool b)
@@ -717,6 +747,8 @@ void ezGameObjectDocument::SetRenderShapeIcons(bool b)
   ezGameObjectEvent e;
   e.m_Type = ezGameObjectEvent::Type::RenderShapeIconsChanged;
   m_GameObjectEvents.Broadcast(e);
+
+  ShowDocumentStatus(ezFmt("Shape Icons: {}", m_CurrentMode.m_bRenderShapeIcons ? "ON" : "OFF"));
 }
 
 void ezGameObjectDocument::ObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
