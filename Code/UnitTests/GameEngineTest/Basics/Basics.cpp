@@ -47,13 +47,16 @@ ezResult TranformProject(const char* szProjectPath)
     proc.Terminate();
     ezLog::Error("Failed to start process: '{0}'", sBinPath);
   }
-  res = proc.WaitToFinish(ezTime::Minutes(4));
+
+  ezTime timeout = ezTime::Minutes(8);
+  res = proc.WaitToFinish(timeout);
   if (res.Failed())
   {
     proc.Terminate();
-    ezLog::Error("Process timeout: '{0}'", sBinPath);
+    ezLog::Error("Process timeout ({1}): '{0}'", sBinPath, timeout);
     return EZ_FAILURE;
   }
+
   ezLog::Success("Executed Asset Processor to transform '{}'", szProjectPath);
   return EZ_SUCCESS;
 }
