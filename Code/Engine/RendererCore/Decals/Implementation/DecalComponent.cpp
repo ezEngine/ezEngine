@@ -432,6 +432,19 @@ void ezDecalComponent::OnSimulationStarted()
     }
   }
 
+  // currently attaching a decal to a dynamic object does not make it appear on that object
+  //if (GetOwner()->IsDynamic())
+  //{
+  //  if (GetOwner()->GetParent())
+  //  {
+  //    SetApplyOnlyTo(GetOwner()->GetParent()->GetHandle());
+  //  }
+  //  else
+  //  {
+  //    SetApplyOnlyTo(GetOwner()->GetHandle());
+  //  }
+  //}
+
   if (m_fSizeVariance > 0)
   {
     const float scale = (float)pWorld->GetRandomNumberGenerator().DoubleVariance(1.0, m_fSizeVariance);

@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4114495068825608376,4693612569124721933}}
-		u4 %Hash{6721388030736391343}
+		u4 %Hash{985255485842727086}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -19,6 +19,7 @@ o
 			s{"{ 0b202e08-a64f-465d-b38e-15b81d161822 }"}
 			s{"{ 1551d6b1-7f83-4caa-96d4-900b0eb873b9 }"}
 			s{"{ 2417d010-56d1-4645-bfa5-7bc347d4df55 }"}
+			s{"{ 29697ae9-f654-4d64-82ea-a0a826798a51 }"}
 			s{"{ 31f46a9b-da3d-4b22-82b1-047ff5243b2f }"}
 			s{"{ 3acfdf66-2b61-4cf1-a3e4-78801c70b520 }"}
 			s{"{ 6d619c33-6611-432b-a924-27b1b9bfd8db }"}
@@ -32,10 +33,12 @@ o
 			s{"{ c069b8a2-ccad-417f-bca4-8739efc222cf }"}
 			s{"{ d65800e7-6639-4be7-be45-c9b9071806e2 }"}
 			s{"{ dc4b274a-7aa4-4663-b2d6-19d86951aa30 }"}
+			s{"{ e0cb4b80-8485-40d1-8cb0-b097dbe14d5d }"}
 			s{"{ f2c2c3fb-5dc5-4189-b246-4493392aecaa }"}
 			s{"{ f3e61b7d-9784-4254-a0bb-df775cf6eaef }"}
 			s{"{ f5b6801b-53d5-4749-b616-90170271cd68 }"}
 			s{"{ ff4ecbeb-c91a-4a38-b66e-dabf240152d5 }"}
+			s{"{ ffd752af-28a6-4c87-874e-6d083761e9e4 }"}
 		}
 	}
 }
@@ -71,6 +74,17 @@ o
 }
 o
 {
+	Uuid %id{u4{8495911250909471483,535300887426855764}}
+	s %t{"ezVarianceTypeTime"}
+	u3 %v{1}
+	p
+	{
+		Time %Value{d{0}}
+		f %Variance{0}
+	}
+}
+o
+{
 	Uuid %id{u4{11923291469196352611,801549209369366753}}
 	s %t{"ezDecalComponent"}
 	u3 %v{5}
@@ -82,7 +96,7 @@ o
 		Color %EmissiveColor{f{0,0,0,0x0000803F}}
 		Vec3 %Extents{f{0x0000803F,0x0000803F,0x0000803F}}
 		Uuid %FadeOutDelay{u4{9169385729105329460,15709046424047015650}}
-		Time %FadeOutDuration{d{0}}
+		Time %FadeOutDuration{d{0x000000000000F03F}}
 		Angle %InnerFadeAngle{f{0xF3665F3F}}
 		b %MapNormalToGeometry{1}
 		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
@@ -127,7 +141,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -154,7 +167,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -181,7 +193,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -291,7 +302,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -342,7 +352,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -369,7 +378,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -396,13 +404,23 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
 o
 {
 	Uuid %id{u4{12865400486714524177,3288075394159069936}}
+	s %t{"ezVarianceTypeTime"}
+	u3 %v{1}
+	p
+	{
+		Time %Value{d{0}}
+		f %Variance{0}
+	}
+}
+o
+{
+	Uuid %id{u4{11072518000947882634,3452384383013971691}}
 	s %t{"ezVarianceTypeTime"}
 	u3 %v{1}
 	p
@@ -485,6 +503,60 @@ o
 }
 o
 {
+	Uuid %id{u4{8980534528679596953,4656399325270279531}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{6048280248667463314,5451735262128846087}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x000040C0,0,0x0000803F}}
+		Quat %LocalRotation{f{0,0xF204353F,0xF30435B3,0xF304353F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{10202072702674301334,4687037136244609833}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{9510613987454506377,4738429101568201906}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x0000A03F,0x000000C0,0x0000803F}}
+		Quat %LocalRotation{f{0xF204B5BE,0xF204B53E,0x70C41CBF,0x70C41C3F}}
+		Vec3 %LocalScaling{f{0x0000603F,0x0000C03F,0x0000203F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{15359788062460853171,4694555997248065284}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -533,8 +605,31 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{9510613987454506377,4738429101568201906}}
+	s %t{"ezDecalComponent"}
+	u3 %v{5}
+	p
+	{
+		b %Active{1}
+		ColorGamma %Color{u1{0,240,236,255}}
+		s %Decal{"{ 29697ae9-f654-4d64-82ea-a0a826798a51 }"}
+		Color %EmissiveColor{f{0,0,0,0x0000803F}}
+		Vec3 %Extents{f{0x00004040,0x00004040,0x00004040}}
+		Uuid %FadeOutDelay{u4{11072518000947882634,3452384383013971691}}
+		Time %FadeOutDuration{d{0x000000000000E03F}}
+		Angle %InnerFadeAngle{f{0xF3665F3F}}
+		b %MapNormalToGeometry{1}
+		s %OnFinishedAction{"ezOnComponentFinishedAction::DeleteGameObject"}
+		Angle %OuterFadeAngle{f{0xC2B8B23F}}
+		s %ProjectionAxis{"ezBasisAxis::PositiveY"}
+		f %SizeVariance{0}
+		f %SortOrder{0}
+		b %WrapAround{0}
 	}
 }
 o
@@ -560,7 +655,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -572,6 +666,32 @@ o
 	p
 	{
 		VarArray %ExposedProperties{}
+	}
+}
+o
+{
+	Uuid %id{u4{8682955429373649326,4820637435859289533}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{3702933292722027147,5735000138030956466}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x0000803E,0x0000E03F,0x0000803F}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+		}
 	}
 }
 o
@@ -816,7 +936,7 @@ o
 		Vec2 %RenderTargetSize{f{0x0000803F,0x0000803F}}
 		b %ShowStats{0}
 		Time %ShutterTime{d{0x000000000000F03F}}
-		s %UsageHint{"ezCameraUsageHint::Thumbnail"}
+		s %UsageHint{"ezCameraUsageHint::MainView"}
 	}
 }
 o
@@ -971,6 +1091,33 @@ o
 }
 o
 {
+	Uuid %id{u4{15973207481885987209,5222549446697770449}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{10572943743609095841,5448901794630397891}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x000000C0,0x00001040,0x0000C03F}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{14190040909226991752,5308810929611649696}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -1019,7 +1166,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -1080,6 +1226,46 @@ o
 }
 o
 {
+	Uuid %id{u4{10572943743609095841,5448901794630397891}}
+	s %t{"ezMeshComponent"}
+	u3 %v{3}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		VarArray %Materials
+		{
+			s{"{ ffd752af-28a6-4c87-874e-6d083761e9e4 }"}
+		}
+		s %Mesh{"{ 6d619c33-6611-432b-a924-27b1b9bfd8db }"}
+	}
+}
+o
+{
+	Uuid %id{u4{6048280248667463314,5451735262128846087}}
+	s %t{"ezDecalComponent"}
+	u3 %v{5}
+	p
+	{
+		b %Active{1}
+		ColorGamma %Color{u1{255,255,255,255}}
+		s %Decal{"{ e0cb4b80-8485-40d1-8cb0-b097dbe14d5d }"}
+		Color %EmissiveColor{f{0,0,0,0x0000803F}}
+		Vec3 %Extents{f{0x00000040,0x00000040,0x00000040}}
+		Uuid %FadeOutDelay{u4{2616126930790858272,7406780583492678985}}
+		Time %FadeOutDuration{d{0}}
+		Angle %InnerFadeAngle{f{0xF3665F3F}}
+		b %MapNormalToGeometry{1}
+		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
+		Angle %OuterFadeAngle{f{0xC2B8B23F}}
+		s %ProjectionAxis{"ezBasisAxis::PositiveX"}
+		f %SizeVariance{0}
+		f %SortOrder{0}
+		b %WrapAround{0}
+	}
+}
+o
+{
 	Uuid %id{u4{17309183826656460187,5514675962871561532}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -1092,8 +1278,8 @@ o
 			Uuid{u4{13950190252157910406,5040533210089972224}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0,0x00000041}}
-		Quat %LocalRotation{f{0,0xF304353F,0,0xF304353F}}
+		Vec3 %LocalPosition{f{0xEB78A7C0,0xE5F38735,0x61AEC040}}
+		Quat %LocalRotation{f{0xF17549B2,0x78D9BE3E,0x1D08CB32,0xDC8C6D3F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
@@ -1193,6 +1379,30 @@ o
 }
 o
 {
+	Uuid %id{u4{3702933292722027147,5735000138030956466}}
+	s %t{"ezGreyBoxComponent"}
+	u3 %v{3}
+	p
+	{
+		b %Active{1}
+		Color %Color{f{0x0000803F,0x0000803F,0x0000803F,0x0000803F}}
+		Angle %Curvature{f{0}}
+		u3 %Detail{16}
+		s %Material{"{ ffd752af-28a6-4c87-874e-6d083761e9e4 }"}
+		s %Shape{"ezGreyBoxShape::Box"}
+		f %SizeNegX{0x0000803E}
+		f %SizeNegY{0x0000803F}
+		f %SizeNegZ{0}
+		f %SizePosX{0}
+		f %SizePosY{0x0000803F}
+		f %SizePosZ{0x00000040}
+		b %SlopedBottom{0}
+		b %SlopedTop{0}
+		f %Thickness{0x0000003F}
+	}
+}
+o
+{
 	Uuid %id{u4{13343550686406626707,5761901389017673549}}
 	s %t{"ezGreyBoxComponent"}
 	u3 %v{3}
@@ -1218,6 +1428,17 @@ o
 o
 {
 	Uuid %id{u4{7819589630565109412,6021106487434267506}}
+	s %t{"ezVarianceTypeTime"}
+	u3 %v{1}
+	p
+	{
+		Time %Value{d{0}}
+		f %Variance{0}
+	}
+}
+o
+{
+	Uuid %id{u4{16460499991458340021,6083745011736234196}}
 	s %t{"ezVarianceTypeTime"}
 	u3 %v{1}
 	p
@@ -1258,8 +1479,26 @@ o
 			Uuid{u4{10087995563929660299,513198622279344750}}
 			Uuid{u4{5675210186602748821,4896711170491529478}}
 			Uuid{u4{6288427973525919263,9786380581655508436}}
+			Uuid{u4{8682955429373649326,4820637435859289533}}
+			Uuid{u4{15973207481885987209,5222549446697770449}}
+			Uuid{u4{11279346663672881140,14596317945106537899}}
+			Uuid{u4{10202072702674301334,4687037136244609833}}
+			Uuid{u4{8980534528679596953,4656399325270279531}}
+			Uuid{u4{12712027284508524368,10192131155472205400}}
+			Uuid{u4{2635142112618664222,10040794669363912953}}
 		}
 		Uuid %Settings{u4{13359075245692352906,4808705898882851391}}
+	}
+}
+o
+{
+	Uuid %id{u4{7909645259330569189,6641768568947170902}}
+	s %t{"ezVarianceTypeTime"}
+	u3 %v{1}
+	p
+	{
+		Time %Value{d{0}}
+		f %Variance{0}
 	}
 }
 o
@@ -1285,7 +1524,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -1326,6 +1564,17 @@ o
 }
 o
 {
+	Uuid %id{u4{2616126930790858272,7406780583492678985}}
+	s %t{"ezVarianceTypeTime"}
+	u3 %v{1}
+	p
+	{
+		Time %Value{d{0}}
+		f %Variance{0}
+	}
+}
+o
+{
 	Uuid %id{u4{16407404059843238637,7423946401164416179}}
 	s %t{"ezVarianceTypeTime"}
 	u3 %v{1}
@@ -1358,7 +1607,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -1385,7 +1633,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -1412,7 +1659,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -1511,7 +1757,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -1615,10 +1860,10 @@ o
 			Uuid{u4{12064871567194344989,9935235141914554993}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0xCEEBCBBF,0x32E19740,0x5D3EA03F}}
+		Vec3 %LocalPosition{f{0x0000C0BF,0x00009840,0x0000803F}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
+		f %LocalUniformScaling{0x00001040}
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
@@ -1654,7 +1899,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -1744,7 +1988,7 @@ o
 		Color %EmissiveColor{f{0,0,0,0x0000803F}}
 		Vec3 %Extents{f{0x0000803F,0x0000803F,0x0000803F}}
 		Uuid %FadeOutDelay{u4{1839865677020319936,869415762102760432}}
-		Time %FadeOutDuration{d{0}}
+		Time %FadeOutDuration{d{0x0000000000000040}}
 		Angle %InnerFadeAngle{f{0xF3665F3F}}
 		b %MapNormalToGeometry{1}
 		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
@@ -1768,7 +2012,7 @@ o
 		Color %EmissiveColor{f{0,0,0,0x0000803F}}
 		Vec3 %Extents{f{0x0000803F,0x0000803F,0x0000803F}}
 		Uuid %FadeOutDelay{u4{1604932444110349992,6844933168389060343}}
-		Time %FadeOutDuration{d{0}}
+		Time %FadeOutDuration{d{0x0000000000000040}}
 		Angle %InnerFadeAngle{f{0x920A863F}}
 		b %MapNormalToGeometry{1}
 		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
@@ -1777,6 +2021,33 @@ o
 		f %SizeVariance{0}
 		f %SortOrder{0}
 		b %WrapAround{0}
+	}
+}
+o
+{
+	Uuid %id{u4{2635142112618664222,10040794669363912953}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{18149631906316082199,10836130606222479509}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x97A09ABD,0x0D9A8240,0x040E803F}}
+		Quat %LocalRotation{f{0,0xF204353F,0xF30435B3,0xF304353F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
 	}
 }
 o
@@ -1829,7 +2100,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -1855,6 +2125,33 @@ o
 		f %SizeVariance{0}
 		f %SortOrder{0}
 		b %WrapAround{0}
+	}
+}
+o
+{
+	Uuid %id{u4{12712027284508524368,10192131155472205400}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{9779773004496390729,10987467092330771956}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x507325C0,0x013108C0,0xC20A803F}}
+		Quat %LocalRotation{f{0,0xF204353F,0xF30435B3,0xF304353F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
 	}
 }
 o
@@ -1904,7 +2201,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -1931,7 +2227,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -2036,6 +2331,30 @@ o
 }
 o
 {
+	Uuid %id{u4{18149631906316082199,10836130606222479509}}
+	s %t{"ezDecalComponent"}
+	u3 %v{5}
+	p
+	{
+		b %Active{1}
+		ColorGamma %Color{u1{255,255,255,255}}
+		s %Decal{"{ e0cb4b80-8485-40d1-8cb0-b097dbe14d5d }"}
+		Color %EmissiveColor{f{0,0,0,0x0000803F}}
+		Vec3 %Extents{f{0x00000040,0x00000040,0x00000040}}
+		Uuid %FadeOutDelay{u4{8495911250909471483,535300887426855764}}
+		Time %FadeOutDuration{d{0}}
+		Angle %InnerFadeAngle{f{0xF3665F3F}}
+		b %MapNormalToGeometry{1}
+		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
+		Angle %OuterFadeAngle{f{0xC2B8B23F}}
+		s %ProjectionAxis{"ezBasisAxis::PositiveX"}
+		f %SizeVariance{0}
+		f %SortOrder{0}
+		b %WrapAround{0}
+	}
+}
+o
+{
 	Uuid %id{u4{123084878670373431,10924777389426578119}}
 	s %t{"ezGreyBoxComponent"}
 	u3 %v{3}
@@ -2080,6 +2399,30 @@ o
 		b %SlopedBottom{0}
 		b %SlopedTop{0}
 		f %Thickness{0x0000003F}
+	}
+}
+o
+{
+	Uuid %id{u4{9779773004496390729,10987467092330771956}}
+	s %t{"ezDecalComponent"}
+	u3 %v{5}
+	p
+	{
+		b %Active{1}
+		ColorGamma %Color{u1{255,255,255,255}}
+		s %Decal{"{ e0cb4b80-8485-40d1-8cb0-b097dbe14d5d }"}
+		Color %EmissiveColor{f{0,0,0,0x0000803F}}
+		Vec3 %Extents{f{0x00000040,0x00000040,0x00000040}}
+		Uuid %FadeOutDelay{u4{7909645259330569189,6641768568947170902}}
+		Time %FadeOutDuration{d{0x666666666666E63F}}
+		Angle %InnerFadeAngle{f{0xF3665F3F}}
+		b %MapNormalToGeometry{1}
+		s %OnFinishedAction{"ezOnComponentFinishedAction::DeleteComponent"}
+		Angle %OuterFadeAngle{f{0xC2B8B23F}}
+		s %ProjectionAxis{"ezBasisAxis::PositiveX"}
+		f %SizeVariance{0}
+		f %SortOrder{0x000000C0}
+		b %WrapAround{0}
 	}
 }
 o
@@ -2154,7 +2497,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -2181,7 +2523,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -2208,7 +2549,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -2235,7 +2575,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -2375,6 +2714,33 @@ o
 }
 o
 {
+	Uuid %id{u4{11279346663672881140,14596317945106537899}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{14995824384583487729,14882949737388022071}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x23F4803E,0x5EF3C13F,0x14161C40}}
+		Quat %LocalRotation{f{0x8D3B32BE,0xBBA9C53E,0xB082823E,0x968A5E3F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x00000040}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
 	Uuid %id{u4{2744134045769096899,14608464402721667887}}
 	s %t{"ezDecalComponent"}
 	u3 %v{5}
@@ -2386,7 +2752,7 @@ o
 		Color %EmissiveColor{f{0,0,0,0x0000803F}}
 		Vec3 %Extents{f{0x0000803F,0x0000803F,0x0000803F}}
 		Uuid %FadeOutDelay{u4{14111875544714679465,13399671661714503243}}
-		Time %FadeOutDuration{d{0}}
+		Time %FadeOutDuration{d{0x000000000000F03F}}
 		Angle %InnerFadeAngle{f{0xF3665F3F}}
 		b %MapNormalToGeometry{1}
 		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
@@ -2420,8 +2786,31 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{14995824384583487729,14882949737388022071}}
+	s %t{"ezDecalComponent"}
+	u3 %v{5}
+	p
+	{
+		b %Active{1}
+		ColorGamma %Color{u1{69,1,255,255}}
+		s %Decal{"{ 31f46a9b-da3d-4b22-82b1-047ff5243b2f }"}
+		Color %EmissiveColor{f{0xB5BD2E3C,0xC3D25640,0x28673B41,0x0000803F}}
+		Vec3 %Extents{f{0x0000803F,0x0000803F,0x0000803F}}
+		Uuid %FadeOutDelay{u4{16460499991458340021,6083745011736234196}}
+		Time %FadeOutDuration{d{0}}
+		Angle %InnerFadeAngle{f{0x920A863F}}
+		b %MapNormalToGeometry{1}
+		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
+		Angle %OuterFadeAngle{f{0xDB0FC93F}}
+		s %ProjectionAxis{"ezBasisAxis::PositiveX"}
+		f %SizeVariance{0}
+		f %SortOrder{0}
+		b %WrapAround{1}
 	}
 }
 o
@@ -2455,7 +2844,7 @@ o
 	u3 %v{1}
 	p
 	{
-		Time %Value{d{0}}
+		Time %Value{d{0x000000000000E03F}}
 		f %Variance{0}
 	}
 }
@@ -2482,7 +2871,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -2509,7 +2897,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -2536,7 +2923,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
@@ -2563,7 +2949,6 @@ o
 		VarArray %Tags
 		{
 			s{"CastShadow"}
-			s{"AutoColMesh"}
 		}
 	}
 }
