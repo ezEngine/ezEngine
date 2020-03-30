@@ -52,7 +52,11 @@ EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 3, ezComponentMode::Static)
 EZ_END_COMPONENT_TYPE;
 // clang-format on
 
-ezGreyBoxComponent::ezGreyBoxComponent() = default;
+ezGreyBoxComponent::ezGreyBoxComponent()
+{
+  m_CachedRenderDataCategory = ezInvalidRenderDataCategory;
+}
+
 ezGreyBoxComponent::~ezGreyBoxComponent() = default;
 
 void ezGreyBoxComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -159,7 +163,36 @@ void ezGreyBoxComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) con
       pRenderData->FillBatchIdAndSortingKey();
     }
 
-    msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, ezRenderData::Caching::IfStatic);
+    // Determine render data category.
+    ezRenderData::Category category = m_CachedRenderDataCategory;
+    if (category == ezInvalidRenderDataCategory)
+    {
+      if (hMaterial.IsValid())
+      {
+        ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
+        ezTempHashedString blendModeValue = pMaterial->GetPermutationValue("BLEND_MODE");
+        if (blendModeValue == "BLEND_MODE_OPAQUE" || blendModeValue == "")
+        {
+          category = ezDefaultRenderDataCategories::LitOpaque;
+        }
+        else if (blendModeValue == "BLEND_MODE_MASKED")
+        {
+          category = ezDefaultRenderDataCategories::LitMasked;
+        }
+        else
+        {
+          category = ezDefaultRenderDataCategories::LitTransparent;
+        }
+      }
+      else
+      {
+        category = ezDefaultRenderDataCategories::LitOpaque;
+      }
+
+      m_CachedRenderDataCategory = category;
+    }
+
+    msg.AddRenderData(pRenderData, m_CachedRenderDataCategory, ezRenderData::Caching::IfStatic);
   }
 }
 
@@ -171,6 +204,8 @@ void ezGreyBoxComponent::SetShape(ezEnum<ezGreyBoxShape> shape)
 
 void ezGreyBoxComponent::SetMaterialFile(const char* szFile)
 {
+  m_CachedRenderDataCategory = ezInvalidRenderDataCategory;
+
   if (!ezStringUtils::IsNullOrEmpty(szFile))
   {
     m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>(szFile);
