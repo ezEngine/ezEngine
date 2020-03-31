@@ -25,7 +25,7 @@ public:
   virtual void ReadBackProperties(ezView* pView) override;
 
   bool m_bPickSelected = true;
-  bool m_bPickTranslucent = true;
+  bool m_bPickTransparent = true;
 
   ezVec2 m_PickingPosition;
   ezUInt32 m_PickingIdOut;

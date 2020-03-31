@@ -29,7 +29,7 @@ ezActionDescriptorHandle ezGameObjectDocumentActions::s_hAddAmbientLight;
 ezActionDescriptorHandle ezGameObjectDocumentActions::s_hSimulationSpeedMenu;
 ezActionDescriptorHandle ezGameObjectDocumentActions::s_hSimulationSpeed[10];
 ezActionDescriptorHandle ezGameObjectDocumentActions::s_hCameraSpeed;
-ezActionDescriptorHandle ezGameObjectDocumentActions::s_hPickTranslucent;
+ezActionDescriptorHandle ezGameObjectDocumentActions::s_hPickTransparent;
 
 void ezGameObjectDocumentActions::RegisterActions()
 {
@@ -71,7 +71,7 @@ void ezGameObjectDocumentActions::RegisterActions()
   s_hCameraSpeed = EZ_REGISTER_ACTION_1("Scene.Camera.Speed", ezActionScope::Document, "Camera", "", ezCameraSpeedSliderAction,
                                         ezCameraSpeedSliderAction::ActionType::CameraSpeed);
 
-  s_hPickTranslucent = EZ_REGISTER_ACTION_1("Scene.Render.PickTranslucent", ezActionScope::Document, "Scene", "U", ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::PickTranslucent);
+  s_hPickTransparent = EZ_REGISTER_ACTION_1("Scene.Render.PickTransparent", ezActionScope::Document, "Scene", "U", ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::PickTransparent);
 
 }
 
@@ -89,7 +89,7 @@ void ezGameObjectDocumentActions::UnregisterActions()
     ezActionManager::UnregisterAction(s_hSimulationSpeed[i]);
 
   ezActionManager::UnregisterAction(s_hCameraSpeed);
-  ezActionManager::UnregisterAction(s_hPickTranslucent);
+  ezActionManager::UnregisterAction(s_hPickTransparent);
 }
 
 void ezGameObjectDocumentActions::MapMenuActions(const char* szMapping, const char* szPath)
@@ -105,7 +105,7 @@ void ezGameObjectDocumentActions::MapMenuActions(const char* szMapping, const ch
     pMap->MapAction(s_hRenderVisualizers, sSubPath, 2.0f);
     pMap->MapAction(s_hRenderShapeIcons, sSubPath, 3.0f);
     pMap->MapAction(s_hRenderGrid, sSubPath, 4.0f);
-    pMap->MapAction(s_hPickTranslucent, sSubPath, 5.0f);
+    pMap->MapAction(s_hPickTransparent, sSubPath, 5.0f);
     pMap->MapAction(s_hAddAmbientLight, sSubPath, 6.0f);
     pMap->MapAction(s_hCameraSpeed, sSubPath, 7.0f);
   }
@@ -197,10 +197,10 @@ ezGameObjectDocumentAction::ezGameObjectDocumentAction(const ezActionContext& co
       SetChecked(m_pGameObjectDocument->GetSimulationSpeed() == m_fSimSpeed);
       break;
 
-    case ActionType::PickTranslucent:
+    case ActionType::PickTransparent:
       SetCheckable(true);
       //SetIconPath(":/EditorFramework/Icons/Visualizers16.png"); // TODO icon
-      SetChecked(m_pGameObjectDocument->GetPickTranslucent());
+      SetChecked(m_pGameObjectDocument->GetPickTransparent());
       break;
 
   }
@@ -253,8 +253,8 @@ void ezGameObjectDocumentAction::Execute(const ezVariant& value)
       m_pGameObjectDocument->SetSimulationSpeed(m_fSimSpeed);
       return;
 
-    case ActionType::PickTranslucent:
-      m_pGameObjectDocument->SetPickTranslucent(!m_pGameObjectDocument->GetPickTranslucent());
+    case ActionType::PickTransparent:
+      m_pGameObjectDocument->SetPickTransparent(!m_pGameObjectDocument->GetPickTransparent());
       return;
 
   }
@@ -309,11 +309,11 @@ void ezGameObjectDocumentAction::SceneEventHandler(const ezGameObjectEvent& e)
     }
     break;
 
-    case ezGameObjectEvent::Type::PickTranslucentChanged:
+    case ezGameObjectEvent::Type::PickTransparentChanged:
     {
-      if (m_Type == ActionType::PickTranslucent)
+      if (m_Type == ActionType::PickTransparent)
       {
-        SetChecked(m_pGameObjectDocument->GetPickTranslucent());
+        SetChecked(m_pGameObjectDocument->GetPickTransparent());
       }
     }
     break;

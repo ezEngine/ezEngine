@@ -64,7 +64,7 @@ public:
   /// and when the mouse is outside a view, to prevent useless picking.
   void SetEnablePicking(bool bEnable);
 
-  void SetPickTranslucent(bool bEnable);
+  void SetPickTransparent(bool bEnable);
 
   /// \brief Disabled during drag&drop operations, to prevent picking against the dragged object.
   virtual bool IsPickingAgainstSelectionAllowed() const { return !m_bInDragAndDropOperation; }
@@ -135,7 +135,7 @@ private Q_SLOTS:
 
 protected:
   bool m_bUpdatePickingData;
-  bool m_bPickTranslucent = true;
+  bool m_bPickTransparent = true;
   bool m_bInDragAndDropOperation;
   ezUInt32 m_uiViewID;
   ezQtEngineDocumentWindow* m_pDocumentWindow;

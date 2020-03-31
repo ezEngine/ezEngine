@@ -6,11 +6,13 @@
 
 class ezGameEngineTestEffects : public ezGameEngineTest
 {
+  using SUPER = ezGameEngineTest;
+
 public:
   virtual const char* GetTestName() const override;
   virtual ezGameEngineTestApplication* CreateApplication() override;
 
-private:
+protected:
   enum SubTests
   {
     Decals,
@@ -26,5 +28,3 @@ private:
   ezUInt32 m_iImgCompIdx = 0;
   ezHybridArray<ezUInt32, 8> m_ImgCompFrames;
 };
-
-

@@ -33,7 +33,7 @@ struct EZ_EDITORFRAMEWORK_DLL ezGameObjectEvent
     RenderShapeIconsChanged,
     AddAmbientLightChanged,
     SimulationSpeedChanged,
-    PickTranslucentChanged,
+    PickTransparentChanged,
 
     ActiveEditToolChanged,
 
@@ -181,8 +181,8 @@ public:
   bool GetRenderShapeIcons() const { return m_CurrentMode.m_bRenderShapeIcons; }
   void SetRenderShapeIcons(bool b);
 
-  bool GetPickTranslucent() const { return m_bPickTranslucent; }
-  void SetPickTranslucent(bool b);
+  bool GetPickTransparent() const { return m_bPickTransparent; }
+  void SetPickTransparent(bool b);
 
   ///@}
   /// \name Transform
@@ -258,7 +258,7 @@ private:
   bool m_bAddAmbientLight = false;
   bool m_bGizmoWorldSpace = true; // whether the gizmo is in local/global space mode
   bool m_bGizmoMoveParentOnly = false;
-  bool m_bPickTranslucent = true;
+  bool m_bPickTransparent = true;
 
   float m_fSimulationSpeed = 1.0f;
 

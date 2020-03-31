@@ -65,6 +65,15 @@ ezResult ezGameEngineTest::DeInitializeTest()
   return EZ_SUCCESS;
 }
 
+ezResult ezGameEngineTest::InitializeSubTest(ezInt32 iIdentifier)
+{
+  SUPER::InitializeSubTest(iIdentifier);
+
+  ezResourceManager::ForceNoFallbackAcquisition(3);
+
+  return EZ_SUCCESS;
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 

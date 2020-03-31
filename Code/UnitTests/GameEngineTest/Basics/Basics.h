@@ -24,6 +24,8 @@ public:
 
 class ezGameEngineTestBasics : public ezGameEngineTest
 {
+  using SUPER = ezGameEngineTest;
+
 public:
   virtual const char* GetTestName() const override;
   virtual ezGameEngineTestApplication* CreateApplication() override;

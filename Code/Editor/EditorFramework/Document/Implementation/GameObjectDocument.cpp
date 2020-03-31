@@ -131,25 +131,25 @@ void ezGameObjectDocument::SetAddAmbientLight(bool b)
   e.m_Type = ezGameObjectEvent::Type::AddAmbientLightChanged;
   m_GameObjectEvents.Broadcast(e);
 
-  ShowDocumentStatus(ezFmt("Ambient Light: {}", m_bPickTranslucent ? "ON" : "OFF"));
+  ShowDocumentStatus(ezFmt("Ambient Light: {}", m_bAddAmbientLight ? "ON" : "OFF"));
 }
 
-void ezGameObjectDocument::SetPickTranslucent(bool b)
+void ezGameObjectDocument::SetPickTransparent(bool b)
 {
-  if (m_bPickTranslucent == b)
+  if (m_bPickTransparent == b)
     return;
 
-  m_bPickTranslucent = b;
+  m_bPickTransparent = b;
 
   ezGameObjectEvent e;
-  e.m_Type = ezGameObjectEvent::Type::PickTranslucentChanged;
+  e.m_Type = ezGameObjectEvent::Type::PickTransparentChanged;
   m_GameObjectEvents.Broadcast(e);
 
-  ShowDocumentStatus(ezFmt("Select Translucent: {}", m_bPickTranslucent ? "ON" : "OFF"));
+  ShowDocumentStatus(ezFmt("Select Transparent: {}", m_bPickTransparent ? "ON" : "OFF"));
 
-  if (m_bPickTranslucent == false)
+  if (m_bPickTransparent == false)
   {
-    // make sure no translucent object is currently selected
+    // make sure no transparent object is currently selected
     GetSelectionManager()->Clear();
   }
 }

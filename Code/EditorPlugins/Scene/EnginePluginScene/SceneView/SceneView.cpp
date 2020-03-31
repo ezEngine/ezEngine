@@ -44,7 +44,7 @@ void ezSceneViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
     {
       pView->SetRenderPassProperty("EditorPickingPass", "Active", pMsg2->m_bUpdatePickingData);
       pView->SetRenderPassProperty("EditorPickingPass", "PickSelected", pMsg2->m_bEnablePickingSelected);
-      pView->SetRenderPassProperty("EditorPickingPass", "PickTranslucent", pMsg2->m_bEnablePickTranslucent);
+      pView->SetRenderPassProperty("EditorPickingPass", "PickTransparent", pMsg2->m_bEnablePickTransparent);
     }
 
     if (pMsg2->m_CameraUsageHint == ezCameraUsageHint::EditorView &&

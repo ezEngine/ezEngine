@@ -109,7 +109,7 @@ void ezQtEngineViewWidget::SyncToEngine()
   cam.m_uiWindowHeight = height() * this->devicePixelRatio();
   cam.m_bUpdatePickingData = m_bUpdatePickingData;
   cam.m_bEnablePickingSelected = IsPickingAgainstSelectionAllowed() && (!ezEditorInputContext::IsAnyInputContextActive() || ezEditorInputContext::GetActiveInputContext()->IsPickingSelectedAllowed());
-  cam.m_bEnablePickTranslucent = m_bPickTranslucent;
+  cam.m_bEnablePickTransparent = m_bPickTransparent;
 
   if (s_FixedResolution.HasNonZeroArea())
   {
@@ -205,12 +205,12 @@ void ezQtEngineViewWidget::SetEnablePicking(bool bEnable)
   m_bUpdatePickingData = bEnable;
 }
 
-void ezQtEngineViewWidget::SetPickTranslucent(bool bEnable)
+void ezQtEngineViewWidget::SetPickTransparent(bool bEnable)
 {
-  if (m_bPickTranslucent == bEnable)
+  if (m_bPickTransparent == bEnable)
     return;
 
-  m_bPickTranslucent = bEnable;
+  m_bPickTransparent = bEnable;
   m_LastPickingResult.Reset();
 }
 

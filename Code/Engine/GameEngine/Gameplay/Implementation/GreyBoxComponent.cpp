@@ -170,18 +170,22 @@ void ezGreyBoxComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) con
       if (hMaterial.IsValid())
       {
         ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
-        ezTempHashedString blendModeValue = pMaterial->GetPermutationValue("BLEND_MODE");
-        if (blendModeValue == "BLEND_MODE_OPAQUE" || blendModeValue == "")
+
+        if (pMaterial.GetAcquireResult() == ezResourceAcquireResult::Final)
         {
-          category = ezDefaultRenderDataCategories::LitOpaque;
-        }
-        else if (blendModeValue == "BLEND_MODE_MASKED")
-        {
-          category = ezDefaultRenderDataCategories::LitMasked;
-        }
-        else
-        {
-          category = ezDefaultRenderDataCategories::LitTransparent;
+          ezTempHashedString blendModeValue = pMaterial->GetPermutationValue("BLEND_MODE");
+          if (blendModeValue == "BLEND_MODE_OPAQUE" || blendModeValue == "")
+          {
+            category = ezDefaultRenderDataCategories::LitOpaque;
+          }
+          else if (blendModeValue == "BLEND_MODE_MASKED")
+          {
+            category = ezDefaultRenderDataCategories::LitMasked;
+          }
+          else
+          {
+            category = ezDefaultRenderDataCategories::LitTransparent;
+          }
         }
       }
       else
@@ -192,7 +196,10 @@ void ezGreyBoxComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) con
       m_CachedRenderDataCategory = category;
     }
 
-    msg.AddRenderData(pRenderData, m_CachedRenderDataCategory, ezRenderData::Caching::IfStatic);
+    if (category != ezInvalidRenderDataCategory)
+    {
+      msg.AddRenderData(pRenderData, m_CachedRenderDataCategory, ezRenderData::Caching::IfStatic);
+    }
   }
 }
 

@@ -25,6 +25,8 @@ void ezGameEngineTestEffects::SetupSubTests()
 
 ezResult ezGameEngineTestEffects::InitializeSubTest(ezInt32 iIdentifier)
 {
+  SUPER::InitializeSubTest(iIdentifier);
+
   m_iFrame = -1;
   m_iImgCompIdx = 0;
   m_ImgCompFrames.Clear();

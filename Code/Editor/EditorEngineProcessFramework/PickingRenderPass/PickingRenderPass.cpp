@@ -13,7 +13,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPickingRenderPass, 1, ezRTTIDefaultAllocator<e
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("PickSelected", m_bPickSelected),
-    EZ_MEMBER_PROPERTY("PickTranslucent", m_bPickTranslucent),
+    EZ_MEMBER_PROPERTY("PickTransparent", m_bPickTransparent),
     EZ_MEMBER_PROPERTY("PickingPosition", m_PickingPosition),
     EZ_MEMBER_PROPERTY("MarqueePickPos0", m_MarqueePickPosition0),
     EZ_MEMBER_PROPERTY("MarqueePickPos1", m_MarqueePickPosition1),
@@ -104,6 +104,17 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext,
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaque, filter);
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMasked, filter);
 
+  if (m_bPickTransparent)
+  {
+    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitTransparent, filter);
+
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "TRUE");
+    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitForeground);
+
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "FALSE");
+    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitForeground);
+  }
+
   if (m_bPickSelected)
   {
     RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Selection);
@@ -111,19 +122,16 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext,
 
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleOpaque);
 
+  if (m_bPickTransparent)
+  {
+    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleTransparent, filter);
+  }
 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "TRUE");
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleForeground);
 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "FALSE");
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleForeground);
-
-  if (m_bPickTranslucent)
-  {
-    //RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitForeground, filter);
-    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitTransparent, filter);
-    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleTransparent, filter);
-  }
 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_FORWARD");
 
