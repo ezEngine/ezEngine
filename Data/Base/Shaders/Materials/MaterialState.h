@@ -61,8 +61,12 @@ DepthTestFunc = CompareFunc_LessEqual
 
 #endif
 
-#if (RENDER_PASS == RENDER_PASS_EDITOR)
-  // disable blending for all editor debug render modes
+#if (RENDER_PASS == RENDER_PASS_EDITOR 				/* disable blending for all editor debug render modes*/\
+	|| RENDER_PASS == RENDER_PASS_PICKING 			/* for transparent objects to be pickable*/\
+	|| RENDER_PASS == RENDER_PASS_PICKING_WIREFRAME /* for transparent objects to be pickable*/\
+	|| RENDER_PASS == RENDER_PASS_DEPTH_ONLY 		/* for transparent objects to have a selection outline */\
+	) 
+	
   BlendingEnabled0 = false
   DepthWrite = true
 #endif

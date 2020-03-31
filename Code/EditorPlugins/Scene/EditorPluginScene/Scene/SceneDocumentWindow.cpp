@@ -284,6 +284,7 @@ void ezQtSceneDocumentWindow::SendRedrawMsg()
   for (auto pView : m_ViewWidgets)
   {
     pView->SetEnablePicking(pView == pHoveredView);
+    pView->SetPickTransparent(GetGameObjectDocument()->GetPickTransparent());
     pView->UpdateCameraInterpolation();
     pView->SyncToEngine();
   }

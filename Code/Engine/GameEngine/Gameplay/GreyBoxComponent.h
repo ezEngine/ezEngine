@@ -5,6 +5,7 @@
 #include <Core/World/World.h>
 #include <GameEngine/GameEngineDLL.h>
 #include <RendererCore/Components/RenderComponent.h>
+#include <RendererCore/Pipeline/RenderData.h>
 
 class ezMeshRenderData;
 class ezGeometry;
@@ -109,6 +110,7 @@ protected:
   float m_fThickness = 0.5f;
   bool m_bSlopedTop = false;
   bool m_bSlopedBottom = false;
+  mutable ezRenderData::Category m_CachedRenderDataCategory;
 
   void InvalidateMesh();
   void GenerateRenderMesh() const;

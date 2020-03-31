@@ -43,6 +43,8 @@ protected:
 
 class ezGameEngineTest : public ezTestBaseClass
 {
+  using SUPER = ezTestBaseClass;
+
 public:
   ezGameEngineTest();
   ~ezGameEngineTest();
@@ -53,6 +55,7 @@ public:
 protected:
   virtual ezResult InitializeTest() override;
   virtual ezResult DeInitializeTest() override;
+  virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
 
   ezGameEngineTestApplication* m_pApplication = nullptr;
 };

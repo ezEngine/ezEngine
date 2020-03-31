@@ -28,6 +28,8 @@ ezResult ezTexConvProcessor::GenerateTextureAtlas(ezMemoryStreamWriter& stream)
     return EZ_FAILURE;
   }
 
+  m_Descriptor.m_uiMinResolution = ezMath::Max(32u, m_Descriptor.m_uiMinResolution);
+
   EZ_SUCCEED_OR_RETURN(LoadAtlasInputs(atlasDesc, atlasItems));
 
   const ezUInt8 uiVersion = 3;

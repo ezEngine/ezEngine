@@ -47,13 +47,16 @@ ezResult TranformProject(const char* szProjectPath)
     proc.Terminate();
     ezLog::Error("Failed to start process: '{0}'", sBinPath);
   }
-  res = proc.WaitToFinish(ezTime::Minutes(4));
+
+  ezTime timeout = ezTime::Minutes(8);
+  res = proc.WaitToFinish(timeout);
   if (res.Failed())
   {
     proc.Terminate();
-    ezLog::Error("Process timeout: '{0}'", sBinPath);
+    ezLog::Error("Process timeout ({1}): '{0}'", sBinPath, timeout);
     return EZ_FAILURE;
   }
+
   ezLog::Success("Executed Asset Processor to transform '{}'", szProjectPath);
   return EZ_SUCCESS;
 }
@@ -82,6 +85,11 @@ EZ_CREATE_SIMPLE_TEST(00_Init, TransformTypeScript)
   EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/TypeScript/ezProject").Succeeded());
 }
 
+EZ_CREATE_SIMPLE_TEST(00_Init, TransformEffects)
+{
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Effects/ezProject").Succeeded());
+}
+
 #endif
 
 
@@ -108,6 +116,8 @@ void ezGameEngineTestBasics::SetupSubTests()
 
 ezResult ezGameEngineTestBasics::InitializeSubTest(ezInt32 iIdentifier)
 {
+  SUPER::InitializeSubTest(iIdentifier);
+
   m_iFrame = -1;
 
   if (iIdentifier == SubTests::ManyMeshes)

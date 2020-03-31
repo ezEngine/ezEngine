@@ -43,7 +43,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 5, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("EmissiveColor", GetEmissiveColor, SetEmissiveColor)->AddAttributes(new ezDefaultValueAttribute(ezColor::Black)),
     EZ_ACCESSOR_PROPERTY("SortOrder", GetSortOrder, SetSortOrder)->AddAttributes(new ezClampValueAttribute(-64.0f, 64.0f)),
     EZ_ACCESSOR_PROPERTY("WrapAround", GetWrapAround, SetWrapAround),
-    EZ_ACCESSOR_PROPERTY("MapNormalToGeometry", GetMapNormalToGeometry, SetMapNormalToGeometry),
+    EZ_ACCESSOR_PROPERTY("MapNormalToGeometry", GetMapNormalToGeometry, SetMapNormalToGeometry)->AddAttributes(new ezDefaultValueAttribute(true)),
     EZ_ACCESSOR_PROPERTY("InnerFadeAngle", GetInnerFadeAngle, SetInnerFadeAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(90.0f)), new ezDefaultValueAttribute(ezAngle::Degree(50.0f))),
     EZ_ACCESSOR_PROPERTY("OuterFadeAngle", GetOuterFadeAngle, SetOuterFadeAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(90.0f)), new ezDefaultValueAttribute(ezAngle::Degree(80.0f))),
     EZ_MEMBER_PROPERTY("FadeOutDelay", m_FadeOutDelay),
@@ -120,7 +120,7 @@ void ezDecalComponent::DeserializeComponent(ezWorldReader& stream)
   ezStreamReader& s = stream.GetStream();
 
   s >> m_vExtents;
-  
+
   if (uiVersion >= 4)
   {
     s >> m_Color;
@@ -431,6 +431,19 @@ void ezDecalComponent::OnSimulationStarted()
       PostMessage(msg, ezObjectMsgQueueType::NextFrame, tKill);
     }
   }
+
+  // currently attaching a decal to a dynamic object does not make it appear on that object
+  //if (GetOwner()->IsDynamic())
+  //{
+  //  if (GetOwner()->GetParent())
+  //  {
+  //    SetApplyOnlyTo(GetOwner()->GetParent()->GetHandle());
+  //  }
+  //  else
+  //  {
+  //    SetApplyOnlyTo(GetOwner()->GetHandle());
+  //  }
+  //}
 
   if (m_fSizeVariance > 0)
   {

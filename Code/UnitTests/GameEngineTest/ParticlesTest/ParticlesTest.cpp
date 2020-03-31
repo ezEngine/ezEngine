@@ -55,6 +55,8 @@ void ezGameEngineTestParticles::SetupSubTests()
 
 ezResult ezGameEngineTestParticles::InitializeSubTest(ezInt32 iIdentifier)
 {
+  SUPER::InitializeSubTest(iIdentifier);
+
   m_iFrame = -1;
 
   if (iIdentifier == SubTests::Billboards)

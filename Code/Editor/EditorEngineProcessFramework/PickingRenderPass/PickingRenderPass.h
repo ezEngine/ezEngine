@@ -1,8 +1,8 @@
 #pragma once
 
+#include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
-#include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezPickingRenderPass : public ezRenderPipelinePass
 {
@@ -24,14 +24,15 @@ public:
 
   virtual void ReadBackProperties(ezView* pView) override;
 
-  bool m_bPickSelected;
+  bool m_bPickSelected = true;
+  bool m_bPickTransparent = true;
 
   ezVec2 m_PickingPosition;
   ezUInt32 m_PickingIdOut;
   float m_PickingDepthOut;
   ezVec2 m_MarqueePickPosition0;
   ezVec2 m_MarqueePickPosition1;
-  ezUInt32 m_uiMarqueeActionID; // used to prevent reusing an old result for a new marquee action
+  ezUInt32 m_uiMarqueeActionID = 0xFFFFFFFF; // used to prevent reusing an old result for a new marquee action
   ezUInt32 m_uiWindowWidth;
   ezUInt32 m_uiWindowHeight;
 
