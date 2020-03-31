@@ -11,7 +11,7 @@ struct ezMsgComponentInternalTrigger;
 struct ezMsgOnlyApplyToObject;
 struct ezMsgSetColor;
 
-class EZ_RENDERERCORE_DLL ezDecalComponentManager : public ezComponentManager<class ezDecalComponent, ezBlockStorageType::Compact>
+class EZ_RENDERERCORE_DLL ezDecalComponentManager final : public ezComponentManager<class ezDecalComponent, ezBlockStorageType::Compact>
 {
 public:
   ezDecalComponentManager(ezWorld* pWorld);
@@ -47,7 +47,7 @@ public:
   ezUInt32 m_uiORMAtlasOffset;
 };
 
-class EZ_RENDERERCORE_DLL ezDecalComponent : public ezRenderComponent
+class EZ_RENDERERCORE_DLL ezDecalComponent final : public ezRenderComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezDecalComponent, ezRenderComponent, ezDecalComponentManager);
 
@@ -60,6 +60,7 @@ public:
 
 protected:
   virtual void OnSimulationStarted() override;
+  virtual void OnActivated() override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezRenderComponent
@@ -119,6 +120,9 @@ public:
   ezGameObjectHandle GetApplyOnlyTo() const;
 
 protected:
+  void SetApplyToRef(const char* szReference); // [ property ]
+  void UpdateApplyTo();
+
   void OnObjectCreated(const ezAbstractObjectNode& node);
   void OnTriggered(ezMsgComponentInternalTrigger& msg);
   void OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg);
@@ -142,4 +146,7 @@ protected:
   ezTime m_StartFadeOutTime;
   ezUInt32 m_uiInternalSortKey;
   static ezUInt16 s_uiNextSortKey;
+
+private:
+  const char* DummyGetter() const { return nullptr; }
 };

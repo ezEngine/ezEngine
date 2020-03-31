@@ -31,7 +31,7 @@ void ezDecalComponentManager::Initialize()
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalRenderData, 1, ezRTTIDefaultAllocator<ezDecalRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 5, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 6, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -49,6 +49,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 5, ezComponentMode::Static)
     EZ_MEMBER_PROPERTY("FadeOutDelay", m_FadeOutDelay),
     EZ_MEMBER_PROPERTY("FadeOutDuration", m_FadeOutDuration),
     EZ_ENUM_MEMBER_PROPERTY("OnFinishedAction", ezOnComponentFinishedAction, m_OnFinishedAction),
+    EZ_ACCESSOR_PROPERTY("ApplyToDynamic", DummyGetter, SetApplyToRef)->AddAttributes(new ezGameObjectReferenceAttribute()),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -110,6 +111,9 @@ void ezDecalComponent::SerializeComponent(ezWorldWriter& stream) const
 
   // version 5
   s << m_ProjectionAxis;
+
+  // version 6
+  stream.WriteGameObjectHandle(m_hApplyOnlyToObject);
 }
 
 void ezDecalComponent::DeserializeComponent(ezWorldReader& stream)
@@ -158,6 +162,11 @@ void ezDecalComponent::DeserializeComponent(ezWorldReader& stream)
   if (uiVersion >= 5)
   {
     s >> m_ProjectionAxis;
+  }
+
+  if (uiVersion >= 6)
+  {
+    SetApplyOnlyTo(stream.ReadGameObjectHandle());
   }
 }
 
@@ -294,17 +303,7 @@ void ezDecalComponent::SetApplyOnlyTo(ezGameObjectHandle hObject)
   if (m_hApplyOnlyToObject != hObject)
   {
     m_hApplyOnlyToObject = hObject;
-    m_uiApplyOnlyToId = 0;
-
-    ezGameObject* pObject = nullptr;
-    if (!GetWorld()->TryGetObject(hObject, pObject))
-      return;
-
-    ezRenderComponent* pRenderComponent = nullptr;
-    if (pObject->TryGetComponentOfBaseType(pRenderComponent))
-    {
-      m_uiApplyOnlyToId = pRenderComponent->GetUniqueIdForRendering();
-    }
+    UpdateApplyTo();
   }
 }
 
@@ -382,6 +381,7 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
   const ezQuat axisRotation = ezBasisAxis::GetBasisRotation_PosX(m_ProjectionAxis);
 
   pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
+  pRenderData->m_GlobalTransform.m_vScale = (axisRotation * pRenderData->m_GlobalTransform.m_vScale).Abs();
   pRenderData->m_GlobalTransform.m_qRotation = pRenderData->m_GlobalTransform.m_qRotation * axisRotation;
   pRenderData->m_vHalfExtents = (axisRotation * m_vExtents * 0.5f).Abs();
   pRenderData->m_uiApplyOnlyToId = m_uiApplyOnlyToId;
@@ -401,6 +401,54 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
   msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Decal, caching);
 }
 
+void ezDecalComponent::SetApplyToRef(const char* szReference)
+{
+  auto resolver = GetWorld()->GetGameObjectReferenceResolver();
+
+  if (!resolver.IsValid())
+    return;
+
+  ezGameObjectHandle hTarget = resolver(szReference, GetHandle(), "ApplyTo");
+
+  if (m_hApplyOnlyToObject == hTarget)
+    return;
+
+  m_hApplyOnlyToObject = hTarget;
+
+  if (IsActiveAndInitialized())
+  {
+    UpdateApplyTo();
+  }
+}
+
+void ezDecalComponent::UpdateApplyTo()
+{
+  ezUInt32 uiPrevId = m_uiApplyOnlyToId;
+
+  m_uiApplyOnlyToId = 0;
+
+  ezGameObject* pObject = nullptr;
+  if (GetWorld()->TryGetObject(m_hApplyOnlyToObject, pObject))
+  {
+
+    ezRenderComponent* pRenderComponent = nullptr;
+    if (pObject->TryGetComponentOfBaseType(pRenderComponent))
+    {
+      // this only works for dynamic objects, for static ones we must use ID 0
+      if (pRenderComponent->GetOwner()->IsDynamic())
+      {
+        m_uiApplyOnlyToId = pRenderComponent->GetUniqueIdForRendering();
+      }
+    }
+  }
+
+  if (uiPrevId != m_uiApplyOnlyToId && GetOwner()->IsStatic())
+  {
+    // TODO: clear render data cache ?
+    TriggerLocalBoundsUpdate();
+  }
+}
+
 void ezDecalComponent::OnObjectCreated(const ezAbstractObjectNode& node)
 {
   m_uiInternalSortKey = ezHashHelper<ezUuid>::Hash(node.GetGuid());
@@ -409,6 +457,8 @@ void ezDecalComponent::OnObjectCreated(const ezAbstractObjectNode& node)
 
 void ezDecalComponent::OnSimulationStarted()
 {
+  SUPER::OnSimulationStarted();
+
   ezWorld* pWorld = GetWorld();
 
   // no fade out -> fade out pretty late
@@ -432,19 +482,6 @@ void ezDecalComponent::OnSimulationStarted()
     }
   }
 
-  // currently attaching a decal to a dynamic object does not make it appear on that object
-  //if (GetOwner()->IsDynamic())
-  //{
-  //  if (GetOwner()->GetParent())
-  //  {
-  //    SetApplyOnlyTo(GetOwner()->GetParent()->GetHandle());
-  //  }
-  //  else
-  //  {
-  //    SetApplyOnlyTo(GetOwner()->GetHandle());
-  //  }
-  //}
-
   if (m_fSizeVariance > 0)
   {
     const float scale = (float)pWorld->GetRandomNumberGenerator().DoubleVariance(1.0, m_fSizeVariance);
@@ -452,6 +489,13 @@ void ezDecalComponent::OnSimulationStarted()
 
     TriggerLocalBoundsUpdate();
   }
+}
+
+void ezDecalComponent::OnActivated()
+{
+  SUPER::OnActivated();
+
+  UpdateApplyTo();
 }
 
 void ezDecalComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
