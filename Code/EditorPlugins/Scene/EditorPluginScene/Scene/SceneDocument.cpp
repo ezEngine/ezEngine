@@ -95,31 +95,52 @@ ezSceneDocument::~ezSceneDocument()
 
 void ezSceneDocument::GroupSelection()
 {
-  const auto& sel = GetSelectionManager()->GetTopLevelSelection(ezGetStaticRTTI<ezGameObject>());
-  if (sel.GetCount() <= 1)
+  const auto& sel = GetSelectionManager()->GetSelection();
+  const ezUInt32 numSel = sel.GetCount();
+  if (numSel <= 1)
     return;
 
   ezVec3 vCenter(0.0f);
+  const ezDocumentObject* pCommonParent = sel[0]->GetParent();
 
   for (const auto& item : sel)
   {
     vCenter += GetGlobalTransform(item).m_vPosition;
+
+    if (pCommonParent != item->GetParent())
+    {
+      pCommonParent = nullptr;
+    }
   }
 
-  vCenter /= sel.GetCount();
-  // vCenter.SetZero();
+  vCenter /= numSel;
 
   auto pHistory = GetCommandHistory();
 
   pHistory->StartTransaction("Group Selection");
 
+  ezUuid groupObj;
+  groupObj.CreateNewUuid();
+
   ezAddObjectCommand cmdAdd;
-  cmdAdd.m_NewObjectGuid.CreateNewUuid();
+  cmdAdd.m_NewObjectGuid = groupObj;
   cmdAdd.m_pType = ezGetStaticRTTI<ezGameObject>();
   cmdAdd.m_Index = -1;
   cmdAdd.m_sParentProperty = "Children";
 
   pHistory->AddCommand(cmdAdd);
+
+  // put the new group object under the shared parent
+  if (pCommonParent != nullptr)
+  {
+    ezMoveObjectCommand cmdMove;
+    cmdMove.m_NewParent = pCommonParent->GetGuid();
+    cmdMove.m_Index = -1;
+    cmdMove.m_sParentProperty = "Children";
+
+    cmdMove.m_Object = cmdAdd.m_NewObjectGuid;
+    pHistory->AddCommand(cmdMove);
+  }
 
   auto pGroupObject = GetObjectManager()->GetObject(cmdAdd.m_NewObjectGuid);
   SetGlobalTransform(pGroupObject, ezTransform(vCenter), TransformationChanges::Translation);
@@ -136,6 +157,12 @@ void ezSceneDocument::GroupSelection()
   }
 
   pHistory->FinishTransaction();
+
+  const ezDocumentObject* pGroupObj = GetObjectManager()->GetObject(groupObj);
+
+  GetSelectionManager()->SetSelection(pGroupObj);
+
+  ShowDocumentStatus(ezFmt("Grouped {} objects", numSel));
 }
 
 
@@ -302,6 +329,13 @@ void ezSceneDocument::DetachFromParent()
     }
   }
   pHistory->FinishTransaction();
+
+  ShowDocumentStatus(ezFmt("Detached {} objects", selection.GetCount()));
+
+  // reapply the selection to fix tree views etc. after the re-parenting
+  ezDeque<const ezDocumentObject*> prevSelection = selection;
+  GetSelectionManager()->Clear();
+  GetSelectionManager()->SetSelection(prevSelection);
 }
 
 void ezSceneDocument::CopyReference()
@@ -315,6 +349,8 @@ void ezSceneDocument::CopyReference()
   ezConversionUtils::ToString(guid, sGuid);
 
   QApplication::clipboard()->setText(sGuid.GetData());
+
+  ezQtUiServices::GetSingleton()->ShowAllDocumentsStatusBarMessage(ezFmt("Copied Object Reference: {}", sGuid), ezTime::Seconds(5));
 }
 
 ezStatus ezSceneDocument::CreateEmptyObject(bool bAttachToParent, bool bAtPickedPosition)
@@ -961,14 +997,14 @@ ezResult ezSceneDocument::JumpToLevelCamera(ezUInt8 uiSlot, bool bImmediate)
   return EZ_SUCCESS;
 }
 
-void ezSceneDocument::CreateLevelCamera(ezUInt8 uiSlot)
+ezResult ezSceneDocument::CreateLevelCamera(ezUInt8 uiSlot)
 {
   EZ_ASSERT_DEBUG(uiSlot < 10, "Invalid slot");
 
   auto* pView = ezQtEngineViewWidget::GetInteractionContext().m_pLastHoveredViewWidget;
 
   if (pView == nullptr)
-    return;
+    return EZ_FAILURE;
 
   const auto* pRootObj = GetObjectManager()->GetRootObject();
 
@@ -983,7 +1019,7 @@ void ezSceneDocument::CreateLevelCamera(ezUInt8 uiSlot)
   if (pAccessor->AddObject(pRootObj, "Children", -1, ezGetStaticRTTI<ezGameObject>(), camObjGuid).Failed())
   {
     pAccessor->CancelTransaction();
-    return;
+    return EZ_FAILURE;
   }
 
   ezMat3 mRot;
@@ -1001,16 +1037,17 @@ void ezSceneDocument::CreateLevelCamera(ezUInt8 uiSlot)
   if (pAccessor->AddObject(pAccessor->GetObject(camObjGuid), "Components", -1, ezGetStaticRTTI<ezCameraComponent>(), camCompGuid).Failed())
   {
     pAccessor->CancelTransaction();
-    return;
+    return EZ_FAILURE;
   }
 
   if (pAccessor->SetValue(pAccessor->GetObject(camCompGuid), "EditorShortcut", uiSlot).Failed())
   {
     pAccessor->CancelTransaction();
-    return;
+    return EZ_FAILURE;
   }
 
   pAccessor->FinishTransaction();
+  return EZ_SUCCESS;
 }
 
 void ezSceneDocument::DocumentObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>::EventData& e)

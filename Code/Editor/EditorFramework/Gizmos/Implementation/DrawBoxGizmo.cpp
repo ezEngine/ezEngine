@@ -363,7 +363,7 @@ void ezDrawBoxGizmo::UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow)
   {
     case ManipulateMode::None:
     {
-      pWindow->SetPermanentStatusBarMsg("Hold CTRL and click-drag to draw a box. Hold SHIFT to reuse the previous plane height.");
+      pWindow->SetPermanentStatusBarMsg("Greyboxing: Hold CTRL and click-drag to draw a box. Hold SHIFT to reuse the previous plane height.");
       break;
     }
 
@@ -373,7 +373,7 @@ void ezDrawBoxGizmo::UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow)
       diff.x = ezMath::Abs(diff.x);
       diff.y = ezMath::Abs(diff.y);
 
-      pWindow->SetPermanentStatusBarMsg(ezFmt("[Width: {}, Depth: {}, Height: {}] Release the mouse to finish the base. ESC to cancel.",
+      pWindow->SetPermanentStatusBarMsg(ezFmt("Greyboxing: [Width: {}, Depth: {}, Height: {}] Release the mouse to finish the base. ESC to cancel.",
         ezArgF(diff.y, 2, false, 2), ezArgF(diff.x, 2, false, 2), ezArgF(m_fBoxHeight, 2, false, 2)));
       break;
     }
@@ -384,8 +384,7 @@ void ezDrawBoxGizmo::UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow)
       diff.x = ezMath::Abs(diff.x);
       diff.y = ezMath::Abs(diff.y);
 
-      pWindow->SetPermanentStatusBarMsg(
-        ezFmt("[Width: {}, Depth: {}, Height: {}] Draw up/down to specify the box height. Click to finish, ESC to cancel.",
+      pWindow->SetPermanentStatusBarMsg(ezFmt("Greyboxing: [Width: {}, Depth: {}, Height: {}] Draw up/down to specify the box height. Click to finish, ESC to cancel.",
           ezArgF(diff.y, 2, false, 2), ezArgF(diff.x, 2, false, 2), ezArgF(m_fBoxHeight, 2, false, 2)));
       break;
     }

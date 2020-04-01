@@ -384,3 +384,9 @@ void ezTranslateGizmo::SetCameraSpeed(float fSpeed)
 {
   m_fCameraSpeed = fSpeed;
 }
+
+void ezTranslateGizmo::UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow)
+{
+  const ezVec3 diff = ezVec3::ZeroVector();
+  GetOwnerWindow()->SetPermanentStatusBarMsg(ezFmt("Translation: {}, {}, {}", ezArgF(diff.x, 2), ezArgF(diff.y, 2), ezArgF(diff.z, 2)));
+}

@@ -213,6 +213,8 @@ void ezQtSceneDocumentWindow::SnapSelectionToPosition(bool bSnapEachObject)
     CmdHistory->CancelTransaction();
 
   gizmoSelection.Clear();
+
+  ShowTemporaryStatusBarMsg(ezFmt("Snap to Grid ({})", bSnapEachObject ? "Each Object" : "Pivot"));
 }
 
 void ezQtSceneDocumentWindow::GameObjectEventHandler(const ezGameObjectEvent& e)

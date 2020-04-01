@@ -43,6 +43,8 @@ public:
   /// \brief Used when CTRL+drag moves the object AND the camera
   void SetCameraSpeed(float fSpeed);
 
+  virtual void UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow) override;
+
 protected:
   virtual void DoFocusLost(bool bCancel) override;
 

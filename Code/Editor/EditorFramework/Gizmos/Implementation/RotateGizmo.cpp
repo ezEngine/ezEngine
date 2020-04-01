@@ -22,6 +22,11 @@ ezRotateGizmo::ezRotateGizmo()
   SetTransformation(ezTransform::IdentityTransform());
 }
 
+void ezRotateGizmo::UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow)
+{
+  GetOwnerWindow()->SetPermanentStatusBarMsg(ezFmt("Rotation: {}", ezAngle()));
+}
+
 void ezRotateGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
   pOwnerWindow->GetDocument()->AddSyncObject(&m_AxisX);
@@ -64,8 +69,6 @@ void ezRotateGizmo::DoFocusLost(bool bCancel)
   m_AxisX.SetVisible(true);
   m_AxisY.SetVisible(true);
   m_AxisZ.SetVisible(true);
-
-  GetOwnerWindow()->SetPermanentStatusBarMsg("");
 
   QApplication::restoreOverrideCursor();
 }

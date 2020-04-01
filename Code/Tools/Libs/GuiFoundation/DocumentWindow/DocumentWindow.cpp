@@ -243,6 +243,8 @@ void ezQtDocumentWindow::UIServicesEventHandler(const ezQtUiServices::Event& e)
       if (statusBar() == nullptr)
         setStatusBar(new QStatusBar());
 
+      EZ_ASSERT_DEBUG(!e.m_Time.IsZero(), "Statusbar messages must have a timeout.");
+
       statusBar()->setHidden(e.m_sText.IsEmpty());
       statusBar()->showMessage(QString::fromUtf8(e.m_sText.GetData()), (int)e.m_Time.GetMilliseconds());
     }
@@ -403,6 +405,12 @@ void ezQtDocumentWindow::SetPermanentStatusBarMsg(const ezFormatString& sText)
 {
   if (statusBar() == nullptr)
     setStatusBar(new QStatusBar());
+
+  if (!sText.IsEmpty())
+  {
+    // clear temporary message
+    statusBar()->clearMessage();
+  }
 
   if (m_pPermanentStatusMsg == nullptr)
   {

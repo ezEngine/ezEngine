@@ -165,7 +165,7 @@ void ezGameObjectDocument::SetGizmoWorldSpace(bool bWorldSpace)
   e.m_Type = ezGameObjectEvent::Type::ActiveEditToolChanged;
   m_GameObjectEvents.Broadcast(e);
 
-  ShowDocumentStatus(ezFmt("Transform in: {}", m_bGizmoWorldSpace ? "World Space" : "Object Space"));
+  ShowDocumentStatus(ezFmt("Transform in {}", m_bGizmoWorldSpace ? "World Space" : "Object Space"));
 }
 
 bool ezGameObjectDocument::GetGizmoWorldSpace() const

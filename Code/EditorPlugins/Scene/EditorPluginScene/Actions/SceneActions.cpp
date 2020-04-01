@@ -432,6 +432,7 @@ void ezSceneAction::Execute(const ezVariant& value)
       const ezInt32 iCamIdx = (int)m_Type - (int)ActionType::RestoreEditorCamera0;
 
       m_pSceneDocument->RestoreFavouriteCamera(iCamIdx);
+      m_pSceneDocument->ShowDocumentStatus(ezFmt("Restored favourite camera position {0}", iCamIdx));
 
       return;
     }
@@ -470,7 +471,14 @@ void ezSceneAction::Execute(const ezVariant& value)
     {
       const ezInt32 iCamIdx = (int)m_Type - (int)ActionType::CreateLevelCamera0;
 
-      m_pSceneDocument->CreateLevelCamera(iCamIdx);
+      if (m_pSceneDocument->CreateLevelCamera(iCamIdx).Succeeded())
+      {
+        m_pSceneDocument->ShowDocumentStatus(ezFmt("Create level camera with shortcut set to '{0}'", iCamIdx));
+      }
+      else
+      {
+        m_pSceneDocument->ShowDocumentStatus(ezFmt("Could not level camera.", iCamIdx));
+      }
       return;
     }
   }

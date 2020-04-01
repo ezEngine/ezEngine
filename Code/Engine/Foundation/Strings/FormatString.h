@@ -69,6 +69,8 @@ public:
   /// when necessary.
   [[nodiscard]] virtual const char* GetText(ezStringBuilder& sb) const { return m_szString; }
 
+  bool IsEmpty() const { return ezStringUtils::IsNullOrEmpty(m_szString); }
+
 protected:
   // out of line function so that we don't need to include ezStringBuilder here, to break include dependency cycle
   static void SBAppendView(ezStringBuilder& sb, const ezStringView& sub);
