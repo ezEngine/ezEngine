@@ -13,6 +13,8 @@ public:
 
   const ezQuat& GetRotationResult() const { return m_CurrentRotation; }
 
+  virtual void UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow) override;
+
 protected:
   virtual void DoFocusLost(bool bCancel) override;
 

@@ -144,7 +144,7 @@ public:
   ezResult JumpToLevelCamera(ezUInt8 uiSlot, bool bImmediate);
 
   /// \brief Creates an object with an ezCameraComponent at the current editor camera position and sets the 'EditorShortcut' property to \a uiSlot.
-  void CreateLevelCamera(ezUInt8 uiSlot);
+  ezResult CreateLevelCamera(ezUInt8 uiSlot);
 
   ///@}
 

@@ -23,6 +23,12 @@ ezScaleGizmo::ezScaleGizmo()
   SetTransformation(ezTransform::IdentityTransform());
 }
 
+void ezScaleGizmo::UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow)
+{
+  const ezVec3 scale(1.0f);
+  GetOwnerWindow()->SetPermanentStatusBarMsg(ezFmt("Scale: {}, {}, {}", ezArgF(scale.x, 2), ezArgF(scale.y, 2), ezArgF(scale.z, 2)));
+}
+
 void ezScaleGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
 {
   pOwnerWindow->GetDocument()->AddSyncObject(&m_AxisX);
@@ -71,8 +77,6 @@ void ezScaleGizmo::DoFocusLost(bool bCancel)
   m_AxisY.SetVisible(true);
   m_AxisZ.SetVisible(true);
   m_AxisXYZ.SetVisible(true);
-
-  GetOwnerWindow()->SetPermanentStatusBarMsg("");
 
   QApplication::restoreOverrideCursor();
 }

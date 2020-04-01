@@ -110,7 +110,6 @@ protected:
   float m_fThickness = 0.5f;
   bool m_bSlopedTop = false;
   bool m_bSlopedBottom = false;
-  mutable ezRenderData::Category m_CachedRenderDataCategory;
 
   void InvalidateMesh();
   void GenerateRenderMesh() const;

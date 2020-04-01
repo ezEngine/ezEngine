@@ -116,6 +116,11 @@ void ezFmodAction::Execute(const ezVariant& value)
   {
     ezFmodProjectPreferences* pPreferences = ezPreferences::QueryPreferences<ezFmodProjectPreferences>();
     pPreferences->SetMute(!pPreferences->GetMute());
+
+    if (GetContext().m_pDocument)
+    {
+      GetContext().m_pDocument->ShowDocumentStatus(ezFmt("Sound is {}", pPreferences->GetMute() ? "muted" : "on"));
+    }
   }
 }
 
@@ -181,6 +186,11 @@ void ezFmodSliderAction::Execute(const ezVariant& value)
       ezFmodProjectPreferences* pPreferences = ezPreferences::QueryPreferences<ezFmodProjectPreferences>();
 
       pPreferences->SetVolume(iValue / 20.0f);
+
+      if (GetContext().m_pDocument)
+      {
+        GetContext().m_pDocument->ShowDocumentStatus(ezFmt("Sound Volume: {}%%", (int)(pPreferences->GetVolume() * 100.0f)));
+      }
     }
     break;
   }

@@ -11,6 +11,7 @@
 #include <RendererCore/Decals/DecalResource.h>
 #include <RendererCore/Messages/ApplyOnlyToMessage.h>
 #include <RendererCore/Messages/SetColorMessage.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Shader/ShaderUtils.h>
 
 #include <RendererCore/../../../Data/Base/Shaders/Common/LightData.h>
@@ -444,8 +445,7 @@ void ezDecalComponent::UpdateApplyTo()
 
   if (uiPrevId != m_uiApplyOnlyToId && GetOwner()->IsStatic())
   {
-    // TODO: clear render data cache ?
-    TriggerLocalBoundsUpdate();
+    ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
   }
 }
 

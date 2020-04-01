@@ -52,11 +52,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 3, ezComponentMode::Static)
 EZ_END_COMPONENT_TYPE;
 // clang-format on
 
-ezGreyBoxComponent::ezGreyBoxComponent()
-{
-  m_CachedRenderDataCategory = ezInvalidRenderDataCategory;
-}
-
+ezGreyBoxComponent::ezGreyBoxComponent() = default;
 ezGreyBoxComponent::~ezGreyBoxComponent() = default;
 
 void ezGreyBoxComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -163,43 +159,34 @@ void ezGreyBoxComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) con
       pRenderData->FillBatchIdAndSortingKey();
     }
 
-    // Determine render data category.
-    ezRenderData::Category category = m_CachedRenderDataCategory;
-    if (category == ezInvalidRenderDataCategory)
-    {
-      if (hMaterial.IsValid())
-      {
-        ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
+    bool bDontCacheYet = false;
 
-        if (pMaterial.GetAcquireResult() == ezResourceAcquireResult::Final)
-        {
-          ezTempHashedString blendModeValue = pMaterial->GetPermutationValue("BLEND_MODE");
-          if (blendModeValue == "BLEND_MODE_OPAQUE" || blendModeValue == "")
-          {
-            category = ezDefaultRenderDataCategories::LitOpaque;
-          }
-          else if (blendModeValue == "BLEND_MODE_MASKED")
-          {
-            category = ezDefaultRenderDataCategories::LitMasked;
-          }
-          else
-          {
-            category = ezDefaultRenderDataCategories::LitTransparent;
-          }
-        }
-      }
-      else
+    // Determine render data category.
+    ezRenderData::Category category = ezDefaultRenderDataCategories::LitOpaque;
+
+    if (hMaterial.IsValid())
+    {
+      ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
+
+      if (pMaterial.GetAcquireResult() == ezResourceAcquireResult::LoadingFallback)
+        bDontCacheYet = true;
+
+      ezTempHashedString blendModeValue = pMaterial->GetPermutationValue("BLEND_MODE");
+      if (blendModeValue == "BLEND_MODE_OPAQUE" || blendModeValue == "")
       {
         category = ezDefaultRenderDataCategories::LitOpaque;
       }
-
-      m_CachedRenderDataCategory = category;
+      else if (blendModeValue == "BLEND_MODE_MASKED")
+      {
+        category = ezDefaultRenderDataCategories::LitMasked;
+      }
+      else
+      {
+        category = ezDefaultRenderDataCategories::LitTransparent;
+      }
     }
 
-    if (category != ezInvalidRenderDataCategory)
-    {
-      msg.AddRenderData(pRenderData, m_CachedRenderDataCategory, ezRenderData::Caching::IfStatic);
-    }
+    msg.AddRenderData(pRenderData, category, bDontCacheYet ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic);
   }
 }
 
@@ -211,8 +198,6 @@ void ezGreyBoxComponent::SetShape(ezEnum<ezGreyBoxShape> shape)
 
 void ezGreyBoxComponent::SetMaterialFile(const char* szFile)
 {
-  m_CachedRenderDataCategory = ezInvalidRenderDataCategory;
-
   if (!ezStringUtils::IsNullOrEmpty(szFile))
   {
     m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>(szFile);
