@@ -1005,7 +1005,7 @@ ezMaterialResource* ezRenderContext::ApplyMaterialState()
 
   // The material needs its constant buffer updated.
   // Thus we keep it acquired until we have the correct shader permutation for the constant buffer layout.
-  if (pMaterial->AreContantsModified())
+  if (pMaterial->AreConstantsModified())
   {
     m_StateFlags.Add(ezRenderContextFlags::ConstantBufferBindingChanged);
 

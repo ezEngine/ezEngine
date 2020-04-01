@@ -47,6 +47,19 @@ ezResult ezTexConvProcessor::GenerateTextureAtlas(ezMemoryStreamWriter& stream)
       ezLog::Error("Failed to write DDS image to texture atlas file.");
       return EZ_FAILURE;
     }
+
+    // debug: write out atlas slices as pure DDS
+    if (false)
+    {
+      ezStringBuilder sOut;
+      sOut.Format("D:/atlas_{}.dds", layerIdx);
+
+      ezFileWriter fOut;
+      if (fOut.Open(sOut).Succeeded())
+      {
+        ddsWriter.WriteImage(fOut, atlasImg, ezLog::GetThreadLocalLogSystem(), "dds");
+      }
+    }
   }
 
   EZ_SUCCEED_OR_RETURN(WriteTextureAtlasInfo(atlasItems, atlasDesc.m_Layers.GetCount(), stream));
@@ -103,18 +116,21 @@ ezResult ezTexConvProcessor::LoadAtlasInputs(const ezTextureAtlasCreationDesc& a
 
       EZ_SUCCEED_OR_RETURN(ConvertAndScaleImage(srcItem.m_sAlphaInput, alphaImg, uiResX, uiResY));
 
+
+      // layer 0 must have the exact same size as the alpha texture
+      EZ_SUCCEED_OR_RETURN(ConvertAndScaleImage(srcItem.m_sLayerInput[0], item.m_InputImage[0], uiResX, uiResY));
+
+      // copy alpha channel into layer 0
+      ezImageUtils::CopyChannel(item.m_InputImage[0], 3, alphaImg, 0);
+
       // rescale all layers to be no larger than the alpha mask texture
-      for (ezUInt32 layer = 0; layer < atlasDesc.m_Layers.GetCount(); ++layer)
+      for (ezUInt32 layer = 1; layer < atlasDesc.m_Layers.GetCount(); ++layer)
       {
-        // layer 0 must have the exact same size
-        if (layer != 0 && (item.m_InputImage[layer].GetWidth() <= uiResX || item.m_InputImage[layer].GetHeight() <= uiResY))
+        if (item.m_InputImage[layer].GetWidth() <= uiResX && item.m_InputImage[layer].GetHeight() <= uiResY)
           continue;
 
         EZ_SUCCEED_OR_RETURN(ConvertAndScaleImage(srcItem.m_sLayerInput[layer], item.m_InputImage[layer], uiResX, uiResY));
       }
-
-      // copy alpha channel into layer 0
-      ezImageUtils::CopyChannel(item.m_InputImage[0], alphaImg, 3);
     }
   }
 

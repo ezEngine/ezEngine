@@ -53,7 +53,7 @@ struct ezMaterialResourceDescriptor
   ezDynamicArray<TextureCubeBinding> m_TextureCubeBindings;
 };
 
-class EZ_RENDERERCORE_DLL ezMaterialResource : public ezResource
+class EZ_RENDERERCORE_DLL ezMaterialResource final : public ezResource
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezMaterialResource, ezResource);
   EZ_RESOURCE_DECLARE_COMMON_CODE(ezMaterialResource);
@@ -106,7 +106,7 @@ private:
   ezInt32 m_iLastConstantsUpdated;
 
   bool IsModified();
-  bool AreContantsModified();
+  bool AreConstantsModified();
 
   void UpdateConstantBuffer(ezShaderPermutationResource* pShaderPermutation);
 

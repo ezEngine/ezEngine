@@ -1592,9 +1592,9 @@ ezColor ezImageUtils::BilinearSample(const ezImageView& image, ezImageAddressMod
   return ezMath::Lerp(cr0, cr1, fractionY);
 }
 
-ezResult ezImageUtils::CopyChannel(ezImage& dstImg, const ezImage& srcImg, ezUInt8 uiChannelIdx)
+ezResult ezImageUtils::CopyChannel(ezImage& dstImg, ezUInt8 uiDstChannelIdx, const ezImage& srcImg, ezUInt8 uiSrcChannelIdx)
 {
-  if (uiChannelIdx >= 4)
+  if (uiSrcChannelIdx >= 4 || uiDstChannelIdx >= 4)
     return EZ_FAILURE;
 
   if (dstImg.GetImageFormat() != ezImageFormat::R32G32B32A32_FLOAT)
@@ -1613,8 +1613,8 @@ ezResult ezImageUtils::CopyChannel(ezImage& dstImg, const ezImage& srcImg, ezUIn
   const float* pSrcPixel = srcImg.GetPixelPointer<float>();
   float* pDstPixel = dstImg.GetPixelPointer<float>();
 
-  pSrcPixel += uiChannelIdx;
-  pDstPixel += uiChannelIdx;
+  pSrcPixel += uiSrcChannelIdx;
+  pDstPixel += uiDstChannelIdx;
 
   for (ezUInt32 i = 0; i < uiNumPixels; ++i)
   {

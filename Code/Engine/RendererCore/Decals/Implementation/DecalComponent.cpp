@@ -45,8 +45,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 6, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("SortOrder", GetSortOrder, SetSortOrder)->AddAttributes(new ezClampValueAttribute(-64.0f, 64.0f)),
     EZ_ACCESSOR_PROPERTY("WrapAround", GetWrapAround, SetWrapAround),
     EZ_ACCESSOR_PROPERTY("MapNormalToGeometry", GetMapNormalToGeometry, SetMapNormalToGeometry)->AddAttributes(new ezDefaultValueAttribute(true)),
-    EZ_ACCESSOR_PROPERTY("InnerFadeAngle", GetInnerFadeAngle, SetInnerFadeAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(90.0f)), new ezDefaultValueAttribute(ezAngle::Degree(50.0f))),
-    EZ_ACCESSOR_PROPERTY("OuterFadeAngle", GetOuterFadeAngle, SetOuterFadeAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(90.0f)), new ezDefaultValueAttribute(ezAngle::Degree(80.0f))),
+    EZ_ACCESSOR_PROPERTY("InnerFadeAngle", GetInnerFadeAngle, SetInnerFadeAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(89.0f)), new ezDefaultValueAttribute(ezAngle::Degree(50.0f))),
+    EZ_ACCESSOR_PROPERTY("OuterFadeAngle", GetOuterFadeAngle, SetOuterFadeAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(89.0f)), new ezDefaultValueAttribute(ezAngle::Degree(80.0f))),
     EZ_MEMBER_PROPERTY("FadeOutDelay", m_FadeOutDelay),
     EZ_MEMBER_PROPERTY("FadeOutDuration", m_FadeOutDuration),
     EZ_ENUM_MEMBER_PROPERTY("OnFinishedAction", ezOnComponentFinishedAction, m_OnFinishedAction),
@@ -348,6 +348,8 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
   ezVec4 ormAtlasScaleOffset = ezVec4(0.5f);
   ezUInt32 uiDecalFlags = 0;
 
+  float fAspectRatio = 1.0f;
+
   {
     ezResourceLock<ezDecalAtlasResource> pDecalAtlas(hDecalAtlas, ezResourceAcquireMode::BlockTillLoaded);
 
@@ -371,6 +373,8 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
       baseAtlasScaleOffset = layerRectToScaleOffset(item.m_LayerRects[0], pDecalAtlas->GetBaseColorTextureSize());
       normalAtlasScaleOffset = layerRectToScaleOffset(item.m_LayerRects[1], pDecalAtlas->GetNormalTextureSize());
       ormAtlasScaleOffset = layerRectToScaleOffset(item.m_LayerRects[2], pDecalAtlas->GetORMTextureSize());
+
+      fAspectRatio = item.m_LayerRects[0].width / item.m_LayerRects[0].height;
     }
   }
 
@@ -384,6 +388,19 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
   pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
   pRenderData->m_GlobalTransform.m_vScale = (axisRotation * pRenderData->m_GlobalTransform.m_vScale).Abs();
   pRenderData->m_GlobalTransform.m_qRotation = pRenderData->m_GlobalTransform.m_qRotation * axisRotation;
+
+  if (!ezMath::IsEqual(fAspectRatio, 1.0f, 0.001f))
+  {
+    if (fAspectRatio > 1.0f)
+    {
+      pRenderData->m_GlobalTransform.m_vScale.z /= fAspectRatio;
+    }
+    else
+    {
+      pRenderData->m_GlobalTransform.m_vScale.y *= fAspectRatio;
+    }
+  }
+
   pRenderData->m_vHalfExtents = (axisRotation * m_vExtents * 0.5f).Abs();
   pRenderData->m_uiApplyOnlyToId = m_uiApplyOnlyToId;
   pRenderData->m_uiFlags = uiDecalFlags;
