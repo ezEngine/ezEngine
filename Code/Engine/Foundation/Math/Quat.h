@@ -99,6 +99,11 @@ public:
   /// \brief Returns a Quaternion that represents the negative / inverted rotation.
   const ezQuatTemplate operator-() const; // [tested]
 
+  // *** Common Quaternion operations ***
+public:
+  /// \brief Returns the dot-product of the two quaternions (commutative, order does not matter).
+  Type Dot(const ezQuatTemplate& rhs) const; // [tested]
+
   // *** Euler Angle Conversions ***
 public:
   /// \brief Converts the quaternion to Euler angles

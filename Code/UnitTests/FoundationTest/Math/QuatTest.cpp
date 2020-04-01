@@ -16,7 +16,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
 #else
     // Placement new of the default constructor should not have any effect on the previous data.
     ezQuatT::ComponentType testBlock[4] = {(ezQuatT::ComponentType)1, (ezQuatT::ComponentType)2, (ezQuatT::ComponentType)3,
-                                           (ezQuatT::ComponentType)4};
+      (ezQuatT::ComponentType)4};
     ezQuatT* p = ::new ((void*)&testBlock[0]) ezQuatT;
     EZ_TEST_BOOL(p->v.x == (ezMat3T::ComponentType)1 && p->v.y == (ezMat3T::ComponentType)2 && p->v.z == (ezMat3T::ComponentType)3 &&
                  p->w == (ezMat3T::ComponentType)4);
@@ -198,6 +198,18 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
 
     ezQuatT q2 = -q;
     EZ_TEST_BOOL(q1.IsEqualRotation(q2, 0.0001f));
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Dot")
+  {
+    ezQuatT q, q1, q2;
+    q.SetFromAxisAndAngle(ezVec3T(0, 0, 1), ezAngle::Degree(90));
+    q1.SetFromAxisAndAngle(ezVec3T(0, 0, 1), ezAngle::Degree(-90));
+    q2.SetFromAxisAndAngle(ezVec3T(0, 1, 0), ezAngle::Degree(45));
+
+    EZ_TEST_FLOAT(q.Dot(q), 1.0f, 0.0001f);
+    EZ_TEST_FLOAT(q.Dot(ezQuat::IdentityQuaternion()), cos(ezAngle::DegToRad(90.0f / 2)), 0.0001f);
+    EZ_TEST_FLOAT(q.Dot(q1), 0.0f, 0.0001f);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(quat, quat)")
