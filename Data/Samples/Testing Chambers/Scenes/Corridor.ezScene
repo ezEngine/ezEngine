@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{7297922959506964864,5177324930371449723}}
-		u4 %Hash{4900434280294383056}
+		u4 %Hash{2450002374027782628}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -3896,7 +3896,7 @@ o
 	p
 	{
 		b %Active{1}
-		b %CastShadows{1}
+		b %CastShadows{0}
 		f %ConstantBias{0xCDCCCC3D}
 		f %Intensity{0x00004842}
 		ColorGamma %LightColor{u1{250,172,62,255}}
@@ -5432,7 +5432,7 @@ o
 	p
 	{
 		b %Active{1}
-		b %CastShadows{1}
+		b %CastShadows{0}
 		f %ConstantBias{0xCDCCCC3D}
 		Angle %InnerSpotAngle{f{0xC2B8323E}}
 		f %Intensity{0x00401C46}
@@ -5757,7 +5757,7 @@ o
 	p
 	{
 		b %Active{1}
-		b %CastShadows{1}
+		b %CastShadows{0}
 		f %ConstantBias{0xCDCCCC3D}
 		f %Intensity{0x00004843}
 		ColorGamma %LightColor{u1{201,255,167,255}}
@@ -6167,7 +6167,7 @@ o
 	p
 	{
 		b %Active{1}
-		b %CastShadows{1}
+		b %CastShadows{0}
 		f %ConstantBias{0xCDCCCC3D}
 		f %Intensity{0x0000FA43}
 		ColorGamma %LightColor{u1{250,69,69,255}}
@@ -7720,18 +7720,22 @@ o
 {
 	Uuid %id{u4{9102097781581472,5263711167446450584}}
 	s %t{"ezDecalComponent"}
-	u3 %v{3}
+	u3 %v{6}
 	p
 	{
 		b %Active{1}
-		Color %Color{f{0x16E68F3B,0x79E2893B,0x79E2893B,0x0000803F}}
+		s %ApplyToDynamic{""}
+		ColorGamma %Color{u1{14,14,14,255}}
 		s %Decal{"{ 0bbfbc3c-b5e2-4194-af38-84e13516bbc2 }"}
+		Color %EmissiveColor{f{0,0,0,0x0000803F}}
 		Vec3 %Extents{f{0xD1CC4C40,0x00007041,0x00007041}}
 		Uuid %FadeOutDelay{u4{4703574095000462279,10215253735417474196}}
 		Time %FadeOutDuration{d{0}}
 		Angle %InnerFadeAngle{f{0xF3665F3F}}
+		b %MapNormalToGeometry{1}
 		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
 		Angle %OuterFadeAngle{f{0xC2B8B23F}}
+		s %ProjectionAxis{"ezBasisAxis::PositiveX"}
 		f %SizeVariance{0}
 		f %SortOrder{0}
 		b %WrapAround{0}
@@ -7833,7 +7837,7 @@ o
 	p
 	{
 		b %Active{1}
-		b %CastShadows{1}
+		b %CastShadows{0}
 		f %ConstantBias{0xCDCCCC3D}
 		f %Intensity{0x0000A041}
 		ColorGamma %LightColor{u1{61,177,231,255}}
@@ -9783,7 +9787,7 @@ o
 	p
 	{
 		b %Active{1}
-		b %CastShadows{1}
+		b %CastShadows{0}
 		f %ConstantBias{0xCDCCCC3D}
 		f %Intensity{0x0000C842}
 		ColorGamma %LightColor{u1{12,226,254,255}}
@@ -9931,9 +9935,9 @@ o
 		f %FadeOutStart{0xCDCC4C3F}
 		f %Intensity{0x00002041}
 		ColorGamma %LightColor{u1{255,255,255,255}}
-		f %MinShadowRange{0x00004842}
+		f %MinShadowRange{0x0000F041}
 		f %NearPlaneOffset{0x0000C842}
-		u3 %NumCascades{3}
+		u3 %NumCascades{2}
 		f %PenumbraSize{0xCDCCCC3D}
 		f %SlopeBias{0x0000803E}
 		f %SplitModeWeight{0x3333333F}
@@ -10669,7 +10673,7 @@ o
 	{
 		b %Active{1}
 		ColorGamma %BottomColor{u1{89,89,108,255}}
-		f %Intensity{0xCDCC4C3E}
+		f %Intensity{0x00000040}
 		ColorGamma %TopColor{u1{124,124,149,255}}
 	}
 }
@@ -11117,7 +11121,6 @@ o
 			Uuid{u4{6287952384908585857,5411509105303306991}}
 			Uuid{u4{9766288081583496105,5572411838812820300}}
 			Uuid{u4{3455636907984625719,10571920186716659254}}
-			Uuid{u4{6489576213873784115,9753052795818624322}}
 			Uuid{u4{5654609119268219782,4759147224772180204}}
 			Uuid{u4{10232256571024788639,4823163063435429796}}
 			Uuid{u4{13094397267551844548,15408193442766777182}}
@@ -13835,33 +13838,6 @@ o
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x5E5F7E3F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
-		VarArray %Tags
-		{
-			s{"CastShadow"}
-			s{"AutoColMesh"}
-		}
-	}
-}
-o
-{
-	Uuid %id{u4{6489576213873784115,9753052795818624322}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		VarArray %Children{}
-		VarArray %Components
-		{
-			Uuid{u4{9598693673795426905,10645539052134779510}}
-		}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x1C26923F,0x4C7B8B3E,0x44A84540}}
-		Quat %LocalRotation{f{0x8AC2CCBE,0x251E9D3E,0xCA434C3F,0xF137A9BE}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags
@@ -17042,27 +17018,6 @@ o
 			s{"CastShadow"}
 			s{"AutoColMesh"}
 		}
-	}
-}
-o
-{
-	Uuid %id{u4{9598693673795426905,10645539052134779510}}
-	s %t{"ezDirectionalLightComponent"}
-	u3 %v{3}
-	p
-	{
-		b %Active{1}
-		b %CastShadows{0}
-		f %ConstantBias{0xCDCCCC3D}
-		f %FadeOutStart{0xCDCC4C3F}
-		f %Intensity{0xCDCCCC3E}
-		ColorGamma %LightColor{u1{255,255,255,255}}
-		f %MinShadowRange{0x00004842}
-		f %NearPlaneOffset{0x0000C842}
-		u3 %NumCascades{3}
-		f %PenumbraSize{0xCDCCCC3D}
-		f %SlopeBias{0x0000803E}
-		f %SplitModeWeight{0x3333333F}
 	}
 }
 o
@@ -25890,8 +25845,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDecalComponent"}
-		u3 %TypeSize{160}
-		u3 %TypeVersion{3}
+		u3 %TypeSize{168}
+		u3 %TypeVersion{6}
 	}
 }
 o

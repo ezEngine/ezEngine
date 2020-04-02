@@ -30,14 +30,14 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezDynamicActionAndMenuAction::ezDynamicActionAndMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath)
-    : ezDynamicMenuAction(context, szName, szIconPath)
+  : ezDynamicMenuAction(context, szName, szIconPath)
 {
   m_bEnabled = true;
   m_bVisible = true;
 }
 
 ezEnumerationMenuAction::ezEnumerationMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath)
-    : ezDynamicMenuAction(context, szName, szIconPath)
+  : ezDynamicMenuAction(context, szName, szIconPath)
 {
   m_pEnumerationType = nullptr;
 }
@@ -66,7 +66,7 @@ void ezEnumerationMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::Item
       if (m_pEnumerationType->IsDerivedFrom<ezEnumBase>())
       {
         item.m_CheckState =
-            (iCurrentValue == iValue) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
+          (iCurrentValue == iValue) ? ezDynamicMenuAction::Item::CheckMark::Checked : ezDynamicMenuAction::Item::CheckMark::Unchecked;
       }
       else if (m_pEnumerationType->IsDerivedFrom<ezBitflagsBase>())
       {
@@ -77,10 +77,15 @@ void ezEnumerationMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction::Item
       out_Entries.PushBack(item);
     }
   }
+
+  // sort the items to appear alphabetically by display name
+  out_Entries.Sort([](const ezDynamicMenuAction::Item& lhs, const ezDynamicMenuAction::Item& rhs) -> bool {
+    return lhs.m_sDisplay < rhs.m_sDisplay;
+  });
 }
 
 ezButtonAction::ezButtonAction(const ezActionContext& context, const char* szName, bool bCheckable, const char* szIconPath)
-    : ezNamedAction(context, szName, szIconPath)
+  : ezNamedAction(context, szName, szIconPath)
 {
   m_bCheckable = false;
   m_bChecked = false;
@@ -90,7 +95,7 @@ ezButtonAction::ezButtonAction(const ezActionContext& context, const char* szNam
 
 
 ezSliderAction::ezSliderAction(const ezActionContext& context, const char* szName)
-    : ezNamedAction(context, szName, nullptr)
+  : ezNamedAction(context, szName, nullptr)
 {
   m_bEnabled = true;
   m_bVisible = true;
