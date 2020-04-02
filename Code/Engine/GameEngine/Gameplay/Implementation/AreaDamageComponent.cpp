@@ -103,7 +103,8 @@ void ezAreaDamageComponent::ApplyAreaDamage()
             msg.m_sHitObjectName = pShape->GetName();
           }
 
-          pObject->SendMessage(msg);
+          // delay the damage a little bit for nicer chain reactions
+          pObject->PostMessage(msg, ezObjectMsgQueueType::NextFrame, ezTime::Milliseconds(200));
         }
       }
     }

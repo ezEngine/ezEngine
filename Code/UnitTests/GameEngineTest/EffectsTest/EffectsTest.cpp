@@ -53,7 +53,7 @@ ezTestAppRun ezGameEngineTestEffects::RunSubTest(ezInt32 iIdentifier, ezUInt32 u
 
   if (m_ImgCompFrames[m_iImgCompIdx] == m_iFrame)
   {
-    EZ_TEST_IMAGE(m_iImgCompIdx, 100);
+    EZ_TEST_IMAGE(m_iImgCompIdx, 200);
     ++m_iImgCompIdx;
 
     if (m_iImgCompIdx >= m_ImgCompFrames.GetCount())
