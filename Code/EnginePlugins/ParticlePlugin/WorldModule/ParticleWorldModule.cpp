@@ -7,6 +7,7 @@
 #include <Foundation/Threading/TaskSystem.h>
 #include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <Module/ParticleModule.h>
+#include <ParticlePlugin/Components/ParticleComponent.h>
 #include <ParticlePlugin/Components/ParticleFinisherComponent.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
@@ -50,6 +51,9 @@ void ezParticleWorldModule::Initialize()
     finishDesc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostTransform;
     finishDesc.m_bOnlyUpdateWhenSimulating = true;
     finishDesc.m_fPriority = -1000.0f; // sync with particle tasks as late as possible
+
+    // make sure this function is called AFTER the components have done their final transform update
+    finishDesc.m_DependsOn.PushBack(ezMakeHashedString("ezParticleComponentManager::UpdateTransforms"));
 
     RegisterUpdateFunction(finishDesc);
   }
@@ -109,7 +113,7 @@ void ezParticleWorldModule::ExtractRenderData(const ezView& view, ezExtractedRen
 
   for (auto it = m_ActiveEffects.GetIterator(); it.IsValid(); ++it)
   {
-    const ezParticleEffectInstance* pEffect = it.Value();
+    ezParticleEffectInstance* pEffect = it.Value();
 
     if (pEffect->IsSharedEffect())
     {
@@ -132,6 +136,18 @@ void ezParticleWorldModule::ExtractEffectRenderData(const ezParticleEffectInstan
 {
   if (!pEffect->IsVisible())
     return;
+
+  {
+    // we know that at this point no one will modify the transform, as all threaded updates have been waited for
+    // this will move the latest transform into the variable that is read by the renderer and thus the shaders will get the latest value
+    // which is especially useful for effects that use local space simulation
+    // this fixes the 'lag one frame behind' issue
+    // however, we can't swap m_uiDoubleBufferReadIdx and m_uiDoubleBufferWriteIdx here, as this function is called on demand,
+    // ie. it may be called 0 to N times (per active view)
+
+    ezParticleEffectInstance* pEffect0 = const_cast<ezParticleEffectInstance*>(pEffect);
+    pEffect0->m_Transform[pEffect->m_uiDoubleBufferReadIdx] = pEffect->m_Transform[pEffect->m_uiDoubleBufferWriteIdx];
+  }
 
   for (ezUInt32 i = 0; i < pEffect->GetParticleSystems().GetCount(); ++i)
   {

@@ -847,7 +847,7 @@ bool ezMaterialResource::IsModified()
   return m_iLastModified != m_iLastUpdated;
 }
 
-bool ezMaterialResource::AreContantsModified()
+bool ezMaterialResource::AreConstantsModified()
 {
   return m_iLastConstantsModified != m_iLastConstantsUpdated;
 }

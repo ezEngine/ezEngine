@@ -2,7 +2,7 @@ HeaderV2
 {
 o
 {
-	Uuid %id{u4{13918724973595959441,4979792077250811378}}
+	Uuid %id{u4{11111983983756151941,5386291959140080217}}
 	s %t{"ezAssetDocumentInfo"}
 	u3 %v{2}
 	s %n{"Header"}
@@ -10,23 +10,23 @@ o
 	{
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
-		Uuid %DocumentID{u4{13918724973595959441,4979792077250811378}}
-		u4 %Hash{15950800644458785495}
+		Uuid %DocumentID{u4{11111983983756151941,5386291959140080217}}
+		u4 %Hash{1900322072299892645}
 		VarArray %MetaInfo
 		{
-			Uuid{u4{1313677731837154645,5403377995709497763}}
+			Uuid{u4{17656354935164069015,15475650328829996077}}
 		}
 		VarArray %Outputs{}
 		VarArray %References
 		{
-			s{"{ 399b95b4-3cdd-4047-bec7-585cabcdbe92 }"}
-			s{"{ ae657001-3504-4d28-8154-d42142f182ee }"}
+			s{"{ 35655520-405a-4bf2-bd29-c9ea68883f27 }"}
+			s{"{ 384630de-7888-48fa-9695-a47936f2c4d1 }"}
 		}
 	}
 }
 o
 {
-	Uuid %id{u4{1313677731837154645,5403377995709497763}}
+	Uuid %id{u4{17656354935164069015,15475650328829996077}}
 	s %t{"ezExposedParameters"}
 	u3 %v{3}
 	p
@@ -39,14 +39,14 @@ Objects
 {
 o
 {
-	Uuid %id{u4{12185400331321211798,5052727092473934259}}
+	Uuid %id{u4{9378659341481404298,5459226974363203098}}
 	s %t{"ezAreaDamageComponent"}
 	u3 %v{1}
 	p
 	{
 		b %Active{1}
 		u1 %CollisionLayer{0}
-		f %Damage{0x00002041}
+		f %Damage{0x0000A041}
 		f %Impulse{0x0000C842}
 		b %OnCreation{1}
 		f %Radius{0x0000A040}
@@ -54,7 +54,7 @@ o
 }
 o
 {
-	Uuid %id{u4{3617243879720864646,5110202418761351597}}
+	Uuid %id{u4{810502889881057146,5516702300650620436}}
 	s %t{"ezSceneDocumentSettings"}
 	u3 %v{1}
 	p
@@ -64,7 +64,7 @@ o
 }
 o
 {
-	Uuid %id{u4{5310384235639394707,5155496557458957062}}
+	Uuid %id{u4{2503643245799587207,5561996439348225901}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
 	p
@@ -73,9 +73,9 @@ o
 		VarArray %Children{}
 		VarArray %Components
 		{
-			Uuid{u4{417983550015696536,5242071962779796929}}
-			Uuid{u4{9894797433450529433,5451904551648787499}}
-			Uuid{u4{12185400331321211798,5052727092473934259}}
+			Uuid{u4{16057986633885440652,5648571844669065768}}
+			Uuid{u4{7088056443610721933,5858404433538056338}}
+			Uuid{u4{9378659341481404298,5459226974363203098}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0}}
@@ -93,13 +93,13 @@ o
 }
 o
 {
-	Uuid %id{u4{417983550015696536,5242071962779796929}}
+	Uuid %id{u4{16057986633885440652,5648571844669065768}}
 	s %t{"ezParticleComponent"}
 	u3 %v{3}
 	p
 	{
 		b %Active{1}
-		s %Effect{"{ ae657001-3504-4d28-8154-d42142f182ee }"}
+		s %Effect{"{ 35655520-405a-4bf2-bd29-c9ea68883f27 }"}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::DeleteGameObject"}
 		VarDict %Parameters{}
@@ -111,7 +111,7 @@ o
 }
 o
 {
-	Uuid %id{u4{9894797433450529433,5451904551648787499}}
+	Uuid %id{u4{7088056443610721933,5858404433538056338}}
 	s %t{"ezFmodEventComponent"}
 	u3 %v{4}
 	p
@@ -119,11 +119,11 @@ o
 		b %Active{1}
 		u1 %OcclusionCollisionLayer{0}
 		f %OcclusionThreshold{0x0000003F}
-		s %OnFinishedAction{"ezOnComponentFinishedAction::DeleteGameObject"}
+		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
 		b %Paused{0}
-		f %Pitch{0x0000803F}
+		f %Pitch{0x3333333F}
 		b %ShowDebugInfo{0}
-		s %SoundEvent{"{ 399b95b4-3cdd-4047-bec7-585cabcdbe92 }"}
+		s %SoundEvent{"{ 384630de-7888-48fa-9695-a47936f2c4d1 }"}
 		b %UseOcclusion{0}
 		f %Volume{0x0000803F}
 	}
@@ -138,9 +138,9 @@ o
 	{
 		VarArray %Children
 		{
-			Uuid{u4{5310384235639394707,5155496557458957062}}
+			Uuid{u4{2503643245799587207,5561996439348225901}}
 		}
-		Uuid %Settings{u4{3617243879720864646,5110202418761351597}}
+		Uuid %Settings{u4{810502889881057146,5516702300650620436}}
 	}
 }
 }

@@ -137,7 +137,7 @@ ezStatus ezDecalAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& Unus
       arguments << "in0.rgb";
 
       arguments << "-a";
-      arguments << "in1.a";
+      arguments << "in1.r";
     }
     else
     {

@@ -11,7 +11,7 @@ o
 		s %AssetType{"ProcGen Graph"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{12029954962534532266,5346896610498349464}}
-		u4 %Hash{10110592853789083019}
+		u4 %Hash{7776513083667116095}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -46,7 +46,7 @@ o
 		Uuid %ColorIndex{u4{2999212054573773310,509719251074501563}}
 		f %CullDistance{0x0000C842}
 		Uuid %Density{u4{1044769443117931852,8136319887141812986}}
-		f %Footprint{0x00002041}
+		f %Footprint{0x00007041}
 		Vec3 %MaxOffset{f{0x0000A040,0x0000A040,0}}
 		Vec3 %MaxScale{f{0x0000C03F,0x0000C03F,0x0000C03F}}
 		Vec3 %MinOffset{f{0x0000803F,0x0000803F,0xCDCC4CBE}}
@@ -134,7 +134,7 @@ o
 		s %PluginName{"ezEditorPluginProcGen"}
 		VarArray %Properties{}
 		s %TypeName{"ezProcGenOutput"}
-		u3 %TypeSize{88}
+		u3 %TypeSize{112}
 		u3 %TypeVersion{1}
 	}
 }
@@ -188,7 +188,7 @@ o
 		s %PluginName{"ezEditorPluginProcGen"}
 		VarArray %Properties{}
 		s %TypeName{"ezProcGenPlacementOutput"}
-		u3 %TypeSize{624}
+		u3 %TypeSize{648}
 		u3 %TypeVersion{1}
 	}
 }

@@ -15,6 +15,55 @@
 
 //////////////////////////////////////////////////////////////////////////
 
+ezParticleComponentManager::ezParticleComponentManager(ezWorld* pWorld)
+  : SUPER(pWorld)
+{
+}
+
+void ezParticleComponentManager::Initialize()
+{
+  {
+    auto desc = ezWorldModule::UpdateFunctionDesc(ezWorldModule::UpdateFunction(&ezParticleComponentManager::Update, this), "ezParticleComponentManager::Update");
+    desc.m_bOnlyUpdateWhenSimulating = true;
+    RegisterUpdateFunction(desc);
+  }
+
+  // it is necessary to do a late transform update pass, so that particle effects appear exactly at their parent's location
+  // especially for effects that are 'simulated in local space' and should appear absolutely glued to their parent
+  {
+    auto desc = ezWorldModule::UpdateFunctionDesc(ezWorldModule::UpdateFunction(&ezParticleComponentManager::UpdateTransforms, this), "ezParticleComponentManager::UpdateTransforms");
+    desc.m_bOnlyUpdateWhenSimulating = true;
+    desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostTransform;
+    RegisterUpdateFunction(desc);
+  }
+}
+
+void ezParticleComponentManager::Update(const ezWorldModule::UpdateContext& context)
+{
+  for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
+  {
+    ComponentType* pComponent = it;
+    if (pComponent->IsActiveAndInitialized())
+    {
+      pComponent->Update();
+    }
+  }
+}
+
+void ezParticleComponentManager::UpdateTransforms(const ezWorldModule::UpdateContext& context)
+{
+  for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
+  {
+    ComponentType* pComponent = it;
+    if (pComponent->IsActiveAndInitialized())
+    {
+      pComponent->UpdateTransform();
+    }
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezParticleComponent, 3, ezComponentMode::Static)
 {
@@ -340,6 +389,14 @@ void ezParticleComponent::Update()
   else
   {
     ezOnComponentFinishedAction2::HandleFinishedAction(this, m_OnFinishedAction);
+  }
+}
+
+void ezParticleComponent::UpdateTransform()
+{
+  if (m_EffectController.IsAlive())
+  {
+    m_EffectController.SetTransform(GetOwner()->GetGlobalTransform(), GetOwner()->GetVelocity());
   }
 }
 

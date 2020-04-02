@@ -16,9 +16,20 @@ class ezParticleSystemInstance;
 class ezParticleComponent;
 struct ezMsgSetPlaying;
 
-typedef ezTypedResourceHandle<class ezParticleEffectResource> ezParticleEffectResourceHandle;
+using ezParticleEffectResourceHandle = ezTypedResourceHandle<class ezParticleEffectResource>;
 
-typedef ezComponentManagerSimple<ezParticleComponent, ezComponentUpdateType::WhenSimulating> ezParticleComponentManager;
+class EZ_PARTICLEPLUGIN_DLL ezParticleComponentManager final : public ezComponentManager<class ezParticleComponent, ezBlockStorageType::Compact>
+{
+  using SUPER = ezComponentManager<class ezParticleComponent, ezBlockStorageType::Compact>;
+
+public:
+  ezParticleComponentManager(ezWorld* pWorld);
+
+  virtual void Initialize() override;
+
+  void Update(const ezWorldModule::UpdateContext& context);
+  void UpdateTransforms(const ezWorldModule::UpdateContext& context);
+};
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleComponent final : public ezRenderComponent
 {
@@ -88,6 +99,7 @@ public:
 
 protected:
   void Update();
+  void UpdateTransform();
 
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
   void OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg);

@@ -569,7 +569,8 @@ void ezTextureAssetDocumentGenerator::GetImportModes(
   {
     tt = TextureType::Height;
   }
-  else if (baseFilename.EndsWith_NoCase("_metal") || baseFilename.EndsWith_NoCase("_met") || baseFilename.EndsWith_NoCase("metallic"))
+  else if (baseFilename.EndsWith_NoCase("_metal") || baseFilename.EndsWith_NoCase("_met") || baseFilename.EndsWith_NoCase("metallic") ||
+           baseFilename.EndsWith_NoCase("metalness"))
   {
     tt = TextureType::Metalness;
   }

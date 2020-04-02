@@ -122,5 +122,5 @@ public:
   ///
   /// Currently only supports images of format R32G32B32A32_FLOAT and with identical resolution.
   /// Returns failure if any of those requirements are not met.
-  static ezResult CopyChannel(ezImage& dstImg, const ezImage& srcImg, ezUInt8 uiChannelIdx);
+  static ezResult CopyChannel(ezImage& dstImg, ezUInt8 uiDstChannelIdx, const ezImage& srcImg, ezUInt8 uiSrcChannelIdx);
 };

@@ -21,7 +21,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8325318639183543703,4757176779305952111}}
-		u4 %Hash{5431900958361835136}
+		u4 %Hash{8150834641926250541}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{14146522745554303380,2902865256510917925}}
@@ -383,10 +383,10 @@ o
 	p
 	{
 		b %Active{0}
-		b %CastShadows{1}
+		b %CastShadows{0}
 		f %ConstantBias{0xCDCCCC3D}
 		Angle %InnerSpotAngle{f{0x920A863E}}
-		f %Intensity{0x0000FA43}
+		f %Intensity{0x0000C843}
 		ColorGamma %LightColor{u1{255,255,255,255}}
 		Angle %OuterSpotAngle{f{0xF3665F3F}}
 		f %PenumbraSize{0xCDCCCC3D}
