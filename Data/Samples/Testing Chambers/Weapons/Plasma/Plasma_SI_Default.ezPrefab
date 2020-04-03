@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4503936315766485946,5467247986140777545}}
-		u4 %Hash{16814942572786740236}
+		u4 %Hash{10266054695502147342}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{4954456250233479308,17760596100351715494}}
@@ -75,7 +75,7 @@ o
 		b %Active{1}
 		u1 %OcclusionCollisionLayer{0}
 		f %OcclusionThreshold{0x0000003F}
-		s %OnFinishedAction{"ezOnComponentFinishedAction::DeleteGameObject"}
+		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
 		b %Paused{0}
 		f %Pitch{0x0000803F}
 		b %ShowDebugInfo{0}
@@ -143,10 +143,11 @@ o
 {
 	Uuid %id{u4{16410236728109607093,6175885950551889647}}
 	s %t{"ezDecalComponent"}
-	u3 %v{4}
+	u3 %v{6}
 	p
 	{
 		b %Active{1}
+		s %ApplyToDynamic{""}
 		ColorGamma %Color{u1{138,255,108,255}}
 		s %Decal{"{ 0bbfbc3c-b5e2-4194-af38-84e13516bbc2 }"}
 		Color %EmissiveColor{f{0,0,0,0x0000803F}}
@@ -157,6 +158,7 @@ o
 		b %MapNormalToGeometry{0}
 		s %OnFinishedAction{"ezOnComponentFinishedAction::DeleteGameObject"}
 		Angle %OuterFadeAngle{f{0xDB0FC93F}}
+		s %ProjectionAxis{"ezBasisAxis::PositiveX"}
 		f %SizeVariance{0x0000803F}
 		f %SortOrder{0x0000A040}
 		b %WrapAround{1}
@@ -242,7 +244,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezDecalComponent"}
 		u3 %TypeSize{168}
-		u3 %TypeVersion{4}
+		u3 %TypeVersion{6}
 	}
 }
 o
@@ -493,6 +495,24 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14469700887475489738,16951777026318265606}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezBasisAxis"}
 		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}

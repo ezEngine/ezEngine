@@ -445,17 +445,21 @@ void ezDecalComponent::UpdateApplyTo()
 
   m_uiApplyOnlyToId = 0;
 
-  ezGameObject* pObject = nullptr;
-  if (GetWorld()->TryGetObject(m_hApplyOnlyToObject, pObject))
+  if (!m_hApplyOnlyToObject.IsInvalidated())
   {
+    m_uiApplyOnlyToId = ezInvalidIndex;
 
-    ezRenderComponent* pRenderComponent = nullptr;
-    if (pObject->TryGetComponentOfBaseType(pRenderComponent))
+    ezGameObject* pObject = nullptr;
+    if (GetWorld()->TryGetObject(m_hApplyOnlyToObject, pObject))
     {
-      // this only works for dynamic objects, for static ones we must use ID 0
-      if (pRenderComponent->GetOwner()->IsDynamic())
+      ezRenderComponent* pRenderComponent = nullptr;
+      if (pObject->TryGetComponentOfBaseType(pRenderComponent))
       {
-        m_uiApplyOnlyToId = pRenderComponent->GetUniqueIdForRendering();
+        // this only works for dynamic objects, for static ones we must use ID 0
+        if (pRenderComponent->GetOwner()->IsDynamic())
+        {
+          m_uiApplyOnlyToId = pRenderComponent->GetUniqueIdForRendering();
+        }
       }
     }
   }
