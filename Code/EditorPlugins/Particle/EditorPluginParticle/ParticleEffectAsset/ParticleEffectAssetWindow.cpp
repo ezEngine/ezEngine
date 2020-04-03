@@ -282,6 +282,8 @@ void ezQtParticleEffectAssetDocumentWindow::SelectSystem(ezDocumentObject* pObje
     m_pPropertyGridInitializer->ClearSelection();
     m_pPropertyGridBehavior->ClearSelection();
     m_pPropertyGridType->ClearSelection();
+
+    m_pSystemsCombo->setCurrentIndex(-1);
   }
   else
   {
@@ -296,6 +298,8 @@ void ezQtParticleEffectAssetDocumentWindow::SelectSystem(ezDocumentObject* pObje
     m_pPropertyGridInitializer->SetSelection(sel, "Initializers");
     m_pPropertyGridBehavior->SetSelection(sel, "Behaviors");
     m_pPropertyGridType->SetSelection(sel, "Types");
+
+    m_pSystemsCombo->setCurrentText(m_sSelectedSystem.GetData());
   }
 }
 
@@ -699,7 +703,7 @@ void ezQtParticleEffectAssetDocumentWindow::ParticleEventHandler(const ezParticl
 
 void ezQtParticleEffectAssetDocumentWindow::UpdateSystemList()
 {
-  m_ParticleSystems.Clear();
+  ezMap<ezString, ezDocumentObject*> newParticleSystems;
 
   ezDocumentObject* pRootObject = GetParticleDocument()->GetObjectManager()->GetRootObject()->GetChildren()[0];
 
@@ -710,9 +714,15 @@ void ezQtParticleEffectAssetDocumentWindow::UpdateSystemList()
     if (ezStringUtils::IsEqual(pChild->GetParentProperty(), "ParticleSystems"))
     {
       s = pChild->GetTypeAccessor().GetValue("Name").ConvertTo<ezString>();
-      m_ParticleSystems[s] = pChild;
+      newParticleSystems[s] = pChild;
     }
   }
+
+  // early out
+  if (m_ParticleSystems == newParticleSystems)
+    return;
+
+  m_ParticleSystems.Swap(newParticleSystems);
 
   {
     ezQtScopedBlockSignals _1(m_pSystemsCombo);
