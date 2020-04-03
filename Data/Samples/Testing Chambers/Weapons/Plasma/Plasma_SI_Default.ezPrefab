@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4503936315766485946,5467247986140777545}}
-		u4 %Hash{10266054695502147342}
+		u4 %Hash{9984963556383956499}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{4954456250233479308,17760596100351715494}}
@@ -19,9 +19,9 @@ o
 		VarArray %Outputs{}
 		VarArray %References
 		{
-			s{"{ 0bbfbc3c-b5e2-4194-af38-84e13516bbc2 }"}
-			s{"{ 1e69c43f-d80f-42f4-b5c2-fd8f6b6d986f }"}
 			s{"{ 32cb0079-08cc-4f6b-a94b-0832e602ee1a }"}
+			s{"{ 93066f62-ab41-49c3-bfcc-6a79560eef7a }"}
+			s{"{ aa3be7d1-d9e2-4ddc-b6fc-6deaa22696eb }"}
 		}
 	}
 }
@@ -92,7 +92,7 @@ o
 	p
 	{
 		b %Active{1}
-		s %Effect{"{ 1e69c43f-d80f-42f4-b5c2-fd8f6b6d986f }"}
+		s %Effect{"{ 93066f62-ab41-49c3-bfcc-6a79560eef7a }"}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters{}
@@ -116,7 +116,7 @@ o
 			Uuid{u4{7765754480306902972,4815670864323057686}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0,0}}
+		Vec3 %LocalPosition{f{0xD55BB4BD,0xD25BB4B1,0xD45BB431}}
 		Quat %LocalRotation{f{0x000000A8,0xF20435BF,0xF3043533,0xF304353F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -148,18 +148,18 @@ o
 	{
 		b %Active{1}
 		s %ApplyToDynamic{""}
-		ColorGamma %Color{u1{138,255,108,255}}
-		s %Decal{"{ 0bbfbc3c-b5e2-4194-af38-84e13516bbc2 }"}
-		Color %EmissiveColor{f{0,0,0,0x0000803F}}
-		Vec3 %Extents{f{0x00004040,0x00004040,0x00004040}}
+		ColorGamma %Color{u1{255,255,255,255}}
+		s %Decal{"{ aa3be7d1-d9e2-4ddc-b6fc-6deaa22696eb }"}
+		Color %EmissiveColor{f{0x7F4D093F,0x1380CE3F,0x857F3C3F,0x0000803F}}
+		Vec3 %Extents{f{0x0000003F,0x0000003F,0x0000003F}}
 		Uuid %FadeOutDelay{u4{1675289059729366332,8815584581527328376}}
-		Time %FadeOutDuration{d{0x0000000000000040}}
-		Angle %InnerFadeAngle{f{0xDB0FC93F}}
-		b %MapNormalToGeometry{0}
+		Time %FadeOutDuration{d{0x0000000000000840}}
+		Angle %InnerFadeAngle{f{0x920A863F}}
+		b %MapNormalToGeometry{1}
 		s %OnFinishedAction{"ezOnComponentFinishedAction::DeleteGameObject"}
-		Angle %OuterFadeAngle{f{0xDB0FC93F}}
+		Angle %OuterFadeAngle{f{0xC2B8B23F}}
 		s %ProjectionAxis{"ezBasisAxis::PositiveX"}
-		f %SizeVariance{0x0000803F}
+		f %SizeVariance{0x0000003F}
 		f %SortOrder{0x0000A040}
 		b %WrapAround{1}
 	}
@@ -186,8 +186,8 @@ o
 	u3 %v{1}
 	p
 	{
-		Time %Value{d{0x0000000000000840}}
-		f %Variance{0x48E1FA3E}
+		Time %Value{d{0x000000000000F03F}}
+		f %Variance{0xA470BD3E}
 	}
 }
 }
