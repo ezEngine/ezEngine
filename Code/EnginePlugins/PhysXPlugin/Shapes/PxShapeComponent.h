@@ -21,7 +21,7 @@ public:
 
 protected:
   virtual void Initialize() override;
-  virtual void Deinitialize() override;
+  virtual void OnDeactivated() override;
 
 
   //////////////////////////////////////////////////////////////////////////

@@ -328,7 +328,7 @@ void ezPxDynamicActorComponent::OnSimulationStarted()
   }
 }
 
-void ezPxDynamicActorComponent::Deinitialize()
+void ezPxDynamicActorComponent::OnDeactivated()
 {
   if (m_bKinematic)
   {
@@ -349,7 +349,7 @@ void ezPxDynamicActorComponent::Deinitialize()
     m_pActor = nullptr;
   }
 
-  SUPER::Deinitialize();
+  SUPER::OnDeactivated();
 }
 
 ezVec3 ezPxDynamicActorComponent::GetLocalCenterOfMass() const

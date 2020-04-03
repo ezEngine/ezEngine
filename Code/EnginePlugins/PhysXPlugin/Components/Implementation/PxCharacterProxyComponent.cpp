@@ -212,15 +212,12 @@ void ezPxCharacterProxyComponent::DeserializeComponent(ezWorldReader& stream)
   }
 }
 
-void ezPxCharacterProxyComponent::Initialize()
+void ezPxCharacterProxyComponent::OnActivated()
 {
-  if (IsActive())
-  {
-    GetOwner()->UpdateLocalBounds();
-  }
+  GetOwner()->UpdateLocalBounds();
 }
 
-void ezPxCharacterProxyComponent::Deinitialize()
+void ezPxCharacterProxyComponent::OnDeactivated()
 {
   if (m_pController != nullptr)
   {
@@ -239,7 +236,7 @@ void ezPxCharacterProxyComponent::Deinitialize()
     }
   }
 
-  SUPER::Deinitialize();
+  SUPER::OnDeactivated();
 }
 
 void ezPxCharacterProxyComponent::OnSimulationStarted()

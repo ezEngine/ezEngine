@@ -41,7 +41,7 @@ public:
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
   virtual void OnSimulationStarted() override;
-  virtual void Deinitialize() override;
+  virtual void OnDeactivated() override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezPxDynamicActorComponent

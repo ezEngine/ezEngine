@@ -67,7 +67,7 @@ void ezPxStaticActorComponent::DeserializeComponent(ezWorldReader& stream)
   }
 }
 
-void ezPxStaticActorComponent::Deinitialize()
+void ezPxStaticActorComponent::OnDeactivated()
 {
   if (m_pActor != nullptr)
   {
@@ -92,7 +92,7 @@ void ezPxStaticActorComponent::Deinitialize()
     }
   }
 
-  SUPER::Deinitialize();
+  SUPER::OnDeactivated();
 }
 
 void ezPxStaticActorComponent::OnSimulationStarted()
