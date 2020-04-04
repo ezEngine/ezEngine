@@ -162,7 +162,6 @@ EZ_END_COMPONENT_TYPE
 // clang-format on
 
 ezPxCharacterProxyComponent::ezPxCharacterProxyComponent()
-  : m_UserData(this)
 {
   m_Data = EZ_DEFAULT_NEW(ezPxCharacterProxyData);
 }
@@ -227,13 +226,10 @@ void ezPxCharacterProxyComponent::OnDeactivated()
     m_pController = nullptr;
   }
 
-  if (m_uiShapeId != ezInvalidIndex)
+  if (ezPhysXWorldModule* pModule = GetWorld()->GetModule<ezPhysXWorldModule>())
   {
-    if (ezPhysXWorldModule* pModule = GetWorld()->GetModule<ezPhysXWorldModule>())
-    {
-      pModule->DeleteShapeId(m_uiShapeId);
-      m_uiShapeId = ezInvalidIndex;
-    }
+    pModule->DeleteShapeId(m_uiShapeId);
+    pModule->DeallocateUserData(m_uiUserDataIndex);
   }
 
   SUPER::OnDeactivated();
@@ -263,7 +259,11 @@ void ezPxCharacterProxyComponent::OnSimulationStarted()
   cd.nonWalkableMode = m_bForceSlopeSliding ? PxControllerNonWalkableMode::ePREVENT_CLIMBING_AND_FORCE_SLIDING
                                             : PxControllerNonWalkableMode::ePREVENT_CLIMBING;
   cd.material = ezPhysX::GetSingleton()->GetDefaultMaterial();
-  cd.userData = &m_UserData;
+
+  ezPxUserData* pUserData = nullptr;
+  m_uiUserDataIndex = pModule->AllocateUserData(pUserData);
+  pUserData->Init(this);
+  cd.userData = pUserData;
 
   cd.radius = ezMath::Max(m_fCapsuleRadius, 0.0f);
   cd.height = ezMath::Max(m_fCapsuleHeight, 0.0f);
@@ -290,13 +290,13 @@ void ezPxCharacterProxyComponent::OnSimulationStarted()
 
     PxRigidDynamic* pActor = m_pController->getActor();
     pActor->setMass(m_fMass);
-    pActor->userData = &m_UserData;
+    pActor->userData = pUserData;
 
     PxShape* pShape = nullptr;
     pActor->getShapes(&pShape, 1);
     pShape->setSimulationFilterData(m_Data->m_FilterData);
     pShape->setQueryFilterData(m_Data->m_FilterData);
-    pShape->userData = &m_UserData;
+    pShape->userData = pUserData;
   }
 }
 

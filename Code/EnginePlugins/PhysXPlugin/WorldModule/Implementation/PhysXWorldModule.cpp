@@ -655,11 +655,41 @@ ezUInt32 ezPhysXWorldModule::CreateShapeId()
   return m_uiNextShapeId++;
 }
 
-void ezPhysXWorldModule::DeleteShapeId(ezUInt32 uiShapeId)
+void ezPhysXWorldModule::DeleteShapeId(ezUInt32& uiShapeId)
 {
-  EZ_ASSERT_DEV(uiShapeId != ezInvalidIndex, "Trying to delete an invalid shape id");
+  if (uiShapeId == ezInvalidIndex)
+    return;
 
   m_FreeShapeIds.PushBack(uiShapeId);
+
+  uiShapeId = ezInvalidIndex;
+}
+
+ezUInt32 ezPhysXWorldModule::AllocateUserData(ezPxUserData*& out_pUserData)
+{
+  if (!m_FreeUserData.IsEmpty())
+  {
+    ezUInt32 uiIndex = m_FreeUserData.PeekBack();
+    m_FreeUserData.PopBack();
+
+    out_pUserData = &m_AllocatedUserData[uiIndex];
+    return uiIndex;
+  }
+
+  out_pUserData = &m_AllocatedUserData.ExpandAndGetRef();
+  return m_AllocatedUserData.GetCount() - 1;
+}
+
+void ezPhysXWorldModule::DeallocateUserData(ezUInt32& uiUserDataIndex)
+{
+  if (uiUserDataIndex == ezInvalidIndex)
+    return;
+
+  m_AllocatedUserData[uiUserDataIndex].Invalidate();
+
+  m_FreeUserDataAfterSimulationStep.PushBack(uiUserDataIndex);
+
+  uiUserDataIndex = ezInvalidIndex;
 }
 
 void ezPhysXWorldModule::SetGravity(const ezVec3& objectGravity, const ezVec3& characterGravity)
@@ -1121,6 +1151,12 @@ void ezPhysXWorldModule::AddStaticCollisionBox(ezGameObject* pObject, ezVec3 box
   pBox->SetExtents(boxSize);
 }
 
+void ezPhysXWorldModule::FreeUserDataAfterSimulationStep()
+{
+  m_FreeUserData.PushBackRange(m_FreeUserDataAfterSimulationStep);
+  m_FreeUserDataAfterSimulationStep.Clear();
+}
+
 void ezPhysXWorldModule::StartSimulation(const ezWorldModule::UpdateContext& context)
 {
   ezPxDynamicActorComponentManager* pDynamicActorManager = GetWorld()->GetComponentManager<ezPxDynamicActorComponentManager>();
@@ -1168,6 +1204,10 @@ void ezPhysXWorldModule::FetchResults(const ezWorldModule::UpdateContext& contex
     EZ_PROFILE_SCOPE("Wait for Simulate Task");
     ezTaskSystem::WaitForGroup(m_SimulateTaskGroupId);
   }
+
+  // Nothing to fetch if no simulation step was executed
+  if (!m_bSimulationStepExecuted)
+    return;
 
   if (ezPxDynamicActorComponentManager* pDynamicActorManager = GetWorld()->GetComponentManager<ezPxDynamicActorComponentManager>())
   {
@@ -1281,10 +1321,13 @@ void ezPhysXWorldModule::FetchResults(const ezWorldModule::UpdateContext& contex
       }
     }
   }
+
+  FreeUserDataAfterSimulationStep();
 }
 
 void ezPhysXWorldModule::Simulate()
 {
+  m_bSimulationStepExecuted = false;
   const ezTime tDiff = GetWorld()->GetClock().GetTimeDiff();
 
   if (m_Settings.m_SteppingMode == ezPxSteppingMode::Variable)
@@ -1360,6 +1403,8 @@ void ezPhysXWorldModule::SimulateStep(ezTime deltaTime)
 
     EZ_ASSERT_DEBUG(numFetch == 0, "m_pPxScene->fetchResults should have succeeded right away");
   }
+
+  m_bSimulationStepExecuted = true;
 }
 
 

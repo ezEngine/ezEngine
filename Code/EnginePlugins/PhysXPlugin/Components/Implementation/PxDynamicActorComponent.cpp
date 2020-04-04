@@ -57,8 +57,7 @@ void ezPxDynamicActorComponentManager::UpdateDynamicActors(ezArrayPtr<PxActor*> 
     if (pComponent == nullptr)
     {
       // Check if this is a breakable sheet component piece
-      ezBreakableSheetComponent* pSheetComponent = ezPxUserData::GetBreakableSheetComponent(activeActor->userData);
-      if (pSheetComponent)
+      if (ezBreakableSheetComponent* pSheetComponent = ezPxUserData::GetBreakableSheetComponent(activeActor->userData))
       {
         pSheetComponent->SetPieceTransform(dynamicActor->getGlobalPose(), ezPxUserData::GetAdditionalUserData(activeActor->userData));
       }
@@ -70,10 +69,7 @@ void ezPxDynamicActorComponentManager::UpdateDynamicActors(ezArrayPtr<PxActor*> 
       continue;
 
     ezGameObject* pObject = pComponent->GetOwner();
-
-    // this can happen when the object was deleted in the meantime
-    if (pObject == nullptr)
-      continue;
+    EZ_ASSERT_DEV(pObject != nullptr, "Owner must be still valid");
 
     // preserve scaling
     ezSimdTransform t = ezPxConversionUtils::ToSimdTransform(dynamicActor->getGlobalPose());
@@ -133,11 +129,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxDynamicActorComponent, 3, ezComponentMode::Dynamic)
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
-ezPxDynamicActorComponent::ezPxDynamicActorComponent()
-  : m_UserData(this)
-{
-}
-
+ezPxDynamicActorComponent::ezPxDynamicActorComponent() = default;
 ezPxDynamicActorComponent::~ezPxDynamicActorComponent() = default;
 
 void ezPxDynamicActorComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -266,7 +258,10 @@ void ezPxDynamicActorComponent::OnSimulationStarted()
   m_pActor = ezPhysX::GetSingleton()->GetPhysXAPI()->createRigidDynamic(t);
   EZ_ASSERT_DEBUG(m_pActor != nullptr, "PhysX actor creation failed");
 
-  m_pActor->userData = &m_UserData;
+  ezPxUserData* pUserData = nullptr;
+  m_uiUserDataIndex = pModule->AllocateUserData(pUserData);
+  pUserData->Init(this);
+  m_pActor->userData = pUserData;
 
   // PhysX does not get any scale value, so to correctly position child objects
   // we have to pretend that this parent object applies no scale on its children
@@ -347,6 +342,8 @@ void ezPxDynamicActorComponent::OnDeactivated()
     }
 
     m_pActor = nullptr;
+
+    pModule->DeallocateUserData(m_uiUserDataIndex);
   }
 
   SUPER::OnDeactivated();

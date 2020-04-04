@@ -32,11 +32,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxStaticActorComponent, 2, ezComponentMode::Static)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezPxStaticActorComponent::ezPxStaticActorComponent()
-  : m_UserData(this)
-{
-}
-
+ezPxStaticActorComponent::ezPxStaticActorComponent() = default;
 ezPxStaticActorComponent::~ezPxStaticActorComponent() = default;
 
 void ezPxStaticActorComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -81,15 +77,9 @@ void ezPxStaticActorComponent::OnDeactivated()
     }
 
     m_pActor = nullptr;
-  }
 
-  if (m_uiShapeId != ezInvalidIndex)
-  {
-    if (ezPhysXWorldModule* pModule = GetWorld()->GetModule<ezPhysXWorldModule>())
-    {
-      pModule->DeleteShapeId(m_uiShapeId);
-      m_uiShapeId = ezInvalidIndex;
-    }
+    pModule->DeleteShapeId(m_uiShapeId);
+    pModule->DeallocateUserData(m_uiUserDataIndex);
   }
 
   SUPER::OnDeactivated();
@@ -108,7 +98,10 @@ void ezPxStaticActorComponent::OnSimulationStarted()
   m_pActor = ezPhysX::GetSingleton()->GetPhysXAPI()->createRigidStatic(t);
   EZ_ASSERT_DEBUG(m_pActor != nullptr, "PhysX actor creation failed");
 
-  m_pActor->userData = &m_UserData;
+  ezPxUserData* pUserData = nullptr;
+  m_uiUserDataIndex = pModule->AllocateUserData(pUserData);
+  pUserData->Init(this);
+  m_pActor->userData = pUserData;
 
   // PhysX does not get any scale value, so to correctly position child objects
   // we have to pretend that this parent object applies no scale on its children
@@ -156,8 +149,7 @@ void ezPxStaticActorComponent::OnSimulationStarted()
 
     if (pMesh->GetTriangleMesh() != nullptr)
     {
-      pShape =
-        m_pActor->createShape(PxTriangleMeshGeometry(pMesh->GetTriangleMesh(), scale), pxMaterials.GetData(), pxMaterials.GetCount());
+      pShape = m_pActor->createShape(PxTriangleMeshGeometry(pMesh->GetTriangleMesh(), scale), pxMaterials.GetData(), pxMaterials.GetCount());
     }
     else if (pMesh->GetConvexMesh() != nullptr)
     {
@@ -183,7 +175,7 @@ void ezPxStaticActorComponent::OnSimulationStarted()
     pShape->setSimulationFilterData(filterData);
     pShape->setQueryFilterData(filterData);
 
-    pShape->userData = &m_UserData;
+    pShape->userData = pUserData;
   }
 
   {

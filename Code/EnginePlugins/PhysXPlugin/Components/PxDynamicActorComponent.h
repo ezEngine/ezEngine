@@ -91,5 +91,5 @@ private:
   bool m_bKinematic = false;
   bool m_bCCD = false;
 
-  ezPxUserData m_UserData;
+  ezUInt32 m_uiUserDataIndex = ezInvalidIndex;
 };

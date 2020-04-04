@@ -43,9 +43,8 @@ protected:
   void OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const;
 
   ezUInt32 m_uiShapeId = ezInvalidIndex;
+  ezUInt32 m_uiUserDataIndex = ezInvalidIndex;
   ezPxMeshResourceHandle m_hCollisionMesh;
 
   physx::PxRigidStatic* m_pActor = nullptr;
-
-  ezPxUserData m_UserData;
 };

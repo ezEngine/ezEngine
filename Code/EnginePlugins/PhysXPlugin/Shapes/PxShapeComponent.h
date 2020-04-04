@@ -45,10 +45,9 @@ protected:
   virtual physx::PxShape* CreateShape(physx::PxRigidActor* pActor, physx::PxTransform& out_ShapeTransform) = 0;
 
   ezUInt32 m_uiShapeId = ezInvalidIndex;
+  ezUInt32 m_uiUserDataIndex = ezInvalidIndex;
 
-  ezSurfaceResourceHandle m_hSurface;
-
-  ezPxUserData m_UserData;
+  ezSurfaceResourceHandle m_hSurface;  
 
   friend class ezPxActorComponent;
   void AddToActor(physx::PxRigidActor* pActor, const ezSimdTransform& parentTransform);

@@ -14,68 +14,58 @@ class ezBreakableSheetComponent;
 class ezPxUserData
 {
 public:
+  EZ_DECLARE_POD_TYPE();
 
-  EZ_ALWAYS_INLINE ezPxUserData()
-    : m_Type(Invalid)
-    , m_pObject(nullptr)
-    , m_pAdditionalUserData(nullptr)
+  ezPxUserData() = default;
+  ~ezPxUserData() { Invalidate(); }
+
+  EZ_ALWAYS_INLINE void Init(ezPxDynamicActorComponent* pObject)
   {
+    m_Type = DynamicActorComponent;
+    m_pObject = pObject;
   }
 
-  EZ_ALWAYS_INLINE ezPxUserData(nullptr_t)
-    : m_Type(Invalid)
-    , m_pObject(nullptr)
-    , m_pAdditionalUserData(nullptr)
+  EZ_ALWAYS_INLINE void Init(ezPxStaticActorComponent* pObject)
   {
+    m_Type = StaticActorComponent;
+    m_pObject = pObject;
   }
 
-  EZ_ALWAYS_INLINE ezPxUserData(ezPxDynamicActorComponent* pObject)
-    : m_Type(DynamicActorComponent)
-    , m_pObject(pObject)
-    , m_pAdditionalUserData(nullptr)
+  EZ_ALWAYS_INLINE void Init(ezPxTriggerComponent* pObject)
   {
+    m_Type = TriggerComponent;
+    m_pObject = pObject;
   }
 
-  EZ_ALWAYS_INLINE ezPxUserData(ezPxStaticActorComponent* pObject)
-    : m_Type(StaticActorComponent)
-    , m_pObject(pObject)
-    , m_pAdditionalUserData(nullptr)
+  EZ_ALWAYS_INLINE void Init(ezPxCharacterProxyComponent* pObject)
   {
+    m_Type = CharacterProxyComponent;
+    m_pObject = pObject;
   }
 
-  EZ_ALWAYS_INLINE ezPxUserData(ezPxTriggerComponent* pObject)
-    : m_Type(TriggerComponent)
-    , m_pObject(pObject)
-    , m_pAdditionalUserData(nullptr)
+  EZ_ALWAYS_INLINE void Init(ezPxShapeComponent* pObject)
   {
+    m_Type = ShapeComponent;
+    m_pObject = pObject;
   }
 
-  EZ_ALWAYS_INLINE ezPxUserData(ezPxCharacterProxyComponent* pObject)
-    : m_Type(CharacterProxyComponent)
-    , m_pObject(pObject)
-    , m_pAdditionalUserData(nullptr)
+  EZ_ALWAYS_INLINE void Init(ezBreakableSheetComponent* pObject)
   {
-  }
-
-  EZ_ALWAYS_INLINE ezPxUserData(ezPxShapeComponent* pObject)
-    : m_Type(ShapeComponent)
-    , m_pObject(pObject)
-    , m_pAdditionalUserData(nullptr)
-  {
+    m_Type = BreakableSheetComponent;
+    m_pObject = pObject;
   }
 
   EZ_ALWAYS_INLINE ezPxUserData(ezSurfaceResource* pObject)
     : m_Type(SurfaceResource)
     , m_pObject(pObject)
-    , m_pAdditionalUserData(nullptr)
   {
   }
 
-  EZ_ALWAYS_INLINE ezPxUserData(ezBreakableSheetComponent* pObject)
-    : m_Type(BreakableSheet)
-    , m_pObject(pObject)
-    , m_pAdditionalUserData(nullptr)
+  EZ_FORCE_INLINE void Invalidate()
   {
+    m_Type = Invalid;
+    m_pObject = nullptr;
+    m_pAdditionalUserData = nullptr;
   }
 
   EZ_FORCE_INLINE static ezPxDynamicActorComponent* GetDynamicActorComponent(void* pUserData)
@@ -136,7 +126,7 @@ public:
   EZ_FORCE_INLINE static ezBreakableSheetComponent* GetBreakableSheetComponent(void* pUserData)
   {
     ezPxUserData* pPxUserData = static_cast<ezPxUserData*>(pUserData);
-    if (pPxUserData != nullptr && pPxUserData->m_Type == BreakableSheet)
+    if (pPxUserData != nullptr && pPxUserData->m_Type == BreakableSheetComponent)
     {
       return static_cast<ezBreakableSheetComponent*>(pPxUserData->m_pObject);
     }
@@ -149,13 +139,11 @@ public:
     ezPxUserData* pPxUserData = static_cast<ezPxUserData*>(pUserData);
     if (pPxUserData != nullptr &&
         (pPxUserData->m_Type == DynamicActorComponent ||
-         pPxUserData->m_Type == StaticActorComponent ||
-         pPxUserData->m_Type == TriggerComponent ||
-         pPxUserData->m_Type == CharacterProxyComponent ||
-         pPxUserData->m_Type == ShapeComponent ||
-         pPxUserData->m_Type == BreakableSheet
-        )
-      )
+          pPxUserData->m_Type == StaticActorComponent ||
+          pPxUserData->m_Type == TriggerComponent ||
+          pPxUserData->m_Type == CharacterProxyComponent ||
+          pPxUserData->m_Type == ShapeComponent ||
+          pPxUserData->m_Type == BreakableSheetComponent))
     {
       return static_cast<ezComponent*>(pPxUserData->m_pObject);
     }
@@ -195,11 +183,11 @@ private:
     TriggerComponent,
     CharacterProxyComponent,
     ShapeComponent,
-    SurfaceResource,
-    BreakableSheet
+    BreakableSheetComponent,
+    SurfaceResource
   };
 
-  Type m_Type;
-  void* m_pObject;
-  void* m_pAdditionalUserData;
+  Type m_Type = Invalid;
+  void* m_pObject = nullptr;
+  void* m_pAdditionalUserData = nullptr;
 };
