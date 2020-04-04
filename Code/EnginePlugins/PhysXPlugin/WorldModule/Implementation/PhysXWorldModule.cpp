@@ -190,16 +190,14 @@ namespace
     EZ_ASSERT_DEBUG(!out_Result.m_vPosition.IsNaN(), "Raycast hit Position is NaN");
     EZ_ASSERT_DEBUG(!out_Result.m_vNormal.IsNaN(), "Raycast hit Normal is NaN");
 
+    if (ezComponent* pShapeComponent = ezPxUserData::GetComponent(pHitShape->userData))
     {
-      ezComponent* pShapeComponent = ezPxUserData::GetComponent(pHitShape->userData);
-      EZ_ASSERT_DEBUG(pShapeComponent != nullptr, "Shape should have set a component as user data");
       out_Result.m_hShapeObject = pShapeComponent->GetOwner()->GetHandle();
       out_Result.m_uiShapeId = pHitShape->getQueryFilterData().word2;
     }
 
+    if (ezComponent* pActorComponent = ezPxUserData::GetComponent(pHitShape->getActor()->userData))
     {
-      ezComponent* pActorComponent = ezPxUserData::GetComponent(pHitShape->getActor()->userData);
-      EZ_ASSERT_DEBUG(pActorComponent != nullptr, "Actor should have set a component as user data");
       out_Result.m_hActorObject = pActorComponent->GetOwner()->GetHandle();
     }
 
@@ -538,8 +536,7 @@ public:
 
       if (pTriggerComponent != nullptr && pOtherComponent != nullptr)
       {
-        ezTriggerState::Enum triggerState =
-          pair.status == PxPairFlag::eNOTIFY_TOUCH_FOUND ? ezTriggerState::Activated : ezTriggerState::Deactivated;
+        ezTriggerState::Enum triggerState = (pair.status == PxPairFlag::eNOTIFY_TOUCH_FOUND) ? ezTriggerState::Activated : ezTriggerState::Deactivated;
         pTriggerComponent->PostTriggerMessage(pOtherComponent, triggerState);
       }
     }
@@ -1127,14 +1124,14 @@ void ezPhysXWorldModule::QueryShapesInSphere(ezPhysicsOverlapResultArray& out_Re
   out_Results.m_Results.SetCountUninitialized(allOverlaps.nbTouches);
   for (ezUInt32 i = 0; i < allOverlaps.nbTouches; ++i)
   {
+    if (ezComponent* pShapeComponent = ezPxUserData::GetComponent(g_OverlapHits[i].shape->userData))
     {
-      ezComponent* pShapeComponent = ezPxUserData::GetComponent(g_OverlapHits[i].shape->userData);
       out_Results.m_Results[i].m_hShapeObject = pShapeComponent->GetOwner()->GetHandle();
       out_Results.m_Results[i].m_uiShapeId = g_OverlapHits[i].shape->getQueryFilterData().word2;
     }
 
+    if (ezComponent* pActorComponent = ezPxUserData::GetComponent(g_OverlapHits[i].actor->userData))
     {
-      ezComponent* pActorComponent = ezPxUserData::GetComponent(g_OverlapHits[i].actor->userData);
       out_Results.m_Results[i].m_hActorObject = pActorComponent->GetOwner()->GetHandle();
     }
   }
