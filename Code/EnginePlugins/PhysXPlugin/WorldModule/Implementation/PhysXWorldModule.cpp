@@ -208,10 +208,6 @@ namespace
       out_Result.m_hSurface = ezSurfaceResourceHandle(pSurface);
     }
   }
-
-  static PxOverlapHit g_OverlapHits[256];
-  static PxRaycastHit g_RaycastHits[256];
-
 } // namespace
 
 //////////////////////////////////////////////////////////////////////////
@@ -762,8 +758,12 @@ bool ezPhysXWorldModule::RaycastAll(ezPhysicsCastResultArray& out_Results, const
     filterData.flags |= PxQueryFlag::eDYNAMIC;
   }
 
+  ezArrayPtr<PxRaycastHit> raycastHits = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), PxRaycastHit, 256);
+  EZ_SCOPE_EXIT(EZ_DELETE_ARRAY(ezFrameAllocator::GetCurrentAllocator(), raycastHits));
+
+  PxRaycastBuffer allHits(raycastHits.GetPtr(), raycastHits.GetCount());
+
   ezPxQueryFilter queryFilter;
-  PxRaycastBuffer allHits(g_RaycastHits, EZ_ARRAY_SIZE(g_RaycastHits));
 
   EZ_PX_READ_LOCK(*m_pPxScene);
 
@@ -1115,24 +1115,29 @@ void ezPhysXWorldModule::QueryShapesInSphere(ezPhysicsOverlapResultArray& out_Re
 
   PxTransform transform = ezPxConversionUtils::ToTransform(vPosition, ezQuat::IdentityQuaternion());
 
-  PxOverlapBuffer allOverlaps(g_OverlapHits, EZ_ARRAY_SIZE(g_OverlapHits));
+  ezArrayPtr<PxOverlapHit> overlapHits = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), PxOverlapHit, 256);
+  EZ_SCOPE_EXIT(EZ_DELETE_ARRAY(ezFrameAllocator::GetCurrentAllocator(), overlapHits));
+
+  PxOverlapBuffer overlapHitsBuffer(overlapHits.GetPtr(), overlapHits.GetCount());
 
   EZ_PX_READ_LOCK(*m_pPxScene);
 
-  m_pPxScene->overlap(sphere, transform, allOverlaps, filterData, &queryFilter);
+  m_pPxScene->overlap(sphere, transform, overlapHitsBuffer, filterData, &queryFilter);
 
-  out_Results.m_Results.SetCountUninitialized(allOverlaps.nbTouches);
-  for (ezUInt32 i = 0; i < allOverlaps.nbTouches; ++i)
+  for (ezUInt32 i = 0; i < overlapHitsBuffer.nbTouches; ++i)
   {
-    if (ezComponent* pShapeComponent = ezPxUserData::GetComponent(g_OverlapHits[i].shape->userData))
-    {
-      out_Results.m_Results[i].m_hShapeObject = pShapeComponent->GetOwner()->GetHandle();
-      out_Results.m_Results[i].m_uiShapeId = g_OverlapHits[i].shape->getQueryFilterData().word2;
+    auto& overlapHit = overlapHitsBuffer.touches[i];
+    auto& overlapResult = out_Results.m_Results.ExpandAndGetRef();
+
+    if (ezComponent* pShapeComponent = ezPxUserData::GetComponent(overlapHit.shape->userData))
+    {      
+      overlapResult.m_hShapeObject = pShapeComponent->GetOwner()->GetHandle();
+      overlapResult.m_uiShapeId = overlapHit.shape->getQueryFilterData().word2;
     }
 
-    if (ezComponent* pActorComponent = ezPxUserData::GetComponent(g_OverlapHits[i].actor->userData))
+    if (ezComponent* pActorComponent = ezPxUserData::GetComponent(overlapHit.actor->userData))
     {
-      out_Results.m_Results[i].m_hActorObject = pActorComponent->GetOwner()->GetHandle();
+      overlapResult.m_hActorObject = pActorComponent->GetOwner()->GetHandle();
     }
   }
 }
