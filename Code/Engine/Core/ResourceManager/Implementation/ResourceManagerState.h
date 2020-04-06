@@ -17,8 +17,8 @@ private:
   /// \name Events
   ///@{
 
-  ezEvent<const ezResourceEvent&> s_ResourceEvents;
-  ezEvent<const ezResourceManagerEvent&> s_ManagerEvents;
+  ezEvent<const ezResourceEvent&, ezMutex> s_ResourceEvents;
+  ezEvent<const ezResourceManagerEvent&, ezMutex> s_ManagerEvents;
 
   ///@}
   /// \name Resource Fallbacks
