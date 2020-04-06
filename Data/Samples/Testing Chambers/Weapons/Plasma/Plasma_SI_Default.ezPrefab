@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4503936315766485946,5467247986140777545}}
-		u4 %Hash{9984963556383956499}
+		u4 %Hash{12924575523686003321}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{4954456250233479308,17760596100351715494}}
@@ -150,7 +150,7 @@ o
 		s %ApplyToDynamic{""}
 		ColorGamma %Color{u1{255,255,255,255}}
 		s %Decal{"{ aa3be7d1-d9e2-4ddc-b6fc-6deaa22696eb }"}
-		Color %EmissiveColor{f{0x7F4D093F,0x1380CE3F,0x857F3C3F,0x0000803F}}
+		Color %EmissiveColor{f{0xFC410A40,0xC7EFCF40,0x2BCF3D40,0x0000803F}}
 		Vec3 %Extents{f{0x0000003F,0x0000003F,0x0000003F}}
 		Uuid %FadeOutDelay{u4{1675289059729366332,8815584581527328376}}
 		Time %FadeOutDuration{d{0x0000000000000840}}
