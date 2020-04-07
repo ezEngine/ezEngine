@@ -34,6 +34,7 @@ private:
   ezResult ConvertToNormalMap(ezArrayPtr<ezImage> bumpMap) const;
   ezResult ClampInputValues(ezArrayPtr<ezImage> images, float maxValue) const;
   ezResult ClampInputValues(ezImage& image, float maxValue) const;
+  ezResult DetectNumChannels(ezArrayPtr<const ezTexConvSliceChannelMapping> channelMapping, ezUInt32& uiNumChannels);
 
   //////////////////////////////////////////////////////////////////////////
   // Reading from the descriptor
@@ -58,8 +59,6 @@ private:
 
   //////////////////////////////////////////////////////////////////////////
   // Purely functional
-
-  static ezResult DetectNumChannels(ezArrayPtr<const ezTexConvSliceChannelMapping> channelMapping, ezUInt32& uiNumChannels);
   static ezResult AdjustUsage(const char* szFilename, const ezImage& srcImg, ezEnum<ezTexConvUsage>& inout_Usage);
   static ezResult ConvertAndScaleImage(const char* szImageName, ezImage& inout_Image, ezUInt32 uiResolutionX, ezUInt32 uiResolutionY);
 

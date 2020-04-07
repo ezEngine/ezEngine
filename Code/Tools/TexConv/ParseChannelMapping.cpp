@@ -53,14 +53,10 @@ ezResult ezTexConv::ParseChannelMappings()
     ezLog::Info("Custom output channel mapping:");
     for (ezUInt32 m = 0; m < mappings.GetCount(); ++m)
     {
-      ezLog::Info("Slice {}, R -> Input file {}, {}", m, mappings[m].m_Channel[0].m_iInputImageIndex,
-                  ToString(mappings[m].m_Channel[0].m_ChannelValue));
-      ezLog::Info("Slice {}, G -> Input file {}, {}", m, mappings[m].m_Channel[1].m_iInputImageIndex,
-                  ToString(mappings[m].m_Channel[1].m_ChannelValue));
-      ezLog::Info("Slice {}, B -> Input file {}, {}", m, mappings[m].m_Channel[2].m_iInputImageIndex,
-                  ToString(mappings[m].m_Channel[2].m_ChannelValue));
-      ezLog::Info("Slice {}, A -> Input file {}, {}", m, mappings[m].m_Channel[3].m_iInputImageIndex,
-                  ToString(mappings[m].m_Channel[3].m_ChannelValue));
+      ezLog::Info("Slice {}, R -> Input file {}, {}", m, mappings[m].m_Channel[0].m_iInputImageIndex, ToString(mappings[m].m_Channel[0].m_ChannelValue));
+      ezLog::Info("Slice {}, G -> Input file {}, {}", m, mappings[m].m_Channel[1].m_iInputImageIndex, ToString(mappings[m].m_Channel[1].m_ChannelValue));
+      ezLog::Info("Slice {}, B -> Input file {}, {}", m, mappings[m].m_Channel[2].m_iInputImageIndex, ToString(mappings[m].m_Channel[2].m_ChannelValue));
+      ezLog::Info("Slice {}, A -> Input file {}, {}", m, mappings[m].m_Channel[3].m_iInputImageIndex, ToString(mappings[m].m_Channel[3].m_ChannelValue));
     }
   }
 
@@ -163,8 +159,7 @@ ezResult ezTexConv::ParseChannelSliceMapping(ezInt32 iSlice)
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConv::ParseChannelMappingConfig(ezTexConvChannelMapping& out_Mapping, const char* cfg, ezInt32 iChannelIndex,
-                                               bool bSingleChannel)
+ezResult ezTexConv::ParseChannelMappingConfig(ezTexConvChannelMapping& out_Mapping, const char* cfg, ezInt32 iChannelIndex, bool bSingleChannel)
 {
   out_Mapping.m_iInputImageIndex = -1;
   out_Mapping.m_ChannelValue = ezTexConvChannelValue::White;
@@ -178,7 +173,7 @@ ezResult ezTexConv::ParseChannelMappingConfig(ezTexConvChannelMapping& out_Mappi
     return EZ_SUCCESS;
   }
 
-  // 'r white' for setting it to 255
+  // '-r white' for setting it to 255
   if (tmp.IsEqual_NoCase("white"))
   {
     out_Mapping.m_ChannelValue = ezTexConvChannelValue::White;
