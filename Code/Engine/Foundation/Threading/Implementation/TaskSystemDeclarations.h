@@ -135,6 +135,18 @@ struct ezTaskGroupDependency
   ezTaskGroupID m_DependsOn;
 };
 
+/// \brief Whether a task may wait for the completion of another task.
+///
+/// This is an optimization hint for the ezTaskSystem. Tasks that never wait on other tasks
+/// can be executed more efficiently (without launching a dedicated thread), as they cannot produce
+/// circular dependencies.
+/// If the nesting specification is violated, the task system will assert.
+enum class ezTaskNesting
+{
+  Maybe,
+  Never,
+};
+
 /// \brief Settings for ezTaskSystem::ParallelFor invocations.
 struct EZ_FOUNDATION_DLL ezParallelForParams
 {
@@ -152,6 +164,8 @@ struct EZ_FOUNDATION_DLL ezParallelForParams
   /// might yield better results for workloads where task items may take vastly different amounts
   /// of time, such that scheduling in a balanced fashion becomes more difficult.
   ezUInt32 uiMaxTasksPerThread = 2;
+
+  ezTaskNesting nestingMode = ezTaskNesting::Never;
 
   /// Returns the multiplicity to use for the given task. If 0 is returned,
   /// serial execution is to be performed.

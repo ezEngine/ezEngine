@@ -48,7 +48,7 @@ void ezTaskSystem::ParallelForInternal(ezArrayPtr<ElemType> taskItems, ezParalle
   const ezUInt32 uiItemsPerInvocation = config.DetermineItemsPerInvocation(taskItems.GetCount(), uiMultiplicity);
 
   ArrayPtrTask<ElemType> arrayPtrTask(taskItems, std::move(taskCallback), uiItemsPerInvocation);
-  arrayPtrTask.ConfigureTask(taskName ? taskName : "Generic ArrayPtr Task", ezTaskNesting::Never);
+  arrayPtrTask.ConfigureTask(taskName ? taskName : "Generic ArrayPtr Task", config.nestingMode);
 
   if (uiMultiplicity == 0)
   {
