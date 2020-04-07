@@ -35,11 +35,11 @@ void ezFileSystem::RegisterDataDirectoryFactory(ezDataDirFactory Factory, float 
   data.m_fPriority = fPriority;
 }
 
-void ezFileSystem::RegisterEventHandler(ezEvent<const FileEvent&>::Handler handler)
+ezEventSubscriptionID ezFileSystem::RegisterEventHandler(ezEvent<const FileEvent&>::Handler handler)
 {
   EZ_ASSERT_DEV(s_Data != nullptr, "FileSystem is not initialized.");
 
-  s_Data->m_Event.AddEventHandler(handler);
+  return s_Data->m_Event.AddEventHandler(handler);
 }
 
 void ezFileSystem::UnregisterEventHandler(ezEvent<const FileEvent&>::Handler handler)
@@ -47,6 +47,13 @@ void ezFileSystem::UnregisterEventHandler(ezEvent<const FileEvent&>::Handler han
   EZ_ASSERT_DEV(s_Data != nullptr, "FileSystem is not initialized.");
 
   s_Data->m_Event.RemoveEventHandler(handler);
+}
+
+void ezFileSystem::UnregisterEventHandler(ezEventSubscriptionID subscriptionId)
+{
+  EZ_ASSERT_DEV(s_Data != nullptr, "FileSystem is not initialized.");
+
+  s_Data->m_Event.RemoveEventHandler(subscriptionId);
 }
 
 void ezFileSystem::CleanUpRootName(ezStringBuilder& sRoot)

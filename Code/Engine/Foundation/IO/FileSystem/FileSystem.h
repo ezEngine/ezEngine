@@ -48,10 +48,11 @@ public:
   struct FileEvent;
 
   /// \brief Registers an Event Handler that will be informed about all the events that the file system broadcasts.
-  static void RegisterEventHandler(ezEvent<const FileEvent&>::Handler handler);
+  static ezEventSubscriptionID RegisterEventHandler(ezEvent<const FileEvent&>::Handler handler);
 
   /// \brief Unregisters a previously registered Event Handler.
   static void UnregisterEventHandler(ezEvent<const FileEvent&>::Handler handler);
+  static void UnregisterEventHandler(ezEventSubscriptionID subscriptionId);
 
 public:
   /// \brief Describes in which mode a data directory is mounted.

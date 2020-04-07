@@ -1,11 +1,10 @@
 #include <FoundationPCH.h>
 
+#include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/Archive/DataDirTypeArchive.h>
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/Log.h>
-#include <Foundation/IO/OSFile.h>
-#include <Foundation/Configuration/Startup.h>
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, ArchiveDataDirectory)
@@ -16,7 +15,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, ArchiveDataDirectory)
 
   ON_CORESYSTEMS_STARTUP
   {
-    ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::ArchiveType::Factory);
+  ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::ArchiveType::Factory);
   }
 
 EZ_END_SUBSYSTEM_DECLARATION;
@@ -171,20 +170,19 @@ ezResult ezDataDirectory::ArchiveType::InternalInitializeDataDirectory(const cha
   sRedirected.Trim("", "/");
   m_sRedirectedDataDirPath = sRedirected;
 
-
   bool bSupported = false;
   ezStringBuilder sArchivePath;
-  const char* szExtensions[] = {
-    "ezArchive",
+
+  ezHybridArray<ezString, 4, ezStaticAllocatorWrapper> extensions = ezArchiveUtils::GetAcceptedArchiveFileExtensions();
+
 #ifdef BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
-    "zip",
-    "apk",
+  extensions.PushBack("zip");
+  extensions.PushBack("apk");
 #endif
-  };
-  ezArrayPtr<const char*> extensions(szExtensions);
-  for (auto ext : extensions)
+
+  for (const auto& ext : extensions)
   {
-    const ezUInt32 uiLength = ezStringUtils::GetStringElementCount(ext);
+    const ezUInt32 uiLength = ext.GetElementCount();
     if (sRedirected.HasExtension(ext))
     {
       sArchivePath = sRedirected;
