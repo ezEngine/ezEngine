@@ -103,7 +103,7 @@ void ezPxShapeComponent::Initialize()
   }
 }
 
-void ezPxShapeComponent::Deinitialize()
+void ezPxShapeComponent::OnDeactivated()
 {
   if (m_uiShapeId != ezInvalidIndex)
   {
@@ -114,7 +114,7 @@ void ezPxShapeComponent::Deinitialize()
     }
   }
 
-  SUPER::Deinitialize();
+  SUPER::OnDeactivated();
 }
 
 void ezPxShapeComponent::SetSurfaceFile(const char* szFile)

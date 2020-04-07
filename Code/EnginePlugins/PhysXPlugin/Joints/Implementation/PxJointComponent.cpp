@@ -60,7 +60,7 @@ void ezPxJointComponent::OnSimulationStarted()
   m_pJoint->setConstraintFlag(PxConstraintFlag::eCOLLISION_ENABLED, m_bPairCollision);
 }
 
-void ezPxJointComponent::Deinitialize()
+void ezPxJointComponent::OnDeactivated()
 {
   if (m_pJoint != nullptr)
   {
@@ -76,7 +76,7 @@ void ezPxJointComponent::Deinitialize()
     m_pJoint = nullptr;
   }
 
-  SUPER::Deinitialize();
+  SUPER::OnDeactivated();
 }
 
 void ezPxJointComponent::SerializeComponent(ezWorldWriter& stream) const

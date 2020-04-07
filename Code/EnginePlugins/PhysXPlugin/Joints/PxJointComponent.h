@@ -15,7 +15,7 @@ public:
 
 protected:
   virtual void OnSimulationStarted() override;
-  virtual void Deinitialize() override;
+  virtual void OnDeactivated() override;
 
 
   //////////////////////////////////////////////////////////////////////////

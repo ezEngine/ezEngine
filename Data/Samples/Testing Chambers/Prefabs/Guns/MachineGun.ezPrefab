@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8220003832695476884,5171673296852343585}}
-		u4 %Hash{7789833336943380171}
+		u4 %Hash{10526371063669624947}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{4405703544011486622,14687799291685879860}}
@@ -84,7 +84,7 @@ o
 		b %ShowDebugInfo{0}
 		s %SoundEvent{"{ d4e58c28-450f-449a-a920-7e0459066700 }"}
 		b %UseOcclusion{0}
-		f %Volume{0x0000803F}
+		f %Volume{0xCDCC4C3E}
 	}
 }
 o

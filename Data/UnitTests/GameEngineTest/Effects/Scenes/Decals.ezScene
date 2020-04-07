@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4114495068825608376,4693612569124721933}}
-		u4 %Hash{9392466569591949992}
+		u4 %Hash{11802584495834937495}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -2153,6 +2153,7 @@ o
 			Uuid{u4{4656300558898302142,4882717358843663849}}
 			Uuid{u4{2682419217511246235,5443902579735839698}}
 			Uuid{u4{14138508343935863196,4703247524139380160}}
+			Uuid{u4{15453305348154336215,14505695187495960327}}
 		}
 		Uuid %Settings{u4{13359075245692352906,4808705898882851391}}
 	}
@@ -2752,7 +2753,7 @@ o
 	p
 	{
 		b %Active{1}
-		s %ApplyToDynamic{"{ 28017bee-a3da-4174-851f-1177ad005ca5 }"}
+		s %ApplyToDynamic{""}
 		ColorGamma %Color{u1{255,255,255,255}}
 		s %Decal{"{ 95a859a6-bf14-46d8-99b9-1245f5ec5fbf }"}
 		Color %EmissiveColor{f{0,0,0,0x0000803F}}
@@ -3958,6 +3959,31 @@ o
 }
 o
 {
+	Uuid %id{u4{2482091257497767142,14394331716456917444}}
+	s %t{"ezDecalComponent"}
+	u3 %v{6}
+	p
+	{
+		b %Active{1}
+		s %ApplyToDynamic{"{ 28017bee-a3da-4174-851f-1177ad005ca5 }"}
+		ColorGamma %Color{u1{255,255,255,255}}
+		s %Decal{"{ 95a859a6-bf14-46d8-99b9-1245f5ec5fbf }"}
+		Color %EmissiveColor{f{0,0,0,0x0000803F}}
+		Vec3 %Extents{f{0x0000803F,0x0000803F,0x0000803F}}
+		Uuid %FadeOutDelay{u4{3880122394574835074,14661546517179408596}}
+		Time %FadeOutDuration{d{0}}
+		Angle %InnerFadeAngle{f{0xF3665F3F}}
+		b %MapNormalToGeometry{1}
+		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
+		Angle %OuterFadeAngle{f{0xC2B8B23F}}
+		s %ProjectionAxis{"ezBasisAxis::NegativeZ"}
+		f %SizeVariance{0}
+		f %SortOrder{0x000020C1}
+		b %WrapAround{0}
+	}
+}
+o
+{
 	Uuid %id{u4{8440247453117991656,14409152454234642012}}
 	s %t{"ezGreyBoxComponent"}
 	u3 %v{3}
@@ -4002,6 +4028,33 @@ o
 		b %SlopedBottom{0}
 		b %SlopedTop{0}
 		f %Thickness{0x0000003F}
+	}
+}
+o
+{
+	Uuid %id{u4{15453305348154336215,14505695187495960327}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{2482091257497767142,14394331716456917444}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0xD1E14CC0,0x46BAAA3F,0x0B2F803F}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"Invisible"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
 	}
 }
 o
@@ -4078,6 +4131,17 @@ o
 		f %SizeVariance{0}
 		f %SortOrder{0x000000C0}
 		b %WrapAround{1}
+	}
+}
+o
+{
+	Uuid %id{u4{3880122394574835074,14661546517179408596}}
+	s %t{"ezVarianceTypeTime"}
+	u3 %v{1}
+	p
+	{
+		Time %Value{d{0}}
+		f %Variance{0}
 	}
 }
 o

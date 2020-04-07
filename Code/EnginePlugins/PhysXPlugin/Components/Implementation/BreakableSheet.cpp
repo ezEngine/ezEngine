@@ -220,9 +220,9 @@ void ezBreakableSheetComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) 
   box.m_vHalfExtents = vExtents.CompMul(vScale) * 0.5f;
 }
 
-void ezBreakableSheetComponent::Initialize()
+void ezBreakableSheetComponent::OnActivated()
 {
-  SUPER::Initialize();
+  SUPER::OnActivated();
 
   // If no specific random seed is specified in the component
   // we generate one here so the rest of the function is deterministic
@@ -247,11 +247,11 @@ void ezBreakableSheetComponent::OnSimulationStarted()
   CreateUnbrokenPhysicsObject();
 }
 
-void ezBreakableSheetComponent::Deinitialize()
+void ezBreakableSheetComponent::OnDeactivated()
 {
-  SUPER::Deinitialize();
-
   Cleanup();
+
+  SUPER::OnDeactivated();
 }
 
 void ezBreakableSheetComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const

@@ -37,7 +37,7 @@ public:
 
 public:
   virtual void OnSimulationStarted() override;
-  virtual void Deinitialize() override;
+  virtual void OnDeactivated() override;
 
 
   //////////////////////////////////////////////////////////////////////////

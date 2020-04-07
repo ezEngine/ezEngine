@@ -18,7 +18,7 @@ public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
-  virtual void Deinitialize() override;
+  virtual void OnDeactivated() override;
   virtual void OnSimulationStarted() override;
 
   //////////////////////////////////////////////////////////////////////////

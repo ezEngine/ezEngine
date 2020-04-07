@@ -146,7 +146,7 @@ void ezPxTriggerComponent::OnSimulationStarted()
   }
 }
 
-void ezPxTriggerComponent::Deinitialize()
+void ezPxTriggerComponent::OnDeactivated()
 {
   if (m_pActor)
   {
@@ -156,7 +156,7 @@ void ezPxTriggerComponent::Deinitialize()
     m_pActor = nullptr;
   }
 
-  SUPER::Deinitialize();
+  SUPER::OnDeactivated();
 }
 
 void ezPxTriggerComponent::SetKinematic(bool b)
