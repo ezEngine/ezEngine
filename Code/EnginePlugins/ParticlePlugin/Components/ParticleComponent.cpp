@@ -65,7 +65,7 @@ void ezParticleComponentManager::UpdateTransforms(const ezWorldModule::UpdateCon
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezParticleComponent, 3, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezParticleComponent, 5, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -75,6 +75,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezParticleComponent, 3, ezComponentMode::Static)
     EZ_MEMBER_PROPERTY("MinRestartDelay", m_MinRestartDelay),
     EZ_MEMBER_PROPERTY("RestartDelayRange", m_RestartDelayRange),
     EZ_MEMBER_PROPERTY("RandomSeed", m_uiRandomSeed),
+    EZ_ENUM_MEMBER_PROPERTY("SpawnDirection", ezBasisAxis, m_SpawnDirection)->AddAttributes(new ezDefaultValueAttribute(ezBasisAxis::PositiveZ)),
+    EZ_MEMBER_PROPERTY("IgnoreOwnerRotation", m_bIgnoreOwnerRotation),
     EZ_MEMBER_PROPERTY("SharedInstanceName", m_sSharedInstanceName),
     EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("Effect"), new ezExposeColorAlphaAttribute),
   }
@@ -149,6 +151,12 @@ void ezParticleComponent::SerializeComponent(ezWorldWriter& stream) const
   // Version 3
   s << m_OnFinishedAction;
 
+  // version 4
+  s << m_bIgnoreOwnerRotation;
+
+  // version 5
+  s << m_SpawnDirection;
+
   /// \todo store effect state
 }
 
@@ -203,6 +211,16 @@ void ezParticleComponent::DeserializeComponent(ezWorldReader& stream)
   {
     s >> m_OnFinishedAction;
   }
+
+  if (uiVersion >= 4)
+  {
+    s >> m_bIgnoreOwnerRotation;
+  }
+
+  if (uiVersion >= 5)
+  {
+    s >> m_SpawnDirection;
+  }
 }
 
 bool ezParticleComponent::StartEffect()
@@ -216,7 +234,7 @@ bool ezParticleComponent::StartEffect()
 
     m_EffectController.Create(m_hEffectResource, pModule, m_uiRandomSeed, m_sSharedInstanceName, this, m_FloatParams, m_ColorParams);
 
-    m_EffectController.SetTransform(GetOwner()->GetGlobalTransform(), GetOwner()->GetVelocity());
+    SetPfxTransform();
 
     m_bFloatParamsChanged = false;
     m_bColorParamsChanged = false;
@@ -293,6 +311,17 @@ ezResult ezParticleComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& 
   {
     ezBoundingBoxSphere volume;
     m_LastBVolumeUpdate = m_EffectController.GetBoundingVolume(volume);
+
+    if (m_SpawnDirection != ezBasisAxis::PositiveZ)
+    {
+      const ezQuat qRot = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveZ, m_SpawnDirection);
+      volume.Transform(qRot.GetAsMat4());
+    }
+
+    if (m_bIgnoreOwnerRotation)
+    {
+      volume.Transform((-GetOwner()->GetGlobalRotation()).GetAsMat4());
+    }
 
     if (!m_LastBVolumeUpdate.IsZero())
     {
@@ -382,7 +411,7 @@ void ezParticleComponent::Update()
       }
     }
 
-    m_EffectController.SetTransform(GetOwner()->GetGlobalTransform(), GetOwner()->GetVelocity());
+    SetPfxTransform();
 
     CheckBVolumeUpdate();
   }
@@ -396,7 +425,7 @@ void ezParticleComponent::UpdateTransform()
 {
   if (m_EffectController.IsAlive())
   {
-    m_EffectController.SetTransform(GetOwner()->GetGlobalTransform(), GetOwner()->GetVelocity());
+    SetPfxTransform();
   }
 }
 
@@ -520,6 +549,26 @@ bool ezParticleComponent::GetParameter(const char* szKey, ezVariant& out_value) 
     }
   }
   return false;
+}
+
+void ezParticleComponent::SetPfxTransform()
+{
+  auto pOwner = GetOwner();
+  ezTransform transform = pOwner->GetGlobalTransform();
+
+  const ezQuat qRot = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveZ, m_SpawnDirection);
+
+  if (m_bIgnoreOwnerRotation)
+  {
+    transform.m_qRotation = qRot;
+  }
+  else
+  {
+    transform.m_qRotation = transform.m_qRotation * qRot;
+  }
+
+
+  m_EffectController.SetTransform(transform, pOwner->GetVelocity());
 }
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Components_ParticleComponent);
