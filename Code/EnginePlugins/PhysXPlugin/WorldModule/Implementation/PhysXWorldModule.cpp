@@ -208,7 +208,13 @@ namespace
       out_Result.m_hSurface = ezSurfaceResourceHandle(pSurface);
     }
   }
+
+  static thread_local ezDynamicArray<PxOverlapHit, ezStaticAllocatorWrapper> g_OverlapHits;
+  static thread_local ezDynamicArray<PxRaycastHit, ezStaticAllocatorWrapper> g_RaycastHits;
 } // namespace
+
+EZ_DEFINE_AS_POD_TYPE(PxOverlapHit);
+EZ_DEFINE_AS_POD_TYPE(PxRaycastHit);
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -554,6 +560,8 @@ ezPhysXWorldModule::ezPhysXWorldModule(ezWorld* pWorld)
   , m_Settings()
   , m_SimulateTask("", ezMakeDelegate(&ezPhysXWorldModule::Simulate, this))
 {
+  m_ScratchMemory.SetCountUninitialized(ezMemoryUtils::AlignSize(m_Settings.m_uiScratchMemorySize, 16u * 1024u));
+
   m_SimulateTask.ConfigureTask("PhysX Simulate", ezTaskNesting::Maybe);
 }
 
@@ -758,10 +766,8 @@ bool ezPhysXWorldModule::RaycastAll(ezPhysicsCastResultArray& out_Results, const
     filterData.flags |= PxQueryFlag::eDYNAMIC;
   }
 
-  ezArrayPtr<PxRaycastHit> raycastHits = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), PxRaycastHit, 256);
-  EZ_SCOPE_EXIT(EZ_DELETE_ARRAY(ezFrameAllocator::GetCurrentAllocator(), raycastHits));
-
-  PxRaycastBuffer allHits(raycastHits.GetPtr(), raycastHits.GetCount());
+  g_RaycastHits.SetCountUninitialized(256);
+  PxRaycastBuffer allHits(g_RaycastHits.GetData(), g_RaycastHits.GetCount());
 
   ezPxQueryFilter queryFilter;
 
@@ -1115,10 +1121,8 @@ void ezPhysXWorldModule::QueryShapesInSphere(ezPhysicsOverlapResultArray& out_Re
 
   PxTransform transform = ezPxConversionUtils::ToTransform(vPosition, ezQuat::IdentityQuaternion());
 
-  ezArrayPtr<PxOverlapHit> overlapHits = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), PxOverlapHit, 256);
-  EZ_SCOPE_EXIT(EZ_DELETE_ARRAY(ezFrameAllocator::GetCurrentAllocator(), overlapHits));
-
-  PxOverlapBuffer overlapHitsBuffer(overlapHits.GetPtr(), overlapHits.GetCount());
+  g_OverlapHits.SetCountUninitialized(256);
+  PxOverlapBuffer overlapHitsBuffer(g_OverlapHits.GetData(), g_OverlapHits.GetCount());
 
   EZ_PX_READ_LOCK(*m_pPxScene);
 
@@ -1130,7 +1134,7 @@ void ezPhysXWorldModule::QueryShapesInSphere(ezPhysicsOverlapResultArray& out_Re
     auto& overlapResult = out_Results.m_Results.ExpandAndGetRef();
 
     if (ezComponent* pShapeComponent = ezPxUserData::GetComponent(overlapHit.shape->userData))
-    {      
+    {
       overlapResult.m_hShapeObject = pShapeComponent->GetOwner()->GetHandle();
       overlapResult.m_uiShapeId = overlapHit.shape->getQueryFilterData().word2;
     }
