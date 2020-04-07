@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4503936315766485946,5467247986140777545}}
-		u4 %Hash{33007747474189262}
+		u4 %Hash{17236908426450662711}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{4954456250233479308,17760596100351715494}}
@@ -19,6 +19,8 @@ o
 		VarArray %Outputs{}
 		VarArray %References
 		{
+			s{"{ 867dfe01-53b1-4e9a-a796-19079f1be44a }"}
+			s{"{ 8b5cbe24-17a9-4f78-847f-b92d1b17b35b }"}
 			s{"{ 93066f62-ab41-49c3-bfcc-6a79560eef7a }"}
 			s{"{ aa3be7d1-d9e2-4ddc-b6fc-6deaa22696eb }"}
 			s{"{ e7cc1faa-7f48-461c-b2bd-f9214d08dbe1 }"}
@@ -143,13 +145,18 @@ o
 {
 	Uuid %id{u4{16410236728109607093,6175885950551889647}}
 	s %t{"ezDecalComponent"}
-	u3 %v{6}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		s %ApplyToDynamic{""}
 		ColorGamma %Color{u1{255,255,255,255}}
-		s %Decal{"{ aa3be7d1-d9e2-4ddc-b6fc-6deaa22696eb }"}
+		VarArray %Decals
+		{
+			s{"{ 8b5cbe24-17a9-4f78-847f-b92d1b17b35b }"}
+			s{"{ aa3be7d1-d9e2-4ddc-b6fc-6deaa22696eb }"}
+			s{"{ 867dfe01-53b1-4e9a-a796-19079f1be44a }"}
+		}
 		Color %EmissiveColor{f{0xFC410A40,0xC7EFCF40,0x2BCF3D40,0x0000803F}}
 		Vec3 %Extents{f{0x0000003F,0x0000003F,0x0000003F}}
 		Uuid %FadeOutDelay{u4{1675289059729366332,8815584581527328376}}
@@ -159,7 +166,7 @@ o
 		s %OnFinishedAction{"ezOnComponentFinishedAction::DeleteGameObject"}
 		Angle %OuterFadeAngle{f{0xC2B8B23F}}
 		s %ProjectionAxis{"ezBasisAxis::PositiveX"}
-		f %SizeVariance{0x0000003F}
+		f %SizeVariance{0x3333333F}
 		f %SortOrder{0x0000A040}
 		b %WrapAround{1}
 	}
@@ -243,8 +250,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDecalComponent"}
-		u3 %TypeSize{168}
-		u3 %TypeVersion{6}
+		u3 %TypeSize{192}
+		u3 %TypeVersion{7}
 	}
 }
 o
