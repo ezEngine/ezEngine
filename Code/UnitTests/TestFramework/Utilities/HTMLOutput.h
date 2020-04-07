@@ -32,8 +32,8 @@ struct ezOutputToHTML
       {
         bDetails = false;
         htmlFile << "<tr>\n<td colspan=\"4\" class=\"title\" />" << details.str() << "\n</tr>";
-        details.str("");
       }
+      details.str("");
     };
 
     switch (Type)
@@ -52,15 +52,17 @@ struct ezOutputToHTML
         const char* szTestName = ezTestFramework::GetInstance()->GetTestName();
 
         const char* szStyle = "body { margin: 0; padding: 20px; font-size: 12px; font-family: Arial, Sans-Serif; background-color: #fff; "
-                              "text-align: center; }"
-                              "#container { margin: 20px auto; width: 900px; text-align: left; }"
-                              "table { border-collapse: collapse; width: 100%; }"
-                              "table, td { font-size: 12px; border: solid #000 1px; padding: 5px; }"
-                              "td { background-color: #66ff66; }"
-                              "td.category { background-color: #ccc; font-weight: bold; }"
-                              "td.title { background-color: #fff; }"
-                              "td.error { background-color: #ff6666; }"
-                              "td.details { background-color: #ffff00; }";
+          "text-align: center; }"
+          "#container { margin: 20px auto; width: 900px; text-align: left; }"
+          "table { border-collapse: collapse; width: 100%; }"
+          "table, td { font-size: 12px; border: solid #000 1px; padding: 5px; }"
+          "td { background-color: #66ff66; }"
+          "td.category { background-color: #ccc; font-weight: bold; }"
+          "td.title { background-color: #fff; }"
+          "td.error { background-color: #ff6666; }"
+          "td.details { background-color: #ffff00; }"
+          "p.success { background-color: #66ff66; }"
+          "p.error { background-color: #ff6666; };";
 
         htmlFile.open(sOutputFile.c_str());
         if (htmlFile.is_open())
@@ -95,6 +97,10 @@ struct ezOutputToHTML
           bError = false;
           sSubTest = szMsg;
         }
+        else
+        {
+          details << szMsg << "<br/><BLOCKQUOTE>";
+        }
         break;
 
       case ezTestOutput::EndBlock:
@@ -121,9 +127,9 @@ struct ezOutputToHTML
           }
           FlushDetails();
         }
-        else if (iIndentation == 3)
+        else
         {
-          details << "<br/>";
+          details << "</BLOCKQUOTE>";
         }
 
         iIndentation--;
@@ -135,8 +141,10 @@ struct ezOutputToHTML
 
       case ezTestOutput::Error:
         bError = true;
+        bDetails = true;
+        details << "<p class=\"error\">" << szMsg << "</p>";
         htmlFile.flush();
-        // fall through
+        break;
 
       case ezTestOutput::Warning:
       case ezTestOutput::Message:
@@ -152,7 +160,12 @@ struct ezOutputToHTML
         break;
 
       case ezTestOutput::Success:
-        // nothing to do here
+        // iIndentation 1 and 2 are test and sub-test level and are handled explicitly.
+        // Anything above is custom success message within a test that we want to log directly.
+        if (iIndentation > 2)
+        {
+          details << "<p class=\"success\">" << szMsg << "</p>";
+        }
         break;
 
       case ezTestOutput::FinalResult:
