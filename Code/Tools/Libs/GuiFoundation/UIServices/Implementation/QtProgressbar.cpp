@@ -39,6 +39,7 @@ void ezQtProgressbar::ProgressbarEventHandler(const ezProgressEvent& e)
   {
     case ezProgressEvent::Type::ProgressStarted:
     {
+      ++m_iNestedProcessEvents;
       EnsureCreated();
     }
     break;
@@ -46,11 +47,13 @@ void ezQtProgressbar::ProgressbarEventHandler(const ezProgressEvent& e)
     case ezProgressEvent::Type::ProgressEnded:
     {
       EnsureDestroyed();
+      --m_iNestedProcessEvents;
     }
     break;
 
     case ezProgressEvent::Type::ProgressChanged:
     {
+      ++m_iNestedProcessEvents;
       EnsureCreated();
 
       ezStringBuilder sText(e.m_pProgressbar->GetMainDisplayText(), "\n", e.m_pProgressbar->GetStepDisplayText());
@@ -70,7 +73,6 @@ void ezQtProgressbar::ProgressbarEventHandler(const ezProgressEvent& e)
         m_pProgress->UserClickedCancel();
       }
 
-      ++m_iNestedProcessEvents;
       QCoreApplication::processEvents();
       --m_iNestedProcessEvents;
     }
@@ -84,7 +86,7 @@ void ezQtProgressbar::EnsureCreated()
     return;
 
   m_pDialog = new QProgressDialog("                                                                                ", "Cancel", 0, 1000,
-                                  QApplication::activeWindow());
+    QApplication::activeWindow());
 
   m_pDialog->setWindowModality(Qt::WindowModal);
   m_pDialog->setMinimumDuration((int)500);
