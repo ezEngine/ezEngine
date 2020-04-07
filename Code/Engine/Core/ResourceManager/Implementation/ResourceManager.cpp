@@ -343,7 +343,13 @@ bool ezResourceManager::IsResourceTypeAcquireDuringUpdateContentAllowed(const ez
 
     for (const ezRTTI* pRtti : info.m_NestedTypes)
     {
-      todo.Insert(pRtti);
+      ezHybridArray<const ezRTTI*, 16> derived;
+      ezRTTI::GetAllTypesDerivedFrom(pRtti, derived, false);
+
+      for (const ezRTTI* pDerived : derived)
+      {
+        todo.Insert(pDerived);
+      }
     }
 
     while (!todo.IsEmpty())
@@ -361,7 +367,15 @@ bool ezResourceManager::IsResourceTypeAcquireDuringUpdateContentAllowed(const ez
       for (const ezRTTI* pNestedRtti : s_State->m_TypeInfo[pRtti].m_NestedTypes)
       {
         if (!visited.Contains(pNestedRtti))
-          todo.Insert(pNestedRtti);
+        {
+          ezHybridArray<const ezRTTI*, 16> derived;
+          ezRTTI::GetAllTypesDerivedFrom(pNestedRtti, derived, false);
+
+          for (const ezRTTI* pDerived : derived)
+          {
+            todo.Insert(pDerived);
+          }
+        }
       }
     }
 
