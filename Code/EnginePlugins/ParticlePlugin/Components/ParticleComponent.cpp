@@ -75,7 +75,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezParticleComponent, 5, ezComponentMode::Static)
     EZ_MEMBER_PROPERTY("MinRestartDelay", m_MinRestartDelay),
     EZ_MEMBER_PROPERTY("RestartDelayRange", m_RestartDelayRange),
     EZ_MEMBER_PROPERTY("RandomSeed", m_uiRandomSeed),
-    EZ_ENUM_MEMBER_PROPERTY("SpawnDirection", ezBasisAxis, m_SpawnDirection)->AddAttributes(new ezDefaultValueAttribute(ezBasisAxis::PositiveZ)),
+    EZ_ENUM_MEMBER_PROPERTY("SpawnDirection", ezBasisAxis, m_SpawnDirection)->AddAttributes(new ezDefaultValueAttribute((ezInt32)ezBasisAxis::PositiveZ)),
     EZ_MEMBER_PROPERTY("IgnoreOwnerRotation", m_bIgnoreOwnerRotation),
     EZ_MEMBER_PROPERTY("SharedInstanceName", m_sSharedInstanceName),
     EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("Effect"), new ezExposeColorAlphaAttribute),
