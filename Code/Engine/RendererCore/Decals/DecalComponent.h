@@ -104,11 +104,8 @@ public:
   void SetMapNormalToGeometry(bool bMapNormal); // [ property ]
   bool GetMapNormalToGeometry() const;          // [ property ]
 
-  void SetDecal(const ezDecalResourceHandle& hResource); // [ property ]
-  const ezDecalResourceHandle& GetDecal() const;         // [ property ]
-
-  void SetDecalFile(const char* szFile); // [ property ]
-  const char* GetDecalFile() const;      // [ property ]
+  void SetDecal(ezUInt32 uiIndex, const ezDecalResourceHandle& hResource); // [ property ]
+  const ezDecalResourceHandle& GetDecal(ezUInt32 uiIndex) const;           // [ property ]
 
   ezVarianceTypeTime m_FadeOutDelay;                      // [ property ]
   ezTime m_FadeOutDuration;                               // [ property ]
@@ -118,6 +115,13 @@ public:
 
   void SetApplyOnlyTo(ezGameObjectHandle hObject);
   ezGameObjectHandle GetApplyOnlyTo() const;
+
+  ezUInt32 DecalFile_GetCount() const;                         // [ property ]
+  const char* DecalFile_Get(ezUInt32 uiIndex) const;           // [ property ]
+  void DecalFile_Set(ezUInt32 uiIndex, const char* szFile);    // [ property ]
+  void DecalFile_Insert(ezUInt32 uiIndex, const char* szFile); // [ property ]
+  void DecalFile_Remove(ezUInt32 uiIndex);                     // [ property ]
+
 
 protected:
   void SetApplyToRef(const char* szReference); // [ property ]
@@ -138,7 +142,8 @@ protected:
   float m_fSortOrder = 0;
   bool m_bWrapAround = false;
   bool m_bMapNormalToGeometry = false;
-  ezDecalResourceHandle m_hDecal;
+  ezUInt8 m_uiRandomDecalIdx = 0xFF;
+  ezHybridArray<ezDecalResourceHandle, 1> m_hDecals;
 
   ezGameObjectHandle m_hApplyOnlyToObject;
   ezUInt32 m_uiApplyOnlyToId = 0;

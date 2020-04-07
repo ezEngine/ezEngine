@@ -89,17 +89,20 @@ public:
   ezUInt64 m_uiRandomSeed = 0;    // [ property ]
   ezString m_sSharedInstanceName; // [ property ]
 
-  bool m_bSpawnAtStart = true;                             // [ property ]
-  bool m_bIfContinuousStopRightAway = false;               // [ property ]
-  ezEnum<ezOnComponentFinishedAction2> m_OnFinishedAction; // [ property ]
-  ezTime m_MinRestartDelay;                                // [ property ]
-  ezTime m_RestartDelayRange;                              // [ property ]
+  bool m_bSpawnAtStart = true;                                   // [ property ]
+  bool m_bIfContinuousStopRightAway = false;                     // [ property ]
+  bool m_bIgnoreOwnerRotation = false;                           // [ property ]
+  ezEnum<ezOnComponentFinishedAction2> m_OnFinishedAction;       // [ property ]
+  ezTime m_MinRestartDelay;                                      // [ property ]
+  ezTime m_RestartDelayRange;                                    // [ property ]
+  ezEnum<ezBasisAxis> m_SpawnDirection = ezBasisAxis::PositiveZ; // [ property ]
 
   ezParticleEffectController m_EffectController;
 
 protected:
   void Update();
   void UpdateTransform();
+  void SetPfxTransform();
 
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
   void OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg);

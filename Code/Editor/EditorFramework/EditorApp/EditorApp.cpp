@@ -6,6 +6,7 @@
 #include <EditorFramework/Preferences/EditorPreferences.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
+#include <GuiFoundation/UIServices/QtProgressbar.h>
 #include <QProcess>
 #include <QTextStream>
 #include <QTimer>
@@ -104,6 +105,11 @@ void ezQtEditorApp::SaveAllOpenDocuments()
       }
     }
   }
+}
+
+bool ezQtEditorApp::IsProgressBarProcessingEvents() const
+{
+  return m_pQtProgressbar->IsProcessingEvents();
 }
 
 void ezQtEditorApp::OnDemandDynamicStringEnumLoad(const char* szEnumName, ezDynamicStringEnum& e)

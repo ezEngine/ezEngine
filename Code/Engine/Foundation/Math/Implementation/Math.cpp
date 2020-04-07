@@ -339,7 +339,7 @@ ezQuat ezBasisAxis::GetBasisRotation(Enum identity, Enum axis)
       break;
   }
 
-  return rotId * rotAxis;
+  return rotAxis * rotId;
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_Math);

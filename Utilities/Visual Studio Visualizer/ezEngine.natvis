@@ -271,7 +271,33 @@
 			<Item Name="State">m_LoadingState</Item>
 			<Item Name="RefCount">m_iReferenceCount</Item>
 		</Expand>
-	</Type>		
+	</Type>
+
+  <Type Name="ezUniquePtr&lt;*&gt;">
+    <DisplayString>ezUniquePtr {*m_pInstance}</DisplayString>
+    <Expand>
+      <ExpandedItem>m_pInstance</ExpandedItem>
+    </Expand>
+  </Type>
+
+  <Type Name="ezSharedPtr&lt;*&gt;">
+    <DisplayString>ezSharedPtr {*m_pInstance}</DisplayString>
+    <Expand>
+      <ExpandedItem>m_pInstance</ExpandedItem>
+    </Expand>
+  </Type>
+
+  <Type Name="ezScopedRefPointer&lt;*&gt;">
+    <DisplayString>ezScopedRefPointer {*m_pReferencedObject}</DisplayString>
+    <Expand>
+      <ExpandedItem>m_pReferencedObject</ExpandedItem>
+    </Expand>
+  </Type>
+
+  <Type Name="ezRefCounted">
+    <DisplayString>RefCount = {m_iRefCount}</DisplayString>
+  </Type>
+
 </AutoVisualizer>
 
 

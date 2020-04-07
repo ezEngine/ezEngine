@@ -32,11 +32,11 @@ void ezDecalComponentManager::Initialize()
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalRenderData, 1, ezRTTIDefaultAllocator<ezDecalRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 6, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 7, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Decal", GetDecalFile, SetDecalFile)->AddAttributes(new ezAssetBrowserAttribute("Decal")),
+    EZ_ARRAY_ACCESSOR_PROPERTY("Decals", DecalFile_GetCount, DecalFile_Get, DecalFile_Set, DecalFile_Insert, DecalFile_Remove)->AddAttributes(new ezAssetBrowserAttribute("Decal")),
     EZ_ENUM_MEMBER_PROPERTY("ProjectionAxis", ezBasisAxis, m_ProjectionAxis),
     EZ_ACCESSOR_PROPERTY("Extents", GetExtents, SetExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f)), new ezClampValueAttribute(ezVec3(0.01), ezVariant(25.0f))),
     EZ_ACCESSOR_PROPERTY("SizeVariance", GetSizeVariance, SetSizeVariance)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f)),
@@ -100,7 +100,6 @@ void ezDecalComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_OuterFadeAngle;
   s << m_fSortOrder;
   s << m_uiInternalSortKey;
-  s << m_hDecal;
   s << m_FadeOutDelay.m_Value;
   s << m_FadeOutDelay.m_fVariance;
   s << m_FadeOutDuration;
@@ -115,6 +114,10 @@ void ezDecalComponent::SerializeComponent(ezWorldWriter& stream) const
 
   // version 6
   stream.WriteGameObjectHandle(m_hApplyOnlyToObject);
+
+  // version 7
+  s << m_uiRandomDecalIdx;
+  s.WriteArray(m_hDecals);
 }
 
 void ezDecalComponent::DeserializeComponent(ezWorldReader& stream)
@@ -142,7 +145,13 @@ void ezDecalComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_OuterFadeAngle;
   s >> m_fSortOrder;
   s >> m_uiInternalSortKey;
-  s >> m_hDecal;
+
+  if (uiVersion < 7)
+  {
+    m_hDecals.SetCount(1);
+    s >> m_hDecals[0];
+  }
+
   s >> m_FadeOutDelay.m_Value;
   s >> m_FadeOutDelay.m_fVariance;
   s >> m_FadeOutDuration;
@@ -168,6 +177,12 @@ void ezDecalComponent::DeserializeComponent(ezWorldReader& stream)
   if (uiVersion >= 6)
   {
     SetApplyOnlyTo(stream.ReadGameObjectHandle());
+  }
+
+  if (uiVersion >= 7)
+  {
+    s >> m_uiRandomDecalIdx;
+    s.ReadArray(m_hDecals);
   }
 }
 
@@ -269,34 +284,14 @@ bool ezDecalComponent::GetMapNormalToGeometry() const
   return m_bMapNormalToGeometry;
 }
 
-void ezDecalComponent::SetDecal(const ezDecalResourceHandle& hDecal)
+void ezDecalComponent::SetDecal(ezUInt32 uiIndex, const ezDecalResourceHandle& hDecal)
 {
-  m_hDecal = hDecal;
+  m_hDecals[uiIndex] = hDecal;
 }
 
-const ezDecalResourceHandle& ezDecalComponent::GetDecal() const
+const ezDecalResourceHandle& ezDecalComponent::GetDecal(ezUInt32 uiIndex) const
 {
-  return m_hDecal;
-}
-
-void ezDecalComponent::SetDecalFile(const char* szFile)
-{
-  ezDecalResourceHandle hResource;
-
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezDecalResource>(szFile);
-  }
-
-  SetDecal(hResource);
-}
-
-const char* ezDecalComponent::GetDecalFile() const
-{
-  if (!m_hDecal.IsValid())
-    return "";
-
-  return m_hDecal.GetResourceID();
+  return m_hDecals[uiIndex];
 }
 
 void ezDecalComponent::SetApplyOnlyTo(ezGameObjectHandle hObject)
@@ -319,7 +314,12 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
   if (msg.m_OverrideCategory != ezInvalidRenderDataCategory)
     return;
 
-  if (!m_hDecal.IsValid() || m_vExtents.IsZero() || GetOwner()->GetLocalScaling().IsZero())
+  if (m_hDecals.IsEmpty())
+    return;
+
+  const ezUInt32 uiDecalIndex = ezMath::Min<ezUInt32>(m_uiRandomDecalIdx, m_hDecals.GetCount() - 1);
+
+  if (!m_hDecals[uiDecalIndex].IsValid() || m_vExtents.IsZero() || GetOwner()->GetLocalScaling().IsZero())
     return;
 
   float fFade = 1.0f;
@@ -354,7 +354,7 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
     ezResourceLock<ezDecalAtlasResource> pDecalAtlas(hDecalAtlas, ezResourceAcquireMode::BlockTillLoaded);
 
     const auto& atlas = pDecalAtlas->GetAtlas();
-    const ezUInt32 decalIdx = atlas.m_Items.Find(m_hDecal.GetResourceIDHash());
+    const ezUInt32 decalIdx = atlas.m_Items.Find(m_hDecals[uiDecalIndex].GetResourceIDHash());
 
     if (decalIdx != ezInvalidIndex)
     {
@@ -483,8 +483,7 @@ void ezDecalComponent::OnSimulationStarted()
   ezWorld* pWorld = GetWorld();
 
   // no fade out -> fade out pretty late
-  m_StartFadeOutTime =
-    ezTime::Seconds(60.0 * 60.0 * 24.0 * 365.0 * 100.0); // 100 years should be enough for everybody (ignoring leap years)
+  m_StartFadeOutTime = ezTime::Seconds(60.0 * 60.0 * 24.0 * 365.0 * 100.0); // 100 years should be enough for everybody (ignoring leap years)
 
   if (m_FadeOutDelay.m_Value.GetSeconds() > 0.0 || m_FadeOutDuration.GetSeconds() > 0.0)
   {
@@ -509,6 +508,11 @@ void ezDecalComponent::OnSimulationStarted()
     m_vExtents *= scale;
 
     TriggerLocalBoundsUpdate();
+  }
+
+  if (m_uiRandomDecalIdx == 0xFF && !m_hDecals.IsEmpty())
+  {
+    m_uiRandomDecalIdx = GetWorld()->GetRandomNumberGenerator().UIntInRange(m_hDecals.GetCount());
   }
 }
 
@@ -542,6 +546,66 @@ void ezDecalComponent::OnMsgSetColor(ezMsgSetColor& msg)
   msg.ModifyColor(m_Color);
 }
 
+ezUInt32 ezDecalComponent::DecalFile_GetCount() const
+{
+  return m_hDecals.GetCount();
+}
 
+const char* ezDecalComponent::DecalFile_Get(ezUInt32 uiIndex) const
+{
+  if (!m_hDecals[uiIndex].IsValid())
+    return "";
+
+  return m_hDecals[uiIndex].GetResourceID();
+}
+
+void ezDecalComponent::DecalFile_Set(ezUInt32 uiIndex, const char* szFile)
+{
+  ezDecalResourceHandle hResource;
+
+  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  {
+    hResource = ezResourceManager::LoadResource<ezDecalResource>(szFile);
+  }
+
+  SetDecal(uiIndex, hResource);
+}
+
+void ezDecalComponent::DecalFile_Insert(ezUInt32 uiIndex, const char* szFile)
+{
+  m_hDecals.Insert(ezDecalResourceHandle(), uiIndex);
+  DecalFile_Set(uiIndex, szFile);
+}
+
+void ezDecalComponent::DecalFile_Remove(ezUInt32 uiIndex)
+{
+  m_hDecals.RemoveAtAndCopy(uiIndex);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/GraphPatch.h>
+
+class ezDecalComponent_6_7 : public ezGraphPatch
+{
+public:
+  ezDecalComponent_6_7()
+    : ezGraphPatch("ezDecalComponent", 7)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    auto* pDecal = pNode->FindProperty("Decal");
+    if (pDecal && pDecal->m_Value.IsA<ezString>())
+    {
+      ezVariantArray ar;
+      ar.PushBack(pDecal->m_Value.Get<ezString>());
+      pNode->AddProperty("Decals", ar);
+    }
+  }
+};
+
+ezDecalComponent_6_7 g_ezDecalComponent_6_7;
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Decals_Implementation_DecalComponent);

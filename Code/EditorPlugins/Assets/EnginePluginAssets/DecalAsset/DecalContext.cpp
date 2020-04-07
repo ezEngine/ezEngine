@@ -108,7 +108,7 @@ void ezDecalContext::OnInitialize()
 
       ezDecalComponent* pDecal;
       ezDecalComponent::CreateComponent(pObj, pDecal);
-      pDecal->SetDecalFile(sDecalGuid);
+      pDecal->DecalFile_Insert(0, sDecalGuid);
     }
 
     // torus
@@ -119,7 +119,7 @@ void ezDecalContext::OnInitialize()
 
       ezDecalComponent* pDecal;
       ezDecalComponent::CreateComponent(pObj, pDecal);
-      pDecal->SetDecalFile(sDecalGuid);
+      pDecal->DecalFile_Insert(0, sDecalGuid);
     }
 
     // sphere
@@ -130,7 +130,7 @@ void ezDecalContext::OnInitialize()
 
       ezDecalComponent* pDecal;
       ezDecalComponent::CreateComponent(pObj, pDecal);
-      pDecal->SetDecalFile(sDecalGuid);
+      pDecal->DecalFile_Insert(0, sDecalGuid);
     }
 
 
@@ -144,7 +144,7 @@ void ezDecalContext::OnInitialize()
       ezDecalComponent* pDecal;
       ezDecalComponent::CreateComponent(pObj, pDecal);
       pDecal->SetExtents(ezVec3(2));
-      pDecal->SetDecalFile(sDecalGuid);
+      pDecal->DecalFile_Insert(0, sDecalGuid);
     }
 
     // torus
@@ -157,7 +157,7 @@ void ezDecalContext::OnInitialize()
       ezDecalComponent* pDecal;
       ezDecalComponent::CreateComponent(pObj, pDecal);
       pDecal->SetExtents(ezVec3(2));
-      pDecal->SetDecalFile(sDecalGuid);
+      pDecal->DecalFile_Insert(0, sDecalGuid);
     }
 
     // sphere
@@ -170,7 +170,7 @@ void ezDecalContext::OnInitialize()
       ezDecalComponent* pDecal;
       ezDecalComponent::CreateComponent(pObj, pDecal);
       pDecal->SetExtents(ezVec3(2));
-      pDecal->SetDecalFile(sDecalGuid);
+      pDecal->DecalFile_Insert(0, sDecalGuid);
     }
   }
 

@@ -281,6 +281,10 @@ private:
   ezString m_sLastProjectFolder;
 
   // *** Progress Bar ***
+public:
+  bool IsProgressBarProcessingEvents() const;
+
+private:
   ezProgress* m_pProgressbar;
   ezQtProgressbar* m_pQtProgressbar;
 

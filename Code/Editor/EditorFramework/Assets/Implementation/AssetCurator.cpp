@@ -202,7 +202,10 @@ void ezAssetCurator::StartInitialize(const ezApplicationFileSystemConfig& cfg)
     EZ_LOCK(m_CuratorMutex);
     m_bInitStarted = true;
     LoadCaches();
+
+    m_CuratorMutex.Unlock();
     CheckFileSystem();
+    m_CuratorMutex.Lock();
 
     // As we fired a AssetListReset in CheckFileSystem, set everything new to FileUnchanged or
     // we would fire an added call for every asset.
@@ -307,6 +310,9 @@ void ezAssetCurator::MainThreadTick(bool bTopLevel)
 
   static std::atomic<bool> bReentry = false;
   if (bReentry)
+    return;
+
+  if (ezQtEditorApp::GetSingleton()->IsProgressBarProcessingEvents())
     return;
 
   bReentry = true;

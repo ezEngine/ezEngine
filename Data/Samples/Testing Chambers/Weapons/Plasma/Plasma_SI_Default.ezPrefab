@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4503936315766485946,5467247986140777545}}
-		u4 %Hash{33007747474189262}
+		u4 %Hash{13541855931827474398}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{4954456250233479308,17760596100351715494}}
@@ -19,6 +19,8 @@ o
 		VarArray %Outputs{}
 		VarArray %References
 		{
+			s{"{ 867dfe01-53b1-4e9a-a796-19079f1be44a }"}
+			s{"{ 8b5cbe24-17a9-4f78-847f-b92d1b17b35b }"}
 			s{"{ 93066f62-ab41-49c3-bfcc-6a79560eef7a }"}
 			s{"{ aa3be7d1-d9e2-4ddc-b6fc-6deaa22696eb }"}
 			s{"{ e7cc1faa-7f48-461c-b2bd-f9214d08dbe1 }"}
@@ -46,18 +48,16 @@ o
 	p
 	{
 		b %Active{1}
-		VarArray %Children
-		{
-			Uuid{u4{892588329506221237,4983465623119959794}}
-		}
+		VarArray %Children{}
 		VarArray %Components
 		{
 			Uuid{u4{13216660442455185952,399914372388848440}}
 			Uuid{u4{16410236728109607093,6175885950551889647}}
+			Uuid{u4{14784367003612336564,5693505343034430578}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0xCDCCCCBD,0,0}}
-		Quat %LocalRotation{f{0,0,0x000080BF,0x2EBD3BB3}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
@@ -86,13 +86,14 @@ o
 }
 o
 {
-	Uuid %id{u4{7765754480306902972,4815670864323057686}}
+	Uuid %id{u4{14784367003612336564,5693505343034430578}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
 		s %Effect{"{ 93066f62-ab41-49c3-bfcc-6a79560eef7a }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
 		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
 		VarDict %Parameters{}
@@ -100,33 +101,7 @@ o
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
-	}
-}
-o
-{
-	Uuid %id{u4{892588329506221237,4983465623119959794}}
-	s %t{"ezGameObject"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		VarArray %Children{}
-		VarArray %Components
-		{
-			Uuid{u4{7765754480306902972,4815670864323057686}}
-		}
-		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0xD55BB4BD,0xD25BB4B1,0xD45BB431}}
-		Quat %LocalRotation{f{0x000000A8,0xF20435BF,0xF3043533,0xF304353F}}
-		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x0000803F}
-		s %Mode{"ezObjectMode::Automatic"}
-		s %Name{""}
-		VarArray %Tags
-		{
-			s{"CastShadow"}
-			s{"AutoColMesh"}
-		}
+		s %SpawnDirection{"ezBasisAxis::PositiveX"}
 	}
 }
 o
@@ -143,13 +118,18 @@ o
 {
 	Uuid %id{u4{16410236728109607093,6175885950551889647}}
 	s %t{"ezDecalComponent"}
-	u3 %v{6}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
 		s %ApplyToDynamic{""}
 		ColorGamma %Color{u1{255,255,255,255}}
-		s %Decal{"{ aa3be7d1-d9e2-4ddc-b6fc-6deaa22696eb }"}
+		VarArray %Decals
+		{
+			s{"{ 8b5cbe24-17a9-4f78-847f-b92d1b17b35b }"}
+			s{"{ aa3be7d1-d9e2-4ddc-b6fc-6deaa22696eb }"}
+			s{"{ 867dfe01-53b1-4e9a-a796-19079f1be44a }"}
+		}
 		Color %EmissiveColor{f{0xFC410A40,0xC7EFCF40,0x2BCF3D40,0x0000803F}}
 		Vec3 %Extents{f{0x0000003F,0x0000003F,0x0000003F}}
 		Uuid %FadeOutDelay{u4{1675289059729366332,8815584581527328376}}
@@ -158,8 +138,8 @@ o
 		b %MapNormalToGeometry{1}
 		s %OnFinishedAction{"ezOnComponentFinishedAction::DeleteGameObject"}
 		Angle %OuterFadeAngle{f{0xC2B8B23F}}
-		s %ProjectionAxis{"ezBasisAxis::PositiveX"}
-		f %SizeVariance{0x0000003F}
+		s %ProjectionAxis{"ezBasisAxis::NegativeX"}
+		f %SizeVariance{0x3333333F}
 		f %SortOrder{0x0000A040}
 		b %WrapAround{1}
 	}
@@ -243,8 +223,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDecalComponent"}
-		u3 %TypeSize{168}
-		u3 %TypeVersion{6}
+		u3 %TypeSize{192}
+		u3 %TypeVersion{7}
 	}
 }
 o
@@ -387,8 +367,8 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleComponent"}
-		u3 %TypeSize{328}
-		u3 %TypeVersion{3}
+		u3 %TypeSize{336}
+		u3 %TypeVersion{5}
 	}
 }
 o
