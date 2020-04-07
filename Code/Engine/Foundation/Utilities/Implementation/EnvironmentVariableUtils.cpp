@@ -64,7 +64,7 @@ ezResult ezEnvironmentVariableUtils::UnsetVariable(const char* szName)
   return UnsetVariableImpl(szName);
 }
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   #include <Foundation/Utilities/Implementation/Win/EnvironmentVariableUtils_win.h>
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
   #include <Foundation/Utilities/Implementation/Win/EnvironmentVariableUtils_win_uwp.h>

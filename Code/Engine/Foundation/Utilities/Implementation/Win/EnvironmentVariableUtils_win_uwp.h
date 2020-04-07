@@ -1,4 +1,5 @@
-
+#include <Foundation/FoundationInternal.h>
+EZ_FOUNDATION_INTERNAL_HEADER
 
 ezString ezEnvironmentVariableUtils::GetValueStringImpl(const char* szName, const char* szDefault)
 {

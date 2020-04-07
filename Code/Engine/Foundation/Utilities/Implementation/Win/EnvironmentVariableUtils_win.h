@@ -1,3 +1,5 @@
+#include <Foundation/FoundationInternal.h>
+EZ_FOUNDATION_INTERNAL_HEADER
 
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 
@@ -84,7 +86,7 @@ ezResult ezEnvironmentVariableUtils::UnsetVariableImpl(const char* szName)
 {
   ezStringWChar szwName(szName);
 
-  if(_wputenv_s(szwName, L"") == 0)
+  if (_wputenv_s(szwName, L"") == 0)
     return EZ_SUCCESS;
   else
     return EZ_FAILURE;

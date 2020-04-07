@@ -1,6 +1,7 @@
 #include <FoundationPCH.h>
 
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/IO/Archive/ArchiveUtils.h>
 #include <Foundation/IO/Archive/DataDirTypeArchive.h>
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/OSFile.h>

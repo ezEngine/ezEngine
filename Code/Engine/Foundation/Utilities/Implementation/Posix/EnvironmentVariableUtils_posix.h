@@ -1,3 +1,5 @@
+#include <Foundation/FoundationInternal.h>
+EZ_FOUNDATION_INTERNAL_HEADER
 
 #include <stdlib.h>
 
@@ -22,7 +24,7 @@ bool ezEnvironmentVariableUtils::IsVariableSetImpl(const char* szName)
 
 ezResult ezEnvironmentVariableUtils::UnsetVariableImpl(const char* szName)
 {
-  if(unsetenv(szName) == 0)
+  if (unsetenv(szName) == 0)
     return EZ_SUCCESS;
   else
     return EZ_FAILURE;
