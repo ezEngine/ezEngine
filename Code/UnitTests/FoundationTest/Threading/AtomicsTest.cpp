@@ -20,8 +20,8 @@ namespace
 
   ezAtomicInteger32 g_iSetVariable = 0;
 
-  ezAtomicInteger32 g_iCompSwapVariable = 0;
-  ezInt32 g_iCompSwapCounter = 0;
+  ezAtomicInteger32 g_iTestAndSetVariable = 0;
+  ezInt32 g_iTestAndSetCounter = 0;
 
   ezAtomicInteger64 g_iIncVariable64 = 0;
   ezAtomicInteger64 g_iDecVariable64 = 0;
@@ -38,11 +38,17 @@ namespace
 
   ezAtomicInteger64 g_iSetVariable64 = 0;
 
-  ezAtomicInteger64 g_iCompSwapVariable64 = 0;
-  ezInt32 g_iCompSwapCounter64 = 0;
+  ezAtomicInteger64 g_iTestAndSetVariable64 = 0;
+  ezInt32 g_iTestAndSetCounter64 = 0;
 
-  void* g_pCompSwapPointer = nullptr;
-  ezInt32 g_iCompSwapPointerCounter = 0;
+  ezAtomicInteger32 g_iCompareAndSwapVariable32 = 0;
+  ezInt32 g_iCompareAndSwapCounter32 = 0;
+
+  ezAtomicInteger64 g_iCompareAndSwapVariable64 = 0;
+  ezInt32 g_iCompareAndSwapCounter64 = 0;
+
+  void* g_pTestAndSetPointer = nullptr;
+  ezInt32 g_iTestAndSetPointerCounter = 0;
 
   class AtomicsTestThread : public ezThread
   {
@@ -71,9 +77,9 @@ namespace
 
       g_iSetVariable.Set(m_iIndex);
 
-      if (g_iCompSwapVariable.TestAndSet(0, m_iIndex))
+      if (g_iTestAndSetVariable.TestAndSet(0, m_iIndex))
       {
-        ++g_iCompSwapCounter;
+        ++g_iTestAndSetCounter;
       }
 
       g_iIncVariable64.Increment();
@@ -91,14 +97,24 @@ namespace
 
       g_iSetVariable64.Set(m_iIndex);
 
-      if (g_iCompSwapVariable64.TestAndSet(0, m_iIndex))
+      if (g_iTestAndSetVariable64.TestAndSet(0, m_iIndex))
       {
-        ++g_iCompSwapCounter64;
+        ++g_iTestAndSetCounter64;
       }
 
-      if (ezAtomicUtils::TestAndSet(&g_pCompSwapPointer, nullptr, this))
+      if (ezAtomicUtils::TestAndSet(&g_pTestAndSetPointer, nullptr, this))
       {
-        ++g_iCompSwapPointerCounter;
+        ++g_iTestAndSetPointerCounter;
+      }
+
+      if (g_iCompareAndSwapVariable32.CompareAndSwap(0, m_iIndex) == 0)
+      {
+        ++g_iCompareAndSwapCounter32;
+      }
+
+      if (g_iCompareAndSwapVariable64.CompareAndSwap(0, m_iIndex) == 0)
+      {
+        ++g_iCompareAndSwapCounter64;
       }
 
       return 0;
@@ -161,8 +177,8 @@ EZ_CREATE_SIMPLE_TEST(Threading, Atomics)
 
     g_iSetVariable = 0;
 
-    g_iCompSwapVariable = 0;
-    g_iCompSwapCounter = 0;
+    g_iTestAndSetVariable = 0;
+    g_iTestAndSetCounter = 0;
 
     g_iIncVariable64 = 0;
     g_iDecVariable64 = 0;
@@ -179,11 +195,17 @@ EZ_CREATE_SIMPLE_TEST(Threading, Atomics)
 
     g_iSetVariable64 = 0;
 
-    g_iCompSwapVariable64 = 0;
-    g_iCompSwapCounter64 = 0;
+    g_iTestAndSetVariable64 = 0;
+    g_iTestAndSetCounter64 = 0;
 
-    g_pCompSwapPointer = nullptr;
-    g_iCompSwapPointerCounter = 0;
+    g_iCompareAndSwapVariable32 = 0;
+    g_iCompareAndSwapCounter32 = 0;
+
+    g_iCompareAndSwapVariable64 = 0;
+    g_iCompareAndSwapCounter64 = 0;
+
+    g_pTestAndSetPointer = nullptr;
+    g_iTestAndSetPointerCounter = 0;
   }
 
 
@@ -236,8 +258,8 @@ EZ_CREATE_SIMPLE_TEST(Threading, Atomics)
 
     EZ_TEST_BOOL(g_iSetVariable > 0);
 
-    EZ_TEST_BOOL(g_iCompSwapVariable > 0);
-    EZ_TEST_INT(g_iCompSwapCounter, 1); // only one thread should have set the variable
+    EZ_TEST_BOOL(g_iTestAndSetVariable > 0);
+    EZ_TEST_INT(g_iTestAndSetCounter, 1); // only one thread should have set the variable
 
     EZ_TEST_INT(g_iIncVariable64, 2);
     EZ_TEST_INT(g_iDecVariable64, -2);
@@ -254,11 +276,17 @@ EZ_CREATE_SIMPLE_TEST(Threading, Atomics)
 
     EZ_TEST_BOOL(g_iSetVariable64 > 0);
 
-    EZ_TEST_BOOL(g_iCompSwapVariable64 > 0);
-    EZ_TEST_INT(g_iCompSwapCounter64, 1); // only one thread should have set the variable
+    EZ_TEST_BOOL(g_iTestAndSetVariable64 > 0);
+    EZ_TEST_INT(g_iTestAndSetCounter64, 1); // only one thread should have set the variable
 
-    EZ_TEST_BOOL(g_pCompSwapPointer != nullptr);
-    EZ_TEST_INT(g_iCompSwapPointerCounter, 1); // only one thread should have set the variable
+    EZ_TEST_BOOL(g_pTestAndSetPointer != nullptr);
+    EZ_TEST_INT(g_iTestAndSetPointerCounter, 1); // only one thread should have set the variable
+
+    EZ_TEST_BOOL(g_iCompareAndSwapVariable32 > 0);
+    EZ_TEST_INT(g_iCompareAndSwapCounter32, 1); // only one thread should have set the variable
+
+    EZ_TEST_BOOL(g_iCompareAndSwapVariable64 > 0);
+    EZ_TEST_INT(g_iCompareAndSwapCounter64, 1); // only one thread should have set the variable
 
     g_iDecVariable = 0;
     EZ_TEST_INT(g_iDecVariable.Decrement(), -1);

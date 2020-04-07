@@ -61,6 +61,7 @@ public:
 
   EZ_ALWAYS_INLINE bool Succeeded() const { return e == EZ_SUCCESS; }
   EZ_ALWAYS_INLINE bool Failed() const { return e == EZ_FAILURE; }
+  EZ_ALWAYS_INLINE void IgnoreResult() { /* dummy to be called when a return value is [[nodiscard]] but the result is not needed */ }
 
 private:
   ezResultEnum e;

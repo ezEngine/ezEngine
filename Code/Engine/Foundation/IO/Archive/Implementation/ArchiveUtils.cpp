@@ -9,6 +9,29 @@
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Logging/Log.h>
 
+ezHybridArray<ezString, 4, ezStaticAllocatorWrapper>& ezArchiveUtils::GetAcceptedArchiveFileExtensions()
+{
+  static ezHybridArray<ezString, 4, ezStaticAllocatorWrapper> extensions;
+
+  if (extensions.IsEmpty())
+  {
+    extensions.PushBack("ezArchive");
+  }
+
+  return extensions;
+}
+
+bool ezArchiveUtils::IsAcceptedArchiveFileExtensions(ezStringView extension)
+{
+  for (const auto& ext : GetAcceptedArchiveFileExtensions())
+  {
+    if (extension.IsEqual_NoCase(ext.GetView()))
+      return true;
+  }
+
+  return false;
+}
+
 ezResult ezArchiveUtils::WriteHeader(ezStreamWriter& stream)
 {
   const char* szTag = "EZARCHIVE";

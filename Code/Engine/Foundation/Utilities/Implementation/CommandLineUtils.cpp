@@ -71,13 +71,18 @@ void ezCommandLineUtils::SetCommandLine(ezUInt32 argc, const char** argv, ArgMod
     m_Commands.PushBack(argv[i]);
 }
 
+void ezCommandLineUtils::SetCommandLine(ezArrayPtr<ezString> commands)
+{
+  m_Commands = commands;
+}
+
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
 void ezCommandLineUtils::SetCommandLine()
 {
   int argc = 0;
 
-  LPWSTR* argvw = CommandLineToArgvW(GetCommandLineW(), &argc);
+  LPWSTR* argvw = CommandLineToArgvW(::GetCommandLineW(), &argc);
 
   EZ_ASSERT_RELEASE(argvw != nullptr, "CommandLineToArgvW failed");
 
@@ -97,6 +102,7 @@ void ezCommandLineUtils::SetCommandLine()
   EZ_DEFAULT_DELETE_ARRAY(argv);
   LocalFree(argvw);
 }
+
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 // Not implemented on Windows UWP.
 #elif EZ_ENABLED(EZ_PLATFORM_OSX)
@@ -108,6 +114,11 @@ void ezCommandLineUtils::SetCommandLine()
 #else
 #  error "ezCommandLineUtils::SetCommandLine(): Abstraction missing."
 #endif
+
+const ezDynamicArray<ezString>& ezCommandLineUtils::GetCommandLineArray() const
+{
+  return m_Commands;
+}
 
 ezString ezCommandLineUtils::GetCommandLineString() const
 {

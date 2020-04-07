@@ -33,12 +33,18 @@ public:
   /// \brief Initializes ezCommandLineUtils from the parameter arguments that were passed to the application.
   void SetCommandLine(ezUInt32 argc, const char** argv, ArgMode mode = UseArgcArgv); // [tested]
 
+  /// \brief Initializes ezCommandLineUtils from a list of already split up commands.
+  void SetCommandLine(ezArrayPtr<ezString> commands);
+
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
   /// \brief Initializes ezCommandLineUtils by querying the command line parameters directly from the OS.
   ///
   /// This function is not available on all platforms.
   void SetCommandLine();
 #endif
+
+  /// \brief Returns the split up command line.
+  const ezDynamicArray<ezString>& GetCommandLineArray() const;
 
   /// \brief Assembles the original command line from the split up string representation.
   ezString GetCommandLineString() const;

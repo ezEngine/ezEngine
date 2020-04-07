@@ -24,7 +24,8 @@ ezResult ezArchiveReader::OpenArchive(const char* szPath)
     ezRawMemoryStreamReader reader(m_MemFile.GetReadPointer(), m_MemFile.GetFileSize());
 
     ezStringView extension = ezPathUtils::GetFileExtension(szPath);
-    if (extension == "ezArchive")
+
+    if (ezArchiveUtils::IsAcceptedArchiveFileExtensions(extension))
     {
       EZ_SUCCEED_OR_RETURN(ezArchiveUtils::ReadHeader(reader, m_uiArchiveVersion));
 

@@ -3,18 +3,6 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Threading/Implementation/TaskSystemDeclarations.h>
 
-/// \brief Whether a task may wait for the completion of another task.
-///
-/// This is an optimization hint for the ezTaskSystem. Tasks that never wait on other tasks
-/// can be executed more efficiently (without launching a dedicated thread), as they cannot produce
-/// circular dependencies.
-/// If the nesting specification is violated, the task system will assert.
-enum class ezTaskNesting
-{
-  Maybe,
-  Never,
-};
-
 /// \brief Base class for custom tasks.
 class EZ_FOUNDATION_DLL ezTask
 {
