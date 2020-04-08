@@ -66,5 +66,6 @@ protected:
 
   ezHashedString m_sTriggerMessage;
   ezEventMessageSender<ezMsgTriggerTriggered> m_TriggerEventSender; // [ event ]
-  ezPxUserData m_UserData;
+
+  ezUInt32 m_uiUserDataIndex = ezInvalidIndex;
 };

@@ -12,7 +12,7 @@
 using namespace physx;
 
 ezPxTriggerComponentManager::ezPxTriggerComponentManager(ezWorld* pWorld)
-    : ezComponentManager<ezPxTriggerComponent, ezBlockStorageType::FreeList>(pWorld)
+  : ezComponentManager<ezPxTriggerComponent, ezBlockStorageType::FreeList>(pWorld)
 {
 }
 
@@ -59,12 +59,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxTriggerComponent, 1, ezComponentMode::Static)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezPxTriggerComponent::ezPxTriggerComponent()
-    : m_UserData(this)
-{
-  m_pActor = nullptr;
-}
-
+ezPxTriggerComponent::ezPxTriggerComponent() = default;
 ezPxTriggerComponent::~ezPxTriggerComponent() = default;
 
 void ezPxTriggerComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -101,7 +96,10 @@ void ezPxTriggerComponent::OnSimulationStarted()
   m_pActor = ezPhysX::GetSingleton()->GetPhysXAPI()->createRigidDynamic(t);
   EZ_ASSERT_DEBUG(m_pActor != nullptr, "PhysX actor creation failed");
 
-  m_pActor->userData = &m_UserData;
+  ezPxUserData* pUserData = nullptr;
+  m_uiUserDataIndex = pModule->AllocateUserData(pUserData);
+  pUserData->Init(this);
+  m_pActor->userData = pUserData;
 
   // PhysX does not get any scale value, so to correctly position child objects
   // we have to pretend that this parent object applies no scale on its children
@@ -148,12 +146,17 @@ void ezPxTriggerComponent::OnSimulationStarted()
 
 void ezPxTriggerComponent::OnDeactivated()
 {
-  if (m_pActor)
+  if (m_pActor != nullptr)
   {
     EZ_PX_WRITE_LOCK(*(m_pActor->getScene()));
 
     m_pActor->release();
     m_pActor = nullptr;
+  }
+
+  if (ezPhysXWorldModule* pModule = GetWorld()->GetModule<ezPhysXWorldModule>())
+  {
+    pModule->DeallocateUserData(m_uiUserDataIndex);
   }
 
   SUPER::OnDeactivated();

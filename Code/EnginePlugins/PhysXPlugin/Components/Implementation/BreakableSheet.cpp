@@ -86,7 +86,6 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezBreakableSheetComponent::ezBreakableSheetComponent()
-  : m_UnbrokenUserData(this)
 {
   m_vExtents = ezVec3(m_fWidth, m_fThickness, m_fHeight);
 }
@@ -992,7 +991,10 @@ void ezBreakableSheetComponent::CreateUnbrokenPhysicsObject()
   m_pUnbrokenActor = ezPhysX::GetSingleton()->GetPhysXAPI()->createRigidStatic(t);
   EZ_ASSERT_DEBUG(m_pUnbrokenActor != nullptr, "PhysX actor creation failed");
 
-  m_pUnbrokenActor->userData = &m_UnbrokenUserData;
+  ezPxUserData* pUserData = nullptr;
+  m_uiUnbrokenUserDataIndex = pModule->AllocateUserData(pUserData);
+  pUserData->Init(this);
+  m_pUnbrokenActor->userData = pUserData;
 
   // PhysX does not get any scale value, so to correctly position child objects
   // we have to pretend that this parent object applies no scale on its children
@@ -1015,7 +1017,7 @@ void ezBreakableSheetComponent::CreateUnbrokenPhysicsObject()
     pShape->setSimulationFilterData(filterData);
     pShape->setQueryFilterData(filterData);
 
-    pShape->userData = &m_UnbrokenUserData;
+    pShape->userData = pUserData;
 
     {
       EZ_PX_WRITE_LOCK(*(pModule->GetPxScene()));
@@ -1038,13 +1040,10 @@ void ezBreakableSheetComponent::DestroyUnbrokenPhysicsObject()
     m_pUnbrokenActor = nullptr;
   }
 
-  if (m_uiUnbrokenShapeId != ezInvalidIndex)
+  if (ezPhysXWorldModule* pModule = GetWorld()->GetModule<ezPhysXWorldModule>())
   {
-    if (ezPhysXWorldModule* pModule = GetWorld()->GetModule<ezPhysXWorldModule>())
-    {
-      pModule->DeleteShapeId(m_uiUnbrokenShapeId);
-      m_uiUnbrokenShapeId = ezInvalidIndex;
-    }
+    pModule->DeleteShapeId(m_uiUnbrokenShapeId);
+    pModule->DeallocateUserData(m_uiUnbrokenUserDataIndex);
   }
 }
 
@@ -1054,7 +1053,7 @@ void ezBreakableSheetComponent::CreatePiecesPhysicsObjects(ezVec3 vImpulse, ezVe
 
   m_PieceActors.SetCount(m_PieceTransforms.GetCount());
   m_PieceShapeIds.SetCount(m_PieceTransforms.GetCount());
-  m_PieceUserDatas.SetCount(m_PieceTransforms.GetCount());
+  m_PieceUserDataIndices.SetCount(m_PieceTransforms.GetCount());
 
 
   ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
@@ -1095,9 +1094,11 @@ void ezBreakableSheetComponent::CreatePiecesPhysicsObjects(ezVec3 vImpulse, ezVe
       continue;
 
     // Create user data pointing to this component and specifying the piece index
-    m_PieceUserDatas[i] = ezPxUserData(this);
-    m_PieceUserDatas[i].SetAdditionalUserData(reinterpret_cast<void*>(static_cast<size_t>(i)));
-    pActor->userData = &m_PieceUserDatas[i];
+    ezPxUserData* pUserData = nullptr;
+    m_PieceUserDataIndices[i] = pModule->AllocateUserData(pUserData);
+    pUserData->Init(this);
+    pUserData->SetAdditionalUserData(reinterpret_cast<void*>(static_cast<size_t>(i)));
+    pActor->userData = pUserData;
 
     PxBoxGeometry box;
     box.halfExtents = ezPxConversionUtils::ToVec3(m_PieceBoundingBoxes[i].GetHalfExtents().CompMul(vScale));
@@ -1109,7 +1110,7 @@ void ezBreakableSheetComponent::CreatePiecesPhysicsObjects(ezVec3 vImpulse, ezVe
 
     pShape->setSimulationFilterData(filterData);
     pShape->setQueryFilterData(filterData);
-    pShape->userData = &m_PieceUserDatas[i];
+    pShape->userData = pUserData;
 
     // TODO: Expose
     pActor->setLinearDamping(0.1f);
@@ -1159,10 +1160,15 @@ void ezBreakableSheetComponent::DestroyPiecesPhysicsObjects()
     pModule->DeleteShapeId(uiShapeId);
   }
 
+  for (ezUInt32 uiUserDataIndex : m_PieceUserDataIndices)
+  {
+    pModule->DeallocateUserData(uiUserDataIndex);
+  }
+
   m_PieceActors.Clear();
   m_PieceShapeIds.Clear();
   m_ShapeIDsToActors.Clear();
-  m_PieceUserDatas.Clear();
+  m_PieceUserDataIndices.Clear();
   m_uiNumActiveBrokenPieceActors = 0;
 }
 

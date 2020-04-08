@@ -160,10 +160,10 @@ protected:
   // PhysX Objects
   physx::PxRigidStatic* m_pUnbrokenActor = nullptr;
   ezUInt32 m_uiUnbrokenShapeId = ezInvalidIndex;
-  ezPxUserData m_UnbrokenUserData;
+  ezUInt32 m_uiUnbrokenUserDataIndex = ezInvalidIndex;
 
   ezDynamicArray<physx::PxRigidDynamic*> m_PieceActors;
   ezDynamicArray<ezUInt32> m_PieceShapeIds;
-  ezDynamicArray<ezPxUserData> m_PieceUserDatas;
+  ezDynamicArray<ezUInt32> m_PieceUserDataIndices;
   ezMap<ezUInt32, physx::PxRigidDynamic*> m_ShapeIDsToActors;
 };

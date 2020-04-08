@@ -190,16 +190,14 @@ namespace
     EZ_ASSERT_DEBUG(!out_Result.m_vPosition.IsNaN(), "Raycast hit Position is NaN");
     EZ_ASSERT_DEBUG(!out_Result.m_vNormal.IsNaN(), "Raycast hit Normal is NaN");
 
+    if (ezComponent* pShapeComponent = ezPxUserData::GetComponent(pHitShape->userData))
     {
-      ezComponent* pShapeComponent = ezPxUserData::GetComponent(pHitShape->userData);
-      EZ_ASSERT_DEBUG(pShapeComponent != nullptr, "Shape should have set a component as user data");
       out_Result.m_hShapeObject = pShapeComponent->GetOwner()->GetHandle();
       out_Result.m_uiShapeId = pHitShape->getQueryFilterData().word2;
     }
 
+    if (ezComponent* pActorComponent = ezPxUserData::GetComponent(pHitShape->getActor()->userData))
     {
-      ezComponent* pActorComponent = ezPxUserData::GetComponent(pHitShape->getActor()->userData);
-      EZ_ASSERT_DEBUG(pActorComponent != nullptr, "Actor should have set a component as user data");
       out_Result.m_hActorObject = pActorComponent->GetOwner()->GetHandle();
     }
 
@@ -211,10 +209,12 @@ namespace
     }
   }
 
-  static PxOverlapHit g_OverlapHits[256];
-  static PxRaycastHit g_RaycastHits[256];
-
+  static thread_local ezDynamicArray<PxOverlapHit, ezStaticAllocatorWrapper> g_OverlapHits;
+  static thread_local ezDynamicArray<PxRaycastHit, ezStaticAllocatorWrapper> g_RaycastHits;
 } // namespace
+
+EZ_DEFINE_AS_POD_TYPE(PxOverlapHit);
+EZ_DEFINE_AS_POD_TYPE(PxRaycastHit);
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -538,8 +538,7 @@ public:
 
       if (pTriggerComponent != nullptr && pOtherComponent != nullptr)
       {
-        ezTriggerState::Enum triggerState =
-          pair.status == PxPairFlag::eNOTIFY_TOUCH_FOUND ? ezTriggerState::Activated : ezTriggerState::Deactivated;
+        ezTriggerState::Enum triggerState = (pair.status == PxPairFlag::eNOTIFY_TOUCH_FOUND) ? ezTriggerState::Activated : ezTriggerState::Deactivated;
         pTriggerComponent->PostTriggerMessage(pOtherComponent, triggerState);
       }
     }
@@ -561,6 +560,8 @@ ezPhysXWorldModule::ezPhysXWorldModule(ezWorld* pWorld)
   , m_Settings()
   , m_SimulateTask("", ezMakeDelegate(&ezPhysXWorldModule::Simulate, this))
 {
+  m_ScratchMemory.SetCountUninitialized(ezMemoryUtils::AlignSize(m_Settings.m_uiScratchMemorySize, 16u * 1024u));
+
   m_SimulateTask.ConfigureTask("PhysX Simulate", ezTaskNesting::Maybe);
 }
 
@@ -655,11 +656,41 @@ ezUInt32 ezPhysXWorldModule::CreateShapeId()
   return m_uiNextShapeId++;
 }
 
-void ezPhysXWorldModule::DeleteShapeId(ezUInt32 uiShapeId)
+void ezPhysXWorldModule::DeleteShapeId(ezUInt32& uiShapeId)
 {
-  EZ_ASSERT_DEV(uiShapeId != ezInvalidIndex, "Trying to delete an invalid shape id");
+  if (uiShapeId == ezInvalidIndex)
+    return;
 
   m_FreeShapeIds.PushBack(uiShapeId);
+
+  uiShapeId = ezInvalidIndex;
+}
+
+ezUInt32 ezPhysXWorldModule::AllocateUserData(ezPxUserData*& out_pUserData)
+{
+  if (!m_FreeUserData.IsEmpty())
+  {
+    ezUInt32 uiIndex = m_FreeUserData.PeekBack();
+    m_FreeUserData.PopBack();
+
+    out_pUserData = &m_AllocatedUserData[uiIndex];
+    return uiIndex;
+  }
+
+  out_pUserData = &m_AllocatedUserData.ExpandAndGetRef();
+  return m_AllocatedUserData.GetCount() - 1;
+}
+
+void ezPhysXWorldModule::DeallocateUserData(ezUInt32& uiUserDataIndex)
+{
+  if (uiUserDataIndex == ezInvalidIndex)
+    return;
+
+  m_AllocatedUserData[uiUserDataIndex].Invalidate();
+
+  m_FreeUserDataAfterSimulationStep.PushBack(uiUserDataIndex);
+
+  uiUserDataIndex = ezInvalidIndex;
 }
 
 void ezPhysXWorldModule::SetGravity(const ezVec3& objectGravity, const ezVec3& characterGravity)
@@ -735,8 +766,10 @@ bool ezPhysXWorldModule::RaycastAll(ezPhysicsCastResultArray& out_Results, const
     filterData.flags |= PxQueryFlag::eDYNAMIC;
   }
 
+  g_RaycastHits.SetCountUninitialized(256);
+  PxRaycastBuffer allHits(g_RaycastHits.GetData(), g_RaycastHits.GetCount());
+
   ezPxQueryFilter queryFilter;
-  PxRaycastBuffer allHits(g_RaycastHits, EZ_ARRAY_SIZE(g_RaycastHits));
 
   EZ_PX_READ_LOCK(*m_pPxScene);
 
@@ -1088,24 +1121,27 @@ void ezPhysXWorldModule::QueryShapesInSphere(ezPhysicsOverlapResultArray& out_Re
 
   PxTransform transform = ezPxConversionUtils::ToTransform(vPosition, ezQuat::IdentityQuaternion());
 
-  PxOverlapBuffer allOverlaps(g_OverlapHits, EZ_ARRAY_SIZE(g_OverlapHits));
+  g_OverlapHits.SetCountUninitialized(256);
+  PxOverlapBuffer overlapHitsBuffer(g_OverlapHits.GetData(), g_OverlapHits.GetCount());
 
   EZ_PX_READ_LOCK(*m_pPxScene);
 
-  m_pPxScene->overlap(sphere, transform, allOverlaps, filterData, &queryFilter);
+  m_pPxScene->overlap(sphere, transform, overlapHitsBuffer, filterData, &queryFilter);
 
-  out_Results.m_Results.SetCountUninitialized(allOverlaps.nbTouches);
-  for (ezUInt32 i = 0; i < allOverlaps.nbTouches; ++i)
+  for (ezUInt32 i = 0; i < overlapHitsBuffer.nbTouches; ++i)
   {
+    auto& overlapHit = overlapHitsBuffer.touches[i];
+    auto& overlapResult = out_Results.m_Results.ExpandAndGetRef();
+
+    if (ezComponent* pShapeComponent = ezPxUserData::GetComponent(overlapHit.shape->userData))
     {
-      ezComponent* pShapeComponent = ezPxUserData::GetComponent(g_OverlapHits[i].shape->userData);
-      out_Results.m_Results[i].m_hShapeObject = pShapeComponent->GetOwner()->GetHandle();
-      out_Results.m_Results[i].m_uiShapeId = g_OverlapHits[i].shape->getQueryFilterData().word2;
+      overlapResult.m_hShapeObject = pShapeComponent->GetOwner()->GetHandle();
+      overlapResult.m_uiShapeId = overlapHit.shape->getQueryFilterData().word2;
     }
 
+    if (ezComponent* pActorComponent = ezPxUserData::GetComponent(overlapHit.actor->userData))
     {
-      ezComponent* pActorComponent = ezPxUserData::GetComponent(g_OverlapHits[i].actor->userData);
-      out_Results.m_Results[i].m_hActorObject = pActorComponent->GetOwner()->GetHandle();
+      overlapResult.m_hActorObject = pActorComponent->GetOwner()->GetHandle();
     }
   }
 }
@@ -1119,6 +1155,12 @@ void ezPhysXWorldModule::AddStaticCollisionBox(ezGameObject* pObject, ezVec3 box
   ezPxShapeBoxComponent* pBox;
   ezPxShapeBoxComponent::CreateComponent(pObject, pBox);
   pBox->SetExtents(boxSize);
+}
+
+void ezPhysXWorldModule::FreeUserDataAfterSimulationStep()
+{
+  m_FreeUserData.PushBackRange(m_FreeUserDataAfterSimulationStep);
+  m_FreeUserDataAfterSimulationStep.Clear();
 }
 
 void ezPhysXWorldModule::StartSimulation(const ezWorldModule::UpdateContext& context)
@@ -1168,6 +1210,10 @@ void ezPhysXWorldModule::FetchResults(const ezWorldModule::UpdateContext& contex
     EZ_PROFILE_SCOPE("Wait for Simulate Task");
     ezTaskSystem::WaitForGroup(m_SimulateTaskGroupId);
   }
+
+  // Nothing to fetch if no simulation step was executed
+  if (!m_bSimulationStepExecuted)
+    return;
 
   if (ezPxDynamicActorComponentManager* pDynamicActorManager = GetWorld()->GetComponentManager<ezPxDynamicActorComponentManager>())
   {
@@ -1281,10 +1327,13 @@ void ezPhysXWorldModule::FetchResults(const ezWorldModule::UpdateContext& contex
       }
     }
   }
+
+  FreeUserDataAfterSimulationStep();
 }
 
 void ezPhysXWorldModule::Simulate()
 {
+  m_bSimulationStepExecuted = false;
   const ezTime tDiff = GetWorld()->GetClock().GetTimeDiff();
 
   if (m_Settings.m_SteppingMode == ezPxSteppingMode::Variable)
@@ -1360,6 +1409,8 @@ void ezPhysXWorldModule::SimulateStep(ezTime deltaTime)
 
     EZ_ASSERT_DEBUG(numFetch == 0, "m_pPxScene->fetchResults should have succeeded right away");
   }
+
+  m_bSimulationStepExecuted = true;
 }
 
 

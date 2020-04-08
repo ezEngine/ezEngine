@@ -6,6 +6,7 @@
 #include <PhysXPlugin/PhysXInterface.h>
 
 class ezPxSimulationEventCallback;
+class ezPxUserData;
 
 class EZ_PHYSXPLUGIN_DLL ezPhysXWorldModule : public ezPhysicsWorldModuleInterface
 {
@@ -26,7 +27,10 @@ public:
   const physx::PxControllerManager* GetCharacterManager() const { return m_pCharacterManager; }
 
   ezUInt32 CreateShapeId();
-  void DeleteShapeId(ezUInt32 uiShapeId);
+  void DeleteShapeId(ezUInt32& uiShapeId);
+
+  ezUInt32 AllocateUserData(ezPxUserData*& out_pUserData);
+  void DeallocateUserData(ezUInt32& uiUserDataIndex);
 
   void SetGravity(const ezVec3& objectGravity, const ezVec3& characterGravity);
   virtual ezVec3 GetGravity() const override { return m_Settings.m_vObjectGravity; }
@@ -60,6 +64,8 @@ private:
   bool SweepTest(ezPhysicsCastResult& out_Result, const physx::PxGeometry& geometry, const physx::PxTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const;
   bool OverlapTest(const physx::PxGeometry& geometry, const physx::PxTransform& transform, const ezPhysicsQueryParameters& params) const;
 
+  void FreeUserDataAfterSimulationStep();
+
   void StartSimulation(const ezWorldModule::UpdateContext& context);
   void FetchResults(const ezWorldModule::UpdateContext& context);
 
@@ -73,6 +79,10 @@ private:
   ezUInt32 m_uiNextShapeId;
   ezDynamicArray<ezUInt32> m_FreeShapeIds;
 
+  ezDeque<ezPxUserData> m_AllocatedUserData;
+  ezDynamicArray<ezUInt32> m_FreeUserData;
+  ezDynamicArray<ezUInt32> m_FreeUserDataAfterSimulationStep;
+
   ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper> m_ScratchMemory;
 
   ezTime m_AccumulatedTimeSinceUpdate;
@@ -81,6 +91,7 @@ private:
 
   ezDelegateTask<void> m_SimulateTask;
   ezTaskGroupID m_SimulateTaskGroupId;
+  bool m_bSimulationStepExecuted = false;
 
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(PhysX, PhysXPlugin);
 };

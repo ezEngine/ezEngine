@@ -81,11 +81,10 @@ protected:
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const; // [ msg handler ]
 
   ezUInt32 m_uiShapeId = ezInvalidIndex;
+  ezUInt32 m_uiUserDataIndex = ezInvalidIndex;
   bool m_bIsCrouching = false;
 
   physx::PxCapsuleController* m_pController = nullptr;
 
   ezUniquePtr<ezPxCharacterProxyData> m_Data;
-
-  ezPxUserData m_UserData;
 };
