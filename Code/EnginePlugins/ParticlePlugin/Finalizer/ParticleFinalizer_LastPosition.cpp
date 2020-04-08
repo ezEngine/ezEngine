@@ -30,8 +30,8 @@ void ezParticleFinalizerFactory_LastPosition::CopyFinalizerProperties(ezParticle
 
 ezParticleFinalizer_LastPosition::ezParticleFinalizer_LastPosition()
 {
-  // do this at the start of the frame
-  m_fPriority = -1000.0f;
+  // do this at the start of the frame, but after the initializers
+  m_fPriority = -499.0f;
 }
 
 ezParticleFinalizer_LastPosition::~ezParticleFinalizer_LastPosition() = default;
