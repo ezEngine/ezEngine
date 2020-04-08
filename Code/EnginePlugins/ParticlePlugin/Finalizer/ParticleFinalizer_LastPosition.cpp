@@ -30,8 +30,8 @@ void ezParticleFinalizerFactory_LastPosition::CopyFinalizerProperties(ezParticle
 
 ezParticleFinalizer_LastPosition::ezParticleFinalizer_LastPosition()
 {
-  // run this earlier than other finalizers, e.g. the ones that apply the velocity to the current position
-  m_fPriority -= 10.0f;
+  // do this at the start of the frame
+  m_fPriority = -1000.0f;
 }
 
 ezParticleFinalizer_LastPosition::~ezParticleFinalizer_LastPosition() = default;

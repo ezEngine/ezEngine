@@ -114,6 +114,12 @@ void ezParticleBehaviorFactory_Raycast::QueryFinalizerDependencies(ezSet<const e
 
 //////////////////////////////////////////////////////////////////////////
 
+ezParticleBehavior_Raycast::ezParticleBehavior_Raycast()
+{
+  // do this right after ezParticleFinalizer_ApplyVelocity has run
+  m_fPriority = 526.0f;
+}
+
 void ezParticleBehavior_Raycast::CreateRequiredStreams()
 {
   CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
