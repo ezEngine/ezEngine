@@ -80,7 +80,8 @@ void ezPxRaycastInteractComponent::ExecuteInteraction()
   }
 
   ezPhysicsCastResult res;
-  if (!pModule->Raycast(res, GetOwner()->GetGlobalPosition(), vDirection, m_fMaxDistance, ezPhysicsQueryParameters(m_uiCollisionLayer, uiIgnoreShapeID)))
+  if (!pModule->Raycast(res, GetOwner()->GetGlobalPosition(), vDirection, m_fMaxDistance,
+        ezPhysicsQueryParameters(m_uiCollisionLayer, ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic, uiIgnoreShapeID)))
   {
     return;
   }

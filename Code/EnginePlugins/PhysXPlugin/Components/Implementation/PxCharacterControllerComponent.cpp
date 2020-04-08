@@ -266,7 +266,8 @@ void ezPxCharacterControllerComponent::Update()
     t.m_vPosition = posAfter;
 
     ezPhysicsCastResult castResult;
-    if (pModule->SweepTestCapsule(castResult, pProxy->m_fCapsuleRadius, pProxy->GetCurrentCapsuleHeight(), t, ezVec3(0, 0, -1), pProxy->m_fMaxStepHeight, ezPhysicsQueryParameters(pProxy->m_uiCollisionLayer, pProxy->GetShapeId())))
+    if (pModule->SweepTestCapsule(castResult, pProxy->m_fCapsuleRadius, pProxy->GetCurrentCapsuleHeight(), t, ezVec3(0, 0, -1), pProxy->m_fMaxStepHeight,
+          ezPhysicsQueryParameters(pProxy->m_uiCollisionLayer, ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic, pProxy->GetShapeId())))
     {
       RawMove(ezVec3(0, 0, -castResult.m_fDistance));
 

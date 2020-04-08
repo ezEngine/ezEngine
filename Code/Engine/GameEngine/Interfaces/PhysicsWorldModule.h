@@ -56,12 +56,6 @@ struct ezPhysicsQueryParameters
   {
   }
 
-  ezPhysicsQueryParameters(ezUInt32 uiCollisionLayer, ezUInt32 uiIgnoreShapeId)
-    : m_uiCollisionLayer(uiCollisionLayer)
-    , m_uiIgnoreShapeId(uiIgnoreShapeId)
-  {
-  }
-
   ezUInt32 m_uiCollisionLayer = 0;
   ezBitflags<ezPhysicsShapeType> m_ShapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic;
   ezUInt32 m_uiIgnoreShapeId = ezInvalidIndex;
