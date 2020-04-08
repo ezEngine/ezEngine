@@ -456,7 +456,7 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& tDiff
   return bHasReactingEmitters ? ezParticleSystemState::OnlyReacting : ezParticleSystemState::Inactive;
 }
 
-const ezProcessingStream* ezParticleSystemInstance::QueryStream(const char* szName, ezProcessingStream::DataType Type) const
+ezProcessingStream* ezParticleSystemInstance::QueryStream(const char* szName, ezProcessingStream::DataType Type) const
 {
   ezStringBuilder fullName;
   ezParticleStreamFactory::GetFullStreamName(szName, Type, fullName);

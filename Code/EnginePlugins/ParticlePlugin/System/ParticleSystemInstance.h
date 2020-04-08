@@ -50,7 +50,7 @@ public:
 
 
   /// \brief Returns the desired stream, if it already exists, nullptr otherwise.
-  const ezProcessingStream* QueryStream(const char* szName, ezProcessingStream::DataType Type) const;
+  ezProcessingStream* QueryStream(const char* szName, ezProcessingStream::DataType Type) const;
 
   /// \brief Returns the desired stream, if it already exists, creates it otherwise.
   void CreateStream(const char* szName, ezProcessingStream::DataType Type, ezProcessingStream** ppStream, ezParticleStreamBinding& binding,
