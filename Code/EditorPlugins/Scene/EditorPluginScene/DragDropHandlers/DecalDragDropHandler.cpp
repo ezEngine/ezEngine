@@ -19,10 +19,13 @@ void ezDecalComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pInfo)
 {
   ezComponentDragDropHandler::OnDragBegin(pInfo);
 
+  ezVariantArray var;
+  var.PushBack(GetAssetGuidString(pInfo));
+
   if (pInfo->m_sTargetContext == "viewport")
-    CreateDropObject(pInfo->m_vDropPosition, "ezDecalComponent", "Decal", GetAssetGuidString(pInfo), ezUuid(), -1);
+    CreateDropObject(pInfo->m_vDropPosition, "ezDecalComponent", "Decals", var, ezUuid(), -1);
   else
-    CreateDropObject(pInfo->m_vDropPosition, "ezDecalComponent", "Decal", GetAssetGuidString(pInfo), pInfo->m_TargetObject,
+    CreateDropObject(pInfo->m_vDropPosition, "ezDecalComponent", "Decals", var, pInfo->m_TargetObject,
                      pInfo->m_iTargetObjectInsertChildIndex);
 
   SelectCreatedObjects();

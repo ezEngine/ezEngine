@@ -11,7 +11,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8464864066885685894,5738673529103748961}}
-		u4 %Hash{17437486996260815751}
+		u4 %Hash{7738366369232482238}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{7733054106453483602,16089986760246323274}}
@@ -220,7 +220,7 @@ o
 		}
 		s %LifeScaleParam{""}
 		Uuid %LifeTime{u4{13556410845210635175,8432013069660010770}}
-		s %Name{"dust"}
+		s %Name{"rain"}
 		s %OnDeathEvent{""}
 		VarArray %Types
 		{
@@ -250,7 +250,7 @@ o
 	u3 %v{1}
 	p
 	{
-		f %Value{0x0AD7A33D}
+		f %Value{0x0AD7233D}
 		f %Variance{0xE17A143F}
 	}
 }
