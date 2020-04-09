@@ -109,7 +109,7 @@ void ezQtEditorApp::SaveAllOpenDocuments()
 
 bool ezQtEditorApp::IsProgressBarProcessingEvents() const
 {
-  return m_pQtProgressbar->IsProcessingEvents();
+  return m_pQtProgressbar != nullptr && m_pQtProgressbar->IsProcessingEvents();
 }
 
 void ezQtEditorApp::OnDemandDynamicStringEnumLoad(const char* szEnumName, ezDynamicStringEnum& e)

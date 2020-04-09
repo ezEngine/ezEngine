@@ -33,10 +33,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleContext, 1, ezRTTIDefaultAllocator<ezP
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleContext::ezParticleContext()
-{
-  m_pComponent = nullptr;
-}
+ezParticleContext::ezParticleContext() = default;
+ezParticleContext::~ezParticleContext() = default;
 
 void ezParticleContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 {
@@ -235,12 +233,18 @@ bool ezParticleContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* p
   m_pWorld->Update();
   m_pWorld->SetWorldSimulationEnabled(false);
 
-  if (m_pComponent && !m_pComponent->m_EffectController.IsAlive())
+  if (m_pComponent && m_pComponent->m_EffectController.IsAlive())
   {
+    // set a fixed random seed
+    m_pComponent->m_uiRandomSeed = 11;
+
     for (ezUInt32 i = 0; i < 15; ++i)
     {
+      m_pComponent->m_EffectController.SetIsInView();
       m_pComponent->m_EffectController.Tick(ezTime::Seconds(0.1));
     }
+
+    m_pComponent->m_uiRandomSeed = 0;
   }
 
   return true;

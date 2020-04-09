@@ -15,6 +15,7 @@ class EZ_ENGINEPLUGINPARTICLE_DLL ezParticleContext : public ezEngineProcessDocu
 
 public:
   ezParticleContext();
+  ~ezParticleContext();
 
   virtual void HandleMessage(const ezEditorEngineDocumentMsg* pMsg) override;
 
@@ -31,7 +32,7 @@ protected:
 private:
   ezParticleEffectResourceHandle m_hParticle;
   ezMeshResourceHandle m_hPreviewMeshResource;
-  ezParticleComponent* m_pComponent;
+  ezParticleComponent* m_pComponent = nullptr;
 };
 
 

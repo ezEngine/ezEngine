@@ -27,6 +27,7 @@
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <Texture/Image/Image.h>
 #include <Texture/Image/ImageUtils.h>
+#include <RendererCore/Pipeline/View.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineProcessDocumentContext, 1, ezRTTINoAllocator)
   ;
@@ -499,8 +500,7 @@ void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateTh
 {
   EZ_ASSERT_DEV(!ezEditorEngineProcessApp::GetSingleton()->IsRemoteMode(), "Wrong mode for thumbnail creation");
   EZ_ASSERT_DEV(m_pThumbnailViewContext == nullptr, "Thumbnail rendering already in progress.");
-  EZ_CHECK_AT_COMPILETIME_MSG(
-    (ThumbnailSuperscaleFactor & (ThumbnailSuperscaleFactor - 1)) == 0, "ThumbnailSuperscaleFactor must be power of 2.");
+  EZ_CHECK_AT_COMPILETIME_MSG((ThumbnailSuperscaleFactor & (ThumbnailSuperscaleFactor - 1)) == 0, "ThumbnailSuperscaleFactor must be power of 2.");
   m_uiThumbnailConvergenceFrames = 0;
   m_uiThumbnailWidth = pMsg->m_uiWidth * ThumbnailSuperscaleFactor;
   m_uiThumbnailHeight = pMsg->m_uiHeight * ThumbnailSuperscaleFactor;
@@ -534,12 +534,23 @@ void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateTh
 
   m_hThumbnailDepthRT = pDevice->CreateTexture(tcd);
 
-  m_ThumbnailRenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(m_hThumbnailColorRT))
-    .SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(m_hThumbnailDepthRT));
+  m_ThumbnailRenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(m_hThumbnailColorRT)).SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(m_hThumbnailDepthRT));
   m_pThumbnailViewContext->SetupRenderTarget(m_ThumbnailRenderTargetSetup, m_uiThumbnailWidth, m_uiThumbnailHeight);
 
   ezResourceManager::ForceNoFallbackAcquisition(3);
   UpdateThumbnailViewContext(m_pThumbnailViewContext);
+
+  // disable editor specific render passes in the thumbnail view
+  ezView* pView = nullptr;
+  if (ezRenderWorld::TryGetView(m_pThumbnailViewContext->GetViewHandle(), pView))
+  {
+    pView->SetViewRenderMode(ezViewRenderMode::Default);
+    pView->SetRenderPassProperty("EditorSelectionPass", "Active", false);
+    pView->SetExtractorProperty("EditorShapeIconsExtractor", "Active", false);
+    pView->SetExtractorProperty("EditorGridExtractor", "Active", false);
+    pView->SetRenderPassProperty("EditorPickingPass", "Active", false);
+  }
+
   m_pThumbnailViewContext->Redraw(false);
 
   OnThumbnailViewContextCreated();
