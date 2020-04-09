@@ -240,15 +240,17 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
 
       ezVec4* pRenderPositions = &m_TrailPointsShared[p * uiBucketSize];
 
-      for (ezUInt32 i = 0; i <= m_uiCurFirstIndex; ++i)
+      /// \todo This loop could be done without a condition
+      for (ezUInt32 i = 0; i < m_uiMaxPoints; ++i)
       {
-        pRenderPositions[i] = pTrailPositions[m_uiCurFirstIndex - i];
+        if (i > m_uiCurFirstIndex)
+        {
+          pRenderPositions[i] = pTrailPositions[m_uiCurFirstIndex + m_uiMaxPoints - i];
       }
-
-      const ezUInt32 offset = m_uiCurFirstIndex + m_uiMaxPoints;
-      for (ezUInt32 i = m_uiCurFirstIndex + 1; i < m_uiMaxPoints; ++i)
+        else
       {
-        pRenderPositions[i] = pTrailPositions[offset - i];
+          pRenderPositions[i] = pTrailPositions[m_uiCurFirstIndex - i];
+        }
       }
     }
   }
