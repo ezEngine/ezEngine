@@ -46,25 +46,30 @@ find_package_handle_standard_args(EzFmod DEFAULT_MSG EZ_FMOD_DIR)
 
 if (EZFMOD_FOUND)
 
+	set(FMOD_DEBUG_SUFFIX, "")
+	
+	# set this, if you want the 'logging' libraries
+	#set(FMOD_DEBUG_SUFFIX, "L")
+
 	add_library(ezFmod::Core SHARED IMPORTED)
 	set_target_properties(ezFmod::Core PROPERTIES IMPORTED_LOCATION "${FMOD_DIR_CORE}/lib/${FMOD_LIB_ARCH}/fmod${FMOD_DLL_SUFFIX}")
-	set_target_properties(ezFmod::Core PROPERTIES IMPORTED_LOCATION_DEBUG "${FMOD_DIR_CORE}/lib/${FMOD_LIB_ARCH}/fmodL${FMOD_DLL_SUFFIX}")
+	set_target_properties(ezFmod::Core PROPERTIES IMPORTED_LOCATION_DEBUG "${FMOD_DIR_CORE}/lib/${FMOD_LIB_ARCH}/fmod${FMOD_DEBUG_SUFFIX}${FMOD_DLL_SUFFIX}")
 	set_target_properties(ezFmod::Core PROPERTIES IMPORTED_IMPLIB "${FMOD_DIR_CORE}/lib/${FMOD_LIB_ARCH}/fmod${FMOD_LIB_SUFFIX}")
-	set_target_properties(ezFmod::Core PROPERTIES IMPORTED_IMPLIB_DEBUG "${FMOD_DIR_CORE}/lib/${FMOD_LIB_ARCH}/fmodL${FMOD_LIB_SUFFIX}")
+	set_target_properties(ezFmod::Core PROPERTIES IMPORTED_IMPLIB_DEBUG "${FMOD_DIR_CORE}/lib/${FMOD_LIB_ARCH}/fmod${FMOD_DEBUG_SUFFIX}${FMOD_LIB_SUFFIX}")
 	set_target_properties(ezFmod::Core PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${FMOD_DIR_CORE}/inc")
 
 	add_library(ezFmod::FsBank SHARED IMPORTED)
 	set_target_properties(ezFmod::FsBank PROPERTIES IMPORTED_LOCATION "${FMOD_DIR_FSBANK}/lib/${FMOD_LIB_ARCH}/fsbank${FMOD_DLL_SUFFIX}")
-	set_target_properties(ezFmod::FsBank PROPERTIES IMPORTED_LOCATION_DEBUG "${FMOD_DIR_FSBANK}/lib/${FMOD_LIB_ARCH}/fsbankL${FMOD_DLL_SUFFIX}")
+	set_target_properties(ezFmod::FsBank PROPERTIES IMPORTED_LOCATION_DEBUG "${FMOD_DIR_FSBANK}/lib/${FMOD_LIB_ARCH}/fsbank${FMOD_DEBUG_SUFFIX}${FMOD_DLL_SUFFIX}")
 	set_target_properties(ezFmod::FsBank PROPERTIES IMPORTED_IMPLIB "${FMOD_DIR_FSBANK}/lib/${FMOD_LIB_ARCH}/fsbank${FMOD_LIB_SUFFIX}")
-	set_target_properties(ezFmod::FsBank PROPERTIES IMPORTED_IMPLIB_DEBUG "${FMOD_DIR_FSBANK}/lib/${FMOD_LIB_ARCH}/fsbankL${FMOD_LIB_SUFFIX}")
+	set_target_properties(ezFmod::FsBank PROPERTIES IMPORTED_IMPLIB_DEBUG "${FMOD_DIR_FSBANK}/lib/${FMOD_LIB_ARCH}/fsbank${FMOD_DEBUG_SUFFIX}${FMOD_LIB_SUFFIX}")
 	set_target_properties(ezFmod::FsBank PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${FMOD_DIR_FSBANK}/inc")
 
 	add_library(ezFmod::Studio SHARED IMPORTED)
 	set_target_properties(ezFmod::Studio PROPERTIES IMPORTED_LOCATION "${FMOD_DIR_STUDIO}/lib/${FMOD_LIB_ARCH}/fmodstudio${FMOD_DLL_SUFFIX}")
-	set_target_properties(ezFmod::Studio PROPERTIES IMPORTED_LOCATION_DEBUG "${FMOD_DIR_STUDIO}/lib/${FMOD_LIB_ARCH}/fmodstudioL${FMOD_DLL_SUFFIX}")
+	set_target_properties(ezFmod::Studio PROPERTIES IMPORTED_LOCATION_DEBUG "${FMOD_DIR_STUDIO}/lib/${FMOD_LIB_ARCH}/fmodstudio${FMOD_DEBUG_SUFFIX}${FMOD_DLL_SUFFIX}")
 	set_target_properties(ezFmod::Studio PROPERTIES IMPORTED_IMPLIB "${FMOD_DIR_STUDIO}/lib/${FMOD_LIB_ARCH}/fmodstudio${FMOD_LIB_SUFFIX}")
-	set_target_properties(ezFmod::Studio PROPERTIES IMPORTED_IMPLIB_DEBUG "${FMOD_DIR_STUDIO}/lib/${FMOD_LIB_ARCH}/fmodstudioL${FMOD_LIB_SUFFIX}")
+	set_target_properties(ezFmod::Studio PROPERTIES IMPORTED_IMPLIB_DEBUG "${FMOD_DIR_STUDIO}/lib/${FMOD_LIB_ARCH}/fmodstudio${FMOD_DEBUG_SUFFIX}${FMOD_LIB_SUFFIX}")
 	set_target_properties(ezFmod::Studio PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${FMOD_DIR_STUDIO}/inc")
 	target_link_libraries(ezFmod::Studio INTERFACE ezFmod::Core)
 
