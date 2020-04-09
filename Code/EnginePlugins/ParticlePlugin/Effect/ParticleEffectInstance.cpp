@@ -151,8 +151,11 @@ bool ezParticleEffectInstance::IsContinuous() const
 {
   for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
   {
-    if (m_ParticleSystems[i]->IsContinuous())
-      return true;
+    if (m_ParticleSystems[i])
+    {
+      if (m_ParticleSystems[i]->IsContinuous())
+        return true;
+    }
   }
 
   return false;
@@ -202,6 +205,12 @@ void ezParticleEffectInstance::PreSimulate()
   {
     StepSimulation(m_PreSimulateDuration);
     m_PreSimulateDuration = ezTime::Seconds(0);
+  }
+
+  if (!IsContinuous())
+  {
+    // Can't check this at the beginning, because the particle systems are only set up during StepSimulation.
+    ezLog::Warning("Particle pre-simulation is enabled on an effect that is not continuous.");
   }
 }
 
