@@ -155,15 +155,15 @@ public:
   /// \brief Returns true when the last bounding volume update was too long ago.
   bool NeedsBoundingVolumeUpdate() const;
 
-  /// \brief Returns the bounding volume of the effect and the time at which the volume was updated last.
+  /// \brief Returns the bounding volume of the effect and the update counter.
   /// The volume is in the local space of the effect.
-  ezTime GetBoundingVolume(ezBoundingBoxSphere& volume) const;
+  ezUInt32 GetBoundingVolume(ezBoundingBoxSphere& volume) const;
 
 private:
   void CombineSystemBoundingVolumes();
 
   ezTime m_UpdateBVolumeTime;
-  ezTime m_LastBVolumeUpdate;
+  ezUInt32 m_uiBVolumeUpdateCounter = 0;
   ezBoundingBoxSphere m_BoundingVolume;
   mutable ezTime m_EffectIsVisible;
   ezParticleEffectInstance* m_pVisibleIf = nullptr;

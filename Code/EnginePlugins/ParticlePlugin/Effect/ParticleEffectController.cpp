@@ -115,7 +115,7 @@ void ezParticleEffectController::StopImmediate()
   }
 }
 
-ezTime ezParticleEffectController::GetBoundingVolume(ezBoundingBoxSphere& volume) const
+ezUInt32 ezParticleEffectController::GetBoundingVolume(ezBoundingBoxSphere& volume) const
 {
   ezParticleEffectInstance* pEffect = GetInstance();
 
@@ -124,7 +124,7 @@ ezTime ezParticleEffectController::GetBoundingVolume(ezBoundingBoxSphere& volume
     return pEffect->GetBoundingVolume(volume);
   }
 
-  return ezTime();
+  return 0;
 }
 
 void ezParticleEffectController::SetParameter(const ezTempHashedString& name, float value)

@@ -42,7 +42,6 @@ void ezParticleEffectInstance::Construct(ezParticleEffectHandle hEffectHandle, c
   m_bEmitterEnabled = true;
   m_bIsFinishing = false;
   m_UpdateBVolumeTime.SetZero();
-  m_LastBVolumeUpdate.SetZero();
   m_BoundingVolume = ezBoundingSphere(ezVec3::ZeroVector(), 0.25f);
   m_ElapsedTimeSinceUpdate.SetZero();
   m_EffectIsVisible.SetZero();
@@ -609,7 +608,7 @@ bool ezParticleEffectInstance::ShouldBeUpdated() const
 
 bool ezParticleEffectInstance::NeedsBoundingVolumeUpdate() const
 {
-  return m_UpdateBVolumeTime <= ezClock::GetGlobalClock()->GetAccumulatedTime();
+  return m_UpdateBVolumeTime <= m_TotalEffectLifeTime;
 }
 
 void ezParticleEffectInstance::CombineSystemBoundingVolumes()
@@ -646,17 +645,15 @@ void ezParticleEffectInstance::CombineSystemBoundingVolumes()
     effectVolume.Transform(invTrans.GetAsMat4());
   }
 
-  const ezTime tNow = ezClock::GetGlobalClock()->GetAccumulatedTime();
-
   m_BoundingVolume = effectVolume;
-  m_LastBVolumeUpdate = tNow;
-  m_UpdateBVolumeTime = tNow + ezTime::Seconds(0.1);
+  m_uiBVolumeUpdateCounter++;
+  m_UpdateBVolumeTime = m_TotalEffectLifeTime + ezTime::Seconds(0.1);
 }
 
-ezTime ezParticleEffectInstance::GetBoundingVolume(ezBoundingBoxSphere& volume) const
+ezUInt32 ezParticleEffectInstance::GetBoundingVolume(ezBoundingBoxSphere& volume) const
 {
   volume = m_BoundingVolume;
-  return m_LastBVolumeUpdate;
+  return m_uiBVolumeUpdateCounter;
 }
 
 void ezParticleEffectInstance::ProcessEventQueues()

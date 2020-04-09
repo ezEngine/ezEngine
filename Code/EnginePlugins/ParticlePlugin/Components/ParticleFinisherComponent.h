@@ -42,5 +42,5 @@ protected:
 
   void Update();
   void CheckBVolumeUpdate();
-  ezTime m_LastBVolumeUpdate;
+  ezUInt32 m_uiBVolumeUpdateCounter = 0;
 };

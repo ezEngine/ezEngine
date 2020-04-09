@@ -310,7 +310,7 @@ ezResult ezParticleComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& 
   if (m_EffectController.IsAlive())
   {
     ezBoundingBoxSphere volume;
-    m_LastBVolumeUpdate = m_EffectController.GetBoundingVolume(volume);
+    m_uiBVolumeUpdateCounter = m_EffectController.GetBoundingVolume(volume);
 
     if (m_SpawnDirection != ezBasisAxis::PositiveZ)
     {
@@ -323,7 +323,7 @@ ezResult ezParticleComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& 
       volume.Transform((-GetOwner()->GetGlobalRotation()).GetAsMat4());
     }
 
-    if (!m_LastBVolumeUpdate.IsZero())
+    if (m_uiBVolumeUpdateCounter != 0)
     {
       bounds.ExpandToInclude(volume);
       return EZ_SUCCESS;
@@ -432,7 +432,7 @@ void ezParticleComponent::UpdateTransform()
 void ezParticleComponent::CheckBVolumeUpdate()
 {
   ezBoundingBoxSphere bvol;
-  if (m_LastBVolumeUpdate < m_EffectController.GetBoundingVolume(bvol))
+  if (m_uiBVolumeUpdateCounter < m_EffectController.GetBoundingVolume(bvol))
   {
     TriggerLocalBoundsUpdate();
   }
