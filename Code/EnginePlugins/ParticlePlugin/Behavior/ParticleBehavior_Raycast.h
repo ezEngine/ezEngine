@@ -49,6 +49,8 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_Raycast final : public ezParticle
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_Raycast, ezParticleBehavior);
 
 public:
+  ezParticleBehavior_Raycast();
+
   virtual void CreateRequiredStreams() override;
 
   ezEnum<ezParticleRaycastHitReaction> m_Reaction;

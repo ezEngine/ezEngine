@@ -303,18 +303,18 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
 
 void ezParticleTypeTrail::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
 {
-  TrailData* pTrailData = m_pStreamTrailData->GetWritableData<TrailData>();
+  TrailData* pTrailData = m_pStreamTrailData->GetWritableData<TrailData>() + uiStartIndex;
 
-  const ezVec4* pPosData = m_pStreamPosition->GetData<ezVec4>();
+  const ezVec4* pPosData = m_pStreamPosition->GetData<ezVec4>() + uiStartIndex;
 
   const ezUInt32 uiPrevIndex = (m_uiCurFirstIndex > 0) ? (m_uiCurFirstIndex - 1) : (m_uiMaxPoints - 1);
   const ezUInt32 uiPrevIndex2 = (uiPrevIndex > 0) ? (uiPrevIndex - 1) : (m_uiMaxPoints - 1);
 
   for (ezUInt64 i = 0; i < uiNumElements; ++i)
   {
-    const ezVec4 vStartPos = pPosData[uiStartIndex + i];
+    const ezVec4 vStartPos = pPosData[i];
 
-    TrailData& td = pTrailData[uiStartIndex + i];
+    TrailData& td = pTrailData[i];
     td.m_uiNumPoints = 2;
     td.m_uiIndexForTrailPoints = GetIndexForTrailPoints();
 

@@ -25,7 +25,8 @@ EZ_FORCE_INLINE const ezVec4Template<Type> ezVec2Template<Type>::GetAsVec4(Type 
 template <typename Type>
 EZ_FORCE_INLINE const ezVec2Template<Type> ezVec3Template<Type>::GetAsVec2() const
 {
-  EZ_NAN_ASSERT(this);
+  // don't assert here, as the 3rd and 4th component may be NaN when this is fine, e.g. during interop with the SIMD classes
+  //EZ_NAN_ASSERT(this);
 
   return ezVec2Template<Type>(x, y);
 }
@@ -41,7 +42,8 @@ EZ_FORCE_INLINE const ezVec4Template<Type> ezVec3Template<Type>::GetAsVec4(Type 
 template <typename Type>
 EZ_FORCE_INLINE const ezVec4Template<Type> ezVec3Template<Type>::GetAsPositionVec4() const
 {
-  EZ_NAN_ASSERT(this);
+  // don't assert here, as the 4th component may be NaN when this is fine, e.g. during interop with the SIMD classes
+  //EZ_NAN_ASSERT(this);
 
   return ezVec4Template<Type>(x, y, z, 1);
 }
@@ -49,7 +51,8 @@ EZ_FORCE_INLINE const ezVec4Template<Type> ezVec3Template<Type>::GetAsPositionVe
 template <typename Type>
 EZ_FORCE_INLINE const ezVec4Template<Type> ezVec3Template<Type>::GetAsDirectionVec4() const
 {
-  EZ_NAN_ASSERT(this);
+  // don't assert here, as the 4th component may be NaN when this is fine, e.g. during interop with the SIMD classes
+  //EZ_NAN_ASSERT(this);
 
   return ezVec4Template<Type>(x, y, z, 0);
 }
@@ -90,7 +93,8 @@ EZ_ALWAYS_INLINE ezVec4Template<Type>::ezVec4Template(Type V)
 template <typename Type>
 EZ_FORCE_INLINE const ezVec2Template<Type> ezVec4Template<Type>::GetAsVec2() const
 {
-  EZ_NAN_ASSERT(this);
+  // don't assert here, as the 4th component may be NaN when this is fine, e.g. during interop with the SIMD classes
+  //EZ_NAN_ASSERT(this);
 
   return ezVec2Template<Type>(x, y);
 }
@@ -98,7 +102,8 @@ EZ_FORCE_INLINE const ezVec2Template<Type> ezVec4Template<Type>::GetAsVec2() con
 template <typename Type>
 EZ_FORCE_INLINE const ezVec3Template<Type> ezVec4Template<Type>::GetAsVec3() const
 {
-  EZ_NAN_ASSERT(this);
+  // don't assert here, as the 4th component may be NaN when this is fine, e.g. during interop with the SIMD classes
+  //EZ_NAN_ASSERT(this);
 
   return ezVec3Template<Type>(x, y, z);
 }

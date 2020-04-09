@@ -13,8 +13,7 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezComponentDragDropHandler, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-void ezComponentDragDropHandler::CreateDropObject(const ezVec3& vPosition, const char* szType, const char* szProperty, const char* szValue,
-                                                  ezUuid parent, ezInt32 iInsertChildIndex)
+void ezComponentDragDropHandler::CreateDropObject(const ezVec3& vPosition, const char* szType, const char* szProperty, const ezVariant& value, ezUuid parent, ezInt32 iInsertChildIndex)
 {
   ezVec3 vPos = vPosition;
 
@@ -42,12 +41,12 @@ void ezComponentDragDropHandler::CreateDropObject(const ezVec3& vPosition, const
   cmd2.m_NewValue = vPos;
   EZ_VERIFY(history->AddCommand(cmd2).m_Result.Succeeded(), "AddCommand failed");
 
-  AttachComponentToObject(szType, szProperty, szValue, ObjectGuid);
+  AttachComponentToObject(szType, szProperty, value, ObjectGuid);
 
   m_DraggedObjects.PushBack(ObjectGuid);
 }
 
-void ezComponentDragDropHandler::AttachComponentToObject(const char* szType, const char* szProperty, const char* szValue, ezUuid ObjectGuid)
+void ezComponentDragDropHandler::AttachComponentToObject(const char* szType, const char* szProperty, const ezVariant& value, ezUuid ObjectGuid)
 {
   auto history = m_pDocument->GetCommandHistory();
 
@@ -63,11 +62,23 @@ void ezComponentDragDropHandler::AttachComponentToObject(const char* szType, con
   cmd.m_Parent = ObjectGuid;
   EZ_VERIFY(history->AddCommand(cmd).m_Result.Succeeded(), "AddCommand failed");
 
-  ezSetObjectPropertyCommand cmd2;
-  cmd2.m_Object = CmpGuid;
-  cmd2.m_sProperty = szProperty;
-  cmd2.m_NewValue = szValue;
-  EZ_VERIFY(history->AddCommand(cmd2).m_Result.Succeeded(), "AddCommand failed");
+  if (value.IsA<ezVariantArray>())
+  {
+    ezResizeAndSetObjectPropertyCommand cmd2;
+    cmd2.m_Object = CmpGuid;
+    cmd2.m_sProperty = szProperty;
+    cmd2.m_NewValue = value.Get<ezVariantArray>()[0];
+    cmd2.m_Index = 0;
+    EZ_VERIFY(history->AddCommand(cmd2).m_Result.Succeeded(), "AddCommand failed");
+  }
+  else
+  {
+    ezSetObjectPropertyCommand cmd2;
+    cmd2.m_Object = CmpGuid;
+    cmd2.m_sProperty = szProperty;
+    cmd2.m_NewValue = value;
+    EZ_VERIFY(history->AddCommand(cmd2).m_Result.Succeeded(), "AddCommand failed");
+  }
 }
 
 void ezComponentDragDropHandler::MoveObjectToPosition(const ezUuid& guid, const ezVec3& vPosition)
