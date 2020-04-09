@@ -28,6 +28,8 @@ public:
 
   void SetIsInView() const;
 
+  void ForceBoundingVolumeUpdate();
+
   void StopImmediate();
 
   /// \brief Returns the bounding volume of the effect and the update counter.

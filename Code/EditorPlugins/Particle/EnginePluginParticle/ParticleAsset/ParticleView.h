@@ -10,7 +10,7 @@ public:
   ezParticleViewContext(ezParticleContext* pParticleContext);
   ~ezParticleViewContext();
 
-  void PositionThumbnailCamera();
+  void PositionThumbnailCamera(const ezBoundingBoxSphere& bounds);
 
 protected:
   virtual ezViewHandle CreateView() override;

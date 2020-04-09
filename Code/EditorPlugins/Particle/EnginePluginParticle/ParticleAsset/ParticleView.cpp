@@ -16,10 +16,11 @@ ezParticleViewContext::ezParticleViewContext(ezParticleContext* pParticleContext
 
 ezParticleViewContext::~ezParticleViewContext() {}
 
-void ezParticleViewContext::PositionThumbnailCamera()
+void ezParticleViewContext::PositionThumbnailCamera(const ezBoundingBoxSphere& bounds)
 {
   m_Camera.SetCameraMode(ezCameraMode::PerspectiveFixedFovX, 45.0f, 0.1f, 1000.0f);
-  m_Camera.LookAt(ezVec3(-1.8f, 1.8f, 1.0f), ezVec3::ZeroVector(), ezVec3(0.0f, 0.0f, 1.0f));
+
+  FocusCameraOnObject(m_Camera, bounds, 45.0f, -ezVec3(-1.8f, 1.8f, 1.0f));
 }
 
 ezViewHandle ezParticleViewContext::CreateView()

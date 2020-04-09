@@ -611,6 +611,11 @@ bool ezParticleEffectInstance::NeedsBoundingVolumeUpdate() const
   return m_UpdateBVolumeTime <= m_TotalEffectLifeTime;
 }
 
+void ezParticleEffectInstance::ForceBoundingVolumeUpdate()
+{
+  m_UpdateBVolumeTime = m_TotalEffectLifeTime;
+}
+
 void ezParticleEffectInstance::CombineSystemBoundingVolumes()
 {
   ezBoundingBoxSphere effectVolume;

@@ -425,6 +425,7 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
 
   if (m_pThumbnailViewContext)
   {
+    ezResourceManager::ForceNoFallbackAcquisition(3);
     m_uiThumbnailConvergenceFrames++;
 
     if (!UpdateThumbnailViewContext(m_pThumbnailViewContext))
@@ -483,7 +484,6 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
     }
     else
     {
-      ezResourceManager::ForceNoFallbackAcquisition(3);
       m_pThumbnailViewContext->Redraw(false);
     }
   }
@@ -538,6 +538,7 @@ void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateTh
   m_pThumbnailViewContext->SetupRenderTarget(m_ThumbnailRenderTargetSetup, m_uiThumbnailWidth, m_uiThumbnailHeight);
 
   ezResourceManager::ForceNoFallbackAcquisition(3);
+  OnThumbnailViewContextRequested();
   UpdateThumbnailViewContext(m_pThumbnailViewContext);
 
   // disable editor specific render passes in the thumbnail view

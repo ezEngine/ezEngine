@@ -24,12 +24,14 @@ protected:
 
   virtual ezEngineProcessViewContext* CreateViewContext() override;
   virtual void DestroyViewContext(ezEngineProcessViewContext* pContext) override;
+  virtual void OnThumbnailViewContextRequested() override;
   virtual bool UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext) override;
 
   void RestartEffect();
   void SetAutoRestartEffect(bool loop);
 
 private:
+  ezBoundingBoxSphere m_ThumbnailBoundingVolume;
   ezParticleEffectResourceHandle m_hParticle;
   ezMeshResourceHandle m_hPreviewMeshResource;
   ezParticleComponent* m_pComponent = nullptr;

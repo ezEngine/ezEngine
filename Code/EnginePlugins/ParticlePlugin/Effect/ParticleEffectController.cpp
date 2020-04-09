@@ -90,6 +90,7 @@ void ezParticleEffectController::Tick(const ezTime& tDiff) const
 
   if (pEffect)
   {
+    pEffect->PreSimulate();
     pEffect->Update(tDiff);
   }
 }
@@ -101,6 +102,16 @@ void ezParticleEffectController::SetIsInView() const
   if (pEffect)
   {
     pEffect->SetIsVisible();
+  }
+}
+
+void ezParticleEffectController::ForceBoundingVolumeUpdate()
+{
+  ezParticleEffectInstance* pEffect = GetInstance();
+
+  if (pEffect)
+  {
+    pEffect->ForceBoundingVolumeUpdate();
   }
 }
 
