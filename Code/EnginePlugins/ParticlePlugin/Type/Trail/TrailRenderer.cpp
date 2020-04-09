@@ -106,7 +106,7 @@ void ezParticleTrailRenderer::RenderBatch(const ezRenderViewContext& renderViewC
       pParticleTrailData += uiNumParticlesInBatch;
 
       pGALContext->UpdateBuffer(m_hActiveTrailPointsDataBuffer, 0, ezMakeArrayPtr(pParticlePointsData, uiNumParticlesInBatch * uiBucketSize).ToByteArray());
-      pParticlePointsData += uiNumParticlesInBatch;
+      pParticlePointsData += uiNumParticlesInBatch * uiBucketSize;
 
       // do one drawcall
       pRenderContext->DrawMeshBuffer(uiNumParticlesInBatch * uiMaxTrailSegments * uiPrimFactor);
