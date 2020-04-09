@@ -19,6 +19,7 @@ public:
 
   ezVec3 m_vPositionOffset;
   ezVec3 m_vBoxExtents;
+  ezEnum<ezParticleOutOfBoundsMode> m_OutOfBoundsMode;
 };
 
 
@@ -30,6 +31,7 @@ public:
 
   ezVec3 m_vPositionOffset;
   ezVec3 m_vBoxExtents;
+  ezEnum<ezParticleOutOfBoundsMode> m_OutOfBoundsMode;
 
 protected:
   virtual void Process(ezUInt64 uiNumElements) override;
