@@ -33,10 +33,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleContext, 1, ezRTTIDefaultAllocator<ezP
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleContext::ezParticleContext()
-{
-  m_pComponent = nullptr;
-}
+ezParticleContext::ezParticleContext() = default;
+ezParticleContext::~ezParticleContext() = default;
 
 void ezParticleContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 {
@@ -225,24 +223,102 @@ void ezParticleContext::DestroyViewContext(ezEngineProcessViewContext* pContext)
   EZ_DEFAULT_DELETE(pContext);
 }
 
+void ezParticleContext::OnThumbnailViewContextRequested()
+{
+  m_ThumbnailBoundingVolume.SetInvalid();
+}
+
 bool ezParticleContext::UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext)
 {
   ezParticleViewContext* pParticleViewContext = static_cast<ezParticleViewContext*>(pThumbnailViewContext);
-  pParticleViewContext->PositionThumbnailCamera();
 
-  EZ_LOCK(m_pWorld->GetWriteMarker());
-  m_pWorld->SetWorldSimulationEnabled(true);
-  m_pWorld->Update();
-  m_pWorld->SetWorldSimulationEnabled(false);
-
-  if (m_pComponent && !m_pComponent->m_EffectController.IsAlive())
+  if (!m_ThumbnailBoundingVolume.IsValid())
   {
-    for (ezUInt32 i = 0; i < 15; ++i)
+    EZ_LOCK(m_pWorld->GetWriteMarker());
+    m_pWorld->SetWorldSimulationEnabled(true);
+    m_pWorld->Update();
+    m_pWorld->SetWorldSimulationEnabled(false);
+
+    if (m_pComponent && m_pComponent->m_EffectController.IsAlive())
     {
-      m_pComponent->m_EffectController.Tick(ezTime::Seconds(0.1));
+      m_pComponent->InterruptEffect();
+      m_pComponent->StartEffect();
+
+      // set a fixed random seed
+      m_pComponent->m_uiRandomSeed = 11;
+
+      float fLastVolume = 0;
+
+      ezUInt32 uiSimStepsNeeded = 3;
+      ezInt32 iBVolState = 0;
+
+      for (ezUInt32 step = 0; step < 30; ++step)
+      {
+        m_pComponent->m_EffectController.ForceBoundingVolumeUpdate();
+        m_pComponent->m_EffectController.SetIsInView();
+        m_pComponent->m_EffectController.Tick(ezTime::Seconds(0.05));
+
+        if (!m_pComponent->m_EffectController.IsAlive())
+        {
+          break;
+        }
+
+        ezBoundingBoxSphere bvol;
+        m_pComponent->m_EffectController.GetBoundingVolume(bvol);
+        const ezVec3 ext = bvol.GetBox().GetExtents();
+        const float volume = ext.x * ext.y * ext.z;
+
+        if (iBVolState == 0) // initialize
+        {
+          fLastVolume = volume;
+          iBVolState = 1;
+        }
+        else if (iBVolState == 1) // wait for grow
+        {
+          if (volume > fLastVolume)
+          {
+            fLastVolume = volume;
+            uiSimStepsNeeded = step;
+            iBVolState = 2;
+          }
+        }
+        else if (iBVolState == 2) // wait for shrink
+        {
+          if (volume < fLastVolume)
+          {
+            break;
+          }
+
+          uiSimStepsNeeded = step;
+          fLastVolume = volume;
+        }
+      }
+
+      if (uiSimStepsNeeded > 3)
+      {
+        uiSimStepsNeeded -= 2;
+      }
+
+      m_pComponent->InterruptEffect();
+      m_pComponent->StartEffect();
+
+      for (ezUInt32 step = 0; step <= uiSimStepsNeeded; ++step)
+      {
+        m_pComponent->m_EffectController.ForceBoundingVolumeUpdate();
+        m_pComponent->m_EffectController.SetIsInView();
+        m_pComponent->m_EffectController.Tick(ezTime::Seconds(0.05));
+
+        if (m_pComponent->m_EffectController.IsAlive())
+        {
+          m_pComponent->m_EffectController.GetBoundingVolume(m_ThumbnailBoundingVolume);
+        }
+      }
+
+      m_pComponent->m_uiRandomSeed = 0;
     }
   }
 
+  pParticleViewContext->PositionThumbnailCamera(m_ThumbnailBoundingVolume);
   return true;
 }
 

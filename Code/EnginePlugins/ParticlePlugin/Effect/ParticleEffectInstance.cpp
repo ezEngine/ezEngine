@@ -42,7 +42,6 @@ void ezParticleEffectInstance::Construct(ezParticleEffectHandle hEffectHandle, c
   m_bEmitterEnabled = true;
   m_bIsFinishing = false;
   m_UpdateBVolumeTime.SetZero();
-  m_LastBVolumeUpdate.SetZero();
   m_BoundingVolume = ezBoundingSphere(ezVec3::ZeroVector(), 0.25f);
   m_ElapsedTimeSinceUpdate.SetZero();
   m_EffectIsVisible.SetZero();
@@ -151,8 +150,11 @@ bool ezParticleEffectInstance::IsContinuous() const
 {
   for (ezUInt32 i = 0; i < m_ParticleSystems.GetCount(); ++i)
   {
-    if (m_ParticleSystems[i]->IsContinuous())
-      return true;
+    if (m_ParticleSystems[i])
+    {
+      if (m_ParticleSystems[i]->IsContinuous())
+        return true;
+    }
   }
 
   return false;
@@ -202,6 +204,12 @@ void ezParticleEffectInstance::PreSimulate()
   {
     StepSimulation(m_PreSimulateDuration);
     m_PreSimulateDuration = ezTime::Seconds(0);
+  }
+
+  if (!IsContinuous())
+  {
+    // Can't check this at the beginning, because the particle systems are only set up during StepSimulation.
+    ezLog::Warning("Particle pre-simulation is enabled on an effect that is not continuous.");
   }
 }
 
@@ -600,7 +608,12 @@ bool ezParticleEffectInstance::ShouldBeUpdated() const
 
 bool ezParticleEffectInstance::NeedsBoundingVolumeUpdate() const
 {
-  return m_UpdateBVolumeTime <= ezClock::GetGlobalClock()->GetAccumulatedTime();
+  return m_UpdateBVolumeTime <= m_TotalEffectLifeTime;
+}
+
+void ezParticleEffectInstance::ForceBoundingVolumeUpdate()
+{
+  m_UpdateBVolumeTime = m_TotalEffectLifeTime;
 }
 
 void ezParticleEffectInstance::CombineSystemBoundingVolumes()
@@ -637,17 +650,15 @@ void ezParticleEffectInstance::CombineSystemBoundingVolumes()
     effectVolume.Transform(invTrans.GetAsMat4());
   }
 
-  const ezTime tNow = ezClock::GetGlobalClock()->GetAccumulatedTime();
-
   m_BoundingVolume = effectVolume;
-  m_LastBVolumeUpdate = tNow;
-  m_UpdateBVolumeTime = tNow + ezTime::Seconds(0.1);
+  m_uiBVolumeUpdateCounter++;
+  m_UpdateBVolumeTime = m_TotalEffectLifeTime + ezTime::Seconds(0.1);
 }
 
-ezTime ezParticleEffectInstance::GetBoundingVolume(ezBoundingBoxSphere& volume) const
+ezUInt32 ezParticleEffectInstance::GetBoundingVolume(ezBoundingBoxSphere& volume) const
 {
   volume = m_BoundingVolume;
-  return m_LastBVolumeUpdate;
+  return m_uiBVolumeUpdateCounter;
 }
 
 void ezParticleEffectInstance::ProcessEventQueues()

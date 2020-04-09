@@ -283,10 +283,10 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const char* szIncludePropertie
       if (pProp->GetCategory() == ezPropertyCategory::Constant)
         continue;
 
-      if (szIncludeProperties != nullptr && ezStringUtils::FindSubString(szIncludeProperties, pProp->GetPropertyName()) == nullptr)
+      if (!ezStringUtils::IsNullOrEmpty(szIncludeProperties) && ezStringUtils::FindSubString(szIncludeProperties, pProp->GetPropertyName()) == nullptr)
         continue;
 
-      if (szExcludeProperties != nullptr && ezStringUtils::FindSubString(szExcludeProperties, pProp->GetPropertyName()) != nullptr)
+      if (!ezStringUtils::IsNullOrEmpty(szExcludeProperties) && ezStringUtils::FindSubString(szExcludeProperties, pProp->GetPropertyName()) != nullptr)
         continue;
 
       AddProperty(pProp);

@@ -194,8 +194,7 @@ void ezEngineProcessViewContext::Redraw(bool bRenderEditorGizmos)
   }
 }
 
-bool ezEngineProcessViewContext::FocusCameraOnObject(
-  ezCamera& camera, const ezBoundingBoxSphere& objectBounds, float fFov, const ezVec3& vViewDir)
+bool ezEngineProcessViewContext::FocusCameraOnObject(ezCamera& camera, const ezBoundingBoxSphere& objectBounds, float fFov, const ezVec3& vViewDir)
 {
   ezVec3 vDir = vViewDir;
   bool bChanged = false;

@@ -150,6 +150,24 @@ struct EZ_PARTICLEPLUGIN_DLL ezParticleColorGradientMode
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezParticleColorGradientMode);
 
+
+//////////////////////////////////////////////////////////////////////////
+
+struct EZ_PARTICLEPLUGIN_DLL ezParticleOutOfBoundsMode
+{
+  typedef ezUInt8 StorageType;
+
+  enum Enum
+  {
+    Teleport,
+    Die,
+
+    Default = Teleport
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_PARTICLEPLUGIN_DLL, ezParticleOutOfBoundsMode);
+
 //////////////////////////////////////////////////////////////////////////
 
 struct ezParticleEffectFloatParam

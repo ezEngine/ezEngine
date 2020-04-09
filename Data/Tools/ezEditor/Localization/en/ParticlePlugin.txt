@@ -89,3 +89,5 @@ ezQuadParticleOrientation::Fixed_WorldUp;Fixed: World Up
 ezQuadParticleOrientation::FixedAxis_EmitterDir;Axis: Emitter Dir
 ezQuadParticleOrientation::FixedAxis_ParticleDir;Axis: Particle Dir
 ezParticleBehaviorFactory_Bounds;Bounds
+ezParticleOutOfBoundsMode::Teleport;Teleport
+ezParticleOutOfBoundsMode::Die;Die

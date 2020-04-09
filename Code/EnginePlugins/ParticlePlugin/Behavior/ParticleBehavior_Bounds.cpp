@@ -16,6 +16,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Bounds, 1, ezRTTIDefau
   {
     EZ_MEMBER_PROPERTY("PositionOffset", m_vPositionOffset),
     EZ_MEMBER_PROPERTY("BoxExtents", m_vBoxExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec3(2, 2, 2))),
+    EZ_ENUM_MEMBER_PROPERTY("OutOfBoundsMode", ezParticleOutOfBoundsMode, m_OutOfBoundsMode),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -43,11 +44,13 @@ void ezParticleBehaviorFactory_Bounds::CopyBehaviorProperties(ezParticleBehavior
 
   pBehavior->m_vPositionOffset = m_vPositionOffset;
   pBehavior->m_vBoxExtents = m_vBoxExtents;
+  pBehavior->m_OutOfBoundsMode = m_OutOfBoundsMode;
 }
 
 enum class BehaviorBoundsVersion
 {
   Version_0 = 0,
+  Version_1, // added out of bounds mode
 
   // insert new version numbers above
   Version_Count,
@@ -61,6 +64,9 @@ void ezParticleBehaviorFactory_Bounds::Save(ezStreamWriter& stream) const
 
   stream << m_vPositionOffset;
   stream << m_vBoxExtents;
+
+  // version 1
+  stream << m_OutOfBoundsMode;
 }
 
 void ezParticleBehaviorFactory_Bounds::Load(ezStreamReader& stream)
@@ -72,6 +78,11 @@ void ezParticleBehaviorFactory_Bounds::Load(ezStreamReader& stream)
 
   stream >> m_vPositionOffset;
   stream >> m_vBoxExtents;
+
+  if (uiVersion >= 1)
+  {
+    stream >> m_OutOfBoundsMode;
+  }
 }
 
 void ezParticleBehavior_Bounds::CreateRequiredStreams()
@@ -98,36 +109,58 @@ void ezParticleBehavior_Bounds::Process(ezUInt64 uiNumElements)
 
   ezProcessingStreamIterator<ezSimdVec4f> itPosition(m_pStreamPosition, uiNumElements, 0);
 
-  ezVec3* pLastPosition = nullptr;
-  if (m_pStreamLastPosition)
+  if (m_OutOfBoundsMode == ezParticleOutOfBoundsMode::Teleport)
   {
-    pLastPosition = m_pStreamLastPosition->GetWritableData<ezVec3>();
-  }
-
-  while (!itPosition.HasReachedEnd())
-  {
-    const ezSimdVec4f globalPosCur = itPosition.Current();
-    const ezSimdVec4f localPosCur = invTrans.TransformPosition(globalPosCur) - boxCenter;
-
-    const ezSimdVec4f localPosAdd = localPosCur + boxExt;
-    const ezSimdVec4f localPosSub = localPosCur - boxExt;
-
-    ezSimdVec4f localPosNew;
-    localPosNew = ezSimdVec4f::Select(localPosCur > halfExtPos, localPosSub, localPosCur);
-    localPosNew = ezSimdVec4f::Select(localPosCur < halfExtNeg, localPosAdd, localPosNew);
-
-    localPosNew += boxCenter;
-    const ezSimdVec4f globalPosNew = trans.TransformPosition(localPosNew);
+    ezVec3* pLastPosition = nullptr;
 
     if (m_pStreamLastPosition)
     {
-      const ezSimdVec4f posDiff = globalPosNew - globalPosCur;
-      *pLastPosition += ezSimdConversion::ToVec3(posDiff);
-      ++pLastPosition;
+      pLastPosition = m_pStreamLastPosition->GetWritableData<ezVec3>();
     }
 
-    itPosition.Current() = globalPosNew;
-    itPosition.Advance();
+    while (!itPosition.HasReachedEnd())
+    {
+      const ezSimdVec4f globalPosCur = itPosition.Current();
+      const ezSimdVec4f localPosCur = invTrans.TransformPosition(globalPosCur) - boxCenter;
+
+      const ezSimdVec4f localPosAdd = localPosCur + boxExt;
+      const ezSimdVec4f localPosSub = localPosCur - boxExt;
+
+      ezSimdVec4f localPosNew;
+      localPosNew = ezSimdVec4f::Select(localPosCur > halfExtPos, localPosSub, localPosCur);
+      localPosNew = ezSimdVec4f::Select(localPosCur < halfExtNeg, localPosAdd, localPosNew);
+
+      localPosNew += boxCenter;
+      const ezSimdVec4f globalPosNew = trans.TransformPosition(localPosNew);
+
+      if (m_pStreamLastPosition)
+      {
+        const ezSimdVec4f posDiff = globalPosNew - globalPosCur;
+        *pLastPosition += ezSimdConversion::ToVec3(posDiff);
+        ++pLastPosition;
+      }
+
+      itPosition.Current() = globalPosNew;
+      itPosition.Advance();
+    }
+  }
+  else
+  {
+    ezUInt32 idx = 0;
+
+    while (!itPosition.HasReachedEnd())
+    {
+      const ezSimdVec4f globalPosCur = itPosition.Current();
+      const ezSimdVec4f localPosCur = invTrans.TransformPosition(globalPosCur) - boxCenter;
+
+      if ((localPosCur > halfExtPos).AnySet() ||
+          (localPosCur < halfExtNeg).AnySet())
+      {
+        m_pStreamGroup->RemoveElement(idx);
+      }
+
+      ++idx;
+      itPosition.Advance();
+    }
   }
 }
-

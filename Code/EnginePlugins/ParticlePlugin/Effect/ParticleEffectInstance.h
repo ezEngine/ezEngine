@@ -110,6 +110,7 @@ private: // friend ezParticleWorldModule
   ezParticleffectUpdateTask* GetUpdateTask() { return &m_Task; }
 
 private: // friend ezParticleffectUpdateTask
+  friend class ezParticleEffectController;
   /// \brief If the effect wants to skip all the initial behavior, this simulates it multiple times before it is shown the first time.
   void PreSimulate();
 
@@ -155,15 +156,18 @@ public:
   /// \brief Returns true when the last bounding volume update was too long ago.
   bool NeedsBoundingVolumeUpdate() const;
 
-  /// \brief Returns the bounding volume of the effect and the time at which the volume was updated last.
+  /// \brief Will enforce that the next update does a full bounding volume update
+  void ForceBoundingVolumeUpdate();
+
+  /// \brief Returns the bounding volume of the effect and the update counter.
   /// The volume is in the local space of the effect.
-  ezTime GetBoundingVolume(ezBoundingBoxSphere& volume) const;
+  ezUInt32 GetBoundingVolume(ezBoundingBoxSphere& volume) const;
 
 private:
   void CombineSystemBoundingVolumes();
 
   ezTime m_UpdateBVolumeTime;
-  ezTime m_LastBVolumeUpdate;
+  ezUInt32 m_uiBVolumeUpdateCounter = 0;
   ezBoundingBoxSphere m_BoundingVolume;
   mutable ezTime m_EffectIsVisible;
   ezParticleEffectInstance* m_pVisibleIf = nullptr;

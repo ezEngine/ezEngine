@@ -79,7 +79,6 @@ void ezParticleTypeTrailFactory::CopyTypeProperties(ezParticleType* pObject, boo
   // clamp the number of points to the maximum possible count
   pType->m_uiMaxPoints = ezMath::Min<ezUInt16>(pType->m_uiMaxPoints, pType->ComputeTrailPointBucketSize(pType->m_uiMaxPoints));
 
-  pType->m_uiCurFirstIndex = pType->m_uiMaxPoints - 1;
   pType->m_uiCurFirstIndex = 1;
 }
 
@@ -246,10 +245,10 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
       {
         if (i > m_uiCurFirstIndex)
         {
-          pRenderPositions[i] = pTrailPositions[m_uiCurFirstIndex - i + m_uiMaxPoints];
-        }
+          pRenderPositions[i] = pTrailPositions[m_uiCurFirstIndex + m_uiMaxPoints - i];
+      }
         else
-        {
+      {
           pRenderPositions[i] = pTrailPositions[m_uiCurFirstIndex - i];
         }
       }
@@ -337,8 +336,7 @@ void ezParticleTypeTrail::Process(ezUInt64 uiNumElements)
   {
     m_LastSnapshot = tNow;
 
-    /// \todo Get around the modulo
-    m_uiCurFirstIndex = (m_uiCurFirstIndex + 1) % m_uiMaxPoints;
+    m_uiCurFirstIndex = (m_uiCurFirstIndex + 1) == m_uiMaxPoints ? 0 : (m_uiCurFirstIndex + 1);
 
     for (ezUInt64 i = 0; i < uiNumElements; ++i)
     {

@@ -249,8 +249,13 @@ void ezQtPropertyGridWidget::ClearSelection()
   m_Selection.Clear();
 }
 
-void ezQtPropertyGridWidget::SetSelection(const ezDeque<const ezDocumentObject*>& selection, const char* szIncludeProperties,
-                                          const char* szExcludeProperties)
+void ezQtPropertyGridWidget::SetSelectionIncludeExcludeProperties(const char* szIncludeProperties /*= nullptr*/, const char* szExcludeProperties /*= nullptr*/)
+{
+  m_sSelectionIncludeProperties = szIncludeProperties;
+  m_sSelectionExcludeProperties = szExcludeProperties;
+}
+
+void ezQtPropertyGridWidget::SetSelection(const ezDeque<const ezDocumentObject*>& selection)
 {
   ezQtScopedUpdatesDisabled _(this);
 
@@ -274,7 +279,7 @@ void ezQtPropertyGridWidget::SetSelection(const ezDeque<const ezDocumentObject*>
     }
 
     const ezRTTI* pCommonType = ezQtPropertyWidget::GetCommonBaseType(Items);
-    m_pTypeWidget = new ezQtTypeWidget(m_pContent, this, GetObjectAccessor(), pCommonType, szIncludeProperties, szExcludeProperties);
+    m_pTypeWidget = new ezQtTypeWidget(m_pContent, this, GetObjectAccessor(), pCommonType, m_sSelectionIncludeProperties, m_sSelectionExcludeProperties);
     m_pTypeWidget->SetSelection(Items);
 
     m_pContentLayout->insertWidget(0, m_pTypeWidget, 0);

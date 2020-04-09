@@ -113,7 +113,7 @@ protected:
   ezTime m_RestartTime;
 
   void CheckBVolumeUpdate();
-  ezTime m_LastBVolumeUpdate;
+  ezUInt32 m_uiBVolumeUpdateCounter = 0;
 
   // Exposed Parameters
   friend class ezParticleEventReaction_Effect;
