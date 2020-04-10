@@ -100,11 +100,11 @@ ezResult ezTexConvProcessor::DetermineTargetResolution(const ezImage& image, ezE
   // keep original aspect ratio
   if (uiOrgResX > uiOrgResY)
   {
-    out_uiTargetResolutionY /= (uiOrgResX / uiOrgResY);
+    out_uiTargetResolutionY = (out_uiTargetResolutionX * uiOrgResY) / uiOrgResX;
   }
   else if (uiOrgResX < uiOrgResY)
   {
-    out_uiTargetResolutionX /= (uiOrgResY / uiOrgResX);
+    out_uiTargetResolutionX = (out_uiTargetResolutionY * uiOrgResX) / uiOrgResY;
   }
 
   if (m_Descriptor.m_OutputType == ezTexConvOutputType::Volume)

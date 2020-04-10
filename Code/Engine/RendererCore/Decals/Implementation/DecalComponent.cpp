@@ -37,7 +37,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 7, ezComponentMode::Static)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ARRAY_ACCESSOR_PROPERTY("Decals", DecalFile_GetCount, DecalFile_Get, DecalFile_Set, DecalFile_Insert, DecalFile_Remove)->AddAttributes(new ezAssetBrowserAttribute("Decal")),
-    EZ_ENUM_MEMBER_PROPERTY("ProjectionAxis", ezBasisAxis, m_ProjectionAxis),
+    EZ_ENUM_ACCESSOR_PROPERTY("ProjectionAxis", ezBasisAxis, GetProjectionAxis, SetProjectionAxis),
     EZ_ACCESSOR_PROPERTY("Extents", GetExtents, SetExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f)), new ezClampValueAttribute(ezVec3(0.01), ezVariant(25.0f))),
     EZ_ACCESSOR_PROPERTY("SizeVariance", GetSizeVariance, SetSizeVariance)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
@@ -188,7 +188,47 @@ void ezDecalComponent::DeserializeComponent(ezWorldReader& stream)
 
 ezResult ezDecalComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
 {
-  bounds = ezBoundingBox(m_vExtents * -0.5f, m_vExtents * 0.5f);
+  if (m_hDecals.IsEmpty())
+    return EZ_FAILURE;
+
+  const ezUInt32 uiDecalIndex = ezMath::Min<ezUInt32>(m_uiRandomDecalIdx, m_hDecals.GetCount() - 1);
+
+  if (!m_hDecals[uiDecalIndex].IsValid() || m_vExtents.IsZero())
+    return EZ_FAILURE;
+
+  float fAspectRatio = 1.0f;
+
+  {
+    auto hDecalAtlas = GetWorld()->GetComponentManager<ezDecalComponentManager>()->m_hDecalAtlas;
+    ezResourceLock<ezDecalAtlasResource> pDecalAtlas(hDecalAtlas, ezResourceAcquireMode::BlockTillLoaded);
+
+    const auto& atlas = pDecalAtlas->GetAtlas();
+    const ezUInt32 decalIdx = atlas.m_Items.Find(m_hDecals[uiDecalIndex].GetResourceIDHash());
+
+    if (decalIdx != ezInvalidIndex)
+    {
+      const auto& item = atlas.m_Items.GetValue(decalIdx);
+      fAspectRatio = item.m_LayerRects[0].width / item.m_LayerRects[0].height;
+    }
+  }
+
+  ezVec3 vAspectCorrection = ezVec3(1.0f);
+  if (!ezMath::IsEqual(fAspectRatio, 1.0f, 0.001f))
+  {
+    if (fAspectRatio > 1.0f)
+    {
+      vAspectCorrection.z /= fAspectRatio;
+    }
+    else
+    {
+      vAspectCorrection.y *= fAspectRatio;
+    }
+  }
+
+  const ezQuat axisRotation = ezBasisAxis::GetBasisRotation_PosX(m_ProjectionAxis);
+  ezVec3 vHalfExtents = (axisRotation * vAspectCorrection).Abs().CompMul(m_vExtents * 0.5f);
+
+  bounds = ezBoundingBox(-vHalfExtents, vHalfExtents);
   return EZ_SUCCESS;
 }
 
@@ -287,11 +327,25 @@ bool ezDecalComponent::GetMapNormalToGeometry() const
 void ezDecalComponent::SetDecal(ezUInt32 uiIndex, const ezDecalResourceHandle& hDecal)
 {
   m_hDecals[uiIndex] = hDecal;
+
+  TriggerLocalBoundsUpdate();
 }
 
 const ezDecalResourceHandle& ezDecalComponent::GetDecal(ezUInt32 uiIndex) const
 {
   return m_hDecals[uiIndex];
+}
+
+void ezDecalComponent::SetProjectionAxis(ezEnum<ezBasisAxis> ProjectionAxis)
+{
+  m_ProjectionAxis = ProjectionAxis;
+
+  TriggerLocalBoundsUpdate();
+}
+
+ezEnum<ezBasisAxis> ezDecalComponent::GetProjectionAxis() const
+{
+  return m_ProjectionAxis;
 }
 
 void ezDecalComponent::SetApplyOnlyTo(ezGameObjectHandle hObject)
@@ -386,7 +440,7 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
   const ezQuat axisRotation = ezBasisAxis::GetBasisRotation_PosX(m_ProjectionAxis);
 
   pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
-  pRenderData->m_GlobalTransform.m_vScale = (axisRotation * pRenderData->m_GlobalTransform.m_vScale).Abs();
+  pRenderData->m_GlobalTransform.m_vScale = (axisRotation * (pRenderData->m_GlobalTransform.m_vScale.CompMul(m_vExtents * 0.5f))).Abs();
   pRenderData->m_GlobalTransform.m_qRotation = pRenderData->m_GlobalTransform.m_qRotation * axisRotation;
 
   if (!ezMath::IsEqual(fAspectRatio, 1.0f, 0.001f))
@@ -401,7 +455,6 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
     }
   }
 
-  pRenderData->m_vHalfExtents = (axisRotation * m_vExtents * 0.5f).Abs();
   pRenderData->m_uiApplyOnlyToId = m_uiApplyOnlyToId;
   pRenderData->m_uiFlags = uiDecalFlags;
   pRenderData->m_uiFlags |= (m_bWrapAround ? DECAL_WRAP_AROUND : 0);
