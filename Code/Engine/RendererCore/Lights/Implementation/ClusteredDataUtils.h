@@ -178,7 +178,7 @@ namespace
     ezVec3 position = pDecalRenderData->m_GlobalTransform.m_vPosition;
     ezVec3 dirForwards = pDecalRenderData->m_GlobalTransform.m_qRotation * ezVec3(1.0f, 0.0, 0.0f);
     ezVec3 dirUp = pDecalRenderData->m_GlobalTransform.m_qRotation * ezVec3(0.0f, 0.0, 1.0f);
-    ezVec3 scale = pDecalRenderData->m_GlobalTransform.m_vScale.CompMul(pDecalRenderData->m_vHalfExtents);
+    ezVec3 scale = pDecalRenderData->m_GlobalTransform.m_vScale;
 
     // the CompMax prevents division by zero (thus inf, thus NaN later, then crash)
     // if negative scaling should be allowed, this would need to be changed
@@ -374,7 +374,7 @@ namespace
     ezSimdMat4f worldToDecal = decalToWorld.GetInverse();
 
     ezVec3 corners[8];
-    ezBoundingBox(-pDecalRenderData->m_vHalfExtents, pDecalRenderData->m_vHalfExtents).GetCorners(corners);
+    ezBoundingBox(ezVec3(-1), ezVec3(1)).GetCorners(corners);
 
     ezSimdMat4f decalToScreen = viewProjectionMatrix * decalToWorld;
     ezSimdBBox screenSpaceBounds;
@@ -400,7 +400,7 @@ namespace
       screenSpaceBounds.m_Max = ezSimdVec4f(1.0f).GetCombined<ezSwizzle::XYZW>(screenSpaceBounds.m_Max);
     }
 
-    ezSimdVec4f decalHalfExtents = ezSimdConversion::ToVec3(pDecalRenderData->m_vHalfExtents);
+    ezSimdVec4f decalHalfExtents = ezSimdVec4f(1.0f);
     ezSimdBBox localDecalBounds = ezSimdBBox(-decalHalfExtents, decalHalfExtents);
 
     const ezUInt32 uiBlockIndex = uiDecalIndex / 32;

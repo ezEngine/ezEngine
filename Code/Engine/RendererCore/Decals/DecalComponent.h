@@ -28,8 +28,6 @@ class EZ_RENDERERCORE_DLL ezDecalRenderData : public ezRenderData
   EZ_ADD_DYNAMIC_REFLECTION(ezDecalRenderData, ezRenderData);
 
 public:
-  ezVec3 m_vHalfExtents;
-
   ezUInt32 m_uiApplyOnlyToId;
   ezUInt32 m_uiFlags;
   ezUInt32 m_uiAngleFadeParams;
@@ -111,7 +109,8 @@ public:
   ezTime m_FadeOutDuration;                               // [ property ]
   ezEnum<ezOnComponentFinishedAction> m_OnFinishedAction; // [ property ]
 
-  ezEnum<ezBasisAxis> m_ProjectionAxis; // [ property ]
+  void SetProjectionAxis(ezEnum<ezBasisAxis> ProjectionAxis); // [ property ]
+  ezEnum<ezBasisAxis> GetProjectionAxis() const;              // [ property ]
 
   void SetApplyOnlyTo(ezGameObjectHandle hObject);
   ezGameObjectHandle GetApplyOnlyTo() const;
@@ -143,6 +142,7 @@ protected:
   bool m_bWrapAround = false;
   bool m_bMapNormalToGeometry = false;
   ezUInt8 m_uiRandomDecalIdx = 0xFF;
+  ezEnum<ezBasisAxis> m_ProjectionAxis;
   ezHybridArray<ezDecalResourceHandle, 1> m_hDecals;
 
   ezGameObjectHandle m_hApplyOnlyToObject;
