@@ -13,6 +13,10 @@
 #include <RendererCore/../../../Data/Base/Shaders/Common/GlobalConstants.h>
 #include <RendererCore/RenderContext/Implementation/RenderContextStructs.h>
 
+#include <RendererCore/Textures/Texture2DResource.h>
+#include <RendererCore/Textures/Texture3DResource.h>
+#include <RendererCore/Textures/TextureCubeResource.h>
+
 struct ezRenderWorldRenderEvent;
 
 //////////////////////////////////////////////////////////////////////////
@@ -57,10 +61,13 @@ public:
 
   void BindTexture2D(const ezTempHashedString& sSlotName, const ezTexture2DResourceHandle& hTexture,
                      ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback);
+  void BindTexture3D(const ezTempHashedString& sSlotName, const ezTexture3DResourceHandle& hTexture,
+    ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback);
   void BindTextureCube(const ezTempHashedString& sSlotName, const ezTextureCubeResourceHandle& hTexture,
                      ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback);
 
   void BindTexture2D(const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView);
+  void BindTexture3D(const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView);
   void BindTextureCube(const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView);
 
   /// Binds a read+write texture or buffer
@@ -198,6 +205,7 @@ private:
   bool m_bAllowAsyncShaderLoading;
 
   ezHashTable<ezUInt32, ezGALResourceViewHandle> m_BoundTextures2D;
+  ezHashTable<ezUInt32, ezGALResourceViewHandle> m_BoundTextures3D;
   ezHashTable<ezUInt32, ezGALResourceViewHandle> m_BoundTexturesCube;
   ezHashTable<ezUInt32, ezGALUnorderedAccessViewHandle> m_BoundUAVs;
   ezHashTable<ezUInt32, ezGALSamplerStateHandle> m_BoundSamplers;
