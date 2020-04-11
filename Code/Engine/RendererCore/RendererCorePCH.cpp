@@ -100,6 +100,7 @@ EZ_STATICLINK_LIBRARY(RendererCore)
   EZ_STATICLINK_REFERENCE(RendererCore_Shader_Implementation_ShaderStageBinary);
   EZ_STATICLINK_REFERENCE(RendererCore_Shader_Implementation_ShaderStateDescriptor);
   EZ_STATICLINK_REFERENCE(RendererCore_Textures_Texture2DResource);
+  EZ_STATICLINK_REFERENCE(RendererCore_Textures_Texture3DResource);
   EZ_STATICLINK_REFERENCE(RendererCore_Textures_TextureCubeResource);
   EZ_STATICLINK_REFERENCE(RendererCore_Textures_TextureLoader);
   EZ_STATICLINK_REFERENCE(RendererCore_Textures_TextureUtils);
