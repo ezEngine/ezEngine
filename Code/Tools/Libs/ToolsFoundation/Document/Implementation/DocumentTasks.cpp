@@ -26,7 +26,7 @@ void ezSaveDocumentTask::Execute()
 
 ezAfterSaveDocumentTask::ezAfterSaveDocumentTask(ezOnTaskFinishedCallback onTaskFinished)
 {
-  ConfigureTask("ezAfterSaveDocumentTask", ezTaskNesting::Never, onTaskFinished);
+  ConfigureTask("ezAfterSaveDocumentTask", ezTaskNesting::Maybe, onTaskFinished);
 }
 
 ezAfterSaveDocumentTask::~ezAfterSaveDocumentTask() = default;
