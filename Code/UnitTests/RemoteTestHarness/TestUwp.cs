@@ -76,6 +76,10 @@ namespace ezUwpTestHarness
     string _platform;
     string _project;
 
+    static int fileserveTimeoutMS = 600000;
+    int _failed = 0;
+    int _finished = 0;
+
     private ApplicationActivationManager appActiveManager;
 
     public ezTestUWP(string ezWorkspace, string testOutputPath,
@@ -189,8 +193,6 @@ namespace ezUwpTestHarness
       Console.WriteLine("AppX started.");
     }
 
-    static int fileserveTimeoutMS = 600000;
-
     public void ExecuteTest()
     {
       string absBinDir = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
@@ -241,6 +243,7 @@ namespace ezUwpTestHarness
       // create a real time user mode session
       using (var session = new TraceEventSession("ezETWMonitorSession"))
       {
+ 
         session.EnableProvider(new Guid("BFD4350A-BA77-463D-B4BE-E30374E42494")); //ezLogProvider
         session.Source.Dynamic.AddCallbackForProviderEvent("ezLogProvider", "LogMessge", delegate (TraceEvent data)
         {
@@ -250,6 +253,17 @@ namespace ezUwpTestHarness
           if (Type != (int)ezLogMsgType.EndGroup)
           {
             Console.Out.WriteLine("".PadLeft(Indentation) + Text);
+          }
+
+          if (Type == (int)ezLogMsgType.InfoMsg && Text == "All tests passed.")
+          {
+            Interlocked.Exchange(ref this._failed, 0);
+            Interlocked.Exchange(ref this._finished, 1);
+          }
+          else if (Type == (int)ezLogMsgType.InfoMsg && Text != null && Text.StartsWith("Tests failed: ") && Text.Contains("Tests passed: "))
+          {
+            Interlocked.Exchange(ref this._failed, 1);
+            Interlocked.Exchange(ref this._finished, 1);
           }
         });
 
@@ -302,29 +316,14 @@ namespace ezUwpTestHarness
         // Wait for ETW events to trickle through.
         Thread.Sleep(5000);
 
-        // Read test output.
-        if (File.Exists(absOutputPath))
+        if (_finished == 1)
         {
-          string TestResultJSON = File.ReadAllText(absOutputPath, Encoding.UTF8);
-
-          try
-          {
-            // Parse test output to figure out what the result is as we can't use the exit code.
-            var values = Newtonsoft.Json.JsonConvert.DeserializeObject<System.Collections.Generic.Dictionary<string, dynamic>>(TestResultJSON);
-            var errors = values["errors"] as Newtonsoft.Json.Linq.JArray;
-            Console.WriteLine(string.Format("Errors during test: '{0}'", errors.Count));
-            Environment.ExitCode = errors.Count;
-          }
-          catch (Exception e)
-          {
-            Environment.ExitCode = 1;
-            Console.WriteLine(string.Format("Failed to parse test output: '{0}'", e.ToString()));
-          }
+          Environment.ExitCode = _failed;
         }
         else
         {
           Environment.ExitCode = 1;
-          Console.WriteLine(string.Format("No test output file present!"));
+          Console.WriteLine($"Failed to parse end of tests. Tests did not finish!");
         }
       }
     }

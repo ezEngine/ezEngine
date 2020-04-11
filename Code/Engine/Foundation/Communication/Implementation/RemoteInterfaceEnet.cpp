@@ -185,6 +185,9 @@ void ezRemoteInterfaceEnetImpl::InternalUpdateRemoteInterface()
           enet_peer_disconnect(NetworkEvent.peer, 0);
           break;
         }
+        
+        // Uncomment this to allow stepping through enet code without loosing the connection.
+        //enet_peer_timeout(NetworkEvent.peer, 0xFFFFFF, 32000, 0xFFFFFF);
 
 
         if (GetRemoteMode() == ezRemoteMode::Client)
