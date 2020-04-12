@@ -1,0 +1,6 @@
+enum LUT_MODE
+{
+  LUT_MODE_NONE,
+  LUT_MODE_ONE,
+  LUT_MODE_TWO
+};

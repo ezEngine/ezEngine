@@ -3,6 +3,7 @@
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Configuration/Startup.h>
+#include <Texture/Image/Image.h>
 #include <Texture/Image/Formats/DdsFileFormat.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Textures/Texture2DResource.h>

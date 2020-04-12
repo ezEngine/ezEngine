@@ -10,7 +10,8 @@ CONSTANT_BUFFER(ezTonemapConstants, 3)
   COLOR4F(MoodColor);
   FLOAT1(MoodStrength);
   FLOAT1(Saturation);
-  FLOAT2(Padding);
+  FLOAT1(Lut1Strength);
+  FLOAT1(Lut2Strength);
   FLOAT4(ContrastParams);
 };
 
