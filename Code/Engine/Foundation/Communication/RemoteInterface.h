@@ -47,7 +47,12 @@ typedef ezDelegate<void(ezRemoteMessage&)> ezRemoteMessageHandler;
 struct EZ_FOUNDATION_DLL ezRemoteMessageQueue
 {
   ezRemoteMessageHandler m_MessageHandler;
-  ezDeque<ezRemoteMessage> m_MessageQueue;
+  /// \brief Messages are pushed into this container on arrival.
+  ezDeque<ezRemoteMessage> m_MessageQueueIn;
+  /// \brief To flush the message queue, m_MessageQueueIn and m_MessageQueueOut are swapped.
+  /// Thus new messages can arrive while we execute the event handler for each element
+  /// in this container and then clear it.
+  ezDeque<ezRemoteMessage> m_MessageQueueOut;
 };
 
 class EZ_FOUNDATION_DLL ezRemoteInterface

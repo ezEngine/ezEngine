@@ -193,17 +193,20 @@ ezUInt32 ezRemoteInterface::ExecuteAllMessageHandlers()
 
 ezUInt32 ezRemoteInterface::ExecuteMessageHandlersForQueue(ezRemoteMessageQueue& queue)
 {
-  const ezUInt32 ret = queue.m_MessageQueue.GetCount();
+  queue.m_MessageQueueIn.Swap(queue.m_MessageQueueOut);
+  const ezUInt32 ret = queue.m_MessageQueueOut.GetCount();
+
 
   if (queue.m_MessageHandler.IsValid())
   {
-    for (auto& msg : queue.m_MessageQueue)
+    for (auto& msg : queue.m_MessageQueueOut)
     {
       queue.m_MessageHandler(msg);
     }
   }
 
-  queue.m_MessageQueue.Clear();
+  queue.m_MessageQueueOut.Clear();
+
   return ret;
 }
 
@@ -290,7 +293,7 @@ void ezRemoteInterface::ReportMessage(ezUInt32 uiApplicationID, ezUInt32 uiSyste
     return;
 
   // store the data for later
-  auto& msg = queue.m_MessageQueue.ExpandAndGetRef();
+  auto& msg = queue.m_MessageQueueIn.ExpandAndGetRef();
   msg.m_uiApplicationID = uiApplicationID;
   msg.SetMessageID(uiSystemID, uiMsgID);
   msg.GetWriter().WriteBytes(data.GetPtr(), data.GetCount());

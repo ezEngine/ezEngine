@@ -181,8 +181,8 @@ void ezFileserveClient::UploadFile(ezUInt16 uiDataDirID, const char* szFile, con
   // update meta state and cache
   {
     const ezString& sMountPoint = m_MountedDataDirs[uiDataDirID].m_sMountPoint;
-    ezStringBuilder sCachedFile, sCachedMetaFile;
-    BuildPathInCache(szFile, sMountPoint, sCachedFile, sCachedMetaFile);
+    ezStringBuilder sCachedMetaFile;
+    BuildPathInCache(szFile, sMountPoint, nullptr, &sCachedMetaFile);
 
     ezUInt64 uiHash = 1;
 
@@ -294,18 +294,23 @@ void ezFileserveClient::FillFileStatusCache(const char* szFile)
     it.Value() = 0; // fallback
 }
 
-void ezFileserveClient::BuildPathInCache(const char* szFile, const char* szMountPoint, ezStringBuilder& out_sAbsPath,
-                                         ezStringBuilder& out_sFullPathMeta) const
+void ezFileserveClient::BuildPathInCache(const char* szFile, const char* szMountPoint, ezStringBuilder* out_pAbsPath,
+                                         ezStringBuilder* out_pFullPathMeta) const
 {
   EZ_ASSERT_DEV(!ezPathUtils::IsAbsolutePath(szFile), "Invalid path");
   EZ_LOCK(m_Mutex);
-  out_sAbsPath = m_sFileserveCacheFolder;
-  out_sAbsPath.AppendPath(szMountPoint, szFile);
-  out_sAbsPath.MakeCleanPath();
-
-  out_sFullPathMeta = m_sFileserveCacheMetaFolder;
-  out_sFullPathMeta.AppendPath(szMountPoint, szFile);
-  out_sFullPathMeta.MakeCleanPath();
+  if (out_pAbsPath)
+  {
+    *out_pAbsPath = m_sFileserveCacheFolder;
+    out_pAbsPath->AppendPath(szMountPoint, szFile);
+    out_pAbsPath->MakeCleanPath();
+  }
+  if (out_pFullPathMeta)
+  {
+    *out_pFullPathMeta = m_sFileserveCacheMetaFolder;
+    out_pFullPathMeta->AppendPath(szMountPoint, szFile);
+    out_pFullPathMeta->MakeCleanPath();
+  }
 }
 
 void ezFileserveClient::ComputeDataDirMountPoint(const char* szDataDir, ezStringBuilder& out_sMountPoint)
@@ -527,7 +532,7 @@ void ezFileserveClient::HandleFileTransferFinishedMsg(ezRemoteMessage& msg)
 
   const ezString& sMountPoint = m_MountedDataDirs[uiFoundInDataDir].m_sMountPoint;
   ezStringBuilder sCachedFile, sCachedMetaFile;
-  BuildPathInCache(m_sCurFileRequest, sMountPoint, sCachedFile, sCachedMetaFile);
+  BuildPathInCache(m_sCurFileRequest, sMountPoint, &sCachedFile, &sCachedMetaFile);
 
   if (fileState == ezFileserveFileState::NonExistant)
   {
@@ -584,8 +589,9 @@ void ezFileserveClient::WriteDownloadToDisk(ezStringBuilder sCachedFile)
   }
 }
 
-ezResult ezFileserveClient::DownloadFile(ezUInt16 uiDataDirID, const char* szFile, bool bForceThisDataDir)
+ezResult ezFileserveClient::DownloadFile(ezUInt16 uiDataDirID, const char* szFile, bool bForceThisDataDir, ezStringBuilder* out_pFullPath)
 {
+  //bForceThisDataDir = true;
   EZ_LOCK(m_Mutex);
   if (m_bDownloading)
   {
@@ -614,6 +620,9 @@ ezResult ezFileserveClient::DownloadFile(ezUInt16 uiDataDirID, const char* szFil
   {
     if (CacheStatus.m_FileHash == 0) // file does not exist
       return EZ_FAILURE;
+
+    if (out_pFullPath)
+      BuildPathInCache(szFile, m_MountedDataDirs[uiUseDataDirCache].m_sMountPoint, out_pFullPath, nullptr);
 
     return EZ_SUCCESS;
   }
@@ -644,6 +653,9 @@ ezResult ezFileserveClient::DownloadFile(ezUInt16 uiDataDirID, const char* szFil
     if (m_MountedDataDirs[uiDataDirID].m_CacheStatus[m_sCurFileRequest].m_FileHash == 0)
       return EZ_FAILURE;
 
+    if (out_pFullPath)
+      BuildPathInCache(szFile, m_MountedDataDirs[uiDataDirID].m_sMountPoint, out_pFullPath, nullptr);
+
     return EZ_SUCCESS;
   }
   else
@@ -654,6 +666,9 @@ ezResult ezFileserveClient::DownloadFile(ezUInt16 uiDataDirID, const char* szFil
       // file does not exist
       if (m_MountedDataDirs[uiBestDir].m_CacheStatus[m_sCurFileRequest].m_FileHash == 0)
         return EZ_FAILURE;
+
+      if (out_pFullPath)
+        BuildPathInCache(szFile, m_MountedDataDirs[uiBestDir].m_sMountPoint, out_pFullPath, nullptr);
 
       return EZ_SUCCESS;
     }
@@ -670,7 +685,7 @@ void ezFileserveClient::DetermineCacheStatus(ezUInt16 uiDataDirID, const char* s
 
   EZ_ASSERT_DEV(dd.m_bMounted, "Data directory {0} is not mounted", uiDataDirID);
 
-  BuildPathInCache(szFile, dd.m_sMountPoint, sAbsPathFile, sAbsPathMeta);
+  BuildPathInCache(szFile, dd.m_sMountPoint, &sAbsPathFile, &sAbsPathMeta);
 
   if (ezOSFile::ExistsFile(sAbsPathFile))
   {
