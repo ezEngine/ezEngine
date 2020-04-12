@@ -18,11 +18,11 @@ namespace
     }
 
     if (
-      line[skip + 0]->m_iType != ezTokenType::Float ||
+      (line[skip + 0]->m_iType != ezTokenType::Float && line[skip + 0]->m_iType != ezTokenType::Integer) ||
       line[skip + 1]->m_iType != ezTokenType::Whitespace ||
-      line[skip + 2]->m_iType != ezTokenType::Float ||
+      (line[skip + 2]->m_iType != ezTokenType::Float && line[skip + 2]->m_iType != ezTokenType::Integer) ||
       line[skip + 3]->m_iType != ezTokenType::Whitespace ||
-      line[skip + 4]->m_iType != ezTokenType::Float
+      (line[skip + 4]->m_iType != ezTokenType::Float && line[skip + 4]->m_iType != ezTokenType::Integer)
       )
     {
       return false;
@@ -148,7 +148,7 @@ ezStatus ezAdobeCUBEReader::ParseFile(ezStreamReader& Stream, ezLogInterface* pL
       continue;
     }
 
-    if (line[0]->m_iType == ezTokenType::Float)
+    if (line[0]->m_iType == ezTokenType::Float || line[0]->m_iType == ezTokenType::Integer)
     {
       if (m_uiLUTSize == 0)
       {
