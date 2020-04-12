@@ -4,6 +4,7 @@ ALL
 [PERMUTATIONS]
 
 CAMERA_MODE = CAMERA_MODE_PERSPECTIVE
+LUT_MODE
 
 [RENDERSTATE]
 
@@ -58,6 +59,13 @@ Texture2D NoiseTexture;
 Texture2D SceneColorTexture;
 Texture2D BloomTexture;
 
+#if LUT_MODE == LUT_MODE_ONE
+Texture3D Lut1Texture;
+#elif LUT_MODE == LUT_MODE_TWO
+Texture3D Lut1Texture;
+Texture3D Lut2Texture;
+#endif
+
 float3 ScreenSpaceDither( float2 texCoords )
 {
   float t = frac( GlobalTime );
@@ -84,6 +92,19 @@ float4 main(PS_IN Input) : SV_Target
 
   float3 whiteScale = 1.0 / FilmicTonemap(11.2);
   color = saturate(color * whiteScale);
+
+  // Color grading with LUTs if enabled
+  #if LUT_MODE != LUT_MODE_NONE
+
+    color = lerp(color, Lut1Texture.Sample(LinearClampSampler, color), Lut1Strength);
+
+    #if LUT_MODE == LUT_MODE_TWO
+
+      color = lerp(color, Lut2Texture.Sample(LinearClampSampler, color), Lut2Strength);
+
+    #endif
+
+  #endif
 
   // Color correction
   float luminance = GetLuminance(color);

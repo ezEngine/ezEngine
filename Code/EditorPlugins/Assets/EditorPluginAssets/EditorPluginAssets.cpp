@@ -19,6 +19,8 @@
 #include <EditorPluginAssets/TextureAsset/TextureAssetWindow.moc.h>
 #include <EditorPluginAssets/TextureCubeAsset/TextureCubeAssetObjects.h>
 #include <EditorPluginAssets/TextureCubeAsset/TextureCubeAssetWindow.moc.h>
+#include <EditorPluginAssets/LUTAsset/LUTAssetObjects.h>
+#include <EditorPluginAssets/LUTAsset/LUTAssetWindow.moc.h>
 #include <EditorPluginAssets/VisualScriptAsset/VisualScriptActions.h>
 #include <EditorPluginAssets/VisualShader/VisualShaderActions.h>
 #include <Foundation/Reflection/Reflection.h>
@@ -82,6 +84,31 @@ static void ConfigureTextureCubeAsset()
     ezCommandHistoryActions::MapActions("TextureCubeAssetToolBar", "");
     ezAssetActions::MapActions("TextureCubeAssetToolBar", true);
     ezTextureAssetActions::MapActions("TextureCubeAssetToolBar", "");
+  }
+}
+
+static void ConfigureLUTAsset()
+{
+  ezPropertyMetaState::GetSingleton()->m_Events.AddEventHandler(ezLUTAssetProperties::PropertyMetaStateEventHandler);
+
+  ezLUTAssetActions::RegisterActions();
+
+  // Menu Bar
+  {
+    ezActionMapManager::RegisterActionMap("LUTAssetMenuBar");
+    ezProjectActions::MapActions("LUTAssetMenuBar");
+    ezStandardMenus::MapActions("LUTAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit |
+                                                             ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+    ezDocumentActions::MapActions("LUTAssetMenuBar", "Menu.File", false);
+    ezCommandHistoryActions::MapActions("LUTAssetMenuBar", "Menu.Edit");
+  }
+
+  // Tool Bar
+  {
+    ezActionMapManager::RegisterActionMap("LUTAssetToolBar");
+    ezDocumentActions::MapActions("LUTAssetToolBar", "", true);
+    ezCommandHistoryActions::MapActions("LUTAssetToolBar", "");
+    ezAssetActions::MapActions("LUTAssetToolBar", true);
   }
 }
 
@@ -449,6 +476,7 @@ void OnLoadPlugin(bool bReloading)
 
   ConfigureTexture2DAsset();
   ConfigureTextureCubeAsset();
+  ConfigureLUTAsset();
   ConfigureMaterialAsset();
   ConfigureRenderPipelineAsset();
   ConfigureMeshAsset();
@@ -474,6 +502,7 @@ void OnUnloadPlugin(bool bReloading)
 {
   ezTextureAssetActions::UnregisterActions();
   ezTextureCubeAssetActions::UnregisterActions();
+  ezLUTAssetActions::UnregisterActions();
   ezVisualShaderActions::UnregisterActions();
   ezAssetPluginActions::UnregisterActions();
   ezVisualScriptActions::UnregisterActions();
