@@ -115,6 +115,11 @@ ezMeshPrimitive::HalfSphere;Half Sphere
 ezMeshPrimitive::GeodesicSphere;Geodesic Sphere
 ezMeshPrimitive::Capsule;Capsule
 ezMeshPrimitive::Torus;Torus
+ezMeshNormalPrecision::_8Bit;8 Bit
+ezMeshNormalPrecision::_16Bit;16 Bit
+ezMeshNormalPrecision::_32Bit;32 Bit
+ezMeshTexCoordPrecision::_16Bit;16 Bit
+ezMeshTexCoordPrecision::_32Bit;32 Bit
 VisScript.PickDebugTarget;Pick Debug Target...
 ezMaterialAnimComponent;Material Animation
 ezCollectionAssetEntry;Collection Asset Entry

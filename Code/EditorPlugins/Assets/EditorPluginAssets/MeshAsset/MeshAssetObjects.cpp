@@ -16,6 +16,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetProperties, 3, ezRTTIDefaultAllocator
     EZ_ENUM_MEMBER_PROPERTY("UpDir", ezBasisAxis, m_UpDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveY)),
     EZ_MEMBER_PROPERTY("RecalculateNormals", m_bRecalculateNormals)->AddAttributes(new ezDefaultValueAttribute(false)),
     EZ_MEMBER_PROPERTY("InvertNormals", m_bInvertNormals)->AddAttributes(new ezDefaultValueAttribute(false)),
+    EZ_ENUM_MEMBER_PROPERTY("NormalPrecision", ezMeshNormalPrecision, m_NormalPrecision),
+    EZ_ENUM_MEMBER_PROPERTY("TexCoordPrecision", ezMeshTexCoordPrecision, m_TexCoordPrecision),
     EZ_MEMBER_PROPERTY("UniformScaling", m_fUniformScaling)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0001f, 10000.0f)),
     EZ_MEMBER_PROPERTY("NonUniformScaling", m_vNonUniformScaling)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f)), new ezClampValueAttribute(ezVec3(0.0001f), ezVec3(10000.0f))),
     EZ_MEMBER_PROPERTY("MeshFile", m_sMeshFile)->AddAttributes(new ezFileBrowserAttribute("Select Mesh", "*.obj;*.fbx;*.ply;*.pbrt;*.bsp;*.blend")),
@@ -75,6 +77,17 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMeshPrimitive, 1)
   EZ_ENUM_CONSTANT(ezMeshPrimitive::GeodesicSphere),
   EZ_ENUM_CONSTANT(ezMeshPrimitive::Capsule),
   EZ_ENUM_CONSTANT(ezMeshPrimitive::Torus),
+EZ_END_STATIC_REFLECTED_ENUM;
+
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMeshNormalPrecision, 1)
+  EZ_ENUM_CONSTANT(ezMeshNormalPrecision::_8Bit),
+  EZ_ENUM_CONSTANT(ezMeshNormalPrecision::_16Bit),
+  EZ_ENUM_CONSTANT(ezMeshNormalPrecision::_32Bit),
+EZ_END_STATIC_REFLECTED_ENUM;
+
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMeshTexCoordPrecision, 1)
+  EZ_ENUM_CONSTANT(ezMeshTexCoordPrecision::_16Bit),
+  EZ_ENUM_CONSTANT(ezMeshTexCoordPrecision::_32Bit),
 EZ_END_STATIC_REFLECTED_ENUM;
 
 ezMeshAssetProperties::ezMeshAssetProperties()

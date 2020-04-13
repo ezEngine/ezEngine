@@ -1,8 +1,8 @@
 #pragma once
 
-#include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <EditorPluginAssets/Util/AssetUtils.h>
+#include <ToolsFoundation/Object/DocumentObjectBase.h>
 
 struct ezPropertyMetaStateEvent;
 
@@ -29,6 +29,37 @@ struct ezMeshPrimitive
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezMeshPrimitive);
+
+struct ezMeshNormalPrecision
+{
+  typedef ezUInt8 StorageType;
+
+  enum Enum
+  {
+    _8Bit,
+    _16Bit,
+    _32Bit,
+
+    Default = _8Bit
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezMeshNormalPrecision);
+
+struct ezMeshTexCoordPrecision
+{
+  typedef ezUInt8 StorageType;
+
+  enum Enum
+  {
+    _16Bit,
+    _32Bit,
+
+    Default = _16Bit
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezMeshTexCoordPrecision);
 
 class ezMeshAssetProperties : public ezReflectedClass
 {
@@ -61,12 +92,13 @@ public:
   bool m_bRecalculateNormals;
   bool m_bInvertNormals;
 
+  ezEnum<ezMeshNormalPrecision> m_NormalPrecision;
+  ezEnum<ezMeshTexCoordPrecision> m_TexCoordPrecision;
+
   bool m_bImportMaterials;
   bool m_bUseSubFolderForImportedMaterials;
   ezHybridArray<ezMaterialResourceSlot, 8> m_Slots;
 
   ezUInt32 m_uiVertices;
   ezUInt32 m_uiTriangles;
-
-
 };

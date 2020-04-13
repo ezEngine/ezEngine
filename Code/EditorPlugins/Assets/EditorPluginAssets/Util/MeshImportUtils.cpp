@@ -472,7 +472,7 @@ namespace ezMeshImportUtils
   }
 
   ezStatus GenerateMeshBuffer(const ezModelImporter::Mesh& mesh, ezMeshResourceDescriptor& meshDescriptor, const ezMat3& mTransformation,
-    bool bInvertNormals, bool bSkinnedMesh)
+    bool bInvertNormals, ezGALResourceFormat::Enum normalFormat, ezGALResourceFormat::Enum texCoordFormat, bool bSkinnedMesh)
   {
     const bool bFlipTriangles = ezGraphicsUtils::IsTriangleFlipRequired(mTransformation);
 
@@ -575,28 +575,22 @@ namespace ezMeshImportUtils
 
     // Allocate buffer
     {
-      uiStreamIdx[Streams::Position] =
-        meshDescriptor.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-
-      uiStreamIdx[Streams::Normal] =
-        meshDescriptor.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
+      uiStreamIdx[Streams::Position] = meshDescriptor.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
+      uiStreamIdx[Streams::Normal] = meshDescriptor.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Normal, normalFormat);
 
       if (bUseTangents)
       {
-        uiStreamIdx[Streams::Tangent] =
-          meshDescriptor.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Tangent, ezGALResourceFormat::XYZFloat);
+        uiStreamIdx[Streams::Tangent] = meshDescriptor.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Tangent, normalFormat);
       }
 
       if (bUseTexCoord0)
       {
-        uiStreamIdx[Streams::Texcoord0] =
-          meshDescriptor.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::UVFloat);
+        uiStreamIdx[Streams::Texcoord0] = meshDescriptor.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::TexCoord0, texCoordFormat);
       }
 
       if (bUseTexCoord1)
       {
-        uiStreamIdx[Streams::Texcoord1] =
-          meshDescriptor.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::TexCoord1, ezGALResourceFormat::UVFloat);
+        uiStreamIdx[Streams::Texcoord1] = meshDescriptor.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::TexCoord1, texCoordFormat);
       }
 
       if (dataStreams[Color0])
@@ -827,8 +821,8 @@ namespace ezMeshImportUtils
   }
 
   ezStatus TryImportMesh(ezSharedPtr<ezModelImporter::Scene>& out_pScene, ezModelImporter::Mesh*& out_pMesh, const char* szMeshFile,
-    const char* szSubMeshName, const ezMat3& mMeshTransform, bool bRecalculateNormals, bool bInvertNormals, ezProgressRange& range,
-    ezMeshResourceDescriptor& meshDescriptor, bool bSkinnedMesh)
+    const char* szSubMeshName, const ezMat3& mMeshTransform, bool bRecalculateNormals, bool bInvertNormals, ezGALResourceFormat::Enum normalFormat,
+    ezGALResourceFormat::Enum texCoordFormat, ezProgressRange& range, ezMeshResourceDescriptor& meshDescriptor, bool bSkinnedMesh)
   {
     ezMat3 mInverseTransform = mMeshTransform;
 
@@ -853,7 +847,7 @@ namespace ezMeshImportUtils
 
     range.BeginNextStep("Generating Mesh Data");
 
-    ezMeshImportUtils::GenerateMeshBuffer(*out_pMesh, meshDescriptor, mMeshTransform, bInvertNormals, bSkinnedMesh);
+    ezMeshImportUtils::GenerateMeshBuffer(*out_pMesh, meshDescriptor, mMeshTransform, bInvertNormals, normalFormat, texCoordFormat, bSkinnedMesh);
 
     return ezStatus(EZ_SUCCESS);
   }
