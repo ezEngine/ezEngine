@@ -1098,6 +1098,10 @@ bool ezPhysXWorldModule::OverlapTest(const physx::PxGeometry& geometry, const ph
 
 void ezPhysXWorldModule::QueryShapesInSphere(ezPhysicsOverlapResultArray& out_Results, float fSphereRadius, const ezVec3& vPosition, const ezPhysicsQueryParameters& params) const
 {
+  EZ_PROFILE_SCOPE("QueryShapesInSphere");
+
+  out_Results.m_Results.Clear();
+
   PxQueryFilterData filterData;
   filterData.data = ezPhysX::CreateFilterData(params.m_uiCollisionLayer, params.m_uiIgnoreShapeId);
 
@@ -1127,6 +1131,8 @@ void ezPhysXWorldModule::QueryShapesInSphere(ezPhysicsOverlapResultArray& out_Re
   EZ_PX_READ_LOCK(*m_pPxScene);
 
   m_pPxScene->overlap(sphere, transform, overlapHitsBuffer, filterData, &queryFilter);
+
+  out_Results.m_Results.Reserve(overlapHitsBuffer.nbTouches);
 
   for (ezUInt32 i = 0; i < overlapHitsBuffer.nbTouches; ++i)
   {

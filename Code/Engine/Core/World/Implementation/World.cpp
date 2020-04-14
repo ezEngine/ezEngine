@@ -337,8 +337,7 @@ bool ezWorld::IsComponentInitBatchCompleted(const ezComponentInitBatchHandle& ba
   return pInitBatch->m_ComponentsToInitialize.IsEmpty() && pInitBatch->m_ComponentsToStartSimulation.IsEmpty();
 }
 
-void ezWorld::PostMessage(
-  const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay, bool bRecursive) const
+void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay, bool bRecursive) const
 {
   // This method is allowed to be called from multiple threads.
 
@@ -829,7 +828,7 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
   // regular messages
   {
     ezInternal::WorldData::MessageQueue& queue = m_Data.m_MessageQueues[queueType];
-    queue.Sort(MessageComparer());
+      queue.Sort(MessageComparer());
 
     for (ezUInt32 i = 0; i < queue.GetCount(); ++i)
     {
@@ -844,7 +843,7 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
   // timed messages
   {
     ezInternal::WorldData::MessageQueue& queue = m_Data.m_TimedMessageQueues[queueType];
-    queue.Sort(MessageComparer());
+      queue.Sort(MessageComparer());
 
     const ezTime now = m_Data.m_Clock.GetAccumulatedTime();
 

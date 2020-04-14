@@ -45,6 +45,8 @@ void ezAreaDamageComponent::ApplyAreaDamage()
   if (!IsActiveAndSimulating())
     return;
 
+  EZ_PROFILE_SCOPE("ApplyAreaDamage");
+
   ezPhysicsWorldModuleInterface* pPhysicsInterface = GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
 
   if (pPhysicsInterface == nullptr)
@@ -156,18 +158,7 @@ void ezAreaDamageComponentManager::Initialize()
 {
   SUPER::Initialize();
 
-  auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezAreaDamageComponentManager::Update, this);
-
-  RegisterUpdateFunction(desc);
-
   m_pPhysicsInterface = GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
 }
-
-void ezAreaDamageComponentManager::Update(const ezWorldModule::UpdateContext& context)
-{
-  // nothing to do atm
-}
-
-
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_AreaDamageComponent);

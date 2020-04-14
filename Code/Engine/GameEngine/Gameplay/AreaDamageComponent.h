@@ -16,8 +16,6 @@ public:
 
   virtual void Initialize() override;
 
-  void Update(const ezWorldModule::UpdateContext& context);
-
 private:
   friend class ezAreaDamageComponent;
   ezPhysicsWorldModuleInterface* m_pPhysicsInterface;

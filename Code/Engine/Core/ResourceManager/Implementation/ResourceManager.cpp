@@ -247,7 +247,7 @@ ezUInt32 ezResourceManager::FreeUnusedResources(ezTime timeout, ezTime lastAcqui
 
   ezUInt32 uiDeallocatedCount = 0;
 
-  ezStringBuilder sResourceName;
+  ezStringBuilder sResourceName, sResourceDesc;
 
   const ezRTTI* pLastTypeCheck = nullptr;
 
@@ -294,10 +294,11 @@ ezUInt32 ezResourceManager::FreeUnusedResources(ezTime timeout, ezTime lastAcqui
     if ((pResource->GetReferenceCount() == 0) && (tStart - pResource->GetLastAcquireTime() > lastAcquireThreshold))
     {
       sResourceName = pResource->GetResourceID();
+      sResourceDesc = pResource->GetResourceDescription();
 
       if (DeallocateResource(pResource).Succeeded())
       {
-        ezLog::Debug("Freed '{}'", sResourceName);
+        ezLog::Debug("Freed '{}' - '{}'", sResourceName, sResourceDesc);
 
         ++uiDeallocatedCount;
         itResourceID = itResourceType.Value().m_Resources.Remove(itResourceID);
