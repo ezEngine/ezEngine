@@ -63,6 +63,9 @@ public:
   void RemoveParameter(const char* szKey);                          // [ property ] (exposed parameter)
   bool GetParameter(const char* szKey, ezVariant& out_value) const; // [ property ] (exposed parameter)
 
+  static void SerializePrefabParameters(const ezWorld& world, ezWorldWriter& stream, ezArrayMap<ezHashedString, ezVariant> parameters);
+  static void DeserializePrefabParameters(ezArrayMap<ezHashedString, ezVariant>& out_parameters, ezWorldReader& stream);
+
 private:
   void InstantiatePrefab();
   void ClearPreviousInstances();

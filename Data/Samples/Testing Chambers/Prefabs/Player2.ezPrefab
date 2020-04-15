@@ -2,12 +2,58 @@ HeaderV2
 {
 o
 {
+	Uuid %id{u4{9568100928140647423,287431255237350083}}
+	s %t{"ezExposedParametersAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %ParametersSource{"Script"}
+	}
+}
+o
+{
+	Uuid %id{u4{5217645760467530089,740916499361678004}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{9568100928140647423,287431255237350083}}
+		}
+		b %DefaultValue{0}
+		s %Name{"Invincible"}
+		s %Type{"ezVariant"}
+	}
+}
+o
+{
+	Uuid %id{u4{6590470116425382476,2685973930379754625}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{7003111624050277653,7519339875013479755}}
+		}
+		b %DefaultValue{0}
+		s %Name{"GiveAllWeapons"}
+		s %Type{"ezVariant"}
+	}
+}
+o
+{
 	Uuid %id{u4{14146522745554303380,2902865256510917925}}
 	s %t{"ezExposedParameters"}
 	u3 %v{3}
 	p
 	{
-		VarArray %Parameters{}
+		VarArray %Parameters
+		{
+			Uuid{u4{6590470116425382476,2685973930379754625}}
+			Uuid{u4{5217645760467530089,740916499361678004}}
+		}
 	}
 }
 o
@@ -21,7 +67,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8325318639183543703,4757176779305952111}}
-		u4 %Hash{12107248737606129931}
+		u4 %Hash{1619576042949640569}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{14146522745554303380,2902865256510917925}}
@@ -38,6 +84,16 @@ o
 			s{"{ 802a8f61-dd2b-4fa3-8692-b022053d7975 }"}
 			s{"{ d3446478-77cf-49bb-a6db-c8f65307deac }"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{7003111624050277653,7519339875013479755}}
+	s %t{"ezExposedParametersAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %ParametersSource{"Script"}
 	}
 }
 }
@@ -212,6 +268,18 @@ o
 }
 o
 {
+	Uuid %id{u4{5121193683583553927,4640371911975832841}}
+	s %t{"ezExposedSceneProperty"}
+	u3 %v{1}
+	p
+	{
+		s %Name{"GiveAllWeapons"}
+		Uuid %Object{u4{1632982377772426898,5345566257393890410}}
+		s %PropertyPath{"Parameters[GiveAllWeapons]"}
+	}
+}
+o
+{
 	Uuid %id{u4{9980618308030673581,4722175879171792050}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -374,7 +442,11 @@ o
 	u3 %v{1}
 	p
 	{
-		VarArray %ExposedProperties{}
+		VarArray %ExposedProperties
+		{
+			Uuid{u4{5121193683583553927,4640371911975832841}}
+			Uuid{u4{1610230968024984728,5447546008841232887}}
+		}
 	}
 }
 o
@@ -402,6 +474,18 @@ o
 			s{"CastShadow"}
 			s{"AutoColMesh"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{1610230968024984728,5447546008841232887}}
+	s %t{"ezExposedSceneProperty"}
+	u3 %v{1}
+	p
+	{
+		s %Name{"Invincible"}
+		Uuid %Object{u4{1632982377772426898,5345566257393890410}}
+		s %PropertyPath{"Parameters[Invincible]"}
 	}
 }
 o
@@ -939,7 +1023,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleComponent"}
-		u3 %TypeSize{336}
+		u3 %TypeSize{328}
 		u3 %TypeVersion{5}
 	}
 }
@@ -1155,7 +1239,7 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPxCharacterProxyComponent"}
-		u3 %TypeSize{136}
+		u3 %TypeSize{112}
 		u3 %TypeVersion{3}
 	}
 }

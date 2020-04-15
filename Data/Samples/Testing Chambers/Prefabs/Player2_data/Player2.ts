@@ -7,6 +7,8 @@ import _guns = require("Prefabs/Guns/Gun")
 export class Player2 extends ez.TickedTypescriptComponent {
 
     /* BEGIN AUTO-GENERATED: VARIABLES */
+    GiveAllWeapons: boolean = false;
+    Invincible: boolean = false;
     /* END AUTO-GENERATED: VARIABLES */
 
     constructor() {
@@ -46,7 +48,19 @@ export class Player2 extends ez.TickedTypescriptComponent {
         this.SetTickInterval(ez.Time.Milliseconds(0));
 
         this.weaponUnlocked[_ge.Weapon.Pistol] = true;
-        //this.weaponUnlocked[_ge.Weapon.PlasmaRifle] = true;
+
+        if (this.GiveAllWeapons) {
+
+            this.weaponUnlocked[_ge.Weapon.PlasmaRifle] = true;
+            this.weaponUnlocked[_ge.Weapon.MachineGun] = true;
+            this.weaponUnlocked[_ge.Weapon.Shotgun] = true;
+            this.weaponUnlocked[_ge.Weapon.RocketLauncher] = true;
+
+            for (var ammoType = _ge.Consumable.AmmoTypes_Start + 1; ammoType < _ge.Consumable.AmmoTypes_End; ++ammoType)
+            {
+                this.ammoPouch.ammo[ammoType] = 1000;
+            }
+        }
     }
 
     Tick(): void {
@@ -170,6 +184,9 @@ export class Player2 extends ez.TickedTypescriptComponent {
     health: number = 100;
 
     OnMsgMsgDamage(msg: ez.MsgDamage): void {
+
+        if (this.Invincible)
+            return;
 
         if (this.health <= 0)
             return;
