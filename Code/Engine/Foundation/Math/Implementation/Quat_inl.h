@@ -141,6 +141,11 @@ bool ezQuatTemplate<Type>::IsNaN() const
 template <typename Type>
 bool ezQuatTemplate<Type>::IsEqualRotation(const ezQuatTemplate<Type>& qOther, float fEpsilon) const
 {
+  if (v.IsEqual(qOther.v, 0.00001f) && ezMath::IsEqual(w, qOther.w, 0.00001f))
+  {
+    return true;
+  }
+
   ezVec3Template<Type> vA1, vA2;
   ezAngle A1, A2;
 
