@@ -30,7 +30,7 @@ class EZ_GUIFOUNDATION_DLL ezQtContainerWindow : public QMainWindow
 
 public:
   /// \brief Constructor.
-  explicit ezQtContainerWindow();
+  ezQtContainerWindow();
   ~ezQtContainerWindow();
 
   static ezQtContainerWindow* GetContainerWindow() { return s_pContainerWindow; }

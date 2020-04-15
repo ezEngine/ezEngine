@@ -21,7 +21,7 @@ o
 		s %AssetType{"Particle Effect"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{16772099186370536615,4693632490394832941}}
-		u4 %Hash{8761636666273702127}
+		u4 %Hash{10407986868481409821}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{11783829793760135817,1455315850247424741}}
@@ -267,7 +267,7 @@ o
 		}
 		Time %PreSimulateDuration{d{0}}
 		b %SimulateInLocalSpace{0}
-		s %WhenInvisible{"ezEffectInvisibleUpdateRate::Max10fps"}
+		s %WhenInvisible{"ezEffectInvisibleUpdateRate::Pause"}
 	}
 }
 o
@@ -779,7 +779,7 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleEffectDescriptor"}
-		u3 %TypeSize{360}
+		u3 %TypeSize{344}
 		u3 %TypeVersion{2}
 	}
 }

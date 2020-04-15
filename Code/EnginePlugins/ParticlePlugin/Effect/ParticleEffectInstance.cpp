@@ -437,7 +437,17 @@ bool ezParticleEffectInstance::Update(const ezTime& tDiff)
         break;
 
       case ezEffectInvisibleUpdateRate::Pause:
-        return m_uiReviveTimeout > 0;
+      {
+        if (m_bEmitterEnabled)
+        {
+          // during regular operation, pause
+          return m_uiReviveTimeout > 0;
+        }
+
+        // otherwise do infrequent updates to shut the effect down
+        tMinStep = ezTime::Milliseconds(200);
+        break;
+      }
 
       case ezEffectInvisibleUpdateRate::Discard:
         Interrupt();
