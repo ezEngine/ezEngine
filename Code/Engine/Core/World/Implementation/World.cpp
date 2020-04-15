@@ -804,8 +804,7 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
 
   struct MessageComparer
   {
-    EZ_FORCE_INLINE bool Less(
-      const ezInternal::WorldData::MessageQueue::Entry& a, const ezInternal::WorldData::MessageQueue::Entry& b) const
+    EZ_FORCE_INLINE bool Less(const ezInternal::WorldData::MessageQueue::Entry& a, const ezInternal::WorldData::MessageQueue::Entry& b) const
     {
       if (a.m_MetaData.m_Due != b.m_MetaData.m_Due)
         return a.m_MetaData.m_Due < b.m_MetaData.m_Due;
@@ -821,14 +820,24 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
       if (a.m_MetaData.m_uiReceiverData != b.m_MetaData.m_uiReceiverData)
         return a.m_MetaData.m_uiReceiverData < b.m_MetaData.m_uiReceiverData;
 
-      return a.m_pMessage->GetHash() < b.m_pMessage->GetHash();
+      if (a.m_uiMessageHash == 0)
+      {
+        a.m_uiMessageHash = a.m_pMessage->GetHash();
+      }
+
+      if (b.m_uiMessageHash == 0)
+      {
+        b.m_uiMessageHash = b.m_pMessage->GetHash();
+      }
+
+      return a.m_uiMessageHash < b.m_uiMessageHash;
     }
   };
 
   // regular messages
   {
     ezInternal::WorldData::MessageQueue& queue = m_Data.m_MessageQueues[queueType];
-      queue.Sort(MessageComparer());
+    queue.Sort(MessageComparer());
 
     for (ezUInt32 i = 0; i < queue.GetCount(); ++i)
     {
@@ -843,7 +852,7 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
   // timed messages
   {
     ezInternal::WorldData::MessageQueue& queue = m_Data.m_TimedMessageQueues[queueType];
-      queue.Sort(MessageComparer());
+    queue.Sort(MessageComparer());
 
     const ezTime now = m_Data.m_Clock.GetAccumulatedTime();
 

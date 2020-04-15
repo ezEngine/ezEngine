@@ -23,6 +23,7 @@ public:
 
     ezMessage* m_pMessage;
     MetaDataType m_MetaData;
+    mutable ezUInt32 m_uiMessageHash = 0;
   };
 
 protected:
