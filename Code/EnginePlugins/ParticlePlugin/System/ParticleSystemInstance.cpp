@@ -376,13 +376,13 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& tDiff
   if (m_bEmitterEnabled)
   {
     // if all emitters are finished, we deactivate this on the whole system
-    m_bEmitterEnabled = false;
+    bool bAllEmittersInactive = true;
 
     for (auto pEmitter : m_Emitters)
     {
       if (pEmitter->IsFinished() == ezParticleEmitterState::Active)
       {
-        m_bEmitterEnabled = true;
+        bAllEmittersInactive = false;
         const ezUInt32 uiSpawn = pEmitter->ComputeSpawnCount(tDiff);
 
         if (uiSpawn > 0)
@@ -392,6 +392,13 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& tDiff
           uiSpawnedParticles += uiSpawn;
         }
       }
+    }
+
+    if (bAllEmittersInactive)
+    {
+      // there is a race condition writing this variable when an effect is used by a ezParticleTypeEffect and should be disabled
+      // therefore we must never set this variable to 'true' here, but we can set it to 'false' once we are done
+      m_bEmitterEnabled = false;
     }
   }
 
