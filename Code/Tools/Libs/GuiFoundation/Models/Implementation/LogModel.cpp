@@ -6,7 +6,7 @@
 
 
 ezQtLogModel::ezQtLogModel(QObject* parent)
-    : QAbstractItemModel(parent)
+  : QAbstractItemModel(parent)
 {
   m_bIsValid = true;
   m_LogLevel = ezLogMsgType::InfoMsg;
@@ -26,11 +26,21 @@ void ezQtLogModel::Clear()
   if (m_AllMessages.IsEmpty())
     return;
 
-  m_AllMessages.Clear();
-  m_VisibleMessages.Clear();
-  m_BlockQueue.Clear();
-  Invalidate();
-  m_bIsValid = true;
+  {
+    EZ_LOCK(m_NewMessagesMutex);
+
+    m_uiNumErrors = 0;
+    m_uiNumSeriousWarnings = 0;
+    m_uiNumWarnings = 0;
+
+    m_AllMessages.Clear();
+    m_VisibleMessages.Clear();
+    m_BlockQueue.Clear();
+    Invalidate();
+    m_bIsValid = true;
+  }
+
+  Q_EMIT NewErrorsOrWarnings(nullptr, false);
 }
 
 void ezQtLogModel::SetLogLevel(ezLogMsgType::Enum LogLevel)
@@ -185,71 +195,108 @@ int ezQtLogModel::columnCount(const QModelIndex& parent) const
 
 void ezQtLogModel::ProcessNewMessages()
 {
-  EZ_LOCK(m_NewMessagesMutex);
-  ezStringBuilder s;
-  for (const auto& msg : m_NewMessages)
+  bool bNewErrors = false;
+  ezStringBuilder sLatestWarning;
+  ezStringBuilder sLatestError;
+
   {
-    m_AllMessages.PushBack(msg);
-
-    if (msg.m_Type == ezLogMsgType::BeginGroup || msg.m_Type == ezLogMsgType::EndGroup)
+    EZ_LOCK(m_NewMessagesMutex);
+    ezStringBuilder s;
+    for (const auto& msg : m_NewMessages)
     {
-      s.Printf("%*s<<< %s", msg.m_uiIndentation, "", msg.m_sMsg.GetData());
+      m_AllMessages.PushBack(msg);
 
-      if (msg.m_Type == ezLogMsgType::EndGroup)
+      if (msg.m_Type == ezLogMsgType::BeginGroup || msg.m_Type == ezLogMsgType::EndGroup)
       {
-        s.AppendFormat(" ({0} sec) >>>", ezArgF(msg.m_fSeconds, 3));
-      }
-      else if (!msg.m_sTag.IsEmpty())
-      {
-        s.Append(" (", msg.m_sTag, ") >>>");
+        s.Printf("%*s<<< %s", msg.m_uiIndentation, "", msg.m_sMsg.GetData());
+
+        if (msg.m_Type == ezLogMsgType::EndGroup)
+        {
+          s.AppendFormat(" ({0} sec) >>>", ezArgF(msg.m_fSeconds, 3));
+        }
+        else if (!msg.m_sTag.IsEmpty())
+        {
+          s.Append(" (", msg.m_sTag, ") >>>");
+        }
+        else
+        {
+          s.Append(" >>>");
+        }
+
+        m_AllMessages.PeekBack().m_sMsg = s;
       }
       else
       {
-        s.Append(" >>>");
+        s.Printf("%*s%s", 4 * msg.m_uiIndentation, "", msg.m_sMsg.GetData());
+        m_AllMessages.PeekBack().m_sMsg = s;
+
+        if (msg.m_Type == ezLogMsgType::ErrorMsg)
+        {
+          sLatestError = msg.m_sMsg;
+          bNewErrors = true;
+          ++m_uiNumErrors;
+        }
+        else if (msg.m_Type == ezLogMsgType::SeriousWarningMsg)
+        {
+          sLatestWarning = msg.m_sMsg;
+          bNewErrors = true;
+          ++m_uiNumSeriousWarnings;
+        }
+        else if (msg.m_Type == ezLogMsgType::WarningMsg)
+        {
+          sLatestWarning = msg.m_sMsg;
+          bNewErrors = true;
+          ++m_uiNumWarnings;
+        }
       }
 
-      m_AllMessages.PeekBack().m_sMsg = s;
-    }
-    else
-    {
-      s.Printf("%*s%s", 4 * msg.m_uiIndentation, "", msg.m_sMsg.GetData());
-      m_AllMessages.PeekBack().m_sMsg = s;
-    }
 
+      // if the message would not be shown anyway, don't trigger an update
+      if (IsFiltered(msg))
+        continue;
 
-    // if the message would not be shown anyway, don't trigger an update
-    if (IsFiltered(msg))
-      continue;
-
-    if (msg.m_Type == ezLogMsgType::BeginGroup)
-    {
-      m_BlockQueue.PushBack(&m_AllMessages.PeekBack());
-      continue;
-    }
-    else if (msg.m_Type == ezLogMsgType::EndGroup)
-    {
-      if (!m_BlockQueue.IsEmpty())
+      if (msg.m_Type == ezLogMsgType::BeginGroup)
       {
-        m_BlockQueue.PopBack();
+        m_BlockQueue.PushBack(&m_AllMessages.PeekBack());
         continue;
       }
-    }
+      else if (msg.m_Type == ezLogMsgType::EndGroup)
+      {
+        if (!m_BlockQueue.IsEmpty())
+        {
+          m_BlockQueue.PopBack();
+          continue;
+        }
+      }
 
-    for (auto pMsg : m_BlockQueue)
-    {
+      for (auto pMsg : m_BlockQueue)
+      {
+        beginInsertRows(QModelIndex(), m_VisibleMessages.GetCount(), m_VisibleMessages.GetCount());
+        m_VisibleMessages.PushBack(pMsg);
+        endInsertRows();
+      }
+
+      m_BlockQueue.Clear();
+
       beginInsertRows(QModelIndex(), m_VisibleMessages.GetCount(), m_VisibleMessages.GetCount());
-      m_VisibleMessages.PushBack(pMsg);
+      m_VisibleMessages.PushBack(&m_AllMessages.PeekBack());
       endInsertRows();
     }
 
-    m_BlockQueue.Clear();
-
-    beginInsertRows(QModelIndex(), m_VisibleMessages.GetCount(), m_VisibleMessages.GetCount());
-    m_VisibleMessages.PushBack(&m_AllMessages.PeekBack());
-    endInsertRows();
+    m_NewMessages.Clear();
   }
 
-  m_NewMessages.Clear();
+  if (bNewErrors)
+  {
+    if (!sLatestError.IsEmpty())
+    {
+      Q_EMIT NewErrorsOrWarnings(sLatestError, true);
+    }
+    else
+    {
+      Q_EMIT NewErrorsOrWarnings(sLatestWarning, false);
+    }
+  }
 }
 
 void ezQtLogModel::UpdateVisibleEntries() const

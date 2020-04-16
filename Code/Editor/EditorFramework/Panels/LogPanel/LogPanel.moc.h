@@ -1,10 +1,11 @@
 #pragma once
 
-#include <Foundation/Basics.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
-#include <EditorFramework/ui_LogPanel.h>
 #include <EditorFramework/IPC/EngineProcessConnection.h>
+#include <EditorFramework/ui_LogPanel.h>
+#include <Foundation/Basics.h>
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 
 class ezQtLogModel;
@@ -24,7 +25,16 @@ public:
 protected:
   virtual void ToolsProjectEventHandler(const ezToolsProjectEvent& e) override;
 
+private Q_SLOTS:
+  void OnNewWarningsOrErrors(const char* szText, bool bError);
+
 private:
   void LogWriter(const ezLoggingEventData& e);
   void EngineProcessMsgHandler(const ezEditorEngineProcessConnection::Event& e);
+  void UiServiceEventHandler(const ezQtUiServices::Event& e);
+
+  ezUInt32 m_uiIgnoredNumErrors = 0;
+  ezUInt32 m_uiIgnoreNumWarnings = 0;
+  ezUInt32 m_uiKnownNumErrors = 0;
+  ezUInt32 m_uiKnownNumWarnings = 0;
 };

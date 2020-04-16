@@ -12,7 +12,10 @@ ezQtAssetBrowserPanel::ezQtAssetBrowserPanel()
   : ezQtApplicationPanel("Panel.AssetBrowser")
   , m_SingletonRegistrar(this)
 {
-  setupUi(this);
+  QWidget* pDummy = new QWidget();
+  setupUi(pDummy);
+  pDummy->setContentsMargins(0, 0, 0, 0);
+  pDummy->layout()->setContentsMargins(0, 0, 0, 0);
 
   m_pStatusBar = new QStatusBar(nullptr);
   m_pStatusBar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
@@ -23,7 +26,7 @@ ezQtAssetBrowserPanel::ezQtAssetBrowserPanel()
   m_pStatusBar->addPermanentWidget(m_pCuratorControl);
 
   dockWidgetContents->layout()->addWidget(m_pStatusBar);
-  setWidget(dockWidgetContents);
+  setWidget(pDummy);
 
   setIcon(ezQtUiServices::GetCachedIconResource(":/EditorFramework/Icons/Asset16.png"));
   setWindowTitle(QString::fromUtf8(ezTranslate("Panel.AssetBrowser")));

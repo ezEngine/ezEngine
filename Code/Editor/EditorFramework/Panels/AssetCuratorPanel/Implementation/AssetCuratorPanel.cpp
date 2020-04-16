@@ -70,9 +70,12 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel()
   : ezQtApplicationPanel("Panel.AssetCurator")
   , m_SingletonRegistrar(this)
 {
-  setupUi(this);
+  QWidget* pDummy = new QWidget();
+  setupUi(pDummy);
+  pDummy->setContentsMargins(0, 0, 0, 0);
+  pDummy->layout()->setContentsMargins(0, 0, 0, 0);
 
-  setWidget(dockWidgetContents);
+  setWidget(pDummy);
   setIcon(ezQtUiServices::GetCachedIconResource(":/EditorFramework/Icons/Asset16.png"));
   setWindowTitle(QString::fromUtf8(ezTranslate("Panel.AssetCurator")));
 

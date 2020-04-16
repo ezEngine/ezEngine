@@ -305,7 +305,7 @@ ezResult ezEditorEngineProcessConnection::RestartProcess()
   EZ_PROFILE_SCOPE("RestartProcess");
   EZ_LOG_BLOCK("Restarting Engine Process");
 
-  ezQtUiServices::GetSingleton()->ShowAllDocumentsStatusBarMessage("Reloading Engine Process...", ezTime::Seconds(5));
+  ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage("Reloading Engine Process...", ezTime::Seconds(5));
 
   ShutdownProcess();
 

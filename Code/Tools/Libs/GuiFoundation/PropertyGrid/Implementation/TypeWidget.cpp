@@ -126,7 +126,7 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const ezMap<ezString, const ez
         pGroupBox->SetIcon(ezQtUiServices::GetCachedIconResource(sIcon));
       }
     }
-    QGridLayout* pLayout = new QGridLayout(pGroupBox);
+    QGridLayout* pLayout = new QGridLayout();
     pLayout->setColumnStretch(0, 1);
     pLayout->setColumnStretch(1, 0);
     pLayout->setColumnMinimumWidth(1, 5);

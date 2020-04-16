@@ -212,7 +212,7 @@ void ezQtGameObjectReferencePropertyWidget::OnCopyReference()
   QClipboard* clipboard = QApplication::clipboard();
   clipboard->setText(m_sInternalValue);
 
-  ezQtUiServices::GetSingleton()->ShowAllDocumentsStatusBarMessage(ezFmt("Copied Object Reference: {}", m_sInternalValue.toUtf8().data()), ezTime::Seconds(5));
+  ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Copied Object Reference: {}", m_sInternalValue.toUtf8().data()), ezTime::Seconds(5));
 }
 
 

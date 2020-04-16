@@ -281,7 +281,7 @@ void ezDocumentAction::Execute(const ezVariant& value)
       mimeData->setText(sGuid.GetData());
       clipboard->setMimeData(mimeData);
 
-      ezQtUiServices::GetSingleton()->ShowAllDocumentsStatusBarMessage(ezFmt("Copied asset GUID: {}", sGuid), ezTime::Seconds(5));
+      ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Copied asset GUID: {}", sGuid), ezTime::Seconds(5));
     }
     break;
 

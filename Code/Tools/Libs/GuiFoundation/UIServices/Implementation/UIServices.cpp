@@ -157,16 +157,28 @@ void ezQtUiServices::LoadState()
   Settings.endGroup();
 }
 
-void ezQtUiServices::ShowAllDocumentsStatusBarMessage(const ezFormatString& msg, ezTime timeOut)
+void ezQtUiServices::ShowAllDocumentsTemporaryStatusBarMessage(const ezFormatString& msg, ezTime timeOut)
 {
   ezStringBuilder tmp;
 
   Event e;
-  e.m_Type = Event::ShowDocumentStatusBarText;
+  e.m_Type = Event::ShowDocumentTemporaryStatusBarText;
   e.m_sText = msg.GetText(tmp);
   e.m_Time = timeOut;
 
-  s_Events.Broadcast(e);
+  s_Events.Broadcast(e, 1);
+}
+
+void ezQtUiServices::ShowAllDocumentsPermanentStatusBarMessage(const ezFormatString& msg, Event::TextType type)
+{
+  ezStringBuilder tmp;
+
+  Event e;
+  e.m_Type = Event::ShowDocumentPermanentStatusBarText;
+  e.m_sText = msg.GetText(tmp);
+  e.m_TextType = type;
+
+  s_Events.Broadcast(e, 1);
 }
 
 void ezQtUiServices::ShowGlobalStatusBarMessage(const ezFormatString& msg)

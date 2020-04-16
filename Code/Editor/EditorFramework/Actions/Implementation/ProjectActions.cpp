@@ -517,7 +517,7 @@ void ezProjectAction::Execute(const ezVariant& value)
 
     case ezProjectAction::ButtonType::ReloadResources:
     {
-      ezQtUiServices::GetSingleton()->ShowAllDocumentsStatusBarMessage("Reloading Resources...", ezTime::Seconds(5));
+      ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage("Reloading Resources...", ezTime::Seconds(5));
 
       ezSimpleConfigMsgToEngine msg;
       msg.m_sWhatToDo = "ReloadResources";
@@ -538,7 +538,7 @@ void ezProjectAction::Execute(const ezVariant& value)
 
     case ezProjectAction::ButtonType::LaunchFileserve:
     {
-      ezQtUiServices::GetSingleton()->ShowAllDocumentsStatusBarMessage("Launching FileServe...", ezTime::Seconds(5));
+      ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage("Launching FileServe...", ezTime::Seconds(5));
 
       ezQtLaunchFileserveDlg dlg(nullptr);
       dlg.exec();
@@ -547,7 +547,7 @@ void ezProjectAction::Execute(const ezVariant& value)
 
     case ezProjectAction::ButtonType::LaunchInspector:
     {
-      ezQtUiServices::GetSingleton()->ShowAllDocumentsStatusBarMessage("Launching ezInspector...", ezTime::Seconds(5));
+      ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage("Launching ezInspector...", ezTime::Seconds(5));
 
       ezQtEditorApp::GetSingleton()->RunInspector();
     }
@@ -568,7 +568,7 @@ void ezProjectAction::Execute(const ezVariant& value)
         profilingData.Write(fileWriter);
 
         ezLog::Info("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
-        ezQtUiServices::GetSingleton()->ShowAllDocumentsStatusBarMessage(
+        ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(
           ezFmt("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData()), ezTime::Seconds(5.0));
       }
       else

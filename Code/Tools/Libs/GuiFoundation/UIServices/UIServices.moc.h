@@ -23,13 +23,23 @@ public:
   {
     enum Type
     {
-      ShowDocumentStatusBarText,
+      ShowDocumentTemporaryStatusBarText,
+      ShowDocumentPermanentStatusBarText,
       ShowGlobalStatusBarText,
+      ClickedDocumentPermanentStatusBarText,
+    };
+
+    enum TextType
+    {
+      Info,
+      Warning,
+      Error
     };
 
     Type m_Type;
     ezString m_sText;
     ezTime m_Time;
+    TextType m_TextType = TextType::Info;
   };
 
   static ezEvent<const ezQtUiServices::Event&> s_Events;
@@ -61,7 +71,9 @@ public:
                                                         QMessageBox::StandardButton defaultButton);
 
   /// \brief Use this if you need to display a status bar message in any/all documents. Go directly through the document, if you only want to show a message in a single document window.
-  static void ShowAllDocumentsStatusBarMessage(const ezFormatString& msg, ezTime timeOut);
+  static void ShowAllDocumentsTemporaryStatusBarMessage(const ezFormatString& msg, ezTime timeOut);
+
+  static void ShowAllDocumentsPermanentStatusBarMessage(const ezFormatString& msg, Event::TextType type);
 
   /// \brief Shows a 'critical' message in all container windows (in red), which does not disappear, until it is replaced with another (empty) string.
   static void ShowGlobalStatusBarMessage(const ezFormatString& msg);
