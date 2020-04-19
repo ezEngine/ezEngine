@@ -296,6 +296,9 @@ namespace ezMath
   /// \brief Converts a color value from float [-1;1] range to signed byte [-127;127] range, with proper rounding
   ezInt8 ColorFloatToSignedByte(float value); // [tested]
 
+  /// \brief Converts a color value from float [-1;1] range to signed short [-32767;32767] range, with proper rounding
+  ezInt16 ColorFloatToSignedShort(float value); // [tested]
+
   /// \brief Converts a color value from unsigned byte [0;255] range to float [0;1] range, with proper rounding
   constexpr float ColorByteToFloat(ezUInt8 value); // [tested]
 
@@ -304,6 +307,9 @@ namespace ezMath
 
   /// \brief Converts a color value from signed byte [-128;127] range to float [-1;1] range, with proper rounding
   constexpr float ColorSignedByteToFloat(ezInt8 value); // [tested]
+
+  /// \brief Converts a color value from signed short [-32768;32767] range to float [0;1] range, with proper rounding
+  constexpr float ColorSignedShortToFloat(ezInt16 value); // [tested]
 
   /// \brief Evaluates the cubic spline defined by four control points at time \a t and returns the interpolated result.
   /// Can be used with T as float, vec2, vec3 or vec4

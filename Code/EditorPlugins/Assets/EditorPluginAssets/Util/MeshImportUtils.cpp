@@ -13,6 +13,7 @@
 #include <ModelImporter/ModelImporter.h>
 #include <ModelImporter/Scene.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
+#include <RendererFoundation/Resources/ResourceFormatConversions.h>
 
 namespace ezMeshImportUtils
 {
@@ -484,6 +485,46 @@ namespace ezMeshImportUtils
 
     const ezMat3 mTransformNormals = mInverseTransform.GetTranspose();
 
+    ezGALResourceFormat::Enum tangentFormat = normalFormat;
+    if (ezGALResourceFormat::GetChannelCount(tangentFormat) < 4)
+    {
+      tangentFormat = ezGALResourceFormat::XYZWFloat;
+    }
+
+    // Test conversions
+    {
+      ezUInt8 dummyData[16];
+
+      ezStringBuilder temp;
+      auto FormatToString = [&](ezGALResourceFormat::Enum format) {
+        if (ezReflectionUtils::EnumerationToString(ezGetStaticRTTI<ezGALResourceFormat>(), format, temp))
+        {
+          temp.Shrink(21, 0);
+        }
+        else
+        {
+          temp = "Unknown format";
+        }
+
+        return temp;
+      };
+
+      if (ezGALResourceFormatConversions::FromFloat2(ezVec2::ZeroVector(), ezMakeArrayPtr(dummyData), texCoordFormat).Failed())
+      {
+        return ezStatus(ezFmt("Could not convert texcoord data to '{}'. Conversion is not supported.", FormatToString(texCoordFormat)));
+      }
+
+      if (ezGALResourceFormatConversions::FromFloat3(ezVec3::ZeroVector(), ezMakeArrayPtr(dummyData), normalFormat).Failed())
+      {
+        return ezStatus(ezFmt("Could not convert normal data to '{}'. Conversion is not supported.", FormatToString(normalFormat)));
+      }
+
+      if (ezGALResourceFormatConversions::FromFloat4(ezVec4::ZeroVector(), ezMakeArrayPtr(dummyData), tangentFormat).Failed())
+      {
+        return ezStatus(ezFmt("Could not convert tangent data to '{}'. Conversion is not supported.", FormatToString(tangentFormat)));
+      }
+    }
+
     enum Streams
     {
       Position,
@@ -580,7 +621,7 @@ namespace ezMeshImportUtils
 
       if (bUseTangents)
       {
-        uiStreamIdx[Streams::Tangent] = meshDescriptor.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Tangent, normalFormat);
+        uiStreamIdx[Streams::Tangent] = meshDescriptor.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Tangent, tangentFormat);
       }
 
       if (bUseTexCoord0)
@@ -595,14 +636,12 @@ namespace ezMeshImportUtils
 
       if (dataStreams[Color0])
       {
-        uiStreamIdx[Streams::Color0] =
-          meshDescriptor.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Color0, ezGALResourceFormat::RGBAUByteNormalized);
+        uiStreamIdx[Streams::Color0] = meshDescriptor.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Color0, ezGALResourceFormat::RGBAUByteNormalized);
       }
 
       if (dataStreams[Color1])
       {
-        uiStreamIdx[Streams::Color1] =
-          meshDescriptor.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Color1, ezGALResourceFormat::RGBAUByteNormalized);
+        uiStreamIdx[Streams::Color1] = meshDescriptor.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Color1, ezGALResourceFormat::RGBAUByteNormalized);
       }
 
       if (bUseJoints)
@@ -616,6 +655,8 @@ namespace ezMeshImportUtils
 
       meshDescriptor.MeshBufferDesc().AllocateStreams(uiNumVertices, ezGALPrimitiveTopology::Triangles, uiNumTriangles);
     }
+
+    ezUInt32 uiVertexStride = meshDescriptor.MeshBufferDesc().GetVertexDataSize();
 
     // Read in vertices and set positions and normals
     {
@@ -635,7 +676,8 @@ namespace ezMeshImportUtils
           vNormal = -vNormal;
 
         meshDescriptor.MeshBufferDesc().SetVertexData(uiStreamIdx[Streams::Position], uiVertexIndex, vPosition);
-        meshDescriptor.MeshBufferDesc().SetVertexData(uiStreamIdx[Streams::Normal], uiVertexIndex, vNormal);
+
+        ezGALResourceFormatConversions::FromFloat3(vNormal, meshDescriptor.MeshBufferDesc().GetVertexData(uiStreamIdx[Streams::Normal], uiVertexIndex), normalFormat);
       }
     }
 
@@ -658,33 +700,36 @@ namespace ezMeshImportUtils
           float biTangentSign;
 
           if (dataStreams[BiTangent]->GetNumElementsPerVertex() == 1)
+          {
             biTangentSign = ezModelImporter::TypedVertexDataStreamView<float>(*dataStreams[BiTangent]).GetValue(dataIndices[BiTangent]);
+          }
           else
           {
-            ezVec3 vBiTangent =
-              ezModelImporter::TypedVertexDataStreamView<ezVec3>(*dataStreams[BiTangent]).GetValue(dataIndices[BiTangent]);
+            ezVec3 vBiTangent = ezModelImporter::TypedVertexDataStreamView<ezVec3>(*dataStreams[BiTangent]).GetValue(dataIndices[BiTangent]);
             vBiTangent = mTransformNormals.TransformDirection(vBiTangent);
             vBiTangent.NormalizeIfNotZero();
             biTangentSign = -vBiTangent.Dot(vTangent);
           }
 
           biTangentSign = bFlipTriangles ? -biTangentSign : biTangentSign;
+          biTangentSign = (biTangentSign < 0.0f) ? -1.0f : 1.0f;
 
-          // We encode the handedness of the tangent space in the length of the tangent.
-          if (biTangentSign < 0.0f)
-          {
-            vTangent *= 1.7320508075688772935274463415059f; // ezMath::Root(3, 2)
-          }
+          ezVec4 tangentAndBiTangentSign = vTangent.GetAsVec4(biTangentSign);
 
-          meshDescriptor.MeshBufferDesc().SetVertexData(uiStreamIdx[Streams::Tangent], uiVertexIndex, vTangent);
+          ezGALResourceFormatConversions::FromFloat4(tangentAndBiTangentSign,
+            meshDescriptor.MeshBufferDesc().GetVertexData(uiStreamIdx[Streams::Tangent], uiVertexIndex), tangentFormat);
         }
       }
       else
       {
+        ezVec4 zeroTangent = ezVec4::ZeroVector();
+
         for (auto it = dataIndices_to_InterleavedVertexIndices.GetIterator(); it.IsValid(); ++it)
         {
           ezUInt32 uiVertexIndex = it.Value();
-          meshDescriptor.MeshBufferDesc().SetVertexData(uiStreamIdx[Streams::Tangent], uiVertexIndex, ezVec3(0.0f));
+
+          ezGALResourceFormatConversions::FromFloat4(zeroTangent, meshDescriptor.MeshBufferDesc().GetVertexData(uiStreamIdx[Streams::Tangent], uiVertexIndex),
+            tangentFormat);
         }
       }
     }
@@ -712,15 +757,19 @@ namespace ezMeshImportUtils
             ezUInt32 uiVertexIndex = it.Value();
 
             ezVec2 vTexcoord = streamTex.GetValue(dataIndices[uiDataIndex]);
-            meshDescriptor.MeshBufferDesc().SetVertexData(uiStreamIndex, uiVertexIndex, vTexcoord);
+
+            ezGALResourceFormatConversions::FromFloat2(vTexcoord, meshDescriptor.MeshBufferDesc().GetVertexData(uiStreamIndex, uiVertexIndex), texCoordFormat);
           }
         }
         else
         {
+          ezVec2 zeroTexCoord = ezVec2::ZeroVector();
+
           for (auto it = dataIndices_to_InterleavedVertexIndices.GetIterator(); it.IsValid(); ++it)
           {
             ezUInt32 uiVertexIndex = it.Value();
-            meshDescriptor.MeshBufferDesc().SetVertexData(uiStreamIndex, uiVertexIndex, ezVec2(0.0f));
+
+            ezGALResourceFormatConversions::FromFloat2(zeroTexCoord, meshDescriptor.MeshBufferDesc().GetVertexData(uiStreamIndex, uiVertexIndex), texCoordFormat);
           }
         }
       }
@@ -806,14 +855,18 @@ namespace ezMeshImportUtils
       if (bFlipTriangles)
       {
         for (ezUInt32 i = 0; i < triangleVertexIndices.GetCount(); i += 3)
+        {
           meshDescriptor.MeshBufferDesc().SetTriangleIndices(
             i / 3, triangleVertexIndices[i + 2], triangleVertexIndices[i + 1], triangleVertexIndices[i + 0]);
+        }
       }
       else
       {
         for (ezUInt32 i = 0; i < triangleVertexIndices.GetCount(); i += 3)
+        {
           meshDescriptor.MeshBufferDesc().SetTriangleIndices(
             i / 3, triangleVertexIndices[i + 0], triangleVertexIndices[i + 1], triangleVertexIndices[i + 2]);
+        }
       }
     }
 
@@ -840,15 +893,12 @@ namespace ezMeshImportUtils
       return ezStatus(ezFmt("Could not make path absolute: '{0};", szMeshFile));
     }
 
-    EZ_SUCCEED_OR_RETURN(
-      ezModelImporter::Importer::GetSingleton()->ImportMesh(sMeshFileAbs, szSubMeshName, bSkinnedMesh, out_pScene, out_pMesh));
+    EZ_SUCCEED_OR_RETURN(ezModelImporter::Importer::GetSingleton()->ImportMesh(sMeshFileAbs, szSubMeshName, bSkinnedMesh, out_pScene, out_pMesh));
 
     ezMeshImportUtils::PrepareMeshForImport(*out_pMesh, bRecalculateNormals, range);
 
     range.BeginNextStep("Generating Mesh Data");
 
-    ezMeshImportUtils::GenerateMeshBuffer(*out_pMesh, meshDescriptor, mMeshTransform, bInvertNormals, normalFormat, texCoordFormat, bSkinnedMesh);
-
-    return ezStatus(EZ_SUCCESS);
+    return ezMeshImportUtils::GenerateMeshBuffer(*out_pMesh, meshDescriptor, mMeshTransform, bInvertNormals, normalFormat, texCoordFormat, bSkinnedMesh);
   }
 } // namespace ezMeshImportUtils

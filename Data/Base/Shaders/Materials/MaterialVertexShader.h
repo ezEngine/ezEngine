@@ -88,8 +88,8 @@ VS_OUT FillVertexData(VS_IN Input)
   #endif
 
   #if defined(USE_TANGENT)
-    float3 tangent = Input.Tangent;
-    float handednessCorrection = 2.0f - dot(tangent, tangent);
+    float3 tangent = Input.Tangent.xyz;
+    float handednessCorrection = Input.Tangent.w;
     float3 biTangent = cross(Input.Normal, tangent) * handednessCorrection;
 
     #if defined(USE_SKINNING)

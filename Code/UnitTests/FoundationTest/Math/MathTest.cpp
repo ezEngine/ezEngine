@@ -678,6 +678,17 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_INT(ezMath::ColorFloatToSignedByte(1.5f), 127);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ColorFloatToSignedShort")
+  {
+    EZ_TEST_INT(ezMath::ColorFloatToSignedShort(ezMath::NaN<float>()), 0);
+    EZ_TEST_INT(ezMath::ColorFloatToSignedShort(-1.0f), -32767);
+    EZ_TEST_INT(ezMath::ColorFloatToSignedShort(0.0f), 0);
+    EZ_TEST_INT(ezMath::ColorFloatToSignedShort(0.4f), 13107);
+    EZ_TEST_INT(ezMath::ColorFloatToSignedShort(0.5f), 16384);
+    EZ_TEST_INT(ezMath::ColorFloatToSignedShort(1.0f), 32767);
+    EZ_TEST_INT(ezMath::ColorFloatToSignedShort(1.5f), 32767);
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ColorByteToFloat")
   {
     EZ_TEST_FLOAT(ezMath::ColorByteToFloat(0), 0.0f, 0.000001f);
@@ -699,6 +710,15 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_FLOAT(ezMath::ColorSignedByteToFloat(0), 0.0f, 0.000001f);
     EZ_TEST_FLOAT(ezMath::ColorSignedByteToFloat(64), 0.50393700787f, 0.000001f);
     EZ_TEST_FLOAT(ezMath::ColorSignedByteToFloat(127), 1.0f, 0.000001f);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ColorSignedShortToFloat")
+  {
+    EZ_TEST_FLOAT(ezMath::ColorSignedShortToFloat(-32768), -1.0f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::ColorSignedShortToFloat(-32767), -1.0f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::ColorSignedShortToFloat(0), 0.0f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::ColorSignedShortToFloat(16384), 0.50001526f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::ColorSignedShortToFloat(32767), 1.0f, 0.000001f);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "EvaluateBezierCurve")
