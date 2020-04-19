@@ -20,16 +20,16 @@ If you want to learn more, please [have a look at the documentation](https://eze
 
 ![ezEditor](https://raw.githubusercontent.com/wiki/ezEngine/ezEngine/editor/ezEditor.jpg)
 
-![Testing Chamber](https://raw.githubusercontent.com/wiki/ezEngine/ezEngine/samples/TC1.jpg)
+![Testing Chamber](https://ezengine.github.io/docs/samples/media/tc1.jpg)
 
-[RTS Sample](https://github.com/ezEngine/ezEngine/wiki/RTS-Game-Plugin):
+[RTS Sample](https://ezengine.github.io/docs/samples/rts.html):
 
-![RTS1](https://raw.githubusercontent.com/wiki/ezEngine/ezEngine/samples/RTS1.jpg)
+![RTS1](https://ezengine.github.io/docs/samples/media/rts1.jpg)
 
-[Asteroids Sample](https://github.com/ezEngine/ezEngine/wiki/Asteroids-Sample):
+[Asteroids Sample](https://ezengine.github.io/docs/samples/asteroids.html):
 
-![Asteroids](https://raw.githubusercontent.com/wiki/ezEngine/ezEngine/samples/Asteroids1.jpg)
+![Asteroids](https://ezengine.github.io/docs/samples/media/asteroids1.jpg)
 
-[ezInspector](https://github.com/ezEngine/ezEngine/wiki/ezInspector):
+[ezInspector](https://ezengine.github.io/docs/tools/inspector.html):
 
-![ezInspector](https://raw.githubusercontent.com/wiki/ezEngine/ezEngine/tools/ezInspector.jpg)
+![ezInspector](https://ezengine.github.io/docs/tools/media/inspector.jpg)
