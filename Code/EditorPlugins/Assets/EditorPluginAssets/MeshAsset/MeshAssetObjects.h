@@ -36,11 +36,11 @@ struct ezMeshNormalPrecision
 
   enum Enum
   {
-    _8Bit,
+    _10Bit,
     _16Bit,
     _32Bit,
 
-    Default = _8Bit
+    Default = _10Bit
   };
 };
 

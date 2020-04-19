@@ -29,10 +29,10 @@ static ezGALResourceFormat::Enum GetNormalFormat(const ezMeshAssetProperties* pP
 {
   switch (pProp->m_NormalPrecision)
   {
-    case ezMeshNormalPrecision::_8Bit:
-      return ezGALResourceFormat::RGBAByteNormalized;
+    case ezMeshNormalPrecision::_10Bit:
+      return ezGALResourceFormat::RGB10A2UIntNormalized;
     case ezMeshNormalPrecision::_16Bit:
-      return ezGALResourceFormat::RGBAShortNormalized;
+      return ezGALResourceFormat::RGBAUShortNormalized;
     case ezMeshNormalPrecision::_32Bit:
       return ezGALResourceFormat::XYZFloat;
   }

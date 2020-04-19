@@ -3,6 +3,35 @@
 #include <Foundation/Math/Float16.h>
 #include <RendererFoundation/Resources/ResourceFormatConversions.h>
 
+namespace
+{
+  template <ezUInt32 Bits>
+  EZ_ALWAYS_INLINE ezUInt32 ColorFloatToUNorm(float value)
+  {
+    // Implemented according to
+    // https://docs.microsoft.com/en-us/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
+    if (ezMath::IsNaN(value))
+    {
+      return 0;
+    }
+    else
+    {
+      float fMaxValue = ((1 << Bits) - 1);
+      return ezMath::Saturate(value) * fMaxValue + 0.5f;
+    }
+  }
+
+  template <ezUInt32 Bits>
+  constexpr inline float ColorUNormToFloat(ezUInt32 value)
+  {
+    // Implemented according to
+    // https://docs.microsoft.com/en-us/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
+    ezUInt32 uiMaxValue = ((1 << Bits) - 1);
+    float fMaxValue = ((1 << Bits) - 1);
+    return (value & uiMaxValue) * (1.0f / fMaxValue);
+  }
+} // namespace
+
 // static
 ezResult ezGALResourceFormatConversions::FromFloat1(const float source, ezArrayPtr<ezUInt8> dest, ezGALResourceFormat::Enum destFormat)
 {
@@ -62,6 +91,12 @@ ezResult ezGALResourceFormatConversions::FromFloat3(const ezVec3& source, ezArra
       reinterpret_cast<ezInt16*>(dest.GetPtr())[3] = 0;
       return EZ_SUCCESS;
 
+    case ezGALResourceFormat::RGB10A2UIntNormalized:
+      *reinterpret_cast<ezUInt32*>(dest.GetPtr()) = ColorFloatToUNorm<10>(source.x);
+      *reinterpret_cast<ezUInt32*>(dest.GetPtr()) |= ColorFloatToUNorm<10>(source.y) << 10;
+      *reinterpret_cast<ezUInt32*>(dest.GetPtr()) |= ColorFloatToUNorm<10>(source.z) << 20;
+      return EZ_SUCCESS;
+
     case ezGALResourceFormat::RGBAUByteNormalized:
       dest.GetPtr()[0] = ezMath::ColorFloatToByte(source.x);
       dest.GetPtr()[1] = ezMath::ColorFloatToByte(source.y);
@@ -107,6 +142,13 @@ ezResult ezGALResourceFormatConversions::FromFloat4(const ezVec4& source, ezArra
       reinterpret_cast<ezInt16*>(dest.GetPtr())[1] = ezMath::ColorFloatToSignedShort(source.y);
       reinterpret_cast<ezInt16*>(dest.GetPtr())[2] = ezMath::ColorFloatToSignedShort(source.z);
       reinterpret_cast<ezInt16*>(dest.GetPtr())[3] = ezMath::ColorFloatToSignedShort(source.w);
+      return EZ_SUCCESS;
+
+    case ezGALResourceFormat::RGB10A2UIntNormalized:
+      *reinterpret_cast<ezUInt32*>(dest.GetPtr()) = ColorFloatToUNorm<10>(source.x);
+      *reinterpret_cast<ezUInt32*>(dest.GetPtr()) |= ColorFloatToUNorm<10>(source.y) << 10;
+      *reinterpret_cast<ezUInt32*>(dest.GetPtr()) |= ColorFloatToUNorm<10>(source.z) << 20;
+      *reinterpret_cast<ezUInt32*>(dest.GetPtr()) |= ColorFloatToUNorm<2>(source.w) << 30;
       return EZ_SUCCESS;
 
     case ezGALResourceFormat::RGBAUByteNormalized:
@@ -180,6 +222,12 @@ ezResult ezGALResourceFormatConversions::ToFloat3(ezArrayPtr<const ezUInt8> sour
       dest.z = ezMath::ColorSignedShortToFloat(reinterpret_cast<const ezInt16*>(source.GetPtr())[2]);
       return EZ_SUCCESS;
 
+    case ezGALResourceFormat::RGB10A2UIntNormalized:
+      dest.x = ColorUNormToFloat<10>(*reinterpret_cast<const ezUInt32*>(source.GetPtr()));
+      dest.y = ColorUNormToFloat<10>(*reinterpret_cast<const ezUInt32*>(source.GetPtr()) >> 10);
+      dest.z = ColorUNormToFloat<10>(*reinterpret_cast<const ezUInt32*>(source.GetPtr()) >> 20);
+      return EZ_SUCCESS;
+
     case ezGALResourceFormat::RGBAUByteNormalized:
       dest.x = ezMath::ColorByteToFloat(source.GetPtr()[0]);
       dest.y = ezMath::ColorByteToFloat(source.GetPtr()[1]);
@@ -223,6 +271,13 @@ ezResult ezGALResourceFormatConversions::ToFloat4(ezArrayPtr<const ezUInt8> sour
       dest.y = ezMath::ColorSignedShortToFloat(reinterpret_cast<const ezInt16*>(source.GetPtr())[1]);
       dest.z = ezMath::ColorSignedShortToFloat(reinterpret_cast<const ezInt16*>(source.GetPtr())[2]);
       dest.w = ezMath::ColorSignedShortToFloat(reinterpret_cast<const ezInt16*>(source.GetPtr())[3]);
+      return EZ_SUCCESS;
+
+    case ezGALResourceFormat::RGB10A2UIntNormalized:
+      dest.x = ColorUNormToFloat<10>(*reinterpret_cast<const ezUInt32*>(source.GetPtr()));
+      dest.y = ColorUNormToFloat<10>(*reinterpret_cast<const ezUInt32*>(source.GetPtr()) >> 10);
+      dest.z = ColorUNormToFloat<10>(*reinterpret_cast<const ezUInt32*>(source.GetPtr()) >> 20);
+      dest.w = ColorUNormToFloat<2>(*reinterpret_cast<const ezUInt32*>(source.GetPtr()) >> 30);
       return EZ_SUCCESS;
 
     case ezGALResourceFormat::RGBAUByteNormalized:

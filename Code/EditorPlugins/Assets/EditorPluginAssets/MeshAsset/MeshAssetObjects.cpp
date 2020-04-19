@@ -80,7 +80,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMeshPrimitive, 1)
 EZ_END_STATIC_REFLECTED_ENUM;
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMeshNormalPrecision, 1)
-  EZ_ENUM_CONSTANT(ezMeshNormalPrecision::_8Bit),
+  EZ_ENUM_CONSTANT(ezMeshNormalPrecision::_10Bit),
   EZ_ENUM_CONSTANT(ezMeshNormalPrecision::_16Bit),
   EZ_ENUM_CONSTANT(ezMeshNormalPrecision::_32Bit),
 EZ_END_STATIC_REFLECTED_ENUM;

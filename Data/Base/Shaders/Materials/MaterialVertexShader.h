@@ -78,19 +78,20 @@ VS_OUT FillVertexData(VS_IN Input)
 
   #if defined(USE_NORMAL)
 
-    float3 normal = Input.Normal;
+    float3 inputNormal = Input.Normal * 2.0 - 1.0;
+    float3 normal = inputNormal;
 
     #if defined(USE_SKINNING)
-    normal = SkinDirection(normal, Input.BoneWeights, Input.BoneIndices);
+      normal = SkinDirection(inputNormal, Input.BoneWeights, Input.BoneIndices);
     #endif
 
     Output.Normal = normalize(mul(objectToWorldNormal, normal));
   #endif
 
   #if defined(USE_TANGENT)
-    float3 tangent = Input.Tangent.xyz;
-    float handednessCorrection = Input.Tangent.w;
-    float3 biTangent = cross(Input.Normal, tangent) * handednessCorrection;
+    float3 tangent = Input.Tangent.xyz * 2.0 - 1.0;
+    float handednessCorrection = Input.Tangent.w * 2.0 - 1.0;
+    float3 biTangent = cross(inputNormal, tangent) * handednessCorrection;
 
     #if defined(USE_SKINNING)
       tangent = SkinDirection(tangent, Input.BoneWeights, Input.BoneIndices);

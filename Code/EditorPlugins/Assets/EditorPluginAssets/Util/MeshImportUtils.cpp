@@ -488,6 +488,7 @@ namespace ezMeshImportUtils
     ezGALResourceFormat::Enum tangentFormat = normalFormat;
     if (ezGALResourceFormat::GetChannelCount(tangentFormat) < 4)
     {
+      // we need a four channel format to store the bitangent sign in the w component
       tangentFormat = ezGALResourceFormat::XYZWFloat;
     }
 
@@ -677,7 +678,8 @@ namespace ezMeshImportUtils
 
         meshDescriptor.MeshBufferDesc().SetVertexData(uiStreamIdx[Streams::Position], uiVertexIndex, vPosition);
 
-        ezGALResourceFormatConversions::FromFloat3(vNormal, meshDescriptor.MeshBufferDesc().GetVertexData(uiStreamIdx[Streams::Normal], uiVertexIndex), normalFormat);
+        ezGALResourceFormatConversions::FromFloat3(vNormal * 0.5f + ezVec3(0.5f),
+          meshDescriptor.MeshBufferDesc().GetVertexData(uiStreamIdx[Streams::Normal], uiVertexIndex), normalFormat);
       }
     }
 
@@ -714,7 +716,7 @@ namespace ezMeshImportUtils
           biTangentSign = bFlipTriangles ? -biTangentSign : biTangentSign;
           biTangentSign = (biTangentSign < 0.0f) ? -1.0f : 1.0f;
 
-          ezVec4 tangentAndBiTangentSign = vTangent.GetAsVec4(biTangentSign);
+          ezVec4 tangentAndBiTangentSign = vTangent.GetAsVec4(biTangentSign) * 0.5f + ezVec4(0.5f);
 
           ezGALResourceFormatConversions::FromFloat4(tangentAndBiTangentSign,
             meshDescriptor.MeshBufferDesc().GetVertexData(uiStreamIdx[Streams::Tangent], uiVertexIndex), tangentFormat);
