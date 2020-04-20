@@ -1,3 +1,9 @@
+<H2>April 2020</H2>
+
+<ul>
+<li>Logged errors and warnings are now displayed in the status bar for a few seconds. A button shows the number of new errors and warnings.</li>
+</ul>
+
 <H2>February 2020</H2>
 
 <ul>

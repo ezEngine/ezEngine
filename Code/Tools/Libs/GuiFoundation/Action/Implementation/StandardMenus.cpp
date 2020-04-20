@@ -12,7 +12,7 @@ ezActionDescriptorHandle ezStandardMenus::s_hMenuProject;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuScene;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuView;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuHelp;
-ezActionDescriptorHandle ezStandardMenus::s_hOpenWiki;
+ezActionDescriptorHandle ezStandardMenus::s_hOpenDocumentation;
 
 void ezStandardMenus::RegisterActions()
 {
@@ -23,7 +23,7 @@ void ezStandardMenus::RegisterActions()
   s_hMenuScene = EZ_REGISTER_MENU("Menu.Scene");
   s_hMenuView = EZ_REGISTER_MENU("Menu.View");
   s_hMenuHelp = EZ_REGISTER_MENU("Menu.Help");
-  s_hOpenWiki = EZ_REGISTER_ACTION_1("Help.OpenWiki", ezActionScope::Document, "Help", "", ezHelpActions, ezHelpActions::ButtonType::OpenWiki);
+  s_hOpenDocumentation = EZ_REGISTER_ACTION_1("Help.OpenDocumentation", ezActionScope::Document, "Help", "", ezHelpActions, ezHelpActions::ButtonType::OpenDocumentation);
 }
 
 void ezStandardMenus::UnregisterActions()
@@ -35,7 +35,7 @@ void ezStandardMenus::UnregisterActions()
   ezActionManager::UnregisterAction(s_hMenuScene);
   ezActionManager::UnregisterAction(s_hMenuView);
   ezActionManager::UnregisterAction(s_hMenuHelp);
-  ezActionManager::UnregisterAction(s_hOpenWiki);
+  ezActionManager::UnregisterAction(s_hOpenDocumentation);
 }
 
 void ezStandardMenus::MapActions(const char* szMapping, const ezBitflags<ezStandardMenuTypes>& Menus)
@@ -66,7 +66,7 @@ void ezStandardMenus::MapActions(const char* szMapping, const ezBitflags<ezStand
   if (Menus.IsAnySet(ezStandardMenuTypes::Help))
   {
     pMap->MapAction(s_hMenuHelp, "", 7.0f);
-    pMap->MapAction(s_hOpenWiki, "Menu.Help", 1.0f);
+    pMap->MapAction(s_hOpenDocumentation, "Menu.Help", 1.0f);
   }
 }
 
@@ -147,8 +147,8 @@ ezHelpActions::~ezHelpActions() = default;
 
 void ezHelpActions::Execute(const ezVariant& value)
 {
-  if (m_ButtonType == ButtonType::OpenWiki)
+  if (m_ButtonType == ButtonType::OpenDocumentation)
   {
-    QDesktopServices::openUrl(QUrl("https://github.com/ezEngine/ezEngine/wiki"));
+    QDesktopServices::openUrl(QUrl("https://ezengine.github.io/docs"));
   }
 }
