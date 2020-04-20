@@ -1,6 +1,7 @@
 #include <EditorEngineProcessFrameworkPCH.h>
 
 #include <EditorEngineProcessFramework/PickingRenderPass/PickingRenderPass.h>
+#include <RendererCore/Lights/ClusteredDataProvider.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
@@ -83,6 +84,10 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext,
     renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_PICKING_WIREFRAME");
   else
     renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_PICKING");
+
+  // Setup clustered data
+  auto pClusteredData = GetPipeline()->GetFrameDataProvider<ezClusteredDataProvider>()->GetData(renderViewContext);
+  pClusteredData->BindResources(renderViewContext.m_pRenderContext);
 
   // copy selection to set for faster checks
   m_SelectionSet.Clear();

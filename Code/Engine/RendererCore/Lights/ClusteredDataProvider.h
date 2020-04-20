@@ -4,7 +4,7 @@
 #include <RendererCore/Pipeline/FrameDataProvider.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 
-struct ezClusteredDataGPU
+struct EZ_RENDERERCORE_DLL ezClusteredDataGPU
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezClusteredDataGPU);
 public:
