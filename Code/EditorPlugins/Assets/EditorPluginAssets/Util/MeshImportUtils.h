@@ -4,6 +4,7 @@
 #include <EditorPluginAssets/Util/AssetUtils.h>
 #include <Foundation/Types/SharedPtr.h>
 #include <ModelImporter/Declarations.h>
+#include <RendererCore/Meshes/MeshBufferUtils.h>
 
 class ezMaterialAssetDocument;
 class ezMeshResourceDescriptor;
@@ -37,10 +38,11 @@ namespace ezMeshImportUtils
   EZ_EDITORPLUGINASSETS_DLL void PrepareMeshForImport(ezModelImporter::Mesh& mesh, bool bRecalculateNormals, ezProgressRange& range);
 
   EZ_EDITORPLUGINASSETS_DLL ezStatus GenerateMeshBuffer(const ezModelImporter::Mesh& mesh, ezMeshResourceDescriptor& meshDescriptor,
-    const ezMat3& mTransformation, bool bInvertNormals, ezGALResourceFormat::Enum normalFormat, ezGALResourceFormat::Enum texCoordFormat, bool bSkinnedMesh);
+    const ezMat3& mTransformation, bool bInvertNormals, ezMeshNormalPrecision::Enum normalPrecision, ezMeshTexCoordPrecision::Enum texCoordPrecision,
+    bool bSkinnedMesh);
 
   EZ_EDITORPLUGINASSETS_DLL ezStatus TryImportMesh(ezSharedPtr<ezModelImporter::Scene>& out_pScene, ezModelImporter::Mesh*& out_pMesh,
     const char* szMeshFile, const char* szSubMeshName, const ezMat3& mMeshTransform, bool bRecalculateNormals, bool bInvertNormals,
-    ezGALResourceFormat::Enum normalFormat, ezGALResourceFormat::Enum texCoordFormat, ezProgressRange& range, ezMeshResourceDescriptor& meshDescriptor,
-    bool bSkinnedMesh);
+    ezMeshNormalPrecision::Enum normalPrecision, ezMeshTexCoordPrecision::Enum texCoordPrecision, ezProgressRange& range,
+    ezMeshResourceDescriptor& meshDescriptor, bool bSkinnedMesh);
 } // namespace ezMeshImportUtils

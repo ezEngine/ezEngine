@@ -25,34 +25,6 @@ static ezMat3 CalculateTransformationMatrix(const ezMeshAssetProperties* pProp)
   return ezBasisAxis::CalculateTransformationMatrix(pProp->m_ForwardDir, pProp->m_RightDir, pProp->m_UpDir, us, sx, sy, sz);
 }
 
-static ezGALResourceFormat::Enum GetNormalFormat(const ezMeshAssetProperties* pProp)
-{
-  switch (pProp->m_NormalPrecision)
-  {
-    case ezMeshNormalPrecision::_10Bit:
-      return ezGALResourceFormat::RGB10A2UIntNormalized;
-    case ezMeshNormalPrecision::_16Bit:
-      return ezGALResourceFormat::RGBAUShortNormalized;
-    case ezMeshNormalPrecision::_32Bit:
-      return ezGALResourceFormat::XYZFloat;
-  }
-
-  return ezGALResourceFormat::Invalid;
-}
-
-static ezGALResourceFormat::Enum GetTexCoordFormat(const ezMeshAssetProperties* pProp)
-{
-  switch (pProp->m_TexCoordPrecision)
-  {
-    case ezMeshTexCoordPrecision::_16Bit:
-      return ezGALResourceFormat::UVHalf;
-    case ezMeshTexCoordPrecision::_32Bit:
-      return ezGALResourceFormat::UVFloat;
-  }
-
-  return ezGALResourceFormat::Invalid;
-}
-
 ezMeshAssetDocument::ezMeshAssetDocument(const char* szDocumentPath)
   : ezSimpleAssetDocument<ezMeshAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::Simple)
 {
@@ -195,13 +167,11 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
   range.BeginNextStep("Importing Mesh Data");
 
   const ezMat3 mTransformation = CalculateTransformationMatrix(pProp);
-  ezGALResourceFormat::Enum normalFormat = GetNormalFormat(pProp);
-  ezGALResourceFormat::Enum texCoordFormat = GetTexCoordFormat(pProp);
 
   ezSharedPtr<ezModelImporter::Scene> pScene;
   ezModelImporter::Mesh* pMesh = nullptr;
   EZ_SUCCEED_OR_RETURN(ezMeshImportUtils::TryImportMesh(pScene, pMesh, pProp->m_sMeshFile, pProp->m_sSubMeshName, mTransformation,
-    pProp->m_bRecalculateNormals, pProp->m_bInvertNormals, normalFormat, texCoordFormat, range, desc, false));
+    pProp->m_bRecalculateNormals, pProp->m_bInvertNormals, pProp->m_NormalPrecision, pProp->m_TexCoordPrecision, range, desc, false));
 
   range.BeginNextStep("Importing Materials");
 

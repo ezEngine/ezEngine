@@ -5,7 +5,7 @@
 #include <ProcGenPlugin/Tasks/Utils.h>
 #include <ProcGenPlugin/Tasks/VertexColorTask.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
-#include <RendererFoundation/Resources/ResourceFormatConversions.h>
+#include <RendererCore/Meshes/MeshBufferUtils.h>
 
 namespace
 {
@@ -85,7 +85,7 @@ void VertexColorTask::Prepare(const ezWorld& world, const ezMeshBufferResourceDe
 
   ezUInt8 dummySource[16] = {};
   ezVec3 vNormal;
-  if (ezGALResourceFormatConversions::ToFloat3(ezMakeArrayPtr(dummySource), normalFormat, vNormal).Failed())
+  if (ezMeshBufferUtils::DecodeNormal(ezMakeArrayPtr(dummySource), normalFormat, vNormal).Failed())
   {
     ezLog::Error("Unsupported CPU mesh vertex normal format {0}", normalFormat);
     return;
@@ -100,7 +100,7 @@ void VertexColorTask::Prepare(const ezWorld& world, const ezMeshBufferResourceDe
   // write out all vertices
   for (ezUInt32 i = 0; i < mbDesc.GetVertexCount(); ++i)
   {
-    ezGALResourceFormatConversions::ToFloat3(ezMakeArrayPtr(pNormals, sizeof(ezVec3)), normalFormat, vNormal);
+    ezMeshBufferUtils::DecodeNormal(ezMakeArrayPtr(pNormals, sizeof(ezVec3)), normalFormat, vNormal);
 
     auto& vert = m_InputVertices.ExpandAndGetRef();
     vert.m_vPosition = transform.TransformPosition(ezVec3(pPositions[0], pPositions[1], pPositions[2]));

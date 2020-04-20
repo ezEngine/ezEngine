@@ -79,17 +79,6 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMeshPrimitive, 1)
   EZ_ENUM_CONSTANT(ezMeshPrimitive::Torus),
 EZ_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMeshNormalPrecision, 1)
-  EZ_ENUM_CONSTANT(ezMeshNormalPrecision::_10Bit),
-  EZ_ENUM_CONSTANT(ezMeshNormalPrecision::_16Bit),
-  EZ_ENUM_CONSTANT(ezMeshNormalPrecision::_32Bit),
-EZ_END_STATIC_REFLECTED_ENUM;
-
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMeshTexCoordPrecision, 1)
-  EZ_ENUM_CONSTANT(ezMeshTexCoordPrecision::_16Bit),
-  EZ_ENUM_CONSTANT(ezMeshTexCoordPrecision::_32Bit),
-EZ_END_STATIC_REFLECTED_ENUM;
-
 ezMeshAssetProperties::ezMeshAssetProperties()
 {
   m_uiVertices = 0;

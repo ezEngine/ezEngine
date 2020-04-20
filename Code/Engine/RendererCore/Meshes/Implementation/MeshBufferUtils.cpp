@@ -1,7 +1,7 @@
-#include <RendererFoundationPCH.h>
+#include <RendererCorePCH.h>
 
 #include <Foundation/Math/Float16.h>
-#include <RendererFoundation/Resources/ResourceFormatConversions.h>
+#include <RendererCore/Meshes/MeshBufferUtils.h>
 
 namespace
 {
@@ -32,8 +32,21 @@ namespace
   }
 } // namespace
 
+// clang-format off
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMeshNormalPrecision, 1)
+  EZ_ENUM_CONSTANT(ezMeshNormalPrecision::_10Bit),
+  EZ_ENUM_CONSTANT(ezMeshNormalPrecision::_16Bit),
+  EZ_ENUM_CONSTANT(ezMeshNormalPrecision::_32Bit),
+EZ_END_STATIC_REFLECTED_ENUM;
+
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMeshTexCoordPrecision, 1)
+  EZ_ENUM_CONSTANT(ezMeshTexCoordPrecision::_16Bit),
+  EZ_ENUM_CONSTANT(ezMeshTexCoordPrecision::_32Bit),
+EZ_END_STATIC_REFLECTED_ENUM;
+// clang-format on
+
 // static
-ezResult ezGALResourceFormatConversions::FromFloat1(const float source, ezArrayPtr<ezUInt8> dest, ezGALResourceFormat::Enum destFormat)
+ezResult ezMeshBufferUtils::EncodeFromFloat(const float source, ezArrayPtr<ezUInt8> dest, ezGALResourceFormat::Enum destFormat)
 {
   EZ_ASSERT_DEBUG(dest.GetCount() >= ezGALResourceFormat::GetBitsPerElement(destFormat) / 8, "Destination buffer is too small");
 
@@ -48,7 +61,7 @@ ezResult ezGALResourceFormatConversions::FromFloat1(const float source, ezArrayP
 }
 
 // static
-ezResult ezGALResourceFormatConversions::FromFloat2(const ezVec2& source, ezArrayPtr<ezUInt8> dest, ezGALResourceFormat::Enum destFormat)
+ezResult ezMeshBufferUtils::EncodeFromVec2(const ezVec2& source, ezArrayPtr<ezUInt8> dest, ezGALResourceFormat::Enum destFormat)
 {
   EZ_ASSERT_DEBUG(dest.GetCount() >= ezGALResourceFormat::GetBitsPerElement(destFormat) / 8, "Destination buffer is too small");
 
@@ -67,7 +80,7 @@ ezResult ezGALResourceFormatConversions::FromFloat2(const ezVec2& source, ezArra
 }
 
 // static
-ezResult ezGALResourceFormatConversions::FromFloat3(const ezVec3& source, ezArrayPtr<ezUInt8> dest, ezGALResourceFormat::Enum destFormat)
+ezResult ezMeshBufferUtils::EncodeFromVec3(const ezVec3& source, ezArrayPtr<ezUInt8> dest, ezGALResourceFormat::Enum destFormat)
 {
   EZ_ASSERT_DEBUG(dest.GetCount() >= ezGALResourceFormat::GetBitsPerElement(destFormat) / 8, "Destination buffer is too small");
 
@@ -116,7 +129,7 @@ ezResult ezGALResourceFormatConversions::FromFloat3(const ezVec3& source, ezArra
 }
 
 // static
-ezResult ezGALResourceFormatConversions::FromFloat4(const ezVec4& source, ezArrayPtr<ezUInt8> dest, ezGALResourceFormat::Enum destFormat)
+ezResult ezMeshBufferUtils::EncodeFromVec4(const ezVec4& source, ezArrayPtr<ezUInt8> dest, ezGALResourceFormat::Enum destFormat)
 {
   EZ_ASSERT_DEBUG(dest.GetCount() >= ezGALResourceFormat::GetBitsPerElement(destFormat) / 8, "Destination buffer is too small");
 
@@ -170,7 +183,7 @@ ezResult ezGALResourceFormatConversions::FromFloat4(const ezVec4& source, ezArra
 }
 
 // static
-ezResult ezGALResourceFormatConversions::ToFloat1(ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, float& dest)
+ezResult ezMeshBufferUtils::DecodeToFloat(ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, float& dest)
 {
   EZ_ASSERT_DEBUG(source.GetCount() >= ezGALResourceFormat::GetBitsPerElement(sourceFormat) / 8, "Source buffer is too small");
 
@@ -185,7 +198,7 @@ ezResult ezGALResourceFormatConversions::ToFloat1(ezArrayPtr<const ezUInt8> sour
 }
 
 // static
-ezResult ezGALResourceFormatConversions::ToFloat2(ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, ezVec2& dest)
+ezResult ezMeshBufferUtils::DecodeToVec2(ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, ezVec2& dest)
 {
   EZ_ASSERT_DEBUG(source.GetCount() >= ezGALResourceFormat::GetBitsPerElement(sourceFormat) / 8, "Source buffer is too small");
 
@@ -200,7 +213,7 @@ ezResult ezGALResourceFormatConversions::ToFloat2(ezArrayPtr<const ezUInt8> sour
 }
 
 // static
-ezResult ezGALResourceFormatConversions::ToFloat3(ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, ezVec3& dest)
+ezResult ezMeshBufferUtils::DecodeToVec3(ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, ezVec3& dest)
 {
   EZ_ASSERT_DEBUG(source.GetCount() >= ezGALResourceFormat::GetBitsPerElement(sourceFormat) / 8, "Source buffer is too small");
 
@@ -245,7 +258,7 @@ ezResult ezGALResourceFormatConversions::ToFloat3(ezArrayPtr<const ezUInt8> sour
 }
 
 // static
-ezResult ezGALResourceFormatConversions::ToFloat4(ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, ezVec4& dest)
+ezResult ezMeshBufferUtils::DecodeToVec4(ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, ezVec4& dest)
 {
   EZ_ASSERT_DEBUG(source.GetCount() >= ezGALResourceFormat::GetBitsPerElement(sourceFormat) / 8, "Source buffer is too small");
 

@@ -62,7 +62,7 @@ ezStatus ezAnimatedMeshAssetDocument::CreateMeshFromFile(ezAnimatedMeshAssetProp
   ezSharedPtr<ezModelImporter::Scene> pScene;
   ezModelImporter::Mesh* pMesh = nullptr;
   EZ_SUCCEED_OR_RETURN(ezMeshImportUtils::TryImportMesh(pScene, pMesh, pProp->m_sMeshFile, "", mTransformation, pProp->m_bRecalculateNormals,
-    pProp->m_bInvertNormals, ezGALResourceFormat::XYZFloat, ezGALResourceFormat::UVFloat, range, desc, true));
+    pProp->m_bInvertNormals, pProp->m_NormalPrecision, pProp->m_TexCoordPrecision, range, desc, true));
 
   range.BeginNextStep("Importing Materials");
 

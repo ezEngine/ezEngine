@@ -2,6 +2,7 @@
 
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <EditorPluginAssets/Util/AssetUtils.h>
+#include <RendererCore/Meshes/MeshBufferUtils.h>
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 
 struct ezPropertyMetaStateEvent;
@@ -29,37 +30,6 @@ struct ezMeshPrimitive
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezMeshPrimitive);
-
-struct ezMeshNormalPrecision
-{
-  typedef ezUInt8 StorageType;
-
-  enum Enum
-  {
-    _10Bit,
-    _16Bit,
-    _32Bit,
-
-    Default = _10Bit
-  };
-};
-
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezMeshNormalPrecision);
-
-struct ezMeshTexCoordPrecision
-{
-  typedef ezUInt8 StorageType;
-
-  enum Enum
-  {
-    _16Bit,
-    _32Bit,
-
-    Default = _16Bit
-  };
-};
-
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezMeshTexCoordPrecision);
 
 class ezMeshAssetProperties : public ezReflectedClass
 {

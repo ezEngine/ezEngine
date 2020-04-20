@@ -15,6 +15,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimatedMeshAssetProperties, 2, ezRTTIDefaultA
     EZ_ENUM_MEMBER_PROPERTY("UpDir", ezBasisAxis, m_UpDir)->AddAttributes(new ezDefaultValueAttribute((int)ezBasisAxis::PositiveY)),
     EZ_MEMBER_PROPERTY("RecalculateNormals", m_bRecalculateNormals)->AddAttributes(new ezDefaultValueAttribute(false)),
     EZ_MEMBER_PROPERTY("InvertNormals", m_bInvertNormals)->AddAttributes(new ezDefaultValueAttribute(false)),
+    EZ_ENUM_MEMBER_PROPERTY("NormalPrecision", ezMeshNormalPrecision, m_NormalPrecision),
+    EZ_ENUM_MEMBER_PROPERTY("TexCoordPrecision", ezMeshTexCoordPrecision, m_TexCoordPrecision),
     EZ_MEMBER_PROPERTY("UniformScaling", m_fUniformScaling)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0001f, 10000.0f)),
     EZ_MEMBER_PROPERTY("Skeleton", m_sSkeletonFile)->AddAttributes(new ezAssetBrowserAttribute("Skeleton")),
     EZ_MEMBER_PROPERTY("MeshFile", m_sMeshFile)->AddAttributes(new ezFileBrowserAttribute("Select Mesh", ".fbx;")),
