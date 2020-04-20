@@ -38,6 +38,9 @@ public:
   /// \brief Use this function to add vertex streams to the mesh buffer. The return value is the index of the just added stream.
   ezUInt32 AddStream(ezGALVertexAttributeSemantic::Enum Semantic, ezGALResourceFormat::Enum Format);
 
+  /// \brief Add common vertex streams to the mesh buffer. This includes Position, TexCoord0, Normal and Tangent.
+  void AddCommonStreams();
+
   /// \brief After all streams are added, call this to allocate the data for the streams. If uiNumPrimitives is 0, the mesh buffer will not
   /// use indexed rendering.
   void AllocateStreams(ezUInt32 uiNumVertices, ezGALPrimitiveTopology::Enum topology = ezGALPrimitiveTopology::Triangles, ezUInt32 uiNumPrimitives = 0);
@@ -156,4 +159,3 @@ private:
   ezGALBufferHandle m_hIndexBuffer;
   ezGALPrimitiveTopology::Enum m_Topology;
 };
-

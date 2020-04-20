@@ -120,10 +120,7 @@ void ezTextureContext::OnInitialize()
       geom.ComputeTangents();
 
       ezMeshBufferResourceDescriptor desc;
-      desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-      desc.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::XYFloat);
-      desc.AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
-      desc.AddStream(ezGALVertexAttributeSemantic::Tangent, ezGALResourceFormat::XYZFloat);
+      desc.AddCommonStreams();
       desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
       hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(szMeshBufferName, std::move(desc), szMeshBufferName);

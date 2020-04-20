@@ -886,10 +886,7 @@ void ezBreakableSheetComponent::BuildMeshResourceFromGeometry(ezGeometry& Geomet
 
   auto& MeshBufferDesc = MeshDesc.MeshBufferDesc();
 
-  MeshBufferDesc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-  MeshBufferDesc.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::XYFloat);
-  MeshBufferDesc.AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
-  MeshBufferDesc.AddStream(ezGALVertexAttributeSemantic::Tangent, ezGALResourceFormat::XYZFloat);
+  MeshBufferDesc.AddCommonStreams();
 
   if (bWithSkinningData)
   {

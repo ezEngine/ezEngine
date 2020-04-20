@@ -150,9 +150,9 @@ void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezMes
 
   auto& mbd = desc.MeshBufferDesc();
   mbd.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-  mbd.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::XYFloat);
-  mbd.AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
-  mbd.AddStream(ezGALVertexAttributeSemantic::Tangent, ezGALResourceFormat::XYZFloat);
+  mbd.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezMeshTexCoordPrecision::ToResourceFormat(pProp->m_TexCoordPrecision));
+  mbd.AddStream(ezGALVertexAttributeSemantic::Normal, ezMeshNormalPrecision::ToResourceFormatNormal(pProp->m_NormalPrecision));
+  mbd.AddStream(ezGALVertexAttributeSemantic::Tangent, ezMeshNormalPrecision::ToResourceFormatTangent(pProp->m_NormalPrecision));
 
   mbd.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
   desc.AddSubMesh(mbd.GetPrimitiveCount(), 0, 0);

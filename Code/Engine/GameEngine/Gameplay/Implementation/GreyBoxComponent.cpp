@@ -549,10 +549,7 @@ void ezGreyBoxComponent::GenerateRenderMesh() const
   // Data/Base/Materials/Common/Pattern.ezMaterialAsset
   desc.SetMaterial(0, "{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }");
 
-  desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-  desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::XYFloat);
-  desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
-  desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Tangent, ezGALResourceFormat::XYZFloat);
+  desc.MeshBufferDesc().AddCommonStreams();
   desc.MeshBufferDesc().AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
   desc.AddSubMesh(desc.MeshBufferDesc().GetPrimitiveCount(), 0, 0);
