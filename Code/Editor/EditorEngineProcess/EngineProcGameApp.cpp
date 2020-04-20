@@ -122,6 +122,11 @@ void ezEngineProcessGameApplication::LogWriter(const ezLoggingEventData& e)
 {
   ezLogMsgToEditor msg;
   msg.m_Entry = ezLogEntry(e);
+
+  // the editor does not care about flushing caches, so no need to send this over
+  if (msg.m_Entry.m_Type == ezLogMsgType::Flush)
+    return;
+
   m_IPC.SendMessage(&msg);
 }
 
