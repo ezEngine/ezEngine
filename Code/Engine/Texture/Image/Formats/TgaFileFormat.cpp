@@ -358,7 +358,7 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
       }
     }
   }
-  if (Header.m_ImageType == 2)
+  else if (Header.m_ImageType == 2)
   {
     // uncompressed
 
