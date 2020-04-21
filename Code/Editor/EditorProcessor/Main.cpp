@@ -78,7 +78,8 @@ public:
           // Check if asset matches the state of the editor
           if ((state != ezAssetInfo::NeedsThumbnail && state != ezAssetInfo::NeedsTransform) || uiAssetHash != pMsg->m_AssetHash || uiThumbHash != pMsg->m_ThumbHash)
           {
-            // Force update the state.
+            // Force update the state. If the asset was created automatically the file might not be known yet.
+            ezAssetCurator::GetSingleton()->NotifyOfFileChange(pMsg->m_sAssetPath);
             state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(pMsg->m_AssetGuid,
               ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform), nullptr, uiAssetHash, uiThumbHash, true);
           }

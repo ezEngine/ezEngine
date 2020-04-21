@@ -19,7 +19,7 @@ ezQtAssetFilter::ezQtAssetFilter(QObject* pParent)
 
 struct AssetComparer
 {
-  AssetComparer(ezQtAssetBrowserModel* model, const ezMap<ezUuid, ezSubAsset>& allAssets)
+  AssetComparer(ezQtAssetBrowserModel* model, const ezHashTable<ezUuid, ezSubAsset>& allAssets)
     : m_Model(model)
     , m_AllAssets(allAssets)
   {
@@ -39,7 +39,7 @@ struct AssetComparer
   }
 
   ezQtAssetBrowserModel* m_Model;
-  const ezMap<ezUuid, ezSubAsset>& m_AllAssets;
+  const ezHashTable<ezUuid, ezSubAsset>& m_AllAssets;
 };
 
 ezQtAssetBrowserModel::ezQtAssetBrowserModel(QObject* pParent, ezQtAssetFilter* pFilter)
@@ -107,7 +107,7 @@ void ezQtAssetBrowserModel::resetModel()
   beginResetModel();
 
   ezAssetCurator::ezLockedSubAssetTable AllAssetsLocked = ezAssetCurator::GetSingleton()->GetKnownSubAssets();
-  const ezMap<ezUuid, ezSubAsset>& AllAssets = *(AllAssetsLocked.operator->());
+  const ezHashTable<ezUuid, ezSubAsset>& AllAssets = *(AllAssetsLocked.operator->());
 
   m_AssetsToDisplay.Clear();
   m_AssetsToDisplay.Reserve(AllAssets.GetCount());
@@ -150,7 +150,7 @@ void ezQtAssetBrowserModel::HandleAsset(const ezSubAsset* pInfo, AssetOp op)
   }
 
   ezAssetCurator::ezLockedSubAssetTable AllAssetsLocked = ezAssetCurator::GetSingleton()->GetKnownSubAssets();
-  const ezMap<ezUuid, ezSubAsset>& AllAssets = *(AllAssetsLocked.operator->());
+  const ezHashTable<ezUuid, ezSubAsset>& AllAssets = *(AllAssetsLocked.operator->());
 
   AssetEntry ae;
   Init(ae, pInfo);
