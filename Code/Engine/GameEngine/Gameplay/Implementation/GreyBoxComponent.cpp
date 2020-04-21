@@ -540,7 +540,6 @@ void ezGreyBoxComponent::GenerateRenderMesh() const
   ezGeometry geom;
   BuildGeometry(geom);
 
-  geom.ComputeFaceNormals();
   geom.TriangulatePolygons();
   geom.ComputeTangents();
 

@@ -128,7 +128,7 @@ void ezTextureContext::OnInitialize()
 
     auto& param = md.m_Parameters.ExpandAndGetRef();
     param.m_Name.Assign("IsLinear");
-    param.m_Value = !ezGALResourceFormat::IsSrgb(textureFormat);
+    param.m_Value = textureFormat != ezGALResourceFormat::Invalid ? !ezGALResourceFormat::IsSrgb(textureFormat) : false;
 
     m_hMaterial = ezResourceManager::CreateResource<ezMaterialResource>(sMaterialResource, std::move(md));
   }
@@ -166,8 +166,10 @@ void ezTextureContext::OnResourceEvent(const ezResourceEvent& e)
   if (e.m_Type == ezResourceEvent::Type::ResourceContentUpdated)
   {
     const ezTexture2DResource* pTexture = static_cast<const ezTexture2DResource*>(e.m_pResource);
-
-    ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::BlockTillLoaded);
-    pMaterial->SetParameter("IsLinear", !ezGALResourceFormat::IsSrgb(pTexture->GetFormat()));
+    if (pTexture->GetFormat() != ezGALResourceFormat::Invalid)
+    {
+      ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::BlockTillLoaded);
+      pMaterial->SetParameter("IsLinear", !ezGALResourceFormat::IsSrgb(pTexture->GetFormat()));
+    }
   }
 }

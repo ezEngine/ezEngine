@@ -321,7 +321,6 @@ void ezBeamComponent::CreateMeshes()
       g.AddPolygon(ezArrayPtr(indices), true);
     }
 
-    g.ComputeFaceNormals();
     g.ComputeTangents();
 
     ezMeshResourceDescriptor desc;
@@ -333,9 +332,6 @@ void ezBeamComponent::CreateMeshes()
 
 void ezBeamComponent::BuildMeshResourceFromGeometry(ezGeometry& Geometry, ezMeshResourceDescriptor& MeshDesc) const
 {
-  Geometry.ComputeFaceNormals();
-  Geometry.ComputeTangents();
-
   auto& MeshBufferDesc = MeshDesc.MeshBufferDesc();
 
   MeshBufferDesc.AddCommonStreams();

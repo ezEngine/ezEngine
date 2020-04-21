@@ -120,7 +120,6 @@ void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezMes
       ezMath::Max<ezUInt16>(3, pProp->m_uiDetail2), ezColor::White, mTrans);
   }
 
-  geom.ComputeFaceNormals();
   geom.TriangulatePolygons(4);
   geom.ComputeTangents();
 

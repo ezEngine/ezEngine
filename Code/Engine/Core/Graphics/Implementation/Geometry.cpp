@@ -1428,12 +1428,9 @@ void ezGeometry::AddTorus(float fInnerRadius, float fOuterRadius, ezUInt16 uiSeg
   const ezUInt16 uiFirstVertex = static_cast<ezUInt16>(m_Vertices.GetCount());
 
   // this is the loop for the torus ring
-  for (ezUInt16 seg = 0; seg < uiSegments; ++seg)
+  for (ezUInt16 seg = 0; seg < uiSegments + 1u; ++seg)
   {
-    float fU = ((float)seg / (float)(uiSegments)) * 2.0f;
-
-    if (fU > 1.0f)
-      fU = 2.0f - fU;
+    float fU = ((float)seg / (float)uiSegments) * 2.0f;
 
     const ezAngle fAngle = seg * fAngleStepSegment;
 
@@ -1443,12 +1440,9 @@ void ezGeometry::AddTorus(float fInnerRadius, float fOuterRadius, ezUInt16 uiSeg
     const ezVec3 vLoopPos = ezVec3(fSinAngle, fCosAngle, 0) * fLoopRadius;
 
     // this is the loop to go round the cylinder
-    for (ezUInt16 p = 0; p < uiSegmentDetail; ++p)
+    for (ezUInt16 p = 0; p < uiSegmentDetail + 1u; ++p)
     {
-      float fV = ((float)p / (float)(uiSegmentDetail)) * 2.0f;
-
-      if (fV > 1.0f)
-        fV = 2.0f - fV;
+      float fV = (float)p / (float)uiSegmentDetail;
 
       const ezAngle fCylinderAngle = p * fAngleStepCylinder;
 
@@ -1463,18 +1457,16 @@ void ezGeometry::AddTorus(float fInnerRadius, float fOuterRadius, ezUInt16 uiSeg
 
   for (ezUInt16 seg = 0; seg < uiSegments; ++seg)
   {
-    const ezUInt16 rs0 = uiFirstVertex + seg * uiSegmentDetail;
-    const ezUInt16 rs1 = uiFirstVertex + ((seg + 1) % uiSegments) * uiSegmentDetail;
+    const ezUInt16 rs0 = uiFirstVertex + seg * (uiSegmentDetail + 1);
+    const ezUInt16 rs1 = uiFirstVertex + (seg + 1) * (uiSegmentDetail + 1);
 
     for (ezUInt16 p = 0; p < uiSegmentDetail; ++p)
     {
-      const ezUInt16 p1 = (p + 1) % uiSegmentDetail;
-
       ezUInt32 quad[4];
 
       quad[0] = rs1 + p;
-      quad[3] = rs1 + p1;
-      quad[2] = rs0 + p1;
+      quad[3] = rs1 + p + 1;
+      quad[2] = rs0 + p + 1;
       quad[1] = rs0 + p;
 
       AddPolygon(quad, bFlipWinding);

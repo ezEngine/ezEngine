@@ -611,7 +611,6 @@ void ezBreakableSheetComponent::CreateMeshes()
       ezGeometry g;
 
       g.AddTexturedBox(m_vExtents, ezColor::White);
-      g.ComputeFaceNormals();
       g.ComputeTangents();
 
       ezMeshResourceDescriptor desc;
@@ -881,9 +880,6 @@ void ezBreakableSheetComponent::AddSkirtPolygons(ezVec2 Point0, ezVec2 Point1, f
 void ezBreakableSheetComponent::BuildMeshResourceFromGeometry(ezGeometry& Geometry, ezMeshResourceDescriptor& MeshDesc,
   bool bWithSkinningData) const
 {
-  Geometry.ComputeFaceNormals();
-  Geometry.ComputeTangents();
-
   auto& MeshBufferDesc = MeshDesc.MeshBufferDesc();
 
   MeshBufferDesc.AddCommonStreams();

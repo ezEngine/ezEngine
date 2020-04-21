@@ -52,8 +52,6 @@ void ezDecalContext::OnInitialize()
       r.SetRotationMatrixY(ezAngle::Degree(90));
       geom.AddTorus(0.1f, 0.5f, 32, 64, ezColor::White, t * r);
 
-      geom.ComputeFaceNormals();
-      geom.ComputeSmoothVertexNormals();
       geom.ComputeTangents();
 
       ezMeshBufferResourceDescriptor desc;
