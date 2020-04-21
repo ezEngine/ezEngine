@@ -109,6 +109,14 @@ public:
   /// \brief Resets the GroupID into an invalid state.
   EZ_ALWAYS_INLINE void Invalidate() { m_pTaskGroup = nullptr; }
 
+  EZ_ALWAYS_INLINE bool operator==(const ezTaskGroupID& other) const { return m_pTaskGroup == other.m_pTaskGroup && m_uiGroupCounter == other.m_uiGroupCounter; }
+  EZ_ALWAYS_INLINE bool operator!=(const ezTaskGroupID& other) const { return m_pTaskGroup != other.m_pTaskGroup || m_uiGroupCounter != other.m_uiGroupCounter; }
+  EZ_ALWAYS_INLINE bool operator<(const ezTaskGroupID& other) const
+  {
+    return m_pTaskGroup < other.m_pTaskGroup ||
+      (m_pTaskGroup == other.m_pTaskGroup && m_uiGroupCounter < other.m_uiGroupCounter);
+  }
+
 private:
   friend class ezTaskSystem;
   friend class ezTaskGroup;
@@ -122,7 +130,7 @@ private:
 };
 
 /// \brief Callback type when a task group has been finished (or canceled).
-using ezOnTaskGroupFinishedCallback = ezDelegate<void()>;
+using ezOnTaskGroupFinishedCallback = ezDelegate<void(ezTaskGroupID)>;
 
 /// \brief Callback type when a task has been finished (or canceled).
 using ezOnTaskFinishedCallback = ezDelegate<void(ezTask*)>;
