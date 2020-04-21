@@ -197,7 +197,7 @@ void ezMeshBufferResourceDescriptor::AllocateStreamsFromGeometry(const ezGeometr
       {
         for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
         {
-          if (ezMeshBufferUtils::EncodeTangent(geom.GetVertices()[v].m_vTangent, 1.0f, GetVertexData(s, v), si.m_Format).Failed())
+          if (ezMeshBufferUtils::EncodeTangent(geom.GetVertices()[v].m_vTangent, geom.GetVertices()[v].m_fBiTangentSign, GetVertexData(s, v), si.m_Format).Failed())
           {
             ezLog::Error("Tangent stream with format '{0}' is not supported.", (int)si.m_Format);
             break;

@@ -22,17 +22,23 @@ bool ezGeometry::Vertex::operator<(const ezGeometry::Vertex& rhs) const
 
       if (m_vTangent == rhs.m_vTangent)
       {
-        if (m_vTexCoord < rhs.m_vTexCoord)
+        if (m_fBiTangentSign < rhs.m_fBiTangentSign)
           return true;
 
-        if (m_vTexCoord == rhs.m_vTexCoord)
+        if (m_fBiTangentSign == rhs.m_fBiTangentSign)
         {
-          if (m_Color < rhs.m_Color)
+          if (m_vTexCoord < rhs.m_vTexCoord)
             return true;
 
-          if (m_Color == rhs.m_Color)
+          if (m_vTexCoord == rhs.m_vTexCoord)
           {
-            return m_iCustomIndex < rhs.m_iCustomIndex;
+            if (m_Color < rhs.m_Color)
+              return true;
+
+            if (m_Color == rhs.m_Color)
+            {
+              return m_iCustomIndex < rhs.m_iCustomIndex;
+            }
           }
         }
       }
@@ -49,6 +55,8 @@ bool ezGeometry::Vertex::operator==(const ezGeometry::Vertex& rhs) const
   if (m_vNormal != rhs.m_vNormal)
     return false;
   if (m_vTangent != rhs.m_vTangent)
+    return false;
+  if (m_fBiTangentSign != rhs.m_fBiTangentSign)
     return false;
   if (m_vTexCoord != rhs.m_vTexCoord)
     return false;
@@ -254,11 +262,8 @@ struct TangentContext
     v.m_vTangent.x = fvTangent[0];
     v.m_vTangent.y = fvTangent[1];
     v.m_vTangent.z = fvTangent[2];
-    if (fSign < 0)
-    {
-      v.m_vTangent *= 1.7320508075688772935274463415059f; // ezMath::Root(3, 2)
-    }
-
+    v.m_fBiTangentSign = fSign;
+    
     bool existed = false;
     auto it = context.m_VertMap.FindOrAdd(v, &existed);
     if (!existed)

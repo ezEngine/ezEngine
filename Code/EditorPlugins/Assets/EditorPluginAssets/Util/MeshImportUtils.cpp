@@ -484,9 +484,9 @@ namespace ezMeshImportUtils
 
     const ezMat3 mTransformNormals = mInverseTransform.GetTranspose();
 
-    ezGALResourceFormat::Enum normalFormat = ezMeshNormalPrecision::ToResourceFormatNormal(normalPrecision);
-    ezGALResourceFormat::Enum tangentFormat = ezMeshNormalPrecision::ToResourceFormatTangent(normalPrecision);
-    ezGALResourceFormat::Enum texCoordFormat = ezMeshTexCoordPrecision::ToResourceFormat(texCoordPrecision);
+    const ezGALResourceFormat::Enum normalFormat = ezMeshNormalPrecision::ToResourceFormatNormal(normalPrecision);
+    const ezGALResourceFormat::Enum tangentFormat = ezMeshNormalPrecision::ToResourceFormatTangent(normalPrecision);
+    const ezGALResourceFormat::Enum texCoordFormat = ezMeshTexCoordPrecision::ToResourceFormat(texCoordPrecision);
 
     enum Streams
     {
@@ -618,8 +618,6 @@ namespace ezMeshImportUtils
 
       meshDescriptor.MeshBufferDesc().AllocateStreams(uiNumVertices, ezGALPrimitiveTopology::Triangles, uiNumTriangles);
     }
-
-    ezUInt32 uiVertexStride = meshDescriptor.MeshBufferDesc().GetVertexDataSize();
 
     // Read in vertices and set positions and normals
     {
