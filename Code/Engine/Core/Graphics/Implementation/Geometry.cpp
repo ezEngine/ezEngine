@@ -1152,12 +1152,9 @@ void ezGeometry::AddSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks
 
     const float fV = (float)st / (float)uiStacks;
 
-    for (ezUInt32 sp = 0; sp < uiSegments; ++sp)
+    for (ezUInt32 sp = 0; sp < uiSegments + 1u; ++sp)
     {
       float fU = ((float)sp / (float)(uiSegments)) * 2.0f;
-
-      if (fU > 1.0f)
-        fU = 2.0f - fU;
 
       const ezAngle fDegree = (float)sp * fDegreeDiffSegments;
 
@@ -1172,48 +1169,48 @@ void ezGeometry::AddSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks
     }
   }
 
-  ezUInt32 uiTopVertex = AddVertex(ezVec3(0, 0, fRadius), ezVec3(0, 0, 1), ezVec2(0.5f, 0), color, iCustomIndex, mTransform);
-
   ezUInt32 tri[3];
   ezUInt32 quad[4];
 
   // now create the top cone
   for (ezUInt32 p = 0; p < uiSegments; ++p)
   {
-    tri[0] = uiTopVertex;
-    tri[1] = uiFirstVertex + ((p + 1) % uiSegments);
+    float fU = ((p + 0.5f) / (float)(uiSegments)) * 2.0f;
+
+    tri[0] = AddVertex(ezVec3(0, 0, fRadius), ezVec3(0, 0, 1), ezVec2(fU, 0), color, iCustomIndex, mTransform);
+    tri[1] = uiFirstVertex + p + 1;
     tri[2] = uiFirstVertex + p;
 
     AddPolygon(tri, bFlipWinding);
   }
 
   // now create the stacks in the middle
-
   for (ezUInt16 st = 0; st < uiStacks - 2; ++st)
   {
-    const ezUInt32 uiRowBottom = uiSegments * st;
-    const ezUInt32 uiRowTop = uiSegments * (st + 1);
+    const ezUInt32 uiRowBottom = (uiSegments + 1) * st;
+    const ezUInt32 uiRowTop = (uiSegments + 1) * (st + 1);
 
     for (ezInt32 i = 0; i < uiSegments; ++i)
     {
-      quad[0] = uiFirstVertex + (uiRowTop + ((i + 1) % uiSegments));
+      quad[0] = uiFirstVertex + (uiRowTop + i + 1);
       quad[1] = uiFirstVertex + (uiRowTop + i);
       quad[2] = uiFirstVertex + (uiRowBottom + i);
-      quad[3] = uiFirstVertex + (uiRowBottom + ((i + 1) % uiSegments));
+      quad[3] = uiFirstVertex + (uiRowBottom + i + 1);
 
       AddPolygon(quad, bFlipWinding);
     }
   }
 
-  ezUInt32 uiBottomVertex = AddVertex(ezVec3(0, 0, -fRadius), ezVec3(0, 0, -1), ezVec2(0.5f, 1), color, iCustomIndex, mTransform);
-  const ezInt32 iTopStack = uiSegments * (uiStacks - 2);
+  const ezInt32 iTopStack = (uiSegments + 1) * (uiStacks - 2);
 
   // now create the bottom cone
   for (ezUInt32 p = 0; p < uiSegments; ++p)
   {
-    tri[0] = uiBottomVertex;
+    float fU = ((p + 0.5f) / (float)(uiSegments)) * 2.0f;
+
+    tri[0] = AddVertex(ezVec3(0, 0, -fRadius), ezVec3(0, 0, -1), ezVec2(fU, 1), color, iCustomIndex, mTransform);
     tri[1] = uiFirstVertex + (iTopStack + p);
-    tri[2] = uiFirstVertex + (iTopStack + ((p + 1) % uiSegments));
+    tri[2] = uiFirstVertex + (iTopStack + p + 1);
 
     AddPolygon(tri, bFlipWinding);
   }
