@@ -1433,6 +1433,11 @@ void ezGeometry::AddTorus(float fInnerRadius, float fOuterRadius, ezUInt16 uiSeg
   // this is the loop for the torus ring
   for (ezUInt16 seg = 0; seg < uiSegments; ++seg)
   {
+    float fU = ((float)seg / (float)(uiSegments)) * 2.0f;
+
+    if (fU > 1.0f)
+      fU = 2.0f - fU;
+
     const ezAngle fAngle = seg * fAngleStepSegment;
 
     const float fSinAngle = ezMath::Sin(fAngle);
@@ -1443,13 +1448,18 @@ void ezGeometry::AddTorus(float fInnerRadius, float fOuterRadius, ezUInt16 uiSeg
     // this is the loop to go round the cylinder
     for (ezUInt16 p = 0; p < uiSegmentDetail; ++p)
     {
+      float fV = ((float)p / (float)(uiSegmentDetail)) * 2.0f;
+
+      if (fV > 1.0f)
+        fV = 2.0f - fV;
+
       const ezAngle fCylinderAngle = p * fAngleStepCylinder;
 
       const ezVec3 vDir(ezMath::Cos(fCylinderAngle) * fSinAngle, ezMath::Cos(fCylinderAngle) * fCosAngle, ezMath::Sin(fCylinderAngle));
 
       const ezVec3 vPos = vLoopPos + fCylinderRadius * vDir;
 
-      AddVertex(vPos, vDir, ezVec2(0), color, iCustomIndex, mTransform);
+      AddVertex(vPos, vDir, ezVec2(fU, fV), color, iCustomIndex, mTransform);
     }
   }
 
