@@ -44,13 +44,7 @@ static void CreatePreviewRect(ezGeometry& geom)
   geom.AddPolygon(idx, false);
 }
 
-ezTextureContext::ezTextureContext()
-    : m_TextureFormat(ezGALResourceFormat::Invalid)
-    , m_uiTextureWidth(0)
-    , m_uiTextureHeight(0)
-    , m_bAddedEventHandler(false)
-{
-}
+ezTextureContext::ezTextureContext() = default;
 
 void ezTextureContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 {
@@ -69,15 +63,6 @@ void ezTextureContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
   ezEngineProcessDocumentContext::HandleMessage(pMsg);
 }
 
-void ezTextureContext::GetTextureStats(ezGALResourceFormat::Enum& format, ezUInt32& uiWidth, ezUInt32& uiHeight)
-{
-  format = m_TextureFormat;
-  uiWidth = m_uiTextureWidth;
-  uiHeight = m_uiTextureHeight;
-
-  UpdatePreview();
-}
-
 void ezTextureContext::OnInitialize()
 {
   ezStringBuilder sTextureGuid;
@@ -87,18 +72,12 @@ void ezTextureContext::OnInitialize()
   m_hMaterial = ezResourceManager::GetExistingResource<ezMaterialResource>(sMaterialResource);
 
   m_hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(sTextureGuid);
+  ezGALResourceFormat::Enum textureFormat = ezGALResourceFormat::Invalid;
   {
-    ezResourceLock<ezTexture2DResource> pTexture(m_hTexture, ezResourceAcquireMode::BlockTillLoaded);
+    ezResourceLock<ezTexture2DResource> pTexture(m_hTexture, ezResourceAcquireMode::PointerOnly);
 
-    m_TextureFormat = pTexture->GetFormat();
-    m_uiTextureWidth = pTexture->GetWidth();
-    m_uiTextureHeight = pTexture->GetHeight();
-
-    if (pTexture.GetAcquireResult() != ezResourceAcquireResult::MissingFallback)
-    {
-      m_bAddedEventHandler = true;
-      pTexture->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezTextureContext::OnResourceEvent, this));
-    }
+    textureFormat = pTexture->GetFormat();
+    pTexture->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezTextureContext::OnResourceEvent, this), m_textureResourceEventSubscriber);
   }
 
   // Preview Mesh
@@ -111,8 +90,7 @@ void ezTextureContext::OnInitialize()
 
     ezMeshBufferResourceHandle hMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szMeshBufferName);
 
-
-    if(!hMeshBuffer.IsValid())
+    if (!hMeshBuffer.IsValid())
     {
       // Build geometry
       ezGeometry geom;
@@ -150,7 +128,7 @@ void ezTextureContext::OnInitialize()
 
     auto& param = md.m_Parameters.ExpandAndGetRef();
     param.m_Name.Assign("IsLinear");
-    param.m_Value = !ezGALResourceFormat::IsSrgb(m_TextureFormat);
+    param.m_Value = !ezGALResourceFormat::IsSrgb(textureFormat);
 
     m_hMaterial = ezResourceManager::CreateResource<ezMaterialResource>(sMaterialResource, std::move(md));
   }
@@ -171,19 +149,6 @@ void ezTextureContext::OnInitialize()
     pMesh->SetMesh(m_hPreviewMeshResource);
     pMesh->SetMaterial(0, m_hMaterial);
   }
-
-  UpdatePreview();
-}
-
-void ezTextureContext::OnDeinitialize()
-{
-  if (m_bAddedEventHandler)
-  {
-    m_bAddedEventHandler = false;
-    ezResourceLock<ezTexture2DResource> pTexture(m_hTexture, ezResourceAcquireMode::BlockTillLoaded);
-
-    pTexture->m_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezTextureContext::OnResourceEvent, this));
-  }
 }
 
 ezEngineProcessViewContext* ezTextureContext::CreateViewContext()
@@ -202,27 +167,7 @@ void ezTextureContext::OnResourceEvent(const ezResourceEvent& e)
   {
     const ezTexture2DResource* pTexture = static_cast<const ezTexture2DResource*>(e.m_pResource);
 
-    m_TextureFormat = pTexture->GetFormat();
-    m_uiTextureWidth = pTexture->GetWidth();
-    m_uiTextureHeight = pTexture->GetHeight();
-
-    // cannot call this here, because the event happens on another thread at any possible time
-    // UpdatePreview();
-  }
-}
-
-void ezTextureContext::UpdatePreview()
-{
-  EZ_LOCK(m_pWorld->GetWriteMarker());
-
-  if (!m_bAddedEventHandler)
-  {
-    ezResourceLock<ezTexture2DResource> pTexture(m_hTexture, ezResourceAcquireMode::BlockTillLoaded);
-
-    if (pTexture.GetAcquireResult() != ezResourceAcquireResult::MissingFallback)
-    {
-      m_bAddedEventHandler = true;
-      pTexture->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezTextureContext::OnResourceEvent, this));
-    }
+    ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::BlockTillLoaded);
+    pMaterial->SetParameter("IsLinear", !ezGALResourceFormat::IsSrgb(pTexture->GetFormat()));
   }
 }
