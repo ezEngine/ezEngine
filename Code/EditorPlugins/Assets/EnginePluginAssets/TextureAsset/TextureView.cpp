@@ -42,11 +42,13 @@ void ezTextureViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
   m_Camera.LookAt(pMsg->m_vPosition, pMsg->m_vPosition + pMsg->m_vDirForwards, pMsg->m_vDirUp);
 
   // Draw some stats
+  auto hResource = m_pTextureContext->GetTexture();
+  if (hResource.IsValid())
   {
-    ezGALResourceFormat::Enum format;
-    ezUInt32 uiWidth;
-    ezUInt32 uiHeight;
-    m_pTextureContext->GetTextureStats(format, uiWidth, uiHeight);
+    ezResourceLock<ezTexture2DResource> pResource(hResource, ezResourceAcquireMode::AllowLoadingFallback);
+    ezGALResourceFormat::Enum format = pResource->GetFormat();
+    ezUInt32 uiWidth = pResource->GetWidth();
+    ezUInt32 uiHeight = pResource->GetHeight();
 
     const ezUInt32 viewHeight = pMsg->m_uiWindowHeight;
 
@@ -62,6 +64,7 @@ void ezTextureViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 
     sText.PrependFormat("{0}x{1} - ", uiWidth, uiHeight);
 
-    ezDebugRenderer::Draw2DText(m_hView, sText, ezVec2I32(10, viewHeight - 26), ezColor::White);
+    ezDebugRenderer::Draw2DText(m_hView, sText, ezVec2I32(10, viewHeight - 10), ezColor::White, 16,
+      ezDebugRenderer::HorizontalAlignment::Left, ezDebugRenderer::VerticalAlignment::Bottom);
   }
 }

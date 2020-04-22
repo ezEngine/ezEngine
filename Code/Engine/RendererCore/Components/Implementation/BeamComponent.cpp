@@ -321,7 +321,6 @@ void ezBeamComponent::CreateMeshes()
       g.AddPolygon(ezArrayPtr(indices), true);
     }
 
-    g.ComputeFaceNormals();
     g.ComputeTangents();
 
     ezMeshResourceDescriptor desc;
@@ -333,16 +332,9 @@ void ezBeamComponent::CreateMeshes()
 
 void ezBeamComponent::BuildMeshResourceFromGeometry(ezGeometry& Geometry, ezMeshResourceDescriptor& MeshDesc) const
 {
-  Geometry.ComputeFaceNormals();
-  Geometry.ComputeTangents();
-
   auto& MeshBufferDesc = MeshDesc.MeshBufferDesc();
 
-  MeshBufferDesc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-  MeshBufferDesc.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::XYFloat);
-  MeshBufferDesc.AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
-  MeshBufferDesc.AddStream(ezGALVertexAttributeSemantic::Tangent, ezGALResourceFormat::XYZFloat);
-
+  MeshBufferDesc.AddCommonStreams();
   MeshBufferDesc.AllocateStreamsFromGeometry(Geometry, ezGALPrimitiveTopology::Triangles);
 
   MeshDesc.AddSubMesh(MeshBufferDesc.GetPrimitiveCount(), 0, 0);

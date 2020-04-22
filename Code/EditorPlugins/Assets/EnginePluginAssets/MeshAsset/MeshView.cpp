@@ -1,25 +1,18 @@
 #include <EnginePluginAssetsPCH.h>
 
 #include <Core/ResourceManager/ResourceManager.h>
-#include <Core/World/Component.h>
-#include <Core/World/GameObject.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
-#include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
 #include <EnginePluginAssets/MeshAsset/MeshContext.h>
 #include <EnginePluginAssets/MeshAsset/MeshView.h>
-#include <Foundation/Utilities/GraphicsUtils.h>
-#include <GameEngine/GameApplication/GameApplication.h>
 #include <RendererCore/Debug/DebugRenderer.h>
-#include <RendererCore/Pipeline/Implementation/RenderPipelineResourceLoader.h>
 #include <RendererCore/Pipeline/View.h>
-#include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererFoundation/Device/SwapChain.h>
-#include <RendererFoundation/Resources/RenderTargetSetup.h>
+#include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Resources/Buffer.h>
 
 ezMeshViewContext::ezMeshViewContext(ezMeshContext* pMeshContext)
-    : ezEngineProcessViewContext(pMeshContext)
+  : ezEngineProcessViewContext(pMeshContext)
 {
   m_pMeshContext = pMeshContext;
 
@@ -55,19 +48,42 @@ void ezMeshViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 
   const ezUInt32 viewHeight = pMsg->m_uiWindowHeight;
 
-  ezBoundingBox bbox;
-  bbox.SetCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3::ZeroVector());
-
-  auto hResource = m_pMeshContext->GetMesh();
-  if (hResource.IsValid())
+  auto hMesh = m_pMeshContext->GetMesh();
+  if (hMesh.IsValid())
   {
-    ezResourceLock<ezMeshResource> pResource(hResource, ezResourceAcquireMode::AllowLoadingFallback);
-    bbox = pResource->GetBounds().GetBox();
+    ezResourceLock<ezMeshResource> pMesh(hMesh, ezResourceAcquireMode::AllowLoadingFallback);
+    ezResourceLock<ezMeshBufferResource> pMeshBuffer(pMesh->GetMeshBuffer(), ezResourceAcquireMode::AllowLoadingFallback);
+
+    auto& bufferDesc = ezGALDevice::GetDefaultDevice()->GetBuffer(pMeshBuffer->GetVertexBuffer())->GetDescription();
+
+    ezUInt32 uiNumVertices = bufferDesc.m_uiTotalSize / bufferDesc.m_uiStructSize;
+    ezUInt32 uiNumTriangles = pMeshBuffer->GetPrimitiveCount();
+    const ezBoundingBox& bbox = pMeshBuffer->GetBounds().GetBox();
+
+    ezUInt32 uiNumUVs = 0;
+    ezUInt32 uiNumColors = 0;
+    for (auto& vertexStream : pMeshBuffer->GetVertexDeclaration().m_VertexStreams)
+    {
+      if (vertexStream.m_Semantic >= ezGALVertexAttributeSemantic::TexCoord0 && vertexStream.m_Semantic <= ezGALVertexAttributeSemantic::TexCoord9)
+      {
+        ++uiNumUVs;
+      }
+      else if (vertexStream.m_Semantic >= ezGALVertexAttributeSemantic::Color0 && vertexStream.m_Semantic <= ezGALVertexAttributeSemantic::Color7)
+      {
+        ++uiNumColors;
+      }
+    }    
 
     ezStringBuilder sText;
-    sText.PrependFormat("Bounding Box: width={0}, depth={1}, height={2}", ezArgF(bbox.GetHalfExtents().x * 2, 2),
-                        ezArgF(bbox.GetHalfExtents().y * 2, 2), ezArgF(bbox.GetHalfExtents().z * 2, 2));
+    sText.AppendFormat("Triangles: {}\\n", uiNumTriangles);
+    sText.AppendFormat("Vertices: {}\\n", uiNumVertices);
+    sText.AppendFormat("UV Channels: {}\\n", uiNumUVs);
+    sText.AppendFormat("Color Channels: {}\\n", uiNumColors);
+    sText.AppendFormat("Bytes Per Vertex: {}\\n", bufferDesc.m_uiStructSize);    
+    sText.AppendFormat("Bounding Box: width={0}, depth={1}, height={2}", ezArgF(bbox.GetHalfExtents().x * 2, 2),
+      ezArgF(bbox.GetHalfExtents().y * 2, 2), ezArgF(bbox.GetHalfExtents().z * 2, 2));
 
-    ezDebugRenderer::Draw2DText(m_hView, sText, ezVec2I32(10, viewHeight - 26), ezColor::White);
+    ezDebugRenderer::Draw2DText(m_hView, sText, ezVec2I32(10, viewHeight - 10), ezColor::White, 16,
+      ezDebugRenderer::HorizontalAlignment::Left, ezDebugRenderer::VerticalAlignment::Bottom);
   }
 }

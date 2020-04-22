@@ -3,23 +3,13 @@
 #include <Core/Graphics/Geometry.h>
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
-#include <EditorEngineProcessFramework/Gizmos/GizmoRenderer.h>
 #include <EnginePluginAssets/MaterialAsset/MaterialContext.h>
 #include <EnginePluginAssets/MaterialAsset/MaterialView.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
-#include <GameEngine/Animation/SliderComponent.h>
-#include <GameEngine/Animation/RotorComponent.h>
-#include <GameEngine/GameApplication/GameApplication.h>
-#include <GameEngine/Gameplay/InputComponent.h>
-#include <GameEngine/Gameplay/TimedDeathComponent.h>
-#include <GameEngine/Prefabs/SpawnComponent.h>
-#include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Lights/AmbientLightComponent.h>
 #include <RendererCore/Lights/DirectionalLightComponent.h>
-#include <RendererCore/Lights/PointLightComponent.h>
-#include <RendererCore/Lights/SpotLightComponent.h>
+#include <RendererCore/Meshes/MeshBufferUtils.h>
 #include <RendererCore/Meshes/MeshComponent.h>
-#include <RendererCore/RenderContext/RenderContext.h>
 #include <SharedPluginAssets/Common/Messages.h>
 
 // clang-format off
@@ -67,11 +57,8 @@ void ezMaterialContext::OnInitialize()
       geom.ComputeTangents();
 
       ezMeshBufferResourceDescriptor desc;
-      desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-      desc.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::XYFloat);
-      desc.AddStream(ezGALVertexAttributeSemantic::TexCoord1, ezGALResourceFormat::XYFloat);
-      desc.AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
-      desc.AddStream(ezGALVertexAttributeSemantic::Tangent, ezGALResourceFormat::XYZFloat);
+      desc.AddCommonStreams();
+      desc.AddStream(ezGALVertexAttributeSemantic::TexCoord1, ezMeshTexCoordPrecision::ToResourceFormat(ezMeshTexCoordPrecision::Default));
       desc.AddStream(ezGALVertexAttributeSemantic::Color0, ezGALResourceFormat::RGBAUByteNormalized);
       desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 

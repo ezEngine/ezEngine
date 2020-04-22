@@ -23,7 +23,7 @@ struct VS_IN
   #endif
 
   #if defined(USE_TANGENT)
-    float3 Tangent : TANGENT;
+    float4 Tangent : TANGENT;
   #endif
 
   #if defined(USE_TEXCOORD0)

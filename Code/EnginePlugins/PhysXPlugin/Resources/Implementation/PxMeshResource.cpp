@@ -286,4 +286,32 @@ void ezPxMeshResource::ExtractGeometry(const ezTransform& transform, ezMsgExtrac
   }
 }
 
+ezUInt32 ezPxMeshResource::GetNumPolygons() const
+{
+  if (const auto pConvexMesh = GetConvexMesh())
+  {
+    return pConvexMesh->getNbPolygons();
+  }
+  else if (const auto pTriangleMesh = GetTriangleMesh())
+  {
+    return pTriangleMesh->getNbTriangles();
+  }
+
+  return 0;
+}
+
+ezUInt32 ezPxMeshResource::GetNumVertices() const
+{
+  if (const auto pConvexMesh = GetConvexMesh())
+  {
+    return pConvexMesh->getNbVertices();
+  }
+  else if (const auto pTriangleMesh = GetTriangleMesh())
+  {
+    return pTriangleMesh->getNbVertices();
+  }
+
+  return 0;
+}
+
 EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Resources_Implementation_PxMeshResource);

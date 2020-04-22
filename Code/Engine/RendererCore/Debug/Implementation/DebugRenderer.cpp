@@ -250,9 +250,10 @@ namespace
     ezHybridArray<ezStringView, 8> lines;
     ezUInt32 maxLineLength = 0;
 
+    ezStringBuilder sb;
     if (text.FindSubString("\\n"))
     {
-      ezStringBuilder sb = text;
+      sb = text;
       sb.Split(false, lines, "\\n");
 
       for (auto& line : lines)
