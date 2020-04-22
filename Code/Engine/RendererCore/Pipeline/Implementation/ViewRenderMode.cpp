@@ -6,18 +6,28 @@
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezViewRenderMode, 1)
-  EZ_ENUM_CONSTANTS(ezViewRenderMode::None)
-  EZ_ENUM_CONSTANTS(ezViewRenderMode::WireframeColor, ezViewRenderMode::WireframeMonochrome)
-  EZ_ENUM_CONSTANTS(ezViewRenderMode::LitOnly)
-  EZ_ENUM_CONSTANTS(ezViewRenderMode::LightCount, ezViewRenderMode::DecalCount)
-  EZ_ENUM_CONSTANTS(ezViewRenderMode::TexCoordsUV0, ezViewRenderMode::TexCoordsUV1)
-  EZ_ENUM_CONSTANTS(ezViewRenderMode::VertexColors0, ezViewRenderMode::VertexColors1)
-  EZ_ENUM_CONSTANTS(ezViewRenderMode::VertexNormals, ezViewRenderMode::VertexTangents, ezViewRenderMode::PixelNormals)
-  EZ_ENUM_CONSTANTS(ezViewRenderMode::DiffuseColor, ezViewRenderMode::DiffuseColorRange, ezViewRenderMode::SpecularColor)
-  EZ_ENUM_CONSTANTS(ezViewRenderMode::EmissiveColor)
-  EZ_ENUM_CONSTANTS(ezViewRenderMode::Roughness, ezViewRenderMode::Occlusion, ezViewRenderMode::Depth)
-  EZ_ENUM_CONSTANTS(ezViewRenderMode::StaticVsDynamic)
-  EZ_ENUM_CONSTANTS(ezViewRenderMode::BoneWeights)
+  EZ_ENUM_CONSTANT(ezViewRenderMode::None)->AddAttributes(new ezGroupAttribute("Default")),
+  EZ_ENUM_CONSTANT(ezViewRenderMode::WireframeColor)->AddAttributes(new ezGroupAttribute("Wireframe")),
+  EZ_ENUM_CONSTANT(ezViewRenderMode::WireframeMonochrome),
+  EZ_ENUM_CONSTANT(ezViewRenderMode::LitOnly)->AddAttributes(new ezGroupAttribute("Lighting")),
+  EZ_ENUM_CONSTANT(ezViewRenderMode::LightCount)->AddAttributes(new ezGroupAttribute("Performance")),
+  EZ_ENUM_CONSTANT(ezViewRenderMode::DecalCount),
+  EZ_ENUM_CONSTANT(ezViewRenderMode::StaticVsDynamic),
+  EZ_ENUM_CONSTANT(ezViewRenderMode::TexCoordsUV0)->AddAttributes(new ezGroupAttribute("TexCoords")),
+  EZ_ENUM_CONSTANT(ezViewRenderMode::TexCoordsUV1),
+  EZ_ENUM_CONSTANT(ezViewRenderMode::VertexColors0)->AddAttributes(new ezGroupAttribute("VertexColors")),
+  EZ_ENUM_CONSTANT(ezViewRenderMode::VertexColors1),
+  EZ_ENUM_CONSTANT(ezViewRenderMode::VertexNormals)->AddAttributes(new ezGroupAttribute("Normals")),
+  EZ_ENUM_CONSTANT(ezViewRenderMode::VertexTangents),
+  EZ_ENUM_CONSTANT(ezViewRenderMode::PixelNormals),
+  EZ_ENUM_CONSTANT(ezViewRenderMode::DiffuseColor)->AddAttributes(new ezGroupAttribute("PixelColors")),
+  EZ_ENUM_CONSTANT(ezViewRenderMode::DiffuseColorRange),
+  EZ_ENUM_CONSTANT(ezViewRenderMode::SpecularColor),
+  EZ_ENUM_CONSTANT(ezViewRenderMode::EmissiveColor),
+  EZ_ENUM_CONSTANT(ezViewRenderMode::Roughness)->AddAttributes(new ezGroupAttribute("Surface")),
+  EZ_ENUM_CONSTANT(ezViewRenderMode::Occlusion),
+  EZ_ENUM_CONSTANT(ezViewRenderMode::Depth),
+  EZ_ENUM_CONSTANT(ezViewRenderMode::BoneWeights)->AddAttributes(new ezGroupAttribute("Animation")),
 EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 

@@ -35,18 +35,6 @@ ezLUTAssetDocument::ezLUTAssetDocument(const char* szDocumentPath)
 {
 }
 
-void ezLUTAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
-{
-  SUPER::UpdateAssetDocumentInfo(pInfo);
-
-  pInfo->m_AssetTransformDependencies.Remove(GetProperties()->GetInputFile());
-}
-
-void ezLUTAssetDocument::InitializeAfterLoading(bool bFirstTimeCreation)
-{
-  SUPER::InitializeAfterLoading(bFirstTimeCreation);
-}
-
 ezStatus ezLUTAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   const auto props = GetProperties();

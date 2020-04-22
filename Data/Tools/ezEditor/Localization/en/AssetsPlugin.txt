@@ -191,3 +191,9 @@ ezTexConvUsage::NormalMap_Inverted; Normal Map (inverted)
 ezTexConvUsage::BumpMap;Bump Map
 ezColorAnimationComponent;Color Animation
 ezJointAttachmentComponent;Joint Attachment
+AnimatedMeshImport.NoMaterials;Animated Mesh only
+AnimatedMeshImport.WithMaterials;Animated Mesh and Materials
+Length;Length
+Thickness;Thickness
+Width;Width
+Input1;Input1
