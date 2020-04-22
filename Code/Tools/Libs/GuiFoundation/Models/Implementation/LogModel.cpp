@@ -132,9 +132,9 @@ QVariant ezQtLogModel::data(const QModelIndex& index, int role) const
         case ezLogMsgType::ErrorMsg:
           return QColor::fromRgb(255, 0, 0);
         case ezLogMsgType::SeriousWarningMsg:
-          return QColor::fromRgb(255, 64, 0);
-        case ezLogMsgType::WarningMsg:
           return QColor::fromRgb(255, 140, 0);
+        case ezLogMsgType::WarningMsg:
+          return QColor::fromRgb(255, 216, 0);
         case ezLogMsgType::SuccessMsg:
           return QColor::fromRgb(0, 128, 0);
         case ezLogMsgType::DevMsg:

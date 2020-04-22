@@ -501,7 +501,7 @@ void ezQtDocumentWindow::OnStatusBarMessageChanged(const QString& sNewText)
   }
   else if (sNewText.startsWith("Warning:"))
   {
-    pal.setColor(QPalette::WindowText, QColor(255, 100, 0));
+    pal.setColor(QPalette::WindowText, QColor(255, 216, 0));
   }
 
   statusBar()->setPalette(pal);

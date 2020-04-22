@@ -42,9 +42,10 @@ ezStatus ezAnimatedMeshAssetDocument::InternalTransformAsset(ezStreamWriter& str
 
   EZ_SUCCEED_OR_RETURN(CreateMeshFromFile(pProp, desc));
 
+  // the properties object can get invalidated by the CreateMeshFromFile() call
+  pProp = GetProperties();
   range.BeginNextStep("Writing Result");
-  desc.SetSkeleton(
-    ezResourceManager::LoadResource<ezSkeletonResource>(pProp->m_sSkeletonFile)); // we actually only want the handle for serialization
+  desc.SetSkeleton(ezResourceManager::LoadResource<ezSkeletonResource>(pProp->m_sSkeletonFile)); // we actually only want the handle for serialization
   desc.Save(stream);
 
   return ezStatus(EZ_SUCCESS);
