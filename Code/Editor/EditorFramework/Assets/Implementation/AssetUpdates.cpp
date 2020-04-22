@@ -151,7 +151,10 @@ ezResult ezAssetCurator::EnsureAssetInfoUpdated(const ezUuid& assetGuid)
   if (!m_KnownAssets.TryGetValue(assetGuid, pInfo))
     return EZ_FAILURE;
 
-  return EnsureAssetInfoUpdated(pInfo->m_sAbsolutePath);
+  // It is not safe here to pass pInfo->m_sAbsolutePath into EnsureAssetInfoUpdated
+  // as the function is meant to change the very instance we are passing in.
+  ezStringBuilder sAbsPath = pInfo->m_sAbsolutePath;
+  return EnsureAssetInfoUpdated(sAbsPath);
 }
 
 static ezResult PatchAssetGuid(const char* szAbsFilePath, ezUuid oldGuid, ezUuid newGuid)
@@ -299,7 +302,7 @@ ezResult ezAssetCurator::EnsureAssetInfoUpdated(const char* szAbsFilePath)
         pOldAssetInfo = pNewAssetInfo.Release();
         m_KnownAssets[RefFile.m_AssetGuid] = pOldAssetInfo;
         TrackDependencies(pOldAssetInfo);
-        SetAssetExistanceState(*pOldAssetInfo, ezAssetExistanceState::FileAdded);
+        // Don't call SetAssetExistanceState on newly created assets as their data structure is initialized in UpdateSubAssets for the first time.
         UpdateSubAssets(*pOldAssetInfo);
       }
     }
@@ -565,14 +568,16 @@ void ezAssetCurator::UpdateSubAssets(ezAssetInfo& assetInfo)
 
     for (const ezSubAssetData& data : subAssets)
     {
-      bool bExisted = false;
-      auto& sub = m_KnownSubAssets.FindOrAdd(data.m_Guid, &bExisted).Value();
+      const bool bExisted = m_KnownSubAssets.Find(data.m_Guid).IsValid();
       EZ_ASSERT_DEV(bExisted == assetInfo.m_SubAssets.Contains(data.m_Guid),
         "Implementation error: m_KnownSubAssets and assetInfo.m_SubAssets are out of sync.");
+
+      ezSubAsset sub;
       sub.m_bMainAsset = false;
       sub.m_ExistanceState = bExisted ? ezAssetExistanceState::FileModified : ezAssetExistanceState::FileAdded;
       sub.m_pAssetInfo = &assetInfo;
       sub.m_Data = data;
+      m_KnownSubAssets.Insert(data.m_Guid, sub);
 
       if (!bExisted)
       {
@@ -684,7 +689,10 @@ void ezAssetCurator::UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetI
     {
       pAssetInfo->m_TransformState = state;
       m_SubAssetChanged.Insert(assetGuid);
-      m_SubAssetChanged.Union(pAssetInfo->m_SubAssets);
+      for (const auto& key : pAssetInfo->m_SubAssets)
+      {
+        m_SubAssetChanged.Insert(key);
+      }
     }
 
     switch (state)

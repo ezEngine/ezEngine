@@ -69,9 +69,22 @@ private:
 class TaskCallbacks
 {
 public:
-  void TaskFinished(ezTask* pTask) { m_pInt->Increment(); }
+  void TaskFinished(ezTask* pTask)
+  {
+    m_pInt->Increment();
+  }
 
-  void TaskGroupFinished() { m_pInt->Increment(); }
+  void TaskGroupFinished(ezTaskGroupID id)
+  {
+    {
+      EZ_LOCK(m_mutex);
+      finishedGroups.PushBack(id);
+    }
+    m_pInt->Increment();
+  }
+
+  ezMutex m_mutex;
+  ezHybridArray<ezTaskGroupID, 4> finishedGroups;
 
   ezAtomicInteger32* m_pInt;
 };
@@ -92,11 +105,20 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     t[1].ConfigureTask("Task 1", ezTaskNesting::Maybe);
     t[2].ConfigureTask("Task 2", ezTaskNesting::Never);
 
-    auto tg0 = ezTaskSystem::StartSingleTask(&t[0], ezTaskPriority::LateThisFrame);
+    std::atomic<bool> taskGroup0Finished = false;
+    ezTaskGroupID groupIdFinished;
+
+    auto tg0 = ezTaskSystem::StartSingleTask(&t[0], ezTaskPriority::LateThisFrame, [&taskGroup0Finished, &groupIdFinished](ezTaskGroupID id)
+      {
+        taskGroup0Finished = true;
+        groupIdFinished = id;
+      });
     auto tg1 = ezTaskSystem::StartSingleTask(&t[1], ezTaskPriority::ThisFrame);
     auto tg2 = ezTaskSystem::StartSingleTask(&t[2], ezTaskPriority::EarlyThisFrame);
 
     ezTaskSystem::WaitForGroup(tg0);
+    EZ_TEST_BOOL(taskGroup0Finished);
+    EZ_TEST_BOOL(groupIdFinished == tg0);
     ezTaskSystem::WaitForGroup(tg1);
     ezTaskSystem::WaitForGroup(tg2);
 
@@ -115,13 +137,23 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     t[2].ConfigureTask("Task 2", ezTaskNesting::Never);
     t[3].ConfigureTask("Task 3", ezTaskNesting::Maybe);
 
-    g[0] = ezTaskSystem::StartSingleTask(&t[0], ezTaskPriority::LateThisFrame);
+    ezAtomicBool taskGroup0Finished = false;
+    ezAtomicBool taskGroup3Finished = false;
+    ezTaskGroupID taskGroup0FinishedID;
+    ezTaskGroupID taskGroup3FinishedID;
+    g[0] = ezTaskSystem::StartSingleTask(&t[0], ezTaskPriority::LateThisFrame,
+      [&taskGroup0Finished, &taskGroup0FinishedID](ezTaskGroupID id) { taskGroup0Finished = true; taskGroup0FinishedID = id; });
     g[1] = ezTaskSystem::StartSingleTask(&t[1], ezTaskPriority::ThisFrame, g[0]);
     g[2] = ezTaskSystem::StartSingleTask(&t[2], ezTaskPriority::EarlyThisFrame, g[1]);
-    g[3] = ezTaskSystem::StartSingleTask(&t[3], ezTaskPriority::EarlyThisFrame, g[0]);
+    g[3] = ezTaskSystem::StartSingleTask(&t[3], ezTaskPriority::EarlyThisFrame, g[0],
+      [&taskGroup3Finished, &taskGroup3FinishedID](ezTaskGroupID id) { taskGroup3Finished = true; taskGroup3FinishedID = id; });
 
     ezTaskSystem::WaitForGroup(g[2]);
+    EZ_TEST_BOOL(taskGroup0Finished);
+    EZ_TEST_BOOL(taskGroup0FinishedID == g[0]);
     ezTaskSystem::WaitForGroup(g[3]);
+    EZ_TEST_BOOL(taskGroup3Finished);
+    EZ_TEST_BOOL(taskGroup3FinishedID == g[3]);
 
     EZ_TEST_BOOL(t[0].IsDone());
     EZ_TEST_BOOL(t[1].IsDone());
@@ -201,9 +233,13 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
       ezThreadUtils::Sleep(ezTime::Milliseconds(10));
     }
     EZ_TEST_INT(GroupsFinished, 4);
+    EZ_TEST_INT(callbackGroup.finishedGroups.GetCount(), 4);
 
     for (int i = 0; i < 4; ++i)
+    {
       EZ_TEST_BOOL(ezTaskSystem::IsTaskGroupFinished(g[i]));
+      EZ_TEST_BOOL(callbackGroup.finishedGroups.Contains(g[i]));
+    }
 
     for (int i = 0; i < 8; ++i)
     {

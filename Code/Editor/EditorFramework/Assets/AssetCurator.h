@@ -16,6 +16,7 @@
 #include <Foundation/Threading/Mutex.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Time/Timestamp.h>
+#include <Foundation/IO/DirectoryWatcher.h>
 #include <GameEngine/Configuration/PlatformProfile.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
 #include <tuple>
@@ -27,6 +28,7 @@ class ezDirectoryWatcher;
 class ezProcessTask;
 struct ezFileStats;
 class ezAssetProcessorLog;
+class ezAssetWatcher;
 
 #if 0 // Define to enable extensive curator profile scopes
 #  define CURATOR_PROFILE(szName) EZ_PROFILE_SCOPE(szName)
@@ -241,12 +243,13 @@ public:
   ///
   /// The string may be a stringyfied asset GUID or a relative or absolute path. The function will try all possibilities.
   /// If no asset can be found, an empty/invalid ezAssetInfo is returned.
-  const ezLockedSubAsset FindSubAsset(const char* szPathOrGuid) const;
+  /// If bExhaustiveSearch is set the function will go through all known assets and find the closest match.
+  const ezLockedSubAsset FindSubAsset(const char* szPathOrGuid, bool bExhaustiveSearch = false) const;
 
   /// \brief Same as GetAssteInfo, but wraps the return value into a ezLockedSubAsset struct
   const ezLockedSubAsset GetSubAsset(const ezUuid& assetGuid) const;
 
-  typedef ezLockedObject<ezMutex, const ezMap<ezUuid, ezSubAsset>> ezLockedSubAssetTable;
+  typedef ezLockedObject<ezMutex, const ezHashTable<ezUuid, ezSubAsset>> ezLockedSubAssetTable;
 
   /// \brief Returns the table of all known assets in a locked structure
   const ezLockedSubAssetTable GetKnownSubAssets() const;
@@ -288,7 +291,6 @@ public:
   /// \brief Checks file system for any changes. Call in case the file system watcher does not pick up certain changes.
   void CheckFileSystem();
 
-  void NeedsFileSystemCheck();
   void NeedsReloadResources();
 
   ///@}
@@ -310,8 +312,10 @@ private:
   /// \brief Returns the asset info for the asset with the given (stringyfied) GUID or nullptr if no such asset exists.
   ezAssetInfo* GetAssetInfo(const ezString& sAssetGuid);
 
+  /// \brief Handles removing files and then forwards to HandleSingleFile overload.
   void HandleSingleFile(const ezString& sAbsolutePath);
-  void HandleSingleFile(const ezString& sAbsolutePath, const ezSet<ezString>& validExtensions, const ezFileStats& FileStat);
+  /// \brief Handles adding and updating files. FileStat must be valid.
+  void HandleSingleFile(const ezString& sAbsolutePath, const ezFileStats& FileStat);
   /// \brief Writes the asset lookup table for the given platform, or the currently active platform if nullptr is passed.
   ezResult WriteAssetTable(const char* szDataDirectory, const ezPlatformProfile* pAssetProfile = nullptr);
   /// \brief Some assets are vital for the engine to run. Each data directory can contain a [DataDirName].ezCollectionAsset
@@ -360,11 +364,10 @@ private:
   ///@}
   /// \name Check File System Helper
   ///@{
-
   void SetAllAssetStatusUnknown();
   void RemoveStaleFileInfos();
   static void BuildFileExtensionSet(ezSet<ezString>& AllExtensions);
-  void IterateDataDirectory(const char* szDataDir, const ezSet<ezString>& validExtensions);
+  void IterateDataDirectory(const char* szDataDir, ezSet<ezString>* pFoundFiles = nullptr);
   void LoadCaches();
   void SaveCaches();
 
@@ -372,20 +375,22 @@ private:
 
 private:
   friend class ezUpdateTask;
-  friend class ezProcessTask;
   friend class ezAssetProcessor;
+  friend class ezProcessTask;
+  friend class ezAssetWatcher;
+  friend class ezDirectoryUpdateTask;
 
-  ezAtomicInteger32 m_bInitStarted = false; // Used to figure out whether the task system has already started the init task so we don't still its lock.
-  bool m_bRunUpdateTask = false;
+  mutable ezCuratorMutex m_CuratorMutex; // Global lock
+  ezTaskGroupID m_initializeCuratorTaskID;
   bool m_bNeedToReloadResources = false;
-  bool m_bNeedCheckFileSystem = false;
   ezTime m_NextReloadResources;
-  ezTime m_NextCheckFileSystem;
+  ezUInt32 m_uiActiveAssetProfile = 0;
 
   // Actual data stored in the curator
   ezHashTable<ezUuid, ezAssetInfo*> m_KnownAssets;
-  ezMap<ezUuid, ezSubAsset> m_KnownSubAssets;
-  ezHashTable<ezString, ezFileStatus, ezHashHelperString_NoCase> m_ReferencedFiles;
+  ezHashTable<ezUuid, ezSubAsset> m_KnownSubAssets;
+  ezMap<ezString, ezFileStatus, ezCompareString_NoCase> m_ReferencedFiles;
+  ezSet<ezString> m_AssetFolders;
 
   // Derived dependency lookup tables
   ezMap<ezString, ezHybridArray<ezUuid, 1>> m_InverseDependency;
@@ -393,29 +398,24 @@ private:
   ezSet<std::tuple<ezUuid, ezUuid>> m_UnresolvedDependencies; ///< If a dependency wasn't known yet when an asset info was loaded, it is put in here.
   ezSet<std::tuple<ezUuid, ezUuid>> m_UnresolvedReferences;
 
-  // State caches
-  ezSet<ezUuid> m_TransformState[ezAssetInfo::TransformState::COUNT];
-  ezSet<ezUuid> m_SubAssetChanged; ///< Flushed in main thread tick
-  ezSet<ezUuid> m_TransformStateStale;
-  ezSet<ezUuid> m_Updating;
+  // State caches 
+  ezHashSet<ezUuid> m_TransformState[ezAssetInfo::TransformState::COUNT];
+  ezHashSet<ezUuid> m_SubAssetChanged; ///< Flushed in main thread tick
+  ezHashSet<ezUuid> m_TransformStateStale;
+  ezHashSet<ezUuid> m_Updating;
 
   // Serialized cache
   mutable ezCuratorMutex m_CachedAssetsMutex; ///< Only locks m_CachedAssets
   ezMap<ezString, ezUniquePtr<ezAssetDocumentInfo>> m_CachedAssets;
   ezMap<ezString, ezFileStatus> m_CachedFiles;
 
-
+  // Immutable data after StartInitialize
   ezApplicationFileSystemConfig m_FileSystemConfig;
-  ezUInt32 m_uiActiveAssetProfile = 0;
   ezSet<ezString> m_ValidAssetExtensions;
-  ezSet<ezString> m_AssetFolders;
+  ezUniquePtr<ezAssetWatcher> m_Watcher;
 
-  mutable ezCuratorMutex m_CuratorMutex;
-  ezDynamicArray<ezDirectoryWatcher*> m_Watchers;
-  ezTask* m_WatcherTask = nullptr;
-  ezTaskGroupID m_WatcherGroup;
-  ezDynamicArray<ezString> m_WatcherResults;
-
+  // Update task
+  bool m_bRunUpdateTask = false;
   ezUpdateTask* m_pUpdateTask = nullptr;
   ezTaskGroupID m_UpdateTaskGroup;
 };

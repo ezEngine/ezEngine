@@ -7,18 +7,18 @@
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/TaskSystem.h>
 
-ezTaskGroupID ezTaskSystem::StartSingleTask(ezTask* pTask, ezTaskPriority::Enum Priority, ezTaskGroupID Dependency)
+ezTaskGroupID ezTaskSystem::StartSingleTask(ezTask* pTask, ezTaskPriority::Enum Priority, ezTaskGroupID Dependency, ezOnTaskGroupFinishedCallback callback)
 {
-  ezTaskGroupID Group = CreateTaskGroup(Priority);
+  ezTaskGroupID Group = CreateTaskGroup(Priority, callback);
   AddTaskGroupDependency(Group, Dependency);
   AddTaskToGroup(Group, pTask);
   StartTaskGroup(Group);
   return Group;
 }
 
-ezTaskGroupID ezTaskSystem::StartSingleTask(ezTask* pTask, ezTaskPriority::Enum Priority)
+ezTaskGroupID ezTaskSystem::StartSingleTask(ezTask* pTask, ezTaskPriority::Enum Priority, ezOnTaskGroupFinishedCallback callback)
 {
-  ezTaskGroupID Group = CreateTaskGroup(Priority);
+  ezTaskGroupID Group = CreateTaskGroup(Priority, callback);
   AddTaskToGroup(Group, pTask);
   StartTaskGroup(Group);
   return Group;
@@ -38,11 +38,13 @@ void ezTaskSystem::TaskHasFinished(ezTask* pTask, ezTaskGroup* pGroup)
   {
     // If this was the last task that had to be finished from this group, make sure all dependent groups are started
 
+    ezUInt32 groupCounter = 0;
     {
       // see ezTaskGroup::WaitForFinish() for why we need this lock here
       // without it, there would be a race condition between these two places, reading and writing m_uiGroupCounter and waiting/signaling m_CondVarGroupFinished
       EZ_LOCK(pGroup->m_CondVarGroupFinished);
 
+      groupCounter = pGroup->m_uiGroupCounter;
       // set this task group to be finished such that no one tries to append further dependencies
       pGroup->m_uiGroupCounter += 2;
     }
@@ -61,7 +63,10 @@ void ezTaskSystem::TaskHasFinished(ezTask* pTask, ezTaskGroup* pGroup)
 
     if (pGroup->m_OnFinishedCallback.IsValid())
     {
-      pGroup->m_OnFinishedCallback();
+      ezTaskGroupID id;
+      id.m_pTaskGroup = pGroup;
+      id.m_uiGroupCounter = groupCounter;
+      pGroup->m_OnFinishedCallback(id);
     }
 
     // set this task available for reuse
