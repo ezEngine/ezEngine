@@ -73,9 +73,6 @@ void ezQtGameObjectViewWidget::HandleMarqueePickingResult(const ezViewMarqueePic
   {
     const ezDocumentObject* pObject = pObjMan->GetObject(guid);
 
-    while (pObject->GetParent() != pRoot)
-      pObject = pObject->GetParent();
-
     if (pMsg->m_uiWhatToDo == 2) // remove from selection
     {
       // keep selection order
