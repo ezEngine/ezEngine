@@ -748,14 +748,16 @@ bool ezSceneDocument::PasteAtOrignalPosition(const ezArrayPtr<PasteInfo>& info)
   return true;
 }
 
-bool ezSceneDocument::Paste(
-  const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType)
+bool ezSceneDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType)
 {
   const auto& ctxt = ezQtEngineViewWidget::GetInteractionContext();
 
   if (bAllowPickedPosition && ctxt.m_pLastPickingResult && ctxt.m_pLastPickingResult->m_PickedObject.IsValid())
   {
-    if (!PasteAt(info, ctxt.m_pLastPickingResult->m_vPickedPosition))
+    ezVec3 pos = ctxt.m_pLastPickingResult->m_vPickedPosition;
+    ezSnapProvider::SnapTranslation(pos);
+
+    if (!PasteAt(info, pos))
       return false;
   }
   else
