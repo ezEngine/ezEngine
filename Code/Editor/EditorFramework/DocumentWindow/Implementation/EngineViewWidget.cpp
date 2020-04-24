@@ -82,7 +82,6 @@ void ezQtEngineViewWidget::SyncToEngine()
 {
   ezViewRedrawMsgToEngine cam;
   cam.m_uiRenderMode = m_pViewConfig->m_RenderMode;
-  cam.m_CameraUsageHint = m_pViewConfig->m_CameraUsageHint;
 
   float fov = m_pViewConfig->m_Camera.GetFovOrDim();
   if (m_pViewConfig->m_Camera.IsPerspective())

@@ -231,7 +231,6 @@ public:
   float m_fFarPlane;
   float m_fFovOrDim;
   ezUInt8 m_uiRenderMode; ///< ezViewRenderMode::Enum
-  ezCameraUsageHint::Enum m_CameraUsageHint;
 
   ezVec3 m_vPosition;
   ezVec3 m_vDirForwards;
