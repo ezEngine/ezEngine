@@ -39,10 +39,10 @@ public:
   ezEngineViewPreferences m_ViewQuad3;
 
   ezUInt32 FavCams_GetCount() const { return 10; }
-  ezEngineViewPreferences FavCams_GetCam(ezUInt32 i) const { return m_FavouriteCamera[i]; }
-  void FavCams_SetCam(ezUInt32 i, ezEngineViewPreferences cam) { m_FavouriteCamera[i] = cam; }
+  ezEngineViewPreferences FavCams_GetCam(ezUInt32 i) const { return m_FavoriteCamera[i]; }
+  void FavCams_SetCam(ezUInt32 i, ezEngineViewPreferences cam) { m_FavoriteCamera[i] = cam; }
   void FavCams_Insert(ezUInt32 uiIndex, ezEngineViewPreferences cam) {}
   void FavCams_Remove(ezUInt32 uiIndex) {}
 
-  ezEngineViewPreferences m_FavouriteCamera[10];
+  ezEngineViewPreferences m_FavoriteCamera[10];
 };

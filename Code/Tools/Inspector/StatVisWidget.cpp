@@ -186,8 +186,8 @@ void ezQtStatVisWidget::Save()
 
   QDataStream stream(&f);
 
-  const ezUInt32 uiNumFavourites = m_Stats.GetCount();
-  stream << uiNumFavourites;
+  const ezUInt32 uiNumFavorites = m_Stats.GetCount();
+  stream << uiNumFavorites;
 
   for (auto it = m_Stats.GetIterator(); it.IsValid(); ++it)
   {
@@ -218,10 +218,10 @@ void ezQtStatVisWidget::Load()
 
   QDataStream stream(&f);
 
-  ezUInt32 uiNumFavourites = 0;
-  stream >> uiNumFavourites;
+  ezUInt32 uiNumFavorites = 0;
+  stream >> uiNumFavorites;
 
-  for (ezUInt32 i = 0; i < uiNumFavourites; ++i)
+  for (ezUInt32 i = 0; i < uiNumFavorites; ++i)
   {
     QString s;
     stream >> s;

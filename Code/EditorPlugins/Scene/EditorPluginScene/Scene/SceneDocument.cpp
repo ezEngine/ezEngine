@@ -915,12 +915,12 @@ ezStatus ezSceneDocument::RemoveExposedParameter(ezInt32 index)
 }
 
 
-void ezSceneDocument::StoreFavouriteCamera(ezUInt8 uiSlot)
+void ezSceneDocument::StoreFavoriteCamera(ezUInt8 uiSlot)
 {
   EZ_ASSERT_DEBUG(uiSlot < 10, "Invalid slot");
 
   ezQuadViewPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezQuadViewPreferencesUser>(this);
-  auto& cam = pPreferences->m_FavouriteCamera[uiSlot];
+  auto& cam = pPreferences->m_FavoriteCamera[uiSlot];
 
   auto* pView = ezQtEngineViewWidget::GetInteractionContext().m_pLastHoveredViewWidget;
 
@@ -937,12 +937,12 @@ void ezSceneDocument::StoreFavouriteCamera(ezUInt8 uiSlot)
   }
 }
 
-void ezSceneDocument::RestoreFavouriteCamera(ezUInt8 uiSlot)
+void ezSceneDocument::RestoreFavoriteCamera(ezUInt8 uiSlot)
 {
   EZ_ASSERT_DEBUG(uiSlot < 10, "Invalid slot");
 
   ezQuadViewPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezQuadViewPreferencesUser>(this);
-  auto& cam = pPreferences->m_FavouriteCamera[uiSlot];
+  auto& cam = pPreferences->m_FavoriteCamera[uiSlot];
 
   auto* pView = ezQtEngineViewWidget::GetInteractionContext().m_pLastHoveredViewWidget;
 
