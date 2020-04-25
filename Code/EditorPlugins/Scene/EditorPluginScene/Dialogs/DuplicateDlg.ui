@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Duplicate Special</string>
+   <string>Duplicate</string>
   </property>
   <property name="windowIcon">
    <iconset resource="../QtResources/resources.qrc">
@@ -807,6 +807,15 @@
  <tabstops>
   <tabstop>spinBoxCopies</tabstop>
   <tabstop>CheckBoxGroupCopies</tabstop>
+  <tabstop>SpinBoxTransX</tabstop>
+  <tabstop>toolButtonTransX</tabstop>
+  <tabstop>SpinBoxTransY</tabstop>
+  <tabstop>toolButtonTransY</tabstop>
+  <tabstop>SpinBoxTransZ</tabstop>
+  <tabstop>toolButtonTransZ</tabstop>
+  <tabstop>SpinBoxTransX_2</tabstop>
+  <tabstop>SpinBoxTransY_2</tabstop>
+  <tabstop>SpinBoxTransZ_2</tabstop>
   <tabstop>RevolveNone</tabstop>
   <tabstop>RevolveX</tabstop>
   <tabstop>RevolveY</tabstop>
@@ -814,18 +823,9 @@
   <tabstop>SpinBoxStartAngle</tabstop>
   <tabstop>SpinBoxAngle</tabstop>
   <tabstop>SpinBoxRadius</tabstop>
-  <tabstop>SpinBoxTransX</tabstop>
-  <tabstop>toolButtonTransX</tabstop>
-  <tabstop>SpinBoxTransY</tabstop>
-  <tabstop>toolButtonTransY</tabstop>
-  <tabstop>SpinBoxTransZ</tabstop>
-  <tabstop>toolButtonTransZ</tabstop>
   <tabstop>SpinBoxRotX</tabstop>
   <tabstop>SpinBoxRotY</tabstop>
   <tabstop>SpinBoxRotZ</tabstop>
-  <tabstop>SpinBoxTransX_2</tabstop>
-  <tabstop>SpinBoxTransY_2</tabstop>
-  <tabstop>SpinBoxTransZ_2</tabstop>
   <tabstop>SpinBoxRotX_2</tabstop>
   <tabstop>SpinBoxRotY_2</tabstop>
   <tabstop>SpinBoxRotZ_2</tabstop>

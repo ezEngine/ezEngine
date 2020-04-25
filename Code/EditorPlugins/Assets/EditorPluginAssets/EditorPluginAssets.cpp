@@ -319,9 +319,7 @@ static void ConfigurePropertyAnimAsset()
   // View Tool Bar
   {
     ezActionMapManager::RegisterActionMap("PropertyAnimAssetViewToolBar");
-    ezViewActions::MapActions("PropertyAnimAssetViewToolBar", "",
-                              ezViewActions::PerspectiveMode | ezViewActions::RenderMode | ezViewActions::UsageHint |
-                                  ezViewActions::ActivateRemoteProcess);
+    ezViewActions::MapActions("PropertyAnimAssetViewToolBar", "", ezViewActions::PerspectiveMode | ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
     ezQuadViewActions::MapActions("PropertyAnimAssetViewToolBar", "");
   }
 

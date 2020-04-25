@@ -138,8 +138,9 @@ ezEditorInput ezSelectionContext::DoMouseReleaseEvent(QMouseEvent* e)
     {
       SendMarqueeMsg(e, (m_Mode == Mode::MarqueeAdd) ? 1 : 2);
 
+      const bool bPressedSpace = m_bPressedSpace;
       DoFocusLost(false);
-      m_bPressedSpace = true;
+      m_bPressedSpace = bPressedSpace;
       return ezEditorInput::WasExclusivelyHandled;
     }
   }
@@ -286,7 +287,16 @@ ezEditorInput ezSelectionContext::DoKeyPressEvent(QKeyEvent* e)
     }
     else
     {
-      GetOwnerWindow()->GetDocument()->GetSelectionManager()->Clear();
+      if (m_Mode == Mode::MarqueeAdd || m_Mode == Mode::MarqueeRemove)
+      {
+        const bool bPressedSpace = m_bPressedSpace;
+        FocusLost(true);
+        m_bPressedSpace = bPressedSpace;
+      }
+      else
+      {
+        GetOwnerWindow()->GetDocument()->GetSelectionManager()->Clear();
+      }
     }
 
     return ezEditorInput::WasExclusivelyHandled;

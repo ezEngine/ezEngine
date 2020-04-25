@@ -349,6 +349,9 @@ void ezGreyBoxComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
     // do not include this for the collision mesh, if the proper tag is not set
     if (!GetOwner()->GetTags().IsSetByName("AutoColMesh"))
       return;
+
+    if (GetOwner()->IsDynamic())
+      return;
   }
   else
   {

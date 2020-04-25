@@ -291,6 +291,8 @@ struct ezShadowPool::Data
     const ezTag& tagCastShadows = ezTagRegistry::GetGlobalRegistry().RegisterTag("CastShadow");
     pView->m_IncludeTags.Set(tagCastShadows);
 
+    pView->m_ExcludeTags.SetByName("EditorHidden");
+
     return hView;
   }
 

@@ -52,6 +52,7 @@ private:
     ezVariant m_Index;
   };
 
+  ezDeque<const ezDocumentObject*> m_OriginalSelection;
   ezHybridArray<DuplicatedObject, 4> m_DuplicatedObjects;
 };
 

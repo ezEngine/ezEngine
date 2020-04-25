@@ -34,7 +34,7 @@ ezActionDescriptorHandle ezSceneActions::s_hGameModeStop;
 ezActionDescriptorHandle ezSceneActions::s_hUtilExportSceneToOBJ;
 ezActionDescriptorHandle ezSceneActions::s_hKeepSimulationChanges;
 ezActionDescriptorHandle ezSceneActions::s_hCreateThumbnail;
-ezActionDescriptorHandle ezSceneActions::s_hFavouriteCamsMenu;
+ezActionDescriptorHandle ezSceneActions::s_hFavoriteCamsMenu;
 ezActionDescriptorHandle ezSceneActions::s_hStoreEditorCamera[10];
 ezActionDescriptorHandle ezSceneActions::s_hRestoreEditorCamera[10];
 ezActionDescriptorHandle ezSceneActions::s_hJumpToCamera[10];
@@ -70,7 +70,7 @@ void ezSceneActions::RegisterActions()
     ezSceneAction::ActionType::CreateThumbnail);
   // unfortunately the macros use lambdas thus using a loop to generate the strings does not work
   {
-    s_hFavouriteCamsMenu = EZ_REGISTER_MENU_WITH_ICON("Scene.FavouriteCams.Menu", "");
+    s_hFavoriteCamsMenu = EZ_REGISTER_MENU_WITH_ICON("Scene.FavoriteCams.Menu", "");
 
     s_hStoreEditorCamera[0] = EZ_REGISTER_ACTION_1("Scene.Camera.Store.0", ezActionScope::Document, "Scene - Cameras", "Ctrl+0",
       ezSceneAction, ezSceneAction::ActionType::StoreEditorCamera0);
@@ -171,7 +171,7 @@ void ezSceneActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hUtilExportSceneToOBJ);
   ezActionManager::UnregisterAction(s_hKeepSimulationChanges);
   ezActionManager::UnregisterAction(s_hCreateThumbnail);
-  ezActionManager::UnregisterAction(s_hFavouriteCamsMenu);
+  ezActionManager::UnregisterAction(s_hFavoriteCamsMenu);
 
   for (ezUInt32 i = 0; i < 10; ++i)
   {
@@ -196,8 +196,8 @@ void ezSceneActions::MapMenuActions()
     pMap->MapAction(s_hKeepSimulationChanges, szUtilsSubPath, 1.0f);
     pMap->MapAction(s_hUtilExportSceneToOBJ, szUtilsSubPath, 2.0f);
 
-    pMap->MapAction(s_hFavouriteCamsMenu, "Menu.Scene", 3.0f);
-    const char* szFavCamsSubPath = "Menu.Scene/Scene.FavouriteCams.Menu";
+    pMap->MapAction(s_hFavoriteCamsMenu, "Menu.Scene", 3.0f);
+    const char* szFavCamsSubPath = "Menu.Scene/Scene.FavoriteCams.Menu";
 
     for (ezUInt32 i = 0; i < 10; ++i)
     {
@@ -412,8 +412,8 @@ void ezSceneAction::Execute(const ezVariant& value)
     {
       const ezInt32 iCamIdx = (int)m_Type - (int)ActionType::StoreEditorCamera0;
 
-      m_pSceneDocument->StoreFavouriteCamera(iCamIdx);
-      m_pSceneDocument->ShowDocumentStatus(ezFmt("Stored favourite camera position {0}", iCamIdx));
+      m_pSceneDocument->StoreFavoriteCamera(iCamIdx);
+      m_pSceneDocument->ShowDocumentStatus(ezFmt("Stored favorite camera position {0}", iCamIdx));
 
       return;
     }
@@ -431,8 +431,8 @@ void ezSceneAction::Execute(const ezVariant& value)
     {
       const ezInt32 iCamIdx = (int)m_Type - (int)ActionType::RestoreEditorCamera0;
 
-      m_pSceneDocument->RestoreFavouriteCamera(iCamIdx);
-      m_pSceneDocument->ShowDocumentStatus(ezFmt("Restored favourite camera position {0}", iCamIdx));
+      m_pSceneDocument->RestoreFavoriteCamera(iCamIdx);
+      m_pSceneDocument->ShowDocumentStatus(ezFmt("Restored favorite camera position {0}", iCamIdx));
 
       return;
     }
@@ -471,13 +471,19 @@ void ezSceneAction::Execute(const ezVariant& value)
     {
       const ezInt32 iCamIdx = (int)m_Type - (int)ActionType::CreateLevelCamera0;
 
+      if (auto pView = ezQtEngineViewWidget::GetInteractionContext().m_pLastHoveredViewWidget; pView == nullptr || pView->m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
+      {
+        m_pSceneDocument->ShowDocumentStatus("Note: Level cameras cannot be created in orthographic views.");
+        return;
+      }
+
       if (m_pSceneDocument->CreateLevelCamera(iCamIdx).Succeeded())
       {
         m_pSceneDocument->ShowDocumentStatus(ezFmt("Create level camera with shortcut set to '{0}'", iCamIdx));
       }
       else
       {
-        m_pSceneDocument->ShowDocumentStatus(ezFmt("Could not level camera.", iCamIdx));
+        m_pSceneDocument->ShowDocumentStatus(ezFmt("Could not create level camera '{}'.", iCamIdx));
       }
       return;
     }

@@ -12,7 +12,6 @@
 
 ezActionDescriptorHandle ezViewActions::s_hRenderMode;
 ezActionDescriptorHandle ezViewActions::s_hPerspective;
-ezActionDescriptorHandle ezViewActions::s_hCameraUsageHint;
 ezActionDescriptorHandle ezViewActions::s_hActivateRemoteProcess;
 ezActionDescriptorHandle ezViewActions::s_hLinkDeviceCamera;
 
@@ -21,18 +20,14 @@ void ezViewActions::RegisterActions()
 {
   s_hRenderMode = EZ_REGISTER_DYNAMIC_MENU("View.RenderMode", ezRenderModeAction, ":/EditorFramework/Icons/RenderMode.png");
   s_hPerspective = EZ_REGISTER_DYNAMIC_MENU("View.RenderPerspective", ezPerspectiveAction, ":/EditorFramework/Icons/Perspective.png");
-  s_hCameraUsageHint = EZ_REGISTER_DYNAMIC_MENU("View.CameraUsageHint", ezCameraUsageHintAction, ":/EditorFramework/Icons/Tag16.png");
-  s_hActivateRemoteProcess = EZ_REGISTER_ACTION_1("View.ActivateRemoteProcess", ezActionScope::Window, "View", "", ezViewAction,
-                                                  ezViewAction::ButtonType::ActivateRemoteProcess);
-  s_hLinkDeviceCamera = EZ_REGISTER_ACTION_1("View.LinkDeviceCamera", ezActionScope::Window, "View", "", ezViewAction,
-                                             ezViewAction::ButtonType::LinkDeviceCamera);
+  s_hActivateRemoteProcess = EZ_REGISTER_ACTION_1("View.ActivateRemoteProcess", ezActionScope::Window, "View", "", ezViewAction, ezViewAction::ButtonType::ActivateRemoteProcess);
+  s_hLinkDeviceCamera = EZ_REGISTER_ACTION_1("View.LinkDeviceCamera", ezActionScope::Window, "View", "", ezViewAction, ezViewAction::ButtonType::LinkDeviceCamera);
 }
 
 void ezViewActions::UnregisterActions()
 {
   ezActionManager::UnregisterAction(s_hRenderMode);
   ezActionManager::UnregisterAction(s_hPerspective);
-  ezActionManager::UnregisterAction(s_hCameraUsageHint);
   ezActionManager::UnregisterAction(s_hActivateRemoteProcess);
   ezActionManager::UnregisterAction(s_hLinkDeviceCamera);
 }
@@ -47,9 +42,6 @@ void ezViewActions::MapActions(const char* szMapping, const char* szPath, ezUInt
 
   if (flags & Flags::RenderMode)
     pMap->MapAction(s_hRenderMode, szPath, 2.0f);
-
-  if (flags & Flags::UsageHint)
-    pMap->MapAction(s_hCameraUsageHint, szPath, 3.0f);
 
   if (flags & Flags::ActivateRemoteProcess)
   {
@@ -118,35 +110,6 @@ void ezPerspectiveAction::Execute(const ezVariant& value)
     pView->m_pViewConfig->ApplyPerspectiveSetting();
     TriggerUpdate();
   }
-}
-
-////////////////////////////////////////////////////////////////////////
-// ezCameraUsageHintAction
-////////////////////////////////////////////////////////////////////////
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCameraUsageHintAction, 1, ezRTTINoAllocator);
-EZ_END_DYNAMIC_REFLECTED_TYPE;
-
-ezCameraUsageHintAction::ezCameraUsageHintAction(const ezActionContext& context, const char* szName, const char* szIconPath)
-    : ezEnumerationMenuAction(context, szName, szIconPath)
-{
-  ezQtEngineViewWidget* pView = qobject_cast<ezQtEngineViewWidget*>(context.m_pWindow);
-  EZ_ASSERT_DEV(pView != nullptr, "context.m_pWindow must be derived from type 'ezQtEngineViewWidget'!");
-  InitEnumerationType(ezGetStaticRTTI<ezCameraUsageHint>());
-}
-
-ezInt64 ezCameraUsageHintAction::GetValue() const
-{
-  ezQtEngineViewWidget* pView = qobject_cast<ezQtEngineViewWidget*>(m_Context.m_pWindow);
-  return (ezInt64)pView->m_pViewConfig->m_CameraUsageHint;
-}
-
-void ezCameraUsageHintAction::Execute(const ezVariant& value)
-{
-  ezQtEngineViewWidget* pView = qobject_cast<ezQtEngineViewWidget*>(m_Context.m_pWindow);
-  auto newValue = (ezCameraUsageHint::Enum)value.ConvertTo<ezInt64>();
-  pView->m_pViewConfig->m_CameraUsageHint = newValue;
-  TriggerUpdate();
 }
 
 //////////////////////////////////////////////////////////////////////////

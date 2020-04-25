@@ -62,14 +62,14 @@ ezStatus ezDuplicateObjectsCommand::DoInternal(bool bRedo)
 
     if (m_uiNumberOfCopies == 0)
     {
-      /// \todo Christopher: Duplicating 4 objects (or so) that have the same parent (via shift+drag), will crash the engine process but
-      /// otherwise work fine.
-
       ezHybridArray<ezDocument::PasteInfo, 16> ToBePasted;
       CreateOneDuplicate(graph, ToBePasted);
     }
     else
     {
+      // store original selection
+      m_OriginalSelection = m_pDocument->GetSelectionManager()->GetSelection();
+
       ezHybridArray<ezHybridArray<ezDocument::PasteInfo, 16>, 8> ToBePasted;
       ToBePasted.SetCount(m_uiNumberOfCopies);
 
@@ -124,7 +124,7 @@ void ezDuplicateObjectsCommand::SetAsSelection()
   {
     auto pSelMan = m_pDocument->GetSelectionManager();
 
-    ezDeque<const ezDocumentObject*> NewSelection;
+    ezDeque<const ezDocumentObject*> NewSelection = m_OriginalSelection;
 
     for (const DuplicatedObject& pi : m_DuplicatedObjects)
     {
@@ -286,7 +286,7 @@ void ezDuplicateObjectsCommand::AdjustObjectPositions(ezHybridArray<ezDocument::
     ezTransform tGlobal = pScene->GetGlobalTransform(pi.m_pObject);
 
     tGlobal.m_vScale.Set(1.0f);
-    tGlobal.m_vPosition += vPosOffset + fStep * m_vAccumulativeTranslation + vRandT;
+    tGlobal.m_vPosition += vPosOffset + (1.0f + fStep) * m_vAccumulativeTranslation + vRandT;
     tGlobal.m_qRotation = qRot * tGlobal.m_qRotation;
 
     /// \todo Christopher: Modifying the position through a command after creating the object seems to destroy the undo-ability of this

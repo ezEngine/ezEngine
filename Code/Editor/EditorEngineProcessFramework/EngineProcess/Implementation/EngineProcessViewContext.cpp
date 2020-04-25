@@ -222,33 +222,13 @@ bool ezEngineProcessViewContext::FocusCameraOnObject(ezCamera& camera, const ezB
 void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 {
   ezViewRenderMode::Enum renderMode = (ezViewRenderMode::Enum)pMsg->m_uiRenderMode;
-  bool bModeFromCamera = false;
 
   ezView* pView = nullptr;
   if (ezRenderWorld::TryGetView(m_hView, pView) && pView->GetWorld() != nullptr)
   {
-    pView->SetCameraUsageHint(pMsg->m_CameraUsageHint);
-
-    bool bResetDefaultPipeline = true;
-
-    if (const ezCameraComponentManager* pCameraManager = pView->GetWorld()->GetComponentManager<ezCameraComponentManager>())
-    {
-      // Regardless of the rendering mode, if we have a camera with the same usage hint as the view than use the parameters of that camera.
-      if (const ezCameraComponent* pCamera = pCameraManager->GetCameraByUsageHint(pMsg->m_CameraUsageHint))
-      {
-        bResetDefaultPipeline = !pCamera->GetRenderPipeline().IsValid();
-        bModeFromCamera = true;
-
-        pCamera->ApplySettingsToView(pView);
-      }
-    }
-
     if (renderMode == ezViewRenderMode::None)
     {
-      if (bResetDefaultPipeline)
-      {
-        pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
-      }
+      pView->SetRenderPipelineResource(CreateDefaultRenderPipeline());
     }
     else
     {
@@ -259,10 +239,7 @@ void ezEngineProcessViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
   if (m_Camera.GetCameraMode() != ezCameraMode::Stereo)
   {
     ezCameraMode::Enum cameraMode = (ezCameraMode::Enum)pMsg->m_iCameraMode;
-    if (!bModeFromCamera || cameraMode == ezCameraMode::OrthoFixedWidth || cameraMode == ezCameraMode::OrthoFixedHeight)
-    {
-      m_Camera.SetCameraMode(cameraMode, pMsg->m_fFovOrDim, pMsg->m_fNearPlane, pMsg->m_fFarPlane);
-    }
+    m_Camera.SetCameraMode(cameraMode, pMsg->m_fFovOrDim, pMsg->m_fNearPlane, pMsg->m_fFarPlane);
 
     // prevent too large values
     // sometimes this can happen when imported data is badly scaled and thus way too large

@@ -239,6 +239,12 @@ void ezSceneDocument::SnapObjectToCamera()
   if (ctxt.m_pLastHoveredViewWidget == nullptr)
     return;
 
+  if (ctxt.m_pLastHoveredViewWidget->m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
+  {
+    ShowDocumentStatus("Note: This operation can only be performed in perspective views.");
+    return;
+  }
+
   const auto& camera = ctxt.m_pLastHoveredViewWidget->m_pViewConfig->m_Camera;
 
   ezMat3 mRot;
@@ -748,14 +754,16 @@ bool ezSceneDocument::PasteAtOrignalPosition(const ezArrayPtr<PasteInfo>& info)
   return true;
 }
 
-bool ezSceneDocument::Paste(
-  const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType)
+bool ezSceneDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType)
 {
   const auto& ctxt = ezQtEngineViewWidget::GetInteractionContext();
 
   if (bAllowPickedPosition && ctxt.m_pLastPickingResult && ctxt.m_pLastPickingResult->m_PickedObject.IsValid())
   {
-    if (!PasteAt(info, ctxt.m_pLastPickingResult->m_vPickedPosition))
+    ezVec3 pos = ctxt.m_pLastPickingResult->m_vPickedPosition;
+    ezSnapProvider::SnapTranslation(pos);
+
+    if (!PasteAt(info, pos))
       return false;
   }
   else
@@ -913,12 +921,12 @@ ezStatus ezSceneDocument::RemoveExposedParameter(ezInt32 index)
 }
 
 
-void ezSceneDocument::StoreFavouriteCamera(ezUInt8 uiSlot)
+void ezSceneDocument::StoreFavoriteCamera(ezUInt8 uiSlot)
 {
   EZ_ASSERT_DEBUG(uiSlot < 10, "Invalid slot");
 
   ezQuadViewPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezQuadViewPreferencesUser>(this);
-  auto& cam = pPreferences->m_FavouriteCamera[uiSlot];
+  auto& cam = pPreferences->m_FavoriteCamera[uiSlot];
 
   auto* pView = ezQtEngineViewWidget::GetInteractionContext().m_pLastHoveredViewWidget;
 
@@ -926,6 +934,7 @@ void ezSceneDocument::StoreFavouriteCamera(ezUInt8 uiSlot)
   {
     const auto& camera = pView->m_pViewConfig->m_Camera;
 
+    cam.m_PerspectiveMode = pView->m_pViewConfig->m_Perspective;
     cam.m_vCamPos = camera.GetCenterPosition();
     cam.m_vCamDir = camera.GetCenterDirForwards();
     cam.m_vCamUp = camera.GetCenterDirUp();
@@ -935,19 +944,56 @@ void ezSceneDocument::StoreFavouriteCamera(ezUInt8 uiSlot)
   }
 }
 
-void ezSceneDocument::RestoreFavouriteCamera(ezUInt8 uiSlot)
+void ezSceneDocument::RestoreFavoriteCamera(ezUInt8 uiSlot)
 {
   EZ_ASSERT_DEBUG(uiSlot < 10, "Invalid slot");
 
   ezQuadViewPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezQuadViewPreferencesUser>(this);
-  auto& cam = pPreferences->m_FavouriteCamera[uiSlot];
+  auto& cam = pPreferences->m_FavoriteCamera[uiSlot];
 
   auto* pView = ezQtEngineViewWidget::GetInteractionContext().m_pLastHoveredViewWidget;
 
-  if (pView)
+  if (pView == nullptr)
+    return;
+
+  ezVec3 vCamPos = cam.m_vCamPos;
+  ezVec3 vCamDir = cam.m_vCamDir;
+  ezVec3 vCamUp = cam.m_vCamUp;
+
+  // if the projection mode of the view is orthographic, ignore the direction of the stored favorite camera
+  // if we apply a favorite that was saved in an orthographic view, and we apply it to a perspective view,
+  // we want to ignore one of the axis, as the respective orthographic position can be arbitrary
+  switch (pView->m_pViewConfig->m_Perspective)
   {
-    pView->InterpolateCameraTo(cam.m_vCamPos, cam.m_vCamDir, pView->m_pViewConfig->m_Camera.GetFovOrDim(), &cam.m_vCamUp);
+    case ezSceneViewPerspective::Orthogonal_Front:
+    case ezSceneViewPerspective::Orthogonal_Right:
+    case ezSceneViewPerspective::Orthogonal_Top:
+      vCamDir = pView->m_pViewConfig->m_Camera.GetCenterDirForwards();
+      vCamUp = pView->m_pViewConfig->m_Camera.GetCenterDirUp();
+      break;
+
+    case ezSceneViewPerspective::Perspective:
+    {
+      const ezVec3 vOldPos = pView->m_pViewConfig->m_Camera.GetCenterPosition();
+
+      switch (cam.m_PerspectiveMode)
+      {
+        case ezSceneViewPerspective::Orthogonal_Front:
+          vCamPos.x = vOldPos.x;
+          break;
+        case ezSceneViewPerspective::Orthogonal_Right:
+          vCamPos.y = vOldPos.y;
+          break;
+        case ezSceneViewPerspective::Orthogonal_Top:
+          vCamPos.z = vOldPos.z;
+          break;
+      }
+
+      break;
+    }
   }
+
+  pView->InterpolateCameraTo(vCamPos, vCamDir, pView->m_pViewConfig->m_Camera.GetFovOrDim(), &vCamUp);
 }
 
 ezResult ezSceneDocument::JumpToLevelCamera(ezUInt8 uiSlot, bool bImmediate)
@@ -991,8 +1037,24 @@ ezResult ezSceneDocument::JumpToLevelCamera(ezUInt8 uiSlot, bool bImmediate)
 
   const ezTransform tCam = GetGlobalTransform(pCamObj);
 
-  ezVec3 vUp = tCam.m_qRotation * ezVec3(0, 0, 1);
-  pView->InterpolateCameraTo(tCam.m_vPosition, tCam.m_qRotation * ezVec3(1, 0, 0), pView->m_pViewConfig->m_Camera.GetFovOrDim(), &vUp, bImmediate);
+  ezVec3 vCamDir = tCam.m_qRotation * ezVec3(1, 0, 0);
+  ezVec3 vCamUp = tCam.m_qRotation * ezVec3(0, 0, 1);
+
+  // if the projection mode of the view is orthographic, ignore the direction of the level camera
+  switch (pView->m_pViewConfig->m_Perspective)
+  {
+    case ezSceneViewPerspective::Orthogonal_Front:
+    case ezSceneViewPerspective::Orthogonal_Right:
+    case ezSceneViewPerspective::Orthogonal_Top:
+      vCamDir = pView->m_pViewConfig->m_Camera.GetCenterDirForwards();
+      vCamUp = pView->m_pViewConfig->m_Camera.GetCenterDirUp();
+      break;
+
+    case ezSceneViewPerspective::Perspective:
+      break;
+  }
+
+  pView->InterpolateCameraTo(tCam.m_vPosition, vCamDir, pView->m_pViewConfig->m_Camera.GetFovOrDim(), &vCamUp, bImmediate);
 
   return EZ_SUCCESS;
 }
@@ -1004,6 +1066,9 @@ ezResult ezSceneDocument::CreateLevelCamera(ezUInt8 uiSlot)
   auto* pView = ezQtEngineViewWidget::GetInteractionContext().m_pLastHoveredViewWidget;
 
   if (pView == nullptr)
+    return EZ_FAILURE;
+
+  if (pView->m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
     return EZ_FAILURE;
 
   const auto* pRootObj = GetObjectManager()->GetRootObject();

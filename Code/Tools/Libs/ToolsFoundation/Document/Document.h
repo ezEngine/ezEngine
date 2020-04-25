@@ -112,8 +112,8 @@ public:
   {
     EZ_DECLARE_POD_TYPE();
 
-    ezDocumentObject* m_pObject;
-    ezDocumentObject* m_pParent;
+    ezDocumentObject* m_pObject = nullptr;
+    ezDocumentObject* m_pParent = nullptr;
     ezInt32 m_Index = -1;
   };
 

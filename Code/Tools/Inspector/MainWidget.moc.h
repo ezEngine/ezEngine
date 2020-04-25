@@ -38,11 +38,11 @@ private Q_SLOTS:
 
 private:
 
-  void SaveFavourites();
-  void LoadFavourites();
+  void SaveFavorites();
+  void LoadFavorites();
 
   QTreeWidgetItem* CreateStat(const char* szPath, bool bParent);
-  void SetFavourite(const ezString& sStat, bool bFavourite);
+  void SetFavorite(const ezString& sStat, bool bFavorite);
 
   ezUInt32 m_uiMaxStatSamples;
   ezTime m_MaxGlobalTime;
@@ -59,16 +59,16 @@ private:
 
     ezVariant m_Value;
     QTreeWidgetItem* m_pItem;
-    QTreeWidgetItem* m_pItemFavourite;
+    QTreeWidgetItem* m_pItemFavorite;
 
     StatData()
     {
       m_pItem = nullptr;
-      m_pItemFavourite = nullptr;
+      m_pItemFavorite = nullptr;
     }
   };
 
   friend class ezQtStatVisWidget;
   ezMap<ezString, StatData> m_Stats;
-  ezSet<ezString> m_Favourites;
+  ezSet<ezString> m_Favorites;
 };

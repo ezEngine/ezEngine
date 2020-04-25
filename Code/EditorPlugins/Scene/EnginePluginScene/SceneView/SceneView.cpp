@@ -47,8 +47,7 @@ void ezSceneViewContext::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
       pView->SetRenderPassProperty("EditorPickingPass", "PickTransparent", pMsg2->m_bEnablePickTransparent);
     }
 
-    if (pMsg2->m_CameraUsageHint == ezCameraUsageHint::EditorView &&
-        (pMsg2->m_iCameraMode == ezCameraMode::PerspectiveFixedFovX || pMsg2->m_iCameraMode == ezCameraMode::PerspectiveFixedFovY))
+    if (pMsg2->m_iCameraMode == ezCameraMode::PerspectiveFixedFovX || pMsg2->m_iCameraMode == ezCameraMode::PerspectiveFixedFovY)
     {
       if (!m_pSceneContext->IsPlayTheGameActive())
       {
