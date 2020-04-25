@@ -225,12 +225,14 @@ void ezSceneActions::MapToolbarActions()
   {
     const char* szSubPath = "SceneCategory";
 
+
     /// \todo This works incorrectly with value 6.0f -> it places the action inside the snap category
     pMap->MapAction(s_hSceneCategory, "", 11.0f);
-
     pMap->MapAction(s_hGameModeStop, szSubPath, 1.0f);
     pMap->MapAction(s_hGameModeSimulate, szSubPath, 2.0f);
     pMap->MapAction(s_hGameModePlay, szSubPath, 3.0f);
+    pMap->MapAction(s_hExportScene, szSubPath, 4.0f);
+    pMap->MapAction(s_hRunScene, szSubPath, 5.0f);
   }
 }
 

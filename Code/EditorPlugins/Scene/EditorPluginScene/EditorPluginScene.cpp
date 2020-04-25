@@ -2,6 +2,7 @@
 
 #include <Actions/SceneActions.h>
 #include <Core/World/GameObject.h>
+#include <EditorFramework/Actions/AssetActions.h>
 #include <EditorFramework/Actions/GameObjectDocumentActions.h>
 #include <EditorFramework/Actions/GameObjectSelectionActions.h>
 #include <EditorFramework/Actions/ProjectActions.h>

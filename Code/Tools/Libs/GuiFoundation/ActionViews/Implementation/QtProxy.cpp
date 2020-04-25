@@ -252,17 +252,34 @@ void ezQtButtonProxy::Update()
 
   auto pButton = static_cast<ezButtonAction*>(m_pAction);
 
+
   const ezActionDescriptor* pDesc = m_pAction->GetDescriptorHandle().GetDescriptor();
   m_pQtAction->setShortcut(QKeySequence(QString::fromUtf8(pDesc->m_sShortcut.GetData())));
 
+  const QString sDisplayShortcut = m_pQtAction->shortcut().toString(QKeySequence::NativeText);
+  QString sTooltip = ezTranslateTooltip(pButton->GetName());
+
   ezStringBuilder sDisplay = ezTranslate(pButton->GetName());
+
+  if (sTooltip.isEmpty())
+  {
+    sTooltip = sDisplay;
+    sTooltip.replace("&", "");
+  }
+
+  if (!sDisplayShortcut.isEmpty())
+  {
+    sTooltip.append(" (");
+    sTooltip.append(sDisplayShortcut);
+    sTooltip.append(")");
+  }
 
   if (!ezStringUtils::IsNullOrEmpty(pButton->GetAdditionalDisplayString()))
     sDisplay.Append(" '", pButton->GetAdditionalDisplayString(), "'"); // TODO: translate this as well?
 
   m_pQtAction->setIcon(ezQtUiServices::GetCachedIconResource(pButton->GetIconPath()));
   m_pQtAction->setText(QString::fromUtf8(sDisplay.GetData()));
-  m_pQtAction->setToolTip(QString::fromUtf8(ezTranslateTooltip(pButton->GetName())));
+  m_pQtAction->setToolTip(sTooltip);
   m_pQtAction->setCheckable(pButton->IsCheckable());
   m_pQtAction->setChecked(pButton->IsChecked());
   m_pQtAction->setEnabled(pButton->IsEnabled());
@@ -431,9 +448,25 @@ void ezQtDynamicActionAndMenuProxy::Update()
   if (!ezStringUtils::IsNullOrEmpty(pButton->GetAdditionalDisplayString()))
     sDisplay.Append(" '", pButton->GetAdditionalDisplayString(), "'"); // TODO: translate this as well?
 
+  const QString sDisplayShortcut = m_pQtAction->shortcut().toString(QKeySequence::NativeText);
+  QString sTooltip = ezTranslateTooltip(pButton->GetName());
+
+  if (sTooltip.isEmpty())
+  {
+    sTooltip = sDisplay;
+    sTooltip.replace("&", "");
+  }
+
+  if (!sDisplayShortcut.isEmpty())
+  {
+    sTooltip.append(" (");
+    sTooltip.append(sDisplayShortcut);
+    sTooltip.append(")");
+  }
+
   m_pQtAction->setIcon(ezQtUiServices::GetCachedIconResource(pButton->GetIconPath()));
   m_pQtAction->setText(QString::fromUtf8(sDisplay.GetData()));
-  m_pQtAction->setToolTip(QString::fromUtf8(ezTranslateTooltip(pButton->GetName())));
+  m_pQtAction->setToolTip(sTooltip);
   m_pQtAction->setEnabled(pButton->IsEnabled());
   m_pQtAction->setVisible(pButton->IsVisible());
 }
