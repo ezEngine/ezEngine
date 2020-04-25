@@ -503,6 +503,10 @@ void ezQtDocumentWindow::OnStatusBarMessageChanged(const QString& sNewText)
   {
     pal.setColor(QPalette::WindowText, QColor(255, 216, 0));
   }
+  else if (sNewText.startsWith("Note:"))
+  {
+    pal.setColor(QPalette::WindowText, QColor(0, 255, 255));
+  }
 
   statusBar()->setPalette(pal);
 }

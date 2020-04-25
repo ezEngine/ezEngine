@@ -471,13 +471,19 @@ void ezSceneAction::Execute(const ezVariant& value)
     {
       const ezInt32 iCamIdx = (int)m_Type - (int)ActionType::CreateLevelCamera0;
 
+      if (auto pView = ezQtEngineViewWidget::GetInteractionContext().m_pLastHoveredViewWidget; pView == nullptr || pView->m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
+      {
+        m_pSceneDocument->ShowDocumentStatus("Note: Level cameras cannot be created in orthographic views.");
+        return;
+      }
+
       if (m_pSceneDocument->CreateLevelCamera(iCamIdx).Succeeded())
       {
         m_pSceneDocument->ShowDocumentStatus(ezFmt("Create level camera with shortcut set to '{0}'", iCamIdx));
       }
       else
       {
-        m_pSceneDocument->ShowDocumentStatus(ezFmt("Could not level camera.", iCamIdx));
+        m_pSceneDocument->ShowDocumentStatus(ezFmt("Could not create level camera '{}'.", iCamIdx));
       }
       return;
     }

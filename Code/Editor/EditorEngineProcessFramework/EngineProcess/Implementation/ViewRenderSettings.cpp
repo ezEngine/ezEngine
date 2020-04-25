@@ -22,7 +22,7 @@ void ezEngineViewConfig::ApplyPerspectiveSetting(float fov, float nearPlane, flo
     case ezSceneViewPerspective::Orthogonal_Front:
     {
       m_Camera.SetCameraMode(ezCameraMode::OrthoFixedHeight, fov == 0.0f ? 20.0f : fov, -fOrthoRange, fOrthoRange);
-      m_Camera.LookAt(m_Camera.GetCenterPosition(), m_Camera.GetCenterPosition() + ezVec3(1, 0, 0), ezVec3(0, 0, 1));
+      m_Camera.LookAt(m_Camera.GetCenterPosition(), m_Camera.GetCenterPosition() + ezVec3(-1, 0, 0), ezVec3(0, 0, 1));
     }
     break;
 

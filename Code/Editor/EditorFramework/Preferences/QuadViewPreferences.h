@@ -5,22 +5,12 @@
 
 struct EZ_EDITORFRAMEWORK_DLL ezEngineViewPreferences
 {
-  ezEngineViewPreferences()
-  {
-    m_vCamPos.SetZero();
-    m_vCamDir.Set(1, 0, 0);
-    m_vCamUp.Set(0, 0, 1);
-    m_uiPerspectiveMode = ezSceneViewPerspective::Perspective;
-    m_uiRenderMode = ezViewRenderMode::Default;
-    m_fFov = 70.0f;
-  }
-
-  ezVec3 m_vCamPos;
-  ezVec3 m_vCamDir;
-  ezVec3 m_vCamUp;
-  ezSceneViewPerspective::Enum m_uiPerspectiveMode;
-  ezViewRenderMode::Enum m_uiRenderMode;
-  float m_fFov;
+  ezVec3 m_vCamPos = ezVec3::ZeroVector();
+  ezVec3 m_vCamDir = ezVec3::UnitXAxis();
+  ezVec3 m_vCamUp = ezVec3::UnitZAxis();
+  ezSceneViewPerspective::Enum m_PerspectiveMode = ezSceneViewPerspective::Perspective;
+  ezViewRenderMode::Enum m_RenderMode = ezViewRenderMode::Default;
+  float m_fFov = 70.0f;
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_EDITORFRAMEWORK_DLL, ezEngineViewPreferences);
 
