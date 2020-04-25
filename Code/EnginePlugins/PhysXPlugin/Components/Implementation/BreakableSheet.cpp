@@ -14,6 +14,7 @@
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/Meshes/SkinnedMeshComponent.h>
 #include <RendererFoundation/Device/Device.h>
+#include <extensions/PxRigidActorExt.h>
 
 #define JC_VORONOI_IMPLEMENTATION
 #include <PhysXPlugin/ThirdParty/jc_voronoi.h>
@@ -1000,7 +1001,7 @@ void ezBreakableSheetComponent::CreateUnbrokenPhysicsObject()
   PxBoxGeometry box;
   box.halfExtents = ezPxConversionUtils::ToVec3(m_vExtents.CompMul(vScale) * 0.5f);
 
-  pShape = m_pUnbrokenActor->createShape(box, *GetPxMaterial(m_hMaterial));
+  pShape = PxRigidActorExt::createExclusiveShape(*m_pUnbrokenActor, box, *GetPxMaterial(m_hMaterial));
 
   if (pShape != nullptr)
   {
@@ -1095,7 +1096,7 @@ void ezBreakableSheetComponent::CreatePiecesPhysicsObjects(ezVec3 vImpulse, ezVe
 
     PxBoxGeometry box;
     box.halfExtents = ezPxConversionUtils::ToVec3(m_PieceBoundingBoxes[i].GetHalfExtents().CompMul(vScale));
-    physx::PxShape* pShape = pActor->createShape(box, *pPhysXMat);
+    physx::PxShape* pShape = PxRigidActorExt::createExclusiveShape(*pActor, box, *pPhysXMat);
 
     m_PieceShapeIds[i] = pModule->CreateShapeId();
     m_ShapeIDsToActors.Insert(m_PieceShapeIds[i], pActor);

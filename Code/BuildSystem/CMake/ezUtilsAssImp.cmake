@@ -11,6 +11,9 @@
 macro(ez_requires_assimp)
 
 	ez_requires_windows()
+	if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
+		return()
+	endif()
 
 endmacro()
 

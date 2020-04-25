@@ -168,7 +168,7 @@ void ezPhysX::Startup()
 
   m_pAllocatorCallback = EZ_DEFAULT_NEW(ezPxAllocatorCallback);
 
-  m_pFoundation = PxCreateFoundation(PX_FOUNDATION_VERSION, *m_pAllocatorCallback, m_ErrorCallback);
+  m_pFoundation = PxCreateFoundation(PX_PHYSICS_VERSION, *m_pAllocatorCallback, m_ErrorCallback);
   EZ_ASSERT_DEV(m_pFoundation != nullptr, "Initializing PhysX failed");
 
 #if EZ_ENABLED(EZ_PX_DETAILED_MEMORY_STATS)

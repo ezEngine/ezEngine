@@ -6,6 +6,7 @@
 #include <PhysXPlugin/Shapes/PxShapeConvexComponent.h>
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
+#include <extensions/PxRigidActorExt.h>
 
 using namespace physx;
 
@@ -100,7 +101,7 @@ PxShape* ezPxShapeConvexComponent::CreateShape(PxRigidActor* pActor, PxTransform
 
   PxMeshScale scale = ezPxConversionUtils::ToScale(GetOwner()->GetGlobalTransformSimd());
 
-  return pActor->createShape(PxConvexMeshGeometry(pMesh->GetConvexMesh(), scale), *pMaterial);
+  return PxRigidActorExt::createExclusiveShape(*pActor, PxConvexMeshGeometry(pMesh->GetConvexMesh(), scale), *pMaterial);
 }
 
 void ezPxShapeConvexComponent::ExtractGeometry(ezMsgExtractGeometry& msg) const

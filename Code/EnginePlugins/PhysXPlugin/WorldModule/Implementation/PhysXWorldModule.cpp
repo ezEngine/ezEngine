@@ -581,7 +581,9 @@ void ezPhysXWorldModule::Initialize()
 
     desc.flags |= PxSceneFlag::eENABLE_ACTIVE_ACTORS;
     desc.flags |= PxSceneFlag::eEXCLUDE_KINEMATICS_FROM_ACTIVE_ACTORS;
-    desc.flags |= PxSceneFlag::eENABLE_KINEMATIC_PAIRS;
+    desc.kineKineFilteringMode = PxPairFilteringMode::eKEEP;
+    //TODO: Do we need this? PhysX4 upgrade.
+    //desc.staticKineFilteringMode = PxPairFilteringMode::eKEEP;
     desc.flags |= PxSceneFlag::eADAPTIVE_FORCE;
     desc.flags |= PxSceneFlag::eREQUIRE_RW_LOCK;
     desc.flags |= PxSceneFlag::eENABLE_CCD;
@@ -908,15 +910,16 @@ void* ezPhysXWorldModule::CreateRagdoll(const ezSkeletonResourceDescriptor& skel
         pThisLink->setName(joint.GetName().GetData());
         //pThisLink->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, true);
 
-        if (PxArticulationJoint* pJoint = pThisLink->getInboundJoint())
+        if (PxArticulationJointBase* pJoint = pThisLink->getInboundJoint())
         {
           pJoint->setChildPose(ezPxConversionUtils::ToTransform(ezTransform::IdentityTransform()));
 
           ezTransform parentJointTransform;
           parentJointTransform.SetLocalTransform(parentTransformAbs, thisTransformAbs);
           pJoint->setParentPose(ezPxConversionUtils::ToTransform(parentJointTransform));
-          pJoint->setTwistLimitEnabled(true);
-          pJoint->setSwingLimitEnabled(true);
+          //TODO: Commented out after PhysX4 upgrade.
+          //pJoint->setTwistLimitEnabled(true);
+          //pJoint->setSwingLimitEnabled(true);
         }
 
         if (links.GetCount() == 1)

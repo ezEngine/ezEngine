@@ -14,6 +14,28 @@ target_link_libraries(${PROJECT_NAME}
   GameEngine
 )
 
+if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
+  # Due to app sandboxing we need to explicitly name required plugins for UWP.
+  target_link_libraries(${PROJECT_NAME}
+    PUBLIC
+    KrautPlugin
+    ParticlePlugin
+    InspectorPlugin
+    TypeScriptPlugin
+  )
+
+  if (EZ_BUILD_PHYSX)
+    find_package(ezPhysX REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PUBLIC PhysXPlugin)
+  endif()
+
+  if (EZ_BUILD_FMOD)
+    find_package(EzFmod REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PUBLIC FmodPlugin)
+  endif()
+
+endif()
+
 add_dependencies(${PROJECT_NAME}
   ShaderCompilerHLSL
   InspectorPlugin
