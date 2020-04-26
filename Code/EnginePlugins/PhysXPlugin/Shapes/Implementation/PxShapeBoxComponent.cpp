@@ -5,6 +5,7 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <PhysXPlugin/Shapes/PxShapeBoxComponent.h>
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
+#include <extensions/PxRigidActorExt.h>
 
 using namespace physx;
 
@@ -84,7 +85,7 @@ PxShape* ezPxShapeBoxComponent::CreateShape(PxRigidActor* pActor, PxTransform& o
   PxBoxGeometry box;
   box.halfExtents = ezPxConversionUtils::ToVec3(m_vExtents.CompMul(vScale) * 0.5f);
 
-  return pActor->createShape(box, *GetPxMaterial());
+  return PxRigidActorExt::createExclusiveShape(*pActor, box, *GetPxMaterial());
 }
 
 

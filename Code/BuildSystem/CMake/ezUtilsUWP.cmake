@@ -1,4 +1,23 @@
 ######################################
+### ez_uwp_mark_import_as_content(<import>)
+######################################
+
+function(ez_uwp_mark_import_as_content IMPORT)
+  if (NOT EZ_CMAKE_PLATFORM_WINDOWS_UWP)
+    return()
+  endif()
+
+  get_target_property(_dll_location ${IMPORT} IMPORTED_LOCATION_DEBUG)
+  set_property(SOURCE ${_dll_location} PROPERTY VS_DEPLOYMENT_CONTENT 1)
+
+  get_target_property(_dll_location ${IMPORT} IMPORTED_LOCATION)
+  set_property(SOURCE ${_dll_location} PROPERTY VS_DEPLOYMENT_CONTENT 1)
+
+  unset (_dll_location)
+
+endfunction()
+
+######################################
 ### ez_uwp_add_default_content(<target>)
 ######################################
 
@@ -24,7 +43,6 @@ function(ez_uwp_fix_library_properties TARGET_NAME SOURCE_FILES)
 
     endforeach()
   endif ()
-  
   
 endfunction()
 

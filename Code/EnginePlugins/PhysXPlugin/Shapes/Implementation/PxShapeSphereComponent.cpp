@@ -4,6 +4,7 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <PhysXPlugin/Shapes/PxShapeSphereComponent.h>
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
+#include <extensions/PxRigidActorExt.h>
 
 using namespace physx;
 
@@ -70,7 +71,7 @@ PxShape* ezPxShapeSphereComponent::CreateShape(PxRigidActor* pActor, PxTransform
 {
   const float fScale = GetOwner()->GetGlobalTransformSimd().GetMaxScale();
 
-  return pActor->createShape(PxSphereGeometry(m_fRadius * fScale), *GetPxMaterial());
+  return PxRigidActorExt::createExclusiveShape(*pActor, PxSphereGeometry(m_fRadius * fScale), *GetPxMaterial());
 }
 
 

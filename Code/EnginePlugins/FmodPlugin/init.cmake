@@ -12,6 +12,9 @@ macro(ez_requires_fmod)
 
 	ez_requires_windows()
 	ez_requires(EZ_BUILD_FMOD)
+	# While counter-intuitive, we need to find the package here so that the PUBLIC inherited
+	# target_sources using generator expressions can be resolved in the dependant projects.
+	find_package(EzFmod REQUIRED)
 
 endmacro()
 
@@ -26,11 +29,14 @@ function(ez_link_target_fmod TARGET_NAME)
 	find_package(EzFmod REQUIRED)
 
 	if (EZFMOD_FOUND)
-	  target_link_libraries(${TARGET_NAME} PRIVATE ezFmod::Studio)
+        target_link_libraries(${TARGET_NAME} PRIVATE ezFmod::Studio)
 
-	  add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:ezFmod::Studio> $<TARGET_FILE_DIR:${TARGET_NAME}>
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:ezFmod::Core> $<TARGET_FILE_DIR:${TARGET_NAME}>
+        target_sources(${TARGET_NAME} PUBLIC $<TARGET_FILE:ezFmod::Core>)
+        target_sources(${TARGET_NAME} PUBLIC $<TARGET_FILE:ezFmod::Studio>)
+
+        add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:ezFmod::Studio> $<TARGET_FILE_DIR:${TARGET_NAME}>
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:ezFmod::Core> $<TARGET_FILE_DIR:${TARGET_NAME}>
 	  )
 
 	endif()
