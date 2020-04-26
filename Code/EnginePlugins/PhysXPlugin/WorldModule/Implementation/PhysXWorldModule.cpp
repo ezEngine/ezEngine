@@ -582,8 +582,6 @@ void ezPhysXWorldModule::Initialize()
     desc.flags |= PxSceneFlag::eENABLE_ACTIVE_ACTORS;
     desc.flags |= PxSceneFlag::eEXCLUDE_KINEMATICS_FROM_ACTIVE_ACTORS;
     desc.kineKineFilteringMode = PxPairFilteringMode::eKEEP;
-    //TODO: Do we need this? PhysX4 upgrade.
-    //desc.staticKineFilteringMode = PxPairFilteringMode::eKEEP;
     desc.flags |= PxSceneFlag::eADAPTIVE_FORCE;
     desc.flags |= PxSceneFlag::eREQUIRE_RW_LOCK;
     desc.flags |= PxSceneFlag::eENABLE_CCD;
