@@ -88,11 +88,9 @@ PS_OUT main(PS_IN Input)
   #endif
 
   #if BLEND_MODE != BLEND_MODE_OPAQUE && BLEND_MODE != BLEND_MODE_MASKED
-    if (matData.opacity > 0.01f)
-    {
-      light.specularLight /= matData.opacity;
-    }
-
+    float specularNormalization = lerp(1.0f, 1.0f / matData.opacity, saturate(matData.opacity * 10.0f));
+    light.specularLight *= specularNormalization;
+    
     #if defined(USE_MATERIAL_REFRACTION)
       ApplyRefraction(matData, light);
     #endif

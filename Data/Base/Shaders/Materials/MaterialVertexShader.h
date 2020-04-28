@@ -20,6 +20,10 @@ static VS_GLOBALS G;
   float3 GetWorldPositionOffset(ezPerInstanceData data, float3 worldPosition);
 #endif
 
+#if defined(USE_VERTEX_DEPTH_BIAS)
+  float GetVertexDepthBias();
+#endif
+
 #if defined(USE_SKINNING)
 
 float4 SkinPosition(float4 ObjectSpacePosition, float4 BoneWeights, uint4 BoneIndices)
@@ -75,6 +79,13 @@ VS_OUT FillVertexData(VS_IN Input)
   #endif
 
   Output.Position = mul(GetWorldToScreenMatrix(), float4(Output.WorldPosition, 1.0));
+  
+  #if defined(USE_VERTEX_DEPTH_BIAS)
+    float depthBiasScale = 1.5f / (1 << 16);
+    Output.Position.z += GetVertexDepthBias() * depthBiasScale * Output.Position.w;
+  #endif
+  
+  Output.Position.z = max(Output.Position.z, MaxZValue);
 
   #if defined(USE_NORMAL)
 
