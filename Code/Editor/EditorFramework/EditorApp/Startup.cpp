@@ -256,7 +256,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
   {
     ezActionManager::LoadShortcutAssignment();
 
-    m_WhatsNew.Load(":app/WhatsNew.txt");
+    m_WhatsNew.Load(":app/WhatsNew.htm");
 
     LoadRecentFiles();
 
