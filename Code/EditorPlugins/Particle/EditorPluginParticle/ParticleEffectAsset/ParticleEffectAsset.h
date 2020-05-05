@@ -30,7 +30,7 @@ public:
 
   static void PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e);
 
-  ezStatus WriteParticleEffectAsset(ezStreamWriter& stream, const ezPlatformProfile* pAssetProfile) const;
+  void WriteResource(ezStreamWriter& stream) const;
 
   void TriggerRestartEffect();
 

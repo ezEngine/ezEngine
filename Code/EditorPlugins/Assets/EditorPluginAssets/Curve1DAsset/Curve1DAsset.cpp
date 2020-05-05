@@ -3,19 +3,21 @@
 #include <EditorPluginAssets/Curve1DAsset/Curve1DAsset.h>
 #include <EditorPluginAssets/Curve1DAsset/Curve1DAssetManager.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Texture/Image/Image.h>
 #include <Foundation/Tracks/Curve1D.h>
 #include <GameEngine/Curves/Curve1DResource.h>
 #include <QPaintEngine>
 #include <QPainter>
+#include <Texture/Image/Image.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DAssetDocument, 3, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DAssetDocument, 3, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezCurve1DAssetDocument::ezCurve1DAssetDocument(const char* szDocumentPath)
-    : ezSimpleAssetDocument<ezCurveGroupData>(szDocumentPath, ezAssetDocEngineConnection::None)
+  : ezSimpleAssetDocument<ezCurveGroupData>(szDocumentPath, ezAssetDocEngineConnection::None)
 {
 }
+
+ezCurve1DAssetDocument::~ezCurve1DAssetDocument() = default;
 
 void ezCurve1DAssetDocument::FillCurve(ezUInt32 uiCurveIdx, ezCurve1D& out_Result) const
 {
@@ -29,8 +31,7 @@ ezUInt32 ezCurve1DAssetDocument::GetCurveCount() const
   return pProp->m_Curves.GetCount();
 }
 
-ezStatus ezCurve1DAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-                                                        const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+void ezCurve1DAssetDocument::WriteResource(ezStreamWriter& stream) const
 {
   const ezCurveGroupData* pProp = GetProperties();
 
@@ -44,7 +45,12 @@ ezStatus ezCurve1DAssetDocument::InternalTransformAsset(ezStreamWriter& stream, 
   }
 
   desc.Save(stream);
+}
 
+ezStatus ezCurve1DAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+{
+  WriteResource(stream);
   return ezStatus(EZ_SUCCESS);
 }
 
@@ -107,10 +113,10 @@ ezStatus ezCurve1DAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& Th
 
 
     QColor curveColor[] = {
-        QColor(255, 100, 100),
-        QColor(100, 255, 100),
-        QColor(100, 100, 255),
-        QColor(200, 200, 200),
+      QColor(255, 100, 100),
+      QColor(100, 255, 100),
+      QColor(100, 100, 255),
+      QColor(200, 200, 200),
     };
 
     for (ezUInt32 curveIdx = 0; curveIdx < pProp->m_Curves.GetCount(); ++curveIdx)
@@ -146,9 +152,9 @@ ezStatus ezCurve1DAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& Th
   return SaveThumbnail(qimg, ThumbnailInfo);
 }
 
-  //////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 
@@ -156,7 +162,7 @@ class ezCurve1DControlPointPatch_1_2 : public ezGraphPatch
 {
 public:
   ezCurve1DControlPointPatch_1_2()
-      : ezGraphPatch("ezCurve1DControlPoint", 2)
+    : ezGraphPatch("ezCurve1DControlPoint", 2)
   {
   }
 
@@ -174,7 +180,7 @@ class ezCurve1DDataPatch_1_2 : public ezGraphPatch
 {
 public:
   ezCurve1DDataPatch_1_2()
-      : ezGraphPatch("ezCurve1DData", 2)
+    : ezGraphPatch("ezCurve1DData", 2)
   {
   }
 

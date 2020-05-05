@@ -249,7 +249,7 @@ ezQtParticleEffectAssetDocumentWindow::ezQtParticleEffectAssetDocumentWindow(ezA
   FinishWindowCreation();
 
   UpdateSystemList();
-  UpdatePreview();
+  SendLiveResourcePreview();
 
   GetParticleDocument()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::ParticleEventHandler, this));
 }
@@ -628,7 +628,7 @@ void ezQtParticleEffectAssetDocumentWindow::onRenameSystem(bool)
   GetDocument()->GetObjectAccessor()->FinishTransaction();
 }
 
-void ezQtParticleEffectAssetDocumentWindow::UpdatePreview()
+void ezQtParticleEffectAssetDocumentWindow::SendLiveResourcePreview()
 {
   if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
@@ -645,14 +645,16 @@ void ezQtParticleEffectAssetDocumentWindow::UpdatePreview()
   // Write Path
   ezStringBuilder sAbsFilePath = GetParticleDocument()->GetDocumentPath();
   sAbsFilePath.ChangeFileExtension("ezParticleEffect");
+
   // Write Header
   memoryWriter << sAbsFilePath;
   const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetDependencyHash(GetParticleDocument()->GetGuid());
   ezAssetFileHeader AssetHeader;
   AssetHeader.SetFileHashAndVersion(uiHash, GetParticleDocument()->GetAssetTypeVersion());
   AssetHeader.Write(memoryWriter);
+
   // Write Asset Data
-  GetParticleDocument()->WriteParticleEffectAsset(memoryWriter, ezAssetCurator::GetSingleton()->GetActiveAssetProfile());
+  GetParticleDocument()->WriteResource(memoryWriter);
   msg.m_Data = ezArrayPtr<const ezUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize());
 
   ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
@@ -665,7 +667,7 @@ void ezQtParticleEffectAssetDocumentWindow::PropertyEventHandler(const ezDocumen
     UpdateSystemList();
   }
 
-  UpdatePreview();
+  SendLiveResourcePreview();
 }
 
 void ezQtParticleEffectAssetDocumentWindow::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
@@ -676,7 +678,7 @@ void ezQtParticleEffectAssetDocumentWindow::StructureEventHandler(const ezDocume
     case ezDocumentObjectStructureEvent::Type::AfterObjectMoved2:
     case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
       UpdateSystemList();
-      UpdatePreview();
+      SendLiveResourcePreview();
       break;
   }
 }

@@ -5,7 +5,7 @@
 #include <EditorPluginAssets/Curve1DAsset/Curve1DAssetWindow.moc.h>
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezCurve1DAssetDocumentManager>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCurve1DAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezCurve1DAssetDocumentManager>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezCurve1DAssetDocumentManager::ezCurve1DAssetDocumentManager()
@@ -20,7 +20,6 @@ ezCurve1DAssetDocumentManager::ezCurve1DAssetDocumentManager()
 
   m_DocTypeDesc.m_sResourceFileExtension = "ezCurve1D";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave | ezAssetDocumentFlags::SupportsThumbnail;
-
 }
 
 ezCurve1DAssetDocumentManager::~ezCurve1DAssetDocumentManager()

@@ -1,25 +1,25 @@
 #include <EditorPluginAssetsPCH.h>
 
+#include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorPluginAssets/Curve1DAsset/Curve1DAsset.h>
 #include <EditorPluginAssets/Curve1DAsset/Curve1DAssetWindow.moc.h>
-#include <Texture/Image/ImageConversion.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/Widgets/Curve1DEditorWidget.moc.h>
 #include <GuiFoundation/Widgets/ImageWidget.moc.h>
-#include <QLabel>
-#include <QLayout>
+#include <Texture/Image/ImageConversion.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 
+#include <QLabel>
+#include <QLayout>
+
 ezQtCurve1DAssetDocumentWindow::ezQtCurve1DAssetDocumentWindow(ezDocument* pDocument)
-    : ezQtDocumentWindow(pDocument)
+  : ezQtDocumentWindow(pDocument)
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(
-      ezMakeDelegate(&ezQtCurve1DAssetDocumentWindow::PropertyEventHandler, this));
-  GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(
-      ezMakeDelegate(&ezQtCurve1DAssetDocumentWindow::StructureEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtCurve1DAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtCurve1DAssetDocumentWindow::StructureEventHandler, this));
 
   // Menu Bar
   {
@@ -85,12 +85,11 @@ ezQtCurve1DAssetDocumentWindow::ezQtCurve1DAssetDocumentWindow(ezDocument* pDocu
 
 ezQtCurve1DAssetDocumentWindow::~ezQtCurve1DAssetDocumentWindow()
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(
-      ezMakeDelegate(&ezQtCurve1DAssetDocumentWindow::PropertyEventHandler, this));
-  GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(
-      ezMakeDelegate(&ezQtCurve1DAssetDocumentWindow::StructureEventHandler, this));
-}
+  GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtCurve1DAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezQtCurve1DAssetDocumentWindow::StructureEventHandler, this));
 
+  RestoreResource();
+}
 
 void ezQtCurve1DAssetDocumentWindow::onCurveBeginOperation(QString name)
 {
@@ -314,6 +313,8 @@ void ezQtCurve1DAssetDocumentWindow::UpdatePreview()
   ezCurve1DAssetDocument* pDoc = static_cast<ezCurve1DAssetDocument*>(GetDocument());
 
   m_pCurveEditor->SetCurves(*pDoc->GetProperties(), 0.1f, false);
+
+  SendLiveResourcePreview();
 }
 
 void ezQtCurve1DAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
@@ -324,4 +325,49 @@ void ezQtCurve1DAssetDocumentWindow::PropertyEventHandler(const ezDocumentObject
 void ezQtCurve1DAssetDocumentWindow::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
 {
   UpdatePreview();
+}
+
+void ezQtCurve1DAssetDocumentWindow::SendLiveResourcePreview()
+{
+  if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
+    return;
+
+  ezResourceUpdateMsgToEngine msg;
+  msg.m_sResourceType = "Curve1D";
+
+  ezStringBuilder tmp;
+  msg.m_sResourceID = ezConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
+
+  ezMemoryStreamStorage streamStorage;
+  ezMemoryStreamWriter memoryWriter(&streamStorage);
+
+  ezCurve1DAssetDocument* pDoc = ezDynamicCast<ezCurve1DAssetDocument*>(GetDocument());
+
+  // Write Path
+  ezStringBuilder sAbsFilePath = pDoc->GetDocumentPath();
+  sAbsFilePath.ChangeFileExtension("ezCurve1D");
+
+  // Write Header
+  memoryWriter << sAbsFilePath;
+  const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetDependencyHash(pDoc->GetGuid());
+  ezAssetFileHeader AssetHeader;
+  AssetHeader.SetFileHashAndVersion(uiHash, pDoc->GetAssetTypeVersion());
+  AssetHeader.Write(memoryWriter);
+
+  // Write Asset Data
+  pDoc->WriteResource(memoryWriter);
+  msg.m_Data = ezArrayPtr<const ezUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize());
+
+  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
+}
+
+void ezQtCurve1DAssetDocumentWindow::RestoreResource()
+{
+  ezRestoreResourceMsgToEngine msg;
+  msg.m_sResourceType = "Curve1D";
+
+  ezStringBuilder tmp;
+  msg.m_sResourceID = ezConversionUtils::ToString(GetDocument()->GetGuid(), tmp);
+
+  ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
 }
