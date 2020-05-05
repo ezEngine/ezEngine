@@ -255,6 +255,11 @@ void ezQtContainerWindow::UpdateWindowDecoration(ezQtDocumentWindow* pDocWindow)
   dock->setTabToolTip(QString::fromUtf8(pDocWindow->GetDisplayName().GetData()));
   dock->setIcon(ezQtUiServices::GetCachedIconResource(pDocWindow->GetWindowIcon().GetData()));
   dock->setWindowTitle(QString::fromUtf8(pDocWindow->GetDisplayNameShort().GetData()));
+
+  if (dock->dockContainer()->floatingWidget())
+  {
+    dock->dockContainer()->floatingWidget()->setWindowTitle(dock->windowTitle());
+  }
 }
 
 void ezQtContainerWindow::RemoveDocumentWindow(ezQtDocumentWindow* pDocWindow)

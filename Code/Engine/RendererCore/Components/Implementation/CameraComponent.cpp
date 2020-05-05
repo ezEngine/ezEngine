@@ -568,7 +568,6 @@ void ezCameraComponent::ResourceChangeEventHandler(const ezResourceEvent& e)
       break;
 
     default:
-      EZ_ASSERT_NOT_IMPLEMENTED;
       break;
   }
 }
