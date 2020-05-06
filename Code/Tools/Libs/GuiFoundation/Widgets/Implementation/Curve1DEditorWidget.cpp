@@ -458,11 +458,13 @@ void ezQtCurve1DEditorWidget::onFlattenTangents()
 
   for (const auto& cpSel : selection)
   {
-    const auto& tL = m_Curves.m_Curves[cpSel.m_uiCurve]->m_ControlPoints[cpSel.m_uiPoint].m_LeftTangent;
-    const auto& tR = m_Curves.m_Curves[cpSel.m_uiCurve]->m_ControlPoints[cpSel.m_uiPoint].m_RightTangent;
+    // don't use references, the signals may move the data in memory
+    const ezVec2 tL = m_Curves.m_Curves[cpSel.m_uiCurve]->m_ControlPoints[cpSel.m_uiPoint].m_LeftTangent;
+    const ezVec2 tR = m_Curves.m_Curves[cpSel.m_uiCurve]->m_ControlPoints[cpSel.m_uiPoint].m_RightTangent;
 
-    Q_EMIT TangentMovedEvent(cpSel.m_uiCurve, cpSel.m_uiPoint, tL.x, 0, false);
-    Q_EMIT TangentMovedEvent(cpSel.m_uiCurve, cpSel.m_uiPoint, tR.x, 0, true);
+    // clamp the X position, to prevent tangents with zero length
+    Q_EMIT TangentMovedEvent(cpSel.m_uiCurve, cpSel.m_uiPoint, ezMath::Min(tL.x, -0.02f), 0, false);
+    Q_EMIT TangentMovedEvent(cpSel.m_uiCurve, cpSel.m_uiPoint, ezMath::Max(tR.x, +0.02f), 0, true);
   }
 
   Q_EMIT EndOperationEvent(true);
