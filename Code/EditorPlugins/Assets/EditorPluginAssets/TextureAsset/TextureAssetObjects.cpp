@@ -76,8 +76,8 @@ void ezTextureAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaState
 
       props["CVarResScale"].m_Visibility = resIsCVar ? ezPropertyUiState::Default : ezPropertyUiState::Disabled;
       props["Usage"].m_Visibility = ezPropertyUiState::Invisible;
-      props["Mipmaps"].m_Visibility = ezPropertyUiState::Invisible;
-      props["Compression"].m_Visibility = ezPropertyUiState::Invisible;
+      props["MipmapMode"].m_Visibility = ezPropertyUiState::Invisible;
+      props["CompressionMode"].m_Visibility = ezPropertyUiState::Invisible;
       props["PremultipliedAlpha"].m_Visibility = ezPropertyUiState::Invisible;
       props["FlipHorizontal"].m_Visibility = ezPropertyUiState::Invisible;
       props["ChannelMapping"].m_Visibility = ezPropertyUiState::Invisible;
@@ -85,6 +85,7 @@ void ezTextureAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaState
       props["AlphaThreshold"].m_Visibility = ezPropertyUiState::Invisible;
       props["PremultipliedAlpha"].m_Visibility = ezPropertyUiState::Invisible;
       props["HdrExposureBias"].m_Visibility = ezPropertyUiState::Invisible;
+      props["DilateColor"].m_Visibility = ezPropertyUiState::Invisible;
 
       props["Input1"].m_Visibility = ezPropertyUiState::Invisible;
       props["Input2"].m_Visibility = ezPropertyUiState::Invisible;
@@ -110,8 +111,8 @@ void ezTextureAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaState
       props["Resolution"].m_Visibility = ezPropertyUiState::Invisible;
       props["PreserveAlphaCoverage"].m_Visibility = ezPropertyUiState::Disabled;
       props["AlphaThreshold"].m_Visibility = ezPropertyUiState::Disabled;
-      props["PremultipliedAlpha"].m_Visibility = ezPropertyUiState::Disabled;
       props["HdrExposureBias"].m_Visibility = ezPropertyUiState::Disabled;
+      props["DilateColor"].m_Visibility = ezPropertyUiState::Disabled;
 
       const ezInt64 mapping = e.m_pObject->GetTypeAccessor().GetValue("ChannelMapping").ConvertTo<ezInt64>();
 
@@ -151,6 +152,7 @@ void ezTextureAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaState
         if (mapping != ezTexture2DChannelMappingEnum::R1)
         {
           props["PremultipliedAlpha"].m_Visibility = ezPropertyUiState::Default;
+          props["DilateColor"].m_Visibility = ezPropertyUiState::Default;
         }
 
         if (hasMips)
@@ -165,6 +167,9 @@ void ezTextureAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaState
         props["HdrExposureBias"].m_Visibility = ezPropertyUiState::Default;
       }
     }
+
+    // always hide this, feature may be removed at some point
+    props["PremultipliedAlpha"].m_Visibility = ezPropertyUiState::Invisible;
   }
 }
 
