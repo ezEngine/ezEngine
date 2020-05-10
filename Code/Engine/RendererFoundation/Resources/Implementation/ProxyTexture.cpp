@@ -36,6 +36,12 @@ ezResult ezGALProxyTexture::DeInitPlatform(ezGALDevice* pDevice)
   return EZ_SUCCESS;
 }
 
+ezResult ezGALProxyTexture::ReplaceExisitingNativeObject(void* pExisitingNativeObject)
+{
+  //TODO
+  return EZ_FAILURE;
+}
+
 void ezGALProxyTexture::SetDebugNamePlatform(const char* szName) const {}
 
 

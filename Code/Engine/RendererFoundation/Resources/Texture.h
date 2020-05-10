@@ -19,5 +19,7 @@ protected:
   virtual ezResult InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData) = 0;
 
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) = 0;
+
+  virtual ezResult ReplaceExisitingNativeObject(void* pExisitingNativeObject) = 0;
 };
 

@@ -7,11 +7,36 @@ function(ez_uwp_mark_import_as_content IMPORT)
     return()
   endif()
 
+  get_target_property(_dll_location_debug ${IMPORT} IMPORTED_LOCATION_DEBUG)
+  get_target_property(_dll_location ${IMPORT} IMPORTED_LOCATION)
+
+  if (${_dll_location_debug} STREQUAL ${_dll_location})
+    set_property(SOURCE ${_dll_location_debug} PROPERTY VS_DEPLOYMENT_CONTENT 1)
+  else()
+    set_property(SOURCE ${_dll_location_debug} PROPERTY VS_DEPLOYMENT_CONTENT $<CONFIG:Debug>)
+
+    set_property(SOURCE ${_dll_location} PROPERTY VS_DEPLOYMENT_CONTENT $<OR:$<CONFIG:Release>,$<CONFIG:RelWithDebInfo>,$<CONFIG:MinSizeRel>>)
+
+    unset (_dll_location_debug)
+    unset (_dll_location)
+  endif()
+
+endfunction()
+
+######################################
+### ez_uwp_add_import_to_sources(<target_name> <import>)
+######################################
+
+function(ez_uwp_add_import_to_sources TARGET_NAME IMPORT)
+  if (NOT EZ_CMAKE_PLATFORM_WINDOWS_UWP)
+    return()
+  endif()
+
   get_target_property(_dll_location ${IMPORT} IMPORTED_LOCATION_DEBUG)
-  set_property(SOURCE ${_dll_location} PROPERTY VS_DEPLOYMENT_CONTENT 1)
+  target_sources(${TARGET_NAME} PUBLIC ${_dll_location})
 
   get_target_property(_dll_location ${IMPORT} IMPORTED_LOCATION)
-  set_property(SOURCE ${_dll_location} PROPERTY VS_DEPLOYMENT_CONTENT 1)
+  target_sources(${TARGET_NAME} PUBLIC ${_dll_location})
 
   unset (_dll_location)
 

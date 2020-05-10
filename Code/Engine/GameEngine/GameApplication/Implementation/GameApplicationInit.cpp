@@ -260,12 +260,14 @@ void ezGameApplication::Init_LoadRequiredPlugins()
 
 #  ifdef BUILDSYSTEM_ENABLE_RENDERDOC_SUPPORT
   ezPlugin::LoadPlugin("ezRenderDocPlugin");
-#  endif
+#  endif 
 
   // on sandboxed platforms, we can only load data through fileserve, so enforce use of this plugin
 #  if EZ_DISABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS)
   ezPlugin::LoadPlugin("ezFileservePlugin"); // don't care if it fails to load
 #  endif
+
+  ezPlugin::LoadPlugin("ezTypeScriptPlugin");
 
 #endif
 }

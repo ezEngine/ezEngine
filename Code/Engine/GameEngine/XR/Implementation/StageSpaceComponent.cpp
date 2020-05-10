@@ -2,7 +2,7 @@
 
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
-#include <GameEngine/VirtualReality/StageSpaceComponent.h>
+#include <GameEngine/XR/StageSpaceComponent.h>
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -11,7 +11,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezStageSpaceComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ENUM_ACCESSOR_PROPERTY("StageSpace", ezVRStageSpace, GetStageSpace, SetStageSpace)//->AddAttributes(new ezDefaultValueAttribute((ezInt32)ezVRStageSpace::Enum::Standing)),
+    EZ_ENUM_ACCESSOR_PROPERTY("StageSpace", ezXRStageSpace, GetStageSpace, SetStageSpace)->AddAttributes(new ezDefaultValueAttribute((ezInt32)ezXRStageSpace::Enum::Standing)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -30,13 +30,13 @@ ezStageSpaceComponent::ezStageSpaceComponent()
 ezStageSpaceComponent::~ezStageSpaceComponent() {}
 
 
-ezEnum<ezVRStageSpace> ezStageSpaceComponent::GetStageSpace() const
+ezEnum<ezXRStageSpace> ezStageSpaceComponent::GetStageSpace() const
 {
   return m_space;
 }
 
 
-void ezStageSpaceComponent::SetStageSpace(ezEnum<ezVRStageSpace> space)
+void ezStageSpaceComponent::SetStageSpace(ezEnum<ezXRStageSpace> space)
 {
   m_space = space;
 }
@@ -66,5 +66,6 @@ void ezStageSpaceComponent::OnDeactivated()
 {
 }
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_VirtualReality_Implementation_StageSpaceComponent);
+EZ_STATICLINK_FILE(GameEngine, GameEngine_XR_Implementation_StageSpaceComponent);
+
 

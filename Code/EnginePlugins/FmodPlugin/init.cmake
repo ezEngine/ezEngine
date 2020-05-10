@@ -31,8 +31,8 @@ function(ez_link_target_fmod TARGET_NAME)
 	if (EZFMOD_FOUND)
         target_link_libraries(${TARGET_NAME} PRIVATE ezFmod::Studio)
 
-        target_sources(${TARGET_NAME} PUBLIC $<TARGET_FILE:ezFmod::Core>)
-        target_sources(${TARGET_NAME} PUBLIC $<TARGET_FILE:ezFmod::Studio>)
+        ez_uwp_add_import_to_sources(${TARGET_NAME} ezFmod::Core)
+        ez_uwp_add_import_to_sources(${TARGET_NAME} ezFmod::Studio)
 
         add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:ezFmod::Studio> $<TARGET_FILE_DIR:${TARGET_NAME}>

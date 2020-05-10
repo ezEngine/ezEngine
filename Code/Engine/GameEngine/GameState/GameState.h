@@ -92,8 +92,7 @@ protected:
   virtual ezResult SpawnPlayer(const ezTransform* pStartPosition);
 
   /// \brief Creates a default main view with the given render pipeline.
-  void SetupMainView(
-    ezWindowOutputTargetBase* pOutputTarget, ezSizeU32 viewportSize, ezTypedResourceHandle<ezRenderPipelineResource> hRenderPipeline);
+  ezView* CreateMainView(ezTypedResourceHandle<ezRenderPipelineResource> hRenderPipeline);
 
   /// \brief Sets m_pMainWorld and updates m_pMainView to use that new world for rendering
   void ChangeMainWorld(ezWorld* pNewMainWorld);
@@ -120,4 +119,5 @@ protected:
 
   ezCamera m_MainCamera;
   bool m_bStateWantsToQuit = false;
+  bool m_bXREnabled = false;
 };

@@ -6,9 +6,10 @@
 #include <d3d11.h>
 
 ezGALTextureDX11::ezGALTextureDX11(const ezGALTextureCreationDescription& Description)
-    : ezGALTexture(Description)
-    , m_pDXTexture(nullptr)
-    , m_pDXStagingTexture(nullptr)
+  : ezGALTexture(Description)
+  , m_pDXTexture(nullptr)
+  , m_pDXStagingTexture(nullptr)
+  , m_pExisitingNativeObject(Description.m_pExisitingNativeObject)
 {
 }
 
@@ -20,14 +21,20 @@ ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSy
 {
   ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
 
-  if (m_Description.m_pExisitingNativeObject != nullptr)
+  if (m_pExisitingNativeObject != nullptr)
   {
     /// \todo Validation if interface of corresponding texture object exists
-    m_pDXTexture = static_cast<ID3D11Resource*>(m_Description.m_pExisitingNativeObject);
-
+    m_pDXTexture = static_cast<ID3D11Resource*>(m_pExisitingNativeObject);
     if (!m_Description.m_ResourceAccess.IsImmutable() || m_Description.m_ResourceAccess.m_bReadBack)
-      return CreateStagingTexture(pDXDevice);
-
+    {
+      ezResult res = CreateStagingTexture(pDXDevice);
+      if (res == EZ_FAILURE)
+      {
+        m_pDXTexture = nullptr;
+        return res;
+      }
+      
+    }
     return EZ_SUCCESS;
   }
 
@@ -199,6 +206,17 @@ ezResult ezGALTextureDX11::DeInitPlatform(ezGALDevice* pDevice)
 {
   EZ_GAL_DX11_RELEASE(m_pDXTexture);
   EZ_GAL_DX11_RELEASE(m_pDXStagingTexture);
+  return EZ_SUCCESS;
+}
+
+ezResult ezGALTextureDX11::ReplaceExisitingNativeObject(void* pExisitingNativeObject)
+{
+  EZ_ASSERT_DEV(m_pExisitingNativeObject != nullptr,
+    "Only textures created with an existing native object are allowed to call ReplaceExisitingNativeObject.");
+  EZ_ASSERT_DEV(pExisitingNativeObject != nullptr,
+    "New existing native object must exist.");
+  
+  m_pExisitingNativeObject = pExisitingNativeObject;
   return EZ_SUCCESS;
 }
 
