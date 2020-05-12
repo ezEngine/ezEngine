@@ -44,6 +44,7 @@ struct DockAreaWidgetPrivate;
 class CDockManager;
 class CDockContainerWidget;
 class DockContainerWidgetPrivate;
+class CDockAreaTitleBar;
 
 
 /**
@@ -63,6 +64,7 @@ private:
 	friend struct DockWidgetPrivate;
 	friend class CDockWidget;
 	friend struct DockManagerPrivate;
+	friend class CDockManager;
 
 private slots:
 	void onTabCloseRequested(int Index);
@@ -130,7 +132,6 @@ protected:
 	 */
 	void internalSetCurrentDockWidget(CDockWidget* DockWidget);
 
-
 	/**
 	 * Marks tabs menu to update
 	 */
@@ -162,6 +163,13 @@ public:
 	 * if there is no
 	 */
 	CDockContainerWidget* dockContainer() const;
+
+    /**
+     * Returns the largest minimumSizeHint() of the dock widgets in this
+     * area.
+     * The minimum size hint is updated if a dock widget is removed or added.
+     */
+    virtual QSize minimumSizeHint() const override;
 
 	/**
 	 * Returns the rectangle of the title area
@@ -238,10 +246,10 @@ public:
 	 * A bitwise and is used to combine the flags of all dock widgets. That
 	 * means, if only one single dock widget does not support a certain flag,
 	 * the whole dock are does not support the flag. I.e. if one single
-	 * dock widget in this area is not closabe, the whole dock are is not
+	 * dock widget in this area is not closable, the whole dock are is not
 	 * closable.
 	 */
-	CDockWidget::DockWidgetFeatures features() const;
+	CDockWidget::DockWidgetFeatures features(eBitwiseOperator Mode = BitwiseAnd) const;
 
 	/**
 	 * Returns the title bar button corresponding to the given title bar
@@ -253,6 +261,21 @@ public:
 	 * Update the close button if visibility changed
 	 */
 	virtual void setVisible(bool Visible) override;
+
+	/**
+	 * Configures the areas of this particular dock area that are allowed for docking
+	 */
+	void setAllowedAreas(DockWidgetAreas areas);
+
+	/**
+	 * Returns flags with all allowed drop areas of this particular dock area
+	 */
+	DockWidgetAreas allowedAreas() const;
+
+	/**
+	 * Returns the title bar of this dock area
+	 */
+	CDockAreaTitleBar* titleBar() const;
 
 public slots:
 	/**

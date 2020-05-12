@@ -34,6 +34,10 @@
 #include <QtCore/QtGlobal>
 #include <QPixmap>
 #include <QWidget>
+#include <QDebug>
+#include <QStyle>
+
+class QAbstractButton;
 
 #ifndef ADS_STATIC
 #ifdef ADS_SHARED_EXPORT
@@ -60,6 +64,13 @@ class QSplitter;
 
 namespace ads
 {
+enum eStateFileVersion
+{
+	InitialVersion = 0,
+	Version1 = 1,
+	CurrentVersion = Version1
+};
+
 class CDockSplitter;
 
 enum DockWidgetArea
@@ -94,6 +105,28 @@ enum eDragState
 	DraggingMousePressed, //!< DraggingMousePressed
 	DraggingTab,          //!< DraggingTab
 	DraggingFloatingWidget//!< DraggingFloatingWidget
+};
+
+/**
+ * The different icons used in the UI
+ */
+enum eIcon
+{
+	TabCloseIcon,      //!< TabCloseIcon
+	DockAreaMenuIcon,  //!< DockAreaMenuIcon
+	DockAreaUndockIcon,//!< DockAreaUndockIcon
+	DockAreaCloseIcon, //!< DockAreaCloseIcon
+
+	IconCount,         //!< just a delimiter for range checks
+};
+
+/**
+ * For bitwise combination of dock wdget features
+ */
+enum eBitwiseOperator
+{
+	BitwiseAnd,
+	BitwiseOr
 };
 
 namespace internal
@@ -184,6 +217,39 @@ void setFlag(T& Flags, typename T::enum_type flag, bool on = true)
     }
 #endif
 }
+
+
+/**
+ * Helper function for settings tooltips without cluttering the code with
+ * tests for preprocessor macros
+ */
+template <class QObjectPtr>
+void setToolTip(QObjectPtr obj, const QString &tip)
+{
+#ifndef QT_NO_TOOLTIP
+	obj->setToolTip(tip);
+#else
+	Q_UNUSED(obj);
+	Q_UNUSED(tip);
+#endif
+}
+
+
+/**
+ * Helper function to set the icon of a certain button.
+ * Use this function to set the icons for the dock area and dock widget buttons.
+ * The function first uses the CustomIconId to get an icon from the
+ * CIconProvider. You can register your custom icons with the icon provider, if
+ * you do not want to use the default buttons and if you do not want to use
+ * stylesheets.
+ * If the IconProvider does not return a valid icon (icon is null), the function
+ * fetches the given standard pixmap from the QStyle.
+ * param[in] Button The button whose icons are to be set
+ * param[in] StandardPixmap The standard pixmap to be used for the button
+ * param[in] CustomIconId The identifier for the custom icon.
+ */
+void setButtonIcon(QAbstractButton* Button, QStyle::StandardPixmap StandarPixmap,
+	ads::eIcon CustomIconId);
 
 } // namespace internal
 } // namespace ads

@@ -39,6 +39,7 @@ class CDockWidgetTab;
 struct DockAreaTabBarPrivate;
 class CDockAreaTitleBar;
 class CFloatingDockContainer;
+class IFloatingWidget;
 
 /**
  * Custom tabbar implementation for tab area that is shown on top of a
@@ -49,7 +50,7 @@ class CFloatingDockContainer;
  * has not finished. And we need to remove a tab, if the user drags a
  * a dock widget out of a group of tabbed widgets
  */
-class CDockAreaTabBar : public QScrollArea
+class ADS_EXPORT CDockAreaTabBar : public QScrollArea
 {
 	Q_OBJECT
 private:
@@ -65,38 +66,6 @@ private slots:
 
 protected:
 	virtual void wheelEvent(QWheelEvent* Event) override;
-
-	/**
-	 * Stores mouse position to detect dragging
-	 */
-	virtual void mousePressEvent(QMouseEvent* ev) override;
-
-	/**
-	 * Stores mouse position to detect dragging
-	 */
-	virtual void mouseReleaseEvent(QMouseEvent* ev) override;
-
-	/**
-	 * Starts floating the complete docking area including all dock widgets,
-	 * if it is not the last dock area in a floating widget
-	 */
-	virtual void mouseMoveEvent(QMouseEvent* ev) override;
-
-	/**
-	 * Double clicking the title bar also starts floating of the complete area
-	 */
-	virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
-
-	/**
-	 * Starts floating
-	 */
-	void startFloating(const QPoint& Offset);
-
-	/**
-	 * Makes the dock area floating
-	 */
-	CFloatingDockContainer* makeAreaFloating(const QPoint& Offset,
-		eDragState DragState);
 
 
 public:
@@ -234,6 +203,11 @@ signals:
 	 * This signal is emitted if a tab has been inserted
 	 */
 	void tabInserted(int index);
+
+	/**
+	 * This signal is emitted when a tab title elide state has been changed
+	 */
+	void elidedChanged(bool elided);
 }; // class CDockAreaTabBar
 } // namespace ads
 //-----------------------------------------------------------------------------
