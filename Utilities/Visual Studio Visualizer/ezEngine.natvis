@@ -285,39 +285,39 @@
 		</Expand>
 	</Type>
 
-  <Type Name="ezUniquePtr&lt;*&gt;">
-    <DisplayString>ezUniquePtr {*m_pInstance}</DisplayString>
-    <Expand>
-      <ExpandedItem>m_pInstance</ExpandedItem>
-    </Expand>
-  </Type>
+	<Type Name="ezUniquePtr&lt;*&gt;">
+		<DisplayString>ezUniquePtr {*m_pInstance}</DisplayString>
+		<Expand>
+			<ExpandedItem>m_pInstance</ExpandedItem>
+		</Expand>
+	</Type>
 
-  <Type Name="ezSharedPtr&lt;*&gt;">
-    <DisplayString>ezSharedPtr {*m_pInstance}</DisplayString>
-    <Expand>
-      <ExpandedItem>m_pInstance</ExpandedItem>
-    </Expand>
-  </Type>
+	<Type Name="ezSharedPtr&lt;*&gt;">
+		<DisplayString>ezSharedPtr {*m_pInstance}</DisplayString>
+		<Expand>
+			<ExpandedItem>m_pInstance</ExpandedItem>
+		</Expand>
+	</Type>
 
-  <Type Name="ezScopedRefPointer&lt;*&gt;">
-    <DisplayString>ezScopedRefPointer {*m_pReferencedObject}</DisplayString>
-    <Expand>
-      <ExpandedItem>m_pReferencedObject</ExpandedItem>
-    </Expand>
-  </Type>
+	<Type Name="ezScopedRefPointer&lt;*&gt;">
+		<DisplayString>ezScopedRefPointer {*m_pReferencedObject}</DisplayString>
+		<Expand>
+			<ExpandedItem>m_pReferencedObject</ExpandedItem>
+		</Expand>
+	</Type>
 
-  <Type Name="ezRefCounted">
-    <DisplayString>RefCount = {m_iRefCount}</DisplayString>
-  </Type>
+	<Type Name="ezRefCounted">
+		<DisplayString>RefCount = {m_iRefCount}</DisplayString>
+	</Type>
 
-  <Type Name="ezMutex">
-    <DisplayString Condition="m_iLockCount > 0">locked</DisplayString>
-    <DisplayString Condition="m_iLockCount == 0">unlocked</DisplayString>
-    <Expand>
-      <Item Name="[locking_thread_id]" Condition="m_iLockCount > 0">(DWORD)((RTL_CRITICAL_SECTION*)m_Handle.data)->OwningThread</Item>
-      <Item Name="critical_section">*((RTL_CRITICAL_SECTION*)m_Handle.data)</Item> 
-    </Expand>
-  </Type>
+	<Type Name="ezMutex">
+		<DisplayString Condition="m_iLockCount > 0">locked</DisplayString>
+		<DisplayString Condition="m_iLockCount == 0">unlocked</DisplayString>
+		<Expand>
+			<Item Name="[locking_thread_id]" Condition="m_iLockCount > 0">(DWORD)((RTL_CRITICAL_SECTION*)m_Handle.data)->OwningThread</Item>
+			<Item Name="critical_section">*((RTL_CRITICAL_SECTION*)m_Handle.data)</Item> 
+		</Expand>
+	</Type>
 
 </AutoVisualizer>
 
