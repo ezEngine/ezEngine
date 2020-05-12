@@ -7,7 +7,7 @@
 #include <EditorPluginAssets/SkeletonAsset/SkeletonAssetWindow.moc.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezSkeletonAssetDocumentManager>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezSkeletonAssetDocumentManager>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezSkeletonAssetDocumentManager::ezSkeletonAssetDocumentManager()
@@ -38,7 +38,7 @@ void ezSkeletonAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMana
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezSkeletonAssetDocument>())
       {
         ezQtSkeletonAssetDocumentWindow* pDocWnd =
-            new ezQtSkeletonAssetDocumentWindow(static_cast<ezSkeletonAssetDocument*>(e.m_pDocument));
+          new ezQtSkeletonAssetDocumentWindow(static_cast<ezSkeletonAssetDocument*>(e.m_pDocument));
       }
     }
     break;

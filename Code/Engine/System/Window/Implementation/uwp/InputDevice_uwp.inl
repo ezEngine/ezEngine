@@ -11,12 +11,11 @@
 using namespace ABI::Windows::UI::Core;
 
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStandardInputDevice, 1, ezRTTINoAllocator);
-// no properties or message handlers
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStandardInputDevice, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezStandardInputDevice::ezStandardInputDevice(ICoreWindow* coreWindow)
-    : m_coreWindow(coreWindow)
+  : m_coreWindow(coreWindow)
 {
   // TODO
   m_ClipCursorMode = ezMouseCursorClipMode::NoClip;
@@ -49,39 +48,39 @@ void ezStandardInputDevice::InitializeDevice()
 {
   using KeyHandler = __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CKeyEventArgs;
   using CharacterReceivedHandler =
-      __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CCharacterReceivedEventArgs;
+    __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CCharacterReceivedEventArgs;
   using PointerHander = __FITypedEventHandler_2_Windows__CUI__CCore__CCoreWindow_Windows__CUI__CCore__CPointerEventArgs;
 
   // Keyboard
   m_coreWindow->add_KeyDown(Callback<KeyHandler>(this, &ezStandardInputDevice::OnKeyEvent).Get(), &m_eventRegistration_keyDown);
   m_coreWindow->add_KeyUp(Callback<KeyHandler>(this, &ezStandardInputDevice::OnKeyEvent).Get(), &m_eventRegistration_keyUp);
   m_coreWindow->add_CharacterReceived(Callback<CharacterReceivedHandler>(this, &ezStandardInputDevice::OnCharacterReceived).Get(),
-                                      &m_eventRegistration_characterReceived);
+    &m_eventRegistration_characterReceived);
 
   // Pointer
   // Note that a pointer may be mouse, pen/stylus or touch!
   // We bundle move/press/enter all in a single callback to update all pointer state - all these cases have in common that pen/touch is
   // pressed now.
   m_coreWindow->add_PointerMoved(Callback<PointerHander>(this, &ezStandardInputDevice::OnPointerMovePressEnter).Get(),
-                                 &m_eventRegistration_pointerMoved);
+    &m_eventRegistration_pointerMoved);
   m_coreWindow->add_PointerEntered(Callback<PointerHander>(this, &ezStandardInputDevice::OnPointerMovePressEnter).Get(),
-                                   &m_eventRegistration_pointerEntered);
+    &m_eventRegistration_pointerEntered);
   m_coreWindow->add_PointerPressed(Callback<PointerHander>(this, &ezStandardInputDevice::OnPointerMovePressEnter).Get(),
-                                   &m_eventRegistration_pointerPressed);
+    &m_eventRegistration_pointerPressed);
   // Changes in the pointer wheel:
   m_coreWindow->add_PointerWheelChanged(Callback<PointerHander>(this, &ezStandardInputDevice::OnPointerWheelChange).Get(),
-                                        &m_eventRegistration_pointerWheelChanged);
+    &m_eventRegistration_pointerWheelChanged);
   // Exit for touch or stylus means that we no longer have a press.
   // However, we presserve mouse button presses.
   m_coreWindow->add_PointerExited(Callback<PointerHander>(this, &ezStandardInputDevice::OnPointerReleasedOrExited).Get(),
-                                  &m_eventRegistration_pointerExited);
+    &m_eventRegistration_pointerExited);
   m_coreWindow->add_PointerReleased(Callback<PointerHander>(this, &ezStandardInputDevice::OnPointerReleasedOrExited).Get(),
-                                    &m_eventRegistration_pointerReleased);
+    &m_eventRegistration_pointerReleased);
   // Capture loss.
   // From documentation "Occurs when a pointer moves to another app. This event is raised after PointerExited and is the final event
   // received by the app for this pointer." If this happens we want to release all mouse buttons as well.
   m_coreWindow->add_PointerCaptureLost(Callback<PointerHander>(this, &ezStandardInputDevice::OnPointerCaptureLost).Get(),
-                                       &m_eventRegistration_pointerCaptureLost);
+    &m_eventRegistration_pointerCaptureLost);
 
 
   // Mouse
@@ -93,14 +92,14 @@ void ezStandardInputDevice::InitializeDevice()
   {
     ComPtr<ABI::Windows::Devices::Input::IMouseDeviceStatics> mouseDeviceStatics;
     if (SUCCEEDED(ABI::Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_Devices_Input_MouseDevice).Get(),
-                                                                 &mouseDeviceStatics)))
+          &mouseDeviceStatics)))
     {
       if (SUCCEEDED(mouseDeviceStatics->GetForCurrentView(&m_mouseDevice)))
       {
         using MouseMovedHandler =
-            __FITypedEventHandler_2_Windows__CDevices__CInput__CMouseDevice_Windows__CDevices__CInput__CMouseEventArgs;
+          __FITypedEventHandler_2_Windows__CDevices__CInput__CMouseDevice_Windows__CDevices__CInput__CMouseEventArgs;
         m_mouseDevice->add_MouseMoved(Callback<MouseMovedHandler>(this, &ezStandardInputDevice::OnMouseMoved).Get(),
-                                      &m_eventRegistration_mouseMoved);
+          &m_eventRegistration_mouseMoved);
       }
     }
   }
@@ -312,7 +311,7 @@ HRESULT ezStandardInputDevice::OnPointerCaptureLost(ICoreWindow* coreWindow, IPo
 }
 
 HRESULT ezStandardInputDevice::OnMouseMoved(ABI::Windows::Devices::Input::IMouseDevice* mouseDevice,
-                                            ABI::Windows::Devices::Input::IMouseEventArgs* args)
+  ABI::Windows::Devices::Input::IMouseEventArgs* args)
 {
   ABI::Windows::Devices::Input::MouseDelta mouseDelta;
   EZ_SUCCEED_OR_RETURN(args->get_MouseDelta(&mouseDelta));
@@ -597,4 +596,3 @@ bool ezStandardInputDevice::GetShowMouseCursor() const
 {
   return m_bShowCursor;
 }
-

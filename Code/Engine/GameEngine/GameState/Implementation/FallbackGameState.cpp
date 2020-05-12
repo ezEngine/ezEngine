@@ -6,7 +6,7 @@
 #include <GameEngine/Gameplay/PlayerStartPointComponent.h>
 #include <RendererCore/Components/CameraComponent.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFallbackGameState, 1, ezRTTIDefaultAllocator<ezFallbackGameState>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFallbackGameState, 1, ezRTTIDefaultAllocator<ezFallbackGameState>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezFallbackGameState::ezFallbackGameState()
@@ -19,13 +19,13 @@ ezFallbackGameState::ezFallbackGameState()
 ezGameStatePriority ezFallbackGameState::DeterminePriority(ezWorld* pWorld) const
 {
   if (pWorld == nullptr)
-    return 
+    return
 
-ezGameStatePriority::None;
+      ezGameStatePriority::None;
 
-  return 
+  return
 
-ezGameStatePriority::Fallback;
+    ezGameStatePriority::Fallback;
 }
 
 ezResult ezFallbackGameState::SpawnPlayer(const ezTransform* pStartPosition)
@@ -35,9 +35,9 @@ ezResult ezFallbackGameState::SpawnPlayer(const ezTransform* pStartPosition)
 
   if (m_pMainWorld && pStartPosition)
   {
-      m_iActiveCameraComponentIndex = -1; // set free camera
-      m_MainCamera.LookAt(pStartPosition->m_vPosition, pStartPosition->m_vPosition + pStartPosition->m_qRotation * ezVec3(1, 0, 0),
-                          pStartPosition->m_qRotation * ezVec3(0, 0, 1));
+    m_iActiveCameraComponentIndex = -1; // set free camera
+    m_MainCamera.LookAt(pStartPosition->m_vPosition, pStartPosition->m_vPosition + pStartPosition->m_qRotation * ezVec3(1, 0, 0),
+      pStartPosition->m_qRotation * ezVec3(0, 0, 1));
   }
 
   return EZ_FAILURE;
@@ -46,7 +46,7 @@ ezResult ezFallbackGameState::SpawnPlayer(const ezTransform* pStartPosition)
 static ezHybridArray<ezGameAppInputConfig, 16> g_AllInput;
 
 static void RegisterInputAction(const char* szInputSet, const char* szInputAction, const char* szKey1, const char* szKey2 = nullptr,
-                                const char* szKey3 = nullptr)
+  const char* szKey3 = nullptr)
 {
   ezGameAppInputConfig& gacfg = g_AllInput.ExpandAndGetRef();
   gacfg.m_sInputSet = szInputSet;
@@ -236,4 +236,3 @@ void ezFallbackGameState::AfterWorldUpdate()
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_GameState_Implementation_FallbackGameState);
-

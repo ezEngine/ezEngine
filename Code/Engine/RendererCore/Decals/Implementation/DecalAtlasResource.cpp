@@ -4,12 +4,12 @@
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
-#include <Texture/Image/Formats/DdsFileFormat.h>
-#include <Texture/Image/Image.h>
 #include <Foundation/Math/Rect.h>
 #include <RendererCore/Decals/DecalAtlasResource.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Textures/TextureUtils.h>
+#include <Texture/Image/Formats/DdsFileFormat.h>
+#include <Texture/Image/Image.h>
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, DecalAtlasResource)
@@ -50,7 +50,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAtlasResource, 1, ezRTTIDefaultAllocator<ezDecalAtlasResource>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAtlasResource, 1, ezRTTIDefaultAllocator<ezDecalAtlasResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezDecalAtlasResource);
@@ -59,9 +59,9 @@ EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezDecalAtlasResource);
 ezUInt32 ezDecalAtlasResource::s_uiDecalAtlasResources = 0;
 
 ezDecalAtlasResource::ezDecalAtlasResource()
-    : ezResource(DoUpdate::OnAnyThread, 1)
-    , m_BaseColorSize(ezVec2U32::ZeroVector())
-    , m_NormalSize(ezVec2U32::ZeroVector())
+  : ezResource(DoUpdate::OnAnyThread, 1)
+  , m_BaseColorSize(ezVec2U32::ZeroVector())
+  , m_NormalSize(ezVec2U32::ZeroVector())
 {
 }
 
@@ -208,4 +208,3 @@ void ezDecalAtlasResource::ReportResourceIsMissing()
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Decals_Implementation_DecalAtlasResource);
-

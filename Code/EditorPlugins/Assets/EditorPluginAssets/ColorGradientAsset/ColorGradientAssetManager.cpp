@@ -5,7 +5,7 @@
 #include <EditorPluginAssets/ColorGradientAsset/ColorGradientAssetWindow.moc.h>
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezColorGradientAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezColorGradientAssetDocumentManager>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezColorGradientAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezColorGradientAssetDocumentManager>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezColorGradientAssetDocumentManager::ezColorGradientAssetDocumentManager()

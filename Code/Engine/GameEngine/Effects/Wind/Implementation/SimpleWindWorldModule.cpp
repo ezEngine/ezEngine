@@ -5,12 +5,12 @@
 // clang-format off
 EZ_IMPLEMENT_WORLD_MODULE(ezSimpleWindWorldModule);
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleWindWorldModule, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSimpleWindWorldModule, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezSimpleWindWorldModule::ezSimpleWindWorldModule(ezWorld* pWorld)
-    : ezWindWorldModuleInterface(pWorld)
+  : ezWindWorldModuleInterface(pWorld)
 {
   m_vFallbackWind.SetZero();
 }
@@ -30,4 +30,3 @@ void ezSimpleWindWorldModule::SetFallbackWind(const ezVec3& vWind)
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Effects_Wind_Implementation_SimpleWindWorldModule);
-

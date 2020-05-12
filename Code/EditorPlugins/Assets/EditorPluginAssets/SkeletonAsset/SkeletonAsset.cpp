@@ -15,11 +15,11 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonAssetDocument, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkeletonAssetDocument, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezSkeletonAssetDocument::ezSkeletonAssetDocument(const char* szDocumentPath)
-    : ezSimpleAssetDocument<ezEditableSkeleton>(szDocumentPath, ezAssetDocEngineConnection::Simple)
+  : ezSimpleAssetDocument<ezEditableSkeleton>(szDocumentPath, ezAssetDocEngineConnection::Simple)
 {
 }
 
@@ -33,7 +33,7 @@ void ezSkeletonAssetDocument::PropertyMetaStateEventHandler(ezPropertyMetaStateE
     auto& props = *e.m_pPropertyStates;
 
     const ezSkeletonJointGeometryType::Enum geomType =
-        (ezSkeletonJointGeometryType::Enum)e.m_pObject->GetTypeAccessor().GetValue("Geometry").ConvertTo<ezInt32>();
+      (ezSkeletonJointGeometryType::Enum)e.m_pObject->GetTypeAccessor().GetValue("Geometry").ConvertTo<ezInt32>();
 
     props["Length"].m_Visibility = ezPropertyUiState::Invisible;
     props["Width"].m_Visibility = ezPropertyUiState::Invisible;
@@ -86,7 +86,7 @@ static ezStatus ImportSkeleton(const char* filename, ezSharedPtr<ezModelImporter
 }
 
 ezStatus ezSkeletonAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-                                                         const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   ezProgressRange range("Transforming Asset", 2, false);
 
@@ -196,7 +196,7 @@ ezSkeletonAssetDocumentGenerator::ezSkeletonAssetDocumentGenerator()
 ezSkeletonAssetDocumentGenerator::~ezSkeletonAssetDocumentGenerator() = default;
 
 void ezSkeletonAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath,
-                                                      ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+  ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
   baseOutputFile.ChangeFileExtension(GetDocumentExtension());
@@ -211,7 +211,7 @@ void ezSkeletonAssetDocumentGenerator::GetImportModes(const char* szParentDirRel
 }
 
 ezStatus ezSkeletonAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info,
-                                                    ezDocument*& out_pGeneratedDocument)
+  ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
 

@@ -11,22 +11,22 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 
+#include <EditorPluginAssets/LUTAsset/AdobeCUBEReader.h>
 #include <EditorPluginAssets/LUTAsset/LUTAsset.h>
 #include <EditorPluginAssets/LUTAsset/LUTAssetManager.h>
 #include <EditorPluginAssets/LUTAsset/LUTAssetObjects.h>
-#include <EditorPluginAssets/LUTAsset/AdobeCUBEReader.h>
 
+#include <Texture/Image/Formats/DdsFileFormat.h>
+#include <Texture/Image/Image.h>
 #include <Texture/Image/ImageConversion.h>
 #include <Texture/Image/ImageHeader.h>
-#include <Texture/Image/Image.h>
 #include <Texture/ezTexFormat/ezTexFormat.h>
-#include <Texture/Image/Formats/DdsFileFormat.h>
 
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLUTAssetDocument, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLUTAssetDocument, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -38,7 +38,7 @@ ezLUTAssetDocument::ezLUTAssetDocument(const char* szDocumentPath)
 ezStatus ezLUTAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   const auto props = GetProperties();
-  
+
   // Read CUBE file, convert to 3D texture and write to file
   ezFileStats Stats;
   bool bStat = ezOSFile::GetFileStats(props->GetAbsoluteInputFilePath(), Stats).Succeeded();
@@ -71,7 +71,7 @@ ezStatus ezLUTAssetDocument::InternalTransformAsset(const char* szTargetFile, co
     return ezStatus("Allocated ezImage for LUT data is not valid.");
   }
 
-  
+
 
   for (ezUInt32 b = 0; b < lutSize; ++b)
   {
@@ -89,7 +89,7 @@ ezStatus ezLUTAssetDocument::InternalTransformAsset(const char* szTargetFile, co
         *pPixel = colUb;
       }
     }
-  }  
+  }
 
   ezDeferredFileWriter file;
   file.SetOutput(szTargetFile);

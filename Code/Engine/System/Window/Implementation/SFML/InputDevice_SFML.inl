@@ -3,8 +3,7 @@
 #include <SFML/Window/Window.hpp>
 #include <System/Window/Implementation/SFML/InputDevice_SFML.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStandardInputDevice, 1, ezRTTINoAllocator);
-// no properties or message handlers
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStandardInputDevice, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 bool ezStandardInputDevice::s_bMainWindowUsed = false;
@@ -370,9 +369,9 @@ void ezStandardInputDevice::WindowMessage(const sf::Event& TheEvent)
         m_pWindow->setMouseCursorVisible(false);
 
       m_vLastMousePos.Set(sf::Mouse::getPosition().x,
-                          sf::Mouse::getPosition().y); // this ensures that the mouse diff is zero in the update step
+        sf::Mouse::getPosition().y); // this ensures that the mouse diff is zero in the update step
       m_vEmulatedMousePos.Set(sf::Mouse::getPosition(*m_pWindow).x,
-                              sf::Mouse::getPosition(*m_pWindow).y); // just copy the new mouse position into the emulated position
+        sf::Mouse::getPosition(*m_pWindow).y); // just copy the new mouse position into the emulated position
 
       UpdateMouseCursor();
       break;

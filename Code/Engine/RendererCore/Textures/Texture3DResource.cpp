@@ -15,7 +15,7 @@
 #include <Texture/ezTexFormat/ezTexFormat.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTexture3DResource, 1, ezRTTIDefaultAllocator<ezTexture3DResource>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTexture3DResource, 1, ezRTTIDefaultAllocator<ezTexture3DResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -27,7 +27,7 @@ ezTexture3DResource::ezTexture3DResource()
 }
 
 ezTexture3DResource::ezTexture3DResource(ezResource::DoUpdate ResourceUpdateThread)
-  : ezResource(ResourceUpdateThread, ezTextureUtils::s_bForceFullQualityAlways ? 1 : 2) 
+  : ezResource(ResourceUpdateThread, ezTextureUtils::s_bForceFullQualityAlways ? 1 : 2)
 {
 }
 
@@ -264,4 +264,3 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezTexture3DResource, ezTexture3DResourceDescrip
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Textures_Texture3DResource);
-

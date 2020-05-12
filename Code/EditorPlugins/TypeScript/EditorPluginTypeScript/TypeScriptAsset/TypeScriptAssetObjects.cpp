@@ -4,7 +4,7 @@
 #include <EditorPluginTypeScript/TypeScriptAsset/TypeScriptAssetObjects.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTypeScriptParameter, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTypeScriptParameter, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -14,7 +14,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTypeScriptParameter, 1, ezRTTINoAllocator);
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTypeScriptParameterNumber, 1, ezRTTIDefaultAllocator<ezTypeScriptParameterNumber>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTypeScriptParameterNumber, 1, ezRTTIDefaultAllocator<ezTypeScriptParameterNumber>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -24,7 +24,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTypeScriptParameterNumber, 1, ezRTTIDefaultAll
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTypeScriptParameterBool, 1, ezRTTIDefaultAllocator<ezTypeScriptParameterBool>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTypeScriptParameterBool, 1, ezRTTIDefaultAllocator<ezTypeScriptParameterBool>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -34,7 +34,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTypeScriptParameterBool, 1, ezRTTIDefaultAlloc
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTypeScriptParameterString, 1, ezRTTIDefaultAllocator<ezTypeScriptParameterString>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTypeScriptParameterString, 1, ezRTTIDefaultAllocator<ezTypeScriptParameterString>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -44,7 +44,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTypeScriptParameterString, 1, ezRTTIDefaultAll
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTypeScriptParameterVec3, 1, ezRTTIDefaultAllocator<ezTypeScriptParameterVec3>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTypeScriptParameterVec3, 1, ezRTTIDefaultAllocator<ezTypeScriptParameterVec3>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -54,7 +54,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTypeScriptParameterVec3, 1, ezRTTIDefaultAlloc
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTypeScriptParameterColor, 1, ezRTTIDefaultAllocator<ezTypeScriptParameterColor>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTypeScriptParameterColor, 1, ezRTTIDefaultAllocator<ezTypeScriptParameterColor>)
 {
   EZ_BEGIN_PROPERTIES
   {

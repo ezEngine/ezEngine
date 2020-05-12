@@ -30,17 +30,17 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollectionAssetData, 1, ezRTTIDefaultAllocator
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollectionAssetDocument, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollectionAssetDocument, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezCollectionAssetDocument::ezCollectionAssetDocument(const char* szDocumentPath)
-    : ezSimpleAssetDocument<ezCollectionAssetData>(szDocumentPath, ezAssetDocEngineConnection::None)
+  : ezSimpleAssetDocument<ezCollectionAssetData>(szDocumentPath, ezAssetDocEngineConnection::None)
 {
 }
 
 ezStatus ezCollectionAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-                                                           const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   const ezCollectionAssetData* pProp = GetProperties();
 

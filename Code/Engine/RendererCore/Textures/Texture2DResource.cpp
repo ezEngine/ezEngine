@@ -3,16 +3,16 @@
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Configuration/Startup.h>
-#include <Texture/Image/Image.h>
-#include <Texture/Image/Formats/DdsFileFormat.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Textures/TextureUtils.h>
 #include <RendererFoundation/Resources/Texture.h>
+#include <Texture/Image/Formats/DdsFileFormat.h>
+#include <Texture/Image/Image.h>
 #include <Texture/ezTexFormat/ezTexFormat.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTexture2DResource, 1, ezRTTIDefaultAllocator<ezTexture2DResource>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTexture2DResource, 1, ezRTTIDefaultAllocator<ezTexture2DResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -27,7 +27,7 @@ ezTexture2DResource::ezTexture2DResource()
 }
 
 ezTexture2DResource::ezTexture2DResource(ezResource::DoUpdate ResourceUpdateThread)
-  : ezResource(ResourceUpdateThread, ezTextureUtils::s_bForceFullQualityAlways ? 1 : 2) 
+  : ezResource(ResourceUpdateThread, ezTextureUtils::s_bForceFullQualityAlways ? 1 : 2)
 {
 }
 
@@ -472,4 +472,3 @@ void ezRenderToTexture2DResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUs
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Textures_Texture2DResource);
-

@@ -4,14 +4,14 @@
 #include <RendererCore/Meshes/CpuMeshResource.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCpuMeshResource, 1, ezRTTIDefaultAllocator<ezCpuMeshResource>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCpuMeshResource, 1, ezRTTIDefaultAllocator<ezCpuMeshResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezCpuMeshResource);
 // clang-format on
 
 ezCpuMeshResource::ezCpuMeshResource()
-    : ezResource(DoUpdate::OnAnyThread, 1)
+  : ezResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
@@ -88,4 +88,3 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezCpuMeshResource, ezMeshResourceDescriptor)
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_CpuMeshResource);
-

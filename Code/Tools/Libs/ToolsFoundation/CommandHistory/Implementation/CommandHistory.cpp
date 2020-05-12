@@ -3,7 +3,7 @@
 #include <ToolsFoundation/CommandHistory/CommandHistory.h>
 #include <ToolsFoundation/Document/Document.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCommandTransaction, 1, ezRTTIDefaultAllocator<ezCommandTransaction>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCommandTransaction, 1, ezRTTIDefaultAllocator<ezCommandTransaction>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ////////////////////////////////////////////////////////////////////////
@@ -40,7 +40,7 @@ ezStatus ezCommandTransaction::AddCommandTransaction(ezCommand* pCommand)
 ////////////////////////////////////////////////////////////////////////
 
 ezCommandHistory::ezCommandHistory(ezDocument* pDocument)
-    : m_pDocument(pDocument)
+  : m_pDocument(pDocument)
 {
   m_bTemporaryMode = false;
   m_bIsInUndoRedo = false;
@@ -107,7 +107,7 @@ void ezCommandHistory::EndTemporaryCommands(bool bCancel)
 {
   EZ_ASSERT_DEV(m_bTemporaryMode, "Temporary Mode was not enabled");
   EZ_ASSERT_DEV(m_iTemporaryDepth == (ezInt32)m_TransactionStack.GetCount(), "Transaction stack is at depth {0} but temporary is at {1}",
-                m_TransactionStack.GetCount(), m_iTemporaryDepth);
+    m_TransactionStack.GetCount(), m_iTemporaryDepth);
   m_bTemporaryMode = false;
 
   EndTransaction(bCancel);

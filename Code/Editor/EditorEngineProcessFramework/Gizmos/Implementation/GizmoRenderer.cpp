@@ -15,7 +15,7 @@
 #include <RendererCore/../../../Data/Base/Shaders/Editor/GizmoConstants.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoRenderer, 1, ezRTTIDefaultAllocator<ezGizmoRenderer>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoRenderer, 1, ezRTTIDefaultAllocator<ezGizmoRenderer>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 

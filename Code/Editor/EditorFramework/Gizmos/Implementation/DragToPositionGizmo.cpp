@@ -10,7 +10,7 @@
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <QMouseEvent>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDragToPositionGizmo, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDragToPositionGizmo, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezDragToPositionGizmo::ezDragToPositionGizmo()
@@ -27,7 +27,7 @@ ezDragToPositionGizmo::ezDragToPositionGizmo()
   m_AlignPY.Configure(this, ezEngineGizmoHandleType::HalfPiston, ezColor(b, h, b));
   m_AlignNY.Configure(this, ezEngineGizmoHandleType::HalfPiston, ezColor(b, l, b));
   m_AlignPZ.Configure(this, ezEngineGizmoHandleType::HalfPiston, ezColor(b, b, h));
-  m_AlignNZ.Configure(this, ezEngineGizmoHandleType::HalfPiston, ezColor(b, b, l/3));
+  m_AlignNZ.Configure(this, ezEngineGizmoHandleType::HalfPiston, ezColor(b, b, l / 3));
 
   SetVisible(false);
   SetTransformation(ezTransform::IdentityTransform());

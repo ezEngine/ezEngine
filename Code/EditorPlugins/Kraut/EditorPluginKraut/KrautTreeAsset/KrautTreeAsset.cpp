@@ -12,11 +12,11 @@
 #include <Foundation/Utilities/Progress.h>
 #include <KrautPlugin/Resources/KrautTreeResource.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautTreeAssetDocument, 3, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautTreeAssetDocument, 3, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezKrautTreeAssetDocument::ezKrautTreeAssetDocument(const char* szDocumentPath)
-    : ezSimpleAssetDocument<ezKrautTreeAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::Simple)
+  : ezSimpleAssetDocument<ezKrautTreeAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::Simple)
 {
 }
 
@@ -38,8 +38,8 @@ enum ezKrautImportLodType : ezUInt8
 };
 
 ezStatus ezKrautTreeAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag,
-                                                          const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader,
-                                                          ezBitflags<ezTransformFlags> transformFlags)
+  const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader,
+  ezBitflags<ezTransformFlags> transformFlags)
 {
   ezProgressRange range("Transforming Asset", 2, false);
 
@@ -433,7 +433,7 @@ ezKrautTreeAssetDocumentGenerator::ezKrautTreeAssetDocumentGenerator()
 ezKrautTreeAssetDocumentGenerator::~ezKrautTreeAssetDocumentGenerator() = default;
 
 void ezKrautTreeAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath,
-                                                       ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+  ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
   baseOutputFile.ChangeFileExtension("ezKrautTreeAsset");
@@ -448,7 +448,7 @@ void ezKrautTreeAssetDocumentGenerator::GetImportModes(const char* szParentDirRe
 }
 
 ezStatus ezKrautTreeAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info,
-                                                     ezDocument*& out_pGeneratedDocument)
+  ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
 

@@ -6,20 +6,20 @@
 #include <GameEngine/Prefabs/PrefabResource.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPrefabResource, 1, ezRTTIDefaultAllocator<ezPrefabResource>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPrefabResource, 1, ezRTTIDefaultAllocator<ezPrefabResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezPrefabResource);
 // clang-format on
 
 ezPrefabResource::ezPrefabResource()
-    : ezResource(DoUpdate::OnAnyThread, 1)
+  : ezResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
 void ezPrefabResource::InstantiatePrefab(ezWorld& world, const ezTransform& rootTransform, ezGameObjectHandle hParent,
-                                         ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, const ezUInt16* pOverrideTeamID,
-                                         const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues, bool bForceDynamic)
+  ezHybridArray<ezGameObject*, 8>* out_CreatedRootObjects, const ezUInt16* pOverrideTeamID,
+  const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues, bool bForceDynamic)
 {
   if (GetLoadingState() != ezResourceState::Loaded)
     return;
@@ -43,8 +43,8 @@ void ezPrefabResource::InstantiatePrefab(ezWorld& world, const ezTransform& root
 }
 
 void ezPrefabResource::ApplyExposedParameterValues(const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues,
-                                                   const ezHybridArray<ezGameObject*, 8>& createdChildObjects,
-                                                   const ezHybridArray<ezGameObject*, 8>& createdRootObjects) const
+  const ezHybridArray<ezGameObject*, 8>& createdChildObjects,
+  const ezHybridArray<ezGameObject*, 8>& createdRootObjects) const
 {
   const ezUInt32 uiNumParamDescs = m_PrefabParamDescs.GetCount();
 
@@ -247,4 +247,3 @@ void ezExposedPrefabParameterDesc::Load(ezStreamReader& stream)
 }
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Prefabs_Implementation_PrefabResource);
-

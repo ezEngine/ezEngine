@@ -6,7 +6,7 @@
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollisionMeshAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezCollisionMeshAssetDocumentManager>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollisionMeshAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezCollisionMeshAssetDocumentManager>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezCollisionMeshAssetDocumentManager::ezCollisionMeshAssetDocumentManager()
@@ -46,7 +46,7 @@ void ezCollisionMeshAssetDocumentManager::OnDocumentManagerEvent(const ezDocumen
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezCollisionMeshAssetDocument>())
       {
         ezQtCollisionMeshAssetDocumentWindow* pDocWnd =
-            new ezQtCollisionMeshAssetDocumentWindow(static_cast<ezAssetDocument*>(e.m_pDocument));
+          new ezQtCollisionMeshAssetDocumentWindow(static_cast<ezAssetDocument*>(e.m_pDocument));
       }
     }
     break;

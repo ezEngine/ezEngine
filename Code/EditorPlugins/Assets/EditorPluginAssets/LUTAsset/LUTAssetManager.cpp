@@ -9,7 +9,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLUTAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezLUTAssetDocumentManager>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLUTAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezLUTAssetDocumentManager>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 

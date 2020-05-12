@@ -8,16 +8,16 @@
 #include <Texture/Image/Image.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceAssetDocument, 2, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSurfaceAssetDocument, 2, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezSurfaceAssetDocument::ezSurfaceAssetDocument(const char* szDocumentPath)
-    : ezSimpleAssetDocument<ezSurfaceResourceDescriptor>(szDocumentPath, ezAssetDocEngineConnection::None)
+  : ezSimpleAssetDocument<ezSurfaceResourceDescriptor>(szDocumentPath, ezAssetDocEngineConnection::None)
 {
 }
 
 ezStatus ezSurfaceAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-                                                        const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   const ezSurfaceResourceDescriptor* pProp = GetProperties();
 
