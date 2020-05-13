@@ -34,8 +34,7 @@ namespace
   };
 }
 
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpriteRenderer, 1, ezRTTIDefaultAllocator<ezSpriteRenderer>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSpriteRenderer, 1, ezRTTIDefaultAllocator<ezSpriteRenderer>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezSpriteRenderer::ezSpriteRenderer()
@@ -45,7 +44,7 @@ ezSpriteRenderer::ezSpriteRenderer()
 
 ezSpriteRenderer::~ezSpriteRenderer() {}
 
-void ezSpriteRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types)const
+void ezSpriteRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) const
 {
   types.PushBack(ezGetStaticRTTI<ezSpriteRenderData>());
 }

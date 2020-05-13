@@ -8,7 +8,7 @@
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectContextAction, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectContextAction, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezActionDescriptorHandle ezGameObjectContextActions::s_hCategory;
@@ -19,12 +19,9 @@ ezActionDescriptorHandle ezGameObjectContextActions::s_hClearContextObject;
 void ezGameObjectContextActions::RegisterActions()
 {
   s_hCategory = EZ_REGISTER_CATEGORY("GameObjectContextCategory");
-  s_hPickContextScene = EZ_REGISTER_ACTION_1("GameObjectContext.PickContextScene", ezActionScope::Window, "Game Object Context", "",
-                                             ezGameObjectContextAction, ezGameObjectContextAction::ActionType::PickContextScene);
-  s_hPickContextObject = EZ_REGISTER_ACTION_1("GameObjectContext.PickContextObject", ezActionScope::Window, "Game Object Context", "",
-                                              ezGameObjectContextAction, ezGameObjectContextAction::ActionType::PickContextObject);
-  s_hClearContextObject = EZ_REGISTER_ACTION_1("GameObjectContext.ClearContextObject", ezActionScope::Window, "Game Object Context", "",
-                                               ezGameObjectContextAction, ezGameObjectContextAction::ActionType::ClearContextObject);
+  s_hPickContextScene = EZ_REGISTER_ACTION_1("GameObjectContext.PickContextScene", ezActionScope::Window, "Game Object Context", "", ezGameObjectContextAction, ezGameObjectContextAction::ActionType::PickContextScene);
+  s_hPickContextObject = EZ_REGISTER_ACTION_1("GameObjectContext.PickContextObject", ezActionScope::Window, "Game Object Context", "", ezGameObjectContextAction, ezGameObjectContextAction::ActionType::PickContextObject);
+  s_hClearContextObject = EZ_REGISTER_ACTION_1("GameObjectContext.ClearContextObject", ezActionScope::Window, "Game Object Context", "", ezGameObjectContextAction, ezGameObjectContextAction::ActionType::ClearContextObject);
 }
 
 
@@ -61,8 +58,8 @@ void ezGameObjectContextActions::MapContextMenuActions(const char* szMapping, co
 }
 
 ezGameObjectContextAction::ezGameObjectContextAction(const ezActionContext& context, const char* szName,
-                                                     ezGameObjectContextAction::ActionType type)
-    : ezButtonAction(context, szName, false, "")
+  ezGameObjectContextAction::ActionType type)
+  : ezButtonAction(context, szName, false, "")
 {
   m_Type = type;
 
@@ -80,14 +77,14 @@ ezGameObjectContextAction::ezGameObjectContextAction(const ezActionContext& cont
   }
 
   m_Context.m_pDocument->GetSelectionManager()->m_Events.AddEventHandler(
-      ezMakeDelegate(&ezGameObjectContextAction::SelectionEventHandler, this));
+    ezMakeDelegate(&ezGameObjectContextAction::SelectionEventHandler, this));
   Update();
 }
 
 ezGameObjectContextAction::~ezGameObjectContextAction()
 {
   m_Context.m_pDocument->GetSelectionManager()->m_Events.RemoveEventHandler(
-      ezMakeDelegate(&ezGameObjectContextAction::SelectionEventHandler, this));
+    ezMakeDelegate(&ezGameObjectContextAction::SelectionEventHandler, this));
 }
 
 void ezGameObjectContextAction::Execute(const ezVariant& value)

@@ -13,7 +13,7 @@
 #include <ToolsFoundation/Command/NodeCommands.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineAssetDocument, 3, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineAssetDocument, 3, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 bool ezRenderPipelineNodeManager::InternalIsNode(const ezDocumentObject* pObject) const
@@ -111,7 +111,7 @@ ezRenderPipelineAssetDocument::ezRenderPipelineAssetDocument(const char* szDocum
 }
 
 ezStatus ezRenderPipelineAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-                                                               const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   const ezUInt8 uiVersion = 1;
   stream << uiVersion;
@@ -164,9 +164,9 @@ void ezRenderPipelineAssetDocument::InternalGetMetaDataHash(const ezDocumentObje
         inout_uiHash = ezHashingUtils::xxHash64(&pPinSource->GetParent()->GetGuid(), sizeof(ezUuid), inout_uiHash);
         inout_uiHash = ezHashingUtils::xxHash64(&pPinTarget->GetParent()->GetGuid(), sizeof(ezUuid), inout_uiHash);
         inout_uiHash =
-            ezHashingUtils::xxHash64(pPinSource->GetName(), ezStringUtils::GetStringElementCount(pPinSource->GetName()), inout_uiHash);
+          ezHashingUtils::xxHash64(pPinSource->GetName(), ezStringUtils::GetStringElementCount(pPinSource->GetName()), inout_uiHash);
         inout_uiHash =
-            ezHashingUtils::xxHash64(pPinTarget->GetName(), ezStringUtils::GetStringElementCount(pPinTarget->GetName()), inout_uiHash);
+          ezHashingUtils::xxHash64(pPinTarget->GetName(), ezStringUtils::GetStringElementCount(pPinTarget->GetName()), inout_uiHash);
       }
     }
   }
@@ -216,7 +216,7 @@ bool ezRenderPipelineAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& o
 }
 
 bool ezRenderPipelineAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph,
-                                          bool bAllowPickedPosition, const char* szMimeType)
+  bool bAllowPickedPosition, const char* szMimeType)
 {
   bool bAddedAll = true;
 

@@ -9,7 +9,7 @@
 #include <RendererFoundation/Shader/Shader.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderPermutationResource, 1, ezRTTIDefaultAllocator<ezShaderPermutationResource>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderPermutationResource, 1, ezRTTIDefaultAllocator<ezShaderPermutationResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezShaderPermutationResource);
@@ -18,7 +18,7 @@ EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezShaderPermutationResource);
 static ezShaderPermutationResourceLoader g_PermutationResourceLoader;
 
 ezShaderPermutationResource::ezShaderPermutationResource()
-    : ezResource(DoUpdate::OnAnyThread, 1)
+  : ezResource(DoUpdate::OnAnyThread, 1)
 {
   m_bShaderPermutationValid = false;
 
@@ -126,7 +126,7 @@ ezResourceLoadDesc ezShaderPermutationResource::UpdateContent(ezStreamReader* St
     m_pShaderStageBinaries[stage] = pStageBin;
 
     EZ_ASSERT_DEV(pStageBin->m_Stage == stage, "Invalid shader stage! Expected stage '{0}', but loaded data is for stage '{1}'",
-                  ezGALShaderStage::Names[stage], ezGALShaderStage::Names[pStageBin->m_Stage]);
+      ezGALShaderStage::Names[stage], ezGALShaderStage::Names[pStageBin->m_Stage]);
 
     ShaderDesc.m_ByteCodes[stage] = pStageBin->m_pGALByteCode;
 
@@ -176,7 +176,7 @@ ezResourceTypeLoader* ezShaderPermutationResource::GetDefaultResourceTypeLoader(
 struct ShaderPermutationResourceLoadData
 {
   ShaderPermutationResourceLoadData()
-      : m_Reader(&m_Storage)
+    : m_Reader(&m_Storage)
   {
   }
 
@@ -204,7 +204,7 @@ ezResult ezShaderPermutationResourceLoader::RunCompiler(const ezResource* pResou
 
     sPermutationFile.ChangeFileExtension("");
     sPermutationFile.Shrink(
-        ezShaderManager::GetCacheDirectory().GetCharacterCount() + ezShaderManager::GetActivePlatform().GetCharacterCount() + 2, 1);
+      ezShaderManager::GetCacheDirectory().GetCharacterCount() + ezShaderManager::GetActivePlatform().GetCharacterCount() + 2, 1);
 
     sPermutationFile.Shrink(0, 9); // remove underscore and the hash at the end
     sPermutationFile.Append(".ezShader");
@@ -213,7 +213,7 @@ ezResult ezShaderPermutationResourceLoader::RunCompiler(const ezResource* pResou
 
     ezShaderCompiler sc;
     return sc.CompileShaderPermutationForPlatforms(sPermutationFile, permutationVars, ezLog::GetThreadLocalLogSystem(),
-                                                   ezShaderManager::GetActivePlatform());
+      ezShaderManager::GetActivePlatform());
   }
   else
   {
@@ -366,4 +366,3 @@ void ezShaderPermutationResourceLoader::CloseDataStream(const ezResource* pResou
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Shader_Implementation_ShaderPermutationResource);
-

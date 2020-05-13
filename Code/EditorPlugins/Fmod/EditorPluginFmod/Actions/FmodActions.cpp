@@ -13,7 +13,7 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodAction, 0, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodSliderAction, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodSliderAction, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezActionDescriptorHandle ezFmodActions::s_hCategoryFmod;
@@ -67,7 +67,7 @@ void ezFmodActions::MapMenuActions()
 }
 
 ezFmodAction::ezFmodAction(const ezActionContext& context, const char* szName, ActionType type)
-    : ezButtonAction(context, szName, false, "")
+  : ezButtonAction(context, szName, false, "")
 {
   m_Type = type;
 
@@ -142,7 +142,7 @@ void ezFmodAction::OnPreferenceChange(ezPreferences* pref)
 //////////////////////////////////////////////////////////////////////////
 
 ezFmodSliderAction::ezFmodSliderAction(const ezActionContext& context, const char* szName, ActionType type)
-    : ezSliderAction(context, szName)
+  : ezSliderAction(context, szName)
 {
   m_Type = type;
 

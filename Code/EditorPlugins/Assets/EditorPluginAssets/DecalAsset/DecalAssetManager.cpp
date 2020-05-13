@@ -19,7 +19,7 @@ const char* ToCompressionMode(ezTexConvCompressionMode::Enum mode);
 const char* ToMipmapMode(ezTexConvMipmapMode::Enum mode);
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezDecalAssetDocumentManager>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezDecalAssetDocumentManager>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 

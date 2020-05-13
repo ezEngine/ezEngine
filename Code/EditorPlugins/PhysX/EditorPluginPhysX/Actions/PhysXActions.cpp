@@ -6,7 +6,7 @@
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPhysXAction, 0, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPhysXAction, 0, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezActionDescriptorHandle ezPhysXActions::s_hCategoryPhysX;
@@ -36,7 +36,7 @@ void ezPhysXActions::MapMenuActions()
 }
 
 ezPhysXAction::ezPhysXAction(const ezActionContext& context, const char* szName, ActionType type)
-    : ezButtonAction(context, szName, false, "")
+  : ezButtonAction(context, szName, false, "")
 {
   m_Type = type;
 

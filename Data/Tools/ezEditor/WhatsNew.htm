@@ -1,152 +1,186 @@
 <!DOCTYPE html>
 <html lang="en-US">
-  <head>
+<head>
     <meta charset="UTF-8">
 
-<!-- Begin Jekyll SEO tag v2.6.1 -->
-<title>What’s New | ezEngine Documentation</title>
-<meta name="generator" content="Jekyll v3.8.5" />
-<meta property="og:title" content="What’s New" />
-<meta property="og:locale" content="en_US" />
-<meta name="description" content="The documentation for ezEngine" />
-<meta property="og:description" content="The documentation for ezEngine" />
-<link rel="canonical" href="https://ezengine.github.io/docs/releases/whats-new.html" />
-<meta property="og:url" content="https://ezengine.github.io/docs/releases/whats-new.html" />
-<meta property="og:site_name" content="ezEngine Documentation" />
-<script type="application/ld+json">
-{"@type":"WebPage","url":"https://ezengine.github.io/docs/releases/whats-new.html","headline":"What’s New","description":"The documentation for ezEngine","@context":"https://schema.org"}</script>
-<!-- End Jekyll SEO tag -->
+    <!-- Begin Jekyll SEO tag v2.6.1 -->
+    <title>What’s New | ezEngine Documentation</title>
+    <meta name="generator" content="Jekyll v3.8.5" />
+    <meta property="og:title" content="What’s New" />
+    <meta property="og:locale" content="en_US" />
+    <meta name="description" content="The documentation for ezEngine" />
+    <meta property="og:description" content="The documentation for ezEngine" />
+    <link rel="canonical" href="https://ezengine.github.io/docs/releases/whats-new.html" />
+    <meta property="og:url" content="https://ezengine.github.io/docs/releases/whats-new.html" />
+    <meta property="og:site_name" content="ezEngine Documentation" />
+    <script type="application/ld+json">
+        {"@type":"WebPage","url":"https://ezengine.github.io/docs/releases/whats-new.html","headline":"What’s New","description":"The documentation for ezEngine","@context":"https://schema.org"}
+    </script>
+    <!-- End Jekyll SEO tag -->
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#157878">
     <link rel="stylesheet" href="https://ezengine.github.io/docs/assets/css/style.css?v=468c79cb83b71dfe007215e3f24c05c1eaa656ac">
-  </head>
-  <body>
+</head>
+<body>
     <section class="page-header">
-      <h1 class="project-name">ezEngine Documentation</h1>
-      <h2 class="project-tagline">The documentation for ezEngine</h2>
-      
+        <h1 class="project-name">ezEngine Documentation</h1>
+        <h2 class="project-tagline">The documentation for ezEngine</h2>
+
         <a href="https://github.com/ezEngine/docs" class="btn">View on GitHub</a>
-      
-      
+
+
     </section>
 
     <section class="main-content">
-      <h1 id="whats-new">What’s New</h1>
+        <h1 id="whats-new">What’s New</h1>
 
-<p>Follow <a href="https://twitter.com/ezEngineProject">@ezEngineProject</a> to stay up to date.</p>
+        <p>Follow <a href="https://twitter.com/ezEngineProject">@ezEngineProject</a> to stay up to date.</p>
 
-<!-- SKIP START -->
+        <!-- SKIP START -->
 
-<H2>April 2020</H2>
+        <H2>Release May 2020</H2>
 
-<ul>
-<li>Upgraded PhysX to version 4.1.</li>
-<li>Logged errors and warnings are now displayed in the status bar for a few seconds. A button shows the number of new errors and warnings.</li>
-</ul>
+        <ul>
+            <li>ezEngine can now be <a href="https://github.com/ezEngine/ezEngine/pull/165">integrated into other projects as a CMake submodule</a></li>
+            <li>Upgraded PhysX to version 4.1.</li>
+            <li>Fixed <a href="https://github.com/ezEngine/ezEngine/pull/185">PhysX crashes with high framerates</a></li>
+            <li>New <a href="https://ezengine.github.io/docs/">documentation pages</a></li>
+            <li>Logged errors and warnings are now displayed in the status bar for a few seconds. A button shows the number of new errors and warnings.</li>
+            <li>Added support for <a href="https://github.com/ezEngine/ezEngine/pull/193">color grading</a></li>
+            <li>Added live resource update to color gradient and curve 1D</li>
+            <li>Action tooltips now show the action shortcut</li>
+            <li>Snap object position when pasting</li>
+            <li>Marquee selection does not select top-level objects anymore</li>
+            <li>Allow to cancel marquee selection with ESC</li>
+            <li>Added preference to always enable background asset processing</li>
+            <li>Asset processing and background transform is now much more reliable and faster</li>
+            <li>Optimized vertex data by using smaller formats for normals, tangents and texcoords</li>
+            <li>Editor objects are not rendered in camera previews anymore</li>
+            <li>Several <a href="https://github.com/ezEngine/ezEngine/pull/188">fixes for particle effects</a></li>
+            <li>Added <a href="https://github.com/ezEngine/ezEngine/pull/189">particle 'bounds' behavior</a></li>
+            <li>Performance improvement for posted messages</li>
+            <li>PlayerStartPointComponent now exposes the prefab parameters</li>
+            <li>The main direction for decals and particle effects is now configurable</li>
+            <li><a href="https://github.com/ezEngine/ezEngine/pull/173">Refactored the task system</a> to fix some issues</li>
+            <li>Added <a href="https://github.com/ezEngine/ezEngine/pull/163">ezSimdVec4u</a></li>
+            <li>Added ability to <a href="https://github.com/ezEngine/ezEngine/commit/ac773803db0e9231b99a6fa2e2f756c55bc155e5">compile for arm64 from Visual Studio open folder workflow</a></li>
+            <li>Added basic support for <a href="https://github.com/ezEngine/ezEngine/commit/a8f3f4acef592f1d0834da5897b2b018316027e5">Android debugging</a> (note: Android support is limited to low level libraries)</li>
+            <li><a href="https://github.com/ezEngine/ezEngine/pull/158">Improved decals:</a> Support for roughness, metallic and occlusion maps</li>
+            <li>Fixed <a href="https://github.com/ezEngine/ezEngine/commit/b3c25075610df3792e6207b3a30312adb9098385">various issues</a> pointed out by the static code analyzer 'Semmle'</li>
+            <li>The editor can now open projects provided by the <a href="https://github.com/ezEngine/ezEngine/issues/144">command line</a></li>
+            <li>ezWorld <a href="https://github.com/ezEngine/ezEngine/commit/658e7c9a42adc3db86980d42ba88d0fca6c3fc8b">performance improvements</a></li>
+            <li>Added <a href="https://github.com/ezEngine/ezEngine/commit/7dcc0c6e96c52cc851f4a3818b284e5cc523149a">search to the ingame console</a></li>
+            <li>Added <a href="https://github.com/ezEngine/ezEngine/commit/d66725539d4c389eed235f18b6fb6d1d46ee0e0a">support for long file paths on Windows</a></li>
+            <li>Added <a href="https://github.com/ezEngine/ezEngine/commit/34ec12dfbe556c07adf4bfd95aa6820811dae365">Android JNI wrappers</a></li>
+            <li>Added <a href="https://github.com/ezEngine/ezEngine/commit/e6b3ecb3454ee1deed4ae5f5e239d1d007d4458d">Group attribute</a> to allow grouping properties</li>
+            <li>Added support for <a href="https://github.com/ezEngine/ezEngine/commit/7c71b8a5ad29ace802598a4aae4cbf14dd47405c">ETW profiling</a></li>
+        </ul>
 
-<H2>February 2020</H2>
+        <H2>Release February 2020</H2>
 
-<ul>
-<li>Finished a new scripting system that uses TypeScript as the scripting language.</li>
-<li>The 'Testing Chambers' project now demonstrates the new scripting system with various features. See the 'Corridor' scene.</li>
-<li>Improved asset transform performance.</li>
-<li>GameObjects now have an 'enabled' state that affects the entire sub-tree.</li>
-<li>Added a BeamComponent for laser effects.</li>
-<li>Added a RaycastComponent to move an object to the closest hit surface. Works well with the BeamComponent.</li>
-<li>Added support for 'template asset documents'.</li>
-</ul>
+        <ul>
+            <li>Finished a new scripting system that uses TypeScript as the scripting language.</li>
+            <li>The 'Testing Chambers' project now demonstrates the new scripting system with various features. See the 'Corridor' scene.</li>
+            <li>Improved asset transform performance.</li>
+            <li>GameObjects now have an 'enabled' state that affects the entire sub-tree.</li>
+            <li>Added a BeamComponent for laser effects.</li>
+            <li>Added a RaycastComponent to move an object to the closest hit surface. Works well with the BeamComponent.</li>
+            <li>Added support for 'template asset documents'.</li>
+        </ul>
 
-<H2>November 2019</H2>
+        <H2>November 2019</H2>
 
-<ul>
-<li>ezEditor now uses the <A HREF="https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System">Qt Advanced Docking System</A> for better window docking.
-You can now simply drag document windows onto separate screens and dock them with more flexibility.</li>
-<li>Texture conversion now automatically dilates the color channel when an alpha mask is used. This can be disabled in the Texture Asset settings.</li>
-<li>The 'Editor' project in Visual Studio now contains an 'Editor Data' folder which lists files such as this WhatsNew.htm and the localization files, to improve the workflow.</li>
-<li>Added action <i>Tools > Open in Visual Studio Code</i> which will launch VS Code pointed at the project folder.</li>
-</ul>
+        <ul>
+            <li>
+                ezEditor now uses the <A HREF="https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System">Qt Advanced Docking System</A> for better window docking.
+                You can now simply drag document windows onto separate screens and dock them with more flexibility.
+            </li>
+            <li>Texture conversion now automatically dilates the color channel when an alpha mask is used. This can be disabled in the Texture Asset settings.</li>
+            <li>The 'Editor' project in Visual Studio now contains an 'Editor Data' folder which lists files such as this WhatsNew.htm and the localization files, to improve the workflow.</li>
+            <li>Added action <i>Tools > Open in Visual Studio Code</i> which will launch VS Code pointed at the project folder.</li>
+        </ul>
 
-<H2>November 2018</H2>
+        <H2>November 2018</H2>
 
-<ul>
-<li>You can now point at a position and execute 'Play From Here' to launch Play-the-Game mode and move the player object to the picked position. Has to be supported by the active game state.</li>
-<li>It is now possible to expose array properties, e.g. from prefabs.</li>
-<li>Exposing properties from nested prefabs works as well now.</li>
-<li>It is now allowed to attach nodes to objects that already have a prefab component attached.</li>
-</ul>
+        <ul>
+            <li>You can now point at a position and execute 'Play From Here' to launch Play-the-Game mode and move the player object to the picked position. Has to be supported by the active game state.</li>
+            <li>It is now possible to expose array properties, e.g. from prefabs.</li>
+            <li>Exposing properties from nested prefabs works as well now.</li>
+            <li>It is now allowed to attach nodes to objects that already have a prefab component attached.</li>
+        </ul>
 
-<H2>October 2018</H2>
+        <H2>October 2018</H2>
 
-<ul>
+        <ul>
 
-<li>Under <i>Editor > Project Settings > Asset Profiles</i> one can now add and configure different profiles for how assets are processed. The active profile can be changed dynamically and all assets will be reloaded. When running the ezPlayer, it will use the currently active asset profile from the editor.</li>
-<li>The asset profile can also specify which render pipeline to use at runtime.</li>
-<li>Camera components do not specify the render pipeline directly anymore, but instead use a 'Camera Config' which is specified through the asset profile.</li>
-<li>New context menu action to create an empty node at the picked position.</li>
-<li>Added support for trees created with <A HREF="http://www.artifactgames.de/Kraut/index.htm">Kraut</A></li>
-</ul>
+            <li>Under <i>Editor > Project Settings > Asset Profiles</i> one can now add and configure different profiles for how assets are processed. The active profile can be changed dynamically and all assets will be reloaded. When running the ezPlayer, it will use the currently active asset profile from the editor.</li>
+            <li>The asset profile can also specify which render pipeline to use at runtime.</li>
+            <li>Camera components do not specify the render pipeline directly anymore, but instead use a 'Camera Config' which is specified through the asset profile.</li>
+            <li>New context menu action to create an empty node at the picked position.</li>
+            <li>Added support for trees created with <A HREF="http://www.artifactgames.de/Kraut/index.htm">Kraut</A></li>
+        </ul>
 
-<H2>September 2018</H2>
+        <H2>September 2018</H2>
 
-<H4>Smaller Changes</H4>
+        <H4>Smaller Changes</H4>
 
-<ul>
+        <ul>
 
-<li>A scene thumbnail can now be created through <i>Scene > Utilities > Create Scene Thumbnail</i>. The thumbnail position can be specified by placing a camera object with the 'Thumbnail' usage.</li>
-<li>The editor now shows a "What's New" text in the project tab.</li>
-<li>Menus in property grids are now searchable when they contain more than 10 items.</li>
-<li>New scene documents are now populated with a dummy scene.</li>
-<li>By default the scene tree is now expanded to the selected item on selection changes. This can be disabled in the editor preferences.</li>
-<li>The greyboxing tool now uses the currently selected material from the asset browser for new objects.</li>
-<li>Snap settings are now in a dialog, shortcut for the dialog is <b>End</b></li>
+            <li>A scene thumbnail can now be created through <i>Scene > Utilities > Create Scene Thumbnail</i>. The thumbnail position can be specified by placing a camera object with the 'Thumbnail' usage.</li>
+            <li>The editor now shows a "What's New" text in the project tab.</li>
+            <li>Menus in property grids are now searchable when they contain more than 10 items.</li>
+            <li>New scene documents are now populated with a dummy scene.</li>
+            <li>By default the scene tree is now expanded to the selected item on selection changes. This can be disabled in the editor preferences.</li>
+            <li>The greyboxing tool now uses the currently selected material from the asset browser for new objects.</li>
+            <li>Snap settings are now in a dialog, shortcut for the dialog is <b>End</b></li>
 
-</ul>
+        </ul>
 
-<H4>Shortcut changes</H4>
+        <H4>Shortcut changes</H4>
 
-The default shortcuts have been cleaned up a bit. Important changes:
+        The default shortcuts have been cleaned up a bit. Important changes:
 
-<ul>
+        <ul>
 
-<li>Toggle Grid: <b>G</b></li>
-<li>Toggle Shape Icons: <b>I</b></li>
-<li>Toggle Visualizers: <b>V</b></li>
-<li>Toggle Selection Highlights: <b>S</b></li>
-<li>Transform Asset: <b>CTRL+E</b></li>
-<li>Keep Simulation Changes: <b>K</b></li>
-<li>Group Selected Objects: <b>CTRL+G</b></li>
-<li>Snap to Grid: <b>CTRL+End</b></li>
+            <li>Toggle Grid: <b>G</b></li>
+            <li>Toggle Shape Icons: <b>I</b></li>
+            <li>Toggle Visualizers: <b>V</b></li>
+            <li>Toggle Selection Highlights: <b>S</b></li>
+            <li>Transform Asset: <b>CTRL+E</b></li>
+            <li>Keep Simulation Changes: <b>K</b></li>
+            <li>Group Selected Objects: <b>CTRL+G</b></li>
+            <li>Snap to Grid: <b>CTRL+End</b></li>
 
-</ul>
+        </ul>
 
-<H4>Editor Cameras</H4>
+        <H4>Editor Cameras</H4>
 
-It is now possible to save the current camera position in a scene to the user preferences using <b>CTRL+Number</b>. The editor camera position can be restored again using the shortcut <b>Number</b>.
+        It is now possible to save the current camera position in a scene to the user preferences using <b>CTRL+Number</b>. The editor camera position can be restored again using the shortcut <b>Number</b>.
 
-Additionally one can easily insert a camera object into the scene using <b>CTRL+ALT+Number</b> and move the editor camera to that position with <b>ALT+Number</b>. Since these cameras are stored within the scene, they can be used to share interesting camera positions with other users.
+        Additionally one can easily insert a camera object into the scene using <b>CTRL+ALT+Number</b> and move the editor camera to that position with <b>ALT+Number</b>. Since these cameras are stored within the scene, they can be used to share interesting camera positions with other users.
 
-<H4>Keep Simulation Changes</H4>
+        <H4>Keep Simulation Changes</H4>
 
-Simulating the scene in the editor now allows to synchronize object positions back to the editor state. During simulation select objects and press <b>K</b> (or <i>Scene > Utilties > Keep Simulation Changes</i>). When simulation is stopped, the objects will move to the simulated position. Use <b>Undo</b> to discard all simulation changes again.
+        Simulating the scene in the editor now allows to synchronize object positions back to the editor state. During simulation select objects and press <b>K</b> (or <i>Scene > Utilties > Keep Simulation Changes</i>). When simulation is stopped, the objects will move to the simulated position. Use <b>Undo</b> to discard all simulation changes again.
 
-<!-- SKIP END -->
+        <!-- SKIP END -->
 
-<h2 id="see-also">See Also</h2>
+        <h2 id="see-also">See Also</h2>
 
-<ul>
-  <li><a href="https://ezengine.github.io/docs/">Back to Index</a></li>
-</ul>
+        <ul>
+            <li><a href="https://ezengine.github.io/docs/">Back to Index</a></li>
+        </ul>
 
 
-      <footer class="site-footer">
-        
-          <span class="site-footer-owner"><a href="https://github.com/ezEngine/docs">docs</a> is maintained by <a href="https://github.com/ezEngine">ezEngine</a>.</span>
-        
-        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a>.</span>
-      </footer>
+        <footer class="site-footer">
+
+            <span class="site-footer-owner"><a href="https://github.com/ezEngine/docs">docs</a> is maintained by <a href="https://github.com/ezEngine">ezEngine</a>.</span>
+
+            <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a>.</span>
+        </footer>
     </section>
 
-    
-  </body>
+
+</body>
 </html>

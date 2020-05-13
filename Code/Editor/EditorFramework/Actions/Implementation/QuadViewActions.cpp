@@ -13,9 +13,9 @@ ezActionDescriptorHandle ezQuadViewActions::s_hSpawnView;
 void ezQuadViewActions::RegisterActions()
 {
   s_hToggleViews = EZ_REGISTER_ACTION_1("Scene.View.Toggle", ezActionScope::Window, "Scene", "", ezQuadViewAction,
-                                        ezQuadViewAction::ButtonType::ToggleViews);
+    ezQuadViewAction::ButtonType::ToggleViews);
   s_hSpawnView = EZ_REGISTER_ACTION_1("Scene.View.Span", ezActionScope::Window, "Scene", "", ezQuadViewAction,
-                                      ezQuadViewAction::ButtonType::SpawnView);
+    ezQuadViewAction::ButtonType::SpawnView);
 }
 
 void ezQuadViewActions::UnregisterActions()
@@ -37,11 +37,11 @@ void ezQuadViewActions::MapActions(const char* szMapping, const char* szPath)
 // ezSceneViewAction
 ////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezQuadViewAction, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezQuadViewAction, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezQuadViewAction::ezQuadViewAction(const ezActionContext& context, const char* szName, ButtonType button)
-    : ezButtonAction(context, szName, false, "")
+  : ezButtonAction(context, szName, false, "")
 {
   m_ButtonType = button;
   ezQtEngineViewWidget* pView = qobject_cast<ezQtEngineViewWidget*>(context.m_pWindow);

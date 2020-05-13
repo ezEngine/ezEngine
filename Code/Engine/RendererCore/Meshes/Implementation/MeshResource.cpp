@@ -5,7 +5,7 @@
 #include <RendererCore/Meshes/MeshResource.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshResource, 1, ezRTTIDefaultAllocator<ezMeshResource>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshResource, 1, ezRTTIDefaultAllocator<ezMeshResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezMeshResource);
@@ -14,7 +14,7 @@ EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezMeshResource);
 ezUInt32 ezMeshResource::s_MeshBufferNameSuffix = 0;
 
 ezMeshResource::ezMeshResource()
-    : ezResource(DoUpdate::OnAnyThread, 1)
+  : ezResource(DoUpdate::OnAnyThread, 1)
 {
   m_Bounds.SetInvalid();
 }
@@ -75,7 +75,7 @@ ezResourceLoadDesc ezMeshResource::UpdateContent(ezStreamReader* Stream)
 void ezMeshResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
   out_NewMemoryUsage.m_uiMemoryCPU =
-      sizeof(ezMeshResource) + (ezUInt32)m_SubMeshes.GetHeapMemoryUsage() + (ezUInt32)m_Materials.GetHeapMemoryUsage();
+    sizeof(ezMeshResource) + (ezUInt32)m_SubMeshes.GetHeapMemoryUsage() + (ezUInt32)m_Materials.GetHeapMemoryUsage();
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
@@ -128,4 +128,3 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezMeshResource, ezMeshResourceDescriptor)
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_MeshResource);
-

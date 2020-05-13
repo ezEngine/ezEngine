@@ -11,7 +11,7 @@
 #include <QDesktopWidget>
 #include <QMouseEvent>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTranslateGizmo, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTranslateGizmo, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezTranslateGizmo::ezTranslateGizmo()
@@ -224,8 +224,8 @@ ezResult ezTranslateGizmo::GetPointOnPlane(ezInt32 iScreenPosX, ezInt32 iScreenP
 
   ezVec3 vPos, vRayDir;
   if (ezGraphicsUtils::ConvertScreenPosToWorldPos(m_InvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, ezVec3(iScreenPosX, iScreenPosY, 0),
-                                                  vPos, &vRayDir)
-          .Failed())
+        vPos, &vRayDir)
+        .Failed())
     return EZ_FAILURE;
 
   ezPlane Plane;
@@ -245,8 +245,8 @@ ezResult ezTranslateGizmo::GetPointOnAxis(ezInt32 iScreenPosX, ezInt32 iScreenPo
 
   ezVec3 vPos, vRayDir;
   if (ezGraphicsUtils::ConvertScreenPosToWorldPos(m_InvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, ezVec3(iScreenPosX, iScreenPosY, 0),
-                                                  vPos, &vRayDir)
-          .Failed())
+        vPos, &vRayDir)
+        .Failed())
     return EZ_FAILURE;
 
   const ezVec3 vPlaneTangent = m_vMoveAxis.CrossRH(m_pCamera->GetDirForwards()).GetNormalized();
@@ -326,7 +326,7 @@ ezEditorInput ezTranslateGizmo::DoMouseMoveEvent(QMouseEvent* e)
     else if (m_Mode == TranslateMode::Plane)
     {
       vTranslate =
-          m_vPlaneAxis[0] * (m_vPlaneAxis[0].Dot(vMouseDir)) * fSpeed + m_vPlaneAxis[1] * (m_vPlaneAxis[1].Dot(vMouseDir)) * fSpeed;
+        m_vPlaneAxis[0] * (m_vPlaneAxis[0].Dot(vMouseDir)) * fSpeed + m_vPlaneAxis[1] * (m_vPlaneAxis[1].Dot(vMouseDir)) * fSpeed;
     }
   }
 

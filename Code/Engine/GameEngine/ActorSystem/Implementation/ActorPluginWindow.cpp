@@ -5,7 +5,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezActorPluginWindow, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezActorPluginWindow, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -20,14 +20,13 @@ void ezActorPluginWindow::Update()
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezActorPluginWindowOwner, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezActorPluginWindowOwner, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezWindowBase* ezActorPluginWindowOwner::GetWindow() const
 {
   return m_pWindow.Borrow();
-
 }
 ezWindowOutputTargetBase* ezActorPluginWindowOwner::GetOutputTarget() const
 {
@@ -53,4 +52,3 @@ ezWindowOutputTargetBase* ezActorPluginWindowShared::GetOutputTarget() const
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_ActorSystem_Implementation_ActorPluginWindow);
-

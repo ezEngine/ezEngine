@@ -13,7 +13,7 @@
 #include <ToolsFoundation/Project/ToolsProject.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectSelectionAction, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectSelectionAction, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -29,19 +29,19 @@ void ezGameObjectSelectionActions::RegisterActions()
 {
   s_hSelectionCategory = EZ_REGISTER_CATEGORY("SelectionCategory");
   s_hShowInScenegraph = EZ_REGISTER_ACTION_1("Selection.ShowInScenegraph", ezActionScope::Document, "Scene - Selection", "Ctrl+T",
-                                             ezGameObjectSelectionAction, ezGameObjectSelectionAction::ActionType::ShowInScenegraph);
+    ezGameObjectSelectionAction, ezGameObjectSelectionAction::ActionType::ShowInScenegraph);
   s_hFocusOnSelection = EZ_REGISTER_ACTION_1("Selection.FocusSingleView", ezActionScope::Document, "Scene - Selection", "F",
-                                             ezGameObjectSelectionAction, ezGameObjectSelectionAction::ActionType::FocusOnSelection);
+    ezGameObjectSelectionAction, ezGameObjectSelectionAction::ActionType::FocusOnSelection);
   s_hFocusOnSelectionAllViews =
-      EZ_REGISTER_ACTION_1("Selection.FocusAllViews", ezActionScope::Document, "Scene - Selection", "Shift+F",
-                           ezGameObjectSelectionAction, ezGameObjectSelectionAction::ActionType::FocusOnSelectionAllViews);
+    EZ_REGISTER_ACTION_1("Selection.FocusAllViews", ezActionScope::Document, "Scene - Selection", "Shift+F",
+      ezGameObjectSelectionAction, ezGameObjectSelectionAction::ActionType::FocusOnSelectionAllViews);
   s_hSnapCameraToObject = EZ_REGISTER_ACTION_1("Scene.Camera.SnapCameraToObject", ezActionScope::Document, "Camera", "",
-                                               ezGameObjectSelectionAction, ezGameObjectSelectionAction::ActionType::SnapCameraToObject);
+    ezGameObjectSelectionAction, ezGameObjectSelectionAction::ActionType::SnapCameraToObject);
   s_hMoveCameraHere = EZ_REGISTER_ACTION_1("Scene.Camera.MoveCameraHere", ezActionScope::Document, "Camera", "C",
-                                           ezGameObjectSelectionAction, ezGameObjectSelectionAction::ActionType::MoveCameraHere);
+    ezGameObjectSelectionAction, ezGameObjectSelectionAction::ActionType::MoveCameraHere);
 
   s_hCreateEmptyGameObjectHere = EZ_REGISTER_ACTION_1("Scene.GameObject.CreateEmptyHere", ezActionScope::Document, "Scene", "",
-                                        ezGameObjectSelectionAction, ezGameObjectSelectionAction::ActionType::CreateGameObjectHere);
+    ezGameObjectSelectionAction, ezGameObjectSelectionAction::ActionType::CreateGameObjectHere);
 }
 
 void ezGameObjectSelectionActions::UnregisterActions()
@@ -99,8 +99,8 @@ void ezGameObjectSelectionActions::MapViewContextMenuActions(const char* szMappi
 }
 
 ezGameObjectSelectionAction::ezGameObjectSelectionAction(const ezActionContext& context, const char* szName,
-                                                         ezGameObjectSelectionAction::ActionType type)
-    : ezButtonAction(context, szName, false, "")
+  ezGameObjectSelectionAction::ActionType type)
+  : ezButtonAction(context, szName, false, "")
 {
   m_Type = type;
   // TODO const cast
@@ -131,14 +131,14 @@ ezGameObjectSelectionAction::ezGameObjectSelectionAction(const ezActionContext& 
   UpdateEnableState();
 
   m_Context.m_pDocument->GetSelectionManager()->m_Events.AddEventHandler(
-      ezMakeDelegate(&ezGameObjectSelectionAction::SelectionEventHandler, this));
+    ezMakeDelegate(&ezGameObjectSelectionAction::SelectionEventHandler, this));
 }
 
 
 ezGameObjectSelectionAction::~ezGameObjectSelectionAction()
 {
   m_Context.m_pDocument->GetSelectionManager()->m_Events.RemoveEventHandler(
-      ezMakeDelegate(&ezGameObjectSelectionAction::SelectionEventHandler, this));
+    ezMakeDelegate(&ezGameObjectSelectionAction::SelectionEventHandler, this));
 }
 
 void ezGameObjectSelectionAction::Execute(const ezVariant& value)
@@ -161,11 +161,11 @@ void ezGameObjectSelectionAction::Execute(const ezVariant& value)
       m_pSceneDocument->MoveCameraHere();
       break;
     case ActionType::CreateGameObjectHere:
-      {
-        auto res = m_pSceneDocument->CreateGameObjectHere();
-        ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Create empty object at picked position failed.");
-      }
-      break;
+    {
+      auto res = m_pSceneDocument->CreateGameObjectHere();
+      ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Create empty object at picked position failed.");
+    }
+    break;
   }
 }
 

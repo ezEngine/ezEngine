@@ -11,7 +11,7 @@
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <QMouseEvent>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezNonUniformBoxGizmo, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezNonUniformBoxGizmo, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezNonUniformBoxGizmo::ezNonUniformBoxGizmo()
@@ -24,8 +24,12 @@ ezNonUniformBoxGizmo::ezNonUniformBoxGizmo()
   m_Outline.Configure(this, ezEngineGizmoHandleType::LineBox, ezColor::CornflowerBlue, false, false, false, true, false);
 
   ezColor cols[6] = {
-      ezColorGammaUB(255, 200, 200), ezColorGammaUB(255, 200, 200), ezColorGammaUB(200, 255, 200),
-      ezColorGammaUB(200, 255, 200), ezColorGammaUB(200, 200, 255), ezColorGammaUB(200, 200, 255),
+    ezColorGammaUB(255, 200, 200),
+    ezColorGammaUB(255, 200, 200),
+    ezColorGammaUB(200, 255, 200),
+    ezColorGammaUB(200, 255, 200),
+    ezColorGammaUB(200, 200, 255),
+    ezColorGammaUB(200, 200, 255),
   };
 
   for (ezUInt32 i = 0; i < 6; ++i)
@@ -303,8 +307,8 @@ ezResult ezNonUniformBoxGizmo::GetPointOnAxis(ezInt32 iScreenPosX, ezInt32 iScre
 
   ezVec3 vPos, vRayDir;
   if (ezGraphicsUtils::ConvertScreenPosToWorldPos(m_InvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, ezVec3(iScreenPosX, iScreenPosY, 0),
-                                                  vPos, &vRayDir)
-          .Failed())
+        vPos, &vRayDir)
+        .Failed())
     return EZ_FAILURE;
 
   const ezVec3 vDir = m_pCamera->GetDirForwards();

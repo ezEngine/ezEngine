@@ -11,14 +11,14 @@
 #endif
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPxMeshResource, 1, ezRTTIDefaultAllocator<ezPxMeshResource>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPxMeshResource, 1, ezRTTIDefaultAllocator<ezPxMeshResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezPxMeshResource);
 // clang-format on
 
 ezPxMeshResource::ezPxMeshResource()
-    : ezResource(DoUpdate::OnMainThread, 1)
+  : ezResource(DoUpdate::OnMainThread, 1)
 {
   m_pPxTriangleMesh = nullptr;
   m_pPxConvexMesh = nullptr;
@@ -65,7 +65,7 @@ class ezPxInputStream : public PxInputStream
 {
 public:
   ezPxInputStream(ezStreamReader* pStream)
-      : m_pStream(pStream)
+    : m_pStream(pStream)
   {
   }
 

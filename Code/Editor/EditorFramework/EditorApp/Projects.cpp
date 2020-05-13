@@ -3,8 +3,8 @@
 #include <Assets/AssetProcessor.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <EditorFramework/Preferences/Preferences.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
+#include <EditorFramework/Preferences/Preferences.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Types/ScopeExit.h>
 #include <GuiFoundation/Dialogs/ModifiedDocumentsDlg.moc.h>
@@ -80,11 +80,22 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
 
   if (m_StartupFlags.AreNoneSet(StartupFlags::SafeMode | StartupFlags::Headless))
   {
+    ezStringBuilder sAbsPath;
+
     if (!m_DocumentsToOpen.IsEmpty())
     {
       for (const auto& doc : m_DocumentsToOpen)
       {
-        SlotQueuedOpenDocument(doc.GetData(), nullptr);
+        sAbsPath = doc;
+
+        if (MakeDataDirectoryRelativePathAbsolute(sAbsPath))
+        {
+          SlotQueuedOpenDocument(sAbsPath.GetData(), nullptr);
+        }
+        else
+        {
+          ezLog::Error("Document '{}' does not exist in this project.", doc);
+        }
       }
 
       // don't try to open the same documents when the user switches to another project

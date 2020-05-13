@@ -38,11 +38,18 @@
      <property name="childrenCollapsible">
       <bool>false</bool>
      </property>
-     <widget class="QTextEdit" name="WhatsNewText"/>
+     <widget class="QTextBrowser" name="WhatsNewText">
+      <property name="lineWrapMode">
+       <enum>QTextEdit::NoWrap</enum>
+      </property>
+      <property name="openExternalLinks">
+       <bool>true</bool>
+      </property>
+     </widget>
     </widget>
    </item>
   </layout>
  </widget>
  <resources/>
  <connections/>
-</ui> 
+</ui>

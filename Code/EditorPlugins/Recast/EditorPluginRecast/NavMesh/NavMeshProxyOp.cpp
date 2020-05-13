@@ -4,7 +4,7 @@
 #include <RecastPlugin/NavMeshBuilder/NavMeshBuilder.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOpProxy_BuildNavMesh, 1, ezRTTIDefaultAllocator<ezLongOpProxy_BuildNavMesh>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOpProxy_BuildNavMesh, 1, ezRTTIDefaultAllocator<ezLongOpProxy_BuildNavMesh>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 

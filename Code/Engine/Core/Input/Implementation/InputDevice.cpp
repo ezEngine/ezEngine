@@ -5,8 +5,7 @@
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezInputDevice);
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputDevice, 1, ezRTTINoAllocator);
-// no properties or message handlers
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputDevice, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -108,4 +107,3 @@ float ezInputDevice::GetInputSlotState(const char* slot) const
 }
 
 EZ_STATICLINK_FILE(Core, Core_Input_Implementation_InputDevice);
-

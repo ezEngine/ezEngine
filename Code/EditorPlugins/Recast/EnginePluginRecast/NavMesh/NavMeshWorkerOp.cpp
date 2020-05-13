@@ -9,7 +9,7 @@
 #include <ToolsFoundation/Document/DocumentManager.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOpWorker_BuildNavMesh, 1, ezRTTIDefaultAllocator<ezLongOpWorker_BuildNavMesh>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLongOpWorker_BuildNavMesh, 1, ezRTTIDefaultAllocator<ezLongOpWorker_BuildNavMesh>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 

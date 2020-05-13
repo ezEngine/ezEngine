@@ -54,11 +54,11 @@ void ezViewActions::MapActions(const char* szMapping, const char* szPath, ezUInt
 // ezRenderModeAction
 ////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderModeAction, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderModeAction, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezRenderModeAction::ezRenderModeAction(const ezActionContext& context, const char* szName, const char* szIconPath)
-    : ezEnumerationMenuAction(context, szName, szIconPath)
+  : ezEnumerationMenuAction(context, szName, szIconPath)
 {
   ezQtEngineViewWidget* pView = qobject_cast<ezQtEngineViewWidget*>(context.m_pWindow);
   EZ_ASSERT_DEV(pView != nullptr, "context.m_pWindow must be derived from type 'ezQtEngineViewWidget'!");
@@ -82,11 +82,12 @@ void ezRenderModeAction::Execute(const ezVariant& value)
 // ezPerspectiveAction
 ////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPerspectiveAction, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPerspectiveAction, 1, ezRTTINoAllocator)
+  ;
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezPerspectiveAction::ezPerspectiveAction(const ezActionContext& context, const char* szName, const char* szIconPath)
-    : ezEnumerationMenuAction(context, szName, szIconPath)
+  : ezEnumerationMenuAction(context, szName, szIconPath)
 {
   ezQtEngineViewWidget* pView = qobject_cast<ezQtEngineViewWidget*>(context.m_pWindow);
   EZ_ASSERT_DEV(pView != nullptr, "context.m_pWindow must be derived from type 'ezQtEngineViewWidget'!");
@@ -114,11 +115,12 @@ void ezPerspectiveAction::Execute(const ezVariant& value)
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewAction, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewAction, 1, ezRTTINoAllocator)
+  ;
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezViewAction::ezViewAction(const ezActionContext& context, const char* szName, ButtonType button)
-    : ezButtonAction(context, szName, false, "")
+  : ezButtonAction(context, szName, false, "")
 {
   m_ButtonType = button;
   ezQtEngineViewWidget* pView = qobject_cast<ezQtEngineViewWidget*>(m_Context.m_pWindow);

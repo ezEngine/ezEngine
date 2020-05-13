@@ -20,8 +20,7 @@
 
 // clang-format off
 EZ_IMPLEMENT_WORLD_MODULE(ezPhysXWorldModule);
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPhysXWorldModule, 1, ezRTTINoAllocator);
-// no properties or message handlers
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPhysXWorldModule, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE
 // clang-format on
 

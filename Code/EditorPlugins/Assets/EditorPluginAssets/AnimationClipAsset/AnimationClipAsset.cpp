@@ -34,7 +34,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetProperties, 2, ezRTTIDefault
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetDocument, 2, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetDocument, 2, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -44,7 +44,7 @@ ezAnimationClipAssetProperties::ezAnimationClipAssetProperties()
 }
 
 ezAnimationClipAssetDocument::ezAnimationClipAssetDocument(const char* szDocumentPath)
-    : ezSimpleAssetDocument<ezAnimationClipAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::Simple)
+  : ezSimpleAssetDocument<ezAnimationClipAssetProperties>(szDocumentPath, ezAssetDocEngineConnection::Simple)
 {
 }
 
@@ -70,7 +70,7 @@ static ezStatus ImportAnimation(const char* filename, ezSharedPtr<ezModelImporte
 }
 
 ezStatus ezAnimationClipAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-                                                              const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   ezProgressRange range("Transforming Asset", 2, false);
 
@@ -260,7 +260,7 @@ void ezAnimationClipAssetDocument::ExtractRootMotionFromFeet(ezAnimationClipReso
     const ezUInt16 nextFrame2 = (thisFrame + 2) % numFrames;
 
     const ezVec3 smoothedTranslation = (translations[prevFrame2] + translations[prevFrame] + translations[thisFrame] +
-                                        translations[nextFrame] + translations[nextFrame2]) *
+                                         translations[nextFrame] + translations[nextFrame2]) *
                                        0.2f;
 
     pRootTransforms[thisFrame].m_vPosition = smoothedTranslation;
@@ -307,7 +307,7 @@ ezAnimationClipAssetDocumentGenerator::ezAnimationClipAssetDocumentGenerator()
 ezAnimationClipAssetDocumentGenerator::~ezAnimationClipAssetDocumentGenerator() {}
 
 void ezAnimationClipAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath,
-                                                           ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+  ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
   baseOutputFile.ChangeFileExtension(GetDocumentExtension());
@@ -322,7 +322,7 @@ void ezAnimationClipAssetDocumentGenerator::GetImportModes(const char* szParentD
 }
 
 ezStatus ezAnimationClipAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info,
-                                                         ezDocument*& out_pGeneratedDocument)
+  ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
 

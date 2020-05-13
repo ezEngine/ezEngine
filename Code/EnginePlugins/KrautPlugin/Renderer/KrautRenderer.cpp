@@ -18,7 +18,7 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautRenderData, 1, ezRTTIDefaultAllocator<ezKrautRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautRenderer, 1, ezRTTIDefaultAllocator<ezKrautRenderer>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautRenderer, 1, ezRTTIDefaultAllocator<ezKrautRenderer>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 

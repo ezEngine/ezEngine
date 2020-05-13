@@ -7,7 +7,7 @@
 #include <EditorPluginAssets/AnimationClipAsset/AnimationClipAssetWindow.moc.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezAnimationClipAssetDocumentManager>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezAnimationClipAssetDocumentManager>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezAnimationClipAssetDocumentManager::ezAnimationClipAssetDocumentManager()
@@ -40,7 +40,7 @@ void ezAnimationClipAssetDocumentManager::OnDocumentManagerEvent(const ezDocumen
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezAnimationClipAssetDocument>())
       {
         ezQtAnimationClipAssetDocumentWindow* pDocWnd =
-            new ezQtAnimationClipAssetDocumentWindow(static_cast<ezAnimationClipAssetDocument*>(e.m_pDocument));
+          new ezQtAnimationClipAssetDocumentWindow(static_cast<ezAnimationClipAssetDocument*>(e.m_pDocument));
       }
     }
     break;

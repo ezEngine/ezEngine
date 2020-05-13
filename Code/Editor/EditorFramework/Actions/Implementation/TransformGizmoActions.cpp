@@ -1,13 +1,13 @@
 #include <EditorFrameworkPCH.h>
 
 #include <EditorFramework/Actions/TransformGizmoActions.h>
+#include <EditorFramework/Dialogs/SnapSettingsDlg.moc.h>
 #include <EditorFramework/EditTools/StandardGizmoEditTools.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
-#include <EditorFramework/Dialogs/SnapSettingsDlg.moc.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoAction, 0, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoAction, 0, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezGizmoAction::ezGizmoAction(const ezActionContext& context, const char* szName, const ezRTTI* pGizmoType)
@@ -158,7 +158,8 @@ void ezTransformGizmoActions::MapToolbarActions(const char* szMapping, const cha
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransformGizmoAction, 0, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTransformGizmoAction, 0, ezRTTINoAllocator)
+  ;
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezTransformGizmoAction::ezTransformGizmoAction(const ezActionContext& context, const char* szName, ActionType type)
@@ -170,16 +171,16 @@ ezTransformGizmoAction::ezTransformGizmoAction(const ezActionContext& context, c
 
   switch (m_Type)
   {
-  case ActionType::GizmoToggleWorldSpace:
-    SetIconPath(":/EditorFramework/Icons/WorldSpace16.png");
-    break;
-  case ActionType::GizmoToggleMoveParentOnly:
-    SetIconPath(":/EditorFramework/Icons/TransformParent16.png");
-    break;
-  case ActionType::GizmoSnapSettings:
-    SetCheckable(false);
-    SetIconPath(":/EditorFramework/Icons/SnapSettings16.png");
-    break;
+    case ActionType::GizmoToggleWorldSpace:
+      SetIconPath(":/EditorFramework/Icons/WorldSpace16.png");
+      break;
+    case ActionType::GizmoToggleMoveParentOnly:
+      SetIconPath(":/EditorFramework/Icons/TransformParent16.png");
+      break;
+    case ActionType::GizmoSnapSettings:
+      SetCheckable(false);
+      SetIconPath(":/EditorFramework/Icons/SnapSettings16.png");
+      break;
   }
 
   m_pGameObjectDocument->m_GameObjectEvents.AddEventHandler(ezMakeDelegate(&ezTransformGizmoAction::GameObjectEventHandler, this));
@@ -227,15 +228,15 @@ void ezTransformGizmoAction::UpdateState()
     {
       switch (pTool->GetSupportedSpaces())
       {
-      case ezEditToolSupportedSpaces::LocalSpaceOnly:
-        SetChecked(false);
-        break;
-      case ezEditToolSupportedSpaces::WorldSpaceOnly:
-        SetChecked(true);
-        break;
-      case ezEditToolSupportedSpaces::LocalAndWorldSpace:
-        SetChecked(m_pGameObjectDocument->GetGizmoWorldSpace());
-        break;
+        case ezEditToolSupportedSpaces::LocalSpaceOnly:
+          SetChecked(false);
+          break;
+        case ezEditToolSupportedSpaces::WorldSpaceOnly:
+          SetChecked(true);
+          break;
+        case ezEditToolSupportedSpaces::LocalAndWorldSpace:
+          SetChecked(m_pGameObjectDocument->GetGizmoWorldSpace());
+          break;
       }
     }
   }
@@ -251,7 +252,7 @@ void ezTransformGizmoAction::UpdateState()
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTranslateGizmoAction, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTranslateGizmoAction, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezActionDescriptorHandle ezTranslateGizmoAction::s_hSnappingValueMenu;

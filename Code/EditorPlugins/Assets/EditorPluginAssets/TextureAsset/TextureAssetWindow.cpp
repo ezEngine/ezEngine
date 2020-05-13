@@ -6,7 +6,6 @@
 #include <EditorPluginAssets/TextureAsset/TextureAsset.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetObjects.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetWindow.moc.h>
-#include <Texture/Image/ImageConversion.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
@@ -14,16 +13,17 @@
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/Widgets/ImageWidget.moc.h>
+#include <Texture/Image/ImageConversion.h>
 
 ////////////////////////////////////////////////////////////////////////
 // ezTextureChannelModeAction
 ////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureChannelModeAction, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureChannelModeAction, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezTextureChannelModeAction::ezTextureChannelModeAction(const ezActionContext& context, const char* szName, const char* szIconPath)
-    : ezEnumerationMenuAction(context, szName, szIconPath)
+  : ezEnumerationMenuAction(context, szName, szIconPath)
 {
   InitEnumerationType(ezGetStaticRTTI<ezTextureChannelMode>());
 }
@@ -42,12 +42,13 @@ void ezTextureChannelModeAction::Execute(const ezVariant& value)
 // ezTextureLodSliderAction
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureLodSliderAction, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureLodSliderAction, 1, ezRTTINoAllocator)
+  ;
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 ezTextureLodSliderAction::ezTextureLodSliderAction(const ezActionContext& context, const char* szName)
-    : ezSliderAction(context, szName)
+  : ezSliderAction(context, szName)
 {
   m_pDocument = const_cast<ezTextureAssetDocument*>(static_cast<const ezTextureAssetDocument*>(context.m_pDocument));
 
@@ -97,7 +98,7 @@ void ezTextureAssetActions::MapActions(const char* szMapping, const char* szPath
 //////////////////////////////////////////////////////////////////////////
 
 ezQtTextureAssetDocumentWindow::ezQtTextureAssetDocumentWindow(ezTextureAssetDocument* pDocument)
-    : ezQtEngineDocumentWindow(pDocument)
+  : ezQtEngineDocumentWindow(pDocument)
 {
   // Menu Bar
   {

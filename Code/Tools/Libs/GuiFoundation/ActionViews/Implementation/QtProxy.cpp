@@ -118,8 +118,10 @@ QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& context, ezAction
       {
         pProxy = pTemp.toStrongRef();
       }
+
+      break;
     }
-    break;
+
     case ezActionScope::Document:
     {
       const ezDocument* pDocument = context.m_pDocument; // may be null
@@ -137,8 +139,10 @@ QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& context, ezAction
       {
         pProxy = pTemp.toStrongRef();
       }
+
+      break;
     }
-    break;
+
     case ezActionScope::Window:
     {
       bool bExisted = true;
@@ -146,7 +150,7 @@ QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& context, ezAction
       if (!bExisted)
       {
         s_pSignalProxy->connect(context.m_pWindow, &QObject::destroyed, s_pSignalProxy,
-                                [=]() { s_WindowActions.Remove(context.m_pWindow); });
+          [=]() { s_WindowActions.Remove(context.m_pWindow); });
       }
       QWeakPointer<ezQtProxy> pTemp = it.Value()[hDesc];
       if (pTemp.isNull())
@@ -161,15 +165,19 @@ QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& context, ezAction
       {
         pProxy = pTemp.toStrongRef();
       }
+
+      break;
     }
-    break;
   }
 
   // make sure we don't use actions that are meant for a different document
   if (pProxy != nullptr && pProxy->GetAction()->GetContext().m_pDocument != nullptr)
   {
     // if this assert fires, you might have tried to map an action into multiple documents, which uses ezActionScope::Global
-    EZ_ASSERT_DEV(pProxy->GetAction()->GetContext().m_pDocument == context.m_pDocument, "invalid document pointer");
+    ezAction* pAction = pProxy->GetAction();
+    const ezActionContext& ctxt = pAction->GetContext();
+    ezDocument* pDoc = ctxt.m_pDocument;
+    EZ_ASSERT_DEV(pDoc == context.m_pDocument, "invalid document pointer");
   }
   return pProxy;
 }
@@ -508,12 +516,12 @@ void ezQtDynamicActionAndMenuProxy::StatusUpdateEventHandler(ezAction* pAction)
 //////////////////////////////////////////////////////////////////////////
 
 ezQtSliderWidgetAction::ezQtSliderWidgetAction(QWidget* parent)
-    : QWidgetAction(parent)
+  : QWidgetAction(parent)
 {
 }
 
 ezQtLabeledSlider::ezQtLabeledSlider(QWidget* parent)
-    : QWidget(parent)
+  : QWidget(parent)
 {
   m_pLabel = new QLabel(this);
   m_pSlider = new QSlider(this);

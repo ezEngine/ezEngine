@@ -6,7 +6,6 @@
 #include <EditorPluginAssets/TextureCubeAsset/TextureCubeAsset.h>
 #include <EditorPluginAssets/TextureCubeAsset/TextureCubeAssetObjects.h>
 #include <EditorPluginAssets/TextureCubeAsset/TextureCubeAssetWindow.moc.h>
-#include <Texture/Image/ImageConversion.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
@@ -14,16 +13,17 @@
 #include <GuiFoundation/DockPanels/DocumentPanel.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/Widgets/ImageWidget.moc.h>
+#include <Texture/Image/ImageConversion.h>
 
 ////////////////////////////////////////////////////////////////////////
 // ezTextureCubeChannelModeAction
 ////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureCubeChannelModeAction, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureCubeChannelModeAction, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezTextureCubeChannelModeAction::ezTextureCubeChannelModeAction(const ezActionContext& context, const char* szName, const char* szIconPath)
-    : ezEnumerationMenuAction(context, szName, szIconPath)
+  : ezEnumerationMenuAction(context, szName, szIconPath)
 {
   InitEnumerationType(ezGetStaticRTTI<ezTextureCubeChannelMode>());
 }
@@ -42,12 +42,13 @@ void ezTextureCubeChannelModeAction::Execute(const ezVariant& value)
 // ezTextureCubeLodSliderAction
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureCubeLodSliderAction, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureCubeLodSliderAction, 1, ezRTTINoAllocator)
+  ;
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 ezTextureCubeLodSliderAction::ezTextureCubeLodSliderAction(const ezActionContext& context, const char* szName)
-    : ezSliderAction(context, szName)
+  : ezSliderAction(context, szName)
 {
   m_pDocument = const_cast<ezTextureCubeAssetDocument*>(static_cast<const ezTextureCubeAssetDocument*>(context.m_pDocument));
 
@@ -97,7 +98,7 @@ void ezTextureCubeAssetActions::MapActions(const char* szMapping, const char* sz
 //////////////////////////////////////////////////////////////////////////
 
 ezQtTextureCubeAssetDocumentWindow::ezQtTextureCubeAssetDocumentWindow(ezTextureCubeAssetDocument* pDocument)
-    : ezQtEngineDocumentWindow(pDocument)
+  : ezQtEngineDocumentWindow(pDocument)
 {
   // Menu Bar
   {

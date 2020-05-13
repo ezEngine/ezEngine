@@ -6,7 +6,7 @@
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautTreeAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezKrautTreeAssetDocumentManager>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautTreeAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezKrautTreeAssetDocumentManager>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezKrautTreeAssetDocumentManager::ezKrautTreeAssetDocumentManager()
@@ -37,7 +37,7 @@ void ezKrautTreeAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMan
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezKrautTreeAssetDocument>())
       {
         ezQtKrautTreeAssetDocumentWindow* pDocWnd =
-            new ezQtKrautTreeAssetDocumentWindow(static_cast<ezKrautTreeAssetDocument*>(e.m_pDocument));
+          new ezQtKrautTreeAssetDocumentWindow(static_cast<ezKrautTreeAssetDocument*>(e.m_pDocument));
       }
     }
     break;
@@ -53,5 +53,3 @@ void ezKrautTreeAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynami
 {
   inout_DocumentTypes.PushBack(&m_DocTypeDesc);
 }
-
-
