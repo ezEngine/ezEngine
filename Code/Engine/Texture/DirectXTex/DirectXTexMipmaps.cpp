@@ -15,7 +15,7 @@
 
 #include "DirectXTexP.h"
 
-#include "filters.h"
+#include "Filters.h"
 
 using namespace DirectX;
 using Microsoft::WRL::ComPtr;

@@ -47,7 +47,7 @@ namespace ezMinWindows
   {
     return FromNativeImpl<T>::FromNative(t);
   }
-}
+} // namespace ezMinWindows
 #define EZ_WINDOWS_CALLBACK __stdcall
 #define EZ_WINDOWS_WINAPI __stdcall
-#define EZ_WINDOWS_INVALID_HANDLE_VALUE (void*)-1
+#define EZ_WINDOWS_INVALID_HANDLE_VALUE ((void*)(long long)-1)

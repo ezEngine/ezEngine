@@ -7,13 +7,15 @@ get_filename_component(PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 
 ez_create_target(LIBRARY ${PROJECT_NAME})
 
-if (MSVC)
+if(EZ_CMAKE_PLATFORM_WINDOWS)
   target_link_libraries(${PROJECT_NAME}
     PRIVATE
 
     Rpcrt4.lib
   )
+endif()
 
+if (MSVC)
   target_compile_options(${PROJECT_NAME} PRIVATE /W4 /WX)
 endif()
 

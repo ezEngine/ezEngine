@@ -4,6 +4,7 @@
 
 #include <Foundation/Basics/AllDefinesOff.h>
 
+#include <Foundation/Basics/Platform/DetectArchitecture.h>
 #include <Foundation/Basics/Platform/DetectPlatform.h>
 
 #include <Foundation/UserConfig.h>

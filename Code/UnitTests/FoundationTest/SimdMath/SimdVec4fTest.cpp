@@ -132,7 +132,7 @@ namespace
     b.NormalizeIfNotZero<4>(eps);
     EZ_TEST_BOOL(b.IsZero<4>());
   }
-}
+} // namespace
 
 EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
 {
@@ -166,7 +166,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
     EZ_TEST_BOOL(vInit4F.x() == 1.0f && vInit4F.y() == 2.0f && vInit4F.z() == 3.0f && vInit4F.w() == 4.0f);
 
     // Make sure all components have the correct values
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
+#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_ENABLED(EZ_COMPILER_MSVC)
     EZ_TEST_BOOL(vInit4F.m_v.m128_f32[0] == 1.0f && vInit4F.m_v.m128_f32[1] == 2.0f && vInit4F.m_v.m128_f32[2] == 3.0f &&
                  vInit4F.m_v.m128_f32[3] == 4.0f);
 #endif
@@ -229,7 +229,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
       EZ_TEST_BOOL(xyzw.GetComponent(4) == 4.0f);
 
       // Make sure all components have the correct values
-#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE
+#if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_ENABLED(EZ_COMPILER_MSVC)
       EZ_TEST_BOOL(xyzw.m_v.m128_f32[0] == 1.0f && xyzw.m_v.m128_f32[1] == 2.0f && xyzw.m_v.m128_f32[2] == 3.0f &&
                    xyzw.m_v.m128_f32[3] == 4.0f);
 #endif

@@ -180,7 +180,12 @@ function(ez_detect_generator)
 			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_MSVC ON)
 			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "Vs")
 			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION $<CONFIGURATION>)
-		
+	  elseif(CMAKE_GENERATOR STREQUAL "Ninja") # Ninja makefiles. Only makefile format supported by Visual Studio Open Folder
+			message (STATUS "Buildsystem is Ninja (EZ_CMAKE_GENERATOR_NINJA)")
+			
+			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_NINJA ON)
+			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_PREFIX "Ninja")
+			set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_CONFIGURATION ${CMAKE_BUILD_TYPE})
 	  else ()
 			message (FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on Windows! Please extend ez_detect_generator()")
 	  endif ()
@@ -313,8 +318,6 @@ function(ez_detect_compiler_and_architecture)
 		endif()
 	endif()
 	
-	message(STATUS "Output of test compile is: ${COMPILE_OUTPUT}")
-	
 	if(EZ_DETECTED_COMPILER STREQUAL "msvc") # Visual Studio Compiler
 	  message (STATUS "Compiler is MSVC (EZ_CMAKE_COMPILER_MSVC) version ${EZ_DETECTED_MSVC_VER}")
 		
@@ -359,14 +362,6 @@ function(ez_detect_compiler_and_architecture)
 	
 	  message(FATAL_ERROR "Unhandeled compiler ${EZ_DETECTED_COMPILER}")
 	  
-	endif()
-	
-	get_property(PREFIX GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX)
-	
-	if (PREFIX)
-		# has already run before and EZ_CMAKE_ARCHITECTURE_POSTFIX is already set
-		#message (STATUS "Redundant call to ez_detect_architecture()")
-		return()
 	endif()
 
 	set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "")
@@ -429,6 +424,7 @@ macro(ez_pull_compiler_and_architecture_vars)
 	get_property(EZ_CMAKE_COMPILER_MSVC GLOBAL PROPERTY EZ_CMAKE_COMPILER_MSVC)
 	get_property(EZ_CMAKE_COMPILER_MSVC_140 GLOBAL PROPERTY EZ_CMAKE_COMPILER_MSVC_140)
 	get_property(EZ_CMAKE_COMPILER_MSVC_141 GLOBAL PROPERTY EZ_CMAKE_COMPILER_MSVC_141)
+	get_property(EZ_CMAKE_COMPILER_MSVC_142 GLOBAL PROPERTY EZ_CMAKE_COMPILER_MSVC_142)
 	get_property(EZ_CMAKE_COMPILER_CLANG GLOBAL PROPERTY EZ_CMAKE_COMPILER_CLANG)
 	get_property(EZ_CMAKE_COMPILER_GCC GLOBAL PROPERTY EZ_CMAKE_COMPILER_GCC)
 	

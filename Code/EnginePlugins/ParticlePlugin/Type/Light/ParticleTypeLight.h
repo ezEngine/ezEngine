@@ -41,7 +41,7 @@ public:
   ezTempHashedString m_sIntensityParameter;
   ezTempHashedString m_sSizeScaleParameter;
 
-  virtual float GetMaxParticleRadius(float fParticleSize) const { return 0.5f * fParticleSize * m_fSizeFactor; }
+  virtual float GetMaxParticleRadius(float fParticleSize) const override { return 0.5f * fParticleSize * m_fSizeFactor; }
 
   virtual void ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const override;
 
@@ -53,5 +53,3 @@ protected:
   ezProcessingStream* m_pStreamColor;
   ezProcessingStream* m_pStreamOnOff;
 };
-
-

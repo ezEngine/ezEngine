@@ -124,7 +124,7 @@ function(ez_set_build_flags_clang TARGET_NAME)
 	#set (CMAKE_CPP_CREATE_STATIC_LIBRARY ON)
 	#endif ()
 	
-	if(NOT EZ_CMAKE_PLATFORM_ANDROID)
+	if(NOT EZ_CMAKE_PLATFORM_ANDROID AND NOT EZ_CMAKE_PLATFORM_WINDOWS)
 		target_compile_options(${TARGET_NAME} PRIVATE "-stdlib=libc++")
 	endif()
 	
@@ -134,6 +134,11 @@ function(ez_set_build_flags_clang TARGET_NAME)
 	
 	# Disable warning: multi-character character constant
 	target_compile_options(${TARGET_NAME} PRIVATE -Wno-multichar)
+	
+	if(EZ_CMAKE_PLATFORM_WINDOWS)
+		# Disable the warning that clang doesn't support pragma optimize.
+		target_compile_options(${TARGET_NAME} PRIVATE -Wno-ignored-pragma-optimize)
+	endif()
 
 endfunction()
 
