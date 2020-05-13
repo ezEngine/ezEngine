@@ -28,8 +28,10 @@
 //============================================================================
 //                                   INCLUDES
 //============================================================================
-#include <DockWidgetTab.h>
+#include "DockWidgetTab.h"
 #include "DockWidget.h"
+
+#include <iostream>
 
 #include <QBoxLayout>
 #include <QAction>
@@ -42,12 +44,18 @@
 #include <QDebug>
 #include <QToolBar>
 #include <QXmlStreamWriter>
+#include <QWindow>
+
+#include <QGuiApplication>
+#include <QScreen>
+#include <QWindow>
 
 #include "DockContainerWidget.h"
 #include "DockAreaWidget.h"
 #include "DockManager.h"
 #include "FloatingDockContainer.h"
 #include "DockSplitter.h"
+#include "DockComponentsFactory.h"
 #include "ads_globals.h"
 
 
@@ -62,7 +70,7 @@ struct DockWidgetPrivate
 	QBoxLayout* Layout = nullptr;
 	QWidget* Widget = nullptr;
 	CDockWidgetTab* TabWidget = nullptr;
-	CDockWidget::DockWidgetFeatures Features = CDockWidget::AllDockWidgetFeatures;
+	CDockWidget::DockWidgetFeatures Features = CDockWidget::DefaultDockWidgetFeatures;
 	CDockManager* DockManager = nullptr;
 	CDockAreaWidget* DockArea = nullptr;
 	QAction* ToggleViewAction = nullptr;
@@ -74,6 +82,8 @@ struct DockWidgetPrivate
 	QSize ToolBarIconSizeDocked = QSize(16, 16);
 	QSize ToolBarIconSizeFloating = QSize(24, 24);
 	bool IsFloatingTopLevel = false;
+	QList<QAction*> TitleBarActions;
+	CDockWidget::eMinimumSizeHintMode MinimumSizeHintMode = CDockWidget::MinimumSizeHintFromDockWidget;
 
 	/**
 	 * Private data constructor
@@ -128,8 +138,8 @@ void DockWidgetPrivate::showDockWidget()
 	}
 	else
 	{
-		DockArea->toggleView(true);
 		DockArea->setCurrentDockWidget(_this);
+		DockArea->toggleView(true);
 		TabWidget->show();
 		QSplitter* Splitter = internal::findParent<QSplitter*>(DockArea);
 		while (Splitter && !Splitter->isVisible())
@@ -162,6 +172,12 @@ void DockWidgetPrivate::updateParentDockArea()
 {
 	if (!DockArea)
 	{
+		return;
+	}
+
+	// we don't need to change the current tab if the
+	// current dock widget is not the one being closed
+	if (DockArea->currentDockWidget() != _this){
 		return;
 	}
 
@@ -213,7 +229,7 @@ CDockWidget::CDockWidget(const QString &title, QWidget *parent) :
 	setWindowTitle(title);
 	setObjectName(title);
 
-	d->TabWidget = new CDockWidgetTab(this);
+	d->TabWidget = componentsFactory()->createDockWidgetTab(this);
     d->ToggleViewAction = new QAction(title, this);
 	d->ToggleViewAction->setCheckable(true);
 	connect(d->ToggleViewAction, SIGNAL(triggered(bool)), this,
@@ -242,7 +258,12 @@ void CDockWidget::setToggleViewActionChecked(bool Checked)
 //============================================================================
 void CDockWidget::setWidget(QWidget* widget, eInsertMode InsertMode)
 {
-	QScrollArea* ScrollAreaWidget = qobject_cast<QScrollArea*>(widget);
+	if (d->Widget)
+	{
+		takeWidget();
+	}
+
+	auto ScrollAreaWidget = qobject_cast<QAbstractScrollArea*>(widget);
 	if (ScrollAreaWidget || ForceNoScrollArea == InsertMode)
 	{
 		d->Layout->addWidget(widget);
@@ -265,10 +286,26 @@ void CDockWidget::setWidget(QWidget* widget, eInsertMode InsertMode)
 //============================================================================
 QWidget* CDockWidget::takeWidget()
 {
-	d->ScrollArea->takeWidget();
-	d->Layout->removeWidget(d->Widget);
-	d->Widget->setParent(nullptr);
-    return d->Widget;
+	QWidget* w = nullptr;
+	if (d->ScrollArea)
+	{
+		d->Layout->removeWidget(d->ScrollArea);
+		w = d->ScrollArea->takeWidget();
+		delete d->ScrollArea;
+		d->ScrollArea = nullptr;
+	}
+	else if (d->Widget)
+	{
+		d->Layout->removeWidget(d->Widget);
+		w = d->Widget;
+		d->Widget = nullptr;
+	}
+
+	if (w)
+	{
+		w->setParent(nullptr);
+	}
+    return w;
 }
 
 
@@ -294,6 +331,7 @@ void CDockWidget::setFeatures(DockWidgetFeatures features)
 		return;
 	}
 	d->Features = features;
+	emit featuresChanged(d->Features);
 	d->TabWidget->onDockWidgetFeaturesChanged();
 }
 
@@ -410,6 +448,13 @@ void CDockWidget::setToggleViewActionMode(eToggleViewActionMode Mode)
 
 
 //============================================================================
+void CDockWidget::setMinimumSizeHintMode(eMinimumSizeHintMode Mode)
+{
+	d->MinimumSizeHintMode = Mode;
+}
+
+
+//============================================================================
 void CDockWidget::toggleView(bool Open)
 {
 	// If the toggle view action mode is ActionModeShow, then Open is always
@@ -515,23 +560,39 @@ void CDockWidget::flagAsUnassigned()
 //============================================================================
 bool CDockWidget::event(QEvent *e)
 {
-	if (e->type() == QEvent::WindowTitleChange)
+	switch (e->type())
 	{
-		const auto title = windowTitle();
-		if (d->TabWidget)
+	case QEvent::Hide:
+		emit visibilityChanged(false);
+		break;
+
+	case QEvent::Show:
+		emit visibilityChanged(geometry().right() >= 0 && geometry().bottom() >= 0);
+        break;
+
+	case QEvent::WindowTitleChange :
 		{
-			d->TabWidget->setText(title);
+			const auto title = windowTitle();
+			if (d->TabWidget)
+			{
+				d->TabWidget->setText(title);
+			}
+			if (d->ToggleViewAction)
+			{
+				d->ToggleViewAction->setText(title);
+			}
+			if (d->DockArea)
+			{
+				d->DockArea->markTitleBarMenuOutdated();//update tabs menu
+			}
+			emit titleChanged(title);
 		}
-		if (d->ToggleViewAction)
-		{
-			d->ToggleViewAction->setText(title);
-		}
-		if (d->DockArea)
-		{
-			d->DockArea->markTitleBarMenuOutdated();//update tabs menu
-		}
-		emit titleChanged(title);
+		break;
+
+	default:
+		break;
 	}
+
 	return Super::event(e);
 }
 
@@ -722,7 +783,182 @@ void CDockWidget::setClosedState(bool Closed)
 //============================================================================
 QSize CDockWidget::minimumSizeHint() const
 {
-	return QSize(60, 40);
+	if (d->MinimumSizeHintMode == CDockWidget::MinimumSizeHintFromDockWidget || !d->Widget)
+	{
+		return QSize(60, 40);
+	}
+	else
+	{
+		return d->Widget->minimumSizeHint();
+	}
+}
+
+
+//============================================================================
+void CDockWidget::setFloating()
+{
+	if (isClosed())
+	{
+		return;
+	}
+	d->TabWidget->detachDockWidget();
+}
+
+
+//============================================================================
+void CDockWidget::deleteDockWidget()
+{
+	dockManager()->removeDockWidget(this);
+	deleteLater();
+	d->Closed = true;
+}
+
+
+//============================================================================
+void CDockWidget::closeDockWidget()
+{
+	closeDockWidgetInternal(true);
+}
+
+
+//============================================================================
+bool CDockWidget::closeDockWidgetInternal(bool ForceClose)
+{
+	if (!ForceClose)
+	{
+		emit closeRequested();
+	}
+
+	if (!ForceClose && features().testFlag(CDockWidget::CustomCloseHandling))
+	{
+		return false;
+	}
+
+	if (features().testFlag(CDockWidget::DockWidgetDeleteOnClose))
+    {
+		// If the dock widget is floating, then we check if we also need to
+		// delete the floating widget
+		if (isFloating())
+		{
+			CFloatingDockContainer* FloatingWidget = internal::findParent<
+					CFloatingDockContainer*>(this);
+			if (FloatingWidget->dockWidgets().count() == 1)
+			{
+				FloatingWidget->deleteLater();
+			}
+			else
+			{
+				FloatingWidget->hide();
+			}
+		}
+		deleteDockWidget();
+		emit closed();
+    }
+    else
+    {
+    	toggleView(false);
+    }
+
+	return true;
+}
+
+
+//============================================================================
+void CDockWidget::setTitleBarActions(QList<QAction*> actions)
+{
+	d->TitleBarActions = actions;
+}
+
+
+//============================================================================
+QList<QAction*> CDockWidget::titleBarActions() const
+{
+	return d->TitleBarActions;
+}
+
+
+//============================================================================
+void CDockWidget::showFullScreen()
+{
+	if (isFloating())
+	{
+		dockContainer()->floatingWidget()->showFullScreen();
+	}
+	else
+	{
+		Super::showFullScreen();
+	}
+}
+
+
+//============================================================================
+void CDockWidget::showNormal()
+{
+	if (isFloating())
+	{
+		dockContainer()->floatingWidget()->showNormal();
+	}
+	else
+	{
+		Super::showNormal();
+	}
+}
+
+
+//============================================================================
+bool CDockWidget::isFullScreen() const
+{
+	if (isFloating())
+	{
+		return dockContainer()->floatingWidget()->isFullScreen();
+	}
+	else
+	{
+		return Super::isFullScreen();
+	}
+}
+
+
+//============================================================================
+void CDockWidget::setAsCurrentTab()
+{
+	if (d->DockArea && !isClosed())
+	{
+		d->DockArea->setCurrentDockWidget(this);
+	}
+}
+
+
+//============================================================================
+bool CDockWidget::isTabbed() const
+{
+	return d->DockArea && (d->DockArea->openDockWidgetsCount() > 1);
+}
+
+
+
+//============================================================================
+bool CDockWidget::isCurrentTab() const
+{
+	return d->DockArea && (d->DockArea->currentDockWidget() == this);
+}
+
+
+//============================================================================
+void CDockWidget::raise()
+{
+	if (isClosed())
+	{
+		return;
+	}
+
+	setAsCurrentTab();
+	if (isInFloatingContainer())
+	{
+		auto FloatingWindow = window();
+		FloatingWindow->raise();
+		FloatingWindow->activateWindow();
+	}
 }
 
 

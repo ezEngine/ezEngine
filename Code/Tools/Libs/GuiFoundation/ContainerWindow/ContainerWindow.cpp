@@ -74,7 +74,7 @@ ezQtContainerWindow::ezQtContainerWindow()
     ads::CDockManager::OpaqueSplitterResize |
     ads::CDockManager::AllTabsHaveCloseButton));
 
-  connect(m_DockManager, &ads::CDockManager::floatingWidgetOpened, this, &ezQtContainerWindow::SlotFloatingWidgetOpened);
+  connect(m_DockManager, &ads::CDockManager::floatingWidgetCreated, this, &ezQtContainerWindow::SlotFloatingWidgetOpened);
 }
 
 ezQtContainerWindow::~ezQtContainerWindow()
