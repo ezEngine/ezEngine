@@ -28,11 +28,13 @@ public:
 
   void SetIsInView() const;
 
+  void ForceBoundingVolumeUpdate();
+
   void StopImmediate();
 
-  /// \brief Returns the bounding volume of the effect and the time at which the volume was updated last.
+  /// \brief Returns the bounding volume of the effect and the update counter.
   /// The volume is in the local space of the effect.
-  ezTime GetBoundingVolume(ezBoundingBoxSphere& volume) const;
+  ezUInt32 GetBoundingVolume(ezBoundingBoxSphere& volume) const;
 
   /// \name Effect Parameters
   ///@{
@@ -46,6 +48,8 @@ public:
   ///@}
 
 private:
+  friend class ezParticleWorldModule;
+
   ezParticleEffectController(ezParticleWorldModule* pModule, ezParticleEffectHandle hEffect);
   ezParticleEffectInstance* GetInstance() const;
 

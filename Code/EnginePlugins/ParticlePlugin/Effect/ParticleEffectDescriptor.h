@@ -4,7 +4,7 @@
 #include <ParticlePlugin/ParticlePluginDLL.h>
 #include <ParticlePlugin/Declarations.h>
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleEffectDescriptor : public ezReflectedClass
+class EZ_PARTICLEPLUGIN_DLL ezParticleEffectDescriptor final : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleEffectDescriptor, ezReflectedClass);
 

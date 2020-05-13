@@ -74,7 +74,7 @@ ezQtContainerWindow::ezQtContainerWindow()
     ads::CDockManager::OpaqueSplitterResize |
     ads::CDockManager::AllTabsHaveCloseButton));
 
-  connect(m_DockManager, &ads::CDockManager::floatingWidgetOpened, this, &ezQtContainerWindow::SlotFloatingWidgetOpened);
+  connect(m_DockManager, &ads::CDockManager::floatingWidgetCreated, this, &ezQtContainerWindow::SlotFloatingWidgetOpened);
 }
 
 ezQtContainerWindow::~ezQtContainerWindow()
@@ -255,6 +255,11 @@ void ezQtContainerWindow::UpdateWindowDecoration(ezQtDocumentWindow* pDocWindow)
   dock->setTabToolTip(QString::fromUtf8(pDocWindow->GetDisplayName().GetData()));
   dock->setIcon(ezQtUiServices::GetCachedIconResource(pDocWindow->GetWindowIcon().GetData()));
   dock->setWindowTitle(QString::fromUtf8(pDocWindow->GetDisplayNameShort().GetData()));
+
+  if (dock->dockContainer()->floatingWidget())
+  {
+    dock->dockContainer()->floatingWidget()->setWindowTitle(dock->windowTitle());
+  }
 }
 
 void ezQtContainerWindow::RemoveDocumentWindow(ezQtDocumentWindow* pDocWindow)

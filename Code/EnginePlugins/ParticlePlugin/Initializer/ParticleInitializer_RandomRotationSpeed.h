@@ -6,7 +6,7 @@
 
 typedef ezTypedResourceHandle<class ezCurve1DResource> ezCurve1DResourceHandle;
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleInitializerFactory_RandomRotationSpeed : public ezParticleInitializerFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleInitializerFactory_RandomRotationSpeed final : public ezParticleInitializerFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializerFactory_RandomRotationSpeed, ezParticleInitializerFactory);
 
@@ -23,7 +23,7 @@ public:
 };
 
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer_RandomRotationSpeed : public ezParticleInitializer
+class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer_RandomRotationSpeed final : public ezParticleInitializer
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializer_RandomRotationSpeed, ezParticleInitializer);
 
@@ -36,6 +36,7 @@ public:
 protected:
   virtual void InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements) override;
 
-  ezProcessingStream* m_pStreamRotationSpeed;
-  ezProcessingStream* m_pStreamRotationOffset;
+  bool m_bPositiveSign = false;
+  ezProcessingStream* m_pStreamRotationSpeed = nullptr;
+  ezProcessingStream* m_pStreamRotationOffset = nullptr;
 };

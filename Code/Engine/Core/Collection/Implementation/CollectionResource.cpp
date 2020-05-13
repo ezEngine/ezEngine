@@ -19,7 +19,15 @@ void ezCollectionResource::PreloadResources()
   EZ_LOCK(m_preloadMutex);
   EZ_PROFILE_SCOPE("Inject Resources to Preload");
 
-  m_hPreloadedResources.Clear();
+  if (!m_hPreloadedResources.IsEmpty())
+  {
+    // PreloadResources has already been called so there is no need
+    // to redo the work. Clearing the array would in fact potentially
+    // trigger one of the resources to be unloaded, undoing the work
+    // that was already done to preload the collection.
+    return;
+  }
+
   m_hPreloadedResources.Reserve(m_Collection.m_Resources.GetCount());
 
   for (const auto& e : m_Collection.m_Resources)
@@ -175,7 +183,7 @@ void ezCollectionResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   EZ_LOCK(m_preloadMutex);
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
   out_NewMemoryUsage.m_uiMemoryCPU =
-      static_cast<ezUInt32>(m_hPreloadedResources.GetHeapMemoryUsage() + m_Collection.m_Resources.GetHeapMemoryUsage());
+    static_cast<ezUInt32>(m_hPreloadedResources.GetHeapMemoryUsage() + m_Collection.m_Resources.GetHeapMemoryUsage());
 }
 
 
@@ -243,7 +251,7 @@ void ezCollectionResourceDescriptor::Load(ezStreamReader& stream)
 
   stream >> uiVersion;
   stream >> uiIdentifier;
-  
+
   if (uiVersion == 1)
   {
     ezUInt16 uiNumResourcesShort;
@@ -275,4 +283,3 @@ void ezCollectionResourceDescriptor::Load(ezStreamReader& stream)
 
 
 EZ_STATICLINK_FILE(Core, Core_Collection_Implementation_CollectionResource);
-

@@ -866,7 +866,9 @@ template <typename T>
 void TestSetProperty(const char* szPropName, void* pObject, const ezRTTI* pRtti, T& value1, T& value2)
 {
   ezAbstractProperty* pProp = pRtti->FindPropertyByName(szPropName);
-  EZ_TEST_BOOL(pProp != nullptr);
+  if (EZ_TEST_BOOL(pProp != nullptr).Failed())
+    return;
+
   EZ_TEST_BOOL(pProp->GetCategory() == ezPropertyCategory::Set);
   ezAbstractSetProperty* pSetProp = static_cast<ezAbstractSetProperty*>(pProp);
   const ezRTTI* pElemRtti = pProp->GetSpecificType();

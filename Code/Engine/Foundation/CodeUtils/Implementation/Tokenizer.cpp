@@ -29,25 +29,9 @@ ezTokenizer::ezTokenizer(ezAllocatorBase* pAllocator)
   : m_Data(pAllocator != nullptr ? pAllocator : &s_ClassAllocator)
   , m_Tokens(pAllocator != nullptr ? pAllocator : &s_ClassAllocator)
 {
-  m_pLog = nullptr;
-  m_CurMode = ezTokenType::Unknown;
-  m_uiCurLine = 1;
-  m_uiCurColumn = -1;
-  m_uiCurChar = '\0';
-  m_uiNextChar = '\0';
-  m_uiLastLine = 1;
-  m_uiLastColumn = 1;
-
-  m_szCurCharStart = nullptr;
-  m_szNextCharStart = nullptr;
-  m_szTokenStart = nullptr;
 }
 
-
-ezTokenizer::~ezTokenizer()
-{
-
-}
+ezTokenizer::~ezTokenizer() = default;
 
 void ezTokenizer::NextChar()
 {
@@ -212,6 +196,13 @@ void ezTokenizer::HandleUnknown()
   {
     m_CurMode = ezTokenType::LineComment;
     NextChar();
+    NextChar();
+    return;
+  }
+
+  if (m_bHashSignIsLineComment && (m_uiCurChar == '#'))
+  {
+    m_CurMode = ezTokenType::LineComment;
     NextChar();
     return;
   }

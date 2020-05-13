@@ -42,6 +42,9 @@ public:
   /// \brief Adds the geometry of the triangle or convex mesh to the descriptor
   void ExtractGeometry(const ezTransform& transform, ezMsgExtractGeometry& msg) const;
 
+  ezUInt32 GetNumPolygons() const;
+  ezUInt32 GetNumVertices() const;
+
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReader* Stream) override;

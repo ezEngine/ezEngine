@@ -8,7 +8,7 @@
 
 #include <RendererCore/../../../Data/Base/Shaders/Particles/TrailShaderData.h>
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleTrailRenderData : public ezRenderData
+class EZ_PARTICLEPLUGIN_DLL ezParticleTrailRenderData final : public ezRenderData
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTrailRenderData, ezRenderData);
 
@@ -21,14 +21,17 @@ public:
   ezArrayPtr<ezVec4> m_TrailPointsShared;
   ezEnum<ezParticleTypeRenderMode> m_RenderMode;
   bool m_bApplyObjectTransform = true;
+  ezTime m_TotalEffectLifeTime;
   ezUInt8 m_uiNumVariationsX = 1;
   ezUInt8 m_uiNumVariationsY = 1;
   ezUInt8 m_uiNumFlipbookAnimationsX = 1;
   ezUInt8 m_uiNumFlipbookAnimationsY = 1;
+  ezTexture2DResourceHandle m_hDistortionTexture;
+  float m_fDistortionStrength = 0;
 };
 
 /// \brief Implements rendering of a trail particle systems
-class EZ_PARTICLEPLUGIN_DLL ezParticleTrailRenderer : public ezParticleRenderer
+class EZ_PARTICLEPLUGIN_DLL ezParticleTrailRenderer final : public ezParticleRenderer
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTrailRenderer, ezParticleRenderer);
   EZ_DISALLOW_COPY_AND_ASSIGN(ezParticleTrailRenderer);
@@ -38,8 +41,7 @@ public:
   ~ezParticleTrailRenderer();
 
   virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) const override;
-  virtual void RenderBatch(
-    const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
+  virtual void RenderBatch(const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
 
 protected:
   bool ConfigureShader(const ezParticleTrailRenderData* pRenderData, const ezRenderViewContext& renderViewContext) const;

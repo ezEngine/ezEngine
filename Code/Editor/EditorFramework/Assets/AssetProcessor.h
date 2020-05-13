@@ -65,14 +65,21 @@ private:
   mutable ezMutex m_ProcessorMutex;
   ezAssetProcessorLog m_CuratorLog;
   ezAtomicInteger32 m_bRunProcessTask;
-  ezDynamicArray<ezProcessTask*> m_ProcessTasks;
+
+  struct TaskAndGroup
+  {
+    ezProcessTask* m_pTask = nullptr;
+    ezTaskGroupID m_GroupID;
+  };
+
+  ezDynamicArray<TaskAndGroup> m_ProcessTasks;
   ezAtomicInteger32 m_TicksWithIdleTasks;
 };
 
-class ezProcessTask : public ezTask
+class ezProcessTask final : public ezTask
 {
 public:
-  ezProcessTask(ezUInt32 uiProcessorID);
+  ezProcessTask(ezUInt32 uiProcessorID, ezOnTaskFinishedCallback onFinished);
   ~ezProcessTask();
   ezAtomicInteger32 m_bDidWork = true;
 
@@ -81,13 +88,15 @@ private:
   void ShutdownProcess();
   void EventHandlerIPC(const ezProcessCommunicationChannel::Event& e);
 
-  bool GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, ezStringBuilder& out_sAbsPath);
-  bool GetNextAssetToProcess(ezUuid& out_guid, ezStringBuilder& out_sAbsPath);
+  bool GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, ezStringBuilder& out_sAbsPath, ezStringBuilder& out_sRelPath);
+  bool GetNextAssetToProcess(ezUuid& out_guid, ezStringBuilder& out_sAbsPath, ezStringBuilder& out_sRelPath);
   void OnProcessCrashed();
 
   ezUInt32 m_uiProcessorID;
 
   ezUuid m_assetGuid;
+  ezUInt64 m_AssetHash = 0;
+  ezUInt64 m_ThumbHash = 0;
   ezStringBuilder m_sAssetPath;
   ezEditorProcessCommunicationChannel* m_pIPC;
   bool m_bProcessShouldBeRunning;

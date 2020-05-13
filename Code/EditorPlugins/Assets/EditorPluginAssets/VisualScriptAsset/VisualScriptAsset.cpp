@@ -1,6 +1,5 @@
 #include <EditorPluginAssetsPCH.h>
 
-#include <Core/WorldSerializer/ResourceHandleWriter.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/GUI/ExposedParameters.h>
@@ -22,7 +21,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptParameter, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptParameter, 1, ezRTTINoAllocator)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -33,7 +32,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptParameter, 1, ezRTTINoAllocator);
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptParameterBool, 1, ezRTTIDefaultAllocator<ezVisualScriptParameterBool>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptParameterBool, 1, ezRTTIDefaultAllocator<ezVisualScriptParameterBool>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -43,7 +42,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptParameterBool, 1, ezRTTIDefaultAll
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptParameterNumber, 1, ezRTTIDefaultAllocator<ezVisualScriptParameterNumber>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptParameterNumber, 1, ezRTTIDefaultAllocator<ezVisualScriptParameterNumber>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -53,7 +52,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptParameterNumber, 1, ezRTTIDefaultA
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptAssetProperties, 1, ezRTTIDefaultAllocator<ezVisualScriptAssetProperties>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptAssetProperties, 1, ezRTTIDefaultAllocator<ezVisualScriptAssetProperties>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -69,11 +68,11 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // ezVisualScriptAssetDocument
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptAssetDocument, 4, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptAssetDocument, 5, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualScriptAssetDocument::ezVisualScriptAssetDocument(const char* szDocumentPath)
-    : ezSimpleAssetDocument<ezVisualScriptAssetProperties>(EZ_DEFAULT_NEW(ezVisualScriptNodeManager), szDocumentPath, ezAssetDocEngineConnection::None)
+  : ezSimpleAssetDocument<ezVisualScriptAssetProperties>(EZ_DEFAULT_NEW(ezVisualScriptNodeManager), szDocumentPath, ezAssetDocEngineConnection::None)
 {
   ezVisualScriptTypeRegistry::GetSingleton()->UpdateNodeTypes();
 }
@@ -118,7 +117,7 @@ void ezVisualScriptAssetDocument::HandleVsActivityMsg(const ezVisualScriptActivi
 }
 
 ezStatus ezVisualScriptAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-                                                             const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   ezVisualScriptResourceDescriptor desc;
   if (GenerateVisualScriptDescriptor(desc).Failed())
@@ -127,12 +126,7 @@ ezStatus ezVisualScriptAssetDocument::InternalTransformAsset(ezStreamWriter& str
     return ezStatus(EZ_FAILURE);
   }
 
-  ezResourceHandleWriteContext context;
-  context.BeginWritingToStream(&stream);
-
   desc.Save(stream);
-
-  context.EndWritingToStream(&stream);
 
   return ezStatus(EZ_SUCCESS);
 }
@@ -153,9 +147,9 @@ void ezVisualScriptAssetDocument::InternalGetMetaDataHash(const ezDocumentObject
         inout_uiHash = ezHashingUtils::xxHash64(&pPinSource->GetParent()->GetGuid(), sizeof(ezUuid), inout_uiHash);
         inout_uiHash = ezHashingUtils::xxHash64(&pPinTarget->GetParent()->GetGuid(), sizeof(ezUuid), inout_uiHash);
         inout_uiHash =
-            ezHashingUtils::xxHash64(pPinSource->GetName(), ezStringUtils::GetStringElementCount(pPinSource->GetName()), inout_uiHash);
+          ezHashingUtils::xxHash64(pPinSource->GetName(), ezStringUtils::GetStringElementCount(pPinSource->GetName()), inout_uiHash);
         inout_uiHash =
-            ezHashingUtils::xxHash64(pPinTarget->GetName(), ezStringUtils::GetStringElementCount(pPinTarget->GetName()), inout_uiHash);
+          ezHashingUtils::xxHash64(pPinTarget->GetName(), ezStringUtils::GetStringElementCount(pPinTarget->GetName()), inout_uiHash);
       }
     }
   }
@@ -214,7 +208,7 @@ ezResult ezVisualScriptAssetDocument::GenerateVisualScriptDescriptor(ezVisualScr
         ref.m_sName = pProp->GetPropertyName();
         ref.m_Value = pObject->GetTypeAccessor().GetValue(pProp->GetPropertyName());
 
-        if (const  ezVisScriptMappingAttribute* pMappingAttr = pProp->GetAttributeByType<ezVisScriptMappingAttribute>())
+        if (const ezVisScriptMappingAttribute* pMappingAttr = pProp->GetAttributeByType<ezVisScriptMappingAttribute>())
         {
           ref.m_iMappingIndex = pMappingAttr->m_iMapping;
         }
@@ -448,7 +442,7 @@ bool ezVisualScriptAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& out
 }
 
 bool ezVisualScriptAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph,
-                                        bool bAllowPickedPosition, const char* szMimeType)
+  bool bAllowPickedPosition, const char* szMimeType)
 {
   bool bAddedAll = true;
 

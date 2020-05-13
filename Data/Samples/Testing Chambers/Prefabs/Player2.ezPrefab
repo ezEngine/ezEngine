@@ -2,12 +2,58 @@ HeaderV2
 {
 o
 {
+	Uuid %id{u4{9568100928140647423,287431255237350083}}
+	s %t{"ezExposedParametersAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %ParametersSource{"Script"}
+	}
+}
+o
+{
+	Uuid %id{u4{5217645760467530089,740916499361678004}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{9568100928140647423,287431255237350083}}
+		}
+		b %DefaultValue{0}
+		s %Name{"Invincible"}
+		s %Type{"ezVariant"}
+	}
+}
+o
+{
+	Uuid %id{u4{6590470116425382476,2685973930379754625}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes
+		{
+			Uuid{u4{7003111624050277653,7519339875013479755}}
+		}
+		b %DefaultValue{0}
+		s %Name{"GiveAllWeapons"}
+		s %Type{"ezVariant"}
+	}
+}
+o
+{
 	Uuid %id{u4{14146522745554303380,2902865256510917925}}
 	s %t{"ezExposedParameters"}
 	u3 %v{3}
 	p
 	{
-		VarArray %Parameters{}
+		VarArray %Parameters
+		{
+			Uuid{u4{6590470116425382476,2685973930379754625}}
+			Uuid{u4{5217645760467530089,740916499361678004}}
+		}
 	}
 }
 o
@@ -21,7 +67,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8325318639183543703,4757176779305952111}}
-		u4 %Hash{5431900958361835136}
+		u4 %Hash{1619576042949640569}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{14146522745554303380,2902865256510917925}}
@@ -35,8 +81,19 @@ o
 			s{"{ 64d3d26c-3e5d-46ab-8072-b9b65e850c77 }"}
 			s{"{ 6fedf421-7c53-4047-80bf-343903e382b8 }"}
 			s{"{ 7941db21-7976-47c5-94d2-2934ef511372 }"}
+			s{"{ 802a8f61-dd2b-4fa3-8692-b022053d7975 }"}
 			s{"{ d3446478-77cf-49bb-a6db-c8f65307deac }"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{7003111624050277653,7519339875013479755}}
+	s %t{"ezExposedParametersAttribute"}
+	u3 %v{1}
+	p
+	{
+		s %ParametersSource{"Script"}
 	}
 }
 }
@@ -158,6 +215,7 @@ o
 		VarArray %Children
 		{
 			Uuid{u4{833559044517712777,2048742224257356627}}
+			Uuid{u4{9980618308030673581,4722175879171792050}}
 		}
 		VarArray %Components
 		{
@@ -206,6 +264,45 @@ o
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{"Camera"}
 		VarArray %Tags{}
+	}
+}
+o
+{
+	Uuid %id{u4{5121193683583553927,4640371911975832841}}
+	s %t{"ezExposedSceneProperty"}
+	u3 %v{1}
+	p
+	{
+		s %Name{"GiveAllWeapons"}
+		Uuid %Object{u4{1632982377772426898,5345566257393890410}}
+		s %PropertyPath{"Parameters[GiveAllWeapons]"}
+	}
+}
+o
+{
+	Uuid %id{u4{9980618308030673581,4722175879171792050}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{0}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{6099937272709126549,5534951748430784520}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"env effect"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
 	}
 }
 o
@@ -345,7 +442,11 @@ o
 	u3 %v{1}
 	p
 	{
-		VarArray %ExposedProperties{}
+		VarArray %ExposedProperties
+		{
+			Uuid{u4{5121193683583553927,4640371911975832841}}
+			Uuid{u4{1610230968024984728,5447546008841232887}}
+		}
 	}
 }
 o
@@ -377,16 +478,48 @@ o
 }
 o
 {
+	Uuid %id{u4{1610230968024984728,5447546008841232887}}
+	s %t{"ezExposedSceneProperty"}
+	u3 %v{1}
+	p
+	{
+		s %Name{"Invincible"}
+		Uuid %Object{u4{1632982377772426898,5345566257393890410}}
+		s %PropertyPath{"Parameters[Invincible]"}
+	}
+}
+o
+{
+	Uuid %id{u4{6099937272709126549,5534951748430784520}}
+	s %t{"ezParticleComponent"}
+	u3 %v{5}
+	p
+	{
+		b %Active{1}
+		s %Effect{"{ 802a8f61-dd2b-4fa3-8692-b022053d7975 }"}
+		b %IgnoreOwnerRotation{1}
+		Time %MinRestartDelay{d{0}}
+		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
+		VarDict %Parameters{}
+		u4 %RandomSeed{0}
+		Time %RestartDelayRange{d{0}}
+		s %SharedInstanceName{""}
+		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveZ"}
+	}
+}
+o
+{
 	Uuid %id{u4{7950382221197526173,5542071289512806489}}
 	s %t{"ezSpotLightComponent"}
 	u3 %v{2}
 	p
 	{
 		b %Active{0}
-		b %CastShadows{1}
+		b %CastShadows{0}
 		f %ConstantBias{0xCDCCCC3D}
 		Angle %InnerSpotAngle{f{0x920A863E}}
-		f %Intensity{0x0000FA43}
+		f %Intensity{0x0000C843}
 		ColorGamma %LightColor{u1{255,255,255,255}}
 		Angle %OuterSpotAngle{f{0xF3665F3F}}
 		f %PenumbraSize{0xCDCCCC3D}
@@ -860,6 +993,42 @@ o
 }
 o
 {
+	Uuid %id{u4{2313163756843389160,8849215390612252591}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezOnComponentFinishedAction2"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{5020032394718308778,9029474187781723681}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezRenderComponent"}
+		s %PluginName{"ezEditorPluginParticle"}
+		VarArray %Properties{}
+		s %TypeName{"ezParticleComponent"}
+		u3 %TypeSize{328}
+		u3 %TypeVersion{5}
+	}
+}
+o
+{
 	Uuid %id{u4{3251891958765718680,9159887340540620231}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -1070,8 +1239,26 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPxCharacterProxyComponent"}
-		u3 %TypeSize{136}
+		u3 %TypeSize{112}
 		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{14469700887475489738,16951777026318265606}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezBasisAxis"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
 	}
 }
 o

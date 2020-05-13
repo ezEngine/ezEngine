@@ -4,12 +4,12 @@
 
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/MemoryStream.h>
+#include <Foundation/Logging/Log.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/System/CrashHandler.h>
 #include <Foundation/System/StackTracer.h>
 #include <Foundation/Threading/ThreadUtils.h>
 #include <Foundation/Types/ScopeExit.h>
-#include <Foundation/Logging/Log.h>
 #include <TestFramework/Utilities/TestOrder.h>
 
 #include <cstdlib>
@@ -69,7 +69,7 @@ ezTestFramework::ezTestFramework(
 
   ezCommandLineUtils::GetGlobalInstance()->SetCommandLine(argc, argv, ezCommandLineUtils::PreferOsArgs);
 
-  GetTestSettingsFromCommandLine(argc, argv);
+  GetTestSettingsFromCommandLine(*ezCommandLineUtils::GetGlobalInstance());
 }
 
 ezTestFramework::~ezTestFramework()
@@ -119,11 +119,23 @@ void ezTestFramework::Initialize()
 
   CreateOutputFolder();
 
+  ezCommandLineUtils& cmd = *ezCommandLineUtils::GetGlobalInstance();
   // figure out which tests exist
   GatherAllTests();
+  if (!m_Settings.m_bNoGUI || cmd.GetStringOptionArguments("-order") == 1)
+  {
+    // load the test order from file, if that file does not exist, the array is not modified.
+    LoadTestOrder();
+  }
+  ApplyTestOrderFromCommandLine(cmd);
 
-  // load the test order from file, if that file does not exist, the array is not modified
-  LoadTestOrder();
+  if (!m_Settings.m_bNoGUI || cmd.GetStringOptionArguments("-settings") == 1)
+  {
+    // Load the test settings from file, if that file does not exist, the settings are not modified.
+    LoadTestSettings();
+    // Overwrite loaded test settings with command line
+    GetTestSettingsFromCommandLine(cmd);
+  }
 
   // save the current order back to the same file
   AutoSaveTestOrder();
@@ -157,6 +169,10 @@ const char* ezTestFramework::GetRelTestDataPath() const
   return m_sRelTestDataDir.c_str();
 }
 
+const char* ezTestFramework::GetAbsTestOrderFilePath() const
+{
+  return m_sAbsTestOrderFilePath.c_str();
+}
 
 const char* ezTestFramework::GetAbsTestSettingsFilePath() const
 {
@@ -183,10 +199,16 @@ void ezTestFramework::SetImageDiffExtraInfoCallback(ImageDiffExtraInfoCallback p
 
 bool ezTestFramework::GetAssertOnTestFail()
 {
-  if (!ezSystemInformation::IsDebuggerAttached())
-    return false;
-
-  return s_pInstance->m_Settings.m_bAssertOnTestFail;
+  switch (s_pInstance->m_Settings.m_AssertOnTestFail)
+  {
+    case AssertOnTestFail::DoNotAssert:
+      return false;
+    case AssertOnTestFail::AssertIfDebuggerAttached:
+      return ezSystemInformation::IsDebuggerAttached();
+    case AssertOnTestFail::AlwaysAssert:
+      return true;
+  }
+  return false;
 }
 
 void ezTestFramework::GatherAllTests()
@@ -244,18 +266,32 @@ void ezTestFramework::GatherAllTests()
   m_Result.SetupTests(m_TestEntries, config);
 }
 
-void ezTestFramework::GetTestSettingsFromCommandLine(int argc, const char** argv)
+void ezTestFramework::GetTestSettingsFromCommandLine(const ezCommandLineUtils& cmd)
 {
   // use a local instance of ezCommandLineUtils as global instance is not guaranteed to have been set up
   // for all call sites of this method.
-  ezCommandLineUtils cmd;
-  cmd.SetCommandLine(argc, argv, ezCommandLineUtils::PreferOsArgs);
 
   m_Settings.m_bRunTests = cmd.GetBoolOption("-run", false);
   m_Settings.m_bCloseOnSuccess = cmd.GetBoolOption("-close", false);
   m_Settings.m_bNoGUI = cmd.GetBoolOption("-nogui", false);
 
-  m_Settings.m_bAssertOnTestFail = cmd.GetBoolOption("-assert", m_Settings.m_bAssertOnTestFail);
+  if (cmd.GetOptionIndex("-assert") >= 0)
+  {
+    const int assertOnTestFailure = cmd.GetIntOption("-assert", (int)AssertOnTestFail::AssertIfDebuggerAttached);
+    switch (assertOnTestFailure)
+    {
+      case 0:
+        m_Settings.m_AssertOnTestFail = AssertOnTestFail::DoNotAssert;
+        break;
+      case 1:
+        m_Settings.m_AssertOnTestFail = AssertOnTestFail::AssertIfDebuggerAttached;
+        break;
+      case 2:
+        m_Settings.m_AssertOnTestFail = AssertOnTestFail::AlwaysAssert;
+        break;
+    }
+  }
+
   m_Settings.m_bOpenHtmlOutputOnError = cmd.GetBoolOption("-html", m_Settings.m_bOpenHtmlOutputOnError);
   m_Settings.m_bKeepConsoleOpen = cmd.GetBoolOption("-console", m_Settings.m_bKeepConsoleOpen);
   m_Settings.m_bShowTimestampsInLog = cmd.GetBoolOption("-timestamps", m_Settings.m_bShowTimestampsInLog);
@@ -264,6 +300,7 @@ void ezTestFramework::GetTestSettingsFromCommandLine(int argc, const char** argv
   m_Settings.m_iRevision = cmd.GetIntOption("-rev", -1);
   m_Settings.m_bEnableAllTests = cmd.GetBoolOption("-all", false);
   m_Settings.m_uiFullPasses = cmd.GetIntOption("-passes", 1, false);
+  m_Settings.m_sTestFilter = cmd.GetStringOption("-filter", 0, "");
 
   if (cmd.GetStringOptionArguments("-json") == 1)
     m_Settings.m_sJsonOutput = cmd.GetStringOption("-json", 0, "");
@@ -273,27 +310,63 @@ void ezTestFramework::GetTestSettingsFromCommandLine(int argc, const char** argv
     m_sAbsTestOutputDir = cmd.GetStringOption("-outputDir", 0, "");
   }
 
+  bool bNoAutoSave = false;
+  if (cmd.GetStringOptionArguments("-order") == 1)
+  {
+    m_sAbsTestOrderFilePath = cmd.GetStringOption("-order", 0, "");
+    // If a custom order file was provided, default to -nosave as to not overwrite that file with additional
+    // parameters from command line. Use "-nosave false" to explicitly enable auto save in this case.
+    bNoAutoSave = true;
+  }
+  else
+  {
+    m_sAbsTestOrderFilePath = m_sAbsTestOutputDir + std::string("/TestOrder.txt");
+  }
+
   if (cmd.GetStringOptionArguments("-settings") == 1)
   {
     m_sAbsTestSettingsFilePath = cmd.GetStringOption("-settings", 0, "");
     // If a custom settings file was provided, default to -nosave as to not overwrite that file with additional
-    // parameters from command line. Use "-nosave false" to explicitely enable auto save in this case.
-    m_Settings.m_bNoAutomaticSaving = cmd.GetBoolOption("-nosave", true);
+    // parameters from command line. Use "-nosave false" to explicitly enable auto save in this case.
+    bNoAutoSave = true;
   }
   else
   {
     m_sAbsTestSettingsFilePath = m_sAbsTestOutputDir + std::string("/TestSettings.txt");
-    m_Settings.m_bNoAutomaticSaving = cmd.GetBoolOption("-nosave", false);
   }
+  m_Settings.m_bNoAutomaticSaving = cmd.GetBoolOption("-nosave", bNoAutoSave);
 
   m_uiPassesLeft = m_Settings.m_uiFullPasses;
 }
 
 void ezTestFramework::LoadTestOrder()
 {
-  ::LoadTestOrder(m_sAbsTestSettingsFilePath.c_str(), m_TestEntries, m_Settings);
+  ::LoadTestOrder(m_sAbsTestOrderFilePath.c_str(), m_TestEntries);
+}
+
+void ezTestFramework::ApplyTestOrderFromCommandLine(const ezCommandLineUtils& cmd)
+{
   if (m_Settings.m_bEnableAllTests)
     SetAllTestsEnabledStatus(true);
+  if (!m_Settings.m_sTestFilter.empty())
+  {
+    const ezUInt32 uiTestCount = GetTestCount();
+    for (ezUInt32 uiTestIdx = 0; uiTestIdx < uiTestCount; ++uiTestIdx)
+    {
+      const bool bEnable = ezStringUtils::FindSubString_NoCase(m_TestEntries[uiTestIdx].m_szTestName, m_Settings.m_sTestFilter.c_str()) != nullptr;
+      m_TestEntries[uiTestIdx].m_bEnableTest = bEnable;
+      const ezUInt32 uiSubTestCount = (ezUInt32)m_TestEntries[uiTestIdx].m_SubTests.size();
+      for (ezUInt32 uiSubTest = 0; uiSubTest < uiSubTestCount; ++uiSubTest)
+      {
+        m_TestEntries[uiTestIdx].m_SubTests[uiSubTest].m_bEnableTest = bEnable;
+      }
+    }
+  }
+}
+
+void ezTestFramework::LoadTestSettings()
+{
+  ::LoadTestSettings(m_sAbsTestSettingsFilePath.c_str(), m_Settings);
 }
 
 void ezTestFramework::CreateOutputFolder()
@@ -304,18 +377,40 @@ void ezTestFramework::CreateOutputFolder()
     ezOSFile::ExistsDirectory(m_sAbsTestOutputDir.c_str()), "Failed to create output directory '{0}'", m_sAbsTestOutputDir.c_str());
 }
 
+void ezTestFramework::UpdateReferenceImages()
+{
+  ezStringBuilder sDir;
+  if (ezFileSystem::ResolveSpecialDirectory(">sdk", sDir).Failed())
+    return;
+
+  sDir.AppendPath(GetRelTestDataPath());
+
+  const ezStringBuilder sNewFiles(m_sAbsTestOutputDir.c_str(), "/Images_Result");
+  const ezStringBuilder sRefFiles(sDir, "/Images_Reference");
+
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) && EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
+  ezOSFile::CopyFolder(sNewFiles, sRefFiles);
+  ezOSFile::DeleteFolder(sNewFiles);
+#endif
+}
+
 void ezTestFramework::AutoSaveTestOrder()
 {
   if (m_Settings.m_bNoAutomaticSaving)
     return;
 
-  SaveTestOrder(m_sAbsTestSettingsFilePath.c_str());
+  SaveTestOrder(m_sAbsTestOrderFilePath.c_str());
+  SaveTestSettings(m_sAbsTestSettingsFilePath.c_str());
 }
-
 
 void ezTestFramework::SaveTestOrder(const char* const filePath)
 {
-  ::SaveTestOrder(filePath, m_TestEntries, m_Settings);
+  ::SaveTestOrder(filePath, m_TestEntries);
+}
+
+void ezTestFramework::SaveTestSettings(const char* const filePath)
+{
+  ::SaveTestSettings(filePath, m_Settings);
 }
 
 void ezTestFramework::SetAllTestsEnabledStatus(bool bEnable)
@@ -381,7 +476,7 @@ void ezTestFramework::TimeoutThread()
       ezTestFramework::Output(ezTestOutput::Error, "Timeout reached, terminating app.");
       // The top level exception handler takes care of all the shutdown logic already (app specific logic, crash dump, callstack etc)
       // which we do not want to duplicate here so we simply throw an unhandled exception.
-      throw new std::runtime_error("Timeout reached, terminating app.");
+      throw std::runtime_error("Timeout reached, terminating app.");
     }
     m_reArm = false;
   }
@@ -901,7 +996,7 @@ void ezTestFramework::TestResultImpl(ezInt32 iSubTestIndex, bool bSuccess, doubl
     if (bSuccess)
     {
       m_iTestsPassed++;
-      ezTestFramework::Output(ezTestOutput::Success, "Test '%s' succeeded", szTestName);
+      ezTestFramework::Output(ezTestOutput::Success, "Test '%s' succeeded (%.2f sec).", szTestName, m_fTotalTestDuration / 1000.0f);
 
       if (GetSettings().m_bAutoDisableSuccessfulTests)
       {
@@ -912,8 +1007,8 @@ void ezTestFramework::TestResultImpl(ezInt32 iSubTestIndex, bool bSuccess, doubl
     else
     {
       m_iTestsFailed++;
-      ezTestFramework::Output(ezTestOutput::Error, "Test '%s' failed: %i Errors.", szTestName,
-        (ezUInt32)m_Result.GetErrorMessageCount(m_iCurrentTestIndex, iSubTestIndex));
+      ezTestFramework::Output(ezTestOutput::Error, "Test '%s' failed: %i Errors (%.2f sec).", szTestName,
+        (ezUInt32)m_Result.GetErrorMessageCount(m_iCurrentTestIndex, iSubTestIndex), m_fTotalTestDuration / 1000.0f);
     }
   }
   else
@@ -921,7 +1016,7 @@ void ezTestFramework::TestResultImpl(ezInt32 iSubTestIndex, bool bSuccess, doubl
     const char* szSubTestName = m_TestEntries[m_iCurrentTestIndex].m_SubTests[iSubTestIndex].m_szSubTestName;
     if (bSuccess)
     {
-      ezTestFramework::Output(ezTestOutput::Success, "Sub-Test '%s' succeeded.", szSubTestName);
+      ezTestFramework::Output(ezTestOutput::Success, "Sub-Test '%s' succeeded (%.2f sec).", szSubTestName, m_fTotalSubTestDuration / 1000.0f);
 
       if (GetSettings().m_bAutoDisableSuccessfulTests)
       {
@@ -931,8 +1026,8 @@ void ezTestFramework::TestResultImpl(ezInt32 iSubTestIndex, bool bSuccess, doubl
     }
     else
     {
-      ezTestFramework::Output(ezTestOutput::Error, "Sub-Test '%s' failed: %i Errors.", szSubTestName,
-        (ezUInt32)m_Result.GetErrorMessageCount(m_iCurrentTestIndex, iSubTestIndex));
+      ezTestFramework::Output(ezTestOutput::Error, "Sub-Test '%s' failed: %i Errors (%.2f sec).", szSubTestName,
+        (ezUInt32)m_Result.GetErrorMessageCount(m_iCurrentTestIndex, iSubTestIndex), m_fTotalSubTestDuration / 1000.0f);
     }
   }
 }
@@ -1264,6 +1359,9 @@ bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezI
 
   sImgPathResult.Format(":imgout/Images_Result/{0}.png", sImgName);
 
+  // if a previous output image exists, get rid of it
+  ezFileSystem::DeleteFile(sImgPathResult);
+
   ezImage imgExp, imgExpRgba;
   if (imgExp.LoadFrom(sImgPathReference).Failed())
   {
@@ -1339,7 +1437,6 @@ bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezI
     ezTestFramework::Output(ezTestOutput::ImageDiffFile, sDataDirRelativePath);
     return false;
   }
-
   return true;
 }
 
@@ -1560,6 +1657,23 @@ ezResult ezTestInt(ezInt64 i1, ezInt64 i2, const char* szI1, const char* szI2, c
   return EZ_SUCCESS;
 }
 
+ezResult ezTestWString(std::wstring ws1, std::wstring ws2, const char* szWString1, const char* szWString2, const char* szFile, ezInt32 iLine,
+  const char* szFunction, const char* szMsg, ...)
+{
+  ezTestFramework::s_iAssertCounter++;
+
+  if (ws1 != ws2)
+  {
+    char szErrorText[2048];
+    safeprintf(szErrorText, 2048, "Failure: '%s' (%s) does not equal '%s' (%s)",
+      szWString1, ezStringUtf8(ws1.c_str()).GetData(), szWString2, ezStringUtf8(ws2.c_str()).GetData());
+
+    OUTPUT_TEST_ERROR
+  }
+
+  return EZ_SUCCESS;
+}
+
 ezResult ezTestString(std::string s1, std::string s2, const char* szString1, const char* szString2, const char* szFile, ezInt32 iLine,
   const char* szFunction, const char* szMsg, ...)
 {
@@ -1676,6 +1790,49 @@ ezResult ezTestFiles(
           OUTPUT_TEST_ERROR
         }
       }
+    }
+  }
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezTestTextFiles(
+  const char* szFile1, const char* szFile2, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
+{
+  ezTestFramework::s_iAssertCounter++;
+
+  char szErrorText[s_iMaxErrorMessageLength];
+
+  ezFileReader ReadFile1;
+  ezFileReader ReadFile2;
+
+  if (ReadFile1.Open(szFile1) == EZ_FAILURE)
+  {
+    safeprintf(szErrorText, s_iMaxErrorMessageLength, "Failure: File '%s' could not be read.", szFile1);
+
+    OUTPUT_TEST_ERROR
+  }
+  else if (ReadFile2.Open(szFile2) == EZ_FAILURE)
+  {
+    safeprintf(szErrorText, s_iMaxErrorMessageLength, "Failure: File '%s' could not be read.", szFile2);
+
+    OUTPUT_TEST_ERROR
+  }
+  else
+  {
+    ezStringBuilder sFile1;
+    sFile1.ReadAll(ReadFile1);
+    sFile1.ReplaceAll("\r\n", "\n");
+
+    ezStringBuilder sFile2;
+    sFile2.ReadAll(ReadFile2);
+    sFile2.ReplaceAll("\r\n", "\n");
+
+    if (sFile1 != sFile2)
+    {
+      safeprintf(szErrorText, s_iMaxErrorMessageLength, "Failure: Text files contents do not match: '%s' and '%s'", szFile1, szFile2);
+
+      OUTPUT_TEST_ERROR
     }
   }
 

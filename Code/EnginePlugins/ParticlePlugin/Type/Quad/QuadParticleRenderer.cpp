@@ -9,7 +9,7 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleQuadRenderData, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleQuadRenderer, 1, ezRTTIDefaultAllocator<ezParticleQuadRenderer>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleQuadRenderer, 1, ezRTTIDefaultAllocator<ezParticleQuadRenderer>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -34,8 +34,7 @@ void ezParticleQuadRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezR
   types.PushBack(ezGetStaticRTTI<ezParticleQuadRenderData>());
 }
 
-void ezParticleQuadRenderer::RenderBatch(
-  const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
+void ezParticleQuadRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
 {
   ezRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
@@ -47,8 +46,7 @@ void ezParticleQuadRenderer::RenderBatch(
 
   // make sure our structured buffer is allocated and bound
   {
-    pRenderContext->BindMeshBuffer(
-      ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, s_uiParticlesPerBatch * 2);
+    pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, s_uiParticlesPerBatch * 2);
 
     pRenderContext->BindBuffer("particleBaseData", pDevice->GetDefaultResourceView(m_hBaseDataBuffer));
     pRenderContext->BindBuffer("particleBillboardQuadData", pDevice->GetDefaultResourceView(m_hBillboardDataBuffer));
@@ -70,7 +68,7 @@ void ezParticleQuadRenderer::RenderBatch(
 
     ConfigureRenderMode(pRenderData, pRenderContext);
 
-    systemConstants.SetGenericData(pRenderData->m_bApplyObjectTransform, pRenderData->m_GlobalTransform, pRenderData->m_uiNumVariationsX,
+    systemConstants.SetGenericData(pRenderData->m_bApplyObjectTransform, pRenderData->m_GlobalTransform, pRenderData->m_TotalEffectLifeTime, pRenderData->m_uiNumVariationsX,
       pRenderData->m_uiNumVariationsY, pRenderData->m_uiNumFlipbookAnimationsX, pRenderData->m_uiNumFlipbookAnimationsY,
       pRenderData->m_fDistortionStrength);
 
@@ -121,6 +119,9 @@ void ezParticleQuadRenderer::ConfigureRenderMode(const ezParticleQuadRenderData*
     case ezParticleTypeRenderMode::Distortion:
       pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "PARTICLE_RENDER_MODE_DISTORTION");
       pRenderContext->BindTexture2D("ParticleDistortionTexture", pRenderData->m_hDistortionTexture);
+      break;
+    case ezParticleTypeRenderMode::BlendAdd:
+      pRenderContext->SetShaderPermutationVariable("PARTICLE_RENDER_MODE", "PARTICLE_RENDER_MODE_BLENDADD");
       break;
   }
 }

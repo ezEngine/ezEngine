@@ -11,13 +11,14 @@ o
 		s %AssetType{"Surface"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{13858312881180918672,5138622001753616094}}
-		u4 %Hash{3513966030764833418}
+		u4 %Hash{10930172159534690635}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
 		{
 			s{"{ 0a105955-e069-4523-80ce-7b9867bde687 }"}
-			s{"{ 73d03cee-5744-4bcc-a926-d09b82b965e6 }"}
+			s{"{ 6cba52b1-794b-4944-b57e-4b8b5e22b989 }"}
+			s{"{ fb5f9ced-8372-4cb1-9a72-76e4ec78f156 }"}
 		}
 	}
 }
@@ -33,8 +34,9 @@ o
 	{
 		s %Alignment{"ezSurfaceInteractionAlignment::SurfaceNormal"}
 		Angle %Deviation{f{0}}
+		f %ImpulseScale{0x0000803F}
 		f %ImpulseThreshold{0}
-		s %Prefab{"{ 73d03cee-5744-4bcc-a926-d09b82b965e6 }"}
+		s %Prefab{"{ 6cba52b1-794b-4944-b57e-4b8b5e22b989 }"}
 		s %Type{"Footstep"}
 	}
 }
@@ -50,10 +52,26 @@ o
 		VarArray %Interactions
 		{
 			Uuid{u4{174337019661878663,4788584087820851318}}
+			Uuid{u4{13682385145070517692,5604441663217522748}}
 		}
 		s %OnCollideInteraction{"Bump_Generic"}
 		f %Restitution{0xCDCCCC3D}
 		f %StaticFriction{0x9A99193F}
+	}
+}
+o
+{
+	Uuid %id{u4{13682385145070517692,5604441663217522748}}
+	s %t{"ezSurfaceInteraction"}
+	u3 %v{1}
+	p
+	{
+		s %Alignment{"ezSurfaceInteractionAlignment::SurfaceNormal"}
+		Angle %Deviation{f{0}}
+		f %ImpulseScale{0x0000803F}
+		f %ImpulseThreshold{0}
+		s %Prefab{"{ fb5f9ced-8372-4cb1-9a72-76e4ec78f156 }"}
+		s %Type{"BulletImpact"}
 	}
 }
 o

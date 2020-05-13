@@ -146,7 +146,7 @@ void ezFmodEventComponentManager::ShootOcclusionRays(OcclusionState& state, ezVe
 {
   ezVec3 centerPos = state.m_pComponent->GetOwner()->GetGlobalPosition();
   ezUInt8 uiCollisionLayer = state.m_pComponent->m_uiOcclusionCollisionLayer;
-  ezPhysicsHitResult hitResult;
+  ezPhysicsCastResult hitResult;
 
   for (ezUInt32 i = 0; i < uiNumRays; ++i)
   {
@@ -155,7 +155,7 @@ void ezFmodEventComponentManager::ShootOcclusionRays(OcclusionState& state, ezVe
     ezVec3 dir = targetPos - listenerPos;
     float fDistance = dir.GetLengthAndNormalize();
 
-    bool bHit = pPhysicsWorldModule->CastRay(listenerPos, dir, fDistance, uiCollisionLayer, hitResult);
+    bool bHit = pPhysicsWorldModule->Raycast(hitResult, listenerPos, dir, fDistance, ezPhysicsQueryParameters(uiCollisionLayer));
     if (bHit)
     {
       state.m_uiRaycastHits |= (1 << uiRayIndex);

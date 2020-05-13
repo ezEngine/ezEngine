@@ -13,22 +13,22 @@ using System.Threading;
 namespace ezUwpTestHarness
 {
   enum ezLogMsgType
-  {  
-      Flush = -3,
-      BeginGroup = -2,
-      EndGroup = -1,
-      None = 0,
-      ErrorMsg = 1,
-      SeriousWarningMsg = 2,
-      WarningMsg = 3,
-      SuccessMsg = 4,
-      InfoMsg = 5,
-      DevMsg = 6,
-      DebugMsg = 7,
-      All = 8,
+  {
+    Flush = -3,
+    BeginGroup = -2,
+    EndGroup = -1,
+    None = 0,
+    ErrorMsg = 1,
+    SeriousWarningMsg = 2,
+    WarningMsg = 3,
+    SuccessMsg = 4,
+    InfoMsg = 5,
+    DevMsg = 6,
+    DebugMsg = 7,
+    All = 8,
   };
 
-class ezTestUWP
+  class ezTestUWP
   {
     #region Activation Manager COM definitions
 
@@ -75,6 +75,10 @@ class ezTestUWP
     string _configuration;
     string _platform;
     string _project;
+
+    static int fileserveTimeoutMS = 600000;
+    int _failed = 0;
+    int _finished = 0;
 
     private ApplicationActivationManager appActiveManager;
 
@@ -226,20 +230,20 @@ class ezTestUWP
         throw new Exception(string.Format("No fileserver found. File '{0}' does not exist.", absFilerserveFilename));
       }
 
+
       Func<ezProcessHelper.ProcessResult> startFileserve = () =>
       {
         Console.WriteLine("Starting Fileserve ...");
 
-
-
         // 60s timeout for connect, 2s timeout for closing after connection loss.
         string args = string.Format("-specialdirs eztest \"{0}\" -fs_start -fs_wait_timeout 120 -fs_close_timeout 4", _absTestOutputDirectory);
-        return ezProcessHelper.RunExternalExe(absFilerserveFilename, args, absBinDir, 200000);
+        return ezProcessHelper.RunExternalExe(absFilerserveFilename, args, absBinDir, fileserveTimeoutMS);
       };
 
       // create a real time user mode session
       using (var session = new TraceEventSession("ezETWMonitorSession"))
       {
+ 
         session.EnableProvider(new Guid("BFD4350A-BA77-463D-B4BE-E30374E42494")); //ezLogProvider
         session.Source.Dynamic.AddCallbackForProviderEvent("ezLogProvider", "LogMessge", delegate (TraceEvent data)
         {
@@ -249,6 +253,17 @@ class ezTestUWP
           if (Type != (int)ezLogMsgType.EndGroup)
           {
             Console.Out.WriteLine("".PadLeft(Indentation) + Text);
+          }
+
+          if (Type == (int)ezLogMsgType.InfoMsg && Text == "All tests passed.")
+          {
+            Interlocked.Exchange(ref this._failed, 0);
+            Interlocked.Exchange(ref this._finished, 1);
+          }
+          else if (Type == (int)ezLogMsgType.InfoMsg && Text != null && Text.StartsWith("Tests failed: ") && Text.Contains("Tests passed: "))
+          {
+            Interlocked.Exchange(ref this._failed, 1);
+            Interlocked.Exchange(ref this._finished, 1);
           }
         });
 
@@ -272,9 +287,9 @@ class ezTestUWP
           appXProcess = Process.GetProcessById((int)appXPid);
           Console.WriteLine($"AppX pid: {appXPid}.");
 
-          if (!runFileServe.Wait(60000))
+          if (!runFileServe.Wait(fileserveTimeoutMS))
           {
-            Console.WriteLine(string.Format("Fileserve did not terminate within 10 minutes."));
+            Console.WriteLine(string.Format("Fileserve did not terminate within {0} minutes.", fileserveTimeoutMS / 60000.0));
           }
           Task.WaitAll(runFileServe);
 
@@ -301,29 +316,14 @@ class ezTestUWP
         // Wait for ETW events to trickle through.
         Thread.Sleep(5000);
 
-        // Read test output.
-        if (File.Exists(absOutputPath))
+        if (_finished == 1)
         {
-          string TestResultJSON = File.ReadAllText(absOutputPath, Encoding.UTF8);
-
-          try
-          {
-            // Parse test output to figure out what the result is as we can't use the exit code.
-            var values = Newtonsoft.Json.JsonConvert.DeserializeObject<System.Collections.Generic.Dictionary<string, dynamic>>(TestResultJSON);
-            var errors = values["errors"] as Newtonsoft.Json.Linq.JArray;
-            Console.WriteLine(string.Format("Errors during test: '{0}'", errors.Count));
-            Environment.ExitCode = errors.Count;
-          }
-          catch (Exception e)
-          {
-            Environment.ExitCode = 1;
-            Console.WriteLine(string.Format("Failed to parse test output: '{0}'", e.ToString()));
-          }
+          Environment.ExitCode = _failed;
         }
         else
         {
           Environment.ExitCode = 1;
-          Console.WriteLine(string.Format("No test output file present!"));
+          Console.WriteLine($"Failed to parse end of tests. Tests did not finish!");
         }
       }
     }

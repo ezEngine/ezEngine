@@ -11,7 +11,7 @@
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditAction, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditAction, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ////////////////////////////////////////////////////////////////////////
@@ -28,13 +28,13 @@ void ezEditActions::RegisterActions()
 {
   s_hEditCategory = EZ_REGISTER_CATEGORY("EditCategory");
   s_hCopy =
-      EZ_REGISTER_ACTION_1("Selection.Copy", ezActionScope::Document, "Document", "Ctrl+C", ezEditAction, ezEditAction::ButtonType::Copy);
+    EZ_REGISTER_ACTION_1("Selection.Copy", ezActionScope::Document, "Document", "Ctrl+C", ezEditAction, ezEditAction::ButtonType::Copy);
   s_hPaste =
-      EZ_REGISTER_ACTION_1("Selection.Paste", ezActionScope::Document, "Document", "Ctrl+V", ezEditAction, ezEditAction::ButtonType::Paste);
+    EZ_REGISTER_ACTION_1("Selection.Paste", ezActionScope::Document, "Document", "Ctrl+V", ezEditAction, ezEditAction::ButtonType::Paste);
   s_hPasteAsChild = EZ_REGISTER_ACTION_1("Selection.PasteAsChild", ezActionScope::Document, "Document", "", ezEditAction,
-                                         ezEditAction::ButtonType::PasteAsChild);
+    ezEditAction::ButtonType::PasteAsChild);
   s_hDelete =
-      EZ_REGISTER_ACTION_1("Selection.Delete", ezActionScope::Document, "Document", "", ezEditAction, ezEditAction::ButtonType::Delete);
+    EZ_REGISTER_ACTION_1("Selection.Delete", ezActionScope::Document, "Document", "", ezEditAction, ezEditAction::ButtonType::Delete);
 }
 
 void ezEditActions::UnregisterActions()
@@ -100,7 +100,7 @@ void ezEditActions::MapViewContextMenuActions(const char* szMapping, const char*
 ////////////////////////////////////////////////////////////////////////
 
 ezEditAction::ezEditAction(const ezActionContext& context, const char* szName, ButtonType button)
-    : ezButtonAction(context, szName, false, "")
+  : ezButtonAction(context, szName, false, "")
 {
   m_ButtonType = button;
 

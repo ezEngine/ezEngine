@@ -13,6 +13,8 @@ public:
 
   const ezVec3& GetScalingResult() const { return m_vScalingResult; }
 
+  virtual void UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow) override;
+
 protected:
   virtual void DoFocusLost(bool bCancel) override;
 

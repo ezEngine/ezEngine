@@ -40,7 +40,7 @@ bool ezMaterialResourceDescriptor::operator==(const ezMaterialResourceDescriptor
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialResource, 1, ezRTTIDefaultAllocator<ezMaterialResource>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialResource, 1, ezRTTIDefaultAllocator<ezMaterialResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezMaterialResource);
@@ -847,7 +847,7 @@ bool ezMaterialResource::IsModified()
   return m_iLastModified != m_iLastUpdated;
 }
 
-bool ezMaterialResource::AreContantsModified()
+bool ezMaterialResource::AreConstantsModified()
 {
   return m_iLastConstantsModified != m_iLastConstantsUpdated;
 }

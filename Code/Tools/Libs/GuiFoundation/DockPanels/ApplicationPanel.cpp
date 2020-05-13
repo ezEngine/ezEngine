@@ -4,6 +4,10 @@
 #include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
 
+#include <ads/DockAreaWidget.h>
+#include <ads/DockContainerWidget.h>
+#include <ads/DockWidgetTab.h>
+
 ezDynamicArray<ezQtApplicationPanel*> ezQtApplicationPanel::s_AllApplicationPanels;
 
 ezQtApplicationPanel::ezQtApplicationPanel(const char* szPanelName)
@@ -34,7 +38,18 @@ void ezQtApplicationPanel::EnsureVisible()
 {
   m_pContainerWindow->EnsureVisible(this);
 
-  EZ_ASSERT_DEV(parent() != nullptr, "Invalid Parent!");
+  QWidget* pThis = this;
+
+  if (dockAreaWidget())
+  {
+    dockAreaWidget()->setCurrentDockWidget(this);
+  }
+
+  while (pThis)
+  {
+    pThis->raise();
+    pThis = qobject_cast<QWidget*>(pThis->parent());
+  }
 }
 
 

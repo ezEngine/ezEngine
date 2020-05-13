@@ -11,7 +11,7 @@ class ezProcPlacementComponent;
 
 namespace ezProcGenInternal
 {
-  class FindPlacementTilesTask : public ezTask
+  class FindPlacementTilesTask final : public ezTask
   {
   public:
     FindPlacementTilesTask(ezProcPlacementComponent* pComponent, ezUInt32 uiOutputIndex);

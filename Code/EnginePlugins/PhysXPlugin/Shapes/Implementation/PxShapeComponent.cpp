@@ -31,11 +31,7 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPxShapeComponent, 5)
 EZ_END_ABSTRACT_COMPONENT_TYPE
 // clang-format on
 
-ezPxShapeComponent::ezPxShapeComponent()
-  : m_UserData(this)
-{
-}
-
+ezPxShapeComponent::ezPxShapeComponent() = default;
 ezPxShapeComponent::~ezPxShapeComponent() = default;
 
 void ezPxShapeComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -103,18 +99,15 @@ void ezPxShapeComponent::Initialize()
   }
 }
 
-void ezPxShapeComponent::Deinitialize()
+void ezPxShapeComponent::OnDeactivated()
 {
-  if (m_uiShapeId != ezInvalidIndex)
+  if (ezPhysXWorldModule* pModule = GetWorld()->GetModule<ezPhysXWorldModule>())
   {
-    if (ezPhysXWorldModule* pModule = GetWorld()->GetModule<ezPhysXWorldModule>())
-    {
-      pModule->DeleteShapeId(m_uiShapeId);
-      m_uiShapeId = ezInvalidIndex;
-    }
+    pModule->DeleteShapeId(m_uiShapeId);
+    pModule->DeallocateUserData(m_uiUserDataIndex);
   }
 
-  SUPER::Deinitialize();
+  SUPER::OnDeactivated();
 }
 
 void ezPxShapeComponent::SetSurfaceFile(const char* szFile)
@@ -157,7 +150,10 @@ void ezPxShapeComponent::AddToActor(PxRigidActor* pActor, const ezSimdTransform&
   pShape->setSimulationFilterData(filter);
   pShape->setQueryFilterData(filter);
 
-  pShape->userData = &m_UserData;
+  ezPxUserData* pUserData = nullptr;
+  m_uiUserDataIndex = pModule->AllocateUserData(pUserData);
+  pUserData->Init(this);
+  pShape->userData = pUserData;
 }
 
 void ezPxShapeComponent::ExtractGeometry(ezMsgExtractGeometry& msg) const {}

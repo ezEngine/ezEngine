@@ -3,9 +3,6 @@
 #include <Foundation/Basics.h>
 #include <Foundation/ThirdParty/utf8/utf8.h>
 
-// Minus 1 wraps around to the maximum unsigned integer value, which is different on 32 Bit and 64 Bit
-#define ezMaxStringEnd (const char*)-1
-
 /// \brief Helper functions to work with Unicode.
 class EZ_FOUNDATION_DLL ezUnicodeUtils
 {
@@ -47,7 +44,7 @@ public:
   static void MoveToPriorUtf8(const char*& szUtf8, ezUInt32 uiNumCharacters = 1); // [tested]
 
   /// \brief Returns false if the given string does not contain a completely valid Utf8 string.
-  static bool IsValidUtf8(const char* szString, const char* szStringEnd = ezMaxStringEnd);
+  static bool IsValidUtf8(const char* szString, const char* szStringEnd = GetMaxStringEnd<char>());
 
   /// \brief If the given string starts with a Utf8 Bom, the pointer is incremented behind the Bom, and the function returns true.
   ///
@@ -95,7 +92,7 @@ public:
   struct UtfInserter
   {
     typedef IntType InsertionType;
-    
+
     EZ_ALWAYS_INLINE UtfInserter(Container* pContainer) { m_pContainer = pContainer; }
     EZ_ALWAYS_INLINE void operator++() {}
     EZ_ALWAYS_INLINE UtfInserter& operator++(int) { return *this; }
@@ -104,8 +101,11 @@ public:
 
     Container* m_pContainer;
   };
+
+  /// \brief [internal] Returns the max string end pointer for the given type
+  template <typename T>
+  static constexpr T* GetMaxStringEnd();
 };
 
 
 #include <Foundation/Strings/Implementation/UnicodeUtils_inl.h>
-

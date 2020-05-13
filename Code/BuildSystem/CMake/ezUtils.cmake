@@ -13,6 +13,7 @@ include("ezUtilsUWP")
 include("ezUtilsTarget")
 include("ezUtilsTargetCS")
 include("ezUtilsVcpkg")
+include("ezUtilsSubmodule")
 
 ######################################
 ### ez_set_target_output_dirs(<target> <lib-output-dir> <dll-output-dir>)
@@ -196,7 +197,13 @@ function(ez_set_project_ide_folder TARGET_NAME PROJECT_SOURCE_DIR)
 
 	endif()
 
-	set_property(TARGET ${TARGET_NAME} PROPERTY FOLDER ${IDE_FOLDER})
+	get_property(EZ_SUBMODULE_MODE GLOBAL PROPERTY EZ_SUBMODULE_MODE)
+	
+	if(EZ_SUBMODULE_MODE)
+		set_property(TARGET ${TARGET_NAME} PROPERTY FOLDER "ezEngine/${IDE_FOLDER}")
+	else()
+		set_property(TARGET ${TARGET_NAME} PROPERTY FOLDER ${IDE_FOLDER})
+	endif()
 
 endfunction()
 
@@ -456,3 +463,47 @@ function(ez_finalize_projects)
 	endforeach ()
 	
 endfunction()
+
+######################################
+### ez_build_filter_init()
+######################################
+
+# The build filter is intended to only build a subset of ezEngine. 
+# This is modeled as a enum so it is extensible
+# use the ez_build_filter_xxx marcros to filter out libraries.
+# Currently the only two values are
+# Foundation - 0: only build foundation and related tests
+# Everything - 1: build everything
+function(ez_build_filter_init)
+
+	set(EZ_BUILD_FILTER "Everything" CACHE STRING "Whether tool projects should be added to the solution")
+	set(EZ_BUILD_FILTER_VALUES FoundationOnly Everything)
+	set_property(CACHE EZ_BUILD_FILTER PROPERTY STRINGS ${EZ_BUILD_FILTER_VALUES})
+	list(FIND EZ_BUILD_FILTER_VALUES ${EZ_BUILD_FILTER} index)
+	set_property(GLOBAL PROPERTY EZ_BUILD_FILTER_INDEX ${index})
+	
+endfunction()
+
+######################################
+### ez_build_filter_foundation()
+######################################
+
+# Project will only be included if build filter is set to foundation or higher
+macro(ez_build_filter_foundation)
+	get_property(filterIndex GLOBAL PROPERTY EZ_BUILD_FILTER_INDEX)
+	if(${filterIndex} LESS 0)
+		return()
+	endif()
+endmacro()
+
+######################################
+### ez_build_filter_everything()
+######################################
+
+# Project will only be included if build filter is set to everything
+macro(ez_build_filter_everything)
+	get_property(filterIndex GLOBAL PROPERTY EZ_BUILD_FILTER_INDEX)
+	if(${filterIndex} LESS 1)
+		return()
+	endif()
+endmacro()

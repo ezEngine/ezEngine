@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9223588390495708329,5558919684819389940}}
-		u4 %Hash{6749626093420400599}
+		u4 %Hash{9961796203835936134}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{12514312867851784393,11849688243473258348}}
@@ -19,8 +19,7 @@ o
 		VarArray %Outputs{}
 		VarArray %References
 		{
-			s{"{ 1dd7dbfb-f712-0acc-d78b-cd7f36eddea1 }"}
-			s{"{ 66eac2eb-5265-4ffe-88f6-1bf98fd85300 }"}
+			s{"{ 59752386-0bc7-4afc-ae77-699ffd868a15 }"}
 			s{"{ 826c0fcc-d934-4975-9545-87be5d62d08d }"}
 		}
 	}
@@ -47,11 +46,8 @@ o
 	{
 		b %Active{1}
 		Color %Color{f{0x8EA89F3D,0x0D9ED83D,0xD53CE53D,0x0000803F}}
-		VarArray %Materials
-		{
-			s{"{ 1dd7dbfb-f712-0acc-d78b-cd7f36eddea1 }"}
-		}
-		s %Mesh{"{ 66eac2eb-5265-4ffe-88f6-1bf98fd85300 }"}
+		VarArray %Materials{}
+		s %Mesh{"{ 59752386-0bc7-4afc-ae77-699ffd868a15 }"}
 	}
 }
 o
@@ -138,7 +134,7 @@ o
 		Vec3 %LocalPosition{f{0,0,0}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
-		f %LocalUniformScaling{0x6F12033C}
+		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
 		s %Name{""}
 		VarArray %Tags

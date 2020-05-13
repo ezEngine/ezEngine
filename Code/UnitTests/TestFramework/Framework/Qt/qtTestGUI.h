@@ -3,7 +3,7 @@
 #ifdef EZ_USE_QT
 
 #  include <QMainWindow>
-#  include <UnitTests/TestFramework/ui_qtTestGUI.h>
+#  include <TestFramework/ui_qtTestGUI.h>
 
 #  include <TestFramework/TestFrameworkDLL.h>
 
@@ -49,6 +49,7 @@ private Q_SLOTS:
   void on_actionShowMessageBox_triggered(bool bChecked);
   void on_actionDisableSuccessfulTests_triggered(bool bChecked);
   void on_actionSaveTestSettingsAs_triggered();
+  void on_actionSaveTestOrderAs_triggered();
   void on_actionRunTests_triggered();
   void on_actionAbort_triggered();
   void on_actionQuit_triggered();
@@ -70,6 +71,7 @@ private Q_SLOTS:
   void on_actionOpenTestDataFolder_triggered();
   void on_actionOpenOutputFolder_triggered();
   void on_actionOpenHTMLFile_triggered();
+  void on_actionUpdateReferenceImages_triggered();
 
 private:
   void UpdateButtonStates();

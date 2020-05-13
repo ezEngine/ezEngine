@@ -1,14 +1,13 @@
 #include <ParticlePluginPCH.h>
 
-#include <ParticlePlugin/Initializer/ParticleInitializer_RandomColor.h>
+#include <Core/WorldSerializer/ResourceHandleStreamOperations.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
-#include <Foundation/Math/Random.h>
-#include <ParticlePlugin/System/ParticleSystemInstance.h>
-#include <GameEngine/Curves/ColorGradientResource.h>
-#include <Core/WorldSerializer/ResourceHandleReader.h>
-#include <Core/WorldSerializer/ResourceHandleWriter.h>
-#include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Math/Color16f.h>
+#include <Foundation/Math/Random.h>
+#include <Foundation/Profiling/Profiling.h>
+#include <GameEngine/Curves/ColorGradientResource.h>
+#include <ParticlePlugin/Initializer/ParticleInitializer_RandomColor.h>
+#include <ParticlePlugin/System/ParticleSystemInstance.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleInitializerFactory_RandomColor, 1, ezRTTIDefaultAllocator<ezParticleInitializerFactory_RandomColor>)
@@ -101,7 +100,6 @@ void ezParticleInitializer_RandomColor::InitializeElements(ezUInt64 uiStartIndex
     for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
     {
       const float f = (float)rng.DoubleZeroToOneInclusive();
-
       pColor[i] = ezMath::Lerp(m_Color1, m_Color2, f);
     }
   }
@@ -116,6 +114,8 @@ void ezParticleInitializer_RandomColor::InitializeElements(ezUInt64 uiStartIndex
     ezColorGammaUB color;
     float intensity;
 
+    const bool bMulColor = (m_Color1 != ezColor::White) && (m_Color2 != ezColor::White);
+
     for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
     {
       const double f = rng.DoubleMinMax(fMinValue, fMaxValue);
@@ -127,6 +127,12 @@ void ezParticleInitializer_RandomColor::InitializeElements(ezUInt64 uiStartIndex
       result.g *= intensity;
       result.b *= intensity;
 
+      if (bMulColor)
+      {
+        const float f2 = (float)rng.DoubleZeroToOneInclusive();
+        result *= ezMath::Lerp(m_Color1, m_Color2, f2);
+      }
+
       pColor[i] = result;
     }
   }
@@ -135,4 +141,3 @@ void ezParticleInitializer_RandomColor::InitializeElements(ezUInt64 uiStartIndex
 
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Initializer_ParticleInitializer_RandomColor);
-

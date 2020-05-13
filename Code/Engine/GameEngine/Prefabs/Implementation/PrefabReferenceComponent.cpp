@@ -48,17 +48,14 @@ enum PrefabComponentFlags
 ezPrefabReferenceComponent::ezPrefabReferenceComponent() = default;
 ezPrefabReferenceComponent::~ezPrefabReferenceComponent() = default;
 
-void ezPrefabReferenceComponent::SerializeComponent(ezWorldWriter& stream) const
+void ezPrefabReferenceComponent::SerializePrefabParameters(const ezWorld& world, ezWorldWriter& stream, ezArrayMap<ezHashedString, ezVariant> parameters)
 {
-  SUPER::SerializeComponent(stream);
+  // we need a copy of the parameters here, therefore we don't take it by reference
+
   auto& s = stream.GetStream();
-
-  s << m_hPrefab;
-
-  const ezUInt32 numParams = m_Parameters.GetCount();
+  const ezUInt32 numParams = parameters.GetCount();
 
   ezHybridArray<ezGameObjectHandle, 8> GoReferences;
-  ezArrayMap<ezHashedString, ezVariant> parameters = m_Parameters;
 
   // Version 4
   {
@@ -66,7 +63,7 @@ void ezPrefabReferenceComponent::SerializeComponent(ezWorldWriter& stream) const
     // we need to remap the string from an 'editor uuid' to something that can be interpreted as a proper ezGameObjectHandle at runtime
 
     // so first we get the resolver and try to map any string parameter to a valid ezGameObjectHandle
-    auto resolver = GetWorld()->GetGameObjectReferenceResolver();
+    auto resolver = world.GetGameObjectReferenceResolver();
 
     if (resolver.IsValid())
     {
@@ -114,19 +111,13 @@ void ezPrefabReferenceComponent::SerializeComponent(ezWorldWriter& stream) const
   }
 }
 
-void ezPrefabReferenceComponent::DeserializeComponent(ezWorldReader& stream)
+void ezPrefabReferenceComponent::DeserializePrefabParameters(ezArrayMap<ezHashedString, ezVariant>& out_parameters, ezWorldReader& stream)
 {
-  SUPER::DeserializeComponent(stream);
-  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  out_parameters.Clear();
+
+  // versioning of this stuff is tied to the version number of ezPrefabReferenceComponent
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(ezGetStaticRTTI<ezPrefabReferenceComponent>());
   auto& s = stream.GetStream();
-
-  s >> m_hPrefab;
-
-  if (uiVersion < 3)
-  {
-    bool bDummy;
-    s >> bDummy;
-  }
 
   // temp array to hold (and remap) the serialized game object handles
   ezHybridArray<ezGameObjectHandle, 8> GoReferences;
@@ -149,7 +140,7 @@ void ezPrefabReferenceComponent::DeserializeComponent(ezWorldReader& stream)
     ezUInt32 numParams = 0;
     s >> numParams;
 
-    m_Parameters.Reserve(numParams);
+    out_parameters.Reserve(numParams);
 
     ezHashedString key;
     ezVariant value;
@@ -184,9 +175,36 @@ void ezPrefabReferenceComponent::DeserializeComponent(ezWorldReader& stream)
         }
       }
 
-      m_Parameters.Insert(key, value);
+      out_parameters.Insert(key, value);
     }
   }
+}
+
+void ezPrefabReferenceComponent::SerializeComponent(ezWorldWriter& stream) const
+{
+  SUPER::SerializeComponent(stream);
+  auto& s = stream.GetStream();
+
+  s << m_hPrefab;
+
+  ezPrefabReferenceComponent::SerializePrefabParameters(*GetWorld(), stream, m_Parameters);
+}
+
+void ezPrefabReferenceComponent::DeserializeComponent(ezWorldReader& stream)
+{
+  SUPER::DeserializeComponent(stream);
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  auto& s = stream.GetStream();
+
+  s >> m_hPrefab;
+
+  if (uiVersion < 3)
+  {
+    bool bDummy;
+    s >> bDummy;
+  }
+
+  ezPrefabReferenceComponent::DeserializePrefabParameters(m_Parameters, stream);
 }
 
 void ezPrefabReferenceComponent::SetPrefabFile(const char* szFile)
@@ -436,4 +454,4 @@ void ezPrefabReferenceComponentManager::AddToUpdateList(ezPrefabReferenceCompone
 
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_PrefabReferenceComponent);
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Prefabs_Implementation_PrefabReferenceComponent);

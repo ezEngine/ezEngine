@@ -3,17 +3,16 @@
 #include "DocumentWindow/EngineViewWidget.moc.h"
 #include <EditorFramework/InputContexts/EditorInputContext.h>
 #include <Foundation/Logging/Log.h>
+#include <GuiFoundation/Widgets/WidgetUtils.h>
 #include <QApplication>
 #include <QCursor>
 #include <QDesktopWidget>
 #include <QKeyEvent>
-#include <GuiFoundation/Widgets/WidgetUtils.h>
 
 ezEditorInputContext* ezEditorInputContext::s_pActiveInputContext = nullptr;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorInputContext, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorInputContext, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-
 
 ezEditorInputContext::ezEditorInputContext()
 {

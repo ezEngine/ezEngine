@@ -1,5 +1,7 @@
 ez_cmake_init()
 
+ez_build_filter_everything()
+
 ez_requires_d3d()
 
 # Get the name of this folder as the project name
@@ -13,6 +15,8 @@ target_link_libraries(${PROJECT_NAME}
   GameEngine
   RendererDX11
   TypeScriptPlugin
+  Utilities
+  ParticlePlugin
 )
 
 if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
@@ -25,9 +29,9 @@ if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
   )
 
   if (EZ_BUILD_FMOD)
+    find_package(EzFmod REQUIRED)
     target_link_libraries(${PROJECT_NAME} PUBLIC FmodPlugin)
   endif()
-
 endif()
 
 

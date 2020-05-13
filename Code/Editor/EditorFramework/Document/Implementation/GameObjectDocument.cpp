@@ -6,12 +6,12 @@
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <EditorFramework/EditTools/EditTool.h>
 #include <EditorFramework/Gizmos/SnapProvider.h>
+#include <EditorFramework/Preferences/EditorPreferences.h>
 #include <Foundation/Strings/TranslationLookup.h>
+#include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
 #include <GuiFoundation/PropertyGrid/VisualizerManager.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
-#include <EditorFramework/Preferences/EditorPreferences.h>
-#include <GuiFoundation/PropertyGrid/ManipulatorManager.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectMetaData, 1, ezRTTINoAllocator)
@@ -31,7 +31,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezEvent<const ezGameObjectDocumentEvent&> ezGameObjectDocument::s_GameObjectDocumentEvents;
 
 ezGameObjectDocument::ezGameObjectDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType)
-    : ezAssetDocument(szDocumentPath, pObjectManager, engineConnectionType)
+  : ezAssetDocument(szDocumentPath, pObjectManager, engineConnectionType)
 {
   EZ_ASSERT_DEV(engineConnectionType == ezAssetDocEngineConnection::FullObjectMirroring, "ezGameObjectDocument only supports full mirroring engine connection types. The parameter only exists for interface compatibility.");
 
@@ -130,6 +130,28 @@ void ezGameObjectDocument::SetAddAmbientLight(bool b)
   ezGameObjectEvent e;
   e.m_Type = ezGameObjectEvent::Type::AddAmbientLightChanged;
   m_GameObjectEvents.Broadcast(e);
+
+  ShowDocumentStatus(ezFmt("Ambient Light: {}", m_bAddAmbientLight ? "ON" : "OFF"));
+}
+
+void ezGameObjectDocument::SetPickTransparent(bool b)
+{
+  if (m_bPickTransparent == b)
+    return;
+
+  m_bPickTransparent = b;
+
+  ezGameObjectEvent e;
+  e.m_Type = ezGameObjectEvent::Type::PickTransparentChanged;
+  m_GameObjectEvents.Broadcast(e);
+
+  ShowDocumentStatus(ezFmt("Select Transparent: {}", m_bPickTransparent ? "ON" : "OFF"));
+
+  if (m_bPickTransparent == false)
+  {
+    // make sure no transparent object is currently selected
+    GetSelectionManager()->Clear();
+  }
 }
 
 void ezGameObjectDocument::SetGizmoWorldSpace(bool bWorldSpace)
@@ -142,6 +164,8 @@ void ezGameObjectDocument::SetGizmoWorldSpace(bool bWorldSpace)
   ezGameObjectEvent e;
   e.m_Type = ezGameObjectEvent::Type::ActiveEditToolChanged;
   m_GameObjectEvents.Broadcast(e);
+
+  ShowDocumentStatus(ezFmt("Transform in {}", m_bGizmoWorldSpace ? "World Space" : "Object Space"));
 }
 
 bool ezGameObjectDocument::GetGizmoWorldSpace() const
@@ -159,10 +183,12 @@ void ezGameObjectDocument::SetGizmoMoveParentOnly(bool bMoveParent)
   ezGameObjectEvent e;
   e.m_Type = ezGameObjectEvent::Type::ActiveEditToolChanged;
   m_GameObjectEvents.Broadcast(e);
+
+  ShowDocumentStatus(ezFmt("Move Parent Only: {}", m_bGizmoMoveParentOnly ? "ON" : "OFF"));
 }
 
 void ezGameObjectDocument::DetermineNodeName(const ezDocumentObject* pObject, const ezUuid& prefabGuid, ezStringBuilder& out_Result,
-                                             QIcon* out_pIcon /*= nullptr*/) const
+  QIcon* out_pIcon /*= nullptr*/) const
 {
   // tries to find a good name for a node by looking at the attached components and their properties
 
@@ -263,7 +289,7 @@ void ezGameObjectDocument::DetermineNodeName(const ezDocumentObject* pObject, co
 
 
 void ezGameObjectDocument::QueryCachedNodeName(const ezDocumentObject* pObject, ezStringBuilder& out_Result, ezUuid* out_pPrefabGuid,
-                                               QIcon* out_pIcon /*= nullptr*/) const
+  QIcon* out_pIcon /*= nullptr*/) const
 {
   auto pMetaScene = m_GameObjectMetaData.BeginReadMetaData(pObject->GetGuid());
   auto pMetaDoc = m_DocumentObjectMetaData.BeginReadMetaData(pObject->GetGuid());
@@ -406,7 +432,7 @@ void ezGameObjectDocument::SetGlobalTransform(const ezDocumentObject* pObject, c
 }
 
 void ezGameObjectDocument::SetGlobalTransformParentOnly(const ezDocumentObject* pObject, const ezTransform& t,
-                                                        ezUInt8 transformationChanges) const
+  ezUInt8 transformationChanges) const
 {
   ezHybridArray<ezTransform, 16> childTransforms;
   const auto& children = pObject->GetChildren();
@@ -557,6 +583,12 @@ void ezGameObjectDocument::SnapCameraToObject()
   if (ctxt.m_pLastHoveredViewWidget == nullptr)
     return;
 
+  if (ctxt.m_pLastHoveredViewWidget->m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
+  {
+    ShowDocumentStatus("Note: This operation can only be performed in perspective views.");
+    return;
+  }
+
   const ezCamera* pCamera = &ctxt.m_pLastHoveredViewWidget->m_pViewConfig->m_Camera;
 
   const ezVec3 vForward = trans.m_qRotation * ezVec3(1, 0, 0);
@@ -569,10 +601,11 @@ void ezGameObjectDocument::SnapCameraToObject()
 void ezGameObjectDocument::MoveCameraHere()
 {
   const auto& ctxt = ezQtEngineViewWidget::GetInteractionContext();
-  const bool bCanMove =
-      ctxt.m_pLastHoveredViewWidget != nullptr && ctxt.m_pLastPickingResult && !ctxt.m_pLastPickingResult->m_vPickedPosition.IsNaN();
 
-  if (!bCanMove)
+  if (ctxt.m_pLastHoveredViewWidget == nullptr || ctxt.m_pLastPickingResult == nullptr)
+    return;
+
+  if (ctxt.m_pLastPickingResult->m_vPickedPosition.IsNaN())
     return;
 
   const ezCamera* pCamera = &ctxt.m_pLastHoveredViewWidget->m_pViewConfig->m_Camera;
@@ -581,18 +614,54 @@ void ezGameObjectDocument::MoveCameraHere()
   const ezVec3 vDirToPos = ctxt.m_pLastPickingResult->m_vPickedPosition - vCurPos;
 
   // don't move the entire distance, keep some distance to the target position
-  const ezVec3 vPos = vCurPos + 0.9f * vDirToPos;
-  const ezVec3 vForward = pCamera->GetCenterDirForwards();
-  const ezVec3 vUp = pCamera->GetCenterDirUp();
+  ezVec3 vPos = vCurPos + 0.9f * vDirToPos;
+  ezVec3 vCamDir = pCamera->GetCenterDirForwards();
+  ezVec3 vCamUp = pCamera->GetCenterDirUp();
 
-  ctxt.m_pLastHoveredViewWidget->InterpolateCameraTo(vPos, vForward, pCamera->GetFovOrDim(), &vUp);
+  // if the projection mode of the view is orthographic, ignore the direction
+  if (ctxt.m_pLastHoveredViewWidget->m_pViewConfig->m_Perspective != ezSceneViewPerspective::Perspective)
+  {
+    const auto& oldCam = ctxt.m_pLastHoveredViewWidget->m_pViewConfig->m_Camera;
+
+    vCamDir = oldCam.GetCenterDirForwards();
+    vCamUp = oldCam.GetCenterDirUp();
+
+    switch (ctxt.m_pLastHoveredViewWidget->m_pViewConfig->m_Perspective)
+    {
+      case ezSceneViewPerspective::Orthogonal_Front:
+        vPos.x = oldCam.GetCenterPosition().x;
+        break;
+      case ezSceneViewPerspective::Orthogonal_Right:
+        vPos.y = oldCam.GetCenterPosition().y;
+        break;
+      case ezSceneViewPerspective::Orthogonal_Top:
+        vPos.z = oldCam.GetCenterPosition().z;
+        break;
+
+      default:
+        break;
+    }
+  }
+  else
+  {
+    // in ortho modes it is fine to move just anywhere, and we often don't pick a real object,
+    // because of the wireframe picking
+
+    // however, in perspective modes, don't move, if we haven't picked any real object
+    // this happens for example when one picks the sky -> you would end up far away
+    if (!ctxt.m_pLastPickingResult->m_PickedComponent.IsValid() &&
+        !ctxt.m_pLastPickingResult->m_PickedOther.IsValid())
+      return;
+  }
+
+  ctxt.m_pLastHoveredViewWidget->InterpolateCameraTo(vPos, vCamDir, pCamera->GetFovOrDim(), &vCamUp);
 }
 
 ezStatus ezGameObjectDocument::CreateGameObjectHere()
 {
   const auto& ctxt = ezQtEngineViewWidget::GetInteractionContext();
   const bool bCanCreate =
-      ctxt.m_pLastHoveredViewWidget != nullptr && ctxt.m_pLastPickingResult && !ctxt.m_pLastPickingResult->m_vPickedPosition.IsNaN();
+    ctxt.m_pLastHoveredViewWidget != nullptr && ctxt.m_pLastPickingResult && !ctxt.m_pLastPickingResult->m_vPickedPosition.IsNaN();
 
   if (!bCanCreate)
     return ezStatus(EZ_FAILURE);
@@ -690,6 +759,8 @@ void ezGameObjectDocument::SetRenderSelectionOverlay(bool b)
   ezGameObjectEvent e;
   e.m_Type = ezGameObjectEvent::Type::RenderSelectionOverlayChanged;
   m_GameObjectEvents.Broadcast(e);
+
+  ShowDocumentStatus(ezFmt("Selection Overlay: {}", m_CurrentMode.m_bRenderSelectionOverlay ? "ON" : "OFF"));
 }
 
 
@@ -705,6 +776,8 @@ void ezGameObjectDocument::SetRenderVisualizers(bool b)
   ezGameObjectEvent e;
   e.m_Type = ezGameObjectEvent::Type::RenderVisualizersChanged;
   m_GameObjectEvents.Broadcast(e);
+
+  ShowDocumentStatus(ezFmt("Visualizers: {}", m_CurrentMode.m_bRenderVisualizers ? "ON" : "OFF"));
 }
 
 void ezGameObjectDocument::SetRenderShapeIcons(bool b)
@@ -717,6 +790,8 @@ void ezGameObjectDocument::SetRenderShapeIcons(bool b)
   ezGameObjectEvent e;
   e.m_Type = ezGameObjectEvent::Type::RenderShapeIconsChanged;
   m_GameObjectEvents.Broadcast(e);
+
+  ShowDocumentStatus(ezFmt("Shape Icons: {}", m_CurrentMode.m_bRenderShapeIcons ? "ON" : "OFF"));
 }
 
 void ezGameObjectDocument::ObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
@@ -869,7 +944,7 @@ ezSimdTransform ezGameObjectDocument::QueryLocalTransformSimd(const ezDocumentOb
   const float fScaling = pObject->GetTypeAccessor().GetValue("LocalUniformScaling").ConvertTo<float>();
 
   return ezSimdTransform(ezSimdConversion::ToVec3(vTranslation), ezSimdConversion::ToQuat(qRotation),
-                         ezSimdConversion::ToVec3(vScaling * fScaling));
+    ezSimdConversion::ToVec3(vScaling * fScaling));
 }
 
 

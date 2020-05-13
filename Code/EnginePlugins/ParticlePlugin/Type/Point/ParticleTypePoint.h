@@ -4,7 +4,7 @@
 #include <RendererFoundation/RendererFoundationDLL.h>
 #include <ParticlePlugin/Type/Point/PointRenderer.h>
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleTypePointFactory : public ezParticleTypeFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleTypePointFactory final : public ezParticleTypeFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypePointFactory, ezParticleTypeFactory);
 
@@ -16,7 +16,7 @@ public:
   virtual void Load(ezStreamReader& stream) override;
 };
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleTypePoint : public ezParticleType
+class EZ_PARTICLEPLUGIN_DLL ezParticleTypePoint final : public ezParticleType
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypePoint, ezParticleType);
 

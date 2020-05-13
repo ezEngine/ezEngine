@@ -3,15 +3,16 @@
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Configuration/Startup.h>
-#include <Texture/Image/Formats/DdsFileFormat.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Textures/TextureUtils.h>
 #include <RendererFoundation/Resources/Texture.h>
+#include <Texture/Image/Formats/DdsFileFormat.h>
+#include <Texture/Image/Image.h>
 #include <Texture/ezTexFormat/ezTexFormat.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTexture2DResource, 1, ezRTTIDefaultAllocator<ezTexture2DResource>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTexture2DResource, 1, ezRTTIDefaultAllocator<ezTexture2DResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -26,7 +27,7 @@ ezTexture2DResource::ezTexture2DResource()
 }
 
 ezTexture2DResource::ezTexture2DResource(ezResource::DoUpdate ResourceUpdateThread)
-  : ezResource(ResourceUpdateThread, ezTextureUtils::s_bForceFullQualityAlways ? 1 : 2) 
+  : ezResource(ResourceUpdateThread, ezTextureUtils::s_bForceFullQualityAlways ? 1 : 2)
 {
 }
 
@@ -67,8 +68,7 @@ ezResourceLoadDesc ezTexture2DResource::UnloadData(Unload WhatToUnload)
   return res;
 }
 
-void ezTexture2DResource::FillOutDescriptor(ezTexture2DResourceDescriptor& td, const ezImage* pImage, bool bSRGB, ezUInt32 uiNumMipLevels,
-  ezUInt32& out_MemoryUsed, ezHybridArray<ezGALSystemMemoryDescription, 32>& initData)
+void ezTexture2DResource::FillOutDescriptor(ezTexture2DResourceDescriptor& td, const ezImage* pImage, bool bSRGB, ezUInt32 uiNumMipLevels, ezUInt32& out_MemoryUsed, ezHybridArray<ezGALSystemMemoryDescription, 32>& initData)
 {
   const ezUInt32 uiHighestMipLevel = pImage->GetNumMipLevels() - uiNumMipLevels;
 
@@ -107,7 +107,7 @@ void ezTexture2DResource::FillOutDescriptor(ezTexture2DResourceDescriptor& td, c
         {
           const ezUInt32 uiMemPitchFactor = ezGALResourceFormat::GetBitsPerElement(format) * 4 / 8;
 
-          id.m_uiRowPitch = ezMath::Max<ezUInt32>(4, pImage->GetWidth(mip)) * uiMemPitchFactor;
+          id.m_uiRowPitch = ezMath::RoundUp(pImage->GetWidth(mip), 4) * uiMemPitchFactor;
         }
         else
         {
@@ -472,4 +472,3 @@ void ezRenderToTexture2DResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUs
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Textures_Texture2DResource);
-

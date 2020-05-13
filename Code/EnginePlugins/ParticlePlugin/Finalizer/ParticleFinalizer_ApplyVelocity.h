@@ -2,7 +2,7 @@
 
 #include <ParticlePlugin/Finalizer/ParticleFinalizer.h>
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizerFactory_ApplyVelocity : public ezParticleFinalizerFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizerFactory_ApplyVelocity final : public ezParticleFinalizerFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleFinalizerFactory_ApplyVelocity, ezParticleFinalizerFactory);
 
@@ -14,7 +14,7 @@ public:
 };
 
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizer_ApplyVelocity : public ezParticleFinalizer
+class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizer_ApplyVelocity final : public ezParticleFinalizer
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleFinalizer_ApplyVelocity, ezParticleFinalizer);
 public:

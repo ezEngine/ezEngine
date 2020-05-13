@@ -132,7 +132,7 @@ public:
   template <typename CompatibleKeyType>
   bool Contains(const CompatibleKeyType& key) const; // [tested]
 
-  /// \brief Checks whether the given key is in the container.
+  /// \brief Checks whether all keys of the given set are in the container.
   bool ContainsSet(const ezSetBase<KeyType, Comparer>& operand) const; // [tested]
 
   /// \brief Returns an Iterator to the element with a key equal or larger than the given key. Returns an invalid iterator, if there is no such element.
@@ -144,13 +144,13 @@ public:
   Iterator UpperBound(const CompatibleKeyType& key) const; // [tested]
 
   /// \brief Makes this set the union of itself and the operand.
-  void Union(const ezSetBase<KeyType, Comparer>& operand);
+  void Union(const ezSetBase<KeyType, Comparer>& operand); // [tested]
 
   /// \brief Makes this set the difference of itself and the operand, i.e. subtracts operand.
-  void Difference(const ezSetBase<KeyType, Comparer>& operand);
+  void Difference(const ezSetBase<KeyType, Comparer>& operand); // [tested]
 
   /// \brief Makes this set the intersection of itself and the operand.
-  void Intersection(const ezSetBase<KeyType, Comparer>& operand);
+  void Intersection(const ezSetBase<KeyType, Comparer>& operand); // [tested]
 
   /// \brief Returns the allocator that is used by this instance.
   ezAllocatorBase* GetAllocator() const { return m_Elements.GetAllocator(); }

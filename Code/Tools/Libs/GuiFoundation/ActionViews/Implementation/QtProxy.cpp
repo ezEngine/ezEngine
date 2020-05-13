@@ -118,8 +118,10 @@ QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& context, ezAction
       {
         pProxy = pTemp.toStrongRef();
       }
+
+      break;
     }
-    break;
+
     case ezActionScope::Document:
     {
       const ezDocument* pDocument = context.m_pDocument; // may be null
@@ -137,8 +139,10 @@ QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& context, ezAction
       {
         pProxy = pTemp.toStrongRef();
       }
+
+      break;
     }
-    break;
+
     case ezActionScope::Window:
     {
       bool bExisted = true;
@@ -146,7 +150,7 @@ QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& context, ezAction
       if (!bExisted)
       {
         s_pSignalProxy->connect(context.m_pWindow, &QObject::destroyed, s_pSignalProxy,
-                                [=]() { s_WindowActions.Remove(context.m_pWindow); });
+          [=]() { s_WindowActions.Remove(context.m_pWindow); });
       }
       QWeakPointer<ezQtProxy> pTemp = it.Value()[hDesc];
       if (pTemp.isNull())
@@ -161,15 +165,19 @@ QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& context, ezAction
       {
         pProxy = pTemp.toStrongRef();
       }
+
+      break;
     }
-    break;
   }
 
   // make sure we don't use actions that are meant for a different document
   if (pProxy != nullptr && pProxy->GetAction()->GetContext().m_pDocument != nullptr)
   {
     // if this assert fires, you might have tried to map an action into multiple documents, which uses ezActionScope::Global
-    EZ_ASSERT_DEV(pProxy->GetAction()->GetContext().m_pDocument == context.m_pDocument, "invalid document pointer");
+    ezAction* pAction = pProxy->GetAction();
+    const ezActionContext& ctxt = pAction->GetContext();
+    ezDocument* pDoc = ctxt.m_pDocument;
+    EZ_ASSERT_DEV(pDoc == context.m_pDocument, "invalid document pointer");
   }
   return pProxy;
 }
@@ -252,17 +260,34 @@ void ezQtButtonProxy::Update()
 
   auto pButton = static_cast<ezButtonAction*>(m_pAction);
 
+
   const ezActionDescriptor* pDesc = m_pAction->GetDescriptorHandle().GetDescriptor();
   m_pQtAction->setShortcut(QKeySequence(QString::fromUtf8(pDesc->m_sShortcut.GetData())));
 
+  const QString sDisplayShortcut = m_pQtAction->shortcut().toString(QKeySequence::NativeText);
+  QString sTooltip = ezTranslateTooltip(pButton->GetName());
+
   ezStringBuilder sDisplay = ezTranslate(pButton->GetName());
+
+  if (sTooltip.isEmpty())
+  {
+    sTooltip = sDisplay;
+    sTooltip.replace("&", "");
+  }
+
+  if (!sDisplayShortcut.isEmpty())
+  {
+    sTooltip.append(" (");
+    sTooltip.append(sDisplayShortcut);
+    sTooltip.append(")");
+  }
 
   if (!ezStringUtils::IsNullOrEmpty(pButton->GetAdditionalDisplayString()))
     sDisplay.Append(" '", pButton->GetAdditionalDisplayString(), "'"); // TODO: translate this as well?
 
   m_pQtAction->setIcon(ezQtUiServices::GetCachedIconResource(pButton->GetIconPath()));
   m_pQtAction->setText(QString::fromUtf8(sDisplay.GetData()));
-  m_pQtAction->setToolTip(QString::fromUtf8(ezTranslateTooltip(pButton->GetName())));
+  m_pQtAction->setToolTip(sTooltip);
   m_pQtAction->setCheckable(pButton->IsCheckable());
   m_pQtAction->setChecked(pButton->IsChecked());
   m_pQtAction->setEnabled(pButton->IsEnabled());
@@ -431,9 +456,25 @@ void ezQtDynamicActionAndMenuProxy::Update()
   if (!ezStringUtils::IsNullOrEmpty(pButton->GetAdditionalDisplayString()))
     sDisplay.Append(" '", pButton->GetAdditionalDisplayString(), "'"); // TODO: translate this as well?
 
+  const QString sDisplayShortcut = m_pQtAction->shortcut().toString(QKeySequence::NativeText);
+  QString sTooltip = ezTranslateTooltip(pButton->GetName());
+
+  if (sTooltip.isEmpty())
+  {
+    sTooltip = sDisplay;
+    sTooltip.replace("&", "");
+  }
+
+  if (!sDisplayShortcut.isEmpty())
+  {
+    sTooltip.append(" (");
+    sTooltip.append(sDisplayShortcut);
+    sTooltip.append(")");
+  }
+
   m_pQtAction->setIcon(ezQtUiServices::GetCachedIconResource(pButton->GetIconPath()));
   m_pQtAction->setText(QString::fromUtf8(sDisplay.GetData()));
-  m_pQtAction->setToolTip(QString::fromUtf8(ezTranslateTooltip(pButton->GetName())));
+  m_pQtAction->setToolTip(sTooltip);
   m_pQtAction->setEnabled(pButton->IsEnabled());
   m_pQtAction->setVisible(pButton->IsVisible());
 }
@@ -475,12 +516,12 @@ void ezQtDynamicActionAndMenuProxy::StatusUpdateEventHandler(ezAction* pAction)
 //////////////////////////////////////////////////////////////////////////
 
 ezQtSliderWidgetAction::ezQtSliderWidgetAction(QWidget* parent)
-    : QWidgetAction(parent)
+  : QWidgetAction(parent)
 {
 }
 
 ezQtLabeledSlider::ezQtLabeledSlider(QWidget* parent)
-    : QWidget(parent)
+  : QWidget(parent)
 {
   m_pLabel = new QLabel(this);
   m_pSlider = new QSlider(this);

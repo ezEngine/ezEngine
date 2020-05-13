@@ -1,4 +1,23 @@
 ######################################
+### ez_uwp_mark_import_as_content(<import>)
+######################################
+
+function(ez_uwp_mark_import_as_content IMPORT)
+  if (NOT EZ_CMAKE_PLATFORM_WINDOWS_UWP)
+    return()
+  endif()
+
+  get_target_property(_dll_location ${IMPORT} IMPORTED_LOCATION_DEBUG)
+  set_property(SOURCE ${_dll_location} PROPERTY VS_DEPLOYMENT_CONTENT 1)
+
+  get_target_property(_dll_location ${IMPORT} IMPORTED_LOCATION)
+  set_property(SOURCE ${_dll_location} PROPERTY VS_DEPLOYMENT_CONTENT 1)
+
+  unset (_dll_location)
+
+endfunction()
+
+######################################
 ### ez_uwp_add_default_content(<target>)
 ######################################
 
@@ -7,12 +26,12 @@ function(ez_uwp_fix_library_properties TARGET_NAME SOURCE_FILES)
     return()
   endif()
 
-  # Needs to be set or cmake does not deploy the dll as only managed and winrt
-  # dlls are set to be deployed by cmake for some arbitrary reason.
-  set_property(TARGET ${TARGET_NAME} PROPERTY VS_WINRT_COMPONENT ON)
-
   get_target_property(targetType ${TARGET_NAME} TYPE)
   if (NOT targetType STREQUAL "STATIC_LIBRARY")
+    # Needs to be set or cmake does not deploy the dll as only managed and winrt
+    # dlls are set to be deployed by cmake for some arbitrary reason.
+    set_property(TARGET ${TARGET_NAME} PROPERTY VS_WINRT_COMPONENT ON)
+  
     # Cmake refuses to deploy C dynamic libraries so we force all of them into C++ mode.
     # This is because C can't be winrt and without it cmake throws the dll away again.
     foreach(FILE ${ALL_SOURCE_FILES})
@@ -25,7 +44,6 @@ function(ez_uwp_fix_library_properties TARGET_NAME SOURCE_FILES)
     endforeach()
   endif ()
   
-  
 endfunction()
 
 function(ez_uwp_add_default_content TARGET_NAME)
@@ -35,9 +53,11 @@ function(ez_uwp_add_default_content TARGET_NAME)
 	if (NOT EZ_CMAKE_PLATFORM_WINDOWS_UWP)
 		return()
 	endif()
+	
+  get_property(EZ_SUBMODULE_PREFIX_PATH GLOBAL PROPERTY EZ_SUBMODULE_PREFIX_PATH)
 
   set(CONTENT_DIRECTORY_DST "${CMAKE_CURRENT_BINARY_DIR}/Assets/")
-  set(CONTENT_DIRECTORY_SRC "${CMAKE_SOURCE_DIR}/Data/Platform/UWP/")
+  set(CONTENT_DIRECTORY_SRC "${CMAKE_SOURCE_DIR}/${EZ_SUBMODULE_PREFIX_PATH}/Data/Platform/UWP/")
 
   # Copy content files.
   set(UWP_ASSET_NAMES

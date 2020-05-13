@@ -82,7 +82,6 @@ void ezQtEngineViewWidget::SyncToEngine()
 {
   ezViewRedrawMsgToEngine cam;
   cam.m_uiRenderMode = m_pViewConfig->m_RenderMode;
-  cam.m_CameraUsageHint = m_pViewConfig->m_CameraUsageHint;
 
   float fov = m_pViewConfig->m_Camera.GetFovOrDim();
   if (m_pViewConfig->m_Camera.IsPerspective())
@@ -108,9 +107,8 @@ void ezQtEngineViewWidget::SyncToEngine()
   cam.m_uiWindowWidth = width() * this->devicePixelRatio();
   cam.m_uiWindowHeight = height() * this->devicePixelRatio();
   cam.m_bUpdatePickingData = m_bUpdatePickingData;
-  cam.m_bEnablePickingSelected =
-    IsPickingAgainstSelectionAllowed() &&
-    (!ezEditorInputContext::IsAnyInputContextActive() || ezEditorInputContext::GetActiveInputContext()->IsPickingSelectedAllowed());
+  cam.m_bEnablePickingSelected = IsPickingAgainstSelectionAllowed() && (!ezEditorInputContext::IsAnyInputContextActive() || ezEditorInputContext::GetActiveInputContext()->IsPickingSelectedAllowed());
+  cam.m_bEnablePickTransparent = m_bPickTransparent;
 
   if (s_FixedResolution.HasNonZeroArea())
   {
@@ -201,6 +199,20 @@ void ezQtEngineViewWidget::InterpolateCameraTo(const ezVec3& vPosition, const ez
   }
 }
 
+void ezQtEngineViewWidget::SetEnablePicking(bool bEnable)
+{
+  m_bUpdatePickingData = bEnable;
+}
+
+void ezQtEngineViewWidget::SetPickTransparent(bool bEnable)
+{
+  if (m_bPickTransparent == bEnable)
+    return;
+
+  m_bPickTransparent = bEnable;
+  m_LastPickingResult.Reset();
+}
+
 void ezQtEngineViewWidget::OpenContextMenu(QPoint globalPos)
 {
   s_InteractionContext.m_pLastHoveredViewWidget = this;
@@ -254,10 +266,8 @@ ezResult ezQtEngineViewWidget::PickPlane(ezUInt16 uiScreenPosX, ezUInt16 uiScree
 
 void ezQtEngineViewWidget::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
 {
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewPickingResultMsgToEditor>())
+  if (const ezViewPickingResultMsgToEditor* pFullMsg = ezDynamicCast<const ezViewPickingResultMsgToEditor*>(pMsg))
   {
-    const ezViewPickingResultMsgToEditor* pFullMsg = static_cast<const ezViewPickingResultMsgToEditor*>(pMsg);
-
     m_LastPickingResult.m_PickedObject = pFullMsg->m_ObjectGuid;
     m_LastPickingResult.m_PickedComponent = pFullMsg->m_ComponentGuid;
     m_LastPickingResult.m_PickedOther = pFullMsg->m_OtherGuid;
@@ -269,10 +279,8 @@ void ezQtEngineViewWidget::HandleViewMessage(const ezEditorEngineViewMsg* pMsg)
     return;
   }
 
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewMarqueePickingResultMsgToEditor>())
+  if (const ezViewMarqueePickingResultMsgToEditor* pFullMsg = ezDynamicCast<const ezViewMarqueePickingResultMsgToEditor*>(pMsg))
   {
-    const ezViewMarqueePickingResultMsgToEditor* pFullMsg = static_cast<const ezViewMarqueePickingResultMsgToEditor*>(pMsg);
-
     HandleMarqueePickingResult(pFullMsg);
     return;
   }
@@ -690,4 +698,3 @@ ezQtViewWidgetContainer::ezQtViewWidgetContainer(QWidget* pParent, ezQtEngineVie
 }
 
 ezQtViewWidgetContainer::~ezQtViewWidgetContainer() {}
-

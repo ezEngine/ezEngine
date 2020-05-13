@@ -2,6 +2,7 @@
 
 #include <Actions/SceneActions.h>
 #include <Core/World/GameObject.h>
+#include <EditorFramework/Actions/AssetActions.h>
 #include <EditorFramework/Actions/GameObjectDocumentActions.h>
 #include <EditorFramework/Actions/GameObjectSelectionActions.h>
 #include <EditorFramework/Actions/ProjectActions.h>
@@ -129,8 +130,7 @@ void OnLoadPlugin(bool bReloading)
 
   // View Tool Bar
   ezActionMapManager::RegisterActionMap("EditorPluginScene_ViewToolBar");
-  ezViewActions::MapActions("EditorPluginScene_ViewToolBar", "",
-    ezViewActions::PerspectiveMode | ezViewActions::RenderMode | ezViewActions::UsageHint | ezViewActions::ActivateRemoteProcess);
+  ezViewActions::MapActions("EditorPluginScene_ViewToolBar", "", ezViewActions::PerspectiveMode | ezViewActions::RenderMode | ezViewActions::ActivateRemoteProcess);
   ezQuadViewActions::MapActions("EditorPluginScene_ViewToolBar", "");
 
   // Visualizers

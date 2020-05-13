@@ -285,6 +285,8 @@ void ezParticleEventReaction_Prefab::ProcessEvent(const ezParticleEvent& e)
   qRot.SetFromAxisAndAngle(
     ezVec3(1, 0, 0), ezAngle::Radian((float)m_pOwnerEffect->GetRNG().DoubleZeroToOneInclusive() * ezMath::Pi<float>() * 2.0f));
 
+  vAlignDir.NormalizeIfNotZero(ezVec3::UnitXAxis());
+
   trans.m_qRotation.SetShortestRotation(ezVec3(1, 0, 0), vAlignDir);
   trans.m_qRotation = trans.m_qRotation * qRot;
 

@@ -15,6 +15,7 @@ class EZ_ENGINEPLUGINPARTICLE_DLL ezParticleContext : public ezEngineProcessDocu
 
 public:
   ezParticleContext();
+  ~ezParticleContext();
 
   virtual void HandleMessage(const ezEditorEngineDocumentMsg* pMsg) override;
 
@@ -23,15 +24,17 @@ protected:
 
   virtual ezEngineProcessViewContext* CreateViewContext() override;
   virtual void DestroyViewContext(ezEngineProcessViewContext* pContext) override;
+  virtual void OnThumbnailViewContextRequested() override;
   virtual bool UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext) override;
 
   void RestartEffect();
   void SetAutoRestartEffect(bool loop);
 
 private:
+  ezBoundingBoxSphere m_ThumbnailBoundingVolume;
   ezParticleEffectResourceHandle m_hParticle;
   ezMeshResourceHandle m_hPreviewMeshResource;
-  ezParticleComponent* m_pComponent;
+  ezParticleComponent* m_pComponent = nullptr;
 };
 
 

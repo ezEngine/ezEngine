@@ -31,7 +31,7 @@ void ezProgress::SetCompletion(float fCompletion)
 
   m_fCurrentCompletion = fCompletion;
 
-  if (fCompletion > m_fLastReportedCompletion + 0.01f)
+  if (fCompletion > m_fLastReportedCompletion + 0.001f)
   {
     m_fLastReportedCompletion = fCompletion;
 
@@ -39,7 +39,7 @@ void ezProgress::SetCompletion(float fCompletion)
     e.m_pProgressbar = this;
     e.m_Type = ezProgressEvent::Type::ProgressChanged;
 
-    m_Events.Broadcast(e);
+    m_Events.Broadcast(e, 1);
   }
 }
 
@@ -133,9 +133,20 @@ ezProgressRange::ezProgressRange(const char* szDisplayText, ezUInt32 uiSteps, bo
 {
   EZ_ASSERT_DEV(uiSteps > 0, "Every progress range must have at least one step to complete");
 
-  // add one step for the very first 'BeginNextStep' to have no effect
-  uiSteps += 1;
+  m_iCurrentStep = -1;
+  m_fWeightedCompletion = -1.0;
+  m_fSummedWeight = (double)uiSteps;
 
+  Init(szDisplayText, bAllowCancel, pProgressbar);
+}
+
+ezProgressRange::ezProgressRange(const char* szDisplayText, bool bAllowCancel, ezProgress* pProgressbar /*= nullptr*/)
+{
+  Init(szDisplayText, bAllowCancel, pProgressbar);
+}
+
+void ezProgressRange::Init(const char* szDisplayText, bool bAllowCancel, ezProgress* pProgressbar)
+{
   if (pProgressbar == nullptr)
     m_pProgressbar = ezProgress::GetGlobalProgressbar();
   else
@@ -144,25 +155,18 @@ ezProgressRange::ezProgressRange(const char* szDisplayText, ezUInt32 uiSteps, bo
   EZ_ASSERT_DEV(m_pProgressbar != nullptr, "No global progress-bar context available.");
 
   m_bAllowCancel = bAllowCancel;
-  m_uiCurrentStep = 0;
   m_sDisplayText = szDisplayText;
-  m_StepWeights.SetCountUninitialized(uiSteps);
-  m_SummedWeight = (double)uiSteps - 1.0;
-
-  m_StepWeights[0] = 0; // first 'BeginNextStep' should not advance the progress at all
-  for (ezUInt32 s = 1; s < uiSteps; ++s)
-    m_StepWeights[s] = 1.0f;
 
   m_pParentRange = m_pProgressbar->m_pActiveRange;
 
   if (m_pParentRange == nullptr)
   {
-    m_PercentageBase = 0.0;
-    m_PercentageRange = 1.0;
+    m_fPercentageBase = 0.0;
+    m_fPercentageRange = 1.0;
   }
   else
   {
-    m_pParentRange->ComputeCurStepBaseAndRange(m_PercentageBase, m_PercentageRange);
+    m_pParentRange->ComputeCurStepBaseAndRange(m_fPercentageBase, m_fPercentageRange);
   }
 
   m_pProgressbar->SetActiveRange(this);
@@ -170,7 +174,7 @@ ezProgressRange::ezProgressRange(const char* szDisplayText, ezUInt32 uiSteps, bo
 
 ezProgressRange::~ezProgressRange()
 {
-  m_pProgressbar->SetCompletion((float)(m_PercentageBase + m_PercentageRange));
+  m_pProgressbar->SetCompletion((float)(m_fPercentageBase + m_fPercentageRange));
   m_pProgressbar->SetActiveRange(m_pParentRange);
 }
 
@@ -179,51 +183,59 @@ ezProgress* ezProgressRange::GetProgressbar() const
   return m_pProgressbar;
 }
 
-void ezProgressRange::SetStepWeighting(ezUInt32 uiStep, float fWeigth)
+void ezProgressRange::SetStepWeighting(ezUInt32 uiStep, float fWeight)
 {
-  m_SummedWeight -= m_StepWeights[uiStep + 1];
-  m_SummedWeight += fWeigth;
-  m_StepWeights[uiStep + 1] = fWeigth;
+  EZ_ASSERT_DEV(m_fSummedWeight > 0.0, "This function is only supported if ProgressRange was initialized with steps");
+
+  m_fSummedWeight -= GetStepWeight(uiStep);
+  m_fSummedWeight += fWeight;
+  m_StepWeights[uiStep] = fWeight;
+}
+
+float ezProgressRange::GetStepWeight(ezUInt32 uiStep) const
+{
+  const float* pOldWeight = m_StepWeights.GetValue(uiStep);
+  return pOldWeight != nullptr ? *pOldWeight : 1.0f;
 }
 
 void ezProgressRange::ComputeCurStepBaseAndRange(double& out_base, double& out_range)
 {
-  const double internalBase = ComputeInternalCompletion();
-  const double internalRange = m_StepWeights[ezMath::Min(m_uiCurrentStep, m_StepWeights.GetCount() - 1)] / m_SummedWeight;
+  const double internalBase = ezMath::Max(m_fWeightedCompletion, 0.0) / m_fSummedWeight;
+  const double internalRange = GetStepWeight(ezMath::Max(m_iCurrentStep, 0)) / m_fSummedWeight;
 
-  out_range = internalRange * m_PercentageRange;
-  out_base = m_PercentageBase + (internalBase * m_PercentageRange);
+  out_range = internalRange * m_fPercentageRange;
+  out_base = m_fPercentageBase + (internalBase * m_fPercentageRange);
 
   EZ_ASSERT_DEBUG(out_base <= 1.0f, "Invalid range");
   EZ_ASSERT_DEBUG(out_range <= 1.0f, "Invalid range");
   EZ_ASSERT_DEBUG(out_base + out_range <= 1.0f, "Invalid range");
 }
 
-double ezProgressRange::ComputeInternalCompletion() const
-{
-  double internalBase = 0.0f;
-
-  for (ezUInt32 step = 0; step < m_uiCurrentStep; ++step)
-  {
-    internalBase += m_StepWeights[step];
-  }
-
-  return internalBase /= m_SummedWeight;
-}
-
 bool ezProgressRange::BeginNextStep(const char* szStepDisplayText, ezUInt32 uiNumSteps)
 {
+  EZ_ASSERT_DEV(m_fSummedWeight > 0.0, "This function is only supported if ProgressRange was initialized with steps");
+
   m_sStepDisplayText = szStepDisplayText;
 
-  m_uiCurrentStep += uiNumSteps;
+  for (ezUInt32 i = 0; i < uiNumSteps; ++i)
+  {
+    m_fWeightedCompletion += GetStepWeight(m_iCurrentStep + i);
+  }
+  m_iCurrentStep += uiNumSteps;
 
-  // there is one extra step added as an empty step
-  EZ_ASSERT_DEBUG(
-    m_uiCurrentStep < m_StepWeights.GetCount(), "Too many steps completed! ({0} of {1})", m_uiCurrentStep, m_StepWeights.GetCount());
+  const double internalCompletion = m_fWeightedCompletion / m_fSummedWeight;
+  const double finalCompletion = m_fPercentageBase + internalCompletion * m_fPercentageRange;
 
-  const double internalCompletion = ComputeInternalCompletion();
+  m_pProgressbar->SetCompletion((float)finalCompletion);
 
-  const double finalCompletion = m_PercentageBase + internalCompletion * m_PercentageRange;
+  return !m_pProgressbar->WasCanceled();
+}
+
+bool ezProgressRange::SetCompletion(double fCompletionFactor)
+{
+  EZ_ASSERT_DEV(m_fSummedWeight == 0.0, "This function is only supported if ProgressRange was initialized without steps");
+
+  const double finalCompletion = m_fPercentageBase + fCompletionFactor * m_fPercentageRange;
 
   m_pProgressbar->SetCompletion((float)finalCompletion);
 

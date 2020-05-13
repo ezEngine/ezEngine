@@ -9,6 +9,29 @@
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Logging/Log.h>
 
+ezHybridArray<ezString, 4, ezStaticAllocatorWrapper>& ezArchiveUtils::GetAcceptedArchiveFileExtensions()
+{
+  static ezHybridArray<ezString, 4, ezStaticAllocatorWrapper> extensions;
+
+  if (extensions.IsEmpty())
+  {
+    extensions.PushBack("ezArchive");
+  }
+
+  return extensions;
+}
+
+bool ezArchiveUtils::IsAcceptedArchiveFileExtensions(ezStringView extension)
+{
+  for (const auto& ext : GetAcceptedArchiveFileExtensions())
+  {
+    if (extension.IsEqual_NoCase(ext.GetView()))
+      return true;
+  }
+
+  return false;
+}
+
 ezResult ezArchiveUtils::WriteHeader(ezStreamWriter& stream)
 {
   const char* szTag = "EZARCHIVE";
@@ -27,14 +50,13 @@ ezResult ezArchiveUtils::WriteHeader(ezStreamWriter& stream)
 ezResult ezArchiveUtils::ReadHeader(ezStreamReader& stream, ezUInt8& out_uiVersion)
 {
   char szTag[10];
-  stream.ReadBytes(szTag, 10);
-
-  if (!ezStringUtils::IsEqual(szTag, "EZARCHIVE"))
+  if (stream.ReadBytes(szTag, 10) != 10 || !ezStringUtils::IsEqual(szTag, "EZARCHIVE"))
   {
     ezLog::Error("Invalid or corrupted archive. Archive-marker not found.");
     return EZ_FAILURE;
   }
 
+  out_uiVersion = 0;
   stream >> out_uiVersion;
 
   if (out_uiVersion != 1 && out_uiVersion != 2)
@@ -43,8 +65,12 @@ ezResult ezArchiveUtils::ReadHeader(ezStreamReader& stream, ezUInt8& out_uiVersi
     return EZ_FAILURE;
   }
 
-  ezUInt8 uiPadding[5];
-  stream.ReadBytes(uiPadding, 5);
+  ezUInt8 uiPadding[5] = {255, 255, 255, 255, 255};
+  if (stream.ReadBytes(uiPadding, 5) != 5)
+  {
+    ezLog::Error("Invalid or corrupted archive. Missing header data.");
+    return EZ_FAILURE;
+  }
 
   const ezUInt8 uiZeroPadding[5] = {0, 0, 0, 0, 0};
 
@@ -296,10 +322,8 @@ static ezResult VerifyEndMarker(ezMemoryMappedFile& memFile, ezUInt8 uiArchiveVe
 
   ezRawMemoryStreamReader reader(pStart, uiEndMarkerSize);
 
-  char szMarker[32];
-  reader.ReadBytes(szMarker, uiEndMarkerSize);
-
-  if (!ezStringUtils::IsEqual(szMarker, szEndMarker))
+  char szMarker[32] = "";
+  if (reader.ReadBytes(szMarker, uiEndMarkerSize) != uiEndMarkerSize || !ezStringUtils::IsEqual(szMarker, szEndMarker))
   {
     ezLog::Error("Archive is corrupt or cut off. End-marker not found.");
     return EZ_FAILURE;
@@ -325,6 +349,12 @@ ezResult ezArchiveUtils::ExtractTOC(ezMemoryMappedFile& memFile, ezArchiveTOC& t
     ezRawMemoryStreamReader tocMetaReader(pTocMetaStart, uiTocMetaSize);
 
     tocMetaReader >> uiTocSize;
+
+    if (uiTocSize > 1024 * 1024 * 1024) // 1GB of TOC is enough for ~16M entries...
+    {
+      ezLog::Error("Archive TOC is probably corrupted. Unreasonable TOC size: {0}", ezArgFileSize(uiTocSize));
+      return EZ_FAILURE;
+    }
 
     if (uiArchiveVersion >= 2)
     {

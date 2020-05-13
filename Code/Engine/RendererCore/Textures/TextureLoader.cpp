@@ -8,6 +8,7 @@
 #include <Texture/Image/Formats/DdsFileFormat.h>
 #include <Texture/Image/ImageConversion.h>
 #include <RendererCore/Textures/Texture2DResource.h>
+#include <RendererCore/Textures/Texture3DResource.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
 #include <RendererCore/Textures/TextureLoader.h>
 #include <RendererCore/Textures/TextureUtils.h>
@@ -28,6 +29,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, TextureResource)
   ON_CORESYSTEMS_STARTUP
   {
     ezResourceManager::SetResourceTypeLoader<ezTexture2DResource>(&s_TextureResourceLoader);
+    ezResourceManager::SetResourceTypeLoader<ezTexture3DResource>(&s_TextureResourceLoader);
     ezResourceManager::SetResourceTypeLoader<ezTextureCubeResource>(&s_TextureResourceLoader);
     ezResourceManager::SetResourceTypeLoader<ezRenderToTexture2DResource>(&s_TextureResourceLoader);
   }
@@ -35,6 +37,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, TextureResource)
   ON_CORESYSTEMS_SHUTDOWN
   {
     ezResourceManager::SetResourceTypeLoader<ezTexture2DResource>(nullptr);
+    ezResourceManager::SetResourceTypeLoader<ezTexture3DResource>(nullptr);
     ezResourceManager::SetResourceTypeLoader<ezTextureCubeResource>(nullptr);
     ezResourceManager::SetResourceTypeLoader<ezRenderToTexture2DResource>(nullptr);
   }
@@ -113,8 +116,8 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResource* pRe
     const ezStringBuilder sName = ezPathUtils::GetFileName(sAbsolutePath);
     pData->m_TexFormat.m_bSRGB = (sName.EndsWith_NoCase("_D") || sName.EndsWith_NoCase("_SRGB") || sName.EndsWith_NoCase("_diff"));
 
-    if (sAbsolutePath.HasExtension("ezTexture2D") || sAbsolutePath.HasExtension("ezTextureCube") ||
-        sAbsolutePath.HasExtension("ezRenderTarget"))
+    if (sAbsolutePath.HasExtension("ezTexture2D") || sAbsolutePath.HasExtension("ezTexture3D") || sAbsolutePath.HasExtension("ezTextureCube") ||
+        sAbsolutePath.HasExtension("ezRenderTarget") || sAbsolutePath.HasExtension("ezLUT"))
     {
       if (LoadTexFile(File, *pData).Failed())
         return res;

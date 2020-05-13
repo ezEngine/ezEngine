@@ -9,6 +9,7 @@
 #include <RendererCore/Shader/ShaderPermutationResource.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <RendererCore/Textures/Texture2DResource.h>
+#include <RendererCore/Textures/Texture3DResource.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
 #include <RendererFoundation/Resources/RenderTargetView.h>
 #include <RendererFoundation/Resources/Texture.h>
@@ -175,6 +176,21 @@ void ezRenderContext::BindTexture2D(const ezTempHashedString& sSlotName, const e
   }
 }
 
+void ezRenderContext::BindTexture3D(const ezTempHashedString& sSlotName, const ezTexture3DResourceHandle& hTexture,
+  ezResourceAcquireMode acquireMode /*= ezResourceAcquireMode::AllowLoadingFallback*/)
+{
+  if (hTexture.IsValid())
+  {
+    ezResourceLock<ezTexture3DResource> pTexture(hTexture, acquireMode);
+    BindTexture3D(sSlotName, ezGALDevice::GetDefaultDevice()->GetDefaultResourceView(pTexture->GetGALTexture()));
+    BindSamplerState(sSlotName, pTexture->GetGALSamplerState());
+  }
+  else
+  {
+    BindTexture3D(sSlotName, ezGALResourceViewHandle());
+  }
+}
+
 void ezRenderContext::BindTextureCube(const ezTempHashedString& sSlotName, const ezTextureCubeResourceHandle& hTexture,
   ezResourceAcquireMode acquireMode /*= ezResourceAcquireMode::AllowLoadingFallback*/)
 {
@@ -203,6 +219,24 @@ void ezRenderContext::BindTexture2D(const ezTempHashedString& sSlotName, ezGALRe
   else
   {
     m_BoundTextures2D.Insert(sSlotName.GetHash(), hResourceView);
+  }
+
+  m_StateFlags.Add(ezRenderContextFlags::TextureBindingChanged);
+}
+
+void ezRenderContext::BindTexture3D(const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView)
+{
+  ezGALResourceViewHandle* pOldResourceView = nullptr;
+  if (m_BoundTextures3D.TryGetValue(sSlotName.GetHash(), pOldResourceView))
+  {
+    if (*pOldResourceView == hResourceView)
+      return;
+
+    *pOldResourceView = hResourceView;
+  }
+  else
+  {
+    m_BoundTextures3D.Insert(sSlotName.GetHash(), hResourceView);
   }
 
   m_StateFlags.Add(ezRenderContextFlags::TextureBindingChanged);
@@ -611,6 +645,7 @@ void ezRenderContext::ResetContextState()
   m_uiMeshBufferPrimitiveCount = 0;
 
   m_BoundTextures2D.Clear();
+  m_BoundTextures3D.Clear();
   m_BoundTexturesCube.Clear();
   m_BoundBuffer.Clear();
 
@@ -1005,7 +1040,7 @@ ezMaterialResource* ezRenderContext::ApplyMaterialState()
 
   // The material needs its constant buffer updated.
   // Thus we keep it acquired until we have the correct shader permutation for the constant buffer layout.
-  if (pMaterial->AreContantsModified())
+  if (pMaterial->AreConstantsModified())
   {
     m_StateFlags.Add(ezRenderContextFlags::ConstantBufferBindingChanged);
 
@@ -1065,6 +1100,12 @@ void ezRenderContext::ApplyTextureBindings(ezGALShaderStage::Enum stage, const e
     if (binding.m_Type >= ezShaderResourceBinding::Texture2D && binding.m_Type <= ezShaderResourceBinding::Texture2DMSArray)
     {
       m_BoundTextures2D.TryGetValue(uiResourceHash, hResourceView);
+      m_pGALContext->SetResourceView(stage, binding.m_iSlot, hResourceView);
+    }
+
+    if (binding.m_Type == ezShaderResourceBinding::Texture3D)
+    {
+      m_BoundTextures3D.TryGetValue(uiResourceHash, hResourceView);
       m_pGALContext->SetResourceView(stage, binding.m_iSlot, hResourceView);
     }
 

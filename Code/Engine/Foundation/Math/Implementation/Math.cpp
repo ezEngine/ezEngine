@@ -2,6 +2,7 @@
 
 #include <Foundation/Math/Mat3.h>
 #include <Foundation/Math/Math.h>
+#include <Foundation/Math/Quat.h>
 #include <Foundation/Math/Vec3.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
@@ -91,6 +92,115 @@ ezUInt32 ezMath::GreatestCommonDivisor(ezUInt32 a, ezUInt32 b)
   return a << shift;
 }
 
+ezResult ezMath::TryMultiply32(ezUInt32& out_Result, ezUInt32 a, ezUInt32 b, ezUInt32 c, ezUInt32 d)
+{
+  ezUInt64 result = static_cast<ezUInt64>(a) * static_cast<ezUInt64>(b);
+
+  if (result > 0xFFFFFFFFllu)
+  {
+    return EZ_FAILURE;
+  }
+
+  result *= static_cast<ezUInt64>(c);
+
+  if (result > 0xFFFFFFFFllu)
+  {
+    return EZ_FAILURE;
+  }
+
+  result *= static_cast<ezUInt64>(d);
+
+  if (result > 0xFFFFFFFFllu)
+  {
+    return EZ_FAILURE;
+  }
+
+  out_Result = static_cast<ezUInt32>(result & 0xFFFFFFFFllu);
+  return EZ_SUCCESS;
+}
+
+ezUInt32 ezMath::SafeMultiply32(ezUInt32 a, ezUInt32 b, ezUInt32 c, ezUInt32 d)
+{
+  ezUInt32 result = 0;
+  if (TryMultiply32(result, a, b, c, d).Succeeded())
+  {
+    return result;
+  }
+
+  EZ_REPORT_FAILURE("Safe multiplication failed: {0} * {1} * {2} * {3} exceeds UInt32 range.", a, b, c, d);
+  std::terminate();
+  return 0;
+}
+
+ezResult ezMath::TryMultiply64(ezUInt64& out_Result, ezUInt64 a, ezUInt64 b, ezUInt64 c, ezUInt64 d)
+{
+  if (a == 0 || b == 0 || c == 0 || d == 0)
+  {
+    out_Result = 0;
+    return EZ_SUCCESS;
+  }
+
+#if EZ_ENABLED(EZ_PLATFORM_64BIT) && EZ_ENABLED(EZ_COMPILER_MSVC)
+
+  ezUInt64 uiHighBits = 0;
+
+  const ezUInt64 ab = _umul128(a, b, &uiHighBits);
+  if (uiHighBits != 0)
+  {
+    return EZ_FAILURE;
+  }
+
+  const ezUInt64 abc = _umul128(ab, c, &uiHighBits);
+  if (uiHighBits != 0)
+  {
+    return EZ_FAILURE;
+  }
+
+  const ezUInt64 abcd = _umul128(abc, d, &uiHighBits);
+  if (uiHighBits != 0)
+  {
+    return EZ_FAILURE;
+  }
+
+#else
+  const ezUInt64 ab = a * b;
+  const ezUInt64 abc = ab * c;
+  const ezUInt64 abcd = abc * d;
+
+  if (a > 1 && b > 1 && (ab / a != b))
+  {
+    return EZ_FAILURE;
+  }
+
+  if (c > 1 && (abc / c != ab))
+  {
+    return EZ_FAILURE;
+  }
+
+  if (d > 1 && (abcd / d != abc))
+  {
+    return EZ_FAILURE;
+  }
+
+#endif
+
+  out_Result = abcd;
+  return EZ_SUCCESS;
+}
+
+ezUInt64 ezMath::SafeMultiply64(ezUInt64 a, ezUInt64 b, ezUInt64 c, ezUInt64 d)
+{
+  ezUInt64 result = 0;
+  if (TryMultiply64(result, a, b, c, d).Succeeded())
+  {
+    return result;
+  }
+
+  EZ_REPORT_FAILURE("Safe multiplication failed: {0} * {1} * {2} * {3} exceeds ezUInt64 range.", a, b, c, d);
+  std::terminate();
+  return 0;
+}
+
 void ezAngle::NormalizeRange()
 {
   const float fTwoPi = 2.0f * Pi<float>();
@@ -150,6 +260,86 @@ ezMat3 ezBasisAxis::CalculateTransformationMatrix(Enum forwardDir, Enum rightDir
   mResult.SetRow(2, ezBasisAxis::GetBasisVector(upDir) * fUniformScale * fScaleZ);
 
   return mResult;
+}
+
+
+ezQuat ezBasisAxis::GetBasisRotation_PosX(Enum axis)
+{
+  ezQuat rotAxis;
+  switch (axis)
+  {
+    case ezBasisAxis::PositiveX:
+      rotAxis.SetIdentity();
+      break;
+    case ezBasisAxis::PositiveY:
+      rotAxis.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(90));
+      break;
+    case ezBasisAxis::PositiveZ:
+      rotAxis.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
+      break;
+    case ezBasisAxis::NegativeX:
+      rotAxis.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(180));
+      break;
+    case ezBasisAxis::NegativeY:
+      rotAxis.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(-90));
+      break;
+    case ezBasisAxis::NegativeZ:
+      rotAxis.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(90));
+      break;
+  }
+
+  return rotAxis;
+}
+
+ezQuat ezBasisAxis::GetBasisRotation(Enum identity, Enum axis)
+{
+  ezQuat rotId;
+  switch (identity)
+  {
+    case ezBasisAxis::PositiveX:
+      rotId.SetIdentity();
+      break;
+    case ezBasisAxis::PositiveY:
+      rotId.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(-90));
+      break;
+    case ezBasisAxis::PositiveZ:
+      rotId.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(90));
+      break;
+    case ezBasisAxis::NegativeX:
+      rotId.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(180));
+      break;
+    case ezBasisAxis::NegativeY:
+      rotId.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(90));
+      break;
+    case ezBasisAxis::NegativeZ:
+      rotId.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(90));
+      break;
+  }
+
+  ezQuat rotAxis;
+  switch (axis)
+  {
+    case ezBasisAxis::PositiveX:
+      rotAxis.SetIdentity();
+      break;
+    case ezBasisAxis::PositiveY:
+      rotAxis.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(90));
+      break;
+    case ezBasisAxis::PositiveZ:
+      rotAxis.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
+      break;
+    case ezBasisAxis::NegativeX:
+      rotAxis.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(180));
+      break;
+    case ezBasisAxis::NegativeY:
+      rotAxis.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(-90));
+      break;
+    case ezBasisAxis::NegativeZ:
+      rotAxis.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(90));
+      break;
+  }
+
+  return rotAxis * rotId;
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_Math);

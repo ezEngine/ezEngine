@@ -6,7 +6,7 @@
 
 typedef ezTypedResourceHandle<class ezPrefabResource> ezPrefabResourceHandle;
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleEventReactionFactory_Prefab : public ezParticleEventReactionFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleEventReactionFactory_Prefab final : public ezParticleEventReactionFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleEventReactionFactory_Prefab, ezParticleEventReactionFactory);
 
@@ -34,7 +34,7 @@ private:
   // ezSharedPtr<ezParticlePrefabParameters> m_Parameters;
 };
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleEventReaction_Prefab : public ezParticleEventReaction
+class EZ_PARTICLEPLUGIN_DLL ezParticleEventReaction_Prefab final : public ezParticleEventReaction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleEventReaction_Prefab, ezParticleEventReaction);
 

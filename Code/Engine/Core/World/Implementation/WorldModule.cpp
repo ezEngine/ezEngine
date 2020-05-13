@@ -3,7 +3,7 @@
 #include <Core/World/World.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezWorldModule, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezWorldModule, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -79,7 +79,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, WorldModuleFactory)
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
-static ezUInt16 s_uiNextTypeId = 0;
+static ezWorldModuleTypeId s_uiNextTypeId = 0;
+static constexpr ezWorldModuleTypeId s_InvalidWorldModuleTypeId = ezWorldModuleTypeId(-1);
 
 ezWorldModuleFactory::ezWorldModuleFactory() = default;
 
@@ -90,14 +91,14 @@ ezWorldModuleFactory* ezWorldModuleFactory::GetInstance()
   return pInstance;
 }
 
-ezUInt16 ezWorldModuleFactory::GetTypeId(const ezRTTI* pRtti)
+ezWorldModuleTypeId ezWorldModuleFactory::GetTypeId(const ezRTTI* pRtti)
 {
-  ezUInt16 uiTypeId = 0xFFFF;
+  ezWorldModuleTypeId uiTypeId = s_InvalidWorldModuleTypeId;
   m_TypeToId.TryGetValue(pRtti, uiTypeId);
   return uiTypeId;
 }
 
-ezWorldModule* ezWorldModuleFactory::CreateWorldModule(ezUInt16 typeId, ezWorld* pWorld)
+ezWorldModule* ezWorldModuleFactory::CreateWorldModule(ezWorldModuleTypeId typeId, ezWorld* pWorld)
 {
   if (typeId < m_CreatorFuncs.GetCount())
   {
@@ -135,12 +136,12 @@ void ezWorldModuleFactory::RegisterInterfaceImplementation(ezStringView sInterfa
     }
   }
 }
-
-ezUInt16 ezWorldModuleFactory::RegisterWorldModule(const ezRTTI* pRtti, CreatorFunc creatorFunc)
+ezWorldModuleTypeId ezWorldModuleFactory::RegisterWorldModule(const ezRTTI* pRtti, CreatorFunc creatorFunc)
 {
   EZ_ASSERT_DEV(pRtti != ezGetStaticRTTI<ezWorldModule>(), "Trying to register a world module that is not reflected!");
+  EZ_ASSERT_DEV(m_TypeToId.GetCount() < ezWorld::GetMaxNumWorldModules(), "Max number of world modules reached: {}", ezWorld::GetMaxNumWorldModules());
 
-  ezUInt16 uiTypeId = -1;
+  ezWorldModuleTypeId uiTypeId = s_InvalidWorldModuleTypeId;
   if (m_TypeToId.TryGetValue(pRtti, uiTypeId))
   {
     return uiTypeId;
@@ -179,7 +180,7 @@ namespace
     EZ_DECLARE_POD_TYPE();
 
     const ezRTTI* m_pRtti;
-    ezUInt16 m_uiTypeId;
+    ezWorldModuleTypeId m_uiTypeId;
   };
 } // namespace
 
@@ -216,7 +217,7 @@ void ezWorldModuleFactory::FillBaseTypeIds()
     if (!pRtti->IsDerivedFrom<ezWorldModule>())
       continue;
 
-    const ezUInt16 uiTypeId = it.Value();
+    const ezWorldModuleTypeId uiTypeId = it.Value();
 
     for (const ezRTTI* pParentRtti = pRtti->GetParentType(); pParentRtti != pModuleRtti; pParentRtti = pParentRtti->GetParentType())
     {
@@ -262,12 +263,12 @@ void ezWorldModuleFactory::ClearUnloadedTypeToIDs()
     allRttis.Insert(pRtti);
   }
 
-  ezSet<ezUInt16> mappedIdsToRemove;
+  ezSet<ezWorldModuleTypeId> mappedIdsToRemove;
 
   for (auto it = m_TypeToId.GetIterator(); it.IsValid();)
   {
     const ezRTTI* pRtti = it.Key();
-    const ezUInt16 uiTypeId = it.Value();
+    const ezWorldModuleTypeId uiTypeId = it.Value();
 
     if (!allRttis.Contains(pRtti))
     {
@@ -287,7 +288,7 @@ void ezWorldModuleFactory::ClearUnloadedTypeToIDs()
   // this can be more than one, since we can map multiple (interface) types to the same implementation
   for (auto it = m_TypeToId.GetIterator(); it.IsValid();)
   {
-    const ezUInt16 uiTypeId = it.Value();
+    const ezWorldModuleTypeId uiTypeId = it.Value();
 
     if (mappedIdsToRemove.Contains(uiTypeId))
     {

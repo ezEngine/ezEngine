@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{11026521484683807143,5069145872215893263}}
-		u4 %Hash{236139512896062508}
+		u4 %Hash{17944968061274917070}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{13688798916372137839,17151749029646927549}}
@@ -24,6 +24,7 @@ o
 			s{"{ 243fd821-5bc9-4058-82af-32e00fb8ea8b }"}
 			s{"{ 72115f7a-5947-4a21-899f-868368bd41d7 }"}
 			s{"{ 9bd6d5f2-c682-451b-91a0-8b719e3e29c1 }"}
+			s{"{ a1dca888-6181-4dcd-a409-67791a936ad9 }"}
 			s{"{ c8ca68a5-c30d-433d-a430-368096c289b2 }"}
 		}
 	}
@@ -45,7 +46,7 @@ o
 {
 	Uuid %id{u4{5220019081344961437,4699572453752060940}}
 	s %t{"ezTypeScriptComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -79,10 +80,12 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
 			Uuid{u4{5786323538974423199,5760907795903332689}}
+			Uuid{u4{9563230513822521732,5379851290975791325}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0x006143B2,0,0xE093873F}}
@@ -105,6 +108,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -184,11 +188,31 @@ o
 }
 o
 {
+	Uuid %id{u4{9563230513822521732,5379851290975791325}}
+	s %t{"ezFmodEventComponent"}
+	u3 %v{4}
+	p
+	{
+		b %Active{1}
+		u1 %OcclusionCollisionLayer{0}
+		f %OcclusionThreshold{0x0000003F}
+		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
+		b %Paused{1}
+		f %Pitch{0x0000803F}
+		b %ShowDebugInfo{0}
+		s %SoundEvent{"{ a1dca888-6181-4dcd-a409-67791a936ad9 }"}
+		b %UseOcclusion{0}
+		f %Volume{0x0000803F}
+	}
+}
+o
+{
 	Uuid %id{u4{15036990325125480375,5438363800075409190}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -216,6 +240,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children
 		{
 			Uuid{u4{12691541213165926288,5507652996653378634}}
@@ -251,6 +276,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -324,6 +350,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -375,6 +402,24 @@ o
 		s %TypeName{"ezComponent"}
 		u3 %TypeSize{48}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{7306866003362116324,1480773640113041639}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezFmodComponent"}
+		s %PluginName{"ezEditorPluginFmod"}
+		VarArray %Properties{}
+		s %TypeName{"ezFmodEventComponent"}
+		u3 %TypeSize{104}
+		u3 %TypeVersion{4}
 	}
 }
 o
@@ -721,6 +766,24 @@ o
 }
 o
 {
+	Uuid %id{u4{1059777785414581172,10096107093115669027}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"ezEditorPluginFmod"}
+		VarArray %Properties{}
+		s %TypeName{"ezFmodComponent"}
+		u3 %TypeSize{48}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{11568452837770943362,10420668725217181016}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -733,8 +796,26 @@ o
 		s %PluginName{"ezEditorPluginTypeScript"}
 		VarArray %Properties{}
 		s %TypeName{"ezTypeScriptComponent"}
-		u3 %TypeSize{176}
-		u3 %TypeVersion{3}
+		u3 %TypeSize{184}
+		u3 %TypeVersion{4}
+	}
+}
+o
+{
+	Uuid %id{u4{2869469983493172804,11764438314605031013}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezOnComponentFinishedAction"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
 	}
 }
 o

@@ -1,11 +1,15 @@
 #include <TexturePCH.h>
 
+#include <Foundation/Configuration/CVar.h>
+#include <Foundation/Configuration/Startup.h>
 #include <Foundation/Math/Color16f.h>
 #include <Foundation/Strings/StringConversion.h>
 #include <Texture/Image/Conversions/DXTConversions.h>
 #include <Texture/Image/Conversions/PixelConversions.h>
 #include <Texture/Image/Formats/ImageFormatMappings.h>
 #include <Texture/Image/ImageConversion.h>
+
+ezCVarBool cvar_PenalizeDXConversions("texture.PenalizeDXConversions", false, ezCVarFlags::RequiresRestart, "Add a penalty to DirectX-based conversion when choosing how to convert textures");
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 #  define EZ_SUPPORTS_DIRECTXTEX EZ_ON
@@ -27,6 +31,7 @@
 
 using namespace std;
 using namespace DirectX;
+using namespace Microsoft::WRL;
 
 namespace
 {
@@ -64,43 +69,59 @@ namespace
   };
 
   /// Tries to create a hardware device, but falls back to a software device if there is one.
-  TypeOfDeviceCreated CreateDevice(ID3D11Device** pDevice)
+  TypeOfDeviceCreated CreateDevice(ComPtr<ID3D11Device>& pDevice)
   {
-    using namespace Microsoft::WRL;
-
-    if (!pDevice)
-      return TypeOfDeviceCreated::None;
-
-    *pDevice = nullptr;
+    pDevice = nullptr;
 
     // Find a hardware adapter if possible, otherwise find any adapter.
-    ComPtr<IDXGIAdapter1> pAdapter1;
-    bool isHardwareAdapter = false;
+    ComPtr<IDXGIAdapter1> pHardwareAdapter1;
+    ComPtr<IDXGIAdapter1> pFallbackAdapter1;
     {
       int adapter = 0;
       ComPtr<IDXGIFactory1> dxgiFactory;
       if (GetDXGIFactory(dxgiFactory.GetAddressOf()))
       {
+        ComPtr<IDXGIAdapter1> pAdapter1;
         while (dxgiFactory->EnumAdapters1(adapter, pAdapter1.ReleaseAndGetAddressOf()) != DXGI_ERROR_NOT_FOUND)
         {
           DXGI_ADAPTER_DESC1 desc1;
-#if !NDEBUG
+#  if !NDEBUG
           const HRESULT descResult =
-#endif
-          pAdapter1->GetDesc1(&desc1);
+#  endif
+            pAdapter1->GetDesc1(&desc1);
           assert(SUCCEEDED(descResult));
-          if ((desc1.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) == 0)
+          constexpr auto basicDriverString = L"Microsoft Basic Render Driver";
+          if ((desc1.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) == 0 && _wcsicmp(basicDriverString, desc1.Description) != 0)
           {
-            isHardwareAdapter = true;
-            // We found a hardware adapter, so stop searching.
-            break;
+            if (pHardwareAdapter1 == nullptr)
+            {
+              pHardwareAdapter1 = pAdapter1;
+            }
           }
+          else if (pFallbackAdapter1 == nullptr)
+          {
+            pFallbackAdapter1 = pAdapter1;
+          }
+
           ++adapter;
         }
       }
     }
-    
-    if (!pAdapter1)
+
+    ComPtr<IDXGIAdapter1> pAdapter1;
+    TypeOfDeviceCreated deviceType = TypeOfDeviceCreated::None;
+    if (pHardwareAdapter1 != nullptr)
+    {
+      pAdapter1 = pHardwareAdapter1;
+      deviceType = TypeOfDeviceCreated::Hardware;
+    }
+    else if (pFallbackAdapter1 != nullptr)
+    {
+      pAdapter1 = pFallbackAdapter1;
+      deviceType = TypeOfDeviceCreated::Software;
+    }
+
+    if (pAdapter1 == nullptr)
     {
       return TypeOfDeviceCreated::None;
     }
@@ -108,10 +129,10 @@ namespace
     // Get the IDXGIAdapter interface from the IDXGIAdapter1.
     ComPtr<IDXGIAdapter> pAdapter;
     {
-#if !NDEBUG
+#  if !NDEBUG
       const HRESULT castResult =
-#endif
-      pAdapter1->QueryInterface(pAdapter.GetAddressOf());
+#  endif
+        pAdapter1->QueryInterface(pAdapter.GetAddressOf());
       assert(SUCCEEDED(castResult));
     }
 
@@ -142,23 +163,19 @@ namespace
 
     D3D_FEATURE_LEVEL fl;
     HRESULT hr = s_DynamicD3D11CreateDevice(pAdapter.Get(), D3D_DRIVER_TYPE_UNKNOWN, nullptr,
-      createDeviceFlags, featureLevels, _countof(featureLevels), D3D11_SDK_VERSION, pDevice, &fl, nullptr);
+      createDeviceFlags, featureLevels, _countof(featureLevels), D3D11_SDK_VERSION, &pDevice, &fl, nullptr);
     if (SUCCEEDED(hr))
     {
       if (fl < D3D_FEATURE_LEVEL_11_0)
       {
         D3D11_FEATURE_DATA_D3D10_X_HARDWARE_OPTIONS hwopts;
-        hr = (*pDevice)->CheckFeatureSupport(D3D11_FEATURE_D3D10_X_HARDWARE_OPTIONS, &hwopts, sizeof(hwopts));
+        hr = pDevice->CheckFeatureSupport(D3D11_FEATURE_D3D10_X_HARDWARE_OPTIONS, &hwopts, sizeof(hwopts));
         if (FAILED(hr))
           memset(&hwopts, 0, sizeof(hwopts));
 
         if (!hwopts.ComputeShaders_Plus_RawAndStructuredBuffers_Via_Shader_4_x)
         {
-          if (*pDevice)
-          {
-            (*pDevice)->Release();
-            *pDevice = nullptr;
-          }
+          pDevice = nullptr;
           hr = HRESULT_FROM_WIN32(ERROR_NOT_SUPPORTED);
         }
       }
@@ -174,10 +191,12 @@ namespace
         ezLog::Info("Using DirectCompute on \"{0}\"", sDesc.GetData());
       }
 
-      return isHardwareAdapter ? TypeOfDeviceCreated::Hardware : TypeOfDeviceCreated::Software;
+      return deviceType;
     }
     else
+    {
       return TypeOfDeviceCreated::None;
+    }
   }
 
   /// Ensures a device and its corresponding conversion table are constructed together.
@@ -188,32 +207,29 @@ namespace
     class ScopedAccess
     {
     public:
-      ScopedAccess(DeviceAndConversionTable& table) : m_lock(table.m_mutex), m_table(table) {};
-      DeviceAndConversionTable* operator-> () { return &m_table; }
+      ScopedAccess(DeviceAndConversionTable& table)
+        : m_lock(table.m_mutex)
+        , m_table(table)
+      {
+        table.Init();
+      }
+
+      DeviceAndConversionTable* operator->() { return &m_table; }
+
     private:
       ezLock<ezMutex> m_lock;
       DeviceAndConversionTable& m_table;
     };
 
-    ~DeviceAndConversionTable()
-    {
-      if (m_pD3dDevice)
-      {
-        // Sadly, this can happen after warnings about open devices are issued during shutdown.
-        m_pD3dDevice->Release();
-      }
-    }
-
     /// Get temporary access to the static DeviceAndConversionTable.
     static ScopedAccess getDeviceAndConversionTable()
     {
-      static DeviceAndConversionTable deviceAndConversionTable;
-      return deviceAndConversionTable;
+      return s_DeviceAndConversionTable;
     }
 
     ID3D11Device* getDevice()
     {
-      return m_pD3dDevice;
+      return m_pD3dDevice.Get();
     }
 
     ezArrayPtr<const ezImageConversionEntry> getConvertors() const
@@ -221,51 +237,45 @@ namespace
       return m_supportedConversions;
     }
 
-  private:
-    // Private because it can modify the s_sourceConversions.
-    DeviceAndConversionTable()
+    void Init()
     {
-      float devicePenalty = -1.0f;
-
-      switch (CreateDevice(&m_pD3dDevice))
-      {
-      case TypeOfDeviceCreated::None:
-        // No DX devices, so don't use these convertors at all.
+      if (!m_supportedConversions.IsEmpty())
         return;
-      case TypeOfDeviceCreated::Hardware:
+
+      // A high penalty for software devices.
+      // The number chosen is greater than (32 * 4) * 2 * 2 * 2 = 1024, the estimated cost of the
+      // currently largest step, making software DX conversions available but highly undesirable.
+      float devicePenalty = 2000.0f;
+
+      if ((CreateDevice(m_pD3dDevice) == TypeOfDeviceCreated::Hardware) && !cvar_PenalizeDXConversions)
+      {
         // No penalty for hardware devices.
         devicePenalty = 0.0f;
-        break;
-      case TypeOfDeviceCreated::Software:
-        // A high penalty for software devices.
-        // The number chosen is greater than (32 * 4) * 2 * 2 * 2 = 1024, the estimated cost of the
-        // currently largest step, making software DX conversions available but highly undesirable.
-        devicePenalty = 2000.0f;
-        break;
       }
 
-      assert(devicePenalty >= 0.0f);
-      assert(m_pD3dDevice && "The CreateDevice function should have initialized this");
-
-      if (devicePenalty > 0.0f)
+      for (auto& entry : ezArrayPtr<ezImageConversionEntry>(s_sourceConversions))
       {
-        for (auto& entry : ezArrayPtr<ezImageConversionEntry>(s_sourceConversions))
-        {
-          entry.m_additionalPenalty = devicePenalty;
-        }
+        entry.m_additionalPenalty = devicePenalty;
       }
 
       m_supportedConversions = s_sourceConversions;
     }
 
+    void Deinit()
+    {
+      m_pD3dDevice = nullptr;
+      m_supportedConversions.Clear();
+    }
+
   private:
-    ID3D11Device* m_pD3dDevice = nullptr;
+    ComPtr<ID3D11Device> m_pD3dDevice = nullptr;
     ezArrayPtr<const ezImageConversionEntry> m_supportedConversions;
 
     constexpr static int s_numConversions = 15;
     static ezImageConversionEntry s_sourceConversions[s_numConversions];
 
     ezMutex m_mutex;
+    static DeviceAndConversionTable s_DeviceAndConversionTable;
   };
 
   ezImageConversionEntry DeviceAndConversionTable::s_sourceConversions[s_numConversions] = {
@@ -287,7 +297,24 @@ namespace
     ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM_SRGB, ezImageFormat::BC7_UNORM, ezImageConversionFlags::Default),
     ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM_SRGB, ezImageFormat::BC7_UNORM_SRGB, ezImageConversionFlags::Default),
   };
+
+  DeviceAndConversionTable DeviceAndConversionTable::s_DeviceAndConversionTable;
 } // namespace
+
+// clang-format off
+EZ_BEGIN_SUBSYSTEM_DECLARATION(TexConv, DXTexConversions)
+
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+    "Foundation"
+  END_SUBSYSTEM_DEPENDENCIES
+
+  ON_CORESYSTEMS_SHUTDOWN
+  {
+    DeviceAndConversionTable::getDeviceAndConversionTable()->Deinit();
+  }
+
+EZ_END_SUBSYSTEM_DECLARATION;
+// clang-format on
 
 class ezImageConversion_CompressDxTex : public ezImageConversionStepCompressBlocks
 {
@@ -321,15 +348,17 @@ public:
 
     bool bCompressionDone = false;
 
-    auto deviceAndConversionTableScope = DeviceAndConversionTable::getDeviceAndConversionTable();
-    ID3D11Device* pD3dDevice = deviceAndConversionTableScope->getDevice();
-    if (pD3dDevice != nullptr)
     {
-      if (SUCCEEDED(Compress(pD3dDevice, dxSrcImage.GetImages(), dxSrcImage.GetImageCount(), dxSrcImage.GetMetadata(), dxgiTargetFormat,
-            TEX_COMPRESS_PARALLEL, 1.0f, dxDstImage)))
+      auto deviceAndConversionTableScope = DeviceAndConversionTable::getDeviceAndConversionTable();
+      ID3D11Device* pD3dDevice = deviceAndConversionTableScope->getDevice();
+      if (pD3dDevice != nullptr)
       {
-        // Not all formats can be compressed on the GPU. Fall back to CPU in case GPU compression fails.
-        bCompressionDone = true;
+        if (SUCCEEDED(Compress(pD3dDevice, dxSrcImage.GetImages(), dxSrcImage.GetImageCount(), dxSrcImage.GetMetadata(), dxgiTargetFormat,
+              TEX_COMPRESS_PARALLEL, 1.0f, dxDstImage)))
+        {
+          // Not all formats can be compressed on the GPU. Fall back to CPU in case GPU compression fails.
+          bCompressionDone = true;
+        }
       }
     }
 
@@ -366,4 +395,3 @@ static ezImageConversion_CompressDxTex s_conversion_compressDxTex;
 
 
 EZ_STATICLINK_FILE(Texture, Texture_Image_Conversions_DXTexConversions);
-

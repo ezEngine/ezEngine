@@ -247,18 +247,24 @@ export class DebugTextComponent extends Component
 export class DecalComponent extends RenderComponent
 {
   public static GetTypeNameHash(): number { return 589392023; }
+  get Decal(): string { return __CPP_ComponentProperty_get(this, 1185422148); }
+  set Decal(value: string) { __CPP_ComponentProperty_set(this, 1185422148, value); }
+  get ProjectionAxis(): Enum.BasisAxis { return __CPP_ComponentProperty_get(this, 3085577467); }
+  set ProjectionAxis(value: Enum.BasisAxis) { __CPP_ComponentProperty_set(this, 3085577467, value); }
   get Extents(): Vec3 { return __CPP_ComponentProperty_get(this, 734375091); }
   set Extents(value: Vec3) { __CPP_ComponentProperty_set(this, 734375091, value); }
   get SizeVariance(): number { return __CPP_ComponentProperty_get(this, 1644122058); }
   set SizeVariance(value: number) { __CPP_ComponentProperty_set(this, 1644122058, value); }
   get Color(): Color { return __CPP_ComponentProperty_get(this, 4010460738); }
   set Color(value: Color) { __CPP_ComponentProperty_set(this, 4010460738, value); }
-  get Decal(): string { return __CPP_ComponentProperty_get(this, 1185422148); }
-  set Decal(value: string) { __CPP_ComponentProperty_set(this, 1185422148, value); }
+  get EmissiveColor(): Color { return __CPP_ComponentProperty_get(this, 3707224434); }
+  set EmissiveColor(value: Color) { __CPP_ComponentProperty_set(this, 3707224434, value); }
   get SortOrder(): number { return __CPP_ComponentProperty_get(this, 3224004631); }
   set SortOrder(value: number) { __CPP_ComponentProperty_set(this, 3224004631, value); }
   get WrapAround(): boolean { return __CPP_ComponentProperty_get(this, 2245558943); }
   set WrapAround(value: boolean) { __CPP_ComponentProperty_set(this, 2245558943, value); }
+  get MapNormalToGeometry(): boolean { return __CPP_ComponentProperty_get(this, 4227102709); }
+  set MapNormalToGeometry(value: boolean) { __CPP_ComponentProperty_set(this, 4227102709, value); }
   get InnerFadeAngle(): number { return __CPP_ComponentProperty_get(this, 3131777915); }
   set InnerFadeAngle(value: number) { __CPP_ComponentProperty_set(this, 3131777915, value); }
   get OuterFadeAngle(): number { return __CPP_ComponentProperty_get(this, 775085950); }

@@ -1,9 +1,9 @@
 #include "GameState.h"
+#include <Core/ResourceManager/ResourceManager.h>
+#include <Foundation/Configuration/CVar.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
-#include <Foundation/Configuration/CVar.h>
 #include <Foundation/Time/Clock.h>
-#include <Core/ResourceManager/ResourceManager.h>
 
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <System/Window/Window.h>
@@ -12,8 +12,8 @@
 
 EZ_APPLICATION_ENTRY_POINT(ezGameApplication, "Asteroids", "Data/Samples/Asteroids");
 
-const char* szPlayerActions[MaxPlayerActions] = { "Forwards", "Backwards", "Left", "Right", "RotLeft", "RotRight", "Shoot" };
-const char* szControlerKeys[MaxPlayerActions] = { "leftstick_posy", "leftstick_negy", "leftstick_negx", "leftstick_posx", "rightstick_negx", "rightstick_posx", "right_trigger" };
+const char* szPlayerActions[MaxPlayerActions] = {"Forwards", "Backwards", "Left", "Right", "RotLeft", "RotRight", "Shoot"};
+const char* szControlerKeys[MaxPlayerActions] = {"leftstick_posy", "leftstick_negy", "leftstick_negx", "leftstick_posx", "rightstick_negx", "rightstick_posx", "right_trigger"};
 
 namespace
 {
@@ -24,15 +24,18 @@ namespace
     cfg = ezInputManager::GetInputActionConfig(szInputSet, szInputAction);
     cfg.m_bApplyTimeScaling = true;
 
-    if (szKey1 != nullptr)     cfg.m_sInputSlotTrigger[0] = szKey1;
-    if (szKey2 != nullptr)     cfg.m_sInputSlotTrigger[1] = szKey2;
-    if (szKey3 != nullptr)     cfg.m_sInputSlotTrigger[2] = szKey3;
+    if (szKey1 != nullptr)
+      cfg.m_sInputSlotTrigger[0] = szKey1;
+    if (szKey2 != nullptr)
+      cfg.m_sInputSlotTrigger[1] = szKey2;
+    if (szKey3 != nullptr)
+      cfg.m_sInputSlotTrigger[2] = szKey3;
 
     ezInputManager::SetInputActionConfig(szInputSet, szInputAction, cfg, true);
   }
-}
+} // namespace
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(AsteroidGameState, 1, ezRTTIDefaultAllocator<AsteroidGameState>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(AsteroidGameState, 1, ezRTTIDefaultAllocator<AsteroidGameState>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 AsteroidGameState::AsteroidGameState()
@@ -116,12 +119,11 @@ void AsteroidGameState::DestroyLevel()
 
 
 
-
 ezGameStatePriority AsteroidGameState::DeterminePriority(ezWorld* pWorld) const
 {
-  return 
+  return
 
-ezGameStatePriority::Default;
+    ezGameStatePriority::Default;
 }
 
 void AsteroidGameState::ProcessInput()
@@ -131,4 +133,3 @@ void AsteroidGameState::ProcessInput()
   for (ezInt32 iPlayer = 0; iPlayer < MaxPlayers; ++iPlayer)
     m_pLevel->UpdatePlayerInput(iPlayer);
 }
-

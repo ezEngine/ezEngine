@@ -22,13 +22,13 @@ EZ_BEGIN_COMPONENT_TYPE(ezGreyBoxComponent, 3, ezComponentMode::Static)
     EZ_ENUM_ACCESSOR_PROPERTY("Shape", ezGreyBoxShape, GetShape, SetShape),
     EZ_ACCESSOR_PROPERTY("Material", GetMaterialFile, SetMaterialFile)->AddAttributes(new ezAssetBrowserAttribute("Material")),
     EZ_MEMBER_PROPERTY("Color", m_Color)->AddAttributes(new ezDefaultValueAttribute(ezColor::White)),
-    EZ_ACCESSOR_PROPERTY("SizeNegX", GetSizeNegX, SetSizeNegX),//->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_ACCESSOR_PROPERTY("SizeNegX", GetSizeNegX, SetSizeNegX)->AddAttributes(new ezGroupAttribute("Size", "Size")),//->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ACCESSOR_PROPERTY("SizePosX", GetSizePosX, SetSizePosX),//->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ACCESSOR_PROPERTY("SizeNegY", GetSizeNegY, SetSizeNegY),//->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ACCESSOR_PROPERTY("SizePosY", GetSizePosY, SetSizePosY),//->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ACCESSOR_PROPERTY("SizeNegZ", GetSizeNegZ, SetSizeNegZ),//->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ACCESSOR_PROPERTY("SizePosZ", GetSizePosZ, SetSizePosZ),//->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_ACCESSOR_PROPERTY("Detail", GetDetail, SetDetail)->AddAttributes(new ezDefaultValueAttribute(16), new ezClampValueAttribute(3, 32)),
+    EZ_ACCESSOR_PROPERTY("Detail", GetDetail, SetDetail)->AddAttributes(new ezGroupAttribute("Misc"), new ezDefaultValueAttribute(16), new ezClampValueAttribute(3, 32)),
     EZ_ACCESSOR_PROPERTY("Curvature", GetCurvature, SetCurvature),
     EZ_ACCESSOR_PROPERTY("Thickness", GetThickness, SetThickness)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ACCESSOR_PROPERTY("SlopedTop", GetSlopedTop, SetSlopedTop),
@@ -159,7 +159,34 @@ void ezGreyBoxComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) con
       pRenderData->FillBatchIdAndSortingKey();
     }
 
-    msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, ezRenderData::Caching::IfStatic);
+    bool bDontCacheYet = false;
+
+    // Determine render data category.
+    ezRenderData::Category category = ezDefaultRenderDataCategories::LitOpaque;
+
+    if (hMaterial.IsValid())
+    {
+      ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
+
+      if (pMaterial.GetAcquireResult() == ezResourceAcquireResult::LoadingFallback)
+        bDontCacheYet = true;
+
+      ezTempHashedString blendModeValue = pMaterial->GetPermutationValue("BLEND_MODE");
+      if (blendModeValue == "BLEND_MODE_OPAQUE" || blendModeValue == "")
+      {
+        category = ezDefaultRenderDataCategories::LitOpaque;
+      }
+      else if (blendModeValue == "BLEND_MODE_MASKED")
+      {
+        category = ezDefaultRenderDataCategories::LitMasked;
+      }
+      else
+      {
+        category = ezDefaultRenderDataCategories::LitTransparent;
+      }
+    }
+
+    msg.AddRenderData(pRenderData, category, bDontCacheYet ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic);
   }
 }
 
@@ -321,6 +348,9 @@ void ezGreyBoxComponent::OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const
   {
     // do not include this for the collision mesh, if the proper tag is not set
     if (!GetOwner()->GetTags().IsSetByName("AutoColMesh"))
+      return;
+
+    if (GetOwner()->IsDynamic())
       return;
   }
   else
@@ -513,7 +543,6 @@ void ezGreyBoxComponent::GenerateRenderMesh() const
   ezGeometry geom;
   BuildGeometry(geom);
 
-  geom.ComputeFaceNormals();
   geom.TriangulatePolygons();
   geom.ComputeTangents();
 
@@ -522,10 +551,7 @@ void ezGreyBoxComponent::GenerateRenderMesh() const
   // Data/Base/Materials/Common/Pattern.ezMaterialAsset
   desc.SetMaterial(0, "{ 1c47ee4c-0379-4280-85f5-b8cda61941d2 }");
 
-  desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-  desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::XYFloat);
-  desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
-  desc.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Tangent, ezGALResourceFormat::XYZFloat);
+  desc.MeshBufferDesc().AddCommonStreams();
   desc.MeshBufferDesc().AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
   desc.AddSubMesh(desc.MeshBufferDesc().GetPrimitiveCount(), 0, 0);
@@ -537,4 +563,4 @@ void ezGreyBoxComponent::GenerateRenderMesh() const
 
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_GreyBoxComponent);
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_GreyBoxComponent);

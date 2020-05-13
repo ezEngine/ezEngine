@@ -31,6 +31,18 @@ struct EZ_FOUNDATION_DLL ezAtomicUtils
   /// \brief Decrements dest as an atomic operation and returns the new value.
   static ezInt64 Decrement(volatile ezInt64& dest); // [tested]
 
+  /// \brief Increments dest as an atomic operation and returns the old value.
+  static ezInt32 PostIncrement(volatile ezInt32& dest); // [tested]
+
+  /// \brief Increments dest as an atomic operation and returns the old value.
+  static ezInt64 PostIncrement(volatile ezInt64& dest); // [tested]
+
+  /// \brief Decrements dest as an atomic operation and returns the old value.
+  static ezInt32 PostDecrement(volatile ezInt32& dest); // [tested]
+
+  /// \brief Decrements dest as an atomic operation and returns the old value.
+  static ezInt64 PostDecrement(volatile ezInt64& dest); // [tested]
+
   /// \brief Adds value to dest as an atomic operation.
   static void Add(volatile ezInt32& dest, ezInt32 value); // [tested]
 
@@ -73,22 +85,27 @@ struct EZ_FOUNDATION_DLL ezAtomicUtils
   /// \brief Sets dest to value as an atomic operation and returns the original value of dest.
   static ezInt64 Set(volatile ezInt64& dest, ezInt64 value); // [tested]
 
-  /// \brief Sets dest to value if dest is equal to expected and returns true, otherwise does nothing and returns false.
+  /// \brief If *dest* is equal to *expected*, this function sets *dest* to *value* and returns true. Otherwise *dest* will not be modified and the function returns false.
   static bool TestAndSet(volatile ezInt32& dest, ezInt32 expected, ezInt32 value); // [tested]
 
-  /// \brief Sets dest to value if dest is equal to expected and returns true, otherwise does nothing and returns false.
+  /// \brief If *dest* is equal to *expected*, this function sets *dest* to *value* and returns true. Otherwise *dest* will not be modified and the function returns false.
   static bool TestAndSet(volatile ezInt64& dest, ezInt64 expected, ezInt64 value); // [tested]
 
-  /// \brief Sets dest to value if dest is equal to expected and returns true, otherwise does nothing and returns false.
+  /// \brief If *dest* is equal to *expected*, this function sets *dest* to *value* and returns true. Otherwise *dest* will not be modified and the function returns false.
   static bool TestAndSet(void** volatile dest, void* expected, void* value); // [tested]
+
+  /// \brief If *dest* is equal to *expected*, this function sets *dest* to *value*. Otherwise *dest* will not be modified. Always returns the value of *dest* before the modification.
+  static ezInt32 CompareAndSwap(volatile ezInt32& dest, ezInt32 expected, ezInt32 value); // [tested]
+
+  /// \brief If *dest* is equal to *expected*, this function sets *dest* to *value*. Otherwise *dest* will not be modified. Always returns the value of *dest* before the modification.
+  static ezInt64 CompareAndSwap(volatile ezInt64& dest, ezInt64 expected, ezInt64 value); // [tested]
 };
 
 // Include inline file
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#include <Foundation/Threading/Implementation/Win/AtomicUtils_win.h>
+#  include <Foundation/Threading/Implementation/Win/AtomicUtils_win.h>
 #elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX) || EZ_ENABLED(EZ_PLATFORM_ANDROID)
-#include <Foundation/Threading/Implementation/Posix/AtomicUtils_posix.h>
+#  include <Foundation/Threading/Implementation/Posix/AtomicUtils_posix.h>
 #else
-#error "Atomics are not implemented on current platform"
+#  error "Atomics are not implemented on current platform"
 #endif
-

@@ -23,7 +23,20 @@ void ezQtDocumentWindow::Constructor()
 {
   s_AllDocumentWindows.PushBack(this);
 
-  setStatusBar(new QStatusBar());
+  // status bar
+  {
+    connect(statusBar(), &QStatusBar::messageChanged, this, &ezQtDocumentWindow::OnStatusBarMessageChanged);
+
+    m_pPermanentDocumentStatusText = new QLabel();
+    statusBar()->addWidget(m_pPermanentDocumentStatusText, 1);
+
+    m_pPermanentGlobalStatusButton = new QToolButton();
+    m_pPermanentGlobalStatusButton->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    m_pPermanentGlobalStatusButton->setVisible(false);
+    statusBar()->addPermanentWidget(m_pPermanentGlobalStatusButton, 0);
+
+    EZ_VERIFY(connect(m_pPermanentGlobalStatusButton, &QToolButton::clicked, this, &ezQtDocumentWindow::OnPermanentGlobalStatusClicked), "");
+  }
 
   setDockNestingEnabled(true);
 
@@ -83,23 +96,6 @@ void ezQtDocumentWindow::SetVisibleInContainer(bool bVisible)
   if (m_bIsVisibleInContainer)
   {
     // if the window is now visible, immediately do a redraw and trigger the timers
-
-    // \todo While testing with Kraut it had to be like this (with comments), to not crash:
-    /*
-    //m_bIsDrawingATM = true;
-    //InternalRedraw();
-    //m_bIsDrawingATM = false;
-
-    //if (m_iTargetFramerate != 0)
-      TriggerRedraw();
-    */
-    /*
-        m_bIsDrawingATM = true;
-        InternalRedraw();
-        m_bIsDrawingATM = false;
-
-        if (m_iTargetFramerate != 0)
-          TriggerRedraw();*/
     SlotRedraw();
   }
 }
@@ -149,8 +145,6 @@ void ezQtDocumentWindow::TriggerRedraw(ezTime LastFrameTime)
   // Subtract the time it took to render the last frame.
   delay -= LastFrameTime;
   delay = ezMath::Max(delay, ezTime::Zero());
-
-  // ezLog::Info("FT: {0}, delay: {1}", ezArgF(fLastFrameTimeMS, 3), ezArgF(fDelay, 3));
 
   QTimer::singleShot((ezInt32)ezMath::Floor(delay.GetMilliseconds()), this, SLOT(SlotRedraw()));
 }
@@ -238,13 +232,37 @@ void ezQtDocumentWindow::UIServicesEventHandler(const ezQtUiServices::Event& e)
 {
   switch (e.m_Type)
   {
-    case ezQtUiServices::Event::Type::ShowDocumentStatusBarText:
-    {
-      if (statusBar() == nullptr)
-        setStatusBar(new QStatusBar());
+    case ezQtUiServices::Event::Type::ShowDocumentTemporaryStatusBarText:
+      ShowTemporaryStatusBarMsg(ezFmt(e.m_sText), e.m_Time);
+      break;
 
-      statusBar()->setHidden(e.m_sText.IsEmpty());
-      statusBar()->showMessage(QString::fromUtf8(e.m_sText.GetData()), (int)e.m_Time.GetMilliseconds());
+    case ezQtUiServices::Event::Type::ShowDocumentPermanentStatusBarText:
+    {
+      if (m_pPermanentGlobalStatusButton)
+      {
+        QPalette pal = palette();
+
+        switch (e.m_TextType)
+        {
+          case ezQtUiServices::Event::Info:
+            m_pPermanentGlobalStatusButton->setIcon(QIcon(":/GuiFoundation/Icons/Log.png"));
+            break;
+
+          case ezQtUiServices::Event::Warning:
+            pal.setColor(QPalette::WindowText, QColor(255, 100, 0));
+            m_pPermanentGlobalStatusButton->setIcon(QIcon(":/GuiFoundation/Icons/Warning16.png"));
+            break;
+
+          case ezQtUiServices::Event::Error:
+            pal.setColor(QPalette::WindowText, QColor(Qt::red));
+            m_pPermanentGlobalStatusButton->setIcon(QIcon(":/GuiFoundation/Icons/Error16.png"));
+            break;
+        }
+
+        m_pPermanentGlobalStatusButton->setPalette(pal);
+        m_pPermanentGlobalStatusButton->setText(QString::fromUtf8(e.m_sText));
+        m_pPermanentGlobalStatusButton->setVisible(!m_pPermanentGlobalStatusButton->text().isEmpty());
+      }
     }
     break;
 
@@ -346,6 +364,8 @@ void ezQtDocumentWindow::RestoreWindowLayout()
       }
     }
   }
+
+  statusBar()->clearMessage();
 }
 
 void ezQtDocumentWindow::DisableWindowLayoutSaving()
@@ -389,29 +409,23 @@ ezStatus ezQtDocumentWindow::SaveDocument()
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezQtDocumentWindow::ShowTemporaryStatusBarMsg(const ezFormatString& sMsg)
+void ezQtDocumentWindow::ShowTemporaryStatusBarMsg(const ezFormatString& sMsg, ezTime duration)
 {
-  if (statusBar() == nullptr)
-    setStatusBar(new QStatusBar());
-
   ezStringBuilder tmp;
-  statusBar()->showMessage(QString::fromUtf8(sMsg.GetText(tmp)), 5000);
+  statusBar()->showMessage(QString::fromUtf8(sMsg.GetText(tmp)), (int)duration.GetMilliseconds());
 }
 
 
 void ezQtDocumentWindow::SetPermanentStatusBarMsg(const ezFormatString& sText)
 {
-  if (statusBar() == nullptr)
-    setStatusBar(new QStatusBar());
-
-  if (m_pPermanentStatusMsg == nullptr)
+  if (!sText.IsEmpty())
   {
-    m_pPermanentStatusMsg = new QLabel(statusBar());
-    statusBar()->insertWidget(0, m_pPermanentStatusMsg);
+    // clear temporary message
+    statusBar()->clearMessage();
   }
 
   ezStringBuilder tmp;
-  m_pPermanentStatusMsg->setText(QString::fromUtf8(sText.GetText(tmp)));
+  m_pPermanentDocumentStatusText->setText(QString::fromUtf8(sText.GetText(tmp)));
 }
 
 void ezQtDocumentWindow::CreateImageCapture(const char* szOutputPath)
@@ -467,6 +481,34 @@ void ezQtDocumentWindow::SlotQueuedDelete()
   {
     ShutdownDocumentWindow();
   }
+}
+
+void ezQtDocumentWindow::OnPermanentGlobalStatusClicked(bool)
+{
+  ezQtUiServices::Event e;
+  e.m_Type = ezQtUiServices::Event::ClickedDocumentPermanentStatusBarText;
+
+  ezQtUiServices::GetSingleton()->s_Events.Broadcast(e);
+}
+
+void ezQtDocumentWindow::OnStatusBarMessageChanged(const QString& sNewText)
+{
+  QPalette pal = palette();
+
+  if (sNewText.startsWith("Error:"))
+  {
+    pal.setColor(QPalette::WindowText, QColor(Qt::red));
+  }
+  else if (sNewText.startsWith("Warning:"))
+  {
+    pal.setColor(QPalette::WindowText, QColor(255, 216, 0));
+  }
+  else if (sNewText.startsWith("Note:"))
+  {
+    pal.setColor(QPalette::WindowText, QColor(0, 255, 255));
+  }
+
+  statusBar()->setPalette(pal);
 }
 
 void ezQtDocumentWindow::ShutdownDocumentWindow()

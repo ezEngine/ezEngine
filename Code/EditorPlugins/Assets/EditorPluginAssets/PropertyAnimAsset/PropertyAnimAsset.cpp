@@ -1,7 +1,6 @@
 #include <EditorPluginAssetsPCH.h>
 
 #include <Core/World/GameObject.h>
-#include <Core/WorldSerializer/ResourceHandleWriter.h>
 #include <EditorFramework/Object/ObjectPropertyPath.h>
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimAsset.h>
 #include <EditorPluginAssets/PropertyAnimAsset/PropertyAnimObjectAccessor.h>
@@ -10,7 +9,7 @@
 #include <ToolsFoundation/Object/DocumentObjectVisitor.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAnimationTrack, 1, ezRTTIDefaultAllocator<ezPropertyAnimationTrack>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAnimationTrack, 1, ezRTTIDefaultAllocator<ezPropertyAnimationTrack>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -25,7 +24,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAnimationTrack, 1, ezRTTIDefaultAlloca
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAnimationTrackGroup, 1, ezRTTIDefaultAllocator<ezPropertyAnimationTrackGroup>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAnimationTrackGroup, 1, ezRTTIDefaultAllocator<ezPropertyAnimationTrackGroup>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -38,7 +37,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAnimationTrackGroup, 1, ezRTTIDefaultA
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAnimAssetDocument, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAnimAssetDocument, 2, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -51,8 +50,8 @@ ezPropertyAnimationTrackGroup::~ezPropertyAnimationTrackGroup()
 }
 
 ezPropertyAnimAssetDocument::ezPropertyAnimAssetDocument(const char* szDocumentPath)
-    : ezSimpleAssetDocument<ezPropertyAnimationTrackGroup, ezGameObjectContextDocument>(EZ_DEFAULT_NEW(ezPropertyAnimObjectManager),
-                                                                                        szDocumentPath, ezAssetDocEngineConnection::FullObjectMirroring)
+  : ezSimpleAssetDocument<ezPropertyAnimationTrackGroup, ezGameObjectContextDocument>(EZ_DEFAULT_NEW(ezPropertyAnimObjectManager),
+      szDocumentPath, ezAssetDocEngineConnection::FullObjectMirroring)
 {
   m_GameObjectContextEvents.AddEventHandler(ezMakeDelegate(&ezPropertyAnimAssetDocument::GameObjectContextEventHandler, this));
   m_pAccessor = EZ_DEFAULT_NEW(ezPropertyAnimObjectAccessor, this, GetCommandHistory());
@@ -172,12 +171,9 @@ bool ezPropertyAnimAssetDocument::SetScrubberPosition(ezUInt64 uiTick)
 }
 
 ezStatus ezPropertyAnimAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-                                                             const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   const ezPropertyAnimationTrackGroup* pProp = GetProperties();
-
-  ezResourceHandleWriteContext HandleContext;
-  HandleContext.BeginWritingToStream(&stream);
 
   ezPropertyAnimResourceDescriptor desc;
   desc.m_AnimationDuration = GetAnimationDurationTime();
@@ -236,8 +232,6 @@ ezStatus ezPropertyAnimAssetDocument::InternalTransformAsset(ezStreamWriter& str
   pProp->m_EventTrack.ConvertToRuntimeData(desc.m_EventTrack);
 
   desc.Save(stream);
-
-  HandleContext.EndWritingToStream(&stream);
 
   return ezStatus(EZ_SUCCESS);
 }
@@ -374,8 +368,8 @@ void ezPropertyAnimAssetDocument::AddTrack(const ezUuid& track)
     {
       PropertyValue value;
       EZ_VERIFY(m_pAccessor->GetValue(GetObjectManager()->GetObject(key.m_Object), key.m_pProperty, value.m_InitialValue, key.m_Index)
-                    .Succeeded(),
-                "Computed key invalid, does not resolve to a value.");
+                  .Succeeded(),
+        "Computed key invalid, does not resolve to a value.");
       m_PropertyTable.Insert(key, value);
     }
 
@@ -387,7 +381,7 @@ void ezPropertyAnimAssetDocument::AddTrack(const ezUuid& track)
 
 
 void ezPropertyAnimAssetDocument::FindTrackKeys(const char* szObjectSearchSequence, const char* szComponentType, const char* szPropertyPath,
-                                                ezHybridArray<ezPropertyReference, 1>& keys) const
+  ezHybridArray<ezPropertyReference, 1>& keys) const
 {
   ezObjectPropertyPathContext context = {GetContextObject(), m_pAccessor.Borrow(), "TempObjects"};
 
@@ -397,8 +391,8 @@ void ezPropertyAnimAssetDocument::FindTrackKeys(const char* szObjectSearchSequen
 
 
 void ezPropertyAnimAssetDocument::GenerateTrackInfo(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index,
-                                                    ezStringBuilder& sObjectSearchSequence, ezStringBuilder& sComponentType,
-                                                    ezStringBuilder& sPropertyPath) const
+  ezStringBuilder& sObjectSearchSequence, ezStringBuilder& sComponentType,
+  ezStringBuilder& sPropertyPath) const
 {
   ezObjectPropertyPathContext context = {GetContextObject(), m_pAccessor.Borrow(), "TempObjects"};
   ezPropertyReference propertyRef = {pObject->GetGuid(), pProp, index};
@@ -565,16 +559,16 @@ ezPropertyAnimationTrack* ezPropertyAnimAssetDocument::GetTrack(const ezUuid& tr
 {
   auto obj = m_Context.GetObjectByGUID(track);
   EZ_ASSERT_DEBUG(
-      obj.m_pType == ezGetStaticRTTI<ezPropertyAnimationTrack>(),
-      "Track guid does not resolve to a track, "
-      "either the track is not yet created in the mirror or already destroyed. Make sure callbacks are executed in the right order.");
+    obj.m_pType == ezGetStaticRTTI<ezPropertyAnimationTrack>(),
+    "Track guid does not resolve to a track, "
+    "either the track is not yet created in the mirror or already destroyed. Make sure callbacks are executed in the right order.");
   auto pTrack = static_cast<ezPropertyAnimationTrack*>(obj.m_pObject);
   return pTrack;
 }
 
 
 ezStatus ezPropertyAnimAssetDocument::CanAnimate(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index,
-                                                 ezPropertyAnimTarget::Enum target) const
+  ezPropertyAnimTarget::Enum target) const
 {
   if (!pObject)
     return ezStatus("Object is null.");
@@ -629,7 +623,7 @@ ezStatus ezPropertyAnimAssetDocument::CanAnimate(const ezDocumentObject* pObject
 }
 
 ezUuid ezPropertyAnimAssetDocument::FindTrack(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index,
-                                              ezPropertyAnimTarget::Enum target) const
+  ezPropertyAnimTarget::Enum target) const
 {
   ezPropertyReference key;
   key.m_Object = pObject->GetGuid();
@@ -648,26 +642,33 @@ ezUuid ezPropertyAnimAssetDocument::FindTrack(const ezDocumentObject* pObject, c
 }
 
 static ezColorGammaUB g_CurveColors[10][3] = {
-    {ezColorGammaUB(255, 102, 0), ezColorGammaUB(76, 255, 0), ezColorGammaUB(0, 255, 255)},
-    {ezColorGammaUB(239, 35, 0), ezColorGammaUB(127, 255, 0), ezColorGammaUB(0, 0, 255)},
-    {ezColorGammaUB(205, 92, 92), ezColorGammaUB(120, 158, 39), ezColorGammaUB(81, 120, 188)},
-    {ezColorGammaUB(255, 105, 180), ezColorGammaUB(0, 250, 154), ezColorGammaUB(0, 191, 255)},
-    {ezColorGammaUB(220, 20, 60), ezColorGammaUB(0, 255, 127), ezColorGammaUB(30, 144, 255)},
-    {ezColorGammaUB(240, 128, 128), ezColorGammaUB(60, 179, 113), ezColorGammaUB(135, 206, 250)},
-    {ezColorGammaUB(178, 34, 34), ezColorGammaUB(46, 139, 87), ezColorGammaUB(65, 105, 225)},
-    {ezColorGammaUB(211, 122, 122), ezColorGammaUB(144, 238, 144), ezColorGammaUB(135, 206, 235)},
-    {ezColorGammaUB(219, 112, 147), ezColorGammaUB(0, 128, 0), ezColorGammaUB(70, 130, 180)},
-    {ezColorGammaUB(255, 182, 193), ezColorGammaUB(102, 205, 170), ezColorGammaUB(100, 149, 237)},
+  {ezColorGammaUB(255, 102, 0), ezColorGammaUB(76, 255, 0), ezColorGammaUB(0, 255, 255)},
+  {ezColorGammaUB(239, 35, 0), ezColorGammaUB(127, 255, 0), ezColorGammaUB(0, 0, 255)},
+  {ezColorGammaUB(205, 92, 92), ezColorGammaUB(120, 158, 39), ezColorGammaUB(81, 120, 188)},
+  {ezColorGammaUB(255, 105, 180), ezColorGammaUB(0, 250, 154), ezColorGammaUB(0, 191, 255)},
+  {ezColorGammaUB(220, 20, 60), ezColorGammaUB(0, 255, 127), ezColorGammaUB(30, 144, 255)},
+  {ezColorGammaUB(240, 128, 128), ezColorGammaUB(60, 179, 113), ezColorGammaUB(135, 206, 250)},
+  {ezColorGammaUB(178, 34, 34), ezColorGammaUB(46, 139, 87), ezColorGammaUB(65, 105, 225)},
+  {ezColorGammaUB(211, 122, 122), ezColorGammaUB(144, 238, 144), ezColorGammaUB(135, 206, 235)},
+  {ezColorGammaUB(219, 112, 147), ezColorGammaUB(0, 128, 0), ezColorGammaUB(70, 130, 180)},
+  {ezColorGammaUB(255, 182, 193), ezColorGammaUB(102, 205, 170), ezColorGammaUB(100, 149, 237)},
 };
 
 static ezColorGammaUB g_FloatColors[10] = {
-    ezColorGammaUB(138, 43, 226),  ezColorGammaUB(139, 0, 139),   ezColorGammaUB(153, 50, 204), ezColorGammaUB(148, 0, 211),
-    ezColorGammaUB(218, 112, 214), ezColorGammaUB(221, 160, 221), ezColorGammaUB(128, 0, 128),  ezColorGammaUB(102, 51, 153),
-    ezColorGammaUB(106, 90, 205),  ezColorGammaUB(238, 130, 238),
+  ezColorGammaUB(138, 43, 226),
+  ezColorGammaUB(139, 0, 139),
+  ezColorGammaUB(153, 50, 204),
+  ezColorGammaUB(148, 0, 211),
+  ezColorGammaUB(218, 112, 214),
+  ezColorGammaUB(221, 160, 221),
+  ezColorGammaUB(128, 0, 128),
+  ezColorGammaUB(102, 51, 153),
+  ezColorGammaUB(106, 90, 205),
+  ezColorGammaUB(238, 130, 238),
 };
 
 ezUuid ezPropertyAnimAssetDocument::CreateTrack(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index,
-                                                ezPropertyAnimTarget::Enum target)
+  ezPropertyAnimTarget::Enum target)
 {
   ezStringBuilder sObjectSearchSequence;
   ezStringBuilder sComponentType;
@@ -678,10 +679,10 @@ ezUuid ezPropertyAnimAssetDocument::CreateTrack(const ezDocumentObject* pObject,
   const ezRTTI* pTrackType = ezGetStaticRTTI<ezPropertyAnimationTrack>();
   ezUuid newTrack;
   EZ_VERIFY(accessor
-                .AddObject(GetPropertyObject(), ezGetStaticRTTI<ezPropertyAnimationTrackGroup>()->FindPropertyByName("Tracks"), -1,
-                           pTrackType, newTrack)
-                .Succeeded(),
-            "Adding track failed.");
+              .AddObject(GetPropertyObject(), ezGetStaticRTTI<ezPropertyAnimationTrackGroup>()->FindPropertyByName("Tracks"), -1,
+                pTrackType, newTrack)
+              .Succeeded(),
+    "Adding track failed.");
   const ezDocumentObject* pTrackObj = accessor.GetObject(newTrack);
   ezVariant value = sObjectSearchSequence.GetData();
   EZ_VERIFY(accessor.SetValue(pTrackObj, pTrackType->FindPropertyByName("ObjectPath"), value).Succeeded(), "Adding track failed.");
@@ -767,9 +768,9 @@ ezUuid ezPropertyAnimAssetDocument::InsertCurveCpAt(const ezUuid& track, ezInt64
 
   ezUuid newObjectGuid;
   EZ_VERIFY(acc.AddObject(accessor.GetObject(curveGuid.Get<ezUuid>()), "ControlPoints", -1, ezGetStaticRTTI<ezCurveControlPointData>(),
-                          newObjectGuid)
-                .Succeeded(),
-            "");
+                 newObjectGuid)
+              .Succeeded(),
+    "");
   auto curveCPObj = accessor.GetObject(newObjectGuid);
   EZ_VERIFY(acc.SetValue(curveCPObj, "Tick", tickX).Succeeded(), "");
   EZ_VERIFY(acc.SetValue(curveCPObj, "Value", newPosY).Succeeded(), "");
@@ -923,9 +924,9 @@ ezUuid ezPropertyAnimAssetDocument::InsertEventTrackCpAt(ezInt64 tickX, const ch
 
   ezUuid newObjectGuid;
   EZ_VERIFY(
-      acc.AddObject(accessor.GetObject(trackGuid), "ControlPoints", -1, ezGetStaticRTTI<ezEventTrackControlPointData>(), newObjectGuid)
-          .Succeeded(),
-      "");
+    acc.AddObject(accessor.GetObject(trackGuid), "ControlPoints", -1, ezGetStaticRTTI<ezEventTrackControlPointData>(), newObjectGuid)
+      .Succeeded(),
+    "");
   const ezDocumentObject* pCPObj = accessor.GetObject(newObjectGuid);
   EZ_VERIFY(acc.SetValue(pCPObj, "Tick", tickX).Succeeded(), "");
   EZ_VERIFY(acc.SetValue(pCPObj, "Event", szValue).Succeeded(), "");

@@ -48,7 +48,6 @@ void ezPhysXCooking::Startup()
   s_pPhysX = ezSingletonRegistry::GetRequiredSingletonInstance<ezPhysXInterface>();
 
   PxCookingParams params = PxCookingParams(s_pPhysX->GetPhysXAPI()->getTolerancesScale());
-  params.targetPlatform = PxPlatform::ePC;
 
   s_pCooking = PxCreateCooking(PX_PHYSICS_VERSION, s_pPhysX->GetPhysXAPI()->getFoundation(), params);
   EZ_ASSERT_DEV(s_pCooking != nullptr, "Initializing PhysX cooking API failed");
@@ -208,7 +207,6 @@ ezResult ezPhysXCooking::CookConvexMesh(const ezPhysXCookingMesh& mesh0, ezStrea
     ezLog::Warning("Convex mesh cooking failed. Trying again with inflated mesh.");
 
     convex.flags.set(PxConvexFlag::eCOMPUTE_CONVEX);
-    convex.flags.set(PxConvexFlag::eINFLATE_CONVEX);
 
     if (!s_pCooking->cookConvexMesh(convex, PassThroughStream))
     {

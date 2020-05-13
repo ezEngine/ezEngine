@@ -219,6 +219,7 @@ ezGALBlendStateHandle ezGALDevice::CreateBlendState(const ezGALBlendStateCreatio
   }
 
   ezGALBlendState* pBlendState = CreateBlendStatePlatform(desc);
+  EZ_ASSERT_DEBUG(pBlendState->GetDescription().CalculateHash() == uiHash, "BlendState hash doesn't match");
 
   if (pBlendState != nullptr)
   {
@@ -277,6 +278,7 @@ ezGALDepthStencilStateHandle ezGALDevice::CreateDepthStencilState(const ezGALDep
   }
 
   ezGALDepthStencilState* pDepthStencilState = CreateDepthStencilStatePlatform(desc);
+  EZ_ASSERT_DEBUG(pDepthStencilState->GetDescription().CalculateHash() == uiHash, "DepthStencilState hash doesn't match");
 
   if (pDepthStencilState != nullptr)
   {
@@ -335,6 +337,7 @@ ezGALRasterizerStateHandle ezGALDevice::CreateRasterizerState(const ezGALRasteri
   }
 
   ezGALRasterizerState* pRasterizerState = CreateRasterizerStatePlatform(desc);
+  EZ_ASSERT_DEBUG(pRasterizerState->GetDescription().CalculateHash() == uiHash, "RasterizerState hash doesn't match");
 
   if (pRasterizerState != nullptr)
   {
@@ -395,6 +398,7 @@ ezGALSamplerStateHandle ezGALDevice::CreateSamplerState(const ezGALSamplerStateC
   }
 
   ezGALSamplerState* pSamplerState = CreateSamplerStatePlatform(desc);
+  EZ_ASSERT_DEBUG(pSamplerState->GetDescription().CalculateHash() == uiHash, "SamplerState hash doesn't match");
 
   if (pSamplerState != nullptr)
   {
@@ -1186,10 +1190,13 @@ void ezGALDevice::BeginFrame()
     m_Events.Broadcast(e);
   }
 
-  EZ_ASSERT_DEV(!m_bFrameBeginCalled, "You must call ezGALDevice::End before you can call ezGALDevice::BeginFrame again");
-  m_bFrameBeginCalled = true;
+  {
+    EZ_GALDEVICE_LOCK_AND_CHECK();
+    EZ_ASSERT_DEV(!m_bFrameBeginCalled, "You must call ezGALDevice::End before you can call ezGALDevice::BeginFrame again");
+    m_bFrameBeginCalled = true;
 
-  BeginFramePlatform();
+    BeginFramePlatform();
+  }
   m_pPrimaryContext->ClearStatisticsCounters();
 
   {
@@ -1209,13 +1216,16 @@ void ezGALDevice::EndFrame()
     m_Events.Broadcast(e);
   }
 
-  EZ_ASSERT_DEV(m_bFrameBeginCalled, "You must have called ezGALDevice::Begin before you can call ezGALDevice::EndFrame");
+  {
+    EZ_GALDEVICE_LOCK_AND_CHECK();
+    EZ_ASSERT_DEV(m_bFrameBeginCalled, "You must have called ezGALDevice::Begin before you can call ezGALDevice::EndFrame");
 
-  DestroyDeadObjects();
+    DestroyDeadObjects();
 
-  EndFramePlatform();
+    EndFramePlatform();
 
-  m_bFrameBeginCalled = false;
+    m_bFrameBeginCalled = false;
+  }
 
   {
     ezGALDeviceEvent e;
@@ -1327,8 +1337,8 @@ void ezGALDevice::DestroyDeadObjects()
         ezGALBlendStateHandle hBlendState(ezGAL::ez16_16Id(deadObject.m_uiHandle));
         ezGALBlendState* pBlendState = nullptr;
 
-        m_BlendStates.Remove(hBlendState, &pBlendState);
-        m_BlendStateTable.Remove(pBlendState->GetDescription().CalculateHash());
+        EZ_VERIFY(m_BlendStates.Remove(hBlendState, &pBlendState), "BlendState not found in idTable");
+        EZ_VERIFY(m_BlendStateTable.Remove(pBlendState->GetDescription().CalculateHash()), "BlendState not found in de-duplication table");
 
         DestroyBlendStatePlatform(pBlendState);
 
@@ -1339,8 +1349,8 @@ void ezGALDevice::DestroyDeadObjects()
         ezGALDepthStencilStateHandle hDepthStencilState(ezGAL::ez16_16Id(deadObject.m_uiHandle));
         ezGALDepthStencilState* pDepthStencilState = nullptr;
 
-        m_DepthStencilStates.Remove(hDepthStencilState, &pDepthStencilState);
-        m_DepthStencilStateTable.Remove(pDepthStencilState->GetDescription().CalculateHash());
+        EZ_VERIFY(m_DepthStencilStates.Remove(hDepthStencilState, &pDepthStencilState), "DepthStencilState not found in idTable");
+        EZ_VERIFY(m_DepthStencilStateTable.Remove(pDepthStencilState->GetDescription().CalculateHash()), "DepthStencilState not found in de-duplication table");
 
         DestroyDepthStencilStatePlatform(pDepthStencilState);
 
@@ -1351,8 +1361,8 @@ void ezGALDevice::DestroyDeadObjects()
         ezGALRasterizerStateHandle hRasterizerState(ezGAL::ez16_16Id(deadObject.m_uiHandle));
         ezGALRasterizerState* pRasterizerState = nullptr;
 
-        m_RasterizerStates.Remove(hRasterizerState, &pRasterizerState);
-        m_RasterizerStateTable.Remove(pRasterizerState->GetDescription().CalculateHash());
+        EZ_VERIFY(m_RasterizerStates.Remove(hRasterizerState, &pRasterizerState), "RasterizerState not found in idTable");
+        EZ_VERIFY(m_RasterizerStateTable.Remove(pRasterizerState->GetDescription().CalculateHash()), "RasterizerState not found in de-duplication table");
 
         DestroyRasterizerStatePlatform(pRasterizerState);
 
@@ -1363,8 +1373,8 @@ void ezGALDevice::DestroyDeadObjects()
         ezGALSamplerStateHandle hSamplerState(ezGAL::ez16_16Id(deadObject.m_uiHandle));
         ezGALSamplerState* pSamplerState = nullptr;
 
-        m_SamplerStates.Remove(hSamplerState, &pSamplerState);
-        m_SamplerStateTable.Remove(pSamplerState->GetDescription().CalculateHash());
+        EZ_VERIFY(m_SamplerStates.Remove(hSamplerState, &pSamplerState), "SamplerState not found in idTable");
+        EZ_VERIFY(m_SamplerStateTable.Remove(pSamplerState->GetDescription().CalculateHash()), "SamplerState not found in de-duplication table");
 
         DestroySamplerStatePlatform(pSamplerState);
 

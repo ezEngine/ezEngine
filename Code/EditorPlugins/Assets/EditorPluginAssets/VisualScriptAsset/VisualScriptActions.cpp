@@ -6,7 +6,7 @@
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptAction, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptAction, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezActionDescriptorHandle ezVisualScriptActions::s_hCategory;
@@ -16,7 +16,7 @@ void ezVisualScriptActions::RegisterActions()
 {
   s_hCategory = EZ_REGISTER_CATEGORY("VisualScriptCategory");
   s_hPickDebugTarget = EZ_REGISTER_ACTION_1("VisScript.PickDebugTarget", ezActionScope::Window, "Visual Script", "", ezVisualScriptAction,
-                                            ezVisualScriptAction::ActionType::PickDebugTarget);
+    ezVisualScriptAction::ActionType::PickDebugTarget);
 }
 
 void ezVisualScriptActions::UnregisterActions()
@@ -38,7 +38,7 @@ void ezVisualScriptActions::MapActions(const char* szMapping, const char* szPath
 }
 
 ezVisualScriptAction::ezVisualScriptAction(const ezActionContext& context, const char* szName, ezVisualScriptAction::ActionType type)
-    : ezButtonAction(context, szName, false, "")
+  : ezButtonAction(context, szName, false, "")
 {
   m_Type = type;
 

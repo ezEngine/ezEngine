@@ -26,7 +26,11 @@ void ezParticleFinalizerFactory_ApplyVelocity::CopyFinalizerProperties(ezParticl
   ezParticleFinalizer_ApplyVelocity* pFinalizer = static_cast<ezParticleFinalizer_ApplyVelocity*>(pObject);
 }
 
-ezParticleFinalizer_ApplyVelocity::ezParticleFinalizer_ApplyVelocity() {}
+ezParticleFinalizer_ApplyVelocity::ezParticleFinalizer_ApplyVelocity()
+{
+  // a bit later than the other finalizers
+  m_fPriority = 525.0f;
+}
 
 ezParticleFinalizer_ApplyVelocity::~ezParticleFinalizer_ApplyVelocity() {}
 

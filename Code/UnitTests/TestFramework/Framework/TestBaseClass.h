@@ -1,9 +1,9 @@
 #pragma once
 
 #include <Foundation/Basics.h>
+#include <Foundation/Types/Status.h>
 #include <Foundation/Utilities/EnumerableClass.h>
 #include <TestFramework/Framework/Declarations.h>
-#include <Foundation/Types/Status.h>
 
 struct ezTestConfiguration;
 class ezImage;
@@ -35,9 +35,9 @@ public:
   /// The location of the comparison images (ie the folder) cannot be specified at the moment.
   virtual void MapImageNumberToString(const char* szTestName, const char* szSubTestName, ezUInt32 uiImageNumber, ezStringBuilder& out_String) const;
 
-private:
+protected:
   /// Called at startup to determine if the test can be run. Should return a detailed error message on failure.
-  virtual std::string IsTestAvailable() const {  return {}; };
+  virtual std::string IsTestAvailable() const { return {}; };
   /// Called at startup to setup all tests. Should use 'AddSubTest' to register all the sub-tests to the test framework.
   virtual void SetupSubTests() /*override*/ = 0;
   /// Called to run the test that was registered with the given identifier.
@@ -86,4 +86,3 @@ private:
 };
 
 #define EZ_CREATE_TEST(TestClass)
-

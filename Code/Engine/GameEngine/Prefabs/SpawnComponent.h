@@ -67,7 +67,7 @@ public:
 
   /// \brief Unless a spawn is already scheduled, this will schedule one within the configured time frame.
   ///
-  /// If continuous spawning is enabled, this will kick of the first spawn and then continue infinitely.
+  /// If continuous spawning is enabled, this will kick off the first spawn and then continue indefinitely.
   /// To stop continuously spawning, remove the continuous spawn flag.
   void ScheduleSpawn(); // [ scriptable ]
 

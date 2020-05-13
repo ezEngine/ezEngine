@@ -87,6 +87,21 @@ bool ezParticleSystemInstance::IsTypeConfigEqual(const ezParticleSystemDescripto
   return true;
 }
 
+bool ezParticleSystemInstance::IsFinalizerConfigEqual(const ezParticleSystemDescriptor* pTemplate) const
+{
+  const auto& factories = pTemplate->GetFinalizerFactories();
+
+  if (factories.GetCount() != m_Finalizers.GetCount())
+    return false;
+
+  for (ezUInt32 i = 0; i < factories.GetCount(); ++i)
+  {
+    if (factories[i]->GetFinalizerType() != m_Types[i]->GetDynamicRTTI())
+      return false;
+  }
+
+  return true;
+}
 
 void ezParticleSystemInstance::ConfigureFromTemplate(const ezParticleSystemDescriptor* pTemplate)
 {
@@ -99,7 +114,7 @@ void ezParticleSystemInstance::ConfigureFromTemplate(const ezParticleSystemDescr
   }
 
   const bool allProcessorsEqual = IsEmitterConfigEqual(pTemplate) && IsInitializerConfigEqual(pTemplate) &&
-                                  IsBehaviorConfigEqual(pTemplate) && IsTypeConfigEqual(pTemplate);
+                                  IsBehaviorConfigEqual(pTemplate) && IsTypeConfigEqual(pTemplate) && IsFinalizerConfigEqual(pTemplate);
 
   if (!allProcessorsEqual)
   {
@@ -327,7 +342,7 @@ ezParticleSystemInstance::ezParticleSystemInstance()
 }
 
 void ezParticleSystemInstance::Construct(ezUInt32 uiMaxParticles, ezWorld* pWorld, ezParticleEffectInstance* pOwnerEffect,
-                                         float fSpawnCountMultiplier)
+  float fSpawnCountMultiplier)
 {
   m_Transform.SetIdentity();
   m_pOwnerEffect = pOwnerEffect;
@@ -361,13 +376,13 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& tDiff
   if (m_bEmitterEnabled)
   {
     // if all emitters are finished, we deactivate this on the whole system
-    m_bEmitterEnabled = false;
+    bool bAllEmittersInactive = true;
 
     for (auto pEmitter : m_Emitters)
     {
       if (pEmitter->IsFinished() == ezParticleEmitterState::Active)
       {
-        m_bEmitterEnabled = true;
+        bAllEmittersInactive = false;
         const ezUInt32 uiSpawn = pEmitter->ComputeSpawnCount(tDiff);
 
         if (uiSpawn > 0)
@@ -377,6 +392,13 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& tDiff
           uiSpawnedParticles += uiSpawn;
         }
       }
+    }
+
+    if (bAllEmittersInactive)
+    {
+      // there is a race condition writing this variable when an effect is used by a ezParticleTypeEffect and should be disabled
+      // therefore we must never set this variable to 'true' here, but we can set it to 'false' once we are done
+      m_bEmitterEnabled = false;
     }
   }
 
@@ -441,7 +463,7 @@ ezParticleSystemState::Enum ezParticleSystemInstance::Update(const ezTime& tDiff
   return bHasReactingEmitters ? ezParticleSystemState::OnlyReacting : ezParticleSystemState::Inactive;
 }
 
-const ezProcessingStream* ezParticleSystemInstance::QueryStream(const char* szName, ezProcessingStream::DataType Type) const
+ezProcessingStream* ezParticleSystemInstance::QueryStream(const char* szName, ezProcessingStream::DataType Type) const
 {
   ezStringBuilder fullName;
   ezParticleStreamFactory::GetFullStreamName(szName, Type, fullName);
@@ -450,7 +472,7 @@ const ezProcessingStream* ezParticleSystemInstance::QueryStream(const char* szNa
 }
 
 void ezParticleSystemInstance::CreateStream(const char* szName, ezProcessingStream::DataType Type, ezProcessingStream** ppStream,
-                                            ezParticleStreamBinding& binding, bool bWillInitializeElements)
+  ezParticleStreamBinding& binding, bool bWillInitializeElements)
 {
   EZ_ASSERT_DEV(ppStream != nullptr, "The pointer to the stream pointer must not be null");
 
@@ -574,7 +596,7 @@ ezParticleWorldModule* ezParticleSystemInstance::GetOwnerWorldModule() const
 }
 
 void ezParticleSystemInstance::ExtractSystemRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData,
-                                                       const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
+  const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
 {
   for (auto pType : m_Types)
   {

@@ -167,7 +167,7 @@
               </widget>
              </item>
              <item>
-              <widget class="QTreeWidget" name="TreeFavourites">
+              <widget class="QTreeWidget" name="TreeFavorites">
                <property name="editTriggers">
                 <set>QAbstractItemView::NoEditTriggers</set>
                </property>

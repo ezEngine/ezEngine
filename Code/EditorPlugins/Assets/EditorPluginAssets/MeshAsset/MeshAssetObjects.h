@@ -1,8 +1,9 @@
 #pragma once
 
-#include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <EditorPluginAssets/Util/AssetUtils.h>
+#include <RendererCore/Meshes/MeshBufferUtils.h>
+#include <ToolsFoundation/Object/DocumentObjectBase.h>
 
 struct ezPropertyMetaStateEvent;
 
@@ -61,12 +62,13 @@ public:
   bool m_bRecalculateNormals;
   bool m_bInvertNormals;
 
+  ezEnum<ezMeshNormalPrecision> m_NormalPrecision;
+  ezEnum<ezMeshTexCoordPrecision> m_TexCoordPrecision;
+
   bool m_bImportMaterials;
   bool m_bUseSubFolderForImportedMaterials;
   ezHybridArray<ezMaterialResourceSlot, 8> m_Slots;
 
   ezUInt32 m_uiVertices;
   ezUInt32 m_uiTriangles;
-
-
 };

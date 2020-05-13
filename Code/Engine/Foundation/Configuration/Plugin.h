@@ -118,7 +118,7 @@ public:
   static ezPlugin* FindPluginByName(const char* szPluginName); // [tested]
 
   /// \brief Code that needs to be execute whenever a plugin is loaded or unloaded can register itself here to be notified of such events.
-  static ezEvent<const ezPluginEvent&> s_PluginEvents;
+  static ezCopyOnBroadcastEvent<const ezPluginEvent&> s_PluginEvents;
 
   /// \brief Returns the n-th plugin that this one is dependent on, or nullptr if there is no further dependency.
   const char* GetPluginDependency(ezUInt8 uiDependency) const { return (uiDependency < 5) ? m_szPluginDependencies[uiDependency] : nullptr; }

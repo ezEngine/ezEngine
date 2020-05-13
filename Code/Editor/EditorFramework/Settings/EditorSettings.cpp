@@ -68,7 +68,7 @@ ezRecentFilesList ezQtEditorApp::LoadOpenDocumentsList()
 void ezQtEditorApp::SaveSettings()
 {
   // headless mode should never store any settings on disk
-  if (m_bHeadless || m_bUnitTestMode)
+  if (m_StartupFlags.IsAnySet(StartupFlags::Headless | StartupFlags::UnitTest))
     return;
 
   SaveRecentFiles();

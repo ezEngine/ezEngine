@@ -55,7 +55,7 @@ void ezHashedString::InitHashedString()
   if (s_pHSData != nullptr)
     return;
 
-  static ezUInt8 HashedStringDataBuffer[sizeof(HashedStringData)];
+  EZ_ALIGN_VARIABLE(static ezUInt8 HashedStringDataBuffer[sizeof(HashedStringData)], EZ_ALIGNMENT_OF(HashedStringData));
   s_pHSData = new (HashedStringDataBuffer) HashedStringData();
 
   // makes sure the empty string exists for the default constructor to use
@@ -128,8 +128,7 @@ void ezHashedString::Clear()
   }
 #else
   m_Data = s_pHSData->m_Empty;
-#endif  
+#endif
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_HashedString);
-

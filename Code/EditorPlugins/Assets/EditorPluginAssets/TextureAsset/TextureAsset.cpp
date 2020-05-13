@@ -16,12 +16,16 @@
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetDocument, 6, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetDocument, 6, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTextureChannelMode, 1)
-  EZ_ENUM_CONSTANTS(ezTextureChannelMode::RGBA, ezTextureChannelMode::RGB, ezTextureChannelMode::Red, ezTextureChannelMode::Green, ezTextureChannelMode::Blue,
-                  ezTextureChannelMode::Alpha)
+  EZ_ENUM_CONSTANT(ezTextureChannelMode::RGBA)->AddAttributes(new ezGroupAttribute("Multi", 0.0f)),
+  EZ_ENUM_CONSTANT(ezTextureChannelMode::RGB)->AddAttributes(new ezGroupAttribute("Multi", 1.0f)),
+  EZ_ENUM_CONSTANT(ezTextureChannelMode::Red)->AddAttributes(new ezGroupAttribute("Single", 0.0f)),
+  EZ_ENUM_CONSTANT(ezTextureChannelMode::Green)->AddAttributes(new ezGroupAttribute("Single", 1.0f)),
+  EZ_ENUM_CONSTANT(ezTextureChannelMode::Blue)->AddAttributes(new ezGroupAttribute("Single", 2.0f)),
+  EZ_ENUM_CONSTANT(ezTextureChannelMode::Alpha)->AddAttributes(new ezGroupAttribute("Single", 3.0f))
 EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
@@ -99,6 +103,8 @@ const char* ToUsageMode(ezTexConvUsage::Enum mode)
       return "NormalMap";
     case ezTexConvUsage::NormalMap_Inverted:
       return "NormalMap_Inverted";
+    case ezTexConvUsage::BumpMap:
+      return "BumpMap";
   }
 
   EZ_ASSERT_NOT_IMPLEMENTED;
@@ -569,7 +575,8 @@ void ezTextureAssetDocumentGenerator::GetImportModes(
   {
     tt = TextureType::Height;
   }
-  else if (baseFilename.EndsWith_NoCase("_metal") || baseFilename.EndsWith_NoCase("_met") || baseFilename.EndsWith_NoCase("metallic"))
+  else if (baseFilename.EndsWith_NoCase("_metal") || baseFilename.EndsWith_NoCase("_met") || baseFilename.EndsWith_NoCase("metallic") ||
+           baseFilename.EndsWith_NoCase("metalness"))
   {
     tt = TextureType::Metalness;
   }

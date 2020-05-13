@@ -162,7 +162,6 @@ EZ_END_COMPONENT_TYPE
 // clang-format on
 
 ezPxCharacterProxyComponent::ezPxCharacterProxyComponent()
-  : m_UserData(this)
 {
   m_Data = EZ_DEFAULT_NEW(ezPxCharacterProxyData);
 }
@@ -212,15 +211,12 @@ void ezPxCharacterProxyComponent::DeserializeComponent(ezWorldReader& stream)
   }
 }
 
-void ezPxCharacterProxyComponent::Initialize()
+void ezPxCharacterProxyComponent::OnActivated()
 {
-  if (IsActive())
-  {
-    GetOwner()->UpdateLocalBounds();
-  }
+  GetOwner()->UpdateLocalBounds();
 }
 
-void ezPxCharacterProxyComponent::Deinitialize()
+void ezPxCharacterProxyComponent::OnDeactivated()
 {
   if (m_pController != nullptr)
   {
@@ -230,16 +226,13 @@ void ezPxCharacterProxyComponent::Deinitialize()
     m_pController = nullptr;
   }
 
-  if (m_uiShapeId != ezInvalidIndex)
+  if (ezPhysXWorldModule* pModule = GetWorld()->GetModule<ezPhysXWorldModule>())
   {
-    if (ezPhysXWorldModule* pModule = GetWorld()->GetModule<ezPhysXWorldModule>())
-    {
-      pModule->DeleteShapeId(m_uiShapeId);
-      m_uiShapeId = ezInvalidIndex;
-    }
+    pModule->DeleteShapeId(m_uiShapeId);
+    pModule->DeallocateUserData(m_uiUserDataIndex);
   }
 
-  SUPER::Deinitialize();
+  SUPER::OnDeactivated();
 }
 
 void ezPxCharacterProxyComponent::OnSimulationStarted()
@@ -266,7 +259,11 @@ void ezPxCharacterProxyComponent::OnSimulationStarted()
   cd.nonWalkableMode = m_bForceSlopeSliding ? PxControllerNonWalkableMode::ePREVENT_CLIMBING_AND_FORCE_SLIDING
                                             : PxControllerNonWalkableMode::ePREVENT_CLIMBING;
   cd.material = ezPhysX::GetSingleton()->GetDefaultMaterial();
-  cd.userData = &m_UserData;
+
+  ezPxUserData* pUserData = nullptr;
+  m_uiUserDataIndex = pModule->AllocateUserData(pUserData);
+  pUserData->Init(this);
+  cd.userData = pUserData;
 
   cd.radius = ezMath::Max(m_fCapsuleRadius, 0.0f);
   cd.height = ezMath::Max(m_fCapsuleHeight, 0.0f);
@@ -293,13 +290,13 @@ void ezPxCharacterProxyComponent::OnSimulationStarted()
 
     PxRigidDynamic* pActor = m_pController->getActor();
     pActor->setMass(m_fMass);
-    pActor->userData = &m_UserData;
+    pActor->userData = pUserData;
 
     PxShape* pShape = nullptr;
     pActor->getShapes(&pShape, 1);
     pShape->setSimulationFilterData(m_Data->m_FilterData);
     pShape->setQueryFilterData(m_Data->m_FilterData);
-    pShape->userData = &m_UserData;
+    pShape->userData = pUserData;
   }
 }
 
@@ -344,7 +341,8 @@ ezBitflags<ezPxCharacterCollisionFlags> ezPxCharacterProxyComponent::Move(const 
 
         // make sure the character controller does not overlap with anything when standing up
         ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
-        if (!pModule->OverlapTestCapsule(m_fCapsuleRadius, m_fCapsuleHeight, t, m_uiCollisionLayer, GetShapeId()))
+        if (!pModule->OverlapTestCapsule(m_fCapsuleRadius, m_fCapsuleHeight, t,
+              ezPhysicsQueryParameters(m_uiCollisionLayer, ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic, GetShapeId())))
         {
           m_bIsCrouching = false;
           m_pController->resize(m_fCapsuleHeight);

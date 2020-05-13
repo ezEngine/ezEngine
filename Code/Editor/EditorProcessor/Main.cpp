@@ -65,19 +65,52 @@ public:
         }
         else
         {
+          ezUInt64 uiAssetHash = 0;
+          ezUInt64 uiThumbHash = 0;
+
           // TODO: there is currently no 'nice' way to switch the active platform for the asset processors
           // it is also not clear whether this is actually safe to execute here
           ezAssetCurator::GetSingleton()->SetActiveAssetProfileByIndex(uiPlatform);
 
-          const ezStatus res = ezAssetCurator::GetSingleton()->TransformAsset(
-            pMsg->m_AssetGuid, ezTransformFlags::None, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform));
+          ezAssetInfo::TransformState state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(pMsg->m_AssetGuid,
+            ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform), nullptr, uiAssetHash, uiThumbHash);
 
-          msg.m_bSuccess = res.m_Result.Succeeded();
-
-          if (res.m_Result.Failed())
+          // Check if asset matches the state of the editor
+          if ((state != ezAssetInfo::NeedsThumbnail && state != ezAssetInfo::NeedsTransform) || uiAssetHash != pMsg->m_AssetHash || uiThumbHash != pMsg->m_ThumbHash)
           {
-            // make sure the result message ends up in the log
-            ezLog::Error(res.m_sMessage);
+            // Force update the state. If the asset was created automatically the file might not be known yet.
+            ezAssetCurator::GetSingleton()->NotifyOfFileChange(pMsg->m_sAssetPath);
+            state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(pMsg->m_AssetGuid,
+              ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform), nullptr, uiAssetHash, uiThumbHash, true);
+          }
+
+          if (uiAssetHash != pMsg->m_AssetHash || uiThumbHash != pMsg->m_ThumbHash)
+          {
+            ezLog::Warning("Asset '{}' of state '{}' in processor with hashes '{}{}' differs from the state in the editor with hashes '{}{}'",
+              pMsg->m_sAssetPath, (int)state, uiAssetHash, uiThumbHash, pMsg->m_AssetHash, pMsg->m_ThumbHash);
+          }
+          
+          if (state == ezAssetInfo::NeedsThumbnail || state == ezAssetInfo::NeedsTransform)
+          {
+            const ezStatus res = ezAssetCurator::GetSingleton()->TransformAsset(
+              pMsg->m_AssetGuid, ezTransformFlags::None, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform));
+
+            msg.m_bSuccess = res.m_Result.Succeeded();
+            if (res.m_Result.Failed())
+            {
+              // make sure the result message ends up in the log
+              ezLog::Error(res.m_sMessage);
+            }
+          }
+          else if (state == ezAssetInfo::UpToDate)
+          {
+            msg.m_bSuccess = true;
+            ezLog::Warning("Asset already up to date: '{}'", pMsg->m_sAssetPath);
+          }
+          else
+          {
+            msg.m_bSuccess = false;
+            ezLog::Error("Asset {} is in state {}, can't process asset.", pMsg->m_sAssetPath, (int)state);
           }
         }
       }

@@ -1,7 +1,12 @@
 #include <Foundation/FoundationInternal.h>
 EZ_FOUNDATION_INTERNAL_HEADER
-// Android's time.h uses 32bit time stamps.
-#include <time64.h>
+
+#if EZ_ENABLED(EZ_PLATFORM_64BIT)
+// On 64-bit android platforms we can just use the posix implementation.
+#  include <Foundation/Time/Implementation/Posix/Timestamp_posix.h>
+#else
+// On 32-bit android platforms time.h uses 32bit time stamps. So we have to use time64.h instead
+#  include <time64.h>
 
 const ezTimestamp ezTimestamp::CurrentTimestamp()
 {
@@ -71,8 +76,10 @@ bool ezDateTime::SetTimestamp(ezTimestamp timestamp)
   m_uiHour = timeinfo.tm_hour;
   m_uiMinute = timeinfo.tm_min;
   m_uiSecond = timeinfo.tm_sec;
+  m_uiDayOfWeek = ezMath::MaxValue<ezUInt8>(); // TODO: no day of week exists, setting to uint8 max.
   m_uiMicroseconds = 0;
 
   return true;
 }
 
+#endif

@@ -192,6 +192,8 @@ void ezMeshComponentBase::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) co
       pRenderData->FillBatchIdAndSortingKey();
     }
 
+    bool bDontCacheYet = false;
+
     // Determine render data category.
     ezRenderData::Category category = m_RenderDataCategory;
     if (category == ezInvalidRenderDataCategory)
@@ -199,6 +201,10 @@ void ezMeshComponentBase::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) co
       if (hMaterial.IsValid())
       {
         ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::AllowLoadingFallback);
+
+        if (pMaterial.GetAcquireResult() == ezResourceAcquireResult::LoadingFallback)
+          bDontCacheYet = true;
+
         ezTempHashedString blendModeValue = pMaterial->GetPermutationValue("BLEND_MODE");
         if (blendModeValue == "BLEND_MODE_OPAQUE" || blendModeValue == "")
         {
@@ -219,7 +225,7 @@ void ezMeshComponentBase::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) co
       }
     }
 
-    msg.AddRenderData(pRenderData, category, ezRenderData::Caching::IfStatic);
+    msg.AddRenderData(pRenderData, category, bDontCacheYet ? ezRenderData::Caching::Never : ezRenderData::Caching::IfStatic);
   }
 }
 

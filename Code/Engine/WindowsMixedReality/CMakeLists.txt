@@ -1,5 +1,7 @@
 ﻿ez_cmake_init()
 
+ez_build_filter_everything()
+
 ez_requires(EZ_CMAKE_PLATFORM_WINDOWS_UWP)
 
 ez_requires(EZ_ENABLE_MIXEDREALITY_SUPPORT)

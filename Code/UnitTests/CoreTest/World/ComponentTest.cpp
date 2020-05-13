@@ -163,15 +163,17 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
 
   TestComponentManager* pManager = world.GetOrCreateComponentManager<TestComponentManager>();
 
-  ezGameObjectDesc desc;
-  ezGameObject* pObject;
-  ezGameObjectHandle hObject = world.CreateObject(desc, pObject);
-  EZ_TEST_BOOL(!hObject.IsInvalidated());
+  ezGameObject* pTestObject1;
+  ezGameObject* pTestObject2;
 
-  ezGameObject* pObject2;
-  world.CreateObject(desc, pObject2);
+  {
+    ezGameObjectDesc desc;
+    ezGameObjectHandle hObject = world.CreateObject(desc, pTestObject1);
+    EZ_TEST_BOOL(!hObject.IsInvalidated());
+    world.CreateObject(desc, pTestObject2);
+  }
 
-  TestComponent* pComponent = nullptr;
+  TestComponent* pTestComponent = nullptr;
 
   TestComponent::s_iInitCounter = 0;
   TestComponent::s_iActivateCounter = 0;
@@ -184,34 +186,34 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
     EZ_LOCK(world.GetWriteMarker());
 
     ezComponentHandle handle;
-    EZ_TEST_BOOL(!world.TryGetComponent(handle, pComponent));
+    EZ_TEST_BOOL(!world.TryGetComponent(handle, pTestComponent));
 
     // Update with no components created
     world.Update();
 
-    handle = TestComponent::CreateComponent(pObject, pComponent);
+    handle = TestComponent::CreateComponent(pTestObject1, pTestComponent);
 
     TestComponent* pTest = nullptr;
     EZ_TEST_BOOL(world.TryGetComponent(handle, pTest));
-    EZ_TEST_BOOL(pTest == pComponent);
-    EZ_TEST_BOOL(pComponent->GetHandle() == handle);
+    EZ_TEST_BOOL(pTest == pTestComponent);
+    EZ_TEST_BOOL(pTestComponent->GetHandle() == handle);
 
     TestComponent2* pTest2 = nullptr;
     EZ_TEST_BOOL(!world.TryGetComponent(handle, pTest2));
 
-    EZ_TEST_INT(pComponent->m_iSomeData, 1);
+    EZ_TEST_INT(pTestComponent->m_iSomeData, 1);
     EZ_TEST_INT(TestComponent::s_iInitCounter, 0);
 
     for (ezUInt32 i = 1; i < 100; ++i)
     {
-      pManager->CreateComponent(pObject2, pComponent);
-      pComponent->m_iSomeData = i + 1;
+      pManager->CreateComponent(pTestObject2, pTestComponent);
+      pTestComponent->m_iSomeData = i + 1;
     }
 
     EZ_TEST_INT(pManager->GetComponentCount(), 100);
     EZ_TEST_INT(TestComponent::s_iInitCounter, 0);
 
-    // Update with no components created
+    // Update with components created
     world.Update();
 
     EZ_TEST_INT(pManager->GetComponentCount(), 100);
@@ -237,14 +239,14 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Delete Component")
   {
-    pManager->DeleteComponent(pComponent->GetHandle());
+    pManager->DeleteComponent(pTestComponent->GetHandle());
     EZ_TEST_INT(pManager->GetComponentCount(), 99);
     EZ_TEST_INT(TestComponent::s_iInitCounter, 99);
 
     // component should also be removed from the game object
-    EZ_TEST_INT(pObject2->GetComponents().GetCount(), 98);
+    EZ_TEST_INT(pTestObject2->GetComponents().GetCount(), 98);
 
-    world.DeleteObjectNow(pObject2->GetHandle());
+    world.DeleteObjectNow(pTestObject2->GetHandle());
     world.Update();
 
     EZ_TEST_INT(TestComponent::s_iInitCounter, 1);

@@ -108,7 +108,7 @@ namespace ezInternal
   template <typename T>
   struct ezStaticRTTIWrapper
   {
-    static_assert(sizeof(T) < 0, "Type has not been declared as reflectable (use EZ_DECLARE_REFLECTABLE_TYPE macro)");
+    static_assert(sizeof(T) == 0, "Type has not been declared as reflectable (use EZ_DECLARE_REFLECTABLE_TYPE macro)");
   };
 } // namespace ezInternal
 

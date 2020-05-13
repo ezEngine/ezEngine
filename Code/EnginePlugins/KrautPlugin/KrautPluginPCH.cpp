@@ -4,6 +4,8 @@
 
 #include <Foundation/Configuration/Startup.h>
 #include <KrautPlugin/Resources/KrautTreeResource.h>
+#include <RendererCore/Material/MaterialResource.h>
+#include <RendererCore/Meshes/MeshResource.h>
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Kraut, KrautPlugin)
@@ -16,6 +18,9 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Kraut, KrautPlugin)
   ON_CORESYSTEMS_STARTUP
   {
     ezResourceManager::RegisterResourceForAssetType("Kraut Tree", ezGetStaticRTTI<ezKrautTreeResource>());
+
+    ezResourceManager::AllowResourceTypeAcquireDuringUpdateContent<ezKrautTreeResource, ezMaterialResource>();
+    ezResourceManager::AllowResourceTypeAcquireDuringUpdateContent<ezKrautTreeResource, ezMeshResource>();
 
     ezKrautTreeResourceDescriptor desc;
     desc.m_Details.m_Bounds.SetInvalid();

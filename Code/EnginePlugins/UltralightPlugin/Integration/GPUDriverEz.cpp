@@ -190,12 +190,12 @@ ezUltralightGPUDriver::~ezUltralightGPUDriver()
 
 void ezUltralightGPUDriver::BeginSynchronize()
 {
-  m_CommandListMutex.Acquire();
+  m_CommandListMutex.Lock();
 }
 
 void ezUltralightGPUDriver::EndSynchronize()
 {
-  m_CommandListMutex.Release();
+  m_CommandListMutex.Unlock();
 }
 
 uint32_t ezUltralightGPUDriver::NextTextureId()

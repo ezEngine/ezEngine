@@ -24,6 +24,8 @@ public:
 
 class ezGameEngineTestBasics : public ezGameEngineTest
 {
+  using SUPER = ezGameEngineTest;
+
 public:
   virtual const char* GetTestName() const override;
   virtual ezGameEngineTestApplication* CreateApplication() override;
@@ -31,10 +33,10 @@ public:
 private:
   enum SubTests
   {
-    ST_ManyMeshes,
-    ST_Skybox,
-    ST_DebugRendering,
-    ST_LoadScene,
+    ManyMeshes,
+    Skybox,
+    DebugRendering,
+    LoadScene,
   };
 
   virtual void SetupSubTests() override;

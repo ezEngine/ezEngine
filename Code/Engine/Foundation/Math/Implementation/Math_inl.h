@@ -109,7 +109,7 @@ namespace ezMath
 
   EZ_ALWAYS_INLINE ezUInt32 CountBits(ezUInt32 value)
   {
-#if EZ_ENABLED(EZ_COMPILER_MSVC) && (EZ_ENABLED(EZ_PLATFORM_ARCH_X86) || EZ_ENABLED(EZ_PLATFORM_ARCH_ARM))
+#if EZ_ENABLED(EZ_COMPILER_MSVC) && (EZ_ENABLED(EZ_PLATFORM_ARCH_X86) || (EZ_ENABLED(EZ_PLATFORM_ARCH_ARM) && EZ_ENABLED(EZ_PLATFORM_32BIT)))
 #  if EZ_ENABLED(EZ_PLATFORM_ARCH_X86)
     return __popcnt(value);
 #  else
@@ -265,6 +265,29 @@ namespace ezMath
     }
   }
 
+  inline ezInt16 ColorFloatToSignedShort(float value)
+  {
+    // Implemented according to
+    // https://docs.microsoft.com/en-us/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
+    if (IsNaN(value))
+    {
+      return 0;
+    }
+    else
+    {
+      value = Clamp(value, -1.0f, 1.0f) * 32767.0f;
+      if (value >= 0.0f)
+      {
+        value += 0.5f;
+      }
+      else
+      {
+        value -= 0.5f;
+      }
+      return static_cast<ezInt16>(value);
+    }
+  }
+
   constexpr inline float ColorByteToFloat(ezUInt8 value)
   {
     // Implemented according to
@@ -284,6 +307,13 @@ namespace ezMath
     // Implemented according to
     // https://docs.microsoft.com/en-us/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
     return (value == -128) ? -1.0f : value * (1.0f / 127.0f);
+  }
+
+  constexpr inline float ColorSignedShortToFloat(ezInt16 value)
+  {
+    // Implemented according to
+    // https://docs.microsoft.com/en-us/windows/desktop/direct3d10/d3d10-graphics-programming-guide-resources-data-conversion
+    return (value == -32768) ? -1.0f : value * (1.0f / 32767.0f);
   }
 
   template <typename T, typename T2>
@@ -311,7 +341,9 @@ constexpr EZ_FORCE_INLINE ezInt32 ezMath::FloatToInt(float value)
   return static_cast<ezInt32>(value);
 }
 
+#if EZ_DISABLED(EZ_PLATFORM_ARCH_X86) || (_MSC_VER <= 1916)
 constexpr EZ_FORCE_INLINE ezInt64 ezMath::FloatToInt(double value)
 {
   return static_cast<ezInt64>(value);
 }
+#endif

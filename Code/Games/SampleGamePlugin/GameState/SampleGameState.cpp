@@ -5,11 +5,22 @@
 #include <GameEngine/DearImgui/DearImgui.h>
 #include <SampleGamePlugin/GameState/SampleGameState.h>
 #include <System/Window/Window.h>
+#include <RendererCore/Debug/DebugRenderer.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(SampleGameState, 1, ezRTTIDefaultAllocator<SampleGameState>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-SampleGameState::SampleGameState() {}
+// BEGIN-DOCS-CODE-SNIPPET: confunc-impl
+SampleGameState::SampleGameState()
+  : m_ConFunc_Print("Print", "(string arg1): Prints 'arg1' to the log", ezMakeDelegate(&SampleGameState::ConFunc_Print, this))
+{
+}
+
+void SampleGameState::ConFunc_Print(ezString sText)
+{
+  ezLog::Info("Text: '{}'", sText);
+}
+// END-DOCS-CODE-SNIPPET
 
 void SampleGameState::OnActivation(ezWorld* pWorld, const ezTransform* pStartPosition)
 {
@@ -39,6 +50,26 @@ void SampleGameState::OnDeactivation()
 
   SUPER::OnDeactivation();
 }
+
+// BEGIN-DOCS-CODE-SNIPPET: cvar-1
+#include <Foundation/Configuration/CVar.h>
+
+ezCVarBool cvar_DebugDisplay("Game.DebugDisplay", false, ezCVarFlags::Default, "Whether the game should display debug geometry.");
+// END-DOCS-CODE-SNIPPET
+
+void SampleGameState::AfterWorldUpdate()
+{
+  SUPER::AfterWorldUpdate();
+
+  // BEGIN-DOCS-CODE-SNIPPET: cvar-2
+  if (cvar_DebugDisplay)
+  {
+    ezDebugRenderer::DrawLineSphere(m_pMainWorld, ezBoundingSphere(ezVec3::ZeroVector(), 1.0f), ezColor::Orange);
+  }
+  // END-DOCS-CODE-SNIPPET
+}
+
+
 
 void SampleGameState::BeforeWorldUpdate()
 {

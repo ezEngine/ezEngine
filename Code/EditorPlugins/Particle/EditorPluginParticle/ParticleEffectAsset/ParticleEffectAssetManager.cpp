@@ -5,7 +5,7 @@
 #include <EditorPluginParticle/ParticleEffectAsset/ParticleEffectAssetWindow.moc.h>
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezParticleEffectAssetDocumentManager>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezParticleEffectAssetDocumentManager>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezParticleEffectAssetDocumentManager::ezParticleEffectAssetDocumentManager()
@@ -18,7 +18,7 @@ ezParticleEffectAssetDocumentManager::ezParticleEffectAssetDocumentManager()
   m_DocTypeDesc.m_pDocumentType = ezGetStaticRTTI<ezParticleEffectAssetDocument>();
   m_DocTypeDesc.m_pManager = this;
 
-  m_DocTypeDesc.m_sResourceFileExtension = "ezParticleEffect"; 
+  m_DocTypeDesc.m_sResourceFileExtension = "ezParticleEffect";
   m_DocTypeDesc.m_AssetDocumentFlags = ezAssetDocumentFlags::AutoTransformOnSave | ezAssetDocumentFlags::SupportsThumbnail;
 }
 
@@ -36,7 +36,7 @@ void ezParticleEffectAssetDocumentManager::OnDocumentManagerEvent(const ezDocume
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezParticleEffectAssetDocument>())
       {
         ezQtParticleEffectAssetDocumentWindow* pDocWnd =
-            new ezQtParticleEffectAssetDocumentWindow(static_cast<ezParticleEffectAssetDocument*>(e.m_pDocument));
+          new ezQtParticleEffectAssetDocumentWindow(static_cast<ezParticleEffectAssetDocument*>(e.m_pDocument));
       }
     }
     break;

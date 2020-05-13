@@ -11,8 +11,7 @@ ezResult ezTexConvProcessor::Assemble2DTexture(const ezImageHeader& refImg, ezIm
   return Assemble2DSlice(m_Descriptor.m_ChannelMappings[0], refImg.GetWidth(), refImg.GetHeight(), pPixelOut);
 }
 
-ezResult ezTexConvProcessor::Assemble2DSlice(
-  const ezTexConvSliceChannelMapping& mapping, ezUInt32 uiResolutionX, ezUInt32 uiResolutionY, ezColor* pPixelOut) const
+ezResult ezTexConvProcessor::Assemble2DSlice(const ezTexConvSliceChannelMapping& mapping, ezUInt32 uiResolutionX, ezUInt32 uiResolutionY, ezColor* pPixelOut) const
 {
   ezHybridArray<const ezColor*, 16> pSource;
   for (ezUInt32 i = 0; i < m_Descriptor.m_InputImages.GetCount(); ++i)
@@ -82,8 +81,7 @@ ezResult ezTexConvProcessor::Assemble2DSlice(
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::DetermineTargetResolution(
-  const ezImage& image, ezEnum<ezImageFormat> OutputImageFormat, ezUInt32& out_uiTargetResolutionX, ezUInt32& out_uiTargetResolutionY) const
+ezResult ezTexConvProcessor::DetermineTargetResolution(const ezImage& image, ezEnum<ezImageFormat> OutputImageFormat, ezUInt32& out_uiTargetResolutionX, ezUInt32& out_uiTargetResolutionY) const
 {
   EZ_ASSERT_DEV(out_uiTargetResolutionX == 0 && out_uiTargetResolutionY == 0, "Target resolution already determined");
 
@@ -98,6 +96,16 @@ ezResult ezTexConvProcessor::DetermineTargetResolution(
 
   out_uiTargetResolutionX = ezMath::Clamp(out_uiTargetResolutionX, m_Descriptor.m_uiMinResolution, m_Descriptor.m_uiMaxResolution);
   out_uiTargetResolutionY = ezMath::Clamp(out_uiTargetResolutionY, m_Descriptor.m_uiMinResolution, m_Descriptor.m_uiMaxResolution);
+
+  // keep original aspect ratio
+  if (uiOrgResX > uiOrgResY)
+  {
+    out_uiTargetResolutionY = (out_uiTargetResolutionX * uiOrgResY) / uiOrgResX;
+  }
+  else if (uiOrgResX < uiOrgResY)
+  {
+    out_uiTargetResolutionX = (out_uiTargetResolutionY * uiOrgResX) / uiOrgResY;
+  }
 
   if (m_Descriptor.m_OutputType == ezTexConvOutputType::Volume)
   {

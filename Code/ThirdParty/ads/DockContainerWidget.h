@@ -36,7 +36,7 @@
 #include "DockWidget.h"
 
 class QXmlStreamWriter;
-class QXmlStreamReader;
+
 
 namespace ads
 {
@@ -47,13 +47,16 @@ class CDockManager;
 struct DockManagerPrivate;
 class CFloatingDockContainer;
 struct FloatingDockContainerPrivate;
+class CFloatingDragPreview;
+struct FloatingDragPreviewPrivate;
+class CDockingStateReader;
 
 /**
  * Container that manages a number of dock areas with single dock widgets
  * or tabyfied dock widgets in each area.
  * Each window that support docking has a DockContainerWidget. That means
- * the main application window and all floating windows are ore contain
- * an DockContainerWidget.
+ * the main application window and all floating windows contain a 
+ * DockContainerWidget instance.
  */
 class ADS_EXPORT CDockContainerWidget : public QFrame
 {
@@ -68,6 +71,9 @@ private:
 	friend class CFloatingDockContainer;
 	friend struct FloatingDockContainerPrivate;
 	friend class CDockWidget;
+	friend class CFloatingDragPreview;
+	friend struct FloatingDragPreviewPrivate;
+
 protected:
 	/**
 	 * Handles activation events to update zOrderIndex
@@ -90,6 +96,15 @@ protected:
 	void dropFloatingWidget(CFloatingDockContainer* FloatingWidget, const QPoint& TargetPos);
 
 	/**
+	 * Drop a dock area or a dock widget given in widget parameter.
+	 * If the TargetAreaWidget is a nullptr, then the DropArea indicates
+	 * the drop area for the container. If the given TargetAreaWidget is not
+	 * a nullptr, then the DropArea indicates the drop area in the given
+	 * TargetAreaWidget
+	 */
+	void dropWidget(QWidget* Widget, DockWidgetArea DropArea, CDockAreaWidget* TargetAreaWidget);
+
+	/**
 	 * Adds the given dock area to this container widget
 	 */
 	void addDockArea(CDockAreaWidget* DockAreaWidget, DockWidgetArea area = CenterDockWidgetArea);
@@ -110,7 +125,7 @@ protected:
 	 * stream but does not restore anything. You can use this check for
 	 * faulty files before you start restoring the state
 	 */
-	bool restoreState(QXmlStreamReader& Stream, bool Testing);
+	bool restoreState(CDockingStateReader& Stream, bool Testing);
 
 	/**
 	 * This function returns the last added dock area widget for the given
@@ -118,14 +133,6 @@ protected:
 	 * area
 	 */
 	CDockAreaWidget* lastAddedDockAreaWidget(DockWidgetArea area) const;
-
-	/**
-	 * This function returns true if this dock area has only one single
-	 * visible dock widget.
-	 * A top level widget is a real floating widget. Only the isFloating()
-	 * function of top level widgets may returns true.
-	 */
-	bool hasTopLevelDockWidget() const;
 
 	/**
 	 * If hasSingleVisibleDockWidget() returns true, this function returns the
@@ -202,6 +209,14 @@ public:
 	 * If all dock widgets in a dock area are closed, the dock area will be closed
 	 */
 	QList<CDockAreaWidget*> openedDockAreas() const;
+
+    /**
+     * This function returns true if this dock area has only one single
+     * visible dock widget.
+     * A top level widget is a real floating widget. Only the isFloating()
+     * function of top level widgets may returns true.
+     */
+    bool hasTopLevelDockWidget() const;
 
 	/**
 	 * Returns the number of dock areas in this container

@@ -30,7 +30,6 @@ ezParticleFinisherComponent::~ezParticleFinisherComponent() = default;
 void ezParticleFinisherComponent::OnDeactivated()
 {
   m_EffectController.StopImmediate();
-  m_EffectController.Invalidate();
 
   ezRenderComponent::OnDeactivated();
 }
@@ -40,9 +39,9 @@ ezResult ezParticleFinisherComponent::GetLocalBounds(ezBoundingBoxSphere& bounds
   if (m_EffectController.IsAlive())
   {
     ezBoundingBoxSphere volume;
-    m_LastBVolumeUpdate = m_EffectController.GetBoundingVolume(volume);
+    m_uiBVolumeUpdateCounter = m_EffectController.GetBoundingVolume(volume);
 
-    if (!m_LastBVolumeUpdate.IsZero())
+    if (m_uiBVolumeUpdateCounter != 0)
     {
       bounds.ExpandToInclude(volume);
       return EZ_SUCCESS;
@@ -76,7 +75,7 @@ void ezParticleFinisherComponent::Update()
 void ezParticleFinisherComponent::CheckBVolumeUpdate()
 {
   ezBoundingBoxSphere bvol;
-  if (m_LastBVolumeUpdate < m_EffectController.GetBoundingVolume(bvol))
+  if (m_uiBVolumeUpdateCounter < m_EffectController.GetBoundingVolume(bvol))
   {
     TriggerLocalBoundsUpdate();
   }

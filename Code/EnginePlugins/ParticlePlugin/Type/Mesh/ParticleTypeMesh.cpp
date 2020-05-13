@@ -17,7 +17,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeMeshFactory, 1, ezRTTIDefaultAlloc
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Mesh", m_sMesh)->AddAttributes(new ezAssetBrowserAttribute("Mesh;Animated Mesh")),
+    EZ_MEMBER_PROPERTY("Mesh", m_sMesh)->AddAttributes(new ezAssetBrowserAttribute("Mesh")),
     EZ_MEMBER_PROPERTY("Material", m_sMaterial)->AddAttributes(new ezAssetBrowserAttribute("Material")),
     EZ_MEMBER_PROPERTY("TintColorParam", m_sTintColorParameter),
   }
@@ -180,6 +180,12 @@ void ezParticleTypeMesh::ExtractTypeRenderData(const ezView& view, ezExtractedRe
   if (!m_hMaterial.IsValid())
     return;
 
+  if (m_RenderCategory.m_uiValue == 0xFFFF)
+  {
+    m_bRenderDataCached = false;
+    return;
+  }
+
   const ezUInt32 numParticles = (ezUInt32)GetOwnerSystem()->GetNumActiveParticles();
 
   if (numParticles == 0)
@@ -187,7 +193,7 @@ void ezParticleTypeMesh::ExtractTypeRenderData(const ezView& view, ezExtractedRe
 
   EZ_PROFILE_SCOPE("PFX: Mesh");
 
-  const ezTime tCur = GetOwnerSystem()->GetWorld()->GetClock().GetAccumulatedTime();
+  const ezTime tCur = GetOwnerEffect()->GetTotalEffectLifeTime();
   const ezColor tintColor = GetOwnerEffect()->GetColorParameter(m_sTintColorParameter, ezColor::White);
 
   m_uiLastExtractedFrame = uiExtractedFrame;
@@ -207,8 +213,7 @@ void ezParticleTypeMesh::ExtractTypeRenderData(const ezView& view, ezExtractedRe
       const ezUInt32 idx = p;
 
       ezTransform trans;
-      trans.m_qRotation.SetFromAxisAndAngle(pAxis[p],
-                                            ezAngle::Radian((float)(tCur.GetSeconds() * pRotationSpeed[idx]) + pRotationOffset[idx]));
+      trans.m_qRotation.SetFromAxisAndAngle(pAxis[p], ezAngle::Radian((float)(tCur.GetSeconds() * pRotationSpeed[idx]) + pRotationOffset[idx]));
       trans.m_vPosition = pPosition[idx].GetAsVec3();
       trans.m_vScale.Set(pSize[idx]);
 

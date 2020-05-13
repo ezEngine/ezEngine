@@ -31,6 +31,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcessAssetMsg, 1, ezRTTIDefaultAllocator<ezP
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("AssetGuid", m_AssetGuid),
+    EZ_MEMBER_PROPERTY("AssetHash", m_AssetHash),
+    EZ_MEMBER_PROPERTY("ThumbHash", m_ThumbHash),
     EZ_MEMBER_PROPERTY("AssetPath", m_sAssetPath),
     EZ_MEMBER_PROPERTY("Platform", m_sPlatform),
   }
@@ -230,6 +232,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewRedrawMsgToEngine, 1, ezRTTIDefaultAllocat
     EZ_MEMBER_PROPERTY("WindowHeight", m_uiWindowHeight),
     EZ_MEMBER_PROPERTY("UpdatePickingData", m_bUpdatePickingData),
     EZ_MEMBER_PROPERTY("EnablePickSelected", m_bEnablePickingSelected),
+    EZ_MEMBER_PROPERTY("EnablePickTransparent", m_bEnablePickTransparent),
     EZ_MEMBER_PROPERTY("UseCamOnDevice", m_bUseCameraTransformOnDevice),
     EZ_MEMBER_PROPERTY("CameraMode", m_iCameraMode),
     EZ_MEMBER_PROPERTY("NearPlane", m_fNearPlane),
@@ -242,7 +245,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewRedrawMsgToEngine, 1, ezRTTIDefaultAllocat
     EZ_MEMBER_PROPERTY("ViewMat", m_ViewMatrix),
     EZ_MEMBER_PROPERTY("ProjMat", m_ProjMatrix),
     EZ_MEMBER_PROPERTY("RenderMode", m_uiRenderMode),
-    EZ_ENUM_MEMBER_PROPERTY("CameraUsageHint", ezCameraUsageHint, m_CameraUsageHint),
   }
   EZ_END_PROPERTIES;
 }

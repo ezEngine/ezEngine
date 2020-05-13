@@ -4,12 +4,12 @@
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
-#include <Texture/Image/Formats/DdsFileFormat.h>
-#include <Texture/Image/Image.h>
 #include <Foundation/Math/Rect.h>
 #include <RendererCore/Decals/DecalAtlasResource.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Textures/TextureUtils.h>
+#include <Texture/Image/Formats/DdsFileFormat.h>
+#include <Texture/Image/Image.h>
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(RendererCore, DecalAtlasResource)
@@ -50,7 +50,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAtlasResource, 1, ezRTTIDefaultAllocator<ezDecalAtlasResource>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAtlasResource, 1, ezRTTIDefaultAllocator<ezDecalAtlasResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezDecalAtlasResource);
@@ -59,12 +59,11 @@ EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezDecalAtlasResource);
 ezUInt32 ezDecalAtlasResource::s_uiDecalAtlasResources = 0;
 
 ezDecalAtlasResource::ezDecalAtlasResource()
-    : ezResource(DoUpdate::OnAnyThread, 1)
-    , m_BaseColorSize(ezVec2U32::ZeroVector())
-    , m_NormalSize(ezVec2U32::ZeroVector())
+  : ezResource(DoUpdate::OnAnyThread, 1)
+  , m_BaseColorSize(ezVec2U32::ZeroVector())
+  , m_NormalSize(ezVec2U32::ZeroVector())
 {
 }
-
 
 ezDecalAtlasResourceHandle ezDecalAtlasResource::GetDecalAtlasResource()
 {
@@ -108,17 +107,17 @@ ezResourceLoadDesc ezDecalAtlasResource::UpdateContent(ezStreamReader* Stream)
   {
     ezUInt8 uiVersion = 0;
     *Stream >> uiVersion;
-    EZ_ASSERT_DEV(uiVersion == 1 || uiVersion == 2, "Invalid decal atlas version {0}", uiVersion);
+    EZ_ASSERT_DEV(uiVersion <= 3, "Invalid decal atlas version {0}", uiVersion);
 
     // this version is now incompatible
-    if (uiVersion == 1)
+    if (uiVersion < 3)
       return res;
   }
 
   // read the textures
   {
     ezDdsFileFormat dds;
-    ezImage baseColor, normal;
+    ezImage baseColor, normal, orm;
 
     if (dds.ReadImage(*Stream, baseColor, ezLog::GetThreadLocalLogSystem(), "dds").Failed())
     {
@@ -132,11 +131,19 @@ ezResourceLoadDesc ezDecalAtlasResource::UpdateContent(ezStreamReader* Stream)
       return res;
     }
 
+    if (dds.ReadImage(*Stream, orm, ezLog::GetThreadLocalLogSystem(), "dds").Failed())
+    {
+      ezLog::Error("Failed to load normal image for decal atlas");
+      return res;
+    }
+
     CreateLayerTexture(baseColor, true, m_hBaseColor);
     CreateLayerTexture(normal, false, m_hNormal);
+    CreateLayerTexture(orm, false, m_hORM);
 
     m_BaseColorSize = ezVec2U32(baseColor.GetWidth(), baseColor.GetHeight());
     m_NormalSize = ezVec2U32(normal.GetWidth(), normal.GetHeight());
+    m_ORMSize = ezVec2U32(orm.GetWidth(), orm.GetHeight());
   }
 
   ReadDecalInfo(Stream);
@@ -201,4 +208,3 @@ void ezDecalAtlasResource::ReportResourceIsMissing()
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Decals_Implementation_DecalAtlasResource);
-

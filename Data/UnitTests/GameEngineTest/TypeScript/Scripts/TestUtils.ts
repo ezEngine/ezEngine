@@ -34,7 +34,7 @@ export class TestUtils extends ez.TypescriptComponent {
 
         // StringToHash
         {
-            EZ_TEST.BOOL(ez.Utils.StringToHash("a") != ez.Utils.StringToHash("b"))
+            EZ_TEST.BOOL(ez.Utils.StringToHash("a") != ez.Utils.StringToHash("b"));
         }
 
         // Clamp
@@ -93,7 +93,7 @@ export class TestUtils extends ez.TypescriptComponent {
                 let c = new ez.Color();
                 c.SetGammaByteRGBA(6, 164, 227, 255);
                 EZ_TEST.BOOL(p2s.ColorVar.IsEqualRGBA(c));
-            }            
+            }
         }
     }
 

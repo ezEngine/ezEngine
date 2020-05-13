@@ -64,7 +64,7 @@ void ezConeVisualizerAdapter::UpdateGizmoTransform()
 {
   const ezConeVisualizerAttribute* pAttr = static_cast<const ezConeVisualizerAttribute*>(m_pVisualizerAttr);
 
-  const ezQuat axisRotation = GetBasisRotation(ezBasisAxis::PositiveX, pAttr->m_Axis);
+  const ezQuat axisRotation = ezBasisAxis::GetBasisRotation_PosX(pAttr->m_Axis);
 
   ezTransform t = GetObjectTransform();
   t.m_vScale = t.m_vScale.CompMul(ezVec3(1.0f, m_fAngleScale, m_fAngleScale) * m_fFinalScale);

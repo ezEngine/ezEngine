@@ -43,8 +43,8 @@ public:
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
 protected:
-  virtual void Initialize() override;
-  virtual void Deinitialize() override;
+  virtual void OnActivated() override;
+  virtual void OnDeactivated() override;
   virtual void OnSimulationStarted() override;
 
 
@@ -81,11 +81,10 @@ protected:
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg) const; // [ msg handler ]
 
   ezUInt32 m_uiShapeId = ezInvalidIndex;
+  ezUInt32 m_uiUserDataIndex = ezInvalidIndex;
   bool m_bIsCrouching = false;
 
   physx::PxCapsuleController* m_pController = nullptr;
 
   ezUniquePtr<ezPxCharacterProxyData> m_Data;
-
-  ezPxUserData m_UserData;
 };

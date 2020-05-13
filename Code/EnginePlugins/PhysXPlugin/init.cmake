@@ -14,6 +14,9 @@ macro(ez_requires_physx)
 
 	ez_requires_windows()
 	ez_requires(EZ_BUILD_PHYSX)
+    # While counter-intuitive, we need to find the package here so that the PUBLIC inherited
+    # target_sources using generator expressions can be resolved in the dependant projects.
+    find_package(ezPhysX REQUIRED)
 
 endmacro()
 
@@ -33,14 +36,14 @@ function(ez_link_target_physx TARGET_NAME)
         target_link_libraries(${TARGET_NAME} PRIVATE ezPhysX::PVD)
         target_link_libraries(${TARGET_NAME} PRIVATE ezPhysX::Character)
 
+        target_sources(${TARGET_NAME} PUBLIC $<TARGET_FILE:ezPhysX::Foundation>)
+        target_sources(${TARGET_NAME} PUBLIC $<TARGET_FILE:ezPhysX::Common>)
+        target_sources(${TARGET_NAME} PUBLIC $<TARGET_FILE:ezPhysX::PhysX>)
+
         add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:ezPhysX::nvTools> $<TARGET_FILE_DIR:${TARGET_NAME}>
             COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:ezPhysX::Foundation> $<TARGET_FILE_DIR:${TARGET_NAME}>
             COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:ezPhysX::Common> $<TARGET_FILE_DIR:${TARGET_NAME}>
             COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:ezPhysX::PhysX> $<TARGET_FILE_DIR:${TARGET_NAME}>
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:ezPhysX::Extensions> $<TARGET_FILE_DIR:${TARGET_NAME}>
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:ezPhysX::PVD> $<TARGET_FILE_DIR:${TARGET_NAME}>
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:ezPhysX::Character> $<TARGET_FILE_DIR:${TARGET_NAME}>
         )
 
 	endif()
@@ -60,6 +63,9 @@ function(ez_link_target_physx_cooking TARGET_NAME)
 
 	if (EZPHYSX_FOUND)
         target_link_libraries(${TARGET_NAME} PRIVATE ezPhysX::Cooking)
+
+        target_sources(${TARGET_NAME} PUBLIC $<TARGET_FILE:ezPhysX::Foundation>)
+        target_sources(${TARGET_NAME} PUBLIC $<TARGET_FILE:ezPhysX::Cooking>)
 
         add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:ezPhysX::Foundation> $<TARGET_FILE_DIR:${TARGET_NAME}>

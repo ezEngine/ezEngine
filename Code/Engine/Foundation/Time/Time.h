@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
+#include <Foundation/Configuration/StaticSubSystem.h>
 
 /// \brief The time class encapsulates a double value storing the time in seconds.
 ///

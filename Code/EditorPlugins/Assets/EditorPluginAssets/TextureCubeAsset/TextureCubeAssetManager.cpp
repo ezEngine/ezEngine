@@ -5,7 +5,7 @@
 #include <EditorPluginAssets/TextureCubeAsset/TextureCubeAssetManager.h>
 #include <EditorPluginAssets/TextureCubeAsset/TextureCubeAssetWindow.moc.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureCubeAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezTextureCubeAssetDocumentManager>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureCubeAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezTextureCubeAssetDocumentManager>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezTextureCubeAssetDocumentManager::ezTextureCubeAssetDocumentManager()
@@ -39,7 +39,7 @@ void ezTextureCubeAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentM
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezTextureCubeAssetDocument>())
       {
         ezQtTextureCubeAssetDocumentWindow* pDocWnd =
-            new ezQtTextureCubeAssetDocumentWindow(static_cast<ezTextureCubeAssetDocument*>(e.m_pDocument));
+          new ezQtTextureCubeAssetDocumentWindow(static_cast<ezTextureCubeAssetDocument*>(e.m_pDocument));
       }
     }
     break;

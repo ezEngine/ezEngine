@@ -3,7 +3,7 @@
 #include <Core/Input/VirtualThumbStick.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVirtualThumbStick, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVirtualThumbStick, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -84,7 +84,7 @@ void ezVirtualThumbStick::SetTriggerInputSlot(ezVirtualThumbStick::Input::Enum I
 }
 
 void ezVirtualThumbStick::SetThumbstickOutput(ezVirtualThumbStick::Output::Enum Output, const char* szOutputLeft, const char* szOutputRight,
-                                              const char* szOutputUp, const char* szOutputDown)
+  const char* szOutputUp, const char* szOutputDown)
 {
   switch (Output)
   {
@@ -174,7 +174,7 @@ void ezVirtualThumbStick::SetAreaFocusMode(ezInputActionConfig::OnEnterArea OnEn
 }
 
 void ezVirtualThumbStick::SetInputArea(const ezVec2& vLowerLeft, const ezVec2& vUpperRight, float fThumbstickRadius, float fPriority,
-                                       CenterMode::Enum center)
+  CenterMode::Enum center)
 {
   m_bConfigChanged = true;
 
@@ -227,7 +227,7 @@ void ezVirtualThumbStick::UpdateInputSlotValues()
   ezInt8 iTriggerAlt;
 
   const ezKeyState::Enum ks =
-      ezInputManager::GetInputActionState(GetDynamicRTTI()->GetTypeName(), m_sName.GetData(), &fValue, &iTriggerAlt);
+    ezInputManager::GetInputActionState(GetDynamicRTTI()->GetTypeName(), m_sName.GetData(), &fValue, &iTriggerAlt);
 
   if (ks != ezKeyState::Up)
   {
@@ -279,4 +279,3 @@ void ezVirtualThumbStick::RegisterInputSlots()
 
 
 EZ_STATICLINK_FILE(Core, Core_Input_Implementation_VirtualThumbStick);
-

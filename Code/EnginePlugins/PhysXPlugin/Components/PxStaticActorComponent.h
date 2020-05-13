@@ -18,7 +18,7 @@ public:
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
-  virtual void Deinitialize() override;
+  virtual void OnDeactivated() override;
   virtual void OnSimulationStarted() override;
 
   //////////////////////////////////////////////////////////////////////////
@@ -43,9 +43,8 @@ protected:
   void OnMsgExtractGeometry(ezMsgExtractGeometry& msg) const;
 
   ezUInt32 m_uiShapeId = ezInvalidIndex;
+  ezUInt32 m_uiUserDataIndex = ezInvalidIndex;
   ezPxMeshResourceHandle m_hCollisionMesh;
 
   physx::PxRigidStatic* m_pActor = nullptr;
-
-  ezPxUserData m_UserData;
 };

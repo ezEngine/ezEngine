@@ -6,7 +6,7 @@
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAnimAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezPropertyAnimAssetDocumentManager>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAnimAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezPropertyAnimAssetDocumentManager>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezPropertyAnimAssetDocumentManager::ezPropertyAnimAssetDocumentManager()
@@ -39,7 +39,7 @@ void ezPropertyAnimAssetDocumentManager::OnDocumentManagerEvent(const ezDocument
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezPropertyAnimAssetDocument>())
       {
         ezQtPropertyAnimAssetDocumentWindow* pDocWnd =
-            new ezQtPropertyAnimAssetDocumentWindow(static_cast<ezPropertyAnimAssetDocument*>(e.m_pDocument));
+          new ezQtPropertyAnimAssetDocumentWindow(static_cast<ezPropertyAnimAssetDocument*>(e.m_pDocument));
       }
     }
     break;

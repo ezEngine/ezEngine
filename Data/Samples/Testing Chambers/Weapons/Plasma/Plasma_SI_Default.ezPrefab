@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{4503936315766485946,5467247986140777545}}
-		u4 %Hash{16081537839823224731}
+		u4 %Hash{13541855931827474398}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{4954456250233479308,17760596100351715494}}
@@ -19,9 +19,11 @@ o
 		VarArray %Outputs{}
 		VarArray %References
 		{
-			s{"{ 0bbfbc3c-b5e2-4194-af38-84e13516bbc2 }"}
-			s{"{ 1e69c43f-d80f-42f4-b5c2-fd8f6b6d986f }"}
-			s{"{ 32cb0079-08cc-4f6b-a94b-0832e602ee1a }"}
+			s{"{ 867dfe01-53b1-4e9a-a796-19079f1be44a }"}
+			s{"{ 8b5cbe24-17a9-4f78-847f-b92d1b17b35b }"}
+			s{"{ 93066f62-ab41-49c3-bfcc-6a79560eef7a }"}
+			s{"{ aa3be7d1-d9e2-4ddc-b6fc-6deaa22696eb }"}
+			s{"{ e7cc1faa-7f48-461c-b2bd-f9214d08dbe1 }"}
 		}
 	}
 }
@@ -45,12 +47,13 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
 			Uuid{u4{13216660442455185952,399914372388848440}}
 			Uuid{u4{16410236728109607093,6175885950551889647}}
-			Uuid{u4{3309217378497875160,6086387625969510337}}
+			Uuid{u4{14784367003612336564,5693505343034430578}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0xCDCCCCBD,0,0}}
@@ -72,34 +75,33 @@ o
 		b %Active{1}
 		u1 %OcclusionCollisionLayer{0}
 		f %OcclusionThreshold{0x0000003F}
-		s %OnFinishedAction{"ezOnComponentFinishedAction::DeleteGameObject"}
+		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
 		b %Paused{0}
 		f %Pitch{0x0000803F}
 		b %ShowDebugInfo{0}
-		s %SoundEvent{"{ 32cb0079-08cc-4f6b-a94b-0832e602ee1a }"}
+		s %SoundEvent{"{ e7cc1faa-7f48-461c-b2bd-f9214d08dbe1 }"}
 		b %UseOcclusion{0}
-		f %Volume{0x0000803F}
+		f %Volume{0x9A99993E}
 	}
 }
 o
 {
-	Uuid %id{u4{3309217378497875160,6086387625969510337}}
+	Uuid %id{u4{14784367003612336564,5693505343034430578}}
 	s %t{"ezParticleComponent"}
-	u3 %v{3}
+	u3 %v{5}
 	p
 	{
 		b %Active{1}
-		s %Effect{"{ 1e69c43f-d80f-42f4-b5c2-fd8f6b6d986f }"}
+		s %Effect{"{ 93066f62-ab41-49c3-bfcc-6a79560eef7a }"}
+		b %IgnoreOwnerRotation{0}
 		Time %MinRestartDelay{d{0}}
-		s %OnFinishedAction{"ezOnComponentFinishedAction2::DeleteGameObject"}
-		VarDict %Parameters
-		{
-			Color %Color{f{0x690B813D,0x7EFF3A3F,0x6819173D,0x0000803F}}
-		}
+		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
+		VarDict %Parameters{}
 		u4 %RandomSeed{0}
 		Time %RestartDelayRange{d{0}}
 		s %SharedInstanceName{""}
 		b %SpawnAtStart{1}
+		s %SpawnDirection{"ezBasisAxis::PositiveX"}
 	}
 }
 o
@@ -116,19 +118,28 @@ o
 {
 	Uuid %id{u4{16410236728109607093,6175885950551889647}}
 	s %t{"ezDecalComponent"}
-	u3 %v{3}
+	u3 %v{7}
 	p
 	{
 		b %Active{1}
-		Color %Color{f{0x30F1813E,0x764C3C40,0x7426183E,0x0000803F}}
-		s %Decal{"{ 0bbfbc3c-b5e2-4194-af38-84e13516bbc2 }"}
-		Vec3 %Extents{f{0x00004040,0x00004040,0x00004040}}
+		s %ApplyToDynamic{""}
+		ColorGamma %Color{u1{255,255,255,255}}
+		VarArray %Decals
+		{
+			s{"{ 8b5cbe24-17a9-4f78-847f-b92d1b17b35b }"}
+			s{"{ aa3be7d1-d9e2-4ddc-b6fc-6deaa22696eb }"}
+			s{"{ 867dfe01-53b1-4e9a-a796-19079f1be44a }"}
+		}
+		Color %EmissiveColor{f{0xFC410A40,0xC7EFCF40,0x2BCF3D40,0x0000803F}}
+		Vec3 %Extents{f{0x0000003F,0x0000003F,0x0000003F}}
 		Uuid %FadeOutDelay{u4{1675289059729366332,8815584581527328376}}
-		Time %FadeOutDuration{d{0x0000000000000040}}
-		Angle %InnerFadeAngle{f{0xDB0FC93F}}
+		Time %FadeOutDuration{d{0x0000000000000840}}
+		Angle %InnerFadeAngle{f{0x920A863F}}
+		b %MapNormalToGeometry{1}
 		s %OnFinishedAction{"ezOnComponentFinishedAction::DeleteGameObject"}
-		Angle %OuterFadeAngle{f{0xDB0FC93F}}
-		f %SizeVariance{0x0000803F}
+		Angle %OuterFadeAngle{f{0xC2B8B23F}}
+		s %ProjectionAxis{"ezBasisAxis::NegativeX"}
+		f %SizeVariance{0x3333333F}
 		f %SortOrder{0x0000A040}
 		b %WrapAround{1}
 	}
@@ -155,8 +166,8 @@ o
 	u3 %v{1}
 	p
 	{
-		Time %Value{d{0x0000000000000840}}
-		f %Variance{0x48E1FA3E}
+		Time %Value{d{0x000000000000F03F}}
+		f %Variance{0xA470BD3E}
 	}
 }
 }
@@ -212,8 +223,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezDecalComponent"}
-		u3 %TypeSize{160}
-		u3 %TypeVersion{3}
+		u3 %TypeSize{192}
+		u3 %TypeVersion{7}
 	}
 }
 o
@@ -356,8 +367,8 @@ o
 		s %PluginName{"ezEditorPluginParticle"}
 		VarArray %Properties{}
 		s %TypeName{"ezParticleComponent"}
-		u3 %TypeSize{328}
-		u3 %TypeVersion{3}
+		u3 %TypeSize{336}
+		u3 %TypeVersion{5}
 	}
 }
 o
@@ -464,6 +475,24 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezEnumBase"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14469700887475489738,16951777026318265606}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezBasisAxis"}
 		u3 %TypeSize{1}
 		u3 %TypeVersion{1}
 	}

@@ -80,3 +80,9 @@
 #  undef EZ_SUPPORTS_CRASH_DUMPS
 #  define EZ_SUPPORTS_CRASH_DUMPS EZ_ON
 #endif
+
+// support for writing to files with very long paths is not implemented for UWP
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+#  undef EZ_SUPPORTS_LONG_PATHS
+#  define EZ_SUPPORTS_LONG_PATHS EZ_ON
+#endif

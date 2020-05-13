@@ -2,8 +2,8 @@
 
 #include <Foundation/Basics.h>
 #include <Foundation/Math/Angle.h>
-#include <Foundation/Math/Declarations.h>
 #include <Foundation/Math/Constants.h>
+#include <Foundation/Math/Declarations.h>
 
 
 /// \brief This namespace provides common math-functionality as functions.
@@ -151,10 +151,14 @@ namespace ezMath
   /// \sa Trunc, Round, Floor, Ceil
   constexpr ezInt32 FloatToInt(float value);
 
+  // There is a compiler bug in VS 2019 targeting 32-bit that causes an internal compiler error when casting double to long long.
+  // FloatToInt(double) is not available on these version of the MSVC compiler.
+#if EZ_DISABLED(EZ_PLATFORM_ARCH_X86) || (_MSC_VER <= 1916)
   /// \brief Casts the float to an integer, removes the fractional part
   ///
   /// \sa Trunc, Round, Floor, Ceil
   constexpr ezInt64 FloatToInt(double value);
+#endif
 
   /// \brief Rounds f to the next integer.
   ///
@@ -292,6 +296,9 @@ namespace ezMath
   /// \brief Converts a color value from float [-1;1] range to signed byte [-127;127] range, with proper rounding
   ezInt8 ColorFloatToSignedByte(float value); // [tested]
 
+  /// \brief Converts a color value from float [-1;1] range to signed short [-32767;32767] range, with proper rounding
+  ezInt16 ColorFloatToSignedShort(float value); // [tested]
+
   /// \brief Converts a color value from unsigned byte [0;255] range to float [0;1] range, with proper rounding
   constexpr float ColorByteToFloat(ezUInt8 value); // [tested]
 
@@ -301,10 +308,26 @@ namespace ezMath
   /// \brief Converts a color value from signed byte [-128;127] range to float [-1;1] range, with proper rounding
   constexpr float ColorSignedByteToFloat(ezInt8 value); // [tested]
 
+  /// \brief Converts a color value from signed short [-32768;32767] range to float [0;1] range, with proper rounding
+  constexpr float ColorSignedShortToFloat(ezInt16 value); // [tested]
+
   /// \brief Evaluates the cubic spline defined by four control points at time \a t and returns the interpolated result.
   /// Can be used with T as float, vec2, vec3 or vec4
   template <typename T, typename T2>
   T EvaluateBezierCurve(T2 t, const T& startPoint, const T& controlPoint1, const T& controlPoint2, const T& endPoint);
+
+  /// \brief out_Result = \a a * \a b. If an overflow happens, EZ_FAILURE is returned.
+  EZ_FOUNDATION_DLL ezResult TryMultiply32(ezUInt32& out_Result, ezUInt32 a, ezUInt32 b, ezUInt32 c = 1, ezUInt32 d = 1); // [tested]
+
+  /// \brief returns \a a * \a b. If an overflow happens, the program is terminated.
+  EZ_FOUNDATION_DLL ezUInt32 SafeMultiply32(ezUInt32 a, ezUInt32 b, ezUInt32 c = 1, ezUInt32 d = 1);
+
+  /// \brief out_Result = \a a * \a b. If an overflow happens, EZ_FAILURE is returned.
+  EZ_FOUNDATION_DLL ezResult TryMultiply64(ezUInt64& out_Result, ezUInt64 a, ezUInt64 b, ezUInt64 c = 1, ezUInt64 d = 1); // [tested]
+
+  /// \brief returns \a a * \a b. If an overflow happens, the program is terminated.
+  EZ_FOUNDATION_DLL ezUInt64 SafeMultiply64(ezUInt64 a, ezUInt64 b, ezUInt64 c = 1, ezUInt64 d = 1);
+
 } // namespace ezMath
 
 #include <Foundation/Math/Implementation/MathDouble_inl.h>
@@ -312,4 +335,3 @@ namespace ezMath
 #include <Foundation/Math/Implementation/MathFloat_inl.h>
 #include <Foundation/Math/Implementation/MathInt32_inl.h>
 #include <Foundation/Math/Implementation/Math_inl.h>
-

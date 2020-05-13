@@ -38,6 +38,7 @@ CONSTANT_BUFFER(ezGlobalConstants, 0)
 
   FLOAT4(ViewportSize);   // x = width, y = height, z = 1 / width, w = 1 / height
   FLOAT4(ClipPlanes);     // x = near, y = far, z = 1 / far
+  FLOAT1(MaxZValue);      // any screenspace z values smaller than this value are clamped. Used for directional shadows.
 
   FLOAT1(DeltaTime);
   FLOAT1(GlobalTime);

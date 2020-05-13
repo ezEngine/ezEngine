@@ -210,17 +210,20 @@ ezString ezPreferences::GetName() const
 {
   ezStringBuilder s;
 
-  if (m_Domain == Domain::Application)
-    s.Append("Application");
-  else if (m_Domain == Domain::Project)
-    s.Append("Project");
+  if (m_Domain == Domain::Document)
+  {
+    s.Set(m_sUniqueName, ": ");
+    s.Append(ezPathUtils::GetFileName(m_pDocument->GetDocumentPath()));
+  }
   else
   {
-    ezStringBuilder name = ezPathUtils::GetFileName(m_pDocument->GetDocumentPath());
-    s.Append(name.GetData());
-  }
+    if (m_Domain == Domain::Application)
+      s.Append("Application");
+    else if (m_Domain == Domain::Project)
+      s.Append("Project");
 
-  s.Append(": ", m_sUniqueName);
+    s.Append(": ", m_sUniqueName);
+  }
 
   return s;
 }

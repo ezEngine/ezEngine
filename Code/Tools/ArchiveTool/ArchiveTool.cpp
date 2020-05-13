@@ -327,7 +327,7 @@ public:
       if (Unpack().Failed())
       {
         ezLog::Error("Extracting files failed");
-        SetReturnCode(2);
+        SetReturnCode(3);
       }
 
       return ezApplication::Quit;

@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10991936023139991684,4849455965415217685}}
-		u4 %Hash{2321385724483137297}
+		u4 %Hash{11838541193105289725}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -55,6 +55,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{0}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -135,6 +136,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -161,6 +163,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -204,6 +207,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -231,6 +235,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -288,7 +293,7 @@ o
 {
 	Uuid %id{u4{1251694811912573879,5588790101668408000}}
 	s %t{"ezVisualScriptComponent"}
-	u3 %v{3}
+	u3 %v{4}
 	p
 	{
 		b %Active{1}
@@ -353,6 +358,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -379,6 +385,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -565,7 +572,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponent"}
-		u3 %TypeSize{128}
+		u3 %TypeSize{104}
 		u3 %TypeVersion{3}
 	}
 }
@@ -604,7 +611,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezEventMessageHandlerComponent"}
 		u3 %TypeSize{56}
-		u3 %TypeVersion{1}
+		u3 %TypeVersion{2}
 	}
 }
 o
@@ -639,7 +646,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezMeshComponentBase"}
-		u3 %TypeSize{128}
+		u3 %TypeSize{104}
 		u3 %TypeVersion{1}
 	}
 }
@@ -819,7 +826,7 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezCameraComponent"}
-		u3 %TypeSize{536}
+		u3 %TypeSize{552}
 		u3 %TypeVersion{9}
 	}
 }
@@ -927,7 +934,7 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezVisualScriptComponent"}
 		u3 %TypeSize{224}
-		u3 %TypeVersion{3}
+		u3 %TypeVersion{4}
 	}
 }
 o

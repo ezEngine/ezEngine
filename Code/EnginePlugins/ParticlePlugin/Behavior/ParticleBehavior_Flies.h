@@ -2,7 +2,7 @@
 
 #include <ParticlePlugin/Behavior/ParticleBehavior.h>
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_Flies : public ezParticleBehaviorFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleBehaviorFactory_Flies final : public ezParticleBehaviorFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehaviorFactory_Flies, ezParticleBehaviorFactory);
 
@@ -25,7 +25,7 @@ public:
 };
 
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_Flies : public ezParticleBehavior
+class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_Flies final : public ezParticleBehavior
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_Flies, ezParticleBehavior);
 
@@ -40,8 +40,8 @@ public:
 protected:
   virtual void Process(ezUInt64 uiNumElements) override;
 
-  ezProcessingStream* m_pStreamPosition;
-  ezProcessingStream* m_pStreamVelocity;
+  ezProcessingStream* m_pStreamPosition = nullptr;
+  ezProcessingStream* m_pStreamVelocity = nullptr;
 
   ezTime m_TimeToChangeDir;
 };

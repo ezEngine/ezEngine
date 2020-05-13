@@ -13,7 +13,7 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodAction, 0, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodSliderAction, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezFmodSliderAction, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezActionDescriptorHandle ezFmodActions::s_hCategoryFmod;
@@ -67,7 +67,7 @@ void ezFmodActions::MapMenuActions()
 }
 
 ezFmodAction::ezFmodAction(const ezActionContext& context, const char* szName, ActionType type)
-    : ezButtonAction(context, szName, false, "")
+  : ezButtonAction(context, szName, false, "")
 {
   m_Type = type;
 
@@ -116,6 +116,11 @@ void ezFmodAction::Execute(const ezVariant& value)
   {
     ezFmodProjectPreferences* pPreferences = ezPreferences::QueryPreferences<ezFmodProjectPreferences>();
     pPreferences->SetMute(!pPreferences->GetMute());
+
+    if (GetContext().m_pDocument)
+    {
+      GetContext().m_pDocument->ShowDocumentStatus(ezFmt("Sound is {}", pPreferences->GetMute() ? "muted" : "on"));
+    }
   }
 }
 
@@ -137,7 +142,7 @@ void ezFmodAction::OnPreferenceChange(ezPreferences* pref)
 //////////////////////////////////////////////////////////////////////////
 
 ezFmodSliderAction::ezFmodSliderAction(const ezActionContext& context, const char* szName, ActionType type)
-    : ezSliderAction(context, szName)
+  : ezSliderAction(context, szName)
 {
   m_Type = type;
 
@@ -181,6 +186,11 @@ void ezFmodSliderAction::Execute(const ezVariant& value)
       ezFmodProjectPreferences* pPreferences = ezPreferences::QueryPreferences<ezFmodProjectPreferences>();
 
       pPreferences->SetVolume(iValue / 20.0f);
+
+      if (GetContext().m_pDocument)
+      {
+        GetContext().m_pDocument->ShowDocumentStatus(ezFmt("Sound Volume: {}%%", (int)(pPreferences->GetVolume() * 100.0f)));
+      }
     }
     break;
   }

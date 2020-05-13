@@ -17,7 +17,7 @@ namespace ezProcGenInternal
 using namespace ezProcGenInternal;
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenGraphResource, 1, ezRTTIDefaultAllocator<ezProcGenGraphResource>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenGraphResource, 1, ezRTTIDefaultAllocator<ezProcGenGraphResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezProcGenGraphResource);

@@ -29,7 +29,7 @@ public:
   static ezActionDescriptorHandle s_hUtilExportSceneToOBJ;
   static ezActionDescriptorHandle s_hKeepSimulationChanges;
   static ezActionDescriptorHandle s_hCreateThumbnail;
-  static ezActionDescriptorHandle s_hFavouriteCamsMenu;
+  static ezActionDescriptorHandle s_hFavoriteCamsMenu;
   static ezActionDescriptorHandle s_hStoreEditorCamera[10];
   static ezActionDescriptorHandle s_hRestoreEditorCamera[10];
   static ezActionDescriptorHandle s_hJumpToCamera[10];

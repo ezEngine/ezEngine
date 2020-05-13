@@ -12,7 +12,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptResource, 2, ezRTTIDefaultAllocator<ezVisualScriptResource>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptResource, 2, ezRTTIDefaultAllocator<ezVisualScriptResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezVisualScriptResource);
@@ -23,7 +23,7 @@ ezVisualScriptResource::ezVisualScriptResource()
 {
 }
 
-ezVisualScriptResource::~ezVisualScriptResource() {}
+ezVisualScriptResource::~ezVisualScriptResource() = default;
 
 ezResourceLoadDesc ezVisualScriptResource::UnloadData(Unload WhatToUnload)
 {
@@ -56,16 +56,7 @@ ezResourceLoadDesc ezVisualScriptResource::UpdateContent(ezStreamReader* Stream)
   ezAssetFileHeader AssetHash;
   AssetHash.Read(*Stream);
 
-  {
-    ezResourceHandleReadContext context;
-    context.BeginReadingFromStream(Stream);
-    context.BeginRestoringHandles(Stream);
-
-    m_Descriptor.Load(*Stream);
-
-    context.EndReadingFromStream(Stream);
-    context.EndRestoringHandles();
-  }
+  m_Descriptor.Load(*Stream);
 
   res.m_State = ezResourceState::Loaded;
   return res;
@@ -98,9 +89,9 @@ void ezVisualScriptResourceDescriptor::Load(ezStreamReader& stream)
   ezUInt8 uiVersion = 0;
 
   stream >> uiVersion;
-  EZ_ASSERT_DEV(uiVersion >= 4 && uiVersion <= 6, "Incorrect version {0} for visual script", uiVersion);
+  EZ_ASSERT_DEV(uiVersion >= 4 && uiVersion <= 7, "Incorrect version {0} for visual script", uiVersion);
 
-  if (uiVersion < 4)
+  if (uiVersion < 7)
     return;
 
   ezUInt32 uiNumNodes = 0;
@@ -219,7 +210,7 @@ void ezVisualScriptResourceDescriptor::Load(ezStreamReader& stream)
 
 void ezVisualScriptResourceDescriptor::Save(ezStreamWriter& stream) const
 {
-  const ezUInt8 uiVersion = 6;
+  const ezUInt8 uiVersion = 7;
 
   stream << uiVersion;
 

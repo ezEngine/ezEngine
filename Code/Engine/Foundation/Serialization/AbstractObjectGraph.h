@@ -41,7 +41,7 @@ public:
   void RenameProperty(const char* szOldName, const char* szNewName);
 
   const ezUuid& GetGuid() const { return m_Guid; }
-  const ezUInt32 GetTypeVersion() const { return m_uiTypeVersion; }
+  ezUInt32 GetTypeVersion() const { return m_uiTypeVersion; }
   void SetTypeVersion(ezUInt32 uiTypeVersion) { m_uiTypeVersion = uiTypeVersion; }
   const char* GetType() const { return m_szType; }
   void SetType(const char* szType);

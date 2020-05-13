@@ -8,6 +8,14 @@
 
 ezTgaFileFormat g_TgaFormat;
 
+struct TgaImageDescriptor
+{
+  ezUInt8 m_iAlphaBits : 4;
+  ezUInt8 m_bFlipH : 1;
+  ezUInt8 m_bFlipV : 1;
+  ezUInt8 m_Ignored : 2;
+};
+
 // see Wikipedia for details:
 // http://de.wikipedia.org/wiki/Targa_Image_File
 struct TgaHeader
@@ -19,7 +27,7 @@ struct TgaHeader
   ezInt16 m_iImageWidth;
   ezInt16 m_iImageHeight;
   ezInt8 m_iBitsPerPixel;
-  ezInt8 m_Ignored3;
+  TgaImageDescriptor m_ImageDescriptor;
 };
 
 EZ_CHECK_AT_COMPILETIME(sizeof(TgaHeader) == 18);
@@ -287,7 +295,7 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
   stream >> Header.m_iImageWidth;
   stream >> Header.m_iImageHeight;
   stream >> Header.m_iBitsPerPixel;
-  stream >> Header.m_Ignored3;
+  stream >> reinterpret_cast<ezUInt8&>(Header.m_ImageDescriptor);
 
   // ignore optional data
   stream.SkipBytes(Header.m_iImageIDLength);
@@ -328,19 +336,55 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
 
     const ezUInt32 uiBytesPerRow = uiBytesPerPixel * Header.m_iImageWidth;
 
-    // read each row (gets rid of the row pitch
-    for (ezInt32 y = 0; y < Header.m_iImageHeight; ++y)
-      stream.ReadBytes(image.GetPixelPointer<void>(0, 0, 0, 0, Header.m_iImageHeight - y - 1, 0), uiBytesPerRow);
+    if (Header.m_ImageDescriptor.m_bFlipH)
+    {
+      // read each row (gets rid of the row pitch
+      for (ezInt32 y = 0; y < Header.m_iImageHeight; ++y)
+      {
+        const auto row = Header.m_ImageDescriptor.m_bFlipV ? y : Header.m_iImageHeight - y - 1;
+        for (ezInt32 x = Header.m_iImageWidth - 1; x >= 0; --x)
+        {
+          stream.ReadBytes(image.GetPixelPointer<void>(0, 0, 0, x, row, 0), uiBytesPerPixel);
+        }
+      }
+    }
+    else
+    {
+      // read each row (gets rid of the row pitch
+      for (ezInt32 y = 0; y < Header.m_iImageHeight; ++y)
+      {
+        const auto row = Header.m_ImageDescriptor.m_bFlipV ? y : Header.m_iImageHeight - y - 1;
+        stream.ReadBytes(image.GetPixelPointer<void>(0, 0, 0, 0, row, 0), uiBytesPerRow);
+      }
+    }
   }
-  if (Header.m_ImageType == 2)
+  else if (Header.m_ImageType == 2)
   {
     // uncompressed
 
     const ezUInt32 uiBytesPerRow = uiBytesPerPixel * Header.m_iImageWidth;
 
-    // read each row (gets rid of the row pitch
-    for (ezInt32 y = 0; y < Header.m_iImageHeight; ++y)
-      stream.ReadBytes(image.GetPixelPointer<void>(0, 0, 0, 0, Header.m_iImageHeight - y - 1, 0), uiBytesPerRow);
+    if (Header.m_ImageDescriptor.m_bFlipH)
+    {
+      // read each row (gets rid of the row pitch
+      for (ezInt32 y = 0; y < Header.m_iImageHeight; ++y)
+      {
+        const auto row = Header.m_ImageDescriptor.m_bFlipV ? y : Header.m_iImageHeight - y - 1;
+        for (ezInt32 x = Header.m_iImageWidth - 1; x >= 0; --x)
+        {
+          stream.ReadBytes(image.GetPixelPointer<void>(0, 0, 0, x, row, 0), uiBytesPerPixel);
+        }
+      }
+    }
+    else
+    {
+      // read each row (gets rid of the row pitch
+      for (ezInt32 y = 0; y < Header.m_iImageHeight; ++y)
+      {
+        const auto row = Header.m_ImageDescriptor.m_bFlipV ? y : Header.m_iImageHeight - y - 1;
+        stream.ReadBytes(image.GetPixelPointer<void>(0, 0, 0, 0, row, 0), uiBytesPerRow);
+      }
+    }
   }
   else
   {
@@ -369,7 +413,9 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
           const ezInt32 x = iCurrentPixel % Header.m_iImageWidth;
           const ezInt32 y = iCurrentPixel / Header.m_iImageWidth;
 
-          stream.ReadBytes(image.GetPixelPointer<void>(0, 0, 0, x, Header.m_iImageHeight - y - 1, 0), uiBytesPerPixel);
+          const auto row = Header.m_ImageDescriptor.m_bFlipV ? y : Header.m_iImageHeight - y - 1;
+          const auto col = Header.m_ImageDescriptor.m_bFlipH ? Header.m_iImageWidth - x - 1 : x;
+          stream.ReadBytes(image.GetPixelPointer<void>(0, 0, 0, col, row, 0), uiBytesPerPixel);
 
           ++iCurrentPixel;
         }
@@ -391,7 +437,9 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
           const ezInt32 x = iCurrentPixel % Header.m_iImageWidth;
           const ezInt32 y = iCurrentPixel / Header.m_iImageWidth;
 
-          ezUInt8* pPixel = image.GetPixelPointer<ezUInt8>(0, 0, 0, x, Header.m_iImageHeight - y - 1, 0);
+          const auto row = Header.m_ImageDescriptor.m_bFlipV ? y : Header.m_iImageHeight - y - 1;
+          const auto col = Header.m_ImageDescriptor.m_bFlipH ? Header.m_iImageWidth - x - 1 : x;
+          ezUInt8* pPixel = image.GetPixelPointer<ezUInt8>(0, 0, 0, col, row, 0);
 
           // BGR
           pPixel[0] = uiBuffer[0];

@@ -6,7 +6,7 @@
 class ezView;
 class ezExtractedRenderData;
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleExtractor : public ezExtractor
+class EZ_PARTICLEPLUGIN_DLL ezParticleExtractor final : public ezExtractor
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleExtractor, ezExtractor);
 public:

@@ -14,14 +14,14 @@ void ezRenderPipelineResourceDescriptor::CreateFromRenderPipeline(const ezRender
 }
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineResource, 1, ezRTTIDefaultAllocator<ezRenderPipelineResource>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderPipelineResource, 1, ezRTTIDefaultAllocator<ezRenderPipelineResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezRenderPipelineResource);
 // clang-format on
 
 ezRenderPipelineResource::ezRenderPipelineResource()
-    : ezResource(DoUpdate::OnAnyThread, 1)
+  : ezResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
@@ -124,7 +124,7 @@ ezResourceLoadDesc ezRenderPipelineResource::UpdateContent(ezStreamReader* Strea
   else
   {
     EZ_REPORT_FAILURE("The file '{0}' is unsupported, only '.ezRenderPipelineBin' files can be loaded as ezRenderPipelineResource",
-                      sAbsFilePath);
+      sAbsFilePath);
   }
 
   return res;
@@ -152,4 +152,3 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezRenderPipelineResource, ezRenderPipelineResou
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderPipelineResource);
-

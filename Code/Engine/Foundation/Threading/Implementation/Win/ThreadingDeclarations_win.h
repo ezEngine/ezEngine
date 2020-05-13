@@ -17,16 +17,30 @@ struct EZ_ALIGN(ezMutexHandle, 8)
 };
 #endif
 
+
+#if EZ_ENABLED(EZ_PLATFORM_32BIT)
+struct EZ_ALIGN(ezConditionVariableHandle, 4)
+{
+  ezUInt8 data[4];
+};
+#else
+struct EZ_ALIGN(ezConditionVariableHandle, 8)
+{
+  ezUInt8 data[8];
+};
+#endif
+
+
+
 typedef ezMinWindows::HANDLE ezThreadHandle;
 typedef ezMinWindows::DWORD ezThreadID;
 typedef ezMinWindows::DWORD(__stdcall* ezOSThreadEntryPoint)(void* lpThreadParameter);
 
 #define EZ_THREAD_CLASS_ENTRY_POINT ezMinWindows::DWORD __stdcall ezThreadClassEntryPoint(void* lpThreadParameter);
 
-struct ezThreadSignalData
+struct ezConditionVariableData
 {
-  ezMinWindows::HANDLE m_hEvent; // Nobody knows what happened during THE EVENT
+  ezConditionVariableHandle m_ConditionVariable;
 };
 
 /// \endcond
-

@@ -33,8 +33,8 @@ public:
   void SetDocument(ezDocument* pDocument, bool bBindToSelectionManager = true);
 
   void ClearSelection();
-  void SetSelection(const ezDeque<const ezDocumentObject*>& selection, const char* szIncludeProperties = nullptr,
-                    const char* szExcludeProperties = nullptr);
+  void SetSelectionIncludeExcludeProperties(const char* szIncludeProperties = nullptr, const char* szExcludeProperties = nullptr);
+  void SetSelection(const ezDeque<const ezDocumentObject*>& selection);
   const ezDocument* GetDocument() const;
   const ezDocumentObjectManager* GetObjectManager() const;
   ezCommandHistory* GetCommandHistory() const;
@@ -70,6 +70,8 @@ private:
   bool m_bBindToSelectionManager = false;
   ezDeque<const ezDocumentObject*> m_Selection;
   ezMap<ezUInt32, bool> m_CollapseState;
+  ezString m_sSelectionIncludeProperties;
+  ezString m_sSelectionExcludeProperties;
 
   QVBoxLayout* m_pLayout;
   QScrollArea* m_pScroll;

@@ -11,7 +11,7 @@ class ezAtomicInteger
 public:
   EZ_DECLARE_POD_TYPE();
 
-  /// \brief Default constructor
+  /// \brief Initializes the value to zero.
   ezAtomicInteger(); // [tested]
 
   /// \brief Initializes the object with a value
@@ -32,6 +32,12 @@ public:
   /// \brief Decrements the internal value and returns the decremented value
   T Decrement(); // [tested]
 
+  /// \brief Increments the internal value and returns the value immediately before the increment
+  T PostIncrement(); // [tested]
+
+  /// \brief Decrements the internal value and returns the value immediately before the decrement
+  T PostDecrement(); // [tested]
+
   void Add(T x);      // [tested]
   void Subtract(T x); // [tested]
 
@@ -45,9 +51,11 @@ public:
   /// \brief Sets the internal value to x and returns the original internal value.
   T Set(T x); // [tested]
 
-  /// \brief Sets the internal value to x if the internal value is equal to expected and returns true, otherwise does nothing and returns
-  /// false.
+  /// \brief Sets the internal value to x if the internal value is equal to expected and returns true, otherwise does nothing and returns false.
   bool TestAndSet(T expected, T x); // [tested]
+
+  /// \brief If this is equal to *expected*, it is set to *value*. Otherwise it won't be modified. Always returns the previous value of this before the modification.
+  T CompareAndSwap(T expected, T x); // [tested]
 
   operator T() const; // [tested]
 
@@ -55,9 +63,41 @@ private:
   volatile T m_value;
 };
 
+/// \brief An atomic boolean variable. This is just a wrapper around an atomic int32 for convenience.
+class ezAtomicBool
+{
+public:
+  /// \brief Initializes the bool to 'false'.
+  ezAtomicBool(); // [tested]
+  ~ezAtomicBool();
+
+  /// \brief Initializes the object with a value
+  ezAtomicBool(bool value); // [tested]
+
+  /// \brief Copy-constructor
+  ezAtomicBool(const ezAtomicBool& rhs);
+
+  /// \brief Sets the bool to the given value and returns its previous value.
+  bool Set(bool value); // [tested]
+
+  /// \brief Sets the bool to the given value.
+  void operator=(bool value); // [tested]
+
+  /// \brief Sets the bool to the given value.
+  void operator=(const ezAtomicBool& rhs);
+
+  /// \brief Returns the current value.
+  operator bool() const; // [tested]
+
+  /// \brief Sets the internal value to \a newValue if the internal value is equal to \a expected and returns true, otherwise does nothing and returns false.
+  bool TestAndSet(bool expected, bool newValue);
+
+private:
+  ezAtomicInteger<ezInt32> m_AtomicInt;
+};
+
 // Include inline file
 #include <Foundation/Threading/Implementation/AtomicInteger_inl.h>
 
 typedef ezAtomicInteger<ezInt32> ezAtomicInteger32; // [tested]
 typedef ezAtomicInteger<ezInt64> ezAtomicInteger64; // [tested]
-

@@ -1,11 +1,9 @@
 #include <GameEnginePCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
-#include <Core/WorldSerializer/ResourceHandleReader.h>
-#include <Core/WorldSerializer/ResourceHandleWriter.h>
+#include <GameEngine/Animation/PropertyAnimResource.h>
 #include <GameEngine/Curves/ColorGradientResource.h>
 #include <GameEngine/Curves/Curve1DResource.h>
-#include <GameEngine/Animation/PropertyAnimResource.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPropertyAnimResource, 1, ezRTTIDefaultAllocator<ezPropertyAnimResource>)
@@ -24,7 +22,7 @@ EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezPropertyAnimResource);
 // clang-format on
 
 ezPropertyAnimResource::ezPropertyAnimResource()
-    : ezResource(DoUpdate::OnAnyThread, 1)
+  : ezResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
@@ -77,17 +75,8 @@ ezResourceLoadDesc ezPropertyAnimResource::UpdateContent(ezStreamReader* Stream)
   ezAssetFileHeader AssetHash;
   AssetHash.Read(*Stream);
 
-  {
-    ezResourceHandleReadContext context;
-    context.BeginReadingFromStream(Stream);
-    context.BeginRestoringHandles(Stream);
-
-    m_pDescriptor = EZ_DEFAULT_NEW(ezPropertyAnimResourceDescriptor);
-    m_pDescriptor->Load(*Stream);
-
-    context.EndReadingFromStream(Stream);
-    context.EndRestoringHandles();
-  }
+  m_pDescriptor = EZ_DEFAULT_NEW(ezPropertyAnimResourceDescriptor);
+  m_pDescriptor->Load(*Stream);
 
   res.m_State = ezResourceState::Loaded;
   return res;
@@ -101,7 +90,7 @@ void ezPropertyAnimResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   if (m_pDescriptor)
   {
     out_NewMemoryUsage.m_uiMemoryCPU =
-        static_cast<ezUInt32>(m_pDescriptor->m_FloatAnimations.GetHeapMemoryUsage() + sizeof(ezPropertyAnimResourceDescriptor));
+      static_cast<ezUInt32>(m_pDescriptor->m_FloatAnimations.GetHeapMemoryUsage() + sizeof(ezPropertyAnimResourceDescriptor));
   }
 }
 
@@ -217,5 +206,4 @@ void ezPropertyAnimResourceDescriptor::Load(ezStreamReader& stream)
 
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Resources_Implementation_PropertyAnimResource);
-
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Implementation_PropertyAnimResource);

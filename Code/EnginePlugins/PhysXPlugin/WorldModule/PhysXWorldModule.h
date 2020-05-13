@@ -6,6 +6,7 @@
 #include <PhysXPlugin/PhysXInterface.h>
 
 class ezPxSimulationEventCallback;
+class ezPxUserData;
 
 class EZ_PHYSXPLUGIN_DLL ezPhysXWorldModule : public ezPhysicsWorldModuleInterface
 {
@@ -26,45 +27,44 @@ public:
   const physx::PxControllerManager* GetCharacterManager() const { return m_pCharacterManager; }
 
   ezUInt32 CreateShapeId();
-  void DeleteShapeId(ezUInt32 uiShapeId);
+  void DeleteShapeId(ezUInt32& uiShapeId);
+
+  ezUInt32 AllocateUserData(ezPxUserData*& out_pUserData);
+  void DeallocateUserData(ezUInt32& uiUserDataIndex);
 
   void SetGravity(const ezVec3& objectGravity, const ezVec3& characterGravity);
   virtual ezVec3 GetGravity() const override { return m_Settings.m_vObjectGravity; }
   ezVec3 GetCharacterGravity() const { return m_Settings.m_vCharacterGravity; }
   float GetMaxDepenetrationVelocity() const { return m_Settings.m_fMaxDepenetrationVelocity; }
 
-  // ezPhysicsWorldModuleInterface implementation
-  virtual bool CastRay(const ezVec3& vStart, const ezVec3& vDir, float fDistance, ezUInt8 uiCollisionLayer,
-    ezPhysicsHitResult& out_HitResult, ezBitflags<ezPhysicsShapeType> shapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic,
-    ezUInt32 uiIgnoreShapeId = ezInvalidIndex) const override;
+  //////////////////////////////////////////////////////////////////////////
+  // ezPhysicsWorldModuleInterface
 
-  virtual bool SweepTestSphere(float fSphereRadius, const ezVec3& vStart, const ezVec3& vDir, float fDistance, ezUInt8 uiCollisionLayer,
-    ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) const override;
+  virtual bool Raycast(ezPhysicsCastResult& out_Result, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const override;
 
-  virtual bool SweepTestBox(ezVec3 vBoxExtends, const ezTransform& start, const ezVec3& vDir, float fDistance, ezUInt8 uiCollisionLayer,
-    ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) const override;
+  virtual bool RaycastAll(ezPhysicsCastResultArray& out_Results, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params) const override;
 
-  virtual bool SweepTestCapsule(float fCapsuleRadius, float fCapsuleHeight, const ezTransform& start, const ezVec3& vDir, float fDistance,
-    ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) const override;
+  virtual bool SweepTestSphere(ezPhysicsCastResult& out_Result, float fSphereRadius, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const override;
 
-  virtual bool OverlapTestSphere(
-    float fSphereRadius, const ezVec3& vPosition, ezUInt8 uiCollisionLayer, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) const override;
-  virtual bool OverlapTestCapsule(float fCapsuleRadius, float fCapsuleHeight, const ezTransform& vPosition, ezUInt8 uiCollisionLayer,
-    ezUInt32 uiIgnoreShapeId = ezInvalidIndex) const override;
+  virtual bool SweepTestBox(ezPhysicsCastResult& out_Result, ezVec3 vBoxExtends, const ezTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const override;
 
-  virtual void QueryDynamicShapesInSphere(float fSphereRadius, const ezVec3& vPosition, ezUInt8 uiCollisionLayer,
-    ezPhysicsOverlapResult& out_Results, ezUInt32 uiIgnoreShapeId = ezInvalidIndex) const override;
+  virtual bool SweepTestCapsule(ezPhysicsCastResult& out_Result, float fCapsuleRadius, float fCapsuleHeight, const ezTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const override;
+
+  virtual bool OverlapTestSphere(float fSphereRadius, const ezVec3& vPosition, const ezPhysicsQueryParameters& params) const override;
+
+  virtual bool OverlapTestCapsule(float fCapsuleRadius, float fCapsuleHeight, const ezTransform& transform, const ezPhysicsQueryParameters& params) const override;
+
+  virtual void QueryShapesInSphere(ezPhysicsOverlapResultArray& out_Results, float fSphereRadius, const ezVec3& vPosition, const ezPhysicsQueryParameters& params) const override;
 
   virtual void AddStaticCollisionBox(ezGameObject* pObject, ezVec3 boxSize) override;
 
-  virtual void* CreateRagdoll(
-    const ezSkeletonResourceDescriptor& skeleton, const ezTransform& rootTransform, const ezAnimationPose& initPose) override;
+  virtual void* CreateRagdoll(const ezSkeletonResourceDescriptor& skeleton, const ezTransform& transform, const ezAnimationPose& initPose) override;
 
 private:
-  bool SweepTest(const physx::PxGeometry& geometry, const physx::PxTransform& transform, const ezVec3& vDir, float fDistance,
-    ezUInt8 uiCollisionLayer, ezPhysicsHitResult& out_HitResult, ezUInt32 uiIgnoreShapeId) const;
-  bool OverlapTest(
-    const physx::PxGeometry& geometry, const physx::PxTransform& transform, ezUInt8 uiCollisionLayer, ezUInt32 uiIgnoreShapeId) const;
+  bool SweepTest(ezPhysicsCastResult& out_Result, const physx::PxGeometry& geometry, const physx::PxTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const;
+  bool OverlapTest(const physx::PxGeometry& geometry, const physx::PxTransform& transform, const ezPhysicsQueryParameters& params) const;
+
+  void FreeUserDataAfterSimulationStep();
 
   void StartSimulation(const ezWorldModule::UpdateContext& context);
   void FetchResults(const ezWorldModule::UpdateContext& context);
@@ -79,6 +79,10 @@ private:
   ezUInt32 m_uiNextShapeId;
   ezDynamicArray<ezUInt32> m_FreeShapeIds;
 
+  ezDeque<ezPxUserData> m_AllocatedUserData;
+  ezDynamicArray<ezUInt32> m_FreeUserData;
+  ezDynamicArray<ezUInt32> m_FreeUserDataAfterSimulationStep;
+
   ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper> m_ScratchMemory;
 
   ezTime m_AccumulatedTimeSinceUpdate;
@@ -87,6 +91,7 @@ private:
 
   ezDelegateTask<void> m_SimulateTask;
   ezTaskGroupID m_SimulateTaskGroupId;
+  bool m_bSimulationStepExecuted = false;
 
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(PhysX, PhysXPlugin);
 };

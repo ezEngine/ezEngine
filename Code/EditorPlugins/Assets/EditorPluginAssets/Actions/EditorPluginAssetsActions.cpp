@@ -29,11 +29,11 @@ void ezAssetPluginActions::MapActions(const char* szMapping)
 }
 
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezImportAssetAction, 0, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezImportAssetAction, 0, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezImportAssetAction::ezImportAssetAction(const ezActionContext& context, const char* szName)
-    : ezButtonAction(context, szName, false, "")
+  : ezButtonAction(context, szName, false, "")
 {
   SetIconPath(":/GuiFoundation/Icons/DocumentAdd16.png");
 

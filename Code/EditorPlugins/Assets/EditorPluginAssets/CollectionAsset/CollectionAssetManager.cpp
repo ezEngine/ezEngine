@@ -6,7 +6,7 @@
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollectionAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezCollectionAssetDocumentManager>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCollectionAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezCollectionAssetDocumentManager>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezCollectionAssetDocumentManager::ezCollectionAssetDocumentManager()

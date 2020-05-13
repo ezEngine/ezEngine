@@ -312,37 +312,7 @@ bool ezHashSetBase<K, H>::Remove(const K& key)
   ezUInt32 uiIndex = FindEntry(key);
   if (uiIndex != ezInvalidIndex)
   {
-    ezMemoryUtils::Destruct(&m_pEntries[uiIndex], 1);
-
-    ezUInt32 uiNextIndex = uiIndex + 1;
-    if (uiNextIndex == m_uiCapacity)
-      uiNextIndex = 0;
-
-    // if the next entry is free we are at the end of a chain and
-    // can immediately mark this entry as free as well
-    if (IsFreeEntry(uiNextIndex))
-    {
-      MarkEntryAsFree(uiIndex);
-
-      // run backwards and free all deleted entries in this chain
-      ezUInt32 uiPrevIndex = (uiIndex != 0) ? uiIndex : m_uiCapacity;
-      --uiPrevIndex;
-
-      while (IsDeletedEntry(uiPrevIndex))
-      {
-        MarkEntryAsFree(uiPrevIndex);
-
-        if (uiPrevIndex == 0)
-          uiPrevIndex = m_uiCapacity;
-        --uiPrevIndex;
-      }
-    }
-    else
-    {
-      MarkEntryAsDeleted(uiIndex);
-    }
-
-    --m_uiCount;
+    RemoveInternal(uiIndex);
     return true;
   }
 
@@ -350,9 +320,99 @@ bool ezHashSetBase<K, H>::Remove(const K& key)
 }
 
 template <typename K, typename H>
+typename ezHashSetBase<K, H>::ConstIterator ezHashSetBase<K, H>::Remove(const typename ezHashSetBase<K, H>::ConstIterator& pos)
+{
+  ConstIterator it = pos;
+  ezUInt32 uiIndex = pos.m_uiCurrentIndex;
+  ++it;
+  --it.m_uiCurrentCount;
+  RemoveInternal(uiIndex);
+  return it;
+}
+
+template <typename K, typename H>
+void ezHashSetBase<K, H>::RemoveInternal(ezUInt32 uiIndex)
+{
+  ezMemoryUtils::Destruct(&m_pEntries[uiIndex], 1);
+
+  ezUInt32 uiNextIndex = uiIndex + 1;
+  if (uiNextIndex == m_uiCapacity)
+    uiNextIndex = 0;
+
+  // if the next entry is free we are at the end of a chain and
+  // can immediately mark this entry as free as well
+  if (IsFreeEntry(uiNextIndex))
+  {
+    MarkEntryAsFree(uiIndex);
+
+    // run backwards and free all deleted entries in this chain
+    ezUInt32 uiPrevIndex = (uiIndex != 0) ? uiIndex : m_uiCapacity;
+    --uiPrevIndex;
+
+    while (IsDeletedEntry(uiPrevIndex))
+    {
+      MarkEntryAsFree(uiPrevIndex);
+
+      if (uiPrevIndex == 0)
+        uiPrevIndex = m_uiCapacity;
+      --uiPrevIndex;
+    }
+  }
+  else
+  {
+    MarkEntryAsDeleted(uiIndex);
+  }
+
+  --m_uiCount;
+}
+
+template <typename K, typename H>
 EZ_FORCE_INLINE bool ezHashSetBase<K, H>::Contains(const K& key) const
 {
   return FindEntry(key) != ezInvalidIndex;
+}
+
+template <typename K, typename H>
+bool ezHashSetBase<K, H>::ContainsSet(const ezHashSetBase<K, H>& operand) const
+{
+  for (const K& key : operand)
+  {
+    if (!Contains(key))
+      return false;
+  }
+
+  return true;
+}
+
+template <typename K, typename H>
+void ezHashSetBase<K, H>::Union(const ezHashSetBase<K, H>& operand)
+{
+  Reserve(GetCount() + operand.GetCount());
+  for (const auto& key : operand)
+  {
+    Insert(key);
+  }
+}
+
+template <typename K, typename H>
+void ezHashSetBase<K, H>::Difference(const ezHashSetBase<K, H>& operand)
+{
+  for (const auto& key : operand)
+  {
+    Remove(key);
+  }
+}
+
+template <typename K, typename H>
+void ezHashSetBase<K, H>::Intersection(const ezHashSetBase<K, H>& operand)
+{
+  for (auto it = GetIterator(); it.IsValid();)
+  {
+    if (!operand.Contains(it.Key()))
+      it = Remove(it);
+    else
+      ++it;
+  }
 }
 
 template <typename K, typename H>

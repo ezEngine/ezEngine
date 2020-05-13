@@ -8,14 +8,14 @@ import __GameObject = require("./GameObject")
 export import GameObject = __GameObject.GameObject;
 
 
-declare function __CPP_Physics_CastRay(start: Vec3, dir: Vec3, distance: number, collisionLayer: number, shapeTypes: Physics.ShapeType, ignoreShapeId: number): Physics.HitResult;
+declare function __CPP_Physics_Raycast(start: Vec3, dir: Vec3, distance: number, collisionLayer: number, shapeTypes: Physics.ShapeType, ignoreShapeId: number): Physics.HitResult;
 declare function __CPP_Physics_SweepTestSphere(sphereRadius: number, start: Vec3, dir: Vec3, distance: number, collisionLayer: number, ignoreShapeId: number): Physics.HitResult;
 declare function __CPP_Physics_SweepTestBox(boxExtends: Vec3, start: Transform, dir: Vec3, distance: number, collisionLayer: number, ignoreShapeId: number): Physics.HitResult;
 declare function __CPP_Physics_SweepTestCapsule(capsuleRadius: number, capsuleHeight: number, start: Transform, dir: Vec3, distance: number, collisionLayer: number, ignoreShapeId: number): Physics.HitResult;
 declare function __CPP_Physics_OverlapTestSphere(sphereRadius: number, position: Vec3, collisionLayer: number, ignoreShapeId: number): boolean;
 declare function __CPP_Physics_OverlapTestCapsule(capsuleRadius: number, capsuleHeight: number, transform: Transform, collisionLayer: number, ignoreShapeId: number): boolean;
 declare function __CPP_Physics_GetGravity(): Vec3;
-declare function __CPP_Physics_QueryDynamicShapesInSphere(radius: number, position: Vec3, collisionLayer: number, ignoreShapeId: number, callback: Physics.QueryShapeCallback): void;
+declare function __CPP_Physics_QueryShapesInSphere(radius: number, position: Vec3, collisionLayer: number, ignoreShapeId: number, callback: Physics.QueryShapeCallback): void;
 
 /**
  * Functions in this module are typically implemented by a physics engine and operate on the physics representation of the world,
@@ -57,8 +57,8 @@ export namespace Physics {
      * @param ignoreShapeId A single shape ID can be given to be ignored. This can be used, for instance, to filter out the own character controller capsule.
      * @returns A HitResult object or null.
      */
-    export function CastRay(start: Vec3, dir: Vec3, distance: number, collisionLayer: number, shapeTypes: ShapeType = ShapeType.Static | ShapeType.Dynamic, ignoreShapeId: number = -1): HitResult {
-        return __CPP_Physics_CastRay(start, dir, distance, collisionLayer, shapeTypes, ignoreShapeId);
+    export function Raycast(start: Vec3, dir: Vec3, distance: number, collisionLayer: number, shapeTypes: ShapeType = ShapeType.Static | ShapeType.Dynamic, ignoreShapeId: number = -1): HitResult {
+        return __CPP_Physics_Raycast(start, dir, distance, collisionLayer, shapeTypes, ignoreShapeId);
     }
     
     /**
@@ -109,7 +109,7 @@ export namespace Physics {
     /**
      * Reports all dynamic shapes found within the given sphere, using a callback function.
      */
-    export function QueryDynamicShapesInSphere(radius: number, position: Vec3, collisionLayer: number, callback: QueryShapeCallback, ignoreShapeId: number = -1): void {
-        __CPP_Physics_QueryDynamicShapesInSphere(radius, position, collisionLayer, ignoreShapeId, callback);
+    export function QueryShapesInSphere(radius: number, position: Vec3, collisionLayer: number, callback: QueryShapeCallback, ignoreShapeId: number = -1): void {
+        __CPP_Physics_QueryShapesInSphere(radius, position, collisionLayer, ignoreShapeId, callback);
     }
 }

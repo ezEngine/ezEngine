@@ -4,16 +4,16 @@
 
 /// \brief A simple task implementation that calls a delegate function.
 template <typename T>
-class ezDelegateTask : public ezTask
+class ezDelegateTask final : public ezTask
 {
 public:
   typedef ezDelegate<void(const T&)> FunctionType;
 
-  ezDelegateTask(const char* szName, FunctionType func, const T& param)
+  ezDelegateTask(const char* szTaskName, FunctionType func, const T& param)
   {
     m_func = func;
     m_param = param;
-    SetTaskName(szName);
+    ConfigureTask(szTaskName, ezTaskNesting::Never);
   }
 
 private:
@@ -24,15 +24,15 @@ private:
 };
 
 template <>
-class ezDelegateTask<void> : public ezTask
+class ezDelegateTask<void> final : public ezTask
 {
 public:
   typedef ezDelegate<void()> FunctionType;
 
-  ezDelegateTask(const char* szName, FunctionType func)
+  ezDelegateTask(const char* szTaskName, FunctionType func)
   {
     m_func = func;
-    SetTaskName(szName);
+    ConfigureTask(szTaskName, ezTaskNesting::Never);
   }
 
 private:

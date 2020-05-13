@@ -29,6 +29,14 @@ ezTranslateGizmoEditTool::~ezTranslateGizmoEditTool()
     events.RemoveEventHandler(ezMakeDelegate(&ezTranslateGizmoEditTool::OnPreferenceChange, this));
 }
 
+void ezTranslateGizmoEditTool::OnActiveChanged(bool bIsActive)
+{
+  if (bIsActive)
+  {
+    m_TranslateGizmo.UpdateStatusBarText(GetWindow());
+  }
+}
+
 void ezTranslateGizmoEditTool::OnConfigured()
 {
   SUPER::OnConfigured();
@@ -318,6 +326,14 @@ void ezRotateGizmoEditTool::TransformationGizmoEventHandlerImpl(const ezGizmoEve
   }
 }
 
+void ezRotateGizmoEditTool::OnActiveChanged(bool bIsActive)
+{
+  if (bIsActive)
+  {
+    m_RotateGizmo.UpdateStatusBarText(GetWindow());
+  }
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScaleGizmoEditTool, 1, ezRTTIDefaultAllocator<ezScaleGizmoEditTool>)
@@ -331,6 +347,14 @@ ezScaleGizmoEditTool::ezScaleGizmoEditTool()
 ezScaleGizmoEditTool::~ezScaleGizmoEditTool()
 {
   m_ScaleGizmo.m_GizmoEvents.RemoveEventHandler(ezMakeDelegate(&ezTranslateGizmoEditTool::TransformationGizmoEventHandler, this));
+}
+
+void ezScaleGizmoEditTool::OnActiveChanged(bool bIsActive)
+{
+  if (bIsActive)
+  {
+    m_ScaleGizmo.UpdateStatusBarText(GetWindow());
+  }
 }
 
 void ezScaleGizmoEditTool::OnConfigured()
@@ -436,6 +460,14 @@ ezDragToPositionGizmoEditTool::ezDragToPositionGizmoEditTool()
 ezDragToPositionGizmoEditTool::~ezDragToPositionGizmoEditTool()
 {
   m_DragToPosGizmo.m_GizmoEvents.RemoveEventHandler(ezMakeDelegate(&ezTranslateGizmoEditTool::TransformationGizmoEventHandler, this));
+}
+
+void ezDragToPositionGizmoEditTool::OnActiveChanged(bool bIsActive)
+{
+  if (bIsActive)
+  {
+    m_DragToPosGizmo.UpdateStatusBarText(GetWindow());
+  }
 }
 
 void ezDragToPositionGizmoEditTool::OnConfigured()

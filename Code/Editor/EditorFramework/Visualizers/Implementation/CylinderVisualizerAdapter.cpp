@@ -82,7 +82,7 @@ void ezCylinderVisualizerAdapter::Update()
 void ezCylinderVisualizerAdapter::UpdateGizmoTransform()
 {
   const ezDirectionVisualizerAttribute* pAttr = static_cast<const ezDirectionVisualizerAttribute*>(m_pVisualizerAttr);
-  const ezQuat axisRotation = GetBasisRotation(ezBasisAxis::PositiveZ, pAttr->m_Axis);
+  const ezQuat axisRotation = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveZ, pAttr->m_Axis);
 
   ezTransform tCylinder;
   tCylinder.m_qRotation = axisRotation;

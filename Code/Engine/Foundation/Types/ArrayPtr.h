@@ -6,6 +6,7 @@
 
 // This #include is quite vital, do not remove it!
 #include <Foundation/Strings/FormatString.h>
+#include <Foundation/Math/Math.h>
 
 /// \brief Value used by containers for indices to indicate an invalid index.
 #ifndef ezInvalidIndex
@@ -51,6 +52,13 @@ public:
     : m_ptr(nullptr)
     , m_uiCount(0u)
   {
+  }
+
+  /// \brief Copies the pointer and size of /a other. Does not allocate any data.
+  EZ_ALWAYS_INLINE ezArrayPtr(const ezArrayPtr<T>& other) // [tested]
+  {
+    m_ptr = other.m_ptr;
+    m_uiCount = other.m_uiCount;
   }
 
   /// \brief Initializes the ezArrayPtr with the given pointer and number of elements. No memory is allocated or copied.
@@ -106,7 +114,7 @@ public:
   }
 
   /// \brief Returns the pointer to the array.
-  EZ_ALWAYS_INLINE const PointerType GetPtr() const // [tested]
+  EZ_ALWAYS_INLINE PointerType GetPtr() const // [tested]
   {
     return m_ptr;
   }
@@ -121,7 +129,7 @@ public:
   EZ_ALWAYS_INLINE PointerType GetEndPtr() { return m_ptr + m_uiCount; }
 
   /// \brief Returns the pointer behind the last element of the array
-  EZ_ALWAYS_INLINE const PointerType GetEndPtr() const { return m_ptr + m_uiCount; }
+  EZ_ALWAYS_INLINE PointerType GetEndPtr() const { return m_ptr + m_uiCount; }
 
   /// \brief Returns whether the array is empty.
   EZ_ALWAYS_INLINE bool IsEmpty() const // [tested]
@@ -223,8 +231,8 @@ public:
 
   EZ_ALWAYS_INLINE void Swap(ezArrayPtr<T>& other)
   {
-    ezMath::Swap(m_ptr, other.m_ptr);
-    ezMath::Swap(m_uiCount, other.m_uiCount);
+    ::ezMath::Swap(m_ptr, other.m_ptr);
+    ::ezMath::Swap(m_uiCount, other.m_uiCount);
   }
 
   typedef const T* const_iterator;

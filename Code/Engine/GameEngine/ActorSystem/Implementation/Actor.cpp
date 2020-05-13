@@ -3,7 +3,7 @@
 #include <GameEngine/ActorSystem/Actor.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezActor, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezActor, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -99,3 +99,7 @@ void ezActor::Update()
 {
   UpdateAllPlugins();
 }
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_ActorSystem_Implementation_Actor);
+

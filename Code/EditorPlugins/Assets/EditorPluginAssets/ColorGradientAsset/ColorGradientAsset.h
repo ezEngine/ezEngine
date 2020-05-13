@@ -7,8 +7,8 @@ class ezColorGradient;
 class ezColorControlPoint : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezColorControlPoint, ezReflectedClass);
-public:
 
+public:
   ezTime GetTickAsTime() const { return ezTime::Seconds(m_iTick / 4800.0); }
   void SetTickFromTime(ezTime time, ezInt64 fps);
 
@@ -22,8 +22,8 @@ public:
 class ezAlphaControlPoint : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezAlphaControlPoint, ezReflectedClass);
-public:
 
+public:
   ezTime GetTickAsTime() const { return ezTime::Seconds(m_iTick / 4800.0); }
   void SetTickFromTime(ezTime time, ezInt64 fps);
 
@@ -35,8 +35,8 @@ public:
 class ezIntensityControlPoint : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezIntensityControlPoint, ezReflectedClass);
-public:
 
+public:
   ezTime GetTickAsTime() const { return ezTime::Seconds(m_iTick / 4800.0); }
   void SetTickFromTime(ezTime time, ezInt64 fps);
 
@@ -48,8 +48,8 @@ public:
 class ezColorGradientAssetData : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezColorGradientAssetData, ezReflectedClass);
-public:
 
+public:
   ezDynamicArray<ezColorControlPoint> m_ColorCPs;
   ezDynamicArray<ezAlphaControlPoint> m_AlphaCPs;
   ezDynamicArray<ezIntensityControlPoint> m_IntensityCPs;
@@ -60,7 +60,6 @@ public:
   /// Does NOT yet sort the control points, so before evaluating the color gradient, that must be called manually.
   void FillGradientData(ezColorGradient& out_Result) const;
   ezColor Evaluate(ezInt64 iTick) const;
-
 };
 
 class ezColorGradientAssetDocument : public ezSimpleAssetDocument<ezColorGradientAssetData>
@@ -70,8 +69,9 @@ class ezColorGradientAssetDocument : public ezSimpleAssetDocument<ezColorGradien
 public:
   ezColorGradientAssetDocument(const char* szDocumentPath);
 
+  void WriteResource(ezStreamWriter& stream) const;
+
 protected:
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
   virtual ezStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
-
 };

@@ -8,14 +8,14 @@
 void ezQtEditorApp::OpenDocumentQueued(const char* szDocument, const ezDocumentObject* pOpenContext /*= nullptr*/)
 {
   QMetaObject::invokeMethod(this, "SlotQueuedOpenDocument", Qt::ConnectionType::QueuedConnection, Q_ARG(QString, szDocument),
-                            Q_ARG(void*, (void*)pOpenContext));
+    Q_ARG(void*, (void*)pOpenContext));
 }
 
 ezDocument* ezQtEditorApp::OpenDocument(const char* szDocument, ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext)
 {
   EZ_PROFILE_SCOPE("OpenDocument");
 
-  if (m_bHeadless)
+  if (IsInHeadlessMode())
     flags.Remove(ezDocumentFlags::RequestWindow);
 
   const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
@@ -55,7 +55,7 @@ ezDocument* ezQtEditorApp::OpenDocument(const char* szDocument, ezBitflags<ezDoc
       s.Format("The document contained {0} objects of an unknown type. Necessary plugins may be missing.\n\n\
 If you save this document, all data for these objects is lost permanently!\n\n\
 The following types are missing:\n",
-pDocument->GetUnknownObjectTypeInstances());
+        pDocument->GetUnknownObjectTypeInstances());
 
       for (auto it = pDocument->GetUnknownObjectTypes().GetIterator(); it.IsValid(); ++it)
       {
@@ -75,7 +75,7 @@ ezDocument* ezQtEditorApp::CreateDocument(const char* szDocument, ezBitflags<ezD
 {
   EZ_PROFILE_SCOPE("CreateDocument");
 
-  if (m_bHeadless)
+  if (IsInHeadlessMode())
     flags.Remove(ezDocumentFlags::RequestWindow);
 
   const ezDocumentTypeDescriptor* pTypeDesc = nullptr;

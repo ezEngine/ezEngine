@@ -47,14 +47,14 @@ EZ_END_SUBSYSTEM_DECLARATION;
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalResource, 1, ezRTTIDefaultAllocator<ezDecalResource>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalResource, 1, ezRTTIDefaultAllocator<ezDecalResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezDecalResource);
 // clang-format on
 
 ezDecalResource::ezDecalResource()
-    : ezResource(DoUpdate::OnAnyThread, 1)
+  : ezResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
@@ -119,4 +119,3 @@ bool ezDecalResourceLoader::IsResourceOutdated(const ezResource* pResource) cons
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Decals_Implementation_DecalResource);
-

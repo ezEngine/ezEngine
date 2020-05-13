@@ -38,7 +38,7 @@ EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::Increment(volatile ezInt64& dest)
   {
     old = dest;
   } while (_InterlockedCompareExchange64(&dest, old + 1, old) != old);
-  return old;
+  return old + 1;
 #else
   return _InterlockedIncrement64(&dest);
 #endif
@@ -57,12 +57,49 @@ EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::Decrement(volatile ezInt64& dest)
   {
     old = dest;
   } while (_InterlockedCompareExchange64(&dest, old - 1, old) != old);
-  return old;
+  return old - 1;
 #else
   return _InterlockedDecrement64(&dest);
 #endif
 }
 
+EZ_ALWAYS_INLINE ezInt32 ezAtomicUtils::PostIncrement(volatile ezInt32& dest)
+{
+  return _InterlockedExchangeAdd(reinterpret_cast<volatile long*>(&dest), 1);
+}
+
+EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::PostIncrement(volatile ezInt64& dest)
+{
+#if EZ_ENABLED(EZ_PLATFORM_32BIT)
+  ezInt64 old;
+  do
+  {
+    old = dest;
+  } while (_InterlockedCompareExchange64(&dest, old + 1, old) != old);
+  return old;
+#else
+  return _InterlockedExchangeAdd64(&dest, 1);
+#endif
+}
+
+EZ_ALWAYS_INLINE ezInt32 ezAtomicUtils::PostDecrement(volatile ezInt32& dest)
+{
+  return _InterlockedExchangeAdd(reinterpret_cast<volatile long*>(&dest), -1);
+}
+
+EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::PostDecrement(volatile ezInt64& dest)
+{
+#if EZ_ENABLED(EZ_PLATFORM_32BIT)
+  ezInt64 old;
+  do
+  {
+    old = dest;
+  } while (_InterlockedCompareExchange64(&dest, old - 1, old) != old);
+  return old;
+#else
+  return _InterlockedExchangeAdd64(&dest, -1);
+#endif
+}
 
 EZ_ALWAYS_INLINE void ezAtomicUtils::Add(volatile ezInt32& dest, ezInt32 value)
 {
@@ -228,3 +265,12 @@ EZ_ALWAYS_INLINE bool ezAtomicUtils::TestAndSet(void** volatile dest, void* expe
   return _InterlockedCompareExchangePointer(dest, value, expected) == expected;
 }
 
+EZ_ALWAYS_INLINE ezInt32 ezAtomicUtils::CompareAndSwap(volatile ezInt32& dest, ezInt32 expected, ezInt32 value)
+{
+  return _InterlockedCompareExchange(reinterpret_cast<volatile long*>(&dest), value, expected);
+}
+
+EZ_ALWAYS_INLINE ezInt64 ezAtomicUtils::CompareAndSwap(volatile ezInt64& dest, ezInt64 expected, ezInt64 value)
+{
+  return _InterlockedCompareExchange64(&dest, value, expected);
+}

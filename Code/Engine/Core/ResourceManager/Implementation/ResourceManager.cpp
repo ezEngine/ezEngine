@@ -148,7 +148,6 @@ void ezResourceManager::ForceNoFallbackAcquisition(ezUInt32 uiNumFrames /*= 0xFF
 
 ezUInt32 ezResourceManager::FreeAllUnusedResources()
 {
-  EZ_LOCK(s_ResourceMutex);
   EZ_LOG_BLOCK("ezResourceManager::FreeAllUnusedResources");
 
   EZ_PROFILE_SCOPE("FreeAllUnusedResources");
@@ -163,34 +162,56 @@ ezUInt32 ezResourceManager::FreeAllUnusedResources()
 
   ezUInt32 uiUnloaded = 0;
   bool bUnloadedAny = false;
+  bool bAnyFailed = false;
 
   do
   {
-    bUnloadedAny = false;
-
-    for (auto itType = s_State->s_LoadedResources.GetIterator(); itType.IsValid(); ++itType)
     {
-      const ezRTTI* pRtti = itType.Key();
-      LoadedResources& lr = itType.Value();
+      EZ_LOCK(s_ResourceMutex);
 
-      for (auto it = lr.m_Resources.GetIterator(); it.IsValid(); /* empty */)
+      bUnloadedAny = false;
+
+      for (auto itType = s_State->s_LoadedResources.GetIterator(); itType.IsValid(); ++itType)
       {
-        ezResource* pReference = it.Value();
+        const ezRTTI* pRtti = itType.Key();
+        LoadedResources& lr = itType.Value();
 
-        if (pReference->m_iReferenceCount == 0)
+        for (auto it = lr.m_Resources.GetIterator(); it.IsValid(); /* empty */)
         {
-          if (DeallocateResource(pReference).Succeeded())
+          ezResource* pReference = it.Value();
+
+          if (pReference->m_iReferenceCount == 0)
           {
-            bUnloadedAny = true;
-            ++uiUnloaded;
+            bUnloadedAny = true; // make sure to try again, even if DeallocateResource() fails; need to release our lock for that to prevent dead-locks
 
-            it = lr.m_Resources.Remove(it);
-            continue;
+            if (DeallocateResource(pReference).Succeeded())
+            {
+              ++uiUnloaded;
+
+              it = lr.m_Resources.Remove(it);
+              continue;
+            }
+            else
+            {
+              bAnyFailed = true;
+            }
           }
-        }
 
-        ++it;
+          ++it;
+        }
       }
+    }
+
+    if (bAnyFailed)
+    {
+      // When this happens, it is possible that the resource that failed to be deleted
+      // is dependent on a task that needs to be executed on THIS thread (main thread).
+      // Therefore, help executing some tasks here, to unblock the task system.
+
+      bAnyFailed = false;
+
+      ezInt32 iHelpExecTasksRounds = 1;
+      ezTaskSystem::WaitForCondition([&iHelpExecTasksRounds]() { return iHelpExecTasksRounds-- <= 0; });
     }
 
   } while (bFreeAllUnused && bUnloadedAny);
@@ -226,7 +247,7 @@ ezUInt32 ezResourceManager::FreeUnusedResources(ezTime timeout, ezTime lastAcqui
 
   ezUInt32 uiDeallocatedCount = 0;
 
-  ezStringBuilder sResourceName;
+  ezStringBuilder sResourceName, sResourceDesc;
 
   const ezRTTI* pLastTypeCheck = nullptr;
 
@@ -273,10 +294,11 @@ ezUInt32 ezResourceManager::FreeUnusedResources(ezTime timeout, ezTime lastAcqui
     if ((pResource->GetReferenceCount() == 0) && (tStart - pResource->GetLastAcquireTime() > lastAcquireThreshold))
     {
       sResourceName = pResource->GetResourceID();
+      sResourceDesc = pResource->GetResourceDescription();
 
       if (DeallocateResource(pResource).Succeeded())
       {
-        ezLog::Debug("Freed '{}'", sResourceName);
+        ezLog::Debug("Freed '{}' - '{}'", sResourceName, sResourceDesc);
 
         ++uiDeallocatedCount;
         itResourceID = itResourceType.Value().m_Resources.Remove(itResourceID);
@@ -296,10 +318,82 @@ void ezResourceManager::SetAutoFreeUnused(ezTime timeout, ezTime lastAcquireThre
   s_State->m_AutoFreeUnusedThreshold = lastAcquireThreshold;
 }
 
+void ezResourceManager::AllowResourceTypeAcquireDuringUpdateContent(const ezRTTI* pTypeBeingUpdated, const ezRTTI* pTypeItWantsToAcquire)
+{
+  auto& info = s_State->m_TypeInfo[pTypeBeingUpdated];
+
+  EZ_ASSERT_DEV(info.m_bAllowNestedAcquireCached == false, "AllowResourceTypeAcquireDuringUpdateContent for type '{}' must be called before the resource info has been requested.", pTypeBeingUpdated->GetTypeName());
+
+  if (info.m_NestedTypes.IndexOf(pTypeItWantsToAcquire) == ezInvalidIndex)
+  {
+    info.m_NestedTypes.PushBack(pTypeItWantsToAcquire);
+  }
+}
+
+bool ezResourceManager::IsResourceTypeAcquireDuringUpdateContentAllowed(const ezRTTI* pTypeBeingUpdated, const ezRTTI* pTypeItWantsToAcquire)
+{
+  auto& info = s_State->m_TypeInfo[pTypeBeingUpdated];
+
+  if (!info.m_bAllowNestedAcquireCached)
+  {
+    info.m_bAllowNestedAcquireCached = true;
+
+    ezSet<const ezRTTI*> visited;
+    ezSet<const ezRTTI*> todo;
+    ezSet<const ezRTTI*> deps;
+
+    for (const ezRTTI* pRtti : info.m_NestedTypes)
+    {
+      ezHybridArray<const ezRTTI*, 16> derived;
+      ezRTTI::GetAllTypesDerivedFrom(pRtti, derived, false);
+
+      for (const ezRTTI* pDerived : derived)
+      {
+        todo.Insert(pDerived);
+      }
+    }
+
+    while (!todo.IsEmpty())
+    {
+      auto it = todo.GetIterator();
+      const ezRTTI* pRtti = it.Key();
+      todo.Remove(it);
+
+      if (visited.Contains(pRtti))
+        continue;
+
+      visited.Insert(pRtti);
+      deps.Insert(pRtti);
+
+      for (const ezRTTI* pNestedRtti : s_State->m_TypeInfo[pRtti].m_NestedTypes)
+      {
+        if (!visited.Contains(pNestedRtti))
+        {
+          ezHybridArray<const ezRTTI*, 16> derived;
+          ezRTTI::GetAllTypesDerivedFrom(pNestedRtti, derived, false);
+
+          for (const ezRTTI* pDerived : derived)
+          {
+            todo.Insert(pDerived);
+          }
+        }
+      }
+    }
+
+    info.m_NestedTypes.Clear();
+    for (const ezRTTI* pRtti : deps)
+    {
+      info.m_NestedTypes.PushBack(pRtti);
+    }
+    info.m_NestedTypes.Sort();
+  }
+
+  return info.m_NestedTypes.IndexOf(pTypeItWantsToAcquire) != ezInvalidIndex;
+}
+
 ezResult ezResourceManager::DeallocateResource(ezResource* pResource)
 {
-  EZ_ASSERT_DEBUG(pResource->m_iLockCount == 0, "Resource '{0}' has a refcount of zero, but is still in an acquired state.",
-    pResource->GetResourceID());
+  EZ_ASSERT_DEBUG(pResource->m_iLockCount == 0, "Resource '{0}' has a refcount of zero, but is still in an acquired state.", pResource->GetResourceID());
 
   if (RemoveFromLoadingQueue(pResource).Failed())
   {
@@ -411,12 +505,12 @@ void ezResourceManager::PerFrameUpdate()
   }
 }
 
-const ezEvent<const ezResourceEvent&>& ezResourceManager::GetResourceEvents()
+const ezEvent<const ezResourceEvent&, ezMutex>& ezResourceManager::GetResourceEvents()
 {
   return s_State->s_ResourceEvents;
 }
 
-const ezEvent<const ezResourceManagerEvent&>& ezResourceManager::GetManagerEvents()
+const ezEvent<const ezResourceManagerEvent&, ezMutex>& ezResourceManager::GetManagerEvents()
 {
   return s_State->s_ManagerEvents;
 }
@@ -448,7 +542,7 @@ void ezResourceManager::OnCoreStartup()
   s_State = EZ_DEFAULT_NEW(ezResourceManagerState);
 
   EZ_LOCK(s_ResourceMutex);
-  s_State->s_bDataLoadTaskRunning = false;
+  s_State->s_bAllowLaunchDataLoadTask = true;
   s_State->s_bShutdown = false;
 
   ezPlugin::s_PluginEvents.AddEventHandler(PluginEventHandler);
@@ -465,18 +559,18 @@ void ezResourceManager::EngineAboutToShutdown()
       return;
     }
 
-    s_State->s_bDataLoadTaskRunning = true; // prevent a new one from starting
+    s_State->s_bAllowLaunchDataLoadTask = false; // prevent a new one from starting
     s_State->s_bShutdown = true;
   }
 
-  for (int i = 0; i < ezResourceManagerState::MaxDataLoadTasks; ++i)
+  for (ezUInt32 i = 0; i < s_State->s_WorkerTasksDataLoad.GetCount(); ++i)
   {
-    ezTaskSystem::CancelTask(&s_State->s_WorkerTasksDataLoad[i]);
+    ezTaskSystem::CancelTask(s_State->s_WorkerTasksDataLoad[i].m_pTask.Borrow());
   }
 
-  for (int i = 0; i < ezResourceManagerState::MaxUpdateContentTasks; ++i)
+  for (ezUInt32 i = 0; i < s_State->s_WorkerTasksUpdateContent.GetCount(); ++i)
   {
-    ezTaskSystem::CancelTask(&s_State->s_WorkerTasksUpdateContent[i]);
+    ezTaskSystem::CancelTask(s_State->s_WorkerTasksUpdateContent[i].m_pTask.Borrow());
   }
 
   {
@@ -488,6 +582,23 @@ void ezResourceManager::EngineAboutToShutdown()
     }
 
     s_State->s_LoadingQueue.Clear();
+
+    // Since we just canceled all loading tasks above and cleared the loading queue,
+    // some resources may still be flagged as 'loading', but can never get loaded.
+    // That can deadlock the 'FreeAllUnused' function, because it won't delete 'loading' resources.
+    // Therefore we need to make sure no resource has the IsQueuedForLoading flag set anymore.
+    for (auto itTypes : s_State->s_LoadedResources)
+    {
+      for (auto itRes : itTypes.Value().m_Resources)
+      {
+        ezResource* pRes = itRes.Value();
+
+        if (pRes->GetBaseResourceFlags().IsSet(ezResourceFlags::IsQueuedForLoading))
+        {
+          pRes->m_Flags.Remove(ezResourceFlags::IsQueuedForLoading);
+        }
+      }
+    }
   }
 }
 
@@ -500,17 +611,17 @@ bool ezResourceManager::IsAnyLoadingInProgress()
     return true;
   }
 
-  for (int i = 0; i < ezResourceManagerState::MaxDataLoadTasks; ++i)
+  for (ezUInt32 i = 0; i < s_State->s_WorkerTasksDataLoad.GetCount(); ++i)
   {
-    if (!s_State->s_WorkerTasksDataLoad[i].IsTaskFinished())
+    if (!s_State->s_WorkerTasksDataLoad[i].m_pTask->IsTaskFinished())
     {
       return true;
     }
   }
 
-  for (int i = 0; i < ezResourceManagerState::MaxUpdateContentTasks; ++i)
+  for (ezUInt32 i = 0; i < s_State->s_WorkerTasksUpdateContent.GetCount(); ++i)
   {
-    if (!s_State->s_WorkerTasksUpdateContent[i].IsTaskFinished())
+    if (!s_State->s_WorkerTasksUpdateContent[i].m_pTask->IsTaskFinished())
     {
       return true;
     }

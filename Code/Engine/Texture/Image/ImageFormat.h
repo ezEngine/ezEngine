@@ -247,7 +247,7 @@ struct EZ_TEXTURE_DLL ezImageFormat
   /// \brief If applicable, returns a bitmask for the blue component of the format.
   static ezUInt32 GetBlueMask(Enum format);
 
-  /// \brief If applicable, returns a bitmask for alpha red component of the format.
+  /// \brief If applicable, returns a bitmask for the alpha component of the format.
   static ezUInt32 GetAlphaMask(Enum format);
 
   /// \brief Block width of a compressed format. Defaults to 1 for uncompressed formats.

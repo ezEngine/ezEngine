@@ -6,7 +6,7 @@
 #include <Foundation/System/StackTracer.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezResource, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezResource, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -142,13 +142,29 @@ void ezResource::CallUnloadData(Unload WhatToUnload)
   m_uiQualityLevelsLoadable = ld.m_uiQualityLevelsLoadable;
 }
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+thread_local const ezResource* g_pCurrentlyUpdatingContent = nullptr;
+
+const ezResource* ezResource::GetCurrentlyUpdatingContent()
+{
+  return g_pCurrentlyUpdatingContent;
+}
+#endif
+
 void ezResource::CallUpdateContent(ezStreamReader* Stream)
 {
   EZ_PROFILE_SCOPE("CallUpdateContent");
 
   EZ_LOG_BLOCK("ezResource::UpdateContent", GetResourceID().GetData());
 
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  const ezResource* pPreviouslyUpdatingContent = g_pCurrentlyUpdatingContent;
+  g_pCurrentlyUpdatingContent = this;
   ezResourceLoadDesc ld = UpdateContent(Stream);
+  g_pCurrentlyUpdatingContent = pPreviouslyUpdatingContent;
+#else
+  ezResourceLoadDesc ld = UpdateContent(Stream);
+#endif
 
   EZ_ASSERT_DEV(ld.m_State != ezResourceState::Invalid, "UpdateContent() did not return a valid resource load state");
   EZ_ASSERT_DEV(ld.m_uiQualityLevelsDiscardable != 0xFF, "UpdateContent() did not fill out m_uiQualityLevelsDiscardable correctly");
@@ -161,9 +177,9 @@ void ezResource::CallUpdateContent(ezStreamReader* Stream)
 
   IncResourceChangeCounter();
 
-  m_LoadingState = ld.m_State;
   m_uiQualityLevelsDiscardable = ld.m_uiQualityLevelsDiscardable;
   m_uiQualityLevelsLoadable = ld.m_uiQualityLevelsLoadable;
+  m_LoadingState = ld.m_State;
 
   ezResourceEvent e;
   e.m_pResource = this;
@@ -233,7 +249,7 @@ ezResourceTypeLoader* ezResource::GetDefaultResourceTypeLoader() const
 
 void ezResource::ReportResourceIsMissing()
 {
-  ezLog::Error("Missing Resource of Type '{2}': '{0}' ('{1}')", GetResourceID(), m_sResourceDescription, GetDynamicRTTI()->GetTypeName());
+  ezLog::SeriousWarning("Missing Resource of Type '{2}': '{0}' ('{1}')", GetResourceID(), m_sResourceDescription, GetDynamicRTTI()->GetTypeName());
 }
 
 void ezResource::VerifyAfterCreateResource(const ezResourceLoadDesc& ld)

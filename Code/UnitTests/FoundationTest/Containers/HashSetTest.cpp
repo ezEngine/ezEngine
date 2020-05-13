@@ -303,6 +303,129 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashSet)
     EZ_TEST_BOOL(a.GetHeapMemoryUsage() == 0);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Remove (Iterator)")
+  {
+    ezHashSet<ezInt32> a;
+
+    EZ_TEST_BOOL(a.GetHeapMemoryUsage() == 0);
+    for (ezInt32 i = 0; i < 1000; ++i)
+      a.Insert(i);
+
+    ezHashSet<ezInt32>::ConstIterator it = a.GetIterator();
+
+    for (ezInt32 i = 0; i < 1000 - 1; ++i)
+    {
+      ezInt32 value = it.Key();
+      it = a.Remove(it);
+      EZ_TEST_BOOL(!a.Contains(value));
+      EZ_TEST_BOOL(it.IsValid());
+      EZ_TEST_INT(a.GetCount(), 1000 - 1 - i);
+    }
+    it = a.Remove(it);
+    EZ_TEST_BOOL(!it.IsValid());
+    EZ_TEST_BOOL(a.IsEmpty());
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Set Operations")
+  {
+    ezHashSet<ezUInt32> base;
+    base.Insert(1);
+    base.Insert(3);
+    base.Insert(5);
+
+    ezHashSet<ezUInt32> empty;
+
+    ezHashSet<ezUInt32> disjunct;
+    disjunct.Insert(2);
+    disjunct.Insert(4);
+    disjunct.Insert(6);
+
+    ezHashSet<ezUInt32> subSet;
+    subSet.Insert(1);
+    subSet.Insert(5);
+
+    ezHashSet<ezUInt32> superSet;
+    superSet.Insert(1);
+    superSet.Insert(3);
+    superSet.Insert(5);
+    superSet.Insert(7);
+
+    ezHashSet<ezUInt32> nonDisjunctNonEmptySubSet;
+    nonDisjunctNonEmptySubSet.Insert(1);
+    nonDisjunctNonEmptySubSet.Insert(4);
+    nonDisjunctNonEmptySubSet.Insert(5);
+
+    // ContainsSet
+    EZ_TEST_BOOL(base.ContainsSet(base));
+
+    EZ_TEST_BOOL(base.ContainsSet(empty));
+    EZ_TEST_BOOL(!empty.ContainsSet(base));
+
+    EZ_TEST_BOOL(!base.ContainsSet(disjunct));
+    EZ_TEST_BOOL(!disjunct.ContainsSet(base));
+
+    EZ_TEST_BOOL(base.ContainsSet(subSet));
+    EZ_TEST_BOOL(!subSet.ContainsSet(base));
+
+    EZ_TEST_BOOL(!base.ContainsSet(superSet));
+    EZ_TEST_BOOL(superSet.ContainsSet(base));
+
+    EZ_TEST_BOOL(!base.ContainsSet(nonDisjunctNonEmptySubSet));
+    EZ_TEST_BOOL(!nonDisjunctNonEmptySubSet.ContainsSet(base));
+
+    // Union
+    {
+      ezHashSet<ezUInt32> res;
+
+      res.Union(base);
+      EZ_TEST_BOOL(res.ContainsSet(base));
+      EZ_TEST_BOOL(base.ContainsSet(res));
+      res.Union(subSet);
+      EZ_TEST_BOOL(res.ContainsSet(base));
+      EZ_TEST_BOOL(res.ContainsSet(subSet));
+      EZ_TEST_BOOL(base.ContainsSet(res));
+      res.Union(superSet);
+      EZ_TEST_BOOL(res.ContainsSet(base));
+      EZ_TEST_BOOL(res.ContainsSet(subSet));
+      EZ_TEST_BOOL(res.ContainsSet(superSet));
+      EZ_TEST_BOOL(superSet.ContainsSet(res));
+    }
+
+    // Difference
+    {
+      ezHashSet<ezUInt32> res;
+      res.Union(base);
+      res.Difference(empty);
+      EZ_TEST_BOOL(res.ContainsSet(base));
+      EZ_TEST_BOOL(base.ContainsSet(res));
+      res.Difference(disjunct);
+      EZ_TEST_BOOL(res.ContainsSet(base));
+      EZ_TEST_BOOL(base.ContainsSet(res));
+      res.Difference(subSet);
+      EZ_TEST_INT(res.GetCount(), 1);
+      EZ_TEST_BOOL(res.Contains(3));
+    }
+
+    // Intersection
+    {
+      ezHashSet<ezUInt32> res;
+      res.Union(base);
+      res.Intersection(disjunct);
+      EZ_TEST_BOOL(res.IsEmpty());
+      res.Union(base);
+      res.Intersection(subSet);
+      EZ_TEST_BOOL(base.ContainsSet(subSet));
+      EZ_TEST_BOOL(res.ContainsSet(subSet));
+      EZ_TEST_BOOL(subSet.ContainsSet(res));
+      res.Intersection(superSet);
+      EZ_TEST_BOOL(superSet.ContainsSet(res));
+      EZ_TEST_BOOL(res.ContainsSet(subSet));
+      EZ_TEST_BOOL(subSet.ContainsSet(res));
+      res.Intersection(empty);
+      EZ_TEST_BOOL(res.IsEmpty());
+    }
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator==/!=")
   {
     ezStaticArray<ezInt32, 64> keys[2];

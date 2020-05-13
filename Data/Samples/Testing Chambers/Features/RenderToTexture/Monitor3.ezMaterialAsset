@@ -13,10 +13,9 @@ o
 		{
 			s{":app/VisualShader/DefaultMaterial.ddl"}
 			s{":app/VisualShader/Textures.ddl"}
-			s{"{ 6c56721b-d71a-4795-88ac-39cae26c39f1 }"}
 		}
 		Uuid %DocumentID{u4{623534025814800772,5731520009470225942}}
-		u4 %Hash{14827285137033241576}
+		u4 %Hash{2255460092853091607}
 		VarArray %MetaInfo{}
 		VarArray %Outputs
 		{
@@ -25,6 +24,7 @@ o
 		VarArray %References
 		{
 			s{"{ 673e8ea0-b70e-4e47-a72b-037d67024a71 }"}
+			s{"{ 72748b9e-00b2-4899-ac1f-57d64866228b }"}
 		}
 	}
 }
@@ -78,7 +78,7 @@ o
 		s %Shader{"{ 6c56721b-d71a-4795-88ac-39cae26c39f1 }"}
 		s %ShaderMode{"ezMaterialShaderMode::Custom"}
 		Uuid %ShaderProperties{u4{1455186061829156104,4925287085097519825}}
-		s %Surface{""}
+		s %Surface{"{ 72748b9e-00b2-4899-ac1f-57d64866228b }"}
 	}
 }
 o
@@ -725,7 +725,7 @@ o
 	u3 %v{1}
 	p
 	{
-		s %Filter{";Texture 2D;Render Target;"}
+		s %Filter{";Texture 2D;Render Target;HTML Texture;"}
 	}
 }
 o
@@ -1013,7 +1013,7 @@ o
 		s %PluginName{"ezEditorPluginAssets"}
 		VarArray %Properties{}
 		s %TypeName{"ezMaterialAssetProperties"}
-		u3 %TypeSize{328}
+		u3 %TypeSize{320}
 		u3 %TypeVersion{4}
 	}
 }

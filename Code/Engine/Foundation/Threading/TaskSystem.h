@@ -2,116 +2,8 @@
 
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/List.h>
-#include <Foundation/Strings/StringBuilder.h>
-#include <Foundation/Threading/Implementation/TaskSystemDeclarations.h>
+#include <Foundation/Threading/Implementation/Task.h>
 #include <Foundation/Threading/Mutex.h>
-#include <Foundation/Threading/Thread.h>
-#include <Foundation/Threading/ThreadSignal.h>
-
-class ezDGMLGraph;
-
-/// \brief Derive from this base class to implement custom tasks.
-class EZ_FOUNDATION_DLL ezTask
-{
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezTask);
-
-  /// \brief Function type for callbacks when a task has been finished (or canceled).
-  typedef ezDelegate<void(ezTask*)> OnTaskFinished;
-
-public:
-  ezTask(const char* szTaskName = nullptr);
-  virtual ~ezTask() {}
-
-  /// \brief Changes the multiplicity of this task.
-  ///
-  /// This has to be set before the task is scheduled, ie. before the task group that the task belongs to
-  /// has all its dependencies fulfilled and has its tasks queued for execution.
-  /// It is allowed to change the multiplicity after the task is added to the ezTaskSystem, as long
-  /// as the calling code guarantees to set this value in time.
-  ///
-  /// A task that has a multiplicity of zero (the default) will have its Execute() function called exactly once.
-  /// A task with a multiplicity of N will have its ExecuteWithMultiplicity() function called exactly N times,
-  /// potentially in parallel on multiple threads.
-  /// Since N can be dynamically decided each frame, one can dynamically scale the amount of parallelism
-  /// according to the workload.
-  void SetMultiplicity(ezUInt32 uiMultiplicity); // [tested]
-
-  /// \sa SetMultiplicity
-  ezUInt32 GetMultiplicity() const { return m_uiMultiplicity; } // [tested]
-
-  /// \brief Changes the name of the task, which will be displayed in profiling tools.
-  ///
-  /// This will only have an effect if it is called before the task is added to a task group.
-  void SetTaskName(const char* szName); // [tested]
-
-  /// \brief Sets an additional callback function to execute when the task is finished (or canceled).
-  /// The most common use case for this is to deallocate the task at this time.
-  void SetOnTaskFinished(OnTaskFinished Callback); // [tested]
-
-  /// \brief Returns whether the task has been finished. This includes being canceled.
-  ///
-  /// \note This function is only reliable when you KNOW that the task has not been reused.
-  /// So that limits its usage to the time frame while the task is in use, and it should only
-  /// be queried by code that actually manages when to reuse the task.
-  /// If other code needs to be able to check whether a task is finished, you should give it
-  /// the ezTaskGroupID of the task's group. That one can be used to query whether the group
-  /// has finished, even minutes later.
-  bool IsTaskFinished() const { return m_iRemainingRuns == 0; } // [tested]
-
-  /// \brief Can be used inside an overridden 'Execute' function to terminate execution prematurely.
-  bool HasBeenCanceled() const { return m_bCancelExecution; } // [tested]
-
-private:
-  /// \brief Override this to implement the task's supposed functionality.
-  ///
-  /// This function is called for tasks that use multiplicity.
-  /// A task that uses multiplicity is automatically run N times by the ezTaskSystem,
-  /// each time with an increasing invocation index. This allows to have a single task
-  /// to handle something, but then decide dynamically how often to execute it, to subdivide
-  /// the workload into multiple pieces.
-  /// Since the same task is executed multiple times in parallel, tasks with multiplicity should
-  /// not have any mutable state, which is why this function is const.
-  virtual void ExecuteWithMultiplicity(ezUInt32 uiInvocation) const {} // [tested]
-
-  /// \brief Override this to implement the task's supposed functionality.
-  ///
-  /// This function is called for tasks that do not use multiplicity.
-  /// Ie. tasks that are run a single time for each time they are added to the ezTaskSystem.
-  virtual void Execute() {} // [tested]
-
-private:
-  // The task system and its worker threads implement most of the functionality of the task handling.
-  // Therefore they are allowed to modify all this internal state.
-  friend class ezTaskWorkerThread;
-  friend class ezTaskSystem;
-
-  void Reset();
-
-  /// \brief Called by ezTaskSystem to execute the task. Calls 'Execute' internally.
-  void Run(ezUInt32 uiInvocation);
-
-  /// \brief Decremented when a task is finished, set to zero when canceled.
-  ezAtomicInteger32 m_iRemainingRuns;
-
-  /// \brief Set to true when the task is SUPPOSED to cancel. Whether the task is able to do that, depends on its implementation.
-  volatile bool m_bCancelExecution;
-
-  /// \brief Whether this task has been scheduled for execution already, or is still waiting for dependencies to finish.
-  bool m_bTaskIsScheduled = false;
-
-  /// \brief Double buffers the state whether this task uses multiplicity, since it can't read m_uiMultiplicity while the task is scheduled.
-  bool m_bUsesMultiplicity = false;
-
-  /// \brief Optional callback to be fired when the task has finished or was canceled.
-  OnTaskFinished m_OnTaskFinished;
-
-  /// \brief The parent group to which this task belongs.
-  ezTaskGroupID m_BelongsToGroup;
-
-  ezString m_sTaskName;
-
-  ezUInt32 m_uiMultiplicity = 0;
-};
 
 /// \brief This system allows to automatically distribute tasks onto a number of worker threads.
 ///
@@ -131,91 +23,94 @@ private:
 class EZ_FOUNDATION_DLL ezTaskSystem
 {
 public:
-  /// \brief Sets the number of threads to use for the different task categories.
-  ///
-  /// \a uiShortTasks and \a uiLongTasks must be at least 1 and should not exceed the number of available CPU cores.
-  /// There will always be exactly one additional thread for file access tasks (ezTaskPriority::FileAccess).
-  ///
-  /// If \a uiShortTasks or \a uiLongTasks is smaller than 1, a default number of threads will be used for that type of work.
-  /// This number of threads depends on the number of available CPU cores.
-  /// If SetWorkThreadCount is never called, at all, the first time any task is started the number of worker threads is set to
-  /// this default configuration.
-  /// Unless you have a good idea how to set up the number of worker threads to make good use of the available cores,
-  /// it is a good idea to just use the default settings.
-  static void SetWorkerThreadCount(ezInt8 iShortTasks = -1, ezInt8 iLongTasks = -1); // [tested]
+  /// \name Managing Tasks
+  ///@{
 
-  /// \brief Returns the number of threads that are allocated to work on the given type of task.
-  static ezUInt32 GetWorkerThreadCount(ezWorkerThreadType::Enum Type) { return s_WorkerThreads[Type].GetCount(); }
-
+public:
   /// \brief A helper function to insert a single task into the system and start it right away. Returns ID of the Group into which the task
   /// has been put.
-  static ezTaskGroupID StartSingleTask(ezTask* pTask, ezTaskPriority::Enum Priority); // [tested]
+  /// Once the task and thus the group is finished, an optional \a Callback can be executed.
+  static ezTaskGroupID StartSingleTask(ezTask* pTask, ezTaskPriority::Enum Priority, ezOnTaskGroupFinishedCallback callback = ezOnTaskGroupFinishedCallback()); // [tested]
 
   /// \brief A helper function to insert a single task into the system and start it right away. Returns ID of the Group into which the task
   /// has been put. This overload allows to additionally specify a single dependency.
-  static ezTaskGroupID StartSingleTask(ezTask* pTask, ezTaskPriority::Enum Priority, ezTaskGroupID Dependency); // [tested]
+  /// Once the task and thus the group is finished, an optional \a Callback can be executed.
+  static ezTaskGroupID StartSingleTask(ezTask* pTask, ezTaskPriority::Enum Priority, ezTaskGroupID Dependency, ezOnTaskGroupFinishedCallback callback = ezOnTaskGroupFinishedCallback()); // [tested]
 
-  /// \brief Class allowing to change certain parameters of a parallel for invocation.
-  struct EZ_FOUNDATION_DLL ParallelForParams
+  /// \brief Call this function once at the end of a frame. It will ensure that all tasks for 'this frame' get finished properly.
+  ///
+  /// Calling this function is crucial for several reasons. It is the central function to execute 'main thread' tasks.
+  /// Otherwise these tasks might never get executed. It also changes the priority of all 'next frame' tasks to 'this frame',
+  /// so that those tasks are guaranteed to get finished when 'FinishFrameTasks' is called the next time.
+  ///
+  /// Finally this function executes tasks with the priority 'SomeFrameMainThread' as long as the target frame time is not exceeded.
+  /// You can configure this with SetTargetFrameTime(), which defines how long (in milliseconds) the frame is allowed to be. As long
+  /// as that time is not exceeded, additional 'SomeFrameMainThread' tasks will be executed.
+  /// If the frame time spikes for a few frames, no such tasks will be executed, to prevent making it worse. However, if the frame
+  /// time stays high over a longer period, 'FinishFrameTasks' will execute 'SomeFrameMainThread' tasks every once in a while,
+  /// to guarantee some progress.
+  ///
+  /// \note After this function returns all tasks of priority 'ThisFrameMainThread' are finished. All tasks of priority
+  /// 'EarlyThisFrame' up to 'LateThisFrame' are either finished or currently running on some thread, so they will be finished soon.
+  /// There is however no guarantee that they are indeed all finished, as that would introduce unnecessary stalls.
+  static void FinishFrameTasks(); // [tested]
+
+  /// \brief This function will try to remove the given task from the work queue, to prevent it from being executed.
+  ///
+  /// The function will return EZ_SUCCESS, if the task could be removed and thus its execution could be prevented.
+  /// It will also return EZ_SUCCESS, if the task was already finished and nothing needed to be done.
+  /// Tasks that are removed without execution will still be marked as 'finished' and dependent tasks will be scheduled.
+  ///
+  /// EZ_FAILURE is returned, if the task had already been started and thus could not be prevented from running.
+  ///
+  /// In case of failure, \a bWaitForIt determines whether 'WaitForTask' is called (with all its consequences),
+  /// or whether the function will return immediately.
+  ///
+  /// The cancel flag is set on the task, such that tasks that support canceling might terminate earlier.
+  /// However, there is no guarantee how long it takes for already running tasks to actually finish.
+  /// Therefore when bWaitForIt is true, this function might block for a very long time.
+  /// It is advised to implement tasks that need to be canceled regularly (e.g. path searches for units that might die)
+  /// in a way that allows for quick canceling.
+  static ezResult CancelTask(ezTask* pTask, ezOnTaskRunning::Enum OnTaskRunning = ezOnTaskRunning::WaitTillFinished); // [tested]
+
+  struct TaskData
   {
-    ParallelForParams() {} // do not remove, needed for Clang
-
-    /// The minimum number of items that must be processed by a task instance.
-    /// If the overall number of tasks lies below this value, all work will be executed purely serially
-    /// without involving any tasks at all.
-    ezUInt32 uiBinSize = 1;
-    /// Indicates how many tasks per thread may be spawned at most by a ParallelFor invocation.
-    /// Higher numbers give the scheduler more leeway to balance work across available threads.
-    /// Generally, if all task items are expected to take basically the same amount of time,
-    /// low numbers (usually 1) are recommended, while higher numbers (initially test with 2 or 3)
-    /// might yield better results for workloads where task items may take vastly different amounts
-    /// of time, such that scheduling in a balanced fashion becomes more difficult.
-    ezUInt32 uiMaxTasksPerThread = 2;
-
-    /// Returns the multiplicity to use for the given task. If 0 is returned,
-    /// serial execution is to be performed.
-    ezUInt32 DetermineMultiplicity(ezUInt32 uiNumTaskItems);
-    /// Returns the number of task items to work on per invocation (multiplicity).
-    /// This is aligned with the multiplicity, i.e., multiplicity * bin_size >= # task items.
-    ezUInt32 DetermineItemsPerInvocation(ezUInt32 uiNumTaskItems, ezUInt32 uiMultiplicity);
+    ezTask* m_pTask = nullptr;
+    ezTaskGroup* m_pBelongsToGroup = nullptr;
+    ezUInt32 m_uiInvocation = 0;
   };
 
-  using ParallelForIndexedFunction = ezDelegate<void(ezUInt32, ezUInt32), 48>;
+private:
+  /// \brief Searches for a task of priority between \a FirstPriority and \a LastPriority (inclusive).
+  static TaskData GetNextTask(ezTaskPriority::Enum FirstPriority, ezTaskPriority::Enum LastPriority, bool bOnlyTasksThatNeverWait, const ezTaskGroupID& WaitingForGroup, ezAtomicInteger32* pWorkerState);
 
-  template <typename ElemType>
-  using ParallelForFunction = ezDelegate<void(ezUInt32, ezArrayPtr<ElemType>), 48>;
+  /// \brief Executes some task of priority between \a FirstPriority and \a LastPriority (inclusive). Returns true, if any such task was available.
+  static bool ExecuteTask(ezTaskPriority::Enum FirstPriority, ezTaskPriority::Enum LastPriority, bool bOnlyTasksThatNeverWait, const ezTaskGroupID& WaitingForGroup, ezAtomicInteger32* pWorkerState);
 
-  /// A helper function to process task items in a parallel fashion by having per-worker index ranges generated.
-  static void ParallelForIndexed(ezUInt32 uiStartIndex, ezUInt32 uiNumItems, ParallelForIndexedFunction taskCallback, const char* taskName = nullptr, ParallelForParams config = ParallelForParams());
+  /// \brief Called whenever a task has been finished/canceled. Makes sure that groups are marked as finished when all tasks are done.
+  static void TaskHasFinished(ezTask* pTask, ezTaskGroup* pGroup);
 
-  /// A helper function to process task items in a parallel fashion by generating per-worker sub-ranges
-  /// from an initial item array pointer.
-  /// Given an array pointer 'taskItems' with elements of type ElemType, the following invocations are possible:
-  ///   - ParallelFor(taskItems, [](ezArrayPtr<ElemType> taskItemSlice) { });
-  template <typename ElemType, typename Callback>
-  static void ParallelFor(ezArrayPtr<ElemType> taskItems, Callback taskCallback, const char* taskName = nullptr, ParallelForParams params = ParallelForParams());
-  /// A helper function to process task items in a parallel fashion and one-by-one (without global index).
-  /// Given an array pointer 'taskItems' with elements of type ElemType, the following invocations are possible:
-  ///   - ParallelFor(taskItems, [](ElemType taskItem) { });
-  ///   - ParallelFor(taskItems, [](ElemType& taskItem) { });
-  ///   - ParallelFor(taskItems, [](const ElemType& taskItem) { });
-  template <typename ElemType, typename Callback>
-  static void ParallelForSingle(ezArrayPtr<ElemType> taskItems, Callback taskCallback, const char* taskName = nullptr, ParallelForParams params = ParallelForParams());
-  /// A helper function to process task items in a parallel fashion and one-by-one (with global index).
-  /// Given an array pointer 'taskItems' with elements of type ElemType, the following invocations are possible:
-  ///   - ParallelFor(taskItems, [](ezUInt32 globalTaskItemIndex, ElemType taskItem) { });
-  ///   - ParallelFor(taskItems, [](ezUInt32 globalTaskItemIndex, ElemType& taskItem) { });
-  ///   - ParallelFor(taskItems, [](ezUInt32 globalTaskItemIndex, const ElemType& taskItem) { });
-  template <typename ElemType, typename Callback>
-  static void ParallelForSingleIndex(ezArrayPtr<ElemType> taskItems, Callback taskCallback, const char* taskName = nullptr, ParallelForParams params = ParallelForParams());
+  /// \brief Moves all 'next frame' tasks into the 'this frame' queues.
+  static void ReprioritizeFrameTasks();
 
+  /// \brief Executes up to uiSomeFrameTasks tasks of priority 'SomeFrameMainThread', as long as the last duration between frames is no longer than fSmoothFrameMS.
+  static void ExecuteSomeFrameTasks(ezUInt32 uiSomeFrameTasks, ezTime smoothFrameTime);
+
+  /// \brief Helps executing tasks that are suitable for the calling thread. Returns true if a task was found and executed.
+  static bool HelpExecutingTasks(const ezTaskGroupID& WaitingForGroup);
+
+  ///@}
+
+  /// \name Managing Task Groups
+  ///@{
+
+public:
   /// \brief Creates a new task group for one-time use. Groups need to be recreated every time a task is supposed to be inserted into the
   /// system.
   ///
   /// All tasks that are added to this group will be run with the same given \a Priority.
   /// Once all tasks in the group are finished and thus the group is finished, an optional \a Callback can be executed.
-  static ezTaskGroupID CreateTaskGroup(ezTaskPriority::Enum Priority,
-    ezTaskGroup::OnTaskGroupFinished Callback = ezTaskGroup::OnTaskGroupFinished()); // [tested]
+  static ezTaskGroupID CreateTaskGroup(ezTaskPriority::Enum Priority, ezOnTaskGroupFinishedCallback callback = ezOnTaskGroupFinishedCallback()); // [tested]
 
   /// \brief Adds a task to the given task group. The group must not yet have been started.
   static void AddTaskToGroup(ezTaskGroupID Group, ezTask* pTask); // [tested]
@@ -245,63 +140,6 @@ public:
   /// and it will correctly determine the results.
   static bool IsTaskGroupFinished(ezTaskGroupID Group); // [tested]
 
-  /// \brief Sets the target frame time that is supposed to not be exceeded.
-  ///
-  /// \see FinishFrameTasks() for more details.
-  static void SetTargetFrameTime(double fSmoothFrameMS = 1000.0 / 40.0 /* 40 FPS -> 25 ms */);
-
-  /// \brief Call this function once at the end of a frame. It will ensure that all tasks for 'this frame' get finished properly.
-  ///
-  /// Calling this function is crucial for several reasons. It is the central function to execute 'main thread' tasks.
-  /// Otherwise these tasks might never get executed. It also changes the priority of all 'next frame' tasks to 'this frame',
-  /// so that those tasks are guaranteed to get finished when 'FinishFrameTasks' is called the next time.
-  ///
-  /// Finally this function executes tasks with the priority 'SomeFrameMainThread' as long as the target frame time is not exceeded.
-  /// You can configure this with SetTargetFrameTime(), which defines how long (in milliseconds) the frame is allowed to be. As long
-  /// as that time is not exceeded, additional 'SomeFrameMainThread' tasks will be executed.
-  /// If the frame time spikes for a few frames, no such tasks will be executed, to prevent making it worse. However, if the frame
-  /// time stays high over a longer period, 'FinishFrameTasks' will execute 'SomeFrameMainThread' tasks every once in a while,
-  /// to guarantee some progress.
-  ///
-  /// \note After this function returns all tasks of priority 'ThisFrameMainThread' are finished. All tasks of priority
-  /// 'EarlyThisFrame' up to 'LateThisFrame' are either finished or currently running on some thread, so they will be finished soon.
-  /// There is however no guarantee that they are indeed all finished, as that would introduce unnecessary stalls.
-  static void FinishFrameTasks(); // [tested]
-
-  /// \brief This function will block until the given task has finished.
-  ///
-  /// This function guarantees that pTask will get executed eventually. Instead of idly waiting for the task to finish,
-  /// it actively executes tasks. This is especially important when it is run on the main thread, as there might be
-  /// tasks in the system that can only be executed on the main thread, which are also dependencies for pTask.
-  /// In such a case these tasks must be executed properly, or otherwise one would wait forever.
-  ///
-  /// \note With the current implementation there is no guarantee that this function terminates as soon as the given
-  /// task is finished, since this thread might be busy running some other task.
-  /// This function is only meant to synchronize code, it is not meant to be efficient and should therefore not be
-  /// called in regular scenarios.
-  static void WaitForTask(ezTask* pTask); // [tested]
-
-  /// \brief Blocks until all tasks in the given group have finished. Similar to 'WaitForTask'.
-  static void WaitForGroup(ezTaskGroupID Group); // [tested]
-
-  /// \brief This function will try to remove the given task from the work queue, to prevent it from being executed.
-  ///
-  /// The function will return EZ_SUCCESS, if the task could be removed and thus its execution could be prevented.
-  /// It will also return EZ_SUCCESS, if the task was already finished and nothing needed to be done.
-  /// Tasks that are removed without execution will still be marked as 'finished' and dependent tasks will be scheduled.
-  ///
-  /// EZ_FAILURE is returned, if the task had already been started and thus could not be prevented from running.
-  ///
-  /// In case of failure, \a bWaitForIt determines whether 'WaitForTask' is called (with all its consequences),
-  /// or whether the function will return immediately.
-  ///
-  /// The cancel flag is set on the task, such that tasks that support canceling might terminate earlier.
-  /// However, there is no guarantee how long it takes for already running tasks to actually finish.
-  /// Therefore when bWaitForIt is true, this function might block for a very long time.
-  /// It is advised to implement tasks that need to be canceled regularly (e.g. path searches for units that might die)
-  /// in a way that allows for quick canceling.
-  static ezResult CancelTask(ezTask* pTask, ezOnTaskRunning::Enum OnTaskRunning = ezOnTaskRunning::WaitTillFinished); // [tested]
-
   /// \brief Cancels all the tasks in the given group.
   ///
   /// EZ_SUCCESS is returned, if all tasks were already finished or could be removed without waiting for any of them.
@@ -310,8 +148,57 @@ public:
   /// If bWaitForIt is true, the function returns only after it is guaranteed that all tasks are properly terminated.
   static ezResult CancelGroup(ezTaskGroupID Group, ezOnTaskRunning::Enum OnTaskRunning = ezOnTaskRunning::WaitTillFinished); // [tested]
 
-  /// \brief Helps executing tasks that are suitable for the calling thread. Returns true if a task was found and executed.
-  static bool HelpExecutingTasks(ezTask* pPrioritizeThis = nullptr);
+  /// \brief Blocks until all tasks in the given group have finished.
+  ///
+  /// If you need to wait for some other task to finish, this should always be the preferred method to do so.
+  /// WaitForGroup will put the current thread to sleep and use thread signals to only wake it up again once the group is indeed
+  /// finished. This is the most efficient way to wait for a task.
+  static void WaitForGroup(ezTaskGroupID Group); // [tested]
+
+  /// \brief Blocks the current thread until the given delegate returns true.
+  ///
+  /// If possible, prefer to use WaitForGroup() to wait for some task to finish, as that is the most efficient way.
+  /// If not possible, prefer to use WaitForCondition() instead of rolling your own busy-loop for polling some state.
+  /// WaitForCondition() will NOT put the current thread to sleep, but instead keep polling the delegate. However, in between,
+  /// it will try to execute other tasks and if there are no tasks that it could take on, it will wake up another worker thread
+  /// thus guaranteeing, that there are enough unblocked threads in the system to do all the work.
+  static void WaitForCondition(ezDelegate<bool()> condition);
+
+private:
+  /// \brief Takes all the tasks in the given group and schedules them for execution, by inserting them into the proper task lists.
+  static void ScheduleGroupTasks(ezTaskGroup* pGroup, bool bHighPriority);
+
+  /// \brief Is called whenever a dependency of pGroup has finished. Once all dependencies are finished, the group's tasks will get scheduled.
+  static void DependencyHasFinished(ezTaskGroup* pGroup);
+
+  ///@}
+
+  /// \name Thread Management
+  ///@{
+
+public:
+  /// \brief Sets the number of threads to use for the different task categories.
+  ///
+  /// \a uiShortTasks and \a uiLongTasks must be at least 1 and should not exceed the number of available CPU cores.
+  /// There will always be exactly one additional thread for file access tasks (ezTaskPriority::FileAccess).
+  ///
+  /// If \a uiShortTasks or \a uiLongTasks is smaller than 1, a default number of threads will be used for that type of work.
+  /// This number of threads depends on the number of available CPU cores.
+  /// If SetWorkThreadCount is never called, at all, the first time any task is started the number of worker threads is set to
+  /// this default configuration.
+  /// Unless you have a good idea how to set up the number of worker threads to make good use of the available cores,
+  /// it is a good idea to just use the default settings.
+  static void SetWorkerThreadCount(ezInt8 iShortTasks = -1, ezInt8 iLongTasks = -1); // [tested]
+
+  /// \brief Returns the maximum number of threads that should work on the given type of task at the same time.
+  static ezUInt32 GetWorkerThreadCount(ezWorkerThreadType::Enum type);
+
+  /// \brief Returns the number of threads that have been allocated to potentially work on the given type of task.
+  ///
+  /// CAREFUL! This is not the number of threads that will be active at the same time. Use GetWorkerThreadCount() for that.
+  /// This is the maximum number of threads that may jump in, if too many threads are blocked. This number will change dynamically
+  /// at runtime to prevent deadlocks and it can grow very, very large.
+  static ezUInt32 GetNumAllocatedWorkerThreads(ezWorkerThreadType::Enum type);
 
   /// \brief Returns the (thread local) type of tasks that would be executed on this thread
   static ezWorkerThreadType::Enum GetCurrentThreadWorkerType();
@@ -320,13 +207,66 @@ public:
   /// per frame.
   ///
   /// Also optionally returns the number of tasks that were finished during the last frame.
-  static double GetThreadUtilization(ezWorkerThreadType::Enum Type, ezUInt32 iThread, ezUInt32* pNumTasksExecuted = nullptr)
-  {
-    if (pNumTasksExecuted)
-      *pNumTasksExecuted = s_WorkerThreads[Type][iThread]->m_uiNumTasksExecuted;
-    return s_WorkerThreads[Type][iThread]->m_ThreadUtilization;
-  }
+  static double GetThreadUtilization(ezWorkerThreadType::Enum Type, ezUInt32 uiThreadIndex, ezUInt32* pNumTasksExecuted = nullptr);
 
+private:
+  friend class ezTaskWorkerThread;
+
+  /// \brief Allocates \a uiAddThreads additional threads of \a type
+  static void AllocateThreads(ezWorkerThreadType::Enum type, ezUInt32 uiAddThreads);
+
+  /// \brief Wakes up or allocates up to \a uiNumThreads, unless enough threads are currently active and not blocked
+  static void WakeUpThreads(ezWorkerThreadType::Enum type, ezUInt32 uiNumThreads);
+
+  /// \brief Shuts down all worker threads. Does NOT finish the remaining tasks that were not started yet. Does not clear them either, though.
+  static void StopWorkerThreads();
+
+  /// \brief Uses a thread local variable to know the current thread type and to decide the range of task priorities that it may execute
+  static void DetermineTasksToExecuteOnThread(ezTaskPriority::Enum& out_FirstPriority, ezTaskPriority::Enum& out_LastPriority);
+
+private:
+  static ezUniquePtr<ezTaskSystemThreadState> s_ThreadState;
+
+  ///@}
+
+  /// \name Parallel For
+  ///@{
+
+public:
+  /// A helper function to process task items in a parallel fashion by having per-worker index ranges generated.
+  static void ParallelForIndexed(ezUInt32 uiStartIndex, ezUInt32 uiNumItems, ezParallelForIndexedFunction taskCallback, const char* taskName = nullptr, const ezParallelForParams& config = ezParallelForParams());
+
+  /// A helper function to process task items in a parallel fashion by generating per-worker sub-ranges
+  /// from an initial item array pointer.
+  /// Given an array pointer 'taskItems' with elements of type ElemType, the following invocations are possible:
+  ///   - ParallelFor(taskItems, [](ezArrayPtr<ElemType> taskItemSlice) { });
+  template <typename ElemType, typename Callback>
+  static void ParallelFor(ezArrayPtr<ElemType> taskItems, Callback taskCallback, const char* taskName = nullptr, const ezParallelForParams& params = ezParallelForParams());
+  /// A helper function to process task items in a parallel fashion and one-by-one (without global index).
+  /// Given an array pointer 'taskItems' with elements of type ElemType, the following invocations are possible:
+  ///   - ParallelFor(taskItems, [](ElemType taskItem) { });
+  ///   - ParallelFor(taskItems, [](ElemType& taskItem) { });
+  ///   - ParallelFor(taskItems, [](const ElemType& taskItem) { });
+  template <typename ElemType, typename Callback>
+  static void ParallelForSingle(ezArrayPtr<ElemType> taskItems, Callback taskCallback, const char* taskName = nullptr, const ezParallelForParams& params = ezParallelForParams());
+  /// A helper function to process task items in a parallel fashion and one-by-one (with global index).
+  /// Given an array pointer 'taskItems' with elements of type ElemType, the following invocations are possible:
+  ///   - ParallelFor(taskItems, [](ezUInt32 globalTaskItemIndex, ElemType taskItem) { });
+  ///   - ParallelFor(taskItems, [](ezUInt32 globalTaskItemIndex, ElemType& taskItem) { });
+  ///   - ParallelFor(taskItems, [](ezUInt32 globalTaskItemIndex, const ElemType& taskItem) { });
+  template <typename ElemType, typename Callback>
+  static void ParallelForSingleIndex(ezArrayPtr<ElemType> taskItems, Callback taskCallback, const char* taskName = nullptr, const ezParallelForParams& params = ezParallelForParams());
+
+private:
+  template <typename ElemType>
+  static void ParallelForInternal(ezArrayPtr<ElemType> taskItems, ezParallelForFunction<ElemType> taskCallback, const char* taskName, const ezParallelForParams& config);
+
+  ///@}
+
+  /// \name Utilities
+  ///@{
+
+public:
   /// \brief Writes the internal state of the ezTaskSystem as a DGML graph.
   static void WriteStateSnapshotToDGML(ezDGMLGraph& graph);
 
@@ -334,86 +274,31 @@ public:
   /// ":appdata/TaskGraphs/__date__.dgml"
   static void WriteStateSnapshotToFile(const char* szPath = nullptr);
 
-  /// \brief Checks whether the given task is currently being executed on the calling thread.
+private:
+  ///@}
+
+  /// \name Misc
+  ///@{
+
+public:
+  /// \brief Sets the target frame time that is supposed to not be exceeded.
   ///
-  /// Can be used to prevent waiting on tasks that can never be finished, because the current thread is already executing them.
-  static bool IsTaskRunningOnCurrentThread(ezTask* pTask);
+  /// \see FinishFrameTasks() for more details.
+  static void SetTargetFrameTime(ezTime targetFrameTime = ezTime::Seconds(1.0 / 40.0) /* 40 FPS -> 25 ms */);
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, TaskSystem);
-  friend class ezTaskWorkerThread;
 
   static void Startup();
   static void Shutdown();
 
 private:
-  struct TaskData
-  {
-    ezTask* m_pTask;
-    ezTaskGroup* m_pBelongsToGroup;
-    ezUInt32 m_uiInvocation = 0;
-  };
-
-  // The arrays of all the active worker threads.
-  static ezDynamicArray<ezTaskWorkerThread*> s_WorkerThreads[ezWorkerThreadType::ENUM_COUNT];
-
-  // Checks that group are valid for configuration.
-  static void DebugCheckTaskGroup(ezTaskGroupID Group);
-
-  // Takes all the tasks in the given group and schedules them for execution, by inserting them into the proper task lists.
-  static void ScheduleGroupTasks(ezTaskGroup* pGroup, bool bHighPriority);
-
-  // Called whenever a task has been finished/canceled. Makes sure that groups are marked as finished when all tasks are done.
-  static void TaskHasFinished(ezTask* pTask, ezTaskGroup* pGroup);
-
-  // Is called whenever a dependency of pGroup has finished. Once all dependencies are finished, the group's tasks will get scheduled.
-  static void DependencyHasFinished(ezTaskGroup* pGroup);
-
-  // Shuts down all worker threads. Does NOT finish the remaining tasks. Does not clear them either, though.
-  static void StopWorkerThreads();
-
-  // Searches for a task of priority between \a FirstPriority and \a LastPriority (inclusive).
-  static TaskData GetNextTask(ezTaskPriority::Enum FirstPriority, ezTaskPriority::Enum LastPriority, ezTask* pPrioritizeThis = nullptr);
-
-  // Executes some task of priority between \a FirstPriority and \a LastPriority (inclusive). Returns true, if any such task was available.
-  static bool ExecuteTask(ezTaskPriority::Enum FirstPriority, ezTaskPriority::Enum LastPriority, ezTask* pPrioritizeThis = nullptr);
-
-  // Ensures all 'main thread' tasks for this frame are finished ('ThisFrameMainThread').
-  static void FinishMainThreadTasks();
-
-  // Moves all 'next frame' tasks into the 'this frame' queues.
-  static void ReprioritizeFrameTasks();
-
-  // Executes up to uiSomeFrameTasks tasks of priority 'SomeFrameMainThread', as long as the last duration between frames is no longer than
-  // fSmoothFrameMS.
-  static void ExecuteSomeFrameTasks(ezUInt32 uiSomeFrameTasks, double fSmoothFrameMS);
-
-  // Figures out the range of tasks that this thread may execute when it has free cycles to help out.
-  // Uses a thread local variable to know whether this is the main thread / loading thread / long running thread and thus also decides
-  // whether the thread is allowed to fall back to 'default' work (short tasks).
-  static void DetermineTasksToExecuteOnThread(
-    ezTaskPriority::Enum& out_FirstPriority, ezTaskPriority::Enum& out_LastPriority, bool& out_bAllowDefaultWork);
-
-  template<typename ElemType>
-  static void ParallelForInternal(ezArrayPtr<ElemType> taskItems, ParallelForFunction<ElemType> taskCallback, const char* taskName, ParallelForParams config);
-
-private:
-  // *** Internal Data ***
-
-  // One mutex to rule them all.
+  /// One mutex to rule them all.
   static ezMutex s_TaskSystemMutex;
 
-  // The deque can grow without relocating existing data, therefore the ezTaskGroupID's can store pointers directly to the data
-  static ezDeque<ezTaskGroup> s_TaskGroups;
+  static ezUniquePtr<ezTaskSystemState> s_State;
 
-  // The lists of all scheduled tasks, for each priority.
-  static ezList<TaskData> s_Tasks[ezTaskPriority::ENUM_COUNT];
-
-  // Thread signals to wake up a worker thread of the proper type, whenever new work becomes available.
-  static ezThreadSignal s_TasksAvailableSignal[ezWorkerThreadType::ENUM_COUNT];
-
-  // The target frame time used by FinishFrameTasks()
-  static double s_fSmoothFrameMS;
+  ///@}
 };
 
 #include <Foundation/Threading/Implementation/ParallelFor_inl.h>

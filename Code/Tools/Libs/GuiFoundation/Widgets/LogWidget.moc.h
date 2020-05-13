@@ -2,7 +2,7 @@
 
 #include <Foundation/Basics.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
-#include <Tools/Libs/GuiFoundation/ui_LogWidget.h>
+#include <GuiFoundation/ui_LogWidget.h>
 #include <Foundation/Logging/Log.h>
 #include <QWidget>
 
@@ -17,6 +17,8 @@ class EZ_GUIFOUNDATION_DLL ezQtLogWidget : public QWidget, public Ui_LogWidget
 public:
   ezQtLogWidget(QWidget* parent);
   ~ezQtLogWidget();
+
+  void ShowControls(bool show);
 
   ezQtLogModel* GetLog();
   ezQtSearchWidget* GetSearchWidget();

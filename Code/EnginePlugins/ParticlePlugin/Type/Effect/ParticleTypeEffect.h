@@ -5,12 +5,13 @@
 
 typedef ezTypedResourceHandle<class ezParticleEffectResource> ezParticleEffectResourceHandle;
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleTypeEffectFactory : public ezParticleTypeFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleTypeEffectFactory final : public ezParticleTypeFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypeEffectFactory, ezParticleTypeFactory);
 
 public:
   ezParticleTypeEffectFactory();
+  ~ezParticleTypeEffectFactory();
 
   virtual const ezRTTI* GetTypeType() const override;
   virtual void CopyTypeProperties(ezParticleType* pObject, bool bFirstTime) const override;
@@ -19,11 +20,10 @@ public:
   virtual void Load(ezStreamReader& stream) override;
 
   ezString m_sEffect;
-  ezUInt64 m_uiRandomSeed;
   ezString m_sSharedInstanceName; // to be removed
 };
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleTypeEffect : public ezParticleType
+class EZ_PARTICLEPLUGIN_DLL ezParticleTypeEffect final : public ezParticleType
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypeEffect, ezParticleType);
 
@@ -32,11 +32,12 @@ public:
   ~ezParticleTypeEffect();
 
   ezParticleEffectResourceHandle m_hEffect;
-  ezUInt64 m_uiRandomSeed;
   //ezString m_sSharedInstanceName;
 
   virtual void CreateRequiredStreams() override;
   virtual void ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const override {}
+
+  virtual float GetMaxParticleRadius(float fParticleSize) const override { return m_fMaxEffectRadius; }
 
 protected:
   friend class ezParticleTypeEffectFactory;
@@ -46,8 +47,9 @@ protected:
   void OnParticleDeath(const ezStreamGroupElementRemovedEvent& e);
   void ClearEffects(bool bInterruptImmediately);
 
-  ezProcessingStream* m_pStreamPosition;
-  ezProcessingStream* m_pStreamEffectID;
+  float m_fMaxEffectRadius = 1.0f;
+  ezProcessingStream* m_pStreamPosition = nullptr;
+  ezProcessingStream* m_pStreamEffectID = nullptr;
 };
 
 

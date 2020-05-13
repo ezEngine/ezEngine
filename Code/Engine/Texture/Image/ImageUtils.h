@@ -38,8 +38,7 @@ public:
   ///
   /// The image must fit, no scaling or cropping is done. Image formats must be identical. Compressed formats are not supported.
   /// If the target location leaves not enough room for the source image to be copied, bad stuff will happen.
-  static ezResult Copy(const ezImageView& srcImg, const ezRectU32& srcRect, ezImage& dstImg, const ezVec3U32& dstOffset,
-    ezUInt32 uiDstMipLevel = 0, ezUInt32 uiDstFace = 0, ezUInt32 uiDstArrayIndex = 0);
+  static ezResult Copy(const ezImageView& srcImg, const ezRectU32& srcRect, ezImage& dstImg, const ezVec3U32& dstOffset, ezUInt32 uiDstMipLevel = 0, ezUInt32 uiDstFace = 0, ezUInt32 uiDstArrayIndex = 0);
 
   /// \brief Copies the lower uiNumMips data of a 2D image into another one.
   static ezResult ExtractLowerMipChain(const ezImageView& src, ezImage& dst, ezUInt32 uiNumMips);
@@ -76,15 +75,10 @@ public:
   };
 
   /// Scales the image.
-  static ezResult Scale(const ezImageView& source, ezImage& target, ezUInt32 width, ezUInt32 height, const ezImageFilter* filter = nullptr,
-    ezImageAddressMode::Enum addressModeU = ezImageAddressMode::Clamp, ezImageAddressMode::Enum addressModeV = ezImageAddressMode::Clamp,
-    const ezColor& borderColor = ezColor::Black);
+  static ezResult Scale(const ezImageView& source, ezImage& target, ezUInt32 width, ezUInt32 height, const ezImageFilter* filter = nullptr, ezImageAddressMode::Enum addressModeU = ezImageAddressMode::Clamp, ezImageAddressMode::Enum addressModeV = ezImageAddressMode::Clamp, const ezColor& borderColor = ezColor::Black);
 
   /// Scales the image.
-  static ezResult Scale3D(const ezImageView& source, ezImage& target, ezUInt32 width, ezUInt32 height, ezUInt32 depth,
-    const ezImageFilter* filter = nullptr, ezImageAddressMode::Enum addressModeU = ezImageAddressMode::Clamp,
-    ezImageAddressMode::Enum addressModeV = ezImageAddressMode::Clamp, ezImageAddressMode::Enum addressModeW = ezImageAddressMode::Clamp,
-    const ezColor& borderColor = ezColor::Black);
+  static ezResult Scale3D(const ezImageView& source, ezImage& target, ezUInt32 width, ezUInt32 height, ezUInt32 depth, const ezImageFilter* filter = nullptr, ezImageAddressMode::Enum addressModeU = ezImageAddressMode::Clamp, ezImageAddressMode::Enum addressModeV = ezImageAddressMode::Clamp, ezImageAddressMode::Enum addressModeW = ezImageAddressMode::Clamp, const ezColor& borderColor = ezColor::Black);
 
   /// Genererates the mip maps for the image. The input texture must be in ezImageFormat::R32_G32_B32_A32_FLOAT
   static void GenerateMipMaps(const ezImageView& source, ezImage& target, const MipMapOptions& options);
@@ -120,4 +114,13 @@ public:
   static ezResult CreateVolumeTextureFromSingleFile(ezImage& dstImg, const ezImageView& srcImg);
 
   static ezUInt32 GetSampleIndex(ezUInt32 numTexels, ezInt32 index, ezImageAddressMode::Enum addressMode, bool& outUseBorderColor);
+
+  /// \brief Samples the given image at the given uv coords with bilinear filtering.
+  static ezColor BilinearSample(const ezImageView& image, ezImageAddressMode::Enum addressMode, ezVec2 uv);
+
+  /// \brief Copies channel 0, 1, 2 or 3 from srcImg into dstImg.
+  ///
+  /// Currently only supports images of format R32G32B32A32_FLOAT and with identical resolution.
+  /// Returns failure if any of those requirements are not met.
+  static ezResult CopyChannel(ezImage& dstImg, ezUInt8 uiDstChannelIdx, const ezImage& srcImg, ezUInt8 uiSrcChannelIdx);
 };

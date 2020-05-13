@@ -291,6 +291,8 @@ void ezParticleEventReaction_Effect::ProcessEvent(const ezParticleEvent& e)
   ezParticleComponent* pComponent = nullptr;
   ezParticleComponent::CreateComponent(pObject, pComponent);
 
+  pComponent->m_uiRandomSeed = m_pOwnerEffect->GetRandomSeed();
+
   pComponent->m_bIfContinuousStopRightAway = true;
   pComponent->m_OnFinishedAction = ezOnComponentFinishedAction2::DeleteGameObject;
   pComponent->SetParticleEffect(m_hEffect);

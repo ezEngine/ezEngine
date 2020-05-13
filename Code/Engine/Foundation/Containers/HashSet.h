@@ -108,8 +108,23 @@ public:
   /// \brief Removes the entry with the given key. Returns if an entry was removed.
   bool Remove(const KeyType& key); // [tested]
 
+  /// \brief Erases the key at the given Iterator. Returns an iterator to the element after the given iterator.
+  ConstIterator Remove(const ConstIterator& pos); // [tested]
+
   /// \brief Returns if an entry with given key exists in the table.
   bool Contains(const KeyType& key) const; // [tested]
+
+  /// \brief Checks whether all keys of the given set are in the container.
+  bool ContainsSet(const ezHashSetBase<KeyType, Hasher>& operand) const; // [tested]
+
+  /// \brief Makes this set the union of itself and the operand.
+  void Union(const ezHashSetBase<KeyType, Hasher>& operand); // [tested]
+
+  /// \brief Makes this set the difference of itself and the operand, i.e. subtracts operand.
+  void Difference(const ezHashSetBase<KeyType, Hasher>& operand); // [tested]
+
+  /// \brief Makes this set the intersection of itself and the operand.
+  void Intersection(const ezHashSetBase<KeyType, Hasher>& operand); // [tested]
 
   /// \brief Returns a constant Iterator to the very first element.
   ConstIterator GetIterator() const; // [tested]
@@ -146,6 +161,7 @@ private:
   };
 
   void SetCapacity(ezUInt32 uiCapacity);
+  void RemoveInternal(ezUInt32 uiIndex);
   ezUInt32 FindEntry(const KeyType& key) const;
   ezUInt32 FindEntry(ezUInt32 uiHash, const KeyType& key) const;
 

@@ -49,3 +49,7 @@ ezSpatialData::Category ezSpatialData::FindCategory(const char* szCategoryName)
 
 ezSpatialData::Category ezDefaultSpatialDataCategories::RenderStatic = ezSpatialData::RegisterCategory("RenderStatic");
 ezSpatialData::Category ezDefaultSpatialDataCategories::RenderDynamic = ezSpatialData::RegisterCategory("RenderDynamic");
+
+
+EZ_STATICLINK_FILE(Core, Core_World_Implementation_SpatialData);
+

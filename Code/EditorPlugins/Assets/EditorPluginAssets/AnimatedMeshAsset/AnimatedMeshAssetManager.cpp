@@ -8,7 +8,7 @@
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <ToolsFoundation/Assets/AssetFileExtensionWhitelist.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimatedMeshAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezAnimatedMeshAssetDocumentManager>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimatedMeshAssetDocumentManager, 1, ezRTTIDefaultAllocator<ezAnimatedMeshAssetDocumentManager>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezAnimatedMeshAssetDocumentManager::ezAnimatedMeshAssetDocumentManager()
@@ -39,7 +39,7 @@ void ezAnimatedMeshAssetDocumentManager::OnDocumentManagerEvent(const ezDocument
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezAnimatedMeshAssetDocument>())
       {
         ezQtAnimatedMeshAssetDocumentWindow* pDocWnd =
-            new ezQtAnimatedMeshAssetDocumentWindow(static_cast<ezAnimatedMeshAssetDocument*>(e.m_pDocument));
+          new ezQtAnimatedMeshAssetDocumentWindow(static_cast<ezAnimatedMeshAssetDocument*>(e.m_pDocument));
       }
     }
     break;

@@ -6,7 +6,7 @@
 class ezView;
 class ezExtractedRenderData;
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleTypeLightFactory : public ezParticleTypeFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleTypeLightFactory final : public ezParticleTypeFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypeLightFactory, ezParticleTypeFactory);
 
@@ -27,7 +27,7 @@ public:
   ezString m_sSizeScaleParameter;
 };
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleTypeLight : public ezParticleType
+class EZ_PARTICLEPLUGIN_DLL ezParticleTypeLight final : public ezParticleType
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleTypeLight, ezParticleType);
 

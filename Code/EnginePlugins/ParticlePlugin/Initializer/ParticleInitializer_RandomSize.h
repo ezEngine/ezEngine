@@ -6,7 +6,7 @@
 
 typedef ezTypedResourceHandle<class ezCurve1DResource> ezCurve1DResourceHandle;
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleInitializerFactory_RandomSize : public ezParticleInitializerFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleInitializerFactory_RandomSize final : public ezParticleInitializerFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializerFactory_RandomSize, ezParticleInitializerFactory);
 
@@ -26,7 +26,7 @@ public:
 };
 
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer_RandomSize : public ezParticleInitializer
+class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer_RandomSize final : public ezParticleInitializer
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializer_RandomSize, ezParticleInitializer);
 

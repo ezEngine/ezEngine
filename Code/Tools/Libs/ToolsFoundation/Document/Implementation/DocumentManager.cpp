@@ -12,7 +12,7 @@
 #include <ToolsFoundation/Project/ToolsProject.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentManager, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentManager, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(ToolsFoundation, DocumentManager)
@@ -37,7 +37,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 ezSet<const ezRTTI*> ezDocumentManager::s_KnownManagers;
 ezHybridArray<ezDocumentManager*, 16> ezDocumentManager::s_AllDocumentManagers;
 ezMap<ezString, const ezDocumentTypeDescriptor*> ezDocumentManager::s_AllDocumentDescriptors; // maps from "sDocumentTypeName" to descriptor
-ezEvent<const ezDocumentManager::Event&> ezDocumentManager::s_Events;
+ezCopyOnBroadcastEvent<const ezDocumentManager::Event&> ezDocumentManager::s_Events;
 ezEvent<ezDocumentManager::Request&> ezDocumentManager::s_Requests;
 
 void ezDocumentManager::OnPluginEvent(const ezPluginEvent& e)

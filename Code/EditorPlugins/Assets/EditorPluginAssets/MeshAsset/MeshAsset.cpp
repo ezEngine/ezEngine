@@ -11,7 +11,7 @@
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetDocument, 9, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetDocument, 10, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -120,7 +120,6 @@ void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezMes
       ezMath::Max<ezUInt16>(3, pProp->m_uiDetail2), ezColor::White, mTrans);
   }
 
-  geom.ComputeFaceNormals();
   geom.TriangulatePolygons(4);
   geom.ComputeTangents();
 
@@ -150,9 +149,9 @@ void ezMeshAssetDocument::CreateMeshFromGeom(ezMeshAssetProperties* pProp, ezMes
 
   auto& mbd = desc.MeshBufferDesc();
   mbd.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-  mbd.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::XYFloat);
-  mbd.AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
-  mbd.AddStream(ezGALVertexAttributeSemantic::Tangent, ezGALResourceFormat::XYZFloat);
+  mbd.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezMeshTexCoordPrecision::ToResourceFormat(pProp->m_TexCoordPrecision));
+  mbd.AddStream(ezGALVertexAttributeSemantic::Normal, ezMeshNormalPrecision::ToResourceFormatNormal(pProp->m_NormalPrecision));
+  mbd.AddStream(ezGALVertexAttributeSemantic::Tangent, ezMeshNormalPrecision::ToResourceFormatTangent(pProp->m_NormalPrecision));
 
   mbd.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
   desc.AddSubMesh(mbd.GetPrimitiveCount(), 0, 0);
@@ -171,7 +170,7 @@ ezStatus ezMeshAssetDocument::CreateMeshFromFile(ezMeshAssetProperties* pProp, e
   ezSharedPtr<ezModelImporter::Scene> pScene;
   ezModelImporter::Mesh* pMesh = nullptr;
   EZ_SUCCEED_OR_RETURN(ezMeshImportUtils::TryImportMesh(pScene, pMesh, pProp->m_sMeshFile, pProp->m_sSubMeshName, mTransformation,
-    pProp->m_bRecalculateNormals, pProp->m_bInvertNormals, range, desc, false));
+    pProp->m_bRecalculateNormals, pProp->m_bInvertNormals, pProp->m_NormalPrecision, pProp->m_TexCoordPrecision, range, desc, false));
 
   range.BeginNextStep("Importing Materials");
 

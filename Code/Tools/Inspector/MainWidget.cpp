@@ -29,7 +29,7 @@ ezQtMainWidget::ezQtMainWidget(QWidget* parent)
 
   ResetStats();
 
-  LoadFavourites();
+  LoadFavorites();
 
   QSettings Settings;
   Settings.beginGroup("MainWidget");
@@ -42,7 +42,7 @@ ezQtMainWidget::ezQtMainWidget(QWidget* parent)
 
 ezQtMainWidget::~ezQtMainWidget()
 {
-  SaveFavourites();
+  SaveFavorites();
 }
 
 void ezQtMainWidget::ProcessTelemetry(void* pUnuseed)
@@ -69,8 +69,8 @@ void ezQtMainWidget::ProcessTelemetry(void* pUnuseed)
         if (it.Value().m_pItem)
           delete it.Value().m_pItem;
 
-        if (it.Value().m_pItemFavourite)
-          delete it.Value().m_pItemFavourite;
+        if (it.Value().m_pItemFavorite)
+          delete it.Value().m_pItemFavorite;
 
         s_pWidget->m_Stats.Remove(it);
       }
@@ -101,15 +101,15 @@ void ezQtMainWidget::ProcessTelemetry(void* pUnuseed)
         {
           sd.m_pItem = s_pWidget->CreateStat(sStatName.GetData(), false);
 
-          if (s_pWidget->m_Favourites.Find(sStatName).IsValid())
+          if (s_pWidget->m_Favorites.Find(sStatName).IsValid())
             sd.m_pItem->setCheckState(0, Qt::Checked);
         }
 
         const ezString sValue = sd.m_Value.ConvertTo<ezString>();
         sd.m_pItem->setData(1, Qt::DisplayRole, sValue.GetData());
 
-        if (sd.m_pItemFavourite)
-          sd.m_pItemFavourite->setData(1, Qt::DisplayRole, sValue.GetData());
+        if (sd.m_pItemFavorite)
+          sd.m_pItemFavorite->setData(1, Qt::DisplayRole, sValue.GetData());
       }
       break;
     }
@@ -135,11 +135,11 @@ void ezQtMainWidget::on_ButtonConnect_clicked()
   }
 }
 
-void ezQtMainWidget::SaveFavourites()
+void ezQtMainWidget::SaveFavorites()
 {
   QString sFile = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-  QDir d;
-  d.mkpath(sFile);
+  QDir dir;
+  dir.mkpath(sFile);
 
   sFile.append("/Favourites.stats");
 
@@ -149,10 +149,10 @@ void ezQtMainWidget::SaveFavourites()
 
   QDataStream stream(&f);
 
-  const ezUInt32 uiNumFavourites = m_Favourites.GetCount();
-  stream << uiNumFavourites;
+  const ezUInt32 uiNumFavorites = m_Favorites.GetCount();
+  stream << uiNumFavorites;
 
-  for (ezSet<ezString>::Iterator it = m_Favourites.GetIterator(); it.IsValid(); ++it)
+  for (ezSet<ezString>::Iterator it = m_Favorites.GetIterator(); it.IsValid(); ++it)
   {
     const QString s = it.Key().GetData();
     stream << s;
@@ -161,32 +161,32 @@ void ezQtMainWidget::SaveFavourites()
   f.close();
 }
 
-void ezQtMainWidget::LoadFavourites()
+void ezQtMainWidget::LoadFavorites()
 {
   QString sFile = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-  QDir d;
-  d.mkpath(sFile);
+  QDir dir;
+  dir.mkpath(sFile);
   sFile.append("/Favourites.stats");
 
   QFile f(sFile);
   if (!f.open(QIODevice::ReadOnly))
     return;
 
-  m_Favourites.Clear();
+  m_Favorites.Clear();
 
   QDataStream stream(&f);
 
-  ezUInt32 uiNumFavourites = 0;
-  stream >> uiNumFavourites;
+  ezUInt32 uiNumFavorites = 0;
+  stream >> uiNumFavorites;
 
-  for (ezUInt32 i = 0; i < uiNumFavourites; ++i)
+  for (ezUInt32 i = 0; i < uiNumFavorites; ++i)
   {
     QString s;
     stream >> s;
 
     ezString ezs = s.toUtf8().data();
 
-    m_Favourites.Insert(ezs);
+    m_Favorites.Insert(ezs);
   }
 
   f.close();
@@ -196,7 +196,7 @@ void ezQtMainWidget::ResetStats()
 {
   m_Stats.Clear();
   TreeStats->clear();
-  TreeFavourites->clear();
+  TreeFavorites->clear();
 }
 
 void ezQtMainWidget::UpdateStats()
@@ -297,33 +297,33 @@ QTreeWidgetItem* ezQtMainWidget::CreateStat(const char* szPath, bool bParent)
   return sd.m_pItem;
 }
 
-void ezQtMainWidget::SetFavourite(const ezString& sStat, bool bFavourite)
+void ezQtMainWidget::SetFavorite(const ezString& sStat, bool bFavorite)
 {
   StatData& sd = m_Stats[sStat];
 
-  if (bFavourite)
+  if (bFavorite)
   {
-    m_Favourites.Insert(sStat);
+    m_Favorites.Insert(sStat);
 
-    if (!sd.m_pItemFavourite)
+    if (!sd.m_pItemFavorite)
     {
-      sd.m_pItemFavourite = new QTreeWidgetItem();
-      TreeFavourites->addTopLevelItem(sd.m_pItemFavourite);
-      sd.m_pItemFavourite->setData(0, Qt::DisplayRole, sStat.GetData());
-      sd.m_pItemFavourite->setData(1, Qt::DisplayRole, sd.m_Value.ConvertTo<ezString>().GetData());
-      sd.m_pItemFavourite->setIcon(0, QIcon(":/Icons/Icons/StatFavourite.png"));
+      sd.m_pItemFavorite = new QTreeWidgetItem();
+      TreeFavorites->addTopLevelItem(sd.m_pItemFavorite);
+      sd.m_pItemFavorite->setData(0, Qt::DisplayRole, sStat.GetData());
+      sd.m_pItemFavorite->setData(1, Qt::DisplayRole, sd.m_Value.ConvertTo<ezString>().GetData());
+      sd.m_pItemFavorite->setIcon(0, QIcon(":/Icons/Icons/StatFavorite.png"));
 
-      TreeFavourites->resizeColumnToContents(0);
+      TreeFavorites->resizeColumnToContents(0);
     }
   }
   else
   {
-    if (sd.m_pItemFavourite)
+    if (sd.m_pItemFavorite)
     {
-      m_Favourites.Remove(sStat);
+      m_Favorites.Remove(sStat);
 
-      delete sd.m_pItemFavourite;
-      sd.m_pItemFavourite = nullptr;
+      delete sd.m_pItemFavorite;
+      sd.m_pItemFavorite = nullptr;
     }
   }
 }
@@ -334,7 +334,7 @@ void ezQtMainWidget::on_TreeStats_itemChanged(QTreeWidgetItem* item, int column)
   {
     ezString sPath = item->data(0, Qt::UserRole).toString().toUtf8().data();
 
-    SetFavourite(sPath, (item->checkState(0) == Qt::Checked));
+    SetFavorite(sPath, (item->checkState(0) == Qt::Checked));
   }
 }
 

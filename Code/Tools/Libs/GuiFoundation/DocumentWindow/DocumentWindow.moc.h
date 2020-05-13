@@ -1,26 +1,28 @@
 #pragma once
 
+#include <Foundation/Communication/Event.h>
+#include <Foundation/Strings/String.h>
+#include <Foundation/Types/Status.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <Foundation/Strings/String.h>
-#include <Foundation/Communication/Event.h>
-#include <Foundation/Types/Status.h>
-#include <QMainWindow>
 #include <ToolsFoundation/Document/DocumentManager.h>
+
+#include <QMainWindow>
 
 class ezQtContainerWindow;
 class ezDocument;
 class ezQtDocumentWindow;
 class QLabel;
+class QToolButton;
 
 struct ezQtDocumentWindowEvent
 {
   enum Type
   {
-    WindowClosing,            ///< Sent shortly before the window is being deleted
-    WindowClosed,             ///< Sent AFTER the window has been deleted. The pointer is given, but not valid anymore!
-    WindowDecorationChanged,  ///< Window title or icon has changed
-    BeforeRedraw,             ///< Sent shortly before the content of the window is being redrawn
+    WindowClosing,           ///< Sent shortly before the window is being deleted
+    WindowClosed,            ///< Sent AFTER the window has been deleted. The pointer is given, but not valid anymore!
+    WindowDecorationChanged, ///< Window title or icon has changed
+    BeforeRedraw,            ///< Sent shortly before the content of the window is being redrawn
   };
 
   Type m_Type;
@@ -33,7 +35,6 @@ class EZ_GUIFOUNDATION_DLL ezQtDocumentWindow : public QMainWindow
   Q_OBJECT
 
 public:
-
   static ezEvent<const ezQtDocumentWindowEvent&> s_Events;
 
 public:
@@ -73,8 +74,8 @@ public:
   static ezQtDocumentWindow* FindWindowByDocument(const ezDocument* pDocument);
   ezQtContainerWindow* GetContainerWindow() const;
 
-  /// \brief Shows the given message for 5 seconds in the statusbar, then shows the permanent message again.
-  void ShowTemporaryStatusBarMsg(const ezFormatString& sText);
+  /// \brief Shows the given message for the given duration in the statusbar, then shows the permanent message again.
+  void ShowTemporaryStatusBarMsg(const ezFormatString& sText, ezTime duration = ezTime::Seconds(5));
 
   /// \brief Sets which text to show permanently in the statusbar. Set an empty string to clear the message.
   void SetPermanentStatusBarMsg(const ezFormatString& sText);
@@ -92,6 +93,8 @@ private Q_SLOTS:
   void SlotRestoreLayout();
   void SlotRedraw();
   void SlotQueuedDelete();
+  void OnPermanentGlobalStatusClicked(bool);
+  void OnStatusBarMessageChanged(const QString& sNewText);
 
 private:
   void SaveWindowLayout();
@@ -113,7 +116,8 @@ private:
   ezInt16 m_iTargetFramerate = 0;
   ezDocument* m_pDocument = nullptr;
   ezQtContainerWindow* m_pContainerWindow = nullptr;
-  QLabel* m_pPermanentStatusMsg = nullptr;
+  QLabel* m_pPermanentDocumentStatusText = nullptr;
+  QToolButton* m_pPermanentGlobalStatusButton = nullptr;
 
 private:
   void Constructor();
@@ -124,12 +128,10 @@ private:
   virtual void InternalDeleteThis() { delete this; }
   virtual bool InternalCanCloseWindow();
   virtual void InternalCloseDocumentWindow();
-  virtual void InternalVisibleInContainerChanged(bool bVisible) { }
-  virtual void InternalRedraw() { }
+  virtual void InternalVisibleInContainerChanged(bool bVisible) {}
+  virtual void InternalRedraw() {}
 
   ezString m_sUniqueName;
 
   static ezDynamicArray<ezQtDocumentWindow*> s_AllDocumentWindows;
 };
-
-

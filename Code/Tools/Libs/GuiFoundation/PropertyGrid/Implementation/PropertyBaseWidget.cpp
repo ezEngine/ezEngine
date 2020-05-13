@@ -84,6 +84,8 @@ void ezQtPropertyWidget::ExtendContextMenu(QMenu& m)
       QMimeData* mimeData = new QMimeData();
       mimeData->setText(m_pProp->GetPropertyName());
       clipboard->setMimeData(mimeData);
+
+      ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Copied Property Name: {}", m_pProp->GetPropertyName()), ezTime::Seconds(5));
     };
 
     QAction* pAction = m.addAction("Copy Internal Property Name:");
@@ -1211,19 +1213,15 @@ ezQtPropertyTypeContainerWidget::ezQtPropertyTypeContainerWidget()
 
 ezQtPropertyTypeContainerWidget::~ezQtPropertyTypeContainerWidget()
 {
-  m_pGrid->GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(
-      ezMakeDelegate(&ezQtPropertyTypeContainerWidget::StructureEventHandler, this));
-  m_pGrid->GetCommandHistory()->m_Events.RemoveEventHandler(
-      ezMakeDelegate(&ezQtPropertyTypeContainerWidget::CommandHistoryEventHandler, this));
+  m_pGrid->GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyTypeContainerWidget::StructureEventHandler, this));
+  m_pGrid->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyTypeContainerWidget::CommandHistoryEventHandler, this));
 }
 
 void ezQtPropertyTypeContainerWidget::OnInit()
 {
   ezQtPropertyContainerWidget::OnInit();
-  m_pGrid->GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(
-      ezMakeDelegate(&ezQtPropertyTypeContainerWidget::StructureEventHandler, this));
-  m_pGrid->GetCommandHistory()->m_Events.AddEventHandler(
-      ezMakeDelegate(&ezQtPropertyTypeContainerWidget::CommandHistoryEventHandler, this));
+  m_pGrid->GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyTypeContainerWidget::StructureEventHandler, this));
+  m_pGrid->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtPropertyTypeContainerWidget::CommandHistoryEventHandler, this));
 }
 
 void ezQtPropertyTypeContainerWidget::UpdateElement(ezUInt32 index)

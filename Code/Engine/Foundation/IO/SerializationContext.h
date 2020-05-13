@@ -6,13 +6,19 @@
 ///
 /// Typically a context is created before any serialization happens and can then be accessed anywhere through the GetContext method.
 template <typename Derived>
-class EZ_FOUNDATION_DLL ezSerializationContext
+class ezSerializationContext
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezSerializationContext);
 
 public:
   ezSerializationContext() { Derived::SetContext(this); }
   ~ezSerializationContext() { Derived::SetContext(nullptr); }
+
+  /// \brief Set the context as active which means it can be accessed via GetContext in serialization methods.
+  ///
+  /// It can be useful to manually set a context as active if a serialization process is spread across multiple scopes
+  /// and other serialization can happen in between.
+  void SetActive(bool bActive) { Derived::SetContext(bActive ? this : nullptr); }
 };
 
 /// \brief Declares the necessary functions to access a serialization context

@@ -13,7 +13,7 @@
 // http://go.microsoft.com/fwlink/?LinkId=248926
 //-------------------------------------------------------------------------------------
 
-#include "DirectXTexp.h"
+#include "DirectXTexP.h"
 
 //
 // In theory HDR (RGBE) Radiance files can have any of the following data orientations
@@ -59,7 +59,7 @@ namespace
         "\n"\
         "-Y %u +X %u\n";
 
-    inline size_t FindEOL(const char* str, size_t maxlen)
+    inline size_t FindEOL(const char* str, size_t maxlen) noexcept
     {
         size_t pos = 0;
 
@@ -83,7 +83,7 @@ namespace
         size_t size,
         _Out_ TexMetadata& metadata,
         size_t& offset,
-        float& exposure)
+        float& exposure) noexcept
     {
         if (!pSource)
             return E_INVALIDARG;
@@ -180,7 +180,7 @@ namespace
                 strncpy_s(buff, info, std::min<size_t>(31, len));
 
                 auto newExposure = static_cast<float>(atof(buff));
-                if ((newExposure >= 1e-12) && (newExposure <= 1e12))
+                if ((newExposure >= 1e-12f) && (newExposure <= 1e12f))
                 {
                     // Note that we ignore strange exposure values (like EXPOSURE=0)
                     exposure *= newExposure;
@@ -223,8 +223,8 @@ namespace
         {
             // We only support the -Y +X orientation (see top of file)
             return HRESULT_FROM_WIN32(
-                ((orientation[0] == '+' || orientation[0] == '-') && (orientation[1] == 'X' || orientation[1] == 'Y'))
-                ? ERROR_NOT_SUPPORTED : ERROR_INVALID_DATA
+                static_cast<unsigned long>(((orientation[0] == '+' || orientation[0] == '-') && (orientation[1] == 'X' || orientation[1] == 'Y'))
+                ? ERROR_NOT_SUPPORTED : ERROR_INVALID_DATA)
             );
         }
 
@@ -279,13 +279,14 @@ namespace
             return E_FAIL;
         }
 
-        offset = info - static_cast<const char*>(pSource);
+        offset = size_t(info - static_cast<const char*>(pSource));
 
         metadata.width = width;
         metadata.height = height;
         metadata.depth = metadata.arraySize = metadata.mipLevels = 1;
         metadata.format = DXGI_FORMAT_R32G32B32A32_FLOAT;
         metadata.dimension = TEX_DIMENSION_TEXTURE2D;
+        metadata.SetAlphaMode(TEX_ALPHA_MODE_OPAQUE);
 
         return S_OK;
     }
@@ -293,9 +294,9 @@ namespace
     //-------------------------------------------------------------------------------------
     // FloatToRGBE
     //-------------------------------------------------------------------------------------
-    inline void FloatToRGBE(_Out_writes_(width*4) uint8_t* pDestination, _In_reads_(width*fpp) const float* pSource, size_t width, _In_range_(3, 4) int fpp)
+    inline void FloatToRGBE(_Out_writes_(width*4) uint8_t* pDestination, _In_reads_(width*fpp) const float* pSource, size_t width, _In_range_(3, 4) int fpp) noexcept
     {
-        auto ePtr = pSource + width * fpp;
+        auto ePtr = pSource + width * size_t(fpp);
 
         for (size_t j = 0; j < width; ++j)
         {
@@ -308,7 +309,7 @@ namespace
             const float max_xy = (r > g) ? r : g;
             float max_xyz = (max_xy > b) ? max_xy : b;
 
-            if (max_xyz > 1e-32)
+            if (max_xyz > 1e-32f)
             {
                 int e;
                 max_xyz = frexpf(max_xyz, &e) * 256.f / max_xyz;
@@ -321,7 +322,7 @@ namespace
                 pDestination[0] = red;
                 pDestination[1] = green;
                 pDestination[2] = blue;
-                pDestination[3] = (red || green || blue) ? uint8_t(e & 0xff) : 0;
+                pDestination[3] = (red || green || blue) ? uint8_t(e & 0xff) : 0u;
             }
             else
             {
@@ -336,7 +337,7 @@ namespace
     // Encode using Adapative RLE
     //-------------------------------------------------------------------------------------
     _Success_(return > 0)
-        size_t EncodeRLE(_Out_writes_(width * 4) uint8_t* enc, _In_reads_(width * 4) const uint8_t* rgbe, size_t rowPitch, size_t width)
+        size_t EncodeRLE(_Out_writes_(width * 4) uint8_t* enc, _In_reads_(width * 4) const uint8_t* rgbe, size_t rowPitch, size_t width) noexcept
     {
         if (width < 8 || width > INT16_MAX)
         {
@@ -477,7 +478,7 @@ namespace
                     if (encSize + 2 > rowPitch)
                         return 0;
 
-                    enc[0] = 128 + spanLen;
+                    enc[0] = 128u + spanLen;
                     enc[1] = *spanPtr;
                     enc += 2;
                     encSize += 2;
@@ -526,7 +527,7 @@ namespace
 // Obtain metadata from HDR file in memory/on disk
 //-------------------------------------------------------------------------------------
 _Use_decl_annotations_
-HRESULT DirectX::GetMetadataFromHDRMemory(const void* pSource, size_t size, TexMetadata& metadata)
+HRESULT DirectX::GetMetadataFromHDRMemory(const void* pSource, size_t size, TexMetadata& metadata) noexcept
 {
     if (!pSource || size == 0)
         return E_INVALIDARG;
@@ -537,7 +538,7 @@ HRESULT DirectX::GetMetadataFromHDRMemory(const void* pSource, size_t size, TexM
 }
 
 _Use_decl_annotations_
-HRESULT DirectX::GetMetadataFromHDRFile(const wchar_t* szFile, TexMetadata& metadata)
+HRESULT DirectX::GetMetadataFromHDRFile(const wchar_t* szFile, TexMetadata& metadata) noexcept
 {
     if (!szFile)
         return E_INVALIDARG;
@@ -590,7 +591,7 @@ HRESULT DirectX::GetMetadataFromHDRFile(const wchar_t* szFile, TexMetadata& meta
 // Load a HDR file in memory
 //-------------------------------------------------------------------------------------
 _Use_decl_annotations_
-HRESULT DirectX::LoadFromHDRMemory(const void* pSource, size_t size, TexMetadata* metadata, ScratchImage& image)
+HRESULT DirectX::LoadFromHDRMemory(const void* pSource, size_t size, TexMetadata* metadata, ScratchImage& image) noexcept
 {
     if (!pSource || size == 0)
         return E_INVALIDARG;
@@ -807,7 +808,7 @@ HRESULT DirectX::LoadFromHDRMemory(const void* pSource, size_t size, TexMetadata
 // Load a HDR file from disk
 //-------------------------------------------------------------------------------------
 _Use_decl_annotations_
-HRESULT DirectX::LoadFromHDRFile(const wchar_t* szFile, TexMetadata* metadata, ScratchImage& image)
+HRESULT DirectX::LoadFromHDRFile(const wchar_t* szFile, TexMetadata* metadata, ScratchImage& image) noexcept
 {
     if (!szFile)
         return E_INVALIDARG;
@@ -870,7 +871,7 @@ HRESULT DirectX::LoadFromHDRFile(const wchar_t* szFile, TexMetadata* metadata, S
 // Save a HDR file to memory
 //-------------------------------------------------------------------------------------
 _Use_decl_annotations_
-HRESULT DirectX::SaveToHDRMemory(const Image& image, Blob& blob)
+HRESULT DirectX::SaveToHDRMemory(const Image& image, Blob& blob) noexcept
 {
     if (!image.pixels)
         return E_POINTER;
@@ -957,7 +958,7 @@ HRESULT DirectX::SaveToHDRMemory(const Image& image, Blob& blob)
     }
 #endif
 
-    hr = blob.Trim(dPtr - static_cast<uint8_t*>(blob.GetBufferPointer()));
+    hr = blob.Trim(size_t(dPtr - static_cast<uint8_t*>(blob.GetBufferPointer())));
     if (FAILED(hr))
     {
         blob.Release();
@@ -972,7 +973,7 @@ HRESULT DirectX::SaveToHDRMemory(const Image& image, Blob& blob)
 // Save a HDR file to disk
 //-------------------------------------------------------------------------------------
 _Use_decl_annotations_
-HRESULT DirectX::SaveToHDRFile(const Image& image, const wchar_t* szFile)
+HRESULT DirectX::SaveToHDRFile(const Image& image, const wchar_t* szFile) noexcept
 {
     if (!szFile)
         return E_INVALIDARG;

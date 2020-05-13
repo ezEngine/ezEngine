@@ -1,7 +1,9 @@
 #include <EditorFrameworkPCH.h>
 
+#include <Assets/AssetProcessor.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorFramework/Preferences/EditorPreferences.h>
 #include <EditorFramework/Preferences/Preferences.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Types/ScopeExit.h>
@@ -44,7 +46,15 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
   m_bLoadingProjectInProgress = true;
   EZ_SCOPE_EXIT(m_bLoadingProjectInProgress = false;);
 
-  if (ezToolsProject::IsProjectOpen() && ezToolsProject::GetSingleton()->GetProjectFile() == szFile)
+  ezStringBuilder sFile = szFile;
+  sFile.MakeCleanPath();
+
+  if (bCreate == false && !sFile.EndsWith_NoCase("/ezProject"))
+  {
+    sFile.AppendPath("ezProject");
+  }
+
+  if (ezToolsProject::IsProjectOpen() && ezToolsProject::GetSingleton()->GetProjectFile() == sFile)
   {
     ezQtUiServices::MessageBoxInformation("The selected project is already open");
     return EZ_SUCCESS;
@@ -55,34 +65,59 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
 
   ezStatus res;
   if (bCreate)
-    res = ezToolsProject::CreateProject(szFile);
+    res = ezToolsProject::CreateProject(sFile);
   else
-    res = ezToolsProject::OpenProject(szFile);
+    res = ezToolsProject::OpenProject(sFile);
 
   if (res.m_Result.Failed())
   {
     ezStringBuilder s;
-    s.Format("Failed to open project:\n'{0}'", szFile);
+    s.Format("Failed to open project:\n'{0}'", sFile);
 
     ezQtUiServices::MessageBoxStatus(res, s);
     return EZ_FAILURE;
   }
 
-  if (!m_bSafeMode && !m_bHeadless)
+  if (m_StartupFlags.AreNoneSet(StartupFlags::SafeMode | StartupFlags::Headless))
   {
-    const ezRecentFilesList allDocs = LoadOpenDocumentsList();
+    ezStringBuilder sAbsPath;
 
-    // Unfortunately this crashes in Qt due to the processEvents in the QtProgressBar
-    // ezProgressRange range("Restoring Documents", allDocs.GetFileList().GetCount(), true);
-
-    for (auto& doc : allDocs.GetFileList())
+    if (!m_DocumentsToOpen.IsEmpty())
     {
-      // if (range.WasCanceled())
-      // break;
+      for (const auto& doc : m_DocumentsToOpen)
+      {
+        sAbsPath = doc;
 
-      // range.BeginNextStep(doc.m_File);
-      SlotQueuedOpenDocument(doc.m_File.GetData(), nullptr);
+        if (MakeDataDirectoryRelativePathAbsolute(sAbsPath))
+        {
+          SlotQueuedOpenDocument(sAbsPath.GetData(), nullptr);
+        }
+        else
+        {
+          ezLog::Error("Document '{}' does not exist in this project.", doc);
+        }
+      }
+
+      // don't try to open the same documents when the user switches to another project
+      m_DocumentsToOpen.Clear();
     }
+    else if (!m_StartupFlags.IsSet(StartupFlags::NoRecent))
+    {
+      const ezRecentFilesList allDocs = LoadOpenDocumentsList();
+
+      // Unfortunately this crashes in Qt due to the processEvents in the QtProgressBar
+      // ezProgressRange range("Restoring Documents", allDocs.GetFileList().GetCount(), true);
+
+      for (auto& doc : allDocs.GetFileList())
+      {
+        // if (range.WasCanceled())
+        //    break;
+
+        // range.BeginNextStep(doc.m_File);
+        SlotQueuedOpenDocument(doc.m_File.GetData(), nullptr);
+      }
+    }
+
     ezQtContainerWindow::GetContainerWindow()->ScheduleRestoreWindowLayout();
   }
   return EZ_SUCCESS;
@@ -128,6 +163,13 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
       m_sLastProjectFolder = ezToolsProject::GetSingleton()->GetProjectFile();
 
       s_RecentProjects.Insert(ezToolsProject::GetSingleton()->GetProjectFile(), 0);
+
+      ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
+
+      if (!m_StartupFlags.IsSet(ezQtEditorApp::StartupFlags::Headless) && pPreferences->m_bBackgroundAssetProcessing)
+      {
+        QTimer::singleShot(1000, this, [this]() { ezAssetProcessor::GetSingleton()->RestartProcessTask(); });
+      }
 
       // Make sure preferences are saved, this is important when the project was just created.
       if (m_bSavePreferencesAfterOpenProject)

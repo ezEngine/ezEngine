@@ -16,11 +16,22 @@ class ezParticleSystemInstance;
 class ezParticleComponent;
 struct ezMsgSetPlaying;
 
-typedef ezTypedResourceHandle<class ezParticleEffectResource> ezParticleEffectResourceHandle;
+using ezParticleEffectResourceHandle = ezTypedResourceHandle<class ezParticleEffectResource>;
 
-typedef ezComponentManagerSimple<ezParticleComponent, ezComponentUpdateType::WhenSimulating> ezParticleComponentManager;
+class EZ_PARTICLEPLUGIN_DLL ezParticleComponentManager final : public ezComponentManager<class ezParticleComponent, ezBlockStorageType::Compact>
+{
+  using SUPER = ezComponentManager<class ezParticleComponent, ezBlockStorageType::Compact>;
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleComponent : public ezRenderComponent
+public:
+  ezParticleComponentManager(ezWorld* pWorld);
+
+  virtual void Initialize() override;
+
+  void Update(const ezWorldModule::UpdateContext& context);
+  void UpdateTransforms(const ezWorldModule::UpdateContext& context);
+};
+
+class EZ_PARTICLEPLUGIN_DLL ezParticleComponent final : public ezRenderComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezParticleComponent, ezRenderComponent, ezParticleComponentManager);
 
@@ -78,28 +89,31 @@ public:
   ezUInt64 m_uiRandomSeed = 0;    // [ property ]
   ezString m_sSharedInstanceName; // [ property ]
 
-  bool m_bSpawnAtStart = true;                             // [ property ]
-  bool m_bIfContinuousStopRightAway = false;               // [ property ]
-  ezEnum<ezOnComponentFinishedAction2> m_OnFinishedAction; // [ property ]
-  ezTime m_MinRestartDelay;                                // [ property ]
-  ezTime m_RestartDelayRange;                              // [ property ]
+  bool m_bSpawnAtStart = true;                                   // [ property ]
+  bool m_bIfContinuousStopRightAway = false;                     // [ property ]
+  bool m_bIgnoreOwnerRotation = false;                           // [ property ]
+  ezEnum<ezOnComponentFinishedAction2> m_OnFinishedAction;       // [ property ]
+  ezTime m_MinRestartDelay;                                      // [ property ]
+  ezTime m_RestartDelayRange;                                    // [ property ]
+  ezEnum<ezBasisAxis> m_SpawnDirection = ezBasisAxis::PositiveZ; // [ property ]
 
   ezParticleEffectController m_EffectController;
 
 protected:
   void Update();
+  void UpdateTransform();
+  void SetPfxTransform();
 
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
   void OnMsgDeleteGameObject(ezMsgDeleteGameObject& msg);
 
   virtual void OnDeactivated() override;
-  void HandOffToFinisher();
 
   ezParticleEffectResourceHandle m_hEffectResource;
   ezTime m_RestartTime;
 
   void CheckBVolumeUpdate();
-  ezTime m_LastBVolumeUpdate;
+  ezUInt32 m_uiBVolumeUpdateCounter = 0;
 
   // Exposed Parameters
   friend class ezParticleEventReaction_Effect;

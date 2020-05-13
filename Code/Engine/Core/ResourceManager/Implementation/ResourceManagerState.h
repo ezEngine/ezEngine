@@ -17,8 +17,8 @@ private:
   /// \name Events
   ///@{
 
-  ezEvent<const ezResourceEvent&> s_ResourceEvents;
-  ezEvent<const ezResourceManagerEvent&> s_ManagerEvents;
+  ezEvent<const ezResourceEvent&, ezMutex> s_ResourceEvents;
+  ezEvent<const ezResourceManagerEvent&, ezMutex> s_ManagerEvents;
 
   ///@}
   /// \name Resource Fallbacks
@@ -34,6 +34,18 @@ private:
 
   ///@}
 
+  struct TaskDataUpdateContent
+  {
+    ezUniquePtr<ezResourceManagerWorkerUpdateContent> m_pTask;
+    ezTaskGroupID m_GroupId;
+  };
+
+  struct TaskDataDataLoad
+  {
+    ezUniquePtr<ezResourceManagerWorkerDataLoad> m_pTask;
+    ezTaskGroupID m_GroupId;
+  };
+
   bool m_bTaskNamesInitialized = false;
   bool s_bBroadcastExistsEvent = false;
   ezUInt32 s_uiForceNoFallbackAcquisition = 0;
@@ -42,14 +54,13 @@ private:
   ezDeque<ezResourceManager::LoadingInfo> s_LoadingQueue;
 
   ezHashTable<const ezRTTI*, ezResourceManager::LoadedResources> s_LoadedResources;
-  static const ezUInt32 MaxDataLoadTasks = 4;
-  static const ezUInt32 MaxUpdateContentTasks = 16;
-  bool s_bDataLoadTaskRunning = false;
+
+  bool s_bAllowLaunchDataLoadTask = true;
   bool s_bShutdown = false;
-  ezResourceManagerWorkerDataLoad s_WorkerTasksDataLoad[MaxDataLoadTasks];
-  ezResourceManagerWorkerUpdateContent s_WorkerTasksUpdateContent[MaxUpdateContentTasks];
-  ezUInt8 s_uiCurrentUpdateContentWorkerTask = 0;
-  ezUInt8 s_uiCurrentLoadDataWorkerTask = 0;
+
+  ezHybridArray<TaskDataUpdateContent, 24> s_WorkerTasksUpdateContent;
+  ezHybridArray<TaskDataDataLoad, 8> s_WorkerTasksDataLoad;
+
   ezTime s_LastFrameUpdate;
   ezUInt32 s_uiLastResourcePriorityUpdateIdx = 0;
 

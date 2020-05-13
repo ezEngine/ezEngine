@@ -180,7 +180,7 @@ void ezProcVertexColorComponentManager::UpdateComponentVertexColors(ezProcVertex
 
   ezStringBuilder taskName = "VertexColor ";
   taskName.Append(pCpuMesh->GetResourceDescription().GetView());
-  pUpdateTask->SetTaskName(taskName);
+  pUpdateTask->ConfigureTask(taskName, ezTaskNesting::Never);
 
   pUpdateTask->Prepare(*GetWorld(), mbDesc, pComponent->GetOwner()->GetGlobalTransform(), pComponent->m_Outputs,
     outputMappings, m_VertexColorData.GetArrayPtr().GetSubArray(uiBufferOffset, uiVertexColorCount));
@@ -315,13 +315,13 @@ ezResult ezProcVertexColorOutputDesc::Serialize(ezStreamWriter& stream) const
   stream.WriteVersion(s_ProcVertexColorOutputDescVersion);
   stream << m_sName;
   EZ_SUCCEED_OR_RETURN(m_Mapping.Serialize(stream));
-  
+
   return EZ_SUCCESS;
 }
 
 ezResult ezProcVertexColorOutputDesc::Deserialize(ezStreamReader& stream)
 {
-  /*ezTypeVersion version =*/ stream.ReadVersion(s_ProcVertexColorOutputDescVersion);
+  /*ezTypeVersion version =*/stream.ReadVersion(s_ProcVertexColorOutputDescVersion);
   stream >> m_sName;
   EZ_SUCCEED_OR_RETURN(m_Mapping.Deserialize(stream));
 

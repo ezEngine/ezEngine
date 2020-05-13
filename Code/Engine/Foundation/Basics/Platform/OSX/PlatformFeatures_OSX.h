@@ -32,6 +32,10 @@
 #undef EZ_SUPPORTS_CASE_INSENSITIVE_PATHS
 #define EZ_SUPPORTS_CASE_INSENSITIVE_PATHS EZ_OFF
 
+/// Whether writing to files with very long paths is supported / implemented
+#undef EZ_SUPPORTS_LONG_PATHS
+#define EZ_SUPPORTS_LONG_PATHS EZ_ON
+
 /// Whether starting other processes is supported.
 #undef EZ_SUPPORTS_PROCESSES
 #define EZ_SUPPORTS_PROCESSES EZ_ON

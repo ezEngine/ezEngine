@@ -9,7 +9,7 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Utilities/Stats.h>
 
-ezStaticArray<ezWorld*, 64> ezWorld::s_Worlds;
+ezStaticArray<ezWorld*, ezWorld::GetMaxNumWorlds()> ezWorld::s_Worlds;
 
 const ezUInt16 c_InvalidWorldIndex = 0xFFFFu;
 
@@ -26,10 +26,10 @@ static ezGameObjectHandle DefaultGameObjectReferenceResolver(const void* pData, 
   // thus parsing the int and casting it to an ezGameObjectHandle gives the desired result
   if (ezStringUtils::StartsWith(szRef, "#!GGOR-"))
   {
-    ezInt32 id;
-    if (ezConversionUtils::StringToInt(szRef + 7, id).Succeeded())
+    ezInt64 id;
+    if (ezConversionUtils::StringToInt64(szRef + 7, id).Succeeded())
     {
-      return ezGameObjectHandle(static_cast<ezGameObjectId>(id));
+      return ezGameObjectHandle(ezGameObjectId(reinterpret_cast<ezUInt64&>(id)));
     }
   }
 
@@ -44,12 +44,13 @@ ezWorld::ezWorld(ezWorldDesc& desc)
 
   ezStringBuilder sb = desc.m_sName.GetString();
   sb.Append(".Update");
-  m_UpdateTask.SetTaskName(sb);
+  m_UpdateTask.ConfigureTask(sb, ezTaskNesting::Maybe);
 
   m_uiIndex = c_InvalidWorldIndex;
 
   // find a free world slot
-  for (ezUInt16 i = 0; i < static_cast<ezUInt16>(s_Worlds.GetCount()); i++)
+  const ezUInt16 uiWorldCount = static_cast<ezUInt16>(s_Worlds.GetCount());
+  for (ezUInt16 i = 0; i < uiWorldCount; i++)
   {
     if (s_Worlds[i] == nullptr)
     {
@@ -62,6 +63,8 @@ ezWorld::ezWorld(ezWorldDesc& desc)
   if (m_uiIndex == c_InvalidWorldIndex)
   {
     m_uiIndex = static_cast<ezUInt16>(s_Worlds.GetCount());
+    EZ_ASSERT_DEV(m_uiIndex < GetMaxNumWorlds(), "Max world index reached: {}", GetMaxNumWorlds());
+
     s_Worlds.PushBack(this);
   }
 
@@ -108,9 +111,25 @@ void ezWorld::Clear()
 {
   CheckForWriteAccess();
 
-  for (auto it = GetObjects(); it.IsValid(); ++it)
+  while (GetObjectCount() > 0)
   {
-    DeleteObjectNow(it->GetHandle());
+    for (auto it = GetObjects(); it.IsValid(); ++it)
+    {
+      DeleteObjectNow(it->GetHandle());
+    }
+
+    if (GetObjectCount() > 0)
+    {
+      ezLog::Dev("Remaining objects after ezWorld::Clear: {}", GetObjectCount());
+    }
+  }
+
+  for (ezWorldModule* pModule : m_Data.m_Modules)
+  {
+    if (pModule != nullptr)
+    {
+      pModule->WorldClear();
+    }
   }
 
   // make sure all dead objects and components are cleared right now
@@ -140,10 +159,12 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
 {
   CheckForWriteAccess();
 
+  EZ_ASSERT_DEV(m_Data.m_Objects.GetCount() < GetMaxNumGameObjects(), "Max number of game objects reached: {}", GetMaxNumGameObjects());
+
   ezGameObject* pParentObject = nullptr;
   ezGameObject::TransformationData* pParentData = nullptr;
   ezUInt32 uiParentIndex = 0;
-  ezUInt16 uiHierarchyLevel = 0;
+  ezUInt32 uiHierarchyLevel = 0;
   bool bDynamic = desc.m_bDynamic;
 
   if (TryGetObject(desc.m_hParent, pParentObject))
@@ -151,7 +172,7 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
     pParentData = pParentObject->m_pTransformationData;
     uiParentIndex = desc.m_hParent.m_InternalId.m_InstanceIndex;
     uiHierarchyLevel = pParentObject->m_uiHierarchyLevel + 1; // if there is a parent hierarchy level is parent level + 1
-    EZ_ASSERT_DEV(uiHierarchyLevel < (1 << 12), "Max hierarchy level reached");
+    EZ_ASSERT_DEV(uiHierarchyLevel < GetMaxNumHierarchyLevels(), "Max hierarchy level reached: {}", GetMaxNumHierarchyLevels());
     bDynamic |= pParentObject->IsDynamic();
   }
 
@@ -171,7 +192,6 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   pNewObject->m_Flags.AddOrRemove(ezObjectFlags::Dynamic, bDynamic);
   pNewObject->m_Flags.AddOrRemove(ezObjectFlags::ActiveFlag, desc.m_bActiveFlag);
   pNewObject->m_sName = desc.m_sName;
-  pNewObject->m_pWorld = this;
   pNewObject->m_ParentIndex = uiParentIndex;
   pNewObject->m_Tags = desc.m_Tags;
   pNewObject->m_uiTeamID = desc.m_uiTeamID;
@@ -219,12 +239,12 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   return ezGameObjectHandle(newId);
 }
 
-void ezWorld::DeleteObjectNow(const ezGameObjectHandle& object)
+void ezWorld::DeleteObjectNow(const ezGameObjectHandle& hObject)
 {
   CheckForWriteAccess();
 
   ezGameObject* pObject = nullptr;
-  if (!m_Data.m_Objects.TryGetValue(object, pObject))
+  if (!m_Data.m_Objects.TryGetValue(hObject, pObject))
     return;
 
   // set object to inactive so components and children know that they shouldn't access the object anymore.
@@ -250,10 +270,12 @@ void ezWorld::DeleteObjectNow(const ezGameObjectHandle& object)
   // remove from global key tables
   SetObjectGlobalKey(pObject, ezHashedString());
 
-  // invalidate and remove from id table
+  // invalidate (but preserve world index) and remove from id table
   pObject->m_InternalId.Invalidate();
+  pObject->m_InternalId.m_WorldIndex = m_uiIndex;
+
   m_Data.m_DeadObjects.Insert(pObject);
-  EZ_VERIFY(m_Data.m_Objects.Remove(object), "Implementation error.");
+  EZ_VERIFY(m_Data.m_Objects.Remove(hObject), "Implementation error.");
 }
 
 void ezWorld::DeleteObjectDelayed(const ezGameObjectHandle& hObject)
@@ -262,12 +284,67 @@ void ezWorld::DeleteObjectDelayed(const ezGameObjectHandle& hObject)
   PostMessage(hObject, msg, ezObjectMsgQueueType::NextFrame);
 }
 
+ezComponentInitBatchHandle ezWorld::CreateComponentInitBatch(const char* szBatchName, bool bMustFinishWithinOneFrame /*= true*/)
+{
+  auto pInitBatch = EZ_NEW(GetAllocator(), ezInternal::WorldData::InitBatch, GetAllocator(), szBatchName, bMustFinishWithinOneFrame);
+  return ezComponentInitBatchHandle(m_Data.m_InitBatches.Insert(pInitBatch));
+}
+
+void ezWorld::DeleteComponentInitBatch(const ezComponentInitBatchHandle& batch)
+{
+  auto& pInitBatch = m_Data.m_InitBatches[batch.GetInternalID()];
+  EZ_ASSERT_DEV(pInitBatch->m_ComponentsToInitialize.IsEmpty() && pInitBatch->m_ComponentsToStartSimulation.IsEmpty(), "Init batch has not been completely processed");
+  m_Data.m_InitBatches.Remove(batch.GetInternalID());
+}
+
+void ezWorld::BeginAddingComponentsToInitBatch(const ezComponentInitBatchHandle& batch)
+{
+  EZ_ASSERT_DEV(m_Data.m_pCurrentInitBatch == m_Data.m_pDefaultInitBatch, "Nested init batches are not supported");
+  m_Data.m_pCurrentInitBatch = m_Data.m_InitBatches[batch.GetInternalID()].Borrow();
+}
+
+void ezWorld::EndAddingComponentsToInitBatch(const ezComponentInitBatchHandle& batch)
+{
+  EZ_ASSERT_DEV(m_Data.m_InitBatches[batch.GetInternalID()] == m_Data.m_pCurrentInitBatch, "Init batch with id {} is currently not active", batch.GetInternalID().m_Data);
+  m_Data.m_pCurrentInitBatch = m_Data.m_pDefaultInitBatch;
+}
+
+void ezWorld::SubmitComponentInitBatch(const ezComponentInitBatchHandle& batch)
+{
+  m_Data.m_InitBatches[batch.GetInternalID()]->m_bIsReady = true;
+  m_Data.m_pCurrentInitBatch = m_Data.m_pDefaultInitBatch;
+}
+
+bool ezWorld::IsComponentInitBatchCompleted(const ezComponentInitBatchHandle& batch, double* pCompletionFactor /*= nullptr*/)
+{
+  auto& pInitBatch = m_Data.m_InitBatches[batch.GetInternalID()];
+  EZ_ASSERT_DEV(pInitBatch->m_bIsReady, "Batch is not submitted yet");
+
+  if (pCompletionFactor != nullptr)
+  {
+    if (pInitBatch->m_ComponentsToInitialize.IsEmpty())
+    {
+      double fStartSimCompletion = pInitBatch->m_ComponentsToStartSimulation.IsEmpty() ? 1.0 : (double)pInitBatch->m_uiNextComponentToStartSimulation / pInitBatch->m_ComponentsToStartSimulation.GetCount();
+      *pCompletionFactor = fStartSimCompletion * 0.5 + 0.5;
+    }
+    else
+    {
+      double fInitCompletion = pInitBatch->m_ComponentsToInitialize.IsEmpty() ? 1.0 : (double)pInitBatch->m_uiNextComponentToInitialize / pInitBatch->m_ComponentsToInitialize.GetCount();
+      *pCompletionFactor = fInitCompletion * 0.5;
+    }
+  }
+
+  return pInitBatch->m_ComponentsToInitialize.IsEmpty() && pInitBatch->m_ComponentsToStartSimulation.IsEmpty();
+}
+
 void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay, bool bRecursive) const
 {
   // This method is allowed to be called from multiple threads.
 
+  EZ_ASSERT_DEBUG((receiverObject.m_InternalId.m_Data >> 62) == 0, "Upper 2 bits in object id must not be set");
+
   QueuedMsgMetaData metaData;
-  metaData.m_uiReceiverObject = receiverObject.m_InternalId.m_Data;
+  metaData.m_uiReceiverObjectOrComponent = receiverObject.m_InternalId.m_Data;
   metaData.m_uiReceiverIsComponent = false;
   metaData.m_uiRecursive = bRecursive;
 
@@ -290,10 +367,10 @@ void ezWorld::PostMessage(const ezComponentHandle& receiverComponent, const ezMe
 {
   // This method is allowed to be called from multiple threads.
 
-  QueuedMsgMetaData metaData;
-  metaData.m_uiReceiverComponent = *reinterpret_cast<const ezUInt64*>(&receiverComponent.m_InternalId);
-  EZ_ASSERT_DEBUG((metaData.m_uiReceiverData >> 62) == 0, "Upper 2 bits in component id must not be set");
+  EZ_ASSERT_DEBUG((receiverComponent.m_InternalId.m_Data >> 62) == 0, "Upper 2 bits in component id must not be set");
 
+  QueuedMsgMetaData metaData;
+  metaData.m_uiReceiverObjectOrComponent = receiverComponent.m_InternalId.m_Data;
   metaData.m_uiReceiverIsComponent = true;
   metaData.m_uiRecursive = false;
 
@@ -440,7 +517,9 @@ void ezWorld::Update()
   // Process again so new component can receive render messages, otherwise we introduce a frame delay.
   {
     EZ_PROFILE_SCOPE("Initialize Phase 2");
-    ProcessComponentsToInitialize();
+    // Only process the default init batch here since it contains the components created at runtime.
+    // Also make sure that all initialization is finished after this call by giving it enough time.
+    ProcessInitializationBatch(*m_Data.m_pDefaultInitBatch, ezTime::Now() + ezTime::Hours(10000));
 
     ProcessQueuedMessages(ezObjectMsgQueueType::AfterInitialized);
   }
@@ -455,7 +534,7 @@ ezWorldModule* ezWorld::GetOrCreateModule(const ezRTTI* pRtti)
 {
   CheckForWriteAccess();
 
-  const ezUInt16 uiTypeId = ezWorldModuleFactory::GetInstance()->GetTypeId(pRtti);
+  const ezWorldModuleTypeId uiTypeId = ezWorldModuleFactory::GetInstance()->GetTypeId(pRtti);
   if (uiTypeId == 0xFFFF)
   {
     return nullptr;
@@ -480,7 +559,7 @@ void ezWorld::DeleteModule(const ezRTTI* pRtti)
 {
   CheckForWriteAccess();
 
-  const ezUInt16 uiTypeId = ezWorldModuleFactory::GetInstance()->GetTypeId(pRtti);
+  const ezWorldModuleTypeId uiTypeId = ezWorldModuleFactory::GetInstance()->GetTypeId(pRtti);
   if (uiTypeId < m_Data.m_Modules.GetCount())
   {
     if (ezWorldModule* pModule = m_Data.m_Modules[uiTypeId])
@@ -498,7 +577,7 @@ ezWorldModule* ezWorld::GetModule(const ezRTTI* pRtti)
 {
   CheckForWriteAccess();
 
-  const ezUInt16 uiTypeId = ezWorldModuleFactory::GetInstance()->GetTypeId(pRtti);
+  const ezWorldModuleTypeId uiTypeId = ezWorldModuleFactory::GetInstance()->GetTypeId(pRtti);
   if (uiTypeId < m_Data.m_Modules.GetCount())
   {
     return m_Data.m_Modules[uiTypeId];
@@ -511,7 +590,7 @@ const ezWorldModule* ezWorld::GetModule(const ezRTTI* pRtti) const
 {
   CheckForReadAccess();
 
-  const ezUInt16 uiTypeId = ezWorldModuleFactory::GetInstance()->GetTypeId(pRtti);
+  const ezWorldModuleTypeId uiTypeId = ezWorldModuleFactory::GetInstance()->GetTypeId(pRtti);
   if (uiTypeId < m_Data.m_Modules.GetCount())
   {
     return m_Data.m_Modules[uiTypeId];
@@ -672,8 +751,7 @@ void ezWorld::ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::En
 {
   if (entry.m_MetaData.m_uiReceiverIsComponent)
   {
-    ezUInt64 uiReceiverComponent = entry.m_MetaData.m_uiReceiverComponent;
-    ezComponentHandle hComponent(*reinterpret_cast<ezComponentId*>(&uiReceiverComponent));
+    ezComponentHandle hComponent(ezComponentId(entry.m_MetaData.m_uiReceiverObjectOrComponent));
 
     ezComponent* pReceiverComponent = nullptr;
     if (TryGetComponent(hComponent, pReceiverComponent))
@@ -693,7 +771,7 @@ void ezWorld::ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::En
   }
   else
   {
-    ezGameObjectHandle hObject(ezGameObjectId(entry.m_MetaData.m_uiReceiverObject));
+    ezGameObjectHandle hObject(ezGameObjectId(entry.m_MetaData.m_uiReceiverObjectOrComponent));
 
     ezGameObject* pReceiverObject = nullptr;
     if (TryGetObject(hObject, pReceiverObject))
@@ -726,8 +804,7 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
 
   struct MessageComparer
   {
-    EZ_FORCE_INLINE bool Less(
-      const ezInternal::WorldData::MessageQueue::Entry& a, const ezInternal::WorldData::MessageQueue::Entry& b) const
+    EZ_FORCE_INLINE bool Less(const ezInternal::WorldData::MessageQueue::Entry& a, const ezInternal::WorldData::MessageQueue::Entry& b) const
     {
       if (a.m_MetaData.m_Due != b.m_MetaData.m_Due)
         return a.m_MetaData.m_Due < b.m_MetaData.m_Due;
@@ -740,10 +817,20 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
       if (a.m_pMessage->GetId() != b.m_pMessage->GetId())
         return a.m_pMessage->GetId() < b.m_pMessage->GetId();
 
-      if (a.m_MetaData.m_uiReceiverComponent != b.m_MetaData.m_uiReceiverComponent)
-        return a.m_MetaData.m_uiReceiverComponent < b.m_MetaData.m_uiReceiverComponent;
+      if (a.m_MetaData.m_uiReceiverData != b.m_MetaData.m_uiReceiverData)
+        return a.m_MetaData.m_uiReceiverData < b.m_MetaData.m_uiReceiverData;
 
-      return a.m_pMessage->GetHash() < b.m_pMessage->GetHash();
+      if (a.m_uiMessageHash == 0)
+      {
+        a.m_uiMessageHash = a.m_pMessage->GetHash();
+      }
+
+      if (b.m_uiMessageHash == 0)
+      {
+        b.m_uiMessageHash = b.m_pMessage->GetHash();
+      }
+
+      return a.m_uiMessageHash < b.m_uiMessageHash;
     }
   };
 
@@ -790,10 +877,8 @@ void ezWorld::RegisterUpdateFunction(const ezComponentManagerBase::UpdateFunctio
 {
   CheckForWriteAccess();
 
-  EZ_ASSERT_DEV(desc.m_Phase == ezComponentManagerBase::UpdateFunctionDesc::Phase::Async || desc.m_uiGranularity == 0,
-    "Granularity must be 0 for synchronous update functions");
-  EZ_ASSERT_DEV(desc.m_Phase != ezComponentManagerBase::UpdateFunctionDesc::Phase::Async || desc.m_DependsOn.GetCount() == 0,
-    "Asynchronous update functions must not have dependencies");
+  EZ_ASSERT_DEV(desc.m_Phase == ezComponentManagerBase::UpdateFunctionDesc::Phase::Async || desc.m_uiGranularity == 0, "Granularity must be 0 for synchronous update functions");
+  EZ_ASSERT_DEV(desc.m_Phase != ezComponentManagerBase::UpdateFunctionDesc::Phase::Async || desc.m_DependsOn.GetCount() == 0, "Asynchronous update functions must not have dependencies");
   EZ_ASSERT_DEV(desc.m_Function.IsComparable(), "Delegates with captures are not allowed as ezWorld update functions.");
 
   m_Data.m_UpdateFunctionsToRegister.PushBack(desc);
@@ -835,7 +920,7 @@ void ezWorld::DeregisterUpdateFunctions(ezWorldModule* pModule)
 
 void ezWorld::AddComponentToInitialize(ezComponentHandle hComponent)
 {
-  m_Data.m_ComponentsToInitialize.PushBack(hComponent);
+  m_Data.m_pCurrentInitBatch->m_ComponentsToInitialize.PushBack(hComponent);
 }
 
 void ezWorld::UpdateFromThread()
@@ -896,7 +981,7 @@ void ezWorld::UpdateAsynchronous()
         m_Data.m_UpdateTasks.PushBack(pTask);
       }
 
-      pTask->SetTaskName(updateFunction.m_sFunctionName);
+      pTask->ConfigureTask(updateFunction.m_sFunctionName, ezTaskNesting::Maybe);
       pTask->m_Function = updateFunction.m_Function;
       pTask->m_uiStartIndex = uiStartIndex;
       pTask->m_uiCount = (uiStartIndex + uiGranularity < uiTotalCount) ? uiGranularity : ezInvalidIndex;
@@ -911,42 +996,98 @@ void ezWorld::UpdateAsynchronous()
   ezTaskSystem::WaitForGroup(taskGroupId);
 }
 
+bool ezWorld::ProcessInitializationBatch(ezInternal::WorldData::InitBatch& batch, ezTime endTime)
+{
+  CheckForWriteAccess();
+
+  if (!batch.m_ComponentsToInitialize.IsEmpty())
+  {
+    ezStringBuilder profileScopeName("Init ", batch.m_sName);
+    EZ_PROFILE_SCOPE(profileScopeName);
+
+    // Reserve for later use
+    batch.m_ComponentsToStartSimulation.Reserve(batch.m_ComponentsToInitialize.GetCount());
+
+    // Can't use foreach here because the array might be resized during iteration.
+    for (; batch.m_uiNextComponentToInitialize < batch.m_ComponentsToInitialize.GetCount(); ++batch.m_uiNextComponentToInitialize)
+    {
+      ezComponentHandle hComponent = batch.m_ComponentsToInitialize[batch.m_uiNextComponentToInitialize];
+
+      // if it is in the editor, the component might have been added and already deleted, without ever running the simulation
+      ezComponent* pComponent = nullptr;
+      if (!TryGetComponent(hComponent, pComponent))
+        continue;
+
+      // make sure the object's transform is up to date before the component is initialized
+      if (pComponent->GetOwner())
+      {
+        pComponent->GetOwner()->UpdateGlobalTransform();
+      }
+
+      pComponent->EnsureInitialized();
+
+      if (pComponent->IsActive())
+      {
+        pComponent->OnActivated();
+
+        batch.m_ComponentsToStartSimulation.PushBack(hComponent);
+      }
+
+      // Check if there is still time left to initialize more components
+      if (ezTime::Now() >= endTime)
+      {
+        ++batch.m_uiNextComponentToInitialize;
+        return false;
+      }
+    }
+
+    batch.m_ComponentsToInitialize.Clear();
+    batch.m_uiNextComponentToInitialize = 0;
+  }
+
+  if (m_Data.m_bSimulateWorld)
+  {
+    ezStringBuilder startSimName("Start Sim ", batch.m_sName);
+    EZ_PROFILE_SCOPE(startSimName);
+
+    // Can't use foreach here because the array might be resized during iteration.
+    for (; batch.m_uiNextComponentToStartSimulation < batch.m_ComponentsToStartSimulation.GetCount(); ++batch.m_uiNextComponentToStartSimulation)
+    {
+      ezComponentHandle hComponent = batch.m_ComponentsToStartSimulation[batch.m_uiNextComponentToStartSimulation];
+
+      // if it is in the editor, the component might have been added and already deleted,  without ever running the simulation
+      ezComponent* pComponent = nullptr;
+      if (!TryGetComponent(hComponent, pComponent))
+        continue;
+
+      if (pComponent->IsActiveAndInitialized())
+      {
+        pComponent->EnsureSimulationStarted();
+      }
+
+      // Check if there is still time left to initialize more components
+      if (ezTime::Now() >= endTime)
+      {
+        ++batch.m_uiNextComponentToStartSimulation;
+        return false;
+      }
+    }
+
+    batch.m_ComponentsToStartSimulation.Clear();
+    batch.m_uiNextComponentToStartSimulation = 0;
+  }
+
+  return true;
+}
+
 void ezWorld::ProcessComponentsToInitialize()
 {
   CheckForWriteAccess();
 
-  EZ_PROFILE_SCOPE("Initialize Components");
-
-  // Can't use foreach here because the array might be resized during iteration.
-  for (ezUInt32 i = 0; i < m_Data.m_ComponentsToInitialize.GetCount(); ++i)
-  {
-    ezComponentHandle hComponent = m_Data.m_ComponentsToInitialize[i];
-
-    ezComponent* pComponent = nullptr;
-    if (!TryGetComponent(hComponent, pComponent)) // if it is in the editor, the component might have been added and already deleted,
-                                                  // without ever running the simulation
-      continue;
-
-    // make sure the object's transform is up to date before the component is initialized
-    if (pComponent->GetOwner())
-    {
-      pComponent->GetOwner()->UpdateGlobalTransform();
-    }
-
-    pComponent->EnsureInitialized();
-
-    if (pComponent->IsActive())
-    {
-      pComponent->OnActivated();
-
-      m_Data.m_ComponentsToStartSimulation.PushBack(hComponent);
-    }
-  }
-
-  m_Data.m_ComponentsToInitialize.Clear();
-
   if (m_Data.m_bSimulateWorld)
   {
+    EZ_PROFILE_SCOPE("Modules Start Simulation");
+
     // Can't use foreach here because the array might be resized during iteration.
     for (ezUInt32 i = 0; i < m_Data.m_ModulesToStartSimulation.GetCount(); ++i)
     {
@@ -954,24 +1095,34 @@ void ezWorld::ProcessComponentsToInitialize()
     }
 
     m_Data.m_ModulesToStartSimulation.Clear();
+  }
 
-    // Can't use foreach here because the array might be resized during iteration.
-    for (ezUInt32 i = 0; i < m_Data.m_ComponentsToStartSimulation.GetCount(); ++i)
+  EZ_PROFILE_SCOPE("Initialize Components");
+
+  ezTime endTime = ezTime::Now() + m_Data.m_MaxInitializationTimePerFrame;
+
+  // First process all component init batches that have to finish within this frame
+  for (auto it = m_Data.m_InitBatches.GetIterator(); it.IsValid(); ++it)
+  {
+    auto& pInitBatch = it.Value();
+    if (pInitBatch->m_bIsReady && pInitBatch->m_bMustFinishWithinOneFrame)
     {
-      ezComponentHandle hComponent = m_Data.m_ComponentsToStartSimulation[i];
+      ProcessInitializationBatch(*pInitBatch, ezTime::Now() + ezTime::Hours(10000));
+    }
+  }
 
-      ezComponent* pComponent = nullptr;
-      if (!TryGetComponent(hComponent, pComponent)) // if it is in the editor, the component might have been added and already deleted,
-                                                    // without ever running the simulation
+  // If there is still time left process other component init batches
+  if (ezTime::Now() < endTime)
+  {
+    for (auto it = m_Data.m_InitBatches.GetIterator(); it.IsValid(); ++it)
+    {
+      auto& pInitBatch = it.Value();
+      if (!pInitBatch->m_bIsReady || pInitBatch->m_bMustFinishWithinOneFrame)
         continue;
 
-      if (pComponent->IsActiveAndInitialized())
-      {
-        pComponent->EnsureSimulationStarted();
-      }
+      if (!ProcessInitializationBatch(*pInitBatch, endTime))
+        return;
     }
-
-    m_Data.m_ComponentsToStartSimulation.Clear();
   }
 }
 
@@ -1144,7 +1295,7 @@ void ezWorld::RecreateHierarchyData(ezGameObject* pObject, bool bWasDynamic)
 {
   ezGameObject* pParent = pObject->GetParent();
 
-  const ezUInt16 uiNewHierarchyLevel = pParent != nullptr ? pParent->m_uiHierarchyLevel + 1 : 0;
+  const ezUInt32 uiNewHierarchyLevel = pParent != nullptr ? pParent->m_uiHierarchyLevel + 1 : 0;
   const ezUInt32 uiOldHierarchyLevel = pObject->m_uiHierarchyLevel;
 
   const bool bIsDynamic = pObject->IsDynamic();

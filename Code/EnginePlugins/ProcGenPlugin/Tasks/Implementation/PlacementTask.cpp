@@ -16,14 +16,15 @@ EZ_CHECK_AT_COMPILETIME(sizeof(PlacementPoint) == 32);
 // EZ_CHECK_AT_COMPILETIME(sizeof(PlacementTransform) == 64); // TODO: Fails on Linux and Mac
 
 PlacementTask::PlacementTask(PlacementData* pData, const char* szName)
-  : ezTask(szName)
-  , m_pData(pData)
+  : m_pData(pData)
 {
+  ConfigureTask(szName, ezTaskNesting::Maybe);
+
   m_VM.RegisterDefaultFunctions();
   m_VM.RegisterFunction("ApplyVolumes", &ezProcGenExpressionFunctions::ApplyVolumes, &ezProcGenExpressionFunctions::ApplyVolumesValidate);
 }
 
-PlacementTask::~PlacementTask() {}
+PlacementTask::~PlacementTask() = default;
 
 void PlacementTask::Clear()
 {
@@ -50,7 +51,7 @@ void PlacementTask::FindPlacementPoints()
   EZ_ASSERT_DEV(m_pData->m_pPhysicsModule != nullptr, "Physics module must be valid");
   auto pOutput = m_pData->m_pOutput;
 
-  ezSimdVec4i seed = ezSimdVec4i(m_pData->m_iTileSeed) + ezSimdVec4i(0, 3, 7, 11);
+  ezSimdVec4u seed = ezSimdVec4u(m_pData->m_iTileSeed) + ezSimdVec4u(0, 3, 7, 11);
 
   float fZRange = m_pData->m_TileBoundingBox.GetExtents().z;
   ezSimdFloat fZStart = m_pData->m_TileBoundingBox.m_vMax.z;
@@ -69,11 +70,11 @@ void PlacementTask::FindPlacementPoints()
     ezSimdVec4f patternCoords = ezSimdConversion::ToVec3(patternPoint.m_Coordinates.GetAsVec3(0.0f));
 
     ezSimdVec4f rayStart = (vXY + patternCoords * pOutput->m_fFootprint);
-    rayStart += ezSimdRandom::FloatMinMax(seed + ezSimdVec4i(i), vMinOffset, vMaxOffset);
+    rayStart += ezSimdRandom::FloatMinMax(seed + ezSimdVec4u(i), vMinOffset, vMaxOffset);
     rayStart.SetZ(fZStart);
 
-    ezPhysicsHitResult hitResult;
-    if (!m_pData->m_pPhysicsModule->CastRay(ezSimdConversion::ToVec3(rayStart), rayDir, fZRange, uiCollisionLayer, hitResult, ezPhysicsShapeType::Static))
+    ezPhysicsCastResult hitResult;
+    if (!m_pData->m_pPhysicsModule->Raycast(hitResult, ezSimdConversion::ToVec3(rayStart), rayDir, fZRange, ezPhysicsQueryParameters(uiCollisionLayer, ezPhysicsShapeType::Static)))
       continue;
 
     if (pOutput->m_hSurface.IsValid())
@@ -166,7 +167,7 @@ void PlacementTask::ExecuteVM()
     }
 
     // Test density against point threshold and fill remaining input point data from expression
-    float fMaxObjectIndex = static_cast<float>(pOutput->m_ObjectsToPlace.GetCount() - 1);
+    float fObjectCount = static_cast<float>(pOutput->m_ObjectsToPlace.GetCount());
     const Pattern* pPattern = pOutput->m_pPattern;
     for (ezUInt32 i = 0; i < uiNumInstances; ++i)
     {
@@ -177,8 +178,8 @@ void PlacementTask::ExecuteVM()
       if (density[i] >= fThreshold)
       {
         inputPoint.m_fScale = scale[i];
-        inputPoint.m_uiColorIndex = ezMath::ColorFloatToByte(colorIndex[i]);
-        inputPoint.m_uiObjectIndex = static_cast<ezUInt8>(ezMath::Saturate(objectIndex[i]) * fMaxObjectIndex + 0.5f);
+        inputPoint.m_uiColorIndex = static_cast<ezUInt8>(ezMath::Clamp(colorIndex[i] * 256.0f, 0.0f, 255.0f));
+        inputPoint.m_uiObjectIndex = static_cast<ezUInt8>(ezMath::Clamp(objectIndex[i] * fObjectCount, 0.0f, fObjectCount - 1.0f));
 
         m_ValidPoints.PushBack(i);
       }
@@ -194,7 +195,7 @@ void PlacementTask::ExecuteVM()
 
   m_OutputTransforms.SetCountUninitialized(m_ValidPoints.GetCount());
 
-  ezSimdVec4i seed = ezSimdVec4i(m_pData->m_iTileSeed) + ezSimdVec4i(0, 3, 7, 11);
+  ezSimdVec4u seed = ezSimdVec4u(m_pData->m_iTileSeed) + ezSimdVec4u(0, 3, 7, 11);
 
   float fMinAngle = 0.0f;
   float fMaxAngle = ezMath::Pi<float>() * 2.0f;
@@ -205,7 +206,6 @@ void PlacementTask::ExecuteVM()
   ezSimdVec4f vAlignToNormal = ezSimdVec4f(pOutput->m_fAlignToNormal);
   ezSimdVec4f vMinScale = ezSimdConversion::ToVec3(pOutput->m_vMinScale);
   ezSimdVec4f vMaxScale = ezSimdConversion::ToVec3(pOutput->m_vMaxScale);
-  ezUInt8 uiMaxObjectIndex = (ezUInt8)(pOutput->m_ObjectsToPlace.GetCount() - 1);
 
   const ezColorGradient* pColorGradient = nullptr;
   if (pOutput->m_hColorGradient.IsValid())
@@ -220,7 +220,7 @@ void PlacementTask::ExecuteVM()
     auto& placementPoint = m_InputPoints[uiInputPointIndex];
     auto& placementTransform = m_OutputTransforms[i];
 
-    ezSimdVec4f random = ezSimdRandom::FloatMinMax(seed + ezSimdVec4i(placementPoint.m_uiPointIndex), vMinValue, vMaxValue);
+    ezSimdVec4f random = ezSimdRandom::FloatMinMax(seed + ezSimdVec4u(placementPoint.m_uiPointIndex), vMinValue, vMaxValue);
 
     placementTransform.m_Transform.SetIdentity();
 
@@ -249,7 +249,7 @@ void PlacementTask::ExecuteVM()
     }
     placementTransform.m_Color = objectColor;
 
-    placementTransform.m_uiObjectIndex = ezMath::Min(placementPoint.m_uiObjectIndex, uiMaxObjectIndex);
+    placementTransform.m_uiObjectIndex = placementPoint.m_uiObjectIndex;
     placementTransform.m_uiPointIndex = placementPoint.m_uiPointIndex;
   }
 }

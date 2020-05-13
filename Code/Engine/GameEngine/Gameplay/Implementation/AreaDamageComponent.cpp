@@ -35,7 +35,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezAreaDamageComponent, 1, ezComponentMode::Static)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-static ezPhysicsOverlapResult g_OverlapResults;
+static ezPhysicsOverlapResultArray g_OverlapResults;
 
 ezAreaDamageComponent::ezAreaDamageComponent() = default;
 ezAreaDamageComponent::~ezAreaDamageComponent() = default;
@@ -45,6 +45,8 @@ void ezAreaDamageComponent::ApplyAreaDamage()
   if (!IsActiveAndSimulating())
     return;
 
+  EZ_PROFILE_SCOPE("ApplyAreaDamage");
+
   ezPhysicsWorldModuleInterface* pPhysicsInterface = GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
 
   if (pPhysicsInterface == nullptr)
@@ -52,7 +54,7 @@ void ezAreaDamageComponent::ApplyAreaDamage()
 
   const ezVec3 vOwnPosition = GetOwner()->GetGlobalPosition();
 
-  pPhysicsInterface->QueryDynamicShapesInSphere(m_fRadius, vOwnPosition, m_uiCollisionLayer, g_OverlapResults);
+  pPhysicsInterface->QueryShapesInSphere(g_OverlapResults, m_fRadius, vOwnPosition, ezPhysicsQueryParameters(m_uiCollisionLayer, ezPhysicsShapeType::Dynamic));
 
   const float fInvRadius = 1.0f / m_fRadius;
 
@@ -95,7 +97,7 @@ void ezAreaDamageComponent::ApplyAreaDamage()
         if (m_fDamage > 0.0f)
         {
           ezMsgDamage msg;
-          msg.m_fDamage = m_fDamage * fScale;
+          msg.m_fDamage = static_cast<double>(m_fDamage) * static_cast<double>(fScale);
 
           ezGameObject* pShape = nullptr;
           if (GetWorld()->TryGetObject(hit.m_hShapeObject, pShape))
@@ -103,7 +105,8 @@ void ezAreaDamageComponent::ApplyAreaDamage()
             msg.m_sHitObjectName = pShape->GetName();
           }
 
-          pObject->SendMessage(msg);
+          // delay the damage a little bit for nicer chain reactions
+          pObject->PostMessage(msg, ezObjectMsgQueueType::NextFrame, ezTime::Milliseconds(200));
         }
       }
     }
@@ -155,18 +158,7 @@ void ezAreaDamageComponentManager::Initialize()
 {
   SUPER::Initialize();
 
-  auto desc = EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(ezAreaDamageComponentManager::Update, this);
-
-  RegisterUpdateFunction(desc);
-
   m_pPhysicsInterface = GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
 }
 
-void ezAreaDamageComponentManager::Update(const ezWorldModule::UpdateContext& context)
-{
-  // nothing to do atm
-}
-
-
-
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_AreaDamageComponent);
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_AreaDamageComponent);

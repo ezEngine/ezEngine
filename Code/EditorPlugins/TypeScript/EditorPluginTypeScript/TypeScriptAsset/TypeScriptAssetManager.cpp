@@ -228,7 +228,7 @@ ezResult ezTypeScriptAssetDocumentManager::GenerateScriptCompendium(ezBitflags<e
 
   // keep this locked until the end of the function
   ezAssetCurator::ezLockedSubAssetTable AllAssetsLocked = ezAssetCurator::GetSingleton()->GetKnownSubAssets();
-  const ezMap<ezUuid, ezSubAsset>& AllAssets = *AllAssetsLocked;
+  const ezHashTable<ezUuid, ezSubAsset>& AllAssets = *AllAssetsLocked;
 
   for (auto it = AllAssets.GetIterator(); it.IsValid(); ++it)
   {

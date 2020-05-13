@@ -12,6 +12,7 @@
 #include <ParticlePlugin/Finalizer/ParticleFinalizer_ApplyVelocity.h>
 #include <ParticlePlugin/Finalizer/ParticleFinalizer_LastPosition.h>
 #include <ParticlePlugin/System/ParticleSystemInstance.h>
+#include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleBehaviorFactory_Raycast, 1, ezRTTIDefaultAllocator<ezParticleBehaviorFactory_Raycast>)
@@ -52,7 +53,7 @@ void ezParticleBehaviorFactory_Raycast::CopyBehaviorProperties(ezParticleBehavio
   pBehavior->m_sOnCollideEvent = ezTempHashedString(m_sOnCollideEvent.GetData());
   pBehavior->m_fBounceFactor = m_fBounceFactor;
 
-  pBehavior->m_pPhysicsModule = pBehavior->GetOwnerSystem()->GetWorld()->GetOrCreateModule<ezPhysicsWorldModuleInterface>();
+  pBehavior->m_pPhysicsModule = (ezPhysicsWorldModuleInterface*)pBehavior->GetOwnerSystem()->GetOwnerWorldModule()->GetCachedWorldModule(ezGetStaticRTTI<ezPhysicsWorldModuleInterface>());
 }
 
 enum class BehaviorRaycastVersion
@@ -113,6 +114,12 @@ void ezParticleBehaviorFactory_Raycast::QueryFinalizerDependencies(ezSet<const e
 
 //////////////////////////////////////////////////////////////////////////
 
+ezParticleBehavior_Raycast::ezParticleBehavior_Raycast()
+{
+  // do this right after ezParticleFinalizer_ApplyVelocity has run
+  m_fPriority = 526.0f;
+}
+
 void ezParticleBehavior_Raycast::CreateRequiredStreams()
 {
   CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
@@ -130,7 +137,7 @@ void ezParticleBehavior_Raycast::Process(ezUInt64 uiNumElements)
   ezProcessingStreamIterator<const ezVec3> itLastPosition(m_pStreamLastPosition, uiNumElements, 0);
   ezProcessingStreamIterator<ezVec3> itVelocity(m_pStreamVelocity, uiNumElements, 0);
 
-  ezPhysicsHitResult hitResult;
+  ezPhysicsCastResult hitResult;
 
   ezUInt32 i = 0;
   while (!itPosition.HasReachedEnd())
@@ -148,7 +155,7 @@ void ezParticleBehavior_Raycast::Process(ezUInt64 uiNumElements)
 
         const float fMaxLen = vDirection.GetLengthAndNormalize();
 
-        if (m_pPhysicsModule != nullptr && m_pPhysicsModule->CastRay(vLastPos, vDirection, fMaxLen, m_uiCollisionLayer, hitResult))
+        if (m_pPhysicsModule != nullptr && m_pPhysicsModule->Raycast(hitResult, vLastPos, vDirection, fMaxLen, ezPhysicsQueryParameters(m_uiCollisionLayer)))
         {
           if (m_Reaction == ezParticleRaycastHitReaction::Bounce)
           {
@@ -187,6 +194,11 @@ void ezParticleBehavior_Raycast::Process(ezUInt64 uiNumElements)
 
     ++i;
   }
+}
+
+void ezParticleBehavior_Raycast::RequestRequiredWorldModulesForCache(ezParticleWorldModule* pParticleModule)
+{
+  pParticleModule->CacheWorldModule<ezPhysicsWorldModuleInterface>();
 }
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Behavior_ParticleBehavior_Raycast);

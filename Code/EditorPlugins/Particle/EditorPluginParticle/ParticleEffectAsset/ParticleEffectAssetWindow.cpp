@@ -25,10 +25,8 @@
 ezQtParticleEffectAssetDocumentWindow::ezQtParticleEffectAssetDocumentWindow(ezAssetDocument* pDocument)
     : ezQtEngineDocumentWindow(pDocument)
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(
-      ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::PropertyEventHandler, this));
-  GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(
-      ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::StructureEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::StructureEventHandler, this));
 
 
   // Menu Bar
@@ -120,13 +118,14 @@ ezQtParticleEffectAssetDocumentWindow::ezQtParticleEffectAssetDocumentWindow(ezA
     }
 
     m_pPropertyGridSystems = new ezQtPropertyGridWidget(pSystemsPanel, pDocument);
+    m_pPropertyGridSystems->SetSelectionIncludeExcludeProperties(nullptr, "Name;Emitters;Initializers;Behaviors;Types");
     pMainWidget->layout()->addWidget(m_pPropertyGridSystems);
 
     if (!pRootObject->GetChildren().IsEmpty())
     {
       ezDeque<const ezDocumentObject*> sel;
       sel.PushBack(pRootObject->GetChildren()[0]);
-      m_pPropertyGridSystems->SetSelection(sel, nullptr, "Name;Emitters;Initializers;Behaviors;Types");
+      m_pPropertyGridSystems->SetSelection(sel);
     }
 
     pMainWidget->layout()->addItem(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::MinimumExpanding));
@@ -148,7 +147,8 @@ ezQtParticleEffectAssetDocumentWindow::ezQtParticleEffectAssetDocumentWindow(ezA
 
     ezDeque<const ezDocumentObject*> sel;
     sel.PushBack(pRootObject);
-    pPropertyGrid->SetSelection(sel, nullptr, "EventReactions;ParticleSystems");
+    pPropertyGrid->SetSelectionIncludeExcludeProperties(nullptr, "EventReactions;ParticleSystems");
+    pPropertyGrid->SetSelection(sel);
   }
 
   // Event Reactions
@@ -164,7 +164,8 @@ ezQtParticleEffectAssetDocumentWindow::ezQtParticleEffectAssetDocumentWindow(ezA
 
     ezDeque<const ezDocumentObject*> sel;
     sel.PushBack(pRootObject);
-    pPropertyGrid->SetSelection(sel, "EventReactions");
+    pPropertyGrid->SetSelectionIncludeExcludeProperties("EventReactions");
+    pPropertyGrid->SetSelection(sel);
   }
 
   // System Emitters
@@ -174,6 +175,7 @@ ezQtParticleEffectAssetDocumentWindow::ezQtParticleEffectAssetDocumentWindow(ezA
     pEmitterPanel->show();
 
     m_pPropertyGridEmitter = new ezQtPropertyGridWidget(pEmitterPanel, pDocument, false);
+    m_pPropertyGridEmitter->SetSelectionIncludeExcludeProperties("Emitters");
     pEmitterPanel->setWidget(m_pPropertyGridEmitter);
 
     addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pEmitterPanel);
@@ -186,6 +188,7 @@ ezQtParticleEffectAssetDocumentWindow::ezQtParticleEffectAssetDocumentWindow(ezA
     pInitializerPanel->show();
 
     m_pPropertyGridInitializer = new ezQtPropertyGridWidget(pInitializerPanel, pDocument, false);
+    m_pPropertyGridInitializer->SetSelectionIncludeExcludeProperties("Initializers");
     pInitializerPanel->setWidget(m_pPropertyGridInitializer);
 
     addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pInitializerPanel);
@@ -198,6 +201,7 @@ ezQtParticleEffectAssetDocumentWindow::ezQtParticleEffectAssetDocumentWindow(ezA
     pBehaviorPanel->show();
 
     m_pPropertyGridBehavior = new ezQtPropertyGridWidget(pBehaviorPanel, pDocument, false);
+    m_pPropertyGridBehavior->SetSelectionIncludeExcludeProperties("Behaviors");
     pBehaviorPanel->setWidget(m_pPropertyGridBehavior);
 
     addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pBehaviorPanel);
@@ -210,6 +214,7 @@ ezQtParticleEffectAssetDocumentWindow::ezQtParticleEffectAssetDocumentWindow(ezA
     pTypePanel->show();
 
     m_pPropertyGridType = new ezQtPropertyGridWidget(pTypePanel, pDocument, false);
+    m_pPropertyGridType->SetSelectionIncludeExcludeProperties("Types");
     pTypePanel->setWidget(m_pPropertyGridType);
 
     addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pTypePanel);
@@ -244,7 +249,7 @@ ezQtParticleEffectAssetDocumentWindow::ezQtParticleEffectAssetDocumentWindow(ezA
   FinishWindowCreation();
 
   UpdateSystemList();
-  UpdatePreview();
+  SendLiveResourcePreview();
 
   GetParticleDocument()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::ParticleEventHandler, this));
 }
@@ -282,6 +287,8 @@ void ezQtParticleEffectAssetDocumentWindow::SelectSystem(ezDocumentObject* pObje
     m_pPropertyGridInitializer->ClearSelection();
     m_pPropertyGridBehavior->ClearSelection();
     m_pPropertyGridType->ClearSelection();
+
+    m_pSystemsCombo->setCurrentIndex(-1);
   }
   else
   {
@@ -290,12 +297,14 @@ void ezQtParticleEffectAssetDocumentWindow::SelectSystem(ezDocumentObject* pObje
     ezDeque<const ezDocumentObject*> sel;
     sel.PushBack(pObject);
     GetDocument()->GetSelectionManager()->SetSelection(pObject);
-    m_pPropertyGridSystems->SetSelection(sel, nullptr, "Name;Emitters;Initializers;Behaviors;Types");
+    m_pPropertyGridSystems->SetSelection(sel);
 
-    m_pPropertyGridEmitter->SetSelection(sel, "Emitters");
-    m_pPropertyGridInitializer->SetSelection(sel, "Initializers");
-    m_pPropertyGridBehavior->SetSelection(sel, "Behaviors");
-    m_pPropertyGridType->SetSelection(sel, "Types");
+    m_pPropertyGridEmitter->SetSelection(sel);
+    m_pPropertyGridInitializer->SetSelection(sel);
+    m_pPropertyGridBehavior->SetSelection(sel);
+    m_pPropertyGridType->SetSelection(sel);
+
+    m_pSystemsCombo->setCurrentText(m_sSelectedSystem.GetData());
   }
 }
 
@@ -619,7 +628,7 @@ void ezQtParticleEffectAssetDocumentWindow::onRenameSystem(bool)
   GetDocument()->GetObjectAccessor()->FinishTransaction();
 }
 
-void ezQtParticleEffectAssetDocumentWindow::UpdatePreview()
+void ezQtParticleEffectAssetDocumentWindow::SendLiveResourcePreview()
 {
   if (ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed())
     return;
@@ -636,14 +645,16 @@ void ezQtParticleEffectAssetDocumentWindow::UpdatePreview()
   // Write Path
   ezStringBuilder sAbsFilePath = GetParticleDocument()->GetDocumentPath();
   sAbsFilePath.ChangeFileExtension("ezParticleEffect");
+
   // Write Header
   memoryWriter << sAbsFilePath;
   const ezUInt64 uiHash = ezAssetCurator::GetSingleton()->GetAssetDependencyHash(GetParticleDocument()->GetGuid());
   ezAssetFileHeader AssetHeader;
   AssetHeader.SetFileHashAndVersion(uiHash, GetParticleDocument()->GetAssetTypeVersion());
   AssetHeader.Write(memoryWriter);
+
   // Write Asset Data
-  GetParticleDocument()->WriteParticleEffectAsset(memoryWriter, ezAssetCurator::GetSingleton()->GetActiveAssetProfile());
+  GetParticleDocument()->WriteResource(memoryWriter);
   msg.m_Data = ezArrayPtr<const ezUInt8>(streamStorage.GetData(), streamStorage.GetStorageSize());
 
   ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
@@ -656,7 +667,7 @@ void ezQtParticleEffectAssetDocumentWindow::PropertyEventHandler(const ezDocumen
     UpdateSystemList();
   }
 
-  UpdatePreview();
+  SendLiveResourcePreview();
 }
 
 void ezQtParticleEffectAssetDocumentWindow::StructureEventHandler(const ezDocumentObjectStructureEvent& e)
@@ -667,7 +678,7 @@ void ezQtParticleEffectAssetDocumentWindow::StructureEventHandler(const ezDocume
     case ezDocumentObjectStructureEvent::Type::AfterObjectMoved2:
     case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
       UpdateSystemList();
-      UpdatePreview();
+      SendLiveResourcePreview();
       break;
   }
 }
@@ -699,7 +710,7 @@ void ezQtParticleEffectAssetDocumentWindow::ParticleEventHandler(const ezParticl
 
 void ezQtParticleEffectAssetDocumentWindow::UpdateSystemList()
 {
-  m_ParticleSystems.Clear();
+  ezMap<ezString, ezDocumentObject*> newParticleSystems;
 
   ezDocumentObject* pRootObject = GetParticleDocument()->GetObjectManager()->GetRootObject()->GetChildren()[0];
 
@@ -710,9 +721,15 @@ void ezQtParticleEffectAssetDocumentWindow::UpdateSystemList()
     if (ezStringUtils::IsEqual(pChild->GetParentProperty(), "ParticleSystems"))
     {
       s = pChild->GetTypeAccessor().GetValue("Name").ConvertTo<ezString>();
-      m_ParticleSystems[s] = pChild;
+      newParticleSystems[s] = pChild;
     }
   }
+
+  // early out
+  if (m_ParticleSystems == newParticleSystems)
+    return;
+
+  m_ParticleSystems.Swap(newParticleSystems);
 
   {
     ezQtScopedBlockSignals _1(m_pSystemsCombo);

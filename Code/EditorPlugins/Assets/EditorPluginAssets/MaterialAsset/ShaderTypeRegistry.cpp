@@ -11,28 +11,28 @@ EZ_IMPLEMENT_SINGLETON(ezShaderTypeRegistry);
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, ShaderTypeRegistry)
 
-  BEGIN_SUBSYSTEM_DEPENDENCIES
-    "PluginAssets", "ReflectedTypeManager"
-  END_SUBSYSTEM_DEPENDENCIES
+BEGIN_SUBSYSTEM_DEPENDENCIES
+"PluginAssets", "ReflectedTypeManager"
+END_SUBSYSTEM_DEPENDENCIES
 
-  ON_CORESYSTEMS_STARTUP
-  {
-    EZ_DEFAULT_NEW(ezShaderTypeRegistry);
-  }
+ON_CORESYSTEMS_STARTUP
+{
+  EZ_DEFAULT_NEW(ezShaderTypeRegistry);
+}
 
-  ON_CORESYSTEMS_SHUTDOWN
-  {
-    ezShaderTypeRegistry* pDummy = ezShaderTypeRegistry::GetSingleton();
-    EZ_DEFAULT_DELETE(pDummy);
-  }
+ON_CORESYSTEMS_SHUTDOWN
+{
+  ezShaderTypeRegistry* pDummy = ezShaderTypeRegistry::GetSingleton();
+  EZ_DEFAULT_DELETE(pDummy);
+}
 
-  ON_HIGHLEVELSYSTEMS_STARTUP
-  {
-  }
+ON_HIGHLEVELSYSTEMS_STARTUP
+{
+}
 
-  ON_HIGHLEVELSYSTEMS_SHUTDOWN
-  {
-  }
+ON_HIGHLEVELSYSTEMS_SHUTDOWN
+{
+}
 
 EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
@@ -227,18 +227,29 @@ namespace
           }
         }
 
-        attributes.PushBack(EZ_DEFAULT_NEW(ezDefaultValueAttribute, attributeDef.m_Values[0]));        
+        attributes.PushBack(EZ_DEFAULT_NEW(ezDefaultValueAttribute, attributeDef.m_Values[0]));
       }
       else if (attributeDef.m_sType.IsEqual("Clamp") && attributeDef.m_Values.GetCount() >= 2)
       {
         attributes.PushBack(EZ_DEFAULT_NEW(ezClampValueAttribute, attributeDef.m_Values[0], attributeDef.m_Values[1]));
+      }
+      else if (attributeDef.m_sType.IsEqual("Group"))
+      {
+        if (attributeDef.m_Values.GetCount() >= 1 && attributeDef.m_Values[0].CanConvertTo<ezString>())
+        {
+          attributes.PushBack(EZ_DEFAULT_NEW(ezGroupAttribute, attributeDef.m_Values[0].ConvertTo<ezString>()));
+        }
+        else
+        {
+          attributes.PushBack(EZ_DEFAULT_NEW(ezGroupAttribute));
+        }
       }
     }
   }
 }
 
 ezShaderTypeRegistry::ezShaderTypeRegistry()
-    : m_SingletonRegistrar(this)
+  : m_SingletonRegistrar(this)
 {
   ezShaderTypeRegistry::GetSingleton();
   ezReflectedTypeDescriptor desc;
@@ -312,7 +323,7 @@ void ezShaderTypeRegistry::UpdateShaderType(ShaderData& data)
 
   ezHybridArray<ezShaderParser::ParameterDefinition, 16> parameters;
   ezHybridArray<ezShaderParser::EnumDefinition, 4> enumDefinitions;
-  
+
   {
     ezFileStats Stats;
     bool bStat = ezOSFile::GetFileStats(data.m_sAbsShaderPath, Stats).Succeeded();
@@ -385,7 +396,7 @@ void ezShaderTypeRegistry::PhantomTypeRegistryEventHandler(const ezPhantomRttiMa
   }
 }
 
-  //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 
@@ -395,7 +406,7 @@ class ezShaderTypePatch_1_2 : public ezGraphPatch
 {
 public:
   ezShaderTypePatch_1_2()
-      : ezGraphPatch(nullptr, 2, ezGraphPatch::PatchType::GraphPatch)
+    : ezGraphPatch(nullptr, 2, ezGraphPatch::PatchType::GraphPatch)
   {
   }
 
@@ -451,7 +462,7 @@ class ezShaderBaseTypePatch_1_2 : public ezGraphPatch
 {
 public:
   ezShaderBaseTypePatch_1_2()
-      : ezGraphPatch("ezShaderTypeBase", 2)
+    : ezGraphPatch("ezShaderTypeBase", 2)
   {
   }
 

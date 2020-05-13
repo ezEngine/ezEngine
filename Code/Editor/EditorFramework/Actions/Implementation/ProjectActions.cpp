@@ -69,61 +69,40 @@ void ezProjectActions::RegisterActions()
   s_hEditorMenu = EZ_REGISTER_MENU("Menu.Editor");
 
   s_hDocumentCategory = EZ_REGISTER_CATEGORY("DocumentCategory");
-  s_hCreateDocument = EZ_REGISTER_ACTION_1(
-    "Document.Create", ezActionScope::Global, "Project", "Ctrl+N", ezProjectAction, ezProjectAction::ButtonType::CreateDocument);
-  s_hOpenDocument =
-    EZ_REGISTER_ACTION_1("Document.Open", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::OpenDocument);
+  s_hCreateDocument = EZ_REGISTER_ACTION_1("Document.Create", ezActionScope::Global, "Project", "Ctrl+N", ezProjectAction, ezProjectAction::ButtonType::CreateDocument);
+  s_hOpenDocument = EZ_REGISTER_ACTION_1("Document.Open", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::OpenDocument);
   s_hRecentDocuments = EZ_REGISTER_DYNAMIC_MENU("Project.RecentDocuments.Menu", ezRecentDocumentsMenuAction, "");
 
   s_hProjectCategory = EZ_REGISTER_CATEGORY("ProjectCategory");
-  s_hCreateProject = EZ_REGISTER_ACTION_1(
-    "Project.Create", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::CreateProject);
-  s_hOpenProject =
-    EZ_REGISTER_ACTION_1("Project.Open", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::OpenProject);
+  s_hCreateProject = EZ_REGISTER_ACTION_1("Project.Create", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::CreateProject);
+  s_hOpenProject = EZ_REGISTER_ACTION_1("Project.Open", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::OpenProject);
   s_hRecentProjects = EZ_REGISTER_DYNAMIC_MENU("Project.RecentProjects.Menu", ezRecentProjectsMenuAction, "");
-  s_hCloseProject =
-    EZ_REGISTER_ACTION_1("Project.Close", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::CloseProject);
+  s_hCloseProject = EZ_REGISTER_ACTION_1("Project.Close", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::CloseProject);
 
   s_hSettingsCategory = EZ_REGISTER_CATEGORY("SettingsCategory");
   s_hEditorSettingsMenu = EZ_REGISTER_MENU_WITH_ICON("Menu.EditorSettings", ":/GuiFoundation/Icons/Settings16.png");
   s_hProjectSettingsMenu = EZ_REGISTER_MENU("Menu.ProjectSettings");
 
-  s_hShortcutEditor =
-    EZ_REGISTER_ACTION_1("Editor.Shortcuts", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::Shortcuts);
-  s_hEditorPlugins = EZ_REGISTER_ACTION_1(
-    "Editor.Plugins", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::EditorPlugins);
-  s_hEnginePlugins = EZ_REGISTER_ACTION_1(
-    "Engine.Plugins", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::EnginePlugins);
-  s_hPreferencesDlg = EZ_REGISTER_ACTION_1(
-    "Editor.Preferences", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::PreferencesDialog);
-  s_hTagsDlg =
-    EZ_REGISTER_ACTION_1("Engine.Tags", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::TagsDialog);
+  s_hShortcutEditor = EZ_REGISTER_ACTION_1("Editor.Shortcuts", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::Shortcuts);
+  s_hEditorPlugins = EZ_REGISTER_ACTION_1("Editor.Plugins", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::EditorPlugins);
+  s_hEnginePlugins = EZ_REGISTER_ACTION_1("Engine.Plugins", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::EnginePlugins);
+  s_hPreferencesDlg = EZ_REGISTER_ACTION_1("Editor.Preferences", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::PreferencesDialog);
+  s_hTagsDlg = EZ_REGISTER_ACTION_1("Engine.Tags", ezActionScope::Global, "Editor", "", ezProjectAction, ezProjectAction::ButtonType::TagsDialog);
 
-  s_hDataDirectories = EZ_REGISTER_ACTION_1(
-    "Project.DataDirectories", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::DataDirectories);
-  s_hInputConfig = EZ_REGISTER_ACTION_1(
-    "Project.InputConfig", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::InputConfig);
-  s_hWindowConfig = EZ_REGISTER_ACTION_1(
-    "Project.WindowConfig", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::WindowConfig);
-  s_hImportAsset = EZ_REGISTER_ACTION_1(
-    "Project.ImportAsset", ezActionScope::Global, "Project", "Ctrl+I", ezProjectAction, ezProjectAction::ButtonType::ImportAsset);
-  s_hAssetProfiles = EZ_REGISTER_ACTION_1(
-    "Project.AssetProfiles", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::AssetProfiles);
+  s_hDataDirectories = EZ_REGISTER_ACTION_1("Project.DataDirectories", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::DataDirectories);
+  s_hInputConfig = EZ_REGISTER_ACTION_1("Project.InputConfig", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::InputConfig);
+  s_hWindowConfig = EZ_REGISTER_ACTION_1("Project.WindowConfig", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::WindowConfig);
+  s_hImportAsset = EZ_REGISTER_ACTION_1("Project.ImportAsset", ezActionScope::Global, "Project", "Ctrl+I", ezProjectAction, ezProjectAction::ButtonType::ImportAsset);
+  s_hAssetProfiles = EZ_REGISTER_ACTION_1("Project.AssetProfiles", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::AssetProfiles);
 
   s_hToolsMenu = EZ_REGISTER_MENU("Menu.Tools");
   s_hToolsCategory = EZ_REGISTER_CATEGORY("ToolsCategory");
-  s_hReloadResources = EZ_REGISTER_ACTION_1(
-    "Engine.ReloadResources", ezActionScope::Global, "Engine", "F4", ezProjectAction, ezProjectAction::ButtonType::ReloadResources);
-  s_hReloadEngine = EZ_REGISTER_ACTION_1(
-    "Engine.ReloadEngine", ezActionScope::Global, "Engine", "Ctrl+Shift+F4", ezProjectAction, ezProjectAction::ButtonType::ReloadEngine);
-  s_hLaunchFileserve = EZ_REGISTER_ACTION_1(
-    "Editor.LaunchFileserve", ezActionScope::Global, "Engine", "", ezProjectAction, ezProjectAction::ButtonType::LaunchFileserve);
-  s_hLaunchInspector = EZ_REGISTER_ACTION_1(
-    "Editor.LaunchInspector", ezActionScope::Global, "Engine", "", ezProjectAction, ezProjectAction::ButtonType::LaunchInspector);
-  s_hSaveProfiling = EZ_REGISTER_ACTION_1(
-    "Editor.SaveProfiling", ezActionScope::Global, "Engine", "Ctrl+Alt+P", ezProjectAction, ezProjectAction::ButtonType::SaveProfiling);
-  s_hOpenVsCode = EZ_REGISTER_ACTION_1(
-    "Editor.OpenVsCode", ezActionScope::Global, "Project", "Ctrl+Alt+O", ezProjectAction, ezProjectAction::ButtonType::OpenVsCode);
+  s_hReloadResources = EZ_REGISTER_ACTION_1("Engine.ReloadResources", ezActionScope::Global, "Engine", "F4", ezProjectAction, ezProjectAction::ButtonType::ReloadResources);
+  s_hReloadEngine = EZ_REGISTER_ACTION_1("Engine.ReloadEngine", ezActionScope::Global, "Engine", "Ctrl+Shift+F4", ezProjectAction, ezProjectAction::ButtonType::ReloadEngine);
+  s_hLaunchFileserve = EZ_REGISTER_ACTION_1("Editor.LaunchFileserve", ezActionScope::Global, "Engine", "", ezProjectAction, ezProjectAction::ButtonType::LaunchFileserve);
+  s_hLaunchInspector = EZ_REGISTER_ACTION_1("Editor.LaunchInspector", ezActionScope::Global, "Engine", "", ezProjectAction, ezProjectAction::ButtonType::LaunchInspector);
+  s_hSaveProfiling = EZ_REGISTER_ACTION_1("Editor.SaveProfiling", ezActionScope::Global, "Engine", "Ctrl+Alt+P", ezProjectAction, ezProjectAction::ButtonType::SaveProfiling);
+  s_hOpenVsCode = EZ_REGISTER_ACTION_1("Editor.OpenVsCode", ezActionScope::Global, "Project", "Ctrl+Alt+O", ezProjectAction, ezProjectAction::ButtonType::OpenVsCode);
 }
 
 void ezProjectActions::UnregisterActions()
@@ -517,6 +496,8 @@ void ezProjectAction::Execute(const ezVariant& value)
 
     case ezProjectAction::ButtonType::ReloadResources:
     {
+      ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage("Reloading Resources...", ezTime::Seconds(5));
+
       ezSimpleConfigMsgToEngine msg;
       msg.m_sWhatToDo = "ReloadResources";
       ezEditorEngineProcessConnection::GetSingleton()->SendMessage(&msg);
@@ -536,6 +517,8 @@ void ezProjectAction::Execute(const ezVariant& value)
 
     case ezProjectAction::ButtonType::LaunchFileserve:
     {
+      ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage("Launching FileServe...", ezTime::Seconds(5));
+
       ezQtLaunchFileserveDlg dlg(nullptr);
       dlg.exec();
     }
@@ -543,6 +526,8 @@ void ezProjectAction::Execute(const ezVariant& value)
 
     case ezProjectAction::ButtonType::LaunchInspector:
     {
+      ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage("Launching ezInspector...", ezTime::Seconds(5));
+
       ezQtEditorApp::GetSingleton()->RunInspector();
     }
     break;
@@ -562,7 +547,7 @@ void ezProjectAction::Execute(const ezVariant& value)
         profilingData.Write(fileWriter);
 
         ezLog::Info("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
-        ezQtUiServices::GetSingleton()->ShowAllDocumentsStatusBarMessage(
+        ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(
           ezFmt("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData()), ezTime::Seconds(5.0));
       }
       else

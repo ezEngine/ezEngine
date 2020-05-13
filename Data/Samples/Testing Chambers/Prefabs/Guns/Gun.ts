@@ -40,6 +40,7 @@ export abstract class Gun extends ez.TickedTypescriptComponent {
     }
 
     shootSoundComponent: ez.FmodEventComponent = null;
+    muzzleFlashComponent: ez.ParticleComponent = null;
 
     static RegisterMessageHandlers() {
 
@@ -59,6 +60,10 @@ export abstract class Gun extends ez.TickedTypescriptComponent {
             this.shootSoundComponent = node.TryGetComponentOfBaseType(ez.FmodEventComponent);
         }
 
+        node = owner.FindChildByName("Muzzleflash", true);
+        if (node != null) {
+            this.muzzleFlashComponent = node.TryGetComponentOfBaseType(ez.ParticleComponent);
+        }
     }
 
     OnMsgGunInteraction(msg: MsgGunInteraction): void {
@@ -120,6 +125,10 @@ export abstract class Gun extends ez.TickedTypescriptComponent {
 
         if (this.shootSoundComponent != null && this.shootSoundComponent.IsValid()) {
             this.shootSoundComponent.StartOneShot();
+        }
+
+        if (this.muzzleFlashComponent != null && this.muzzleFlashComponent.IsValid()) {
+            this.muzzleFlashComponent.StartEffect();
         }
     }
 

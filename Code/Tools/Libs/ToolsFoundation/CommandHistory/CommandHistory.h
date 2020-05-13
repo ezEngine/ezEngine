@@ -48,7 +48,7 @@ class EZ_TOOLSFOUNDATION_DLL ezCommandHistory
 {
 public:
 
-  ezEvent<const ezCommandHistoryEvent&> m_Events;
+  ezCopyOnBroadcastEvent<const ezCommandHistoryEvent&> m_Events;
 
 public:
   ezCommandHistory(ezDocument* pDocument);

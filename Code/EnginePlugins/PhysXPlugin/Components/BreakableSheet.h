@@ -36,8 +36,8 @@ public:
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
 protected:
-  virtual void Initialize() override;
-  virtual void Deinitialize() override;
+  virtual void OnActivated() override;
+  virtual void OnDeactivated() override;
   virtual void OnSimulationStarted() override;
 
 
@@ -160,10 +160,10 @@ protected:
   // PhysX Objects
   physx::PxRigidStatic* m_pUnbrokenActor = nullptr;
   ezUInt32 m_uiUnbrokenShapeId = ezInvalidIndex;
-  ezPxUserData m_UnbrokenUserData;
+  ezUInt32 m_uiUnbrokenUserDataIndex = ezInvalidIndex;
 
   ezDynamicArray<physx::PxRigidDynamic*> m_PieceActors;
   ezDynamicArray<ezUInt32> m_PieceShapeIds;
-  ezDynamicArray<ezPxUserData> m_PieceUserDatas;
+  ezDynamicArray<ezUInt32> m_PieceUserDataIndices;
   ezMap<ezUInt32, physx::PxRigidDynamic*> m_ShapeIDsToActors;
 };

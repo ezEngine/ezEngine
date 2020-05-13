@@ -328,3 +328,7 @@ void ezActorManager::Update()
   UpdateAllApiServices();
   UpdateAllActors();
 }
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_ActorSystem_Implementation_ActorManager);
+

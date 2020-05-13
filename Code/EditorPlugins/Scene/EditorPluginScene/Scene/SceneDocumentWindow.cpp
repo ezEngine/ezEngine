@@ -213,6 +213,8 @@ void ezQtSceneDocumentWindow::SnapSelectionToPosition(bool bSnapEachObject)
     CmdHistory->CancelTransaction();
 
   gizmoSelection.Clear();
+
+  ShowTemporaryStatusBarMsg(ezFmt("Snap to Grid ({})", bSnapEachObject ? "Each Object" : "Pivot"));
 }
 
 void ezQtSceneDocumentWindow::GameObjectEventHandler(const ezGameObjectEvent& e)
@@ -284,6 +286,7 @@ void ezQtSceneDocumentWindow::SendRedrawMsg()
   for (auto pView : m_ViewWidgets)
   {
     pView->SetEnablePicking(pView == pHoveredView);
+    pView->SetPickTransparent(GetGameObjectDocument()->GetPickTransparent());
     pView->UpdateCameraInterpolation();
     pView->SyncToEngine();
   }

@@ -7,7 +7,8 @@ ezSkeleton::~ezSkeleton() = default;
 
 ezUInt16 ezSkeleton::FindJointByName(const ezTempHashedString& sJointName) const
 {
-  for (ezUInt16 i = 0; i < m_Joints.GetCount(); ++i)
+  const ezUInt16 uiJointCount = static_cast<ezUInt16>(m_Joints.GetCount());
+  for (ezUInt16 i = 0; i < uiJointCount; ++i)
   {
     if (m_Joints[i].GetName() == sJointName)
     {
@@ -27,7 +28,8 @@ bool ezSkeleton::IsCompatibleWith(const ezSkeleton& other) const
     return false;
 
   // TODO: This only checks the joint hierarchy, maybe it should check names or hierarchy based on names
-  for (ezUInt32 i = 0; i < m_Joints.GetCount(); ++i)
+  const ezUInt16 uiNumJoints = static_cast<ezUInt16>(m_Joints.GetCount());
+  for (ezUInt32 i = 0; i < uiNumJoints; ++i)
   {
     if (other.m_Joints[i].GetParentIndex() != m_Joints[i].GetParentIndex())
     {

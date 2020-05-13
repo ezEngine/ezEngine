@@ -157,6 +157,15 @@ function(ez_detect_generator)
 	set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_XCODE OFF)
 	set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_MAKE OFF)
 	set_property(GLOBAL PROPERTY EZ_CMAKE_GENERATOR_NINJA OFF)
+	set_property(GLOBAL PROPERTY EZ_CMAKE_INSIDE_VS OFF) # if cmake is called through the visual studio open folder workflow
+	
+		
+	message (STATUS "CMAKE_VERSION is '${CMAKE_VERSION}'")
+	string(FIND ${CMAKE_VERSION} "MSVC" VERSION_CONTAINS_MSVC)
+	if(${VERSION_CONTAINS_MSVC} GREATER -1)
+		message(STATUS "cmake was called from visual studio open folder workflow")
+		set_property(GLOBAL PROPERTY EZ_CMAKE_INSIDE_VS ON)
+	endif()
 	
 	
 	message (STATUS "CMAKE_GENERATOR is '${CMAKE_GENERATOR}'")
@@ -243,6 +252,7 @@ macro(ez_pull_generator_vars)
 	get_property(EZ_CMAKE_GENERATOR_XCODE GLOBAL PROPERTY EZ_CMAKE_GENERATOR_XCODE)
 	get_property(EZ_CMAKE_GENERATOR_MAKE GLOBAL PROPERTY EZ_CMAKE_GENERATOR_MAKE)
 	get_property(EZ_CMAKE_GENERATOR_NINJA GLOBAL PROPERTY EZ_CMAKE_GENERATOR_NINJA)
+	get_property(EZ_CMAKE_INSIDE_VS GLOBAL PROPERTY EZ_CMAKE_INSIDE_VS)
 
 endmacro()
 
@@ -372,25 +382,38 @@ function(ez_detect_architecture)
 	  if (${CMAKE_GENERATOR_PLATFORM} MATCHES "ARM")
 			message (STATUS "Platform is ARM (EZ_CMAKE_ARCHITECTURE_ARM)")
 			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_ARM ON)
+			# Detect 64-bit builds for MSVC.
+			if (CMAKE_CL_64)
+	  
+				message (STATUS "Platform is 64-Bit (EZ_CMAKE_ARCHITECTURE_64BIT)")
+				set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_64BIT ON)
+				set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "Arm64")
+				
+			else ()
+			
+				message (STATUS "Platform is 32-Bit (EZ_CMAKE_ARCHITECTURE_32BIT)")
+				set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_32BIT ON)
+				set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "Arm32")
+				
+			endif ()
 	  else()
 			message (STATUS "Platform is X86 (EZ_CMAKE_ARCHITECTURE_X86)")
 			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_X86 ON)
+			# Detect 64-bit builds for MSVC.
+			if (CMAKE_CL_64)
+	  
+				message (STATUS "Platform is 64-Bit (EZ_CMAKE_ARCHITECTURE_64BIT)")
+				set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_64BIT ON)
+				set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "64")
+				
+			else ()
+			
+				message (STATUS "Platform is 32-Bit (EZ_CMAKE_ARCHITECTURE_32BIT)")
+				set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_32BIT ON)
+				set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "32")
+				
+			endif ()
 	  endif()
-	  
-	  # Detect 64-bit builds for MSVC.
-	  if (CMAKE_CL_64)
-	  
-			message (STATUS "Platform is 64-Bit (EZ_CMAKE_ARCHITECTURE_64BIT)")
-			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_64BIT ON)
-			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "64")
-		
-	  else ()
-	  
-			message (STATUS "Platform is 32-Bit (EZ_CMAKE_ARCHITECTURE_32BIT)")
-			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_32BIT ON)
-			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "32")
-		
-	  endif ()
 
 	elseif (EZ_CMAKE_PLATFORM_OSX AND EZ_CMAKE_COMPILER_CLANG)
 	
@@ -492,5 +515,7 @@ macro(ez_pull_all_vars)
 	ez_pull_compiler_vars()
 	ez_pull_generator_vars()
 	ez_pull_platform_vars()
+	
+	get_property(EZ_SUBMODULE_PREFIX_PATH GLOBAL PROPERTY EZ_SUBMODULE_PREFIX_PATH)
 
 endmacro()

@@ -111,6 +111,11 @@ public:
   /// \brief Returns the internal copy of the tokenized data
   const ezDynamicArray<ezUInt8>& GetTokenizedData() const { return m_Data; }
 
+  /// \brief Enables treating lines that start with # character as line comments
+  ///
+  /// Needs to be set before tokenization to take effect.
+  void SetTreatHashSignAsLineComment(bool bHashSignIsLineComment) { m_bHashSignIsLineComment = bHashSignIsLineComment; }
+
 private:
   void NextChar();
   void AddToken();
@@ -124,22 +129,23 @@ private:
   void HandleIdentifier();
   void HandleNonIdentifier();
 
-  ezLogInterface* m_pLog;
-  ezTokenType::Enum m_CurMode;
+  ezLogInterface* m_pLog = nullptr;
+  ezTokenType::Enum m_CurMode = ezTokenType::Unknown;
   ezStringView m_Iterator;
-  ezUInt32 m_uiCurLine;
-  ezUInt32 m_uiCurColumn;
-  ezUInt32 m_uiCurChar;
-  ezUInt32 m_uiNextChar;
+  ezUInt32 m_uiCurLine = 1;
+  ezUInt32 m_uiCurColumn = -1;
+  ezUInt32 m_uiCurChar = '\0';
+  ezUInt32 m_uiNextChar = '\0';
 
-  ezUInt32 m_uiLastLine;
-  ezUInt32 m_uiLastColumn;
+  ezUInt32 m_uiLastLine = 1;
+  ezUInt32 m_uiLastColumn = 1;
 
-  const char* m_szCurCharStart;
-  const char* m_szNextCharStart;
-  const char* m_szTokenStart;
+  const char* m_szCurCharStart = nullptr;
+  const char* m_szNextCharStart = nullptr;
+  const char* m_szTokenStart = nullptr;
 
   ezDeque<ezToken> m_Tokens;
   ezDynamicArray<ezUInt8> m_Data;
-};
 
+  bool m_bHashSignIsLineComment = false;
+};

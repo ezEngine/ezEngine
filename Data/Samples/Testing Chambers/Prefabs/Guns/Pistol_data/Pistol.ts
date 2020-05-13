@@ -37,7 +37,7 @@ export class Pistol extends guns.Gun {
         if (this.nextAmmoPlus1Time < now) {
             this.ammoInClip = ez.Utils.Clamp(this.ammoInClip + 1, 0, this.GetAmmoClipSize());
 
-            this.nextAmmoPlus1Time = now + ez.Time.Seconds(0.5);
+            this.nextAmmoPlus1Time = now + ez.Time.Seconds(0.2);
         }
     }
 
@@ -55,7 +55,7 @@ export class Pistol extends guns.Gun {
         if (spawn.CanTriggerManualSpawn() == false)
             return;
 
-        this.nextAmmoPlus1Time = ez.Time.GetGameTime() + ez.Time.Seconds(1.5);
+        this.nextAmmoPlus1Time = ez.Time.GetGameTime() + ez.Time.Seconds(0.5);
 
         this.ammoInClip -= 1;
 

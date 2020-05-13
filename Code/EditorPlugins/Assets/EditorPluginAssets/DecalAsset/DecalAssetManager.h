@@ -21,7 +21,7 @@ public:
 
 private:
   void OnDocumentManagerEvent(const ezDocumentManager::Event& e);
-  bool IsDecalTextureUpToDate(const char* szDecalFile, ezUInt64 uiSettingsHash) const;
+  bool IsDecalTextureUpToDate(const char* szDecalFile, ezUInt64 uiAssetHash) const;
   ezStatus RunTexConv(const char* szTargetFile, const char* szInputFile, const ezAssetFileHeader& AssetHeader);
 
   virtual void InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument) override;

@@ -44,7 +44,7 @@ public:
   void Save(ezStreamWriter& stream) const;
 
   /// \brief Loads the saved state and integrates it into this registry. Does not discard previously registered tag information.
-  void Load(ezStreamReader& stream);
+  ezResult Load(ezStreamReader& stream);
 
 protected:
   mutable ezMutex m_TagRegistryMutex;

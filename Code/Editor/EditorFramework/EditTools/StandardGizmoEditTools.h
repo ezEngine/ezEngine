@@ -27,6 +27,7 @@ protected:
   virtual void ApplyGizmoVisibleState(bool visible) override;
   virtual void ApplyGizmoTransformation(const ezTransform& transform) override;
   virtual void TransformationGizmoEventHandlerImpl(const ezGizmoEvent& e) override;
+  virtual void OnActiveChanged(bool bIsActive) override;
 
 private:
   void OnPreferenceChange(ezPreferences* pref);
@@ -52,6 +53,7 @@ protected:
   virtual void ApplyGizmoVisibleState(bool visible) override;
   virtual void ApplyGizmoTransformation(const ezTransform& transform) override;
   virtual void TransformationGizmoEventHandlerImpl(const ezGizmoEvent& e) override;
+  virtual void OnActiveChanged(bool bIsActive) override;
 
 private:
   ezRotateGizmo m_RotateGizmo;
@@ -74,6 +76,7 @@ protected:
   virtual void ApplyGizmoVisibleState(bool visible) override;
   virtual void ApplyGizmoTransformation(const ezTransform& transform) override;
   virtual void TransformationGizmoEventHandlerImpl(const ezGizmoEvent& e) override;
+  virtual void OnActiveChanged(bool bIsActive) override;
 
 private:
   ezScaleGizmo m_ScaleGizmo;
@@ -97,6 +100,7 @@ protected:
   virtual void ApplyGizmoVisibleState(bool visible) override;
   virtual void ApplyGizmoTransformation(const ezTransform& transform) override;
   virtual void TransformationGizmoEventHandlerImpl(const ezGizmoEvent& e) override;
+  virtual void OnActiveChanged(bool bIsActive) override;
 
 private:
   ezDragToPositionGizmo m_DragToPosGizmo;

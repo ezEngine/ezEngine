@@ -25,7 +25,8 @@ EZ_FORCE_INLINE const ezVec4Template<Type> ezVec2Template<Type>::GetAsVec4(Type 
 template <typename Type>
 EZ_FORCE_INLINE const ezVec2Template<Type> ezVec3Template<Type>::GetAsVec2() const
 {
-  EZ_NAN_ASSERT(this);
+  // don't assert here, as the 3rd and 4th component may be NaN when this is fine, e.g. during interop with the SIMD classes
+  //EZ_NAN_ASSERT(this);
 
   return ezVec2Template<Type>(x, y);
 }
@@ -41,7 +42,8 @@ EZ_FORCE_INLINE const ezVec4Template<Type> ezVec3Template<Type>::GetAsVec4(Type 
 template <typename Type>
 EZ_FORCE_INLINE const ezVec4Template<Type> ezVec3Template<Type>::GetAsPositionVec4() const
 {
-  EZ_NAN_ASSERT(this);
+  // don't assert here, as the 4th component may be NaN when this is fine, e.g. during interop with the SIMD classes
+  //EZ_NAN_ASSERT(this);
 
   return ezVec4Template<Type>(x, y, z, 1);
 }
@@ -49,7 +51,8 @@ EZ_FORCE_INLINE const ezVec4Template<Type> ezVec3Template<Type>::GetAsPositionVe
 template <typename Type>
 EZ_FORCE_INLINE const ezVec4Template<Type> ezVec3Template<Type>::GetAsDirectionVec4() const
 {
-  EZ_NAN_ASSERT(this);
+  // don't assert here, as the 4th component may be NaN when this is fine, e.g. during interop with the SIMD classes
+  //EZ_NAN_ASSERT(this);
 
   return ezVec4Template<Type>(x, y, z, 0);
 }
@@ -71,26 +74,27 @@ EZ_ALWAYS_INLINE ezVec4Template<Type>::ezVec4Template()
 
 template <typename Type>
 EZ_ALWAYS_INLINE ezVec4Template<Type>::ezVec4Template(Type X, Type Y, Type Z, Type W)
-    : x(X)
-    , y(Y)
-    , z(Z)
-    , w(W)
+  : x(X)
+  , y(Y)
+  , z(Z)
+  , w(W)
 {
 }
 
 template <typename Type>
 EZ_ALWAYS_INLINE ezVec4Template<Type>::ezVec4Template(Type V)
-    : x(V)
-    , y(V)
-    , z(V)
-    , w(V)
+  : x(V)
+  , y(V)
+  , z(V)
+  , w(V)
 {
 }
 
 template <typename Type>
 EZ_FORCE_INLINE const ezVec2Template<Type> ezVec4Template<Type>::GetAsVec2() const
 {
-  EZ_NAN_ASSERT(this);
+  // don't assert here, as the 4th component may be NaN when this is fine, e.g. during interop with the SIMD classes
+  //EZ_NAN_ASSERT(this);
 
   return ezVec2Template<Type>(x, y);
 }
@@ -98,7 +102,8 @@ EZ_FORCE_INLINE const ezVec2Template<Type> ezVec4Template<Type>::GetAsVec2() con
 template <typename Type>
 EZ_FORCE_INLINE const ezVec3Template<Type> ezVec4Template<Type>::GetAsVec3() const
 {
-  EZ_NAN_ASSERT(this);
+  // don't assert here, as the 4th component may be NaN when this is fine, e.g. during interop with the SIMD classes
+  //EZ_NAN_ASSERT(this);
 
   return ezVec3Template<Type>(x, y, z);
 }
@@ -340,6 +345,8 @@ inline const ezVec4Template<Type> ezVec4Template<Type>::CompMul(const ezVec4Temp
   return ezVec4Template<Type>(x * rhs.x, y * rhs.y, z * rhs.z, w * rhs.w);
 }
 
+EZ_MSVC_ANALYSIS_WARNING_PUSH
+EZ_MSVC_ANALYSIS_WARNING_DISABLE(4723)
 template <typename Type>
 inline const ezVec4Template<Type> ezVec4Template<Type>::CompDiv(const ezVec4Template<Type>& rhs) const
 {
@@ -348,6 +355,7 @@ inline const ezVec4Template<Type> ezVec4Template<Type>::CompDiv(const ezVec4Temp
 
   return ezVec4Template<Type>(x / rhs.x, y / rhs.y, z / rhs.z, w / rhs.w);
 }
+EZ_MSVC_ANALYSIS_WARNING_POP
 
 template <typename Type>
 inline const ezVec4Template<Type> ezVec4Template<Type>::Abs() const
@@ -455,4 +463,3 @@ EZ_FORCE_INLINE bool operator<(const ezVec4Template<Type>& v1, const ezVec4Templ
 
   return (v1.w < v2.w);
 }
-

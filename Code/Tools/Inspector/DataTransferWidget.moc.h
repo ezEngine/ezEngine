@@ -5,7 +5,7 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/IO/MemoryStream.h>
-#include <Tools/Inspector/ui_DataTransferWidget.h>
+#include <Inspector/ui_DataTransferWidget.h>
 #include <ads/DockWidget.h>
 
 class ezQtDataWidget : public ads::CDockWidget, public Ui_DataTransferWidget

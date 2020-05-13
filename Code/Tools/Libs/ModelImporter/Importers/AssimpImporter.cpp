@@ -567,16 +567,17 @@ namespace ezModelImporter
     Assimp::Importer importer;
 
     // Note: ReadFileFromMemory is not able to read dependent files even if use our own Assimp::IOSystem. It is possible to use ReadFile
-    // instead but this involves leads to a lot of code... Triangulate:           Our mesh format cannot handle anything else.
+    // instead but this involves leads to a lot of code...
+    // Triangulate:           Our mesh format cannot handle anything else.
     // JoinIdenticalVertices: Assimp doesn't use index buffer at all if this is not specified.
     // TransformUVCoords:     As of now we do not have a concept for uv transforms.
     // Process_FlipUVs:       Assimp assumes OpenGl style UV coordinate system otherwise.
-
+    // ImproveCacheLocality:  Reorders triangles for better vertex cache locality.
 
     ezUInt32 uiAssimpFlags = 0;
     if (importFlags.IsSet(ImportFlags::Meshes))
     {
-      uiAssimpFlags |= aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_TransformUVCoords | aiProcess_FlipUVs;
+      uiAssimpFlags |= aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_TransformUVCoords | aiProcess_FlipUVs | aiProcess_ImproveCacheLocality;
     }
 
     const aiScene* assimpScene = importer.ReadFile(szFileName, uiAssimpFlags);

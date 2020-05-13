@@ -11,7 +11,7 @@ ezObjectMetaData<KEY, VALUE>::ezObjectMetaData()
 template<typename KEY, typename VALUE>
 const VALUE* ezObjectMetaData<KEY, VALUE>::BeginReadMetaData(const KEY ObjectKey) const
 {
-  m_Mutex.Acquire();
+  m_Mutex.Lock();
   EZ_ASSERT_DEV(m_AccessMode == AccessMode::Nothing, "Already accessing some data");
   m_AccessMode = AccessMode::Read;
   m_AcessingKey = ObjectKey;
@@ -52,7 +52,7 @@ bool ezObjectMetaData<KEY, VALUE>::HasMetaData(const KEY ObjectKey) const
 template<typename KEY, typename VALUE>
 VALUE* ezObjectMetaData<KEY, VALUE>::BeginModifyMetaData(const KEY ObjectKey)
 {
-  m_Mutex.Acquire();
+  m_Mutex.Lock();
   EZ_ASSERT_DEV(m_AccessMode == AccessMode::Nothing, "Already accessing some data");
   m_AccessMode = AccessMode::Write;
   m_AcessingKey = ObjectKey;
@@ -66,7 +66,7 @@ void ezObjectMetaData<KEY, VALUE>::EndReadMetaData() const
   EZ_ASSERT_DEV(m_AccessMode == AccessMode::Read, "Not accessing data at the moment");
 
   m_AccessMode = AccessMode::Nothing;
-  m_Mutex.Release();
+  m_Mutex.Unlock();
 }
 
 
@@ -86,7 +86,7 @@ void ezObjectMetaData<KEY, VALUE>::EndModifyMetaData(ezUInt32 uiModifiedFlags /*
     m_DataModifiedEvent.Broadcast(e);
   }
 
-  m_Mutex.Release();
+  m_Mutex.Unlock();
 }
 
 
@@ -136,7 +136,6 @@ void ezObjectMetaData<KEY, VALUE>::AttachMetaDataToAbstractGraph(ezAbstractObjec
         {
           pNode->AddProperty(pProp->GetPropertyName(), value);
         }
-
       }
     }
   }
@@ -178,10 +177,4 @@ void ezObjectMetaData<KEY, VALUE>::RestoreMetaDataFromAbstractGraph(const ezAbst
       }
     }
   }
-
 }
-
-
-
-
-

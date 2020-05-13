@@ -74,19 +74,20 @@ EZ_FORCE_INLINE bool ezWorld::TryGetObjectWithGlobalKey(const ezTempHashedString
 EZ_FORCE_INLINE ezUInt32 ezWorld::GetObjectCount() const
 {
   CheckForReadAccess();
-  return m_Data.m_ObjectStorage.GetCount();
+  // Subtract one to exclude dummy object with instance index 0
+  return m_Data.m_Objects.GetCount() - 1;
 }
 
-EZ_FORCE_INLINE ezInternal::WorldData::ObjectStorage::Iterator ezWorld::GetObjects()
+EZ_FORCE_INLINE ezInternal::WorldData::ObjectIterator ezWorld::GetObjects()
 {
   CheckForWriteAccess();
-  return m_Data.m_ObjectStorage.GetIterator(0);
+  return ezInternal::WorldData::ObjectIterator(m_Data.m_ObjectStorage.GetIterator(0));
 }
 
-EZ_FORCE_INLINE ezInternal::WorldData::ObjectStorage::ConstIterator ezWorld::GetObjects() const
+EZ_FORCE_INLINE ezInternal::WorldData::ConstObjectIterator ezWorld::GetObjects() const
 {
   CheckForReadAccess();
-  return m_Data.m_ObjectStorage.GetIterator(0);
+  return ezInternal::WorldData::ConstObjectIterator(m_Data.m_ObjectStorage.GetIterator(0));
 }
 
 EZ_FORCE_INLINE void ezWorld::Traverse(VisitorFunc visitorFunc, TraversalMethod method /*= DepthFirst*/)
@@ -142,7 +143,7 @@ ManagerType* ezWorld::GetOrCreateComponentManager()
 
   CheckForWriteAccess();
 
-  const ezUInt16 uiTypeId = ManagerType::TypeId();
+  const ezWorldModuleTypeId uiTypeId = ManagerType::TypeId();
   m_Data.m_Modules.EnsureCount(uiTypeId + 1);
 
   ManagerType* pModule = static_cast<ManagerType*>(m_Data.m_Modules[uiTypeId]);
@@ -172,7 +173,7 @@ void ezWorld::DeleteComponentManager()
 
   CheckForWriteAccess();
 
-  const ezUInt16 uiTypeId = ManagerType::TypeId();
+  const ezWorldModuleTypeId uiTypeId = ManagerType::TypeId();
   if (uiTypeId < m_Data.m_Modules.GetCount())
   {
     if (ManagerType* pModule = static_cast<ManagerType*>(m_Data.m_Modules[uiTypeId]))
@@ -193,7 +194,7 @@ EZ_FORCE_INLINE ManagerType* ezWorld::GetComponentManager()
 
   CheckForWriteAccess();
 
-  const ezUInt16 uiTypeId = ManagerType::TypeId();
+  const ezWorldModuleTypeId uiTypeId = ManagerType::TypeId();
   if (uiTypeId < m_Data.m_Modules.GetCount())
   {
     return ezStaticCast<ManagerType*>(m_Data.m_Modules[uiTypeId]);
@@ -209,7 +210,7 @@ EZ_FORCE_INLINE const ManagerType* ezWorld::GetComponentManager() const
 
   CheckForReadAccess();
 
-  const ezUInt16 uiTypeId = ManagerType::TypeId();
+  const ezWorldModuleTypeId uiTypeId = ManagerType::TypeId();
   if (uiTypeId < m_Data.m_Modules.GetCount())
   {
     return ezStaticCast<const ManagerType*>(m_Data.m_Modules[uiTypeId]);
@@ -235,7 +236,7 @@ EZ_ALWAYS_INLINE const ezComponentManagerBase* ezWorld::GetManagerForComponentTy
 inline bool ezWorld::IsValidComponent(const ezComponentHandle& component) const
 {
   CheckForReadAccess();
-  const ezUInt16 uiTypeId = component.m_InternalId.m_TypeId;
+  const ezWorldModuleTypeId uiTypeId = component.m_InternalId.m_TypeId;
 
   if (uiTypeId < m_Data.m_Modules.GetCount())
   {
@@ -254,7 +255,7 @@ inline bool ezWorld::TryGetComponent(const ezComponentHandle& component, Compone
   CheckForWriteAccess();
   EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponent, ComponentType), "Not a valid component type");
 
-  const ezUInt16 uiTypeId = component.m_InternalId.m_TypeId;
+  const ezWorldModuleTypeId uiTypeId = component.m_InternalId.m_TypeId;
 
   if (uiTypeId < m_Data.m_Modules.GetCount())
   {
@@ -276,7 +277,7 @@ inline bool ezWorld::TryGetComponent(const ezComponentHandle& component, const C
   CheckForReadAccess();
   EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponent, ComponentType), "Not a valid component type");
 
-  const ezUInt16 uiTypeId = component.m_InternalId.m_TypeId;
+  const ezWorldModuleTypeId uiTypeId = component.m_InternalId.m_TypeId;
 
   if (uiTypeId < m_Data.m_Modules.GetCount())
   {
@@ -464,6 +465,36 @@ EZ_FORCE_INLINE void* ezWorld::GetUserData() const
   return m_Data.m_pUserData;
 }
 
+constexpr ezUInt64 ezWorld::GetMaxNumGameObjects()
+{
+  return ezGameObjectId::MAX_INSTANCES - 2;
+}
+
+constexpr ezUInt64 ezWorld::GetMaxNumHierarchyLevels()
+{
+  return 1 << (sizeof(ezGameObject::m_uiHierarchyLevel) * 8);
+}
+
+constexpr ezUInt64 ezWorld::GetMaxNumComponentsPerType()
+{
+  return ezComponentId::MAX_INSTANCES - 1;
+}
+
+constexpr ezUInt64 ezWorld::GetMaxNumWorldModules()
+{
+  return (1 << (sizeof(ezWorldModuleTypeId) * 8 - 2));
+}
+
+constexpr ezUInt64 ezWorld::GetMaxNumComponentTypes()
+{
+  return GetMaxNumWorldModules();
+}
+
+constexpr ezUInt64 ezWorld::GetMaxNumWorlds()
+{
+  return (1 << (sizeof(ezGameObjectId::m_WorldIndex) * 8));
+}
+
 // static
 EZ_ALWAYS_INLINE ezUInt32 ezWorld::GetWorldCount()
 {
@@ -474,6 +505,18 @@ EZ_ALWAYS_INLINE ezUInt32 ezWorld::GetWorldCount()
 EZ_ALWAYS_INLINE ezWorld* ezWorld::GetWorld(ezUInt32 uiIndex)
 {
   return s_Worlds[uiIndex];
+}
+
+// static
+EZ_ALWAYS_INLINE ezWorld* ezWorld::GetWorld(const ezGameObjectHandle& object)
+{
+  return s_Worlds[object.GetInternalID().m_WorldIndex];
+}
+
+// static
+EZ_ALWAYS_INLINE ezWorld* ezWorld::GetWorld(const ezComponentHandle& component)
+{
+  return s_Worlds[component.GetInternalID().m_WorldIndex];
 }
 
 EZ_ALWAYS_INLINE void ezWorld::CheckForReadAccess() const

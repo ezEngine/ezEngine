@@ -5,7 +5,7 @@
 
 class ezPhysicsWorldModuleInterface;
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizerFactory_Age : public ezParticleFinalizerFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizerFactory_Age final : public ezParticleFinalizerFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleFinalizerFactory_Age, ezParticleFinalizerFactory);
 
@@ -21,7 +21,7 @@ public:
 };
 
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizer_Age : public ezParticleFinalizer
+class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizer_Age final : public ezParticleFinalizer
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleFinalizer_Age, ezParticleFinalizer);
 public:

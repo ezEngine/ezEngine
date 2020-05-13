@@ -46,7 +46,9 @@ private:
   ezUntrackedString m_sCategory;
 };
 
-/// \brief Used to categorize types (e.g. add component menu)
+/// \brief Used for dynamic titles of visual script nodes.
+/// E.g. "Set Bool Property '{Name}'" will allow the title to by dynamic
+/// by reading the current value of the 'Name' property.
 class EZ_FOUNDATION_DLL ezTitleAttribute : public ezPropertyAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezTitleAttribute, ezPropertyAttribute);
@@ -149,6 +151,25 @@ private:
   ezVariant m_MaxValue;
 };
 
+/// \brief Used to categorize properties into groups
+class EZ_FOUNDATION_DLL ezGroupAttribute : public ezPropertyAttribute
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezGroupAttribute, ezPropertyAttribute);
+
+public:
+  ezGroupAttribute();
+  ezGroupAttribute(const char* szGroup, float fOrder = -1.0f);
+  ezGroupAttribute(const char* szGroup, const char* szIconName, float fOrder = -1.0f);
+
+  const char* GetGroup() const { return m_sGroup; }
+  const char* GetIconName() const { return m_sIconName; }
+  float GetOrder() const { return m_fOrder; }
+
+private:
+  ezUntrackedString m_sGroup;
+  ezUntrackedString m_sIconName;
+  float m_fOrder = -1.0f;
+};
 
 /// \brief Derive from this class if you want to define an attribute that replaces the property type widget.
 ///
@@ -218,7 +239,7 @@ class EZ_FOUNDATION_DLL ezContainerAttribute : public ezPropertyAttribute
   EZ_ADD_DYNAMIC_REFLECTION(ezContainerAttribute, ezPropertyAttribute);
 
 public:
-  ezContainerAttribute() {}
+  ezContainerAttribute() = default;
   ezContainerAttribute(bool bCanAdd, bool bCanDelete, bool bCanMove)
   {
     m_bCanAdd = bCanAdd;
@@ -231,9 +252,9 @@ public:
   bool CanMove() const { return m_bCanMove; }
 
 private:
-  bool m_bCanAdd;
-  bool m_bCanDelete;
-  bool m_bCanMove;
+  bool m_bCanAdd = false;
+  bool m_bCanDelete = false;
+  bool m_bCanMove = false;
 };
 
 /// \brief Limits setting of pointer properties to derived types that have the given constant property and value
@@ -585,13 +606,13 @@ class EZ_FOUNDATION_DLL ezDirectionVisualizerAttribute : public ezVisualizerAttr
 
 public:
   ezDirectionVisualizerAttribute();
-  ezDirectionVisualizerAttribute(
-    ezEnum<ezBasisAxis> axis, float fScale, const char* szColorProperty, const char* szLengthProperty = nullptr);
-  ezDirectionVisualizerAttribute(
-    ezEnum<ezBasisAxis> axis, float fScale, const ezColor& fixedColor = ezColor::MediumVioletRed, const char* szLengthProperty = nullptr);
+  ezDirectionVisualizerAttribute(ezEnum<ezBasisAxis> axis, float fScale, const char* szColorProperty, const char* szLengthProperty = nullptr);
+  ezDirectionVisualizerAttribute(ezEnum<ezBasisAxis> axis, float fScale, const ezColor& fixedColor = ezColor::MediumVioletRed, const char* szLengthProperty = nullptr);
+  ezDirectionVisualizerAttribute(const char* szAxisProperty, float fScale, const ezColor& fixedColor = ezColor::MediumVioletRed, const char* szLengthProperty = nullptr);
 
   const ezUntrackedString& GetColorProperty() const { return m_sProperty1; }
   const ezUntrackedString& GetLengthProperty() const { return m_sProperty2; }
+  const ezUntrackedString& GetAxisProperty() const { return m_sProperty3; }
 
   ezEnum<ezBasisAxis> m_Axis;
   ezColor m_Color;
@@ -613,8 +634,7 @@ public:
   /// fScale will be multiplied with value of szRadiusProperty to determine the size of the cone
   /// szColorProperty may be nullptr. In this case it is ignored and fixedColor is used instead.
   /// fixedColor is ignored if szColorProperty is valid.
-  ezConeVisualizerAttribute(ezEnum<ezBasisAxis> axis, const char* szAngleProperty, float fScale, const char* szRadiusProperty,
-    const char* szColorProperty = nullptr, const ezColor& fixedColor = ezColor::MediumVioletRed);
+  ezConeVisualizerAttribute(ezEnum<ezBasisAxis> axis, const char* szAngleProperty, float fScale, const char* szRadiusProperty, const char* szColorProperty = nullptr, const ezColor& fixedColor = ezColor::MediumVioletRed);
 
   const ezUntrackedString& GetAngleProperty() const { return m_sProperty1; }
   const ezUntrackedString& GetRadiusProperty() const { return m_sProperty2; }
@@ -635,8 +655,7 @@ public:
   ezCameraVisualizerAttribute();
 
   /// \brief Attribute to add on an RTTI type to add a camera cone visualizer.
-  ezCameraVisualizerAttribute(const char* szModeProperty, const char* szFovProperty, const char* szOrthoDimProperty,
-    const char* szNearPlaneProperty, const char* szFarPlaneProperty);
+  ezCameraVisualizerAttribute(const char* szModeProperty, const char* szFovProperty, const char* szOrthoDimProperty, const char* szNearPlaneProperty, const char* szFarPlaneProperty);
 
   const ezUntrackedString& GetModeProperty() const { return m_sProperty1; }
   const ezUntrackedString& GetFovProperty() const { return m_sProperty2; }
@@ -681,13 +700,13 @@ class EZ_FOUNDATION_DLL ezMaxArraySizeAttribute : public ezPropertyAttribute
   EZ_ADD_DYNAMIC_REFLECTION(ezMaxArraySizeAttribute, ezPropertyAttribute);
 
 public:
-  ezMaxArraySizeAttribute() {}
+  ezMaxArraySizeAttribute() = default;
   ezMaxArraySizeAttribute(ezUInt32 uiMaxSize) { m_uiMaxSize = uiMaxSize; }
 
   const ezUInt32& GetMaxSize() const { return m_uiMaxSize; }
 
 private:
-  ezUInt32 m_uiMaxSize;
+  ezUInt32 m_uiMaxSize = 0;
 };
 
 //////////////////////////////////////////////////////////////////////////

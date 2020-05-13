@@ -285,7 +285,7 @@ void ezHashTableBase<K, V, H>::Compact()
   }
   else
   {
-    const ezUInt32 uiNewCapacity = (m_uiCount + (CAPACITY_ALIGNMENT - 1)) & ~(CAPACITY_ALIGNMENT - 1);
+    const ezUInt32 uiNewCapacity = ezMath::PowerOfTwo_Ceil(m_uiCount + (CAPACITY_ALIGNMENT - 1)) & ~(CAPACITY_ALIGNMENT - 1);
     if (m_uiCapacity != uiNewCapacity)
       SetCapacity(uiNewCapacity);
   }
@@ -325,7 +325,7 @@ bool ezHashTableBase<K, V, H>::Insert(CompatibleKeyType&& key, CompatibleValueTy
 {
   Reserve(m_uiCount + 1);
 
-  ezUInt32 uiIndex = H::Hash(key) % m_uiCapacity;
+  ezUInt32 uiIndex = H::Hash(key) & (m_uiCapacity - 1);
   ezUInt32 uiDeletedIndex = ezInvalidIndex;
 
   ezUInt32 uiCounter = 0;
@@ -532,7 +532,7 @@ inline V& ezHashTableBase<K, V, H>::operator[](const K& key)
     Reserve(m_uiCount + 1);
 
     // search for suitable insertion index again, table might have been resized
-    uiIndex = uiHash % m_uiCapacity;
+    uiIndex = uiHash & (m_uiCapacity - 1);
     while (IsValidEntry(uiIndex))
     {
       ++uiIndex;
@@ -604,6 +604,7 @@ ezUInt64 ezHashTableBase<K, V, H>::GetHeapMemoryUsage() const
 template <typename K, typename V, typename H>
 void ezHashTableBase<K, V, H>::SetCapacity(ezUInt32 uiCapacity)
 {
+  EZ_ASSERT_DEV(ezMath::IsPowerOf2(uiCapacity), "uiCapacity must be a power of two to avoid modulo during lookup.");
   const ezUInt32 uiOldCapacity = m_uiCapacity;
   m_uiCapacity = uiCapacity;
 
@@ -643,7 +644,7 @@ inline ezUInt32 ezHashTableBase<K, V, H>::FindEntry(ezUInt32 uiHash, const Compa
 {
   if (m_uiCapacity > 0)
   {
-    ezUInt32 uiIndex = uiHash % m_uiCapacity;
+    ezUInt32 uiIndex = uiHash & (m_uiCapacity - 1);
     ezUInt32 uiCounter = 0;
     while (!IsFreeEntry(uiIndex) && uiCounter < m_uiCapacity)
     {

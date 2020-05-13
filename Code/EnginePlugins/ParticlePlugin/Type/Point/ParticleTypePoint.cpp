@@ -104,6 +104,7 @@ void ezParticleTypePoint::ExtractTypeRenderData(const ezView& view, ezExtractedR
 
   pRenderData->m_bApplyObjectTransform = GetOwnerEffect()->NeedsToApplyTransform();
   pRenderData->m_GlobalTransform = instanceTransform;
+  pRenderData->m_TotalEffectLifeTime = GetOwnerEffect()->GetTotalEffectLifeTime();
   pRenderData->m_BaseParticleData = m_BaseParticleData;
   pRenderData->m_BillboardParticleData = m_BillboardParticleData;
 

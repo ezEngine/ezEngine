@@ -33,7 +33,7 @@ public:
 
   void ClearActiveManipulator(const ezDocument* pDoc);
 
-  ezEvent<const ezManipulatorManagerEvent&> m_Events;
+  ezCopyOnBroadcastEvent<const ezManipulatorManagerEvent&> m_Events;
 
   void HideActiveManipulator(const ezDocument* pDoc, bool bHide);
   void ToggleHideActiveManipulator(const ezDocument* pDoc);

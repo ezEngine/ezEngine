@@ -12,14 +12,14 @@
 #endif
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautTreeResource, 1, ezRTTIDefaultAllocator<ezKrautTreeResource>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezKrautTreeResource, 1, ezRTTIDefaultAllocator<ezKrautTreeResource>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezKrautTreeResource);
 // clang-format on
 
 ezKrautTreeResource::ezKrautTreeResource()
-    : ezResource(DoUpdate::OnAnyThread, 1)
+  : ezResource(DoUpdate::OnAnyThread, 1)
 {
   m_Details.m_Bounds.SetInvalid();
 }
@@ -211,7 +211,12 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezKrautTreeResource, ezKrautTreeResourceDescrip
     sResName.Format("{0}_{1}_LOD{2}", GetResourceID(), GetCurrentResourceChangeCounter(), lodIdx);
     sResDesc.Format("{0}_{1}_LOD{2}", GetResourceDescription(), GetCurrentResourceChangeCounter(), lodIdx);
 
-    lodDst.m_hMesh = ezResourceManager::CreateResource<ezMeshResource>(sResName, std::move(md), sResDesc);
+    lodDst.m_hMesh = ezResourceManager::GetExistingResource<ezMeshResource>(sResName);
+
+    if (!lodDst.m_hMesh.IsValid())
+    {
+      lodDst.m_hMesh = ezResourceManager::CreateResource<ezMeshResource>(sResName, std::move(md), sResDesc);
+    }
   }
 
   ezResourceLoadDesc res;
@@ -300,8 +305,8 @@ void ezKrautTreeResourceDescriptor::Save(ezStreamWriter& stream0) const
   stream.FinishCompressedStream();
 
   ezLog::Dev("Compressed Kraut tree data from {0} KB to {1} KB ({2}%%)", ezArgF((float)stream.GetUncompressedSize() / 1024.0f, 1),
-             ezArgF((float)stream.GetCompressedSize() / 1024.0f, 1),
-             ezArgF(100.0f * stream.GetCompressedSize() / stream.GetUncompressedSize(), 1));
+    ezArgF((float)stream.GetCompressedSize() / 1024.0f, 1),
+    ezArgF(100.0f * stream.GetCompressedSize() / stream.GetUncompressedSize(), 1));
 #endif
 }
 

@@ -23,10 +23,10 @@ class EZ_CORE_DLL ezResourceManager
 public:
   /// Events on individual resources. Subscribe to this to get a notification for events happening on any resource.
   /// If you are only interested in events for a specific resource, subscribe on directly on that instance.
-  static const ezEvent<const ezResourceEvent&>& GetResourceEvents();
+  static const ezEvent<const ezResourceEvent&, ezMutex>& GetResourceEvents();
 
   /// Events for the resource manager that affect broader things.
-  static const ezEvent<const ezResourceManagerEvent&>& GetManagerEvents();
+  static const ezEvent<const ezResourceManagerEvent&, ezMutex>& GetManagerEvents();
 
   /// \brief Goes through all existing resources and broadcasts the 'Exists' event.
   ///
@@ -164,6 +164,10 @@ public:
   /// BeginAcquireResource.
   static void ForceNoFallbackAcquisition(ezUInt32 uiNumFrames = 0xFFFFFFFF);
 
+  /// \brief If the returned number is greater 0 the resource manager treats ezResourceAcquireMode::AllowLoadingFallback as
+  /// ezResourceAcquireMode::BlockTillLoaded on BeginAcquireResource.
+  static ezUInt32 GetForceNoFallbackAcquisition();
+
   /// \brief Retrieves an array of pointers to resources of the indicated type which
   /// are loaded at the moment. Destroy the returned object as soon as possible as it
   /// holds the entire resource manager locked.
@@ -184,9 +188,19 @@ public:
   /// \brief If timeout is not zero, FreeUnusedResources() is called once every frame with the given parameters.
   static void SetAutoFreeUnused(ezTime timeout, ezTime lastAcquireThreshold);
 
+  /// \brief If set to 'false' resources of the given type will not be incrementally unloaded in the background, when they are not referenced anymore.
   template <typename ResourceType>
-  static void SetIncrementalUnloadForResourceType(bool bDeactivate);
+  static void SetIncrementalUnloadForResourceType(bool bActive);
 
+  template<typename TypeBeingUpdated, typename TypeItWantsToAcquire>
+  static void AllowResourceTypeAcquireDuringUpdateContent()
+  {
+    AllowResourceTypeAcquireDuringUpdateContent(ezGetStaticRTTI<TypeBeingUpdated>(), ezGetStaticRTTI<TypeItWantsToAcquire>());
+  }
+
+  static void AllowResourceTypeAcquireDuringUpdateContent(const ezRTTI* pTypeBeingUpdated, const ezRTTI* pTypeItWantsToAcquire);
+
+  static bool IsResourceTypeAcquireDuringUpdateContentAllowed(const ezRTTI* pTypeBeingUpdated, const ezRTTI* pTypeItWantsToAcquire);
 
 private:
   static ezResult DeallocateResource(ezResource* pResource);
@@ -415,7 +429,6 @@ private:
     EZ_ALWAYS_INLINE bool operator<(const LoadingInfo& rhs) const { return m_fPriority < rhs.m_fPriority; }
   };
   static void EnsureResourceLoadingState(ezResource* pResource, const ezResourceState RequestedState);
-  static bool HelpResourceLoading();
   static void PreloadResource(ezResource* pResource);
   static void InternalPreloadResource(ezResource* pResource, bool bHighestPriority);
 
@@ -428,18 +441,20 @@ private:
   static bool ReloadResource(ezResource* pResource, bool bForce);
 
   static void SetupWorkerTasks();
-  static ezUInt32 GetForceNoFallbackAcquisition();
   static ezTime GetLastFrameUpdate();
   static ezHashTable<const ezRTTI*, LoadedResources>& GetLoadedResources();
   static ezDynamicArray<ezResource*>& GetLoadedResourceOfTypeTempContainer();
 
   EZ_ALWAYS_INLINE static bool IsQueuedForLoading(ezResource* pResource) { return pResource->m_Flags.IsSet(ezResourceFlags::IsQueuedForLoading); }
-  static ezResult RemoveFromLoadingQueue(ezResource* pResource);
+  [[nodiscard]] static ezResult RemoveFromLoadingQueue(ezResource* pResource);
   static void AddToLoadingQueue(ezResource* pResource, bool bHighPriority);
 
   struct ResourceTypeInfo
   {
     bool m_bIncrementalUnload = true;
+    bool m_bAllowNestedAcquireCached = false;
+
+    ezHybridArray<const ezRTTI*, 8> m_NestedTypes;
   };
 
   static ResourceTypeInfo& GetResourceTypeInfo(const ezRTTI* pRtti);

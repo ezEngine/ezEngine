@@ -1,8 +1,5 @@
 #include <ParticlePluginPCH.h>
 
-#include <Core/World/World.h>
-#include <Core/WorldSerializer/ResourceHandleReader.h>
-#include <Core/WorldSerializer/ResourceHandleWriter.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <Foundation/Math/Random.h>
 #include <Foundation/Profiling/Profiling.h>
@@ -136,7 +133,7 @@ ezUInt32 ezParticleEmitter_Burst::ComputeSpawnCount(const ezTime& tDiff)
     return 0;
   }
 
-  ezUInt32 uiSpawn;
+  ezUInt32 uiSpawn = 0;
 
   if (m_Duration.IsZero())
   {

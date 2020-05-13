@@ -5,6 +5,7 @@
 #include <ProcGenPlugin/Tasks/Utils.h>
 #include <ProcGenPlugin/Tasks/VertexColorTask.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
+#include <RendererCore/Meshes/MeshBufferUtils.h>
 
 namespace
 {
@@ -43,7 +44,8 @@ void VertexColorTask::Prepare(const ezWorld& world, const ezMeshBufferResourceDe
   const ezUInt8* pRawVertexData = mbDesc.GetVertexBufferData().GetData();
 
   const float* pPositions = nullptr;
-  const float* pNormals = nullptr;
+  const ezUInt8* pNormals = nullptr;
+  ezGALResourceFormat::Enum normalFormat = ezGALResourceFormat::Invalid;
   const ezColorLinearUB* pColors = nullptr;
 
   for (ezUInt32 vs = 0; vs < vdi.m_VertexStreams.GetCount(); ++vs)
@@ -60,13 +62,8 @@ void VertexColorTask::Prepare(const ezWorld& world, const ezMeshBufferResourceDe
     }
     else if (vdi.m_VertexStreams[vs].m_Semantic == ezGALVertexAttributeSemantic::Normal)
     {
-      if (vdi.m_VertexStreams[vs].m_Format != ezGALResourceFormat::RGBFloat)
-      {
-        ezLog::Error("Unsupported CPU mesh vertex normal format {0}", (int)vdi.m_VertexStreams[vs].m_Format);
-        return; // other normal formats are not supported
-      }
-
-      pNormals = reinterpret_cast<const float*>(pRawVertexData + vdi.m_VertexStreams[vs].m_uiOffset);
+      pNormals = pRawVertexData + vdi.m_VertexStreams[vs].m_uiOffset;
+      normalFormat = vdi.m_VertexStreams[vs].m_Format;
     }
     else if (vdi.m_VertexStreams[vs].m_Semantic == ezGALVertexAttributeSemantic::Color0)
     {
@@ -86,6 +83,14 @@ void VertexColorTask::Prepare(const ezWorld& world, const ezMeshBufferResourceDe
     return;
   }
 
+  ezUInt8 dummySource[16] = {};
+  ezVec3 vNormal;
+  if (ezMeshBufferUtils::DecodeNormal(ezMakeArrayPtr(dummySource), normalFormat, vNormal).Failed())
+  {
+    ezLog::Error("Unsupported CPU mesh vertex normal format {0}", normalFormat);
+    return;
+  }
+
   ezMat3 normalTransform = transform.GetAsMat4().GetRotationalPart();
   normalTransform.Invert(0.0f);
   normalTransform.Transpose();
@@ -95,9 +100,11 @@ void VertexColorTask::Prepare(const ezWorld& world, const ezMeshBufferResourceDe
   // write out all vertices
   for (ezUInt32 i = 0; i < mbDesc.GetVertexCount(); ++i)
   {
+    ezMeshBufferUtils::DecodeNormal(ezMakeArrayPtr(pNormals, sizeof(ezVec3)), normalFormat, vNormal);
+
     auto& vert = m_InputVertices.ExpandAndGetRef();
     vert.m_vPosition = transform.TransformPosition(ezVec3(pPositions[0], pPositions[1], pPositions[2]));
-    vert.m_vNormal = normalTransform.TransformDirection(ezVec3(pNormals[0], pNormals[1], pNormals[2])).GetNormalized();
+    vert.m_vNormal = normalTransform.TransformDirection(vNormal).GetNormalized();
     vert.m_Color = pColors != nullptr ? ezColor(*pColors) : ezColor::ZeroColor();
     vert.m_fIndex = i;
 

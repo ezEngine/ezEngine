@@ -10,7 +10,7 @@ EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezVariant& other)
   CopyFrom(other);
 }
 
-EZ_ALWAYS_INLINE ezVariant::ezVariant(ezVariant&& other)
+EZ_ALWAYS_INLINE ezVariant::ezVariant(ezVariant&& other) noexcept
 {
   MoveFrom(std::move(other));
 }
@@ -184,7 +184,7 @@ EZ_ALWAYS_INLINE void ezVariant::operator=(const ezVariant& other)
   }
 }
 
-EZ_ALWAYS_INLINE void ezVariant::operator=(ezVariant&& other)
+EZ_ALWAYS_INLINE void ezVariant::operator=(ezVariant&& other) noexcept
 {
   if (this != &other)
   {

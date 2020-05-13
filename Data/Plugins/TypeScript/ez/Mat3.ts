@@ -308,6 +308,8 @@ export class Mat3 {
         Inverse.SetElement(2, 1, -(this.GetElement(2, 1) * this.GetElement(0, 0) - this.GetElement(0, 1) * this.GetElement(2, 0)));
         Inverse.SetElement(2, 2, (this.GetElement(1, 1) * this.GetElement(0, 0) - this.GetElement(0, 1) * this.GetElement(1, 0)));
 
+        Inverse.MulNumber(fOneDivDet);
+
         return Inverse;
     }
 

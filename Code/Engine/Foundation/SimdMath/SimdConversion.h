@@ -94,19 +94,16 @@ namespace ezSimdConversion
 
   EZ_ALWAYS_INLINE ezSimdBSphere ToBSphere(const ezBoundingSphere& s)
   {
-    //
     return ezSimdBSphere(ToVec3(s.m_vCenter), s.m_fRadius);
   }
 
   EZ_ALWAYS_INLINE ezSimdBBox ToBBox(const ezBoundingBox& b)
   {
-    //
     return ezSimdBBox(ToVec3(b.m_vMin), ToVec3(b.m_vMax));
   }
 
   EZ_ALWAYS_INLINE ezBoundingBox ToBBox(const ezSimdBBox& b)
   {
-    //
     return ezBoundingBox(ToVec3(b.m_Min), ToVec3(b.m_Max));
   }
 

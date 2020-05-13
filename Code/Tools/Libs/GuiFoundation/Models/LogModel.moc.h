@@ -13,7 +13,6 @@ class EZ_GUIFOUNDATION_DLL ezQtLogModel : public QAbstractItemModel
 
 public:
 
-
   ezQtLogModel(QObject* parent);
   void Clear();
   void SetLogLevel(ezLogMsgType::Enum LogLevel);
@@ -21,6 +20,10 @@ public:
   void AddLogMsg(const ezLogEntry& msg);
 
   ezUInt32 GetVisibleItemCount() const { return m_VisibleMessages.GetCount(); }
+
+  ezUInt32 GetNumErrors() const { return m_uiNumErrors; }
+  ezUInt32 GetNumSeriousWarnings() const { return m_uiNumSeriousWarnings; }
+  ezUInt32 GetNumWarnings() const { return m_uiNumWarnings; }
 
 public: //QAbstractItemModel interface
   virtual QVariant data(const QModelIndex& index, int role) const override;
@@ -30,6 +33,9 @@ public: //QAbstractItemModel interface
   virtual QModelIndex parent(const QModelIndex& index) const override;
   virtual int rowCount(const QModelIndex& parent = QModelIndex()) const override;
   virtual int columnCount(const QModelIndex& parent = QModelIndex()) const override;
+
+Q_SIGNALS:
+  void NewErrorsOrWarnings(const char* szLatest, bool bError);
 
 private Q_SLOTS:
   /// \brief Adds queued messages from a different thread to the model.
@@ -50,4 +56,8 @@ private:
 
   mutable ezMutex m_NewMessagesMutex;
   ezDeque<ezLogEntry> m_NewMessages;
+
+  ezUInt32 m_uiNumErrors = 0;
+  ezUInt32 m_uiNumSeriousWarnings = 0;
+  ezUInt32 m_uiNumWarnings = 0;
 };

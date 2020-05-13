@@ -46,7 +46,7 @@ float4 CalcQuadOutputPositionWithTangents(uint vertexIndex, float3 inPosition, f
 
 float4 CalcQuadOutputPositionWithAlignedAxis(uint vertexIndex, float3 inPosition, float3 inTangentX, float3 inTangentZ, float inSize)
 {
-  float stretch = inTangentZ.x;
+  float stretch = -inTangentZ.x;
 
   float4 position = float4(inPosition, 1);
 
@@ -76,7 +76,7 @@ float4 CalcQuadOutputPositionAsBillboard(uint vertexIndex, float3 centerPosition
   //float4 position = TransformToPosition(inTransform);
   float4 position = float4(centerPosition, 1);
   //float3x3 rotation = TransformToRotation(inTransform);
-  float3x3 rotation = CreateRotationMatrixY(rotationOffset + rotationSpeed * WorldTime);
+  float3x3 rotation = CreateRotationMatrixY(rotationOffset + rotationSpeed * TotalEffectLifeTime);
 
   float3 offsetRight = GetCameraDirRight() * (QuadTexCoords[vertexIndex].x - 0.5) * inSize;
   float3 offsetUp = GetCameraDirUp() * (QuadTexCoords[vertexIndex].y - 0.5) * -inSize;

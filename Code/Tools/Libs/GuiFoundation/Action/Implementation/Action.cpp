@@ -9,15 +9,15 @@ const ezActionDescriptor* ezActionDescriptorHandle::GetDescriptor() const
 }
 
 ezActionDescriptor::ezActionDescriptor(ezActionType::Enum type, ezActionScope::Enum scope, const char* szName, const char* szCategoryPath,
-                                       const char* szShortcut, CreateActionFunc createAction, DeleteActionFunc deleteAction)
-    : m_Type(type)
-    , m_Scope(scope)
-    , m_sActionName(szName)
-    , m_sCategoryPath(szCategoryPath)
-    , m_sShortcut(szShortcut)
-    , m_sDefaultShortcut(szShortcut)
-    , m_CreateAction(createAction)
-    , m_DeleteAction(deleteAction)
+  const char* szShortcut, CreateActionFunc createAction, DeleteActionFunc deleteAction)
+  : m_Type(type)
+  , m_Scope(scope)
+  , m_sActionName(szName)
+  , m_sCategoryPath(szCategoryPath)
+  , m_sShortcut(szShortcut)
+  , m_sDefaultShortcut(szShortcut)
+  , m_CreateAction(createAction)
+  , m_DeleteAction(deleteAction)
 {
 }
 
@@ -57,5 +57,5 @@ void ezAction::TriggerUpdate()
   m_StatusUpdateEvent.Broadcast(this);
 }
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAction, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAction, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;

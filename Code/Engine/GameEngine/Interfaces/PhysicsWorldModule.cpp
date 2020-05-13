@@ -3,7 +3,7 @@
 #include <GameEngine/Interfaces/PhysicsWorldModule.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPhysicsWorldModuleInterface, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPhysicsWorldModuleInterface, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgPhysicsAddImpulse);
@@ -40,4 +40,3 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Interfaces_PhysicsWorldModule);
-

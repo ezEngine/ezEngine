@@ -115,6 +115,11 @@ ezMeshPrimitive::HalfSphere;Half Sphere
 ezMeshPrimitive::GeodesicSphere;Geodesic Sphere
 ezMeshPrimitive::Capsule;Capsule
 ezMeshPrimitive::Torus;Torus
+ezMeshNormalPrecision::_10Bit;10 Bit
+ezMeshNormalPrecision::_16Bit;16 Bit
+ezMeshNormalPrecision::_32Bit;32 Bit
+ezMeshTexCoordPrecision::_16Bit;16 Bit
+ezMeshTexCoordPrecision::_32Bit;32 Bit
 VisScript.PickDebugTarget;Pick Debug Target...
 ezMaterialAnimComponent;Material Animation
 ezCollectionAssetEntry;Collection Asset Entry
@@ -129,11 +134,11 @@ TextureImport.AO;Ambient Occlusion Texture
 TextureImport.Height;Height Map Texture
 TextureImport.Metalness;Metalness Texture
 TextureImport.Roughness;Roughness Texture
-ezDecalMode::All;All
 ezDecalMode::BaseColor;Base Color
-ezDecalMode::BaseColorRoughness;Base Color, Roughness
-ezDecalMode::NormalRoughnessOcclusion;Normal, Roughness, Occlusion
-ezDecalMode::Emissive;Emissive
+ezDecalMode::BaseColorNormal;Base Color, Normal
+ezDecalMode::BaseColorORM;Base Color, ORM
+ezDecalMode::BaseColorNormalORM;Base Color, Normal, ORM
+ezDecalMode::BaseColorEmissive;BaseColor, Emissive
 MeshImport.WithMaterials;Mesh and Materials
 MeshImport.NoMaterials;Mesh only
 DecalImport.All;Decal
@@ -186,3 +191,9 @@ ezTexConvUsage::NormalMap_Inverted; Normal Map (inverted)
 ezTexConvUsage::BumpMap;Bump Map
 ezColorAnimationComponent;Color Animation
 ezJointAttachmentComponent;Joint Attachment
+AnimatedMeshImport.NoMaterials;Animated Mesh only
+AnimatedMeshImport.WithMaterials;Animated Mesh and Materials
+Length;Length
+Thickness;Thickness
+Width;Width
+Input1;Input1

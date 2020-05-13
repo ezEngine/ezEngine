@@ -57,7 +57,7 @@ void ezEngineProcessGameApplication::AfterCoreSystemsStartup()
 
   DisableErrorReport();
 
-  ezTaskSystem::SetTargetFrameTime(1000.0 / 20.0);
+  ezTaskSystem::SetTargetFrameTime(ezTime::Seconds(1.0 / 20.0));
 
   ConnectToHost();
 }
@@ -122,6 +122,11 @@ void ezEngineProcessGameApplication::LogWriter(const ezLoggingEventData& e)
 {
   ezLogMsgToEditor msg;
   msg.m_Entry = ezLogEntry(e);
+
+  // the editor does not care about flushing caches, so no need to send this over
+  if (msg.m_Entry.m_Type == ezLogMsgType::Flush)
+    return;
+
   m_IPC.SendMessage(&msg);
 }
 
@@ -148,7 +153,7 @@ bool ezEngineProcessGameApplication::ProcessIPCMessages(bool bPendingOpInProgres
     // The OS will still call destructors for our objects (even though we called abort ... what a pointless design).
     // Our code might assert on destruction, so make sure our assert handler doesn't show anything.
     ezSetAssertHandler(EmptyAssertHandler);
-    abort();
+    std::abort();
 
     RequestQuit();
     return false;

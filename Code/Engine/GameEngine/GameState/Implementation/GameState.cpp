@@ -1,12 +1,13 @@
 
 #include <GameEnginePCH.h>
 
-#include <GameEngine/ActorSystem/Actor.h>
-#include <GameEngine/ActorSystem/ActorManager.h>
+#include <ActorSystem/ActorPluginWindow.h>
 #include <Core/World/World.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <GameApplication/WindowOutputTarget.h>
+#include <GameEngine/ActorSystem/Actor.h>
+#include <GameEngine/ActorSystem/ActorManager.h>
 #include <GameEngine/Configuration/RendererProfileConfigs.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/GameState/GameStateWindow.h>
@@ -19,10 +20,9 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <System/Screen/Screen.h>
-#include <ActorSystem/ActorPluginWindow.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameState, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameState, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_GameState_Implementation_GameState);
@@ -234,7 +234,7 @@ ezResult ezGameState::SpawnPlayer(const ezTransform* pStartPosition)
           startPos.m_vPosition.z += 1.0f; // do not spawn player prefabs on the ground, they may not have their origin there
         }
 
-        pPrefab->InstantiatePrefab(*m_pMainWorld, startPos, ezGameObjectHandle(), nullptr, &uiTeamID, nullptr, false);
+        pPrefab->InstantiatePrefab(*m_pMainWorld, startPos, ezGameObjectHandle(), nullptr, &uiTeamID, &(it->m_Parameters), false);
 
         return EZ_SUCCESS;
       }

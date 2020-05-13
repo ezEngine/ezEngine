@@ -24,9 +24,12 @@ ezQtLongOpsPanel ::ezQtLongOpsPanel()
   : ezQtApplicationPanel("Panel.LongOps")
   , m_SingletonRegistrar(this)
 {
-  setupUi(this);
+  QWidget* pDummy = new QWidget();
+  setupUi(pDummy);
+  pDummy->setContentsMargins(0, 0, 0, 0);
+  pDummy->layout()->setContentsMargins(0, 0, 0, 0);
 
-  setWidget(dockWidgetContents);
+  setWidget(pDummy);
   setIcon(ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/Log.png"));
   setWindowTitle(QString::fromUtf8(ezTranslate("Panel.LongOps")));
 

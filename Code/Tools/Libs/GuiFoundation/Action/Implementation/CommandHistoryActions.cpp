@@ -5,7 +5,7 @@
 #include <GuiFoundation/Action/CommandHistoryActions.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCommandHistoryAction, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCommandHistoryAction, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezActionDescriptorHandle ezCommandHistoryActions::s_hCommandHistoryCategory;
@@ -16,9 +16,9 @@ void ezCommandHistoryActions::RegisterActions()
 {
   s_hCommandHistoryCategory = EZ_REGISTER_CATEGORY("CmdHistoryCategory");
   s_hUndo = EZ_REGISTER_ACTION_AND_DYNAMIC_MENU_1("Document.Undo", ezActionScope::Document, "Document", "Ctrl+Z", ezCommandHistoryAction,
-                                                  ezCommandHistoryAction::ButtonType::Undo);
+    ezCommandHistoryAction::ButtonType::Undo);
   s_hRedo = EZ_REGISTER_ACTION_AND_DYNAMIC_MENU_1("Document.Redo", ezActionScope::Document, "Document", "Ctrl+Y", ezCommandHistoryAction,
-                                                  ezCommandHistoryAction::ButtonType::Redo);
+    ezCommandHistoryAction::ButtonType::Redo);
 }
 
 void ezCommandHistoryActions::UnregisterActions()
@@ -41,7 +41,7 @@ void ezCommandHistoryActions::MapActions(const char* szMapping, const char* szPa
 }
 
 ezCommandHistoryAction::ezCommandHistoryAction(const ezActionContext& context, const char* szName, ButtonType button)
-    : ezDynamicActionAndMenuAction(context, szName, "")
+  : ezDynamicActionAndMenuAction(context, szName, "")
 {
   m_ButtonType = button;
 
@@ -56,7 +56,7 @@ ezCommandHistoryAction::ezCommandHistoryAction(const ezActionContext& context, c
   }
 
   m_Context.m_pDocument->GetCommandHistory()->m_Events.AddEventHandler(
-      ezMakeDelegate(&ezCommandHistoryAction::CommandHistoryEventHandler, this));
+    ezMakeDelegate(&ezCommandHistoryAction::CommandHistoryEventHandler, this));
 
   UpdateState();
 }
@@ -64,7 +64,7 @@ ezCommandHistoryAction::ezCommandHistoryAction(const ezActionContext& context, c
 ezCommandHistoryAction::~ezCommandHistoryAction()
 {
   m_Context.m_pDocument->GetCommandHistory()->m_Events.RemoveEventHandler(
-      ezMakeDelegate(&ezCommandHistoryAction::CommandHistoryEventHandler, this));
+    ezMakeDelegate(&ezCommandHistoryAction::CommandHistoryEventHandler, this));
 }
 
 void ezCommandHistoryAction::GetEntries(ezHybridArray<ezDynamicMenuAction::Item, 16>& out_Entries)
@@ -77,7 +77,7 @@ void ezCommandHistoryAction::GetEntries(ezHybridArray<ezDynamicMenuAction::Item,
   for (ezUInt32 i = 0; i < iCount; i++)
   {
     const ezCommandTransaction* pTransaction =
-        (m_ButtonType == ButtonType::Undo) ? pHistory->GetUndoStackEntry(i) : pHistory->GetRedoStackEntry(i);
+      (m_ButtonType == ButtonType::Undo) ? pHistory->GetUndoStackEntry(i) : pHistory->GetRedoStackEntry(i);
     ezDynamicMenuAction::Item entryItem;
     entryItem.m_sDisplay = pTransaction->m_sDisplayString;
     entryItem.m_UserValue = (ezUInt32)i + 1; // Number of steps to undo / redo.

@@ -16,7 +16,7 @@
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureCubeAssetDocument, 3, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureCubeAssetDocument, 3, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTextureCubeChannelMode, 1)

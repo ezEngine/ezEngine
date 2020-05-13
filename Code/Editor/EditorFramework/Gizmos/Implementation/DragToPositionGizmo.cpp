@@ -10,23 +10,52 @@
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <QMouseEvent>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDragToPositionGizmo, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDragToPositionGizmo, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezDragToPositionGizmo::ezDragToPositionGizmo()
 {
   m_bModifiesRotation = false;
 
+  float b = 0.1f;
+  float l = 0.5f;
+  float h = 0.9f;
+
   m_Bobble.Configure(this, ezEngineGizmoHandleType::Box, ezColor::DodgerBlue);
-  m_AlignPX.Configure(this, ezEngineGizmoHandleType::HalfPiston, ezColor::SteelBlue);
-  m_AlignNX.Configure(this, ezEngineGizmoHandleType::HalfPiston, ezColor::SteelBlue);
-  m_AlignPY.Configure(this, ezEngineGizmoHandleType::HalfPiston, ezColor::SteelBlue);
-  m_AlignNY.Configure(this, ezEngineGizmoHandleType::HalfPiston, ezColor::SteelBlue);
-  m_AlignPZ.Configure(this, ezEngineGizmoHandleType::HalfPiston, ezColor::SteelBlue);
-  m_AlignNZ.Configure(this, ezEngineGizmoHandleType::HalfPiston, ezColor::SteelBlue);
+  m_AlignPX.Configure(this, ezEngineGizmoHandleType::HalfPiston, ezColor(h, b, b));
+  m_AlignNX.Configure(this, ezEngineGizmoHandleType::HalfPiston, ezColor(l, b, b));
+  m_AlignPY.Configure(this, ezEngineGizmoHandleType::HalfPiston, ezColor(b, h, b));
+  m_AlignNY.Configure(this, ezEngineGizmoHandleType::HalfPiston, ezColor(b, l, b));
+  m_AlignPZ.Configure(this, ezEngineGizmoHandleType::HalfPiston, ezColor(b, b, h));
+  m_AlignNZ.Configure(this, ezEngineGizmoHandleType::HalfPiston, ezColor(b, b, l / 3));
 
   SetVisible(false);
   SetTransformation(ezTransform::IdentityTransform());
+}
+
+void ezDragToPositionGizmo::UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow)
+{
+  if (m_pInteractionGizmoHandle != nullptr)
+  {
+    if (m_pInteractionGizmoHandle == &m_Bobble)
+      GetOwnerWindow()->SetPermanentStatusBarMsg(ezFmt("Drag to Position: Center"));
+    else if (m_pInteractionGizmoHandle == &m_AlignPX)
+      GetOwnerWindow()->SetPermanentStatusBarMsg(ezFmt("Drag to Position: +X"));
+    else if (m_pInteractionGizmoHandle == &m_AlignNX)
+      GetOwnerWindow()->SetPermanentStatusBarMsg(ezFmt("Drag to Position: -X"));
+    else if (m_pInteractionGizmoHandle == &m_AlignPY)
+      GetOwnerWindow()->SetPermanentStatusBarMsg(ezFmt("Drag to Position: +Y"));
+    else if (m_pInteractionGizmoHandle == &m_AlignNY)
+      GetOwnerWindow()->SetPermanentStatusBarMsg(ezFmt("Drag to Position: -Y"));
+    else if (m_pInteractionGizmoHandle == &m_AlignPZ)
+      GetOwnerWindow()->SetPermanentStatusBarMsg(ezFmt("Drag to Position: +Z"));
+    else if (m_pInteractionGizmoHandle == &m_AlignNZ)
+      GetOwnerWindow()->SetPermanentStatusBarMsg(ezFmt("Drag to Position: -Z"));
+  }
+  else
+  {
+    GetOwnerWindow()->SetPermanentStatusBarMsg(ezFmt("Drag to Position"));
+  }
 }
 
 void ezDragToPositionGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
@@ -92,6 +121,8 @@ void ezDragToPositionGizmo::DoFocusLost(bool bCancel)
   m_AlignNY.SetVisible(true);
   m_AlignPZ.SetVisible(true);
   m_AlignNZ.SetVisible(true);
+
+  m_pInteractionGizmoHandle = nullptr;
 }
 
 ezEditorInput ezDragToPositionGizmo::DoMousePressEvent(QMouseEvent* e)
@@ -122,6 +153,8 @@ ezEditorInput ezDragToPositionGizmo::DoMousePressEvent(QMouseEvent* e)
   m_LastInteraction = ezTime::Now();
 
   SetActiveInputContext(this);
+
+  UpdateStatusBarText(nullptr);
 
   ezGizmoEvent ev;
   ev.m_pGizmo = this;

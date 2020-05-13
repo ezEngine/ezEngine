@@ -75,8 +75,12 @@ function(ez_create_target TYPE TARGET_NAME)
         ez_auto_pch(${TARGET_NAME} "${ALL_SOURCE_FILES}" ${ARG_EXCLUDE_FROM_PCH_REGEX})
 
     endif()
-
-    ez_set_default_target_output_dirs(${TARGET_NAME})
+	
+	# When using the Open Folder workflow inside visual studio on android, visual studio gets confused due to our custom output directory
+	# Do not set the custom output directory in this case
+	if((NOT ANDROID) OR (NOT EZ_CMAKE_INSIDE_VS))
+		ez_set_default_target_output_dirs(${TARGET_NAME})
+	endif()
 	
     #We need the target directory to add the apk packaging steps for android. Thus, this step needs to be done here.
 	if (${TYPE} STREQUAL "APPLICATION")

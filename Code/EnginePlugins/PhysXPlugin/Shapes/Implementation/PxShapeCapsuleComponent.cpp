@@ -4,6 +4,7 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <PhysXPlugin/Shapes/PxShapeCapsuleComponent.h>
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
+#include <extensions/PxRigidActorExt.h>
 
 using namespace physx;
 
@@ -90,7 +91,7 @@ PxShape* ezPxShapeCapsuleComponent::CreateShape(PxRigidActor* pActor, PxTransfor
   capsule.radius = m_fRadius * fScale;
   capsule.halfHeight = m_fHeight * 0.5f * fScale;
 
-  return pActor->createShape(capsule, *GetPxMaterial());
+  return PxRigidActorExt::createExclusiveShape(*pActor, capsule, *GetPxMaterial());
 }
 
 

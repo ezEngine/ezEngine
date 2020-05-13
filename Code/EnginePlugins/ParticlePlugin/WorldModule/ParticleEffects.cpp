@@ -3,6 +3,7 @@
 #include <Core/World/World.h>
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 
 ezParticleEffectHandle ezParticleWorldModule::InternalCreateEffectInstance(const ezParticleEffectResourceHandle& hResource,
                                                                            ezUInt64 uiRandomSeed, bool bIsShared,
@@ -87,8 +88,7 @@ ezParticleEffectHandle ezParticleWorldModule::CreateEffectInstance(const ezParti
   }
 }
 
-void ezParticleWorldModule::DestroyEffectInstance(const ezParticleEffectHandle& hEffect, bool bInterruptImmediately,
-                                                  const void* pSharedInstanceOwner)
+void ezParticleWorldModule::DestroyEffectInstance(const ezParticleEffectHandle& hEffect, bool bInterruptImmediately, const void* pSharedInstanceOwner)
 {
   EZ_LOCK(m_Mutex);
 
@@ -107,6 +107,11 @@ void ezParticleWorldModule::DestroyEffectInstance(const ezParticleEffectHandle& 
       pInstance->m_bIsFinishing = true;
       pInstance->SetEmitterEnabled(false);
       m_FinishingEffects.PushBack(pInstance);
+
+      if (!bInterruptImmediately)
+      {
+        m_NeedFinisherComponent.PushBack(pInstance);
+      }
     }
 
     if (bInterruptImmediately)
@@ -132,7 +137,7 @@ void ezParticleWorldModule::UpdateEffects(const ezWorldModule::UpdateContext& co
   DestroyFinishedEffects();
   ReconfigureEffects();
 
-  m_EffectUpdateTaskGroup = ezTaskSystem::CreateTaskGroup(ezTaskPriority::EarlyNextFrame);
+  m_EffectUpdateTaskGroup = ezTaskSystem::CreateTaskGroup(ezTaskPriority::LateThisFrame);
 
   const ezTime tDiff = GetWorld()->GetClock().GetTimeDiff();
   for (ezUInt32 i = 0; i < m_ParticleEffects.GetCount(); ++i)
@@ -175,6 +180,15 @@ void ezParticleWorldModule::DestroyFinishedEffects()
       ++i;
     }
   }
+
+  for (ezUInt32 i = 0; i < m_NeedFinisherComponent.GetCount(); ++i)
+  {
+    ezParticleEffectInstance* pEffect = m_NeedFinisherComponent[i];
+
+    CreateFinisherComponent(pEffect);
+  }
+
+  m_NeedFinisherComponent.Clear();
 }
 
 void ezParticleWorldModule::ReconfigureEffects()

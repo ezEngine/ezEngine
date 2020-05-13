@@ -280,6 +280,8 @@ void ezDocumentAction::Execute(const ezVariant& value)
       QMimeData* mimeData = new QMimeData();
       mimeData->setText(sGuid.GetData());
       clipboard->setMimeData(mimeData);
+
+      ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Copied asset GUID: {}", sGuid), ezTime::Seconds(5));
     }
     break;
 

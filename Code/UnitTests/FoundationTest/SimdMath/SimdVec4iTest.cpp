@@ -1,6 +1,6 @@
 #include <FoundationTestPCH.h>
 
-#include <Foundation/SimdMath/SimdVec4i.h>
+#include <Foundation/SimdMath/SimdVec4u.h>
 
 EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4i)
 {
@@ -62,12 +62,18 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4i)
   {
     ezSimdVec4i ia(-3, 5, -7, 11);
 
+    ezSimdVec4u ua(ia);
+    EZ_TEST_BOOL(ua.x() == -3 && ua.y() == 5 && ua.z() == -7 && ua.w() == 11);
+
     ezSimdVec4f fa = ia.ToFloat();
     EZ_TEST_BOOL(fa.x() == -3.0f && fa.y() == 5.0f && fa.z() == -7.0f && fa.w() == 11.0f);
 
-    fa += ezSimdVec4f(0.7f);
+    fa = ezSimdVec4f(-2.3f, 5.7f, -2147483520.0f, 2147483520.0f);
     ezSimdVec4i b = ezSimdVec4i::Truncate(fa);
-    EZ_TEST_BOOL(b.x() == -2 && b.y() == 5 && b.z() == -6 && b.w() == 11);
+    EZ_TEST_INT(b.x(), -2);
+    EZ_TEST_INT(b.y(), 5);
+    EZ_TEST_INT(b.z(), -2147483520);
+    EZ_TEST_INT(b.w(), 2147483520);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Swizzle")
@@ -170,6 +176,10 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4i)
       c = a;
       c >>= 1;
       EZ_TEST_BOOL(c.x() == EZ_BIT(0) && c.y() == EZ_BIT(1) && c.z() == EZ_BIT(2) && c.w() == EZ_BIT(3));
+
+      c = ezSimdVec4i(-2, -4, -7, -8);
+      c >>= 1;
+      EZ_TEST_BOOL(c.x() == -1 && c.y() == -2 && c.z() == -4 && c.w() == -4);
     }
 
     {
@@ -190,8 +200,8 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4i)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Comparison")
   {
-    ezSimdVec4i a(7, 5, 4, 3);
-    ezSimdVec4i b(8, 6, 4, 2);
+    ezSimdVec4i a(-7, 5, 4, 3);
+    ezSimdVec4i b(8, 6, 4, -2);
     ezSimdVec4b cmp;
 
     cmp = a == b;

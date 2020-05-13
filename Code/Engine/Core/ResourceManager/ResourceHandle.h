@@ -105,6 +105,7 @@ private:
   friend class ezResourceManager;
   friend class ezResourceHandleWriteContext;
   friend class ezResourceHandleReadContext;
+  friend class ezResourceHandleStreamOperations;
 };
 
 /// \brief The ezTypedResourceHandle controls access to an ezResource.
@@ -216,6 +217,7 @@ private:
   friend class ezResourceManager;
   friend class ezResourceHandleWriteContext;
   friend class ezResourceHandleReadContext;
+  friend class ezResourceHandleStreamOperations;
 
   ezTypelessResourceHandle m_Typeless;
 };

@@ -3,6 +3,7 @@ EZ_FOUNDATION_INTERNAL_HEADER
 
 #include <sys/sysctl.h>
 #include <sys/types.h>
+#include <sys/vmmeter.h>
 #include <unistd.h>
 #include <assert.h>
 #include <stdbool.h>
@@ -85,10 +86,21 @@ void ezSystemInformation::Initialize()
 
 ezUInt64 ezSystemInformation::GetAvailableMainMemory() const
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  struct vmtotal vmt = {0};
+  size_t vmt_size = sizeof(vmt);
+
+  int rc = sysctlbyname("vm.vmtotal", &vmt, &vmt_size, NULL, 0);
+  if (rc < 0)
+  {
+    perror("sysctlbyname");
+    return 0;
+  }
+
+  return static_cast<ezUInt64>(s_SystemInformation.m_uiMemoryPageSize) * static_cast<ezUInt64>(vmt.t_free);
 }
 
 float ezSystemInformation::GetCPUUtilization() const
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
+  return 0.0f;
 }

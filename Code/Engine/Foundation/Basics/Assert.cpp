@@ -5,6 +5,7 @@
 #include <Foundation/Strings/StringUtils.h>
 #include <Foundation/System/SystemInformation.h>
 #include <Foundation/Utilities/ConversionUtils.h>
+#include <Foundation/Utilities/EnvironmentVariableUtils.h>
 #include <Foundation/Logging/Log.h>
 
 #include <cstdio>
@@ -49,10 +50,10 @@ bool ezDefaultAssertHandler(
   // this should be set on machines that run tests which should never get stuck but rather crash asap
   bool bSilentAsserts = false;
 
-#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
-  // std::getenv does not exist on UWP
-  ezConversionUtils::StringToBool(std::getenv("EZ_SILENT_ASSERTS"), bSilentAsserts);
-#endif
+  if (ezEnvironmentVariableUtils::IsVariableSet("EZ_SILENT_ASSERTS"))
+  {
+    ezConversionUtils::StringToBool(ezEnvironmentVariableUtils::GetValueString("EZ_SILENT_ASSERTS"), bSilentAsserts);
+  }
 
   if (bSilentAsserts)
     return true;

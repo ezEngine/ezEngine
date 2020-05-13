@@ -8,7 +8,7 @@
 #include <RendererCore/../../../Data/Base/Shaders/Particles/BillboardQuadParticleShaderData.h>
 #include <RendererCore/../../../Data/Base/Shaders/Particles/TangentQuadParticleShaderData.h>
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleQuadRenderData : public ezRenderData
+class EZ_PARTICLEPLUGIN_DLL ezParticleQuadRenderData final : public ezRenderData
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleQuadRenderData, ezRenderData);
 
@@ -18,6 +18,7 @@ public:
   ezArrayPtr<ezBaseParticleShaderData> m_BaseParticleData;
   ezArrayPtr<ezBillboardQuadParticleShaderData> m_BillboardParticleData;
   ezArrayPtr<ezTangentQuadParticleShaderData> m_TangentParticleData;
+  ezTime m_TotalEffectLifeTime;
   bool m_bApplyObjectTransform = true;
   ezUInt8 m_uiNumVariationsX = 1;
   ezUInt8 m_uiNumVariationsY = 1;
@@ -30,7 +31,7 @@ public:
 };
 
 /// \brief Implements rendering of particle systems
-class EZ_PARTICLEPLUGIN_DLL ezParticleQuadRenderer : public ezParticleRenderer
+class EZ_PARTICLEPLUGIN_DLL ezParticleQuadRenderer final : public ezParticleRenderer
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleQuadRenderer, ezParticleRenderer);
   EZ_DISALLOW_COPY_AND_ASSIGN(ezParticleQuadRenderer);

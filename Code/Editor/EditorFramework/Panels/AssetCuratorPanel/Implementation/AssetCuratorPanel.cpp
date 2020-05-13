@@ -7,15 +7,44 @@
 #include <GuiFoundation/Models/LogModel.moc.h>
 
 ezQtAssetCuratorFilter::ezQtAssetCuratorFilter(QObject* pParent)
-    : ezQtAssetFilter(pParent)
+  : ezQtAssetFilter(pParent)
 {
+}
+
+void ezQtAssetCuratorFilter::SetFilterTransitive(bool bFilterTransitive)
+{
+  m_bFilterTransitive = bFilterTransitive;
 }
 
 bool ezQtAssetCuratorFilter::IsAssetFiltered(const ezSubAsset* pInfo) const
 {
-  return !pInfo->m_bMainAsset || !(pInfo->m_pAssetInfo->m_TransformState == ezAssetInfo::MissingDependency ||
-                                   pInfo->m_pAssetInfo->m_TransformState == ezAssetInfo::MissingReference ||
-                                   pInfo->m_pAssetInfo->m_TransformState == ezAssetInfo::TransformError);
+  if (!pInfo->m_bMainAsset)
+    return true;
+
+  if (pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::MissingDependency &&
+      pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::MissingReference &&
+      pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::TransformError)
+  {
+    return true;
+  }
+
+  if (m_bFilterTransitive)
+  {
+    if (pInfo->m_pAssetInfo->m_TransformState == ezAssetInfo::MissingReference)
+    {
+      for (auto& ref : pInfo->m_pAssetInfo->m_MissingReferences)
+      {
+        if (!ezAssetCurator::GetSingleton()->FindSubAsset(ref).isValid())
+        {
+          return false;
+        }
+      }
+
+      return true;
+    }
+  }
+
+  return false;
 }
 
 bool ezQtAssetCuratorFilter::Less(const ezSubAsset* pInfoA, const ezSubAsset* pInfoB) const
@@ -38,12 +67,15 @@ bool ezQtAssetCuratorFilter::Less(const ezSubAsset* pInfoA, const ezSubAsset* pI
 EZ_IMPLEMENT_SINGLETON(ezQtAssetCuratorPanel);
 
 ezQtAssetCuratorPanel::ezQtAssetCuratorPanel()
-    : ezQtApplicationPanel("Panel.AssetCurator")
-    , m_SingletonRegistrar(this)
+  : ezQtApplicationPanel("Panel.AssetCurator")
+  , m_SingletonRegistrar(this)
 {
-  setupUi(this);
+  QWidget* pDummy = new QWidget();
+  setupUi(pDummy);
+  pDummy->setContentsMargins(0, 0, 0, 0);
+  pDummy->layout()->setContentsMargins(0, 0, 0, 0);
 
-  setWidget(dockWidgetContents);
+  setWidget(pDummy);
   setIcon(ezQtUiServices::GetCachedIconResource(":/EditorFramework/Icons/Asset16.png"));
   setWindowTitle(QString::fromUtf8(ezTranslate("Panel.AssetCurator")));
 
@@ -53,26 +85,24 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel()
   m_pModel = new ezQtAssetBrowserModel(this, m_pFilter);
   m_pModel->SetIconMode(false);
 
+  TransformLog->ShowControls(false);
+
   ListAssets->setModel(m_pModel);
   ListAssets->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
-  EZ_VERIFY(connect(ListAssets->selectionModel(), &QItemSelectionModel::selectionChanged, this,
-                    &ezQtAssetCuratorPanel::OnAssetSelectionChanged) != nullptr,
-            "signal/slot connection failed");
-  EZ_VERIFY(connect(m_pModel, &QAbstractItemModel::dataChanged, this,
-                    [this](const QModelIndex& topLeft, const QModelIndex& bottomRight, const QVector<int>& roles) {
-                      if (m_selectedIndex.isValid() && topLeft.row() <= m_selectedIndex.row() && m_selectedIndex.row() <= bottomRight.row())
-                      {
-                        UpdateIssueInfo();
-                      }
-                    }),
-            "signal/slot connection failed");
+  EZ_VERIFY(connect(ListAssets->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ezQtAssetCuratorPanel::OnAssetSelectionChanged) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pModel, &QAbstractItemModel::dataChanged, this, [this](const QModelIndex& topLeft, const QModelIndex& bottomRight, const QVector<int>& roles) {
+    if (m_selectedIndex.isValid() && topLeft.row() <= m_selectedIndex.row() && m_selectedIndex.row() <= bottomRight.row())
+    {
+      UpdateIssueInfo();
+    }
+  }),
+    "signal/slot connection failed");
 
-  EZ_VERIFY(connect(m_pModel, &QAbstractItemModel::modelReset, this,
-                    [this]() {
-                      m_selectedIndex = QPersistentModelIndex();
-                      UpdateIssueInfo();
-                    }),
-            "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pModel, &QAbstractItemModel::modelReset, this, [this]() {
+    m_selectedIndex = QPersistentModelIndex();
+    UpdateIssueInfo();
+  }),
+    "signal/slot connection failed");
 }
 
 ezQtAssetCuratorPanel::~ezQtAssetCuratorPanel()
@@ -96,6 +126,12 @@ void ezQtAssetCuratorPanel::on_ListAssets_doubleClicked(const QModelIndex& index
   QString sAbsPath = m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString();
 
   ezQtEditorApp::GetSingleton()->OpenDocumentQueued(sAbsPath.toUtf8().data());
+}
+
+void ezQtAssetCuratorPanel::on_CheckIndirect_toggled(bool checked)
+{
+  m_pFilter->SetFilterTransitive(!checked);
+  m_pModel->resetModel();
 }
 
 void ezQtAssetCuratorPanel::LogWriter(const ezLoggingEventData& e)

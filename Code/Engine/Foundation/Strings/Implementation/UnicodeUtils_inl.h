@@ -57,8 +57,14 @@ ezUInt32 ezUnicodeUtils::DecodeUtf8ToUtf32(ByteIterator& szUtf8Iterator)
 template <typename UInt16Iterator>
 ezUInt32 ezUnicodeUtils::DecodeUtf16ToUtf32(UInt16Iterator& szUtf16Iterator)
 {
-  // internally this will move the iterator to the next character, so either 1 wchar further or two
-  return utf8::utf16to32_next(szUtf16Iterator, szUtf16Iterator + 2); // +2 because a character could be encoded with two wchars
+  uint32_t cp = utf8::internal::mask16(*szUtf16Iterator++);
+  if (utf8::internal::is_lead_surrogate(cp))
+  {
+    uint32_t trail_surrogate = utf8::internal::mask16(*szUtf16Iterator++);
+    cp = (cp << 10) + trail_surrogate + utf8::internal::SURROGATE_OFFSET;
+  }
+
+  return cp;
 }
 
 template <typename WCharIterator>
@@ -85,7 +91,14 @@ void ezUnicodeUtils::EncodeUtf32ToUtf8(ezUInt32 uiUtf32, ByteIterator& szUtf8Out
 template <typename UInt16Iterator>
 void ezUnicodeUtils::EncodeUtf32ToUtf16(ezUInt32 uiUtf32, UInt16Iterator& szUtf16Output)
 {
-  szUtf16Output = utf8::utf32to16(&uiUtf32, &uiUtf32 + 1, szUtf16Output);
+  if (uiUtf32 > 0xffff)
+  {
+    //make a surrogate pair
+    *szUtf16Output++ = static_cast<uint16_t>((uiUtf32 >> 10) + utf8::internal::LEAD_OFFSET);
+    *szUtf16Output++ = static_cast<uint16_t>((uiUtf32 & 0x3ff) + utf8::internal::TRAIL_SURROGATE_MIN);
+  }
+  else
+    *szUtf16Output++ = static_cast<uint16_t>(uiUtf32);
 }
 
 template <typename WCharIterator>
@@ -130,7 +143,7 @@ inline ezUInt32 ezUnicodeUtils::GetSizeForCharacterInUtf8(ezUInt32 uiCharacter)
 
 inline bool ezUnicodeUtils::IsValidUtf8(const char* szString, const char* szStringEnd)
 {
-  if (szStringEnd == ezMaxStringEnd)
+  if (szStringEnd == GetMaxStringEnd<char>())
     szStringEnd = szString + strlen(szString);
 
   return utf8::is_valid(szString, szStringEnd);
@@ -206,4 +219,8 @@ inline void ezUnicodeUtils::MoveToPriorUtf8(const char*& szUtf8, ezUInt32 uiNumC
     --uiNumCharacters;
   }
 }
-
+template <typename T>
+constexpr T* ezUnicodeUtils::GetMaxStringEnd()
+{
+  return reinterpret_cast<T*>(-1);
+}

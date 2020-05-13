@@ -11,7 +11,10 @@
 #include <RendererCore/Decals/DecalResource.h>
 #include <RendererCore/Messages/ApplyOnlyToMessage.h>
 #include <RendererCore/Messages/SetColorMessage.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererFoundation/Shader/ShaderUtils.h>
 
+#include <RendererCore/../../../Data/Base/Shaders/Common/LightData.h>
 
 ezDecalComponentManager::ezDecalComponentManager(ezWorld* pWorld)
   : ezComponentManager<ezDecalComponent, ezBlockStorageType::Compact>(pWorld)
@@ -29,27 +32,31 @@ void ezDecalComponentManager::Initialize()
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalRenderData, 1, ezRTTIDefaultAllocator<ezDecalRenderData>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 3, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezDecalComponent, 7, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
+    EZ_ARRAY_ACCESSOR_PROPERTY("Decals", DecalFile_GetCount, DecalFile_Get, DecalFile_Set, DecalFile_Insert, DecalFile_Remove)->AddAttributes(new ezAssetBrowserAttribute("Decal")),
+    EZ_ENUM_ACCESSOR_PROPERTY("ProjectionAxis", ezBasisAxis, GetProjectionAxis, SetProjectionAxis),
     EZ_ACCESSOR_PROPERTY("Extents", GetExtents, SetExtents)->AddAttributes(new ezDefaultValueAttribute(ezVec3(1.0f)), new ezClampValueAttribute(ezVec3(0.01), ezVariant(25.0f))),
     EZ_ACCESSOR_PROPERTY("SizeVariance", GetSizeVariance, SetSizeVariance)->AddAttributes(new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_ACCESSOR_PROPERTY("Color", GetColor, SetColor)->AddAttributes(new ezExposeColorAlphaAttribute()),
-    EZ_ACCESSOR_PROPERTY("Decal", GetDecalFile, SetDecalFile)->AddAttributes(new ezAssetBrowserAttribute("Decal")),
+    EZ_ACCESSOR_PROPERTY("EmissiveColor", GetEmissiveColor, SetEmissiveColor)->AddAttributes(new ezDefaultValueAttribute(ezColor::Black)),
     EZ_ACCESSOR_PROPERTY("SortOrder", GetSortOrder, SetSortOrder)->AddAttributes(new ezClampValueAttribute(-64.0f, 64.0f)),
     EZ_ACCESSOR_PROPERTY("WrapAround", GetWrapAround, SetWrapAround),
-    EZ_ACCESSOR_PROPERTY("InnerFadeAngle", GetInnerFadeAngle, SetInnerFadeAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(90.0f)), new ezDefaultValueAttribute(ezAngle::Degree(50.0f))),
-    EZ_ACCESSOR_PROPERTY("OuterFadeAngle", GetOuterFadeAngle, SetOuterFadeAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(90.0f)), new ezDefaultValueAttribute(ezAngle::Degree(80.0f))),
+    EZ_ACCESSOR_PROPERTY("MapNormalToGeometry", GetMapNormalToGeometry, SetMapNormalToGeometry)->AddAttributes(new ezDefaultValueAttribute(true)),
+    EZ_ACCESSOR_PROPERTY("InnerFadeAngle", GetInnerFadeAngle, SetInnerFadeAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(89.0f)), new ezDefaultValueAttribute(ezAngle::Degree(50.0f))),
+    EZ_ACCESSOR_PROPERTY("OuterFadeAngle", GetOuterFadeAngle, SetOuterFadeAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(0.0f), ezAngle::Degree(89.0f)), new ezDefaultValueAttribute(ezAngle::Degree(80.0f))),
     EZ_MEMBER_PROPERTY("FadeOutDelay", m_FadeOutDelay),
     EZ_MEMBER_PROPERTY("FadeOutDuration", m_FadeOutDuration),
     EZ_ENUM_MEMBER_PROPERTY("OnFinishedAction", ezOnComponentFinishedAction, m_OnFinishedAction),
+    EZ_ACCESSOR_PROPERTY("ApplyToDynamic", DummyGetter, SetApplyToRef)->AddAttributes(new ezGameObjectReferenceAttribute()),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Effects"),
-    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.5f, ezColor::LightSteelBlue),
+    new ezDirectionVisualizerAttribute("ProjectionAxis", 0.5f, ezColor::LightSteelBlue),
     new ezBoxManipulatorAttribute("Extents"),
     new ezBoxVisualizerAttribute("Extents"),
   }
@@ -88,11 +95,11 @@ void ezDecalComponent::SerializeComponent(ezWorldWriter& stream) const
 
   s << m_vExtents;
   s << m_Color;
+  s << m_EmissiveColor;
   s << m_InnerFadeAngle;
   s << m_OuterFadeAngle;
   s << m_fSortOrder;
   s << m_uiInternalSortKey;
-  s << m_hDecal;
   s << m_FadeOutDelay.m_Value;
   s << m_FadeOutDelay.m_fVariance;
   s << m_FadeOutDuration;
@@ -100,6 +107,17 @@ void ezDecalComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_fSizeVariance;
   s << m_OnFinishedAction;
   s << m_bWrapAround;
+  s << m_bMapNormalToGeometry;
+
+  // version 5
+  s << m_ProjectionAxis;
+
+  // version 6
+  stream.WriteGameObjectHandle(m_hApplyOnlyToObject);
+
+  // version 7
+  s << m_uiRandomDecalIdx;
+  s.WriteArray(m_hDecals);
 }
 
 void ezDecalComponent::DeserializeComponent(ezWorldReader& stream)
@@ -110,12 +128,30 @@ void ezDecalComponent::DeserializeComponent(ezWorldReader& stream)
   ezStreamReader& s = stream.GetStream();
 
   s >> m_vExtents;
-  s >> m_Color;
+
+  if (uiVersion >= 4)
+  {
+    s >> m_Color;
+    s >> m_EmissiveColor;
+  }
+  else
+  {
+    ezColor tmp;
+    s >> tmp;
+    m_Color = tmp;
+  }
+
   s >> m_InnerFadeAngle;
   s >> m_OuterFadeAngle;
   s >> m_fSortOrder;
   s >> m_uiInternalSortKey;
-  s >> m_hDecal;
+
+  if (uiVersion < 7)
+  {
+    m_hDecals.SetCount(1);
+    s >> m_hDecals[0];
+  }
+
   s >> m_FadeOutDelay.m_Value;
   s >> m_FadeOutDelay.m_fVariance;
   s >> m_FadeOutDuration;
@@ -127,11 +163,72 @@ void ezDecalComponent::DeserializeComponent(ezWorldReader& stream)
   {
     s >> m_bWrapAround;
   }
+
+  if (uiVersion >= 4)
+  {
+    s >> m_bMapNormalToGeometry;
+  }
+
+  if (uiVersion >= 5)
+  {
+    s >> m_ProjectionAxis;
+  }
+
+  if (uiVersion >= 6)
+  {
+    SetApplyOnlyTo(stream.ReadGameObjectHandle());
+  }
+
+  if (uiVersion >= 7)
+  {
+    s >> m_uiRandomDecalIdx;
+    s.ReadArray(m_hDecals);
+  }
 }
 
 ezResult ezDecalComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)
 {
-  bounds = ezBoundingBox(m_vExtents * -0.5f, m_vExtents * 0.5f);
+  if (m_hDecals.IsEmpty())
+    return EZ_FAILURE;
+
+  const ezUInt32 uiDecalIndex = ezMath::Min<ezUInt32>(m_uiRandomDecalIdx, m_hDecals.GetCount() - 1);
+
+  if (!m_hDecals[uiDecalIndex].IsValid() || m_vExtents.IsZero())
+    return EZ_FAILURE;
+
+  float fAspectRatio = 1.0f;
+
+  {
+    auto hDecalAtlas = GetWorld()->GetComponentManager<ezDecalComponentManager>()->m_hDecalAtlas;
+    ezResourceLock<ezDecalAtlasResource> pDecalAtlas(hDecalAtlas, ezResourceAcquireMode::BlockTillLoaded);
+
+    const auto& atlas = pDecalAtlas->GetAtlas();
+    const ezUInt32 decalIdx = atlas.m_Items.Find(m_hDecals[uiDecalIndex].GetResourceIDHash());
+
+    if (decalIdx != ezInvalidIndex)
+    {
+      const auto& item = atlas.m_Items.GetValue(decalIdx);
+      fAspectRatio = item.m_LayerRects[0].width / item.m_LayerRects[0].height;
+    }
+  }
+
+  ezVec3 vAspectCorrection = ezVec3(1.0f);
+  if (!ezMath::IsEqual(fAspectRatio, 1.0f, 0.001f))
+  {
+    if (fAspectRatio > 1.0f)
+    {
+      vAspectCorrection.z /= fAspectRatio;
+    }
+    else
+    {
+      vAspectCorrection.y *= fAspectRatio;
+    }
+  }
+
+  const ezQuat axisRotation = ezBasisAxis::GetBasisRotation_PosX(m_ProjectionAxis);
+  ezVec3 vHalfExtents = (axisRotation * vAspectCorrection).Abs().CompMul(m_vExtents * 0.5f);
+
+  bounds = ezBoundingBox(-vHalfExtents, vHalfExtents);
   return EZ_SUCCESS;
 }
 
@@ -157,14 +254,24 @@ float ezDecalComponent::GetSizeVariance() const
   return m_fSizeVariance;
 }
 
-void ezDecalComponent::SetColor(ezColor color)
+void ezDecalComponent::SetColor(ezColorGammaUB color)
 {
   m_Color = color;
 }
 
-ezColor ezDecalComponent::GetColor() const
+ezColorGammaUB ezDecalComponent::GetColor() const
 {
   return m_Color;
+}
+
+void ezDecalComponent::SetEmissiveColor(ezColor color)
+{
+  m_EmissiveColor = color;
+}
+
+ezColor ezDecalComponent::GetEmissiveColor() const
+{
+  return m_EmissiveColor;
 }
 
 void ezDecalComponent::SetInnerFadeAngle(ezAngle spotAngle)
@@ -207,34 +314,38 @@ bool ezDecalComponent::GetWrapAround() const
   return m_bWrapAround;
 }
 
-void ezDecalComponent::SetDecal(const ezDecalResourceHandle& hDecal)
+void ezDecalComponent::SetMapNormalToGeometry(bool bMapNormal)
 {
-  m_hDecal = hDecal;
+  m_bMapNormalToGeometry = bMapNormal;
 }
 
-const ezDecalResourceHandle& ezDecalComponent::GetDecal() const
+bool ezDecalComponent::GetMapNormalToGeometry() const
 {
-  return m_hDecal;
+  return m_bMapNormalToGeometry;
 }
 
-void ezDecalComponent::SetDecalFile(const char* szFile)
+void ezDecalComponent::SetDecal(ezUInt32 uiIndex, const ezDecalResourceHandle& hDecal)
 {
-  ezDecalResourceHandle hResource;
+  m_hDecals[uiIndex] = hDecal;
 
-  if (!ezStringUtils::IsNullOrEmpty(szFile))
-  {
-    hResource = ezResourceManager::LoadResource<ezDecalResource>(szFile);
-  }
-
-  SetDecal(hResource);
+  TriggerLocalBoundsUpdate();
 }
 
-const char* ezDecalComponent::GetDecalFile() const
+const ezDecalResourceHandle& ezDecalComponent::GetDecal(ezUInt32 uiIndex) const
 {
-  if (!m_hDecal.IsValid())
-    return "";
+  return m_hDecals[uiIndex];
+}
 
-  return m_hDecal.GetResourceID();
+void ezDecalComponent::SetProjectionAxis(ezEnum<ezBasisAxis> ProjectionAxis)
+{
+  m_ProjectionAxis = ProjectionAxis;
+
+  TriggerLocalBoundsUpdate();
+}
+
+ezEnum<ezBasisAxis> ezDecalComponent::GetProjectionAxis() const
+{
+  return m_ProjectionAxis;
 }
 
 void ezDecalComponent::SetApplyOnlyTo(ezGameObjectHandle hObject)
@@ -242,17 +353,7 @@ void ezDecalComponent::SetApplyOnlyTo(ezGameObjectHandle hObject)
   if (m_hApplyOnlyToObject != hObject)
   {
     m_hApplyOnlyToObject = hObject;
-    m_uiApplyOnlyToId = 0;
-
-    ezGameObject* pObject = nullptr;
-    if (!GetWorld()->TryGetObject(hObject, pObject))
-      return;
-
-    ezRenderComponent* pRenderComponent = nullptr;
-    if (pObject->TryGetComponentOfBaseType(pRenderComponent))
-    {
-      m_uiApplyOnlyToId = pRenderComponent->GetUniqueIdForRendering();
-    }
+    UpdateApplyTo();
   }
 }
 
@@ -267,7 +368,12 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
   if (msg.m_OverrideCategory != ezInvalidRenderDataCategory)
     return;
 
-  if (!m_hDecal.IsValid() || m_vExtents.IsZero() || GetOwner()->GetLocalScaling().IsZero())
+  if (m_hDecals.IsEmpty())
+    return;
+
+  const ezUInt32 uiDecalIndex = ezMath::Min<ezUInt32>(m_uiRandomDecalIdx, m_hDecals.GetCount() - 1);
+
+  if (!m_hDecals[uiDecalIndex].IsValid() || m_vExtents.IsZero() || GetOwner()->GetLocalScaling().IsZero())
     return;
 
   float fFade = 1.0f;
@@ -284,25 +390,45 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
   if (finalColor.a <= 0.0f)
     return;
 
+  const bool bNoFade = m_InnerFadeAngle == ezAngle::Radian(0.0f) && m_OuterFadeAngle == ezAngle::Radian(0.0f);
+  const float fCosInner = ezMath::Cos(m_InnerFadeAngle);
+  const float fCosOuter = ezMath::Cos(m_OuterFadeAngle);
+  const float fFadeParamScale = bNoFade ? 0.0f : (1.0f / ezMath::Max(0.001f, (fCosInner - fCosOuter)));
+  const float fFadeParamOffset = bNoFade ? 1.0f : (-fCosOuter * fFadeParamScale);
+
   auto hDecalAtlas = GetWorld()->GetComponentManager<ezDecalComponentManager>()->m_hDecalAtlas;
-  ezVec2 baseAtlasScale = ezVec2(0.5f);
-  ezVec2 baseAtlasOffset = ezVec2(0.5f);
+  ezVec4 baseAtlasScaleOffset = ezVec4(0.5f);
+  ezVec4 normalAtlasScaleOffset = ezVec4(0.5f);
+  ezVec4 ormAtlasScaleOffset = ezVec4(0.5f);
+  ezUInt32 uiDecalFlags = 0;
+
+  float fAspectRatio = 1.0f;
 
   {
     ezResourceLock<ezDecalAtlasResource> pDecalAtlas(hDecalAtlas, ezResourceAcquireMode::BlockTillLoaded);
-    ezVec2U32 baseTextureSize = pDecalAtlas->GetBaseColorTextureSize();
 
     const auto& atlas = pDecalAtlas->GetAtlas();
-    const ezUInt32 decalIdx = atlas.m_Items.Find(m_hDecal.GetResourceIDHash());
+    const ezUInt32 decalIdx = atlas.m_Items.Find(m_hDecals[uiDecalIndex].GetResourceIDHash());
 
     if (decalIdx != ezInvalidIndex)
     {
       const auto& item = atlas.m_Items.GetValue(decalIdx);
+      uiDecalFlags = item.m_uiFlags;
 
-      baseAtlasScale.x = (float)item.m_LayerRects[0].width / baseTextureSize.x * 0.5f;
-      baseAtlasScale.y = (float)item.m_LayerRects[0].height / baseTextureSize.y * 0.5f;
-      baseAtlasOffset.x = (float)item.m_LayerRects[0].x / baseTextureSize.x + baseAtlasScale.x;
-      baseAtlasOffset.y = (float)item.m_LayerRects[0].y / baseTextureSize.y + baseAtlasScale.y;
+      auto layerRectToScaleOffset = [](ezRectU32 layerRect, ezVec2U32 textureSize) {
+        ezVec4 result;
+        result.x = (float)layerRect.width / textureSize.x * 0.5f;
+        result.y = (float)layerRect.height / textureSize.y * 0.5f;
+        result.z = (float)layerRect.x / textureSize.x + result.x;
+        result.w = (float)layerRect.y / textureSize.y + result.y;
+        return result;
+      };
+
+      baseAtlasScaleOffset = layerRectToScaleOffset(item.m_LayerRects[0], pDecalAtlas->GetBaseColorTextureSize());
+      normalAtlasScaleOffset = layerRectToScaleOffset(item.m_LayerRects[1], pDecalAtlas->GetNormalTextureSize());
+      ormAtlasScaleOffset = layerRectToScaleOffset(item.m_LayerRects[2], pDecalAtlas->GetORMTextureSize());
+
+      fAspectRatio = item.m_LayerRects[0].width / item.m_LayerRects[0].height;
     }
   }
 
@@ -311,21 +437,90 @@ void ezDecalComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
   ezUInt32 uiSortingId = (ezUInt32)(ezMath::Min(m_fSortOrder * 512.0f, 32767.0f) + 32768.0f);
   pRenderData->m_uiSortingKey = (uiSortingId << 16) | (m_uiInternalSortKey & 0xFFFF);
 
+  const ezQuat axisRotation = ezBasisAxis::GetBasisRotation_PosX(m_ProjectionAxis);
+
   pRenderData->m_GlobalTransform = GetOwner()->GetGlobalTransform();
-  pRenderData->m_vHalfExtents = m_vExtents * 0.5f;
+  pRenderData->m_GlobalTransform.m_vScale = (axisRotation * (pRenderData->m_GlobalTransform.m_vScale.CompMul(m_vExtents * 0.5f))).Abs();
+  pRenderData->m_GlobalTransform.m_qRotation = pRenderData->m_GlobalTransform.m_qRotation * axisRotation;
+
+  if (!ezMath::IsEqual(fAspectRatio, 1.0f, 0.001f))
+  {
+    if (fAspectRatio > 1.0f)
+    {
+      pRenderData->m_GlobalTransform.m_vScale.z /= fAspectRatio;
+    }
+    else
+    {
+      pRenderData->m_GlobalTransform.m_vScale.y *= fAspectRatio;
+    }
+  }
+
   pRenderData->m_uiApplyOnlyToId = m_uiApplyOnlyToId;
-  pRenderData->m_uiDecalMode = 0;
-  pRenderData->m_bWrapAround = m_bWrapAround;
-  pRenderData->m_Color = finalColor;
-  pRenderData->m_InnerFadeAngle = m_InnerFadeAngle;
-  pRenderData->m_OuterFadeAngle = m_OuterFadeAngle;
-  pRenderData->m_vBaseAtlasScale = baseAtlasScale;
-  pRenderData->m_vBaseAtlasOffset = baseAtlasOffset;
+  pRenderData->m_uiFlags = uiDecalFlags;
+  pRenderData->m_uiFlags |= (m_bWrapAround ? DECAL_WRAP_AROUND : 0);
+  pRenderData->m_uiFlags |= (m_bMapNormalToGeometry ? DECAL_MAP_NORMAL_TO_GEOMETRY : 0);
+  pRenderData->m_uiAngleFadeParams = ezShaderUtils::Float2ToRG16F(ezVec2(fFadeParamScale, fFadeParamOffset));
+  pRenderData->m_BaseColor = finalColor;
+  pRenderData->m_EmissiveColor = m_EmissiveColor;
+  ezShaderUtils::Float4ToRGBA16F(baseAtlasScaleOffset, pRenderData->m_uiBaseColorAtlasScale, pRenderData->m_uiBaseColorAtlasOffset);
+  ezShaderUtils::Float4ToRGBA16F(normalAtlasScaleOffset, pRenderData->m_uiNormalAtlasScale, pRenderData->m_uiNormalAtlasOffset);
+  ezShaderUtils::Float4ToRGBA16F(ormAtlasScaleOffset, pRenderData->m_uiORMAtlasScale, pRenderData->m_uiORMAtlasOffset);
 
   ezRenderData::Caching::Enum caching = (m_FadeOutDelay.m_Value.GetSeconds() > 0.0 || m_FadeOutDuration.GetSeconds() > 0.0)
                                           ? ezRenderData::Caching::Never
                                           : ezRenderData::Caching::IfStatic;
   msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::Decal, caching);
+}
+
+void ezDecalComponent::SetApplyToRef(const char* szReference)
+{
+  auto resolver = GetWorld()->GetGameObjectReferenceResolver();
+
+  if (!resolver.IsValid())
+    return;
+
+  ezGameObjectHandle hTarget = resolver(szReference, GetHandle(), "ApplyTo");
+
+  if (m_hApplyOnlyToObject == hTarget)
+    return;
+
+  m_hApplyOnlyToObject = hTarget;
+
+  if (IsActiveAndInitialized())
+  {
+    UpdateApplyTo();
+  }
+}
+
+void ezDecalComponent::UpdateApplyTo()
+{
+  ezUInt32 uiPrevId = m_uiApplyOnlyToId;
+
+  m_uiApplyOnlyToId = 0;
+
+  if (!m_hApplyOnlyToObject.IsInvalidated())
+  {
+    m_uiApplyOnlyToId = ezInvalidIndex;
+
+    ezGameObject* pObject = nullptr;
+    if (GetWorld()->TryGetObject(m_hApplyOnlyToObject, pObject))
+    {
+      ezRenderComponent* pRenderComponent = nullptr;
+      if (pObject->TryGetComponentOfBaseType(pRenderComponent))
+      {
+        // this only works for dynamic objects, for static ones we must use ID 0
+        if (pRenderComponent->GetOwner()->IsDynamic())
+        {
+          m_uiApplyOnlyToId = pRenderComponent->GetUniqueIdForRendering();
+        }
+      }
+    }
+  }
+
+  if (uiPrevId != m_uiApplyOnlyToId && GetOwner()->IsStatic())
+  {
+    ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+  }
 }
 
 void ezDecalComponent::OnObjectCreated(const ezAbstractObjectNode& node)
@@ -336,11 +531,12 @@ void ezDecalComponent::OnObjectCreated(const ezAbstractObjectNode& node)
 
 void ezDecalComponent::OnSimulationStarted()
 {
+  SUPER::OnSimulationStarted();
+
   ezWorld* pWorld = GetWorld();
 
   // no fade out -> fade out pretty late
-  m_StartFadeOutTime =
-    ezTime::Seconds(60.0 * 60.0 * 24.0 * 365.0 * 100.0); // 100 years should be enough for everybody (ignoring leap years)
+  m_StartFadeOutTime = ezTime::Seconds(60.0 * 60.0 * 24.0 * 365.0 * 100.0); // 100 years should be enough for everybody (ignoring leap years)
 
   if (m_FadeOutDelay.m_Value.GetSeconds() > 0.0 || m_FadeOutDuration.GetSeconds() > 0.0)
   {
@@ -366,6 +562,18 @@ void ezDecalComponent::OnSimulationStarted()
 
     TriggerLocalBoundsUpdate();
   }
+
+  if (m_uiRandomDecalIdx == 0xFF && !m_hDecals.IsEmpty())
+  {
+    m_uiRandomDecalIdx = GetWorld()->GetRandomNumberGenerator().UIntInRange(m_hDecals.GetCount());
+  }
+}
+
+void ezDecalComponent::OnActivated()
+{
+  SUPER::OnActivated();
+
+  UpdateApplyTo();
 }
 
 void ezDecalComponent::OnTriggered(ezMsgComponentInternalTrigger& msg)
@@ -391,6 +599,66 @@ void ezDecalComponent::OnMsgSetColor(ezMsgSetColor& msg)
   msg.ModifyColor(m_Color);
 }
 
+ezUInt32 ezDecalComponent::DecalFile_GetCount() const
+{
+  return m_hDecals.GetCount();
+}
 
+const char* ezDecalComponent::DecalFile_Get(ezUInt32 uiIndex) const
+{
+  if (!m_hDecals[uiIndex].IsValid())
+    return "";
+
+  return m_hDecals[uiIndex].GetResourceID();
+}
+
+void ezDecalComponent::DecalFile_Set(ezUInt32 uiIndex, const char* szFile)
+{
+  ezDecalResourceHandle hResource;
+
+  if (!ezStringUtils::IsNullOrEmpty(szFile))
+  {
+    hResource = ezResourceManager::LoadResource<ezDecalResource>(szFile);
+  }
+
+  SetDecal(uiIndex, hResource);
+}
+
+void ezDecalComponent::DecalFile_Insert(ezUInt32 uiIndex, const char* szFile)
+{
+  m_hDecals.Insert(ezDecalResourceHandle(), uiIndex);
+  DecalFile_Set(uiIndex, szFile);
+}
+
+void ezDecalComponent::DecalFile_Remove(ezUInt32 uiIndex)
+{
+  m_hDecals.RemoveAtAndCopy(uiIndex);
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+#include <Foundation/Serialization/GraphPatch.h>
+
+class ezDecalComponent_6_7 : public ezGraphPatch
+{
+public:
+  ezDecalComponent_6_7()
+    : ezGraphPatch("ezDecalComponent", 7)
+  {
+  }
+
+  virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
+  {
+    auto* pDecal = pNode->FindProperty("Decal");
+    if (pDecal && pDecal->m_Value.IsA<ezString>())
+    {
+      ezVariantArray ar;
+      ar.PushBack(pDecal->m_Value.Get<ezString>());
+      pNode->AddProperty("Decals", ar);
+    }
+  }
+};
+
+ezDecalComponent_6_7 g_ezDecalComponent_6_7;
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Decals_Implementation_DecalComponent);

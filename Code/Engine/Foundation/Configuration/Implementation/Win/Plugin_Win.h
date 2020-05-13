@@ -30,9 +30,7 @@ void ezPlugin::GetPluginPaths(const char* szPluginName, ezStringBuilder& sOldPat
 ezResult UnloadPluginModule(ezPluginModule& Module, const char* szPluginFile)
 {
   // reset last error code
-  if (GetLastError())
-  {
-  }
+  SetLastError(ERROR_SUCCESS);
 
   if (FreeLibrary(Module) == FALSE)
   {
@@ -47,9 +45,7 @@ ezResult UnloadPluginModule(ezPluginModule& Module, const char* szPluginFile)
 ezResult LoadPluginModule(const char* szFileToLoad, ezPluginModule& Module, const char* szPluginFile)
 {
   // reset last error code
-  if (GetLastError())
-  {
-  }
+  SetLastError(ERROR_SUCCESS);
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
   ezStringBuilder relativePath = szFileToLoad;
@@ -61,7 +57,7 @@ ezResult LoadPluginModule(const char* szFileToLoad, ezPluginModule& Module, cons
 
   if (Module == nullptr)
   {
-    DWORD err = GetLastError();
+    const DWORD err = GetLastError();
     ezLog::Error("Could not load plugin '{0}'. Error-Code {1}", szPluginFile, ezArgErrorCode(err));
 
     if (err == 126)

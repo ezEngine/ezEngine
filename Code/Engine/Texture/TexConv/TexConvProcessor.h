@@ -34,6 +34,7 @@ private:
   ezResult ConvertToNormalMap(ezArrayPtr<ezImage> bumpMap) const;
   ezResult ClampInputValues(ezArrayPtr<ezImage> images, float maxValue) const;
   ezResult ClampInputValues(ezImage& image, float maxValue) const;
+  ezResult DetectNumChannels(ezArrayPtr<const ezTexConvSliceChannelMapping> channelMapping, ezUInt32& uiNumChannels);
 
   //////////////////////////////////////////////////////////////////////////
   // Reading from the descriptor
@@ -47,12 +48,17 @@ private:
   ezResult PremultiplyAlpha(ezImage& image) const;
   ezResult DilateColor2D(ezImage& img) const;
   ezResult Assemble2DSlice(const ezTexConvSliceChannelMapping& mapping, ezUInt32 uiResolutionX, ezUInt32 uiResolutionY, ezColor* pPixelOut) const;
-  ezResult GenerateMipmaps(ezImage& img, ezUInt32 uiNumChannels, ezUInt32 uiNumMips = 0) const;
+
+  enum class MipmapChannelMode
+  {
+    AllChannels,
+    SingleChannel
+  };
+
+  ezResult GenerateMipmaps(ezImage& img, ezUInt32 uiNumMips /*= 0*/, MipmapChannelMode channelMode = MipmapChannelMode::AllChannels) const;
 
   //////////////////////////////////////////////////////////////////////////
   // Purely functional
-
-  static ezResult DetectNumChannels(ezArrayPtr<const ezTexConvSliceChannelMapping> channelMapping, ezUInt32& uiNumChannels);
   static ezResult AdjustUsage(const char* szFilename, const ezImage& srcImg, ezEnum<ezTexConvUsage>& inout_Usage);
   static ezResult ConvertAndScaleImage(const char* szImageName, ezImage& inout_Image, ezUInt32 uiResolutionX, ezUInt32 uiResolutionY);
 
@@ -69,17 +75,19 @@ private:
   struct TextureAtlasItem
   {
     ezUInt32 m_uiUniqueID = 0;
+    ezUInt32 m_uiFlags = 0;
     ezImage m_InputImage[4];
     ezRectU32 m_AtlasRect[4];
   };
 
   ezResult LoadAtlasInputs(const ezTextureAtlasCreationDesc& atlasDesc, ezDynamicArray<TextureAtlasItem>& items) const;
-  ezResult CreateAtlasLayerTexture(const ezTextureAtlasCreationDesc& atlasDesc, ezDynamicArray<TextureAtlasItem>& atlasItems, ezInt32 layer, ezImage& dstImg, ezUInt32 uiNumMipmaps);
+  ezResult CreateAtlasLayerTexture(const ezTextureAtlasCreationDesc& atlasDesc, ezDynamicArray<TextureAtlasItem>& atlasItems, ezInt32 layer, ezImage& dstImg);
 
   static ezResult WriteTextureAtlasInfo(const ezDynamicArray<TextureAtlasItem>& atlasItems, ezUInt32 uiNumLayers, ezStreamWriter& stream);
-  static ezResult TrySortItemsIntoAtlas(ezDynamicArray<TextureAtlasItem>& items, ezUInt32 uiWidth, ezUInt32 uiHeight, ezInt32 layer, ezUInt32 uiPixelAlign);
-  static ezResult SortItemsIntoAtlas(ezDynamicArray<TextureAtlasItem>& items, ezUInt32& out_ResX, ezUInt32& out_ResY, ezInt32 layer, ezUInt32 uiPixelAlign);
+  static ezResult TrySortItemsIntoAtlas(ezDynamicArray<TextureAtlasItem>& items, ezUInt32 uiWidth, ezUInt32 uiHeight, ezInt32 layer);
+  static ezResult SortItemsIntoAtlas(ezDynamicArray<TextureAtlasItem>& items, ezUInt32& out_ResX, ezUInt32& out_ResY, ezInt32 layer);
   static ezResult CreateAtlasTexture(ezDynamicArray<TextureAtlasItem>& items, ezUInt32 uiResX, ezUInt32 uiResY, ezImage& atlas, ezInt32 layer);
+  static ezResult FillAtlasBorders(ezDynamicArray<TextureAtlasItem>& items, ezImage& atlas, ezInt32 layer);
 
   //////////////////////////////////////////////////////////////////////////
   // Texture Atlas

@@ -40,8 +40,8 @@ void ezDecalContext::OnInitialize()
       ezGeometry geom;
 
       ezMat4 t, r;
-
       t.SetIdentity();
+
       geom.AddTexturedBox(ezVec3(0.5f, 1.0f, 1.0f), ezColor::White, t);
 
       t.SetTranslationMatrix(ezVec3(0, 1.5f, 0));
@@ -52,16 +52,10 @@ void ezDecalContext::OnInitialize()
       r.SetRotationMatrixY(ezAngle::Degree(90));
       geom.AddTorus(0.1f, 0.5f, 32, 64, ezColor::White, t * r);
 
-      geom.ComputeFaceNormals();
-      geom.ComputeSmoothVertexNormals();
       geom.ComputeTangents();
 
       ezMeshBufferResourceDescriptor desc;
-      desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-      desc.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::XYFloat);
-      desc.AddStream(ezGALVertexAttributeSemantic::TexCoord1, ezGALResourceFormat::XYFloat);
-      desc.AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
-      desc.AddStream(ezGALVertexAttributeSemantic::Tangent, ezGALResourceFormat::XYZFloat);
+      desc.AddCommonStreams();
       desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
       hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(szMeshBufferName, std::move(desc), szMeshBufferName);
@@ -100,26 +94,29 @@ void ezDecalContext::OnInitialize()
     ezStringBuilder sDecalGuid;
     ezConversionUtils::ToString(GetDocumentGuid(), sDecalGuid);
 
+    // box
     {
       obj.m_sName.Assign("Decal1");
-      obj.m_LocalPosition.Set(-0.5f, 0, 0);
+      obj.m_LocalPosition.Set(-0.25f, 0, 0);
       pWorld->CreateObject(obj, pObj);
 
       ezDecalComponent* pDecal;
       ezDecalComponent::CreateComponent(pObj, pDecal);
-      pDecal->SetDecalFile(sDecalGuid);
+      pDecal->DecalFile_Insert(0, sDecalGuid);
     }
 
+    // torus
     {
       obj.m_sName.Assign("Decal2");
-      obj.m_LocalPosition.Set(-0.5f, -1.5f, 0);
+      obj.m_LocalPosition.Set(-0.2f, -1.5f, 0);
       pWorld->CreateObject(obj, pObj);
 
       ezDecalComponent* pDecal;
       ezDecalComponent::CreateComponent(pObj, pDecal);
-      pDecal->SetDecalFile(sDecalGuid);
+      pDecal->DecalFile_Insert(0, sDecalGuid);
     }
 
+    // sphere
     {
       obj.m_sName.Assign("Decal3");
       obj.m_LocalPosition.Set(-0.5f, 1.5f, 0);
@@ -127,35 +124,37 @@ void ezDecalContext::OnInitialize()
 
       ezDecalComponent* pDecal;
       ezDecalComponent::CreateComponent(pObj, pDecal);
-      pDecal->SetDecalFile(sDecalGuid);
+      pDecal->DecalFile_Insert(0, sDecalGuid);
     }
 
 
-
+    // box
     {
       obj.m_sName.Assign("Decal4");
       obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(180));
-      obj.m_LocalPosition.Set(0.5f, 0, 0);
+      obj.m_LocalPosition.Set(0.25f, 0, 0);
       pWorld->CreateObject(obj, pObj);
 
       ezDecalComponent* pDecal;
       ezDecalComponent::CreateComponent(pObj, pDecal);
       pDecal->SetExtents(ezVec3(2));
-      pDecal->SetDecalFile(sDecalGuid);
+      pDecal->DecalFile_Insert(0, sDecalGuid);
     }
 
+    // torus
     {
       obj.m_sName.Assign("Decal5");
       obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(180));
-      obj.m_LocalPosition.Set(0.5f, -1.5f, 0);
+      obj.m_LocalPosition.Set(0.2f, -1.5f, 0);
       pWorld->CreateObject(obj, pObj);
 
       ezDecalComponent* pDecal;
       ezDecalComponent::CreateComponent(pObj, pDecal);
       pDecal->SetExtents(ezVec3(2));
-      pDecal->SetDecalFile(sDecalGuid);
+      pDecal->DecalFile_Insert(0, sDecalGuid);
     }
 
+    // sphere
     {
       obj.m_sName.Assign("Decal6");
       obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(180));
@@ -165,7 +164,7 @@ void ezDecalContext::OnInitialize()
       ezDecalComponent* pDecal;
       ezDecalComponent::CreateComponent(pObj, pDecal);
       pDecal->SetExtents(ezVec3(2));
-      pDecal->SetDecalFile(sDecalGuid);
+      pDecal->DecalFile_Insert(0, sDecalGuid);
     }
   }
 

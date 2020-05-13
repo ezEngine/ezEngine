@@ -1,8 +1,5 @@
 #include <ParticlePluginPCH.h>
 
-#include <Core/World/World.h>
-#include <Core/WorldSerializer/ResourceHandleReader.h>
-#include <Core/WorldSerializer/ResourceHandleWriter.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <Foundation/Math/Random.h>
 #include <ParticlePlugin/Effect/ParticleEffectInstance.h>
@@ -108,7 +105,6 @@ void ezParticleEmitter_Distance::OnFinalize()
     ezLog::Warning("Particle emitters of type 'Distance' do not work for shared particle effect instances.");
   }
 }
-
 
 ezParticleEmitterState ezParticleEmitter_Distance::IsFinished()
 {

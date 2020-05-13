@@ -60,7 +60,7 @@ EZ_ALWAYS_INLINE void ezDynamicArrayBase<T>::operator=(const ezDynamicArrayBase<
 }
 
 template <typename T>
-inline void ezDynamicArrayBase<T>::operator=(ezDynamicArrayBase<T>&& rhs)
+inline void ezDynamicArrayBase<T>::operator=(ezDynamicArrayBase<T>&& rhs) noexcept
 {
   // Clear any existing data (calls destructors if necessary)
   this->Clear();
@@ -180,6 +180,7 @@ void ezDynamicArrayBase<T>::Reserve(ezUInt32 uiCapacity)
 
   ezUInt32 uiNewCapacity = ezMath::Max(this->m_uiCapacity + (this->m_uiCapacity / 2), uiCapacity);
   uiNewCapacity = (uiNewCapacity + (CAPACITY_ALIGNMENT - 1)) & ~(CAPACITY_ALIGNMENT - 1);
+  EZ_ASSERT_ALWAYS(uiNewCapacity >= uiCapacity, "Capacity overflow");
   SetCapacity(uiNewCapacity);
 }
 
@@ -293,13 +294,13 @@ void ezDynamicArray<T, A>::operator=(const ezArrayPtr<const T>& rhs)
 }
 
 template <typename T, typename A>
-void ezDynamicArray<T, A>::operator=(ezDynamicArray<T, A>&& rhs)
+void ezDynamicArray<T, A>::operator=(ezDynamicArray<T, A>&& rhs) noexcept
 {
   ezDynamicArrayBase<T>::operator=(std::move(rhs));
 }
 
 template <typename T, typename A>
-void ezDynamicArray<T, A>::operator=(ezDynamicArrayBase<T>&& rhs)
+void ezDynamicArray<T, A>::operator=(ezDynamicArrayBase<T>&& rhs) noexcept
 {
   ezDynamicArrayBase<T>::operator=(std::move(rhs));
 }

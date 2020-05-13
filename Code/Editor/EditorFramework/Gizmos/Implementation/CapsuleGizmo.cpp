@@ -10,7 +10,7 @@
 #include <QDesktopWidget>
 #include <QMouseEvent>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCapsuleGizmo, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCapsuleGizmo, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezCapsuleGizmo::ezCapsuleGizmo()

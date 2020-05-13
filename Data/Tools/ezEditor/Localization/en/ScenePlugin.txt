@@ -186,27 +186,27 @@ ezMotionMatchingComponent;Motion Matching
 Scene.Utils.Menu;Utilities
 Scene.ExportSceneToOBJ;Export Scene Geometry to OBJ...
 Scene.KeepSimulationChanges;Keep Simulation Changes;Only possible during simulation. Synchronizes the position of selected objects back to the editor.
-Scene.FavouriteCams.Menu;Favourite Cameras
-Scene.Camera.Store.0;Save Favourite Position 0;Saves the current position as a favourite user position
-Scene.Camera.Store.1;Save Favourite Position 1;Saves the current position as a favourite user position
-Scene.Camera.Store.2;Save Favourite Position 2;Saves the current position as a favourite user position
-Scene.Camera.Store.3;Save Favourite Position 3;Saves the current position as a favourite user position
-Scene.Camera.Store.4;Save Favourite Position 4;Saves the current position as a favourite user position
-Scene.Camera.Store.5;Save Favourite Position 5;Saves the current position as a favourite user position
-Scene.Camera.Store.6;Save Favourite Position 6;Saves the current position as a favourite user position
-Scene.Camera.Store.7;Save Favourite Position 7;Saves the current position as a favourite user position
-Scene.Camera.Store.8;Save Favourite Position 8;Saves the current position as a favourite user position
-Scene.Camera.Store.9;Save Favourite Position 9;Saves the current position as a favourite user position
-Scene.Camera.Restore.0;Go to Favourite Position 0;Moves the editor camera to a previously saved favourite position
-Scene.Camera.Restore.1;Go to Favourite Position 1;Moves the editor camera to a previously saved favourite position
-Scene.Camera.Restore.2;Go to Favourite Position 2;Moves the editor camera to a previously saved favourite position
-Scene.Camera.Restore.3;Go to Favourite Position 3;Moves the editor camera to a previously saved favourite position
-Scene.Camera.Restore.4;Go to Favourite Position 4;Moves the editor camera to a previously saved favourite position
-Scene.Camera.Restore.5;Go to Favourite Position 5;Moves the editor camera to a previously saved favourite position
-Scene.Camera.Restore.6;Go to Favourite Position 6;Moves the editor camera to a previously saved favourite position
-Scene.Camera.Restore.7;Go to Favourite Position 7;Moves the editor camera to a previously saved favourite position
-Scene.Camera.Restore.8;Go to Favourite Position 8;Moves the editor camera to a previously saved favourite position
-Scene.Camera.Restore.9;Go to Favourite Position 9;Moves the editor camera to a previously saved favourite position
+Scene.FavoriteCams.Menu;Favorite Cameras
+Scene.Camera.Store.0;Save Favorite Position 0;Saves the current position as a favorite user position
+Scene.Camera.Store.1;Save Favorite Position 1;Saves the current position as a favorite user position
+Scene.Camera.Store.2;Save Favorite Position 2;Saves the current position as a favorite user position
+Scene.Camera.Store.3;Save Favorite Position 3;Saves the current position as a favorite user position
+Scene.Camera.Store.4;Save Favorite Position 4;Saves the current position as a favorite user position
+Scene.Camera.Store.5;Save Favorite Position 5;Saves the current position as a favorite user position
+Scene.Camera.Store.6;Save Favorite Position 6;Saves the current position as a favorite user position
+Scene.Camera.Store.7;Save Favorite Position 7;Saves the current position as a favorite user position
+Scene.Camera.Store.8;Save Favorite Position 8;Saves the current position as a favorite user position
+Scene.Camera.Store.9;Save Favorite Position 9;Saves the current position as a favorite user position
+Scene.Camera.Restore.0;Go to Favorite Position 0;Moves the editor camera to a previously saved favorite position
+Scene.Camera.Restore.1;Go to Favorite Position 1;Moves the editor camera to a previously saved favorite position
+Scene.Camera.Restore.2;Go to Favorite Position 2;Moves the editor camera to a previously saved favorite position
+Scene.Camera.Restore.3;Go to Favorite Position 3;Moves the editor camera to a previously saved favorite position
+Scene.Camera.Restore.4;Go to Favorite Position 4;Moves the editor camera to a previously saved favorite position
+Scene.Camera.Restore.5;Go to Favorite Position 5;Moves the editor camera to a previously saved favorite position
+Scene.Camera.Restore.6;Go to Favorite Position 6;Moves the editor camera to a previously saved favorite position
+Scene.Camera.Restore.7;Go to Favorite Position 7;Moves the editor camera to a previously saved favorite position
+Scene.Camera.Restore.8;Go to Favorite Position 8;Moves the editor camera to a previously saved favorite position
+Scene.Camera.Restore.9;Go to Favorite Position 9;Moves the editor camera to a previously saved favorite position
 Scene.Camera.JumpTo.0;Jump to Level Camera 0;Moves the editor camera to a camera position that is stored in the level file
 Scene.Camera.JumpTo.1;Jump to Level Camera 1;Moves the editor camera to a camera position that is stored in the level file
 Scene.Camera.JumpTo.2;Jump to Level Camera 2;Moves the editor camera to a camera position that is stored in the level file
@@ -264,3 +264,4 @@ ezVRTransformSpace::Global;Global Space
 ezVRStageSpace::Seated;Seated
 ezVRStageSpace::Standing;Standing
 InstanceData;Instance Data
+Scene.Render.PickTransparent;Select Transparent

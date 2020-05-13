@@ -118,5 +118,8 @@ void ezQtCollapsibleGroupBox::paintEvent(QPaintEvent* event)
     p.fillPath(path, pal.window());
   }
 
-  DrawHeader(p, hr);
+  if (!Header->isHidden())
+  {
+    DrawHeader(p, hr);
+  }
 }

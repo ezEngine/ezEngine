@@ -31,6 +31,10 @@ private Q_SLOTS:
 
 private:
   void UpdatePreview();
+
+  void SendLiveResourcePreview();
+  void RestoreResource();
+
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
   void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
 

@@ -3,7 +3,7 @@
 #include <Foundation/Basics.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
-#include <Editor/EditorFramework/ui_AssetCuratorPanel.h>
+#include <EditorFramework/ui_AssetCuratorPanel.h>
 #include <EditorFramework/Assets/AssetBrowserModel.moc.h>
 
 class ezQtCuratorControl;
@@ -15,9 +15,13 @@ class EZ_EDITORFRAMEWORK_DLL ezQtAssetCuratorFilter : public ezQtAssetFilter
 public:
   explicit ezQtAssetCuratorFilter(QObject* pParent);
 
+  void SetFilterTransitive(bool bFilterTransitive);
+
 public:
   virtual bool IsAssetFiltered(const ezSubAsset* pInfo) const override;
   virtual bool Less(const ezSubAsset* pInfoA, const ezSubAsset* pInfoB) const override;
+
+  bool m_bFilterTransitive = true;
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezQtAssetCuratorPanel : public ezQtApplicationPanel, public Ui_AssetCuratorPanel
@@ -35,6 +39,7 @@ public Q_SLOTS:
 
 private Q_SLOTS:
   void on_ListAssets_doubleClicked(const QModelIndex& index);
+  void on_CheckIndirect_toggled(bool checked);
 
 private:
   void LogWriter(const ezLoggingEventData& e);

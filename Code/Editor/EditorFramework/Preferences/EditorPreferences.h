@@ -16,5 +16,6 @@ public:
   bool m_bUsePrecompiledTools = true;
   bool m_bLoadLastProjectAtStartup = true;
   bool m_bExpandSceneTreeOnSelection = true;
+  bool m_bBackgroundAssetProcessing = false;
 };
 

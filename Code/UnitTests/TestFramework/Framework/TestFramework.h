@@ -18,6 +18,8 @@
 #include <thread>
 #include <utility>
 
+class ezCommandLineUtils;
+
 // Disable C++/CX adds.
 #pragma warning(disable : 4447)
 
@@ -31,20 +33,25 @@ public:
 
   // Test management
   void CreateOutputFolder();
+  void UpdateReferenceImages();
   const char* GetTestName() const;
   const char* GetAbsOutputPath() const;
   const char* GetRelTestDataPath() const;
+  const char* GetAbsTestOrderFilePath() const;
   const char* GetAbsTestSettingsFilePath() const;
   void RegisterOutputHandler(OutputHandler Handler);
   void GatherAllTests();
   void LoadTestOrder();
+  void ApplyTestOrderFromCommandLine(const ezCommandLineUtils& cmd);
+  void LoadTestSettings();
   void AutoSaveTestOrder();
   void SaveTestOrder(const char* const filePath);
+  void SaveTestSettings(const char* const filePath);
   void SetAllTestsEnabledStatus(bool bEnable);
   void SetAllFailedTestsEnabledStatus();
   // Each function on a test must not take longer than the given time or the test process will be terminated.
   void SetTestTimeout(ezUInt32 testTimeoutMS);
-  void GetTestSettingsFromCommandLine(int argc, const char** argv);
+  void GetTestSettingsFromCommandLine(const ezCommandLineUtils& cmd);
 
   // Test execution
   void ResetTests();
@@ -133,7 +140,7 @@ public:
 public:
   static EZ_ALWAYS_INLINE ezTestFramework* GetInstance() { return s_pInstance; }
 
-  /// \brief Returns whether to asset on test fail, will return false if no debugger is attached to prevent crashing.
+  /// \brief Returns whether to asset on test failure.
   static bool GetAssertOnTestFail();
 
   static void Output(ezTestOutput::Enum Type, const char* szMsg, ...);
@@ -150,6 +157,7 @@ private:
   std::string m_sTestName;                ///< The name of the tests being done
   std::string m_sAbsTestOutputDir;        ///< Absolute path to the output folder where results and temp data is stored
   std::string m_sRelTestDataDir;          ///< Relative path from the SDK to where the unit test data is located
+  std::string m_sAbsTestOrderFilePath; ///< Absolute path to the test order file
   std::string m_sAbsTestSettingsFilePath; ///< Absolute path to the test settings file
   ezInt32 m_iErrorCount = 0;
   ezInt32 m_iTestsFailed = 0;
@@ -272,7 +280,7 @@ protected:
         return iFailedTests;                                                       \
       }                                                                            \
     }                                                                              \
-    } 
+    }
 
 #else
 #  define EZ_TESTFRAMEWORK_ENTRY_POINT_END()                        \
@@ -357,6 +365,18 @@ EZ_TEST_DLL ezResult ezTestResult(
 #define EZ_TEST_RESULT(condition) EZ_TEST_RESULT_MSG(condition, "")
 
 /// \brief Tests for a boolean condition, outputs a custom message on failure.
+#define EZ_TEST_RESULT_MSG(condition, msg, ...) \
+  ezTestResult(condition, "Test failed: " EZ_STRINGIZE(condition), EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_TEST_DLL ezResult ezTestResult(
+  ezResult bCondition, const char* szErrorText, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...);
+
+/// \brief Tests for a boolean condition, does not output an extra message.
+#define EZ_TEST_RESULT(condition) EZ_TEST_RESULT_MSG(condition, "")
+
+/// \brief Tests for a boolean condition, outputs a custom message on failure.
 #define EZ_TEST_RESULT_MSG(condition, msg, ...)                                                                                              \
   ezTestResult(condition, "Test failed: " EZ_STRINGIZE(condition), EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
 
@@ -428,6 +448,19 @@ EZ_TEST_DLL ezResult ezTestString(std::string s1, std::string s2, const char* sz
 
 //////////////////////////////////////////////////////////////////////////
 
+EZ_TEST_DLL ezResult ezTestWString(std::wstring s1, std::wstring s2, const char* szString1, const char* szString2, const char* szFile,
+  ezInt32 iLine, const char* szFunction, const char* szMsg, ...);
+
+/// \brief Tests two strings for equality. On failure both actual and expected values are output.
+#define EZ_TEST_WSTRING(i1, i2) EZ_TEST_WSTRING_MSG(i1, i2, "")
+
+/// \brief Tests two strings for equality. On failure both actual and expected values are output, also a custom message is printed.
+#define EZ_TEST_WSTRING_MSG(s1, s2, msg, ...)                                                                                   \
+  ezTestWString(static_cast<const wchar_t*>(s1), static_cast<const wchar_t*>(s2), EZ_STRINGIZE(s1), EZ_STRINGIZE(s2), EZ_SOURCE_FILE, \
+    EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
+
+//////////////////////////////////////////////////////////////////////////
+
 /// \brief Tests two strings for equality. On failure both actual and expected values are output. Does not embed the original expression to
 /// work around issues with the current code page and unicode literals.
 #define EZ_TEST_STRING_UNICODE(i1, i2) EZ_TEST_STRING_UNICODE_MSG(i1, i2, "")
@@ -480,6 +513,12 @@ EZ_TEST_DLL ezResult ezTestFiles(
 
 #define EZ_TEST_FILES(szFile1, szFile2, msg, ...) \
   ezTestFiles(szFile1, szFile2, EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
+
+EZ_TEST_DLL ezResult ezTestTextFiles(
+  const char* szFile1, const char* szFile2, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...);
+
+#define EZ_TEST_TEXT_FILES(szFile1, szFile2, msg, ...) \
+  ezTestTextFiles(szFile1, szFile2, EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
 
 //////////////////////////////////////////////////////////////////////////
 

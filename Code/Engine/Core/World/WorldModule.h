@@ -31,8 +31,8 @@ protected:
 
   struct UpdateContext
   {
-    ezUInt32 m_uiFirstComponentIndex;
-    ezUInt32 m_uiComponentCount;
+    ezUInt32 m_uiFirstComponentIndex = 0;
+    ezUInt32 m_uiComponentCount = 0;
   };
 
   /// \brief Update function delegate.
@@ -61,23 +61,19 @@ protected:
     {
       m_Function = function;
       m_sFunctionName.Assign(szFunctionName);
-      m_Phase = Phase::PreAsync;
-      m_bOnlyUpdateWhenSimulating = false;
-      m_uiGranularity = 0;
-      m_fPriority = 0.0f;
     }
 
-    UpdateFunction m_Function;      ///< Delegate to the actual update function.
-    ezHashedString m_sFunctionName; ///< Name of the function. Use the EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC macro to create a description
-                                    ///< with the correct name.
+    UpdateFunction m_Function;                    ///< Delegate to the actual update function.
+    ezHashedString m_sFunctionName;               ///< Name of the function. Use the EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC macro to create a description
+                                                  ///< with the correct name.
     ezHybridArray<ezHashedString, 4> m_DependsOn; ///< Array of other functions on which this function depends on. This function will be
                                                   ///< called after all its dependencies have been called.
-    ezEnum<Phase> m_Phase; ///< The update phase in which this update function should be called. See ezWorld for a description on the
-                           ///< different phases.
-    bool m_bOnlyUpdateWhenSimulating; ///< The update function is only called when the world simulation is enabled.
-    ezUInt16 m_uiGranularity; ///< The granularity in which batch updates should happen during the asynchronous phase. Has to be 0 for
-                              ///< synchronous functions.
-    float m_fPriority; ///< Higher priority (higher number) means that this function is called earlier than a function with lower priority.
+    ezEnum<Phase> m_Phase;                        ///< The update phase in which this update function should be called. See ezWorld for a description on the
+                                                  ///< different phases.
+    bool m_bOnlyUpdateWhenSimulating = false;     ///< The update function is only called when the world simulation is enabled.
+    ezUInt16 m_uiGranularity = 0;                 ///< The granularity in which batch updates should happen during the asynchronous phase. Has to be 0 for
+                                                  ///< synchronous functions.
+    float m_fPriority = 0.0f;                     ///< Higher priority (higher number) means that this function is called earlier than a function with lower priority.
   };
 
   /// \brief Registers the given update function at the world.
@@ -112,6 +108,9 @@ protected:
   /// initialization method.
   virtual void OnSimulationStarted() {}
 
+  /// \brief Called by ezWorld::Clear(). Can be used to clear cached data when a world is completely cleared of objects (but not deleted).
+  virtual void WorldClear() {}
+
   ezWorld* m_pWorld;
 };
 
@@ -124,10 +123,10 @@ public:
   static ezWorldModuleFactory* GetInstance();
 
   template <typename ModuleType, typename RTTIType>
-  ezUInt16 RegisterWorldModule();
+  ezWorldModuleTypeId RegisterWorldModule();
 
   /// \brief Returns the module type id to the given rtti module/component type.
-  ezUInt16 GetTypeId(const ezRTTI* pRtti);
+  ezWorldModuleTypeId GetTypeId(const ezRTTI* pRtti);
 
   /// \brief Creates a new instance of the world module with the given type id and world.
   ezWorldModule* CreateWorldModule(ezUInt16 typeId, ezWorld* pWorld);
@@ -144,13 +143,13 @@ private:
   typedef ezWorldModule* (*CreatorFunc)(ezAllocatorBase*, ezWorld*);
 
   ezWorldModuleFactory();
-  ezUInt16 RegisterWorldModule(const ezRTTI* pRtti, CreatorFunc creatorFunc);
+  ezWorldModuleTypeId RegisterWorldModule(const ezRTTI* pRtti, CreatorFunc creatorFunc);
 
   static void PluginEventHandler(const ezPluginEvent& EventData);
   void FillBaseTypeIds();
   void ClearUnloadedTypeToIDs();
 
-  ezHashTable<const ezRTTI*, ezUInt16> m_TypeToId;
+  ezHashTable<const ezRTTI*, ezWorldModuleTypeId> m_TypeToId;
 
   struct CreatorFuncContext
   {
@@ -166,20 +165,19 @@ private:
 };
 
 /// \brief Add this macro to the declaration of your module type.
-#define EZ_DECLARE_WORLD_MODULE()                                                                                                          \
-public:                                                                                                                                    \
-  static EZ_ALWAYS_INLINE ezUInt16 TypeId() { return TYPE_ID; }                                                                            \
-                                                                                                                                           \
-private:                                                                                                                                   \
-  static ezUInt16 TYPE_ID;
+#define EZ_DECLARE_WORLD_MODULE()                                          \
+public:                                                                    \
+  static EZ_ALWAYS_INLINE ezWorldModuleTypeId TypeId() { return TYPE_ID; } \
+                                                                           \
+private:                                                                   \
+  static ezWorldModuleTypeId TYPE_ID;
 
 /// \brief Implements the given module type. Add this macro to a cpp outside of the type declaration.
-#define EZ_IMPLEMENT_WORLD_MODULE(moduleType)                                                                                              \
-  ezUInt16 moduleType::TYPE_ID = ezWorldModuleFactory::GetInstance()->RegisterWorldModule<moduleType, moduleType>();
+#define EZ_IMPLEMENT_WORLD_MODULE(moduleType) \
+  ezWorldModuleTypeId moduleType::TYPE_ID = ezWorldModuleFactory::GetInstance()->RegisterWorldModule<moduleType, moduleType>();
 
 /// \brief Helper macro to create an update function description with proper name
-#define EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(func, instance)                                                                              \
+#define EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(func, instance) \
   ezWorldModule::UpdateFunctionDesc(ezWorldModule::UpdateFunction(&func, instance), #func)
 
 #include <Core/World/Implementation/WorldModule_inl.h>
-

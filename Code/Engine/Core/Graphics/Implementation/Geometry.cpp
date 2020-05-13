@@ -22,17 +22,23 @@ bool ezGeometry::Vertex::operator<(const ezGeometry::Vertex& rhs) const
 
       if (m_vTangent == rhs.m_vTangent)
       {
-        if (m_vTexCoord < rhs.m_vTexCoord)
+        if (m_fBiTangentSign < rhs.m_fBiTangentSign)
           return true;
 
-        if (m_vTexCoord == rhs.m_vTexCoord)
+        if (m_fBiTangentSign == rhs.m_fBiTangentSign)
         {
-          if (m_Color < rhs.m_Color)
+          if (m_vTexCoord < rhs.m_vTexCoord)
             return true;
 
-          if (m_Color == rhs.m_Color)
+          if (m_vTexCoord == rhs.m_vTexCoord)
           {
-            return m_iCustomIndex < rhs.m_iCustomIndex;
+            if (m_Color < rhs.m_Color)
+              return true;
+
+            if (m_Color == rhs.m_Color)
+            {
+              return m_iCustomIndex < rhs.m_iCustomIndex;
+            }
           }
         }
       }
@@ -49,6 +55,8 @@ bool ezGeometry::Vertex::operator==(const ezGeometry::Vertex& rhs) const
   if (m_vNormal != rhs.m_vNormal)
     return false;
   if (m_vTangent != rhs.m_vTangent)
+    return false;
+  if (m_fBiTangentSign != rhs.m_fBiTangentSign)
     return false;
   if (m_vTexCoord != rhs.m_vTexCoord)
     return false;
@@ -254,11 +262,8 @@ struct TangentContext
     v.m_vTangent.x = fvTangent[0];
     v.m_vTangent.y = fvTangent[1];
     v.m_vTangent.z = fvTangent[2];
-    if (fSign < 0)
-    {
-      v.m_vTangent *= 1.7320508075688772935274463415059f; // ezMath::Root(3, 2)
-    }
-
+    v.m_fBiTangentSign = fSign;
+    
     bool existed = false;
     auto it = context.m_VertMap.FindOrAdd(v, &existed);
     if (!existed)
@@ -1147,12 +1152,9 @@ void ezGeometry::AddSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks
 
     const float fV = (float)st / (float)uiStacks;
 
-    for (ezUInt32 sp = 0; sp < uiSegments; ++sp)
+    for (ezUInt32 sp = 0; sp < uiSegments + 1u; ++sp)
     {
       float fU = ((float)sp / (float)(uiSegments)) * 2.0f;
-
-      if (fU > 1.0f)
-        fU = 2.0f - fU;
 
       const ezAngle fDegree = (float)sp * fDegreeDiffSegments;
 
@@ -1167,48 +1169,48 @@ void ezGeometry::AddSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks
     }
   }
 
-  ezUInt32 uiTopVertex = AddVertex(ezVec3(0, 0, fRadius), ezVec3(0, 0, 1), ezVec2(0.5f, 0), color, iCustomIndex, mTransform);
-
   ezUInt32 tri[3];
   ezUInt32 quad[4];
 
   // now create the top cone
   for (ezUInt32 p = 0; p < uiSegments; ++p)
   {
-    tri[0] = uiTopVertex;
-    tri[1] = uiFirstVertex + ((p + 1) % uiSegments);
+    float fU = ((p + 0.5f) / (float)(uiSegments)) * 2.0f;
+
+    tri[0] = AddVertex(ezVec3(0, 0, fRadius), ezVec3(0, 0, 1), ezVec2(fU, 0), color, iCustomIndex, mTransform);
+    tri[1] = uiFirstVertex + p + 1;
     tri[2] = uiFirstVertex + p;
 
     AddPolygon(tri, bFlipWinding);
   }
 
   // now create the stacks in the middle
-
   for (ezUInt16 st = 0; st < uiStacks - 2; ++st)
   {
-    const ezUInt32 uiRowBottom = uiSegments * st;
-    const ezUInt32 uiRowTop = uiSegments * (st + 1);
+    const ezUInt32 uiRowBottom = (uiSegments + 1) * st;
+    const ezUInt32 uiRowTop = (uiSegments + 1) * (st + 1);
 
     for (ezInt32 i = 0; i < uiSegments; ++i)
     {
-      quad[0] = uiFirstVertex + (uiRowTop + ((i + 1) % uiSegments));
+      quad[0] = uiFirstVertex + (uiRowTop + i + 1);
       quad[1] = uiFirstVertex + (uiRowTop + i);
       quad[2] = uiFirstVertex + (uiRowBottom + i);
-      quad[3] = uiFirstVertex + (uiRowBottom + ((i + 1) % uiSegments));
+      quad[3] = uiFirstVertex + (uiRowBottom + i + 1);
 
       AddPolygon(quad, bFlipWinding);
     }
   }
 
-  ezUInt32 uiBottomVertex = AddVertex(ezVec3(0, 0, -fRadius), ezVec3(0, 0, -1), ezVec2(0.5f, 1), color, iCustomIndex, mTransform);
-  const ezInt32 iTopStack = uiSegments * (uiStacks - 2);
+  const ezInt32 iTopStack = (uiSegments + 1) * (uiStacks - 2);
 
   // now create the bottom cone
   for (ezUInt32 p = 0; p < uiSegments; ++p)
   {
-    tri[0] = uiBottomVertex;
+    float fU = ((p + 0.5f) / (float)(uiSegments)) * 2.0f;
+
+    tri[0] = AddVertex(ezVec3(0, 0, -fRadius), ezVec3(0, 0, -1), ezVec2(fU, 1), color, iCustomIndex, mTransform);
     tri[1] = uiFirstVertex + (iTopStack + p);
-    tri[2] = uiFirstVertex + (iTopStack + ((p + 1) % uiSegments));
+    tri[2] = uiFirstVertex + (iTopStack + p + 1);
 
     AddPolygon(tri, bFlipWinding);
   }
@@ -1379,8 +1381,8 @@ void ezGeometry::AddCapsule(float fRadius, float fHeight, ezUInt16 uiSegments, e
   }
 
   // now create the stacks in the middle
-
-  for (ezUInt16 st = 0; st < uiStacks * 2 - 1; ++st)
+  ezUInt16 uiMaxStacks = static_cast<ezUInt16>(uiStacks * 2 - 1);
+  for (ezUInt16 st = 0; st < uiMaxStacks; ++st)
   {
     const ezUInt32 uiRowBottom = uiSegments * st;
     const ezUInt32 uiRowTop = uiSegments * (st + 1);
@@ -1426,8 +1428,10 @@ void ezGeometry::AddTorus(float fInnerRadius, float fOuterRadius, ezUInt16 uiSeg
   const ezUInt16 uiFirstVertex = static_cast<ezUInt16>(m_Vertices.GetCount());
 
   // this is the loop for the torus ring
-  for (ezUInt16 seg = 0; seg < uiSegments; ++seg)
+  for (ezUInt16 seg = 0; seg < uiSegments + 1u; ++seg)
   {
+    float fU = ((float)seg / (float)uiSegments) * 2.0f;
+
     const ezAngle fAngle = seg * fAngleStepSegment;
 
     const float fSinAngle = ezMath::Sin(fAngle);
@@ -1436,33 +1440,33 @@ void ezGeometry::AddTorus(float fInnerRadius, float fOuterRadius, ezUInt16 uiSeg
     const ezVec3 vLoopPos = ezVec3(fSinAngle, fCosAngle, 0) * fLoopRadius;
 
     // this is the loop to go round the cylinder
-    for (ezUInt16 p = 0; p < uiSegmentDetail; ++p)
+    for (ezUInt16 p = 0; p < uiSegmentDetail + 1u; ++p)
     {
+      float fV = (float)p / (float)uiSegmentDetail;
+
       const ezAngle fCylinderAngle = p * fAngleStepCylinder;
 
       const ezVec3 vDir(ezMath::Cos(fCylinderAngle) * fSinAngle, ezMath::Cos(fCylinderAngle) * fCosAngle, ezMath::Sin(fCylinderAngle));
 
       const ezVec3 vPos = vLoopPos + fCylinderRadius * vDir;
 
-      AddVertex(vPos, vDir, ezVec2(0), color, iCustomIndex, mTransform);
+      AddVertex(vPos, vDir, ezVec2(fU, fV), color, iCustomIndex, mTransform);
     }
   }
 
 
   for (ezUInt16 seg = 0; seg < uiSegments; ++seg)
   {
-    const ezUInt16 rs0 = uiFirstVertex + seg * uiSegmentDetail;
-    const ezUInt16 rs1 = uiFirstVertex + ((seg + 1) % uiSegments) * uiSegmentDetail;
+    const ezUInt16 rs0 = uiFirstVertex + seg * (uiSegmentDetail + 1);
+    const ezUInt16 rs1 = uiFirstVertex + (seg + 1) * (uiSegmentDetail + 1);
 
     for (ezUInt16 p = 0; p < uiSegmentDetail; ++p)
     {
-      const ezUInt16 p1 = (p + 1) % uiSegmentDetail;
-
       ezUInt32 quad[4];
 
       quad[0] = rs1 + p;
-      quad[3] = rs1 + p1;
-      quad[2] = rs0 + p1;
+      quad[3] = rs1 + p + 1;
+      quad[2] = rs0 + p + 1;
       quad[1] = rs0 + p;
 
       AddPolygon(quad, bFlipWinding);

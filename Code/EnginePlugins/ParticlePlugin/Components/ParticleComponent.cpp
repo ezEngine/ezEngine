@@ -15,8 +15,57 @@
 
 //////////////////////////////////////////////////////////////////////////
 
+ezParticleComponentManager::ezParticleComponentManager(ezWorld* pWorld)
+  : SUPER(pWorld)
+{
+}
+
+void ezParticleComponentManager::Initialize()
+{
+  {
+    auto desc = ezWorldModule::UpdateFunctionDesc(ezWorldModule::UpdateFunction(&ezParticleComponentManager::Update, this), "ezParticleComponentManager::Update");
+    desc.m_bOnlyUpdateWhenSimulating = true;
+    RegisterUpdateFunction(desc);
+  }
+
+  // it is necessary to do a late transform update pass, so that particle effects appear exactly at their parent's location
+  // especially for effects that are 'simulated in local space' and should appear absolutely glued to their parent
+  {
+    auto desc = ezWorldModule::UpdateFunctionDesc(ezWorldModule::UpdateFunction(&ezParticleComponentManager::UpdateTransforms, this), "ezParticleComponentManager::UpdateTransforms");
+    desc.m_bOnlyUpdateWhenSimulating = true;
+    desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostTransform;
+    RegisterUpdateFunction(desc);
+  }
+}
+
+void ezParticleComponentManager::Update(const ezWorldModule::UpdateContext& context)
+{
+  for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
+  {
+    ComponentType* pComponent = it;
+    if (pComponent->IsActiveAndInitialized())
+    {
+      pComponent->Update();
+    }
+  }
+}
+
+void ezParticleComponentManager::UpdateTransforms(const ezWorldModule::UpdateContext& context)
+{
+  for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
+  {
+    ComponentType* pComponent = it;
+    if (pComponent->IsActiveAndInitialized())
+    {
+      pComponent->UpdateTransform();
+    }
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezParticleComponent, 3, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezParticleComponent, 5, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -26,6 +75,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezParticleComponent, 3, ezComponentMode::Static)
     EZ_MEMBER_PROPERTY("MinRestartDelay", m_MinRestartDelay),
     EZ_MEMBER_PROPERTY("RestartDelayRange", m_RestartDelayRange),
     EZ_MEMBER_PROPERTY("RandomSeed", m_uiRandomSeed),
+    EZ_ENUM_MEMBER_PROPERTY("SpawnDirection", ezBasisAxis, m_SpawnDirection)->AddAttributes(new ezDefaultValueAttribute((ezInt32)ezBasisAxis::PositiveZ)),
+    EZ_MEMBER_PROPERTY("IgnoreOwnerRotation", m_bIgnoreOwnerRotation),
     EZ_MEMBER_PROPERTY("SharedInstanceName", m_sSharedInstanceName),
     EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("Effect"), new ezExposeColorAlphaAttribute),
   }
@@ -59,7 +110,7 @@ ezParticleComponent::~ezParticleComponent() = default;
 
 void ezParticleComponent::OnDeactivated()
 {
-  HandOffToFinisher();
+  m_EffectController.Invalidate();
 
   ezRenderComponent::OnDeactivated();
 }
@@ -99,6 +150,12 @@ void ezParticleComponent::SerializeComponent(ezWorldWriter& stream) const
 
   // Version 3
   s << m_OnFinishedAction;
+
+  // version 4
+  s << m_bIgnoreOwnerRotation;
+
+  // version 5
+  s << m_SpawnDirection;
 
   /// \todo store effect state
 }
@@ -154,12 +211,22 @@ void ezParticleComponent::DeserializeComponent(ezWorldReader& stream)
   {
     s >> m_OnFinishedAction;
   }
+
+  if (uiVersion >= 4)
+  {
+    s >> m_bIgnoreOwnerRotation;
+  }
+
+  if (uiVersion >= 5)
+  {
+    s >> m_SpawnDirection;
+  }
 }
 
 bool ezParticleComponent::StartEffect()
 {
   // stop any previous effect
-  HandOffToFinisher();
+  m_EffectController.Invalidate();
 
   if (m_hEffectResource.IsValid())
   {
@@ -167,7 +234,7 @@ bool ezParticleComponent::StartEffect()
 
     m_EffectController.Create(m_hEffectResource, pModule, m_uiRandomSeed, m_sSharedInstanceName, this, m_FloatParams, m_ColorParams);
 
-    m_EffectController.SetTransform(GetOwner()->GetGlobalTransform(), GetOwner()->GetVelocity());
+    SetPfxTransform();
 
     m_bFloatParamsChanged = false;
     m_bColorParamsChanged = false;
@@ -180,13 +247,12 @@ bool ezParticleComponent::StartEffect()
 
 void ezParticleComponent::StopEffect()
 {
-  HandOffToFinisher();
+  m_EffectController.Invalidate();
 }
 
 void ezParticleComponent::InterruptEffect()
 {
   m_EffectController.StopImmediate();
-  m_EffectController.Invalidate();
 }
 
 bool ezParticleComponent::IsEffectActive() const
@@ -209,8 +275,9 @@ void ezParticleComponent::OnMsgSetPlaying(ezMsgSetPlaying& msg)
 
 void ezParticleComponent::SetParticleEffect(const ezParticleEffectResourceHandle& hEffect)
 {
+  m_EffectController.Invalidate();
+
   m_hEffectResource = hEffect;
-  HandOffToFinisher();
 
   TriggerLocalBoundsUpdate();
 }
@@ -243,9 +310,20 @@ ezResult ezParticleComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& 
   if (m_EffectController.IsAlive())
   {
     ezBoundingBoxSphere volume;
-    m_LastBVolumeUpdate = m_EffectController.GetBoundingVolume(volume);
+    m_uiBVolumeUpdateCounter = m_EffectController.GetBoundingVolume(volume);
 
-    if (!m_LastBVolumeUpdate.IsZero())
+    if (m_SpawnDirection != ezBasisAxis::PositiveZ)
+    {
+      const ezQuat qRot = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveZ, m_SpawnDirection);
+      volume.Transform(qRot.GetAsMat4());
+    }
+
+    if (m_bIgnoreOwnerRotation)
+    {
+      volume.Transform((-GetOwner()->GetGlobalRotation()).GetAsMat4());
+    }
+
+    if (m_uiBVolumeUpdateCounter != 0)
     {
       bounds.ExpandToInclude(volume);
       return EZ_SUCCESS;
@@ -298,8 +376,7 @@ void ezParticleComponent::Update()
 
     if (m_RestartTime == ezTime())
     {
-      const ezTime tDiff = ezTime::Seconds(
-        GetWorld()->GetRandomNumberGenerator().DoubleInRange(m_MinRestartDelay.GetSeconds(), m_RestartDelayRange.GetSeconds()));
+      const ezTime tDiff = ezTime::Seconds(GetWorld()->GetRandomNumberGenerator().DoubleInRange(m_MinRestartDelay.GetSeconds(), m_RestartDelayRange.GetSeconds()));
 
       m_RestartTime = tNow + tDiff;
     }
@@ -334,7 +411,7 @@ void ezParticleComponent::Update()
       }
     }
 
-    m_EffectController.SetTransform(GetOwner()->GetGlobalTransform(), GetOwner()->GetVelocity());
+    SetPfxTransform();
 
     CheckBVolumeUpdate();
   }
@@ -344,39 +421,18 @@ void ezParticleComponent::Update()
   }
 }
 
-void ezParticleComponent::HandOffToFinisher()
+void ezParticleComponent::UpdateTransform()
 {
-  if (m_EffectController.IsAlive() && !m_EffectController.IsSharedInstance())
+  if (m_EffectController.IsAlive())
   {
-    ezGameObject* pOwner = GetOwner();
-    ezWorld* pWorld = pOwner->GetWorld();
-
-    ezTransform transform = pOwner->GetGlobalTransform();
-
-    ezGameObjectDesc go;
-    go.m_LocalPosition = transform.m_vPosition;
-    go.m_LocalRotation = transform.m_qRotation;
-    go.m_LocalScaling = transform.m_vScale;
-    go.m_Tags = GetOwner()->GetTags();
-
-    ezGameObject* pFinisher;
-    pWorld->CreateObject(go, pFinisher);
-
-    ezParticleFinisherComponent* pFinisherComp;
-    ezParticleFinisherComponent::CreateComponent(pFinisher, pFinisherComp);
-
-    pFinisherComp->m_EffectController = m_EffectController;
-    pFinisherComp->m_EffectController.SetTransform(transform, ezVec3::ZeroVector()); // clear the velocity
+    SetPfxTransform();
   }
-
-  // this will instruct the effect instance to cancel any further emission, thus continuous effects will stop in finite time
-  m_EffectController.Invalidate();
 }
 
 void ezParticleComponent::CheckBVolumeUpdate()
 {
   ezBoundingBoxSphere bvol;
-  if (m_LastBVolumeUpdate < m_EffectController.GetBoundingVolume(bvol))
+  if (m_uiBVolumeUpdateCounter < m_EffectController.GetBoundingVolume(bvol))
   {
     TriggerLocalBoundsUpdate();
   }
@@ -493,6 +549,26 @@ bool ezParticleComponent::GetParameter(const char* szKey, ezVariant& out_value) 
     }
   }
   return false;
+}
+
+void ezParticleComponent::SetPfxTransform()
+{
+  auto pOwner = GetOwner();
+  ezTransform transform = pOwner->GetGlobalTransform();
+
+  const ezQuat qRot = ezBasisAxis::GetBasisRotation(ezBasisAxis::PositiveZ, m_SpawnDirection);
+
+  if (m_bIgnoreOwnerRotation)
+  {
+    transform.m_qRotation = qRot;
+  }
+  else
+  {
+    transform.m_qRotation = transform.m_qRotation * qRot;
+  }
+
+
+  m_EffectController.SetTransform(transform, pOwner->GetVelocity());
 }
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Components_ParticleComponent);

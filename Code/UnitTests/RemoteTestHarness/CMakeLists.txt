@@ -1,5 +1,7 @@
 ez_cmake_init()
 
+ez_build_filter_everything()
+ez_requires_qt()
 ez_requires(EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
 ez_requires(EZ_3RDPARTY_ENET_SUPPORT)
 

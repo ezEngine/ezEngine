@@ -9,7 +9,7 @@
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <QMouseEvent>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScaleGizmo, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezScaleGizmo, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezScaleGizmo::ezScaleGizmo()
@@ -21,6 +21,12 @@ ezScaleGizmo::ezScaleGizmo()
 
   SetVisible(false);
   SetTransformation(ezTransform::IdentityTransform());
+}
+
+void ezScaleGizmo::UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow)
+{
+  const ezVec3 scale(1.0f);
+  GetOwnerWindow()->SetPermanentStatusBarMsg(ezFmt("Scale: {}, {}, {}", ezArgF(scale.x, 2), ezArgF(scale.y, 2), ezArgF(scale.z, 2)));
 }
 
 void ezScaleGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
@@ -71,8 +77,6 @@ void ezScaleGizmo::DoFocusLost(bool bCancel)
   m_AxisY.SetVisible(true);
   m_AxisZ.SetVisible(true);
   m_AxisXYZ.SetVisible(true);
-
-  GetOwnerWindow()->SetPermanentStatusBarMsg("");
 
   QApplication::restoreOverrideCursor();
 }
@@ -207,7 +211,7 @@ ezEditorInput ezScaleGizmo::DoMouseMoveEvent(QMouseEvent* e)
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezManipulatorScaleGizmo, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezManipulatorScaleGizmo, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezManipulatorScaleGizmo::ezManipulatorScaleGizmo()

@@ -54,6 +54,7 @@ ezParticleTypeRenderMode::BlendedForeground;Blended (Foreground)
 ezParticleTypeRenderMode::BlendedBackground;Blended (Background)
 ezParticleTypeRenderMode::Opaque;Opaque
 ezParticleTypeRenderMode::Distortion;Distortion
+ezParticleTypeRenderMode::BlendAdd;Blend Add
 ezEffectInvisibleUpdateRate::FullUpdate;Full Update
 ezEffectInvisibleUpdateRate::Max20fps;Max 20 FPS
 ezEffectInvisibleUpdateRate::Max10fps;Max 10 FPS
@@ -87,3 +88,6 @@ ezQuadParticleOrientation::Fixed_RandomDir;Fixed: Random Dir
 ezQuadParticleOrientation::Fixed_WorldUp;Fixed: World Up
 ezQuadParticleOrientation::FixedAxis_EmitterDir;Axis: Emitter Dir
 ezQuadParticleOrientation::FixedAxis_ParticleDir;Axis: Particle Dir
+ezParticleBehaviorFactory_Bounds;Bounds
+ezParticleOutOfBoundsMode::Teleport;Teleport
+ezParticleOutOfBoundsMode::Die;Die

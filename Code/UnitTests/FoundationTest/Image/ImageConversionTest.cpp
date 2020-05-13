@@ -1,5 +1,6 @@
 #include <FoundationTestPCH.h>
 
+
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
@@ -56,7 +57,7 @@ private:
     if (!isDecodable)
     {
       EZ_TEST_BOOL_MSG(false, "Format %s can be encoded from %s but not decoded - add a decoder for this format please",
-                       ezImageFormat::GetName(format), ezImageFormat::GetName(defaultFormat));
+        ezImageFormat::GetName(format), ezImageFormat::GetName(defaultFormat));
 
       return ezTestAppRun::Quit;
     }
@@ -71,7 +72,7 @@ private:
       for (ezUInt32 i = 0; i < decodingPath.GetCount(); ++i)
       {
         ezLog::Info("[test]  {} -> {}", ezImageFormat::GetName(decodingPath[i].m_sourceFormat),
-                       ezImageFormat::GetName(decodingPath[i].m_targetFormat));
+          ezImageFormat::GetName(decodingPath[i].m_targetFormat));
       }
     }
 
@@ -85,7 +86,7 @@ private:
       for (ezUInt32 i = 0; i < encodingPath.GetCount(); ++i)
       {
         ezLog::Info("[test]  {} -> {}", ezImageFormat::GetName(encodingPath[i].m_sourceFormat),
-                       ezImageFormat::GetName(encodingPath[i].m_targetFormat));
+          ezImageFormat::GetName(encodingPath[i].m_targetFormat));
       }
     }
 
@@ -227,3 +228,4 @@ private:
 };
 
 static ezImageConversionTest s_ImageConversionTest;
+

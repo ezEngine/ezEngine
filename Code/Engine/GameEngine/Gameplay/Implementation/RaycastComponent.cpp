@@ -198,8 +198,8 @@ void ezRaycastComponent::Update()
   //ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::RebeccaPurple);
 
   float fHitDistance = m_fMaxDistance;
-  ezPhysicsHitResult hit;
-  if (m_pPhysicsWorldModule->CastRay(rayStartPosition, rayDir, m_fMaxDistance, m_uiCollisionLayerEndPoint, hit))
+  ezPhysicsCastResult hit;
+  if (m_pPhysicsWorldModule->Raycast(hit, rayStartPosition, rayDir, m_fMaxDistance, ezPhysicsQueryParameters(m_uiCollisionLayerEndPoint)))
   {
     fHitDistance = hit.m_fDistance;
 
@@ -225,8 +225,8 @@ void ezRaycastComponent::Update()
 
   if (!m_sTriggerMessage.IsEmpty() && m_uiCollisionLayerEndPoint != m_uiCollisionLayerTrigger)
   {
-    ezPhysicsHitResult triggerHit;
-    if (m_pPhysicsWorldModule->CastRay(rayStartPosition, rayDir, fHitDistance, m_uiCollisionLayerTrigger, triggerHit) && triggerHit.m_fDistance < fHitDistance)
+    ezPhysicsCastResult triggerHit;
+    if (m_pPhysicsWorldModule->Raycast(triggerHit, rayStartPosition, rayDir, fHitDistance, ezPhysicsQueryParameters(m_uiCollisionLayerTrigger)) && triggerHit.m_fDistance < fHitDistance)
     {
       // We have a hit, check the objects
       if (m_hLastTriggerObjectInRay != triggerHit.m_hActorObject)
@@ -285,3 +285,7 @@ void ezRaycastComponent::PostTriggerMessage(ezTriggerState::Enum state, ezGameOb
 
   m_TriggerEventSender.PostMessage(msg, this, GetOwner(), ezObjectMsgQueueType::PostTransform);
 }
+
+
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_RaycastComponent);
+

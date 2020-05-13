@@ -44,4 +44,5 @@ protected:
   ezArchiveTOC m_ArchiveTOC;
   ezUInt8 m_uiArchiveVersion = 0;
   const void* m_pDataStart = nullptr;
+  ezUInt64 m_uiMemFileSize = 0;
 };

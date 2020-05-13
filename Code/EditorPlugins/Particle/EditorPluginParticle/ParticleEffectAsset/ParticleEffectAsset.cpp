@@ -9,6 +9,8 @@
 #include <GuiFoundation/PropertyGrid/VisualizerManager.h>
 #include <ParticlePlugin/Behavior/ParticleBehavior_ColorGradient.h>
 #include <ParticlePlugin/Effect/ParticleEffectDescriptor.h>
+#include <ParticlePlugin/Initializer/ParticleInitializer_CylinderPosition.h>
+#include <ParticlePlugin/Initializer/ParticleInitializer_SpherePosition.h>
 #include <ParticlePlugin/System/ParticleSystemDescriptor.h>
 #include <ParticlePlugin/Type/Quad/ParticleTypeQuad.h>
 #include <ParticlePlugin/Type/Trail/ParticleTypeTrail.h>
@@ -16,7 +18,7 @@
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectAssetDocument, 4, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEffectAssetDocument, 5, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -71,19 +73,19 @@ void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMeta
   {
     auto& props = *e.m_pPropertyStates;
 
-    // ezInt64 renderMode = e.m_pObject->GetTypeAccessor().GetValue("RenderMode").ConvertTo<ezInt64>();
+    ezInt64 renderMode = e.m_pObject->GetTypeAccessor().GetValue("RenderMode").ConvertTo<ezInt64>();
     ezInt64 textureAtlas = e.m_pObject->GetTypeAccessor().GetValue("TextureAtlas").ConvertTo<ezInt64>();
 
-    // props["DistortionTexture"].m_Visibility = ezPropertyUiState::Invisible;
-    // props["DistortionStrength"].m_Visibility = ezPropertyUiState::Invisible;
+    props["DistortionTexture"].m_Visibility = ezPropertyUiState::Invisible;
+    props["DistortionStrength"].m_Visibility = ezPropertyUiState::Invisible;
     props["NumSpritesX"].m_Visibility = (textureAtlas == (int)ezParticleTextureAtlasType::None) ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
     props["NumSpritesY"].m_Visibility = (textureAtlas == (int)ezParticleTextureAtlasType::None) ? ezPropertyUiState::Invisible : ezPropertyUiState::Default;
 
-    // if (renderMode == ezParticleTypeRenderMode::Distortion)
-    //{
-    //  props["DistortionTexture"].m_Visibility = ezPropertyUiState::Default;
-    //  props["DistortionStrength"].m_Visibility = ezPropertyUiState::Default;
-    //}
+    if (renderMode == ezParticleTypeRenderMode::Distortion)
+    {
+      props["DistortionTexture"].m_Visibility = ezPropertyUiState::Default;
+      props["DistortionStrength"].m_Visibility = ezPropertyUiState::Default;
+    }
   }
   else if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleBehaviorFactory_ColorGradient>())
   {
@@ -91,18 +93,31 @@ void ezParticleEffectAssetDocument::PropertyMetaStateEventHandler(ezPropertyMeta
 
     ezInt64 mode = e.m_pObject->GetTypeAccessor().GetValue("ColorGradientMode").ConvertTo<ezInt64>();
 
-    props["GradientMaxSpeed"].m_Visibility =
-      (mode == ezParticleColorGradientMode::Speed) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+    props["GradientMaxSpeed"].m_Visibility = (mode == ezParticleColorGradientMode::Speed) ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  }
+  else if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleInitializerFactory_CylinderPosition>())
+  {
+    auto& props = *e.m_pPropertyStates;
+
+    bool bSetVelocity = e.m_pObject->GetTypeAccessor().GetValue("SetVelocity").ConvertTo<bool>();
+
+    props["Speed"].m_Visibility = bSetVelocity ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
+  }
+  else if (e.m_pObject->GetTypeAccessor().GetType() == ezGetStaticRTTI<ezParticleInitializerFactory_SpherePosition>())
+  {
+    auto& props = *e.m_pPropertyStates;
+
+    bool bSetVelocity = e.m_pObject->GetTypeAccessor().GetValue("SetVelocity").ConvertTo<bool>();
+
+    props["Speed"].m_Visibility = bSetVelocity ? ezPropertyUiState::Default : ezPropertyUiState::Invisible;
   }
 }
 
-ezStatus ezParticleEffectAssetDocument::WriteParticleEffectAsset(ezStreamWriter& stream, const ezPlatformProfile* pAssetProfile) const
+void ezParticleEffectAssetDocument::WriteResource(ezStreamWriter& stream) const
 {
   const ezParticleEffectDescriptor* pProp = GetProperties();
 
   pProp->Save(stream);
-
-  return ezStatus(EZ_SUCCESS);
 }
 
 
@@ -201,6 +216,15 @@ void ezParticleEffectAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo*
           pInfo->m_AssetTransformDependencies.Remove(pType->m_sDistortionTexture);
         }
       }
+
+      if (auto* pType = ezDynamicCast<ezParticleTypeTrailFactory*>(type))
+      {
+        if (pType->m_RenderMode != ezParticleTypeRenderMode::Distortion)
+        {
+          // remove unused dependencies
+          pInfo->m_AssetTransformDependencies.Remove(pType->m_sDistortionTexture);
+        }
+      }
     }
   }
 
@@ -231,7 +255,8 @@ void ezParticleEffectAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo*
 ezStatus ezParticleEffectAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
   const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
-  return WriteParticleEffectAsset(stream, pAssetProfile);
+  WriteResource(stream);
+  return ezStatus(EZ_SUCCESS);
 }
 
 ezStatus ezParticleEffectAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo)

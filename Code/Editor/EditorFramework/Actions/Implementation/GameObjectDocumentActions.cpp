@@ -13,10 +13,10 @@
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectDocumentAction, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectDocumentAction, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCameraSpeedSliderAction, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCameraSpeedSliderAction, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -29,46 +29,49 @@ ezActionDescriptorHandle ezGameObjectDocumentActions::s_hAddAmbientLight;
 ezActionDescriptorHandle ezGameObjectDocumentActions::s_hSimulationSpeedMenu;
 ezActionDescriptorHandle ezGameObjectDocumentActions::s_hSimulationSpeed[10];
 ezActionDescriptorHandle ezGameObjectDocumentActions::s_hCameraSpeed;
+ezActionDescriptorHandle ezGameObjectDocumentActions::s_hPickTransparent;
 
 void ezGameObjectDocumentActions::RegisterActions()
 {
   s_hGameObjectCategory = EZ_REGISTER_CATEGORY("GameObjectCategory");
   s_hRenderSelectionOverlay =
-      EZ_REGISTER_ACTION_1("Scene.Render.SelectionOverlay", ezActionScope::Document, "Scene", "S", ezGameObjectDocumentAction,
-                           ezGameObjectDocumentAction::ActionType::RenderSelectionOverlay);
+    EZ_REGISTER_ACTION_1("Scene.Render.SelectionOverlay", ezActionScope::Document, "Scene", "S", ezGameObjectDocumentAction,
+      ezGameObjectDocumentAction::ActionType::RenderSelectionOverlay);
   s_hRenderVisualizers = EZ_REGISTER_ACTION_1("Scene.Render.Visualizers", ezActionScope::Document, "Scene", "V",
-                                              ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::RenderVisualizers);
+    ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::RenderVisualizers);
   s_hRenderShapeIcons = EZ_REGISTER_ACTION_1("Scene.Render.ShapeIcons", ezActionScope::Document, "Scene", "I",
-                                             ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::RenderShapeIcons);
+    ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::RenderShapeIcons);
   s_hRenderGrid = EZ_REGISTER_ACTION_1("Scene.Render.Grid", ezActionScope::Document, "Scene", "G", ezGameObjectDocumentAction,
-                                       ezGameObjectDocumentAction::ActionType::RenderGrid);
+    ezGameObjectDocumentAction::ActionType::RenderGrid);
   s_hAddAmbientLight = EZ_REGISTER_ACTION_1("Scene.Render.AddAmbient", ezActionScope::Document, "Scene", "", ezGameObjectDocumentAction,
-                                            ezGameObjectDocumentAction::ActionType::AddAmbientLight);
+    ezGameObjectDocumentAction::ActionType::AddAmbientLight);
 
   s_hSimulationSpeedMenu = EZ_REGISTER_MENU_WITH_ICON("Scene.Simulation.Speed.Menu", "");
   s_hSimulationSpeed[0] = EZ_REGISTER_ACTION_2("Scene.Simulation.Speed.01", ezActionScope::Document, "Simulation - Speed", "",
-                                               ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::SimulationSpeed, 0.1f);
+    ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::SimulationSpeed, 0.1f);
   s_hSimulationSpeed[1] = EZ_REGISTER_ACTION_2("Scene.Simulation.Speed.025", ezActionScope::Document, "Simulation - Speed", "",
-                                               ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::SimulationSpeed, 0.25f);
+    ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::SimulationSpeed, 0.25f);
   s_hSimulationSpeed[2] = EZ_REGISTER_ACTION_2("Scene.Simulation.Speed.05", ezActionScope::Document, "Simulation - Speed", "",
-                                               ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::SimulationSpeed, 0.5f);
+    ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::SimulationSpeed, 0.5f);
   s_hSimulationSpeed[3] = EZ_REGISTER_ACTION_2("Scene.Simulation.Speed.1", ezActionScope::Document, "Simulation - Speed", "",
-                                               ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::SimulationSpeed, 1.0f);
+    ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::SimulationSpeed, 1.0f);
   s_hSimulationSpeed[4] = EZ_REGISTER_ACTION_2("Scene.Simulation.Speed.15", ezActionScope::Document, "Simulation - Speed", "",
-                                               ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::SimulationSpeed, 1.5f);
+    ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::SimulationSpeed, 1.5f);
   s_hSimulationSpeed[5] = EZ_REGISTER_ACTION_2("Scene.Simulation.Speed.2", ezActionScope::Document, "Simulation - Speed", "",
-                                               ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::SimulationSpeed, 2.0f);
+    ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::SimulationSpeed, 2.0f);
   s_hSimulationSpeed[6] = EZ_REGISTER_ACTION_2("Scene.Simulation.Speed.3", ezActionScope::Document, "Simulation - Speed", "",
-                                               ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::SimulationSpeed, 3.0f);
+    ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::SimulationSpeed, 3.0f);
   s_hSimulationSpeed[7] = EZ_REGISTER_ACTION_2("Scene.Simulation.Speed.4", ezActionScope::Document, "Simulation - Speed", "",
-                                               ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::SimulationSpeed, 4.0f);
+    ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::SimulationSpeed, 4.0f);
   s_hSimulationSpeed[8] = EZ_REGISTER_ACTION_2("Scene.Simulation.Speed.5", ezActionScope::Document, "Simulation - Speed", "",
-                                               ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::SimulationSpeed, 5.0f);
+    ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::SimulationSpeed, 5.0f);
   s_hSimulationSpeed[9] = EZ_REGISTER_ACTION_2("Scene.Simulation.Speed.10", ezActionScope::Document, "Simulation - Speed", "",
-                                               ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::SimulationSpeed, 10.0f);
+    ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::SimulationSpeed, 10.0f);
 
   s_hCameraSpeed = EZ_REGISTER_ACTION_1("Scene.Camera.Speed", ezActionScope::Document, "Camera", "", ezCameraSpeedSliderAction,
-                                        ezCameraSpeedSliderAction::ActionType::CameraSpeed);
+    ezCameraSpeedSliderAction::ActionType::CameraSpeed);
+
+  s_hPickTransparent = EZ_REGISTER_ACTION_1("Scene.Render.PickTransparent", ezActionScope::Document, "Scene", "U", ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::PickTransparent);
 }
 
 void ezGameObjectDocumentActions::UnregisterActions()
@@ -85,6 +88,7 @@ void ezGameObjectDocumentActions::UnregisterActions()
     ezActionManager::UnregisterAction(s_hSimulationSpeed[i]);
 
   ezActionManager::UnregisterAction(s_hCameraSpeed);
+  ezActionManager::UnregisterAction(s_hPickTransparent);
 }
 
 void ezGameObjectDocumentActions::MapMenuActions(const char* szMapping, const char* szPath)
@@ -99,9 +103,10 @@ void ezGameObjectDocumentActions::MapMenuActions(const char* szMapping, const ch
     pMap->MapAction(s_hRenderSelectionOverlay, sSubPath, 1.0f);
     pMap->MapAction(s_hRenderVisualizers, sSubPath, 2.0f);
     pMap->MapAction(s_hRenderShapeIcons, sSubPath, 3.0f);
-    pMap->MapAction(s_hRenderGrid, sSubPath, 3.05f);
-    pMap->MapAction(s_hAddAmbientLight, sSubPath, 3.1f);
-    pMap->MapAction(s_hCameraSpeed, sSubPath, 4.0f);
+    pMap->MapAction(s_hRenderGrid, sSubPath, 4.0f);
+    pMap->MapAction(s_hPickTransparent, sSubPath, 5.0f);
+    pMap->MapAction(s_hAddAmbientLight, sSubPath, 6.0f);
+    pMap->MapAction(s_hCameraSpeed, sSubPath, 7.0f);
   }
 }
 
@@ -140,8 +145,8 @@ void ezGameObjectDocumentActions::MapToolbarActions(const char* szMapping, const
 }
 
 ezGameObjectDocumentAction::ezGameObjectDocumentAction(const ezActionContext& context, const char* szName,
-                                                       ezGameObjectDocumentAction::ActionType type, float fSimSpeed)
-    : ezButtonAction(context, szName, false, "")
+  ezGameObjectDocumentAction::ActionType type, float fSimSpeed)
+  : ezButtonAction(context, szName, false, "")
 {
   m_Type = type;
   // TODO const cast
@@ -190,6 +195,12 @@ ezGameObjectDocumentAction::ezGameObjectDocumentAction(const ezActionContext& co
       SetCheckable(true);
       SetChecked(m_pGameObjectDocument->GetSimulationSpeed() == m_fSimSpeed);
       break;
+
+    case ActionType::PickTransparent:
+      SetCheckable(true);
+      //SetIconPath(":/EditorFramework/Icons/Visualizers16.png"); // TODO icon
+      SetChecked(m_pGameObjectDocument->GetPickTransparent());
+      break;
   }
 }
 
@@ -229,8 +240,9 @@ void ezGameObjectDocumentAction::Execute(const ezVariant& value)
     {
       auto pPref = ezPreferences::QueryPreferences<ezScenePreferencesUser>(m_pGameObjectDocument);
       pPref->SetShowGrid(!pPref->GetShowGrid());
-    }
+      m_pGameObjectDocument->ShowDocumentStatus(ezFmt("Show Grid: {}", pPref->GetShowGrid() ? "ON" : "OFF"));
       return;
+    }
 
     case ActionType::AddAmbientLight:
       m_pGameObjectDocument->SetAddAmbientLight(!m_pGameObjectDocument->GetAddAmbientLight());
@@ -238,6 +250,10 @@ void ezGameObjectDocumentAction::Execute(const ezVariant& value)
 
     case ActionType::SimulationSpeed:
       m_pGameObjectDocument->SetSimulationSpeed(m_fSimSpeed);
+      return;
+
+    case ActionType::PickTransparent:
+      m_pGameObjectDocument->SetPickTransparent(!m_pGameObjectDocument->GetPickTransparent());
       return;
   }
 }
@@ -290,6 +306,15 @@ void ezGameObjectDocumentAction::SceneEventHandler(const ezGameObjectEvent& e)
       }
     }
     break;
+
+    case ezGameObjectEvent::Type::PickTransparentChanged:
+    {
+      if (m_Type == ActionType::PickTransparent)
+      {
+        SetChecked(m_pGameObjectDocument->GetPickTransparent());
+      }
+    }
+    break;
   }
 }
 
@@ -308,7 +333,7 @@ void ezGameObjectDocumentAction::OnPreferenceChange(ezPreferences* pref)
 }
 
 ezCameraSpeedSliderAction::ezCameraSpeedSliderAction(const ezActionContext& context, const char* szName, ActionType type)
-    : ezSliderAction(context, szName)
+  : ezSliderAction(context, szName)
 {
   m_Type = type;
   m_pGameObjectDocument = const_cast<ezGameObjectDocument*>(static_cast<const ezGameObjectDocument*>(context.m_pDocument));

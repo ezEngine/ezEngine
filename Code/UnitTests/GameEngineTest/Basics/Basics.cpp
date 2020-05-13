@@ -47,13 +47,16 @@ ezResult TranformProject(const char* szProjectPath)
     proc.Terminate();
     ezLog::Error("Failed to start process: '{0}'", sBinPath);
   }
-  res = proc.WaitToFinish(ezTime::Minutes(4));
+
+  ezTime timeout = ezTime::Minutes(8);
+  res = proc.WaitToFinish(timeout);
   if (res.Failed())
   {
     proc.Terminate();
-    ezLog::Error("Process timeout: '{0}'", sBinPath);
+    ezLog::Error("Process timeout ({1}): '{0}'", sBinPath, timeout);
     return EZ_FAILURE;
   }
+
   ezLog::Success("Executed Asset Processor to transform '{}'", szProjectPath);
   return EZ_SUCCESS;
 }
@@ -82,6 +85,11 @@ EZ_CREATE_SIMPLE_TEST(00_Init, TransformTypeScript)
   EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/TypeScript/ezProject").Succeeded());
 }
 
+EZ_CREATE_SIMPLE_TEST(00_Init, TransformEffects)
+{
+  EZ_TEST_BOOL(TranformProject("Data/UnitTests/GameEngineTest/Effects/ezProject").Succeeded());
+}
+
 #endif
 
 
@@ -100,35 +108,37 @@ ezGameEngineTestApplication* ezGameEngineTestBasics::CreateApplication()
 
 void ezGameEngineTestBasics::SetupSubTests()
 {
-  AddSubTest("Many Meshes", SubTests::ST_ManyMeshes);
-  AddSubTest("Skybox", SubTests::ST_Skybox);
-  AddSubTest("Debug Rendering", SubTests::ST_DebugRendering);
-  AddSubTest("Load Scene", SubTests::ST_LoadScene);
+  AddSubTest("Many Meshes", SubTests::ManyMeshes);
+  AddSubTest("Skybox", SubTests::Skybox);
+  AddSubTest("Debug Rendering", SubTests::DebugRendering);
+  AddSubTest("Load Scene", SubTests::LoadScene);
 }
 
 ezResult ezGameEngineTestBasics::InitializeSubTest(ezInt32 iIdentifier)
 {
+  SUPER::InitializeSubTest(iIdentifier);
+
   m_iFrame = -1;
 
-  if (iIdentifier == SubTests::ST_ManyMeshes)
+  if (iIdentifier == SubTests::ManyMeshes)
   {
     m_pOwnApplication->SubTestManyMeshesSetup();
     return EZ_SUCCESS;
   }
 
-  if (iIdentifier == SubTests::ST_Skybox)
+  if (iIdentifier == SubTests::Skybox)
   {
     m_pOwnApplication->SubTestSkyboxSetup();
     return EZ_SUCCESS;
   }
 
-  if (iIdentifier == SubTests::ST_DebugRendering)
+  if (iIdentifier == SubTests::DebugRendering)
   {
     m_pOwnApplication->SubTestDebugRenderingSetup();
     return EZ_SUCCESS;
   }
 
-  if (iIdentifier == SubTests::ST_LoadScene)
+  if (iIdentifier == SubTests::LoadScene)
   {
     m_pOwnApplication->SubTestLoadSceneSetup();
     return EZ_SUCCESS;
@@ -141,16 +151,16 @@ ezTestAppRun ezGameEngineTestBasics::RunSubTest(ezInt32 iIdentifier, ezUInt32 ui
 {
   ++m_iFrame;
 
-  if (iIdentifier == SubTests::ST_ManyMeshes)
+  if (iIdentifier == SubTests::ManyMeshes)
     return m_pOwnApplication->SubTestManyMeshesExec(m_iFrame);
 
-  if (iIdentifier == SubTests::ST_Skybox)
+  if (iIdentifier == SubTests::Skybox)
     return m_pOwnApplication->SubTestSkyboxExec(m_iFrame);
 
-  if (iIdentifier == SubTests::ST_DebugRendering)
+  if (iIdentifier == SubTests::DebugRendering)
     return m_pOwnApplication->SubTestDebugRenderingExec(m_iFrame);
 
-  if (iIdentifier == SubTests::ST_LoadScene)
+  if (iIdentifier == SubTests::LoadScene)
     return m_pOwnApplication->SubTestLoadSceneExec(m_iFrame);
 
   EZ_ASSERT_NOT_IMPLEMENTED;

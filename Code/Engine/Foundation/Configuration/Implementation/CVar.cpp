@@ -244,7 +244,6 @@ static ezResult ReadLine(ezStreamReader& Stream, ezStringBuilder& sLine)
 
   // skip all white-spaces at the beginning
   // also skip all empty lines
-  // this shit is why I wanted to use Lua...
   while ((c[0] == '\n' || c[0] == '\r' || c[0] == ' ' || c[0] == '\t') && (Stream.ReadBytes(c, 1) > 0))
   {
   }
@@ -271,8 +270,6 @@ static ezResult ReadLine(ezStreamReader& Stream, ezStringBuilder& sLine)
 
 static ezResult ParseLine(const ezStringBuilder& sLine, ezStringBuilder& VarName, ezStringBuilder& VarValue)
 {
-  // more parsing shit
-
   const char* szSign = sLine.FindSubString("=");
 
   if (szSign == nullptr)

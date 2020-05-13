@@ -1,15 +1,14 @@
 #include <EditorPluginAssetsPCH.h>
 
-#include <Core/WorldSerializer/ResourceHandleWriter.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginAssets/ColorGradientAsset/ColorGradientAsset.h>
 #include <EditorPluginAssets/ColorGradientAsset/ColorGradientAssetManager.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Texture/Image/Image.h>
 #include <Foundation/Tracks/ColorGradient.h>
 #include <GameEngine/Curves/ColorGradientResource.h>
 #include <GuiFoundation/Widgets/CurveEditData.h>
+#include <Texture/Image/Image.h>
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 
 // clang-format off
@@ -64,7 +63,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezColorGradientAssetData, 2, ezRTTIDefaultAlloca
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezColorGradientAssetDocument, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezColorGradientAssetDocument, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -87,8 +86,19 @@ void ezIntensityControlPoint::SetTickFromTime(ezTime time, ezInt64 fps)
 }
 
 ezColorGradientAssetDocument::ezColorGradientAssetDocument(const char* szDocumentPath)
-    : ezSimpleAssetDocument<ezColorGradientAssetData>(szDocumentPath, ezAssetDocEngineConnection::None)
+  : ezSimpleAssetDocument<ezColorGradientAssetData>(szDocumentPath, ezAssetDocEngineConnection::None)
 {
+}
+
+void ezColorGradientAssetDocument::WriteResource(ezStreamWriter& stream) const
+{
+  const ezColorGradientAssetData* pProp = GetProperties();
+
+  ezColorGradientResourceDescriptor desc;
+  pProp->FillGradientData(desc.m_Gradient);
+  desc.m_Gradient.SortControlPoints();
+
+  desc.Save(stream);
 }
 
 ezInt64 ezColorGradientAssetData::TickFromTime(ezTime time)
@@ -175,17 +185,9 @@ ezColor ezColorGradientAssetData::Evaluate(ezInt64 iTick) const
   return color;
 }
 
-ezStatus ezColorGradientAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-                                                              const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezStatus ezColorGradientAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
-  const ezColorGradientAssetData* pProp = GetProperties();
-
-  ezColorGradientResourceDescriptor desc;
-  pProp->FillGradientData(desc.m_Gradient);
-  desc.m_Gradient.SortControlPoints();
-
-  desc.Save(stream);
-
+  WriteResource(stream);
   return ezStatus(EZ_SUCCESS);
 }
 
@@ -251,9 +253,9 @@ ezStatus ezColorGradientAssetDocument::InternalCreateThumbnail(const ThumbnailIn
   return SaveThumbnail(img, ThumbnailInfo);
 }
 
-  //////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 
@@ -261,7 +263,7 @@ class ezColorGradientAssetDataPatch_1_2 : public ezGraphPatch
 {
 public:
   ezColorGradientAssetDataPatch_1_2()
-      : ezGraphPatch("ezColorGradientAssetData", 2)
+    : ezGraphPatch("ezColorGradientAssetData", 2)
   {
   }
 
@@ -281,7 +283,7 @@ class ezColorControlPoint_1_2 : public ezGraphPatch
 {
 public:
   ezColorControlPoint_1_2()
-      : ezGraphPatch("ezColorControlPoint", 2)
+    : ezGraphPatch("ezColorControlPoint", 2)
   {
   }
 
@@ -304,7 +306,7 @@ class ezAlphaControlPoint_1_2 : public ezGraphPatch
 {
 public:
   ezAlphaControlPoint_1_2()
-      : ezGraphPatch("ezAlphaControlPoint", 2)
+    : ezGraphPatch("ezAlphaControlPoint", 2)
   {
   }
 
@@ -327,7 +329,7 @@ class ezIntensityControlPoint_1_2 : public ezGraphPatch
 {
 public:
   ezIntensityControlPoint_1_2()
-      : ezGraphPatch("ezIntensityControlPoint", 2)
+    : ezGraphPatch("ezIntensityControlPoint", 2)
   {
   }
 

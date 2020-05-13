@@ -14,7 +14,7 @@ o
 			s{"Prefabs/Player2_data/Player2.ts"}
 		}
 		Uuid %DocumentID{u4{8578378032072979072,5092232374516961900}}
-		u4 %Hash{6564927549701501734}
+		u4 %Hash{7133714552240630597}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{12821812504545231033,15864946280584286119}}
@@ -25,12 +25,42 @@ o
 }
 o
 {
+	Uuid %id{u4{11290824892253642893,12630825281245888079}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		b %DefaultValue{0}
+		s %Name{"Invincible"}
+		s %Type{""}
+	}
+}
+o
+{
 	Uuid %id{u4{12821812504545231033,15864946280584286119}}
 	s %t{"ezExposedParameters"}
 	u3 %v{3}
 	p
 	{
-		VarArray %Parameters{}
+		VarArray %Parameters
+		{
+			Uuid{u4{10692910016116625842,17572422615255613330}}
+			Uuid{u4{11290824892253642893,12630825281245888079}}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{10692910016116625842,17572422615255613330}}
+	s %t{"ezExposedParameter"}
+	u3 %v{2}
+	p
+	{
+		VarArray %Attributes{}
+		b %DefaultValue{0}
+		s %Name{"GiveAllWeapons"}
+		s %Type{""}
 	}
 }
 }
@@ -38,17 +68,43 @@ Objects
 {
 o
 {
+	Uuid %id{u4{15181749877071688118,4812518780244789601}}
+	s %t{"ezTypeScriptParameterBool"}
+	u3 %v{1}
+	p
+	{
+		b %Default{0}
+		s %Name{"Invincible"}
+	}
+}
+o
+{
 	Uuid %id{u4{7553450392258282133,5282950693169748647}}
 	s %t{"ezTypeScriptAssetProperties"}
 	u3 %v{1}
 	p
 	{
-		VarArray %BoolParameters{}
+		VarArray %BoolParameters
+		{
+			Uuid{u4{14593826479266984340,5749926593321293158}}
+			Uuid{u4{15181749877071688118,4812518780244789601}}
+		}
 		VarArray %ColorParameters{}
 		VarArray %NumberParameters{}
 		s %ScriptFile{"Prefabs/Player2_data/Player2.ts"}
 		VarArray %StringParameters{}
 		VarArray %Vec3Parameters{}
+	}
+}
+o
+{
+	Uuid %id{u4{14593826479266984340,5749926593321293158}}
+	s %t{"ezTypeScriptParameterBool"}
+	u3 %v{1}
+	p
+	{
+		b %Default{0}
+		s %Name{"GiveAllWeapons"}
 	}
 }
 o

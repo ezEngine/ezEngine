@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Tools/Inspector/ui_PluginsWidget.h>
+#include <Inspector/ui_PluginsWidget.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
 #include <ads/DockWidget.h>

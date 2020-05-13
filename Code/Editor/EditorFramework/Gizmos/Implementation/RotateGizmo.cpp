@@ -9,7 +9,7 @@
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <QMouseEvent>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRotateGizmo, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRotateGizmo, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezRotateGizmo::ezRotateGizmo()
@@ -20,6 +20,11 @@ ezRotateGizmo::ezRotateGizmo()
 
   SetVisible(false);
   SetTransformation(ezTransform::IdentityTransform());
+}
+
+void ezRotateGizmo::UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow)
+{
+  GetOwnerWindow()->SetPermanentStatusBarMsg(ezFmt("Rotation: {}", ezAngle()));
 }
 
 void ezRotateGizmo::OnSetOwner(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView)
@@ -64,8 +69,6 @@ void ezRotateGizmo::DoFocusLost(bool bCancel)
   m_AxisX.SetVisible(true);
   m_AxisY.SetVisible(true);
   m_AxisZ.SetVisible(true);
-
-  GetOwnerWindow()->SetPermanentStatusBarMsg("");
 
   QApplication::restoreOverrideCursor();
 }

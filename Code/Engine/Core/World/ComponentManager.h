@@ -68,7 +68,10 @@ private:
   void DeinitializeInternal() override;
 
 protected:
-  void InitializeComponent(ezGameObject* pOwnerObject, ezComponent* pComponent);
+  friend class ezWorldReader;
+
+  ezComponentHandle CreateComponentNoInit(ezGameObject* pOwnerObject, ezComponent*& out_pComponent);
+  void InitializeComponent(ezComponent* pComponent);
   void DeinitializeComponent(ezComponent* pComponent);
   void PatchIdTable(ezComponent* pComponent);
 
@@ -77,7 +80,7 @@ protected:
 
   /// \endcond
 
-  ezIdTable<ezGenericComponentId, ezComponent*> m_Components;
+  ezIdTable<ezComponentId, ezComponent*> m_Components;
 };
 
 template <typename T, ezBlockStorageType::Enum StorageType>
@@ -103,7 +106,7 @@ public:
   typename ezBlockStorage<ComponentType, ezInternal::DEFAULT_BLOCK_SIZE, StorageType>::ConstIterator GetComponents() const;
 
   /// \brief Returns the type id corresponding to the component type managed by this manager.
-  static ezUInt16 TypeId();
+  static ezWorldModuleTypeId TypeId();
 
   virtual void CollectAllComponents(ezDynamicArray<ezComponentHandle>& out_AllComponents, bool bOnlyActive) override;
   virtual void CollectAllComponents(ezDynamicArray<ezComponent*>& out_AllComponents, bool bOnlyActive) override;
@@ -134,7 +137,7 @@ struct ezComponentUpdateType
 
 /// \brief Simple component manager implementation that calls an update method on all components every frame.
 template <typename ComponentType, ezComponentUpdateType::Enum UpdateType, ezBlockStorageType::Enum StorageType = ezBlockStorageType::FreeList>
-class ezComponentManagerSimple : public ezComponentManager<ComponentType, StorageType>
+class ezComponentManagerSimple final : public ezComponentManager<ComponentType, StorageType>
 {
 public:
   ezComponentManagerSimple(ezWorld* pWorld);
@@ -150,64 +153,63 @@ private:
 
 //////////////////////////////////////////////////////////////////////////
 
-#define EZ_ADD_COMPONENT_FUNCTIONALITY(componentType, baseType, managerType)                                                               \
-public:                                                                                                                                    \
-  typedef managerType ComponentManagerType;                                                                                                \
-  virtual ezUInt16 GetTypeId() const override { return TYPE_ID; }                                                                          \
-  static EZ_ALWAYS_INLINE ezUInt16 TypeId() { return TYPE_ID; }                                                                            \
-  virtual ezComponentMode::Enum GetMode() const override;                                                                                  \
-  static ezComponentHandle CreateComponent(ezGameObject* pOwnerObject, componentType*& pComponent);                                        \
-  static void DeleteComponent(componentType* pComponent);                                                                                  \
-  void DeleteComponent();                                                                                                                  \
-                                                                                                                                           \
-private:                                                                                                                                   \
-  friend managerType;                                                                                                                      \
-  static ezUInt16 TYPE_ID
+#define EZ_ADD_COMPONENT_FUNCTIONALITY(componentType, baseType, managerType)                        \
+public:                                                                                             \
+  typedef managerType ComponentManagerType;                                                         \
+  virtual ezWorldModuleTypeId GetTypeId() const override { return TYPE_ID; }                        \
+  static EZ_ALWAYS_INLINE ezUInt16 TypeId() { return TYPE_ID; }                                     \
+  virtual ezComponentMode::Enum GetMode() const override;                                           \
+  static ezComponentHandle CreateComponent(ezGameObject* pOwnerObject, componentType*& pComponent); \
+  static void DeleteComponent(componentType* pComponent);                                           \
+  void DeleteComponent();                                                                           \
+                                                                                                    \
+private:                                                                                            \
+  friend managerType;                                                                               \
+  static ezWorldModuleTypeId TYPE_ID
 
-#define EZ_ADD_ABSTRACT_COMPONENT_FUNCTIONALITY(componentType, baseType)                                                                   \
-public:                                                                                                                                    \
-  virtual ezUInt16 GetTypeId() const override { return -1; }                                                                               \
-  static EZ_ALWAYS_INLINE ezUInt16 TypeId() { return -1; }
+#define EZ_ADD_ABSTRACT_COMPONENT_FUNCTIONALITY(componentType, baseType) \
+public:                                                                  \
+  virtual ezWorldModuleTypeId GetTypeId() const override { return -1; }  \
+  static EZ_ALWAYS_INLINE ezWorldModuleTypeId TypeId() { return -1; }
 
 /// \brief Add this macro to a custom component type inside the type declaration.
-#define EZ_DECLARE_COMPONENT_TYPE(componentType, baseType, managerType)                                                                    \
-  EZ_ADD_DYNAMIC_REFLECTION(componentType, baseType);                                                                                      \
+#define EZ_DECLARE_COMPONENT_TYPE(componentType, baseType, managerType) \
+  EZ_ADD_DYNAMIC_REFLECTION(componentType, baseType);                   \
   EZ_ADD_COMPONENT_FUNCTIONALITY(componentType, baseType, managerType);
 
 /// \brief Add this macro to a custom abstract component type inside the type declaration.
-#define EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(componentType, baseType)                                                                        \
-  EZ_ADD_DYNAMIC_REFLECTION(componentType, baseType);                                                                                      \
+#define EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(componentType, baseType) \
+  EZ_ADD_DYNAMIC_REFLECTION(componentType, baseType);               \
   EZ_ADD_ABSTRACT_COMPONENT_FUNCTIONALITY(componentType, baseType);
 
 
 /// \brief Implements rtti and component specific functionality. Add this macro to a cpp file.
 ///
 /// \see EZ_BEGIN_DYNAMIC_REFLECTED_TYPE
-#define EZ_BEGIN_COMPONENT_TYPE(componentType, version, mode)                                                                              \
-  ezUInt16 componentType::TYPE_ID =                                                                                                        \
-      ezWorldModuleFactory::GetInstance()->RegisterWorldModule<typename componentType::ComponentManagerType, componentType>();             \
-  ezComponentMode::Enum componentType::GetMode() const { return mode; }                                                                    \
-  ezComponentHandle componentType::CreateComponent(ezGameObject* pOwnerObject, componentType*& out_pComponent)                             \
-  {                                                                                                                                        \
-    return pOwnerObject->GetWorld()->GetOrCreateComponentManager<ComponentManagerType>()->CreateComponent(pOwnerObject, out_pComponent);   \
-  }                                                                                                                                        \
-  void componentType::DeleteComponent(componentType* pComponent)                                                                           \
-  {                                                                                                                                        \
-    pComponent->GetOwningManager()->DeleteComponent(pComponent->GetHandle());                                                              \
-  }                                                                                                                                        \
-  void componentType::DeleteComponent() { GetOwningManager()->DeleteComponent(GetHandle()); }                                              \
-  EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(componentType, version, ezRTTINoAllocator);
+#define EZ_BEGIN_COMPONENT_TYPE(componentType, version, mode)                                                                            \
+  ezWorldModuleTypeId componentType::TYPE_ID =                                                                                           \
+    ezWorldModuleFactory::GetInstance()->RegisterWorldModule<typename componentType::ComponentManagerType, componentType>();             \
+  ezComponentMode::Enum componentType::GetMode() const { return mode; }                                                                  \
+  ezComponentHandle componentType::CreateComponent(ezGameObject* pOwnerObject, componentType*& out_pComponent)                           \
+  {                                                                                                                                      \
+    return pOwnerObject->GetWorld()->GetOrCreateComponentManager<ComponentManagerType>()->CreateComponent(pOwnerObject, out_pComponent); \
+  }                                                                                                                                      \
+  void componentType::DeleteComponent(componentType* pComponent)                                                                         \
+  {                                                                                                                                      \
+    pComponent->GetOwningManager()->DeleteComponent(pComponent->GetHandle());                                                            \
+  }                                                                                                                                      \
+  void componentType::DeleteComponent() { GetOwningManager()->DeleteComponent(GetHandle()); }                                            \
+  EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(componentType, version, ezRTTINoAllocator)
 
 /// \brief Implements rtti and abstract component specific functionality. Add this macro to a cpp file.
 ///
 /// \see EZ_BEGIN_DYNAMIC_REFLECTED_TYPE
-#define EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(componentType, version)                                                                           \
-  EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(componentType, version, ezRTTINoAllocator);                                                              \
-  flags.Add(ezTypeFlags::Abstract);
+#define EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(componentType, version)             \
+  EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(componentType, version, ezRTTINoAllocator) \
+    flags.Add(ezTypeFlags::Abstract);
 
 /// \brief Ends the component implementation code block that was opened with EZ_BEGIN_COMPONENT_TYPE.
 #define EZ_END_COMPONENT_TYPE EZ_END_DYNAMIC_REFLECTED_TYPE
 #define EZ_END_ABSTRACT_COMPONENT_TYPE EZ_END_DYNAMIC_REFLECTED_TYPE
 
 #include <Core/World/Implementation/ComponentManager_inl.h>
-

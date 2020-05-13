@@ -90,12 +90,13 @@ void ezAssetDocument::InternalAfterSaveDocument()
 {
   const auto flags = GetAssetFlags();
   ezAssetCurator::GetSingleton()->NotifyOfFileChange(GetDocumentPath());
+  ezAssetCurator::GetSingleton()->MainThreadTick(false);
 
-  // If we request an engine connection but the mirror is not set up yet we are still
-  // creating the document and TransformAsset will most likely fail.
-  if (m_EngineConnectionType != ezAssetDocEngineConnection::None && m_Mirror.GetIPC())
+  if (flags.IsAnySet(ezAssetDocumentFlags::AutoTransformOnSave))
   {
-    if (flags.IsAnySet(ezAssetDocumentFlags::AutoTransformOnSave))
+    // If we request an engine connection but the mirror is not set up yet we are still
+    // creating the document and TransformAsset will most likely fail.
+    if (m_EngineConnectionType == ezAssetDocEngineConnection::None || m_Mirror.GetIPC())
     {
       /// \todo Should only be done for platform agnostic assets
       auto ret = ezAssetCurator::GetSingleton()->TransformAsset(GetGuid(), ezTransformFlags::TriggeredManually);

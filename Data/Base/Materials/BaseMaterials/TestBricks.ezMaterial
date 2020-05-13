@@ -27,8 +27,32 @@ Constant
 
 Constant
 {
+  string %Variable { "EmissiveColor" }
+  Color %Value { f{0.0, 0.0, 0.0, 0.0} }
+}
+
+Constant
+{
+  string %Variable { "UseBaseTexture" }
+  u3 %Value { 0 }
+}
+
+Constant
+{
   string %Variable { "UseNormalAndRoughnessTexture" }
   u3 %Value { 1 }
+}
+
+Constant
+{
+  string %Variable { "UseEmissiveTexture" }
+  u3 %Value { 0 }
+}
+
+Constant
+{
+  string %Variable { "UseMetallicTexture" }
+  u3 %Value { 0 }
 }
 
 Texture2D

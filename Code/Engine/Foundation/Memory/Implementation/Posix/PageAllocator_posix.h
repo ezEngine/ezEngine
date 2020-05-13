@@ -1,7 +1,11 @@
 
+#include <Foundation/Time/Time.h>
+
 // static
 void* ezPageAllocator::AllocatePage(size_t uiSize)
 {
+  ezTime fAllocationTime = ezTime::Now();
+
   void* ptr = nullptr;
   size_t uiAlign = ezSystemInformation::Get().GetMemoryPageSize();
   const int res = posix_memalign(&ptr, uiAlign, uiSize);
@@ -10,7 +14,7 @@ void* ezPageAllocator::AllocatePage(size_t uiSize)
 
   EZ_CHECK_ALIGNMENT(ptr, uiAlign);
 
-  ezMemoryTracker::AddAllocation(GetPageAllocatorId(), ptr, uiSize, uiAlign);
+  ezMemoryTracker::AddAllocation(GetPageAllocatorId(), ezMemoryTrackingFlags::Default, ptr, uiSize, uiAlign, ezTime::Now() - fAllocationTime);
 
   return ptr;
 }

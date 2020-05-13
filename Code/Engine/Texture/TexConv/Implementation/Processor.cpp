@@ -32,9 +32,6 @@ ezResult ezTexConvProcessor::Process()
   }
   else
   {
-    ezUInt32 uiNumChannelsUsed = 0;
-    EZ_SUCCEED_OR_RETURN(DetectNumChannels(m_Descriptor.m_ChannelMappings, uiNumChannelsUsed));
-
     EZ_SUCCEED_OR_RETURN(LoadInputImages());
 
     EZ_SUCCEED_OR_RETURN(AdjustUsage(m_Descriptor.m_InputFiles[0], m_Descriptor.m_InputImages[0], m_Descriptor.m_Usage));
@@ -45,6 +42,9 @@ ezResult ezTexConvProcessor::Process()
 
     EZ_SUCCEED_OR_RETURN(ForceSRGBFormats());
 
+    ezUInt32 uiNumChannelsUsed = 0;
+    EZ_SUCCEED_OR_RETURN(DetectNumChannels(m_Descriptor.m_ChannelMappings, uiNumChannelsUsed));
+
     ezEnum<ezImageFormat> OutputImageFormat;
 
     EZ_SUCCEED_OR_RETURN(ChooseOutputFormat(OutputImageFormat, m_Descriptor.m_Usage, uiNumChannelsUsed));
@@ -54,8 +54,7 @@ ezResult ezTexConvProcessor::Process()
     ezUInt32 uiTargetResolutionX = 0;
     ezUInt32 uiTargetResolutionY = 0;
 
-    EZ_SUCCEED_OR_RETURN(
-      DetermineTargetResolution(m_Descriptor.m_InputImages[0], OutputImageFormat, uiTargetResolutionX, uiTargetResolutionY));
+    EZ_SUCCEED_OR_RETURN(DetermineTargetResolution(m_Descriptor.m_InputImages[0], OutputImageFormat, uiTargetResolutionX, uiTargetResolutionY));
 
     ezLog::Info("Target resolution is '{} x {}'", uiTargetResolutionX, uiTargetResolutionY);
 
@@ -87,7 +86,8 @@ ezResult ezTexConvProcessor::Process()
 
     EZ_SUCCEED_OR_RETURN(AdjustHdrExposure(assembledImg));
 
-    EZ_SUCCEED_OR_RETURN(GenerateMipmaps(assembledImg, uiNumChannelsUsed));
+    EZ_SUCCEED_OR_RETURN(GenerateMipmaps(assembledImg, 0,
+      uiNumChannelsUsed == 1 ? MipmapChannelMode::SingleChannel : MipmapChannelMode::AllChannels));
 
     EZ_SUCCEED_OR_RETURN(PremultiplyAlpha(assembledImg));
 
@@ -109,7 +109,7 @@ ezResult ezTexConvProcessor::DetectNumChannels(ezArrayPtr<const ezTexConvSliceCh
   {
     for (ezUInt32 i = 0; i < 4; ++i)
     {
-      if (mapping.m_Channel[i].m_iInputImageIndex != -1)
+      if (mapping.m_Channel[i].m_iInputImageIndex != -1 || mapping.m_Channel[i].m_ChannelValue == ezTexConvChannelValue::Black)
       {
         uiNumChannels = ezMath::Max(uiNumChannels, i + 1);
       }
@@ -120,6 +120,63 @@ ezResult ezTexConvProcessor::DetectNumChannels(ezArrayPtr<const ezTexConvSliceCh
   {
     ezLog::Error("No proper channel mapping provided.");
     return EZ_FAILURE;
+  }
+
+  // special case handling to detect when the alpha channel will end up white anyway and thus uiNumChannels could be 3 instead of 4
+  // which enables us to use more optimized output formats
+  if (uiNumChannels == 4)
+  {
+    uiNumChannels = 3;
+
+    for (const auto& mapping : channelMapping)
+    {
+      if (mapping.m_Channel[3].m_ChannelValue == ezTexConvChannelValue::Black)
+      {
+        // sampling a texture without an alpha channel always returns 1, so to use all 0, we do need the channel
+        uiNumChannels = 4;
+        return EZ_SUCCESS;
+      }
+
+      if (mapping.m_Channel[3].m_iInputImageIndex == -1)
+      {
+        // no fourth channel is needed for this
+        continue;
+      }
+
+      ezImage& img = m_Descriptor.m_InputImages[mapping.m_Channel[3].m_iInputImageIndex];
+
+      const ezUInt32 uiNumRequiredChannels = (ezUInt32)mapping.m_Channel[3].m_ChannelValue + 1;
+      const ezUInt32 uiNumActualChannels = ezImageFormat::GetNumChannels(img.GetImageFormat());
+
+      if (uiNumActualChannels < uiNumRequiredChannels)
+      {
+        // channel not available -> not needed
+        continue;
+      }
+
+      if (img.Convert(ezImageFormat::R32G32B32A32_FLOAT).Failed())
+      {
+        // can't convert -> will fail later anyway
+        continue;
+      }
+
+      const float* pColors = img.GetPixelPointer<float>();
+      pColors += (uiNumRequiredChannels - 1); // offset by 0 to 3 to read red, green, blue or alpha
+
+      EZ_ASSERT_DEV(img.GetRowPitch() == img.GetWidth() * sizeof(float) * 4, "Unexpected row pitch");
+
+      for (ezUInt32 i = 0; i < img.GetWidth() * img.GetHeight(); ++i)
+      {
+        if (!ezMath::IsEqual(*pColors, 1.0f, 1.0f / 255.0f))
+        {
+          // value is not 1.0f -> the channel is needed
+          uiNumChannels = 4;
+          return EZ_SUCCESS;
+        }
+
+        pColors += 4;
+      }
+    }
   }
 
   return EZ_SUCCESS;

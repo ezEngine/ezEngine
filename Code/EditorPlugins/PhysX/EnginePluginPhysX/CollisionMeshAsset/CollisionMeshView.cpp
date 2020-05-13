@@ -19,7 +19,7 @@
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 
 ezCollisionMeshViewContext::ezCollisionMeshViewContext(ezCollisionMeshContext* pMeshContext)
-    : ezEngineProcessViewContext(pMeshContext)
+  : ezEngineProcessViewContext(pMeshContext)
 {
   m_pMeshContext = pMeshContext;
 
@@ -55,19 +55,21 @@ void ezCollisionMeshViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 
   const ezUInt32 viewHeight = pMsg->m_uiWindowHeight;
 
-  ezBoundingBox bbox;
-  bbox.SetCenterAndHalfExtents(ezVec3::ZeroVector(), ezVec3::ZeroVector());
-
   auto hResource = m_pMeshContext->GetMesh();
   if (hResource.IsValid())
   {
     ezResourceLock<ezPxMeshResource> pResource(hResource, ezResourceAcquireMode::AllowLoadingFallback);
-    bbox = pResource->GetBounds().GetBox();
+    ezBoundingBox bbox = pResource->GetBounds().GetBox();
+    ezUInt32 uiNumPolys = pResource->GetNumPolygons();
+    ezUInt32 uiNumVertices = pResource->GetNumVertices();
 
     ezStringBuilder sText;
-    sText.PrependFormat("Bounding Box: width={0}, depth={1}, height={2}", ezArgF(bbox.GetHalfExtents().x * 2, 2),
-                        ezArgF(bbox.GetHalfExtents().y * 2, 2), ezArgF(bbox.GetHalfExtents().z * 2, 2));
+    sText.AppendFormat("Polygons: {}\\n", uiNumPolys);
+    sText.AppendFormat("Vertices: {}\\n", uiNumVertices);
+    sText.AppendFormat("Bounding Box: width={0}, depth={1}, height={2}", ezArgF(bbox.GetHalfExtents().x * 2, 2),
+      ezArgF(bbox.GetHalfExtents().y * 2, 2), ezArgF(bbox.GetHalfExtents().z * 2, 2));
 
-    ezDebugRenderer::Draw2DText(m_hView, sText, ezVec2I32(10, viewHeight - 26), ezColor::White);
+    ezDebugRenderer::Draw2DText(m_hView, sText, ezVec2I32(10, viewHeight - 10), ezColor::White, 16,
+      ezDebugRenderer::HorizontalAlignment::Left, ezDebugRenderer::VerticalAlignment::Bottom);
   }
 }

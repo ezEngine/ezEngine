@@ -23,6 +23,7 @@ public:
 
     ezMessage* m_pMessage;
     MetaDataType m_MetaData;
+    mutable ezUInt32 m_uiMessageHash = 0;
   };
 
 protected:
@@ -81,10 +82,10 @@ public:
   void Sort(const Comparer& comparer); // [tested]
 
   /// \brief Acquires an exclusive lock on the queue. Do not use this method directly but use ezLock instead.
-  void Acquire(); // [tested]
+  void Lock(); // [tested]
 
   /// \brief Releases a lock that has been previously acquired. Do not use this method directly but use ezLock instead.
-  void Release(); // [tested]
+  void Unlock(); // [tested]
 
 private:
   ezDeque<Entry, ezNullAllocatorWrapper> m_Queue;

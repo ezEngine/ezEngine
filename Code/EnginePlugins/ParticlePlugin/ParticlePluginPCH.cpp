@@ -13,6 +13,7 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezParticleTypeRenderMode, 1)
   EZ_ENUM_CONSTANT(ezParticleTypeRenderMode::BlendedForeground),
   EZ_ENUM_CONSTANT(ezParticleTypeRenderMode::BlendedBackground),
   EZ_ENUM_CONSTANT(ezParticleTypeRenderMode::Distortion),
+  EZ_ENUM_CONSTANT(ezParticleTypeRenderMode::BlendAdd),
 EZ_END_STATIC_REFLECTED_ENUM;
 
 //////////////////////////////////////////////////////////////////////////
@@ -40,6 +41,13 @@ EZ_END_STATIC_REFLECTED_ENUM;
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezParticleColorGradientMode, 1)
   EZ_ENUM_CONSTANT(ezParticleColorGradientMode::Age),
   EZ_ENUM_CONSTANT(ezParticleColorGradientMode::Speed),
+EZ_END_STATIC_REFLECTED_ENUM;
+
+//////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezParticleOutOfBoundsMode, 1)
+  EZ_ENUM_CONSTANT(ezParticleOutOfBoundsMode::Teleport),
+  EZ_ENUM_CONSTANT(ezParticleOutOfBoundsMode::Die),
 EZ_END_STATIC_REFLECTED_ENUM;
 
 //////////////////////////////////////////////////////////////////////////

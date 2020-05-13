@@ -1,8 +1,5 @@
 #include <ParticlePluginPCH.h>
 
-#include <Core/World/World.h>
-#include <Core/WorldSerializer/ResourceHandleReader.h>
-#include <Core/WorldSerializer/ResourceHandleWriter.h>
 #include <Foundation/DataProcessing/Stream/ProcessingStreamGroup.h>
 #include <Foundation/Math/Random.h>
 #include <Foundation/Profiling/Profiling.h>
@@ -18,6 +15,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitterFactory_OnEvent, 1, ezRTTIDefau
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("EventName", m_sEventName),
+    EZ_MEMBER_PROPERTY("MinSpawnCount", m_uiSpawnCountMin)->AddAttributes(new ezDefaultValueAttribute(1)),
+    EZ_MEMBER_PROPERTY("SpawnCountRange", m_uiSpawnCountRange),
+    EZ_MEMBER_PROPERTY("SpawnCountScaleParam", m_sSpawnCountScaleParameter),
   }
   EZ_END_PROPERTIES;
 }
@@ -27,8 +27,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleEmitter_OnEvent, 1, ezRTTIDefaultAlloc
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleEmitterFactory_OnEvent::ezParticleEmitterFactory_OnEvent() {}
-
+ezParticleEmitterFactory_OnEvent::ezParticleEmitterFactory_OnEvent() = default;
+ezParticleEmitterFactory_OnEvent::~ezParticleEmitterFactory_OnEvent() = default;
 
 const ezRTTI* ezParticleEmitterFactory_OnEvent::GetEmitterType() const
 {
@@ -40,18 +40,26 @@ void ezParticleEmitterFactory_OnEvent::CopyEmitterProperties(ezParticleEmitter* 
   ezParticleEmitter_OnEvent* pEmitter = static_cast<ezParticleEmitter_OnEvent*>(pEmitter0);
 
   pEmitter->m_sEventName = ezTempHashedString(m_sEventName.GetData());
+
+  pEmitter->m_uiSpawnCountMin = (ezUInt32)(m_uiSpawnCountMin * pEmitter->GetOwnerSystem()->GetSpawnCountMultiplier());
+  pEmitter->m_uiSpawnCountRange = (ezUInt32)(m_uiSpawnCountRange * pEmitter->GetOwnerSystem()->GetSpawnCountMultiplier());
+
+  pEmitter->m_sSpawnCountScaleParameter = ezTempHashedString(m_sSpawnCountScaleParameter.GetData());
 }
 
 void ezParticleEmitterFactory_OnEvent::QueryMaxParticleCount(ezUInt32& out_uiMaxParticlesAbs, ezUInt32& out_uiMaxParticlesPerSecond) const
 {
   out_uiMaxParticlesAbs = 0;
-  out_uiMaxParticlesPerSecond = 16; // some wild guess
+  out_uiMaxParticlesPerSecond = (m_uiSpawnCountMin + m_uiSpawnCountRange) * 16; // some wild guess
+
+  // TODO: consider to scale by m_sSpawnCountScaleParameter
 }
 
 enum class EmitterOnEventVersion
 {
   Version_0 = 0,
   Version_1,
+  Version_2,
 
   // insert new version numbers above
   Version_Count,
@@ -66,6 +74,11 @@ void ezParticleEmitterFactory_OnEvent::Save(ezStreamWriter& stream) const
 
   // Version 1
   stream << m_sEventName;
+
+  // Version 2
+  stream << m_uiSpawnCountMin;
+  stream << m_uiSpawnCountRange;
+  stream << m_sSpawnCountScaleParameter;
 }
 
 void ezParticleEmitterFactory_OnEvent::Load(ezStreamReader& stream)
@@ -76,33 +89,13 @@ void ezParticleEmitterFactory_OnEvent::Load(ezStreamReader& stream)
   EZ_ASSERT_DEV(uiVersion <= (int)EmitterOnEventVersion::Version_Current, "Invalid version {0}", uiVersion);
 
   stream >> m_sEventName;
-}
 
-
-void ezParticleEmitter_OnEvent::CreateRequiredStreams()
-{
-  CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, true);
-  CreateStream("Velocity", ezProcessingStream::DataType::Float3, &m_pStreamVelocity, true);
-}
-
-void ezParticleEmitter_OnEvent::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNumElements)
-{
-  EZ_PROFILE_SCOPE("PFX: Event Emitter");
-
-  EZ_ASSERT_DEV(uiNumElements == m_Events.GetCount(), "Invalid spawn count");
-
-  ezVec4* pPosition = m_pStreamPosition->GetWritableData<ezVec4>();
-  ezVec3* pVelocity = m_pStreamVelocity->GetWritableData<ezVec3>();
-
-  for (ezUInt32 i = 0; i < uiNumElements; ++i)
+  if (uiVersion >= 2)
   {
-    const ezUInt64 index = uiStartIndex + i;
-
-    pPosition[index] = m_Events[i].m_vPosition.GetAsVec4(0);
-    pVelocity[index] = m_Events[i].m_vDirection; /// \todo whatever
+    stream >> m_uiSpawnCountMin;
+    stream >> m_uiSpawnCountRange;
+    stream >> m_sSpawnCountScaleParameter;
   }
-
-  m_Events.Clear();
 }
 
 ezParticleEmitterState ezParticleEmitter_OnEvent::IsFinished()
@@ -112,19 +105,32 @@ ezParticleEmitterState ezParticleEmitter_OnEvent::IsFinished()
 
 ezUInt32 ezParticleEmitter_OnEvent::ComputeSpawnCount(const ezTime& tDiff)
 {
-  return m_Events.GetCount();
+  if (!m_bSpawn)
+    return 0;
+
+  m_bSpawn = false;
+
+  float fSpawnFactor = 1.0f;
+
+  const float spawnCountScale = ezMath::Max(GetOwnerEffect()->GetFloatParameter(m_sSpawnCountScaleParameter, 1.0f), 0.0f);
+  fSpawnFactor *= spawnCountScale;
+
+  ezRandom& rng = GetRNG();
+
+  return static_cast<ezUInt32>((m_uiSpawnCountMin + GetRNG().UIntInRange(1 + m_uiSpawnCountRange)) * fSpawnFactor);
 }
 
 void ezParticleEmitter_OnEvent::ProcessEventQueue(ezParticleEventQueue queue)
 {
+  if (m_bSpawn)
+    return;
+
   for (const ezParticleEvent& e : queue)
   {
     if (e.m_EventType == m_sEventName) // this is the event type we are waiting for!
     {
-      if (m_Events.GetCount() == m_Events.GetCapacity())
-        return;
-
-      m_Events.PushBack(e);
+      m_bSpawn = true;
+      return;
     }
   }
 }

@@ -2,14 +2,14 @@
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Serialization/DdlSerializer.h>
 #include <Foundation/Serialization/RttiConverter.h>
-#include <EditorFramework/Assets/AssetDocument.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentManager, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentManager, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezAssetDocumentManager::ezAssetDocumentManager() = default;
@@ -59,7 +59,6 @@ ezStatus ezAssetDocumentManager::ReadAssetDocumentInfo(ezUniquePtr<ezAssetDocume
 ezString ezAssetDocumentManager::GenerateResourceThumbnailPath(const char* szDocumentPath)
 {
   ezStringBuilder sProjectDir = ezAssetCurator::GetSingleton()->FindDataDirectoryForAsset(szDocumentPath);
-  ;
 
   ezStringBuilder sRelativePath = szDocumentPath;
 
@@ -90,7 +89,7 @@ bool ezAssetDocumentManager::IsThumbnailUpToDate(const char* szDocumentPath, ezU
 
   file.SkipBytes(uiFileSize - uiHeaderSize);
 
-  if(thumbnailInfo.Deserialize(file).Failed())
+  if (thumbnailInfo.Deserialize(file).Failed())
   {
     return false;
   }
@@ -99,7 +98,7 @@ bool ezAssetDocumentManager::IsThumbnailUpToDate(const char* szDocumentPath, ezU
 }
 
 void ezAssetDocumentManager::AddEntriesToAssetTable(const char* szDataDirectory, const ezPlatformProfile* pAssetProfile,
-                                                    ezMap<ezString, ezString>& inout_GuidToPath) const
+  ezMap<ezString, ezString>& inout_GuidToPath) const
 {
 }
 
@@ -206,7 +205,7 @@ bool ezAssetDocumentManager::IsResourceUpToDate(const char* szResourceFile, ezUI
 }
 
 void ezAssetDocumentManager::GenerateOutputFilename(ezStringBuilder& inout_sRelativeDocumentPath, const ezPlatformProfile* pAssetProfile,
-                                                    const char* szExtension, bool bPlatformSpecific)
+  const char* szExtension, bool bPlatformSpecific)
 {
   inout_sRelativeDocumentPath.ChangeFileExtension(szExtension);
   inout_sRelativeDocumentPath.MakeCleanPath();

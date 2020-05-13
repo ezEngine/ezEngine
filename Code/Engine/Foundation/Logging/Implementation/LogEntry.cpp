@@ -4,7 +4,7 @@
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezLogMsgType, 1)
-  EZ_BITFLAGS_CONSTANTS(ezLogMsgType::BeginGroup, ezLogMsgType::EndGroup, ezLogMsgType::None)
+  EZ_BITFLAGS_CONSTANTS(ezLogMsgType::Flush, ezLogMsgType::BeginGroup, ezLogMsgType::EndGroup, ezLogMsgType::None)
   EZ_BITFLAGS_CONSTANTS(ezLogMsgType::ErrorMsg, ezLogMsgType::SeriousWarningMsg, ezLogMsgType::WarningMsg, ezLogMsgType::SuccessMsg, ezLogMsgType::InfoMsg, ezLogMsgType::DevMsg, ezLogMsgType::DebugMsg, ezLogMsgType::All)
 EZ_END_STATIC_REFLECTED_ENUM;
 

@@ -4,9 +4,9 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 // Include our windows.h header first to get rid of defines.
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 // For HString, HStringReference and co.
-#include <wrl/wrappers/corewrappers.h>
+#  include <wrl/wrappers/corewrappers.h>
 #endif
 
 /// \brief A very simple string class that should only be used to temporarily convert text to the OSes native wchar_t convention (16 or 32
@@ -29,6 +29,7 @@ public:
   void operator=(const ezUInt32* szUtf32);
   void operator=(const wchar_t* szUtf32);
 
+  operator const wchar_t*() const { return &m_Data[0]; }
   const wchar_t* GetData() const { return &m_Data[0]; }
   ezUInt32 GetElementCount() const { return m_Data.GetCount() - 1; /* exclude the '\0' terminator */ }
 
@@ -68,6 +69,10 @@ public:
   void operator=(const HSTRING& hstring);
 #endif
 
+  operator const char*() const
+  {
+    return &m_Data[0];
+  }
   const char* GetData() const { return &m_Data[0]; }
   ezUInt32 GetElementCount() const { return m_Data.GetCount() - 1; /* exclude the '\0' terminator */ }
 
@@ -177,4 +182,3 @@ private:
 
 
 #include <Foundation/Strings/Implementation/StringConversion_inl.h>
-

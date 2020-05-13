@@ -14,7 +14,7 @@
 #include <ToolsFoundation/Project/ToolsProject.h>
 
 // clang-format off
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSelectionAction, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSelectionAction, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
@@ -277,12 +277,15 @@ void ezSelectionAction::Execute(const ezVariant& value)
     }
     case ActionType::HideSelectedObjects:
       m_pSceneDocument->ShowOrHideSelectedObjects(ezSceneDocument::ShowOrHide::Hide);
+      m_pSceneDocument->ShowDocumentStatus("Hiding selected objects");
       break;
     case ActionType::HideUnselectedObjects:
       m_pSceneDocument->HideUnselectedObjects();
+      m_pSceneDocument->ShowDocumentStatus("Hiding unselected objects");
       break;
     case ActionType::ShowHiddenObjects:
       m_pSceneDocument->ShowOrHideAllObjects(ezSceneDocument::ShowOrHide::Show);
+      m_pSceneDocument->ShowDocumentStatus("Showing hidden objects");
       break;
     case ActionType::CreatePrefab:
       CreatePrefab();

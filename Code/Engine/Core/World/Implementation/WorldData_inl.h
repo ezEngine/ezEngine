@@ -9,8 +9,7 @@ namespace ezInternal
 
   // static
   template <typename VISITOR>
-  EZ_FORCE_INLINE ezVisitorExecution::Enum WorldData::TraverseHierarchyLevel(Hierarchy::DataBlockArray& blocks,
-    void* pUserData /* = nullptr*/)
+  EZ_FORCE_INLINE ezVisitorExecution::Enum WorldData::TraverseHierarchyLevel(Hierarchy::DataBlockArray& blocks, void* pUserData /* = nullptr*/)
   {
     for (WorldData::Hierarchy::DataBlock& block : blocks)
     {
@@ -32,10 +31,9 @@ namespace ezInternal
 
   // static
   template <typename VISITOR>
-  EZ_FORCE_INLINE ezVisitorExecution::Enum WorldData::TraverseHierarchyLevelMultiThreaded(Hierarchy::DataBlockArray& blocks,
-    void* pUserData /* = nullptr*/)
+  EZ_FORCE_INLINE ezVisitorExecution::Enum WorldData::TraverseHierarchyLevelMultiThreaded(Hierarchy::DataBlockArray& blocks, void* pUserData /* = nullptr*/)
   {
-    ezTaskSystem::ParallelForParams parallelForParams;
+    ezParallelForParams parallelForParams;
     parallelForParams.uiBinSize = 100;
     parallelForParams.uiMaxTasksPerThread = 2;
 
@@ -67,8 +65,7 @@ namespace ezInternal
   }
 
   // static
-  EZ_FORCE_INLINE void WorldData::UpdateGlobalTransformWithParent(ezGameObject::TransformationData* pData,
-    const ezSimdFloat& fInvDeltaSeconds)
+  EZ_FORCE_INLINE void WorldData::UpdateGlobalTransformWithParent(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds)
   {
     pData->UpdateGlobalTransformWithParent();
     pData->UpdateVelocity(fInvDeltaSeconds);
@@ -76,20 +73,122 @@ namespace ezInternal
   }
 
   // static
-  EZ_FORCE_INLINE void WorldData::UpdateGlobalTransformAndSpatialData(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds)
+  EZ_FORCE_INLINE void WorldData::UpdateGlobalTransformAndSpatialData(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds,
+    ezSpatialSystem& spatialSystem)
   {
     pData->UpdateGlobalTransform();
     pData->UpdateVelocity(fInvDeltaSeconds);
-    pData->UpdateGlobalBoundsAndSpatialData();
+    pData->UpdateGlobalBoundsAndSpatialData(spatialSystem);
   }
 
   // static
-  EZ_FORCE_INLINE void WorldData::UpdateGlobalTransformWithParentAndSpatialData(ezGameObject::TransformationData* pData,
-    const ezSimdFloat& fInvDeltaSeconds)
+  EZ_FORCE_INLINE void WorldData::UpdateGlobalTransformWithParentAndSpatialData(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds, ezSpatialSystem& spatialSystem)
   {
     pData->UpdateGlobalTransformWithParent();
     pData->UpdateVelocity(fInvDeltaSeconds);
-    pData->UpdateGlobalBoundsAndSpatialData();
+    pData->UpdateGlobalBoundsAndSpatialData(spatialSystem);
+  }
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+  EZ_ALWAYS_INLINE const ezGameObject& WorldData::ConstObjectIterator::operator*() const
+  {
+    return *m_Iterator;
+  }
+
+  EZ_ALWAYS_INLINE const ezGameObject* WorldData::ConstObjectIterator::operator->() const
+  {
+    return m_Iterator;
+  }
+
+  EZ_ALWAYS_INLINE WorldData::ConstObjectIterator::operator const ezGameObject*() const
+  {
+    return m_Iterator;
+  }
+
+  EZ_ALWAYS_INLINE void WorldData::ConstObjectIterator::Next()
+  {
+    m_Iterator.Next();
+
+    while (m_Iterator.IsValid() && m_Iterator->GetHandle().IsInvalidated())
+    {
+      m_Iterator.Next();
+    }
+  }
+
+  EZ_ALWAYS_INLINE bool WorldData::ConstObjectIterator::IsValid() const
+  {
+    return m_Iterator.IsValid();
+  }
+
+  EZ_ALWAYS_INLINE void WorldData::ConstObjectIterator::operator++()
+  {
+    Next();
+  }
+
+  EZ_ALWAYS_INLINE WorldData::ConstObjectIterator::ConstObjectIterator(ObjectStorage::ConstIterator iterator)
+    : m_Iterator(iterator)
+  {
+    while (m_Iterator.IsValid() && m_Iterator->GetHandle().IsInvalidated())
+    {
+      m_Iterator.Next();
+    }
+  }
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+  EZ_ALWAYS_INLINE ezGameObject& WorldData::ObjectIterator::operator*()
+  {
+    return *m_Iterator;
+  }
+
+  EZ_ALWAYS_INLINE ezGameObject* WorldData::ObjectIterator::operator->()
+  {
+    return m_Iterator;
+  }
+
+  EZ_ALWAYS_INLINE WorldData::ObjectIterator::operator ezGameObject*()
+  {
+    return m_Iterator;
+  }
+
+  EZ_ALWAYS_INLINE void WorldData::ObjectIterator::Next()
+  {
+    m_Iterator.Next();
+
+    while (m_Iterator.IsValid() && m_Iterator->GetHandle().IsInvalidated())
+    {
+      m_Iterator.Next();
+    }
+  }
+
+  EZ_ALWAYS_INLINE bool WorldData::ObjectIterator::IsValid() const
+  {
+    return m_Iterator.IsValid();
+  }
+
+  EZ_ALWAYS_INLINE void WorldData::ObjectIterator::operator++()
+  {
+    Next();
+  }
+
+  EZ_ALWAYS_INLINE WorldData::ObjectIterator::ObjectIterator(ObjectStorage::Iterator iterator)
+    : m_Iterator(iterator)
+  {
+    while (m_Iterator.IsValid() && m_Iterator->GetHandle().IsInvalidated())
+    {
+      m_Iterator.Next();
+    }
+  }
+
+  ///////////////////////////////////////////////////////////////////////////////////////////////////
+
+  EZ_FORCE_INLINE WorldData::InitBatch::InitBatch(ezAllocatorBase* pAllocator, const char* szName, bool bMustFinishWithinOneFrame)
+    : m_bMustFinishWithinOneFrame(bMustFinishWithinOneFrame)
+    , m_ComponentsToInitialize(pAllocator)
+    , m_ComponentsToStartSimulation(pAllocator)
+  {
+    m_sName.Assign(szName);
   }
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -123,14 +222,14 @@ namespace ezInternal
   {
   }
 
-  EZ_FORCE_INLINE void WorldData::ReadMarker::Acquire()
+  EZ_FORCE_INLINE void WorldData::ReadMarker::Lock()
   {
     EZ_ASSERT_DEV(m_Data.m_WriteThreadID == (ezThreadID)0 || m_Data.m_WriteThreadID == ezThreadUtils::GetCurrentThreadID(),
       "World '{0}' cannot be marked for reading because it is already marked for writing by another thread.", m_Data.m_sName);
     m_Data.m_iReadCounter.Increment();
   }
 
-  EZ_ALWAYS_INLINE void WorldData::ReadMarker::Release() { m_Data.m_iReadCounter.Decrement(); }
+  EZ_ALWAYS_INLINE void WorldData::ReadMarker::Unlock() { m_Data.m_iReadCounter.Decrement(); }
 
   ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -139,7 +238,7 @@ namespace ezInternal
   {
   }
 
-  EZ_FORCE_INLINE void WorldData::WriteMarker::Acquire()
+  EZ_FORCE_INLINE void WorldData::WriteMarker::Lock()
   {
     // already locked by this thread?
     if (m_Data.m_WriteThreadID != ezThreadUtils::GetCurrentThreadID())
@@ -156,7 +255,7 @@ namespace ezInternal
     m_Data.m_iWriteCounter++;
   }
 
-  EZ_FORCE_INLINE void WorldData::WriteMarker::Release()
+  EZ_FORCE_INLINE void WorldData::WriteMarker::Unlock()
   {
     m_Data.m_iWriteCounter--;
 

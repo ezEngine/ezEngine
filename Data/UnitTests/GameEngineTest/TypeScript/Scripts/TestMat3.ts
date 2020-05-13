@@ -151,7 +151,7 @@ export class TestMat3 extends ez.TypescriptComponent {
             EZ_TEST.FLOAT(data[6], 3, 0.0001);
             EZ_TEST.FLOAT(data[7], 6, 0.0001);
             EZ_TEST.FLOAT(data[8], 9, 0.0001);
-         
+
             data = m.GetAsArray(false);
             EZ_TEST.FLOAT(data[0], 1, 0.0001);
             EZ_TEST.FLOAT(data[1], 2, 0.0001);
@@ -359,10 +359,9 @@ export class TestMat3 extends ez.TypescriptComponent {
                 for (let y = 2.0; y < 360.0; y += 37.0) {
                     for (let z = 3.0; z < 360.0; z += 53.0) {
                         let m = new ez.Mat3();
-                        let inv = new ez.Mat3();
 
                         m.SetRotationMatrix(new ez.Vec3(x, y, z).GetNormalized(), ez.Angle.DegreeToRadian(19.0));
-                        inv = m.Clone();
+                        let inv = m.Clone();
                         EZ_TEST.BOOL(inv.Invert());
 
                         let v = mul(m, new ez.Vec3(1, 1, 1));
@@ -380,10 +379,9 @@ export class TestMat3 extends ez.TypescriptComponent {
                 for (let y = 2.0; y < 360.0; y += 29.0) {
                     for (let z = 3.0; z < 360.0; z += 51.0) {
                         let m = new ez.Mat3();
-                        let inv = new ez.Mat3();
 
                         m.SetRotationMatrix(new ez.Vec3(x, y, z).GetNormalized(), ez.Angle.DegreeToRadian(83.0));
-                        inv = m.GetInverse();
+                        let inv = m.GetInverse();
 
                         let v = mul(m, new ez.Vec3(1, 1, 1));
                         let vinv = mul(inv, v);
@@ -543,7 +541,7 @@ export class TestMat3 extends ez.TypescriptComponent {
             EZ_TEST.BOOL(m.IsEqual(m2, 0.001));
             EZ_TEST.BOOL(!m.IsEqual(m2, 0.0001));
         }
-        
+
         // SetMulMat3
         {
             let m1 = new ez.Mat3(1, 2, 3, 4, 5, 6, 7, 8, 9);

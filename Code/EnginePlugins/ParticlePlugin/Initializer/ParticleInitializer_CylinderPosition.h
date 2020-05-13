@@ -3,7 +3,7 @@
 #include <Foundation/Types/VarianceTypes.h>
 #include <ParticlePlugin/Initializer/ParticleInitializer.h>
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleInitializerFactory_CylinderPosition : public ezParticleInitializerFactory
+class EZ_PARTICLEPLUGIN_DLL ezParticleInitializerFactory_CylinderPosition final : public ezParticleInitializerFactory
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializerFactory_CylinderPosition, ezParticleInitializerFactory);
 
@@ -31,7 +31,7 @@ public:
 };
 
 
-class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer_CylinderPosition : public ezParticleInitializer
+class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer_CylinderPosition final : public ezParticleInitializer
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializer_CylinderPosition, ezParticleInitializer);
 

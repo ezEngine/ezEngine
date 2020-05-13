@@ -12,7 +12,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeEffectFactory, 1, ezRTTIDefaultAll
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("Effect", m_sEffect)->AddAttributes(new ezAssetBrowserAttribute("Particle Effect")),
-    EZ_MEMBER_PROPERTY("RandomSeed", m_uiRandomSeed),
     // EZ_MEMBER_PROPERTY("Shared Instance Name", m_sSharedInstanceName), // there is currently no way (I can think of) to uniquely identify each sub-system for the 'shared owner'
   }
   EZ_END_PROPERTIES;
@@ -23,10 +22,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypeEffect, 1, ezRTTIDefaultAllocator<
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezParticleTypeEffectFactory::ezParticleTypeEffectFactory()
-{
-  m_uiRandomSeed = 0;
-}
+ezParticleTypeEffectFactory::ezParticleTypeEffectFactory() = default;
+ezParticleTypeEffectFactory::~ezParticleTypeEffectFactory() = default;
 
 const ezRTTI* ezParticleTypeEffectFactory::GetTypeType() const
 {
@@ -42,7 +39,6 @@ void ezParticleTypeEffectFactory::CopyTypeProperties(ezParticleType* pObject, bo
   if (!m_sEffect.IsEmpty())
     pType->m_hEffect = ezResourceManager::LoadResource<ezParticleEffectResource>(m_sEffect);
 
-  pType->m_uiRandomSeed = m_uiRandomSeed;
   // pType->m_sSharedInstanceName = m_sSharedInstanceName;
 
 
@@ -68,6 +64,8 @@ void ezParticleTypeEffectFactory::Save(ezStreamWriter& stream) const
   const ezUInt8 uiVersion = (int)TypeEffectVersion::Version_Current;
   stream << uiVersion;
 
+  ezUInt64 m_uiRandomSeed = 0;
+
   stream << m_sEffect;
   stream << m_uiRandomSeed;
   stream << m_sSharedInstanceName;
@@ -84,23 +82,24 @@ void ezParticleTypeEffectFactory::Load(ezStreamReader& stream)
 
   if (uiVersion >= 2)
   {
+    ezUInt64 m_uiRandomSeed = 0;
+
     stream >> m_uiRandomSeed;
     stream >> m_sSharedInstanceName;
   }
 }
 
 
-ezParticleTypeEffect::ezParticleTypeEffect()
-{
-  m_pStreamEffectID = nullptr;
-  m_pStreamPosition = nullptr;
-}
+ezParticleTypeEffect::ezParticleTypeEffect() = default;
 
 ezParticleTypeEffect::~ezParticleTypeEffect()
 {
-  GetOwnerSystem()->RemoveParticleDeathEventHandler(ezMakeDelegate(&ezParticleTypeEffect::OnParticleDeath, this));
+  if (m_pStreamPosition != nullptr)
+  {
+    GetOwnerSystem()->RemoveParticleDeathEventHandler(ezMakeDelegate(&ezParticleTypeEffect::OnParticleDeath, this));
 
-  ClearEffects(true);
+    ClearEffects(true);
+  }
 }
 
 void ezParticleTypeEffect::CreateRequiredStreams()
@@ -126,14 +125,16 @@ void ezParticleTypeEffect::Process(ezUInt64 uiNumElements)
 
   ezParticleWorldModule* pWorldModule = GetOwnerEffect()->GetOwnerWorldModule();
 
+  m_fMaxEffectRadius = 0.0f;
+
+  const ezUInt64 uiRandomSeed = GetOwnerEffect()->GetRandomSeed();
+
   for (ezUInt32 i = 0; i < uiNumElements; ++i)
   {
     if (pEffectID[i] == 0) // always an invalid ID
     {
       const void* pDummy = nullptr;
-      ezParticleEffectHandle hInstance =
-          pWorldModule->CreateEffectInstance(m_hEffect, m_uiRandomSeed, /*m_sSharedInstanceName*/ nullptr, pDummy,
-                                             ezArrayPtr<ezParticleEffectFloatParam>(), ezArrayPtr<ezParticleEffectColorParam>());
+      ezParticleEffectHandle hInstance = pWorldModule->CreateEffectInstance(m_hEffect, uiRandomSeed, /*m_sSharedInstanceName*/ nullptr, pDummy, ezArrayPtr<ezParticleEffectFloatParam>(), ezArrayPtr<ezParticleEffectColorParam>());
 
       pEffectID[i] = hInstance.GetInternalID().m_Data;
     }
@@ -149,7 +150,13 @@ void ezParticleTypeEffect::Process(ezUInt64 uiNumElements)
       t.m_vPosition = pPosition[i].GetAsVec3();
 
       // TODO: pass through velocity
+      pEffect->SetVisibleIf(GetOwnerEffect());
       pEffect->SetTransform(t, ezVec3::ZeroVector(), nullptr);
+
+      ezBoundingBoxSphere bounds;
+      pEffect->GetBoundingVolume(bounds);
+
+      m_fMaxEffectRadius = ezMath::Max(m_fMaxEffectRadius, bounds.m_fSphereRadius);
     }
   }
 }

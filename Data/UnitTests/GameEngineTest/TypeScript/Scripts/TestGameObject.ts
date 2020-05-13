@@ -31,7 +31,7 @@ export class TestGameObject extends ez.TypescriptComponent {
         // GetName / SetName
         {
             EZ_TEST.BOOL(owner.GetName() == "GameObject");
-            owner.SetName("TestGameObject")
+            owner.SetName("TestGameObject");
             EZ_TEST.BOOL(owner.GetName() == "TestGameObject");
         }
 

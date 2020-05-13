@@ -53,7 +53,10 @@ void ezGameApplicationBase::Init_PlatformProfile_SetPreferred()
 void ezGameApplicationBase::BaseInit_ConfigureLogging()
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
+  if (!ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-disableConsoleOutput", false))
+  {
+    ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
+  }
   ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
 #endif
 }
@@ -237,7 +240,10 @@ void ezGameApplicationBase::Deinit_UnloadPlugins()
 void ezGameApplicationBase::Deinit_ShutdownLogging()
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  if (!ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-disableConsoleOutput", false))
+  {
   ezGlobalLog::RemoveLogWriter(ezLogWriter::Console::LogMessageHandler);
+  }
   ezGlobalLog::RemoveLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
 #endif
 }

@@ -18,15 +18,15 @@ namespace DynamicArrayTestDetail
     std::string s;
 
     Dummy()
-        : a(0)
-        , b(g_iDummyCounter++)
-        , s("Test")
+      : a(0)
+      , b(g_iDummyCounter++)
+      , s("Test")
     {
     }
     Dummy(int a)
-        : a(a)
-        , b(g_iDummyCounter++)
-        , s("Test")
+      : a(a)
+      , b(g_iDummyCounter++)
+      , s("Test")
     {
     }
 
@@ -114,7 +114,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     {
       // move constructor
       ezDynamicArray<DynamicArrayTestDetail::st, DynamicArrayTestDetail::ezTestAllocatorWrapper> a1(
-          DynamicArrayTestDetail::CreateArray(100, 20));
+        DynamicArrayTestDetail::CreateArray(100, 20));
 
       EZ_TEST_INT(a1.GetCount(), 100);
       for (ezUInt32 i = 0; i < a1.GetCount(); ++i)

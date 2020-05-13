@@ -78,9 +78,9 @@ EZ_CREATE_SIMPLE_TEST(DocumentObject, ObjectMetaData)
 
       if (ezMath::IsEven(i))
       {
-        auto d = meta.BeginModifyMetaData(uid);
-        d->b = true;
-        d->s = "test";
+        auto d1 = meta.BeginModifyMetaData(uid);
+        d1->b = true;
+        d1->s = "test";
 
         meta.EndModifyMetaData();
       }

@@ -23,7 +23,7 @@ public:
   Type m_fElementsCM[16];
 
   EZ_ALWAYS_INLINE Type& Element(ezInt32 column, ezInt32 row) { return m_fElementsCM[column * 4 + row]; }
-  EZ_ALWAYS_INLINE const Type Element(ezInt32 column, ezInt32 row) const { return m_fElementsCM[column * 4 + row]; }
+  EZ_ALWAYS_INLINE Type Element(ezInt32 column, ezInt32 row) const { return m_fElementsCM[column * 4 + row]; }
 
   // *** Constructors ***
 public:

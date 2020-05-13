@@ -37,7 +37,7 @@ protected:
 private:
   void SendRedrawMsg();
   void RestoreResource();
-  void UpdatePreview();
+  void SendLiveResourcePreview();
   void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
   void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
   void ParticleEventHandler(const ezParticleEffectAssetEvent& e);

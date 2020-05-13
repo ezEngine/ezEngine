@@ -15,6 +15,8 @@ public:
 
 class ezGameEngineTestTypeScript : public ezGameEngineTest
 {
+  using SUPER = ezGameEngineTest;
+
 public:
   virtual const char* GetTestName() const override;
   virtual ezGameEngineTestApplication* CreateApplication() override;

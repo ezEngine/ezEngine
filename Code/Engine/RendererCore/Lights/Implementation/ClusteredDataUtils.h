@@ -178,7 +178,7 @@ namespace
     ezVec3 position = pDecalRenderData->m_GlobalTransform.m_vPosition;
     ezVec3 dirForwards = pDecalRenderData->m_GlobalTransform.m_qRotation * ezVec3(1.0f, 0.0, 0.0f);
     ezVec3 dirUp = pDecalRenderData->m_GlobalTransform.m_qRotation * ezVec3(0.0f, 0.0, 1.0f);
-    ezVec3 scale = pDecalRenderData->m_GlobalTransform.m_vScale.CompMul(pDecalRenderData->m_vHalfExtents);
+    ezVec3 scale = pDecalRenderData->m_GlobalTransform.m_vScale;
 
     // the CompMax prevents division by zero (thus inf, thus NaN later, then crash)
     // if negative scaling should be allowed, this would need to be changed
@@ -188,22 +188,19 @@ namespace
     ezMat4 scaleMat;
     scaleMat.SetScalingMatrix(ezVec3(scale.y, -scale.z, scale.x));
 
-    const bool bNoFade =
-      pDecalRenderData->m_InnerFadeAngle == ezAngle::Radian(0.0f) && pDecalRenderData->m_OuterFadeAngle == ezAngle::Radian(0.0f);
-    const float fCosInner = ezMath::Cos(pDecalRenderData->m_InnerFadeAngle);
-    const float fCosOuter = ezMath::Cos(pDecalRenderData->m_OuterFadeAngle);
-    const float fFadeParamScale = bNoFade ? 0.0f : (1.0f / ezMath::Max(0.001f, (fCosInner - fCosOuter)));
-    const float fFadeParamOffset = bNoFade ? 1.0f : (-fCosOuter * fFadeParamScale);
-
     perDecalData.worldToDecalMatrix = scaleMat * lookAt;
     perDecalData.applyOnlyToId = pDecalRenderData->m_uiApplyOnlyToId;
-    perDecalData.decalModeAndFlags = pDecalRenderData->m_uiDecalMode | (pDecalRenderData->m_bWrapAround ? DECAL_WRAP_AROUND_FLAG : 0);
-    perDecalData.angleFadeParams = ezShaderUtils::Float2ToRG16F(ezVec2(fFadeParamScale, fFadeParamOffset));
-    perDecalData.padding0 = 0;
-    perDecalData.colorRG = ezShaderUtils::Float2ToRG16F(ezVec2(pDecalRenderData->m_Color.r, pDecalRenderData->m_Color.g));
-    perDecalData.colorBA = ezShaderUtils::Float2ToRG16F(ezVec2(pDecalRenderData->m_Color.b, pDecalRenderData->m_Color.a));
-    perDecalData.baseAtlasScale = ezShaderUtils::Float2ToRG16F(pDecalRenderData->m_vBaseAtlasScale);
-    perDecalData.baseAtlasOffset = ezShaderUtils::Float2ToRG16F(pDecalRenderData->m_vBaseAtlasOffset);
+    perDecalData.decalFlags = pDecalRenderData->m_uiFlags;
+    perDecalData.angleFadeParams = pDecalRenderData->m_uiAngleFadeParams;
+    perDecalData.baseColor = *reinterpret_cast<const ezUInt32*>(&pDecalRenderData->m_BaseColor.r);
+    perDecalData.emissiveColorRG = ezShaderUtils::PackFloat16intoUint(pDecalRenderData->m_EmissiveColor.r, pDecalRenderData->m_EmissiveColor.g);
+    perDecalData.emissiveColorBA = ezShaderUtils::PackFloat16intoUint(pDecalRenderData->m_EmissiveColor.b, pDecalRenderData->m_EmissiveColor.a);
+    perDecalData.baseColorAtlasScale = pDecalRenderData->m_uiBaseColorAtlasScale;
+    perDecalData.baseColorAtlasOffset = pDecalRenderData->m_uiBaseColorAtlasOffset;
+    perDecalData.normalAtlasScale = pDecalRenderData->m_uiNormalAtlasScale;
+    perDecalData.normalAtlasOffset = pDecalRenderData->m_uiNormalAtlasOffset;
+    perDecalData.ormAtlasScale = pDecalRenderData->m_uiORMAtlasScale;
+    perDecalData.ormAtlasOffset = pDecalRenderData->m_uiORMAtlasOffset;
   }
 
 
@@ -373,13 +370,13 @@ namespace
   void RasterizeDecal(const ezDecalRenderData* pDecalRenderData, ezUInt32 uiDecalIndex, const ezSimdMat4f& viewProjectionMatrix,
     Cluster* clusters, ezSimdBSphere* clusterBoundingSpheres)
   {
-    ezSimdTransform decalToWorld = ezSimdConversion::ToTransform(pDecalRenderData->m_GlobalTransform);
-    ezSimdTransform worldToDecal = decalToWorld.GetInverse();
+    ezSimdMat4f decalToWorld = ezSimdConversion::ToTransform(pDecalRenderData->m_GlobalTransform).GetAsMat4();
+    ezSimdMat4f worldToDecal = decalToWorld.GetInverse();
 
     ezVec3 corners[8];
-    ezBoundingBox(-pDecalRenderData->m_vHalfExtents, pDecalRenderData->m_vHalfExtents).GetCorners(corners);
+    ezBoundingBox(ezVec3(-1), ezVec3(1)).GetCorners(corners);
 
-    ezSimdMat4f decalToScreen = viewProjectionMatrix * decalToWorld.GetAsMat4();
+    ezSimdMat4f decalToScreen = viewProjectionMatrix * decalToWorld;
     ezSimdBBox screenSpaceBounds;
     screenSpaceBounds.SetInvalid();
     bool bInsideBox = false;
@@ -403,7 +400,7 @@ namespace
       screenSpaceBounds.m_Max = ezSimdVec4f(1.0f).GetCombined<ezSwizzle::XYZW>(screenSpaceBounds.m_Max);
     }
 
-    ezSimdVec4f decalHalfExtents = ezSimdConversion::ToVec3(pDecalRenderData->m_vHalfExtents);
+    ezSimdVec4f decalHalfExtents = ezSimdVec4f(1.0f);
     ezSimdBBox localDecalBounds = ezSimdBBox(-decalHalfExtents, decalHalfExtents);
 
     const ezUInt32 uiBlockIndex = uiDecalIndex / 32;

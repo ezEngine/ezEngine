@@ -20,11 +20,10 @@ public:
 
   virtual void HandleMessage(const ezEditorEngineDocumentMsg* pMsg) override;
 
-  void GetTextureStats(ezGALResourceFormat::Enum& format, ezUInt32& uiWidth, ezUInt32& uiHeight);
+  const ezTexture2DResourceHandle& GetTexture() const { return m_hTexture; }
 
 protected:
   virtual void OnInitialize() override;
-  virtual void OnDeinitialize() override;
 
   virtual ezEngineProcessViewContext* CreateViewContext() override;
   virtual void DestroyViewContext(ezEngineProcessViewContext* pContext) override;
@@ -32,16 +31,11 @@ protected:
 private:
   void OnResourceEvent(const ezResourceEvent& e);
 
-  void UpdatePreview();
-
   ezGameObjectHandle m_hPreviewObject;
   ezComponentHandle m_hPreviewMesh2D;
   ezMeshResourceHandle m_hPreviewMeshResource;
   ezMaterialResourceHandle m_hMaterial;
   ezTexture2DResourceHandle m_hTexture;
 
-  ezGALResourceFormat::Enum m_TextureFormat;
-  ezUInt32 m_uiTextureWidth;
-  ezUInt32 m_uiTextureHeight;
-  bool m_bAddedEventHandler;
+  ezEvent<const ezResourceEvent&, ezMutex>::Unsubscriber m_textureResourceEventSubscriber;
 };

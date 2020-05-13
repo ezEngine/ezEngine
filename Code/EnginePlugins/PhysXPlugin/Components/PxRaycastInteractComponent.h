@@ -3,7 +3,7 @@
 #include <Core/World/World.h>
 #include <PhysXPlugin/PhysXPluginDLL.h>
 
-struct ezPhysicsHitResult;
+struct ezPhysicsCastResult;
 typedef ezComponentManager<class ezPxRaycastInteractComponent, ezBlockStorageType::FreeList> ezPxRaycastInteractComponentManager;
 
 class EZ_PHYSXPLUGIN_DLL ezPxRaycastInteractComponent : public ezComponent
@@ -32,5 +32,5 @@ public:
   ezString m_sUserMessage;        // [ property ]
 
 protected:
-  virtual void SendMessage(const ezPhysicsHitResult& hit);
+  virtual void SendMessage(const ezPhysicsCastResult& hit);
 };

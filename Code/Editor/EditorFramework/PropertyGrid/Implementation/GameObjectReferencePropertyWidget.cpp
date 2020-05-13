@@ -155,6 +155,14 @@ void ezQtGameObjectReferencePropertyWidget::SetValue(const QString& sValue)
 
 void ezQtGameObjectReferencePropertyWidget::on_PickObject_clicked()
 {
+  auto dele = ezMakeDelegate(&ezQtGameObjectReferencePropertyWidget::SelectionManagerEventHandler, this);
+
+  if (m_pGrid->GetDocument()->GetSelectionManager()->m_Events.HasEventHandler(dele))
+  {
+    // this happens when clicking the 'pick' button twice
+    ClearPicking();
+  }
+
   ezQtDocumentWindow* pWindow = ezQtDocumentWindow::FindWindowByDocument(m_pGrid->GetDocument());
 
   ezQtGameObjectDocumentWindow* pGoWindow = qobject_cast<ezQtGameObjectDocumentWindow*>(pWindow);
@@ -172,7 +180,8 @@ void ezQtGameObjectReferencePropertyWidget::on_PickObject_clicked()
     }
   }
 
-  m_pGrid->GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtGameObjectReferencePropertyWidget::SelectionManagerEventHandler, this));
+
+  m_pGrid->GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(dele);
 }
 
 void ezQtGameObjectReferencePropertyWidget::on_customContextMenuRequested(const QPoint& pt)
@@ -202,6 +211,8 @@ void ezQtGameObjectReferencePropertyWidget::OnCopyReference()
 {
   QClipboard* clipboard = QApplication::clipboard();
   clipboard->setText(m_sInternalValue);
+
+  ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Copied Object Reference: {}", m_sInternalValue.toUtf8().data()), ezTime::Seconds(5));
 }
 
 

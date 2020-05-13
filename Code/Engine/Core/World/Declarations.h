@@ -35,11 +35,11 @@ struct ezMsgDeleteGameObject;
 /// \brief Internal game object id used by ezGameObjectHandle.
 struct ezGameObjectId
 {
-  typedef ezUInt32 StorageType;
+  typedef ezUInt64 StorageType;
 
-  EZ_DECLARE_ID_TYPE(ezGameObjectId, 20, 6);
+  EZ_DECLARE_ID_TYPE(ezGameObjectId, 32, 8);
 
-  EZ_FORCE_INLINE ezGameObjectId(StorageType instanceIndex, StorageType generation, StorageType worldIndex = 0)
+  EZ_FORCE_INLINE ezGameObjectId(ezUInt32 instanceIndex, ezUInt8 generation, ezUInt8 worldIndex = 0)
   {
     m_Data = 0;
     m_InstanceIndex = instanceIndex;
@@ -51,9 +51,10 @@ struct ezGameObjectId
     StorageType m_Data;
     struct
     {
-      StorageType m_InstanceIndex : 20;
-      StorageType m_Generation : 6;
-      StorageType m_WorldIndex : 6;
+      ezUInt32 m_InstanceIndex;
+      ezUInt8 m_Generation;
+      ezUInt8 m_WorldIndex;
+      ezUInt16 m_Padding;
     };
   };
 };
@@ -80,63 +81,32 @@ struct ezHashHelper<ezGameObjectHandle>
   EZ_ALWAYS_INLINE static bool Equal(ezGameObjectHandle a, ezGameObjectHandle b) { return a == b; }
 };
 
-typedef ezGenericId<24, 8> ezGenericComponentId;
-
 /// \brief Internal component id used by ezComponentHandle.
-struct ezComponentId : public ezGenericComponentId
+struct ezComponentId
 {
-  EZ_ALWAYS_INLINE ezComponentId()
-    : ezGenericComponentId()
-  {
-    m_TypeId = 0;
-    m_WorldIndex = 0;
-  }
+  typedef ezUInt64 StorageType;
 
-  EZ_ALWAYS_INLINE ezComponentId(StorageType instanceIndex, StorageType generation, ezUInt16 typeId = 0, ezUInt16 worldIndex = 0)
-    : ezGenericComponentId(instanceIndex, generation)
+  EZ_DECLARE_ID_TYPE(ezComponentId, 32, 8);
+
+  EZ_ALWAYS_INLINE ezComponentId(ezUInt32 instanceIndex, ezUInt8 generation, ezUInt16 typeId = 0, ezUInt8 worldIndex = 0)
   {
+    m_Data = 0;
+    m_InstanceIndex = instanceIndex;
+    m_Generation = generation;
     m_TypeId = typeId;
     m_WorldIndex = worldIndex;
   }
 
-  EZ_ALWAYS_INLINE ezComponentId(ezGenericComponentId genericId, ezUInt16 typeId, ezUInt16 worldIndex)
-    : ezGenericComponentId(genericId)
-  {
-    m_TypeId = typeId;
-    m_WorldIndex = worldIndex;
-  }
-
-  EZ_ALWAYS_INLINE bool operator==(const ezComponentId other) const
-  {
-    const ezUInt32& d1 = reinterpret_cast<const ezUInt32&>(m_TypeId);
-    const ezUInt32& d2 = reinterpret_cast<const ezUInt32&>(other.m_TypeId);
-
-    return m_Data == other.m_Data && d1 == d2;
-  }
-  EZ_ALWAYS_INLINE bool operator!=(const ezComponentId other) const
-  {
-    const ezUInt32& d1 = reinterpret_cast<const ezUInt32&>(m_TypeId);
-    const ezUInt32& d2 = reinterpret_cast<const ezUInt32&>(other.m_TypeId);
-
-    return m_Data != other.m_Data || d1 != d2;
-  }
-
-  EZ_ALWAYS_INLINE bool operator<(const ezComponentId other) const
-  {
-    const ezUInt32& d1 = reinterpret_cast<const ezUInt32&>(m_TypeId);
-    const ezUInt32& d2 = reinterpret_cast<const ezUInt32&>(other.m_TypeId);
-
-    if (d1 == d2)
+  union {
+    StorageType m_Data;
+    struct
     {
-      return m_Data < other.m_Data;
-    }
-
-    return d1 < d2;
-  }
-
-  // don't change the order or alignment of these, otherwise the comparison above fails
-  ezUInt16 m_TypeId;
-  ezUInt16 m_WorldIndex;
+      ezUInt32 m_InstanceIndex;
+      ezUInt8 m_Generation;
+      ezUInt8 m_WorldIndex;
+      ezUInt16 m_TypeId;
+    };
+  };
 };
 
 /// \brief A handle to a component.
@@ -333,4 +303,12 @@ typedef ezGenericId<24, 8> ezSpatialDataId;
 class ezSpatialDataHandle
 {
   EZ_DECLARE_HANDLE_TYPE(ezSpatialDataHandle, ezSpatialDataId);
+};
+
+typedef ezUInt16 ezWorldModuleTypeId;
+
+typedef ezGenericId<24, 8> ezComponentInitBatchId;
+class ezComponentInitBatchHandle
+{
+  EZ_DECLARE_HANDLE_TYPE(ezComponentInitBatchHandle, ezComponentInitBatchId);
 };

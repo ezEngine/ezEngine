@@ -19,6 +19,8 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezProcessAssetMsg : public ezProcessMe
   EZ_ADD_DYNAMIC_REFLECTION(ezProcessAssetMsg, ezProcessMessage);
 public:
   ezUuid m_AssetGuid;
+  ezUInt64 m_AssetHash = 0;
+  ezUInt64 m_ThumbHash = 0;
   ezString m_sAssetPath;
   ezString m_sPlatform;
 };
@@ -221,6 +223,7 @@ public:
   ezUInt16 m_uiWindowHeight;
   bool m_bUpdatePickingData;
   bool m_bEnablePickingSelected;
+  bool m_bEnablePickTransparent;
   bool m_bUseCameraTransformOnDevice = true;
 
   ezInt8 m_iCameraMode; ///< ezCameraMode::Enum
@@ -228,7 +231,6 @@ public:
   float m_fFarPlane;
   float m_fFovOrDim;
   ezUInt8 m_uiRenderMode; ///< ezViewRenderMode::Enum
-  ezCameraUsageHint::Enum m_CameraUsageHint;
 
   ezVec3 m_vPosition;
   ezVec3 m_vDirForwards;

@@ -41,8 +41,9 @@ namespace ezInternal
     , m_Allocator(desc.m_sName, ezFoundation::GetDefaultAllocator())
     , m_AllocatorWrapper(&m_Allocator)
     , m_BlockAllocator(desc.m_sName, &m_Allocator)
-    , m_StackAllocator(ezFoundation::GetAlignedAllocator())
+    , m_StackAllocator(desc.m_sName, ezFoundation::GetAlignedAllocator())
     , m_ObjectStorage(&m_BlockAllocator, &m_Allocator)
+    , m_MaxInitializationTimePerFrame(desc.m_MaxComponentInitializationTimePerFrame)
     , m_Clock(desc.m_sName)
     , m_WriteThreadID((ezThreadID)0)
     , m_iWriteCounter(0)
@@ -72,8 +73,17 @@ namespace ezInternal
     EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject::TransformationData) == 192);
 #endif
 
-    // EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject) == 128); /// \todo get game object size back to 128
+    EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject) == 168); /// \todo get game object size back to 128
     EZ_CHECK_AT_COMPILETIME(sizeof(QueuedMsgMetaData) == 16);
+
+    EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObjectId::m_WorldIndex) == sizeof(ezComponentId::m_WorldIndex));
+    EZ_CHECK_AT_COMPILETIME(sizeof(ezComponentId::m_TypeId) == sizeof(ezWorldModuleTypeId));
+
+    auto pDefaultInitBatch = EZ_NEW(&m_Allocator, InitBatch, &m_Allocator, "Default", true);
+    pDefaultInitBatch->m_bIsReady = true;
+    m_InitBatches.Insert(pDefaultInitBatch);
+    m_pDefaultInitBatch = pDefaultInitBatch;
+    m_pCurrentInitBatch = pDefaultInitBatch;
 
     m_pSpatialSystem = std::move(desc.m_pSpatialSystem);
     m_pCoordinateSystemProvider = desc.m_pCoordinateSystemProvider;
@@ -272,11 +282,21 @@ namespace ezInternal
 
   void WorldData::UpdateGlobalTransforms(float fInvDeltaSeconds)
   {
+    struct UserData
+    {
+      ezSimdFloat m_fInvDt;
+      ezSpatialSystem* m_pSpatialSystem;
+    };
+
+    UserData userData;
+    userData.m_fInvDt = fInvDeltaSeconds;
+    userData.m_pSpatialSystem = m_pSpatialSystem.Borrow();
+
     struct RootLevel
     {
       EZ_ALWAYS_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData)
       {
-        WorldData::UpdateGlobalTransform(pData, *static_cast<ezSimdFloat*>(pUserData));
+        WorldData::UpdateGlobalTransform(pData, static_cast<UserData*>(pUserData)->m_fInvDt);
         return ezVisitorExecution::Continue;
       }
     };
@@ -285,7 +305,7 @@ namespace ezInternal
     {
       EZ_ALWAYS_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData)
       {
-        WorldData::UpdateGlobalTransformWithParent(pData, *static_cast<ezSimdFloat*>(pUserData));
+        WorldData::UpdateGlobalTransformWithParent(pData, static_cast<UserData*>(pUserData)->m_fInvDt);
         return ezVisitorExecution::Continue;
       }
     };
@@ -294,7 +314,8 @@ namespace ezInternal
     {
       EZ_ALWAYS_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData)
       {
-        WorldData::UpdateGlobalTransformAndSpatialData(pData, *static_cast<ezSimdFloat*>(pUserData));
+        WorldData::UpdateGlobalTransformAndSpatialData(pData, static_cast<UserData*>(pUserData)->m_fInvDt,
+          *static_cast<UserData*>(pUserData)->m_pSpatialSystem);
         return ezVisitorExecution::Continue;
       }
     };
@@ -303,12 +324,11 @@ namespace ezInternal
     {
       EZ_ALWAYS_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData)
       {
-        WorldData::UpdateGlobalTransformWithParentAndSpatialData(pData, *static_cast<ezSimdFloat*>(pUserData));
+        WorldData::UpdateGlobalTransformWithParentAndSpatialData(pData, static_cast<UserData*>(pUserData)->m_fInvDt,
+          *static_cast<UserData*>(pUserData)->m_pSpatialSystem);
         return ezVisitorExecution::Continue;
       }
     };
-
-    ezSimdFloat fInvDt = fInvDeltaSeconds;
 
     Hierarchy& hierarchy = m_Hierarchies[HierarchyType::Dynamic];
     if (!hierarchy.m_Data.IsEmpty())
@@ -319,24 +339,25 @@ namespace ezInternal
       // have to acquire a write lock in the process.
       if (m_pSpatialSystem == nullptr)
       {
-        TraverseHierarchyLevelMultiThreaded<RootLevel>(*dataPtr[0], &fInvDt);
+        TraverseHierarchyLevelMultiThreaded<RootLevel>(*dataPtr[0], &userData);
 
         for (ezUInt32 i = 1; i < hierarchy.m_Data.GetCount(); ++i)
         {
-          TraverseHierarchyLevelMultiThreaded<WithParent>(*dataPtr[i], &fInvDt);
+          TraverseHierarchyLevelMultiThreaded<WithParent>(*dataPtr[i], &userData);
         }
       }
       else
       {
-        TraverseHierarchyLevel<RootLevelWithSpatialData>(*dataPtr[0], &fInvDt);
+        TraverseHierarchyLevel<RootLevelWithSpatialData>(*dataPtr[0], &userData);
 
         for (ezUInt32 i = 1; i < hierarchy.m_Data.GetCount(); ++i)
         {
-          TraverseHierarchyLevel<WithParentWithSpatialData>(*dataPtr[i], &fInvDt);
+          TraverseHierarchyLevel<WithParentWithSpatialData>(*dataPtr[i], &userData);
         }
       }
     }
   }
+
 } // namespace ezInternal
 
 

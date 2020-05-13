@@ -1,5 +1,5 @@
 #include <ToolsFoundationPCH.h>
-#include <ToolsFoundation/Document/Document.h>
+
 #include <Foundation/IO/FileSystem/DeferredFileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
@@ -7,16 +7,17 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Serialization/DdlSerializer.h>
 #include <Foundation/Serialization/RttiConverter.h>
+#include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Utilities/Progress.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
+#include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
+#include <ToolsFoundation/Document/DocumentTasks.h>
 #include <ToolsFoundation/Document/PrefabCache.h>
 #include <ToolsFoundation/Document/PrefabUtils.h>
 #include <ToolsFoundation/Object/ObjectCommandAccessor.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
-#include <Foundation/Threading/TaskSystem.h>
-#include <ToolsFoundation/Document/DocumentTasks.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentObjectMetaData, 1, ezRTTINoAllocator)
@@ -55,7 +56,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezEvent<const ezDocumentEvent&> ezDocument::s_EventsAny;
 
 ezDocument::ezDocument(const char* szPath, ezDocumentObjectManager* pDocumentObjectManagerImpl)
-    : m_CommandHistory(this)
+  : m_CommandHistory(this)
 {
   m_pDocumentInfo = nullptr;
   m_sDocumentPath = szPath;
@@ -132,8 +133,7 @@ ezStatus ezDocument::SaveDocument(bool bForce)
     return ezStatus(EZ_SUCCESS);
 
   ezStatus result;
-  m_activeSaveTask = InternalSaveDocument([&result](ezDocument* doc, ezStatus res)
-  {
+  m_activeSaveTask = InternalSaveDocument([&result](ezDocument* doc, ezStatus res) {
     result = res;
   });
   ezTaskSystem::WaitForGroup(m_activeSaveTask);
@@ -164,11 +164,10 @@ ezTaskGroupID ezDocument::InternalSaveDocument(AfterSaveCallback callback)
 {
   EZ_PROFILE_SCOPE("InternalSaveDocument");
   ezTaskGroupID saveID = ezTaskSystem::CreateTaskGroup(ezTaskPriority::LongRunningHighPriority);
-  auto saveTask = EZ_DEFAULT_NEW(ezSaveDocumentTask);
+  auto saveTask = EZ_DEFAULT_NEW(ezSaveDocumentTask, [](ezTask* pTask) { EZ_DEFAULT_DELETE(pTask); });
   {
     saveTask->m_document = this;
     saveTask->file.SetOutput(m_sDocumentPath);
-    saveTask->SetOnTaskFinished([](ezTask* pTask) { EZ_DEFAULT_DELETE(pTask); });
     ezTaskSystem::AddTaskToGroup(saveID, saveTask);
 
     {
@@ -198,10 +197,9 @@ ezTaskGroupID ezDocument::InternalSaveDocument(AfterSaveCallback callback)
 
   ezTaskGroupID afterSaveID = ezTaskSystem::CreateTaskGroup(ezTaskPriority::SomeFrameMainThread);
   {
-    auto afterSaveTask = EZ_DEFAULT_NEW(ezAfterSaveDocumentTask);
+    auto afterSaveTask = EZ_DEFAULT_NEW(ezAfterSaveDocumentTask, [](ezTask* pTask) { EZ_DEFAULT_DELETE(pTask); });
     afterSaveTask->m_document = this;
     afterSaveTask->m_callback = callback;
-    afterSaveTask->SetOnTaskFinished([](ezTask* pTask) { EZ_DEFAULT_DELETE(pTask); });
     ezTaskSystem::AddTaskToGroup(afterSaveID, afterSaveTask);
   }
   ezTaskSystem::AddTaskGroupDependency(afterSaveID, saveID);
@@ -315,7 +313,7 @@ ezStatus ezDocument::InternalLoadDocument()
   {
     EZ_PROFILE_SCOPE("Restoring Objects");
     ezDocumentObjectConverterReader objectConverter(objects.Borrow(), GetObjectManager(),
-                                                    ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
+      ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
     // range.BeginNextStep("Restoring Objects");
     auto* pRootNode = objects->GetNodeByName("ObjectTree");
     objectConverter.ApplyPropertiesToObject(pRootNode, GetObjectManager()->GetRootObject());

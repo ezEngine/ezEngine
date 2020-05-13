@@ -1,6 +1,7 @@
 #include <EditorEngineProcessFrameworkPCH.h>
 
 #include <EditorEngineProcessFramework/PickingRenderPass/PickingRenderPass.h>
+#include <RendererCore/Lights/ClusteredDataProvider.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
@@ -13,6 +14,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPickingRenderPass, 1, ezRTTIDefaultAllocator<e
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("PickSelected", m_bPickSelected),
+    EZ_MEMBER_PROPERTY("PickTransparent", m_bPickTransparent),
     EZ_MEMBER_PROPERTY("PickingPosition", m_PickingPosition),
     EZ_MEMBER_PROPERTY("MarqueePickPos0", m_MarqueePickPosition0),
     EZ_MEMBER_PROPERTY("MarqueePickPos1", m_MarqueePickPosition1),
@@ -26,12 +28,9 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezPickingRenderPass::ezPickingRenderPass()
   : ezRenderPipelinePass("EditorPickingRenderPass")
 {
-  m_bPickSelected = true;
-
   m_PickingPosition.Set(-1);
   m_MarqueePickPosition0.Set(-1);
   m_MarqueePickPosition1.Set(-1);
-  m_uiMarqueeActionID = 0xFFFFFFFF;
 }
 
 ezPickingRenderPass::~ezPickingRenderPass()
@@ -86,6 +85,10 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext,
   else
     renderViewContext.m_pRenderContext->SetShaderPermutationVariable("RENDER_PASS", "RENDER_PASS_PICKING");
 
+  // Setup clustered data
+  auto pClusteredData = GetPipeline()->GetFrameDataProvider<ezClusteredDataProvider>()->GetData(renderViewContext);
+  pClusteredData->BindResources(renderViewContext.m_pRenderContext);
+
   // copy selection to set for faster checks
   m_SelectionSet.Clear();
 
@@ -106,12 +109,28 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext,
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitOpaque, filter);
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitMasked, filter);
 
+  if (m_bPickTransparent)
+  {
+    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitTransparent, filter);
+
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "TRUE");
+    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitForeground);
+
+    renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "FALSE");
+    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::LitForeground);
+  }
+
   if (m_bPickSelected)
   {
     RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::Selection);
   }
 
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleOpaque);
+
+  if (m_bPickTransparent)
+  {
+    RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleTransparent, filter);
+  }
 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PREPARE_DEPTH", "TRUE");
   RenderDataWithCategory(renderViewContext, ezDefaultRenderDataCategories::SimpleForeground);

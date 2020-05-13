@@ -1,8 +1,8 @@
 #include <FoundationTestPCH.h>
 
 #include <Foundation/Profiling/Profiling.h>
-#include <Foundation/Threading/Thread.h>
 #include <Foundation/Threading/Mutex.h>
+#include <Foundation/Threading/Thread.h>
 #include <Foundation/Time/Time.h>
 
 namespace
@@ -10,11 +10,11 @@ namespace
   volatile ezInt32 g_iCrossThreadVariable = 0;
   const ezUInt32 g_uiIncrementSteps = 160000;
 
-  class TestThread : public ezThread
+  class TestThread3 : public ezThread
   {
   public:
-    TestThread()
-        : ezThread("Test Thread")
+    TestThread3()
+      : ezThread("Test Thread")
     {
     }
 
@@ -23,8 +23,8 @@ namespace
 
     virtual ezUInt32 Run()
     {
-      // test TryAcquire on a locked mutex
-      EZ_TEST_BOOL(m_pBlockedMutex->TryAcquire() == false);
+      // test TryLock on a locked mutex
+      EZ_TEST_BOOL(m_pBlockedMutex->TryLock() == false);
 
       {
         // enter and leave the mutex once
@@ -45,7 +45,7 @@ namespace
       return 0;
     }
   };
-}
+} // namespace
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Threading);
 
@@ -56,16 +56,16 @@ EZ_CREATE_SIMPLE_TEST(Threading, Thread)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Thread")
   {
-    TestThread* pTestThread1 = nullptr;
-    TestThread* pTestThread2 = nullptr;
+    TestThread3* pTestThread31 = nullptr;
+    TestThread3* pTestThread32 = nullptr;
 
     /// the try-catch is necessary to quiet the static code analysis
 #if EZ_ENABLED(EZ_TESTFRAMEWORK_SUPPORT_EXCEPTIONS)
     try
 #endif
     {
-      pTestThread1 = new TestThread;
-      pTestThread2 = new TestThread;
+      pTestThread31 = new TestThread3;
+      pTestThread32 = new TestThread3;
     }
 #if EZ_ENABLED(EZ_TESTFRAMEWORK_SUPPORT_EXCEPTIONS)
     catch (...)
@@ -73,46 +73,46 @@ EZ_CREATE_SIMPLE_TEST(Threading, Thread)
     }
 #endif
 
-    EZ_TEST_BOOL(pTestThread1 != nullptr);
-    EZ_TEST_BOOL(pTestThread2 != nullptr);
+    EZ_TEST_BOOL(pTestThread31 != nullptr);
+    EZ_TEST_BOOL(pTestThread32 != nullptr);
 
     ezMutex waitMutex, blockedMutex;
-    pTestThread1->m_pWaitMutex = &waitMutex;
-    pTestThread2->m_pWaitMutex = &waitMutex;
+    pTestThread31->m_pWaitMutex = &waitMutex;
+    pTestThread32->m_pWaitMutex = &waitMutex;
 
-    pTestThread1->m_pBlockedMutex = &blockedMutex;
-    pTestThread2->m_pBlockedMutex = &blockedMutex;
+    pTestThread31->m_pBlockedMutex = &blockedMutex;
+    pTestThread32->m_pBlockedMutex = &blockedMutex;
 
     // no one holds these mutexes yet, must succeed
-    EZ_TEST_BOOL(blockedMutex.TryAcquire() == true);
-    EZ_TEST_BOOL(waitMutex.TryAcquire() == true);
+    EZ_TEST_BOOL(blockedMutex.TryLock() == true);
+    EZ_TEST_BOOL(waitMutex.TryLock() == true);
 
     // Both thread will increment the global variable via atomic operations
-    pTestThread1->Start();
-    pTestThread2->Start();
+    pTestThread31->Start();
+    pTestThread32->Start();
 
     // give the threads a bit of time to start
     ezThreadUtils::Sleep(ezTime::Milliseconds(50));
 
     // allow the threads to run now
-    waitMutex.Release();
+    waitMutex.Unlock();
 
     // Main thread will also increment the test variable
     ezAtomicUtils::Increment(g_iCrossThreadVariable);
 
     // Join with both threads
-    pTestThread1->Join();
-    pTestThread2->Join();
+    pTestThread31->Join();
+    pTestThread32->Join();
 
-    // we are holding the mutex, another TryAcquire should work
-    EZ_TEST_BOOL(blockedMutex.TryAcquire() == true);
+    // we are holding the mutex, another TryLock should work
+    EZ_TEST_BOOL(blockedMutex.TryLock() == true);
 
     // The threads should have finished, no one holds the lock
-    EZ_TEST_BOOL(waitMutex.TryAcquire() == true);
+    EZ_TEST_BOOL(waitMutex.TryLock() == true);
 
     // Test deletion
-    delete pTestThread1;
-    delete pTestThread2;
+    delete pTestThread31;
+    delete pTestThread32;
 
     EZ_TEST_INT(g_iCrossThreadVariable, g_uiIncrementSteps * 2 + 1);
   }
@@ -132,6 +132,6 @@ EZ_CREATE_SIMPLE_TEST(Threading, Thread)
     // We test for 0.25 - 0.35 since the threading functions are a bit varying in their precision
     EZ_TEST_BOOL(duration.GetSeconds() > 0.25);
     EZ_TEST_BOOL_MSG(duration.GetSeconds() < 1.0,
-                     "This test can fail when the machine is under too much load and blocks the process for too long.");
+      "This test can fail when the machine is under too much load and blocks the process for too long.");
   }
 }

@@ -265,18 +265,18 @@ void ezPxCharacterControllerComponent::Update()
     t.SetIdentity();
     t.m_vPosition = posAfter;
 
-    ezPhysicsHitResult hitResult;
-    if (pModule->SweepTestCapsule(pProxy->m_fCapsuleRadius, pProxy->GetCurrentCapsuleHeight(), t, ezVec3(0, 0, -1),
-          pProxy->m_fMaxStepHeight, pProxy->m_uiCollisionLayer, hitResult, pProxy->GetShapeId()))
+    ezPhysicsCastResult castResult;
+    if (pModule->SweepTestCapsule(castResult, pProxy->m_fCapsuleRadius, pProxy->GetCurrentCapsuleHeight(), t, ezVec3(0, 0, -1), pProxy->m_fMaxStepHeight,
+          ezPhysicsQueryParameters(pProxy->m_uiCollisionLayer, ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic, pProxy->GetShapeId())))
     {
-      RawMove(ezVec3(0, 0, -hitResult.m_fDistance));
+      RawMove(ezVec3(0, 0, -castResult.m_fDistance));
 
       // Footstep Surface Interaction
       if (!m_sWalkSurfaceInteraction.IsEmpty())
       {
         ezSurfaceResourceHandle hSurface;
-        if (hitResult.m_hSurface.IsValid())
-          hSurface = hitResult.m_hSurface;
+        if (castResult.m_hSurface.IsValid())
+          hSurface = castResult.m_hSurface;
         else
           hSurface = m_hFallbackWalkSurface;
 
@@ -289,7 +289,7 @@ void ezPxCharacterControllerComponent::Update()
             m_fAccumulatedWalkDistance = 0.0f;
 
             ezResourceLock<ezSurfaceResource> pSurface(hSurface, ezResourceAcquireMode::AllowLoadingFallback);
-            pSurface->InteractWithSurface(GetWorld(), ezGameObjectHandle(), hitResult.m_vPosition, hitResult.m_vNormal, ezVec3(0, 0, 1),
+            pSurface->InteractWithSurface(GetWorld(), ezGameObjectHandle(), castResult.m_vPosition, castResult.m_vNormal, ezVec3(0, 0, 1),
               m_sWalkSurfaceInteraction, &GetOwner()->GetTeamID());
           }
         }

@@ -1,12 +1,10 @@
 #include <GameEnginePCH.h>
 
+#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
+
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/MixedReality/MixedRealityFramework.h>
 #include <RendererCore/Pipeline/Declarations.h>
-
-//////////////////////////////////////////////////////////////////////////
-
-#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
 
 #include <Core/World/World.h>
 #include <Interfaces/SoundInterface.h>
@@ -241,5 +239,5 @@ void ezMixedRealityFramework::SynchronizeCameraOrientationToGameObject(ezGameObj
 
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_MixedReality_MixedRealityFramework);
+EZ_STATICLINK_FILE(GameEngine, GameEngine_MixedReality_Implementation_MixedRealityFramework);
 

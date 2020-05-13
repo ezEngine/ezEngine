@@ -5,6 +5,7 @@
 #include <Core/World/World.h>
 #include <GameEngine/GameEngineDLL.h>
 #include <RendererCore/Components/RenderComponent.h>
+#include <RendererCore/Pipeline/RenderData.h>
 
 class ezMeshRenderData;
 class ezGeometry;

@@ -11,11 +11,19 @@
 
 namespace ezDataDirectory
 {
+  class FileserveDataDirectoryReader : public FolderReader
+  {
+  public:
+    FileserveDataDirectoryReader(ezInt32 iDataDirUserData);
+
+  protected:
+    virtual ezResult InternalOpen(ezFileShareMode::Enum FileShareMode) override;
+  };
+
   class FileserveDataDirectoryWriter : public FolderWriter
   {
   protected:
     virtual void InternalClose() override;
-
   };
 
   /// \brief A data directory type to handle access to files that are served from a network host.
@@ -40,6 +48,7 @@ namespace ezDataDirectory
     virtual bool ExistsFile(const char* szFile, bool bOneSpecificDataDir) override;
     /// \brief Limitation: Fileserve does not handle folders, only files. If someone stats a folder, this will fail.
     virtual ezResult GetFileStats(const char* szFileOrFolder, bool bOneSpecificDataDir, ezFileStats& out_Stats) override;
+    virtual FolderReader* CreateFolderReader() const override;
     virtual FolderWriter* CreateFolderWriter() const override;
 
     ezUInt16 m_uiDataDirID = 0xffff;

@@ -31,6 +31,8 @@ public:
   /// \brief Sets the ezProgress instance that should be visualized.
   void SetProgressbar(ezProgress* pProgress);
 
+  bool IsProcessingEvents() const { return m_iNestedProcessEvents > 0; }
+
 private:
   void ProgressbarEventHandler(const ezProgressEvent& e);
 
@@ -39,6 +41,7 @@ private:
 
   QProgressDialog* m_pDialog = nullptr;
   ezProgress* m_pProgress = nullptr;
+  ezInt32 m_iNestedProcessEvents = 0;
 
 #if EZ_ENABLED(USE_WIN_EXTRAS)
   QWinTaskbarButton* m_pWinTaskBarButton = nullptr;

@@ -12,7 +12,7 @@ void ezDataDirectory::FileserveType::ReloadExternalConfigs()
 
   if (!s_sRedirectionFile.IsEmpty())
   {
-    ezFileserveClient::GetSingleton()->DownloadFile(m_uiDataDirID, s_sRedirectionFile, true);
+    ezFileserveClient::GetSingleton()->DownloadFile(m_uiDataDirID, s_sRedirectionFile, true, nullptr);
   }
 
   FolderType::ReloadExternalConfigs();
@@ -25,16 +25,19 @@ ezDataDirectoryReader* ezDataDirectory::FileserveType::OpenFileToRead(const char
     return nullptr;
 
   ezStringBuilder sRedirected;
-  ResolveAssetRedirection(szFile, sRedirected);
+  if (ResolveAssetRedirection(szFile, sRedirected))
+    bSpecificallyThisDataDir = true; // If this data dir can resolve the guid, only this should load it as well.
 
   // we know that the server cannot resolve asset GUIDs, so don't even ask
   if (ezConversionUtils::IsStringUuid(sRedirected))
     return nullptr;
 
-  if (ezFileserveClient::GetSingleton()->DownloadFile(m_uiDataDirID, sRedirected, bSpecificallyThisDataDir).Failed())
+  ezStringBuilder sFullPath;
+  if (ezFileserveClient::GetSingleton()->DownloadFile(m_uiDataDirID, sRedirected, bSpecificallyThisDataDir, &sFullPath).Failed())
     return nullptr;
 
-  return FolderType::OpenFileToRead(sRedirected, FileShareMode, bSpecificallyThisDataDir);
+  // It's fine to use the base class here as it will resurface in CreateFolderReader which gives us control of the important part.
+  return FolderType::OpenFileToRead(sFullPath, FileShareMode, bSpecificallyThisDataDir);
 }
 
 ezDataDirectoryWriter* ezDataDirectory::FileserveType::OpenFileToWrite(const char* szFile, ezFileShareMode::Enum FileShareMode)
@@ -80,32 +83,42 @@ void ezDataDirectory::FileserveType::DeleteFile(const char* szFile)
   FolderType::DeleteFile(szFile);
 }
 
+ezDataDirectory::FolderReader* ezDataDirectory::FileserveType::CreateFolderReader() const
+{
+  return EZ_DEFAULT_NEW(FileserveDataDirectoryReader, 0);
+}
+
 ezDataDirectory::FolderWriter* ezDataDirectory::FileserveType::CreateFolderWriter() const
 {
   return EZ_DEFAULT_NEW(FileserveDataDirectoryWriter);
 }
 
-
 ezResult ezDataDirectory::FileserveType::GetFileStats(const char* szFileOrFolder, bool bOneSpecificDataDir, ezFileStats& out_Stats)
 {
   ezStringBuilder sRedirected;
-  ResolveAssetRedirection(szFileOrFolder, sRedirected);
+  if (ResolveAssetRedirection(szFileOrFolder, sRedirected))
+    bOneSpecificDataDir = true; // If this data dir can resolve the guid, only this should load it as well.
 
   // we know that the server cannot resolve asset GUIDs, so don't even ask
   if (ezConversionUtils::IsStringUuid(sRedirected))
     return EZ_FAILURE;
 
-  EZ_SUCCEED_OR_RETURN(ezFileserveClient::GetSingleton()->DownloadFile(m_uiDataDirID, sRedirected, bOneSpecificDataDir));
-  return FolderType::GetFileStats(sRedirected, bOneSpecificDataDir, out_Stats);
+  ezStringBuilder sFullPath;
+  EZ_SUCCEED_OR_RETURN(ezFileserveClient::GetSingleton()->DownloadFile(m_uiDataDirID, sRedirected, bOneSpecificDataDir, &sFullPath));
+  return ezOSFile::GetFileStats(sFullPath, out_Stats);
 }
 
 bool ezDataDirectory::FileserveType::ExistsFile(const char* szFile, bool bOneSpecificDataDir)
 {
-  /// \todo Not sure whether this needs to be done here
-  // ezStringBuilder sRedirectedAsset;
-  // ResolveAssetRedirection(szFile, sRedirectedAsset);
+  ezStringBuilder sRedirected;
+  if (ResolveAssetRedirection(szFile, sRedirected))
+    bOneSpecificDataDir = true; // If this data dir can resolve the guid, only this should load it as well.
 
-  return ezFileserveClient::GetSingleton()->DownloadFile(m_uiDataDirID, szFile, bOneSpecificDataDir).Succeeded();
+  // we know that the server cannot resolve asset GUIDs, so don't even ask
+  if (ezConversionUtils::IsStringUuid(sRedirected))
+    return false;
+
+  return ezFileserveClient::GetSingleton()->DownloadFile(m_uiDataDirID, sRedirected, bOneSpecificDataDir, nullptr).Succeeded();
 }
 
 ezDataDirectoryType* ezDataDirectory::FileserveType::Factory(const char* szDataDirectory, const char* szGroup, const char* szRootName,
@@ -134,6 +147,15 @@ ezDataDirectoryType* ezDataDirectory::FileserveType::Factory(const char* szDataD
 
   EZ_DEFAULT_DELETE(pDataDir);
   return nullptr;
+}
+
+ezDataDirectory::FileserveDataDirectoryReader::FileserveDataDirectoryReader(ezInt32 iDataDirUserData) : FolderReader(iDataDirUserData)
+{
+}
+
+ezResult ezDataDirectory::FileserveDataDirectoryReader::InternalOpen(ezFileShareMode::Enum FileShareMode)
+{
+  return m_File.Open(GetFilePath().GetData(), ezFileOpenMode::Read, FileShareMode);
 }
 
 void ezDataDirectory::FileserveDataDirectoryWriter::InternalClose()

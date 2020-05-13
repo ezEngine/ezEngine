@@ -1,8 +1,8 @@
 #pragma once
 
+#include <Foundation/IO/Archive/Archive.h>
 #include <Foundation/Types/Delegate.h>
 #include <Foundation/Types/UniquePtr.h>
-#include <Foundation/IO/Archive/Archive.h>
 
 class ezStreamReader;
 class ezStreamWriter;
@@ -16,6 +16,15 @@ namespace ezArchiveUtils
 {
   typedef ezDelegate<bool(ezUInt64, ezUInt64)> FileWriteProgressCallback;
 
+  /// \brief Returns a modifiable array of file extensions that the engine considers to be valid ezArchive file extensions.
+  ///
+  /// By default it always contains 'ezArchive'.
+  /// Add or overwrite the values, if you want custom file extensions to be handled as ezArchives.
+  EZ_FOUNDATION_DLL ezHybridArray<ezString, 4, ezStaticAllocatorWrapper>& GetAcceptedArchiveFileExtensions();
+
+  /// \brief Checks case insensitive, whether the given extension is in the list of GetAcceptedArchiveFileExtensions().
+  EZ_FOUNDATION_DLL bool IsAcceptedArchiveFileExtensions(ezStringView extension);
+
   /// \brief Writes the header that identifies the ezArchive file and version to the stream
   EZ_FOUNDATION_DLL ezResult WriteHeader(ezStreamWriter& stream);
 
@@ -27,7 +36,7 @@ namespace ezArchiveUtils
 
   /// \brief Deserializes the TOC from the memory mapped file. Assumes the TOC is the very last data in the file and reads it from the back.
   EZ_FOUNDATION_DLL ezResult ExtractTOC(ezMemoryMappedFile& memFile, ezArchiveTOC& toc, ezUInt8 uiArchiveVersion);
-  
+
   /// \brief Writes a single file entry to an ezArchive stream with the given compression level.
   ///
   /// Appends information to the TOC for finding the data in the stream. Reads and updates inout_uiCurrentStreamPosition with the data byte

@@ -13,7 +13,7 @@
 // http://go.microsoft.com/fwlink/?LinkId=248926
 //-------------------------------------------------------------------------------------
 
-#include "DirectXTexp.h"
+#include "DirectXTexP.h"
 
 #if defined(_XBOX_ONE) && defined(_TITLE)
 static_assert(XBOX_DXGI_FORMAT_R10G10B10_7E3_A2_FLOAT == DXGI_FORMAT_R10G10B10_7E3_A2_FLOAT, "Xbox One XDK mismatch detected");
@@ -125,7 +125,7 @@ namespace
 //=====================================================================================
 
 _Use_decl_annotations_
-DXGI_FORMAT DirectX::_WICToDXGI(const GUID& guid)
+DXGI_FORMAT DirectX::_WICToDXGI(const GUID& guid) noexcept
 {
     for (size_t i = 0; i < _countof(g_WICFormats); ++i)
     {
@@ -145,7 +145,7 @@ DXGI_FORMAT DirectX::_WICToDXGI(const GUID& guid)
 }
 
 _Use_decl_annotations_
-bool DirectX::_DXGIToWIC(DXGI_FORMAT format, GUID& guid, bool ignoreRGBvsBGR)
+bool DirectX::_DXGIToWIC(DXGI_FORMAT format, GUID& guid, bool ignoreRGBvsBGR) noexcept
 {
     switch (format)
     {
@@ -205,7 +205,7 @@ bool DirectX::_DXGIToWIC(DXGI_FORMAT format, GUID& guid, bool ignoreRGBvsBGR)
     return false;
 }
 
-DWORD DirectX::_CheckWICColorSpace(_In_ const GUID& sourceGUID, _In_ const GUID& targetGUID)
+DWORD DirectX::_CheckWICColorSpace(_In_ const GUID& sourceGUID, _In_ const GUID& targetGUID) noexcept
 {
     DWORD srgb = 0;
 
@@ -226,7 +226,7 @@ DWORD DirectX::_CheckWICColorSpace(_In_ const GUID& sourceGUID, _In_ const GUID&
 
     if ((srgb & (TEX_FILTER_SRGB_IN | TEX_FILTER_SRGB_OUT)) == (TEX_FILTER_SRGB_IN | TEX_FILTER_SRGB_OUT))
     {
-        srgb &= ~(TEX_FILTER_SRGB_IN | TEX_FILTER_SRGB_OUT);
+        srgb &= ~static_cast<uint32_t>(TEX_FILTER_SRGB_IN | TEX_FILTER_SRGB_OUT);
     }
 
     return srgb;
@@ -237,7 +237,7 @@ DWORD DirectX::_CheckWICColorSpace(_In_ const GUID& sourceGUID, _In_ const GUID&
 // Public helper function to get common WIC codec GUIDs
 //-------------------------------------------------------------------------------------
 _Use_decl_annotations_
-REFGUID DirectX::GetWICCodec(WICCodecs codec)
+REFGUID DirectX::GetWICCodec(WICCodecs codec) noexcept
 {
     switch (codec)
     {
@@ -271,7 +271,7 @@ REFGUID DirectX::GetWICCodec(WICCodecs codec)
 //-------------------------------------------------------------------------------------
 // Singleton function for WIC factory
 //-------------------------------------------------------------------------------------
-IWICImagingFactory* DirectX::GetWICFactory(bool& iswic2)
+IWICImagingFactory* DirectX::GetWICFactory(bool& iswic2) noexcept
 {
     if (g_Factory)
     {
@@ -294,7 +294,7 @@ IWICImagingFactory* DirectX::GetWICFactory(bool& iswic2)
 //-------------------------------------------------------------------------------------
 // Optional initializer for WIC factory
 //-------------------------------------------------------------------------------------
-void DirectX::SetWICFactory(_In_opt_ IWICImagingFactory* pWIC)
+void DirectX::SetWICFactory(_In_opt_ IWICImagingFactory* pWIC) noexcept
 {
     if (pWIC == g_Factory)
         return;
@@ -327,7 +327,7 @@ void DirectX::SetWICFactory(_In_opt_ IWICImagingFactory* pWIC)
 
 //-------------------------------------------------------------------------------------
 _Use_decl_annotations_
-bool DirectX::IsPacked(DXGI_FORMAT fmt)
+bool DirectX::IsPacked(DXGI_FORMAT fmt) noexcept
 {
     switch (static_cast<int>(fmt))
     {
@@ -346,7 +346,7 @@ bool DirectX::IsPacked(DXGI_FORMAT fmt)
 
 //-------------------------------------------------------------------------------------
 _Use_decl_annotations_
-bool DirectX::IsVideo(DXGI_FORMAT fmt)
+bool DirectX::IsVideo(DXGI_FORMAT fmt) noexcept
 {
     switch (static_cast<int>(fmt))
     {
@@ -383,7 +383,7 @@ bool DirectX::IsVideo(DXGI_FORMAT fmt)
 
 //-------------------------------------------------------------------------------------
 _Use_decl_annotations_
-bool DirectX::IsPlanar(DXGI_FORMAT fmt)
+bool DirectX::IsPlanar(DXGI_FORMAT fmt) noexcept
 {
     switch (static_cast<int>(fmt))
     {
@@ -412,7 +412,7 @@ bool DirectX::IsPlanar(DXGI_FORMAT fmt)
 
 //-------------------------------------------------------------------------------------
 _Use_decl_annotations_
-bool DirectX::IsDepthStencil(DXGI_FORMAT fmt)
+bool DirectX::IsDepthStencil(DXGI_FORMAT fmt) noexcept
 {
     switch (static_cast<int>(fmt))
     {
@@ -439,7 +439,7 @@ bool DirectX::IsDepthStencil(DXGI_FORMAT fmt)
 
 //-------------------------------------------------------------------------------------
 _Use_decl_annotations_
-bool DirectX::IsTypeless(DXGI_FORMAT fmt, bool partialTypeless)
+bool DirectX::IsTypeless(DXGI_FORMAT fmt, bool partialTypeless) noexcept
 {
     switch (static_cast<int>(fmt))
     {
@@ -483,7 +483,7 @@ bool DirectX::IsTypeless(DXGI_FORMAT fmt, bool partialTypeless)
 
 //-------------------------------------------------------------------------------------
 _Use_decl_annotations_
-bool DirectX::HasAlpha(DXGI_FORMAT fmt)
+bool DirectX::HasAlpha(DXGI_FORMAT fmt) noexcept
 {
     switch (static_cast<int>(fmt))
     {
@@ -546,7 +546,7 @@ bool DirectX::HasAlpha(DXGI_FORMAT fmt)
 // Returns bits-per-pixel for a given DXGI format, or 0 on failure
 //-------------------------------------------------------------------------------------
 _Use_decl_annotations_
-size_t DirectX::BitsPerPixel(DXGI_FORMAT fmt)
+size_t DirectX::BitsPerPixel(DXGI_FORMAT fmt) noexcept
 {
     switch (static_cast<int>(fmt))
     {
@@ -708,7 +708,7 @@ size_t DirectX::BitsPerPixel(DXGI_FORMAT fmt)
 // For mixed formats, it returns the largest color-depth in the format
 //-------------------------------------------------------------------------------------
 _Use_decl_annotations_
-size_t DirectX::BitsPerColor(DXGI_FORMAT fmt)
+size_t DirectX::BitsPerColor(DXGI_FORMAT fmt) noexcept
 {
     switch (static_cast<int>(fmt))
     {
@@ -875,7 +875,7 @@ size_t DirectX::BitsPerColor(DXGI_FORMAT fmt)
 //-------------------------------------------------------------------------------------
 _Use_decl_annotations_
 HRESULT DirectX::ComputePitch(DXGI_FORMAT fmt, size_t width, size_t height,
-    size_t& rowPitch, size_t& slicePitch, DWORD flags)
+    size_t& rowPitch, size_t& slicePitch, DWORD flags) noexcept
 {
     uint64_t pitch = 0;
     uint64_t slice = 0;
@@ -1074,7 +1074,7 @@ HRESULT DirectX::ComputePitch(DXGI_FORMAT fmt, size_t width, size_t height,
 
 //-------------------------------------------------------------------------------------
 _Use_decl_annotations_
-size_t DirectX::ComputeScanlines(DXGI_FORMAT fmt, size_t height)
+size_t DirectX::ComputeScanlines(DXGI_FORMAT fmt, size_t height) noexcept
 {
     switch (static_cast<int>(fmt))
     {
@@ -1137,7 +1137,7 @@ size_t DirectX::ComputeScanlines(DXGI_FORMAT fmt, size_t height)
 // Converts to an SRGB equivalent type if available
 //-------------------------------------------------------------------------------------
 _Use_decl_annotations_
-DXGI_FORMAT DirectX::MakeSRGB(DXGI_FORMAT fmt)
+DXGI_FORMAT DirectX::MakeSRGB(DXGI_FORMAT fmt) noexcept
 {
     switch (fmt)
     {
@@ -1172,7 +1172,7 @@ DXGI_FORMAT DirectX::MakeSRGB(DXGI_FORMAT fmt)
 // Converts to a format to an equivalent TYPELESS format if available
 //-------------------------------------------------------------------------------------
 _Use_decl_annotations_
-DXGI_FORMAT DirectX::MakeTypeless(DXGI_FORMAT fmt)
+DXGI_FORMAT DirectX::MakeTypeless(DXGI_FORMAT fmt) noexcept
 {
     switch (static_cast<int>(fmt))
     {
@@ -1292,7 +1292,7 @@ DXGI_FORMAT DirectX::MakeTypeless(DXGI_FORMAT fmt)
 // Converts to a TYPELESS format to an equivalent UNORM format if available
 //-------------------------------------------------------------------------------------
 _Use_decl_annotations_
-DXGI_FORMAT DirectX::MakeTypelessUNORM(DXGI_FORMAT fmt)
+DXGI_FORMAT DirectX::MakeTypelessUNORM(DXGI_FORMAT fmt) noexcept
 {
     switch (fmt)
     {
@@ -1351,7 +1351,7 @@ DXGI_FORMAT DirectX::MakeTypelessUNORM(DXGI_FORMAT fmt)
 // Converts to a TYPELESS format to an equivalent FLOAT format if available
 //-------------------------------------------------------------------------------------
 _Use_decl_annotations_
-DXGI_FORMAT DirectX::MakeTypelessFLOAT(DXGI_FORMAT fmt)
+DXGI_FORMAT DirectX::MakeTypelessFLOAT(DXGI_FORMAT fmt) noexcept
 {
     switch (fmt)
     {
@@ -1387,7 +1387,7 @@ DXGI_FORMAT DirectX::MakeTypelessFLOAT(DXGI_FORMAT fmt)
 //=====================================================================================
 
 _Use_decl_annotations_
-size_t TexMetadata::ComputeIndex(size_t mip, size_t item, size_t slice) const
+size_t TexMetadata::ComputeIndex(size_t mip, size_t item, size_t slice) const noexcept
 {
     if (mip >= mipLevels)
         return size_t(-1);
@@ -1455,7 +1455,7 @@ Blob& Blob::operator= (Blob&& moveFrom) noexcept
     return *this;
 }
 
-void Blob::Release()
+void Blob::Release() noexcept
 {
     if (m_buffer)
     {
@@ -1467,7 +1467,7 @@ void Blob::Release()
 }
 
 _Use_decl_annotations_
-HRESULT Blob::Initialize(size_t size)
+HRESULT Blob::Initialize(size_t size) noexcept
 {
     if (!size)
         return E_INVALIDARG;
@@ -1486,7 +1486,7 @@ HRESULT Blob::Initialize(size_t size)
     return S_OK;
 }
 
-HRESULT Blob::Trim(size_t size)
+HRESULT Blob::Trim(size_t size) noexcept
 {
     if (!size)
         return E_INVALIDARG;

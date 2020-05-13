@@ -50,7 +50,7 @@ public:
   static ezActionDescriptorHandle s_hMenuScene;
   static ezActionDescriptorHandle s_hMenuView;
   static ezActionDescriptorHandle s_hMenuHelp;
-  static ezActionDescriptorHandle s_hOpenWiki;
+  static ezActionDescriptorHandle s_hOpenDocumentation;
 };
 
 ///
@@ -76,7 +76,7 @@ class EZ_GUIFOUNDATION_DLL ezHelpActions : public ezButtonAction
 public:
   enum class ButtonType
   {
-    OpenWiki,
+    OpenDocumentation,
   };
 
   ezHelpActions(const ezActionContext& context, const char* szName, ButtonType button);

@@ -3,6 +3,7 @@
 #include "ParticlesTest.h"
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
+#include <ParticlePlugin/Components/ParticleComponent.h>
 
 static ezGameEngineTestParticles s_GameEngineTestParticles;
 
@@ -19,16 +20,105 @@ ezGameEngineTestApplication* ezGameEngineTestParticles::CreateApplication()
 
 void ezGameEngineTestParticles::SetupSubTests()
 {
-  AddSubTest("Billboards", SubTests::ST_Billboards);
+  AddSubTest("BillboardRenderer", SubTests::BillboardRenderer);
+  AddSubTest("ColorGradientBehavior", SubTests::ColorGradientBehavior);
+  AddSubTest("FliesBehavior", SubTests::FliesBehavior);
+  AddSubTest("GravityBehavior", SubTests::GravityBehavior);
+  AddSubTest("LightRenderer", SubTests::LightRenderer);
+  AddSubTest("MeshRenderer", SubTests::MeshRenderer);
+  AddSubTest("RaycastBehavior", SubTests::RaycastBehavior);
+  AddSubTest("SizeCurveBehavior", SubTests::SizeCurveBehavior);
+  AddSubTest("TrailRenderer", SubTests::TrailRenderer);
+  AddSubTest("VelocityBehavior", SubTests::VelocityBehavior);
+  AddSubTest("EffectRenderer", SubTests::EffectRenderer);
+  AddSubTest("BoxPosInitializer", SubTests::BoxPositionInitializer);
+  AddSubTest("SpherePosInitializer", SubTests::SpherePositionInitializer);
+  AddSubTest("CylinderPosInitializer", SubTests::CylinderPositionInitializer);
+  AddSubTest("RandomColorInitializer", SubTests::RandomColorInitializer);
+  AddSubTest("RandomSizeInitializer", SubTests::RandomSizeInitializer);
+  AddSubTest("RotationSpeedInitializer", SubTests::RotationSpeedInitializer);
+  AddSubTest("VelocityConeInitializer", SubTests::VelocityConeInitializer);
+  AddSubTest("BurstEmitter", SubTests::BurstEmitter);
+  AddSubTest("ContinuousEmitter", SubTests::ContinuousEmitter);
+  AddSubTest("OnEventEmitter", SubTests::OnEventEmitter);
+  AddSubTest("QuadRotatingOrtho", SubTests::QuadRotatingOrtho);
+  AddSubTest("QuadFixedEmDir", SubTests::QuadFixedEmDir);
+  AddSubTest("QuadAxisEmDir", SubTests::QuadAxisEmDir);
+  AddSubTest("EventReactionEffect", SubTests::EventReactionEffect);
+
+  AddSubTest("Billboards", SubTests::Billboards);
+  AddSubTest("PullAlongBehavior", SubTests::PullAlongBehavior);
+  AddSubTest("DistanceEmitter", SubTests::DistanceEmitter);
+  AddSubTest("SharedInstances", SubTests::SharedInstances);
+  AddSubTest("LocalSpaceSim", SubTests::LocalSpaceSim);
 }
 
 ezResult ezGameEngineTestParticles::InitializeSubTest(ezInt32 iIdentifier)
 {
+  SUPER::InitializeSubTest(iIdentifier);
+
   m_iFrame = -1;
 
-  if (iIdentifier == SubTests::ST_Billboards)
+  if (iIdentifier == SubTests::Billboards)
   {
-    m_pOwnApplication->SubTestBillboardsSetup();
+    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/Billboards.ezObjectGraph");
+    return EZ_SUCCESS;
+  }
+  else if (iIdentifier == SubTests::PullAlongBehavior)
+  {
+    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/PullAlong.ezObjectGraph");
+    return EZ_SUCCESS;
+  }
+  else if (iIdentifier == SubTests::DistanceEmitter)
+  {
+    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/DistanceEmitter.ezObjectGraph");
+    return EZ_SUCCESS;
+  }
+  else if (iIdentifier == SubTests::SharedInstances)
+  {
+    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/SharedInstances.ezObjectGraph");
+    return EZ_SUCCESS;
+  }
+  else if (iIdentifier == SubTests::EventReactionEffect)
+  {
+    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/EventReactionEffect.ezObjectGraph");
+    return EZ_SUCCESS;
+  }
+  else if (iIdentifier == SubTests::LocalSpaceSim)
+  {
+    m_pOwnApplication->SetupSceneSubTest("Particles/AssetCache/Common/LocalSpaceSim.ezObjectGraph");
+    return EZ_SUCCESS;
+  }
+  else
+  {
+    const char* szEffects[] = {
+      "{ 08b3e790-2832-4083-93ec-133a93054c4c }", // BillboardRenderer
+      "{ f0959d22-6004-47e7-b167-af707d4d5cea }", // ColorGradientBehavior
+      "{ cb01c6d9-b8ff-4347-ab8b-e94403c68aad }", // FliesBehavior
+      "{ ec64cef4-4936-4e44-8d47-9fedda2cc75b }", // GravityBehavior
+      "{ 856007bd-6f03-4bc0-bb61-f7fcc5a1575b }", // LightRenderer
+      "{ 54f8f8f5-15e4-46c3-a80e-d5a6e2d6b693 }", // MeshRenderer
+      "{ 4ff34107-3159-4357-b4eb-9652b0888a16 }", // RaycastBehavior
+      "{ 58bf4d72-aa09-404f-81b8-13965d3e2286 }", // SizeCurveBehavior
+      "{ ec85e634-b8ee-475f-bd86-7cbc2973de0a }", // TrailRenderer
+      "{ ba82b712-3af7-430d-91a6-492aa836dffb }", // VelocityBehavior
+      "{ 3673cc69-2ac0-463a-b9b3-207cc30b7f25 }", // EffectRenderer
+      "{ e30bbbf2-9bda-45e0-8116-1ae8b998ce61 }", // BoxPositionInitializer
+      "{ 536e7516-d811-4552-a3e9-5153dfdd5be1 }", // SpherePositionInitializer
+      "{ 2fb51ce6-69fc-44ad-b453-2822e091916f }", // CylinderPositionInitializer
+      "{ 8cfee0af-ac0e-452d-b13f-e67420497397 }", // RandomColorInitializer
+      "{ b4a3fc51-60ac-48b2-abec-5b2b6728676c }", // RandomSizeInitializer
+      "{ f51d9d7b-0ad9-4f61-acb4-745c2b91a311 }", // RotationSpeedInitializer
+      "{ c5a48c20-efab-4af5-a86b-91cd2241682e }", // VelocityConeInitializer
+      "{ abee6cd5-9d5a-4bd9-ae0a-af54dbbaaf8e }", // BurstEmitter
+      "{ 0881d8a5-3c3f-4868-8950-ee7402daa234 }", // ContinuousEmitter
+      "{ 5a8acf94-76da-4f67-8ba4-ac2693e747f5 }", // OnEventEmitter
+      "{ 116d2eb4-e990-4796-ab0a-f6a42284feb7 }", // QuadRotatingOrtho
+      "{ 81d2474b-8edd-464d-a828-7e398376ef5c }", // QuadFixedEmDir
+      "{ dfbb5432-f850-4e4b-b6b2-dcc1f10f3a3c }", // QuadAxisEmDir
+    };
+
+    m_pOwnApplication->SetupParticleSubTest(szEffects[iIdentifier]);
     return EZ_SUCCESS;
   }
 
@@ -39,28 +129,39 @@ ezTestAppRun ezGameEngineTestParticles::RunSubTest(ezInt32 iIdentifier, ezUInt32
 {
   ++m_iFrame;
 
-  if (iIdentifier == SubTests::ST_Billboards)
-    return m_pOwnApplication->SubTestBillboardsExec(m_iFrame);
-
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return ezTestAppRun::Quit;
+  return m_pOwnApplication->ExecParticleSubTest(m_iFrame);
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 ezGameEngineTestApplication_Particles::ezGameEngineTestApplication_Particles()
-    : ezGameEngineTestApplication("Particles")
+  : ezGameEngineTestApplication("Particles")
 {
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-void ezGameEngineTestApplication_Particles::SubTestBillboardsSetup()
+void ezGameEngineTestApplication_Particles::SetupSceneSubTest(const char* szFile)
 {
-  LoadScene("Particles/AssetCache/Common/Billboards.ezObjectGraph");
+  LoadScene(szFile);
 }
 
-ezTestAppRun ezGameEngineTestApplication_Particles::SubTestBillboardsExec(ezInt32 iCurFrame)
+void ezGameEngineTestApplication_Particles::SetupParticleSubTest(const char* szFile)
+{
+  LoadScene("Particles/AssetCache/Common/Particles1.ezObjectGraph");
+
+  EZ_LOCK(m_pWorld->GetWriteMarker());
+
+  ezGameObject* pObject;
+  m_pWorld->TryGetObjectWithGlobalKey("Effect", pObject);
+
+  ezParticleComponent* pEffect;
+  m_pWorld->GetOrCreateComponentManager<ezParticleComponentManager>()->CreateComponent(pObject, pEffect);
+  pEffect->SetParticleEffectFile(szFile);
+  pEffect->m_uiRandomSeed = 42;
+}
+
+ezTestAppRun ezGameEngineTestApplication_Particles::ExecParticleSubTest(ezInt32 iCurFrame)
 {
   if (Run() == ezApplication::Quit)
     return ezTestAppRun::Quit;
@@ -68,14 +169,15 @@ ezTestAppRun ezGameEngineTestApplication_Particles::SubTestBillboardsExec(ezInt3
   switch (iCurFrame)
   {
     case 15:
-      EZ_TEST_IMAGE(0, 50);
+      EZ_TEST_IMAGE(0, 100);
       break;
+
     case 30:
-      EZ_TEST_IMAGE(1, 50);
+      EZ_TEST_IMAGE(1, 100);
       break;
 
     case 60:
-      EZ_TEST_IMAGE(2, 50);
+      EZ_TEST_IMAGE(2, 100);
       return ezTestAppRun::Quit;
   }
 

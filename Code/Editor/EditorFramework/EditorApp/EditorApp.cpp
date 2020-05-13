@@ -6,6 +6,7 @@
 #include <EditorFramework/Preferences/EditorPreferences.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
+#include <GuiFoundation/UIServices/QtProgressbar.h>
 #include <QProcess>
 #include <QTextStream>
 #include <QTimer>
@@ -20,8 +21,6 @@ ezQtEditorApp::ezQtEditorApp()
 {
   m_pProgressbar = nullptr;
   m_pQtProgressbar = nullptr;
-  m_bSafeMode = false;
-  m_bHeadless = false;
   m_bSavePreferencesAfterOpenProject = false;
 
   ezApplicationServices::GetSingleton()->SetApplicationName("ezEditor");
@@ -45,10 +44,13 @@ ezInt32 ezQtEditorApp::RunEditor()
 
 void ezQtEditorApp::SlotTimedUpdate()
 {
-  if (ezEditorEngineProcessConnection::GetSingleton())
-    ezEditorEngineProcessConnection::GetSingleton()->Update();
+  if (ezToolsProject::IsProjectOpen())
+  {
+    if (ezEditorEngineProcessConnection::GetSingleton())
+      ezEditorEngineProcessConnection::GetSingleton()->Update();
 
-  ezAssetCurator::GetSingleton()->MainThreadTick();
+    ezAssetCurator::GetSingleton()->MainThreadTick(true);
+  }
   ezTaskSystem::FinishFrameTasks();
 
   Q_EMIT IdleEvent();
@@ -103,6 +105,11 @@ void ezQtEditorApp::SaveAllOpenDocuments()
       }
     }
   }
+}
+
+bool ezQtEditorApp::IsProgressBarProcessingEvents() const
+{
+  return m_pQtProgressbar != nullptr && m_pQtProgressbar->IsProcessingEvents();
 }
 
 void ezQtEditorApp::OnDemandDynamicStringEnumLoad(const char* szEnumName, ezDynamicStringEnum& e)

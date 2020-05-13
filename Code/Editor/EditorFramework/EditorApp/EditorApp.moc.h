@@ -109,9 +109,10 @@ public:
   //
 
   /// \brief Can be set via the command line option '-safe'. In this mode the editor will not automatically load recent documents
-  bool IsInSafeMode() const { return m_bSafeMode; }
+  bool IsInSafeMode() const { return m_StartupFlags.IsSet(StartupFlags::SafeMode); }
+
   /// \brief Returns true if StartupEditor was called with true. This is the case in an EditorProcessor.
-  bool IsInHeadlessMode() const { return m_bHeadless; }
+  bool IsInHeadlessMode() const { return m_StartupFlags.IsSet(StartupFlags::Headless); }
 
   const ezPluginSet& GetEditorPlugins() const { return s_EditorPlugins; }
   const ezPluginSet& GetEnginePlugins() const { return s_EnginePlugins; }
@@ -138,7 +139,7 @@ public:
 
   void InitQt(int argc, char** argv);
   void StartupEditor();
-  void StartupEditor(ezBitflags<StartupFlags> flags, const char* szUserDataFolder = nullptr);
+  void StartupEditor(ezBitflags<StartupFlags> startupFlags, const char* szUserDataFolder = nullptr);
   void ShutdownEditor();
   ezInt32 RunEditor();
   void DeInitQt();
@@ -245,11 +246,11 @@ private:
   void SetStyleSheet();
   void CreatePanels();
 
-  bool m_bSafeMode;
-  bool m_bHeadless;
   bool m_bSavePreferencesAfterOpenProject;
-  bool m_bUnitTestMode = false;
   bool m_bLoadingProjectInProgress = false;
+
+  ezBitflags<StartupFlags> m_StartupFlags;
+  ezDynamicArray<ezString> m_DocumentsToOpen;
 
   ezSet<ezString> s_RestartRequiredReasons;
   ezSet<ezString> s_ReloadProjectRequiredReasons;
@@ -280,6 +281,10 @@ private:
   ezString m_sLastProjectFolder;
 
   // *** Progress Bar ***
+public:
+  bool IsProgressBarProcessingEvents() const;
+
+private:
   ezProgress* m_pProgressbar;
   ezQtProgressbar* m_pQtProgressbar;
 

@@ -40,7 +40,7 @@ void ezQtManipulatorLabel::SetManipulator(const ezManipulatorAttribute* pManipul
   }
 }
 
-const bool ezQtManipulatorLabel::GetManipulatorActive() const
+bool ezQtManipulatorLabel::GetManipulatorActive() const
 {
   return m_bActive;
 }

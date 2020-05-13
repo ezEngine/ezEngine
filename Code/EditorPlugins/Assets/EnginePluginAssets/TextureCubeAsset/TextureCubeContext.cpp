@@ -26,12 +26,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureCubeContext, 1, ezRTTIDefaultAllocator<
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezTextureCubeContext::ezTextureCubeContext()
-  : m_TextureFormat(ezGALResourceFormat::Invalid)
-  , m_uiTextureWidthAndHeight(0)
-  , m_bAddedEventHandler(false)
-{
-}
+ezTextureCubeContext::ezTextureCubeContext() = default;
 
 void ezTextureCubeContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
 {
@@ -50,14 +45,6 @@ void ezTextureCubeContext::HandleMessage(const ezEditorEngineDocumentMsg* pMsg)
   ezEngineProcessDocumentContext::HandleMessage(pMsg);
 }
 
-void ezTextureCubeContext::GetTextureStats(ezGALResourceFormat::Enum& format, ezUInt32& uiWidthAndHeight)
-{
-  format = m_TextureFormat;
-  uiWidthAndHeight = m_uiTextureWidthAndHeight;
-
-  UpdatePreview();
-}
-
 void ezTextureCubeContext::OnInitialize()
 {
   const char* szMeshName = "DefaultTextureCubePreviewMesh";
@@ -69,17 +56,12 @@ void ezTextureCubeContext::OnInitialize()
   m_hMaterial = ezResourceManager::GetExistingResource<ezMaterialResource>(sMaterialResource);
 
   m_hTexture = ezResourceManager::LoadResource<ezTextureCubeResource>(sTextureGuid);
+  ezGALResourceFormat::Enum textureFormat = ezGALResourceFormat::Invalid;
   {
-    ezResourceLock<ezTextureCubeResource> pTexture(m_hTexture, ezResourceAcquireMode::BlockTillLoaded);
+    ezResourceLock<ezTextureCubeResource> pTexture(m_hTexture, ezResourceAcquireMode::PointerOnly);
 
-    m_TextureFormat = pTexture->GetFormat();
-    m_uiTextureWidthAndHeight = pTexture->GetWidthAndHeight();
-
-    if (pTexture.GetAcquireResult() != ezResourceAcquireResult::MissingFallback)
-    {
-      m_bAddedEventHandler = true;
-      pTexture->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezTextureCubeContext::OnResourceEvent, this));
-    }
+    textureFormat = pTexture->GetFormat();
+    pTexture->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezTextureCubeContext::OnResourceEvent, this), m_textureResourceEventSubscriber);
   }
 
   // Preview Mesh
@@ -97,10 +79,7 @@ void ezTextureCubeContext::OnInitialize()
       geom.ComputeTangents();
 
       ezMeshBufferResourceDescriptor desc;
-      desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-      desc.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::XYFloat);
-      desc.AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
-      desc.AddStream(ezGALVertexAttributeSemantic::Tangent, ezGALResourceFormat::XYZFloat);
+      desc.AddCommonStreams();
       desc.AllocateStreamsFromGeometry(geom, ezGALPrimitiveTopology::Triangles);
 
       hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(szMeshBufferName, std::move(desc), szMeshBufferName);
@@ -130,7 +109,7 @@ void ezTextureCubeContext::OnInitialize()
 
     auto& param = md.m_Parameters.ExpandAndGetRef();
     param.m_Name.Assign("IsLinear");
-    param.m_Value = !ezGALResourceFormat::IsSrgb(m_TextureFormat);
+    param.m_Value = textureFormat != ezGALResourceFormat::Invalid ? !ezGALResourceFormat::IsSrgb(textureFormat) : false;
 
     m_hMaterial = ezResourceManager::CreateResource<ezMaterialResource>(sMaterialResource, std::move(md));
   }
@@ -151,18 +130,6 @@ void ezTextureCubeContext::OnInitialize()
     pMesh->SetMesh(m_hPreviewMeshResource);
     pMesh->SetMaterial(0, m_hMaterial);
   }
-
-  UpdatePreview();
-}
-
-void ezTextureCubeContext::OnDeinitialize()
-{
-  if (m_bAddedEventHandler)
-  {
-    ezResourceLock<ezTextureCubeResource> pTexture(m_hTexture, ezResourceAcquireMode::BlockTillLoaded);
-
-    pTexture->m_ResourceEvents.RemoveEventHandler(ezMakeDelegate(&ezTextureCubeContext::OnResourceEvent, this));
-  }
 }
 
 ezEngineProcessViewContext* ezTextureCubeContext::CreateViewContext()
@@ -180,27 +147,10 @@ void ezTextureCubeContext::OnResourceEvent(const ezResourceEvent& e)
   if (e.m_Type == ezResourceEvent::Type::ResourceContentUpdated)
   {
     const ezTextureCubeResource* pTexture = static_cast<const ezTextureCubeResource*>(e.m_pResource);
-
-    m_TextureFormat = pTexture->GetFormat();
-    m_uiTextureWidthAndHeight = pTexture->GetWidthAndHeight();
-
-    // cannot call this here, because the event happens on another thread at any possible time
-    // UpdatePreview();
-  }
-}
-
-void ezTextureCubeContext::UpdatePreview()
-{
-  EZ_LOCK(m_pWorld->GetWriteMarker());
-
-  if (!m_bAddedEventHandler)
-  {
-    ezResourceLock<ezTextureCubeResource> pTexture(m_hTexture, ezResourceAcquireMode::BlockTillLoaded);
-
-    if (pTexture.GetAcquireResult() != ezResourceAcquireResult::MissingFallback)
+    if (pTexture->GetFormat() != ezGALResourceFormat::Invalid)
     {
-      m_bAddedEventHandler = true;
-      pTexture->m_ResourceEvents.AddEventHandler(ezMakeDelegate(&ezTextureCubeContext::OnResourceEvent, this));
+      ezResourceLock<ezMaterialResource> pMaterial(m_hMaterial, ezResourceAcquireMode::BlockTillLoaded);
+      pMaterial->SetParameter("IsLinear", !ezGALResourceFormat::IsSrgb(pTexture->GetFormat()));
     }
   }
 }

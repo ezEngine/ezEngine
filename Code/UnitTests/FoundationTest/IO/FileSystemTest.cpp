@@ -5,6 +5,12 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 
+#if EZ_ENABLED(EZ_SUPPORTS_LONG_PATHS)
+#define LongPath "AVeryLongSubFolderPathNameThatShouldExceedThePathLengthLimitOnPlatformsLikeWindowsWhereOnly260CharactersAreAllowedOhNoesIStillNeedMoreThisIsNotLongEnoughAaaaaaaaaaaaaaahhhhStillTooShortAaaaaaaaaaaaaaaaaaaaaahImBoredNow"
+#else
+#define LongPath "AShortPathBecaueThisPlatformDoesntSupportLongOnes"
+#endif
+
 EZ_CREATE_SIMPLE_TEST(IO, FileSystem)
 {
   ezStringBuilder sFileContent = "Lyrics to Taste The Cake:\n\
@@ -49,6 +55,7 @@ Only concrete and clocks.\n\
     EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(szOutputFolder, "Clear", "output", ezFileSystem::AllowWrites) == EZ_SUCCESS);
 
     ezStringBuilder sTempFile = sOutputFolder1Resolved;
+    sTempFile.AppendPath(LongPath);
     sTempFile.AppendPath("Temp.tmp");
 
     ezFileWriter TempFile;
@@ -168,35 +175,57 @@ Only concrete and clocks.\n\
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Delete File / Exists File")
   {
-    EZ_TEST_BOOL(ezFileSystem::ExistsFile(":output1/FileSystemTest.txt"));
-    ezFileSystem::DeleteFile(":output1/FileSystemTest.txt");
-    EZ_TEST_BOOL(!ezFileSystem::ExistsFile("FileSystemTest.txt"));
+    {
+      EZ_TEST_BOOL(ezFileSystem::ExistsFile(":output1/FileSystemTest.txt"));
+      ezFileSystem::DeleteFile(":output1/FileSystemTest.txt");
+      EZ_TEST_BOOL(!ezFileSystem::ExistsFile("FileSystemTest.txt"));
 
-    ezFileReader FileIn;
-    EZ_TEST_BOOL(FileIn.Open("FileSystemTest.txt") == EZ_FAILURE);
+      ezFileReader FileIn;
+      EZ_TEST_BOOL(FileIn.Open("FileSystemTest.txt") == EZ_FAILURE);
+    }
+
+    // very long path names
+    {
+      ezStringBuilder sTempFile = ":output1";
+      sTempFile.AppendPath(LongPath);
+      sTempFile.AppendPath("Temp.tmp");
+
+      ezFileWriter TempFile;
+      EZ_TEST_BOOL(TempFile.Open(sTempFile) == EZ_SUCCESS);
+      TempFile.Close();
+
+      EZ_TEST_BOOL(ezFileSystem::ExistsFile(sTempFile));
+      ezFileSystem::DeleteFile(sTempFile);
+      EZ_TEST_BOOL(!ezFileSystem::ExistsFile(sTempFile));
+
+      ezFileReader FileIn;
+      EZ_TEST_BOOL(FileIn.Open("FileSystemTest.txt") == EZ_FAILURE);
+    }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFileStats")
   {
+    const char* szPath = ":output1/" LongPath "/FileSystemTest.txt";
+
     // Create file
     {
       ezFileWriter FileOut;
       ezStringBuilder sAbs = sOutputFolder1Resolved;
       sAbs.AppendPath("FileSystemTest.txt");
-      EZ_TEST_BOOL(FileOut.Open(":output1/FileSystemTest.txt") == EZ_SUCCESS);
+      EZ_TEST_BOOL(FileOut.Open(szPath) == EZ_SUCCESS);
       FileOut.WriteBytes("Test", 4);
     }
 
     ezFileStats stat;
 
-    EZ_TEST_BOOL(ezFileSystem::GetFileStats(":output1/FileSystemTest.txt", stat).Succeeded());
+    EZ_TEST_BOOL(ezFileSystem::GetFileStats(szPath, stat).Succeeded());
 
     EZ_TEST_BOOL(!stat.m_bIsDirectory);
     EZ_TEST_STRING(stat.m_sName, "FileSystemTest.txt");
     EZ_TEST_INT(stat.m_uiFileSize, 4);
 
-    ezFileSystem::DeleteFile(":output1/FileSystemTest.txt");
-    EZ_TEST_BOOL(ezFileSystem::GetFileStats(":output1/FileSystemTest.txt", stat).Failed());
+    ezFileSystem::DeleteFile(szPath);
+    EZ_TEST_BOOL(ezFileSystem::GetFileStats(szPath, stat).Failed());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ResolvePath")

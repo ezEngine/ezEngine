@@ -87,10 +87,9 @@ void ezRotorComponent::Update()
       /// \todo This will probably give precision issues pretty quickly
 
       ezQuat qRotation;
-      qRotation.SetFromAxisAndAngle(m_vRotationAxis, ezAngle::Degree(m_fAnimationSpeed * (float)m_AnimationTime.GetSeconds()));
+      qRotation.SetFromAxisAndAngle(m_vRotationAxis, ezAngle::Degree(m_fAnimationSpeed * GetWorld()->GetClock().GetTimeDiff().GetSeconds()));
 
-      GetOwner()->SetLocalRotation(GetOwner()->GetLocalRotation() * -m_LastRotation * qRotation);
-      m_LastRotation = qRotation;
+      GetOwner()->SetLocalRotation(GetOwner()->GetLocalRotation() * qRotation);
     }
   }
 }
@@ -198,4 +197,4 @@ public:
 ezRotorComponentPatch_1_2 g_ezRotorComponentPatch_1_2;
 
 
-EZ_STATICLINK_FILE(GameEngine, GameEngine_Components_Implementation_RotorComponent);
+EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Implementation_RotorComponent);

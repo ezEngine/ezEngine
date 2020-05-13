@@ -40,7 +40,7 @@ struct PluginData
 static ezMap<ezString, PluginData> g_LoadedPlugins;
 ezInt32 ezPlugin::s_iPluginChangeRecursionCounter = 0;
 ezUInt32 ezPlugin::m_uiMaxParallelInstances = 32;
-ezEvent<const ezPluginEvent&> ezPlugin::s_PluginEvents;
+ezCopyOnBroadcastEvent<const ezPluginEvent&> ezPlugin::s_PluginEvents;
 
 
 void ezPlugin::SetMaxParallelInstances(ezUInt32 uiMaxParallelInstances)
@@ -229,7 +229,8 @@ ezResult ezPlugin::LoadPluginInternal(const char* szPluginFile, bool bLoadCopy, 
   if (bLoadCopy)
   {
     // create a copy of the original plugin file
-    for (uiFileNumber = 0; uiFileNumber < ezPlugin::m_uiMaxParallelInstances; ++uiFileNumber)
+    const ezUInt8 uiMaxParallelInstances = static_cast<ezUInt8>(ezPlugin::m_uiMaxParallelInstances);
+    for (uiFileNumber = 0; uiFileNumber < uiMaxParallelInstances; ++uiFileNumber)
     {
       GetPluginPaths(szPluginFile, sOldPlugin, sNewPlugin, uiFileNumber);
       if (ezOSFile::CopyFile(sOldPlugin.GetData(), sNewPlugin.GetData()) == EZ_SUCCESS)

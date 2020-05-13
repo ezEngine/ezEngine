@@ -1,5 +1,6 @@
 #include <ParticlePluginPCH.h>
 
+#include <ParticlePlugin/Components/ParticleFinisherComponent.h>
 #include <ParticlePlugin/Effect/ParticleEffectController.h>
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
 
@@ -39,9 +40,9 @@ ezParticleEffectInstance* ezParticleEffectController::GetInstance() const
 }
 
 void ezParticleEffectController::Create(const ezParticleEffectResourceHandle& hEffectResource, ezParticleWorldModule* pModule,
-                                        ezUInt64 uiRandomSeed, const char* szSharedName, const void* pSharedInstanceOwner,
-                                        ezArrayPtr<ezParticleEffectFloatParam> floatParams,
-                                        ezArrayPtr<ezParticleEffectColorParam> colorParams)
+  ezUInt64 uiRandomSeed, const char* szSharedName, const void* pSharedInstanceOwner,
+  ezArrayPtr<ezParticleEffectFloatParam> floatParams,
+  ezArrayPtr<ezParticleEffectColorParam> colorParams)
 {
   m_pSharedInstanceOwner = pSharedInstanceOwner;
 
@@ -89,6 +90,7 @@ void ezParticleEffectController::Tick(const ezTime& tDiff) const
 
   if (pEffect)
   {
+    pEffect->PreSimulate();
     pEffect->Update(tDiff);
   }
 }
@@ -103,6 +105,16 @@ void ezParticleEffectController::SetIsInView() const
   }
 }
 
+void ezParticleEffectController::ForceBoundingVolumeUpdate()
+{
+  ezParticleEffectInstance* pEffect = GetInstance();
+
+  if (pEffect)
+  {
+    pEffect->ForceBoundingVolumeUpdate();
+  }
+}
+
 void ezParticleEffectController::StopImmediate()
 {
   if (m_pModule)
@@ -114,8 +126,7 @@ void ezParticleEffectController::StopImmediate()
   }
 }
 
-
-ezTime ezParticleEffectController::GetBoundingVolume(ezBoundingBoxSphere& volume) const
+ezUInt32 ezParticleEffectController::GetBoundingVolume(ezBoundingBoxSphere& volume) const
 {
   ezParticleEffectInstance* pEffect = GetInstance();
 
@@ -124,9 +135,8 @@ ezTime ezParticleEffectController::GetBoundingVolume(ezBoundingBoxSphere& volume
     return pEffect->GetBoundingVolume(volume);
   }
 
-  return ezTime();
+  return 0;
 }
-
 
 void ezParticleEffectController::SetParameter(const ezTempHashedString& name, float value)
 {
@@ -137,7 +147,6 @@ void ezParticleEffectController::SetParameter(const ezTempHashedString& name, fl
     pEffect->SetParameter(name, value);
   }
 }
-
 
 void ezParticleEffectController::SetParameter(const ezTempHashedString& name, const ezColor& value)
 {
@@ -159,7 +168,5 @@ void ezParticleEffectController::Invalidate()
     m_hEffect.Invalidate();
   }
 }
-
-
 
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Effect_ParticleEffectController);

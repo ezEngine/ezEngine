@@ -320,6 +320,8 @@ void ezQtAssetPropertyWidget::OnCopyAssetGuid()
   QMimeData* mimeData = new QMimeData();
   mimeData->setText(QString::fromUtf8(sGuid.GetData()));
   clipboard->setMimeData(mimeData);
+
+  ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Copied asset GUID: {}", sGuid), ezTime::Seconds(5));
 }
 
 void ezQtAssetPropertyWidget::OnCreateNewAsset()
@@ -342,6 +344,28 @@ void ezQtAssetPropertyWidget::OnCreateNewAsset()
   const ezAssetBrowserAttribute* pAssetAttribute = m_pProp->GetAttributeByType<ezAssetBrowserAttribute>();
   ezStringBuilder sTypeFilter = pAssetAttribute->GetTypeFilter();
 
+  ezHybridArray<ezString, 4> types;
+  sTypeFilter.Split(false, types, ";");
+
+  ezStringBuilder tmp;
+
+  for (ezString& type : types)
+  {
+    tmp = type;
+    tmp.Trim(" ");
+    type = tmp;
+  }
+
+  struct info
+  {
+    ezAssetDocumentManager* pAssetMan = nullptr;
+    const ezDocumentTypeDescriptor* pDocType = nullptr;
+  };
+
+  ezHybridArray<info, 4> typesToUse;
+  typesToUse.SetCount(types.GetCount());
+  bool bFoundAny = false;
+
   ezAssetDocumentManager* pAssetManToUse = nullptr;
   {
     const ezHybridArray<ezDocumentManager*, 16>& managers = ezDocumentManager::GetAllDocumentManagers();
@@ -355,50 +379,69 @@ void ezQtAssetPropertyWidget::OnCreateNewAsset()
 
         for (auto pType : documentTypes)
         {
-          if (!sTypeFilter.FindSubString(pType->m_sDocumentTypeName))
+          ezUInt32 idx = types.IndexOf(pType->m_sDocumentTypeName);
+
+          if (idx == ezInvalidIndex)
             continue;
 
-          pAssetManToUse = pAssetMan;
-          goto found;
+          typesToUse[idx].pAssetMan = pAssetMan;
+          typesToUse[idx].pDocType = pType;
+          bFoundAny = true;
         }
       }
     }
   }
 
-  return;
+  if (!bFoundAny)
+    return;
 
-found:
+  ezStringBuilder sFilter;
+  QString sSelectedFilter;
 
-  ezHybridArray<const ezDocumentTypeDescriptor*, 4> documentTypes;
-  pAssetManToUse->GetSupportedDocumentTypes(documentTypes);
-  const ezString sAssetType = documentTypes[0]->m_sDocumentTypeName;
-  const ezString sExtension = documentTypes[0]->m_sFileExtension;
+  for (const auto& ttu : typesToUse)
+  {
+    if (ttu.pAssetMan == nullptr)
+      continue;
+
+    const ezString sAssetType = ttu.pDocType->m_sDocumentTypeName;
+    const ezString sExtension = ttu.pDocType->m_sFileExtension;
+
+    sFilter.AppendWithSeparator(";;", sAssetType, " (*.", sExtension, ")");
+
+    if (sSelectedFilter.isEmpty())
+    {
+      sSelectedFilter = sExtension.GetData();
+    }
+  }
+
 
   ezStringBuilder sOutput = sPath;
   {
-    ezStringBuilder sTemp = sOutput.GetFileDirectory();
-    ezStringBuilder title("Create ", sAssetType), sFilter;
 
-    sFilter.Format("{0} (*.{1})", sAssetType, sExtension);
-
-    QString sStartDir = sTemp.GetData();
-    QString sSelectedFilter = sExtension.GetData();
-    sOutput = QFileDialog::getSaveFileName(QApplication::activeWindow(), title.GetData(), sStartDir, sFilter.GetData(), &sSelectedFilter,
-      QFileDialog::Option::DontResolveSymlinks)
-                .toUtf8()
-                .data();
+    QString sStartDir = sOutput.GetFileDirectory().GetData(tmp);
+    sOutput = QFileDialog::getSaveFileName(QApplication::activeWindow(), "Create Asset", sStartDir, sFilter.GetData(), &sSelectedFilter, QFileDialog::Option::DontResolveSymlinks).toUtf8().data();
 
     if (sOutput.IsEmpty())
       return;
   }
 
-  ezDocument* pDoc;
-  if (pAssetManToUse->CreateDocument(sAssetType, sOutput, pDoc, ezDocumentFlags::RequestWindow | ezDocumentFlags::AddToRecentFilesList).m_Result.Succeeded())
+  for (const auto& ttu : typesToUse)
   {
-    pDoc->EnsureVisible();
+    if (ttu.pAssetMan == nullptr)
+      continue;
 
-    InternalSetValue(sOutput.GetData());
-    on_TextFinished_triggered();
+    if (sSelectedFilter == ttu.pDocType->m_sFileExtension)
+    {
+      ezDocument* pDoc;
+      if (pAssetManToUse->CreateDocument(ttu.pDocType->m_sDocumentTypeName, sOutput, pDoc, ezDocumentFlags::RequestWindow | ezDocumentFlags::AddToRecentFilesList).m_Result.Succeeded())
+      {
+        pDoc->EnsureVisible();
+
+        InternalSetValue(sOutput.GetData());
+        on_TextFinished_triggered();
+      }
+      break;
+    }
   }
 }
 

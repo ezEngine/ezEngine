@@ -6,7 +6,7 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Time/Time.h>
 #include <QGraphicsView>
-#include <Tools/Inspector/ui_MemoryWidget.h>
+#include <Inspector/ui_MemoryWidget.h>
 #include <ads/DockWidget.h>
 #include <QAction>
 #include <QPointer>

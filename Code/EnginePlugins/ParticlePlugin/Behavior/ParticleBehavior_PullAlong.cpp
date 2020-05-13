@@ -68,6 +68,7 @@ void ezParticleBehaviorFactory_PullAlong::Load(ezStreamReader& stream)
 void ezParticleBehavior_PullAlong::CreateRequiredStreams()
 {
   m_bFirstTime = true;
+  m_vApplyPull.SetZero();
 
   CreateStream("Position", ezProcessingStream::DataType::Float4, &m_pStreamPosition, false);
 }
@@ -79,7 +80,7 @@ void ezParticleBehavior_PullAlong::Process(ezUInt64 uiNumElements)
   if (m_vApplyPull.IsZero())
     return;
 
-  ezProcessingStreamIterator<ezSimdVec4f> itPosition(m_pStreamPosition, uiNumElements - m_uiIgnoreNewParticles, 0);
+  ezProcessingStreamIterator<ezSimdVec4f> itPosition(m_pStreamPosition, uiNumElements, 0);
   ezSimdVec4f pull;
   pull.Load<3>(&m_vApplyPull.x);
 
@@ -93,7 +94,6 @@ void ezParticleBehavior_PullAlong::Process(ezUInt64 uiNumElements)
 
 void ezParticleBehavior_PullAlong::StepParticleSystem(const ezTime& tDiff, ezUInt32 uiNumNewParticles)
 {
-  m_uiIgnoreNewParticles = uiNumNewParticles;
   const ezVec3 vPos = GetOwnerSystem()->GetTransform().m_vPosition;
 
   if (!m_bFirstTime)

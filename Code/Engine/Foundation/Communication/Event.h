@@ -1,12 +1,20 @@
 #pragma once
 
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/Mutex.h>
 #include <Foundation/Types/Delegate.h>
 
 /// \brief Identifies an event subscription. Zero is always an invalid subscription ID.
 typedef ezUInt32 ezEventSubscriptionID;
+
+/// \brief Specifies the type of ezEvent implementation to use
+enum class ezEventType
+{
+  Default,        /// Default implementation. Does not support modifying the event while broadcasting.
+  CopyOnBroadcast /// CopyOnBroadcast implementation. Supports modifying the event while broadcasting.
+};
 
 /// \brief This class propagates event information to registered event handlers.
 ///
@@ -17,11 +25,15 @@ typedef ezUInt32 ezEventSubscriptionID;
 /// To pass information to the handlers, create a custom struct with event information
 /// and then pass a (const) reference to that data through Broadcast().
 ///
+/// If you need to modify the event while broadcasting, for example inside one of the registered event handlers,
+/// set EventType = ezEventType::CopyOnBroadcast. Each broadcast will then copy the event handler array before signaling them, allowing
+/// modifications during broadcasting.
+///
 /// \note A class holding an ezEvent member needs to provide public access to the member for external code to
 /// be able to register as an event handler. To make it possible to prevent external code from also raising events,
 /// all functions that are needed for listening are const, and all others are non-const.
 /// Therefore, simply make event members private and provide const reference access through a public getter.
-template <typename EventData, typename MutexType>
+template <typename EventData, typename MutexType, ezEventType EventType>
 class ezEventBase
 {
 protected:
@@ -77,16 +89,28 @@ public:
     }
 
   private:
-    friend class ezEventBase<EventData, MutexType>;
+    friend class ezEventBase<EventData, MutexType, EventType>;
 
-    const ezEventBase<EventData, MutexType>* m_pEvent = nullptr;
+    const ezEventBase<EventData, MutexType, EventType>* m_pEvent = nullptr;
     ezEventSubscriptionID m_SubscriptionID = 0;
+  };
+
+  /// \brief Implementation specific constants.
+  enum
+  {
+    /// If the uiMaxRecursionDepth parameter to Broadcast is supported in this implementation or not.
+    RecursionDepthSupported = (EventType == ezEventType::Default || ezConversionTest<MutexType, ezNoMutex>::sameType == 1) ? 1 : 0,
+
+    /// Default value for the maximum recursion depth of Broadcast.
+    /// As limiting the recursion depth is not supported when EventType == ezEventType::CopyAndBroadcast and MutexType != ezNoMutex
+    /// the default value for that case is the maximum.
+    MaxRecursionDepthDefault = RecursionDepthSupported ? 0 : 255
   };
 
   /// \brief This function will broadcast to all registered users, that this event has just happened.
   ///  Setting uiMaxRecursionDepth will allow you to permit recursions. When broadcasting consider up to what depth
   ///  you want recursions to be permitted. By default no recursion is allowed.
-  void Broadcast(EventData pEventData, ezUInt8 uiMaxRecursionDepth = 0); // [tested]
+  void Broadcast(EventData pEventData, ezUInt8 uiMaxRecursionDepth = MaxRecursionDepthDefault); // [tested]
 
   /// \brief Adds a function as an event handler. All handlers will be notified in the order that they were registered.
   ///
@@ -118,13 +142,14 @@ public:
 
 private:
   /// \brief Used to detect recursive broadcasts and then throw asserts at you.
-  ezUInt8 m_uiRecursionDepth;
+  ezUInt8 m_uiRecursionDepth = 0;
   mutable ezEventSubscriptionID m_NextSubscriptionID = 0;
 
   mutable MutexType m_Mutex;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   const void* m_pSelf = nullptr;
+  bool m_bCurrentlyBroadcasting = false;
 #endif
 
   struct HandlerData
@@ -138,12 +163,15 @@ private:
 };
 
 /// \brief \see ezEventBase
-template <typename EventData, typename MutexType = ezNoMutex, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
-class ezEvent : public ezEventBase<EventData, MutexType>
+template <typename EventData, typename MutexType = ezNoMutex, typename AllocatorWrapper = ezDefaultAllocatorWrapper, ezEventType EventType = ezEventType::Default>
+class ezEvent : public ezEventBase<EventData, MutexType, EventType>
 {
 public:
   ezEvent();
   ezEvent(ezAllocatorBase* pAllocator);
 };
+
+template <typename EventData, typename MutexType = ezNoMutex, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
+using ezCopyOnBroadcastEvent = ezEvent<EventData, MutexType, AllocatorWrapper, ezEventType::CopyOnBroadcast>;
 
 #include <Foundation/Communication/Implementation/Event_inl.h>

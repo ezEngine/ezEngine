@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{13918724973595959441,4979792077250811378}}
-		u4 %Hash{10247578801145585523}
+		u4 %Hash{15950800644458785495}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{1313677731837154645,5403377995709497763}}
@@ -69,6 +69,7 @@ o
 	u3 %v{1}
 	p
 	{
+		b %Active{1}
 		VarArray %Children{}
 		VarArray %Components
 		{
@@ -100,7 +101,7 @@ o
 		b %Active{1}
 		s %Effect{"{ ae657001-3504-4d28-8154-d42142f182ee }"}
 		Time %MinRestartDelay{d{0}}
-		s %OnFinishedAction{"ezOnComponentFinishedAction2::None"}
+		s %OnFinishedAction{"ezOnComponentFinishedAction2::DeleteGameObject"}
 		VarDict %Parameters{}
 		u4 %RandomSeed{0}
 		Time %RestartDelayRange{d{0}}
@@ -118,7 +119,7 @@ o
 		b %Active{1}
 		u1 %OcclusionCollisionLayer{0}
 		f %OcclusionThreshold{0x0000003F}
-		s %OnFinishedAction{"ezOnComponentFinishedAction::None"}
+		s %OnFinishedAction{"ezOnComponentFinishedAction::DeleteGameObject"}
 		b %Paused{0}
 		f %Pitch{0x0000803F}
 		b %ShowDebugInfo{0}

@@ -3,10 +3,11 @@
 #include <Foundation/FoundationInternal.h>
 EZ_FOUNDATION_INTERNAL_HEADER
 
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/IO/DirectoryWatcher.h>
+#include <Foundation/IO/Implementation/Win/DosDevicePath_win.h>
 #include <Foundation/Logging/Log.h>
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 
 struct ezDirectoryWatcherImpl
 {
@@ -21,7 +22,7 @@ struct ezDirectoryWatcherImpl
 };
 
 ezDirectoryWatcher::ezDirectoryWatcher()
-    : m_pImpl(EZ_DEFAULT_NEW(ezDirectoryWatcherImpl))
+  : m_pImpl(EZ_DEFAULT_NEW(ezDirectoryWatcherImpl))
 {
   m_pImpl->m_buffer.SetCountUninitialized(1024 * 1024);
 }
@@ -31,8 +32,7 @@ ezResult ezDirectoryWatcher::OpenDirectory(const ezString& absolutePath, ezBitfl
   EZ_ASSERT_DEV(m_sDirectoryPath.IsEmpty(), "Directory already open, call CloseDirectory first!");
   ezStringBuilder sPath(absolutePath);
   sPath.MakeCleanPath();
-  sPath.ReplaceAll("/", "\\");
-  sPath.Trim("\\");
+  sPath.Trim("/");
 
   m_pImpl->m_watchSubdirs = whatToWatch.IsSet(Watch::Subdirectories);
   m_pImpl->m_filter = 0;
@@ -46,13 +46,13 @@ ezResult ezDirectoryWatcher::OpenDirectory(const ezString& absolutePath, ezBitfl
     m_pImpl->m_filter |= FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME;
 
   m_pImpl->m_directoryHandle = CreateFileW(
-      ezStringWChar(sPath).GetData(),
-      FILE_LIST_DIRECTORY,
-      FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-      nullptr,
-      OPEN_EXISTING,
-      FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED,
-      nullptr);
+    ezDosDevicePath(sPath),
+    FILE_LIST_DIRECTORY,
+    FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+    nullptr,
+    OPEN_EXISTING,
+    FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED,
+    nullptr);
   if (m_pImpl->m_directoryHandle == INVALID_HANDLE_VALUE)
   {
     return EZ_FAILURE;
@@ -149,7 +149,11 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func)
             action = ezDirectoryWatcherAction::RenamedNewName;
             break;
         }
-        func(dir.GetData(), action);
+
+        ezStringBuilder cleanDir = dir.GetData();
+        cleanDir.MakeCleanPath();
+
+        func(cleanDir, action);
       }
       if (info->NextEntryOffset == 0)
         break;
@@ -163,7 +167,5 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func)
     EZ_ASSERT_DEV(false, "GetQueuedCompletionStatus returned false but lpOverlapped is not null");
   }
 
-  DWORD dwError = GetLastError();
-  EZ_ASSERT_DEV(dwError == WAIT_TIMEOUT, "GetQueuedCompletionStatus gave an error");
+  EZ_ASSERT_DEV(GetLastError() == WAIT_TIMEOUT, "GetQueuedCompletionStatus gave an error");
 }
-

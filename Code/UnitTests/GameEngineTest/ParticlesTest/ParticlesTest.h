@@ -9,12 +9,15 @@ class ezGameEngineTestApplication_Particles : public ezGameEngineTestApplication
 public:
   ezGameEngineTestApplication_Particles();
 
-  void SubTestBillboardsSetup();
-  ezTestAppRun SubTestBillboardsExec(ezInt32 iCurFrame);
+  void SetupSceneSubTest(const char* szFile);
+  void SetupParticleSubTest(const char* szFile);
+  ezTestAppRun ExecParticleSubTest(ezInt32 iCurFrame);
 };
 
 class ezGameEngineTestParticles : public ezGameEngineTest
 {
+  using SUPER = ezGameEngineTest;
+
 public:
   virtual const char* GetTestName() const override;
   virtual ezGameEngineTestApplication* CreateApplication() override;
@@ -22,7 +25,37 @@ public:
 private:
   enum SubTests
   {
-    ST_Billboards,
+    BillboardRenderer,
+    ColorGradientBehavior,
+    FliesBehavior,
+    GravityBehavior,
+    LightRenderer,
+    MeshRenderer,
+    RaycastBehavior,
+    SizeCurveBehavior,
+    TrailRenderer,
+    VelocityBehavior,
+    EffectRenderer,
+    BoxPositionInitializer,
+    SpherePositionInitializer,
+    CylinderPositionInitializer,
+    RandomColorInitializer,
+    RandomSizeInitializer,
+    RotationSpeedInitializer,
+    VelocityConeInitializer,
+    BurstEmitter,
+    ContinuousEmitter,
+    OnEventEmitter,
+    QuadRotatingOrtho,
+    QuadFixedEmDir,
+    QuadAxisEmDir,
+
+    Billboards,
+    PullAlongBehavior,
+    DistanceEmitter,
+    SharedInstances,
+    EventReactionEffect,
+    LocalSpaceSim,
   };
 
   virtual void SetupSubTests() override;

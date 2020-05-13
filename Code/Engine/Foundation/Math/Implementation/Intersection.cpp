@@ -2,6 +2,7 @@
 
 #include <Foundation/Math/Intersection.h>
 #include <Foundation/Math/Plane.h>
+#include <Foundation/Math/Math.h>
 
 bool ezIntersectionUtils::RayPolygonIntersection(const ezVec3& vRayStartPos, const ezVec3& vRayDir, const ezVec3* pPolygonVertices, ezUInt32 uiNumVertices, float* out_fIntersectionTime, ezVec3* out_vIntersectionPoint, ezUInt32 uiVertexStride)
 {
@@ -21,12 +22,12 @@ bool ezIntersectionUtils::RayPolygonIntersection(const ezVec3& vRayStartPos, con
     *out_vIntersectionPoint = vIntersection;
 
   // start with the last point as the 'wrap around' position
-  ezVec3 vPrevPoint = *ezMemoryUtils::AddByteOffset(pPolygonVertices, uiVertexStride * (uiNumVertices - 1));
+  ezVec3 vPrevPoint = *ezMemoryUtils::AddByteOffset(pPolygonVertices, ezMath::SafeMultiply32(uiVertexStride, (uiNumVertices - 1)));
 
   // for each polygon edge
   for (ezUInt32 i = 0; i < uiNumVertices; ++i)
   {
-    const ezVec3 vThisPoint = *ezMemoryUtils::AddByteOffset(pPolygonVertices, uiVertexStride * i);
+    const ezVec3 vThisPoint = *ezMemoryUtils::AddByteOffset(pPolygonVertices, ezMath::SafeMultiply32(uiVertexStride, i));
 
     const ezPlane EdgePlane(vThisPoint, vPrevPoint, vPrevPoint + p.m_vNormal);
 

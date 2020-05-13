@@ -10,7 +10,7 @@
 #include <QDesktopWidget>
 #include <QMouseEvent>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSphereGizmo, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSphereGizmo, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezSphereGizmo::ezSphereGizmo()
@@ -23,7 +23,7 @@ ezSphereGizmo::ezSphereGizmo()
   m_ManipulateMode = ManipulateMode::None;
 
   m_InnerSphere.Configure(this, ezEngineGizmoHandleType::Sphere, ezColorLinearUB(200, 200, 0, 128), false,
-                          true); // this gizmo should be rendered very last so it is always on top
+    true); // this gizmo should be rendered very last so it is always on top
   m_OuterSphere.Configure(this, ezEngineGizmoHandleType::Sphere, ezColorLinearUB(200, 200, 200, 128), false);
 
   SetVisible(false);

@@ -46,6 +46,14 @@ ezDuktapeHelper::ezDuktapeHelper(const ezDuktapeHelper& rhs)
 
 ezDuktapeHelper::~ezDuktapeHelper() = default;
 
+void ezDuktapeHelper::operator = (const ezDuktapeHelper& rhs)
+{
+  if (this == &rhs)
+    return;
+
+  *this = ezDuktapeHelper(rhs.GetContext());
+}
+
 #  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
 void ezDuktapeHelper::VerifyExpectedStackChange(ezInt32 iExpectedStackChange, const char* szFile, ezUInt32 uiLine, const char* szFunction) const
 {
@@ -628,3 +636,7 @@ ezResult ezDuktapeHelper::ExecuteFile(const char* szFile)
 }
 
 #endif
+
+
+EZ_STATICLINK_FILE(Core, Core_Scripting_Duktape_DuktapeHelper);
+

@@ -8,9 +8,9 @@
 using namespace ezProcGenInternal;
 
 PreparePlacementTask::PreparePlacementTask(PlacementData* pData, const char* szName)
-  : ezTask(szName)
-  , m_pData(pData)
+  : m_pData(pData)
 {
+  ConfigureTask(szName, ezTaskNesting::Never);
 }
 
 PreparePlacementTask::~PreparePlacementTask() = default;

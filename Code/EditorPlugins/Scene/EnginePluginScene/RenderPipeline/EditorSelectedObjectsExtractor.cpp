@@ -43,8 +43,7 @@ const ezDeque<ezGameObjectHandle>* ezEditorSelectedObjectsExtractor::GetSelectio
   return &m_pSceneContext->GetSelectionWithChildren();
 }
 
-void ezEditorSelectedObjectsExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
-                                               ezExtractedRenderData& extractedRenderData)
+void ezEditorSelectedObjectsExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData)
 {
   const bool bShowCameraOverlays = view.GetCameraUsageHint() == ezCameraUsageHint::EditorView;
 
@@ -149,12 +148,12 @@ void ezEditorSelectedObjectsExtractor::UpdateRenderTargetCamera(const ezCameraCo
   if (pCamComp->GetCameraMode() == ezCameraMode::OrthoFixedHeight || pCamComp->GetCameraMode() == ezCameraMode::OrthoFixedWidth)
   {
     m_RenderTargetCamera.SetCameraMode(pCamComp->GetCameraMode(), pCamComp->GetOrthoDimension(), pCamComp->GetNearPlane(),
-                                       pCamComp->GetFarPlane());
+      pCamComp->GetFarPlane());
   }
   else
   {
     m_RenderTargetCamera.SetCameraMode(pCamComp->GetCameraMode(), pCamComp->GetFieldOfView(), pCamComp->GetNearPlane(),
-                                       pCamComp->GetFarPlane());
+      pCamComp->GetFarPlane());
   }
 
   ezView* pRenderTargetView = nullptr;
@@ -163,6 +162,7 @@ void ezEditorSelectedObjectsExtractor::UpdateRenderTargetCamera(const ezCameraCo
 
   pRenderTargetView->m_IncludeTags = pCamComp->m_IncludeTags;
   pRenderTargetView->m_ExcludeTags = pCamComp->m_ExcludeTags;
+  pRenderTargetView->m_ExcludeTags.SetByName("Editor");
 
   if (pCamComp->GetRenderPipeline().IsValid())
   {

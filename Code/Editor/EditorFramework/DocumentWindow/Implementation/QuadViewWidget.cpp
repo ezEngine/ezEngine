@@ -34,15 +34,15 @@ void ezQtQuadViewWidget::SaveViewConfig(const ezEngineViewConfig& cfg, ezEngineV
   pref.m_vCamPos = cfg.m_Camera.GetPosition();
   pref.m_vCamDir = cfg.m_Camera.GetDirForwards();
   pref.m_vCamUp = cfg.m_Camera.GetDirUp();
-  pref.m_uiPerspectiveMode = cfg.m_Perspective;
-  pref.m_uiRenderMode = cfg.m_RenderMode;
+  pref.m_PerspectiveMode = cfg.m_Perspective;
+  pref.m_RenderMode = cfg.m_RenderMode;
   pref.m_fFov = cfg.m_Camera.GetFovOrDim();
 }
 
 void ezQtQuadViewWidget::LoadViewConfig(ezEngineViewConfig& cfg, ezEngineViewPreferences& pref)
 {
-  cfg.m_Perspective = (ezSceneViewPerspective::Enum)pref.m_uiPerspectiveMode;
-  cfg.m_RenderMode = (ezViewRenderMode::Enum)pref.m_uiRenderMode;
+  cfg.m_Perspective = (ezSceneViewPerspective::Enum)pref.m_PerspectiveMode;
+  cfg.m_RenderMode = (ezViewRenderMode::Enum)pref.m_RenderMode;
   cfg.m_Camera.LookAt(ezVec3(0), ezVec3(1, 0, 0), ezVec3(0, 0, 1));
 
   if (cfg.m_Perspective == ezSceneViewPerspective::Perspective)

@@ -11,7 +11,7 @@
 // Licensed under the MIT License.
 //-------------------------------------------------------------------------------------
 
-#include "DirectXTexp.h"
+#include "DirectXTexP.h"
 
 #include "BCDirectCompute.h"
 
@@ -438,7 +438,7 @@ HRESULT GPUCompressBC::Compress(const Image& srcImage, const Image& destImage)
 
     auto num_total_blocks = static_cast<UINT>(xblocks * yblocks);
     UINT num_blocks = num_total_blocks;
-    int start_block_id = 0;
+    UINT start_block_id = 0;
     while (num_blocks > 0)
     {
         UINT n = std::min<UINT>(num_blocks, MAX_BLOCK_BATCH);
@@ -453,7 +453,7 @@ HRESULT GPUCompressBC::Compress(const Image& srcImage, const Image& destImage)
             ConstantsBC6HBC7 param;
             param.tex_width = static_cast<UINT>(srcImage.width);
             param.num_block_x = static_cast<UINT>(xblocks);
-            param.format = m_bcformat;
+            param.format = static_cast<UINT>(m_bcformat);
             param.mode_id = 0;
             param.start_block_id = start_block_id;
             param.num_total_blocks = num_total_blocks;
@@ -491,7 +491,7 @@ HRESULT GPUCompressBC::Compress(const Image& srcImage, const Image& destImage)
                         ConstantsBC6HBC7 param;
                         param.tex_width = static_cast<UINT>(srcImage.width);
                         param.num_block_x = static_cast<UINT>(xblocks);
-                        param.format = m_bcformat;
+                        param.format = static_cast<UINT>(m_bcformat);
                         param.mode_id = modes[i];
                         param.start_block_id = start_block_id;
                         param.num_total_blocks = num_total_blocks;
@@ -526,7 +526,7 @@ HRESULT GPUCompressBC::Compress(const Image& srcImage, const Image& destImage)
                         ConstantsBC6HBC7 param;
                         param.tex_width = static_cast<UINT>(srcImage.width);
                         param.num_block_x = static_cast<UINT>(xblocks);
-                        param.format = m_bcformat;
+                        param.format = static_cast<UINT>(m_bcformat);
                         param.mode_id = modes[i];
                         param.start_block_id = start_block_id;
                         param.num_total_blocks = num_total_blocks;
@@ -566,7 +566,7 @@ HRESULT GPUCompressBC::Compress(const Image& srcImage, const Image& destImage)
                     ConstantsBC6HBC7 param;
                     param.tex_width = static_cast<UINT>(srcImage.width);
                     param.num_block_x = static_cast<UINT>(xblocks);
-                    param.format = m_bcformat;
+                    param.format = static_cast<UINT>(m_bcformat);
                     param.mode_id = i;
                     param.start_block_id = start_block_id;
                     param.num_total_blocks = num_total_blocks;

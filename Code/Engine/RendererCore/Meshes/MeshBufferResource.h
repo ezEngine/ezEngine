@@ -38,10 +38,12 @@ public:
   /// \brief Use this function to add vertex streams to the mesh buffer. The return value is the index of the just added stream.
   ezUInt32 AddStream(ezGALVertexAttributeSemantic::Enum Semantic, ezGALResourceFormat::Enum Format);
 
+  /// \brief Add common vertex streams to the mesh buffer. This includes Position, TexCoord0, Normal and Tangent.
+  void AddCommonStreams();
+
   /// \brief After all streams are added, call this to allocate the data for the streams. If uiNumPrimitives is 0, the mesh buffer will not
   /// use indexed rendering.
-  void AllocateStreams(ezUInt32 uiNumVertices, ezGALPrimitiveTopology::Enum topology = ezGALPrimitiveTopology::Triangles,
-                       ezUInt32 uiNumPrimitives = 0);
+  void AllocateStreams(ezUInt32 uiNumVertices, ezGALPrimitiveTopology::Enum topology = ezGALPrimitiveTopology::Triangles, ezUInt32 uiNumPrimitives = 0);
 
   /// \brief Creates streams and fills them with data from the ezGeometry. Only the geometry matching the given topology is used.
   ///  Streams that do not match any of the data inside the ezGeometry directly are skipped.
@@ -67,8 +69,16 @@ public:
   template <typename TYPE>
   void SetVertexData(ezUInt32 uiStream, ezUInt32 uiVertexIndex, const TYPE& data)
   {
-    reinterpret_cast<TYPE&>(m_VertexStreamData[m_uiVertexSize * uiVertexIndex + m_VertexDeclaration.m_VertexStreams[uiStream].m_uiOffset]) =
-        data;
+    reinterpret_cast<TYPE&>(m_VertexStreamData[m_uiVertexSize * uiVertexIndex + m_VertexDeclaration.m_VertexStreams[uiStream].m_uiOffset]) = data;
+  }
+
+  /// \brief Slow, but convenient method to access one piece of vertex data at a time into the stream buffer.
+  ///
+  /// uiStream is the index of the data stream to write to.
+  /// uiVertexIndex is the index of the vertex for which to write the data.
+  ezArrayPtr<ezUInt8> GetVertexData(ezUInt32 uiStream, ezUInt32 uiVertexIndex)
+  {
+    return m_VertexStreamData.GetArrayPtr().GetSubArray(m_uiVertexSize * uiVertexIndex + m_VertexDeclaration.m_VertexStreams[uiStream].m_uiOffset);
   }
 
   /// \brief Writes the vertex index for the given point into the index buffer.
@@ -149,4 +159,3 @@ private:
   ezGALBufferHandle m_hIndexBuffer;
   ezGALPrimitiveTopology::Enum m_Topology;
 };
-

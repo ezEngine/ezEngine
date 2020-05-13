@@ -1,0 +1,16 @@
+{
+    "Registrations": [
+        {
+            "Component": {
+                "Type": "git",
+                "git": {
+                    "Name": "utfcpp",
+					"repositoryUrl": "https://github.com/nemtrif/utfcpp",
+					"commitHash": "944ef0561ddcd33eb4fd94934538458b2b2de252"
+                },
+				"version": "3.1"
+            }
+        }
+	],
+	"version" : 1
+}

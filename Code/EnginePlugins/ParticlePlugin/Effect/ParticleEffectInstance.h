@@ -8,7 +8,7 @@
 
 class ezParticleEffectInstance;
 
-class ezParticleffectUpdateTask : public ezTask
+class ezParticleffectUpdateTask final : public ezTask
 {
 public:
   ezParticleffectUpdateTask(ezParticleEffectInstance* pEffect);
@@ -29,17 +29,15 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleEffectInstance
 public:
   struct SharedInstance
   {
-    const void* m_pSharedInstanceOwner;
-    ezTransform m_Transform;
+    const void* m_pSharedInstanceOwner = nullptr;
+    ezTransform m_Transform[2] = {ezTransform::IdentityTransform(), ezTransform::IdentityTransform()};
   };
 
 public:
   ezParticleEffectInstance();
   ~ezParticleEffectInstance();
 
-  void Construct(ezParticleEffectHandle hEffectHandle, const ezParticleEffectResourceHandle& hResource, ezWorld* pWorld,
-                 ezParticleWorldModule* pOwnerModule, ezUInt64 uiRandomSeed, bool bIsShared,
-                 ezArrayPtr<ezParticleEffectFloatParam> floatParams, ezArrayPtr<ezParticleEffectColorParam> colorParams);
+  void Construct(ezParticleEffectHandle hEffectHandle, const ezParticleEffectResourceHandle& hResource, ezWorld* pWorld, ezParticleWorldModule* pOwnerModule, ezUInt64 uiRandomSeed, bool bIsShared, ezArrayPtr<ezParticleEffectFloatParam> floatParams, ezArrayPtr<ezParticleEffectColorParam> colorParams);
   void Destruct();
 
   void Interrupt();
@@ -67,6 +65,8 @@ public:
 
   ezRandom& GetRNG() { return m_Random; }
 
+  ezUInt64 GetRandomSeed() const { return m_uiRandomSeed; }
+
   /// @name Transform Related
   /// @{
 public:
@@ -85,7 +85,7 @@ public:
 private:
   void PassTransformToSystems();
 
-  ezTransform m_Transform;
+  ezTransform m_Transform[2];
   ezVec3 m_vVelocity;
 
   /// @}
@@ -96,6 +96,12 @@ public:
   /// \brief Returns false when the effect is finished.
   bool Update(const ezTime& tDiff);
 
+  /// \brief Returns the total (game) time that the effect is alive and has been updated.
+  ///
+  /// Use this time, instead of a world clock, for time-dependent calculations. It is mostly tied to the world clock (game update),
+  /// but additionally includes pre-simulation timings, which would otherwise be left out which can break some calculations.
+  ezTime GetTotalEffectLifeTime() const { return m_TotalEffectLifeTime; }
+
 private: // friend ezParticleWorldModule
   /// \brief Whether this instance is in a state where its update task should be run
   bool ShouldBeUpdated() const;
@@ -104,6 +110,7 @@ private: // friend ezParticleWorldModule
   ezParticleffectUpdateTask* GetUpdateTask() { return &m_Task; }
 
 private: // friend ezParticleffectUpdateTask
+  friend class ezParticleEffectController;
   /// \brief If the effect wants to skip all the initial behavior, this simulates it multiple times before it is shown the first time.
   void PreSimulate();
 
@@ -111,7 +118,8 @@ private: // friend ezParticleffectUpdateTask
   bool StepSimulation(const ezTime& tDiff);
 
 private:
-  ezTime m_ElapsedTimeSinceUpdate;
+  ezTime m_TotalEffectLifeTime = ezTime::Zero();
+  ezTime m_ElapsedTimeSinceUpdate = ezTime::Zero();
 
 
   /// @}
@@ -140,24 +148,31 @@ public:
   /// This affects simulation update rates.
   void SetIsVisible() const;
 
+  void SetVisibleIf(ezParticleEffectInstance* pOtherVisible);
+
   /// \brief Whether the effect has been marked as visible recently.
   bool IsVisible() const;
 
   /// \brief Returns true when the last bounding volume update was too long ago.
   bool NeedsBoundingVolumeUpdate() const;
 
-  /// \brief Returns the bounding volume of the effect and the time at which the volume was updated last.
+  /// \brief Will enforce that the next update does a full bounding volume update
+  void ForceBoundingVolumeUpdate();
+
+  /// \brief Returns the bounding volume of the effect and the update counter.
   /// The volume is in the local space of the effect.
-  ezTime GetBoundingVolume(ezBoundingBoxSphere& volume) const;
+  ezUInt32 GetBoundingVolume(ezBoundingBoxSphere& volume) const;
 
 private:
   void CombineSystemBoundingVolumes();
 
   ezTime m_UpdateBVolumeTime;
-  ezTime m_LastBVolumeUpdate;
+  ezUInt32 m_uiBVolumeUpdateCounter = 0;
   ezBoundingBoxSphere m_BoundingVolume;
   mutable ezTime m_EffectIsVisible;
+  ezParticleEffectInstance* m_pVisibleIf = nullptr;
   ezEnum<ezEffectInvisibleUpdateRate> m_InvisibleUpdateRate;
+  ezUInt64 m_uiRandomSeed = 0;
 
   /// @}
   /// \name Effect Parameters
@@ -211,6 +226,8 @@ private:
   bool m_bIsFinishing = false;
   ezUInt8 m_uiReviveTimeout = 3;
   ezInt8 m_iMinSimStepsToDo = 0;
+  ezUInt8 m_uiDoubleBufferReadIdx = 0;
+  ezUInt8 m_uiDoubleBufferWriteIdx = 1;
   float m_fApplyInstanceVelocity = 0;
   ezTime m_PreSimulateDuration;
   ezParticleEffectResourceHandle m_hResource;

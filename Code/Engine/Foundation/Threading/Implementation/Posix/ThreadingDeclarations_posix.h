@@ -13,13 +13,10 @@ typedef void* (*ezOSThreadEntryPoint)(void* pThreadParameter);
 
 #define EZ_THREAD_CLASS_ENTRY_POINT void* ezThreadClassEntryPoint(void* pThreadParameter);
 
-struct ezThreadSignalData
+struct ezConditionVariableData
 {
   pthread_cond_t m_ConditionVariable;
-  pthread_mutex_t m_Mutex;
-  bool m_bSignalIsRaised;
 };
 
 
 /// \endcond
-

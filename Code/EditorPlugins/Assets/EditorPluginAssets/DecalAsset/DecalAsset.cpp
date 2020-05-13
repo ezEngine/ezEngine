@@ -10,39 +10,31 @@
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezDecalMode, 1)
-  EZ_ENUM_CONSTANT(ezDecalMode::All),
   EZ_ENUM_CONSTANT(ezDecalMode::BaseColor),
-  EZ_ENUM_CONSTANT(ezDecalMode::BaseColorRoughness),
-  EZ_ENUM_CONSTANT(ezDecalMode::NormalRoughnessOcclusion),
-  EZ_ENUM_CONSTANT(ezDecalMode::Emissive)
+  EZ_ENUM_CONSTANT(ezDecalMode::BaseColorNormal),
+  EZ_ENUM_CONSTANT(ezDecalMode::BaseColorORM),
+  EZ_ENUM_CONSTANT(ezDecalMode::BaseColorNormalORM),
+  EZ_ENUM_CONSTANT(ezDecalMode::BaseColorEmissive)
 EZ_END_STATIC_REFLECTED_ENUM;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetProperties, 1, ezRTTIDefaultAllocator<ezDecalAssetProperties>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDecalAssetProperties, 2, ezRTTIDefaultAllocator<ezDecalAssetProperties>)
 {
   EZ_BEGIN_PROPERTIES
   {
     EZ_ENUM_MEMBER_PROPERTY("Mode", ezDecalMode, m_Mode),
+    EZ_MEMBER_PROPERTY("BlendModeColorize", m_bBlendModeColorize),
+    EZ_MEMBER_PROPERTY("AlphaMask", m_sAlphaMask)->AddAttributes(new ezFileBrowserAttribute("Select Alpha Mask", "*.dds;*.tga;*.png;*.jpg;*.jpeg")),
     EZ_MEMBER_PROPERTY("BaseColor", m_sBaseColor)->AddAttributes(new ezFileBrowserAttribute("Select Base Color Map", "*.dds;*.tga;*.png;*.jpg;*.jpeg")),
     EZ_MEMBER_PROPERTY("Normal", m_sNormal)->AddAttributes(new ezFileBrowserAttribute("Select Normal Map", "*.dds;*.tga;*.png;*.jpg;*.jpeg"), new ezDefaultValueAttribute(ezStringView("Textures/NeutralNormal.tga"))), // wrap in ezStringView to prevent a memory leak report
-    EZ_MEMBER_PROPERTY("Roughness", m_sRoughness)->AddAttributes(new ezFileBrowserAttribute("Select Roughness Map", "*.dds;*.tga;*.png;*.jpg;*.jpeg")),
-    EZ_MEMBER_PROPERTY("RoughnessValue", m_fRoughnessValue)->AddAttributes(new ezDefaultValueAttribute(0.7f), new ezClampValueAttribute(0.0f, 1.0f)),
-    EZ_MEMBER_PROPERTY("Metallic", m_sMetallic)->AddAttributes(new ezFileBrowserAttribute("Select Metallic Map", "*.dds;*.tga;*.png;*.jpg;*.jpeg")),
-    EZ_MEMBER_PROPERTY("MetallicValue", m_fMetallicValue)->AddAttributes(new ezDefaultValueAttribute(0.0f), new ezClampValueAttribute(0.0f, 1.0f)),
+    EZ_MEMBER_PROPERTY("ORM", m_sORM)->AddAttributes(new ezFileBrowserAttribute("Select ORM Map", "*.dds;*.tga;*.png;*.jpg;*.jpeg")),
     EZ_MEMBER_PROPERTY("Emissive", m_sEmissive)->AddAttributes(new ezFileBrowserAttribute("Select Emissive Map", "*.dds;*.tga;*.png;*.jpg;*.jpeg")),
-    EZ_MEMBER_PROPERTY("Occlusion", m_sOcclusion)->AddAttributes(new ezFileBrowserAttribute("Select Occlusion Map", "*.dds;*.tga;*.png;*.jpg;*.jpeg")),
-    EZ_MEMBER_PROPERTY("OcclusionValue", m_fOcclusionValue)->AddAttributes(new ezDefaultValueAttribute(1.0f), new ezClampValueAttribute(0.0f, 1.0f)),
   }
   EZ_END_PROPERTIES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezDecalAssetProperties::ezDecalAssetProperties()
-  : m_fRoughnessValue(0.7f)
-  , m_fMetallicValue(0.0f)
-  , m_fOcclusionValue(1.0f)
-{
-}
+ezDecalAssetProperties::ezDecalAssetProperties() = default;
 
 void ezDecalAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEvent& e)
 {
@@ -52,41 +44,26 @@ void ezDecalAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEv
 
     auto& props = *e.m_pPropertyStates;
 
+    props["Normal"].m_Visibility = ezPropertyUiState::Invisible;
+    props["ORM"].m_Visibility = ezPropertyUiState::Invisible;
     props["Emissive"].m_Visibility = ezPropertyUiState::Invisible;
 
-    if (mode != ezDecalMode::All)
+    if (mode == ezDecalMode::BaseColorNormal)
     {
-      props["BaseColor"].m_Visibility = ezPropertyUiState::Invisible;
-      props["Normal"].m_Visibility = ezPropertyUiState::Invisible;
-      props["Roughness"].m_Visibility = ezPropertyUiState::Invisible;
-      props["RoughnessValue"].m_Visibility = ezPropertyUiState::Invisible;
-      props["Metallic"].m_Visibility = ezPropertyUiState::Invisible;
-      props["MetallicValue"].m_Visibility = ezPropertyUiState::Invisible;
-      props["Occlusion"].m_Visibility = ezPropertyUiState::Invisible;
-      props["OcclusionValue"].m_Visibility = ezPropertyUiState::Invisible;
-
-      if (mode == ezDecalMode::BaseColor)
-      {
-        props["BaseColor"].m_Visibility = ezPropertyUiState::Default;
-      }
-      else if (mode == ezDecalMode::BaseColorRoughness)
-      {
-        props["BaseColor"].m_Visibility = ezPropertyUiState::Default;
-        props["Roughness"].m_Visibility = ezPropertyUiState::Default;
-        props["RoughnessValue"].m_Visibility = ezPropertyUiState::Default;
-      }
-      else if (mode == ezDecalMode::NormalRoughnessOcclusion)
-      {
-        props["Normal"].m_Visibility = ezPropertyUiState::Default;
-        props["Roughness"].m_Visibility = ezPropertyUiState::Default;
-        props["RoughnessValue"].m_Visibility = ezPropertyUiState::Default;
-        props["Occlusion"].m_Visibility = ezPropertyUiState::Default;
-        props["OcclusionValue"].m_Visibility = ezPropertyUiState::Default;
-      }
-      else if (mode == ezDecalMode::Emissive)
-      {
-        props["Emissive"].m_Visibility = ezPropertyUiState::Default;
-      }
+      props["Normal"].m_Visibility = ezPropertyUiState::Default;
+    }
+    else if (mode == ezDecalMode::BaseColorORM)
+    {
+      props["ORM"].m_Visibility = ezPropertyUiState::Default;
+    }
+    else if (mode == ezDecalMode::BaseColorNormalORM)
+    {
+      props["Normal"].m_Visibility = ezPropertyUiState::Default;
+      props["ORM"].m_Visibility = ezPropertyUiState::Default;
+    }
+    else if (mode == ezDecalMode::BaseColorEmissive)
+    {
+      props["Emissive"].m_Visibility = ezPropertyUiState::Default;
     }
   }
 }
@@ -139,14 +116,34 @@ ezStatus ezDecalAssetDocument::InternalCreateThumbnail(const ThumbnailInfo& Unus
     ezStringBuilder sAbsPath = pProp->m_sBaseColor;
     if (!pEditorApp->MakeDataDirectoryRelativePathAbsolute(sAbsPath))
     {
-      return ezStatus("Failed to make path absolute");
+      return ezStatus(ezFmt("Failed to make path absolute: '{}'", sAbsPath));
     }
 
     arguments << temp.GetData();
     arguments << QString(sAbsPath.GetData());
 
-    arguments << "-rgba";
-    arguments << "in0.rgba";
+    if (!pProp->m_sAlphaMask.IsEmpty())
+    {
+      ezStringBuilder sAbsPath = pProp->m_sAlphaMask;
+      if (!pEditorApp->MakeDataDirectoryRelativePathAbsolute(sAbsPath))
+      {
+        return ezStatus(ezFmt("Failed to make path absolute: '{}'", sAbsPath));
+      }
+
+      arguments << "-in1";
+      arguments << QString(sAbsPath.GetData());
+
+      arguments << "-rgb";
+      arguments << "in0.rgb";
+
+      arguments << "-a";
+      arguments << "in1.r";
+    }
+    else
+    {
+      arguments << "-rgba";
+      arguments << "in0.rgba";
+    }
   }
 
   ezStringBuilder cmd;
@@ -223,7 +220,6 @@ ezStatus ezDecalAssetDocumentGenerator::Generate(
 
   auto& accessor = pAssetDoc->GetPropertyObject()->GetTypeAccessor();
   accessor.SetValue("BaseColor", szDataDirRelativePath);
-  accessor.SetValue("Normal", "Textures/NeutralNormal.tga");
 
   return ezStatus(EZ_SUCCESS);
 }

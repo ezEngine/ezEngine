@@ -8,9 +8,10 @@
 #include <ModelImporter/ModelImporter.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
 
+// clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimatedMeshAssetDocument, 5, ezRTTINoAllocator)
-  ;
 EZ_END_DYNAMIC_REFLECTED_TYPE;
+// clang-format on
 
 static ezMat3 CalculateTransformationMatrix(const ezAnimatedMeshAssetProperties* pProp)
 {
@@ -41,9 +42,10 @@ ezStatus ezAnimatedMeshAssetDocument::InternalTransformAsset(ezStreamWriter& str
 
   EZ_SUCCEED_OR_RETURN(CreateMeshFromFile(pProp, desc));
 
+  // the properties object can get invalidated by the CreateMeshFromFile() call
+  pProp = GetProperties();
   range.BeginNextStep("Writing Result");
-  desc.SetSkeleton(
-    ezResourceManager::LoadResource<ezSkeletonResource>(pProp->m_sSkeletonFile)); // we actually only want the handle for serialization
+  desc.SetSkeleton(ezResourceManager::LoadResource<ezSkeletonResource>(pProp->m_sSkeletonFile)); // we actually only want the handle for serialization
   desc.Save(stream);
 
   return ezStatus(EZ_SUCCESS);
@@ -60,8 +62,8 @@ ezStatus ezAnimatedMeshAssetDocument::CreateMeshFromFile(ezAnimatedMeshAssetProp
 
   ezSharedPtr<ezModelImporter::Scene> pScene;
   ezModelImporter::Mesh* pMesh = nullptr;
-  EZ_SUCCEED_OR_RETURN(ezMeshImportUtils::TryImportMesh(
-    pScene, pMesh, pProp->m_sMeshFile, "", mTransformation, pProp->m_bRecalculateNormals, pProp->m_bInvertNormals, range, desc, true));
+  EZ_SUCCEED_OR_RETURN(ezMeshImportUtils::TryImportMesh(pScene, pMesh, pProp->m_sMeshFile, "", mTransformation, pProp->m_bRecalculateNormals,
+    pProp->m_bInvertNormals, pProp->m_NormalPrecision, pProp->m_TexCoordPrecision, range, desc, true));
 
   range.BeginNextStep("Importing Materials");
 

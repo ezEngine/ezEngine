@@ -23,6 +23,7 @@ public:
     ezVec3 m_vPosition;
     ezVec3 m_vNormal;
     ezVec3 m_vTangent;
+    float m_fBiTangentSign;
     ezVec2 m_vTexCoord;
     ezColor m_Color;
     ezInt32 m_iCustomIndex;

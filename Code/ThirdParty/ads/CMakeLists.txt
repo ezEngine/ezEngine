@@ -1,5 +1,7 @@
 ez_cmake_init()
 
+ez_build_filter_everything()
+
 ez_requires(EZ_3RDPARTY_ADS_SUPPORT)
 
 ez_requires_qt()
@@ -30,5 +32,6 @@ set (MOC_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/DockWidgetTab.h
   ${CMAKE_CURRENT_SOURCE_DIR}/ElidingLabel.h
   ${CMAKE_CURRENT_SOURCE_DIR}/FloatingDockContainer.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/FloatingDragPreview.h
   )
 ez_qt_wrap_target_moc_files(${PROJECT_NAME} "${MOC_FILES}")

@@ -24,9 +24,9 @@ ezVisualizerAdapter::~ezVisualizerAdapter()
   if (m_pObject)
   {
     m_pObject->GetDocumentObjectManager()->m_PropertyEvents.RemoveEventHandler(
-        ezMakeDelegate(&ezVisualizerAdapter::DocumentObjectPropertyEventHandler, this));
+      ezMakeDelegate(&ezVisualizerAdapter::DocumentObjectPropertyEventHandler, this));
     m_pObject->GetDocumentObjectManager()->GetDocument()->m_DocumentObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(
-        ezMakeDelegate(&ezVisualizerAdapter::DocumentObjectMetaDataEventHandler, this));
+      ezMakeDelegate(&ezVisualizerAdapter::DocumentObjectMetaDataEventHandler, this));
   }
 }
 
@@ -38,7 +38,7 @@ void ezVisualizerAdapter::SetVisualizer(const ezVisualizerAttribute* pAttribute,
   auto& meta = m_pObject->GetDocumentObjectManager()->GetDocument()->m_DocumentObjectMetaData;
 
   m_pObject->GetDocumentObjectManager()->m_PropertyEvents.AddEventHandler(
-      ezMakeDelegate(&ezVisualizerAdapter::DocumentObjectPropertyEventHandler, this));
+    ezMakeDelegate(&ezVisualizerAdapter::DocumentObjectPropertyEventHandler, this));
   meta.m_DataModifiedEvent.AddEventHandler(ezMakeDelegate(&ezVisualizerAdapter::DocumentObjectMetaDataEventHandler, this));
 
   {
@@ -53,56 +53,7 @@ void ezVisualizerAdapter::SetVisualizer(const ezVisualizerAttribute* pAttribute,
 }
 
 
-ezQuat ezVisualizerAdapter::GetBasisRotation(ezBasisAxis::Enum identity, ezBasisAxis::Enum axis)
-{
-  ezQuat rotId;
-  switch (identity)
-  {
-    case ezBasisAxis::PositiveX:
-      rotId.SetIdentity();
-      break;
-    case ezBasisAxis::PositiveY:
-      rotId.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(-90));
-      break;
-    case ezBasisAxis::PositiveZ:
-      rotId.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(90));
-      break;
-    case ezBasisAxis::NegativeX:
-      rotId.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(180));
-      break;
-    case ezBasisAxis::NegativeY:
-      rotId.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(90));
-      break;
-    case ezBasisAxis::NegativeZ:
-      rotId.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(90));
-      break;
-  }
 
-    ezQuat rotAxis;
-  switch (axis)
-  {
-    case ezBasisAxis::PositiveX:
-      rotAxis.SetIdentity();
-      break;
-    case ezBasisAxis::PositiveY:
-      rotAxis.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(90));
-      break;
-    case ezBasisAxis::PositiveZ:
-      rotAxis.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
-      break;
-    case ezBasisAxis::NegativeX:
-      rotAxis.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(180));
-      break;
-    case ezBasisAxis::NegativeY:
-      rotAxis.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(-90));
-      break;
-    case ezBasisAxis::NegativeZ:
-      rotAxis.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-90));
-      break;
-  }
-
-  return rotId * rotAxis;
-}
 
 void ezVisualizerAdapter::DocumentObjectPropertyEventHandler(const ezDocumentObjectPropertyEvent& e)
 {
