@@ -145,7 +145,7 @@ void ezQtMemoryWidget::UpdateStats()
       pItem->setData(0, Qt::UserRole, it.Key());
 
       pItem->setText(0, it.Value().m_sName.GetData());
-      pItem->setForeground(0, MemoryWidgetDetail::s_Colors[it.Value().m_iColor % s_uiMaxColors]);
+      pItem->setForeground(0, MemoryWidgetDetail::s_Colors[it.Value().m_uiColor % s_uiMaxColors]);
 
       it.Value().m_pTreeItem = pItem;
     }
@@ -234,7 +234,7 @@ void ezQtMemoryWidget::UpdateStats()
   ezUInt64 uiLiveAllocs = 0;
   ezUInt64 uiAllocs = 0;
   ezUInt64 uiDeallocs = 0;
-  ezUInt64 uiMinUsedMemory = 0xFFFFFFFF;
+  ezUInt64 uiMinUsedMemory = 0xFFFFFFFFFFFFFFFFull;
   ezUInt64 uiMaxUsedMemory = 0;
 
   {
@@ -254,10 +254,11 @@ void ezQtMemoryWidget::UpdateStats()
     if (it.Value().m_UsedMemory.IsEmpty() || !it.Value().m_bDisplay)
       continue;
 
-    ezUInt64 uiMinUsedMemoryThis = 0xFFFFFFFF;
+    ezUInt64 uiMinUsedMemoryThis = 0xFFFFFFFFFFFFFFFFull;
     ezUInt64 uiMaxUsedMemoryThis = 0;
 
-    const ezUInt32 uiColorPath = it.Value().m_iColor % s_uiMaxColors;
+    const ezUInt32 uiColorPath = it.Value().m_uiColor % s_uiMaxColors;
+    EZ_ASSERT_DEV(uiColorPath < s_uiMaxColors, "Invalid color index: {}", uiColorPath);
 
     uiUsedMemory += it.Value().m_UsedMemory.PeekBack();
     uiLiveAllocs += it.Value().m_uiLiveAllocs;
@@ -440,9 +441,9 @@ void ezQtMemoryWidget::ProcessTelemetry(void* pUnuseed)
       ad.m_sName = sAllocatorName;
       ad.m_uiParentId = uiParentId;
 
-      if (ad.m_iColor < 0)
+      if (ad.m_uiColor == 0xFF)
       {
-        ad.m_iColor = s_pWidget->m_uiColorsUsed;
+        ad.m_uiColor = s_pWidget->m_uiColorsUsed;
         ++s_pWidget->m_uiColorsUsed;
         s_pWidget->m_bAllocatorsChanged = true;
       }
