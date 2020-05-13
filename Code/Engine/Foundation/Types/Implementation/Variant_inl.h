@@ -1,9 +1,14 @@
 
+#define EZ_MSVC_WARNING_NUMBER 4702 // Unreachable code for some reason
+#include <Foundation/Basics/Compiler/DisableWarning.h>
+
 EZ_ALWAYS_INLINE ezVariant::ezVariant()
 {
   m_Type = Type::Invalid;
   m_bIsShared = false;
 }
+
+#include <Foundation/Basics/Compiler/RestoreWarning.h>
 
 EZ_ALWAYS_INLINE ezVariant::ezVariant(const ezVariant& other)
 {

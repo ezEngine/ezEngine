@@ -333,7 +333,6 @@ ezGALBlendState* ezGALDeviceDX11::CreateBlendStatePlatform(const ezGALBlendState
     EZ_DELETE(&m_Allocator, pState);
     return nullptr;
   }
-  return nullptr;
 }
 
 void ezGALDeviceDX11::DestroyBlendStatePlatform(ezGALBlendState* pBlendState)

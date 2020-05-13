@@ -109,6 +109,23 @@ function(ez_set_build_flags_msvc TARGET_NAME)
 		target_compile_options(${TARGET_NAME} PRIVATE "/analyze")
 	endif()
 	
+	# Ignore various warnings we are not interrested in
+	# 4251 = class 'type' needs to have dll-interface to be used by clients of class 'type2' -> dll export / import issues (mostly with templates)
+	# 4345 = behavior change: an object of POD type constructed with an initializer of the form () will be default-initialized
+	# 4201 = nonstandard extension used: nameless struct/union
+	# 4324 = structure was padded due to alignment specifier
+	# 4100 = unreferenced formal parameter
+	# 4189 = local variable is initialized but not referenced
+	# 4127 = conditional expression is constant
+	# 4244 = conversion from 'int 32' to 'int 16', possible loss of data
+	# 4245 = signed/unsigned mismatch
+	# 4389 = signed/unsigned mismatch
+	# 4310 = cast truncates constant value
+	target_compile_options(${TARGET_NAME} PRIVATE /wd4251 /wd4345 /wd4201 /wd4324 /wd4100 /wd4189 /wd4127 /wd4244 /wd4245 /wd4389 /wd4310)
+	
+	# Set Warnings as Errors: Too few/many parameters given for Macro
+	target_compile_options(${TARGET_NAME} PRIVATE /we4002 /we4003)
+	
 endfunction()
 
 ######################################
