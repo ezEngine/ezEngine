@@ -10,6 +10,7 @@
 #include <QTabBar>
 #include <QTimer>
 #include <ToolsFoundation/Application/ApplicationServices.h>
+#include <ads/DockAreaWidget.h>
 #include <ads/DockManager.h>
 #include <ads/DockWidgetTab.h>
 #include <ads/FloatingDockContainer.h>
@@ -269,6 +270,16 @@ void ezQtContainerWindow::RemoveDocumentWindow(ezQtDocumentWindow* pDocWindow)
     return;
 
   ads::CDockWidget* dock = m_DocumentDocks[uiListIndex];
+
+  int iCurIdx = -1;
+  ads::CDockAreaWidget* pDockArea = nullptr;
+
+  if (dock->isTabbed())
+  {
+    pDockArea = dock->dockAreaWidget();
+    iCurIdx = pDockArea->currentIndex();
+  }
+
   m_DockManager->removeDockWidget(dock);
 
   m_DocumentWindows.RemoveAtAndSwap(uiListIndex);
@@ -278,6 +289,12 @@ void ezQtContainerWindow::RemoveDocumentWindow(ezQtDocumentWindow* pDocWindow)
   dock->hide();
   dock->deleteLater();
   pDocWindow->m_pContainerWindow = nullptr;
+
+  if (pDockArea)
+  {
+    iCurIdx = ezMath::Min(iCurIdx, pDockArea->openDockWidgetsCount() - 1);
+    pDockArea->setCurrentIndex(iCurIdx);
+  }
 }
 
 void ezQtContainerWindow::RemoveApplicationPanel(ezQtApplicationPanel* pPanel)
