@@ -3,14 +3,14 @@
 #include <Foundation/Strings/StringConversion.h>
 
 inline ezStringBuilder::ezStringBuilder(ezAllocatorBase* pAllocator)
-    : m_Data(pAllocator)
+  : m_Data(pAllocator)
 {
   m_uiCharacterCount = 0;
   AppendTerminator();
 }
 
 inline ezStringBuilder::ezStringBuilder(const ezStringBuilder& rhs)
-    : m_Data(rhs.GetAllocator())
+  : m_Data(rhs.GetAllocator())
 {
   m_uiCharacterCount = 0;
   AppendTerminator();
@@ -19,7 +19,7 @@ inline ezStringBuilder::ezStringBuilder(const ezStringBuilder& rhs)
 }
 
 inline ezStringBuilder::ezStringBuilder(ezStringBuilder&& rhs) noexcept
-    : m_Data(rhs.GetAllocator())
+  : m_Data(rhs.GetAllocator())
 {
   m_uiCharacterCount = 0;
   AppendTerminator();
@@ -28,7 +28,7 @@ inline ezStringBuilder::ezStringBuilder(ezStringBuilder&& rhs) noexcept
 }
 
 inline ezStringBuilder::ezStringBuilder(const char* szUTF8, ezAllocatorBase* pAllocator)
-    : m_Data(pAllocator)
+  : m_Data(pAllocator)
 {
   m_uiCharacterCount = 0;
   AppendTerminator();
@@ -37,7 +37,7 @@ inline ezStringBuilder::ezStringBuilder(const char* szUTF8, ezAllocatorBase* pAl
 }
 
 inline ezStringBuilder::ezStringBuilder(const wchar_t* szWChar, ezAllocatorBase* pAllocator)
-    : m_Data(pAllocator)
+  : m_Data(pAllocator)
 {
   m_uiCharacterCount = 0;
   AppendTerminator();
@@ -46,7 +46,7 @@ inline ezStringBuilder::ezStringBuilder(const wchar_t* szWChar, ezAllocatorBase*
 }
 
 inline ezStringBuilder::ezStringBuilder(const ezStringView& rhs, ezAllocatorBase* pAllocator)
-    : m_Data(pAllocator)
+  : m_Data(pAllocator)
 {
   m_uiCharacterCount = 0;
   AppendTerminator();
@@ -139,7 +139,7 @@ inline void ezStringBuilder::Prepend(ezUInt32 uiChar)
 }
 
 inline void ezStringBuilder::Append(const wchar_t* pData1, const wchar_t* pData2, const wchar_t* pData3, const wchar_t* pData4,
-                                    const wchar_t* pData5, const wchar_t* pData6)
+  const wchar_t* pData5, const wchar_t* pData6)
 {
   // this is a bit heavy on the stack size (6KB)
   // but it is really only a convenience function, as one could always just use the char* Append function and convert explicitly
@@ -154,7 +154,7 @@ inline void ezStringBuilder::Append(const wchar_t* pData1, const wchar_t* pData2
 }
 
 inline void ezStringBuilder::Prepend(const wchar_t* pData1, const wchar_t* pData2, const wchar_t* pData3, const wchar_t* pData4,
-                                     const wchar_t* pData5, const wchar_t* pData6)
+  const wchar_t* pData5, const wchar_t* pData6)
 {
   // this is a bit heavy on the stack size (6KB)
   // but it is really only a convenience function, as one could always just use the char* Append function and convert explicitly
@@ -202,8 +202,8 @@ inline void ezStringBuilder::ChangeCharacter(iterator& it, ezUInt32 uiCharacter)
 {
   EZ_ASSERT_DEV(it.IsValid(), "The given character iterator does not point to a valid character.");
   EZ_ASSERT_DEV(it.GetData() >= GetData() && it.GetData() < GetData() + GetElementCount(),
-                "The given character iterator does not point into this string. It was either created from another string, or this string "
-                "has been reallocated in the mean time.");
+    "The given character iterator does not point into this string. It was either created from another string, or this string "
+    "has been reallocated in the mean time.");
 
   // this is only an optimization for pure ASCII strings
   // without it, the code below would still work
@@ -239,7 +239,7 @@ EZ_ALWAYS_INLINE void ezStringBuilder::Remove(const char* szRemoveFromPos, const
 
 template <typename Container>
 void ezStringBuilder::Split(bool bReturnEmptyStrings, Container& Output, const char* szSeparator1, const char* szSeparator2,
-                            const char* szSeparator3, const char* szSeparator4, const char* szSeparator5, const char* szSeparator6) const
+  const char* szSeparator3, const char* szSeparator4, const char* szSeparator5, const char* szSeparator6) const
 {
   Output.Clear();
 
@@ -342,4 +342,3 @@ EZ_FORCE_INLINE ezStringView ezStringBuilder::GetRootedPathRootName() const
 }
 
 #include <Foundation/Strings/Implementation/AllStrings_inl.h>
-

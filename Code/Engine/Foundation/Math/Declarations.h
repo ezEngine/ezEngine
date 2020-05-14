@@ -123,69 +123,69 @@ struct ezHandedness
 template <typename Type>
 class ezVec2Template;
 
-typedef ezVec2Template<float> ezVec2;
-typedef ezVec2Template<double> ezVec2d;
-typedef ezVec2Template<ezInt32> ezVec2I32;
-typedef ezVec2Template<ezUInt32> ezVec2U32;
+using ezVec2 = ezVec2Template<float>;
+using ezVec2d = ezVec2Template<double>;
+using ezVec2I32 = ezVec2Template<ezInt32>;
+using ezVec2U32 = ezVec2Template<ezUInt32>;
 
 template <typename Type>
 struct ezVec3Template;
 
-typedef ezVec3Template<float> ezVec3;
-typedef ezVec3Template<double> ezVec3d;
-typedef ezVec3Template<ezInt32> ezVec3I32;
-typedef ezVec3Template<ezUInt32> ezVec3U32;
+using ezVec3 = ezVec3Template<float>;
+using ezVec3d = ezVec3Template<double>;
+using ezVec3I32 = ezVec3Template<ezInt32>;
+using ezVec3U32 = ezVec3Template<ezUInt32>;
 
 template <typename Type>
 class ezVec4Template;
 
-typedef ezVec4Template<float> ezVec4;
-typedef ezVec4Template<double> ezVec4d;
-typedef ezVec4Template<ezInt32> ezVec4I32;
-typedef ezVec4Template<ezUInt32> ezVec4U32;
+using ezVec4 = ezVec4Template<float>;
+using ezVec4d = ezVec4Template<double>;
+using ezVec4I32 = ezVec4Template<ezInt32>;
+using ezVec4U32 = ezVec4Template<ezUInt32>;
 
 template <typename Type>
 class ezMat3Template;
 
-typedef ezMat3Template<float> ezMat3;
-typedef ezMat3Template<double> ezMat3d;
+using ezMat3 = ezMat3Template<float>;
+using ezMat3d = ezMat3Template<double>;
 
 template <typename Type>
 class ezMat4Template;
 
-typedef ezMat4Template<float> ezMat4;
-typedef ezMat4Template<double> ezMat4d;
+using ezMat4 = ezMat4Template<float>;
+using ezMat4d = ezMat4Template<double>;
 
 template <typename Type>
 struct ezPlaneTemplate;
 
-typedef ezPlaneTemplate<float> ezPlane;
-typedef ezPlaneTemplate<double> ezPlaned;
+using ezPlane = ezPlaneTemplate<float>;
+using ezPlaned = ezPlaneTemplate<double>;
 
 template <typename Type>
 class ezQuatTemplate;
 
-typedef ezQuatTemplate<float> ezQuat;
-typedef ezQuatTemplate<double> ezQuatd;
+using ezQuat = ezQuatTemplate<float>;
+using ezQuatd = ezQuatTemplate<double>;
 
 template <typename Type>
 class ezBoundingBoxTemplate;
 
-typedef ezBoundingBoxTemplate<float> ezBoundingBox;
-typedef ezBoundingBoxTemplate<double> ezBoundingBoxd;
-typedef ezBoundingBoxTemplate<ezUInt32> ezBoundingBoxu32;
+using ezBoundingBox = ezBoundingBoxTemplate<float>;
+using ezBoundingBoxd = ezBoundingBoxTemplate<double>;
+using ezBoundingBoxu32 = ezBoundingBoxTemplate<ezUInt32>;
 
 template <typename Type>
 class ezBoundingBoxSphereTemplate;
 
-typedef ezBoundingBoxSphereTemplate<float> ezBoundingBoxSphere;
-typedef ezBoundingBoxSphereTemplate<double> ezBoundingBoxSphered;
+using ezBoundingBoxSphere = ezBoundingBoxSphereTemplate<float>;
+using ezBoundingBoxSphered = ezBoundingBoxSphereTemplate<double>;
 
 template <typename Type>
 class ezBoundingSphereTemplate;
 
-typedef ezBoundingSphereTemplate<float> ezBoundingSphere;
-typedef ezBoundingSphereTemplate<double> ezBoundingSphered;
+using ezBoundingSphere = ezBoundingSphereTemplate<float>;
+using ezBoundingSphered = ezBoundingSphereTemplate<double>;
 
 template <ezUInt8 DecimalBits>
 class ezFixedPoint;
@@ -195,8 +195,8 @@ class ezAngle;
 template <typename Type>
 class ezTransformTemplate;
 
-typedef ezTransformTemplate<float> ezTransform;
-typedef ezTransformTemplate<double> ezTransformd;
+using ezTransform = ezTransformTemplate<float>;
+using ezTransformd = ezTransformTemplate<double>;
 
 class ezColor;
 class ezColorLinearUB;
@@ -208,7 +208,7 @@ class ezRandom;
 /// \brief An enum that allows to select on of the six main axis (positive / negative)
 struct EZ_FOUNDATION_DLL ezBasisAxis
 {
-  typedef ezInt8 StorageType;
+  using StorageType = ezInt8;
 
   /// \brief An enum that allows to select on of the six main axis (positive / negative)
   enum Enum : ezInt8

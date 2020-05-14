@@ -91,7 +91,7 @@ public:
   template <typename IntType, typename Container>
   struct UtfInserter
   {
-    typedef IntType InsertionType;
+    using InsertionType = IntType;
 
     EZ_ALWAYS_INLINE UtfInserter(Container* pContainer) { m_pContainer = pContainer; }
     EZ_ALWAYS_INLINE void operator++() {}

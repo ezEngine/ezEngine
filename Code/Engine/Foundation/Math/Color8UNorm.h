@@ -19,7 +19,7 @@ public:
   ezUInt8 a;
 
   /// \brief Default-constructed color is uninitialized (for speed)
-  ezColorBaseUB(){};
+  ezColorBaseUB() = default;
 
   /// \brief Initializes the color with r, g, b, a
   ezColorBaseUB(ezUInt8 r, ezUInt8 g, ezUInt8 b, ezUInt8 a = 255);
@@ -43,7 +43,7 @@ public:
   EZ_DECLARE_POD_TYPE();
 
   /// \brief Default-constructed color is uninitialized (for speed)
-  ezColorLinearUB(){}; // [tested]
+  ezColorLinearUB() = default; // [tested]
 
   /// \brief Initializes the color with r, g, b, a
   ezColorLinearUB(ezUInt8 r, ezUInt8 g, ezUInt8 b, ezUInt8 a = 255); // [tested]
@@ -72,7 +72,7 @@ public:
   EZ_DECLARE_POD_TYPE();
 
   /// \brief Default-constructed color is uninitialized (for speed)
-  ezColorGammaUB(){};
+  ezColorGammaUB() = default;
 
   /// \brief Copies the color values. RGB are assumed to be in Gamma space.
   ezColorGammaUB(ezUInt8 uiGammaRed, ezUInt8 uiGammaGreen, ezUInt8 uiGammaBlue, ezUInt8 uiLinearAlpha = 255); // [tested]
@@ -93,4 +93,3 @@ EZ_CHECK_AT_COMPILETIME(sizeof(ezColorGammaUB) == 4);
 
 
 #include <Foundation/Math/Implementation/Color8UNorm_inl.h>
-

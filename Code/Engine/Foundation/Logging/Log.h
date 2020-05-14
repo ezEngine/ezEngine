@@ -17,7 +17,7 @@ class ezLogBlock;
 /// \brief Describes the types of events that ezLog sends.
 struct EZ_FOUNDATION_DLL ezLogMsgType
 {
-  typedef ezInt8 StorageType;
+  using StorageType = ezInt8;
 
   enum Enum : ezInt8
   {
@@ -60,7 +60,7 @@ struct EZ_FOUNDATION_DLL ezLoggingEventData
 #endif
 };
 
-typedef ezEvent<const ezLoggingEventData&, ezMutex> ezLoggingEvent;
+using ezLoggingEvent = ezEvent<const ezLoggingEventData &, ezMutex>;
 
 /// \brief Base class for all logging classes.
 ///
@@ -130,7 +130,7 @@ private:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezGlobalLog);
 
   friend class ezLog; // only ezLog may create instances of this class
-  ezGlobalLog() {}
+  ezGlobalLog() = default;
 };
 
 /// \brief Static class that allows to write out logging information.

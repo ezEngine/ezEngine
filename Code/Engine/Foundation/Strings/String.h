@@ -166,17 +166,17 @@ public:
   void operator=(ezHybridStringBase<Size>&& rhs);
 };
 
-typedef ezHybridString<1> ezDynamicString;
+using ezDynamicString = ezHybridString<1>;
 /// \brief String that uses the static allocator to prevent leak reports in RTTI attributes.
-typedef ezHybridString<32, ezStaticAllocatorWrapper> ezUntrackedString;
-typedef ezHybridString<32> ezString;
-typedef ezHybridString<16> ezString16;
-typedef ezHybridString<24> ezString24;
-typedef ezHybridString<32> ezString32;
-typedef ezHybridString<48> ezString48;
-typedef ezHybridString<64> ezString64;
-typedef ezHybridString<128> ezString128;
-typedef ezHybridString<256> ezString256;
+using ezUntrackedString = ezHybridString<32, ezStaticAllocatorWrapper>;
+using ezString = ezHybridString<32>;
+using ezString16 = ezHybridString<16>;
+using ezString24 = ezHybridString<24>;
+using ezString32 = ezHybridString<32>;
+using ezString48 = ezHybridString<48>;
+using ezString64 = ezHybridString<64>;
+using ezString128 = ezHybridString<128>;
+using ezString256 = ezHybridString<256>;
 
 EZ_CHECK_AT_COMPILETIME_MSG(ezGetTypeClass<ezString>::value == 2, "string is not memory relocatable");
 

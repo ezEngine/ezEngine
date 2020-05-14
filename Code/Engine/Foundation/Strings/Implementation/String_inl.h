@@ -2,50 +2,48 @@
 
 template <ezUInt16 Size>
 ezHybridStringBase<Size>::ezHybridStringBase(ezAllocatorBase* pAllocator)
-    : m_Data(pAllocator)
+  : m_Data(pAllocator)
 {
   Clear();
 }
 
 template <ezUInt16 Size>
 ezHybridStringBase<Size>::ezHybridStringBase(const ezHybridStringBase& rhs, ezAllocatorBase* pAllocator)
-    : m_Data(pAllocator)
+  : m_Data(pAllocator)
 {
   *this = rhs;
 }
 
 template <ezUInt16 Size>
 ezHybridStringBase<Size>::ezHybridStringBase(ezHybridStringBase&& rhs, ezAllocatorBase* pAllocator)
-    : m_Data(pAllocator)
+  : m_Data(pAllocator)
 {
   operator=(std::move(rhs));
 }
 
 template <ezUInt16 Size>
 ezHybridStringBase<Size>::ezHybridStringBase(const char* rhs, ezAllocatorBase* pAllocator)
-    : m_Data(pAllocator)
+  : m_Data(pAllocator)
 {
   *this = rhs;
 }
 
 template <ezUInt16 Size>
 ezHybridStringBase<Size>::ezHybridStringBase(const wchar_t* rhs, ezAllocatorBase* pAllocator)
-    : m_Data(pAllocator)
+  : m_Data(pAllocator)
 {
   *this = rhs;
 }
 
 template <ezUInt16 Size>
 ezHybridStringBase<Size>::ezHybridStringBase(const ezStringView& rhs, ezAllocatorBase* pAllocator)
-    : m_Data(pAllocator)
+  : m_Data(pAllocator)
 {
   *this = rhs;
 }
 
 template <ezUInt16 Size>
-ezHybridStringBase<Size>::~ezHybridStringBase()
-{
-}
+ezHybridStringBase<Size>::~ezHybridStringBase() = default;
 
 template <ezUInt16 Size>
 ezHybridStringBase<Size>::operator ezStringView() const
@@ -92,7 +90,7 @@ template <ezUInt16 Size>
 void ezHybridStringBase<Size>::operator=(const char* szString)
 {
   EZ_ASSERT_DEBUG(szString < m_Data.GetData() || szString >= m_Data.GetData() + m_Data.GetCount(),
-                  "Can't assign string a value that points to ourself!");
+    "Can't assign string a value that points to ourself!");
 
   ezUInt32 uiElementCount = 0;
   ezStringUtils::GetCharacterAndElementCount(szString, m_uiCharacterCount, uiElementCount);
@@ -131,7 +129,7 @@ template <ezUInt16 Size>
 void ezHybridStringBase<Size>::operator=(const ezStringView& rhs)
 {
   EZ_ASSERT_DEBUG(rhs.GetStartPointer() < m_Data.GetData() || rhs.GetStartPointer() >= m_Data.GetData() + m_Data.GetCount(),
-                  "Can't assign string a value that points to ourself!");
+    "Can't assign string a value that points to ourself!");
 
   m_Data.SetCountUninitialized(rhs.GetElementCount() + 1);
   ezStringUtils::Copy(&m_Data[0], m_Data.GetCount(), rhs.GetStartPointer(), rhs.GetEndPointer());
@@ -142,8 +140,8 @@ template <ezUInt16 Size>
 ezStringView ezHybridStringBase<Size>::GetSubString(ezUInt32 uiFirstCharacter, ezUInt32 uiNumCharacters) const
 {
   EZ_ASSERT_DEV(uiFirstCharacter + uiNumCharacters <= m_uiCharacterCount,
-                "The string only has {0} characters, cannot get a sub-string up to character {1}.", m_uiCharacterCount,
-                uiFirstCharacter + uiNumCharacters);
+    "The string only has {0} characters, cannot get a sub-string up to character {1}.", m_uiCharacterCount,
+    uiFirstCharacter + uiNumCharacters);
 
   const char* szStart = GetData();
   ezUnicodeUtils::MoveToNextUtf8(szStart, uiFirstCharacter);
@@ -164,62 +162,62 @@ template <ezUInt16 Size>
 ezStringView ezHybridStringBase<Size>::GetLast(ezUInt32 uiNumCharacters) const
 {
   EZ_ASSERT_DEV(uiNumCharacters < m_uiCharacterCount, "The string only contains {0} characters, cannot return the last {1} characters.",
-                m_uiCharacterCount, uiNumCharacters);
+    m_uiCharacterCount, uiNumCharacters);
   return GetSubString(m_uiCharacterCount - uiNumCharacters, uiNumCharacters);
 }
 
 
 template <ezUInt16 Size, typename A>
 EZ_ALWAYS_INLINE ezHybridString<Size, A>::ezHybridString()
-    : ezHybridStringBase<Size>(A::GetAllocator())
+  : ezHybridStringBase<Size>(A::GetAllocator())
 {
 }
 
 template <ezUInt16 Size, typename A>
 EZ_ALWAYS_INLINE ezHybridString<Size, A>::ezHybridString(ezAllocatorBase* pAllocator)
-    : ezHybridStringBase<Size>(pAllocator)
+  : ezHybridStringBase<Size>(pAllocator)
 {
 }
 
 template <ezUInt16 Size, typename A>
 EZ_ALWAYS_INLINE ezHybridString<Size, A>::ezHybridString(const ezHybridString<Size, A>& other)
-    : ezHybridStringBase<Size>(other, A::GetAllocator())
+  : ezHybridStringBase<Size>(other, A::GetAllocator())
 {
 }
 
 template <ezUInt16 Size, typename A>
 EZ_ALWAYS_INLINE ezHybridString<Size, A>::ezHybridString(const ezHybridStringBase<Size>& other)
-    : ezHybridStringBase<Size>(other, A::GetAllocator())
+  : ezHybridStringBase<Size>(other, A::GetAllocator())
 {
 }
 
 template <ezUInt16 Size, typename A>
 EZ_ALWAYS_INLINE ezHybridString<Size, A>::ezHybridString(ezHybridString<Size, A>&& other)
-    : ezHybridStringBase<Size>(std::move(other), A::GetAllocator())
+  : ezHybridStringBase<Size>(std::move(other), A::GetAllocator())
 {
 }
 
 template <ezUInt16 Size, typename A>
 EZ_ALWAYS_INLINE ezHybridString<Size, A>::ezHybridString(ezHybridStringBase<Size>&& other)
-    : ezHybridStringBase<Size>(std::move(other), A::GetAllocator())
+  : ezHybridStringBase<Size>(std::move(other), A::GetAllocator())
 {
 }
 
 template <ezUInt16 Size, typename A>
 EZ_ALWAYS_INLINE ezHybridString<Size, A>::ezHybridString(const char* rhs)
-    : ezHybridStringBase<Size>(rhs, A::GetAllocator())
+  : ezHybridStringBase<Size>(rhs, A::GetAllocator())
 {
 }
 
 template <ezUInt16 Size, typename A>
 EZ_ALWAYS_INLINE ezHybridString<Size, A>::ezHybridString(const wchar_t* rhs)
-    : ezHybridStringBase<Size>(rhs, A::GetAllocator())
+  : ezHybridStringBase<Size>(rhs, A::GetAllocator())
 {
 }
 
 template <ezUInt16 Size, typename A>
 EZ_ALWAYS_INLINE ezHybridString<Size, A>::ezHybridString(const ezStringView& rhs)
-    : ezHybridStringBase<Size>(rhs, A::GetAllocator())
+  : ezHybridStringBase<Size>(rhs, A::GetAllocator())
 {
 }
 
@@ -266,4 +264,3 @@ EZ_ALWAYS_INLINE void ezHybridString<Size, A>::operator=(const ezStringView& rhs
 }
 
 #include <Foundation/Strings/Implementation/AllStrings_inl.h>
-

@@ -2,21 +2,21 @@
 
 namespace ezMinWindows
 {
-  typedef int BOOL;
-  typedef unsigned long DWORD;
-  typedef unsigned int UINT;
-  typedef char* LPSTR;
+  using BOOL = int;
+  using DWORD = unsigned long;
+  using UINT = unsigned int;
+  using LPSTR = char *;
   struct ezHINSTANCE;
-  typedef ezHINSTANCE* HINSTANCE;
-  typedef HINSTANCE HMODULE;
+  using HINSTANCE = ezHINSTANCE *;
+  using HMODULE = HINSTANCE;
   struct ezHWND;
-  typedef ezHWND* HWND;
-  typedef long HRESULT;
-  typedef void* HANDLE;
+  using HWND = ezHWND *;
+  using HRESULT = long;
+  using HANDLE = void *;
 
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
-  typedef ezUInt64 WPARAM;
-  typedef ezUInt64 LPARAM;
+  using WPARAM = ezUInt64;
+  using LPARAM = ezUInt64;
 #else
   typedef ezUInt32 WPARAM;
   typedef ezUInt32 LPARAM;

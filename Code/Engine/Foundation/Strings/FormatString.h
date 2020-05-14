@@ -58,7 +58,7 @@ public:
   EZ_ALWAYS_INLINE ezFormatString() { m_szString = nullptr; }
   EZ_ALWAYS_INLINE ezFormatString(const char* szString) { m_szString = szString; }
   ezFormatString(const ezStringBuilder& s);
-  virtual ~ezFormatString() {}
+  virtual ~ezFormatString() = default;
 
   /// \brief Generates the formatted text. Make sure to only call this function once and only when the formatted string is really needed.
   ///

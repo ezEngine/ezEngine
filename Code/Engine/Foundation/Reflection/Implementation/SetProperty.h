@@ -40,12 +40,12 @@ template <typename Class, typename Type, typename Container>
 class ezAccessorSetProperty : public ezTypedSetProperty<Type>
 {
 public:
-  typedef typename ezTypeTraits<Container>::NonConstReferenceType ContainerType;
-  typedef typename ezTypeTraits<Type>::NonConstReferenceType RealType;
+  using ContainerType = typename ezTypeTraits<Container>::NonConstReferenceType;
+  using RealType = typename ezTypeTraits<Type>::NonConstReferenceType;
 
-  typedef void (Class::*InsertFunc)(Type value);
-  typedef void (Class::*RemoveFunc)(Type value);
-  typedef Container (Class::*GetValuesFunc)() const;
+  using InsertFunc = void (Class::*)(Type value);
+  using RemoveFunc = void (Class::*)(Type value);
+  using GetValuesFunc = Container (Class::*)() const;
 
   ezAccessorSetProperty(const char* szPropertyName, GetValuesFunc getValues, InsertFunc insert, RemoveFunc remove)
       : ezTypedSetProperty<Type>(szPropertyName)
@@ -124,8 +124,8 @@ private:
 template <typename Class, typename Container, Container Class::*Member>
 struct ezSetPropertyAccessor
 {
-  typedef typename ezTypeTraits<Container>::NonConstReferenceType ContainerType;
-  typedef typename ezTypeTraits<typename ezContainerSubTypeResolver<ContainerType>::Type>::NonConstReferenceType Type;
+  using ContainerType = typename ezTypeTraits<Container>::NonConstReferenceType;
+  using Type = typename ezTypeTraits<typename ezContainerSubTypeResolver<ContainerType>::Type>::NonConstReferenceType;
 
   static const ContainerType& GetConstContainer(const Class* pInstance) { return (*pInstance).*Member; }
 
@@ -137,9 +137,9 @@ template <typename Class, typename Container, typename Type>
 class ezMemberSetProperty : public ezTypedSetProperty<typename ezTypeTraits<Type>::NonConstReferenceType>
 {
 public:
-  typedef typename ezTypeTraits<Type>::NonConstReferenceType RealType;
-  typedef const Container& (*GetConstContainerFunc)(const Class* pInstance);
-  typedef Container& (*GetContainerFunc)(Class* pInstance);
+  using RealType = typename ezTypeTraits<Type>::NonConstReferenceType;
+  using GetConstContainerFunc = const Container& (*)(const Class* pInstance);
+  using GetContainerFunc = Container& (*)(Class* pInstance);
 
   ezMemberSetProperty(const char* szPropertyName, GetConstContainerFunc constGetter, GetContainerFunc getter)
       : ezTypedSetProperty<RealType>(szPropertyName)

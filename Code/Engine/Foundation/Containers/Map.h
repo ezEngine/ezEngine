@@ -39,10 +39,10 @@ public:
   struct ConstIterator
   {
     typedef std::forward_iterator_tag iterator_category;
-    typedef ConstIterator value_type;
-    typedef ptrdiff_t difference_type;
-    typedef ConstIterator* pointer;
-    typedef ConstIterator& reference;
+    using value_type = ConstIterator;
+    using difference_type = ptrdiff_t;
+    using pointer = ConstIterator *;
+    using reference = ConstIterator &;
 
     EZ_DECLARE_POD_TYPE();
 
@@ -110,11 +110,11 @@ public:
   /// \brief Forward Iterator to iterate over all elements in sorted order.
   struct Iterator : public ConstIterator
   {
-    typedef std::forward_iterator_tag iterator_category;
-    typedef Iterator value_type;
-    typedef ptrdiff_t difference_type;
-    typedef Iterator* pointer;
-    typedef Iterator& reference;
+    using iterator_category = std::forward_iterator_tag;
+    using value_type = Iterator;
+    using difference_type = ptrdiff_t;
+    using pointer = Iterator *;
+    using reference = Iterator &;
 
     // this is required to pull in the const version of this function
     using ConstIterator::Value;

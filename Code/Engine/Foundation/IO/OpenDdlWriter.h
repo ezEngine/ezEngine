@@ -28,7 +28,7 @@ public:
   /// \brief Constructor
   ezOpenDdlWriter();
 
-  virtual ~ezOpenDdlWriter() {}
+  virtual ~ezOpenDdlWriter() = default;
 
   /// \brief All output is written to this binary stream.
   void SetOutputStream(ezStreamWriter* pOutput) { m_pOutput = pOutput; } // [tested]

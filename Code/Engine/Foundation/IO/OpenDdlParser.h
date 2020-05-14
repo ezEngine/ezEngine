@@ -35,7 +35,7 @@ class EZ_FOUNDATION_DLL ezOpenDdlParser
 {
 public:
   ezOpenDdlParser();
-  virtual ~ezOpenDdlParser() {}
+  virtual ~ezOpenDdlParser() = default;
 
   /// \brief Whether an error occured during parsing that resulted in cancelation of further parsing.
   bool HadFatalParsingError() const { return m_bHadFatalParsingError; } // [tested]

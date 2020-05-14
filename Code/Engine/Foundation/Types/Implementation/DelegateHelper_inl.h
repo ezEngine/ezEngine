@@ -76,7 +76,7 @@ template <typename R, class... Args, ezUInt32 DataSize>
 struct ezDelegate<R(Args...), DataSize> : public ezDelegateBase
 {
 private:
-  typedef ezDelegate<R(Args...), DataSize> SelfType;
+  using SelfType = ezDelegate<R (Args...), DataSize>;
   constexpr const void* HeapLambda() const { return reinterpret_cast<const void*>((size_t)-1); }
   constexpr const void* InplaceLambda() const { return reinterpret_cast<const void*>((size_t)-2); }
 
@@ -325,7 +325,7 @@ private:
     return reinterpret_cast<ezLambdaDelegateStorage<Function>*>(&self.m_Data)->m_func(params...);
   }
 
-  typedef R (*DispatchFunction)(const SelfType& self, Args...);
+  using DispatchFunction = R (*)(const SelfType &, Args...);
   DispatchFunction m_pDispatchFunction;
 
   union
@@ -347,11 +347,11 @@ struct ezMakeDelegateHelper
 template <typename Class, typename R, typename... Args>
 struct ezMakeDelegateHelper<R (Class::*)(Args...)>
 {
-  typedef ezDelegate<R(Args...)> DelegateType;
+  using DelegateType = ezDelegate<R (Args...)>;
 };
 
 template <typename Class, typename R, typename... Args>
 struct ezMakeDelegateHelper<R (Class::*)(Args...) const>
 {
-  typedef ezDelegate<R(Args...)> DelegateType;
+  using DelegateType = ezDelegate<R (Args...)>;
 };

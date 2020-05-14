@@ -46,12 +46,12 @@ template <typename Class, typename Type>
 class ezAccessorArrayProperty : public ezTypedArrayProperty<Type>
 {
 public:
-  typedef typename ezTypeTraits<Type>::NonConstReferenceType RealType;
-  typedef ezUInt32 (Class::*GetCountFunc)() const;
-  typedef Type (Class::*GetValueFunc)(ezUInt32 uiIndex) const;
-  typedef void (Class::*SetValueFunc)(ezUInt32 uiIndex, Type value);
-  typedef void (Class::*InsertFunc)(ezUInt32 uiIndex, Type value);
-  typedef void (Class::*RemoveFunc)(ezUInt32 uiIndex);
+  using RealType = typename ezTypeTraits<Type>::NonConstReferenceType;
+  using GetCountFunc = ezUInt32 (Class::*)() const;
+  using GetValueFunc = Type (Class::*)(ezUInt32 uiIndex) const;
+  using SetValueFunc = void (Class::*)(ezUInt32 uiIndex, Type value);
+  using InsertFunc = void (Class::*)(ezUInt32 uiIndex, Type value);
+  using RemoveFunc = void (Class::*)(ezUInt32 uiIndex);
 
 
   ezAccessorArrayProperty(const char* szPropertyName, GetCountFunc getCount, GetValueFunc getter, SetValueFunc setter, InsertFunc insert,
@@ -134,8 +134,8 @@ private:
 template <typename Class, typename Container, Container Class::*Member>
 struct ezArrayPropertyAccessor
 {
-  typedef typename ezTypeTraits<Container>::NonConstReferenceType ContainerType;
-  typedef typename ezTypeTraits<typename ezContainerSubTypeResolver<ContainerType>::Type>::NonConstReferenceType Type;
+  using ContainerType = typename ezTypeTraits<Container>::NonConstReferenceType;
+  using Type = typename ezTypeTraits<typename ezContainerSubTypeResolver<ContainerType>::Type>::NonConstReferenceType;
 
   static const ContainerType& GetConstContainer(const Class* pInstance) { return (*pInstance).*Member; }
 
@@ -147,9 +147,9 @@ template <typename Class, typename Container, typename Type>
 class ezMemberArrayProperty : public ezTypedArrayProperty<typename ezTypeTraits<Type>::NonConstReferenceType>
 {
 public:
-  typedef typename ezTypeTraits<Type>::NonConstReferenceType RealType;
-  typedef const Container& (*GetConstContainerFunc)(const Class* pInstance);
-  typedef Container& (*GetContainerFunc)(Class* pInstance);
+  using RealType = typename ezTypeTraits<Type>::NonConstReferenceType;
+  using GetConstContainerFunc = const Container& (*)(const Class* pInstance);
+  using GetContainerFunc = Container& (*)(Class* pInstance);
 
   ezMemberArrayProperty(const char* szPropertyName, GetConstContainerFunc constGetter, GetContainerFunc getter)
       : ezTypedArrayProperty<RealType>(szPropertyName)

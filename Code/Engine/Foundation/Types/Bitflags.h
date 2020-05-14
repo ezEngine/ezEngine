@@ -81,8 +81,8 @@ struct ezBitflags
 {
 private:
   typedef typename T::Enum Enum;
-  typedef typename T::Bits Bits;
-  typedef typename T::StorageType StorageType;
+  using Bits = typename T::Bits;
+  using StorageType = typename T::StorageType;
 
 public:
   /// \brief Constructor. Initializes the flags to the default value.

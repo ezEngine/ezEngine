@@ -10,7 +10,7 @@ class ezMat3Template
 public:
   EZ_DECLARE_POD_TYPE();
 
-  typedef Type ComponentType;
+  using ComponentType = Type;
 
   // *** Data ***
 public:

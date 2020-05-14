@@ -14,9 +14,9 @@ struct ezTime;
 class ezUuid;
 struct ezStringView;
 
-typedef ezDynamicArray<ezUInt8> ezDataBuffer;
-typedef ezDynamicArray<ezVariant> ezVariantArray;
-typedef ezHashTable<ezString, ezVariant> ezVariantDictionary;
+using ezDataBuffer = ezDynamicArray<ezUInt8>;
+using ezVariantArray = ezDynamicArray<ezVariant>;
+using ezVariantDictionary = ezHashTable<ezString, ezVariant>;
 
 /// \brief ezVariant is a class that can store different types of variables, which is useful in situations where it is not clear up front,
 /// which type of data will be passed around.
@@ -31,7 +31,7 @@ public:
   /// \brief This enum describes the type of data that is currently stored inside the variant.
   struct Type
   {
-    typedef ezUInt8 StorageType;
+    using StorageType = ezUInt8;
     /// \brief This enum describes the type of data that is currently stored inside the variant.
     /// Note that changes to this enum require an increase of the reflection version and either
     /// patches to the serializer or a re-export of binary data that contains ezVariants.
@@ -101,7 +101,7 @@ public:
       hasReflectedMembers = false
     };
 
-    typedef T StorageType;
+    using StorageType = T;
   };
 
   /// \brief Initializes the variant to be 'Invalid'
@@ -296,7 +296,7 @@ private:
       , m_uiRef(1)
     {
     }
-    virtual ~SharedData() {}
+    virtual ~SharedData() = default;
   };
 
   template <typename T>

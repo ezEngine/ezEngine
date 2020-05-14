@@ -24,7 +24,7 @@ namespace ezInternal
     EZ_CHECK_AT_COMPILETIME_MSG(isString, "ezHashHelper is not implemented for the given type.");
     return 0;
   }
-}
+} // namespace ezInternal
 
 template <typename T>
 EZ_ALWAYS_INLINE ezUInt32 ezHashHelper<T>::Hash(const T& value)

@@ -146,10 +146,10 @@ public:
   /// \brief Returns the reserved number of elements that the array can hold without reallocating.
   ezUInt32 GetCapacity() const { return m_uiCapacity; }
 
-  typedef T const* const_iterator;
-  typedef const_reverse_pointer_iterator<T> const_reverse_iterator;
-  typedef T* iterator;
-  typedef reverse_pointer_iterator<T> reverse_iterator;
+  using const_iterator = const T *;
+  using const_reverse_iterator = const_reverse_pointer_iterator<T>;
+  using iterator = T *;
+  using reverse_iterator = reverse_pointer_iterator<T>;
 
 protected:
   void DoSwap(ezArrayBase<T, Derived>& other);

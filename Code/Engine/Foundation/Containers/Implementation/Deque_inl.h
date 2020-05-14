@@ -983,32 +983,38 @@ ezUInt64 ezDequeBase<T, Construct>::GetHeapMemoryUsage() const
 
 
 template <typename T, typename A, bool Construct>
-ezDeque<T, A, Construct>::ezDeque() : ezDequeBase<T, Construct>(A::GetAllocator())
+ezDeque<T, A, Construct>::ezDeque()
+  : ezDequeBase<T, Construct>(A::GetAllocator())
 {
 }
 
 template <typename T, typename A, bool Construct>
-ezDeque<T, A, Construct>::ezDeque(ezAllocatorBase* pAllocator) : ezDequeBase<T, Construct>(pAllocator)
+ezDeque<T, A, Construct>::ezDeque(ezAllocatorBase* pAllocator)
+  : ezDequeBase<T, Construct>(pAllocator)
 {
 }
 
 template <typename T, typename A, bool Construct>
-ezDeque<T, A, Construct>::ezDeque(const ezDeque<T, A, Construct>& other) : ezDequeBase<T, Construct>(other, A::GetAllocator())
+ezDeque<T, A, Construct>::ezDeque(const ezDeque<T, A, Construct>& other)
+  : ezDequeBase<T, Construct>(other, A::GetAllocator())
 {
 }
 
 template <typename T, typename A, bool Construct>
-ezDeque<T, A, Construct>::ezDeque(ezDeque<T, A, Construct>&& other) : ezDequeBase<T, Construct>(std::move(other), other.GetAllocator())
+ezDeque<T, A, Construct>::ezDeque(ezDeque<T, A, Construct>&& other)
+  : ezDequeBase<T, Construct>(std::move(other), other.GetAllocator())
 {
 }
 
 template <typename T, typename A, bool Construct>
-ezDeque<T, A, Construct>::ezDeque(const ezDequeBase<T, Construct>& other) : ezDequeBase<T, Construct>(other, A::GetAllocator())
+ezDeque<T, A, Construct>::ezDeque(const ezDequeBase<T, Construct>& other)
+  : ezDequeBase<T, Construct>(other, A::GetAllocator())
 {
 }
 
 template <typename T, typename A, bool Construct>
-ezDeque<T, A, Construct>::ezDeque(ezDequeBase<T, Construct>&& other) : ezDequeBase<T, Construct>(std::move(other), other.GetAllocator())
+ezDeque<T, A, Construct>::ezDeque(ezDequeBase<T, Construct>&& other)
+  : ezDequeBase<T, Construct>(std::move(other), other.GetAllocator())
 {
 }
 
@@ -1035,4 +1041,3 @@ void ezDeque<T, A, Construct>::operator=(ezDequeBase<T, Construct>&& rhs)
 {
   ezDequeBase<T, Construct>::operator=(std::move(rhs));
 }
-

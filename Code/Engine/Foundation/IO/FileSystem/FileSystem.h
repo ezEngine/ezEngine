@@ -77,7 +77,7 @@ public:
   /// mounted in different ways. For example a simple folder could be mounted on the local system, or via a HTTP server
   /// over a network (lets call it a 'FileServer'). Thus depending on which type of factories are registered, the file system
   /// can provide data from very different sources.
-  typedef ezDataDirectoryType* (*ezDataDirFactory)(const char* szDataDirectory, const char* szGroup, const char* szRootName, ezFileSystem::DataDirUsage Usage);
+  using ezDataDirFactory = ezDataDirectoryType *(*)(const char *, const char *, const char *, ezFileSystem::DataDirUsage);
 
   /// \brief This function allows to register another data directory factory, which might be invoked when a new data directory is to be added.
   static void RegisterDataDirectoryFactory(ezDataDirFactory Factory, float fPriority = 0); // [tested]

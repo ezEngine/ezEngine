@@ -14,7 +14,7 @@ class EZ_FOUNDATION_DLL ezFileWriter : public ezFileWriterBase
 
 public:
   /// \brief Constructor, does nothing.
-  ezFileWriter() {}
+  ezFileWriter() = default;
 
   /// \brief Destructor, closes the file, if it is still open (RAII).
   ~ezFileWriter() { Close(); }
