@@ -20,7 +20,6 @@ public:
 
   /// \brief Default-constructed color is uninitialized (for speed)
   ezColorBaseUB() = default;
-  ;
 
   /// \brief Initializes the color with r, g, b, a
   ezColorBaseUB(ezUInt8 r, ezUInt8 g, ezUInt8 b, ezUInt8 a = 255);
@@ -74,7 +73,6 @@ public:
 
   /// \brief Default-constructed color is uninitialized (for speed)
   ezColorGammaUB() = default;
-  ;
 
   /// \brief Copies the color values. RGB are assumed to be in Gamma space.
   ezColorGammaUB(ezUInt8 uiGammaRed, ezUInt8 uiGammaGreen, ezUInt8 uiGammaBlue, ezUInt8 uiLinearAlpha = 255); // [tested]
