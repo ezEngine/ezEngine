@@ -118,7 +118,10 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
       }
     }
 
-    ezQtContainerWindow::GetContainerWindow()->ScheduleRestoreWindowLayout();
+    if (!ezQtEditorApp::GetSingleton()->IsInSafeMode())
+    {
+      ezQtContainerWindow::GetContainerWindow()->ScheduleRestoreWindowLayout();
+    }
   }
   return EZ_SUCCESS;
 }

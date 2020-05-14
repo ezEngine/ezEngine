@@ -207,6 +207,9 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
   ezStartup::StartupCoreSystems();
 
+  // prevent restoration of window layouts when in safe mode
+  ezQtDocumentWindow::s_bAllowRestoreWindowLayout = !IsInSafeMode();
+
   {
     EZ_PROFILE_SCOPE("Filesystem");
     const ezString sAppDir = ezApplicationServices::GetSingleton()->GetApplicationDataFolder();
@@ -285,7 +288,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
       CreateOrOpenProject(false, s_RecentProjects.GetFileList()[0].m_File);
     }
   }
-  else if (!IsInHeadlessMode())
+  else if (!IsInHeadlessMode() && !IsInSafeMode())
   {
     if (ezQtContainerWindow::GetContainerWindow())
     {

@@ -18,6 +18,7 @@
 
 ezEvent<const ezQtDocumentWindowEvent&> ezQtDocumentWindow::s_Events;
 ezDynamicArray<ezQtDocumentWindow*> ezQtDocumentWindow::s_AllDocumentWindows;
+bool ezQtDocumentWindow::s_bAllowRestoreWindowLayout = true;
 
 void ezQtDocumentWindow::Constructor()
 {
@@ -337,6 +338,9 @@ void ezQtDocumentWindow::SaveWindowLayout()
 
 void ezQtDocumentWindow::RestoreWindowLayout()
 {
+  if (!s_bAllowRestoreWindowLayout)
+    return;
+
   ezQtScopedUpdatesDisabled _(this);
 
   ezStringBuilder sGroup;
