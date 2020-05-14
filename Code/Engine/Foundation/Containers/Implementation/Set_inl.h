@@ -251,8 +251,8 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Inter
 
   while (pNode != &m_NilNode) // && (pNode->m_Key != key))
   {
-    const auto dir = (ezInt32)m_Comparer.Less(pNode->m_Key, key);
-    const auto dir2 = (ezInt32)m_Comparer.Less(key, pNode->m_Key);
+    const ezInt32 dir = (ezInt32)m_Comparer.Less(pNode->m_Key, key);
+    const ezInt32 dir2 = (ezInt32)m_Comparer.Less(key, pNode->m_Key);
 
     if (dir == dir2)
       break;
@@ -585,7 +585,7 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Remov
       if (it == &m_NilNode)
         return root;
 
-      auto newdir = (ezInt32)(m_Comparer.Less(it->m_Key, key));
+      ezInt32 newdir = (ezInt32)(m_Comparer.Less(it->m_Key, key));
 
       if (newdir == (ezInt32)(m_Comparer.Less(key, it->m_Key)))
         break;

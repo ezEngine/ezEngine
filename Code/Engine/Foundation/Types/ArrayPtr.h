@@ -5,8 +5,9 @@
 #include <Foundation/Containers/Implementation/ArrayIterator.h>
 
 // This #include is quite vital, do not remove it!
-#include <Foundation/Math/Math.h>
 #include <Foundation/Strings/FormatString.h>
+
+#include <Foundation/Math/Math.h>
 
 /// \brief Value used by containers for indices to indicate an invalid index.
 #ifndef ezInvalidIndex

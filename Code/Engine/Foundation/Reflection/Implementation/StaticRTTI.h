@@ -86,7 +86,7 @@ namespace ezInternal
   ezBitflags<ezTypeFlags> DetermineTypeFlags()
   {
     ezBitflags<ezTypeFlags> flags;
-    auto type =
+    ezVariant::Type::Enum type =
       static_cast<ezVariant::Type::Enum>(ezVariant::TypeDeduction<typename ezTypeTraits<Type>::NonConstReferenceType>::value);
     if ((type >= ezVariant::Type::FirstStandardType && type <= ezVariant::Type::LastStandardType) || EZ_IS_SAME_TYPE(ezVariant, Type))
       flags.Add(ezTypeFlags::StandardType);

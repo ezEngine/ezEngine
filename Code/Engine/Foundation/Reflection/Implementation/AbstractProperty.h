@@ -92,7 +92,7 @@ struct ezPropertyFlags
   {
     using CleanType = typename ezTypeTraits<Type>::NonConstReferencePointerType;
     ezBitflags<ezPropertyFlags> flags;
-    auto type = static_cast<ezVariant::Type::Enum>(ezVariant::TypeDeduction<CleanType>::value);
+    ezVariant::Type::Enum type = static_cast<ezVariant::Type::Enum>(ezVariant::TypeDeduction<CleanType>::value);
     if (std::is_same<CleanType, ezVariant>::value)
       flags.Add(ezPropertyFlags::StandardType);
     else if (std::is_same<Type, const char*>::value)
