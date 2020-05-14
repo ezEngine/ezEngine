@@ -1,8 +1,8 @@
 #pragma once
 
 #include <ParticlePlugin/Type/ParticleType.h>
-#include <RendererFoundation/RendererFoundationDLL.h>
 #include <ParticlePlugin/Type/Point/PointRenderer.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleTypePointFactory final : public ezParticleTypeFactory
 {
@@ -27,7 +27,7 @@ public:
 
   virtual void ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const override;
 
-  virtual float GetMaxParticleRadius(float fParticleSize) const { return 0.0f; }
+  virtual float GetMaxParticleRadius(float fParticleSize) const override { return 0.0f; }
 
 protected:
   virtual void Process(ezUInt64 uiNumElements) override {}
@@ -38,5 +38,3 @@ protected:
   mutable ezArrayPtr<ezBaseParticleShaderData> m_BaseParticleData;
   mutable ezArrayPtr<ezBillboardQuadParticleShaderData> m_BillboardParticleData;
 };
-
-

@@ -33,26 +33,29 @@ static int __CPP_GameObject_GetParent(duk_context* pDuk);
 static int __CPP_GameObject_SetX_GameObject(duk_context* pDuk);
 static int __CPP_GameObject_GetChildren(duk_context* pDuk);
 
-enum GameObject_X
+namespace GameObject_X
 {
-  LocalPosition,
-  GlobalPosition,
-  LocalScaling,
-  GlobalScaling,
-  LocalUniformScaling,
-  LocalRotation,
-  GlobalRotation,
-  GlobalDirForwards,
-  GlobalDirRight,
-  GlobalDirUp,
-  Velocity,
-  ActiveFlag,
-  Active,
-  ChildCount,
-  SetParent,
-  AddChild,
-  DetachChild,
-};
+  enum Enum
+  {
+    LocalPosition,
+    GlobalPosition,
+    LocalScaling,
+    GlobalScaling,
+    LocalUniformScaling,
+    LocalRotation,
+    GlobalRotation,
+    GlobalDirForwards,
+    GlobalDirRight,
+    GlobalDirUp,
+    Velocity,
+    ActiveFlag,
+    Active,
+    ChildCount,
+    SetParent,
+    AddChild,
+    DetachChild,
+  };
+}
 
 ezResult ezTypeScriptBinding::Init_GameObject()
 {

@@ -72,7 +72,7 @@ retry:
   for (FeatureLevelIdx = 0; FeatureLevelIdx < EZ_ARRAY_SIZE(FeatureLevels); FeatureLevelIdx++)
   {
     if (SUCCEEDED(D3D11CreateDevice(pUsedAdapter, driverType, nullptr, dwFlags, &FeatureLevels[FeatureLevelIdx], 1, D3D11_SDK_VERSION,
-          &m_pDevice, &m_FeatureLevel, &pImmediateContext)))
+          &m_pDevice, (D3D_FEATURE_LEVEL*)&m_FeatureLevel, &pImmediateContext)))
     {
       break;
     }
@@ -333,7 +333,6 @@ ezGALBlendState* ezGALDeviceDX11::CreateBlendStatePlatform(const ezGALBlendState
     EZ_DELETE(&m_Allocator, pState);
     return nullptr;
   }
-  return nullptr;
 }
 
 void ezGALDeviceDX11::DestroyBlendStatePlatform(ezGALBlendState* pBlendState)

@@ -1,9 +1,9 @@
 #include <FoundationPCH.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
-#include <Foundation/Basics/Platform/Win/MinWindows.h>
-#include <type_traits>
+#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#  include <Foundation/Basics/Platform/Win/MinWindows.h>
+#  include <type_traits>
 
 template <typename ezType, typename WindowsType, bool mustBeConvertible>
 void ezVerifyWindowsType()
@@ -39,11 +39,13 @@ void ezCheckWindowsTypeSizes()
   static_assert(
     std::is_same<decltype(&WindowsWinapiTest1), decltype(&WindowsWinapiTest2)>::value, "EZ_WINDOWS_WINAPI does not match WINAPI");
 
+  // Clang doesn't allow us to do this check at compile time
+#  if EZ_DISABLED(EZ_COMPILER_CLANG)
   static_assert(
     EZ_WINDOWS_INVALID_HANDLE_VALUE == INVALID_HANDLE_VALUE, "EZ_WINDOWS_INVALID_HANDLE_VALUE does not match INVALID_HANDLE_VALUE");
+#  endif
 }
 #endif
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Basics_Platform_Win_MinWindows);
-
