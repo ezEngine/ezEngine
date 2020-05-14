@@ -46,7 +46,7 @@ namespace ezMinWindows
   template <>
   struct ToNativeImpl<HWND>
   {
-    typedef ::HWND type;
+    using type = ::HWND;
     static EZ_ALWAYS_INLINE ::HWND ToNative(HWND hWnd)
     {
       return reinterpret_cast<::HWND>(hWnd);
@@ -56,7 +56,7 @@ namespace ezMinWindows
   template <>
   struct FromNativeImpl<::HWND>
   {
-    typedef HWND type;
+    using type = HWND;
     static EZ_ALWAYS_INLINE HWND FromNative(::HWND hWnd)
     {
       return reinterpret_cast<HWND>(hWnd);
@@ -66,7 +66,7 @@ namespace ezMinWindows
   template <>
   struct FromNativeImpl<::HINSTANCE>
   {
-    typedef HINSTANCE type;
+    using type = HINSTANCE;
     static EZ_ALWAYS_INLINE HINSTANCE FromNative(::HINSTANCE hInstance)
     {
       return reinterpret_cast<HINSTANCE>(hInstance);

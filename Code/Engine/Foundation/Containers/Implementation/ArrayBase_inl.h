@@ -1,8 +1,7 @@
 
 template <typename T, typename Derived>
 ezArrayBase<T, Derived>::ezArrayBase()
-{
-}
+= default;
 
 template <typename T, typename Derived>
 ezArrayBase<T, Derived>::~ezArrayBase()

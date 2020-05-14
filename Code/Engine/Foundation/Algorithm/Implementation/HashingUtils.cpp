@@ -12,7 +12,7 @@ ezUInt32 ezHashingUtils::MurmurHash32(const void* pKey, size_t uiSizeInByte, ezU
   ezUInt32 h = uiSeed ^ (ezUInt32)uiSizeInByte;
 
   // Mix 4 bytes at a time into the hash
-  const ezUInt32* pData = static_cast<const ezUInt32*>(pKey);
+  const auto* pData = static_cast<const ezUInt32*>(pKey);
 
   while (uiSizeInByte >= 4)
   {
@@ -28,7 +28,7 @@ ezUInt32 ezHashingUtils::MurmurHash32(const void* pKey, size_t uiSizeInByte, ezU
     uiSizeInByte -= 4;
   }
 
-  const ezUInt8* pData2 = reinterpret_cast<const ezUInt8*>(pData);
+  const auto* pData2 = reinterpret_cast<const ezUInt8*>(pData);
 
   // Handle the last few bytes of the input array
   switch (uiSizeInByte)
@@ -59,7 +59,7 @@ ezUInt64 ezHashingUtils::MurmurHash64(const void* pKey, size_t uiSizeInByte, ezU
 
   ezUInt64 h = uiSeed ^ (uiSizeInByte * m);
 
-  const ezUInt64* pData = static_cast<const ezUInt64*>(pKey);
+  const auto* pData = static_cast<const ezUInt64*>(pKey);
   const ezUInt64* end = pData + (uiSizeInByte / 8);
 
   while (pData != end)
@@ -74,7 +74,7 @@ ezUInt64 ezHashingUtils::MurmurHash64(const void* pKey, size_t uiSizeInByte, ezU
     h *= m;
   }
 
-  const ezUInt8* pData2 = reinterpret_cast<const ezUInt8*>(pData);
+  const auto* pData2 = reinterpret_cast<const ezUInt8*>(pData);
 
   switch (uiSizeInByte & 7)
   {

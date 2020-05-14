@@ -44,8 +44,7 @@ ezHybridStringBase<Size>::ezHybridStringBase(const ezStringView& rhs, ezAllocato
 
 template <ezUInt16 Size>
 ezHybridStringBase<Size>::~ezHybridStringBase()
-{
-}
+= default;
 
 template <ezUInt16 Size>
 ezHybridStringBase<Size>::operator ezStringView() const

@@ -2,15 +2,15 @@
 
 // ***** Definition of types *****
 
-typedef unsigned char ezUInt8;
-typedef unsigned short ezUInt16;
-typedef unsigned int ezUInt32;
-typedef unsigned long long ezUInt64;
+using ezUInt8 = unsigned char;
+using ezUInt16 = unsigned short;
+using ezUInt32 = unsigned int;
+using ezUInt64 = unsigned long long;
 
-typedef signed char ezInt8;
-typedef short ezInt16;
-typedef int ezInt32;
-typedef long long ezInt64;
+using ezInt8 = signed char;
+using ezInt16 = short;
+using ezInt32 = int;
+using ezInt64 = long long;
 
 // no float-types, since those are well portable
 
@@ -200,42 +200,42 @@ struct ezSizeToType;
 template <>
 struct ezSizeToType<1>
 {
-  typedef ezUInt8 Type;
+  using Type = ezUInt8;
 };
 template <>
 struct ezSizeToType<2>
 {
-  typedef ezUInt16 Type;
+  using Type = ezUInt16;
 };
 template <>
 struct ezSizeToType<3>
 {
-  typedef ezUInt32 Type;
+  using Type = ezUInt32;
 };
 template <>
 struct ezSizeToType<4>
 {
-  typedef ezUInt32 Type;
+  using Type = ezUInt32;
 };
 template <>
 struct ezSizeToType<5>
 {
-  typedef ezUInt64 Type;
+  using Type = ezUInt64;
 };
 template <>
 struct ezSizeToType<6>
 {
-  typedef ezUInt64 Type;
+  using Type = ezUInt64;
 };
 template <>
 struct ezSizeToType<7>
 {
-  typedef ezUInt64 Type;
+  using Type = ezUInt64;
 };
 template <>
 struct ezSizeToType<8>
 {
-  typedef ezUInt64 Type;
+  using Type = ezUInt64;
 };
 /// \endcond
 

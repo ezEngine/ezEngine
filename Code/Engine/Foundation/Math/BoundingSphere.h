@@ -13,7 +13,7 @@ public:
   // Means this object can be copied using memcpy instead of copy construction.
   EZ_DECLARE_POD_TYPE();
 
-  typedef Type ComponentType;
+  using ComponentType = Type;
 
 public:
   /// \brief Default constructor does not initialize any data.

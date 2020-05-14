@@ -33,7 +33,7 @@ struct ezGenericId
   {
     STORAGE_SIZE = ((InstanceIndexBits + GenerationBits - 1) / 8) + 1
   };
-  typedef typename ezSizeToType<STORAGE_SIZE>::Type StorageType;
+  using StorageType = typename ezSizeToType<STORAGE_SIZE>::Type;
 
   EZ_DECLARE_ID_TYPE(ezGenericId, InstanceIndexBits, GenerationBits);
 

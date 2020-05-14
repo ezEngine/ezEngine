@@ -166,10 +166,10 @@ public:
   /// \brief Returns the allocator that is used by this instance.
   ezAllocatorBase* GetAllocator() const { return m_pAllocator; }
 
-  typedef const_iterator_base<ezDequeBase<T, Construct>, T, false> const_iterator;
-  typedef const_iterator_base<ezDequeBase<T, Construct>, T, true> const_reverse_iterator;
-  typedef iterator_base<ezDequeBase<T, Construct>, T, false> iterator;
-  typedef iterator_base<ezDequeBase<T, Construct>, T, true> reverse_iterator;
+  using const_iterator = const_iterator_base<ezDequeBase<T, Construct>, T, false>;
+  using const_reverse_iterator = const_iterator_base<ezDequeBase<T, Construct>, T, true>;
+  using iterator = iterator_base<ezDequeBase<T, Construct>, T, false>;
+  using reverse_iterator = iterator_base<ezDequeBase<T, Construct>, T, true>;
 
   /// \brief Returns the number of elements after uiStartIndex that are stored in contiguous memory.
   ///

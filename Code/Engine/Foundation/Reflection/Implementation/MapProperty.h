@@ -31,13 +31,13 @@ template <typename Class, typename Type, typename Container>
 class ezAccessorMapProperty : public ezTypedMapProperty<Type>
 {
 public:
-  typedef typename ezTypeTraits<Container>::NonConstReferenceType ContainerType;
-  typedef typename ezTypeTraits<Type>::NonConstReferenceType RealType;
+  using ContainerType = typename ezTypeTraits<Container>::NonConstReferenceType;
+  using RealType = typename ezTypeTraits<Type>::NonConstReferenceType;
 
-  typedef void (Class::*InsertFunc)(const char* szKey, Type value);
-  typedef void (Class::*RemoveFunc)(const char* szKey);
-  typedef bool (Class::*GetValueFunc)(const char* szKey, RealType& value) const;
-  typedef Container (Class::*GetKeyRangeFunc)() const;
+  using InsertFunc = void (Class::*)(const char* szKey, Type value);
+  using RemoveFunc = void (Class::*)(const char* szKey);
+  using GetValueFunc = bool (Class::*)(const char* szKey, RealType& value) const;
+  using GetKeyRangeFunc = Container (Class::*)() const;
 
   ezAccessorMapProperty(const char* szPropertyName, GetKeyRangeFunc getKeys, GetValueFunc getValue, InsertFunc insert, RemoveFunc remove)
     : ezTypedMapProperty<Type>(szPropertyName)
@@ -124,13 +124,13 @@ template <typename Class, typename Type, typename Container>
 class ezWriteAccessorMapProperty : public ezTypedMapProperty<Type>
 {
 public:
-  typedef typename ezTypeTraits<Container>::NonConstReferenceType ContainerType;
-  typedef typename ezContainerSubTypeResolver<ContainerType>::Type ContainerSubType;
-  typedef typename ezTypeTraits<Type>::NonConstReferenceType RealType;
+  using ContainerType = typename ezTypeTraits<Container>::NonConstReferenceType;
+  using ContainerSubType = typename ezContainerSubTypeResolver<ContainerType>::Type;
+  using RealType = typename ezTypeTraits<Type>::NonConstReferenceType;
 
-  typedef void (Class::*InsertFunc)(const char* szKey, Type value);
-  typedef void (Class::*RemoveFunc)(const char* szKey);
-  typedef Container (Class::*GetContainerFunc)() const;
+  using InsertFunc = void (Class::*)(const char* szKey, Type value);
+  using RemoveFunc = void (Class::*)(const char* szKey);
+  using GetContainerFunc = Container (Class::*)() const;
 
   ezWriteAccessorMapProperty(const char* szPropertyName, GetContainerFunc getContainer, InsertFunc insert, RemoveFunc remove)
     : ezTypedMapProperty<Type>(szPropertyName)
@@ -208,8 +208,8 @@ private:
 template <typename Class, typename Container, Container Class::*Member>
 struct ezMapPropertyAccessor
 {
-  typedef typename ezTypeTraits<Container>::NonConstReferenceType ContainerType;
-  typedef typename ezTypeTraits<typename ezContainerSubTypeResolver<ContainerType>::Type>::NonConstReferenceType Type;
+  using ContainerType = typename ezTypeTraits<Container>::NonConstReferenceType;
+  using Type = typename ezTypeTraits<typename ezContainerSubTypeResolver<ContainerType>::Type>::NonConstReferenceType;
 
   static const ContainerType& GetConstContainer(const Class* pInstance) { return (*pInstance).*Member; }
 
@@ -221,9 +221,9 @@ template <typename Class, typename Container, typename Type>
 class ezMemberMapProperty : public ezTypedMapProperty<typename ezTypeTraits<Type>::NonConstReferenceType>
 {
 public:
-  typedef typename ezTypeTraits<Type>::NonConstReferenceType RealType;
-  typedef const Container& (*GetConstContainerFunc)(const Class* pInstance);
-  typedef Container& (*GetContainerFunc)(Class* pInstance);
+  using RealType = typename ezTypeTraits<Type>::NonConstReferenceType;
+  using GetConstContainerFunc = const Container& (*)(const Class* pInstance);
+  using GetContainerFunc = Container& (*)(Class* pInstance);
 
   ezMemberMapProperty(const char* szPropertyName, GetConstContainerFunc constGetter, GetContainerFunc getter)
     : ezTypedMapProperty<RealType>(szPropertyName)

@@ -5,8 +5,8 @@
 #include <Foundation/Containers/Implementation/ArrayIterator.h>
 
 // This #include is quite vital, do not remove it!
-#include <Foundation/Strings/FormatString.h>
 #include <Foundation/Math/Math.h>
+#include <Foundation/Strings/FormatString.h>
 
 /// \brief Value used by containers for indices to indicate an invalid index.
 #ifndef ezInvalidIndex
@@ -18,13 +18,13 @@ namespace ezArrayPtrDetail
   template <typename U>
   struct ByteTypeHelper
   {
-    typedef ezUInt8 type;
+    using type = ezUInt8;
   };
 
   template <typename U>
   struct ByteTypeHelper<const U>
   {
-    typedef const ezUInt8 type;
+    using type = const ezUInt8;
   };
 } // namespace ezArrayPtrDetail
 
@@ -235,10 +235,10 @@ public:
     ::ezMath::Swap(m_uiCount, other.m_uiCount);
   }
 
-  typedef const T* const_iterator;
-  typedef const_reverse_pointer_iterator<T> const_reverse_iterator;
-  typedef T* iterator;
-  typedef reverse_pointer_iterator<T> reverse_iterator;
+  using const_iterator = const T*;
+  using const_reverse_iterator = const_reverse_pointer_iterator<T>;
+  using iterator = T*;
+  using reverse_iterator = reverse_pointer_iterator<T>;
 
 private:
   PointerType m_ptr;

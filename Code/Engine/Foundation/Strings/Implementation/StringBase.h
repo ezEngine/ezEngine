@@ -18,10 +18,10 @@ template <typename Derived>
 struct ezStringBase : public ezThisIsAString
 {
 public:
-  typedef ezStringIterator<Derived> iterator;
-  typedef ezStringIterator<Derived> const_iterator;
-  typedef ezStringReverseIterator<Derived> reverse_iterator;
-  typedef ezStringReverseIterator<Derived> const_reverse_iterator;
+  using iterator = ezStringIterator<Derived>;
+  using const_iterator = ezStringIterator<Derived>;
+  using reverse_iterator = ezStringReverseIterator<Derived>;
+  using const_reverse_iterator = ezStringReverseIterator<Derived>;
 
   /// Returns whether the string is an empty string.
   bool IsEmpty() const; // [tested]

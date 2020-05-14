@@ -10,11 +10,11 @@ struct ezStringBase;
 template <class STRING>
 struct ezStringIterator
 {
-  typedef std::bidirectional_iterator_tag iterator_category;
-  typedef ezUInt32 value_type;
-  typedef ptrdiff_t difference_type;
-  typedef const char* pointer;
-  typedef ezUInt32 reference;
+  using iterator_category = std::bidirectional_iterator_tag;
+  using value_type = ezUInt32;
+  using difference_type = ptrdiff_t;
+  using pointer = const char *;
+  using reference = ezUInt32;
 
   EZ_DECLARE_POD_TYPE();
 
@@ -169,11 +169,11 @@ protected:
 template <class STRING>
 struct ezStringReverseIterator
 {
-  typedef std::bidirectional_iterator_tag iterator_category;
-  typedef ezUInt32 value_type;
-  typedef ptrdiff_t difference_type;
-  typedef const char* pointer;
-  typedef ezUInt32 reference;
+  using iterator_category = std::bidirectional_iterator_tag;
+  using value_type = ezUInt32;
+  using difference_type = ptrdiff_t;
+  using pointer = const char *;
+  using reference = ezUInt32;
 
   EZ_DECLARE_POD_TYPE();
 

@@ -76,8 +76,8 @@ struct ezHashHelper<ezUInt64>
   EZ_ALWAYS_INLINE static ezUInt32 Hash(ezUInt64 value)
   {
     // boost::hash_combine.
-    ezUInt32 a = ezUInt32(value >> 32);
-    ezUInt32 b = ezUInt32(value);
+    auto a = ezUInt32(value >> 32);
+    auto b = ezUInt32(value);
     return a ^ (b + 0x9e3779b9 + (a << 6) + (b >> 2));
   }
 

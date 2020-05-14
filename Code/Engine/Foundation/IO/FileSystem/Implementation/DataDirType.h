@@ -21,8 +21,8 @@ class EZ_FOUNDATION_DLL ezDataDirectoryType
   EZ_DISALLOW_COPY_AND_ASSIGN(ezDataDirectoryType);
 
 public:
-  ezDataDirectoryType() {}
-  virtual ~ezDataDirectoryType() {}
+  ezDataDirectoryType() = default;
+  virtual ~ezDataDirectoryType() = default;
 
   /// \brief Returns the absolute path to the data directory.
   const ezString128& GetDataDirectoryPath() const { return m_sDataDirectoryPath; }
@@ -114,7 +114,7 @@ public:
   /// \brief The derived class should pass along whether it is a reader or writer.
   ezDataDirectoryReaderWriterBase(ezInt32 iDataDirUserData, bool bIsReader);
 
-  virtual ~ezDataDirectoryReaderWriterBase() {}
+  virtual ~ezDataDirectoryReaderWriterBase() = default;
 
   /// \brief Used by ezDataDirectoryType's to try to open the given file. They need to pass along their own pointer.
   ezResult Open(const char* szFilePath, ezDataDirectoryType* pOwnerDataDirectory, ezFileShareMode::Enum FileShareMode);

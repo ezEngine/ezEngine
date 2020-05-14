@@ -80,7 +80,7 @@ public:
 
     while (uiBytesSkipped < uiBytesToSkip)
     {
-      ezUInt64 uiBytesToRead = ezMath::Min<ezUInt64>(uiBytesToSkip - uiBytesSkipped, 1024);
+      auto uiBytesToRead = ezMath::Min<ezUInt64>(uiBytesToSkip - uiBytesSkipped, 1024);
 
       ezUInt64 uiBytesRead = ReadBytes(uiTempBuffer, uiBytesToRead);
 

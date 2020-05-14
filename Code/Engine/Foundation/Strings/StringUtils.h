@@ -38,7 +38,7 @@ public:
 
   /// \brief Returns both the number of characters and the number of bytes in a Utf8 string, until it hits zero or the end pointer.
   static void GetCharacterAndElementCount(const char* szUtf8, ezUInt32& uiCharacterCount, ezUInt32& uiElementCount,
-                                          const char* pStringEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
+    const char* pStringEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
 
   /// \brief Copies the string from szSource into the given buffer, which can hold at least uiDstSize bytes.
   ///
@@ -55,7 +55,7 @@ public:
   ///  I.e. they will be truncated at a character boundary.
   /// Returns the number of bytes that were copied into szDest, excluding the terminating \0
   static ezUInt32 CopyN(char* szDest, ezUInt32 uiDstSize, const char* szSource, ezUInt32 uiCharsToCopy,
-                        const char* pSourceEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
+    const char* pSourceEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
 
   /// \brief Returns the upper case code point for uiChar.
   static ezUInt32 ToUpperChar(ezUInt32 uiChar); // [tested]
@@ -103,23 +103,23 @@ public:
 
   /// \brief Returns true, if the two given strings are identical (bitwise).
   static bool IsEqual(const char* pString1, const char* pString2, const char* pString1End = ezUnicodeUtils::GetMaxStringEnd<char>(),
-                      const char* pString2End = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
+    const char* pString2End = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
 
   /// \brief Returns true, if the two given strings are identical (bitwise) up to the n-th character.
   ///
   /// This function will handle UTF-8 strings properly.
   static bool IsEqualN(const char* pString1, const char* pString2, ezUInt32 uiCharsToCompare, const char* pString1End = ezUnicodeUtils::GetMaxStringEnd<char>(),
-                       const char* pString2End = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
+    const char* pString2End = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
 
   /// \brief Returns true, if the two given strings are identical (case-insensitive).
   static bool IsEqual_NoCase(const char* pString1, const char* pString2, const char* pString1End = ezUnicodeUtils::GetMaxStringEnd<char>(),
-                             const char* pString2End = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
+    const char* pString2End = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
 
   /// \brief Returns true, if the two given strings are identical (case-insensitive) up to the n-th character.
   ///
   /// This function will handle UTF-8 strings properly.
   static bool IsEqualN_NoCase(const char* pString1, const char* pString2, ezUInt32 uiCharsToCompare,
-                              const char* pString1End = ezUnicodeUtils::GetMaxStringEnd<char>(), const char* pString2End = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
+    const char* pString1End = ezUnicodeUtils::GetMaxStringEnd<char>(), const char* pString2End = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
 
   /// \brief Compares two strings for equality.
   ///
@@ -128,7 +128,7 @@ public:
   /// Returns 0 for equal strings.
   /// Works with UTF-8 strings as well.
   static ezInt32 Compare(const char* pString1, const char* pString2, const char* pString1End = ezUnicodeUtils::GetMaxStringEnd<char>(),
-                         const char* pString2End = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
+    const char* pString2End = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
 
   /// \brief Compares the first uiCharsToCompare characters of the two strings for equality.
   ///
@@ -137,7 +137,7 @@ public:
   /// Returns 0 for equal strings.
   /// Works with UTF-8 strings as well.
   static ezInt32 CompareN(const char* pString1, const char* pString2, ezUInt32 uiCharsToCompare, const char* pString1End = ezUnicodeUtils::GetMaxStringEnd<char>(),
-                          const char* pString2End = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
+    const char* pString2End = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
 
   /// \brief Compares two strings for equality, case-insensitive.
   ///
@@ -146,7 +146,7 @@ public:
   /// Returns 0 for equal strings.
   /// Works with UTF-8 strings as well.
   static ezInt32 Compare_NoCase(const char* pString1, const char* pString2, const char* pString1End = ezUnicodeUtils::GetMaxStringEnd<char>(),
-                                const char* pString2End = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
+    const char* pString2End = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
 
   /// \brief Compares the first uiCharsToCompare characters of the two strings for equality, case-insensitive.
   ///
@@ -155,7 +155,7 @@ public:
   /// Returns 0 for equal strings.
   /// Works with UTF-8 strings as well.
   static ezInt32 CompareN_NoCase(const char* pString1, const char* pString2, ezUInt32 uiCharsToCompare,
-                                 const char* pString1End = ezUnicodeUtils::GetMaxStringEnd<char>(), const char* pString2End = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
+    const char* pString1End = ezUnicodeUtils::GetMaxStringEnd<char>(), const char* pString2End = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
 
 
   /// \brief Creates a formated string in szDst. uiDstSize defines how many bytes szDst can hold.
@@ -182,19 +182,19 @@ public:
 
   /// \brief Returns true if szString starts with the string given in szStartsWith.
   static bool StartsWith(const char* szString, const char* szStartsWith, const char* pStringEnd = ezUnicodeUtils::GetMaxStringEnd<char>(),
-                         const char* szStartsWithEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
+    const char* szStartsWithEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
 
   /// \brief Returns true if szString starts with the string given in szStartsWith. Ignores case.
   static bool StartsWith_NoCase(const char* szString, const char* szStartsWith, const char* pStringEnd = ezUnicodeUtils::GetMaxStringEnd<char>(),
-                                const char* szStartsWithEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
+    const char* szStartsWithEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
 
   /// \brief Returns true if szString ends with the string given in szEndsWith.
   static bool EndsWith(const char* szString, const char* szEndsWith, const char* pStringEnd = ezUnicodeUtils::GetMaxStringEnd<char>(),
-                       const char* szEndsWithEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
+    const char* szEndsWithEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
 
   /// \brief Returns true if szString ends with the string given in szEndsWith. Ignores case.
   static bool EndsWith_NoCase(const char* szString, const char* szEndsWith, const char* pStringEnd = ezUnicodeUtils::GetMaxStringEnd<char>(),
-                              const char* szEndsWithEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
+    const char* szEndsWithEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
 
 
   /// \brief Searches for the first occurrence of szStringToFind in szSource.
@@ -202,18 +202,18 @@ public:
 
   /// \brief Searches for the first occurrence of szStringToFind in szSource. Ignores case.
   static const char* FindSubString_NoCase(const char* szSource, const char* szStringToFind,
-                                          const char* pSourceEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
+    const char* pSourceEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
 
   /// \brief Searches for the last occurrence of szStringToFind in szSource before szStartSearchAt.
   static const char* FindLastSubString(const char* szSource, const char* szStringToFind, const char* szStartSearchAt = nullptr,
-                                       const char* pSourceEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
+    const char* pSourceEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
 
   /// \brief Searches for the last occurrence of szStringToFind in szSource before szStartSearchAt. Ignores case.
   static const char* FindLastSubString_NoCase(const char* szSource, const char* szStringToFind, const char* szStartSearchAt = nullptr,
-                                              const char* pSourceEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
+    const char* pSourceEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
 
   /// \brief Function Definition for a function that determines whether a (Utf32) character belongs to a certain category of characters.
-  typedef bool (*EZ_CHARACTER_FILTER)(ezUInt32 uiChar);
+  using EZ_CHARACTER_FILTER = bool (*)(ezUInt32 uiChar);
 
   /// \brief Starts at szString and advances to the next character for which SkipCharacterCB returns false;
   ///
@@ -237,7 +237,7 @@ public:
   /// terminated ones. \param szTrimCharsStart A string compromised of characters to trim from the start of the string. \param
   /// szTrimCharsEnd A string compromised of characters to trim from the end of the string.
   static void Trim(const char*& pString, const char*& pStringEnd, const char* szTrimCharsStart,
-                   const char* szTrimCharsEnd); // [tested] via ezStringView and ezStringBuilder
+    const char* szTrimCharsEnd); // [tested] via ezStringView and ezStringBuilder
 
   /// \brief A default word delimiter function that returns true for ' ' (space), '\r' (carriage return), '\n' (newline), '\t' (tab) and
   /// '\v' (vertical tab)
@@ -261,12 +261,12 @@ public:
   /// \brief Searches szString for the word szSearchFor. If IsDelimiterCB returns true for both characters in front and back of the word,
   /// the position is returned. Otherwise nullptr.
   static const char* FindWholeWord(const char* szString, const char* szSearchFor, EZ_CHARACTER_FILTER IsDelimiterCB,
-                                   const char* pStringEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
+    const char* pStringEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
 
   /// \brief Searches szString for the word szSearchFor. If IsDelimiterCB returns true for both characters in front and back of the word,
   /// the position is returned. Otherwise nullptr. Ignores case.
   static const char* FindWholeWord_NoCase(const char* szString, const char* szSearchFor, EZ_CHARACTER_FILTER IsDelimiterCB,
-                                          const char* pStringEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
+    const char* pStringEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
 
   /// \brief Checks if the given szString ends with an unsigned integer (e.g. "MyString123").
   /// If pStringLengthBeforeUInt is non-null the string length up to the first digit is stored. Returns EZ_SUCCESS if
@@ -275,13 +275,13 @@ public:
 
   /// \brief [internal] Prefer to use snprintf.
   static void OutputFormattedInt(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& uiWritePos, ezInt64 value, ezUInt8 uiWidth,
-                                 bool bPadZeros, ezUInt8 uiBase);
+    bool bPadZeros, ezUInt8 uiBase);
   /// \brief [internal] Prefer to use snprintf.
   static void OutputFormattedUInt(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& uiWritePos, ezUInt64 value, ezUInt8 uiWidth,
-                                  bool bPadZeros, ezUInt8 uiBase, bool bUpperCase);
+    bool bPadZeros, ezUInt8 uiBase, bool bUpperCase);
   /// \brief [internal] Prefer to use snprintf.
   static void OutputFormattedFloat(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& uiWritePos, double value, ezUInt8 uiWidth,
-                                   bool bPadZeros, ezInt8 iPrecision, bool bScientific, bool bRemoveTrailingZeroes = false);
+    bool bPadZeros, ezInt8 iPrecision, bool bScientific, bool bRemoveTrailingZeroes = false);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   static void AddUsedStringLength(ezUInt32 uiLength);
@@ -289,11 +289,12 @@ public:
   static ezAtomicInteger32 g_MaxUsedStringLength;
   static ezAtomicInteger32 g_UsedStringLengths[256];
 #else
-  EZ_ALWAYS_INLINE static void AddUsedStringLength(ezUInt32 uiLength) {}
+  EZ_ALWAYS_INLINE static void AddUsedStringLength(ezUInt32 uiLength)
+  {
+  }
   EZ_ALWAYS_INLINE static void PrintStringLengthStatistics() {}
 #endif
 };
 
 
 #include <Foundation/Strings/Implementation/StringUtils_inl.h>
-

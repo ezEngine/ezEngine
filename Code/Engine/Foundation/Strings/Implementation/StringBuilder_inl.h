@@ -117,7 +117,7 @@ inline void ezStringBuilder::Append(ezUInt32 uiChar)
   char* pChar = &szChar[0];
 
   ezUnicodeUtils::EncodeUtf32ToUtf8(uiChar, pChar);
-  ezUInt32 uiCharLen = (ezUInt32)(pChar - szChar);
+  auto uiCharLen = (ezUInt32)(pChar - szChar);
   ezUInt32 uiOldCount = m_Data.GetCount();
   m_Data.SetCountUninitialized(uiOldCount + uiCharLen);
   uiOldCount--;

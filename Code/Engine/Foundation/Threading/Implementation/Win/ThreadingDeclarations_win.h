@@ -32,9 +32,9 @@ struct EZ_ALIGN(ezConditionVariableHandle, 8)
 
 
 
-typedef ezMinWindows::HANDLE ezThreadHandle;
-typedef ezMinWindows::DWORD ezThreadID;
-typedef ezMinWindows::DWORD(__stdcall* ezOSThreadEntryPoint)(void* lpThreadParameter);
+using ezThreadHandle = ezMinWindows::HANDLE;
+using ezThreadID = ezMinWindows::DWORD;
+using ezOSThreadEntryPoint = ezMinWindows::DWORD(__stdcall*)(void* lpThreadParameter);
 
 #define EZ_THREAD_CLASS_ENTRY_POINT ezMinWindows::DWORD __stdcall ezThreadClassEntryPoint(void* lpThreadParameter);
 

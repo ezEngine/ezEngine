@@ -37,7 +37,7 @@ class EZ_FOUNDATION_DLL ezCategoryAttribute : public ezPropertyAttribute
   EZ_ADD_DYNAMIC_REFLECTION(ezCategoryAttribute, ezPropertyAttribute);
 
 public:
-  ezCategoryAttribute() {}
+  ezCategoryAttribute() = default;
   ezCategoryAttribute(const char* szCategory) { m_sCategory = szCategory; }
 
   const char* GetCategory() const { return m_sCategory; }
@@ -54,7 +54,7 @@ class EZ_FOUNDATION_DLL ezTitleAttribute : public ezPropertyAttribute
   EZ_ADD_DYNAMIC_REFLECTION(ezTitleAttribute, ezPropertyAttribute);
 
 public:
-  ezTitleAttribute() {}
+  ezTitleAttribute() = default;
   ezTitleAttribute(const char* szTitle) { m_sTitle = szTitle; }
 
   const char* GetTitle() const { return m_sTitle; }
@@ -69,7 +69,7 @@ class EZ_FOUNDATION_DLL ezColorAttribute : public ezPropertyAttribute
   EZ_ADD_DYNAMIC_REFLECTION(ezColorAttribute, ezPropertyAttribute);
 
 public:
-  ezColorAttribute() {}
+  ezColorAttribute() = default;
   ezColorAttribute(ezColor color) { m_Color = color; }
 
   ezColor GetColor() const { return m_Color; }
@@ -90,7 +90,7 @@ class EZ_FOUNDATION_DLL ezSuffixAttribute : public ezPropertyAttribute
   EZ_ADD_DYNAMIC_REFLECTION(ezSuffixAttribute, ezPropertyAttribute);
 
 public:
-  ezSuffixAttribute() {}
+  ezSuffixAttribute() = default;
   ezSuffixAttribute(const char* szSuffix) { m_sSuffix = szSuffix; }
 
   const char* GetSuffix() const { return m_sSuffix; }
@@ -105,7 +105,7 @@ class EZ_FOUNDATION_DLL ezMinValueTextAttribute : public ezPropertyAttribute
   EZ_ADD_DYNAMIC_REFLECTION(ezMinValueTextAttribute, ezPropertyAttribute);
 
 public:
-  ezMinValueTextAttribute() {}
+  ezMinValueTextAttribute() = default;
   ezMinValueTextAttribute(const char* szText) { m_sText = szText; }
 
   const char* GetText() const { return m_sText; }
@@ -120,7 +120,7 @@ class EZ_FOUNDATION_DLL ezDefaultValueAttribute : public ezPropertyAttribute
   EZ_ADD_DYNAMIC_REFLECTION(ezDefaultValueAttribute, ezPropertyAttribute);
 
 public:
-  ezDefaultValueAttribute() {}
+  ezDefaultValueAttribute() = default;
   ezDefaultValueAttribute(const ezVariant& value) { m_Value = value; }
 
   const ezVariant& GetValue() const { return m_Value; }
@@ -136,7 +136,7 @@ class EZ_FOUNDATION_DLL ezClampValueAttribute : public ezPropertyAttribute
   EZ_ADD_DYNAMIC_REFLECTION(ezClampValueAttribute, ezPropertyAttribute);
 
 public:
-  ezClampValueAttribute() {}
+  ezClampValueAttribute() = default;
   ezClampValueAttribute(const ezVariant& min, const ezVariant& max)
   {
     m_MinValue = min;
@@ -202,7 +202,7 @@ class EZ_FOUNDATION_DLL ezTagSetWidgetAttribute : public ezContainerWidgetAttrib
   EZ_ADD_DYNAMIC_REFLECTION(ezTagSetWidgetAttribute, ezContainerWidgetAttribute);
 
 public:
-  ezTagSetWidgetAttribute() {}
+  ezTagSetWidgetAttribute() = default;
   ezTagSetWidgetAttribute(const char* szTagFilter) { m_sTagFilter = szTagFilter; }
 
   const char* GetTagFilter() const { return m_sTagFilter; }
@@ -223,7 +223,7 @@ class EZ_FOUNDATION_DLL ezExposedParametersAttribute : public ezContainerWidgetA
   EZ_ADD_DYNAMIC_REFLECTION(ezExposedParametersAttribute, ezContainerWidgetAttribute);
 
 public:
-  ezExposedParametersAttribute() {}
+  ezExposedParametersAttribute() = default;
   ezExposedParametersAttribute(const char* szParametersSource) { m_sParametersSource = szParametersSource; }
 
   const char* GetParametersSource() const { return m_sParametersSource; }
@@ -265,7 +265,7 @@ class EZ_FOUNDATION_DLL ezConstrainPointerAttribute : public ezPropertyAttribute
   EZ_ADD_DYNAMIC_REFLECTION(ezConstrainPointerAttribute, ezPropertyAttribute);
 
 public:
-  ezConstrainPointerAttribute() {}
+  ezConstrainPointerAttribute() = default;
   ezConstrainPointerAttribute(const char* szConstantName, const char* szConstantValueProperty)
   {
     m_sConstantName = szConstantName;
@@ -289,7 +289,7 @@ class EZ_FOUNDATION_DLL ezFileBrowserAttribute : public ezTypeWidgetAttribute
   EZ_ADD_DYNAMIC_REFLECTION(ezFileBrowserAttribute, ezTypeWidgetAttribute);
 
 public:
-  ezFileBrowserAttribute() {}
+  ezFileBrowserAttribute() = default;
   ezFileBrowserAttribute(const char* szDialogTitle, const char* szTypeFilter)
   {
     m_sDialogTitle = szDialogTitle;
@@ -313,7 +313,7 @@ class EZ_FOUNDATION_DLL ezAssetBrowserAttribute : public ezTypeWidgetAttribute
   EZ_ADD_DYNAMIC_REFLECTION(ezAssetBrowserAttribute, ezTypeWidgetAttribute);
 
 public:
-  ezAssetBrowserAttribute() {}
+  ezAssetBrowserAttribute() = default;
   ezAssetBrowserAttribute(const char* szTypeFilter) { SetTypeFilter(szTypeFilter); }
 
   void SetTypeFilter(const char* szTypeFilter)
@@ -335,7 +335,7 @@ class EZ_FOUNDATION_DLL ezDynamicEnumAttribute : public ezTypeWidgetAttribute
   EZ_ADD_DYNAMIC_REFLECTION(ezDynamicEnumAttribute, ezTypeWidgetAttribute);
 
 public:
-  ezDynamicEnumAttribute() {}
+  ezDynamicEnumAttribute() = default;
   ezDynamicEnumAttribute(const char* szDynamicEnumName) { m_sDynamicEnumName = szDynamicEnumName; }
 
   const char* GetDynamicEnumName() const { return m_sDynamicEnumName; }
@@ -352,7 +352,7 @@ class EZ_FOUNDATION_DLL ezDynamicStringEnumAttribute : public ezTypeWidgetAttrib
   EZ_ADD_DYNAMIC_REFLECTION(ezDynamicStringEnumAttribute, ezTypeWidgetAttribute);
 
 public:
-  ezDynamicStringEnumAttribute() {}
+  ezDynamicStringEnumAttribute() = default;
   ezDynamicStringEnumAttribute(const char* szDynamicEnumName) { m_sDynamicEnumName = szDynamicEnumName; }
 
   const char* GetDynamicEnumName() const { return m_sDynamicEnumName; }
@@ -719,7 +719,7 @@ class EZ_FOUNDATION_DLL ezPreventDuplicatesAttribute : public ezPropertyAttribut
   EZ_ADD_DYNAMIC_REFLECTION(ezPreventDuplicatesAttribute, ezPropertyAttribute);
 
 public:
-  ezPreventDuplicatesAttribute() {}
+  ezPreventDuplicatesAttribute() = default;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -776,7 +776,7 @@ class EZ_FOUNDATION_DLL ezVisScriptMappingAttribute : public ezPropertyAttribute
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisScriptMappingAttribute, ezPropertyAttribute);
 
-  ezVisScriptMappingAttribute() {}
+  ezVisScriptMappingAttribute() = default;
   ezVisScriptMappingAttribute(ezInt32 mapping)
     : m_iMapping(mapping)
   {

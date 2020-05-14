@@ -282,7 +282,7 @@ void ezDequeBase<T, Construct>::Swap(ezDequeBase<T, Construct>& other)
 template <typename T, bool Construct>
 void ezDequeBase<T, Construct>::CompactIndexArray(ezUInt32 uiMinChunksToKeep)
 {
-  const ezUInt32 uiRequiredChunks = ezMath::Max<ezUInt32>(1, GetRequiredChunks(m_uiCount));
+  const auto uiRequiredChunks = ezMath::Max<ezUInt32>(1, GetRequiredChunks(m_uiCount));
   uiMinChunksToKeep = ezMath::Max(uiRequiredChunks, uiMinChunksToKeep);
 
   // keep some spare pointers for scaling the deque up again

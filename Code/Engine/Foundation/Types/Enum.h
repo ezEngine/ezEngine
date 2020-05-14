@@ -36,8 +36,8 @@ template <typename Derived>
 struct ezEnum : public Derived
 {
 public:
-  typedef ezEnum<Derived> SelfType;
-  typedef typename Derived::StorageType StorageType;
+  using SelfType = ezEnum<Derived>;
+  using StorageType = typename Derived::StorageType;
 
   /// \brief Default constructor
   EZ_ALWAYS_INLINE ezEnum()

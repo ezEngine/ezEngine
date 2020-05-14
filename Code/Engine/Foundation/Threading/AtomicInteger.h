@@ -99,5 +99,5 @@ private:
 // Include inline file
 #include <Foundation/Threading/Implementation/AtomicInteger_inl.h>
 
-typedef ezAtomicInteger<ezInt32> ezAtomicInteger32; // [tested]
-typedef ezAtomicInteger<ezInt64> ezAtomicInteger64; // [tested]
+using ezAtomicInteger32 = ezAtomicInteger<ezInt32>; // [tested]
+using ezAtomicInteger64 = ezAtomicInteger<ezInt64>; // [tested]

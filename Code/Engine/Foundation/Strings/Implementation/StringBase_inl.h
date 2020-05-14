@@ -3,14 +3,14 @@
 template <typename Derived>
 EZ_ALWAYS_INLINE const char* ezStringBase<Derived>::InternalGetData() const
 {
-  const Derived* pDerived = static_cast<const Derived*>(this);
+  const auto* pDerived = static_cast<const Derived*>(this);
   return pDerived->GetData();
 }
 
 template <typename Derived>
 EZ_ALWAYS_INLINE const char* ezStringBase<Derived>::InternalGetDataEnd() const
 {
-  const Derived* pDerived = static_cast<const Derived*>(this);
+  const auto* pDerived = static_cast<const Derived*>(this);
   return pDerived->GetData() + pDerived->GetElementCount();
 }
 

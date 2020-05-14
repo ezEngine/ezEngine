@@ -10,9 +10,9 @@ template <typename Class, typename EnumType, typename Type>
 class ezBitflagsAccessorProperty : public ezTypedEnumProperty<EnumType>
 {
 public:
-  typedef typename ezTypeTraits<Type>::NonConstReferenceType RealType;
-  typedef Type (Class::*GetterFunc)() const;
-  typedef void (Class::*SetterFunc)(Type value);
+  using RealType = typename ezTypeTraits<Type>::NonConstReferenceType;
+  using GetterFunc = Type (Class::*)() const;
+  using SetterFunc = void (Class::*)(Type value);
 
   /// \brief Constructor.
   ezBitflagsAccessorProperty(const char* szPropertyName, GetterFunc getter, SetterFunc setter)
@@ -59,9 +59,9 @@ template <typename Class, typename EnumType, typename Type>
 class ezBitflagsMemberProperty : public ezTypedEnumProperty<EnumType>
 {
 public:
-  typedef Type (*GetterFunc)(const Class* pInstance);
-  typedef void (*SetterFunc)(Class* pInstance, Type value);
-  typedef void* (*PointerFunc)(const Class* pInstance);
+  using GetterFunc = Type (*)(const Class* pInstance);
+  using SetterFunc = void (*)(Class* pInstance, Type value);
+  using PointerFunc = void* (*)(const Class* pInstance);
 
   /// \brief Constructor.
   ezBitflagsMemberProperty(const char* szPropertyName, GetterFunc getter, SetterFunc setter, PointerFunc pointer)

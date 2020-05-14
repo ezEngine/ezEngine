@@ -24,8 +24,8 @@ public:
   EZ_ALWAYS_INLINE bool IsConst() const { return m_bIsConst; }
 
 protected:
-  typedef void (*DispatchFunc)(void*, ezMessage&);
-  typedef void (*ConstDispatchFunc)(const void*, ezMessage&);
+  using DispatchFunc = void (*)(void*, ezMessage&);
+  using ConstDispatchFunc = void (*)(const void*, ezMessage&);
 
   union {
     DispatchFunc m_DispatchFunc;

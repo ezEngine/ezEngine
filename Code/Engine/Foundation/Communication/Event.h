@@ -43,7 +43,7 @@ protected:
 
 public:
   /// \brief Notification callback type for events.
-  typedef ezDelegate<void(EventData)> Handler;
+  using Handler = ezDelegate<void (EventData)>;
 
   /// \brief An object that can be passed to ezEvent::AddEventHandler to store the subscription information
   /// and automatically remove the event handler upon destruction.

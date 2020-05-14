@@ -30,7 +30,7 @@
 
 
 /// \brief Assert handler callback. Should return true to trigger a break point or false if the assert should be ignored
-typedef bool (*ezAssertHandler)(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg);
+using ezAssertHandler = bool (*)(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg);
 
 EZ_FOUNDATION_DLL bool ezDefaultAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg);
 

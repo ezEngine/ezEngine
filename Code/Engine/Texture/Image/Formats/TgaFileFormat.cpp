@@ -69,12 +69,12 @@ ezResult ezTgaFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
 {
   // Technically almost arbitrary formats are supported, but we only use the common ones.
   ezImageFormat::Enum compatibleFormats[] =
-      {
-          ezImageFormat::R8G8B8A8_UNORM,
-          ezImageFormat::B8G8R8A8_UNORM,
-          ezImageFormat::B8G8R8X8_UNORM,
-          ezImageFormat::B8G8R8_UNORM,
-      };
+    {
+      ezImageFormat::R8G8B8A8_UNORM,
+      ezImageFormat::B8G8R8A8_UNORM,
+      ezImageFormat::B8G8R8X8_UNORM,
+      ezImageFormat::B8G8R8_UNORM,
+    };
 
   // Find a compatible format closest to the one the image currently has
   ezImageFormat::Enum format = ezImageConversion::FindClosestCompatibleFormat(image.GetImageFormat(), compatibleFormats);
@@ -156,7 +156,7 @@ ezResult ezTgaFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
 
     ezInt32 iRLE = 0;
 
-    ezColorLinearUB pc;
+    ezColorLinearUB pc = {};
     ezStaticArray<ezColorLinearUB, 129> unequal;
     ezInt32 iEqual = 0;
 
@@ -476,4 +476,3 @@ bool ezTgaFileFormat::CanWriteFileType(const char* szExtension) const
 
 
 EZ_STATICLINK_FILE(Texture, Texture_Image_Formats_TgaFileFormat);
-

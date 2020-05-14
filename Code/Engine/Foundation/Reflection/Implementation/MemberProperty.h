@@ -87,9 +87,9 @@ template <typename Class, typename Type>
 class ezAccessorProperty : public ezTypedMemberProperty<typename ezTypeTraits<Type>::NonConstReferenceType>
 {
 public:
-  typedef typename ezTypeTraits<Type>::NonConstReferenceType RealType;
-  typedef Type (Class::*GetterFunc)() const;
-  typedef void (Class::*SetterFunc)(Type value);
+  using RealType = typename ezTypeTraits<Type>::NonConstReferenceType;
+  using GetterFunc = Type (Class::*)() const;
+  using SetterFunc = void (Class::*)(Type value);
 
   /// \brief Constructor.
   ezAccessorProperty(const char* szPropertyName, GetterFunc getter, SetterFunc setter)
@@ -156,9 +156,9 @@ template <typename Class, typename Type>
 class ezMemberProperty : public ezTypedMemberProperty<Type>
 {
 public:
-  typedef Type (*GetterFunc)(const Class* pInstance);
-  typedef void (*SetterFunc)(Class* pInstance, Type value);
-  typedef void* (*PointerFunc)(const Class* pInstance);
+  using GetterFunc = Type (*)(const Class* pInstance);
+  using SetterFunc = void (*)(Class* pInstance, Type value);
+  using PointerFunc = void* (*)(const Class* pInstance);
 
   /// \brief Constructor.
   ezMemberProperty(const char* szPropertyName, GetterFunc getter, SetterFunc setter, PointerFunc pointer)

@@ -14,24 +14,24 @@ struct ezTraitInt
   };
 };
 
-typedef ezTraitInt<2> ezTypeIsMemRelocatable;
-typedef ezTraitInt<1> ezTypeIsPod;
-typedef ezTraitInt<0> ezTypeIsClass;
+using ezTypeIsMemRelocatable = ezTraitInt<2>;
+using ezTypeIsPod = ezTraitInt<1>;
+using ezTypeIsClass = ezTraitInt<0>;
 
-typedef char ezCompileTimeTrueType;
-typedef int ezCompileTimeFalseType;
+using ezCompileTimeTrueType = char;
+using ezCompileTimeFalseType = int;
 
 /// \brief Converts a bool condition to CompileTimeTrue/FalseType
 template <bool cond>
 struct ezConditionToCompileTimeBool
 {
-  typedef ezCompileTimeFalseType type;
+  using type = ezCompileTimeFalseType;
 };
 
 template <>
 struct ezConditionToCompileTimeBool<true>
 {
-  typedef ezCompileTimeTrueType type;
+  using type = ezCompileTimeTrueType;
 };
 
 /// \brief Default % operator for T and TypeIsPod which returns a CompileTimeFalseType.
@@ -206,24 +206,23 @@ template <typename T>
 struct ezTypeTraits
 {
   /// \brief removes const qualifier
-  typedef typename std::remove_const<T>::type NonConstType;
+  using NonConstType = typename std::remove_const<T>::type;
 
   /// \brief removes reference
-  typedef typename std::remove_reference<T>::type NonReferenceType;
+  using NonReferenceType = typename std::remove_reference<T>::type;
 
   /// \brief removes pointer
-  typedef typename std::remove_pointer<T>::type NonPointerType;
+  using NonPointerType = typename std::remove_pointer<T>::type;
 
   /// \brief removes reference and const qualifier
-  typedef typename std::remove_const<typename std::remove_reference<T>::type>::type NonConstReferenceType;
+  using NonConstReferenceType = typename std::remove_const<typename std::remove_reference<T>::type>::type;
 
   /// \brief removes reference and pointer qualifier
-  typedef typename std::remove_pointer<typename std::remove_reference<T>::type>::type NonReferencePointerType;
+  using NonReferencePointerType = typename std::remove_pointer<typename std::remove_reference<T>::type>::type;
 
   /// \brief removes reference, const and pointer qualifier
   /// Note that this removes the const and reference of the type pointed too, not of the pointer.
-  typedef typename std::remove_const<typename std::remove_reference<typename std::remove_pointer<T>::type>::type>::type
-      NonConstReferencePointerType;
+  using NonConstReferencePointerType = typename std::remove_const<typename std::remove_reference<typename std::remove_pointer<T>::type>::type>::type;
 };
 
 /// generates a template named 'checkerName' which checks for the existence of a member function with

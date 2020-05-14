@@ -283,7 +283,7 @@ struct ezRTTIDefaultAllocator : public ezRTTIAllocator
       pAllocator = AllocatorWrapper::GetAllocator();
     }
 
-    CLASS* pPointer = static_cast<CLASS*>(pObject);
+    auto* pPointer = static_cast<CLASS*>(pObject);
     EZ_DELETE(pAllocator, pPointer);
   }
 

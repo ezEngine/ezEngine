@@ -5,36 +5,36 @@
 template <typename T>
 struct ezCleanType2
 {
-  typedef T Type;
-  typedef T RttiType;
+  using Type = T;
+  using RttiType = T;
 };
 
 template <typename T>
 struct ezCleanType2<ezEnum<T>>
 {
-  typedef ezEnum<T> Type;
-  typedef T RttiType;
+  using Type = ezEnum<T>;
+  using RttiType = T;
 };
 
 template <typename T>
 struct ezCleanType2<ezBitflags<T>>
 {
-  typedef ezBitflags<T> Type;
-  typedef T RttiType;
+  using Type = ezBitflags<T>;
+  using RttiType = T;
 };
 
 template <typename T>
 struct ezCleanType
 {
-  typedef typename ezTypeTraits<T>::NonConstReferencePointerType Type;
-  typedef typename ezCleanType2<typename ezTypeTraits<T>::NonConstReferencePointerType>::RttiType RttiType;
+  using Type = typename ezTypeTraits<T>::NonConstReferencePointerType;
+  using RttiType = typename ezCleanType2<typename ezTypeTraits<T>::NonConstReferencePointerType>::RttiType;
 };
 
 template <>
 struct ezCleanType<const char*>
 {
-  typedef const char* Type;
-  typedef const char* RttiType;
+  using Type = const char *;
+  using RttiType = const char *;
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -97,7 +97,7 @@ template <class T,                                        ///< Only this paramet
           int STANDARD_TYPE = ezIsStandardType<T>::value> ///< Is 1 if T is a ezTypeFlags::StandardType
 struct ezVariantAssignmentAdapter
 {
-  typedef typename ezTypeTraits<T>::NonConstReferencePointerType RealType;
+  using RealType = typename ezTypeTraits<T>::NonConstReferencePointerType;
   ezVariantAssignmentAdapter(ezVariant& value)
       : m_value(value)
   {
@@ -115,7 +115,7 @@ struct ezVariantAssignmentAdapter
 template <class T, class S>
 struct ezVariantAssignmentAdapter<T, ezEnum<S>, 0>
 {
-  typedef typename ezTypeTraits<T>::NonConstReferencePointerType RealType;
+  using RealType = typename ezTypeTraits<T>::NonConstReferencePointerType;
   ezVariantAssignmentAdapter(ezVariant& value)
       : m_value(value)
   {
@@ -129,7 +129,7 @@ struct ezVariantAssignmentAdapter<T, ezEnum<S>, 0>
 template <class T, class S>
 struct ezVariantAssignmentAdapter<T, ezBitflags<S>, 0>
 {
-  typedef typename ezTypeTraits<T>::NonConstReferencePointerType RealType;
+  using RealType = typename ezTypeTraits<T>::NonConstReferencePointerType;
   ezVariantAssignmentAdapter(ezVariant& value)
       : m_value(value)
   {
@@ -143,7 +143,7 @@ struct ezVariantAssignmentAdapter<T, ezBitflags<S>, 0>
 template <class T, class C>
 struct ezVariantAssignmentAdapter<T, C, 1>
 {
-  typedef typename ezTypeTraits<T>::NonConstReferencePointerType RealType;
+  using RealType = typename ezTypeTraits<T>::NonConstReferencePointerType;
   ezVariantAssignmentAdapter(ezVariant& value)
       : m_value(value)
   {
@@ -164,7 +164,7 @@ template <class T, ///< Only this parameter needs to be provided, the actual typ
           int OUT_PARAM = ezIsOutParam<T>::value>         ///< Is 1 if T a non-const reference or pointer.
 struct ezVariantAdapter
 {
-  typedef typename ezTypeTraits<T>::NonConstReferencePointerType RealType;
+  using RealType = typename ezTypeTraits<T>::NonConstReferencePointerType;
 
   ezVariantAdapter(ezVariant& value)
       : m_value(value)
@@ -181,7 +181,7 @@ struct ezVariantAdapter
 template <class T, class S>
 struct ezVariantAdapter<T, ezEnum<S>, 0, 0>
 {
-  typedef typename ezTypeTraits<T>::NonConstReferencePointerType RealType;
+  using RealType = typename ezTypeTraits<T>::NonConstReferencePointerType;
   ezVariantAdapter(ezVariant& value)
       : m_value(value)
   {
@@ -199,7 +199,7 @@ struct ezVariantAdapter<T, ezEnum<S>, 0, 0>
 template <class T, class S>
 struct ezVariantAdapter<T, ezEnum<S>, 0, 1>
 {
-  typedef typename ezTypeTraits<T>::NonConstReferencePointerType RealType;
+  using RealType = typename ezTypeTraits<T>::NonConstReferencePointerType;
   ezVariantAdapter(ezVariant& value)
       : m_value(value)
   {
@@ -222,7 +222,7 @@ struct ezVariantAdapter<T, ezEnum<S>, 0, 1>
 template <class T, class S>
 struct ezVariantAdapter<T, ezBitflags<S>, 0, 0>
 {
-  typedef typename ezTypeTraits<T>::NonConstReferencePointerType RealType;
+  using RealType = typename ezTypeTraits<T>::NonConstReferencePointerType;
   ezVariantAdapter(ezVariant& value)
       : m_value(value)
   {
@@ -240,7 +240,7 @@ struct ezVariantAdapter<T, ezBitflags<S>, 0, 0>
 template <class T, class S>
 struct ezVariantAdapter<T, ezBitflags<S>, 0, 1>
 {
-  typedef typename ezTypeTraits<T>::NonConstReferencePointerType RealType;
+  using RealType = typename ezTypeTraits<T>::NonConstReferencePointerType;
   ezVariantAdapter(ezVariant& value)
       : m_value(value)
   {
@@ -263,7 +263,7 @@ struct ezVariantAdapter<T, ezBitflags<S>, 0, 1>
 template <class T, class C>
 struct ezVariantAdapter<T, C, 1, 0>
 {
-  typedef typename ezTypeTraits<T>::NonConstReferencePointerType RealType;
+  using RealType = typename ezTypeTraits<T>::NonConstReferencePointerType;
   ezVariantAdapter(ezVariant& value)
       : m_value(value)
   {
@@ -279,7 +279,7 @@ struct ezVariantAdapter<T, C, 1, 0>
 template <class T, class C>
 struct ezVariantAdapter<T, C, 1, 1>
 {
-  typedef typename ezTypeTraits<T>::NonConstReferencePointerType RealType;
+  using RealType = typename ezTypeTraits<T>::NonConstReferencePointerType;
   ezVariantAdapter(ezVariant& value)
       : m_value(value)
   {

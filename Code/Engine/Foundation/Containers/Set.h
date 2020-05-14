@@ -34,11 +34,11 @@ public:
   /// \brief Base class for all iterators.
   struct Iterator
   {
-    typedef std::forward_iterator_tag iterator_category;
-    typedef Iterator value_type;
-    typedef ptrdiff_t difference_type;
-    typedef Iterator* pointer;
-    typedef Iterator& reference;
+    using iterator_category = std::forward_iterator_tag;
+    using value_type = Iterator;
+    using difference_type = ptrdiff_t;
+    using pointer = Iterator *;
+    using reference = Iterator &;
 
     EZ_DECLARE_POD_TYPE();
 

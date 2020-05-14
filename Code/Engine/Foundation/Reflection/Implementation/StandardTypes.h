@@ -30,7 +30,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezInt64);
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezUInt64);
 
 // macros won't work with 'const char*'
-typedef const char* ezConstCharPtr;
+using ezConstCharPtr = const char *;
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezConstCharPtr);
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezTime);
