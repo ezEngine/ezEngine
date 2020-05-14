@@ -9,7 +9,7 @@
 #    undef EZ_PLATFORM_ARCH_ARM
 #    define EZ_PLATFORM_ARCH_ARM EZ_ON
 #  else
-#    error unhandeled target architecture
+#    error unhandled target architecture
 #  endif
 
 #  if defined(__x86_64__) || defined(__aarch64__)
@@ -19,7 +19,7 @@
 #    undef EZ_PLATFORM_32BIT
 #    define EZ_PLATFORM_32BIT EZ_ON
 #  else
-#    error unhandeled platform bit count
+#    error unhandled platform bit count
 #  endif
 
 #elif defined(_MSC_VER)
@@ -31,7 +31,7 @@
 #    undef EZ_PLATFORM_ARCH_ARM
 #    define EZ_PLATFORM_ARCH_ARM EZ_ON
 #  else
-#    error unhandeled target architecture
+#    error unhandled target architecture
 #  endif
 
 #  if defined(_M_AMD64) || defined(_M_ARM64)
@@ -41,9 +41,9 @@
 #    undef EZ_PLATFORM_32BIT
 #    define EZ_PLATFORM_32BIT EZ_ON
 #  else
-#    error unhandeled platform bit count
+#    error unhandled platform bit count
 #  endif
 
 #else
-#  error unhandeled compiler
+#  error unhandled compiler
 #endif

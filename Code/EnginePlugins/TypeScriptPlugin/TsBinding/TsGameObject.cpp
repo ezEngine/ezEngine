@@ -33,7 +33,6 @@ static int __CPP_GameObject_GetParent(duk_context* pDuk);
 static int __CPP_GameObject_SetX_GameObject(duk_context* pDuk);
 static int __CPP_GameObject_GetChildren(duk_context* pDuk);
 
-// This must be a enum class because otherwise SetParent collides on the global scope with SetParent from winuser.h
 namespace GameObject_X
 {
   enum Enum

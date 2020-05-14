@@ -360,7 +360,7 @@ function(ez_detect_compiler_and_architecture)
 	  
 	else()
 	
-	  message(FATAL_ERROR "Unhandeled compiler ${EZ_DETECTED_COMPILER}")
+	  message(FATAL_ERROR "Unhandled compiler ${EZ_DETECTED_COMPILER}")
 	  
 	endif()
 
@@ -407,7 +407,7 @@ function(ez_detect_compiler_and_architecture)
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "Arm64")
 	  
 	else()
-	  message(FATAL_ERROR "Unhandeled target architecture ${EZ_DETECTED_ARCH}")
+	  message(FATAL_ERROR "Unhandled target architecture ${EZ_DETECTED_ARCH}")
 	endif()
 	
 endfunction()

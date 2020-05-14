@@ -1,8 +1,8 @@
 #if defined(__clang__) || defined(__GNUC__)
 	#if defined(__clang__)
-		#warning "COMPILER:'clang'"
+		#pragma message("COMPILER:'clang'")
 	#else
-		#warning "COMPILER:'gcc'"
+		#pragma message("COMPILER:'gcc'")
 	#endif
 	
 	#if defined(__x86_64__) 
@@ -14,7 +14,7 @@
 	#elif defined(__arm__)
 		#pragma message("ARCH:'arm32'")
 	#else
-		#error unhandeled clang/gcc architecture
+		#error unhandled clang/gcc architecture
 	#endif
 #elif defined(_MSC_VER)
 	#define STRINGIFY(s) STRINGFY_HELPER(s)
@@ -31,8 +31,8 @@
 	#elif defined(_M_ARM)
 		#pragma message ("ARCH:'arm32'")
 	#else
-		#error Unhandeled msvc architecture
+		#error unhandled msvc architecture
 	#endif
 #else
-	#error unhandeled compiler
+	#error unhandled compiler
 #endif
