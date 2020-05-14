@@ -532,15 +532,15 @@ namespace ezInternal
   template <>
   struct PointerDeductionHelper<0>
   {
-    using StorageType = void *;
+    using StorageType = void*;
   };
 
   template <>
   struct PointerDeductionHelper<1>
   {
-    using StorageType = ezReflectedClass *;
+    using StorageType = ezReflectedClass*;
   };
-}
+} // namespace ezInternal
 
 template <typename T>
 struct ezVariant::TypeDeduction<T*>
@@ -552,8 +552,7 @@ struct ezVariant::TypeDeduction<T*>
     hasReflectedMembers = false
   };
 
-  using StorageType = typename ezInternal::PointerDeductionHelper<(ezConversionTest<const T *, const ezReflectedClass *>::exists && !ezConversionTest<const ezReflectedClass *, const void *>::sameType)>::StorageType;
+  using StorageType = typename ezInternal::PointerDeductionHelper<EZ_IS_DERIVED_FROM_STATIC(ezReflectedClass, T)>::StorageType;
 };
 
 /// \endcond
-
