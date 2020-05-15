@@ -51,6 +51,8 @@ public:
   static ezActionDescriptorHandle s_hMenuView;
   static ezActionDescriptorHandle s_hMenuHelp;
   static ezActionDescriptorHandle s_hOpenDocumentation;
+  static ezActionDescriptorHandle s_hOpenReleaseNotes;
+  static ezActionDescriptorHandle s_hCheckForUpdates;
 };
 
 ///
@@ -77,6 +79,8 @@ public:
   enum class ButtonType
   {
     OpenDocumentation,
+    OpenReleaseNotes,
+    CheckForUpdates,
   };
 
   ezHelpActions(const ezActionContext& context, const char* szName, ButtonType button);

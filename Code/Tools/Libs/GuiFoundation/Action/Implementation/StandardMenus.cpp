@@ -4,6 +4,7 @@
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/Action/StandardMenus.h>
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
 
 ezActionDescriptorHandle ezStandardMenus::s_hMenuFile;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuEdit;
@@ -13,6 +14,8 @@ ezActionDescriptorHandle ezStandardMenus::s_hMenuScene;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuView;
 ezActionDescriptorHandle ezStandardMenus::s_hMenuHelp;
 ezActionDescriptorHandle ezStandardMenus::s_hOpenDocumentation;
+ezActionDescriptorHandle ezStandardMenus::s_hOpenReleaseNotes;
+ezActionDescriptorHandle ezStandardMenus::s_hCheckForUpdates;
 
 void ezStandardMenus::RegisterActions()
 {
@@ -24,6 +27,8 @@ void ezStandardMenus::RegisterActions()
   s_hMenuView = EZ_REGISTER_MENU("Menu.View");
   s_hMenuHelp = EZ_REGISTER_MENU("Menu.Help");
   s_hOpenDocumentation = EZ_REGISTER_ACTION_1("Help.OpenDocumentation", ezActionScope::Document, "Help", "", ezHelpActions, ezHelpActions::ButtonType::OpenDocumentation);
+  s_hOpenReleaseNotes = EZ_REGISTER_ACTION_1("Help.OpenReleaseNotes", ezActionScope::Document, "Help", "", ezHelpActions, ezHelpActions::ButtonType::OpenReleaseNotes);
+  s_hCheckForUpdates = EZ_REGISTER_ACTION_1("Help.CheckForUpdates", ezActionScope::Document, "Help", "", ezHelpActions, ezHelpActions::ButtonType::CheckForUpdates);
 }
 
 void ezStandardMenus::UnregisterActions()
@@ -36,6 +41,8 @@ void ezStandardMenus::UnregisterActions()
   ezActionManager::UnregisterAction(s_hMenuView);
   ezActionManager::UnregisterAction(s_hMenuHelp);
   ezActionManager::UnregisterAction(s_hOpenDocumentation);
+  ezActionManager::UnregisterAction(s_hOpenReleaseNotes);
+  ezActionManager::UnregisterAction(s_hCheckForUpdates);
 }
 
 void ezStandardMenus::MapActions(const char* szMapping, const ezBitflags<ezStandardMenuTypes>& Menus)
@@ -67,6 +74,8 @@ void ezStandardMenus::MapActions(const char* szMapping, const ezBitflags<ezStand
   {
     pMap->MapAction(s_hMenuHelp, "", 7.0f);
     pMap->MapAction(s_hOpenDocumentation, "Menu.Help", 1.0f);
+    pMap->MapAction(s_hOpenReleaseNotes, "Menu.Help", 2.0f);
+    pMap->MapAction(s_hCheckForUpdates, "Menu.Help", 3.0f);
   }
 }
 
@@ -149,6 +158,14 @@ void ezHelpActions::Execute(const ezVariant& value)
 {
   if (m_ButtonType == ButtonType::OpenDocumentation)
   {
-    QDesktopServices::openUrl(QUrl("https://ezengine.github.io/docs"));
+    QDesktopServices::openUrl(QUrl("http://ezengine.net/"));
+  }
+  if (m_ButtonType == ButtonType::OpenReleaseNotes)
+  {
+    QDesktopServices::openUrl(QUrl("http://ezengine.net/releases/release-notes.html"));
+  }
+  if (m_ButtonType == ButtonType::CheckForUpdates)
+  {
+    ezQtUiServices::CheckForUpdates();
   }
 }

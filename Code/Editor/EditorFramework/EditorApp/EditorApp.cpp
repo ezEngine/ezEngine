@@ -63,6 +63,26 @@ void ezQtEditorApp::SlotSaveSettings()
   SaveSettings();
 }
 
+void ezQtEditorApp::SlotVersionCheckCompleted(bool bNewVersionReleased, bool bForced)
+{
+  if (bForced || bNewVersionReleased)
+  {
+    if (m_VersionChecker.IsLatestNewer())
+    {
+      ezQtUiServices::GetSingleton()->MessageBoxInformation(ezFmt("<html>A new version is available: {}<br><br>Your version is: {}<br><br>Please check the <A href=\"http://ezengine.net/releases/release-notes.html\">Release Notes</A> for details.</html>", m_VersionChecker.GetKnownLatestVersion(), m_VersionChecker.GetOwnVersion()));
+    }
+    else
+    {
+      ezQtUiServices::GetSingleton()->MessageBoxInformation("You have the latest version.");
+    }
+  }
+
+  if (m_VersionChecker.IsLatestNewer())
+  {
+    ezQtUiServices::GetSingleton()->ShowGlobalStatusBarMessage(ezFmt("New version '{}' available, please update.", m_VersionChecker.GetKnownLatestVersion()));
+  }
+}
+
 void ezQtEditorApp::EngineProcessMsgHandler(const ezEditorEngineProcessConnection::Event& e)
 {
   switch (e.m_Type)
@@ -83,6 +103,14 @@ void ezQtEditorApp::EngineProcessMsgHandler(const ezEditorEngineProcessConnectio
 
     default:
       return;
+  }
+}
+
+void ezQtEditorApp::UiServicesEvents(const ezQtUiServices::Event& e)
+{
+  if (e.m_Type == ezQtUiServices::Event::Type::CheckForUpdates)
+  {
+    m_VersionChecker.Check(true);
   }
 }
 

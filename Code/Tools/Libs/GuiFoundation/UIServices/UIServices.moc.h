@@ -27,6 +27,7 @@ public:
       ShowDocumentPermanentStatusBarText,
       ShowGlobalStatusBarText,
       ClickedDocumentPermanentStatusBarText,
+      CheckForUpdates,
     };
 
     enum TextType
@@ -107,6 +108,9 @@ public:
   /// If the gitignore file does not exist, it is created.
   /// If the pattern is already present in the file, it is not added again.
   static ezResult AddToGitIgnore(const char* szGitIgnoreFile, const char* szPattern);
+
+  /// \brief Raises the 'CheckForUpdates' event
+  static void CheckForUpdates();
 
 private:
   ezQtColorDialog* m_pColorDlg;

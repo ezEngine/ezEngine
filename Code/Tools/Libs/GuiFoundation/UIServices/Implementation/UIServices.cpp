@@ -147,6 +147,13 @@ ezResult ezQtUiServices::AddToGitIgnore(const char* szGitIgnoreFile, const char*
   return EZ_SUCCESS;
 }
 
+void ezQtUiServices::CheckForUpdates()
+{
+  Event e;
+  e.m_Type = Event::Type::CheckForUpdates;
+  s_Events.Broadcast(e);
+}
+
 void ezQtUiServices::LoadState()
 {
   QSettings Settings;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <EditorEngineProcessFramework/LongOps/LongOpControllerManager.h>
+#include <EditorFramework/EditorApp/CheckVersion.moc.h>
 #include <EditorFramework/EditorApp/Configuration/Plugins.h>
 #include <EditorFramework/EditorApp/WhatsNew.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
@@ -218,6 +219,7 @@ private Q_SLOTS:
   void SlotQueuedOpenDocument(QString sProject, void* pOpenContext);
   void SlotQueuedGuiCreateOrOpenProject(bool bCreate);
   void SlotSaveSettings();
+  void SlotVersionCheckCompleted(bool bNewVersionReleased, bool bForced);
 
 private:
   void UpdateGlobalStatusBarMessage();
@@ -229,6 +231,7 @@ private:
   void ProjectRequestHandler(ezToolsProjectRequest& r);
   void ProjectEventHandler(const ezToolsProjectEvent& r);
   void EngineProcessMsgHandler(const ezEditorEngineProcessConnection::Event& e);
+  void UiServicesEvents(const ezQtUiServices::Event& e);
 
   void LoadEditorPreferences();
   void LoadProjectPreferences();
@@ -297,6 +300,7 @@ private:
 
 
   ezWhatsNewText m_WhatsNew;
+  ezQtVersionChecker m_VersionChecker;
 };
 
 EZ_DECLARE_FLAGS_OPERATORS(ezQtEditorApp::StartupFlags);
