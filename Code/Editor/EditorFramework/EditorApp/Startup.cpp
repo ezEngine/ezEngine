@@ -260,8 +260,6 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
   {
     ezActionManager::LoadShortcutAssignment();
 
-    m_WhatsNew.Load(":app/WhatsNew.htm");
-
     LoadRecentFiles();
 
     CreatePanels();
@@ -287,7 +285,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
 
     CreateOrOpenProject(false, pCmd->GetAbsolutePathOption("-project"));
   }
-  else if (!bNoRecent && !m_StartupFlags.IsSet(StartupFlags::Debug) && pPreferences->m_bLoadLastProjectAtStartup && !m_WhatsNew.HasChanged())
+  else if (!bNoRecent && !m_StartupFlags.IsSet(StartupFlags::Debug) && pPreferences->m_bLoadLastProjectAtStartup)
   {
     if (!s_RecentProjects.GetFileList().IsEmpty())
     {
@@ -310,11 +308,6 @@ void ezQtEditorApp::ShutdownEditor()
 {
   m_pTimer->stop();
   ezToolsProject::CloseProject();
-
-  if (m_StartupFlags.AreNoneSet(StartupFlags::Headless | StartupFlags::UnitTest))
-  {
-    m_WhatsNew.StoreLastRead();
-  }
 
   SaveSettings();
 

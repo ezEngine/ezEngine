@@ -257,6 +257,13 @@ void ezQtContainerWindow::UpdateWindowDecoration(ezQtDocumentWindow* pDocWindow)
   dock->setIcon(ezQtUiServices::GetCachedIconResource(pDocWindow->GetWindowIcon().GetData()));
   dock->setWindowTitle(QString::fromUtf8(pDocWindow->GetDisplayNameShort().GetData()));
 
+  if (pDocWindow->GetDisplayNameShort().IsEmpty())
+  {
+    dock->setFeature(ads::CDockWidget::DockWidgetClosable, false);
+    dock->setFeature(ads::CDockWidget::DockWidgetMovable, false);
+    dock->setFeature(ads::CDockWidget::DockWidgetFloatable, false);
+  }
+
   if (dock->dockContainer()->floatingWidget())
   {
     dock->dockContainer()->floatingWidget()->setWindowTitle(dock->windowTitle());
@@ -319,6 +326,12 @@ void ezQtContainerWindow::AddDocumentWindow(ezQtDocumentWindow* pDocWindow)
 
   EZ_ASSERT_DEV(pDocWindow->m_pContainerWindow == nullptr, "Implementation error");
 
+  // NOTE: This function is called by the ezQtDocumentWindow constructor
+  // that means any derived classes are not yet constructed!
+  // therefore calling virtual functions here, like GetDisplayNameShort() will still call
+  // the base class implementation, NOT the derived one !
+  // therefore, we do some stuff in ezQtContainerWindow::UpdateWindowDecoration() instead
+
   m_DocumentWindows.PushBack(pDocWindow);
   ads::CDockWidget* dock = new ads::CDockWidget(QString::fromUtf8(pDocWindow->GetDisplayNameShort()));
   dock->setObjectName(pDocWindow->GetUniqueName());
@@ -339,7 +352,6 @@ void ezQtContainerWindow::AddDocumentWindow(ezQtDocumentWindow* pDocWindow)
   m_DocumentDocks.PushBack(dock);
   connect(dock, &ads::CDockWidget::closed, this, &ezQtContainerWindow::SlotDocumentTabCloseRequested);
   connect(dock->tabWidget(), &QWidget::customContextMenuRequested, this, &ezQtContainerWindow::SlotTabsContextMenuRequested);
-
 
 
   pDocWindow->m_pContainerWindow = this;

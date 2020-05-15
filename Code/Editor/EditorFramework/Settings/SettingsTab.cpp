@@ -11,6 +11,11 @@ ezString ezQtSettingsTab::GetWindowIcon() const
   return ":/GuiFoundation/Icons/ezEditor16.png";
 }
 
+ezString ezQtSettingsTab::GetDisplayNameShort() const
+{
+  return "";
+}
+
 void ezQtEditorApp::ShowSettingsDocument()
 {
   ezQtSettingsTab* pSettingsTab = ezQtSettingsTab::GetSingleton();
@@ -50,8 +55,6 @@ ezQtSettingsTab::ezQtSettingsTab()
   pMenuBar->SetActionContext(context);
 
   FinishWindowCreation();
-
-  WhatsNewText->setText(ezQtEditorApp::GetSingleton()->GetWhatsNew().GetText().GetData());
 }
 
 ezQtSettingsTab::~ezQtSettingsTab() = default;

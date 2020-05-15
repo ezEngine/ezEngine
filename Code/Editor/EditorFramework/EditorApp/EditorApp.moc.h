@@ -3,7 +3,6 @@
 #include <EditorEngineProcessFramework/LongOps/LongOpControllerManager.h>
 #include <EditorFramework/EditorApp/CheckVersion.moc.h>
 #include <EditorFramework/EditorApp/Configuration/Plugins.h>
-#include <EditorFramework/EditorApp/WhatsNew.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/IPC/EngineProcessConnection.h>
 #include <Foundation/Application/Config/FileSystemConfig.h>
@@ -156,8 +155,6 @@ public:
   void ShowSettingsDocument();
   void CloseSettingsDocument();
 
-  const ezWhatsNewText& GetWhatsNew() const { return m_WhatsNew; }
-
   void CloseProject();
   void OpenProject(const char* szProject);
 
@@ -298,8 +295,6 @@ private:
   ezSet<ezString> m_DynamicEnumStringsToClear;
   void OnDemandDynamicStringEnumLoad(const char* szEnum, ezDynamicStringEnum& e);
 
-
-  ezWhatsNewText m_WhatsNew;
   ezQtVersionChecker m_VersionChecker;
 };
 

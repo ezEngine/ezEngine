@@ -444,6 +444,8 @@ bool ezQtDocumentWindow::CanCloseWindow()
 
 bool ezQtDocumentWindow::InternalCanCloseWindow()
 {
+  // I guess this is to remove the focus from other widgets like input boxes,
+  // such that they may modify the document
   setFocus();
   clearFocus();
 
