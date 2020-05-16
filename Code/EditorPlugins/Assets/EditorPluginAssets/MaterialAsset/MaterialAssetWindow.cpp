@@ -135,8 +135,11 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
 
     m_bVisualShaderEnabled = false;
     m_pVsePanel->setWidget(pSplitter);
+    m_pVsePanel->setVisible(false);
 
     addDockWidget(Qt::DockWidgetArea::BottomDockWidgetArea, m_pVsePanel);
+
+    m_pVsePanel->setVisible(false);
   }
 
   pDocument->GetSelectionManager()->SetSelection(pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
@@ -213,6 +216,13 @@ void ezQtMaterialAssetDocumentWindow::InternalRedraw()
   ezQtEngineDocumentWindow::InternalRedraw();
 }
 
+
+void ezQtMaterialAssetDocumentWindow::showEvent(QShowEvent* event)
+{
+  ezQtEngineDocumentWindow::showEvent(event);
+
+  m_pVsePanel->setVisible(m_bVisualShaderEnabled);
+}
 
 void ezQtMaterialAssetDocumentWindow::OnOpenShaderClicked(bool)
 {
@@ -313,9 +323,11 @@ void ezQtMaterialAssetDocumentWindow::UpdateNodeEditorVisibility()
   const bool bCustom = GetMaterialDocument()->GetPropertyObject()->GetTypeAccessor().GetValue("ShaderMode").ConvertTo<ezInt64>() ==
                        ezMaterialShaderMode::Custom;
 
+  m_pVsePanel->setVisible(bCustom);
+
   // when this is called during construction, it seems to be overridden again (probably by the dock widget code or the splitter)
   // by delaying it a bit, we have the last word
-  QTimer::singleShot(10, this, [this, bCustom]() { m_pVsePanel->setVisible(bCustom); });
+  QTimer::singleShot(100, this, [this, bCustom]() { m_pVsePanel->setVisible(bCustom); });
 
   if (m_bVisualShaderEnabled != bCustom)
   {

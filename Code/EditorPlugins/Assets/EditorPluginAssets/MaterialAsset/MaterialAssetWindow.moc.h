@@ -30,6 +30,9 @@ public:
 protected:
   virtual void InternalRedraw() override;
 
+
+  virtual void showEvent(QShowEvent* event) override;
+
 private Q_SLOTS:
   void OnOpenShaderClicked(bool);
 
