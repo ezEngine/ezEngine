@@ -38,7 +38,7 @@ ezResult ezGALProxyTexture::DeInitPlatform(ezGALDevice* pDevice)
 
 ezResult ezGALProxyTexture::ReplaceExisitingNativeObject(void* pExisitingNativeObject)
 {
-  //TODO
+  EZ_ASSERT_NOT_IMPLEMENTED;
   return EZ_FAILURE;
 }
 

@@ -41,7 +41,6 @@ ezWindowHandle ezWindowXR::GetNativeWindowHandle() const
 
 bool ezWindowXR::IsFullscreenWindow(bool bOnlyProperFullscreenMode) const
 {
-  //#TODO: return companion state or XR?
   return true;
 }
 
@@ -51,6 +50,11 @@ void ezWindowXR::ProcessWindowMessages()
   {
     m_pCompanionWindow->ProcessWindowMessages();
   }
+}
+
+const ezWindowBase* ezWindowXR::GetCompanionWindow() const
+{
+  return m_pCompanionWindow.Borrow();
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -128,6 +132,11 @@ ezResult ezWindowOutputTargetXR::CaptureImage(ezImage& out_Image)
     return m_pCompanionWindowOutputTarget->CaptureImage(out_Image);
   }
   return EZ_FAILURE;
+}
+
+const ezWindowOutputTargetBase* ezWindowOutputTargetXR::GetCompanionWindowOutputTarget() const
+{
+  return m_pCompanionWindowOutputTarget.Borrow();
 }
 
 //////////////////////////////////////////////////////////////////////////

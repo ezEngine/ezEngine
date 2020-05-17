@@ -52,7 +52,7 @@ void ezGameState::OnDeactivation()
   if (m_bXREnabled)
   {
     m_bXREnabled = false;
-    ezXRInterface* pXRInterface = ezSingletonRegistry::GetRequiredSingletonInstance<ezXRInterface>();
+    ezXRInterface* pXRInterface = ezSingletonRegistry::GetSingletonInstance<ezXRInterface>();
     ezActorManager::GetSingleton()->DestroyAllActors(pXRInterface);
     pXRInterface->Deinitialize();
   }
@@ -67,7 +67,7 @@ void ezGameState::ScheduleRendering()
 
 void ezGameState::CreateActors()
 {
-  EZ_LOG_BLOCK("ezGameState::CreateMainWindow");
+  EZ_LOG_BLOCK("CreateActors");
 
   // TODO: MR support
   //#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
@@ -84,7 +84,7 @@ void ezGameState::CreateActors()
   ezXRInterface* pXRInterface = nullptr;
   if (pConfig && pConfig->m_bEnableXR)
   {
-    if (ezXRInterface* pXR = ezSingletonRegistry::GetRequiredSingletonInstance<ezXRInterface>())
+    if (ezXRInterface* pXR = ezSingletonRegistry::GetSingletonInstance<ezXRInterface>())
     {
       if (pXR->Initialize().Succeeded())
       {
@@ -149,7 +149,7 @@ void ezGameState::SetupMainView(ezWindowOutputTargetBase* pOutputTarget, ezSizeU
   if (m_bXREnabled)
   {
     const ezXRConfig* pConfig = ezGameApplicationBase::GetGameApplicationBaseInstance()->GetPlatformProfile().GetTypeConfig<ezXRConfig>();
-    ezXRInterface* pXRInterface = ezSingletonRegistry::GetRequiredSingletonInstance<ezXRInterface>();
+    ezXRInterface* pXRInterface = ezSingletonRegistry::GetSingletonInstance<ezXRInterface>();
 
     auto renderPipeline = ezResourceManager::LoadResource<ezRenderPipelineResource>(pConfig->m_sXRRenderPipeline);
     CreateMainView(renderPipeline);
@@ -176,7 +176,7 @@ void ezGameState::SetupMainView(ezWindowOutputTargetBase* pOutputTarget, ezSizeU
 
 ezView* ezGameState::CreateMainView(ezTypedResourceHandle<ezRenderPipelineResource> hRenderPipeline)
 {
-  EZ_LOG_BLOCK("SetupMainView");
+  EZ_LOG_BLOCK("CreateMainView");
   ezView* pView = nullptr;
   m_hMainView = ezRenderWorld::CreateView("MainView", pView);
   pView->SetCameraUsageHint(ezCameraUsageHint::MainView);

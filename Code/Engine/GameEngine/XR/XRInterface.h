@@ -30,7 +30,7 @@ struct ezHMDInfo
 /// has to be taken into account by the XR implementation.
 struct ezXRStageSpace
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
   enum Enum : ezUInt8
   {
     Seated,   ///< Tracking poses will be relative to a seated head position

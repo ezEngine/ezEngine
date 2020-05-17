@@ -647,6 +647,15 @@ ezResult ezGALDevice::ReplaceExisitingNativeObject(ezGALTextureHandle hTexture, 
   ezGALTexture* pTexture = nullptr;
   if (m_Textures.TryGetValue(hTexture, pTexture))
   {
+    for (auto it = pTexture->m_ResourceViews.GetIterator(); it.IsValid(); ++it)
+    {
+      ezGALResourceView* pResourceView = nullptr;
+
+      if (m_ResourceViews.TryGetValue(it.Value(), pResourceView))
+      {
+        EZ_VERIFY(pResourceView->DeInitPlatform(this).Succeeded(), "DeInitPlatform should never fail.");
+      }
+    }
     for (auto it = pTexture->m_RenderTargetViews.GetIterator(); it.IsValid(); ++it)
     {
       ezGALRenderTargetView* pRenderTargetView = nullptr;
@@ -654,6 +663,15 @@ ezResult ezGALDevice::ReplaceExisitingNativeObject(ezGALTextureHandle hTexture, 
       if (m_RenderTargetViews.TryGetValue(it.Value(), pRenderTargetView))
       {
         EZ_VERIFY(pRenderTargetView->DeInitPlatform(this).Succeeded(), "DeInitPlatform should never fail.");
+      }
+    }
+    for (auto it = pTexture->m_UnorderedAccessViews.GetIterator(); it.IsValid(); ++it)
+    {
+      ezGALUnorderedAccessView* pUnorderedAccessView = nullptr;
+
+      if (m_UnorderedAccessViews.TryGetValue(it.Value(), pUnorderedAccessView))
+      {
+        EZ_VERIFY(pUnorderedAccessView->DeInitPlatform(this).Succeeded(), "DeInitPlatform should never fail.");
       }
     }
 
@@ -677,7 +695,7 @@ ezResult ezGALDevice::ReplaceExisitingNativeObject(ezGALTextureHandle hTexture, 
   }
   else
   {
-    ezLog::Warning("DestroyTexture called on invalid handle (double free?)");
+    ezLog::Warning("ReplaceExisitingNativeObject called on invalid handle");
     return EZ_FAILURE;
   }
 }

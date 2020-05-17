@@ -41,8 +41,8 @@ public:
   /// \brief Returns the current device state for a valid device ID.
   virtual const ezXRDeviceState& GetDeviceState(ezXRDeviceID iDeviceID) const = 0;
 
-  ezEventSubscriptionID AddEventHandler(ezXRDeviceEvent::Handler handler) { return m_InputEvents.AddEventHandler(handler); }
-  void RemoveEventHandler(ezEventSubscriptionID id) { m_InputEvents.RemoveEventHandler(id); }
+  /// \brief Returns the input event. Allows tracking device addition and removal.
+  const ezXRDeviceEvent& GetInputEvent() { return m_InputEvents; }
 
   ///@}
 

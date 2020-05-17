@@ -120,30 +120,24 @@ void ezDeviceTrackingComponent::Update()
       {
         return;
       }
-
-
-      if (state.m_bGripPoseIsValid)
+      if (m_space == ezXRTransformSpace::Local)
       {
-        if (m_space == ezXRTransformSpace::Local)
+        GetOwner()->SetLocalPosition(vPosition);
+        GetOwner()->SetLocalRotation(qRotation);
+      }
+      else
+      {
+        ezTransform add;
+        add.SetIdentity();
+        if (const ezStageSpaceComponentManager* pStageMan = GetWorld()->GetComponentManager<ezStageSpaceComponentManager>())
         {
-          GetOwner()->SetLocalPosition(vPosition);
-          GetOwner()->SetLocalRotation(qRotation);
-        }
-        else
-        {
-          ezTransform add;
-          add.SetIdentity();
-          if (const ezStageSpaceComponentManager* pStageMan = GetWorld()->GetComponentManager<ezStageSpaceComponentManager>())
+          if (const ezStageSpaceComponent* pStage = pStageMan->GetSingletonComponent())
           {
-            if (const ezStageSpaceComponent* pStage = pStageMan->GetSingletonComponent())
-            {
-              add = pStage->GetOwner()->GetGlobalTransform();
-            }
+            add = pStage->GetOwner()->GetGlobalTransform();
           }
-          ezTransform local(vPosition, qRotation);
-          GetOwner()->SetGlobalTransform(add * local);
-
         }
+        ezTransform local(vPosition, qRotation);
+        GetOwner()->SetGlobalTransform(add * local);
       }
     }
   }

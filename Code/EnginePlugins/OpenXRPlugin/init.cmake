@@ -31,12 +31,13 @@ function(ez_link_target_openxr TARGET_NAME)
 	if (EZOPENXR_FOUND)
 		target_link_libraries(${TARGET_NAME} PRIVATE ezOpenXR::Loader)
 
-		# TODO: How to check whether the target even has a dll, e.g. is a dynamic build?
-		add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:ezOpenXR::Loader> $<TARGET_FILE_DIR:${TARGET_NAME}>
-		)
-
-        ez_uwp_add_import_to_sources(${TARGET_NAME} ezOpenXR::Loader)
+        get_target_property(_dll_location ezOpenXR::Loader IMPORTED_LOCATION)
+		if (NOT _dll_location STREQUAL "")
+			add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
+				COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:ezOpenXR::Loader> $<TARGET_FILE_DIR:${TARGET_NAME}>)
+		endif()
+		unset(_dll_location)
+		ez_uwp_add_import_to_sources(${TARGET_NAME} ezOpenXR::Loader)
       
 	endif()
 

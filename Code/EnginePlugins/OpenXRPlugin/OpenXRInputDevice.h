@@ -45,14 +45,14 @@ private:
 
   XrPath CreatePath(const char* szPath);
   XrResult CreateAction(const char* actionName, XrActionType actionType, XrAction& out_action);
-  ezResult SuggestInteractionProfileBindings(const char* szInteractionProfile, ezArrayPtr<Bind> bindings);
+  XrResult SuggestInteractionProfileBindings(const char* szInteractionProfile, ezArrayPtr<Bind> bindings);
   XrResult AttachSessionActionSets(XrSession session);
 
   void InitializeDevice() override;
   void RegisterInputSlots() override;
   void UpdateInputSlotValues() override {}
 
-  void UpdateActions();
+  XrResult UpdateActions();
 
 private:
   ezOpenXR* m_pOpenXR = nullptr;

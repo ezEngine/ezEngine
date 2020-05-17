@@ -20,23 +20,6 @@ EZ_DEFINE_AS_POD_TYPE(XrSwapchainImageD3D11KHR);
 EZ_DEFINE_AS_POD_TYPE(XrViewConfigurationView);
 EZ_DEFINE_AS_POD_TYPE(XrEnvironmentBlendMode);
 
-//#TODO: Make use of this to abstract render api.
-class EZ_OPENXRPLUGIN_DLL ezGALOpenXRSwapChainDX11 : public ezGALSwapChain
-{
-public:
-  ezGALOpenXRSwapChainDX11(const ezGALSwapChainCreationDescription& Description);
-
-  virtual ~ezGALOpenXRSwapChainDX11();
-
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
-
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
-
-  void SetSwapchainTexture(ezGALTextureHandle hBackBufferTexture);
-
-protected:
-};
-
 class EZ_OPENXRPLUGIN_DLL ezOpenXR : public ezXRInterface
 {
   EZ_DECLARE_SINGLETON_OF_INTERFACE(ezOpenXR, ezXRInterface);
@@ -76,7 +59,7 @@ private:
     Depth,
   };
 
-  ezResult SelectExtensions(ezHybridArray<const char*, 6>& extensions);
+  XrResult SelectExtensions(ezHybridArray<const char*, 6>& extensions);
   XrResult InitSystem();
   void DeinitSystem();
   XrResult InitSession();
@@ -106,7 +89,6 @@ private:
   static ezVec3 ConvertPosition(const XrVector3f& pos);
   static ezMat4 ConvertPoseToMatrix(const XrPosef& pose);
   static ezGALResourceFormat::Enum ConvertTextureFormat(int64_t format);
-  static ezGALMSAASampleCount::Enum ConvertMSAACount(ezUInt32 count);
 
 private:
   friend class ezOpenXRInputDevice;

@@ -15,12 +15,14 @@
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererCore/Textures/TextureUtils.h>
 #include <RendererDX11/Resources/TextureDX11.h>
 #include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Profiling/Profiling.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
+#include <Texture/Image/Formats/ImageFormatMappings.h>
 
 
 #include <Core/World/World.h>
@@ -31,12 +33,15 @@
 #include <algorithm>
 #include <vector>
 
-#pragma optimize("", off)
-
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #  include <RendererDX11/Context/ContextDX11.h>
 #  include <RendererDX11/Device/DeviceDX11.h>
 #endif
+
+EZ_CHECK_AT_COMPILETIME(ezGALMSAASampleCount::None == 1);
+EZ_CHECK_AT_COMPILETIME(ezGALMSAASampleCount::TwoSamples == 2);
+EZ_CHECK_AT_COMPILETIME(ezGALMSAASampleCount::FourSamples == 4);
+EZ_CHECK_AT_COMPILETIME(ezGALMSAASampleCount::EightSamples == 8);
 
 EZ_IMPLEMENT_SINGLETON(ezOpenXR);
 
@@ -62,31 +67,31 @@ bool ezOpenXR::IsHmdPresent() const
   return res == XrResult::XR_SUCCESS;
 }
 
-ezResult ezOpenXR::SelectExtensions(ezHybridArray<const char*, 6>& extensions)
+XrResult ezOpenXR::SelectExtensions(ezHybridArray<const char*, 6>& extensions)
 {
   // Fetch the list of extensions supported by the runtime.
   ezUInt32 extensionCount;
-  EZ_CHECK_XR(xrEnumerateInstanceExtensionProperties(nullptr, 0, &extensionCount, nullptr));
+  XR_SUCCEED_OR_RETURN_LOG(xrEnumerateInstanceExtensionProperties(nullptr, 0, &extensionCount, nullptr));
   std::vector<XrExtensionProperties> extensionProperties(extensionCount, {XR_TYPE_EXTENSION_PROPERTIES});
-  EZ_CHECK_XR(
+  XR_SUCCEED_OR_RETURN_LOG(
     xrEnumerateInstanceExtensionProperties(nullptr, extensionCount, &extensionCount, extensionProperties.data()));
 
   // Add a specific extension to the list of extensions to be enabled, if it is supported.
-  auto AddExtIfSupported = [&](const char* extensionName, bool& enableFlag) -> ezResult {
+  auto AddExtIfSupported = [&](const char* extensionName, bool& enableFlag) -> XrResult {
     auto it = std::find_if(begin(extensionProperties), end(extensionProperties),
       [&](const XrExtensionProperties& prop) { return ezStringUtils::IsEqual(prop.extensionName, extensionName); });
     if (it != end(extensionProperties))
     {
       extensions.PushBack(extensionName);
       enableFlag = true;
-      return EZ_SUCCESS;
+      return XR_SUCCESS;
     }
     enableFlag = false;
-    return EZ_FAILURE;
+    return XR_ERROR_EXTENSION_NOT_PRESENT;
   };
 
   // D3D11 extension is required so check that it was added.
-  EZ_SUCCEED_OR_RETURN(AddExtIfSupported(XR_KHR_D3D11_ENABLE_EXTENSION_NAME, m_extensions.m_bD3D11));
+  XR_SUCCEED_OR_RETURN_LOG(AddExtIfSupported(XR_KHR_D3D11_ENABLE_EXTENSION_NAME, m_extensions.m_bD3D11));
 
   AddExtIfSupported(XR_KHR_COMPOSITION_LAYER_DEPTH_EXTENSION_NAME, m_extensions.m_bDepthComposition);
   AddExtIfSupported(XR_MSFT_UNBOUNDED_REFERENCE_SPACE_EXTENSION_NAME, m_extensions.m_bUnboundedReferenceSpace);
@@ -96,7 +101,7 @@ ezResult ezOpenXR::SelectExtensions(ezHybridArray<const char*, 6>& extensions)
   AddExtIfSupported(XR_MSFT_HAND_TRACKING_PREVIEW_EXTENSION_NAME, m_extensions.m_bHandTracking);
   AddExtIfSupported(XR_MSFT_HAND_TRACKING_MESH_PREVIEW_EXTENSION_NAME, m_extensions.m_bHandTrackingMesh);
 #endif
-  return EZ_SUCCESS;
+  return XR_SUCCESS;
 }
 
 #define EZ_GET_INSTANCE_PROC_ADDR(name) \
@@ -109,7 +114,8 @@ ezResult ezOpenXR::Initialize()
 
   // Build out the extensions to enable. Some extensions are required and some are optional.
   ezHybridArray<const char*, 6> enabledExtensions;
-  EZ_SUCCEED_OR_RETURN(SelectExtensions(enabledExtensions));
+  if (SelectExtensions(enabledExtensions) != XR_SUCCESS)
+    return EZ_FAILURE;
 
   // Create the instance with desired extensions.
   XrInstanceCreateInfo createInfo{XR_TYPE_INSTANCE_CREATE_INFO};
@@ -124,10 +130,12 @@ ezResult ezOpenXR::Initialize()
   createInfo.applicationInfo.engineVersion = 1;
   createInfo.applicationInfo.apiVersion = XR_CURRENT_API_VERSION;
   createInfo.applicationInfo.applicationVersion = 1;
-  EZ_CHECK_XR(xrCreateInstance(&createInfo, &m_instance));
+  if (xrCreateInstance(&createInfo, &m_instance) != XR_SUCCESS)
+    return EZ_FAILURE;
 
   XrInstanceProperties instanceProperties { XR_TYPE_INSTANCE_PROPERTIES };
-  EZ_CHECK_XR(xrGetInstanceProperties(m_instance, &instanceProperties));
+  if (xrGetInstanceProperties(m_instance, &instanceProperties) != XR_SUCCESS)
+    return EZ_FAILURE;
   ezStringBuilder sTemp;
   m_Info.m_sDeviceDriver = ezConversionUtils::ToString(instanceProperties.runtimeVersion, sTemp);
 
@@ -237,21 +245,6 @@ ezUniquePtr<ezActor> ezOpenXR::CreateActor(ezView* pView, ezGALMSAASampleCount::
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   m_hView = pView->GetHandle();
 
-  /*{
-    ezGALSwapChainCreationDescription desc;
-    desc.m_BackBufferFormat = ConvertTextureFormat(m_colorSwapchain.format);
-    desc.m_bAllowScreenshots = true;
-    desc.m_bDoubleBuffered = true;
-    desc.m_pWindow = nullptr;
-    desc.m_SampleCount = ConvertMSAACount(0);
-    ezGALOpenXRSwapChainDX11* pSwapChain = EZ_DEFAULT_NEW(ezGALOpenXRSwapChainDX11, desc);
-    if (!pSwapChain->InitPlatform(pDevice).Succeeded())
-    {
-      EZ_DEFAULT_DELETE(pSwapChain);
-      return nullptr;
-    }
-  }*/
-
   m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(m_hColorRT));
   m_RenderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(m_hDepthRT));
 
@@ -305,14 +298,14 @@ XrResult ezOpenXR::InitSystem()
   EZ_ASSERT_DEV(m_systemId == XR_NULL_SYSTEM_ID, "OpenXR actor already exists.");
   XrSystemGetInfo systemInfo{XR_TYPE_SYSTEM_GET_INFO};
   systemInfo.formFactor = XrFormFactor::XR_FORM_FACTOR_HEAD_MOUNTED_DISPLAY;
-  XR_SUCCEED_OR_RETURN_LOG(xrGetSystem(m_instance, &systemInfo, &m_systemId), DeinitSystem);
+  XR_SUCCEED_OR_CLEANUP_LOG(xrGetSystem(m_instance, &systemInfo, &m_systemId), DeinitSystem);
 
   ezUInt32 count;
-  XR_SUCCEED_OR_RETURN_LOG(xrEnumerateEnvironmentBlendModes(m_instance, m_systemId, m_primaryViewConfigurationType, 0, &count, nullptr), DeinitSystem);
+  XR_SUCCEED_OR_CLEANUP_LOG(xrEnumerateEnvironmentBlendModes(m_instance, m_systemId, m_primaryViewConfigurationType, 0, &count, nullptr), DeinitSystem);
 
   ezHybridArray<XrEnvironmentBlendMode, 4> environmentBlendModes;
   environmentBlendModes.SetCount(count);
-  XR_SUCCEED_OR_RETURN_LOG(xrEnumerateEnvironmentBlendModes(m_instance, m_systemId, m_primaryViewConfigurationType,
+  XR_SUCCEED_OR_CLEANUP_LOG(xrEnumerateEnvironmentBlendModes(m_instance, m_systemId, m_primaryViewConfigurationType,
     count, &count, environmentBlendModes.GetData()), DeinitSystem);
 
   // Select preferred blend mode.
@@ -329,12 +322,12 @@ void ezOpenXR::DeinitSystem()
 XrResult ezOpenXR::InitSession()
 {
   EZ_ASSERT_DEV(m_session == XR_NULL_HANDLE, "");
-  XR_SUCCEED_OR_RETURN(InitGraphicsPlugin(), DeinitSession);
+  XR_SUCCEED_OR_CLEANUP_LOG(InitGraphicsPlugin(), DeinitSession);
 
   XrSessionCreateInfo sessionCreateInfo{XR_TYPE_SESSION_CREATE_INFO};
   sessionCreateInfo.next = &m_xrGraphicsBindingD3D11;
   sessionCreateInfo.systemId = m_systemId;
-  XR_SUCCEED_OR_RETURN_LOG(xrCreateSession(m_instance, &sessionCreateInfo, &m_session), DeinitSession);
+  XR_SUCCEED_OR_CLEANUP_LOG(xrCreateSession(m_instance, &sessionCreateInfo, &m_session), DeinitSession);
 
   XrReferenceSpaceCreateInfo spaceCreateInfo{XR_TYPE_REFERENCE_SPACE_CREATE_INFO};
   if (m_extensions.m_bUnboundedReferenceSpace)
@@ -347,13 +340,13 @@ XrResult ezOpenXR::InitSession()
   }
 
   spaceCreateInfo.poseInReferenceSpace = ConvertTransform(ezTransform::IdentityTransform());
-  XR_SUCCEED_OR_RETURN_LOG(xrCreateReferenceSpace(m_session, &spaceCreateInfo, &m_sceneSpace), DeinitSession);
+  XR_SUCCEED_OR_CLEANUP_LOG(xrCreateReferenceSpace(m_session, &spaceCreateInfo, &m_sceneSpace), DeinitSession);
 
   spaceCreateInfo.referenceSpaceType = XR_REFERENCE_SPACE_TYPE_LOCAL;
-  XR_SUCCEED_OR_RETURN_LOG(xrCreateReferenceSpace(m_session, &spaceCreateInfo, &m_localSpace), DeinitSession);
+  XR_SUCCEED_OR_CLEANUP_LOG(xrCreateReferenceSpace(m_session, &spaceCreateInfo, &m_localSpace), DeinitSession);
 
-  XR_SUCCEED_OR_RETURN_LOG(m_Input->CreateActions(m_session, m_sceneSpace), DeinitSession);
-  XR_SUCCEED_OR_RETURN_LOG(m_Input->AttachSessionActionSets(m_session), DeinitSession);
+  XR_SUCCEED_OR_CLEANUP_LOG(m_Input->CreateActions(m_session, m_sceneSpace), DeinitSession);
+  XR_SUCCEED_OR_CLEANUP_LOG(m_Input->AttachSessionActionSets(m_session), DeinitSession);
 
   m_executionEventsId = ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(
     ezMakeDelegate(&ezOpenXR::GameApplicationEventHandler, this));
@@ -401,7 +394,7 @@ XrResult ezOpenXR::InitGraphicsPlugin()
   EZ_ASSERT_DEV(m_xrGraphicsBindingD3D11.device == nullptr, "");
   // Hard-coded to d3d
   XrGraphicsRequirementsD3D11KHR graphicsRequirements{XR_TYPE_GRAPHICS_REQUIREMENTS_D3D11_KHR};
-  XR_SUCCEED_OR_RETURN_LOG(
+  XR_SUCCEED_OR_CLEANUP_LOG(
     m_extensions.pfn_xrGetD3D11GraphicsRequirementsKHR(m_instance, m_systemId, &graphicsRequirements), DeinitGraphicsPlugin);
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALDeviceDX11* pD3dDevice = static_cast<ezGALDeviceDX11*>(pDevice);
@@ -419,9 +412,9 @@ void ezOpenXR::DeinitGraphicsPlugin()
 XrResult ezOpenXR::SelectSwapchainFormat(int64_t& colorFormat, int64_t& depthFormat)
 {
   uint32_t swapchainFormatCount;
-  XR_SUCCEED_OR_RETURN_LOG(xrEnumerateSwapchainFormats(m_session, 0, &swapchainFormatCount, nullptr), voidFunction);
+  XR_SUCCEED_OR_CLEANUP_LOG(xrEnumerateSwapchainFormats(m_session, 0, &swapchainFormatCount, nullptr), voidFunction);
   std::vector<int64_t> swapchainFormats(swapchainFormatCount);
-  XR_SUCCEED_OR_RETURN_LOG(xrEnumerateSwapchainFormats(m_session, (uint32_t)swapchainFormats.size(),
+  XR_SUCCEED_OR_CLEANUP_LOG(xrEnumerateSwapchainFormats(m_session, (uint32_t)swapchainFormats.size(),
                              &swapchainFormatCount, swapchainFormats.data()), voidFunction);
 
   // List of supported color swapchain formats, in priority order.
@@ -469,7 +462,7 @@ XrResult ezOpenXR::CreateSwapchainImages(Swapchain& swapchain, SwapchainType typ
     m_depthSwapChainImagesD3D11.SetCount(swapchain.imageCount, {XR_TYPE_SWAPCHAIN_IMAGE_D3D11_KHR});
     swapchain.images = reinterpret_cast<XrSwapchainImageBaseHeader*>(m_depthSwapChainImagesD3D11.GetData());
   }
-  XR_SUCCEED_OR_RETURN_LOG(
+  XR_SUCCEED_OR_CLEANUP_LOG(
     xrEnumerateSwapchainImages(swapchain.handle, swapchain.imageCount, &swapchain.imageCount, swapchain.images),
     voidFunction);
 
@@ -493,7 +486,7 @@ XrResult ezOpenXR::CreateSwapchainImages(Swapchain& swapchain, SwapchainType typ
 
     ezGALTextureCreationDescription textureDesc;
     textureDesc.SetAsRenderTarget(backBufferDesc.Width, backBufferDesc.Height, ConvertTextureFormat(swapchain.format),
-      ConvertMSAACount(backBufferDesc.SampleDesc.Count));
+      ezGALMSAASampleCount::Enum(backBufferDesc.SampleDesc.Count));
     textureDesc.m_uiArraySize = backBufferDesc.ArraySize;
     textureDesc.m_pExisitingNativeObject = pTex;
     // Need to add a ref as the ez texture will always remove one on destruction.
@@ -515,11 +508,11 @@ XrResult ezOpenXR::InitSwapChain(ezGALMSAASampleCount::Enum msaaCount)
 {
   // Read graphics properties for preferred swapchain length and logging.
   XrSystemProperties systemProperties{XR_TYPE_SYSTEM_PROPERTIES};
-  XR_SUCCEED_OR_RETURN_LOG(xrGetSystemProperties(m_instance, m_systemId, &systemProperties), DeinitSwapChain);
+  XR_SUCCEED_OR_CLEANUP_LOG(xrGetSystemProperties(m_instance, m_systemId, &systemProperties), DeinitSwapChain);
   m_Info.m_sDeviceName = systemProperties.systemName;
 
   ezUInt32 viewCount = 0;
-  XR_SUCCEED_OR_RETURN_LOG(
+  XR_SUCCEED_OR_CLEANUP_LOG(
     xrEnumerateViewConfigurationViews(m_instance, m_systemId, m_primaryViewConfigurationType, 0, &viewCount, nullptr),
     DeinitSwapChain);
   if (viewCount != 2)
@@ -530,14 +523,14 @@ XrResult ezOpenXR::InitSwapChain(ezGALMSAASampleCount::Enum msaaCount)
   }
   ezHybridArray<XrViewConfigurationView, 2> views;
   views.SetCount(viewCount, {XR_TYPE_VIEW_CONFIGURATION_VIEW});
-  XR_SUCCEED_OR_RETURN_LOG(xrEnumerateViewConfigurationViews(m_instance, m_systemId, m_primaryViewConfigurationType,
+  XR_SUCCEED_OR_CLEANUP_LOG(xrEnumerateViewConfigurationViews(m_instance, m_systemId, m_primaryViewConfigurationType,
                              viewCount, &viewCount, views.GetData()),
     DeinitSwapChain);
 
   // Create the swapchain and get the images.
   // Select a swapchain format.
   m_primaryConfigView = views[0];
-  XR_SUCCEED_OR_RETURN_LOG(SelectSwapchainFormat(m_colorSwapchain.format, m_depthSwapchain.format), DeinitSwapChain);
+  XR_SUCCEED_OR_CLEANUP_LOG(SelectSwapchainFormat(m_colorSwapchain.format, m_depthSwapchain.format), DeinitSwapChain);
 
   // Create the swapchain.
   XrSwapchainCreateInfo swapchainCreateInfo{XR_TYPE_SWAPCHAIN_CREATE_INFO};
@@ -554,20 +547,20 @@ XrResult ezOpenXR::InitSwapChain(ezGALMSAASampleCount::Enum msaaCount)
 
   auto CreateSwapChain = [this](const XrSwapchainCreateInfo& swapchainCreateInfo, Swapchain& swapchain,
                            SwapchainType type) -> XrResult {
-    XR_SUCCEED_OR_RETURN_LOG(xrCreateSwapchain(m_session, &swapchainCreateInfo, &swapchain.handle), voidFunction);
-    XR_SUCCEED_OR_RETURN_LOG(
+    XR_SUCCEED_OR_CLEANUP_LOG(xrCreateSwapchain(m_session, &swapchainCreateInfo, &swapchain.handle), voidFunction);
+    XR_SUCCEED_OR_CLEANUP_LOG(
       xrEnumerateSwapchainImages(swapchain.handle, 0, &swapchain.imageCount, nullptr), voidFunction);
     CreateSwapchainImages(swapchain, type);
 
     return XrResult::XR_SUCCESS;
   };
-  XR_SUCCEED_OR_RETURN(CreateSwapChain(swapchainCreateInfo, m_colorSwapchain, SwapchainType::Color), DeinitSwapChain);
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateSwapChain(swapchainCreateInfo, m_colorSwapchain, SwapchainType::Color), DeinitSwapChain);
 
   if (m_extensions.m_bDepthComposition)
   {
     swapchainCreateInfo.format = m_depthSwapchain.format;
     swapchainCreateInfo.usageFlags = XR_SWAPCHAIN_USAGE_SAMPLED_BIT | XR_SWAPCHAIN_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-    XR_SUCCEED_OR_RETURN(CreateSwapChain(swapchainCreateInfo, m_depthSwapchain, SwapchainType::Depth), DeinitSwapChain);
+    XR_SUCCEED_OR_CLEANUP_LOG(CreateSwapChain(swapchainCreateInfo, m_depthSwapchain, SwapchainType::Depth), DeinitSwapChain);
   }
   else
   {
@@ -807,9 +800,14 @@ void ezOpenXR::UpdateCamera()
 
       m_Input->m_DeviceState[0].m_vGripPosition = pos;
       m_Input->m_DeviceState[0].m_qGripRotation = rot;
+      m_Input->m_DeviceState[0].m_vAimPosition = pos;
+      m_Input->m_DeviceState[0].m_qAimRotation = rot;
       m_Input->m_DeviceState[0].m_Type = ezXRDeviceType::HMD;
       m_Input->m_DeviceState[0].m_bGripPoseIsValid = true;
+      m_Input->m_DeviceState[0].m_bAimPoseIsValid = true;
       m_Input->m_DeviceState[0].m_bDeviceIsConnected = true;
+
+
     }
 
     // Set view matrix
@@ -826,15 +824,6 @@ void ezOpenXR::UpdateCamera()
 
       m_pCameraToSynchronize->SetViewMatrix(mViewTransformLeft, ezCameraEye::Left);
       m_pCameraToSynchronize->SetViewMatrix(mViewTransformRight, ezCameraEye::Right);
-    }
-  }
-
-  {
-    // put the camera orientation into the sound listener and enable the listener override mode
-    if (ezSoundInterface* pSoundInterface = ezSingletonRegistry::GetSingletonInstance<ezSoundInterface>())
-    {
-      pSoundInterface->SetListener(-1, m_pCameraToSynchronize->GetCenterPosition(),
-        m_pCameraToSynchronize->GetCenterDirForwards(), m_pCameraToSynchronize->GetCenterDirUp(), ezVec3::ZeroVector());
     }
   }
 }
@@ -868,11 +857,12 @@ void ezOpenXR::BeforeBeginFrame()
 
   auto AquireAndWait = [](Swapchain& swapchain) {
     XrSwapchainImageAcquireInfo acquireInfo{ XR_TYPE_SWAPCHAIN_IMAGE_ACQUIRE_INFO };
-    XR_CHECK_LOG(xrAcquireSwapchainImage(swapchain.handle, &acquireInfo, &swapchain.imageIndex));
+    XR_SUCCEED_OR_RETURN_LOG(xrAcquireSwapchainImage(swapchain.handle, &acquireInfo, &swapchain.imageIndex));
 
     XrSwapchainImageWaitInfo waitInfo{ XR_TYPE_SWAPCHAIN_IMAGE_WAIT_INFO };
     waitInfo.timeout = XR_INFINITE_DURATION;
-    XR_CHECK_LOG(xrWaitSwapchainImage(swapchain.handle, &waitInfo));
+    XR_SUCCEED_OR_RETURN_LOG(xrWaitSwapchainImage(swapchain.handle, &waitInfo));
+    return XR_SUCCESS;
   };
 
   {
@@ -948,10 +938,10 @@ ezGALTextureHandle ezOpenXR::Present()
   {
     EZ_PROFILE_SCOPE("xrReleaseSwapchainImage");
     XrSwapchainImageReleaseInfo releaseInfo{ XR_TYPE_SWAPCHAIN_IMAGE_RELEASE_INFO };
-    XR_LOG(xrReleaseSwapchainImage(m_colorSwapchain.handle, &releaseInfo));
+    XR_LOG_ERROR(xrReleaseSwapchainImage(m_colorSwapchain.handle, &releaseInfo));
     if (m_extensions.m_bDepthComposition)
     {
-      XR_LOG(xrReleaseSwapchainImage(m_depthSwapchain.handle, &releaseInfo));
+      XR_LOG_ERROR(xrReleaseSwapchainImage(m_depthSwapchain.handle, &releaseInfo));
     }
   }
   m_layer.space = m_StageSpace == ezXRStageSpace::Standing ? m_sceneSpace : m_localSpace;
@@ -969,7 +959,7 @@ ezGALTextureHandle ezOpenXR::Present()
   frameEndInfo.layers = layers.GetData();
 
   EZ_PROFILE_SCOPE("xrEndFrame");
-  XR_LOG(xrEndFrame(m_session, &frameEndInfo));
+  XR_LOG_ERROR(xrEndFrame(m_session, &frameEndInfo));
 
   return m_hColorRT;
 }
@@ -1010,11 +1000,6 @@ void ezOpenXR::SetHMDCamera(ezCamera* pCamera)
     m_uiSettingsModificationCounter = m_pCameraToSynchronize->GetSettingsModificationCounter() + 1;
     m_pCameraToSynchronize->SetCameraMode(ezCameraMode::Stereo, m_pCameraToSynchronize->GetFovOrDim(),
       m_pCameraToSynchronize->GetNearPlane(), m_pCameraToSynchronize->GetFarPlane());
-  }
-
-  if (ezSoundInterface* pSoundInterface = ezSingletonRegistry::GetSingletonInstance<ezSoundInterface>())
-  {
-    pSoundInterface->SetListenerOverrideMode(m_pCameraToSynchronize != nullptr);
   }
 }
 
@@ -1059,10 +1044,6 @@ ezGALResourceFormat::Enum ezOpenXR::ConvertTextureFormat(int64_t format)
 {
   switch (format)
   {
-    case DXGI_FORMAT_R8G8B8A8_UNORM_SRGB:
-      return ezGALResourceFormat::RGBAUByteNormalizedsRGB;
-    case DXGI_FORMAT_B8G8R8A8_UNORM_SRGB:
-      return ezGALResourceFormat::BGRAUByteNormalizedsRGB;
     case DXGI_FORMAT_D32_FLOAT:
       return ezGALResourceFormat::DFloat;
     case DXGI_FORMAT_D16_UNORM:
@@ -1070,53 +1051,10 @@ ezGALResourceFormat::Enum ezOpenXR::ConvertTextureFormat(int64_t format)
     case DXGI_FORMAT_D24_UNORM_S8_UINT:
       return ezGALResourceFormat::D24S8;
     default:
-      EZ_REPORT_FAILURE("Unknown format {}", format);
-      break;
+      ezImageFormat::Enum imageFormat = ezImageFormatMappings::FromDxgiFormat(static_cast<ezUInt32>(format));
+      ezGALResourceFormat::Enum galFormat = ezTextureUtils::ImageFormatToGalFormat(imageFormat, false);
+      return galFormat;
   }
-  return ezGALResourceFormat::Invalid;
-}
-
-ezGALMSAASampleCount::Enum ezOpenXR::ConvertMSAACount(ezUInt32 count)
-{
-  switch (count)
-  {
-    case 1:
-      return ezGALMSAASampleCount::None;
-    case 2:
-      return ezGALMSAASampleCount::TwoSamples;
-    case 4:
-      return ezGALMSAASampleCount::FourSamples;
-    case 8:
-      return ezGALMSAASampleCount::EightSamples;
-    default:
-      EZ_REPORT_FAILURE("Unknown sample count {}", count);
-      break;
-  }
-  return ezGALMSAASampleCount::None;
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-ezGALOpenXRSwapChainDX11::ezGALOpenXRSwapChainDX11(const ezGALSwapChainCreationDescription& Description)
-  : ezGALSwapChain(Description)
-{
-}
-
-ezGALOpenXRSwapChainDX11::~ezGALOpenXRSwapChainDX11() {}
-
-ezResult ezGALOpenXRSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
-{
-  return EZ_SUCCESS;
-}
-
-ezResult ezGALOpenXRSwapChainDX11::DeInitPlatform(ezGALDevice* pDevice)
-{
-  return EZ_SUCCESS;
-}
-
-void ezGALOpenXRSwapChainDX11::SetSwapchainTexture(ezGALTextureHandle hBackBufferTexture)
-{
-  m_hBackBufferTexture = hBackBufferTexture;
 }
 
 EZ_STATICLINK_FILE(OpenXRPlugin, OpenXRPlugin_OpenXRSingleton);

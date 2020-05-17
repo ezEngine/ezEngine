@@ -8,7 +8,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezXRConfig, 2, ezRTTIDefaultAllocator<ezXRConfig
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("EnableXR", m_bEnableXR)->AddAttributes(new ezDefaultValueAttribute(false)),
+    EZ_MEMBER_PROPERTY("EnableXR", m_bEnableXR),
     // HololensRenderPipeline.ezRenderPipelineAsset
     EZ_MEMBER_PROPERTY("XRRenderPipeline", m_sXRRenderPipeline)->AddAttributes(new ezAssetBrowserAttribute("RenderPipeline"), new ezDefaultValueAttribute(ezStringView("{ 2fe25ded-776c-7f9e-354f-e4c52a33d125 }"))),
   }

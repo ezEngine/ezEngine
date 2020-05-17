@@ -83,7 +83,7 @@ XrResult ezOpenXRInputDevice::CreateActions(XrSession session, XrSpace sceneSpac
   strcpy(actionSetInfo.actionSetName, "gameplay");
   strcpy(actionSetInfo.localizedActionSetName, "Gameplay");
   actionSetInfo.priority = 0;
-  XR_SUCCEED_OR_RETURN_LOG(xrCreateActionSet(m_instance, &actionSetInfo, &m_ActionSet), DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(xrCreateActionSet(m_instance, &actionSetInfo, &m_ActionSet), DestroyActions);
 
   m_subActionPrefix.SetCount(2);
   m_subActionPrefix[0] = "xr_hand_left_";
@@ -93,10 +93,10 @@ XrResult ezOpenXRInputDevice::CreateActions(XrSession session, XrSpace sceneSpac
   m_subActionPath[0] = CreatePath("/user/hand/left");
   m_subActionPath[1] = CreatePath("/user/hand/right");
 
-  XR_SUCCEED_OR_RETURN_LOG(CreateAction(XR_Select_Click, XR_ACTION_TYPE_BOOLEAN_INPUT, m_SelectClick), DestroyActions);
-  XR_SUCCEED_OR_RETURN_LOG(CreateAction(XR_Menu_Click, XR_ACTION_TYPE_BOOLEAN_INPUT, m_MenuClick), DestroyActions);
-  XR_SUCCEED_OR_RETURN_LOG(CreateAction(XR_Grip_Pose, XR_ACTION_TYPE_POSE_INPUT, m_GripPose), DestroyActions);
-  XR_SUCCEED_OR_RETURN_LOG(CreateAction(XR_Aim_Pose, XR_ACTION_TYPE_POSE_INPUT, m_AimPose), DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(XR_Select_Click, XR_ACTION_TYPE_BOOLEAN_INPUT, m_SelectClick), DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(XR_Menu_Click, XR_ACTION_TYPE_BOOLEAN_INPUT, m_MenuClick), DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(XR_Grip_Pose, XR_ACTION_TYPE_POSE_INPUT, m_GripPose), DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(XR_Aim_Pose, XR_ACTION_TYPE_POSE_INPUT, m_AimPose), DestroyActions);
 
   Bind simpleController[] = {
         {m_SelectClick, "/user/hand/left/input/select"},
@@ -145,10 +145,10 @@ XrResult ezOpenXRInputDevice::CreateActions(XrSession session, XrSpace sceneSpac
   {
     spaceCreateInfo.subactionPath = m_subActionPath[uiSide];
     spaceCreateInfo.action = m_GripPose;
-    XR_SUCCEED_OR_RETURN_LOG(xrCreateActionSpace(m_session, &spaceCreateInfo, &m_gripSpace[uiSide]), DestroyActions);
+    XR_SUCCEED_OR_CLEANUP_LOG(xrCreateActionSpace(m_session, &spaceCreateInfo, &m_gripSpace[uiSide]), DestroyActions);
 
     spaceCreateInfo.action = m_AimPose;
-    XR_SUCCEED_OR_RETURN_LOG(xrCreateActionSpace(m_session, &spaceCreateInfo, &m_aimSpace[uiSide]), DestroyActions);
+    XR_SUCCEED_OR_CLEANUP_LOG(xrCreateActionSpace(m_session, &spaceCreateInfo, &m_aimSpace[uiSide]), DestroyActions);
   }
   return XR_SUCCESS;
 }
@@ -157,12 +157,12 @@ void ezOpenXRInputDevice::DestroyActions()
 {
   for (Action& action : m_booleanActions)
   {
-    XR_LOG(xrDestroyAction(action.action));
+    XR_LOG_ERROR(xrDestroyAction(action.action));
   }
   m_booleanActions.Clear();
   for (Action& action : m_poseActions)
   {
-    XR_LOG(xrDestroyAction(action.action));
+    XR_LOG_ERROR(xrDestroyAction(action.action));
   }
   m_poseActions.Clear();
 
@@ -173,19 +173,19 @@ void ezOpenXRInputDevice::DestroyActions()
 
   if (m_ActionSet)
   {
-    XR_LOG(xrDestroyActionSet(m_ActionSet));
+    XR_LOG_ERROR(xrDestroyActionSet(m_ActionSet));
   }
 
   for (ezUInt32 uiSide : {0, 1})
   {
     if (m_gripSpace[uiSide])
     {
-      XR_LOG(xrDestroySpace(m_gripSpace[uiSide]));
+      XR_LOG_ERROR(xrDestroySpace(m_gripSpace[uiSide]));
       m_gripSpace[uiSide] = XR_NULL_HANDLE;
     }
     if (m_aimSpace[uiSide])
     {
-      XR_LOG(xrDestroySpace(m_aimSpace[uiSide]));
+      XR_LOG_ERROR(xrDestroySpace(m_aimSpace[uiSide]));
       m_aimSpace[uiSide] = XR_NULL_HANDLE;
     }
   }
@@ -209,10 +209,10 @@ XrResult ezOpenXRInputDevice::CreateAction(const char* actionName, XrActionType 
   actionCreateInfo.actionType = actionType;
   actionCreateInfo.countSubactionPaths = m_subActionPath.GetCount();
   actionCreateInfo.subactionPaths = m_subActionPath.GetData();
-  strcpy_s(actionCreateInfo.actionName, actionName);
-  strcpy_s(actionCreateInfo.localizedActionName, actionName);
+  ezStringUtils::Copy(actionCreateInfo.actionName, XR_MAX_ACTION_NAME_SIZE, actionName);
+  ezStringUtils::Copy(actionCreateInfo.localizedActionName, XR_MAX_LOCALIZED_ACTION_NAME_SIZE, actionName);
 
-  XR_SUCCEED_OR_RETURN(xrCreateAction(m_ActionSet, &actionCreateInfo, &out_action), voidFunction);
+  XR_SUCCEED_OR_CLEANUP_LOG(xrCreateAction(m_ActionSet, &actionCreateInfo, &out_action), voidFunction);
 
   ezStringBuilder sLeft(m_subActionPrefix[0], actionName);
   ezStringBuilder sRight(m_subActionPrefix[1], actionName);
@@ -226,13 +226,13 @@ XrResult ezOpenXRInputDevice::CreateAction(const char* actionName, XrActionType 
       m_poseActions.PushBack({ out_action, sLeft, sRight });
       break;
     default:
-      EZ_REPORT_FAILURE("NOt implemented");
+      EZ_ASSERT_NOT_IMPLEMENTED;
   }
 
   return XR_SUCCESS;
 }
 
-ezResult ezOpenXRInputDevice::SuggestInteractionProfileBindings(const char* szInteractionProfile, ezArrayPtr<Bind> bindings)
+XrResult ezOpenXRInputDevice::SuggestInteractionProfileBindings(const char* szInteractionProfile, ezArrayPtr<Bind> bindings)
 {
   XrInstance instance = m_pOpenXR->m_instance;
 
@@ -240,7 +240,7 @@ ezResult ezOpenXRInputDevice::SuggestInteractionProfileBindings(const char* szIn
 
   ezDynamicArray<XrActionSuggestedBinding> xrBindings;
   xrBindings.Reserve(bindings.GetCount());
-  for (auto& binding : bindings)
+  for (const Bind& binding : bindings)
   {
     xrBindings.PushBack({ binding.action, CreatePath(binding.szPath) });
   }
@@ -250,8 +250,8 @@ ezResult ezOpenXRInputDevice::SuggestInteractionProfileBindings(const char* szIn
   profileBindings.interactionProfile = InteractionProfile;
   profileBindings.suggestedBindings = xrBindings.GetData();
   profileBindings.countSuggestedBindings = xrBindings.GetCount();
-  EZ_CHECK_XR(xrSuggestInteractionProfileBindings(instance, &profileBindings));
-  return EZ_SUCCESS;
+  XR_SUCCEED_OR_RETURN_LOG(xrSuggestInteractionProfileBindings(instance, &profileBindings));
+  return XR_SUCCESS;
 }
 
 XrResult ezOpenXRInputDevice::AttachSessionActionSets(XrSession session)
@@ -279,10 +279,10 @@ void ezOpenXRInputDevice::RegisterInputSlots()
   }
 }
 
-void ezOpenXRInputDevice::UpdateActions()
+XrResult ezOpenXRInputDevice::UpdateActions()
 {
   if (m_session == XR_NULL_HANDLE)
-    return;
+    return XR_SUCCESS;
 
   EZ_PROFILE_SCOPE("UpdateInputSlotValues");
   const XrFrameState& frameState = m_pOpenXR->m_frameState;
@@ -295,9 +295,9 @@ void ezOpenXRInputDevice::UpdateActions()
   syncInfo.activeActionSets = activeActionSets.GetData();
   XrResult res = xrSyncActions(m_session, &syncInfo);
   if (res == XR_SESSION_NOT_FOCUSED)
-    return;
+    return XR_SUCCESS;
 
-  XR_CHECK_LOG(res);
+  XR_SUCCEED_OR_RETURN_LOG(res);
 
   for (const Action& action : m_booleanActions)
   {
@@ -305,11 +305,11 @@ void ezOpenXRInputDevice::UpdateActions()
     XrActionStateGetInfo getInfo{ XR_TYPE_ACTION_STATE_GET_INFO };
     getInfo.action = action.action;
     getInfo.subactionPath = m_subActionPath[0];
-    XR_CHECK_LOG(xrGetActionStateBoolean(m_session, &getInfo, &state));
+    XR_SUCCEED_OR_RETURN_LOG(xrGetActionStateBoolean(m_session, &getInfo, &state));
     m_InputSlotValues[action.sLeftKey] = state.currentState;
 
     getInfo.subactionPath = m_subActionPath[1];
-    XR_CHECK_LOG(xrGetActionStateBoolean(m_session, &getInfo, &state));
+    XR_SUCCEED_OR_RETURN_LOG(xrGetActionStateBoolean(m_session, &getInfo, &state));
     m_InputSlotValues[action.sRightKey] = state.currentState;
   }
 
@@ -329,20 +329,15 @@ void ezOpenXRInputDevice::UpdateActions()
 
   for (ezUInt32 uiSide : {0, 1})
   {
-    ezXRDeviceState& state = m_DeviceState[uiSide + 1];
+    ezXRDeviceState& state = m_DeviceState[uiSide == 0 ? m_iLeftControllerDeviceID : m_iRightControllerDeviceID];
     const XrTime time = frameState.predictedDisplayTime;
     XrSpaceLocation viewInScene = { XR_TYPE_SPACE_LOCATION };
-    XR_CHECK_LOG(xrLocateSpace(m_gripSpace[uiSide], m_pOpenXR->m_sceneSpace, time, &viewInScene));
+    XR_SUCCEED_OR_RETURN_LOG(xrLocateSpace(m_gripSpace[uiSide], m_pOpenXR->m_sceneSpace, time, &viewInScene));
     UpdatePose(state.m_vGripPosition, state.m_qGripRotation, state.m_bGripPoseIsValid, viewInScene);
 
-    if (false)//uiSide == 0)
-    {
-      ezLog::Info("{} {} {}, {} {} {}", viewInScene.pose.position.x, viewInScene.pose.position.y, viewInScene.pose.position.z,
-        viewInScene.pose.orientation.x, viewInScene.pose.orientation.y, viewInScene.pose.orientation.z);
-    }
-
-    XR_CHECK_LOG(xrLocateSpace(m_aimSpace[uiSide], m_pOpenXR->m_sceneSpace, time, &viewInScene));
+    XR_SUCCEED_OR_RETURN_LOG(xrLocateSpace(m_aimSpace[uiSide], m_pOpenXR->m_sceneSpace, time, &viewInScene));
     UpdatePose(state.m_vAimPosition, state.m_qAimRotation, state.m_bAimPoseIsValid, viewInScene);
   }
+  return XR_SUCCESS;
 }
 

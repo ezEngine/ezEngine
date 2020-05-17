@@ -267,8 +267,6 @@ void ezGameApplication::Init_LoadRequiredPlugins()
   ezPlugin::LoadPlugin("ezFileservePlugin"); // don't care if it fails to load
 #  endif
 
-  ezPlugin::LoadPlugin("ezTypeScriptPlugin");
-
 #endif
 }
 

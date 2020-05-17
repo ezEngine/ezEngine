@@ -8,7 +8,7 @@
 
 struct ezXRTransformSpace
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
   enum Enum : ezUInt8
   {
     Local,  ///< Sets the local transform to the pose in stage space. Use if owner is direct child of ezStageSpaceComponent.
@@ -20,7 +20,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezXRTransformSpace);
 
 struct ezXRPoseLocation
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
   enum Enum : ezUInt8
   {
     Grip,
