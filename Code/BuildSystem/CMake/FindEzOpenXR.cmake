@@ -11,7 +11,7 @@ set (EZ_OPENXR_PREVIEW_DIR "" CACHE PATH "Directory of OpenXR preview include ro
 mark_as_advanced(FORCE EZ_OPENXR_DIR)
 mark_as_advanced(FORCE EZ_OPENXR_PREVIEW_DIR)
 
-ez_pull_architecture_vars()
+ez_pull_compiler_and_architecture_vars()
 
 if ((EZ_OPENXR_DIR STREQUAL "EZ_OPENXR_DIR-NOTFOUND") OR (EZ_OPENXR_DIR STREQUAL ""))
 	ez_nuget_init()
@@ -20,32 +20,29 @@ if ((EZ_OPENXR_DIR STREQUAL "EZ_OPENXR_DIR-NOTFOUND") OR (EZ_OPENXR_DIR STREQUAL
 	set (EZ_OPENXR_DIR "${CMAKE_BINARY_DIR}/packages/OpenXR.Loader.1.0.6.2" CACHE PATH "Directory of OpenXR runtime installation" FORCE)
 endif()
 
-if (CMAKE_SYSTEM_NAME STREQUAL "WindowsStore")
-	# UWP builds
+if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
 	set (OPENXR_DYNAMIC ON)
 	find_path(EZ_OPENXR_DIR include/openxr/openxr.h)
 
 	if (EZ_CMAKE_ARCHITECTURE_ARM)
-		if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+		if (EZ_CMAKE_ARCHITECTURE_64BIT)
 			set(OPENXR_BIN_PREFIX "arm64_uwp")
 		else()
 			set(OPENXR_BIN_PREFIX "arm_uwp")
 		endif()
 	else()
-		if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+		if (EZ_CMAKE_ARCHITECTURE_64BIT)
 			set(OPENXR_BIN_PREFIX "x64_uwp")
 		else()
 			set(OPENXR_BIN_PREFIX "Win32_uwp")
 		endif()
 	endif()
 
-elseif (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-	# Desktop Windows builds
-
+elseif (EZ_CMAKE_PLATFORM_WINDOWS_DESKTOP)
 	set (OPENXR_DYNAMIC ON)
 	find_path(EZ_OPENXR_DIR include/openxr/openxr.h)
 
-	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+	if (EZ_CMAKE_ARCHITECTURE_64BIT)
 		set(OPENXR_BIN_PREFIX "x64")
 	else()
 		set(OPENXR_BIN_PREFIX "Win32")
@@ -70,7 +67,7 @@ if (EZOPENXR_FOUND)
 	
 	set_target_properties(ezOpenXR::Loader PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${OPENXR_DIR_LOADER}/include")
 	if (NOT EZ_OPENXR_PREVIEW_DIR STREQUAL "")
-		set_target_properties(ezOpenXR::Loader PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${EZ_OPENXR_PREVIEW_DIR}/include")
+		set_target_properties(ezOpenXR::Loader PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${EZ_OPENXR_PREVIEW_DIR}/include")		
 	endif()
 
 	ez_uwp_mark_import_as_content(ezOpenXR::Loader)
