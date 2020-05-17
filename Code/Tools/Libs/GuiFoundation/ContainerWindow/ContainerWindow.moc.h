@@ -70,6 +70,7 @@ private Q_SLOTS:
   void SlotTabsContextMenuRequested(const QPoint& pos);
   void SlotUpdateWindowDecoration(void* pDocWindow);
   void SlotFloatingWidgetOpened(ads::CFloatingDockContainer* FloatingWidget);
+  void SlotDockWidgetFloatingChanged(bool bFloating);
 
 private:
   void UpdateWindowTitle();

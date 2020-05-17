@@ -245,6 +245,17 @@ void ezQtContainerWindow::SlotFloatingWidgetOpened(ads::CFloatingDockContainer* 
   FloatingWidget->installEventFilter(this);
 }
 
+void ezQtContainerWindow::SlotDockWidgetFloatingChanged(bool bFloating)
+{
+  if (!bFloating)
+    return;
+
+  for (auto pDoc : m_DocumentWindows)
+  {
+    UpdateWindowDecoration(pDoc);
+  }
+}
+
 void ezQtContainerWindow::UpdateWindowDecoration(ezQtDocumentWindow* pDocWindow)
 {
   const ezUInt32 uiListIndex = m_DocumentWindows.IndexOf(pDocWindow);
@@ -264,9 +275,10 @@ void ezQtContainerWindow::UpdateWindowDecoration(ezQtDocumentWindow* pDocWindow)
     dock->setFeature(ads::CDockWidget::DockWidgetFloatable, false);
   }
 
-  if (dock->dockContainer()->floatingWidget())
+  if (dock->isFloating())
   {
     dock->dockContainer()->floatingWidget()->setWindowTitle(dock->windowTitle());
+    dock->dockContainer()->floatingWidget()->setWindowIcon(dock->icon());
   }
 }
 
@@ -279,13 +291,11 @@ void ezQtContainerWindow::RemoveDocumentWindow(ezQtDocumentWindow* pDocWindow)
   ads::CDockWidget* dock = m_DocumentDocks[uiListIndex];
 
   int iCurIdx = -1;
-  ads::CDockAreaWidget* pDockArea = nullptr;
 
-  if (dock->isTabbed())
-  {
-    pDockArea = dock->dockAreaWidget();
+  const bool bIsTabbed = dock->isTabbed();
+  ads::CDockAreaWidget* pDockArea = dock->dockAreaWidget();
+
     iCurIdx = pDockArea->currentIndex();
-  }
 
   m_DockManager->removeDockWidget(dock);
 
@@ -297,10 +307,18 @@ void ezQtContainerWindow::RemoveDocumentWindow(ezQtDocumentWindow* pDocWindow)
   dock->deleteLater();
   pDocWindow->m_pContainerWindow = nullptr;
 
-  if (pDockArea)
+  if (bIsTabbed)
   {
     iCurIdx = ezMath::Min(iCurIdx, pDockArea->openDockWidgetsCount() - 1);
     pDockArea->setCurrentIndex(iCurIdx);
+  }
+
+  if (pDockArea && pDockArea->openDockWidgetsCount() == 1)
+  {
+    for (auto pDocWindow : m_DocumentWindows)
+    {
+      UpdateWindowDecoration(pDocWindow);
+    }
   }
 }
 
@@ -352,6 +370,7 @@ void ezQtContainerWindow::AddDocumentWindow(ezQtDocumentWindow* pDocWindow)
   m_DocumentDocks.PushBack(dock);
   connect(dock, &ads::CDockWidget::closed, this, &ezQtContainerWindow::SlotDocumentTabCloseRequested);
   connect(dock->tabWidget(), &QWidget::customContextMenuRequested, this, &ezQtContainerWindow::SlotTabsContextMenuRequested);
+  connect(dock, &ads::CDockWidget::topLevelChanged, this, &ezQtContainerWindow::SlotDockWidgetFloatingChanged);
 
 
   pDocWindow->m_pContainerWindow = this;
