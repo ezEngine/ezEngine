@@ -1,7 +1,7 @@
 #pragma once
 
 #if EZ_DISABLED(EZ_PLATFORM_WINDOWS_UWP)
-#error "uwp util header should only be included in UWP builds!"
+#  error "uwp util header should only be included in UWP builds!"
 #endif
 
 #include <Foundation/Basics/Platform/Win/HResultUtils.h>
@@ -9,15 +9,15 @@
 
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 
+#include <asyncinfo.h>
 #include <guiddef.h>
+#include <windows.foundation.collections.h>
 #include <windows.foundation.h>
 #include <windows.foundation.numerics.h>
 #include <wrl/client.h>
 #include <wrl/event.h>
 #include <wrl/implements.h>
 #include <wrl/wrappers/corewrappers.h>
-#include <windows.foundation.collections.h>
-#include <asyncinfo.h>
 
 class ezUuid;
 
@@ -141,16 +141,13 @@ namespace ezUwpUtils
   }
 
   ezMat4 EZ_FOUNDATION_DLL ConvertMat4(const ABI::Windows::Foundation::Numerics::Matrix4x4& in);
-  ezMat4 EZ_FOUNDATION_DLL ConvertMat4(ABI::Windows::Foundation::__FIReference_1_Windows__CFoundation__CNumerics__CMatrix4x4_t* in);
 
   ezVec3 EZ_FOUNDATION_DLL ConvertVec3(const ABI::Windows::Foundation::Numerics::Vector3& in);
   void EZ_FOUNDATION_DLL ConvertVec3(const ezVec3& in, ABI::Windows::Foundation::Numerics::Vector3& out);
-  ezVec3 EZ_FOUNDATION_DLL ConvertVec3(ABI::Windows::Foundation::__FIReference_1_Windows__CFoundation__CNumerics__CVector3_t* in);
 
   ezQuat EZ_FOUNDATION_DLL ConvertQuat(const ABI::Windows::Foundation::Numerics::Quaternion& in);
   void EZ_FOUNDATION_DLL ConvertQuat(const ezQuat& in, ABI::Windows::Foundation::Numerics::Quaternion& out);
 
   ezUuid EZ_FOUNDATION_DLL ConvertGuid(const GUID& in);
   void EZ_FOUNDATION_DLL ConvertGuid(const ezUuid& in, GUID& out);
-}
-
+} // namespace ezUwpUtils
