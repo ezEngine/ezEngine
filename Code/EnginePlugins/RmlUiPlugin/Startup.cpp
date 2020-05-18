@@ -2,7 +2,7 @@
 
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Configuration/Startup.h>
-#include <RmlUiPlugin/RmlUi.h>
+#include <RmlUiPlugin/RmlUiSingleton.h>
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(RmlUi, RmlUiPlugin)
