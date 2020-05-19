@@ -2,7 +2,7 @@
 
 #include <RendererCore/Meshes/MeshRenderer.h>
 
-/// \brief Implements rendering of skinned meshes
+/// \brief Implements rendering of meshes with procedural generated vertex colors
 class EZ_PROCGENPLUGIN_DLL ezProcVertexColorRenderer : public ezMeshRenderer
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezProcVertexColorRenderer, ezMeshRenderer);
