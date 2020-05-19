@@ -61,7 +61,7 @@ ezResult ezPxVisColMeshComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bo
 
   if (m_hMesh.IsValid())
   {
-    ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
+    ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::BlockTillLoaded);
     bounds = pMesh->GetBounds();
     return EZ_SUCCESS;
   }
@@ -235,6 +235,14 @@ void ezPxVisColMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg
     return;
 
   ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
+
+  ezRenderData::Caching::Enum caching =  ezRenderData::Caching::IfStatic;
+
+  if (pMesh.GetAcquireResult() != ezResourceAcquireResult::Final)
+  {
+    caching = ezRenderData::Caching::Never;
+  }
+
   ezArrayPtr<const ezMeshResourceDescriptor::SubMesh> parts = pMesh->GetSubMeshes();
 
   for (ezUInt32 uiPartIndex = 0; uiPartIndex < parts.GetCount(); ++uiPartIndex)
@@ -254,7 +262,7 @@ void ezPxVisColMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg
       pRenderData->FillBatchIdAndSortingKey();
     }
 
-    msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, ezRenderData::Caching::IfStatic);
+    msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::LitOpaque, caching);
   }
 }
 

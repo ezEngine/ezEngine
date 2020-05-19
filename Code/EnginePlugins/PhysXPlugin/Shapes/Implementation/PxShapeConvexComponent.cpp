@@ -68,7 +68,7 @@ PxShape* ezPxShapeConvexComponent::CreateShape(PxRigidActor* pActor, PxTransform
     return nullptr;
   }
 
-  ezResourceLock<ezPxMeshResource> pMesh(m_hCollisionMesh, ezResourceAcquireMode::AllowLoadingFallback);
+  ezResourceLock<ezPxMeshResource> pMesh(m_hCollisionMesh, ezResourceAcquireMode::BlockTillLoaded);
 
   if (!pMesh->GetConvexMesh())
   {
@@ -89,7 +89,7 @@ PxShape* ezPxShapeConvexComponent::CreateShape(PxRigidActor* pActor, PxTransform
 
     if (!surfaces.IsEmpty() && surfaces[0].IsValid())
     {
-      ezResourceLock<ezSurfaceResource> pSurface(surfaces[0], ezResourceAcquireMode::AllowLoadingFallback);
+      ezResourceLock<ezSurfaceResource> pSurface(surfaces[0], ezResourceAcquireMode::BlockTillLoaded);
       pMaterial = static_cast<PxMaterial*>(pSurface->m_pPhysicsMaterial);
     }
   }
