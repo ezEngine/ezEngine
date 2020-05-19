@@ -155,6 +155,9 @@ void ezAssetWatcher::HandleWatcherChange(const WatcherResult& res)
 
   switch (res.action)
   {
+    case ezDirectoryWatcherAction::None:
+      EZ_ASSERT_DEV(false, "None event should never happen");
+      break;
     case ezDirectoryWatcherAction::Added:
     {
       if (stats == EZ_SUCCESS)
@@ -255,7 +258,7 @@ ezDirectoryUpdateTask::ezDirectoryUpdateTask(ezAssetWatcher* pWatcher, const cha
   : m_pWatcher(pWatcher)
   , m_sFolder(szFolder)
 {
-  ConfigureTask("ezDirectoryUpdateTask", ezTaskNesting::Never);
+  ConfigureTask("ezDirectoryUpdateTask", ezTaskNesting::Never, [this](ezTask* pTask)
 }
 
 ezDirectoryUpdateTask::~ezDirectoryUpdateTask()

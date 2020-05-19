@@ -116,6 +116,9 @@ ezParticleAction::ezParticleAction(const ezActionContext& context, const char* s
       SetIconPath(":/EditorFramework/Icons/Visualizers16.png");
       SetChecked(m_pEffectDocument->GetRenderVisualizers());
       break;
+
+    default:
+      break;
   }
 
   UpdateState();

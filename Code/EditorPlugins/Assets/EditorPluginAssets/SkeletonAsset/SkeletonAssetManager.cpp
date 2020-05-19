@@ -42,6 +42,9 @@ void ezSkeletonAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMana
       }
     }
     break;
+
+    default:
+      break;
   }
 }
 

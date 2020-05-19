@@ -20,10 +20,11 @@ const char* ezWorkerThreadType::GetThreadTypeName(ezWorkerThreadType::Enum Threa
 
     case ezWorkerThreadType::FileAccess:
       return "File Access";
-  }
 
-  EZ_REPORT_FAILURE("Invalid Thread Type");
-  return "unknown";
+    default:
+      EZ_REPORT_FAILURE("Invalid Thread Type");
+      return "unknown";
+  }
 }
 
 void ezTaskSystem::WriteStateSnapshotToDGML(ezDGMLGraph& graph)

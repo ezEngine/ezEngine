@@ -71,7 +71,7 @@ public:
   bool IsObjectEnginePrefab(const ezUuid& object, ezUuid* out_PrefabAssetGuid = nullptr) const;
 
   /// \brief Nested prefabs are not allowed
-  virtual bool ArePrefabsAllowed() const { return !IsPrefab(); }
+  virtual bool ArePrefabsAllowed() const override { return !IsPrefab(); }
 
 
   virtual void GetSupportedMimeTypesForPasting(ezHybridArray<ezString, 4>& out_MimeTypes) const override;
@@ -157,7 +157,7 @@ protected:
   virtual void UpdatePrefabObject(ezDocumentObject* pObject, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, const char* szBasePrefab) override;
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
 
-  template<typename Func>
+  template <typename Func>
   void ApplyRecursive(const ezDocumentObject* pObject, Func f)
   {
     f(pObject);
@@ -169,7 +169,6 @@ protected:
   }
 
 private:
-
   void EnsureSettingsObjectExist();
   void DocumentObjectMetaDataEventHandler(const ezObjectMetaData<ezUuid, ezDocumentObjectMetaData>::EventData& e);
   void EngineConnectionEventHandler(const ezEditorEngineProcessConnection::Event& e);
@@ -201,5 +200,4 @@ private:
   /// Communication with other document types
   virtual void OnInterDocumentMessage(ezReflectedClass* pMessage, ezDocument* pSender) override;
   void GatherObjectsOfType(ezDocumentObject* pRoot, ezGatherObjectsOfTypeMsgInterDoc* pMsg) const;
-
 };

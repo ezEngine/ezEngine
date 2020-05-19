@@ -43,6 +43,9 @@ void ezPropertyAnimAssetDocumentManager::OnDocumentManagerEvent(const ezDocument
       }
     }
     break;
+
+    default:
+      break;
   }
 }
 

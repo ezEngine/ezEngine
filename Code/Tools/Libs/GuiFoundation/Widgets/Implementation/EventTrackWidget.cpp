@@ -10,7 +10,7 @@
 #include <qevent.h>
 
 ezQtEventTrackWidget::ezQtEventTrackWidget(QWidget* parent)
-    : QWidget(parent)
+  : QWidget(parent)
 {
   setFocusPolicy(Qt::FocusPolicy::ClickFocus);
   setMouseTracking(true);
@@ -272,14 +272,36 @@ QRectF ezQtEventTrackWidget::ComputeViewportSceneRect() const
 }
 
 static ezColorGammaUB g_EventColors[10 * 3] = {
-    ezColorGammaUB(255, 102, 0),   ezColorGammaUB(76, 255, 0),    ezColorGammaUB(0, 255, 255),   ezColorGammaUB(239, 35, 0),
-    ezColorGammaUB(127, 255, 0),   ezColorGammaUB(0, 0, 255),     ezColorGammaUB(205, 92, 92),   ezColorGammaUB(120, 158, 39),
-    ezColorGammaUB(81, 120, 188),  ezColorGammaUB(255, 105, 180), ezColorGammaUB(0, 250, 154),   ezColorGammaUB(0, 191, 255),
-    ezColorGammaUB(220, 20, 60),   ezColorGammaUB(0, 255, 127),   ezColorGammaUB(30, 144, 255),  ezColorGammaUB(240, 128, 128),
-    ezColorGammaUB(60, 179, 113),  ezColorGammaUB(135, 206, 250), ezColorGammaUB(178, 34, 34),   ezColorGammaUB(46, 139, 87),
-    ezColorGammaUB(65, 105, 225),  ezColorGammaUB(211, 122, 122), ezColorGammaUB(144, 238, 144), ezColorGammaUB(135, 206, 235),
-    ezColorGammaUB(219, 112, 147), ezColorGammaUB(0, 128, 0),     ezColorGammaUB(70, 130, 180),  ezColorGammaUB(255, 182, 193),
-    ezColorGammaUB(102, 205, 170), ezColorGammaUB(100, 149, 237),
+  ezColorGammaUB(255, 102, 0),
+  ezColorGammaUB(76, 255, 0),
+  ezColorGammaUB(0, 255, 255),
+  ezColorGammaUB(239, 35, 0),
+  ezColorGammaUB(127, 255, 0),
+  ezColorGammaUB(0, 0, 255),
+  ezColorGammaUB(205, 92, 92),
+  ezColorGammaUB(120, 158, 39),
+  ezColorGammaUB(81, 120, 188),
+  ezColorGammaUB(255, 105, 180),
+  ezColorGammaUB(0, 250, 154),
+  ezColorGammaUB(0, 191, 255),
+  ezColorGammaUB(220, 20, 60),
+  ezColorGammaUB(0, 255, 127),
+  ezColorGammaUB(30, 144, 255),
+  ezColorGammaUB(240, 128, 128),
+  ezColorGammaUB(60, 179, 113),
+  ezColorGammaUB(135, 206, 250),
+  ezColorGammaUB(178, 34, 34),
+  ezColorGammaUB(46, 139, 87),
+  ezColorGammaUB(65, 105, 225),
+  ezColorGammaUB(211, 122, 122),
+  ezColorGammaUB(144, 238, 144),
+  ezColorGammaUB(135, 206, 235),
+  ezColorGammaUB(219, 112, 147),
+  ezColorGammaUB(0, 128, 0),
+  ezColorGammaUB(70, 130, 180),
+  ezColorGammaUB(255, 182, 193),
+  ezColorGammaUB(102, 205, 170),
+  ezColorGammaUB(100, 149, 237),
 };
 
 void ezQtEventTrackWidget::paintEvent(QPaintEvent* e)
@@ -306,7 +328,7 @@ void ezQtEventTrackWidget::paintEvent(QPaintEvent* e)
   if (m_pGridBar)
   {
     m_pGridBar->SetConfig(viewportSceneRect, fRoughGridDensity, fFineGridDensity,
-                          [this](const QPointF& pt) -> QPoint { return MapFromScene(pt); });
+      [this](const QPointF& pt) -> QPoint { return MapFromScene(pt); });
   }
 
   PaintOutsideAreaOverlay(&painter);
@@ -348,6 +370,8 @@ void ezQtEventTrackWidget::mousePressEvent(QMouseEvent* e)
 
         switch (WhereIsPoint(e->pos()))
         {
+          case ezQtEventTrackWidget::SelectArea::None:
+            break;
           case ezQtEventTrackWidget::SelectArea::Center:
             m_State = EditState::DraggingPoints;
             m_totalPointDrag = QPointF();
@@ -543,6 +567,8 @@ void ezQtEventTrackWidget::mouseMoveEvent(QMouseEvent* e)
   {
     switch (WhereIsPoint(e->pos()))
     {
+      case ezQtEventTrackWidget::SelectArea::None:
+        break;
       case ezQtEventTrackWidget::SelectArea::Center:
         // cursor = Qt::SizeAllCursor;
         break;
@@ -948,7 +974,7 @@ void ezQtEventTrackWidget::ExecMultiSelection(ezHybridArray<SelectedPoint, 32>& 
 }
 
 bool ezQtEventTrackWidget::CombineSelection(ezHybridArray<SelectedPoint, 32>& inout_Selection,
-                                            const ezHybridArray<SelectedPoint, 32>& change, bool add)
+  const ezHybridArray<SelectedPoint, 32>& change, bool add)
 {
   bool bChange = false;
 
@@ -1004,7 +1030,7 @@ ezQtEventTrackWidget::SelectArea ezQtEventTrackWidget::WhereIsPoint(QPoint pos) 
   const QPoint tl = MapFromScene(m_selectionBRect.topLeft());
   const QPoint br = MapFromScene(m_selectionBRect.bottomRight());
   QRect selectionRectSS = QRect(tl, br);
-  selectionRectSS.adjust(-4.5, +4.5, +3.5, -5.5);
+  selectionRectSS.adjust(-4, +4, +3, -5);
 
   const QRect barLeft(selectionRectSS.left() - 10, selectionRectSS.top(), 10, selectionRectSS.height());
   const QRect barRight(selectionRectSS.right(), selectionRectSS.top(), 10, selectionRectSS.height());

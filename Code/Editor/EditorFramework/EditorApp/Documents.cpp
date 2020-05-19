@@ -124,6 +124,9 @@ void ezQtEditorApp::DocumentEventHandler(const ezDocumentEvent& e)
       ezPreferences::SaveDocumentPreferences(e.m_pDocument);
     }
     break;
+
+    default:
+      break;
   }
 }
 
@@ -163,6 +166,9 @@ void ezQtEditorApp::DocumentManagerEventHandler(const ezDocumentManager::Event& 
       }
     }
     break;
+
+    default:
+      break;
   }
 }
 

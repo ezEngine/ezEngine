@@ -18,7 +18,7 @@ class ezQtLUTAssetDocumentWindow : public ezQtEngineDocumentWindow
 public:
   ezQtLUTAssetDocumentWindow(ezLUTAssetDocument* pDocument);
 
-  virtual const char* GetWindowLayoutGroupName() const { return "LUTAsset"; }
+  virtual const char* GetWindowLayoutGroupName() const override { return "LUTAsset"; }
 
 private:
   virtual void InternalRedraw() override;

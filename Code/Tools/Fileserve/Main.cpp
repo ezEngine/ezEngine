@@ -6,9 +6,9 @@
 #include <Foundation/Utilities/CommandLineUtils.h>
 
 #ifdef EZ_USE_QT
-#include <Gui.moc.h>
-#include <QApplication>
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#  include <Gui.moc.h>
+#  include <QApplication>
 #endif
 
 #ifdef EZ_USE_QT
@@ -81,6 +81,8 @@ void ezFileserverApp::FileserverEventHandler(const ezFileserverEvent& e)
         m_TimeTillClosing = ezTime::Now() + m_CloseAppTimeout;
       }
 
+      break;
+    default:
       break;
   }
 }

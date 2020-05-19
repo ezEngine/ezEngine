@@ -42,6 +42,9 @@ void ezSurfaceAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManag
       }
     }
     break;
+
+    default:
+      break;
   }
 }
 

@@ -82,6 +82,8 @@ void ezQtAssetBrowserModel::AssetCuratorEventHandler(const ezAssetCuratorEvent& 
     case ezAssetCuratorEvent::Type::AssetUpdated:
       HandleAsset(e.m_pInfo, AssetOp::Updated);
       break;
+    default:
+      break;
   }
 }
 

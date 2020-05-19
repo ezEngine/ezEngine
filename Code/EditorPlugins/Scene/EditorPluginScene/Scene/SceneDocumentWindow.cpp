@@ -23,7 +23,7 @@
 
 
 ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezSceneDocument* pDocument)
-    : ezQtGameObjectDocumentWindow(pDocument)
+  : ezQtGameObjectDocumentWindow(pDocument)
 {
   auto ViewFactory = [](ezQtEngineDocumentWindow* pWindow, ezEngineViewConfig* pConfig) -> ezQtEngineViewWidget* {
     ezQtSceneViewWidget* pWidget = new ezQtSceneViewWidget(nullptr, static_cast<ezQtSceneDocumentWindow*>(pWindow), pConfig);
@@ -33,7 +33,7 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezSceneDocument* pDocument)
   m_pQuadViewWidget = new ezQtQuadViewWidget(pDocument, this, ViewFactory, "EditorPluginScene_ViewToolBar");
 
   pDocument->SetEditToolConfigDelegate(
-      [this](ezGameObjectEditTool* pTool) { pTool->ConfigureTool(static_cast<ezGameObjectDocument*>(GetDocument()), this, this); });
+    [this](ezGameObjectEditTool* pTool) { pTool->ConfigureTool(static_cast<ezGameObjectDocument*>(GetDocument()), this, this); });
 
   setCentralWidget(m_pQuadViewWidget);
 
@@ -76,8 +76,8 @@ ezQtSceneDocumentWindow::ezQtSceneDocumentWindow(ezSceneDocument* pDocument)
     ezQtPropertyGridWidget* pPropertyGrid = new ezQtPropertyGridWidget(pPropertyPanel, pDocument);
     pPropertyPanel->setWidget(pPropertyGrid);
     EZ_VERIFY(
-        connect(pPropertyGrid, &ezQtPropertyGridWidget::ExtendContextMenu, this, &ezQtSceneDocumentWindow::ExtendPropertyGridContextMenu),
-        "");
+      connect(pPropertyGrid, &ezQtPropertyGridWidget::ExtendContextMenu, this, &ezQtSceneDocumentWindow::ExtendPropertyGridContextMenu),
+      "");
 
     addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
     addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pPanelTree);
@@ -238,6 +238,9 @@ void ezQtSceneDocumentWindow::GameObjectEventHandler(const ezGameObjectEvent& e)
     case ezGameObjectEvent::Type::TriggerSnapEachSelectedObjectToGrid:
       SnapSelectionToPosition(true);
       break;
+
+    default:
+      break;
   }
 }
 
@@ -293,7 +296,7 @@ void ezQtSceneDocumentWindow::SendRedrawMsg()
 }
 
 void ezQtSceneDocumentWindow::ExtendPropertyGridContextMenu(QMenu& menu, const ezHybridArray<ezPropertySelection, 8>& items,
-                                                            const ezAbstractProperty* pProp)
+  const ezAbstractProperty* pProp)
 {
   if (!GetSceneDocument()->IsPrefab())
     return;

@@ -44,11 +44,9 @@ ezResult ezOSFile::InternalOpen(const char* szFile, ezFileOpenMode::Enum OpenMod
   }
 
   DWORD dwSharedMode = 0; // exclusive access
-  switch (FileShareMode)
+  if (FileShareMode == ezFileShareMode::SharedReads)
   {
-    case ezFileShareMode::SharedReads:
-      dwSharedMode = FILE_SHARE_READ;
-      break;
+    dwSharedMode = FILE_SHARE_READ;
   }
 
   while (iRetries > 0)
@@ -74,6 +72,8 @@ ezResult ezOSFile::InternalOpen(const char* szFile, ezFileOpenMode::Enum OpenMod
           InternalSetFilePosition(0, ezFileSeekMode::FromEnd);
 
         break;
+
+        EZ_DEFAULT_CASE_NOT_IMPLEMENTED
     }
 
     const ezResult res = ((m_FileData.m_pFileHandle != nullptr) && (m_FileData.m_pFileHandle != INVALID_HANDLE_VALUE)) ? EZ_SUCCESS : EZ_FAILURE;

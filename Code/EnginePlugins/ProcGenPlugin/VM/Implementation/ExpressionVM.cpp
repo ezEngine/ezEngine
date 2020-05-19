@@ -209,9 +209,9 @@ ezUInt32 ezExpression::Stream::GetElementSize() const
       case Type::Float4:
       case Type::Int4:
         return 16;*/
-  }
 
-  EZ_ASSERT_NOT_IMPLEMENTED;
+      EZ_DEFAULT_CASE_NOT_IMPLEMENTED
+  }
 
   return 0;
 }

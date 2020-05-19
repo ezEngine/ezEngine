@@ -42,6 +42,9 @@ void ezVisualScriptAssetManager::OnDocumentManagerEvent(const ezDocumentManager:
       }
     }
     break;
+
+    default:
+      break;
   }
 }
 

@@ -23,6 +23,8 @@ ezEngineProcessGameApplication::ezEngineProcessGameApplication()
   m_LongOpWorkerManager.Startup(&m_IPC);
 }
 
+ezEngineProcessGameApplication::~ezEngineProcessGameApplication() = default;
+
 ezResult ezEngineProcessGameApplication::BeforeCoreSystemsStartup()
 {
   m_pApp = CreateEngineProcessApp();
@@ -539,6 +541,8 @@ void ezEngineProcessGameApplication::TransmitCVar(const ezCVar* pCVar)
     case ezCVarType::String:
       msg.m_Value = ((ezCVarString*)pCVar)->GetValue();
       break;
+
+      EZ_DEFAULT_CASE_NOT_IMPLEMENTED
   }
 
   m_IPC.SendMessage(&msg);

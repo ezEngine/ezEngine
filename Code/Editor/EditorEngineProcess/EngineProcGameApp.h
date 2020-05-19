@@ -19,6 +19,7 @@ public:
   typedef ezGameApplication SUPER;
 
   ezEngineProcessGameApplication();
+  ~ezEngineProcessGameApplication();
 
   virtual ezResult BeforeCoreSystemsStartup() override;
   virtual void AfterCoreSystemsStartup() override;
@@ -36,7 +37,9 @@ protected:
   virtual bool Run_ProcessApplicationInput() override;
   virtual ezUniquePtr<ezEditorEngineProcessApp> CreateEngineProcessApp();
 
-  virtual void ActivateGameStateAtStartup() override { /* do nothing */ }
+  virtual void ActivateGameStateAtStartup() override
+  { /* do nothing */
+  }
 
 private:
   void ConnectToHost();

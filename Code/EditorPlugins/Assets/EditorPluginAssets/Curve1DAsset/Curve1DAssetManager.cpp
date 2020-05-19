@@ -39,6 +39,9 @@ void ezCurve1DAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManag
       }
     }
     break;
+
+    default:
+      break;
   }
 }
 

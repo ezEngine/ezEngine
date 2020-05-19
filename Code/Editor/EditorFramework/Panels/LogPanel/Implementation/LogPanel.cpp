@@ -117,6 +117,9 @@ void ezQtLogPanel::ToolsProjectEventHandler(const ezToolsProjectEvent& e)
         setEnabled(e.m_Type == ezToolsProjectEvent::Type::ProjectOpened);
     }
     break;
+
+    default:
+      break;
   }
 
   ezQtApplicationPanel::ToolsProjectEventHandler(e);

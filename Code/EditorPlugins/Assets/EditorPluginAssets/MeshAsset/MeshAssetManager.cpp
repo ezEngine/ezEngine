@@ -112,6 +112,9 @@ void ezMeshAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager:
       }
     }
     break;
+
+    default:
+      break;
   }
 }
 

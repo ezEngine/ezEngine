@@ -77,6 +77,9 @@ void ezQtProgressbar::ProgressbarEventHandler(const ezProgressEvent& e)
       --m_iNestedProcessEvents;
     }
     break;
+
+    case ezProgressEvent::Type::CancelClicked:
+      break;
   }
 }
 

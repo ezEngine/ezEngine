@@ -152,6 +152,9 @@ void ezTranslateGizmoEditTool::TransformationGizmoEventHandlerImpl(const ezGizmo
       pAccessor->FinishTransaction();
     }
     break;
+
+    default:
+      break;
   }
 }
 
@@ -323,6 +326,9 @@ void ezRotateGizmoEditTool::TransformationGizmoEventHandlerImpl(const ezGizmoEve
       pAccessor->FinishTransaction();
     }
     break;
+
+    default:
+      break;
   }
 }
 
@@ -443,6 +449,9 @@ void ezScaleGizmoEditTool::TransformationGizmoEventHandlerImpl(const ezGizmoEven
         pAccessor->FinishTransaction();
     }
     break;
+
+    default:
+      break;
   }
 }
 
@@ -539,5 +548,8 @@ void ezDragToPositionGizmoEditTool::TransformationGizmoEventHandlerImpl(const ez
       pAccessor->FinishTransaction();
     }
     break;
+
+    default:
+      break;
   }
 }

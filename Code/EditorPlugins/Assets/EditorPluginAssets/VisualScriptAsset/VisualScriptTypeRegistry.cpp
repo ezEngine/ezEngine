@@ -133,9 +133,9 @@ static ezColor PinTypeColor(ezVisualScriptDataPinType::Enum type)
       return ezColor::Maroon;
     case ezVisualScriptDataPinType::ComponentHandle:
       return ezColor::DodgerBlue;
+    default:
+      return ezColor::Pink;
   }
-
-  return ezColor::Pink;
 }
 
 void ezVisualScriptTypeRegistry::UpdateNodeType(const ezRTTI* pRtti)
@@ -445,6 +445,8 @@ void ezVisualScriptTypeRegistry::CreateMessageNodeType(const ezRTTI* pRtti)
       case ezVariantType::Vector3:
         pid.m_DataType = ezVisualScriptDataPinType::Vec3;
         break;
+
+        EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
     }
 
     pid.m_sName = prop->GetPropertyName();
@@ -532,6 +534,8 @@ void ezVisualScriptTypeRegistry::CreateEventMessageNodeType(const ezRTTI* pRtti)
       case ezVariantType::Vector3:
         pid.m_DataType = ezVisualScriptDataPinType::Vec3;
         break;
+
+        EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
     }
 
     pid.m_sName = prop->GetPropertyName();

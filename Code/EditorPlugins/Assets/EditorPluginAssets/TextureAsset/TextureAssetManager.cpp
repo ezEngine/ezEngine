@@ -76,6 +76,9 @@ void ezTextureAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManag
       }
     }
     break;
+
+    default:
+      break;
   }
 }
 

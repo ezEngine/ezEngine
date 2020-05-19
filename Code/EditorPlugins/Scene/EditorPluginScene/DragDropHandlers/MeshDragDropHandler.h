@@ -7,8 +7,7 @@ class ezMeshComponentDragDropHandler : public ezComponentDragDropHandler
   EZ_ADD_DYNAMIC_REFLECTION(ezMeshComponentDragDropHandler, ezComponentDragDropHandler);
 
 public:
-
-  float CanHandle(const ezDragDropInfo* pInfo) const;
+  virtual float CanHandle(const ezDragDropInfo* pInfo) const override;
 
   virtual void OnDragBegin(const ezDragDropInfo* pInfo) override;
 };
@@ -20,10 +19,7 @@ class ezAnimatedMeshComponentDragDropHandler : public ezComponentDragDropHandler
   EZ_ADD_DYNAMIC_REFLECTION(ezAnimatedMeshComponentDragDropHandler, ezComponentDragDropHandler);
 
 public:
-  float CanHandle(const ezDragDropInfo* pInfo) const;
+  virtual float CanHandle(const ezDragDropInfo* pInfo) const override;
 
   virtual void OnDragBegin(const ezDragDropInfo* pInfo) override;
 };
-
-
-

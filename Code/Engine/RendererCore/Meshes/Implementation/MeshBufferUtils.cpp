@@ -55,9 +55,9 @@ ezResult ezMeshBufferUtils::EncodeFromFloat(const float source, ezArrayPtr<ezUIn
     case ezGALResourceFormat::RFloat:
       *reinterpret_cast<float*>(dest.GetPtr()) = source;
       return EZ_SUCCESS;
+    default:
+      return EZ_FAILURE;
   }
-
-  return EZ_FAILURE;
 }
 
 // static
@@ -74,9 +74,10 @@ ezResult ezMeshBufferUtils::EncodeFromVec2(const ezVec2& source, ezArrayPtr<ezUI
     case ezGALResourceFormat::RGHalf:
       *reinterpret_cast<ezFloat16Vec2*>(dest.GetPtr()) = source;
       return EZ_SUCCESS;
-  }
 
-  return EZ_FAILURE;
+    default:
+      return EZ_FAILURE;
+  }
 }
 
 // static
@@ -123,9 +124,9 @@ ezResult ezMeshBufferUtils::EncodeFromVec3(const ezVec3& source, ezArrayPtr<ezUI
       dest.GetPtr()[2] = ezMath::ColorFloatToSignedByte(source.z);
       dest.GetPtr()[3] = 0;
       return EZ_SUCCESS;
+    default:
+      return EZ_FAILURE;
   }
-
-  return EZ_FAILURE;
 }
 
 // static
@@ -177,9 +178,10 @@ ezResult ezMeshBufferUtils::EncodeFromVec4(const ezVec4& source, ezArrayPtr<ezUI
       dest.GetPtr()[2] = ezMath::ColorFloatToSignedByte(source.z);
       dest.GetPtr()[3] = ezMath::ColorFloatToSignedByte(source.w);
       return EZ_SUCCESS;
-  }
 
-  return EZ_FAILURE;
+    default:
+      return EZ_FAILURE;
+  }
 }
 
 // static
@@ -192,9 +194,9 @@ ezResult ezMeshBufferUtils::DecodeToFloat(ezArrayPtr<const ezUInt8> source, ezGA
     case ezGALResourceFormat::RFloat:
       dest = *reinterpret_cast<const float*>(source.GetPtr());
       return EZ_SUCCESS;
+    default:
+      return EZ_FAILURE;
   }
-
-  return EZ_FAILURE;
 }
 
 // static
@@ -207,9 +209,10 @@ ezResult ezMeshBufferUtils::DecodeToVec2(ezArrayPtr<const ezUInt8> source, ezGAL
     case ezGALResourceFormat::RGFloat:
       dest = *reinterpret_cast<const ezVec2*>(source.GetPtr());
       return EZ_SUCCESS;
-  }
 
-  return EZ_FAILURE;
+    default:
+      return EZ_FAILURE;
+  }
 }
 
 // static
@@ -252,9 +255,9 @@ ezResult ezMeshBufferUtils::DecodeToVec3(ezArrayPtr<const ezUInt8> source, ezGAL
       dest.y = ezMath::ColorSignedByteToFloat(source.GetPtr()[1]);
       dest.z = ezMath::ColorSignedByteToFloat(source.GetPtr()[2]);
       return EZ_SUCCESS;
+    default:
+      return EZ_FAILURE;
   }
-
-  return EZ_FAILURE;
 }
 
 // static
@@ -306,7 +309,8 @@ ezResult ezMeshBufferUtils::DecodeToVec4(ezArrayPtr<const ezUInt8> source, ezGAL
       dest.z = ezMath::ColorSignedByteToFloat(source.GetPtr()[2]);
       dest.w = ezMath::ColorSignedByteToFloat(source.GetPtr()[3]);
       return EZ_SUCCESS;
-  }
 
-  return EZ_FAILURE;
+    default:
+      return EZ_FAILURE;
+  }
 }

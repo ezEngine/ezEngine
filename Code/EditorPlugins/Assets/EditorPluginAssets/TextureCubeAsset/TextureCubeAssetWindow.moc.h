@@ -1,12 +1,12 @@
 #pragma once
 
-#include <Foundation/Basics.h>
-#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
-#include <ToolsFoundation/Object/DocumentObjectManager.h>
-#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
+#include <Foundation/Basics.h>
 #include <GuiFoundation/Action/Action.h>
 #include <GuiFoundation/Action/BaseActions.h>
+#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
+#include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 class ezQtOrbitCamViewWidget;
 class ezTextureCubeAssetDocument;
@@ -18,7 +18,7 @@ class ezQtTextureCubeAssetDocumentWindow : public ezQtEngineDocumentWindow
 public:
   ezQtTextureCubeAssetDocumentWindow(ezTextureCubeAssetDocument* pDocument);
 
-  virtual const char* GetWindowLayoutGroupName() const { return "TextureCubeAsset"; }
+  virtual const char* GetWindowLayoutGroupName() const override { return "TextureCubeAsset"; }
 
 private:
   virtual void InternalRedraw() override;
@@ -31,8 +31,8 @@ private:
 class ezTextureCubeChannelModeAction : public ezEnumerationMenuAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezTextureCubeChannelModeAction, ezEnumerationMenuAction);
-public:
 
+public:
   ezTextureCubeChannelModeAction(const ezActionContext& context, const char* szName, const char* szIconPath);
   virtual ezInt64 GetValue() const override;
   virtual void Execute(const ezVariant& value) override;
@@ -43,7 +43,6 @@ class ezTextureCubeLodSliderAction : public ezSliderAction
   EZ_ADD_DYNAMIC_REFLECTION(ezTextureCubeLodSliderAction, ezSliderAction);
 
 public:
-
   ezTextureCubeLodSliderAction(const ezActionContext& context, const char* szName);
 
   virtual void Execute(const ezVariant& value) override;

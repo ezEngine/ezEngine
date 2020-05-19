@@ -43,6 +43,9 @@ void OnDocumentManagerEvent(const ezDocumentManager::Event& e)
       }
     }
     break;
+
+    default:
+      break;
   }
 }
 

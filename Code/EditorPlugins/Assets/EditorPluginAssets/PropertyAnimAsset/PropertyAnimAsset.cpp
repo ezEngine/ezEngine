@@ -290,6 +290,9 @@ void ezPropertyAnimAssetDocument::TreeStructureEventHandler(const ezDocumentObje
       case ezDocumentObjectStructureEvent::Type::BeforeObjectMoved:
         RemoveTrack(e.m_pObject->GetGuid());
         return;
+
+      default:
+        break;
     }
   }
   else
@@ -724,6 +727,8 @@ ezUuid ezPropertyAnimAssetDocument::CreateTrack(const ezDocumentObject* pObject,
         break;
       case ezPropertyAnimTarget::VectorW:
         color = ezColor::Beige;
+        break;
+      default:
         break;
     }
 

@@ -95,6 +95,17 @@ function(ez_create_target TYPE TARGET_NAME)
 
     ez_set_project_ide_folder(${TARGET_NAME} ${CMAKE_CURRENT_SOURCE_DIR})
 	
+	# Pass the windows sdk include paths to the resource compiler when not generating a visual studio solution.
+	if(EZ_CMAKE_PLATFORM_WINDOWS AND NOT EZ_CMAKE_GENERATOR_MSVC)
+		set(RC_FILES ${ALL_SOURCE_FILES})
+		list(FILTER RC_FILES INCLUDE REGEX ".*\\.rc$")
+		if(RC_FILES)
+			set_source_files_properties(${RC_FILES} 
+				PROPERTIES COMPILE_FLAGS "/I\"C:/Program Files (x86)/Windows Kits/10/Include/${EZ_CMAKE_WINDOWS_SDK_VERSION}/shared\" /I\"C:/Program Files (x86)/Windows Kits/10/Include/${EZ_CMAKE_WINDOWS_SDK_VERSION}/um\""
+			)
+		endif()
+	endif()
+	
 	if(EZ_CMAKE_PLATFORM_ANDROID)
 		# Add the location for native_app_glue.h to the include directories.
 		target_include_directories(${TARGET_NAME} PRIVATE "${CMAKE_ANDROID_NDK}/sources/android/native_app_glue")

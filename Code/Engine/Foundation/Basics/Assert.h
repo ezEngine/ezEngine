@@ -82,14 +82,14 @@ inline const char* ezFmt(const char* szFormat)
 /// Allows to write a message using printf style.
 /// Compiled out in non-debug builds.
 /// The condition is not evaluated, when this is compiled out, so do not execute important code in it.
-#define EZ_ASSERT_DEBUG EZ_ASSERT_ALWAYS
+#  define EZ_ASSERT_DEBUG EZ_ASSERT_ALWAYS
 #else
 /// \brief Macro to raise an error, if a condition is not met.
 ///
 /// Allows to write a message using printf style.
 /// Compiled out in non-debug builds.
 /// The condition is not evaluated, when this is compiled out, so do not execute important code in it.
-#define EZ_ASSERT_DEBUG(bCondition, szErrorMsg, ...)
+#  define EZ_ASSERT_DEBUG(bCondition, szErrorMsg, ...)
 #endif
 
 
@@ -101,14 +101,14 @@ inline const char* ezFmt(const char* szFormat)
 /// Allows to write a message using printf style.
 /// Compiled out in non-development builds.
 /// The condition is not evaluated, when this is compiled out, so do not execute important code in it.
-#define EZ_ASSERT_DEV EZ_ASSERT_ALWAYS
+#  define EZ_ASSERT_DEV EZ_ASSERT_ALWAYS
 
 /// \brief Macro to raise an error, if a condition is not met.
 ///
 /// Allows to write a message using printf style.
 /// Compiled out in non-development builds, however the condition is always evaluated,
 /// so you may execute important code in it.
-#define EZ_VERIFY EZ_ASSERT_ALWAYS
+#  define EZ_VERIFY EZ_ASSERT_ALWAYS
 
 #else
 
@@ -117,17 +117,17 @@ inline const char* ezFmt(const char* szFormat)
 /// Allows to write a message using printf style.
 /// Compiled out in non-development builds.
 /// The condition is not evaluated, when this is compiled out, so do not execute important code in it.
-#define EZ_ASSERT_DEV(bCondition, szErrorMsg, ...)
+#  define EZ_ASSERT_DEV(bCondition, szErrorMsg, ...)
 
 /// \brief Macro to raise an error, if a condition is not met.
 ///
 /// Allows to write a message using printf style.
 /// Compiled out in non-development builds, however the condition is always evaluated,
 /// so you may execute important code in it.
-#define EZ_VERIFY(bCondition, szErrorMsg, ...)                             \
-  if (!!(bCondition) == false)                                             \
-  { /* The condition is evaluated, even though nothing is done with it. */ \
-  }
+#  define EZ_VERIFY(bCondition, szErrorMsg, ...)                             \
+    if (!!(bCondition) == false)                                             \
+    { /* The condition is evaluated, even though nothing is done with it. */ \
+    }
 
 #endif
 
@@ -138,7 +138,7 @@ inline const char* ezFmt(const char* szFormat)
 /// These asserts can be disabled (and then their condition will not be evaluated),
 /// but this needs to be specifically done by the user by defining EZ_DISABLE_RELEASE_ASSERTS.
 /// That should only be done, if you are intending to ship a product, and want get rid of all unnecessary overhead.
-#define EZ_ASSERT_RELEASE(bCondition, szErrorMsg, ...)
+#  define EZ_ASSERT_RELEASE(bCondition, szErrorMsg, ...)
 
 #else
 
@@ -147,7 +147,12 @@ inline const char* ezFmt(const char* szFormat)
 /// These asserts can be disabled (and then their condition will not be evaluated),
 /// but this needs to be specifically done by the user by defining EZ_DISABLE_RELEASE_ASSERTS.
 /// That should only be done, if you are intending to ship a product, and want get rid of all unnecessary overhead.
-#define EZ_ASSERT_RELEASE EZ_ASSERT_ALWAYS
+#  define EZ_ASSERT_RELEASE EZ_ASSERT_ALWAYS
 
 #endif
 
+/// \brief Macro to make unhandled cases in a switch block an error.
+#define EZ_DEFAULT_CASE_NOT_IMPLEMENTED \
+  default:                              \
+    EZ_ASSERT_NOT_IMPLEMENTED           \
+    break;

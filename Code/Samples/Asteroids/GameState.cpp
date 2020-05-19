@@ -8,7 +8,7 @@
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <System/Window/Window.h>
 
-#include <XboxControllerPlugin/InputDeviceXBox.h>
+#include <XBoxControllerPlugin/InputDeviceXBox.h>
 
 EZ_APPLICATION_ENTRY_POINT(ezGameApplication, "Asteroids", "Data/Samples/Asteroids");
 

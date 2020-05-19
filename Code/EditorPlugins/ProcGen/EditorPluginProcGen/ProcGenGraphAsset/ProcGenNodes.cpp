@@ -25,10 +25,10 @@ namespace
         return ezExpressionAST::NodeType::Max;
       case ezProcGenBlendMode::Min:
         return ezExpressionAST::NodeType::Min;
+      default:
+        EZ_ASSERT_NOT_IMPLEMENTED;
+        return ezExpressionAST::NodeType::Invalid;
     }
-
-    EZ_ASSERT_NOT_IMPLEMENTED;
-    return ezExpressionAST::NodeType::Invalid;
   }
 
   ezExpressionAST::Node* CreateRandom(float fSeed, ezExpressionAST& out_Ast)

@@ -78,6 +78,9 @@ void ezDecalAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager
       }
     }
     break;
+
+    default:
+      break;
   }
 }
 

@@ -1,9 +1,9 @@
 #pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
-#include <QListView>
-#include <QItemDelegate>
 #include <GuiFoundation/Widgets/ItemView.moc.h>
+#include <QItemDelegate>
+#include <QListView>
 
 class ezQtIconViewDelegate;
 
@@ -12,7 +12,6 @@ class ezQtAssetBrowserView : public ezQtItemView<QListView>
   Q_OBJECT
 
 public:
-
   ezQtAssetBrowserView(QWidget* pParent);
   void SetDialogMode(bool bDialogMode);
 
@@ -38,19 +37,18 @@ class ezQtIconViewDelegate : public ezQtItemDelegate
   Q_OBJECT
 
 public:
-
   ezQtIconViewDelegate(ezQtAssetBrowserView* pParent = nullptr);
 
   void SetDrawTransformState(bool b) { m_bDrawTransformState = b; }
 
   void SetIconScale(ezInt32 iIconSizePercentage);
 
-  virtual bool mousePressEvent(QMouseEvent* event, const QStyleOptionViewItem& option, const QModelIndex& index);
-  virtual bool mouseReleaseEvent(QMouseEvent* event, const QStyleOptionViewItem& option, const QModelIndex& index);
+  virtual bool mousePressEvent(QMouseEvent* event, const QStyleOptionViewItem& option, const QModelIndex& index) override;
+  virtual bool mouseReleaseEvent(QMouseEvent* event, const QStyleOptionViewItem& option, const QModelIndex& index) override;
 
 public:
   virtual void paint(QPainter* painter, const QStyleOptionViewItem& opt, const QModelIndex& index) const override;
-  virtual QSize	sizeHint(const QStyleOptionViewItem& opt, const QModelIndex& index) const override;
+  virtual QSize sizeHint(const QStyleOptionViewItem& opt, const QModelIndex& index) const override;
 
 private:
   QSize ItemSize() const;

@@ -1,9 +1,9 @@
 #pragma once
 
+#include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <Foundation/Basics.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
-#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 
 class ezMaterialAssetDocument;
 class ezQtOrbitCamViewWidget;
@@ -25,7 +25,7 @@ public:
   ~ezQtMaterialAssetDocumentWindow();
 
   ezMaterialAssetDocument* GetMaterialDocument();
-  virtual const char* GetWindowLayoutGroupName() const { return "MaterialAsset"; }
+  virtual const char* GetWindowLayoutGroupName() const override { return "MaterialAsset"; }
 
 protected:
   virtual void InternalRedraw() override;
@@ -58,6 +58,4 @@ private:
 
   static ezInt32 s_iNodeConfigWatchers;
   static ezDirectoryWatcher* s_pNodeConfigWatcher;
-
-
 };

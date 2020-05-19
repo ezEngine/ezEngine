@@ -154,7 +154,27 @@ function(ez_set_build_flags_clang TARGET_NAME)
 	
 	if(EZ_CMAKE_PLATFORM_WINDOWS)
 		# Disable the warning that clang doesn't support pragma optimize.
-		target_compile_options(${TARGET_NAME} PRIVATE -Wno-ignored-pragma-optimize)
+		target_compile_options(${TARGET_NAME} PRIVATE -Wno-ignored-pragma-optimize -Wno-pragma-pack)
+		# TODO remove
+		target_compile_options(${TARGET_NAME} PRIVATE -Wno-dynamic-class-memaccess)
+	endif()
+	
+	if(NOT (CMAKE_CURRENT_SOURCE_DIR MATCHES "Code/ThirdParty"))
+		target_compile_options(${TARGET_NAME} PRIVATE -Werror=inconsistent-missing-override -Werror=switch)
+	else()
+		message(STATUS ">>> Skip strict warnings on ThirdParty target ${TARGET_NAME}")
+	endif()
+	
+	if(EZ_ENABLE_QT_SUPPORT)
+		# Ignore any warnings caused by Qt headers
+		target_compile_options(${TARGET_NAME} PRIVATE "--system-header-prefix=\"${EZ_QT_DIR}\"")
+	endif()
+	
+	# Ignore any warnings caused by headers inside the ThirdParty directory.
+	if(EZ_SUBMODULE_PREFIX_PATH)
+		target_compile_options(${TARGET_NAME} PRIVATE "--system-header-prefix=\"${CMAKE_SOURCE_DIR}/${EZ_SUBMODULE_PREFIX_PATH}/Code/ThirdParty\"")
+	else()
+		target_compile_options(${TARGET_NAME} PRIVATE "--system-header-prefix=\"${CMAKE_SOURCE_DIR}/Code/ThirdParty\"")
 	endif()
 
 endfunction()
