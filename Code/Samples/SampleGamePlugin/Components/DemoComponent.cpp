@@ -16,7 +16,7 @@ EZ_BEGIN_COMPONENT_TYPE(DemoComponent, 2, ezComponentMode::Dynamic)
 
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("SampleGame"),
+    new ezCategoryAttribute("SampleGamePlugin"),
   }
   EZ_END_ATTRIBUTES;
 }
