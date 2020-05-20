@@ -15,7 +15,7 @@ EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(DebugRenderComponentMask, 1)
   EZ_BITFLAGS_CONSTANT(DebugRenderComponentMask::Quad)
 EZ_END_STATIC_REFLECTED_BITFLAGS;
 
-EZ_BEGIN_COMPONENT_TYPE(DebugRenderComponent, 2 /* version for serialization */, ezComponentMode::Dynamic)
+EZ_BEGIN_COMPONENT_TYPE(DebugRenderComponent, 2 /* version for serialization */, ezComponentMode::Static /* this component does not move the owner node */)
 {
   EZ_BEGIN_PROPERTIES
   {
