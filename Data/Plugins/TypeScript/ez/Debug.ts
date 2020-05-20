@@ -15,7 +15,7 @@ export import Transform = __Transform.Transform;
 
 import __Component = require("./Component")
 
-declare function __CPP_Debug_DrawCross(pos: Vec3, size: number, color: Color): void;
+declare function __CPP_Debug_DrawCross(pos: Vec3, size: number, color: Color, transform: Transform): void;
 declare function __CPP_Debug_DrawLines(lines: Debug.Line[], color: Color): void;
 declare function __CPP_Debug_Draw2DLines(lines: Debug.Line[], color: Color): void;
 declare function __CPP_Debug_DrawLineBox(min: Vec3, max: Vec3, color: Color, transform: Transform): void;
@@ -62,9 +62,10 @@ export namespace Debug {
      * @param pos Position in world-space where to render the cross.
      * @param size Length of the cross lines.
      * @param color Color of the cross lines.
+     * @param transform Optional transformation (rotation, scale, translation) of the cross.
      */
-    export function DrawCross(pos: Vec3, size: number, color: Color): void {
-        __CPP_Debug_DrawCross(pos, size, color);
+    export function DrawCross(pos: Vec3, size: number, color: Color, transform: Transform = null): void {
+        __CPP_Debug_DrawCross(pos, size, color, transform);
     }
 
     /**
@@ -100,7 +101,7 @@ export namespace Debug {
      * @param min The minimum corner of the AABB.
      * @param max The maximum corner of the AABB.
      * @param color The color of the lines.
-     * @param transform Optional trnasformation (rotation, scale, transform) of the bbox.
+     * @param transform Optional transformation (rotation, scale, translation) of the bbox.
      */
     export function DrawLineBox(min: Vec3, max: Vec3, color: Color = null, transform: Transform = null): void {
         __CPP_Debug_DrawLineBox(min, max, color, transform);
@@ -113,7 +114,7 @@ export namespace Debug {
      * @param min The minimum corner of the AABB.
      * @param max The maximum corner of the AABB.
      * @param color The color of the faces.
-     * @param transform Optional trnasformation (rotation, scale, transform) of the bbox.
+     * @param transform Optional transformation (rotation, scale, translation) of the bbox.
      */
     export function DrawSolidBox(min: Vec3, max: Vec3, color: Color = null, transform: Transform = null): void {
         __CPP_Debug_DrawSolidBox(min, max, color, transform);

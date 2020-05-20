@@ -5,28 +5,28 @@
 #include <SampleGamePlugin/Components/DemoComponent.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(DemoComponent, 2, ezComponentMode::Dynamic)
+EZ_BEGIN_COMPONENT_TYPE(DemoComponent, 3, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("Height", m_fHeight)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(0, 10)),
-    EZ_MEMBER_PROPERTY("Speed", m_fSpeed)->AddAttributes(new ezDefaultValueAttribute(90)),
+    EZ_MEMBER_PROPERTY("Amplitude", m_fAmplitude)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(0, 10)),
+    EZ_MEMBER_PROPERTY("Speed", m_Speed)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(90))),
   }
   EZ_END_PROPERTIES;
 
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("SampleGame"),
+    new ezCategoryAttribute("SampleGamePlugin"),
   }
   EZ_END_ATTRIBUTES;
 }
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
-DemoComponent::DemoComponent() {}
+DemoComponent::DemoComponent() = default;
+DemoComponent::~DemoComponent() = default;
 
 void DemoComponent::OnSimulationStarted() {}
-
 
 void DemoComponent::SerializeComponent(ezWorldWriter& stream) const
 {
@@ -34,10 +34,9 @@ void DemoComponent::SerializeComponent(ezWorldWriter& stream) const
 
   auto& s = stream.GetStream();
 
-  s << m_fHeight;
-  s << m_fSpeed;
+  s << m_fAmplitude;
+  s << m_Speed;
 }
-
 
 void DemoComponent::DeserializeComponent(ezWorldReader& stream)
 {
@@ -46,19 +45,27 @@ void DemoComponent::DeserializeComponent(ezWorldReader& stream)
 
   auto& s = stream.GetStream();
 
-  s >> m_fHeight;
-  s >> m_fSpeed;
+  s >> m_fAmplitude;
+
+  if (uiVersion <= 2)
+  {
+    float fDegree;
+    s >> fDegree;
+    m_Speed = ezAngle::Degree(fDegree);
+  }
+  else
+  {
+    s >> m_Speed;
+  }
 }
 
 void DemoComponent::Update()
 {
-  const ezWorld* pWorld = GetWorld();
-  const ezClock& clock = pWorld->GetClock();
-  const ezTime currentTime = clock.GetAccumulatedTime();
+  const ezTime curTime = GetWorld()->GetClock().GetAccumulatedTime();
 
-  const ezAngle angle = ezAngle::Degree(static_cast<float>(currentTime.GetSeconds()) * m_fSpeed);
+  const ezAngle curAngle = curTime.GetSeconds() * m_Speed;
 
-  const float curHeight = ezMath::Sin(angle) * m_fHeight;
+  const float curHeight = ezMath::Sin(curAngle) * m_fAmplitude;
 
   GetOwner()->SetLocalPosition(ezVec3(0, 0, curHeight));
 }
