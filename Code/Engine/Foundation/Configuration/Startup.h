@@ -32,6 +32,7 @@
 ///
 /// A subsystem startup configuration for a static subsystem needs to be put in some cpp file of the subsystem and looks like this:
 ///
+/// // clang-format off
 /// EZ_BEGIN_SUBSYSTEM_DECLARATION(ExampleGroup, ExampleSubSystem)
 ///
 ///   BEGIN_SUBSYSTEM_DEPENDENCIES
@@ -61,6 +62,7 @@
 ///   }
 ///
 /// EZ_END_SUBSYSTEM_DECLARATION;
+/// // clang-format on
 ///
 /// This will automatically register the subsystem, once the code is being loaded (can be dynamically loaded from a DLL).
 /// The next time any of the ezStartup functions are called (StartupCoreSystems, StartupHighLevelSystems) the subsystem will be initialized.
