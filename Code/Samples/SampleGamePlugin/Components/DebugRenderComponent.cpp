@@ -5,6 +5,7 @@
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <SampleGamePlugin/Components/DebugRenderComponent.h>
+#include <Foundation/Math/Rect.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(DebugRenderComponentMask, 1)
@@ -21,7 +22,7 @@ EZ_BEGIN_COMPONENT_TYPE(DebugRenderComponent, 2 /* version for serialization */,
     EZ_MEMBER_PROPERTY("Size", m_fSize)->AddAttributes(new ezDefaultValueAttribute(1), new ezClampValueAttribute(0, 10)),
     EZ_MEMBER_PROPERTY("Color", m_Color)->AddAttributes(new ezDefaultValueAttribute(ezColor::White)),
     EZ_ACCESSOR_PROPERTY("Texture", GetTextureFile, SetTextureFile)->AddAttributes(new ezAssetBrowserAttribute("Texture 2D")),
-    EZ_BITFLAGS_MEMBER_PROPERTY("Render", DebugRenderComponentMask, m_RenderTypes),
+    EZ_BITFLAGS_MEMBER_PROPERTY("Render", DebugRenderComponentMask, m_RenderTypes)->AddAttributes(new ezDefaultValueAttribute(DebugRenderComponentMask::Box)),
   }
   EZ_END_PROPERTIES;
 

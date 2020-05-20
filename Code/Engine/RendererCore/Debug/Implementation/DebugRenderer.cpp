@@ -103,7 +103,7 @@ namespace
     }
 
     ezUInt64 m_uiLastRenderedFrame;
-    PerContextData* m_pData[2];
+    ezUniquePtr<PerContextData> m_pData[2];
   };
 
   static ezHashTable<ezDebugRendererContext, DoubleBufferedPerContextData> s_PerContextData;
@@ -118,11 +118,10 @@ namespace
         ? ezRenderWorld::GetDataIndexForRendering()
         : ezRenderWorld::GetDataIndexForExtraction();
 
-    PerContextData* pData = doubleBufferedData.m_pData[uiDataIndex];
+    ezUniquePtr<PerContextData>& pData = doubleBufferedData.m_pData[uiDataIndex];
     if (pData == nullptr)
     {
-      pData = EZ_DEFAULT_NEW(PerContextData);
-      doubleBufferedData.m_pData[uiDataIndex] = pData;
+      doubleBufferedData.m_pData[uiDataIndex] = EZ_DEFAULT_NEW(PerContextData);
     }
 
     return *pData;
@@ -134,7 +133,7 @@ namespace
 
     for (auto it = s_PerContextData.GetIterator(); it.IsValid(); ++it)
     {
-      PerContextData* pData = it.Value().m_pData[ezRenderWorld::GetDataIndexForRendering()];
+      PerContextData* pData = it.Value().m_pData[ezRenderWorld::GetDataIndexForRendering()].Borrow();
       if (pData)
       {
         pData->m_lineVertices.Clear();
@@ -842,7 +841,7 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
 
   pDoubleBufferedContextData->m_uiLastRenderedFrame = ezRenderWorld::GetFrameCounter();
 
-  PerContextData* pData = pDoubleBufferedContextData->m_pData[ezRenderWorld::GetDataIndexForRendering()];
+  PerContextData* pData = pDoubleBufferedContextData->m_pData[ezRenderWorld::GetDataIndexForRendering()].Borrow();
   if (pData == nullptr)
   {
     return;
@@ -1259,6 +1258,8 @@ void ezDebugRenderer::OnEngineShutdown()
   s_hDebugPrimitiveShader.Invalidate();
   s_hDebugTexturedPrimitiveShader.Invalidate();
   s_hDebugTextShader.Invalidate();
+
+  s_PerContextData.Clear();
 }
 
 
