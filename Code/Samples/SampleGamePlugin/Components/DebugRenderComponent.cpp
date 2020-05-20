@@ -2,10 +2,10 @@
 
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
+#include <Foundation/Math/Rect.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <SampleGamePlugin/Components/DebugRenderComponent.h>
-#include <Foundation/Math/Rect.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(DebugRenderComponentMask, 1)
@@ -112,9 +112,11 @@ void DebugRenderComponent::Update()
 
   if (m_RenderTypes.IsSet(DebugRenderComponentMask::Sphere))
   {
+    // BEGIN-DOCS-CODE-SNIPPET: debugrender-sphere
     ezBoundingSphere sphere;
     sphere.SetElements(ezVec3::ZeroVector(), m_fSize);
     ezDebugRenderer::DrawLineSphere(GetWorld(), sphere, m_Color, ownerTransform);
+    // END-DOCS-CODE-SNIPPET
   }
 
   if (m_RenderTypes.IsSet(DebugRenderComponentMask::Quad) && m_hTexture.IsValid())
