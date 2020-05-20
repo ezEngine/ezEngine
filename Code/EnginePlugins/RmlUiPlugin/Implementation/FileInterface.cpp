@@ -41,6 +41,15 @@ namespace ezRmlUiInternal
 
   bool FileInterface::Seek(Rml::Core::FileHandle file, long offset, int origin)
   {
+    auto it = m_OpenFiles.Find(file);
+    EZ_ASSERT_DEV(it.IsValid(), "Invalid file handle {}", file);
+
+    if (origin == SEEK_CUR && offset >= 0)
+    {
+      ezUInt64 skippedBytes = it.Value()->SkipBytes(offset);
+      return skippedBytes == offset;
+    }
+
     EZ_ASSERT_NOT_IMPLEMENTED;
     return false;
   }

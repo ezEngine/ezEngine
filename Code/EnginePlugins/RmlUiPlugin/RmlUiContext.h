@@ -38,4 +38,6 @@ private:
   Rml::Core::ElementDocument* m_pDocument = nullptr;
 
   ezUniquePtr<ezRmlUiInternal::Extractor> m_pExtractor;
+  ezMutex m_ExtractionMutex;
+  ezUInt64 m_uiExtractedFrame = 0;
 };

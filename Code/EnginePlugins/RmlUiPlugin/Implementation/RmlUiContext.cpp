@@ -1,14 +1,15 @@
 #include <RmlUiPluginPCH.h>
 
 #include <RendererCore/Pipeline/RenderData.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RmlUiPlugin/Implementation/Extractor.h>
 #include <RmlUiPlugin/RmlUiContext.h>
 
 ezRmlUiContext::ezRmlUiContext()
 {
+  m_pExtractor = EZ_DEFAULT_NEW(ezRmlUiInternal::Extractor);
 
-
-  m_pContext = Rml::Core::CreateContext("Test", Rml::Core::Vector2i(400, 400));
+  m_pContext = Rml::Core::CreateContext("Test", Rml::Core::Vector2i(400, 400), m_pExtractor.Borrow());
 }
 
 ezRmlUiContext::~ezRmlUiContext()
@@ -24,22 +25,51 @@ ezResult ezRmlUiContext::LoadDocumentFromFile(const char* szFile)
     m_pDocument = nullptr;
   }
 
-  if (m_pDocument = m_pContext->LoadDocument(szFile))
+  if (ezStringUtils::IsNullOrEmpty(szFile) == false)
   {
-    m_pDocument->Show();
+    if (m_pDocument = m_pContext->LoadDocument(szFile))
+    {
+      m_pDocument->Show();
+    }
   }
 
-  return m_pContext != nullptr ? EZ_SUCCESS : EZ_FAILURE;
+  return m_pDocument != nullptr ? EZ_SUCCESS : EZ_FAILURE;
 }
 
 void ezRmlUiContext::Update()
 {
-  m_pContext->Update();
+  if (m_pDocument != nullptr)
+  {
+    m_pContext->Update();
+  }
 }
 
 void ezRmlUiContext::ExtractRenderData(ezMsgExtractRenderData& msg)
 {
-  //m_pContext->Render();
+  if (m_pDocument == nullptr)
+    return;
 
-  //msg.AddRenderData(m_pExtractor->GetRenderData(), ezDefaultRenderDataCategories::GUI, ezRenderData::Caching::Never);
+  if (m_uiExtractedFrame != ezRenderWorld::GetFrameCounter())
+  {
+    EZ_LOCK(m_ExtractionMutex);
+
+    if (m_uiExtractedFrame != ezRenderWorld::GetFrameCounter())
+    {
+      m_pExtractor->BeginExtraction();
+
+      m_pContext->Render();
+
+      m_pExtractor->EndExtraction();
+    }
+  }
+
+  if (ezRenderData* pRenderData = m_pExtractor->GetRenderData())
+  {
+    msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::GUI, ezRenderData::Caching::Never);
+  }
+}
+
+Rml::Core::Context* ezRmlUiContext::GetRmlContext()
+{
+  return m_pContext;
 }
