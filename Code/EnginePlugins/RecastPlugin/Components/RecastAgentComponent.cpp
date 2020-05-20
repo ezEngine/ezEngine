@@ -506,9 +506,9 @@ void ezRcAgentComponent::VisualizePathCorridor()
       rcPos[2] = &(pTile->verts[pPoly->verts[i] * 3]);
 
       auto& tri = tris.ExpandAndGetRef();
-      tri.m_p0 = ezVec3(rcPos[0]) + ezVec3(0, 0, 0.1f);
-      tri.m_p2 = ezVec3(rcPos[1]) + ezVec3(0, 0, 0.1f);
-      tri.m_p1 = ezVec3(rcPos[2]) + ezVec3(0, 0, 0.1f);
+      tri.m_position[0] = ezVec3(rcPos[0]) + ezVec3(0, 0, 0.1f);
+      tri.m_position[1] = ezVec3(rcPos[1]) + ezVec3(0, 0, 0.1f);
+      tri.m_position[2] = ezVec3(rcPos[2]) + ezVec3(0, 0, 0.1f);
     }
 
     ezDebugRenderer::DrawSolidTriangles(GetWorld(), tris, ezColor::OrangeRed.WithAlpha(0.4f));

@@ -86,6 +86,7 @@ namespace
     ezDynamicArray<BoxData, ezAlignedAllocatorWrapper> m_lineBoxes;
     ezDynamicArray<BoxData, ezAlignedAllocatorWrapper> m_solidBoxes;
     ezMap<ezTexture2DResourceHandle, ezDynamicArray<TexVertex, ezAlignedAllocatorWrapper>> m_texTriangle2DVertices;
+    ezMap<ezTexture2DResourceHandle, ezDynamicArray<TexVertex, ezAlignedAllocatorWrapper>> m_texTriangle3DVertices;
 
     ezDynamicArray<TextLineData2D> m_textLines2D;
     ezDynamicArray<TextLineData3D> m_textLines3D;
@@ -143,6 +144,7 @@ namespace
         pData->m_triangleVertices.Clear();
         pData->m_triangle2DVertices.Clear();
         pData->m_texTriangle2DVertices.Clear();
+        pData->m_texTriangle3DVertices.Clear();
         pData->m_textLines2D.Clear();
         pData->m_textLines3D.Clear();
       }
@@ -167,6 +169,7 @@ namespace
       Triangles3D,
       Triangles2D,
       TexTriangles2D,
+      TexTriangles3D,
       Glyphs,
       Lines2D,
 
@@ -386,7 +389,7 @@ void ezDebugRenderer::Draw2DLines(const ezDebugRendererContext& context, ezArray
 }
 
 //static
-void ezDebugRenderer::DrawCross(const ezDebugRendererContext& context, const ezVec3& globalPosition, float fLineLength, const ezColor& color)
+void ezDebugRenderer::DrawCross(const ezDebugRendererContext& context, const ezVec3& globalPosition, float fLineLength, const ezColor& color, const ezTransform& transform /*= ezTransform::IdentityTransform()*/)
 {
   if (fLineLength <= 0.0f)
     return;
@@ -398,9 +401,9 @@ void ezDebugRenderer::DrawCross(const ezDebugRendererContext& context, const ezV
 
   Line lines[3] =
     {
-      {globalPosition - xAxis, globalPosition + xAxis},
-      {globalPosition - yAxis, globalPosition + yAxis},
-      {globalPosition - zAxis, globalPosition + zAxis}};
+      {transform.TransformPosition(globalPosition - xAxis), transform.TransformPosition(globalPosition + xAxis)},
+      {transform.TransformPosition(globalPosition - yAxis), transform.TransformPosition(globalPosition + yAxis)},
+      {transform.TransformPosition(globalPosition - zAxis), transform.TransformPosition(globalPosition + zAxis)}};
 
   DrawLines(context, lines, color);
 }
@@ -698,19 +701,37 @@ void ezDebugRenderer::DrawSolidTriangles(const ezDebugRendererContext& context, 
 
   for (auto& triangle : triangles)
   {
-    ezVec3* pPositions = &triangle.m_p0;
-
     for (ezUInt32 i = 0; i < 3; ++i)
     {
       auto& vertex = data.m_triangleVertices.ExpandAndGetRef();
-      vertex.m_position = pPositions[i];
+      vertex.m_position = triangle.m_position[i];
       vertex.m_color = color;
     }
   }
 }
 
-void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth,
-  const ezColor& color)
+void ezDebugRenderer::DrawTexturedTriangles(const ezDebugRendererContext& context, ezArrayPtr<TexturedTriangle> triangles, const ezColor& color, const ezTexture2DResourceHandle& hTexture)
+{
+  if (triangles.IsEmpty())
+    return;
+
+  EZ_LOCK(s_Mutex);
+
+  auto& data = GetDataForExtraction(context).m_texTriangle3DVertices[hTexture];
+
+  for (auto& triangle : triangles)
+  {
+    for (ezUInt32 i = 0; i < 3; ++i)
+    {
+      auto& vertex = data.ExpandAndGetRef();
+      vertex.m_position = triangle.m_position[i];
+      vertex.m_texCoord = triangle.m_texcoord[i];
+      vertex.m_color = color;
+    }
+  }
+}
+
+void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color)
 {
   Vertex vertices[6];
 
@@ -734,8 +755,7 @@ void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, con
   data.m_triangle2DVertices.PushBackRange(ezMakeArrayPtr(vertices));
 }
 
-void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth,
-  const ezColor& color, const ezTexture2DResourceHandle& hTexture)
+void ezDebugRenderer::Draw2DRectangle(const ezDebugRendererContext& context, const ezRectFloat& rectInPixel, float fDepth, const ezColor& color, const ezTexture2DResourceHandle& hTexture)
 {
   TexVertex vertices[6];
 
@@ -995,7 +1015,7 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
     }
   }
 
-  // Textured 2D Rectangles
+  // Textured 2D triangles
   {
     for (auto itTex = pData->m_texTriangle2DVertices.GetIterator(); itTex.IsValid(); ++itTex)
     {
@@ -1025,6 +1045,39 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
           renderViewContext.m_pRenderContext->DrawMeshBuffer();
 
           uiNum2DVertices -= uiNum2DVerticesInBatch;
+          pTriangleData += TEX_TRIANGLE_VERTICES_PER_BATCH;
+        }
+      }
+    }
+  }
+
+  // Textured 3D triangles
+  {
+    for (auto itTex = pData->m_texTriangle3DVertices.GetIterator(); itTex.IsValid(); ++itTex)
+    {
+      renderViewContext.m_pRenderContext->BindTexture2D("BaseTexture", itTex.Key());
+
+      const auto& verts = itTex.Value();
+
+      ezUInt32 uiNumVertices = verts.GetCount();
+      if (uiNumVertices != 0)
+      {
+        CreateVertexBuffer(BufferType::TexTriangles3D, sizeof(TexVertex));
+
+        renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PRE_TRANSFORMED_VERTICES", "FALSE");
+        renderViewContext.m_pRenderContext->BindShader(s_hDebugTexturedPrimitiveShader);
+
+        const TexVertex* pTriangleData = verts.GetData();
+        while (uiNumVertices > 0)
+        {
+          const ezUInt32 uiNumVerticesInBatch = ezMath::Min<ezUInt32>(uiNumVertices, TEX_TRIANGLE_VERTICES_PER_BATCH);
+          EZ_ASSERT_DEV(uiNumVerticesInBatch % 3 == 0, "Vertex count must be a multiple of 3.");
+          pGALContext->UpdateBuffer(s_hDataBuffer[BufferType::TexTriangles3D], 0, ezMakeArrayPtr(pTriangleData, uiNumVerticesInBatch).ToByteArray());
+
+          renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDataBuffer[BufferType::TexTriangles3D], ezGALBufferHandle(), &s_TexVertexDeclarationInfo, ezGALPrimitiveTopology::Triangles, uiNumVerticesInBatch / 3);
+          renderViewContext.m_pRenderContext->DrawMeshBuffer();
+
+          uiNumVertices -= uiNumVerticesInBatch;
           pTriangleData += TEX_TRIANGLE_VERTICES_PER_BATCH;
         }
       }
