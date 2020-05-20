@@ -22,7 +22,7 @@ static int __CPP_Debug_RegisterCFunc(duk_context* pDuk);
 
 ezResult ezTypeScriptBinding::Init_Debug()
 {
-  m_Duk.RegisterGlobalFunction("__CPP_Debug_DrawCross", __CPP_Debug_DrawCross, 3);
+  m_Duk.RegisterGlobalFunction("__CPP_Debug_DrawCross", __CPP_Debug_DrawCross, 4);
   m_Duk.RegisterGlobalFunction("__CPP_Debug_DrawLines", __CPP_Debug_DrawLines, 2, 0);
   m_Duk.RegisterGlobalFunction("__CPP_Debug_Draw2DLines", __CPP_Debug_DrawLines, 2, 1);
   m_Duk.RegisterGlobalFunction("__CPP_Debug_DrawLineBox", __CPP_Debug_DrawBox, 4, 0);
@@ -53,8 +53,9 @@ static int __CPP_Debug_DrawCross(duk_context* pDuk)
   const ezVec3 pos = ezTypeScriptBinding::GetVec3(pDuk, 0);
   const float size = duk.GetFloatValue(1);
   const ezColor color = ezTypeScriptBinding::GetColor(pDuk, 2);
+  const ezTransform transform = ezTypeScriptBinding::GetTransform(pDuk, 3);
 
-  ezDebugRenderer::DrawCross(pWorld, pos, size, color);
+  ezDebugRenderer::DrawCross(pWorld, pos, size, color, transform);
 
   return duk.ReturnVoid();
 }
