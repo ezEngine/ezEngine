@@ -15,6 +15,7 @@
 class ezObjectAccessorBase;
 class ezObjectCommandAccessor;
 class ezEditorInputContext;
+class ezAbstractObjectNode;
 
 struct EZ_TOOLSFOUNDATION_DLL ezObjectAccessorChangeEvent
 {
@@ -181,10 +182,10 @@ public:
   /// \brief Removes the link between a prefab instance and its template, turning the instance into a regular object.
   virtual void UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& Selection);
 
-  virtual ezStatus CreatePrefabDocumentFromSelection(const char* szFile, const ezRTTI* pRootType);
-  virtual ezStatus CreatePrefabDocument(const char* szFile, const ezDocumentObject* pRootObject, const ezUuid& invPrefabSeed, ezUuid& out_NewDocumentGuid);
+  virtual ezStatus CreatePrefabDocumentFromSelection(const char* szFile, const ezRTTI* pRootType, ezDelegate<void(ezAbstractObjectNode*)> AdjustGraphNodeCB = ezDelegate<void(ezAbstractObjectNode*)>(), ezDelegate<void(ezDocumentObject*)> AdjustNewNodesCB = ezDelegate<void(ezDocumentObject*)>());
+  virtual ezStatus CreatePrefabDocument(const char* szFile, ezArrayPtr<const ezDocumentObject*> rootObjects, const ezUuid& invPrefabSeed, ezUuid& out_NewDocumentGuid, ezDelegate<void(ezAbstractObjectNode*)> AdjustGraphNodeCB = ezDelegate<void(ezAbstractObjectNode*)>());
   // Returns new guid of replaced object.
-  virtual ezUuid ReplaceByPrefab(const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed);
+  virtual ezUuid ReplaceByPrefab(const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, bool bEnginePrefab);
   // Returns new guid of reverted object.
   virtual ezUuid RevertPrefab(const ezDocumentObject* pObject);
 

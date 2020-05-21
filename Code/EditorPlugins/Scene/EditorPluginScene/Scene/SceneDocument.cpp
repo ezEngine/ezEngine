@@ -546,6 +546,41 @@ void ezSceneDocument::SetGameMode(GameMode::Enum mode)
   ScheduleSendObjectSelection();
 }
 
+ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(const char* szFile, const ezRTTI* pRootType, ezDelegate<void(ezAbstractObjectNode*)> AdjustGraphNodeCB /* = ezDelegate<void(ezAbstractObjectNode * )>() */, ezDelegate<void(ezDocumentObject*)> AdjustNewNodesCB /*= ezDelegate<void(ezDocumentObject*)>()*/)
+{
+  EZ_ASSERT_DEV(!AdjustGraphNodeCB.IsValid(), "Not allowed");
+  EZ_ASSERT_DEV(!AdjustNewNodesCB.IsValid(), "Not allowed");
+
+  auto Selection = GetSelectionManager()->GetTopLevelSelection(pRootType);
+
+  if (Selection.IsEmpty())
+    return ezStatus("To create a prefab, the selection must not be empty");
+
+  const ezTransform tReference = QueryLocalTransform(Selection.PeekBack());
+
+  auto centerNodes = [tReference](ezAbstractObjectNode* pGraphNode) {
+    if (auto pPosition = pGraphNode->FindProperty("LocalPosition"))
+    {
+      ezVec3 pos = pPosition->m_Value.ConvertTo<ezVec3>();
+      pos -= tReference.m_vPosition;
+
+      pGraphNode->ChangeProperty("LocalPosition", pos);
+    }
+  };
+
+  auto adjustResult = [tReference, this](ezDocumentObject* pObject) {
+    const ezTransform tOld = QueryLocalTransform(pObject);
+
+    ezSetObjectPropertyCommand cmd;
+    cmd.m_Object = pObject->GetGuid();
+    cmd.m_sProperty = "LocalPosition";
+    cmd.m_NewValue = tOld.m_vPosition + tReference.m_vPosition;
+
+    GetCommandHistory()->AddCommand(cmd);
+  };
+
+  return SUPER::CreatePrefabDocumentFromSelection(szFile, pRootType, centerNodes, adjustResult);
+}
 
 void ezSceneDocument::StartSimulateWorld()
 {

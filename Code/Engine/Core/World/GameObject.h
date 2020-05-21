@@ -30,7 +30,7 @@ struct ezEventMessage;
 /// \see ezWorld
 /// \see ezComponent
 /// \see ezGameObjectHandle
-class EZ_CORE_DLL ezGameObject
+class EZ_CORE_DLL ezGameObject final
 {
 private:
   enum

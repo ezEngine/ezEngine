@@ -488,9 +488,10 @@ void ezSelectionAction::UpdateEnableState()
 
     if (m_Type == ActionType::CreatePrefab)
     {
-      SetEnabled(sel.GetCount() == 1);
+      SetEnabled(true);
       return;
     }
+
     const bool bShouldBePrefab =
       (m_Type == ActionType::RevertPrefab) || (m_Type == ActionType::ConvertToEnginePrefab) || (m_Type == ActionType::UnlinkFromPrefab);
 

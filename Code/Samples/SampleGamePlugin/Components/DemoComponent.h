@@ -5,7 +5,7 @@
 #include <Core/World/World.h>
 #include <SampleGamePlugin/SampleGamePluginDLL.h>
 
-typedef ezComponentManagerSimple<class DemoComponent, ezComponentUpdateType::WhenSimulating> DemoComponentManager;
+using DemoComponentManager = ezComponentManagerSimple<class DemoComponent, ezComponentUpdateType::WhenSimulating>;
 
 class DemoComponent : public ezComponent
 {

@@ -81,10 +81,9 @@ void ezSceneDocument::UpdatePrefabs()
 }
 
 
-ezUuid ezSceneDocument::ReplaceByPrefab(
-  const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed)
+ezUuid ezSceneDocument::ReplaceByPrefab(const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, bool bEnginePrefab)
 {
-  ezUuid newGuid = SUPER::ReplaceByPrefab(pRootObject, szPrefabFile, PrefabAsset, PrefabSeed);
+  ezUuid newGuid = SUPER::ReplaceByPrefab(pRootObject, szPrefabFile, PrefabAsset, PrefabSeed, bEnginePrefab);
   if (newGuid.IsValid())
   {
     auto pMeta = m_GameObjectMetaData.BeginModifyMetaData(newGuid);
@@ -165,6 +164,8 @@ void ezSceneDocument::UpdatePrefabObject(
 
 void ezSceneDocument::ConvertToEditorPrefab(const ezDeque<const ezDocumentObject*>& Selection)
 {
+  ezDeque<const ezDocumentObject*> newSelection;
+
   auto pHistory = GetCommandHistory();
   pHistory->StartTransaction("Convert to Editor Prefab");
 
@@ -183,21 +184,26 @@ void ezSceneDocument::ConvertToEditorPrefab(const ezDeque<const ezDocumentObject
 
     ezUuid newGuid;
     newGuid.CreateNewUuid();
-    ezUuid newObject = ReplaceByPrefab(pObject, pAsset->m_pAssetInfo->m_sAbsolutePath, assetGuid, newGuid);
+    ezUuid newObject = ReplaceByPrefab(pObject, pAsset->m_pAssetInfo->m_sAbsolutePath, assetGuid, newGuid, false);
 
     if (newObject.IsValid())
     {
       const ezDocumentObject* pNewObject = GetObjectManager()->GetObject(newObject);
       SetGlobalTransform(pNewObject, transform, TransformationChanges::All);
+
+      newSelection.PushBack(pNewObject);
     }
   }
 
   pHistory->FinishTransaction();
-}
 
+  GetSelectionManager()->SetSelection(newSelection);
+}
 
 void ezSceneDocument::ConvertToEnginePrefab(const ezDeque<const ezDocumentObject*>& Selection)
 {
+  ezDeque<const ezDocumentObject*> newSelection;
+
   auto pHistory = GetCommandHistory();
   pHistory->StartTransaction("Convert to Engine Prefab");
 
@@ -253,6 +259,8 @@ void ezSceneDocument::ConvertToEnginePrefab(const ezDeque<const ezDocumentObject
     // set same position
     SetGlobalTransform(pNewObject, transform, TransformationChanges::All);
 
+    newSelection.PushBack(pNewObject);
+
     // delete old object
     {
       ezRemoveObjectCommand rem;
@@ -263,4 +271,6 @@ void ezSceneDocument::ConvertToEnginePrefab(const ezDeque<const ezDocumentObject
   }
 
   pHistory->FinishTransaction();
+
+  GetSelectionManager()->SetSelection(newSelection);
 }

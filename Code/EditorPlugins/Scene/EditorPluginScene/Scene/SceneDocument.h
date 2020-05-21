@@ -87,7 +87,7 @@ public:
   /// \brief Removes the link to the prefab template, making the editor prefab a simple object
   virtual void UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& Selection) override;
 
-  virtual ezUuid ReplaceByPrefab(const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed) override;
+  virtual ezUuid ReplaceByPrefab(const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, bool bEnginePrefab) override;
 
   /// \brief Reverts all selected editor prefabs to their original template state
   virtual ezUuid RevertPrefab(const ezDocumentObject* pObject) override;
@@ -96,6 +96,8 @@ public:
   virtual void ConvertToEditorPrefab(const ezDeque<const ezDocumentObject*>& Selection);
   /// \brief Converts all objects in the selection that are editor prefabs to their respective engine prefab representation
   virtual void ConvertToEnginePrefab(const ezDeque<const ezDocumentObject*>& Selection);
+
+  virtual ezStatus CreatePrefabDocumentFromSelection(const char* szFile, const ezRTTI* pRootType, ezDelegate<void(ezAbstractObjectNode * )> AdjustGraphNodeCB = ezDelegate<void(ezAbstractObjectNode * )>(), ezDelegate<void(ezDocumentObject*)> AdjustNewNodesCB = ezDelegate<void(ezDocumentObject*)>()) override;
 
   GameMode::Enum GetGameMode() const { return m_GameMode; }
 
