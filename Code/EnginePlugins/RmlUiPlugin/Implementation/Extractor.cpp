@@ -1,12 +1,17 @@
 #include <RmlUiPluginPCH.h>
 
+#include <Core/ResourceManager/ResourceManager.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RmlUiPlugin/Implementation/Extractor.h>
 
 namespace ezRmlUiInternal
 {
-  Extractor::Extractor() = default;
+  Extractor::Extractor()
+  {
+    m_hFallbackTexture = ezResourceManager::LoadResource<ezTexture2DResource>("White.color");
+  }
+
   Extractor::~Extractor() = default;
 
   void Extractor::RenderGeometry(Rml::Core::Vertex* vertices, int num_vertices, int* indices, int num_indices, Rml::Core::TextureHandle texture, const Rml::Core::Vector2f& translation)
@@ -18,6 +23,7 @@ namespace ezRmlUiInternal
   Rml::Core::CompiledGeometryHandle Extractor::CompileGeometry(Rml::Core::Vertex* vertices, int num_vertices, int* indices, int num_indices, Rml::Core::TextureHandle texture)
   {
     CompiledGeometry geometry;
+    geometry.m_uiTriangleCount = num_indices / 3;
 
     // vertices
     {
@@ -57,6 +63,10 @@ namespace ezRmlUiInternal
       if (m_Textures.TryGetValue(TextureId::FromRml(texture), phTexture))
       {
         geometry.m_hTexture = *phTexture;
+      }
+      else
+      {
+        geometry.m_hTexture = m_hFallbackTexture;
       }
     }
 
@@ -125,6 +135,7 @@ namespace ezRmlUiInternal
 
   void Extractor::BeginExtraction()
   {
+    m_Batches[ezRenderWorld::GetDataIndexForExtraction()].Clear();
     m_pCurrentRenderData = nullptr;
   }
 

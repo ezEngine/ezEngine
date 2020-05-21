@@ -21,6 +21,8 @@ ezInstanceData::~ezInstanceData()
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
   pDevice->DestroyBuffer(m_hInstanceDataBuffer);
+
+  ezRenderContext::DeleteConstantBufferStorage(m_hConstantBuffer);
 }
 
 void ezInstanceData::BindResources(ezRenderContext* pRenderContext)

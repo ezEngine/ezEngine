@@ -19,6 +19,7 @@ namespace ezRmlUiInternal
 
   struct CompiledGeometry
   {
+    ezUInt32 m_uiTriangleCount = 0;
     ezGALBufferHandle m_hVertexBuffer;
     ezGALBufferHandle m_hIndexBuffer;
     ezTexture2DResourceHandle m_hTexture;

@@ -67,6 +67,7 @@ namespace ezRmlUiInternal
   private:
     ezIdTable<GeometryId, CompiledGeometry> m_CompiledGeometry;
     ezIdTable<TextureId, ezTexture2DResourceHandle> m_Textures;
+    ezTexture2DResourceHandle m_hFallbackTexture;
 
     Batch m_CurrentBatch;
     bool m_bEnableScissor = false;
