@@ -372,6 +372,10 @@ EZ_ALWAYS_INLINE void ezGameObject::SetGlobalTransform(const ezSimdTransform& tr
 {
   m_pTransformationData->m_globalTransform = transform;
 
+  // ezTransformTemplate<Type>::SetLocalTransform will produce NaNs in w components
+  // of pos and scale if scale.w is not set to 1 here. This only affects builds that
+  // use EZ_SIMD_IMPLEMENTATION_FPU, e.g. arm atm.
+  m_pTransformationData->m_globalTransform.m_Scale.SetW(1.0f);
   m_pTransformationData->UpdateLocalTransform();
 
   if (IsStatic())

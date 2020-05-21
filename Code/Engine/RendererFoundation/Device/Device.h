@@ -70,6 +70,7 @@ public:
 
 
   ezGALTextureHandle CreateTexture(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData = ezArrayPtr<ezGALSystemMemoryDescription>());
+  ezResult ReplaceExisitingNativeObject(ezGALTextureHandle hTexture, void* pExisitingNativeObject);
   void DestroyTexture(ezGALTextureHandle hTexture);
 
   ezGALTextureHandle CreateProxyTexture(ezGALTextureHandle hParentTexture, ezUInt32 uiSlice);

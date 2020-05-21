@@ -145,16 +145,24 @@ void ezEditorSelectedObjectsExtractor::CreateRenderTargetView(const ezView& view
 
 void ezEditorSelectedObjectsExtractor::UpdateRenderTargetCamera(const ezCameraComponent* pCamComp)
 {
-  if (pCamComp->GetCameraMode() == ezCameraMode::OrthoFixedHeight || pCamComp->GetCameraMode() == ezCameraMode::OrthoFixedWidth)
+  switch (pCamComp->GetCameraMode())
   {
-    m_RenderTargetCamera.SetCameraMode(pCamComp->GetCameraMode(), pCamComp->GetOrthoDimension(), pCamComp->GetNearPlane(),
-      pCamComp->GetFarPlane());
+    case ezCameraMode::OrthoFixedHeight:
+    case ezCameraMode::OrthoFixedWidth:
+      m_RenderTargetCamera.SetCameraMode(
+        pCamComp->GetCameraMode(), pCamComp->GetOrthoDimension(), pCamComp->GetNearPlane(), pCamComp->GetFarPlane());
+      break;
+    case ezCameraMode::PerspectiveFixedFovX:
+    case ezCameraMode::PerspectiveFixedFovY:
+      m_RenderTargetCamera.SetCameraMode(
+        pCamComp->GetCameraMode(), pCamComp->GetFieldOfView(), pCamComp->GetNearPlane(), pCamComp->GetFarPlane());
+      break;
+    case ezCameraMode::Stereo:
+      m_RenderTargetCamera.SetCameraMode(ezCameraMode::PerspectiveFixedFovY, 45,
+        pCamComp->GetNearPlane(), pCamComp->GetFarPlane());
+      break;
   }
-  else
-  {
-    m_RenderTargetCamera.SetCameraMode(pCamComp->GetCameraMode(), pCamComp->GetFieldOfView(), pCamComp->GetNearPlane(),
-      pCamComp->GetFarPlane());
-  }
+
 
   ezView* pRenderTargetView = nullptr;
   if (!ezRenderWorld::TryGetView(m_hRenderTargetView, pRenderTargetView))

@@ -240,28 +240,30 @@ ezBeamComponent;Beam Component
 ezMoveToComponent;Move To
 ezDeviceTrackingComponent;Device Tracking
 ezStageSpaceComponent;Stage Space
-ezVRDeviceType::HMD;HMD
-ezVRDeviceType::LeftController;Left Controller
-ezVRDeviceType::RightController;Right Controller
-ezVRDeviceType::DeviceID0;DeviceID 0
-ezVRDeviceType::DeviceID1;DeviceID 1
-ezVRDeviceType::DeviceID2;DeviceID 2
-ezVRDeviceType::DeviceID3;DeviceID 3
-ezVRDeviceType::DeviceID4;DeviceID 4
-ezVRDeviceType::DeviceID5;DeviceID 5
-ezVRDeviceType::DeviceID6;DeviceID 6
-ezVRDeviceType::DeviceID7;DeviceID 7
-ezVRDeviceType::DeviceID8;DeviceID 8
-ezVRDeviceType::DeviceID9;DeviceID 9
-ezVRDeviceType::DeviceID10;DeviceID 10
-ezVRDeviceType::DeviceID11;DeviceID 11
-ezVRDeviceType::DeviceID12;DeviceID 12
-ezVRDeviceType::DeviceID13;DeviceID 13
-ezVRDeviceType::DeviceID14;DeviceID 14
-ezVRDeviceType::DeviceID15;DeviceID 15
-ezVRTransformSpace::Local;Local Space
-ezVRTransformSpace::Global;Global Space
-ezVRStageSpace::Seated;Seated
-ezVRStageSpace::Standing;Standing
+ezXRDeviceType::HMD;HMD
+ezXRDeviceType::LeftController;Left Controller
+ezXRDeviceType::RightController;Right Controller
+ezXRDeviceType::DeviceID0;DeviceID 0
+ezXRDeviceType::DeviceID1;DeviceID 1
+ezXRDeviceType::DeviceID2;DeviceID 2
+ezXRDeviceType::DeviceID3;DeviceID 3
+ezXRDeviceType::DeviceID4;DeviceID 4
+ezXRDeviceType::DeviceID5;DeviceID 5
+ezXRDeviceType::DeviceID6;DeviceID 6
+ezXRDeviceType::DeviceID7;DeviceID 7
+ezXRDeviceType::DeviceID8;DeviceID 8
+ezXRDeviceType::DeviceID9;DeviceID 9
+ezXRDeviceType::DeviceID10;DeviceID 10
+ezXRDeviceType::DeviceID11;DeviceID 11
+ezXRDeviceType::DeviceID12;DeviceID 12
+ezXRDeviceType::DeviceID13;DeviceID 13
+ezXRDeviceType::DeviceID14;DeviceID 14
+ezXRDeviceType::DeviceID15;DeviceID 15
+ezXRTransformSpace::Local;Local Space
+ezXRTransformSpace::Global;Global Space
+ezXRPoseLocation::Grip;Grip
+ezXRPoseLocation::Aim;Aim
+ezXRStageSpace::Seated;Seated
+ezXRStageSpace::Standing;Standing
 InstanceData;Instance Data
 Scene.Render.PickTransparent;Select Transparent

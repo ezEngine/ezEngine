@@ -80,6 +80,7 @@ void ezActorManager::AddActor(ezUniquePtr<ezActor>&& pActor)
 {
   EZ_LOCK(m_pImpl->m_Mutex);
 
+  EZ_ASSERT_DEV(pActor != nullptr, "Actor must exist to be added.");
   m_pImpl->m_AllActors.PushBack(std::move(pActor));
 
   ezActorEvent e;

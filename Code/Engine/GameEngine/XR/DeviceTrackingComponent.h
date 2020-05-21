@@ -3,11 +3,12 @@
 #include <Core/World/Component.h>
 #include <Core/World/World.h>
 #include <GameEngine/GameEngineDLL.h>
-#include <GameEngine/Interfaces/VRInterface.h>
+#include <GameEngine/XR/XRInterface.h>
+#include <GameEngine/XR/XRInputDevice.h>
 
-struct ezVRTransformSpace
+struct ezXRTransformSpace
 {
-  typedef ezUInt8 StorageType;
+  using StorageType = ezUInt8;
   enum Enum : ezUInt8
   {
     Local,  ///< Sets the local transform to the pose in stage space. Use if owner is direct child of ezStageSpaceComponent.
@@ -15,13 +16,25 @@ struct ezVRTransformSpace
     Default = Local,
   };
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezVRTransformSpace);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezXRTransformSpace);
+
+struct ezXRPoseLocation
+{
+  using StorageType = ezUInt8;
+  enum Enum : ezUInt8
+  {
+    Grip,
+    Aim,
+    Default = Grip,
+  };
+};
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezXRPoseLocation);
 
 //////////////////////////////////////////////////////////////////////////
 
 typedef ezComponentManagerSimple<class ezDeviceTrackingComponent, ezComponentUpdateType::WhenSimulating> ezDeviceTrackingComponentManager;
 
-/// \brief Tracks the position of a VR device and applies it to the owner.
+/// \brief Tracks the position of a XR device and applies it to the owner.
 class EZ_GAMEENGINE_DLL ezDeviceTrackingComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(ezDeviceTrackingComponent, ezComponent, ezDeviceTrackingComponentManager);
@@ -31,12 +44,15 @@ public:
   ~ezDeviceTrackingComponent();
 
   /// \brief Sets the type of device this component is going to track.
-  void SetDeviceType(ezEnum<ezVRDeviceType> type);
-  ezEnum<ezVRDeviceType> GetDeviceType() const;
+  void SetDeviceType(ezEnum<ezXRDeviceType> type);
+  ezEnum<ezXRDeviceType> GetDeviceType() const;
 
-  /// \brief Whether to set the owner's local or global transform, see ezVRTransformSpace.
-  void SetTransformSpace(ezEnum<ezVRTransformSpace> space);
-  ezEnum<ezVRTransformSpace> GetTransformSpace() const;
+  void SetPoseLocation(ezEnum<ezXRPoseLocation> poseLocation);
+  ezEnum<ezXRPoseLocation> GetPoseLocation() const;
+
+  /// \brief Whether to set the owner's local or global transform, see ezXRTransformSpace.
+  void SetTransformSpace(ezEnum<ezXRTransformSpace> space);
+  ezEnum<ezXRTransformSpace> GetTransformSpace() const;
 
   //
   // ezComponent Interface
@@ -49,7 +65,8 @@ protected:
 protected:
   void Update();
 
-  ezEnum<ezVRDeviceType> m_deviceType;
-  ezEnum<ezVRTransformSpace> m_space;
+  ezEnum<ezXRDeviceType> m_deviceType;
+  ezEnum<ezXRPoseLocation> m_poseLocation;
+  ezEnum<ezXRTransformSpace> m_space;
 };
 

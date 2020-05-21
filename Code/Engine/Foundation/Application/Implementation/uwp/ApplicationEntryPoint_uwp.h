@@ -29,7 +29,14 @@ namespace ezApplicationDetails
 
     AppClass* pApp = new (appBuffer) AppClass(std::forward<Args>(arguments)...);
 
+#ifdef BUILDSYSTEM_ENABLE_OPENXR_SUPPORT
+    //TODO: Using OpenXR will crash if we create a core window, will have to use standard run method
+    // and let OpenXR runtime create the window instead. We can't check at this stage whether OpenXR
+    // will be used dynamically as nothing has been initialized yet.
+    ezRun(pApp);
+#else
     ezUWPRun(pApp);
+#endif // BUILDSYSTEM_ENABLE_OPENXR_SUPPORT
 
     const int iReturnCode = pApp->GetReturnCode();
     if (iReturnCode != 0)

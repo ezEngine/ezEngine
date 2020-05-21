@@ -34,6 +34,11 @@ if (EZ_CMAKE_PLATFORM_WINDOWS_UWP)
     target_link_libraries(${PROJECT_NAME} PUBLIC FmodPlugin)
   endif()
 
+  if (EZ_BUILD_OPENXR)
+    find_package(ezOpenXR REQUIRED)
+    target_link_libraries(${PROJECT_NAME} PUBLIC OpenXRPlugin)
+  endif()
+
 endif()
 
 add_dependencies(${PROJECT_NAME}

@@ -26,14 +26,26 @@ ezResult ezPlayerApplication::BeforeCoreSystemsStartup()
 
   EZ_SUCCEED_OR_RETURN(SUPER::BeforeCoreSystemsStartup());
 
-  m_sSceneFile = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-scene", 0, "");
-  EZ_ASSERT_ALWAYS(
-    !m_sSceneFile.IsEmpty(), "Scene file has not been specified. Use the -scene command followed by a full path to the ezBinaryScene file");
-
-  ezStringBuilder projectPath;
-  if (ezFileSystem::FindFolderWithSubPath(m_sSceneFile, "ezProject", projectPath).Succeeded())
+  //#TODO: We can't specify command line arguments on many platforms so the scene file should be defined by ezFileserve.
+  // For now it's hardcoded and needs to be compiled in and ezFileserve started with the project special dir set, e.g.:
+  // -specialdirs project ".../ezEngine/Data/Samples/Testing Chambers
+#if EZ_DISABLED(EZ_SUPPORTS_UNRESTRICTED_FILE_ACCESS)
+  if (m_sSceneFile.IsEmpty())
   {
-    m_sAppProjectPath = projectPath;
+    m_sSceneFile = ">project/AssetCache/Common/Scenes/Surfaces.ezObjectGraph";
+    m_sAppProjectPath = ">project";
+  }
+  else
+#else
+  m_sSceneFile = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-scene", 0, "");
+  EZ_ASSERT_ALWAYS(!m_sSceneFile.IsEmpty(), "Scene file has not been specified. Use the -scene command followed by a full path to the ezBinaryScene file");
+#endif
+  {
+    ezStringBuilder projectPath;
+    if (ezFileSystem::FindFolderWithSubPath(m_sSceneFile, "ezProject", projectPath).Succeeded())
+    {
+      m_sAppProjectPath = projectPath;
+    }
   }
 
   EZ_ASSERT_ALWAYS(!m_sAppProjectPath.IsEmpty(), "No project directory could be found for scene file '{0}'", m_sSceneFile);

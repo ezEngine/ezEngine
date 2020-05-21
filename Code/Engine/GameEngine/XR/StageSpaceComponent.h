@@ -1,7 +1,7 @@
 #pragma once
 
 #include <GameEngine/GameEngineDLL.h>
-#include <GameEngine/Interfaces/VRInterface.h>
+#include <GameEngine/XR/XRInterface.h>
 #include <Core/World/SettingsComponentManager.h>
 
 //////////////////////////////////////////////////////////////////////////
@@ -10,7 +10,7 @@ typedef ezSettingsComponentManager<class ezStageSpaceComponent> ezStageSpaceComp
 
 /// \brief Singleton to set the type of stage space and its global transform in the world.
 ///
-/// The global transform of the owner and the set stage space are read out by the VR
+/// The global transform of the owner and the set stage space are read out by the XR
 /// implementation every frame.
 class EZ_GAMEENGINE_DLL ezStageSpaceComponent : public ezComponent
 {
@@ -24,9 +24,9 @@ public:
   // ezDeviceTrackingComponent Interface
   //
 
-  /// \brief Sets the stage space used by the VR experience.
-  void SetStageSpace(ezEnum<ezVRStageSpace> space);
-  ezEnum<ezVRStageSpace> GetStageSpace() const;
+  /// \brief Sets the stage space used by the XR experience.
+  void SetStageSpace(ezEnum<ezXRStageSpace> space);
+  ezEnum<ezXRStageSpace> GetStageSpace() const;
 
 protected:
   //
@@ -38,6 +38,6 @@ protected:
   virtual void OnDeactivated() override;
 
 private:
-  ezEnum<ezVRStageSpace> m_space;
+  ezEnum<ezXRStageSpace> m_space;
 };
 

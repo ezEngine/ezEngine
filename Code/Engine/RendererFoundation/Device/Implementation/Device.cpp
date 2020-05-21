@@ -642,6 +642,84 @@ ezGALTextureHandle ezGALDevice::CreateTexture(
   return ezGALTextureHandle();
 }
 
+ezResult ezGALDevice::ReplaceExisitingNativeObject(ezGALTextureHandle hTexture, void* pExisitingNativeObject)
+{
+  ezGALTexture* pTexture = nullptr;
+  if (m_Textures.TryGetValue(hTexture, pTexture))
+  {
+    for (auto it = pTexture->m_ResourceViews.GetIterator(); it.IsValid(); ++it)
+    {
+      ezGALResourceView* pResourceView = nullptr;
+
+      if (m_ResourceViews.TryGetValue(it.Value(), pResourceView))
+      {
+        EZ_VERIFY(pResourceView->DeInitPlatform(this).Succeeded(), "DeInitPlatform should never fail.");
+      }
+    }
+    for (auto it = pTexture->m_RenderTargetViews.GetIterator(); it.IsValid(); ++it)
+    {
+      ezGALRenderTargetView* pRenderTargetView = nullptr;
+
+      if (m_RenderTargetViews.TryGetValue(it.Value(), pRenderTargetView))
+      {
+        EZ_VERIFY(pRenderTargetView->DeInitPlatform(this).Succeeded(), "DeInitPlatform should never fail.");
+      }
+    }
+    for (auto it = pTexture->m_UnorderedAccessViews.GetIterator(); it.IsValid(); ++it)
+    {
+      ezGALUnorderedAccessView* pUnorderedAccessView = nullptr;
+
+      if (m_UnorderedAccessViews.TryGetValue(it.Value(), pUnorderedAccessView))
+      {
+        EZ_VERIFY(pUnorderedAccessView->DeInitPlatform(this).Succeeded(), "DeInitPlatform should never fail.");
+      }
+    }
+
+    EZ_VERIFY(pTexture->DeInitPlatform(this).Succeeded(), "DeInitPlatform should never fail.");
+    EZ_VERIFY(pTexture->ReplaceExisitingNativeObject(pExisitingNativeObject).Succeeded(),
+      "Failed to replace native texture, make sure the input is valid.");
+    EZ_VERIFY(pTexture->InitPlatform(this, {}).Succeeded(),
+      "InitPlatform failed on a texture the previously succeded in the same call, is the new native object valid?");
+
+    for (auto it = pTexture->m_ResourceViews.GetIterator(); it.IsValid(); ++it)
+    {
+      ezGALResourceView* pResourceView = nullptr;
+
+      if (m_ResourceViews.TryGetValue(it.Value(), pResourceView))
+      {
+        EZ_VERIFY(pResourceView->InitPlatform(this).Succeeded(),
+          "InitPlatform failed on a resource view that previously succeded in the same call, is the new native object valid?");
+      }
+    }
+    for (auto it = pTexture->m_RenderTargetViews.GetIterator(); it.IsValid(); ++it)
+    {
+      ezGALRenderTargetView* pRenderTargetView = nullptr;
+
+      if (m_RenderTargetViews.TryGetValue(it.Value(), pRenderTargetView))
+      {
+        EZ_VERIFY(pRenderTargetView->InitPlatform(this).Succeeded(),
+          "InitPlatform failed on a render target view that previously succeded in the same call, is the new native object valid?");
+      }
+    }
+    for (auto it = pTexture->m_UnorderedAccessViews.GetIterator(); it.IsValid(); ++it)
+    {
+      ezGALUnorderedAccessView* pUnorderedAccessView = nullptr;
+
+      if (m_UnorderedAccessViews.TryGetValue(it.Value(), pUnorderedAccessView))
+      {
+        EZ_VERIFY(pUnorderedAccessView->InitPlatform(this).Succeeded(),
+          "InitPlatform failed on a unordered access view that previously succeded in the same call, is the new native object valid?");
+      }
+    }
+    return EZ_SUCCESS;
+  }
+  else
+  {
+    ezLog::Warning("ReplaceExisitingNativeObject called on invalid handle");
+    return EZ_FAILURE;
+  }
+}
+
 void ezGALDevice::DestroyTexture(ezGALTextureHandle hTexture)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();

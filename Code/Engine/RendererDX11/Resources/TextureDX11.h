@@ -24,6 +24,7 @@ protected:
 
   virtual ezResult InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData) override;
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
+  virtual ezResult ReplaceExisitingNativeObject(void* pExisitingNativeObject) override;
 
   virtual void SetDebugNamePlatform(const char* szName) const override;
 
@@ -32,6 +33,8 @@ protected:
   ID3D11Resource* m_pDXTexture;
 
   ID3D11Resource* m_pDXStagingTexture;
+
+  void* m_pExisitingNativeObject = nullptr;
 
 };
 

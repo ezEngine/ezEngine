@@ -11,7 +11,7 @@ o
 		s %AssetType{"RenderPipeline"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{2725015508337577781,9195918795680669165}}
-		u4 %Hash{2352115493154175733}
+		u4 %Hash{11235686428697890696}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References{}
@@ -240,19 +240,6 @@ o
 }
 o
 {
-	Uuid %id{u4{2660498246152919468,5762127557587404968}}
-	s %t{"ezParticleExtractor"}
-	u3 %v{1}
-	p
-	{
-		b %Active{1}
-		s %Name{""}
-		VarArray %Node::Connections{}
-		Vec2 %Node::Pos{f{0x830C4FC4,0x7BBE03C4}}
-	}
-}
-o
-{
 	Uuid %id{u4{1500338303832159158,6081944764471030876}}
 	s %t{"ezOutputNodePin"}
 	u3 %v{1}
@@ -272,7 +259,6 @@ o
 			Uuid{u4{639789027250908043,5272197286589729626}}
 			Uuid{u4{5529270605818373765,5672990100648195579}}
 			Uuid{u4{57808724729679253,5212296071092730789}}
-			Uuid{u4{2660498246152919468,5762127557587404968}}
 			Uuid{u4{9560795997583021497,5398457309479569925}}
 			Uuid{u4{15649058976570388889,5389223864839047716}}
 			Uuid{u4{11020058938254816927,5242302963001579302}}
@@ -509,24 +495,6 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezInputNodePin"}
 		u3 %TypeSize{16}
-		u3 %TypeVersion{1}
-	}
-}
-o
-{
-	Uuid %id{u4{13309296953419857812,2315605448626509402}}
-	s %t{"ezReflectedTypeDescriptor"}
-	u3 %v{1}
-	p
-	{
-		VarArray %Attributes{}
-		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
-		VarArray %Functions{}
-		s %ParentTypeName{"ezExtractor"}
-		s %PluginName{"ezEditorPluginParticle"}
-		VarArray %Properties{}
-		s %TypeName{"ezParticleExtractor"}
-		u3 %TypeSize{88}
 		u3 %TypeVersion{1}
 	}
 }
