@@ -1,13 +1,29 @@
 #pragma once
 
 #include <Foundation/Types/UniquePtr.h>
+#include <Foundation/IO/MemoryStream.h>
 
 #include <RmlUi/Core/FileInterface.h>
 
-class ezFileReader;
-
 namespace ezRmlUiInternal
 {
+  struct FileId : public ezGenericId<24, 8>
+  {
+    using ezGenericId::ezGenericId;
+
+    static FileId FromRml(Rml::Core::FileHandle hFile)
+    {
+      return FileId(static_cast<ezUInt32>(hFile));
+    }
+
+    Rml::Core::FileHandle ToRml() const
+    {
+      return m_Data;
+    }
+  };
+
+  //////////////////////////////////////////////////////////////////////////
+
   class FileInterface : public Rml::Core::FileInterface
   {
   public:
@@ -25,7 +41,12 @@ namespace ezRmlUiInternal
     virtual size_t Length(Rml::Core::FileHandle file) override;
 
   private:
-    ezHashTable<Rml::Core::FileHandle, ezUniquePtr<ezFileReader>> m_OpenFiles;
-    Rml::Core::FileHandle m_NextFileHandle = 1;
+    struct OpenFile
+    {
+      ezMemoryStreamStorage m_Storage;
+      ezMemoryStreamReader m_Reader;
+    };
+
+    ezIdTable<FileId, ezUniquePtr<OpenFile>> m_OpenFiles;
   };
 } // namespace ezRmlUiInternal

@@ -44,7 +44,7 @@ ezUInt64 ezMemoryStreamReader::SkipBytes(ezUInt64 uiBytesToSkip)
 
 void ezMemoryStreamReader::SetReadPosition(ezUInt32 uiReadPosition)
 {
-  EZ_ASSERT_RELEASE(uiReadPosition < GetByteCount(), "Read position must be between 0 and GetByteCount()!");
+  EZ_ASSERT_RELEASE(uiReadPosition <= GetByteCount(), "Read position must be between 0 and GetByteCount()!");
   m_uiReadPosition = uiReadPosition;
 }
 

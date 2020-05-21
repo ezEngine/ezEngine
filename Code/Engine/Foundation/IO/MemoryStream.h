@@ -177,6 +177,9 @@ public:
   /// \brief Sets the read position to be used
   void SetReadPosition(ezUInt32 uiReadPosition); // [tested]
 
+  /// \brief Returns the current read position
+  ezUInt32 GetReadPosition() const { return m_uiReadPosition; }
+
   /// \brief Returns the total available bytes in the memory stream
   ezUInt32 GetByteCount() const; // [tested]
 

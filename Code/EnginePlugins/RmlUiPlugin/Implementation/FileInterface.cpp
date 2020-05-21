@@ -15,39 +15,55 @@ namespace ezRmlUiInternal
 
   Rml::Core::FileHandle FileInterface::Open(const Rml::Core::String& path)
   {
-    ezUniquePtr<ezFileReader> pFileReader = EZ_DEFAULT_NEW(ezFileReader);
-    if (pFileReader->Open(path.c_str()).Failed())
+    ezFileReader fileReader;
+    if (fileReader.Open(path.c_str()).Failed())
     {
       return 0;
     }
 
-    m_OpenFiles.Insert(m_NextFileHandle, std::move(pFileReader));
+    ezUniquePtr<OpenFile> pOpenFile = EZ_DEFAULT_NEW(OpenFile);
+    pOpenFile->m_Storage.ReadAll(fileReader);
+    pOpenFile->m_Reader.SetStorage(&pOpenFile->m_Storage);
 
-    return m_NextFileHandle++;
+    return m_OpenFiles.Insert(std::move(pOpenFile)).ToRml();
   }
 
   void FileInterface::Close(Rml::Core::FileHandle file)
   {
-    EZ_VERIFY(m_OpenFiles.Remove(file), "Invalid file handle {}", file);
+    EZ_VERIFY(m_OpenFiles.Remove(FileId::FromRml(file)), "Invalid file handle {}", file);
   }
 
   size_t FileInterface::Read(void* buffer, size_t size, Rml::Core::FileHandle file)
   {
-    auto it = m_OpenFiles.Find(file);
-    EZ_ASSERT_DEV(it.IsValid(), "Invalid file handle {}", file);
+    auto& pOpenFile = m_OpenFiles[FileId::FromRml(file)];
 
-    return it.Value()->ReadBytes(buffer, size);
+    return pOpenFile->m_Reader.ReadBytes(buffer, size);
   }
 
   bool FileInterface::Seek(Rml::Core::FileHandle file, long offset, int origin)
   {
-    auto it = m_OpenFiles.Find(file);
-    EZ_ASSERT_DEV(it.IsValid(), "Invalid file handle {}", file);
+    auto& pOpenFile = m_OpenFiles[FileId::FromRml(file)];
 
-    if (origin == SEEK_CUR && offset >= 0)
+    int iNewReadPosition = 0;
+    int iEndPosition = pOpenFile->m_Reader.GetByteCount();
+
+    if (origin == SEEK_SET)
     {
-      ezUInt64 skippedBytes = it.Value()->SkipBytes(offset);
-      return skippedBytes == offset;
+      iNewReadPosition = offset;
+    }
+    else if (origin == SEEK_CUR)
+    {
+      iNewReadPosition = pOpenFile->m_Reader.GetReadPosition() + offset;
+    }
+    else if (origin == SEEK_END)
+    {
+      iNewReadPosition = iEndPosition + offset;
+    }
+
+    if (iNewReadPosition >= 0 && iNewReadPosition <= iEndPosition)
+    {
+      pOpenFile->m_Reader.SetReadPosition(iNewReadPosition);
+      return true;
     }
 
     EZ_ASSERT_NOT_IMPLEMENTED;
@@ -56,16 +72,16 @@ namespace ezRmlUiInternal
 
   size_t FileInterface::Tell(Rml::Core::FileHandle file)
   {
-    EZ_ASSERT_NOT_IMPLEMENTED;
-    return 0;
+    auto& pOpenFile = m_OpenFiles[FileId::FromRml(file)];
+
+    return pOpenFile->m_Reader.GetReadPosition();
   }
 
   size_t FileInterface::Length(Rml::Core::FileHandle file)
   {
-    auto it = m_OpenFiles.Find(file);
-    EZ_ASSERT_DEV(it.IsValid(), "Invalid file handle {}", file);
+    auto& pOpenFile = m_OpenFiles[FileId::FromRml(file)];
 
-    return it.Value()->GetFileSize();
+    return pOpenFile->m_Reader.GetByteCount();
   }
 
 } // namespace ezRmlUiInternal
