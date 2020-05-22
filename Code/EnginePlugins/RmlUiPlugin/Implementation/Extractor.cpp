@@ -4,6 +4,7 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RmlUiPlugin/Implementation/Extractor.h>
+#include <RendererCore/Textures/Texture2DResource.h>
 
 namespace ezRmlUiInternal
 {
@@ -75,19 +76,15 @@ namespace ezRmlUiInternal
 
   void Extractor::RenderCompiledGeometry(Rml::Core::CompiledGeometryHandle geometry, const Rml::Core::Vector2f& translation)
   {
-    EZ_VERIFY(m_CompiledGeometry.TryGetValue(GeometryId::FromRml(geometry), m_CurrentBatch.m_CompiledGeometry), "Invalid compiled geometry");
+    auto& batch = m_Batches[ezRenderWorld::GetDataIndexForExtraction()].ExpandAndGetRef();
+
+    EZ_VERIFY(m_CompiledGeometry.TryGetValue(GeometryId::FromRml(geometry), batch.m_CompiledGeometry), "Invalid compiled geometry");
 
     ezMat4 translationMat;
     translationMat.SetTranslationMatrix(ezVec3(translation.x, translation.y, 0.0f));
-    m_CurrentBatch.m_Transform = translationMat;
+    batch.m_Transform = m_Transform * translationMat;
 
-    if (m_bEnableScissor == false)
-    {
-      m_CurrentBatch.m_ScissorRect.width = 0.0f;
-      m_CurrentBatch.m_ScissorRect.height = 0.0f;
-    }
-
-    m_Batches[ezRenderWorld::GetDataIndexForExtraction()].PushBack(m_CurrentBatch);
+    batch.m_ScissorRect = m_bEnableScissor ? m_ScissorRect : ezRectFloat(0, 0);
   }
 
   void Extractor::ReleaseCompiledGeometry(Rml::Core::CompiledGeometryHandle geometry)
@@ -102,22 +99,61 @@ namespace ezRmlUiInternal
 
   void Extractor::SetScissorRegion(int x, int y, int width, int height)
   {
-    m_CurrentBatch.m_ScissorRect = ezRectFloat(x, y, width, height);
+    m_ScissorRect = ezRectFloat(x, y, width, height);
   }
 
   bool Extractor::LoadTexture(Rml::Core::TextureHandle& texture_handle, Rml::Core::Vector2i& texture_dimensions, const Rml::Core::String& source)
   {
-    throw std::logic_error("The method or operation is not implemented.");
+    ezTexture2DResourceHandle hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(source.c_str());
+
+    ezResourceLock<ezTexture2DResource> pTexture(hTexture, ezResourceAcquireMode::BlockTillLoaded);
+    if (pTexture.GetAcquireResult() == ezResourceAcquireResult::Final)
+    {
+      texture_handle = m_Textures.Insert(hTexture).ToRml();
+      texture_dimensions = Rml::Core::Vector2i(pTexture->GetWidth(), pTexture->GetHeight());
+
+      return true;
+    }
+
+    return false;
   }
 
   bool Extractor::GenerateTexture(Rml::Core::TextureHandle& texture_handle, const Rml::Core::byte* source, const Rml::Core::Vector2i& source_dimensions)
   {
-    throw std::logic_error("The method or operation is not implemented.");
+    ezUInt32 uiWidth = source_dimensions.x;
+    ezUInt32 uiHeight = source_dimensions.y;
+    ezUInt32 uiSizeInBytes = uiWidth * uiHeight * 4;
+
+    ezUInt64 uiHash = ezHashingUtils::xxHash64(source, uiSizeInBytes);
+
+    ezStringBuilder sTextureName;
+    sTextureName.Format("RmlUiGeneratedTexture_{}x{}_{}", uiWidth, uiHeight, uiHash);
+
+    ezTexture2DResourceHandle hTexture = ezResourceManager::GetExistingResource<ezTexture2DResource>(sTextureName);
+
+    if (!hTexture.IsValid())
+    {
+      ezGALSystemMemoryDescription memoryDesc;
+      memoryDesc.m_pData = const_cast<Rml::Core::byte*>(source);
+      memoryDesc.m_uiRowPitch = uiWidth * 4;
+      memoryDesc.m_uiSlicePitch = uiSizeInBytes;
+
+      ezTexture2DResourceDescriptor desc;
+      desc.m_DescGAL.m_uiWidth = uiWidth;
+      desc.m_DescGAL.m_uiHeight = uiHeight;
+      desc.m_DescGAL.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
+      desc.m_InitialContent = ezMakeArrayPtr(&memoryDesc, 1);
+
+      hTexture = ezResourceManager::CreateResource<ezTexture2DResource>(sTextureName, std::move(desc));
+    }
+
+    texture_handle = m_Textures.Insert(hTexture).ToRml();
+    return true;
   }
 
   void Extractor::ReleaseTexture(Rml::Core::TextureHandle texture)
   {
-    //TODO
+    EZ_VERIFY(m_Textures.Remove(TextureId::FromRml(texture)), "Invalid texture handle");
   }
 
   void Extractor::SetTransform(const Rml::Core::Matrix4f* transform)
@@ -125,16 +161,18 @@ namespace ezRmlUiInternal
     if (transform != nullptr)
     {
       constexpr ezMatrixLayout::Enum matrixLayout = std::is_same<Rml::Core::Matrix4f, Rml::Core::ColumnMajorMatrix4f>::value ? ezMatrixLayout::ColumnMajor : ezMatrixLayout::RowMajor;
-      m_CurrentBatch.m_Transform.SetFromArray(transform->data(), matrixLayout);
+      m_Transform.SetFromArray(transform->data(), matrixLayout);
     }
     else
     {
-      m_CurrentBatch.m_Transform.SetIdentity();
+      m_Transform.SetIdentity();
     }
   }
 
   void Extractor::BeginExtraction()
   {
+    m_Transform = ezMat4::IdentityMatrix();
+
     m_Batches[ezRenderWorld::GetDataIndexForExtraction()].Clear();
     m_pCurrentRenderData = nullptr;
   }

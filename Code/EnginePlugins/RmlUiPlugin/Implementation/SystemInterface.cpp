@@ -10,6 +10,12 @@ namespace ezRmlUiInternal
     return ezClock::GetGlobalClock()->GetAccumulatedTime().GetSeconds();
   }
 
+  void SystemInterface::JoinPath(Rml::Core::String& translated_path, const Rml::Core::String& document_path, const Rml::Core::String& path)
+  {
+    // Don't join with document path, since this is not how the ez file system works
+    translated_path = path;
+  }
+
   bool SystemInterface::LogMessage(Rml::Core::Log::Type type, const Rml::Core::String& message)
   {
     switch (type)

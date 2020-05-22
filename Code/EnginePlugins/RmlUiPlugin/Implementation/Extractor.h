@@ -69,7 +69,8 @@ namespace ezRmlUiInternal
     ezIdTable<TextureId, ezTexture2DResourceHandle> m_Textures;
     ezTexture2DResourceHandle m_hFallbackTexture;
 
-    Batch m_CurrentBatch;
+    ezMat4 m_Transform = ezMat4::IdentityMatrix();
+    ezRectFloat m_ScissorRect = ezRectFloat(0, 0);
     bool m_bEnableScissor = false;
 
     ezDynamicArray<Batch> m_Batches[2];
