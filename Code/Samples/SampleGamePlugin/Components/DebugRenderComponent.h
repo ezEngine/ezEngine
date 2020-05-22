@@ -40,7 +40,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_SAMPLEGAMEPLUGIN_DLL, DebugRenderComponentMask);
 
 // use ezComponentUpdateType::Always for this component to use 'Update' called even inside the editor when it is not simulating
 // otherwise we would see the debug render output only when simulating the scene
-typedef ezComponentManagerSimple<class DebugRenderComponent, ezComponentUpdateType::Always> DebugRenderComponentManager;
+using DebugRenderComponentManager = ezComponentManagerSimple<class DebugRenderComponent, ezComponentUpdateType::Always>;
 
 class EZ_SAMPLEGAMEPLUGIN_DLL DebugRenderComponent : public ezComponent
 {

@@ -42,7 +42,7 @@ class EZ_FOUNDATION_DLL ezPlugin : public ezEnumerable<ezPlugin>
 
 public:
   /// \brief Callback type for when a plugin has just been loaded (not yet initialized). bReloading is true, if the plugin is currently being reloaded.
-  typedef void (*OnPluginLoadedFunction)(bool bReloading); // [tested]
+  using OnPluginLoadedFunction = void (*)(bool bReloading); // [tested]
 
   /// \brief Callback type for when a plugin will be unloaded (after all deinitializations). bReloading is true, if the plugin is currently being reloaded.
   using OnPluginUnloadedFunction = void (*)(bool bReloading); // [tested]

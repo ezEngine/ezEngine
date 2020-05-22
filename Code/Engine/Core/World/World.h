@@ -18,7 +18,7 @@ class ezEventMessageHandlerComponent;
 /// * Actual deletion of dead objects and components are done now.
 /// * Transform update: The world transformation of all dynamic objects is updated.
 /// * Post-transform phase: Another synchronous phase like the pre-async phase after the transformation has been updated.
-class EZ_CORE_DLL ezWorld
+class EZ_CORE_DLL ezWorld final
 {
 public:
   /// \brief Creates a new world with the given name.

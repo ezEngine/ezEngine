@@ -2,4 +2,16 @@
 
 #include <SampleGamePlugin/SampleGamePluginDLL.h>
 
-ezPlugin g_Plugin(false);
+// BEGIN-DOCS-CODE-SNIPPET: plugin-setup
+static void OnPluginLoaded(bool)
+{
+  // you could do something here, though this is rare
+}
+
+static void OnPluginUnloaded(bool)
+{
+  // you could do something here, though this is rare
+}
+
+ezPlugin s_Plugin(false, &OnPluginLoaded, &OnPluginUnloaded);
+// END-DOCS-CODE-SNIPPET
