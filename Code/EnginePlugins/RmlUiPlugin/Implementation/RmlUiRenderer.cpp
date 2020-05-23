@@ -1,12 +1,13 @@
 #include <RmlUiPluginPCH.h>
 
 #include <RendererCore/Pipeline/RenderDataBatch.h>
+#include <RendererCore/Pipeline/ViewData.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RmlUiPlugin/Implementation/RmlUiRenderData.h>
 #include <RmlUiPlugin/Implementation/RmlUiRenderer.h>
 
-#include <RendererCore/../../../Data/Plugins/RmlUi/RmlUiConstants.h>
+#include <RendererCore/../../../Data/Plugins/Shaders/RmlUiConstants.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRmlUiRenderData, 1, ezRTTINoAllocator)
@@ -20,12 +21,24 @@ ezRmlUiRenderer::ezRmlUiRenderer()
 {
   // load the shader
   {
-    m_hShader = ezResourceManager::LoadResource<ezShaderResource>("RmlUi/RmlUi.ezShader");
+    m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/RmlUi.ezShader");
   }
 
   // constant buffer storage
   {
     m_hConstantBuffer = ezRenderContext::CreateConstantBufferStorage<ezRmlUiConstants>();
+  }
+
+  // quad index buffer
+  {
+    ezUInt32 indices[] = {0, 1, 2, 0, 2, 3};
+
+    ezGALBufferCreationDescription desc;
+    desc.m_uiStructSize = sizeof(ezUInt32);
+    desc.m_uiTotalSize = EZ_ARRAY_SIZE(indices) * desc.m_uiStructSize;
+    desc.m_BufferType = ezGALBufferType::IndexBuffer;
+
+    m_hQuadIndexBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(desc, ezMakeArrayPtr(indices).ToByteArray());
   }
 
   // Setup the vertex declaration
@@ -78,6 +91,10 @@ void ezRmlUiRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
   pRenderContext->BindShader(m_hShader);
   pRenderContext->BindConstantBuffer("ezRmlUiConstants", m_hConstantBuffer);
 
+  // reset cached state
+  m_lastTransform = ezMat4::IdentityMatrix();
+  m_lastRect = ezRectFloat(0, 0);
+
   for (auto it = batch.GetIterator<ezRmlUiRenderData>(); it.IsValid(); ++it)
   {
     const ezRmlUiRenderData* pRenderData = it;
@@ -89,13 +106,72 @@ void ezRmlUiRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, 
 
       ezRmlUiConstants* pConstants = pRenderContext->GetConstantBufferData<ezRmlUiConstants>(m_hConstantBuffer);
       pConstants->UiTransform = rmlUiBatch.m_Transform;
+      pConstants->UiTranslation = rmlUiBatch.m_Translation.GetAsVec4(0, 1);
+
+      SetScissorRect(renderViewContext, rmlUiBatch.m_ScissorRect, rmlUiBatch.m_bEnableScissorRect, rmlUiBatch.m_bTransformScissorRect);
+
+      if (rmlUiBatch.m_bTransformScissorRect)
+      {
+        if (m_lastTransform != rmlUiBatch.m_Transform || m_lastRect != rmlUiBatch.m_ScissorRect)
+        {
+          m_lastTransform = rmlUiBatch.m_Transform;
+          m_lastRect = rmlUiBatch.m_ScissorRect;
+
+          PrepareStencil(renderViewContext, rmlUiBatch.m_ScissorRect);
+        }
+
+        pRenderContext->SetShaderPermutationVariable("RMLUI_MODE", "RMLUI_MODE_STENCIL_TEST");
+      }
+      else
+      {
+        pRenderContext->SetShaderPermutationVariable("RMLUI_MODE", "RMLUI_MODE_NORMAL");
+      }
 
       pRenderContext->BindMeshBuffer(rmlUiBatch.m_CompiledGeometry.m_hVertexBuffer, rmlUiBatch.m_CompiledGeometry.m_hIndexBuffer, &m_VertexDeclarationInfo, ezGALPrimitiveTopology::Triangles, rmlUiBatch.m_CompiledGeometry.m_uiTriangleCount);
 
-      //pGALContext->SetScissorRect(rmlUiBatch.m_ScissorRect);
-      pRenderContext->BindTexture2D("BaseTexture", rmlUiBatch.m_CompiledGeometry.m_hTexture);      
+      pRenderContext->BindTexture2D("BaseTexture", rmlUiBatch.m_CompiledGeometry.m_hTexture);
 
       pRenderContext->DrawMeshBuffer();
     }
   }
+}
+
+void ezRmlUiRenderer::SetScissorRect(const ezRenderViewContext& renderViewContext, const ezRectFloat& rect, bool bEnable, bool bTransformRect) const
+{
+  ezRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
+  ezGALContext* pGALContext = pRenderContext->GetGALContext();
+
+  ezRectFloat scissorRect = rect;
+  if (!bEnable || bTransformRect)
+  {
+    scissorRect = renderViewContext.m_pViewData->m_ViewPortRect;
+  }
+
+  ezUInt32 x = ezMath::Max(scissorRect.x, 0.0f);
+  ezUInt32 y = ezMath::Max(scissorRect.y, 0.0f);
+  ezUInt32 width = ezMath::Max(scissorRect.width, 0.0f);
+  ezUInt32 height = ezMath::Max(scissorRect.height, 0.0f);
+
+  pGALContext->SetScissorRect(ezRectU32(x, y, width, height));
+}
+
+void ezRmlUiRenderer::PrepareStencil(const ezRenderViewContext& renderViewContext, const ezRectFloat& rect) const
+{
+  ezRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
+  ezGALContext* pGALContext = pRenderContext->GetGALContext();
+
+  // Clear stencil
+  pGALContext->Clear(ezColor::Black, 0, false, true, 1.0f, 0);
+
+  // Draw quad to set stencil pixels
+  pRenderContext->SetShaderPermutationVariable("RMLUI_MODE", "RMLUI_MODE_STENCIL_SET");
+
+  ezRmlUiConstants* pConstants = pRenderContext->GetConstantBufferData<ezRmlUiConstants>(m_hConstantBuffer);
+  pConstants->QuadVertexPos[0] = ezVec4(rect.x, rect.y, 0, 1);
+  pConstants->QuadVertexPos[1] = ezVec4(rect.x + rect.width, rect.y, 0, 1);
+  pConstants->QuadVertexPos[2] = ezVec4(rect.x + rect.width, rect.y + rect.height, 0, 1);
+  pConstants->QuadVertexPos[3] = ezVec4(rect.x, rect.y + rect.height, 0, 1);
+
+  pRenderContext->BindMeshBuffer(ezGALBufferHandle(), m_hQuadIndexBuffer, nullptr, ezGALPrimitiveTopology::Triangles, 2);
+  pRenderContext->DrawMeshBuffer();
 }

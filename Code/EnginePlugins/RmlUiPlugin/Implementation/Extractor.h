@@ -71,7 +71,7 @@ namespace ezRmlUiInternal
 
     ezMat4 m_Transform = ezMat4::IdentityMatrix();
     ezRectFloat m_ScissorRect = ezRectFloat(0, 0);
-    bool m_bEnableScissor = false;
+    bool m_bEnableScissorRect = false;
 
     ezDynamicArray<Batch> m_Batches[2];
 

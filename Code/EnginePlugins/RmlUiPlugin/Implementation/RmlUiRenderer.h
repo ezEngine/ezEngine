@@ -23,8 +23,16 @@ public:
   virtual void RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const override;
 
 private:
+  void SetScissorRect(const ezRenderViewContext& renderViewContext, const ezRectFloat& rect, bool bEnable, bool bTransformRect) const;
+  void PrepareStencil(const ezRenderViewContext& renderViewContext, const ezRectFloat& rect) const;
+
   ezShaderResourceHandle m_hShader;
   ezConstantBufferStorageHandle m_hConstantBuffer;
 
+  ezGALBufferHandle m_hQuadIndexBuffer;
+
   ezVertexDeclarationInfo m_VertexDeclarationInfo;
+
+  mutable ezMat4 m_lastTransform = ezMat4::IdentityMatrix();
+  mutable ezRectFloat m_lastRect = ezRectFloat(0, 0);
 };

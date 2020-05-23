@@ -80,11 +80,12 @@ namespace ezRmlUiInternal
 
     EZ_VERIFY(m_CompiledGeometry.TryGetValue(GeometryId::FromRml(geometry), batch.m_CompiledGeometry), "Invalid compiled geometry");
 
-    ezMat4 translationMat;
-    translationMat.SetTranslationMatrix(ezVec3(translation.x, translation.y, 0.0f));
-    batch.m_Transform = m_Transform * translationMat;
+    batch.m_Transform = m_Transform;
+    batch.m_Translation = ezVec2(translation.x, translation.y);
 
-    batch.m_ScissorRect = m_bEnableScissor ? m_ScissorRect : ezRectFloat(0, 0);
+    batch.m_ScissorRect = m_ScissorRect;
+    batch.m_bEnableScissorRect = m_bEnableScissorRect;
+    batch.m_bTransformScissorRect = (m_bEnableScissorRect && m_Transform.IsIdentity() == false);
   }
 
   void Extractor::ReleaseCompiledGeometry(Rml::Core::CompiledGeometryHandle geometry)
@@ -94,7 +95,7 @@ namespace ezRmlUiInternal
 
   void Extractor::EnableScissorRegion(bool enable)
   {
-    m_bEnableScissor = enable;
+    m_bEnableScissorRect = enable;
   }
 
   void Extractor::SetScissorRegion(int x, int y, int width, int height)
