@@ -37,9 +37,9 @@ void ezGameState::OnActivation(ezWorld* pWorld, const ezTransform* pStartPositio
 {
   m_pMainWorld = pWorld;
   {
-    CreateActors();
-
     ConfigureMainCamera();
+
+    CreateActors();
   }
 
   ConfigureInputActions();
