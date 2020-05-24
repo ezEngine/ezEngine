@@ -48,6 +48,8 @@ protected:
   virtual ezResult DeInitializeTest() override;
 
   ezResult CreateAndLoadProject(const char* name);
+  /// \brief Opens a project by copying it to a temp location and opening that one.
+  /// This ensures that the tests always work on a clean state.
   ezResult OpenProject(const char* path);
   ezDocument* OpenDocument(const char* subpath);
   void ExecuteDocumentAction(const char* szActionName, ezDocument* pDocument, const ezVariant& argument = ezVariant());
