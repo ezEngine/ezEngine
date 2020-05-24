@@ -7,9 +7,7 @@
 
 ezRmlUiContext::ezRmlUiContext()
 {
-  m_pExtractor = EZ_DEFAULT_NEW(ezRmlUiInternal::Extractor);
-
-  m_pContext = Rml::Core::CreateContext("Test", Rml::Core::Vector2i(400, 400), m_pExtractor.Borrow());
+  m_pContext = Rml::Core::CreateContext("Test", Rml::Core::Vector2i(400, 400));
 }
 
 ezRmlUiContext::~ezRmlUiContext()
@@ -41,31 +39,6 @@ void ezRmlUiContext::Update()
   if (m_pDocument != nullptr)
   {
     m_pContext->Update();
-  }
-}
-
-void ezRmlUiContext::ExtractRenderData(ezMsgExtractRenderData& msg)
-{
-  if (m_pDocument == nullptr)
-    return;
-
-  if (m_uiExtractedFrame != ezRenderWorld::GetFrameCounter())
-  {
-    EZ_LOCK(m_ExtractionMutex);
-
-    if (m_uiExtractedFrame != ezRenderWorld::GetFrameCounter())
-    {
-      m_pExtractor->BeginExtraction();
-
-      m_pContext->Render();
-
-      m_pExtractor->EndExtraction();
-    }
-  }
-
-  if (ezRenderData* pRenderData = m_pExtractor->GetRenderData())
-  {
-    msg.AddRenderData(pRenderData, ezDefaultRenderDataCategories::GUI, ezRenderData::Caching::Never);
   }
 }
 

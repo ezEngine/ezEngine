@@ -2,9 +2,9 @@
 
 #include <Core/ResourceManager/ResourceManager.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
+#include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RmlUiPlugin/Implementation/Extractor.h>
-#include <RendererCore/Textures/Texture2DResource.h>
 
 namespace ezRmlUiInternal
 {
@@ -13,7 +13,23 @@ namespace ezRmlUiInternal
     m_hFallbackTexture = ezResourceManager::LoadResource<ezTexture2DResource>("White.color");
   }
 
-  Extractor::~Extractor() = default;
+  Extractor::~Extractor()
+  {
+    ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+
+    for (auto it = m_CompiledGeometry.GetIterator(); it.IsValid(); ++it)
+    {
+      auto& geometry = it.Value();
+
+      pDevice->DestroyBuffer(geometry.m_hVertexBuffer);
+      geometry.m_hVertexBuffer.Invalidate();
+
+      pDevice->DestroyBuffer(geometry.m_hIndexBuffer);
+      geometry.m_hIndexBuffer.Invalidate();
+
+      geometry.m_hTexture.Invalidate();
+    }
+  }
 
   void Extractor::RenderGeometry(Rml::Core::Vertex* vertices, int num_vertices, int* indices, int num_indices, Rml::Core::TextureHandle texture, const Rml::Core::Vector2f& translation)
   {
@@ -76,7 +92,7 @@ namespace ezRmlUiInternal
 
   void Extractor::RenderCompiledGeometry(Rml::Core::CompiledGeometryHandle geometry, const Rml::Core::Vector2f& translation)
   {
-    auto& batch = m_Batches[ezRenderWorld::GetDataIndexForExtraction()].ExpandAndGetRef();
+    auto& batch = m_Batches.ExpandAndGetRef();
 
     EZ_VERIFY(m_CompiledGeometry.TryGetValue(GeometryId::FromRml(geometry), batch.m_CompiledGeometry), "Invalid compiled geometry");
 
@@ -174,26 +190,27 @@ namespace ezRmlUiInternal
   {
     m_Transform = ezMat4::IdentityMatrix();
 
-    m_Batches[ezRenderWorld::GetDataIndexForExtraction()].Clear();
-    m_pCurrentRenderData = nullptr;
+    m_Batches.Clear();
   }
 
   void Extractor::EndExtraction()
   {
-    auto& batches = m_Batches[ezRenderWorld::GetDataIndexForExtraction()];
-
-    if (batches.IsEmpty() == false)
-    {
-      m_pCurrentRenderData = ezCreateRenderDataForThisFrame<ezRmlUiRenderData>(nullptr);
-      m_pCurrentRenderData->m_GlobalTransform.SetIdentity();
-      m_pCurrentRenderData->m_GlobalBounds.SetInvalid();
-      m_pCurrentRenderData->m_Batches = batches;
-    }
   }
 
   ezRenderData* Extractor::GetRenderData()
   {
-    return m_pCurrentRenderData;
+    if (m_Batches.IsEmpty() == false)
+    {
+      ezRmlUiRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezRmlUiRenderData>(nullptr);
+      pRenderData->m_GlobalTransform.SetIdentity();
+      pRenderData->m_GlobalBounds.SetInvalid();
+      pRenderData->m_Batches = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezRmlUiInternal::Batch, m_Batches.GetCount());
+      pRenderData->m_Batches.CopyFrom(m_Batches);
+
+      return pRenderData;
+    }
+
+    return nullptr;
   }
 
 } // namespace ezRmlUiInternal

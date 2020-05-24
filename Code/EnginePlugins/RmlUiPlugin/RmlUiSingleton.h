@@ -6,9 +6,11 @@
 #include <Foundation/Types/UniquePtr.h>
 
 class ezRmlUiContext;
+struct ezMsgExtractRenderData;
 
 namespace ezRmlUiInternal
 {
+  class Extractor;
   class FileInterface;
   class SystemInterface;
 } // namespace ezRmlUiInternal
@@ -24,7 +26,12 @@ public:
   ezRmlUiContext* CreateContext();
   void DeleteContext(ezRmlUiContext* pContext);
 
+  void ExtractContext(ezRmlUiContext& context, ezMsgExtractRenderData& msg);
+
 private:
+  ezMutex m_ExtractionMutex;
+  ezUniquePtr<ezRmlUiInternal::Extractor> m_pExtractor;
+
   ezUniquePtr<ezRmlUiInternal::FileInterface> m_pFileInterface;
   ezUniquePtr<ezRmlUiInternal::SystemInterface> m_pSystemInterface;
 

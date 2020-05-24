@@ -73,8 +73,6 @@ namespace ezRmlUiInternal
     ezRectFloat m_ScissorRect = ezRectFloat(0, 0);
     bool m_bEnableScissorRect = false;
 
-    ezDynamicArray<Batch> m_Batches[2];
-
-    ezRmlUiRenderData* m_pCurrentRenderData = nullptr;
+    ezDynamicArray<Batch> m_Batches;
   };
 } // namespace ezRmlUiInternal

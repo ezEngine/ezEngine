@@ -111,6 +111,6 @@ void ezRmlUiCanvas2DComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& ms
 
   if (m_pContext != nullptr)
   {
-    m_pContext->ExtractRenderData(msg);
+    ezRmlUi::GetSingleton()->ExtractContext(*m_pContext, msg);
   }
 }
