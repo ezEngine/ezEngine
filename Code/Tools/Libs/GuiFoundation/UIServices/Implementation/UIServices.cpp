@@ -224,6 +224,18 @@ ezStatus ezQtUiServices::OpenInVsCode(const QStringList& arguments)
 
   if (!QFile().exists(sVsCodeExe))
   {
+    QSettings settings("\\HKEY_LOCAL_MACHINE\\SOFTWARE\\Classes\\Applications\\Code.exe\\shell\\open\\command", QSettings::NativeFormat);
+    QString sVsCodeExeKey = settings.value(".", "").value<QString>();
+
+    if (sVsCodeExeKey.length() > 5)
+    {
+      //Remove shell parameter and normalize QT Compatible path, QFile expects the file separator to be '/' regardless of operating system
+      sVsCodeExe = sVsCodeExeKey.left(sVsCodeExeKey.length() - 5).replace("\\", "/").replace("\"", "");
+    }
+  }
+
+  if (!QFile().exists(sVsCodeExe))
+  {
     return ezStatus("Installation of Visual Studio Code could not be located.\n"
                     "Please visit 'https://code.visualstudio.com/download' to download the 'User Installer' of Visual Studio Code.");
   }
