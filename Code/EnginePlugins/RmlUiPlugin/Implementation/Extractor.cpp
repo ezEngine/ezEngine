@@ -201,11 +201,10 @@ namespace ezRmlUiInternal
   {
     if (m_Batches.IsEmpty() == false)
     {
-      ezRmlUiRenderData* pRenderData = ezCreateRenderDataForThisFrame<ezRmlUiRenderData>(nullptr);
+      ezRmlUiRenderData* pRenderData = EZ_NEW(ezFrameAllocator::GetCurrentAllocator(), ezRmlUiRenderData, ezFrameAllocator::GetCurrentAllocator());
       pRenderData->m_GlobalTransform.SetIdentity();
       pRenderData->m_GlobalBounds.SetInvalid();
-      pRenderData->m_Batches = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezRmlUiInternal::Batch, m_Batches.GetCount());
-      pRenderData->m_Batches.CopyFrom(m_Batches);
+      pRenderData->m_Batches = m_Batches;
 
       return pRenderData;
     }

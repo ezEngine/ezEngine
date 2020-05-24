@@ -41,5 +41,10 @@ class ezRmlUiRenderData : public ezRenderData
   EZ_ADD_DYNAMIC_REFLECTION(ezRmlUiRenderData, ezRenderData);
 
 public:
-  ezArrayPtr<ezRmlUiInternal::Batch> m_Batches;
+  ezRmlUiRenderData(ezAllocatorBase* pAllocator)
+    : m_Batches(pAllocator)
+  {
+  }
+
+  ezDynamicArray<ezRmlUiInternal::Batch> m_Batches;
 };
