@@ -43,8 +43,7 @@ Gizmo.Translate.Snap.0_1;0.1
 Gizmo.SnapSettings;Snap Settings
 Scene.View.Toggle;Toggle Views
 Scene.View.Span;Spawn View
-Scene.Export;Export Scene...
-Scene.Run;Run Scene...
+Scene.ExportAndRun;Export and Run...
 Scene.Render.SelectionOverlay;Visualize Selection
 Scene.Render.Visualizers;Render Visualizers
 Scene.Render.ShapeIcons;Render Shape Icons
