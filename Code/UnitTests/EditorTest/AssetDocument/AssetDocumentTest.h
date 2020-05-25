@@ -2,12 +2,12 @@
 
 #include <EditorTestPCH.h>
 
-#include "../TestClass/TestClass.h"
+#include <EditorTest/TestClass/TestClass.h>
 
 class ezEditorAssetDocumentTest : public ezEditorTest
 {
 public:
-  typedef ezEditorTest SUPER;
+  using SUPER = ezEditorTest;
 
   virtual const char* GetTestName() const override;
 

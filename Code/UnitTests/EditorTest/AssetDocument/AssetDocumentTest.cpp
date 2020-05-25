@@ -1,6 +1,6 @@
 #include <EditorTestPCH.h>
 
-#include "AssetDocumentTest.h"
+#include <EditorTest/AssetDocument/AssetDocumentTest.h>
 #include <Foundation/IO/OSFile.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
@@ -130,14 +130,11 @@ void ezEditorAssetDocumentTest::SaveOnTransform()
     ezStatus res = pDoc->SaveDocument();
     EZ_TEST_BOOL(res.Succeeded());
 
+    // Transforming a mesh asset with a mesh reference will trigger the material import and update
+    // the materials table which requires a save during transform.
     res = ezAssetCurator::GetSingleton()->TransformAsset(pDoc->GetGuid(), ezTransformFlags::ForceTransform | ezTransformFlags::TriggeredManually);
     EZ_TEST_BOOL(res.Succeeded());
     ProcessEvents();
-
-    /*  while (true)
-      {
-        ProcessEvents();
-      }*/
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Verify Transform")
