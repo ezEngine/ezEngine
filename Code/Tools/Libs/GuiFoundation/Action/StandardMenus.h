@@ -53,6 +53,7 @@ public:
   static ezActionDescriptorHandle s_hOpenDocumentation;
   static ezActionDescriptorHandle s_hOpenReleaseNotes;
   static ezActionDescriptorHandle s_hCheckForUpdates;
+  static ezActionDescriptorHandle s_hReportProblem;
 };
 
 ///
@@ -81,6 +82,7 @@ public:
     OpenDocumentation,
     OpenReleaseNotes,
     CheckForUpdates,
+    ReportProblem,
   };
 
   ezHelpActions(const ezActionContext& context, const char* szName, ButtonType button);
