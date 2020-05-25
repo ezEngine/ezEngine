@@ -77,6 +77,10 @@ ezDocument::ezDocument(const char* szPath, ezDocumentObjectManager* pDocumentObj
 
 ezDocument::~ezDocument()
 {
+  if (m_activeSaveTask.IsValid())
+  {
+    ezTaskSystem::WaitForGroup(m_activeSaveTask);
+  }
   m_SelectionManager.SetOwner(nullptr);
 
   m_pObjectManager->DestroyAllObjects();
@@ -132,6 +136,13 @@ ezStatus ezDocument::SaveDocument(bool bForce)
   if (!IsModified() && !bForce)
     return ezStatus(EZ_SUCCESS);
 
+  // In the unlikely event that we manage to edit a doc and call save again while
+  // an async save is already in progress we block on the first save to ensure
+  // the correct chronological state on disk after both save ops are done.
+  if (m_activeSaveTask.IsValid())
+  {
+    ezTaskSystem::WaitForGroup(m_activeSaveTask);
+  }
   ezStatus result;
   m_activeSaveTask = InternalSaveDocument([&result](ezDocument* doc, ezStatus res) {
     result = res;

@@ -56,4 +56,5 @@ void ezAfterSaveDocumentTask::Execute()
   {
     m_callback(m_document, m_document->m_lastSaveResult);
   }
+  m_document->m_activeSaveTask.Invalidate();
 }

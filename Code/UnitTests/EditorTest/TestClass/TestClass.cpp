@@ -201,7 +201,31 @@ ezResult ezEditorTest::OpenProject(const char* path)
     return EZ_FAILURE;
   }
 
-  ezStringBuilder projectFile = absPath;
+  // Copy project to temp folder
+  ezStringBuilder projectName = ezPathUtils::GetFileName(path);
+  ezStringBuilder relTempPath;
+  relTempPath = ":APPDATA";
+  relTempPath.AppendPath(projectName);
+
+  ezStringBuilder absTempPath;
+  if (ezFileSystem::ResolvePath(relTempPath, &absTempPath, nullptr).Failed())
+  {
+    ezLog::Error("Failed to resolve project temp path '{0}'.", relPath);
+    return EZ_FAILURE;
+  }
+  if (ezOSFile::DeleteFolder(absTempPath).Failed())
+  {
+    ezLog::Error("Failed to delete old project temp folder '{0}'.", absTempPath);
+    return EZ_FAILURE;
+  }
+  if (ezOSFile::CopyFolder(absPath, absTempPath).Failed())
+  {
+    ezLog::Error("Failed to copy project '{0}' to temp location: '{1}'.", absPath, absTempPath);
+    return EZ_FAILURE;
+  }
+
+
+  ezStringBuilder projectFile = absTempPath;
   projectFile.AppendPath("ezProject");
   if (m_pApplication->m_pEditorApp->CreateOrOpenProject(false, projectFile).Failed())
   {
@@ -209,7 +233,7 @@ ezResult ezEditorTest::OpenProject(const char* path)
     return EZ_FAILURE;
   }
 
-  m_sProjectPath = absPath;
+  m_sProjectPath = absTempPath;
   return EZ_SUCCESS;
 }
 

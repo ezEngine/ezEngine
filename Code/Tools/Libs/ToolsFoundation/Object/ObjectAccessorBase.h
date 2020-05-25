@@ -58,6 +58,8 @@ public:
 
   template<typename T>
   T Get(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index = ezVariant());
+  template<typename T>
+  T Get(const ezDocumentObject* pObject, const char* szProp, ezVariant index = ezVariant());
   ezInt32 GetCount(const ezDocumentObject* pObject, const ezAbstractProperty* pProp);
 
   ///@}

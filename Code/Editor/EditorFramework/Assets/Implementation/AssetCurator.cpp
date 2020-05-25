@@ -452,14 +452,31 @@ void ezAssetCurator::ResaveAllAssets()
 
 ezStatus ezAssetCurator::TransformAsset(const ezUuid& assetGuid, ezBitflags<ezTransformFlags> transformFlags, const ezPlatformProfile* pAssetProfile)
 {
-  EZ_LOCK(m_CuratorMutex);
-
+  ezStatus res = ezResult(EZ_FAILURE);
+  ezStringBuilder sAbsPath;
   ezStopwatch timer;
-  ezAssetInfo* pInfo = nullptr;
-  if (!m_KnownAssets.TryGetValue(assetGuid, pInfo))
-    return ezStatus("Transform failed, unknown asset.");
+  const ezAssetDocumentTypeDescriptor* pTypeDesc = nullptr;
+  {
+    EZ_LOCK(m_CuratorMutex);
 
-  auto res = ProcessAsset(pInfo, pAssetProfile, transformFlags);
+    ezAssetInfo* pInfo = nullptr;
+    if (!m_KnownAssets.TryGetValue(assetGuid, pInfo))
+      return ezStatus("Transform failed, unknown asset.");
+
+    pInfo->m_pDocumentTypeDescriptor;
+    sAbsPath = pInfo->m_sAbsolutePath;
+    res = ProcessAsset(pInfo, pAssetProfile, transformFlags);
+  }
+  if (pTypeDesc && transformFlags.IsAnySet(ezTransformFlags::TriggeredManually))
+  {
+    // As this is triggered manually it is safe to save here as these are only run on the main thread.
+    if (ezDocument* pDoc = pTypeDesc->m_pManager->GetDocumentByPath(sAbsPath))
+    {
+      // some assets modify the document during transformation
+      // make sure the state is saved, at least when the user actively executed the action
+      pDoc->SaveDocument();
+    }
+  }
   ezLog::Info("Transform asset time: {0}s", ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
   return res;
 }
