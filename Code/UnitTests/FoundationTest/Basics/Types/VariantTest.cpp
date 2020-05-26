@@ -93,18 +93,42 @@ inline void TestNumberCanConvertTo(const ezVariant& v)
   EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::VariantDictionary) == false);
   EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::VoidPointer) == false);
 
-  EZ_TEST_BOOL(v.ConvertTo<bool>() == true);
-  EZ_TEST_BOOL(v.ConvertTo<ezInt8>() == 3);
-  EZ_TEST_BOOL(v.ConvertTo<ezUInt8>() == 3);
-  EZ_TEST_BOOL(v.ConvertTo<ezInt16>() == 3);
-  EZ_TEST_BOOL(v.ConvertTo<ezUInt16>() == 3);
-  EZ_TEST_BOOL(v.ConvertTo<ezInt32>() == 3);
-  EZ_TEST_BOOL(v.ConvertTo<ezUInt32>() == 3);
-  EZ_TEST_BOOL(v.ConvertTo<ezInt64>() == 3);
-  EZ_TEST_BOOL(v.ConvertTo<ezUInt64>() == 3);
-  EZ_TEST_BOOL(v.ConvertTo<float>() == 3.0f);
-  EZ_TEST_BOOL(v.ConvertTo<double>() == 3.0);
-  EZ_TEST_BOOL(v.ConvertTo<ezString>() == "3");
+  ezResult conversionResult = EZ_FAILURE;
+  EZ_TEST_BOOL(v.ConvertTo<bool>(&conversionResult) == true);
+  EZ_TEST_BOOL(conversionResult.Succeeded());
+
+  EZ_TEST_BOOL(v.ConvertTo<ezInt8>(&conversionResult) == 3);
+  EZ_TEST_BOOL(conversionResult.Succeeded());
+
+  EZ_TEST_BOOL(v.ConvertTo<ezUInt8>(&conversionResult) == 3);
+  EZ_TEST_BOOL(conversionResult.Succeeded());
+
+  EZ_TEST_BOOL(v.ConvertTo<ezInt16>(&conversionResult) == 3);
+  EZ_TEST_BOOL(conversionResult.Succeeded());
+
+  EZ_TEST_BOOL(v.ConvertTo<ezUInt16>(&conversionResult) == 3);
+  EZ_TEST_BOOL(conversionResult.Succeeded());
+
+  EZ_TEST_BOOL(v.ConvertTo<ezInt32>(&conversionResult) == 3);
+  EZ_TEST_BOOL(conversionResult.Succeeded());
+
+  EZ_TEST_BOOL(v.ConvertTo<ezUInt32>(&conversionResult) == 3);
+  EZ_TEST_BOOL(conversionResult.Succeeded());
+
+  EZ_TEST_BOOL(v.ConvertTo<ezInt64>(&conversionResult) == 3);
+  EZ_TEST_BOOL(conversionResult.Succeeded());
+
+  EZ_TEST_BOOL(v.ConvertTo<ezUInt64>(&conversionResult) == 3);
+  EZ_TEST_BOOL(conversionResult.Succeeded());
+
+  EZ_TEST_BOOL(v.ConvertTo<float>(&conversionResult) == 3.0f);
+  EZ_TEST_BOOL(conversionResult.Succeeded());
+
+  EZ_TEST_BOOL(v.ConvertTo<double>(&conversionResult) == 3.0);
+  EZ_TEST_BOOL(conversionResult.Succeeded());
+
+  EZ_TEST_BOOL(v.ConvertTo<ezString>(&conversionResult) == "3");
+  EZ_TEST_BOOL(conversionResult.Succeeded());
 
   EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Bool).Get<bool>() == true);
   EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Int8).Get<ezInt8>() == 3);
@@ -142,8 +166,7 @@ inline void TestCanOnlyConvertToID(const ezVariant& v, ezVariant::Type::Enum typ
   }
 }
 
-inline void TestCanOnlyConvertToStringAndID(const ezVariant& v, ezVariant::Type::Enum type,
-                                            ezVariant::Type::Enum type2 = ezVariant::Type::Invalid)
+inline void TestCanOnlyConvertToStringAndID(const ezVariant& v, ezVariant::Type::Enum type, ezVariant::Type::Enum type2 = ezVariant::Type::Invalid, ezVariant::Type::Enum type3 = ezVariant::Type::Invalid)
 {
   if (type2 == ezVariant::Type::Invalid)
     type2 = type;
@@ -157,7 +180,7 @@ inline void TestCanOnlyConvertToStringAndID(const ezVariant& v, ezVariant::Type:
     {
       EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::String));
     }
-    else if (iType == type || iType == type2)
+    else if (iType == type || iType == type2 || iType == type3)
     {
       EZ_TEST_BOOL(v.CanConvertTo(type));
     }
@@ -1056,8 +1079,12 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
     TestCanOnlyConvertToStringAndID(v, ezVariant::Type::Color, ezVariant::Type::ColorGamma);
 
-    EZ_TEST_BOOL(v.ConvertTo<ezColor>() == c);
-    EZ_TEST_BOOL(v.ConvertTo<ezString>() == "{ r=3, g=3, b=4, a=0 }");
+    ezResult conversionResult = EZ_FAILURE;
+    EZ_TEST_BOOL(v.ConvertTo<ezColor>(&conversionResult) == c);
+    EZ_TEST_BOOL(conversionResult.Succeeded());
+
+    EZ_TEST_BOOL(v.ConvertTo<ezString>(&conversionResult) == "{ r=3, g=3, b=4, a=0 }");
+    EZ_TEST_BOOL(conversionResult.Succeeded());
 
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Color).Get<ezColor>() == c);
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "{ r=3, g=3, b=4, a=0 }");
@@ -1070,9 +1097,13 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
     TestCanOnlyConvertToStringAndID(v, ezVariant::Type::ColorGamma, ezVariant::Type::Color);
 
-    EZ_TEST_BOOL(v.ConvertTo<ezColorGammaUB>() == c);
-    ezString val = v.ConvertTo<ezString>();
+    ezResult conversionResult = EZ_FAILURE;
+    EZ_TEST_BOOL(v.ConvertTo<ezColorGammaUB>(&conversionResult) == c);
+    EZ_TEST_BOOL(conversionResult.Succeeded());
+
+    ezString val = v.ConvertTo<ezString>(&conversionResult);
     EZ_TEST_BOOL(val == "{ r=0, g=128, b=64, a=255 }");
+    EZ_TEST_BOOL(conversionResult.Succeeded());
 
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::ColorGamma).Get<ezColorGammaUB>() == c);
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "{ r=0, g=128, b=64, a=255 }");
@@ -1083,12 +1114,16 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     ezVec2 vec(3.0f, 4.0f);
     ezVariant v(vec);
 
-    TestCanOnlyConvertToStringAndID(v, ezVariant::Type::Vector2);
+    TestCanOnlyConvertToStringAndID(v, ezVariant::Type::Vector2, ezVariant::Type::Vector2I, ezVariant::Type::Vector2U);
 
     EZ_TEST_BOOL(v.ConvertTo<ezVec2>() == vec);
+    EZ_TEST_BOOL(v.ConvertTo<ezVec2I32>() == ezVec2I32(3, 4));
+    EZ_TEST_BOOL(v.ConvertTo<ezVec2U32>() == ezVec2U32(3, 4));
     EZ_TEST_BOOL(v.ConvertTo<ezString>() == "{ x=3, y=4 }");
 
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Vector2).Get<ezVec2>() == vec);
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Vector2I).Get<ezVec2I32>() == ezVec2I32(3, 4));
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Vector2U).Get<ezVec2U32>() == ezVec2U32(3, 4));
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "{ x=3, y=4 }");
   }
 
@@ -1097,12 +1132,16 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     ezVec3 vec(3.0f, 4.0f, 6.0f);
     ezVariant v(vec);
 
-    TestCanOnlyConvertToStringAndID(v, ezVariant::Type::Vector3);
+    TestCanOnlyConvertToStringAndID(v, ezVariant::Type::Vector3, ezVariant::Type::Vector3I, ezVariant::Type::Vector3U);
 
     EZ_TEST_BOOL(v.ConvertTo<ezVec3>() == vec);
+    EZ_TEST_BOOL(v.ConvertTo<ezVec3I32>() == ezVec3I32(3, 4, 6));
+    EZ_TEST_BOOL(v.ConvertTo<ezVec3U32>() == ezVec3U32(3, 4, 6));
     EZ_TEST_BOOL(v.ConvertTo<ezString>() == "{ x=3, y=4, z=6 }");
 
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Vector3).Get<ezVec3>() == vec);
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Vector3I).Get<ezVec3I32>() == ezVec3I32(3, 4, 6));
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Vector3U).Get<ezVec3U32>() == ezVec3U32(3, 4, 6));
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "{ x=3, y=4, z=6 }");
   }
 
@@ -1111,12 +1150,16 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     ezVec4 vec(3.0f, 4.0f, 3, 56);
     ezVariant v(vec);
 
-    TestCanOnlyConvertToStringAndID(v, ezVariant::Type::Vector4);
+    TestCanOnlyConvertToStringAndID(v, ezVariant::Type::Vector4, ezVariant::Type::Vector4I, ezVariant::Type::Vector4U);
 
     EZ_TEST_BOOL(v.ConvertTo<ezVec4>() == vec);
+    EZ_TEST_BOOL(v.ConvertTo<ezVec4I32>() == ezVec4I32(3, 4, 3, 56));
+    EZ_TEST_BOOL(v.ConvertTo<ezVec4U32>() == ezVec4U32(3, 4, 3, 56));
     EZ_TEST_BOOL(v.ConvertTo<ezString>() == "{ x=3, y=4, z=3, w=56 }");
 
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Vector4).Get<ezVec4>() == vec);
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Vector4I).Get<ezVec4I32>() == ezVec4I32(3, 4, 3, 56));
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Vector4U).Get<ezVec4U32>() == ezVec4U32(3, 4, 3, 56));
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "{ x=3, y=4, z=3, w=56 }");
   }
 
@@ -1125,12 +1168,16 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     ezVec2I32 vec(3, 4);
     ezVariant v(vec);
 
-    TestCanOnlyConvertToStringAndID(v, ezVariant::Type::Vector2I);
+    TestCanOnlyConvertToStringAndID(v, ezVariant::Type::Vector2I, ezVariant::Type::Vector2U, ezVariant::Type::Vector2);
 
     EZ_TEST_BOOL(v.ConvertTo<ezVec2I32>() == vec);
+    EZ_TEST_BOOL(v.ConvertTo<ezVec2>() == ezVec2(3, 4));
+    EZ_TEST_BOOL(v.ConvertTo<ezVec2U32>() == ezVec2U32(3, 4));
     EZ_TEST_BOOL(v.ConvertTo<ezString>() == "{ x=3, y=4 }");
 
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Vector2I).Get<ezVec2I32>() == vec);
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Vector2).Get<ezVec2>() == ezVec2(3, 4));
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Vector2U).Get<ezVec2U32>() == ezVec2U32(3, 4));
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "{ x=3, y=4 }");
   }
 
@@ -1139,12 +1186,16 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     ezVec3I32 vec(3, 4, 6);
     ezVariant v(vec);
 
-    TestCanOnlyConvertToStringAndID(v, ezVariant::Type::Vector3I);
+    TestCanOnlyConvertToStringAndID(v, ezVariant::Type::Vector3I, ezVariant::Type::Vector3U, ezVariant::Type::Vector3);
 
     EZ_TEST_BOOL(v.ConvertTo<ezVec3I32>() == vec);
+    EZ_TEST_BOOL(v.ConvertTo<ezVec3>() == ezVec3(3, 4, 6));
+    EZ_TEST_BOOL(v.ConvertTo<ezVec3U32>() == ezVec3U32(3, 4, 6));
     EZ_TEST_BOOL(v.ConvertTo<ezString>() == "{ x=3, y=4, z=6 }");
 
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Vector3I).Get<ezVec3I32>() == vec);
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Vector3).Get<ezVec3>() == ezVec3(3, 4, 6));
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Vector3U).Get<ezVec3U32>() == ezVec3U32(3, 4, 6));
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "{ x=3, y=4, z=6 }");
   }
 
@@ -1153,12 +1204,16 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     ezVec4I32 vec(3, 4, 3, 56);
     ezVariant v(vec);
 
-    TestCanOnlyConvertToStringAndID(v, ezVariant::Type::Vector4I);
+    TestCanOnlyConvertToStringAndID(v, ezVariant::Type::Vector4I, ezVariant::Type::Vector4U, ezVariant::Type::Vector4);
 
     EZ_TEST_BOOL(v.ConvertTo<ezVec4I32>() == vec);
+    EZ_TEST_BOOL(v.ConvertTo<ezVec4>() == ezVec4(3, 4, 3, 56));
+    EZ_TEST_BOOL(v.ConvertTo<ezVec4U32>() == ezVec4U32(3, 4, 3, 56));
     EZ_TEST_BOOL(v.ConvertTo<ezString>() == "{ x=3, y=4, z=3, w=56 }");
 
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Vector4I).Get<ezVec4I32>() == vec);
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Vector4).Get<ezVec4>() == ezVec4(3, 4, 3, 56));
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Vector4U).Get<ezVec4U32>() == ezVec4U32(3, 4, 3, 56));
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "{ x=3, y=4, z=3, w=56 }");
   }
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezQuat)")

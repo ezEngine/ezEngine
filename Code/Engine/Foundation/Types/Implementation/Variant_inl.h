@@ -565,6 +565,21 @@ EZ_ALWAYS_INLINE bool ezVariant::IsFloatingPointStatic(ezUInt32 type)
   return type == Type::Float || type == Type::Double;
 }
 
+EZ_ALWAYS_INLINE bool ezVariant::IsVector2Static(ezUInt32 type)
+{
+  return type == Type::Vector2 || type == Type::Vector2I || type == Type::Vector2U;
+}
+
+EZ_ALWAYS_INLINE bool ezVariant::IsVector3Static(ezUInt32 type)
+{
+  return type == Type::Vector3 || type == Type::Vector3I || type == Type::Vector3U;
+}
+
+EZ_ALWAYS_INLINE bool ezVariant::IsVector4Static(ezUInt32 type)
+{
+  return type == Type::Vector4 || type == Type::Vector4I || type == Type::Vector4U;
+}
+
 template <typename T>
 T ezVariant::ConvertNumber() const
 {
