@@ -339,7 +339,7 @@ void ezProjectileComponent::OnSimulationStarted()
     ezMsgComponentInternalTrigger msg;
     msg.m_uiUsageStringHash = ezTempHashedString::ComputeHash("Suicide");
 
-    PostMessage(msg, ezObjectMsgQueueType::NextFrame, m_MaxLifetime);
+    PostMessage(msg, m_MaxLifetime);
 
     // make sure the prefab is available when the projectile dies
     if (m_hTimeoutPrefab.IsValid())

@@ -312,7 +312,7 @@ void RtsUnitComponent::FireAt(ezGameObjectHandle hUnit)
 
     ezGameObject* pSpawned = RtsGameState::GetSingleton()->SpawnNamedObjectAt(GetOwner()->GetGlobalTransform(), "ProtonTorpedo1", GetOwner()->GetTeamID());
 
-    pSpawned->PostMessage(msg, ezObjectMsgQueueType::AfterInitialized);
+    pSpawned->PostMessage(msg, ezTime::Zero(), ezObjectMsgQueueType::AfterInitialized);
   }
 }
 

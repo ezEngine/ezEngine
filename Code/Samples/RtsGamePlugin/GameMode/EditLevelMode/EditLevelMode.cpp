@@ -83,7 +83,7 @@ void RtsEditLevelMode::OnProcessInput(const RtsMouseInputState& MouseInput)
     ezMsgSetColor msg;
     msg.m_Color = RtsGameMode::GetTeamColor(m_uiTeam);
 
-    pSpawned->PostMessageRecursive(msg, ezObjectMsgQueueType::AfterInitialized);
+    pSpawned->PostMessageRecursive(msg, ezTime::Zero(), ezObjectMsgQueueType::AfterInitialized);
 
     return;
   }

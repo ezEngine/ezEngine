@@ -23,12 +23,14 @@ EZ_BEGIN_COMPONENT_TYPE(DisplayMsgComponent, 1, ezComponentMode::Static /* this 
   }
   EZ_END_ATTRIBUTES;
 
+  // BEGIN-DOCS-CODE-SNIPPET: message-handler-block
   EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgSetText, OnSetText),
     EZ_MESSAGE_HANDLER(ezMsgSetColor, OnSetColor)
   }
   EZ_END_MESSAGEHANDLERS;
+  // END-DOCS-CODE-SNIPPET
 }
 EZ_END_COMPONENT_TYPE
 // clang-format on
@@ -58,6 +60,7 @@ void DisplayMsgComponent::Update()
   ezDebugRenderer::Draw3DText(GetWorld(), m_sCurrentText, ownerTransform.m_vPosition, m_TextColor, 32);
 }
 
+// BEGIN-DOCS-CODE-SNIPPET: message-handler-impl
 void DisplayMsgComponent::OnSetText(ezMsgSetText& msg)
 {
   m_sCurrentText = msg.m_sText;
@@ -67,3 +70,4 @@ void DisplayMsgComponent::OnSetColor(ezMsgSetColor& msg)
 {
   m_TextColor = msg.m_Color;
 }
+// END-DOCS-CODE-SNIPPET

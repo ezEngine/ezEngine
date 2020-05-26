@@ -862,14 +862,14 @@ bool ezGameObject::SendMessageRecursiveInternal(ezMessage& msg, bool bWasPostedM
   return bSentToAny;
 }
 
-void ezGameObject::PostMessage(const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const
+void ezGameObject::PostMessage(const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType) const
 {
-  GetWorld()->PostMessage(GetHandle(), msg, queueType, delay);
+  GetWorld()->PostMessage(GetHandle(), msg, delay, queueType);
 }
 
-void ezGameObject::PostMessageRecursive(const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const
+void ezGameObject::PostMessageRecursive(const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType) const
 {
-  GetWorld()->PostMessageRecursive(GetHandle(), msg, queueType, delay);
+  GetWorld()->PostMessageRecursive(GetHandle(), msg, delay, queueType);
 }
 
 void ezGameObject::SendEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent)
@@ -900,7 +900,7 @@ void ezGameObject::SendEventMessage(ezEventMessage& msg, const ezComponent* pSen
   }
 }
 
-void ezGameObject::PostEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent, ezObjectMsgQueueType::Enum queueType, ezTime delay /*= ezTime()*/) const
+void ezGameObject::PostEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent, ezTime delay, ezObjectMsgQueueType::Enum queueType) const
 {
   if (const ezComponent* pReceiver = GetWorld()->FindEventMsgHandler(msg, const_cast<ezGameObject*>(this)))
   {
@@ -910,7 +910,7 @@ void ezGameObject::PostEventMessage(ezEventMessage& msg, const ezComponent* pSen
       msg.m_hSenderObject = pSenderComponent->GetOwner()->GetHandle();
     }
 
-    pReceiver->PostMessage(msg, queueType, delay);
+    pReceiver->PostMessage(msg, delay, queueType);
   }
 }
 

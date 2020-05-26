@@ -17,10 +17,9 @@ namespace ezInternal
 {
   struct EZ_CORE_DLL EventMessageSenderHelper
   {
-    static void SendMessage(ezComponent* pSenderComponent, ezComponentHandle hReceiver, ezEventMessage& msg);
-    static void SendMessage(const ezComponent* pSenderComponent, ezComponentHandle hReceiver, ezEventMessage& msg);
-    static void PostMessage(const ezComponent* pSenderComponent, ezComponentHandle hReceiver, const ezEventMessage& msg, ezObjectMsgQueueType::Enum queueType);
-    static void PostMessage(const ezComponent* pSenderComponent, ezComponentHandle hReceiver, const ezEventMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay);
+    static void SendEventMessage(ezComponent* pSenderComponent, ezComponentHandle hReceiver, ezEventMessage& msg);
+    static void SendEventMessage(const ezComponent* pSenderComponent, ezComponentHandle hReceiver, ezEventMessage& msg);
+    static void PostEventMessage(const ezComponent* pSenderComponent, ezComponentHandle hReceiver, const ezEventMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame);
   };
 } // namespace ezInternal
 
@@ -33,34 +32,25 @@ class ezEventMessageSender : public ezMessageSenderBase<EventMessageType>
 public:
   EZ_ALWAYS_INLINE ezEventMessageSender() { *reinterpret_cast<ezUInt64*>(&m_hCachedReceiver) = 0xFFFFFFFFFFFFFFFF; }
 
-  EZ_ALWAYS_INLINE void SendMessage(EventMessageType& msg, ezComponent* pSenderComponent, const ezGameObject* pSearchObject)
+  EZ_ALWAYS_INLINE void SendEventMessage(EventMessageType& msg, ezComponent* pSenderComponent, const ezGameObject* pSearchObject)
   {
     UpdateMessageAndCachedReceiver(msg, pSenderComponent, pSearchObject);
 
-    ezInternal::EventMessageSenderHelper::SendMessage(pSenderComponent, m_hCachedReceiver, msg);
+    ezInternal::EventMessageSenderHelper::SendEventMessage(pSenderComponent, m_hCachedReceiver, msg);
   }
 
-  EZ_ALWAYS_INLINE void SendMessage(EventMessageType& msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject) const
+  EZ_ALWAYS_INLINE void SendEventMessage(EventMessageType& msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject) const
   {
     UpdateMessageAndCachedReceiver(msg, pSenderComponent, pSearchObject);
 
-    ezInternal::EventMessageSenderHelper::SendMessage(pSenderComponent, m_hCachedReceiver, msg);
+    ezInternal::EventMessageSenderHelper::SendEventMessage(pSenderComponent, m_hCachedReceiver, msg);
   }
 
-  EZ_ALWAYS_INLINE void PostMessage(const EventMessageType& msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject,
-    ezObjectMsgQueueType::Enum queueType) const
+  EZ_ALWAYS_INLINE void PostEventMessage(const EventMessageType& msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject, ezTime delay, ezObjectMsgQueueType::Enum queueType) const
   {
     UpdateMessageAndCachedReceiver(const_cast<EventMessageType&>(msg), pSenderComponent, pSearchObject);
 
-    ezInternal::EventMessageSenderHelper::PostMessage(pSenderComponent, m_hCachedReceiver, msg, queueType);
-  }
-
-  EZ_ALWAYS_INLINE void PostMessage(const EventMessageType& msg, const ezComponent* pSenderComponent, const ezGameObject* pSearchObject,
-    ezObjectMsgQueueType::Enum queueType, ezTime delay) const
-  {
-    UpdateMessageAndCachedReceiver(const_cast<EventMessageType&>(msg), pSenderComponent, pSearchObject);
-
-    ezInternal::EventMessageSenderHelper::PostMessage(pSenderComponent, m_hCachedReceiver, msg, queueType, delay);
+    ezInternal::EventMessageSenderHelper::PostEventMessage(pSenderComponent, m_hCachedReceiver, msg, delay, queueType);
   }
 
 private:

@@ -269,7 +269,7 @@ static int __CPP_Component_SendMessage(duk_context* pDuk)
     const ezTime delay = ezTime::Seconds(duk.GetNumberValue(3));
 
     ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, delay);
-    pComponent->PostMessage(*pMsg, ezObjectMsgQueueType::NextFrame, delay);
+    pComponent->PostMessage(*pMsg, delay);
   }
 
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnVoid(), 0);

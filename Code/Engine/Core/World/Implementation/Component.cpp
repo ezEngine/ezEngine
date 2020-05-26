@@ -168,9 +168,9 @@ bool ezComponent::SendMessageInternal(ezMessage& msg, bool bWasPostedMsg) const
   return false;
 }
 
-void ezComponent::PostMessage(const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const
+void ezComponent::PostMessage(const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType) const
 {
-  GetWorld()->PostMessage(GetHandle(), msg, queueType, delay);
+  GetWorld()->PostMessage(GetHandle(), msg, delay, queueType);
 }
 
 void ezComponent::Initialize() {}

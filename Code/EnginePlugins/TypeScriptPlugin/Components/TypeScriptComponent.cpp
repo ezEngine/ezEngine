@@ -127,14 +127,14 @@ void ezTypeScriptComponent::BroadcastEventMsg(ezEventMessage& msg)
   {
     if (sender.m_pMsgType == pType)
     {
-      sender.m_Sender.SendMessage(msg, this, GetOwner()->GetParent());
+      sender.m_Sender.SendEventMessage(msg, this, GetOwner()->GetParent());
       return;
     }
   }
 
   auto& sender = m_EventSenders.ExpandAndGetRef();
   sender.m_pMsgType = pType;
-  sender.m_Sender.SendMessage(msg, this, GetOwner()->GetParent());
+  sender.m_Sender.SendEventMessage(msg, this, GetOwner()->GetParent());
 }
 
 bool ezTypeScriptComponent::CallTsFunc(const char* szFuncName)

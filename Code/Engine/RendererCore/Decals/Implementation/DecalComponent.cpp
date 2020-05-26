@@ -551,7 +551,7 @@ void ezDecalComponent::OnSimulationStarted()
 
       const ezTime tKill = tFadeOutDelay + m_FadeOutDuration;
 
-      PostMessage(msg, ezObjectMsgQueueType::NextFrame, tKill);
+      PostMessage(msg, tKill);
     }
   }
 

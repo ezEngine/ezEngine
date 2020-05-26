@@ -183,11 +183,11 @@ EZ_CREATE_SIMPLE_TEST(World, Messaging)
     {
       TestMessage1 msg;
       msg.m_iValue = i;
-      pRoot->PostMessage(msg, ezObjectMsgQueueType::NextFrame);
+      pRoot->PostMessage(msg, ezTime::Zero(), ezObjectMsgQueueType::NextFrame);
 
       TestMessage2 msg2;
       msg2.m_iValue = i;
-      pRoot->PostMessage(msg2, ezObjectMsgQueueType::NextFrame);
+      pRoot->PostMessage(msg2, ezTime::Zero(), ezObjectMsgQueueType::NextFrame);
     }
 
     world.Update();
@@ -208,11 +208,11 @@ EZ_CREATE_SIMPLE_TEST(World, Messaging)
     {
       TestMessage1 msg;
       msg.m_iValue = i;
-      pRoot->PostMessage(msg, ezObjectMsgQueueType::NextFrame, ezTime::Seconds(i + 1));
+      pRoot->PostMessage(msg, ezTime::Seconds(i + 1));
 
       TestMessage2 msg2;
       msg2.m_iValue = i;
-      pRoot->PostMessage(msg2, ezObjectMsgQueueType::NextFrame, ezTime::Seconds(i + 1));
+      pRoot->PostMessage(msg2, ezTime::Seconds(i + 1));
     }
 
     world.GetClock().SetFixedTimeStep(ezTime::Seconds(1.001f));
