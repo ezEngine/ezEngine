@@ -4,6 +4,7 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Pipeline/RenderData.h>
 #include <RendererCore/Pipeline/View.h>
+#include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RmlUiPlugin/Components/RmlUiCanvas2DComponent.h>
 #include <RmlUiPlugin/RmlUiContext.h>
 #include <RmlUiPlugin/RmlUiSingleton.h>
@@ -14,6 +15,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezRmlUiCanvas2DComponent, 1, ezComponentMode::Dynamic)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("RmlFile", GetRmlFile, SetRmlFile)->AddAttributes(new ezFileBrowserAttribute("Rml File", "*.rml")),
+    EZ_ACCESSOR_PROPERTY("Offset", GetOffset, SetOffset)->AddAttributes(new ezDefaultValueAttribute(ezVec2::ZeroVector()), new ezSuffixAttribute("px")),
+    EZ_ACCESSOR_PROPERTY("Size", GetSize, SetSize)->AddAttributes(new ezDefaultValueAttribute(ezVec2U32(100)), new ezSuffixAttribute("px")),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -37,8 +40,12 @@ void ezRmlUiCanvas2DComponent::OnActivated()
 {
   SUPER::OnActivated();
 
-  m_pContext = ezRmlUi::GetSingleton()->CreateContext();
+  ezStringBuilder sName = m_sRmlFile;
+  sName = sName.GetFileName();
+
+  m_pContext = ezRmlUi::GetSingleton()->CreateContext(sName, m_Size);
   m_pContext->LoadDocumentFromFile(m_sRmlFile);
+  m_pContext->SetOffset(m_Offset);
 }
 
 void ezRmlUiCanvas2DComponent::OnDeactivated()
@@ -53,6 +60,15 @@ void ezRmlUiCanvas2DComponent::Update()
 {
   if (m_pContext != nullptr)
   {
+    if (false)
+    {
+      if (ezView* pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView, ezCameraUsageHint::EditorView, GetWorld()))
+      {
+        float fScale = pView->GetViewport().height / 1000.0f;
+        m_pContext->SetDpiScale(fScale);
+      }
+    }
+
     m_pContext->Update();
   }
 }
@@ -63,16 +79,37 @@ void ezRmlUiCanvas2DComponent::SetRmlFile(const char* szFile)
   {
     m_sRmlFile = szFile;
 
-    if (IsActiveAndInitialized())
+    if (m_pContext != nullptr)
     {
       m_pContext->LoadDocumentFromFile(m_sRmlFile);
     }
   }
 }
 
-const char* ezRmlUiCanvas2DComponent::GetRmlFile() const
+void ezRmlUiCanvas2DComponent::SetOffset(const ezVec2I32& offset)
 {
-  return m_sRmlFile;
+  if (m_Offset != offset)
+  {
+    m_Offset = offset;
+
+    if (m_pContext != nullptr)
+    {
+      m_pContext->SetOffset(m_Offset);
+    }
+  }
+}
+
+void ezRmlUiCanvas2DComponent::SetSize(const ezVec2U32& size)
+{
+  if (m_Size != size)
+  {
+    m_Size = size;
+
+    if (m_pContext != nullptr)
+    {
+      m_pContext->SetSize(m_Size);
+    }
+  }
 }
 
 void ezRmlUiCanvas2DComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -82,6 +119,8 @@ void ezRmlUiCanvas2DComponent::SerializeComponent(ezWorldWriter& stream) const
   ezStreamWriter& s = stream.GetStream();
 
   s << m_sRmlFile;
+  s << m_Offset;
+  s << m_Size;
 }
 
 void ezRmlUiCanvas2DComponent::DeserializeComponent(ezWorldReader& stream)
@@ -91,6 +130,8 @@ void ezRmlUiCanvas2DComponent::DeserializeComponent(ezWorldReader& stream)
   ezStreamReader& s = stream.GetStream();
 
   s >> m_sRmlFile;
+  s >> m_Offset;
+  s >> m_Size;
 }
 
 ezResult ezRmlUiCanvas2DComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)

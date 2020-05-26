@@ -43,7 +43,7 @@ public:
   static void DeleteView(const ezViewHandle& hView);
 
   static bool TryGetView(const ezViewHandle& hView, ezView*& out_pView);
-  static ezView* GetViewByUsageHint(ezCameraUsageHint::Enum usageHint, ezCameraUsageHint::Enum alternativeUsageHint = ezCameraUsageHint::None);
+  static ezView* GetViewByUsageHint(ezCameraUsageHint::Enum usageHint, ezCameraUsageHint::Enum alternativeUsageHint = ezCameraUsageHint::None, const ezWorld* pWorld = nullptr);
 
   static void AddMainView(const ezViewHandle& hView);
   static void RemoveMainView(const ezViewHandle& hView);

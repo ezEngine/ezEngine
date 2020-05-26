@@ -22,8 +22,14 @@ public:
 
   void Update();
 
-  void SetRmlFile(const char* szFile); // [ property ]
-  const char* GetRmlFile() const;      // [ property ]
+  void SetRmlFile(const char* szFile);                  // [ property ]
+  const char* GetRmlFile() const { return m_sRmlFile; } // [ property ]
+
+  void SetOffset(const ezVec2I32& offset);                // [ property ]
+  const ezVec2I32& GetOffset() const { return m_Offset; } // [ property ]
+
+  void SetSize(const ezVec2U32& size);                // [ property ]
+  const ezVec2U32& GetSize() const { return m_Size; } // [ property ]
 
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
@@ -34,5 +40,8 @@ protected:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
 
   ezString m_sRmlFile;
+  ezVec2I32 m_Offset = ezVec2I32::ZeroVector();
+  ezVec2U32 m_Size = ezVec2U32(100);
+
   ezRmlUiContext* m_pContext = nullptr;
 };

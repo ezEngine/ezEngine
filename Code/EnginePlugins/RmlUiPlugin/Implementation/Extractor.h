@@ -59,7 +59,7 @@ namespace ezRmlUiInternal
 
     virtual void SetTransform(const Rml::Core::Matrix4f* transform) override;
 
-    void BeginExtraction();
+    void BeginExtraction(const ezVec2I32& offset);
     void EndExtraction();
 
     ezRenderData* GetRenderData();
@@ -68,6 +68,8 @@ namespace ezRmlUiInternal
     ezIdTable<GeometryId, CompiledGeometry> m_CompiledGeometry;
     ezIdTable<TextureId, ezTexture2DResourceHandle> m_Textures;
     ezTexture2DResourceHandle m_hFallbackTexture;
+
+    ezVec2 m_Offset = ezVec2::ZeroVector();
 
     ezMat4 m_Transform = ezMat4::IdentityMatrix();
     ezRectFloat m_ScissorRect = ezRectFloat(0, 0);

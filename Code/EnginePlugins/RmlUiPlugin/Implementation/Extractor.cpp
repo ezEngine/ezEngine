@@ -96,12 +96,21 @@ namespace ezRmlUiInternal
 
     EZ_VERIFY(m_CompiledGeometry.TryGetValue(GeometryId::FromRml(geometry), batch.m_CompiledGeometry), "Invalid compiled geometry");
 
-    batch.m_Transform = m_Transform;
+    ezMat4 offsetMat;
+    offsetMat.SetTranslationMatrix(m_Offset.GetAsVec3(0));
+
+    batch.m_Transform = offsetMat * m_Transform;
     batch.m_Translation = ezVec2(translation.x, translation.y);
 
     batch.m_ScissorRect = m_ScissorRect;
     batch.m_bEnableScissorRect = m_bEnableScissorRect;
     batch.m_bTransformScissorRect = (m_bEnableScissorRect && m_Transform.IsIdentity() == false);
+
+    if (!batch.m_bTransformScissorRect)
+    {
+      batch.m_ScissorRect.x += m_Offset.x;
+      batch.m_ScissorRect.y += m_Offset.y;
+    }
   }
 
   void Extractor::ReleaseCompiledGeometry(Rml::Core::CompiledGeometryHandle geometry)
@@ -186,8 +195,9 @@ namespace ezRmlUiInternal
     }
   }
 
-  void Extractor::BeginExtraction()
+  void Extractor::BeginExtraction(const ezVec2I32& offset)
   {
+    m_Offset = ezVec2(offset.x, offset.y);
     m_Transform = ezMat4::IdentityMatrix();
 
     m_Batches.Clear();

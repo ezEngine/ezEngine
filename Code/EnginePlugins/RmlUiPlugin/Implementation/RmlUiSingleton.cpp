@@ -29,9 +29,9 @@ ezRmlUi::~ezRmlUi()
   Rml::Core::Shutdown();
 }
 
-ezRmlUiContext* ezRmlUi::CreateContext()
+ezRmlUiContext* ezRmlUi::CreateContext(const char* szName, const ezVec2U32& initialSize)
 {
-  m_Contexts.PushBack(EZ_DEFAULT_NEW(ezRmlUiContext));
+  m_Contexts.PushBack(EZ_DEFAULT_NEW(ezRmlUiContext, szName, initialSize));
 
   return m_Contexts.PeekBack().Borrow();
 }
@@ -56,17 +56,7 @@ void ezRmlUi::ExtractContext(ezRmlUiContext& context, ezMsgExtractRenderData& ms
   // Unfortunately we need to hold a lock for the whole extraction of a context since RmlUi is not thread safe.
   EZ_LOCK(m_ExtractionMutex);
 
-  if (context.m_uiExtractedFrame != ezRenderWorld::GetFrameCounter())
-  {
-    m_pExtractor->BeginExtraction();
-
-    context.m_pContext->Render();
-
-    m_pExtractor->EndExtraction();
-
-    context.m_uiExtractedFrame = ezRenderWorld::GetFrameCounter();
-    context.m_pRenderData = m_pExtractor->GetRenderData();
-  }
+  context.ExtractRenderData(*m_pExtractor);
 
   if (context.m_pRenderData != nullptr)
   {

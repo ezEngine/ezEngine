@@ -23,7 +23,7 @@ public:
   ezRmlUi();
   ~ezRmlUi();
 
-  ezRmlUiContext* CreateContext();
+  ezRmlUiContext* CreateContext(const char* szName, const ezVec2U32& initialSize);
   void DeleteContext(ezRmlUiContext* pContext);
 
   void ExtractContext(ezRmlUiContext& context, ezMsgExtractRenderData& msg);

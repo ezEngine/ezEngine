@@ -5,9 +5,9 @@
 #include <RmlUiPlugin/Implementation/Extractor.h>
 #include <RmlUiPlugin/RmlUiContext.h>
 
-ezRmlUiContext::ezRmlUiContext()
+ezRmlUiContext::ezRmlUiContext(const char* szName, const ezVec2U32& initialSize)
 {
-  m_pContext = Rml::Core::CreateContext("Test", Rml::Core::Vector2i(400, 400));
+  m_pContext = Rml::Core::CreateContext(szName, Rml::Core::Vector2i(initialSize.x, initialSize.y));
 }
 
 ezRmlUiContext::~ezRmlUiContext()
@@ -42,7 +42,43 @@ void ezRmlUiContext::Update()
   }
 }
 
+void ezRmlUiContext::SetOffset(const ezVec2I32& offset)
+{
+  m_Offset = offset;
+}
+
+void ezRmlUiContext::SetSize(const ezVec2U32& size)
+{
+  if (m_pDocument != nullptr)
+  {
+    m_pContext->SetDimensions(Rml::Core::Vector2i(size.x, size.y));
+  }
+}
+
+void ezRmlUiContext::SetDpiScale(float fScale)
+{
+  if (m_pDocument != nullptr)
+  {
+    m_pContext->SetDensityIndependentPixelRatio(fScale);
+  }
+}
+
 Rml::Core::Context* ezRmlUiContext::GetRmlContext()
 {
   return m_pContext;
+}
+
+void ezRmlUiContext::ExtractRenderData(ezRmlUiInternal::Extractor& extractor)
+{
+  if (m_uiExtractedFrame != ezRenderWorld::GetFrameCounter())
+  {
+    extractor.BeginExtraction(m_Offset);
+
+    m_pContext->Render();
+
+    extractor.EndExtraction();
+
+    m_uiExtractedFrame = ezRenderWorld::GetFrameCounter();
+    m_pRenderData = extractor.GetRenderData();
+  }
 }
