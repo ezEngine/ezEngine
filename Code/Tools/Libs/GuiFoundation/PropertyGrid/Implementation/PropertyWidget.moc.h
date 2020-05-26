@@ -1,9 +1,9 @@
 #pragma once
 
-#include <GuiFoundation/GuiFoundationDLL.h>
-#include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Communication/Event.h>
+#include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Types/Variant.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/PropertyGrid/PropertyBaseWidget.moc.h>
 
 #include <QFrame>
@@ -32,7 +32,7 @@ class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorCheckboxWidget : public ezQtStandar
 public:
   ezQtPropertyEditorCheckboxWidget();
 
-  virtual void mousePressEvent(QMouseEvent * ev) override;
+  virtual void mousePressEvent(QMouseEvent* ev) override;
 
 private Q_SLOTS:
   void on_StateChanged_triggered(int state);
@@ -43,7 +43,6 @@ protected:
 
   QHBoxLayout* m_pLayout;
   QCheckBox* m_pWidget;
-
 };
 
 
@@ -68,7 +67,7 @@ protected:
   bool m_bTemporaryCommand;
   ezInt8 m_iNumComponents;
   QHBoxLayout* m_pLayout;
-  ezQtDoubleSpinBox*  m_pWidget[4];
+  ezQtDoubleSpinBox* m_pWidget[4];
 };
 
 /// *** TIME SPINBOX ***
@@ -80,7 +79,7 @@ class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorTimeWidget : public ezQtStandardPro
 public:
   ezQtPropertyEditorTimeWidget();
 
-  private Q_SLOTS:
+private Q_SLOTS:
   void on_EditingFinished_triggered();
   void SlotValueChanged();
 
@@ -90,7 +89,7 @@ protected:
 
   bool m_bTemporaryCommand;
   QHBoxLayout* m_pLayout;
-  ezQtDoubleSpinBox*  m_pWidget;
+  ezQtDoubleSpinBox* m_pWidget;
 };
 
 /// *** ANGLE SPINBOX ***
@@ -112,7 +111,7 @@ protected:
 
   bool m_bTemporaryCommand;
   QHBoxLayout* m_pLayout;
-  ezQtDoubleSpinBox*  m_pWidget;
+  ezQtDoubleSpinBox* m_pWidget;
 };
 
 /// *** INT SPINBOX ***
@@ -122,7 +121,7 @@ class EZ_GUIFOUNDATION_DLL ezQtPropertyEditorIntSpinboxWidget : public ezQtStand
   Q_OBJECT
 
 public:
-  ezQtPropertyEditorIntSpinboxWidget(ezInt32 iMinValue, ezInt32 iMaxValue);
+  ezQtPropertyEditorIntSpinboxWidget(ezInt8 iNumComponents, ezInt32 iMinValue, ezInt32 iMaxValue);
 
 private Q_SLOTS:
   void SlotValueChanged();
@@ -133,8 +132,9 @@ protected:
   virtual void InternalSetValue(const ezVariant& value) override;
 
   bool m_bTemporaryCommand;
+  ezInt8 m_iNumComponents;
   QHBoxLayout* m_pLayout;
-  ezQtDoubleSpinBox* m_pWidget;
+  ezQtDoubleSpinBox* m_pWidget[4];
 };
 
 /// *** QUATERNION ***

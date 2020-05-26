@@ -328,6 +328,15 @@ bool ezVariant::CanConvertTo(Type::Enum type) const
   if (IsNumberStatic(type) && (IsNumber() || m_Type == Type::String))
     return true;
 
+  if (IsVector2Static(type) && (IsVector2Static(m_Type)))
+    return true;
+
+  if (IsVector3Static(type) && (IsVector3Static(m_Type)))
+    return true;
+
+  if (IsVector4Static(type) && (IsVector4Static(m_Type)))
+    return true;
+
   if (type == Type::String && m_Type < Type::LastStandardType && m_Type != Type::DataBuffer)
     return true;
   if (type == Type::String && m_Type == Type::VariantArray)

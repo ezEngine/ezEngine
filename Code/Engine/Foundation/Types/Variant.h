@@ -339,6 +339,9 @@ private:
 
   static bool IsNumberStatic(ezUInt32 type);
   static bool IsFloatingPointStatic(ezUInt32 type);
+  static bool IsVector2Static(ezUInt32 type);
+  static bool IsVector3Static(ezUInt32 type);
+  static bool IsVector4Static(ezUInt32 type);
 
   template <typename T>
   T ConvertNumber() const;
