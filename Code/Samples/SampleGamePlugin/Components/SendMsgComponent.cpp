@@ -59,7 +59,7 @@ void SendMsgComponent::OnSimulationStarted()
   // start sending strings shortly
   ezMsgComponentInternalTrigger msg;
   msg.m_uiUsageStringHash = ezTempHashedString::ComputeHash("SendNextString");
-  PostMessage(msg, ezObjectMsgQueueType::NextFrame, ezTime::Milliseconds(100));
+  PostMessage(msg, ezTime::Milliseconds(100));
 }
 
 void SendMsgComponent::OnSendText(ezMsgComponentInternalTrigger& msg)
@@ -68,18 +68,24 @@ void SendMsgComponent::OnSendText(ezMsgComponentInternalTrigger& msg)
   {
     if (!m_TextArray.IsEmpty())
     {
-      ezMsgSetText textMsg;
-      textMsg.m_sText = m_TextArray[m_uiNextString % m_TextArray.GetCount()];
+      const ezUInt32 idx = m_uiNextString % m_TextArray.GetCount();
 
       // send the message to all components on this node and all child nodes
-      GetOwner()->SendMessageRecursive(textMsg);
+
+      ezGameObject* pGameObject = GetOwner();
+
+      // BEGIN-DOCS-CODE-SNIPPET: message-send-direct
+      ezMsgSetText textMsg;
+      textMsg.m_sText = m_TextArray[idx];
+      pGameObject->SendMessageRecursive(textMsg);
+      // END-DOCS-CODE-SNIPPET
 
       m_uiNextString++;
     }
 
 
     // send the next string in a second
-    PostMessage(msg, ezObjectMsgQueueType::NextFrame, ezTime::Seconds(2));
+    PostMessage(msg, ezTime::Seconds(2));
   }
 }
 

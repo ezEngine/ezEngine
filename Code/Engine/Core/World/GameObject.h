@@ -381,10 +381,10 @@ public:
 
 
   /// \brief Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
-  void PostMessage(const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
+  void PostMessage(const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
 
   /// \brief Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
-  void PostMessageRecursive(const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
+  void PostMessageRecursive(const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
 
   /// \brief Delivers an ezEventMessage to the closest (parent) object containing an ezEventMessageHandlerComponent.
   ///
@@ -418,7 +418,8 @@ public:
   ///
   /// \param queueType In which update phase to deliver the message.
   /// \param delay An optional delay before delivering the message.
-  void PostEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent, ezObjectMsgQueueType::Enum queueType, ezTime delay = ezTime()) const;
+  void PostEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent, ezTime delay, ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
+
 
   /// \brief Returns the tag set associated with this object.
   ezTagSet& GetTags();

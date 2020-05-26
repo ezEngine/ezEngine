@@ -509,12 +509,12 @@ public:
 
     if (pObjectA != nullptr)
     {
-      pObjectA->PostMessage(msg, ezObjectMsgQueueType::PostTransform);
+      pObjectA->PostMessage(msg, ezTime::Zero(), ezObjectMsgQueueType::PostTransform);
     }
 
     if (pObjectB != nullptr && pObjectB != pObjectA)
     {
-      pObjectB->PostMessage(msg, ezObjectMsgQueueType::PostTransform);
+      pObjectB->PostMessage(msg, ezTime::Zero(), ezObjectMsgQueueType::PostTransform);
     }
   }
 

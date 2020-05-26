@@ -281,7 +281,7 @@ void ezWorld::DeleteObjectNow(const ezGameObjectHandle& hObject)
 void ezWorld::DeleteObjectDelayed(const ezGameObjectHandle& hObject)
 {
   ezMsgDeleteGameObject msg;
-  PostMessage(hObject, msg, ezObjectMsgQueueType::NextFrame);
+  PostMessage(hObject, msg, ezTime::Zero());
 }
 
 ezComponentInitBatchHandle ezWorld::CreateComponentInitBatch(const char* szBatchName, bool bMustFinishWithinOneFrame /*= true*/)
@@ -363,7 +363,7 @@ void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, const ezMess
   }
 }
 
-void ezWorld::PostMessage(const ezComponentHandle& receiverComponent, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay) const
+void ezWorld::PostMessage(const ezComponentHandle& receiverComponent, const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType) const
 {
   // This method is allowed to be called from multiple threads.
 

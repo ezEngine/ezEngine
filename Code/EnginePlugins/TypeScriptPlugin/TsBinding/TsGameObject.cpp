@@ -634,9 +634,9 @@ static int __CPP_GameObject_SendMessage(duk_context* pDuk)
     ezUniquePtr<ezMessage> pMsg = pBinding->MessageFromParameter(pDuk, 1, delay);
 
     if (duk.GetBoolValue(3))
-      pGameObject->PostMessageRecursive(*pMsg, ezObjectMsgQueueType::NextFrame, delay);
+      pGameObject->PostMessageRecursive(*pMsg, delay);
     else
-      pGameObject->PostMessage(*pMsg, ezObjectMsgQueueType::NextFrame, delay);
+      pGameObject->PostMessage(*pMsg, delay);
   }
 
   return duk.ReturnVoid();

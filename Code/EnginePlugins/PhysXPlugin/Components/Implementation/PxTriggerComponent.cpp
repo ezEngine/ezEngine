@@ -188,5 +188,5 @@ void ezPxTriggerComponent::PostTriggerMessage(const ezComponent* pOtherComponent
   msg.m_uiMessageStringHash = m_sTriggerMessage.GetHash();
   msg.m_hTriggeringObject = pOtherComponent->GetOwner()->GetHandle();
 
-  m_TriggerEventSender.PostMessage(msg, this, GetOwner(), ezObjectMsgQueueType::PostTransform);
+  m_TriggerEventSender.PostEventMessage(msg, this, GetOwner(), ezTime::Zero(), ezObjectMsgQueueType::PostTransform);
 }

@@ -121,7 +121,7 @@ void ezMoveToComponent::Update()
     pOwner->SetGlobalPosition(m_vTargetPosition);
 
     ezMsgAnimationReachedEnd msg;
-    m_ReachedEndMsgSender.SendMessage(msg, this, GetOwner());
+    m_ReachedEndMsgSender.SendEventMessage(msg, this, GetOwner());
 
     return;
   }

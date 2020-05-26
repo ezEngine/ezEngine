@@ -54,7 +54,7 @@ void ezAreaDamageComponent::ApplyAreaDamage()
 
   const ezVec3 vOwnPosition = GetOwner()->GetGlobalPosition();
 
-  pPhysicsInterface->QueryShapesInSphere(g_OverlapResults, m_fRadius, vOwnPosition, ezPhysicsQueryParameters(m_uiCollisionLayer, ezPhysicsShapeType::Dynamic));
+  pPhysicsInterface->QueryShapesInSphere(g_OverlapResults, m_fRadius, vOwnPosition, ezPhysicsQueryParameters(m_uiCollisionLayer));
 
   const float fInvRadius = 1.0f / m_fRadius;
 
@@ -106,7 +106,7 @@ void ezAreaDamageComponent::ApplyAreaDamage()
           }
 
           // delay the damage a little bit for nicer chain reactions
-          pObject->PostMessage(msg, ezObjectMsgQueueType::NextFrame, ezTime::Milliseconds(200));
+          pObject->PostEventMessage(msg, this, ezTime::Milliseconds(200));
         }
       }
     }

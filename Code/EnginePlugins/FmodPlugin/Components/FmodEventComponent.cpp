@@ -674,7 +674,7 @@ void ezFmodEventComponent::Update()
       m_iTimelinePosition = -1;
 
       ezMsgFmodSoundFinished msg;
-      m_SoundFinishedEventSender.SendMessage(msg, this, GetOwner());
+      m_SoundFinishedEventSender.SendEventMessage(msg, this, GetOwner());
 
       ezOnComponentFinishedAction::HandleFinishedAction(this, m_OnFinishedAction);
     }

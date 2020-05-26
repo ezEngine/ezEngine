@@ -123,10 +123,9 @@ void ezSpawnComponent::ScheduleSpawn()
 
   ezWorld* pWorld = GetWorld();
 
-  const ezTime tKill =
-    ezTime::Seconds(pWorld->GetRandomNumberGenerator().DoubleInRange(m_MinDelay.GetSeconds(), m_DelayRange.GetSeconds()));
+  const ezTime tKill = ezTime::Seconds(pWorld->GetRandomNumberGenerator().DoubleInRange(m_MinDelay.GetSeconds(), m_DelayRange.GetSeconds()));
 
-  PostMessage(msg, ezObjectMsgQueueType::NextFrame, tKill);
+  PostMessage(msg, tKill);
 }
 
 void ezSpawnComponent::SerializeComponent(ezWorldWriter& stream) const

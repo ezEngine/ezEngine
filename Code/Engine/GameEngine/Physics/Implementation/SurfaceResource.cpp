@@ -301,7 +301,7 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
 
     for (auto pRootObject : rootObjects)
     {
-      pRootObject->PostMessageRecursive(msgSetFloat, ezObjectMsgQueueType::AfterInitialized);
+      pRootObject->PostMessageRecursive(msgSetFloat, ezTime::Zero(), ezObjectMsgQueueType::AfterInitialized);
     }
   }
 
@@ -312,7 +312,7 @@ bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle 
 
     for (auto pRootObject : rootObjects)
     {
-      pRootObject->PostMessageRecursive(msg, ezObjectMsgQueueType::AfterInitialized);
+      pRootObject->PostMessageRecursive(msg, ezTime::Zero(), ezObjectMsgQueueType::AfterInitialized);
     }
   }
 

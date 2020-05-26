@@ -67,7 +67,7 @@ void ezTimedDeathComponent::OnSimulationStarted()
   const ezTime tKill =
     ezTime::Seconds(pWorld->GetRandomNumberGenerator().DoubleInRange(m_MinDelay.GetSeconds(), m_DelayRange.GetSeconds()));
 
-  PostMessage(msg, ezObjectMsgQueueType::NextFrame, tKill);
+  PostMessage(msg, tKill);
 
   // make sure the prefab is available when the component dies
   if (m_hTimeoutPrefab.IsValid())

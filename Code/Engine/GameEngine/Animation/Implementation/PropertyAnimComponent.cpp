@@ -468,14 +468,14 @@ ezTime ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
       m_AnimationTime = m_AnimationRangeHigh;
       m_bPlaying = false;
 
-      m_ReachedEndMsgSender.SendMessage(reachedEndMsg, this, GetOwner());
+      m_ReachedEndMsgSender.SendEventMessage(reachedEndMsg, this, GetOwner());
     }
     else if (m_fSpeed < 0 && m_AnimationTime <= m_AnimationRangeLow)
     {
       m_AnimationTime = m_AnimationRangeLow;
       m_bPlaying = false;
 
-      m_ReachedEndMsgSender.SendMessage(reachedEndMsg, this, GetOwner());
+      m_ReachedEndMsgSender.SendEventMessage(reachedEndMsg, this, GetOwner());
     }
 
     EvaluateEventTrack(tStart, m_AnimationTime);
@@ -488,7 +488,7 @@ ezTime ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
     {
       m_AnimationTime -= duration;
 
-      m_ReachedEndMsgSender.SendMessage(reachedEndMsg, this, GetOwner());
+      m_ReachedEndMsgSender.SendEventMessage(reachedEndMsg, this, GetOwner());
 
       EvaluateEventTrack(tStart, m_AnimationRangeHigh);
       tStart = m_AnimationRangeLow;
@@ -498,7 +498,7 @@ ezTime ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
     {
       m_AnimationTime += duration;
 
-      m_ReachedEndMsgSender.SendMessage(reachedEndMsg, this, GetOwner());
+      m_ReachedEndMsgSender.SendEventMessage(reachedEndMsg, this, GetOwner());
 
       EvaluateEventTrack(tStart, m_AnimationRangeLow);
       tStart = m_AnimationRangeHigh;
@@ -526,7 +526,7 @@ ezTime ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
         EvaluateEventTrack(tStart, m_AnimationRangeHigh);
         tStart = m_AnimationRangeHigh;
 
-        m_ReachedEndMsgSender.SendMessage(reachedEndMsg, this, GetOwner());
+        m_ReachedEndMsgSender.SendEventMessage(reachedEndMsg, this, GetOwner());
       }
       else if (m_AnimationTime < m_AnimationRangeLow)
       {
@@ -536,7 +536,7 @@ ezTime ezPropertyAnimComponent::ComputeAnimationLookup(ezTime tDiff)
         EvaluateEventTrack(tStart, m_AnimationRangeLow);
         tStart = m_AnimationRangeLow;
 
-        m_ReachedEndMsgSender.SendMessage(reachedEndMsg, this, GetOwner());
+        m_ReachedEndMsgSender.SendEventMessage(reachedEndMsg, this, GetOwner());
       }
       else
       {
@@ -563,7 +563,7 @@ void ezPropertyAnimComponent::EvaluateEventTrack(ezTime startTime, ezTime endTim
   {
     ezMsgGenericEvent msg;
     msg.m_sMessage = sEvent.GetString();
-    m_EventTrackMsgSender.SendMessage(msg, this, GetOwner());
+    m_EventTrackMsgSender.SendEventMessage(msg, this, GetOwner());
   }
 }
 

@@ -185,18 +185,18 @@ void ezVisualScriptNode_MessageSender::Execute(ezVisualScriptInstance* pInstance
 
       if (!m_hComponent.IsInvalidated())
       {
-        pWorld->PostMessage(m_hComponent, *m_pMessageToSend, ezObjectMsgQueueType::NextFrame, m_Delay);
+        pWorld->PostMessage(m_hComponent, *m_pMessageToSend, m_Delay);
       }
       else
       {
         ezGameObjectHandle hObject = m_hObject.IsInvalidated() ? pInstance->GetOwner() : m_hObject;
         if (m_bRecursive)
         {
-          pWorld->PostMessageRecursive(hObject, *m_pMessageToSend, ezObjectMsgQueueType::NextFrame, m_Delay);
+          pWorld->PostMessageRecursive(hObject, *m_pMessageToSend, m_Delay);
         }
         else
         {
-          pWorld->PostMessage(hObject, *m_pMessageToSend, ezObjectMsgQueueType::NextFrame, m_Delay);
+          pWorld->PostMessage(hObject, *m_pMessageToSend, m_Delay);
         }
       }
     }

@@ -333,15 +333,15 @@ EZ_FORCE_INLINE void ezWorld::SendMessageRecursive(const ezGameObjectHandle& rec
   }
 }
 
-EZ_ALWAYS_INLINE void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, const ezMessage& msg,
-                                           ezObjectMsgQueueType::Enum queueType, ezTime delay) const
+EZ_ALWAYS_INLINE void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezTime delay,
+  ezObjectMsgQueueType::Enum queueType) const
 {
   // This method is allowed to be called from multiple threads.
   PostMessage(receiverObject, msg, queueType, delay, false);
 }
 
-EZ_ALWAYS_INLINE void ezWorld::PostMessageRecursive(const ezGameObjectHandle& receiverObject, const ezMessage& msg,
-                                                    ezObjectMsgQueueType::Enum queueType, ezTime delay) const
+EZ_ALWAYS_INLINE void ezWorld::PostMessageRecursive(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezTime delay,
+  ezObjectMsgQueueType::Enum queueType) const
 {
   // This method is allowed to be called from multiple threads.
   PostMessage(receiverObject, msg, queueType, delay, true);

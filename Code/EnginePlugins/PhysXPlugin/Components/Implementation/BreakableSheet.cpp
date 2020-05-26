@@ -593,7 +593,7 @@ void ezBreakableSheetComponent::BreakNow(const ezMsgCollision* pMessage /*= null
     }
   }
 
-  m_BreakEventSender.PostMessage(msg, this, GetOwner(), ezObjectMsgQueueType::PostAsync);
+  m_BreakEventSender.PostEventMessage(msg, this, GetOwner(), ezTime::Zero(), ezObjectMsgQueueType::PostAsync);
 }
 
 void ezBreakableSheetComponent::CreateMeshes()
