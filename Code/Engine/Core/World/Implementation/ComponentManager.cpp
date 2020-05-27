@@ -45,14 +45,14 @@ void ezComponentManagerBase::DeleteComponent(ezComponent* pComponent)
   GetWorld()->m_Data.m_DeadComponents.Insert(pComponent);
 }
 
-void ezComponentManagerBase::DeinitializeInternal()
+void ezComponentManagerBase::Deinitialize()
 {
   for (auto it = m_Components.GetIterator(); it.IsValid(); ++it)
   {
     DeinitializeComponent(it.Value());
   }
 
-  SUPER::DeinitializeInternal();
+  SUPER::Deinitialize();
 }
 
 ezComponentHandle ezComponentManagerBase::CreateComponentNoInit(ezGameObject* pOwnerObject, ezComponent*& out_pComponent)

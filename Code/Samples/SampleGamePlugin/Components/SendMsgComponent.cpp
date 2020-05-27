@@ -89,9 +89,3 @@ void SendMsgComponent::OnSendText(ezMsgComponentInternalTrigger& msg)
   }
 }
 
-//////////////////////////////////////////////////////////////////////////
-
-SendMsgComponentManager::SendMsgComponentManager(ezWorld* pWorld)
-  : ezComponentManager<class SendMsgComponent, ezBlockStorageType::Compact>(pWorld)
-{
-}

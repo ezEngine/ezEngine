@@ -59,13 +59,13 @@ public:
   /// Prefer to use more efficient methods on derived classes, only use this if you need to go through a ezComponentManagerBase pointer.
   virtual void CollectAllComponents(ezDynamicArray<ezComponent*>& out_AllComponents, bool bOnlyActive) = 0;
 
-private:
+protected:
   /// \cond
   // internal methods
   friend class ezWorld;
   friend class ezInternal::WorldData;
 
-  void DeinitializeInternal() override;
+  virtual void Deinitialize() override;
 
 protected:
   friend class ezWorldReader;

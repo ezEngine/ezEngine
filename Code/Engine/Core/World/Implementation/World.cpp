@@ -88,7 +88,7 @@ ezWorld::~ezWorld()
   {
     if (pModule != nullptr)
     {
-      pModule->DeinitializeInternal();
+      pModule->Deinitialize();
     }
   }
 
@@ -546,7 +546,7 @@ ezWorldModule* ezWorld::GetOrCreateModule(const ezRTTI* pRtti)
   if (pModule == nullptr)
   {
     pModule = ezWorldModuleFactory::GetInstance()->CreateWorldModule(uiTypeId, this);
-    pModule->InitializeInternal();
+    pModule->Initialize();
 
     m_Data.m_Modules[uiTypeId] = pModule;
     m_Data.m_ModulesToStartSimulation.PushBack(pModule);
@@ -566,7 +566,7 @@ void ezWorld::DeleteModule(const ezRTTI* pRtti)
     {
       m_Data.m_Modules[uiTypeId] = nullptr;
 
-      pModule->DeinitializeInternal();
+      pModule->Deinitialize();
       DeregisterUpdateFunctions(pModule);
       EZ_DELETE(&m_Data.m_Allocator, pModule);
     }

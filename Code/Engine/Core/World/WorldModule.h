@@ -93,10 +93,6 @@ protected:
   bool GetWorldSimulationEnabled() const;
 
 protected:
-  /// \brief Internal methods called by the world
-  virtual void InitializeInternal();
-  virtual void DeinitializeInternal();
-
   /// \brief This method is called after the constructor. A derived type can override this method to do initialization work. Typically this
   /// is the method where updates function are registered.
   virtual void Initialize() {}

@@ -150,7 +150,7 @@ ManagerType* ezWorld::GetOrCreateComponentManager()
   if (pModule == nullptr)
   {
     pModule = EZ_NEW(&m_Data.m_Allocator, ManagerType, this);
-    pModule->InitializeInternal();
+    static_cast<ezWorldModule*>(pModule)->Initialize();
 
     m_Data.m_Modules[uiTypeId] = pModule;
     m_Data.m_ModulesToStartSimulation.PushBack(pModule);
@@ -180,7 +180,7 @@ void ezWorld::DeleteComponentManager()
     {
       m_Data.m_Modules[uiTypeId] = nullptr;
 
-      pModule->DeinitializeInternal();
+      static_cast<ezWorldModule*>(pModule)->Deinitialize();
       DeregisterUpdateFunctions(pModule);
       EZ_DELETE(&m_Data.m_Allocator, pModule);
     }

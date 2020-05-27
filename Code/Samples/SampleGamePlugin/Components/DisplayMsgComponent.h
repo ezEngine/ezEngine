@@ -8,7 +8,9 @@
 struct ezMsgSetText;
 struct ezMsgSetColor;
 
-typedef ezComponentManagerSimple<class DisplayMsgComponent, ezComponentUpdateType::Always> DisplayMsgComponentManager;
+// BEGIN-DOCS-CODE-SNIPPET: component-manager-simple
+using DisplayMsgComponentManager = ezComponentManagerSimple<class DisplayMsgComponent, ezComponentUpdateType::WhenSimulating, ezBlockStorageType::FreeList>;
+// END-DOCS-CODE-SNIPPET
 
 class EZ_SAMPLEGAMEPLUGIN_DLL DisplayMsgComponent : public ezComponent
 {

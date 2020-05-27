@@ -16,7 +16,7 @@ class ezEventMessageHandlerComponent;
 ///   Thus it is not allowed to access any data other than the components own data during that phase.
 /// * Post-async phase: Another synchronous phase like the pre-async phase.
 /// * Actual deletion of dead objects and components are done now.
-/// * Transform update: The world transformation of all dynamic objects is updated.
+/// * Transform update: The global transformation of dynamic objects is updated.
 /// * Post-transform phase: Another synchronous phase like the pre-async phase after the transformation has been updated.
 class EZ_CORE_DLL ezWorld final
 {

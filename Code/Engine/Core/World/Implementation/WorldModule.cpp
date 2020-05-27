@@ -46,16 +46,6 @@ bool ezWorldModule::GetWorldSimulationEnabled() const
   return m_pWorld->GetWorldSimulationEnabled();
 }
 
-void ezWorldModule::InitializeInternal()
-{
-  Initialize();
-}
-
-void ezWorldModule::DeinitializeInternal()
-{
-  Deinitialize();
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // clang-format off
