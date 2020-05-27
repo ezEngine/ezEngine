@@ -4,6 +4,7 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Math/Rect.h>
 #include <RendererCore/Debug/DebugRenderer.h>
+#include <RendererCore/Messages/SetColorMessage.h>
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <SampleGamePlugin/Components/DebugRenderComponent.h>
 
@@ -15,7 +16,8 @@ EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(DebugRenderComponentMask, 1)
   EZ_BITFLAGS_CONSTANT(DebugRenderComponentMask::Quad)
 EZ_END_STATIC_REFLECTED_BITFLAGS;
 
-EZ_BEGIN_COMPONENT_TYPE(DebugRenderComponent, 2 /* version for serialization */, ezComponentMode::Static /* this component does not move the owner node */)
+// BEGIN-DOCS-CODE-SNIPPET: component-reflection-block
+EZ_BEGIN_COMPONENT_TYPE(DebugRenderComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -28,11 +30,24 @@ EZ_BEGIN_COMPONENT_TYPE(DebugRenderComponent, 2 /* version for serialization */,
 
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("SampleGamePlugin"),
+    new ezCategoryAttribute("SampleGamePlugin"), // Component menu group
   }
   EZ_END_ATTRIBUTES;
+
+  EZ_BEGIN_MESSAGEHANDLERS
+  {
+    EZ_MESSAGE_HANDLER(ezMsgSetColor, OnSetColor)
+  }
+  EZ_END_MESSAGEHANDLERS;
+
+  EZ_BEGIN_FUNCTIONS
+  {
+    EZ_SCRIPT_FUNCTION_PROPERTY(SetRandomColor)
+  }
+  EZ_END_FUNCTIONS;
 }
 EZ_END_COMPONENT_TYPE
+// END-DOCS-CODE-SNIPPET
 // clang-format on
 
 DebugRenderComponent::DebugRenderComponent() = default;
@@ -91,6 +106,20 @@ const char* DebugRenderComponent::GetTextureFile(void) const
     return m_hTexture.GetResourceID();
 
   return nullptr;
+}
+
+void DebugRenderComponent::OnSetColor(ezMsgSetColor& msg)
+{
+  m_Color = msg.m_Color;
+}
+
+void DebugRenderComponent::SetRandomColor()
+{
+  ezRandom& rng = GetWorld()->GetRandomNumberGenerator();
+
+  m_Color.r = rng.DoubleMinMax(0.2f, 1.0f);
+  m_Color.g = rng.DoubleMinMax(0.2f, 1.0f);
+  m_Color.b = rng.DoubleMinMax(0.2f, 1.0f);
 }
 
 void DebugRenderComponent::Update()

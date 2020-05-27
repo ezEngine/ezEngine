@@ -5,6 +5,8 @@
 #include <Core/World/World.h>
 #include <SampleGamePlugin/SampleGamePluginDLL.h>
 
+struct ezMsgSetColor;
+
 using ezTexture2DResourceHandle = ezTypedResourceHandle<class ezTexture2DResource>;
 
 // Bitmask to allow the user to select what debug rendering the component should do
@@ -70,6 +72,10 @@ public:
   const char* GetTextureFile(void) const;  // [ property ]
 
   ezBitflags<DebugRenderComponentMask> m_RenderTypes; // [ property ]
+
+  void OnSetColor(ezMsgSetColor& msg); // [ msg handler ]
+
+  void SetRandomColor(); // [ scriptable ]
 
 private:
   void Update();

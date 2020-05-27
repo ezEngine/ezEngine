@@ -5,7 +5,9 @@
 #include <SampleGamePlugin/Components/DemoComponent.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(DemoComponent, 3, ezComponentMode::Dynamic)
+// BEGIN-DOCS-CODE-SNIPPET: component-reflection
+EZ_BEGIN_COMPONENT_TYPE(DemoComponent, 3 /* version */, ezComponentMode::Dynamic)
+// END-DOCS-CODE-SNIPPET
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -28,6 +30,7 @@ DemoComponent::~DemoComponent() = default;
 
 void DemoComponent::OnSimulationStarted() {}
 
+// BEGIN-DOCS-CODE-SNIPPET: component-serialize
 void DemoComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
@@ -37,7 +40,9 @@ void DemoComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_fAmplitude;
   s << m_Speed;
 }
+// END-DOCS-CODE-SNIPPET
 
+// BEGIN-DOCS-CODE-SNIPPET: component-deserialize
 void DemoComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
@@ -49,6 +54,8 @@ void DemoComponent::DeserializeComponent(ezWorldReader& stream)
 
   if (uiVersion <= 2)
   {
+    // up to version 2 the angle was stored as a float in degree
+    // convert this to ezAngle
     float fDegree;
     s >> fDegree;
     m_Speed = ezAngle::Degree(fDegree);
@@ -58,6 +65,7 @@ void DemoComponent::DeserializeComponent(ezWorldReader& stream)
     s >> m_Speed;
   }
 }
+// END-DOCS-CODE-SNIPPET
 
 void DemoComponent::Update()
 {

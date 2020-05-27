@@ -33,4 +33,6 @@ private:
   void ConFunc_Print(ezString sText);
   ezConsoleFunction<void(ezString)> m_ConFunc_Print;
   // END-DOCS-CODE-SNIPPET
+
+  ezDeque<ezGameObjectHandle> m_SpawnedObjects;
 };
