@@ -6,6 +6,8 @@
 #include <Foundation/Types/UniquePtr.h>
 
 class ezRmlUiContext;
+class ezOpenDdlWriter;
+class ezOpenDdlReaderElement;
 struct ezMsgExtractRenderData;
 
 namespace ezRmlUiInternal
@@ -14,6 +16,18 @@ namespace ezRmlUiInternal
   class FileInterface;
   class SystemInterface;
 } // namespace ezRmlUiInternal
+
+/// \brief The fmod configuration to be used on a specific platform
+struct EZ_RMLUIPLUGIN_DLL ezRmlUiConfiguration
+{
+  ezDynamicArray<ezString> m_Fonts;
+
+  ezResult Save(const char* szFile) const;
+  ezResult Load(const char* szFile);
+
+  bool operator==(const ezRmlUiConfiguration& rhs) const;
+  bool operator!=(const ezRmlUiConfiguration& rhs) const { return !operator==(rhs); }
+};
 
 class EZ_RMLUIPLUGIN_DLL ezRmlUi
 {
@@ -35,5 +49,7 @@ private:
   ezUniquePtr<ezRmlUiInternal::FileInterface> m_pFileInterface;
   ezUniquePtr<ezRmlUiInternal::SystemInterface> m_pSystemInterface;
 
-  ezDynamicArray<ezUniquePtr<ezRmlUiContext>> m_Contexts;
+  ezRmlUiConfiguration m_Config;
+
+  ezDynamicArray<ezUniquePtr<ezRmlUiContext>> m_Contexts;  
 };

@@ -29,7 +29,7 @@ ezResult ezWorldModuleConfig::Save()
     writer.BeginObject("InterfaceImpl");
 
     ezOpenDdlUtils::StoreString(writer, interfaceImpl.m_sInterfaceName, "Interface");
-    ezOpenDdlUtils::StoreBool(writer, interfaceImpl.m_sImplementationName, "Implementation");
+    ezOpenDdlUtils::StoreString(writer, interfaceImpl.m_sImplementationName, "Implementation");
 
     writer.EndObject();
   }
