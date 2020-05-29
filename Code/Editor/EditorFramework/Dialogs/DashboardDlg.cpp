@@ -3,6 +3,8 @@
 #include <EditorFramework/Dialogs/DashboardDlg.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/Preferences/EditorPreferences.h>
+#include <Foundation/IO/OSFile.h>
+#include <ToolsFoundation/Application/ApplicationServices.h>
 
 ezQtDashboardDlg::ezQtDashboardDlg(QWidget* parent)
   : QDialog(parent)
@@ -15,20 +17,31 @@ ezQtDashboardDlg::ezQtDashboardDlg(QWidget* parent)
   SamplesTab->setFlat(true);
   DocumentationTab->setFlat(true);
 
-  SetActiveTab(DashboardTab::Projects);
+  if (ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>())
+  {
+    LoadLastProject->setChecked(pPreferences->m_bLoadLastProjectAtStartup);
+  }
+
+  {
+    SamplesList->setResizeMode(QListView::ResizeMode::Adjust);
+    SamplesList->setIconSize(QSize(220, 220));
+    SamplesList->setItemAlignment(Qt::AlignHCenter | Qt::AlignBottom);
+  }
 
   FillRecentProjectsList();
+  FillSampleProjectsList();
 
   if (ProjectsList->rowCount() > 0)
   {
+    SetActiveTab(DashboardTab::Projects);
+
     ProjectsList->setFocus();
     ProjectsList->clearSelection();
     ProjectsList->selectRow(0);
   }
-
-  if (ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>())
+  else
   {
-    LoadLastProject->setChecked(pPreferences->m_bLoadLastProjectAtStartup);
+    SetActiveTab(DashboardTab::Samples);
   }
 }
 
@@ -73,6 +86,83 @@ void ezQtDashboardDlg::FillRecentProjectsList()
   }
 
   ProjectsList->resizeColumnToContents(0);
+}
+
+void ezQtDashboardDlg::FillSampleProjectsList()
+{
+  ezHybridArray<ezString, 32> samples;
+  FindSampleProjects(samples);
+
+  SamplesList->clear();
+
+  ezStringBuilder tmp, iconPath;
+
+  ezStringBuilder samplesIcon = ezApplicationServices::GetSingleton()->GetSampleProjectsFolder();
+  samplesIcon.AppendPath("Thumbnail.jpg");
+
+  QIcon fallbackIcon;
+
+  if (ezOSFile::ExistsFile(samplesIcon))
+  {
+    fallbackIcon.addFile(samplesIcon.GetData());
+  }
+
+  for (const ezString& path : samples)
+  {
+    tmp = path;
+    tmp.TrimWordEnd("/ezProject");
+
+    QIcon projectIcon;
+
+    iconPath = tmp;
+    iconPath.AppendPath("Thumbnail.jpg");
+
+    if (ezOSFile::ExistsFile(iconPath))
+    {
+      projectIcon.addFile(iconPath.GetData());
+    }
+    else
+    {
+      projectIcon = fallbackIcon;
+    }
+
+    QListWidgetItem* pItem = new QListWidgetItem();
+    pItem->setText(tmp.GetFileName().GetStartPointer());
+
+    pItem->setIcon(projectIcon);
+
+    SamplesList->addItem(pItem);
+  }
+}
+
+void ezQtDashboardDlg::FindSampleProjects(ezDynamicArray<ezString>& out_Projects)
+{
+  out_Projects.Clear();
+
+  const ezString& sSampleProjects = ezApplicationServices::GetSingleton()->GetSampleProjectsFolder();
+
+  ezFileSystemIterator fsIt;
+  fsIt.StartSearch(sSampleProjects, ezFileSystemIteratorFlags::ReportFoldersRecursive);
+
+  ezStringBuilder path;
+
+  while (fsIt.IsValid())
+  {
+    fsIt.GetStats().GetFullPath(path);
+    path.AppendPath("ezProject");
+
+    if (ezOSFile::ExistsFile(path))
+    {
+      out_Projects.PushBack(path);
+
+      // no need to go deeper
+      fsIt.SkipFolder();
+    }
+    else
+    {
+      fsIt.Next();
+    }
+  }
 }
 
 void ezQtDashboardDlg::on_ProjectsTab_clicked()

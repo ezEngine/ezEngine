@@ -21,6 +21,8 @@ private:
 
   void SetActiveTab(DashboardTab tab);
   void FillRecentProjectsList();
+  void FindSampleProjects(ezDynamicArray<ezString>& out_Projects);
+  void FillSampleProjectsList();
 
 private Q_SLOTS:
   void on_ProjectsTab_clicked();

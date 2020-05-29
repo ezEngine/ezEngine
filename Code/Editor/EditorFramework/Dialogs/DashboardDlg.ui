@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>627</width>
-    <height>491</height>
+    <width>705</width>
+    <height>582</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -104,7 +104,7 @@
    <item>
     <widget class="QTabWidget" name="TabArea">
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <property name="documentMode">
       <bool>false</bool>
@@ -294,6 +294,9 @@
        </item>
        <item>
         <widget class="QListWidget" name="SamplesList">
+         <property name="movement">
+          <enum>QListView::Static</enum>
+         </property>
          <property name="viewMode">
           <enum>QListView::IconMode</enum>
          </property>
@@ -321,7 +324,7 @@
          <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
-           <height>338</height>
+           <height>443</height>
           </size>
          </property>
         </spacer>
