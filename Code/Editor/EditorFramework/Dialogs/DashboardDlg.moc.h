@@ -27,4 +27,5 @@ private Q_SLOTS:
   void on_SamplesTab_clicked();
   void on_DocumentationTab_clicked();
   void on_NewProject_clicked();
+  void on_BrowseProject_clicked();
 };

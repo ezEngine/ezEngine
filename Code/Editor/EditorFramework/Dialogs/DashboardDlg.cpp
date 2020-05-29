@@ -40,3 +40,19 @@ void ezQtDashboardDlg::on_DocumentationTab_clicked()
 {
   SetActiveTab(DashboardTab::Documentation);
 }
+
+void ezQtDashboardDlg::on_NewProject_clicked()
+{
+  if (ezQtEditorApp::GetSingleton()->GuiCreateProject(true))
+  {
+    accept();
+  }
+}
+
+void ezQtDashboardDlg::on_BrowseProject_clicked()
+{
+  if (ezQtEditorApp::GetSingleton()->GuiOpenProject(true))
+  {
+    accept();
+  }
+}

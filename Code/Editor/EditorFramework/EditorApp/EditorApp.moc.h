@@ -162,8 +162,8 @@ public:
   void GuiOpenDocument();
 
   void GuiOpenDashboard();
-  void GuiCreateProject();
-  void GuiOpenProject();
+  bool GuiCreateProject(bool bImmediate = false);
+  bool GuiOpenProject(bool bImmediate = false);
 
   void OpenDocumentQueued(const char* szDocument, const ezDocumentObject* pOpenContext = nullptr);
   ezDocument* OpenDocument(const char* szDocument, ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext = nullptr);
@@ -209,7 +209,7 @@ private:
 
   void InternalGuiOpenDashboard();
   void GuiCreateOrOpenDocument(bool bCreate);
-  void GuiCreateOrOpenProject(bool bCreate);
+  bool GuiCreateOrOpenProject(bool bCreate);
 
 private Q_SLOTS:
   void SlotTimedUpdate();

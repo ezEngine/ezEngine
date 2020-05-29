@@ -8,14 +8,30 @@ void ezQtEditorApp::GuiOpenDashboard()
   QMetaObject::invokeMethod(this, "SlotQueuedGuiOpenDashboard", Qt::ConnectionType::QueuedConnection);
 }
 
-void ezQtEditorApp::GuiCreateProject()
+bool ezQtEditorApp::GuiCreateProject(bool bImmediate /*= false*/)
 {
-  QMetaObject::invokeMethod(this, "SlotQueuedGuiCreateOrOpenProject", Qt::ConnectionType::QueuedConnection, Q_ARG(bool, true));
+  if (bImmediate)
+  {
+    return GuiCreateOrOpenProject(true);
+  }
+  else
+  {
+    QMetaObject::invokeMethod(this, "SlotQueuedGuiCreateOrOpenProject", Qt::ConnectionType::QueuedConnection, Q_ARG(bool, true));
+    return true;
+  }
 }
 
-void ezQtEditorApp::GuiOpenProject()
+bool ezQtEditorApp::GuiOpenProject(bool bImmediate /*= false*/)
 {
-  QMetaObject::invokeMethod(this, "SlotQueuedGuiCreateOrOpenProject", Qt::ConnectionType::QueuedConnection, Q_ARG(bool, false));
+  if (bImmediate)
+  {
+    return GuiCreateOrOpenProject(false);
+  }
+  else
+  {
+    QMetaObject::invokeMethod(this, "SlotQueuedGuiCreateOrOpenProject", Qt::ConnectionType::QueuedConnection, Q_ARG(bool, false));
+    return true;
+  }
 }
 
 void ezQtEditorApp::SlotQueuedGuiOpenDashboard()
@@ -28,7 +44,7 @@ void ezQtEditorApp::SlotQueuedGuiCreateOrOpenProject(bool bCreate)
   GuiCreateOrOpenProject(bCreate);
 }
 
-void ezQtEditorApp::GuiCreateOrOpenProject(bool bCreate)
+bool ezQtEditorApp::GuiCreateOrOpenProject(bool bCreate)
 {
   const QString sDir = QString::fromUtf8(m_sLastProjectFolder.GetData());
   ezStringBuilder sFile;
@@ -47,12 +63,12 @@ void ezQtEditorApp::GuiCreateOrOpenProject(bool bCreate)
               .data();
 
   if (sFile.IsEmpty())
-    return;
+    return false;
 
   if (bCreate)
     sFile.AppendPath("ezProject");
 
   m_sLastProjectFolder = ezPathUtils::GetFileDirectory(sFile);
 
-  CreateOrOpenProject(bCreate, sFile);
+  return CreateOrOpenProject(bCreate, sFile).Succeeded();
 }
