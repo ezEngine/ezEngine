@@ -32,5 +32,14 @@ private Q_SLOTS:
   void on_BrowseProject_clicked();
   void on_ProjectsList_cellDoubleClicked(int row, int column);
   void on_OpenProject_clicked();
+  void on_OpenSample_clicked();
   void on_LoadLastProject_stateChanged(int);
+  void on_SamplesList_itemDoubleClicked(QListWidgetItem* pItem);
+
+  void on_OpenDocs_clicked();
+  void on_OpenApiDocs_clicked();
+  void on_OpenReleaseNotes_clicked();
+  void on_ReportProblem_clicked();
+  void on_OpenGitter_clicked();
+  void on_OpenTwitter_clicked();
 };

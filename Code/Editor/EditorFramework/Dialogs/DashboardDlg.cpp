@@ -128,6 +128,7 @@ void ezQtDashboardDlg::FillSampleProjectsList()
 
     QListWidgetItem* pItem = new QListWidgetItem();
     pItem->setText(tmp.GetFileName().GetStartPointer());
+    pItem->setData(Qt::UserRole, path.GetData());
 
     pItem->setIcon(projectIcon);
 
@@ -216,10 +217,58 @@ void ezQtDashboardDlg::on_OpenProject_clicked()
   on_ProjectsList_cellDoubleClicked(ProjectsList->currentRow(), 0);
 }
 
+void ezQtDashboardDlg::on_OpenSample_clicked()
+{
+  on_SamplesList_itemDoubleClicked(SamplesList->currentItem());
+}
+
 void ezQtDashboardDlg::on_LoadLastProject_stateChanged(int)
 {
   if (ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>())
   {
     pPreferences->m_bLoadLastProjectAtStartup = LoadLastProject->isChecked();
   }
+}
+
+void ezQtDashboardDlg::on_SamplesList_itemDoubleClicked(QListWidgetItem* pItem)
+{
+  if (pItem == nullptr)
+    return;
+
+  QString sPath = pItem->data(Qt::UserRole).toString().toUtf8().data();
+
+  if (ezQtEditorApp::GetSingleton()->OpenProject(sPath.toUtf8().data(), true).Succeeded())
+  {
+    accept();
+  }
+}
+
+void ezQtDashboardDlg::on_OpenDocs_clicked()
+{
+  QDesktopServices::openUrl(QUrl("http://ezengine.net"));
+}
+
+void ezQtDashboardDlg::on_OpenApiDocs_clicked()
+{
+  QDesktopServices::openUrl(QUrl("https://ezengine.github.io/api-docs/"));
+}
+
+void ezQtDashboardDlg::on_OpenReleaseNotes_clicked()
+{
+  QDesktopServices::openUrl(QUrl("http://ezengine.net/releases/release-notes.html"));
+}
+
+void ezQtDashboardDlg::on_ReportProblem_clicked()
+{
+  QDesktopServices::openUrl(QUrl("https://github.com/ezEngine/ezEngine/issues"));
+}
+
+void ezQtDashboardDlg::on_OpenGitter_clicked()
+{
+  QDesktopServices::openUrl(QUrl("https://gitter.im/ezEngine/community"));
+}
+
+void ezQtDashboardDlg::on_OpenTwitter_clicked()
+{
+  QDesktopServices::openUrl(QUrl("https://twitter.com/ezEngineProject"));
 }

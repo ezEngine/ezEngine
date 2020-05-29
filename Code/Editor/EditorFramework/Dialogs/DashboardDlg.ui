@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>705</width>
-    <height>582</height>
+    <width>768</width>
+    <height>634</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -73,7 +73,7 @@
         </size>
        </property>
        <property name="text">
-        <string>Documentation</string>
+        <string>Docs &amp;&amp; Community</string>
        </property>
        <property name="checkable">
         <bool>true</bool>
@@ -104,7 +104,7 @@
    <item>
     <widget class="QTabWidget" name="TabArea">
      <property name="currentIndex">
-      <number>1</number>
+      <number>2</number>
      </property>
      <property name="documentMode">
       <bool>false</bool>
@@ -302,32 +302,203 @@
          </property>
         </widget>
        </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <spacer name="horizontalSpacer_3">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <widget class="QPushButton" name="OpenSample">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>120</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="text">
+            <string>Open Sample</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
+             <normaloff>:/GuiFoundation/Icons/Project16.png</normaloff>:/GuiFoundation/Icons/Project16.png</iconset>
+           </property>
+           <property name="default">
+            <bool>true</bool>
+           </property>
+           <property name="flat">
+            <bool>false</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
       </layout>
      </widget>
      <widget class="QWidget" name="tab_3">
       <attribute name="title">
        <string>Documentation</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_4">
+      <layout class="QVBoxLayout" name="verticalLayout_6">
        <item>
         <widget class="QLabel" name="label_3">
          <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; font-weight:600;&quot;&gt;Documentation&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; font-weight:600;&quot;&gt;Documentation &amp; Community&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
         </widget>
        </item>
        <item>
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>443</height>
-          </size>
-         </property>
-        </spacer>
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <item>
+          <spacer name="horizontalSpacer_4">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+         <item>
+          <layout class="QVBoxLayout" name="verticalLayout_4">
+           <item>
+            <spacer name="verticalSpacer_4">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>38</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QPushButton" name="OpenDocs">
+             <property name="minimumSize">
+              <size>
+               <width>200</width>
+               <height>60</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Open Documentation</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="OpenApiDocs">
+             <property name="minimumSize">
+              <size>
+               <width>200</width>
+               <height>60</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Open API Docs</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="OpenReleaseNotes">
+             <property name="minimumSize">
+              <size>
+               <width>200</width>
+               <height>60</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Open Release Notes</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="ReportProblem">
+             <property name="minimumSize">
+              <size>
+               <width>200</width>
+               <height>60</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Report a Problem</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="OpenGitter">
+             <property name="minimumSize">
+              <size>
+               <width>200</width>
+               <height>60</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Open Gitter Chat</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="OpenTwitter">
+             <property name="minimumSize">
+              <size>
+               <width>200</width>
+               <height>60</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Open Twitter</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacer">
+             <property name="orientation">
+              <enum>Qt::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>38</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer_5">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>
