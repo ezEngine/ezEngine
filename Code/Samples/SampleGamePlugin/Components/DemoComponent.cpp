@@ -4,6 +4,7 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <SampleGamePlugin/Components/DemoComponent.h>
 
+// BEGIN-DOCS-CODE-SNIPPET: customcomp-reflection
 // clang-format off
 // BEGIN-DOCS-CODE-SNIPPET: component-reflection
 EZ_BEGIN_COMPONENT_TYPE(DemoComponent, 3 /* version */, ezComponentMode::Dynamic)
@@ -24,11 +25,29 @@ EZ_BEGIN_COMPONENT_TYPE(DemoComponent, 3 /* version */, ezComponentMode::Dynamic
 }
 EZ_END_COMPONENT_TYPE
 // clang-format on
+// END-DOCS-CODE-SNIPPET
 
+// BEGIN-DOCS-CODE-SNIPPET: customcomp-basics
 DemoComponent::DemoComponent() = default;
 DemoComponent::~DemoComponent() = default;
 
-void DemoComponent::OnSimulationStarted() {}
+void DemoComponent::OnSimulationStarted()
+{
+  SUPER::OnSimulationStarted();
+
+  // this component doesn't need to anything for initialization
+}
+
+void DemoComponent::Update()
+{
+  const ezTime curTime = GetWorld()->GetClock().GetAccumulatedTime();
+  const ezAngle curAngle = curTime.GetSeconds() * m_Speed;
+  const float curHeight = ezMath::Sin(curAngle) * m_fAmplitude;
+
+  GetOwner()->SetLocalPosition(ezVec3(0, 0, curHeight));
+}
+
+// END-DOCS-CODE-SNIPPET
 
 // BEGIN-DOCS-CODE-SNIPPET: component-serialize
 void DemoComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -67,11 +86,3 @@ void DemoComponent::DeserializeComponent(ezWorldReader& stream)
 }
 // END-DOCS-CODE-SNIPPET
 
-void DemoComponent::Update()
-{
-  const ezTime curTime = GetWorld()->GetClock().GetAccumulatedTime();
-  const ezAngle curAngle = curTime.GetSeconds() * m_Speed;
-  const float curHeight = ezMath::Sin(curAngle) * m_fAmplitude;
-
-  GetOwner()->SetLocalPosition(ezVec3(0, 0, curHeight));
-}

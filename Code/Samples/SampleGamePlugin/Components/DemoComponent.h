@@ -5,8 +5,11 @@
 #include <Core/World/World.h>
 #include <SampleGamePlugin/SampleGamePluginDLL.h>
 
+// BEGIN-DOCS-CODE-SNIPPET: customcomp-manager
 using DemoComponentManager = ezComponentManagerSimple<class DemoComponent, ezComponentUpdateType::WhenSimulating>;
+// END-DOCS-CODE-SNIPPET
 
+// BEGIN-DOCS-CODE-SNIPPET: customcomp-class
 class DemoComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(DemoComponent, ezComponent, DemoComponentManager);
@@ -34,3 +37,4 @@ private:
   float m_fAmplitude = 1.0f;             // [ property ]
   ezAngle m_Speed = ezAngle::Degree(90); // [ property ]
 };
+// END-DOCS-CODE-SNIPPET

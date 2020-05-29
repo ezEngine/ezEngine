@@ -73,7 +73,7 @@ Plugin
 Plugin
 {
 	string %Path{"ezSampleGamePlugin"}
-	bool %LoadCopy{false}
+	bool %LoadCopy{true}
 	string %DependencyOf{"<manual>"}
 }
 Plugin
