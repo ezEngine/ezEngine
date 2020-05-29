@@ -77,10 +77,10 @@ ezWorld::~ezWorld()
   m_Data.m_WriteThreadID = ezThreadUtils::GetCurrentThreadID();
   m_Data.m_iReadCounter.Increment();
 
-  // set all objects to inactive so components and children know that they shouldn't access the objects anymore.
+  // deactivate all objects and components before destroying them
   for (auto it = m_Data.m_ObjectStorage.GetIterator(); it.IsValid(); it.Next())
   {
-    it->m_Flags.Remove(ezObjectFlags::ActiveFlag | ezObjectFlags::ActiveState);
+    it->SetActiveFlag(false);
   }
 
   // deinitialize all modules before we invalidate the world. Components can still access the world during deinitialization.
