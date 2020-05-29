@@ -87,6 +87,33 @@ const char* ezLineToComponent::GetLineToTargetGuid() const
   return "REMEMBER ME!";
 }
 
+//////////////////////////////////////////////////////////////////////////
+
+ezLineToComponentManager::ezLineToComponentManager(ezWorld* pWorld)
+  : SUPER(pWorld)
+{
+}
+
+void ezLineToComponentManager::Initialize()
+{
+  auto desc = ezWorldModule::UpdateFunctionDesc(ezWorldModule::UpdateFunction(&ezLineToComponentManager::Update, this), "ezLineToComponentManager::Update");
+  desc.m_bOnlyUpdateWhenSimulating = false;
+  desc.m_Phase = ezWorldModule::UpdateFunctionDesc::Phase::PostTransform;
+
+  this->RegisterUpdateFunction(desc);
+}
+
+
+void ezLineToComponentManager::Update(const ezWorldModule::UpdateContext& context)
+{
+  for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
+  {
+    ComponentType* pComponent = it;
+    if (pComponent->IsActiveAndInitialized())
+    {
+      pComponent->Update();
+    }
+  }
+}
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Debugging_Implementation_LineToComponent);
-

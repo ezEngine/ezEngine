@@ -9,14 +9,7 @@ struct ezMsgComponentInternalTrigger;
 
 // This component manager does literally nothing, meaning the managed components do not need to be update, at all
 // BEGIN-DOCS-CODE-SNIPPET: component-manager-trivial
-class SendMsgComponentManager : public ezComponentManager<class SendMsgComponent, ezBlockStorageType::Compact>
-{
-public:
-  SendMsgComponentManager(ezWorld* pWorld)
-    : ezComponentManager<class SendMsgComponent, ezBlockStorageType::Compact>(pWorld)
-  {
-  }
-};
+using SendMsgComponentManager = ezComponentManager<class SendMsgComponent, ezBlockStorageType::Compact>;
 // END-DOCS-CODE-SNIPPET
 
 class EZ_SAMPLEGAMEPLUGIN_DLL SendMsgComponent : public ezComponent

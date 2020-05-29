@@ -64,6 +64,14 @@ void SendMsgComponent::OnSimulationStarted()
 
 void SendMsgComponent::OnSendText(ezMsgComponentInternalTrigger& msg)
 {
+  // Note: We don't need to take care to stop when the component gets deactivated
+  // because messages are only delivered to active components.
+  // However, if the component got deactivated and activated again within the 2 second
+  // message delay, OnSimulationStarted() above could queue a second message, and now
+  // both of them would arrive. We don't handle that case here.
+  //if (!IsActiveAndSimulating())
+  //  return;
+
   if (msg.m_uiUsageStringHash = ezTempHashedString::ComputeHash("SendNextString"))
   {
     if (!m_TextArray.IsEmpty())

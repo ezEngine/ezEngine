@@ -35,6 +35,8 @@ void ezCameraComponentManager::Initialize()
 void ezCameraComponentManager::Deinitialize()
 {
   ezRenderWorld::s_ViewCreatedEvent.RemoveEventHandler(ezMakeDelegate(&ezCameraComponentManager::OnViewCreated, this));
+
+  SUPER::Deinitialize();
 }
 
 void ezCameraComponentManager::Update(const ezWorldModule::UpdateContext& context)
@@ -279,6 +281,7 @@ void ezCameraComponent::UpdateRenderTargetCamera()
   if (!m_bRenderTargetInitialized)
     return;
 
+  // recreate everything, if the view got invalidated in between
   if (m_hRenderTargetView.IsInvalidated())
   {
     DeactivateRenderToTexture();
@@ -662,6 +665,8 @@ void ezCameraComponent::DeactivateRenderToTexture()
 
   m_bRenderTargetInitialized = false;
   m_hCachedRenderPipeline.Invalidate();
+
+  EZ_ASSERT_DEBUG(m_hRenderTarget.IsValid(), "Render Target should be valid");
 
   if (m_hRenderTarget.IsValid())
   {
