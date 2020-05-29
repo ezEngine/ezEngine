@@ -36,6 +36,7 @@ ezActionDescriptorHandle ezProjectActions::s_hOpenDocument;
 ezActionDescriptorHandle ezProjectActions::s_hRecentDocuments;
 
 ezActionDescriptorHandle ezProjectActions::s_hProjectCategory;
+ezActionDescriptorHandle ezProjectActions::s_hOpenDashboard;
 ezActionDescriptorHandle ezProjectActions::s_hCreateProject;
 ezActionDescriptorHandle ezProjectActions::s_hOpenProject;
 ezActionDescriptorHandle ezProjectActions::s_hRecentProjects;
@@ -74,6 +75,7 @@ void ezProjectActions::RegisterActions()
   s_hRecentDocuments = EZ_REGISTER_DYNAMIC_MENU("Project.RecentDocuments.Menu", ezRecentDocumentsMenuAction, "");
 
   s_hProjectCategory = EZ_REGISTER_CATEGORY("ProjectCategory");
+  s_hOpenDashboard = EZ_REGISTER_ACTION_1("Editor.OpenDashboard", ezActionScope::Global, "Editor", "Ctrl+Shift+D", ezProjectAction, ezProjectAction::ButtonType::OpenDashboard);
   s_hCreateProject = EZ_REGISTER_ACTION_1("Project.Create", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::CreateProject);
   s_hOpenProject = EZ_REGISTER_ACTION_1("Project.Open", ezActionScope::Global, "Project", "", ezProjectAction, ezProjectAction::ButtonType::OpenProject);
   s_hRecentProjects = EZ_REGISTER_DYNAMIC_MENU("Project.RecentProjects.Menu", ezRecentProjectsMenuAction, "");
@@ -113,6 +115,7 @@ void ezProjectActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hOpenDocument);
   ezActionManager::UnregisterAction(s_hRecentDocuments);
   ezActionManager::UnregisterAction(s_hProjectCategory);
+  ezActionManager::UnregisterAction(s_hOpenDashboard);
   ezActionManager::UnregisterAction(s_hCreateProject);
   ezActionManager::UnregisterAction(s_hOpenProject);
   ezActionManager::UnregisterAction(s_hRecentProjects);
@@ -154,9 +157,10 @@ void ezProjectActions::MapActions(const char* szMapping)
   pMap->MapAction(s_hRecentDocuments, "Menu.Editor/DocumentCategory", 4.0f);
 
   pMap->MapAction(s_hProjectCategory, "Menu.Editor", 2.0f);
-  pMap->MapAction(s_hCreateProject, "Menu.Editor/ProjectCategory", 1.0f);
-  pMap->MapAction(s_hOpenProject, "Menu.Editor/ProjectCategory", 2.0f);
-  pMap->MapAction(s_hRecentProjects, "Menu.Editor/ProjectCategory", 3.0f);
+  pMap->MapAction(s_hOpenDashboard, "Menu.Editor/ProjectCategory", 0.5f);
+  //pMap->MapAction(s_hCreateProject, "Menu.Editor/ProjectCategory", 1.0f); // use dashboard
+  //pMap->MapAction(s_hOpenProject, "Menu.Editor/ProjectCategory", 2.0f);   // use dashboard
+  //pMap->MapAction(s_hRecentProjects, "Menu.Editor/ProjectCategory", 3.0f);// use dashboard
   pMap->MapAction(s_hCloseProject, "Menu.Editor/ProjectCategory", 4.0f);
   pMap->MapAction(s_hProjectSettingsMenu, "Menu.Editor/ProjectCategory", 1000.0f);
 
@@ -308,6 +312,9 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
     case ezProjectAction::ButtonType::OpenDocument:
       SetIconPath(":/GuiFoundation/Icons/Document16.png");
       break;
+    case ezProjectAction::ButtonType::OpenDashboard:
+      SetIconPath(":/GuiFoundation/Icons/Project16.png");
+      break;
     case ezProjectAction::ButtonType::CreateProject:
       SetIconPath(":/GuiFoundation/Icons/ProjectAdd16.png");
       break;
@@ -403,6 +410,10 @@ void ezProjectAction::Execute(const ezVariant& value)
 
     case ezProjectAction::ButtonType::OpenDocument:
       ezQtEditorApp::GetSingleton()->GuiOpenDocument();
+      break;
+
+    case ezProjectAction::ButtonType::OpenDashboard:
+      ezQtEditorApp::GetSingleton()->GuiOpenDashboard();
       break;
 
     case ezProjectAction::ButtonType::CreateProject:

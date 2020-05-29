@@ -156,13 +156,14 @@ public:
   void CloseSettingsDocument();
 
   void CloseProject();
-  void OpenProject(const char* szProject);
+  ezResult OpenProject(const char* szProject, bool bImmediate = false);
 
   void GuiCreateDocument();
   void GuiOpenDocument();
 
-  void GuiCreateProject();
-  void GuiOpenProject();
+  void GuiOpenDashboard();
+  bool GuiCreateProject(bool bImmediate = false);
+  bool GuiOpenProject(bool bImmediate = false);
 
   void OpenDocumentQueued(const char* szDocument, const ezDocumentObject* pOpenContext = nullptr);
   ezDocument* OpenDocument(const char* szDocument, ezBitflags<ezDocumentFlags> flags, const ezDocumentObject* pOpenContext = nullptr);
@@ -206,14 +207,16 @@ Q_SIGNALS:
 private:
   ezString BuildDocumentTypeFileFilter(bool bForCreation);
 
+  void InternalGuiOpenDashboard();
   void GuiCreateOrOpenDocument(bool bCreate);
-  void GuiCreateOrOpenProject(bool bCreate);
+  bool GuiCreateOrOpenProject(bool bCreate);
 
 private Q_SLOTS:
   void SlotTimedUpdate();
   void SlotQueuedCloseProject();
   void SlotQueuedOpenProject(QString sProject);
   void SlotQueuedOpenDocument(QString sProject, void* pOpenContext);
+  void SlotQueuedGuiOpenDashboard();
   void SlotQueuedGuiCreateOrOpenProject(bool bCreate);
   void SlotSaveSettings();
   void SlotVersionCheckCompleted(bool bNewVersionReleased, bool bForced);

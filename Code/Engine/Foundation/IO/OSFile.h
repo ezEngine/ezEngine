@@ -70,7 +70,7 @@ struct ezFileSystemIteratorFlags
     ReportFolders = EZ_BIT(2),
 
     ReportFilesRecursive = Recursive | ReportFiles,
-    ReportFoldersRecursive = ReportFolders | ReportFiles,
+    ReportFoldersRecursive = Recursive | ReportFolders,
     ReportFilesAndFoldersRecursive = Recursive | ReportFiles | ReportFolders,
 
     Default = ReportFilesAndFoldersRecursive,

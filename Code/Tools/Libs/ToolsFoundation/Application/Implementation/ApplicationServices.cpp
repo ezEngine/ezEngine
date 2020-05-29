@@ -10,7 +10,7 @@ EZ_IMPLEMENT_SINGLETON(ezApplicationServices);
 static ezApplicationServices g_instance;
 
 ezApplicationServices::ezApplicationServices()
-    : m_SingletonRegistrar(this)
+  : m_SingletonRegistrar(this)
 {
 }
 
@@ -88,6 +88,17 @@ ezString ezApplicationServices::GetPrecompiledToolsFolder(bool bUsePrecompiledTo
   {
     sPath.AppendPath("../../../Data/Tools/Precompiled");
   }
+
+  sPath.MakeCleanPath();
+
+  return sPath;
+}
+
+ezString ezApplicationServices::GetSampleProjectsFolder() const
+{
+  ezStringBuilder sPath = ezOSFile::GetApplicationDirectory();
+
+  sPath.AppendPath("../../../Data/Samples");
 
   sPath.MakeCleanPath();
 
