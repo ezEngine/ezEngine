@@ -42,4 +42,7 @@ private Q_SLOTS:
   void on_ReportProblem_clicked();
   void on_OpenGitter_clicked();
   void on_OpenTwitter_clicked();
+
+protected:
+  bool eventFilter(QObject *, QEvent *) override;
 };

@@ -31,6 +31,8 @@ ezQtDashboardDlg::ezQtDashboardDlg(QWidget* parent)
   FillRecentProjectsList();
   FillSampleProjectsList();
 
+  ProjectsList->installEventFilter(this);
+
   if (ProjectsList->rowCount() > 0)
   {
     SetActiveTab(DashboardTab::Projects);
@@ -272,3 +274,21 @@ void ezQtDashboardDlg::on_OpenTwitter_clicked()
 {
   QDesktopServices::openUrl(QUrl("https://twitter.com/ezEngineProject"));
 }
+
+bool ezQtDashboardDlg::eventFilter(QObject* obj, QEvent* e)
+{
+  if (e->type() == QEvent::Type::KeyPress)
+  {
+    QKeyEvent* key = static_cast<QKeyEvent*>(e);
+
+    if ((key->key() == Qt::Key_Enter) || (key->key() == Qt::Key_Return))
+    {
+      on_OpenProject_clicked();
+      return true;
+    }
+  }
+
+  return QObject::eventFilter(obj, e);
+  return false;
+}
+
