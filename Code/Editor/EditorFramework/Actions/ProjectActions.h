@@ -21,6 +21,7 @@ public:
   static ezActionDescriptorHandle s_hRecentDocuments;
 
   static ezActionDescriptorHandle s_hProjectCategory;
+  static ezActionDescriptorHandle s_hOpenDashboard;
   static ezActionDescriptorHandle s_hCreateProject;
   static ezActionDescriptorHandle s_hOpenProject;
   static ezActionDescriptorHandle s_hRecentProjects;
@@ -79,6 +80,7 @@ public:
   {
     CreateDocument,
     OpenDocument,
+    OpenDashboard,
     CreateProject,
     OpenProject,
     CloseProject,
