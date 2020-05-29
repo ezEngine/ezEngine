@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>567</width>
-    <height>438</height>
+    <width>627</width>
+    <height>491</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -141,6 +141,10 @@
            <property name="text">
             <string>Browse...</string>
            </property>
+           <property name="icon">
+            <iconset resource="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
+             <normaloff>:/GuiFoundation/Icons/OpenFolder16.png</normaloff>:/GuiFoundation/Icons/OpenFolder16.png</iconset>
+           </property>
            <property name="autoDefault">
             <bool>false</bool>
            </property>
@@ -154,6 +158,10 @@
            <property name="text">
             <string>New...</string>
            </property>
+           <property name="icon">
+            <iconset resource="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
+             <normaloff>:/GuiFoundation/Icons/Add16.png</normaloff>:/GuiFoundation/Icons/Add16.png</iconset>
+           </property>
            <property name="autoDefault">
             <bool>false</bool>
            </property>
@@ -165,7 +173,37 @@
         </layout>
        </item>
        <item>
-        <widget class="QListWidget" name="ProjectsList"/>
+        <widget class="QTableWidget" name="ProjectsList">
+         <property name="editTriggers">
+          <set>QAbstractItemView::NoEditTriggers</set>
+         </property>
+         <property name="alternatingRowColors">
+          <bool>true</bool>
+         </property>
+         <property name="selectionMode">
+          <enum>QAbstractItemView::SingleSelection</enum>
+         </property>
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
+         </property>
+         <property name="textElideMode">
+          <enum>Qt::ElideNone</enum>
+         </property>
+         <property name="columnCount">
+          <number>2</number>
+         </property>
+         <attribute name="horizontalHeaderVisible">
+          <bool>false</bool>
+         </attribute>
+         <attribute name="horizontalHeaderStretchLastSection">
+          <bool>true</bool>
+         </attribute>
+         <attribute name="verticalHeaderVisible">
+          <bool>false</bool>
+         </attribute>
+         <column/>
+         <column/>
+        </widget>
        </item>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_6">
@@ -225,6 +263,10 @@
            </property>
            <property name="text">
             <string>Open Project</string>
+           </property>
+           <property name="icon">
+            <iconset resource="../../../Tools/Libs/GuiFoundation/QtResources/resources.qrc">
+             <normaloff>:/GuiFoundation/Icons/Project16.png</normaloff>:/GuiFoundation/Icons/Project16.png</iconset>
            </property>
            <property name="default">
             <bool>true</bool>

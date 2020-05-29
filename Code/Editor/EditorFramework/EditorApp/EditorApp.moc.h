@@ -156,7 +156,7 @@ public:
   void CloseSettingsDocument();
 
   void CloseProject();
-  void OpenProject(const char* szProject);
+  ezResult OpenProject(const char* szProject, bool bImmediate = false);
 
   void GuiCreateDocument();
   void GuiOpenDocument();

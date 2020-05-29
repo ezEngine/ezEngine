@@ -29,9 +29,17 @@ void ezQtEditorApp::SlotQueuedCloseProject()
   ezQtImageCache::GetSingleton()->EnableRequestProcessing();
 }
 
-void ezQtEditorApp::OpenProject(const char* szProject)
+ezResult ezQtEditorApp::OpenProject(const char* szProject, bool bImmediate /*= false*/)
 {
-  QMetaObject::invokeMethod(this, "SlotQueuedOpenProject", Qt::ConnectionType::QueuedConnection, Q_ARG(QString, szProject));
+  if (bImmediate)
+  {
+    return CreateOrOpenProject(false, szProject);
+  }
+  else
+  {
+    QMetaObject::invokeMethod(this, "SlotQueuedOpenProject", Qt::ConnectionType::QueuedConnection, Q_ARG(QString, szProject));
+    return EZ_SUCCESS;
+  }
 }
 
 void ezQtEditorApp::SlotQueuedOpenProject(QString sProject)
@@ -57,7 +65,7 @@ ezResult ezQtEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
   if (ezToolsProject::IsProjectOpen() && ezToolsProject::GetSingleton()->GetProjectFile() == sFile)
   {
     ezQtUiServices::MessageBoxInformation("The selected project is already open");
-    return EZ_SUCCESS;
+    return EZ_FAILURE;
   }
 
   if (!ezToolsProject::CanCloseProject())
