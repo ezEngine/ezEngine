@@ -271,7 +271,7 @@ export class Quat {
      * @param lerpFactor The interpolation value in range [0; 1]. Ie with 0.5 this will be half-way between 'from' and 'to'.
      */
     SetSlerp(from: Quat, to: Quat, lerpFactor: number): void { // [tested]
-        const qdelta = 0.009;
+        const qDelta = 0.009;
 
         let cosTheta = (from.x * to.x + from.y * to.y + from.z * to.z + from.w * to.w);
 
@@ -284,7 +284,7 @@ export class Quat {
 
         let t0: number, t1: number;
 
-        if (cosTheta < qdelta) {
+        if (cosTheta < qDelta) {
             let theta = Math.acos(cosTheta);
 
             // use sqrtInv(1+c^2) instead of 1.0/sin(theta)
@@ -372,21 +372,21 @@ export class Quat {
         let roll: number;
 
         // roll (x-axis rotation)
-        const sinr = 2.0 * (this.w * this.x + this.y * this.z);
-        const cosr = 1.0 - 2.0 * (this.x * this.x + this.y * this.y);
-        roll = Math.atan2(sinr, cosr);
+        const sinR = 2.0 * (this.w * this.x + this.y * this.z);
+        const cosR = 1.0 - 2.0 * (this.x * this.x + this.y * this.y);
+        roll = Math.atan2(sinR, cosR);
 
         // pitch (y-axis rotation)
-        const sinp = 2.0 * (this.w * this.y - this.z * this.x);
-        if (Math.abs(sinp) >= 1.0)
-            pitch = Math.abs(Math.PI * 0.5) * Math.sign(sinp);
+        const sinP = 2.0 * (this.w * this.y - this.z * this.x);
+        if (Math.abs(sinP) >= 1.0)
+            pitch = Math.abs(Math.PI * 0.5) * Math.sign(sinP);
         else
-            pitch = Math.asin(sinp);
+            pitch = Math.asin(sinP);
 
         // yaw (z-axis rotation)
-        const siny = 2.0 * (this.w * this.z + this.x * this.y);
-        const cosy = 1.0 - 2.0 * (this.y * this.y + this.z * this.z);
-        yaw = Math.atan2(siny, cosy);
+        const sinY = 2.0 * (this.w * this.z + this.x * this.y);
+        const cosY = 1.0 - 2.0 * (this.y * this.y + this.z * this.z);
+        yaw = Math.atan2(sinY, cosY);
 
         return { yaw, pitch, roll };
     }

@@ -48,8 +48,17 @@ void ezQtEditorApp::StoreEnginePluginsToBeLoaded()
   {
     ezApplicationPluginConfig::PluginConfig cfg;
     cfg.m_sAppDirRelativePath = it.Key();
+    bool bToBeLoaded = it.Value().m_bToBeLoaded;
 
-    if (it.Value().m_bToBeLoaded)
+    // make sure these settings were not manually messed with
+    if (cfg.m_sAppDirRelativePath.FindSubString_NoCase("EnginePlugin") != nullptr)
+    {
+      cfg.m_bLoadCopy = false;
+      cfg.m_sDependecyOf.Remove("<manual>");
+      bToBeLoaded = false;
+    }
+
+    if (bToBeLoaded)
     {
       bChange = m_EnginePluginConfig.AddPlugin(cfg) || bChange;
     }

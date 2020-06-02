@@ -4,12 +4,12 @@ declare function __CPP_Time_GetGameTimeDiff(): number;
 
 /**
  * Utility functions to work with time values.
- * Time is genreally measured in seconds, this class provides functions to convert between different units.
+ * Time is generally measured in seconds, this class provides functions to convert between different units.
  */
 export class Time {
 
     /**
-     * Returns the current time, independemt of game speed.
+     * Returns the current time, independent of game speed.
      * This should be used for UI elements and other things that always advance at real time speeds.
      */
     static GetRealTime(): number {

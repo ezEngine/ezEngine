@@ -15,7 +15,7 @@ export class Player2 extends ez.TickedTypescriptComponent {
         super()
     }
 
-    characterControler: ez.CharacterControllerComponent = null;
+    characterController: ez.CharacterControllerComponent = null;
     camera: ez.GameObject = null;
     input: ez.InputComponent = null;
     headBone: ez.HeadBoneComponent = null;
@@ -31,7 +31,7 @@ export class Player2 extends ez.TickedTypescriptComponent {
 
     OnSimulationStarted(): void {
         let owner = this.GetOwner();
-        this.characterControler = owner.TryGetComponentOfBaseType(ez.CharacterControllerComponent);
+        this.characterController = owner.TryGetComponentOfBaseType(ez.CharacterControllerComponent);
         this.camera = owner.FindChildByName("Camera", true);
         this.input = owner.TryGetComponentOfBaseType(ez.InputComponent);
         this.headBone = this.camera.TryGetComponentOfBaseType(ez.HeadBoneComponent);
@@ -92,7 +92,7 @@ export class Player2 extends ez.TickedTypescriptComponent {
                 msg.Run = this.input.GetCurrentInputState("Run", false) > 0.5;
                 msg.Crouch = this.input.GetCurrentInputState("Crouch", false) > 0.5;
 
-                this.characterControler.SendMessage(msg);
+                this.characterController.SendMessage(msg);
             }
 
             // look up / down

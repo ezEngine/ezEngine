@@ -121,7 +121,7 @@ export class GameObject {
     }
 
     /**
-     * Sets the active flag for a game object, which affects the objects's final 'active state'.
+     * Sets the active flag for a game object, which affects the object's final 'active state'.
      * When a GameObject does not have the active flag, it and all its children get deactivated, as well as all attached components.
      */
     SetActiveFlag(enabled: boolean): void { // [tested]
@@ -285,7 +285,7 @@ export class GameObject {
     /**
      * Sets the velocity value of the GameObject.
      * The velocity value only has an effect in some scenarios. It does not affect the GameObject's position.
-     * E.g. velicity is used by sound-sources to compute Doppler effects.
+     * E.g. velocity is used by sound-sources to compute Doppler effects.
      * By default this value is computed out of position changes.
      */
     SetVelocity(velocity: Vec3): void { // [tested]
@@ -428,7 +428,7 @@ export class GameObject {
     /**
      * Queues a message to be sent to all the components on this GameObject (but not its children).
      * 
-     * The message is delivered after the tiemout.
+     * The message is delivered after the timeout.
      * If the timeout is zero, the message is delivered within this frame, but not immediately.
      */
     PostMessage(msg: Message, delay: number = Time.Zero()): void { // [tested]
@@ -438,7 +438,7 @@ export class GameObject {
     /**
      * Queues a message to be sent to all the components on this GameObject (including all its children).
      * 
-     * The message is delivered after the tiemout.
+     * The message is delivered after the timeout.
      * If the timeout is zero, the message is delivered within this frame, but not immediately.
      */
     PostMessageRecursive(msg: Message, delay: number = Time.Zero()): void { // [tested]
@@ -503,7 +503,7 @@ export class GameObject {
     }
 
     /**
-     * Attaches this object to anoter game object as its child.
+     * Attaches this object to another game object as its child.
      * 
      * @param parent The object to attach this object to.
      * @param preserveGlobalTransform If true, the global transform of this is preserved and the local transform is adjusted as needed.

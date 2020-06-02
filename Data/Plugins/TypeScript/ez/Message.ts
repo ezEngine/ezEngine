@@ -10,7 +10,7 @@ export abstract class Message {
 
 /**
  * Base class for all message types that are broadcast as 'events',
- * ie. bubbling up the scene graph, instead of beind delivered downwards the graph structure.
+ * ie. bubbling up the scene graph, instead of being delivered downwards the graph structure.
  */
 export abstract class EventMessage extends Message {
 }

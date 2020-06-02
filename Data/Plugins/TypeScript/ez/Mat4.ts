@@ -203,36 +203,36 @@ export class Mat4 {
 
         const cos = Math.cos(radians);
         const sin = Math.sin(radians);
-        const oneminuscos = 1 - cos;
+        const oneMinusCos = 1 - cos;
 
         const xy = axis.x * axis.y;
         const xz = axis.x * axis.z;
         const yz = axis.y * axis.z;
 
-        const xsin = axis.x * sin;
-        const ysin = axis.y * sin;
-        const zsin = axis.z * sin;
+        const xSin = axis.x * sin;
+        const ySin = axis.y * sin;
+        const zSin = axis.z * sin;
 
-        const onecos_xy = oneminuscos * xy;
-        const onecos_xz = oneminuscos * xz;
-        const onecos_yz = oneminuscos * yz;
+        const oneCos_xy = oneMinusCos * xy;
+        const oneCos_xz = oneMinusCos * xz;
+        const oneCos_yz = oneMinusCos * yz;
 
         //Column 1
-        this.m_ElementsCM[0] = cos + (oneminuscos * (axis.x * axis.x));
-        this.m_ElementsCM[1] = onecos_xy + zsin;
-        this.m_ElementsCM[2] = onecos_xz - ysin;
+        this.m_ElementsCM[0] = cos + (oneMinusCos * (axis.x * axis.x));
+        this.m_ElementsCM[1] = oneCos_xy + zSin;
+        this.m_ElementsCM[2] = oneCos_xz - ySin;
         this.m_ElementsCM[3] = 0;
 
         //Column 2
-        this.m_ElementsCM[4] = onecos_xy - zsin;
-        this.m_ElementsCM[5] = cos + (oneminuscos * (axis.y * axis.y));
-        this.m_ElementsCM[6] = onecos_yz + xsin;
+        this.m_ElementsCM[4] = oneCos_xy - zSin;
+        this.m_ElementsCM[5] = cos + (oneMinusCos * (axis.y * axis.y));
+        this.m_ElementsCM[6] = oneCos_yz + xSin;
         this.m_ElementsCM[7] = 0;
 
         //Column 3
-        this.m_ElementsCM[8] = onecos_xz + ysin;
-        this.m_ElementsCM[9] = onecos_yz - xsin;
-        this.m_ElementsCM[10] = cos + (oneminuscos * (axis.z * axis.z));
+        this.m_ElementsCM[8] = oneCos_xz + ySin;
+        this.m_ElementsCM[9] = oneCos_yz - xSin;
+        this.m_ElementsCM[10] = cos + (oneMinusCos * (axis.z * axis.z));
         this.m_ElementsCM[11] = 0;
 
         //Column 4
@@ -532,7 +532,7 @@ export class Mat4 {
      * Modifies the incoming vector by multiplying this from the left. Treats 'pos' like a position vector with an implied w-component of 1.
      *   pos.xyz = this * pos.xyz1
      * 
-     * @param pos A 'position' vector with an implied w-compoennt of 1. Thus the translation part of the matrix will affect the resulting vector.
+     * @param pos A 'position' vector with an implied w-component of 1. Thus the translation part of the matrix will affect the resulting vector.
      */
     TransformPosition(pos: Vec3): void { // [tested]
         const x = this.GetElement(0, 0) * pos.x + this.GetElement(1, 0) * pos.y + this.GetElement(2, 0) * pos.z + this.GetElement(3, 0);
@@ -546,7 +546,7 @@ export class Mat4 {
      * Modifies the incoming vector by multiplying this from the left. Treats 'dir' like a direction vector with an implied w-component of 0.
      *   dir.xyz = dir * pos.xyz0
      * 
-     * @param dir A 'direction' vector with an implied w-compoennt of 0. Thus the translation part of the matrix willNOT  affect the resulting vector.
+     * @param dir A 'direction' vector with an implied w-component of 0. Thus the translation part of the matrix willNOT  affect the resulting vector.
      */
     TransformDirection(dir: Vec3): void { // [tested]
         const x = this.GetElement(0, 0) * dir.x + this.GetElement(1, 0) * dir.y + this.GetElement(2, 0) * dir.z;
