@@ -11,12 +11,14 @@ EZ_BEGIN_COMPONENT_TYPE(RtsSelectableComponent, 1, ezComponentMode::Static)
     EZ_MEMBER_PROPERTY("SelectionRadius", m_fSelectionRadius)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.1f, 10.0f)),
   }
   EZ_END_PROPERTIES;
-    EZ_BEGIN_MESSAGEHANDLERS
+  // BEGIN-DOCS-CODE-SNIPPET: spatial-bounds-handler
+  EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgUpdateLocalBounds, OnUpdateLocalBounds)
   }
-    EZ_END_MESSAGEHANDLERS;
-    EZ_BEGIN_ATTRIBUTES
+  EZ_END_MESSAGEHANDLERS;
+  // END-DOCS-CODE-SNIPPET
+  EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("RTS Sample"),
   }
@@ -25,7 +27,9 @@ EZ_BEGIN_COMPONENT_TYPE(RtsSelectableComponent, 1, ezComponentMode::Static)
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
+// BEGIN-DOCS-CODE-SNIPPET: spatial-category-registration
 ezSpatialData::Category RtsSelectableComponent::s_SelectableCategory = ezSpatialData::RegisterCategory("Selectable");
+// END-DOCS-CODE-SNIPPET
 
 RtsSelectableComponent::RtsSelectableComponent() = default;
 RtsSelectableComponent::~RtsSelectableComponent() = default;
@@ -55,6 +59,7 @@ void RtsSelectableComponent::OnActivated()
   GetOwner()->UpdateLocalBounds();
 }
 
+// BEGIN-DOCS-CODE-SNIPPET: spatial-bounds-update
 void RtsSelectableComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
 {
   ezBoundingBoxSphere bounds;
@@ -64,3 +69,4 @@ void RtsSelectableComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
 
   msg.AddBounds(bounds, s_SelectableCategory);
 }
+// END-DOCS-CODE-SNIPPET
