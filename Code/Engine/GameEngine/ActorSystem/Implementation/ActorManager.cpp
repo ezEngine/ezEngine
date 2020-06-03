@@ -53,7 +53,7 @@ struct ezActorManagerImpl
 
 EZ_IMPLEMENT_SINGLETON(ezActorManager);
 
-ezEvent<const ezActorEvent&> ezActorManager::s_ActorEvents;
+ezCopyOnBroadcastEvent<const ezActorEvent&> ezActorManager::s_ActorEvents;
 
 ezActorManager::ezActorManager()
   : m_SingletonRegistrar(this)
