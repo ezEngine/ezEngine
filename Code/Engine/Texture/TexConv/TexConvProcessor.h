@@ -48,14 +48,7 @@ private:
   ezResult PremultiplyAlpha(ezImage& image) const;
   ezResult DilateColor2D(ezImage& img) const;
   ezResult Assemble2DSlice(const ezTexConvSliceChannelMapping& mapping, ezUInt32 uiResolutionX, ezUInt32 uiResolutionY, ezColor* pPixelOut) const;
-
-  enum class MipmapChannelMode
-  {
-    AllChannels,
-    SingleChannel
-  };
-
-  ezResult GenerateMipmaps(ezImage& img, ezUInt32 uiNumMips /*= 0*/, MipmapChannelMode channelMode = MipmapChannelMode::AllChannels) const;
+  ezResult GenerateMipmaps(ezImage& img, ezUInt32 uiNumChannels, ezUInt32 uiNumMips = 0) const;
 
   //////////////////////////////////////////////////////////////////////////
   // Purely functional

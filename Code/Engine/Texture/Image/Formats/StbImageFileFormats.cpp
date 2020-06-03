@@ -130,8 +130,7 @@ ezResult ezStbImageFileFormats::ReadImage(ezStreamReader& stream, ezImage& image
   return EZ_SUCCESS;
 }
 
-ezResult ezStbImageFileFormats::WriteImage(
-  ezStreamWriter& stream, const ezImageView& image, ezLogInterface* pLog, const char* szFileExtension) const
+ezResult ezStbImageFileFormats::WriteImage(ezStreamWriter& stream, const ezImageView& image, ezLogInterface* pLog, const char* szFileExtension) const
 {
   ezImageFormat::Enum compatibleFormats[] = {ezImageFormat::R8_UNORM, ezImageFormat::R8G8B8_UNORM, ezImageFormat::R8G8B8A8_UNORM};
 
@@ -183,18 +182,36 @@ ezResult ezStbImageFileFormats::WriteImage(
 
 bool ezStbImageFileFormats::CanReadFileType(const char* szExtension) const
 {
-  return ezStringUtils::IsEqual_NoCase(szExtension, "png") || ezStringUtils::IsEqual_NoCase(szExtension, "jpg") ||
-         ezStringUtils::IsEqual_NoCase(szExtension, "jpeg") || ezStringUtils::IsEqual_NoCase(szExtension, "hdr");
+  if (ezStringUtils::IsEqual_NoCase(szExtension, "hdr"))
+    return true;
+
+#if EZ_DISABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
+
+  // on Windows Desktop, we prefer to use WIC (ezWicFileFormat)
+  if (ezStringUtils::IsEqual_NoCase(szExtension, "png") ||
+      ezStringUtils::IsEqual_NoCase(szExtension, "jpg") ||
+      ezStringUtils::IsEqual_NoCase(szExtension, "jpeg"))
+  {
+    return true;
+  }
+#endif
+
+  return false;
 }
 
 bool ezStbImageFileFormats::CanWriteFileType(const char* szExtension) const
 {
-  return ezStringUtils::IsEqual_NoCase(szExtension, "png") || ezStringUtils::IsEqual_NoCase(szExtension, "jpg") ||
-         ezStringUtils::IsEqual_NoCase(szExtension, "jpeg");
+  // even when WIC is available, prefer to write these files through STB, to get consistent output
+  if (ezStringUtils::IsEqual_NoCase(szExtension, "png") ||
+      ezStringUtils::IsEqual_NoCase(szExtension, "jpg") ||
+      ezStringUtils::IsEqual_NoCase(szExtension, "jpeg"))
+  {
+    return true;
+  }
 
+  return false;
 }
 
 
 
 EZ_STATICLINK_FILE(Texture, Texture_Image_Formats_StbImageFileFormats);
-
