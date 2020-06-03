@@ -337,6 +337,12 @@ bool ezWorld::IsComponentInitBatchCompleted(const ezComponentInitBatchHandle& ba
   return pInitBatch->m_ComponentsToInitialize.IsEmpty() && pInitBatch->m_ComponentsToStartSimulation.IsEmpty();
 }
 
+void ezWorld::CancelComponentInitBatch(const ezComponentInitBatchHandle& batch)
+{
+  auto& pInitBatch = m_Data.m_InitBatches[batch.GetInternalID()];
+  pInitBatch->m_ComponentsToInitialize.Clear();
+  pInitBatch->m_ComponentsToStartSimulation.Clear();
+}
 void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay, bool bRecursive) const
 {
   // This method is allowed to be called from multiple threads.
