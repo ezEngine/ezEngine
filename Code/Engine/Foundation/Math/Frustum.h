@@ -84,6 +84,9 @@ public:
   /// \brief Returns the n-th plane of the frustum and allows modification.
   ezPlane& AccessPlane(ezUInt8 uiPlane);
 
+  /// \brief Checks that all planes are valid.
+  bool IsValid() const;
+
   /// \brief Transforms the frustum by the given matrix. This allows to adjust the frustum to a new orientation when a camera is moved or
   /// when it is necessary to cull from a different position.
   void TransformFrustum(const ezMat4& mTransform); // [tested]

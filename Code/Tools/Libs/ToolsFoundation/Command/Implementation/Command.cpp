@@ -30,8 +30,8 @@ ezStatus ezCommand::Do(bool bRedo)
     {
       for (ezInt32 j = m_ChildActions.GetCount() - 1; j >= 0; --j)
       {
-        ezStatus status = m_ChildActions[j]->Undo(true);
-        EZ_ASSERT_DEV(status.m_Result == EZ_SUCCESS, "Failed do could not be recovered! Inconsistent state!");
+        ezStatus status2 = m_ChildActions[j]->Undo(true);
+        EZ_ASSERT_DEV(status2.m_Result == EZ_SUCCESS, "Failed do could not be recovered! Inconsistent state!");
       }
       return status;
     }

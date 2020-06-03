@@ -267,9 +267,9 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const char* szIncludePropertie
     }
 
     // Traverse properties
-    for (ezUInt32 i = 0; i < pCurrentType->GetProperties().GetCount(); ++i)
+    for (ezUInt32 j = 0; j < pCurrentType->GetProperties().GetCount(); ++j)
     {
-      const ezAbstractProperty* pProp = pCurrentType->GetProperties()[i];
+      const ezAbstractProperty* pProp = pCurrentType->GetProperties()[j];
 
       if (pProp->GetFlags().IsSet(ezPropertyFlags::Hidden))
         continue;
