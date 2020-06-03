@@ -2,6 +2,7 @@
 
 #include <Foundation/Algorithm/HashableStruct.h>
 #include <Foundation/Algorithm/HashHelperString.h>
+#include <Foundation/Algorithm/HashStream.h>
 #include <Foundation/Strings/HashedString.h>
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Algorithm);
@@ -100,6 +101,90 @@ EZ_CREATE_SIMPLE_TEST(Algorithm, Hashing)
     EZ_TEST_BOOL(ezHashHelperString_NoCase::Equal(sv1, sb2));
     EZ_TEST_BOOL(ezHashHelperString_NoCase::Equal(sv1, szString2));
     EZ_TEST_BOOL(ezHashHelperString_NoCase::Equal(sv1, sv2));
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "HashStream32")
+  {
+    const char* szTest = "This is a test string. 1234";
+    const char* szTestHalf1 = "This is a test";
+    const char* szTestHalf2 = " string. 1234";
+
+    auto test = [szTest, szTestHalf1, szTestHalf2](bool flush, ezUInt32* outHash) {
+      ezHashStreamWriter32 writer1;
+      writer1.WriteBytes(szTest, std::strlen(szTest));
+      if (flush) writer1.Flush();
+      const ezUInt32 uiHash1 = writer1.GetHashValue();
+
+      ezHashStreamWriter32 writer2;
+      writer2.WriteBytes(szTestHalf1, std::strlen(szTestHalf1));
+      if (flush) writer2.Flush();
+      writer2.WriteBytes(szTestHalf2, std::strlen(szTestHalf2));
+      if (flush) writer2.Flush();
+      const ezUInt32 uiHash2 = writer2.GetHashValue();
+
+      ezHashStreamWriter32 writer3;
+      for (ezUInt64 i = 0; szTest[i] != 0; ++i)
+      {
+        writer3.WriteBytes(szTest + i, 1);
+        if (flush) writer3.Flush();
+      }
+      const ezUInt32 uiHash3 = writer3.GetHashValue();
+
+      EZ_TEST_INT(uiHash1, uiHash2);
+      EZ_TEST_INT(uiHash1, uiHash3);
+
+      *outHash = uiHash1;
+    };
+
+    ezUInt32 uiHash1 = 0, uiHash2 = 1;
+    test(true, &uiHash1);
+    test(false, &uiHash2);
+    EZ_TEST_INT(uiHash1, uiHash2);
+
+    const ezUInt64 uiHash3 = ezHashingUtils::xxHash32(szTest, std::strlen(szTest));
+    EZ_TEST_INT(uiHash1, uiHash3);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "HashStream64")
+  {
+    const char* szTest = "This is a test string. 1234";
+    const char* szTestHalf1 = "This is a test";
+    const char* szTestHalf2 = " string. 1234";
+
+    auto test = [szTest, szTestHalf1, szTestHalf2](bool flush, ezUInt64* outHash) {
+      ezHashStreamWriter64 writer1;
+      writer1.WriteBytes(szTest, std::strlen(szTest));
+      if (flush) writer1.Flush();
+      const ezUInt64 uiHash1 = writer1.GetHashValue();
+
+      ezHashStreamWriter64 writer2;
+      writer2.WriteBytes(szTestHalf1, std::strlen(szTestHalf1));
+      if (flush) writer2.Flush();
+      writer2.WriteBytes(szTestHalf2, std::strlen(szTestHalf2));
+      if (flush) writer2.Flush();
+      const ezUInt64 uiHash2 = writer2.GetHashValue();
+
+      ezHashStreamWriter64 writer3;
+      for (ezUInt64 i = 0; szTest[i] != 0; ++i)
+      {
+        writer3.WriteBytes(szTest + i, 1);
+        if (flush) writer3.Flush();
+      }
+      const ezUInt64 uiHash3 = writer3.GetHashValue();
+
+      EZ_TEST_INT(uiHash1, uiHash2);
+      EZ_TEST_INT(uiHash1, uiHash3);
+
+      *outHash = uiHash1;
+    };
+
+    ezUInt64 uiHash1 = 0, uiHash2 = 1;
+    test(true, &uiHash1);
+    test(false, &uiHash2);
+    EZ_TEST_INT(uiHash1, uiHash2);
+
+    const ezUInt64 uiHash3 = ezHashingUtils::xxHash64(szTest, std::strlen(szTest));
+    EZ_TEST_INT(uiHash1, uiHash3);
   }
 }
 

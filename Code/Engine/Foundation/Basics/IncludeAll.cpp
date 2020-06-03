@@ -5,6 +5,7 @@
 
 #include <Foundation/Algorithm/Comparer.h>
 #include <Foundation/Algorithm/HashingUtils.h>
+#include <Foundation/Algorithm/HashStream.h>
 #include <Foundation/Algorithm/Sorting.h>
 
 #include <Foundation/Basics.h>
