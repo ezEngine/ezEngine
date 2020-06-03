@@ -63,6 +63,10 @@ export import Physics = __Physics.Physics;
 
 // AUTO-GENERATED
 import __AllComponents = require("./ez/AllComponents")
+export import DebugRenderComponent = __AllComponents.DebugRenderComponent;
+export import DemoComponent = __AllComponents.DemoComponent;
+export import DisplayMsgComponent = __AllComponents.DisplayMsgComponent;
+export import SendMsgComponent = __AllComponents.SendMsgComponent;
 export import AgentSteeringComponent = __AllComponents.AgentSteeringComponent;
 export import RenderComponent = __AllComponents.RenderComponent;
 export import AlwaysVisibleComponent = __AllComponents.AlwaysVisibleComponent;
@@ -188,6 +192,7 @@ export import MsgSetColor = __AllMessages.MsgSetColor;
 export import MsgSetFloatParameter = __AllMessages.MsgSetFloatParameter;
 export import MsgSetMeshMaterial = __AllMessages.MsgSetMeshMaterial;
 export import MsgSetPlaying = __AllMessages.MsgSetPlaying;
+export import MsgSetText = __AllMessages.MsgSetText;
 export import MsgTransformChanged = __AllMessages.MsgTransformChanged;
 export import MsgTriggerTriggered = __AllMessages.MsgTriggerTriggered;
 export import MsgTypeScriptMsgProxy = __AllMessages.MsgTypeScriptMsgProxy;
@@ -219,6 +224,7 @@ export import XRTransformSpace = __AllEnums.XRTransformSpace;
 
 // AUTO-GENERATED
 import __AllFlags = require("./ez/AllFlags")
+export import DebugRenderComponentMask = __AllFlags.DebugRenderComponentMask;
 export import OnPhysXContact = __AllFlags.OnPhysXContact;
 export import PxAxis = __AllFlags.PxAxis;
 export import PxCharacterCollisionFlags = __AllFlags.PxCharacterCollisionFlags;

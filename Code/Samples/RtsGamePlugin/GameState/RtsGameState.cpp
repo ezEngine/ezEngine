@@ -353,13 +353,14 @@ ezGameObject* RtsGameState::PickSelectableObject() const
   return pl.pBestObject;
 }
 
-
+// BEGIN-DOCS-CODE-SNIPPET: spatial-query
 void RtsGameState::InspectObjectsInArea(const ezVec2& position, float radius, ezSpatialSystem::QueryCallback callback) const
 {
   ezBoundingSphere sphere(position.GetAsVec3(0), radius);
   ezUInt32 uiCategoryBitmask = RtsSelectableComponent::s_SelectableCategory.GetBitmask();
   m_pMainWorld->GetSpatialSystem()->FindObjectsInSphere(sphere, uiCategoryBitmask, callback, nullptr);
 }
+// END-DOCS-CODE-SNIPPET
 
 ezGameObject* RtsGameState::SpawnNamedObjectAt(const ezTransform& transform, const char* szObjectName, ezUInt16 uiTeamID)
 {

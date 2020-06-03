@@ -59,6 +59,14 @@ void ezRenderComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
   }
 }
 
+void ezRenderComponent::InvalidateCachedRenderData()
+{
+  if (IsActiveAndInitialized())
+  {
+    ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+  }
+}
+
 void ezRenderComponent::TriggerLocalBoundsUpdate()
 {
   if (IsActiveAndInitialized())

@@ -41,4 +41,5 @@ public:
 
 protected:
   void OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg);
+  void InvalidateCachedRenderData();
 };

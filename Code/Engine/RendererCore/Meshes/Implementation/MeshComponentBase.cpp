@@ -242,10 +242,7 @@ void ezMeshComponentBase::SetMaterial(ezUInt32 uiIndex, const ezMaterialResource
 
   m_Materials[uiIndex] = hMaterial;
 
-  if (IsActiveAndInitialized())
-  {
-    ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
-  }
+  InvalidateCachedRenderData();
 }
 
 ezMaterialResourceHandle ezMeshComponentBase::GetMaterial(ezUInt32 uiIndex) const
@@ -279,6 +276,8 @@ const char* ezMeshComponentBase::GetMeshFile() const
 void ezMeshComponentBase::SetColor(const ezColor& color)
 {
   m_Color = color;
+
+  InvalidateCachedRenderData();
 }
 
 const ezColor& ezMeshComponentBase::GetColor() const
@@ -294,6 +293,8 @@ void ezMeshComponentBase::OnMsgSetMeshMaterial(ezMsgSetMeshMaterial& msg)
 void ezMeshComponentBase::OnMsgSetColor(ezMsgSetColor& msg)
 {
   msg.ModifyColor(m_Color);
+
+  InvalidateCachedRenderData();
 }
 
 ezMeshRenderData* ezMeshComponentBase::CreateRenderData() const
@@ -305,7 +306,6 @@ ezUInt32 ezMeshComponentBase::Materials_GetCount() const
 {
   return m_Materials.GetCount();
 }
-
 
 const char* ezMeshComponentBase::Materials_GetValue(ezUInt32 uiIndex) const
 {
@@ -338,12 +338,16 @@ void ezMeshComponentBase::Materials_Insert(ezUInt32 uiIndex, const char* value)
     hMat = ezResourceManager::LoadResource<ezMaterialResource>(value);
 
   m_Materials.Insert(hMat, uiIndex);
+
+  InvalidateCachedRenderData();
 }
 
 
 void ezMeshComponentBase::Materials_Remove(ezUInt32 uiIndex)
 {
   m_Materials.RemoveAtAndCopy(uiIndex);
+
+  InvalidateCachedRenderData();
 }
 
 

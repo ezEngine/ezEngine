@@ -112,7 +112,7 @@ export class Color {
     /**
      * Sets RGB and Alpha values in Linear space, [0; 1] range.
      */
-    SetLinearRGBA(r: number, g: number, b: number, a: number): void { // [tested]
+    SetLinearRGBA(r: number, g: number, b: number, a: number = 1.0): void { // [tested]
         this.r = r;
         this.g = g;
         this.b = b;

@@ -50,7 +50,7 @@ Plugin
 {
 	string %Path{"ezParticlePlugin"}
 	bool %LoadCopy{false}
-	string %DependencyOf{"EditorPluginParticle"}
+	string %DependencyOf{"<manual>","EditorPluginParticle"}
 }
 Plugin
 {

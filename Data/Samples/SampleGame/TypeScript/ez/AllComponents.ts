@@ -39,6 +39,38 @@ declare function __CPP_ComponentProperty_get(component: Component, id: number);
 declare function __CPP_ComponentProperty_set(component: Component, id: number, value);
 declare function __CPP_ComponentFunction_Call(component: Component, id: number, ...args);
 
+export class DebugRenderComponent extends Component
+{
+  public static GetTypeNameHash(): number { return 1349677146; }
+  get Size(): number { return __CPP_ComponentProperty_get(this, 1959304709); }
+  set Size(value: number) { __CPP_ComponentProperty_set(this, 1959304709, value); }
+  get Color(): Color { return __CPP_ComponentProperty_get(this, 631148985); }
+  set Color(value: Color) { __CPP_ComponentProperty_set(this, 631148985, value); }
+  get Texture(): string { return __CPP_ComponentProperty_get(this, 3964700600); }
+  set Texture(value: string) { __CPP_ComponentProperty_set(this, 3964700600, value); }
+  get Render(): Flags.DebugRenderComponentMask { return __CPP_ComponentProperty_get(this, 2166268333); }
+  set Render(value: Flags.DebugRenderComponentMask) { __CPP_ComponentProperty_set(this, 2166268333, value); }
+}
+
+export class DemoComponent extends Component
+{
+  public static GetTypeNameHash(): number { return 4249218600; }
+  get Amplitude(): number { return __CPP_ComponentProperty_get(this, 2472683924); }
+  set Amplitude(value: number) { __CPP_ComponentProperty_set(this, 2472683924, value); }
+  get Speed(): number { return __CPP_ComponentProperty_get(this, 747528745); }
+  set Speed(value: number) { __CPP_ComponentProperty_set(this, 747528745, value); }
+}
+
+export class DisplayMsgComponent extends Component
+{
+  public static GetTypeNameHash(): number { return 1260561115; }
+}
+
+export class SendMsgComponent extends Component
+{
+  public static GetTypeNameHash(): number { return 1220683219; }
+}
+
 export class AgentSteeringComponent extends Component
 {
   public static GetTypeNameHash(): number { return 2686193892; }
