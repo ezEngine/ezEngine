@@ -20,7 +20,7 @@ ezRenderComponent::~ezRenderComponent() = default;
 
 void ezRenderComponent::Deinitialize()
 {
-  ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+  InvalidateCachedRenderData();
 
   SUPER::Deinitialize();
 }
@@ -56,6 +56,14 @@ void ezRenderComponent::OnUpdateLocalBounds(ezMsgUpdateLocalBounds& msg)
     {
       msg.SetAlwaysVisible(category);
     }
+  }
+}
+
+void ezRenderComponent::InvalidateCachedRenderData()
+{
+  if (IsActiveAndInitialized())
+  {
+    ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
   }
 }
 

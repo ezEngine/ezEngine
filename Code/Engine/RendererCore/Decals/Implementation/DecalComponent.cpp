@@ -519,7 +519,7 @@ void ezDecalComponent::UpdateApplyTo()
 
   if (uiPrevId != m_uiApplyOnlyToId && GetOwner()->IsStatic())
   {
-    ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
+    InvalidateCachedRenderData();
   }
 }
 
