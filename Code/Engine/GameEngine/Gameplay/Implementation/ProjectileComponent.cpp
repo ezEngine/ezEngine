@@ -23,7 +23,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezProjectileSurfaceInteraction, ezNoBase, 3, ezRT
   {
     EZ_ACCESSOR_PROPERTY("Surface", GetSurface, SetSurface)->AddAttributes(new ezAssetBrowserAttribute("Surface")),
     EZ_ENUM_MEMBER_PROPERTY("Reaction", ezProjectileReaction, m_Reaction),
-    EZ_MEMBER_PROPERTY("Interaction", m_sInteraction),
+    EZ_MEMBER_PROPERTY("Interaction", m_sInteraction)->AddAttributes(new ezDynamicStringEnumAttribute("SurfaceInteractionTypeEnum")),
     EZ_MEMBER_PROPERTY("Impulse", m_fImpulse),
     EZ_MEMBER_PROPERTY("Damage", m_fDamage),
   }
