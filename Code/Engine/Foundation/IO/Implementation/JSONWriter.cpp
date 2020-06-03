@@ -2,6 +2,9 @@
 
 #include <Foundation/IO/JSONWriter.h>
 
+ ezJSONWriter::ezJSONWriter() = default;
+ ezJSONWriter::~ezJSONWriter() = default;
+
 void ezJSONWriter::AddVariableBool(const char* szName, bool value)
 {
   BeginVariable(szName);

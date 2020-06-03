@@ -21,16 +21,24 @@ public:
     None,            ///< No whitespace, not even newlines, is output. This should be used when JSON is used for data exchange, but probably not read by humans.
   };
 
-  /// \brief Constructor
-  ezJSONWriter()
+  /// \brief Modes to configure how arrays are written.
+  enum class ArrayMode
   {
-    m_WhitespaceMode = WhitespaceMode::All;
-  }
+    InOneLine,       ///< All array items are written in a single line in the file.
+    OneLinePerItem,  ///< Each array item is put on a separate line.
+  };
 
-  virtual ~ezJSONWriter() {}
+  /// \brief Constructor
+  ezJSONWriter();
+
+  /// \brief Destructor
+  virtual ~ezJSONWriter();
 
   /// \brief Configures how much whitespace is output.
-  void SetWhitespaceMode(WhitespaceMode wsm) { m_WhitespaceMode = wsm; }
+  void SetWhitespaceMode(WhitespaceMode whitespaceMode) { m_WhitespaceMode = whitespaceMode; }
+
+  /// \brief Configures how arrays are written.
+  void SetArrayMode(ArrayMode arrayMode) { m_ArrayMode = arrayMode; }
 
   /// \brief Shorthand for "BeginVariable(szName); WriteBool(value); EndVariable(); "
   void AddVariableBool(const char* szName, bool value); // [tested]
@@ -254,7 +262,9 @@ public:
   bool HadWriteError() const;
 
 protected:
-  WhitespaceMode m_WhitespaceMode;
+
+  WhitespaceMode m_WhitespaceMode = WhitespaceMode::All;
+  ArrayMode m_ArrayMode = ArrayMode::InOneLine;
 
   /// \brief called internally when there was an error during writing
   void SetWriteErrorState();
