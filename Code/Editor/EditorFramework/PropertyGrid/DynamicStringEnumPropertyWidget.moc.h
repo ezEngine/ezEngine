@@ -5,8 +5,7 @@
 
 class QHBoxLayout;
 class QComboBox;
-
-/// *** Asset Browser ***
+class ezDynamicStringEnum;
 
 class EZ_EDITORFRAMEWORK_DLL ezQtDynamicStringEnumPropertyWidget : public ezQtStandardPropertyWidget
 {
@@ -26,4 +25,6 @@ protected:
 protected:
   QComboBox* m_pWidget;
   QHBoxLayout* m_pLayout;
+  ezDynamicStringEnum* m_pEnum = nullptr;
+  ezInt32 m_iLastIndex = -1;
 };

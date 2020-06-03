@@ -1,5 +1,7 @@
 #include <GuiFoundationPCH.h>
 
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
 #include <GuiFoundation/UIServices/DynamicStringEnum.h>
 
 ezMap<ezString, ezDynamicStringEnum> ezDynamicStringEnum::s_DynamicEnums;
@@ -52,4 +54,44 @@ ezDynamicStringEnum& ezDynamicStringEnum::GetDynamicEnum(const char* szEnumName)
   }
 
   return it.Value();
+}
+
+void ezDynamicStringEnum::ReadFromStorage()
+{
+  Clear();
+
+  ezStringBuilder sFile, tmp;
+
+  ezFileReader file;
+  if (file.Open(m_sStorageFile).Failed())
+    return;
+
+  sFile.ReadAll(file);
+
+  ezHybridArray<ezStringView, 32> values;
+
+  sFile.Split(false, values, "\n", "\r");
+
+  for (auto val : values)
+  {
+    AddValidValue(val.GetData(tmp));
+  }
+}
+
+void ezDynamicStringEnum::SaveToStorage()
+{
+  if (m_sStorageFile.IsEmpty())
+    return;
+
+  ezFileWriter file;
+  if (file.Open(m_sStorageFile).Failed())
+    return;
+
+  ezStringBuilder tmp;
+
+  for (const auto& val : m_ValidValues)
+  {
+    tmp.Set(val, "\n");
+    file.WriteBytes(tmp.GetData(), tmp.GetElementCount());
+  }
 }
