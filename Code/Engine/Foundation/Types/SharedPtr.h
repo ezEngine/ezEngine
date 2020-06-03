@@ -79,7 +79,10 @@ public:
   T* operator->() const;
 
   /// \brief Provides access to the managed object.
-  operator T*() const;
+  operator const T*() const;
+
+  /// \brief Provides access to the managed object.
+  operator T*();
 
   /// \brief Returns true if there is managed object and false if the shared ptr is empty.
   operator bool() const;

@@ -2,12 +2,13 @@
 
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Threading/DelegateTask.h>
-#include <Foundation/Types/TagSet.h>
 #include <Foundation/Types/SharedPtr.h>
+#include <Foundation/Types/TagSet.h>
 #include <Foundation/Utilities/Node.h>
-#include <RendererFoundation/Resources/RenderTargetSetup.h>
+#include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/Pipeline/RenderPipelineResource.h>
 #include <RendererCore/Pipeline/ViewData.h>
+#include <RendererFoundation/Resources/RenderTargetSetup.h>
 
 class ezFrustum;
 class ezWorld;
@@ -69,7 +70,7 @@ public:
   void ExtractData();
 
   /// \brief Returns a task implementation that calls ExtractData on this view.
-  ezTask* GetExtractTask();
+  const ezSharedPtr<ezTask>& GetExtractTask();
 
 
   /// \brief Returns the start position and direction (in world space) of the picking ray through the screen position in this view.
@@ -124,7 +125,7 @@ private:
   ezViewId m_InternalId;
   ezHashedString m_sName;
 
-  ezDelegateTask<void> m_ExtractTask;
+  ezSharedPtr<ezTask> m_pExtractTask;
 
   ezWorld* m_pWorld;
 
@@ -175,7 +176,7 @@ private:
   void ApplyRenderPassProperties();
   void ApplyExtractorProperties();
 
-  void ApplyProperty(ezReflectedClass* pClass, PropertyValue &data, const char* szTypeName);
+  void ApplyProperty(ezReflectedClass* pClass, PropertyValue& data, const char* szTypeName);
 
   ezMap<ezString, PropertyValue> m_PassProperties;
   ezMap<ezString, PropertyValue> m_PassReadBackProperties;
@@ -183,4 +184,3 @@ private:
 };
 
 #include <RendererCore/Pipeline/Implementation/View_inl.h>
-

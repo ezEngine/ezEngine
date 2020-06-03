@@ -19,7 +19,7 @@ EZ_FORCE_INLINE bool ezWorld::IsValidObject(const ezGameObjectHandle& object) co
 {
   CheckForReadAccess();
   EZ_ASSERT_DEV(object.IsInvalidated() || object.m_InternalId.m_WorldIndex == m_uiIndex,
-                "Object does not belong to this world. Expected world id {0} got id {1}", m_uiIndex, object.m_InternalId.m_WorldIndex);
+    "Object does not belong to this world. Expected world id {0} got id {1}", m_uiIndex, object.m_InternalId.m_WorldIndex);
 
   return m_Data.m_Objects.Contains(object);
 }
@@ -28,7 +28,7 @@ EZ_FORCE_INLINE bool ezWorld::TryGetObject(const ezGameObjectHandle& object, ezG
 {
   CheckForReadAccess();
   EZ_ASSERT_DEV(object.IsInvalidated() || object.m_InternalId.m_WorldIndex == m_uiIndex,
-                "Object does not belong to this world. Expected world id {0} got id {1}", m_uiIndex, object.m_InternalId.m_WorldIndex);
+    "Object does not belong to this world. Expected world id {0} got id {1}", m_uiIndex, object.m_InternalId.m_WorldIndex);
 
   return m_Data.m_Objects.TryGetValue(object, out_pObject);
 }
@@ -37,7 +37,7 @@ EZ_FORCE_INLINE bool ezWorld::TryGetObject(const ezGameObjectHandle& object, con
 {
   CheckForReadAccess();
   EZ_ASSERT_DEV(object.IsInvalidated() || object.m_InternalId.m_WorldIndex == m_uiIndex,
-                "Object does not belong to this world. Expected world id {0} got id {1}", m_uiIndex, object.m_InternalId.m_WorldIndex);
+    "Object does not belong to this world. Expected world id {0} got id {1}", m_uiIndex, object.m_InternalId.m_WorldIndex);
 
   ezGameObject* pObject = nullptr;
   bool bResult = m_Data.m_Objects.TryGetValue(object, pObject);
@@ -377,9 +377,9 @@ EZ_ALWAYS_INLINE bool ezWorld::GetWorldSimulationEnabled() const
   return m_Data.m_bSimulateWorld;
 }
 
-EZ_ALWAYS_INLINE ezTask* ezWorld::GetUpdateTask()
+EZ_ALWAYS_INLINE const ezSharedPtr<ezTask>& ezWorld::GetUpdateTask()
 {
-  return &m_UpdateTask;
+  return m_pUpdateTask;
 }
 
 EZ_FORCE_INLINE ezSpatialSystem* ezWorld::GetSpatialSystem()
@@ -527,7 +527,7 @@ EZ_ALWAYS_INLINE void ezWorld::CheckForReadAccess() const
 EZ_ALWAYS_INLINE void ezWorld::CheckForWriteAccess() const
 {
   EZ_ASSERT_DEV(m_Data.m_WriteThreadID == ezThreadUtils::GetCurrentThreadID(),
-                "Trying to write to World '{0}', but it is not marked for writing.", GetName());
+    "Trying to write to World '{0}', but it is not marked for writing.", GetName());
 }
 
 EZ_ALWAYS_INLINE ezGameObject* ezWorld::GetObjectUnchecked(ezUInt32 uiIndex) const
@@ -539,4 +539,3 @@ EZ_ALWAYS_INLINE bool ezWorld::ReportErrorWhenStaticObjectMoves() const
 {
   return m_Data.m_bReportErrorWhenStaticObjectMoves;
 }
-

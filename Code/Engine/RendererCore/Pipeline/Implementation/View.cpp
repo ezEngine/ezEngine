@@ -34,8 +34,9 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezView::ezView()
-  : m_ExtractTask("", ezMakeDelegate(&ezView::ExtractData, this))
 {
+  m_pExtractTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "", ezMakeDelegate(&ezView::ExtractData, this));
+
   m_pWorld = nullptr;
   m_pCamera = nullptr;
   m_pCullingCamera = nullptr;
@@ -55,7 +56,7 @@ void ezView::SetName(const char* szName)
 
   ezStringBuilder sb = szName;
   sb.Append(".ExtractData");
-  m_ExtractTask.ConfigureTask(sb, ezTaskNesting::Maybe);
+  m_pExtractTask->ConfigureTask(sb, ezTaskNesting::Maybe);
 }
 
 void ezView::SetWorld(ezWorld* pWorld)

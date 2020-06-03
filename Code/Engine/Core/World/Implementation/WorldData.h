@@ -123,7 +123,7 @@ namespace ezInternal
     template <typename VISITOR>
     static ezVisitorExecution::Enum TraverseHierarchyLevel(Hierarchy::DataBlockArray& blocks, void* pUserData = nullptr);
     template <typename VISITOR>
-    static ezVisitorExecution::Enum TraverseHierarchyLevelMultiThreaded(Hierarchy::DataBlockArray& blocks, void* pUserData = nullptr);
+    ezVisitorExecution::Enum TraverseHierarchyLevelMultiThreaded(Hierarchy::DataBlockArray& blocks, void* pUserData = nullptr);
 
     typedef ezDelegate<ezVisitorExecution::Enum(ezGameObject*)> VisitorFunc;
     void TraverseBreadthFirst(VisitorFunc& func);
@@ -192,7 +192,7 @@ namespace ezInternal
     ezDynamicArray<RegisteredUpdateFunction, ezLocalAllocatorWrapper> m_UpdateFunctions[ezWorldModule::UpdateFunctionDesc::Phase::COUNT];
     ezDynamicArray<ezWorldModule::UpdateFunctionDesc, ezLocalAllocatorWrapper> m_UpdateFunctionsToRegister;
 
-    ezDynamicArray<UpdateTask*, ezLocalAllocatorWrapper> m_UpdateTasks;
+    ezDynamicArray<ezSharedPtr<UpdateTask>, ezLocalAllocatorWrapper> m_UpdateTasks;
 
     ezUniquePtr<ezSpatialSystem> m_pSpatialSystem;
     ezSharedPtr<ezCoordinateSystemProvider> m_pCoordinateSystemProvider;

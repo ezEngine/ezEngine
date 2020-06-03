@@ -116,13 +116,20 @@ public:
   }
 
   /// \brief Returns the referenced object (may be nullptr).
-  T* Get() const { return m_pReferencedObject; }
+  operator const T*() const { return m_pReferencedObject; }
 
   /// \brief Returns the referenced object (may be nullptr).
-  operator T*() const { return m_pReferencedObject; }
+  operator T*() { return m_pReferencedObject; }
 
   /// \brief Returns the referenced object (may be nullptr).
-  T* operator->() const
+  const T* operator->() const
+  {
+    EZ_ASSERT_DEV(m_pReferencedObject != nullptr, "Pointer is nullptr.");
+    return m_pReferencedObject;
+  }
+
+  /// \brief Returns the referenced object (may be nullptr)
+  T* operator->()
   {
     EZ_ASSERT_DEV(m_pReferencedObject != nullptr, "Pointer is nullptr.");
     return m_pReferencedObject;

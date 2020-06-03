@@ -110,7 +110,7 @@ void ezResourceManager::RunWorkerTask(ezResource* pResource)
     {
       if (s_State->s_WorkerTasksDataLoad[i].m_pTask->IsTaskFinished())
       {
-        s_State->s_WorkerTasksDataLoad[i].m_GroupId = ezTaskSystem::StartSingleTask(s_State->s_WorkerTasksDataLoad[i].m_pTask.Borrow(), ezTaskPriority::FileAccess);
+        s_State->s_WorkerTasksDataLoad[i].m_GroupId = ezTaskSystem::StartSingleTask(s_State->s_WorkerTasksDataLoad[i].m_pTask, ezTaskPriority::FileAccess);
         return;
       }
     }
@@ -122,7 +122,7 @@ void ezResourceManager::RunWorkerTask(ezResource* pResource)
       auto& data = s_State->s_WorkerTasksDataLoad.ExpandAndGetRef();
       data.m_pTask = EZ_DEFAULT_NEW(ezResourceManagerWorkerDataLoad);
       data.m_pTask->ConfigureTask(s, ezTaskNesting::Maybe);
-      data.m_GroupId = ezTaskSystem::StartSingleTask(data.m_pTask.Borrow(), ezTaskPriority::FileAccess);
+      data.m_GroupId = ezTaskSystem::StartSingleTask(data.m_pTask, ezTaskPriority::FileAccess);
     }
   }
 }

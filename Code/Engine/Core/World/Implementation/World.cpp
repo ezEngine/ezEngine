@@ -37,14 +37,14 @@ static ezGameObjectHandle DefaultGameObjectReferenceResolver(const void* pData, 
 }
 
 ezWorld::ezWorld(ezWorldDesc& desc)
-  : m_UpdateTask("", ezMakeDelegate(&ezWorld::UpdateFromThread, this))
-  , m_Data(desc)
+  : m_Data(desc)
 {
+  m_pUpdateTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "", ezMakeDelegate(&ezWorld::UpdateFromThread, this));
   m_Data.m_pCoordinateSystemProvider->m_pOwnerWorld = this;
 
   ezStringBuilder sb = desc.m_sName.GetString();
   sb.Append(".Update");
-  m_UpdateTask.ConfigureTask(sb, ezTaskNesting::Maybe);
+  m_pUpdateTask->ConfigureTask(sb, ezTaskNesting::Maybe);
 
   m_uiIndex = c_InvalidWorldIndex;
 
@@ -970,7 +970,7 @@ void ezWorld::UpdateAsynchronous()
 
     while (uiStartIndex < uiTotalCount)
     {
-      ezInternal::WorldData::UpdateTask* pTask;
+      ezSharedPtr<ezInternal::WorldData::UpdateTask> pTask;
       if (uiCurrentTaskIndex < m_Data.m_UpdateTasks.GetCount())
       {
         pTask = m_Data.m_UpdateTasks[uiCurrentTaskIndex];

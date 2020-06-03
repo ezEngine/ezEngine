@@ -38,7 +38,7 @@ foundtaskgroup:
   return id;
 }
 
-void ezTaskSystem::AddTaskToGroup(ezTaskGroupID groupID, ezTask* pTask)
+void ezTaskSystem::AddTaskToGroup(ezTaskGroupID groupID, const ezSharedPtr<ezTask>& pTask)
 {
   EZ_ASSERT_DEBUG(pTask != nullptr, "Cannot add nullptr tasks.");
   EZ_ASSERT_DEV(pTask->IsTaskFinished(), "The given task is not finished! Cannot reuse a task before it is done.");
@@ -247,7 +247,7 @@ ezResult ezTaskSystem::CancelGroup(ezTaskGroupID Group, ezOnTaskRunning::Enum On
 
   ezResult res = EZ_SUCCESS;
 
-  ezHybridArray<ezTask*, 16> TasksCopy = Group.m_pTaskGroup->m_Tasks;
+  auto TasksCopy = Group.m_pTaskGroup->m_Tasks;
 
   // first cancel ALL the tasks in the group, without waiting for anything
   for (ezUInt32 task = 0; task < TasksCopy.GetCount(); ++task)

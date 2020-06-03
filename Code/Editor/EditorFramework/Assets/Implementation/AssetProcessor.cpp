@@ -105,7 +105,7 @@ void ezAssetProcessor::ShutdownProcessTask()
 
       // Delete and remove under lock.
       EZ_LOCK(m_ProcessorMutex);
-      EZ_DEFAULT_DELETE(taskAndGroup.m_pTask);
+      taskAndGroup.m_pTask.Clear();
     }
   }
 
@@ -131,7 +131,7 @@ void ezAssetProcessor::RemoveLogWriter(ezLoggingEvent::Handler handler)
   m_CuratorLog.RemoveLogWriter(handler);
 }
 
-void ezAssetProcessor::OnProcessTaskFinished(ezTask* pTask)
+void ezAssetProcessor::OnProcessTaskFinished(const ezSharedPtr<ezTask>& pTask)
 {
   RunNextProcessTask();
 }
@@ -153,8 +153,7 @@ void ezAssetProcessor::RunNextProcessTask()
     const ezUInt32 uiWorkerCount = ezTaskSystem::GetWorkerThreadCount(ezWorkerThreadType::LongTasks);
     for (ezUInt32 i = 0; i < uiWorkerCount; ++i)
     {
-      ezProcessTask* pTask = EZ_DEFAULT_NEW(ezProcessTask, i, ezMakeDelegate(&ezAssetProcessor::OnProcessTaskFinished, this));
-      m_ProcessTasks.ExpandAndGetRef().m_pTask = pTask;
+      m_ProcessTasks.ExpandAndGetRef().m_pTask = EZ_DEFAULT_NEW(ezProcessTask, i, ezMakeDelegate(&ezAssetProcessor::OnProcessTaskFinished, this));
     }
   }
 

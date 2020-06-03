@@ -131,8 +131,6 @@ ezResult ezPreprocessor::ExpandOnce(const TokenStream& Tokens, TokenStream& Outp
 
       continue;
     }
-
-    EZ_REPORT_FAILURE("The loop body's end should never be reached.");
   }
 
   --m_sCurrentFileStack.PeekBack().m_iExpandDepth;

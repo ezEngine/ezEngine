@@ -153,7 +153,7 @@ void ezAssetCurator::StartInitialize(const ezApplicationFileSystemConfig& cfg)
 
   m_Watcher = EZ_DEFAULT_NEW(ezAssetWatcher, m_FileSystemConfig);
 
-  ezDelegateTask<void>* pInitTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "", [this]() {
+  ezSharedPtr<ezDelegateTask<void>> pInitTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "", [this]() {
     EZ_LOCK(m_CuratorMutex);
     LoadCaches();
 
@@ -179,7 +179,7 @@ void ezAssetCurator::StartInitialize(const ezApplicationFileSystemConfig& cfg)
     }
     SaveCaches();
   });
-  pInitTask->ConfigureTask("Initialize Curator", ezTaskNesting::Never, [](ezTask* pTask) { EZ_DEFAULT_DELETE(pTask); });
+  pInitTask->ConfigureTask("Initialize Curator", ezTaskNesting::Never);
   m_initializeCuratorTaskID = ezTaskSystem::StartSingleTask(pInitTask, ezTaskPriority::FileAccessHighPriority);
 
   {
@@ -1530,7 +1530,7 @@ void ezAssetCurator::ShutdownUpdateTask()
     ezTaskSystem::WaitForGroup(m_UpdateTaskGroup);
 
     EZ_LOCK(m_CuratorMutex);
-    EZ_DEFAULT_DELETE(m_pUpdateTask);
+    m_pUpdateTask.Clear();
   }
 }
 
@@ -1562,7 +1562,7 @@ bool ezAssetCurator::GetNextAssetToUpdate(ezUuid& guid, ezStringBuilder& out_sAb
   return false;
 }
 
-void ezAssetCurator::OnUpdateTaskFinished(ezTask* pTask)
+void ezAssetCurator::OnUpdateTaskFinished(const ezSharedPtr<ezTask>& pTask)
 {
   EZ_LOCK(m_CuratorMutex);
 

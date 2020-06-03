@@ -47,18 +47,24 @@ void ezTaskSystem::ParallelForInternal(ezArrayPtr<ElemType> taskItems, ezParalle
   const ezUInt32 uiMultiplicity = config.DetermineMultiplicity(taskItems.GetCount());
   const ezUInt32 uiItemsPerInvocation = config.DetermineItemsPerInvocation(taskItems.GetCount(), uiMultiplicity);
 
-  ArrayPtrTask<ElemType> arrayPtrTask(taskItems, std::move(taskCallback), uiItemsPerInvocation);
-  arrayPtrTask.ConfigureTask(taskName ? taskName : "Generic ArrayPtr Task", config.nestingMode);
 
   if (uiMultiplicity == 0)
   {
+    ArrayPtrTask<ElemType> arrayPtrTask(taskItems, std::move(taskCallback), uiItemsPerInvocation);
+    arrayPtrTask.ConfigureTask(taskName ? taskName : "Generic ArrayPtr Task", config.nestingMode);
+
     EZ_PROFILE_SCOPE(arrayPtrTask.m_sTaskName);
     arrayPtrTask.Execute();
   }
   else
   {
-    arrayPtrTask.SetMultiplicity(uiMultiplicity);
-    ezTaskGroupID taskGroupId = ezTaskSystem::StartSingleTask(&arrayPtrTask, ezTaskPriority::EarlyThisFrame);
+    ezAllocatorBase* pAllocator = (config.pTaskAllocator != nullptr) ? config.pTaskAllocator : ezFoundation::GetDefaultAllocator();
+
+    ezSharedPtr<ArrayPtrTask<ElemType>> pArrayPtrTask = EZ_NEW(pAllocator, ArrayPtrTask<ElemType>, taskItems, std::move(taskCallback), uiItemsPerInvocation);
+    pArrayPtrTask->ConfigureTask(taskName ? taskName : "Generic ArrayPtr Task", config.nestingMode);
+
+    pArrayPtrTask->SetMultiplicity(uiMultiplicity);
+    ezTaskGroupID taskGroupId = ezTaskSystem::StartSingleTask(pArrayPtrTask, ezTaskPriority::EarlyThisFrame);
     ezTaskSystem::WaitForGroup(taskGroupId);
   }
 }

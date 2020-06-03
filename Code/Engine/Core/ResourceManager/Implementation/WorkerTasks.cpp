@@ -53,7 +53,7 @@ void ezResourceManagerWorkerDataLoad::Execute()
   // we need this info later to do some work in a lock, all the directly following code is outside the lock
   const bool bResourceIsLoadedOnMainThread = pResourceToLoad->GetBaseResourceFlags().IsAnySet(ezResourceFlags::UpdateOnMainThread);
 
-  ezResourceManagerWorkerUpdateContent* pUpdateContentTask = nullptr;
+  ezSharedPtr<ezResourceManagerWorkerUpdateContent> pUpdateContentTask;
   ezTaskGroupID* pUpdateContentGroup = nullptr;
 
   EZ_LOCK(ezResourceManager::s_ResourceMutex);
@@ -65,7 +65,7 @@ void ezResourceManagerWorkerDataLoad::Execute()
 
     if (ezTaskSystem::IsTaskGroupFinished(td.m_GroupId))
     {
-      pUpdateContentTask = td.m_pTask.Borrow();
+      pUpdateContentTask = td.m_pTask;
       pUpdateContentGroup = &td.m_GroupId;
       break;
     }
@@ -81,9 +81,12 @@ void ezResourceManagerWorkerDataLoad::Execute()
     td.m_pTask = EZ_DEFAULT_NEW(ezResourceManagerWorkerUpdateContent);
     td.m_pTask->ConfigureTask(s, ezTaskNesting::Maybe);
 
-    pUpdateContentTask = td.m_pTask.Borrow();
+    pUpdateContentTask = td.m_pTask;
     pUpdateContentGroup = &td.m_GroupId;
   }
+
+  // always updated together with pUpdateContentTask
+  EZ_MSVC_ANALYSIS_ASSUME(pUpdateContentGroup != nullptr);
 
   // set up the data load task and launch it
   {

@@ -36,6 +36,7 @@ namespace ezInternal
     ezParallelForParams parallelForParams;
     parallelForParams.uiBinSize = 100;
     parallelForParams.uiMaxTasksPerThread = 2;
+    parallelForParams.pTaskAllocator = m_StackAllocator.GetCurrentAllocator();
 
     ezTaskSystem::ParallelFor(blocks.GetArrayPtr(),
       [pUserData](ezArrayPtr<WorldData::Hierarchy::DataBlock> blocksSlice) {

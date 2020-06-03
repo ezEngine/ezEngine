@@ -50,7 +50,7 @@ private:
 
   ezDynamicArray<ezComponentHandle> m_ComponentsToUpdate;
 
-  ezDynamicArray<ezUniquePtr<ezProcGenInternal::VertexColorTask>> m_UpdateTasks;
+  ezDynamicArray<ezSharedPtr<ezProcGenInternal::VertexColorTask>> m_UpdateTasks;
   ezTaskGroupID m_UpdateTaskGroupID;
   ezUInt32 m_uiNextTaskIndex = 0;
 

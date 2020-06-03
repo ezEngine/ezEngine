@@ -332,6 +332,8 @@ void ezResourceManager::AllowResourceTypeAcquireDuringUpdateContent(const ezRTTI
 
 bool ezResourceManager::IsResourceTypeAcquireDuringUpdateContentAllowed(const ezRTTI* pTypeBeingUpdated, const ezRTTI* pTypeItWantsToAcquire)
 {
+  EZ_ASSERT_DEBUG(s_ResourceMutex.IsLocked(), "");
+
   auto& info = s_State->m_TypeInfo[pTypeBeingUpdated];
 
   if (!info.m_bAllowNestedAcquireCached)
@@ -565,12 +567,12 @@ void ezResourceManager::EngineAboutToShutdown()
 
   for (ezUInt32 i = 0; i < s_State->s_WorkerTasksDataLoad.GetCount(); ++i)
   {
-    ezTaskSystem::CancelTask(s_State->s_WorkerTasksDataLoad[i].m_pTask.Borrow());
+    ezTaskSystem::CancelTask(s_State->s_WorkerTasksDataLoad[i].m_pTask);
   }
 
   for (ezUInt32 i = 0; i < s_State->s_WorkerTasksUpdateContent.GetCount(); ++i)
   {
-    ezTaskSystem::CancelTask(s_State->s_WorkerTasksUpdateContent[i].m_pTask.Borrow());
+    ezTaskSystem::CancelTask(s_State->s_WorkerTasksUpdateContent[i].m_pTask);
   }
 
   {
