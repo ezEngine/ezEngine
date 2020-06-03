@@ -115,7 +115,7 @@ void ezDynamicArrayBase<T>::Swap(ezDynamicArrayBase<T>& other)
     const ezUInt32 otherLocalSize = other.m_uiCount;
 
     if (localSize <= InplaceStorageSize && otherLocalSize <= InplaceStorageSize &&
-      localSize <= other.m_uiCapacity && otherLocalSize <= this->m_uiCapacity)
+        localSize <= other.m_uiCapacity && otherLocalSize <= this->m_uiCapacity)
     {
 
       Tmp tmp;
@@ -178,10 +178,17 @@ void ezDynamicArrayBase<T>::Reserve(ezUInt32 uiCapacity)
   if (this->m_uiCapacity >= uiCapacity)
     return;
 
-  ezUInt32 uiNewCapacity = ezMath::Max(this->m_uiCapacity + (this->m_uiCapacity / 2), uiCapacity);
-  uiNewCapacity = (uiNewCapacity + (CAPACITY_ALIGNMENT - 1)) & ~(CAPACITY_ALIGNMENT - 1);
-  EZ_ASSERT_ALWAYS(uiNewCapacity >= uiCapacity, "Capacity overflow");
-  SetCapacity(uiNewCapacity);
+  const ezUInt64 uiCurCap64 = static_cast<ezUInt64>(this->m_uiCapacity);
+  ezUInt64 uiNewCapacity64 = uiCurCap64 + (uiCurCap64 / 2);
+
+  uiNewCapacity64 = ezMath::Max<ezUInt64>(uiNewCapacity64, uiCapacity);
+
+  // the maximum value must leave room for the capacity alignment computation below (without overflowing the 32 bit range)
+  uiNewCapacity64 = ezMath::Min<ezUInt64>(uiNewCapacity64, 0xFFFFFFFFllu - (CAPACITY_ALIGNMENT - 1));
+
+  uiNewCapacity64 = (uiNewCapacity64 + (CAPACITY_ALIGNMENT - 1)) & ~(CAPACITY_ALIGNMENT - 1);
+
+  SetCapacity(static_cast<ezUInt32>(uiNewCapacity64 & 0xFFFFFFFF));
 }
 
 template <typename T>
@@ -266,12 +273,14 @@ ezDynamicArray<T, A>::ezDynamicArray(const ezArrayPtr<const T>& other)
 }
 
 template <typename T, typename A>
-ezDynamicArray<T, A>::ezDynamicArray(ezDynamicArray<T, A>&& other) : ezDynamicArrayBase<T>(std::move(other), other.GetAllocator())
+ezDynamicArray<T, A>::ezDynamicArray(ezDynamicArray<T, A>&& other)
+  : ezDynamicArrayBase<T>(std::move(other), other.GetAllocator())
 {
 }
 
 template <typename T, typename A>
-ezDynamicArray<T, A>::ezDynamicArray(ezDynamicArrayBase<T>&& other) : ezDynamicArrayBase<T>(std::move(other), other.GetAllocator())
+ezDynamicArray<T, A>::ezDynamicArray(ezDynamicArrayBase<T>&& other)
+  : ezDynamicArrayBase<T>(std::move(other), other.GetAllocator())
 {
 }
 
