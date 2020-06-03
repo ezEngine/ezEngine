@@ -110,12 +110,14 @@ public:
 
     /// \brief Writes profiling data as JSON to the output stream.
     ezResult Write(ezStreamWriter& outputStream) const;
+
+    void Clear();
   };
 
 public:
   static void Clear();
 
-  static ProfilingData Capture();
+  static void Capture(ezProfilingSystem::ProfilingData& out_Capture, bool bClearAfterCapture = false);
 
   /// \brief Scopes are discarded if their duration is shorter than the specified threshold. Default is 0.1ms.
   static void SetDiscardThreshold(ezTime threshold);
