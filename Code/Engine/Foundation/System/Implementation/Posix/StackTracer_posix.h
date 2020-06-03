@@ -36,7 +36,7 @@ void ezStackTracer::ResolveStackTrace(const ezArrayPtr<void*>& trace, PrintFunc 
       szBuffer[iLen] = '\n';
       szBuffer[iLen + 1] = '\0';
 
-      (*printFunc)(szBuffer);
+      printFunc(szBuffer);
     }
 
     free(ppSymbols);

@@ -20,6 +20,6 @@ void ezStackTracer::ResolveStackTrace(const ezArrayPtr<void*>& trace, PrintFunc 
 {
   char szBuffer[512] = "Stack Traces are currently not supported on UWP";
 
-  (*printFunc)(szBuffer);
+  printFunc(szBuffer);
 }
 

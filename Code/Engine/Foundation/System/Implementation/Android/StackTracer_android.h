@@ -55,11 +55,11 @@ void ezStackTracer::ResolveStackTrace(const ezArrayPtr<void*>& trace, PrintFunc 
       memcpy(szBuffer, info.dli_sname, iLen);
       szBuffer[iLen] = '\n';
       szBuffer[iLen + 1] = '\0';
-      (*printFunc)(szBuffer);
+      printFunc(szBuffer);
     }
     else
     {
-      (*printFunc)("Unresolved stack.\n");
+      printFunc("Unresolved stack.\n");
     }
   }
 }
