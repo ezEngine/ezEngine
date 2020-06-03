@@ -266,6 +266,9 @@ namespace ezMath
   /// \brief Returns true, if there exists some x with 2^x == value
   constexpr bool IsPowerOf2(ezInt32 value); // [tested]
 
+  /// \brief Returns true, if there exists some x with 2^x == value
+  constexpr bool IsPowerOf2(ezUInt32 value); // [tested]
+
   /// \brief Returns the next power-of-two that is <= value
   EZ_FOUNDATION_DLL ezUInt32 PowerOfTwo_Floor(ezUInt32 value); // [tested]
 
