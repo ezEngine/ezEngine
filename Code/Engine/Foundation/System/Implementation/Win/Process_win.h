@@ -266,7 +266,7 @@ ezResult ezProcess::Launch(const ezProcessOptions& opt, ezBitflags<ezProcessLaun
   {
     m_impl->m_pipeStdOut.Close();
     m_impl->m_pipeStdErr.Close();
-    ezLog::Error("Failed to launch '{} {}' - {}", sProcess, sCmdLine, ezArgErrorCode(GetLastError()));
+    ezLog::Error("Failed to launch '{} {}' - {}", sProcess, ezArgSensitive(sCmdLine, "CommandLine"), ezArgErrorCode(GetLastError()));
     return EZ_FAILURE;
   }
   m_impl->m_pipeStdOut.StartRead(m_onStdOut);

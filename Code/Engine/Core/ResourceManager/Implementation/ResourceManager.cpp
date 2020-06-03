@@ -247,7 +247,7 @@ ezUInt32 ezResourceManager::FreeUnusedResources(ezTime timeout, ezTime lastAcqui
 
   ezUInt32 uiDeallocatedCount = 0;
 
-  ezStringBuilder sResourceName, sResourceDesc;
+  ezStringBuilder sResourceName;
 
   const ezRTTI* pLastTypeCheck = nullptr;
 
@@ -294,11 +294,10 @@ ezUInt32 ezResourceManager::FreeUnusedResources(ezTime timeout, ezTime lastAcqui
     if ((pResource->GetReferenceCount() == 0) && (tStart - pResource->GetLastAcquireTime() > lastAcquireThreshold))
     {
       sResourceName = pResource->GetResourceID();
-      sResourceDesc = pResource->GetResourceDescription();
 
       if (DeallocateResource(pResource).Succeeded())
       {
-        ezLog::Debug("Freed '{}' - '{}'", sResourceName, sResourceDesc);
+        ezLog::Debug("Freed '{}'", ezArgSensitive(sResourceName, "ResourceID"));
 
         ++uiDeallocatedCount;
         itResourceID = itResourceType.Value().m_Resources.Remove(itResourceID);
@@ -671,7 +670,7 @@ void ezResourceManager::OnCoreShutdown()
       {
         ezResource* pReference = it.Value();
 
-        ezLog::Info("RC = {0}, ID = '{1}'", pReference->GetReferenceCount(), pReference->GetResourceID());
+        ezLog::Info("RC = {0}, ID = '{1}'", pReference->GetReferenceCount(), ezArgSensitive(pReference->GetResourceID(), "ResourceID"));
 
 #if EZ_ENABLED(EZ_RESOURCEHANDLE_STACK_TRACES)
         pReference->PrintHandleStackTraces();

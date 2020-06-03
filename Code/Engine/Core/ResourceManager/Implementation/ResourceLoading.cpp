@@ -293,7 +293,7 @@ bool ezResourceManager::ReloadResource(ezResource* pResource, bool bForce)
       // that means some task is already working on loading it
       // therefore we should not touch it (especially unload it), it might end up in an inconsistent state
 
-      ezLog::Dev("Resource '{0}' is not being reloaded, because it is currently being loaded", pResource->GetResourceID());
+      ezLog::Dev("Resource '{0}' is not being reloaded, because it is currently being loaded", ezArgSensitive(pResource->GetResourceID(), "ResourceID"));
       return false;
     }
   }
@@ -306,13 +306,11 @@ bool ezResourceManager::ReloadResource(ezResource* pResource, bool bForce)
 
     if (pResource->GetLoadingState() == ezResourceState::LoadedResourceMissing)
     {
-      ezLog::Dev("Resource '{0}' is missing and will be tried to be reloaded ('{1}')", pResource->GetResourceID(),
-        pResource->GetResourceDescription());
+      ezLog::Dev("Resource '{0}' is missing and will be tried to be reloaded ('{1}')", ezArgSensitive(pResource->GetResourceID(), "ResourceID"), ezArgSensitive(pResource->GetResourceDescription(), "ResourceDesc"));
     }
     else
     {
-      ezLog::Dev(
-        "Resource '{0}' is outdated and will be reloaded ('{1}')", pResource->GetResourceID(), pResource->GetResourceDescription());
+      ezLog::Dev("Resource '{0}' is outdated and will be reloaded ('{1}')", ezArgSensitive(pResource->GetResourceID(), "ResourceID"), ezArgSensitive(pResource->GetResourceDescription(), "ResourceDesc"));
     }
   }
 

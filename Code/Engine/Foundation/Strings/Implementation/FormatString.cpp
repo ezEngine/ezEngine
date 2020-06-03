@@ -292,6 +292,37 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgHumanReadable&
   return ezStringView(tmp);
 }
 
+ezArgSensitive::BuildStringCallback ezArgSensitive::s_BuildStringCB = nullptr;
+
+ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgSensitive& arg)
+{
+  if (ezArgSensitive::s_BuildStringCB)
+  {
+    return ezArgSensitive::s_BuildStringCB(tmp, uiLength, arg);
+  }
+
+  return arg.m_sSensitiveInfo;
+}
+
+ezStringView ezArgSensitive::BuildString_SensitiveUserData_Hash(char* tmp, ezUInt32 uiLength, const ezArgSensitive& arg)
+{
+  const ezUInt32 len = arg.m_sSensitiveInfo.GetElementCount();
+
+  if (len == 0)
+    return ezStringView();
+
+  if (!ezStringUtils::IsNullOrEmpty(arg.m_szContext))
+  {
+    ezStringUtils::snprintf(tmp, uiLength, "sud:%s#%08x($%u)", arg.m_szContext, ezHashingUtils::xxHash32(arg.m_sSensitiveInfo.GetStartPointer(), len), len);
+  }
+  else
+  {
+    ezStringUtils::snprintf(tmp, uiLength, "sud:#%08x($%u)", ezHashingUtils::xxHash32(arg.m_sSensitiveInfo.GetStartPointer(), len), len);
+  }
+
+  return tmp;
+}
+
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 
@@ -316,8 +347,7 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgErrorCode& arg
   // we need a bigger boat
   static thread_local char FullMessage[256];
 
-  ezStringUtils::snprintf(
-    FullMessage, EZ_ARRAY_SIZE(FullMessage), "%i (\"%s\")", arg.m_ErrorCode, ezStringUtf8((LPWSTR)lpMsgBuf).GetData());
+  ezStringUtils::snprintf(FullMessage, EZ_ARRAY_SIZE(FullMessage), "%i (\"%s\")", arg.m_ErrorCode, ezStringUtf8((LPWSTR)lpMsgBuf).GetData());
   LocalFree(lpMsgBuf);
   return ezStringView(FullMessage);
 }

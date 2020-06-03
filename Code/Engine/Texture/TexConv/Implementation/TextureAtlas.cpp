@@ -24,7 +24,7 @@ ezResult ezTexConvProcessor::GenerateTextureAtlas(ezMemoryStreamWriter& stream)
 
   if (atlasDesc.Load(m_Descriptor.m_sTextureAtlasDescFile).Failed())
   {
-    ezLog::Error("Failed to load texture atlas description '{0}'", m_Descriptor.m_sTextureAtlasDescFile);
+    ezLog::Error("Failed to load texture atlas description '{0}'", ezArgSensitive(m_Descriptor.m_sTextureAtlasDescFile, "File"));
     return EZ_FAILURE;
   }
 
@@ -83,7 +83,7 @@ ezResult ezTexConvProcessor::LoadAtlasInputs(const ezTextureAtlasCreationDesc& a
       {
         if (item.m_InputImage[layer].LoadFrom(srcItem.m_sLayerInput[layer]).Failed())
         {
-          ezLog::Error("Failed to load texture atlas texture '{0}'", srcItem.m_sLayerInput[layer]);
+          ezLog::Error("Failed to load texture atlas texture '{0}'", ezArgSensitive(srcItem.m_sLayerInput[layer], "File"));
           return EZ_FAILURE;
         }
 
