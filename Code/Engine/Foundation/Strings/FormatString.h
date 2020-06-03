@@ -67,7 +67,7 @@ public:
   ///
   /// \note Do not assume that the result is stored in \a sb. Always only use the return value. The string builder is only used
   /// when necessary.
-  [[nodiscard]] virtual const char* GetText(ezStringBuilder& sb) const { return m_szString; }
+  [[nodiscard]] virtual const char* GetText(ezStringBuilder&) const { return m_szString; }
 
   bool IsEmpty() const { return ezStringUtils::IsNullOrEmpty(m_szString); }
 

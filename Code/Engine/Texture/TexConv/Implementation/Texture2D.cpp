@@ -115,10 +115,12 @@ ezResult ezTexConvProcessor::DetermineTargetResolution(const ezImage& image, ezE
 
   if (OutputImageFormat != ezImageFormat::UNKNOWN && ezImageFormat::RequiresFirstLevelBlockAlignment(OutputImageFormat))
   {
-    ezUInt32 blockWidth = ezImageFormat::GetBlockWidth(OutputImageFormat);
+    const ezUInt32 blockWidth = ezImageFormat::GetBlockWidth(OutputImageFormat);
+
     ezUInt32 currentWidth = out_uiTargetResolutionX;
     ezUInt32 currentHeight = out_uiTargetResolutionY;
     bool issueWarning = false;
+
     if (out_uiTargetResolutionX % blockWidth != 0)
     {
       out_uiTargetResolutionX = ezMath::RoundUp(out_uiTargetResolutionX, static_cast<ezUInt16>(blockWidth));

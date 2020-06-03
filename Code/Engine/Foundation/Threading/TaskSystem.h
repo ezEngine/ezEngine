@@ -4,6 +4,7 @@
 #include <Foundation/Containers/List.h>
 #include <Foundation/Threading/Implementation/Task.h>
 #include <Foundation/Threading/Mutex.h>
+#include <Foundation/Types/SharedPtr.h>
 
 /// \brief This system allows to automatically distribute tasks onto a number of worker threads.
 ///
@@ -29,13 +30,11 @@ public:
 public:
   /// \brief A helper function to insert a single task into the system and start it right away. Returns ID of the Group into which the task
   /// has been put.
-  /// Once the task and thus the group is finished, an optional \a Callback can be executed.
-  static ezTaskGroupID StartSingleTask(ezTask* pTask, ezTaskPriority::Enum Priority, ezOnTaskGroupFinishedCallback callback = ezOnTaskGroupFinishedCallback()); // [tested]
+  static ezTaskGroupID StartSingleTask(const ezSharedPtr<ezTask>& pTask, ezTaskPriority::Enum Priority, ezOnTaskGroupFinishedCallback callback = ezOnTaskGroupFinishedCallback()); // [tested]
 
   /// \brief A helper function to insert a single task into the system and start it right away. Returns ID of the Group into which the task
   /// has been put. This overload allows to additionally specify a single dependency.
-  /// Once the task and thus the group is finished, an optional \a Callback can be executed.
-  static ezTaskGroupID StartSingleTask(ezTask* pTask, ezTaskPriority::Enum Priority, ezTaskGroupID Dependency, ezOnTaskGroupFinishedCallback callback = ezOnTaskGroupFinishedCallback()); // [tested]
+  static ezTaskGroupID StartSingleTask(const ezSharedPtr<ezTask>& pTask, ezTaskPriority::Enum Priority, ezTaskGroupID Dependency, ezOnTaskGroupFinishedCallback callback = ezOnTaskGroupFinishedCallback()); // [tested]
 
   /// \brief Call this function once at the end of a frame. It will ensure that all tasks for 'this frame' get finished properly.
   ///
@@ -71,11 +70,11 @@ public:
   /// Therefore when bWaitForIt is true, this function might block for a very long time.
   /// It is advised to implement tasks that need to be canceled regularly (e.g. path searches for units that might die)
   /// in a way that allows for quick canceling.
-  static ezResult CancelTask(ezTask* pTask, ezOnTaskRunning::Enum OnTaskRunning = ezOnTaskRunning::WaitTillFinished); // [tested]
+  static ezResult CancelTask(const ezSharedPtr<ezTask>& pTask, ezOnTaskRunning::Enum OnTaskRunning = ezOnTaskRunning::WaitTillFinished); // [tested]
 
   struct TaskData
   {
-    ezTask* m_pTask = nullptr;
+    ezSharedPtr<ezTask> m_pTask;
     ezTaskGroup* m_pBelongsToGroup = nullptr;
     ezUInt32 m_uiInvocation = 0;
   };
@@ -88,7 +87,7 @@ private:
   static bool ExecuteTask(ezTaskPriority::Enum FirstPriority, ezTaskPriority::Enum LastPriority, bool bOnlyTasksThatNeverWait, const ezTaskGroupID& WaitingForGroup, ezAtomicInteger32* pWorkerState);
 
   /// \brief Called whenever a task has been finished/canceled. Makes sure that groups are marked as finished when all tasks are done.
-  static void TaskHasFinished(ezTask* pTask, ezTaskGroup* pGroup);
+  static void TaskHasFinished(const ezSharedPtr<ezTask>& pTask, ezTaskGroup* pGroup);
 
   /// \brief Moves all 'next frame' tasks into the 'this frame' queues.
   static void ReprioritizeFrameTasks();
@@ -113,7 +112,7 @@ public:
   static ezTaskGroupID CreateTaskGroup(ezTaskPriority::Enum Priority, ezOnTaskGroupFinishedCallback callback = ezOnTaskGroupFinishedCallback()); // [tested]
 
   /// \brief Adds a task to the given task group. The group must not yet have been started.
-  static void AddTaskToGroup(ezTaskGroupID Group, ezTask* pTask); // [tested]
+  static void AddTaskToGroup(ezTaskGroupID Group, const ezSharedPtr<ezTask>& pTask); // [tested]
 
   /// \brief Adds a dependency on another group to \a Group. This means \a Group will not be execute before \a DependsOn has finished.
   ///

@@ -15,7 +15,8 @@ namespace
     ezFileWriter fileWriter;
     if (fileWriter.Open(szFilePath) == EZ_SUCCESS)
     {
-      ezProfilingSystem::ProfilingData profilingData = ezProfilingSystem::Capture();
+      ezProfilingSystem::ProfilingData profilingData;
+      ezProfilingSystem::Capture(profilingData);
       profilingData.Write(fileWriter);
       ezLog::Info("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
     }

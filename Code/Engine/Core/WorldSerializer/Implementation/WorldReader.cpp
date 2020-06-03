@@ -457,6 +457,18 @@ bool ezWorldReader::InstantiationContext::Step()
   return true;
 }
 
+void ezWorldReader::InstantiationContext::Cancel()
+{
+  if (!m_hComponentInitBatch.IsInvalidated())
+  {
+    m_WorldReader.m_pWorld->CancelComponentInitBatch(m_hComponentInitBatch);
+  }
+
+  m_Phase = Phase::Invalid;
+  m_pSubProgressRange = nullptr;
+  m_pOverallProgressRange = nullptr;
+}
+
 template <bool UseTransform>
 bool ezWorldReader::InstantiationContext::CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, ezGameObjectHandle hParent,
   ezHybridArray<ezGameObject*, 8>* out_CreatedObjects, ezTime endTime)

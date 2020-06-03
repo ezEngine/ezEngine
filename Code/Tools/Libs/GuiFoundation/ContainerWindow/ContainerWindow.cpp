@@ -315,7 +315,7 @@ void ezQtContainerWindow::RemoveDocumentWindow(ezQtDocumentWindow* pDocWindow)
 
   if (pDockArea && pDockArea->openDockWidgetsCount() == 1)
   {
-    for (auto pDocWindow : m_DocumentWindows)
+    for (auto pDocWindow2 : m_DocumentWindows)
     {
       UpdateWindowDecoration(pDocWindow);
     }

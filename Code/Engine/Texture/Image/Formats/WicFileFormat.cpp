@@ -9,7 +9,7 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
-#include <DirectXTex/DirectXTex.h>
+#  include <DirectXTex/DirectXTex.h>
 
 EZ_DEFINE_AS_POD_TYPE(DirectX::Image); // Allow for storing this struct in ez containers
 
@@ -80,7 +80,7 @@ ezResult ezWicFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
 
   // Read WIC data from local storage
   ScratchImage scratchImage;
-  DWORD flags = WIC_FLAGS_ALL_FRAMES;
+  DWORD flags = WIC_FLAGS_ALL_FRAMES | WIC_FLAGS_IGNORE_SRGB /* just treat PNG, JPG etc as non-sRGB, we determine this through our 'Usage' later */;
   if (FAILED(LoadFromWICMemory(storage.GetData(), storage.GetCount(), flags, nullptr, scratchImage)))
   {
     ezLog::Error(pLog, "Failure to process image data.");
@@ -159,8 +159,7 @@ ezResult ezWicFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
   return EZ_SUCCESS;
 }
 
-ezResult ezWicFileFormat::WriteImage(
-  ezStreamWriter& stream, const ezImageView& image, ezLogInterface* pLog, const char* szFileExtension) const
+ezResult ezWicFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& image, ezLogInterface* pLog, const char* szFileExtension) const
 {
   if (m_bTryCoInit)
   {
@@ -251,12 +250,19 @@ ezResult ezWicFileFormat::WriteImage(
 
 bool ezWicFileFormat::CanReadFileType(const char* szExtension) const
 {
-  return ezStringUtils::IsEqual_NoCase(szExtension, "tif") || ezStringUtils::IsEqual_NoCase(szExtension, "tiff");
+  return ezStringUtils::IsEqual_NoCase(szExtension, "png") ||
+         ezStringUtils::IsEqual_NoCase(szExtension, "jpg") ||
+         ezStringUtils::IsEqual_NoCase(szExtension, "jpeg") ||
+         //ezStringUtils::IsEqual_NoCase(szExtension, "hdr") ||
+         ezStringUtils::IsEqual_NoCase(szExtension, "tif") ||
+         ezStringUtils::IsEqual_NoCase(szExtension, "tiff");
 }
 
 bool ezWicFileFormat::CanWriteFileType(const char* szExtension) const
 {
-  return CanReadFileType(szExtension);
+  // png, jpg and jpeg are handled by STB (ezStbImageFileFormats)
+  return ezStringUtils::IsEqual_NoCase(szExtension, "tif") ||
+         ezStringUtils::IsEqual_NoCase(szExtension, "tiff");
 }
 
 #endif

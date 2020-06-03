@@ -46,14 +46,15 @@ namespace
 
     virtual void submitTask(PxBaseTask& task) override
     {
-      ezPxTask* pTask = nullptr;
+      ezSharedPtr<ezTask> pTask;
 
       {
         EZ_LOCK(m_Mutex);
 
         if (m_FreeTasks.IsEmpty())
         {
-          pTask = &m_TaskStorage.ExpandAndGetRef();
+          m_TaskStorage.PushBack(EZ_DEFAULT_NEW(ezPxTask));
+          pTask = m_TaskStorage.PeekBack();
         }
         else
         {
@@ -62,22 +63,22 @@ namespace
         }
       }
 
-      pTask->ConfigureTask(task.getName(), ezTaskNesting::Never, [this](ezTask* pTask) { FinishTask(static_cast<ezPxTask*>(pTask)); });
-      pTask->m_pTask = &task;
+      pTask->ConfigureTask(task.getName(), ezTaskNesting::Never, [this](const ezSharedPtr<ezTask>& pTask) { FinishTask(pTask); });
+      static_cast<ezPxTask*>(pTask.Borrow())->m_pTask = &task;
       ezTaskSystem::StartSingleTask(pTask, ezTaskPriority::EarlyThisFrame);
     }
 
     virtual PxU32 getWorkerCount() const override { return ezTaskSystem::GetWorkerThreadCount(ezWorkerThreadType::ShortTasks); }
 
-    void FinishTask(ezPxTask* pTask)
+    void FinishTask(const ezSharedPtr<ezTask>& pTask)
     {
       EZ_LOCK(m_Mutex);
       m_FreeTasks.PushBack(pTask);
     }
 
     ezMutex m_Mutex;
-    ezDeque<ezPxTask, ezStaticAllocatorWrapper> m_TaskStorage;
-    ezDynamicArray<ezPxTask*, ezStaticAllocatorWrapper> m_FreeTasks;
+    ezDeque<ezSharedPtr<ezTask>, ezStaticAllocatorWrapper> m_TaskStorage;
+    ezDynamicArray<ezSharedPtr<ezTask>, ezStaticAllocatorWrapper> m_FreeTasks;
   };
 
   static ezPxCpuDispatcher s_CpuDispatcher;
@@ -557,11 +558,11 @@ ezPhysXWorldModule::ezPhysXWorldModule(ezWorld* pWorld)
   , m_FreeShapeIds(ezPhysX::GetSingleton()->GetAllocator())
   , m_ScratchMemory(ezPhysX::GetSingleton()->GetAllocator())
   , m_Settings()
-  , m_SimulateTask("", ezMakeDelegate(&ezPhysXWorldModule::Simulate, this))
 {
-  m_ScratchMemory.SetCountUninitialized(ezMemoryUtils::AlignSize(m_Settings.m_uiScratchMemorySize, 16u * 1024u));
+  m_pSimulateTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "", ezMakeDelegate(&ezPhysXWorldModule::Simulate, this));
+  m_pSimulateTask->ConfigureTask("PhysX Simulate", ezTaskNesting::Maybe);
 
-  m_SimulateTask.ConfigureTask("PhysX Simulate", ezTaskNesting::Maybe);
+  m_ScratchMemory.SetCountUninitialized(ezMemoryUtils::AlignSize(m_Settings.m_uiScratchMemorySize, 16u * 1024u));
 }
 
 ezPhysXWorldModule::~ezPhysXWorldModule() {}
@@ -1207,7 +1208,7 @@ void ezPhysXWorldModule::StartSimulation(const ezWorldModule::UpdateContext& con
     pTriggerManager->UpdateKinematicActors();
   }
 
-  m_SimulateTaskGroupId = ezTaskSystem::StartSingleTask(&m_SimulateTask, ezTaskPriority::EarlyThisFrame);
+  m_SimulateTaskGroupId = ezTaskSystem::StartSingleTask(m_pSimulateTask, ezTaskPriority::EarlyThisFrame);
 }
 
 void ezPhysXWorldModule::FetchResults(const ezWorldModule::UpdateContext& context)

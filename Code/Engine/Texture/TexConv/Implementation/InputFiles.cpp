@@ -38,7 +38,7 @@ ezResult ezTexConvProcessor::LoadInputImages()
       auto& img = m_Descriptor.m_InputImages.ExpandAndGetRef();
       if (img.LoadFrom(file).Failed())
       {
-        ezLog::Error("Could not load input file '{0}'.", file);
+        ezLog::Error("Could not load input file '{0}'.", ezArgSensitive(file, "File"));
         return EZ_FAILURE;
       }
     }
@@ -50,7 +50,7 @@ ezResult ezTexConvProcessor::LoadInputImages()
 
     if (img.GetImageFormat() == ezImageFormat::UNKNOWN)
     {
-      ezLog::Error("Unknown image format for '{}'", m_Descriptor.m_InputFiles[i]);
+      ezLog::Error("Unknown image format for '{}'", ezArgSensitive(m_Descriptor.m_InputFiles[i], "File"));
       return EZ_FAILURE;
     }
   }

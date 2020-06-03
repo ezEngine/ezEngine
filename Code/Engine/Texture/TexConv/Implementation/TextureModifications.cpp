@@ -26,7 +26,7 @@ ezResult ezTexConvProcessor::ForceSRGBFormats()
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::GenerateMipmaps(ezImage& img, ezUInt32 uiNumMips, MipmapChannelMode channelMode) const
+ezResult ezTexConvProcessor::GenerateMipmaps(ezImage& img, ezUInt32 uiNumMips, MipmapChannelMode channelMode /*= MipmapChannelMode::AllChannels*/) const
 {
   ezImageUtils::MipMapOptions opt;
   opt.m_numMipMaps = uiNumMips;

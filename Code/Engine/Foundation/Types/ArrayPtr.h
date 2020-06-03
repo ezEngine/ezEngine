@@ -147,8 +147,8 @@ public:
   /// \brief Creates a sub-array from this array.
   EZ_FORCE_INLINE ezArrayPtr<T> GetSubArray(ezUInt32 uiStart, ezUInt32 uiCount) const // [tested]
   {
-    EZ_ASSERT_DEV(uiStart + uiCount <= GetCount(), "uiStart+uiCount ({0}) has to be smaller or equal than the count ({1}).",
-      uiStart + uiCount, GetCount());
+    // the first check is necessary to also detect errors when uiStart+uiCount would overflow
+    EZ_ASSERT_DEV(uiStart <= GetCount() && uiStart + uiCount <= GetCount(), "uiStart+uiCount ({0}) has to be smaller or equal than the count ({1}).", uiStart + uiCount, GetCount());
     return ezArrayPtr<T>(GetPtr() + uiStart, uiCount);
   }
 

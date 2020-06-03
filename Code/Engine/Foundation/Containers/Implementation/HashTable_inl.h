@@ -265,12 +265,19 @@ EZ_ALWAYS_INLINE bool ezHashTableBase<K, V, H>::operator!=(const ezHashTableBase
 template <typename K, typename V, typename H>
 void ezHashTableBase<K, V, H>::Reserve(ezUInt32 uiCapacity)
 {
-  ezUInt32 uiNewCapacity = uiCapacity + (uiCapacity / 3) * 2; // ensure a maximum load of 60%
-  if (m_uiCapacity >= uiNewCapacity)
+  const ezUInt64 uiCap64 = static_cast<ezUInt64>(uiCapacity);
+  ezUInt64 uiNewCapacity64 = uiCap64 + (uiCap64 * 2 / 3); // ensure a maximum load of 60%
+
+  uiNewCapacity64 = ezMath::Min<ezUInt64>(uiNewCapacity64, 0x80000000llu); // the largest power-of-two in 32 bit
+
+  ezUInt32 uiNewCapacity32 = static_cast<ezUInt32>(uiNewCapacity64 & 0xFFFFFFFF);
+  EZ_ASSERT_DEBUG(uiCapacity <= uiNewCapacity32, "ezHashSet/Map do not support more than 2 billion entries.");
+
+  if (m_uiCapacity >= uiNewCapacity32)
     return;
 
-  uiNewCapacity = ezMath::Max<ezUInt32>(ezMath::PowerOfTwo_Ceil(uiNewCapacity), CAPACITY_ALIGNMENT);
-  SetCapacity(uiNewCapacity);
+  uiNewCapacity32 = ezMath::Max<ezUInt32>(ezMath::PowerOfTwo_Ceil(uiNewCapacity32), CAPACITY_ALIGNMENT);
+  SetCapacity(uiNewCapacity32);
 }
 
 template <typename K, typename V, typename H>

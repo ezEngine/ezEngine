@@ -72,9 +72,9 @@ void ezGameApplicationBase::TakeProfilingCapture()
     }
   };
 
-  WriteProfilingDataTask* pWriteProfilingDataTask = EZ_DEFAULT_NEW(WriteProfilingDataTask);
-  pWriteProfilingDataTask->ConfigureTask("Write Profiling Data", ezTaskNesting::Never, [](ezTask* pTask) { EZ_DEFAULT_DELETE(pTask); });
-  pWriteProfilingDataTask->m_profilingData = ezProfilingSystem::Capture();
+  ezSharedPtr<WriteProfilingDataTask> pWriteProfilingDataTask = EZ_DEFAULT_NEW(WriteProfilingDataTask);
+  pWriteProfilingDataTask->ConfigureTask("Write Profiling Data", ezTaskNesting::Never);
+  ezProfilingSystem::Capture(pWriteProfilingDataTask->m_profilingData);
 
   ezTaskSystem::StartSingleTask(pWriteProfilingDataTask, ezTaskPriority::LongRunning);
 }
@@ -110,8 +110,8 @@ void ezGameApplicationBase::StoreScreenshot(ezImage&& image, const char* szConte
     }
   };
 
-  WriteFileTask* pWriteTask = EZ_DEFAULT_NEW(WriteFileTask);
-  pWriteTask->ConfigureTask("Write Screenshot", ezTaskNesting::Never, [](ezTask* pTask) { EZ_DEFAULT_DELETE(pTask); });
+  ezSharedPtr<WriteFileTask> pWriteTask = EZ_DEFAULT_NEW(WriteFileTask);
+  pWriteTask->ConfigureTask("Write Screenshot", ezTaskNesting::Never);
   pWriteTask->m_Image.ResetAndMove(std::move(image));
 
   pWriteTask->m_sPath.Format(":appdata/Screenshots/{0} ", ezApplication::GetApplicationInstance()->GetApplicationName());

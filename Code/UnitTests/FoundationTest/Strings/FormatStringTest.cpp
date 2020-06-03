@@ -7,6 +7,7 @@
 #include <Foundation/Time/Time.h>
 #include <Foundation/Time/Timestamp.h>
 
+#include <Foundation/Types/ScopeExit.h>
 #include <stdarg.h>
 
 void TestFormat(const ezFormatString& str, const char* szExpected)
@@ -131,7 +132,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, FormatString)
     TestFormatWChar(ezFmt("'{0}, {1}'", L"inl", wsz), L"'inl, wsz'");
     // Temp buffer limit is 63 byte (64 including trailing zero). Each character in UTF-8 can potentially use 4 byte.
     // All input characters are 1 byte, so the 60th character is the last with 4 bytes left in the buffer.
-    // Thus we end up with truncation after 60 characters. 
+    // Thus we end up with truncation after 60 characters.
     const wchar_t* wszTooLong = L"123456789.123456789.123456789.123456789.123456789.123456789.WAAAAAAAAAAAAAAH";
     const wchar_t* wszTooLongExpected = L"123456789.123456789.123456789.123456789.123456789.123456789.";
     const wchar_t* wszTooLongExpected2 = L"'123456789.123456789.123456789.123456789.123456789.123456789., 123456789.123456789.123456789.123456789.123456789.123456789.'";
@@ -190,7 +191,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, FormatString)
     TestFormat(ezFmt("{}", ezTime()), "0ns");
     TestFormat(ezFmt("{}", ezTime::Nanoseconds(999)), "999ns");
     TestFormat(ezFmt("{}", ezTime::Nanoseconds(999.1)), "999.1ns");
-    TestFormat(ezFmt("{}", ezTime::Microseconds(999)), u8"999\u00B5s"); // Utf-8 encoding for the microsecond sign
+    TestFormat(ezFmt("{}", ezTime::Microseconds(999)), u8"999\u00B5s");     // Utf-8 encoding for the microsecond sign
     TestFormat(ezFmt("{}", ezTime::Microseconds(999.2)), u8"999.2\u00B5s"); // Utf-8 encoding for the microsecond sign
     TestFormat(ezFmt("{}", ezTime::Milliseconds(-999)), "-999ms");
     TestFormat(ezFmt("{}", ezTime::Milliseconds(-999.3)), "-999.3ms");
@@ -231,5 +232,21 @@ EZ_CREATE_SIMPLE_TEST(Strings, FormatString)
 
       TestFormat(ezFmt("{}", dt), "0000-01-01_00-00-00-000");
     }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Sensitive Info")
+  {
+    auto prev = ezArgSensitive::s_BuildStringCB;
+    EZ_SCOPE_EXIT(ezArgSensitive::s_BuildStringCB = prev);
+
+    ezArgSensitive::s_BuildStringCB = ezArgSensitive::BuildString_SensitiveUserData_Hash;
+
+    ezStringBuilder fmt;
+
+    fmt.Format("Password: {}", ezArgSensitive("hunter2", "pwd"));
+    EZ_TEST_STRING(fmt, "Password: sud:pwd#96d66ce6($7)");
+
+    fmt.Format("Password: {}", ezArgSensitive("hunter2"));
+    EZ_TEST_STRING(fmt, "Password: sud:#96d66ce6($7)");
   }
 }

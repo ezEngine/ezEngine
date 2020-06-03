@@ -37,14 +37,14 @@ static ezGameObjectHandle DefaultGameObjectReferenceResolver(const void* pData, 
 }
 
 ezWorld::ezWorld(ezWorldDesc& desc)
-  : m_UpdateTask("", ezMakeDelegate(&ezWorld::UpdateFromThread, this))
-  , m_Data(desc)
+  : m_Data(desc)
 {
+  m_pUpdateTask = EZ_DEFAULT_NEW(ezDelegateTask<void>, "", ezMakeDelegate(&ezWorld::UpdateFromThread, this));
   m_Data.m_pCoordinateSystemProvider->m_pOwnerWorld = this;
 
   ezStringBuilder sb = desc.m_sName.GetString();
   sb.Append(".Update");
-  m_UpdateTask.ConfigureTask(sb, ezTaskNesting::Maybe);
+  m_pUpdateTask->ConfigureTask(sb, ezTaskNesting::Maybe);
 
   m_uiIndex = c_InvalidWorldIndex;
 
@@ -337,6 +337,12 @@ bool ezWorld::IsComponentInitBatchCompleted(const ezComponentInitBatchHandle& ba
   return pInitBatch->m_ComponentsToInitialize.IsEmpty() && pInitBatch->m_ComponentsToStartSimulation.IsEmpty();
 }
 
+void ezWorld::CancelComponentInitBatch(const ezComponentInitBatchHandle& batch)
+{
+  auto& pInitBatch = m_Data.m_InitBatches[batch.GetInternalID()];
+  pInitBatch->m_ComponentsToInitialize.Clear();
+  pInitBatch->m_ComponentsToStartSimulation.Clear();
+}
 void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay, bool bRecursive) const
 {
   // This method is allowed to be called from multiple threads.
@@ -970,7 +976,7 @@ void ezWorld::UpdateAsynchronous()
 
     while (uiStartIndex < uiTotalCount)
     {
-      ezInternal::WorldData::UpdateTask* pTask;
+      ezSharedPtr<ezInternal::WorldData::UpdateTask> pTask;
       if (uiCurrentTaskIndex < m_Data.m_UpdateTasks.GetCount())
       {
         pTask = m_Data.m_UpdateTasks[uiCurrentTaskIndex];

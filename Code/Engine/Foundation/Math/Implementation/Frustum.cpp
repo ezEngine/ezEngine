@@ -23,6 +23,17 @@ ezPlane& ezFrustum::AccessPlane(ezUInt8 uiPlane)
   return m_Planes[uiPlane];
 }
 
+bool ezFrustum::IsValid() const
+{
+  for (ezUInt32 i = 0; i < PLANE_COUNT; ++i)
+  {
+    if (!m_Planes[i].IsValid())
+      return false;
+  }
+
+  return true;
+}
+
 void ezFrustum::SetFrustum(const ezPlane* pPlanes)
 {
   for (ezUInt32 i = 0; i < PLANE_COUNT; ++i)
@@ -216,7 +227,7 @@ void ezFrustum::SetFrustum(const ezMat4& ModelViewProjection0, ezClipSpaceDepthR
   for (int p = 0; p < 6; ++p)
   {
     const float len = planes[p].GetAsVec3().GetLength();
-    planes[p] /= len;
+    planes[p] /= len; 
 
     m_Planes[p].m_vNormal = planes[p].GetAsVec3();
     m_Planes[p].m_fNegDistance = planes[p].w;

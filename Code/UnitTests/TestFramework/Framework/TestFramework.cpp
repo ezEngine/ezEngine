@@ -1596,8 +1596,7 @@ void ezTestFramework::TestResult(ezInt32 iSubTestIndex, bool bSuccess, double fD
     return EZ_FAILURE;                                                           \
   }
 
-ezResult ezTestBool(
-  bool bCondition, const char* szErrorText, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
+ezResult ezTestBool(bool bCondition, const char* szErrorText, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
 {
   ezTestFramework::s_iAssertCounter++;
 

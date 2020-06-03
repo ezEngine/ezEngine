@@ -124,7 +124,7 @@ void ezProcPlacementComponentManager::FindTiles(const ezWorldModule::UpdateConte
 
       if (outputContext.m_pUpdateTilesTask->IsTaskFinished())
       {
-        ezTaskSystem::AddTaskToGroup(m_UpdateTilesTaskGroupID, outputContext.m_pUpdateTilesTask.Borrow());
+        ezTaskSystem::AddTaskToGroup(m_UpdateTilesTaskGroupID, outputContext.m_pUpdateTilesTask);
       }
     }
   }
@@ -216,7 +216,7 @@ void ezProcPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateCo
           auto& activeTile = m_ActiveTiles[processingTask.m_uiTileIndex];
           activeTile.PreparePlacementData(pPhysicsModule, *processingTask.m_pData);
 
-          ezTaskSystem::AddTaskToGroup(prepareTaskGroupID, processingTask.m_pPrepareTask.Borrow());
+          ezTaskSystem::AddTaskToGroup(prepareTaskGroupID, processingTask.m_pPrepareTask);
         }
 
         ezTaskSystem::StartTaskGroup(prepareTaskGroupID);
@@ -232,8 +232,7 @@ void ezProcPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateCo
             continue;
 
           processingTask.m_uiScheduledFrame = ezRenderWorld::GetFrameCounter();
-          processingTask.m_PlacementTaskGroupID =
-            ezTaskSystem::StartSingleTask(processingTask.m_pPlacementTask.Borrow(), ezTaskPriority::LongRunningHighPriority);
+          processingTask.m_PlacementTaskGroupID = ezTaskSystem::StartSingleTask(processingTask.m_pPlacementTask, ezTaskPriority::LongRunningHighPriority);
         }
       }
     }

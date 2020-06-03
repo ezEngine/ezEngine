@@ -271,7 +271,7 @@ namespace
     ComPtr<ID3D11Device> m_pD3dDevice = nullptr;
     ezArrayPtr<const ezImageConversionEntry> m_supportedConversions;
 
-    constexpr static int s_numConversions = 15;
+    constexpr static int s_numConversions = 5;
     static ezImageConversionEntry s_sourceConversions[s_numConversions];
 
     ezMutex m_mutex;
@@ -279,22 +279,12 @@ namespace
   };
 
   ezImageConversionEntry DeviceAndConversionTable::s_sourceConversions[s_numConversions] = {
-    ezImageConversionEntry(ezImageFormat::R32G32B32A32_FLOAT, ezImageFormat::BC1_UNORM, ezImageConversionFlags::Default),
-    ezImageConversionEntry(ezImageFormat::R32G32B32A32_FLOAT, ezImageFormat::BC1_UNORM_SRGB, ezImageConversionFlags::Default),
     ezImageConversionEntry(ezImageFormat::R32G32B32A32_FLOAT, ezImageFormat::BC6H_UF16, ezImageConversionFlags::Default),
-    ezImageConversionEntry(ezImageFormat::R32G32B32A32_FLOAT, ezImageFormat::BC7_UNORM, ezImageConversionFlags::Default),
-    ezImageConversionEntry(ezImageFormat::R32G32B32A32_FLOAT, ezImageFormat::BC7_UNORM_SRGB, ezImageConversionFlags::Default),
-
+    
     ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM, ezImageFormat::BC1_UNORM, ezImageConversionFlags::Default),
-    ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM, ezImageFormat::BC1_UNORM_SRGB, ezImageConversionFlags::Default),
-    ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM, ezImageFormat::BC6H_UF16, ezImageConversionFlags::Default),
     ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM, ezImageFormat::BC7_UNORM, ezImageConversionFlags::Default),
-    ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM, ezImageFormat::BC7_UNORM_SRGB, ezImageConversionFlags::Default),
 
-    ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM_SRGB, ezImageFormat::BC1_UNORM, ezImageConversionFlags::Default),
     ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM_SRGB, ezImageFormat::BC1_UNORM_SRGB, ezImageConversionFlags::Default),
-    ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM_SRGB, ezImageFormat::BC6H_UF16, ezImageConversionFlags::Default),
-    ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM_SRGB, ezImageFormat::BC7_UNORM, ezImageConversionFlags::Default),
     ezImageConversionEntry(ezImageFormat::R8G8B8A8_UNORM_SRGB, ezImageFormat::BC7_UNORM_SRGB, ezImageConversionFlags::Default),
   };
 
@@ -335,14 +325,16 @@ public:
     srcImg.height = targetHeight;
     srcImg.rowPitch = ezImageFormat::GetRowPitch(sourceFormat, targetWidth);
     srcImg.slicePitch = ezImageFormat::GetDepthPitch(sourceFormat, targetWidth, targetHeight);
-    srcImg.format = (DXGI_FORMAT)ezImageFormatMappings::ToDxgiFormat(sourceFormat);
+
+    // We don't trust anyone to handle sRGB correctly, so pretend we always want to compress linear -> linear even when it's actually sRGB -> sRGB.
+    srcImg.format = (DXGI_FORMAT)ezImageFormatMappings::ToDxgiFormat(ezImageFormat::AsLinear(sourceFormat));
     srcImg.pixels = (uint8_t*)static_cast<const void*>(source.GetPtr());
 
     ScratchImage dxSrcImage;
     if (FAILED(dxSrcImage.InitializeFromImage(srcImg)))
       return EZ_FAILURE;
 
-    const DXGI_FORMAT dxgiTargetFormat = (DXGI_FORMAT)ezImageFormatMappings::ToDxgiFormat(targetFormat);
+    const DXGI_FORMAT dxgiTargetFormat = (DXGI_FORMAT)ezImageFormatMappings::ToDxgiFormat(ezImageFormat::AsLinear(targetFormat));
 
     ScratchImage dxDstImage;
 

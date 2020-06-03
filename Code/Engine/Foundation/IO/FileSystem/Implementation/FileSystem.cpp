@@ -139,7 +139,7 @@ ezResult ezFileSystem::AddDataDirectory(const char* szDataDirectory, const char*
     s_Data->m_Event.Broadcast(fe);
   }
 
-  ezLog::Error("Adding Data Directory '{0}' failed.", szDataDirectory);
+  ezLog::Error("Adding Data Directory '{0}' failed.", ezArgSensitive(szDataDirectory, "Path"));
   return EZ_FAILURE;
 }
 

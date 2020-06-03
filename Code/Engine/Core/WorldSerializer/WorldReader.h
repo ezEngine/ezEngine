@@ -26,7 +26,12 @@ public:
   {
   public:
     virtual ~InstantiationContextBase() {}
-    virtual bool Step() = 0; // returns true if instantiation is done
+
+    /// \Brief Advance the instantiation by one step and return true if instantiation is done.
+    virtual bool Step() = 0;
+
+    /// \Brief Cancel the instantiation. This might lead to inconsistent states and must be used with care.
+    virtual void Cancel() = 0;
   };
 
   ezWorldReader();
@@ -159,7 +164,8 @@ private:
       const ezUInt16* pOverrideTeamID, bool bForceDynamic, ezTime maxStepTime, ezProgress* pProgress);
     ~InstantiationContext();
 
-    virtual bool Step();
+    virtual bool Step() override;
+    virtual void Cancel() override;
 
     template <bool UseTransform>
     bool CreateGameObjects(const ezDynamicArray<GameObjectToCreate>& objects, ezGameObjectHandle hParent, ezHybridArray<ezGameObject*, 8>* out_CreatedObjects, ezTime endTime);

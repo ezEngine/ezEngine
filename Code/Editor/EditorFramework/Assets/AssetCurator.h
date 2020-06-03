@@ -330,7 +330,7 @@ private:
   void ShutdownUpdateTask();
 
   bool GetNextAssetToUpdate(ezUuid& out_guid, ezStringBuilder& out_sAbsPath);
-  void OnUpdateTaskFinished(ezTask* pTask);
+  void OnUpdateTaskFinished(const ezSharedPtr<ezTask>& pTask);
   void RunNextUpdateTask();
 
   ///@}
@@ -416,7 +416,7 @@ private:
 
   // Update task
   bool m_bRunUpdateTask = false;
-  ezUpdateTask* m_pUpdateTask = nullptr;
+  ezSharedPtr<ezUpdateTask> m_pUpdateTask;
   ezTaskGroupID m_UpdateTaskGroup;
 };
 

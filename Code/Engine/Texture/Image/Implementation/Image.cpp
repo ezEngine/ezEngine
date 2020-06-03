@@ -248,7 +248,7 @@ ezResult ezImage::LoadFrom(const char* szFileName, ezLogInterface* pLog)
   ezFileReader reader;
   if (reader.Open(szFileName) == EZ_FAILURE)
   {
-    ezLog::Warning(pLog, "Failed to open image file '{0}'", szFileName);
+    ezLog::Warning(pLog, "Failed to open image file '{0}'", ezArgSensitive(szFileName, "File"));
     return EZ_FAILURE;
   }
 
@@ -258,7 +258,7 @@ ezResult ezImage::LoadFrom(const char* szFileName, ezLogInterface* pLog)
   {
       if (pFormat->ReadImage(reader, *this, pLog, it.GetStartPointer()) != EZ_SUCCESS)
       {
-        ezLog::Warning(pLog, "Failed to read image file '{0}'", szFileName);
+        ezLog::Warning(pLog, "Failed to read image file '{0}'", ezArgSensitive(szFileName, "File"));
         return EZ_FAILURE;
       }
 

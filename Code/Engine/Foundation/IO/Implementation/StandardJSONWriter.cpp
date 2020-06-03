@@ -29,9 +29,22 @@ ezStandardJSONWriter::CommaWriter::CommaWriter(ezStandardJSONWriter* pWriter)
         m_pWriter->m_StateStack.PeekBack().m_State == ezStandardJSONWriter::NamedArray)
     {
       if (pWriter->m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::NewlinesOnly)
-        m_pWriter->OutputString(",");
+      {
+        if (pWriter->m_ArrayMode == ezJSONWriter::ArrayMode::InOneLine)
+          m_pWriter->OutputString(",");
+        else
+          m_pWriter->OutputString(",\n");
+      }
       else
-        m_pWriter->OutputString(", ");
+      {
+        if (pWriter->m_ArrayMode == ezJSONWriter::ArrayMode::InOneLine)
+          m_pWriter->OutputString(", ");
+        else
+        {
+          m_pWriter->OutputString(",\n");
+          m_pWriter->OutputIndentation();
+        }
+      }
     }
     else
     {

@@ -186,7 +186,7 @@ void ezResource::CallUpdateContent(ezStreamReader* Stream)
   e.m_Type = ezResourceEvent::Type::ResourceContentUpdated;
   ezResourceManager::BroadcastResourceEvent(e);
 
-  ezLog::Debug("Updated {0} - '{1}'", GetDynamicRTTI()->GetTypeName(), GetResourceDescription());
+  ezLog::Debug("Updated {0} - '{1}'", GetDynamicRTTI()->GetTypeName(), ezArgSensitive(GetResourceDescription(), "ResourceDesc"));
 }
 
 float ezResource::GetLoadingPriority(ezTime tNow) const
@@ -249,7 +249,7 @@ ezResourceTypeLoader* ezResource::GetDefaultResourceTypeLoader() const
 
 void ezResource::ReportResourceIsMissing()
 {
-  ezLog::SeriousWarning("Missing Resource of Type '{2}': '{0}' ('{1}')", GetResourceID(), m_sResourceDescription, GetDynamicRTTI()->GetTypeName());
+  ezLog::SeriousWarning("Missing Resource of Type '{2}': '{0}' ('{1}')", ezArgSensitive(GetResourceID(), "ResourceID"), ezArgSensitive(m_sResourceDescription, "ResourceDesc"), GetDynamicRTTI()->GetTypeName());
 }
 
 void ezResource::VerifyAfterCreateResource(const ezResourceLoadDesc& ld)
@@ -282,7 +282,7 @@ void ezResource::VerifyAfterCreateResource(const ezResourceLoadDesc& ld)
   e.m_Type = ezResourceEvent::Type::ResourceContentUpdated;
   ezResourceManager::BroadcastResourceEvent(e);
 
-  ezLog::Debug("Created {0} - '{1}' ", GetDynamicRTTI()->GetTypeName(), GetResourceDescription());
+  ezLog::Debug("Created {0} - '{1}' ", GetDynamicRTTI()->GetTypeName(), ezArgSensitive(GetResourceDescription(), "ResourceDesc"));
 }
 
 EZ_STATICLINK_FILE(Core, Core_ResourceManager_Implementation_Resource);

@@ -48,7 +48,7 @@ private:
 private:
   mutable ezMutex m_WatcherMutex;
   ezHybridArray<ezDirectoryWatcher*, 6> m_Watchers;
-  ezTask* m_WatcherTask = nullptr;
+  ezSharedPtr<ezTask> m_pWatcherTask;
   ezTaskGroupID m_WatcherGroup;
 
   ezHybridArray<ezTaskGroupID, 4> m_DirectoryUpdates;

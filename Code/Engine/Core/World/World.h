@@ -188,6 +188,10 @@ public:
   /// and their OnSimulationStarted function was called.
   bool IsComponentInitBatchCompleted(const ezComponentInitBatchHandle& batch, double* pCompletionFactor = nullptr);
 
+  /// \brief Cancel the init batch if it is still active. This might leave outstanding components in an inconsistent state,
+  /// so this function has be used with care.
+  void CancelComponentInitBatch(const ezComponentInitBatchHandle& batch);
+
   ///@}
   /// \name Message Functions
   ///@{
@@ -233,7 +237,7 @@ public:
   void Update();
 
   /// \brief Returns a task implementation that calls Update on this world.
-  ezTask* GetUpdateTask();
+  const ezSharedPtr<ezTask>& GetUpdateTask();
 
 
   /// \brief Returns the spatial system that is associated with this world.
@@ -372,7 +376,7 @@ private:
 
   bool ReportErrorWhenStaticObjectMoves() const;
 
-  ezDelegateTask<void> m_UpdateTask;
+  ezSharedPtr<ezTask> m_pUpdateTask;
 
   ezInternal::WorldData m_Data;
 

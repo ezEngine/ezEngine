@@ -16,10 +16,11 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
 ezParticleEffectInstance::ezParticleEffectInstance()
-  : m_Task(this)
 {
+  m_pTask = EZ_DEFAULT_NEW(ezParticleEffectUpdateTask, this);
+  m_pTask->ConfigureTask("Particle Effect Update", ezTaskNesting::Maybe);
+
   m_pOwnerModule = nullptr;
-  m_Task.ConfigureTask("Particle Effect Update", ezTaskNesting::Maybe);
 
   Destruct();
 }
@@ -709,13 +710,13 @@ void ezParticleEffectInstance::ProcessEventQueues()
   m_EventQueue.Clear();
 }
 
-ezParticleffectUpdateTask::ezParticleffectUpdateTask(ezParticleEffectInstance* pEffect)
+ezParticleEffectUpdateTask::ezParticleEffectUpdateTask(ezParticleEffectInstance* pEffect)
 {
   m_pEffect = pEffect;
   m_UpdateDiff.SetZero();
 }
 
-void ezParticleffectUpdateTask::Execute()
+void ezParticleEffectUpdateTask::Execute()
 {
   if (HasBeenCanceled())
     return;

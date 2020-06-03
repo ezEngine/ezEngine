@@ -289,7 +289,7 @@ public:
   static ezAtomicInteger32 g_MaxUsedStringLength;
   static ezAtomicInteger32 g_UsedStringLengths[256];
 #else
-  EZ_ALWAYS_INLINE static void AddUsedStringLength(ezUInt32 uiLength)
+  EZ_ALWAYS_INLINE static void AddUsedStringLength(ezUInt32)
   {
   }
   EZ_ALWAYS_INLINE static void PrintStringLengthStatistics() {}

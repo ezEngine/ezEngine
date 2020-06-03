@@ -1,6 +1,7 @@
 #include <Foundation/Application/Application.h>
 #include <Foundation/IO/Archive/ArchiveBuilder.h>
 #include <Foundation/IO/Archive/ArchiveReader.h>
+#include <Foundation/IO/Archive/ArchiveUtils.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Logging/ConsoleWriter.h>
@@ -281,6 +282,13 @@ public:
     for (const auto& file : m_sInputs)
     {
       ezLog::Info("Extracting archive '{}'", file);
+
+      // if the file has a custom archive file extension, just register it as 'allowed'
+      // we assume that the user only gives us files that are ezArchives
+      if (!ezArchiveUtils::IsAcceptedArchiveFileExtensions(ezPathUtils::GetFileExtension(file)))
+      {
+        ezArchiveUtils::GetAcceptedArchiveFileExtensions().PushBack(ezPathUtils::GetFileExtension(file));
+      }
 
       ezArchiveReaderImpl reader;
       EZ_SUCCEED_OR_RETURN(reader.OpenArchive(file));

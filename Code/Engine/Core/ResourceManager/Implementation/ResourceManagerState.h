@@ -36,13 +36,13 @@ private:
 
   struct TaskDataUpdateContent
   {
-    ezUniquePtr<ezResourceManagerWorkerUpdateContent> m_pTask;
+    ezSharedPtr<ezResourceManagerWorkerUpdateContent> m_pTask;
     ezTaskGroupID m_GroupId;
   };
 
   struct TaskDataDataLoad
   {
-    ezUniquePtr<ezResourceManagerWorkerDataLoad> m_pTask;
+    ezSharedPtr<ezResourceManagerWorkerDataLoad> m_pTask;
     ezTaskGroupID m_GroupId;
   };
 

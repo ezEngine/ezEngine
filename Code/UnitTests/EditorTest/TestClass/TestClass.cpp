@@ -295,7 +295,8 @@ void ezEditorTest::SafeProfilingData()
   ezFileWriter fileWriter;
   if (fileWriter.Open(":appdata/profiling.json") == EZ_SUCCESS)
   {
-    ezProfilingSystem::ProfilingData profilingData = ezProfilingSystem::Capture();
+    ezProfilingSystem::ProfilingData profilingData;
+    ezProfilingSystem::Capture(profilingData);
     profilingData.Write(fileWriter);
   }
 }

@@ -89,7 +89,7 @@ private:
 
   ezPxSettings m_Settings;
 
-  ezDelegateTask<void> m_SimulateTask;
+  ezSharedPtr<ezTask> m_pSimulateTask;
   ezTaskGroupID m_SimulateTaskGroupId;
   bool m_bSimulationStepExecuted = false;
 

@@ -571,27 +571,36 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_BOOL(ezMath::IsPowerOf2(5) == false);
     EZ_TEST_BOOL(ezMath::IsPowerOf2(0) == false);
     EZ_TEST_BOOL(ezMath::IsPowerOf2(1) == true);
+    EZ_TEST_BOOL(ezMath::IsPowerOf2(0x7FFFFFFFu) == false);
+    EZ_TEST_BOOL(ezMath::IsPowerOf2(0x80000000u) == true);
+    EZ_TEST_BOOL(ezMath::IsPowerOf2(0x80000001u) == false);
+    EZ_TEST_BOOL(ezMath::IsPowerOf2(0xFFFFFFFFu) == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "PowerOf2_Floor")
   {
-    EZ_TEST_BOOL(ezMath::PowerOfTwo_Floor(64) == 64);
-    EZ_TEST_BOOL(ezMath::PowerOfTwo_Floor(33) == 32);
-    EZ_TEST_BOOL(ezMath::PowerOfTwo_Floor(4) == 4);
-    EZ_TEST_BOOL(ezMath::PowerOfTwo_Floor(5) == 4);
-    EZ_TEST_BOOL(ezMath::PowerOfTwo_Floor(1) == 1);
+    EZ_TEST_INT(ezMath::PowerOfTwo_Floor(64), 64);
+    EZ_TEST_INT(ezMath::PowerOfTwo_Floor(33), 32);
+    EZ_TEST_INT(ezMath::PowerOfTwo_Floor(4), 4);
+    EZ_TEST_INT(ezMath::PowerOfTwo_Floor(5), 4);
+    EZ_TEST_INT(ezMath::PowerOfTwo_Floor(1), 1);
+    EZ_TEST_INT(ezMath::PowerOfTwo_Floor(0x80000000), 0x80000000);
+    EZ_TEST_INT(ezMath::PowerOfTwo_Floor(0x80000001), 0x80000000);
     // strange case...
-    EZ_TEST_BOOL(ezMath::PowerOfTwo_Floor(0) == 1);
+    EZ_TEST_INT(ezMath::PowerOfTwo_Floor(0), 1);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "PowerOf2_Ceil")
   {
-    EZ_TEST_BOOL(ezMath::PowerOfTwo_Ceil(64) == 64);
-    EZ_TEST_BOOL(ezMath::PowerOfTwo_Ceil(33) == 64);
-    EZ_TEST_BOOL(ezMath::PowerOfTwo_Ceil(4) == 4);
-    EZ_TEST_BOOL(ezMath::PowerOfTwo_Ceil(5) == 8);
-    EZ_TEST_BOOL(ezMath::PowerOfTwo_Ceil(1) == 1);
-    EZ_TEST_BOOL(ezMath::PowerOfTwo_Ceil(0) == 1);
+    EZ_TEST_INT(ezMath::PowerOfTwo_Ceil(64), 64);
+    EZ_TEST_INT(ezMath::PowerOfTwo_Ceil(33), 64);
+    EZ_TEST_INT(ezMath::PowerOfTwo_Ceil(4), 4);
+    EZ_TEST_INT(ezMath::PowerOfTwo_Ceil(5), 8);
+    EZ_TEST_INT(ezMath::PowerOfTwo_Ceil(1), 1);
+    EZ_TEST_INT(ezMath::PowerOfTwo_Ceil(0), 1);
+    EZ_TEST_INT(ezMath::PowerOfTwo_Ceil(0x7FFFFFFF), 0x80000000);
+    EZ_TEST_INT(ezMath::PowerOfTwo_Ceil(0x80000000), 0x80000000);
+    // anything above 0x80000000 is undefined behavior due to how left-shift works
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GreatestCommonDivisor")

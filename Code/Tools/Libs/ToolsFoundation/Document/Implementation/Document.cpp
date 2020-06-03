@@ -175,7 +175,7 @@ ezTaskGroupID ezDocument::InternalSaveDocument(AfterSaveCallback callback)
 {
   EZ_PROFILE_SCOPE("InternalSaveDocument");
   ezTaskGroupID saveID = ezTaskSystem::CreateTaskGroup(ezTaskPriority::LongRunningHighPriority);
-  auto saveTask = EZ_DEFAULT_NEW(ezSaveDocumentTask, [](ezTask* pTask) { EZ_DEFAULT_DELETE(pTask); });
+  auto saveTask = EZ_DEFAULT_NEW(ezSaveDocumentTask);
   {
     saveTask->m_document = this;
     saveTask->file.SetOutput(m_sDocumentPath);
@@ -208,7 +208,7 @@ ezTaskGroupID ezDocument::InternalSaveDocument(AfterSaveCallback callback)
 
   ezTaskGroupID afterSaveID = ezTaskSystem::CreateTaskGroup(ezTaskPriority::SomeFrameMainThread);
   {
-    auto afterSaveTask = EZ_DEFAULT_NEW(ezAfterSaveDocumentTask, [](ezTask* pTask) { EZ_DEFAULT_DELETE(pTask); });
+    auto afterSaveTask = EZ_DEFAULT_NEW(ezAfterSaveDocumentTask);
     afterSaveTask->m_document = this;
     afterSaveTask->m_callback = callback;
     ezTaskSystem::AddTaskToGroup(afterSaveID, afterSaveTask);

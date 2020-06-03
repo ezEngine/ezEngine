@@ -7,7 +7,7 @@
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/TaskSystem.h>
 
-ezTaskGroupID ezTaskSystem::StartSingleTask(ezTask* pTask, ezTaskPriority::Enum Priority, ezTaskGroupID Dependency, ezOnTaskGroupFinishedCallback callback)
+ezTaskGroupID ezTaskSystem::StartSingleTask(const ezSharedPtr<ezTask>& pTask, ezTaskPriority::Enum Priority, ezTaskGroupID Dependency, ezOnTaskGroupFinishedCallback callback /*= ezOnTaskGroupFinishedCallback()*/)
 {
   ezTaskGroupID Group = CreateTaskGroup(Priority, callback);
   AddTaskGroupDependency(Group, Dependency);
@@ -16,7 +16,7 @@ ezTaskGroupID ezTaskSystem::StartSingleTask(ezTask* pTask, ezTaskPriority::Enum 
   return Group;
 }
 
-ezTaskGroupID ezTaskSystem::StartSingleTask(ezTask* pTask, ezTaskPriority::Enum Priority, ezOnTaskGroupFinishedCallback callback)
+ezTaskGroupID ezTaskSystem::StartSingleTask(const ezSharedPtr<ezTask>& pTask, ezTaskPriority::Enum Priority, ezOnTaskGroupFinishedCallback callback /*= ezOnTaskGroupFinishedCallback()*/)
 {
   ezTaskGroupID Group = CreateTaskGroup(Priority, callback);
   AddTaskToGroup(Group, pTask);
@@ -24,11 +24,8 @@ ezTaskGroupID ezTaskSystem::StartSingleTask(ezTask* pTask, ezTaskPriority::Enum 
   return Group;
 }
 
-
-
-void ezTaskSystem::TaskHasFinished(ezTask* pTask, ezTaskGroup* pGroup)
+void ezTaskSystem::TaskHasFinished(const ezSharedPtr<ezTask>& pTask, ezTaskGroup* pGroup)
 {
-  // this might deallocate the task, make sure not to reference it later anymore
   if (pTask && pTask->m_OnTaskFinished.IsValid() && pTask->m_iRemainingRuns == 0)
   {
     pTask->m_OnTaskFinished(pTask);
@@ -45,6 +42,7 @@ void ezTaskSystem::TaskHasFinished(ezTask* pTask, ezTaskGroup* pGroup)
       EZ_LOCK(pGroup->m_CondVarGroupFinished);
 
       groupCounter = pGroup->m_uiGroupCounter;
+
       // set this task group to be finished such that no one tries to append further dependencies
       pGroup->m_uiGroupCounter += 2;
     }
@@ -59,6 +57,9 @@ void ezTaskSystem::TaskHasFinished(ezTask* pTask, ezTaskGroup* pGroup)
       {
         DependencyHasFinished(pGroup->m_OthersDependingOnMe[dep].m_pTaskGroup);
       }
+
+      // unless an outside reference is held onto a task, this will deallocate the tasks
+      pGroup->m_Tasks.Clear();
     }
 
     if (pGroup->m_OnFinishedCallback.IsValid())
@@ -132,7 +133,7 @@ bool ezTaskSystem::ExecuteTask(ezTaskPriority::Enum FirstPriority, ezTaskPriorit
 }
 
 
-ezResult ezTaskSystem::CancelTask(ezTask* pTask, ezOnTaskRunning::Enum OnTaskRunning)
+ezResult ezTaskSystem::CancelTask(const ezSharedPtr<ezTask>& pTask, ezOnTaskRunning::Enum OnTaskRunning)
 {
   if (pTask->IsTaskFinished())
     return EZ_SUCCESS;
