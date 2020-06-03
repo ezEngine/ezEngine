@@ -20,7 +20,7 @@ ezRenderComponent::~ezRenderComponent() = default;
 
 void ezRenderComponent::Deinitialize()
 {
-  InvalidateCachedRenderData();
+  ezRenderWorld::DeleteCachedRenderData(GetOwner()->GetHandle(), GetHandle());
 
   SUPER::Deinitialize();
 }

@@ -210,9 +210,10 @@ export import PxSteppingMode = __AllEnums.PxSteppingMode;
 export import SetColorMode = __AllEnums.SetColorMode;
 export import SpriteBlendMode = __AllEnums.SpriteBlendMode;
 export import TriggerState = __AllEnums.TriggerState;
-export import VRDeviceType = __AllEnums.VRDeviceType;
-export import VRStageSpace = __AllEnums.VRStageSpace;
-export import VRTransformSpace = __AllEnums.VRTransformSpace;
+export import XRDeviceType = __AllEnums.XRDeviceType;
+export import XRPoseLocation = __AllEnums.XRPoseLocation;
+export import XRStageSpace = __AllEnums.XRStageSpace;
+export import XRTransformSpace = __AllEnums.XRTransformSpace;
 
 
 

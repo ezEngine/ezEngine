@@ -247,8 +247,6 @@ export class DebugTextComponent extends Component
 export class DecalComponent extends RenderComponent
 {
   public static GetTypeNameHash(): number { return 589392023; }
-  get Decal(): string { return __CPP_ComponentProperty_get(this, 1185422148); }
-  set Decal(value: string) { __CPP_ComponentProperty_set(this, 1185422148, value); }
   get ProjectionAxis(): Enum.BasisAxis { return __CPP_ComponentProperty_get(this, 3085577467); }
   set ProjectionAxis(value: Enum.BasisAxis) { __CPP_ComponentProperty_set(this, 3085577467, value); }
   get Extents(): Vec3 { return __CPP_ComponentProperty_get(this, 734375091); }
@@ -273,15 +271,19 @@ export class DecalComponent extends RenderComponent
   set FadeOutDuration(value: number) { __CPP_ComponentProperty_set(this, 1614891466, value); }
   get OnFinishedAction(): Enum.OnComponentFinishedAction { return __CPP_ComponentProperty_get(this, 4093122079); }
   set OnFinishedAction(value: Enum.OnComponentFinishedAction) { __CPP_ComponentProperty_set(this, 4093122079, value); }
+  get ApplyToDynamic(): string { return __CPP_ComponentProperty_get(this, 137371156); }
+  set ApplyToDynamic(value: string) { __CPP_ComponentProperty_set(this, 137371156, value); }
 }
 
 export class DeviceTrackingComponent extends Component
 {
   public static GetTypeNameHash(): number { return 139499111; }
-  get DeviceType(): Enum.VRDeviceType { return __CPP_ComponentProperty_get(this, 4260084670); }
-  set DeviceType(value: Enum.VRDeviceType) { __CPP_ComponentProperty_set(this, 4260084670, value); }
-  get TransformSpace(): Enum.VRTransformSpace { return __CPP_ComponentProperty_get(this, 1353353008); }
-  set TransformSpace(value: Enum.VRTransformSpace) { __CPP_ComponentProperty_set(this, 1353353008, value); }
+  get DeviceType(): Enum.XRDeviceType { return __CPP_ComponentProperty_get(this, 4260084670); }
+  set DeviceType(value: Enum.XRDeviceType) { __CPP_ComponentProperty_set(this, 4260084670, value); }
+  get PoseLocation(): Enum.XRPoseLocation { return __CPP_ComponentProperty_get(this, 694319472); }
+  set PoseLocation(value: Enum.XRPoseLocation) { __CPP_ComponentProperty_set(this, 694319472, value); }
+  get TransformSpace(): Enum.XRTransformSpace { return __CPP_ComponentProperty_get(this, 1353353008); }
+  set TransformSpace(value: Enum.XRTransformSpace) { __CPP_ComponentProperty_set(this, 1353353008, value); }
 }
 
 export class LightComponent extends RenderComponent
@@ -524,6 +526,10 @@ export class ParticleComponent extends RenderComponent
   set RestartDelayRange(value: number) { __CPP_ComponentProperty_set(this, 1970963815, value); }
   get RandomSeed(): number { return __CPP_ComponentProperty_get(this, 2905873272); }
   set RandomSeed(value: number) { __CPP_ComponentProperty_set(this, 2905873272, value); }
+  get SpawnDirection(): Enum.BasisAxis { return __CPP_ComponentProperty_get(this, 3012940082); }
+  set SpawnDirection(value: Enum.BasisAxis) { __CPP_ComponentProperty_set(this, 3012940082, value); }
+  get IgnoreOwnerRotation(): boolean { return __CPP_ComponentProperty_get(this, 4054785238); }
+  set IgnoreOwnerRotation(value: boolean) { __CPP_ComponentProperty_set(this, 4054785238, value); }
   get SharedInstanceName(): string { return __CPP_ComponentProperty_get(this, 2929262704); }
   set SharedInstanceName(value: string) { __CPP_ComponentProperty_set(this, 2929262704, value); }
 }
@@ -1030,12 +1036,12 @@ export class SimpleWindComponent extends Component
 export class SkyBoxComponent extends RenderComponent
 {
   public static GetTypeNameHash(): number { return 1466514488; }
+  get CubeMap(): string { return __CPP_ComponentProperty_get(this, 711715648); }
+  set CubeMap(value: string) { __CPP_ComponentProperty_set(this, 711715648, value); }
   get ExposureBias(): number { return __CPP_ComponentProperty_get(this, 3782775256); }
   set ExposureBias(value: number) { __CPP_ComponentProperty_set(this, 3782775256, value); }
   get InverseTonemap(): boolean { return __CPP_ComponentProperty_get(this, 3799247071); }
   set InverseTonemap(value: boolean) { __CPP_ComponentProperty_set(this, 3799247071, value); }
-  get CubeMap(): string { return __CPP_ComponentProperty_get(this, 711715648); }
-  set CubeMap(value: string) { __CPP_ComponentProperty_set(this, 711715648, value); }
   get UseFog(): boolean { return __CPP_ComponentProperty_get(this, 1822075681); }
   set UseFog(value: boolean) { __CPP_ComponentProperty_set(this, 1822075681, value); }
   get VirtualDistance(): number { return __CPP_ComponentProperty_get(this, 4238191478); }
@@ -1138,8 +1144,8 @@ export class SrmRenderComponent extends Component
 export class StageSpaceComponent extends Component
 {
   public static GetTypeNameHash(): number { return 958903712; }
-  get StageSpace(): Enum.VRStageSpace { return __CPP_ComponentProperty_get(this, 3373850262); }
-  set StageSpace(value: Enum.VRStageSpace) { __CPP_ComponentProperty_set(this, 3373850262, value); }
+  get StageSpace(): Enum.XRStageSpace { return __CPP_ComponentProperty_get(this, 3373850262); }
+  set StageSpace(value: Enum.XRStageSpace) { __CPP_ComponentProperty_set(this, 3373850262, value); }
 }
 
 export class TimedDeathComponent extends Component
