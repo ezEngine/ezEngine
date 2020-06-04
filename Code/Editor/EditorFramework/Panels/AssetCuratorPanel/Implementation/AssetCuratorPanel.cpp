@@ -75,9 +75,13 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel()
   pDummy->setContentsMargins(0, 0, 0, 0);
   pDummy->layout()->setContentsMargins(0, 0, 0, 0);
 
+  // using pDummy instead of 'this' breaks auto-connect for slots
   setWidget(pDummy);
   setIcon(ezQtUiServices::GetCachedIconResource(":/EditorFramework/Icons/Asset16.png"));
   setWindowTitle(QString::fromUtf8(ezTranslate("Panel.AssetCurator")));
+
+  connect(ListAssets, &QTreeView::doubleClicked, this, &ezQtAssetCuratorPanel::onListAssetsDoubleClicked);
+  connect(CheckIndirect, &QCheckBox::toggled, this, &ezQtAssetCuratorPanel::onCheckIndirectToggled);
 
   ezAssetProcessor::GetSingleton()->AddLogWriter(ezMakeDelegate(&ezQtAssetCuratorPanel::LogWriter, this));
 
@@ -120,7 +124,7 @@ void ezQtAssetCuratorPanel::OnAssetSelectionChanged(const QItemSelection& select
   UpdateIssueInfo();
 }
 
-void ezQtAssetCuratorPanel::on_ListAssets_doubleClicked(const QModelIndex& index)
+void ezQtAssetCuratorPanel::onListAssetsDoubleClicked(const QModelIndex& index)
 {
   ezUuid guid = m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::SubAssetGuid).value<ezUuid>();
   QString sAbsPath = m_pModel->data(index, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString();
@@ -128,7 +132,7 @@ void ezQtAssetCuratorPanel::on_ListAssets_doubleClicked(const QModelIndex& index
   ezQtEditorApp::GetSingleton()->OpenDocumentQueued(sAbsPath.toUtf8().data());
 }
 
-void ezQtAssetCuratorPanel::on_CheckIndirect_toggled(bool checked)
+void ezQtAssetCuratorPanel::onCheckIndirectToggled(bool checked)
 {
   m_pFilter->SetFilterTransitive(!checked);
   m_pModel->resetModel();

@@ -38,8 +38,9 @@ public Q_SLOTS:
   void OnAssetSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
 
 private Q_SLOTS:
-  void on_ListAssets_doubleClicked(const QModelIndex& index);
-  void on_CheckIndirect_toggled(bool checked);
+  // note, because of the way we set up the widget, auto-connect doesn't work
+  void onListAssetsDoubleClicked(const QModelIndex& index);
+  void onCheckIndirectToggled(bool checked);
 
 private:
   void LogWriter(const ezLoggingEventData& e);
