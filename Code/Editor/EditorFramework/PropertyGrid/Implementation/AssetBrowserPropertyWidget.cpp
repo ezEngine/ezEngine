@@ -337,6 +337,12 @@ void ezQtAssetPropertyWidget::OnCreateNewAsset()
     else
     {
       sPath = m_pWidget->text().toUtf8().data();
+
+      if (sPath.IsEmpty())
+      {
+        sPath = ":project/";
+      }
+
       ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath);
     }
   }
@@ -366,7 +372,6 @@ void ezQtAssetPropertyWidget::OnCreateNewAsset()
   typesToUse.SetCount(types.GetCount());
   bool bFoundAny = false;
 
-  ezAssetDocumentManager* pAssetManToUse = nullptr;
   {
     const ezHybridArray<ezDocumentManager*, 16>& managers = ezDocumentManager::GetAllDocumentManagers();
 
@@ -425,15 +430,22 @@ void ezQtAssetPropertyWidget::OnCreateNewAsset()
       return;
   }
 
+  sFilter = sOutput.GetFileExtension();
+
   for (const auto& ttu : typesToUse)
   {
     if (ttu.pAssetMan == nullptr)
       continue;
 
-    if (sSelectedFilter == ttu.pDocType->m_sFileExtension)
+    if (sFilter.IsEqual_NoCase(ttu.pDocType->m_sFileExtension))
     {
-      ezDocument* pDoc;
-      if (pAssetManToUse->CreateDocument(ttu.pDocType->m_sDocumentTypeName, sOutput, pDoc, ezDocumentFlags::RequestWindow | ezDocumentFlags::AddToRecentFilesList).m_Result.Succeeded())
+      ezDocument* pDoc = nullptr;
+
+      const ezStatus res = ttu.pAssetMan->CreateDocument(ttu.pDocType->m_sDocumentTypeName, sOutput, pDoc, ezDocumentFlags::RequestWindow | ezDocumentFlags::AddToRecentFilesList);
+
+      ezQtUiServices::GetSingleton()->MessageBoxStatus(res, "Creating the document failed.");
+
+      if (res.m_Result.Succeeded())
       {
         pDoc->EnsureVisible();
 
