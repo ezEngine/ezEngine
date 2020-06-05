@@ -187,6 +187,8 @@ void ezPhysX::Startup()
   m_pPhysX = PxCreatePhysics(PX_PHYSICS_VERSION, *m_pFoundation, PxTolerancesScale(), bRecordMemoryAllocations, m_PvdConnection);
   EZ_ASSERT_DEV(m_pPhysX != nullptr, "Initializing PhysX API failed");
 
+  PxInitExtensions(*m_pPhysX, m_PvdConnection);
+
   m_pDefaultMaterial = m_pPhysX->createMaterial(0.6f, 0.4f, 0.25f);
 
   ezSurfaceResource::s_Events.AddEventHandler(ezMakeDelegate(&ezPhysX::SurfaceResourceEventHandler, this));
@@ -214,6 +216,8 @@ void ezPhysX::Shutdown()
   }
 
   ShutdownVDB();
+
+  PxCloseExtensions();
 
   if (m_pFoundation != nullptr)
   {
