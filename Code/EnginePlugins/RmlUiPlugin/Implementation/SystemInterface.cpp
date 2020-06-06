@@ -12,8 +12,14 @@ namespace ezRmlUiInternal
 
   void SystemInterface::JoinPath(Rml::Core::String& translated_path, const Rml::Core::String& document_path, const Rml::Core::String& path)
   {
-    // Don't join with document path, since this is not how the ez file system works
-    translated_path = path;
+    if (ezFileSystem::ExistsFile(path.c_str()))
+    {
+      // path is already a valid path for ez file system so don't join with document path
+      translated_path = path;
+      return;
+    }
+
+    Rml::Core::SystemInterface::JoinPath(translated_path, document_path, path);
   }
 
   bool SystemInterface::LogMessage(Rml::Core::Log::Type type, const Rml::Core::String& message)

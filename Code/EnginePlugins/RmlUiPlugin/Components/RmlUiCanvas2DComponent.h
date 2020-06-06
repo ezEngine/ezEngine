@@ -2,7 +2,7 @@
 
 #include <RendererCore/Components/RenderComponent.h>
 
-#include <RmlUiPluginDLL.h>
+#include <RmlUiPlugin/RmlUiPluginDLL.h>
 
 struct ezMsgExtractRenderData;
 class ezRmlUiContext;
@@ -16,6 +16,9 @@ class EZ_RMLUIPLUGIN_DLL ezRmlUiCanvas2DComponent : public ezRenderComponent
 public:
   ezRmlUiCanvas2DComponent();
   ~ezRmlUiCanvas2DComponent();
+
+  virtual void Initialize() override;
+  virtual void Deinitialize() override;
 
   virtual void OnActivated() override;
   virtual void OnDeactivated() override;
@@ -31,6 +34,9 @@ public:
   void SetSize(const ezVec2U32& size);                // [ property ]
   const ezVec2U32& GetSize() const { return m_Size; } // [ property ]
 
+  void SetPassInput(bool bPassInput);                // [ property ]
+  bool GetPassInput() const { return m_bPassInput; } // [ property ]
+
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 
@@ -42,6 +48,7 @@ protected:
   ezString m_sRmlFile;
   ezVec2I32 m_Offset = ezVec2I32::ZeroVector();
   ezVec2U32 m_Size = ezVec2U32(100);
+  bool m_bPassInput = true;
 
   ezRmlUiContext* m_pContext = nullptr;
 };

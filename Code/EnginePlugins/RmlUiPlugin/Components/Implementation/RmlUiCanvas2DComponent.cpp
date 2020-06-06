@@ -1,5 +1,6 @@
 #include <RmlUiPluginPCH.h>
 
+#include <Core/Input/InputManager.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <RendererCore/Pipeline/RenderData.h>
@@ -17,6 +18,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezRmlUiCanvas2DComponent, 1, ezComponentMode::Dynamic)
     EZ_ACCESSOR_PROPERTY("RmlFile", GetRmlFile, SetRmlFile)->AddAttributes(new ezFileBrowserAttribute("Rml File", "*.rml")),
     EZ_ACCESSOR_PROPERTY("Offset", GetOffset, SetOffset)->AddAttributes(new ezDefaultValueAttribute(ezVec2::ZeroVector()), new ezSuffixAttribute("px")),
     EZ_ACCESSOR_PROPERTY("Size", GetSize, SetSize)->AddAttributes(new ezDefaultValueAttribute(ezVec2U32(100)), new ezSuffixAttribute("px")),
+    EZ_ACCESSOR_PROPERTY("PassInput", GetPassInput, SetPassInput)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
@@ -36,9 +38,9 @@ EZ_END_COMPONENT_TYPE
 ezRmlUiCanvas2DComponent::ezRmlUiCanvas2DComponent() = default;
 ezRmlUiCanvas2DComponent::~ezRmlUiCanvas2DComponent() = default;
 
-void ezRmlUiCanvas2DComponent::OnActivated()
+void ezRmlUiCanvas2DComponent::Initialize()
 {
-  SUPER::OnActivated();
+  SUPER::Initialize();
 
   ezStringBuilder sName = m_sRmlFile;
   sName = sName.GetFileName();
@@ -48,25 +50,55 @@ void ezRmlUiCanvas2DComponent::OnActivated()
   m_pContext->SetOffset(m_Offset);
 }
 
+void ezRmlUiCanvas2DComponent::Deinitialize()
+{
+  SUPER::Deinitialize();
+
+  ezRmlUi::GetSingleton()->DeleteContext(m_pContext);
+  m_pContext = nullptr;
+}
+
+void ezRmlUiCanvas2DComponent::OnActivated()
+{
+  SUPER::OnActivated();
+
+  m_pContext->ShowDocument();
+}
+
 void ezRmlUiCanvas2DComponent::OnDeactivated()
 {
   SUPER::OnDeactivated();
 
-  ezRmlUi::GetSingleton()->DeleteContext(m_pContext);
-  m_pContext = nullptr;
+  m_pContext->HideDocument();
 }
 
 void ezRmlUiCanvas2DComponent::Update()
 {
   if (m_pContext != nullptr)
   {
+    float fViewWidth = 1.0f;
+    float fViewHeight = 1.0f;
+
+    if (ezView* pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView, ezCameraUsageHint::EditorView, GetWorld()))
+    {
+      fViewWidth = pView->GetViewport().width;
+      fViewHeight = pView->GetViewport().height;
+    }
+
     if (false)
     {
-      if (ezView* pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView, ezCameraUsageHint::EditorView, GetWorld()))
-      {
-        float fScale = pView->GetViewport().height / 1000.0f;
-        m_pContext->SetDpiScale(fScale);
-      }
+      float fScale = fViewHeight / 1000.0f;
+      m_pContext->SetDpiScale(fScale);
+    }
+
+    if (m_bPassInput)
+    {
+      float mouseX, mouseY;
+      ezInputManager::GetInputSlotState(ezInputSlot_MousePositionX, &mouseX);
+      ezInputManager::GetInputSlotState(ezInputSlot_MousePositionY, &mouseY);
+
+      ezVec2 mousePos = ezVec2(mouseX * fViewWidth, mouseY * fViewHeight) - ezVec2(m_Offset.x, m_Offset.y);
+      m_pContext->UpdateInput(mousePos);
     }
 
     m_pContext->Update();
@@ -112,6 +144,14 @@ void ezRmlUiCanvas2DComponent::SetSize(const ezVec2U32& size)
   }
 }
 
+void ezRmlUiCanvas2DComponent::SetPassInput(bool bPassInput)
+{
+  if (m_bPassInput != bPassInput)
+  {
+    m_bPassInput = bPassInput;
+  }
+}
+
 void ezRmlUiCanvas2DComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
@@ -121,6 +161,7 @@ void ezRmlUiCanvas2DComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_sRmlFile;
   s << m_Offset;
   s << m_Size;
+  s << m_bPassInput;
 }
 
 void ezRmlUiCanvas2DComponent::DeserializeComponent(ezWorldReader& stream)
@@ -132,6 +173,7 @@ void ezRmlUiCanvas2DComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_sRmlFile;
   s >> m_Offset;
   s >> m_Size;
+  s >> m_bPassInput;
 }
 
 ezResult ezRmlUiCanvas2DComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, bool& bAlwaysVisible)

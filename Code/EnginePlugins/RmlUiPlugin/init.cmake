@@ -31,9 +31,13 @@ function(ez_link_target_rmlui TARGET_NAME)
 	if (EZRMLUI_FOUND)
 	
 	  target_link_libraries(${TARGET_NAME} PRIVATE EzRmlUi::Core)
+    target_link_libraries(${TARGET_NAME} PRIVATE EzRmlUi::Controls)
+    target_link_libraries(${TARGET_NAME} PRIVATE EzRmlUi::Debugger)
 	
 	  add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:EzRmlUi::Core> $<TARGET_FILE_DIR:${TARGET_NAME}>
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:EzRmlUi::Controls> $<TARGET_FILE_DIR:${TARGET_NAME}>
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:EzRmlUi::Debugger> $<TARGET_FILE_DIR:${TARGET_NAME}>
       COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:EzRmlUi::Freetype> $<TARGET_FILE_DIR:${TARGET_NAME}>
 	  )
 	

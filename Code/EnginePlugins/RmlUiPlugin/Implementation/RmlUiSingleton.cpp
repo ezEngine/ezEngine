@@ -86,6 +86,7 @@ ezRmlUi::ezRmlUi()
   Rml::Core::SetSystemInterface(m_pSystemInterface.Borrow());
 
   Rml::Core::Initialise();
+  Rml::Controls::Initialise();
 
   const char* szFile = ":project/RmlUiConfig.ddl";
   if (m_Config.Load(szFile).Failed())

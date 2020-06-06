@@ -5,6 +5,7 @@
 #include <Foundation/Types/UniquePtr.h>
 
 #include <RmlUi/Core.h>
+#include <RmlUi/Controls.h>
 
 namespace ezRmlUiInternal
 {
@@ -24,7 +25,12 @@ public:
   ezResult LoadDocumentFromFile(const char* szFile);
   ezResult LoadDocumentFromString(const ezStringView& sContent);
 
-  void Update();
+  void ShowDocument();
+  void HideDocument();
+
+  void UpdateInput(const ezVec2& mousePos);
+
+  void Update();  
 
   void SetOffset(const ezVec2I32& offset);
   void SetSize(const ezVec2U32& size);

@@ -29,6 +29,14 @@ if (EZRMLUI_FOUND)
 	set_target_properties(EzRmlUi::Core PROPERTIES IMPORTED_IMPLIB "${RMLUI_LIB_PATH}/RmlCore.lib")
 	set_target_properties(EzRmlUi::Core PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${EZ_RMLUI_DIR}/Include")
   
+  add_library(EzRmlUi::Controls SHARED IMPORTED)
+	set_target_properties(EzRmlUi::Controls PROPERTIES IMPORTED_LOCATION "${RMLUI_LIB_PATH}/RmlControls.dll")
+	set_target_properties(EzRmlUi::Controls PROPERTIES IMPORTED_IMPLIB "${RMLUI_LIB_PATH}/RmlControls.lib")
+  
+  add_library(EzRmlUi::Debugger SHARED IMPORTED)
+	set_target_properties(EzRmlUi::Debugger PROPERTIES IMPORTED_LOCATION "${RMLUI_LIB_PATH}/RmlDebugger.dll")
+	set_target_properties(EzRmlUi::Debugger PROPERTIES IMPORTED_IMPLIB "${RMLUI_LIB_PATH}/RmlDebugger.lib")
+  
   add_library(EzRmlUi::Freetype SHARED IMPORTED)
 	set_target_properties(EzRmlUi::Freetype PROPERTIES IMPORTED_LOCATION "${RMLUI_LIB_PATH}/freetype.dll")
 
