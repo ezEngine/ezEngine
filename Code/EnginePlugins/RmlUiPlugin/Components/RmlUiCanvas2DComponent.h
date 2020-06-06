@@ -37,6 +37,8 @@ public:
   void SetPassInput(bool bPassInput);                // [ property ]
   bool GetPassInput() const { return m_bPassInput; } // [ property ]
 
+  ezRmlUiContext* GetRmlContext() { return m_pContext; }
+
   virtual void SerializeComponent(ezWorldWriter& stream) const override;
   virtual void DeserializeComponent(ezWorldReader& stream) override;
 

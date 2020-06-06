@@ -25,6 +25,8 @@ void RtsEditLevelMode::OnBeforeWorldUpdate()
 
 void RtsEditLevelMode::DisplayEditUI()
 {
+  ezImgui::GetSingleton()->SetCurrentContextForView(m_hMainView);
+
   const ezSizeU32 resolution = ezImgui::GetSingleton()->GetCurrentWindowResolution();
 
   const float ww = 200;

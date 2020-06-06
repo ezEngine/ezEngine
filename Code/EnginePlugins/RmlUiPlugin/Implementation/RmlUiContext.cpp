@@ -43,45 +43,41 @@ namespace
   EZ_CHECK_AT_COMPILETIME(EZ_ARRAY_SIZE(s_szEzKeys) == EZ_ARRAY_SIZE(s_rmlKeys));
 } // namespace
 
-ezRmlUiContext::ezRmlUiContext(const char* szName, const ezVec2U32& initialSize)
+ezRmlUiContext::ezRmlUiContext(const Rml::Core::String& name)
+  : Rml::Core::Context(name)
 {
-  m_pContext = Rml::Core::CreateContext(szName, Rml::Core::Vector2i(initialSize.x, initialSize.y));
 }
 
-ezRmlUiContext::~ezRmlUiContext()
-{
-  Rml::Core::RemoveContext(m_pContext->GetName());
-}
+ezRmlUiContext::~ezRmlUiContext() = default;
 
 ezResult ezRmlUiContext::LoadDocumentFromFile(const char* szFile)
 {
-  if (m_pDocument != nullptr)
+  if (HasDocument())
   {
-    m_pContext->UnloadDocument(m_pDocument);
-    m_pDocument = nullptr;
+    UnloadDocument(GetDocument(0));
   }
 
   if (ezStringUtils::IsNullOrEmpty(szFile) == false)
   {
-    m_pDocument = m_pContext->LoadDocument(szFile);
+    LoadDocument(szFile);
   }
 
-  return m_pDocument != nullptr ? EZ_SUCCESS : EZ_FAILURE;
+  return HasDocument() ? EZ_SUCCESS : EZ_FAILURE;
 }
 
 void ezRmlUiContext::ShowDocument()
 {
-  if (m_pDocument != nullptr)
+  if (HasDocument())
   {
-    m_pDocument->Show();
+    GetDocument(0)->Show();
   }
 }
 
 void ezRmlUiContext::HideDocument()
 {
-  if (m_pDocument != nullptr)
+  if (HasDocument())
   {
-    m_pDocument->Hide();
+    GetDocument(0)->Hide();
   }
 }
 
@@ -101,7 +97,7 @@ void ezRmlUiContext::UpdateInput(const ezVec2& mousePos)
 
   // Mouse
   {
-    m_pContext->ProcessMouseMove(mousePos.x, mousePos.y, modifierState);
+    ProcessMouseMove(mousePos.x, mousePos.y, modifierState);
 
     static const char* szMouseButtons[] = {ezInputSlot_MouseButton0, ezInputSlot_MouseButton1, ezInputSlot_MouseButton2};
     for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(szMouseButtons); ++i)
@@ -109,11 +105,11 @@ void ezRmlUiContext::UpdateInput(const ezVec2& mousePos)
       ezKeyState::Enum state = ezInputManager::GetInputSlotState(szMouseButtons[i]);
       if (state == ezKeyState::Pressed)
       {
-        m_pContext->ProcessMouseButtonDown(i, modifierState);
+        ProcessMouseButtonDown(i, modifierState);
       }
       else if (state == ezKeyState::Released)
       {
-        m_pContext->ProcessMouseButtonUp(i, modifierState);
+        ProcessMouseButtonUp(i, modifierState);
       }
     }
   }
@@ -128,7 +124,7 @@ void ezRmlUiContext::UpdateInput(const ezVec2& mousePos)
       ezUnicodeUtils::EncodeUtf32ToUtf8(uiLastChar, pChar);
       if (!ezStringUtils::IsNullOrEmpty(szUtf8))
       {
-        m_pContext->ProcessTextInput(szUtf8);
+        ProcessTextInput(szUtf8);
       }
     }
 
@@ -137,21 +133,13 @@ void ezRmlUiContext::UpdateInput(const ezVec2& mousePos)
       ezKeyState::Enum state = ezInputManager::GetInputSlotState(s_szEzKeys[i]);
       if (state == ezKeyState::Pressed)
       {
-        m_pContext->ProcessKeyDown(s_rmlKeys[i], modifierState);
+        ProcessKeyDown(s_rmlKeys[i], modifierState);
       }
       else if (state == ezKeyState::Released)
       {
-        m_pContext->ProcessKeyUp(s_rmlKeys[i], modifierState);
+        ProcessKeyUp(s_rmlKeys[i], modifierState);
       }
     }
-  }
-}
-
-void ezRmlUiContext::Update()
-{
-  if (m_pDocument != nullptr)
-  {
-    m_pContext->Update();
   }
 }
 
@@ -162,23 +150,25 @@ void ezRmlUiContext::SetOffset(const ezVec2I32& offset)
 
 void ezRmlUiContext::SetSize(const ezVec2U32& size)
 {
-  if (m_pDocument != nullptr)
-  {
-    m_pContext->SetDimensions(Rml::Core::Vector2i(size.x, size.y));
-  }
+  SetDimensions(Rml::Core::Vector2i(size.x, size.y));
 }
 
 void ezRmlUiContext::SetDpiScale(float fScale)
 {
-  if (m_pDocument != nullptr)
-  {
-    m_pContext->SetDensityIndependentPixelRatio(fScale);
-  }
+  SetDensityIndependentPixelRatio(fScale);
 }
 
-Rml::Core::Context* ezRmlUiContext::GetRmlContext()
+void ezRmlUiContext::RegisterEventHandler(const char* szIdentifier, EventHandler handler)
 {
-  return m_pContext;
+  ezHashedString sIdentifier;
+  sIdentifier.Assign(szIdentifier);
+
+  m_EventHandler.Insert(sIdentifier, std::move(handler));
+}
+
+void ezRmlUiContext::DeregisterEventHandler(const char* szIdentifier)
+{
+  m_EventHandler.Remove(ezTempHashedString(szIdentifier));
 }
 
 void ezRmlUiContext::ExtractRenderData(ezRmlUiInternal::Extractor& extractor)
@@ -187,11 +177,37 @@ void ezRmlUiContext::ExtractRenderData(ezRmlUiInternal::Extractor& extractor)
   {
     extractor.BeginExtraction(m_Offset);
 
-    m_pContext->Render();
+    Render();
 
     extractor.EndExtraction();
 
     m_uiExtractedFrame = ezRenderWorld::GetFrameCounter();
     m_pRenderData = extractor.GetRenderData();
   }
+}
+
+void ezRmlUiContext::ProcessEvent(const ezHashedString& sIdentifier, Rml::Core::Event& event)
+{
+  EventHandler* pEventHandler = nullptr;
+  if (m_EventHandler.TryGetValue(sIdentifier, pEventHandler))
+  {
+    (*pEventHandler)(event);
+  }
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+Rml::Core::ContextPtr ezRmlUiInternal::ContextInstancer::InstanceContext(const Rml::Core::String& name)
+{
+  return Rml::Core::ContextPtr(EZ_DEFAULT_NEW(ezRmlUiContext, name));
+}
+
+void ezRmlUiInternal::ContextInstancer::ReleaseContext(Rml::Core::Context* context)
+{
+  EZ_DEFAULT_DELETE(context);
+}
+
+void ezRmlUiInternal::ContextInstancer::Release()
+{
+  // nothing to do here
 }

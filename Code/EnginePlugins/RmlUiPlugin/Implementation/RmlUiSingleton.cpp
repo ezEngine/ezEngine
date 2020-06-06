@@ -73,29 +73,43 @@ bool ezRmlUiConfiguration::operator==(const ezRmlUiConfiguration& rhs) const
 
 EZ_IMPLEMENT_SINGLETON(ezRmlUi);
 
+struct ezRmlUi::Data
+{
+  ezMutex m_ExtractionMutex;
+  ezRmlUiInternal::Extractor m_Extractor;
+
+  ezRmlUiInternal::FileInterface m_FileInterface;
+  ezRmlUiInternal::SystemInterface m_SystemInterface;
+
+  ezRmlUiInternal::ContextInstancer m_ContextInstancer;
+  ezRmlUiInternal::EventListenerInstancer m_EventListenerInstancer;
+
+  ezRmlUiConfiguration m_Config;
+};
+
 ezRmlUi::ezRmlUi()
   : m_SingletonRegistrar(this)
 {
-  m_pExtractor = EZ_DEFAULT_NEW(ezRmlUiInternal::Extractor);
-  Rml::Core::SetRenderInterface(m_pExtractor.Borrow());
+  m_pData = EZ_DEFAULT_NEW(Data);
 
-  m_pFileInterface = EZ_DEFAULT_NEW(ezRmlUiInternal::FileInterface);
-  Rml::Core::SetFileInterface(m_pFileInterface.Borrow());
-
-  m_pSystemInterface = EZ_DEFAULT_NEW(ezRmlUiInternal::SystemInterface);
-  Rml::Core::SetSystemInterface(m_pSystemInterface.Borrow());
+  Rml::Core::SetRenderInterface(&m_pData->m_Extractor);
+  Rml::Core::SetFileInterface(&m_pData->m_FileInterface);
+  Rml::Core::SetSystemInterface(&m_pData->m_SystemInterface);
 
   Rml::Core::Initialise();
   Rml::Controls::Initialise();
 
+  Rml::Core::Factory::RegisterContextInstancer(&m_pData->m_ContextInstancer);
+  Rml::Core::Factory::RegisterEventListenerInstancer(&m_pData->m_EventListenerInstancer);
+
   const char* szFile = ":project/RmlUiConfig.ddl";
-  if (m_Config.Load(szFile).Failed())
+  if (m_pData->m_Config.Load(szFile).Failed())
   {
     ezLog::Warning("No valid RmlUi configuration file available in '{0}'.", szFile);
     return;
   }
 
-  for (auto& font : m_Config.m_Fonts)
+  for (auto& font : m_pData->m_Config.m_Fonts)
   {
     if (Rml::Core::LoadFontFace(font.GetData()) == false)
     {
@@ -111,32 +125,23 @@ ezRmlUi::~ezRmlUi()
 
 ezRmlUiContext* ezRmlUi::CreateContext(const char* szName, const ezVec2U32& initialSize)
 {
-  m_Contexts.PushBack(EZ_DEFAULT_NEW(ezRmlUiContext, szName, initialSize));
-
-  return m_Contexts.PeekBack().Borrow();
+  return static_cast<ezRmlUiContext*>(Rml::Core::CreateContext(szName, Rml::Core::Vector2i(initialSize.x, initialSize.y)));
 }
 
 void ezRmlUi::DeleteContext(ezRmlUiContext* pContext)
 {
-  for (ezUInt32 i = 0; i < m_Contexts.GetCount(); ++i)
-  {
-    if (m_Contexts[i] == pContext)
-    {
-      m_Contexts.RemoveAtAndCopy(i);
-      break;
-    }
-  }
+  Rml::Core::RemoveContext(pContext->GetName());
 }
 
 void ezRmlUi::ExtractContext(ezRmlUiContext& context, ezMsgExtractRenderData& msg)
 {
-  if (context.m_pDocument == nullptr)
+  if (context.HasDocument() == false)
     return;
 
   // Unfortunately we need to hold a lock for the whole extraction of a context since RmlUi is not thread safe.
-  EZ_LOCK(m_ExtractionMutex);
+  EZ_LOCK(m_pData->m_ExtractionMutex);
 
-  context.ExtractRenderData(*m_pExtractor);
+  context.ExtractRenderData(m_pData->m_Extractor);
 
   if (context.m_pRenderData != nullptr)
   {

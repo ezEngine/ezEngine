@@ -72,6 +72,12 @@ Plugin
 }
 Plugin
 {
+	string %Path{"ezRmlUiPlugin"}
+	bool %LoadCopy{false}
+	string %DependencyOf{"<manual>"}
+}
+Plugin
+{
 	string %Path{"ezRtsGamePlugin"}
 	bool %LoadCopy{false}
 	string %DependencyOf{"<manual>"}

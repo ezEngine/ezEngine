@@ -1,8 +1,12 @@
 #include <RtsGamePluginPCH.h>
 
 #include <GameEngine/DearImgui/DearImgui.h>
+#include <RmlUiPlugin/Components/RmlUiCanvas2DComponent.h>
+#include <RmlUiPlugin/RmlUiContext.h>
 #include <RtsGamePlugin/GameMode/GameMode.h>
 #include <RtsGamePlugin/GameState/RtsGameState.h>
+
+bool RtsGameMode::s_bUseRmlUi = true;
 
 RtsGameMode::RtsGameMode() = default;
 RtsGameMode::~RtsGameMode() = default;
@@ -15,6 +19,8 @@ void RtsGameMode::ActivateMode(ezWorld* pMainWorld, ezViewHandle hView, ezCamera
     m_pMainWorld = pMainWorld;
     m_hMainView = hView;
     m_pMainCamera = pMainCamera;
+
+    CreateSelectModeUI();
 
     m_bInitialized = true;
     RegisterInputActions();
@@ -115,25 +121,72 @@ ezColor RtsGameMode::GetTeamColor(ezInt32 iTeam)
   return ezColor::White;
 }
 
+void RtsGameMode::CreateSelectModeUI()
+{
+  constexpr const char* szKey = "SelectModeUI";
+  ezGameObject* pSelectModeUIObject = nullptr;
+  if (!m_pMainWorld->TryGetObjectWithGlobalKey(ezTempHashedString(szKey), pSelectModeUIObject))
+  {
+    ezGameObjectDesc desc;
+    desc.m_bDynamic = true;
+    desc.m_sName.Assign(szKey);
+
+    m_pMainWorld->CreateObject(desc, pSelectModeUIObject);
+    pSelectModeUIObject->SetGlobalKey(szKey);
+
+    ezRmlUiCanvas2DComponent* pUiComponent = nullptr;
+    m_hSelectModeUIComponent = ezRmlUiCanvas2DComponent::CreateComponent(pSelectModeUIObject, pUiComponent);
+
+    pUiComponent->SetRmlFile("UI/SelectMode.rml");
+    pUiComponent->SetOffset(ezVec2I32(10, 10));
+    pUiComponent->SetSize(ezVec2U32(140, 130));
+
+    pUiComponent->EnsureInitialized();
+
+    pUiComponent->GetRmlContext()->RegisterEventHandler("switchToImGui", [&](Rml::Core::Event& e) {
+      s_bUseRmlUi = false;
+    });
+  }
+  else
+  {
+    ezRmlUiCanvas2DComponent* pUiComponent = nullptr;
+    pSelectModeUIObject->TryGetComponentOfBaseType(pUiComponent);
+
+    m_hSelectModeUIComponent = pUiComponent->GetHandle();
+  }
+}
+
 void RtsGameMode::DisplaySelectModeUI()
 {
-  ezImgui::GetSingleton()->SetCurrentContextForView(m_hMainView);
+  ezComponent* pUiComponent = nullptr;
+  if (m_pMainWorld->TryGetComponent(m_hSelectModeUIComponent, pUiComponent))
+  {
+    pUiComponent->SetActiveFlag(s_bUseRmlUi);
+  }
 
-  ImGui::SetNextWindowPos(ImVec2(10, 10));
-  ImGui::SetNextWindowSize(ImVec2(120, 100));
-  ImGui::Begin("Game Mode", nullptr,
-    ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings);
+  if (!s_bUseRmlUi)
+  {
+    ezImgui::GetSingleton()->SetCurrentContextForView(m_hMainView);
 
-  const RtsActiveGameMode mode = RtsGameState::GetSingleton()->GetActiveGameMode();
+    ImGui::SetNextWindowPos(ImVec2(10, 10));
+    ImGui::SetNextWindowSize(ImVec2(140, 130));
+    ImGui::Begin("Game Mode", nullptr,
+      ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings);
 
-  if (ImGui::RadioButton("Battle", mode == RtsActiveGameMode::BattleMode))
-    RtsGameState::GetSingleton()->SwitchToGameMode(RtsActiveGameMode::BattleMode);
+    const RtsActiveGameMode mode = RtsGameState::GetSingleton()->GetActiveGameMode();
 
-  if (ImGui::RadioButton("Edit", mode == RtsActiveGameMode::EditLevelMode))
-    RtsGameState::GetSingleton()->SwitchToGameMode(RtsActiveGameMode::EditLevelMode);
+    if (ImGui::RadioButton("Battle", mode == RtsActiveGameMode::BattleMode))
+      RtsGameState::GetSingleton()->SwitchToGameMode(RtsActiveGameMode::BattleMode);
 
-  if (ImGui::RadioButton("Main Menu", mode == RtsActiveGameMode::MainMenuMode))
-    RtsGameState::GetSingleton()->SwitchToGameMode(RtsActiveGameMode::MainMenuMode);
+    if (ImGui::RadioButton("Edit", mode == RtsActiveGameMode::EditLevelMode))
+      RtsGameState::GetSingleton()->SwitchToGameMode(RtsActiveGameMode::EditLevelMode);
 
-  ImGui::End();
+    if (ImGui::RadioButton("Main Menu", mode == RtsActiveGameMode::MainMenuMode))
+      RtsGameState::GetSingleton()->SwitchToGameMode(RtsActiveGameMode::MainMenuMode);
+
+    if (ImGui::Button("Switch to RmlUi"))
+      s_bUseRmlUi = true;
+
+    ImGui::End();
+  }
 }

@@ -61,7 +61,9 @@ public:
 
 
 protected:
+  void CreateSelectModeUI();
   void DisplaySelectModeUI();
 
-
+  static bool s_bUseRmlUi;
+  ezComponentHandle m_hSelectModeUIComponent;
 };

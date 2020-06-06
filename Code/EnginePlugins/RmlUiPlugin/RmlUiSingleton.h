@@ -6,16 +6,7 @@
 #include <Foundation/Types/UniquePtr.h>
 
 class ezRmlUiContext;
-class ezOpenDdlWriter;
-class ezOpenDdlReaderElement;
 struct ezMsgExtractRenderData;
-
-namespace ezRmlUiInternal
-{
-  class Extractor;
-  class FileInterface;
-  class SystemInterface;
-} // namespace ezRmlUiInternal
 
 /// \brief The fmod configuration to be used on a specific platform
 struct EZ_RMLUIPLUGIN_DLL ezRmlUiConfiguration
@@ -43,13 +34,6 @@ public:
   void ExtractContext(ezRmlUiContext& context, ezMsgExtractRenderData& msg);
 
 private:
-  ezMutex m_ExtractionMutex;
-  ezUniquePtr<ezRmlUiInternal::Extractor> m_pExtractor;
-
-  ezUniquePtr<ezRmlUiInternal::FileInterface> m_pFileInterface;
-  ezUniquePtr<ezRmlUiInternal::SystemInterface> m_pSystemInterface;
-
-  ezRmlUiConfiguration m_Config;
-
-  ezDynamicArray<ezUniquePtr<ezRmlUiContext>> m_Contexts;  
+  struct Data;
+  ezUniquePtr<Data> m_pData;
 };

@@ -1,0 +1,68 @@
+@spritesheet controls
+{
+  src: UIControls.png;
+  
+  checkbox: 0px 0px 32px 32px;
+  checkbox-checked: 32px 0px 32px 32px;
+}
+
+body
+{
+  font-family: Roboto;
+  font-size: 13dp;
+  
+  background-color: rgba(0, 0, 0, 160);
+  color: white;
+}
+
+div
+{
+  display: block;
+}
+
+.title
+{
+  padding: 4dp;  
+  background-color: rgb(4, 32, 55);
+}
+
+.content
+{
+  padding: 4dp;
+}
+
+input.radio
+{
+  width: 16dp;
+  height: 16dp;
+  margin-bottom: 4dp;
+
+  decorator: image(checkbox);
+}
+
+input.radio:checked
+{
+  decorator: image(checkbox-checked);
+}
+
+button
+{
+  padding: 2dp;
+  text-align: center;
+  display: block;
+  border: 1px white;
+  background-color: rgb(4, 32, 55);
+  transition: background-color 0.5s quartic-out;
+}
+
+button:hover
+{
+  background-color: rgb(41, 80, 109);
+}
+
+button:active
+{
+  background-color: rgb(113, 142, 164);
+  transition: none;
+}
+
