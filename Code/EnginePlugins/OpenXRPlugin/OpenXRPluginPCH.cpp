@@ -12,6 +12,8 @@ EZ_STATICLINK_LIBRARY(OpenXRPlugin)
 
   EZ_STATICLINK_REFERENCE(OpenXRPlugin_OpenXRSingleton);
   EZ_STATICLINK_REFERENCE(OpenXRPlugin_OpenXRStartup);
+  EZ_STATICLINK_REFERENCE(OpenXRPlugin_OpenXRSpatialAnchors);
+  EZ_STATICLINK_REFERENCE(OpenXRPlugin_OpenXRHandTracking);
 }
 
 void OnLoadPlugin(bool bReloading) {}

@@ -13,7 +13,8 @@
 #include <RendererFoundation/Device/SwapChain.h>
 
 class ezOpenXRInputDevice;
-
+class ezOpenXRSpatialAnchors;
+class ezOpenXRHandTracking;
 struct ezGameApplicationExecutionEvent;
 
 EZ_DEFINE_AS_POD_TYPE(XrSwapchainImageD3D11KHR);
@@ -43,6 +44,8 @@ public:
     ezUniquePtr<ezWindowBase> companionWindow = nullptr, ezUniquePtr<ezWindowOutputTargetBase> companionWindowOutput = nullptr) override;
   virtual void OnActorDestroyed() override;
   virtual bool SupportsCompanionView() override;
+
+  XrSpace GetBaseSpace() const;
 
 private:
   struct Swapchain
@@ -92,6 +95,8 @@ private:
 
 private:
   friend class ezOpenXRInputDevice;
+  friend class ezOpenXRSpatialAnchors;
+  friend class ezOpenXRHandTracking;
 
   struct Extensions
   {
@@ -174,11 +179,12 @@ private:
   // XR interface state
   ezHMDInfo m_Info;
   mutable ezUniquePtr<ezOpenXRInputDevice> m_Input;
+  ezUniquePtr<ezOpenXRSpatialAnchors> m_Anchors;
+  ezUniquePtr<ezOpenXRHandTracking> m_HandTracking;
 
   ezWorld* m_pWorld = nullptr;
   ezCamera* m_pCameraToSynchronize = nullptr;
   ezEnum<ezXRStageSpace> m_StageSpace;
-
   ezUInt32 m_uiSettingsModificationCounter = 0;
   ezViewHandle m_hView;
   ezGALRenderTargetSetup m_RenderTargetSetup;

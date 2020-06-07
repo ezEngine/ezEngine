@@ -16,25 +16,20 @@ EZ_BEGIN_COMPONENT_TYPE(ezStageSpaceComponent, 1, ezComponentMode::Static)
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Virtual Reality"),
+    new ezCategoryAttribute("XR"),
   }
   EZ_END_ATTRIBUTES;
 }
 EZ_END_COMPONENT_TYPE
 // clang-format on
 
-ezStageSpaceComponent::ezStageSpaceComponent()
-{
-}
-
-ezStageSpaceComponent::~ezStageSpaceComponent() {}
-
+ezStageSpaceComponent::ezStageSpaceComponent() = default;
+ezStageSpaceComponent::~ezStageSpaceComponent() = default;
 
 ezEnum<ezXRStageSpace> ezStageSpaceComponent::GetStageSpace() const
 {
   return m_space;
 }
-
 
 void ezStageSpaceComponent::SetStageSpace(ezEnum<ezXRStageSpace> space)
 {

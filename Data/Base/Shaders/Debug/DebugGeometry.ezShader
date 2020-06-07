@@ -3,6 +3,9 @@ ALL
 
 [PERMUTATIONS]
 
+CAMERA_MODE
+TOPOLOGY
+
 [RENDERSTATE]
 
 BlendingEnabled0 = true
@@ -35,17 +38,36 @@ struct VS_IN_POS_ONLY
 
 VS_OUT main(VS_IN_POS_ONLY Input)
 {
-  float4x4 worldMatrix = TransformToMatrix(boxData[Input.InstanceID].transform);
+#if CAMERA_MODE == CAMERA_MODE_STEREO
+  s_ActiveCameraEyeIndex = Input.InstanceID % 2;
+#endif
 
+  #if defined(CAMERA_MODE) && CAMERA_MODE == CAMERA_MODE_STEREO
+    float4x4 worldMatrix = TransformToMatrix(boxData[Input.InstanceID / 2].transform);
+  #else
+    float4x4 worldMatrix = TransformToMatrix(boxData[Input.InstanceID].transform);
+  #endif
+  
   float4 worldPos = mul(worldMatrix, float4(Input.Position, 1.0f));
 
   VS_OUT RetVal;
   RetVal.Position = mul(GetWorldToScreenMatrix(), worldPos);
-  RetVal.Color0 = boxData[Input.InstanceID].color;
-  RetVal.InstanceID = 0;
+  #if defined(CAMERA_MODE) && CAMERA_MODE == CAMERA_MODE_STEREO
+    RetVal.Color0 = boxData[Input.InstanceID / 2].color;
+  #else
+    RetVal.Color0 = boxData[Input.InstanceID].color;
+  #endif
+  
+  RetVal.InstanceID = Input.InstanceID;
 
   return RetVal;
 }
+
+[GEOMETRYSHADER]
+
+#define USE_COLOR0
+
+#include <Shaders/Materials/StereoGeometryShader.h>
 
 [PIXELSHADER]
 
