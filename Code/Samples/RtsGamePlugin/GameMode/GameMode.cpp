@@ -143,8 +143,23 @@ void RtsGameMode::CreateSelectModeUI()
 
     pUiComponent->EnsureInitialized();
 
-    pUiComponent->GetRmlContext()->RegisterEventHandler("switchToImGui", [&](Rml::Core::Event& e) {
+    pUiComponent->GetRmlContext()->RegisterEventHandler("switchToImGui", [](Rml::Core::Event& e) {
       s_bUseRmlUi = false;
+    });
+    pUiComponent->GetRmlContext()->RegisterEventHandler("switchMode", [](Rml::Core::Event& e) {
+      auto& sValue = e.GetTargetElement()->GetId();
+      if (sValue == "battle")
+      {
+        RtsGameState::GetSingleton()->SwitchToGameMode(RtsActiveGameMode::BattleMode);
+      }
+      else if (sValue == "edit")
+      {
+        RtsGameState::GetSingleton()->SwitchToGameMode(RtsActiveGameMode::EditLevelMode);
+      }
+      else if (sValue == "mainmenu")
+      {
+        RtsGameState::GetSingleton()->SwitchToGameMode(RtsActiveGameMode::MainMenuMode);
+      }
     });
   }
   else
@@ -158,13 +173,31 @@ void RtsGameMode::CreateSelectModeUI()
 
 void RtsGameMode::DisplaySelectModeUI()
 {
-  ezComponent* pUiComponent = nullptr;
+  ezRmlUiCanvas2DComponent* pUiComponent = nullptr;
   if (m_pMainWorld->TryGetComponent(m_hSelectModeUIComponent, pUiComponent))
   {
     pUiComponent->SetActiveFlag(s_bUseRmlUi);
   }
 
-  if (!s_bUseRmlUi)
+  if (s_bUseRmlUi)
+  {
+    const RtsActiveGameMode mode = RtsGameState::GetSingleton()->GetActiveGameMode();
+    const char* szActiveModeId = "battle";
+    if (mode == RtsActiveGameMode::EditLevelMode)
+    {
+      szActiveModeId = "edit";
+    }
+    else if (mode == RtsActiveGameMode::MainMenuMode)
+    {
+      szActiveModeId = "mainmenu";
+    }
+
+    if (auto pActiveModeElement = pUiComponent->GetRmlContext()->GetDocument(0)->GetElementById(szActiveModeId))
+    {
+      pActiveModeElement->SetAttribute("checked", "");
+    }
+  }
+  else
   {
     ezImgui::GetSingleton()->SetCurrentContextForView(m_hMainView);
 
