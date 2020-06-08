@@ -26,7 +26,6 @@ public:
 private:
   friend class ezOpenXR;
 
-#ifdef BUILDSYSTEM_ENABLE_OPENXR_PREVIEW_SUPPORT
   struct JointData
   {
     EZ_DECLARE_POD_TYPE();
@@ -36,6 +35,7 @@ private:
   };
 
   ezOpenXR* m_pOpenXR = nullptr;
+#ifdef BUILDSYSTEM_ENABLE_OPENXR_PREVIEW_SUPPORT
   XrHandTrackerMSFT m_HandTracker[2] = { XR_NULL_HANDLE, XR_NULL_HANDLE };
   ezStaticArray<JointData, XR_HAND_JOINT_LITTLE_TIP_MSFT + 1> m_JointData[2];
   ezStaticArray<ezUInt32, 6> m_HandParts[ezXRHandPart::Little + 1];
