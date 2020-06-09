@@ -155,12 +155,13 @@ function(ez_set_build_flags_clang TARGET_NAME)
 	if(EZ_CMAKE_PLATFORM_WINDOWS)
 		# Disable the warning that clang doesn't support pragma optimize.
 		target_compile_options(${TARGET_NAME} PRIVATE -Wno-ignored-pragma-optimize -Wno-pragma-pack)
-		# TODO remove
-		target_compile_options(${TARGET_NAME} PRIVATE -Wno-dynamic-class-memaccess)
 	endif()
 	
 	if(NOT (CMAKE_CURRENT_SOURCE_DIR MATCHES "Code/ThirdParty"))
 		target_compile_options(${TARGET_NAME} PRIVATE -Werror=inconsistent-missing-override -Werror=switch -Werror=uninitialized)
+	else()
+		# Ignore all warnings in third party code.
+		target_compile_options(${TARGET_NAME} PRIVATE -Wno-everything)
 	endif()
 	
 	if(EZ_ENABLE_QT_SUPPORT)
