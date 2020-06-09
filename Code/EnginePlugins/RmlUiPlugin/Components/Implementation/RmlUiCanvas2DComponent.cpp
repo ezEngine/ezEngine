@@ -16,8 +16,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezRmlUiCanvas2DComponent, 1, ezComponentMode::Dynamic)
   EZ_BEGIN_PROPERTIES
   {
     EZ_ACCESSOR_PROPERTY("RmlFile", GetRmlFile, SetRmlFile)->AddAttributes(new ezFileBrowserAttribute("Rml File", "*.rml")),
-    EZ_ACCESSOR_PROPERTY("Offset", GetOffset, SetOffset)->AddAttributes(new ezDefaultValueAttribute(ezVec2::ZeroVector()), new ezSuffixAttribute("px")),
+    EZ_ACCESSOR_PROPERTY("AnchorPoint", GetAnchorPoint, SetAnchorPoint)->AddAttributes(new ezClampValueAttribute(ezVec2(0), ezVec2(1))),
     EZ_ACCESSOR_PROPERTY("Size", GetSize, SetSize)->AddAttributes(new ezDefaultValueAttribute(ezVec2U32(100)), new ezSuffixAttribute("px")),
+    EZ_ACCESSOR_PROPERTY("Offset", GetOffset, SetOffset)->AddAttributes(new ezDefaultValueAttribute(ezVec2::ZeroVector()), new ezSuffixAttribute("px")),    
     EZ_ACCESSOR_PROPERTY("PassInput", GetPassInput, SetPassInput)->AddAttributes(new ezDefaultValueAttribute(true)),
   }
   EZ_END_PROPERTIES;
@@ -37,17 +38,26 @@ EZ_END_COMPONENT_TYPE
 
 ezRmlUiCanvas2DComponent::ezRmlUiCanvas2DComponent() = default;
 ezRmlUiCanvas2DComponent::~ezRmlUiCanvas2DComponent() = default;
+ezRmlUiCanvas2DComponent& ezRmlUiCanvas2DComponent::operator=(ezRmlUiCanvas2DComponent&& rhs) = default;
 
 void ezRmlUiCanvas2DComponent::Initialize()
 {
   SUPER::Initialize();
 
-  ezStringBuilder sName = m_sRmlFile;
-  sName = sName.GetFileName();
+  ezStringBuilder sName;
+  if (m_hResource.IsValid())
+  {
+    sName = m_hResource.GetResourceID();
+  }
+  else
+  {
+    sName.Format("Context_{}", ezArgP(this));
+  }
 
   m_pContext = ezRmlUi::GetSingleton()->CreateContext(sName, m_Size);
-  m_pContext->LoadDocumentFromFile(m_sRmlFile);
-  m_pContext->SetOffset(m_Offset);
+  m_pContext->LoadDocumentFromResource(m_hResource);
+
+  UpdateResourceSubscription();
 }
 
 void ezRmlUiCanvas2DComponent::Deinitialize()
@@ -76,28 +86,39 @@ void ezRmlUiCanvas2DComponent::Update()
 {
   if (m_pContext != nullptr)
   {
-    float fViewWidth = 1.0f;
-    float fViewHeight = 1.0f;
+    if (m_bNeedsReload)
+    {
+      m_pContext->LoadDocumentFromResource(m_hResource);
+      m_pContext->ShowDocument();
+      m_bNeedsReload = false;
+    }
 
+    ezVec2 offset = ezVec2(m_Offset.x, m_Offset.y);
+    ezVec2 size = ezVec2(m_Size.x, m_Size.y);
+
+    ezVec2 viewSize = ezVec2(1.0f);
     if (ezView* pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView, ezCameraUsageHint::EditorView, GetWorld()))
     {
-      fViewWidth = pView->GetViewport().width;
-      fViewHeight = pView->GetViewport().height;
+      viewSize.x = pView->GetViewport().width;
+      viewSize.y = pView->GetViewport().height;
     }
+
+    offset = (viewSize - size).CompMul(m_AnchorPoint) - offset.CompMul(m_AnchorPoint * 2.0f - ezVec2(1.0f));
+    m_pContext->SetOffset(ezVec2I32(offset.x, offset.y));
 
     if (false)
     {
-      float fScale = fViewHeight / 1000.0f;
+      float fScale = viewSize.y / 1000.0f;
       m_pContext->SetDpiScale(fScale);
     }
 
     if (m_bPassInput)
     {
-      float mouseX, mouseY;
-      ezInputManager::GetInputSlotState(ezInputSlot_MousePositionX, &mouseX);
-      ezInputManager::GetInputSlotState(ezInputSlot_MousePositionY, &mouseY);
+      ezVec2 mousePos;
+      ezInputManager::GetInputSlotState(ezInputSlot_MousePositionX, &mousePos.x);
+      ezInputManager::GetInputSlotState(ezInputSlot_MousePositionY, &mousePos.y);
 
-      ezVec2 mousePos = ezVec2(mouseX * fViewWidth, mouseY * fViewHeight) - ezVec2(m_Offset.x, m_Offset.y);
+      mousePos = mousePos.CompMul(viewSize) - offset;
       m_pContext->UpdateInput(mousePos);
     }
 
@@ -107,28 +128,43 @@ void ezRmlUiCanvas2DComponent::Update()
 
 void ezRmlUiCanvas2DComponent::SetRmlFile(const char* szFile)
 {
-  if (m_sRmlFile != szFile)
+  ezRmlUiResourceHandle hResource;
+
+  if (!ezStringUtils::IsNullOrEmpty(szFile))
   {
-    m_sRmlFile = szFile;
+    hResource = ezResourceManager::LoadResource<ezRmlUiResource>(szFile);
+    ezResourceManager::PreloadResource(hResource);
+  }
+
+  SetRmlResource(hResource);
+}
+
+const char* ezRmlUiCanvas2DComponent::GetRmlFile() const
+{
+  if (!m_hResource.IsValid())
+    return "";
+
+  return m_hResource.GetResourceID();
+}
+
+void ezRmlUiCanvas2DComponent::SetRmlResource(const ezRmlUiResourceHandle& hResource)
+{
+  if (m_hResource != hResource)
+  {
+    m_hResource = hResource;
 
     if (m_pContext != nullptr)
     {
-      m_pContext->LoadDocumentFromFile(m_sRmlFile);
+      m_pContext->LoadDocumentFromResource(m_hResource);
+
+      UpdateResourceSubscription();
     }
   }
 }
 
 void ezRmlUiCanvas2DComponent::SetOffset(const ezVec2I32& offset)
 {
-  if (m_Offset != offset)
-  {
-    m_Offset = offset;
-
-    if (m_pContext != nullptr)
-    {
-      m_pContext->SetOffset(m_Offset);
-    }
-  }
+  m_Offset = offset;
 }
 
 void ezRmlUiCanvas2DComponent::SetSize(const ezVec2U32& size)
@@ -144,12 +180,14 @@ void ezRmlUiCanvas2DComponent::SetSize(const ezVec2U32& size)
   }
 }
 
+void ezRmlUiCanvas2DComponent::SetAnchorPoint(const ezVec2& anchorPoint)
+{
+  m_AnchorPoint = anchorPoint;
+}
+
 void ezRmlUiCanvas2DComponent::SetPassInput(bool bPassInput)
 {
-  if (m_bPassInput != bPassInput)
-  {
-    m_bPassInput = bPassInput;
-  }
+  m_bPassInput = bPassInput;
 }
 
 void ezRmlUiCanvas2DComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -158,9 +196,10 @@ void ezRmlUiCanvas2DComponent::SerializeComponent(ezWorldWriter& stream) const
 
   ezStreamWriter& s = stream.GetStream();
 
-  s << m_sRmlFile;
+  s << m_hResource;
   s << m_Offset;
   s << m_Size;
+  s << m_AnchorPoint;
   s << m_bPassInput;
 }
 
@@ -170,9 +209,10 @@ void ezRmlUiCanvas2DComponent::DeserializeComponent(ezWorldReader& stream)
   const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
   ezStreamReader& s = stream.GetStream();
 
-  s >> m_sRmlFile;
+  s >> m_hResource;
   s >> m_Offset;
   s >> m_Size;
+  s >> m_AnchorPoint;
   s >> m_bPassInput;
 }
 
@@ -195,5 +235,26 @@ void ezRmlUiCanvas2DComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& ms
   if (m_pContext != nullptr)
   {
     ezRmlUi::GetSingleton()->ExtractContext(*m_pContext, msg);
+  }
+}
+
+void ezRmlUiCanvas2DComponent::UpdateResourceSubscription()
+{
+  m_ResourceEventUnsubscriber.Unsubscribe();
+
+  if (m_hResource.IsValid())
+  {
+    ezResourceLock pResource(m_hResource, ezResourceAcquireMode::PointerOnly);
+    pResource->m_ResourceEvents.AddEventHandler([hComponent = GetHandle(), pWorld = GetWorld()](const ezResourceEvent& e) {
+      if (e.m_Type == ezResourceEvent::Type::ResourceContentUnloading)
+      {
+        ezRmlUiCanvas2DComponent* pComponent = nullptr;
+        if (pWorld->TryGetComponent(hComponent, pComponent))
+        {
+          pComponent->m_bNeedsReload = true;
+        }
+      }
+    },
+      m_ResourceEventUnsubscriber);
   }
 }

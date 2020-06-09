@@ -7,6 +7,8 @@
 struct ezMsgExtractRenderData;
 class ezRmlUiContext;
 
+using ezRmlUiResourceHandle = ezTypedResourceHandle<class ezRmlUiResource>;
+
 using ezRmlUiCanvas2DComponentManager = ezComponentManagerSimple<class ezRmlUiCanvas2DComponent, ezComponentUpdateType::Always, ezBlockStorageType::Compact>;
 
 class EZ_RMLUIPLUGIN_DLL ezRmlUiCanvas2DComponent : public ezRenderComponent
@@ -17,6 +19,8 @@ public:
   ezRmlUiCanvas2DComponent();
   ~ezRmlUiCanvas2DComponent();
 
+  ezRmlUiCanvas2DComponent& operator=(ezRmlUiCanvas2DComponent&& rhs);
+
   virtual void Initialize() override;
   virtual void Deinitialize() override;
 
@@ -25,14 +29,20 @@ public:
 
   void Update();
 
-  void SetRmlFile(const char* szFile);                  // [ property ]
-  const char* GetRmlFile() const { return m_sRmlFile; } // [ property ]
+  void SetRmlFile(const char* szFile); // [ property ]
+  const char* GetRmlFile() const;      // [ property ]
+
+  void SetRmlResource(const ezRmlUiResourceHandle& hResource);
+  const ezRmlUiResourceHandle& GetRmlResource() const { return m_hResource; }
 
   void SetOffset(const ezVec2I32& offset);                // [ property ]
   const ezVec2I32& GetOffset() const { return m_Offset; } // [ property ]
 
   void SetSize(const ezVec2U32& size);                // [ property ]
   const ezVec2U32& GetSize() const { return m_Size; } // [ property ]
+
+  void SetAnchorPoint(const ezVec2& anchorPoint);                // [ property ]
+  const ezVec2& GetAnchorPoint() const { return m_AnchorPoint; } // [ property ]
 
   void SetPassInput(bool bPassInput);                // [ property ]
   bool GetPassInput() const { return m_bPassInput; } // [ property ]
@@ -46,11 +56,16 @@ public:
 
 protected:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void UpdateResourceSubscription();
 
-  ezString m_sRmlFile;
+  ezRmlUiResourceHandle m_hResource;
+  ezEvent<const ezResourceEvent&, ezMutex>::Unsubscriber m_ResourceEventUnsubscriber;
+
   ezVec2I32 m_Offset = ezVec2I32::ZeroVector();
   ezVec2U32 m_Size = ezVec2U32(100);
+  ezVec2 m_AnchorPoint = ezVec2::ZeroVector();
   bool m_bPassInput = true;
+  bool m_bNeedsReload = false;
 
   ezRmlUiContext* m_pContext = nullptr;
 };

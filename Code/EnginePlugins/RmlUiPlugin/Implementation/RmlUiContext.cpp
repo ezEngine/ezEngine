@@ -50,16 +50,20 @@ ezRmlUiContext::ezRmlUiContext(const Rml::Core::String& name)
 
 ezRmlUiContext::~ezRmlUiContext() = default;
 
-ezResult ezRmlUiContext::LoadDocumentFromFile(const char* szFile)
+ezResult ezRmlUiContext::LoadDocumentFromResource(const ezRmlUiResourceHandle& hResource)
 {
   if (HasDocument())
   {
     UnloadDocument(GetDocument(0));
   }
 
-  if (ezStringUtils::IsNullOrEmpty(szFile) == false)
+  if (hResource.IsValid())
   {
-    LoadDocument(szFile);
+    ezResourceLock<ezRmlUiResource> pResource(hResource, ezResourceAcquireMode::BlockTillLoaded);
+    if (pResource.GetAcquireResult() == ezResourceAcquireResult::Final)
+    {
+      LoadDocument(pResource->GetRmlFile().GetData());
+    }
   }
 
   return HasDocument() ? EZ_SUCCESS : EZ_FAILURE;

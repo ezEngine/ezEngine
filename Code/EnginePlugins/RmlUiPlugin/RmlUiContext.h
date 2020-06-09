@@ -1,8 +1,8 @@
 #pragma once
 
-#include <RmlUiPlugin/RmlUiPluginDLL.h>
-
 #include <Foundation/Types/UniquePtr.h>
+#include <RmlUiPlugin/Resources/RmlUiResource.h>
+#include <RmlUiPlugin/RmlUiPluginDLL.h>
 
 #include <RmlUi/Include/RmlUi/Controls.h>
 #include <RmlUi/Include/RmlUi/Core.h>
@@ -22,7 +22,7 @@ public:
   ~ezRmlUiContext();
 
 public:
-  ezResult LoadDocumentFromFile(const char* szFile);
+  ezResult LoadDocumentFromResource(const ezRmlUiResourceHandle& hResource);
   ezResult LoadDocumentFromString(const ezStringView& sContent);
 
   void ShowDocument();

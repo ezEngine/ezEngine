@@ -2,7 +2,10 @@
 
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Configuration/Startup.h>
+#include <RmlUiPlugin/Resources/RmlUiResource.h>
 #include <RmlUiPlugin/RmlUiSingleton.h>
+
+static ezRmlUiResourceLoader s_RmlUiResourceLoader;
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(RmlUi, RmlUiPlugin)
@@ -22,6 +25,16 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RmlUi, RmlUiPlugin)
 
   ON_HIGHLEVELSYSTEMS_STARTUP
   {
+    ezResourceManager::SetResourceTypeLoader<ezRmlUiResource>(&s_RmlUiResourceLoader);
+
+    ezResourceManager::RegisterResourceForAssetType("RmlUi", ezGetStaticRTTI<ezRmlUiResource>());
+
+    {
+      ezRmlUiResourceDescriptor desc;
+      ezRmlUiResourceHandle hResource = ezResourceManager::CreateResource<ezRmlUiResource>("RmlUiMissing", std::move(desc), "Fallback for missing rml ui resource");
+      ezResourceManager::SetResourceTypeMissingFallback<ezRmlUiResource>(hResource);
+    }
+
     if (ezRmlUi::GetSingleton() == nullptr)
     {
       EZ_DEFAULT_NEW(ezRmlUi);
@@ -34,6 +47,10 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(RmlUi, RmlUiPlugin)
     {
       EZ_DEFAULT_DELETE(pRmlUi);
     }
+
+    ezResourceManager::SetResourceTypeLoader<ezRmlUiResource>(nullptr);
+
+    ezRmlUiResource::CleanupDynamicPluginReferences();
   }
 
 EZ_END_SUBSYSTEM_DECLARATION;
