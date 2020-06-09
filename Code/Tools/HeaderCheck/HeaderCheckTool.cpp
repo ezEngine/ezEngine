@@ -55,6 +55,7 @@ private:
 
   IgnoreInfo m_ignoreTarget;
   IgnoreInfo m_ignoreSource;
+
 public:
   typedef ezApplication SUPER;
 
@@ -146,7 +147,7 @@ public:
             if (ParseArray(it2.Value(), info.m_byName).Failed())
             {
               ezLog::Error("Failed to parse value of '{0}.{1}'.", it.Key(), it2.Key());
-              EZ_FAILURE;
+              return EZ_FAILURE;
             }
           }
           else
@@ -399,8 +400,7 @@ public:
       ezStringBuilder currentFileLower = currentFile.GetFileNameAndExtension();
       currentFileLower.ToLower();
 
-      bool ignore = m_ignoreTarget.m_byName.Contains(includeFileLower)
-        || m_ignoreSource.m_byName.Contains(currentFileLower);
+      bool ignore = m_ignoreTarget.m_byName.Contains(includeFileLower) || m_ignoreSource.m_byName.Contains(currentFileLower);
 
       if (!ignore)
       {

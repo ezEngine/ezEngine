@@ -72,8 +72,6 @@ EZ_STATICLINK_LIBRARY(GameEngine)
   EZ_STATICLINK_REFERENCE(GameEngine_Prefabs_Implementation_PrefabReferenceComponent);
   EZ_STATICLINK_REFERENCE(GameEngine_Prefabs_Implementation_PrefabResource);
   EZ_STATICLINK_REFERENCE(GameEngine_Prefabs_Implementation_SpawnComponent);
-  EZ_STATICLINK_REFERENCE(GameEngine_VirtualReality_Implementation_DeviceTrackingComponent);
-  EZ_STATICLINK_REFERENCE(GameEngine_VirtualReality_Implementation_StageSpaceComponent);
   EZ_STATICLINK_REFERENCE(GameEngine_VisualScript_Implementation_VisualScriptComponent);
   EZ_STATICLINK_REFERENCE(GameEngine_VisualScript_Implementation_VisualScriptInstance);
   EZ_STATICLINK_REFERENCE(GameEngine_VisualScript_Implementation_VisualScriptNode);
@@ -91,4 +89,3 @@ EZ_STATICLINK_LIBRARY(GameEngine)
   EZ_STATICLINK_REFERENCE(GameEngine_XR_Implementation_XRInterface);
   EZ_STATICLINK_REFERENCE(GameEngine_XR_Implementation_XRWindow);
 }
-

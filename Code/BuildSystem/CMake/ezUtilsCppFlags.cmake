@@ -160,9 +160,7 @@ function(ez_set_build_flags_clang TARGET_NAME)
 	endif()
 	
 	if(NOT (CMAKE_CURRENT_SOURCE_DIR MATCHES "Code/ThirdParty"))
-		target_compile_options(${TARGET_NAME} PRIVATE -Werror=inconsistent-missing-override -Werror=switch)
-	else()
-		message(STATUS ">>> Skip strict warnings on ThirdParty target ${TARGET_NAME}")
+		target_compile_options(${TARGET_NAME} PRIVATE -Werror=inconsistent-missing-override -Werror=switch -Werror=uninitialized)
 	endif()
 	
 	if(EZ_ENABLE_QT_SUPPORT)

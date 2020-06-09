@@ -128,6 +128,10 @@ static void PerFrameUpdateHandler(const ezGameApplicationExecutionEvent& e)
         }
       }
     }
+    break;
+
+    default:
+      break;
   }
 }
 

@@ -1,4 +1,5 @@
-#include "main.h"
+#include "Main.h"
+
 #include <Core/Graphics/Camera.h>
 #include <Core/Graphics/Geometry.h>
 #include <Core/Input/InputManager.h>
@@ -199,8 +200,8 @@ void ezShaderExplorerApp::AfterCoreSystemsStartup()
     "Failed to watch project directory");
 
   ezFileSystem::AddDataDirectory("", "", ":", ezFileSystem::AllowWrites);
-  ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezFileSystem::AllowWrites);              // writing to the binary directory
-  ezFileSystem::AddDataDirectory(">appdir/", "ShaderCache", "shadercache", ezFileSystem::AllowWrites); // for shader files
+  ezFileSystem::AddDataDirectory(">appdir/", "AppBin", "bin", ezFileSystem::AllowWrites);                                   // writing to the binary directory
+  ezFileSystem::AddDataDirectory(">appdir/", "ShaderCache", "shadercache", ezFileSystem::AllowWrites);                      // for shader files
   ezFileSystem::AddDataDirectory(">user/ezEngine Project/ShaderExplorer", "AppData", "appdata", ezFileSystem::AllowWrites); // app user data
 
   ezFileSystem::AddDataDirectory(">sdk/Data/Base", "Base", "base");

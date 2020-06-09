@@ -463,7 +463,6 @@ ezStatus ezAssetCurator::TransformAsset(const ezUuid& assetGuid, ezBitflags<ezTr
     if (!m_KnownAssets.TryGetValue(assetGuid, pInfo))
       return ezStatus("Transform failed, unknown asset.");
 
-    pInfo->m_pDocumentTypeDescriptor;
     sAbsPath = pInfo->m_sAbsolutePath;
     res = ProcessAsset(pInfo, pAssetProfile, transformFlags);
   }
@@ -1281,7 +1280,7 @@ void ezAssetCurator::HandleSingleFile(const ezString& sAbsolutePath)
         }
       }
     }
-    
+
     return;
   }
   else

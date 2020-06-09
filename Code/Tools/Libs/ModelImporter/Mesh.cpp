@@ -33,7 +33,7 @@ namespace ezModelImporter
     , m_Triangles(std::move(mesh.m_Triangles))
     , m_uiNextUnusedVertexIndex(mesh.m_uiNextUnusedVertexIndex)
     , m_VertexDataStreams(std::move(mesh.m_VertexDataStreams))
-    , m_SubMeshes(std::move(m_SubMeshes))
+    , m_SubMeshes(std::move(mesh.m_SubMeshes))
   {
   }
 

@@ -258,7 +258,7 @@ ezDirectoryUpdateTask::ezDirectoryUpdateTask(ezAssetWatcher* pWatcher, const cha
   : m_pWatcher(pWatcher)
   , m_sFolder(szFolder)
 {
-  ConfigureTask("ezDirectoryUpdateTask", ezTaskNesting::Never, [this](ezTask* pTask)
+  ConfigureTask("ezDirectoryUpdateTask", ezTaskNesting::Never);
 }
 
 ezDirectoryUpdateTask::~ezDirectoryUpdateTask()
