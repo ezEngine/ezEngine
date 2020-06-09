@@ -1,7 +1,9 @@
+#include <EditorFrameworkPCH.h>
+
+#include <EditorFramework/GUI/ExposedParametersTypeRegistry.h>
+
 #include <Assets/AssetCurator.h>
 #include <EditorFramework/GUI/ExposedParameters.h>
-#include <EditorFramework/GUI/ExposedParametersTypeRegistry.h>
-#include <EditorFrameworkPCH.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 
 EZ_IMPLEMENT_SINGLETON(ezExposedParametersTypeRegistry);
