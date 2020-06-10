@@ -107,6 +107,9 @@ namespace GlobalEventsDetail
       case ezGameApplicationExecutionEvent::Type::AfterPresent:
         SendChangedGlobalEventTelemetry();
         break;
+
+      default:
+        break;
     }
   }
 } // namespace GlobalEventsDetail

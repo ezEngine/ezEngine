@@ -1,20 +1,23 @@
 #pragma once
 
+#include <Foundation/Logging/Log.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <QAbstractItemView>
-#include <QStyledItemDelegate>
 #include <QHoverEvent>
 #include <QItemDelegate>
-#include <Foundation/Logging/Log.h>
+#include <QStyledItemDelegate>
 
 /// \brief In combination with ezQtItemView this delegate allows for receiving the full range of mouse input.
 class EZ_GUIFOUNDATION_DLL ezQtItemDelegate : public QItemDelegate
 {
   Q_OBJECT
 public:
-  explicit ezQtItemDelegate(QObject* parent = nullptr) : QItemDelegate(parent) {}
+  explicit ezQtItemDelegate(QObject* parent = nullptr)
+    : QItemDelegate(parent)
+  {
+  }
 
-  virtual bool mouseHoverEvent(QHoverEvent* event, const QStyleOptionViewItem& option, const QModelIndex& index) 
+  virtual bool mouseHoverEvent(QHoverEvent* event, const QStyleOptionViewItem& option, const QModelIndex& index)
   {
     return false;
   }
@@ -37,12 +40,13 @@ public:
 };
 
 /// \brief Template to be used with classes derived from QAbstractItemView. Allows the use of ezQtItemDelegate.
-template<typename Base>
+template <typename Base>
 class ezQtItemView : public Base
 {
 public:
   ezQtItemView(QWidget* pParent)
-    : Base(pParent), m_focusedDelegate(nullptr)
+    : Base(pParent)
+    , m_focusedDelegate(nullptr)
   {
     this->setAttribute(Qt::WA_Hover, true);
   }
@@ -51,9 +55,9 @@ public:
   {
     switch (ev->type())
     {
-    case QEvent::HoverEnter:
-    case QEvent::HoverMove:
-    case QEvent::HoverLeave:
+      case QEvent::HoverEnter:
+      case QEvent::HoverMove:
+      case QEvent::HoverLeave:
       {
         QHoverEvent* pHoeverEvent = static_cast<QHoverEvent*>(ev);
         QPoint pos = pHoeverEvent->pos();
@@ -77,6 +81,8 @@ public:
         }
         break;
       }
+      default:
+        break;
     }
 
     return Base::event(ev);
@@ -154,23 +160,25 @@ private:
       bool bRes = false;
       switch (pEvent->type())
       {
-      case QEvent::HoverEnter:
-      case QEvent::HoverMove:
-      case QEvent::HoverLeave:
-        bRes = pDelegate->mouseHoverEvent(static_cast<QHoverEvent*>(pEvent), option, index);
-        break;
-      case QEvent::MouseButtonPress:
-        bRes = pDelegate->mousePressEvent(static_cast<QMouseEvent*>(pEvent), option, index);
-        break;
-      case QEvent::MouseButtonRelease:
-        bRes = pDelegate->mouseReleaseEvent(static_cast<QMouseEvent*>(pEvent), option, index);
-        break;
-      case QEvent::MouseButtonDblClick:
-        bRes = pDelegate->mouseDoubleClickEvent(static_cast<QMouseEvent*>(pEvent), option, index);
-        break;
-      case QEvent::MouseMove:
-        bRes = pDelegate->mouseMoveEvent(static_cast<QMouseEvent*>(pEvent), option, index);
-        break;
+        case QEvent::HoverEnter:
+        case QEvent::HoverMove:
+        case QEvent::HoverLeave:
+          bRes = pDelegate->mouseHoverEvent(static_cast<QHoverEvent*>(pEvent), option, index);
+          break;
+        case QEvent::MouseButtonPress:
+          bRes = pDelegate->mousePressEvent(static_cast<QMouseEvent*>(pEvent), option, index);
+          break;
+        case QEvent::MouseButtonRelease:
+          bRes = pDelegate->mouseReleaseEvent(static_cast<QMouseEvent*>(pEvent), option, index);
+          break;
+        case QEvent::MouseButtonDblClick:
+          bRes = pDelegate->mouseDoubleClickEvent(static_cast<QMouseEvent*>(pEvent), option, index);
+          break;
+        case QEvent::MouseMove:
+          bRes = pDelegate->mouseMoveEvent(static_cast<QMouseEvent*>(pEvent), option, index);
+          break;
+        default:
+          break;
       }
       this->update(index);
       return bRes;
@@ -178,6 +186,7 @@ private:
 
     return false;
   }
+
 private:
   ezQtItemDelegate* m_focusedDelegate;
   QPersistentModelIndex m_hovered;

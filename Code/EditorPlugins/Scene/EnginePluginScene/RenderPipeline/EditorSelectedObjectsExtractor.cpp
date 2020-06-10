@@ -161,6 +161,8 @@ void ezEditorSelectedObjectsExtractor::UpdateRenderTargetCamera(const ezCameraCo
       m_RenderTargetCamera.SetCameraMode(ezCameraMode::PerspectiveFixedFovY, 45,
         pCamComp->GetNearPlane(), pCamComp->GetFarPlane());
       break;
+    default:
+      break;
   }
 
 

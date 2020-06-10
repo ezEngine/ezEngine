@@ -18,7 +18,7 @@ public:
 
   void UpdateFileContentDisplay();
 
-  virtual const char* GetWindowLayoutGroupName() const { return "TypeScriptAsset"; }
+  virtual const char* GetWindowLayoutGroupName() const override { return "TypeScriptAsset"; }
 
 private:
   void TsDocumentEventHandler(const ezTypeScriptAssetDocumentEvent& e);

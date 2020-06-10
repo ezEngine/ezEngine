@@ -42,6 +42,9 @@ void ezCollectionAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMa
       }
     }
     break;
+
+    default:
+      break;
   }
 }
 

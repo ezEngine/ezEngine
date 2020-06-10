@@ -40,6 +40,9 @@ void ezParticleEffectAssetDocumentManager::OnDocumentManagerEvent(const ezDocume
       }
     }
     break;
+
+    default:
+      break;
   }
 }
 

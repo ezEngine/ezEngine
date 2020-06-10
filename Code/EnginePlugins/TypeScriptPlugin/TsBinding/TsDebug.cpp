@@ -404,6 +404,8 @@ public:
           case ezVariant::Type::String:
             duk.PushString(params[arg].ConvertTo<ezString>(&r).GetData());
             break;
+
+            EZ_DEFAULT_CASE_NOT_IMPLEMENTED
         }
 
         if (r.Failed())

@@ -217,6 +217,8 @@ ezGameObjectDocumentAction::~ezGameObjectDocumentAction()
       pPreferences->m_ChangedEvent.RemoveEventHandler(ezMakeDelegate(&ezGameObjectDocumentAction::OnPreferenceChange, this));
     }
     break;
+    default:
+      break;
   }
 }
 
@@ -255,6 +257,9 @@ void ezGameObjectDocumentAction::Execute(const ezVariant& value)
     case ActionType::PickTransparent:
       m_pGameObjectDocument->SetPickTransparent(!m_pGameObjectDocument->GetPickTransparent());
       return;
+
+    default:
+      break;
   }
 }
 
@@ -315,6 +320,9 @@ void ezGameObjectDocumentAction::SceneEventHandler(const ezGameObjectEvent& e)
       }
     }
     break;
+
+    default:
+      break;
   }
 }
 
@@ -329,6 +337,9 @@ void ezGameObjectDocumentAction::OnPreferenceChange(ezPreferences* pref)
       SetChecked(pPreferences->GetShowGrid());
     }
     break;
+
+    default:
+      break;
   }
 }
 

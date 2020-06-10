@@ -43,6 +43,9 @@ void ezTextureCubeAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentM
       }
     }
     break;
+
+    default:
+      break;
   }
 }
 

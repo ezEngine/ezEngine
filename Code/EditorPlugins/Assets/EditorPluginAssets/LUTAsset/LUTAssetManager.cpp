@@ -50,6 +50,9 @@ void ezLUTAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::
       }
     }
     break;
+
+    default:
+      break;
   }
 }
 

@@ -831,6 +831,9 @@ void ezGameObjectDocument::ObjectStructureEventHandler(const ezDocumentObjectStr
         SetGlobalTransform(e.m_pObject, t, TransformationChanges::All);
       }
       break;
+
+      default:
+        break;
     }
   }
   else
@@ -856,6 +859,9 @@ void ezGameObjectDocument::ObjectStructureEventHandler(const ezDocumentObjectStr
             m_GameObjectMetaData.EndModifyMetaData(ezGameObjectMetaData::CachedName);
           }
         }
+        break;
+
+      default:
         break;
     }
   }
@@ -884,6 +890,9 @@ void ezGameObjectDocument::ObjectEventHandler(const ezDocumentObjectEvent& e)
       }
     }
     break;
+
+    default:
+      break;
   }
 }
 

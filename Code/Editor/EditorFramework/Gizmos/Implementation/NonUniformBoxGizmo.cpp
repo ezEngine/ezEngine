@@ -245,6 +245,8 @@ ezEditorInput ezNonUniformBoxGizmo::DoMouseMoveEvent(QMouseEvent* e)
 
     switch (m_ManipulateMode)
     {
+      case None:
+        break;
       case DragNegX:
         m_vNegSize.x -= vTranslate.x;
         if (m_bLinkAxis)

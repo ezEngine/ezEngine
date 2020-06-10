@@ -235,6 +235,9 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
       SaveAllOpenDocuments();
       break;
     }
+
+    default:
+      break;
   }
 }
 

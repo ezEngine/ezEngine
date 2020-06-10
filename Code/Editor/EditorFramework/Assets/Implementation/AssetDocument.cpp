@@ -227,6 +227,8 @@ void ezAssetDocument::AddReferences(const ezDocumentObject* pObject, ezAssetDocu
           }
         }
         break;
+        default:
+          break;
       }
     }
   }

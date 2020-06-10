@@ -155,6 +155,9 @@ void ezAssetWatcher::HandleWatcherChange(const WatcherResult& res)
 
   switch (res.action)
   {
+    case ezDirectoryWatcherAction::None:
+      EZ_ASSERT_DEV(false, "None event should never happen");
+      break;
     case ezDirectoryWatcherAction::Added:
     {
       if (stats == EZ_SUCCESS)

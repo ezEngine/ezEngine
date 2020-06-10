@@ -92,9 +92,9 @@ ezColor PlacementTile::GetDebugColor() const
       return ezColor::Yellow;
     case State::Finished:
       return ezColor::Green;
+    default:
+      return ezColor::DarkRed;
   }
-
-  return ezColor::DarkRed;
 }
 
 void PlacementTile::PreparePlacementData(const ezPhysicsWorldModuleInterface* pPhysicsModule, PlacementData& placementData)

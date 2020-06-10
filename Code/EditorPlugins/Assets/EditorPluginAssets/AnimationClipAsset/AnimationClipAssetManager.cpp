@@ -44,6 +44,9 @@ void ezAnimationClipAssetDocumentManager::OnDocumentManagerEvent(const ezDocumen
       }
     }
     break;
+
+    default:
+      break;
   }
 }
 

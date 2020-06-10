@@ -43,6 +43,9 @@ void ezAnimatedMeshAssetDocumentManager::OnDocumentManagerEvent(const ezDocument
       }
     }
     break;
+
+    default:
+      break;
   }
 }
 

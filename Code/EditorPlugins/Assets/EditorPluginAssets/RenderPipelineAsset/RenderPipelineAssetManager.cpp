@@ -42,6 +42,9 @@ void ezRenderPipelineAssetManager::OnDocumentManagerEvent(const ezDocumentManage
       }
     }
     break;
+
+    default:
+      break;
   }
 }
 

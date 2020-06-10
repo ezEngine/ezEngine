@@ -78,6 +78,8 @@ void ezPhantomRTTI::SetProperties(ezDynamicArray<ezReflectedPropertyDescriptor>&
         m_PropertiesStorage.PushBack(EZ_DEFAULT_NEW(ezPhantomMapProperty, &properties[i]));
       }
       break;
+      case ezPropertyCategory::Function:
+        break; // Handled in SetFunctions
     }
   }
 
@@ -198,6 +200,8 @@ bool ezPhantomRTTI::IsEqualToDescriptor(const ezReflectedTypeDescriptor& desc)
           return false;
       }
       break;
+      case ezPropertyCategory::Function:
+        break; // Functions handled below
     }
 
     if (desc.m_Functions.GetCount() != GetFunctions().GetCount())

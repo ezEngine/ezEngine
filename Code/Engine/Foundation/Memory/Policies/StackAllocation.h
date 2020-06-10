@@ -73,9 +73,7 @@ namespace ezMemoryPolicies
         m_uiNextBucketSize *= 2;
       }
 
-      auto& currentBucket = m_Buckets[m_uiCurrentBucketIndex];
-
-      EZ_ASSERT_DEBUG(m_pNextAllocation + uiSize <= currentBucket.GetEndPtr(), "");
+      EZ_ASSERT_DEBUG(m_pNextAllocation + uiSize <= m_Buckets[m_uiCurrentBucketIndex].GetEndPtr(), "");
 
       ezUInt8* ptr = m_pNextAllocation;
       m_pNextAllocation += uiSize;

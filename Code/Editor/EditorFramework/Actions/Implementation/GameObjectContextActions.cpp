@@ -74,6 +74,8 @@ ezGameObjectContextAction::ezGameObjectContextAction(const ezActionContext& cont
     case ActionType::ClearContextObject:
       SetIconPath(":/EditorPluginAssets/PickTarget16.png");
       break;
+    default:
+      break;
   }
 
   m_Context.m_pDocument->GetSelectionManager()->m_Events.AddEventHandler(
@@ -140,6 +142,8 @@ void ezGameObjectContextAction::Update()
       bool bIsSingleGameObject = selection.GetCount() == 1 && selection[0]->GetType() == ezGetStaticRTTI<ezGameObject>();
       SetEnabled(bIsSingleGameObject);
     }
-      return;
+
+    default:
+      break;
   }
 }

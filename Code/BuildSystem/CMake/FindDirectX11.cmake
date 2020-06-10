@@ -15,17 +15,9 @@
 # DirectX11_LIBRARY
 # DirectX11_ROOT_DIR
 
-if(WIN32) # The only platform it makes sense to check for DirectX11 SDK
-	if(CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION)
-		set(EZ_CMAKE_WINDOWS_SDK_VERSION ${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION})
-	else()
-		set(EZ_CMAKE_WINDOWS_SDK_VERSION ${CMAKE_SYSTEM_VERSION})
-		string(REGEX MATCHALL "\\." NUMBER_OF_DOTS "${EZ_CMAKE_WINDOWS_SDK_VERSION}")
-		list(LENGTH NUMBER_OF_DOTS NUMBER_OF_DOTS)
-		if(NUMBER_OF_DOTS EQUAL 2)
-			set(EZ_CMAKE_WINDOWS_SDK_VERSION "${EZ_CMAKE_WINDOWS_SDK_VERSION}.0")
-		endif()
-	endif()
+ez_pull_platform_vars()
+
+if(EZ_CMAKE_PLATFORM_WINDOWS) # The only platform it makes sense to check for DirectX11 SDK
 
 	include(FindPkgMacros)
 	findpkg_begin(DirectX11)
@@ -145,4 +137,4 @@ if(WIN32) # The only platform it makes sense to check for DirectX11 SDK
 					 DirectX11_DXGUID_LIBRARY
 					 DirectX11_DXGI_LIBRARY 
 					 DirectX11_D3DCOMPILER_LIBRARY)	
-endif(WIN32)
+endif(EZ_CMAKE_PLATFORM_WINDOWS)

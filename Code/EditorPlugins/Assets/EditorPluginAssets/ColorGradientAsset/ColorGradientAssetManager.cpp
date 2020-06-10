@@ -39,6 +39,9 @@ void ezColorGradientAssetDocumentManager::OnDocumentManagerEvent(const ezDocumen
       }
     }
     break;
+
+    default:
+      break;
   }
 }
 

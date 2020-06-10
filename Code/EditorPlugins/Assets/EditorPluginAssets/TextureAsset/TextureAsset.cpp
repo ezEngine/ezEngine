@@ -47,10 +47,10 @@ static const char* ToWrapMode(ezImageAddressMode::Enum mode)
       return "ClampBorder";
     case ezImageAddressMode::Mirror:
       return "Mirror";
+    default:
+      EZ_ASSERT_NOT_IMPLEMENTED;
+      return "";
   }
-
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return "";
 }
 
 const char* ToFilterMode(ezTextureFilterSetting::Enum mode)
@@ -644,6 +644,11 @@ void ezTextureAssetDocumentGenerator::GetImportModes(
     {
       info.m_sName = "TextureImport.Linear";
       info.m_sIcon = ":/AssetIcons/Texture_Linear.png";
+      break;
+    }
+
+    case TextureType::Unknown:
+    {
       break;
     }
   }

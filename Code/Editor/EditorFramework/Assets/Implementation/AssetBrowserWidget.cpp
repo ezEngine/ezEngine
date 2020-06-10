@@ -169,6 +169,8 @@ void ezQtAssetBrowserWidget::ProjectEventHandler(const ezToolsProjectEvent& e)
       m_pFilter->Reset();
     }
     break;
+    default:
+      break;
   }
 }
 
@@ -399,6 +401,8 @@ void ezQtAssetBrowserWidget::AssetCuratorEventHandler(const ezAssetCuratorEvent&
     case ezAssetCuratorEvent::Type::AssetAdded:
     case ezAssetCuratorEvent::Type::AssetRemoved:
       UpdateDirectoryTree();
+      break;
+    default:
       break;
   }
 }

@@ -1,12 +1,12 @@
 #pragma once
 
 #include <EditorFramework/Assets/AssetDocument.h>
-#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
+#include <Foundation/Profiling/Profiling.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <ToolsFoundation/Object/DocumentObjectMirror.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
+#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
-#include <Foundation/Profiling/Profiling.h>
 
 class ezApplyNativePropertyChangesContext : public ezRttiConverterContext
 {
@@ -39,13 +39,13 @@ public:
         {
           switch (pProp->GetCategory())
           {
-          case ezPropertyCategory::Member:
+            case ezPropertyCategory::Member:
             {
               if (originalProp->m_Value.IsA<ezUuid>() && originalProp->m_Value.Get<ezUuid>().IsValid())
                 return originalProp->m_Value.Get<ezUuid>();
             }
             break;
-          case ezPropertyCategory::Array:
+            case ezPropertyCategory::Array:
             {
               ezUInt32 uiIndex = index.Get<ezUInt32>();
               if (originalProp->m_Value.IsA<ezVariantArray>())
@@ -60,7 +60,7 @@ public:
               }
             }
             break;
-          case ezPropertyCategory::Map:
+            case ezPropertyCategory::Map:
             {
               const ezString& sIndex = index.Get<ezString>();
               if (originalProp->m_Value.IsA<ezVariantDictionary>())
@@ -75,20 +75,23 @@ public:
               }
             }
             break;
+
+            default:
+              break;
           }
         }
       }
-
     }
     guid.CreateNewUuid();
     return guid;
   }
+
 private:
   ezRttiConverterContext& m_nativeContext;
   const ezAbstractObjectGraph& m_originalGraph;
 };
 
-template<typename ObjectProperties>
+template <typename ObjectProperties>
 class ezSimpleDocumentObjectManager : public ezDocumentObjectManager
 {
 public:
@@ -98,7 +101,7 @@ public:
   }
 };
 
-template<typename PropertyType, typename BaseClass = ezAssetDocument>
+template <typename PropertyType, typename BaseClass = ezAssetDocument>
 class ezSimpleAssetDocument : public BaseClass
 {
 public:
@@ -215,7 +218,6 @@ private:
   }
 
 protected:
-
   virtual ezDocumentInfo* CreateDocumentInfo() override
   {
     return EZ_DEFAULT_NEW(ezAssetDocumentInfo);

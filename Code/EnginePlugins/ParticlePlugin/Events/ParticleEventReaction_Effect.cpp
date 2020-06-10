@@ -133,15 +133,15 @@ void ezParticleEventReactionFactory_Effect::CopyReactionProperties(ezParticleEve
 const ezRangeView<const char*, ezUInt32> ezParticleEventReactionFactory_Effect::GetParameters() const
 {
   return ezRangeView<const char*, ezUInt32>(
-      [this]() -> ezUInt32 { return 0; },
-      [this]() -> ezUInt32 { return m_Parameters->m_FloatParams.GetCount() + m_Parameters->m_ColorParams.GetCount(); },
-      [this](ezUInt32& it) { ++it; },
-      [this](const ezUInt32& it) -> const char* {
-        if (it < m_Parameters->m_FloatParams.GetCount())
-          return m_Parameters->m_FloatParams[it].m_sName.GetData();
-        else
-          return m_Parameters->m_ColorParams[it - m_Parameters->m_FloatParams.GetCount()].m_sName.GetData();
-      });
+    [this]() -> ezUInt32 { return 0; },
+    [this]() -> ezUInt32 { return m_Parameters->m_FloatParams.GetCount() + m_Parameters->m_ColorParams.GetCount(); },
+    [this](ezUInt32& it) { ++it; },
+    [this](const ezUInt32& it) -> const char* {
+      if (it < m_Parameters->m_FloatParams.GetCount())
+        return m_Parameters->m_FloatParams[it].m_sName.GetData();
+      else
+        return m_Parameters->m_ColorParams[it - m_Parameters->m_FloatParams.GetCount()].m_sName.GetData();
+    });
 }
 
 void ezParticleEventReactionFactory_Effect::SetParameter(const char* szKey, const ezVariant& var)
@@ -277,6 +277,9 @@ void ezParticleEventReaction_Effect::ProcessEvent(const ezParticleEvent& e)
 
     case ezSurfaceInteractionAlignment::ReverseReflectedDirection:
       vAlignDir = -e.m_vDirection.GetReflectedVector(e.m_vNormal);
+      break;
+
+    case ezSurfaceInteractionAlignment::SurfaceNormal:
       break;
   }
 

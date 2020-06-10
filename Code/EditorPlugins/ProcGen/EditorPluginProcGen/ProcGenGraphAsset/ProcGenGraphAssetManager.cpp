@@ -45,6 +45,9 @@ void ezProcGenGraphAssetDocumentManager::OnDocumentManagerEvent(const ezDocument
       }
     }
     break;
+
+    default:
+      break;
   }
 }
 

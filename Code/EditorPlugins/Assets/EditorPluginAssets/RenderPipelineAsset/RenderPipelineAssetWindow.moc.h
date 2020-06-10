@@ -15,10 +15,10 @@ public:
   ezQtRenderPipelineAssetDocumentWindow(ezDocument* pDocument);
   ~ezQtRenderPipelineAssetDocumentWindow();
 
-  virtual const char* GetWindowLayoutGroupName() const { return "RenderPipelineAsset"; }
+  virtual const char* GetWindowLayoutGroupName() const override { return "RenderPipelineAsset"; }
 
 private Q_SLOTS:
-  
+
 private:
   ezQtRenderPipelineAssetScene* m_pScene;
   ezQtNodeView* m_pView;

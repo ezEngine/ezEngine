@@ -246,9 +246,9 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
         if (i > m_uiCurFirstIndex)
         {
           pRenderPositions[i] = pTrailPositions[m_uiCurFirstIndex + m_uiMaxPoints - i];
-      }
+        }
         else
-      {
+        {
           pRenderPositions[i] = pTrailPositions[m_uiCurFirstIndex - i];
         }
       }
@@ -281,6 +281,9 @@ void ezParticleTypeTrail::ExtractTypeRenderData(const ezView& view, ezExtractedR
 
   switch (m_TextureAtlasType)
   {
+    case ezParticleTextureAtlasType::None:
+      break;
+
     case ezParticleTextureAtlasType::RandomVariations:
       pRenderData->m_uiNumVariationsX = m_uiNumSpritesX;
       pRenderData->m_uiNumVariationsY = m_uiNumSpritesY;

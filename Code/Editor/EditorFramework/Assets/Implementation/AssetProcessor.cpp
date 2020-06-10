@@ -293,6 +293,8 @@ bool ezProcessTask::GetNextAssetToProcess(ezAssetInfo* pInfo, ezUuid& out_guid, 
           }
           case ezAssetInfo::TransformState::UpToDate:
             continue;
+
+            EZ_DEFAULT_CASE_NOT_IMPLEMENTED;
         }
       }
     }

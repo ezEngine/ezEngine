@@ -16,7 +16,7 @@ public:
   ezQtAnimatedMeshAssetDocumentWindow(ezAnimatedMeshAssetDocument* pDocument);
 
   ezAnimatedMeshAssetDocument* GetMeshDocument();
-  virtual const char* GetWindowLayoutGroupName() const { return "AnimatedMeshAsset"; }
+  virtual const char* GetWindowLayoutGroupName() const override { return "AnimatedMeshAsset"; }
 
 protected:
   virtual void InternalRedraw() override;

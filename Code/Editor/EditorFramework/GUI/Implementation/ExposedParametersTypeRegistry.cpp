@@ -1,7 +1,9 @@
 #include <EditorFrameworkPCH.h>
+
 #include <EditorFramework/GUI/ExposedParametersTypeRegistry.h>
-#include <EditorFramework/GUI/ExposedParameters.h>
+
 #include <Assets/AssetCurator.h>
+#include <EditorFramework/GUI/ExposedParameters.h>
 #include <Foundation/Serialization/ReflectionSerializer.h>
 
 EZ_IMPLEMENT_SINGLETON(ezExposedParametersTypeRegistry);
@@ -36,7 +38,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 ezExposedParametersTypeRegistry::ezExposedParametersTypeRegistry()
-    : m_SingletonRegistrar(this)
+  : m_SingletonRegistrar(this)
 {
   ezReflectedTypeDescriptor desc;
   desc.m_sTypeName = "ezExposedParametersTypeBase";
@@ -147,7 +149,7 @@ void ezExposedParametersTypeRegistry::AssetCuratorEventHandler(const ezAssetCura
 {
   switch (e.m_Type)
   {
-  case ezAssetCuratorEvent::Type::AssetRemoved:
+    case ezAssetCuratorEvent::Type::AssetRemoved:
     {
       // Ignore for now, doesn't hurt. Removing types is more hassle than it is worth.
       if (auto* data = m_ShaderTypes.GetValue(e.m_AssetGuid))
@@ -156,7 +158,7 @@ void ezExposedParametersTypeRegistry::AssetCuratorEventHandler(const ezAssetCura
       }
     }
     break;
-  case ezAssetCuratorEvent::Type::AssetListReset:
+    case ezAssetCuratorEvent::Type::AssetListReset:
     {
       for (auto it = m_ShaderTypes.GetIterator(); it.IsValid(); ++it)
       {
@@ -164,7 +166,7 @@ void ezExposedParametersTypeRegistry::AssetCuratorEventHandler(const ezAssetCura
       }
     }
     break;
-  case ezAssetCuratorEvent::Type::AssetUpdated:
+    case ezAssetCuratorEvent::Type::AssetUpdated:
     {
       if (auto* data = m_ShaderTypes.GetValue(e.m_AssetGuid))
       {
@@ -174,6 +176,8 @@ void ezExposedParametersTypeRegistry::AssetCuratorEventHandler(const ezAssetCura
       }
     }
     break;
+    default:
+      break;
   }
 }
 

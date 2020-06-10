@@ -1,10 +1,10 @@
 #pragma once
 
+#include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 #include <Foundation/Basics.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
-#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 
 class ezDecalAssetDocument;
 class ezQtOrbitCamViewWidget;
@@ -16,7 +16,7 @@ class ezQtDecalAssetDocumentWindow : public ezQtEngineDocumentWindow
 public:
   ezQtDecalAssetDocumentWindow(ezDecalAssetDocument* pDocument);
 
-  virtual const char* GetWindowLayoutGroupName() const { return "DecalAsset"; }
+  virtual const char* GetWindowLayoutGroupName() const override { return "DecalAsset"; }
 
 private:
   virtual void InternalRedraw() override;
@@ -25,4 +25,3 @@ private:
   ezEngineViewConfig m_ViewConfig;
   ezQtOrbitCamViewWidget* m_pViewWidget;
 };
-

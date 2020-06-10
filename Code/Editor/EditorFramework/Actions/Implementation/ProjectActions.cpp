@@ -369,6 +369,9 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
     case ezProjectAction::ButtonType::OpenVsCode:
       SetIconPath(":/GuiFoundation/Icons/vscode16.png");
       break;
+    case ezProjectAction::ButtonType::SaveProfiling:
+      // no icon
+      break;
   }
 
   if (m_ButtonType == ButtonType::CloseProject || m_ButtonType == ButtonType::DataDirectories || m_ButtonType == ButtonType::WindowConfig ||

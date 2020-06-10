@@ -10,8 +10,8 @@
 EZ_IMPLEMENT_SINGLETON(ezQtCVarPanel);
 
 ezQtCVarPanel::ezQtCVarPanel()
-    : ezQtApplicationPanel("Panel.CVar")
-    , m_SingletonRegistrar(this)
+  : ezQtApplicationPanel("Panel.CVar")
+  , m_SingletonRegistrar(this)
 {
   setIcon(ezQtUiServices::GetCachedIconResource(":/GuiFoundation/Icons/CVar.png"));
   setWindowTitle(QString::fromUtf8(ezTranslate("Panel.CVar")));
@@ -47,6 +47,8 @@ void ezQtCVarPanel::ToolsProjectEventHandler(const ezToolsProjectEvent& e)
         setEnabled(e.m_Type == ezToolsProjectEvent::Type::ProjectOpened);
     }
     break;
+    default:
+      break;
   }
 
   ezQtApplicationPanel::ToolsProjectEventHandler(e);
@@ -85,6 +87,8 @@ void ezQtCVarPanel::EngineProcessMsgHandler(const ezEditorEngineProcessConnectio
             cvar.m_uiType = ezCVarType::String;
             cvar.m_sValue = pMsg->m_Value.ConvertTo<ezString>();
             break;
+          default:
+            break;
         }
 
         if (!bExisted)
@@ -100,6 +104,8 @@ void ezQtCVarPanel::EngineProcessMsgHandler(const ezEditorEngineProcessConnectio
       }
     }
     break;
+    default:
+      break;
   }
 }
 

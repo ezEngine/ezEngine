@@ -18,13 +18,13 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // ezDocumentNodeManager Internal
 ////////////////////////////////////////////////////////////////////////
 
-struct ConnectionInternal
+struct DocumentNodeManagerConnectionInternal
 {
-  ConnectionInternal() {}
-  ConnectionInternal(const char* szPinSource, const ezUuid& target, const char* szPinTarget)
-      : m_SourcePin(szPinSource)
-      , m_Target(target)
-      , m_TargetPin(szPinTarget)
+  DocumentNodeManagerConnectionInternal() {}
+  DocumentNodeManagerConnectionInternal(const char* szPinSource, const ezUuid& target, const char* szPinTarget)
+    : m_SourcePin(szPinSource)
+    , m_Target(target)
+    , m_TargetPin(szPinTarget)
   {
   }
 
@@ -32,10 +32,10 @@ struct ConnectionInternal
   ezUuid m_Target;
   ezString m_TargetPin;
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ConnectionInternal);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, DocumentNodeManagerConnectionInternal);
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ConnectionInternal, ezNoBase, 1, ezRTTIDefaultAllocator<ConnectionInternal>)
+EZ_BEGIN_STATIC_REFLECTED_TYPE(DocumentNodeManagerConnectionInternal, ezNoBase, 1, ezRTTIDefaultAllocator<DocumentNodeManagerConnectionInternal>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -48,15 +48,15 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ConnectionInternal, ezNoBase, 1, ezRTTIDefaultAll
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-struct NodeDataInternal
+struct DOcumentNodeManagerNodeDataInternal
 {
   ezVec2 m_NodePos;
-  ezDynamicArray<ConnectionInternal> m_Connections;
+  ezDynamicArray<DocumentNodeManagerConnectionInternal> m_Connections;
 };
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, NodeDataInternal);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, DOcumentNodeManagerNodeDataInternal);
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_TYPE(NodeDataInternal, ezNoBase, 1, ezRTTIDefaultAllocator<NodeDataInternal>)
+EZ_BEGIN_STATIC_REFLECTED_TYPE(DOcumentNodeManagerNodeDataInternal, ezNoBase, 1, ezRTTIDefaultAllocator<DOcumentNodeManagerNodeDataInternal>)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -268,8 +268,8 @@ void ezDocumentNodeManager::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& gr
 {
   auto& AllNodes = graph.GetAllNodes();
 
-  auto pType = ezGetStaticRTTI<NodeDataInternal>();
-  NodeDataInternal data;
+  auto pType = ezGetStaticRTTI<DOcumentNodeManagerNodeDataInternal>();
+  DOcumentNodeManagerNodeDataInternal data;
   ezRttiConverterContext context;
   ezRttiConverterWriter rttiConverter(&graph, &context, true, true);
 
@@ -300,7 +300,7 @@ void ezDocumentNodeManager::AttachMetaDataBeforeSaving(ezAbstractObjectGraph& gr
           // this is not the case when only a selection of nodes is copied
           if (graph.GetNode(parentGuid) != nullptr)
           {
-            data.m_Connections.PushBack(ConnectionInternal(pPinSource->GetName(), parentGuid, pPinTarget->GetName()));
+            data.m_Connections.PushBack(DocumentNodeManagerConnectionInternal(pPinSource->GetName(), parentGuid, pPinTarget->GetName()));
           }
         }
       }
@@ -315,8 +315,8 @@ void ezDocumentNodeManager::RestoreMetaDataAfterLoading(const ezAbstractObjectGr
   ezCommandHistory* history = GetDocument()->GetCommandHistory();
   auto& AllNodes = graph.GetAllNodes();
 
-  auto pType = ezGetStaticRTTI<NodeDataInternal>();
-  NodeDataInternal data;
+  auto pType = ezGetStaticRTTI<DOcumentNodeManagerNodeDataInternal>();
+  DOcumentNodeManagerNodeDataInternal data;
 
   ezRttiConverterContext context;
   ezRttiConverterReader rttiConverter(&graph, &context);
@@ -385,7 +385,7 @@ void ezDocumentNodeManager::RestoreMetaDataAfterLoading(const ezAbstractObjectGr
 
 
 bool ezDocumentNodeManager::CanReachNode(const ezDocumentObject* pSource, const ezDocumentObject* pTarget,
-                                         ezSet<const ezDocumentObject*>& Visited) const
+  ezSet<const ezDocumentObject*>& Visited) const
 {
   if (pSource == pTarget)
     return true;

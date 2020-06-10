@@ -16,7 +16,7 @@ namespace
   struct GetDoubleFunc
   {
     GetDoubleFunc(const ezVariant& value)
-        : m_Value(value)
+      : m_Value(value)
     {
     }
     template <typename T>
@@ -51,9 +51,9 @@ namespace
   struct GetVariantFunc
   {
     GetVariantFunc(double fValue, ezVariantType::Enum type, ezVariant& out_value)
-        : m_fValue(fValue)
-        , m_Type(type)
-        , m_Value(out_value)
+      : m_fValue(fValue)
+      , m_Type(type)
+      , m_Value(out_value)
     {
     }
     template <typename T>
@@ -90,7 +90,7 @@ namespace
     m_Value = ezTime::Seconds(m_fValue);
     m_bValid = true;
   }
-}
+} // namespace
 ////////////////////////////////////////////////////////////////////////
 // ezToolsReflectionUtils public functions
 ////////////////////////////////////////////////////////////////////////
@@ -99,7 +99,7 @@ ezVariant ezToolsReflectionUtils::GetStorageDefault(const ezAbstractProperty* pP
 {
   const ezDefaultValueAttribute* pAttrib = pProperty->GetAttributeByType<ezDefaultValueAttribute>();
   auto type =
-      pProperty->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProperty->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
+    pProperty->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProperty->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
 
   switch (pProperty->GetCategory())
   {
@@ -131,6 +131,9 @@ ezVariant ezToolsReflectionUtils::GetStorageDefault(const ezAbstractProperty* pP
       return ezVariantDictionary();
     }
     break;
+    case ezPropertyCategory::Constant:
+    case ezPropertyCategory::Function:
+      break; // no defaults
   }
   return ezVariant();
 }
@@ -194,7 +197,7 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
       {
         const ezRTTI* pPropRtti = prop->GetSpecificType();
         out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(prop->GetCategory(), prop->GetPropertyName(), pPropRtti->GetTypeName(),
-                                                                     prop->GetFlags(), prop->GetAttributes()));
+          prop->GetFlags(), prop->GetAttributes()));
       }
       break;
 
@@ -214,10 +217,10 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
   {
     ezAbstractFunctionProperty* prop = rttiFunc[i];
     out_desc.m_Functions.PushBack(
-        ezReflectedFunctionDescriptor(prop->GetPropertyName(), prop->GetFlags(), prop->GetFunctionType(), prop->GetAttributes()));
+      ezReflectedFunctionDescriptor(prop->GetPropertyName(), prop->GetFlags(), prop->GetFunctionType(), prop->GetAttributes()));
     ezReflectedFunctionDescriptor& desc = out_desc.m_Functions.PeekBack();
     desc.m_ReturnValue =
-        ezFunctionArgumentDescriptor(prop->GetReturnType() ? prop->GetReturnType()->GetTypeName() : "", prop->GetReturnFlags());
+      ezFunctionArgumentDescriptor(prop->GetReturnType() ? prop->GetReturnType()->GetTypeName() : "", prop->GetReturnFlags());
     const ezUInt32 uiArguments = prop->GetArgumentCount();
     desc.m_Arguments.Reserve(uiArguments);
     for (ezUInt32 a = 0; a < uiArguments; ++a)
@@ -345,4 +348,3 @@ bool ezToolsReflectionUtils::DependencySortTypeDescriptorArray(ezDynamicArray<ez
   descriptors = sorted;
   return true;
 }
-

@@ -104,5 +104,3 @@ void ezGizmoRenderer::RenderBatch(
     }
   }
 }
-
-EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_MeshRenderer);

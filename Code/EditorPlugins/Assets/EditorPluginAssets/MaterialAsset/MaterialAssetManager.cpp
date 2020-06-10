@@ -89,6 +89,9 @@ void ezMaterialAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMana
       }
     }
     break;
+
+    default:
+      break;
   }
 }
 

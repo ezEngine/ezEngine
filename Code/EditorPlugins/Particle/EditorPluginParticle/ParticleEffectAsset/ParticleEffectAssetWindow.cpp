@@ -23,7 +23,7 @@
 #include <ToolsFoundation/Command/TreeCommands.h>
 
 ezQtParticleEffectAssetDocumentWindow::ezQtParticleEffectAssetDocumentWindow(ezAssetDocument* pDocument)
-    : ezQtEngineDocumentWindow(pDocument)
+  : ezQtEngineDocumentWindow(pDocument)
 {
   GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::PropertyEventHandler, this));
   GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::StructureEventHandler, this));
@@ -261,9 +261,9 @@ ezQtParticleEffectAssetDocumentWindow::~ezQtParticleEffectAssetDocumentWindow()
   RestoreResource();
 
   GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(
-      ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::StructureEventHandler, this));
+    ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::StructureEventHandler, this));
   GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(
-      ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::PropertyEventHandler, this));
+    ezMakeDelegate(&ezQtParticleEffectAssetDocumentWindow::PropertyEventHandler, this));
 }
 
 const char* ezQtParticleEffectAssetDocumentWindow::GetWindowLayoutGroupName() const
@@ -679,6 +679,9 @@ void ezQtParticleEffectAssetDocumentWindow::StructureEventHandler(const ezDocume
     case ezDocumentObjectStructureEvent::Type::AfterObjectRemoved:
       UpdateSystemList();
       SendLiveResourcePreview();
+      break;
+
+    default:
       break;
   }
 }

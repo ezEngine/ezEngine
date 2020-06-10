@@ -403,7 +403,7 @@ void ezMotionMatchingComponent::PrecomputeMotion(ezDynamicArray<MotionData>& mot
   ezTempHashedString jointName2, const ezAnimationClipResourceDescriptor& animClip,
   ezUInt16 uiAnimClipIndex, const ezSkeleton& skeleton)
 {
-  const ezUInt16 uiRootJoint = animClip.HasRootMotion() ? animClip.GetRootMotionJoint() : 0xFFFFFFFFu;
+  const ezUInt16 uiRootJoint = animClip.HasRootMotion() ? animClip.GetRootMotionJoint() : 0xFFFFu;
   // const ezUInt16 uiJoint1IndexInAnim = animClip.FindJointIndexByName(jointName1);
   // const ezUInt16 uiJoint2IndexInAnim = animClip.FindJointIndexByName(jointName2);
 

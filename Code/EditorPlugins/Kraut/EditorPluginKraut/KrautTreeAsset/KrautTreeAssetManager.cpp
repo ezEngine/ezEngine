@@ -41,6 +41,9 @@ void ezKrautTreeAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMan
       }
     }
     break;
+
+    default:
+      break;
   }
 }
 

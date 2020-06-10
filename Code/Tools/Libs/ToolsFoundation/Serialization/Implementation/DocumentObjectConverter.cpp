@@ -402,6 +402,10 @@ void ezDocumentObjectConverterReader::ApplyDiff(ezObjectAccessorBase* pObjectAcc
       }
       break;
     }
+
+    case ezPropertyCategory::Function:
+    case ezPropertyCategory::Constant:
+      break; // nothing to do
   }
 }
 
@@ -558,5 +562,9 @@ void ezDocumentObjectConverterReader::ApplyProperty(ezDocumentObject* pObject, e
       }
       break;
     }
+
+    case ezPropertyCategory::Function:
+    case ezPropertyCategory::Constant:
+      break; // nothing to do
   }
 }

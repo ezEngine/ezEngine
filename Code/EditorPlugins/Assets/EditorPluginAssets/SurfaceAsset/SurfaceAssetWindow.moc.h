@@ -11,6 +11,5 @@ class ezQtSurfaceAssetDocumentWindow : public ezQtDocumentWindow
 public:
   ezQtSurfaceAssetDocumentWindow(ezDocument* pDocument);
 
-  virtual const char* GetWindowLayoutGroupName() const { return "SurfaceAsset"; }
-
+  virtual const char* GetWindowLayoutGroupName() const override { return "SurfaceAsset"; }
 };

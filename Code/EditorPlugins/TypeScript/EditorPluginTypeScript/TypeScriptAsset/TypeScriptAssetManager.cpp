@@ -72,6 +72,9 @@ void ezTypeScriptAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMa
       }
     }
     break;
+
+    default:
+      break;
   }
 }
 
@@ -120,6 +123,9 @@ void ezTypeScriptAssetDocumentManager::GameObjectDocumentEventHandler(const ezGa
       }
       break;
     }
+
+    default:
+      break;
   }
 }
 

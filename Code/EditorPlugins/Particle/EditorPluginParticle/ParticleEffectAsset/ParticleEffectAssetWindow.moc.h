@@ -1,11 +1,11 @@
 #pragma once
 
+#include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
+#include <EditorPluginParticle/ParticleEffectAsset/ParticleEffectAsset.h>
 #include <Foundation/Basics.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
-#include <EditorPluginParticle/ParticleEffectAsset/ParticleEffectAsset.h>
-#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
 
 class ezQtOrbitCamViewWidget;
 class ezParticleEffectAssetDocument;
@@ -22,7 +22,7 @@ public:
   ezQtParticleEffectAssetDocumentWindow(ezAssetDocument* pDocument);
   ~ezQtParticleEffectAssetDocumentWindow();
 
-  virtual const char* GetWindowLayoutGroupName() const;
+  virtual const char* GetWindowLayoutGroupName() const override;
   ezParticleEffectAssetDocument* GetParticleDocument();
 
 private Q_SLOTS:

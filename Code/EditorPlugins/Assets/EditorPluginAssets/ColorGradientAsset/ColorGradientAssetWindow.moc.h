@@ -14,7 +14,7 @@ public:
   ezQtColorGradientAssetDocumentWindow(ezDocument* pDocument);
   ~ezQtColorGradientAssetDocumentWindow();
 
-  virtual const char* GetWindowLayoutGroupName() const { return "ColorGradientAsset"; }
+  virtual const char* GetWindowLayoutGroupName() const override { return "ColorGradientAsset"; }
 
 private Q_SLOTS:
   void onGradientColorCpAdded(double posX, const ezColorGammaUB& color);
@@ -25,7 +25,7 @@ private Q_SLOTS:
   void onGradientColorCpMoved(ezInt32 idx, double newPosX);
   void onGradientAlphaCpMoved(ezInt32 idx, double newPosX);
   void onGradientIntensityCpMoved(ezInt32 idx, double newPosX);
-  
+
   void RemoveCP(ezInt32 idx, const char* szArrayName);
   void onGradientColorCpDeleted(ezInt32 idx);
   void onGradientAlphaCpDeleted(ezInt32 idx);

@@ -460,6 +460,9 @@ void ezParticleTypeQuad::AddParticleRenderData(ezExtractedRenderData& extractedR
 
   switch (m_TextureAtlasType)
   {
+    case ezParticleTextureAtlasType::None:
+      break;
+
     case ezParticleTextureAtlasType::RandomVariations:
       pRenderData->m_uiNumVariationsX = m_uiNumSpritesX;
       pRenderData->m_uiNumVariationsY = m_uiNumSpritesY;

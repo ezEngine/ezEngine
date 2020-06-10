@@ -250,6 +250,10 @@ ezSceneAction::ezSceneAction(const ezActionContext& context, const char* szName,
     case ActionType::JumpToCamera9:
       SetIconPath(":/TypeIcons/ezCameraComponent.png");
       break;
+
+    default:
+      // no icon
+      break;
   }
 
   UpdateState();
@@ -478,6 +482,9 @@ void ezSceneAction::SceneEventHandler(const ezGameObjectEvent& e)
   {
     case ezGameObjectEvent::Type::GameModeChanged:
       UpdateState();
+      break;
+
+    default:
       break;
   }
 }

@@ -1022,6 +1022,8 @@ void ezSceneDocument::RestoreFavoriteCamera(ezUInt8 uiSlot)
         case ezSceneViewPerspective::Orthogonal_Top:
           vCamPos.z = vOldPos.z;
           break;
+        case ezSceneViewPerspective::Perspective:
+          break;
       }
 
       break;
@@ -1172,6 +1174,9 @@ void ezSceneDocument::EngineConnectionEventHandler(const ezEditorEngineProcessCo
     case ezEditorEngineProcessConnection::Event::Type::ProcessStarted:
       SetGameMode(GameMode::Off);
       break;
+
+    default:
+      break;
   }
 }
 
@@ -1189,6 +1194,9 @@ void ezSceneDocument::ToolsProjectEventHandler(const ezToolsProjectEvent& e)
       GetSelectionManager()->SetSelection(selection);
     }
     break;
+
+    default:
+      break;
   }
 }
 

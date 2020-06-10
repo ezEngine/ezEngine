@@ -53,7 +53,7 @@ namespace ezApplicationDetails
 
     const bool memLeaks = pApp->IsMemoryLeakReportingEnabled();
     pApp->~AppClass();
-    memset(pApp, 0, sizeof(AppClass));
+    memset((void*)pApp, 0, sizeof(AppClass));
     if (memLeaks)
       ezMemoryTracker::DumpMemoryLeaks();
 
@@ -83,7 +83,7 @@ namespace ezApplicationDetails
 
     const bool memLeaks = pApp->IsMemoryLeakReportingEnabled();
     pApp->~AppClass();
-    memset(pApp, 0, sizeof(AppClass));
+    memset((void*)pApp, 0, sizeof(AppClass));
     if (memLeaks)
       ezMemoryTracker::DumpMemoryLeaks();
 

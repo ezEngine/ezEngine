@@ -1,10 +1,10 @@
 #pragma once
 
-#include <Foundation/Basics.h>
-#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
-#include <ToolsFoundation/Object/DocumentObjectManager.h>
-#include <EditorPluginAssets/SkeletonAsset/SkeletonAsset.h>
 #include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
+#include <EditorPluginAssets/SkeletonAsset/SkeletonAsset.h>
+#include <Foundation/Basics.h>
+#include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 class ezQtOrbitCamViewWidget;
 
@@ -16,7 +16,7 @@ public:
   ezQtSkeletonAssetDocumentWindow(ezSkeletonAssetDocument* pDocument);
 
   ezSkeletonAssetDocument* GetSkeletonDocument();
-  virtual const char* GetWindowLayoutGroupName() const { return "SkeletonAsset"; }
+  virtual const char* GetWindowLayoutGroupName() const override { return "SkeletonAsset"; }
 
 protected:
   virtual void InternalRedraw() override;

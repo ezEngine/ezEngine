@@ -109,5 +109,8 @@ void ezQtEditorApp::DocumentWindowEventHandler(const ezQtDocumentWindowEvent& e)
       }
     }
     break;
+
+    default:
+      break;
   }
 }
