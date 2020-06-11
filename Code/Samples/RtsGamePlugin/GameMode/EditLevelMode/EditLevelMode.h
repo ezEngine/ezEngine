@@ -18,8 +18,11 @@ protected:
   //////////////////////////////////////////////////////////////////////////
 
 private:
+  void CreateEditUI();
   void DisplayEditUI();
 
   ezUInt16 m_uiTeam = 0;
   ezInt32 m_iShipType = 0;
+
+  ezComponentHandle m_hEditUIComponent;
 };

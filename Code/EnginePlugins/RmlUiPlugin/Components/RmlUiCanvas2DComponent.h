@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Core/ResourceManager/ResourceHandle.h>
 #include <RendererCore/Components/RenderComponent.h>
 
 #include <RmlUiPlugin/RmlUiPluginDLL.h>

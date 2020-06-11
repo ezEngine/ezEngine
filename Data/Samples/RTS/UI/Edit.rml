@@ -1,0 +1,19 @@
+<rml>
+<head>
+  <link type="text/css" href="UI.rcss"/>
+  <title>Edit</title>
+</head>
+<body class="window">
+<div class="title">
+  Edit Level
+</div>
+<div class="content">
+  Team<select name="team">
+    <option value="0" selected>Red</option>
+    <option value="1">Green</option>
+    <option value="2" >Blue</option>
+    <option value="3" >Yellow</option>
+  </select>
+</div>
+</body>
+</rml>

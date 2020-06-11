@@ -1,6 +1,7 @@
 #include <RmlUiPluginPCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
 #include <RmlUiPlugin/Resources/RmlUiResource.h>
 
 static ezTypeVersion s_RmlUiDescVersion = 1;
@@ -49,7 +50,7 @@ ezResourceLoadDesc ezRmlUiResource::UnloadData(Unload WhatToUnload)
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
   res.m_State = ezResourceState::Unloaded;
-  
+
   return res;
 }
 
@@ -77,9 +78,9 @@ ezResourceLoadDesc ezRmlUiResource::UpdateContent(ezStreamReader* Stream)
     res.m_State = ezResourceState::Loaded;
     return res;
   }
-  
-  ezAssetFileHeader AssetHash;
-  AssetHash.Read(*Stream);
+
+  ezAssetFileHeader assetHeader;
+  assetHeader.Read(*Stream);
 
   if (desc.Load(*Stream).Failed())
   {
@@ -120,10 +121,17 @@ bool ezRmlUiResourceLoader::IsResourceOutdated(const ezResource* pResource) cons
   if (sId.GetFileExtension() == "rml")
     return false;
 
+  ezFileReader stream;
+  if (stream.Open(pResource->GetResourceID()).Failed())
+    return true;
+
+  // skip asset header
+  ezAssetFileHeader assetHeader;
+  assetHeader.Read(stream);
+
   ezDependencyFile dep;
-  EZ_VERIFY(dep.ReadDependencyFile(pResource->GetResourceID()).Succeeded(), "");
-  //if (dep.ReadDependencyFile(pResource->GetResourceID()).Failed())
-  //  return true;
+  if (dep.ReadDependencyFile(stream).Failed())
+    return true;
 
   return dep.HasAnyFileChanged();
 }

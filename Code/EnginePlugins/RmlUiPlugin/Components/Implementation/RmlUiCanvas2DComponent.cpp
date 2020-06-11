@@ -15,7 +15,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezRmlUiCanvas2DComponent, 1, ezComponentMode::Dynamic)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("RmlFile", GetRmlFile, SetRmlFile)->AddAttributes(new ezFileBrowserAttribute("Rml File", "*.rml")),
+    EZ_ACCESSOR_PROPERTY("RmlFile", GetRmlFile, SetRmlFile)->AddAttributes(new ezAssetBrowserAttribute("RmlUi")),
     EZ_ACCESSOR_PROPERTY("AnchorPoint", GetAnchorPoint, SetAnchorPoint)->AddAttributes(new ezClampValueAttribute(ezVec2(0), ezVec2(1))),
     EZ_ACCESSOR_PROPERTY("Size", GetSize, SetSize)->AddAttributes(new ezDefaultValueAttribute(ezVec2U32(100)), new ezSuffixAttribute("px")),
     EZ_ACCESSOR_PROPERTY("Offset", GetOffset, SetOffset)->AddAttributes(new ezDefaultValueAttribute(ezVec2::ZeroVector()), new ezSuffixAttribute("px")),    
@@ -248,11 +248,11 @@ void ezRmlUiCanvas2DComponent::UpdateResourceSubscription()
     pResource->m_ResourceEvents.AddEventHandler([hComponent = GetHandle(), pWorld = GetWorld()](const ezResourceEvent& e) {
       if (e.m_Type == ezResourceEvent::Type::ResourceContentUnloading)
       {
-        ezRmlUiCanvas2DComponent* pComponent = nullptr;
+        /*ezRmlUiCanvas2DComponent* pComponent = nullptr;
         if (pWorld->TryGetComponent(hComponent, pComponent))
         {
           pComponent->m_bNeedsReload = true;
-        }
+        }*/
       }
     },
       m_ResourceEventUnsubscriber);
