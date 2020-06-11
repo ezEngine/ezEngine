@@ -3,6 +3,9 @@ ALL
 
 [PERMUTATIONS]
 
+CAMERA_MODE
+TOPOLOGY
+
 [RENDERSTATE]
 
 BlendingEnabled0 = true
@@ -29,7 +32,7 @@ struct GlyphData
 
 StructuredBuffer<GlyphData> glyphData;
 
-VS_OUT main(uint VertexID : SV_VertexID)
+VS_OUT main(uint VertexID : SV_VertexID, uint InstanceID : SV_InstanceID)
 {
 	float2 vertexPositions[6] =
 	{
@@ -61,9 +64,17 @@ VS_OUT main(uint VertexID : SV_VertexID)
 	RetVal.Position = float4(screenPosition, 0.0, 1.0);
 	RetVal.TexCoord0 = (float2(texCoordX, texCoordY) + vertexPosition) * invAtlasSize;
 	RetVal.Color0 = RGBA8ToFloat4(data.color);
+	RetVal.InstanceID = InstanceID;
 
 	return RetVal;
 }
+
+[GEOMETRYSHADER]
+
+#define USE_TEXCOORD0
+#define USE_COLOR0
+
+#include <Shaders/Materials/StereoGeometryShader.h>
 
 [PIXELSHADER]
 

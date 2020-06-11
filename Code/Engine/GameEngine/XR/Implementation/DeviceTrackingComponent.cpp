@@ -10,10 +10,6 @@
 //////////////////////////////////////////////////////////////////////////
 
 // clang-format off
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezXRTransformSpace, 1)
-EZ_BITFLAGS_CONSTANTS(ezXRTransformSpace::Local, ezXRTransformSpace::Global)
-EZ_END_STATIC_REFLECTED_ENUM;
-
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezXRPoseLocation, 1)
 EZ_BITFLAGS_CONSTANTS(ezXRPoseLocation::Grip, ezXRPoseLocation::Aim)
 EZ_END_STATIC_REFLECTED_ENUM;
@@ -29,7 +25,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezDeviceTrackingComponent, 2, ezComponentMode::Dynamic)
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezCategoryAttribute("Virtual Reality"),
+    new ezCategoryAttribute("XR"),
   }
   EZ_END_ATTRIBUTES;
 }

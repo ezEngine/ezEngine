@@ -1,11 +1,10 @@
 #pragma once
 
-#include <GameEngine/ActorSystem/Actor.h>
-#include <GameEngine/XR/Declarations.h>
-#include <Core/ResourceManager/ResourceHandle.h>
-#include <Foundation/Reflection/Reflection.h>
-#include <Foundation/Math/Size.h>
 #include <GameEngine/GameEngineDLL.h>
+
+#include <GameEngine/XR/Declarations.h>
+#include <GameEngine/ActorSystem/Actor.h>
+#include <Core/ResourceManager/ResourceHandle.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
 
 typedef ezTypedResourceHandle<class ezRenderPipelineResource> ezRenderPipelineResourceHandle;
@@ -13,36 +12,18 @@ class ezViewHandle;
 class ezCamera;
 class ezGALTextureHandle;
 class ezWorld;
-class ezXRInterface;
 class ezView;
 class ezXRInputDevice;
-
-struct ezHMDInfo
-{
-  ezString m_sDeviceName;
-  ezString m_sDeviceDriver;
-  ezSizeU32 m_vEyeRenderTargetSize;
-};
-
-/// \brief Defines the stage space used for the XR experience.
-///
-/// This value is set by the ezStageSpaceComponent singleton and
-/// has to be taken into account by the XR implementation.
-struct ezXRStageSpace
-{
-  using StorageType = ezUInt8;
-  enum Enum : ezUInt8
-  {
-    Seated,   ///< Tracking poses will be relative to a seated head position
-    Standing, ///< Tracking poses will be relative to the center of the stage space at ground level.
-    Default = Standing,
-  };
-};
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezXRStageSpace);
-
 class ezWindowBase;
 class ezWindowOutputTargetBase;
 
+/// \brief XR singleton interface. Needs to be initialized to be used for VR or AR purposes.
+///
+/// To be used in a project the project needs to have an enabled ezXRConfig with a
+/// set render pipeline in the platform profile.
+/// To then use the interface, Initialize must be called first and on success CreateActor.
+/// Everything else is optional.
+/// Aquire interface via ezSingletonRegistry::GetSingletonInstance<ezXRInterface>().
 class ezXRInterface
 {
 public:
@@ -76,18 +57,27 @@ public:
   /// \name View
   ///@{
 
+  /// \brief Returns true if a companion window can be passed into CreateActor.
+  virtual bool SupportsCompanionView() = 0;
+
+  /// \brief Creates a XR actor by trying to startup an XR session.
+  ///
+  /// If SupportsCompanionView is true (VR only), a normal window and window output can be passed in.
+  /// The window will be used to blit the VR output into the window.
+  virtual ezUniquePtr<ezActor> CreateActor(
+    ezView* pView, ezGALMSAASampleCount::Enum msaaCount = ezGALMSAASampleCount::None,
+    ezUniquePtr<ezWindowBase> companionWindow = nullptr, ezUniquePtr<ezWindowOutputTargetBase> companionWindowOutput = nullptr) = 0;
+
+  ///@}
+  /// \name Internal
+  ///@{
+
   /// \brief Called by ezWindowOutputTargetXR::Present
   /// Returns the color texture to be used by the companion view if enabled, otherwise an invalid handle.
   virtual ezGALTextureHandle Present() = 0;
 
-  virtual ezUniquePtr<ezActor> CreateActor(
-    ezView* pView, ezGALMSAASampleCount::Enum msaaCount = ezGALMSAASampleCount::None,
-    ezUniquePtr<ezWindowBase> companionWindow = nullptr, ezUniquePtr<ezWindowOutputTargetBase> companionWindowOutput = nullptr) = 0;
   /// \brief Called when the actor created by 'CreateActor' is destroyed.
   virtual void OnActorDestroyed() = 0;
-
-  /// \brief Returns true if SetCompanionViewRenderTarget is supported.
-  virtual bool SupportsCompanionView() = 0;
 
   ///@}
 };

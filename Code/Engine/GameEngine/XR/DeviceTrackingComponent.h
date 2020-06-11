@@ -6,18 +6,6 @@
 #include <GameEngine/XR/XRInterface.h>
 #include <GameEngine/XR/XRInputDevice.h>
 
-struct ezXRTransformSpace
-{
-  using StorageType = ezUInt8;
-  enum Enum : ezUInt8
-  {
-    Local,  ///< Sets the local transform to the pose in stage space. Use if owner is direct child of ezStageSpaceComponent.
-    Global, ///< Uses the global transform of the device in world space.
-    Default = Local,
-  };
-};
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezXRTransformSpace);
-
 struct ezXRPoseLocation
 {
   using StorageType = ezUInt8;

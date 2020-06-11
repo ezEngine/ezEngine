@@ -71,6 +71,18 @@
 		</Expand>
 	</Type>
 	
+	<Type Name="ezStaticArray&lt;*&gt;">
+		<DisplayString>{{ count={m_uiCount} }}</DisplayString>
+		<Expand>
+			<Item Name="count">m_uiCount</Item>
+			<Item Name="capacity">m_uiCapacity</Item>
+			<ArrayItems>
+				<Size>m_uiCount</Size>
+				<ValuePointer>($T1*)m_Data</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
+	
 	<Type Name="ezHashTableBase&lt;*&gt;">
 		<DisplayString>{{ count={m_uiCount} }}</DisplayString>
 		<Expand>

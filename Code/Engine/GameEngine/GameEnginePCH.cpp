@@ -62,9 +62,6 @@ EZ_STATICLINK_LIBRARY(GameEngine)
   EZ_STATICLINK_REFERENCE(GameEngine_Interfaces_WindWorldModule);
   EZ_STATICLINK_REFERENCE(GameEngine_Messages_Implementation_DamageMessage);
   EZ_STATICLINK_REFERENCE(GameEngine_Messages_Implementation_TriggerTriggeredMessage);
-  EZ_STATICLINK_REFERENCE(GameEngine_MixedReality_Implementation_MixedRealityFramework);
-  EZ_STATICLINK_REFERENCE(GameEngine_MixedReality_Implementation_SpatialAnchorComponent);
-  EZ_STATICLINK_REFERENCE(GameEngine_MixedReality_Implementation_SrmRenderComponent);
   EZ_STATICLINK_REFERENCE(GameEngine_Physics_Implementation_CharacterControllerComponent);
   EZ_STATICLINK_REFERENCE(GameEngine_Physics_Implementation_CollisionFilter);
   EZ_STATICLINK_REFERENCE(GameEngine_Physics_Implementation_SurfaceResource);
@@ -84,7 +81,9 @@ EZ_STATICLINK_LIBRARY(GameEngine)
   EZ_STATICLINK_REFERENCE(GameEngine_VisualScript_Nodes_VisualScriptReferenceNodes);
   EZ_STATICLINK_REFERENCE(GameEngine_VisualScript_Nodes_VisualScriptVariableNodes);
   EZ_STATICLINK_REFERENCE(GameEngine_XR_Implementation_DeviceTrackingComponent);
+  EZ_STATICLINK_REFERENCE(GameEngine_XR_Implementation_SpatialAnchorComponent);
   EZ_STATICLINK_REFERENCE(GameEngine_XR_Implementation_StageSpaceComponent);
+  EZ_STATICLINK_REFERENCE(GameEngine_XR_Implementation_VisualizeHandComponent);
   EZ_STATICLINK_REFERENCE(GameEngine_XR_Implementation_XRInputDevice);
   EZ_STATICLINK_REFERENCE(GameEngine_XR_Implementation_XRInterface);
   EZ_STATICLINK_REFERENCE(GameEngine_XR_Implementation_XRWindow);

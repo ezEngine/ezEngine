@@ -4,11 +4,12 @@
 #include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 #include <GameEngine/GameApplication/GameApplication.h>
-#include <GameEngine/Interfaces/SoundInterface.h>
 #include <OpenXRPlugin/OpenXRDeclarations.h>
 #include <OpenXRPlugin/OpenXRIncludes.h>
 #include <OpenXRPlugin/OpenXRSingleton.h>
 #include <OpenXRPlugin/OpenXRInputDevice.h>
+#include <OpenXRPlugin/OpenXRSpatialAnchors.h>
+#include <OpenXRPlugin/OpenXRHandTracking.h>
 
 #include <RendererCore/Components/CameraComponent.h>
 #include <RendererCore/GPUResourcePool/GPUResourcePool.h>
@@ -24,7 +25,6 @@
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <Texture/Image/Formats/ImageFormatMappings.h>
 
-
 #include <Core/World/World.h>
 #include <GameEngine/XR/XRWindow.h>
 #include <GameEngine/XR/StageSpaceComponent.h>
@@ -37,6 +37,7 @@
 #  include <RendererDX11/Context/ContextDX11.h>
 #  include <RendererDX11/Device/DeviceDX11.h>
 #endif
+
 
 EZ_CHECK_AT_COMPILETIME(ezGALMSAASampleCount::None == 1);
 EZ_CHECK_AT_COMPILETIME(ezGALMSAASampleCount::TwoSamples == 2);
@@ -178,6 +179,8 @@ void ezOpenXR::Deinitialize()
   DeinitSession();
   DeinitSystem();
 
+  m_Input = nullptr;
+
   if (m_instance)
   {
     xrDestroyInstance(m_instance);
@@ -244,6 +247,8 @@ ezUniquePtr<ezActor> ezOpenXR::CreateActor(ezView* pView, ezGALMSAASampleCount::
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   m_hView = pView->GetHandle();
+  m_pWorld = pView->GetWorld();
+  EZ_ASSERT_DEV(m_pWorld != nullptr, "");
 
   m_RenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(m_hColorRT));
   m_RenderTargetSetup.SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(m_hDepthRT));
@@ -291,6 +296,11 @@ bool ezOpenXR::SupportsCompanionView()
   // Thus we must prevent the creation of a companion view or OpenXR crashes.
   return false;
 #endif
+}
+
+XrSpace ezOpenXR::GetBaseSpace() const
+{
+  return m_StageSpace == ezXRStageSpace::Standing ? m_sceneSpace : m_localSpace;
 }
 
 XrResult ezOpenXR::InitSystem()
@@ -354,12 +364,21 @@ XrResult ezOpenXR::InitSession()
     ezGALDevice::GetDefaultDevice()->m_Events.AddEventHandler(ezMakeDelegate(&ezOpenXR::GALDeviceEventHandler, this));
 
   SetStageSpace(ezXRStageSpace::Standing);
-
+  if (m_extensions.m_bSpatialAnchor)
+  {
+    m_Anchors = EZ_DEFAULT_NEW(ezOpenXRSpatialAnchors, this);
+  }
+  if (m_extensions.m_bHandTracking && ezOpenXRHandTracking::IsHandTrackingSupported(this))
+  {
+    m_HandTracking = EZ_DEFAULT_NEW(ezOpenXRHandTracking, this);
+  }
   return XrResult::XR_SUCCESS;
 }
 
 void ezOpenXR::DeinitSession()
 {
+  m_HandTracking = nullptr;
+  m_Anchors = nullptr;
   if (m_executionEventsId != 0)
   {
     ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(m_executionEventsId);
@@ -626,6 +645,11 @@ void ezOpenXR::BeforeUpdatePlugins()
   {
     switch (event.type)
     {
+      case XR_TYPE_EVENT_DATA_INTERACTION_PROFILE_CHANGED:
+      {
+        m_Input->UpdateCurrentInteractionProfile();
+      }
+      break;
       case XR_TYPE_EVENT_DATA_SESSION_STATE_CHANGED:
       {
         const XrEventDataSessionStateChanged& session_state_changed_event =
@@ -667,16 +691,16 @@ void ezOpenXR::BeforeUpdatePlugins()
             break;
           }
         }
-        break;
       }
+      break;
       case XR_TYPE_EVENT_DATA_INSTANCE_LOSS_PENDING:
       {
         const XrEventDataInstanceLossPending& instance_loss_pending_event =
           *reinterpret_cast<XrEventDataInstanceLossPending*>(&event);
         m_exitRenderLoop = true;
         m_requestRestart = false;
-        break;
       }
+      break;
     }
     event = { XR_TYPE_EVENT_DATA_BUFFER, nullptr };
   }
@@ -716,7 +740,7 @@ void ezOpenXR::UpdatePoses()
   XrViewLocateInfo viewLocateInfo{ XR_TYPE_VIEW_LOCATE_INFO };
   viewLocateInfo.viewConfigurationType = m_primaryViewConfigurationType;
   viewLocateInfo.displayTime = m_frameState.predictedDisplayTime;
-  viewLocateInfo.space = ezXRStageSpace::Standing ? m_sceneSpace : m_localSpace;
+  viewLocateInfo.space = GetBaseSpace();
   m_views[0].type = XR_TYPE_VIEW;
   m_views[1].type = XR_TYPE_VIEW;
   XrFovf previousFov[2];
@@ -735,6 +759,11 @@ void ezOpenXR::UpdatePoses()
 
   UpdateCamera();
   m_Input->UpdateActions();
+  if (m_HandTracking)
+  {
+    m_HandTracking->UpdateJointTransforms();
+  }
+
 }
 
 void ezOpenXR::UpdateCamera()
@@ -806,8 +835,6 @@ void ezOpenXR::UpdateCamera()
       m_Input->m_DeviceState[0].m_bGripPoseIsValid = true;
       m_Input->m_DeviceState[0].m_bAimPoseIsValid = true;
       m_Input->m_DeviceState[0].m_bDeviceIsConnected = true;
-
-
     }
 
     // Set view matrix
@@ -853,7 +880,6 @@ void ezOpenXR::BeforeBeginFrame()
       // TODO?
     }
   }
-  UpdatePoses();
 
   auto AquireAndWait = [](Swapchain& swapchain) {
     XrSwapchainImageAcquireInfo acquireInfo{ XR_TYPE_SWAPCHAIN_IMAGE_ACQUIRE_INFO };
@@ -871,6 +897,8 @@ void ezOpenXR::BeforeBeginFrame()
     if (m_extensions.m_bDepthComposition)
       AquireAndWait(m_depthSwapchain);
   }
+  UpdatePoses();
+
   // This will update the extracted view from last frame with the new data we got
   // this frame just before starting to render.
   ezView* pView = nullptr;
@@ -910,21 +938,13 @@ ezGALTextureHandle ezOpenXR::Present()
       (ezInt32)m_Info.m_vEyeRenderTargetSize.width, (ezInt32)m_Info.m_vEyeRenderTargetSize.height };
     m_projectionLayerViews[i].subImage.imageArrayIndex = i;
 
-    if (m_extensions.m_bDepthComposition)
+    if (m_extensions.m_bDepthComposition && m_pCameraToSynchronize)
     {
-      float fNear = 0.2f;
-      float fFar = 40.0f;
-      if (m_pCameraToSynchronize)
-      {
-        fNear = m_pCameraToSynchronize->GetNearPlane();
-        fFar = m_pCameraToSynchronize->GetFarPlane();
-      }
-
       m_depthLayerViews[i] = { XR_TYPE_COMPOSITION_LAYER_DEPTH_INFO_KHR };
       m_depthLayerViews[i].minDepth = 0;
       m_depthLayerViews[i].maxDepth = 1;
-      m_depthLayerViews[i].nearZ = fNear;
-      m_depthLayerViews[i].farZ = fFar;
+      m_depthLayerViews[i].nearZ = m_pCameraToSynchronize->GetNearPlane();
+      m_depthLayerViews[i].farZ = m_pCameraToSynchronize->GetFarPlane();
       m_depthLayerViews[i].subImage.swapchain = m_depthSwapchain.handle;
       m_depthLayerViews[i].subImage.imageRect.offset = { 0, 0 };
       m_depthLayerViews[i].subImage.imageRect.extent = {
@@ -944,7 +964,8 @@ ezGALTextureHandle ezOpenXR::Present()
       XR_LOG_ERROR(xrReleaseSwapchainImage(m_depthSwapchain.handle, &releaseInfo));
     }
   }
-  m_layer.space = m_StageSpace == ezXRStageSpace::Standing ? m_sceneSpace : m_localSpace;
+  m_layer.layerFlags = XR_COMPOSITION_LAYER_BLEND_TEXTURE_SOURCE_ALPHA_BIT;
+  m_layer.space = GetBaseSpace();
   m_layer.viewCount = 2;
   m_layer.views = m_projectionLayerViews;
 

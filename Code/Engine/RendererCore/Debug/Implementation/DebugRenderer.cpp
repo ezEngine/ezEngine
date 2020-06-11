@@ -868,7 +868,11 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
         pGALContext->UpdateBuffer(s_hDataBuffer[BufferType::SolidBoxes], 0,
           ezMakeArrayPtr(pSolidBoxData, uiNumSolidBoxesInBatch).ToByteArray());
 
-        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiNumSolidBoxesInBatch);
+        unsigned int uiRenderedInstances = uiNumSolidBoxesInBatch;
+        if (renderViewContext.m_pCamera->IsStereoscopic())
+          uiRenderedInstances *= 2;
+
+        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances);
 
         uiNumSolidBoxes -= uiNumSolidBoxesInBatch;
         pSolidBoxData += BOXES_PER_BATCH;
@@ -897,7 +901,12 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
         renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDataBuffer[BufferType::Triangles3D], ezGALBufferHandle(),
           &s_VertexDeclarationInfo, ezGALPrimitiveTopology::Triangles,
           uiNumTriangleVerticesInBatch / 3);
-        renderViewContext.m_pRenderContext->DrawMeshBuffer();
+
+        unsigned int uiRenderedInstances = 1;
+        if (renderViewContext.m_pCamera->IsStereoscopic())
+          uiRenderedInstances *= 2;
+
+        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances);
 
         uiNumTriangleVertices -= uiNumTriangleVerticesInBatch;
         pTriangleData += TRIANGLE_VERTICES_PER_BATCH;
@@ -924,7 +933,12 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
 
         renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDataBuffer[BufferType::Lines], ezGALBufferHandle(), &s_VertexDeclarationInfo,
           ezGALPrimitiveTopology::Lines, uiNumLineVerticesInBatch / 2);
-        renderViewContext.m_pRenderContext->DrawMeshBuffer();
+
+        unsigned int uiRenderedInstances = 1;
+        if (renderViewContext.m_pCamera->IsStereoscopic())
+          uiRenderedInstances *= 2;
+
+        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances);
 
         uiNumLineVertices -= uiNumLineVerticesInBatch;
         pLineData += LINE_VERTICES_PER_BATCH;
@@ -951,7 +965,12 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
 
         renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDataBuffer[BufferType::Lines2D], ezGALBufferHandle(), &s_VertexDeclarationInfo,
           ezGALPrimitiveTopology::Lines, uiNumLineVerticesInBatch / 2);
-        renderViewContext.m_pRenderContext->DrawMeshBuffer();
+
+        unsigned int uiRenderedInstances = 1;
+        if (renderViewContext.m_pCamera->IsStereoscopic())
+          uiRenderedInstances *= 2;
+
+        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances);
 
         uiNumLineVertices -= uiNumLineVerticesInBatch;
         pLineData += LINE_VERTICES_PER_BATCH;
@@ -977,7 +996,11 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
         pGALContext->UpdateBuffer(s_hDataBuffer[BufferType::LineBoxes], 0,
           ezMakeArrayPtr(pLineBoxData, uiNumLineBoxesInBatch).ToByteArray());
 
-        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiNumLineBoxesInBatch);
+        unsigned int uiRenderedInstances = uiNumLineBoxesInBatch;
+        if (renderViewContext.m_pCamera->IsStereoscopic())
+          uiRenderedInstances *= 2;
+
+        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances);
 
         uiNumLineBoxes -= uiNumLineBoxesInBatch;
         pLineBoxData += BOXES_PER_BATCH;
@@ -1006,7 +1029,12 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
         renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDataBuffer[BufferType::Triangles2D], ezGALBufferHandle(),
           &s_VertexDeclarationInfo, ezGALPrimitiveTopology::Triangles,
           uiNum2DVerticesInBatch / 3);
-        renderViewContext.m_pRenderContext->DrawMeshBuffer();
+
+        unsigned int uiRenderedInstances = 1;
+        if (renderViewContext.m_pCamera->IsStereoscopic())
+          uiRenderedInstances *= 2;
+
+        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances);
 
         uiNum2DVertices -= uiNum2DVerticesInBatch;
         pTriangleData += TRIANGLE_VERTICES_PER_BATCH;
@@ -1041,7 +1069,12 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
           renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDataBuffer[BufferType::TexTriangles2D], ezGALBufferHandle(),
             &s_TexVertexDeclarationInfo, ezGALPrimitiveTopology::Triangles,
             uiNum2DVerticesInBatch / 3);
-          renderViewContext.m_pRenderContext->DrawMeshBuffer();
+
+          unsigned int uiRenderedInstances = 1;
+          if (renderViewContext.m_pCamera->IsStereoscopic())
+            uiRenderedInstances *= 2;
+
+          renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances);
 
           uiNum2DVertices -= uiNum2DVerticesInBatch;
           pTriangleData += TEX_TRIANGLE_VERTICES_PER_BATCH;
@@ -1074,7 +1107,12 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
           pGALContext->UpdateBuffer(s_hDataBuffer[BufferType::TexTriangles3D], 0, ezMakeArrayPtr(pTriangleData, uiNumVerticesInBatch).ToByteArray());
 
           renderViewContext.m_pRenderContext->BindMeshBuffer(s_hDataBuffer[BufferType::TexTriangles3D], ezGALBufferHandle(), &s_TexVertexDeclarationInfo, ezGALPrimitiveTopology::Triangles, uiNumVerticesInBatch / 3);
-          renderViewContext.m_pRenderContext->DrawMeshBuffer();
+
+          unsigned int uiRenderedInstances = 1;
+          if (renderViewContext.m_pCamera->IsStereoscopic())
+            uiRenderedInstances *= 2;
+
+          renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances);
 
           uiNumVertices -= uiNumVerticesInBatch;
           pTriangleData += TEX_TRIANGLE_VERTICES_PER_BATCH;
@@ -1122,7 +1160,12 @@ void ezDebugRenderer::RenderInternal(const ezDebugRendererContext& context, cons
 
         renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr,
           ezGALPrimitiveTopology::Triangles, uiNumGlyphsInBatch * 2);
-        renderViewContext.m_pRenderContext->DrawMeshBuffer();
+
+        unsigned int uiRenderedInstances = 1;
+        if (renderViewContext.m_pCamera->IsStereoscopic())
+          uiRenderedInstances *= 2;
+
+        renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, uiRenderedInstances);
 
         uiNumGlyphs -= uiNumGlyphsInBatch;
         pGlyphData += GLYPHS_PER_BATCH;
