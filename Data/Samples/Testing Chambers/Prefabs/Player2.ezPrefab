@@ -67,7 +67,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{8325318639183543703,4757176779305952111}}
-		u4 %Hash{1619576042949640569}
+		u4 %Hash{5305169930806677724}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{14146522745554303380,2902865256510917925}}
@@ -216,6 +216,8 @@ o
 		{
 			Uuid{u4{833559044517712777,2048742224257356627}}
 			Uuid{u4{9980618308030673581,4722175879171792050}}
+			Uuid{u4{11105550635838634898,5462942376079974647}}
+			Uuid{u4{8851077938304784000,5025144473393516293}}
 		}
 		VarArray %Components
 		{
@@ -224,7 +226,6 @@ o
 			Uuid{u4{5622439316203724425,1720748372109465727}}
 			Uuid{u4{9037051775693227418,1142056909135927101}}
 			Uuid{u4{1632982377772426898,5345566257393890410}}
-			Uuid{u4{12321513403865792957,5135711551099382971}}
 		}
 		s %GlobalKey{"Player"}
 		Vec3 %LocalPosition{f{0,0,0}}
@@ -373,6 +374,49 @@ o
 }
 o
 {
+	Uuid %id{u4{8851077938304784000,5025144473393516293}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children
+		{
+			Uuid{u4{15645782226505529784,5151343119486104191}}
+			Uuid{u4{10396593351927524452,10041319514703533722}}
+		}
+		VarArray %Components
+		{
+			Uuid{u4{6891634711095145110,5414745325272181078}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{"CollisionShapes"}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
+	}
+}
+o
+{
+	Uuid %id{u4{876535930465829789,5032022285031671740}}
+	s %t{"ezMarkerComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		s %Marker{"Player"}
+		f %Radius{0x9A99993E}
+	}
+}
+o
+{
 	Uuid %id{u4{555272998002336904,5067861789267277158}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -400,14 +444,29 @@ o
 }
 o
 {
-	Uuid %id{u4{12321513403865792957,5135711551099382971}}
-	s %t{"ezMarkerComponent"}
+	Uuid %id{u4{15645782226505529784,5151343119486104191}}
+	s %t{"ezGameObject"}
 	u3 %v{1}
 	p
 	{
 		b %Active{1}
-		s %Marker{"Player"}
-		f %Radius{0x9A99993E}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{9269634065323055780,5725909705077043860}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x40814BBD,0,0}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
 	}
 }
 o
@@ -451,6 +510,24 @@ o
 }
 o
 {
+	Uuid %id{u4{6891634711095145110,5414745325272181078}}
+	s %t{"ezPxDynamicActorComponent"}
+	u3 %v{3}
+	p
+	{
+		b %Active{1}
+		f %AngularDamping{0xCDCC4C3D}
+		b %ContinuousCollisionDetection{0}
+		f %Density{0x0000C842}
+		b %DisableGravity{0}
+		b %Kinematic{1}
+		f %LinearDamping{0xCDCCCC3D}
+		f %Mass{0}
+		f %MaxContactImpulse{0x00247449}
+	}
+}
+o
+{
 	Uuid %id{u4{15694140455671702950,5420418590396448288}}
 	s %t{"ezGameObject"}
 	u3 %v{1}
@@ -486,6 +563,33 @@ o
 		s %Name{"Invincible"}
 		Uuid %Object{u4{1632982377772426898,5345566257393890410}}
 		s %PropertyPath{"Parameters[Invincible]"}
+	}
+}
+o
+{
+	Uuid %id{u4{11105550635838634898,5462942376079974647}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{876535930465829789,5032022285031671740}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0x4084E02F,0,0xDA11BABD}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
 	}
 }
 o
@@ -580,6 +684,20 @@ o
 }
 o
 {
+	Uuid %id{u4{9269634065323055780,5725909705077043860}}
+	s %t{"ezPxShapeSphereComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		u1 %CollisionLayer{10}
+		s %OnContact{""}
+		f %Radius{0x0000803E}
+		s %Surface{""}
+	}
+}
+o
+{
 	Uuid %id{u4{18096612296587978288,6449934965513159559}}
 	s %t{"ezSceneDocumentRoot"}
 	u3 %v{1}
@@ -591,6 +709,33 @@ o
 			Uuid{u4{4155495288007568811,1797287576486729623}}
 		}
 		Uuid %Settings{u4{16776872544333506196,5371494594969974096}}
+	}
+}
+o
+{
+	Uuid %id{u4{10396593351927524452,10041319514703533722}}
+	s %t{"ezGameObject"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		VarArray %Children{}
+		VarArray %Components
+		{
+			Uuid{u4{4020445190745050448,10615886100294473391}}
+		}
+		s %GlobalKey{""}
+		Vec3 %LocalPosition{f{0,0,0x000080BE}}
+		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
+		f %LocalUniformScaling{0x0000803F}
+		s %Mode{"ezObjectMode::Automatic"}
+		s %Name{""}
+		VarArray %Tags
+		{
+			s{"CastShadow"}
+			s{"AutoColMesh"}
+		}
 	}
 }
 o
@@ -630,6 +775,20 @@ o
 			s{"CastShadow"}
 			s{"AutoColMesh"}
 		}
+	}
+}
+o
+{
+	Uuid %id{u4{4020445190745050448,10615886100294473391}}
+	s %t{"ezPxShapeSphereComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		u1 %CollisionLayer{10}
+		s %OnContact{""}
+		f %Radius{0x0000803E}
+		s %Surface{""}
 	}
 }
 o
@@ -849,6 +1008,24 @@ o
 }
 o
 {
+	Uuid %id{u4{14446680793112045351,3506137973542664143}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Bitflags|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezBitflagsBase"}
+		s %PluginName{"ezPhysXPlugin"}
+		VarArray %Properties{}
+		s %TypeName{"ezOnPhysXContact"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{17572474202739270782,4142273277939482310}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -881,6 +1058,24 @@ o
 		s %TypeName{"ezPxRaycastInteractComponent"}
 		u3 %TypeSize{120}
 		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{13146435625671389871,5145262613012234345}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPxComponent"}
+		s %PluginName{"ezPhysXPlugin"}
+		VarArray %Properties{}
+		s %TypeName{"ezPxShapeComponent"}
+		u3 %TypeSize{72}
+		u3 %TypeVersion{5}
 	}
 }
 o
@@ -921,6 +1116,24 @@ o
 }
 o
 {
+	Uuid %id{u4{10276195715960149106,6149987909253238229}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Abstract|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPxComponent"}
+		s %PluginName{"ezPhysXPlugin"}
+		VarArray %Properties{}
+		s %TypeName{"ezPxActorComponent"}
+		u3 %TypeSize{48}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{13649880205026559927,7297274558339895637}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -957,6 +1170,24 @@ o
 }
 o
 {
+	Uuid %id{u4{11005437603101136476,7368533338987833088}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{""}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezBitflagsBase"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{14039382095010974037,7615244768645852547}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -971,6 +1202,24 @@ o
 		s %TypeName{"ezPxCharacterControllerComponent"}
 		u3 %TypeSize{160}
 		u3 %TypeVersion{5}
+	}
+}
+o
+{
+	Uuid %id{u4{9117014634596472380,7811057850526279831}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPxActorComponent"}
+		s %PluginName{"ezPhysXPlugin"}
+		VarArray %Properties{}
+		s %TypeName{"ezPxDynamicActorComponent"}
+		u3 %TypeSize{88}
+		u3 %TypeVersion{3}
 	}
 }
 o
@@ -1132,6 +1381,24 @@ o
 		VarArray %Properties{}
 		s %TypeName{"ezRenderComponent"}
 		u3 %TypeSize{48}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
+	Uuid %id{u4{14063591547429035251,13671873621033464427}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezPxShapeComponent"}
+		s %PluginName{"ezPhysXPlugin"}
+		VarArray %Properties{}
+		s %TypeName{"ezPxShapeSphereComponent"}
+		u3 %TypeSize{80}
 		u3 %TypeVersion{1}
 	}
 }

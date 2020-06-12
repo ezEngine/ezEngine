@@ -73,11 +73,17 @@ static int __CPP_Physics_Raycast(duk_context* pDuk)
   ezPhysicsWorldModuleInterface* pModule = GetPhysicsModule();
 
   const ezVec3 vStart = ezTypeScriptBinding::GetVec3(duk, 0);
-  const ezVec3 vDir = ezTypeScriptBinding::GetVec3(duk, 1);
+  ezVec3 vDir = ezTypeScriptBinding::GetVec3(duk, 1);
   const float fDistance = duk.GetFloatValue(2);
   const ezUInt32 uiCollisionLayer = duk.GetUIntValue(3);
   const ezPhysicsShapeType::Enum shapeTypes = static_cast<ezPhysicsShapeType::Enum>(duk.GetUIntValue(4));
   const ezUInt32 uiIgnoreShapeID = duk.GetIntValue(5);
+
+  if (vDir.NormalizeIfNotZero(ezVec3::UnitXAxis()).Failed())
+  {
+    ezLog::Warning("TS: ez.Physics.Raycast() called with degenerate ray direction.");
+    return duk.ReturnNull();
+  }
 
   ezPhysicsCastResult res;
   if (!pModule->Raycast(res, vStart, vDir, fDistance, ezPhysicsQueryParameters(uiCollisionLayer, shapeTypes, uiIgnoreShapeID)))
