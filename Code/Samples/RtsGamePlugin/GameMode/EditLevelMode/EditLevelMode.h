@@ -18,7 +18,7 @@ protected:
   //////////////////////////////////////////////////////////////////////////
 
 private:
-  void CreateEditUI();
+  void SetupEditUI();
   void DisplayEditUI();
 
   ezUInt16 m_uiTeam = 0;

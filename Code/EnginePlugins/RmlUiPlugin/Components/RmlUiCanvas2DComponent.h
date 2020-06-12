@@ -63,7 +63,7 @@ protected:
   ezEvent<const ezResourceEvent&, ezMutex>::Unsubscriber m_ResourceEventUnsubscriber;
 
   ezVec2I32 m_Offset = ezVec2I32::ZeroVector();
-  ezVec2U32 m_Size = ezVec2U32(100);
+  ezVec2U32 m_Size = ezVec2U32::ZeroVector();
   ezVec2 m_AnchorPoint = ezVec2::ZeroVector();
   bool m_bPassInput = true;
   bool m_bNeedsReload = false;

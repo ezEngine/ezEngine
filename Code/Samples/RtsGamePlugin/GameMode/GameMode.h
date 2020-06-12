@@ -61,7 +61,7 @@ public:
 
 
 protected:
-  void CreateSelectModeUI();
+  void SetupSelectModeUI();
   void DisplaySelectModeUI();
 
   static bool s_bUseRmlUi;

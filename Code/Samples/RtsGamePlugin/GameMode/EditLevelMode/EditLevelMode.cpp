@@ -20,7 +20,7 @@ RtsEditLevelMode::~RtsEditLevelMode() = default;
 
 void RtsEditLevelMode::OnActivateMode()
 {
-  CreateEditUI();
+  SetupEditUI();
 }
 
 void RtsEditLevelMode::OnDeactivateMode()
@@ -42,30 +42,19 @@ void RtsEditLevelMode::OnBeforeWorldUpdate()
   m_pGameState->RenderUnitSelection();
 }
 
-void RtsEditLevelMode::CreateEditUI()
+void RtsEditLevelMode::SetupEditUI()
 {
-  constexpr const char* szKey = "EditUI";
   ezGameObject* pEditUIObject = nullptr;
-  if (!m_pMainWorld->TryGetObjectWithGlobalKey(ezTempHashedString(szKey), pEditUIObject))
-  {
-    ezGameObjectDesc desc;
-    desc.m_bDynamic = true;
-    desc.m_sName.Assign(szKey);
+  if (!m_pMainWorld->TryGetObjectWithGlobalKey(ezTempHashedString("EditUI"), pEditUIObject))
+    return;
 
-    m_pMainWorld->CreateObject(desc, pEditUIObject);
-    pEditUIObject->SetGlobalKey(szKey);
+  ezRmlUiCanvas2DComponent* pUiComponent = nullptr;
+  if (!pEditUIObject->TryGetComponentOfBaseType(pUiComponent))
+    return;
 
-    ezRmlUiCanvas2DComponent* pUiComponent = nullptr;
-    m_hEditUIComponent = ezRmlUiCanvas2DComponent::CreateComponent(pEditUIObject, pUiComponent);
+  pUiComponent->EnsureInitialized();
 
-    pUiComponent->SetRmlFile("UI/Edit.rml");
-    pUiComponent->SetAnchorPoint(ezVec2(1, 0));
-    pUiComponent->SetOffset(ezVec2I32(10, 10));
-    pUiComponent->SetSize(ezVec2U32(200, 150));
-
-    pUiComponent->EnsureInitialized();
-
-    /*pUiComponent->GetRmlContext()->RegisterEventHandler("switchToImGui", [](Rml::Core::Event& e) {
+  /*pUiComponent->GetRmlContext()->RegisterEventHandler("switchToImGui", [](Rml::Core::Event& e) {
       s_bUseRmlUi = false;
     });
     pUiComponent->GetRmlContext()->RegisterEventHandler("switchMode", [](Rml::Core::Event& e) {
@@ -83,7 +72,8 @@ void RtsEditLevelMode::CreateEditUI()
         RtsGameState::GetSingleton()->SwitchToGameMode(RtsActiveGameMode::MainMenuMode);
       }
     });*/
-  }
+
+  m_hEditUIComponent = pUiComponent->GetHandle();
 }
 
 void RtsEditLevelMode::DisplayEditUI()
