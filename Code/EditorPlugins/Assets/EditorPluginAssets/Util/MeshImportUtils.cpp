@@ -19,6 +19,12 @@ namespace ezMeshImportUtils
   ezString ImportOrResolveTexture(const char* szImportSourceFolder, const char* szImportTargetFolder, const char* szTexturePath,
     ezModelImporter::SemanticHint::Enum hint, bool bTextureClamp)
   {
+    if (!ezUnicodeUtils::IsValidUtf8(szTexturePath))
+    {
+      ezLog::Error("Texture to resolve is not a valid UTF-8 string.");
+      return ezString();
+    }
+
     ezStringBuilder textureNameTemp = ezStringBuilder(szTexturePath).GetFileName();
     ezStringBuilder textureName;
     ezPathUtils::MakeValidFilename(textureNameTemp, '_', textureName);
