@@ -4,6 +4,14 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <RmlUiPlugin/Resources/RmlUiResource.h>
 
+// clang-format off
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezRmlUiScaleMode, 1)
+  EZ_ENUM_CONSTANTS(ezRmlUiScaleMode::Fixed, ezRmlUiScaleMode::WithScreenSize)
+EZ_END_STATIC_REFLECTED_ENUM;
+// clang-format on
+
+//////////////////////////////////////////////////////////////////////////
+
 static ezTypeVersion s_RmlUiDescVersion = 1;
 
 ezResult ezRmlUiResourceDescriptor::Save(ezStreamWriter& stream)
@@ -15,6 +23,8 @@ ezResult ezRmlUiResourceDescriptor::Save(ezStreamWriter& stream)
   stream.WriteVersion(s_RmlUiDescVersion);
 
   stream << m_sRmlFile;
+  stream << m_ScaleMode;
+  stream << m_ReferenceResolution;
 
   return EZ_SUCCESS;
 }
@@ -26,6 +36,8 @@ ezResult ezRmlUiResourceDescriptor::Load(ezStreamReader& stream)
   ezTypeVersion uiVersion = stream.ReadVersion(s_RmlUiDescVersion);
 
   stream >> m_sRmlFile;
+  stream >> m_ScaleMode;
+  stream >> m_ReferenceResolution;
 
   return EZ_SUCCESS;
 }
@@ -101,6 +113,8 @@ void ezRmlUiResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezRmlUiResource, ezRmlUiResourceDescriptor)
 {
   m_sRmlFile = descriptor.m_sRmlFile;
+  m_ScaleMode = descriptor.m_ScaleMode;
+  m_ReferenceResolution = descriptor.m_ReferenceResolution;
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;

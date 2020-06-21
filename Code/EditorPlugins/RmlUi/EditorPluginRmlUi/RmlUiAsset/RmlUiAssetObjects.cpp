@@ -1,6 +1,5 @@
 #include <EditorPluginRmlUiPCH.h>
 
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginRmlUi/RmlUiAsset/RmlUiAssetObjects.h>
 
 // clang-format off
@@ -9,6 +8,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRmlUiAssetProperties, 1, ezRTTIDefaultAllocato
   EZ_BEGIN_PROPERTIES
   {
     EZ_MEMBER_PROPERTY("RmlFile", m_sRmlFile)->AddAttributes(new ezFileBrowserAttribute("Select Rml file", "*.rml")),
+    EZ_ENUM_MEMBER_PROPERTY("ScaleMode", ezRmlUiScaleMode, m_ScaleMode),
+    EZ_MEMBER_PROPERTY("ReferenceResolution", m_ReferenceResolution)->AddAttributes(new ezDefaultValueAttribute(ezVec2U32(1920, 1080))),
   }
   EZ_END_PROPERTIES;
 }

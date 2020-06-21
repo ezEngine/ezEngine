@@ -25,6 +25,9 @@ public:
   ezResult LoadDocumentFromResource(const ezRmlUiResourceHandle& hResource);
   ezResult LoadDocumentFromString(const ezStringView& sContent);
 
+  void UnloadDocument();
+  ezResult ReloadDocumentFromResource(const ezRmlUiResourceHandle& hResource);
+
   void ShowDocument();
   void HideDocument();
 

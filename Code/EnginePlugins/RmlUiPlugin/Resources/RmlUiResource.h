@@ -4,6 +4,21 @@
 #include <Foundation/IO/DependencyFile.h>
 #include <RmlUiPlugin/RmlUiPluginDLL.h>
 
+struct EZ_RMLUIPLUGIN_DLL ezRmlUiScaleMode
+{
+  using StorageType = ezUInt8;
+
+  enum Enum
+  {
+    Fixed,
+    WithScreenSize,
+
+    Default = Fixed
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_RMLUIPLUGIN_DLL, ezRmlUiScaleMode);
+
 struct EZ_RMLUIPLUGIN_DLL ezRmlUiResourceDescriptor
 {
   ezResult Save(ezStreamWriter& stream);
@@ -12,6 +27,8 @@ struct EZ_RMLUIPLUGIN_DLL ezRmlUiResourceDescriptor
   ezDependencyFile m_DependencyFile;
 
   ezString m_sRmlFile;
+  ezEnum<ezRmlUiScaleMode> m_ScaleMode;
+  ezVec2U32 m_ReferenceResolution;
 };
 
 using ezRmlUiResourceHandle = ezTypedResourceHandle<class ezRmlUiResource>;
@@ -26,6 +43,8 @@ public:
   ezRmlUiResource();
 
   const ezString& GetRmlFile() const { return m_sRmlFile; }
+  const ezEnum<ezRmlUiScaleMode>& GetScaleMode() const { return m_ScaleMode; }
+  const ezVec2U32& GetReferenceResolution() const { return m_ReferenceResolution; }
 
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
@@ -33,6 +52,8 @@ private:
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
   ezString m_sRmlFile;
+  ezEnum<ezRmlUiScaleMode> m_ScaleMode;
+  ezVec2U32 m_ReferenceResolution;
 };
 
 class ezRmlUiResourceLoader : public ezResourceLoaderFromFile

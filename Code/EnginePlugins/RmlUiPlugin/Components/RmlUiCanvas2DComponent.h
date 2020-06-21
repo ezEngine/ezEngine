@@ -2,8 +2,7 @@
 
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <RendererCore/Components/RenderComponent.h>
-
-#include <RmlUiPlugin/RmlUiPluginDLL.h>
+#include <RmlUiPlugin/Components/RmlUiMessages.h>
 
 struct ezMsgExtractRenderData;
 class ezRmlUiContext;
@@ -57,6 +56,7 @@ public:
 
 protected:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
+  void OnMsgReload(ezMsgReload& msg);
   void UpdateResourceSubscription();
 
   ezRmlUiResourceHandle m_hResource;
@@ -66,7 +66,6 @@ protected:
   ezVec2U32 m_Size = ezVec2U32::ZeroVector();
   ezVec2 m_AnchorPoint = ezVec2::ZeroVector();
   bool m_bPassInput = true;
-  bool m_bNeedsReload = false;
 
   ezRmlUiContext* m_pContext = nullptr;
 };

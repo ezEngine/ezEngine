@@ -52,10 +52,7 @@ ezRmlUiContext::~ezRmlUiContext() = default;
 
 ezResult ezRmlUiContext::LoadDocumentFromResource(const ezRmlUiResourceHandle& hResource)
 {
-  if (HasDocument())
-  {
-    UnloadDocument(GetDocument(0));
-  }
+  UnloadDocument();
 
   if (hResource.IsValid())
   {
@@ -67,6 +64,36 @@ ezResult ezRmlUiContext::LoadDocumentFromResource(const ezRmlUiResourceHandle& h
   }
 
   return HasDocument() ? EZ_SUCCESS : EZ_FAILURE;
+}
+
+ezResult ezRmlUiContext::LoadDocumentFromString(const ezStringView& sContent)
+{
+  UnloadDocument();
+
+  if (!sContent.IsEmpty())
+  {
+    Rml::Core::String sRmlContent = Rml::Core::String(sContent.GetStartPointer(), sContent.GetElementCount());
+
+    LoadDocumentFromMemory(sRmlContent);
+  }
+
+  return HasDocument() ? EZ_SUCCESS : EZ_FAILURE;
+}
+
+void ezRmlUiContext::UnloadDocument()
+{
+  if (HasDocument())
+  {
+    Rml::Core::Context::UnloadDocument(GetDocument(0));
+  }
+}
+
+ezResult ezRmlUiContext::ReloadDocumentFromResource(const ezRmlUiResourceHandle& hResource)
+{
+  Rml::Core::Factory::ClearStyleSheetCache();
+  Rml::Core::Factory::ClearTemplateCache();
+
+  return LoadDocumentFromResource(hResource);
 }
 
 void ezRmlUiContext::ShowDocument()

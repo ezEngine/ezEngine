@@ -1,7 +1,6 @@
 #pragma once
 
-#include <EditorFramework/Assets/SimpleAssetDocument.h>
-#include <ToolsFoundation/Object/DocumentObjectBase.h>
+#include <RmlUiPlugin/Resources/RmlUiResource.h>
 
 class ezRmlUiAssetProperties : public ezReflectedClass
 {
@@ -12,4 +11,6 @@ public:
   ~ezRmlUiAssetProperties();
 
   ezString m_sRmlFile;
+  ezEnum<ezRmlUiScaleMode> m_ScaleMode;
+  ezVec2U32 m_ReferenceResolution;
 };

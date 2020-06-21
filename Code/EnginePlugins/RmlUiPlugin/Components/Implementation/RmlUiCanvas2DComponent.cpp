@@ -24,7 +24,8 @@ EZ_BEGIN_COMPONENT_TYPE(ezRmlUiCanvas2DComponent, 1, ezComponentMode::Dynamic)
   EZ_END_PROPERTIES;
   EZ_BEGIN_MESSAGEHANDLERS
   {
-    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData)
+    EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
+    EZ_MESSAGE_HANDLER(ezMsgReload, OnMsgReload)
   }
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
@@ -83,13 +84,6 @@ void ezRmlUiCanvas2DComponent::Update()
 {
   if (m_pContext != nullptr)
   {
-    if (m_bNeedsReload)
-    {
-      m_pContext->LoadDocumentFromResource(m_hResource);
-      m_pContext->ShowDocument();
-      m_bNeedsReload = false;
-    }
-
     ezVec2 viewSize = ezVec2(1.0f);
     if (ezView* pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView, ezCameraUsageHint::EditorView, GetWorld()))
     {
@@ -249,6 +243,15 @@ void ezRmlUiCanvas2DComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& ms
   }
 }
 
+void ezRmlUiCanvas2DComponent::OnMsgReload(ezMsgReload& msg)
+{
+  if (m_pContext != nullptr)
+  {
+    m_pContext->ReloadDocumentFromResource(m_hResource);
+    m_pContext->ShowDocument();
+  }
+}
+
 void ezRmlUiCanvas2DComponent::UpdateResourceSubscription()
 {
   m_ResourceEventUnsubscriber.Unsubscribe();
@@ -259,11 +262,7 @@ void ezRmlUiCanvas2DComponent::UpdateResourceSubscription()
     pResource->m_ResourceEvents.AddEventHandler([hComponent = GetHandle(), pWorld = GetWorld()](const ezResourceEvent& e) {
       if (e.m_Type == ezResourceEvent::Type::ResourceContentUnloading)
       {
-        /*ezRmlUiCanvas2DComponent* pComponent = nullptr;
-        if (pWorld->TryGetComponent(hComponent, pComponent))
-        {
-          pComponent->m_bNeedsReload = true;
-        }*/
+        pWorld->PostMessage(hComponent, ezMsgReload(), ezTime::Zero());
       }
     },
       m_ResourceEventUnsubscriber);
