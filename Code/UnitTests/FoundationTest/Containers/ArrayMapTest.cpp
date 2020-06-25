@@ -13,16 +13,6 @@ EZ_CREATE_SIMPLE_TEST(Containers, ArrayMap)
     for (ezUInt32 i = 0; i < 1000; ++i)
       m[i] = i + 1;
 
-    //{ // No finding by key (or value) using std::find without a custom comparator functor (same as in MapTest)
-    //  auto itfound = std::find(begin(m), end(m), 500);
-    //  EZ_TEST_INT(itfound->key, 499);
-    //}
-
-    //{ // No finding by key (or value) using std::find without a custom comparator functor (same as in MapTest)
-    //  auto itfound = std::find(rbegin(m), rend(m), 500);
-    //  EZ_TEST_INT(itfound->key, 499);
-    //}
-
     // element with the given key (and such, value "key + 1")
     auto findable = m.Find(499u);
 
@@ -72,7 +62,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, ArrayMap)
 
     // forward
     ezUInt32 prev = begin(m)->key;
-    for (auto elem : m)
+    for (const auto& elem : m)
     {
       EZ_TEST_BOOL(elem.value == prev + 1);
       prev = elem.value;
@@ -89,6 +79,53 @@ EZ_CREATE_SIMPLE_TEST(Containers, ArrayMap)
     }
 
     EZ_TEST_BOOL(prev == 1);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetData with Iterators")
+  {
+    ezArrayMap<ezUInt32, ezUInt32> m;
+    for (ezUInt32 i = 0; i < 1000; ++i)
+      m[i] = i + 1;
+
+    // element with the given key (and such, value "key + 1")
+    auto findable = m.Find(499u);
+
+    // check if modification of the keys via direct data access
+    // keeps iterability and access via keys intact
+    
+    // modify
+    auto& data = m.GetData();
+    for (auto& p : data)
+    {
+      p.key += 1000;
+    }
+
+    // ...and test with new key
+    EZ_TEST_BOOL(m[findable + 1000] == 500);
+
+    // and index...
+    EZ_TEST_BOOL(m.GetValue(499u) == 500);
+
+    // and old key.
+    EZ_TEST_BOOL(m.Find(499u) == ezInvalidIndex);
+
+    // findable
+    auto itfound = std::find_if(begin(m), end(m), [](const ezArrayMap<ezUInt32, ezUInt32>::Pair& val) { return val.value == 500; });
+    EZ_TEST_BOOL((findable + 1000) == itfound->key);
+
+    // unfindable
+    itfound = std::find_if(begin(m), end(m), [](const ezArrayMap<ezUInt32, ezUInt32>::Pair& val) { return val.value == 1001; });
+    EZ_TEST_BOOL(end(m) == itfound);
+
+    // forward
+    ezUInt32 prev = 0;
+    for (const auto& elem : m)
+    {
+      EZ_TEST_BOOL(elem.value == prev + 1);
+      prev = elem.value;
+    }
+
+    EZ_TEST_BOOL(prev == 1000);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Insert / Find / Reserve / Clear / IsEmpty / Compact / GetCount")
