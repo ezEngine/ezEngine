@@ -81,6 +81,12 @@ public:
   /// \brief Returns the value that is stored at the given index.
   VALUE& GetValue(ezUInt32 index); // [tested]
 
+  /// \brief Returns a reference to the map data array.
+  ezDynamicArray<Pair>& GetData();
+
+  /// \brief Returns a constant reference to the map data array.
+  const ezDynamicArray<Pair>& GetData() const;
+
   /// \brief Returns the value stored at the given key. If none exists, one is created. \a bExisted indicates whether an element needed to be created.
   template <typename CompatibleKeyType>
   VALUE& FindOrAdd(const CompatibleKeyType& key, bool* bExisted = nullptr); // [tested]
@@ -130,6 +136,11 @@ public:
   /// \brief Returns the amount of bytes that are currently allocated on the heap.
   ezUInt64 GetHeapMemoryUsage() const { return m_Data.GetHeapMemoryUsage(); } // [tested]
 
+  using const_iterator = typename ezDynamicArray<Pair>::const_iterator;
+  using const_reverse_iterator = typename ezDynamicArray<Pair>::const_reverse_iterator;
+  using iterator = typename ezDynamicArray<Pair>::iterator;
+  using reverse_iterator = typename ezDynamicArray<Pair>::reverse_iterator;
+
 private:
   mutable bool m_bSorted;
   mutable ezDynamicArray<Pair> m_Data;
@@ -151,6 +162,79 @@ public:
   void operator=(const ezArrayMap<KEY, VALUE, AllocatorWrapper>& rhs);
   void operator=(const ezArrayMapBase<KEY, VALUE>& rhs);
 };
+
+
+template <typename KEY, typename VALUE>
+typename ezArrayMapBase<KEY, VALUE>::iterator begin(ezArrayMapBase<KEY, VALUE>& container)
+{
+  return begin(container.GetData());
+}
+
+template <typename KEY, typename VALUE>
+typename ezArrayMapBase<KEY, VALUE>::const_iterator begin(const ezArrayMapBase<KEY, VALUE>& container)
+{
+  return begin(container.GetData());
+}
+template <typename KEY, typename VALUE>
+typename ezArrayMapBase<KEY, VALUE>::const_iterator cbegin(const ezArrayMapBase<KEY, VALUE>& container)
+{
+  return cbegin(container.GetData());
+}
+
+template <typename KEY, typename VALUE>
+typename ezArrayMapBase<KEY, VALUE>::reverse_iterator rbegin(ezArrayMapBase<KEY, VALUE>& container)
+{
+  return rbegin(container.GetData());
+}
+
+template <typename KEY, typename VALUE>
+typename ezArrayMapBase<KEY, VALUE>::const_reverse_iterator rbegin(const ezArrayMapBase<KEY, VALUE>& container)
+{
+  return rbegin(container.GetData());
+}
+
+template <typename KEY, typename VALUE>
+typename ezArrayMapBase<KEY, VALUE>::const_reverse_iterator crbegin(const ezArrayMapBase<KEY, VALUE>& container)
+{
+  return crbegin(container.GetData());
+}
+
+template <typename KEY, typename VALUE>
+typename ezArrayMapBase<KEY, VALUE>::iterator end(ezArrayMapBase<KEY, VALUE>& container)
+{
+  return end(container.GetData());
+}
+
+template <typename KEY, typename VALUE>
+typename ezArrayMapBase<KEY, VALUE>::const_iterator end(const ezArrayMapBase<KEY, VALUE>& container)
+{
+  return end(container.GetData());
+}
+
+template <typename KEY, typename VALUE>
+typename ezArrayMapBase<KEY, VALUE>::const_iterator cend(const ezArrayMapBase<KEY, VALUE>& container)
+{
+  return cend(container.GetData());
+}
+
+template <typename KEY, typename VALUE>
+typename ezArrayMapBase<KEY, VALUE>::reverse_iterator rend(ezArrayMapBase<KEY, VALUE>& container)
+{
+  return rend(container.GetData());
+}
+
+template <typename KEY, typename VALUE>
+typename ezArrayMapBase<KEY, VALUE>::const_reverse_iterator rend(const ezArrayMapBase<KEY, VALUE>& container)
+{
+  return rend(container.GetData());
+}
+
+template <typename KEY, typename VALUE>
+typename ezArrayMapBase<KEY, VALUE>::const_reverse_iterator crend(const ezArrayMapBase<KEY, VALUE>& container)
+{
+  return crend(container.GetData());
+}
+
 
 #include <Foundation/Containers/Implementation/ArrayMap_inl.h>
 
