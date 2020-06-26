@@ -33,8 +33,7 @@ void UpdateInputDynamicEnumValues()
 
   ezGameAppInputConfig::ReadFromDDL(file, Actions);
 
-  auto& dynEnum = ezDynamicStringEnum::GetDynamicEnum("InputSet");
-  dynEnum.Clear();
+  auto& dynEnum = ezDynamicStringEnum::CreateDynamicEnum("InputSet");
 
   for (const auto& a : Actions)
   {

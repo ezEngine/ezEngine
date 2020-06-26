@@ -63,8 +63,7 @@ void AssetCuratorEventHandler(const ezAssetCuratorEvent& e)
   {
     ezSet<ezString> allCamPipes;
 
-    auto& dynEnum = ezDynamicStringEnum::GetDynamicEnum("CameraPipelines");
-    dynEnum.Clear();
+    auto& dynEnum = ezDynamicStringEnum::CreateDynamicEnum("CameraPipelines");
 
     for (ezUInt32 profileIdx = 0; profileIdx < ezAssetCurator::GetSingleton()->GetNumAssetProfiles(); ++profileIdx)
     {

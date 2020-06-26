@@ -102,8 +102,7 @@ void ezVisualScriptTypeRegistry::UpdateNodeTypes()
     m_pBaseType = ezPhantomRttiManager::RegisterType(desc);
   }
 
-  auto& dynEnum = ezDynamicStringEnum::GetDynamicEnum("ComponentTypes");
-  dynEnum.Clear();
+  auto& dynEnum = ezDynamicStringEnum::CreateDynamicEnum("ComponentTypes");
 
   for (const ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
   {

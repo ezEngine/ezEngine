@@ -18,6 +18,8 @@ public:
   /// Calls s_RequestUnknownCallback, if the requested enum is not known yet, which will try to load the data.
   static ezDynamicStringEnum& GetDynamicEnum(const char* szEnumName);
 
+  static ezDynamicStringEnum& CreateDynamicEnum(const char* szEnumName);
+
   /// \brief Returns all enum values and current names.
   const ezHybridArray<ezString, 16>& GetAllValidValues() const { return m_ValidValues; }
 

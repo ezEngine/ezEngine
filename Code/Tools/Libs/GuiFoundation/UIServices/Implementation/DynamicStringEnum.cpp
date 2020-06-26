@@ -56,6 +56,18 @@ ezDynamicStringEnum& ezDynamicStringEnum::GetDynamicEnum(const char* szEnumName)
   return it.Value();
 }
 
+ezDynamicStringEnum& ezDynamicStringEnum::CreateDynamicEnum(const char* szEnumName)
+{
+  bool bExisted = false;
+  auto it = s_DynamicEnums.FindOrAdd(szEnumName, &bExisted);
+
+  ezDynamicStringEnum& e = it.Value();
+  e.Clear();
+  e.SetStorageFile(nullptr);
+
+  return e;
+}
+
 void ezDynamicStringEnum::ReadFromStorage()
 {
   Clear();
