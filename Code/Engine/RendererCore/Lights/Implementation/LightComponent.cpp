@@ -51,6 +51,8 @@ ezLightComponent::~ezLightComponent() = default;
 void ezLightComponent::SetLightColor(ezColorGammaUB LightColor)
 {
   m_LightColor = LightColor;
+
+  InvalidateCachedRenderData();
 }
 
 ezColorGammaUB ezLightComponent::GetLightColor() const
@@ -73,6 +75,8 @@ float ezLightComponent::GetIntensity() const
 void ezLightComponent::SetCastShadows(bool bCastShadows)
 {
   m_bCastShadows = bCastShadows;
+
+  InvalidateCachedRenderData();
 }
 
 bool ezLightComponent::GetCastShadows() const
@@ -83,6 +87,8 @@ bool ezLightComponent::GetCastShadows() const
 void ezLightComponent::SetPenumbraSize(float fPenumbraSize)
 {
   m_fPenumbraSize = fPenumbraSize;
+
+  InvalidateCachedRenderData();
 }
 
 float ezLightComponent::GetPenumbraSize() const
@@ -93,6 +99,8 @@ float ezLightComponent::GetPenumbraSize() const
 void ezLightComponent::SetSlopeBias(float fBias)
 {
   m_fSlopeBias = fBias;
+
+  InvalidateCachedRenderData();
 }
 
 float ezLightComponent::GetSlopeBias() const
@@ -103,6 +111,8 @@ float ezLightComponent::GetSlopeBias() const
 void ezLightComponent::SetConstantBias(float fBias)
 {
   m_fConstantBias = fBias;
+
+  InvalidateCachedRenderData();
 }
 
 float ezLightComponent::GetConstantBias() const
@@ -150,6 +160,8 @@ void ezLightComponent::DeserializeComponent(ezWorldReader& stream)
 void ezLightComponent::OnMsgSetColor(ezMsgSetColor& msg)
 {
   msg.ModifyColor(m_LightColor);
+
+  InvalidateCachedRenderData();
 }
 
 // static

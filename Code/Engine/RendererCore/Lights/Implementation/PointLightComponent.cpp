@@ -68,6 +68,8 @@ float ezPointLightComponent::GetEffectiveRange() const
 void ezPointLightComponent::SetProjectedTexture(const ezTextureCubeResourceHandle& hProjectedTexture)
 {
   m_hProjectedTexture = hProjectedTexture;
+
+  InvalidateCachedRenderData();
 }
 
 const ezTextureCubeResourceHandle& ezPointLightComponent::GetProjectedTexture() const
