@@ -177,6 +177,19 @@ VALUE& ezArrayMapBase<KEY, VALUE>::GetValue(ezUInt32 index)
 }
 
 template <typename KEY, typename VALUE>
+EZ_ALWAYS_INLINE ezDynamicArray<typename ezArrayMapBase<KEY, VALUE>::Pair>& ezArrayMapBase<KEY, VALUE>::GetData()
+{
+  m_bSorted = false;
+  return m_Data;
+}
+
+template <typename KEY, typename VALUE>
+EZ_ALWAYS_INLINE const ezDynamicArray<typename ezArrayMapBase<KEY, VALUE>::Pair>& ezArrayMapBase<KEY, VALUE>::GetData() const
+{
+  return m_Data;
+}
+
+template <typename KEY, typename VALUE>
 template <typename CompatibleKeyType>
 VALUE& ezArrayMapBase<KEY, VALUE>::FindOrAdd(const CompatibleKeyType& key, bool* bExisted)
 {
