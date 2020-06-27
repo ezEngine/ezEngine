@@ -40,6 +40,7 @@ protected:
 
   virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
 
+  ezStatus ValidateScriptCode();
   ezStatus AutoGenerateVariablesCode();
 
   virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;

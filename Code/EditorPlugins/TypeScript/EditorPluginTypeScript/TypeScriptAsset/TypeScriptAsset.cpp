@@ -238,6 +238,7 @@ ezStatus ezTypeScriptAssetDocument::InternalTransformAsset(ezStreamWriter& strea
   const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader,
   ezBitflags<ezTransformFlags> transformFlags)
 {
+  EZ_SUCCEED_OR_RETURN(ValidateScriptCode());
   EZ_SUCCEED_OR_RETURN(AutoGenerateVariablesCode());
 
   {
@@ -249,6 +250,40 @@ ezStatus ezTypeScriptAssetDocument::InternalTransformAsset(ezStreamWriter& strea
 
   ezTypeScriptAssetDocumentManager* pAssMan = static_cast<ezTypeScriptAssetDocumentManager*>(GetAssetDocumentManager());
   pAssMan->GenerateScriptCompendium(transformFlags);
+
+  return ezStatus(EZ_SUCCESS);
+}
+
+ezStatus ezTypeScriptAssetDocument::ValidateScriptCode()
+{
+  ezStringBuilder sTsDocPath = GetProperties()->m_sScriptFile;
+  ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sTsDocPath);
+
+  ezStringBuilder content;
+
+  // read typescript file content
+  {
+    ezFileReader tsFile;
+    if (tsFile.Open(sTsDocPath).Failed())
+    {
+      return ezStatus(ezFmt("Could not read .ts file '{}'", GetProperties()->m_sScriptFile));
+    }
+
+    content.ReadAll(tsFile);
+  }
+
+  // validate that the class with the correct name exists
+  {
+    ezStringBuilder sClass;
+    sClass = "class ";
+    sClass.Append(sTsDocPath.GetFileName());
+    sClass.Append(" extends");
+
+    if (content.FindSubString(sClass) == nullptr)
+    {
+      return ezStatus(ezFmt("Sub-string '{}' not found. Class name may be incorrect.", sClass));
+    }
+  }
 
   return ezStatus(EZ_SUCCESS);
 }

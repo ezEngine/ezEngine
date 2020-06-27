@@ -162,6 +162,7 @@ export import SrmRenderComponent = __AllComponents.SrmRenderComponent;
 export import StageSpaceComponent = __AllComponents.StageSpaceComponent;
 export import TimedDeathComponent = __AllComponents.TimedDeathComponent;
 export import VisualScriptComponent = __AllComponents.VisualScriptComponent;
+export import VisualizeHandComponent = __AllComponents.VisualizeHandComponent;
 export import VisualizeSkeletonComponent = __AllComponents.VisualizeSkeletonComponent;
 
 

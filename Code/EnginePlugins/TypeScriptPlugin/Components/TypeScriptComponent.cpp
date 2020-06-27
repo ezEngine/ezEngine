@@ -256,6 +256,7 @@ void ezTypeScriptComponent::OnSimulationStarted()
   if (binding.LoadComponent(m_TypeScriptComponentGuid, m_ComponentTypeInfo).Failed())
   {
     SetUserFlag(UserFlag::ScriptFailure, true);
+    ezLog::Error("Failed to load TS component type.");
     return;
   }
 
@@ -263,6 +264,7 @@ void ezTypeScriptComponent::OnSimulationStarted()
   if (binding.RegisterComponent(m_ComponentTypeInfo.Value().m_sComponentTypeName, GetHandle(), uiStashIdx, false).Failed())
   {
     SetUserFlag(UserFlag::ScriptFailure, true);
+    ezLog::Error("Failed to register TS component type '{}'. Class may not exist under that name.", m_ComponentTypeInfo.Value().m_sComponentTypeName);
     return;
   }
 

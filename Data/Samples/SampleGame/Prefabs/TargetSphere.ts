@@ -1,6 +1,6 @@
 import ez = require("TypeScript/ez")
 
-export class Bubble extends ez.TickedTypescriptComponent {
+export class TargetSphere extends ez.TickedTypescriptComponent {
 
     /* BEGIN AUTO-GENERATED: VARIABLES */
     /* END AUTO-GENERATED: VARIABLES */
@@ -13,6 +13,7 @@ export class Bubble extends ez.TickedTypescriptComponent {
 
         // you can only call "RegisterMessageHandler" from within this function
         ez.TypescriptComponent.RegisterMessageHandler(ez.MsgDamage, "OnMsgDamage");
+        ez.TypescriptComponent.RegisterMessageHandler(ez.MsgInputActionTriggered, "OnMsgInputActionTriggered");
     }
 
     curDamage = 0;
@@ -27,6 +28,15 @@ export class Bubble extends ez.TickedTypescriptComponent {
     OnMsgDamage(msg: ez.MsgDamage): void {
 
         this.curDamage += msg.Damage;
+    }
+
+    OnMsgInputActionTriggered(msg: ez.MsgInputActionTriggered) {
+     
+        if (msg.TriggerState == ez.TriggerState.Activated) {
+            if (msg.InputActionHash == ez.Utils.StringToHash("Heal")) {
+                this.curDamage = 0;
+            }
+        }
     }
 
     Tick(): void {

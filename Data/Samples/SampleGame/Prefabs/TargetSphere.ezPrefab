@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{11063916223884150186,5309000951926907106}}
-		u4 %Hash{320012648596784166}
+		u4 %Hash{4921315853190175509}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{12875955975058824341,16279626489739883300}}
@@ -39,6 +39,18 @@ o
 }
 Objects
 {
+o
+{
+	Uuid %id{u4{5995278711877820316,5066837260556896853}}
+	s %t{"ezInputComponent"}
+	u3 %v{2}
+	p
+	{
+		b %Active{1}
+		s %Granularity{"ezInputMessageGranularity::PressOnly"}
+		s %InputSet{"SampleGame"}
+	}
+}
 o
 {
 	Uuid %id{u4{3026202533960485807,5078702894864412024}}
@@ -140,6 +152,7 @@ o
 			Uuid{u4{3026202533960485807,5078702894864412024}}
 			Uuid{u4{2074101320926409600,5334931950339472795}}
 			Uuid{u4{6555873645732942519,5310748915868626644}}
+			Uuid{u4{5995278711877820316,5066837260556896853}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0}}
@@ -196,6 +209,24 @@ o
 }
 o
 {
+	Uuid %id{u4{6647125758421374114,3076962269307353962}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezInputComponent"}
+		u3 %TypeSize{128}
+		u3 %TypeVersion{2}
+	}
+}
+o
+{
 	Uuid %id{u4{11638255232360359673,3108610646416571142}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -228,6 +259,24 @@ o
 		s %TypeName{"ezMeshComponent"}
 		u3 %TypeSize{104}
 		u3 %TypeVersion{3}
+	}
+}
+o
+{
+	Uuid %id{u4{12538082841484211102,5574057413044211266}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::IsEnum|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezEnumBase"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezInputMessageGranularity"}
+		u3 %TypeSize{1}
+		u3 %TypeVersion{1}
 	}
 }
 o

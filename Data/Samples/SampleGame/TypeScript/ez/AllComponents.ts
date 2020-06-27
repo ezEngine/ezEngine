@@ -1112,8 +1112,6 @@ export class SoldierComponent extends NpcComponent
 export class SpatialAnchorComponent extends Component
 {
   public static GetTypeNameHash(): number { return 1032182987; }
-  get PersistentName(): string { return __CPP_ComponentProperty_get(this, 802074756); }
-  set PersistentName(value: string) { __CPP_ComponentProperty_set(this, 802074756, value); }
 }
 
 export class SpawnComponent extends Component
@@ -1196,6 +1194,11 @@ export class VisualScriptComponent extends EventMessageHandlerComponent
   public static GetTypeNameHash(): number { return 2690074736; }
   get Script(): string { return __CPP_ComponentProperty_get(this, 3651176802); }
   set Script(value: string) { __CPP_ComponentProperty_set(this, 3651176802, value); }
+}
+
+export class VisualizeHandComponent extends Component
+{
+  public static GetTypeNameHash(): number { return 3141733418; }
 }
 
 export class VisualizeSkeletonComponent extends RenderComponent

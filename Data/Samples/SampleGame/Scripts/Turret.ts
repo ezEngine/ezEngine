@@ -39,7 +39,7 @@ export class Turret extends ez.TickedTypescriptComponent {
             
             this.lastDamageTime = ez.Time.GetGameTime();
 
-            this.DamageAllTargets(2);
+            this.DamageAllTargets(4);
         }
     }
 
