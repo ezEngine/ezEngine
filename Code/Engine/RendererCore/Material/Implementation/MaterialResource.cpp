@@ -865,7 +865,7 @@ void ezMaterialResource::UpdateConstantBuffer(ezShaderPermutationResource* pShad
     pBinding = pShaderPermutation->GetShaderStageBinary(ezGALShaderStage::VertexShader)->GetShaderResourceBinding(sConstantBufferName);
   }
 
-  const ezShaderConstantBufferLayout* pLayout = pBinding != nullptr ? pBinding->m_pLayout.Get() : nullptr;
+  const ezShaderConstantBufferLayout* pLayout = pBinding != nullptr ? pBinding->m_pLayout : nullptr;
   if (pLayout == nullptr)
     return;
 
