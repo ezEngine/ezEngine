@@ -219,10 +219,11 @@ ezGALBlendStateHandle ezGALDevice::CreateBlendState(const ezGALBlendStateCreatio
   }
 
   ezGALBlendState* pBlendState = CreateBlendStatePlatform(desc);
-  EZ_ASSERT_DEBUG(pBlendState->GetDescription().CalculateHash() == uiHash, "BlendState hash doesn't match");
 
   if (pBlendState != nullptr)
   {
+    EZ_ASSERT_DEBUG(pBlendState->GetDescription().CalculateHash() == uiHash, "BlendState hash doesn't match");
+
     pBlendState->AddRef();
 
     ezGALBlendStateHandle hBlendState(m_BlendStates.Insert(pBlendState));
@@ -278,10 +279,11 @@ ezGALDepthStencilStateHandle ezGALDevice::CreateDepthStencilState(const ezGALDep
   }
 
   ezGALDepthStencilState* pDepthStencilState = CreateDepthStencilStatePlatform(desc);
-  EZ_ASSERT_DEBUG(pDepthStencilState->GetDescription().CalculateHash() == uiHash, "DepthStencilState hash doesn't match");
 
   if (pDepthStencilState != nullptr)
   {
+    EZ_ASSERT_DEBUG(pDepthStencilState->GetDescription().CalculateHash() == uiHash, "DepthStencilState hash doesn't match");
+
     pDepthStencilState->AddRef();
 
     ezGALDepthStencilStateHandle hDepthStencilState(m_DepthStencilStates.Insert(pDepthStencilState));
@@ -337,10 +339,11 @@ ezGALRasterizerStateHandle ezGALDevice::CreateRasterizerState(const ezGALRasteri
   }
 
   ezGALRasterizerState* pRasterizerState = CreateRasterizerStatePlatform(desc);
-  EZ_ASSERT_DEBUG(pRasterizerState->GetDescription().CalculateHash() == uiHash, "RasterizerState hash doesn't match");
 
   if (pRasterizerState != nullptr)
   {
+    EZ_ASSERT_DEBUG(pRasterizerState->GetDescription().CalculateHash() == uiHash, "RasterizerState hash doesn't match");
+
     pRasterizerState->AddRef();
 
     ezGALRasterizerStateHandle hRasterizerState(m_RasterizerStates.Insert(pRasterizerState));
@@ -398,10 +401,11 @@ ezGALSamplerStateHandle ezGALDevice::CreateSamplerState(const ezGALSamplerStateC
   }
 
   ezGALSamplerState* pSamplerState = CreateSamplerStatePlatform(desc);
-  EZ_ASSERT_DEBUG(pSamplerState->GetDescription().CalculateHash() == uiHash, "SamplerState hash doesn't match");
 
   if (pSamplerState != nullptr)
   {
+    EZ_ASSERT_DEBUG(pSamplerState->GetDescription().CalculateHash() == uiHash, "SamplerState hash doesn't match");
+
     pSamplerState->AddRef();
 
     ezGALSamplerStateHandle hSamplerState(m_SamplerStates.Insert(pSamplerState));

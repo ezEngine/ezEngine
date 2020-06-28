@@ -132,9 +132,6 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
 
 void ezGraphicsTest::ShutdownRenderer()
 {
-  m_pDevice->DestroyTexture(m_hDepthStencilTexture);
-  m_hDepthStencilTexture.Invalidate();
-
   m_hShader.Invalidate();
 
   ezRenderContext::DeleteConstantBufferStorage(m_hObjectTransformCB);
@@ -146,6 +143,9 @@ void ezGraphicsTest::ShutdownRenderer()
 
   if (m_pDevice)
   {
+    m_pDevice->DestroyTexture(m_hDepthStencilTexture);
+    m_hDepthStencilTexture.Invalidate();
+
     m_pDevice->Shutdown();
     EZ_DEFAULT_DELETE(m_pDevice);
   }
