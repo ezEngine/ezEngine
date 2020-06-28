@@ -55,7 +55,7 @@ void ezRmlUiCanvas2DComponent::Initialize()
   m_pContext = ezRmlUi::GetSingleton()->CreateContext(sName, m_Size);
   m_pContext->LoadDocumentFromResource(m_hResource);
 
-  UpdateResourceSubscription();
+  UpdateCachedValues();
 }
 
 void ezRmlUiCanvas2DComponent::Deinitialize()
@@ -91,7 +91,13 @@ void ezRmlUiCanvas2DComponent::Update()
       viewSize.y = pView->GetViewport().height;
     }
 
-    ezVec2 size = ezVec2(m_Size.x, m_Size.y);
+    float fScale = 1.0f;
+    if (m_ReferenceResolution.x > 0 && m_ReferenceResolution.y > 0)
+    {
+      fScale = viewSize.y / m_ReferenceResolution.y;
+    }
+
+    ezVec2 size = ezVec2(m_Size.x, m_Size.y) * fScale;
     if (size.x <= 0.0f)
     {
       size.x = viewSize.x;
@@ -102,15 +108,11 @@ void ezRmlUiCanvas2DComponent::Update()
     }
     m_pContext->SetSize(ezVec2U32(size.x, size.y));
 
-    ezVec2 offset = ezVec2(m_Offset.x, m_Offset.y);
+    ezVec2 offset = ezVec2(m_Offset.x, m_Offset.y) * fScale;
     offset = (viewSize - size).CompMul(m_AnchorPoint) - offset.CompMul(m_AnchorPoint * 2.0f - ezVec2(1.0f));
     m_pContext->SetOffset(ezVec2I32(offset.x, offset.y));
 
-    if (false)
-    {
-      float fScale = viewSize.y / 1000.0f;
-      m_pContext->SetDpiScale(fScale);
-    }
+    m_pContext->SetDpiScale(fScale);
 
     if (m_bPassInput)
     {
@@ -161,7 +163,7 @@ void ezRmlUiCanvas2DComponent::SetRmlResource(const ezRmlUiResourceHandle& hReso
         m_pContext->ShowDocument();
       }
 
-      UpdateResourceSubscription();
+      UpdateCachedValues();
     }
   }
 }
@@ -249,16 +251,25 @@ void ezRmlUiCanvas2DComponent::OnMsgReload(ezMsgReload& msg)
   {
     m_pContext->ReloadDocumentFromResource(m_hResource);
     m_pContext->ShowDocument();
+
+    UpdateCachedValues();
   }
 }
 
-void ezRmlUiCanvas2DComponent::UpdateResourceSubscription()
+void ezRmlUiCanvas2DComponent::UpdateCachedValues()
 {
   m_ResourceEventUnsubscriber.Unsubscribe();
+  m_ReferenceResolution.SetZero();
 
   if (m_hResource.IsValid())
   {
-    ezResourceLock pResource(m_hResource, ezResourceAcquireMode::PointerOnly);
+    ezResourceLock pResource(m_hResource, ezResourceAcquireMode::BlockTillLoaded);
+
+    if (pResource->GetScaleMode() == ezRmlUiScaleMode::WithScreenSize)
+    {
+      m_ReferenceResolution = pResource->GetReferenceResolution();
+    }
+
     pResource->m_ResourceEvents.AddEventHandler([hComponent = GetHandle(), pWorld = GetWorld()](const ezResourceEvent& e) {
       if (e.m_Type == ezResourceEvent::Type::ResourceContentUnloading)
       {

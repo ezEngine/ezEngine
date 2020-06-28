@@ -57,7 +57,7 @@ public:
 protected:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
   void OnMsgReload(ezMsgReload& msg);
-  void UpdateResourceSubscription();
+  void UpdateCachedValues();
 
   ezRmlUiResourceHandle m_hResource;
   ezEvent<const ezResourceEvent&, ezMutex>::Unsubscriber m_ResourceEventUnsubscriber;
@@ -65,6 +65,7 @@ protected:
   ezVec2I32 m_Offset = ezVec2I32::ZeroVector();
   ezVec2U32 m_Size = ezVec2U32::ZeroVector();
   ezVec2 m_AnchorPoint = ezVec2::ZeroVector();
+  ezVec2U32 m_ReferenceResolution = ezVec2U32::ZeroVector();
   bool m_bPassInput = true;
 
   ezRmlUiContext* m_pContext = nullptr;
