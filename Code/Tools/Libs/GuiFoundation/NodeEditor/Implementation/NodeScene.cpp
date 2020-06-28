@@ -706,10 +706,7 @@ void ezQtNodeScene::OpenSearchMenu(QPoint screenPos)
 
   menu.exec(screenPos);
 
-  if (pSearchMenu)
-  {
-    m_sContextMenuSearchText = pSearchMenu->GetSearchText();
-  }
+  m_sContextMenuSearchText = pSearchMenu->GetSearchText();
 }
 
 ezStatus ezQtNodeScene::RemoveNode(ezQtNode* pNode)
