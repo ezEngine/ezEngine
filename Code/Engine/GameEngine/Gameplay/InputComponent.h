@@ -20,7 +20,7 @@ struct EZ_GAMEENGINE_DLL ezInputMessageGranularity
     PressAndRelease,     ///< Key pressed and key released events are sent
     PressReleaseAndDown, ///< Key pressed and released events are sent, and while a key is down, another message is sent every frame as well
 
-    Default = PressReleaseAndDown
+    Default = PressOnly
   };
 };
 

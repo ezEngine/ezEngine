@@ -126,6 +126,7 @@ void SampleGameState::ConfigureMainWindowInputDevices(ezWindow* pWindow)
   // setup devices here
 }
 
+// BEGIN-DOCS-CODE-SNIPPET: input-config
 static void RegisterInputAction(const char* szInputSet, const char* szInputAction, const char* szKey1, const char* szKey2 = nullptr, const char* szKey3 = nullptr)
 {
   ezInputActionConfig cfg;
@@ -144,6 +145,7 @@ void SampleGameState::ConfigureInputActions()
   RegisterInputAction("SamplePlugin", "SpawnObject", ezInputSlot_KeyO, ezInputSlot_Controller0_ButtonA, ezInputSlot_MouseButton2);
   RegisterInputAction("SamplePlugin", "DeleteObject", ezInputSlot_KeyP, ezInputSlot_Controller0_ButtonB);
 }
+// END-DOCS-CODE-SNIPPET
 
 void SampleGameState::ProcessInput()
 {

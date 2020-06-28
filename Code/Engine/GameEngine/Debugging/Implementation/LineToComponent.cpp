@@ -10,7 +10,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezLineToComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
+    // BEGIN-DOCS-CODE-SNIPPET: object-reference-property
     EZ_ACCESSOR_PROPERTY("Target", GetLineToTargetGuid, SetLineToTargetGuid)->AddAttributes(new ezGameObjectReferenceAttribute()),
+    // END-DOCS-CODE-SNIPPET
     EZ_MEMBER_PROPERTY("Color", m_LineColor)->AddAttributes(new ezDefaultValueAttribute(ezColor::Orange)),
   }
   EZ_END_PROPERTIES;
@@ -72,20 +74,24 @@ void ezLineToComponent::SetLineToTarget(const ezGameObjectHandle& hTargetObject)
   m_hTargetObject = hTargetObject;
 }
 
+// BEGIN-DOCS-CODE-SNIPPET: object-reference-funcs
 void ezLineToComponent::SetLineToTargetGuid(const char* szTargetGuid)
 {
   auto resolver = GetWorld()->GetGameObjectReferenceResolver();
 
-  if (!resolver.IsValid())
-    return;
-
-  m_hTargetObject = resolver(szTargetGuid, GetHandle(), "Target");
+  if (resolver.IsValid())
+  {
+    // tell the resolver our component handle and the name of the property for the object reference
+    m_hTargetObject = resolver(szTargetGuid, GetHandle(), "Target");
+  }
 }
 
 const char* ezLineToComponent::GetLineToTargetGuid() const
 {
-  return "REMEMBER ME!";
+  // this function is never called
+  return nullptr;
 }
+// END-DOCS-CODE-SNIPPET
 
 //////////////////////////////////////////////////////////////////////////
 

@@ -208,7 +208,7 @@ public:
 
   /// \brief This can be used to pass input exclusively to this input set and no others.
   ///
-  /// Querying input from other input sets will always return 'key up.
+  /// Querying input from other input sets will always return 'key up'.
   static void SetExclusiveInputSet(const char* szExclusiveSet) { s_sExclusiveInputSet = szExclusiveSet; }
 
   /// \brief Returns whether any input set gets input exclusively.
