@@ -6,6 +6,8 @@
 #include <RtsGamePlugin/GameMode/EditLevelMode/EditLevelMode.h>
 #include <RtsGamePlugin/GameState/RtsGameState.h>
 
+#include <RmlUi/Controls/ElementFormControlSelect.h>
+
 const char* g_BuildItemTypes[] = {
   "FederationShip1",
   "FederationShip2",
@@ -54,24 +56,27 @@ void RtsEditLevelMode::SetupEditUI()
 
   pUiComponent->EnsureInitialized();
 
-  /*pUiComponent->GetRmlContext()->RegisterEventHandler("switchToImGui", [](Rml::Core::Event& e) {
-      s_bUseRmlUi = false;
-    });
-    pUiComponent->GetRmlContext()->RegisterEventHandler("switchMode", [](Rml::Core::Event& e) {
-      auto& sValue = e.GetTargetElement()->GetId();
-      if (sValue == "battle")
+  if (auto pElement = pUiComponent->GetRmlContext()->GetDocument(0)->GetElementById("build"))
+  {
+    // should be rmlui_dynamic_cast but ElementFormControlSelect has no rtti
+    if (auto pSelectElement = static_cast<Rml::Controls::ElementFormControlSelect*>(pElement))
+    {
+      ezStringBuilder sValue;
+
+      for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(g_BuildItemTypes); ++i)
       {
-        RtsGameState::GetSingleton()->SwitchToGameMode(RtsActiveGameMode::BattleMode);
+        sValue.Format("{}", i);
+        pSelectElement->Add(g_BuildItemTypes[i], sValue.GetData());
       }
-      else if (sValue == "edit")
-      {
-        RtsGameState::GetSingleton()->SwitchToGameMode(RtsActiveGameMode::EditLevelMode);
-      }
-      else if (sValue == "mainmenu")
-      {
-        RtsGameState::GetSingleton()->SwitchToGameMode(RtsActiveGameMode::MainMenuMode);
-      }
-    });*/
+    }
+  }
+
+  pUiComponent->GetRmlContext()->RegisterEventHandler("teamChanged", [this](Rml::Core::Event& e) {
+    m_uiTeam = static_cast<Rml::Controls::ElementFormControlSelect*>(e.GetTargetElement())->GetSelection();
+  });
+  pUiComponent->GetRmlContext()->RegisterEventHandler("buildChanged", [this](Rml::Core::Event& e) {
+    m_iShipType = static_cast<Rml::Controls::ElementFormControlSelect*>(e.GetTargetElement())->GetSelection();
+  });
 
   m_hEditUIComponent = pUiComponent->GetHandle();
 }
@@ -84,8 +89,40 @@ void RtsEditLevelMode::DisplayEditUI()
     pUiComponent->SetActiveFlag(s_bUseRmlUi);
   }
 
-  if (s_bUseRmlUi)
+  if (s_bUseRmlUi && pUiComponent != nullptr)
   {
+    auto pDocument = pUiComponent->GetRmlContext()->GetDocument(0);
+
+    if (auto pElement = pDocument->GetElementById("team"))
+    {
+      static_cast<Rml::Controls::ElementFormControlSelect*>(pElement)->SetSelection(m_uiTeam);
+    }
+
+    if (auto pElement = pDocument->GetElementById("build"))
+    {
+      static_cast<Rml::Controls::ElementFormControlSelect*>(pElement)->SetSelection(m_iShipType);
+    }
+
+    if (auto pElement = pDocument->GetElementById("selectkey"))
+    {
+      ezStringBuilder s;
+      s.Format("Select: {}", ezInputManager::GetInputSlotDisplayName(ezInputSlot_MouseButton0));
+      pElement->SetInnerRML(s.GetData());
+    }
+
+    if (auto pElement = pDocument->GetElementById("createkey"))
+    {
+      ezStringBuilder s;
+      s.Format("Create: {}", ezInputManager::GetInputSlotDisplayName("EditLevelMode", "PlaceObject"));
+      pElement->SetInnerRML(s.GetData());
+    }
+
+    if (auto pElement = pDocument->GetElementById("removekey"))
+    {
+      ezStringBuilder s;
+      s.Format("Remove: {}", ezInputManager::GetInputSlotDisplayName("EditLevelMode", "RemoveObject"));
+      pElement->SetInnerRML(s.GetData());
+    }
   }
   else
   {

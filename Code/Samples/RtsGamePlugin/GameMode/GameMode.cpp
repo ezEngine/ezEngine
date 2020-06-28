@@ -163,7 +163,7 @@ void RtsGameMode::DisplaySelectModeUI()
     pUiComponent->SetActiveFlag(s_bUseRmlUi);
   }
 
-  if (s_bUseRmlUi)
+  if (s_bUseRmlUi && pUiComponent != nullptr)
   {
     const RtsActiveGameMode mode = RtsGameState::GetSingleton()->GetActiveGameMode();
     const char* szActiveModeId = "battle";

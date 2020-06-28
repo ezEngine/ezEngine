@@ -2,8 +2,8 @@
 {
   src: UIControls.png;
   
-  checkbox: 0px 0px 32px 32px;
-  checkbox-checked: 32px 0px 32px 32px;
+  checkbox-checked: 0px 0px 32px 32px;
+  dropdown: 32px 0px 32px 32px;
 }
 
 body
@@ -31,18 +31,34 @@ div
   padding: 4dp;
 }
 
+.prop
+{
+  display: block;
+  height: 24dp;
+}
+
+.proplabel
+{
+  display: inline-block;
+  width: 50dp;
+}
+
 input.radio
 {
   width: 16dp;
   height: 16dp;
   margin-bottom: 4dp;
-
-  decorator: image(checkbox);
+  border: 1px white;
 }
 
 input.radio:checked
 {
   decorator: image(checkbox-checked);
+}
+
+input.radio:hover
+{
+  background-color: rgb(41, 80, 109);
 }
 
 button
@@ -64,5 +80,47 @@ button:active
 {
   background-color: rgb(113, 142, 164);
   transition: none;
+}
+
+select selectvalue
+{
+	width: auto;
+	
+	height: 16dp;
+	padding: 2dp;
+  
+  border: 1px white;
+}
+
+select selectarrow
+{
+	width: 16dp;
+  height: 16dp;
+  padding: 2dp;
+  
+  border: 1px white;
+	
+	decorator: image(dropdown);
+}
+
+select selectbox
+{
+  margin-top: 5dp;
+	padding: 2dp;
+   
+  border: 1px white;
+  
+  background: rgb(0, 0, 0);
+}
+
+select selectbox option
+{
+	width: auto;
+	padding-left: 3dp;
+}
+
+select selectbox option:hover
+{
+	background: rgb(41, 80, 109);
 }
 

@@ -8,12 +8,20 @@
   Edit Level
 </div>
 <div class="content">
-  Team<select name="team">
-    <option value="0" selected>Red</option>
-    <option value="1">Green</option>
-    <option value="2" >Blue</option>
-    <option value="3" >Yellow</option>
-  </select>
+  <div class="prop"><div class="proplabel">Team</div>
+    <select id="team" onchange="teamChanged">
+      <option value="0" selected>Red</option>
+      <option value="1">Green</option>
+      <option value="2" >Blue</option>
+      <option value="3" >Yellow</option>
+    </select>
+  </div>
+  <div class="prop"><div class="proplabel">Build</div>
+    <select id="build" onchange="buildChanged"></select>
+  </div>
+  <div id="selectkey">Select:</div>
+  <div id="createkey">Create:</div>
+  <div id="removekey">Remove:</div>
 </div>
 </body>
 </rml>

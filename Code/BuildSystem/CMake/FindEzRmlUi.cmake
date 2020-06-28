@@ -3,7 +3,7 @@
 
 # early out, if this target has been created before
 if (TARGET EzRmlUi::Core)
-	return()
+  return()
 endif()
 
 get_property(EZ_SUBMODULE_PREFIX_PATH GLOBAL PROPERTY EZ_SUBMODULE_PREFIX_PATH)
@@ -24,27 +24,30 @@ find_package_handle_standard_args(EzRmlUi DEFAULT_MSG EZ_RMLUI_DIR)
 
 if (EZRMLUI_FOUND)
 
-	add_library(EzRmlUi::Core SHARED IMPORTED)
-	set_target_properties(EzRmlUi::Core PROPERTIES IMPORTED_LOCATION "${RMLUI_LIB_PATH}/RmlCore.dll")
-	set_target_properties(EzRmlUi::Core PROPERTIES IMPORTED_IMPLIB "${RMLUI_LIB_PATH}/RmlCore.lib")
-	set_target_properties(EzRmlUi::Core PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${EZ_RMLUI_DIR}/Include")
+  set(RMLUI_CONFIG "Debug")
+
+  add_library(EzRmlUi::Core SHARED IMPORTED)
+  set_target_properties(EzRmlUi::Core PROPERTIES IMPORTED_LOCATION "${RMLUI_LIB_PATH}/${RMLUI_CONFIG}/RmlCore.dll")
+  set_target_properties(EzRmlUi::Core PROPERTIES IMPORTED_IMPLIB "${RMLUI_LIB_PATH}/${RMLUI_CONFIG}/RmlCore.lib")
+  set_target_properties(EzRmlUi::Core PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${EZ_RMLUI_DIR}/Include")
   
   add_library(EzRmlUi::Controls SHARED IMPORTED)
-	set_target_properties(EzRmlUi::Controls PROPERTIES IMPORTED_LOCATION "${RMLUI_LIB_PATH}/RmlControls.dll")
-	set_target_properties(EzRmlUi::Controls PROPERTIES IMPORTED_IMPLIB "${RMLUI_LIB_PATH}/RmlControls.lib")
+  set_target_properties(EzRmlUi::Controls PROPERTIES IMPORTED_LOCATION "${RMLUI_LIB_PATH}/${RMLUI_CONFIG}/RmlControls.dll")
+  set_target_properties(EzRmlUi::Controls PROPERTIES IMPORTED_IMPLIB "${RMLUI_LIB_PATH}/${RMLUI_CONFIG}/RmlControls.lib")
   
   add_library(EzRmlUi::Debugger SHARED IMPORTED)
-	set_target_properties(EzRmlUi::Debugger PROPERTIES IMPORTED_LOCATION "${RMLUI_LIB_PATH}/RmlDebugger.dll")
-	set_target_properties(EzRmlUi::Debugger PROPERTIES IMPORTED_IMPLIB "${RMLUI_LIB_PATH}/RmlDebugger.lib")
+  set_target_properties(EzRmlUi::Debugger PROPERTIES IMPORTED_LOCATION "${RMLUI_LIB_PATH}/${RMLUI_CONFIG}/RmlDebugger.dll")
+  set_target_properties(EzRmlUi::Debugger PROPERTIES IMPORTED_IMPLIB "${RMLUI_LIB_PATH}/${RMLUI_CONFIG}/RmlDebugger.lib")
   
   add_library(EzRmlUi::Freetype SHARED IMPORTED)
-	set_target_properties(EzRmlUi::Freetype PROPERTIES IMPORTED_LOCATION "${RMLUI_LIB_PATH}/freetype.dll")
+  set_target_properties(EzRmlUi::Freetype PROPERTIES IMPORTED_LOCATION "${RMLUI_LIB_PATH}/freetype.dll")
 
 endif()
 
 mark_as_advanced(FORCE EZ_RMLUI_DIR)
 
 unset (RMLUI_LIB_PATH)
+unset (RMLUI_CONFIG)
 
 
 

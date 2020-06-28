@@ -10,3 +10,5 @@
 #else
 #  define EZ_RMLUIPLUGIN_DLL
 #endif
+
+#define RMLUI_USE_CUSTOM_RTTI
