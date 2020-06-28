@@ -5,6 +5,7 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Types/Variant.h>
+#include <Foundation/Math/Rational.h>
 
 ezFormatString::ezFormatString(const ezStringBuilder& s)
 {
@@ -193,6 +194,24 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezAngle& arg)
   tmp[writepos + 2] = '\0';
 
   return ezStringView(tmp, tmp + writepos + 2);
+}
+
+ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezRational& arg)
+{
+  ezUInt32 writepos = 0;
+
+  if (arg.IsIntegral())
+  {
+    ezStringUtils::OutputFormattedInt(tmp, uiLength, writepos, arg.GetIntegralResult(), 1, false, 10);
+
+    return ezStringView(tmp, tmp + writepos);
+  }
+  else
+  {
+    ezStringUtils::snprintf(tmp, uiLength, "%i/%i", arg.GetNumerator(), arg.GetDenominator());
+
+    return ezStringView(tmp);
+  }
 }
 
 ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezTime& arg)
