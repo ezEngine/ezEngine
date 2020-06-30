@@ -1,8 +1,8 @@
-RmlUi 3.2
+RmlUi 3.3
 
 https://github.com/mikke89/RmlUi
 
-Commit id: d60a7cc26b548c16a966bcfec6e8933d5b7b5758
+Commit id: a220824bfc65332568516eb25709ea3a22605b21
 
 Cmake options: DISABLE_RTTI_AND_EXCEPTIONS
 

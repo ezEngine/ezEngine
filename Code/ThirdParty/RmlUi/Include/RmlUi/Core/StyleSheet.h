@@ -32,7 +32,6 @@
 #include "Traits.h"
 #include "PropertyDictionary.h"
 #include "Spritesheet.h"
-#include <set>
 
 namespace Rml {
 namespace Core {
@@ -43,10 +42,12 @@ class StyleSheetNode;
 class Decorator;
 class FontEffect;
 class SpritesheetList;
+class Stream;
 struct Sprite;
 struct Spritesheet;
 
 struct KeyframeBlock {
+	KeyframeBlock(float normalized_time) : normalized_time(normalized_time) {}
 	float normalized_time;  // [0, 1]
 	PropertyDictionary properties;
 };

@@ -29,9 +29,9 @@
 #ifndef RMLUICOREXMLNODEHANDLER_H
 #define RMLUICOREXMLNODEHANDLER_H
 
-#include "Traits.h"
-#include "XMLParser.h"
 #include "Header.h"
+#include "Traits.h"
+#include "Types.h"
 
 namespace Rml {
 namespace Core {

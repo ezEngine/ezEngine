@@ -29,24 +29,17 @@
 #ifndef RMLUICORETYPES_H
 #define RMLUICORETYPES_H
 
-#include <float.h>
-#include <limits.h>
-#include <cstring>
 #include <string>
 #include <cstdlib>
-#include <algorithm>
-#include <map>
 #include <memory>
-#include <set>
-#include <unordered_set>
+#include <utility>
 #include <vector>
 
-#include "Platform.h"
-#include "Profiling.h"
-#include "Debug.h"
 #include "Traits.h"
 
 #ifdef RMLUI_NO_THIRDPARTY_CONTAINERS
+#include <set>
+#include <unordered_set>
 #include <unordered_map>
 #else
 #include "Containers/chobo/flat_map.hpp"
@@ -59,8 +52,8 @@ namespace Core {
 
 // Commonly used basic types
 using byte = unsigned char;
-using Time = double;
 using ScriptObject = void*;
+using std::size_t;
 
 // Unicode code point
 enum class Character : char32_t { Null, Replacement = 0xfffd };
@@ -109,7 +102,8 @@ struct Animation;
 struct Transition;
 struct TransitionList;
 struct Rectangle;
-enum class PropertyId : uint16_t;
+enum class EventId : uint16_t;
+enum class PropertyId : uint8_t;
 
 // Types for external interfaces.
 using FileHandle = uintptr_t;
@@ -145,18 +139,22 @@ using UnorderedMap = std::unordered_map< Key, Value >;
 template <typename Key, typename Value>
 using SmallUnorderedMap = UnorderedMap< Key, Value >;
 template <typename T>
-using SmallOrderedSet = std::set< T >;
+using UnorderedSet = std::unordered_set< T >;
 template <typename T>
 using SmallUnorderedSet = std::unordered_set< T >;
+template <typename T>
+using SmallOrderedSet = std::set< T >;
 #else
 template < typename Key, typename Value>
 using UnorderedMap = robin_hood::unordered_flat_map< Key, Value >;
 template <typename Key, typename Value>
 using SmallUnorderedMap = chobo::flat_map< Key, Value >;
 template <typename T>
-using SmallOrderedSet = chobo::flat_set< T >;
+using UnorderedSet = robin_hood::unordered_flat_set< T >;
 template <typename T>
 using SmallUnorderedSet = chobo::flat_set< T >;
+template <typename T>
+using SmallOrderedSet = chobo::flat_set< T >;
 #endif
 
 
@@ -171,6 +169,7 @@ using PropertyMap = UnorderedMap< PropertyId, Property >;
 
 using Dictionary = SmallUnorderedMap< String, Variant >;
 using ElementAttributes = Dictionary;
+using XMLAttributes = Dictionary;
 
 using AnimationList = std::vector<Animation>;
 using DecoratorList = std::vector<SharedPtr<const Decorator>>;
@@ -198,6 +197,10 @@ namespace std {
 template <> struct hash<::Rml::Core::PropertyId> {
 	using utype = typename ::std::underlying_type<::Rml::Core::PropertyId>::type;
 	size_t operator() (const ::Rml::Core::PropertyId& t) const { ::std::hash<utype> h; return h(static_cast<utype>(t)); }
+};
+template <> struct hash<::Rml::Core::Character> {
+    using utype = typename ::std::underlying_type<::Rml::Core::Character>::type;
+    size_t operator() (const ::Rml::Core::Character& t) const { ::std::hash<utype> h; return h(static_cast<utype>(t)); }
 };
 }
 

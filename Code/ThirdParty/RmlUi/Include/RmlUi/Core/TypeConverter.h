@@ -29,9 +29,9 @@
 #ifndef RMLUICORETYPECONVERTER_H
 #define RMLUICORETYPECONVERTER_H
 
+#include "Platform.h"
 #include "Types.h"
 #include "Log.h"
-#include "Stream.h"
 #include "StringUtilities.h"
 #include <stdlib.h>
 #include <stdio.h>
