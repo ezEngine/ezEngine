@@ -143,6 +143,15 @@ void ezRmlUiContext::UpdateInput(const ezVec2& mousePos)
         ProcessMouseButtonUp(i, modifierState);
       }
     }
+
+    if (ezInputManager::GetInputSlotState(ezInputSlot_MouseWheelDown) == ezKeyState::Pressed)
+    {
+      ProcessMouseWheel(1.0f, modifierState);
+    }
+    if (ezInputManager::GetInputSlotState(ezInputSlot_MouseWheelUp) == ezKeyState::Pressed)
+    {
+      ProcessMouseWheel(-1.0f, modifierState);
+    }
   }
 
   // Keyboard

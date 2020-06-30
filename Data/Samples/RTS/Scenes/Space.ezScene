@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{9619871107370611331,5240437655261466261}}
-		u4 %Hash{7324021146211489132}
+		u4 %Hash{5749862597119528625}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -163,7 +163,7 @@ o
 		Vec2i %Offset{i3{10,10}}
 		b %PassInput{1}
 		s %RmlFile{"{ 5c9dacbb-e862-4b7d-b43e-7ad5c08d9397 }"}
-		Vec2u %Size{u3{200,150}}
+		Vec2u %Size{u3{200,200}}
 	}
 }
 o
@@ -870,7 +870,7 @@ o
 		s %PluginName{"ezEditorPluginRmlUi"}
 		VarArray %Properties{}
 		s %TypeName{"ezRmlUiCanvas2DComponent"}
-		u3 %TypeSize{112}
+		u3 %TypeSize{120}
 		u3 %TypeVersion{1}
 	}
 }
