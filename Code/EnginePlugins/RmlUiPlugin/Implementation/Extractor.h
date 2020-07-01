@@ -65,7 +65,19 @@ namespace ezRmlUiInternal
     ezRenderData* GetRenderData();
 
   private:
+    void EndFrame(const ezGALDeviceEvent& e);
+    void FreeReleasedGeometry(GeometryId id);
+
     ezIdTable<GeometryId, CompiledGeometry> m_CompiledGeometry;
+
+    struct ReleasedGeometry
+    {
+      ezUInt64 m_uiFrame;
+      GeometryId m_Id;
+    };
+
+    ezDeque<ReleasedGeometry> m_ReleasedCompiledGeometry;
+
     ezIdTable<TextureId, ezTexture2DResourceHandle> m_Textures;
     ezTexture2DResourceHandle m_hFallbackTexture;
 

@@ -11,15 +11,17 @@ namespace ezRmlUiInternal
   Extractor::Extractor()
   {
     m_hFallbackTexture = ezResourceManager::LoadResource<ezTexture2DResource>("White.color");
+
+    ezGALDevice::GetDefaultDevice()->m_Events.AddEventHandler(ezMakeDelegate(&Extractor::EndFrame, this));
   }
 
   Extractor::~Extractor()
   {
-    ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+    ezGALDevice::GetDefaultDevice()->m_Events.RemoveEventHandler(ezMakeDelegate(&Extractor::EndFrame, this));
 
     for (auto it = m_CompiledGeometry.GetIterator(); it.IsValid(); ++it)
     {
-      ReleaseCompiledGeometry(it.Id().ToRml());
+      FreeReleasedGeometry(it.Id());
     }
   }
 
@@ -107,19 +109,7 @@ namespace ezRmlUiInternal
 
   void Extractor::ReleaseCompiledGeometry(Rml::Core::CompiledGeometryHandle geometry_handle)
   {
-    CompiledGeometry* pGeometry = nullptr;
-    if (!m_CompiledGeometry.TryGetValue(GeometryId::FromRml(geometry_handle), pGeometry))
-      return;
-
-    ezGALDevice::GetDefaultDevice()->DestroyBuffer(pGeometry->m_hVertexBuffer);
-    pGeometry->m_hVertexBuffer.Invalidate();
-
-    ezGALDevice::GetDefaultDevice()->DestroyBuffer(pGeometry->m_hIndexBuffer);
-    pGeometry->m_hIndexBuffer.Invalidate();
-
-    pGeometry->m_hTexture.Invalidate();
-
-    m_CompiledGeometry.Remove(GeometryId::FromRml(geometry_handle));
+    m_ReleasedCompiledGeometry.PushBack({ezRenderWorld::GetFrameCounter(), GeometryId::FromRml(geometry_handle)});
   }
 
   void Extractor::EnableScissorRegion(bool enable)
@@ -224,6 +214,42 @@ namespace ezRmlUiInternal
     }
 
     return nullptr;
+  }
+
+  void Extractor::EndFrame(const ezGALDeviceEvent& e)
+  {
+    if (e.m_Type != ezGALDeviceEvent::BeforeEndFrame)
+      return;
+
+    ezUInt64 uiFrameCounter = ezRenderWorld::GetFrameCounter();
+
+    while (!m_ReleasedCompiledGeometry.IsEmpty())
+    {
+      auto& releasedGeometry = m_ReleasedCompiledGeometry.PeekFront();
+
+      if (releasedGeometry.m_uiFrame >= uiFrameCounter)
+        break;
+
+      FreeReleasedGeometry(releasedGeometry.m_Id);
+
+      m_CompiledGeometry.Remove(releasedGeometry.m_Id);
+      m_ReleasedCompiledGeometry.PopFront();
+    }
+  }
+
+  void Extractor::FreeReleasedGeometry(GeometryId id)
+  {
+    CompiledGeometry* pGeometry = nullptr;
+    if (!m_CompiledGeometry.TryGetValue(id, pGeometry))
+      return;
+
+    ezGALDevice::GetDefaultDevice()->DestroyBuffer(pGeometry->m_hVertexBuffer);
+    pGeometry->m_hVertexBuffer.Invalidate();
+
+    ezGALDevice::GetDefaultDevice()->DestroyBuffer(pGeometry->m_hIndexBuffer);
+    pGeometry->m_hIndexBuffer.Invalidate();
+
+    pGeometry->m_hTexture.Invalidate();
   }
 
 } // namespace ezRmlUiInternal
