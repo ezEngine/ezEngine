@@ -31,6 +31,8 @@ public:
   ezRmlUiContext* CreateContext(const char* szName, const ezVec2U32& initialSize);
   void DeleteContext(ezRmlUiContext* pContext);
 
+  bool AnyContextWantsInput();
+
   void ExtractContext(ezRmlUiContext& context, ezMsgExtractRenderData& msg);
 
 private:
