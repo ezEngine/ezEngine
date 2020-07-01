@@ -19,15 +19,7 @@ namespace ezRmlUiInternal
 
     for (auto it = m_CompiledGeometry.GetIterator(); it.IsValid(); ++it)
     {
-      auto& geometry = it.Value();
-
-      pDevice->DestroyBuffer(geometry.m_hVertexBuffer);
-      geometry.m_hVertexBuffer.Invalidate();
-
-      pDevice->DestroyBuffer(geometry.m_hIndexBuffer);
-      geometry.m_hIndexBuffer.Invalidate();
-
-      geometry.m_hTexture.Invalidate();
+      ReleaseCompiledGeometry(it.Id().ToRml());
     }
   }
 
@@ -90,11 +82,11 @@ namespace ezRmlUiInternal
     return m_CompiledGeometry.Insert(std::move(geometry)).ToRml();
   }
 
-  void Extractor::RenderCompiledGeometry(Rml::Core::CompiledGeometryHandle geometry, const Rml::Core::Vector2f& translation)
+  void Extractor::RenderCompiledGeometry(Rml::Core::CompiledGeometryHandle geometry_handle, const Rml::Core::Vector2f& translation)
   {
     auto& batch = m_Batches.ExpandAndGetRef();
 
-    EZ_VERIFY(m_CompiledGeometry.TryGetValue(GeometryId::FromRml(geometry), batch.m_CompiledGeometry), "Invalid compiled geometry");
+    EZ_VERIFY(m_CompiledGeometry.TryGetValue(GeometryId::FromRml(geometry_handle), batch.m_CompiledGeometry), "Invalid compiled geometry");
 
     ezMat4 offsetMat;
     offsetMat.SetTranslationMatrix(m_Offset.GetAsVec3(0));
@@ -113,9 +105,21 @@ namespace ezRmlUiInternal
     }
   }
 
-  void Extractor::ReleaseCompiledGeometry(Rml::Core::CompiledGeometryHandle geometry)
+  void Extractor::ReleaseCompiledGeometry(Rml::Core::CompiledGeometryHandle geometry_handle)
   {
-    //TODO
+    CompiledGeometry* pGeometry = nullptr;
+    if (!m_CompiledGeometry.TryGetValue(GeometryId::FromRml(geometry_handle), pGeometry))
+      return;
+
+    ezGALDevice::GetDefaultDevice()->DestroyBuffer(pGeometry->m_hVertexBuffer);
+    pGeometry->m_hVertexBuffer.Invalidate();
+
+    ezGALDevice::GetDefaultDevice()->DestroyBuffer(pGeometry->m_hIndexBuffer);
+    pGeometry->m_hIndexBuffer.Invalidate();
+
+    pGeometry->m_hTexture.Invalidate();
+
+    m_CompiledGeometry.Remove(GeometryId::FromRml(geometry_handle));
   }
 
   void Extractor::EnableScissorRegion(bool enable)
@@ -177,9 +181,9 @@ namespace ezRmlUiInternal
     return true;
   }
 
-  void Extractor::ReleaseTexture(Rml::Core::TextureHandle texture)
+  void Extractor::ReleaseTexture(Rml::Core::TextureHandle texture_handle)
   {
-    EZ_VERIFY(m_Textures.Remove(TextureId::FromRml(texture)), "Invalid texture handle");
+    EZ_VERIFY(m_Textures.Remove(TextureId::FromRml(texture_handle)), "Invalid texture handle");
   }
 
   void Extractor::SetTransform(const Rml::Core::Matrix4f* transform)

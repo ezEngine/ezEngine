@@ -15,7 +15,7 @@ namespace ezRmlUiInternal
   class EventListener;
 } // namespace ezRmlUiInternal
 
-class EZ_RMLUIPLUGIN_DLL ezRmlUiContext : public Rml::Core::Context
+class EZ_RMLUIPLUGIN_DLL ezRmlUiContext final : public Rml::Core::Context
 {
 public:
   ezRmlUiContext(const Rml::Core::String& name);

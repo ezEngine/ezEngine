@@ -26,7 +26,6 @@ namespace ezRmlUiInternal
   {
     switch (type)
     {
-      case Rml::Core::Log::LT_ALWAYS:
       case Rml::Core::Log::LT_ERROR:
         ezLog::Error("{}", message.c_str());
         break;
@@ -39,6 +38,7 @@ namespace ezRmlUiInternal
         ezLog::Warning("{}", message.c_str());
         break;
 
+      case Rml::Core::Log::LT_ALWAYS:
       case Rml::Core::Log::LT_INFO:
         ezLog::Info("{}", message.c_str());
         break;

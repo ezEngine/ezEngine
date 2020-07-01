@@ -38,7 +38,7 @@ namespace ezRmlUiInternal
 
   //////////////////////////////////////////////////////////////////////////
 
-  class Extractor : public Rml::Core::RenderInterface
+  class Extractor final : public Rml::Core::RenderInterface
   {
   public:
     Extractor();
@@ -47,15 +47,15 @@ namespace ezRmlUiInternal
     virtual void RenderGeometry(Rml::Core::Vertex* vertices, int num_vertices, int* indices, int num_indices, Rml::Core::TextureHandle texture, const Rml::Core::Vector2f& translation) override;
 
     virtual Rml::Core::CompiledGeometryHandle CompileGeometry(Rml::Core::Vertex* vertices, int num_vertices, int* indices, int num_indices, Rml::Core::TextureHandle texture) override;
-    virtual void RenderCompiledGeometry(Rml::Core::CompiledGeometryHandle geometry, const Rml::Core::Vector2f& translation) override;
-    virtual void ReleaseCompiledGeometry(Rml::Core::CompiledGeometryHandle geometry) override;
+    virtual void RenderCompiledGeometry(Rml::Core::CompiledGeometryHandle geometry_handle, const Rml::Core::Vector2f& translation) override;
+    virtual void ReleaseCompiledGeometry(Rml::Core::CompiledGeometryHandle geometry_handle) override;
 
     virtual void EnableScissorRegion(bool enable) override;
     virtual void SetScissorRegion(int x, int y, int width, int height) override;
 
     virtual bool LoadTexture(Rml::Core::TextureHandle& texture_handle, Rml::Core::Vector2i& texture_dimensions, const Rml::Core::String& source) override;
     virtual bool GenerateTexture(Rml::Core::TextureHandle& texture_handle, const Rml::Core::byte* source, const Rml::Core::Vector2i& source_dimensions) override;
-    virtual void ReleaseTexture(Rml::Core::TextureHandle texture) override;
+    virtual void ReleaseTexture(Rml::Core::TextureHandle texture_handle) override;
 
     virtual void SetTransform(const Rml::Core::Matrix4f* transform) override;
 

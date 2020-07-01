@@ -11,7 +11,7 @@
 #include <RmlUiPlugin/RmlUiSingleton.h>
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezRmlUiCanvas2DComponent, 1, ezComponentMode::Dynamic)
+EZ_BEGIN_COMPONENT_TYPE(ezRmlUiCanvas2DComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -25,7 +25,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezRmlUiCanvas2DComponent, 1, ezComponentMode::Dynamic)
   EZ_BEGIN_MESSAGEHANDLERS
   {
     EZ_MESSAGE_HANDLER(ezMsgExtractRenderData, OnMsgExtractRenderData),
-    EZ_MESSAGE_HANDLER(ezMsgReload, OnMsgReload)
+    EZ_MESSAGE_HANDLER(ezMsgRmlUiReload, OnMsgReload)
   }
   EZ_END_MESSAGEHANDLERS;
   EZ_BEGIN_ATTRIBUTES
@@ -75,57 +75,57 @@ void ezRmlUiCanvas2DComponent::OnActivated()
 
 void ezRmlUiCanvas2DComponent::OnDeactivated()
 {
-  SUPER::OnDeactivated();
-
   m_pContext->HideDocument();
+
+  SUPER::OnDeactivated();
 }
 
 void ezRmlUiCanvas2DComponent::Update()
 {
-  if (m_pContext != nullptr)
+  if (m_pContext == nullptr)
+    return;
+
+  ezVec2 viewSize = ezVec2(1.0f);
+  if (ezView* pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView, ezCameraUsageHint::EditorView, GetWorld()))
   {
-    ezVec2 viewSize = ezVec2(1.0f);
-    if (ezView* pView = ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::MainView, ezCameraUsageHint::EditorView, GetWorld()))
-    {
-      viewSize.x = pView->GetViewport().width;
-      viewSize.y = pView->GetViewport().height;
-    }
-
-    float fScale = 1.0f;
-    if (m_ReferenceResolution.x > 0 && m_ReferenceResolution.y > 0)
-    {
-      fScale = viewSize.y / m_ReferenceResolution.y;
-    }
-
-    ezVec2 size = ezVec2(m_Size.x, m_Size.y) * fScale;
-    if (size.x <= 0.0f)
-    {
-      size.x = viewSize.x;
-    }
-    if (size.y <= 0.0f)
-    {
-      size.y = viewSize.y;
-    }
-    m_pContext->SetSize(ezVec2U32(size.x, size.y));
-
-    ezVec2 offset = ezVec2(m_Offset.x, m_Offset.y) * fScale;
-    offset = (viewSize - size).CompMul(m_AnchorPoint) - offset.CompMul(m_AnchorPoint * 2.0f - ezVec2(1.0f));
-    m_pContext->SetOffset(ezVec2I32(offset.x, offset.y));
-
-    m_pContext->SetDpiScale(fScale);
-
-    if (m_bPassInput)
-    {
-      ezVec2 mousePos;
-      ezInputManager::GetInputSlotState(ezInputSlot_MousePositionX, &mousePos.x);
-      ezInputManager::GetInputSlotState(ezInputSlot_MousePositionY, &mousePos.y);
-
-      mousePos = mousePos.CompMul(viewSize) - offset;
-      m_pContext->UpdateInput(mousePos);
-    }
-
-    m_pContext->Update();
+    viewSize.x = pView->GetViewport().width;
+    viewSize.y = pView->GetViewport().height;
   }
+
+  float fScale = 1.0f;
+  if (m_ReferenceResolution.x > 0 && m_ReferenceResolution.y > 0)
+  {
+    fScale = viewSize.y / m_ReferenceResolution.y;
+  }
+
+  ezVec2 size = ezVec2(m_Size.x, m_Size.y) * fScale;
+  if (size.x <= 0.0f)
+  {
+    size.x = viewSize.x;
+  }
+  if (size.y <= 0.0f)
+  {
+    size.y = viewSize.y;
+  }
+  m_pContext->SetSize(ezVec2U32(static_cast<ezUInt32>(size.x), static_cast<ezUInt32>(size.y)));
+
+  ezVec2 offset = ezVec2(m_Offset.x, m_Offset.y) * fScale;
+  offset = (viewSize - size).CompMul(m_AnchorPoint) - offset.CompMul(m_AnchorPoint * 2.0f - ezVec2(1.0f));
+  m_pContext->SetOffset(ezVec2I32(static_cast<int>(offset.x), static_cast<int>(offset.y)));
+
+  m_pContext->SetDpiScale(fScale);
+
+  if (m_bPassInput)
+  {
+    ezVec2 mousePos;
+    ezInputManager::GetInputSlotState(ezInputSlot_MousePositionX, &mousePos.x);
+    ezInputManager::GetInputSlotState(ezInputSlot_MousePositionY, &mousePos.y);
+
+    mousePos = mousePos.CompMul(viewSize) - offset;
+    m_pContext->UpdateInput(mousePos);
+  }
+
+  m_pContext->Update();
 }
 
 void ezRmlUiCanvas2DComponent::SetRmlFile(const char* szFile)
@@ -245,7 +245,7 @@ void ezRmlUiCanvas2DComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& ms
   }
 }
 
-void ezRmlUiCanvas2DComponent::OnMsgReload(ezMsgReload& msg)
+void ezRmlUiCanvas2DComponent::OnMsgReload(ezMsgRmlUiReload& msg)
 {
   if (m_pContext != nullptr)
   {
@@ -273,7 +273,7 @@ void ezRmlUiCanvas2DComponent::UpdateCachedValues()
     pResource->m_ResourceEvents.AddEventHandler([hComponent = GetHandle(), pWorld = GetWorld()](const ezResourceEvent& e) {
       if (e.m_Type == ezResourceEvent::Type::ResourceContentUnloading)
       {
-        pWorld->PostMessage(hComponent, ezMsgReload(), ezTime::Zero());
+        pWorld->PostMessage(hComponent, ezMsgRmlUiReload(), ezTime::Zero());
       }
     },
       m_ResourceEventUnsubscriber);

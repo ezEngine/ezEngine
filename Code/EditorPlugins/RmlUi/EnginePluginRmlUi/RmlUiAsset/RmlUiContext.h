@@ -24,6 +24,6 @@ protected:
   virtual bool UpdateThumbnailViewContext(ezEngineProcessViewContext* pThumbnailViewContext) override;
 
 private:
-  ezGameObject* m_pMainObject;
+  ezGameObject* m_pMainObject = nullptr;
   ezRmlUiResourceHandle m_hMainResource;
 };

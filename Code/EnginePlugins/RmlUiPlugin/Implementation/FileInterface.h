@@ -24,7 +24,7 @@ namespace ezRmlUiInternal
 
   //////////////////////////////////////////////////////////////////////////
 
-  class FileInterface : public Rml::Core::FileInterface
+  class FileInterface final : public Rml::Core::FileInterface
   {
   public:
     FileInterface();

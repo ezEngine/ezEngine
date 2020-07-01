@@ -16,10 +16,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRmlUiContext, 1, ezRTTIDefaultAllocator<ezRmlU
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezRmlUiContext::ezRmlUiContext()
-{
-  m_pMainObject = nullptr;
-}
+ezRmlUiContext::ezRmlUiContext() = default;
 
 void ezRmlUiContext::OnInitialize()
 {

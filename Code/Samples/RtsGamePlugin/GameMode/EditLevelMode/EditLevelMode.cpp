@@ -56,19 +56,45 @@ void RtsEditLevelMode::SetupEditUI()
 
   pUiComponent->EnsureInitialized();
 
-  if (auto pElement = pUiComponent->GetRmlContext()->GetDocument(0)->GetElementById("build"))
+  auto pDocument = pUiComponent->GetRmlContext()->GetDocument(0);
+
+  if (auto pElement = pDocument->GetElementById("build"))
   {
     // should be rmlui_dynamic_cast but ElementFormControlSelect has no rtti
     if (auto pSelectElement = static_cast<Rml::Controls::ElementFormControlSelect*>(pElement))
     {
-      ezStringBuilder sValue;
-
-      for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(g_BuildItemTypes); ++i)
+      if (pSelectElement->GetNumOptions() == 0)
       {
-        sValue.Format("{}", i);
-        pSelectElement->Add(g_BuildItemTypes[i], sValue.GetData());
+        ezStringBuilder sValue;
+
+        for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(g_BuildItemTypes); ++i)
+        {
+          sValue.Format("{}", i);
+          pSelectElement->Add(g_BuildItemTypes[i], sValue.GetData());
+        }
       }
     }
+  }
+
+  if (auto pElement = pDocument->GetElementById("selectkey"))
+  {
+    ezStringBuilder s;
+    s.Format("Select: {}", ezInputManager::GetInputSlotDisplayName(ezInputSlot_MouseButton0));
+    pElement->SetInnerRML(s.GetData());
+  }
+
+  if (auto pElement = pDocument->GetElementById("createkey"))
+  {
+    ezStringBuilder s;
+    s.Format("Create: {}", ezInputManager::GetInputSlotDisplayName("EditLevelMode", "PlaceObject"));
+    pElement->SetInnerRML(s.GetData());
+  }
+
+  if (auto pElement = pDocument->GetElementById("removekey"))
+  {
+    ezStringBuilder s;
+    s.Format("Remove: {}", ezInputManager::GetInputSlotDisplayName("EditLevelMode", "RemoveObject"));
+    pElement->SetInnerRML(s.GetData());
   }
 
   pUiComponent->GetRmlContext()->RegisterEventHandler("teamChanged", [this](Rml::Core::Event& e) {
@@ -101,27 +127,6 @@ void RtsEditLevelMode::DisplayEditUI()
     if (auto pElement = pDocument->GetElementById("build"))
     {
       static_cast<Rml::Controls::ElementFormControlSelect*>(pElement)->SetSelection(m_iShipType);
-    }
-
-    if (auto pElement = pDocument->GetElementById("selectkey"))
-    {
-      ezStringBuilder s;
-      s.Format("Select: {}", ezInputManager::GetInputSlotDisplayName(ezInputSlot_MouseButton0));
-      pElement->SetInnerRML(s.GetData());
-    }
-
-    if (auto pElement = pDocument->GetElementById("createkey"))
-    {
-      ezStringBuilder s;
-      s.Format("Create: {}", ezInputManager::GetInputSlotDisplayName("EditLevelMode", "PlaceObject"));
-      pElement->SetInnerRML(s.GetData());
-    }
-
-    if (auto pElement = pDocument->GetElementById("removekey"))
-    {
-      ezStringBuilder s;
-      s.Format("Remove: {}", ezInputManager::GetInputSlotDisplayName("EditLevelMode", "RemoveObject"));
-      pElement->SetInnerRML(s.GetData());
     }
   }
   else

@@ -103,6 +103,10 @@ ezStatus ezRmlUiAssetDocument::InternalTransformAsset(ezStreamWriter& stream, co
       {
         desc.m_DependencyFile.AddFileDependency(sRcssRef);
       }
+      else
+      {
+        ezLog::Warning("RCSS file '{}' was not added as dependency since it doesn't exist", sRcssRef);
+      }
     }
   }
 

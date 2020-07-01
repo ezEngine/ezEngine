@@ -4,7 +4,7 @@
 
 namespace ezRmlUiInternal
 {
-  class SystemInterface : public Rml::Core::SystemInterface
+  class SystemInterface final : public Rml::Core::SystemInterface
   {
   public:
     virtual double GetElapsedTime() override;

@@ -105,7 +105,6 @@ ezResourceLoadDesc ezRmlUiResource::UpdateContent(ezStreamReader* Stream)
 
 void ezRmlUiResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  // TODO
   out_NewMemoryUsage.m_uiMemoryCPU = sizeof(*this);
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
@@ -137,7 +136,7 @@ bool ezRmlUiResourceLoader::IsResourceOutdated(const ezResource* pResource) cons
 
   ezFileReader stream;
   if (stream.Open(pResource->GetResourceID()).Failed())
-    return true;
+    return false;
 
   // skip asset header
   ezAssetFileHeader assetHeader;

@@ -56,7 +56,7 @@ public:
 
 protected:
   void OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const;
-  void OnMsgReload(ezMsgReload& msg);
+  void OnMsgReload(ezMsgRmlUiReload& msg);
   void UpdateCachedValues();
 
   ezRmlUiResourceHandle m_hResource;

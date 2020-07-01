@@ -9,7 +9,7 @@ class ezRmlUiContext;
 
 namespace ezRmlUiInternal
 {
-  class EventListener : public Rml::Core::EventListener
+  class EventListener final : public Rml::Core::EventListener
   {
   public:
     virtual void ProcessEvent(Rml::Core::Event& event) override;
@@ -22,7 +22,7 @@ namespace ezRmlUiInternal
     ezUInt32 m_uiIndex = 0;
   };
 
-  class EventListenerInstancer : public Rml::Core::EventListenerInstancer
+  class EventListenerInstancer final : public Rml::Core::EventListenerInstancer
   {
   public:
     EventListenerInstancer();
