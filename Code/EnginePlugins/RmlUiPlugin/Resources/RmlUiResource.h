@@ -53,7 +53,7 @@ private:
 
   ezString m_sRmlFile;
   ezEnum<ezRmlUiScaleMode> m_ScaleMode;
-  ezVec2U32 m_ReferenceResolution;
+  ezVec2U32 m_ReferenceResolution = ezVec2U32::ZeroVector();
 };
 
 class ezRmlUiResourceLoader : public ezResourceLoaderFromFile
