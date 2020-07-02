@@ -103,7 +103,7 @@ public:
 
     ezDynamicArray<CPUScopesBufferFlat> m_AllEventBuffers;
 
-    ezUInt64 m_uiFrameCount;
+    ezUInt64 m_uiFrameCount = 0;
     ezDynamicArray<ezTime> m_FrameStartTimes;
 
     ezDynamicArray<GPUScope> m_GPUScopes;
@@ -112,6 +112,9 @@ public:
     ezResult Write(ezStreamWriter& outputStream) const;
 
     void Clear();
+
+    /// \brief Concatenates all given ProfilingData instances into one merge struct
+    static void Merge(ProfilingData& out_Merged, ezArrayPtr<const ProfilingData*> inputs);
   };
 
 public:
