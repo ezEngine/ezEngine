@@ -21,7 +21,7 @@
 #error "Missing code for ezWindow!"
 #endif
 
-ezUInt32 ezWindow::s_uiNextUnusedWindowNumber = 0;
+ezUInt8 ezWindow::s_uiNextUnusedWindowNumber = 0;
 
 ezResult ezWindowCreationDesc::AdjustWindowSizeAndPosition()
 {
@@ -217,7 +217,7 @@ void ezWindow::OnWindowMessage(ezMinWindows::HWND hWnd, ezMinWindows::UINT Msg, 
 
 }
 
-ezUInt32 ezWindow::GetNextUnusedWindowNumber()
+ezUInt8 ezWindow::GetNextUnusedWindowNumber()
 {
   return s_uiNextUnusedWindowNumber;
 }

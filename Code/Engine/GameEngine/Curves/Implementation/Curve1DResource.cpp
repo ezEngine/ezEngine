@@ -75,7 +75,7 @@ void ezCurve1DResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 
   for (const auto& curve : m_Descriptor.m_Curves)
   {
-    out_NewMemoryUsage.m_uiMemoryCPU += static_cast<ezUInt32>(curve.GetHeapMemoryUsage());
+    out_NewMemoryUsage.m_uiMemoryCPU += curve.GetHeapMemoryUsage();
   }
 }
 
@@ -85,7 +85,7 @@ void ezCurve1DResourceDescriptor::Save(ezStreamWriter& stream) const
 
   stream << uiVersion;
 
-  const ezUInt8 uiCurves = m_Curves.GetCount();
+  const ezUInt8 uiCurves = static_cast<ezUInt8>(m_Curves.GetCount());
   stream << uiCurves;
 
   for (ezUInt32 i = 0; i < uiCurves; ++i)

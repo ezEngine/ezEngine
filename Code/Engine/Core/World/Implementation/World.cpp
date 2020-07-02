@@ -64,6 +64,7 @@ ezWorld::ezWorld(ezWorldDesc& desc)
   {
     m_uiIndex = static_cast<ezUInt16>(s_Worlds.GetCount());
     EZ_ASSERT_DEV(m_uiIndex < GetMaxNumWorlds(), "Max world index reached: {}", GetMaxNumWorlds());
+    static_assert((GetMaxNumWorlds() - 1) <= ezMath::MaxValue<ezUInt8>()); // World index is stored in ezUInt8 in game objects
 
     s_Worlds.PushBack(this);
   }
@@ -164,7 +165,7 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   ezGameObject* pParentObject = nullptr;
   ezGameObject::TransformationData* pParentData = nullptr;
   ezUInt32 uiParentIndex = 0;
-  ezUInt32 uiHierarchyLevel = 0;
+  ezUInt64 uiHierarchyLevel = 0;
   bool bDynamic = desc.m_bDynamic;
 
   if (TryGetObject(desc.m_hParent, pParentObject))
@@ -177,14 +178,14 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   }
 
   // get storage for the transformation data
-  ezGameObject::TransformationData* pTransformationData = m_Data.CreateTransformationData(bDynamic, uiHierarchyLevel);
+  ezGameObject::TransformationData* pTransformationData = m_Data.CreateTransformationData(bDynamic, static_cast<ezUInt32>(uiHierarchyLevel));
 
   // get storage for the object itself
   ezGameObject* pNewObject = m_Data.m_ObjectStorage.Create();
 
   // insert the new object into the id mapping table
   ezGameObjectId newId = m_Data.m_Objects.Insert(pNewObject);
-  newId.m_WorldIndex = m_uiIndex;
+  newId.m_WorldIndex = static_cast<ezUInt8>(m_uiIndex);
 
   // fill out some data
   pNewObject->m_InternalId = newId;
@@ -196,7 +197,8 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   pNewObject->m_Tags = desc.m_Tags;
   pNewObject->m_uiTeamID = desc.m_uiTeamID;
 
-  pNewObject->m_uiHierarchyLevel = uiHierarchyLevel;
+  static_assert((GetMaxNumHierarchyLevels() - 1) <= ezMath::MaxValue<ezUInt16>());
+  pNewObject->m_uiHierarchyLevel = static_cast<ezUInt16>(uiHierarchyLevel);
 
   // fill out the transformation data
   pTransformationData->m_pObject = pNewObject;
@@ -272,7 +274,7 @@ void ezWorld::DeleteObjectNow(const ezGameObjectHandle& hObject)
 
   // invalidate (but preserve world index) and remove from id table
   pObject->m_InternalId.Invalidate();
-  pObject->m_InternalId.m_WorldIndex = m_uiIndex;
+  pObject->m_InternalId.m_WorldIndex = static_cast<ezUInt8>(m_uiIndex);
 
   m_Data.m_DeadObjects.Insert(pObject);
   EZ_VERIFY(m_Data.m_Objects.Remove(hObject), "Implementation error.");
@@ -717,7 +719,7 @@ void ezWorld::SetObjectGlobalKey(ezGameObject* pObject, const ezHashedString& sG
     return;
   }
 
-  const ezUInt32 uiId = pObject->m_InternalId.m_Data;
+  const ezUInt64 uiId = pObject->m_InternalId.m_Data;
 
   // Remove existing entry first.
   ezHashedString* pOldGlobalKey;
@@ -742,7 +744,7 @@ void ezWorld::SetObjectGlobalKey(ezGameObject* pObject, const ezHashedString& sG
 
 const char* ezWorld::GetObjectGlobalKey(const ezGameObject* pObject) const
 {
-  const ezUInt32 uiId = pObject->m_InternalId.m_Data;
+  const ezUInt64 uiId = pObject->m_InternalId.m_Data;
 
   const ezHashedString* pGlobalKey;
   if (m_Data.m_IdToGlobalKeyTable.TryGetValue(uiId, pGlobalKey))
@@ -1313,7 +1315,7 @@ void ezWorld::RecreateHierarchyData(ezGameObject* pObject, bool bWasDynamic)
     ezGameObject::TransformationData* pNewTransformationData = m_Data.CreateTransformationData(bIsDynamic, uiNewHierarchyLevel);
     ezMemoryUtils::Copy(pNewTransformationData, pOldTransformationData, 1);
 
-    pObject->m_uiHierarchyLevel = uiNewHierarchyLevel;
+    pObject->m_uiHierarchyLevel = static_cast<ezUInt16>(uiNewHierarchyLevel);
     pObject->m_pTransformationData = pNewTransformationData;
 
     // fix parent transform data for children as well

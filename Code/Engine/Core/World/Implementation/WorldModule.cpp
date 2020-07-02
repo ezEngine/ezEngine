@@ -14,7 +14,7 @@ ezWorldModule::ezWorldModule(ezWorld* pWorld)
 
 ezWorldModule::~ezWorldModule() {}
 
-ezUInt32 ezWorldModule::GetWorldIndex() const
+ezUInt8 ezWorldModule::GetWorldIndex() const
 {
   return GetWorld()->GetIndex();
 }

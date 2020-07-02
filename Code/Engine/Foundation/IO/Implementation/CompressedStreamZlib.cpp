@@ -93,7 +93,7 @@ ezUInt64 ezCompressedStreamReaderZip::ReadBytes(void* pReadBuffer, ezUInt64 uiBy
     // if our input buffer is empty, we need to read more into our cache
     if (m_pZLibStream->avail_in == 0 && m_uiRemainingInputSize > 0)
     {
-      ezUInt32 uiReadAmount = m_CompressedCache.GetCount();
+      ezUInt64 uiReadAmount = m_CompressedCache.GetCount();
       if (m_uiRemainingInputSize < uiReadAmount)
       {
         uiReadAmount = m_uiRemainingInputSize;
@@ -107,7 +107,7 @@ ezUInt64 ezCompressedStreamReaderZip::ReadBytes(void* pReadBuffer, ezUInt64 uiBy
       EZ_VERIFY(m_pInputStream->ReadBytes(m_CompressedCache.GetData(), sizeof(ezUInt8) * uiReadAmount) ==
                   sizeof(ezUInt8) * uiReadAmount,
         "Reading the compressed chunk of size {0} from the input stream failed.", uiReadAmount);
-      m_pZLibStream->avail_in = uiReadAmount;
+      m_pZLibStream->avail_in = static_cast<uInt>(uiReadAmount);
       m_pZLibStream->next_in = m_CompressedCache.GetData();
       m_uiRemainingInputSize -= uiReadAmount;
     }

@@ -22,7 +22,7 @@ public:
   const ezWorld* GetWorld() const;
 
   /// \brief Same as GetWorld()->GetIndex(). Needed to break circular include dependencies.
-  ezUInt32 GetWorldIndex() const;
+  ezUInt8 GetWorldIndex() const;
 
 protected:
   friend class ezWorld;

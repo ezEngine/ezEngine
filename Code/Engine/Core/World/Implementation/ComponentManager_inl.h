@@ -19,7 +19,7 @@ EZ_FORCE_INLINE bool ezComponentManagerBase::TryGetComponent(const ezComponentHa
 
 EZ_ALWAYS_INLINE ezUInt32 ezComponentManagerBase::GetComponentCount() const
 {
-  return m_Components.GetCount();
+  return static_cast<ezUInt32>(m_Components.GetCount());
 }
 
 template <typename ComponentType>
@@ -154,7 +154,7 @@ EZ_FORCE_INLINE void ezComponentManager<T, StorageType>::RegisterUpdateFunction(
   // round up to multiple of data block capacity so tasks only have to deal with complete data blocks
   if (desc.m_uiGranularity != 0)
     desc.m_uiGranularity =
-        ezMath::RoundUp((ezInt32)desc.m_uiGranularity, ezDataBlock<ComponentType, ezInternal::DEFAULT_BLOCK_SIZE>::CAPACITY);
+      static_cast<ezUInt16>(ezMath::RoundUp(static_cast<ezInt32>(desc.m_uiGranularity), ezDataBlock<ComponentType, ezInternal::DEFAULT_BLOCK_SIZE>::CAPACITY));
 
   ezComponentManagerBase::RegisterUpdateFunction(desc);
 }

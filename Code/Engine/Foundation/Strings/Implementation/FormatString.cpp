@@ -258,9 +258,9 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezTime& arg)
   {
     double tRem = fAbsSec;
 
-    ezInt32 iMin = ezMath::Trunc(tRem / 60.0);
+    ezInt32 iMin = static_cast<ezInt32>(ezMath::Trunc(tRem / 60.0));
     tRem -= iMin * 60;
-    iMin *= ezMath::Sign(arg.GetSeconds());
+    iMin *= ezMath::Sign(static_cast<ezInt32>(arg.GetSeconds()));
 
     const double fSec = tRem;
 
@@ -270,11 +270,11 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezTime& arg)
   {
     double tRem = fAbsSec;
 
-    ezInt32 iHrs = ezMath::Trunc(tRem / (60.0 * 60.0));
+    ezInt32 iHrs = static_cast<ezInt32>(ezMath::Trunc(tRem / (60.0 * 60.0)));
     tRem -= iHrs * 60 * 60;
-    iHrs *= ezMath::Sign(arg.GetSeconds());
+    iHrs *= ezMath::Sign(static_cast<ezInt32>(arg.GetSeconds()));
 
-    const ezInt32 iMin = ezMath::Trunc(tRem / 60.0);
+    const ezInt32 iMin = static_cast<ezInt32>(ezMath::Trunc(tRem / 60.0));
     tRem -= iMin * 60;
 
     const double fSec = tRem;

@@ -39,22 +39,22 @@ protected:
   /// Called at startup to determine if the test can be run. Should return a detailed error message on failure.
   virtual std::string IsTestAvailable() const { return {}; };
   /// Called at startup to setup all tests. Should use 'AddSubTest' to register all the sub-tests to the test framework.
-  virtual void SetupSubTests() /*override*/ = 0;
+  virtual void SetupSubTests() = 0;
   /// Called to run the test that was registered with the given identifier.
-  virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) /*override*/ = 0;
+  virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvocationCount) = 0;
 
   // *** Override these functions to implement optional (de-)initialization ***
 
   /// Called to initialize the whole test.
-  virtual ezResult InitializeTest() /*override*/ { return EZ_SUCCESS; }
+  virtual ezResult InitializeTest() { return EZ_SUCCESS; }
   /// Called to deinitialize the whole test.
-  virtual ezResult DeInitializeTest() /*override*/ { return EZ_SUCCESS; }
+  virtual ezResult DeInitializeTest() { return EZ_SUCCESS; }
   /// Called before running a sub-test to do additional initialization specifically for that test.
-  virtual ezResult InitializeSubTest(ezInt32 iIdentifier) /*override*/ { return EZ_SUCCESS; }
+  virtual ezResult InitializeSubTest(ezInt32 iIdentifier) { return EZ_SUCCESS; }
   /// Called after running a sub-test to do additional deinitialization specifically for that test.
-  virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier) /*override*/ { return EZ_SUCCESS; }
+  virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier) { return EZ_SUCCESS; }
 
-protected:
+
   /// Adds a sub-test to the test suite. The index is used to identify it when running the sub-tests.
   void AddSubTest(const char* szName, ezInt32 iIdentifier);
 

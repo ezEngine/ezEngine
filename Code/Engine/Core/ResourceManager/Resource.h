@@ -38,8 +38,8 @@ public:
       m_uiMemoryGPU = 0;
     }
 
-    ezUInt32 m_uiMemoryCPU;
-    ezUInt32 m_uiMemoryGPU;
+    ezUInt64 m_uiMemoryCPU;
+    ezUInt64 m_uiMemoryGPU;
   };
 
   /// \brief Returns the unique ID that identifies this resource. On a file resource this might be a path. Can also be a GUID or any other

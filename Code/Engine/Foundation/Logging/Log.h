@@ -10,6 +10,11 @@
 /// analysis happy.
 #define EZ_LOG_BLOCK ezLogBlock EZ_CONCAT(_logblock_, EZ_SOURCE_LINE)
 
+/// \brief Use this helper macro to easily mute all logging in a scope.
+#define EZ_LOG_BLOCK_MUTE()                            \
+  ezMuteLog EZ_CONCAT(_logmuteblock_, EZ_SOURCE_LINE); \
+  ezLogSystemScope EZ_CONCAT(_logscope_, EZ_SOURCE_LINE)(&EZ_CONCAT(_logmuteblock_, EZ_SOURCE_LINE))
+
 // Forward declaration, class is at the end of this file
 class ezLogBlock;
 
@@ -87,6 +92,16 @@ private:
   ezUInt32 m_uiLoggedMsgsSinceFlush = 0;
   ezTime m_LastFlushTime;
 };
+
+
+/// \brief Used to ignore all log messages.
+/// \sa EZ_LOG_BLOCK_MUTE
+class ezMuteLog : public ezLogInterface
+{
+public:
+  virtual void HandleLogMessage(const ezLoggingEventData&) override {}
+};
+
 
 /// \brief This is the standard log system that ezLog sends all messages to.
 ///

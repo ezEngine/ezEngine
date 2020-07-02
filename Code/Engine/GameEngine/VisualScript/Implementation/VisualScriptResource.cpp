@@ -326,7 +326,7 @@ void ezVisualScriptResourceDescriptor::PrecomputeMessageHandlers()
 
     if (iMsgID >= 0)
     {
-      m_MessageHandlers.Insert(iMsgID, (ezUInt16)uiNode);
+      m_MessageHandlers.Insert(static_cast<ezUInt16>(iMsgID), static_cast<ezUInt16>(uiNode));
     }
 
     pType->GetAllocator()->Deallocate(pNode);

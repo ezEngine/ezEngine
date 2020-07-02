@@ -128,10 +128,120 @@ namespace
 
 void ezProfilingSystem::ProfilingData::Clear()
 {
+  m_uiFramesThreadID = 0;
+  m_uiGPUThreadID = 0;
+  m_uiProcessID = 0;
+  m_uiFrameCount = 0;
+
   m_AllEventBuffers.Clear();
   m_FrameStartTimes.Clear();
   m_GPUScopes.Clear();
   m_ThreadInfos.Clear();
+}
+
+void ezProfilingSystem::ProfilingData::Merge(ProfilingData& out_Merged, ezArrayPtr<const ProfilingData*> inputs)
+{
+  out_Merged.Clear();
+
+  if (inputs.IsEmpty())
+    return;
+
+  out_Merged.m_uiProcessID = inputs[0]->m_uiProcessID;
+  out_Merged.m_uiFramesThreadID = inputs[0]->m_uiFramesThreadID;
+  out_Merged.m_uiGPUThreadID = inputs[0]->m_uiGPUThreadID;
+
+  // concatenate m_FrameStartTimes and m_GPUScopes and m_uiFrameCount
+  {
+    ezUInt32 uiNumFrameStartTimes = 0;
+    ezUInt32 uiNumGpuScopes = 0;
+
+    for (const auto& pd : inputs)
+    {
+      out_Merged.m_uiFrameCount += pd->m_uiFrameCount;
+
+      uiNumFrameStartTimes += pd->m_FrameStartTimes.GetCount();
+      uiNumGpuScopes += pd->m_GPUScopes.GetCount();
+    }
+
+    out_Merged.m_FrameStartTimes.Reserve(uiNumFrameStartTimes);
+    out_Merged.m_GPUScopes.Reserve(uiNumGpuScopes);
+
+    for (const auto& pd : inputs)
+    {
+      out_Merged.m_FrameStartTimes.PushBackRange(pd->m_FrameStartTimes);
+      out_Merged.m_GPUScopes.PushBackRange(pd->m_GPUScopes);
+    }
+  }
+
+  // merge m_ThreadInfos
+  {
+    auto threadInfoAlreadyKnown = [&](ezUInt64 uiThreadId) -> bool {
+      for (const auto& ti : out_Merged.m_ThreadInfos)
+      {
+        if (ti.m_uiThreadId == uiThreadId)
+          return true;
+      }
+
+      return false;
+    };
+
+    for (const auto& pd : inputs)
+    {
+      for (const auto& ti : pd->m_ThreadInfos)
+      {
+        if (!threadInfoAlreadyKnown(ti.m_uiThreadId))
+        {
+          out_Merged.m_ThreadInfos.PushBack(ti);
+        }
+      }
+    }
+  }
+
+  // merge m_AllEventBuffers
+  {
+    struct CountAndIndex
+    {
+      ezUInt32 m_uiCount = 0;
+      ezUInt32 m_uiIndex = 0xFFFFFFFF;
+    };
+
+    ezMap<ezUInt64, CountAndIndex> eventBufferInfos;
+
+    // gather info about required size of the output array
+    for (const auto& pd : inputs)
+    {
+      for (const auto& eb : pd->m_AllEventBuffers)
+      {
+        auto& ebInfo = eventBufferInfos[eb.m_uiThreadId];
+
+        ebInfo.m_uiIndex = ezMath::Min(ebInfo.m_uiIndex, eventBufferInfos.GetCount() - 1);
+        ebInfo.m_uiCount += eb.m_Data.GetCount();
+      }
+    }
+
+    // reserve the output array
+    {
+      out_Merged.m_AllEventBuffers.SetCount(eventBufferInfos.GetCount());
+
+      for (auto ebinfoIt : eventBufferInfos)
+      {
+        auto& neb = out_Merged.m_AllEventBuffers[ebinfoIt.Value().m_uiIndex];
+        neb.m_uiThreadId = ebinfoIt.Key();
+        neb.m_Data.Reserve(ebinfoIt.Value().m_uiCount);
+      }
+    }
+
+    // fill the output array
+    for (const auto& pd : inputs)
+    {
+      for (const auto& eb : pd->m_AllEventBuffers)
+      {
+        const auto& ebInfo = eventBufferInfos[eb.m_uiThreadId];
+
+        out_Merged.m_AllEventBuffers[ebInfo.m_uiIndex].m_Data.PushBackRange(eb.m_Data);
+      }
+    }
+  }
 }
 
 ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& outputStream) const
@@ -466,7 +576,7 @@ void ezProfilingSystem::Capture(ezProfilingSystem::ProfilingData& profilingData,
 // static
 void ezProfilingSystem::SetDiscardThreshold(ezTime threshold)
 {
-  CVarDiscardThresholdMs = threshold.GetMilliseconds();
+  CVarDiscardThresholdMs = static_cast<float>(threshold.GetMilliseconds());
 }
 
 // static

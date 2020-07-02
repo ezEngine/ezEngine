@@ -428,13 +428,13 @@ namespace ezConversionUtils
   ezInt8 HexCharacterToIntValue(ezUInt32 Character)
   {
     if (Character >= '0' && Character <= '9')
-      return Character - '0';
+      return static_cast<ezInt8>(Character - '0');
 
     if (Character >= 'a' && Character <= 'f')
-      return Character - 'a' + 10;
+      return static_cast<ezInt8>(Character - 'a' + 10);
 
     if (Character >= 'A' && Character <= 'F')
-      return Character - 'A' + 10;
+      return static_cast<ezInt8>(Character - 'A' + 10);
 
     return -1;
   }

@@ -110,7 +110,7 @@ void ezUnicodeUtils::EncodeUtf32ToWChar(ezUInt32 uiUtf32, WCharIterator& szWChar
   }
   else
   {
-    *szWCharOutput = uiUtf32;
+    *szWCharOutput = static_cast<wchar_t>(uiUtf32);
     ++szWCharOutput;
   }
 }

@@ -187,7 +187,7 @@ void ezIdTableBase<IdType, ValueType>::Clear()
       ++entry.id.m_Generation;
     }
 
-    entry.id.m_InstanceIndex = i + 1;
+    entry.id.m_InstanceIndex = static_cast<decltype(entry.id.m_InstanceIndex)>(i + 1);
   }
 
   m_uiFreelistDequeue = 0;
@@ -204,7 +204,7 @@ IdType ezIdTableBase<IdType, ValueType>::Insert(const ValueType& value)
   Entry& entry = m_pEntries[uiNewIndex];
 
   m_uiFreelistDequeue = entry.id.m_InstanceIndex;
-  entry.id.m_InstanceIndex = uiNewIndex;
+  entry.id.m_InstanceIndex = static_cast<decltype(entry.id.m_InstanceIndex)>(uiNewIndex);
 
   ezMemoryUtils::CopyConstruct(&entry.value, value, 1);
 
@@ -222,7 +222,7 @@ IdType ezIdTableBase<IdType, ValueType>::Insert(ValueType&& value)
   Entry& entry = m_pEntries[uiNewIndex];
 
   m_uiFreelistDequeue = entry.id.m_InstanceIndex;
-  entry.id.m_InstanceIndex = uiNewIndex;
+  entry.id.m_InstanceIndex = static_cast<decltype(entry.id.m_InstanceIndex)>(uiNewIndex);
 
   ezMemoryUtils::MoveConstruct<ValueType>(&entry.value, std::move(value));
 
@@ -254,7 +254,7 @@ bool ezIdTableBase<IdType, ValueType>::Remove(const IdType id, ValueType* out_ol
   if (entry.id.m_Generation == 0)
     entry.id.m_Generation = 1;
 
-  m_pEntries[m_uiFreelistEnqueue].id.m_InstanceIndex = uiIndex;
+  m_pEntries[m_uiFreelistEnqueue].id.m_InstanceIndex = static_cast<decltype(entry.id.m_InstanceIndex)>(uiIndex);
   m_uiFreelistEnqueue = uiIndex;
 
   --m_uiCount;

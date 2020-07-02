@@ -25,6 +25,9 @@ struct EZ_FOUNDATION_DLL ezProcessOptions
   /// Path to the binary to launch
   ezString m_sProcess;
 
+  /// Custom working directory for the launched process. If empty, inherits the CWD from the parent process.
+  ezString m_sWorkingDirectory;
+
   /// Arguments to pass to the process. Strings that contain spaces will be wrapped in quotation marks automatically
   ezHybridArray<ezString, 8> m_Arguments;
 

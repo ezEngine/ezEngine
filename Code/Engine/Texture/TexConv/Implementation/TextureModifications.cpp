@@ -305,7 +305,7 @@ static bool FillAvgImageColor(ezImage& img)
     return false;
   }
 
-  avg /= uiValidCount;
+  avg /= static_cast<float>(uiValidCount);
   avg.NormalizeToLdrRange();
   avg.a = 0.0f;
 
@@ -371,7 +371,7 @@ static ezColor GetAvgColor(ezColor* pPixels, ezInt32 iWidth, ezInt32 iHeight, ez
   if (uiValidCount == 0)
     return colAt;
 
-  avg /= uiValidCount;
+  avg /= static_cast<float>(uiValidCount);
   avg.a = fMarkAlpha;
 
   return avg;

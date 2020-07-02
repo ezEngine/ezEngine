@@ -250,7 +250,7 @@ protected:
 public:
   virtual ezApplication::ApplicationExecution Run() override;
 
-  ezEvent<const ezGameApplicationExecutionEvent&> m_ExecutionEvents;
+  ezCopyOnBroadcastEvent<const ezGameApplicationExecutionEvent&> m_ExecutionEvents;
 
   ezTime GetFrameTime() const { return m_FrameTime; }
 
