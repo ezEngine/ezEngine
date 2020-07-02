@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Foundation/Basics.h>
 #include <Foundation/Strings/Implementation/FormatStringArgs.h>
 
 class ezStringBuilder;

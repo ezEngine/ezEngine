@@ -909,7 +909,7 @@ const ezSubTestEntry* ezTestFramework::GetCurrentSubTest() const
 {
   if (auto pTest = GetCurrentTest())
   {
-    if (m_iCurrentSubTestIndex >= pTest->m_SubTests.size())
+    if (m_iCurrentSubTestIndex >= (ezInt32)pTest->m_SubTests.size())
       return nullptr;
 
     return &pTest->m_SubTests[m_iCurrentSubTestIndex];
