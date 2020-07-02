@@ -72,10 +72,14 @@ public:
   void SetTestEnabled(ezUInt32 uiTestIndex, bool bEnabled);
   void SetSubTestEnabled(ezUInt32 uiTestIndex, ezUInt32 uiSubTestIndex, bool bEnabled);
 
-  ezInt32 GetCurrentTestIndex() { return m_iCurrentTestIndex; }
-  ezInt32 GetCurrentSubTestIndex() { return m_iCurrentSubTestIndex; }
+  ezInt32 GetCurrentTestIndex() const { return m_iCurrentTestIndex; }
+  ezInt32 GetCurrentSubTestIndex() const { return m_iCurrentSubTestIndex; }
   ezTestEntry* GetTest(ezUInt32 uiTestIndex);
+  const ezTestEntry* GetTest(ezUInt32 uiTestIndex) const;
   bool GetTestsRunning() const { return m_bTestsRunning; }
+
+  const ezTestEntry* GetCurrentTest() const;
+  const ezSubTestEntry* GetCurrentSubTest() const;
 
   // Global settings
   TestSettings GetSettings() const;
@@ -157,7 +161,7 @@ private:
   std::string m_sTestName;                ///< The name of the tests being done
   std::string m_sAbsTestOutputDir;        ///< Absolute path to the output folder where results and temp data is stored
   std::string m_sRelTestDataDir;          ///< Relative path from the SDK to where the unit test data is located
-  std::string m_sAbsTestOrderFilePath; ///< Absolute path to the test order file
+  std::string m_sAbsTestOrderFilePath;    ///< Absolute path to the test order file
   std::string m_sAbsTestSettingsFilePath; ///< Absolute path to the test settings file
   ezInt32 m_iErrorCount = 0;
   ezInt32 m_iTestsFailed = 0;
@@ -377,7 +381,7 @@ EZ_TEST_DLL ezResult ezTestResult(
 #define EZ_TEST_RESULT(condition) EZ_TEST_RESULT_MSG(condition, "")
 
 /// \brief Tests for a boolean condition, outputs a custom message on failure.
-#define EZ_TEST_RESULT_MSG(condition, msg, ...)                                                                                              \
+#define EZ_TEST_RESULT_MSG(condition, msg, ...) \
   ezTestResult(condition, "Test failed: " EZ_STRINGIZE(condition), EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
 
 //////////////////////////////////////////////////////////////////////////
@@ -455,7 +459,7 @@ EZ_TEST_DLL ezResult ezTestWString(std::wstring s1, std::wstring s2, const char*
 #define EZ_TEST_WSTRING(i1, i2) EZ_TEST_WSTRING_MSG(i1, i2, "")
 
 /// \brief Tests two strings for equality. On failure both actual and expected values are output, also a custom message is printed.
-#define EZ_TEST_WSTRING_MSG(s1, s2, msg, ...)                                                                                   \
+#define EZ_TEST_WSTRING_MSG(s1, s2, msg, ...)                                                                                         \
   ezTestWString(static_cast<const wchar_t*>(s1), static_cast<const wchar_t*>(s2), EZ_STRINGIZE(s1), EZ_STRINGIZE(s2), EZ_SOURCE_FILE, \
     EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__)
 

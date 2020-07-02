@@ -892,6 +892,32 @@ ezTestEntry* ezTestFramework::GetTest(ezUInt32 uiTestIndex)
   return &m_TestEntries[uiTestIndex];
 }
 
+const ezTestEntry* ezTestFramework::GetTest(ezUInt32 uiTestIndex) const
+{
+  if (uiTestIndex >= GetTestCount())
+    return nullptr;
+
+  return &m_TestEntries[uiTestIndex];
+}
+
+const ezTestEntry* ezTestFramework::GetCurrentTest() const
+{
+  return GetTest(GetCurrentTestIndex());
+}
+
+const ezSubTestEntry* ezTestFramework::GetCurrentSubTest() const
+{
+  if (auto pTest = GetCurrentTest())
+  {
+    if (m_iCurrentSubTestIndex >= pTest->m_SubTests.size())
+      return nullptr;
+
+    return &pTest->m_SubTests[m_iCurrentSubTestIndex];
+  }
+
+  return nullptr;
+}
+
 TestSettings ezTestFramework::GetSettings() const
 {
   return m_Settings;
