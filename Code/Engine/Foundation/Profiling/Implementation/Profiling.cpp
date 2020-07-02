@@ -466,7 +466,7 @@ void ezProfilingSystem::Capture(ezProfilingSystem::ProfilingData& profilingData,
 // static
 void ezProfilingSystem::SetDiscardThreshold(ezTime threshold)
 {
-  CVarDiscardThresholdMs = threshold.GetMilliseconds();
+  CVarDiscardThresholdMs = static_cast<float>(threshold.GetMilliseconds());
 }
 
 // static

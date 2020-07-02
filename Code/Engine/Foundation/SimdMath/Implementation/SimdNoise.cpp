@@ -7,7 +7,7 @@ ezSimdPerlinNoise::ezSimdPerlinNoise(ezUInt32 uiSeed)
 {
   for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(m_Permutations); ++i)
   {
-    m_Permutations[i] = i;
+    m_Permutations[i] = static_cast<ezUInt8>(i);
   }
 
   ezRandom rnd;

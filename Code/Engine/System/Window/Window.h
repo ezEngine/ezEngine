@@ -251,7 +251,7 @@ public:
   /// \brief Returns a number that can be used as a window number in ezWindowCreationDesc
   ///
   /// This number just increments every time an ezWindow is created. It starts at zero.
-  static ezUInt32 GetNextUnusedWindowNumber();
+  static ezUInt8 GetNextUnusedWindowNumber();
 
 protected:
   /// Description at creation time. ezWindow will not update this in any method other than Initialize.
@@ -266,6 +266,6 @@ private:
   mutable ezWindowHandle m_WindowHandle = ezWindowHandle();
 
   /// increased every time an ezWindow is created, to be able to get a free window index easily
-  static ezUInt32 s_uiNextUnusedWindowNumber;
+  static ezUInt8 s_uiNextUnusedWindowNumber;
 };
 

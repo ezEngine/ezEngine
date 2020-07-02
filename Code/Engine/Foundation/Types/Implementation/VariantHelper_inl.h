@@ -217,12 +217,12 @@ class ezVariantHelper
     if (value.IsA<V1>())
     {
       const V1& v = value.Get<V1>();
-      result = T(v.x, v.y);
+      result = T(static_cast<typename T::ComponentType>(v.x), static_cast<typename T::ComponentType>(v.y));
     }
     else if (value.IsA<V2>())
     {
       const V2& v = value.Get<V2>();
-      result = T(v.x, v.y);
+      result = T(static_cast<typename T::ComponentType>(v.x), static_cast<typename T::ComponentType>(v.y));
     }
     else
     {
@@ -252,12 +252,12 @@ class ezVariantHelper
     if (value.IsA<V1>())
     {
       const V1& v = value.Get<V1>();
-      result = T(v.x, v.y, v.z);
+      result = T(static_cast<typename T::ComponentType>(v.x), static_cast<typename T::ComponentType>(v.y), static_cast<typename T::ComponentType>(v.z));
     }
     else if (value.IsA<V2>())
     {
       const V2& v = value.Get<V2>();
-      result = T(v.x, v.y, v.z);
+      result = T(static_cast<typename T::ComponentType>(v.x), static_cast<typename T::ComponentType>(v.y), static_cast<typename T::ComponentType>(v.z));
     }
     else
     {
@@ -287,12 +287,12 @@ class ezVariantHelper
     if (value.IsA<V1>())
     {
       const V1& v = value.Get<V1>();
-      result = T(v.x, v.y, v.z, v.w);
+      result = T(static_cast<typename T::ComponentType>(v.x), static_cast<typename T::ComponentType>(v.y), static_cast<typename T::ComponentType>(v.z), static_cast<typename T::ComponentType>(v.w));
     }
     else if (value.IsA<V2>())
     {
       const V2& v = value.Get<V2>();
-      result = T(v.x, v.y, v.z, v.w);
+      result = T(static_cast<typename T::ComponentType>(v.x), static_cast<typename T::ComponentType>(v.y), static_cast<typename T::ComponentType>(v.z), static_cast<typename T::ComponentType>(v.w));
     }
     else
     {

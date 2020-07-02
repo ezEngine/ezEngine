@@ -161,7 +161,8 @@ void ezVisualScriptNode_MessageSender::Execute(ezVisualScriptInstance* pInstance
         ezHybridArray<ezAbstractProperty*, 32> properties;
         m_pMessageToSend->GetDynamicRTTI()->GetAllProperties(properties);
 
-        for (ezUInt32 uiProp = 0; uiProp < properties.GetCount(); ++uiProp)
+        const ezUInt8 uiPropCount = static_cast<ezUInt8>(properties.GetCount());
+        for (ezUInt8 uiProp = 0; uiProp < uiPropCount; ++uiProp)
         {
           if (properties[uiProp]->GetCategory() == ezPropertyCategory::Member &&
               properties[uiProp]->GetFlags().IsAnySet(ezPropertyFlags::VarInOut | ezPropertyFlags::VarOut))
@@ -334,7 +335,7 @@ void ezVisualScriptNode_FunctionCall::Execute(ezVisualScriptInstance* pInstance,
   m_pFunctionToCall->Execute(pComponent, m_Arguments, m_ReturnValue);
 
   // now we need to pull the data from return values and out parameters and pass them into our output pins
-  ezUInt32 uiOutputPinIndex = 0;
+  ezUInt8 uiOutputPinIndex = 0;
 
   if (m_ReturnValue.IsValid())
   {

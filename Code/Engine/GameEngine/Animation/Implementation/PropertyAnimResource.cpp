@@ -90,7 +90,7 @@ void ezPropertyAnimResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   if (m_pDescriptor)
   {
     out_NewMemoryUsage.m_uiMemoryCPU =
-      static_cast<ezUInt32>(m_pDescriptor->m_FloatAnimations.GetHeapMemoryUsage() + sizeof(ezPropertyAnimResourceDescriptor));
+      m_pDescriptor->m_FloatAnimations.GetHeapMemoryUsage() + sizeof(ezPropertyAnimResourceDescriptor);
   }
 }
 
@@ -98,8 +98,8 @@ void ezPropertyAnimResourceDescriptor::Save(ezStreamWriter& stream) const
 {
   const ezUInt8 uiVersion = 6;
   const ezUInt8 uiIdentifier = 0x0A; // dummy to fill the header to 32 Bit
-  const ezUInt16 uiNumFloatAnimations = m_FloatAnimations.GetCount();
-  const ezUInt16 uiNumColorAnimations = m_ColorAnimations.GetCount();
+  const ezUInt16 uiNumFloatAnimations = static_cast<ezUInt16>(m_FloatAnimations.GetCount());
+  const ezUInt16 uiNumColorAnimations = static_cast<ezUInt16>(m_ColorAnimations.GetCount());
 
   EZ_ASSERT_DEV(m_AnimationDuration.GetSeconds() > 0, "Animation duration must be positive");
 

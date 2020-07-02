@@ -139,7 +139,9 @@ void ezWorldWriter::AssignGameObjectIndices()
 
 void ezWorldWriter::AssignComponentHandleIndices()
 {
-  ezUInt32 uiTypeIndex = 0;
+  ezUInt16 uiTypeIndex = 0;
+
+  EZ_ASSERT_DEV(m_AllComponents.GetCount() <= ezMath::MaxValue<ezUInt16>(), "Too many types for world writer");
 
   // assign the component handle indices in the order in which the components are written
   for (auto it = m_AllComponents.GetIterator(); it.IsValid(); ++it)

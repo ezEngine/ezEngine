@@ -4,9 +4,9 @@ EZ_ALWAYS_INLINE const char* ezWorld::GetName() const
   return m_Data.m_sName.GetData();
 }
 
-EZ_ALWAYS_INLINE ezUInt16 ezWorld::GetIndex() const
+EZ_ALWAYS_INLINE ezUInt8 ezWorld::GetIndex() const
 {
-  return m_uiIndex;
+  return static_cast<ezUInt8>(m_uiIndex);
 }
 
 EZ_FORCE_INLINE ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc)
@@ -75,7 +75,7 @@ EZ_FORCE_INLINE ezUInt32 ezWorld::GetObjectCount() const
 {
   CheckForReadAccess();
   // Subtract one to exclude dummy object with instance index 0
-  return m_Data.m_Objects.GetCount() - 1;
+  return static_cast<ezUInt32>(m_Data.m_Objects.GetCount() - 1);
 }
 
 EZ_FORCE_INLINE ezInternal::WorldData::ObjectIterator ezWorld::GetObjects()

@@ -135,7 +135,7 @@ void ezVisualScriptInstance::ExecuteDependentNodes(ezUInt16 uiNode)
   const auto& dep = m_NodeDependencies[uiNode];
   for (ezUInt32 i = 0; i < dep.GetCount(); ++i)
   {
-    const ezUInt32 uiDependency = dep[i];
+    const ezUInt16 uiDependency = dep[i];
     auto* pNode = m_Nodes[uiDependency];
 
     // recurse to the most dependent nodes first
@@ -229,10 +229,12 @@ void ezVisualScriptInstance::Configure(const ezVisualScriptResourceHandle& hScri
 
 void ezVisualScriptInstance::CreateVisualScriptNode(ezUInt32 uiNodeIdx, const ezVisualScriptResourceDescriptor& resource)
 {
+  EZ_ASSERT_DEBUG(uiNodeIdx < ezMath::MaxValue<ezUInt16>(), "Max supported node index is 16 bit.");
+
   const auto& node = resource.m_Nodes[uiNodeIdx];
 
   ezVisualScriptNode* pNode = node.m_pType->GetAllocator()->Allocate<ezVisualScriptNode>();
-  pNode->m_uiNodeID = uiNodeIdx;
+  pNode->m_uiNodeID = static_cast<ezUInt16>(uiNodeIdx);
 
   // assign all property values
   for (ezUInt32 i = 0; i < node.m_uiNumProperties; ++i)
@@ -253,11 +255,13 @@ void ezVisualScriptInstance::CreateVisualScriptNode(ezUInt32 uiNodeIdx, const ez
 
 void ezVisualScriptInstance::CreateFunctionMessageNode(ezUInt32 uiNodeIdx, const ezVisualScriptResourceDescriptor& resource)
 {
+  EZ_ASSERT_DEBUG(uiNodeIdx < ezMath::MaxValue<ezUInt16>(), "Max supported node index is 16 bit.");
+
   const auto& node = resource.m_Nodes[uiNodeIdx];
 
   ezVisualScriptNode_MessageSender* pNode =
     ezGetStaticRTTI<ezVisualScriptNode_MessageSender>()->GetAllocator()->Allocate<ezVisualScriptNode_MessageSender>();
-  pNode->m_uiNodeID = uiNodeIdx;
+  pNode->m_uiNodeID = static_cast<ezUInt16>(uiNodeIdx);
 
   pNode->m_pMessageToSend = node.m_pType->GetAllocator()->Allocate<ezMessage>();
 
@@ -297,10 +301,12 @@ void ezVisualScriptInstance::CreateFunctionMessageNode(ezUInt32 uiNodeIdx, const
 
 void ezVisualScriptInstance::CreateEventMessageNode(ezUInt32 uiNodeIdx, const ezVisualScriptResourceDescriptor& resource)
 {
+  EZ_ASSERT_DEBUG(uiNodeIdx < ezMath::MaxValue<ezUInt16>(), "Max supported node index is 16 bit.");
+
   const auto& node = resource.m_Nodes[uiNodeIdx];
 
   ezVisualScriptNode_GenericEvent* pNode = ezGetStaticRTTI<ezVisualScriptNode_GenericEvent>()->GetAllocator()->Allocate<ezVisualScriptNode_GenericEvent>();
-  pNode->m_uiNodeID = uiNodeIdx;
+  pNode->m_uiNodeID = static_cast<ezUInt16>(uiNodeIdx);
 
   pNode->m_sEventType = node.m_sTypeName;
 
@@ -335,10 +341,12 @@ ezAbstractFunctionProperty* ezVisualScriptInstance::SearchForScriptableFunctionO
 
 void ezVisualScriptInstance::CreateFunctionCallNode(ezUInt32 uiNodeIdx, const ezVisualScriptResourceDescriptor& resource)
 {
+  EZ_ASSERT_DEBUG(uiNodeIdx < ezMath::MaxValue<ezUInt16>(), "Max supported node index is 16 bit.");
+
   const auto& node = resource.m_Nodes[uiNodeIdx];
 
   ezVisualScriptNode_FunctionCall* pNode = ezGetStaticRTTI<ezVisualScriptNode_FunctionCall>()->GetAllocator()->Allocate<ezVisualScriptNode_FunctionCall>();
-  pNode->m_uiNodeID = uiNodeIdx;
+  pNode->m_uiNodeID = static_cast<ezUInt16>(uiNodeIdx);
 
   pNode->m_pExpectedType = node.m_pType;
 
@@ -409,7 +417,8 @@ void ezVisualScriptInstance::ExecuteScript(ezVisualScriptInstanceActivity* pActi
     m_pActivity->Clear();
   }
 
-  for (ezUInt32 i = 0; i < m_Nodes.GetCount(); ++i)
+  const ezUInt16 uiNodeCount = static_cast<ezUInt16>(m_Nodes.GetCount());
+  for (ezUInt16 i = 0; i < uiNodeCount; ++i)
   {
     auto* pNode = m_Nodes[i];
 

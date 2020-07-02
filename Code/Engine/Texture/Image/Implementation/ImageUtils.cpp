@@ -1556,7 +1556,7 @@ ezColor ezImageUtils::BilinearSample(const ezImageView& image, ezImageAddressMod
   ezInt32 w = image.GetWidth();
   ezInt32 h = image.GetHeight();
 
-  uv = uv.CompMul(ezVec2(w, h)) - ezVec2(0.5f);
+  uv = uv.CompMul(ezVec2(static_cast<float>(w), static_cast<float>(h))) - ezVec2(0.5f);
   float floorX = ezMath::Floor(uv.x);
   float floorY = ezMath::Floor(uv.y);
   float fractionX = uv.x - floorX;

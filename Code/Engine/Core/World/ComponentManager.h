@@ -157,7 +157,7 @@ private:
 public:                                                                                             \
   typedef managerType ComponentManagerType;                                                         \
   virtual ezWorldModuleTypeId GetTypeId() const override { return TYPE_ID; }                        \
-  static EZ_ALWAYS_INLINE ezUInt16 TypeId() { return TYPE_ID; }                                     \
+  static EZ_ALWAYS_INLINE ezWorldModuleTypeId TypeId() { return TYPE_ID; }                          \
   virtual ezComponentMode::Enum GetMode() const override;                                           \
   static ezComponentHandle CreateComponent(ezGameObject* pOwnerObject, componentType*& pComponent); \
   static void DeleteComponent(componentType* pComponent);                                           \
@@ -167,10 +167,10 @@ private:                                                                        
   friend managerType;                                                                               \
   static ezWorldModuleTypeId TYPE_ID
 
-#define EZ_ADD_ABSTRACT_COMPONENT_FUNCTIONALITY(componentType, baseType) \
-public:                                                                  \
-  virtual ezWorldModuleTypeId GetTypeId() const override { return -1; }  \
-  static EZ_ALWAYS_INLINE ezWorldModuleTypeId TypeId() { return -1; }
+#define EZ_ADD_ABSTRACT_COMPONENT_FUNCTIONALITY(componentType, baseType)                     \
+public:                                                                                      \
+  virtual ezWorldModuleTypeId GetTypeId() const override { return ezWorldModuleTypeId(-1); } \
+  static EZ_ALWAYS_INLINE ezWorldModuleTypeId TypeId() { return ezWorldModuleTypeId(-1); }
 
 /// \brief Add this macro to a custom component type inside the type declaration.
 #define EZ_DECLARE_COMPONENT_TYPE(componentType, baseType, managerType) \

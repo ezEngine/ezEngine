@@ -32,7 +32,7 @@ public:
   const char* GetName() const;
 
   /// \brief Returns the index of this world.
-  ezUInt16 GetIndex() const;
+  ezUInt8 GetIndex() const;
 
   /// \name Object Functions
   ///@{

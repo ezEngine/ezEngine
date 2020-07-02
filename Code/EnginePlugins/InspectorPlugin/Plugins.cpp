@@ -23,15 +23,15 @@ namespace PluginsDetail
 
       ezStringBuilder s;
 
-      ezInt32 iDep = 0;
-      while (pSub->GetPluginDependency(iDep) != nullptr)
+      ezUInt8 uiDep = 0;
+      while (pSub->GetPluginDependency(uiDep) != nullptr)
       {
         if (!s.IsEmpty())
           s.Append(" | ");
 
-        s.Append(pSub->GetPluginDependency(iDep));
+        s.Append(pSub->GetPluginDependency(uiDep));
 
-        ++iDep;
+        ++uiDep;
       }
 
       msg.GetWriter() << s.GetData();

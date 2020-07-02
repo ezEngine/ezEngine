@@ -16,43 +16,43 @@ ezUInt32 ezTaskSystem::GetNumAllocatedWorkerThreads(ezWorkerThreadType::Enum typ
   return s_ThreadState->m_iAllocatedWorkers[type];
 }
 
-void ezTaskSystem::SetWorkerThreadCount(ezInt8 iShortTasks, ezInt8 iLongTasks)
+void ezTaskSystem::SetWorkerThreadCount(ezInt32 iShortTasks, ezInt32 iLongTasks)
 {
   ezSystemInformation info = ezSystemInformation::Get();
 
   // these settings are supposed to be a sensible default for most applications
   // an app can of course change that to optimize for its own usage
   //
-  const ezInt8 iCpuCores = info.GetCPUCoreCount();
+  const ezInt32 iCpuCores = info.GetCPUCoreCount();
 
   // at least 2 threads, 4 on six cores, 6 on eight cores and up
   if (iShortTasks <= 0)
-    iShortTasks = ezMath::Clamp<ezInt8>(iCpuCores - 2, 2, 8);
+    iShortTasks = ezMath::Clamp<ezInt32>(iCpuCores - 2, 2, 8);
 
   // at least 2 threads, 4 on six cores, 6 on eight cores and up
   if (iLongTasks <= 0)
-    iLongTasks = ezMath::Clamp<ezInt8>(iCpuCores - 2, 2, 8);
+    iLongTasks = ezMath::Clamp<ezInt32>(iCpuCores - 2, 2, 8);
 
   // plus there is always one additional 'file access' thread
   // and the main thread, of course
 
-  iShortTasks = ezMath::Max<ezInt8>(iShortTasks, 1);
-  iLongTasks = ezMath::Max<ezInt8>(iLongTasks, 1);
+  ezUInt32 uiShortTasks = static_cast<ezUInt32>(ezMath::Max<ezInt32>(iShortTasks, 1));
+  ezUInt32 uiLongTasks = static_cast<ezUInt32>(ezMath::Max<ezInt32>(iLongTasks, 1));
 
   // if nothing has changed, do nothing
-  if (s_ThreadState->m_uiMaxWorkersToUse[ezWorkerThreadType::ShortTasks] == iShortTasks &&
-      s_ThreadState->m_uiMaxWorkersToUse[ezWorkerThreadType::LongTasks] == iLongTasks)
+  if (s_ThreadState->m_uiMaxWorkersToUse[ezWorkerThreadType::ShortTasks] == uiShortTasks &&
+      s_ThreadState->m_uiMaxWorkersToUse[ezWorkerThreadType::LongTasks] == uiLongTasks)
     return;
 
   StopWorkerThreads();
 
-  // this only allocates pointers, ie. the maximum possible number of threads that we may be able to realloc at runtime
+  // this only allocates pointers, i.e. the maximum possible number of threads that we may be able to realloc at runtime
   s_ThreadState->m_Workers[ezWorkerThreadType::ShortTasks].SetCount(1024);
   s_ThreadState->m_Workers[ezWorkerThreadType::LongTasks].SetCount(1024);
   s_ThreadState->m_Workers[ezWorkerThreadType::FileAccess].SetCount(128);
 
-  s_ThreadState->m_uiMaxWorkersToUse[ezWorkerThreadType::ShortTasks] = iShortTasks;
-  s_ThreadState->m_uiMaxWorkersToUse[ezWorkerThreadType::LongTasks] = iLongTasks;
+  s_ThreadState->m_uiMaxWorkersToUse[ezWorkerThreadType::ShortTasks] = uiShortTasks;
+  s_ThreadState->m_uiMaxWorkersToUse[ezWorkerThreadType::LongTasks] = uiLongTasks;
   s_ThreadState->m_uiMaxWorkersToUse[ezWorkerThreadType::FileAccess] = 1;
 
   AllocateThreads(ezWorkerThreadType::ShortTasks, s_ThreadState->m_uiMaxWorkersToUse[ezWorkerThreadType::ShortTasks]);
@@ -133,7 +133,7 @@ void ezTaskSystem::WakeUpThreads(ezWorkerThreadType::Enum type, ezUInt32 uiNumTh
 {
   // together with ezTaskWorkerThread::Run() this function will make sure to keep the number
   // of active threads close to m_uiMaxWorkersToUse
-  //
+  // 
   // threads that go into the 'blocked' state will raise the number of threads that get activated
   // and when they are unblocked, together they may exceed the 'maximum' number of active threads
   // but over time the threads at the end of the list will put themselves to sleep again

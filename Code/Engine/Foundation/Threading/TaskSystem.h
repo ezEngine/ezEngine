@@ -187,7 +187,7 @@ public:
   /// this default configuration.
   /// Unless you have a good idea how to set up the number of worker threads to make good use of the available cores,
   /// it is a good idea to just use the default settings.
-  static void SetWorkerThreadCount(ezInt8 iShortTasks = -1, ezInt8 iLongTasks = -1); // [tested]
+  static void SetWorkerThreadCount(ezInt32 iShortTasks = -1, ezInt32 iLongTasks = -1); // [tested]
 
   /// \brief Returns the maximum number of threads that should work on the given type of task at the same time.
   static ezUInt32 GetWorkerThreadCount(ezWorkerThreadType::Enum type);
