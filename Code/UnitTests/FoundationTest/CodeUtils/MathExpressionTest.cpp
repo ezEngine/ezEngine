@@ -2,12 +2,6 @@
 
 #include <Foundation/CodeUtils/MathExpression.h>
 
-class IgnoreLogInterface : public ezLogInterface
-{
-public:
-  virtual void HandleLogMessage(const ezLoggingEventData& le) override {}
-};
-
 EZ_CREATE_SIMPLE_TEST(CodeUtils, MathExpression)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Basics")
@@ -150,7 +144,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, MathExpression)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Invalid Expressions")
   {
-    IgnoreLogInterface logErrorSink;
+    ezMuteLog logErrorSink;
 
     {
       ezMathExpression expr("1+", &logErrorSink);

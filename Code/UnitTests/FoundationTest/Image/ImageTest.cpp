@@ -13,14 +13,9 @@
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Image);
 
-class ezLogIgnore : public ezLogInterface
-{
-  virtual void HandleLogMessage(const ezLoggingEventData& le) override {}
-};
-
 EZ_CREATE_SIMPLE_TEST(Image, Image)
 {
-  ezLogIgnore LogIgnore;
+  ezMuteLog LogIgnore;
 
   const ezStringBuilder sReadDir(">sdk/", ezTestFramework::GetInstance()->GetRelTestDataPath());
   const ezStringBuilder sWriteDir = ezTestFramework::GetInstance()->GetAbsOutputPath();
