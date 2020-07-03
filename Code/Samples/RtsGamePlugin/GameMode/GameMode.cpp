@@ -1,8 +1,13 @@
 #include <RtsGamePluginPCH.h>
 
 #include <GameEngine/DearImgui/DearImgui.h>
+#include <RmlUiPlugin/Components/RmlUiCanvas2DComponent.h>
+#include <RmlUiPlugin/RmlUiContext.h>
+#include <RmlUiPlugin/RmlUiSingleton.h>
 #include <RtsGamePlugin/GameMode/GameMode.h>
 #include <RtsGamePlugin/GameState/RtsGameState.h>
+
+bool RtsGameMode::s_bUseRmlUi = true;
 
 RtsGameMode::RtsGameMode() = default;
 RtsGameMode::~RtsGameMode() = default;
@@ -15,6 +20,8 @@ void RtsGameMode::ActivateMode(ezWorld* pMainWorld, ezViewHandle hView, ezCamera
     m_pMainWorld = pMainWorld;
     m_hMainView = hView;
     m_pMainCamera = pMainCamera;
+
+    SetupSelectModeUI();
 
     m_bInitialized = true;
     RegisterInputActions();
@@ -30,6 +37,28 @@ void RtsGameMode::DeactivateMode()
 
 void RtsGameMode::ProcessInput(const RtsMouseInputState& MouseInput)
 {
+  if (s_bUseRmlUi)
+  {
+    if (ezRmlUi::GetSingleton() != nullptr)
+    {
+      // do not process input, when RmlUi already wants to work with it
+      if (ezRmlUi::GetSingleton()->AnyContextWantsInput())
+        return;
+    }
+  }
+  else
+  {
+    if (ezImgui::GetSingleton() != nullptr)
+    {
+      // we got input (ie. this function was called), so let Imgui know that it can use the input
+      ezImgui::GetSingleton()->SetPassInputToImgui(true);
+
+      // do not process input, when Imgui already wants to work with it
+      if (ezImgui::GetSingleton()->WantsInput())
+        return;
+    }
+  }
+
   OnProcessInput(MouseInput);
 }
 
@@ -115,25 +144,89 @@ ezColor RtsGameMode::GetTeamColor(ezInt32 iTeam)
   return ezColor::White;
 }
 
+void RtsGameMode::SetupSelectModeUI()
+{
+  ezGameObject* pSelectModeUIObject = nullptr;
+  if (!m_pMainWorld->TryGetObjectWithGlobalKey(ezTempHashedString("SelectModeUI"), pSelectModeUIObject))
+    return;
+
+  ezRmlUiCanvas2DComponent* pUiComponent = nullptr;
+  if (!pSelectModeUIObject->TryGetComponentOfBaseType(pUiComponent))
+    return;
+
+  pUiComponent->EnsureInitialized();
+
+  pUiComponent->GetRmlContext()->RegisterEventHandler("switchToImGui", [](Rml::Core::Event& e) {
+    s_bUseRmlUi = false;
+  });
+  pUiComponent->GetRmlContext()->RegisterEventHandler("switchMode", [](Rml::Core::Event& e) {
+    auto& sValue = e.GetTargetElement()->GetId();
+    if (sValue == "battle")
+    {
+      RtsGameState::GetSingleton()->SwitchToGameMode(RtsActiveGameMode::BattleMode);
+    }
+    else if (sValue == "edit")
+    {
+      RtsGameState::GetSingleton()->SwitchToGameMode(RtsActiveGameMode::EditLevelMode);
+    }
+    else if (sValue == "mainmenu")
+    {
+      RtsGameState::GetSingleton()->SwitchToGameMode(RtsActiveGameMode::MainMenuMode);
+    }
+  });
+
+  m_hSelectModeUIComponent = pUiComponent->GetHandle();
+}
+
 void RtsGameMode::DisplaySelectModeUI()
 {
-  ezImgui::GetSingleton()->SetCurrentContextForView(m_hMainView);
+  ezRmlUiCanvas2DComponent* pUiComponent = nullptr;
+  if (m_pMainWorld->TryGetComponent(m_hSelectModeUIComponent, pUiComponent))
+  {
+    pUiComponent->SetActiveFlag(s_bUseRmlUi);
+  }
 
-  ImGui::SetNextWindowPos(ImVec2(10, 10));
-  ImGui::SetNextWindowSize(ImVec2(120, 100));
-  ImGui::Begin("Game Mode", nullptr,
-    ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings);
+  if (s_bUseRmlUi && pUiComponent != nullptr)
+  {
+    const RtsActiveGameMode mode = RtsGameState::GetSingleton()->GetActiveGameMode();
+    const char* szActiveModeId = "battle";
+    if (mode == RtsActiveGameMode::EditLevelMode)
+    {
+      szActiveModeId = "edit";
+    }
+    else if (mode == RtsActiveGameMode::MainMenuMode)
+    {
+      szActiveModeId = "mainmenu";
+    }
 
-  const RtsActiveGameMode mode = RtsGameState::GetSingleton()->GetActiveGameMode();
+    if (auto pActiveModeElement = pUiComponent->GetRmlContext()->GetDocument(0)->GetElementById(szActiveModeId))
+    {
+      pActiveModeElement->SetAttribute("checked", "");
+    }
+  }
+  else
+  {
+    ezImgui::GetSingleton()->SetCurrentContextForView(m_hMainView);
 
-  if (ImGui::RadioButton("Battle", mode == RtsActiveGameMode::BattleMode))
-    RtsGameState::GetSingleton()->SwitchToGameMode(RtsActiveGameMode::BattleMode);
+    ImGui::SetNextWindowPos(ImVec2(10, 10));
+    ImGui::SetNextWindowSize(ImVec2(140, 130));
+    ImGui::Begin("Game Mode", nullptr,
+      ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings);
 
-  if (ImGui::RadioButton("Edit", mode == RtsActiveGameMode::EditLevelMode))
-    RtsGameState::GetSingleton()->SwitchToGameMode(RtsActiveGameMode::EditLevelMode);
+    const RtsActiveGameMode mode = RtsGameState::GetSingleton()->GetActiveGameMode();
 
-  if (ImGui::RadioButton("Main Menu", mode == RtsActiveGameMode::MainMenuMode))
-    RtsGameState::GetSingleton()->SwitchToGameMode(RtsActiveGameMode::MainMenuMode);
+    if (ImGui::RadioButton("Battle", mode == RtsActiveGameMode::BattleMode))
+      RtsGameState::GetSingleton()->SwitchToGameMode(RtsActiveGameMode::BattleMode);
 
-  ImGui::End();
+    if (ImGui::RadioButton("Edit", mode == RtsActiveGameMode::EditLevelMode))
+      RtsGameState::GetSingleton()->SwitchToGameMode(RtsActiveGameMode::EditLevelMode);
+
+    if (ImGui::RadioButton("Main Menu", mode == RtsActiveGameMode::MainMenuMode))
+      RtsGameState::GetSingleton()->SwitchToGameMode(RtsActiveGameMode::MainMenuMode);
+
+    if (ImGui::Button("Switch to RmlUi"))
+      s_bUseRmlUi = true;
+
+    ImGui::End();
+  }
 }

@@ -188,7 +188,7 @@ void ezImgui::BeginFrame(const ezViewHandle& hView)
   {
     char szUtf8[8] = "";
     char* pChar = szUtf8;
-    ezUnicodeUtils::EncodeUtf32ToUtf8(ezInputManager::RetrieveLastCharacter(), pChar);
+    ezUnicodeUtils::EncodeUtf32ToUtf8(ezInputManager::RetrieveLastCharacter(false), pChar);
     cfg.AddInputCharactersUTF8(szUtf8);
 
     float mousex, mousey;
