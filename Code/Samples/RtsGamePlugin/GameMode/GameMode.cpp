@@ -3,6 +3,7 @@
 #include <GameEngine/DearImgui/DearImgui.h>
 #include <RmlUiPlugin/Components/RmlUiCanvas2DComponent.h>
 #include <RmlUiPlugin/RmlUiContext.h>
+#include <RmlUiPlugin/RmlUiSingleton.h>
 #include <RtsGamePlugin/GameMode/GameMode.h>
 #include <RtsGamePlugin/GameState/RtsGameState.h>
 
@@ -36,6 +37,28 @@ void RtsGameMode::DeactivateMode()
 
 void RtsGameMode::ProcessInput(const RtsMouseInputState& MouseInput)
 {
+  if (s_bUseRmlUi)
+  {
+    if (ezRmlUi::GetSingleton() != nullptr)
+    {
+      // do not process input, when RmlUi already wants to work with it
+      if (ezRmlUi::GetSingleton()->AnyContextWantsInput())
+        return;
+    }
+  }
+  else
+  {
+    if (ezImgui::GetSingleton() != nullptr)
+    {
+      // we got input (ie. this function was called), so let Imgui know that it can use the input
+      ezImgui::GetSingleton()->SetPassInputToImgui(true);
+
+      // do not process input, when Imgui already wants to work with it
+      if (ezImgui::GetSingleton()->WantsInput())
+        return;
+    }
+  }
+
   OnProcessInput(MouseInput);
 }
 

@@ -84,6 +84,8 @@ struct ezRmlUi::Data
   ezRmlUiInternal::ContextInstancer m_ContextInstancer;
   ezRmlUiInternal::EventListenerInstancer m_EventListenerInstancer;
 
+  ezDynamicArray<ezRmlUiContext*> m_Contexts;
+
   ezRmlUiConfiguration m_Config;
 };
 
@@ -125,12 +127,29 @@ ezRmlUi::~ezRmlUi()
 
 ezRmlUiContext* ezRmlUi::CreateContext(const char* szName, const ezVec2U32& initialSize)
 {
-  return static_cast<ezRmlUiContext*>(Rml::Core::CreateContext(szName, Rml::Core::Vector2i(initialSize.x, initialSize.y)));
+  ezRmlUiContext* pContext = static_cast<ezRmlUiContext*>(Rml::Core::CreateContext(szName, Rml::Core::Vector2i(initialSize.x, initialSize.y)));
+
+  m_pData->m_Contexts.PushBack(pContext);
+
+  return pContext;
 }
 
 void ezRmlUi::DeleteContext(ezRmlUiContext* pContext)
 {
+  m_pData->m_Contexts.RemoveAndCopy(pContext);
+
   Rml::Core::RemoveContext(pContext->GetName());
+}
+
+bool ezRmlUi::AnyContextWantsInput()
+{
+  for (auto pContext : m_pData->m_Contexts)
+  {
+    if (pContext->WantsInput())
+      return true;
+  }
+
+  return false;
 }
 
 void ezRmlUi::ExtractContext(ezRmlUiContext& context, ezMsgExtractRenderData& msg)

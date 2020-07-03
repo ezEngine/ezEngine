@@ -32,6 +32,7 @@ public:
   void HideDocument();
 
   void UpdateInput(const ezVec2& mousePos);
+  bool WantsInput() const { return m_bWantsInput; }
 
   void SetOffset(const ezVec2I32& offset);
   void SetSize(const ezVec2U32& size);
@@ -57,6 +58,8 @@ private:
 
   ezUInt64 m_uiExtractedFrame = 0;
   ezRenderData* m_pRenderData = nullptr;
+
+  bool m_bWantsInput = false;
 };
 
 namespace ezRmlUiInternal

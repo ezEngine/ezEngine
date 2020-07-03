@@ -263,19 +263,25 @@ void ezRmlUiCanvas2DComponent::UpdateCachedValues()
 
   if (m_hResource.IsValid())
   {
-    ezResourceLock pResource(m_hResource, ezResourceAcquireMode::BlockTillLoaded);
-
-    if (pResource->GetScaleMode() == ezRmlUiScaleMode::WithScreenSize)
     {
-      m_ReferenceResolution = pResource->GetReferenceResolution();
+      ezResourceLock pResource(m_hResource, ezResourceAcquireMode::BlockTillLoaded);
+
+      if (pResource->GetScaleMode() == ezRmlUiScaleMode::WithScreenSize)
+      {
+        m_ReferenceResolution = pResource->GetReferenceResolution();
+      }
     }
 
-    pResource->m_ResourceEvents.AddEventHandler([hComponent = GetHandle(), pWorld = GetWorld()](const ezResourceEvent& e) {
-      if (e.m_Type == ezResourceEvent::Type::ResourceContentUnloading)
-      {
-        pWorld->PostMessage(hComponent, ezMsgRmlUiReload(), ezTime::Zero());
-      }
-    },
-      m_ResourceEventUnsubscriber);
+    {
+      ezResourceLock pResource(m_hResource, ezResourceAcquireMode::PointerOnly);
+
+      pResource->m_ResourceEvents.AddEventHandler([hComponent = GetHandle(), pWorld = GetWorld()](const ezResourceEvent& e) {
+        if (e.m_Type == ezResourceEvent::Type::ResourceContentUnloading)
+        {
+          pWorld->PostMessage(hComponent, ezMsgRmlUiReload(), ezTime::Zero());
+        }
+      },
+        m_ResourceEventUnsubscriber);
+    }
   }
 }

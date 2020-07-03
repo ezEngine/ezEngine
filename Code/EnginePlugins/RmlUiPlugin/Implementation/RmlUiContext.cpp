@@ -114,6 +114,13 @@ void ezRmlUiContext::HideDocument()
 
 void ezRmlUiContext::UpdateInput(const ezVec2& mousePos)
 {
+  float width = GetDimensions().x;
+  float height = GetDimensions().y;
+
+  m_bWantsInput =
+    mousePos.x >= 0.0f && mousePos.x <= width &&
+    mousePos.y >= 0.0f && mousePos.y <= height;
+
   const bool bCtrlPressed = ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftCtrl) >= ezKeyState::Pressed ||
                             ezInputManager::GetInputSlotState(ezInputSlot_KeyRightCtrl) >= ezKeyState::Pressed;
   const bool bShiftPressed = ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftShift) >= ezKeyState::Pressed ||
@@ -146,11 +153,11 @@ void ezRmlUiContext::UpdateInput(const ezVec2& mousePos)
 
     if (ezInputManager::GetInputSlotState(ezInputSlot_MouseWheelDown) == ezKeyState::Pressed)
     {
-      ProcessMouseWheel(1.0f, modifierState);
+      m_bWantsInput |= !ProcessMouseWheel(1.0f, modifierState);
     }
     if (ezInputManager::GetInputSlotState(ezInputSlot_MouseWheelUp) == ezKeyState::Pressed)
     {
-      ProcessMouseWheel(-1.0f, modifierState);
+      m_bWantsInput |= !ProcessMouseWheel(-1.0f, modifierState);
     }
   }
 
@@ -164,7 +171,7 @@ void ezRmlUiContext::UpdateInput(const ezVec2& mousePos)
       ezUnicodeUtils::EncodeUtf32ToUtf8(uiLastChar, pChar);
       if (!ezStringUtils::IsNullOrEmpty(szUtf8))
       {
-        ProcessTextInput(szUtf8);
+        m_bWantsInput |= !ProcessTextInput(szUtf8);
       }
     }
 
@@ -173,11 +180,11 @@ void ezRmlUiContext::UpdateInput(const ezVec2& mousePos)
       ezKeyState::Enum state = ezInputManager::GetInputSlotState(s_szEzKeys[i]);
       if (state == ezKeyState::Pressed)
       {
-        ProcessKeyDown(s_rmlKeys[i], modifierState);
+        m_bWantsInput |= !ProcessKeyDown(s_rmlKeys[i], modifierState);
       }
       else if (state == ezKeyState::Released)
       {
-        ProcessKeyUp(s_rmlKeys[i], modifierState);
+        m_bWantsInput |= !ProcessKeyUp(s_rmlKeys[i], modifierState);
       }
     }
   }
