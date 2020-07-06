@@ -1,8 +1,9 @@
 #pragma once
 
-#include <Foundation/Types/UniquePtr.h>
 #include <Foundation/IO/MemoryStream.h>
+#include <Foundation/Types/UniquePtr.h>
 
+#include <Foundation/Containers/IdTable.h>
 #include <RmlUi/Core/FileInterface.h>
 
 namespace ezRmlUiInternal

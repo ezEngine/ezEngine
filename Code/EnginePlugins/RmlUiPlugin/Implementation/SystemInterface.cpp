@@ -1,5 +1,6 @@
-#include <RmlUiPluginDLL.h>
+#include <RmlUiPluginPCH.h>
 
+#include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Time/Clock.h>
 #include <RmlUiPlugin/Implementation/SystemInterface.h>
 

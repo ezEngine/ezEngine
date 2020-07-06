@@ -5,6 +5,8 @@
 #include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/IO/OpenDdlUtils.h>
 #include <Foundation/IO/OpenDdlWriter.h>
+#include <RmlUiPlugin/Implementation/EventListener.h>
+#include <RmlUiPlugin/Implementation/Extractor.h>
 #include <RmlUiPlugin/Implementation/FileInterface.h>
 #include <RmlUiPlugin/Implementation/SystemInterface.h>
 #include <RmlUiPlugin/RmlUiContext.h>
