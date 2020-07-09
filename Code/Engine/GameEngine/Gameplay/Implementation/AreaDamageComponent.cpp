@@ -16,7 +16,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezAreaDamageComponent, 1, ezComponentMode::Static)
     EZ_MEMBER_PROPERTY("Radius", m_fRadius)->AddAttributes(new ezDefaultValueAttribute(5.0f), new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_MEMBER_PROPERTY("CollisionLayer", m_uiCollisionLayer)->AddAttributes(new ezDynamicEnumAttribute("PhysicsCollisionLayer")),
     EZ_MEMBER_PROPERTY("Damage", m_fDamage)->AddAttributes(new ezDefaultValueAttribute(10.0f)),
-    EZ_MEMBER_PROPERTY("Impulse", m_fImpulse)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_MEMBER_PROPERTY("Impulse", m_fImpulse)->AddAttributes(new ezDefaultValueAttribute(100.0f)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_FUNCTIONS
@@ -83,7 +83,7 @@ void ezAreaDamageComponent::ApplyAreaDamage()
         const float fScale = 1.0f - ezMath::Min(fDistance * fInvRadius, 1.0f);
 
         // apply a physical impulse
-        if (m_fImpulse > 0.0f)
+        if (m_fImpulse != 0.0f)
         {
           ezMsgPhysicsAddImpulse msg;
           msg.m_vGlobalPosition = vTargetPos;
@@ -94,7 +94,7 @@ void ezAreaDamageComponent::ApplyAreaDamage()
         }
 
         // apply damage
-        if (m_fDamage > 0.0f)
+        if (m_fDamage != 0.0f)
         {
           ezMsgDamage msg;
           msg.m_fDamage = static_cast<double>(m_fDamage) * static_cast<double>(fScale);
