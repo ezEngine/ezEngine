@@ -48,16 +48,10 @@ public:
 
   physx::PxRigidDynamic* GetActor() const { return m_pActor; }
 
-  void SetKinematic(bool b);                         // [ property ]
-  bool GetKinematic() const { return m_bKinematic; } // [ property ]
-
   void SetTriggerMessage(const char* sz) { m_sTriggerMessage.Assign(sz); }      // [ property ]
   const char* GetTriggerMessage() const { return m_sTriggerMessage.GetData(); } // [ property ]
 
-
 protected:
-  bool m_bKinematic = false;
-
   friend class ezPxSimulationEventCallback;
 
   physx::PxRigidDynamic* m_pActor = nullptr;

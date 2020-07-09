@@ -46,7 +46,6 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxTriggerComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_ACCESSOR_PROPERTY("Kinematic", GetKinematic, SetKinematic),
     EZ_ACCESSOR_PROPERTY("TriggerMessage", GetTriggerMessage, SetTriggerMessage)
   }
   EZ_END_PROPERTIES;
@@ -68,6 +67,7 @@ void ezPxTriggerComponent::SerializeComponent(ezWorldWriter& stream) const
 
   auto& s = stream.GetStream();
 
+  bool m_bKinematic = false;
   s << m_bKinematic;
   s << m_sTriggerMessage;
 }
@@ -79,6 +79,7 @@ void ezPxTriggerComponent::DeserializeComponent(ezWorldReader& stream)
 
   auto& s = stream.GetStream();
 
+  bool m_bKinematic = false;
   s >> m_bKinematic;
   s >> m_sTriggerMessage;
 }
@@ -138,7 +139,7 @@ void ezPxTriggerComponent::OnSimulationStarted()
     pModule->GetPxScene()->addActor(*m_pActor);
   }
 
-  if (m_bKinematic)
+  if (GetOwner()->IsDynamic())
   {
     GetWorld()->GetOrCreateComponentManager<ezPxTriggerComponentManager>()->m_KinematicActorComponents.PushBack(this);
   }
@@ -160,24 +161,6 @@ void ezPxTriggerComponent::OnDeactivated()
   }
 
   SUPER::OnDeactivated();
-}
-
-void ezPxTriggerComponent::SetKinematic(bool b)
-{
-  if (m_bKinematic == b)
-    return;
-
-  m_bKinematic = b;
-
-  if (m_bKinematic && m_pActor)
-  {
-    // do not insert this, until we actually have an actor pointer
-    GetWorld()->GetOrCreateComponentManager<ezPxTriggerComponentManager>()->m_KinematicActorComponents.PushBack(this);
-  }
-  else
-  {
-    GetWorld()->GetOrCreateComponentManager<ezPxTriggerComponentManager>()->m_KinematicActorComponents.RemoveAndSwap(this);
-  }
 }
 
 void ezPxTriggerComponent::PostTriggerMessage(const ezComponent* pOtherComponent, ezTriggerState::Enum triggerState) const
