@@ -3,7 +3,7 @@
 #include <Shaders/Common/GlobalConstants.h>
 #include "SampleConstantBuffer.h"
 
-#ifdef PLATFORM_DX11
+#if EZ_ENABLED(PLATFORM_DX11)
 
 struct VS_IN
 {
