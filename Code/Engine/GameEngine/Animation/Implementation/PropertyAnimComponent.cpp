@@ -636,7 +636,7 @@ void ezPropertyAnimComponent::ApplySingleFloatAnimation(const FloatBinding& bind
   {
     ezTypedMemberProperty<bool>* pTyped = static_cast<ezTypedMemberProperty<bool>*>(binding.m_pMemberProperty);
 
-    pTyped->SetValue(binding.m_pObject, fFinalValue > 0.05);
+    pTyped->SetValue(binding.m_pObject, fFinalValue > 0.99); // this is close to what ezVariant does (not identical, that does an int cast != 0), but faster to evaluate
     return;
   }
   else if (pRtti == ezGetStaticRTTI<ezAngle>())

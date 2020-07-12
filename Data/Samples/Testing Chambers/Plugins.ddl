@@ -76,3 +76,9 @@ Plugin
 	bool %LoadCopy{false}
 	string %DependencyOf{"<manual>","EditorPluginTypeScript"}
 }
+Plugin
+{
+	string %Path{"ezXBoxControllerPlugin"}
+	bool %LoadCopy{false}
+	string %DependencyOf{"<manual>"}
+}

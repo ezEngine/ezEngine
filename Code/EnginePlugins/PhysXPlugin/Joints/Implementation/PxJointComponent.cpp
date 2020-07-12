@@ -206,6 +206,7 @@ ezResult ezPxJointComponent::FindParentBody(physx::PxRigidActor*& pActor)
     // m_localFrameA is now valid
     SetUserFlag(0, true);
     m_localFrameA.SetLocalTransform(pObject->GetGlobalTransform(), GetOwner()->GetGlobalTransform());
+    m_localFrameA.m_vPosition = m_localFrameA.m_vPosition.CompMul(pObject->GetGlobalScaling());
   }
 
   return EZ_SUCCESS;
@@ -277,6 +278,7 @@ ezResult ezPxJointComponent::FindChildBody(physx::PxRigidActor*& pActor)
     // m_localFrameB is now valid
     SetUserFlag(0, true);
     m_localFrameB.SetLocalTransform(pObject->GetGlobalTransform(), GetOwner()->GetGlobalTransform());
+    m_localFrameB.m_vPosition = m_localFrameB.m_vPosition.CompMul(pObject->GetGlobalScaling());
   }
 
   return EZ_SUCCESS;
