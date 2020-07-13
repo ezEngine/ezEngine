@@ -77,6 +77,5 @@ namespace ezInternal
 template <size_t N>
 constexpr EZ_ALWAYS_INLINE ezUInt32 ezHashingUtils::xxHash32String(const char (&str)[N], ezUInt32 uiSeed)
 {
-  // Remove trailing 0 from string literal
   return ezInternal::CompileTimeXxHash32(str, uiSeed);
 }
