@@ -188,6 +188,7 @@ Write-Host "Device API Level is $deviceApiLevel"
 #Get the application data directory
 $appDir = $(Adb-Shell "run-as $packageName /system/bin/sh -c pwd 2>/dev/null").Trim()
 Write-Host "Application directory is $appDir"
+$debugSocketFile = "$appDir/debug_socket"
 
 # Check if device is rooted or run-as works correctly
 $userIsRoot = (Adb-Shell "id") -match "root"
@@ -237,7 +238,7 @@ Write-Host "App PID is" $appPid
 Adb-Cmd forward tcp:12345 jdwp:$appPid
 
 # Forward the gdb port
-Adb-Cmd forward tcp:$debugPort tcp:$debugPort
+Adb-Cmd forward tcp:$debugPort localfilesystem:$debugSocketFile
 
 # Copy required files from device
 $processExecutable = ""
@@ -307,7 +308,7 @@ else
 }
 
 # Start gdbserver
-Start-Process -FilePath "$env:comspec" -ArgumentList "/C `"$adb shell run-as $packageName $gdbServerRemotePath :$debugPort --attach $appPid`"" -WindowStyle Hidden
+Start-Process -FilePath "$env:comspec" -ArgumentList "/C `"$adb shell run-as $packageName $gdbServerRemotePath --once +$debugSocketFile --attach $appPid`"" -WindowStyle Hidden
 
 # Generate gdb config
 $gdbConfig = "set solib-search-path $debugTemp;$originalSoDir`n"
@@ -340,7 +341,7 @@ else
 			$jdb
 		)
 		Start-Sleep -Seconds 3
-		Start-Process -FilePath "$env:comspec" -ArgumentList "/C `"`"$jdb`" -connect com.sun.jdi.SocketAttach:port=12345,hostname=localhost`""  -WindowStyle Hidden
+		Start-Process -FilePath "$env:comspec" -ArgumentList "/C `"`"$jdb`" -connect com.sun.jdi.SocketAttach:port=12345,hostname=localhost`"" -WindowStyle Hidden
 	} -ArgumentList $jdb
 
 	# Launch gdb
