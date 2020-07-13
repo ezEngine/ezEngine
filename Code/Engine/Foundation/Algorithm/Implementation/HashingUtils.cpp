@@ -11,24 +11,53 @@ ezUInt32 ezHashingUtils::MurmurHash32(const void* pKey, size_t uiSizeInByte, ezU
   // Initialize the hash to a 'random' value
   ezUInt32 h = uiSeed ^ (ezUInt32)uiSizeInByte;
 
-  // Mix 4 bytes at a time into the hash
-  const ezUInt32* pData = static_cast<const ezUInt32*>(pKey);
-
-  while (uiSizeInByte >= 4)
+#if EZ_ENABLED(EZ_PLATFORM_ARCH_ARM)
+  // ARM has strict alignment requirements for reading. Special version which takes care of unaligned inputs.
+  if (reinterpret_cast<size_t>(pKey) % 4 != 0)
   {
-    ezUInt32 k = *pData++;
+    // If the input is unaligned use the "slow" version.
 
-    k *= m;
-    k ^= k >> r;
-    k *= m;
+    // Mix 4 bytes at a time into the hash
+    while (uiSizeInByte >= 4)
+    {
+      ezUInt32 k = 0;
+      memcpy(&k, pKey, sizeof(k));
+      pKey = ezMemoryUtils::AddByteOffset(pKey, sizeof(k));
 
-    h *= m;
-    h ^= k;
+      k *= m;
+      k ^= k >> r;
+      k *= m;
 
-    uiSizeInByte -= 4;
+      h *= m;
+      h ^= k;
+
+      uiSizeInByte -= 4;
+    }
+  }
+  else
+#endif
+  {
+    const ezUInt32* pData = static_cast<const ezUInt32*>(pKey);
+
+    // Mix 4 bytes at a time into the hash
+    while (uiSizeInByte >= 4)
+    {
+      ezUInt32 k = *pData++;
+
+      k *= m;
+      k ^= k >> r;
+      k *= m;
+
+      h *= m;
+      h ^= k;
+
+      uiSizeInByte -= 4;
+    }
+
+    pKey = pData;
   }
 
-  const ezUInt8* pData2 = reinterpret_cast<const ezUInt8*>(pData);
+  const ezUInt8* pData2 = reinterpret_cast<const ezUInt8*>(pKey);
 
   // Handle the last few bytes of the input array
   switch (uiSizeInByte)
@@ -59,22 +88,50 @@ ezUInt64 ezHashingUtils::MurmurHash64(const void* pKey, size_t uiSizeInByte, ezU
 
   ezUInt64 h = uiSeed ^ (uiSizeInByte * m);
 
-  const ezUInt64* pData = static_cast<const ezUInt64*>(pKey);
-  const ezUInt64* end = pData + (uiSizeInByte / 8);
-
-  while (pData != end)
+#if EZ_ENABLED(EZ_PLATFORM_ARCH_ARM)
+  if(reinterpret_cast<size_t>(pKey) % 8 != 0)
   {
-    ezUInt64 k = *pData++;
+    const void* pData = static_cast<const ezUInt8*>(pKey);
+    const void* pEnd = ezMemoryUtils::AddByteOffset(pKey, (uiSizeInByte / 8) * 8);
 
-    k *= m;
-    k ^= k >> r;
-    k *= m;
+    while (pData != pEnd)
+    {
+      ezUInt64 k = 0;
+      memcpy(&k, pData, sizeof(k));
+      pData = ezMemoryUtils::AddByteOffset(pData, sizeof(k));
 
-    h ^= k;
-    h *= m;
+      k *= m;
+      k ^= k >> r;
+      k *= m;
+
+      h ^= k;
+      h *= m;
+    }
+
+    pKey = pEnd;
+  }
+  else
+#endif
+  {
+    const ezUInt64* pData = static_cast<const ezUInt64*>(pKey);
+    const ezUInt64* pEnd = pData + (uiSizeInByte / 8);
+
+    while (pData != pEnd)
+    {
+      ezUInt64 k = *pData++;
+
+      k *= m;
+      k ^= k >> r;
+      k *= m;
+
+      h ^= k;
+      h *= m;
+    }
+
+    pKey = pEnd;
   }
 
-  const ezUInt8* pData2 = reinterpret_cast<const ezUInt8*>(pData);
+  const ezUInt8* pData2 = reinterpret_cast<const ezUInt8*>(pKey);
 
   switch (uiSizeInByte & 7)
   {
