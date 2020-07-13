@@ -7,6 +7,10 @@
 
 class ezPxSimulationEventCallback;
 class ezPxUserData;
+namespace physx
+{
+  class PxConstraint;
+}
 
 class EZ_PHYSXPLUGIN_DLL ezPhysXWorldModule : public ezPhysicsWorldModuleInterface
 {
@@ -60,6 +64,8 @@ public:
 
   virtual void* CreateRagdoll(const ezSkeletonResourceDescriptor& skeleton, const ezTransform& transform, const ezAnimationPose& initPose) override;
 
+  ezMap<physx::PxConstraint*, ezComponentHandle> m_BreakableJoints;
+
 private:
   bool SweepTest(ezPhysicsCastResult& out_Result, const physx::PxGeometry& geometry, const physx::PxTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const;
   bool OverlapTest(const physx::PxGeometry& geometry, const physx::PxTransform& transform, const ezPhysicsQueryParameters& params) const;
@@ -68,6 +74,8 @@ private:
 
   void StartSimulation(const ezWorldModule::UpdateContext& context);
   void FetchResults(const ezWorldModule::UpdateContext& context);
+
+  void HandleBrokenConstraints();
 
   void Simulate();
   void SimulateStep(ezTime deltaTime);
@@ -86,6 +94,7 @@ private:
   ezDynamicArray<ezUInt8, ezAlignedAllocatorWrapper> m_ScratchMemory;
 
   ezTime m_AccumulatedTimeSinceUpdate;
+
 
   ezPxSettings m_Settings;
 

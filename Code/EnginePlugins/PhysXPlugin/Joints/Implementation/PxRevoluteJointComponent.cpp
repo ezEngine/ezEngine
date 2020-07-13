@@ -4,11 +4,12 @@
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <PhysXPlugin/Joints/PxRevoluteJointComponent.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
+#include <Foundation/Reflection/Implementation/PropertyAttributes.h>
 
 using namespace physx;
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezPxRevoluteJointComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezPxRevoluteJointComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -17,9 +18,15 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxRevoluteJointComponent, 1, ezComponentMode::Static)
     EZ_MEMBER_PROPERTY("UpperLimit", m_UpperLimit)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(-360), ezAngle::Degree(+360))),
     EZ_MEMBER_PROPERTY("EnableDrive", m_bEnableDrive),
     EZ_MEMBER_PROPERTY("DriveVelocity", m_fDriveVelocity),
+    EZ_MEMBER_PROPERTY("MaxDriveTorque", m_fMaxDriveTorque)->AddAttributes(new ezDefaultValueAttribute(100.0f)),
     EZ_MEMBER_PROPERTY("DriveBraking", m_bEnableDriveBraking),
   }
   EZ_END_PROPERTIES;
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.1, ezColor::LightSkyBlue)
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
@@ -40,12 +47,15 @@ void ezPxRevoluteJointComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_bEnableDrive;
   s << m_bEnableDriveBraking;
   s << m_fDriveVelocity;
+
+  // version 2
+  s << m_fMaxDriveTorque;
 }
 
 void ezPxRevoluteJointComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = stream.GetStream();
 
@@ -56,6 +66,11 @@ void ezPxRevoluteJointComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_bEnableDrive;
   s >> m_bEnableDriveBraking;
   s >> m_fDriveVelocity;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_fMaxDriveTorque;
+  }
 }
 
 PxJoint* ezPxRevoluteJointComponent::CreateJointType(PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
@@ -86,7 +101,7 @@ PxJoint* ezPxRevoluteJointComponent::CreateJointType(PxRigidActor* actor0, const
     {
       pJoint->setRevoluteJointFlag(PxRevoluteJointFlag::eDRIVE_ENABLED, true);
       pJoint->setDriveVelocity(m_fDriveVelocity);
-      //pJoint->setDriveForceLimit
+      pJoint->setDriveForceLimit(m_fMaxDriveTorque);
       //pJoint->setDriveGearRatio
 
       pJoint->setRevoluteJointFlag(PxRevoluteJointFlag::eDRIVE_FREESPIN, !m_bEnableDriveBraking);

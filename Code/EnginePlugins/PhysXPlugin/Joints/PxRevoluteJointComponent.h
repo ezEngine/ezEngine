@@ -35,5 +35,6 @@ public:
   ezAngle m_LowerLimit; // [ property ]
   ezAngle m_UpperLimit; // [ property ]
 
-  float m_fDriveVelocity = 0; // [ property ]
+  float m_fDriveVelocity = 0;    // [ property ]
+  float m_fMaxDriveTorque = 100; // [ property ]
 };

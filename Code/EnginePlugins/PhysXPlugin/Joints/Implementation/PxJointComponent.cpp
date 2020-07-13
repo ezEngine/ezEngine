@@ -53,10 +53,15 @@ void ezPxJointComponent::OnSimulationStarted()
   m_pJoint = CreateJointType(pActorA, tLocalToActorA, pActorB, tLocalToActorB);
   EZ_ASSERT_DEV(m_pJoint != nullptr, "Joint creation failed");
 
-  const float fBreakForce = m_fBreakForce <= 0.0f ? ezMath::MaxValue<float>() : m_fBreakForce;
-  const float fBreakTorque = m_fBreakTorque <= 0.0f ? ezMath::MaxValue<float>() : m_fBreakTorque;
+  if (m_fBreakForce > 0.0f || m_fBreakTorque > 0.0f)
+  {
+    const float fBreakForce = m_fBreakForce <= 0.0f ? ezMath::MaxValue<float>() : m_fBreakForce;
+    const float fBreakTorque = m_fBreakTorque <= 0.0f ? ezMath::MaxValue<float>() : m_fBreakTorque;
+    m_pJoint->setBreakForce(fBreakForce, fBreakTorque);
 
-  m_pJoint->setBreakForce(fBreakForce, fBreakTorque);
+    pModule->m_BreakableJoints[m_pJoint->getConstraint()] = GetHandle();
+  }
+
   m_pJoint->setConstraintFlag(PxConstraintFlag::eCOLLISION_ENABLED, m_bPairCollision);
 }
 
@@ -65,6 +70,8 @@ void ezPxJointComponent::OnDeactivated()
   if (m_pJoint != nullptr)
   {
     ezPhysXWorldModule* pModule = GetWorld()->GetModule<ezPhysXWorldModule>();
+
+    pModule->m_BreakableJoints.Remove(m_pJoint->getConstraint());
 
     if (pModule->GetPxScene())
     {

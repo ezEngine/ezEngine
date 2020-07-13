@@ -31,6 +31,17 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgPhysicsAddForce, 1, ezRTTIDefaultAllocator<
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
+EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgPhysicsJointBroke);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMsgPhysicsJointBroke, 1, ezRTTIDefaultAllocator<ezMsgPhysicsJointBroke>)
+//{
+  //EZ_BEGIN_PROPERTIES
+  //{
+  //  EZ_MEMBER_PROPERTY("JointObject", m_hJointObject)
+  //}
+  //EZ_END_PROPERTIES;
+//}
+EZ_END_DYNAMIC_REFLECTED_TYPE
+
 //////////////////////////////////////////////////////////////////////////
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezMsgBuildStaticMesh);

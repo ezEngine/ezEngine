@@ -4,6 +4,7 @@
 #include <Core/World/WorldModule.h>
 #include <Foundation/Communication/Message.h>
 #include <GameEngine/GameEngineDLL.h>
+#include <Core/Messages/EventMessage.h>
 
 struct ezGameObjectHandle;
 struct ezSkeletonResourceDescriptor;
@@ -119,6 +120,14 @@ struct EZ_GAMEENGINE_DLL ezMsgPhysicsAddForce : public ezMessage
   ezVec3 m_vGlobalPosition;
   ezVec3 m_vForce;
 };
+
+struct EZ_GAMEENGINE_DLL ezMsgPhysicsJointBroke : public ezEventMessage
+{
+  EZ_DECLARE_MESSAGE_TYPE(ezMsgPhysicsJointBroke, ezEventMessage);
+
+  ezGameObjectHandle m_hJointObject;
+};
+
 
 //////////////////////////////////////////////////////////////////////////
 

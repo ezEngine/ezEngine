@@ -8,6 +8,7 @@
 #include <Foundation/Memory/FrameAllocator.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <GameEngine/Prefabs/PrefabResource.h>
+#include <Joints/PxJointComponent.h>
 #include <PhysXPlugin/Components/PxDynamicActorComponent.h>
 #include <PhysXPlugin/Components/PxSettingsComponent.h>
 #include <PhysXPlugin/Utilities/PxConversionUtils.h>
@@ -246,10 +247,14 @@ public:
 
   ezDynamicArray<InteractionContact> m_InteractionContacts;
   ezMap<PxRigidDynamic*, SlidingInfo> m_SlidingActors;
+  ezDeque<PxConstraint*> m_BrokenConstraints;
 
   virtual void onConstraintBreak(PxConstraintInfo* constraints, PxU32 count) override
   {
-    // TODO: send a "joint broken" message
+    for (ezUInt32 i = 0; i < count; ++i)
+    {
+      m_BrokenConstraints.PushBack(constraints[i].constraint);
+    }
   }
 
   virtual void onWake(PxActor** actors, PxU32 count) override
@@ -1335,7 +1340,34 @@ void ezPhysXWorldModule::FetchResults(const ezWorldModule::UpdateContext& contex
     }
   }
 
+  HandleBrokenConstraints();
+
   FreeUserDataAfterSimulationStep();
+}
+
+void ezPhysXWorldModule::HandleBrokenConstraints()
+{
+  for (auto pConstraint : m_pSimulationEventCallback->m_BrokenConstraints)
+  {
+    auto it = m_BreakableJoints.Find(pConstraint);
+    if (it.IsValid())
+    {
+      ezPxJointComponent* pJoint = nullptr;
+
+      if (m_pWorld->TryGetComponent(it.Value(), pJoint))
+      {
+        ezMsgPhysicsJointBroke msg;
+        msg.m_hJointObject = pJoint->GetOwner()->GetHandle();
+
+        pJoint->GetOwner()->PostEventMessage(msg, pJoint, ezTime::Zero());
+      }
+
+      // it can't break twice
+      m_BreakableJoints.Remove(it);
+    }
+  }
+
+  m_pSimulationEventCallback->m_BrokenConstraints.Clear();
 }
 
 void ezPhysXWorldModule::Simulate()
