@@ -11,7 +11,10 @@ public:
   /// \brief helper struct to wrap a string pointer
   struct StringWrapper
   {
-    EZ_ALWAYS_INLINE StringWrapper(const char* str) : m_str(str) {}
+    EZ_ALWAYS_INLINE StringWrapper(const char* str)
+      : m_str(str)
+    {
+    }
     const char* m_str;
   };
 
@@ -33,6 +36,10 @@ public:
   /// We cannot pass a string pointer directly since a string constant would be treated as pointer as well.
   static ezUInt32 MurmurHash32String(StringWrapper str, ezUInt32 uiSeed = 0); // [tested]
 
+  /// \brief Calculates the 32bit xxHash of the given string literal at compile time.
+  template <size_t N>
+  constexpr static ezUInt32 xxHash32String(const char (&str)[N], ezUInt32 uiSeed = 0); // [tested]
+
   /// \brief Calculates the 32bit xxHash of the given key.
   static ezUInt32 xxHash32(const void* pKey, size_t uiSizeInByte, ezUInt32 uiSeed = 0); // [tested]
 
@@ -50,6 +57,6 @@ struct ezHashHelper
   static bool Equal(const T& a, const T& b);
 };
 
+#include <Foundation/Algorithm/Implementation/CompileTimeXxHash_inl.h>
 #include <Foundation/Algorithm/Implementation/HashingMurmur_inl.h>
 #include <Foundation/Algorithm/Implementation/HashingUtils_inl.h>
-
