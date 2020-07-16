@@ -62,6 +62,7 @@ void ezTranslateGizmo::OnTransformationChanged(const ezTransform& transform)
   ezTransform m;
   m.SetIdentity();
 
+  m.m_vScale.Set(2.0f);
   m_AxisX.SetTransformation(transform * m);
 
   m.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(90));

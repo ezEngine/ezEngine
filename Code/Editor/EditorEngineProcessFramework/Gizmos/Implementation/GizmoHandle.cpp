@@ -91,8 +91,8 @@ static ezMeshBufferResourceHandle CreateMeshBufferArrow()
   if (hMesh.IsValid())
     return hMesh;
 
-  const float fThickness = 0.04f;
-  const float fLength = 2.0f;
+  const float fThickness = 0.02f;
+  const float fLength = 1.0f;
 
   ezMat4 m;
   m.SetRotationMatrixY(ezAngle::Degree(90));
@@ -115,8 +115,8 @@ static ezMeshBufferResourceHandle CreateMeshBufferPiston()
   if (hMesh.IsValid())
     return hMesh;
 
-  const float fThickness = 0.04f;
-  const float fLength = 2.0f;
+  const float fThickness = 0.02f;
+  const float fLength = 1.0f;
 
   ezMat4 m;
   m.SetRotationMatrixY(ezAngle::Degree(90));

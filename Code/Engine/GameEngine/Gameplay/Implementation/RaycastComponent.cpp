@@ -58,7 +58,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezRaycastComponent, 2, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Gameplay"),
-    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.2f, ezColor::YellowGreen),
+    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.5f, ezColor::YellowGreen),
   }
   EZ_END_ATTRIBUTES;
 }

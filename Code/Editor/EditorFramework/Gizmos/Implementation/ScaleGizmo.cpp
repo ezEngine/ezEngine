@@ -50,6 +50,7 @@ void ezScaleGizmo::OnTransformationChanged(const ezTransform& transform)
   ezTransform t;
   t.SetIdentity();
 
+  t.m_vScale.Set(2.0f);
   m_AxisX.SetTransformation(transform * t);
 
   t.m_qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(90));

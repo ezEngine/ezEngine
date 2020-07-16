@@ -27,7 +27,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxRaycastInteractComponent, 1, ezComponentMode::Static
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Input"),
-    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.2f, ezColor::LightGreen, "MaxDistance"),
+    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 1.0f, ezColor::LightGreen, "MaxDistance"),
   }
   EZ_END_ATTRIBUTES;
 }

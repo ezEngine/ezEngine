@@ -18,7 +18,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezSimpleWindComponent, 1, ezComponentMode::Static)
   EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Effects"),
-    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.2f, ezColor::DodgerBlue),
+    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.5f, ezColor::DodgerBlue),
   }
   EZ_END_ATTRIBUTES;
 }
