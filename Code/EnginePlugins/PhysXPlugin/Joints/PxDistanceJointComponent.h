@@ -45,12 +45,12 @@ public:
   void SetSpringTolerance(float value);                           // [ property ]
   float GetSpringTolerance() const { return m_fSpringTolerance; } // [ property ]
 
+  virtual void ApplySettings() final override;
+
 protected:
   float m_fMinDistance = 0.0f;
   float m_fMaxDistance = 1.0f;
   float m_fSpringStiffness = 0.0f;
   float m_fSpringDamping = 1.0f;
   float m_fSpringTolerance = 0.05f;
-
-  void ApplyLimits();
 };

@@ -35,31 +35,48 @@ ezPxDistanceJointComponent::~ezPxDistanceJointComponent() = default;
 void ezPxDistanceJointComponent::SetMinDistance(float value)
 {
   m_fMinDistance = value;
-  ApplyLimits();
+  QueueApplySettings();
 }
 
 void ezPxDistanceJointComponent::SetMaxDistance(float value)
 {
   m_fMaxDistance = value;
-  ApplyLimits();
+  QueueApplySettings();
 }
 
 void ezPxDistanceJointComponent::SetSpringStiffness(float value)
 {
   m_fSpringStiffness = value;
-  ApplyLimits();
+  QueueApplySettings();
 }
 
 void ezPxDistanceJointComponent::SetSpringDamping(float value)
 {
   m_fSpringDamping = value;
-  ApplyLimits();
+  QueueApplySettings();
 }
 
 void ezPxDistanceJointComponent::SetSpringTolerance(float value)
 {
   m_fSpringTolerance = value;
-  ApplyLimits();
+  QueueApplySettings();
+}
+
+void ezPxDistanceJointComponent::ApplySettings()
+{
+  ezPxJointComponent::ApplySettings();
+
+  PxDistanceJoint* pJoint = static_cast<PxDistanceJoint*>(m_pJoint);
+
+  pJoint->setMinDistance(m_fMinDistance);
+  pJoint->setMaxDistance(m_fMaxDistance);
+  pJoint->setStiffness(m_fSpringStiffness);
+  pJoint->setDamping(ezMath::Max(0.0f, m_fSpringDamping));
+  pJoint->setTolerance(ezMath::Max(0.0f, m_fSpringTolerance));
+
+  pJoint->setDistanceJointFlag(PxDistanceJointFlag::eMIN_DISTANCE_ENABLED, m_fMinDistance > 0.0f);
+  pJoint->setDistanceJointFlag(PxDistanceJointFlag::eMAX_DISTANCE_ENABLED, m_fMaxDistance > m_fMinDistance);
+  pJoint->setDistanceJointFlag(PxDistanceJointFlag::eSPRING_ENABLED, m_fSpringStiffness > 0.0f);
 }
 
 void ezPxDistanceJointComponent::SerializeComponent(ezWorldWriter& stream) const
@@ -92,26 +109,4 @@ void ezPxDistanceJointComponent::DeserializeComponent(ezWorldReader& stream)
 void ezPxDistanceJointComponent::CreateJointType(PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
 {
   m_pJoint = PxDistanceJointCreate(*(ezPhysX::GetSingleton()->GetPhysXAPI()), actor0, localFrame0, actor1, localFrame1);
-
-  ApplyLimits();
 }
-
-void ezPxDistanceJointComponent::ApplyLimits()
-{
-  PxDistanceJoint* pJoint = static_cast<PxDistanceJoint*>(m_pJoint);
-  if (pJoint == nullptr)
-    return;
-
-  pJoint->setMinDistance(m_fMinDistance);
-  pJoint->setMaxDistance(m_fMaxDistance);
-  pJoint->setStiffness(m_fSpringStiffness);
-  pJoint->setDamping(ezMath::Max(0.0f, m_fSpringDamping));
-  pJoint->setTolerance(ezMath::Max(0.0f, m_fSpringTolerance));
-
-  pJoint->setDistanceJointFlag(PxDistanceJointFlag::eMIN_DISTANCE_ENABLED, m_fMinDistance > 0.0f);
-  pJoint->setDistanceJointFlag(PxDistanceJointFlag::eMAX_DISTANCE_ENABLED, m_fMaxDistance > m_fMinDistance);
-  pJoint->setDistanceJointFlag(PxDistanceJointFlag::eSPRING_ENABLED, m_fSpringStiffness > 0.0f);
-}
-
-
-EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Joints_Implementation_PxDistanceJointComponent);

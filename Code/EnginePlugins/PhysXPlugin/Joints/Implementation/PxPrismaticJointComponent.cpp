@@ -69,37 +69,36 @@ void ezPxPrismaticJointComponent::DeserializeComponent(ezWorldReader& stream)
 void ezPxPrismaticJointComponent::SetLimitMode(ezPxJointLimitMode::Enum mode)
 {
   m_LimitMode = mode;
-  ApplyLimits();
+  QueueApplySettings();
 }
 
 void ezPxPrismaticJointComponent::SetLowerLimitDistance(float f)
 {
   m_fLowerLimitDistance = f;
-  ApplyLimits();
+  QueueApplySettings();
 }
 
 void ezPxPrismaticJointComponent::SetUpperLimitDistance(float f)
 {
   m_fUpperLimitDistance = f;
-  ApplyLimits();
+  QueueApplySettings();
 }
 
 void ezPxPrismaticJointComponent::SetSpringStiffness(float f)
 {
   m_fSpringStiffness = f;
-  ApplyLimits();
+  QueueApplySettings();
 }
 
 void ezPxPrismaticJointComponent::SetSpringDamping(float f)
 {
   m_fSpringDamping = f;
-  ApplyLimits();
+  QueueApplySettings();
 }
 
-void ezPxPrismaticJointComponent::ApplyLimits()
+void ezPxPrismaticJointComponent::ApplySettings()
 {
-  if (m_pJoint == nullptr)
-    return;
+  ezPxJointComponent::ApplySettings();
 
   auto pJoint = static_cast<PxPrismaticJoint*>(m_pJoint);
 
@@ -120,6 +119,11 @@ void ezPxPrismaticJointComponent::ApplyLimits()
       limit.stiffness = ezMath::Max(0.1f, m_fSpringStiffness);
       limit.damping = ezMath::Max(0.1f, m_fSpringDamping);
     }
+    else
+    {
+      limit.restitution = ezMath::Clamp(m_fSpringStiffness, 0.0f, 1.0f);
+      limit.bounceThreshold = m_fSpringDamping;
+    }
 
     pJoint->setLimit(limit);
   }
@@ -128,6 +132,4 @@ void ezPxPrismaticJointComponent::ApplyLimits()
 void ezPxPrismaticJointComponent::CreateJointType(PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
 {
   m_pJoint = PxPrismaticJointCreate(*(ezPhysX::GetSingleton()->GetPhysXAPI()), actor0, localFrame0, actor1, localFrame1);
-
-  ApplyLimits();
 }

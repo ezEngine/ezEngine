@@ -65,27 +65,28 @@ void ezPx6DOFJointComponent::DeserializeComponent(ezWorldReader& stream)
 void ezPx6DOFJointComponent::CreateJointType(PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1,
   const PxTransform& localFrame1)
 {
-  PxD6Joint* pJoint = PxD6JointCreate(*(ezPhysX::GetSingleton()->GetPhysXAPI()), actor0, localFrame0, actor1, localFrame1);
-  m_pJoint = pJoint;
-
-  if (pJoint != nullptr)
-  {
-    pJoint->setMotion(PxD6Axis::eX, m_FreeLinearAxis.IsSet(ezPxAxis::X) ? PxD6Motion::eFREE : PxD6Motion::eLOCKED);
-    pJoint->setMotion(PxD6Axis::eY, m_FreeLinearAxis.IsSet(ezPxAxis::Y) ? PxD6Motion::eFREE : PxD6Motion::eLOCKED);
-    pJoint->setMotion(PxD6Axis::eZ, m_FreeLinearAxis.IsSet(ezPxAxis::Z) ? PxD6Motion::eFREE : PxD6Motion::eLOCKED);
-
-    pJoint->setMotion(PxD6Axis::eTWIST, m_FreeAngularAxis.IsSet(ezPxAxis::X) ? PxD6Motion::eFREE : PxD6Motion::eLOCKED);
-    pJoint->setMotion(PxD6Axis::eSWING1, m_FreeAngularAxis.IsSet(ezPxAxis::Y) ? PxD6Motion::eFREE : PxD6Motion::eLOCKED);
-    pJoint->setMotion(PxD6Axis::eSWING2, m_FreeAngularAxis.IsSet(ezPxAxis::Z) ? PxD6Motion::eFREE : PxD6Motion::eLOCKED);
-
-    pJoint->setDrive(PxD6Drive::eX, PxD6JointDrive(m_fLinearStiffness, m_fLinearDamping, PX_MAX_F32, true));
-    pJoint->setDrive(PxD6Drive::eY, PxD6JointDrive(m_fLinearStiffness, m_fLinearDamping, PX_MAX_F32, true));
-    pJoint->setDrive(PxD6Drive::eZ, PxD6JointDrive(m_fLinearStiffness, m_fLinearDamping, PX_MAX_F32, true));
-
-    pJoint->setDrive(PxD6Drive::eSLERP, PxD6JointDrive(m_fAngularStiffness, m_fAngularDamping, PX_MAX_F32, true));
-  }
+  m_pJoint = PxD6JointCreate(*(ezPhysX::GetSingleton()->GetPhysXAPI()), actor0, localFrame0, actor1, localFrame1);
 }
 
+void ezPx6DOFJointComponent::ApplySettings()
+{
+  ezPxJointComponent::ApplySettings();
 
+  PxD6Joint* pJoint = static_cast<PxD6Joint*>(m_pJoint);
+
+  pJoint->setMotion(PxD6Axis::eX, m_FreeLinearAxis.IsSet(ezPxAxis::X) ? PxD6Motion::eFREE : PxD6Motion::eLOCKED);
+  pJoint->setMotion(PxD6Axis::eY, m_FreeLinearAxis.IsSet(ezPxAxis::Y) ? PxD6Motion::eFREE : PxD6Motion::eLOCKED);
+  pJoint->setMotion(PxD6Axis::eZ, m_FreeLinearAxis.IsSet(ezPxAxis::Z) ? PxD6Motion::eFREE : PxD6Motion::eLOCKED);
+
+  pJoint->setMotion(PxD6Axis::eTWIST, m_FreeAngularAxis.IsSet(ezPxAxis::X) ? PxD6Motion::eFREE : PxD6Motion::eLOCKED);
+  pJoint->setMotion(PxD6Axis::eSWING1, m_FreeAngularAxis.IsSet(ezPxAxis::Y) ? PxD6Motion::eFREE : PxD6Motion::eLOCKED);
+  pJoint->setMotion(PxD6Axis::eSWING2, m_FreeAngularAxis.IsSet(ezPxAxis::Z) ? PxD6Motion::eFREE : PxD6Motion::eLOCKED);
+
+  pJoint->setDrive(PxD6Drive::eX, PxD6JointDrive(m_fLinearStiffness, m_fLinearDamping, PX_MAX_F32, true));
+  pJoint->setDrive(PxD6Drive::eY, PxD6JointDrive(m_fLinearStiffness, m_fLinearDamping, PX_MAX_F32, true));
+  pJoint->setDrive(PxD6Drive::eZ, PxD6JointDrive(m_fLinearStiffness, m_fLinearDamping, PX_MAX_F32, true));
+
+  pJoint->setDrive(PxD6Drive::eSLERP, PxD6JointDrive(m_fAngularStiffness, m_fAngularDamping, PX_MAX_F32, true));
+}
 
 EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Joints_Implementation_Px6DOFJointComponent);

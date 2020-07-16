@@ -45,12 +45,12 @@ public:
   void SetSpringDamping(float f);                             // [ property ]
   float GetSpringDamping() const { return m_fSpringDamping; } // [ property ]
 
+  virtual void ApplySettings() final override;
+
 protected:
   ezEnum<ezPxJointLimitMode> m_LimitMode;
   float m_fLowerLimitDistance = 0;
   float m_fUpperLimitDistance = 0;
   float m_fSpringStiffness = 0;
   float m_fSpringDamping = 0;
-
-  void ApplyLimits();
 };

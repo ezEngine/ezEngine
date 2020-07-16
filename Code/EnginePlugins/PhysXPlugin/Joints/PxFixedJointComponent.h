@@ -20,4 +20,6 @@ protected:
 public:
   ezPxFixedJointComponent();
   ~ezPxFixedJointComponent();
+
+  virtual void ApplySettings() final override;
 };

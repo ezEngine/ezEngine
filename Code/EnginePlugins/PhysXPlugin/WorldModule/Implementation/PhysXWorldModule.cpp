@@ -1213,6 +1213,8 @@ void ezPhysXWorldModule::StartSimulation(const ezWorldModule::UpdateContext& con
     pTriggerManager->UpdateKinematicActors();
   }
 
+  UpdateJoints();
+
   m_SimulateTaskGroupId = ezTaskSystem::StartSingleTask(m_pSimulateTask, ezTaskPriority::EarlyThisFrame);
 }
 
@@ -1452,6 +1454,21 @@ void ezPhysXWorldModule::SimulateStep(ezTime deltaTime)
   m_bSimulationStepExecuted = true;
 }
 
+void ezPhysXWorldModule::UpdateJoints()
+{
+  if (m_RequireUpdate.IsEmpty())
+    return;
 
+  ezPxJointComponent* pComponent;
+  for (auto& hComponent : m_RequireUpdate)
+  {
+    if (this->m_pWorld->TryGetComponent(hComponent, pComponent))
+    {
+      pComponent->ApplySettings();
+    }
+  }
+
+  m_RequireUpdate.Clear();
+}
 
 EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_WorldModule_Implementation_PhysXWorldModule);

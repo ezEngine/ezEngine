@@ -5,11 +5,12 @@
 #include <Foundation/Reflection/Implementation/PropertyAttributes.h>
 #include <PhysXPlugin/Joints/PxRevoluteJointComponent.h>
 #include <PhysXPlugin/WorldModule/Implementation/PhysX.h>
+#include <PhysXPlugin/WorldModule/PhysXWorldModule.h>
 
 using namespace physx;
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezPxRevoluteJointComponent, 4, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezPxRevoluteJointComponent, 5, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
@@ -18,10 +19,9 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxRevoluteJointComponent, 4, ezComponentMode::Static)
     EZ_ACCESSOR_PROPERTY("UpperLimit", GetUpperLimitAngle, SetUpperLimitAngle)->AddAttributes(new ezClampValueAttribute(ezAngle::Degree(-360), ezAngle::Degree(+360))),
     EZ_ACCESSOR_PROPERTY("SpringStiffness", GetSpringStiffness, SetSpringStiffness)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ACCESSOR_PROPERTY("SpringDamping", GetSpringDamping, SetSpringDamping)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_MEMBER_PROPERTY("EnableDrive", m_bEnableDrive),
+    EZ_ENUM_ACCESSOR_PROPERTY("DriveMode", ezPxJointDriveMode, GetDriveMode, SetDriveMode),
     EZ_ACCESSOR_PROPERTY("DriveVelocity", GetDriveVelocity, SetDriveVelocity),
     EZ_ACCESSOR_PROPERTY("MaxDriveTorque", GetDriveTorque, SetDriveTorque)->AddAttributes(new ezDefaultValueAttribute(100.0f)),
-    EZ_MEMBER_PROPERTY("DriveBraking", m_bEnableDriveBraking),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -46,8 +46,7 @@ void ezPxRevoluteJointComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_LowerLimit;
   s << m_UpperLimit;
 
-  s << m_bEnableDrive;
-  s << m_bEnableDriveBraking;
+  s << m_DriveMode;
   s << m_fDriveVelocity;
 
   // version 2
@@ -79,8 +78,22 @@ void ezPxRevoluteJointComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_LowerLimit;
   s >> m_UpperLimit;
 
-  s >> m_bEnableDrive;
-  s >> m_bEnableDriveBraking;
+  if (uiVersion < 5)
+  {
+    bool m_bEnableDrive, m_bEnableDriveBraking;
+    s >> m_bEnableDrive;
+    s >> m_bEnableDriveBraking;
+
+    if (m_bEnableDrive)
+    {
+      m_DriveMode = m_bEnableDriveBraking ? ezPxJointDriveMode::DriveAndBrake : ezPxJointDriveMode::DriveAndSpin;
+    }
+  }
+  else
+  {
+    s >> m_DriveMode;
+  }
+
   s >> m_fDriveVelocity;
 
   if (uiVersion >= 2)
@@ -98,57 +111,59 @@ void ezPxRevoluteJointComponent::DeserializeComponent(ezWorldReader& stream)
 void ezPxRevoluteJointComponent::SetLimitMode(ezPxJointLimitMode::Enum mode)
 {
   m_LimitMode = mode;
-  ApplyLimits();
+  QueueApplySettings();
 }
 
 void ezPxRevoluteJointComponent::SetLowerLimitAngle(ezAngle f)
 {
   m_LowerLimit = f;
-  ApplyLimits();
+  QueueApplySettings();
 }
 
 void ezPxRevoluteJointComponent::SetUpperLimitAngle(ezAngle f)
 {
   m_UpperLimit = f;
-  ApplyLimits();
+  QueueApplySettings();
 }
 
 void ezPxRevoluteJointComponent::SetSpringStiffness(float f)
 {
   m_fSpringStiffness = f;
-  ApplyLimits();
+  QueueApplySettings();
 }
 
 void ezPxRevoluteJointComponent::SetSpringDamping(float f)
 {
   m_fSpringDamping = f;
-  ApplyLimits();
+  QueueApplySettings();
+}
+
+void ezPxRevoluteJointComponent::SetDriveMode(ezPxJointDriveMode::Enum mode)
+{
+  m_DriveMode = mode;
+  QueueApplySettings();
 }
 
 void ezPxRevoluteJointComponent::SetDriveVelocity(float f)
 {
   m_fDriveVelocity = f;
-  ApplyDrive();
+  QueueApplySettings();
 }
 
 void ezPxRevoluteJointComponent::SetDriveTorque(float f)
 {
   m_fMaxDriveTorque = f;
-  ApplyDrive();
+  QueueApplySettings();
 }
 
 void ezPxRevoluteJointComponent::CreateJointType(PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
 {
   m_pJoint = PxRevoluteJointCreate(*(ezPhysX::GetSingleton()->GetPhysXAPI()), actor0, localFrame0, actor1, localFrame1);
-
-  ApplyLimits();
-  ApplyDrive();
 }
 
-void ezPxRevoluteJointComponent::ApplyLimits()
+void ezPxRevoluteJointComponent::ApplySettings()
 {
-  if (m_pJoint == nullptr)
-    return;
+  ezPxJointComponent::ApplySettings();
 
   physx::PxRevoluteJoint* pJoint = static_cast<physx::PxRevoluteJoint*>(m_pJoint);
 
@@ -156,7 +171,6 @@ void ezPxRevoluteJointComponent::ApplyLimits()
 
   if (m_LimitMode != ezPxJointLimitMode::NoLimit)
   {
-    //pJoint->setConstraintFlag(PxConstraintFlag::eDRIVE_LIMITS_ARE_FORCES, false);
 
     float low = m_LowerLimit.GetRadian();
     float high = m_UpperLimit.GetRadian();
@@ -179,26 +193,29 @@ void ezPxRevoluteJointComponent::ApplyLimits()
       limit.stiffness = ezMath::Max(0.1f, m_fSpringStiffness);
       limit.damping = ezMath::Max(0.1f, m_fSpringDamping);
     }
+    else
+    {
+      limit.restitution = ezMath::Clamp(m_fSpringStiffness, 0.0f, 1.0f);
+      limit.bounceThreshold = m_fSpringDamping;
+    }
 
     pJoint->setLimit(limit);
   }
-}
 
-void ezPxRevoluteJointComponent::ApplyDrive()
-{
-  if (m_pJoint == nullptr)
-    return;
-
-  physx::PxRevoluteJoint* pJoint = static_cast<physx::PxRevoluteJoint*>(m_pJoint);
-
-  pJoint->setRevoluteJointFlag(PxRevoluteJointFlag::eDRIVE_ENABLED, m_bEnableDrive);
-
-  if (m_bEnableDrive)
+  // drive
   {
-    pJoint->setDriveVelocity(m_fDriveVelocity);
-    pJoint->setDriveForceLimit(m_fMaxDriveTorque);
-    //pJoint->setDriveGearRatio
+    pJoint->setRevoluteJointFlag(PxRevoluteJointFlag::eDRIVE_ENABLED, m_DriveMode != ezPxJointDriveMode::NoDrive);
 
-    pJoint->setRevoluteJointFlag(PxRevoluteJointFlag::eDRIVE_FREESPIN, !m_bEnableDriveBraking);
+    if (m_DriveMode != ezPxJointDriveMode::NoDrive)
+    {
+      pJoint->setDriveVelocity(m_fDriveVelocity);
+
+      //pJoint->setConstraintFlag(PxConstraintFlag::eDRIVE_LIMITS_ARE_FORCES, false);
+      pJoint->setDriveForceLimit(m_fMaxDriveTorque);
+
+      //pJoint->setDriveGearRatio
+
+      pJoint->setRevoluteJointFlag(PxRevoluteJointFlag::eDRIVE_FREESPIN, m_DriveMode == ezPxJointDriveMode::DriveAndSpin);
+    }
   }
 }

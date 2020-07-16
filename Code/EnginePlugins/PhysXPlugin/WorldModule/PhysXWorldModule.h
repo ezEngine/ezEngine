@@ -1,12 +1,14 @@
 #pragma once
 
+#include <Core/World/Declarations.h>
 #include <Core/World/WorldModule.h>
 #include <Foundation/Threading/DelegateTask.h>
 #include <GameEngine/Interfaces/PhysicsWorldModule.h>
 #include <PhysXPlugin/PhysXInterface.h>
+#include <PhysXPlugin/Utilities/PxUserData.h>
 
 class ezPxSimulationEventCallback;
-class ezPxUserData;
+
 namespace physx
 {
   class PxConstraint;
@@ -65,6 +67,7 @@ public:
   virtual void* CreateRagdoll(const ezSkeletonResourceDescriptor& skeleton, const ezTransform& transform, const ezAnimationPose& initPose) override;
 
   ezMap<physx::PxConstraint*, ezComponentHandle> m_BreakableJoints;
+  ezDeque<ezComponentHandle> m_RequireUpdate;
 
 private:
   bool SweepTest(ezPhysicsCastResult& out_Result, const physx::PxGeometry& geometry, const physx::PxTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection) const;
@@ -79,6 +82,8 @@ private:
 
   void Simulate();
   void SimulateStep(ezTime deltaTime);
+
+  void UpdateJoints();
 
   physx::PxScene* m_pPxScene;
   physx::PxControllerManager* m_pCharacterManager;

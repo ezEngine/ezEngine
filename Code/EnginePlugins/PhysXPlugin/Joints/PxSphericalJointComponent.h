@@ -46,12 +46,12 @@ public:
   void SetSpringDamping(float f);                             // [ property ]
   float GetSpringDamping() const { return m_fSpringDamping; } // [ property ]
 
+  virtual void ApplySettings() final override;
+
 protected:
   ezEnum<ezPxJointLimitMode> m_LimitMode;
   ezAngle m_ConeLimitY;
   ezAngle m_ConeLimitZ;
   float m_fSpringStiffness = 0;
   float m_fSpringDamping = 0;
-
-  void ApplyConeLimit();
 };

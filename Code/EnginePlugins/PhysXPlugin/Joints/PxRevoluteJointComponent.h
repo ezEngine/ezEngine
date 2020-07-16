@@ -43,8 +43,8 @@ public:
   void SetSpringDamping(float f);                             // [ property ]
   float GetSpringDamping() const { return m_fSpringDamping; } // [ property ]
 
-  bool m_bEnableDrive = false;        // [ property ]
-  bool m_bEnableDriveBraking = false; // [ property ]
+  void SetDriveMode(ezPxJointDriveMode::Enum mode);                     // [ property ]
+  ezPxJointDriveMode::Enum GetDriveMode() const { return m_DriveMode; } // [ property ]
 
   void SetDriveVelocity(float f);                             // [ property ]
   float GetDriveVelocity() const { return m_fDriveVelocity; } // [ property ]
@@ -52,15 +52,15 @@ public:
   void SetDriveTorque(float f);                              // [ property ]
   float GetDriveTorque() const { return m_fMaxDriveTorque; } // [ property ]
 
+  virtual void ApplySettings() final override;
+
 protected:
   ezEnum<ezPxJointLimitMode> m_LimitMode;
   ezAngle m_LowerLimit;
   ezAngle m_UpperLimit;
   float m_fSpringStiffness = 0;
   float m_fSpringDamping = 0;
+  ezEnum<ezPxJointDriveMode> m_DriveMode;
   float m_fDriveVelocity = 0;    // [ property ]
   float m_fMaxDriveTorque = 100; // [ property ]
-
-  void ApplyLimits();
-  void ApplyDrive();
 };

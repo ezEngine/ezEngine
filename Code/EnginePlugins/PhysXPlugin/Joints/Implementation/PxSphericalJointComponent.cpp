@@ -79,37 +79,36 @@ void ezPxSphericalJointComponent::DeserializeComponent(ezWorldReader& stream)
 void ezPxSphericalJointComponent::SetLimitMode(ezPxJointLimitMode::Enum mode)
 {
   m_LimitMode = mode;
-  ApplyConeLimit();
+  QueueApplySettings();
 }
 
 void ezPxSphericalJointComponent::SetConeLimitY(ezAngle v)
 {
   m_ConeLimitY = v;
-  ApplyConeLimit();
+  QueueApplySettings();
 }
 
 void ezPxSphericalJointComponent::SetConeLimitZ(ezAngle v)
 {
   m_ConeLimitZ = v;
-  ApplyConeLimit();
+  QueueApplySettings();
 }
 
 void ezPxSphericalJointComponent::SetSpringStiffness(float f)
 {
   m_fSpringStiffness = f;
-  ApplyConeLimit();
+  QueueApplySettings();
 }
 
 void ezPxSphericalJointComponent::SetSpringDamping(float f)
 {
   m_fSpringDamping = f;
-  ApplyConeLimit();
+  QueueApplySettings();
 }
 
-void ezPxSphericalJointComponent::ApplyConeLimit()
+void ezPxSphericalJointComponent::ApplySettings()
 {
-  if (m_pJoint == nullptr)
-    return;
+  ezPxJointComponent::ApplySettings();
 
   PxSphericalJoint* pJoint = static_cast<PxSphericalJoint*>(m_pJoint);
 
@@ -124,6 +123,11 @@ void ezPxSphericalJointComponent::ApplyConeLimit()
       limit.stiffness = ezMath::Max(0.1f, m_fSpringStiffness);
       limit.damping = ezMath::Max(0.1f, m_fSpringDamping);
     }
+    else
+    {
+      limit.restitution = ezMath::Clamp(m_fSpringStiffness, 0.0f, 1.0f);
+      limit.bounceThreshold = m_fSpringDamping;
+    }
 
     pJoint->setLimitCone(limit);
   }
@@ -133,6 +137,4 @@ void ezPxSphericalJointComponent::CreateJointType(PxRigidActor* actor0, const Px
   const PxTransform& localFrame1)
 {
   m_pJoint = PxSphericalJointCreate(*(ezPhysX::GetSingleton()->GetPhysXAPI()), actor0, localFrame0, actor1, localFrame1);
-
-  ApplyConeLimit();
 }

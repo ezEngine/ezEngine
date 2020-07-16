@@ -62,4 +62,8 @@ public:
   float m_fLinearDamping = 0.0f;    // [ property ]
   float m_fAngularStiffness = 0.0f; // [ property ]
   float m_fAngularDamping = 0.0f;   // [ property ]
+
+  virtual void ApplySettings() final override;
+
+protected:
 };

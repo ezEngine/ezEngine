@@ -14,14 +14,14 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPxJointComponent, 2)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("BreakForce", m_fBreakForce),
-    EZ_MEMBER_PROPERTY("BreakTorque", m_fBreakTorque),
-    EZ_MEMBER_PROPERTY("PairCollision", m_bPairCollision),
+    EZ_ACCESSOR_PROPERTY("BreakForce", GetBreakForce, SetBreakForce),
+    EZ_ACCESSOR_PROPERTY("BreakTorque", GetBreakTorque, SetBreakTorque),
+    EZ_ACCESSOR_PROPERTY("PairCollision", GetPairCollision, SetPairCollision),
     EZ_ACCESSOR_PROPERTY("ParentActor", DummyGetter, SetParentActor)->AddAttributes(new ezGameObjectReferenceAttribute()),
     EZ_ACCESSOR_PROPERTY("ChildActor", DummyGetter, SetChildActor)->AddAttributes(new ezGameObjectReferenceAttribute()),
   }
   EZ_END_PROPERTIES;
-    EZ_BEGIN_ATTRIBUTES
+  EZ_BEGIN_ATTRIBUTES
   {
     new ezCategoryAttribute("Physics/Joints"),
   }
@@ -33,10 +33,31 @@ EZ_BEGIN_STATIC_REFLECTED_ENUM(ezPxJointLimitMode, 1)
   EZ_ENUM_CONSTANTS(ezPxJointLimitMode::NoLimit, ezPxJointLimitMode::HardLimit, ezPxJointLimitMode::SoftLimit)
 EZ_END_STATIC_REFLECTED_ENUM;
 
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezPxJointDriveMode, 1)
+  EZ_ENUM_CONSTANTS(ezPxJointDriveMode::NoDrive, ezPxJointDriveMode::DriveAndSpin, ezPxJointDriveMode::DriveAndBrake)
+EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
 ezPxJointComponent::ezPxJointComponent() = default;
 ezPxJointComponent::~ezPxJointComponent() = default;
+
+void ezPxJointComponent::SetBreakForce(float value)
+{
+  m_fBreakForce = value;
+  QueueApplySettings();
+}
+
+void ezPxJointComponent::SetBreakTorque(float value)
+{
+  m_fBreakTorque = value;
+  QueueApplySettings();
+}
+
+void ezPxJointComponent::SetPairCollision(bool value)
+{
+  m_bPairCollision = value;
+  QueueApplySettings();
+}
 
 void ezPxJointComponent::OnSimulationStarted()
 {
@@ -58,14 +79,7 @@ void ezPxJointComponent::OnSimulationStarted()
   CreateJointType(pActorA, tLocalToActorA, pActorB, tLocalToActorB);
   EZ_ASSERT_DEV(m_pJoint != nullptr, "Joint creation failed");
 
-  if (m_fBreakForce > 0.0f || m_fBreakTorque > 0.0f)
-  {
-    const float fBreakForce = m_fBreakForce <= 0.0f ? ezMath::MaxValue<float>() : m_fBreakForce;
-    const float fBreakTorque = m_fBreakTorque <= 0.0f ? ezMath::MaxValue<float>() : m_fBreakTorque;
-    m_pJoint->setBreakForce(fBreakForce, fBreakTorque);
-
-    pModule->m_BreakableJoints[m_pJoint->getConstraint()] = GetHandle();
-  }
+  ApplySettings();
 
   m_pJoint->setConstraintFlag(PxConstraintFlag::eCOLLISION_ENABLED, m_bPairCollision);
 }
@@ -163,6 +177,21 @@ void ezPxJointComponent::SetActors(ezGameObjectHandle hActorA, const ezTransform
 
   m_localFrameA = localFrameA;
   m_localFrameB = localFrameB;
+}
+
+void ezPxJointComponent::ApplySettings()
+{
+  const float fBreakForce = m_fBreakForce <= 0.0f ? ezMath::MaxValue<float>() : m_fBreakForce;
+  const float fBreakTorque = m_fBreakTorque <= 0.0f ? ezMath::MaxValue<float>() : m_fBreakTorque;
+  m_pJoint->setBreakForce(fBreakForce, fBreakTorque);
+
+  if (m_fBreakForce > 0.0f || m_fBreakTorque > 0.0f)
+  {
+    ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
+    pModule->m_BreakableJoints[m_pJoint->getConstraint()] = GetHandle();
+  }
+
+  m_pJoint->setConstraintFlag(PxConstraintFlag::eCOLLISION_ENABLED, m_bPairCollision);
 }
 
 ezResult ezPxJointComponent::FindParentBody(physx::PxRigidActor*& pActor)
@@ -294,6 +323,17 @@ ezResult ezPxJointComponent::FindChildBody(physx::PxRigidActor*& pActor)
   }
 
   return EZ_SUCCESS;
+}
+
+void ezPxJointComponent::QueueApplySettings()
+{
+  if (m_pJoint == nullptr)
+    return;
+
+  if (ezPhysXWorldModule* pModule = GetWorld()->GetModule<ezPhysXWorldModule>())
+  {
+    pModule->m_RequireUpdate.PushBack(GetHandle());
+  }
 }
 
 EZ_STATICLINK_FILE(PhysXPlugin, PhysXPlugin_Joints_Implementation_PxJointComponent);
