@@ -47,12 +47,10 @@ void ezPx6DOFJointComponent::SerializeComponent(ezWorldWriter& stream) const
   s << m_fAngularDamping;
 }
 
-
 void ezPx6DOFJointComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
   const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-
 
   auto& s = stream.GetStream();
 
@@ -64,10 +62,11 @@ void ezPx6DOFJointComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fAngularDamping;
 }
 
-PxJoint* ezPx6DOFJointComponent::CreateJointType(PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1,
+void ezPx6DOFJointComponent::CreateJointType(PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1,
   const PxTransform& localFrame1)
 {
   PxD6Joint* pJoint = PxD6JointCreate(*(ezPhysX::GetSingleton()->GetPhysXAPI()), actor0, localFrame0, actor1, localFrame1);
+  m_pJoint = pJoint;
 
   if (pJoint != nullptr)
   {
@@ -85,8 +84,6 @@ PxJoint* ezPx6DOFJointComponent::CreateJointType(PxRigidActor* actor0, const PxT
 
     pJoint->setDrive(PxD6Drive::eSLERP, PxD6JointDrive(m_fAngularStiffness, m_fAngularDamping, PX_MAX_F32, true));
   }
-
-  return pJoint;
 }
 
 

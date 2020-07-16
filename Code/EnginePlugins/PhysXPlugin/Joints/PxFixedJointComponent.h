@@ -2,7 +2,7 @@
 
 #include <PhysXPlugin/Joints/PxJointComponent.h>
 
-typedef ezComponentManager<class ezPxFixedJointComponent, ezBlockStorageType::Compact> ezPxFixedJointComponentManager;
+using ezPxFixedJointComponentManager = ezComponentManager<class ezPxFixedJointComponent, ezBlockStorageType::Compact>;
 
 class EZ_PHYSXPLUGIN_DLL ezPxFixedJointComponent : public ezPxJointComponent
 {
@@ -12,7 +12,7 @@ class EZ_PHYSXPLUGIN_DLL ezPxFixedJointComponent : public ezPxJointComponent
   // ezPxFixedJointComponent
 
 protected:
-  virtual physx::PxJoint* CreateJointType(physx::PxRigidActor* actor0, const physx::PxTransform& localFrame0, physx::PxRigidActor* actor1, const physx::PxTransform& localFrame1) override;
+  virtual void CreateJointType(physx::PxRigidActor* actor0, const physx::PxTransform& localFrame0, physx::PxRigidActor* actor1, const physx::PxTransform& localFrame1) override;
 
   //////////////////////////////////////////////////////////////////////////
   // ezPxFixedJointComponent

@@ -8,16 +8,24 @@
 using namespace physx;
 
 // clang-format off
-EZ_BEGIN_COMPONENT_TYPE(ezPxPrismaticJointComponent, 1, ezComponentMode::Static)
+EZ_BEGIN_COMPONENT_TYPE(ezPxPrismaticJointComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
+    EZ_ENUM_ACCESSOR_PROPERTY("LimitMode", ezPxJointLimitMode, GetLimitMode, SetLimitMode),
     EZ_ACCESSOR_PROPERTY("LowerLimit", GetLowerLimitDistance, SetLowerLimitDistance),
     EZ_ACCESSOR_PROPERTY("UpperLimit", GetUpperLimitDistance, SetUpperLimitDistance),
-    EZ_ACCESSOR_PROPERTY("Stiffness", GetSpringStiffness, SetSpringStiffness)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_ACCESSOR_PROPERTY("Damping", GetSpringDamping, SetSpringDamping)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_ACCESSOR_PROPERTY("SpringStiffness", GetSpringStiffness, SetSpringStiffness)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
+    EZ_ACCESSOR_PROPERTY("SpringDamping", GetSpringDamping, SetSpringDamping)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
   }
   EZ_END_PROPERTIES;
+
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 1.0f, ezColor::Orange, "UpperLimit"),
+    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 1.0f, ezColor::Teal, "LowerLimit"),
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
@@ -35,12 +43,15 @@ void ezPxPrismaticJointComponent::SerializeComponent(ezWorldWriter& stream) cons
   s << m_fUpperLimitDistance;
   s << m_fSpringStiffness;
   s << m_fSpringDamping;
+
+  // version 2
+  s << m_LimitMode;
 }
 
 void ezPxPrismaticJointComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
-  //const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
+  const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
 
   auto& s = stream.GetStream();
 
@@ -48,68 +59,75 @@ void ezPxPrismaticJointComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fUpperLimitDistance;
   s >> m_fSpringStiffness;
   s >> m_fSpringDamping;
+
+  if (uiVersion >= 2)
+  {
+    s >> m_LimitMode;
+  }
+}
+
+void ezPxPrismaticJointComponent::SetLimitMode(ezPxJointLimitMode::Enum mode)
+{
+  m_LimitMode = mode;
+  ApplyLimits();
 }
 
 void ezPxPrismaticJointComponent::SetLowerLimitDistance(float f)
 {
   m_fLowerLimitDistance = f;
-  ApplyLimits(m_pJoint);
+  ApplyLimits();
 }
 
 void ezPxPrismaticJointComponent::SetUpperLimitDistance(float f)
 {
   m_fUpperLimitDistance = f;
-  ApplyLimits(m_pJoint);
+  ApplyLimits();
 }
 
 void ezPxPrismaticJointComponent::SetSpringStiffness(float f)
 {
   m_fSpringStiffness = f;
-  ApplyLimits(m_pJoint);
+  ApplyLimits();
 }
 
 void ezPxPrismaticJointComponent::SetSpringDamping(float f)
 {
   m_fSpringDamping = f;
-  ApplyLimits(m_pJoint);
+  ApplyLimits();
 }
 
-void ezPxPrismaticJointComponent::ApplyLimits(physx::PxJoint* pJoint0)
+void ezPxPrismaticJointComponent::ApplyLimits()
 {
-  if (pJoint0 == nullptr)
+  if (m_pJoint == nullptr)
     return;
 
-  auto pJoint = static_cast<PxPrismaticJoint*>(pJoint0);
+  auto pJoint = static_cast<PxPrismaticJoint*>(m_pJoint);
 
-  if (m_fLowerLimitDistance < m_fUpperLimitDistance)
-  {
-    pJoint->setPrismaticJointFlag(PxPrismaticJointFlag::eLIMIT_ENABLED, true);
+  pJoint->setPrismaticJointFlag(PxPrismaticJointFlag::eLIMIT_ENABLED, m_LimitMode != ezPxJointLimitMode::NoLimit);
 
-    if (m_fSpringStiffness <= 0)
-    {
-      PxJointLinearLimitPair limit(m_fLowerLimitDistance, m_fUpperLimitDistance, PxSpring(0, 0));
-      pJoint->setLimit(limit);
-    }
-    else
-    {
-      PxJointLinearLimitPair limit(m_fLowerLimitDistance, m_fUpperLimitDistance, PxSpring(ezMath::Max(0.0f, m_fSpringStiffness), ezMath::Max(0.0f, m_fSpringDamping)));
-      pJoint->setLimit(limit);
-    }
-  }
-  else
+  if (m_LimitMode != ezPxJointLimitMode::NoLimit)
   {
-    pJoint->setPrismaticJointFlag(PxPrismaticJointFlag::eLIMIT_ENABLED, false);
+    float low = m_fLowerLimitDistance;
+    float high = m_fUpperLimitDistance;
+
+    if (low > high)
+      ezMath::Swap(low, high);
+
+    PxJointLinearLimitPair limit(low, high, PxSpring(0, 0));
+
+    if (m_LimitMode == ezPxJointLimitMode::SoftLimit)
+    {
+      limit.stiffness = ezMath::Max(0.1f, m_fSpringStiffness);
+      limit.damping = ezMath::Max(0.1f, m_fSpringDamping);
+    }
+
+    pJoint->setLimit(limit);
   }
 }
 
-PxJoint* ezPxPrismaticJointComponent::CreateJointType(PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
+void ezPxPrismaticJointComponent::CreateJointType(PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
 {
-  PxPrismaticJoint* pJoint = PxPrismaticJointCreate(*(ezPhysX::GetSingleton()->GetPhysXAPI()), actor0, localFrame0, actor1, localFrame1);
+  m_pJoint = PxPrismaticJointCreate(*(ezPhysX::GetSingleton()->GetPhysXAPI()), actor0, localFrame0, actor1, localFrame1);
 
-  if (pJoint == nullptr)
-    return nullptr;
-
-  ApplyLimits(pJoint);
-
-  return pJoint;
+  ApplyLimits();
 }

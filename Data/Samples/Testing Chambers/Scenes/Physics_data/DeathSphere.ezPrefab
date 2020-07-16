@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10774239343418284443,5682990634429688481}}
-		u4 %Hash{3984971696385330414}
+		u4 %Hash{8781832457700745768}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{6076156777380213581,10156812426224632989}}
@@ -21,6 +21,7 @@ o
 		{
 			s{"{ 618ee743-ed04-4fac-bf5f-572939db2f1d }"}
 			s{"{ 9fc82cb4-e800-cc3d-feed-61a7c88e2a20 }"}
+			s{"{ fb5f9ced-8372-4cb1-9a72-76e4ec78f156 }"}
 		}
 	}
 }
@@ -148,9 +149,9 @@ o
 	p
 	{
 		b %Active{1}
-		Time %DelayRange{d{0x0000000000002440}}
-		Time %MinDelay{d{0x0000000000002440}}
-		s %TimeoutPrefab{""}
+		Time %DelayRange{d{0x0000000000001040}}
+		Time %MinDelay{d{0x0000000000001840}}
+		s %TimeoutPrefab{"{ fb5f9ced-8372-4cb1-9a72-76e4ec78f156 }"}
 	}
 }
 }

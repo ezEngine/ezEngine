@@ -28,6 +28,11 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPxJointComponent, 2)
   EZ_END_ATTRIBUTES;
 }
 EZ_END_ABSTRACT_COMPONENT_TYPE
+
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezPxJointLimitMode, 1)
+  EZ_ENUM_CONSTANTS(ezPxJointLimitMode::NoLimit, ezPxJointLimitMode::HardLimit, ezPxJointLimitMode::SoftLimit)
+EZ_END_STATIC_REFLECTED_ENUM;
+
 // clang-format on
 
 ezPxJointComponent::ezPxJointComponent() = default;
@@ -50,7 +55,7 @@ void ezPxJointComponent::OnSimulationStarted()
   ezPhysXWorldModule* pModule = GetWorld()->GetOrCreateModule<ezPhysXWorldModule>();
   EZ_PX_WRITE_LOCK(*(pModule->GetPxScene()));
 
-  m_pJoint = CreateJointType(pActorA, tLocalToActorA, pActorB, tLocalToActorB);
+  CreateJointType(pActorA, tLocalToActorA, pActorB, tLocalToActorB);
   EZ_ASSERT_DEV(m_pJoint != nullptr, "Joint creation failed");
 
   if (m_fBreakForce > 0.0f || m_fBreakTorque > 0.0f)

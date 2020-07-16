@@ -2,7 +2,7 @@
 
 #include <PhysXPlugin/Joints/PxJointComponent.h>
 
-typedef ezComponentManager<class ezPxPrismaticJointComponent, ezBlockStorageType::Compact> ezPxPrismaticJointComponentManager;
+using ezPxPrismaticJointComponentManager = ezComponentManager<class ezPxPrismaticJointComponent, ezBlockStorageType::Compact>;
 
 class EZ_PHYSXPLUGIN_DLL ezPxPrismaticJointComponent : public ezPxJointComponent
 {
@@ -20,7 +20,7 @@ public:
   // ezPxJointComponent
 
 protected:
-  virtual physx::PxJoint* CreateJointType(physx::PxRigidActor* actor0, const physx::PxTransform& localFrame0, physx::PxRigidActor* actor1, const physx::PxTransform& localFrame1) override;
+  virtual void CreateJointType(physx::PxRigidActor* actor0, const physx::PxTransform& localFrame0, physx::PxRigidActor* actor1, const physx::PxTransform& localFrame1) override;
 
 
   //////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,9 @@ protected:
 public:
   ezPxPrismaticJointComponent();
   ~ezPxPrismaticJointComponent();
+
+  void SetLimitMode(ezPxJointLimitMode::Enum mode);                     // [ property ]
+  ezPxJointLimitMode::Enum GetLimitMode() const { return m_LimitMode; } // [ property ]
 
   void SetLowerLimitDistance(float f);                                  // [ property ]
   float GetLowerLimitDistance() const { return m_fLowerLimitDistance; } // [ property ]
@@ -43,10 +46,11 @@ public:
   float GetSpringDamping() const { return m_fSpringDamping; } // [ property ]
 
 protected:
+  ezEnum<ezPxJointLimitMode> m_LimitMode;
   float m_fLowerLimitDistance = 0;
   float m_fUpperLimitDistance = 0;
   float m_fSpringStiffness = 0;
   float m_fSpringDamping = 0;
 
-  void ApplyLimits(physx::PxJoint* pJoint);
+  void ApplyLimits();
 };

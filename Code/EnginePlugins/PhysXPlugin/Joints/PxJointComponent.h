@@ -2,6 +2,22 @@
 
 #include <PhysXPlugin/Components/PxComponent.h>
 
+struct ezPxJointLimitMode
+{
+  using StorageType = ezInt8;
+
+  enum Enum
+  {
+    NoLimit,
+    HardLimit,
+    SoftLimit,
+
+    Default = NoLimit
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_PHYSXPLUGIN_DLL, ezPxJointLimitMode);
+
 class EZ_PHYSXPLUGIN_DLL ezPxJointComponent : public ezPxComponent
 {
   EZ_DECLARE_ABSTRACT_COMPONENT_TYPE(ezPxJointComponent, ezPxComponent);
@@ -38,7 +54,7 @@ protected:
   ezResult FindParentBody(physx::PxRigidActor*& pActor);
   ezResult FindChildBody(physx::PxRigidActor*& pActor);
 
-  virtual physx::PxJoint* CreateJointType(physx::PxRigidActor* actor0, const physx::PxTransform& localFrame0, physx::PxRigidActor* actor1, const physx::PxTransform& localFrame1) = 0;
+  virtual void CreateJointType(physx::PxRigidActor* actor0, const physx::PxTransform& localFrame0, physx::PxRigidActor* actor1, const physx::PxTransform& localFrame1) = 0;
 
   ezGameObjectHandle m_hActorA;
   ezGameObjectHandle m_hActorB;

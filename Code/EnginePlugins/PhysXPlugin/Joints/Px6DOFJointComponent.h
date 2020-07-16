@@ -27,7 +27,7 @@ struct EZ_PHYSXPLUGIN_DLL ezPxAxis
 EZ_DECLARE_FLAGS_OPERATORS(ezPxAxis);
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_PHYSXPLUGIN_DLL, ezPxAxis);
 
-typedef ezComponentManager<class ezPx6DOFJointComponent, ezBlockStorageType::Compact> ezPx6DOFJointComponentManager;
+using ezPx6DOFJointComponentManager = ezComponentManager<class ezPx6DOFJointComponent, ezBlockStorageType::Compact>;
 
 class EZ_PHYSXPLUGIN_DLL ezPx6DOFJointComponent : public ezPxJointComponent
 {
@@ -45,7 +45,7 @@ public:
   // ezPxJointComponent
 
 protected:
-  virtual physx::PxJoint* CreateJointType(physx::PxRigidActor* actor0, const physx::PxTransform& localFrame0, physx::PxRigidActor* actor1, const physx::PxTransform& localFrame1) override;
+  virtual void CreateJointType(physx::PxRigidActor* actor0, const physx::PxTransform& localFrame0, physx::PxRigidActor* actor1, const physx::PxTransform& localFrame1) override;
 
 
   //////////////////////////////////////////////////////////////////////////
