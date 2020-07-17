@@ -79,3 +79,8 @@ constexpr EZ_ALWAYS_INLINE ezUInt32 ezHashingUtils::xxHash32String(const char (&
 {
   return ezInternal::CompileTimeXxHash32(str, uiSeed);
 }
+
+EZ_ALWAYS_INLINE ezUInt32 ezHashingUtils::xxHash32String(StringWrapper str, ezUInt32 uiSeed)
+{
+  return xxHash32(str.m_str, std::strlen(str.m_str), uiSeed);
+}
