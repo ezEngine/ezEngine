@@ -2,6 +2,5 @@ Fmod.Settings.Project;Fmod Project Settings...
 Fmod.Mute;Mute Sounds
 Fmod.MasterVolume;Volume
 Sound;Sound
-ezFmodEventComponent;Fmod Event
+ezFmodEventComponent;Fmod Sound Event
 ezFmodListenerComponent;Fmod Listener
-ezFmodReverbComponent;Fmod Reverb Volume
