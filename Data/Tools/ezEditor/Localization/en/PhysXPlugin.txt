@@ -40,3 +40,6 @@ ezOnPhysXContact::RollZReactions;Roll Z Reactions
 ezPxPrismaticJointComponent;PhysX Prismatic Joint
 ezPxRevoluteJointComponent;PhysX Revolute Joint
 ezPxSphericalJointComponent;PhysX Spherical Joint
+ezPxJointLimitMode::NoLimit; No Limit
+ezPxJointLimitMode::HardLimit; Hard Limit
+ezPxJointLimitMode::SoftLimit; Soft Limit

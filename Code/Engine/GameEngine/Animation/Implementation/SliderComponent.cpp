@@ -19,6 +19,12 @@ EZ_BEGIN_COMPONENT_TYPE(ezSliderComponent, 3, ezComponentMode::Dynamic)
     EZ_MEMBER_PROPERTY("RandomStart", m_RandomStart)->AddAttributes(new ezClampValueAttribute(ezTime::Zero(), ezVariant())),
   }
   EZ_END_PROPERTIES;
+
+  EZ_BEGIN_ATTRIBUTES
+  {
+    new ezDirectionVisualizerAttribute("Axis", 1.0, ezColor::MediumPurple, "Distance")
+  }
+  EZ_END_ATTRIBUTES;
 }
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on

@@ -203,13 +203,13 @@ ezResult ezPxJointComponent::FindParentBody(physx::PxRigidActor*& pActor)
   {
     if (!GetWorld()->TryGetObject(m_hActorA, pObject))
     {
-      ezLog::Error("{0} '{1}' references a non-existing object as its parent actor. Joint is ignored.", GetDynamicRTTI()->GetTypeName(), GetOwner()->GetName());
+      ezLog::Error("{0} '{1}' parent reference is a non-existing object. Joint is ignored.", GetDynamicRTTI()->GetTypeName(), GetOwner()->GetName());
       return EZ_FAILURE;
     }
 
     if (!pObject->TryGetComponentOfBaseType(pRbComp))
     {
-      ezLog::Error("{0} '{1}' references an object without a ezPxDynamicActorComponent as its parent actor. Joint is ignored.", GetDynamicRTTI()->GetTypeName(), GetOwner()->GetName());
+      ezLog::Error("{0} '{1}' parent reference is an object without a ezPxDynamicActorComponent. Joint is ignored.", GetDynamicRTTI()->GetTypeName(), GetOwner()->GetName());
       return EZ_FAILURE;
     }
   }
@@ -236,7 +236,7 @@ ezResult ezPxJointComponent::FindParentBody(physx::PxRigidActor*& pActor)
 
   if (pActor == nullptr)
   {
-    ezLog::Error("{0} '{1}' references an object with an invalid ezPxDynamicActorComponent as its parent actor. Joint is ignored.", GetDynamicRTTI()->GetTypeName(), GetOwner()->GetName());
+    ezLog::Error("{0} '{1}' parent reference is an object with an invalid ezPxDynamicActorComponent. Joint is ignored.", GetDynamicRTTI()->GetTypeName(), GetOwner()->GetName());
     return EZ_FAILURE;
   }
 
@@ -258,57 +258,44 @@ ezResult ezPxJointComponent::FindChildBody(physx::PxRigidActor*& pActor)
   ezGameObject* pObject = nullptr;
   ezPxDynamicActorComponent* pRbComp = nullptr;
 
-  if (!m_hActorB.IsInvalidated())
+  if (m_hActorB.IsInvalidated())
   {
-    if (!GetWorld()->TryGetObject(m_hActorB, pObject))
-    {
-      ezLog::Error("{0} '{1}' references a non-existing object as its child actor. Joint is ignored.", GetDynamicRTTI()->GetTypeName(), GetOwner()->GetName());
-      return EZ_FAILURE;
-    }
-
-    if (!pObject->TryGetComponentOfBaseType(pRbComp))
-    {
-      ezLog::Error("{0} '{1}' references an object without a ezPxDynamicActorComponent as its child actor. Joint is ignored.", GetDynamicRTTI()->GetTypeName(), GetOwner()->GetName());
-      return EZ_FAILURE;
-    }
-  }
-  else
-  {
-    if (GetOwner()->TryGetComponentOfBaseType(pRbComp))
-    {
-      pObject = GetOwner();
-    }
-    else
-    {
-      for (auto itChild = GetOwner()->GetChildren(); itChild.IsValid(); itChild.Next())
-      {
-        if (itChild->TryGetComponentOfBaseType(pRbComp))
-        {
-          pObject = itChild;
-          break;
-        }
-      }
-    }
-  }
-
-  if (pObject == nullptr || pRbComp == nullptr)
-  {
-    ezLog::Error("{0} '{1}' does not have a direct child with a ezPxDynamicActorComponent component. Joint is ignored.", GetDynamicRTTI()->GetTypeName(), GetOwner()->GetName());
+    ezLog::Error("{0} '{1}' has no child actor reference. Joint is ignored.", GetDynamicRTTI()->GetTypeName(), GetOwner()->GetName());
     return EZ_FAILURE;
   }
 
-  if (pRbComp->GetKinematic())
+  if (!GetWorld()->TryGetObject(m_hActorB, pObject))
   {
-    ezLog::Error("{0} '{1}' has a child with a ezPxDynamicActorComponent which is set to be kinematic. Joint is ignored.", GetDynamicRTTI()->GetTypeName(), GetOwner()->GetName());
+    ezLog::Error("{0} '{1}' references a non-existing object as its child actor. Joint is ignored.", GetDynamicRTTI()->GetTypeName(), GetOwner()->GetName());
     return EZ_FAILURE;
   }
+
+  if (!pObject->TryGetComponentOfBaseType(pRbComp))
+  {
+    // this makes it possible to link the joint to a prefab, because it may skip the top level hierarchy of the prefab
+    pObject = pObject->SearchForChildByNameSequence("/", ezGetStaticRTTI<ezPxDynamicActorComponent>());
+
+    if (pObject == nullptr)
+    {
+      ezLog::Error("{0} '{1}' child actor reference is an object without a ezPxDynamicActorComponent. Joint is ignored.", GetDynamicRTTI()->GetTypeName(), GetOwner()->GetName());
+      return EZ_FAILURE;
+    }
+
+    pObject->TryGetComponentOfBaseType(pRbComp);
+  }
+
+  //if (pRbComp->GetKinematic())
+  //{
+  //  ezLog::Error("{0} '{1}' has a child with a ezPxDynamicActorComponent which is set to be kinematic. Joint is ignored.", GetDynamicRTTI()->GetTypeName(), GetOwner()->GetName());
+  //  return EZ_FAILURE;
+  //}
 
   pRbComp->EnsureSimulationStarted();
   pActor = pRbComp->GetActor();
 
   if (pActor == nullptr)
   {
-    ezLog::Error("{0} '{1}' references an object with an invalid ezPxDynamicActorComponent as its child actor. Joint is ignored.", GetDynamicRTTI()->GetTypeName(), GetOwner()->GetName());
+    ezLog::Error("{0} '{1}' child actor reference is an object with an invalid ezPxDynamicActorComponent. Joint is ignored.", GetDynamicRTTI()->GetTypeName(), GetOwner()->GetName());
     return EZ_FAILURE;
   }
 
