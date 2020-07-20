@@ -17,8 +17,9 @@ EZ_BEGIN_ABSTRACT_COMPONENT_TYPE(ezPxJointComponent, 2)
     EZ_ACCESSOR_PROPERTY("BreakForce", GetBreakForce, SetBreakForce),
     EZ_ACCESSOR_PROPERTY("BreakTorque", GetBreakTorque, SetBreakTorque),
     EZ_ACCESSOR_PROPERTY("PairCollision", GetPairCollision, SetPairCollision),
-    EZ_ACCESSOR_PROPERTY("ParentActor", DummyGetter, SetParentActor)->AddAttributes(new ezGameObjectReferenceAttribute()),
-    EZ_ACCESSOR_PROPERTY("ChildActor", DummyGetter, SetChildActor)->AddAttributes(new ezGameObjectReferenceAttribute()),
+    EZ_ACCESSOR_PROPERTY("ParentActor", DummyGetter, SetParentActorReference)->AddAttributes(new ezGameObjectReferenceAttribute()),
+    EZ_ACCESSOR_PROPERTY("ChildActor", DummyGetter, SetChildActorReference)->AddAttributes(new ezGameObjectReferenceAttribute()),
+    EZ_ACCESSOR_PROPERTY("ChildActorAnchor", DummyGetter, SetChildActorAnchorReference)->AddAttributes(new ezGameObjectReferenceAttribute()),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
@@ -144,26 +145,47 @@ void ezPxJointComponent::DeserializeComponent(ezWorldReader& stream)
   }
 }
 
-void ezPxJointComponent::SetParentActor(const char* szReference)
+void ezPxJointComponent::SetParentActorReference(const char* szReference)
 {
   auto resolver = GetWorld()->GetGameObjectReferenceResolver();
 
   if (!resolver.IsValid())
     return;
 
-  SetUserFlag(0, false);
-  m_hActorA = resolver(szReference, GetHandle(), "ParentActor");
+  SetParentActor(resolver(szReference, GetHandle(), "ParentActor"));
 }
 
-void ezPxJointComponent::SetChildActor(const char* szReference)
+void ezPxJointComponent::SetChildActorReference(const char* szReference)
 {
   auto resolver = GetWorld()->GetGameObjectReferenceResolver();
 
   if (!resolver.IsValid())
     return;
 
-  SetUserFlag(1, false);
-  m_hActorB = resolver(szReference, GetHandle(), "ChildActor");
+  SetChildActor(resolver(szReference, GetHandle(), "ChildActor"));
+}
+
+void ezPxJointComponent::SetChildActorAnchorReference(const char* szReference)
+{
+  auto resolver = GetWorld()->GetGameObjectReferenceResolver();
+
+  if (!resolver.IsValid())
+    return;
+
+  SetUserFlag(1, false); // local frame B is not valid
+  m_hActorBAnchor = resolver(szReference, GetHandle(), "ChildActorAnchor");
+}
+
+void ezPxJointComponent::SetParentActor(ezGameObjectHandle hActor)
+{
+  SetUserFlag(0, false); // local frame A is not valid
+  m_hActorA = hActor;
+}
+
+void ezPxJointComponent::SetChildActor(ezGameObjectHandle hActor)
+{
+  SetUserFlag(1, false); // local frame B is not valid
+  m_hActorB = hActor;
 }
 
 void ezPxJointComponent::SetActors(ezGameObjectHandle hActorA, const ezTransform& localFrameA, ezGameObjectHandle hActorB, const ezTransform& localFrameB)
@@ -172,6 +194,7 @@ void ezPxJointComponent::SetActors(ezGameObjectHandle hActorA, const ezTransform
   m_hActorB = hActorB;
 
   // prevent FindParentBody() and FindChildBody() from overwriting the local frames
+  // local frame A and B are already valid
   SetUserFlag(0, true);
   SetUserFlag(1, true);
 
@@ -181,6 +204,8 @@ void ezPxJointComponent::SetActors(ezGameObjectHandle hActorA, const ezTransform
 
 void ezPxJointComponent::ApplySettings()
 {
+  SetUserFlag(2, false);
+
   const float fBreakForce = m_fBreakForce <= 0.0f ? ezMath::MaxValue<float>() : m_fBreakForce;
   const float fBreakTorque = m_fBreakTorque <= 0.0f ? ezMath::MaxValue<float>() : m_fBreakTorque;
   m_pJoint->setBreakForce(fBreakForce, fBreakTorque);
@@ -215,9 +240,17 @@ ezResult ezPxJointComponent::FindParentBody(physx::PxRigidActor*& pActor)
   }
   else
   {
-    pObject = GetOwner()->GetParent();
+    pObject = GetOwner();
 
-    if (pObject == nullptr || !pObject->TryGetComponentOfBaseType(pRbComp))
+    while (pObject != nullptr)
+    {
+      if (pObject->TryGetComponentOfBaseType(pRbComp))
+        break;
+
+      pObject = pObject->GetParent();
+    }
+
+    if (pRbComp == nullptr)
     {
       pActor = nullptr;
 
@@ -260,13 +293,13 @@ ezResult ezPxJointComponent::FindChildBody(physx::PxRigidActor*& pActor)
 
   if (m_hActorB.IsInvalidated())
   {
-    ezLog::Error("{0} '{1}' has no child actor reference. Joint is ignored.", GetDynamicRTTI()->GetTypeName(), GetOwner()->GetName());
+    ezLog::Error("{0} '{1}' has no child reference. Joint is ignored.", GetDynamicRTTI()->GetTypeName(), GetOwner()->GetName());
     return EZ_FAILURE;
   }
 
   if (!GetWorld()->TryGetObject(m_hActorB, pObject))
   {
-    ezLog::Error("{0} '{1}' references a non-existing object as its child actor. Joint is ignored.", GetDynamicRTTI()->GetTypeName(), GetOwner()->GetName());
+    ezLog::Error("{0} '{1}' child reference is a non-existing object. Joint is ignored.", GetDynamicRTTI()->GetTypeName(), GetOwner()->GetName());
     return EZ_FAILURE;
   }
 
@@ -277,7 +310,7 @@ ezResult ezPxJointComponent::FindChildBody(physx::PxRigidActor*& pActor)
 
     if (pObject == nullptr)
     {
-      ezLog::Error("{0} '{1}' child actor reference is an object without a ezPxDynamicActorComponent. Joint is ignored.", GetDynamicRTTI()->GetTypeName(), GetOwner()->GetName());
+      ezLog::Error("{0} '{1}' child reference is an object without a ezPxDynamicActorComponent. Joint is ignored.", GetDynamicRTTI()->GetTypeName(), GetOwner()->GetName());
       return EZ_FAILURE;
     }
 
@@ -295,7 +328,7 @@ ezResult ezPxJointComponent::FindChildBody(physx::PxRigidActor*& pActor)
 
   if (pActor == nullptr)
   {
-    ezLog::Error("{0} '{1}' child actor reference is an object with an invalid ezPxDynamicActorComponent. Joint is ignored.", GetDynamicRTTI()->GetTypeName(), GetOwner()->GetName());
+    ezLog::Error("{0} '{1}' child reference is an object with an invalid ezPxDynamicActorComponent. Joint is ignored.", GetDynamicRTTI()->GetTypeName(), GetOwner()->GetName());
     return EZ_FAILURE;
   }
 
@@ -303,9 +336,20 @@ ezResult ezPxJointComponent::FindChildBody(physx::PxRigidActor*& pActor)
 
   if (GetUserFlag(1) == false)
   {
+    ezGameObject* pAnchorObject = GetOwner();
+
+    if (!m_hActorBAnchor.IsInvalidated())
+    {
+      if (!GetWorld()->TryGetObject(m_hActorBAnchor, pAnchorObject))
+      {
+        ezLog::Error("{0} '{1}' anchor reference is a non-existing object. Joint is ignored.", GetDynamicRTTI()->GetTypeName(), GetOwner()->GetName());
+        return EZ_FAILURE;
+      }
+    }
+
     // m_localFrameB is now valid
-    SetUserFlag(0, true);
-    m_localFrameB.SetLocalTransform(pObject->GetGlobalTransform(), GetOwner()->GetGlobalTransform());
+    SetUserFlag(1, true);
+    m_localFrameB.SetLocalTransform(pObject->GetGlobalTransform(), pAnchorObject->GetGlobalTransform());
     m_localFrameB.m_vPosition = m_localFrameB.m_vPosition.CompMul(pObject->GetGlobalScaling());
   }
 
@@ -316,6 +360,12 @@ void ezPxJointComponent::QueueApplySettings()
 {
   if (m_pJoint == nullptr)
     return;
+
+  // already in queue ?
+  if (GetUserFlag(2))
+    return;
+
+  SetUserFlag(2, true);
 
   if (ezPhysXWorldModule* pModule = GetWorld()->GetModule<ezPhysXWorldModule>())
   {

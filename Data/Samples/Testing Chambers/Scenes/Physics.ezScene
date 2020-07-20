@@ -11,7 +11,7 @@ o
 		s %AssetType{"Scene"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{16033299415433335720,5748835052109362040}}
-		u4 %Hash{7195690778552306676}
+		u4 %Hash{744090405173054201}
 		VarArray %MetaInfo{}
 		VarArray %Outputs{}
 		VarArray %References
@@ -806,6 +806,7 @@ o
 		f %BreakForce{0x0000FA43}
 		f %BreakTorque{0}
 		s %ChildActor{"{ e186ee64-4c56-f1df-700c-543a24434a0f }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{"{ 4b6c388e-b351-3c90-0c8f-6e7846fc9d23 }"}
 	}
@@ -1161,6 +1162,7 @@ o
 		f %BreakForce{0x0000FA43}
 		f %BreakTorque{0}
 		s %ChildActor{"{ ce8b1fe6-757b-cdc2-64bc-314441726350 }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{"{ 2232090a-63ab-bf85-7287-1b88faf125f0 }"}
 	}
@@ -1208,6 +1210,7 @@ o
 		f %BreakForce{0x0000FA43}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 9c8e3b9c-633c-82cb-cc14-04e3f784d3e2 }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{"{ 067385c6-ca37-cd7c-6897-1e211a3e27f7 }"}
 	}
@@ -1250,6 +1253,7 @@ o
 		f %BreakForce{0x0000FA43}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 149b494e-4dcc-c023-71aa-c1b9e16d5837 }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{""}
 	}
@@ -1625,6 +1629,7 @@ o
 		f %BreakForce{0x0000FA43}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 2232090a-63ab-bf85-7287-1b88faf125f0 }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{""}
 	}
@@ -1709,6 +1714,7 @@ o
 		f %BreakForce{0x0000FA43}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 4b6c388e-b351-3c90-0c8f-6e7846fc9d23 }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{""}
 	}
@@ -1739,6 +1745,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 9e6ee8a3-2a4c-1278-b8bc-5e04e30c27e4 }"}
+		s %ChildActorAnchor{""}
 		Angle %ConeLimitY{f{0}}
 		Angle %ConeLimitZ{f{0}}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -1759,6 +1766,7 @@ o
 		f %BreakForce{0x0000FA44}
 		f %BreakTorque{0}
 		s %ChildActor{"{ c5543951-2d96-60f2-3fb6-6adbe4953905 }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{"{ 6a7bba62-bf34-1af6-8691-a2ff0028b16c }"}
 	}
@@ -1774,6 +1782,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 1a030117-2c6b-4e4f-62b3-56676a0b1c25 }"}
+		s %ChildActorAnchor{""}
 		Angle %ConeLimitY{f{0}}
 		Angle %ConeLimitZ{f{0}}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -1845,6 +1854,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 45b954a5-00f0-c758-1e8b-97f46e1bf2e9 }"}
+		s %ChildActorAnchor{""}
 		Angle %ConeLimitY{f{0}}
 		Angle %ConeLimitZ{f{0}}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -1865,6 +1875,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ be3c743b-2641-7832-8eb5-bded2bed1178 }"}
+		s %ChildActorAnchor{""}
 		Angle %ConeLimitY{f{0}}
 		Angle %ConeLimitZ{f{0}}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -1993,6 +2004,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 78237cd5-a270-0e1c-d62f-f3e71e78310c }"}
+		s %ChildActorAnchor{""}
 		Angle %ConeLimitY{f{0}}
 		Angle %ConeLimitZ{f{0}}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -2013,6 +2025,7 @@ o
 		f %BreakForce{0x0000FA43}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 4b6c388e-b351-3c90-0c8f-6e7846fc9d23 }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{"{ 9adaeddc-e120-7e2d-bd9d-ce1134118036 }"}
 	}
@@ -2281,6 +2294,7 @@ o
 		f %BreakForce{0x0000FA44}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 119c9945-4b12-6a80-122b-f50bb864e40d }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{"{ 525a1c5e-abec-2968-5aca-c05e7ee36d9b }"}
 	}
@@ -2337,6 +2351,7 @@ o
 		f %BreakForce{0x0000FA43}
 		f %BreakTorque{0}
 		s %ChildActor{"{ c52c9400-1ffc-7e86-c09b-6120f4587624 }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{"{ 067385c6-ca37-cd7c-6897-1e211a3e27f7 }"}
 	}
@@ -2352,6 +2367,7 @@ o
 		f %BreakForce{0x0000FA43}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 55e23b14-f806-0f19-19a6-7eba0753090a }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{"{ ce8b1fe6-757b-cdc2-64bc-314441726350 }"}
 	}
@@ -2382,6 +2398,7 @@ o
 		f %BreakForce{0x0000FA43}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 5b4749d6-b902-33d4-2419-47e2d19f2210 }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{"{ c52c9400-1ffc-7e86-c09b-6120f4587624 }"}
 	}
@@ -2478,6 +2495,7 @@ o
 		f %BreakForce{0x0000FA44}
 		f %BreakTorque{0}
 		s %ChildActor{"{ cf2c4f93-6441-8f28-2176-57f7d7d99c30 }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{"{ 764d2e76-f01f-deb1-ad0f-aa038f16d0d1 }"}
 	}
@@ -2568,12 +2586,12 @@ o
 	p
 	{
 		b %Active{1}
-		f %AngularDamping{0xCDCC4C3E}
+		f %AngularDamping{0x0000003F}
 		b %ContinuousCollisionDetection{0}
 		f %Density{0x0000C842}
 		b %DisableGravity{0}
 		b %Kinematic{0}
-		f %LinearDamping{0xCDCC4C3E}
+		f %LinearDamping{0xCDCCCC3D}
 		f %Mass{0x0000A040}
 		f %MaxContactImpulse{0x00247449}
 	}
@@ -2849,6 +2867,7 @@ o
 		f %BreakForce{0x0000FA43}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 1537206e-e0b2-4173-172b-b76c31a42d29 }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{""}
 	}
@@ -3383,12 +3402,12 @@ o
 	p
 	{
 		b %Active{1}
-		f %AngularDamping{0xCDCC4C3D}
+		f %AngularDamping{0xCDCCCC3D}
 		b %ContinuousCollisionDetection{0}
 		f %Density{0x0000C842}
 		b %DisableGravity{0}
 		b %Kinematic{0}
-		f %LinearDamping{0xCDCCCC3D}
+		f %LinearDamping{0}
 		f %Mass{0x0000A040}
 		f %MaxContactImpulse{0x00247449}
 	}
@@ -4746,6 +4765,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 41b009d4-7294-4958-5d55-1406e42737d5 }"}
+		s %ChildActorAnchor{""}
 		s %LimitMode{"ezPxJointLimitMode::HardLimit"}
 		f %LowerLimit{0}
 		b %PairCollision{0}
@@ -5691,6 +5711,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 0f9f1a92-815c-a991-9c9b-8cdd2f716e75 }"}
+		s %ChildActorAnchor{""}
 		s %DriveMode{"ezPxJointDriveMode::NoDrive"}
 		f %DriveVelocity{0}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -5738,6 +5759,7 @@ o
 		f %BreakForce{0x0000FA43}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 68de0992-cee1-3336-25f6-a0b0ea23f0c8 }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{"{ e186ee64-4c56-f1df-700c-543a24434a0f }"}
 	}
@@ -6211,6 +6233,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 72129b50-506f-ea7a-4c46-56b495468f49 }"}
+		s %ChildActorAnchor{""}
 		s %DriveMode{"ezPxJointDriveMode::NoDrive"}
 		f %DriveVelocity{0}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -6357,6 +6380,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 34914e8d-b692-45dc-9226-a65a482a907c }"}
+		s %ChildActorAnchor{""}
 		s %DriveMode{"ezPxJointDriveMode::NoDrive"}
 		f %DriveVelocity{0}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -6395,6 +6419,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ d31c2434-baf8-400c-c6dc-c8c02576f13e }"}
+		s %ChildActorAnchor{""}
 		Angle %ConeLimitY{f{0}}
 		Angle %ConeLimitZ{f{0}}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -6442,6 +6467,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 18692f0c-0d59-8f0b-293c-93d565e0ada4 }"}
+		s %ChildActorAnchor{""}
 		Angle %ConeLimitY{f{0}}
 		Angle %ConeLimitZ{f{0}}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -6596,6 +6622,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 4eb03ca8-bd17-7be3-70d3-c023ad74e67f }"}
+		s %ChildActorAnchor{""}
 		Angle %ConeLimitY{f{0}}
 		Angle %ConeLimitZ{f{0}}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -6920,12 +6947,12 @@ o
 	p
 	{
 		b %Active{1}
-		f %AngularDamping{0x6666663F}
+		f %AngularDamping{0x00000040}
 		b %ContinuousCollisionDetection{0}
 		f %Density{0x0000C842}
 		b %DisableGravity{0}
 		b %Kinematic{0}
-		f %LinearDamping{0x6666663F}
+		f %LinearDamping{0x0000003F}
 		f %Mass{0x0000A040}
 		f %MaxContactImpulse{0x00247449}
 	}
@@ -7150,6 +7177,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 8bcaa9db-b705-4563-b3c3-f3cd7f353289 }"}
+		s %ChildActorAnchor{""}
 		s %FreeAngularAxis{"ezPxAxis::X|ezPxAxis::Y|ezPxAxis::Z"}
 		s %FreeLinearAxis{""}
 		f %LinearDamping{0x00002041}
@@ -7242,6 +7270,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 7a669036-919c-f4ec-2cab-01b1b184bc44 }"}
+		s %ChildActorAnchor{""}
 		Angle %ConeLimitY{f{0}}
 		Angle %ConeLimitZ{f{0}}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -7326,6 +7355,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ f2e9afcc-b6ed-a5c6-9cd5-27aa6e56dcd2 }"}
+		s %ChildActorAnchor{""}
 		Angle %ConeLimitY{f{0}}
 		Angle %ConeLimitZ{f{0}}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -7652,6 +7682,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ acd0b866-331c-3bb1-e44f-5da461e1fb66 }"}
+		s %ChildActorAnchor{""}
 		Angle %ConeLimitY{f{0}}
 		Angle %ConeLimitZ{f{0}}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -7895,6 +7926,7 @@ o
 		f %BreakForce{0x0000FA44}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 3615c8bb-57be-9511-4ddd-6f085f86d228 }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{"{ 5a08dad3-9bf1-4a5a-a022-59ad6fb9345f }"}
 	}
@@ -7970,6 +8002,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 034670e4-4edb-f051-58d7-211f6b18a609 }"}
+		s %ChildActorAnchor{""}
 		Angle %ConeLimitY{f{0}}
 		Angle %ConeLimitZ{f{0}}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -8135,6 +8168,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 826f5c68-e85c-3504-0848-502992085980 }"}
+		s %ChildActorAnchor{""}
 		s %DriveMode{"ezPxJointDriveMode::NoDrive"}
 		f %DriveVelocity{0}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -8384,7 +8418,7 @@ o
 			Uuid{u4{5612655176029099420,5333067376175281345}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0x000000BF,0}}
+		Vec3 %LocalPosition{f{0,0x000000BF,0x031709B4}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x00008040,0x0000803F,0x0000A041}}
 		f %LocalUniformScaling{0x0000803F}
@@ -8408,6 +8442,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ f98f7bba-2b1d-39a0-dc1b-30bbd8746fbb }"}
+		s %ChildActorAnchor{""}
 		s %DriveMode{"ezPxJointDriveMode::NoDrive"}
 		f %DriveVelocity{0}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -8739,6 +8774,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 90762f0e-e7da-64dd-ec2a-5ed30881bbfe }"}
+		s %ChildActorAnchor{""}
 		Angle %ConeLimitY{f{0}}
 		Angle %ConeLimitZ{f{0}}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -8909,8 +8945,8 @@ o
 			Uuid{u4{18279848668129382316,5576895473551350553}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0x00CECC3D,0x00CC4CBD,0}}
-		Quat %LocalRotation{f{0,0,0,0x0000803F}}
+		Vec3 %LocalPosition{f{0x00CECC3D,0x00CA4CBD,0xEF99B9BF}}
+		Quat %LocalRotation{f{0x6B1B2AB7,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803E,0x0000803F,0xCDCC4C3D}}
 		f %LocalUniformScaling{0x0000803F}
 		s %Mode{"ezObjectMode::Automatic"}
@@ -9162,7 +9198,7 @@ o
 			Uuid{u4{431158899570140037,5227843586494605358}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0,0x707FCEBF}}
+		Vec3 %LocalPosition{f{0,0xD8D491B4,0x707FCEBF}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x0000803F,0x0000803F,0x0000803F}}
 		f %LocalUniformScaling{0x0000803F}
@@ -9743,7 +9779,7 @@ o
 			Uuid{u4{15954704768915471762,5269060703312972169}}
 		}
 		s %GlobalKey{""}
-		Vec3 %LocalPosition{f{0,0x0000003F,0}}
+		Vec3 %LocalPosition{f{0,0x0000003F,0x03170934}}
 		Quat %LocalRotation{f{0,0,0,0x0000803F}}
 		Vec3 %LocalScaling{f{0x00008040,0x0000803F,0x0000A041}}
 		f %LocalUniformScaling{0x0000803F}
@@ -9800,6 +9836,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 2bf9a3ea-cc9e-8064-94c0-8bae88d1aedd }"}
+		s %ChildActorAnchor{""}
 		s %DriveMode{"ezPxJointDriveMode::NoDrive"}
 		f %DriveVelocity{0}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -10360,6 +10397,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ d50bf9ed-2e53-4358-82cb-b22f3058c570 }"}
+		s %ChildActorAnchor{""}
 		Angle %ConeLimitY{f{0x35FA8E3C}}
 		Angle %ConeLimitZ{f{0x35FA8E3C}}
 		s %LimitMode{"ezPxJointLimitMode::SoftLimit"}
@@ -10446,6 +10484,7 @@ o
 		f %BreakForce{0x0000FA43}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 067385c6-ca37-cd7c-6897-1e211a3e27f7 }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{"{ 55e23b14-f806-0f19-19a6-7eba0753090a }"}
 	}
@@ -10814,6 +10853,7 @@ o
 		f %BreakForce{0x0000FA43}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 9adaeddc-e120-7e2d-bd9d-ce1134118036 }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{""}
 	}
@@ -11048,6 +11088,7 @@ o
 		f %BreakForce{0x0000FA43}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 1537206e-e0b2-4173-172b-b76c31a42d29 }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{"{ 7f1c6a98-47ac-8c25-b3ad-d1aa535d813d }"}
 	}
@@ -11261,6 +11302,7 @@ o
 		f %BreakForce{0x0000FA43}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 9adaeddc-e120-7e2d-bd9d-ce1134118036 }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{""}
 	}
@@ -11381,6 +11423,7 @@ o
 		f %BreakForce{0x0000FA43}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 68de0992-cee1-3336-25f6-a0b0ea23f0c8 }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{""}
 	}
@@ -11423,6 +11466,7 @@ o
 		f %BreakForce{0x0000FA43}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 149b494e-4dcc-c023-71aa-c1b9e16d5837 }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{"{ 55e23b14-f806-0f19-19a6-7eba0753090a }"}
 	}
@@ -11477,6 +11521,7 @@ o
 		f %BreakForce{0x0000FA43}
 		f %BreakTorque{0}
 		s %ChildActor{"{ c52c9400-1ffc-7e86-c09b-6120f4587624 }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{"{ 149b494e-4dcc-c023-71aa-c1b9e16d5837 }"}
 	}
@@ -11801,6 +11846,7 @@ o
 		f %BreakForce{0x0000FA44}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 5a08dad3-9bf1-4a5a-a022-59ad6fb9345f }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{"{ cf2c4f93-6441-8f28-2176-57f7d7d99c30 }"}
 	}
@@ -11845,6 +11891,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 9e6ee8a3-2a4c-1278-b8bc-5e04e30c27e4 }"}
+		s %ChildActorAnchor{""}
 		Angle %ConeLimitY{f{0}}
 		Angle %ConeLimitZ{f{0}}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -11883,6 +11930,7 @@ o
 		f %BreakForce{0x0000FA44}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 6c751834-b974-b07b-cb4f-bde79bd26ca6 }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{"{ 119c9945-4b12-6a80-122b-f50bb864e40d }"}
 	}
@@ -12156,12 +12204,12 @@ o
 	p
 	{
 		b %Active{1}
-		f %AngularDamping{0xCDCC4C3D}
+		f %AngularDamping{0xCDCCCC3D}
 		b %ContinuousCollisionDetection{0}
 		f %Density{0x0000C842}
 		b %DisableGravity{0}
 		b %Kinematic{0}
-		f %LinearDamping{0xCDCCCC3D}
+		f %LinearDamping{0}
 		f %Mass{0x0000A040}
 		f %MaxContactImpulse{0x00247449}
 	}
@@ -13851,6 +13899,7 @@ o
 		f %BreakForce{0x0000FA43}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 1537206e-e0b2-4173-172b-b76c31a42d29 }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{"{ 68de0992-cee1-3336-25f6-a0b0ea23f0c8 }"}
 	}
@@ -13920,6 +13969,7 @@ o
 		f %BreakForce{0x0000FA43}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 5b4749d6-b902-33d4-2419-47e2d19f2210 }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{""}
 	}
@@ -13982,6 +14032,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 1cf21fef-efc5-8045-731a-0d19bc8e09f5 }"}
+		s %ChildActorAnchor{""}
 		Angle %ConeLimitY{f{0}}
 		Angle %ConeLimitZ{f{0}}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -14002,6 +14053,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 98863863-f1e3-bc1c-1d11-057c438dfe35 }"}
+		s %ChildActorAnchor{""}
 		Angle %ConeLimitY{f{0}}
 		Angle %ConeLimitZ{f{0}}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -14098,6 +14150,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 602639e4-f2b3-8761-464e-4a62b9b4687c }"}
+		s %ChildActorAnchor{""}
 		s %DriveMode{"ezPxJointDriveMode::NoDrive"}
 		f %DriveVelocity{0}
 		s %LimitMode{"ezPxJointLimitMode::HardLimit"}
@@ -14130,12 +14183,12 @@ o
 	p
 	{
 		b %Active{1}
-		f %AngularDamping{0x6666663F}
+		f %AngularDamping{0x00000040}
 		b %ContinuousCollisionDetection{0}
 		f %Density{0x0000C842}
 		b %DisableGravity{0}
 		b %Kinematic{0}
-		f %LinearDamping{0x6666663F}
+		f %LinearDamping{0x0000003F}
 		f %Mass{0x0000A040}
 		f %MaxContactImpulse{0x00247449}
 	}
@@ -14234,6 +14287,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ c43c8bf1-c668-3525-d9e8-4509489dd4fa }"}
+		s %ChildActorAnchor{""}
 		Angle %ConeLimitY{f{0}}
 		Angle %ConeLimitZ{f{0}}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -14266,6 +14320,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 3cbfab87-ebba-e5ff-4913-6c02056ff488 }"}
+		s %ChildActorAnchor{""}
 		Angle %ConeLimitY{f{0}}
 		Angle %ConeLimitZ{f{0}}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -14325,6 +14380,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ f6a6b421-67e8-7bea-918d-a1fcf7f9131d }"}
+		s %ChildActorAnchor{""}
 		Angle %ConeLimitY{f{0}}
 		Angle %ConeLimitZ{f{0}}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -14468,6 +14524,7 @@ o
 		f %BreakForce{0x0000FA44}
 		f %BreakTorque{0}
 		s %ChildActor{"{ f55845a2-f6e3-d628-053e-a4b59807499b }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{"{ 3615c8bb-57be-9511-4ddd-6f085f86d228 }"}
 	}
@@ -14483,6 +14540,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 4d1c6c9f-83a7-308a-0515-66770131bebf }"}
+		s %ChildActorAnchor{""}
 		Angle %ConeLimitY{f{0}}
 		Angle %ConeLimitZ{f{0}}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -14899,6 +14957,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ da4c2ac9-1ca6-a517-9968-a22b9f99d3b4 }"}
+		s %ChildActorAnchor{""}
 		Angle %ConeLimitY{f{0}}
 		Angle %ConeLimitZ{f{0}}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -14919,6 +14978,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ cce87fe3-8886-951c-ff7d-c6c753ecd8e8 }"}
+		s %ChildActorAnchor{""}
 		s %LimitMode{"ezPxJointLimitMode::SoftLimit"}
 		f %LowerLimit{0}
 		b %PairCollision{0}
@@ -15231,6 +15291,7 @@ o
 		f %BreakForce{0x0000FA44}
 		f %BreakTorque{0}
 		s %ChildActor{"{ ab393d7b-200e-d9df-ce30-6e52c7a63afa }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{"{ cf2c4f93-6441-8f28-2176-57f7d7d99c30 }"}
 	}
@@ -15273,6 +15334,7 @@ o
 		f %BreakForce{0x0000FA43}
 		f %BreakTorque{0}
 		s %ChildActor{"{ d2c353bc-35db-7de8-c178-bbee0cdd43dd }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{"{ 4b6c388e-b351-3c90-0c8f-6e7846fc9d23 }"}
 	}
@@ -15535,6 +15597,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ ba073001-4251-905e-46ca-4d6fd006d57d }"}
+		s %ChildActorAnchor{""}
 		s %DriveMode{"ezPxJointDriveMode::NoDrive"}
 		f %DriveVelocity{0}
 		s %LimitMode{"ezPxJointLimitMode::SoftLimit"}
@@ -15885,6 +15948,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 04ca6d39-7312-7f6b-7dbf-16d4e91f9ebd }"}
+		s %ChildActorAnchor{""}
 		s %DriveMode{"ezPxJointDriveMode::NoDrive"}
 		f %DriveVelocity{0}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -16705,6 +16769,7 @@ o
 		f %BreakForce{0x0000FA43}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 9c8e3b9c-633c-82cb-cc14-04e3f784d3e2 }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{"{ 1537206e-e0b2-4173-172b-b76c31a42d29 }"}
 	}
@@ -17124,6 +17189,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ f2793432-652b-dea1-c8ca-aa70d16eb788 }"}
+		s %ChildActorAnchor{""}
 		Angle %ConeLimitY{f{0x920A063F}}
 		Angle %ConeLimitZ{f{0xDB0FC93F}}
 		s %LimitMode{"ezPxJointLimitMode::HardLimit"}
@@ -17178,6 +17244,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 37349569-1492-c630-3564-72c7997cdddf }"}
+		s %ChildActorAnchor{""}
 		s %DriveMode{"ezPxJointDriveMode::NoDrive"}
 		f %DriveVelocity{0}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -17215,6 +17282,7 @@ o
 		f %BreakForce{0x0000FA43}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 55e23b14-f806-0f19-19a6-7eba0753090a }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{""}
 	}
@@ -17464,12 +17532,12 @@ o
 	p
 	{
 		b %Active{1}
-		f %AngularDamping{0x0000003F}
+		f %AngularDamping{0x0000803F}
 		b %ContinuousCollisionDetection{0}
 		f %Density{0x0000C842}
 		b %DisableGravity{0}
 		b %Kinematic{0}
-		f %LinearDamping{0x0000003F}
+		f %LinearDamping{0x9A99993E}
 		f %Mass{0x0000A040}
 		f %MaxContactImpulse{0x00247449}
 	}
@@ -17773,6 +17841,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ cc3a774c-9c6a-4b25-9f70-6410b0655fcf }"}
+		s %ChildActorAnchor{"{ 6559910b-839c-4dd3-be9c-9d1e41027db5 }"}
 		f %MaxDistance{0x3333B33F}
 		f %MinDistance{0}
 		b %PairCollision{0}
@@ -18757,6 +18826,7 @@ o
 		f %BreakForce{0x0000FA43}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 7f1c6a98-47ac-8c25-b3ad-d1aa535d813d }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{"{ ce8b1fe6-757b-cdc2-64bc-314441726350 }"}
 	}
@@ -19511,6 +19581,7 @@ o
 		f %BreakForce{0x0000FA43}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 149b494e-4dcc-c023-71aa-c1b9e16d5837 }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{""}
 	}
@@ -19728,6 +19799,7 @@ o
 		f %BreakForce{0x0000FA43}
 		f %BreakTorque{0}
 		s %ChildActor{"{ e186ee64-4c56-f1df-700c-543a24434a0f }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{""}
 	}
@@ -20563,6 +20635,7 @@ o
 		f %BreakForce{0x0000FA44}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 5030c491-6546-1c24-be62-6c917c75d133 }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{"{ c5543951-2d96-60f2-3fb6-6adbe4953905 }"}
 	}
@@ -21562,6 +21635,7 @@ o
 		f %BreakForce{0x0000FA43}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 68de0992-cee1-3336-25f6-a0b0ea23f0c8 }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{"{ d2c353bc-35db-7de8-c178-bbee0cdd43dd }"}
 	}
@@ -21589,6 +21663,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 0380c1d1-a0e6-eafc-5527-2afa64a23866 }"}
+		s %ChildActorAnchor{""}
 		Angle %ConeLimitY{f{0}}
 		Angle %ConeLimitZ{f{0}}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -21865,6 +21940,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 13d86848-07d2-c9d3-fee6-fa8614a870f2 }"}
+		s %ChildActorAnchor{""}
 		s %DriveMode{"ezPxJointDriveMode::DriveAndBrake"}
 		f %DriveVelocity{0x0000803F}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -22252,6 +22328,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 4626b6f7-7404-c62b-2fd9-94e781976ea6 }"}
+		s %ChildActorAnchor{""}
 		Angle %ConeLimitY{f{0}}
 		Angle %ConeLimitZ{f{0}}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -22332,6 +22409,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ c1bacf6b-7622-0202-d9cf-8c4a099663e7 }"}
+		s %ChildActorAnchor{""}
 		Angle %ConeLimitY{f{0}}
 		Angle %ConeLimitZ{f{0}}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -22466,6 +22544,7 @@ o
 		f %BreakForce{0x0000FA43}
 		f %BreakTorque{0}
 		s %ChildActor{"{ e186ee64-4c56-f1df-700c-543a24434a0f }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{""}
 	}
@@ -22559,6 +22638,7 @@ o
 		f %BreakForce{0x00401C46}
 		f %BreakTorque{0x00401C46}
 		s %ChildActor{"{ 480acb70-dc30-ce2c-c83b-2e86e088605a }"}
+		s %ChildActorAnchor{""}
 		s %DriveMode{"ezPxJointDriveMode::NoDrive"}
 		f %DriveVelocity{0}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -22582,6 +22662,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ ed7122f9-4aa7-7b0b-95a7-cdd70da639ac }"}
+		s %ChildActorAnchor{""}
 		Angle %ConeLimitY{f{0}}
 		Angle %ConeLimitZ{f{0}}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -22665,6 +22746,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 65f4428f-6ff9-2be5-05d2-f3d0ca77593a }"}
+		s %ChildActorAnchor{""}
 		Angle %ConeLimitY{f{0}}
 		Angle %ConeLimitZ{f{0}}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -22926,6 +23008,7 @@ o
 		f %BreakForce{0x0000FA44}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 6a7bba62-bf34-1af6-8691-a2ff0028b16c }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{"{ ab393d7b-200e-d9df-ce30-6e52c7a63afa }"}
 	}
@@ -22983,6 +23066,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 1fdb4b29-ec28-c1cf-4d4c-29cbbd0279ce }"}
+		s %ChildActorAnchor{""}
 		Angle %ConeLimitY{f{0}}
 		Angle %ConeLimitZ{f{0}}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -23236,6 +23320,7 @@ o
 		f %BreakForce{0x0000FA43}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 7f1c6a98-47ac-8c25-b3ad-d1aa535d813d }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{"{ d2c353bc-35db-7de8-c178-bbee0cdd43dd }"}
 	}
@@ -23281,6 +23366,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 765103a7-07e6-7670-c1d3-ed45c7392371 }"}
+		s %ChildActorAnchor{""}
 		Angle %ConeLimitY{f{0}}
 		Angle %ConeLimitZ{f{0}}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -23313,6 +23399,7 @@ o
 		f %BreakForce{0x0000FA43}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 2232090a-63ab-bf85-7287-1b88faf125f0 }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{"{ 9adaeddc-e120-7e2d-bd9d-ce1134118036 }"}
 	}
@@ -23415,6 +23502,7 @@ o
 		f %BreakForce{0x0000FA43}
 		f %BreakTorque{0}
 		s %ChildActor{"{ c52c9400-1ffc-7e86-c09b-6120f4587624 }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{""}
 	}
@@ -24168,6 +24256,7 @@ o
 		f %BreakForce{0x0000FA44}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 5030c491-6546-1c24-be62-6c917c75d133 }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{"{ f55845a2-f6e3-d628-053e-a4b59807499b }"}
 	}
@@ -24498,6 +24587,7 @@ o
 		f %BreakForce{0x0000FA43}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 5b4749d6-b902-33d4-2419-47e2d19f2210 }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{"{ 9c8e3b9c-633c-82cb-cc14-04e3f784d3e2 }"}
 	}
@@ -24692,6 +24782,7 @@ o
 		f %BreakForce{0x0000FA43}
 		f %BreakTorque{0}
 		s %ChildActor{"{ d2c353bc-35db-7de8-c178-bbee0cdd43dd }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{"{ 2232090a-63ab-bf85-7287-1b88faf125f0 }"}
 	}
@@ -25439,12 +25530,12 @@ o
 	p
 	{
 		b %Active{1}
-		f %AngularDamping{0x0000003F}
+		f %AngularDamping{0x0000803F}
 		b %ContinuousCollisionDetection{0}
 		f %Density{0x0000C842}
 		b %DisableGravity{0}
 		b %Kinematic{0}
-		f %LinearDamping{0x0000003F}
+		f %LinearDamping{0x9A99993E}
 		f %Mass{0x0000A040}
 		f %MaxContactImpulse{0x00247449}
 	}
@@ -26827,6 +26918,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ cc3a774c-9c6a-4b25-9f70-6410b0655fcf }"}
+		s %ChildActorAnchor{"{ 89941034-108a-495f-bdf9-ce0397dfa1d9 }"}
 		f %MaxDistance{0x3333B33F}
 		f %MinDistance{0}
 		b %PairCollision{0}
@@ -27797,6 +27889,7 @@ o
 		f %BreakForce{0x00401C46}
 		f %BreakTorque{0}
 		s %ChildActor{"{ e750322c-04a2-269b-73c0-ba5a90444402 }"}
+		s %ChildActorAnchor{""}
 		Angle %ConeLimitY{f{0xDB0FC93F}}
 		Angle %ConeLimitZ{f{0xDB0FC93F}}
 		s %LimitMode{"ezPxJointLimitMode::HardLimit"}
@@ -28204,6 +28297,7 @@ o
 		f %BreakForce{0x0000FA44}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 525a1c5e-abec-2968-5aca-c05e7ee36d9b }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{"{ 764d2e76-f01f-deb1-ad0f-aa038f16d0d1 }"}
 	}
@@ -28246,6 +28340,7 @@ o
 		f %BreakForce{0x0000FA43}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 067385c6-ca37-cd7c-6897-1e211a3e27f7 }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{"{ 7f1c6a98-47ac-8c25-b3ad-d1aa535d813d }"}
 	}
@@ -28354,6 +28449,7 @@ o
 		f %BreakForce{0x0000FA43}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 9c8e3b9c-633c-82cb-cc14-04e3f784d3e2 }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{""}
 	}
@@ -28940,6 +29036,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 7d4d8ccf-9863-3045-ede9-3ccda6f1bd4b }"}
+		s %ChildActorAnchor{""}
 		s %DriveMode{"ezPxJointDriveMode::NoDrive"}
 		f %DriveVelocity{0}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -29313,6 +29410,7 @@ o
 		f %BreakForce{0}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 1fc14ddd-6fa3-127c-c075-2c98ef08e088 }"}
+		s %ChildActorAnchor{""}
 		s %DriveMode{"ezPxJointDriveMode::NoDrive"}
 		f %DriveVelocity{0}
 		s %LimitMode{"ezPxJointLimitMode::NoLimit"}
@@ -29406,6 +29504,7 @@ o
 		f %BreakForce{0x0000FA43}
 		f %BreakTorque{0}
 		s %ChildActor{"{ ce8b1fe6-757b-cdc2-64bc-314441726350 }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{""}
 	}
@@ -31252,12 +31351,12 @@ o
 	p
 	{
 		b %Active{1}
-		f %AngularDamping{0xCDCC4C3E}
+		f %AngularDamping{0x0000003F}
 		b %ContinuousCollisionDetection{0}
 		f %Density{0x0000C842}
 		b %DisableGravity{0}
 		b %Kinematic{0}
-		f %LinearDamping{0xCDCC4C3E}
+		f %LinearDamping{0xCDCCCC3D}
 		f %Mass{0x0000A040}
 		f %MaxContactImpulse{0x00247449}
 	}
@@ -33912,6 +34011,7 @@ o
 		f %BreakForce{0x0000FA43}
 		f %BreakTorque{0}
 		s %ChildActor{"{ 5b4749d6-b902-33d4-2419-47e2d19f2210 }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{""}
 	}
@@ -35214,6 +35314,7 @@ o
 		f %BreakForce{0x0000FA44}
 		f %BreakTorque{0}
 		s %ChildActor{"{ c5543951-2d96-60f2-3fb6-6adbe4953905 }"}
+		s %ChildActorAnchor{""}
 		b %PairCollision{0}
 		s %ParentActor{"{ 6c751834-b974-b07b-cb4f-bde79bd26ca6 }"}
 	}
@@ -35311,7 +35412,7 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPxSphericalJointComponent"}
-		u3 %TypeSize{192}
+		u3 %TypeSize{200}
 		u3 %TypeVersion{2}
 	}
 }
@@ -35401,7 +35502,7 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPxRevoluteJointComponent"}
-		u3 %TypeSize{200}
+		u3 %TypeSize{208}
 		u3 %TypeVersion{5}
 	}
 }
@@ -35707,7 +35808,7 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPxFixedJointComponent"}
-		u3 %TypeSize{168}
+		u3 %TypeSize{176}
 		u3 %TypeVersion{1}
 	}
 }
@@ -35725,7 +35826,7 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPxDistanceJointComponent"}
-		u3 %TypeSize{192}
+		u3 %TypeSize{200}
 		u3 %TypeVersion{1}
 	}
 }
@@ -35869,7 +35970,7 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPxJointComponent"}
-		u3 %TypeSize{168}
+		u3 %TypeSize{176}
 		u3 %TypeVersion{2}
 	}
 }
@@ -35995,7 +36096,7 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPxPrismaticJointComponent"}
-		u3 %TypeSize{192}
+		u3 %TypeSize{200}
 		u3 %TypeVersion{2}
 	}
 }
@@ -36229,7 +36330,7 @@ o
 		s %PluginName{"ezPhysXPlugin"}
 		VarArray %Properties{}
 		s %TypeName{"ezPx6DOFJointComponent"}
-		u3 %TypeSize{240}
+		u3 %TypeSize{248}
 		u3 %TypeVersion{2}
 	}
 }

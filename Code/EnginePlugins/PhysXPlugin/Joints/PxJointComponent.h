@@ -68,8 +68,12 @@ public:
   void SetPairCollision(bool value);                         // [ property ]
   bool GetPairCollision() const { return m_bPairCollision; } // [ property ]
 
-  void SetParentActor(const char* szReference); // [ property ]
-  void SetChildActor(const char* szReference);  // [ property ]
+  void SetParentActorReference(const char* szReference);      // [ property ]
+  void SetChildActorReference(const char* szReference);       // [ property ]
+  void SetChildActorAnchorReference(const char* szReference); // [ property ]
+
+  void SetParentActor(ezGameObjectHandle hActor);
+  void SetChildActor(ezGameObjectHandle hActor);
 
   void SetActors(ezGameObjectHandle hActorA, const ezTransform& localFrameA, ezGameObjectHandle hActorB, const ezTransform& localFrameB);
 
@@ -85,6 +89,7 @@ protected:
 
   ezGameObjectHandle m_hActorA;
   ezGameObjectHandle m_hActorB;
+  ezGameObjectHandle m_hActorBAnchor;
 
   // UserFlag0 specifies whether m_localFrameA is already set
   ezTransform m_localFrameA;

@@ -37,7 +37,7 @@ namespace
       m_pTask = nullptr;
     }
 
-    PxBaseTask* m_pTask;
+    PxBaseTask* m_pTask = nullptr;
   };
 
   class ezPxCpuDispatcher : public PxCpuDispatcher

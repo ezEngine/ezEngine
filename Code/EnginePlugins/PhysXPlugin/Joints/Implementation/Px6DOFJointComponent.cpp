@@ -129,9 +129,21 @@ void ezPx6DOFJointComponent::ApplySettings()
   }
   else
   {
-    pJoint->setMotion(PxD6Axis::eX, m_FreeLinearAxis.IsSet(ezPxAxis::X) ? PxD6Motion::eLIMITED : PxD6Motion::eLOCKED);
-    pJoint->setMotion(PxD6Axis::eY, m_FreeLinearAxis.IsSet(ezPxAxis::Y) ? PxD6Motion::eLIMITED : PxD6Motion::eLOCKED);
-    pJoint->setMotion(PxD6Axis::eZ, m_FreeLinearAxis.IsSet(ezPxAxis::Z) ? PxD6Motion::eLIMITED : PxD6Motion::eLOCKED);
+    auto freeAxis = m_FreeLinearAxis;
+
+    if (m_LinearLimitMode == ezPxJointLimitMode::HardLimit)
+    {
+      if (ezMath::IsEqual(m_vLinearRangeX.x, m_vLinearRangeX.y, 0.05f))
+        freeAxis.Remove(ezPxAxis::X);
+      if (ezMath::IsEqual(m_vLinearRangeY.x, m_vLinearRangeY.y, 0.05f))
+        freeAxis.Remove(ezPxAxis::Y);
+      if (ezMath::IsEqual(m_vLinearRangeZ.x, m_vLinearRangeZ.y, 0.05f))
+        freeAxis.Remove(ezPxAxis::Z);
+    }
+
+    pJoint->setMotion(PxD6Axis::eX, freeAxis.IsSet(ezPxAxis::X) ? PxD6Motion::eLIMITED : PxD6Motion::eLOCKED);
+    pJoint->setMotion(PxD6Axis::eY, freeAxis.IsSet(ezPxAxis::Y) ? PxD6Motion::eLIMITED : PxD6Motion::eLOCKED);
+    pJoint->setMotion(PxD6Axis::eZ, freeAxis.IsSet(ezPxAxis::Z) ? PxD6Motion::eLIMITED : PxD6Motion::eLOCKED);
 
     PxJointLinearLimitPair l(0, 0, PxSpring(0, 0));
 
@@ -146,17 +158,38 @@ void ezPx6DOFJointComponent::ApplySettings()
       l.bounceThreshold = m_fLinearDamping;
     }
 
-    l.lower = m_vLinearRangeX.x;
-    l.upper = m_vLinearRangeX.y;
-    pJoint->setLinearLimit(PxD6Axis::eX, l);
+    if (freeAxis.IsSet(ezPxAxis::X))
+    {
+      l.lower = m_vLinearRangeX.x;
+      l.upper = m_vLinearRangeX.y;
 
-    l.lower = m_vLinearRangeY.x;
-    l.upper = m_vLinearRangeY.y;
-    pJoint->setLinearLimit(PxD6Axis::eY, l);
+      if (l.lower > l.upper)
+        ezMath::Swap(l.lower, l.upper);
 
-    l.lower = m_vLinearRangeZ.x;
-    l.upper = m_vLinearRangeZ.y;
-    pJoint->setLinearLimit(PxD6Axis::eZ, l);
+      pJoint->setLinearLimit(PxD6Axis::eX, l);
+    }
+
+    if (freeAxis.IsSet(ezPxAxis::Y))
+    {
+      l.lower = m_vLinearRangeY.x;
+      l.upper = m_vLinearRangeY.y;
+
+      if (l.lower > l.upper)
+        ezMath::Swap(l.lower, l.upper);
+
+      pJoint->setLinearLimit(PxD6Axis::eY, l);
+    }
+
+    if (freeAxis.IsSet(ezPxAxis::Z))
+    {
+      l.lower = m_vLinearRangeZ.x;
+      l.upper = m_vLinearRangeZ.y;
+
+      if (l.lower > l.upper)
+        ezMath::Swap(l.lower, l.upper);
+
+      pJoint->setLinearLimit(PxD6Axis::eZ, l);
+    }
   }
 
 
@@ -167,23 +200,37 @@ void ezPx6DOFJointComponent::ApplySettings()
   }
   else
   {
-    pJoint->setMotion(PxD6Axis::eSWING1, m_FreeAngularAxis.IsSet(ezPxAxis::Y) ? PxD6Motion::eLIMITED : PxD6Motion::eLOCKED);
-    pJoint->setMotion(PxD6Axis::eSWING2, m_FreeAngularAxis.IsSet(ezPxAxis::Z) ? PxD6Motion::eLIMITED : PxD6Motion::eLOCKED);
+    auto freeAxis = m_FreeAngularAxis;
 
-    PxJointLimitCone l(m_SwingLimit.GetRadian(), m_SwingLimit.GetRadian());
-
-    if (m_SwingLimitMode == ezPxJointLimitMode::SoftLimit)
+    if (m_SwingLimitMode == ezPxJointLimitMode::HardLimit)
     {
-      l.stiffness = m_fSwingStiffness;
-      l.damping = m_fSwingDamping;
-    }
-    else
-    {
-      l.restitution = m_fSwingStiffness;
-      l.bounceThreshold = m_fSwingDamping;
+      if (ezMath::IsZero(m_SwingLimit.GetDegree(), 1.0f))
+      {
+        freeAxis.Remove(ezPxAxis::Y);
+        freeAxis.Remove(ezPxAxis::Z);
+      }
     }
 
-    pJoint->setSwingLimit(l);
+    pJoint->setMotion(PxD6Axis::eSWING1, freeAxis.IsSet(ezPxAxis::Y) ? PxD6Motion::eLIMITED : PxD6Motion::eLOCKED);
+    pJoint->setMotion(PxD6Axis::eSWING2, freeAxis.IsSet(ezPxAxis::Z) ? PxD6Motion::eLIMITED : PxD6Motion::eLOCKED);
+
+    if (freeAxis.IsAnySet(ezPxAxis::Y | ezPxAxis::Z))
+    {
+      PxJointLimitCone l(m_SwingLimit.GetRadian(), m_SwingLimit.GetRadian());
+
+      if (m_SwingLimitMode == ezPxJointLimitMode::SoftLimit)
+      {
+        l.stiffness = m_fSwingStiffness;
+        l.damping = m_fSwingDamping;
+      }
+      else
+      {
+        l.restitution = m_fSwingStiffness;
+        l.bounceThreshold = m_fSwingDamping;
+      }
+
+      pJoint->setSwingLimit(l);
+    }
   }
 
   if (m_TwistLimitMode == ezPxJointLimitMode::NoLimit)
@@ -192,27 +239,40 @@ void ezPx6DOFJointComponent::ApplySettings()
   }
   else
   {
-    pJoint->setMotion(PxD6Axis::eTWIST, m_FreeAngularAxis.IsSet(ezPxAxis::X) ? PxD6Motion::eLIMITED : PxD6Motion::eLOCKED);
+    auto freeAxis = m_FreeAngularAxis;
 
-    PxJointAngularLimitPair l(m_LowerTwistLimit.GetRadian(), m_UpperTwistLimit.GetRadian());
-
-    if (m_LowerTwistLimit > m_UpperTwistLimit)
+    if (m_SwingLimitMode == ezPxJointLimitMode::HardLimit)
     {
-      ezMath::Swap(l.lower, l.upper);
+      if (ezMath::IsEqual(m_LowerTwistLimit.GetDegree(), m_UpperTwistLimit.GetDegree(), 1.0f))
+      {
+        freeAxis.Remove(ezPxAxis::X);
+      }
     }
 
-    if (m_TwistLimitMode == ezPxJointLimitMode::SoftLimit)
-    {
-      l.stiffness = m_fTwistStiffness;
-      l.damping = m_fTwistDamping;
-    }
-    else
-    {
-      l.restitution = m_fTwistStiffness;
-      l.bounceThreshold = m_fTwistDamping;
-    }
+    pJoint->setMotion(PxD6Axis::eTWIST, freeAxis.IsSet(ezPxAxis::X) ? PxD6Motion::eLIMITED : PxD6Motion::eLOCKED);
 
-    pJoint->setTwistLimit(l);
+    if (freeAxis.IsSet(ezPxAxis::X))
+    {
+      PxJointAngularLimitPair l(m_LowerTwistLimit.GetRadian(), m_UpperTwistLimit.GetRadian());
+
+      if (l.lower > l.upper)
+      {
+        ezMath::Swap(l.lower, l.upper);
+      }
+
+      if (m_TwistLimitMode == ezPxJointLimitMode::SoftLimit)
+      {
+        l.stiffness = m_fTwistStiffness;
+        l.damping = m_fTwistDamping;
+      }
+      else
+      {
+        l.restitution = m_fTwistStiffness;
+        l.bounceThreshold = m_fTwistDamping;
+      }
+
+      pJoint->setTwistLimit(l);
+    }
   }
 
   // the linear and angular springs appear to have the exact same effect
