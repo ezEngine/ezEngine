@@ -89,22 +89,6 @@ ezUInt32 ezTagRegistry::GetNumTags() const
   return m_TagsByIndex.GetCount();
 }
 
-void ezTagRegistry::Save(ezStreamWriter& stream) const
-{
-  EZ_LOCK(m_TagRegistryMutex);
-
-  const ezUInt8 uiVersion = 1;
-  stream << uiVersion;
-
-  stream << m_TagsByIndex.GetCount();
-
-  // simply write out all tag strings
-  for (const ezTag* pTag : m_TagsByIndex)
-  {
-    stream << pTag->GetTagString();
-  }
-}
-
 ezResult ezTagRegistry::Load(ezStreamReader& stream)
 {
   EZ_LOCK(m_TagRegistryMutex);

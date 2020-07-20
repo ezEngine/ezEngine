@@ -34,7 +34,7 @@ public:
   /// \brief Searches for a tag with the given name and returns a pointer to it
   const ezTag* GetTagByName(const ezTempHashedString& TagString) const; // [tested]
 
-  /// \brief Searches for a tag with the given murmur hash. This function is only for backwards compatibility
+  /// \brief Searches for a tag with the given murmur hash. This function is only for backwards compatibility.
   const ezTag* GetTagByMurmurHash(ezUInt32 uiMurmurHash) const;
 
   /// \brief Returns the tag with the given index.
@@ -43,10 +43,7 @@ public:
   /// \brief Returns the number of registered tags.
   ezUInt32 GetNumTags() const;
 
-  /// \brief Writes all information to the stream that is necessary to restore the registry.
-  void Save(ezStreamWriter& stream) const;
-
-  /// \brief Loads the saved state and integrates it into this registry. Does not discard previously registered tag information.
+  /// \brief Loads the saved state and integrates it into this registry. Does not discard previously registered tag information. This function is only for backwards compatibility.
   ezResult Load(ezStreamReader& stream);
 
 protected:
