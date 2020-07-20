@@ -34,6 +34,9 @@ public:
   /// \brief Searches for a tag with the given name and returns a pointer to it
   const ezTag* GetTagByName(const ezTempHashedString& TagString) const; // [tested]
 
+  /// \brief Searches for a tag with the given murmur hash. This function is only for backwards compatibility
+  const ezTag* GetTagByMurmurHash(ezUInt32 uiMurmurHash) const;
+
   /// \brief Returns the tag with the given index.
   const ezTag* GetTagByIndex(ezUInt32 uiIndex) const;
 

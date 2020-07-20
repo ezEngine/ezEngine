@@ -62,6 +62,21 @@ const ezTag* ezTagRegistry::GetTagByName(const ezTempHashedString& TagString) co
   return nullptr;
 }
 
+const ezTag* ezTagRegistry::GetTagByMurmurHash(ezUInt32 uiMurmurHash) const
+{
+  EZ_LOCK(m_TagRegistryMutex);
+
+  for (ezTag* pTag : m_TagsByIndex)
+  {
+    if (ezHashingUtils::MurmurHash32String(pTag->GetTagString().GetData()) == uiMurmurHash)
+    {
+      return pTag;
+    }
+  }
+
+  return nullptr;
+}
+
 const ezTag* ezTagRegistry::GetTagByIndex(ezUInt32 uiIndex) const
 {
   EZ_LOCK(m_TagRegistryMutex);

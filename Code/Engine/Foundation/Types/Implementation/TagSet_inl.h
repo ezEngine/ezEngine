@@ -358,35 +358,56 @@ void ezTagSetTemplate<BlockStorageAllocator>::Reallocate(ezUInt32 uiNewTagBlockS
   m_TagBlocks = helperArray;
 }
 
+static ezTypeVersion s_TagSetVersion = 1;
+
 template <typename BlockStorageAllocator /*= ezDefaultAllocatorWrapper*/>
 void ezTagSetTemplate<BlockStorageAllocator>::Save(ezStreamWriter& stream) const
 {
-  const ezUInt32 uiNumTags = GetNumTagsSet();
+  const ezUInt16 uiNumTags = GetNumTagsSet();
   stream << uiNumTags;
+
+  stream.WriteVersion(s_TagSetVersion);
 
   for (Iterator it = GetIterator(); it.IsValid(); ++it)
   {
     const ezTag* pTag = *it;
 
-    const ezUInt32 uiTagHash = pTag->GetTagHash();
-    stream << uiTagHash;
+    stream << pTag->m_TagString;
   }
 }
 
 template <typename BlockStorageAllocator /*= ezDefaultAllocatorWrapper*/>
-void ezTagSetTemplate<BlockStorageAllocator>::Load(ezStreamReader& stream, const ezTagRegistry& registry)
+void ezTagSetTemplate<BlockStorageAllocator>::Load(ezStreamReader& stream, ezTagRegistry& registry)
 {
-  ezUInt32 uiNumTags = 0;
+  ezUInt16 uiNumTags = 0;
   stream >> uiNumTags;
 
-  for (ezUInt32 i = 0; i < uiNumTags; ++i)
+  // Manually read version value since 0 can be a valid version here
+  ezTypeVersion version;
+  stream.ReadWordValue(&version);
+
+  if (version == 0)
   {
-    ezUInt32 uiTagHash = 0;
-    stream >> uiTagHash;
+    for (ezUInt32 i = 0; i < uiNumTags; ++i)
+    {
+      ezUInt32 uiTagMurmurHash = 0;
+      stream >> uiTagMurmurHash;
 
-    const ezTag* pTag = registry.GetTagByName(ezTempHashedString(uiTagHash));
+      if (const ezTag* pTag = registry.GetTagByMurmurHash(uiTagMurmurHash))
+      {
+        Set(*pTag);
+      }
+    }
+  }
+  else
+  {
+    for (ezUInt32 i = 0; i < uiNumTags; ++i)
+    {
+      ezHashedString tagString;
+      stream >> tagString;
 
-    if (pTag != nullptr)
-      Set(*pTag);
+      const ezTag& tag = registry.RegisterTag(tagString);
+      Set(tag);
+    }
   }
 }
