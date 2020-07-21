@@ -9,6 +9,8 @@ export enum OnComponentFinishedAction {  None = 0, DeleteComponent = 1, DeleteGa
 export enum OnComponentFinishedAction2 {  None = 0, DeleteComponent = 1, DeleteGameObject = 2, Restart = 3 }
 export enum ProcGenBlendMode {  Add = 0, Subtract = 1, Multiply = 2, Divide = 3, Max = 4, Min = 5, Set = 6 }
 export enum PropertyAnimMode {  Once = 0, Loop = 1, BackAndForth = 2 }
+export enum PxJointDriveMode {  NoDrive = 0, DriveAndSpin = 1, DriveAndBrake = 2 }
+export enum PxJointLimitMode {  NoLimit = 0, HardLimit = 1, SoftLimit = 2 }
 export enum PxSteppingMode {  Variable = 0, Fixed = 1, SemiFixed = 2 }
 export enum SetColorMode {  SetRGBA = 0, SetRGB = 1, SetAlpha = 2, AlphaBlend = 3, Additive = 4, Modulate = 5 }
 export enum SpriteBlendMode {  Masked = 0, Transparent = 1, Additive = 2 }
