@@ -65,7 +65,7 @@ void ezPrefabResource::ApplyExposedParameterValues(const ezArrayMap<ezHashedStri
 
       if (ppd.m_CachedPropertyPath.IsValid())
       {
-        if (ppd.m_uiComponentTypeHash == 0)
+        if (ppd.m_sComponentType.IsEmpty())
         {
           ppd.m_CachedPropertyPath.SetValue(pTarget, pExposedParamValues->GetValue(i));
         }
@@ -77,7 +77,7 @@ void ezPrefabResource::ApplyExposedParameterValues(const ezArrayMap<ezHashedStri
 
             // TODO: use component index instead
             // atm if the same component type is attached multiple times, they will all get the value applied
-            if (pRtti->GetTypeNameHash() == ppd.m_uiComponentTypeHash)
+            if (pRtti->GetTypeNameHash() == ppd.m_sComponentType.GetHash())
             {
               ppd.m_CachedPropertyPath.SetValue(pComp, pExposedParamValues->GetValue(i));
             }
@@ -128,8 +128,8 @@ ezResourceLoadDesc ezPrefabResource::UpdateContent(ezStreamReader* Stream)
     s >> sAbsFilePath;
   }
 
-  ezAssetFileHeader AssetHash;
-  AssetHash.Read(s);
+  ezAssetFileHeader assetHeader;
+  assetHeader.Read(s);
 
   char szSceneTag[16];
   s.ReadBytes(szSceneTag, sizeof(char) * 16);
@@ -143,7 +143,7 @@ ezResourceLoadDesc ezPrefabResource::UpdateContent(ezStreamReader* Stream)
 
   m_WorldReader.ReadWorldDescription(s);
 
-  if (AssetHash.GetFileVersion() >= 4)
+  if (assetHeader.GetFileVersion() >= 4)
   {
     ezUInt32 uiExposedParams = 0;
 
@@ -155,18 +155,21 @@ ezResourceLoadDesc ezPrefabResource::UpdateContent(ezStreamReader* Stream)
     {
       auto& ppd = m_PrefabParamDescs[i];
 
-      ppd.Load(s);
+      if (assetHeader.GetFileVersion() < 6)
+        ppd.LoadOld(s);
+      else
+        ppd.Load(s);
 
       // initialize the cached property path here once
       // so we can only apply it later as often as needed
       {
-        if (ppd.m_uiComponentTypeHash == 0)
+        if (ppd.m_sComponentType.IsEmpty())
           ppd.m_CachedPropertyPath.InitializeFromPath(*ezGetStaticRTTI<ezGameObject>(), ppd.m_sProperty);
         else
         {
           for (const ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
           {
-            if (pRtti->GetTypeNameHash() == ppd.m_uiComponentTypeHash)
+            if (pRtti->GetTypeNameHash() == ppd.m_sComponentType.GetHash())
             {
               ppd.m_CachedPropertyPath.InitializeFromPath(*pRtti, ppd.m_sProperty);
               break;
@@ -229,7 +232,7 @@ void ezExposedPrefabParameterDesc::Save(ezStreamWriter& stream) const
 
   stream << m_sExposeName;
   stream << comb;
-  stream << m_uiComponentTypeHash;
+  stream << m_sComponentType;
   stream << m_sProperty;
 }
 
@@ -239,8 +242,36 @@ void ezExposedPrefabParameterDesc::Load(ezStreamReader& stream)
 
   stream >> m_sExposeName;
   stream >> comb;
-  stream >> m_uiComponentTypeHash;
+  stream >> m_sComponentType;
   stream >> m_sProperty;
+
+  m_uiWorldReaderObjectIndex = comb & 0x7FFFFFFF;
+  m_uiWorldReaderChildObject = (comb >> 31);
+}
+
+void ezExposedPrefabParameterDesc::LoadOld(ezStreamReader& stream)
+{
+  ezUInt32 comb = 0;
+
+  ezUInt32 uiComponentTypeMurmurHash;
+
+  stream >> m_sExposeName;
+  stream >> comb;
+  stream >> uiComponentTypeMurmurHash;
+  stream >> m_sProperty;
+
+  m_sComponentType.Clear();
+  if (uiComponentTypeMurmurHash != 0)
+  {
+    for (const ezRTTI* pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
+    {
+      if (ezHashingUtils::MurmurHash32String(pRtti->GetTypeName()) == uiComponentTypeMurmurHash)
+      {
+        m_sComponentType.Assign(pRtti->GetTypeName());
+        break;
+      }
+    }
+  }
 
   m_uiWorldReaderObjectIndex = comb & 0x7FFFFFFF;
   m_uiWorldReaderChildObject = (comb >> 31);

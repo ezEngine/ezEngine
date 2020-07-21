@@ -6,6 +6,7 @@
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenNodeManager.h>
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/IO/MemoryStream.h>
+#include <Foundation/IO/StringDeduplicationContext.h>
 #include <Foundation/Strings/PathUtils.h>
 #include <Foundation/Utilities/DGMLWriter.h>
 #include <ProcGenPlugin/VM/ExpressionByteCode.h>
@@ -41,7 +42,7 @@ namespace
 
 } // namespace
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenGraphAssetDocument, 4, ezRTTINoAllocator)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcGenGraphAssetDocument, 5, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezProcGenGraphAssetDocument::ezProcGenGraphAssetDocument(const char* szDocumentPath)
@@ -83,7 +84,9 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
 
   const bool bDebug = m_pDebugPin != nullptr;
 
-  ezChunkStreamWriter chunk(stream);
+  ezStringDeduplicationWriteContext stringDedupContext(stream);
+  
+  ezChunkStreamWriter chunk(stringDedupContext.Begin());
   chunk.BeginStream(1);
 
   ezExpressionCompiler compiler;
@@ -188,6 +191,7 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
   }
 
   chunk.EndStream();
+  stringDedupContext.End();
 
   for (auto it = nodeCache.GetIterator(); it.IsValid(); ++it)
   {

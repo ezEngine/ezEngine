@@ -17,7 +17,7 @@ ezResult ezWorldReader::ReadWorldDescription(ezStreamReader& stream)
   m_uiVersion = 0;
   stream >> m_uiVersion;
 
-  if (m_uiVersion < 8 || m_uiVersion > 8)
+  if (m_uiVersion < 8 || m_uiVersion > 9)
   {
     ezLog::Error("Invalid world version (got {}).", m_uiVersion);
     return EZ_FAILURE;
@@ -27,8 +27,11 @@ ezResult ezWorldReader::ReadWorldDescription(ezStreamReader& stream)
   m_pStringDedupReadContext = nullptr;
   m_pStringDedupReadContext = EZ_DEFAULT_NEW(ezStringDeduplicationReadContext, stream);
 
-  // add tags from the stream
-  EZ_SUCCEED_OR_RETURN(ezTagRegistry::GetGlobalRegistry().Load(stream));
+  if (m_uiVersion == 8)
+  {
+    // add tags from the stream
+    EZ_SUCCEED_OR_RETURN(ezTagRegistry::GetGlobalRegistry().Load(stream));
+  }
 
   ezUInt32 uiNumRootObjects = 0;
   stream >> uiNumRootObjects;
@@ -178,7 +181,7 @@ void ezWorldReader::ReadGameObjectDesc(GameObjectToCreate& godesc)
 
   *m_pStream >> sGlobalKey;
   godesc.m_sGlobalKey = sGlobalKey;
-  
+
   *m_pStream >> desc.m_LocalPosition;
   *m_pStream >> desc.m_LocalRotation;
   *m_pStream >> desc.m_LocalScaling;
@@ -190,7 +193,7 @@ void ezWorldReader::ReadGameObjectDesc(GameObjectToCreate& godesc)
   desc.m_Tags.Load(*m_pStream, ezTagRegistry::GetGlobalRegistry());
 
   *m_pStream >> desc.m_uiTeamID;
-  
+
   desc.m_sName.Assign(sName.GetData());
 }
 

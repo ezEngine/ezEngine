@@ -37,102 +37,102 @@ import Flags = require("./AllFlags")
 
 export class MsgAnimationPoseUpdated extends Message
 {
-  public static GetTypeNameHash(): number { return 3874463418; }
-  constructor() { super(); this.TypeNameHash = 3874463418; }
+  public static GetTypeNameHash(): number { return 760653206; }
+  constructor() { super(); this.TypeNameHash = 760653206; }
 }
 
 export class MsgAnimationReachedEnd extends EventMessage
 {
-  public static GetTypeNameHash(): number { return 3161817575; }
-  constructor() { super(); this.TypeNameHash = 3161817575; }
+  public static GetTypeNameHash(): number { return 3024948166; }
+  constructor() { super(); this.TypeNameHash = 3024948166; }
 }
 
 export class MsgBreakableSheetBroke extends EventMessage
 {
-  public static GetTypeNameHash(): number { return 2481203103; }
-  constructor() { super(); this.TypeNameHash = 2481203103; }
+  public static GetTypeNameHash(): number { return 3499974897; }
+  constructor() { super(); this.TypeNameHash = 3499974897; }
 }
 
 export class MsgBuildStaticMesh extends Message
 {
-  public static GetTypeNameHash(): number { return 3694682949; }
-  constructor() { super(); this.TypeNameHash = 3694682949; }
+  public static GetTypeNameHash(): number { return 3599673213; }
+  constructor() { super(); this.TypeNameHash = 3599673213; }
 }
 
 export class MsgChildrenChanged extends Message
 {
-  public static GetTypeNameHash(): number { return 2784142053; }
-  constructor() { super(); this.TypeNameHash = 2784142053; }
+  public static GetTypeNameHash(): number { return 505857305; }
+  constructor() { super(); this.TypeNameHash = 505857305; }
 }
 
 export class MsgCollision extends Message
 {
-  public static GetTypeNameHash(): number { return 1454903456; }
-  constructor() { super(); this.TypeNameHash = 1454903456; }
+  public static GetTypeNameHash(): number { return 3339340565; }
+  constructor() { super(); this.TypeNameHash = 3339340565; }
 }
 
 export class MsgComponentInternalTrigger extends Message
 {
-  public static GetTypeNameHash(): number { return 2729883851; }
-  constructor() { super(); this.TypeNameHash = 2729883851; }
+  public static GetTypeNameHash(): number { return 268593481; }
+  constructor() { super(); this.TypeNameHash = 268593481; }
   UsageStringHash: number = 0;
 }
 
 export class MsgComponentsChanged extends Message
 {
-  public static GetTypeNameHash(): number { return 1233680431; }
-  constructor() { super(); this.TypeNameHash = 1233680431; }
+  public static GetTypeNameHash(): number { return 936654107; }
+  constructor() { super(); this.TypeNameHash = 936654107; }
 }
 
 export class MsgDamage extends EventMessage
 {
-  public static GetTypeNameHash(): number { return 3889610425; }
-  constructor() { super(); this.TypeNameHash = 3889610425; }
+  public static GetTypeNameHash(): number { return 146526392; }
+  constructor() { super(); this.TypeNameHash = 146526392; }
   Damage: number = 0;
   HitObjectName: string;
 }
 
 export class MsgDeleteGameObject extends Message
 {
-  public static GetTypeNameHash(): number { return 214557405; }
-  constructor() { super(); this.TypeNameHash = 214557405; }
+  public static GetTypeNameHash(): number { return 1893671047; }
+  constructor() { super(); this.TypeNameHash = 1893671047; }
 }
 
 export class MsgExtractGeometry extends Message
 {
-  public static GetTypeNameHash(): number { return 4190830039; }
-  constructor() { super(); this.TypeNameHash = 4190830039; }
+  public static GetTypeNameHash(): number { return 2613444800; }
+  constructor() { super(); this.TypeNameHash = 2613444800; }
 }
 
 export class MsgExtractRenderData extends Message
 {
-  public static GetTypeNameHash(): number { return 4250635752; }
-  constructor() { super(); this.TypeNameHash = 4250635752; }
+  public static GetTypeNameHash(): number { return 2595853294; }
+  constructor() { super(); this.TypeNameHash = 2595853294; }
 }
 
 export class MsgExtractVolumes extends Message
 {
-  public static GetTypeNameHash(): number { return 3796594901; }
-  constructor() { super(); this.TypeNameHash = 3796594901; }
+  public static GetTypeNameHash(): number { return 1727764704; }
+  constructor() { super(); this.TypeNameHash = 1727764704; }
 }
 
 export class MsgFmodSoundFinished extends EventMessage
 {
-  public static GetTypeNameHash(): number { return 4085975113; }
-  constructor() { super(); this.TypeNameHash = 4085975113; }
+  public static GetTypeNameHash(): number { return 877453568; }
+  constructor() { super(); this.TypeNameHash = 877453568; }
 }
 
 export class MsgGenericEvent extends EventMessage
 {
-  public static GetTypeNameHash(): number { return 1061762376; }
-  constructor() { super(); this.TypeNameHash = 1061762376; }
+  public static GetTypeNameHash(): number { return 226332170; }
+  constructor() { super(); this.TypeNameHash = 226332170; }
   Message: string;
 }
 
 export class MsgInputActionTriggered extends EventMessage
 {
-  public static GetTypeNameHash(): number { return 2990029836; }
-  constructor() { super(); this.TypeNameHash = 2990029836; }
+  public static GetTypeNameHash(): number { return 83925379; }
+  constructor() { super(); this.TypeNameHash = 83925379; }
   InputActionHash: number = 0;
   KeyPressValue: number = 0;
   TriggerState: Enum.TriggerState = 0;
@@ -140,8 +140,8 @@ export class MsgInputActionTriggered extends EventMessage
 
 export class MsgMoveCharacterController extends Message
 {
-  public static GetTypeNameHash(): number { return 2731592292; }
-  constructor() { super(); this.TypeNameHash = 2731592292; }
+  public static GetTypeNameHash(): number { return 1703149706; }
+  constructor() { super(); this.TypeNameHash = 1703149706; }
   MoveForwards: number = 0;
   MoveBackwards: number = 0;
   StrafeLeft: number = 0;
@@ -155,81 +155,93 @@ export class MsgMoveCharacterController extends Message
 
 export class MsgOnlyApplyToObject extends Message
 {
-  public static GetTypeNameHash(): number { return 1217048705; }
-  constructor() { super(); this.TypeNameHash = 1217048705; }
+  public static GetTypeNameHash(): number { return 3025894004; }
+  constructor() { super(); this.TypeNameHash = 3025894004; }
 }
 
 export class MsgPhysicsAddForce extends Message
 {
-  public static GetTypeNameHash(): number { return 3475477528; }
-  constructor() { super(); this.TypeNameHash = 3475477528; }
+  public static GetTypeNameHash(): number { return 617921652; }
+  constructor() { super(); this.TypeNameHash = 617921652; }
   GlobalPosition: Vec3 = new Vec3(0, 0, 0);
   Force: Vec3 = new Vec3(0, 0, 0);
 }
 
 export class MsgPhysicsAddImpulse extends Message
 {
-  public static GetTypeNameHash(): number { return 2618981170; }
-  constructor() { super(); this.TypeNameHash = 2618981170; }
+  public static GetTypeNameHash(): number { return 3193218110; }
+  constructor() { super(); this.TypeNameHash = 3193218110; }
   GlobalPosition: Vec3 = new Vec3(0, 0, 0);
   Impulse: Vec3 = new Vec3(0, 0, 0);
   ShapeID: number = 0;
 }
 
+export class MsgPhysicsJointBroke extends EventMessage
+{
+  public static GetTypeNameHash(): number { return 4089742341; }
+  constructor() { super(); this.TypeNameHash = 4089742341; }
+}
+
+export class MsgRmlUiReload extends Message
+{
+  public static GetTypeNameHash(): number { return 2540580649; }
+  constructor() { super(); this.TypeNameHash = 2540580649; }
+}
+
 export class MsgSetColor extends Message
 {
-  public static GetTypeNameHash(): number { return 12434892; }
-  constructor() { super(); this.TypeNameHash = 12434892; }
+  public static GetTypeNameHash(): number { return 1685882411; }
+  constructor() { super(); this.TypeNameHash = 1685882411; }
   Color: Color = new Color(1, 1, 1, 1);
   Mode: Enum.SetColorMode = 0;
 }
 
 export class MsgSetFloatParameter extends Message
 {
-  public static GetTypeNameHash(): number { return 2334834113; }
-  constructor() { super(); this.TypeNameHash = 2334834113; }
+  public static GetTypeNameHash(): number { return 1720453306; }
+  constructor() { super(); this.TypeNameHash = 1720453306; }
   Name: string;
   Value: number = 0;
 }
 
 export class MsgSetMeshMaterial extends Message
 {
-  public static GetTypeNameHash(): number { return 2062037541; }
-  constructor() { super(); this.TypeNameHash = 2062037541; }
+  public static GetTypeNameHash(): number { return 719232908; }
+  constructor() { super(); this.TypeNameHash = 719232908; }
   Material: string;
   MaterialSlot: number = 0;
 }
 
 export class MsgSetPlaying extends Message
 {
-  public static GetTypeNameHash(): number { return 744214609; }
-  constructor() { super(); this.TypeNameHash = 744214609; }
+  public static GetTypeNameHash(): number { return 419138500; }
+  constructor() { super(); this.TypeNameHash = 419138500; }
   Play: boolean = true;
 }
 
 export class MsgTransformChanged extends Message
 {
-  public static GetTypeNameHash(): number { return 769397284; }
-  constructor() { super(); this.TypeNameHash = 769397284; }
+  public static GetTypeNameHash(): number { return 4141964096; }
+  constructor() { super(); this.TypeNameHash = 4141964096; }
 }
 
 export class MsgTriggerTriggered extends EventMessage
 {
-  public static GetTypeNameHash(): number { return 1755267521; }
-  constructor() { super(); this.TypeNameHash = 1755267521; }
+  public static GetTypeNameHash(): number { return 1043285181; }
+  constructor() { super(); this.TypeNameHash = 1043285181; }
   MsgStringHash: number = 0;
   TriggerState: Enum.TriggerState = 0;
 }
 
 export class MsgTypeScriptMsgProxy extends Message
 {
-  public static GetTypeNameHash(): number { return 344792456; }
-  constructor() { super(); this.TypeNameHash = 344792456; }
+  public static GetTypeNameHash(): number { return 1384422179; }
+  constructor() { super(); this.TypeNameHash = 1384422179; }
 }
 
 export class MsgUpdateLocalBounds extends Message
 {
-  public static GetTypeNameHash(): number { return 1393097690; }
-  constructor() { super(); this.TypeNameHash = 1393097690; }
+  public static GetTypeNameHash(): number { return 2547703269; }
+  constructor() { super(); this.TypeNameHash = 2547703269; }
 }
 

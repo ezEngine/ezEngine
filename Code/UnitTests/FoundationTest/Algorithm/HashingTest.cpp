@@ -33,13 +33,13 @@ EZ_CREATE_SIMPLE_TEST(Algorithm, Hashing)
     ezUInt32 uixxHashRT = ezHashingUtils::xxHash32("Test string", 11, 0);
     ezUInt32 uixxHashCT = ezHashingUtils::xxHash32String("Test string", 0);
     EZ_TEST_INT(uixxHashRT, uixxHashCT);
-    static_assert(ezInternal::CompileTimeXxHash32("Test string", 0) == 0x1b50ee03);
+    static_assert(ezHashingUtils::xxHash32String("Test string") == 0x1b50ee03);
 
     // Test long inputs ( > 16 characters) of xx hash at compile time
-    ezUInt32 uixxHashRTLong = ezHashingUtils::xxHash32("This is a test string. 1234", 27, 0);
-    ezUInt32 uixxHashCTLong = ezHashingUtils::xxHash32String("This is a test string. 1234", 0);
+    ezUInt32 uixxHashRTLong = ezHashingUtils::xxHash32String(sb.GetData());
+    ezUInt32 uixxHashCTLong = ezHashingUtils::xxHash32String("This is a test string. 1234");
     EZ_TEST_INT(uixxHashRTLong, uixxHashCTLong);
-    static_assert(ezInternal::CompileTimeXxHash32("This is a test string. 1234", 0) == 0xff35b049);
+    static_assert(ezHashingUtils::xxHash32String("This is a test string. 1234") == 0xff35b049);
 
 
     // check 64bit hashes
@@ -62,28 +62,28 @@ EZ_CREATE_SIMPLE_TEST(Algorithm, Hashing)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "HashHelper")
   {
     ezUInt32 uiHash = ezHashHelper<ezStringBuilder>::Hash(sb);
-    EZ_TEST_INT(uiHash, 0xb999d6c4);
+    EZ_TEST_INT(uiHash, 0xff35b049);
 
     const char* szTest = "This is a test string. 1234";
     uiHash = ezHashHelper<const char*>::Hash(szTest);
-    EZ_TEST_INT(uiHash, 0xb999d6c4);
+    EZ_TEST_INT(uiHash, 0xff35b049);
     EZ_TEST_BOOL(ezHashHelper<const char*>::Equal(szTest, sb.GetData()));
 
     ezHashedString hs;
     hs.Assign(szTest);
     uiHash = ezHashHelper<ezHashedString>::Hash(hs);
-    EZ_TEST_INT(uiHash, 0xb999d6c4);
+    EZ_TEST_INT(uiHash, 0xff35b049);
 
     ezTempHashedString ths(szTest);
     uiHash = ezHashHelper<ezHashedString>::Hash(ths);
-    EZ_TEST_INT(uiHash, 0xb999d6c4);
+    EZ_TEST_INT(uiHash, 0xff35b049);
     EZ_TEST_BOOL(ezHashHelper<ezHashedString>::Equal(hs, ths));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "HashHelperString_NoCase")
   {
     const ezUInt32 uiHash = ezHashHelper<const char*>::Hash(szStringLower);
-    EZ_TEST_INT(uiHash, 0x756cc03e);
+    EZ_TEST_INT(uiHash, 0x61482cce);
     EZ_TEST_INT(uiHash, ezHashHelperString_NoCase::Hash(szString));
     EZ_TEST_INT(uiHash, ezHashHelperString_NoCase::Hash(szStringLower));
     EZ_TEST_INT(uiHash, ezHashHelperString_NoCase::Hash(szString2));

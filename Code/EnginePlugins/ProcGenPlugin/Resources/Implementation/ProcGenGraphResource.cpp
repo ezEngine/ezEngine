@@ -2,6 +2,7 @@
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <Foundation/IO/ChunkStream.h>
+#include <Foundation/IO/StringDeduplicationContext.h>
 #include <GameEngine/Curves/ColorGradientResource.h>
 #include <GameEngine/Physics/SurfaceResource.h>
 #include <GameEngine/Prefabs/PrefabResource.h>
@@ -76,6 +77,12 @@ ezResourceLoadDesc ezProcGenGraphResource::UpdateContent(ezStreamReader* Stream)
 
   ezAssetFileHeader AssetHash;
   AssetHash.Read(*Stream);
+
+  ezUniquePtr<ezStringDeduplicationReadContext> pStringDedupReadContext;
+  if (AssetHash.GetFileVersion() >= 5)
+  {
+    pStringDedupReadContext = EZ_DEFAULT_NEW(ezStringDeduplicationReadContext, *Stream);
+  }
 
   // load
   {
@@ -199,6 +206,7 @@ ezResourceLoadDesc ezProcGenGraphResource::UpdateContent(ezStreamReader* Stream)
     }
 
     chunk.EndStream();
+    pStringDedupReadContext = nullptr;
 
     // link shared data
     if (m_pSharedData != nullptr)

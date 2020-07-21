@@ -59,7 +59,7 @@ void ezHashedString::InitHashedString()
   s_pHSData = new (HashedStringDataBuffer) HashedStringData();
 
   // makes sure the empty string exists for the default constructor to use
-  s_pHSData->m_Empty = AddHashedString("", ezHashingUtils::MurmurHash32String(""));
+  s_pHSData->m_Empty = AddHashedString("", ezHashingUtils::xxHash32String(""));
 
 #if EZ_ENABLED(EZ_HASHED_STRING_REF_COUNTING)
   // this one should never get deleted, so make sure its refcount is 2
