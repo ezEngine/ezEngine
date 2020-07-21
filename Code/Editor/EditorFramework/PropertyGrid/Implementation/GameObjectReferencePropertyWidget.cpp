@@ -8,11 +8,11 @@
 #include <EditorFramework/PropertyGrid/GameObjectReferencePropertyWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyBaseWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
-#include <ToolsFoundation/Object/ObjectAccessorBase.h>
 #include <QClipboard>
 #include <QMenu>
 #include <QMimeData>
 #include <QToolButton>
+#include <ToolsFoundation/Object/ObjectAccessorBase.h>
 
 ezQtGameObjectReferencePropertyWidget::ezQtGameObjectReferencePropertyWidget()
   : ezQtStandardPropertyWidget()
@@ -73,7 +73,7 @@ void ezQtGameObjectReferencePropertyWidget::FillContextMenu(QMenu& menu)
 
   pCopyAction->setEnabled(!m_sInternalValue.isEmpty());
   pSelectAction->setEnabled(!m_sInternalValue.isEmpty());
-  pClearAction->setEnabled(!m_sInternalValue.isEmpty());
+  //pClearAction->setEnabled(!m_sInternalValue.isEmpty()); // this would disable the clear button with multi selection
 }
 
 void ezQtGameObjectReferencePropertyWidget::PickObjectOverride(const ezDocumentObject* pObject)
@@ -116,41 +116,40 @@ void ezQtGameObjectReferencePropertyWidget::showEvent(QShowEvent* event)
 
 void ezQtGameObjectReferencePropertyWidget::SetValue(const QString& sValue)
 {
-  if (m_sInternalValue != sValue)
+  // don't early out if the value is equal, otherwise that breaks clearing the reference with a multi-selection
+
+  m_sInternalValue = sValue;
+
+  const ezDocumentObject* pObject = nullptr;
+  ezStringBuilder sDisplayName = m_sInternalValue.toUtf8().data();
+
+  if (ezConversionUtils::IsStringUuid(m_sInternalValue.toUtf8().data()))
   {
-    m_sInternalValue = sValue;
+    const ezUuid guid = ezConversionUtils::ConvertStringToUuid(m_sInternalValue.toUtf8().data());
 
-    const ezDocumentObject* pObject = nullptr;
-    ezStringBuilder sDisplayName = m_sInternalValue.toUtf8().data();
-
-    if (ezConversionUtils::IsStringUuid(m_sInternalValue.toUtf8().data()))
-    {
-      const ezUuid guid = ezConversionUtils::ConvertStringToUuid(m_sInternalValue.toUtf8().data());
-
-      pObject = m_pObjectAccessor->GetObject(guid);
-    }
-
-    if (pObject != nullptr)
-    {
-      m_pal.setColor(QPalette::WindowText, QColor::fromRgb(182, 255, 0));
-      m_pWidget->setToolTip(QStringLiteral("The reference is a known game object."));
-
-      if (auto* pGoDoc = ezDynamicCast<const ezGameObjectDocument*>(m_pGrid->GetDocument()))
-      {
-        pGoDoc->QueryCachedNodeName(pObject, sDisplayName, nullptr, nullptr);
-      }
-    }
-    else
-    {
-      m_pal.setColor(QPalette::WindowText, Qt::red);
-      m_pWidget->setToolTip(QStringLiteral("The reference is invalid."));
-    }
-
-    m_pWidget->setPalette(m_pal);
-
-    m_pWidget->setText(sDisplayName.GetData());
-    BroadcastValueChanged(m_sInternalValue.toUtf8().data());
+    pObject = m_pObjectAccessor->GetObject(guid);
   }
+
+  if (pObject != nullptr)
+  {
+    m_pal.setColor(QPalette::WindowText, QColor::fromRgb(182, 255, 0));
+    m_pWidget->setToolTip(QStringLiteral("The reference is a known game object."));
+
+    if (auto* pGoDoc = ezDynamicCast<const ezGameObjectDocument*>(m_pGrid->GetDocument()))
+    {
+      pGoDoc->QueryCachedNodeName(pObject, sDisplayName, nullptr, nullptr);
+    }
+  }
+  else
+  {
+    m_pal.setColor(QPalette::WindowText, Qt::red);
+    m_pWidget->setToolTip(QStringLiteral("The reference is invalid."));
+  }
+
+  m_pWidget->setPalette(m_pal);
+
+  m_pWidget->setText(sDisplayName.GetData());
+  BroadcastValueChanged(m_sInternalValue.toUtf8().data());
 }
 
 void ezQtGameObjectReferencePropertyWidget::on_PickObject_clicked()

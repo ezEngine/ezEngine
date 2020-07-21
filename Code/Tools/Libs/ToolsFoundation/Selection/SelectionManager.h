@@ -25,7 +25,7 @@ class EZ_TOOLSFOUNDATION_DLL ezSelectionManager
 {
 public:
 
-  ezEvent<const ezSelectionManagerEvent&> m_Events;
+  ezCopyOnBroadcastEvent<const ezSelectionManagerEvent&> m_Events;
 
 public:
   ezSelectionManager();
