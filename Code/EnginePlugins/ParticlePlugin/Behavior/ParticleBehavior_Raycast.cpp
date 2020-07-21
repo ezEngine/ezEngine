@@ -174,7 +174,7 @@ void ezParticleBehavior_Raycast::Process(ezUInt64 uiNumElements)
             itVelocity.Current().SetZero();
           }
 
-          if (m_sOnCollideEvent.GetHash() != 0)
+          if (!m_sOnCollideEvent.IsEmpty())
           {
             ezParticleEvent e;
             e.m_EventType = m_sOnCollideEvent;

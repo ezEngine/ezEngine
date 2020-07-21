@@ -788,7 +788,7 @@ ezInt32 ezParticleEffectInstance::FindFloatParameter(const ezTempHashedString& n
 
 float ezParticleEffectInstance::GetFloatParameter(const ezTempHashedString& name, float defaultValue) const
 {
-  if (name.GetHash() == 0)
+  if (name.IsEmpty())
     return defaultValue;
 
   for (ezUInt32 i = 0; i < m_FloatParameters.GetCount(); ++i)
@@ -813,7 +813,7 @@ ezInt32 ezParticleEffectInstance::FindColorParameter(const ezTempHashedString& n
 
 const ezColor& ezParticleEffectInstance::GetColorParameter(const ezTempHashedString& name, const ezColor& defaultValue) const
 {
-  if (name.GetHash() == 0)
+  if (name.IsEmpty())
     return defaultValue;
 
   for (ezUInt32 i = 0; i < m_ColorParameters.GetCount(); ++i)

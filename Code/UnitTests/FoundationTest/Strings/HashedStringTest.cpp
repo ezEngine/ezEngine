@@ -8,8 +8,10 @@ EZ_CREATE_SIMPLE_TEST(Strings, HashedString)
   {
     ezHashedString s;
     ezHashedString s2;
+
     s2.Assign("test"); // compile time hashing
 
+    EZ_TEST_INT(s.GetHash(), 0x02cc5d05);
     EZ_TEST_STRING(s.GetString().GetData(), "");
     EZ_TEST_BOOL(s.GetString().IsEmpty());
 
@@ -43,6 +45,30 @@ EZ_CREATE_SIMPLE_TEST(Strings, HashedString)
 
     ts = sb.GetData(); // runtime hashing
     EZ_TEST_INT(ts.GetHash(), 0xd77409c3);
+
+    s.Assign("");
+    EZ_TEST_INT(s.GetHash(), 0x02cc5d05);
+    EZ_TEST_STRING(s.GetString().GetData(), "");
+    EZ_TEST_BOOL(s.GetString().IsEmpty());
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "TempHashedString")
+  {
+    ezTempHashedString ts;
+    ezHashedString hs;
+
+    EZ_TEST_INT(ts.GetHash(), hs.GetHash());
+
+    EZ_TEST_INT(ts.GetHash(), 0x02cc5d05);
+
+    ts = "Test";
+    ezTempHashedString ts2 = ts;
+    EZ_TEST_INT(ts.GetHash(), 0xeac53571);
+
+    ts = "";
+    ts2.Clear();
+    EZ_TEST_INT(ts.GetHash(), 0x02cc5d05);
+    EZ_TEST_INT(ts2.GetHash(), 0x02cc5d05);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator== / operator!=")

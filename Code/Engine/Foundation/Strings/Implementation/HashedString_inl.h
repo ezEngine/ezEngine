@@ -137,6 +137,11 @@ EZ_FORCE_INLINE ezHashedString ezMakeHashedString(const char (&szString)[N])
 
 //////////////////////////////////////////////////////////////////////////
 
+EZ_ALWAYS_INLINE ezTempHashedString::ezTempHashedString()
+{
+  m_uiHash = ezHashingUtils::xxHash32String("");
+}
+
 template <size_t N>
 EZ_ALWAYS_INLINE ezTempHashedString::ezTempHashedString(const char (&szString)[N])
 {
@@ -199,6 +204,16 @@ EZ_ALWAYS_INLINE bool ezTempHashedString::operator<(const ezTempHashedString& rh
   return m_uiHash < rhs.m_uiHash;
 }
 
+EZ_ALWAYS_INLINE bool ezTempHashedString::IsEmpty() const
+{
+  return m_uiHash == ezHashingUtils::xxHash32String("");
+}
+
+EZ_ALWAYS_INLINE void ezTempHashedString::Clear()
+{
+  *this = ezTempHashedString();
+}
+
 EZ_ALWAYS_INLINE ezUInt32 ezTempHashedString::GetHash() const
 {
   return m_uiHash;
@@ -236,4 +251,3 @@ struct ezHashHelper<ezTempHashedString>
 
   EZ_ALWAYS_INLINE static bool Equal(const ezTempHashedString& a, const ezTempHashedString& b) { return a == b; }
 };
-
