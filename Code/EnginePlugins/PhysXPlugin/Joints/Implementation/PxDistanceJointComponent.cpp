@@ -12,11 +12,11 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxDistanceJointComponent, 1, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_MEMBER_PROPERTY("MinDistance", m_fMinDistance),
-    EZ_MEMBER_PROPERTY("MaxDistance", m_fMaxDistance)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
-    EZ_MEMBER_PROPERTY("SpringStiffness", m_fSpringStiffness),
-    EZ_MEMBER_PROPERTY("SpringDamping", m_fSpringDamping)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
-    EZ_MEMBER_PROPERTY("SpringTolerance", m_fSpringTolerance)->AddAttributes(new ezDefaultValueAttribute(0.05f)),
+    EZ_ACCESSOR_PROPERTY("MinDistance", GetMinDistance, SetMinDistance),
+    EZ_ACCESSOR_PROPERTY("MaxDistance", GetMaxDistance, SetMaxDistance)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+    EZ_ACCESSOR_PROPERTY("SpringStiffness", GetSpringStiffness, SetSpringStiffness),
+    EZ_ACCESSOR_PROPERTY("SpringDamping", GetSpringDamping, SetSpringDamping)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
+    EZ_ACCESSOR_PROPERTY("SpringTolerance", GetSpringTolerance, SetSpringTolerance)->AddAttributes(new ezDefaultValueAttribute(0.05f)),
   }
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES

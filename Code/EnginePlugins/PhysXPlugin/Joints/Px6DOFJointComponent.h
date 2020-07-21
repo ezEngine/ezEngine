@@ -55,10 +55,13 @@ public:
   ezPx6DOFJointComponent();
   ~ezPx6DOFJointComponent();
 
-  ezBitflags<ezPxAxis> m_FreeLinearAxis;  // [ property ]
-  ezBitflags<ezPxAxis> m_FreeAngularAxis; // [ property ]
-
   virtual void ApplySettings() final override;
+
+  void SetFreeLinearAxis(ezBitflags<ezPxAxis> flags);                         // [ property ]
+  ezBitflags<ezPxAxis> GetFreeLinearAxis() const { return m_FreeLinearAxis; } // [ property ]
+
+  void SetFreeAngularAxis(ezBitflags<ezPxAxis> flags);                          // [ property ]
+  ezBitflags<ezPxAxis> GetFreeAngularAxis() const { return m_FreeAngularAxis; } // [ property ]
 
   void SetLinearLimitMode(ezPxJointLimitMode::Enum mode);                           // [ property ]
   ezPxJointLimitMode::Enum GetLinearLimitMode() const { return m_LinearLimitMode; } // [ property ]
@@ -104,6 +107,8 @@ public:
   float GetTwistDamping() const { return m_fTwistDamping; } // [ property ]
 
 protected:
+  ezBitflags<ezPxAxis> m_FreeLinearAxis;
+
   ezEnum<ezPxJointLimitMode> m_LinearLimitMode;
 
   float m_fLinearStiffness = 0.0f;
@@ -112,6 +117,8 @@ protected:
   ezVec2 m_vLinearRangeX = ezVec2::ZeroVector();
   ezVec2 m_vLinearRangeY = ezVec2::ZeroVector();
   ezVec2 m_vLinearRangeZ = ezVec2::ZeroVector();
+
+  ezBitflags<ezPxAxis> m_FreeAngularAxis;
 
   ezEnum<ezPxJointLimitMode> m_SwingLimitMode;
   ezAngle m_SwingLimit;

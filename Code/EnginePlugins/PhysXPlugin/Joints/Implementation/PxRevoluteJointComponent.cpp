@@ -26,7 +26,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxRevoluteJointComponent, 5, ezComponentMode::Static)
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.2, ezColor::LightSkyBlue)
+    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.2, ezColor::SlateGray)
   }
   EZ_END_ATTRIBUTES;
 }

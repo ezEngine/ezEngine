@@ -18,14 +18,14 @@ EZ_BEGIN_COMPONENT_TYPE(ezPx6DOFJointComponent, 2, ezComponentMode::Static)
 {
   EZ_BEGIN_PROPERTIES
   {
-    EZ_BITFLAGS_MEMBER_PROPERTY("FreeLinearAxis", ezPxAxis, m_FreeLinearAxis),
+    EZ_BITFLAGS_ACCESSOR_PROPERTY("FreeLinearAxis", ezPxAxis, GetFreeLinearAxis, SetFreeLinearAxis),
     EZ_ENUM_ACCESSOR_PROPERTY("LinearLimitMode", ezPxJointLimitMode, GetLinearLimitMode, SetLinearLimitMode),
     EZ_ACCESSOR_PROPERTY("LinearRangeX", GetLinearRangeX, SetLinearRangeX),
     EZ_ACCESSOR_PROPERTY("LinearRangeY", GetLinearRangeY, SetLinearRangeY),
     EZ_ACCESSOR_PROPERTY("LinearRangeZ", GetLinearRangeZ, SetLinearRangeZ),
     EZ_ACCESSOR_PROPERTY("LinearStiffness", GetLinearStiffness, SetLinearStiffness)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
     EZ_ACCESSOR_PROPERTY("LinearDamping", GetLinearDamping, SetLinearDamping)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_BITFLAGS_MEMBER_PROPERTY("FreeAngularAxis", ezPxAxis, m_FreeAngularAxis),
+    EZ_BITFLAGS_ACCESSOR_PROPERTY("FreeAngularAxis", ezPxAxis, GetFreeAngularAxis, SetFreeAngularAxis),
     EZ_ENUM_ACCESSOR_PROPERTY("SwingLimitMode", ezPxJointLimitMode, GetSwingLimitMode, SetSwingLimitMode),
     EZ_ACCESSOR_PROPERTY("SwingLimit", GetSwingLimit, SetSwingLimit)->AddAttributes(new ezClampValueAttribute(ezAngle(), ezAngle::Degree(175))),
     EZ_ACCESSOR_PROPERTY("SwingStiffness", GetSwingStiffness, SetSwingStiffness)->AddAttributes(new ezClampValueAttribute(0.0f, ezVariant())),
@@ -39,7 +39,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPx6DOFJointComponent, 2, ezComponentMode::Static)
   EZ_END_PROPERTIES;
   EZ_BEGIN_ATTRIBUTES
   {
-    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.2, ezColor::LightSkyBlue)
+    new ezDirectionVisualizerAttribute(ezBasisAxis::PositiveX, 0.2, ezColor::SlateGray)
   }
   EZ_END_ATTRIBUTES;
 }
@@ -281,6 +281,18 @@ void ezPx6DOFJointComponent::ApplySettings()
   //pJoint->setDrive(PxD6Drive::eY, PxD6JointDrive(m_fLinearStiffness, m_fLinearDamping, PX_MAX_F32, true));
   //pJoint->setDrive(PxD6Drive::eZ, PxD6JointDrive(m_fLinearStiffness, m_fLinearDamping, PX_MAX_F32, true));
   //pJoint->setDrive(PxD6Drive::eSLERP, PxD6JointDrive(m_fAngularStiffness, m_fAngularDamping, PX_MAX_F32, true));
+}
+
+void ezPx6DOFJointComponent::SetFreeLinearAxis(ezBitflags<ezPxAxis> flags)
+{
+  m_FreeLinearAxis = flags;
+  QueueApplySettings();
+}
+
+void ezPx6DOFJointComponent::SetFreeAngularAxis(ezBitflags<ezPxAxis> flags)
+{
+  m_FreeAngularAxis = flags;
+  QueueApplySettings();
 }
 
 void ezPx6DOFJointComponent::SetLinearLimitMode(ezPxJointLimitMode::Enum mode)

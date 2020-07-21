@@ -104,7 +104,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxDynamicActorComponent, 3, ezComponentMode::Dynamic)
       EZ_MEMBER_PROPERTY("Density", m_fDensity)->AddAttributes(new ezDefaultValueAttribute(100.0f), new ezSuffixAttribute(" kg/m^3")),
       EZ_ACCESSOR_PROPERTY("DisableGravity", GetDisableGravity, SetDisableGravity),
       EZ_MEMBER_PROPERTY("LinearDamping", m_fLinearDamping)->AddAttributes(new ezDefaultValueAttribute(0.2f)),
-      EZ_MEMBER_PROPERTY("AngularDamping", m_fAngularDamping)->AddAttributes(new ezDefaultValueAttribute(0.2f)),
+      EZ_MEMBER_PROPERTY("AngularDamping", m_fAngularDamping)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
       EZ_MEMBER_PROPERTY("MaxContactImpulse", m_fMaxContactImpulse)->AddAttributes(new ezDefaultValueAttribute(100000.0f), new ezClampValueAttribute(0.0f, ezVariant())),
       EZ_ACCESSOR_PROPERTY("ContinuousCollisionDetection", GetContinuousCollisionDetection, SetContinuousCollisionDetection)
   }

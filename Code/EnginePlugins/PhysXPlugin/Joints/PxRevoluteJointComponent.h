@@ -61,6 +61,6 @@ protected:
   float m_fSpringStiffness = 0;
   float m_fSpringDamping = 0;
   ezEnum<ezPxJointDriveMode> m_DriveMode;
-  float m_fDriveVelocity = 0;    // [ property ]
-  float m_fMaxDriveTorque = 100; // [ property ]
+  float m_fDriveVelocity = 0;
+  float m_fMaxDriveTorque = 100;
 };
