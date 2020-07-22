@@ -2,6 +2,9 @@
 
 #include <RendererCore/RendererCoreDLL.h>
 
+#include <Foundation/Math/Mat3.h>
+#include <Foundation/Math/Transform.h>
+
 /// \brief A wrapper class that converts a ezMat3 into the correct data layout for shaders.
 class ezShaderMat3
 {

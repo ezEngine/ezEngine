@@ -1,7 +1,8 @@
+#include <FoundationPCH.h>
 
 #include <Foundation/Containers/Blob.h>
+
 #include <Foundation/Memory/Allocator.h>
-#include <FoundationPCH.h>
 
 ezBlob::ezBlob() = default;
 

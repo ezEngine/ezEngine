@@ -1,6 +1,6 @@
+#include <FoundationPCH.h>
 
 #include <Foundation/IO/StringDeduplicationContext.h>
-#include <FoundationPCH.h>
 
 static const ezTypeVersion s_uiStringDeduplicationVersion = 1;
 
