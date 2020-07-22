@@ -1,12 +1,12 @@
 
 #pragma once
 
-#include <Ultralight/Ultralight.h>
-#include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Containers/Map.h>
 #include <Foundation/Threading/Mutex.h>
-#include <RendererFoundation/Resources/Texture.h>
 #include <RendererFoundation/Resources/Buffer.h>
+#include <RendererFoundation/Resources/Texture.h>
+#include <Ultralight/Ultralight.h>
 
 class ezGALDevice;
 class ezGALContext;
@@ -17,7 +17,6 @@ EZ_DEFINE_AS_POD_TYPE(ultralight::Command);
 class ezUltralightGPUDriver : public ultralight::GPUDriver
 {
 public:
-
   ezUltralightGPUDriver();
   ~ezUltralightGPUDriver();
 
@@ -51,7 +50,6 @@ public:
   virtual void DrawCommandList() override;
 
 protected:
-
   struct Texture
   {
     ezGALTextureHandle m_hTex;

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <GuiFoundation/GuiFoundationDLL.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 #include <ads/DockWidget.h>
 
@@ -31,4 +31,3 @@ private:
 
   ezQtContainerWindow* m_pContainerWindow;
 };
-

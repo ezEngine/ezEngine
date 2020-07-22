@@ -13,6 +13,5 @@ public:
   virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) const = 0;
   virtual void GetSupportedRenderDataCategories(ezHybridArray<ezRenderData::Category, 8>& categories) const = 0;
 
-  virtual void RenderBatch(
-    const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const = 0;
+  virtual void RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const = 0;
 };

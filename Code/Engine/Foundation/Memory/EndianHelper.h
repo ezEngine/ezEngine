@@ -65,14 +65,15 @@ struct EZ_FOUNDATION_DLL ezEndianHelper
   template <typename T>
   static void SwitchInPlace(T* pValue) // [tested]
   {
-    EZ_CHECK_AT_COMPILETIME_MSG((sizeof(T) == 2 || sizeof(T) == 4 || sizeof(T) == 8),
-                                "Switch in place only works for type equivalents of ezUInt16, ezUInt32, ezUInt64!");
+    EZ_CHECK_AT_COMPILETIME_MSG(
+      (sizeof(T) == 2 || sizeof(T) == 4 || sizeof(T) == 8), "Switch in place only works for type equivalents of ezUInt16, ezUInt32, ezUInt64!");
 
     if (sizeof(T) == 2)
     {
       struct TAnd16BitUnion
       {
-        union {
+        union
+        {
           ezUInt16 BitValue;
           T TValue;
         };
@@ -88,7 +89,8 @@ struct EZ_FOUNDATION_DLL ezEndianHelper
     {
       struct TAnd32BitUnion
       {
-        union {
+        union
+        {
           ezUInt32 BitValue;
           T TValue;
         };
@@ -104,7 +106,8 @@ struct EZ_FOUNDATION_DLL ezEndianHelper
     {
       struct TAnd64BitUnion
       {
-        union {
+        union
+        {
           ezUInt64 BitValue;
           T TValue;
         };
@@ -205,4 +208,3 @@ struct EZ_FOUNDATION_DLL ezEndianHelper
     SwitchStructs(static_cast<void*>(pDataPointer), szFormat, sizeof(T), uiCount);
   }
 };
-

@@ -1,9 +1,9 @@
 #pragma once
 
+#include <EditorPluginFmod/SoundBankAsset/SoundBankAsset.h>
 #include <Foundation/Basics.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
-#include <EditorPluginFmod/SoundBankAsset/SoundBankAsset.h>
 
 class QLabel;
 class QScrollArea;
@@ -20,7 +20,7 @@ public:
   virtual const char* GetGroupName() const { return "SoundBankAsset"; }
   virtual const char* GetWindowLayoutGroupName() const override { return "SoundBankAsset"; }
 
-  private Q_SLOTS:
+private Q_SLOTS:
 
 
 private:

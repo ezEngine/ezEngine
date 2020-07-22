@@ -166,7 +166,8 @@ inline void TestCanOnlyConvertToID(const ezVariant& v, ezVariant::Type::Enum typ
   }
 }
 
-inline void TestCanOnlyConvertToStringAndID(const ezVariant& v, ezVariant::Type::Enum type, ezVariant::Type::Enum type2 = ezVariant::Type::Invalid, ezVariant::Type::Enum type3 = ezVariant::Type::Invalid)
+inline void TestCanOnlyConvertToStringAndID(const ezVariant& v, ezVariant::Type::Enum type, ezVariant::Type::Enum type2 = ezVariant::Type::Invalid,
+  ezVariant::Type::Enum type3 = ezVariant::Type::Invalid)
 {
   if (type2 == ezVariant::Type::Invalid)
     type2 = type;
@@ -1241,8 +1242,8 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v.ConvertTo<ezString>() == "{ c1r1=1, c2r1=2, c3r1=3, c1r2=4, c2r2=5, c3r2=6, c1r3=7, c2r3=8, c3r3=9 }");
 
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Matrix3).Get<ezMat3>() == m);
-    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() ==
-                 "{ c1r1=1, c2r1=2, c3r1=3, c1r2=4, c2r2=5, c3r2=6, c1r3=7, c2r3=8, c3r3=9 }");
+    EZ_TEST_BOOL(
+      v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "{ c1r1=1, c2r1=2, c3r1=3, c1r2=4, c2r2=5, c3r2=6, c1r3=7, c2r3=8, c3r3=9 }");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezMat4)")

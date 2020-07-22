@@ -7,7 +7,7 @@
 #include <QMessageBox>
 
 ezQtEditorPluginConfigDlg::ezQtEditorPluginConfigDlg(QWidget* parent)
-    : QDialog(parent)
+  : QDialog(parent)
 {
   setupUi(this);
 

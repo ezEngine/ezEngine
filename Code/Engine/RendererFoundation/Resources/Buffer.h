@@ -1,17 +1,15 @@
 
 #pragma once
 
-#include <RendererFoundation/Resources/Resource.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
+#include <RendererFoundation/Resources/Resource.h>
 
 class EZ_RENDERERFOUNDATION_DLL ezGALBuffer : public ezGALResource<ezGALBufferCreationDescription>
 {
 public:
-
   EZ_ALWAYS_INLINE ezUInt32 GetSize() const;
 
 protected:
-
   friend class ezGALDevice;
 
   ezGALBuffer(const ezGALBufferCreationDescription& Description);
@@ -24,4 +22,3 @@ protected:
 };
 
 #include <RendererFoundation/Resources/Implementation/Buffer_inl.h>
-

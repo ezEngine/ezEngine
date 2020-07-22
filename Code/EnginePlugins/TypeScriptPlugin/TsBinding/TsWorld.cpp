@@ -204,7 +204,8 @@ static int __CPP_World_FindObjectsInSphere(duk_context* pDuk)
 
   if (category != ezInvalidSpatialDataCategory)
   {
-    pWorld->GetSpatialSystem()->FindObjectsInSphere(ezBoundingSphere(vSphereCenter, fRadius), category.GetBitmask(), ezMakeDelegate(&FindObjectsCallback::Callback, &cb));
+    pWorld->GetSpatialSystem()->FindObjectsInSphere(
+      ezBoundingSphere(vSphereCenter, fRadius), category.GetBitmask(), ezMakeDelegate(&FindObjectsCallback::Callback, &cb));
   }
 
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnVoid(), 0);
@@ -232,7 +233,8 @@ static int __CPP_World_FindObjectsInBox(duk_context* pDuk)
 
   if (category != ezInvalidSpatialDataCategory)
   {
-    pWorld->GetSpatialSystem()->FindObjectsInBox(ezBoundingBox(vBoxMin, vBoxMax), category.GetBitmask(), ezMakeDelegate(&FindObjectsCallback::Callback, &cb));
+    pWorld->GetSpatialSystem()->FindObjectsInBox(
+      ezBoundingBox(vBoxMin, vBoxMax), category.GetBitmask(), ezMakeDelegate(&FindObjectsCallback::Callback, &cb));
   }
 
   EZ_DUK_RETURN_AND_VERIFY_STACK(duk, duk.ReturnVoid(), 0);

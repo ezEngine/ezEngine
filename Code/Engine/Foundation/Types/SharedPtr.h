@@ -79,7 +79,7 @@ public:
   T* operator->() const;
 
   /// \brief Provides access to the managed object.
-  operator const T*() const;
+  operator const T *() const;
 
   /// \brief Provides access to the managed object.
   operator T*();

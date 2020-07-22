@@ -33,7 +33,7 @@ void ezQtMenuActionMapView::ClearView()
 }
 
 void ezQtMenuActionMapView::AddDocumentObjectToMenu(ezHashTable<ezUuid, QSharedPointer<ezQtProxy>>& Proxies, ezActionContext& Context,
-                                                    ezActionMap* pActionMap, QMenu* pCurrentRoot, const ezActionMap::TreeNode* pObject)
+  ezActionMap* pActionMap, QMenu* pCurrentRoot, const ezActionMap::TreeNode* pObject)
 {
   if (pObject == nullptr)
     return;

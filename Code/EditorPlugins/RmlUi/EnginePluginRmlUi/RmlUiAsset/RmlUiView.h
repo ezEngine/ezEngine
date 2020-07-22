@@ -18,4 +18,3 @@ protected:
 
   ezRmlUiContext* m_pRmlUiContext;
 };
-

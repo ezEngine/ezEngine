@@ -1,6 +1,7 @@
 #include <EditorPluginProcGenPCH.h>
 
 #include <Core/Assets/AssetFileHeader.h>
+#include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenGraphAsset.h>
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenGraphAssetWindow.moc.h>
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenGraphQt.h>
@@ -12,13 +13,11 @@
 #include <QLabel>
 #include <QLayout>
 #include <SharedPluginAssets/Common/Messages.h>
-#include <EditorFramework/Assets/AssetCurator.h>
 
 ezProcGenGraphAssetDocumentWindow::ezProcGenGraphAssetDocumentWindow(ezProcGenGraphAssetDocument* pDocument)
   : ezQtEngineDocumentWindow(pDocument)
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(
-    ezMakeDelegate(&ezProcGenGraphAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezProcGenGraphAssetDocumentWindow::PropertyEventHandler, this));
 
   // Menu Bar
   {

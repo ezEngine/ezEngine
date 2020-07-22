@@ -19,7 +19,8 @@ public:
   /// \brief Writes bytes directly to the stream.
   virtual ezResult WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite) override;
 
-  /// \brief Returns the current hash value. You can read this at any time between write operations, or after writing is done to get the final hash value.
+  /// \brief Returns the current hash value. You can read this at any time between write operations, or after writing is done to get the final hash
+  /// value.
   ezUInt32 GetHashValue() const;
 
 private:
@@ -40,7 +41,8 @@ public:
   /// \brief Writes bytes directly to the stream.
   virtual ezResult WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite) override;
 
-  /// \brief Returns the current hash value. You can read this at any time between write operations, or after writing is done to get the final hash value.
+  /// \brief Returns the current hash value. You can read this at any time between write operations, or after writing is done to get the final hash
+  /// value.
   ezUInt64 GetHashValue() const;
 
 private:

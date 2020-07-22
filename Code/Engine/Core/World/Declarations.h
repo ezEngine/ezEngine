@@ -47,7 +47,8 @@ struct ezGameObjectId
     m_WorldIndex = worldIndex;
   }
 
-  union {
+  union
+  {
     StorageType m_Data;
     struct
     {
@@ -97,7 +98,8 @@ struct ezComponentId
     m_WorldIndex = worldIndex;
   }
 
-  union {
+  union
+  {
     StorageType m_Data;
     struct
     {

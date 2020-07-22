@@ -1,13 +1,13 @@
 #include <FoundationTestPCH.h>
 
+#include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Containers/HybridArray.h>
+#include <Foundation/Containers/StaticArray.h>
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/Stream.h>
-#include <Foundation/Containers/DynamicArray.h>
-#include <Foundation/Containers/StaticArray.h>
-#include <Foundation/Containers/HybridArray.h>
 
-#include <Foundation/Strings/String.h>
 #include <Foundation/IO/StringDeduplicationContext.h>
+#include <Foundation/Strings/String.h>
 
 namespace
 {
@@ -35,7 +35,7 @@ namespace
     ezInt32 m_uiMember1 = 0x42;
     ezInt32 m_uiMember2 = 0x23;
   };
-}
+} // namespace
 
 EZ_CREATE_SIMPLE_TEST(IO, StreamOperation)
 {

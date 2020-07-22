@@ -12,7 +12,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualShaderPin, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezVisualShaderPin::ezVisualShaderPin(Type type, const ezVisualShaderPinDescriptor* pDescriptor, const ezDocumentObject* pObject)
-    : ezPin(type, pDescriptor->m_sName, pDescriptor->m_Color, pObject)
+  : ezPin(type, pDescriptor->m_sName, pDescriptor->m_Color, pObject)
 {
   m_pDescriptor = pDescriptor;
 }
@@ -138,8 +138,8 @@ const char* ezVisualShaderNodeManager::GetTypeCategory(const ezRTTI* pRtti) cons
 }
 
 
-ezStatus ezVisualShaderNodeManager::InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty,
-                                                   const ezVariant& index) const
+ezStatus ezVisualShaderNodeManager::InternalCanAdd(
+  const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty, const ezVariant& index) const
 {
   auto pDesc = ezVisualShaderTypeRegistry::GetSingleton()->GetDescriptorForType(pRtti);
 

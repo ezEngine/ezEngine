@@ -1,19 +1,19 @@
 #include <OpenXRPluginPCH.h>
 
+#include <Core/World/World.h>
+#include <Foundation/Profiling/Profiling.h>
+#include <GameEngine/XR/StageSpaceComponent.h>
 #include <OpenXRPlugin/OpenXRDeclarations.h>
 #include <OpenXRPlugin/OpenXRHandTracking.h>
 #include <OpenXRPlugin/OpenXRSingleton.h>
-#include <GameEngine/XR/StageSpaceComponent.h>
-#include <Core/World/World.h>
-#include <Foundation/Profiling/Profiling.h>
 
 EZ_IMPLEMENT_SINGLETON(ezOpenXRHandTracking);
 
 bool ezOpenXRHandTracking::IsHandTrackingSupported(ezOpenXR* pOpenXR)
 {
 #ifdef BUILDSYSTEM_ENABLE_OPENXR_PREVIEW_SUPPORT
-  XrSystemHandTrackingPropertiesMSFT handTrackingSystemProperties{ XR_TYPE_SYSTEM_HAND_TRACKING_PROPERTIES_MSFT };
-  XrSystemProperties systemProperties{ XR_TYPE_SYSTEM_PROPERTIES, &handTrackingSystemProperties };
+  XrSystemHandTrackingPropertiesMSFT handTrackingSystemProperties{XR_TYPE_SYSTEM_HAND_TRACKING_PROPERTIES_MSFT};
+  XrSystemProperties systemProperties{XR_TYPE_SYSTEM_PROPERTIES, &handTrackingSystemProperties};
   XrResult res = xrGetSystemProperties(pOpenXR->m_instance, pOpenXR->m_systemId, &systemProperties);
   if (res == XrResult::XR_SUCCESS)
   {
@@ -32,13 +32,13 @@ ezOpenXRHandTracking::ezOpenXRHandTracking(ezOpenXR* pOpenXR)
   for (ezUInt32 uiSide : {0, 1})
   {
     const XrHandMSFT uiHand = uiSide == 0 ? XR_HAND_LEFT_MSFT : XR_HAND_RIGHT_MSFT;
-    XrHandTrackerCreateInfoMSFT createInfo{ XR_TYPE_HAND_TRACKER_CREATE_INFO_MSFT };
+    XrHandTrackerCreateInfoMSFT createInfo{XR_TYPE_HAND_TRACKER_CREATE_INFO_MSFT};
     createInfo.hand = uiHand;
     XR_LOG_ERROR(m_pOpenXR->m_extensions.pfn_xrCreateHandTrackerMSFT(pOpenXR->m_session, &createInfo, &m_HandTracker[uiSide]));
 
-    XrHandJointSpaceCreateInfoMSFT jointCreateInfo{ XR_TYPE_HAND_JOINT_SPACE_CREATE_INFO_MSFT };
+    XrHandJointSpaceCreateInfoMSFT jointCreateInfo{XR_TYPE_HAND_JOINT_SPACE_CREATE_INFO_MSFT};
     jointCreateInfo.handTracker = m_HandTracker[uiSide];
-    jointCreateInfo.poseInJointSpace = { {0, 0, 0, 1}, {0, 0, 0} };
+    jointCreateInfo.poseInJointSpace = {{0, 0, 0, 1}, {0, 0, 0}};
 
     m_JointData[uiSide].SetCount(XR_HAND_JOINT_LITTLE_TIP_MSFT + 1);
     for (ezUInt32 i = 0; i <= XR_HAND_JOINT_LITTLE_TIP_MSFT; ++i)
@@ -49,7 +49,7 @@ ezOpenXRHandTracking::ezOpenXRHandTracking(ezOpenXR* pOpenXR)
     }
   }
 
-  //Map hand parts to hand joints
+  // Map hand parts to hand joints
   m_HandParts[ezXRHandPart::Palm].PushBack(XR_HAND_JOINT_PALM_MSFT);
   m_HandParts[ezXRHandPart::Palm].PushBack(XR_HAND_JOINT_WRIST_MSFT);
 
@@ -106,8 +106,7 @@ ezOpenXRHandTracking::~ezOpenXRHandTracking()
 }
 
 ezXRHandTrackingInterface::HandPartTrackingState ezOpenXRHandTracking::TryGetBoneTransforms(
-  ezEnum<ezXRHand> hand, ezEnum<ezXRHandPart> handPart, ezEnum<ezXRTransformSpace> space,
-  ezDynamicArray<ezXRHandBone>& out_bones)
+  ezEnum<ezXRHand> hand, ezEnum<ezXRHandPart> handPart, ezEnum<ezXRTransformSpace> space, ezDynamicArray<ezXRHandBone>& out_bones)
 {
 #ifdef BUILDSYSTEM_ENABLE_OPENXR_PREVIEW_SUPPORT
   EZ_ASSERT_DEV(handPart <= ezXRHandPart::Little, "Invalid hand part.");
@@ -153,12 +152,11 @@ void ezOpenXRHandTracking::UpdateJointTransforms()
   {
     for (ezUInt32 i = 0; i <= XR_HAND_JOINT_LITTLE_TIP_MSFT; ++i)
     {
-      XrHandJointRadiusMSFT jointRadius{ XR_TYPE_HAND_JOINT_RADIUS_MSFT };
-      XrSpaceLocation spaceLocation{ XR_TYPE_SPACE_LOCATION, &jointRadius };
+      XrHandJointRadiusMSFT jointRadius{XR_TYPE_HAND_JOINT_RADIUS_MSFT};
+      XrSpaceLocation spaceLocation{XR_TYPE_SPACE_LOCATION, &jointRadius};
       XrResult res = xrLocateSpace(m_JointData[uiSide][i].m_Space, m_pOpenXR->GetBaseSpace(), time, &spaceLocation);
-      if (res == XrResult::XR_SUCCESS &&
-        (spaceLocation.locationFlags & XR_SPACE_LOCATION_POSITION_VALID_BIT) != 0 &&
-        (spaceLocation.locationFlags & XR_SPACE_LOCATION_ORIENTATION_VALID_BIT) != 0)
+      if (res == XrResult::XR_SUCCESS && (spaceLocation.locationFlags & XR_SPACE_LOCATION_POSITION_VALID_BIT) != 0 &&
+          (spaceLocation.locationFlags & XR_SPACE_LOCATION_ORIENTATION_VALID_BIT) != 0)
       {
         m_JointData[uiSide][i].m_bValid = true;
         m_JointData[uiSide][i].m_Bone.m_fRadius = jointRadius.radius;

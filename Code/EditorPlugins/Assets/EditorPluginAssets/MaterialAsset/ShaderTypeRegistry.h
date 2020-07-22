@@ -3,8 +3,8 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Configuration/Startup.h>
-#include <Foundation/Strings/String.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Strings/String.h>
 #include <Foundation/Time/Timestamp.h>
 
 struct ezPhantomRttiManagerEvent;
@@ -25,7 +25,10 @@ private:
 
   struct ShaderData
   {
-    ShaderData() : m_pType(nullptr) {}
+    ShaderData()
+      : m_pType(nullptr)
+    {
+    }
 
     ezString m_sShaderPath;
     ezString m_sAbsShaderPath;

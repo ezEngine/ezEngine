@@ -51,7 +51,8 @@ public:
   float m_fDistortionStrength = 0;
 
   virtual void CreateRequiredStreams() override;
-  virtual void ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const override;
+  virtual void ExtractTypeRenderData(
+    const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const override;
   /// \todo This is a hacky guess, one would actually need to inspect the trail positions
   virtual float GetMaxParticleRadius(float fParticleSize) const override { return fParticleSize + m_uiMaxPoints * 0.05f; }
 
@@ -89,9 +90,9 @@ protected:
   ezVec4* GetTrailPointsPositions(ezUInt32 index);
 
   /// \todo Use a shared freelist across effects instead
-  //ezDynamicArray<ezTrailParticlePointsData8> m_TrailPoints8;
-  //ezDynamicArray<ezTrailParticlePointsData16> m_TrailPoints16;
-  //ezDynamicArray<ezTrailParticlePointsData32> m_TrailPoints32;
+  // ezDynamicArray<ezTrailParticlePointsData8> m_TrailPoints8;
+  // ezDynamicArray<ezTrailParticlePointsData16> m_TrailPoints16;
+  // ezDynamicArray<ezTrailParticlePointsData32> m_TrailPoints32;
   ezDynamicArray<ezTrailParticlePointsData64, ezAlignedAllocatorWrapper> m_TrailPoints64;
   ezDynamicArray<ezUInt16> m_FreeTrailData;
 };

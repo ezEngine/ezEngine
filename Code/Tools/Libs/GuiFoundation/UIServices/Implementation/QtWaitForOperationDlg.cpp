@@ -4,12 +4,12 @@
 #include <QTimer>
 
 #if EZ_ENABLED(USE_WIN_EXTRAS)
-#include <QtWinExtras/QWinTaskbarButton>
-#include <QtWinExtras/QWinTaskbarProgress>
+#  include <QtWinExtras/QWinTaskbarButton>
+#  include <QtWinExtras/QWinTaskbarProgress>
 #endif
 
 ezQtWaitForOperationDlg::ezQtWaitForOperationDlg(QWidget* parent)
-    : QDialog(parent)
+  : QDialog(parent)
 {
   setupUi(this);
 

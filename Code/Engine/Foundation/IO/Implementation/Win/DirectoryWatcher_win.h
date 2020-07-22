@@ -45,14 +45,8 @@ ezResult ezDirectoryWatcher::OpenDirectory(const ezString& absolutePath, ezBitfl
   if (whatToWatch.IsSet(Watch::Renames))
     m_pImpl->m_filter |= FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME;
 
-  m_pImpl->m_directoryHandle = CreateFileW(
-    ezDosDevicePath(sPath),
-    FILE_LIST_DIRECTORY,
-    FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-    nullptr,
-    OPEN_EXISTING,
-    FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED,
-    nullptr);
+  m_pImpl->m_directoryHandle = CreateFileW(ezDosDevicePath(sPath), FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
+    nullptr, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OVERLAPPED, nullptr);
   if (m_pImpl->m_directoryHandle == INVALID_HANDLE_VALUE)
   {
     return EZ_FAILURE;
@@ -90,8 +84,8 @@ ezDirectoryWatcher::~ezDirectoryWatcher()
 void ezDirectoryWatcherImpl::DoRead()
 {
   memset(&m_overlapped, 0, sizeof(m_overlapped));
-  BOOL success = ReadDirectoryChangesW(m_directoryHandle, m_buffer.GetData(), m_buffer.GetCount(), m_watchSubdirs,
-                                       m_filter, nullptr, &m_overlapped, nullptr);
+  BOOL success =
+    ReadDirectoryChangesW(m_directoryHandle, m_buffer.GetData(), m_buffer.GetCount(), m_watchSubdirs, m_filter, nullptr, &m_overlapped, nullptr);
   EZ_ASSERT_DEV(success, "ReadDirectoryChangesW failed.");
 }
 
@@ -109,16 +103,16 @@ void ezDirectoryWatcher::EnumerateChanges(EnumerateChangesFunction func)
       m_pImpl->DoRead();
       continue;
     }
-    //Copy the buffer
+    // Copy the buffer
 
     ezHybridArray<ezUInt8, 4096> buffer;
     buffer.SetCountUninitialized(numberOfBytes);
     buffer.GetArrayPtr().CopyFrom(m_pImpl->m_buffer.GetArrayPtr().GetSubArray(0, numberOfBytes));
 
-    //Reissue the read request
+    // Reissue the read request
     m_pImpl->DoRead();
 
-    //Progress the messages
+    // Progress the messages
     auto info = (const FILE_NOTIFY_INFORMATION*)buffer.GetData();
     while (true)
     {

@@ -32,8 +32,8 @@ ezQtPropertyWidget::ezQtPropertyWidget()
 
 ezQtPropertyWidget::~ezQtPropertyWidget() {}
 
-void ezQtPropertyWidget::Init(ezQtPropertyGridWidget* pGrid, ezObjectAccessorBase* pObjectAccessor, const ezRTTI* pType,
-  const ezAbstractProperty* pProp)
+void ezQtPropertyWidget::Init(
+  ezQtPropertyGridWidget* pGrid, ezObjectAccessorBase* pObjectAccessor, const ezRTTI* pType, const ezAbstractProperty* pProp)
 {
   m_pGrid = pGrid;
   m_pObjectAccessor = pObjectAccessor;
@@ -85,7 +85,8 @@ void ezQtPropertyWidget::ExtendContextMenu(QMenu& m)
       mimeData->setText(m_pProp->GetPropertyName());
       clipboard->setMimeData(mimeData);
 
-      ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Copied Property Name: {}", m_pProp->GetPropertyName()), ezTime::Seconds(5));
+      ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(
+        ezFmt("Copied Property Name: {}", m_pProp->GetPropertyName()), ezTime::Seconds(5));
     };
 
     QAction* pAction = m.addAction("Copy Internal Property Name:");
@@ -115,8 +116,8 @@ const ezRTTI* ezQtPropertyWidget::GetCommonBaseType(const ezHybridArray<ezProper
   return pSubtype;
 }
 
-bool ezQtPropertyWidget::GetCommonVariantSubType(const ezHybridArray<ezPropertySelection, 8>& items, const ezAbstractProperty* pProperty,
-  ezVariantType::Enum& out_Type)
+bool ezQtPropertyWidget::GetCommonVariantSubType(
+  const ezHybridArray<ezPropertySelection, 8>& items, const ezAbstractProperty* pProperty, ezVariantType::Enum& out_Type)
 {
   bool bFirst = true;
   // check if we have multiple values
@@ -453,9 +454,8 @@ void ezQtPropertyPointerWidget::StructureEventHandler(const ezDocumentObjectStru
       if (!e.m_sParentProperty.IsEqual(m_pProp->GetPropertyName()))
         return;
 
-      if (std::none_of(cbegin(m_Items), cend(m_Items), [&](const ezPropertySelection& sel) {
-            return e.m_pNewParent == sel.m_pObject || e.m_pPreviousParent == sel.m_pObject;
-          }))
+      if (std::none_of(cbegin(m_Items), cend(m_Items),
+            [&](const ezPropertySelection& sel) { return e.m_pNewParent == sel.m_pObject || e.m_pPreviousParent == sel.m_pObject; }))
         return;
 
       SetSelection(m_Items);
@@ -478,10 +478,8 @@ ezQtEmbeddedClassPropertyWidget::ezQtEmbeddedClassPropertyWidget()
 
 ezQtEmbeddedClassPropertyWidget::~ezQtEmbeddedClassPropertyWidget()
 {
-  m_pGrid->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(
-    ezMakeDelegate(&ezQtEmbeddedClassPropertyWidget::PropertyEventHandler, this));
-  m_pGrid->GetCommandHistory()->m_Events.RemoveEventHandler(
-    ezMakeDelegate(&ezQtEmbeddedClassPropertyWidget::CommandHistoryEventHandler, this));
+  m_pGrid->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezQtEmbeddedClassPropertyWidget::PropertyEventHandler, this));
+  m_pGrid->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtEmbeddedClassPropertyWidget::CommandHistoryEventHandler, this));
 }
 
 void ezQtEmbeddedClassPropertyWidget::SetSelection(const ezHybridArray<ezPropertySelection, 8>& items)
@@ -530,10 +528,8 @@ void ezQtEmbeddedClassPropertyWidget::SetPropertyValue(const ezAbstractProperty*
 
 void ezQtEmbeddedClassPropertyWidget::OnInit()
 {
-  m_pGrid->GetObjectManager()->m_PropertyEvents.AddEventHandler(
-    ezMakeDelegate(&ezQtEmbeddedClassPropertyWidget::PropertyEventHandler, this));
-  m_pGrid->GetCommandHistory()->m_Events.AddEventHandler(
-    ezMakeDelegate(&ezQtEmbeddedClassPropertyWidget::CommandHistoryEventHandler, this));
+  m_pGrid->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtEmbeddedClassPropertyWidget::PropertyEventHandler, this));
+  m_pGrid->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtEmbeddedClassPropertyWidget::CommandHistoryEventHandler, this));
 }
 
 
@@ -544,8 +540,7 @@ void ezQtEmbeddedClassPropertyWidget::PropertyEventHandler(const ezDocumentObjec
   if (IsUndead())
     return;
 
-  if (std::none_of(cbegin(m_ResolvedObjects), cend(m_ResolvedObjects),
-        [=](const ezPropertySelection& sel) { return e.m_pObject == sel.m_pObject; }))
+  if (std::none_of(cbegin(m_ResolvedObjects), cend(m_ResolvedObjects), [=](const ezPropertySelection& sel) { return e.m_pObject == sel.m_pObject; }))
     return;
 
   if (!m_QueuedChanges.Contains(e.m_sProperty))
@@ -873,8 +868,7 @@ void ezQtPropertyContainerWidget::OnDragStarted(QMimeData& mimeData)
 void ezQtPropertyContainerWidget::OnCustomElementContextMenu(const QPoint& pt)
 {
   ezQtGroupBoxBase* pGroup = qobject_cast<ezQtGroupBoxBase*>(sender());
-  Element* pElement =
-    std::find_if(begin(m_Elements), end(m_Elements), [pGroup](const Element& elem) -> bool { return elem.m_pSubGroup == pGroup; });
+  Element* pElement = std::find_if(begin(m_Elements), end(m_Elements), [pGroup](const Element& elem) -> bool { return elem.m_pSubGroup == pGroup; });
 
   if (pElement)
   {
@@ -1213,14 +1207,16 @@ ezQtPropertyTypeContainerWidget::ezQtPropertyTypeContainerWidget()
 
 ezQtPropertyTypeContainerWidget::~ezQtPropertyTypeContainerWidget()
 {
-  m_pGrid->GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyTypeContainerWidget::StructureEventHandler, this));
+  m_pGrid->GetDocument()->GetObjectManager()->m_StructureEvents.RemoveEventHandler(
+    ezMakeDelegate(&ezQtPropertyTypeContainerWidget::StructureEventHandler, this));
   m_pGrid->GetCommandHistory()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyTypeContainerWidget::CommandHistoryEventHandler, this));
 }
 
 void ezQtPropertyTypeContainerWidget::OnInit()
 {
   ezQtPropertyContainerWidget::OnInit();
-  m_pGrid->GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyTypeContainerWidget::StructureEventHandler, this));
+  m_pGrid->GetDocument()->GetObjectManager()->m_StructureEvents.AddEventHandler(
+    ezMakeDelegate(&ezQtPropertyTypeContainerWidget::StructureEventHandler, this));
   m_pGrid->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtPropertyTypeContainerWidget::CommandHistoryEventHandler, this));
 }
 
@@ -1287,9 +1283,8 @@ void ezQtPropertyTypeContainerWidget::StructureEventHandler(const ezDocumentObje
       if (!e.m_sParentProperty.IsEqual(m_pProp->GetPropertyName()))
         return;
 
-      if (std::none_of(cbegin(m_Items), cend(m_Items), [&](const ezPropertySelection& sel) {
-            return e.m_pNewParent == sel.m_pObject || e.m_pPreviousParent == sel.m_pObject;
-          }))
+      if (std::none_of(cbegin(m_Items), cend(m_Items),
+            [&](const ezPropertySelection& sel) { return e.m_pNewParent == sel.m_pObject || e.m_pPreviousParent == sel.m_pObject; }))
         return;
 
       m_bNeedsUpdate = true;
@@ -1412,9 +1407,8 @@ void ezQtVariantPropertyWidget::ChangeVariantType(ezVariantType::Enum type)
     }
     else
     {
-      EZ_VERIFY(m_pObjectAccessor->SetValue(item.m_pObject, m_pProp, ezReflectionUtils::GetDefaultVariantFromType(type), item.m_Index)
-                  .Succeeded(),
-        "");
+      EZ_VERIFY(
+        m_pObjectAccessor->SetValue(item.m_pObject, m_pProp, ezReflectionUtils::GetDefaultVariantFromType(type), item.m_Index).Succeeded(), "");
     }
   }
   m_pObjectAccessor->FinishTransaction();

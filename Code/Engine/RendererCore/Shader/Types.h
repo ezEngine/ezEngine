@@ -2,18 +2,16 @@
 
 #include <RendererCore/RendererCoreDLL.h>
 
+#include <Foundation/Math/Mat3.h>
+#include <Foundation/Math/Transform.h>
+
 /// \brief A wrapper class that converts a ezMat3 into the correct data layout for shaders.
 class ezShaderMat3
 {
 public:
-  EZ_ALWAYS_INLINE ezShaderMat3()
-  {
-  }
+  EZ_ALWAYS_INLINE ezShaderMat3() {}
 
-  EZ_ALWAYS_INLINE ezShaderMat3(const ezMat3& m)
-  {
-    *this = m;
-  }
+  EZ_ALWAYS_INLINE ezShaderMat3(const ezMat3& m) { *this = m; }
 
   EZ_FORCE_INLINE void operator=(const ezMat3& m)
   {
@@ -34,14 +32,9 @@ private:
 class ezShaderTransform
 {
 public:
-  EZ_ALWAYS_INLINE ezShaderTransform()
-  {
-  }
+  EZ_ALWAYS_INLINE ezShaderTransform() {}
 
-  inline void operator=(const ezTransform& t)
-  {
-    *this = t.GetAsMat4();
-  }
+  inline void operator=(const ezTransform& t) { *this = t.GetAsMat4(); }
 
   inline void operator=(const ezMat4& t)
   {
@@ -83,21 +76,12 @@ private:
 class ezShaderBool
 {
 public:
-  EZ_ALWAYS_INLINE ezShaderBool()
-  {
-  }
+  EZ_ALWAYS_INLINE ezShaderBool() {}
 
-  EZ_ALWAYS_INLINE ezShaderBool(bool b)
-  {
-    m_Data = b ? 0xFFFFFFFF : 0;
-  }
+  EZ_ALWAYS_INLINE ezShaderBool(bool b) { m_Data = b ? 0xFFFFFFFF : 0; }
 
-  EZ_ALWAYS_INLINE void operator=(bool b)
-  {
-    m_Data = b ? 0xFFFFFFFF : 0;
-  }
+  EZ_ALWAYS_INLINE void operator=(bool b) { m_Data = b ? 0xFFFFFFFF : 0; }
 
 private:
   ezUInt32 m_Data;
 };
-

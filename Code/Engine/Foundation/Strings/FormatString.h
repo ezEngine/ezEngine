@@ -25,7 +25,7 @@ struct ezStringView;
 ///
 /// This allows to call MyFunc() without the 'ezFmt' wrapper.
 ///
-/// 
+///
 /// === Formatting ===
 ///
 /// Placeholders for variables are specified using '{}'. These may use numbers from 0 to 9,
@@ -89,4 +89,3 @@ EZ_ALWAYS_INLINE ezFormatStringImpl<ARGS...> ezFmt(const char* szFormat, ARGS&&.
 {
   return ezFormatStringImpl<ARGS...>(szFormat, std::forward<ARGS>(args)...);
 }
-

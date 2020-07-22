@@ -67,5 +67,4 @@ public:
   ezDynamicArray<ezTypeScriptParameterString> m_StringParameters;
   ezDynamicArray<ezTypeScriptParameterVec3> m_Vec3Parameters;
   ezDynamicArray<ezTypeScriptParameterColor> m_ColorParameters;
-
 };

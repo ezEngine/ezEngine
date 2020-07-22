@@ -1,8 +1,8 @@
 #pragma once
 
-#include <ProcGenPlugin/Declarations.h>
-#include <Foundation/Types/UniquePtr.h>
 #include <Core/World/Declarations.h>
+#include <Foundation/Types/UniquePtr.h>
+#include <ProcGenPlugin/Declarations.h>
 
 class ezPhysicsWorldModuleInterface;
 
@@ -48,4 +48,4 @@ namespace ezProcGenInternal
     State::Enum m_State;
     ezDynamicArray<ezGameObjectHandle> m_PlacedObjects;
   };
-}
+} // namespace ezProcGenInternal

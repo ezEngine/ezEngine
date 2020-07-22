@@ -20,7 +20,7 @@ namespace ezModelImporter
 
       // Old object looses data in copy. (workaround to make hash table work)
       Object(Object&& object);
-      void operator = (Object&& object);
+      void operator=(Object&& object);
 
       ezTransform m_Transform;
 
@@ -83,5 +83,5 @@ namespace ezModelImporter
 
       ezHashTable<ezString, ezString> m_textureFilenames;
     };
-  }
-}
+  } // namespace Pbrt
+} // namespace ezModelImporter

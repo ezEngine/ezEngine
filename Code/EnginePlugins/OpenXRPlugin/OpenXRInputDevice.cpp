@@ -1,16 +1,16 @@
 #include <OpenXRPluginPCH.h>
 
-#include <OpenXRPlugin/OpenXRInputDevice.h>
-#include <OpenXRPlugin/OpenXRSingleton.h>
-#include <OpenXRPlugin/OpenXRDeclarations.h>
 #include <Core/Input/InputManager.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <OpenXRPlugin/OpenXRDeclarations.h>
+#include <OpenXRPlugin/OpenXRInputDevice.h>
+#include <OpenXRPlugin/OpenXRSingleton.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezOpenXRInputDevice, 1, ezRTTINoAllocator);
 // no properties or message handlers
 EZ_END_DYNAMIC_REFLECTED_TYPE;
-// clang-format on
+  // clang-format on
 
 
 #define XR_Trigger "trigger_value"
@@ -117,7 +117,7 @@ XrResult ezOpenXRInputDevice::CreateActions(XrSession session, XrSpace sceneSpac
     m_sActiveProfile[uiControllerId].Clear();
   }
 
-  XrActionSetCreateInfo actionSetInfo{ XR_TYPE_ACTION_SET_CREATE_INFO };
+  XrActionSetCreateInfo actionSetInfo{XR_TYPE_ACTION_SET_CREATE_INFO};
   strcpy(actionSetInfo.actionSetName, "gameplay");
   strcpy(actionSetInfo.localizedActionSetName, "Gameplay");
   actionSetInfo.priority = 0;
@@ -153,73 +153,85 @@ XrResult ezOpenXRInputDevice::CreateActions(XrSession session, XrSpace sceneSpac
   XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::Menu, XR_Menu_Click, XR_ACTION_TYPE_BOOLEAN_INPUT, MenuClick), DestroyActions);
   XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::Squeeze, XR_Squeeze_Click, XR_ACTION_TYPE_BOOLEAN_INPUT, SqueezeClick), DestroyActions);
 
-  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::PrimaryAnalogStick, XR_Primary_Analog_Stick_Axis, XR_ACTION_TYPE_VECTOR2F_INPUT, PrimaryAnalogStickAxis), DestroyActions);
-  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::PrimaryAnalogStickClick, XR_Primary_Analog_Stick_Click, XR_ACTION_TYPE_BOOLEAN_INPUT, PrimaryAnalogStickClick), DestroyActions);
-  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::PrimaryAnalogStickTouch, XR_Primary_Analog_Stick_Touch, XR_ACTION_TYPE_BOOLEAN_INPUT, PrimaryAnalogStickTouch), DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(
+    CreateAction(ezXRDeviceFeatures::PrimaryAnalogStick, XR_Primary_Analog_Stick_Axis, XR_ACTION_TYPE_VECTOR2F_INPUT, PrimaryAnalogStickAxis),
+    DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(
+    CreateAction(ezXRDeviceFeatures::PrimaryAnalogStickClick, XR_Primary_Analog_Stick_Click, XR_ACTION_TYPE_BOOLEAN_INPUT, PrimaryAnalogStickClick),
+    DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(
+    CreateAction(ezXRDeviceFeatures::PrimaryAnalogStickTouch, XR_Primary_Analog_Stick_Touch, XR_ACTION_TYPE_BOOLEAN_INPUT, PrimaryAnalogStickTouch),
+    DestroyActions);
 
-  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::SecondaryAnalogStick, XR_Secondary_Analog_Stick_Axis, XR_ACTION_TYPE_VECTOR2F_INPUT, SecondaryAnalogStickAxis), DestroyActions);
-  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::SecondaryAnalogStickClick, XR_Secondary_Analog_Stick_Click, XR_ACTION_TYPE_BOOLEAN_INPUT, SecondaryAnalogStickClick), DestroyActions);
-  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::SecondaryAnalogStickTouch, XR_Secondary_Analog_Stick_Touch, XR_ACTION_TYPE_BOOLEAN_INPUT, SecondaryAnalogStickTouch), DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(
+    CreateAction(ezXRDeviceFeatures::SecondaryAnalogStick, XR_Secondary_Analog_Stick_Axis, XR_ACTION_TYPE_VECTOR2F_INPUT, SecondaryAnalogStickAxis),
+    DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::SecondaryAnalogStickClick, XR_Secondary_Analog_Stick_Click, XR_ACTION_TYPE_BOOLEAN_INPUT,
+                              SecondaryAnalogStickClick),
+    DestroyActions);
+  XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::SecondaryAnalogStickTouch, XR_Secondary_Analog_Stick_Touch, XR_ACTION_TYPE_BOOLEAN_INPUT,
+                              SecondaryAnalogStickTouch),
+    DestroyActions);
 
   XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::GripPose, XR_Grip_Pose, XR_ACTION_TYPE_POSE_INPUT, GripPose), DestroyActions);
   XR_SUCCEED_OR_CLEANUP_LOG(CreateAction(ezXRDeviceFeatures::AimPose, XR_Aim_Pose, XR_ACTION_TYPE_POSE_INPUT, AimPose), DestroyActions);
 
   Bind simpleController[] = {
-        {SelectClick, "/user/hand/left/input/select"},
-        {MenuClick, "/user/hand/left/input/menu"},
-        {GripPose, "/user/hand/left/input/grip"},
-        {AimPose, "/user/hand/left/input/aim"},
+    {SelectClick, "/user/hand/left/input/select"},
+    {MenuClick, "/user/hand/left/input/menu"},
+    {GripPose, "/user/hand/left/input/grip"},
+    {AimPose, "/user/hand/left/input/aim"},
 
-        {SelectClick, "/user/hand/right/input/select"},
-        {MenuClick, "/user/hand/right/input/menu"},
-        {GripPose, "/user/hand/right/input/grip"},
-        {AimPose, "/user/hand/right/input/aim"},
+    {SelectClick, "/user/hand/right/input/select"},
+    {MenuClick, "/user/hand/right/input/menu"},
+    {GripPose, "/user/hand/right/input/grip"},
+    {AimPose, "/user/hand/right/input/aim"},
   };
   SuggestInteractionProfileBindings("/interaction_profiles/khr/simple_controller", "Simple Controller", simpleController);
 
   Bind motionController[] = {
-        {Trigger, "/user/hand/left/input/trigger"},
-        {SelectClick, "/user/hand/left/input/trigger"},
-        {MenuClick, "/user/hand/left/input/menu"},
-        {SqueezeClick, "/user/hand/left/input/squeeze"},
-        {PrimaryAnalogStickAxis, "/user/hand/left/input/thumbstick"},
-        {PrimaryAnalogStickClick, "/user/hand/left/input/thumbstick"},
-        {SecondaryAnalogStickAxis, "/user/hand/left/input/trackpad"},
-        {SecondaryAnalogStickClick, "/user/hand/left/input/trackpad/click"},
-        {SecondaryAnalogStickTouch, "/user/hand/left/input/trackpad/touch"},
-        {GripPose, "/user/hand/left/input/grip"},
-        {AimPose, "/user/hand/left/input/aim"},
+    {Trigger, "/user/hand/left/input/trigger"},
+    {SelectClick, "/user/hand/left/input/trigger"},
+    {MenuClick, "/user/hand/left/input/menu"},
+    {SqueezeClick, "/user/hand/left/input/squeeze"},
+    {PrimaryAnalogStickAxis, "/user/hand/left/input/thumbstick"},
+    {PrimaryAnalogStickClick, "/user/hand/left/input/thumbstick"},
+    {SecondaryAnalogStickAxis, "/user/hand/left/input/trackpad"},
+    {SecondaryAnalogStickClick, "/user/hand/left/input/trackpad/click"},
+    {SecondaryAnalogStickTouch, "/user/hand/left/input/trackpad/touch"},
+    {GripPose, "/user/hand/left/input/grip"},
+    {AimPose, "/user/hand/left/input/aim"},
 
-        {Trigger, "/user/hand/right/input/trigger"},
-        {SelectClick, "/user/hand/right/input/trigger"},
-        {MenuClick, "/user/hand/right/input/menu"},
-        {SqueezeClick, "/user/hand/right/input/squeeze"},
-        {PrimaryAnalogStickAxis, "/user/hand/right/input/thumbstick"},
-        {PrimaryAnalogStickClick, "/user/hand/right/input/thumbstick"},
-        {SecondaryAnalogStickAxis, "/user/hand/right/input/trackpad"},
-        {SecondaryAnalogStickClick, "/user/hand/right/input/trackpad/click"},
-        {SecondaryAnalogStickTouch, "/user/hand/right/input/trackpad/touch"},
-        {GripPose, "/user/hand/right/input/grip"},
-        {AimPose, "/user/hand/right/input/aim"},
+    {Trigger, "/user/hand/right/input/trigger"},
+    {SelectClick, "/user/hand/right/input/trigger"},
+    {MenuClick, "/user/hand/right/input/menu"},
+    {SqueezeClick, "/user/hand/right/input/squeeze"},
+    {PrimaryAnalogStickAxis, "/user/hand/right/input/thumbstick"},
+    {PrimaryAnalogStickClick, "/user/hand/right/input/thumbstick"},
+    {SecondaryAnalogStickAxis, "/user/hand/right/input/trackpad"},
+    {SecondaryAnalogStickClick, "/user/hand/right/input/trackpad/click"},
+    {SecondaryAnalogStickTouch, "/user/hand/right/input/trackpad/touch"},
+    {GripPose, "/user/hand/right/input/grip"},
+    {AimPose, "/user/hand/right/input/aim"},
   };
   SuggestInteractionProfileBindings("/interaction_profiles/microsoft/motion_controller", "Mixed Reality Motion Controller", motionController);
 
   if (m_pOpenXR->m_extensions.m_bHandInteraction)
   {
     Bind handInteraction[] = {
-        {SelectClick, "/user/hand/left/input/select"},
-        {GripPose, "/user/hand/left/input/grip"},
-        {AimPose, "/user/hand/left/input/aim"},
+      {SelectClick, "/user/hand/left/input/select"},
+      {GripPose, "/user/hand/left/input/grip"},
+      {AimPose, "/user/hand/left/input/aim"},
 
-        {SelectClick, "/user/hand/right/input/select"},
-        {GripPose, "/user/hand/right/input/grip"},
-        {AimPose, "/user/hand/right/input/aim"},
+      {SelectClick, "/user/hand/right/input/select"},
+      {GripPose, "/user/hand/right/input/grip"},
+      {AimPose, "/user/hand/right/input/aim"},
     };
     SuggestInteractionProfileBindings("/interaction_profiles/microsoft/hand_interaction", "Hand Interaction", handInteraction);
   }
 
 
-  XrActionSpaceCreateInfo spaceCreateInfo{ XR_TYPE_ACTION_SPACE_CREATE_INFO };
+  XrActionSpaceCreateInfo spaceCreateInfo{XR_TYPE_ACTION_SPACE_CREATE_INFO};
   spaceCreateInfo.poseInActionSpace = m_pOpenXR->ConvertTransform(ezTransform::IdentityTransform());
   for (ezUInt32 uiSide : {0, 1})
   {
@@ -301,7 +313,7 @@ XrPath ezOpenXRInputDevice::CreatePath(const char* szPath)
 
 XrResult ezOpenXRInputDevice::CreateAction(ezXRDeviceFeatures::Enum feature, const char* actionName, XrActionType actionType, XrAction& out_action)
 {
-  XrActionCreateInfo actionCreateInfo{ XR_TYPE_ACTION_CREATE_INFO };
+  XrActionCreateInfo actionCreateInfo{XR_TYPE_ACTION_CREATE_INFO};
   actionCreateInfo.actionType = actionType;
   actionCreateInfo.countSubactionPaths = m_subActionPath.GetCount();
   actionCreateInfo.subactionPaths = m_subActionPath.GetData();
@@ -316,16 +328,16 @@ XrResult ezOpenXRInputDevice::CreateAction(ezXRDeviceFeatures::Enum feature, con
   switch (actionType)
   {
     case XR_ACTION_TYPE_BOOLEAN_INPUT:
-      m_booleanActions.PushBack({ feature, out_action, sLeft, sRight });
+      m_booleanActions.PushBack({feature, out_action, sLeft, sRight});
       break;
     case XR_ACTION_TYPE_FLOAT_INPUT:
-      m_floatActions.PushBack({ feature, out_action, sLeft, sRight });
+      m_floatActions.PushBack({feature, out_action, sLeft, sRight});
       break;
     case XR_ACTION_TYPE_VECTOR2F_INPUT:
       m_vec2Actions.PushBack(Vec2Action(feature, out_action, sLeft, sRight));
       break;
     case XR_ACTION_TYPE_POSE_INPUT:
-      m_poseActions.PushBack({ feature, out_action, sLeft, sRight });
+      m_poseActions.PushBack({feature, out_action, sLeft, sRight});
       break;
     default:
       EZ_ASSERT_NOT_IMPLEMENTED;
@@ -344,11 +356,11 @@ XrResult ezOpenXRInputDevice::SuggestInteractionProfileBindings(const char* szIn
   xrBindings.Reserve(bindings.GetCount());
   for (const Bind& binding : bindings)
   {
-    xrBindings.PushBack({ binding.action, CreatePath(binding.szPath) });
+    xrBindings.PushBack({binding.action, CreatePath(binding.szPath)});
   }
 
 
-  XrInteractionProfileSuggestedBinding profileBindings{ XR_TYPE_INTERACTION_PROFILE_SUGGESTED_BINDING };
+  XrInteractionProfileSuggestedBinding profileBindings{XR_TYPE_INTERACTION_PROFILE_SUGGESTED_BINDING};
   profileBindings.interactionProfile = InteractionProfile;
   profileBindings.suggestedBindings = xrBindings.GetData();
   profileBindings.countSuggestedBindings = xrBindings.GetCount();
@@ -362,7 +374,7 @@ XrResult ezOpenXRInputDevice::SuggestInteractionProfileBindings(const char* szIn
 XrResult ezOpenXRInputDevice::AttachSessionActionSets(XrSession session)
 {
   m_session = session;
-  XrSessionActionSetsAttachInfo attachInfo{ XR_TYPE_SESSION_ACTION_SETS_ATTACH_INFO };
+  XrSessionActionSetsAttachInfo attachInfo{XR_TYPE_SESSION_ACTION_SETS_ATTACH_INFO};
   ezHybridArray<XrActionSet, 1> actionSets;
   actionSets.PushBack(m_ActionSet);
 
@@ -378,9 +390,8 @@ XrResult ezOpenXRInputDevice::UpdateCurrentInteractionProfile()
   // This function is triggered by the XR_TYPE_EVENT_DATA_INTERACTION_PROFILE_CHANGED event.
   // Unfortunately it does not seem to provide any info in regards to what top level path is affected
   // so we check both controllers again.
-  auto GetActiveControllerProfile = [this](ezUInt32 uiSide) -> XrPath
-  {
-    XrInteractionProfileState state{ XR_TYPE_INTERACTION_PROFILE_STATE };
+  auto GetActiveControllerProfile = [this](ezUInt32 uiSide) -> XrPath {
+    XrInteractionProfileState state{XR_TYPE_INTERACTION_PROFILE_STATE};
     XrResult res = xrGetCurrentInteractionProfile(m_session, m_subActionPath[uiSide], &state);
     if (res == XR_SUCCESS)
     {
@@ -410,9 +421,7 @@ XrResult ezOpenXRInputDevice::UpdateCurrentInteractionProfile()
   return XR_SUCCESS;
 }
 
-void ezOpenXRInputDevice::InitializeDevice()
-{
-}
+void ezOpenXRInputDevice::InitializeDevice() {}
 
 void ezOpenXRInputDevice::RegisterInputSlots()
 {
@@ -451,9 +460,9 @@ XrResult ezOpenXRInputDevice::UpdateActions()
   const XrFrameState& frameState = m_pOpenXR->m_frameState;
 
   ezHybridArray<XrActiveActionSet, 1> activeActionSets;
-  activeActionSets.PushBack({ m_ActionSet, XR_NULL_PATH });
+  activeActionSets.PushBack({m_ActionSet, XR_NULL_PATH});
 
-  XrActionsSyncInfo syncInfo{ XR_TYPE_ACTIONS_SYNC_INFO };
+  XrActionsSyncInfo syncInfo{XR_TYPE_ACTIONS_SYNC_INFO};
   syncInfo.countActiveActionSets = activeActionSets.GetCount();
   syncInfo.activeActionSets = activeActionSets.GetData();
   XrResult res = xrSyncActions(m_session, &syncInfo);
@@ -468,8 +477,8 @@ XrResult ezOpenXRInputDevice::UpdateActions()
 
     for (const Action& action : m_poseActions)
     {
-      XrActionStatePose state{ XR_TYPE_ACTION_STATE_POSE };
-      XrActionStateGetInfo getInfo{ XR_TYPE_ACTION_STATE_GET_INFO };
+      XrActionStatePose state{XR_TYPE_ACTION_STATE_POSE};
+      XrActionStateGetInfo getInfo{XR_TYPE_ACTION_STATE_GET_INFO};
       getInfo.action = action.m_Action;
       getInfo.subactionPath = m_subActionPath[uiSide];
       XR_SUCCEED_OR_RETURN_LOG(xrGetActionStatePose(m_session, &getInfo, &state));
@@ -478,8 +487,8 @@ XrResult ezOpenXRInputDevice::UpdateActions()
 
     for (const Action& action : m_booleanActions)
     {
-      XrActionStateBoolean state{ XR_TYPE_ACTION_STATE_BOOLEAN };
-      XrActionStateGetInfo getInfo{ XR_TYPE_ACTION_STATE_GET_INFO };
+      XrActionStateBoolean state{XR_TYPE_ACTION_STATE_BOOLEAN};
+      XrActionStateGetInfo getInfo{XR_TYPE_ACTION_STATE_GET_INFO};
       getInfo.action = action.m_Action;
       getInfo.subactionPath = m_subActionPath[uiSide];
       XR_SUCCEED_OR_RETURN_LOG(xrGetActionStateBoolean(m_session, &getInfo, &state));
@@ -489,8 +498,8 @@ XrResult ezOpenXRInputDevice::UpdateActions()
 
     for (const Action& action : m_floatActions)
     {
-      XrActionStateFloat state{ XR_TYPE_ACTION_STATE_FLOAT };
-      XrActionStateGetInfo getInfo{ XR_TYPE_ACTION_STATE_GET_INFO };
+      XrActionStateFloat state{XR_TYPE_ACTION_STATE_FLOAT};
+      XrActionStateGetInfo getInfo{XR_TYPE_ACTION_STATE_GET_INFO};
       getInfo.action = action.m_Action;
       getInfo.subactionPath = m_subActionPath[uiSide];
       XR_SUCCEED_OR_RETURN_LOG(xrGetActionStateFloat(m_session, &getInfo, &state));
@@ -500,8 +509,8 @@ XrResult ezOpenXRInputDevice::UpdateActions()
 
     for (const Vec2Action& action : m_vec2Actions)
     {
-      XrActionStateVector2f state{ XR_TYPE_ACTION_STATE_VECTOR2F };
-      XrActionStateGetInfo getInfo{ XR_TYPE_ACTION_STATE_GET_INFO };
+      XrActionStateVector2f state{XR_TYPE_ACTION_STATE_VECTOR2F};
+      XrActionStateGetInfo getInfo{XR_TYPE_ACTION_STATE_GET_INFO};
       getInfo.action = action.m_Action;
       getInfo.subactionPath = m_subActionPath[uiSide];
       XR_SUCCEED_OR_RETURN_LOG(xrGetActionStateVector2f(m_session, &getInfo, &state));
@@ -513,9 +522,9 @@ XrResult ezOpenXRInputDevice::UpdateActions()
       m_SupportedFeatures[uiControllerId].AddOrRemove(action.m_Feature, state.isActive);
     }
 
-    auto UpdatePose = [](ezVec3& vPosition, ezQuat& qRotation, bool& m_bIsValid, const XrSpaceLocation& viewInScene)
-    {
-      if ((viewInScene.locationFlags & (XR_SPACE_LOCATION_POSITION_VALID_BIT | XR_SPACE_LOCATION_ORIENTATION_VALID_BIT)) == (XR_SPACE_LOCATION_POSITION_VALID_BIT | XR_SPACE_LOCATION_ORIENTATION_VALID_BIT))
+    auto UpdatePose = [](ezVec3& vPosition, ezQuat& qRotation, bool& m_bIsValid, const XrSpaceLocation& viewInScene) {
+      if ((viewInScene.locationFlags & (XR_SPACE_LOCATION_POSITION_VALID_BIT | XR_SPACE_LOCATION_ORIENTATION_VALID_BIT)) ==
+          (XR_SPACE_LOCATION_POSITION_VALID_BIT | XR_SPACE_LOCATION_ORIENTATION_VALID_BIT))
       {
         vPosition = ezOpenXR::ConvertPosition(viewInScene.pose.position);
         qRotation = ezOpenXR::ConvertOrientation(viewInScene.pose.orientation);
@@ -527,12 +536,12 @@ XrResult ezOpenXRInputDevice::UpdateActions()
       }
     };
 
-    XrInteractionProfileState state2{ XR_TYPE_INTERACTION_PROFILE_STATE };
+    XrInteractionProfileState state2{XR_TYPE_INTERACTION_PROFILE_STATE};
     XrResult res2 = xrGetCurrentInteractionProfile(m_session, m_subActionPath[uiSide], &state2);
 
     ezXRDeviceState& state = m_DeviceState[uiControllerId];
     const XrTime time = frameState.predictedDisplayTime;
-    XrSpaceLocation viewInScene = { XR_TYPE_SPACE_LOCATION };
+    XrSpaceLocation viewInScene = {XR_TYPE_SPACE_LOCATION};
     XR_SUCCEED_OR_RETURN_LOG(xrLocateSpace(m_gripSpace[uiSide], m_pOpenXR->GetBaseSpace(), time, &viewInScene));
     UpdatePose(state.m_vGripPosition, state.m_qGripRotation, state.m_bGripPoseIsValid, viewInScene);
 
@@ -580,7 +589,7 @@ ezOpenXRInputDevice::Vec2Action::Vec2Action(ezXRDeviceFeatures::Enum feature, Xr
   m_Feature = feature;
   m_Action = action;
 
-  ezStringView sides[2] = { sLeft, sRight };
+  ezStringView sides[2] = {sLeft, sRight};
   for (ezUInt32 uiSide : {0, 1})
   {
     ezStringBuilder temp = sides[uiSide];

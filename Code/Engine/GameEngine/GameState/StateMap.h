@@ -1,9 +1,9 @@
 #pragma once
 
-#include <GameEngine/GameEngineDLL.h>
-#include <GameEngine/Declarations.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Strings/HashedString.h>
+#include <GameEngine/Declarations.h>
+#include <GameEngine/GameEngineDLL.h>
 
 /// \brief A simple registry that stores name/value pairs of types that are common to store game state
 ///
@@ -13,8 +13,8 @@ public:
   ezStateMap();
   ~ezStateMap();
 
-  ///void Load(ezStreamReader& stream);
-  ///void Save(ezStreamWriter& stream) const;
+  /// void Load(ezStreamReader& stream);
+  /// void Save(ezStreamWriter& stream) const;
   /// Lock / Unlock
 
   void Clear();
@@ -41,4 +41,3 @@ private:
   ezHashTable<ezTempHashedString, ezColor> m_Colors;
   ezHashTable<ezTempHashedString, ezString> m_Strings;
 };
-

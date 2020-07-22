@@ -8,14 +8,9 @@ struct ID3D11Query;
 class EZ_RENDERERDX11_DLL ezGALFenceDX11 : public ezGALFence
 {
 public:
-
-  EZ_ALWAYS_INLINE ID3D11Query* GetDXFence() const
-  {
-    return m_pDXFence;
-  }
+  EZ_ALWAYS_INLINE ID3D11Query* GetDXFence() const { return m_pDXFence; }
 
 protected:
-
   friend class ezGALDeviceDX11;
   friend class ezMemoryUtils;
 

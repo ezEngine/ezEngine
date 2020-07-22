@@ -11,8 +11,9 @@
 // ezAssetCurator Asset Hashing and Status Updates
 ////////////////////////////////////////////////////////////////////////
 
-ezAssetInfo::TransformState ezAssetCurator::HashAsset(ezUInt64 uiSettingsHash, const ezHybridArray<ezString, 16>& assetTransformDependencies, const ezHybridArray<ezString, 16>& runtimeDependencies,
-  ezSet<ezString>& missingDependencies, ezSet<ezString>& missingReferences, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, bool bForce)
+ezAssetInfo::TransformState ezAssetCurator::HashAsset(ezUInt64 uiSettingsHash, const ezHybridArray<ezString, 16>& assetTransformDependencies,
+  const ezHybridArray<ezString, 16>& runtimeDependencies, ezSet<ezString>& missingDependencies, ezSet<ezString>& missingReferences,
+  ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, bool bForce)
 {
   CURATOR_PROFILE("HashAsset");
   ezStringBuilder tmp;
@@ -215,8 +216,8 @@ ezResult ezAssetCurator::EnsureAssetInfoUpdated(const char* szAbsFilePath)
   if (bNew)
   {
     // now the GUID must be valid
-    EZ_ASSERT_DEV(pNewAssetInfo->m_Info->m_DocumentID.IsValid(),
-      "Asset header read for '{0}', but its GUID is invalid! Corrupted document?", szAbsFilePath);
+    EZ_ASSERT_DEV(
+      pNewAssetInfo->m_Info->m_DocumentID.IsValid(), "Asset header read for '{0}', but its GUID is invalid! Corrupted document?", szAbsFilePath);
     EZ_ASSERT_DEV(RefFile.m_AssetGuid == pNewAssetInfo->m_Info->m_DocumentID, "UpdateAssetInfo broke the GUID!");
 
     // Was the asset already known? Decide whether it was moved (ok) or duplicated (bad)
@@ -246,8 +247,7 @@ ezResult ezAssetCurator::EnsureAssetInfoUpdated(const char* szAbsFilePath)
           pOldAssetInfo->Update(pNewAssetInfo);
           TrackDependencies(pOldAssetInfo);
           UpdateAssetTransformState(RefFile.m_AssetGuid, ezAssetInfo::TransformState::Unknown);
-          SetAssetExistanceState(
-            *pOldAssetInfo,
+          SetAssetExistanceState(*pOldAssetInfo,
             ezAssetExistanceState::FileModified); // asset was only moved, prevent added event (could have been modified though)
           UpdateSubAssets(*pOldAssetInfo);
           RefFile.m_AssetGuid = pOldAssetInfo->m_Info->m_DocumentID;
@@ -324,17 +324,18 @@ ezResult ezAssetCurator::EnsureAssetInfoUpdated(const char* szAbsFilePath)
 
 void ezAssetCurator::TrackDependencies(ezAssetInfo* pAssetInfo)
 {
-  UpdateTrackedFiles(pAssetInfo->m_Info->m_DocumentID, pAssetInfo->m_Info->m_AssetTransformDependencies, m_InverseDependency,
-    m_UnresolvedDependencies, true);
-  UpdateTrackedFiles(pAssetInfo->m_Info->m_DocumentID, pAssetInfo->m_Info->m_RuntimeDependencies, m_InverseReferences,
-    m_UnresolvedReferences, true);
+  UpdateTrackedFiles(
+    pAssetInfo->m_Info->m_DocumentID, pAssetInfo->m_Info->m_AssetTransformDependencies, m_InverseDependency, m_UnresolvedDependencies, true);
+  UpdateTrackedFiles(pAssetInfo->m_Info->m_DocumentID, pAssetInfo->m_Info->m_RuntimeDependencies, m_InverseReferences, m_UnresolvedReferences, true);
 
-  const ezString sTargetFile = pAssetInfo->GetManager()->GetAbsoluteOutputFileName(pAssetInfo->m_pDocumentTypeDescriptor, pAssetInfo->m_sAbsolutePath, "");
+  const ezString sTargetFile =
+    pAssetInfo->GetManager()->GetAbsoluteOutputFileName(pAssetInfo->m_pDocumentTypeDescriptor, pAssetInfo->m_sAbsolutePath, "");
   auto it = m_InverseReferences.FindOrAdd(sTargetFile);
   it.Value().PushBack(pAssetInfo->m_Info->m_DocumentID);
   for (auto outputIt = pAssetInfo->m_Info->m_Outputs.GetIterator(); outputIt.IsValid(); ++outputIt)
   {
-    const ezString sTargetFile = pAssetInfo->GetManager()->GetAbsoluteOutputFileName(pAssetInfo->m_pDocumentTypeDescriptor, pAssetInfo->m_sAbsolutePath, outputIt.Key());
+    const ezString sTargetFile =
+      pAssetInfo->GetManager()->GetAbsoluteOutputFileName(pAssetInfo->m_pDocumentTypeDescriptor, pAssetInfo->m_sAbsolutePath, outputIt.Key());
     it = m_InverseReferences.FindOrAdd(sTargetFile);
     it.Value().PushBack(pAssetInfo->m_Info->m_DocumentID);
   }
@@ -345,25 +346,25 @@ void ezAssetCurator::TrackDependencies(ezAssetInfo* pAssetInfo)
 
 void ezAssetCurator::UntrackDependencies(ezAssetInfo* pAssetInfo)
 {
-  UpdateTrackedFiles(pAssetInfo->m_Info->m_DocumentID, pAssetInfo->m_Info->m_AssetTransformDependencies, m_InverseDependency,
-    m_UnresolvedDependencies, false);
-  UpdateTrackedFiles(pAssetInfo->m_Info->m_DocumentID, pAssetInfo->m_Info->m_RuntimeDependencies, m_InverseReferences,
-    m_UnresolvedReferences, false);
+  UpdateTrackedFiles(
+    pAssetInfo->m_Info->m_DocumentID, pAssetInfo->m_Info->m_AssetTransformDependencies, m_InverseDependency, m_UnresolvedDependencies, false);
+  UpdateTrackedFiles(pAssetInfo->m_Info->m_DocumentID, pAssetInfo->m_Info->m_RuntimeDependencies, m_InverseReferences, m_UnresolvedReferences, false);
 
-  const ezString sTargetFile = pAssetInfo->GetManager()->GetAbsoluteOutputFileName(pAssetInfo->m_pDocumentTypeDescriptor, pAssetInfo->m_sAbsolutePath, "");
+  const ezString sTargetFile =
+    pAssetInfo->GetManager()->GetAbsoluteOutputFileName(pAssetInfo->m_pDocumentTypeDescriptor, pAssetInfo->m_sAbsolutePath, "");
   auto it = m_InverseReferences.FindOrAdd(sTargetFile);
   it.Value().RemoveAndCopy(pAssetInfo->m_Info->m_DocumentID);
   for (auto outputIt = pAssetInfo->m_Info->m_Outputs.GetIterator(); outputIt.IsValid(); ++outputIt)
   {
-    const ezString sTargetFile = pAssetInfo->GetManager()->GetAbsoluteOutputFileName(pAssetInfo->m_pDocumentTypeDescriptor, pAssetInfo->m_sAbsolutePath, outputIt.Key());
+    const ezString sTargetFile =
+      pAssetInfo->GetManager()->GetAbsoluteOutputFileName(pAssetInfo->m_pDocumentTypeDescriptor, pAssetInfo->m_sAbsolutePath, outputIt.Key());
     it = m_InverseReferences.FindOrAdd(sTargetFile);
     it.Value().RemoveAndCopy(pAssetInfo->m_Info->m_DocumentID);
   }
 }
 
 void ezAssetCurator::UpdateTrackedFiles(const ezUuid& assetGuid, const ezSet<ezString>& files,
-  ezMap<ezString, ezHybridArray<ezUuid, 1>>& inverseTracker,
-  ezSet<std::tuple<ezUuid, ezUuid>>& unresolved, bool bAdd)
+  ezMap<ezString, ezHybridArray<ezUuid, 1>>& inverseTracker, ezSet<std::tuple<ezUuid, ezUuid>>& unresolved, bool bAdd)
 {
   for (const auto& dep : files)
   {
@@ -411,8 +412,8 @@ void ezAssetCurator::UpdateTrackedFiles(const ezUuid& assetGuid, const ezSet<ezS
   }
 }
 
-void ezAssetCurator::UpdateUnresolvedTrackedFiles(ezMap<ezString, ezHybridArray<ezUuid, 1>>& inverseTracker,
-  ezSet<std::tuple<ezUuid, ezUuid>>& unresolved)
+void ezAssetCurator::UpdateUnresolvedTrackedFiles(
+  ezMap<ezString, ezHybridArray<ezUuid, 1>>& inverseTracker, ezSet<std::tuple<ezUuid, ezUuid>>& unresolved)
 {
   for (auto it = unresolved.GetIterator(); it.IsValid();)
   {
@@ -569,8 +570,8 @@ void ezAssetCurator::UpdateSubAssets(ezAssetInfo& assetInfo)
     for (const ezSubAssetData& data : subAssets)
     {
       const bool bExisted = m_KnownSubAssets.Find(data.m_Guid).IsValid();
-      EZ_ASSERT_DEV(bExisted == assetInfo.m_SubAssets.Contains(data.m_Guid),
-        "Implementation error: m_KnownSubAssets and assetInfo.m_SubAssets are out of sync.");
+      EZ_ASSERT_DEV(
+        bExisted == assetInfo.m_SubAssets.Contains(data.m_Guid), "Implementation error: m_KnownSubAssets and assetInfo.m_SubAssets are out of sync.");
 
       ezSubAsset sub;
       sub.m_bMainAsset = false;
@@ -732,7 +733,8 @@ void ezAssetCurator::UpdateAssetTransformState(const ezUuid& assetGuid, ezAssetI
       {
         if (bStateChanged)
         {
-          ezString sThumbPath = static_cast<ezAssetDocumentManager*>(pAssetInfo->GetManager())->GenerateResourceThumbnailPath(pAssetInfo->m_sAbsolutePath);
+          ezString sThumbPath =
+            static_cast<ezAssetDocumentManager*>(pAssetInfo->GetManager())->GenerateResourceThumbnailPath(pAssetInfo->m_sAbsolutePath);
           ezQtImageCache::GetSingleton()->InvalidateCache(sThumbPath);
         }
         break;
@@ -800,9 +802,9 @@ void ezUpdateTask::Execute()
 
   // Do not log update errors done on the background thread. Only if done explicitly on the main thread or the GUI will not be responsive
   // if the user deleted some base asset and everything starts complaining about it.
-  ezLogEntryDelegate logger(
-    [&](ezLogEntry& entry) -> void {}, ezLogMsgType::All);
+  ezLogEntryDelegate logger([&](ezLogEntry& entry) -> void {}, ezLogMsgType::All);
   ezLogSystemScope logScope(&logger);
 
-  ezAssetCurator::GetSingleton()->IsAssetUpToDate(assetGuid, ezAssetCurator::GetSingleton()->GetActiveAssetProfile(), static_cast<const ezAssetDocumentTypeDescriptor*>(pTypeDescriptor), uiAssetHash, uiThumbHash);
+  ezAssetCurator::GetSingleton()->IsAssetUpToDate(assetGuid, ezAssetCurator::GetSingleton()->GetActiveAssetProfile(),
+    static_cast<const ezAssetDocumentTypeDescriptor*>(pTypeDescriptor), uiAssetHash, uiThumbHash);
 }

@@ -311,8 +311,8 @@ void ezPhysXCooking::CreateMeshDesc(const ezPhysXCookingMesh& mesh, PxSimpleTria
   EZ_ASSERT_DEV(desc.isValid(), "PhysX PxTriangleMeshDesc is invalid");
 }
 
-ezStatus ezPhysXCooking::WriteResourceToStream(ezChunkStreamWriter& stream, const ezPhysXCookingMesh& mesh,
-  const ezArrayPtr<ezString>& surfaces, bool bConvexMesh)
+ezStatus ezPhysXCooking::WriteResourceToStream(
+  ezChunkStreamWriter& stream, const ezPhysXCookingMesh& mesh, const ezArrayPtr<ezString>& surfaces, bool bConvexMesh)
 {
   ezResult resCooking = EZ_FAILURE;
 

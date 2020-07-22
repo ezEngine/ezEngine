@@ -18,4 +18,3 @@ ezDeduplicationWriteContext::~ezDeduplicationWriteContext() = default;
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_DeduplicationContext);
-

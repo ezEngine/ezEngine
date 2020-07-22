@@ -34,15 +34,14 @@ ezActionDescriptorHandle ezGameObjectDocumentActions::s_hPickTransparent;
 void ezGameObjectDocumentActions::RegisterActions()
 {
   s_hGameObjectCategory = EZ_REGISTER_CATEGORY("GameObjectCategory");
-  s_hRenderSelectionOverlay =
-    EZ_REGISTER_ACTION_1("Scene.Render.SelectionOverlay", ezActionScope::Document, "Scene", "S", ezGameObjectDocumentAction,
-      ezGameObjectDocumentAction::ActionType::RenderSelectionOverlay);
-  s_hRenderVisualizers = EZ_REGISTER_ACTION_1("Scene.Render.Visualizers", ezActionScope::Document, "Scene", "V",
-    ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::RenderVisualizers);
-  s_hRenderShapeIcons = EZ_REGISTER_ACTION_1("Scene.Render.ShapeIcons", ezActionScope::Document, "Scene", "I",
-    ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::RenderShapeIcons);
-  s_hRenderGrid = EZ_REGISTER_ACTION_1("Scene.Render.Grid", ezActionScope::Document, "Scene", "G", ezGameObjectDocumentAction,
-    ezGameObjectDocumentAction::ActionType::RenderGrid);
+  s_hRenderSelectionOverlay = EZ_REGISTER_ACTION_1("Scene.Render.SelectionOverlay", ezActionScope::Document, "Scene", "S", ezGameObjectDocumentAction,
+    ezGameObjectDocumentAction::ActionType::RenderSelectionOverlay);
+  s_hRenderVisualizers = EZ_REGISTER_ACTION_1("Scene.Render.Visualizers", ezActionScope::Document, "Scene", "V", ezGameObjectDocumentAction,
+    ezGameObjectDocumentAction::ActionType::RenderVisualizers);
+  s_hRenderShapeIcons = EZ_REGISTER_ACTION_1("Scene.Render.ShapeIcons", ezActionScope::Document, "Scene", "I", ezGameObjectDocumentAction,
+    ezGameObjectDocumentAction::ActionType::RenderShapeIcons);
+  s_hRenderGrid = EZ_REGISTER_ACTION_1(
+    "Scene.Render.Grid", ezActionScope::Document, "Scene", "G", ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::RenderGrid);
   s_hAddAmbientLight = EZ_REGISTER_ACTION_1("Scene.Render.AddAmbient", ezActionScope::Document, "Scene", "", ezGameObjectDocumentAction,
     ezGameObjectDocumentAction::ActionType::AddAmbientLight);
 
@@ -68,10 +67,11 @@ void ezGameObjectDocumentActions::RegisterActions()
   s_hSimulationSpeed[9] = EZ_REGISTER_ACTION_2("Scene.Simulation.Speed.10", ezActionScope::Document, "Simulation - Speed", "",
     ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::SimulationSpeed, 10.0f);
 
-  s_hCameraSpeed = EZ_REGISTER_ACTION_1("Scene.Camera.Speed", ezActionScope::Document, "Camera", "", ezCameraSpeedSliderAction,
-    ezCameraSpeedSliderAction::ActionType::CameraSpeed);
+  s_hCameraSpeed = EZ_REGISTER_ACTION_1(
+    "Scene.Camera.Speed", ezActionScope::Document, "Camera", "", ezCameraSpeedSliderAction, ezCameraSpeedSliderAction::ActionType::CameraSpeed);
 
-  s_hPickTransparent = EZ_REGISTER_ACTION_1("Scene.Render.PickTransparent", ezActionScope::Document, "Scene", "U", ezGameObjectDocumentAction, ezGameObjectDocumentAction::ActionType::PickTransparent);
+  s_hPickTransparent = EZ_REGISTER_ACTION_1("Scene.Render.PickTransparent", ezActionScope::Document, "Scene", "U", ezGameObjectDocumentAction,
+    ezGameObjectDocumentAction::ActionType::PickTransparent);
 }
 
 void ezGameObjectDocumentActions::UnregisterActions()
@@ -144,8 +144,8 @@ void ezGameObjectDocumentActions::MapToolbarActions(const char* szMapping, const
   }
 }
 
-ezGameObjectDocumentAction::ezGameObjectDocumentAction(const ezActionContext& context, const char* szName,
-  ezGameObjectDocumentAction::ActionType type, float fSimSpeed)
+ezGameObjectDocumentAction::ezGameObjectDocumentAction(
+  const ezActionContext& context, const char* szName, ezGameObjectDocumentAction::ActionType type, float fSimSpeed)
   : ezButtonAction(context, szName, false, "")
 {
   m_Type = type;
@@ -198,7 +198,7 @@ ezGameObjectDocumentAction::ezGameObjectDocumentAction(const ezActionContext& co
 
     case ActionType::PickTransparent:
       SetCheckable(true);
-      //SetIconPath(":/EditorFramework/Icons/Visualizers16.png"); // TODO icon
+      // SetIconPath(":/EditorFramework/Icons/Visualizers16.png"); // TODO icon
       SetChecked(m_pGameObjectDocument->GetPickTransparent());
       break;
   }

@@ -34,10 +34,8 @@ ezDirectoryWatcher* ezQtMaterialAssetDocumentWindow::s_pNodeConfigWatcher = null
 ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAssetDocument* pDocument)
   : ezQtEngineDocumentWindow(pDocument)
 {
-  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(
-    ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::PropertyEventHandler, this));
-  GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(
-    ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::SelectionEventHandler, this));
+  GetDocument()->GetObjectManager()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::SelectionEventHandler, this));
 
   pDocument->m_VisualShaderEvents.AddEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::VisualShaderEventHandler, this));
 
@@ -153,18 +151,16 @@ ezQtMaterialAssetDocumentWindow::ezQtMaterialAssetDocumentWindow(ezMaterialAsset
 
 ezQtMaterialAssetDocumentWindow::~ezQtMaterialAssetDocumentWindow()
 {
-  GetMaterialDocument()->m_VisualShaderEvents.RemoveEventHandler(
-    ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::VisualShaderEventHandler, this));
+  GetMaterialDocument()->m_VisualShaderEvents.RemoveEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::VisualShaderEventHandler, this));
 
   RestoreResource();
 
-  GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(
-    ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::SelectionEventHandler, this));
+  GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::SelectionEventHandler, this));
   GetDocument()->GetObjectManager()->m_PropertyEvents.RemoveEventHandler(
     ezMakeDelegate(&ezQtMaterialAssetDocumentWindow::PropertyEventHandler, this));
 
-  const bool bCustom = GetMaterialDocument()->GetPropertyObject()->GetTypeAccessor().GetValue("ShaderMode").ConvertTo<ezInt64>() ==
-                       ezMaterialShaderMode::Custom;
+  const bool bCustom =
+    GetMaterialDocument()->GetPropertyObject()->GetTypeAccessor().GetValue("ShaderMode").ConvertTo<ezInt64>() == ezMaterialShaderMode::Custom;
 
   if (bCustom)
   {
@@ -228,7 +224,8 @@ void ezQtMaterialAssetDocumentWindow::OnOpenShaderClicked(bool)
 {
   ezAssetDocumentManager* pManager = (ezAssetDocumentManager*)GetMaterialDocument()->GetDocumentManager();
 
-  ezString sAutoGenShader = pManager->GetAbsoluteOutputFileName(GetMaterialDocument()->GetAssetDocumentTypeDescriptor(), GetMaterialDocument()->GetDocumentPath(), ezMaterialAssetDocumentManager::s_szShaderOutputTag);
+  ezString sAutoGenShader = pManager->GetAbsoluteOutputFileName(GetMaterialDocument()->GetAssetDocumentTypeDescriptor(),
+    GetMaterialDocument()->GetDocumentPath(), ezMaterialAssetDocumentManager::s_szShaderOutputTag);
 
   if (ezOSFile::ExistsFile(sAutoGenShader))
   {
@@ -320,8 +317,8 @@ void ezQtMaterialAssetDocumentWindow::RestoreResource()
 
 void ezQtMaterialAssetDocumentWindow::UpdateNodeEditorVisibility()
 {
-  const bool bCustom = GetMaterialDocument()->GetPropertyObject()->GetTypeAccessor().GetValue("ShaderMode").ConvertTo<ezInt64>() ==
-                       ezMaterialShaderMode::Custom;
+  const bool bCustom =
+    GetMaterialDocument()->GetPropertyObject()->GetTypeAccessor().GetValue("ShaderMode").ConvertTo<ezInt64>() == ezMaterialShaderMode::Custom;
 
   m_pVsePanel->setVisible(bCustom);
 

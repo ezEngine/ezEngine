@@ -17,7 +17,7 @@ void ezConsole::ProcessCommand(const char* szCmd)
   {
     const char* szAfterCmd = ezStringUtils::FindWordEnd(szCmd, ezStringUtils::IsWhiteSpace); // skip the word 'bind' or 'unbind'
 
-    const char* szKeyNameStart = ezStringUtils::SkipCharacters(szAfterCmd, ezStringUtils::IsWhiteSpace); // go to the next word
+    const char* szKeyNameStart = ezStringUtils::SkipCharacters(szAfterCmd, ezStringUtils::IsWhiteSpace);                // go to the next word
     const char* szKeyNameEnd = ezStringUtils::FindWordEnd(szKeyNameStart, ezStringUtils::IsIdentifierDelimiter_C_Code); // find its end
 
     ezStringView sKey(szKeyNameStart, szKeyNameEnd);
@@ -90,4 +90,3 @@ void ezConsole::ExecuteBoundKey(const char* szKey)
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Console_Implementation_Commands);
-

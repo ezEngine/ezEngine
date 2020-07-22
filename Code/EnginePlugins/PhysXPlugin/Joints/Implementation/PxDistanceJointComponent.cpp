@@ -106,7 +106,8 @@ void ezPxDistanceJointComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_fSpringTolerance;
 }
 
-void ezPxDistanceJointComponent::CreateJointType(PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
+void ezPxDistanceJointComponent::CreateJointType(
+  PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
 {
   m_pJoint = PxDistanceJointCreate(*(ezPhysX::GetSingleton()->GetPhysXAPI()), actor0, localFrame0, actor1, localFrame1);
 }

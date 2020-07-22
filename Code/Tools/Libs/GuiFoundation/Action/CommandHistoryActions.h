@@ -1,7 +1,7 @@
 #pragma once
 
-#include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/Action/BaseActions.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <ToolsFoundation/CommandHistory/CommandHistory.h>
 
 ///
@@ -16,7 +16,6 @@ public:
   static ezActionDescriptorHandle s_hCommandHistoryCategory;
   static ezActionDescriptorHandle s_hUndo;
   static ezActionDescriptorHandle s_hRedo;
-
 };
 
 
@@ -24,8 +23,8 @@ public:
 class EZ_GUIFOUNDATION_DLL ezCommandHistoryAction : public ezDynamicActionAndMenuAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezCommandHistoryAction, ezDynamicActionAndMenuAction);
-public:
 
+public:
   enum class ButtonType
   {
     Undo,

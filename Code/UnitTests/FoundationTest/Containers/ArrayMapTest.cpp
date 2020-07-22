@@ -92,7 +92,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, ArrayMap)
 
     // check if modification of the keys via direct data access
     // keeps iterability and access via keys intact
-    
+
     // modify
     auto& data = m.GetData();
     for (auto& p : data)

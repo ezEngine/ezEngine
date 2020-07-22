@@ -1,7 +1,7 @@
 #include <CorePCH.h>
 
-#include <Core/World/World.h>
 #include <Core/Messages/DeleteObjectMessage.h>
+#include <Core/World/World.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezObjectMode, 1)
@@ -27,7 +27,8 @@ namespace
     if (action == T::DeleteGameObject)
     {
       // Send a message to the owner object to check whether another component wants to delete this object later.
-      // Can't use ezGameObject::SendMessage because the object would immediately delete itself and furthermore the sender component needs to be filtered out here.
+      // Can't use ezGameObject::SendMessage because the object would immediately delete itself and furthermore the sender component needs to be
+      // filtered out here.
       ezMsgDeleteGameObject msg;
 
       for (ezComponent* pComp : pComponent->GetOwner()->GetComponents())
@@ -69,7 +70,7 @@ namespace
       msg.m_bCancel = true;
     }
   }
-}
+} // namespace
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -96,4 +97,3 @@ void ezOnComponentFinishedAction2::HandleDeleteObjectMsg(ezMsgDeleteGameObject& 
 }
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_Declarations);
-

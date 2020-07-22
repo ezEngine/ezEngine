@@ -36,15 +36,15 @@ void ezRmlUiAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezRmlUiAssetDocument>())
       {
-        ezQtRmlUiAssetDocumentWindow* pDocWnd =
-          new ezQtRmlUiAssetDocumentWindow(static_cast<ezRmlUiAssetDocument*>(e.m_pDocument));
+        ezQtRmlUiAssetDocumentWindow* pDocWnd = new ezQtRmlUiAssetDocumentWindow(static_cast<ezRmlUiAssetDocument*>(e.m_pDocument));
       }
     }
     break;
   }
 }
 
-void ezRmlUiAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezRmlUiAssetDocumentManager::InternalCreateDocument(
+  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezRmlUiAssetDocument(szPath);
 }

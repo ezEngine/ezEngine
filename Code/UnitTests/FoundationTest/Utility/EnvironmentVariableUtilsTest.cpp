@@ -10,7 +10,7 @@ EZ_CREATE_SIMPLE_TEST(Utility, EnvironmentVariableUtils)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetValueString / GetValueInt")
   {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
     // Windows will have "NUMBER_OF_PROCESSORS" and "USERNAME" set, let's see if we can get them
     EZ_TEST_BOOL(ezEnvironmentVariableUtils::IsVariableSet("NUMBER_OF_PROCESSORS"));
@@ -22,15 +22,14 @@ EZ_CREATE_SIMPLE_TEST(Utility, EnvironmentVariableUtils)
     ezString szUserName = ezEnvironmentVariableUtils::GetValueString("USERNAME");
     EZ_TEST_BOOL(szUserName.GetElementCount() > 0);
 
-#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
+#  elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
 
     // Mac OS & Linux will have "USER" set
     EZ_TEST_BOOL(ezEnvironmentVariableUtils::IsVariableSet("USER"));
     ezString szUserName = ezEnvironmentVariableUtils::GetValueString("USER");
     EZ_TEST_BOOL(szUserName.GetElementCount() > 0);
 
-#endif
-
+#  endif
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsVariableSet/SetValue")
@@ -54,7 +53,8 @@ EZ_CREATE_SIMPLE_TEST(Utility, EnvironmentVariableUtils)
   {
     // The Windows implementation has a 64 wchar_t buffer for example. Let's try setting a really
     // long variable and getting it back
-    const char* szLongVariable = "SOME REALLY LONG VALUE, LETS TEST SOME LIMITS WE MIGHT HIT - 012456789 ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz";
+    const char* szLongVariable =
+      "SOME REALLY LONG VALUE, LETS TEST SOME LIMITS WE MIGHT HIT - 012456789 ABCDEFGHIJKLMNOPQRSTUVWXYZ abcdefghijklmnopqrstuvwxyz";
 
     ezStringBuilder szVarName;
     szVarName.Format("EZ_LONG_VARIABLE_TEST_{0}", uiVersionForVariableSetting++);

@@ -20,7 +20,8 @@ public:
   // ezPxJointComponent
 
 protected:
-  virtual void CreateJointType(physx::PxRigidActor* actor0, const physx::PxTransform& localFrame0, physx::PxRigidActor* actor1, const physx::PxTransform& localFrame1) override;
+  virtual void CreateJointType(
+    physx::PxRigidActor* actor0, const physx::PxTransform& localFrame0, physx::PxRigidActor* actor1, const physx::PxTransform& localFrame1) override;
 
 
   //////////////////////////////////////////////////////////////////////////

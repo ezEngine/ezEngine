@@ -27,12 +27,12 @@ public:
   ezResult WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite)
   {
     if (m_bOnlyWriteResult)
-      m_sResult.Append((const char*) pWriteBuffer);
+      m_sResult.Append((const char*)pWriteBuffer);
     else
     {
       const char* szWritten = (const char*)pWriteBuffer;
 
-      EZ_TEST_BOOL(ezMemoryUtils::IsEqual(szWritten, m_szExpectedData, (ezUInt32) uiBytesToWrite));
+      EZ_TEST_BOOL(ezMemoryUtils::IsEqual(szWritten, m_szExpectedData, (ezUInt32)uiBytesToWrite));
       m_szExpectedData += uiBytesToWrite;
     }
 
@@ -49,11 +49,10 @@ private:
 class StringStream : public ezStreamReader
 {
 public:
-
   StringStream(const void* pData)
   {
     m_pData = pData;
-    m_uiLength = ezStringUtils::GetStringElementCount((const char*) pData);
+    m_uiLength = ezStringUtils::GetStringElementCount((const char*)pData);
   }
 
   virtual ezUInt64 ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
@@ -63,8 +62,8 @@ public:
 
     if (uiBytesToRead > 0)
     {
-      ezMemoryUtils::Copy((ezUInt8*) pReadBuffer, (ezUInt8*) m_pData, (size_t) uiBytesToRead);
-      m_pData = ezMemoryUtils::AddByteOffset(m_pData, (ptrdiff_t) uiBytesToRead);
+      ezMemoryUtils::Copy((ezUInt8*)pReadBuffer, (ezUInt8*)m_pData, (size_t)uiBytesToRead);
+      m_pData = ezMemoryUtils::AddByteOffset(m_pData, (ptrdiff_t)uiBytesToRead);
     }
 
     return uiBytesToRead;
@@ -74,5 +73,3 @@ private:
   const void* m_pData;
   ezUInt64 m_uiLength;
 };
-
-

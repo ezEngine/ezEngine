@@ -1,6 +1,7 @@
-
 #include <FoundationPCH.h>
+
 #include <Foundation/Containers/Blob.h>
+
 #include <Foundation/Memory/Allocator.h>
 
 ezBlob::ezBlob() = default;
@@ -38,7 +39,7 @@ void ezBlob::SetFrom(void* pSource, ezUInt64 uiSize)
 
 void ezBlob::Clear()
 {
-  if(m_pStorage)
+  if (m_pStorage)
   {
     ezFoundation::GetAlignedAllocator()->Deallocate(m_pStorage);
     m_pStorage = nullptr;
@@ -48,7 +49,7 @@ void ezBlob::Clear()
 
 void ezBlob::SetCountUninitialized(ezUInt64 uiCount)
 {
-  if(m_uiSize != uiCount)
+  if (m_uiSize != uiCount)
   {
     Clear();
 
@@ -59,7 +60,7 @@ void ezBlob::SetCountUninitialized(ezUInt64 uiCount)
 
 void ezBlob::ZeroFill()
 {
-  if(m_pStorage)
+  if (m_pStorage)
   {
     ezMemoryUtils::ZeroFill(static_cast<ezUInt8*>(m_pStorage), static_cast<size_t>(m_uiSize));
   }
@@ -67,4 +68,3 @@ void ezBlob::ZeroFill()
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Containers_Implementation_Blob);
-

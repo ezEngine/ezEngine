@@ -8,7 +8,7 @@
 
 #  if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 // We compile Lua as C++ under UWP so we need to include the headers directly
-// to prevent the addition of extern "C" done by lua.hpp. 
+// to prevent the addition of extern "C" done by lua.hpp.
 #    include <Lua/lauxlib.h>
 #    include <Lua/lua.h>
 #    include <Lua/luaconf.h>

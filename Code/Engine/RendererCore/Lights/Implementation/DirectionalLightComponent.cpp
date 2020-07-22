@@ -154,9 +154,9 @@ void ezDirectionalLightComponent::DeserializeComponent(ezWorldReader& stream)
   }
 }
 
-  //////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
@@ -165,7 +165,7 @@ class ezDirectionalLightComponentPatch_1_2 : public ezGraphPatch
 {
 public:
   ezDirectionalLightComponentPatch_1_2()
-      : ezGraphPatch("ezDirectionalLightComponent", 2)
+    : ezGraphPatch("ezDirectionalLightComponent", 2)
   {
   }
 
@@ -180,4 +180,3 @@ ezDirectionalLightComponentPatch_1_2 g_ezDirectionalLightComponentPatch_1_2;
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_DirectionalLightComponent);
-

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <RendererFoundation/RendererFoundationDLL.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 
 class EZ_RENDERERFOUNDATION_DLL ezGALShader : public ezGALObject<ezGALShaderCreationDescription>
 {
@@ -9,7 +9,6 @@ public:
   virtual void SetDebugName(const char* szName) const = 0;
 
 protected:
-
   friend class ezGALDevice;
 
   virtual ezResult InitPlatform(ezGALDevice* pDevice) = 0;
@@ -20,5 +19,3 @@ protected:
 
   virtual ~ezGALShader();
 };
-
-

@@ -19,8 +19,7 @@ bool ezColor::IsNormalized() const
 {
   EZ_NAN_ASSERT(this);
 
-  return r <= 1.0f && g <= 1.0f && b <= 1.0f && a <= 1.0f &&
-         r >= 0.0f && g >= 0.0f && b >= 0.0f && a >= 0.0f;
+  return r <= 1.0f && g <= 1.0f && b <= 1.0f && a <= 1.0f && r >= 0.0f && g >= 0.0f && b >= 0.0f && a >= 0.0f;
 }
 
 
@@ -168,9 +167,7 @@ bool ezColor::IsEqualRGB(const ezColor& rhs, float fEpsilon) const
   EZ_NAN_ASSERT(this);
   EZ_NAN_ASSERT(&rhs);
 
-  return (ezMath::IsEqual(r, rhs.r, fEpsilon) &&
-          ezMath::IsEqual(g, rhs.g, fEpsilon) &&
-          ezMath::IsEqual(b, rhs.b, fEpsilon));
+  return (ezMath::IsEqual(r, rhs.r, fEpsilon) && ezMath::IsEqual(g, rhs.g, fEpsilon) && ezMath::IsEqual(b, rhs.b, fEpsilon));
 }
 
 bool ezColor::IsEqualRGBA(const ezColor& rhs, float fEpsilon) const
@@ -178,9 +175,7 @@ bool ezColor::IsEqualRGBA(const ezColor& rhs, float fEpsilon) const
   EZ_NAN_ASSERT(this);
   EZ_NAN_ASSERT(&rhs);
 
-  return (ezMath::IsEqual(r, rhs.r, fEpsilon) &&
-          ezMath::IsEqual(g, rhs.g, fEpsilon) &&
-          ezMath::IsEqual(b, rhs.b, fEpsilon) &&
+  return (ezMath::IsEqual(r, rhs.r, fEpsilon) && ezMath::IsEqual(g, rhs.g, fEpsilon) && ezMath::IsEqual(b, rhs.b, fEpsilon) &&
           ezMath::IsEqual(a, rhs.a, fEpsilon));
 }
 
@@ -431,8 +426,7 @@ const ezColor ezColor::WhiteSmoke(ezColorGammaUB(0xF5, 0xF5, 0xF5));
 const ezColor ezColor::Yellow(ezColorGammaUB(0xFF, 0xFF, 0x00));
 const ezColor ezColor::YellowGreen(ezColorGammaUB(0x9A, 0xCD, 0x32));
 
-const ezColor ezColor::s_PaletteColors[32] =
-{
+const ezColor ezColor::s_PaletteColors[32] = {
   ezColorGammaUB(0xE0, 0xE0, 0xE0), // grey
   ezColorGammaUB(0xFF, 0x00, 0x00), // red
   ezColorGammaUB(0x00, 0xFF, 0x00), // green
@@ -485,4 +479,3 @@ ezColor ezColor::ZeroColor()
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_Color);
-

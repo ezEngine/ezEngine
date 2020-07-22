@@ -59,7 +59,7 @@ void ezEditableSkeleton::ClearJoints()
 }
 
 static void AddChildJoints(ezSkeletonBuilder& sb, ezSkeletonResourceDescriptor* pDesc, const ezEditableSkeletonJoint* pParentJoint,
-                           const ezEditableSkeletonJoint* pJoint, ezUInt32 uiJointIdx)
+  const ezEditableSkeletonJoint* pJoint, ezUInt32 uiJointIdx)
 {
   if (pDesc != nullptr && pJoint->m_Geometry != ezSkeletonJointGeometryType::None)
   {
@@ -72,7 +72,7 @@ static void AddChildJoints(ezSkeletonBuilder& sb, ezSkeletonResourceDescriptor* 
     if (pParentJoint)
     {
       const float fBoneLength = (pParentJoint->m_Transform.m_vPosition - pJoint->m_Transform.m_vPosition).GetLength();
-      //geo.m_Transform.m_vPosition.y = fBoneLength * 0.5f;
+      // geo.m_Transform.m_vPosition.y = fBoneLength * 0.5f;
     }
   }
 
@@ -153,4 +153,3 @@ void ezEditableSkeletonJoint::CopyPropertiesFrom(const ezEditableSkeletonJoint* 
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_Implementation_EditableSkeleton);
-

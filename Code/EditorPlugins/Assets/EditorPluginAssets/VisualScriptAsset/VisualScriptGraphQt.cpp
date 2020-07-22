@@ -14,7 +14,7 @@
 #include <ToolsFoundation/Command/NodeCommands.h>
 
 ezQtVisualScriptAssetScene::ezQtVisualScriptAssetScene(QObject* parent)
-    : ezQtNodeScene(parent)
+  : ezQtNodeScene(parent)
 {
 }
 

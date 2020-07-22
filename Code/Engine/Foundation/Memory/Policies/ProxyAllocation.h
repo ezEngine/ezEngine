@@ -13,7 +13,7 @@ namespace ezMemoryPolicies
   {
   public:
     EZ_FORCE_INLINE ezProxyAllocation(ezAllocatorBase* pParent)
-        : m_pParent(pParent)
+      : m_pParent(pParent)
     {
       EZ_ASSERT_ALWAYS(m_pParent != nullptr, "Parent allocator must not be nullptr");
     }
@@ -34,5 +34,4 @@ namespace ezMemoryPolicies
   private:
     ezAllocatorBase* m_pParent;
   };
-}
-
+} // namespace ezMemoryPolicies

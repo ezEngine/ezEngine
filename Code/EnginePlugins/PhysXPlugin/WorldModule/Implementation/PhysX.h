@@ -37,7 +37,8 @@ public:
 class ezPxQueryFilter : public PxQueryFilterCallback
 {
 public:
-  virtual PxQueryHitType::Enum preFilter(const PxFilterData& filterData, const PxShape* shape, const PxRigidActor* actor, PxHitFlags& queryFlags) override;
+  virtual PxQueryHitType::Enum preFilter(
+    const PxFilterData& filterData, const PxShape* shape, const PxRigidActor* actor, PxHitFlags& queryFlags) override;
   virtual PxQueryHitType::Enum postFilter(const PxFilterData& filterData, const PxQueryHit& hit) override;
 };
 
@@ -72,7 +73,8 @@ public:
 
   // helper functions
 
-  static PxFilterData CreateFilterData(ezUInt32 uiCollisionLayer, ezUInt32 uiShapeId = ezInvalidIndex, ezBitflags<ezOnPhysXContact> flags = ezOnPhysXContact::None);
+  static PxFilterData CreateFilterData(
+    ezUInt32 uiCollisionLayer, ezUInt32 uiShapeId = ezInvalidIndex, ezBitflags<ezOnPhysXContact> flags = ezOnPhysXContact::None);
 
 private:
   void SurfaceResourceEventHandler(const ezSurfaceResource::Event& e);

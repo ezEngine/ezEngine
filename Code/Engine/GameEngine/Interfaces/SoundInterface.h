@@ -24,7 +24,8 @@ public:
   virtual void SetMasterChannelMute(bool mute) = 0;
   virtual bool GetMasterChannelMute() const = 0;
 
-  /// \brief Allows to pause all sounds. Useful for when the application goes to a background state and you want to pause all sounds, instead of mute them.
+  /// \brief Allows to pause all sounds. Useful for when the application goes to a background state and you want to pause all sounds, instead of mute
+  /// them.
   virtual void SetMasterChannelPaused(bool paused) = 0;
   virtual bool GetMasterChannelPaused() const = 0;
 
@@ -39,10 +40,10 @@ public:
   virtual void SetNumListeners(ezUInt8 uiNumListeners) = 0;
   virtual ezUInt8 GetNumListeners() = 0;
 
-  /// \brief The editor activates this to ignore the listener positions from the listener components, and instead use the editor camera as the listener position.
+  /// \brief The editor activates this to ignore the listener positions from the listener components, and instead use the editor camera as the
+  /// listener position.
   virtual void SetListenerOverrideMode(bool enabled) = 0;
 
   /// \brief Sets the position for listener N. Index -1 is used for the override mode listener.
   virtual void SetListener(ezInt32 iIndex, const ezVec3& vPosition, const ezVec3& vForward, const ezVec3& vUp, const ezVec3& vVelocity) = 0;
 };
-

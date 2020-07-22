@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Foundation/Time/Time.h>
 #include <EditorFramework/InputContexts/EditorInputContext.h>
+#include <Foundation/Time/Time.h>
 #include <QPoint>
 
 class ezCamera;

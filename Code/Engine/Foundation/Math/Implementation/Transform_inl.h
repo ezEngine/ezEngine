@@ -3,7 +3,8 @@
 #include <Foundation/Math/Transform.h>
 
 template <typename Type>
-inline ezTransformTemplate<Type>::ezTransformTemplate(const ezVec3Template<Type>& vPosition, const ezQuatTemplate<Type>& qRotation, const ezVec3Template<Type>& vScale)
+inline ezTransformTemplate<Type>::ezTransformTemplate(
+  const ezVec3Template<Type>& vPosition, const ezQuatTemplate<Type>& qRotation, const ezVec3Template<Type>& vScale)
 {
   m_vPosition = vPosition;
   m_qRotation = qRotation;
@@ -29,7 +30,7 @@ inline void ezTransformTemplate<Type>::SetIdentity()
   m_vScale.Set(1);
 }
 
-//static
+// static
 template <typename Type>
 inline const ezTransformTemplate<Type> ezTransformTemplate<Type>::IdentityTransform()
 {
@@ -65,11 +66,13 @@ inline bool ezTransformTemplate<Type>::IsIdentical(const ezTransformTemplate<Typ
 template <typename Type>
 inline bool ezTransformTemplate<Type>::IsEqual(const ezTransformTemplate<Type>& rhs, Type fEpsilon) const
 {
-  return m_vPosition.IsEqual(rhs.m_vPosition, fEpsilon) && m_qRotation.IsEqualRotation(rhs.m_qRotation, fEpsilon) && m_vScale.IsEqual(rhs.m_vScale, fEpsilon);
+  return m_vPosition.IsEqual(rhs.m_vPosition, fEpsilon) && m_qRotation.IsEqualRotation(rhs.m_qRotation, fEpsilon) &&
+         m_vScale.IsEqual(rhs.m_vScale, fEpsilon);
 }
 
 template <typename Type>
-inline void ezTransformTemplate<Type>::SetLocalTransform(const ezTransformTemplate<Type>& GlobalTransformParent, const ezTransformTemplate<Type>& GlobalTransformChild)
+inline void ezTransformTemplate<Type>::SetLocalTransform(
+  const ezTransformTemplate<Type>& GlobalTransformParent, const ezTransformTemplate<Type>& GlobalTransformChild)
 {
   const ezQuat invRot = -GlobalTransformParent.m_qRotation;
   const ezVec3 invScale = ezVec3(1.0f).CompDiv(GlobalTransformParent.m_vScale);
@@ -80,7 +83,8 @@ inline void ezTransformTemplate<Type>::SetLocalTransform(const ezTransformTempla
 }
 
 template <typename Type>
-inline void ezTransformTemplate<Type>::SetGlobalTransform(const ezTransformTemplate<Type>& GlobalTransformParent, const ezTransformTemplate<Type>& LocalTransformChild)
+inline void ezTransformTemplate<Type>::SetGlobalTransform(
+  const ezTransformTemplate<Type>& GlobalTransformParent, const ezTransformTemplate<Type>& LocalTransformChild)
 {
   *this = GlobalTransformParent * LocalTransformChild;
 }
@@ -219,4 +223,3 @@ inline const ezTransformTemplate<Type> ezTransformTemplate<Type>::GetInverse() c
 
   return ezTransformTemplate<Type>(invPos, invRot, invScale);
 }
-

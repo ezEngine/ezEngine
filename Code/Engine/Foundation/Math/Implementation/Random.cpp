@@ -170,7 +170,8 @@ void ezRandomGauss::SetupTable(ezUInt32 uiMaxValue, float fSigma)
   m_fSigma = fSigma;
   m_GaussAreaSum.SetCountUninitialized(uiMaxValue);
 
-  const double fBase2 = Gauss(UsefulRange, fSigma); // we clamp to zero at uiMaxValue, so we need the Gauss value there to subtract it from all other values
+  const double fBase2 =
+    Gauss(UsefulRange, fSigma); // we clamp to zero at uiMaxValue, so we need the Gauss value there to subtract it from all other values
 
   m_fAreaSum = 0;
 
@@ -248,4 +249,3 @@ void ezRandomGauss::Load(ezStreamReader& stream)
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_Random);
-

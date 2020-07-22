@@ -46,8 +46,8 @@ EZ_CREATE_SIMPLE_TEST(Math, Color)
     EZ_TEST_BLOCK(ezTestBlock::Enabled, "Conversion float")
     {
       float* pFloats = cornflowerBlue.GetData();
-      EZ_TEST_BOOL(pFloats[0] == cornflowerBlue.r && pFloats[1] == cornflowerBlue.g && pFloats[2] == cornflowerBlue.b &&
-                   pFloats[3] == cornflowerBlue.a);
+      EZ_TEST_BOOL(
+        pFloats[0] == cornflowerBlue.r && pFloats[1] == cornflowerBlue.g && pFloats[2] == cornflowerBlue.b && pFloats[3] == cornflowerBlue.a);
 
       const float* pConstFloats = cornflowerBlue.GetData();
       EZ_TEST_BOOL(pConstFloats[0] == cornflowerBlue.r && pConstFloats[1] == cornflowerBlue.g && pConstFloats[2] == cornflowerBlue.b &&
@@ -70,8 +70,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Color)
 
 
     // hsv test - took some samples from http://www.javascripter.net/faq/rgb2hsv.htm
-    const ezColorGammaUB rgb[] = {ezColorGammaUB(255, 255, 255), ezColorGammaUB(0, 0, 0), ezColorGammaUB(123, 12, 1),
-      ezColorGammaUB(31, 112, 153)};
+    const ezColorGammaUB rgb[] = {ezColorGammaUB(255, 255, 255), ezColorGammaUB(0, 0, 0), ezColorGammaUB(123, 12, 1), ezColorGammaUB(31, 112, 153)};
     const ezVec3 hsv[] = {ezVec3(0, 0, 1), ezVec3(0, 0, 0), ezVec3(5.4f, 0.991f, 0.48f), ezVec3(200.2f, 0.797f, 0.600f)};
 
     for (int i = 0; i < 4; ++i)
@@ -96,10 +95,10 @@ EZ_CREATE_SIMPLE_TEST(Math, Color)
     if (ezMath::SupportsNaN<ezMathTestType>())
     {
       float fNaN = ezMath::NaN<float>();
-      const ezColor nanArray[4] = {ezColor(fNaN, 0.0f, 0.0f, 0.0f), ezColor(0.0f, fNaN, 0.0f, 0.0f), ezColor(0.0f, 0.0f, fNaN, 0.0f),
-        ezColor(0.0f, 0.0f, 0.0f, fNaN)};
-      const ezColor compArray[4] = {ezColor(1.0f, 0.0f, 0.0f, 0.0f), ezColor(0.0f, 1.0f, 0.0f, 0.0f), ezColor(0.0f, 0.0f, 1.0f, 0.0f),
-        ezColor(0.0f, 0.0f, 0.0f, 1.0f)};
+      const ezColor nanArray[4] = {
+        ezColor(fNaN, 0.0f, 0.0f, 0.0f), ezColor(0.0f, fNaN, 0.0f, 0.0f), ezColor(0.0f, 0.0f, fNaN, 0.0f), ezColor(0.0f, 0.0f, 0.0f, fNaN)};
+      const ezColor compArray[4] = {
+        ezColor(1.0f, 0.0f, 0.0f, 0.0f), ezColor(0.0f, 1.0f, 0.0f, 0.0f), ezColor(0.0f, 0.0f, 1.0f, 0.0f), ezColor(0.0f, 0.0f, 0.0f, 1.0f)};
 
 
       EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsNaN")
@@ -128,8 +127,8 @@ EZ_CREATE_SIMPLE_TEST(Math, Color)
   {
     const ezColor op1(-4.0, 0.2f, -7.0f, -0.0f);
     const ezColor op2(2.0, 0.3f, 0.0f, 1.0f);
-    const ezColor compArray[4] = {ezColor(1.0f, 0.0f, 0.0f, 0.0f), ezColor(0.0f, 1.0f, 0.0f, 0.0f), ezColor(0.0f, 0.0f, 1.0f, 0.0f),
-      ezColor(0.0f, 0.0f, 0.0f, 1.0f)};
+    const ezColor compArray[4] = {
+      ezColor(1.0f, 0.0f, 0.0f, 0.0f), ezColor(0.0f, 1.0f, 0.0f, 0.0f), ezColor(0.0f, 0.0f, 1.0f, 0.0f), ezColor(0.0f, 0.0f, 0.0f, 1.0f)};
 
     EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetRGB / SetRGBA")
     {
@@ -178,14 +177,10 @@ EZ_CREATE_SIMPLE_TEST(Math, Color)
       EZ_TEST_BOOL(op1.IsEqualRGBA(op1, 0.0f));
       for (int i = 0; i < 4; ++i)
       {
-        EZ_TEST_BOOL(
-          op1.IsEqualRGBA(op1 + ezMath::SmallEpsilon<float>() * compArray[i], 2 * ezMath::SmallEpsilon<float>()));
-        EZ_TEST_BOOL(
-          op1.IsEqualRGBA(op1 - ezMath::SmallEpsilon<float>() * compArray[i], 2 * ezMath::SmallEpsilon<float>()));
-        EZ_TEST_BOOL(op1.IsEqualRGBA(op1 + ezMath::DefaultEpsilon<float>() * compArray[i],
-          2 * ezMath::DefaultEpsilon<float>()));
-        EZ_TEST_BOOL(op1.IsEqualRGBA(op1 - ezMath::DefaultEpsilon<float>() * compArray[i],
-          2 * ezMath::DefaultEpsilon<float>()));
+        EZ_TEST_BOOL(op1.IsEqualRGBA(op1 + ezMath::SmallEpsilon<float>() * compArray[i], 2 * ezMath::SmallEpsilon<float>()));
+        EZ_TEST_BOOL(op1.IsEqualRGBA(op1 - ezMath::SmallEpsilon<float>() * compArray[i], 2 * ezMath::SmallEpsilon<float>()));
+        EZ_TEST_BOOL(op1.IsEqualRGBA(op1 + ezMath::DefaultEpsilon<float>() * compArray[i], 2 * ezMath::DefaultEpsilon<float>()));
+        EZ_TEST_BOOL(op1.IsEqualRGBA(op1 - ezMath::DefaultEpsilon<float>() * compArray[i], 2 * ezMath::DefaultEpsilon<float>()));
       }
     }
 

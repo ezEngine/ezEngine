@@ -33,15 +33,15 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4b)
 
     // Make sure all components have the correct value
 #if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_ENABLED(EZ_COMPILER_MSVC)
-    EZ_TEST_BOOL(vInit4B.m_v.m128_u32[0] == 0 && vInit4B.m_v.m128_u32[1] == 0xFFFFFFFF && vInit4B.m_v.m128_u32[2] == 0 &&
-                 vInit4B.m_v.m128_u32[3] == 0xFFFFFFFF);
+    EZ_TEST_BOOL(
+      vInit4B.m_v.m128_u32[0] == 0 && vInit4B.m_v.m128_u32[1] == 0xFFFFFFFF && vInit4B.m_v.m128_u32[2] == 0 && vInit4B.m_v.m128_u32[3] == 0xFFFFFFFF);
 #endif
 
     ezSimdVec4b vCopy(vInit4B);
     EZ_TEST_BOOL(vCopy.x() == false && vCopy.y() == true && vCopy.z() == false && vCopy.w() == true);
 
-    EZ_TEST_BOOL(vCopy.GetComponent<0>() == false && vCopy.GetComponent<1>() == true && vCopy.GetComponent<2>() == false &&
-                 vCopy.GetComponent<3>() == true);
+    EZ_TEST_BOOL(
+      vCopy.GetComponent<0>() == false && vCopy.GetComponent<1>() == true && vCopy.GetComponent<2>() == false && vCopy.GetComponent<3>() == true);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Swizzle")

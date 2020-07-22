@@ -177,7 +177,7 @@ EZ_ALWAYS_INLINE T* ezSharedPtr<T>::operator->() const
 }
 
 template <typename T>
-EZ_ALWAYS_INLINE ezSharedPtr<T>::operator const T*() const
+EZ_ALWAYS_INLINE ezSharedPtr<T>::operator const T *() const
 {
   return m_pInstance;
 }
@@ -290,4 +290,3 @@ EZ_ALWAYS_INLINE void ezSharedPtr<T>::ReleaseReferenceIfValid()
     m_pAllocator = nullptr;
   }
 }
-

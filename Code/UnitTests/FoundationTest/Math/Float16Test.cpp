@@ -23,8 +23,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Float16)
     EZ_TEST_FLOAT(static_cast<float>(ezFloat16(42.0f)), 42.0f, ezMath::LargeEpsilon<float>());
     EZ_TEST_FLOAT(static_cast<float>(ezFloat16(1.e3f)), 1.e3f, ezMath::LargeEpsilon<float>());
     EZ_TEST_FLOAT(static_cast<float>(ezFloat16(-1230.0f)), -1230.0f, ezMath::LargeEpsilon<float>());
-    EZ_TEST_FLOAT(static_cast<float>(ezFloat16(ezMath::Pi<float>())), ezMath::Pi<float>(),
-                  ezMath::HugeEpsilon<float>());
+    EZ_TEST_FLOAT(static_cast<float>(ezFloat16(ezMath::Pi<float>())), ezMath::Pi<float>(), ezMath::HugeEpsilon<float>());
 
     // Denormalized float.
     EZ_TEST_FLOAT(static_cast<float>(ezFloat16(1.e-40f)), 0.0f, 0);

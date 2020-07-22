@@ -14,9 +14,9 @@
 #  define EZ_ALIGN_VARIABLE(decl, alignment) decl __attribute__((aligned(alignment)))
 #  define EZ_ALIGNMENT_OF(type) EZ_COMPILE_TIME_MAX(__alignof(type), EZ_ALIGNMENT_MINIMUM)
 
-#  define EZ_DEBUG_BREAK \
-    {                    \
-      __builtin_trap();  \
+#  define EZ_DEBUG_BREAK                                                                                                                             \
+    {                                                                                                                                                \
+      __builtin_trap();                                                                                                                              \
     }
 
 #  define EZ_SOURCE_FUNCTION __PRETTY_FUNCTION__

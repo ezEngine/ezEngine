@@ -65,8 +65,7 @@ ezResult ezDeduplicationWriteContext::WriteSet(ezStreamWriter& stream, const ezS
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-ezResult ezDeduplicationWriteContext::WriteMap(
-    ezStreamWriter& stream, const ezMapBase<KeyType, ValueType, Comparer>& Map, WriteMapMode mode)
+ezResult ezDeduplicationWriteContext::WriteMap(ezStreamWriter& stream, const ezMapBase<KeyType, ValueType, Comparer>& Map, WriteMapMode mode)
 {
   const ezUInt64 uiWriteSize = Map.GetCount();
   stream.WriteQWordValue(&uiWriteSize);

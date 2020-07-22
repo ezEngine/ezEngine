@@ -1,6 +1,6 @@
 #include <Foundation/Logging/Log.h>
 
-template<typename T>
+template <typename T>
 T ezObjectAccessorBase::Get(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index /*= ezVariant()*/)
 {
   ezVariant value;
@@ -10,7 +10,7 @@ T ezObjectAccessorBase::Get(const ezDocumentObject* pObject, const ezAbstractPro
   return value.ConvertTo<T>();
 }
 
-template<typename T>
+template <typename T>
 T ezObjectAccessorBase::Get(const ezDocumentObject* pObject, const char* szProp, ezVariant index /*= ezVariant()*/)
 {
   ezVariant value;
@@ -28,4 +28,3 @@ inline ezInt32 ezObjectAccessorBase::GetCount(const ezDocumentObject* pObject, c
     ezLog::Error("GetCount failed: {0}", res.m_sMessage);
   return iCount;
 }
-

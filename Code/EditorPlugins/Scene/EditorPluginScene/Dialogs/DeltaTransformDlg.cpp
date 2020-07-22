@@ -90,7 +90,8 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
       if (s_vTranslateDeviation == ezVec3(0.0f))
         return;
 
-      sAction.Format("Translate (deviation): {0} | {1} | {2}", ezArgF(s_vTranslateDeviation.x, 2), ezArgF(s_vTranslateDeviation.y, 2), ezArgF(s_vTranslateDeviation.z, 2));
+      sAction.Format("Translate (deviation): {0} | {1} | {2}", ezArgF(s_vTranslateDeviation.x, 2), ezArgF(s_vTranslateDeviation.y, 2),
+        ezArgF(s_vTranslateDeviation.z, 2));
       break;
 
     case Mode::RotateX:
@@ -167,7 +168,8 @@ void ezQtDeltaTransformDlg::on_ButtonApply_clicked()
       if (s_vScaleDeviation == ezVec3(1.0f))
         return;
 
-      sAction.Format("Scale (deviation): {0} | {1} | {2}", ezArgF(s_vScaleDeviation.x, 2), ezArgF(s_vScaleDeviation.y, 2), ezArgF(s_vScaleDeviation.z, 2));
+      sAction.Format(
+        "Scale (deviation): {0} | {1} | {2}", ezArgF(s_vScaleDeviation.x, 2), ezArgF(s_vScaleDeviation.y, 2), ezArgF(s_vScaleDeviation.z, 2));
       break;
 
     case Mode::UniformScale:

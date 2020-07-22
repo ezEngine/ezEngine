@@ -232,7 +232,8 @@ void ezProcPlacementComponentManager::PreparePlace(const ezWorldModule::UpdateCo
             continue;
 
           processingTask.m_uiScheduledFrame = ezRenderWorld::GetFrameCounter();
-          processingTask.m_PlacementTaskGroupID = ezTaskSystem::StartSingleTask(processingTask.m_pPlacementTask, ezTaskPriority::LongRunningHighPriority);
+          processingTask.m_PlacementTaskGroupID =
+            ezTaskSystem::StartSingleTask(processingTask.m_pPlacementTask, ezTaskPriority::LongRunningHighPriority);
         }
       }
     }
@@ -412,8 +413,7 @@ ezUInt32 ezProcPlacementComponentManager::GetNumAllocatedProcessingTasks() const
   return m_ProcessingTasks.GetCount() - m_FreeProcessingTasks.GetCount();
 }
 
-void ezProcPlacementComponentManager::RemoveTilesForComponent(
-  ezProcPlacementComponent* pComponent, bool* out_bAnyObjectsRemoved /*= nullptr*/)
+void ezProcPlacementComponentManager::RemoveTilesForComponent(ezProcPlacementComponent* pComponent, bool* out_bAnyObjectsRemoved /*= nullptr*/)
 {
   ezComponentHandle hComponent = pComponent->GetHandle();
 
@@ -626,8 +626,7 @@ void ezProcPlacementComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& ms
   if (msg.m_OverrideCategory != ezInvalidRenderDataCategory)
     return;
 
-  if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::MainView ||
-      msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::EditorView)
+  if (msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::MainView || msg.m_pView->GetCameraUsageHint() == ezCameraUsageHint::EditorView)
   {
     const ezCamera* pCamera = msg.m_pView->GetCullingCamera();
 

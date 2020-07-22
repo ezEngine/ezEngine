@@ -48,9 +48,8 @@ void ezPlugin::SetMaxParallelInstances(ezUInt32 uiMaxParallelInstances)
   m_uiMaxParallelInstances = ezMath::Max(1u, uiMaxParallelInstances);
 }
 
-ezPlugin::ezPlugin(bool bIsReloadable, OnPluginLoadedFunction OnLoadPlugin, OnPluginUnloadedFunction OnUnloadPlugin,
-  const char* szPluginDependency1, const char* szPluginDependency2, const char* szPluginDependency3,
-  const char* szPluginDependency4, const char* szPluginDependency5)
+ezPlugin::ezPlugin(bool bIsReloadable, OnPluginLoadedFunction OnLoadPlugin, OnPluginUnloadedFunction OnUnloadPlugin, const char* szPluginDependency1,
+  const char* szPluginDependency2, const char* szPluginDependency3, const char* szPluginDependency4, const char* szPluginDependency5)
 {
   m_bInitialized = false;
   m_OnLoadPlugin = OnLoadPlugin;
@@ -237,8 +236,7 @@ ezResult ezPlugin::LoadPluginInternal(const char* szPluginFile, bool bLoadCopy, 
         goto success;
     }
 
-    ezLog::Error(
-      "Could not copy the plugin file '{0}' to '{1}' (and all previous file numbers). Plugin MaxParallelInstances is set to {2}.",
+    ezLog::Error("Could not copy the plugin file '{0}' to '{1}' (and all previous file numbers). Plugin MaxParallelInstances is set to {2}.",
       sOldPlugin, sNewPlugin, ezPlugin::m_uiMaxParallelInstances);
 
     g_LoadedPlugins.Remove(sNewPlugin);
@@ -567,8 +565,8 @@ ezResult ezPlugin::ReloadPlugins(bool bForceReload)
             ezFileStats stat;
             if (ezOSFile::GetFileStats(sOldPlugin.GetData(), stat) == EZ_SUCCESS)
             {
-              if (g_LoadedPlugins[pPlugin->m_sLoadedFromFile].m_LastModificationTime.Compare(stat.m_LastModificationTime,
-                    ezTimestamp::CompareMode::FileTimeEqual))
+              if (g_LoadedPlugins[pPlugin->m_sLoadedFromFile].m_LastModificationTime.Compare(
+                    stat.m_LastModificationTime, ezTimestamp::CompareMode::FileTimeEqual))
               {
                 ezLog::Debug("Plugin '{0}' is not modified.", pPlugin->GetPluginName());
                 bModified = false;
@@ -609,8 +607,8 @@ ezResult ezPlugin::ReloadPlugins(bool bForceReload)
     {
       ezUInt32 iIndex = i - 1;
 
-      EZ_VERIFY(UnloadPluginInternal(PluginsToReload[iIndex].GetData(), true) == EZ_SUCCESS, "Could not unload plugin '{0}'.",
-        PluginsToReload[iIndex]);
+      EZ_VERIFY(
+        UnloadPluginInternal(PluginsToReload[iIndex].GetData(), true) == EZ_SUCCESS, "Could not unload plugin '{0}'.", PluginsToReload[iIndex]);
     }
   }
 

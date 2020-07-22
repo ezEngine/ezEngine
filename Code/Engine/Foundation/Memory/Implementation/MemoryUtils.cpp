@@ -1,7 +1,7 @@
 #include <FoundationPCH.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #endif
 
 void ezMemoryUtils::ReserveLower4GBAddressSpace()
@@ -96,12 +96,11 @@ void ezMemoryUtils::ReserveLower4GBAddressSpace()
   // Print diagnostics showing how many allocations we had to make in
   // order to reserve all of low memory, typically less than 200.
   char buffer[1000];
-  sprintf_s(buffer, "Reserved %1.3f MB (%u vallocs, %u heap allocs) of low-memory.\n", uiTotalReservation / (1024 * 1024.0),
-            (ezUInt32)uiNumVAllocs, (ezUInt32)uiNumHeapAllocs);
+  sprintf_s(buffer, "Reserved %1.3f MB (%u vallocs, %u heap allocs) of low-memory.\n", uiTotalReservation / (1024 * 1024.0), (ezUInt32)uiNumVAllocs,
+    (ezUInt32)uiNumHeapAllocs);
   OutputDebugStringA(buffer);
 #endif
 }
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Memory_Implementation_MemoryUtils);
-

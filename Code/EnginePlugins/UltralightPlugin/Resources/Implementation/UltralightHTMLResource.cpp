@@ -2,14 +2,14 @@
 
 #include <Core/Assets/AssetFileHeader.h>
 
-#include <RendererFoundation/Resources/Texture.h>
 #include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Resources/Texture.h>
 
 #include <RendererCore/Textures/TextureUtils.h>
 
-#include <UltralightPlugin/Resources/UltralightHTMLResource.h>
 #include <UltralightPlugin/Integration/GPUDriverEz.h>
 #include <UltralightPlugin/Integration/UltralightResourceManager.h>
+#include <UltralightPlugin/Resources/UltralightHTMLResource.h>
 
 #include <Ultralight/Ultralight.h>
 
@@ -17,7 +17,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezUltralightHTMLResource, 1, ezRTTIDefaultAlloca
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezUltralightHTMLResource::ezUltralightHTMLResource()
-    : ezTexture2DResource(DoUpdate::OnMainThread)
+  : ezTexture2DResource(DoUpdate::OnMainThread)
 {
 }
 
@@ -27,40 +27,25 @@ ezUltralightHTMLResource::~ezUltralightHTMLResource()
 }
 
 
-void ezUltralightHTMLResource::OnBeginLoading(ultralight::View* caller)
-{
-}
+void ezUltralightHTMLResource::OnBeginLoading(ultralight::View* caller) {}
 
-void ezUltralightHTMLResource::OnFinishLoading(ultralight::View* caller)
-{
-}
+void ezUltralightHTMLResource::OnFinishLoading(ultralight::View* caller) {}
 
-void ezUltralightHTMLResource::OnUpdateHistory(ultralight::View* caller)
-{
-}
+void ezUltralightHTMLResource::OnUpdateHistory(ultralight::View* caller) {}
 
-void ezUltralightHTMLResource::OnDOMReady(ultralight::View* caller)
-{
-}
+void ezUltralightHTMLResource::OnDOMReady(ultralight::View* caller) {}
 
 
-void ezUltralightHTMLResource::OnChangeTitle(ultralight::View* caller, const ultralight::String& title)
-{
-}
+void ezUltralightHTMLResource::OnChangeTitle(ultralight::View* caller, const ultralight::String& title) {}
 
-void ezUltralightHTMLResource::OnChangeURL(ultralight::View* caller, const ultralight::String& url)
-{
-}
+void ezUltralightHTMLResource::OnChangeURL(ultralight::View* caller, const ultralight::String& url) {}
 
-void ezUltralightHTMLResource::OnChangeTooltip(ultralight::View* caller, const ultralight::String& tooltip)
-{
-}
+void ezUltralightHTMLResource::OnChangeTooltip(ultralight::View* caller, const ultralight::String& tooltip) {}
 
-void ezUltralightHTMLResource::OnChangeCursor(ultralight::View* caller, ultralight::Cursor cursor)
-{
-}
+void ezUltralightHTMLResource::OnChangeCursor(ultralight::View* caller, ultralight::Cursor cursor) {}
 
-void ezUltralightHTMLResource::OnAddConsoleMessage(ultralight::View* caller, ultralight::MessageSource source, ultralight::MessageLevel level, const ultralight::String& message, uint32_t line_number, uint32_t column_number, const ultralight::String& source_id)
+void ezUltralightHTMLResource::OnAddConsoleMessage(ultralight::View* caller, ultralight::MessageSource source, ultralight::MessageLevel level,
+  const ultralight::String& message, uint32_t line_number, uint32_t column_number, const ultralight::String& source_id)
 {
 }
 
@@ -91,7 +76,8 @@ void ezUltralightHTMLResource::CreateView(ultralight::Renderer* pRenderer)
   auto renderTarget = m_View->render_target();
   m_UVCoords = renderTarget.uv_coords;
 
-  m_hGALTexture[m_uiLoadedTextures] = static_cast<ezUltralightGPUDriver*>(ultralight::Platform::instance().gpu_driver())->GetTextureHandleForTextureId(renderTarget.texture_id);
+  m_hGALTexture[m_uiLoadedTextures] =
+    static_cast<ezUltralightGPUDriver*>(ultralight::Platform::instance().gpu_driver())->GetTextureHandleForTextureId(renderTarget.texture_id);
 }
 
 void ezUltralightHTMLResource::DestroyView()

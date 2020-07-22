@@ -189,8 +189,8 @@ class ezVariantHelper
 
   static void To(const ezVariant& value, void*& result, bool& bSuccessful)
   {
-    EZ_ASSERT_DEBUG(value.GetType() == ezVariant::Type::VoidPointer || value.GetType() == ezVariant::Type::ReflectedPointer,
-      "Only ptr can be converted to void*!");
+    EZ_ASSERT_DEBUG(
+      value.GetType() == ezVariant::Type::VoidPointer || value.GetType() == ezVariant::Type::ReflectedPointer, "Only ptr can be converted to void*!");
     result = value.GetType() == ezVariant::Type::VoidPointer ? value.Get<void*>() : value.Get<ezReflectedClass*>();
     bSuccessful = true;
   }
@@ -231,20 +231,11 @@ class ezVariantHelper
     }
   }
 
-  static void To(const ezVariant& value, ezVec2& result, bool& bSuccessful)
-  {
-    ToVec2X<ezVec2, ezVec2I32, ezVec2U32>(value, result, bSuccessful);
-  }
+  static void To(const ezVariant& value, ezVec2& result, bool& bSuccessful) { ToVec2X<ezVec2, ezVec2I32, ezVec2U32>(value, result, bSuccessful); }
 
-  static void To(const ezVariant& value, ezVec2I32& result, bool& bSuccessful)
-  {
-    ToVec2X<ezVec2I32, ezVec2, ezVec2U32>(value, result, bSuccessful);
-  }
+  static void To(const ezVariant& value, ezVec2I32& result, bool& bSuccessful) { ToVec2X<ezVec2I32, ezVec2, ezVec2U32>(value, result, bSuccessful); }
 
-  static void To(const ezVariant& value, ezVec2U32& result, bool& bSuccessful)
-  {
-    ToVec2X<ezVec2U32, ezVec2I32, ezVec2>(value, result, bSuccessful);
-  }
+  static void To(const ezVariant& value, ezVec2U32& result, bool& bSuccessful) { ToVec2X<ezVec2U32, ezVec2I32, ezVec2>(value, result, bSuccessful); }
 
   template <typename T, typename V1, typename V2>
   static void ToVec3X(const ezVariant& value, T& result, bool& bSuccessful)
@@ -252,12 +243,14 @@ class ezVariantHelper
     if (value.IsA<V1>())
     {
       const V1& v = value.Get<V1>();
-      result = T(static_cast<typename T::ComponentType>(v.x), static_cast<typename T::ComponentType>(v.y), static_cast<typename T::ComponentType>(v.z));
+      result =
+        T(static_cast<typename T::ComponentType>(v.x), static_cast<typename T::ComponentType>(v.y), static_cast<typename T::ComponentType>(v.z));
     }
     else if (value.IsA<V2>())
     {
       const V2& v = value.Get<V2>();
-      result = T(static_cast<typename T::ComponentType>(v.x), static_cast<typename T::ComponentType>(v.y), static_cast<typename T::ComponentType>(v.z));
+      result =
+        T(static_cast<typename T::ComponentType>(v.x), static_cast<typename T::ComponentType>(v.y), static_cast<typename T::ComponentType>(v.z));
     }
     else
     {
@@ -266,20 +259,11 @@ class ezVariantHelper
     }
   }
 
-  static void To(const ezVariant& value, ezVec3& result, bool& bSuccessful)
-  {
-    ToVec3X<ezVec3, ezVec3I32, ezVec3U32>(value, result, bSuccessful);
-  }
+  static void To(const ezVariant& value, ezVec3& result, bool& bSuccessful) { ToVec3X<ezVec3, ezVec3I32, ezVec3U32>(value, result, bSuccessful); }
 
-  static void To(const ezVariant& value, ezVec3I32& result, bool& bSuccessful)
-  {
-    ToVec3X<ezVec3I32, ezVec3, ezVec3U32>(value, result, bSuccessful);
-  }
+  static void To(const ezVariant& value, ezVec3I32& result, bool& bSuccessful) { ToVec3X<ezVec3I32, ezVec3, ezVec3U32>(value, result, bSuccessful); }
 
-  static void To(const ezVariant& value, ezVec3U32& result, bool& bSuccessful)
-  {
-    ToVec3X<ezVec3U32, ezVec3I32, ezVec3>(value, result, bSuccessful);
-  }
+  static void To(const ezVariant& value, ezVec3U32& result, bool& bSuccessful) { ToVec3X<ezVec3U32, ezVec3I32, ezVec3>(value, result, bSuccessful); }
 
   template <typename T, typename V1, typename V2>
   static void ToVec4X(const ezVariant& value, T& result, bool& bSuccessful)
@@ -287,12 +271,14 @@ class ezVariantHelper
     if (value.IsA<V1>())
     {
       const V1& v = value.Get<V1>();
-      result = T(static_cast<typename T::ComponentType>(v.x), static_cast<typename T::ComponentType>(v.y), static_cast<typename T::ComponentType>(v.z), static_cast<typename T::ComponentType>(v.w));
+      result = T(static_cast<typename T::ComponentType>(v.x), static_cast<typename T::ComponentType>(v.y),
+        static_cast<typename T::ComponentType>(v.z), static_cast<typename T::ComponentType>(v.w));
     }
     else if (value.IsA<V2>())
     {
       const V2& v = value.Get<V2>();
-      result = T(static_cast<typename T::ComponentType>(v.x), static_cast<typename T::ComponentType>(v.y), static_cast<typename T::ComponentType>(v.z), static_cast<typename T::ComponentType>(v.w));
+      result = T(static_cast<typename T::ComponentType>(v.x), static_cast<typename T::ComponentType>(v.y),
+        static_cast<typename T::ComponentType>(v.z), static_cast<typename T::ComponentType>(v.w));
     }
     else
     {
@@ -301,20 +287,11 @@ class ezVariantHelper
     }
   }
 
-  static void To(const ezVariant& value, ezVec4& result, bool& bSuccessful)
-  {
-    ToVec4X<ezVec4, ezVec4I32, ezVec4U32>(value, result, bSuccessful);
-  }
+  static void To(const ezVariant& value, ezVec4& result, bool& bSuccessful) { ToVec4X<ezVec4, ezVec4I32, ezVec4U32>(value, result, bSuccessful); }
 
-  static void To(const ezVariant& value, ezVec4I32& result, bool& bSuccessful)
-  {
-    ToVec4X<ezVec4I32, ezVec4, ezVec4U32>(value, result, bSuccessful);
-  }
+  static void To(const ezVariant& value, ezVec4I32& result, bool& bSuccessful) { ToVec4X<ezVec4I32, ezVec4, ezVec4U32>(value, result, bSuccessful); }
 
-  static void To(const ezVariant& value, ezVec4U32& result, bool& bSuccessful)
-  {
-    ToVec4X<ezVec4U32, ezVec4I32, ezVec4>(value, result, bSuccessful);
-  }
+  static void To(const ezVariant& value, ezVec4U32& result, bool& bSuccessful) { ToVec4X<ezVec4U32, ezVec4I32, ezVec4>(value, result, bSuccessful); }
 
   template <typename T>
   static void To(const ezVariant& value, T& result, bool& bSuccessful)

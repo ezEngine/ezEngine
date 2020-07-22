@@ -1,10 +1,10 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/Containers/Map.h>
-#include <Foundation/Strings/String.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Containers/Map.h>
 #include <Foundation/IO/MemoryStream.h>
+#include <Foundation/Strings/String.h>
 #include <Inspector/ui_DataTransferWidget.h>
 #include <ads/DockWidget.h>
 
@@ -51,5 +51,3 @@ private:
 
   ezMap<ezString, TransferData> m_Transfers;
 };
-
-

@@ -13,7 +13,7 @@ template <typename T>
 struct ezScopeExit
 {
   EZ_ALWAYS_INLINE ezScopeExit(T&& func)
-      : m_func(std::forward<T>(func))
+    : m_func(std::forward<T>(func))
   {
   }
 
@@ -28,5 +28,3 @@ EZ_ALWAYS_INLINE ezScopeExit<T> ezMakeScopeExit(T&& func)
 {
   return ezScopeExit<T>(std::forward<T>(func));
 }
-
-

@@ -57,8 +57,7 @@ ezResult ezEngineProcessCommunicationChannel::ConnectToHostProcess()
 
     ezLog::Debug("Host Process ID: {0}", m_iHostPID);
 
-    m_pChannel =
-      ezIpcChannel::CreatePipeChannel(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-IPC"), ezIpcChannel::Mode::Client);
+    m_pChannel = ezIpcChannel::CreatePipeChannel(ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-IPC"), ezIpcChannel::Mode::Client);
   }
   else
   {

@@ -144,9 +144,7 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
 
   // Required in every .dds file. According to the spec, CAPS and PIXELFORMAT are also required, but D3DX outputs
   // files not conforming to this.
-  if (
-      (fileHeader.m_uiFlags & ezDdsdFlags::WIDTH) == 0 ||
-      (fileHeader.m_uiFlags & ezDdsdFlags::HEIGHT) == 0)
+  if ((fileHeader.m_uiFlags & ezDdsdFlags::WIDTH) == 0 || (fileHeader.m_uiFlags & ezDdsdFlags::HEIGHT) == 0)
   {
     ezLog::Error(pLog, "The file header doesn't specify the mandatory WIDTH or HEIGHT flag.");
     return EZ_FAILURE;
@@ -175,23 +173,18 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
   ezImageFormat::Enum format = ezImageFormat::UNKNOWN;
 
   // Data format specified in RGBA masks
-  if ((fileHeader.m_ddspf.m_uiFlags & ezDdpfFlags::ALPHAPIXELS) != 0 ||
-      (fileHeader.m_ddspf.m_uiFlags & ezDdpfFlags::RGB) != 0 ||
+  if ((fileHeader.m_ddspf.m_uiFlags & ezDdpfFlags::ALPHAPIXELS) != 0 || (fileHeader.m_ddspf.m_uiFlags & ezDdpfFlags::RGB) != 0 ||
       (fileHeader.m_ddspf.m_uiFlags & ezDdpfFlags::ALPHA) != 0)
   {
-    format = ezImageFormat::FromPixelMask(
-        fileHeader.m_ddspf.m_uiRBitMask, fileHeader.m_ddspf.m_uiGBitMask,
-        fileHeader.m_ddspf.m_uiBBitMask, fileHeader.m_ddspf.m_uiABitMask,
-        fileHeader.m_ddspf.m_uiRGBBitCount);
+    format = ezImageFormat::FromPixelMask(fileHeader.m_ddspf.m_uiRBitMask, fileHeader.m_ddspf.m_uiGBitMask, fileHeader.m_ddspf.m_uiBBitMask,
+      fileHeader.m_ddspf.m_uiABitMask, fileHeader.m_ddspf.m_uiRGBBitCount);
 
     if (format == ezImageFormat::UNKNOWN)
     {
       ezLog::Error(pLog, "The pixel mask specified was not recognized (R: {0}, G: {1}, B: {2}, A: {3}, Bpp: {4}).",
-                   ezArgU(fileHeader.m_ddspf.m_uiRBitMask, 1, false, 16),
-                   ezArgU(fileHeader.m_ddspf.m_uiGBitMask, 1, false, 16),
-                   ezArgU(fileHeader.m_ddspf.m_uiBBitMask, 1, false, 16),
-                   ezArgU(fileHeader.m_ddspf.m_uiABitMask, 1, false, 16),
-                   fileHeader.m_ddspf.m_uiRGBBitCount);
+        ezArgU(fileHeader.m_ddspf.m_uiRBitMask, 1, false, 16), ezArgU(fileHeader.m_ddspf.m_uiGBitMask, 1, false, 16),
+        ezArgU(fileHeader.m_ddspf.m_uiBBitMask, 1, false, 16), ezArgU(fileHeader.m_ddspf.m_uiABitMask, 1, false, 16),
+        fileHeader.m_ddspf.m_uiRGBBitCount);
       return EZ_FAILURE;
     }
 
@@ -199,7 +192,7 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
     if (ezImageFormat::GetBitsPerPixel(format) != fileHeader.m_ddspf.m_uiRGBBitCount)
     {
       ezLog::Error(pLog, "The number of bits per pixel specified in the file ({0}) does not match the expected value of {1} for the format '{2}'.",
-                   fileHeader.m_ddspf.m_uiRGBBitCount, ezImageFormat::GetBitsPerPixel(format), ezImageFormat::GetName(format));
+        fileHeader.m_ddspf.m_uiRGBBitCount, ezImageFormat::GetBitsPerPixel(format), ezImageFormat::GetName(format));
       return EZ_FAILURE;
     }
   }
@@ -227,11 +220,9 @@ ezResult ezDdsFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
 
       if (format == ezImageFormat::UNKNOWN)
       {
-        ezLog::Error(pLog, "The FourCC code '{0}{1}{2}{3}' was not recognized.",
-                     ezArgC((char)(fileHeader.m_ddspf.m_uiFourCC >> 0)),
-                     ezArgC((char)(fileHeader.m_ddspf.m_uiFourCC >> 8)),
-                     ezArgC((char)(fileHeader.m_ddspf.m_uiFourCC >> 16)),
-                     ezArgC((char)(fileHeader.m_ddspf.m_uiFourCC >> 24)));
+        ezLog::Error(pLog, "The FourCC code '{0}{1}{2}{3}' was not recognized.", ezArgC((char)(fileHeader.m_ddspf.m_uiFourCC >> 0)),
+          ezArgC((char)(fileHeader.m_ddspf.m_uiFourCC >> 8)), ezArgC((char)(fileHeader.m_ddspf.m_uiFourCC >> 16)),
+          ezArgC((char)(fileHeader.m_ddspf.m_uiFourCC >> 24)));
         return EZ_FAILURE;
       }
     }
@@ -377,10 +368,8 @@ ezResult ezDdsFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
     }
 
     fileHeader.m_uiCaps |= ezDdsCaps::COMPLEX;
-    fileHeader.m_uiCaps2 |= ezDdsCaps2::CUBEMAP |
-                            ezDdsCaps2::CUBEMAP_POSITIVEX | ezDdsCaps2::CUBEMAP_NEGATIVEX |
-                            ezDdsCaps2::CUBEMAP_POSITIVEY | ezDdsCaps2::CUBEMAP_NEGATIVEY |
-                            ezDdsCaps2::CUBEMAP_POSITIVEZ | ezDdsCaps2::CUBEMAP_NEGATIVEZ;
+    fileHeader.m_uiCaps2 |= ezDdsCaps2::CUBEMAP | ezDdsCaps2::CUBEMAP_POSITIVEX | ezDdsCaps2::CUBEMAP_NEGATIVEX | ezDdsCaps2::CUBEMAP_POSITIVEY |
+                            ezDdsCaps2::CUBEMAP_NEGATIVEY | ezDdsCaps2::CUBEMAP_POSITIVEZ | ezDdsCaps2::CUBEMAP_NEGATIVEZ;
   }
 
   if (bArray)
@@ -415,8 +404,10 @@ ezResult ezDdsFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
   // When not required to use a DXT10 texture, try to write a legacy DDS by specifying FourCC or pixel masks
   if (!bDxt10)
   {
-    // The format has a known mask and we would also recognize it as the same when reading back in, since multiple formats may have the same pixel masks
-    if ((uiRedMask | uiGreenMask | uiBlueMask | uiAlphaMask) && format == ezImageFormat::FromPixelMask(uiRedMask, uiGreenMask, uiBlueMask, uiAlphaMask, uiBpp))
+    // The format has a known mask and we would also recognize it as the same when reading back in, since multiple formats may have the same pixel
+    // masks
+    if ((uiRedMask | uiGreenMask | uiBlueMask | uiAlphaMask) &&
+        format == ezImageFormat::FromPixelMask(uiRedMask, uiGreenMask, uiBlueMask, uiAlphaMask, uiBpp))
     {
       fileHeader.m_ddspf.m_uiFlags = ezDdpfFlags::ALPHAPIXELS | ezDdpfFlags::RGB;
       fileHeader.m_ddspf.m_uiRBitMask = uiRedMask;
@@ -443,8 +434,8 @@ ezResult ezDdsFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
     // We must write a DXT10 file, but there is no matching DXGI_FORMAT - we could also try converting, but that is rarely intended when writing .dds
     if (uiDxgiFormat == 0)
     {
-      ezLog::Error(pLog, "The image needs to be written as a DXT10 file, but no matching DXGI format was found for '{0}'.",
-                   ezImageFormat::GetName(format));
+      ezLog::Error(
+        pLog, "The image needs to be written as a DXT10 file, but no matching DXGI format was found for '{0}'.", ezImageFormat::GetName(format));
       return EZ_FAILURE;
     }
 
@@ -515,4 +506,3 @@ bool ezDdsFileFormat::CanWriteFileType(const char* szExtension) const
 
 
 EZ_STATICLINK_FILE(Texture, Texture_Image_Formats_DdsFileFormat);
-

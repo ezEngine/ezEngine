@@ -72,18 +72,18 @@ void ezMeshViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
       {
         ++uiNumColors;
       }
-    }    
+    }
 
     ezStringBuilder sText;
     sText.AppendFormat("Triangles: {}\\n", uiNumTriangles);
     sText.AppendFormat("Vertices: {}\\n", uiNumVertices);
     sText.AppendFormat("UV Channels: {}\\n", uiNumUVs);
     sText.AppendFormat("Color Channels: {}\\n", uiNumColors);
-    sText.AppendFormat("Bytes Per Vertex: {}\\n", bufferDesc.m_uiStructSize);    
+    sText.AppendFormat("Bytes Per Vertex: {}\\n", bufferDesc.m_uiStructSize);
     sText.AppendFormat("Bounding Box: width={0}, depth={1}, height={2}", ezArgF(bbox.GetHalfExtents().x * 2, 2),
       ezArgF(bbox.GetHalfExtents().y * 2, 2), ezArgF(bbox.GetHalfExtents().z * 2, 2));
 
-    ezDebugRenderer::Draw2DText(m_hView, sText, ezVec2I32(10, viewHeight - 10), ezColor::White, 16,
-      ezDebugRenderer::HorizontalAlignment::Left, ezDebugRenderer::VerticalAlignment::Bottom);
+    ezDebugRenderer::Draw2DText(m_hView, sText, ezVec2I32(10, viewHeight - 10), ezColor::White, 16, ezDebugRenderer::HorizontalAlignment::Left,
+      ezDebugRenderer::VerticalAlignment::Bottom);
   }
 }

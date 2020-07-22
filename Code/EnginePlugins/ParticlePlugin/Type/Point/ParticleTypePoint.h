@@ -25,7 +25,8 @@ public:
 
   virtual void CreateRequiredStreams() override;
 
-  virtual void ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const override;
+  virtual void ExtractTypeRenderData(
+    const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const override;
 
   virtual float GetMaxParticleRadius(float fParticleSize) const override { return 0.0f; }
 

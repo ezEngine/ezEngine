@@ -49,7 +49,8 @@ void ezAnimatedMeshAssetDocumentManager::OnDocumentManagerEvent(const ezDocument
   }
 }
 
-void ezAnimatedMeshAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezAnimatedMeshAssetDocumentManager::InternalCreateDocument(
+  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezAnimatedMeshAssetDocument(szPath);
 }

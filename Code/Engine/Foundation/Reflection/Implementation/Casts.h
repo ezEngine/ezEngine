@@ -11,9 +11,8 @@ template <typename T>
 EZ_ALWAYS_INLINE T ezStaticCast(ezReflectedClass* pObject)
 {
   typedef typename ezTypeTraits<T>::NonPointerType NonPointerT;
-  EZ_ASSERT_DEV(pObject == nullptr || pObject->IsInstanceOf<NonPointerT>(),
-                "Invalid static cast: Object of type '{0}' is not an instance of '{1}'", pObject->GetDynamicRTTI()->GetTypeName(),
-                ezGetStaticRTTI<NonPointerT>()->GetTypeName());
+  EZ_ASSERT_DEV(pObject == nullptr || pObject->IsInstanceOf<NonPointerT>(), "Invalid static cast: Object of type '{0}' is not an instance of '{1}'",
+    pObject->GetDynamicRTTI()->GetTypeName(), ezGetStaticRTTI<NonPointerT>()->GetTypeName());
   return static_cast<T>(pObject);
 }
 
@@ -24,9 +23,8 @@ template <typename T>
 EZ_ALWAYS_INLINE T ezStaticCast(const ezReflectedClass* pObject)
 {
   typedef typename ezTypeTraits<T>::NonConstReferencePointerType NonPointerT;
-  EZ_ASSERT_DEV(pObject == nullptr || pObject->IsInstanceOf<NonPointerT>(),
-                "Invalid static cast: Object of type '{0}' is not an instance of '{1}'", pObject->GetDynamicRTTI()->GetTypeName(),
-                ezGetStaticRTTI<NonPointerT>()->GetTypeName());
+  EZ_ASSERT_DEV(pObject == nullptr || pObject->IsInstanceOf<NonPointerT>(), "Invalid static cast: Object of type '{0}' is not an instance of '{1}'",
+    pObject->GetDynamicRTTI()->GetTypeName(), ezGetStaticRTTI<NonPointerT>()->GetTypeName());
   return static_cast<T>(pObject);
 }
 
@@ -63,4 +61,3 @@ EZ_ALWAYS_INLINE T ezDynamicCast(const ezReflectedClass* pObject)
   }
   return nullptr;
 }
-

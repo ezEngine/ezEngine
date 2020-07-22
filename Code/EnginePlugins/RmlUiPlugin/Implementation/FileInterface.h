@@ -12,15 +12,9 @@ namespace ezRmlUiInternal
   {
     using ezGenericId::ezGenericId;
 
-    static FileId FromRml(Rml::Core::FileHandle hFile)
-    {
-      return FileId(static_cast<ezUInt32>(hFile));
-    }
+    static FileId FromRml(Rml::Core::FileHandle hFile) { return FileId(static_cast<ezUInt32>(hFile)); }
 
-    Rml::Core::FileHandle ToRml() const
-    {
-      return m_Data;
-    }
+    Rml::Core::FileHandle ToRml() const { return m_Data; }
   };
 
   //////////////////////////////////////////////////////////////////////////

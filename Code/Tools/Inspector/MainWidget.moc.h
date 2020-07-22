@@ -1,6 +1,5 @@
 #pragma once
 
-#include <ads/DockManager.h>
 #include <Foundation/Basics.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/Set.h>
@@ -8,6 +7,7 @@
 #include <Foundation/Types/Variant.h>
 #include <Inspector/ui_MainWidget.h>
 #include <QMainWindow>
+#include <ads/DockManager.h>
 
 class QTreeWidgetItem;
 
@@ -15,7 +15,6 @@ class ezQtMainWidget : public ads::CDockWidget, public Ui_MainWidget
 {
   Q_OBJECT
 public:
-
   static ezQtMainWidget* s_pWidget;
 
   ezQtMainWidget(QWidget* parent = nullptr);
@@ -37,7 +36,6 @@ private Q_SLOTS:
   void on_TreeStats_customContextMenuRequested(const QPoint& p);
 
 private:
-
   void SaveFavorites();
   void LoadFavorites();
 

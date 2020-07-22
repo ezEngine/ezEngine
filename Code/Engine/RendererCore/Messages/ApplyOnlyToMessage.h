@@ -1,8 +1,8 @@
 #pragma once
 
-#include <RendererCore/RendererCoreDLL.h>
 #include <Core/World/Declarations.h>
 #include <Foundation/Communication/Message.h>
+#include <RendererCore/RendererCoreDLL.h>
 
 struct EZ_RENDERERCORE_DLL ezMsgOnlyApplyToObject : public ezMessage
 {
@@ -10,4 +10,3 @@ struct EZ_RENDERERCORE_DLL ezMsgOnlyApplyToObject : public ezMessage
 
   ezGameObjectHandle m_hObject;
 };
-

@@ -539,8 +539,7 @@ void ezSceneContext::HandleObjectsForDebugVisMsg(const ezObjectsForDebugVisMsgTo
 {
   EZ_LOCK(GetWorld()->GetWriteMarker());
 
-  const ezArrayPtr<const ezUuid> guids(reinterpret_cast<const ezUuid*>(pMsg->m_Objects.GetData()),
-    pMsg->m_Objects.GetCount() / sizeof(ezUuid));
+  const ezArrayPtr<const ezUuid> guids(reinterpret_cast<const ezUuid*>(pMsg->m_Objects.GetData()), pMsg->m_Objects.GetCount() / sizeof(ezUuid));
 
   for (auto guid : guids)
   {

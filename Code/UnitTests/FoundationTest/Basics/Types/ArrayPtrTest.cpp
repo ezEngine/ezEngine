@@ -9,11 +9,11 @@ static void testArrayPtr(ezArrayPtr<T> arrayPtr, typename ezArrayPtr<T>::Pointer
   EZ_TEST_INT(arrayPtr.GetCount(), uiExpectedCount);
 }
 
-//static void TakeConstArrayPtr(ezArrayPtr<const int> cint)
+// static void TakeConstArrayPtr(ezArrayPtr<const int> cint)
 //{
 //}
 //
-//static void TakeConstArrayPtr2(ezArrayPtr<const int*> cint, ezArrayPtr<const int* const> cintc)
+// static void TakeConstArrayPtr2(ezArrayPtr<const int*> cint, ezArrayPtr<const int* const> cintc)
 //{
 //}
 

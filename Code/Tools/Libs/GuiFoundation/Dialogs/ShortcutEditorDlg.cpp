@@ -8,12 +8,11 @@
 #include <QTreeWidget>
 
 ezQtShortcutEditorDlg::ezQtShortcutEditorDlg(QWidget* parent)
-    : QDialog(parent)
+  : QDialog(parent)
 {
   setupUi(this);
 
-  EZ_VERIFY(connect(Shortcuts, SIGNAL(itemSelectionChanged()), this, SLOT(SlotSelectionChanged())) != nullptr,
-            "signal/slot connection failed");
+  EZ_VERIFY(connect(Shortcuts, SIGNAL(itemSelectionChanged()), this, SLOT(SlotSelectionChanged())) != nullptr, "signal/slot connection failed");
 
   m_iSelectedAction = -1;
   KeyEditor->setEnabled(false);

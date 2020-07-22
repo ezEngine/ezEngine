@@ -1,28 +1,27 @@
-﻿#includde <WindowsMixedRealityPCH.h>
-#include <WindowsMixedReality/Graphics/MixedRealitySwapChainDX11.h>
-#include <WindowsMixedReality/Graphics/MixedRealityDX11Device.h>
+﻿#includde < WindowsMixedRealityPCH.h>
 #include <RendererDX11/Resources/TextureDX11.h>
+#include <WindowsMixedReality/Graphics/MixedRealityDX11Device.h>
+#include <WindowsMixedReality/Graphics/MixedRealitySwapChainDX11.h>
 
 #include <d3d11.h>
 #include <windows.graphics.holographic.h>
-#pragma warning (push)
-#pragma warning (disable: 4467) // warning C4467: usage of ATL attributes is deprecated
+#pragma warning(push)
+#pragma warning(disable : 4467) // warning C4467: usage of ATL attributes is deprecated
 #include <windows.graphics.directx.direct3d11.interop.h>
-#pragma warning (pop)
+#pragma warning(pop)
 
 ezGALMixedRealitySwapChainDX11::ezHoloMockWindow ezGALMixedRealitySwapChainDX11::s_mockWindow;
 
 ezGALMixedRealitySwapChainDX11::ezGALMixedRealitySwapChainDX11(const ezGALSwapChainCreationDescription& Description)
   : ezGALSwapChain(Description)
-  //, m_reprojectionPlane()
+//, m_reprojectionPlane()
 {
 }
 
-ezGALMixedRealitySwapChainDX11::~ezGALMixedRealitySwapChainDX11()
-{
-}
+ezGALMixedRealitySwapChainDX11::~ezGALMixedRealitySwapChainDX11() {}
 
-ezResult ezGALMixedRealitySwapChainDX11::EnsureBackBufferResources(ezGALDevice* pDevice, ABI::Windows::Graphics::Holographic::IHolographicCameraRenderingParameters* parameters)
+ezResult ezGALMixedRealitySwapChainDX11::EnsureBackBufferResources(
+  ezGALDevice* pDevice, ABI::Windows::Graphics::Holographic::IHolographicCameraRenderingParameters* parameters)
 {
   // Retrieve backbuffer texture.
   ComPtr<ID3D11Texture2D> pBackBufferTexture;
@@ -57,10 +56,12 @@ ezResult ezGALMixedRealitySwapChainDX11::EnsureBackBufferResources(ezGALDevice* 
     pBackBufferTexture->GetDesc(&backBufferDesc);
 
     ezGALTextureCreationDescription textureDesc;
-    textureDesc.SetAsRenderTarget(backBufferDesc.Width, backBufferDesc.Height, 
-                                  ezGALResourceFormat::BGRAUByteNormalized, // This is what was shown on hololens emulator. Don't have a way yet to convert DGI -> ezGALResourceFormat 
-                                  ezGALMSAASampleCount::None);   // Might in theory enforce MSAA, ignore that in the desc for now as well.
-    textureDesc.m_uiArraySize = backBufferDesc.ArraySize;   // Should be either one or two, in accordance with ezWindowsMixedRealityCamera::IsStereoscopic
+    textureDesc.SetAsRenderTarget(backBufferDesc.Width, backBufferDesc.Height,
+      ezGALResourceFormat::BGRAUByteNormalized, // This is what was shown on hololens emulator. Don't have a way yet to convert DGI ->
+                                                // ezGALResourceFormat
+      ezGALMSAASampleCount::None);              // Might in theory enforce MSAA, ignore that in the desc for now as well.
+    textureDesc.m_uiArraySize =
+      backBufferDesc.ArraySize; // Should be either one or two, in accordance with ezWindowsMixedRealityCamera::IsStereoscopic
     textureDesc.m_pExisitingNativeObject = pBackBufferTexture.Get();
 
     m_hBackBufferTexture = pDevice->CreateTexture(textureDesc);
@@ -80,4 +81,3 @@ ezResult ezGALMixedRealitySwapChainDX11::DeInitPlatform(ezGALDevice* pDevice)
 {
   return EZ_SUCCESS;
 }
-

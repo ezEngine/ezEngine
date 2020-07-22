@@ -1,8 +1,8 @@
 #pragma once
 
-#include <GameEngine/GameEngineDLL.h>
 #include <Core/ResourceManager/Resource.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <GameEngine/GameEngineDLL.h>
 
 typedef ezTypedResourceHandle<class ezSurfaceResource> ezSurfaceResourceHandle;
 typedef ezTypedResourceHandle<class ezPrefabResource> ezPrefabResourceHandle;
@@ -44,15 +44,13 @@ struct EZ_GAMEENGINE_DLL ezSurfaceInteraction
 
 
 
-
-
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEENGINE_DLL, ezSurfaceInteraction);
 
 struct EZ_GAMEENGINE_DLL ezSurfaceResourceDescriptor : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSurfaceResourceDescriptor, ezReflectedClass);
-public:
 
+public:
   void Load(ezStreamReader& stream);
   void Save(ezStreamWriter& stream) const;
 
@@ -70,4 +68,3 @@ public:
 
   ezHybridArray<ezSurfaceInteraction, 16> m_Interactions;
 };
-

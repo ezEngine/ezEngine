@@ -1,8 +1,8 @@
 #pragma once
 
+#include <Foundation/Containers/Map.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <QSortFilterProxyModel>
-#include <Foundation/Containers/Map.h>
 
 class QWidget;
 
@@ -22,12 +22,10 @@ public:
 protected:
   void RecomputeVisibleItems();
   bool UpdateVisibility(const QModelIndex& idx, bool bParentIsVisible);
-  virtual bool filterAcceptsRow(int source_row, const QModelIndex &source_parent) const override;
+  virtual bool filterAcceptsRow(int source_row, const QModelIndex& source_parent) const override;
 
   bool m_bIncludeChildren;
   QAbstractItemModel* m_pSourceModel;
   QString m_sFilterText;
   ezMap<QModelIndex, bool> m_Visible;
 };
-
-

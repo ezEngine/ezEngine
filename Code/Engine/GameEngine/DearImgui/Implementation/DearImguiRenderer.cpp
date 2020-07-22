@@ -2,15 +2,15 @@
 
 #ifdef BUILDSYSTEM_ENABLE_IMGUI_SUPPORT
 
-#include <GameEngine/DearImgui/DearImgui.h>
-#include <GameEngine/DearImgui/DearImguiRenderer.h>
-#include <Imgui/imgui_internal.h>
-#include <RendererCore/Pipeline/ExtractedRenderData.h>
-#include <RendererCore/Pipeline/View.h>
-#include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererCore/RenderWorld/RenderWorld.h>
-#include <RendererCore/Shader/ShaderResource.h>
-#include <RendererFoundation/Device/Device.h>
+#  include <GameEngine/DearImgui/DearImgui.h>
+#  include <GameEngine/DearImgui/DearImguiRenderer.h>
+#  include <Imgui/imgui_internal.h>
+#  include <RendererCore/Pipeline/ExtractedRenderData.h>
+#  include <RendererCore/Pipeline/View.h>
+#  include <RendererCore/RenderContext/RenderContext.h>
+#  include <RendererCore/RenderWorld/RenderWorld.h>
+#  include <RendererCore/Shader/ShaderResource.h>
+#  include <RendererFoundation/Device/Device.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezImguiRenderData, 1, ezRTTINoAllocator)
@@ -107,8 +107,8 @@ void ezImguiExtractor::Extract(
           ezImguiBatch& batch = pRenderData->m_Batches[cmdIdx];
           batch.m_uiVertexCount = pCmd->ElemCount;
           batch.m_uiTextureID = (ezUInt16)iTextureID;
-          batch.m_ScissorRect = ezRectU32((ezUInt32)pCmd->ClipRect.x, (ezUInt32)pCmd->ClipRect.y,
-            (ezUInt32)(pCmd->ClipRect.z - pCmd->ClipRect.x), (ezUInt32)(pCmd->ClipRect.w - pCmd->ClipRect.y));
+          batch.m_ScissorRect = ezRectU32((ezUInt32)pCmd->ClipRect.x, (ezUInt32)pCmd->ClipRect.y, (ezUInt32)(pCmd->ClipRect.z - pCmd->ClipRect.x),
+            (ezUInt32)(pCmd->ClipRect.w - pCmd->ClipRect.y));
         }
       }
 
@@ -151,8 +151,7 @@ void ezImguiRenderer::GetSupportedRenderDataCategories(ezHybridArray<ezRenderDat
   categories.PushBack(ezDefaultRenderDataCategories::GUI);
 }
 
-void ezImguiRenderer::RenderBatch(
-  const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
+void ezImguiRenderer::RenderBatch(const ezRenderViewContext& renderContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
 {
   if (ezImgui::GetSingleton() == nullptr)
     return;
@@ -171,10 +170,8 @@ void ezImguiRenderer::RenderBatch(
     EZ_ASSERT_DEV(pRenderData->m_Vertices.GetCount() < VertexBufferSize, "GUI has too many elements to render in one drawcall");
     EZ_ASSERT_DEV(pRenderData->m_Indices.GetCount() < IndexBufferSize, "GUI has too many elements to render in one drawcall");
 
-    pGALContext->UpdateBuffer(
-      m_hVertexBuffer, 0, ezMakeArrayPtr(pRenderData->m_Vertices.GetPtr(), pRenderData->m_Vertices.GetCount()).ToByteArray());
-    pGALContext->UpdateBuffer(
-      m_hIndexBuffer, 0, ezMakeArrayPtr(pRenderData->m_Indices.GetPtr(), pRenderData->m_Indices.GetCount()).ToByteArray());
+    pGALContext->UpdateBuffer(m_hVertexBuffer, 0, ezMakeArrayPtr(pRenderData->m_Vertices.GetPtr(), pRenderData->m_Vertices.GetCount()).ToByteArray());
+    pGALContext->UpdateBuffer(m_hIndexBuffer, 0, ezMakeArrayPtr(pRenderData->m_Indices.GetPtr(), pRenderData->m_Indices.GetCount()).ToByteArray());
 
     pRenderContext->BindMeshBuffer(
       m_hVertexBuffer, m_hIndexBuffer, &m_VertexDeclarationInfo, ezGALPrimitiveTopology::Triangles, pRenderData->m_Indices.GetCount() / 3);

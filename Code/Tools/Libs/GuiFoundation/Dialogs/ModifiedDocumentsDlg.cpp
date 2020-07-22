@@ -5,7 +5,7 @@
 #include <ToolsFoundation/Project/ToolsProject.h>
 
 ezQtModifiedDocumentsDlg::ezQtModifiedDocumentsDlg(QWidget* parent, const ezHybridArray<ezDocument*, 32>& ModifiedDocs)
-    : QDialog(parent)
+  : QDialog(parent)
 {
   m_ModifiedDocs = ModifiedDocs;
 
@@ -32,9 +32,8 @@ ezQtModifiedDocumentsDlg::ezQtModifiedDocumentsDlg(QWidget* parent, const ezHybr
   TableDocuments->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeMode::Stretch);
   TableDocuments->horizontalHeader()->setSectionResizeMode(2, QHeaderView::ResizeMode::Fixed);
 
-  EZ_VERIFY(connect(TableDocuments, SIGNAL(currentCellChanged(int, int, int, int)), this, SLOT(SlotSelectionChanged(int, int, int, int))) !=
-                nullptr,
-            "signal/slot connection failed");
+  EZ_VERIFY(connect(TableDocuments, SIGNAL(currentCellChanged(int, int, int, int)), this, SLOT(SlotSelectionChanged(int, int, int, int))) != nullptr,
+    "signal/slot connection failed");
 
   ezInt32 iRow = 0;
   for (ezDocument* pDoc : m_ModifiedDocs)
@@ -81,8 +80,7 @@ ezResult ezQtModifiedDocumentsDlg::SaveDocument(ezDocument* pDoc)
       if (ezQtUiServices::MessageBoxQuestion("Warning! This document contained unknown object types that could not be loaded. Saving the "
                                              "document means those objects will get lost permanently.\n\nDo you really want to save this "
                                              "document?",
-                                             QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No,
-                                             QMessageBox::StandardButton::No) != QMessageBox::StandardButton::Yes)
+            QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No, QMessageBox::StandardButton::No) != QMessageBox::StandardButton::Yes)
         return EZ_SUCCESS; // failed successfully
     }
   }

@@ -11,9 +11,10 @@ struct ezMemoryTrackingFlags
   enum Enum
   {
     None,
-    RegisterAllocator = EZ_BIT(0), ///< Register the allocator with the memory tracker. If EnableAllocationTracking is not set as well it is up to the allocator implementation whether it collects usable stats or not.
+    RegisterAllocator = EZ_BIT(0), ///< Register the allocator with the memory tracker. If EnableAllocationTracking is not set as well it is up to the
+                                   ///< allocator implementation whether it collects usable stats or not.
     EnableAllocationTracking = EZ_BIT(1), ///< Enable tracking of individual allocations
-    EnableStackTrace = EZ_BIT(2), ///< Enable stack traces for each allocation
+    EnableStackTrace = EZ_BIT(2),         ///< Enable stack traces for each allocation
 
     All = RegisterAllocator | EnableAllocationTracking | EnableStackTrace,
 
@@ -34,7 +35,7 @@ struct ezMemoryTrackingFlags
   };
 };
 
-//EZ_DECLARE_FLAGS_OPERATORS(ezMemoryTrackingFlags);
+// EZ_DECLARE_FLAGS_OPERATORS(ezMemoryTrackingFlags);
 
 #define EZ_STATIC_ALLOCATOR_NAME "Statics"
 
@@ -47,10 +48,10 @@ public:
     EZ_DECLARE_POD_TYPE();
 
     EZ_FORCE_INLINE AllocationInfo()
-        : m_pStackTrace(nullptr)
-        , m_uiSize(0)
-        , m_uiAlignment(0)
-        , m_uiStackTraceLength(0)
+      : m_pStackTrace(nullptr)
+      , m_uiSize(0)
+      , m_uiAlignment(0)
+      , m_uiStackTraceLength(0)
     {
     }
 
@@ -59,10 +60,7 @@ public:
     ezUInt16 m_uiAlignment;
     ezUInt16 m_uiStackTraceLength;
 
-    EZ_ALWAYS_INLINE const ezArrayPtr<void*> GetStackTrace() const
-    {
-      return ezArrayPtr<void*>(m_pStackTrace, (ezUInt32)m_uiStackTraceLength);
-    }
+    EZ_ALWAYS_INLINE const ezArrayPtr<void*> GetStackTrace() const { return ezArrayPtr<void*>(m_pStackTrace, (ezUInt32)m_uiStackTraceLength); }
 
     EZ_ALWAYS_INLINE ezArrayPtr<void*> GetStackTrace() { return ezArrayPtr<void*>(m_pStackTrace, (ezUInt32)m_uiStackTraceLength); }
 
@@ -93,7 +91,7 @@ public:
     friend class ezMemoryTracker;
 
     EZ_ALWAYS_INLINE Iterator(void* pData)
-        : m_pData(pData)
+      : m_pData(pData)
     {
     }
 
@@ -103,8 +101,8 @@ public:
   static ezAllocatorId RegisterAllocator(const char* szName, ezBitflags<ezMemoryTrackingFlags> flags, ezAllocatorId parentId);
   static void DeregisterAllocator(ezAllocatorId allocatorId);
 
-  static void AddAllocation(ezAllocatorId allocatorId, ezBitflags<ezMemoryTrackingFlags> flags, const void* ptr, size_t uiSize, size_t uiAlign,
-    ezTime allocationTime);
+  static void AddAllocation(
+    ezAllocatorId allocatorId, ezBitflags<ezMemoryTrackingFlags> flags, const void* ptr, size_t uiSize, size_t uiAlign, ezTime allocationTime);
   static void RemoveAllocation(ezAllocatorId allocatorId, const void* ptr);
   static void RemoveAllAllocations(ezAllocatorId allocatorId);
   static void SetAllocatorStats(ezAllocatorId allocatorId, const ezAllocatorBase::Stats& stats);
@@ -120,4 +118,3 @@ public:
 
   static Iterator GetIterator();
 };
-

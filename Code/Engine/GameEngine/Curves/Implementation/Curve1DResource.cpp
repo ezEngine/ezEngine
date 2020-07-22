@@ -9,7 +9,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezCurve1DResource);
 
 ezCurve1DResource::ezCurve1DResource()
-    : ezResource(DoUpdate::OnAnyThread, 1)
+  : ezResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
@@ -70,8 +70,7 @@ ezResourceLoadDesc ezCurve1DResource::UpdateContent(ezStreamReader* Stream)
 void ezCurve1DResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
-  out_NewMemoryUsage.m_uiMemoryCPU =
-      static_cast<ezUInt32>(m_Descriptor.m_Curves.GetHeapMemoryUsage()) + static_cast<ezUInt32>(sizeof(m_Descriptor));
+  out_NewMemoryUsage.m_uiMemoryCPU = static_cast<ezUInt32>(m_Descriptor.m_Curves.GetHeapMemoryUsage()) + static_cast<ezUInt32>(sizeof(m_Descriptor));
 
   for (const auto& curve : m_Descriptor.m_Curves)
   {
@@ -120,4 +119,3 @@ void ezCurve1DResourceDescriptor::Load(ezStreamReader& stream)
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Curves_Implementation_Curve1DResource);
-

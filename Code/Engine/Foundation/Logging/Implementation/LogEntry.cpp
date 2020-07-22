@@ -23,9 +23,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezLogEntry, ezNoBase, 1, ezRTTIDefaultAllocator<e
 EZ_END_STATIC_REFLECTED_TYPE;
 // clang-format on
 
-ezLogEntry::ezLogEntry()
-{
-}
+ezLogEntry::ezLogEntry() {}
 
 ezLogEntry::ezLogEntry(const ezLoggingEventData& le)
 {
@@ -40,7 +38,8 @@ ezLogEntry::ezLogEntry(const ezLoggingEventData& le)
 #endif
 }
 
-ezLogEntryDelegate::ezLogEntryDelegate(Callback callback, ezLogMsgType::Enum LogLevel) : m_Callback(callback)
+ezLogEntryDelegate::ezLogEntryDelegate(Callback callback, ezLogMsgType::Enum LogLevel)
+  : m_Callback(callback)
 {
   SetLogLevel(LogLevel);
 }
@@ -52,4 +51,3 @@ void ezLogEntryDelegate::HandleLogMessage(const ezLoggingEventData& le)
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Logging_Implementation_LogEntry);
-

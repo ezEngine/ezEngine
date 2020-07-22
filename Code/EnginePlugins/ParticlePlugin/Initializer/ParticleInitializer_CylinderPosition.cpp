@@ -72,7 +72,7 @@ float ezParticleInitializerFactory_CylinderPosition::GetSpawnCountMultiplier(con
   {
     const float s0 = /* 2.0f * ezMath::Pi<float>() * m_fRadius **/ m_fRadius + /* 2.0f * ezMath::Pi<float>() * m_fRadius **/ m_fHeight;
     const float s1 = /* 2.0f * ezMath::Pi<float>() * m_fRadius **/ m_fRadius * fScaleRadius * fScaleRadius +
-                             /*2.0f * ezMath::Pi<float>() * m_fRadius **/ fScaleRadius * m_fHeight * fScaleHeight;
+                     /*2.0f * ezMath::Pi<float>() * m_fRadius **/ fScaleRadius * m_fHeight * fScaleHeight;
 
     return s1 / s0;
   }

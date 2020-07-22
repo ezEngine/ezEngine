@@ -46,24 +46,29 @@ public:
     }
   };
 
-  void FindObjectsInSphere(const ezBoundingSphere& sphere, ezUInt32 uiCategoryBitmask, ezDynamicArray<ezGameObject*>& out_Objects, QueryStats* pStats = nullptr) const;
+  void FindObjectsInSphere(
+    const ezBoundingSphere& sphere, ezUInt32 uiCategoryBitmask, ezDynamicArray<ezGameObject*>& out_Objects, QueryStats* pStats = nullptr) const;
   void FindObjectsInSphere(const ezBoundingSphere& sphere, ezUInt32 uiCategoryBitmask, QueryCallback callback, QueryStats* pStats = nullptr) const;
 
-  void FindObjectsInBox(const ezBoundingBox& box, ezUInt32 uiCategoryBitmask, ezDynamicArray<ezGameObject*>& out_Objects, QueryStats* pStats = nullptr) const;
+  void FindObjectsInBox(
+    const ezBoundingBox& box, ezUInt32 uiCategoryBitmask, ezDynamicArray<ezGameObject*>& out_Objects, QueryStats* pStats = nullptr) const;
   void FindObjectsInBox(const ezBoundingBox& box, ezUInt32 uiCategoryBitmask, QueryCallback callback, QueryStats* pStats = nullptr) const;
 
   ///@}
   /// \name Visibility Queries
   ///@{
 
-  void FindVisibleObjects(const ezFrustum& frustum, ezUInt32 uiCategoryBitmask, ezDynamicArray<const ezGameObject*>& out_Objects, QueryStats* pStats = nullptr) const;
+  void FindVisibleObjects(
+    const ezFrustum& frustum, ezUInt32 uiCategoryBitmask, ezDynamicArray<const ezGameObject*>& out_Objects, QueryStats* pStats = nullptr) const;
 
   ///@}
 
 protected:
-  virtual void FindObjectsInSphereInternal(const ezBoundingSphere& sphere, ezUInt32 uiCategoryBitmask, QueryCallback callback, QueryStats* pStats) const = 0;
+  virtual void FindObjectsInSphereInternal(
+    const ezBoundingSphere& sphere, ezUInt32 uiCategoryBitmask, QueryCallback callback, QueryStats* pStats) const = 0;
   virtual void FindObjectsInBoxInternal(const ezBoundingBox& box, ezUInt32 uiCategoryBitmask, QueryCallback callback, QueryStats* pStats) const = 0;
-  virtual void FindVisibleObjectsInternal(const ezFrustum& frustum, ezUInt32 uiCategoryBitmask, ezDynamicArray<const ezGameObject*>& out_Objects, QueryStats* pStats) const = 0;
+  virtual void FindVisibleObjectsInternal(
+    const ezFrustum& frustum, ezUInt32 uiCategoryBitmask, ezDynamicArray<const ezGameObject*>& out_Objects, QueryStats* pStats) const = 0;
 
   virtual void SpatialDataAdded(ezSpatialData* pData) = 0;
   virtual void SpatialDataRemoved(ezSpatialData* pData) = 0;

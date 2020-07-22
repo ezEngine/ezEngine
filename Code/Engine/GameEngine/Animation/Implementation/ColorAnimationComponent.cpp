@@ -97,6 +97,4 @@ void ezColorAnimationComponent::Update()
 
 
 
-
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Animation_Implementation_ColorAnimationComponent);
-

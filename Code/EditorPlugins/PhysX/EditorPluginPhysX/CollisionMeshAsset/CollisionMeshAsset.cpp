@@ -66,9 +66,8 @@ void ezCollisionMeshAssetDocument::InitializeAfterLoading(bool bFirstTimeCreatio
 //////////////////////////////////////////////////////////////////////////
 
 
-ezStatus ezCollisionMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag,
-  const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader,
-  ezBitflags<ezTransformFlags> transformFlags)
+ezStatus ezCollisionMeshAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   ezProgressRange range("Transforming Asset", 2, false);
 
@@ -276,8 +275,8 @@ ezStatus ezCollisionMeshAssetDocument::CreateMeshFromGeom(ezGeometry& geom, ezPh
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezCollisionMeshAssetDocument::WriteToStream(ezChunkStreamWriter& stream, const ezPhysXCookingMesh& mesh,
-  const ezCollisionMeshAssetProperties* pProp)
+ezStatus ezCollisionMeshAssetDocument::WriteToStream(
+  ezChunkStreamWriter& stream, const ezPhysXCookingMesh& mesh, const ezCollisionMeshAssetProperties* pProp)
 {
   ezHybridArray<ezString, 32> surfaces;
 
@@ -322,8 +321,8 @@ ezCollisionMeshAssetDocumentGenerator::ezCollisionMeshAssetDocumentGenerator()
 
 ezCollisionMeshAssetDocumentGenerator::~ezCollisionMeshAssetDocumentGenerator() = default;
 
-void ezCollisionMeshAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath,
-  ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+void ezCollisionMeshAssetDocumentGenerator::GetImportModes(
+  const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
   baseOutputFile.ChangeFileExtension("ezCollisionMeshAsset");
@@ -337,8 +336,8 @@ void ezCollisionMeshAssetDocumentGenerator::GetImportModes(const char* szParentD
   }
 }
 
-ezStatus ezCollisionMeshAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info,
-  ezDocument*& out_pGeneratedDocument)
+ezStatus ezCollisionMeshAssetDocumentGenerator::Generate(
+  const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
 
@@ -359,8 +358,7 @@ ezStatus ezCollisionMeshAssetDocumentGenerator::Generate(const char* szDataDirRe
 
 //////////////////////////////////////////////////////////////////////////
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConvexCollisionMeshAssetDocumentGenerator, 1,
-  ezRTTIDefaultAllocator<ezConvexCollisionMeshAssetDocumentGenerator>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConvexCollisionMeshAssetDocumentGenerator, 1, ezRTTIDefaultAllocator<ezConvexCollisionMeshAssetDocumentGenerator>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezConvexCollisionMeshAssetDocumentGenerator::ezConvexCollisionMeshAssetDocumentGenerator()
@@ -373,8 +371,8 @@ ezConvexCollisionMeshAssetDocumentGenerator::ezConvexCollisionMeshAssetDocumentG
 
 ezConvexCollisionMeshAssetDocumentGenerator::~ezConvexCollisionMeshAssetDocumentGenerator() = default;
 
-void ezConvexCollisionMeshAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath,
-  ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+void ezConvexCollisionMeshAssetDocumentGenerator::GetImportModes(
+  const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
   baseOutputFile.ChangeFileExtension("ezConvexCollisionMeshAsset");
@@ -388,9 +386,8 @@ void ezConvexCollisionMeshAssetDocumentGenerator::GetImportModes(const char* szP
   }
 }
 
-ezStatus ezConvexCollisionMeshAssetDocumentGenerator::Generate(const char* szDataDirRelativePath,
-  const ezAssetDocumentGenerator::Info& info,
-  ezDocument*& out_pGeneratedDocument)
+ezStatus ezConvexCollisionMeshAssetDocumentGenerator::Generate(
+  const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
 

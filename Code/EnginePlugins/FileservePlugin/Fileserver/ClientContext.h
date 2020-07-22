@@ -17,7 +17,6 @@ enum class ezFileserveFileState
 class EZ_FILESERVEPLUGIN_DLL ezFileserveClientContext
 {
 public:
-
   struct DataDir
   {
     ezString m_sRootName;
@@ -34,10 +33,10 @@ public:
     ezUInt64 m_uiFileSize = 0;
   };
 
-  ezFileserveFileState GetFileStatus(ezUInt16& inout_uiDataDirID, const char* szRequestedFile, FileStatus& inout_Status, ezDynamicArray<ezUInt8>& out_FileContent, bool bForceThisDataDir) const;
+  ezFileserveFileState GetFileStatus(ezUInt16& inout_uiDataDirID, const char* szRequestedFile, FileStatus& inout_Status,
+    ezDynamicArray<ezUInt8>& out_FileContent, bool bForceThisDataDir) const;
 
   bool m_bLostConnection = false;
   ezUInt32 m_uiApplicationID = 0;
   ezHybridArray<DataDir, 8> m_MountedDataDirs;
 };
-

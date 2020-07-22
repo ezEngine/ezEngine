@@ -8,10 +8,10 @@
 
 #include <EditorPluginRecast/EditorPluginRecastDLL.h>
 
-#include <Foundation/Strings/StringBuilder.h>
+#include <EditorEngineProcessFramework/LongOps/LongOps.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Strings/TranslationLookup.h>
 #include <GuiFoundation/Action/ActionManager.h>
-#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
-#include <EditorEngineProcessFramework/LongOps/LongOps.h>

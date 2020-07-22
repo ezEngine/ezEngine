@@ -83,8 +83,8 @@ void ezVirtualThumbStick::SetTriggerInputSlot(ezVirtualThumbStick::Input::Enum I
   m_bConfigChanged = true;
 }
 
-void ezVirtualThumbStick::SetThumbstickOutput(ezVirtualThumbStick::Output::Enum Output, const char* szOutputLeft, const char* szOutputRight,
-  const char* szOutputUp, const char* szOutputDown)
+void ezVirtualThumbStick::SetThumbstickOutput(
+  ezVirtualThumbStick::Output::Enum Output, const char* szOutputLeft, const char* szOutputRight, const char* szOutputUp, const char* szOutputDown)
 {
   switch (Output)
   {
@@ -173,8 +173,8 @@ void ezVirtualThumbStick::SetAreaFocusMode(ezInputActionConfig::OnEnterArea OnEn
   m_ActionConfig.m_OnLeaveArea = OnLeave;
 }
 
-void ezVirtualThumbStick::SetInputArea(const ezVec2& vLowerLeft, const ezVec2& vUpperRight, float fThumbstickRadius, float fPriority,
-  CenterMode::Enum center)
+void ezVirtualThumbStick::SetInputArea(
+  const ezVec2& vLowerLeft, const ezVec2& vUpperRight, float fThumbstickRadius, float fPriority, CenterMode::Enum center)
 {
   m_bConfigChanged = true;
 
@@ -226,8 +226,7 @@ void ezVirtualThumbStick::UpdateInputSlotValues()
   float fValue;
   ezInt8 iTriggerAlt;
 
-  const ezKeyState::Enum ks =
-    ezInputManager::GetInputActionState(GetDynamicRTTI()->GetTypeName(), m_sName.GetData(), &fValue, &iTriggerAlt);
+  const ezKeyState::Enum ks = ezInputManager::GetInputActionState(GetDynamicRTTI()->GetTypeName(), m_sName.GetData(), &fValue, &iTriggerAlt);
 
   if (ks != ezKeyState::Up)
   {

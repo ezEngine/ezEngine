@@ -1,14 +1,14 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/Threading/Thread.h>
-#include <Foundation/Time/Time.h>
+#include <Foundation/Communication/Event.h>
 #include <Foundation/Communication/RemoteMessage.h>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Containers/HashTable.h>
-#include <Foundation/Types/Delegate.h>
 #include <Foundation/Threading/Mutex.h>
-#include <Foundation/Communication/Event.h>
+#include <Foundation/Threading/Thread.h>
+#include <Foundation/Time/Time.h>
+#include <Foundation/Types/Delegate.h>
 
 /// \brief Whether the remote interface is configured as a server or a client
 enum class ezRemoteMode
@@ -24,7 +24,8 @@ enum class ezRemoteMode
 enum class ezRemoteTransmitMode
 {
   Reliable,   ///< Messages should definitely arrive at the target, if necessary they are send several times, until the target acknowledged it.
-  Unreliable, ///< Messages are sent at most once, if they get lost, they are not resent. If it is known beforehand, that not receiver exists, they are dropped without sending them at all.
+  Unreliable, ///< Messages are sent at most once, if they get lost, they are not resent. If it is known beforehand, that not receiver exists, they
+              ///< are dropped without sending them at all.
 };
 
 /// \brief Event type for connections
@@ -32,10 +33,10 @@ struct EZ_FOUNDATION_DLL ezRemoteEvent
 {
   enum Type
   {
-    ConnectedToClient,        ///< brief Sent whenever a new connection to a client has been established.
-    ConnectedToServer,        ///< brief Sent whenever a connection to the server has been established.
-    DisconnectedFromClient,   ///< Sent every time the connection to a client is dropped
-    DisconnectedFromServer,   ///< Sent when the connection to the server has been lost
+    ConnectedToClient,      ///< brief Sent whenever a new connection to a client has been established.
+    ConnectedToServer,      ///< brief Sent whenever a connection to the server has been established.
+    DisconnectedFromClient, ///< Sent every time the connection to a client is dropped
+    DisconnectedFromServer, ///< Sent when the connection to the server has been lost
   };
 
   Type m_Type;
@@ -122,7 +123,7 @@ public:
   ///@{
 
   /// \brief For the client to display the name of the server
-  //const ezString& GetServerInfoName() const { return m_ServerInfoName; }
+  // const ezString& GetServerInfoName() const { return m_ServerInfoName; }
 
   /// \brief For the client to display the IP of the server
   const ezString& GetServerInfoIP() const { return m_ServerInfoIP; }
@@ -194,7 +195,6 @@ public:
   ///@}
 
 protected:
-
   /// \name Implementation Details
   ///@{
 
@@ -217,7 +217,7 @@ protected:
   virtual ezResult DetermineTargetAddress(const char* szConnectTo, ezUInt32& out_IP, ezUInt16& out_Port);
 
   /// Derived classes should update this when the information is available
-  //ezString m_ServerInfoName;
+  // ezString m_ServerInfoName;
   /// Derived classes should update this when the information is available
   ezString m_ServerInfoIP;
 
@@ -270,5 +270,3 @@ public:
 private:
   virtual ezUInt32 Run();
 };
-
-

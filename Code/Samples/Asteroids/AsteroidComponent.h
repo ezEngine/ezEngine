@@ -18,9 +18,7 @@ public:
   void Update();
 
   float m_fRotationSpeed;
+
 protected:
   virtual void OnSimulationStarted() override;
-
 };
-
-

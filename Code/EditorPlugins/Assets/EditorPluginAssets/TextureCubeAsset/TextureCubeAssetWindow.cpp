@@ -73,7 +73,8 @@ ezActionDescriptorHandle ezTextureCubeAssetActions::s_hLodSlider;
 
 void ezTextureCubeAssetActions::RegisterActions()
 {
-  s_hTextureChannelMode = EZ_REGISTER_DYNAMIC_MENU("TextureCubeAsset.ChannelMode", ezTextureCubeChannelModeAction, ":/EditorFramework/Icons/RenderMode.png");
+  s_hTextureChannelMode =
+    EZ_REGISTER_DYNAMIC_MENU("TextureCubeAsset.ChannelMode", ezTextureCubeChannelModeAction, ":/EditorFramework/Icons/RenderMode.png");
   s_hLodSlider = EZ_REGISTER_ACTION_0("TextureCubeAsset.LodSlider", ezActionScope::Document, "Texture Cube", "", ezTextureCubeLodSliderAction);
 }
 

@@ -56,7 +56,7 @@ EZ_ALWAYS_INLINE ezSimdVec4u::ezSimdVec4u(const ezSimdVec4i& i)
 
 EZ_ALWAYS_INLINE ezSimdVec4f ezSimdVec4u::ToFloat() const
 {
-  __m128 two16 = _mm_set1_ps((float)0x10000); //2^16
+  __m128 two16 = _mm_set1_ps((float)0x10000); // 2^16
   __m128i high = _mm_srli_epi32(m_v, 16);
   __m128i low = _mm_srli_epi32(_mm_slli_epi32(m_v, 16), 16);
   __m128 fHigh = _mm_mul_ps(_mm_cvtepi32_ps(high), two16);
@@ -73,7 +73,7 @@ EZ_ALWAYS_INLINE ezSimdVec4u ezSimdVec4u::Truncate(const ezSimdVec4f& f)
   __m128i zero = _mm_setzero_si128();
   __m128i mask = _mm_cmpgt_epi32(_mm_castps_si128(f.m_v), zero);
   __m128 min = _mm_and_ps(_mm_castsi128_ps(mask), f.m_v);
-  __m128 max = _mm_min_ps(min, _mm_load_ps(fmax_unsigned)); //clamped in 0 - 4.29496729+009
+  __m128 max = _mm_min_ps(min, _mm_load_ps(fmax_unsigned)); // clamped in 0 - 4.29496729+009
 
   __m128 diff = _mm_sub_ps(max, _mm_load_ps(fmax));
   mask = _mm_cmpgt_epi32(_mm_castps_si128(diff), zero);

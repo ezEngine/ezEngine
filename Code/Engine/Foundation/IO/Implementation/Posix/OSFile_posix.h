@@ -25,9 +25,9 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #endif
 
 #if EZ_ENABLED(EZ_PLATFORM_ANDROID)
-#  include <android_native_app_glue.h>
-#  include <Foundation/Basics/Platform/Android/AndroidUtils.h>
 #  include <Foundation/Basics/Platform/Android/AndroidJni.h>
+#  include <Foundation/Basics/Platform/Android/AndroidUtils.h>
+#  include <android_native_app_glue.h>
 #endif
 
 #ifndef PATH_MAX
@@ -242,7 +242,8 @@ ezResult ezOSFile::InternalCreateDirectory(const char* szDirectory)
     return EZ_SUCCESS;
 
   // If we were not allowed to access the folder but it alreay exists, we treat the operation as successful.
-  // Note that this is espcially relevant for calls to ezOSFile::CreateDirectoryStructure where we may call mkdir on top level directories that are not accessible.
+  // Note that this is espcially relevant for calls to ezOSFile::CreateDirectoryStructure where we may call mkdir on top level directories that are
+  // not accessible.
   if (errno == EACCES && InternalExistsDirectory(szDirectory))
     return EZ_SUCCESS;
 

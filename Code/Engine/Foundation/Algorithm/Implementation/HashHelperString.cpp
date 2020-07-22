@@ -2,7 +2,7 @@
 
 #include <Foundation/Algorithm/HashHelperString.h>
 
-//static
+// static
 ezUInt32 ezHashHelperString_NoCase::Hash(const char* szValue)
 {
   ezHybridArray<char, 256> temp;

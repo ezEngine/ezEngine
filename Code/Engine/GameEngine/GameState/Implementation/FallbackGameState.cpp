@@ -45,7 +45,8 @@ ezResult ezFallbackGameState::SpawnPlayer(const ezTransform* pStartPosition)
 
 static ezHybridArray<ezGameAppInputConfig, 16> g_AllInput;
 
-static void RegisterInputAction(const char* szInputSet, const char* szInputAction, const char* szKey1, const char* szKey2 = nullptr, const char* szKey3 = nullptr)
+static void RegisterInputAction(
+  const char* szInputSet, const char* szInputAction, const char* szKey1, const char* szKey2 = nullptr, const char* szKey3 = nullptr)
 {
   ezGameAppInputConfig& gacfg = g_AllInput.ExpandAndGetRef();
   gacfg.m_sInputSet = szInputSet;

@@ -1,8 +1,8 @@
 #include <OpenVRPluginPCH.h>
 
-#include <OpenVRPlugin/Basics.h>
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Strings/TranslationLookup.h>
+#include <OpenVRPlugin/Basics.h>
 
 EZ_STATICLINK_LIBRARY(OpenVRPlugin)
 {

@@ -24,6 +24,7 @@ public:
 class EZ_EDITORFRAMEWORK_DLL ezAssetAction : public ezButtonAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezAssetAction, ezButtonAction);
+
 public:
   enum class ButtonType
   {

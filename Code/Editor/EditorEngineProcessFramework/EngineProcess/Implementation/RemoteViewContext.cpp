@@ -16,7 +16,7 @@ ezUInt32 ezRemoteEngineProcessViewContext::s_uiActiveViewID = 0;
 ezRemoteEngineProcessViewContext* ezRemoteEngineProcessViewContext::s_pActiveRemoteViewContext = nullptr;
 
 ezRemoteEngineProcessViewContext::ezRemoteEngineProcessViewContext(ezEngineProcessDocumentContext* pContext)
-    : ezEngineProcessViewContext(pContext)
+  : ezEngineProcessViewContext(pContext)
 {
 }
 

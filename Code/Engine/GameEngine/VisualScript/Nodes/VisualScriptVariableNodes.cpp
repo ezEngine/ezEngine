@@ -440,4 +440,3 @@ void ezVisualScriptNode_ToggleBool::Execute(ezVisualScriptInstance* pInstance, e
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_VisualScript_Nodes_VisualScriptVariableNodes);
-

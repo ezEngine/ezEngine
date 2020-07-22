@@ -31,4 +31,3 @@ EZ_ALWAYS_INLINE ezSimdVec4f ezSimdRandom::FloatMinMax(const ezSimdVec4u& seed, 
 {
   return ezSimdVec4f::Lerp(minValue, maxValue, FloatZeroToOne(seed));
 }
-

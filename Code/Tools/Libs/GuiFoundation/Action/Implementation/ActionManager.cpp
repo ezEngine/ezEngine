@@ -135,13 +135,14 @@ ezString ezActionManager::FindActionCategory(const char* szActionName)
   return ezString();
 }
 
-ezResult ezActionManager::ExecuteAction(const char* szCategory, const char* szActionName, const ezActionContext& context, const ezVariant& value /*= ezVariant()*/)
+ezResult ezActionManager::ExecuteAction(
+  const char* szCategory, const char* szActionName, const ezActionContext& context, const ezVariant& value /*= ezVariant()*/)
 {
   ezString sCategory = szCategory;
 
   if (szCategory == nullptr)
   {
-    sCategory = FindActionCategory(szActionName); 
+    sCategory = FindActionCategory(szActionName);
   }
 
   auto hAction = ezActionManager::GetActionHandle(sCategory, szActionName);

@@ -39,9 +39,9 @@
 // workaround for msvc compiler issue with alignment determination of dependent types
 #  define EZ_ALIGNMENT_OF(type) EZ_COMPILE_TIME_MAX(EZ_ALIGNMENT_MINIMUM, EZ_COMPILE_TIME_MIN(sizeof(type), __alignof(type)))
 
-#  define EZ_DEBUG_BREAK \
-    {                    \
-      __debugbreak();    \
+#  define EZ_DEBUG_BREAK                                                                                                                             \
+    {                                                                                                                                                \
+      __debugbreak();                                                                                                                                \
     }
 
 #  if EZ_ENABLED(EZ_COMPILER_MSVC_CLANG)

@@ -30,4 +30,3 @@ EZ_END_STATIC_REFLECTED_ENUM;
 
 
 EZ_STATICLINK_FILE(Texture, Texture_Image_Implementation_ImageEnums);
-

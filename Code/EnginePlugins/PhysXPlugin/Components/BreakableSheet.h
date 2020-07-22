@@ -7,7 +7,8 @@
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshResource.h>
 
-typedef ezComponentManagerSimple<class ezBreakableSheetComponent, ezComponentUpdateType::Always /* TODO: When simulating */> ezBreakableSheetComponentManager;
+typedef ezComponentManagerSimple<class ezBreakableSheetComponent, ezComponentUpdateType::Always /* TODO: When simulating */>
+  ezBreakableSheetComponentManager;
 
 struct ezMsgExtractRenderData;
 struct ezMsgCollision;

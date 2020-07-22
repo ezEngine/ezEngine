@@ -97,7 +97,8 @@ void ezParticleSystemDescriptor::SetupDefaultProcessors()
 {
   // Age Behavior
   {
-    ezParticleFinalizerFactory_Age* pFactory = ezParticleFinalizerFactory_Age::GetStaticRTTI()->GetAllocator()->Allocate<ezParticleFinalizerFactory_Age>();
+    ezParticleFinalizerFactory_Age* pFactory =
+      ezParticleFinalizerFactory_Age::GetStaticRTTI()->GetAllocator()->Allocate<ezParticleFinalizerFactory_Age>();
     pFactory->m_LifeTime = m_LifeTime;
     pFactory->m_sOnDeathEvent = m_sOnDeathEvent;
     pFactory->m_sLifeScaleParameter = m_sLifeScaleParameter;
@@ -106,7 +107,8 @@ void ezParticleSystemDescriptor::SetupDefaultProcessors()
 
   // Bounding Volume Update Behavior
   {
-    ezParticleFinalizerFactory_Volume* pFactory = ezParticleFinalizerFactory_Volume::GetStaticRTTI()->GetAllocator()->Allocate<ezParticleFinalizerFactory_Volume>();
+    ezParticleFinalizerFactory_Volume* pFactory =
+      ezParticleFinalizerFactory_Volume::GetStaticRTTI()->GetAllocator()->Allocate<ezParticleFinalizerFactory_Volume>();
     m_FinalizerFactories.PushBack(pFactory);
   }
 
@@ -134,7 +136,8 @@ void ezParticleSystemDescriptor::SetupDefaultProcessors()
 
   for (const ezRTTI* pRtti : finalizers)
   {
-    EZ_ASSERT_DEBUG(pRtti->IsDerivedFrom<ezParticleFinalizerFactory>(), "Invalid finalizer factory added as a dependency: '{0}'", pRtti->GetTypeName());
+    EZ_ASSERT_DEBUG(
+      pRtti->IsDerivedFrom<ezParticleFinalizerFactory>(), "Invalid finalizer factory added as a dependency: '{0}'", pRtti->GetTypeName());
     EZ_ASSERT_DEBUG(pRtti->GetAllocator()->CanAllocate(), "Finalizer factory cannot be allocated: '{0}'", pRtti->GetTypeName());
 
     m_FinalizerFactories.PushBack(pRtti->GetAllocator()->Allocate<ezParticleFinalizerFactory>());

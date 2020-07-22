@@ -30,7 +30,7 @@ public:
   /// \brief Called every time the long op shall be executed
   /// \param out_sReplicationOpType must name the ezLongOpWorker that shall be executed in the engine process.
   /// \param config can be optionally written to. The data is transmitted to the ezLongOpWorker on the other side
-  /// and fed to it in ezLongOpWorker::InitializeExecution(). 
+  /// and fed to it in ezLongOpWorker::InitializeExecution().
   virtual void GetReplicationInfo(ezStringBuilder& out_sReplicationOpType, ezStreamWriter& config) = 0;
 
   /// \brief Called once the corresponding ezLongOpWorker has finished.
@@ -60,7 +60,7 @@ public:
   virtual ezResult InitializeExecution(ezStreamReader& config, const ezUuid& DocumentGuid) { return EZ_SUCCESS; }
 
   /// \brief Executed in a separete thread after InitializeExecution(). This should do the work that takes a while.
-  /// 
+  ///
   /// This function may write the result data directly to disk. Everything that is written to \a proxydata
   /// will be transmitted back to the proxy long op and given to ezLongOpProxy::Finalize(). Since this requires IPC bandwidth
   /// the amount of data should be kept very small (a few KB at most).

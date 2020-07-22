@@ -170,7 +170,8 @@ static int __CPP_Debug_Draw3DText(duk_context* pDuk)
   const ezColor color = ezTypeScriptBinding::GetColor(pDuk, 2);
   const float fSize = duk.GetFloatValue(3, 16.0f);
 
-  ezDebugRenderer::Draw3DText(pWorld, szText, vPos, color, fSize, ezDebugRenderer::HorizontalAlignment::Center, ezDebugRenderer::VerticalAlignment::Center);
+  ezDebugRenderer::Draw3DText(
+    pWorld, szText, vPos, color, fSize, ezDebugRenderer::HorizontalAlignment::Center, ezDebugRenderer::VerticalAlignment::Center);
 
   return duk.ReturnVoid();
 }
@@ -345,16 +346,10 @@ public:
 
   ezStaticArray<ezVariant::Type::Enum, 8> m_Args;
 
-  ezUInt32 GetNumParameters() const override
-  {
-    return m_Args.GetCount();
-  }
+  ezUInt32 GetNumParameters() const override { return m_Args.GetCount(); }
 
 
-  ezVariant::Type::Enum GetParameterType(ezUInt32 uiParam) const override
-  {
-    return m_Args[uiParam];
-  }
+  ezVariant::Type::Enum GetParameterType(ezUInt32 uiParam) const override { return m_Args[uiParam]; }
 
   ezResult Call(ezArrayPtr<ezVariant> params) override
   {

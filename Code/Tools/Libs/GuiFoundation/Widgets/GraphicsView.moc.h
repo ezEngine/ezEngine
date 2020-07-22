@@ -1,8 +1,8 @@
 #pragma once
 
+#include <Foundation/Types/Delegate.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <QGraphicsView>
-#include <Foundation/Types/Delegate.h>
 
 class QWheelEvent;
 class QMouseEvent;

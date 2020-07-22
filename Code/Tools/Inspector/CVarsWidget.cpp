@@ -12,7 +12,7 @@
 ezQtCVarsWidget* ezQtCVarsWidget::s_pWidget = nullptr;
 
 ezQtCVarsWidget::ezQtCVarsWidget(QWidget* parent)
-    : ads::CDockWidget("CVars", parent)
+  : ads::CDockWidget("CVars", parent)
 {
   s_pWidget = this;
 

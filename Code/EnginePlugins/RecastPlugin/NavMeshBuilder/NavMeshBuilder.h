@@ -46,8 +46,8 @@ public:
 
   static ezResult ExtractWorldGeometry(const ezWorld& world, ezWorldGeoExtractionUtil::Geometry& out_worldGeo);
 
-  ezResult Build(const ezRecastConfig& config, const ezWorldGeoExtractionUtil::Geometry& worldGeo,
-    ezRecastNavMeshResourceDescriptor& out_NavMeshDesc, ezProgress& progress);
+  ezResult Build(const ezRecastConfig& config, const ezWorldGeoExtractionUtil::Geometry& worldGeo, ezRecastNavMeshResourceDescriptor& out_NavMeshDesc,
+    ezProgress& progress);
 
 private:
   static void FillOutConfig(struct rcConfig& cfg, const ezRecastConfig& config, const ezBoundingBox& bbox);

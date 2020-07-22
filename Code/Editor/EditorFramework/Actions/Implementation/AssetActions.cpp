@@ -17,11 +17,16 @@ ezActionDescriptorHandle ezAssetActions::s_hWriteLookupTable;
 void ezAssetActions::RegisterActions()
 {
   s_hAssetCategory = EZ_REGISTER_CATEGORY("AssetCategory");
-  s_hTransformAsset = EZ_REGISTER_ACTION_1("Asset.Transform", ezActionScope::Document, "Assets", "Ctrl+E", ezAssetAction, ezAssetAction::ButtonType::TransformAsset);
-  s_hTransformAllAssets = EZ_REGISTER_ACTION_1("Asset.TransformAll", ezActionScope::Global, "Assets", "Ctrl+Shift+E", ezAssetAction, ezAssetAction::ButtonType::TransformAllAssets);
-  s_hResaveAllAssets = EZ_REGISTER_ACTION_1("Asset.ResaveAll", ezActionScope::Global, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::ResaveAllAssets);
-  s_hCheckFileSystem = EZ_REGISTER_ACTION_1("Asset.CheckFilesystem", ezActionScope::Global, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::CheckFileSystem);
-  s_hWriteLookupTable = EZ_REGISTER_ACTION_1("Asset.WriteLookupTable", ezActionScope::Global, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::WriteLookupTable);
+  s_hTransformAsset =
+    EZ_REGISTER_ACTION_1("Asset.Transform", ezActionScope::Document, "Assets", "Ctrl+E", ezAssetAction, ezAssetAction::ButtonType::TransformAsset);
+  s_hTransformAllAssets = EZ_REGISTER_ACTION_1(
+    "Asset.TransformAll", ezActionScope::Global, "Assets", "Ctrl+Shift+E", ezAssetAction, ezAssetAction::ButtonType::TransformAllAssets);
+  s_hResaveAllAssets =
+    EZ_REGISTER_ACTION_1("Asset.ResaveAll", ezActionScope::Global, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::ResaveAllAssets);
+  s_hCheckFileSystem =
+    EZ_REGISTER_ACTION_1("Asset.CheckFilesystem", ezActionScope::Global, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::CheckFileSystem);
+  s_hWriteLookupTable =
+    EZ_REGISTER_ACTION_1("Asset.WriteLookupTable", ezActionScope::Global, "Assets", "", ezAssetAction, ezAssetAction::ButtonType::WriteLookupTable);
 }
 
 void ezAssetActions::UnregisterActions()
@@ -104,7 +109,8 @@ void ezAssetAction::Execute(const ezVariant& value)
         }
       }
 
-      auto ret = ezAssetCurator::GetSingleton()->TransformAsset(m_Context.m_pDocument->GetGuid(), ezTransformFlags::ForceTransform | ezTransformFlags::TriggeredManually);
+      auto ret = ezAssetCurator::GetSingleton()->TransformAsset(
+        m_Context.m_pDocument->GetGuid(), ezTransformFlags::ForceTransform | ezTransformFlags::TriggeredManually);
 
       if (ret.m_Result.Failed())
       {

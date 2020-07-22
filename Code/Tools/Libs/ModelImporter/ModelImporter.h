@@ -1,12 +1,12 @@
 #pragma once
 
-#include <ModelImporter/Scene.h>
 #include <Foundation/Configuration/Singleton.h>
-#include <Foundation/Types/UniquePtr.h>
-#include <Foundation/Types/SharedPtr.h>
-#include <Foundation/Containers/HashTable.h>
 #include <Foundation/Containers/HashSet.h>
+#include <Foundation/Containers/HashTable.h>
+#include <Foundation/Types/SharedPtr.h>
 #include <Foundation/Types/Status.h>
+#include <Foundation/Types/UniquePtr.h>
+#include <ModelImporter/Scene.h>
 
 class ezEditableSkeleton;
 
@@ -50,7 +50,7 @@ namespace ezModelImporter
     ///
     /// If szSubMesh is empty, the entire scene is merged into one big mesh and returned.
     ezStatus ImportMesh(const char* szSceneFile, const char* szSubMesh, bool bSkinnedMesh, ezSharedPtr<ezModelImporter::Scene>& outScene,
-                        ezModelImporter::Mesh*& outMesh);
+      ezModelImporter::Mesh*& outMesh);
 
     static ezStatus ImportSkeleton(ezEditableSkeleton& out_Skeleton, const ezSharedPtr<Scene>& scene);
 
@@ -58,4 +58,4 @@ namespace ezModelImporter
     ezHybridArray<ezUniquePtr<ImporterImplementation>, 4> m_ImporterImplementations;
     ezHashTable<ezString, ezSharedPtr<Scene>> m_cachedScenes;
   };
-};
+}; // namespace ezModelImporter

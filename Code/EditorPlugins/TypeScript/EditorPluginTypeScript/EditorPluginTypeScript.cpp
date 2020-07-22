@@ -28,7 +28,8 @@ void OnLoadPlugin(bool bReloading)
     {
       ezActionMapManager::RegisterActionMap("TypeScriptAssetMenuBar");
       ezProjectActions::MapActions("TypeScriptAssetMenuBar");
-      ezStandardMenus::MapActions("TypeScriptAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+      ezStandardMenus::MapActions(
+        "TypeScriptAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
       ezDocumentActions::MapActions("TypeScriptAssetMenuBar", "Menu.File", false);
       ezCommandHistoryActions::MapActions("TypeScriptAssetMenuBar", "Menu.Edit");
     }

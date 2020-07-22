@@ -253,13 +253,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVisualScriptNode_FunctionCall, 1, ezRTTIDefaul
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezVisualScriptNode_FunctionCall::ezVisualScriptNode_FunctionCall()
-{
-}
+ezVisualScriptNode_FunctionCall::ezVisualScriptNode_FunctionCall() {}
 
-ezVisualScriptNode_FunctionCall::~ezVisualScriptNode_FunctionCall()
-{
-}
+ezVisualScriptNode_FunctionCall::~ezVisualScriptNode_FunctionCall() {}
 
 void ezVisualScriptNode_FunctionCall::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
@@ -310,7 +306,8 @@ void ezVisualScriptNode_FunctionCall::Execute(ezVisualScriptInstance* pInstance,
 
   if (!pComponent->GetDynamicRTTI()->IsDerivedFrom(m_pExpectedType))
   {
-    ezLog::Error("VisScript function call: Target component of type '{}' is not of the expected base type '{}'", pComponent->GetDynamicRTTI()->GetTypeName(), m_pExpectedType->GetTypeName());
+    ezLog::Error("VisScript function call: Target component of type '{}' is not of the expected base type '{}'",
+      pComponent->GetDynamicRTTI()->GetTypeName(), m_pExpectedType->GetTypeName());
 
     m_pFunctionToCall = nullptr;
     return;
@@ -323,7 +320,8 @@ void ezVisualScriptNode_FunctionCall::Execute(ezVisualScriptInstance* pInstance,
 
     if (ConvertArgumentToRequiredType(m_Arguments[arg], targetType).Failed())
     {
-      ezLog::Error("VisScript function call: Could not convert argument {} from variant type '{}' to target type '{}'", arg, (int)var.GetType(), (int)targetType);
+      ezLog::Error("VisScript function call: Could not convert argument {} from variant type '{}' to target type '{}'", arg, (int)var.GetType(),
+        (int)targetType);
 
       // probably a stale script with a mismatching pin <-> argument configuration
       m_pFunctionToCall = nullptr;

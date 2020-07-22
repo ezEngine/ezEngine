@@ -1,19 +1,19 @@
 #pragma once
 
 #include <Foundation/Basics.h>
+#include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Types/Id.h>
 #include <Foundation/Types/RefCounted.h>
-#include <Foundation/Reflection/Reflection.h>
 
 // Configure the DLL Import/Export Define
 #if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
-  #ifdef BUILDSYSTEM_BUILDING_RENDERERFOUNDATION_LIB
-    #define EZ_RENDERERFOUNDATION_DLL __declspec(dllexport)
-  #else
-    #define EZ_RENDERERFOUNDATION_DLL __declspec(dllimport)
-  #endif
+#  ifdef BUILDSYSTEM_BUILDING_RENDERERFOUNDATION_LIB
+#    define EZ_RENDERERFOUNDATION_DLL __declspec(dllexport)
+#  else
+#    define EZ_RENDERERFOUNDATION_DLL __declspec(dllimport)
+#  endif
 #else
-  #define EZ_RENDERERFOUNDATION_DLL
+#  define EZ_RENDERERFOUNDATION_DLL
 #endif
 
 // Necessary array sizes
@@ -64,17 +64,14 @@ struct ezGALPrimitiveTopology
   enum Enum
   {
     // keep this order, it is used to allocate the desired number of indices in ezMeshBufferResourceDescriptor::AllocateStreams
-    Points,     // 1 index per primitive
-    Lines,      // 2 indices per primitive
-    Triangles,  // 3 indices per primitive
+    Points,    // 1 index per primitive
+    Lines,     // 2 indices per primitive
+    Triangles, // 3 indices per primitive
 
     ENUM_COUNT
   };
 
-  static ezUInt32 VerticesPerPrimitive(ezGALPrimitiveTopology::Enum e)
-  {
-    return (ezUInt32)e + 1;
-  }
+  static ezUInt32 VerticesPerPrimitive(ezGALPrimitiveTopology::Enum e) { return (ezUInt32)e + 1; }
 };
 
 struct EZ_RENDERERFOUNDATION_DLL ezGALIndexType
@@ -89,10 +86,9 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALIndexType
 
 
   /// \brief The size in bytes of a single element of the given index format.
-  static ezUInt8 GetSize(ezGALIndexType::Enum format)          { return Size[format]; }
+  static ezUInt8 GetSize(ezGALIndexType::Enum format) { return Size[format]; }
 
 private:
-
   static const ezUInt8 Size[ezGALIndexType::ENUM_COUNT];
 };
 
@@ -238,9 +234,11 @@ struct ezGALCullMode
   /// \brief Defines which sides of a polygon gets culled by the graphics card
   enum Enum
   {
-    None = 0,   ///< Triangles do not get culled
-    Front = 1,  ///< When the 'front' of a triangle is visible, it gets culled. The rasterizer state defines which side is the 'front'. See ezGALRasterizerStateCreationDescription for details.
-    Back = 2,   ///< When the 'back'  of a triangle is visible, it gets culled. The rasterizer state defines which side is the 'front'. See ezGALRasterizerStateCreationDescription for details.
+    None = 0,  ///< Triangles do not get culled
+    Front = 1, ///< When the 'front' of a triangle is visible, it gets culled. The rasterizer state defines which side is the 'front'. See
+               ///< ezGALRasterizerStateCreationDescription for details.
+    Back = 2,  ///< When the 'back'  of a triangle is visible, it gets culled. The rasterizer state defines which side is the 'front'. See
+               ///< ezGALRasterizerStateCreationDescription for details.
 
     ENUM_COUNT,
 
@@ -287,20 +285,16 @@ struct ezGALSystemMemoryDescription
 };
 
 /// \brief Base class for GAL objects, stores a creation description of the object and also allows for reference counting.
-template<typename CreationDescription>
+template <typename CreationDescription>
 class ezGALObject : public ezRefCounted
 {
 public:
-
   ezGALObject(const CreationDescription& Description)
     : m_Description(Description)
   {
   }
 
-  EZ_ALWAYS_INLINE const CreationDescription& GetDescription() const
-  {
-    return m_Description;
-  }
+  EZ_ALWAYS_INLINE const CreationDescription& GetDescription() const { return m_Description; }
 
 protected:
   const CreationDescription m_Description;
@@ -312,7 +306,7 @@ namespace ezGAL
   typedef ezGenericId<16, 16> ez16_16Id;
   typedef ezGenericId<18, 14> ez18_14Id;
   typedef ezGenericId<20, 12> ez20_12Id;
-}
+} // namespace ezGAL
 
 class ezGALSwapChainHandle
 {
@@ -477,6 +471,4 @@ namespace ezGAL
     ezUInt32 m_uiMin = ezInvalidIndex;
     ezUInt32 m_uiMax = 0;
   };
-}
-
-
+} // namespace ezGAL

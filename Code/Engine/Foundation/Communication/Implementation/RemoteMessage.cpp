@@ -8,12 +8,15 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezRemoteMessage::ezRemoteMessage()
-    : m_Reader(&m_Storage), m_Writer(&m_Storage)
+  : m_Reader(&m_Storage)
+  , m_Writer(&m_Storage)
 {
 }
 
 ezRemoteMessage::ezRemoteMessage(const ezRemoteMessage& rhs)
-    : m_Storage(rhs.m_Storage), m_Reader(&m_Storage), m_Writer(&m_Storage)
+  : m_Storage(rhs.m_Storage)
+  , m_Reader(&m_Storage)
+  , m_Writer(&m_Storage)
 {
   m_uiSystemID = rhs.m_uiSystemID;
   m_uiMsgID = rhs.m_uiMsgID;
@@ -21,7 +24,8 @@ ezRemoteMessage::ezRemoteMessage(const ezRemoteMessage& rhs)
 
 
 ezRemoteMessage::ezRemoteMessage(ezUInt32 uiSystemID, ezUInt32 uiMessageID)
-    : m_Reader(&m_Storage), m_Writer(&m_Storage)
+  : m_Reader(&m_Storage)
+  , m_Writer(&m_Storage)
 {
   m_uiSystemID = uiSystemID;
   m_uiMsgID = uiMessageID;
@@ -45,4 +49,3 @@ ezRemoteMessage::~ezRemoteMessage()
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_RemoteMessage);
-

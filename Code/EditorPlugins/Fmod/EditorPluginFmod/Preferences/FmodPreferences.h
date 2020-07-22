@@ -1,7 +1,7 @@
 #pragma once
 
-#include <EditorPluginFmod/EditorPluginFmodDLL.h>
 #include <EditorFramework/Preferences/Preferences.h>
+#include <EditorPluginFmod/EditorPluginFmodDLL.h>
 #include <Foundation/Strings/String.h>
 
 class EZ_EDITORPLUGINFMOD_DLL ezFmodProjectPreferences : public ezPreferences

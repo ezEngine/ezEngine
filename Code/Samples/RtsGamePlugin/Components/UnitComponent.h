@@ -79,7 +79,7 @@ protected:
   ezGameObjectHandle m_hCurrentUnitToAttack;
 
   ezTime m_TimeLastShot;
-  ezUniquePtr<RtsAiUtilitySystem> m_pAiSystem; // has to be a pointer because RtsAiUtilitySystem isn't copyable 
+  ezUniquePtr<RtsAiUtilitySystem> m_pAiSystem; // has to be a pointer because RtsAiUtilitySystem isn't copyable
 
   void UpdateUnit();
 };

@@ -154,12 +154,10 @@ bool ezQuatTemplate<Type>::IsEqualRotation(const ezQuatTemplate<Type>& qOther, f
   if (qOther.GetRotationAxisAndAngle(vA2, A2) == EZ_FAILURE)
     return false;
 
-  if ((A1.IsEqualSimple(A2, ezAngle::Degree(fEpsilon))) &&
-      (vA1.IsEqual(vA2, fEpsilon)))
+  if ((A1.IsEqualSimple(A2, ezAngle::Degree(fEpsilon))) && (vA1.IsEqual(vA2, fEpsilon)))
     return true;
 
-  if ((A1.IsEqualSimple(-A2, ezAngle::Degree(fEpsilon))) &&
-      (vA1.IsEqual(-vA2, fEpsilon)))
+  if ((A1.IsEqualSimple(-A2, ezAngle::Degree(fEpsilon))) && (vA1.IsEqual(-vA2, fEpsilon)))
     return true;
 
   return false;

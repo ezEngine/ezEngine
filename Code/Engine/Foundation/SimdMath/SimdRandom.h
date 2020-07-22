@@ -12,4 +12,3 @@ struct ezSimdRandom
 };
 
 #include <Foundation/SimdMath/Implementation/SimdRandom_inl.h>
-

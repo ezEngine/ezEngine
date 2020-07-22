@@ -3,8 +3,8 @@
 #include <OpenXRPlugin/Basics.h>
 #include <OpenXRPlugin/OpenXRIncludes.h>
 
-#include <GameEngine/XR/XRInterface.h>
 #include <GameEngine/XR/XRInputDevice.h>
+#include <GameEngine/XR/XRInterface.h>
 
 class ezOpenXR;
 
@@ -16,7 +16,6 @@ class EZ_OPENXRPLUGIN_DLL ezOpenXRInputDevice : public ezXRInputDevice
   EZ_ADD_DYNAMIC_REFLECTION(ezOpenXRInputDevice, ezXRInputDevice);
 
 public:
-
   void GetDeviceList(ezHybridArray<ezXRDeviceID, 64>& out_Devices) const override;
   ezXRDeviceID GetDeviceIDByType(ezXRDeviceType::Enum type) const override;
   const ezXRDeviceState& GetDeviceState(ezXRDeviceID iDeviceID) const override;

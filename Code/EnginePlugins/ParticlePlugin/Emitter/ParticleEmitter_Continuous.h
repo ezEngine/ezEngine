@@ -1,8 +1,8 @@
 #pragma once
 
-#include <ParticlePlugin/Emitter/ParticleEmitter.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Foundation/Types/VarianceTypes.h>
+#include <ParticlePlugin/Emitter/ParticleEmitter.h>
 
 typedef ezTypedResourceHandle<class ezCurve1DResource> ezCurve1DResourceHandle;
 
@@ -32,7 +32,6 @@ public:
 
   void SetCountCurveFile(const char* szFile);
   const char* GetCountCurveFile() const;
-
 };
 
 
@@ -41,7 +40,6 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleEmitter_Continuous final : public ezPartic
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleEmitter_Continuous, ezParticleEmitter);
 
 public:
-
   ezTime m_StartDelay; // delay before the emitter becomes active, to sync with other systems, only used once, has no effect later on
 
   ezUInt32 m_uiSpawnCountPerSec;

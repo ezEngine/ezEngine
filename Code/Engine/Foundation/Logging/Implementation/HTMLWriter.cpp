@@ -36,7 +36,8 @@ void ezLogWriter::HTML::BeginLog(const char* szFile, const char* szAppTitle)
   }
 
   ezStringBuilder sText;
-  sText.Format("<HTML><HEAD><META HTTP-EQUIV=\"Content-Type\" content=\"text/html; charset=utf-8\"><TITLE>Log - {0}</TITLE></HEAD><BODY>", szAppTitle);
+  sText.Format(
+    "<HTML><HEAD><META HTTP-EQUIV=\"Content-Type\" content=\"text/html; charset=utf-8\"><TITLE>Log - {0}</TITLE></HEAD><BODY>", szAppTitle);
 
   m_File.WriteBytes(sText.GetData(), sizeof(char) * sText.GetElementCount());
 }
@@ -103,14 +104,18 @@ void ezLogWriter::HTML::LogMessageHandler(const ezLoggingEventData& eventData)
       break;
 
     case ezLogMsgType::BeginGroup:
-      sText.Format("<br><font color=\"#8080FF\"><b> <<< <u>{0}</u> >>> </b> ({1}) </font><br><table width=100%% border=0><tr width=100%%><td width=10></td><td width=*>\n", sOriginalText, sTag);
+      sText.Format("<br><font color=\"#8080FF\"><b> <<< <u>{0}</u> >>> </b> ({1}) </font><br><table width=100%% border=0><tr width=100%%><td "
+                   "width=10></td><td width=*>\n",
+        sOriginalText, sTag);
       break;
 
     case ezLogMsgType::EndGroup:
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-      sText.Format("</td></tr></table><font color=\"#8080FF\"><b> <<< {0} ({1} sec)>>> </b></font><br><br>\n", sOriginalText, ezArgF(eventData.m_fSeconds, 4));
+      sText.Format(
+        "</td></tr></table><font color=\"#8080FF\"><b> <<< {0} ({1} sec)>>> </b></font><br><br>\n", sOriginalText, ezArgF(eventData.m_fSeconds, 4));
 #else
-      sText.Format("</td></tr></table><font color=\"#8080FF\"><b> <<< {0} ({1})>>> </b></font><br><br>\n", sOriginalText, "timing info not available");
+      sText.Format(
+        "</td></tr></table><font color=\"#8080FF\"><b> <<< {0} ({1})>>> </b></font><br><br>\n", sOriginalText, "timing info not available");
 #endif
       break;
 

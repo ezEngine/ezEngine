@@ -1,10 +1,10 @@
 #include <GameEnginePCH.h>
 
-#include <Texture/Image/Image.h>
 #include <GameEngine/GameApplication/WindowOutputTarget.h>
 #include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/Texture.h>
+#include <Texture/Image/Image.h>
 
 ezWindowOutputTargetGAL::ezWindowOutputTargetGAL() {}
 
@@ -67,4 +67,3 @@ ezResult ezWindowOutputTargetGAL::CaptureImage(ezImage& out_Image)
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_GameApplication_Implementation_WindowOutputTargetGAL);
-

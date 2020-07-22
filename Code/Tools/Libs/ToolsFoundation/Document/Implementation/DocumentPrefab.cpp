@@ -55,7 +55,8 @@ void ezDocument::UnlinkPrefabs(const ezDeque<const ezDocumentObject*>& Selection
   pHistory->FinishTransaction();
 }
 
-ezStatus ezDocument::CreatePrefabDocumentFromSelection(const char* szFile, const ezRTTI* pRootType, ezDelegate<void(ezAbstractObjectNode*)> AdjustGraphNodeCB, ezDelegate<void(ezDocumentObject*)> AdjustNewNodesCB)
+ezStatus ezDocument::CreatePrefabDocumentFromSelection(const char* szFile, const ezRTTI* pRootType,
+  ezDelegate<void(ezAbstractObjectNode*)> AdjustGraphNodeCB, ezDelegate<void(ezDocumentObject*)> AdjustNewNodesCB)
 {
   auto Selection = GetSelectionManager()->GetTopLevelSelection(pRootType);
 
@@ -108,7 +109,8 @@ ezStatus ezDocument::CreatePrefabDocumentFromSelection(const char* szFile, const
   return res;
 }
 
-ezStatus ezDocument::CreatePrefabDocument(const char* szFile, ezArrayPtr<const ezDocumentObject*> rootObjects, const ezUuid& invPrefabSeed, ezUuid& out_NewDocumentGuid, ezDelegate<void(ezAbstractObjectNode*)> AdjustGraphNodeCB)
+ezStatus ezDocument::CreatePrefabDocument(const char* szFile, ezArrayPtr<const ezDocumentObject*> rootObjects, const ezUuid& invPrefabSeed,
+  ezUuid& out_NewDocumentGuid, ezDelegate<void(ezAbstractObjectNode*)> AdjustGraphNodeCB)
 {
   const ezDocumentTypeDescriptor* pTypeDesc = nullptr;
   if (ezDocumentManager::FindDocumentTypeFromPath(szFile, true, pTypeDesc).Failed())
@@ -144,12 +146,14 @@ ezStatus ezDocument::CreatePrefabDocument(const char* szFile, ezArrayPtr<const e
 
   ezDocument* pSceneDocument = nullptr;
 
-  EZ_SUCCEED_OR_RETURN(pTypeDesc->m_pManager->CreateDocument("Prefab", szFile, pSceneDocument, ezDocumentFlags::RequestWindow | ezDocumentFlags::AddToRecentFilesList));
+  EZ_SUCCEED_OR_RETURN(
+    pTypeDesc->m_pManager->CreateDocument("Prefab", szFile, pSceneDocument, ezDocumentFlags::RequestWindow | ezDocumentFlags::AddToRecentFilesList));
 
   out_NewDocumentGuid = pSceneDocument->GetGuid();
   auto pPrefabSceneRoot = pSceneDocument->GetObjectManager()->GetRootObject();
 
-  ezDocumentObjectConverterReader reader(&PrefabGraph, pSceneDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
+  ezDocumentObjectConverterReader reader(
+    &PrefabGraph, pSceneDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
 
   for (ezUInt32 i = 0; i < rootObjects.GetCount(); ++i)
   {
@@ -174,7 +178,8 @@ ezStatus ezDocument::CreatePrefabDocument(const char* szFile, ezArrayPtr<const e
 }
 
 
-ezUuid ezDocument::ReplaceByPrefab(const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, bool bEnginePrefab)
+ezUuid ezDocument::ReplaceByPrefab(
+  const ezDocumentObject* pRootObject, const char* szPrefabFile, const ezUuid& PrefabAsset, const ezUuid& PrefabSeed, bool bEnginePrefab)
 {
   GetCommandHistory()->StartTransaction("Replace by Prefab");
 

@@ -1,14 +1,14 @@
-﻿#includde <WindowsMixedRealityPCH.h>
-#include <WindowsMixedReality/SpatialMapping/SurfaceReconstructionMeshManager.h>
-#include <WindowsMixedReality/HolographicSpace.h>
-#include <WindowsMixedReality/SpatialReferenceFrame.h>
+﻿#includde < WindowsMixedRealityPCH.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
+#include <WindowsMixedReality/HolographicSpace.h>
+#include <WindowsMixedReality/SpatialMapping/SurfaceReconstructionMeshManager.h>
+#include <WindowsMixedReality/SpatialReferenceFrame.h>
 
 // Warning	C4467	usage of ATL attributes is deprecated
 #define EZ_MSVC_WARNING_NUMBER 4467
 #include <Foundation/Basics/Compiler/DisableWarning.h>
-#include <robuffer.h>
 #include <Foundation/Basics/Compiler/RestoreWarning.h>
+#include <robuffer.h>
 
 using namespace ABI::Windows::Foundation;
 using namespace ABI::Windows::Foundation::Collections;
@@ -24,9 +24,7 @@ ezSurfaceReconstructionMeshManager::ezSurfaceReconstructionMeshManager()
   RequestSpatialMappingAccess();
 }
 
-ezSurfaceReconstructionMeshManager::~ezSurfaceReconstructionMeshManager()
-{
-}
+ezSurfaceReconstructionMeshManager::~ezSurfaceReconstructionMeshManager() {}
 
 // static
 void ezSurfaceReconstructionMeshManager::LogSupportedFormats()
@@ -45,20 +43,17 @@ void ezSurfaceReconstructionMeshManager::LogSupportedFormats()
   ComPtr<IVectorView<DirectXPixelFormat>> supportedNormalFormats;
   pMeshOptionStatics->get_SupportedVertexNormalFormats(&supportedNormalFormats);
 
-  ezUwpUtils::ezWinRtIterateIVectorView<DirectXPixelFormat>(supportedVertexFormats, [](UINT index, const DirectXPixelFormat& format)
-  {
+  ezUwpUtils::ezWinRtIterateIVectorView<DirectXPixelFormat>(supportedVertexFormats, [](UINT index, const DirectXPixelFormat& format) {
     ezLog::Info("Vertex Format: {0}", format);
     return true;
   });
 
-  ezUwpUtils::ezWinRtIterateIVectorView<DirectXPixelFormat>(supportedNormalFormats, [](UINT index, const DirectXPixelFormat& format)
-  {
+  ezUwpUtils::ezWinRtIterateIVectorView<DirectXPixelFormat>(supportedNormalFormats, [](UINT index, const DirectXPixelFormat& format) {
     ezLog::Info("Normal Format: {0}", format);
     return true;
   });
 
-  ezUwpUtils::ezWinRtIterateIVectorView<DirectXPixelFormat>(supportedIndexFormats, [](UINT index, const DirectXPixelFormat& format)
-  {
+  ezUwpUtils::ezWinRtIterateIVectorView<DirectXPixelFormat>(supportedIndexFormats, [](UINT index, const DirectXPixelFormat& format) {
     ezLog::Info("Index Format: {0}", format);
     return true;
   });
@@ -72,8 +67,8 @@ void ezSurfaceReconstructionMeshManager::RequestSpatialMappingAccess()
   ezUwpUtils::RetrieveStatics(RuntimeClass_Windows_Perception_Spatial_Surfaces_SpatialSurfaceObserver, pSurfaceObserverStatics);
 
   // TODO: check this first
-  //using namespace Windows::Foundation::Metadata;
-  //if (ApiInformation::IsApiContractPresent(L"Windows.Foundation.UniversalApiContract", 4))
+  // using namespace Windows::Foundation::Metadata;
+  // if (ApiInformation::IsApiContractPresent(L"Windows.Foundation.UniversalApiContract", 4))
   //{
   //  if (!SpatialSurfaceObserver::IsSupported())
   //  {
@@ -85,42 +80,43 @@ void ezSurfaceReconstructionMeshManager::RequestSpatialMappingAccess()
   if (SUCCEEDED(pSurfaceObserverStatics->RequestAccessAsync(&status)))
   {
 
-    ezUwpUtils::ezWinRtPutCompleted<SpatialPerceptionAccessStatus, SpatialPerceptionAccessStatus>(status, [this](SpatialPerceptionAccessStatus result)
-    {
-      switch (result)
-      {
-      case SpatialPerceptionAccessStatus_Allowed:
-      
-        m_SrmAvailability = SrmAvailability::Available;
-        ezLog::Info("Spatial Surfaces Access available.");
-        break;
+    ezUwpUtils::ezWinRtPutCompleted<SpatialPerceptionAccessStatus, SpatialPerceptionAccessStatus>(
+      status, [this](SpatialPerceptionAccessStatus result) {
+        switch (result)
+        {
+          case SpatialPerceptionAccessStatus_Allowed:
 
-      case SpatialPerceptionAccessStatus_DeniedBySystem:
-        m_SrmAvailability = SrmAvailability::NotAvailable;
-        ezLog::Error("Spatial Surface Access denied by System. This usually means the app does not contain the necessary capability flag in its manifest.");
-        break;
+            m_SrmAvailability = SrmAvailability::Available;
+            ezLog::Info("Spatial Surfaces Access available.");
+            break;
 
-      case SpatialPerceptionAccessStatus_DeniedByUser:
-        m_SrmAvailability = SrmAvailability::NotAvailable;
-        ezLog::Error("Spatial Surface Access denied by User.");
-        break;
+          case SpatialPerceptionAccessStatus_DeniedBySystem:
+            m_SrmAvailability = SrmAvailability::NotAvailable;
+            ezLog::Error(
+              "Spatial Surface Access denied by System. This usually means the app does not contain the necessary capability flag in its manifest.");
+            break;
 
-      case SpatialPerceptionAccessStatus_Unspecified:
-        m_SrmAvailability = SrmAvailability::NotAvailable;
-        ezLog::Error("Spatial Surface Access unspecified.");
-        break;
-      }
+          case SpatialPerceptionAccessStatus_DeniedByUser:
+            m_SrmAvailability = SrmAvailability::NotAvailable;
+            ezLog::Error("Spatial Surface Access denied by User.");
+            break;
 
-      ezSrmManagerEvent e;
-      e.m_pManager = this;
-      e.m_Type = ezSrmManagerEvent::Type::AvailabilityChanged;
-      m_Events.Broadcast(e);
+          case SpatialPerceptionAccessStatus_Unspecified:
+            m_SrmAvailability = SrmAvailability::NotAvailable;
+            ezLog::Error("Spatial Surface Access unspecified.");
+            break;
+        }
 
-      if (m_SrmAvailability == SrmAvailability::Available)
-      {
-        CreateSurfaceObserver();
-      }
-    });
+        ezSrmManagerEvent e;
+        e.m_pManager = this;
+        e.m_Type = ezSrmManagerEvent::Type::AvailabilityChanged;
+        m_Events.Broadcast(e);
+
+        if (m_SrmAvailability == SrmAvailability::Available)
+        {
+          CreateSurfaceObserver();
+        }
+      });
   }
 }
 
@@ -170,8 +166,7 @@ void ezSurfaceReconstructionMeshManager::PullCurrentSurfaces()
 
   using ValueInterfaceType = Surfaces::ISpatialSurfaceInfo*;
 
-  ezUwpUtils::ezWinRtIterateIMapView<ValueInterfaceType>(surfaceMap, [this](const GUID& key, const ValueInterfaceType& pSurfaceInfo) -> bool
-  {
+  ezUwpUtils::ezWinRtIterateIMapView<ValueInterfaceType>(surfaceMap, [this](const GUID& key, const ValueInterfaceType& pSurfaceInfo) -> bool {
     UpdateSurface(ezUwpUtils::ConvertGuid(key), pSurfaceInfo);
     return true;
   });
@@ -207,9 +202,9 @@ void ezSurfaceReconstructionMeshManager::UpdateSurface(const ezUuid& guid, Surfa
   ComPtr<Surfaces::ISpatialSurfaceMeshOptions> pMeshOptions;
   ezUwpUtils::CreateInstance(RuntimeClass_Windows_Perception_Spatial_Surfaces_SpatialSurfaceMeshOptions, pMeshOptions);
 
-  /// \todo Support normals 
-  //pMeshOptions->put_IncludeVertexNormals(TRUE);
-  //pMeshOptions->put_VertexNormalFormat();
+  /// \todo Support normals
+  // pMeshOptions->put_IncludeVertexNormals(TRUE);
+  // pMeshOptions->put_VertexNormalFormat();
   pMeshOptions->put_TriangleIndexFormat(DirectXPixelFormat_R16UInt);
   pMeshOptions->put_VertexPositionFormat(DirectXPixelFormat_R32G32B32A32Float);
 
@@ -217,13 +212,12 @@ void ezSurfaceReconstructionMeshManager::UpdateSurface(const ezUuid& guid, Surfa
   ComPtr<IAsyncOperation<Surfaces::SpatialSurfaceMesh*>> pAsyncComputeMesh;
   pSurfaceInfo->TryComputeLatestMeshWithOptionsAsync(200, pMeshOptions.Get(), &pAsyncComputeMesh);
 
-  ezUwpUtils::ezWinRtPutCompleted<Surfaces::SpatialSurfaceMesh*, ComPtr<Surfaces::ISpatialSurfaceMesh>>(pAsyncComputeMesh, [this, guid](const ComPtr<Surfaces::ISpatialSurfaceMesh>& pMesh)
-  {
-    UpdateSurfaceMesh(guid, pMesh.Get());
-  });
+  ezUwpUtils::ezWinRtPutCompleted<Surfaces::SpatialSurfaceMesh*, ComPtr<Surfaces::ISpatialSurfaceMesh>>(
+    pAsyncComputeMesh, [this, guid](const ComPtr<Surfaces::ISpatialSurfaceMesh>& pMesh) { UpdateSurfaceMesh(guid, pMesh.Get()); });
 }
 
-static const ezUInt8* GetBytePointer(const ComPtr<Surfaces::ISpatialSurfaceMeshBuffer>& pMeshBuffer, ezUInt32 uiNumElements, DirectXPixelFormat expectedFormat, ezUInt32 uiExpectedStride)
+static const ezUInt8* GetBytePointer(const ComPtr<Surfaces::ISpatialSurfaceMeshBuffer>& pMeshBuffer, ezUInt32 uiNumElements,
+  DirectXPixelFormat expectedFormat, ezUInt32 uiExpectedStride)
 {
   DirectXPixelFormat indexFormat;
   pMeshBuffer->get_Format(&indexFormat);
@@ -341,12 +335,13 @@ ezResult ezSurfaceReconstructionMeshManager::UpdateMeshData(ezMeshBufferResource
 
   // Vertices
   {
-    const ezVec4* pVertices = reinterpret_cast<const ezVec4*>(GetBytePointer(pVertexData, uiNumVertices, DirectXPixelFormat_R32G32B32A32Float, sizeof(ezVec4)));
+    const ezVec4* pVertices =
+      reinterpret_cast<const ezVec4*>(GetBytePointer(pVertexData, uiNumVertices, DirectXPixelFormat_R32G32B32A32Float, sizeof(ezVec4)));
 
     for (ezUInt32 v = 0; v < uiNumVertices; ++v)
     {
       mb.SetVertexData(0, v, finalMat * pVertices[v].GetAsVec3()); // position
-      mb.SetVertexData(1, v, ezVec3(0, 0, 1)); // normal
+      mb.SetVertexData(1, v, ezVec3(0, 0, 1));                     // normal
     }
   }
 
@@ -386,14 +381,14 @@ void ezSurfaceReconstructionMeshManager::ClearUnobservedSurfaces()
 {
   EZ_LOCK(m_Mutex);
 
-  for (auto it = m_Surfaces.GetIterator(); it.IsValid(); )
+  for (auto it = m_Surfaces.GetIterator(); it.IsValid();)
   {
     // remove all surfaces that still have the tag
     if (it.Value().m_bIsObserved == false)
     {
       const ezUuid guid = it.Key();
       ++it;
-      
+
       ezLog::Debug("Clearing outdated surface");
       ClearSurfaceMesh(guid);
     }
@@ -403,4 +398,3 @@ void ezSurfaceReconstructionMeshManager::ClearUnobservedSurfaces()
     }
   }
 }
-

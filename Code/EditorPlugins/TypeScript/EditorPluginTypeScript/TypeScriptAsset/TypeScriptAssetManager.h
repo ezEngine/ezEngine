@@ -1,10 +1,10 @@
 #pragma once
 
 #include <EditorFramework/Assets/AssetDocumentManager.h>
+#include <EditorFramework/Preferences/Preferences.h>
 #include <Foundation/Time/Timestamp.h>
 #include <Foundation/Types/Status.h>
 #include <TypeScriptPlugin/Transpiler/Transpiler.h>
-#include <EditorFramework/Preferences/Preferences.h>
 
 struct ezGameObjectDocumentEvent;
 
@@ -24,7 +24,8 @@ public:
 private:
   void OnDocumentManagerEvent(const ezDocumentManager::Event& e);
 
-  virtual void InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument) override;
+  virtual void InternalCreateDocument(
+    const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument) override;
   virtual void InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const override;
 
   virtual bool GeneratesProfileSpecificAssets() const override { return false; }

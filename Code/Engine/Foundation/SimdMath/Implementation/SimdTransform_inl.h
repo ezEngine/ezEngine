@@ -77,8 +77,7 @@ inline void ezSimdTransform::SetLocalTransform(const ezSimdTransform& GlobalTran
   m_Scale = invScale.CompMul(GlobalTransformChild.m_Scale);
 }
 
-EZ_ALWAYS_INLINE void ezSimdTransform::SetGlobalTransform(const ezSimdTransform& GlobalTransformParent,
-                                                          const ezSimdTransform& LocalTransformChild)
+EZ_ALWAYS_INLINE void ezSimdTransform::SetGlobalTransform(const ezSimdTransform& GlobalTransformParent, const ezSimdTransform& LocalTransformChild)
 {
   *this = GlobalTransformParent * LocalTransformChild;
 }
@@ -194,4 +193,3 @@ EZ_ALWAYS_INLINE bool operator!=(const ezSimdTransform& lhs, const ezSimdTransfo
 {
   return !(lhs == rhs);
 }
-

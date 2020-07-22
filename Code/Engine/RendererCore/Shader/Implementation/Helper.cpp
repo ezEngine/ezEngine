@@ -103,7 +103,6 @@ namespace ezShaderHelper
     auto bytes = buffer.GetByteArrayPtr();
     return ezHashingUtils::xxHash32(bytes.GetPtr(), bytes.GetCount());
   }
-}
+} // namespace ezShaderHelper
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Shader_Implementation_Helper);
-

@@ -38,7 +38,8 @@ ezResult ezPlayerApplication::BeforeCoreSystemsStartup()
   else
 #else
   m_sSceneFile = ezCommandLineUtils::GetGlobalInstance()->GetStringOption("-scene", 0, "");
-  EZ_ASSERT_ALWAYS(!m_sSceneFile.IsEmpty(), "Scene file has not been specified. Use the -scene command followed by a full path to the ezBinaryScene file");
+  EZ_ASSERT_ALWAYS(
+    !m_sSceneFile.IsEmpty(), "Scene file has not been specified. Use the -scene command followed by a full path to the ezBinaryScene file");
 #endif
   {
     ezStringBuilder projectPath;

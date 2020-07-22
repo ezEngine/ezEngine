@@ -40,7 +40,7 @@ EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 ezPrefabCache::ezPrefabCache()
-    : m_SingletonRegistrar(this)
+  : m_SingletonRegistrar(this)
 {
 }
 

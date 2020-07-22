@@ -39,4 +39,3 @@ private:
   ezDynamicArray<Texture> m_Textures;
   ezDynamicArray<bool> m_Grid;
 };
-

@@ -25,4 +25,3 @@ public:
 private:
   ezDynamicArray<Mapping> m_Mappings;
 };
-

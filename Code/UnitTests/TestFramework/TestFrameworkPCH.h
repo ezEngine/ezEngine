@@ -19,9 +19,6 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/JSONWriter.h>
 #include <Foundation/IO/OSFile.h>
-#include <Texture/Image/Image.h>
-#include <Texture/Image/ImageConversion.h>
-#include <Texture/Image/ImageUtils.h>
 #include <Foundation/Logging/ConsoleWriter.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Math/Math.h>
@@ -32,6 +29,9 @@
 #include <Foundation/Time/Timestamp.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <Foundation/Utilities/EnumerableClass.h>
+#include <Texture/Image/Image.h>
+#include <Texture/Image/ImageConversion.h>
+#include <Texture/Image/ImageUtils.h>
 
 #ifdef EZ_USE_QT
 #  include <QWidget>

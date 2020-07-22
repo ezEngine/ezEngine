@@ -97,17 +97,20 @@ bool ezAssetDocumentManager::IsThumbnailUpToDate(const char* szDocumentPath, ezU
   return thumbnailInfo.IsThumbnailUpToDate(uiThumbnailHash, uiTypeVersion);
 }
 
-void ezAssetDocumentManager::AddEntriesToAssetTable(const char* szDataDirectory, const ezPlatformProfile* pAssetProfile,
-  ezMap<ezString, ezString>& inout_GuidToPath) const
+void ezAssetDocumentManager::AddEntriesToAssetTable(
+  const char* szDataDirectory, const ezPlatformProfile* pAssetProfile, ezMap<ezString, ezString>& inout_GuidToPath) const
 {
 }
 
-ezString ezAssetDocumentManager::GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezPlatformProfile* pAssetProfile) const
+ezString ezAssetDocumentManager::GetAssetTableEntry(
+  const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezPlatformProfile* pAssetProfile) const
 {
-  return GetRelativeOutputFileName(pSubAsset->m_pAssetInfo->m_pDocumentTypeDescriptor, szDataDirectory, pSubAsset->m_pAssetInfo->m_sAbsolutePath, "", pAssetProfile);
+  return GetRelativeOutputFileName(
+    pSubAsset->m_pAssetInfo->m_pDocumentTypeDescriptor, szDataDirectory, pSubAsset->m_pAssetInfo->m_sAbsolutePath, "", pAssetProfile);
 }
 
-ezString ezAssetDocumentManager::GetAbsoluteOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDesc, const char* szDocumentPath, const char* szOutputTag, const ezPlatformProfile* pAssetProfile) const
+ezString ezAssetDocumentManager::GetAbsoluteOutputFileName(
+  const ezAssetDocumentTypeDescriptor* pTypeDesc, const char* szDocumentPath, const char* szOutputTag, const ezPlatformProfile* pAssetProfile) const
 {
   ezStringBuilder sProjectDir = ezAssetCurator::GetSingleton()->FindDataDirectoryForAsset(szDocumentPath);
 
@@ -118,10 +121,12 @@ ezString ezAssetDocumentManager::GetAbsoluteOutputFileName(const ezAssetDocument
   return sFinalPath;
 }
 
-ezString ezAssetDocumentManager::GetRelativeOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDesc, const char* szDataDirectory, const char* szDocumentPath, const char* szOutputTag, const ezPlatformProfile* pAssetProfile) const
+ezString ezAssetDocumentManager::GetRelativeOutputFileName(const ezAssetDocumentTypeDescriptor* pTypeDesc, const char* szDataDirectory,
+  const char* szDocumentPath, const char* szOutputTag, const ezPlatformProfile* pAssetProfile) const
 {
   const ezPlatformProfile* sPlatform = ezAssetDocumentManager::DetermineFinalTargetProfile(pAssetProfile);
-  EZ_ASSERT_DEBUG(ezStringUtils::IsNullOrEmpty(szOutputTag), "The output tag '%s' for '%s' is not supported, override GetRelativeOutputFileName", szOutputTag, szDocumentPath);
+  EZ_ASSERT_DEBUG(ezStringUtils::IsNullOrEmpty(szOutputTag), "The output tag '%s' for '%s' is not supported, override GetRelativeOutputFileName",
+    szOutputTag, szDocumentPath);
 
   ezStringBuilder sRelativePath(szDocumentPath);
   sRelativePath.MakeRelativeTo(szDataDirectory);
@@ -130,7 +135,8 @@ ezString ezAssetDocumentManager::GetRelativeOutputFileName(const ezAssetDocument
   return sRelativePath;
 }
 
-bool ezAssetDocumentManager::IsOutputUpToDate(const char* szDocumentPath, const ezDynamicArray<ezString>& outputs, ezUInt64 uiHash, const ezAssetDocumentTypeDescriptor* pTypeDescriptor)
+bool ezAssetDocumentManager::IsOutputUpToDate(
+  const char* szDocumentPath, const ezDynamicArray<ezString>& outputs, ezUInt64 uiHash, const ezAssetDocumentTypeDescriptor* pTypeDescriptor)
 {
   CURATOR_PROFILE(szDocumentPath);
   if (!IsOutputUpToDate(szDocumentPath, "", uiHash, pTypeDescriptor))
@@ -144,7 +150,8 @@ bool ezAssetDocumentManager::IsOutputUpToDate(const char* szDocumentPath, const 
   return true;
 }
 
-bool ezAssetDocumentManager::IsOutputUpToDate(const char* szDocumentPath, const char* szOutputTag, ezUInt64 uiHash, const ezAssetDocumentTypeDescriptor* pTypeDescriptor)
+bool ezAssetDocumentManager::IsOutputUpToDate(
+  const char* szDocumentPath, const char* szOutputTag, ezUInt64 uiHash, const ezAssetDocumentTypeDescriptor* pTypeDescriptor)
 {
   const ezString sTargetFile = GetAbsoluteOutputFileName(pTypeDescriptor, szDocumentPath, szOutputTag);
   return ezAssetDocumentManager::IsResourceUpToDate(sTargetFile, uiHash, pTypeDescriptor->m_pDocumentType->GetTypeVersion());
@@ -204,8 +211,8 @@ bool ezAssetDocumentManager::IsResourceUpToDate(const char* szResourceFile, ezUI
   return AssetHeader.IsFileUpToDate(uiHash, uiTypeVersion);
 }
 
-void ezAssetDocumentManager::GenerateOutputFilename(ezStringBuilder& inout_sRelativeDocumentPath, const ezPlatformProfile* pAssetProfile,
-  const char* szExtension, bool bPlatformSpecific)
+void ezAssetDocumentManager::GenerateOutputFilename(
+  ezStringBuilder& inout_sRelativeDocumentPath, const ezPlatformProfile* pAssetProfile, const char* szExtension, bool bPlatformSpecific)
 {
   inout_sRelativeDocumentPath.ChangeFileExtension(szExtension);
   inout_sRelativeDocumentPath.MakeCleanPath();

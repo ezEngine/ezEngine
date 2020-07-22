@@ -30,23 +30,20 @@ void ezSetBase<KeyType, Comparer>::Iterator::Next()
   }
 
   // if this element has a parent and this element is that parents left child, go directly to the parent
-  if ((m_pElement->m_pParent != m_pElement->m_pParent->m_pParent) &&
-      (m_pElement->m_pParent->m_pLink[dir0] == m_pElement))
+  if ((m_pElement->m_pParent != m_pElement->m_pParent->m_pParent) && (m_pElement->m_pParent->m_pLink[dir0] == m_pElement))
   {
     m_pElement = m_pElement->m_pParent;
     return;
   }
 
   // if this element has a parent and this element is that parents right child, search for the next parent, whose left child this is
-  if ((m_pElement->m_pParent != m_pElement->m_pParent->m_pParent) &&
-      (m_pElement->m_pParent->m_pLink[dir1] == m_pElement))
+  if ((m_pElement->m_pParent != m_pElement->m_pParent->m_pParent) && (m_pElement->m_pParent->m_pLink[dir1] == m_pElement))
   {
     while (m_pElement->m_pParent->m_pLink[dir1] == m_pElement)
       m_pElement = m_pElement->m_pParent;
 
     // if we are at the root node..
-    if ((m_pElement->m_pParent == nullptr) ||
-        (m_pElement->m_pParent == m_pElement->m_pParent->m_pParent))
+    if ((m_pElement->m_pParent == nullptr) || (m_pElement->m_pParent == m_pElement->m_pParent->m_pParent))
     {
       m_pElement = nullptr;
       return;
@@ -84,23 +81,20 @@ void ezSetBase<KeyType, Comparer>::Iterator::Prev()
   }
 
   // if this element has a parent and this element is that parents left child, go directly to the parent
-  if ((m_pElement->m_pParent != m_pElement->m_pParent->m_pParent) &&
-      (m_pElement->m_pParent->m_pLink[dir0] == m_pElement))
+  if ((m_pElement->m_pParent != m_pElement->m_pParent->m_pParent) && (m_pElement->m_pParent->m_pLink[dir0] == m_pElement))
   {
     m_pElement = m_pElement->m_pParent;
     return;
   }
 
   // if this element has a parent and this element is that parents right child, search for the next parent, whose left child this is
-  if ((m_pElement->m_pParent != m_pElement->m_pParent->m_pParent) &&
-      (m_pElement->m_pParent->m_pLink[dir1] == m_pElement))
+  if ((m_pElement->m_pParent != m_pElement->m_pParent->m_pParent) && (m_pElement->m_pParent->m_pLink[dir1] == m_pElement))
   {
     while (m_pElement->m_pParent->m_pLink[dir1] == m_pElement)
       m_pElement = m_pElement->m_pParent;
 
     // if we are at the root node..
-    if ((m_pElement->m_pParent == nullptr) ||
-        (m_pElement->m_pParent == m_pElement->m_pParent->m_pParent))
+    if ((m_pElement->m_pParent == nullptr) || (m_pElement->m_pParent == m_pElement->m_pParent->m_pParent))
     {
       m_pElement = nullptr;
       return;

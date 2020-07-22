@@ -4,8 +4,8 @@
 #include <Core/World/CoordinateSystem.h>
 #include <Foundation/Math/Mat4.h>
 #include <Foundation/Reflection/Reflection.h>
-#include <Foundation/Types/UniquePtr.h>
 #include <Foundation/Types/SharedPtr.h>
+#include <Foundation/Types/UniquePtr.h>
 
 /// \brief Specifies in which mode this camera is configured.
 struct EZ_CORE_DLL ezCameraMode

@@ -91,9 +91,7 @@ void ezActor::UpdateAllPlugins()
   }
 }
 
-void ezActor::Activate()
-{
-}
+void ezActor::Activate() {}
 
 void ezActor::Update()
 {
@@ -102,4 +100,3 @@ void ezActor::Update()
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_ActorSystem_Implementation_Actor);
-

@@ -39,7 +39,8 @@ ezResult ezTaskWorkerThread::DeactivateWorker()
 
 ezUInt32 ezTaskWorkerThread::Run()
 {
-  EZ_ASSERT_DEBUG(m_WorkerType != ezWorkerThreadType::Unknown && m_WorkerType != ezWorkerThreadType::MainThread, "Worker threads cannot use this type");
+  EZ_ASSERT_DEBUG(
+    m_WorkerType != ezWorkerThreadType::Unknown && m_WorkerType != ezWorkerThreadType::MainThread, "Worker threads cannot use this type");
   EZ_ASSERT_DEBUG(m_WorkerType < ezWorkerThreadType::ENUM_COUNT, "Worker Thread Type is invalid: {0}", m_WorkerType);
 
   // once this thread is running, store the worker type in the thread_local variable

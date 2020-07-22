@@ -7,20 +7,20 @@
 #include <qevent.h>
 
 ezQtManipulatorLabel::ezQtManipulatorLabel(QWidget* parent, Qt::WindowFlags f)
-    : QLabel(parent, f)
-    , m_pItems(nullptr)
-    , m_pManipulator(nullptr)
-    , m_bActive(false)
+  : QLabel(parent, f)
+  , m_pItems(nullptr)
+  , m_pManipulator(nullptr)
+  , m_bActive(false)
 {
   setCursor(Qt::WhatsThisCursor);
 }
 
 ezQtManipulatorLabel::ezQtManipulatorLabel(const QString& text, QWidget* parent, Qt::WindowFlags f)
-    : QLabel(text, parent, f)
-    , m_pItems(nullptr)
-    , m_pManipulator(nullptr)
-    , m_bActive(false)
-    , m_bIsDefault(true)
+  : QLabel(text, parent, f)
+  , m_pItems(nullptr)
+  , m_pManipulator(nullptr)
+  , m_bActive(false)
+  , m_bIsDefault(true)
 {
 }
 

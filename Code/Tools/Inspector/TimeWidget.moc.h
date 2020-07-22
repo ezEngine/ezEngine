@@ -1,10 +1,10 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/Time/Time.h>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
+#include <Foundation/Time/Time.h>
 #include <Inspector/ui_TimeWidget.h>
 #include <QGraphicsView>
 #include <QListWidgetItem>
@@ -34,7 +34,6 @@ public:
   void UpdateStats();
 
 private:
-
   QGraphicsPathItem* m_pPath[s_uiMaxColors];
   QGraphicsPathItem* m_pPathMax;
   QGraphicsScene m_Scene;
@@ -57,7 +56,7 @@ private:
   struct ClockData
   {
     ezDeque<TimeSample> m_TimeSamples;
-  
+
     bool m_bDisplay = true;
     ezUInt8 m_uiColor = 0xFF;
     ezTime m_MinTimestep = ezTime::Seconds(60.0);
@@ -67,5 +66,3 @@ private:
 
   ezMap<ezString, ClockData> m_ClockData;
 };
-
-

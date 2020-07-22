@@ -1,12 +1,12 @@
 #pragma once
 
+#include <Foundation/Types/UniquePtr.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/PropertyGrid/PropertyBaseWidget.moc.h>
+#include <QWidget>
+#include <ToolsFoundation/CommandHistory/CommandHistory.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <ToolsFoundation/Reflection/IReflectedTypeAccessor.h>
-#include <ToolsFoundation/CommandHistory/CommandHistory.h>
-#include <QWidget>
-#include <Foundation/Types/UniquePtr.h>
 
 class QGridLayout;
 class ezDocument;
@@ -19,7 +19,7 @@ class EZ_GUIFOUNDATION_DLL ezQtTypeWidget : public QWidget
   Q_OBJECT
 public:
   ezQtTypeWidget(QWidget* pParent, ezQtPropertyGridWidget* pGrid, ezObjectAccessorBase* pObjectAccessor, const ezRTTI* pType,
-                 const char* szIncludeProperties, const char* szExcludeProperties);
+    const char* szIncludeProperties, const char* szExcludeProperties);
   ~ezQtTypeWidget();
   void SetSelection(const ezHybridArray<ezPropertySelection, 8>& items);
   const ezHybridArray<ezPropertySelection, 8>& GetSelection() const { return m_Items; }
@@ -62,14 +62,8 @@ private:
       }
     }
 
-    bool operator == (const PropertyGroup& rhs)
-    {
-      return m_sGroup == rhs.m_sGroup;
-    }
-    bool operator < (const PropertyGroup& rhs)
-    {
-      return m_fOrder < rhs.m_fOrder;
-    }
+    bool operator==(const PropertyGroup& rhs) { return m_sGroup == rhs.m_sGroup; }
+    bool operator<(const PropertyGroup& rhs) { return m_fOrder < rhs.m_fOrder; }
 
     ezString m_sGroup;
     ezString m_sIconName;
@@ -106,7 +100,4 @@ private:
   QGridLayout* m_pLayout;
   ezMap<ezString, PropertyWidgetData> m_PropertyWidgets;
   ezHybridArray<ezString, 1> m_QueuedChanges;
-
 };
-
-

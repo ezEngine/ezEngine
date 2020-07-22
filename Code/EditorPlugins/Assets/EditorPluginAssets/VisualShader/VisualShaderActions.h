@@ -17,11 +17,10 @@ public:
 class ezVisualShaderAction : public ezButtonAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualShaderAction, ezButtonAction);
+
 public:
   ezVisualShaderAction(const ezActionContext& context, const char* name);
   ~ezVisualShaderAction();
 
   virtual void Execute(const ezVariant& value) override;
 };
-
-

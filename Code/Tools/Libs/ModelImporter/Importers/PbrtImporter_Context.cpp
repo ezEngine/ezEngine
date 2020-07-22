@@ -12,7 +12,7 @@ namespace ezModelImporter
   namespace Pbrt
   {
     Object::Object()
-        : m_Transform(ezTransform::IdentityTransform())
+      : m_Transform(ezTransform::IdentityTransform())
     {
     }
 
@@ -49,9 +49,9 @@ namespace ezModelImporter
     }
 
     ParseContext::ParseContext(const char* modelFilename)
-        : m_inWorld(false)
-        , m_modelFilename(modelFilename)
-        , m_activeObject(nullptr)
+      : m_inWorld(false)
+      , m_modelFilename(modelFilename)
+      , m_activeObject(nullptr)
     {
       m_transformStack.PushBack(ezTransform::IdentityTransform());
       m_activeMaterialStack.PushBack(MaterialHandle());
@@ -76,10 +76,7 @@ namespace ezModelImporter
         return m_transformStack.PeekBack();
     }
 
-    MaterialHandle* ParseContext::PeekActiveMaterial()
-    {
-      return m_activeMaterialStack.IsEmpty() ? nullptr : &m_activeMaterialStack.PeekBack();
-    }
+    MaterialHandle* ParseContext::PeekActiveMaterial() { return m_activeMaterialStack.IsEmpty() ? nullptr : &m_activeMaterialStack.PeekBack(); }
 
     const ezTransform& ParseContext::PushActiveTransform()
     {
@@ -159,5 +156,5 @@ namespace ezModelImporter
       m_textureFilenames.TryGetValue(textureName, filename);
       return filename ? filename->GetData() : nullptr;
     }
-  }
-}
+  } // namespace Pbrt
+} // namespace ezModelImporter

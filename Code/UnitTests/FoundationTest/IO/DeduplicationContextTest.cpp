@@ -11,7 +11,7 @@ namespace
   {
     RefCountedVec3() = default;
     RefCountedVec3(const ezVec3& v)
-        : m_v(v)
+      : m_v(v)
     {
     }
 
@@ -74,8 +74,8 @@ namespace
       EZ_SUCCEED_OR_RETURN(ezDeduplicationWriteContext::GetContext()->WriteArray(stream, m_Transforms));
       EZ_SUCCEED_OR_RETURN(ezDeduplicationWriteContext::GetContext()->WriteArray(stream, m_Positions));
       EZ_SUCCEED_OR_RETURN(ezDeduplicationWriteContext::GetContext()->WriteArray(stream, m_Scales));
-      EZ_SUCCEED_OR_RETURN(ezDeduplicationWriteContext::GetContext()->WriteMap(stream, m_TransformMap,
-                                                                               ezDeduplicationWriteContext::WriteMapMode::DedupValue));
+      EZ_SUCCEED_OR_RETURN(
+        ezDeduplicationWriteContext::GetContext()->WriteMap(stream, m_TransformMap, ezDeduplicationWriteContext::WriteMapMode::DedupValue));
       EZ_SUCCEED_OR_RETURN(ezDeduplicationWriteContext::GetContext()->WriteSet(stream, m_UniquePositions));
       EZ_SUCCEED_OR_RETURN(stream.WriteArray(m_Components));
       return EZ_SUCCESS;
@@ -85,12 +85,11 @@ namespace
     {
       EZ_SUCCEED_OR_RETURN(ezDeduplicationReadContext::GetContext()->ReadArray(stream, m_Transforms));
       EZ_SUCCEED_OR_RETURN(ezDeduplicationReadContext::GetContext()->ReadArray(stream, m_Positions,
-                                                                               nullptr)); // should not allocate anything
+        nullptr)); // should not allocate anything
       EZ_SUCCEED_OR_RETURN(ezDeduplicationReadContext::GetContext()->ReadArray(stream, m_Scales));
       EZ_SUCCEED_OR_RETURN(ezDeduplicationReadContext::GetContext()->ReadMap(
-          stream, m_TransformMap, ezDeduplicationReadContext::ReadMapMode::DedupValue, nullptr, nullptr)); // should not allocate anything
-      EZ_SUCCEED_OR_RETURN(
-          ezDeduplicationReadContext::GetContext()->ReadSet(stream, m_UniquePositions, nullptr)); // should not allocate anything
+        stream, m_TransformMap, ezDeduplicationReadContext::ReadMapMode::DedupValue, nullptr, nullptr));           // should not allocate anything
+      EZ_SUCCEED_OR_RETURN(ezDeduplicationReadContext::GetContext()->ReadSet(stream, m_UniquePositions, nullptr)); // should not allocate anything
       EZ_SUCCEED_OR_RETURN(stream.ReadArray(m_Components));
       return EZ_SUCCESS;
     }

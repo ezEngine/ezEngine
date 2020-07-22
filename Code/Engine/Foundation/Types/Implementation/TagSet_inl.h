@@ -14,8 +14,7 @@ struct ezContainerSubTypeResolver<ezTagSetTemplate<T>>
 
 
 template <typename Class>
-class ezMemberSetProperty<Class, ezTagSet, const char*>
-  : public ezTypedSetProperty<typename ezTypeTraits<const char*>::NonConstReferenceType>
+class ezMemberSetProperty<Class, ezTagSet, const char*> : public ezTypedSetProperty<typename ezTypeTraits<const char*>::NonConstReferenceType>
 {
 public:
   typedef ezTagSet Container;
@@ -40,22 +39,22 @@ public:
 
   virtual void Clear(void* pInstance) override
   {
-    EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.",
-      ezAbstractProperty::GetPropertyName());
+    EZ_ASSERT_DEBUG(
+      m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance)).Clear();
   }
 
   virtual void Insert(void* pInstance, void* pObject) override
   {
-    EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.",
-      ezAbstractProperty::GetPropertyName());
+    EZ_ASSERT_DEBUG(
+      m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance)).SetByName(*static_cast<const RealType*>(pObject));
   }
 
   virtual void Remove(void* pInstance, void* pObject) override
   {
-    EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.",
-      ezAbstractProperty::GetPropertyName());
+    EZ_ASSERT_DEBUG(
+      m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance)).RemoveByName(*static_cast<const RealType*>(pObject));
   }
 
@@ -162,10 +161,8 @@ void ezTagSetTemplate<BlockStorageAllocator>::Set(const ezTag& Tag)
 
   if (!IsTagInAllocatedRange(Tag))
   {
-    const ezUInt32 uiNewBlockStart =
-      (m_uiTagBlockStart != 0xFFFFFFFFu) ? ezMath::Min(Tag.m_uiBlockIndex, m_uiTagBlockStart) : Tag.m_uiBlockIndex;
-    const ezUInt32 uiNewBlockIndex =
-      (m_uiTagBlockStart != 0xFFFFFFFFu) ? ezMath::Max(Tag.m_uiBlockIndex, m_uiTagBlockStart) : Tag.m_uiBlockIndex;
+    const ezUInt32 uiNewBlockStart = (m_uiTagBlockStart != 0xFFFFFFFFu) ? ezMath::Min(Tag.m_uiBlockIndex, m_uiTagBlockStart) : Tag.m_uiBlockIndex;
+    const ezUInt32 uiNewBlockIndex = (m_uiTagBlockStart != 0xFFFFFFFFu) ? ezMath::Max(Tag.m_uiBlockIndex, m_uiTagBlockStart) : Tag.m_uiBlockIndex;
 
     Reallocate(uiNewBlockStart, uiNewBlockIndex);
   }

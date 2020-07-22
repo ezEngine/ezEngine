@@ -134,8 +134,7 @@ void ezRenderPipelineRttiConverterContext::DeleteObject(const ezUuid& guid)
 }
 
 // static
-ezInternal::NewInstance<ezRenderPipeline>
-ezRenderPipelineResourceLoader::CreateRenderPipeline(const ezRenderPipelineResourceDescriptor& desc)
+ezInternal::NewInstance<ezRenderPipeline> ezRenderPipelineResourceLoader::CreateRenderPipeline(const ezRenderPipelineResourceDescriptor& desc)
 {
   auto pPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
   ezRenderPipelineRttiConverterContext context;
@@ -204,8 +203,7 @@ ezRenderPipelineResourceLoader::CreateRenderPipeline(const ezRenderPipelineResou
 
       if (!pPipeline->Connect(pSource, con.m_SourcePin, pTarget, con.m_TargetPin))
       {
-        ezLog::Error("Failed to connect '{0}'::'{1}' to '{2}'::'{3}'!", pSource->GetName(), con.m_SourcePin, pTarget->GetName(),
-          con.m_TargetPin);
+        ezLog::Error("Failed to connect '{0}'::'{1}' to '{2}'::'{3}'!", pSource->GetName(), con.m_SourcePin, pTarget->GetName(), con.m_TargetPin);
       }
     }
   }
@@ -214,8 +212,8 @@ ezRenderPipelineResourceLoader::CreateRenderPipeline(const ezRenderPipelineResou
 }
 
 // static
-void ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(const ezRenderPipeline* pPipeline,
-  ezRenderPipelineResourceDescriptor& desc)
+void ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(
+  const ezRenderPipeline* pPipeline, ezRenderPipelineResourceDescriptor& desc)
 {
   ezRenderPipelineRttiConverterContext context;
 
@@ -274,8 +272,8 @@ void ezRenderPipelineResourceLoader::CreateRenderPipelineResourceDescriptor(cons
       {
         const ezUuid targetGuid = context.GetObjectGUID(pPinTarget->m_pParent->GetDynamicRTTI(), pPinTarget->m_pParent);
         EZ_ASSERT_DEBUG(targetGuid.IsValid(), "Connection target was not serialized in previous step!");
-        data.m_Connections.PushBack(RenderPipelineResourceLoaderConnectionInternal(pSource->GetPinName(pPinSource).GetData(), targetGuid,
-          pPinTarget->m_pParent->GetPinName(pPinTarget).GetData()));
+        data.m_Connections.PushBack(RenderPipelineResourceLoaderConnectionInternal(
+          pSource->GetPinName(pPinSource).GetData(), targetGuid, pPinTarget->m_pParent->GetPinName(pPinTarget).GetData()));
       }
     }
 

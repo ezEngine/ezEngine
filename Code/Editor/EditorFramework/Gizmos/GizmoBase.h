@@ -1,9 +1,9 @@
 #pragma once
 
-#include <ToolsFoundation/ToolsFoundationDLL.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/InputContexts/EditorInputContext.h>
 #include <Foundation/Logging/Log.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 
 class ezCamera;
 
@@ -56,5 +56,4 @@ protected:
 private:
   bool m_bVisible;
   ezTransform m_Transformation;
-
 };

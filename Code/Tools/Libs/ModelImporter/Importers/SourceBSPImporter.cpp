@@ -142,16 +142,16 @@ namespace SourceBSP
     float z;
 
     Vertex_t()
-        : x(0)
-        , y(0)
-        , z(0)
+      : x(0)
+      , y(0)
+      , z(0)
     {
     }
 
     Vertex_t(float _x, float _y, float _z)
-        : x(_x)
-        , y(_y)
-        , z(_z)
+      : x(_x)
+      , y(_y)
+      , z(_z)
     {
     }
 
@@ -332,7 +332,7 @@ namespace SourceBSP
   };
 
   File::File(ezArrayPtr<ezUInt8> fileContent)
-      : m_valid(false)
+    : m_valid(false)
   {
     if (fileContent.GetCount() < static_cast<ezUInt32>(sizeof(Header_t)))
     {
@@ -406,8 +406,7 @@ namespace SourceBSP
   }
 
 
-  void calculateUV(const SourceBSP::Vertex_t& worldPos, const SourceBSP::TexInfo_t& texInfo, const SourceBSP::TexData_t& texData, float& u,
-                   float& v)
+  void calculateUV(const SourceBSP::Vertex_t& worldPos, const SourceBSP::TexInfo_t& texInfo, const SourceBSP::TexData_t& texData, float& u, float& v)
   {
     u = worldPos.x * texInfo.textureVecsTexelsPerWorldUnits[0][0] + worldPos.y * texInfo.textureVecsTexelsPerWorldUnits[0][1] +
         worldPos.z * texInfo.textureVecsTexelsPerWorldUnits[0][2] + texInfo.textureVecsTexelsPerWorldUnits[0][3];
@@ -621,8 +620,8 @@ namespace SourceBSP
             ezUInt32 linearIndex = y * numVerticesPerEdge + x;
 
             ezVec3 offset = ezVec3(bspFile.dispVertices[displacementInfo.DispVertStart + linearIndex].vector.x,
-                                   bspFile.dispVertices[displacementInfo.DispVertStart + linearIndex].vector.y,
-                                   bspFile.dispVertices[displacementInfo.DispVertStart + linearIndex].vector.z);
+              bspFile.dispVertices[displacementInfo.DispVertStart + linearIndex].vector.y,
+              bspFile.dispVertices[displacementInfo.DispVertStart + linearIndex].vector.z);
             offset *= bspFile.dispVertices[displacementInfo.DispVertStart + linearIndex].m_distance;
 
             currentBase += offset;
@@ -710,7 +709,7 @@ namespace SourceBSP
 
     return EZ_SUCCESS;
   }
-}
+} // namespace SourceBSP
 
 
 namespace ezModelImporter
@@ -777,4 +776,4 @@ namespace ezModelImporter
 
     return outScene;
   }
-}
+} // namespace ezModelImporter

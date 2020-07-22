@@ -7,7 +7,7 @@
 #include <QScrollBar>
 
 ezQtImageScene::ezQtImageScene(QObject* pParent)
-    : QGraphicsScene(pParent)
+  : QGraphicsScene(pParent)
 {
   m_pImageItem = nullptr;
   setItemIndexMethod(QGraphicsScene::NoIndex);
@@ -26,7 +26,7 @@ void ezQtImageScene::SetImage(QPixmap pixmap)
 
 
 ezQtImageWidget::ezQtImageWidget(QWidget* parent, bool bShowButtons)
-    : QWidget(parent)
+  : QWidget(parent)
 {
   setupUi(this);
   m_pScene = new ezQtImageScene(GraphicsView);

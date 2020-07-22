@@ -56,9 +56,8 @@ ezRmlUiAssetDocument::ezRmlUiAssetDocument(const char* szDocumentPath)
 {
 }
 
-ezStatus ezRmlUiAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag,
-  const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader,
-  ezBitflags<ezTransformFlags> transformFlags)
+ezStatus ezRmlUiAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   ezRmlUiAssetProperties* pProp = GetProperties();
 

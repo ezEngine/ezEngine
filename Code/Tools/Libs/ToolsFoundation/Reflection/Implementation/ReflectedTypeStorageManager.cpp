@@ -9,10 +9,10 @@
 #include <ToolsFoundation/Reflection/ReflectedTypeStorageManager.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 
-ezMap<const ezRTTI*, ezReflectedTypeStorageManager::ReflectedTypeStorageMapping*>
-    ezReflectedTypeStorageManager::m_ReflectedTypeToStorageMapping;
+ezMap<const ezRTTI*, ezReflectedTypeStorageManager::ReflectedTypeStorageMapping*> ezReflectedTypeStorageManager::m_ReflectedTypeToStorageMapping;
 
 // clang-format off
+// 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(ToolsFoundation, ReflectedTypeStorageManager)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
@@ -56,7 +56,7 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::AddProperties(c
 }
 
 void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::AddPropertiesRecursive(
-    const ezRTTI* pType, ezSet<const ezDocumentObject*>& requiresPatchingEmbeddedClass)
+  const ezRTTI* pType, ezSet<const ezDocumentObject*>& requiresPatchingEmbeddedClass)
 {
   // Parse parent class
   const ezRTTI* pParent = pType->GetParentType();
@@ -84,15 +84,14 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::AddPropertiesRe
       const ezUInt16 uiIndex = (ezUInt16)m_PathToStorageInfoTable.GetCount();
 
       // Add value, new entries are appended
-      m_PathToStorageInfoTable.Insert(
-          path, StorageInfo(uiIndex, GetStorageType(pProperty), ezToolsReflectionUtils::GetStorageDefault(pProperty)));
+      m_PathToStorageInfoTable.Insert(path, StorageInfo(uiIndex, GetStorageType(pProperty), ezToolsReflectionUtils::GetStorageDefault(pProperty)));
       AddPropertyToInstances(uiIndex, pProperty, requiresPatchingEmbeddedClass);
     }
   }
 }
 
 void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::UpdateInstances(
-    ezUInt32 uiIndex, const ezAbstractProperty* pProperty, ezSet<const ezDocumentObject*>& requiresPatchingEmbeddedClass)
+  ezUInt32 uiIndex, const ezAbstractProperty* pProperty, ezSet<const ezDocumentObject*>& requiresPatchingEmbeddedClass)
 {
   for (auto it = m_Instances.GetIterator(); it.IsValid(); ++it)
   {
@@ -219,7 +218,7 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::UpdateInstances
 }
 
 void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::AddPropertyToInstances(
-    ezUInt32 uiIndex, const ezAbstractProperty* pProperty, ezSet<const ezDocumentObject*>& requiresPatchingEmbeddedClass)
+  ezUInt32 uiIndex, const ezAbstractProperty* pProperty, ezSet<const ezDocumentObject*>& requiresPatchingEmbeddedClass)
 {
   if (pProperty->GetCategory() != ezPropertyCategory::Member)
     return;
@@ -227,8 +226,7 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::AddPropertyToIn
   for (auto it = m_Instances.GetIterator(); it.IsValid(); ++it)
   {
     ezDynamicArray<ezVariant>& data = it.Key()->m_Data;
-    EZ_ASSERT_DEV(data.GetCount() == uiIndex,
-                  "ezReflectedTypeStorageAccessor found with a property count that does not match its storage mapping!");
+    EZ_ASSERT_DEV(data.GetCount() == uiIndex, "ezReflectedTypeStorageAccessor found with a property count that does not match its storage mapping!");
     data.PushBack(ezToolsReflectionUtils::GetStorageDefault(pProperty));
     if (pProperty->GetFlags().IsSet(ezPropertyFlags::Class) && !pProperty->GetFlags().IsSet(ezPropertyFlags::Pointer))
     {
@@ -298,8 +296,8 @@ void ezReflectedTypeStorageManager::Shutdown()
   m_ReflectedTypeToStorageMapping.Clear();
 }
 
-const ezReflectedTypeStorageManager::ReflectedTypeStorageMapping*
-ezReflectedTypeStorageManager::AddStorageAccessor(ezReflectedTypeStorageAccessor* pInstance)
+const ezReflectedTypeStorageManager::ReflectedTypeStorageMapping* ezReflectedTypeStorageManager::AddStorageAccessor(
+  ezReflectedTypeStorageAccessor* pInstance)
 {
   ReflectedTypeStorageMapping* pMapping = GetTypeStorageMapping(pInstance->GetType());
   pMapping->m_Instances.Insert(pInstance);
@@ -334,8 +332,7 @@ void ezReflectedTypeStorageManager::TypeEventHandler(const ezPhantomRttiManagerE
       const ezRTTI* pType = e.m_pChangedType;
       EZ_ASSERT_DEV(pType != nullptr, "A type was added but it has an invalid handle!");
 
-      EZ_ASSERT_DEV(!m_ReflectedTypeToStorageMapping.Find(e.m_pChangedType).IsValid(), "The type '{0}' was added twice!",
-                    pType->GetTypeName());
+      EZ_ASSERT_DEV(!m_ReflectedTypeToStorageMapping.Find(e.m_pChangedType).IsValid(), "The type '{0}' was added twice!", pType->GetTypeName());
       GetTypeStorageMapping(e.m_pChangedType);
     }
     break;

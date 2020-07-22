@@ -30,15 +30,15 @@ EZ_END_STATIC_REFLECTED_ENUM;
 // clang-format on
 
 ezForwardRenderPass::ezForwardRenderPass(const char* szName)
-    : ezRenderPipelinePass(szName, true)
-    , m_ShadingQuality(ezForwardRenderShadingQuality::Normal)
+  : ezRenderPipelinePass(szName, true)
+  , m_ShadingQuality(ezForwardRenderShadingQuality::Normal)
 {
 }
 
 ezForwardRenderPass::~ezForwardRenderPass() {}
 
-bool ezForwardRenderPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
-                                                      ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezForwardRenderPass::GetRenderTargetDescriptions(
+  const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   // Color
   if (inputs[m_PinColor.m_uiInputIndex])
@@ -65,9 +65,8 @@ bool ezForwardRenderPass::GetRenderTargetDescriptions(const ezView& view, const 
   return true;
 }
 
-void ezForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext,
-                                  const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-                                  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+void ezForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
+  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   SetupResources(renderViewContext, inputs, outputs);
   SetupPermutationVars(renderViewContext);
@@ -76,9 +75,8 @@ void ezForwardRenderPass::Execute(const ezRenderViewContext& renderViewContext,
   RenderObjects(renderViewContext);
 }
 
-void ezForwardRenderPass::SetupResources(const ezRenderViewContext& renderViewContext,
-                                         const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-                                         const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+void ezForwardRenderPass::SetupResources(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
+  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
@@ -145,4 +143,3 @@ void ezForwardRenderPass::SetupLighting(const ezRenderViewContext& renderViewCon
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_ForwardRenderPass);
-

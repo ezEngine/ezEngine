@@ -1,8 +1,8 @@
 #pragma once
 
 #include <EditorPluginAssets/EditorPluginAssetsDLL.h>
-#include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/Action/BaseActions.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 
 class ezVisualScriptActions
 {
@@ -21,7 +21,6 @@ class ezVisualScriptAction : public ezButtonAction
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptAction, ezButtonAction);
 
 public:
-
   enum class ActionType
   {
     PickDebugTarget,
@@ -34,9 +33,4 @@ public:
 
 private:
   ActionType m_Type;
-
 };
-
-
-
-

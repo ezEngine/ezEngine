@@ -25,8 +25,7 @@ void ezDecalComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pInfo)
   if (pInfo->m_sTargetContext == "viewport")
     CreateDropObject(pInfo->m_vDropPosition, "ezDecalComponent", "Decals", var, ezUuid(), -1);
   else
-    CreateDropObject(pInfo->m_vDropPosition, "ezDecalComponent", "Decals", var, pInfo->m_TargetObject,
-                     pInfo->m_iTargetObjectInsertChildIndex);
+    CreateDropObject(pInfo->m_vDropPosition, "ezDecalComponent", "Decals", var, pInfo->m_TargetObject, pInfo->m_iTargetObjectInsertChildIndex);
 
   SelectCreatedObjects();
   BeginTemporaryCommands();

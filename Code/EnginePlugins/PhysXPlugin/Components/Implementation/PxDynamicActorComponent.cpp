@@ -420,8 +420,8 @@ void ezPxDynamicActorComponent::AddForceAtPos(ezMsgPhysicsAddForce& msg)
   {
     EZ_PX_WRITE_LOCK(*m_pActor->getScene());
 
-    PxRigidBodyExt::addForceAtPos(*m_pActor, ezPxConversionUtils::ToVec3(msg.m_vForce), ezPxConversionUtils::ToVec3(msg.m_vGlobalPosition),
-      PxForceMode::eFORCE);
+    PxRigidBodyExt::addForceAtPos(
+      *m_pActor, ezPxConversionUtils::ToVec3(msg.m_vForce), ezPxConversionUtils::ToVec3(msg.m_vGlobalPosition), PxForceMode::eFORCE);
   }
 }
 
@@ -431,8 +431,8 @@ void ezPxDynamicActorComponent::AddImpulseAtPos(ezMsgPhysicsAddImpulse& msg)
   {
     EZ_PX_WRITE_LOCK(*m_pActor->getScene());
 
-    PxRigidBodyExt::addForceAtPos(*m_pActor, ezPxConversionUtils::ToVec3(msg.m_vImpulse),
-      ezPxConversionUtils::ToVec3(msg.m_vGlobalPosition), PxForceMode::eIMPULSE);
+    PxRigidBodyExt::addForceAtPos(
+      *m_pActor, ezPxConversionUtils::ToVec3(msg.m_vImpulse), ezPxConversionUtils::ToVec3(msg.m_vGlobalPosition), PxForceMode::eIMPULSE);
   }
 }
 

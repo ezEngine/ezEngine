@@ -127,7 +127,8 @@ void SampleGameState::ConfigureMainWindowInputDevices(ezWindow* pWindow)
 }
 
 // BEGIN-DOCS-CODE-SNIPPET: input-config
-static void RegisterInputAction(const char* szInputSet, const char* szInputAction, const char* szKey1, const char* szKey2 = nullptr, const char* szKey3 = nullptr)
+static void RegisterInputAction(
+  const char* szInputSet, const char* szInputAction, const char* szKey1, const char* szKey2 = nullptr, const char* szKey3 = nullptr)
 {
   ezInputActionConfig cfg;
   cfg.m_bApplyTimeScaling = true;

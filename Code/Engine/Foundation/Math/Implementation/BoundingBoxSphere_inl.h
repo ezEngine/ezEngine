@@ -12,7 +12,8 @@ EZ_FORCE_INLINE ezBoundingBoxSphereTemplate<Type>::ezBoundingBoxSphereTemplate()
 }
 
 template <typename Type>
-ezBoundingBoxSphereTemplate<Type>::ezBoundingBoxSphereTemplate(const ezVec3Template<Type>& vCenter, const ezVec3Template<Type>& vBoxHalfExtents, Type fSphereRadius)
+ezBoundingBoxSphereTemplate<Type>::ezBoundingBoxSphereTemplate(
+  const ezVec3Template<Type>& vCenter, const ezVec3Template<Type>& vBoxHalfExtents, Type fSphereRadius)
 {
   m_vCenter = vCenter;
   m_fSphereRadius = fSphereRadius;
@@ -136,4 +137,3 @@ EZ_ALWAYS_INLINE bool operator!=(const ezBoundingBoxSphereTemplate<Type>& lhs, c
 {
   return !(lhs == rhs);
 }
-

@@ -14,7 +14,7 @@
 
 
 ezQtRenderPipelineAssetDocumentWindow::ezQtRenderPipelineAssetDocumentWindow(ezDocument* pDocument)
-    : ezQtDocumentWindow(pDocument)
+  : ezQtDocumentWindow(pDocument)
 {
 
   // Menu Bar

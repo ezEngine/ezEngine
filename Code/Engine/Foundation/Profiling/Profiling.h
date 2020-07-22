@@ -25,7 +25,8 @@ protected:
   ezTime m_BeginTime;
 };
 
-/// \brief This class implements a profiling scope similar to ezProfilingScope, but with additional sub-scopes which can be added easily without introducing actual C++ scopes.
+/// \brief This class implements a profiling scope similar to ezProfilingScope, but with additional sub-scopes which can be added easily without
+/// introducing actual C++ scopes.
 ///
 /// The constructor pushes one surrounding scope on the stack and then a nested scope as the first section.
 /// The function StartNextSection() will end the nested scope and start a new inner scope.
@@ -41,7 +42,7 @@ public:
   EZ_FOUNDATION_DLL static void StartNextSection(const char* szNextSectionName);
 
 protected:
-  static thread_local ezProfilingListScope* s_pCurrentList; 
+  static thread_local ezProfilingListScope* s_pCurrentList;
 
   ezProfilingListScope* m_pPreviousList;
 
@@ -157,7 +158,8 @@ public:
 
 /// \brief Profiles the current scope using the given name.
 ///
-/// It is allowed to nest EZ_PROFILE_SCOPE, also with EZ_PROFILE_LIST_SCOPE. However EZ_PROFILE_SCOPE should start and end within the same list scope section.
+/// It is allowed to nest EZ_PROFILE_SCOPE, also with EZ_PROFILE_LIST_SCOPE. However EZ_PROFILE_SCOPE should start and end within the same list scope
+/// section.
 ///
 /// \note The name string must not be destroyed before the current scope ends.
 ///
@@ -169,13 +171,14 @@ public:
 ///
 /// Use EZ_PROFILE_LIST_NEXT_SECTION to start a new section in the list scope.
 ///
-/// It is allowed to nest EZ_PROFILE_SCOPE, also with EZ_PROFILE_LIST_SCOPE. However EZ_PROFILE_SCOPE should start and end within the same list scope section.
+/// It is allowed to nest EZ_PROFILE_SCOPE, also with EZ_PROFILE_LIST_SCOPE. However EZ_PROFILE_SCOPE should start and end within the same list scope
+/// section.
 ///
 /// \note The name string must not be destroyed before the current scope ends.
 ///
 /// \sa ezProfilingListScope
 /// \sa EZ_PROFILE_LIST_NEXT_SECTION
-#  define EZ_PROFILE_LIST_SCOPE(szListName, szFirstSectionName)                                                                            \
+#  define EZ_PROFILE_LIST_SCOPE(szListName, szFirstSectionName)                                                                                      \
     ezProfilingListScope EZ_CONCAT(_ezProfilingScope, EZ_SOURCE_LINE)(szListName, szFirstSectionName, EZ_SOURCE_FUNCTION)
 
 /// \brief Starts a new section in a EZ_PROFILE_LIST_SCOPE
@@ -193,4 +196,3 @@ public:
 #  define EZ_PROFILE_LIST_NEXT_SECTION(szNextSectionName) /*empty*/
 
 #endif
-

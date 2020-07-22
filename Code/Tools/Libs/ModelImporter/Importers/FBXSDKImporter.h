@@ -6,7 +6,7 @@ namespace fbxsdk
 {
   class FbxManager;
   class FbxNode;
-}
+} // namespace fbxsdk
 
 namespace ezModelImporter
 {
@@ -21,8 +21,7 @@ namespace ezModelImporter
     virtual ezSharedPtr<Scene> ImportScene(const char* szFileName, ezBitflags<ImportFlags> importFlags) override;
 
   private:
-
     ezDynamicArray<ezString> m_supportedFileFormats;
     fbxsdk::FbxManager* m_pFBXManager;
   };
-}
+} // namespace ezModelImporter

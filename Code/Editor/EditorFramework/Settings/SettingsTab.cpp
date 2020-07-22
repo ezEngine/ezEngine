@@ -39,8 +39,8 @@ void ezQtEditorApp::CloseSettingsDocument()
 }
 
 ezQtSettingsTab::ezQtSettingsTab()
-    : ezQtDocumentWindow("Settings")
-    , m_SingletonRegistrar(this)
+  : ezQtDocumentWindow("Settings")
+  , m_SingletonRegistrar(this)
 {
   setCentralWidget(new QWidget());
   EZ_ASSERT_DEV(centralWidget() != nullptr, "");
@@ -70,4 +70,3 @@ void ezQtSettingsTab::InternalCloseDocumentWindow()
   // make sure this instance isn't used anymore
   UnregisterSingleton();
 }
-

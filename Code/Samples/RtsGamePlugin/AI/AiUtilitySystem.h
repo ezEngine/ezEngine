@@ -36,5 +36,4 @@ public:
 class RtsUnitComponentUtility : public RtsAiUtility
 {
 public:
-
 };

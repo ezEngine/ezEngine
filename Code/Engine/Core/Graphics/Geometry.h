@@ -67,8 +67,8 @@ public:
   ezUInt32 AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const ezVec2& vTexCoord, const ezColor& color, ezInt32 iCustomIndex = 0);
 
   /// \brief Adds a vertex, returns the index to the added vertex. Position and normal are transformed with the given matrix.
-  ezUInt32 AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const ezVec2& vTexCoord, const ezColor& color, ezInt32 iCustomIndex,
-                     const ezMat4& mTransform);
+  ezUInt32 AddVertex(
+    const ezVec3& vPos, const ezVec3& vNormal, const ezVec2& vTexCoord, const ezColor& color, ezInt32 iCustomIndex, const ezMat4& mTransform);
 
   /// \brief Adds a polygon that consists of all the referenced vertices. No face normal is computed at this point.
   void AddPolygon(const ezArrayPtr<ezUInt32>& Vertices, bool bFlipWinding);
@@ -129,7 +129,8 @@ public:
   void AddRectXY(const ezVec2& size, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
 
   /// \brief Same as AddRectXY but additionally tessellates the plane. Tessellation factors must be larger than zero.
-  void AddTesselatedRectXY(const ezVec2& size, const ezColor& color, ezUInt32 uiTesselationX, ezUInt32 uiTesselationY, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
+  void AddTesselatedRectXY(const ezVec2& size, const ezColor& color, ezUInt32 uiTesselationX, ezUInt32 uiTesselationY,
+    const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
 
   /// \brief Adds an untextured box (8 vertices).
   void AddBox(const ezVec3& size, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
@@ -140,18 +141,16 @@ public:
   /// \brief Adds the 8 corners of a box as lines.
   ///
   /// fCornerFraction must be between 1.0 and 0.0, with 1 making it a completely closed box and 0 no lines at all.
-  void AddLineBoxCorners(const ezVec3& size, float fCornerFraction, const ezColor& color,
-                         const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
+  void AddLineBoxCorners(
+    const ezVec3& size, float fCornerFraction, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
 
   /// \brief Adds a box that has UV coordinates set (24 vertices).
-  void AddTexturedBox(const ezVec3& size, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(),
-                      ezInt32 iCustomIndex = 0);
+  void AddTexturedBox(const ezVec3& size, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
 
   /// \brief Adds a pyramid. This is different to a low-res cone in that the corners are placed differently (like on a box).
   ///
   /// The origin is at the center of the base quad.size.z is the height of the pyramid.
-  void AddPyramid(const ezVec3& size, bool bCap, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(),
-                  ezInt32 iCustomIndex = 0);
+  void AddPyramid(const ezVec3& size, bool bCap, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
 
   /// \brief Adds a geodesic sphere with radius 1 at the origin.
   ///
@@ -163,8 +162,8 @@ public:
   /// 3 = 1280 triangles,  642 vertices\n
   /// 4 = 5120 triangles, 2562 vertices\n
   /// ...\n
-  void AddGeodesicSphere(float fRadius, ezUInt8 uiSubDivisions, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(),
-                         ezInt32 iCustomIndex = 0);
+  void AddGeodesicSphere(
+    float fRadius, ezUInt8 uiSubDivisions, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
 
   /// \brief Adds a cylinder.
   ///
@@ -175,27 +174,27 @@ public:
   /// The top or bottom caps can be removed using \a bCapTop and \a bCapBottom.
   /// When \a fraction is set to any value below 360 degree, a pie / pacman shaped cylinder is created.
   void AddCylinder(float fRadiusTop, float fRadiusBottom, float fPositiveLength, float fNegativeLength, bool bCapTop, bool bCapBottom,
-                   ezUInt16 uiSegments, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0,
-                   ezAngle fraction = ezAngle::Degree(360.0f));
+    ezUInt16 uiSegments, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0,
+    ezAngle fraction = ezAngle::Degree(360.0f));
 
   /// \brief Same as AddCylinder(), but always adds caps and does not generate separate vertices for the caps.
   ///
   /// This is a more compact representation, but does not allow as good texturing.
   void AddCylinderOnePiece(float fRadiusTop, float fRadiusBottom, float fPositiveLength, float fNegativeLength, ezUInt16 uiSegments,
-                           const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
+    const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
 
   /// \brief Adds a cone. The origin is at the center of the bottom.
   ///
   /// uiSegments is the detail around the up axis, must be at least 3.
   void AddCone(float fRadius, float fHeight, bool bCap, ezUInt16 uiSegments, const ezColor& color,
-               const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
+    const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
 
   /// \brief Adds a sphere.
   ///
   /// uiSegments is the detail around the up axis, must be at least 3.
   /// uiStacks is the detail of the rounded top and bottom, must be at least 2.
-  void AddSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks, const ezColor& color,
-                 const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
+  void AddSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(),
+    ezInt32 iCustomIndex = 0);
 
   /// \brief Adds half a sphere.
   ///
@@ -203,7 +202,7 @@ public:
   /// uiSegments is the detail around the up axis, must be at least 3.
   /// uiStacks is the detail of the rounded top and bottom, must be at least 1.
   void AddHalfSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks, bool bCap, const ezColor& color,
-                     const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
+    const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
 
   /// \brief Adds a capsule.
   ///
@@ -212,7 +211,7 @@ public:
   /// uiSegments is the detail around the up axis, must be at least 3.
   /// uiStacks is the detail of the rounded top and bottom, must be at least 1.
   void AddCapsule(float fRadius, float fHeight, ezUInt16 uiSegments, ezUInt16 uiStacks, const ezColor& color,
-                  const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
+    const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
 
   /// \brief Adds a full torus.
   ///
@@ -222,18 +221,17 @@ public:
   /// uiSegments is the detail around the up axis.
   /// uiSegmentDetail is the number of segments around the torus ring (ie. the cylinder detail)
   void AddTorus(float fInnerRadius, float fOuterRadius, ezUInt16 uiSegments, ezUInt16 uiSegmentDetail, const ezColor& color,
-                const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
+    const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
 
   /// \brief Adds a ramp that has UV coordinates set.
-  void AddTexturedRamp(const ezVec3& size, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(),
-                       ezInt32 iCustomIndex = 0);
+  void AddTexturedRamp(const ezVec3& size, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
 
   /// \brief Generates a straight stair mesh along the X axis. The number of steps determines the step height and depth.
   void AddStairs(const ezVec3& size, ezUInt32 uiNumSteps, ezAngle curvature, bool bSmoothSloped, const ezColor& color,
-                 const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
+    const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
 
-  void AddArch(const ezVec3& size, ezUInt32 uiNumSegments, float fThickness, ezAngle angle, bool bMakeSteps, bool bSmoothBottom,
-               bool bSmoothTop, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
+  void AddArch(const ezVec3& size, ezUInt32 uiNumSegments, float fThickness, ezAngle angle, bool bMakeSteps, bool bSmoothBottom, bool bSmoothTop,
+    const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
 
   /// \todo GeomUtils improvements:
   // ThickLine
@@ -257,4 +255,3 @@ private:
   ezDeque<Polygon> m_Polygons;
   ezDeque<Line> m_Lines;
 };
-

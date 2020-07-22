@@ -139,4 +139,3 @@ void ezClock::Load(ezStreamReader& Stream)
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Time_Implementation_Clock);
-

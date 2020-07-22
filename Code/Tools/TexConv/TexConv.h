@@ -12,8 +12,8 @@ public:
   struct KeyEnumValuePair
   {
     KeyEnumValuePair(const char* key, ezInt32 val)
-        : m_szKey(key)
-        , m_iEnumValue(val)
+      : m_szKey(key)
+      , m_iEnumValue(val)
     {
     }
 

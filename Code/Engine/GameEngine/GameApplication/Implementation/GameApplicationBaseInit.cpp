@@ -242,7 +242,7 @@ void ezGameApplicationBase::Deinit_ShutdownLogging()
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   if (!ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-disableConsoleOutput", false))
   {
-  ezGlobalLog::RemoveLogWriter(ezLogWriter::Console::LogMessageHandler);
+    ezGlobalLog::RemoveLogWriter(ezLogWriter::Console::LogMessageHandler);
   }
   ezGlobalLog::RemoveLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
 #endif

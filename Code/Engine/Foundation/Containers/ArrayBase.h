@@ -48,7 +48,7 @@ public:
   void SetCount(ezUInt32 uiCount, const T& FillValue); // [tested]
 
   /// \brief Resizes the array to have exactly uiCount elements. Extra elements might be uninitialized.
-  template <typename = void> // Template is used to only conditionally compile this function in when it is actually used.
+  template <typename = void>                    // Template is used to only conditionally compile this function in when it is actually used.
   void SetCountUninitialized(ezUInt32 uiCount); // [tested]
 
   /// \brief Ensures the container has at least \a uiCount elements. Ie. calls SetCount() if the container has fewer elements, does nothing
@@ -146,9 +146,9 @@ public:
   /// \brief Returns the reserved number of elements that the array can hold without reallocating.
   ezUInt32 GetCapacity() const { return m_uiCapacity; }
 
-  using const_iterator = const T *;
+  using const_iterator = const T*;
   using const_reverse_iterator = const_reverse_pointer_iterator<T>;
-  using iterator = T *;
+  using iterator = T*;
   using reverse_iterator = reverse_pointer_iterator<T>;
 
 protected:

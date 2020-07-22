@@ -105,8 +105,7 @@ BOOL FileExists(const TCHAR* szPath)
 {
   DWORD dwAttrib = GetFileAttributes(szPath);
 
-  return (dwAttrib != INVALID_FILE_ATTRIBUTES &&
-          !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+  return (dwAttrib != INVALID_FILE_ATTRIBUTES && !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
 }
 
 // Create a child process that uses the previously created pipes for STDIN and STDOUT.
@@ -124,7 +123,8 @@ PROCESS_INFORMATION CreateChildProcess(int argc, TCHAR* argv[])
   if (!FileExists(app))
   {
     TCHAR msg[2048];
-    StringCchPrintf(msg, ARRAYSIZE(msg), TEXT("Failed to find gdb.exe in the expected location '%s'. Please check your ANDROID_NDK_HOME environment variable."), app);
+    StringCchPrintf(msg, ARRAYSIZE(msg),
+      TEXT("Failed to find gdb.exe in the expected location '%s'. Please check your ANDROID_NDK_HOME environment variable."), app);
     ErrorExit(msg);
   }
 
@@ -156,8 +156,7 @@ PROCESS_INFORMATION CreateChildProcess(int argc, TCHAR* argv[])
 
   // Create the child process.
 
-  bSuccess = CreateProcess(
-    NULL,
+  bSuccess = CreateProcess(NULL,
     szCmdline,        // command line
     NULL,             // process security attributes
     NULL,             // primary thread security attributes
@@ -193,22 +192,11 @@ void ErrorExit(const wchar_t* lpszFunction)
   LPVOID lpDisplayBuf;
   DWORD dw = GetLastError();
 
-  FormatMessage(
-    FORMAT_MESSAGE_ALLOCATE_BUFFER |
-      FORMAT_MESSAGE_FROM_SYSTEM |
-      FORMAT_MESSAGE_IGNORE_INSERTS,
-    NULL,
-    dw,
-    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-    (LPTSTR)&lpMsgBuf,
-    0, NULL);
+  FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, dw,
+    MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&lpMsgBuf, 0, NULL);
 
-  lpDisplayBuf = (LPVOID)LocalAlloc(LMEM_ZEROINIT,
-    (lstrlen((LPCTSTR)lpMsgBuf) + lstrlen((LPCTSTR)lpszFunction) + 40) * sizeof(TCHAR));
-  StringCchPrintf((LPTSTR)lpDisplayBuf,
-    LocalSize(lpDisplayBuf) / sizeof(TCHAR),
-    TEXT("%s failed with error %d: %s"),
-    lpszFunction, dw, lpMsgBuf);
+  lpDisplayBuf = (LPVOID)LocalAlloc(LMEM_ZEROINIT, (lstrlen((LPCTSTR)lpMsgBuf) + lstrlen((LPCTSTR)lpszFunction) + 40) * sizeof(TCHAR));
+  StringCchPrintf((LPTSTR)lpDisplayBuf, LocalSize(lpDisplayBuf) / sizeof(TCHAR), TEXT("%s failed with error %d: %s"), lpszFunction, dw, lpMsgBuf);
   MessageBox(NULL, (LPCTSTR)lpDisplayBuf, TEXT("Error"), MB_OK);
 
   LocalFree(lpMsgBuf);
@@ -300,7 +288,8 @@ void ForwardStdin(HANDLE readHandle, HANDLE writeHandle, HANDLE parentStdout)
         }
 #endif
 
-        if (!solibSearchPathSkipped && numberOfBytesRead > solibSearchPathCmdLength + 4 && strncmp(buffer + 4, solibSearchPathCmd, solibSearchPathCmdLength) == 0)
+        if (!solibSearchPathSkipped && numberOfBytesRead > solibSearchPathCmdLength + 4 &&
+            strncmp(buffer + 4, solibSearchPathCmd, solibSearchPathCmdLength) == 0)
         {
           solibSearchPathSkipped = true;
           numberOfBytesRead = 0;
@@ -312,7 +301,8 @@ void ForwardStdin(HANDLE readHandle, HANDLE writeHandle, HANDLE parentStdout)
             goto error;
           }
         }
-        else if (!fileExecAndSymbolsSkipped && numberOfBytesRead > fileExecAndSymbolsCmdLength + 4 && strncmp(buffer + 4, fileExecAndSymbolsCmd, fileExecAndSymbolsCmdLength) == 0)
+        else if (!fileExecAndSymbolsSkipped && numberOfBytesRead > fileExecAndSymbolsCmdLength + 4 &&
+                 strncmp(buffer + 4, fileExecAndSymbolsCmd, fileExecAndSymbolsCmdLength) == 0)
         {
           fileExecAndSymbolsSkipped = true;
           numberOfBytesRead = 0;

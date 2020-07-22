@@ -1,10 +1,10 @@
 #include <RenderDocPluginPCH.h>
 
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <RenderDocPlugin/RenderDocSingleton.h>
 #include <RenderDocPlugin/ThirdParty/renderdoc_app.h>
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 
 EZ_IMPLEMENT_SINGLETON(ezRenderDoc);
 
@@ -12,7 +12,7 @@ static ezRenderDoc g_RenderDocSingleton;
 
 
 ezRenderDoc::ezRenderDoc()
-    : m_SingletonRegistrar(this)
+  : m_SingletonRegistrar(this)
 {
   if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-NoCaptures"))
   {

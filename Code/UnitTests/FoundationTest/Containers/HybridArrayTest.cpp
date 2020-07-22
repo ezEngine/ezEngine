@@ -59,10 +59,7 @@ namespace HybridArrayTestDetail
       m_pVal = &m_val;
     }
 
-    void operator=(const NonMovableClass& other)
-    {
-      m_val = other.m_val;
-    }
+    void operator=(const NonMovableClass& other) { m_val = other.m_val; }
 
     int m_val = 0;
     int* m_pVal = nullptr;
@@ -673,7 +670,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
     // this tests whether the static array is reused properly (not the case anymore with new implementation that derives from ezDynamicArray)
     a.SetCount(15);
     a.Compact();
-    //EZ_TEST_BOOL(a.GetHeapMemoryUsage() == 0);
+    // EZ_TEST_BOOL(a.GetHeapMemoryUsage() == 0);
     EZ_TEST_BOOL(a.GetHeapMemoryUsage() > 0);
 
     for (ezInt32 i = 0; i < 15; ++i)

@@ -36,8 +36,7 @@ EZ_CREATE_SIMPLE_TEST(IO, MemoryMappedFile)
   {
     ezMemoryMappedFile memFile;
 
-    if (EZ_TEST_BOOL_MSG(memFile.Open(sOutputFile, ezMemoryMappedFile::Mode::ReadWrite).Succeeded(), "Memory mapping a file failed")
-          .Failed())
+    if (EZ_TEST_BOOL_MSG(memFile.Open(sOutputFile, ezMemoryMappedFile::Mode::ReadWrite).Succeeded(), "Memory mapping a file failed").Failed())
       return;
 
     EZ_TEST_BOOL(memFile.GetWritePointer() != nullptr);
@@ -56,8 +55,7 @@ EZ_CREATE_SIMPLE_TEST(IO, MemoryMappedFile)
   {
     ezMemoryMappedFile memFile;
 
-    if (EZ_TEST_BOOL_MSG(memFile.Open(sOutputFile, ezMemoryMappedFile::Mode::ReadOnly).Succeeded(), "Memory mapping a file failed")
-          .Failed())
+    if (EZ_TEST_BOOL_MSG(memFile.Open(sOutputFile, ezMemoryMappedFile::Mode::ReadOnly).Succeeded(), "Memory mapping a file failed").Failed())
       return;
 
     EZ_TEST_BOOL(memFile.GetReadPointer() != nullptr);

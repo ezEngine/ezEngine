@@ -43,7 +43,8 @@ public:
   /// \brief Removes all stream processors from the group.
   void ClearProcessors();
 
-  /// \brief Adds a stream with the given name to the stream group. Adding a stream two times with the same name will return nullptr for the second attempt to signal an error.
+  /// \brief Adds a stream with the given name to the stream group. Adding a stream two times with the same name will return nullptr for the second
+  /// attempt to signal an error.
   ezProcessingStream* AddStream(const char* szName, ezProcessingStream::DataType Type);
 
   /// \brief Removes the stream with the given name, if it exists.
@@ -55,32 +56,25 @@ public:
   /// \brief Resizes all streams to contain storage for uiNumElements. Any pending remove and spawn operations will be reset!
   void SetSize(ezUInt64 uiNumElements);
 
-  /// \brief Removes an element (e.g. due to the death of a particle etc.), this will be enqueued (and thus is safe to be called from within data processors).
+  /// \brief Removes an element (e.g. due to the death of a particle etc.), this will be enqueued (and thus is safe to be called from within data
+  /// processors).
   void RemoveElement(ezUInt64 uiElementIndex);
 
-  /// \brief Spawns a number of new elements, they will be added as newly initialized stream elements. Safe to call from data processors since the spawning will be queued.
+  /// \brief Spawns a number of new elements, they will be added as newly initialized stream elements. Safe to call from data processors since the
+  /// spawning will be queued.
   void InitializeElements(ezUInt64 uiNumElements);
 
   /// \brief Runs the stream processors which have been added to the stream group.
   void Process();
 
   /// \brief Returns the number of elements the streams store.
-  inline ezUInt64 GetNumElements() const
-  {
-    return m_uiNumElements;
-  }
+  inline ezUInt64 GetNumElements() const { return m_uiNumElements; }
 
   /// \brief Returns the number of currently active elements.
-  inline ezUInt64 GetNumActiveElements() const
-  {
-    return m_uiNumActiveElements;
-  }
+  inline ezUInt64 GetNumActiveElements() const { return m_uiNumActiveElements; }
 
   /// \brief Returns the highest number of active elements since the last SetSize() call.
-  inline ezUInt64 GetHighestNumActiveElements() const
-  {
-    return m_uiHighestNumActiveElements;
-  }
+  inline ezUInt64 GetHighestNumActiveElements() const { return m_uiHighestNumActiveElements; }
 
   /// \brief Subscribe to this event to be informed when (shortly before) items are deleted.
   ezEvent<const ezStreamGroupElementRemovedEvent&> m_ElementRemovedEvent;
@@ -111,4 +105,3 @@ private:
 
   bool m_bStreamAssignmentDirty;
 };
-

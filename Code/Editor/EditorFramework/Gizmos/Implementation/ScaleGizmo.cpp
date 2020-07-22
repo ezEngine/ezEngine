@@ -200,7 +200,8 @@ ezEditorInput ezScaleGizmo::DoMouseMoveEvent(QMouseEvent* e)
   if (!e->modifiers().testFlag(Qt::AltModifier))
     ezSnapProvider::SnapScale(m_vScalingResult);
 
-  GetOwnerWindow()->SetPermanentStatusBarMsg(ezFmt("Scale: {}, {}, {}", ezArgF(m_vScalingResult.x, 2), ezArgF(m_vScalingResult.y, 2), ezArgF(m_vScalingResult.z, 2)));
+  GetOwnerWindow()->SetPermanentStatusBarMsg(
+    ezFmt("Scale: {}, {}, {}", ezArgF(m_vScalingResult.x, 2), ezArgF(m_vScalingResult.y, 2), ezArgF(m_vScalingResult.z, 2)));
 
   ezGizmoEvent ev;
   ev.m_pGizmo = this;

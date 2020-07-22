@@ -12,7 +12,5 @@ public:
   ~ezSkyRenderPass();
 
 protected:
-
   virtual void RenderObjects(const ezRenderViewContext& renderViewContext) override;
 };
-

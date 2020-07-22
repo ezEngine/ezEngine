@@ -20,8 +20,7 @@ void ezObjectAccessorBase::CancelTemporaryCommands() {}
 void ezObjectAccessorBase::FinishTemporaryCommands() {}
 
 
-ezStatus ezObjectAccessorBase::GetValue(const ezDocumentObject* pObject, const char* szProp, ezVariant& out_value,
-                                        ezVariant index /*= ezVariant()*/)
+ezStatus ezObjectAccessorBase::GetValue(const ezDocumentObject* pObject, const char* szProp, ezVariant& out_value, ezVariant index /*= ezVariant()*/)
 {
   const ezAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(szProp);
   if (!pProp)
@@ -30,8 +29,8 @@ ezStatus ezObjectAccessorBase::GetValue(const ezDocumentObject* pObject, const c
 }
 
 
-ezStatus ezObjectAccessorBase::SetValue(const ezDocumentObject* pObject, const char* szProp, const ezVariant& newValue,
-                                        ezVariant index /*= ezVariant()*/)
+ezStatus ezObjectAccessorBase::SetValue(
+  const ezDocumentObject* pObject, const char* szProp, const ezVariant& newValue, ezVariant index /*= ezVariant()*/)
 {
   const ezAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(szProp);
   if (!pProp)
@@ -40,8 +39,8 @@ ezStatus ezObjectAccessorBase::SetValue(const ezDocumentObject* pObject, const c
 }
 
 
-ezStatus ezObjectAccessorBase::InsertValue(const ezDocumentObject* pObject, const char* szProp, const ezVariant& newValue,
-                                           ezVariant index /*= ezVariant()*/)
+ezStatus ezObjectAccessorBase::InsertValue(
+  const ezDocumentObject* pObject, const char* szProp, const ezVariant& newValue, ezVariant index /*= ezVariant()*/)
 {
   const ezAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(szProp);
   if (!pProp)
@@ -59,8 +58,7 @@ ezStatus ezObjectAccessorBase::RemoveValue(const ezDocumentObject* pObject, cons
 }
 
 
-ezStatus ezObjectAccessorBase::MoveValue(const ezDocumentObject* pObject, const char* szProp, const ezVariant& oldIndex,
-                                         const ezVariant& newIndex)
+ezStatus ezObjectAccessorBase::MoveValue(const ezDocumentObject* pObject, const char* szProp, const ezVariant& oldIndex, const ezVariant& newIndex)
 {
   const ezAbstractProperty* pProp = pObject->GetType()->FindPropertyByName(szProp);
   if (!pProp)
@@ -78,8 +76,8 @@ ezStatus ezObjectAccessorBase::GetCount(const ezDocumentObject* pObject, const c
 }
 
 
-ezStatus ezObjectAccessorBase::AddObject(const ezDocumentObject* pParent, const char* szParentProp, const ezVariant& index,
-                                         const ezRTTI* pType, ezUuid& inout_objectGuid)
+ezStatus ezObjectAccessorBase::AddObject(
+  const ezDocumentObject* pParent, const char* szParentProp, const ezVariant& index, const ezRTTI* pType, ezUuid& inout_objectGuid)
 {
   const ezAbstractProperty* pProp = pParent->GetType()->FindPropertyByName(szParentProp);
   if (!pProp)
@@ -87,8 +85,8 @@ ezStatus ezObjectAccessorBase::AddObject(const ezDocumentObject* pParent, const 
   return AddObject(pParent, pProp, index, pType, inout_objectGuid);
 }
 
-ezStatus ezObjectAccessorBase::MoveObject(const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const char* szParentProp,
-                                          const ezVariant& index)
+ezStatus ezObjectAccessorBase::MoveObject(
+  const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const char* szParentProp, const ezVariant& index)
 {
   const ezAbstractProperty* pProp = pNewParent->GetType()->FindPropertyByName(szParentProp);
   if (!pProp)
@@ -115,7 +113,7 @@ ezStatus ezObjectAccessorBase::GetValues(const ezDocumentObject* pObject, const 
 }
 
 ezObjectAccessorBase::ezObjectAccessorBase(const ezDocumentObjectManager* pManager)
-    : m_pConstManager(pManager)
+  : m_pConstManager(pManager)
 {
 }
 

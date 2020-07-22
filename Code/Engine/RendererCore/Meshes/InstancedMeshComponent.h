@@ -46,8 +46,7 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_RENDERERCORE_DLL ezInstancedMeshComponentManager
-  : public ezComponentManager<class ezInstancedMeshComponent, ezBlockStorageType::Compact>
+class EZ_RENDERERCORE_DLL ezInstancedMeshComponentManager : public ezComponentManager<class ezInstancedMeshComponent, ezBlockStorageType::Compact>
 {
 public:
   typedef ezComponentManager<ezInstancedMeshComponent, ezBlockStorageType::Compact> SUPER;

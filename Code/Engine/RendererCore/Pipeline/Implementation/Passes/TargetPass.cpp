@@ -26,7 +26,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezTargetPass::ezTargetPass(const char* szName)
-    : ezRenderPipelinePass(szName, true)
+  : ezRenderPipelinePass(szName, true)
 {
 }
 
@@ -64,11 +64,19 @@ ezGALTextureHandle ezTargetPass::GetTextureHandle(const ezView& view, const ezNo
   return ezGALTextureHandle();
 }
 
-bool ezTargetPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
-                                               ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezTargetPass::GetRenderTargetDescriptions(
+  const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   const char* pinNames[] = {
-      "Color0", "Color1", "Color2", "Color3", "Color4", "Color5", "Color6", "Color7", "DepthStencil",
+    "Color0",
+    "Color1",
+    "Color2",
+    "Color3",
+    "Color4",
+    "Color5",
+    "Color6",
+    "Color7",
+    "DepthStencil",
   };
 
   for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(pinNames); ++i)
@@ -81,7 +89,7 @@ bool ezTargetPass::GetRenderTargetDescriptions(const ezView& view, const ezArray
 }
 
 void ezTargetPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-                           const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
 }
 
@@ -107,4 +115,3 @@ bool ezTargetPass::VerifyInput(const ezView& view, const ezArrayPtr<ezGALTexture
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_TargetPass);
-

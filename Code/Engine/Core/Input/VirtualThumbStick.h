@@ -74,7 +74,7 @@ public:
   /// \param center
   ///   \sa CenterMode.
   void SetInputArea(const ezVec2& vLowerLeft, const ezVec2& vUpperRight, float fThumbstickRadius, float fPriority,
-                    CenterMode::Enum center = CenterMode::ActivationPoint);
+    CenterMode::Enum center = CenterMode::ActivationPoint);
 
   /// \brief Returns the input area of the virtual thumb-stick.
   void GetInputArea(ezVec2& out_vLowerLeft, ezVec2& out_vUpperRight);
@@ -90,7 +90,7 @@ public:
   /// If \a Output is 'Custom' the remaining parameters define which input slots the thumb-stick triggers for which direction.
   /// Otherwise the remaining parameters are ignored.
   void SetThumbstickOutput(Output::Enum Output, const char* szOutputLeft = nullptr, const char* szOutputRight = nullptr,
-                           const char* szOutputUp = nullptr, const char* szOutputDown = nullptr);
+    const char* szOutputUp = nullptr, const char* szOutputDown = nullptr);
 
   /// \brief Specifies what happens when the input slots that trigger the thumb-stick are active while entering or leaving the input area.
   void SetAreaFocusMode(ezInputActionConfig::OnEnterArea OnEnter, ezInputActionConfig::OnLeaveArea OnLeave);
@@ -131,4 +131,3 @@ private:
   virtual void UpdateInputSlotValues() override;
   virtual void RegisterInputSlots() override;
 };
-

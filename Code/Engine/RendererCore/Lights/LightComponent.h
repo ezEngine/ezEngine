@@ -62,7 +62,6 @@ public:
   static float CalculateScreenSpaceSize(const ezBoundingSphere& sphere, const ezCamera& camera);
 
 protected:
-
   ezColorGammaUB m_LightColor = ezColor::White;
   float m_fIntensity = 10.0f;
   float m_fPenumbraSize = 0.1f;

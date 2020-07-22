@@ -57,4 +57,3 @@ ezResult ezSimpleTestGroup::DeInitializeSubTest(ezInt32 iIdentifier)
 
 
 EZ_STATICLINK_FILE(TestFramework, TestFramework_Framework_SimpleTest);
-

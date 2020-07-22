@@ -74,8 +74,7 @@ void ezSpriteRenderer::RenderBatch(
   renderViewContext.m_pRenderContext->BindBuffer("spriteData", pDevice->GetDefaultResourceView(hSpriteData));
   renderViewContext.m_pRenderContext->BindTexture2D("SpriteTexture", pRenderData->m_hTexture);
 
-  renderViewContext.m_pRenderContext->SetShaderPermutationVariable(
-    "BLEND_MODE", ezSpriteBlendMode::GetPermutationValue(pRenderData->m_BlendMode));
+  renderViewContext.m_pRenderContext->SetShaderPermutationVariable("BLEND_MODE", ezSpriteBlendMode::GetPermutationValue(pRenderData->m_BlendMode));
 
   ezUInt32 uiStartIndex = 0;
   while (uiStartIndex < batch.GetCount())

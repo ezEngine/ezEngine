@@ -16,10 +16,7 @@
 class ezAssetProfilesObjectManager : public ezDocumentObjectManager
 {
 public:
-  virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const override
-  {
-    Types.PushBack(ezGetStaticRTTI<ezPlatformProfile>());
-  }
+  virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const override { Types.PushBack(ezGetStaticRTTI<ezPlatformProfile>()); }
 };
 
 class ezAssetProfilesDocument : public ezDocument
@@ -190,8 +187,7 @@ void ezQtAssetProfilesDlg::SelectionEventHandler(const ezSelectionManagerEvent& 
 {
   const auto& selection = m_pDocument->GetSelectionManager()->GetSelection();
 
-  const bool bAllowModification =
-    !selection.IsEmpty() && (selection[0] != m_pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
+  const bool bAllowModification = !selection.IsEmpty() && (selection[0] != m_pDocument->GetObjectManager()->GetRootObject()->GetChildren()[0]);
 
   DeleteButton->setEnabled(bAllowModification);
   RenameButton->setEnabled(bAllowModification);

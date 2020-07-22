@@ -11,8 +11,8 @@ class ezInstancedMeshComponent;
 struct EZ_RENDERERCORE_DLL ezInstanceData
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezInstanceData);
-public:
 
+public:
   ezInstanceData(ezUInt32 uiMaxInstanceCount = 1024);
   ~ezInstanceData();
 
@@ -46,9 +46,7 @@ public:
   ~ezInstanceDataProvider();
 
 private:
-
   virtual void* UpdateData(const ezRenderViewContext& renderViewContext, const ezExtractedRenderData& extractedData) override;
 
   ezInstanceData m_Data;
 };
-

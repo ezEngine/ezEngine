@@ -15,8 +15,8 @@ ezActionDescriptorHandle ezPhysXActions::s_hProjectSettings;
 void ezPhysXActions::RegisterActions()
 {
   s_hCategoryPhysX = EZ_REGISTER_CATEGORY("PhysX");
-  s_hProjectSettings = EZ_REGISTER_ACTION_1("PhysX.Settings.Project", ezActionScope::Document, "PhysX", "", ezPhysXAction,
-                                            ezPhysXAction::ActionType::ProjectSettings);
+  s_hProjectSettings =
+    EZ_REGISTER_ACTION_1("PhysX.Settings.Project", ezActionScope::Document, "PhysX", "", ezPhysXAction, ezPhysXAction::ActionType::ProjectSettings);
 }
 
 void ezPhysXActions::UnregisterActions()

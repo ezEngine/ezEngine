@@ -50,4 +50,3 @@ private:
   mutable ezDynamicArray<ControlPoint> m_ControlPoints;
   ezHybridArray<ezHashedString, 4> m_Events;
 };
-

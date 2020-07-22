@@ -48,7 +48,8 @@ void ezSurfaceAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManag
   }
 }
 
-void ezSurfaceAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezSurfaceAssetDocumentManager::InternalCreateDocument(
+  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezSurfaceAssetDocument(szPath);
 }

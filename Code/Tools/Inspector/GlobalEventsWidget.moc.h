@@ -1,10 +1,10 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Inspector/ui_GlobalEventsWidget.h>
+#include <Foundation/Communication/GlobalEvent.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
-#include <Foundation/Communication/GlobalEvent.h>
+#include <Inspector/ui_GlobalEventsWidget.h>
 #include <ads/DockWidget.h>
 
 class ezQtGlobalEventsWidget : public ads::CDockWidget, public Ui_GlobalEventsWidget
@@ -43,7 +43,4 @@ private:
   };
 
   ezMap<ezString, GlobalEventsData> m_Events;
-
 };
-
-

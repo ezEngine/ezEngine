@@ -1,8 +1,8 @@
-#pragma once 
+#pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
-#include <EditorFramework/Manipulators/ManipulatorAdapter.h>
 #include <EditorFramework/Gizmos/ConeAngleGizmo.h>
+#include <EditorFramework/Manipulators/ManipulatorAdapter.h>
 
 struct ezGizmoEvent;
 

@@ -4,8 +4,4 @@ EZ_STATICLINK_LIBRARY(EditorPluginUltralight)
 {
   if (bReturn)
     return;
-
 }
-
-
-

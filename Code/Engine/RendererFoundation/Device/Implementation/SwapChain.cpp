@@ -4,7 +4,7 @@
 #include <RendererFoundation/Device/SwapChain.h>
 
 ezGALSwapChain::ezGALSwapChain(const ezGALSwapChainCreationDescription& Description)
-    : ezGALObject(Description)
+  : ezGALObject(Description)
 {
 }
 
@@ -24,4 +24,3 @@ ezResult ezGALSwapChain::DeInitPlatform(ezGALDevice* pDevice)
 
 
 EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Device_Implementation_SwapChain);
-

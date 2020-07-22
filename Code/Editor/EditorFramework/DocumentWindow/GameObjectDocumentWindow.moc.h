@@ -1,6 +1,6 @@
 #pragma once
-#include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
 
 class ezGameObjectDocument;
 class ezWorldSettingsMsgToEngine;
@@ -32,5 +32,3 @@ private:
 
   void HandleFocusOnSelection(const ezQuerySelectionBBoxResultMsgToEditor* pMsg, ezQtGameObjectViewWidget* pSceneView);
 };
-
-

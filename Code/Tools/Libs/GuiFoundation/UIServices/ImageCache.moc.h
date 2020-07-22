@@ -1,17 +1,17 @@
 #pragma once
 
-#include <GuiFoundation/GuiFoundationDLL.h>
+#include <Foundation/Communication/Event.h>
+#include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/Set.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Threading/Mutex.h>
-#include <Foundation/Communication/Event.h>
 #include <Foundation/Time/Time.h>
-#include <QString>
-#include <QPixmap>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <QAbstractItemModel>
-#include <Foundation/Configuration/Singleton.h>
+#include <QPixmap>
+#include <QString>
 
 /// \brief A singleton class that caches Qt images that are typically used for thumbnails.
 ///
@@ -33,17 +33,22 @@ public:
   ///
   /// If the image is not cached, a temporary image is returned and it is queued for loading.
   /// Once it is finished loading, the ImageLoaded() signal is emitted and \a index, \a UserData1 and \a UserData2 are passed through.
-  /// Additionally an ImageID may be returned through \a out_pImageID. This can be used to identify an image when it is invalidated through the ImageInvalidated() signal.
-  const QPixmap* QueryPixmap(const char* szAbsolutePath, QModelIndex index = QModelIndex(), QVariant UserData1 = QVariant(), QVariant UserData2 = QVariant(), ezUInt32* out_pImageID = nullptr);
+  /// Additionally an ImageID may be returned through \a out_pImageID. This can be used to identify an image when it is invalidated through the
+  /// ImageInvalidated() signal.
+  const QPixmap* QueryPixmap(const char* szAbsolutePath, QModelIndex index = QModelIndex(), QVariant UserData1 = QVariant(),
+    QVariant UserData2 = QVariant(), ezUInt32* out_pImageID = nullptr);
 
-  /// \brief Same as QueryPixmap(), but first \a szType is used to call QueryTypeImage() and check whether a type specific image was registerd. If yes, that is used instead of szAbsolutePath.
-  const QPixmap* QueryPixmapForType(const char* szType, const char* szAbsolutePath, QModelIndex index = QModelIndex(), QVariant UserData1 = QVariant(), QVariant UserData2 = QVariant(), ezUInt32* out_pImageID = nullptr);
+  /// \brief Same as QueryPixmap(), but first \a szType is used to call QueryTypeImage() and check whether a type specific image was registerd. If
+  /// yes, that is used instead of szAbsolutePath.
+  const QPixmap* QueryPixmapForType(const char* szType, const char* szAbsolutePath, QModelIndex index = QModelIndex(),
+    QVariant UserData1 = QVariant(), QVariant UserData2 = QVariant(), ezUInt32* out_pImageID = nullptr);
 
-  /// \brief Invalidate the cached image with the given path. This is typically done when a thumbnail was just written to disk, to inform this system to reload the latest image from disk.
+  /// \brief Invalidate the cached image with the given path. This is typically done when a thumbnail was just written to disk, to inform this system
+  /// to reload the latest image from disk.
   void InvalidateCache(const char* szAbsolutePath);
 
   /// \brief When this threshold is reached, images that haven't been requested in a while are being evicted from the cache.
-  void SetMemoryUsageThreshold(ezUInt64 uiMemoryThreshold) { m_iMemoryUsageThreshold = (ezInt64) uiMemoryThreshold; }
+  void SetMemoryUsageThreshold(ezUInt64 uiMemoryThreshold) { m_iMemoryUsageThreshold = (ezInt64)uiMemoryThreshold; }
 
   /// \brief Called whenever the application should stop or pause further image loading, e.g. before shutdown or during project loading.
   void StopRequestProcessing(bool bPurgeExistingCache);
@@ -75,7 +80,7 @@ private:
     QVariant m_UserData1;
     QVariant m_UserData2;
 
-    bool operator< (const Request& rhs) const
+    bool operator<(const Request& rhs) const
     {
       if (m_sPath < rhs.m_sPath)
         return true;
@@ -115,15 +120,9 @@ private:
     ezTime m_LastAccess;
     ezUInt32 m_uiImageID;
 
-    CacheEntry()
-    {
-      m_uiImageID = 0xFFFFFFFF;
-    }
+    CacheEntry() { m_uiImageID = 0xFFFFFFFF; }
   };
 
   ezMap<QString, CacheEntry> m_ImageCache;
   ezMap<QString, QPixmap> m_TypeIamges;
 };
-
-
-

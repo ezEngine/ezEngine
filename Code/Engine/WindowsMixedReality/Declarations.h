@@ -21,8 +21,8 @@ namespace ABI
 
         struct IHolographicCamera;
         struct IHolographicFrame;
-      }
-    }
+      } // namespace Holographic
+    }   // namespace Graphics
 
     namespace Perception
     {
@@ -35,10 +35,10 @@ namespace ABI
         struct ISpatialLocator;
         struct ISpatialAnchor;
         struct ISpatialAnchorStore;
-      }
-    }
-  }
-}
+      } // namespace Spatial
+    }   // namespace Perception
+  }     // namespace Windows
+} // namespace ABI
 
 using namespace ABI::Windows::Foundation;
 

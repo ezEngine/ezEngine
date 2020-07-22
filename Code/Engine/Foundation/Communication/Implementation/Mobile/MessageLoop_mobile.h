@@ -2,8 +2,8 @@
 
 #if EZ_DISABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
-#include <Foundation/Basics.h>
-#include <Foundation/Communication/Implementation/MessageLoop.h>
+#  include <Foundation/Basics.h>
+#  include <Foundation/Communication/Implementation/MessageLoop.h>
 
 class EZ_FOUNDATION_DLL ezMessageLoop_mobile : public ezMessageLoop
 {
@@ -19,4 +19,3 @@ private:
 };
 
 #endif
-

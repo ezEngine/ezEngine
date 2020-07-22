@@ -17,4 +17,3 @@ protected:
 
   ezMaterialContext* m_pMaterialContext;
 };
-

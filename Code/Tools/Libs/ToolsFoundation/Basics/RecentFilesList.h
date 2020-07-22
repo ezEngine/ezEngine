@@ -1,6 +1,6 @@
-#include <ToolsFoundation/ToolsFoundationDLL.h>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Strings/String.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 
 /// \brief Maintains a list of recently used files and the container window ID they previously resided in.
 class EZ_TOOLSFOUNDATION_DLL ezRecentFilesList
@@ -11,8 +11,15 @@ public:
   /// \brief Struct that defines the file and container window of the recent file list.
   struct RecentFile
   {
-    RecentFile() : m_iContainerWindow(0) {}
-    RecentFile(ezStringView sFile, ezInt32 iContainerWindow) : m_File(sFile), m_iContainerWindow(iContainerWindow) {}
+    RecentFile()
+      : m_iContainerWindow(0)
+    {
+    }
+    RecentFile(ezStringView sFile, ezInt32 iContainerWindow)
+      : m_File(sFile)
+      , m_iContainerWindow(iContainerWindow)
+    {
+    }
 
     ezString m_File;
     ezInt32 m_iContainerWindow;

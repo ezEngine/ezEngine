@@ -339,17 +339,15 @@ void ezQtMemoryWidget::UpdateStats()
     FormatSize(s, "Min: ", uiMinUsedMemory);
     LabelMinMemory->setText(QString::fromUtf8(s.GetData()));
 
-    s.Format("<p>Recent Minimum Memory Usage:<br>{0} GB<br>{1} MB<br>{2} KB<br>{3} Byte</p>",
-      ezArgF(uiMinUsedMemory / 1024.0 / 1024.0 / 1024.0, 2), ezArgF(uiMinUsedMemory / 1024.0 / 1024.0, 2),
-      ezArgF(uiMinUsedMemory / 1024.0, 2), uiMinUsedMemory);
+    s.Format("<p>Recent Minimum Memory Usage:<br>{0} GB<br>{1} MB<br>{2} KB<br>{3} Byte</p>", ezArgF(uiMinUsedMemory / 1024.0 / 1024.0 / 1024.0, 2),
+      ezArgF(uiMinUsedMemory / 1024.0 / 1024.0, 2), ezArgF(uiMinUsedMemory / 1024.0, 2), uiMinUsedMemory);
     LabelMinMemory->setToolTip(QString::fromUtf8(s.GetData()));
 
     FormatSize(s, "Max: ", uiMaxUsedMemory);
     LabelMaxMemory->setText(QString::fromUtf8(s.GetData()));
 
-    s.Format("<p>Recent Maximum Memory Usage:<br>{0} GB<br>{1} MB<br>{2} KB<br>{3} Byte</p>",
-      ezArgF(uiMaxUsedMemory / 1024.0 / 1024.0 / 1024.0, 2), ezArgF(uiMaxUsedMemory / 1024.0 / 1024.0, 2),
-      ezArgF(uiMaxUsedMemory / 1024.0, 2), uiMaxUsedMemory);
+    s.Format("<p>Recent Maximum Memory Usage:<br>{0} GB<br>{1} MB<br>{2} KB<br>{3} Byte</p>", ezArgF(uiMaxUsedMemory / 1024.0 / 1024.0 / 1024.0, 2),
+      ezArgF(uiMaxUsedMemory / 1024.0 / 1024.0, 2), ezArgF(uiMaxUsedMemory / 1024.0, 2), uiMaxUsedMemory);
     LabelMaxMemory->setToolTip(QString::fromUtf8(s.GetData()));
 
     const ezUInt64 uiCurUsedMemory = uiUsedMemory;
@@ -357,9 +355,8 @@ void ezQtMemoryWidget::UpdateStats()
     FormatSize(s, "Sum: ", uiCurUsedMemory);
     LabelCurMemory->setText(QString::fromUtf8(s.GetData()));
 
-    s.Format("<p>Current Memory Usage:<br>{0} GB<br>{1} MB<br>{2} KB<br>{3} Byte</p>",
-      ezArgF(uiCurUsedMemory / 1024.0 / 1024.0 / 1024.0, 2), ezArgF(uiCurUsedMemory / 1024.0 / 1024.0, 2),
-      ezArgF(uiCurUsedMemory / 1024.0, 2), uiCurUsedMemory);
+    s.Format("<p>Current Memory Usage:<br>{0} GB<br>{1} MB<br>{2} KB<br>{3} Byte</p>", ezArgF(uiCurUsedMemory / 1024.0 / 1024.0 / 1024.0, 2),
+      ezArgF(uiCurUsedMemory / 1024.0 / 1024.0, 2), ezArgF(uiCurUsedMemory / 1024.0, 2), uiCurUsedMemory);
     LabelCurMemory->setToolTip(QString::fromUtf8(s.GetData()));
 
     s.Format("Allocs: {0}", uiLiveAllocs);
@@ -470,15 +467,14 @@ void ezQtMemoryWidget::on_ListAllocators_itemChanged(QTreeWidgetItem* item)
 
 void ezQtMemoryWidget::on_ComboTimeframe_currentIndexChanged(int index)
 {
-  const ezUInt32 uiSeconds[] =
-    {
-      10,
-      30,
-      60 * 1,
-      60 * 2,
-      60 * 5,
-      60 * 10,
-    };
+  const ezUInt32 uiSeconds[] = {
+    10,
+    30,
+    60 * 1,
+    60 * 2,
+    60 * 5,
+    60 * 10,
+  };
 
   m_uiDisplaySamples = 5 * uiSeconds[index]; // 5 samples per second
 }

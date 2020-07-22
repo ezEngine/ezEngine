@@ -37,7 +37,7 @@ protected:
 
 
 private:
-  virtual void UpdateContext() override {};
+  virtual void UpdateContext() override{};
 
   void ResetCursor();
   void SetCurrentMouseMode();

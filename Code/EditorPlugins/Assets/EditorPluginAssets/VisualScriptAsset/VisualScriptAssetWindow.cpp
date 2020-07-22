@@ -88,8 +88,7 @@ ezQtVisualScriptAssetDocumentWindow::ezQtVisualScriptAssetDocumentWindow(ezDocum
   static_cast<ezVisualScriptAssetDocument*>(pDocument)->m_InterDocumentMessages.AddEventHandler(
     ezMakeDelegate(&ezQtVisualScriptAssetScene::VisualScriptInterDocumentMessageHandler, m_pScene));
 
-  GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(
-    ezMakeDelegate(&ezQtVisualScriptAssetDocumentWindow::SelectionEventHandler, this));
+  GetDocument()->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtVisualScriptAssetDocumentWindow::SelectionEventHandler, this));
 
   if (pOpenContext != nullptr)
   {

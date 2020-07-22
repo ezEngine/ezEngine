@@ -1,7 +1,7 @@
 #pragma once
 
-#include <EditorFramework/InputContexts/EditorInputContext.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
+#include <EditorFramework/InputContexts/EditorInputContext.h>
 
 class QWidget;
 class ezCamera;
@@ -13,10 +13,7 @@ class EZ_EDITORFRAMEWORK_DLL ezSelectionContext : public ezEditorInputContext
 public:
   ezSelectionContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView, const ezCamera* pCamera);
 
-  void SetWindowConfig(const ezVec2I32& viewport)
-  {
-    m_Viewport = viewport;
-  }
+  void SetWindowConfig(const ezVec2I32& viewport) { m_Viewport = viewport; }
 
   void SetPickObjectOverride(ezDelegate<void(const ezDocumentObject*)> pickOverride);
   void ResetPickObjectOverride();
@@ -57,4 +54,3 @@ private:
 
   Mode m_Mode = Mode::None;
 };
-

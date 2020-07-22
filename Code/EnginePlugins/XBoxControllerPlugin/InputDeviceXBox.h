@@ -1,7 +1,7 @@
 #pragma once
 
-#include <XBoxControllerPlugin/XBoxControllerDLL.h>
 #include <Core/Input/DeviceTypes/Controller.h>
+#include <XBoxControllerPlugin/XBoxControllerDLL.h>
 
 /// \brief An implementation of ezInputDeviceController that handles XBox 360 controllers.
 ///
@@ -27,7 +27,7 @@ private:
 
   bool m_bControllerConnected[4];
 
-  virtual void InitializeDevice() override { }
+  virtual void InitializeDevice() override {}
   virtual void UpdateInputSlotValues() override;
   virtual void RegisterInputSlots() override;
   virtual void UpdateHardwareState(ezTime tTimeDifference) override;
@@ -37,4 +37,3 @@ private:
   static void RegisterControllerButton(const char* szButton, const char* szName, ezBitflags<ezInputSlotFlags> SlotFlags);
   static void SetDeadZone(const char* szButton);
 };
-

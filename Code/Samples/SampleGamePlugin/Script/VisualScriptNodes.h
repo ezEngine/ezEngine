@@ -6,6 +6,7 @@
 class EZ_SAMPLEGAMEPLUGIN_DLL ezVisualScriptNode_SampleNode : public ezVisualScriptNode
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_SampleNode, ezVisualScriptNode);
+
 public:
   ezVisualScriptNode_SampleNode();
 
@@ -15,4 +16,3 @@ public:
   ezString m_sPrint;
   double m_Value = 0;
 };
-

@@ -82,7 +82,8 @@ ezUInt32 ezParallelForParams::DetermineItemsPerInvocation(ezUInt32 uiNumTaskItem
   return uiItemsPerInvocation;
 }
 
-void ezTaskSystem::ParallelForIndexed(ezUInt32 uiStartIndex, ezUInt32 uiNumItems, ezParallelForIndexedFunction taskCallback, const char* taskName, const ezParallelForParams& params)
+void ezTaskSystem::ParallelForIndexed(
+  ezUInt32 uiStartIndex, ezUInt32 uiNumItems, ezParallelForIndexedFunction taskCallback, const char* taskName, const ezParallelForParams& params)
 {
   const ezUInt32 uiMultiplicity = params.DetermineMultiplicity(uiNumItems);
   const ezUInt32 uiItemsPerInvocation = params.DetermineItemsPerInvocation(uiNumItems, uiMultiplicity);

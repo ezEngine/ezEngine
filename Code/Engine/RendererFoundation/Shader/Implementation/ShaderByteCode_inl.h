@@ -17,4 +17,3 @@ bool ezGALShaderByteCode::IsValid() const
 {
   return !m_Source.IsEmpty();
 }
-

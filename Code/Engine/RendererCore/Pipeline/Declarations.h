@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Foundation/Reflection/Reflection.h>
 #include <Core/World/Declarations.h>
+#include <Foundation/Reflection/Reflection.h>
 #include <RendererCore/RendererCoreDLL.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 
@@ -36,7 +36,7 @@ namespace ezInternal
     ezUInt16 m_uiComponentIndex : 15;
     ezUInt16 m_uiCacheIfStatic : 1;
   };
-}
+} // namespace ezInternal
 
 struct ezRenderViewContext
 {
@@ -61,15 +61,9 @@ class ezViewHandle
 template <>
 struct ezHashHelper<ezViewHandle>
 {
-  EZ_ALWAYS_INLINE static ezUInt32 Hash(ezViewHandle value)
-  {
-    return value.GetInternalID().m_Data * 2654435761U;
-  }
+  EZ_ALWAYS_INLINE static ezUInt32 Hash(ezViewHandle value) { return value.GetInternalID().m_Data * 2654435761U; }
 
-  EZ_ALWAYS_INLINE static bool Equal(ezViewHandle a, ezViewHandle b)
-  {
-    return a == b;
-  }
+  EZ_ALWAYS_INLINE static bool Equal(ezViewHandle a, ezViewHandle b) { return a == b; }
 };
 
 /// \brief Usage hint of a camera/view.
@@ -95,4 +89,3 @@ struct EZ_RENDERERCORE_DLL ezCameraUsageHint
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezCameraUsageHint);
-

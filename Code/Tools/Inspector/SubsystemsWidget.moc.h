@@ -1,10 +1,10 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Inspector/ui_SubsystemsWidget.h>
+#include <Foundation/Configuration/Startup.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
-#include <Foundation/Configuration/Startup.h>
+#include <Inspector/ui_SubsystemsWidget.h>
 #include <ads/DockWidget.h>
 
 class ezQtSubsystemsWidget : public ads::CDockWidget, public Ui_SubsystemsWidget
@@ -36,5 +36,3 @@ private:
   bool m_bUpdateSubsystems;
   ezMap<ezString, SubsystemData> m_Subsystems;
 };
-
-

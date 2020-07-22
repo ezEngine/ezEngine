@@ -1,9 +1,9 @@
 #pragma once
 
-#include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <RendererCore/RenderContext/Implementation/RenderContextStructs.h>
 #include <Texture/TexConv/TexConvEnums.h>
+#include <ToolsFoundation/Object/DocumentObjectBase.h>
 
 struct ezPropertyMetaStateEvent;
 

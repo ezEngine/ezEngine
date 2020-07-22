@@ -2,14 +2,14 @@
 
 #ifdef BUILDSYSTEM_ENABLE_IMGUI_SUPPORT
 
-#include <Core/ResourceManager/ResourceHandle.h>
-#include <Foundation/Math/Rect.h>
-#include <GameEngine/GameEngineDLL.h>
-#include <Imgui/imgui.h>
-#include <RendererCore/Meshes/MeshBufferResource.h>
-#include <RendererCore/Pipeline/Extractor.h>
-#include <RendererCore/Pipeline/RenderData.h>
-#include <RendererCore/Pipeline/Renderer.h>
+#  include <Core/ResourceManager/ResourceHandle.h>
+#  include <Foundation/Math/Rect.h>
+#  include <GameEngine/GameEngineDLL.h>
+#  include <Imgui/imgui.h>
+#  include <RendererCore/Meshes/MeshBufferResource.h>
+#  include <RendererCore/Pipeline/Extractor.h>
+#  include <RendererCore/Pipeline/RenderData.h>
+#  include <RendererCore/Pipeline/Renderer.h>
 
 class ezRenderDataBatch;
 typedef ezTypedResourceHandle<class ezShaderResource> ezShaderResourceHandle;

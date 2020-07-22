@@ -6,8 +6,7 @@
 void ezLongOpManager::Startup(ezProcessCommunicationChannel* pCommunicationChannel)
 {
   m_pCommunicationChannel = pCommunicationChannel;
-  m_pCommunicationChannel->m_Events.AddEventHandler(
-    ezMakeDelegate(&ezLongOpManager::ProcessCommunicationChannelEventHandler, this), m_Unsubscriber);
+  m_pCommunicationChannel->m_Events.AddEventHandler(ezMakeDelegate(&ezLongOpManager::ProcessCommunicationChannelEventHandler, this), m_Unsubscriber);
 }
 
 void ezLongOpManager::Shutdown()

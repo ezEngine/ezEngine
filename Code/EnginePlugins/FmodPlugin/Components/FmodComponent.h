@@ -24,5 +24,6 @@ public:
   ~ezFmodComponent();
 
 private:
-  virtual void ezFmodComponentIsAbstract() = 0; // abstract classes are not shown in the UI, since this class has no other abstract functions so far, this is a dummy
+  virtual void ezFmodComponentIsAbstract() = 0; // abstract classes are not shown in the UI, since this class has no other abstract functions so far,
+                                                // this is a dummy
 };

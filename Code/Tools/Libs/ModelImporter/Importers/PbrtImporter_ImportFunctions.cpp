@@ -71,8 +71,8 @@ namespace ezModelImporter
       ezVec3 scale;
       if (PbrtParseHelper::ParseVec3(remainingSceneText, scale).Succeeded())
       {
-        context.PeekActiveTransform().SetGlobalTransform(context.PeekActiveTransform(),
-          ezTransform(ezVec3(0.0f), ezQuat::IdentityQuaternion(), scale));
+        context.PeekActiveTransform().SetGlobalTransform(
+          context.PeekActiveTransform(), ezTransform(ezVec3(0.0f), ezQuat::IdentityQuaternion(), scale));
       }
       else
         ezLog::Error("Failed parsing Scale transform command.");
@@ -83,8 +83,8 @@ namespace ezModelImporter
       float values[9];
       if (PbrtParseHelper::ParseFloats(remainingSceneText, ezMakeArrayPtr(values), 9).Succeeded())
       {
-        ezMat4 lookAt = ezGraphicsUtils::CreateLookAtViewMatrix(ezVec3(values[0], values[1], values[2]), ezVec3(values[3], values[4], values[5]),
-          ezVec3(values[6], values[7], values[8]));
+        ezMat4 lookAt = ezGraphicsUtils::CreateLookAtViewMatrix(
+          ezVec3(values[0], values[1], values[2]), ezVec3(values[3], values[4], values[5]), ezVec3(values[6], values[7], values[8]));
         ezTransform tLookAt;
         tLookAt.SetFromMat4(lookAt);
         context.PeekActiveTransform().SetGlobalTransform(context.PeekActiveTransform(), tLookAt);
@@ -343,8 +343,8 @@ namespace ezModelImporter
       }
     }
 
-    void ReadMaterialParameter(ParseContext& context, SemanticHint::Enum semantic, const char* materialParameter,
-      ezModelImporter::Material& material, ezArrayPtr<Parameter> parameters, ezVariant defaultValue)
+    void ReadMaterialParameter(ParseContext& context, SemanticHint::Enum semantic, const char* materialParameter, ezModelImporter::Material& material,
+      ezArrayPtr<Parameter> parameters, ezVariant defaultValue)
     {
       for (const Parameter& param : parameters)
       {
@@ -369,8 +369,8 @@ namespace ezModelImporter
         material.m_Properties.PushBack(Property(semantic, materialParameter, defaultValue));
     }
 
-    ezUniquePtr<ezModelImporter::Material> PareMaterialImpl(ezStringView type, ezArrayPtr<Parameter> parameters, ParseContext& context,
-      ezModelImporter::Scene& outScene)
+    ezUniquePtr<ezModelImporter::Material> PareMaterialImpl(
+      ezStringView type, ezArrayPtr<Parameter> parameters, ParseContext& context, ezModelImporter::Scene& outScene)
     {
       ezUniquePtr<ezModelImporter::Material> newMaterial = EZ_DEFAULT_NEW(ezModelImporter::Material);
 
@@ -488,7 +488,7 @@ namespace ezModelImporter
         ReadMaterialParameter(context, SemanticHint::DIFFUSE, "Kd", *newMaterial, parameters,
           0.25f); // The coefficient of diffuse reflection and transmission.
         ReadMaterialParameter(context, SemanticHint::ROUGHNESS, "Ks", *newMaterial, parameters,
-          0.25f);                                                                                          // The coefficient of specular reflection and transmission.
+          0.25f); // The coefficient of specular reflection and transmission.
         ReadMaterialParameter(context, SemanticHint::METALLIC, "reflect", *newMaterial, parameters, 0.5f); // Fraction of light reflected.
         ReadMaterialParameter(context, SemanticHint::OPACITY, "transmit", *newMaterial, parameters, 0.5f); // Fraction of light transmitted.
         ReadMaterialParameter(context, SemanticHint::ROUGHNESS, "roughness", *newMaterial, parameters,
@@ -507,8 +507,7 @@ namespace ezModelImporter
         ReadMaterialParameter(context, SemanticHint::REFRACTIONINDEX, "index", *newMaterial, parameters,
           0.1f); // Index of refraction of the surface. This value is used in both the microfacet model for specular
                  // reflection as well as for computing a Fresnel reflection term for perfect specular reflection.
-        ReadMaterialParameter(
-          context, SemanticHint::OPACITY, "opacity", *newMaterial, parameters,
+        ReadMaterialParameter(context, SemanticHint::OPACITY, "opacity", *newMaterial, parameters,
           1.0f); // The opacity of the surface.Note that when less than one, the uber material transmits light without refracting it.
       }
 
@@ -571,8 +570,7 @@ namespace ezModelImporter
       context.PushActiveMaterial(outScene.AddMaterial(std::move(newMaterial)));
     }
 
-    void MakeNamedMaterial(ezStringView type, ezArrayPtr<Pbrt::Parameter> parameters, Pbrt::ParseContext& context,
-      ezModelImporter::Scene& outScene)
+    void MakeNamedMaterial(ezStringView type, ezArrayPtr<Pbrt::Parameter> parameters, Pbrt::ParseContext& context, ezModelImporter::Scene& outScene)
     {
       // "type" is name and the first parameter is the type.
       ezString name = type;
@@ -594,8 +592,7 @@ namespace ezModelImporter
       context.AddNamedMaterial(name, outScene.AddMaterial(std::move(newMaterial)));
     }
 
-    void NamedMaterial(ezStringView type, ezArrayPtr<Pbrt::Parameter> parameters, Pbrt::ParseContext& context,
-      ezModelImporter::Scene& outScene)
+    void NamedMaterial(ezStringView type, ezArrayPtr<Pbrt::Parameter> parameters, Pbrt::ParseContext& context, ezModelImporter::Scene& outScene)
     {
       ezString materialName(type);
       if (context.MakeNamedMaterialActive(materialName).Failed())
@@ -645,8 +642,7 @@ namespace ezModelImporter
       }
     }
 
-    void ObjectBegin(ezStringView type, ezArrayPtr<Pbrt::Parameter> parameters, Pbrt::ParseContext& context,
-      ezModelImporter::Scene& outScene)
+    void ObjectBegin(ezStringView type, ezArrayPtr<Pbrt::Parameter> parameters, Pbrt::ParseContext& context, ezModelImporter::Scene& outScene)
     {
       ezString objectName(type);
       if (parameters.GetCount() != 0)
@@ -655,8 +651,7 @@ namespace ezModelImporter
       context.ObjectBegin(objectName);
     }
 
-    void ObjectInstance(ezStringView type, ezArrayPtr<Pbrt::Parameter> parameters, Pbrt::ParseContext& context,
-      ezModelImporter::Scene& outScene)
+    void ObjectInstance(ezStringView type, ezArrayPtr<Pbrt::Parameter> parameters, Pbrt::ParseContext& context, ezModelImporter::Scene& outScene)
     {
       ezString objectName(type);
       if (parameters.GetCount() != 0)

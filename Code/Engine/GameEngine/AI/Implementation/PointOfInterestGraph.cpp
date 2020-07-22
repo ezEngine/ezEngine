@@ -22,4 +22,3 @@ static void CompileDummy()
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_AI_Implementation_PointOfInterestGraph);
-

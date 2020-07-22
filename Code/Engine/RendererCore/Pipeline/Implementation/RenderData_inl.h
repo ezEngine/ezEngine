@@ -31,7 +31,7 @@ EZ_FORCE_INLINE const ezRenderer* ezRenderData::GetCategoryRenderer(Category cat
   }
 
   auto& categoryData = s_CategoryData[category.m_uiValue];
-  
+
   ezUInt32 uiIndex = 0;
   if (categoryData.m_TypeToRendererIndex.TryGetValue(pRenderDataType, uiIndex))
   {

@@ -1,9 +1,9 @@
 #pragma once
 
 #include <Foundation/Basics.h>
+#include <Foundation/Logging/Log.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/ui_LogWidget.h>
-#include <Foundation/Logging/Log.h>
 #include <QWidget>
 
 class ezQtLogModel;

@@ -66,7 +66,7 @@ class BaseHandler : public ezReflectedClass
 
 public:
   BaseHandler()
-      : m_iValue(0)
+    : m_iValue(0)
   {
   }
 

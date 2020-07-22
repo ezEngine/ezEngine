@@ -1,7 +1,7 @@
 #include <TexturePCH.h>
 
-#include <Texture/TexConv/TexConvProcessor.h>
 #include <Texture/Image/ImageUtils.h>
+#include <Texture/TexConv/TexConvProcessor.h>
 
 ezResult ezTexConvProcessor::Assemble3DTexture(ezImage& dst) const
 {
@@ -12,4 +12,3 @@ ezResult ezTexConvProcessor::Assemble3DTexture(ezImage& dst) const
 
 
 EZ_STATICLINK_FILE(Texture, Texture_TexConv_Implementation_Texture3D);
-

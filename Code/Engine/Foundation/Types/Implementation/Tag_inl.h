@@ -1,7 +1,7 @@
 #pragma once
 
 ezTag::ezTag()
-    : m_uiBlockIndex(0xFFFFFFFEu)
+  : m_uiBlockIndex(0xFFFFFFFEu)
 {
 }
 
@@ -34,4 +34,3 @@ bool ezTag::IsValid() const
 {
   return m_uiBlockIndex != 0xFFFFFFFEu;
 }
-

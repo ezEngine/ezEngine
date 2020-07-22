@@ -11,30 +11,30 @@ class ezLogInterface;
 struct EZ_FOUNDATION_DLL ezStatus
 {
   explicit ezStatus()
-      : m_Result(EZ_FAILURE)
+    : m_Result(EZ_FAILURE)
   {
   }
 
   explicit ezStatus(const char* szError)
-      : m_Result(EZ_FAILURE)
-      , m_sMessage(szError)
+    : m_Result(EZ_FAILURE)
+    , m_sMessage(szError)
   {
   }
 
   explicit ezStatus(ezResult r, ezStringView sError)
-      : m_Result(r)
-      , m_sMessage(sError)
+    : m_Result(r)
+    , m_sMessage(sError)
   {
   }
 
   explicit ezStatus(ezStringView sError)
-      : m_Result(EZ_FAILURE)
-      , m_sMessage(sError)
+    : m_Result(EZ_FAILURE)
+    , m_sMessage(sError)
   {
   }
 
   ezStatus(ezResult r)
-      : m_Result(r)
+    : m_Result(r)
   {
   }
 
@@ -52,4 +52,3 @@ inline ezResult ezToResult(const ezStatus& result)
 {
   return result.m_Result;
 }
-

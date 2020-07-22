@@ -14,13 +14,9 @@ double RtsAttackUnitAiUtility::ComputePriority(ezGameObject* pOwnerObject, ezCom
   return 100;
 }
 
-void RtsAttackUnitAiUtility::Activate(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent)
-{
-}
+void RtsAttackUnitAiUtility::Activate(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent) {}
 
-void RtsAttackUnitAiUtility::Deactivate(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent)
-{
-}
+void RtsAttackUnitAiUtility::Deactivate(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent) {}
 
 void RtsAttackUnitAiUtility::Execute(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent, ezTime tNow)
 {

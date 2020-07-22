@@ -71,8 +71,7 @@ ezVolumePosition::Enum ezFrustum::GetObjectPosition(const ezVec3* pVertices, ezU
   return ezVolumePosition::Inside;
 }
 
-static ezPositionOnPlane::Enum GetPlaneObjectPosition(
-  const ezPlane& p, const ezVec3* const vPoints, ezUInt32 iVertices, const ezMat4& mTransform)
+static ezPositionOnPlane::Enum GetPlaneObjectPosition(const ezPlane& p, const ezVec3* const vPoints, ezUInt32 iVertices, const ezMat4& mTransform)
 {
   bool bFront = false;
   bool bBack = false;
@@ -227,7 +226,7 @@ void ezFrustum::SetFrustum(const ezMat4& ModelViewProjection0, ezClipSpaceDepthR
   for (int p = 0; p < 6; ++p)
   {
     const float len = planes[p].GetAsVec3().GetLength();
-    planes[p] /= len; 
+    planes[p] /= len;
 
     m_Planes[p].m_vNormal = planes[p].GetAsVec3();
     m_Planes[p].m_fNegDistance = planes[p].w;
@@ -237,8 +236,7 @@ void ezFrustum::SetFrustum(const ezMat4& ModelViewProjection0, ezClipSpaceDepthR
 void ezFrustum::SetFrustum(
   const ezVec3& vPosition, const ezVec3& vForwards, const ezVec3& vUp, ezAngle FovX, ezAngle FovY, float fNearPlane, float fFarPlane)
 {
-  EZ_ASSERT_DEBUG(
-    ezMath::Abs(vForwards.GetNormalized().Dot(vUp.GetNormalized())) < 0.999f, "Up dir must be different from forward direction");
+  EZ_ASSERT_DEBUG(ezMath::Abs(vForwards.GetNormalized().Dot(vUp.GetNormalized())) < 0.999f, "Up dir must be different from forward direction");
 
   const ezVec3 vForwardsNorm = vForwards.GetNormalized();
   const ezVec3 vRightNorm = vForwards.CrossRH(vUp).GetNormalized();

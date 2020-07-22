@@ -30,9 +30,8 @@ ezParticleEffectInstance::~ezParticleEffectInstance()
   Destruct();
 }
 
-void ezParticleEffectInstance::Construct(ezParticleEffectHandle hEffectHandle, const ezParticleEffectResourceHandle& hResource,
-  ezWorld* pWorld, ezParticleWorldModule* pOwnerModule, ezUInt64 uiRandomSeed, bool bIsShared,
-  ezArrayPtr<ezParticleEffectFloatParam> floatParams,
+void ezParticleEffectInstance::Construct(ezParticleEffectHandle hEffectHandle, const ezParticleEffectResourceHandle& hResource, ezWorld* pWorld,
+  ezParticleWorldModule* pOwnerModule, ezUInt64 uiRandomSeed, bool bIsShared, ezArrayPtr<ezParticleEffectFloatParam> floatParams,
   ezArrayPtr<ezParticleEffectColorParam> colorParams)
 {
   m_hEffectHandle = hEffectHandle;
@@ -245,7 +244,8 @@ bool ezParticleEffectInstance::IsVisible() const
   return m_EffectIsVisible >= ezClock::GetGlobalClock()->GetAccumulatedTime();
 }
 
-void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticleEffectFloatParam> floatParams, ezArrayPtr<ezParticleEffectColorParam> colorParams)
+void ezParticleEffectInstance::Reconfigure(
+  bool bFirstTime, ezArrayPtr<ezParticleEffectFloatParam> floatParams, ezArrayPtr<ezParticleEffectColorParam> colorParams)
 {
   if (!m_hResource.IsValid())
   {
@@ -342,8 +342,7 @@ void ezParticleEffectInstance::Reconfigure(bool bFirstTime, ezArrayPtr<ezParticl
 
       const ezTime tLifetime = systems[i]->GetAvgLifetime();
 
-      const ezUInt32 uiMaxParticles =
-        ezMath::Max(32u, ezMath::Max(uiMaxParticlesAbs, (ezUInt32)(uiMaxParticlesPerSec * tLifetime.GetSeconds())));
+      const ezUInt32 uiMaxParticles = ezMath::Max(32u, ezMath::Max(uiMaxParticlesAbs, (ezUInt32)(uiMaxParticlesPerSec * tLifetime.GetSeconds())));
 
       float fMultiplier = 1.0f;
 

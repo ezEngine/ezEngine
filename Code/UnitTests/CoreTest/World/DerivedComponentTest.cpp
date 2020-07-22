@@ -40,7 +40,7 @@ namespace
 
   EZ_BEGIN_COMPONENT_TYPE(TestComponentDerived1, 1, ezComponentMode::Static)
   EZ_END_COMPONENT_TYPE
-}
+} // namespace
 
 
 EZ_CREATE_SIMPLE_TEST(World, DerivedComponents)

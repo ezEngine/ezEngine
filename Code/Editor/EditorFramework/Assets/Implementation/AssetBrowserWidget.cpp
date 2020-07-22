@@ -451,8 +451,7 @@ void ezQtAssetBrowserWidget::ClearDirectoryTree()
   m_uiKnownAssetFolderCount = 0;
 }
 
-void ezQtAssetBrowserWidget::BuildDirectoryTree(const char* szCurPath, QTreeWidgetItem* pParent, const char* szCurPathToItem,
-  bool bIsHidden)
+void ezQtAssetBrowserWidget::BuildDirectoryTree(const char* szCurPath, QTreeWidgetItem* pParent, const char* szCurPathToItem, bool bIsHidden)
 {
   if (ezStringUtils::IsNullOrEmpty(szCurPath))
     return;
@@ -525,8 +524,7 @@ void ezQtAssetBrowserWidget::on_TreeFolderFilter_customContextMenuRequested(cons
 
   if (TreeFolderFilter->currentItem())
   {
-    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder16.png")), QLatin1String("Open in Explorer"), this,
-      SLOT(OnTreeOpenExplorer()));
+    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder16.png")), QLatin1String("Open in Explorer"), this, SLOT(OnTreeOpenExplorer()));
   }
 
   {
@@ -561,8 +559,7 @@ void ezQtAssetBrowserWidget::OnTreeOpenExplorer()
   if (!TreeFolderFilter->currentItem())
     return;
 
-  ezStringBuilder sPath =
-    TreeFolderFilter->currentItem()->data(0, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().data();
+  ezStringBuilder sPath = TreeFolderFilter->currentItem()->data(0, ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().data();
 
   if (!ezQtEditorApp::GetSingleton()->MakeParentDataDirectoryRelativePathAbsolute(sPath, true))
     return;
@@ -577,18 +574,16 @@ void ezQtAssetBrowserWidget::on_ListAssets_customContextMenuRequested(const QPoi
   if (ListAssets->selectionModel()->hasSelection())
   {
     if (!m_bDialogMode)
-      m.setDefaultAction(m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document16.png")), QLatin1String("Open Document"), this,
-        SLOT(OnListOpenAssetDocument())));
+      m.setDefaultAction(m.addAction(
+        QIcon(QLatin1String(":/GuiFoundation/Icons/Document16.png")), QLatin1String("Open Document"), this, SLOT(OnListOpenAssetDocument())));
     else
       m.setDefaultAction(m.addAction(QLatin1String("Select"), this, SLOT(OnListOpenAssetDocument())));
 
-    m.addAction(QIcon(QLatin1String(":/EditorFramework/Icons/AssetNeedsTransform16.png")), QLatin1String("Transform"), this,
-      SLOT(OnTransform()));
+    m.addAction(QIcon(QLatin1String(":/EditorFramework/Icons/AssetNeedsTransform16.png")), QLatin1String("Transform"), this, SLOT(OnTransform()));
 
-    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder16.png")), QLatin1String("Open in Explorer"), this,
-      SLOT(OnListOpenExplorer()));
-    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/DocumentGuid16.png")), QLatin1String("Copy Asset Guid"), this,
-      SLOT(OnListCopyAssetGuid()));
+    m.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder16.png")), QLatin1String("Open in Explorer"), this, SLOT(OnListOpenExplorer()));
+    m.addAction(
+      QIcon(QLatin1String(":/GuiFoundation/Icons/DocumentGuid16.png")), QLatin1String("Copy Asset Guid"), this, SLOT(OnListCopyAssetGuid()));
   }
 
   auto pSortAction = m.addAction(QLatin1String("Sort by Recently Used"), this, SLOT(OnListToggleSortByRecentlyUsed()));
@@ -749,8 +744,7 @@ void ezQtAssetBrowserWidget::OnNewAsset()
     // this will take precedence
     if (useSelection && ListAssets->selectionModel()->hasSelection())
     {
-      ezString sPath =
-        m_pModel->data(ListAssets->currentIndex(), ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().data();
+      ezString sPath = m_pModel->data(ListAssets->currentIndex(), ezQtAssetBrowserModel::UserRoles::AbsolutePath).toString().toUtf8().data();
 
       if (!sPath.IsEmpty() && ezQtEditorApp::GetSingleton()->MakeDataDirectoryRelativePathAbsolute(sPath))
       {
@@ -767,8 +761,8 @@ void ezQtAssetBrowserWidget::OnNewAsset()
   sFilter.Format("{0} (*.{1})", sAssetType, sExtension);
 
   QString sSelectedFilter = sFilter.GetData();
-  ezStringBuilder sOutput = QFileDialog::getSaveFileName(QApplication::activeWindow(), title.GetData(), sStartDir, sFilter.GetData(),
-    &sSelectedFilter, QFileDialog::Option::DontResolveSymlinks)
+  ezStringBuilder sOutput = QFileDialog::getSaveFileName(
+    QApplication::activeWindow(), title.GetData(), sStartDir, sFilter.GetData(), &sSelectedFilter, QFileDialog::Option::DontResolveSymlinks)
                               .toUtf8()
                               .data();
 
@@ -776,7 +770,8 @@ void ezQtAssetBrowserWidget::OnNewAsset()
     return;
 
   ezDocument* pDoc;
-  if (pManager->CreateDocument(sAssetType, sOutput, pDoc, ezDocumentFlags::RequestWindow | ezDocumentFlags::AddToRecentFilesList).m_Result.Succeeded())
+  if (pManager->CreateDocument(sAssetType, sOutput, pDoc, ezDocumentFlags::RequestWindow | ezDocumentFlags::AddToRecentFilesList)
+        .m_Result.Succeeded())
   {
     pDoc->EnsureVisible();
   }

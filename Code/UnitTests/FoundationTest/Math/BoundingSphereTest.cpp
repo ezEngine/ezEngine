@@ -239,10 +239,10 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingSphere)
     s.SetElements(ezVec3T(0.0f), 0.0f);
 
     ezVec3T p[4] = {
-        ezVec3T(5),
-        ezVec3T(10),
-        ezVec3T(15),
-        ezVec3T(7),
+      ezVec3T(5),
+      ezVec3T(10),
+      ezVec3T(15),
+      ezVec3T(7),
     };
 
     EZ_TEST_FLOAT(s.GetDistanceTo(p, 4), ezVec3T(5).GetLength(), 0.001f);
@@ -267,10 +267,10 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingSphere)
     ezBoundingSphereT s(ezVec3T(0.0f), 6.0f);
 
     ezVec3T p[4] = {
-        ezVec3T(3),
-        ezVec3T(10),
-        ezVec3T(2),
-        ezVec3T(7),
+      ezVec3T(3),
+      ezVec3T(10),
+      ezVec3T(2),
+      ezVec3T(7),
     };
 
     EZ_TEST_BOOL(s.Contains(p, 2, sizeof(ezVec3T) * 2));
@@ -324,10 +324,10 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingSphere)
     ezBoundingSphereT s(ezVec3T(0.0f), 6.0f);
 
     ezVec3T p[4] = {
-        ezVec3T(3),
-        ezVec3T(10),
-        ezVec3T(2),
-        ezVec3T(7),
+      ezVec3T(3),
+      ezVec3T(10),
+      ezVec3T(2),
+      ezVec3T(7),
     };
 
     EZ_TEST_BOOL(s.Overlaps(p, 2, sizeof(ezVec3T) * 2));
@@ -390,8 +390,8 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingSphere)
     for (ezUInt32 i = 0; i < 10000; ++i)
     {
       const ezVec3T vDir =
-          ezVec3T(ezMath::Sin(ezAngle::Degree(i * 1.0f)), ezMath::Cos(ezAngle::Degree(i * 3.0f)), ezMath::Cos(ezAngle::Degree(i * 1.0f)))
-              .GetNormalized();
+        ezVec3T(ezMath::Sin(ezAngle::Degree(i * 1.0f)), ezMath::Cos(ezAngle::Degree(i * 3.0f)), ezMath::Cos(ezAngle::Degree(i * 1.0f)))
+          .GetNormalized();
       const ezVec3T vTarget = vDir * s.m_fRadius + s.m_vCenter;
       const ezVec3T vSource = vTarget + vDir * (ezMathTestType)5;
 
@@ -418,8 +418,8 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingSphere)
     for (ezUInt32 i = 0; i < 10000; ++i)
     {
       const ezVec3T vDir = ezVec3T(ezMath::Sin(ezAngle::Degree(i * (ezMathTestType)1)), ezMath::Cos(ezAngle::Degree(i * (ezMathTestType)3)),
-                                   ezMath::Cos(ezAngle::Degree(i * (ezMathTestType)1)))
-                               .GetNormalized();
+        ezMath::Cos(ezAngle::Degree(i * (ezMathTestType)1)))
+                             .GetNormalized();
       const ezVec3T vTarget = vDir * s.m_fRadius + s.m_vCenter - vDir;
       const ezVec3T vSource = vTarget + vDir * (ezMathTestType)5;
 

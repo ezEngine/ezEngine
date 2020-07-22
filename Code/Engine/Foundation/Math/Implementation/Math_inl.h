@@ -96,15 +96,9 @@ namespace ezMath
 #endif
   }
 
-  EZ_ALWAYS_INLINE ezUInt32 CountTrailingZeros(ezUInt32 bitmask)
-  {
-    return (bitmask == 0) ? 32 : FirstBitLow(bitmask);
-  }
+  EZ_ALWAYS_INLINE ezUInt32 CountTrailingZeros(ezUInt32 bitmask) { return (bitmask == 0) ? 32 : FirstBitLow(bitmask); }
 
-  EZ_ALWAYS_INLINE ezUInt32 CountLeadingZeros(ezUInt32 bitmask)
-  {
-    return (bitmask == 0) ? 32 : (31u - FirstBitHigh(bitmask));
-  }
+  EZ_ALWAYS_INLINE ezUInt32 CountLeadingZeros(ezUInt32 bitmask) { return (bitmask == 0) ? 32 : (31u - FirstBitHigh(bitmask)); }
 
 
   EZ_ALWAYS_INLINE ezUInt32 CountBits(ezUInt32 value)

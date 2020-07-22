@@ -206,7 +206,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableVec4")
   {
     StreamComparer sc(
-        "\"var1\" : { \"$t\" : \"vec4\", \"$v\" : \"(1.0000, 2.0000, 3.0000, 4.0000)\", \"$b\" : \"0x0000803F000000400000404000008040\" }");
+      "\"var1\" : { \"$t\" : \"vec4\", \"$v\" : \"(1.0000, 2.0000, 3.0000, 4.0000)\", \"$b\" : \"0x0000803F000000400000404000008040\" }");
 
     ezStandardJSONWriter js;
     js.SetOutputStream(&sc);
@@ -270,8 +270,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableMat3")
   {
-    StreamComparer sc(
-        "\"var1\" : { \"$t\" : \"mat3\", \"$b\" : \"0x0000803F000080400000E040000000400000A04000000041000040400000C04000001041\" }");
+    StreamComparer sc("\"var1\" : { \"$t\" : \"mat3\", \"$b\" : \"0x0000803F000080400000E040000000400000A04000000041000040400000C04000001041\" }");
 
     ezStandardJSONWriter js;
     js.SetOutputStream(&sc);

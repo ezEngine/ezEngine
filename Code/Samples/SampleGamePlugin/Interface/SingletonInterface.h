@@ -33,6 +33,8 @@ private:
   // needed for the startup system to be able to call the private function below
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(SampleGamePluginStartupGroup, SampleGamePluginMainStartup);
 
-  void OnCoreSystemsStartup() { /* we could do something important here */ }
+  void OnCoreSystemsStartup()
+  { /* we could do something important here */
+  }
 };
 // END-DOCS-CODE-SNIPPET

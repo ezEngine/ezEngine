@@ -1,17 +1,17 @@
 #pragma once
 
+#include <Core/ResourceManager/Resource.h>
+#include <Foundation/Containers/Map.h>
+#include <Foundation/Strings/String.h>
+#include <RendererCore/../../../Data/Base/Shaders/Common/GlobalConstants.h>
 #include <RendererCore/Declarations.h>
+#include <RendererCore/RenderContext/Implementation/RenderContextStructs.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <RendererCore/Shader/ShaderStageBinary.h>
 #include <RendererCore/ShaderCompiler/PermutationGenerator.h>
-#include <Foundation/Strings/String.h>
-#include <Foundation/Containers/Map.h>
-#include <RendererFoundation/Shader/Shader.h>
-#include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Context/Context.h>
-#include <Core/ResourceManager/Resource.h>
-#include <RendererCore/../../../Data/Base/Shaders/Common/GlobalConstants.h>
-#include <RendererCore/RenderContext/Implementation/RenderContextStructs.h>
+#include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Shader/Shader.h>
 
 #include <RendererCore/Textures/Texture2DResource.h>
 #include <RendererCore/Textures/Texture3DResource.h>
@@ -60,11 +60,11 @@ public:
   void BindMaterial(const ezMaterialResourceHandle& hMaterial);
 
   void BindTexture2D(const ezTempHashedString& sSlotName, const ezTexture2DResourceHandle& hTexture,
-                     ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback);
+    ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback);
   void BindTexture3D(const ezTempHashedString& sSlotName, const ezTexture3DResourceHandle& hTexture,
     ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback);
   void BindTextureCube(const ezTempHashedString& sSlotName, const ezTextureCubeResourceHandle& hTexture,
-                     ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback);
+    ezResourceAcquireMode acquireMode = ezResourceAcquireMode::AllowLoadingFallback);
 
   void BindTexture2D(const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView);
   void BindTexture3D(const ezTempHashedString& sSlotName, ezGALResourceViewHandle hResourceView);
@@ -122,7 +122,6 @@ public:
 
   // Static Functions
 public:
-
   // Constant buffer storage handling
   template <typename T>
   EZ_ALWAYS_INLINE static ezConstantBufferStorageHandle CreateConstantBufferStorage()
@@ -182,7 +181,6 @@ private:
   void OnRenderEvent(const ezRenderWorldRenderEvent& e);
 
 private:
-
   Statistics m_Statistics;
   ezBitflags<ezRenderContextFlags> m_StateFlags;
   ezShaderResourceHandle m_hActiveShader;
@@ -217,9 +215,13 @@ private:
 
     BoundConstantBuffer() {}
     BoundConstantBuffer(ezGALBufferHandle hConstantBuffer)
-      : m_hConstantBuffer(hConstantBuffer) {}
+      : m_hConstantBuffer(hConstantBuffer)
+    {
+    }
     BoundConstantBuffer(ezConstantBufferStorageHandle hConstantBufferStorage)
-      : m_hConstantBufferStorage(hConstantBufferStorage) {}
+      : m_hConstantBufferStorage(hConstantBufferStorage)
+    {
+    }
 
     ezGALBufferHandle m_hConstantBuffer;
     ezConstantBufferStorageHandle m_hConstantBufferStorage;
@@ -249,7 +251,8 @@ private:
     }
   };
 
-  static ezResult BuildVertexDeclaration(ezGALShaderHandle hShader, const ezVertexDeclarationInfo& decl, ezGALVertexDeclarationHandle& out_Declaration);
+  static ezResult BuildVertexDeclaration(
+    ezGALShaderHandle hShader, const ezVertexDeclarationInfo& decl, ezGALVertexDeclarationHandle& out_Declaration);
 
   static ezMap<ShaderVertexDecl, ezGALVertexDeclarationHandle> s_GALVertexDeclarations;
 
@@ -275,4 +278,3 @@ private: // Per Renderer States
   void ApplySamplerBindings(ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary);
   void ApplyBufferBindings(ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary);
 };
-

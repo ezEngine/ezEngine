@@ -18,7 +18,7 @@
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 
 ezAnimationClipViewContext::ezAnimationClipViewContext(ezAnimationClipContext* pContext)
-    : ezEngineProcessViewContext(pContext)
+  : ezEngineProcessViewContext(pContext)
 {
   m_pContext = pContext;
 

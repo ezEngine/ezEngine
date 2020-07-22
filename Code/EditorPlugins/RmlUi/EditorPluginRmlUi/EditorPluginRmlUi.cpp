@@ -21,8 +21,8 @@ void OnLoadPlugin(bool bReloading)
     {
       ezActionMapManager::RegisterActionMap("RmlUiAssetMenuBar");
       ezProjectActions::MapActions("RmlUiAssetMenuBar");
-      ezStandardMenus::MapActions("RmlUiAssetMenuBar",
-        ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+      ezStandardMenus::MapActions(
+        "RmlUiAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
       ezDocumentActions::MapActions("RmlUiAssetMenuBar", "Menu.File", false);
       ezCommandHistoryActions::MapActions("RmlUiAssetMenuBar", "Menu.Edit");
     }

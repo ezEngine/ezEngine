@@ -1,7 +1,7 @@
 #pragma once
 
-#include <ProcGenPlugin/Declarations.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <ProcGenPlugin/Declarations.h>
 
 class EZ_PROCGENPLUGIN_DLL ezExpressionByteCode
 {

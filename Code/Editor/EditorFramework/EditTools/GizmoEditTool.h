@@ -1,7 +1,7 @@
 #pragma once
 
-#include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/EditTools/EditTool.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
 
 struct ezEngineWindowEvent;
 struct ezGameObjectEvent;
@@ -48,4 +48,3 @@ private:
   void EngineWindowEventHandler(const ezEngineWindowEvent& e);
   void ObjectStructureEventHandler(const ezDocumentObjectStructureEvent& e);
 };
-

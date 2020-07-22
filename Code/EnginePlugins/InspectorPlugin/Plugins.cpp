@@ -67,7 +67,7 @@ namespace PluginsDetail
         break;
     }
   }
-}
+} // namespace PluginsDetail
 
 void AddPluginEventHandler()
 {

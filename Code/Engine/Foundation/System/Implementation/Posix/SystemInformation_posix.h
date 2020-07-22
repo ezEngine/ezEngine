@@ -5,7 +5,7 @@ EZ_FOUNDATION_INTERNAL_HEADER
 
 bool ezSystemInformation::IsDebuggerAttached()
 {
-  //TODO: No simple way to test without massive overhead.
+  // TODO: No simple way to test without massive overhead.
   return false;
 }
 
@@ -45,7 +45,7 @@ void ezSystemInformation::Initialize()
 #elif EZ_ENABLED(EZ_PLATFORM_ANDROID)
   s_SystemInformation.m_szPlatformName = "Android";
 #else
-#error "Platform name not defined on current posix platform"
+#  error "Platform name not defined on current posix platform"
 #endif
 
   //  Get host name

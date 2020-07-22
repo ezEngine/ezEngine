@@ -1,11 +1,11 @@
 #pragma once
 
+#include <Core/ResourceManager/Resource.h>
 #include <Foundation/Basics.h>
-#include <Inspector/ui_ResourceWidget.h>
 #include <Foundation/Containers/Set.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Time/Time.h>
-#include <Core/ResourceManager/Resource.h>
+#include <Inspector/ui_ResourceWidget.h>
 #include <ads/DockWidget.h>
 
 class ezQtResourceWidget : public ads::CDockWidget, public Ui_ResourceWidget
@@ -65,5 +65,3 @@ private:
   ezSet<ezString> m_ResourceTypes;
   ezHashTable<ezUInt32, ResourceData> m_Resources;
 };
-
-

@@ -48,7 +48,7 @@ ezResourceLoadData ezFmodSoundBankResourceLoader::OpenDataStream(const ezResourc
       pData->m_pSoundbankData = EZ_DEFAULT_NEW(ezDataBuffer);
       pData->m_pSoundbankData->SetCountUninitialized(uiSoundBankSize + FMOD_STUDIO_LOAD_MEMORY_ALIGNMENT);
       ezUInt8* pAlignedData =
-          ezMemoryUtils::Align(pData->m_pSoundbankData->GetData() + FMOD_STUDIO_LOAD_MEMORY_ALIGNMENT, FMOD_STUDIO_LOAD_MEMORY_ALIGNMENT);
+        ezMemoryUtils::Align(pData->m_pSoundbankData->GetData() + FMOD_STUDIO_LOAD_MEMORY_ALIGNMENT, FMOD_STUDIO_LOAD_MEMORY_ALIGNMENT);
 
       SoundBankAssetFile.ReadBytes(pAlignedData, uiSoundBankSize);
 
@@ -59,8 +59,8 @@ ezResourceLoadData ezFmodSoundBankResourceLoader::OpenDataStream(const ezResourc
       if (pStudio == nullptr)
         return res;
 
-      auto fmodRes = pStudio->loadBankMemory((const char*)pAlignedData, (int)uiSoundBankSize, FMOD_STUDIO_LOAD_MEMORY_POINT,
-                                             FMOD_STUDIO_LOAD_BANK_NORMAL, &pData->m_pSoundBank);
+      auto fmodRes = pStudio->loadBankMemory(
+        (const char*)pAlignedData, (int)uiSoundBankSize, FMOD_STUDIO_LOAD_MEMORY_POINT, FMOD_STUDIO_LOAD_BANK_NORMAL, &pData->m_pSoundBank);
 
       // if this fails with res == FMOD_ERR_NOTREADY, that might be because two processes using fmod are running and both have the
       // FMOD_STUDIO_INIT_LIVEUPDATE flag set somehow fmod cannot handle this and bank loading then fails
@@ -115,7 +115,7 @@ bool ezFmodSoundBankResourceLoader::IsResourceOutdated(const ezResource* pResour
   if (ezFileSystem::ResolvePath(pResource->GetResourceID(), &sAbs, nullptr).Failed())
     return false;
 
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
+#  if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
   if (pResource->GetLoadedFileModificationTime().IsValid())
   {
     ezFileStats stat;
@@ -125,7 +125,7 @@ bool ezFmodSoundBankResourceLoader::IsResourceOutdated(const ezResource* pResour
     return !stat.m_LastModificationTime.Compare(pResource->GetLoadedFileModificationTime(), ezTimestamp::CompareMode::FileTimeEqual);
   }
 
-#endif
+#  endif
 
   return true;
 

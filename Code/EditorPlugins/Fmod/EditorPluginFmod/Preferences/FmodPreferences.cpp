@@ -18,7 +18,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezFmodProjectPreferences::ezFmodProjectPreferences()
-    : ezPreferences(Domain::Project, "Fmod")
+  : ezPreferences(Domain::Project, "Fmod")
 {
 }
 

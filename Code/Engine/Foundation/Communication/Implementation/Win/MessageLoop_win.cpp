@@ -2,9 +2,9 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
-#include <Foundation/Communication/Implementation/Win/MessageLoop_win.h>
-#include <Foundation/Communication/Implementation/Win/PipeChannel_win.h>
-#include <Foundation/Communication/IpcChannel.h>
+#  include <Foundation/Communication/Implementation/Win/MessageLoop_win.h>
+#  include <Foundation/Communication/Implementation/Win/PipeChannel_win.h>
+#  include <Foundation/Communication/IpcChannel.h>
 
 ezMessageLoop_win::ezMessageLoop_win()
 {
@@ -56,7 +56,7 @@ bool ezMessageLoop_win::GetIOItem(ezInt32 iTimeout, IOItem* pItem)
   OVERLAPPED* overlapped = NULL;
   if (!GetQueuedCompletionStatus(m_Port, &pItem->uiBytesTransfered, &key, &overlapped, iTimeout))
   {
-    //nothing queued
+    // nothing queued
     if (overlapped == NULL)
       return false;
 
@@ -71,10 +71,9 @@ bool ezMessageLoop_win::GetIOItem(ezInt32 iTimeout, IOItem* pItem)
 
 bool ezMessageLoop_win::ProcessInternalIOItem(const IOItem& item)
 {
-  if (reinterpret_cast<ezMessageLoop_win*>(item.pContext) == this &&
-      reinterpret_cast<ezMessageLoop_win*>(item.pChannel) == this)
+  if (reinterpret_cast<ezMessageLoop_win*>(item.pContext) == this && reinterpret_cast<ezMessageLoop_win*>(item.pChannel) == this)
   {
-    //internal notification
+    // internal notification
     EZ_ASSERT_DEBUG(item.uiBytesTransfered == 0, "");
     InterlockedExchange(&m_haveWork, 0);
     return true;
@@ -100,16 +99,14 @@ void ezMessageLoop_win::WakeUp()
 {
   if (InterlockedExchange(&m_haveWork, 1))
   {
-    //already running
+    // already running
     return;
   }
-  //wake up the loop
-  BOOL res = PostQueuedCompletionStatus(m_Port, 0, reinterpret_cast<ULONG_PTR>(this),
-                                        reinterpret_cast<OVERLAPPED*>(this));
+  // wake up the loop
+  BOOL res = PostQueuedCompletionStatus(m_Port, 0, reinterpret_cast<ULONG_PTR>(this), reinterpret_cast<OVERLAPPED*>(this));
   EZ_ASSERT_DEBUG(res, "Could not PostQueuedCompletionStatus: {0}", ezArgErrorCode(GetLastError()));
 }
 
 #endif
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_Win_MessageLoop_win);
-

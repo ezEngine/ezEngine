@@ -105,8 +105,7 @@ ezResult ezMemoryMappedFile::Open(const char* szAbsolutePath, Mode mode)
   }
   m_Impl->m_uiFileSize = sb.st_size;
 
-  m_Impl->m_pMappedFilePtr = mmap(nullptr, m_Impl->m_uiFileSize,
-    prot, flags, m_Impl->m_hFile, 0);
+  m_Impl->m_pMappedFilePtr = mmap(nullptr, m_Impl->m_uiFileSize, prot, flags, m_Impl->m_hFile, 0);
   if (m_Impl->m_pMappedFilePtr == nullptr)
   {
     ezLog::Error("Could not create memory mapping of file - {}", strerror(errno));
@@ -163,8 +162,7 @@ ezResult ezMemoryMappedFile::OpenShared(const char* szSharedName, ezUInt64 uiSiz
   }
   m_Impl->m_uiFileSize = uiSize;
 
-  m_Impl->m_pMappedFilePtr = mmap(nullptr, m_Impl->m_uiFileSize,
-    prot, flags, m_Impl->m_hFile, 0);
+  m_Impl->m_pMappedFilePtr = mmap(nullptr, m_Impl->m_uiFileSize, prot, flags, m_Impl->m_hFile, 0);
   if (m_Impl->m_pMappedFilePtr == nullptr)
   {
     ezLog::Error("Could not create memory mapping of file - {}", strerror(errno));

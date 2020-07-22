@@ -1,12 +1,12 @@
 #include <FoundationPCH.h>
 
 #include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Strings/StringUtils.h>
 #include <Foundation/System/SystemInformation.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 #include <Foundation/Utilities/EnvironmentVariableUtils.h>
-#include <Foundation/Logging/Log.h>
 
 #include <cstdio>
 #include <cstdlib>
@@ -16,17 +16,16 @@
 #  include <crtdbg.h>
 #endif
 
-bool ezDefaultAssertHandler(
-  const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
+bool ezDefaultAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
 {
   char szTemp[1024 * 4] = "";
   ezStringUtils::snprintf(szTemp, EZ_ARRAY_SIZE(szTemp),
-    "\n\n *** Assertion ***\n\n    Expression: \"%s\"\n    Function: \"%s\"\n    File: \"%s\"\n    Line: %u\n    Message: \"%s\"\n\n",
-    szExpression, szFunction, szSourceFile, uiLine, szAssertMsg);
+    "\n\n *** Assertion ***\n\n    Expression: \"%s\"\n    Function: \"%s\"\n    File: \"%s\"\n    Line: %u\n    Message: \"%s\"\n\n", szExpression,
+    szFunction, szSourceFile, uiLine, szAssertMsg);
   szTemp[1024 * 4 - 1] = '\0';
 
   ezLog::Print(szTemp);
-  
+
   if (ezSystemInformation::IsDebuggerAttached())
     return true;
 
@@ -72,8 +71,7 @@ bool ezDefaultAssertHandler(
 
 #  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
 
-  ezInt32 iRes =
-    _CrtDbgReport(_CRT_ASSERT, szSourceFile, uiLine, nullptr, "'%s'\nFunction: %s\nMessage: %s", szExpression, szFunction, szAssertMsg);
+  ezInt32 iRes = _CrtDbgReport(_CRT_ASSERT, szSourceFile, uiLine, nullptr, "'%s'\nFunction: %s\nMessage: %s", szExpression, szFunction, szAssertMsg);
 
   // currently we will ALWAYS trigger the breakpoint / crash (except for when the user presses 'ignore')
   if (iRes == 0)
@@ -126,8 +124,7 @@ bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, const char* szFunc
   return (*g_AssertHandler)(szSourceFile, uiLine, szFunction, szExpression, msg);
 }
 
-bool ezFailedCheck(
-  const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const class ezFormatString& msg)
+bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const class ezFormatString& msg)
 {
   ezStringBuilder tmp;
   return ezFailedCheck(szSourceFile, uiLine, szFunction, szExpression, msg.GetText(tmp));

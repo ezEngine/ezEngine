@@ -299,8 +299,8 @@ void ezCameraComponent::UpdateRenderTargetCamera()
   else
     m_RenderTargetCamera.SetCameraMode(GetCameraMode(), m_fOrthoDimension, m_fNearPlane, m_fFarPlane);
 
-  m_RenderTargetCamera.LookAt(GetOwner()->GetGlobalPosition(), GetOwner()->GetGlobalPosition() + GetOwner()->GetGlobalDirForwards(),
-    GetOwner()->GetGlobalDirUp());
+  m_RenderTargetCamera.LookAt(
+    GetOwner()->GetGlobalPosition(), GetOwner()->GetGlobalPosition() + GetOwner()->GetGlobalDirForwards(), GetOwner()->GetGlobalDirUp());
 }
 
 void ezCameraComponent::SetUsageHint(ezEnum<ezCameraUsageHint> val)
@@ -522,8 +522,8 @@ void ezCameraComponent::ApplySettingsToView(ezView* pView) const
       const char* szName = GetOwner()->GetName();
 
       ezStringBuilder sb;
-      sb.Format("Camera '{0}': EV100: {1}, Exposure: {2}", ezStringUtils::IsNullOrEmpty(szName) ? pView->GetName() : szName, GetEV100(),
-        GetExposure());
+      sb.Format(
+        "Camera '{0}': EV100: {1}, Exposure: {2}", ezStringUtils::IsNullOrEmpty(szName) ? pView->GetName() : szName, GetEV100(), GetExposure());
       ezDebugRenderer::Draw2DText(GetWorld(), sb, ezVec2I32(20, 20), ezColor::LimeGreen);
     }
 

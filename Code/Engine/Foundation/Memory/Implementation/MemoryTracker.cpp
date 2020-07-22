@@ -186,8 +186,8 @@ void ezMemoryTracker::DeregisterAllocator(ezAllocatorId allocatorId)
 }
 
 // static
-void ezMemoryTracker::AddAllocation(ezAllocatorId allocatorId, ezBitflags<ezMemoryTrackingFlags> flags, const void* ptr, size_t uiSize, size_t uiAlign,
-  ezTime allocationTime)
+void ezMemoryTracker::AddAllocation(
+  ezAllocatorId allocatorId, ezBitflags<ezMemoryTrackingFlags> flags, const void* ptr, size_t uiSize, size_t uiAlign, ezTime allocationTime)
 {
   EZ_ASSERT_DEV(uiAlign < 0xFFFF, "Alignment too big");
 

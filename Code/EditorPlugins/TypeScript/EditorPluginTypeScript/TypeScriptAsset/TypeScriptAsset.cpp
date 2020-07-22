@@ -234,9 +234,8 @@ void ezTypeScriptAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pIn
   pInfo->m_MetaInfo.PushBack(pExposedParams);
 }
 
-ezStatus ezTypeScriptAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag,
-  const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader,
-  ezBitflags<ezTransformFlags> transformFlags)
+ezStatus ezTypeScriptAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   EZ_SUCCEED_OR_RETURN(ValidateScriptCode());
   EZ_SUCCEED_OR_RETURN(AutoGenerateVariablesCode());
@@ -346,7 +345,8 @@ ezStatus ezTypeScriptAssetDocument::AutoGenerateVariablesCode()
     }
     for (const auto& p : GetProperties()->m_ColorParameters)
     {
-      sAutoGen.AppendFormat("    {}: ez.Color = new ez.Color({}, {}, {}, {});\n", p.m_sName, p.m_DefaultValue.r, p.m_DefaultValue.g, p.m_DefaultValue.b, p.m_DefaultValue.a);
+      sAutoGen.AppendFormat("    {}: ez.Color = new ez.Color({}, {}, {}, {});\n", p.m_sName, p.m_DefaultValue.r, p.m_DefaultValue.g,
+        p.m_DefaultValue.b, p.m_DefaultValue.a);
     }
   }
 

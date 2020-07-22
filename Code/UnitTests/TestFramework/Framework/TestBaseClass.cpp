@@ -38,7 +38,8 @@ void ezTestBaseClass::UpdateConfiguration(ezTestConfiguration& config) const
   }
 }
 
-void ezTestBaseClass::MapImageNumberToString(const char* szTestName, const char* szSubTestName, ezUInt32 uiImageNumber, ezStringBuilder& out_String) const
+void ezTestBaseClass::MapImageNumberToString(
+  const char* szTestName, const char* szSubTestName, ezUInt32 uiImageNumber, ezStringBuilder& out_String) const
 {
   out_String.Format("{0}_{1}_{2}", szTestName, szSubTestName, ezArgI(uiImageNumber, 3, true));
   out_String.ReplaceAll(" ", "_");
@@ -183,4 +184,3 @@ ezTestAppRun ezTestBaseClass::DoSubTestRun(ezInt32 iIdentifier, double& fDuratio
 
 
 EZ_STATICLINK_FILE(TestFramework, TestFramework_Framework_TestBaseClass);
-

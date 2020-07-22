@@ -16,7 +16,7 @@
 #include <RendererFoundation/Device/SwapChain.h>
 
 ezMaterialViewContext::ezMaterialViewContext(ezMaterialContext* pMaterialContext)
-    : ezEngineProcessViewContext(pMaterialContext)
+  : ezEngineProcessViewContext(pMaterialContext)
 {
   m_pMaterialContext = pMaterialContext;
 }

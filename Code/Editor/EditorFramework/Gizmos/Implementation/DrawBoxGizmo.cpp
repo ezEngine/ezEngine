@@ -384,7 +384,8 @@ void ezDrawBoxGizmo::UpdateStatusBarText(ezQtEngineDocumentWindow* pWindow)
       diff.x = ezMath::Abs(diff.x);
       diff.y = ezMath::Abs(diff.y);
 
-      pWindow->SetPermanentStatusBarMsg(ezFmt("Greyboxing: [Width: {}, Depth: {}, Height: {}] Draw up/down to specify the box height. Click to finish, ESC to cancel.",
+      pWindow->SetPermanentStatusBarMsg(
+        ezFmt("Greyboxing: [Width: {}, Depth: {}, Height: {}] Draw up/down to specify the box height. Click to finish, ESC to cancel.",
           ezArgF(diff.y, 2, false, 2), ezArgF(diff.x, 2, false, 2), ezArgF(m_fBoxHeight, 2, false, 2)));
       break;
     }

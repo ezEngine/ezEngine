@@ -223,7 +223,7 @@ void ezGameObject::UpdateGlobalTransformAndBoundsRecursive()
   {
     m_pTransformationData->UpdateGlobalBounds();
   }
-  
+
   if (IsStatic() && m_Flags.IsSet(ezObjectFlags::StaticTransformChangesNotifications) && oldGlobalTransform != GetGlobalTransformSimd())
   {
     ezMsgTransformChanged msg;
@@ -270,8 +270,8 @@ void ezGameObject::operator=(const ezGameObject& other)
   {
     if (ezSpatialSystem* pSpatialSystem = GetWorld()->GetSpatialSystem())
     {
-      pSpatialSystem->UpdateSpatialData(m_pTransformationData->m_hSpatialData, m_pTransformationData->m_globalBounds, this,
-        m_pTransformationData->m_uiSpatialDataCategoryBitmask);
+      pSpatialSystem->UpdateSpatialData(
+        m_pTransformationData->m_hSpatialData, m_pTransformationData->m_globalBounds, this, m_pTransformationData->m_uiSpatialDataCategoryBitmask);
     }
   }
 
@@ -521,8 +521,8 @@ ezGameObject* ezGameObject::SearchForChildByNameSequence(const char* szObjectSeq
 }
 
 
-void ezGameObject::SearchForChildrenByNameSequence(const char* szObjectSequence, const ezRTTI* pExpectedComponent,
-  ezHybridArray<ezGameObject*, 8>& out_Objects)
+void ezGameObject::SearchForChildrenByNameSequence(
+  const char* szObjectSequence, const ezRTTI* pExpectedComponent, ezHybridArray<ezGameObject*, 8>& out_Objects)
 {
   /// \test Needs a unit test
 
@@ -770,8 +770,7 @@ bool ezGameObject::SendMessageInternal(ezMessage& msg, bool bWasPostedMsg)
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   if (!bSentToAny && msg.GetDebugMessageRouting())
   {
-    ezLog::Warning("ezGameObject::SendMessage: None of the target object's components had a handler for messages of type {0}.",
-      msg.GetId());
+    ezLog::Warning("ezGameObject::SendMessage: None of the target object's components had a handler for messages of type {0}.", msg.GetId());
   }
 #endif
 
@@ -794,8 +793,7 @@ bool ezGameObject::SendMessageInternal(ezMessage& msg, bool bWasPostedMsg) const
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   if (!bSentToAny && msg.GetDebugMessageRouting())
   {
-    ezLog::Warning("ezGameObject::SendMessage (const): None of the target object's components had a handler for messages of type {0}.",
-      msg.GetId());
+    ezLog::Warning("ezGameObject::SendMessage (const): None of the target object's components had a handler for messages of type {0}.", msg.GetId());
   }
 #endif
 
@@ -900,7 +898,8 @@ void ezGameObject::SendEventMessage(ezEventMessage& msg, const ezComponent* pSen
   }
 }
 
-void ezGameObject::PostEventMessage(ezEventMessage& msg, const ezComponent* pSenderComponent, ezTime delay, ezObjectMsgQueueType::Enum queueType) const
+void ezGameObject::PostEventMessage(
+  ezEventMessage& msg, const ezComponent* pSenderComponent, ezTime delay, ezObjectMsgQueueType::Enum queueType) const
 {
   if (const ezComponent* pReceiver = GetWorld()->FindEventMsgHandler(msg, const_cast<ezGameObject*>(this)))
   {

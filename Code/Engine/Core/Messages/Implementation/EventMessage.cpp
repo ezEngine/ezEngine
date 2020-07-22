@@ -46,7 +46,8 @@ namespace ezInternal
 #endif
   }
 
-  void EventMessageSenderHelper::PostEventMessage(const ezComponent* pSenderComponent, ezComponentHandle hReceiver, const ezEventMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType)
+  void EventMessageSenderHelper::PostEventMessage(
+    const ezComponent* pSenderComponent, ezComponentHandle hReceiver, const ezEventMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType)
   {
     if (!hReceiver.IsInvalidated())
     {

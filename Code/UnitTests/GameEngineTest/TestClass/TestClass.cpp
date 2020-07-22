@@ -28,8 +28,7 @@ ezResult ezGameEngineTest::InitializeTest()
 
   ezRun_Startup(m_pApplication);
 
-  if (ezGALDevice::HasDefaultDevice() &&
-      ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName == "Microsoft Basic Render Driver")
+  if (ezGALDevice::HasDefaultDevice() && ezGALDevice::GetDefaultDevice()->GetCapabilities().m_sAdapterName == "Microsoft Basic Render Driver")
   {
     // Use different images for comparison when running the D3D11 Reference Device
     ezTestFramework::GetInstance()->SetImageReferenceOverrideFolderName("Images_Reference_D3D11Ref");

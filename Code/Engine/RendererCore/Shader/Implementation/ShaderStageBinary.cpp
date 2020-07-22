@@ -6,23 +6,9 @@
 #include <RendererCore/Shader/Types.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 
-ezUInt32 ezShaderConstantBufferLayout::Constant::s_TypeSize[(ezUInt32)Type::ENUM_COUNT] = {0,
-                                                                                           sizeof(float) * 1,
-                                                                                           sizeof(float) * 2,
-                                                                                           sizeof(float) * 3,
-                                                                                           sizeof(float) * 4,
-                                                                                           sizeof(int) * 1,
-                                                                                           sizeof(int) * 2,
-                                                                                           sizeof(int) * 3,
-                                                                                           sizeof(int) * 4,
-                                                                                           sizeof(ezUInt32) * 1,
-                                                                                           sizeof(ezUInt32) * 2,
-                                                                                           sizeof(ezUInt32) * 3,
-                                                                                           sizeof(ezUInt32) * 4,
-                                                                                           sizeof(ezShaderMat3),
-                                                                                           sizeof(ezMat4),
-                                                                                           sizeof(ezShaderTransform),
-                                                                                           sizeof(ezShaderBool)};
+ezUInt32 ezShaderConstantBufferLayout::Constant::s_TypeSize[(ezUInt32)Type::ENUM_COUNT] = {0, sizeof(float) * 1, sizeof(float) * 2, sizeof(float) * 3,
+  sizeof(float) * 4, sizeof(int) * 1, sizeof(int) * 2, sizeof(int) * 3, sizeof(int) * 4, sizeof(ezUInt32) * 1, sizeof(ezUInt32) * 2,
+  sizeof(ezUInt32) * 3, sizeof(ezUInt32) * 4, sizeof(ezShaderMat3), sizeof(ezMat4), sizeof(ezShaderTransform), sizeof(ezShaderBool)};
 
 void ezShaderConstantBufferLayout::Constant::CopyDataFormVariant(ezUInt8* pDest, ezVariant* pValue) const
 {
@@ -417,4 +403,3 @@ void ezShaderStageBinary::OnEngineShutdown()
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Shader_Implementation_ShaderStageBinary);
-

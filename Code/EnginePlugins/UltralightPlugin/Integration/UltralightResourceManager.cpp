@@ -5,9 +5,9 @@
 
 #include <RendererFoundation/Device/Device.h>
 
-#include <UltralightPlugin/Integration/UltralightResourceManager.h>
-#include <UltralightPlugin/Integration/UltralightFileSystem.h>
 #include <UltralightPlugin/Integration/GPUDriverEz.h>
+#include <UltralightPlugin/Integration/UltralightFileSystem.h>
+#include <UltralightPlugin/Integration/UltralightResourceManager.h>
 #include <UltralightPlugin/Resources/UltralightHTMLResource.h>
 
 static ezUltralightResourceManager* s_pInstance = nullptr;
@@ -62,7 +62,8 @@ void ezUltralightResourceManager::Update(ultralight::Renderer* pRenderer)
 
   for (auto pResource : m_RegisteredResources)
   {
-    auto hTex = static_cast<ezUltralightGPUDriver*>(ultralight::Platform::instance().gpu_driver())->GetTextureHandleForTextureId(pResource->GetView()->render_target().texture_id);
+    auto hTex = static_cast<ezUltralightGPUDriver*>(ultralight::Platform::instance().gpu_driver())
+                  ->GetTextureHandleForTextureId(pResource->GetView()->render_target().texture_id);
     pResource->SetTextureHandle(hTex);
   }
 }
@@ -73,7 +74,7 @@ void ezUltralightResourceManager::Register(ezUltralightHTMLResource* pResource)
 
   EZ_ASSERT_DEV(m_RegisteredResources.IndexOf(pResource) == ezInvalidIndex, "");
 
-  if(m_PendingResourceRegistrations.IndexOf(pResource) == ezInvalidIndex)
+  if (m_PendingResourceRegistrations.IndexOf(pResource) == ezInvalidIndex)
     m_PendingResourceRegistrations.PushBack(pResource);
 }
 
@@ -83,7 +84,7 @@ void ezUltralightResourceManager::Unregister(ezUltralightHTMLResource* pResource
 
   EZ_ASSERT_DEV(m_RegisteredResources.IndexOf(pResource) != ezInvalidIndex, "");
 
-  if(m_PendingResourceDeletions.IndexOf(pResource) == ezInvalidIndex)
+  if (m_PendingResourceDeletions.IndexOf(pResource) == ezInvalidIndex)
     m_PendingResourceDeletions.PushBack(pResource);
 }
 

@@ -113,8 +113,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
 
     {
       // move constructor
-      ezDynamicArray<DynamicArrayTestDetail::st, DynamicArrayTestDetail::ezTestAllocatorWrapper> a1(
-        DynamicArrayTestDetail::CreateArray(100, 20));
+      ezDynamicArray<DynamicArrayTestDetail::st, DynamicArrayTestDetail::ezTestAllocatorWrapper> a1(DynamicArrayTestDetail::CreateArray(100, 20));
 
       EZ_TEST_INT(a1.GetCount(), 100);
       for (ezUInt32 i = 0; i < a1.GetCount(); ++i)

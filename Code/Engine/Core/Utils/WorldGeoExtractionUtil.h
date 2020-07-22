@@ -88,4 +88,3 @@ struct EZ_CORE_DLL ezMsgExtractGeometry : public ezMessage
   /// \brief Append data to this to describe the requested world geometry
   ezWorldGeoExtractionUtil::Geometry* m_pWorldGeometry = nullptr;
 };
-

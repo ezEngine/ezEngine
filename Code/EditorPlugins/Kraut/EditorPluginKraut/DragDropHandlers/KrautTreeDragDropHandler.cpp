@@ -23,7 +23,7 @@ void ezKrautTreeComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pInf
     CreateDropObject(pInfo->m_vDropPosition, "ezKrautTreeComponent", "KrautTree", GetAssetGuidString(pInfo), ezUuid(), -1);
   else
     CreateDropObject(pInfo->m_vDropPosition, "ezKrautTreeComponent", "KrautTree", GetAssetGuidString(pInfo), pInfo->m_TargetObject,
-                     pInfo->m_iTargetObjectInsertChildIndex);
+      pInfo->m_iTargetObjectInsertChildIndex);
 
   SelectCreatedObjects();
   BeginTemporaryCommands();

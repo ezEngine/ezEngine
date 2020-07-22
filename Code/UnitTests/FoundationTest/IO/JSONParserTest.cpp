@@ -22,7 +22,8 @@ struct ParseResult
 {
   ParseFunction m_Function;
 
-  union {
+  union
+  {
     const char* m_szValue;
     bool m_bValue;
     double m_fValue;
@@ -536,8 +537,7 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Skip Array")
   {
     // I want C++ 11 raw string literals
-    const char* szTestData =
-        "{ \"skip_array\" : [ \"a\",  1, \"b\",  2, \"c\", [ { }, { \"e\" : { } } ] ], \"d\" : 3, \"skip_array\" : [ ] }";
+    const char* szTestData = "{ \"skip_array\" : [ \"a\",  1, \"b\",  2, \"c\", [ { }, { \"e\" : { } } ] ], \"d\" : 3, \"skip_array\" : [ ] }";
 
     StringStream stream(szTestData);
 

@@ -474,8 +474,8 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
 
     EZ_TEST_BOOL(it.FindWholeWord("abc", ezStringUtils::IsWordDelimiter_English) == &it.GetStartPointer()[34]);
     EZ_TEST_BOOL(it.FindWholeWord("def", ezStringUtils::IsWordDelimiter_English) == &it.GetStartPointer()[38]);
-    EZ_TEST_BOOL(it.FindWholeWord("mompfh", ezStringUtils::IsWordDelimiter_English) ==
-                 &it.GetStartPointer()[0]); // ü is not English (thus a delimiter)
+    EZ_TEST_BOOL(
+      it.FindWholeWord("mompfh", ezStringUtils::IsWordDelimiter_English) == &it.GetStartPointer()[0]); // ü is not English (thus a delimiter)
 
     EZ_TEST_BOOL(it.FindWholeWord("abc", ezStringUtils::IsWordDelimiter_English, it.GetStartPointer() + 34) == &it.GetStartPointer()[34]);
     EZ_TEST_BOOL(it.FindWholeWord("abc", ezStringUtils::IsWordDelimiter_English, it.GetStartPointer() + 35) == nullptr);

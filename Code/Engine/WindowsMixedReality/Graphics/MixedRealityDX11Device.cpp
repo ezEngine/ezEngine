@@ -1,4 +1,4 @@
-﻿#includde <WindowsMixedRealityPCH.h>
+﻿#includde < WindowsMixedRealityPCH.h>
 #include <WindowsMixedReality/Graphics/MixedRealityDX11Device.h>
 #include <WindowsMixedReality/Graphics/MixedRealitySwapChainDX11.h>
 #include <WindowsMixedReality/HolographicSpace.h>
@@ -13,10 +13,10 @@
 #include <d3d11_1.h>
 #include <dxgi1_4.h>
 #include <windows.graphics.holographic.h>
-#pragma warning (push)
-#pragma warning (disable: 4467) // warning C4467: usage of ATL attributes is deprecated
+#pragma warning(push)
+#pragma warning(disable : 4467) // warning C4467: usage of ATL attributes is deprecated
 #include <windows.graphics.directx.direct3d11.interop.h>
-#pragma warning (pop)
+#pragma warning(pop)
 
 ezGALMixedRealityDeviceDX11::ezGALMixedRealityDeviceDX11(const ezGALDeviceCreationDescription& Description)
   : ezGALDeviceDX11(Description)
@@ -25,15 +25,14 @@ ezGALMixedRealityDeviceDX11::ezGALMixedRealityDeviceDX11(const ezGALDeviceCreati
   ezLog::Info("Created DX11 device for Mixed Reality");
 }
 
-ezGALMixedRealityDeviceDX11::~ezGALMixedRealityDeviceDX11()
-{
-}
+ezGALMixedRealityDeviceDX11::~ezGALMixedRealityDeviceDX11() {}
 
 ezResult ezGALMixedRealityDeviceDX11::InitPlatform()
 {
   EZ_LOG_BLOCK("ezGALMixedRealityDeviceDX11::InitPlatform");
 
-  ComPtr<ABI::Windows::Graphics::Holographic::IHolographicSpace> pHolographicSpace = ezWindowsHolographicSpace::GetSingleton()->GetInternalHolographicSpace();
+  ComPtr<ABI::Windows::Graphics::Holographic::IHolographicSpace> pHolographicSpace =
+    ezWindowsHolographicSpace::GetSingleton()->GetInternalHolographicSpace();
   if (!pHolographicSpace)
   {
     ezLog::Error("Can't create holographic DX11 device since there is no holographic space.");
@@ -74,7 +73,8 @@ ezResult ezGALMixedRealityDeviceDX11::InitPlatform()
   //
   // Note that it is not entirely clear why this error comes up. The error message is just:
   // "Error: Call 'm_pHolographicSpace->SetDirect3D11Device(m_pDX11InteropDevice.Get())' failed with: The parameter is incorrect."
-  // The documentation only mentions that D3D11_CREATE_DEVICE_BGRA_SUPPORT is necessary for Direct2D interop (which we're not relying on as of writing).
+  // The documentation only mentions that D3D11_CREATE_DEVICE_BGRA_SUPPORT is necessary for Direct2D interop (which we're not relying on as of
+  // writing).
   DWORD dwFlags = D3D11_CREATE_DEVICE_BGRA_SUPPORT;
 
   // Proceed with normal device startup.
@@ -129,7 +129,8 @@ ezGALSwapChain* ezGALMixedRealityDeviceDX11::CreateSwapChainPlatform(const ezGAL
 {
   if (Description.m_pWindow != &ezGALMixedRealitySwapChainDX11::s_mockWindow)
   {
-    ezLog::Error("It is not possible to manually create swap chains when using the holographic DX11 device. Swap chains are automatically created by holographic cameras.");
+    ezLog::Error("It is not possible to manually create swap chains when using the holographic DX11 device. Swap chains are automatically created by "
+                 "holographic cameras.");
     return nullptr;
   }
 
@@ -161,19 +162,20 @@ void ezGALMixedRealityDeviceDX11::PresentPlatform(ezGALSwapChain* pSwapChain, bo
     static bool warned = false;
     if (!warned)
     {
-      ezLog::Warning("ezGALMixedRealityDeviceDX11 needs to present all swap chains at once. Only first Present call has an effect, all others are ignored.");
+      ezLog::Warning(
+        "ezGALMixedRealityDeviceDX11 needs to present all swap chains at once. Only first Present call has an effect, all others are ignored.");
       warned = true;
     }
     return;
   }
 
   //// Test
-  //ezGALContext* pContext = GetPrimaryContext();
-  //auto renderTarget = GetDefaultRenderTargetView(pSwapChain->GetBackBufferTexture());
-  //ezGALRenderTagetSetup targetSetup;
-  //targetSetup.SetRenderTarget(0, renderTarget);
-  //pContext->SetRenderTargetSetup(targetSetup);
-  //pContext->Clear(ezColorLinearUB(100, 149, 237, 255));
+  // ezGALContext* pContext = GetPrimaryContext();
+  // auto renderTarget = GetDefaultRenderTargetView(pSwapChain->GetBackBufferTexture());
+  // ezGALRenderTagetSetup targetSetup;
+  // targetSetup.SetRenderTarget(0, renderTarget);
+  // pContext->SetRenderTargetSetup(targetSetup);
+  // pContext->Clear(ezColorLinearUB(100, 149, 237, 255));
 
 
   // Presents frame and blocks until done.
@@ -186,7 +188,8 @@ void ezGALMixedRealityDeviceDX11::PresentPlatform(ezGALSwapChain* pSwapChain, bo
   }
 
   // Discard the contents of the render target.
-  // This is a valid operation only when the existing contents will be entirely overwritten. If dirty or scroll rects are used, this call should be removed.
+  // This is a valid operation only when the existing contents will be entirely overwritten. If dirty or scroll rects are used, this call should be
+  // removed.
   {
     ID3D11DeviceContext* deviceContext = static_cast<ezGALContextDX11*>(GetPrimaryContext())->GetDXContext();
     ID3D11DeviceContext1* deviceContext1 = nullptr;
@@ -199,7 +202,8 @@ void ezGALMixedRealityDeviceDX11::PresentPlatform(ezGALSwapChain* pSwapChain, bo
     auto backBuffer = pSwapChain->GetBackBufferTexture();
     if (!backBuffer.IsInvalidated())
     {
-      const ezGALRenderTargetViewDX11* renderTargetView = static_cast<const ezGALRenderTargetViewDX11*>(GetRenderTargetView(GetDefaultRenderTargetView(backBuffer)));
+      const ezGALRenderTargetViewDX11* renderTargetView =
+        static_cast<const ezGALRenderTargetViewDX11*>(GetRenderTargetView(GetDefaultRenderTargetView(backBuffer)));
       if (renderTargetView)
       {
         deviceContext1->DiscardView(renderTargetView->GetRenderTargetView());
@@ -207,11 +211,12 @@ void ezGALMixedRealityDeviceDX11::PresentPlatform(ezGALSwapChain* pSwapChain, bo
     }
   }
 
-  // Apparently this is using a DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL in the background, so we need to force rebinding the render target to avoid this error:
+  // Apparently this is using a DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL in the background, so we need to force rebinding the render target to avoid this
+  // error:
   //
-  // D3D11 WARNING: ID3D11DeviceContext::Draw: The Pixel Shader expects a Render Target View bound to slot 0, but the Render Target View was unbound during a call to Present.
-  // A successful Present call for DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL SwapChains unbinds backbuffer 0 from all GPU writeable bind points.
-  // [ EXECUTION WARNING #3146082: DEVICE_DRAW_RENDERTARGETVIEW_NOT_SET_DUE_TO_FLIP_PRESENT]
+  // D3D11 WARNING: ID3D11DeviceContext::Draw: The Pixel Shader expects a Render Target View bound to slot 0, but the Render Target View was unbound
+  // during a call to Present. A successful Present call for DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL SwapChains unbinds backbuffer 0 from all GPU writeable
+  // bind points. [ EXECUTION WARNING #3146082: DEVICE_DRAW_RENDERTARGETVIEW_NOT_SET_DUE_TO_FLIP_PRESENT]
   //
   GetPrimaryContext()->SetRenderTargetSetup(ezGALRenderTagetSetup());
 
@@ -240,4 +245,3 @@ void ezGALMixedRealityDeviceDX11::EndFramePlatform()
   EZ_ASSERT_DEV(m_pCurrentHolographicFrame, "There is no holographic frame.");
   m_pCurrentHolographicFrame.Reset();
 }
-

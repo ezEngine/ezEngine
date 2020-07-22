@@ -4,7 +4,7 @@
 
 #include <Foundation/Reflection/Reflection.h>
 
-class EZ_GAMEENGINE_DLL ezActorApiService: public ezReflectedClass
+class EZ_GAMEENGINE_DLL ezActorApiService : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezActorApiService, ezReflectedClass);
   EZ_DISALLOW_COPY_AND_ASSIGN(ezActorApiService);
@@ -28,5 +28,4 @@ private: // directly accessed by ezActorManager
   };
 
   State m_State = State::New;
-
 };

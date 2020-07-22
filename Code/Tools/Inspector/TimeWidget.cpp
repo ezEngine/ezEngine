@@ -227,8 +227,7 @@ void ezQtTimeWidget::ProcessTelemetry(void* pUnuseed)
 
     s_pWidget->m_MaxGlobalTime = ezMath::Max(s_pWidget->m_MaxGlobalTime, Sample.m_AtGlobalTime);
 
-    if (ad.m_TimeSamples.GetCount() > 1 &&
-        (ezMath::IsEqual(ad.m_TimeSamples.PeekBack().m_Timestep, Sample.m_Timestep, ezTime::Microseconds(100))))
+    if (ad.m_TimeSamples.GetCount() > 1 && (ezMath::IsEqual(ad.m_TimeSamples.PeekBack().m_Timestep, Sample.m_Timestep, ezTime::Microseconds(100))))
       ad.m_TimeSamples.PeekBack() = Sample;
     else
       ad.m_TimeSamples.PushBack(Sample);
@@ -274,15 +273,14 @@ void ezQtTimeWidget::on_ListClocks_itemChanged(QListWidgetItem* item)
 
 void ezQtTimeWidget::on_ComboTimeframe_currentIndexChanged(int index)
 {
-  const ezUInt32 uiSeconds[] =
-    {
-      10,
-      30,
-      60 * 1,
-      60 * 2,
-      60 * 5,
-      60 * 10,
-    };
+  const ezUInt32 uiSeconds[] = {
+    10,
+    30,
+    60 * 1,
+    60 * 2,
+    60 * 5,
+    60 * 10,
+  };
 
   m_DisplayInterval = ezTime::Seconds(uiSeconds[index]);
 }

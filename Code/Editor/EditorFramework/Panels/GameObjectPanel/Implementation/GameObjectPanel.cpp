@@ -12,8 +12,8 @@
 #include <QMenu>
 #include <QSortFilterProxyModel>
 
-ezQtGameObjectPanel::ezQtGameObjectPanel(QWidget* pParent, ezGameObjectDocument* pDocument, const char* szContextMenuMapping,
-  std::unique_ptr<ezQtDocumentTreeModel> pCustomModel)
+ezQtGameObjectPanel::ezQtGameObjectPanel(
+  QWidget* pParent, ezGameObjectDocument* pDocument, const char* szContextMenuMapping, std::unique_ptr<ezQtDocumentTreeModel> pCustomModel)
   : ezQtDocumentPanel(pParent)
 {
   setObjectName("ScenegraphPanel");
@@ -43,8 +43,7 @@ ezQtGameObjectPanel::ezQtGameObjectPanel(QWidget* pParent, ezGameObjectDocument*
 
   m_pTreeWidget->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
 
-  EZ_VERIFY(connect(m_pTreeWidget, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(OnItemDoubleClicked(const QModelIndex&))) !=
-              nullptr,
+  EZ_VERIFY(connect(m_pTreeWidget, SIGNAL(doubleClicked(const QModelIndex&)), this, SLOT(OnItemDoubleClicked(const QModelIndex&))) != nullptr,
     "signal/slot connection failed");
   EZ_VERIFY(connect(m_pTreeWidget, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(OnRequestContextMenu(QPoint))) != nullptr,
     "signal/slot connection failed");

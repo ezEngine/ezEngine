@@ -48,7 +48,8 @@ enum PrefabComponentFlags
 ezPrefabReferenceComponent::ezPrefabReferenceComponent() = default;
 ezPrefabReferenceComponent::~ezPrefabReferenceComponent() = default;
 
-void ezPrefabReferenceComponent::SerializePrefabParameters(const ezWorld& world, ezWorldWriter& stream, ezArrayMap<ezHashedString, ezVariant> parameters)
+void ezPrefabReferenceComponent::SerializePrefabParameters(
+  const ezWorld& world, ezWorldWriter& stream, ezArrayMap<ezHashedString, ezVariant> parameters)
 {
   // we need a copy of the parameters here, therefore we don't take it by reference
 

@@ -313,7 +313,8 @@ private:
     }
   };
 
-  union Data {
+  union Data
+  {
     float f[4];
     SharedData* shared;
   } m_Data;

@@ -17,7 +17,7 @@ const ezTimestamp ezDateTime::GetTimestamp() const
   gdate.year = m_iYear;
   gdate.month = m_uiMonth;
   gdate.day = m_uiDay;
-  //gdate.dayOfWeek = m_uiDayOfWeek; // TODO: nothing like this exists
+  // gdate.dayOfWeek = m_uiDayOfWeek; // TODO: nothing like this exists
   gdate.hour = m_uiHour;
   gdate.minute = m_uiMinute;
   gdate.second = (double)m_uiSecond + (double)m_uiMicroseconds / 1000000.0;
@@ -31,8 +31,7 @@ const ezTimestamp ezDateTime::GetTimestamp() const
 
 bool ezDateTime::SetTimestamp(ezTimestamp timestamp)
 {
-  CFAbsoluteTime at =
-      (static_cast<CFAbsoluteTime>(timestamp.GetInt64(ezSIUnitOfTime::Microsecond) / 1000000.0)) - kCFAbsoluteTimeIntervalSince1970;
+  CFAbsoluteTime at = (static_cast<CFAbsoluteTime>(timestamp.GetInt64(ezSIUnitOfTime::Microsecond) / 1000000.0)) - kCFAbsoluteTimeIntervalSince1970;
   CFGregorianDate gdate = CFAbsoluteTimeGetGregorianDate(at, nullptr);
   if (!CFGregorianDateIsValid(gdate, kCFGregorianAllUnits))
     return false;
@@ -47,4 +46,3 @@ bool ezDateTime::SetTimestamp(ezTimestamp timestamp)
   m_uiMicroseconds = (ezUInt32)(ezMath::Fraction(gdate.second) * 1000000.0);
   return true;
 }
-

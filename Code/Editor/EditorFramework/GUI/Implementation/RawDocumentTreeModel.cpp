@@ -12,8 +12,7 @@
 #include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 
-ezQtDocumentTreeModelAdapter::ezQtDocumentTreeModelAdapter(const ezDocumentObjectManager* pTree, const ezRTTI* pType,
-  const char* sChildProperty)
+ezQtDocumentTreeModelAdapter::ezQtDocumentTreeModelAdapter(const ezDocumentObjectManager* pTree, const ezRTTI* pType, const char* sChildProperty)
   : m_pTree(pTree)
   , m_pType(pType)
   , m_sChildProperty(sChildProperty)
@@ -21,8 +20,7 @@ ezQtDocumentTreeModelAdapter::ezQtDocumentTreeModelAdapter(const ezDocumentObjec
   if (!m_sChildProperty.IsEmpty())
   {
     auto pProp = pType->FindPropertyByName(m_sChildProperty);
-    EZ_ASSERT_DEV(pProp != nullptr &&
-                    (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set),
+    EZ_ASSERT_DEV(pProp != nullptr && (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set),
       "The visualized object property tree must either be a set or array!");
     EZ_ASSERT_DEV(!pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) || pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner),
       "The visualized object must have ownership of the property objects!");
@@ -78,14 +76,14 @@ QVariant ezQtDummyAdapter::data(const ezDocumentObject* pObject, int row, int co
   return QVariant();
 }
 
-ezQtNamedAdapter::ezQtNamedAdapter(const ezDocumentObjectManager* pTree, const ezRTTI* pType, const char* m_sChildProperty,
-  const char* szNameProperty)
+ezQtNamedAdapter::ezQtNamedAdapter(
+  const ezDocumentObjectManager* pTree, const ezRTTI* pType, const char* m_sChildProperty, const char* szNameProperty)
   : ezQtDocumentTreeModelAdapter(pTree, pType, m_sChildProperty)
   , m_sNameProperty(szNameProperty)
 {
   auto pProp = pType->FindPropertyByName(m_sNameProperty);
-  EZ_ASSERT_DEV(pProp != nullptr && pProp->GetCategory() == ezPropertyCategory::Member &&
-                  pProp->GetSpecificType()->GetVariantType() == ezVariantType::String,
+  EZ_ASSERT_DEV(
+    pProp != nullptr && pProp->GetCategory() == ezPropertyCategory::Member && pProp->GetSpecificType()->GetVariantType() == ezVariantType::String,
     "THe name property must be a string member property.");
 
   m_pTree->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezQtNamedAdapter::TreePropertyEventHandler, this));
@@ -124,8 +122,8 @@ void ezQtNamedAdapter::TreePropertyEventHandler(const ezDocumentObjectPropertyEv
   }
 }
 
-ezQtNameableAdapter::ezQtNameableAdapter(const ezDocumentObjectManager* pTree, const ezRTTI* pType, const char* m_sChildProperty,
-  const char* szNameProperty)
+ezQtNameableAdapter::ezQtNameableAdapter(
+  const ezDocumentObjectManager* pTree, const ezRTTI* pType, const char* m_sChildProperty, const char* szNameProperty)
   : ezQtNamedAdapter(pTree, pType, m_sChildProperty, szNameProperty)
 {
 }
@@ -422,8 +420,7 @@ Qt::ItemFlags ezQtDocumentTreeModel::flags(const QModelIndex& index) const
 }
 
 
-bool ezQtDocumentTreeModel::canDropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column,
-  const QModelIndex& parent) const
+bool ezQtDocumentTreeModel::canDropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) const
 {
   const ezDocumentObject* pParent = (const ezDocumentObject*)parent.internalPointer();
 

@@ -36,7 +36,7 @@ void ezSorting::QuickSort(Container& container, ezUInt32 uiStartIndex, ezUInt32 
     else
     {
       ezUInt32 uiPivotIndex = Partition(container, uiStartIndex, uiEndIndex, comparer);
-      
+
       if (uiStartIndex < uiPivotIndex)
         QuickSort(container, uiStartIndex, uiPivotIndex - 1, comparer);
 
@@ -49,7 +49,7 @@ template <typename Container, typename Comparer>
 ezUInt32 ezSorting::Partition(Container& container, ezUInt32 uiLeft, ezUInt32 uiRight, const Comparer& comparer)
 {
   const ezUInt32 uiPivotIndex = (uiLeft + uiRight) / 2;
-  
+
   ezMath::Swap(container[uiPivotIndex], container[uiRight]); // move pivot to right
 
   ezUInt32 uiIndex = uiLeft;
@@ -116,7 +116,7 @@ template <typename Container, typename Comparer>
 void ezSorting::InsertionSort(Container& container, ezUInt32 uiStartIndex, ezUInt32 uiEndIndex, const Comparer& comparer)
 {
   for (ezUInt32 i = uiStartIndex + 1; i <= uiEndIndex; ++i)
-  { 
+  {
     ezUInt32 uiHoleIndex = i;
     while (uiHoleIndex > uiStartIndex && DoCompare(comparer, container[uiHoleIndex], container[uiHoleIndex - 1]))
     {
@@ -132,7 +132,7 @@ void ezSorting::InsertionSort(ezArrayPtr<T>& arrayPtr, ezUInt32 uiStartIndex, ez
   T* ptr = arrayPtr.GetPtr();
 
   for (ezUInt32 i = uiStartIndex + 1; i <= uiEndIndex; ++i)
-  { 
+  {
     ezUInt32 uiHoleIndex = i;
     T valueToInsert = std::move(ptr[uiHoleIndex]);
 
@@ -153,4 +153,3 @@ void ezSorting::InsertionSort(ezArrayPtr<T>& arrayPtr, ezUInt32 uiStartIndex, ez
     }
   }
 }
-

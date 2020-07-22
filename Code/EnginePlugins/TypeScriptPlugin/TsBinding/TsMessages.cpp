@@ -175,8 +175,7 @@ void ezTypeScriptBinding::InjectMessageImportExport(ezStringBuilder& content, co
   for (const ezRTTI* pRtti : sorted)
   {
     GetTsName(pRtti, sTypeName);
-    sImportExport.AppendFormat("export import {0} = __AllMessages.{0};\n",
-      sTypeName);
+    sImportExport.AppendFormat("export import {0} = __AllMessages.{0};\n", sTypeName);
   }
 
   AppendToTextFile(content, sImportExport);
@@ -316,7 +315,8 @@ int ezTypeScriptBinding::__CPP_Binding_RegisterMessageHandler(duk_context* pDuk)
 {
   ezTypeScriptBinding* tsb = ezTypeScriptBinding::RetrieveBinding(pDuk);
 
-  EZ_ASSERT_DEV(tsb->m_CurrentTsMsgHandlerRegistrator.IsValid(), "'ez.TypescriptComponent.RegisterMessageHandler' may only be called from 'static RegisterMessageHandlers()'");
+  EZ_ASSERT_DEV(tsb->m_CurrentTsMsgHandlerRegistrator.IsValid(),
+    "'ez.TypescriptComponent.RegisterMessageHandler' may only be called from 'static RegisterMessageHandlers()'");
 
   ezDuktapeFunction duk(pDuk);
 
@@ -326,7 +326,7 @@ int ezTypeScriptBinding::__CPP_Binding_RegisterMessageHandler(duk_context* pDuk)
   const ezRTTI* pMsgType = ezRTTI::FindTypeByNameHash(uiMsgTypeHash);
 
   // this happens for pure TypeScript messages
-  //if (pMsgType == nullptr)
+  // if (pMsgType == nullptr)
   //{
   //  ezLog::Error("Message with type name hash '{}' does not exist.", uiMsgTypeHash);
   //  return duk.ReturnVoid();
@@ -358,7 +358,8 @@ bool ezTypeScriptBinding::HasMessageHandler(const TsComponentTypeInfo& typeInfo,
   return false;
 }
 
-bool ezTypeScriptBinding::DeliverMessage(const TsComponentTypeInfo& typeInfo, ezTypeScriptComponent* pComponent, ezMessage& msg, bool bSynchronizeAfterwards)
+bool ezTypeScriptBinding::DeliverMessage(
+  const TsComponentTypeInfo& typeInfo, ezTypeScriptComponent* pComponent, ezMessage& msg, bool bSynchronizeAfterwards)
 {
   if (!typeInfo.IsValid())
     return false;

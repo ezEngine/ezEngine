@@ -15,7 +15,11 @@ public:
   /// It is a valid implementation to pass an invalid handle. Note that in this case there is no way to determine
   /// what is actually stored inside. However, it can be useful to use e.g. the ezReflectedTypeDirectAccessor
   /// to set properties on the engine runtime side without having the ezPhantomRttiManager initialized.
-  ezIReflectedTypeAccessor(const ezRTTI* pRtti, ezDocumentObject* pOwner) : m_pRtti(pRtti), m_pOwner(pOwner) {} // [tested]
+  ezIReflectedTypeAccessor(const ezRTTI* pRtti, ezDocumentObject* pOwner)
+    : m_pRtti(pRtti)
+    , m_pOwner(pOwner)
+  {
+  } // [tested]
 
   /// \brief Returns the ezRTTI* of the wrapped instance type.
   const ezRTTI* GetType() const { return m_pRtti; } // [tested]
@@ -47,4 +51,3 @@ private:
   const ezRTTI* m_pRtti;
   ezDocumentObject* m_pOwner;
 };
-

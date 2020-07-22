@@ -6,7 +6,7 @@
 #include <QComboBox>
 
 ezQtDynamicEnumPropertyWidget::ezQtDynamicEnumPropertyWidget()
-    : ezQtStandardPropertyWidget()
+  : ezQtStandardPropertyWidget()
 {
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setMargin(0);
@@ -21,8 +21,8 @@ ezQtDynamicEnumPropertyWidget::ezQtDynamicEnumPropertyWidget()
 
 void ezQtDynamicEnumPropertyWidget::OnInit()
 {
-  EZ_ASSERT_DEV(m_pProp->GetAttributeByType<ezDynamicEnumAttribute>() != nullptr,
-                "ezQtDynamicEnumPropertyWidget was created without a ezDynamicEnumAttribute!");
+  EZ_ASSERT_DEV(
+    m_pProp->GetAttributeByType<ezDynamicEnumAttribute>() != nullptr, "ezQtDynamicEnumPropertyWidget was created without a ezDynamicEnumAttribute!");
 
   const ezDynamicEnumAttribute* pAttr = m_pProp->GetAttributeByType<ezDynamicEnumAttribute>();
 

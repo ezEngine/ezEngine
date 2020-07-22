@@ -7,8 +7,8 @@
 class EZ_RENDERERCORE_DLL ezShaderManager
 {
 public:
-  static void Configure(const char* szActivePlatform, bool bEnableRuntimeCompilation,
-    const char* szShaderCacheDirectory = ":shadercache/ShaderCache", const char* szPermVarSubDirectory = "Shaders/PermutationVars");
+  static void Configure(const char* szActivePlatform, bool bEnableRuntimeCompilation, const char* szShaderCacheDirectory = ":shadercache/ShaderCache",
+    const char* szPermVarSubDirectory = "Shaders/PermutationVars");
   static const ezString& GetPermutationVarSubDirectory() { return s_sPermVarSubDir; }
   static const ezString& GetActivePlatform() { return s_sPlatform; }
   static const ezString& GetCacheDirectory() { return s_ShaderCacheDirectory; }
@@ -35,8 +35,8 @@ public:
 private:
   static ezUInt32 FilterPermutationVars(ezArrayPtr<const ezHashedString> usedVars, const ezHashTable<ezHashedString, ezHashedString>& permVars,
     ezDynamicArray<ezPermutationVar>& out_FilteredPermutationVariables);
-  static ezShaderPermutationResourceHandle PreloadSinglePermutationInternal(const char* szResourceId, ezUInt32 uiResourceIdHash,
-    ezUInt32 uiPermutationHash, ezArrayPtr<ezPermutationVar> filteredPermutationVariables);
+  static ezShaderPermutationResourceHandle PreloadSinglePermutationInternal(
+    const char* szResourceId, ezUInt32 uiResourceIdHash, ezUInt32 uiPermutationHash, ezArrayPtr<ezPermutationVar> filteredPermutationVariables);
 
   static bool s_bEnableRuntimeCompilation;
   static ezString s_sPlatform;

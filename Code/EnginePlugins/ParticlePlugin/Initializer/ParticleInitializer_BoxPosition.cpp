@@ -58,7 +58,6 @@ void ezParticleInitializerFactory_BoxPosition::CopyInitializerProperties(ezParti
 
   pInitializer->m_vPositionOffset = m_vPositionOffset;
   pInitializer->m_vSize = vSize;
-
 }
 
 float ezParticleInitializerFactory_BoxPosition::GetSpawnCountMultiplier(const ezParticleEffectInstance* pEffect) const

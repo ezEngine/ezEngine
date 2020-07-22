@@ -312,7 +312,8 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
         }
       }
 
-      EZ_TEST_BOOL(uiNotAllThisTasksFinished + uiNotAllNextTasksFinished <= ezTaskSystem::GetNumAllocatedWorkerThreads(ezWorkerThreadType::ShortTasks));
+      EZ_TEST_BOOL(
+        uiNotAllThisTasksFinished + uiNotAllNextTasksFinished <= ezTaskSystem::GetNumAllocatedWorkerThreads(ezWorkerThreadType::ShortTasks));
     }
 
     // 'finish' all frames
@@ -347,7 +348,8 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
 
       // even after finishing multiple frames, the previous frame tasks may still be in execution
       // since no N+x tasks enforce their completion in this test
-      EZ_TEST_BOOL(uiNotAllThisTasksFinished + uiNotAllNextTasksFinished <= ezTaskSystem::GetNumAllocatedWorkerThreads(ezWorkerThreadType::ShortTasks));
+      EZ_TEST_BOOL(
+        uiNotAllThisTasksFinished + uiNotAllNextTasksFinished <= ezTaskSystem::GetNumAllocatedWorkerThreads(ezWorkerThreadType::ShortTasks));
     }
   }
 
@@ -417,7 +419,8 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     EZ_TEST_BOOL(uiDone < uiNumTasks);
 
     EZ_TEST_BOOL(uiStarted > 0);
-    EZ_TEST_BOOL_MSG(uiStarted <= ezTaskSystem::GetNumAllocatedWorkerThreads(ezWorkerThreadType::ShortTasks), "This test can fail when the PC is under heavy load."); // should not have managed to start more tasks than there are threads
+    EZ_TEST_BOOL_MSG(uiStarted <= ezTaskSystem::GetNumAllocatedWorkerThreads(ezWorkerThreadType::ShortTasks),
+      "This test can fail when the PC is under heavy load."); // should not have managed to start more tasks than there are threads
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Canceling Tasks (forcefully)")
@@ -463,7 +466,8 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     if (EZ_TEST_BOOL_MSG(uiDone == 0, "This test can fail when the PC is under heavy load.").Succeeded())
     {
       EZ_TEST_BOOL(uiStarted > 0);
-      EZ_TEST_BOOL(uiStarted <= ezTaskSystem::GetNumAllocatedWorkerThreads(ezWorkerThreadType::ShortTasks)); // should not have managed to start more tasks than there are threads
+      EZ_TEST_BOOL(uiStarted <= ezTaskSystem::GetNumAllocatedWorkerThreads(
+                                  ezWorkerThreadType::ShortTasks)); // should not have managed to start more tasks than there are threads
     }
   }
 

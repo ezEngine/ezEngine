@@ -3,9 +3,8 @@
 #include <FileservePlugin/Fileserver/ClientContext.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 
-ezFileserveFileState ezFileserveClientContext::GetFileStatus(ezUInt16& inout_uiDataDirID, const char* szRequestedFile,
-                                                             FileStatus& inout_Status, ezDynamicArray<ezUInt8>& out_FileContent,
-                                                             bool bForceThisDataDir) const
+ezFileserveFileState ezFileserveClientContext::GetFileStatus(ezUInt16& inout_uiDataDirID, const char* szRequestedFile, FileStatus& inout_Status,
+  ezDynamicArray<ezUInt8>& out_FileContent, bool bForceThisDataDir) const
 {
   for (ezUInt32 i = m_MountedDataDirs.GetCount(); i > 0; --i)
   {

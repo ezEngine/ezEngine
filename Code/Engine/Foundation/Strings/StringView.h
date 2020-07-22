@@ -52,7 +52,7 @@ public:
   ///
   /// The string will be copied to \a tempStorage and the pointer to that is returned.
   /// If you really need the raw pointer to the ezStringView memory or are absolutely certain that the view points
-  /// to a zero-terminated string, you can use 
+  /// to a zero-terminated string, you can use
   const char* GetData(ezStringBuilder& tempStorage) const; // [tested]
 
   /// \brief Returns the number of bytes from the start position up to its end.
@@ -112,4 +112,3 @@ private:
 };
 
 #include <Foundation/Strings/Implementation/StringView_inl.h>
-

@@ -1,9 +1,9 @@
 #pragma once
 
-#include <GuiFoundation/GuiFoundationDLL.h>
 #include <Foundation/Strings/String.h>
-#include <GuiFoundation/ui_QtWaitForOperationDlg.h>
 #include <Foundation/Types/Delegate.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
+#include <GuiFoundation/ui_QtWaitForOperationDlg.h>
 
 class QWinTaskbarProgress;
 class QWinTaskbarButton;
@@ -30,12 +30,8 @@ private Q_SLOTS:
   void onIdle();
 
 private:
-
 #if EZ_ENABLED(USE_WIN_EXTRAS)
   QWinTaskbarButton* m_pWinTaskBarButton;
   QWinTaskbarProgress* m_pWinTaskBarProgress;
 #endif
-
 };
-
-

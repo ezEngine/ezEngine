@@ -1,10 +1,10 @@
 #pragma once
 
-#include <OpenXRPlugin/Basics.h>
-#include <OpenXRPlugin/OpenXRIncludes.h>
-#include <GameEngine/XR/XRSpatialAnchorsInterface.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Containers/IdTable.h>
+#include <GameEngine/XR/XRSpatialAnchorsInterface.h>
+#include <OpenXRPlugin/Basics.h>
+#include <OpenXRPlugin/OpenXRIncludes.h>
 
 class ezOpenXR;
 
@@ -33,5 +33,4 @@ private:
   ezOpenXR* m_pOpenXR = nullptr;
 
   ezIdTable<ezXRSpatialAnchorID, AnchorData> m_Anchors;
-
 };

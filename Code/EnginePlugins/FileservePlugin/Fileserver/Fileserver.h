@@ -1,9 +1,9 @@
 #pragma once
 
 #include <FileservePlugin/Fileserver/ClientContext.h>
-#include <Foundation/Containers/HashTable.h>
-#include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Communication/RemoteInterface.h>
+#include <Foundation/Configuration/Singleton.h>
+#include <Foundation/Containers/HashTable.h>
 #include <Foundation/Types/UniquePtr.h>
 #include <Foundation/Types/Uuid.h>
 
@@ -76,7 +76,8 @@ public:
   /// \brief Overrides the current port setting. May only be called when the server is currently not running.
   void SetPort(ezUInt16 uiPort);
 
-  /// \brief Returns the currently set port. If the command line option "-fs_port X" was used, this will return that value, otherwise the default is 1042.
+  /// \brief Returns the currently set port. If the command line option "-fs_port X" was used, this will return that value, otherwise the default is
+  /// 1042.
   ezUInt16 GetPort() const { return m_uiPort; }
 
   /// \brief The server broadcasts events about its activity
@@ -85,27 +86,27 @@ public:
   /// \brief Broadcasts to all clients that they should reload their resources
   void BroadcastReloadResourcesCommand();
 
-  static ezResult SendConnectionInfo(const char* szClientAddress, ezUInt16 uiMyPort, const ezArrayPtr<ezStringBuilder>& MyIPs, ezTime timeout = ezTime::Seconds(10));
+  static ezResult SendConnectionInfo(
+    const char* szClientAddress, ezUInt16 uiMyPort, const ezArrayPtr<ezStringBuilder>& MyIPs, ezTime timeout = ezTime::Seconds(10));
 
 private:
   void NetworkEventHandler(const ezRemoteEvent& e);
-  ezFileserveClientContext& DetermineClient(ezRemoteMessage &msg);
+  ezFileserveClientContext& DetermineClient(ezRemoteMessage& msg);
   void NetworkMsgHandler(ezRemoteMessage& msg);
-  void HandleMountRequest(ezFileserveClientContext& client, ezRemoteMessage &msg);
-  void HandleUnmountRequest(ezFileserveClientContext& client, ezRemoteMessage &msg);
-  void HandleFileRequest(ezFileserveClientContext& client, ezRemoteMessage &msg);
-  void HandleDeleteFileRequest(ezFileserveClientContext& client, ezRemoteMessage &msg);
-  void HandleUploadFileHeader(ezFileserveClientContext& client, ezRemoteMessage &msg);
-  void HandleUploadFileTransfer(ezFileserveClientContext& client, ezRemoteMessage &msg);
-  void HandleUploadFileFinished(ezFileserveClientContext& client, ezRemoteMessage &msg);
+  void HandleMountRequest(ezFileserveClientContext& client, ezRemoteMessage& msg);
+  void HandleUnmountRequest(ezFileserveClientContext& client, ezRemoteMessage& msg);
+  void HandleFileRequest(ezFileserveClientContext& client, ezRemoteMessage& msg);
+  void HandleDeleteFileRequest(ezFileserveClientContext& client, ezRemoteMessage& msg);
+  void HandleUploadFileHeader(ezFileserveClientContext& client, ezRemoteMessage& msg);
+  void HandleUploadFileTransfer(ezFileserveClientContext& client, ezRemoteMessage& msg);
+  void HandleUploadFileFinished(ezFileserveClientContext& client, ezRemoteMessage& msg);
 
   ezHashTable<ezUInt32, ezFileserveClientContext> m_Clients;
   ezUniquePtr<ezRemoteInterface> m_Network;
-  ezDynamicArray<ezUInt8> m_SendToClient; // ie. 'downloads' from server to client
+  ezDynamicArray<ezUInt8> m_SendToClient;   // ie. 'downloads' from server to client
   ezDynamicArray<ezUInt8> m_SentFromClient; // ie. 'uploads' from client to server
   ezStringBuilder m_sCurFileUpload;
   ezUuid m_FileUploadGuid;
   ezUInt32 m_uiFileUploadSize;
   ezUInt16 m_uiPort = 1042;
 };
-

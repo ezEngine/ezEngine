@@ -43,8 +43,7 @@ void ezPrefabResource::InstantiatePrefab(ezWorld& world, const ezTransform& root
 }
 
 void ezPrefabResource::ApplyExposedParameterValues(const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues,
-  const ezHybridArray<ezGameObject*, 8>& createdChildObjects,
-  const ezHybridArray<ezGameObject*, 8>& createdRootObjects) const
+  const ezHybridArray<ezGameObject*, 8>& createdChildObjects, const ezHybridArray<ezGameObject*, 8>& createdRootObjects) const
 {
   const ezUInt32 uiNumParamDescs = m_PrefabParamDescs.GetCount();
 
@@ -60,8 +59,8 @@ void ezPrefabResource::ApplyExposedParameterValues(const ezArrayMap<ezHashedStri
       if (ppd.m_sExposeName.GetHash() != uiNameHash)
         break;
 
-      ezGameObject* pTarget = ppd.m_uiWorldReaderChildObject ? createdChildObjects[ppd.m_uiWorldReaderObjectIndex]
-                                                             : createdRootObjects[ppd.m_uiWorldReaderObjectIndex];
+      ezGameObject* pTarget =
+        ppd.m_uiWorldReaderChildObject ? createdChildObjects[ppd.m_uiWorldReaderObjectIndex] : createdRootObjects[ppd.m_uiWorldReaderObjectIndex];
 
       if (ppd.m_CachedPropertyPath.IsValid())
       {

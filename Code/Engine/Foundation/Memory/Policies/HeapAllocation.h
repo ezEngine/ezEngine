@@ -22,8 +22,7 @@ namespace ezMemoryPolicies
       // unfortunately using EZ_ALIGNMENT_MINIMUM doesn't work, because even on 32 Bit systems we try to do allocations with 8 Byte
       // alignment interestingly, the code that does that, seems to work fine anyway
       EZ_ASSERT_DEBUG(
-          uiAlign <= 8,
-          "This allocator does not guarantee alignments larger than 8. Use an aligned allocator to allocate the desired data type.");
+        uiAlign <= 8, "This allocator does not guarantee alignments larger than 8. Use an aligned allocator to allocate the desired data type.");
 
       void* ptr = malloc(PadSize(uiSize));
       EZ_CHECK_ALIGNMENT(ptr, uiAlign);
@@ -76,5 +75,4 @@ namespace ezMemoryPolicies
 #endif
     }
   };
-}
-
+} // namespace ezMemoryPolicies

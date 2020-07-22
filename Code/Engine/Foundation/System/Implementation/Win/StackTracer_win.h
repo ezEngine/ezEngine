@@ -29,8 +29,8 @@ namespace
 
   typedef BOOL(__stdcall* SymbolInitializeFunc)(HANDLE hProcess, PCWSTR UserSearchPath, BOOL fInvadeProcess);
 
-  typedef DWORD64(__stdcall* SymbolLoadModuleFunc)(HANDLE hProcess, HANDLE hFile, PCWSTR ImageName, PCWSTR ModuleName, DWORD64 BaseOfDll,
-    DWORD DllSize, PMODLOAD_DATA Data, DWORD Flags);
+  typedef DWORD64(__stdcall* SymbolLoadModuleFunc)(
+    HANDLE hProcess, HANDLE hFile, PCWSTR ImageName, PCWSTR ModuleName, DWORD64 BaseOfDll, DWORD DllSize, PMODLOAD_DATA Data, DWORD Flags);
 
   typedef BOOL(__stdcall* SymbolGetModuleInfoFunc)(HANDLE hProcess, DWORD64 qwAddr, PIMAGEHLP_MODULEW64 ModuleInfo);
 
@@ -39,8 +39,7 @@ namespace
   typedef DWORD64(__stdcall* SymbolGetModuleBaseFunc)(HANDLE hProcess, DWORD64 qwAddr);
 
   typedef BOOL(__stdcall* StackWalk)(DWORD MachineType, HANDLE hProcess, HANDLE hThread, LPSTACKFRAME64 StackFrame, PVOID ContextRecord,
-    PREAD_PROCESS_MEMORY_ROUTINE64 ReadMemoryRoutine,
-    PFUNCTION_TABLE_ACCESS_ROUTINE64 FunctionTableAccessRoutine,
+    PREAD_PROCESS_MEMORY_ROUTINE64 ReadMemoryRoutine, PFUNCTION_TABLE_ACCESS_ROUTINE64 FunctionTableAccessRoutine,
     PGET_MODULE_BASE_ROUTINE64 GetModuleBaseRoutine, PTRANSLATE_ADDRESS_ROUTINE64 TranslateAddress);
 
   typedef BOOL(__stdcall* SymbolFromAddressFunc)(HANDLE hProcess, DWORD64 Address, PDWORD64 Displacement, PSYMBOL_INFOW Symbol);
@@ -174,8 +173,8 @@ void ezStackTracer::OnPluginEvent(const ezPluginEvent& e)
         MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), (LPTSTR)&lpMsgBuf, 0, nullptr);
 
       char errStr[1024];
-      sprintf_s(errStr, "StackTracer could not get module info for '%s'. Error-Code %u (\"%s\")\n", e.m_szPluginFile, err,
-        static_cast<char*>(lpMsgBuf));
+      sprintf_s(
+        errStr, "StackTracer could not get module info for '%s'. Error-Code %u (\"%s\")\n", e.m_szPluginFile, err, static_cast<char*>(lpMsgBuf));
       ezLog::Print(errStr);
 
       LocalFree(lpMsgBuf);

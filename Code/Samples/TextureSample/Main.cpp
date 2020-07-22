@@ -309,9 +309,9 @@ public:
       pContext->SetRasterizerState(m_hRasterizerState);
       pContext->SetDepthStencilState(m_hDepthStencilState);
 
-      ezMat4 Proj = ezGraphicsUtils::CreateOrthographicProjectionMatrix(
-        m_vCameraPosition.x + -(float)g_uiWindowWidth * 0.5f, m_vCameraPosition.x + (float)g_uiWindowWidth * 0.5f,
-        m_vCameraPosition.y + -(float)g_uiWindowHeight * 0.5f, m_vCameraPosition.y + (float)g_uiWindowHeight * 0.5f, -1.0f, 1.0f);
+      ezMat4 Proj = ezGraphicsUtils::CreateOrthographicProjectionMatrix(m_vCameraPosition.x + -(float)g_uiWindowWidth * 0.5f,
+        m_vCameraPosition.x + (float)g_uiWindowWidth * 0.5f, m_vCameraPosition.y + -(float)g_uiWindowHeight * 0.5f,
+        m_vCameraPosition.y + (float)g_uiWindowHeight * 0.5f, -1.0f, 1.0f);
 
       ezRenderContext::GetDefaultInstance()->BindConstantBuffer("ezTextureSampleConstants", m_hSampleConstants);
       ezRenderContext::GetDefaultInstance()->BindMaterial(m_hMaterial);
@@ -346,8 +346,7 @@ public:
 
           sResourceName.Printf("Loaded_%+03i_%+03i_D", x, y);
 
-          ezTexture2DResourceHandle hTexture =
-            ezResourceManager::LoadResource<ezTexture2DResource>(sResourceName);
+          ezTexture2DResourceHandle hTexture = ezResourceManager::LoadResource<ezTexture2DResource>(sResourceName);
 
           // force immediate loading
           if (g_bForceImmediateLoading)
@@ -445,8 +444,8 @@ public:
     {
       for (ezUInt32 v = 0; v < geom.GetPolygons()[p].m_Vertices.GetCount() - 2; ++v)
       {
-        desc.SetTriangleIndices(t, geom.GetPolygons()[p].m_Vertices[0], geom.GetPolygons()[p].m_Vertices[v + 1],
-          geom.GetPolygons()[p].m_Vertices[v + 2]);
+        desc.SetTriangleIndices(
+          t, geom.GetPolygons()[p].m_Vertices[0], geom.GetPolygons()[p].m_Vertices[v + 1], geom.GetPolygons()[p].m_Vertices[v + 2]);
 
         ++t;
       }
@@ -455,8 +454,7 @@ public:
     m_hQuadMeshBuffer = ezResourceManager::GetExistingResource<ezMeshBufferResource>("{E692442B-9E15-46C5-8A00-1B07C02BF8F7}");
 
     if (!m_hQuadMeshBuffer.IsValid())
-      m_hQuadMeshBuffer =
-        ezResourceManager::CreateResource<ezMeshBufferResource>("{E692442B-9E15-46C5-8A00-1B07C02BF8F7}", std::move(desc));
+      m_hQuadMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>("{E692442B-9E15-46C5-8A00-1B07C02BF8F7}", std::move(desc));
   }
 
 private:

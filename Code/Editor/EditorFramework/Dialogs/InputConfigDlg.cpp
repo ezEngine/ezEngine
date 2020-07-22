@@ -42,7 +42,7 @@ void UpdateInputDynamicEnumValues()
 }
 
 ezQtInputConfigDlg::ezQtInputConfigDlg(QWidget* parent)
-    : QDialog(parent)
+  : QDialog(parent)
 {
   setupUi(this);
 
@@ -130,16 +130,16 @@ void ezQtInputConfigDlg::on_ButtonRemove_clicked()
 
   if (TreeActions->indexOfTopLevelItem(pItem) >= 0)
   {
-    if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("Do you really want to remove the entire Input Set?",
-                                                           QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
+    if (ezQtUiServices::GetSingleton()->MessageBoxQuestion(
+          "Do you really want to remove the entire Input Set?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
       return;
 
     m_InputSetToItem.Remove(pItem->text(0).toUtf8().data());
   }
   else
   {
-    if (ezQtUiServices::GetSingleton()->MessageBoxQuestion("Do you really want to remove this action?", QMessageBox::Yes | QMessageBox::No,
-                                                           QMessageBox::No) == QMessageBox::No)
+    if (ezQtUiServices::GetSingleton()->MessageBoxQuestion(
+          "Do you really want to remove this action?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
       return;
   }
 
@@ -270,8 +270,7 @@ void ezQtInputConfigDlg::GetActionsFromList()
 
       for (int i = 0; i < 3; ++i)
       {
-        cfg.m_sInputSlotTrigger[i] =
-            qobject_cast<QComboBox*>(TreeActions->itemWidget(pActionItem, 2 + i * 2))->currentText().toUtf8().data();
+        cfg.m_sInputSlotTrigger[i] = qobject_cast<QComboBox*>(TreeActions->itemWidget(pActionItem, 2 + i * 2))->currentText().toUtf8().data();
         cfg.m_fInputSlotScale[i] = qobject_cast<QDoubleSpinBox*>(TreeActions->itemWidget(pActionItem, 3 + i * 2))->value();
       }
     }

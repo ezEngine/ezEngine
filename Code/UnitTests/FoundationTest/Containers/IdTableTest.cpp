@@ -14,7 +14,7 @@ namespace
     int x;
     ezString s;
   };
-}
+} // namespace
 
 EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
 {

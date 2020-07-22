@@ -1,15 +1,14 @@
 #include <TestFrameworkPCH.h>
 
 #ifdef EZ_USE_QT
-#include <TestFramework/Framework/Qt/qtTestFramework.h>
+#  include <TestFramework/Framework/Qt/qtTestFramework.h>
 
 ////////////////////////////////////////////////////////////////////////
 // ezQtTestFramework public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezQtTestFramework::ezQtTestFramework(const char* szTestName, const char* szAbsTestDir, const char* szRelTestDataDir, int argc,
-                                     const char** argv)
-    : ezTestFramework(szTestName, szAbsTestDir, szRelTestDataDir, argc, argv)
+ezQtTestFramework::ezQtTestFramework(const char* szTestName, const char* szAbsTestDir, const char* szRelTestDataDir, int argc, const char** argv)
+  : ezTestFramework(szTestName, szAbsTestDir, szRelTestDataDir, argc, argv)
 {
   Q_INIT_RESOURCE(resources);
   Initialize();
@@ -36,4 +35,3 @@ void ezQtTestFramework::TestResultImpl(ezInt32 iSubTestIndex, bool bSuccess, dou
 #endif
 
 EZ_STATICLINK_FILE(TestFramework, TestFramework_Framework_Qt_qtTestFramework);
-

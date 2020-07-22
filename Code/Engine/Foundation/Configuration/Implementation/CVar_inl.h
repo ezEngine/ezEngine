@@ -4,7 +4,7 @@
 
 template <typename Type, ezCVarType::Enum CVarType>
 ezTypedCVar<Type, CVarType>::ezTypedCVar(const char* szName, const Type& Value, ezBitflags<ezCVarFlags> Flags, const char* szDescription)
-    : ezCVar(szName, Flags, szDescription)
+  : ezCVar(szName, Flags, szDescription)
 {
   EZ_ASSERT_DEBUG(ezStringUtils::FindSubString(szName, " ") == nullptr, "CVar names must not contain whitespace");
 
@@ -13,7 +13,10 @@ ezTypedCVar<Type, CVarType>::ezTypedCVar(const char* szName, const Type& Value, 
 }
 
 template <typename Type, ezCVarType::Enum CVarType>
-ezTypedCVar<Type, CVarType>::operator const Type&() const { return (m_Values[ezCVarValue::Current]); }
+ezTypedCVar<Type, CVarType>::operator const Type &() const
+{
+  return (m_Values[ezCVarValue::Current]);
+}
 
 template <typename Type, ezCVarType::Enum CVarType>
 ezCVarType::Enum ezTypedCVar<Type, CVarType>::GetType() const
@@ -72,4 +75,3 @@ void ezTypedCVar<Type, CVarType>::operator=(const Type& value)
   // broadcast the same to the 'all cvars' event handlers
   s_AllCVarEvents.Broadcast(e);
 }
-

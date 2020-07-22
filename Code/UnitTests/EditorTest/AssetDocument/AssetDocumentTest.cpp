@@ -1,10 +1,10 @@
 #include <EditorTestPCH.h>
 
+#include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/Assets/AssetDocument.h>
 #include <EditorTest/AssetDocument/AssetDocumentTest.h>
 #include <Foundation/IO/OSFile.h>
-#include <EditorFramework/Assets/AssetCurator.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
-#include <EditorFramework/Assets/AssetDocument.h>
 
 static ezEditorAssetDocumentTest s_GameEngineTestBasics;
 
@@ -71,11 +71,12 @@ void ezEditorAssetDocumentTest::AsyncSave()
     ezDocumentObject* pMeshAsset = pDoc->GetObjectManager()->GetRootObject()->GetChildren()[0];
     ezObjectAccessorBase* pAcc = pDoc->GetObjectAccessor();
     ezInt32 iOrder = 0;
-    ezTaskGroupID id = pDoc->SaveDocumentAsync([&iOrder](ezDocument* doc, ezStatus res)
-      {
+    ezTaskGroupID id = pDoc->SaveDocumentAsync(
+      [&iOrder](ezDocument* doc, ezStatus res) {
         EZ_TEST_INT(iOrder, 0);
         iOrder = 1;
-      }, true);
+      },
+      true);
 
     pAcc->StartTransaction("Edit Mesh");
     EZ_TEST_BOOL(pAcc->SetValue(pMeshAsset, "MeshFile", "Meshes/Cube.obj").Succeeded());
@@ -83,11 +84,10 @@ void ezEditorAssetDocumentTest::AsyncSave()
 
     // Saving while another save is in progress should block. This ensures the correct state on disk.
     ezString sFile = pAcc->Get<ezString>(pMeshAsset, "MeshFile");
-    ezTaskGroupID id2 = pDoc->SaveDocumentAsync([&iOrder](ezDocument* doc, ezStatus res)
-      {
-        EZ_TEST_INT(iOrder, 1);
-        iOrder = 2;
-      });
+    ezTaskGroupID id2 = pDoc->SaveDocumentAsync([&iOrder](ezDocument* doc, ezStatus res) {
+      EZ_TEST_INT(iOrder, 1);
+      iOrder = 2;
+    });
 
     // Closing the document should wait for the async save to finish.
     pDoc->GetDocumentManager()->CloseDocument(pDoc);

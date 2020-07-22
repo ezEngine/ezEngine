@@ -443,8 +443,8 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
     }
     EZ_TEST_BOOL(m.IsEqual(refM, 0.00001f));
 
-    ezVec3 p[8] = {ezVec3(-4, 0, 0), ezVec3(5, 0, 0), ezVec3(0, -6, 0), ezVec3(0, 7, 0),
-      ezVec3(0, 0, -8), ezVec3(0, 0, 9), ezVec3(1, -2, 3), ezVec3(-4, 5, 7)};
+    ezVec3 p[8] = {
+      ezVec3(-4, 0, 0), ezVec3(5, 0, 0), ezVec3(0, -6, 0), ezVec3(0, 7, 0), ezVec3(0, 0, -8), ezVec3(0, 0, 9), ezVec3(1, -2, 3), ezVec3(-4, 5, 7)};
 
     for (ezUInt32 i = 0; i < EZ_ARRAY_SIZE(p); ++i)
     {

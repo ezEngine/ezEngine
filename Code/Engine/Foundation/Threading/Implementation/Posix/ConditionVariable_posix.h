@@ -1,8 +1,8 @@
 #include <Foundation/FoundationInternal.h>
 EZ_FOUNDATION_INTERNAL_HEADER
 
-#include <pthread.h>
 #include <errno.h>
+#include <pthread.h>
 
 ezConditionVariable::ezConditionVariable()
 {

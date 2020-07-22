@@ -111,10 +111,7 @@ private:
 
   struct JSONState
   {
-    JSONState()
-    {
-      m_State = NotStarted;
-    }
+    JSONState() { m_State = NotStarted; }
 
     State m_State;
   };
@@ -148,4 +145,3 @@ private:
 
   bool m_bSkippingMode;
 };
-

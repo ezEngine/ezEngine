@@ -1,8 +1,8 @@
 #pragma once
 
-#include <ParticlePlugin/Initializer/ParticleInitializer.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Foundation/Types/VarianceTypes.h>
+#include <ParticlePlugin/Initializer/ParticleInitializer.h>
 
 typedef ezTypedResourceHandle<class ezCurve1DResource> ezCurve1DResourceHandle;
 
@@ -11,7 +11,6 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleInitializerFactory_RandomSize final : publ
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializerFactory_RandomSize, ezParticleInitializerFactory);
 
 public:
-
   virtual const ezRTTI* GetInitializerType() const override;
   virtual void CopyInitializerProperties(ezParticleInitializer* pInitializer, bool bFirstTime) const override;
 
@@ -31,7 +30,6 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer_RandomSize final : public ezPa
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializer_RandomSize, ezParticleInitializer);
 
 public:
-
   ezVarianceTypeFloat m_Size;
   ezCurve1DResourceHandle m_hCurve;
 

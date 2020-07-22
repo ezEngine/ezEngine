@@ -1,6 +1,6 @@
-﻿#includde <WindowsMixedRealityPCH.h>
-#include <WindowsMixedReality/Input/SpatialInputDevice.h>
+﻿#includde < WindowsMixedRealityPCH.h>
 #include <WindowsMixedReality/HolographicSpace.h>
+#include <WindowsMixedReality/Input/SpatialInputDevice.h>
 #include <WindowsMixedReality/SpatialReferenceFrame.h>
 #include <wrl/event.h>
 
@@ -10,19 +10,16 @@ using namespace ABI::Windows::Perception::Spatial;
 using namespace ABI::Windows::UI::Input::Spatial;
 using namespace ABI::Windows::Foundation::Numerics;
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputDeviceSpatialInteraction, 1, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputDeviceSpatialInteraction, 1, ezRTTINoAllocator)
+  ;
 // no properties or message handlers
 EZ_END_DYNAMIC_REFLECTED_TYPE
 
 ezInputDeviceSpatialInteraction g_SpatialInputDevice;
 
-ezInputDeviceSpatialInteraction::ezInputDeviceSpatialInteraction()
-{
-}
+ezInputDeviceSpatialInteraction::ezInputDeviceSpatialInteraction() {}
 
-ezInputDeviceSpatialInteraction::~ezInputDeviceSpatialInteraction()
-{
-}
+ezInputDeviceSpatialInteraction::~ezInputDeviceSpatialInteraction() {}
 
 void ezInputDeviceSpatialInteraction::InitializeDevice()
 {
@@ -34,18 +31,23 @@ void ezInputDeviceSpatialInteraction::InitializeDevice()
 
   if (SUCCEEDED(m_pSpatialInteractionManagerStatics->GetForCurrentView(&m_pSpatialInteractionManager)))
   {
-    using DefSourceEventArgs = __FITypedEventHandler_2_Windows__CUI__CInput__CSpatial__CSpatialInteractionManager_Windows__CUI__CInput__CSpatial__CSpatialInteractionSourceEventArgs;
+    using DefSourceEventArgs =
+      __FITypedEventHandler_2_Windows__CUI__CInput__CSpatial__CSpatialInteractionManager_Windows__CUI__CInput__CSpatial__CSpatialInteractionSourceEventArgs;
 
-    m_pSpatialInteractionManager->add_SourceDetected(Microsoft::WRL::Callback<DefSourceEventArgs>(this, &ezInputDeviceSpatialInteraction::OnSourceDetected).Get(), &m_OnSourceDetectedToken);
+    m_pSpatialInteractionManager->add_SourceDetected(
+      Microsoft::WRL::Callback<DefSourceEventArgs>(this, &ezInputDeviceSpatialInteraction::OnSourceDetected).Get(), &m_OnSourceDetectedToken);
 
-    m_pSpatialInteractionManager->add_SourceLost(Microsoft::WRL::Callback<DefSourceEventArgs>(this, &ezInputDeviceSpatialInteraction::OnSourceLost).Get(), &m_OnSourceLostToken);
+    m_pSpatialInteractionManager->add_SourceLost(
+      Microsoft::WRL::Callback<DefSourceEventArgs>(this, &ezInputDeviceSpatialInteraction::OnSourceLost).Get(), &m_OnSourceLostToken);
 
-    m_pSpatialInteractionManager->add_SourcePressed(Microsoft::WRL::Callback<DefSourceEventArgs>(this, &ezInputDeviceSpatialInteraction::OnSourcePressed).Get(), &m_OnSourcePressedToken);
+    m_pSpatialInteractionManager->add_SourcePressed(
+      Microsoft::WRL::Callback<DefSourceEventArgs>(this, &ezInputDeviceSpatialInteraction::OnSourcePressed).Get(), &m_OnSourcePressedToken);
 
-    m_pSpatialInteractionManager->add_SourceReleased(Microsoft::WRL::Callback<DefSourceEventArgs>(this, &ezInputDeviceSpatialInteraction::OnSourceReleased).Get(), &m_OnSourceReleasedToken);
+    m_pSpatialInteractionManager->add_SourceReleased(
+      Microsoft::WRL::Callback<DefSourceEventArgs>(this, &ezInputDeviceSpatialInteraction::OnSourceReleased).Get(), &m_OnSourceReleasedToken);
 
-    m_pSpatialInteractionManager->add_SourceUpdated(Microsoft::WRL::Callback<DefSourceEventArgs>(this, &ezInputDeviceSpatialInteraction::OnSourceUpdated).Get(), &m_OnSourceUpdatedToken);
-
+    m_pSpatialInteractionManager->add_SourceUpdated(
+      Microsoft::WRL::Callback<DefSourceEventArgs>(this, &ezInputDeviceSpatialInteraction::OnSourceUpdated).Get(), &m_OnSourceUpdatedToken);
   }
 }
 
@@ -95,9 +97,7 @@ void ezInputDeviceSpatialInteraction::RegisterInputSlots()
   RegisterInputSlot(ezInputSlot_Spatial_Head_UpNegZ, "Head Up Neg Z", ezInputSlotFlags::IsTrackedValue);
 }
 
-void ezInputDeviceSpatialInteraction::ResetInputSlotValues()
-{
-}
+void ezInputDeviceSpatialInteraction::ResetInputSlotValues() {}
 
 void ezInputDeviceSpatialInteraction::UpdateInputSlotValues()
 {
@@ -175,8 +175,7 @@ void ezInputDeviceSpatialInteraction::GetSourceDetails(ISpatialInteractionSource
   // Position
   {
     ComPtr<ISpatialInteractionSourceLocation> location;
-    if (SUCCEEDED(pSourceProperties->TryGetLocation(coordinateSystem.Get(), &location)) &&
-        location != nullptr)
+    if (SUCCEEDED(pSourceProperties->TryGetLocation(coordinateSystem.Get(), &location)) && location != nullptr)
     {
       __FIReference_1_Windows__CFoundation__CNumerics__CVector3_t* pos;
       location->get_Position(&pos);
@@ -191,7 +190,7 @@ void ezInputDeviceSpatialInteraction::GetSourceDetails(ISpatialInteractionSource
       ComPtr<ABI::Windows::Perception::People::IHeadPose> pHeadPose;
       pPose->get_Head(&pHeadPose);
 
-      //pHeadPose->get_Position
+      // pHeadPose->get_Position
       /// \todo Newer SDK versions support functionality for controllers
     }
   }
@@ -209,7 +208,7 @@ void ezInputDeviceSpatialInteraction::UpdateSourceInfo(const SourceDetails& deta
 
   if (details.m_Kind == SpatialInteractionSourceKind_Hand)
   {
-    bool bHandUsed[2] = { false, false };
+    bool bHandUsed[2] = {false, false};
 
     for (auto it = m_InputSources.GetIterator(); it.IsValid(); ++it)
     {
@@ -239,18 +238,18 @@ void ezInputDeviceSpatialInteraction::SetTrackingStatus(ISpatialInteractionSourc
 
   switch (pInfo->m_SlotMapping)
   {
-  case SourceInfo::SlotMapping::Hand0:
-    if (!bTracked)
-      m_InputSlotValues[ezInputSlot_Spatial_Hand0_Pressed] = 0.0f;
+    case SourceInfo::SlotMapping::Hand0:
+      if (!bTracked)
+        m_InputSlotValues[ezInputSlot_Spatial_Hand0_Pressed] = 0.0f;
 
-    m_InputSlotValues[ezInputSlot_Spatial_Hand0_Tracked] = bTracked ? 1.0f : 0.0f;
-    break;
-  case SourceInfo::SlotMapping::Hand1:
-    if (!bTracked)
-      m_InputSlotValues[ezInputSlot_Spatial_Hand1_Pressed] = 0.0f;
+      m_InputSlotValues[ezInputSlot_Spatial_Hand0_Tracked] = bTracked ? 1.0f : 0.0f;
+      break;
+    case SourceInfo::SlotMapping::Hand1:
+      if (!bTracked)
+        m_InputSlotValues[ezInputSlot_Spatial_Hand1_Pressed] = 0.0f;
 
-    m_InputSlotValues[ezInputSlot_Spatial_Hand1_Tracked] = bTracked ? 1.0f : 0.0f;
-    break;
+      m_InputSlotValues[ezInputSlot_Spatial_Hand1_Tracked] = bTracked ? 1.0f : 0.0f;
+      break;
   }
 }
 
@@ -258,24 +257,24 @@ void ezInputDeviceSpatialInteraction::SetSlotValues(const SourceDetails& details
 {
   switch (sourceInfo.m_SlotMapping)
   {
-  case SourceInfo::SlotMapping::Hand0:
-    m_InputSlotValues[ezInputSlot_Spatial_Hand0_Pressed] = details.m_bIsPressed ? 1.0f : 0.0f;
-    m_InputSlotValues[ezInputSlot_Spatial_Hand0_PositionPosX] = ezMath::Max(0.0f, details.m_vPosition.x);
-    m_InputSlotValues[ezInputSlot_Spatial_Hand0_PositionPosY] = ezMath::Max(0.0f, details.m_vPosition.y);
-    m_InputSlotValues[ezInputSlot_Spatial_Hand0_PositionPosZ] = ezMath::Max(0.0f, details.m_vPosition.z);
-    m_InputSlotValues[ezInputSlot_Spatial_Hand0_PositionNegX] = ezMath::Max(0.0f, -details.m_vPosition.x);
-    m_InputSlotValues[ezInputSlot_Spatial_Hand0_PositionNegY] = ezMath::Max(0.0f, -details.m_vPosition.y);
-    m_InputSlotValues[ezInputSlot_Spatial_Hand0_PositionNegZ] = ezMath::Max(0.0f, -details.m_vPosition.z);
-    break;
-  case SourceInfo::SlotMapping::Hand1:
-    m_InputSlotValues[ezInputSlot_Spatial_Hand1_Pressed] = details.m_bIsPressed ? 1.0f : 0.0f;
-    m_InputSlotValues[ezInputSlot_Spatial_Hand1_PositionPosX] = ezMath::Max(0.0f, details.m_vPosition.x);
-    m_InputSlotValues[ezInputSlot_Spatial_Hand1_PositionPosY] = ezMath::Max(0.0f, details.m_vPosition.y);
-    m_InputSlotValues[ezInputSlot_Spatial_Hand1_PositionPosZ] = ezMath::Max(0.0f, details.m_vPosition.z);
-    m_InputSlotValues[ezInputSlot_Spatial_Hand1_PositionNegX] = ezMath::Max(0.0f, -details.m_vPosition.x);
-    m_InputSlotValues[ezInputSlot_Spatial_Hand1_PositionNegY] = ezMath::Max(0.0f, -details.m_vPosition.y);
-    m_InputSlotValues[ezInputSlot_Spatial_Hand1_PositionNegZ] = ezMath::Max(0.0f, -details.m_vPosition.z);
-    break;
+    case SourceInfo::SlotMapping::Hand0:
+      m_InputSlotValues[ezInputSlot_Spatial_Hand0_Pressed] = details.m_bIsPressed ? 1.0f : 0.0f;
+      m_InputSlotValues[ezInputSlot_Spatial_Hand0_PositionPosX] = ezMath::Max(0.0f, details.m_vPosition.x);
+      m_InputSlotValues[ezInputSlot_Spatial_Hand0_PositionPosY] = ezMath::Max(0.0f, details.m_vPosition.y);
+      m_InputSlotValues[ezInputSlot_Spatial_Hand0_PositionPosZ] = ezMath::Max(0.0f, details.m_vPosition.z);
+      m_InputSlotValues[ezInputSlot_Spatial_Hand0_PositionNegX] = ezMath::Max(0.0f, -details.m_vPosition.x);
+      m_InputSlotValues[ezInputSlot_Spatial_Hand0_PositionNegY] = ezMath::Max(0.0f, -details.m_vPosition.y);
+      m_InputSlotValues[ezInputSlot_Spatial_Hand0_PositionNegZ] = ezMath::Max(0.0f, -details.m_vPosition.z);
+      break;
+    case SourceInfo::SlotMapping::Hand1:
+      m_InputSlotValues[ezInputSlot_Spatial_Hand1_Pressed] = details.m_bIsPressed ? 1.0f : 0.0f;
+      m_InputSlotValues[ezInputSlot_Spatial_Hand1_PositionPosX] = ezMath::Max(0.0f, details.m_vPosition.x);
+      m_InputSlotValues[ezInputSlot_Spatial_Hand1_PositionPosY] = ezMath::Max(0.0f, details.m_vPosition.y);
+      m_InputSlotValues[ezInputSlot_Spatial_Hand1_PositionPosZ] = ezMath::Max(0.0f, details.m_vPosition.z);
+      m_InputSlotValues[ezInputSlot_Spatial_Hand1_PositionNegX] = ezMath::Max(0.0f, -details.m_vPosition.x);
+      m_InputSlotValues[ezInputSlot_Spatial_Hand1_PositionNegY] = ezMath::Max(0.0f, -details.m_vPosition.y);
+      m_InputSlotValues[ezInputSlot_Spatial_Hand1_PositionNegZ] = ezMath::Max(0.0f, -details.m_vPosition.z);
+      break;
   }
 }
 
@@ -303,12 +302,12 @@ HRESULT ezInputDeviceSpatialInteraction::OnSourcePressed(ISpatialInteractionMana
 
   switch (pInfo->m_SlotMapping)
   {
-  case SourceInfo::SlotMapping::Hand0:
-    m_InputSlotValues[ezInputSlot_Spatial_Hand0_Pressed] = 1.0f;
-    break;
-  case SourceInfo::SlotMapping::Hand1:
-    m_InputSlotValues[ezInputSlot_Spatial_Hand1_Pressed] = 1.0f;
-    break;
+    case SourceInfo::SlotMapping::Hand0:
+      m_InputSlotValues[ezInputSlot_Spatial_Hand0_Pressed] = 1.0f;
+      break;
+    case SourceInfo::SlotMapping::Hand1:
+      m_InputSlotValues[ezInputSlot_Spatial_Hand1_Pressed] = 1.0f;
+      break;
   }
 
   return S_OK;
@@ -326,18 +325,19 @@ HRESULT ezInputDeviceSpatialInteraction::OnSourceReleased(ISpatialInteractionMan
 
   switch (pInfo->m_SlotMapping)
   {
-  case SourceInfo::SlotMapping::Hand0:
-    m_InputSlotValues[ezInputSlot_Spatial_Hand0_Pressed] = 0.0f;
-    break;
-  case SourceInfo::SlotMapping::Hand1:
-    m_InputSlotValues[ezInputSlot_Spatial_Hand1_Pressed] = 0.0f;
-    break;
+    case SourceInfo::SlotMapping::Hand0:
+      m_InputSlotValues[ezInputSlot_Spatial_Hand0_Pressed] = 0.0f;
+      break;
+    case SourceInfo::SlotMapping::Hand1:
+      m_InputSlotValues[ezInputSlot_Spatial_Hand1_Pressed] = 0.0f;
+      break;
   }
 
   return S_OK;
 }
 
-HRESULT ezInputDeviceSpatialInteraction::OnSourceUpdated(ABI::Windows::UI::Input::Spatial::ISpatialInteractionManager* pManager, ABI::Windows::UI::Input::Spatial::ISpatialInteractionSourceEventArgs* args)
+HRESULT ezInputDeviceSpatialInteraction::OnSourceUpdated(
+  ABI::Windows::UI::Input::Spatial::ISpatialInteractionManager* pManager, ABI::Windows::UI::Input::Spatial::ISpatialInteractionSourceEventArgs* args)
 {
   SourceDetails details;
   GetSourceDetails(args, details);
@@ -349,5 +349,3 @@ HRESULT ezInputDeviceSpatialInteraction::OnSourceUpdated(ABI::Windows::UI::Input
 
   return S_OK;
 }
-
-

@@ -19,11 +19,11 @@ namespace
     const float fNormalizedDistance = ezMath::Clamp(fDistance / camera.GetFarPlane(), 0.0f, 1.0f);
     return static_cast<ezUInt32>(fNormalizedDistance * 65535.0f);
   }
-}
+} // namespace
 
 // static
-ezUInt64 ezRenderSortingFunctions::ByRenderDataThenFrontToBack(const ezRenderData* pRenderData, ezUInt32 uiRenderDataSortingKey,
-                                                               const ezCamera& camera)
+ezUInt64 ezRenderSortingFunctions::ByRenderDataThenFrontToBack(
+  const ezRenderData* pRenderData, ezUInt32 uiRenderDataSortingKey, const ezCamera& camera)
 {
   const ezUInt64 uiTypeHash = CalculateTypeHash(pRenderData);
   const ezUInt64 uiRenderDataSortingKey64 = uiRenderDataSortingKey;
@@ -34,8 +34,8 @@ ezUInt64 ezRenderSortingFunctions::ByRenderDataThenFrontToBack(const ezRenderDat
 }
 
 // static
-ezUInt64 ezRenderSortingFunctions::BackToFrontThenByRenderData(const ezRenderData* pRenderData, ezUInt32 uiRenderDataSortingKey,
-                                                               const ezCamera& camera)
+ezUInt64 ezRenderSortingFunctions::BackToFrontThenByRenderData(
+  const ezRenderData* pRenderData, ezUInt32 uiRenderDataSortingKey, const ezCamera& camera)
 {
   const ezUInt64 uiTypeHash = CalculateTypeHash(pRenderData);
   const ezUInt64 uiRenderDataSortingKey64 = uiRenderDataSortingKey;
@@ -48,4 +48,3 @@ ezUInt64 ezRenderSortingFunctions::BackToFrontThenByRenderData(const ezRenderDat
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_SortingFunctions);
-

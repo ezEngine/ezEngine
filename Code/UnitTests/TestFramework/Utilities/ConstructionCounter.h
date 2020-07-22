@@ -11,32 +11,32 @@ struct ezConstructionCounter
 
   /// Default Constructor
   ezConstructionCounter()
-      : m_iData(0)
-      , m_valid(true)
+    : m_iData(0)
+    , m_valid(true)
   {
     ++s_iConstructions;
   }
 
   /// Constructor with initialization
   ezConstructionCounter(ezInt32 d)
-      : m_iData(d)
-      , m_valid(true)
+    : m_iData(d)
+    , m_valid(true)
   {
     ++s_iConstructions;
   }
 
   /// Copy Constructor
   ezConstructionCounter(const ezConstructionCounter& cc)
-      : m_iData(cc.m_iData)
-      , m_valid(true)
+    : m_iData(cc.m_iData)
+    , m_valid(true)
   {
     ++s_iConstructions;
   }
 
   /// Move construction counts as a construction as well.
   ezConstructionCounter(ezConstructionCounter&& cc) noexcept
-      : m_iData(cc.m_iData)
-      , m_valid(true)
+    : m_iData(cc.m_iData)
+    , m_valid(true)
   {
     cc.m_iData = 0; // data has been moved, so "destroy" it.
     ++s_iConstructions;
@@ -105,8 +105,8 @@ struct ezConstructionCounter
   /// For debugging and getting tests right: Prints out the current number of constructions and destructions
   static void PrintStats()
   {
-    printf("Constructions: %d (New: %i), Destructions: %d (New: %i) \n", s_iConstructions, s_iConstructions - s_iConstructionsLast,
-           s_iDestructions, s_iDestructions - s_iDestructionsLast);
+    printf("Constructions: %d (New: %i), Destructions: %d (New: %i) \n", s_iConstructions, s_iConstructions - s_iConstructionsLast, s_iDestructions,
+      s_iDestructions - s_iDestructionsLast);
   }
 
   /// Checks that all instances have been destructed.
@@ -148,8 +148,8 @@ struct ezConstructionCounterRelocatable
   ezConstructionCounterRelocatable() = default;
 
   ezConstructionCounterRelocatable(ezInt32 d)
-      : m_iData(d)
-      , m_valid(true)
+    : m_iData(d)
+    , m_valid(true)
   {
     s_iConstructions++;
   }
@@ -182,8 +182,8 @@ struct ezConstructionCounterRelocatable
   /// For debugging and getting tests right: Prints out the current number of constructions and destructions
   static void PrintStats()
   {
-    printf("Constructions: %d (New: %i), Destructions: %d (New: %i) \n", s_iConstructions, s_iConstructions - s_iConstructionsLast,
-           s_iDestructions, s_iDestructions - s_iDestructionsLast);
+    printf("Constructions: %d (New: %i), Destructions: %d (New: %i) \n", s_iConstructions, s_iConstructions - s_iConstructionsLast, s_iDestructions,
+      s_iDestructions - s_iDestructionsLast);
   }
 
   /// Checks whether n constructions and destructions have been done since the last check.

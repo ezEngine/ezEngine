@@ -39,8 +39,12 @@ public:
   virtual const char* GetTypeCategory(const ezRTTI* pRtti) const override;
 
 private:
-  virtual ezConnection* InternalCreateConnection(const ezPin* pSource, const ezPin* pTarget) override { return EZ_DEFAULT_NEW(ezVisualShaderConnection); }
-  virtual ezStatus InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty, const ezVariant& index) const override;
+  virtual ezConnection* InternalCreateConnection(const ezPin* pSource, const ezPin* pTarget) override
+  {
+    return EZ_DEFAULT_NEW(ezVisualShaderConnection);
+  }
+  virtual ezStatus InternalCanAdd(
+    const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty, const ezVariant& index) const override;
 
   ezUInt32 CountNodesOfType(ezVisualShaderNodeType::Enum type) const;
 };

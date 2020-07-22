@@ -660,7 +660,8 @@ double ezJSONParser::ReadNumber()
 
     if (!ReadCharacter(true))
       break; // stop when end of stream is encountered
-  } while ((m_uiCurByte >= '0' && m_uiCurByte <= '9') || m_uiCurByte == '.' || m_uiCurByte == 'e' || m_uiCurByte == 'E' || m_uiCurByte == '-' || m_uiCurByte == '+');
+  } while ((m_uiCurByte >= '0' && m_uiCurByte <= '9') || m_uiCurByte == '.' || m_uiCurByte == 'e' || m_uiCurByte == 'E' || m_uiCurByte == '-' ||
+           m_uiCurByte == '+');
 
   m_TempString.PushBack('\0');
 
@@ -678,4 +679,3 @@ double ezJSONParser::ReadNumber()
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_JSONParser);
-

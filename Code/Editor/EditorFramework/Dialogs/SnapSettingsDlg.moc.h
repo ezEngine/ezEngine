@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Foundation/Containers/HybridArray.h>
 #include <EditorFramework/ui_SnapSettingsDlg.h>
+#include <Foundation/Containers/HybridArray.h>
 
 class QAbstractButton;
 

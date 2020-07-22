@@ -96,7 +96,8 @@ void ezResourceManagerWorkerDataLoad::Execute()
     pUpdateContentTask->m_pResourceToLoad = pResourceToLoad;
 
     // schedule the task to run, either on the main thread or on some other thread
-    *pUpdateContentGroup = ezTaskSystem::StartSingleTask(pUpdateContentTask, bResourceIsLoadedOnMainThread ? ezTaskPriority::SomeFrameMainThread : ezTaskPriority::LateNextFrame);
+    *pUpdateContentGroup = ezTaskSystem::StartSingleTask(
+      pUpdateContentTask, bResourceIsLoadedOnMainThread ? ezTaskPriority::SomeFrameMainThread : ezTaskPriority::LateNextFrame);
 
     // restart the next loading task (this one is about to finish)
     ezResourceManager::s_State->s_bAllowLaunchDataLoadTask = true;
@@ -138,8 +139,10 @@ void ezResourceManagerWorkerUpdateContent::Execute()
     MemUsage.m_uiMemoryGPU = 0xFFFFFFFF;
     m_pResourceToLoad->UpdateMemoryUsage(MemUsage);
 
-    EZ_ASSERT_DEV(MemUsage.m_uiMemoryCPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its CPU memory usage", m_pResourceToLoad->GetResourceID());
-    EZ_ASSERT_DEV(MemUsage.m_uiMemoryGPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its GPU memory usage", m_pResourceToLoad->GetResourceID());
+    EZ_ASSERT_DEV(
+      MemUsage.m_uiMemoryCPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its CPU memory usage", m_pResourceToLoad->GetResourceID());
+    EZ_ASSERT_DEV(
+      MemUsage.m_uiMemoryGPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its GPU memory usage", m_pResourceToLoad->GetResourceID());
 
     m_pResourceToLoad->m_MemoryUsage = MemUsage;
   }

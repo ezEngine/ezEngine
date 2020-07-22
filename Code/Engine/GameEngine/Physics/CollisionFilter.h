@@ -1,8 +1,8 @@
 #pragma once
 
-#include <GameEngine/GameEngineDLL.h>
 #include <Foundation/Containers/StaticArray.h>
 #include <Foundation/Strings/String.h>
+#include <GameEngine/GameEngineDLL.h>
 
 /// \brief A 32x32 matrix of named filters that can be configured to enable or disable collisions
 class EZ_GAMEENGINE_DLL ezCollisionFilterConfig
@@ -23,7 +23,8 @@ public:
   /// \brief Returns how many groups have non-empty names
   ezUInt32 GetNumNamedGroups() const;
 
-  /// \brief Returns the index of the n-th group that has a non-empty name (ie. maps index '3' to index '5' if there are two unnamed groups in between)
+  /// \brief Returns the index of the n-th group that has a non-empty name (ie. maps index '3' to index '5' if there are two unnamed groups in
+  /// between)
   ezUInt32 GetNamedGroupIndex(ezUInt32 uiGroup) const;
 
   /// \brief Returns -1 if no group with the given name exists.
@@ -42,8 +43,4 @@ public:
 private:
   ezUInt32 m_GroupMasks[32];
   char m_GroupNames[32][32];
-
-
 };
-
-

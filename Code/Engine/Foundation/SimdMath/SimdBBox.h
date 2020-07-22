@@ -14,7 +14,6 @@ public:
   ezSimdBBox(const ezSimdVec4f& vMin, const ezSimdVec4f& vMax); // [tested]
 
 public:
-
   /// \brief Resets the box to an invalid state. ExpandToInclude can then be used to make it into a bounding box for objects.
   void SetInvalid(); // [tested]
 
@@ -81,7 +80,8 @@ public:
   void Transform(const ezSimdMat4f& mat); // [tested]
 
 
-  /// \brief The given point is clamped to the volume of the box, i.e. it will be either inside the box or on its surface and it will have the closest possible distance to the original point.
+  /// \brief The given point is clamped to the volume of the box, i.e. it will be either inside the box or on its surface and it will have the closest
+  /// possible distance to the original point.
   ezSimdVec4f GetClampedPoint(const ezSimdVec4f& vPoint) const; // [tested]
 
   /// \brief Returns the squared minimum distance from the box's surface to the point. Zero if the point is inside the box.
@@ -100,4 +100,3 @@ public:
 };
 
 #include <Foundation/SimdMath/Implementation/SimdBBox_inl.h>
-

@@ -48,8 +48,7 @@ ezVisualScriptNode_OnDamage::~ezVisualScriptNode_OnDamage() {}
 
 void ezVisualScriptNode_OnDamage::Execute(ezVisualScriptInstance* pInstance, ezUInt8 uiExecPin)
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(sizeof(m_Msg.m_fDamage) == 8,
-    "The damage value is directly used by a visual script node, so it must be a double.");
+  EZ_CHECK_AT_COMPILETIME_MSG(sizeof(m_Msg.m_fDamage) == 8, "The damage value is directly used by a visual script node, so it must be a double.");
 
   pInstance->SetOutputPinValue(this, 0, &m_Msg.m_fDamage);
   pInstance->ExecuteConnectedNodes(this, 0);

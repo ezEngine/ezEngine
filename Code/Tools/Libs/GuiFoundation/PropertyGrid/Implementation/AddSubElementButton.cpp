@@ -14,7 +14,7 @@
 ezString ezQtAddSubElementButton::s_sLastMenuSearch;
 
 ezQtAddSubElementButton::ezQtAddSubElementButton()
-    : ezQtPropertyWidget()
+  : ezQtPropertyWidget()
 {
   // Reset base class size policy as we are put in a layout that would cause us to vanish instead.
   setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
@@ -155,13 +155,13 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
         else
         {
           ezLog::Error("ezConstrainPointerAttribute set for '{0}' but the constant value property '{1}' has an unsupported type.",
-                       pType->GetTypeName(), m_pConstraint->GetConstantValueProperty().GetData());
+            pType->GetTypeName(), m_pConstraint->GetConstantValueProperty().GetData());
         }
       }
       else
       {
-        ezLog::Error("ezConstrainPointerAttribute set for '{0}' but the constant value property '{1}' does not exist.",
-                     pType->GetTypeName(), m_pConstraint->GetConstantValueProperty().GetData());
+        ezLog::Error("ezConstrainPointerAttribute set for '{0}' but the constant value property '{1}' does not exist.", pType->GetTypeName(),
+          m_pConstraint->GetConstantValueProperty().GetData());
       }
     }
     // remove all types that are marked as hidden
@@ -266,7 +266,7 @@ void ezQtAddSubElementButton::onMenuAboutToShow()
       });
 
       connect(m_pSearchableMenu, &ezQtSearchableMenu::SearchTextChanged, m_pMenu,
-              [this](const QString& text) { s_sLastMenuSearch = text.toUtf8().data(); });
+        [this](const QString& text) { s_sLastMenuSearch = text.toUtf8().data(); });
 
       m_pMenu->addAction(m_pSearchableMenu);
 

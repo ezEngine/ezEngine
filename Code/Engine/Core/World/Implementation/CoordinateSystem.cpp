@@ -77,4 +77,3 @@ float ezCoordinateSystemConversion::ConvertTargetLength(float fLength) const
 }
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_CoordinateSystem);
-

@@ -1,9 +1,9 @@
 #include <RendererCorePCH.h>
 
 #include <Foundation/IO/Stream.h>
+#include <RendererCore/Debug/SimpleASCIIFont.h>
 #include <Texture/Image/Formats/TgaFileFormat.h>
 #include <Texture/Image/ImageConversion.h>
-#include <RendererCore/Debug/SimpleASCIIFont.h>
 
 #if EZ_ENABLED(EZ_EMBED_FONT_FILE)
 
@@ -1197,4 +1197,3 @@ void ezGraphicsUtils::CreateSimpleASCIIFontTexture(ezImage& Img, bool bSetEmptyT
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Debug_Implementation_SimpleASCIIFont);
-

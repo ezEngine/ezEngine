@@ -15,19 +15,17 @@ public:
     ezArrayPtr<ezGALTextureCreationDescription> outputs) override;
 
 protected:
-
-  virtual void SetupResources(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection * const> inputs,
-    const ezArrayPtr<ezRenderPipelinePassConnection * const> outputs) override;
+  virtual void SetupResources(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
+    const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
   virtual void SetupPermutationVars(const ezRenderViewContext& renderViewContext) override;
 
   virtual void RenderObjects(const ezRenderViewContext& renderViewContext) override;
 
   ezInputNodePin m_PinSSAO;
-  //ezOutputNodePin m_PinNormal;
-  //ezOutputNodePin m_PinSpecularColorRoughness;
+  // ezOutputNodePin m_PinNormal;
+  // ezOutputNodePin m_PinSpecularColorRoughness;
 
   bool m_bWriteDepth;
 
   ezTexture2DResourceHandle m_hWhiteTexture;
 };
-

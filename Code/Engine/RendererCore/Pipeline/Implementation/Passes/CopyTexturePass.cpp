@@ -21,14 +21,14 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezCopyTexturePass::ezCopyTexturePass()
-    : ezRenderPipelinePass("CopyTexturePass")
+  : ezRenderPipelinePass("CopyTexturePass")
 {
 }
 
 ezCopyTexturePass::~ezCopyTexturePass() = default;
 
-bool ezCopyTexturePass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
-                                                    ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezCopyTexturePass::GetRenderTargetDescriptions(
+  const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
@@ -49,9 +49,8 @@ bool ezCopyTexturePass::GetRenderTargetDescriptions(const ezView& view, const ez
   return true;
 }
 
-void ezCopyTexturePass::Execute(const ezRenderViewContext& renderViewContext,
-                                const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-                                const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+void ezCopyTexturePass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
+  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   auto pInput = inputs[m_PinInput.m_uiInputIndex];
   auto pOutput = outputs[m_PinOutput.m_uiOutputIndex];
@@ -82,4 +81,3 @@ void ezCopyTexturePass::Execute(const ezRenderViewContext& renderViewContext,
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_CopyTexturePass);
-

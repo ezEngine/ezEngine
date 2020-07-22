@@ -70,10 +70,7 @@ namespace
     virtual ~CpuScopesBufferBase() = default;
 
     ezUInt64 m_uiThreadId = 0;
-    bool IsMainThread() const
-    {
-      return m_uiThreadId == s_MainThreadId;
-    }
+    bool IsMainThread() const { return m_uiThreadId == s_MainThreadId; }
   };
 
   template <ezUInt32 SizeInBytes>
@@ -94,7 +91,8 @@ namespace
     return static_cast<CpuScopesBuffer<BUFFER_SIZE_OTHER_THREAD>*>(pEventBuffer);
   }
 
-  ezCVarFloat CVarDiscardThresholdMs("g_ProfilingDiscardThresholdMs", 0.1f, ezCVarFlags::Default, "Discard profiling scopes if their duration is shorter than the specified threshold.");
+  ezCVarFloat CVarDiscardThresholdMs("g_ProfilingDiscardThresholdMs", 0.1f, ezCVarFlags::Default,
+    "Discard profiling scopes if their duration is shorter than the specified threshold.");
 
   ezStaticRingBuffer<ezTime, BUFFER_SIZE_FRAMES> s_FrameStartTimes;
   ezUInt64 s_uiFrameCount = 0;
@@ -356,9 +354,7 @@ ezResult ezProfilingSystem::ProfilingData::Write(ezStreamWriter& outputStream) c
       // chrome prints the nested scope first and then scrambles everything.
       // So we sort by duration to make sure that parent scopes are written first in the json file.
       sortedScopes = eventBuffer.m_Data;
-      sortedScopes.Sort([](const CPUScope& a, const CPUScope& b) {
-        return (a.m_EndTime - a.m_BeginTime) > (b.m_EndTime - b.m_BeginTime);
-      });
+      sortedScopes.Sort([](const CPUScope& a, const CPUScope& b) { return (a.m_EndTime - a.m_BeginTime) > (b.m_EndTime - b.m_BeginTime); });
 
       for (const CPUScope& e : sortedScopes)
       {
@@ -530,11 +526,13 @@ void ezProfilingSystem::Capture(ezProfilingSystem::ProfilingData& profilingData,
 
       targetEventBuffer.m_uiThreadId = sourceEventBuffer->m_uiThreadId;
 
-      ezUInt32 uiSourceCount = sourceEventBuffer->IsMainThread() ? CastToMainThreadEventBuffer(sourceEventBuffer)->m_Data.GetCount() : CastToOtherThreadEventBuffer(sourceEventBuffer)->m_Data.GetCount();
+      ezUInt32 uiSourceCount = sourceEventBuffer->IsMainThread() ? CastToMainThreadEventBuffer(sourceEventBuffer)->m_Data.GetCount()
+                                                                 : CastToOtherThreadEventBuffer(sourceEventBuffer)->m_Data.GetCount();
       targetEventBuffer.m_Data.SetCountUninitialized(uiSourceCount);
       for (ezUInt32 j = 0; j < uiSourceCount; ++j)
       {
-        const CPUScope& sourceEvent = sourceEventBuffer->IsMainThread() ? CastToMainThreadEventBuffer(sourceEventBuffer)->m_Data[j] : CastToOtherThreadEventBuffer(sourceEventBuffer)->m_Data[j];
+        const CPUScope& sourceEvent = sourceEventBuffer->IsMainThread() ? CastToMainThreadEventBuffer(sourceEventBuffer)->m_Data[j]
+                                                                        : CastToOtherThreadEventBuffer(sourceEventBuffer)->m_Data[j];
 
         CPUScope& copiedEvent = targetEventBuffer.m_Data[j];
         copiedEvent.m_szFunctionName = sourceEvent.m_szFunctionName;

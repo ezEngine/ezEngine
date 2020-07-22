@@ -145,9 +145,9 @@ void ezCurveGroupData::ConvertToRuntimeData(ezUInt32 uiCurveIdx, ezCurve1D& out_
   m_Curves[uiCurveIdx]->ConvertToRuntimeData(out_Result);
 }
 
-  //////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////
-  //////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////
 
 #include <Foundation/Serialization/GraphPatch.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
@@ -156,7 +156,7 @@ class ezCurve1DControlPoint_2_3 : public ezGraphPatch
 {
 public:
   ezCurve1DControlPoint_2_3()
-      : ezGraphPatch("ezCurve1DControlPoint", 3)
+    : ezGraphPatch("ezCurve1DControlPoint", 3)
   {
   }
 
@@ -182,7 +182,7 @@ class ezCurve1DControlPoint_3_4 : public ezGraphPatch
 {
 public:
   ezCurve1DControlPoint_3_4()
-      : ezGraphPatch("ezCurve1DControlPoint", 4)
+    : ezGraphPatch("ezCurve1DControlPoint", 4)
   {
   }
 
@@ -205,7 +205,7 @@ class ezCurve1DControlPoint_4_5 : public ezGraphPatch
 {
 public:
   ezCurve1DControlPoint_4_5()
-      : ezGraphPatch("ezCurve1DControlPoint", 5)
+    : ezGraphPatch("ezCurve1DControlPoint", 5)
   {
   }
 
@@ -223,7 +223,7 @@ class ezCurve1DData_2_3 : public ezGraphPatch
 {
 public:
   ezCurve1DData_2_3()
-      : ezGraphPatch("ezCurve1DData", 3)
+    : ezGraphPatch("ezCurve1DData", 3)
   {
   }
 
@@ -241,7 +241,7 @@ class ezCurve1DAssetData_1_2 : public ezGraphPatch
 {
 public:
   ezCurve1DAssetData_1_2()
-      : ezGraphPatch("ezCurve1DAssetData", 2)
+    : ezGraphPatch("ezCurve1DAssetData", 2)
   {
   }
 

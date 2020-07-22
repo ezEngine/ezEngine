@@ -13,9 +13,8 @@ EZ_CREATE_SIMPLE_TEST(Math, Intersection)
       m.SetRotationMatrix(ezVec3(i + 1.0f, i * 3.0f, i * 7.0f).GetNormalized(), ezAngle::Degree((float)i));
       m.SetTranslationVector(ezVec3((float)i, i * 2.0f, i * 3.0f));
 
-      ezVec3 Vertices[8] = {
-          m.TransformPosition(ezVec3(-10, -10, 0)), ezVec3(-10, -10, 0), m.TransformPosition(ezVec3(10, -10, 0)), ezVec3(10, -10, 0),
-          m.TransformPosition(ezVec3(10, 10, 0)),   ezVec3(10, 10, 0),   m.TransformPosition(ezVec3(-10, 10, 0)), ezVec3(-10, 10, 0)};
+      ezVec3 Vertices[8] = {m.TransformPosition(ezVec3(-10, -10, 0)), ezVec3(-10, -10, 0), m.TransformPosition(ezVec3(10, -10, 0)),
+        ezVec3(10, -10, 0), m.TransformPosition(ezVec3(10, 10, 0)), ezVec3(10, 10, 0), m.TransformPosition(ezVec3(-10, 10, 0)), ezVec3(-10, 10, 0)};
 
       for (float y = -14.5; y <= 14.5f; y += 2.0f)
       {
@@ -28,8 +27,8 @@ EZ_CREATE_SIMPLE_TEST(Math, Intersection)
 
           float fIntersection;
           ezVec3 vIntersection;
-          EZ_TEST_BOOL(ezIntersectionUtils::RayPolygonIntersection(vRayStart, vRayDir, Vertices, 4, &fIntersection, &vIntersection,
-                                                                   sizeof(ezVec3) * 2) == bIntersects);
+          EZ_TEST_BOOL(ezIntersectionUtils::RayPolygonIntersection(
+                         vRayStart, vRayDir, Vertices, 4, &fIntersection, &vIntersection, sizeof(ezVec3) * 2) == bIntersects);
 
           if (bIntersects)
           {
@@ -110,8 +109,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Intersection)
 
         float fIntersection;
         ezVec2 vIntersection;
-        EZ_TEST_BOOL(ezIntersectionUtils::Ray2DLine2D(vRayStart, vRayDir, vSegment0, vSegment1, &fIntersection, &vIntersection) ==
-                     bIntersection);
+        EZ_TEST_BOOL(ezIntersectionUtils::Ray2DLine2D(vRayStart, vRayDir, vSegment0, vSegment1, &fIntersection, &vIntersection) == bIntersection);
 
         if (bIntersection)
         {

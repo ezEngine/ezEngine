@@ -1,10 +1,10 @@
 
 #pragma once
 
-#include <Ultralight/Ultralight.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Threading/Mutex.h>
 #include <Foundation/Types/UniquePtr.h>
+#include <Ultralight/Ultralight.h>
 
 class ezFileReader;
 
@@ -20,7 +20,6 @@ class ezFileReader;
 class ezUltralightFileSystem : public ultralight::FileSystem
 {
 public:
-
   ezUltralightFileSystem();
   ~ezUltralightFileSystem();
 
@@ -77,7 +76,6 @@ public:
   virtual bool CopyFile_(const ultralight::String16& source_path, const ultralight::String16& destination_path) override;
 
 private:
-
   ezMutex m_FileReaderMutex;
   ezMap<ultralight::FileHandle, ezUniquePtr<ezFileReader>> m_OpenFileReaders;
   ultralight::FileHandle m_NextFileHandle = 1;

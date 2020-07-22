@@ -33,4 +33,4 @@ namespace ezInternal
     perInstanceData.VertexColorAccessData = 0;
     perInstanceData.Color = pRenderData->m_Color;
   }
-}
+} // namespace ezInternal

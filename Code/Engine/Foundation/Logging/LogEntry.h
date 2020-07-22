@@ -49,4 +49,3 @@ public:
 private:
   Callback m_Callback;
 };
-

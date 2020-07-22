@@ -19,9 +19,9 @@
 class ezMemoryUtils
 {
 public:
-  using ConstructorFunction = void(*)(void* pDestination);
-  using CopyConstructorFunction = void(*)(void* pDestination, const void* pSource);
-  using DestructorFunction = void(*)(void* pDestination);
+  using ConstructorFunction = void (*)(void* pDestination);
+  using CopyConstructorFunction = void (*)(void* pDestination, const void* pSource);
+  using DestructorFunction = void (*)(void* pDestination);
 
   /// \brief Constructs \a uiCount objects of type T in a raw buffer at \a pDestination.
   ///

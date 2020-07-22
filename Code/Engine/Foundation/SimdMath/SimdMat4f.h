@@ -15,8 +15,8 @@ public:
   ezSimdMat4f(const ezSimdVec4f& col0, const ezSimdVec4f& col1, const ezSimdVec4f& col2, const ezSimdVec4f& col3); // [tested]
 
   /// \brief Sets each element manually: Naming is "column-n row-m"
-  ezSimdMat4f(float c1r1, float c2r1, float c3r1, float c4r1, float c1r2, float c2r2, float c3r2, float c4r2, float c1r3, float c2r3,
-              float c3r3, float c4r3, float c1r4, float c2r4, float c3r4, float c4r4); // [tested]
+  ezSimdMat4f(float c1r1, float c2r1, float c3r1, float c4r1, float c1r2, float c2r2, float c3r2, float c4r2, float c1r3, float c2r3, float c3r3,
+    float c4r3, float c1r4, float c2r4, float c3r4, float c4r4); // [tested]
 
   void SetFromArray(const float* const pData, ezMatrixLayout::Enum layout); // [tested]
 
@@ -87,4 +87,3 @@ public:
 #else
 #  error "Unknown SIMD implementation."
 #endif
-

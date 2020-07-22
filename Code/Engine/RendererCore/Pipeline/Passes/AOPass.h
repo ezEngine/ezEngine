@@ -28,7 +28,6 @@ public:
   float GetFadeOutEnd() const;
 
 protected:
-
   void CreateSamplerState();
 
   ezInputNodePin m_PinDepthInput;
@@ -57,4 +56,3 @@ protected:
   ezShaderResourceHandle m_hSSAOShader;
   ezShaderResourceHandle m_hBlurShader;
 };
-

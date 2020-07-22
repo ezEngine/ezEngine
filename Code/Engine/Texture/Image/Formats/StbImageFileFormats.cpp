@@ -139,8 +139,7 @@ ezResult ezStbImageFileFormats::WriteImage(ezStreamWriter& stream, const ezImage
 
   if (format == ezImageFormat::UNKNOWN)
   {
-    ezLog::Error(
-      pLog, "No conversion from format '{0}' to a format suitable for PNG files known.", ezImageFormat::GetName(image.GetImageFormat()));
+    ezLog::Error(pLog, "No conversion from format '{0}' to a format suitable for PNG files known.", ezImageFormat::GetName(image.GetImageFormat()));
     return EZ_FAILURE;
   }
 
@@ -151,8 +150,7 @@ ezResult ezStbImageFileFormats::WriteImage(ezStreamWriter& stream, const ezImage
     if (ezImageConversion::Convert(image, convertedImage, format) != EZ_SUCCESS)
     {
       // This should never happen
-      EZ_ASSERT_DEV(
-        false, "ezImageConversion::Convert failed even though the conversion was to the format returned by FindClosestCompatibleFormat.");
+      EZ_ASSERT_DEV(false, "ezImageConversion::Convert failed even though the conversion was to the format returned by FindClosestCompatibleFormat.");
       return EZ_FAILURE;
     }
 
@@ -161,8 +159,8 @@ ezResult ezStbImageFileFormats::WriteImage(ezStreamWriter& stream, const ezImage
 
   if (ezStringUtils::IsEqual_NoCase(szFileExtension, "png"))
   {
-    if (stbi_write_png_to_func(write_func, &stream, image.GetWidth(), image.GetHeight(),
-          ezImageFormat::GetNumChannels(image.GetImageFormat()), image.GetByteBlobPtr().GetPtr(), 0))
+    if (stbi_write_png_to_func(write_func, &stream, image.GetWidth(), image.GetHeight(), ezImageFormat::GetNumChannels(image.GetImageFormat()),
+          image.GetByteBlobPtr().GetPtr(), 0))
     {
       return EZ_SUCCESS;
     }
@@ -170,8 +168,8 @@ ezResult ezStbImageFileFormats::WriteImage(ezStreamWriter& stream, const ezImage
 
   if (ezStringUtils::IsEqual_NoCase(szFileExtension, "jpg") || ezStringUtils::IsEqual_NoCase(szFileExtension, "jpeg"))
   {
-    if (stbi_write_jpg_to_func(write_func, &stream, image.GetWidth(), image.GetHeight(),
-          ezImageFormat::GetNumChannels(image.GetImageFormat()), image.GetByteBlobPtr().GetPtr(), 95))
+    if (stbi_write_jpg_to_func(write_func, &stream, image.GetWidth(), image.GetHeight(), ezImageFormat::GetNumChannels(image.GetImageFormat()),
+          image.GetByteBlobPtr().GetPtr(), 95))
     {
       return EZ_SUCCESS;
     }
@@ -188,8 +186,7 @@ bool ezStbImageFileFormats::CanReadFileType(const char* szExtension) const
 #if EZ_DISABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
   // on Windows Desktop, we prefer to use WIC (ezWicFileFormat)
-  if (ezStringUtils::IsEqual_NoCase(szExtension, "png") ||
-      ezStringUtils::IsEqual_NoCase(szExtension, "jpg") ||
+  if (ezStringUtils::IsEqual_NoCase(szExtension, "png") || ezStringUtils::IsEqual_NoCase(szExtension, "jpg") ||
       ezStringUtils::IsEqual_NoCase(szExtension, "jpeg"))
   {
     return true;
@@ -202,8 +199,7 @@ bool ezStbImageFileFormats::CanReadFileType(const char* szExtension) const
 bool ezStbImageFileFormats::CanWriteFileType(const char* szExtension) const
 {
   // even when WIC is available, prefer to write these files through STB, to get consistent output
-  if (ezStringUtils::IsEqual_NoCase(szExtension, "png") ||
-      ezStringUtils::IsEqual_NoCase(szExtension, "jpg") ||
+  if (ezStringUtils::IsEqual_NoCase(szExtension, "png") || ezStringUtils::IsEqual_NoCase(szExtension, "jpg") ||
       ezStringUtils::IsEqual_NoCase(szExtension, "jpeg"))
   {
     return true;

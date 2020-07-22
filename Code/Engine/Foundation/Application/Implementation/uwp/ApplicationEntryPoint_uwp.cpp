@@ -1,8 +1,8 @@
 #include <FoundationPCH.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-#include <Foundation/Application/Implementation/Uwp/ApplicationEntryPoint_uwp.h>
-#include <roapi.h>
+#  include <Foundation/Application/Implementation/Uwp/ApplicationEntryPoint_uwp.h>
+#  include <roapi.h>
 
 namespace ezApplicationDetails
 {
@@ -18,13 +18,9 @@ namespace ezApplicationDetails
     return EZ_SUCCESS;
   }
 
-  void UninitializeWinrt()
-  {
-    RoUninitialize();
-  }
-}
+  void UninitializeWinrt() { RoUninitialize(); }
+} // namespace ezApplicationDetails
 #endif
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Application_Implementation_uwp_ApplicationEntryPoint_uwp);
-

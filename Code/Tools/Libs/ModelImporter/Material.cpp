@@ -23,4 +23,4 @@ namespace ezModelImporter
     }
     return nullptr;
   }
-}
+} // namespace ezModelImporter

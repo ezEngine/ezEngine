@@ -77,7 +77,7 @@ float ezParticleInitializerFactory_SpherePosition::GetSpawnCountMultiplier(const
     {
       // original volume
       const float v0 = 1.0f;
-       /* 4.0f / 3.0f * ezMath::Pi<float>() * m_fRadius* m_fRadius* m_fRadius; */
+      /* 4.0f / 3.0f * ezMath::Pi<float>() * m_fRadius* m_fRadius* m_fRadius; */
       // new volume
       const float v1 = 1.0f /* 4.0f / 3.0f * ezMath::Pi<float>() * m_fRadius * m_fRadius * m_fRadius*/ * fScale * fScale * fScale;
 

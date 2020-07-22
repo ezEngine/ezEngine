@@ -199,4 +199,3 @@ public:
 
 
 #include <Foundation/Time/Implementation/Clock_inl.h>
-

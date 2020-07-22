@@ -1,13 +1,16 @@
 #pragma once
 
 template <typename KEY, typename VALUE>
-inline ezArrayMapBase<KEY, VALUE>::ezArrayMapBase(ezAllocatorBase* pAllocator) : m_Data(pAllocator)
+inline ezArrayMapBase<KEY, VALUE>::ezArrayMapBase(ezAllocatorBase* pAllocator)
+  : m_Data(pAllocator)
 {
   m_bSorted = true;
 }
 
 template <typename KEY, typename VALUE>
-inline ezArrayMapBase<KEY, VALUE>::ezArrayMapBase(const ezArrayMapBase& rhs, ezAllocatorBase* pAllocator) : m_bSorted(rhs.m_bSorted), m_Data(pAllocator)
+inline ezArrayMapBase<KEY, VALUE>::ezArrayMapBase(const ezArrayMapBase& rhs, ezAllocatorBase* pAllocator)
+  : m_bSorted(rhs.m_bSorted)
+  , m_Data(pAllocator)
 {
   m_Data = rhs.m_Data;
 }
@@ -306,22 +309,26 @@ EZ_ALWAYS_INLINE bool ezArrayMapBase<KEY, VALUE>::operator!=(const ezArrayMapBas
 }
 
 template <typename KEY, typename VALUE, typename A>
-ezArrayMap<KEY, VALUE, A>::ezArrayMap() : ezArrayMapBase<KEY, VALUE>(A::GetAllocator())
+ezArrayMap<KEY, VALUE, A>::ezArrayMap()
+  : ezArrayMapBase<KEY, VALUE>(A::GetAllocator())
 {
 }
 
 template <typename KEY, typename VALUE, typename A>
-ezArrayMap<KEY, VALUE, A>::ezArrayMap(ezAllocatorBase* pAllocator) : ezArrayMapBase<KEY, VALUE>(pAllocator)
+ezArrayMap<KEY, VALUE, A>::ezArrayMap(ezAllocatorBase* pAllocator)
+  : ezArrayMapBase<KEY, VALUE>(pAllocator)
 {
 }
 
 template <typename KEY, typename VALUE, typename A>
-ezArrayMap<KEY, VALUE, A>::ezArrayMap(const ezArrayMap<KEY, VALUE, A>& rhs) : ezArrayMapBase<KEY, VALUE>(rhs, A::GetAllocator())
+ezArrayMap<KEY, VALUE, A>::ezArrayMap(const ezArrayMap<KEY, VALUE, A>& rhs)
+  : ezArrayMapBase<KEY, VALUE>(rhs, A::GetAllocator())
 {
 }
 
 template <typename KEY, typename VALUE, typename A>
-ezArrayMap<KEY, VALUE, A>::ezArrayMap(const ezArrayMapBase<KEY, VALUE>& rhs) : ezArrayMapBase<KEY, VALUE>(rhs, A::GetAllocator())
+ezArrayMap<KEY, VALUE, A>::ezArrayMap(const ezArrayMapBase<KEY, VALUE>& rhs)
+  : ezArrayMapBase<KEY, VALUE>(rhs, A::GetAllocator())
 {
 }
 
@@ -336,4 +343,3 @@ void ezArrayMap<KEY, VALUE, A>::operator=(const ezArrayMapBase<KEY, VALUE>& rhs)
 {
   ezArrayMapBase<KEY, VALUE>::operator=(rhs);
 }
-

@@ -24,7 +24,8 @@ public:
   /// The ezDocument GUID
   ezUuid m_TargetDocument;
 
-  /// GUID of the ezDocumentObject that is at the dropped position. May be invalid. Can be used to attach as a child, to modify the object itself or can be ignored.
+  /// GUID of the ezDocumentObject that is at the dropped position. May be invalid. Can be used to attach as a child, to modify the object itself or
+  /// can be ignored.
   ezUuid m_TargetObject;
 
   /// GUID of the ezDocumentObject that is the more specific component (of m_TargetObject) that was dragged on. May be invalid.
@@ -47,8 +48,8 @@ public:
 };
 
 
-/// \brief After an ezDragDropHandler has been chosen to handle an operation, it is queried once to fill out an instance of this type (or an extended derived type)
-/// to enable configuring how ezDragDropInfo is computed by the target.
+/// \brief After an ezDragDropHandler has been chosen to handle an operation, it is queried once to fill out an instance of this type (or an extended
+/// derived type) to enable configuring how ezDragDropInfo is computed by the target.
 class EZ_EDITORFRAMEWORK_DLL ezDragDropConfig : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezDragDropConfig, ezReflectedClass);

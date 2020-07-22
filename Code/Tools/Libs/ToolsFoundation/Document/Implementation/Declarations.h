@@ -66,4 +66,3 @@ public:
 
   ezUuid m_DocumentID;
 };
-

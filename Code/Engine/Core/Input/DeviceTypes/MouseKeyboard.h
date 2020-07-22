@@ -8,12 +8,12 @@ struct ezMouseCursorClipMode
 {
   enum Enum
   {
-    NoClip,       ///< The mouse can move unrestricted and leave the application window
-    ClipToWindow, ///< The mouse cannot leave the window area anymore after the user started interacting with it (ie. clicks into the
-                  ///< window)
+    NoClip,                ///< The mouse can move unrestricted and leave the application window
+    ClipToWindow,          ///< The mouse cannot leave the window area anymore after the user started interacting with it (ie. clicks into the
+                           ///< window)
     ClipToWindowImmediate, ///< The mouse gets restricted to the window area as soon as possible
-    ClipToPosition, ///< The mouse may not leave its current position. Can be used to keep the mouse in place while it is hidden. Note that
-                    ///< you will still get mouse move deltas, just the OS cursor will stay in place.
+    ClipToPosition,        ///< The mouse may not leave its current position. Can be used to keep the mouse in place while it is hidden. Note that
+                           ///< you will still get mouse move deltas, just the OS cursor will stay in place.
 
     Default = NoClip,
   };
@@ -64,4 +64,3 @@ protected:
   static ezInt32 m_iMouseIsOverWindowNumber;
   bool m_bIsFocused = true;
 };
-

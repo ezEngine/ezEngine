@@ -33,21 +33,8 @@ EZ_CREATE_SIMPLE_TEST(Utility, CommandLineUtils)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetOptionIndex / GetStringOptionArguments  / GetStringOption")
   {
     const int argc = 15;
-    const char* argv[argc] = {"bla/blub/myprogram.exe",
-                              "-opt1",
-                              "true",
-                              "false",
-                              "-opt2",
-                              "\"test2\"",
-                              "-opt3",
-                              "-opt4",
-                              "one",
-                              "two = three",
-                              "four",
-                              "   five  ",
-                              " six ",
-                              "-opt5",
-                              "-opt6"};
+    const char* argv[argc] = {"bla/blub/myprogram.exe", "-opt1", "true", "false", "-opt2", "\"test2\"", "-opt3", "-opt4", "one", "two = three",
+      "four", "   five  ", " six ", "-opt5", "-opt6"};
 
     ezCommandLineUtils CmdLn;
     CmdLn.SetCommandLine(argc, argv);

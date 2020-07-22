@@ -3,7 +3,7 @@
 #include <Foundation/IO/ChunkStream.h>
 
 ezChunkStreamWriter::ezChunkStreamWriter(ezStreamWriter& pStream)
-    : m_Stream(pStream)
+  : m_Stream(pStream)
 {
   m_bWritingFile = false;
   m_bWritingChunk = false;
@@ -88,7 +88,7 @@ ezResult ezChunkStreamWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiBy
 
 
 ezChunkStreamReader::ezChunkStreamReader(ezStreamReader& stream)
-    : m_Stream(stream)
+  : m_Stream(stream)
 {
   m_ChunkInfo.m_bValid = false;
   m_EndChunkFileMode = EndChunkFileMode::JustClose;
@@ -170,8 +170,8 @@ void ezChunkStreamReader::NextChunk()
 
   const ezUInt64 uiToSkip = m_ChunkInfo.m_uiUnreadChunkBytes;
   const ezUInt64 uiSkipped = SkipBytes(uiToSkip);
-  EZ_VERIFY(uiSkipped == uiToSkip, "Corrupt chunk '{0}' (version {1}), tried to skip {2} bytes, could only read {3} bytes",
-            m_ChunkInfo.m_sChunkName, m_ChunkInfo.m_uiChunkVersion, uiToSkip, uiSkipped);
+  EZ_VERIFY(uiSkipped == uiToSkip, "Corrupt chunk '{0}' (version {1}), tried to skip {2} bytes, could only read {3} bytes", m_ChunkInfo.m_sChunkName,
+    m_ChunkInfo.m_uiChunkVersion, uiToSkip, uiSkipped);
 
   TryReadChunkHeader();
 }
@@ -179,4 +179,3 @@ void ezChunkStreamReader::NextChunk()
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_ChunkStream);
-

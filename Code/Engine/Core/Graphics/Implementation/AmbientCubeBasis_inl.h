@@ -39,7 +39,6 @@ template <typename T>
 T ezAmbientCube<T>::Evaluate(const ezVec3& vNormal)
 {
   ezVec3 vNormalSquared = vNormal.CompMul(vNormal);
-  return vNormalSquared.x * m_Values[vNormal.x > 0.0f ? 0 : 1] +
-         vNormalSquared.y * m_Values[vNormal.y > 0.0f ? 2 : 3] +
+  return vNormalSquared.x * m_Values[vNormal.x > 0.0f ? 0 : 1] + vNormalSquared.y * m_Values[vNormal.y > 0.0f ? 2 : 3] +
          vNormalSquared.z * m_Values[vNormal.z > 0.0f ? 4 : 5];
 }

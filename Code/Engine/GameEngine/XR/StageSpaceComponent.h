@@ -1,8 +1,8 @@
 #pragma once
 
+#include <Core/World/SettingsComponentManager.h>
 #include <GameEngine/GameEngineDLL.h>
 #include <GameEngine/XR/XRInterface.h>
-#include <Core/World/SettingsComponentManager.h>
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -40,4 +40,3 @@ protected:
 private:
   ezEnum<ezXRStageSpace> m_space;
 };
-

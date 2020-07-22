@@ -1,9 +1,9 @@
 #pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
-#include <QDialog>
 #include <EditorFramework/ui_LaunchFileserveDlg.h>
 #include <Foundation/Strings/String.h>
+#include <QDialog>
 
 class EZ_EDITORFRAMEWORK_DLL ezQtLaunchFileserveDlg : public QDialog, public Ui_ezQtLaunchFileserveDlg
 {
@@ -22,5 +22,3 @@ private Q_SLOTS:
 private:
   virtual void showEvent(QShowEvent* event) override;
 };
-
-

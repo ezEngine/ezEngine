@@ -149,8 +149,7 @@ QSharedPointer<ezQtProxy> ezQtProxy::GetProxy(ezActionContext& context, ezAction
       auto it = s_WindowActions.FindOrAdd(context.m_pWindow, &bExisted);
       if (!bExisted)
       {
-        s_pSignalProxy->connect(context.m_pWindow, &QObject::destroyed, s_pSignalProxy,
-          [=]() { s_WindowActions.Remove(context.m_pWindow); });
+        s_pSignalProxy->connect(context.m_pWindow, &QObject::destroyed, s_pSignalProxy, [=]() { s_WindowActions.Remove(context.m_pWindow); });
       }
       QWeakPointer<ezQtProxy> pTemp = it.Value()[hDesc];
       if (pTemp.isNull())
@@ -598,8 +597,7 @@ QWidget* ezQtSliderWidgetAction::createWidget(QWidget* parent)
 
 bool ezQtSliderWidgetAction::eventFilter(QObject* obj, QEvent* e)
 {
-  if (e->type() == QEvent::Type::MouseButtonPress || e->type() == QEvent::Type::MouseButtonRelease ||
-      e->type() == QEvent::Type::MouseButtonDblClick)
+  if (e->type() == QEvent::Type::MouseButtonPress || e->type() == QEvent::Type::MouseButtonRelease || e->type() == QEvent::Type::MouseButtonDblClick)
   {
     e->accept();
     return true;

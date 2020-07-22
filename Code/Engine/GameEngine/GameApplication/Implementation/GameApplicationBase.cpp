@@ -38,8 +38,7 @@ void AppendCurrentTimestamp(ezStringBuilder& out_String)
   const ezDateTime dt = ezTimestamp::CurrentTimestamp();
 
   out_String.AppendFormat("_{0}-{1}-{2}_{3}-{4}-{5}-{6}", dt.GetYear(), ezArgU(dt.GetMonth(), 2, true), ezArgU(dt.GetDay(), 2, true),
-    ezArgU(dt.GetHour(), 2, true), ezArgU(dt.GetMinute(), 2, true), ezArgU(dt.GetSecond(), 2, true),
-    ezArgU(dt.GetMicroseconds() / 1000, 3, true));
+    ezArgU(dt.GetHour(), 2, true), ezArgU(dt.GetMinute(), 2, true), ezArgU(dt.GetSecond(), 2, true), ezArgU(dt.GetMicroseconds() / 1000, 3, true));
 }
 
 void ezGameApplicationBase::TakeProfilingCapture()
@@ -500,9 +499,7 @@ void ezGameApplicationBase::Run_UpdatePlugins()
   }
 }
 
-void ezGameApplicationBase::Run_Present()
-{
-}
+void ezGameApplicationBase::Run_Present() {}
 
 void ezGameApplicationBase::Run_FinishFrame()
 {

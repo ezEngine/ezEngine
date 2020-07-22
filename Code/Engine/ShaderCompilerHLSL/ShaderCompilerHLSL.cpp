@@ -8,8 +8,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezPlugin g_Plugin(false);
 
-ezResult CompileDXShader(const char* szFile, const char* szSource, bool bDebug, const char* szProfile, const char* szEntryPoint,
-  ezDynamicArray<ezUInt8>& out_ByteCode)
+ezResult CompileDXShader(
+  const char* szFile, const char* szSource, bool bDebug, const char* szProfile, const char* szEntryPoint, ezDynamicArray<ezUInt8>& out_ByteCode)
 {
   out_ByteCode.Clear();
 
@@ -36,8 +36,8 @@ ezResult CompileDXShader(const char* szFile, const char* szSource, bool bDebug, 
       // Try again with '#line' intact to get correct error messages with file and line info.
       pErrorBlob->Release();
       pErrorBlob = nullptr;
-      EZ_VERIFY(FAILED(D3DCompile(
-                  szSource, strlen(szSource), szFile, nullptr, nullptr, szEntryPoint, szProfile, flags1, 0, &pResultBlob, &pErrorBlob)),
+      EZ_VERIFY(
+        FAILED(D3DCompile(szSource, strlen(szSource), szFile, nullptr, nullptr, szEntryPoint, szProfile, flags1, 0, &pResultBlob, &pErrorBlob)),
         "Debug compilation with commented out '#line' failed but original version did not.");
     }
 
@@ -246,16 +246,16 @@ ezShaderConstantBufferLayout* ezShaderCompilerHLSL::ReflectConstantBufferLayout(
       switch (std.Type)
       {
         case D3D_SVT_FLOAT:
-          constant.m_Type = (ezShaderConstantBufferLayout::Constant::Type::Enum)(
-            (ezInt32)ezShaderConstantBufferLayout::Constant::Type::Float1 + std.Columns - 1);
+          constant.m_Type =
+            (ezShaderConstantBufferLayout::Constant::Type::Enum)((ezInt32)ezShaderConstantBufferLayout::Constant::Type::Float1 + std.Columns - 1);
           break;
         case D3D_SVT_INT:
-          constant.m_Type = (ezShaderConstantBufferLayout::Constant::Type::Enum)(
-            (ezInt32)ezShaderConstantBufferLayout::Constant::Type::Int1 + std.Columns - 1);
+          constant.m_Type =
+            (ezShaderConstantBufferLayout::Constant::Type::Enum)((ezInt32)ezShaderConstantBufferLayout::Constant::Type::Int1 + std.Columns - 1);
           break;
         case D3D_SVT_UINT:
-          constant.m_Type = (ezShaderConstantBufferLayout::Constant::Type::Enum)(
-            (ezInt32)ezShaderConstantBufferLayout::Constant::Type::UInt1 + std.Columns - 1);
+          constant.m_Type =
+            (ezShaderConstantBufferLayout::Constant::Type::Enum)((ezInt32)ezShaderConstantBufferLayout::Constant::Type::UInt1 + std.Columns - 1);
           break;
         case D3D_SVT_BOOL:
           if (std.Columns == 1)

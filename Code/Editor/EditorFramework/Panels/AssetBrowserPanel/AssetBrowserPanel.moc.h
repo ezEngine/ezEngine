@@ -1,9 +1,9 @@
 #pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
+#include <EditorFramework/ui_AssetBrowserPanel.h>
 #include <Foundation/Basics.h>
 #include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
-#include <EditorFramework/ui_AssetBrowserPanel.h>
 
 class QStatusBar;
 class QLabel;

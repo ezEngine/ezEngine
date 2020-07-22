@@ -32,7 +32,8 @@ void ezOpenDdlParser::SetCacheSize(ezUInt32 uiSizeInKB)
 // Extension to default OpenDDL: We allow ':' and '.' to appear in identifier names
 bool IsDdlIdentifierCharacter(ezUInt8 byte)
 {
-  return ((byte >= 'a' && byte <= 'z') || (byte >= 'A' && byte <= 'Z') || (byte == '_') || (byte >= '0' && byte <= '9') || (byte == ':') || (byte == '.'));
+  return (
+    (byte >= 'a' && byte <= 'z') || (byte >= 'A' && byte <= 'Z') || (byte == '_') || (byte >= '0' && byte <= '9') || (byte == ':') || (byte == '.'));
 }
 
 void ezOpenDdlParser::SetInputStream(ezStreamReader& stream, ezUInt32 uiFirstLineOffset /*= 0*/)
@@ -322,7 +323,9 @@ void ezOpenDdlParser::ContinueIdle()
         // support for 'uint' is an extension to OpenDDL
         // support for u1, u2, u3, u4 for  8 Bit, 16 Bit, 32 Bit, 64 Bit is an extension to OpenDDL
 
-        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "u1") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "unsigned_int8") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "uint8"))
+        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "u1") ||
+            ezStringUtils::IsEqual((const char*)m_szIdentifierType, "unsigned_int8") ||
+            ezStringUtils::IsEqual((const char*)m_szIdentifierType, "uint8"))
         {
           m_StateStack.PushBack(State::ReadingUInt8);
 
@@ -333,7 +336,9 @@ void ezOpenDdlParser::ContinueIdle()
           return;
         }
 
-        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "u3") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "unsigned_int32") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "uint32"))
+        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "u3") ||
+            ezStringUtils::IsEqual((const char*)m_szIdentifierType, "unsigned_int32") ||
+            ezStringUtils::IsEqual((const char*)m_szIdentifierType, "uint32"))
         {
           m_StateStack.PushBack(State::ReadingUInt32);
 
@@ -344,7 +349,9 @@ void ezOpenDdlParser::ContinueIdle()
           return;
         }
 
-        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "u2") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "unsigned_int16") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "uint16"))
+        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "u2") ||
+            ezStringUtils::IsEqual((const char*)m_szIdentifierType, "unsigned_int16") ||
+            ezStringUtils::IsEqual((const char*)m_szIdentifierType, "uint16"))
         {
           m_StateStack.PushBack(State::ReadingUInt16);
 
@@ -355,7 +362,9 @@ void ezOpenDdlParser::ContinueIdle()
           return;
         }
 
-        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "u4") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "unsigned_int64") || ezStringUtils::IsEqual((const char*)m_szIdentifierType, "uint64"))
+        if (ezStringUtils::IsEqual((const char*)m_szIdentifierType, "u4") ||
+            ezStringUtils::IsEqual((const char*)m_szIdentifierType, "unsigned_int64") ||
+            ezStringUtils::IsEqual((const char*)m_szIdentifierType, "uint64"))
         {
           m_StateStack.PushBack(State::ReadingUInt64);
 
@@ -1153,7 +1162,8 @@ void ezOpenDdlParser::ReadDecimalFloat()
 
     if (!ReadCharacterSkipComments())
       break; // stop when end of stream is encountered
-  } while ((m_uiCurByte >= '0' && m_uiCurByte <= '9') || m_uiCurByte == '.' || m_uiCurByte == 'e' || m_uiCurByte == 'E' || m_uiCurByte == '-' || m_uiCurByte == '+' || m_uiCurByte == '_');
+  } while ((m_uiCurByte >= '0' && m_uiCurByte <= '9') || m_uiCurByte == '.' || m_uiCurByte == 'e' || m_uiCurByte == 'E' || m_uiCurByte == '-' ||
+           m_uiCurByte == '+' || m_uiCurByte == '_');
 
   m_TempString[m_uiTempStringLength] = '\0';
 

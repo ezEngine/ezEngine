@@ -1,16 +1,16 @@
+#include <Foundation/Application/Application.h>
 #include <Foundation/Configuration/Startup.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/Containers/Map.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/Strings/PathUtils.h>
-#include <Foundation/Strings/StringBuilder.h>
-#include <Foundation/Containers/Map.h>
-#include <Foundation/Strings/String.h>
-#include <Foundation/Logging/Log.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Logging/ConsoleWriter.h>
-#include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Logging/HTMLWriter.h>
-#include <Foundation/Application/Application.h>
+#include <Foundation/Logging/Log.h>
+#include <Foundation/Logging/VisualStudioWriter.h>
+#include <Foundation/Strings/PathUtils.h>
+#include <Foundation/Strings/String.h>
+#include <Foundation/Strings/StringBuilder.h>
 
 // In general it is not possible to have global or static variables that (indirectly) require an allocator.
 // If you create a variable that somehow needs to have an allocator, an assert will fail.
@@ -33,7 +33,7 @@ struct FileStats
     m_uiWords = 0;
   }
 
-  void operator+= (const FileStats& rhs)
+  void operator+=(const FileStats& rhs)
   {
     m_uiFileCount += rhs.m_uiFileCount;
     m_uiLines += rhs.m_uiLines;
@@ -60,14 +60,14 @@ ezResult ReadCompleteFile(const char* szFile, ezDynamicArray<ezUInt8>& out_FileC
     return EZ_FAILURE;
 
   ezUInt8 uiTemp[1024];
-  while(true)
+  while (true)
   {
     const ezUInt64 uiRead = File.ReadBytes(uiTemp, 1023);
 
     if (uiRead == 0)
       return EZ_SUCCESS; // file is automatically closed here
 
-    out_FileContent.PushBackRange(ezArrayPtr<ezUInt8>(uiTemp, (ezUInt32) uiRead));
+    out_FileContent.PushBackRange(ezArrayPtr<ezUInt8>(uiTemp, (ezUInt32)uiRead));
   }
 
   return EZ_SUCCESS; // file is automatically closed here
@@ -123,7 +123,7 @@ FileStats GetFileStats(const char* szFile)
 
   // We should not append that directly at the ezStringBuilder, as the file read operations may end
   // in between a Utf8 sequence and then ezStringBuilder will complain about invalid Utf8 strings.
-  ezStringBuilder sContent = (const char*) &FileContent[0];
+  ezStringBuilder sContent = (const char*)&FileContent[0];
 
   // count the number of lines
   {
@@ -213,7 +213,7 @@ public:
     // since we don't add any further data dirs, this is it
     ezFileSystem::AddDataDirectory("", "", ":", ezFileSystem::AllowWrites);
 
-  
+
     // now we can set up the logging system (we could do it earlier, but the HTML writer needs access to the file system)
 
     ezStringBuilder sLogPath = m_sSearchDir;
@@ -277,11 +277,10 @@ public:
             TypeStats += GetFileStats(b.GetData());
           }
         }
-      }
-      while (it.Next() == EZ_SUCCESS);
+      } while (it.Next() == EZ_SUCCESS);
 
       // now output some statistics
-      ezLog::Info("Directories: {0}, Files: {1}, Avg. Files per Dir: {2}", uiDirectories, uiFiles, ezArgF(uiFiles / (float) uiDirectories, 1));
+      ezLog::Info("Directories: {0}, Files: {1}, Avg. Files per Dir: {2}", uiDirectories, uiFiles, ezArgF(uiFiles / (float)uiDirectories, 1));
 
       FileStats AllTypes;
 
@@ -289,14 +288,18 @@ public:
       ezMap<ezString, FileStats>::Iterator MapIt = FileTypeStatistics.GetIterator();
       while (MapIt.IsValid())
       {
-        ezLog::Info("File Type: '{0}': {1} Files, {2} Lines, {3} Empty Lines, Bytes: {4}, Non-ASCII Characters: {5}, Words: {6}", MapIt.Key(), MapIt.Value().m_uiFileCount, MapIt.Value().m_uiLines, MapIt.Value().m_uiEmptyLines, MapIt.Value().m_uiBytes, MapIt.Value().m_uiBytes - MapIt.Value().m_uiCharacters, MapIt.Value().m_uiWords);
+        ezLog::Info("File Type: '{0}': {1} Files, {2} Lines, {3} Empty Lines, Bytes: {4}, Non-ASCII Characters: {5}, Words: {6}", MapIt.Key(),
+          MapIt.Value().m_uiFileCount, MapIt.Value().m_uiLines, MapIt.Value().m_uiEmptyLines, MapIt.Value().m_uiBytes,
+          MapIt.Value().m_uiBytes - MapIt.Value().m_uiCharacters, MapIt.Value().m_uiWords);
 
         AllTypes += MapIt.Value();
 
         ++MapIt;
       }
 
-      ezLog::Info("File Type: '{0}': {1} Files, {2} Lines, {3} Empty Lines, All Lines: {4}, Bytes: {5}, Non-ASCII Characters: {6}, Words: {7}", "all", AllTypes.m_uiFileCount, AllTypes.m_uiLines, AllTypes.m_uiEmptyLines, AllTypes.m_uiLines + AllTypes.m_uiEmptyLines, AllTypes.m_uiBytes, AllTypes.m_uiBytes - AllTypes.m_uiCharacters, AllTypes.m_uiWords);
+      ezLog::Info("File Type: '{0}': {1} Files, {2} Lines, {3} Empty Lines, All Lines: {4}, Bytes: {5}, Non-ASCII Characters: {6}, Words: {7}", "all",
+        AllTypes.m_uiFileCount, AllTypes.m_uiLines, AllTypes.m_uiEmptyLines, AllTypes.m_uiLines + AllTypes.m_uiEmptyLines, AllTypes.m_uiBytes,
+        AllTypes.m_uiBytes - AllTypes.m_uiCharacters, AllTypes.m_uiWords);
     }
     else
       ezLog::Error("Could not search the directory '{0}'", m_sSearchDir);

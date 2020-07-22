@@ -1,7 +1,7 @@
 #pragma once
 
-#include <ToolsFoundation/ToolsFoundationDLL.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 
 /// \brief A factory that creates the closest matching objects according to the passed type.
 ///
@@ -12,6 +12,7 @@ template <typename Object>
 class ezRttiMappedObjectFactory
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezRttiMappedObjectFactory);
+
 public:
   ezRttiMappedObjectFactory();
   ~ezRttiMappedObjectFactory();

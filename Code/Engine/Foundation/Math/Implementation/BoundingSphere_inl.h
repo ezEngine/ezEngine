@@ -208,7 +208,8 @@ const ezVec3Template<Type> ezBoundingSphereTemplate<Type>::GetClampedPoint(const
 }
 
 template <typename Type>
-bool ezBoundingSphereTemplate<Type>::Contains(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template) */) const
+bool ezBoundingSphereTemplate<Type>::Contains(
+  const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template) */) const
 {
   EZ_ASSERT_DEBUG(pPoints != nullptr, "The array must not be empty.");
   EZ_ASSERT_DEBUG(uiNumPoints > 0, "The array must contain at least one point.");
@@ -230,7 +231,8 @@ bool ezBoundingSphereTemplate<Type>::Contains(const ezVec3Template<Type>* pPoint
 }
 
 template <typename Type>
-bool ezBoundingSphereTemplate<Type>::Overlaps(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template) */) const
+bool ezBoundingSphereTemplate<Type>::Overlaps(
+  const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template) */) const
 {
   EZ_ASSERT_DEBUG(pPoints != nullptr, "The array must not be empty.");
   EZ_ASSERT_DEBUG(uiNumPoints > 0, "The array must contain at least one point.");
@@ -252,7 +254,8 @@ bool ezBoundingSphereTemplate<Type>::Overlaps(const ezVec3Template<Type>* pPoint
 }
 
 template <typename Type>
-void ezBoundingSphereTemplate<Type>::SetFromPoints(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template) */)
+void ezBoundingSphereTemplate<Type>::SetFromPoints(
+  const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template) */)
 {
   EZ_ASSERT_DEBUG(pPoints != nullptr, "The array must not be empty.");
   EZ_ASSERT_DEBUG(uiStride >= sizeof(ezVec3Template<Type>), "The data must not overlap.");
@@ -288,7 +291,8 @@ void ezBoundingSphereTemplate<Type>::SetFromPoints(const ezVec3Template<Type>* p
 }
 
 template <typename Type>
-void ezBoundingSphereTemplate<Type>::ExpandToInclude(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template) */)
+void ezBoundingSphereTemplate<Type>::ExpandToInclude(
+  const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template) */)
 {
   EZ_ASSERT_DEBUG(pPoints != nullptr, "The array must not be empty.");
   EZ_ASSERT_DEBUG(uiStride >= sizeof(ezVec3Template<Type>), "The data must not overlap.");
@@ -310,7 +314,8 @@ void ezBoundingSphereTemplate<Type>::ExpandToInclude(const ezVec3Template<Type>*
 }
 
 template <typename Type>
-Type ezBoundingSphereTemplate<Type>::GetDistanceTo(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template) */) const
+Type ezBoundingSphereTemplate<Type>::GetDistanceTo(
+  const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template) */) const
 {
   EZ_ASSERT_DEBUG(pPoints != nullptr, "The array must not be empty.");
   EZ_ASSERT_DEBUG(uiNumPoints > 0, "The array must contain at least one point.");
@@ -333,7 +338,8 @@ Type ezBoundingSphereTemplate<Type>::GetDistanceTo(const ezVec3Template<Type>* p
 }
 
 template <typename Type>
-bool ezBoundingSphereTemplate<Type>::GetRayIntersection(const ezVec3Template<Type>& vRayStartPos, const ezVec3Template<Type>& vRayDirNormalized, Type* out_fIntersection /* = nullptr */, ezVec3Template<Type>* out_vIntersection /* = nullptr */) const
+bool ezBoundingSphereTemplate<Type>::GetRayIntersection(const ezVec3Template<Type>& vRayStartPos, const ezVec3Template<Type>& vRayDirNormalized,
+  Type* out_fIntersection /* = nullptr */, ezVec3Template<Type>* out_vIntersection /* = nullptr */) const
 {
   EZ_ASSERT_DEBUG(vRayDirNormalized.IsNormalized(), "The ray direction must be normalized.");
 
@@ -371,7 +377,8 @@ bool ezBoundingSphereTemplate<Type>::GetRayIntersection(const ezVec3Template<Typ
 }
 
 template <typename Type>
-bool ezBoundingSphereTemplate<Type>::GetLineSegmentIntersection(const ezVec3Template<Type>& vLineStartPos, const ezVec3Template<Type>& vLineEndPos, Type* out_fHitFraction /* = nullptr */, ezVec3Template<Type>* out_vIntersection /* = nullptr */) const
+bool ezBoundingSphereTemplate<Type>::GetLineSegmentIntersection(const ezVec3Template<Type>& vLineStartPos, const ezVec3Template<Type>& vLineEndPos,
+  Type* out_fHitFraction /* = nullptr */, ezVec3Template<Type>* out_vIntersection /* = nullptr */) const
 {
   Type fIntersection = 0.0f;
 
@@ -395,4 +402,3 @@ bool ezBoundingSphereTemplate<Type>::GetLineSegmentIntersection(const ezVec3Temp
 }
 
 #include <Foundation/Math/Implementation/AllClasses_inl.h>
-

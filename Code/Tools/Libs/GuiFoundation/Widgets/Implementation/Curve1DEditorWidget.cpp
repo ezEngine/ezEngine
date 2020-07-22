@@ -11,7 +11,7 @@
 #include <QPainterPath>
 
 ezQtCurve1DEditorWidget::ezQtCurve1DEditorWidget(QWidget* pParent)
-    : QWidget(pParent)
+  : QWidget(pParent)
 {
   setupUi(this);
 
@@ -411,7 +411,8 @@ void ezQtCurve1DEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
   cm->addAction("Loop: Adjust Last Point", this, [this]() { MakeRepeatable(true); });
   cm->addAction("Loop: Adjust First Point", this, [this]() { MakeRepeatable(false); });
 
-  m.addAction("Frame", this, [this]() { FrameCurve(); }, QKeySequence(Qt::ControlModifier | Qt::Key_F));
+  m.addAction(
+    "Frame", this, [this]() { FrameCurve(); }, QKeySequence(Qt::ControlModifier | Qt::Key_F));
 
   m.exec(pos);
 }
@@ -519,8 +520,7 @@ bool ezQtCurve1DEditorWidget::PickCurveAt(double x, double y, double fMaxDistanc
   return out_iCurveIdx >= 0;
 }
 
-bool ezQtCurve1DEditorWidget::PickControlPointAt(double x, double y, ezVec2d vMaxDistance, ezInt32& out_iCurveIdx,
-                                                 ezInt32& out_iCpIdx) const
+bool ezQtCurve1DEditorWidget::PickControlPointAt(double x, double y, ezVec2d vMaxDistance, ezInt32& out_iCurveIdx, ezInt32& out_iCpIdx) const
 {
   const ezVec2d at(x, y);
 

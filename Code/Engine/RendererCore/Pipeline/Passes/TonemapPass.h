@@ -49,4 +49,3 @@ protected:
   ezConstantBufferStorageHandle m_hConstantBuffer;
   ezShaderResourceHandle m_hShader;
 };
-

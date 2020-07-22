@@ -21,5 +21,5 @@ namespace ezModelImporter
     ezResult ParseFloats(ezStringView& params, ezArrayPtr<float> outFloats, int numExpectedFloats);
 
     Parameter::DataArray ParseParameterBlock(ParamType type, ezStringView& remainingSceneText);
-  }
-}
+  } // namespace PbrtParseHelper
+} // namespace ezModelImporter

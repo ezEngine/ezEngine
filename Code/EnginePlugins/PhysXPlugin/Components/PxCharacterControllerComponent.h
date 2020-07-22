@@ -7,8 +7,7 @@
 struct ezMsgCollision;
 typedef ezTypedResourceHandle<class ezSurfaceResource> ezSurfaceResourceHandle;
 
-class ezPxCharacterControllerComponentManager
-  : public ezComponentManager<class ezPxCharacterControllerComponent, ezBlockStorageType::Compact>
+class ezPxCharacterControllerComponentManager : public ezComponentManager<class ezPxCharacterControllerComponent, ezBlockStorageType::Compact>
 {
 public:
   ezPxCharacterControllerComponentManager(ezWorld* pWorld);

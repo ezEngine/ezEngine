@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Foundation/Basics.h>
 #include <EditorFramework/Panels/GameObjectPanel/GameObjectPanel.moc.h>
+#include <Foundation/Basics.h>
 
 class ezQtSearchWidget;
 class ezQtDocumentTreeView;

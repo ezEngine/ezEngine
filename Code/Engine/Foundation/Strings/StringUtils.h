@@ -46,7 +46,8 @@ public:
   /// Multi-byte UTF-8 characters will only be copied, if they can fit completely into szDest.
   /// I.e. they will be truncated at a character boundary.
   /// Returns the number of bytes that were copied into szDest, excluding the terminating \0
-  static ezUInt32 Copy(char* szDest, ezUInt32 uiDstSize, const char* szSource, const char* pSourceEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
+  static ezUInt32 Copy(
+    char* szDest, ezUInt32 uiDstSize, const char* szSource, const char* pSourceEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
 
   /// \brief Copies up to uiCharsToCopy characters into the given buffer, which can hold at least uiDstSize bytes.
   ///
@@ -108,7 +109,8 @@ public:
   /// \brief Returns true, if the two given strings are identical (bitwise) up to the n-th character.
   ///
   /// This function will handle UTF-8 strings properly.
-  static bool IsEqualN(const char* pString1, const char* pString2, ezUInt32 uiCharsToCompare, const char* pString1End = ezUnicodeUtils::GetMaxStringEnd<char>(),
+  static bool IsEqualN(const char* pString1, const char* pString2, ezUInt32 uiCharsToCompare,
+    const char* pString1End = ezUnicodeUtils::GetMaxStringEnd<char>(),
     const char* pString2End = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
 
   /// \brief Returns true, if the two given strings are identical (case-insensitive).
@@ -136,7 +138,8 @@ public:
   /// Returns a positive number, if pString1 is 'larger' or longer than pString1.
   /// Returns 0 for equal strings.
   /// Works with UTF-8 strings as well.
-  static ezInt32 CompareN(const char* pString1, const char* pString2, ezUInt32 uiCharsToCompare, const char* pString1End = ezUnicodeUtils::GetMaxStringEnd<char>(),
+  static ezInt32 CompareN(const char* pString1, const char* pString2, ezUInt32 uiCharsToCompare,
+    const char* pString1End = ezUnicodeUtils::GetMaxStringEnd<char>(),
     const char* pString2End = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
 
   /// \brief Compares two strings for equality, case-insensitive.
@@ -198,7 +201,8 @@ public:
 
 
   /// \brief Searches for the first occurrence of szStringToFind in szSource.
-  static const char* FindSubString(const char* szSource, const char* szStringToFind, const char* pSourceEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
+  static const char* FindSubString(
+    const char* szSource, const char* szStringToFind, const char* pSourceEnd = ezUnicodeUtils::GetMaxStringEnd<char>()); // [tested]
 
   /// \brief Searches for the first occurrence of szStringToFind in szSource. Ignores case.
   static const char* FindSubString_NoCase(const char* szSource, const char* szStringToFind,
@@ -274,14 +278,14 @@ public:
   static ezResult FindUIntAtTheEnd(const char* szString, ezUInt32& out_uiValue, ezUInt32* pStringLengthBeforeUInt = nullptr); // [tested]
 
   /// \brief [internal] Prefer to use snprintf.
-  static void OutputFormattedInt(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& uiWritePos, ezInt64 value, ezUInt8 uiWidth,
-    bool bPadZeros, ezUInt8 uiBase);
+  static void OutputFormattedInt(
+    char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& uiWritePos, ezInt64 value, ezUInt8 uiWidth, bool bPadZeros, ezUInt8 uiBase);
   /// \brief [internal] Prefer to use snprintf.
-  static void OutputFormattedUInt(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& uiWritePos, ezUInt64 value, ezUInt8 uiWidth,
-    bool bPadZeros, ezUInt8 uiBase, bool bUpperCase);
+  static void OutputFormattedUInt(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& uiWritePos, ezUInt64 value, ezUInt8 uiWidth, bool bPadZeros,
+    ezUInt8 uiBase, bool bUpperCase);
   /// \brief [internal] Prefer to use snprintf.
-  static void OutputFormattedFloat(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& uiWritePos, double value, ezUInt8 uiWidth,
-    bool bPadZeros, ezInt8 iPrecision, bool bScientific, bool bRemoveTrailingZeroes = false);
+  static void OutputFormattedFloat(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& uiWritePos, double value, ezUInt8 uiWidth, bool bPadZeros,
+    ezInt8 iPrecision, bool bScientific, bool bRemoveTrailingZeroes = false);
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   static void AddUsedStringLength(ezUInt32 uiLength);
@@ -289,9 +293,7 @@ public:
   static ezAtomicInteger32 g_MaxUsedStringLength;
   static ezAtomicInteger32 g_UsedStringLengths[256];
 #else
-  EZ_ALWAYS_INLINE static void AddUsedStringLength(ezUInt32)
-  {
-  }
+  EZ_ALWAYS_INLINE static void AddUsedStringLength(ezUInt32) {}
   EZ_ALWAYS_INLINE static void PrintStringLengthStatistics() {}
 #endif
 };

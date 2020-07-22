@@ -1,15 +1,15 @@
 #pragma once
 
-#include <GameEngine/GameEngineDLL.h>
+#include <Core/ResourceManager/ResourceHandle.h>
+#include <Foundation/Containers/ArrayMap.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Containers/HybridArray.h>
-#include <Foundation/Types/Variant.h>
 #include <Foundation/Containers/Map.h>
-#include <GameEngine/VisualScript/VisualScriptNode.h>
+#include <Foundation/Types/Variant.h>
+#include <GameEngine/GameEngineDLL.h>
 #include <GameEngine/GameState/StateMap.h>
-#include <Foundation/Containers/ArrayMap.h>
-#include <Core/ResourceManager/ResourceHandle.h>
+#include <GameEngine/VisualScript/VisualScriptNode.h>
 
 class ezVisualScriptNode;
 class ezMessage;
@@ -23,7 +23,7 @@ typedef ezUInt32 ezVisualScriptNodeConnectionID;
 typedef ezUInt32 ezVisualScriptPinConnectionID;
 typedef ezTypedResourceHandle<class ezVisualScriptResource> ezVisualScriptResourceHandle;
 
-typedef bool(*ezVisualScriptDataPinAssignFunc)(const void* src, void* dst);
+typedef bool (*ezVisualScriptDataPinAssignFunc)(const void* src, void* dst);
 
 /// \brief An instance of a visual script resource. Stores the current script state and executes nodes.
 class EZ_GAMEENGINE_DLL ezVisualScriptInstance
@@ -38,7 +38,8 @@ public:
   /// \brief Runs all nodes that are marked for execution. Typically nodes that handle events will mark themselves for execution in the next update.
   void ExecuteScript(ezVisualScriptInstanceActivity* pActivity = nullptr);
 
-  /// \brief The message is dispatched to all nodes, which may react on it, for instance by tagging themselves for execution in the next ExecuteScript() call.
+  /// \brief The message is dispatched to all nodes, which may react on it, for instance by tagging themselves for execution in the next
+  /// ExecuteScript() call.
   bool HandleMessage(ezMessage& msg);
 
   /// \brief Called by ezVisualScriptNode classes to pass the new value of an output pin to all connected nodes.
@@ -62,8 +63,10 @@ public:
   /// \brief Needs to be called once to register the default data pin conversion functions.
   static void SetupPinDataTypeConversions();
 
-  static void RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Enum sourceType, ezVisualScriptDataPinType::Enum dstType, ezVisualScriptDataPinAssignFunc func);
-  static ezVisualScriptDataPinAssignFunc FindDataPinAssignFunction(ezVisualScriptDataPinType::Enum sourceType, ezVisualScriptDataPinType::Enum dstType);
+  static void RegisterDataPinAssignFunction(
+    ezVisualScriptDataPinType::Enum sourceType, ezVisualScriptDataPinType::Enum dstType, ezVisualScriptDataPinAssignFunc func);
+  static ezVisualScriptDataPinAssignFunc FindDataPinAssignFunction(
+    ezVisualScriptDataPinType::Enum sourceType, ezVisualScriptDataPinType::Enum dstType);
 
   /// \brief Returns whether this script has a node that handles this type of event message.
   bool HandlesEventMessage(const ezEventMessage& msg) const;
@@ -76,13 +79,15 @@ private:
   void ExecuteDependentNodes(ezUInt16 uiNode);
 
   void ConnectExecutionPins(ezUInt16 uiSourceNode, ezUInt8 uiOutputSlot, ezUInt16 uiTargetNode, ezUInt8 uiTargetPin);
-  void ConnectDataPins(ezUInt16 uiSourceNode, ezUInt8 uiSourcePin, ezVisualScriptDataPinType::Enum sourcePinType, ezUInt16 uiTargetNode, ezUInt8 uiTargetPin, ezVisualScriptDataPinType::Enum targetPinType);
+  void ConnectDataPins(ezUInt16 uiSourceNode, ezUInt8 uiSourcePin, ezVisualScriptDataPinType::Enum sourcePinType, ezUInt16 uiTargetNode,
+    ezUInt8 uiTargetPin, ezVisualScriptDataPinType::Enum targetPinType);
 
   void CreateVisualScriptNode(ezUInt32 uiNodeIdx, const ezVisualScriptResourceDescriptor& resource);
   void CreateFunctionMessageNode(ezUInt32 uiNodeIdx, const ezVisualScriptResourceDescriptor& resource);
   void CreateEventMessageNode(ezUInt32 uiNodeIdx, const ezVisualScriptResourceDescriptor& resource);
   void CreateFunctionCallNode(ezUInt32 uiNodeIdx, const ezVisualScriptResourceDescriptor& resource);
-  ezAbstractFunctionProperty* SearchForScriptableFunctionOnType(const ezRTTI* pObjectType, ezStringView sFuncName, const ezScriptableFunctionAttribute*& out_pSfAttr) const;
+  ezAbstractFunctionProperty* SearchForScriptableFunctionOnType(
+    const ezRTTI* pObjectType, ezStringView sFuncName, const ezScriptableFunctionAttribute*& out_pSfAttr) const;
 
   struct DataPinConnection
   {
@@ -107,8 +112,8 @@ private:
   ezWorld* m_pWorld = nullptr;
   ezDynamicArray<ezVisualScriptNode*> m_Nodes;
   ezDynamicArray<ezHybridArray<ezUInt16, 2>> m_NodeDependencies;
-  ezHashTable<ezVisualScriptNodeConnectionID, ExecPinConnection > m_ExecutionConnections;
-  ezHashTable<ezVisualScriptPinConnectionID, ezHybridArray<DataPinConnection, 2> > m_DataConnections;
+  ezHashTable<ezVisualScriptNodeConnectionID, ExecPinConnection> m_ExecutionConnections;
+  ezHashTable<ezVisualScriptPinConnectionID, ezHybridArray<DataPinConnection, 2>> m_DataConnections;
   ezStateMap m_LocalVariables;
   ezVisualScriptInstanceActivity* m_pActivity = nullptr;
   const ezArrayMap<ezMessageId, ezUInt16>* m_pMessageHandlers = nullptr;
@@ -120,10 +125,7 @@ private:
     ezVisualScriptDataPinType::Enum m_SourceType;
     ezVisualScriptDataPinType::Enum m_DstType;
 
-    EZ_ALWAYS_INLINE bool operator==(const AssignFuncKey& rhs) const
-    {
-      return m_SourceType == rhs.m_SourceType && m_DstType == rhs.m_DstType;
-    }
+    EZ_ALWAYS_INLINE bool operator==(const AssignFuncKey& rhs) const { return m_SourceType == rhs.m_SourceType && m_DstType == rhs.m_DstType; }
 
     EZ_ALWAYS_INLINE bool operator<(const AssignFuncKey& rhs) const
     {
@@ -151,9 +153,5 @@ struct EZ_GAMEENGINE_DLL ezVisualScriptInstanceActivity
     m_ActiveExecutionConnections.Clear();
   }
 
-  bool IsEmpty()
-  {
-    return m_ActiveDataConnections.IsEmpty() && m_ActiveExecutionConnections.IsEmpty();
-  }
+  bool IsEmpty() { return m_ActiveDataConnections.IsEmpty() && m_ActiveExecutionConnections.IsEmpty(); }
 };
-

@@ -55,7 +55,8 @@ public:
   void SetPtr(PtrType* ptr)
   {
     const std::uintptr_t isrc = *reinterpret_cast<std::uintptr_t*>(&ptr);
-    EZ_ASSERT_DEBUG((isrc & FlagsMask) == 0, "The given pointer does not have an {} byte alignment and thus cannot be stored lossless.", 1u << NumFlagBits);
+    EZ_ASSERT_DEBUG(
+      (isrc & FlagsMask) == 0, "The given pointer does not have an {} byte alignment and thus cannot be stored lossless.", 1u << NumFlagBits);
 
     std::uintptr_t& iptr = *reinterpret_cast<std::uintptr_t*>(&m_ptr);
 
@@ -82,13 +83,10 @@ public:
   operator PtrType*() { return GetPtr(); }
 
   /// \brief Returns the masked off pointer value
-  operator const PtrType*() const { return GetPtr(); }
+  operator const PtrType *() const { return GetPtr(); }
 
   /// \brief Changes the pointer value only. Flags stay unchanged.
-  void operator=(PtrType* ptr)
-  {
-    SetPtr(ptr);
-  }
+  void operator=(PtrType* ptr) { SetPtr(ptr); }
 
   /// \brief Compares the pointer part for equality (flags are ignored)
   bool operator==(const PtrType* ptr) const { return GetPtr() == ptr; }

@@ -26,8 +26,7 @@ ezQtPropertyEditorCheckboxWidget::ezQtPropertyEditorCheckboxWidget()
   m_pWidget->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
   m_pLayout->addWidget(m_pWidget);
 
-  EZ_VERIFY(connect(m_pWidget, SIGNAL(stateChanged(int)), this, SLOT(on_StateChanged_triggered(int))) != nullptr,
-    "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pWidget, SIGNAL(stateChanged(int)), this, SLOT(on_StateChanged_triggered(int))) != nullptr, "signal/slot connection failed");
 }
 
 void ezQtPropertyEditorCheckboxWidget::InternalSetValue(const ezVariant& value)
@@ -983,8 +982,8 @@ void ezQtPropertyEditorColorWidget::on_Button_triggered()
     temp = m_OriginalValue.ConvertTo<ezColor>();
   }
 
-  ezQtUiServices::GetSingleton()->ShowColorDialog(temp, m_bExposeAlpha, bShowHDR, this, SLOT(on_CurrentColor_changed(const ezColor&)),
-    SLOT(on_Color_accepted()), SLOT(on_Color_reset()));
+  ezQtUiServices::GetSingleton()->ShowColorDialog(
+    temp, m_bExposeAlpha, bShowHDR, this, SLOT(on_CurrentColor_changed(const ezColor&)), SLOT(on_Color_accepted()), SLOT(on_Color_reset()));
 }
 
 void ezQtPropertyEditorColorWidget::on_CurrentColor_changed(const ezColor& color)

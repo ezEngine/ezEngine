@@ -35,7 +35,8 @@ public:
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   void AssertNotNaN() const
   {
-    EZ_ASSERT_ALWAYS(!IsNaN(), "This object contains NaN values. This can happen when you forgot to initialize it before using it. Please check that all code-paths properly initialize this object.");
+    EZ_ASSERT_ALWAYS(!IsNaN(), "This object contains NaN values. This can happen when you forgot to initialize it before using it. Please check that "
+                               "all code-paths properly initialize this object.");
   }
 #endif
 
@@ -79,4 +80,3 @@ bool operator!=(const ezBoundingBoxSphereTemplate<Type>& lhs, const ezBoundingBo
 
 
 #include <Foundation/Math/Implementation/BoundingBoxSphere_inl.h>
-

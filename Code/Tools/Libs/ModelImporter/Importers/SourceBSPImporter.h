@@ -17,4 +17,4 @@ namespace ezModelImporter
   private:
     ezDynamicArray<ezString> m_supportedFileFormats;
   };
-}
+} // namespace ezModelImporter

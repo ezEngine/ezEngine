@@ -18,7 +18,8 @@ void ezDataDirectory::FileserveType::ReloadExternalConfigs()
   FolderType::ReloadExternalConfigs();
 }
 
-ezDataDirectoryReader* ezDataDirectory::FileserveType::OpenFileToRead(const char* szFile, ezFileShareMode::Enum FileShareMode, bool bSpecificallyThisDataDir)
+ezDataDirectoryReader* ezDataDirectory::FileserveType::OpenFileToRead(
+  const char* szFile, ezFileShareMode::Enum FileShareMode, bool bSpecificallyThisDataDir)
 {
   // fileserve cannot handle absolute paths, which is actually already ruled out at creation time, so this is just an optimization
   if (ezPathUtils::IsAbsolutePath(szFile))
@@ -121,8 +122,8 @@ bool ezDataDirectory::FileserveType::ExistsFile(const char* szFile, bool bOneSpe
   return ezFileserveClient::GetSingleton()->DownloadFile(m_uiDataDirID, sRedirected, bOneSpecificDataDir, nullptr).Succeeded();
 }
 
-ezDataDirectoryType* ezDataDirectory::FileserveType::Factory(const char* szDataDirectory, const char* szGroup, const char* szRootName,
-                                                             ezFileSystem::DataDirUsage Usage)
+ezDataDirectoryType* ezDataDirectory::FileserveType::Factory(
+  const char* szDataDirectory, const char* szGroup, const char* szRootName, ezFileSystem::DataDirUsage Usage)
 {
   if (!ezFileserveClient::s_bEnableFileserve || ezFileserveClient::GetSingleton() == nullptr)
     return nullptr; // this would only happen if the functionality is switched off, but not before the factory was added
@@ -149,7 +150,8 @@ ezDataDirectoryType* ezDataDirectory::FileserveType::Factory(const char* szDataD
   return nullptr;
 }
 
-ezDataDirectory::FileserveDataDirectoryReader::FileserveDataDirectoryReader(ezInt32 iDataDirUserData) : FolderReader(iDataDirUserData)
+ezDataDirectory::FileserveDataDirectoryReader::FileserveDataDirectoryReader(ezInt32 iDataDirUserData)
+  : FolderReader(iDataDirUserData)
 {
 }
 

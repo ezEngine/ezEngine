@@ -19,12 +19,10 @@ namespace ezMeshImportUtils
     const char* szImportSourceFolder, const char* szImportTargetFolder);
 
   EZ_EDITORPLUGINASSETS_DLL void ImportMeshMaterials(const ezModelImporter::Scene& scene, const ezModelImporter::Mesh& mesh,
-    ezHybridArray<ezMaterialResourceSlot, 8>& inout_MaterialSlots,
-    const char* szImportSourceFolder, const char* szImportTargetFolder);
+    ezHybridArray<ezMaterialResourceSlot, 8>& inout_MaterialSlots, const char* szImportSourceFolder, const char* szImportTargetFolder);
 
-  EZ_EDITORPLUGINASSETS_DLL void ImportMeshAssetMaterials(const char* szAssetDocument, const char* szMeshFile,
-    bool bUseSubFolderForImportedMaterials, const ezModelImporter::Scene& scene,
-    const ezModelImporter::Mesh& mesh, ezHybridArray<ezMaterialResourceSlot, 8>& inout_MaterialSlots);
+  EZ_EDITORPLUGINASSETS_DLL void ImportMeshAssetMaterials(const char* szAssetDocument, const char* szMeshFile, bool bUseSubFolderForImportedMaterials,
+    const ezModelImporter::Scene& scene, const ezModelImporter::Mesh& mesh, ezHybridArray<ezMaterialResourceSlot, 8>& inout_MaterialSlots);
 
   EZ_EDITORPLUGINASSETS_DLL const ezString GetResourceSlotProperty(const ezHybridArray<ezMaterialResourceSlot, 8>& materialSlots, ezUInt32 uiSlot);
 

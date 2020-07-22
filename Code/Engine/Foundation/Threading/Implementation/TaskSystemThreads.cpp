@@ -112,7 +112,8 @@ void ezTaskSystem::AllocateThreads(ezWorkerThreadType::Enum type, ezUInt32 uiAdd
 
     ezUInt32 uiNextThreadIdx = s_ThreadState->m_iAllocatedWorkers[type];
 
-    EZ_ASSERT_ALWAYS(uiNextThreadIdx + uiAddThreads <= s_ThreadState->m_Workers[type].GetCount(), "Max number of worker threads ({}) exceeded.", s_ThreadState->m_Workers[type].GetCount());
+    EZ_ASSERT_ALWAYS(uiNextThreadIdx + uiAddThreads <= s_ThreadState->m_Workers[type].GetCount(), "Max number of worker threads ({}) exceeded.",
+      s_ThreadState->m_Workers[type].GetCount());
 
     for (ezUInt32 i = 0; i < uiAddThreads; ++i)
     {
@@ -126,14 +127,15 @@ void ezTaskSystem::AllocateThreads(ezWorkerThreadType::Enum type, ezUInt32 uiAdd
     s_ThreadState->m_iAllocatedWorkers[type] = uiNextThreadIdx;
   }
 
-  ezLog::Dev("Allocated {} additional '{}' worker threads ({} total)", uiAddThreads, ezWorkerThreadType::GetThreadTypeName(type), s_ThreadState->m_iAllocatedWorkers[type]);
+  ezLog::Dev("Allocated {} additional '{}' worker threads ({} total)", uiAddThreads, ezWorkerThreadType::GetThreadTypeName(type),
+    s_ThreadState->m_iAllocatedWorkers[type]);
 }
 
 void ezTaskSystem::WakeUpThreads(ezWorkerThreadType::Enum type, ezUInt32 uiNumThreadsToWakeUp)
 {
   // together with ezTaskWorkerThread::Run() this function will make sure to keep the number
   // of active threads close to m_uiMaxWorkersToUse
-  // 
+  //
   // threads that go into the 'blocked' state will raise the number of threads that get activated
   // and when they are unblocked, together they may exceed the 'maximum' number of active threads
   // but over time the threads at the end of the list will put themselves to sleep again

@@ -4,10 +4,10 @@
 
 #ifdef EZ_USE_QT
 
-#include <Foundation/Application/Application.h>
-#include <EditorPluginFileserve/FileserveUI/FileserveWidget.moc.h>
-#include <Gui.moc.h>
-#include <QTimer>
+#  include <EditorPluginFileserve/FileserveUI/FileserveWidget.moc.h>
+#  include <Foundation/Application/Application.h>
+#  include <Gui.moc.h>
+#  include <QTimer>
 
 void CreateFileserveMainWindow(ezApplication* pApp)
 {
@@ -16,8 +16,8 @@ void CreateFileserveMainWindow(ezApplication* pApp)
 }
 
 ezQtFileserveMainWnd::ezQtFileserveMainWnd(ezApplication* pApp, QWidget* parent)
-    : QMainWindow(parent)
-    , m_pApp(pApp)
+  : QMainWindow(parent)
+  , m_pApp(pApp)
 {
   OnServerStopped();
 

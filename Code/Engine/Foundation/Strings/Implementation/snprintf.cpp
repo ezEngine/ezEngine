@@ -231,8 +231,7 @@ static void OutputPadding(char* szOutputBuffer, unsigned int uiBufferSize, unsig
     OutputChar(szOutputBuffer, uiBufferSize, uiWritePos, cPad);
 }
 
-static void OutputPaddingByFlags(char* szOutputBuffer, unsigned int uiBufferSize, unsigned int& uiWritePos, int iPadding,
-                                 unsigned int Flags)
+static void OutputPaddingByFlags(char* szOutputBuffer, unsigned int uiBufferSize, unsigned int& uiWritePos, int iPadding, unsigned int Flags)
 {
   if (Flags & sprintfFlags::PadZeros)
     OutputPadding(szOutputBuffer, uiBufferSize, uiWritePos, iPadding, '0');
@@ -270,8 +269,8 @@ static void OutputInf(char* szOutputBuffer, unsigned int uiBufferSize, unsigned 
 }
 
 
-static void OutputString(char* szOutputBuffer, unsigned int uiBufferSize, unsigned int& uiWritePos, const char* szString,
-                         unsigned int Flags, int iMinSize, int iMaxSize)
+static void OutputString(
+  char* szOutputBuffer, unsigned int uiBufferSize, unsigned int& uiWritePos, const char* szString, unsigned int Flags, int iMinSize, int iMaxSize)
 {
   if (!szString)
   {
@@ -309,8 +308,7 @@ static void OutputString(char* szOutputBuffer, unsigned int uiBufferSize, unsign
     OutputPadding(szOutputBuffer, uiBufferSize, uiWritePos, iMinSize - iLen, ' ');
 }
 
-static void OutputReverseString(char* szOutputBuffer, unsigned int uiBufferSize, unsigned int& uiWritePos, const char* szString,
-                                int iStringLength)
+static void OutputReverseString(char* szOutputBuffer, unsigned int uiBufferSize, unsigned int& uiWritePos, const char* szString, int iStringLength)
 {
   while (iStringLength > 0)
   {
@@ -320,8 +318,8 @@ static void OutputReverseString(char* szOutputBuffer, unsigned int uiBufferSize,
   }
 }
 
-static void OutputIntSign(char* szOutputBuffer, unsigned int uiBufferSize, unsigned int& uiWritePos, long long int value,
-                          unsigned int Flags, int iBase, bool bUpperCase, int iPrecision)
+static void OutputIntSign(char* szOutputBuffer, unsigned int uiBufferSize, unsigned int& uiWritePos, long long int value, unsigned int Flags,
+  int iBase, bool bUpperCase, int iPrecision)
 {
   if (value < 0)
     OutputChar(szOutputBuffer, uiBufferSize, uiWritePos, '-');
@@ -361,7 +359,7 @@ static void OutputIntSign(char* szOutputBuffer, unsigned int uiBufferSize, unsig
 }
 
 static void OutputIntSignAndPadding(char* szOutputBuffer, unsigned int uiBufferSize, unsigned int& uiWritePos, long long int value,
-                                    unsigned int Flags, int iPadding, int iBase, bool bUpperCase, int iPrecision)
+  unsigned int Flags, int iPadding, int iBase, bool bUpperCase, int iPrecision)
 {
   if (Flags & sprintfFlags::PadZeros)
   {
@@ -377,8 +375,7 @@ static void OutputIntSignAndPadding(char* szOutputBuffer, unsigned int uiBufferS
   }
 }
 
-static void FormatUInt(char* szOutputBuffer, int& iNumDigits, unsigned long long int uiValue, unsigned int uiBase, bool bUpperCase,
-                       int iPrecision)
+static void FormatUInt(char* szOutputBuffer, int& iNumDigits, unsigned long long int uiValue, unsigned int uiBase, bool bUpperCase, int iPrecision)
 {
   // this function will write the number in reverse order to the string buffer
 
@@ -450,8 +447,8 @@ static int GetSignSize(long long int value, unsigned int Flags, int iBase, int i
   return iSize;
 }
 
-static void OutputInt(char* szOutputBuffer, unsigned int uiBufferSize, unsigned int& uiWritePos, long long int value, int iWidth,
-                      int iPrecision, unsigned int Flags, int iBase)
+static void OutputInt(char* szOutputBuffer, unsigned int uiBufferSize, unsigned int& uiWritePos, long long int value, int iWidth, int iPrecision,
+  unsigned int Flags, int iBase)
 {
   // for a 32 Bit Integer one needs at most 10 digits
   // for a 64 Bit Integer one needs at most 20 digits
@@ -479,7 +476,7 @@ static void OutputInt(char* szOutputBuffer, unsigned int uiBufferSize, unsigned 
 }
 
 static void OutputUInt(char* szOutputBuffer, unsigned int uiBufferSize, unsigned int& uiWritePos, unsigned long long int value, int iWidth,
-                       int iPrecision, unsigned int Flags, int iBase, bool bUpperCase)
+  int iPrecision, unsigned int Flags, int iBase, bool bUpperCase)
 {
 #ifndef USE_STRICT_SPECIFICATION
   // In the non-strict implementation unsigned values will never be preceded by signs (+ or space)
@@ -506,8 +503,7 @@ static void OutputUInt(char* szOutputBuffer, unsigned int uiBufferSize, unsigned
   }
   else
   {
-    OutputIntSignAndPadding(szOutputBuffer, uiBufferSize, uiWritePos, value > 0 ? 1 : 0, Flags, iWidth - iNumberWidth, iBase, bUpperCase,
-                            iPrecision);
+    OutputIntSignAndPadding(szOutputBuffer, uiBufferSize, uiWritePos, value > 0 ? 1 : 0, Flags, iWidth - iNumberWidth, iBase, bUpperCase, iPrecision);
     OutputReverseString(szOutputBuffer, uiBufferSize, uiWritePos, s, iNumDigits);
   }
 }
@@ -542,7 +538,8 @@ static void RemoveTrailingZeros(char* szBuffer, int& iWritePos)
   }
 }
 
-union Int64DoubleUnion {
+union Int64DoubleUnion
+{
   unsigned long long int i;
   double f;
 };
@@ -570,8 +567,8 @@ static bool IsNaN(double value)
   return (((i2f.i & 0x7FF0000000000000LL) == 0x7FF0000000000000LL) && ((i2f.i & 0xFFFFFFFFFFFFFLL) != 0));
 }
 
-static bool FormatUFloat(char* szOutputBuffer, unsigned int uiBufferSize, unsigned int& uiWritePos, double& value0, int iPrecision,
-                         unsigned int Flags, bool bRemoveZeroes)
+static bool FormatUFloat(
+  char* szOutputBuffer, unsigned int uiBufferSize, unsigned int& uiWritePos, double& value0, int iPrecision, unsigned int Flags, bool bRemoveZeroes)
 {
   if (IsNaN(value0))
   {
@@ -719,8 +716,8 @@ static bool WouldRoundToTen(double value, int iPrecision)
 }
 
 
-static void FormatUFloatScientific(char* szOutputBuffer, unsigned int uiBufferSize, unsigned int& uiWritePos, double& value0,
-                                   int iPrecision, unsigned int Flags, bool bUpperCase, bool bRemoveZeroes)
+static void FormatUFloatScientific(char* szOutputBuffer, unsigned int uiBufferSize, unsigned int& uiWritePos, double& value0, int iPrecision,
+  unsigned int Flags, bool bUpperCase, bool bRemoveZeroes)
 {
   if (IsNaN(value0))
   {
@@ -782,7 +779,7 @@ static bool IsAllZero(char* szBuffer)
 }
 
 static void OutputFloat(char* szOutputBuffer, unsigned int uiBufferSize, unsigned int& uiWritePos, double value, int iWidth, int iPrecision,
-                        unsigned int Flags, bool bUpperCase, bool bScientific, bool bRemoveZeroes)
+  unsigned int Flags, bool bUpperCase, bool bScientific, bool bRemoveZeroes)
 {
   char szBuffer[128];
   unsigned int iNumDigits = 0;
@@ -805,8 +802,7 @@ static void OutputFloat(char* szOutputBuffer, unsigned int uiBufferSize, unsigne
 
   // when right justifying, first output the padding
   if ((Flags & sprintfFlags::LeftJustify) == 0)
-    OutputIntSignAndPadding(
-      szOutputBuffer, uiBufferSize, uiWritePos, signValue < 0 ? -1 : 1, Flags, iWidth - iNumberWidth, 10, false, iPrecision);
+    OutputIntSignAndPadding(szOutputBuffer, uiBufferSize, uiWritePos, signValue < 0 ? -1 : 1, Flags, iWidth - iNumberWidth, 10, false, iPrecision);
   else
     OutputIntSign(szOutputBuffer, uiBufferSize, uiWritePos, signValue < 0 ? -1 : 1, Flags, 10, false, 1);
 
@@ -817,8 +813,8 @@ static void OutputFloat(char* szOutputBuffer, unsigned int uiBufferSize, unsigne
     OutputPadding(szOutputBuffer, uiBufferSize, uiWritePos, iWidth - iNumberWidth, ' ');
 }
 
-static void OutputFloat_Short(char* szOutputBuffer, unsigned int uiBufferSize, unsigned int& uiWritePos, double value, int iWidth,
-                              int iPrecision, unsigned int Flags, bool bUpperCase)
+static void OutputFloat_Short(char* szOutputBuffer, unsigned int uiBufferSize, unsigned int& uiWritePos, double value, int iWidth, int iPrecision,
+  unsigned int Flags, bool bUpperCase)
 {
   // bool bScientific = false;
 
@@ -1069,25 +1065,24 @@ int ezStringUtils::snprintf(char* szOutputBuffer, unsigned int uiBufferSize, con
 }
 
 
-void ezStringUtils::OutputFormattedInt(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& uiWritePos, ezInt64 value, ezUInt8 uiWidth,
-                                       bool bPadZeros, ezUInt8 uiBase)
+void ezStringUtils::OutputFormattedInt(
+  char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& uiWritePos, ezInt64 value, ezUInt8 uiWidth, bool bPadZeros, ezUInt8 uiBase)
 {
   OutputInt(szOutputBuffer, uiBufferSize, uiWritePos, value, uiWidth, -1, bPadZeros ? sprintfFlags::PadZeros : 0, uiBase);
 }
 
-void ezStringUtils::OutputFormattedUInt(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& uiWritePos, ezUInt64 value, ezUInt8 uiWidth,
-                                        bool bPadZeros, ezUInt8 uiBase, bool bUpperCase)
+void ezStringUtils::OutputFormattedUInt(
+  char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& uiWritePos, ezUInt64 value, ezUInt8 uiWidth, bool bPadZeros, ezUInt8 uiBase, bool bUpperCase)
 {
   OutputUInt(szOutputBuffer, uiBufferSize, uiWritePos, value, uiWidth, -1, bPadZeros ? sprintfFlags::PadZeros : 0, uiBase, bUpperCase);
 }
 
 void ezStringUtils::OutputFormattedFloat(char* szOutputBuffer, ezUInt32 uiBufferSize, ezUInt32& uiWritePos, double value, ezUInt8 uiWidth,
-                                         bool bPadZeros, ezInt8 iPrecision, bool bScientific, bool bRemoveTrailingZeroes)
+  bool bPadZeros, ezInt8 iPrecision, bool bScientific, bool bRemoveTrailingZeroes)
 {
-  OutputFloat(szOutputBuffer, uiBufferSize, uiWritePos, value, uiWidth, ezMath::Max<int>(-1, iPrecision),
-              bPadZeros ? sprintfFlags::PadZeros : 0, false, bScientific, bRemoveTrailingZeroes);
+  OutputFloat(szOutputBuffer, uiBufferSize, uiWritePos, value, uiWidth, ezMath::Max<int>(-1, iPrecision), bPadZeros ? sprintfFlags::PadZeros : 0,
+    false, bScientific, bRemoveTrailingZeroes);
 }
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_snprintf);
-

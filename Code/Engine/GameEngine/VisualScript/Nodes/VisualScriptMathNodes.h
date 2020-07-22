@@ -9,6 +9,7 @@
 class EZ_GAMEENGINE_DLL ezVisualScriptNode_MultiplyAdd : public ezVisualScriptNode
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_MultiplyAdd, ezVisualScriptNode);
+
 public:
   ezVisualScriptNode_MultiplyAdd();
   ~ezVisualScriptNode_MultiplyAdd();
@@ -28,6 +29,7 @@ public:
 class EZ_GAMEENGINE_DLL ezVisualScriptNode_Div : public ezVisualScriptNode
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_Div, ezVisualScriptNode);
+
 public:
   ezVisualScriptNode_Div();
   ~ezVisualScriptNode_Div();
@@ -45,6 +47,7 @@ public:
 class EZ_GAMEENGINE_DLL ezVisualScriptNode_Min : public ezVisualScriptNode
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_Min, ezVisualScriptNode);
+
 public:
   ezVisualScriptNode_Min();
   ~ezVisualScriptNode_Min();
@@ -62,6 +65,7 @@ public:
 class EZ_GAMEENGINE_DLL ezVisualScriptNode_Max : public ezVisualScriptNode
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_Max, ezVisualScriptNode);
+
 public:
   ezVisualScriptNode_Max();
   ~ezVisualScriptNode_Max();
@@ -79,6 +83,7 @@ public:
 class EZ_GAMEENGINE_DLL ezVisualScriptNode_Clamp : public ezVisualScriptNode
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_Clamp, ezVisualScriptNode);
+
 public:
   ezVisualScriptNode_Clamp();
   ~ezVisualScriptNode_Clamp();
@@ -97,6 +102,7 @@ public:
 class EZ_GAMEENGINE_DLL ezVisualScriptNode_Abs : public ezVisualScriptNode
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_Abs, ezVisualScriptNode);
+
 public:
   ezVisualScriptNode_Abs();
   ~ezVisualScriptNode_Abs();
@@ -113,6 +119,7 @@ public:
 class EZ_GAMEENGINE_DLL ezVisualScriptNode_Sign : public ezVisualScriptNode
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_Sign, ezVisualScriptNode);
+
 public:
   ezVisualScriptNode_Sign();
   ~ezVisualScriptNode_Sign();
@@ -124,4 +131,3 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////////
-

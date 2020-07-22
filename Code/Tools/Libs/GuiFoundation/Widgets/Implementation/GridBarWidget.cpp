@@ -10,15 +10,15 @@
 #include <qevent.h>
 
 ezQGridBarWidget::ezQGridBarWidget(QWidget* parent)
-    : QWidget(parent)
+  : QWidget(parent)
 {
   m_viewportSceneRect.setRect(0, 1, 1, 1);
   m_fFineGridStops = 10;
   m_fTextGridStops = 100;
 }
 
-void ezQGridBarWidget::SetConfig(const QRectF& viewportSceneRect, double fTextGridStops, double fFineGridStops,
-                                 ezDelegate<QPoint(const QPointF&)> mapFromSceneFunc)
+void ezQGridBarWidget::SetConfig(
+  const QRectF& viewportSceneRect, double fTextGridStops, double fFineGridStops, ezDelegate<QPoint(const QPointF&)> mapFromSceneFunc)
 {
   MapFromSceneFunc = mapFromSceneFunc;
 

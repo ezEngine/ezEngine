@@ -20,8 +20,7 @@ namespace ezDataDirectory
     ~FolderType();
 
     /// \brief The factory that can be registered at ezFileSystem to create data directories of this type.
-    static ezDataDirectoryType* Factory(
-      const char* szDataDirectory, const char* szGroup, const char* szRootName, ezFileSystem::DataDirUsage Usage);
+    static ezDataDirectoryType* Factory(const char* szDataDirectory, const char* szGroup, const char* szRootName, ezFileSystem::DataDirUsage Usage);
 
     /// A 'redirection file' is an optional file located inside a data directory that lists which file access is redirected to which other
     /// file lookup. Each redirection is one line in the file (terminated by a \n). Each line consists of the 'key' string, a semicolon and

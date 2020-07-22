@@ -9,7 +9,7 @@ EZ_ALWAYS_INLINE ezColorBaseUB::ezColorBaseUB(ezUInt8 R, ezUInt8 G, ezUInt8 B, e
 }
 
 EZ_ALWAYS_INLINE ezColorLinearUB::ezColorLinearUB(ezUInt8 R, ezUInt8 G, ezUInt8 B, ezUInt8 A /* = 255*/)
-    : ezColorBaseUB(R, G, B, A)
+  : ezColorBaseUB(R, G, B, A)
 {
 }
 
@@ -34,7 +34,7 @@ inline ezColor ezColorLinearUB::ToLinearFloat() const
 // *****************
 
 EZ_ALWAYS_INLINE ezColorGammaUB::ezColorGammaUB(ezUInt8 R, ezUInt8 G, ezUInt8 B, ezUInt8 A)
-    : ezColorBaseUB(R, G, B, A)
+  : ezColorBaseUB(R, G, B, A)
 {
 }
 
@@ -64,4 +64,3 @@ inline ezColor ezColorGammaUB::ToLinearFloat() const
 
   return ezColor(linear.x, linear.y, linear.z, ezMath::ColorByteToFloat(a));
 }
-

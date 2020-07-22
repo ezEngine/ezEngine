@@ -156,7 +156,8 @@ void ezPxRevoluteJointComponent::SetDriveTorque(float f)
   QueueApplySettings();
 }
 
-void ezPxRevoluteJointComponent::CreateJointType(PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
+void ezPxRevoluteJointComponent::CreateJointType(
+  PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
 {
   m_pJoint = PxRevoluteJointCreate(*(ezPhysX::GetSingleton()->GetPhysXAPI()), actor0, localFrame0, actor1, localFrame1);
 }
@@ -210,10 +211,10 @@ void ezPxRevoluteJointComponent::ApplySettings()
     {
       pJoint->setDriveVelocity(m_fDriveVelocity);
 
-      //pJoint->setConstraintFlag(PxConstraintFlag::eDRIVE_LIMITS_ARE_FORCES, false);
+      // pJoint->setConstraintFlag(PxConstraintFlag::eDRIVE_LIMITS_ARE_FORCES, false);
       pJoint->setDriveForceLimit(m_fMaxDriveTorque);
 
-      //pJoint->setDriveGearRatio
+      // pJoint->setDriveGearRatio
 
       pJoint->setRevoluteJointFlag(PxRevoluteJointFlag::eDRIVE_FREESPIN, m_DriveMode == ezPxJointDriveMode::DriveAndSpin);
     }

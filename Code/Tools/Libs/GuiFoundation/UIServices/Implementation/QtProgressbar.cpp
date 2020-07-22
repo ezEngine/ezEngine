@@ -88,8 +88,8 @@ void ezQtProgressbar::EnsureCreated()
   if (m_pDialog)
     return;
 
-  m_pDialog = new QProgressDialog("                                                                                ", "Cancel", 0, 1000,
-    QApplication::activeWindow());
+  m_pDialog = new QProgressDialog(
+    "                                                                                ", "Cancel", 0, 1000, QApplication::activeWindow());
 
   m_pDialog->setWindowModality(Qt::WindowModal);
   m_pDialog->setMinimumDuration((int)500);

@@ -156,8 +156,7 @@ void ezQtFileserveWidget::on_StartServerButton_clicked()
   {
     if (ezFileserver::GetSingleton()->IsServerRunning())
     {
-      if (QMessageBox::question(this, "Stop Server?", "Stop Server?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) ==
-          QMessageBox::No)
+      if (QMessageBox::question(this, "Stop Server?", "Stop Server?", QMessageBox::Yes | QMessageBox::No, QMessageBox::No) == QMessageBox::No)
         return;
 
       ezFileserver::GetSingleton()->StopServer();

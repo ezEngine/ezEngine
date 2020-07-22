@@ -153,8 +153,7 @@ void ezParticleBehavior_Bounds::Process(ezUInt64 uiNumElements)
       const ezSimdVec4f globalPosCur = itPosition.Current();
       const ezSimdVec4f localPosCur = invTrans.TransformPosition(globalPosCur) - boxCenter;
 
-      if ((localPosCur > halfExtPos).AnySet() ||
-          (localPosCur < halfExtNeg).AnySet())
+      if ((localPosCur > halfExtPos).AnySet() || (localPosCur < halfExtNeg).AnySet())
       {
         m_pStreamGroup->RemoveElement(idx);
       }

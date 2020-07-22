@@ -15,7 +15,7 @@ EZ_IMPLEMENT_SINGLETON(ezFileserveClient);
 bool ezFileserveClient::s_bEnableFileserve = true;
 
 ezFileserveClient::ezFileserveClient()
-    : m_SingletonRegistrar(this)
+  : m_SingletonRegistrar(this)
 {
   AddServerAddressToTry("localhost:1042");
 
@@ -294,8 +294,8 @@ void ezFileserveClient::FillFileStatusCache(const char* szFile)
     it.Value() = 0; // fallback
 }
 
-void ezFileserveClient::BuildPathInCache(const char* szFile, const char* szMountPoint, ezStringBuilder* out_pAbsPath,
-                                         ezStringBuilder* out_pFullPathMeta) const
+void ezFileserveClient::BuildPathInCache(
+  const char* szFile, const char* szMountPoint, ezStringBuilder* out_pAbsPath, ezStringBuilder* out_pFullPathMeta) const
 {
   EZ_ASSERT_DEV(!ezPathUtils::IsAbsolutePath(szFile), "Invalid path");
   EZ_LOCK(m_Mutex);
@@ -321,8 +321,7 @@ void ezFileserveClient::ComputeDataDirMountPoint(const char* szDataDir, ezString
   out_sMountPoint.Format("{0}", ezArgU(uiMountPoint, 8, true, 16));
 }
 
-void ezFileserveClient::GetFullDataDirCachePath(const char* szDataDir, ezStringBuilder& out_sFullPath,
-                                                ezStringBuilder& out_sFullPathMeta) const
+void ezFileserveClient::GetFullDataDirCachePath(const char* szDataDir, ezStringBuilder& out_sFullPath, ezStringBuilder& out_sFullPathMeta) const
 {
   EZ_LOCK(m_Mutex);
   ezStringBuilder sMountPoint;
@@ -591,7 +590,7 @@ void ezFileserveClient::WriteDownloadToDisk(ezStringBuilder sCachedFile)
 
 ezResult ezFileserveClient::DownloadFile(ezUInt16 uiDataDirID, const char* szFile, bool bForceThisDataDir, ezStringBuilder* out_pFullPath)
 {
-  //bForceThisDataDir = true;
+  // bForceThisDataDir = true;
   EZ_LOCK(m_Mutex);
   if (m_bDownloading)
   {
@@ -814,24 +813,24 @@ ezResult ezFileserveClient::WaitForServerInfo(ezTime timeout /*= ezTime::Seconds
     ezUniquePtr<ezRemoteInterfaceEnet> network = ezRemoteInterfaceEnet::Make(); /// \todo Abstract this somehow ?
     network->SetMessageHandler('FSRV', [&sServerIPs, &uiPort](ezRemoteMessage& msg)
 
-                              {
-                                switch (msg.GetMessageID())
-                                {
-                                  case 'MYIP':
-                                    msg.GetReader() >> uiPort;
+      {
+        switch (msg.GetMessageID())
+        {
+          case 'MYIP':
+            msg.GetReader() >> uiPort;
 
-                                    ezUInt8 uiCount = 0;
-                                    msg.GetReader() >> uiCount;
+            ezUInt8 uiCount = 0;
+            msg.GetReader() >> uiCount;
 
-                                    sServerIPs.SetCount(uiCount);
-                                    for (ezUInt32 i = 0; i < uiCount; ++i)
-                                    {
-                                      msg.GetReader() >> sServerIPs[i];
-                                    }
+            sServerIPs.SetCount(uiCount);
+            for (ezUInt32 i = 0; i < uiCount; ++i)
+            {
+              msg.GetReader() >> sServerIPs[i];
+            }
 
-                                    break;
-                                }
-                              });
+            break;
+        }
+      });
 
     network->StartServer('EZIP', "2042", false);
 

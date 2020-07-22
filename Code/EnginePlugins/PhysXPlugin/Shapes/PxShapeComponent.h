@@ -47,7 +47,7 @@ protected:
   ezUInt32 m_uiShapeId = ezInvalidIndex;
   ezUInt32 m_uiUserDataIndex = ezInvalidIndex;
 
-  ezSurfaceResourceHandle m_hSurface;  
+  ezSurfaceResourceHandle m_hSurface;
 
   friend class ezPxActorComponent;
   void AddToActor(physx::PxRigidActor* pActor, const ezSimdTransform& parentTransform);

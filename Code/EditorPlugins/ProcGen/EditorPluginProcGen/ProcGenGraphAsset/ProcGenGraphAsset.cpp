@@ -36,9 +36,8 @@ namespace
     }
   }
 
-  static const char* s_szSphereAssetId = "{ a3ce5d3d-be5e-4bda-8820-b1ce3b3d33fd }"; // Base/Prefabs/Sphere.ezPrefab
-  static const char* s_szBWGradientAssetId =
-    "{ 3834b7d0-5a3f-140d-31d8-3a2bf48b09bd }"; // Base/Textures/BlackWhiteGradient.ezColorGradientAsset
+  static const char* s_szSphereAssetId = "{ a3ce5d3d-be5e-4bda-8820-b1ce3b3d33fd }";     // Base/Prefabs/Sphere.ezPrefab
+  static const char* s_szBWGradientAssetId = "{ 3834b7d0-5a3f-140d-31d8-3a2bf48b09bd }"; // Base/Textures/BlackWhiteGradient.ezColorGradientAsset
 
 } // namespace
 
@@ -85,7 +84,7 @@ ezStatus ezProcGenGraphAssetDocument::WriteAsset(ezStreamWriter& stream, const e
   const bool bDebug = m_pDebugPin != nullptr;
 
   ezStringDeduplicationWriteContext stringDedupContext(stream);
-  
+
   ezChunkStreamWriter chunk(stringDedupContext.Begin());
   chunk.BeginStream(1);
 
@@ -239,8 +238,8 @@ void ezProcGenGraphAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* p
   }
 }
 
-ezStatus ezProcGenGraphAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag,
-  const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezStatus ezProcGenGraphAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   EZ_ASSERT_DEV(ezStringUtils::IsNullOrEmpty(szOutputTag), "Additional output '{0}' not implemented!", szOutputTag);
 
@@ -373,8 +372,8 @@ void ezProcGenGraphAssetDocument::GetAllOutputNodes(
 }
 
 ezExpressionAST::Node* ezProcGenGraphAssetDocument::GenerateExpressionAST(const ezDocumentObject* outputNode, const char* szOutputName,
-  ezDocumentObjectConverterWriter& objectWriter, ezRttiConverterReader& rttiConverter, NodeCache& nodeCache,
-  ezExpressionAST& out_Ast, ezProcGenNodeBase::GenerateASTContext& context) const
+  ezDocumentObjectConverterWriter& objectWriter, ezRttiConverterReader& rttiConverter, NodeCache& nodeCache, ezExpressionAST& out_Ast,
+  ezProcGenNodeBase::GenerateASTContext& context) const
 {
   const ezDocumentNodeManager* pManager = static_cast<const ezDocumentNodeManager*>(GetObjectManager());
 
@@ -395,7 +394,8 @@ ezExpressionAST::Node* ezProcGenGraphAssetDocument::GenerateExpressionAST(const 
     EZ_ASSERT_DEBUG(pPinSource != nullptr, "Invalid connection");
 
     // recursively generate all dependent code
-    inputAstNodes[i] = GenerateExpressionAST(pPinSource->GetParent(), pPinSource->GetName(), objectWriter, rttiConverter, nodeCache, out_Ast, context);
+    inputAstNodes[i] =
+      GenerateExpressionAST(pPinSource->GetParent(), pPinSource->GetName(), objectWriter, rttiConverter, nodeCache, out_Ast, context);
   }
 
   CachedNode cachedNode;

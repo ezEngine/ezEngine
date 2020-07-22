@@ -25,9 +25,9 @@ struct ezTexConvCompressionMode
   enum Enum
   {
     // note: order of enum values matters
-    None = 0, // uncompressed
+    None = 0,   // uncompressed
     Medium = 1, // compressed with high quality, if possible
-    High = 2, // strongest compression, if possible
+    High = 2,   // strongest compression, if possible
 
     Default = Medium,
   };

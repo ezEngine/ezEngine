@@ -9,21 +9,21 @@
 #include <ToolsFoundation/Document/Document.h>
 
 ezQtGameObjectAdapter::ezQtGameObjectAdapter(ezGameObjectDocument* pDocument)
-    : ezQtNameableAdapter(pDocument->GetObjectManager(), ezGetStaticRTTI<ezGameObject>(), "Children", "Name")
+  : ezQtNameableAdapter(pDocument->GetObjectManager(), ezGetStaticRTTI<ezGameObject>(), "Children", "Name")
 {
   m_pGameObjectDocument = pDocument;
   m_pGameObjectDocument->m_GameObjectMetaData.m_DataModifiedEvent.AddEventHandler(
-      ezMakeDelegate(&ezQtGameObjectAdapter::GameObjectMetaDataEventHandler, this));
+    ezMakeDelegate(&ezQtGameObjectAdapter::GameObjectMetaDataEventHandler, this));
   m_pGameObjectDocument->m_DocumentObjectMetaData.m_DataModifiedEvent.AddEventHandler(
-      ezMakeDelegate(&ezQtGameObjectAdapter::DocumentObjectMetaDataEventHandler, this));
+    ezMakeDelegate(&ezQtGameObjectAdapter::DocumentObjectMetaDataEventHandler, this));
 }
 
 ezQtGameObjectAdapter::~ezQtGameObjectAdapter()
 {
   m_pGameObjectDocument->m_GameObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(
-      ezMakeDelegate(&ezQtGameObjectAdapter::GameObjectMetaDataEventHandler, this));
+    ezMakeDelegate(&ezQtGameObjectAdapter::GameObjectMetaDataEventHandler, this));
   m_pGameObjectDocument->m_DocumentObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(
-      ezMakeDelegate(&ezQtGameObjectAdapter::DocumentObjectMetaDataEventHandler, this));
+    ezMakeDelegate(&ezQtGameObjectAdapter::DocumentObjectMetaDataEventHandler, this));
 }
 
 QVariant ezQtGameObjectAdapter::data(const ezDocumentObject* pObject, int row, int column, int role) const
@@ -208,7 +208,7 @@ void ezQtGameObjectAdapter::GameObjectMetaDataEventHandler(const ezObjectMetaDat
 }
 
 ezQtGameObjectModel::ezQtGameObjectModel(ezGameObjectDocument* pDocument)
-    : ezQtDocumentTreeModel(pDocument->GetObjectManager())
+  : ezQtDocumentTreeModel(pDocument->GetObjectManager())
 {
 }
 

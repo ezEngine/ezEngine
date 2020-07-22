@@ -20,9 +20,7 @@ static void zLibFree OF((voidpf opaque, voidpf address))
 
 EZ_DEFINE_AS_POD_TYPE(z_stream_s);
 
-ezCompressedStreamReaderZip::ezCompressedStreamReaderZip()
-{
-}
+ezCompressedStreamReaderZip::ezCompressedStreamReaderZip() {}
 
 ezCompressedStreamReaderZip::~ezCompressedStreamReaderZip()
 {
@@ -52,7 +50,6 @@ void ezCompressedStreamReaderZip::SetInputStream(ezStreamReader* pInputStream, e
     m_pZLibStream->zfree = zLibFree;
 
     EZ_VERIFY(inflateInit2(m_pZLibStream, -MAX_WBITS) == Z_OK, "Initializing the zip stream for decompression failed: '{0}'", m_pZLibStream->msg);
-
   }
 }
 
@@ -104,8 +101,7 @@ ezUInt64 ezCompressedStreamReaderZip::ReadBytes(void* pReadBuffer, ezUInt64 uiBy
         return m_pZLibStream->total_out;
       }
 
-      EZ_VERIFY(m_pInputStream->ReadBytes(m_CompressedCache.GetData(), sizeof(ezUInt8) * uiReadAmount) ==
-                  sizeof(ezUInt8) * uiReadAmount,
+      EZ_VERIFY(m_pInputStream->ReadBytes(m_CompressedCache.GetData(), sizeof(ezUInt8) * uiReadAmount) == sizeof(ezUInt8) * uiReadAmount,
         "Reading the compressed chunk of size {0} from the input stream failed.", uiReadAmount);
       m_pZLibStream->avail_in = static_cast<uInt>(uiReadAmount);
       m_pZLibStream->next_in = m_CompressedCache.GetData();
@@ -118,8 +114,7 @@ ezUInt64 ezCompressedStreamReaderZip::ReadBytes(void* pReadBuffer, ezUInt64 uiBy
     if (iRet == Z_STREAM_END)
     {
       m_bReachedEnd = true;
-      EZ_ASSERT_DEV(m_pZLibStream->avail_in == 0, "The input buffer should be depleted, but {0} bytes are still there.",
-        m_pZLibStream->avail_in);
+      EZ_ASSERT_DEV(m_pZLibStream->avail_in == 0, "The input buffer should be depleted, but {0} bytes are still there.", m_pZLibStream->avail_in);
       return m_pZLibStream->total_out;
     }
   }
@@ -132,7 +127,7 @@ ezUInt64 ezCompressedStreamReaderZip::ReadBytes(void* pReadBuffer, ezUInt64 uiBy
 
 
 ezCompressedStreamReaderZlib::ezCompressedStreamReaderZlib(ezStreamReader* pInputStream)
-    : m_pInputStream(pInputStream)
+  : m_pInputStream(pInputStream)
 {
   m_CompressedCache.SetCountUninitialized(1024 * 4);
 }
@@ -196,16 +191,15 @@ ezUInt64 ezCompressedStreamReaderZlib::ReadBytes(void* pReadBuffer, ezUInt64 uiB
     {
       ezUInt16 uiCompressedSize = 0;
       EZ_VERIFY(m_pInputStream->ReadBytes(&uiCompressedSize, sizeof(ezUInt16)) == sizeof(ezUInt16),
-                "Reading the compressed chunk size from the input stream failed.");
+        "Reading the compressed chunk size from the input stream failed.");
 
       m_pZLibStream->avail_in = uiCompressedSize;
       m_pZLibStream->next_in = m_CompressedCache.GetData();
 
       if (uiCompressedSize > 0)
       {
-        EZ_VERIFY(m_pInputStream->ReadBytes(m_CompressedCache.GetData(), sizeof(ezUInt8) * uiCompressedSize) ==
-                      sizeof(ezUInt8) * uiCompressedSize,
-                  "Reading the compressed chunk of size {0} from the input stream failed.", uiCompressedSize);
+        EZ_VERIFY(m_pInputStream->ReadBytes(m_CompressedCache.GetData(), sizeof(ezUInt8) * uiCompressedSize) == sizeof(ezUInt8) * uiCompressedSize,
+          "Reading the compressed chunk of size {0} from the input stream failed.", uiCompressedSize);
       }
     }
 
@@ -228,12 +222,10 @@ ezUInt64 ezCompressedStreamReaderZlib::ReadBytes(void* pReadBuffer, ezUInt64 uiB
       // do this now, so that data that comes after the compressed stream can be read properly
 
       ezUInt16 uiTerminator = 0;
-      EZ_VERIFY(m_pInputStream->ReadBytes(&uiTerminator, sizeof(ezUInt16)) == sizeof(ezUInt16),
-                "Reading the compressed stream terminator failed.");
+      EZ_VERIFY(m_pInputStream->ReadBytes(&uiTerminator, sizeof(ezUInt16)) == sizeof(ezUInt16), "Reading the compressed stream terminator failed.");
 
       EZ_ASSERT_DEV(uiTerminator == 0, "Unexpected Stream Terminator: {0}", uiTerminator);
-      EZ_ASSERT_DEV(m_pZLibStream->avail_in == 0, "The input buffer should be depleted, but {0} bytes are still there.",
-                    m_pZLibStream->avail_in);
+      EZ_ASSERT_DEV(m_pZLibStream->avail_in == 0, "The input buffer should be depleted, but {0} bytes are still there.", m_pZLibStream->avail_in);
       return m_pZLibStream->total_out;
     }
   }
@@ -351,4 +343,3 @@ ezResult ezCompressedStreamWriterZlib::WriteBytes(const void* pWriteBuffer, ezUI
 #endif // BUILDSYSTEM_ENABLE_ZLIB_SUPPORT
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_CompressedStreamZlib);
-

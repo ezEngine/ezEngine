@@ -92,8 +92,7 @@ public:
   /// another stream. This can prevent internal allocations, if one wants to use compression on multiple streams consecutively. It also
   /// allows to create a compressor stream early, but decide at a later pointer whether or with which stream to use it, and it will only
   /// allocate internal structures once that final decision is made.
-  void SetOutputStream(
-    ezStreamWriter* pOutputStream, Compression Ratio = Compression::Default, ezUInt32 uiCompressionCacheSizeKB = 4); // [tested]
+  void SetOutputStream(ezStreamWriter* pOutputStream, Compression Ratio = Compression::Default, ezUInt32 uiCompressionCacheSizeKB = 4); // [tested]
 
   /// \brief Compresses \a uiBytesToWrite from \a pWriteBuffer.
   ///

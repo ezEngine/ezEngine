@@ -27,9 +27,8 @@ namespace
     ezUInt32 m_uiChannelMasks[ezImageFormatChannel::COUNT];
 
 
-    bool m_requireFirstLevelBlockAligned{
-      false}; ///< Only for compressed formats: If true, the first level's dimensions must be a multiple of the
-              ///< block size; if false, padding can be applied for compressing the first mip level, too.
+    bool m_requireFirstLevelBlockAligned{false}; ///< Only for compressed formats: If true, the first level's dimensions must be a multiple of the
+                                                 ///< block size; if false, padding can be applied for compressing the first mip level, too.
     bool m_isDepth{false};
     bool m_isStencil{false};
 
@@ -50,8 +49,8 @@ namespace
 
   ezStaticArray<ezImageFormatMetaData, ezImageFormat::NUM_FORMATS> s_formatMetaData;
 
-  void InitFormatLinear(ezImageFormat::Enum format, const char* szName, ezImageFormatDataType::Enum dataType, ezUInt8 uiBitsPerPixel,
-    ezUInt8 uiBitsR, ezUInt8 uiBitsG, ezUInt8 uiBitsB, ezUInt8 uiBitsA, ezUInt8 uiNumChannels)
+  void InitFormatLinear(ezImageFormat::Enum format, const char* szName, ezImageFormatDataType::Enum dataType, ezUInt8 uiBitsPerPixel, ezUInt8 uiBitsR,
+    ezUInt8 uiBitsG, ezUInt8 uiBitsB, ezUInt8 uiBitsA, ezUInt8 uiNumChannels)
   {
     s_formatMetaData[format].m_szName = szName;
 
@@ -70,13 +69,11 @@ namespace
     s_formatMetaData[format].m_asSrgb = format;
   }
 
-#define INIT_FORMAT_LINEAR(format, dataType, uiBitsPerPixel, uiBitsR, uiBitsG, uiBitsB, uiBitsA, uiNumChannels)                         \
-  InitFormatLinear(ezImageFormat::format, #format, ezImageFormatDataType::dataType, uiBitsPerPixel, uiBitsR, uiBitsG, uiBitsB, uiBitsA, \
-    uiNumChannels)
+#define INIT_FORMAT_LINEAR(format, dataType, uiBitsPerPixel, uiBitsR, uiBitsG, uiBitsB, uiBitsA, uiNumChannels)                                      \
+  InitFormatLinear(ezImageFormat::format, #format, ezImageFormatDataType::dataType, uiBitsPerPixel, uiBitsR, uiBitsG, uiBitsB, uiBitsA, uiNumChannels)
 
   void InitFormatCompressed(ezImageFormat::Enum format, const char* szName, ezImageFormatDataType::Enum dataType, ezUInt16 uiBitsPerBlock,
-    ezUInt8 uiBlockWidth, ezUInt8 uiBlockHeight, ezUInt8 uiBlockDepth, bool requireFirstLevelBlockAligned,
-    ezUInt8 uiNumChannels)
+    ezUInt8 uiBlockWidth, ezUInt8 uiBlockHeight, ezUInt8 uiBlockDepth, bool requireFirstLevelBlockAligned, ezUInt8 uiNumChannels)
   {
     s_formatMetaData[format].m_szName = szName;
 
@@ -95,13 +92,13 @@ namespace
     s_formatMetaData[format].m_asSrgb = format;
   }
 
-#define INIT_FORMAT_COMPRESSED(format, dataType, uiBitsPerBlock, uiBlockWidth, uiBlockHeight, uiBlockDepth, requireFirstLevelBlockAligned, \
-  uiNumChannels)                                                                                                                           \
-  InitFormatCompressed(ezImageFormat::format, #format, ezImageFormatDataType::dataType, uiBitsPerBlock, uiBlockWidth, uiBlockHeight,       \
-    uiBlockDepth, requireFirstLevelBlockAligned, uiNumChannels)
+#define INIT_FORMAT_COMPRESSED(                                                                                                                      \
+  format, dataType, uiBitsPerBlock, uiBlockWidth, uiBlockHeight, uiBlockDepth, requireFirstLevelBlockAligned, uiNumChannels)                         \
+  InitFormatCompressed(ezImageFormat::format, #format, ezImageFormatDataType::dataType, uiBitsPerBlock, uiBlockWidth, uiBlockHeight, uiBlockDepth,   \
+    requireFirstLevelBlockAligned, uiNumChannels)
 
-  void InitFormatDepth(ezImageFormat::Enum format, const char* szName, ezImageFormatDataType::Enum dataType, ezUInt8 uiBitsPerPixel,
-    bool isStencil, ezUInt8 uiBitsD, ezUInt8 uiBitsS)
+  void InitFormatDepth(ezImageFormat::Enum format, const char* szName, ezImageFormatDataType::Enum dataType, ezUInt8 uiBitsPerPixel, bool isStencil,
+    ezUInt8 uiBitsD, ezUInt8 uiBitsS)
   {
     s_formatMetaData[format].m_szName = szName;
 
@@ -121,7 +118,7 @@ namespace
     s_formatMetaData[format].m_asSrgb = format;
   }
 
-#define INIT_FORMAT_DEPTH(format, dataType, uiBitsPerPixel, isStencil, uiBitsD, uiBitsS) \
+#define INIT_FORMAT_DEPTH(format, dataType, uiBitsPerPixel, isStencil, uiBitsD, uiBitsS)                                                             \
   InitFormatDepth(ezImageFormat::format, #format, ezImageFormatDataType::dataType, uiBitsPerPixel, isStencil, uiBitsD, uiBitsS);
 
   void SetupSrgbPair(ezImageFormat::Enum linearFormat, ezImageFormat::Enum srgbFormat)
@@ -438,8 +435,8 @@ ezUInt32 ezImageFormat::GetNumChannels(Enum format)
   return GetImageFormatMetaData(format).m_uiNumChannels;
 }
 
-ezImageFormat::Enum ezImageFormat::FromPixelMask(ezUInt32 uiRedMask, ezUInt32 uiGreenMask, ezUInt32 uiBlueMask, ezUInt32 uiAlphaMask,
-  ezUInt32 uiBitsPerPixel)
+ezImageFormat::Enum ezImageFormat::FromPixelMask(
+  ezUInt32 uiRedMask, ezUInt32 uiGreenMask, ezUInt32 uiBlueMask, ezUInt32 uiAlphaMask, ezUInt32 uiBitsPerPixel)
 {
   // Some DDS files in the wild are encoded as this
   if (uiBitsPerPixel == 8 && uiRedMask == 0xff && uiGreenMask == 0xff && uiBlueMask == 0xff)
@@ -491,19 +488,22 @@ bool ezImageFormat::IsCompatible(Enum left, Enum right)
     case ezImageFormat::R16G16B16A16_SINT:
     case ezImageFormat::R16G16B16A16_UNORM:
     case ezImageFormat::R16G16B16A16_SNORM:
-      return (right == ezImageFormat::R16G16B16A16_FLOAT || right == ezImageFormat::R16G16B16A16_UINT || right == ezImageFormat::R16G16B16A16_SINT || right == ezImageFormat::R16G16B16A16_UNORM || right == ezImageFormat::R16G16B16A16_SNORM);
+      return (right == ezImageFormat::R16G16B16A16_FLOAT || right == ezImageFormat::R16G16B16A16_UINT || right == ezImageFormat::R16G16B16A16_SINT ||
+              right == ezImageFormat::R16G16B16A16_UNORM || right == ezImageFormat::R16G16B16A16_SNORM);
     case ezImageFormat::R16G16_FLOAT:
     case ezImageFormat::R16G16_UINT:
     case ezImageFormat::R16G16_SINT:
     case ezImageFormat::R16G16_UNORM:
     case ezImageFormat::R16G16_SNORM:
-      return (right == ezImageFormat::R16G16_FLOAT || right == ezImageFormat::R16G16_UINT || right == ezImageFormat::R16G16_SINT || right == ezImageFormat::R16G16_UNORM || right == ezImageFormat::R16G16_SNORM);
+      return (right == ezImageFormat::R16G16_FLOAT || right == ezImageFormat::R16G16_UINT || right == ezImageFormat::R16G16_SINT ||
+              right == ezImageFormat::R16G16_UNORM || right == ezImageFormat::R16G16_SNORM);
     case ezImageFormat::R8G8B8A8_UINT:
     case ezImageFormat::R8G8B8A8_SINT:
     case ezImageFormat::R8G8B8A8_UNORM:
     case ezImageFormat::R8G8B8A8_SNORM:
     case ezImageFormat::R8G8B8A8_UNORM_SRGB:
-      return (right == ezImageFormat::R8G8B8A8_UINT || right == ezImageFormat::R8G8B8A8_SINT || right == ezImageFormat::R8G8B8A8_UNORM || right == ezImageFormat::R8G8B8A8_SNORM || right == ezImageFormat::R8G8B8A8_UNORM_SRGB);
+      return (right == ezImageFormat::R8G8B8A8_UINT || right == ezImageFormat::R8G8B8A8_SINT || right == ezImageFormat::R8G8B8A8_UNORM ||
+              right == ezImageFormat::R8G8B8A8_SNORM || right == ezImageFormat::R8G8B8A8_UNORM_SRGB);
     case ezImageFormat::B8G8R8A8_UNORM:
     case ezImageFormat::B8G8R8A8_UNORM_SRGB:
       return (right == ezImageFormat::B8G8R8A8_UNORM || right == ezImageFormat::B8G8R8A8_UNORM_SRGB);
@@ -517,12 +517,14 @@ bool ezImageFormat::IsCompatible(Enum left, Enum right)
     case ezImageFormat::R8G8_SINT:
     case ezImageFormat::R8G8_UNORM:
     case ezImageFormat::R8G8_SNORM:
-      return (right == ezImageFormat::R8G8_UINT || right == ezImageFormat::R8G8_SINT || right == ezImageFormat::R8G8_UNORM || right == ezImageFormat::R8G8_SNORM);
+      return (right == ezImageFormat::R8G8_UINT || right == ezImageFormat::R8G8_SINT || right == ezImageFormat::R8G8_UNORM ||
+              right == ezImageFormat::R8G8_SNORM);
     case ezImageFormat::R8_UINT:
     case ezImageFormat::R8_SINT:
     case ezImageFormat::R8_UNORM:
     case ezImageFormat::R8_SNORM:
-      return (right == ezImageFormat::R8_UINT || right == ezImageFormat::R8_SINT || right == ezImageFormat::R8_UNORM || right == ezImageFormat::R8_SNORM);
+      return (
+        right == ezImageFormat::R8_UINT || right == ezImageFormat::R8_SINT || right == ezImageFormat::R8_UNORM || right == ezImageFormat::R8_SNORM);
     case ezImageFormat::BC1_UNORM:
     case ezImageFormat::BC1_UNORM_SRGB:
       return (right == ezImageFormat::BC1_UNORM || right == ezImageFormat::BC1_UNORM_SRGB);

@@ -11,11 +11,11 @@
 ////////////////////////////////////////////////////////////////////////
 
 ezQtTestModelEntry::ezQtTestModelEntry(const ezTestFrameworkResult* pResult, ezInt32 iTestIndex, ezInt32 iSubTestIndex)
-    : m_pResult(pResult)
-    , m_iTestIndex(iTestIndex)
-    , m_iSubTestIndex(iSubTestIndex)
-    , m_pParentEntry(nullptr)
-    , m_uiIndexInParent(0)
+  : m_pResult(pResult)
+  , m_iTestIndex(iTestIndex)
+  , m_iSubTestIndex(iSubTestIndex)
+  , m_pParentEntry(nullptr)
+  , m_uiIndexInParent(0)
 {
 }
 
@@ -84,9 +84,9 @@ static QColor ToneColor(const QColor& inputColor, const QColor& toneColor)
 ////////////////////////////////////////////////////////////////////////
 
 ezQtTestModel::ezQtTestModel(QObject* pParent, ezQtTestFramework* pTestFramework)
-    : QAbstractItemModel(pParent)
-    , m_pTestFramework(pTestFramework)
-    , m_Root(nullptr)
+  : QAbstractItemModel(pParent)
+  , m_pTestFramework(pTestFramework)
+  , m_Root(nullptr)
 {
   QPalette palette = QApplication::palette();
   m_pResult = &pTestFramework->GetTestResult();
@@ -293,8 +293,8 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
       case Qt::DisplayRole:
       {
         return QString("%1 / %2")
-            .arg(m_pResult->GetErrorMessageCount(pEntry->GetTestIndex(), pEntry->GetSubTestIndex()))
-            .arg(m_pResult->GetOutputMessageCount(pEntry->GetTestIndex(), pEntry->GetSubTestIndex()));
+          .arg(m_pResult->GetErrorMessageCount(pEntry->GetTestIndex(), pEntry->GetSubTestIndex()))
+          .arg(m_pResult->GetOutputMessageCount(pEntry->GetTestIndex(), pEntry->GetSubTestIndex()));
       }
       case Qt::BackgroundRole:
       {
@@ -578,4 +578,3 @@ void ezQtTestModel::UpdateModel()
 #endif
 
 EZ_STATICLINK_FILE(TestFramework, TestFramework_Framework_Qt_qtTestModel);
-

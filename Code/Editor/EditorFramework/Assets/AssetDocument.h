@@ -34,10 +34,7 @@ public:
     ezResult Serialize(ezStreamWriter& Writer) const;
 
     /// \brief Checks whether the stored file contains the same hash.
-    bool IsThumbnailUpToDate(ezUInt64 uiExpectedHash, ezUInt16 uiVersion) const
-    {
-      return (m_uiHash == uiExpectedHash && m_uiVersion == uiVersion);
-    }
+    bool IsThumbnailUpToDate(ezUInt64 uiExpectedHash, ezUInt16 uiVersion) const { return (m_uiHash == uiExpectedHash && m_uiVersion == uiVersion); }
 
     /// \brief Sets the asset file hash
     void SetFileHashAndVersion(ezUInt64 hash, ezUInt16 v)
@@ -67,7 +64,10 @@ public:
 
   ezBitflags<ezAssetDocumentFlags> GetAssetFlags() const;
 
-  const ezAssetDocumentTypeDescriptor* GetAssetDocumentTypeDescriptor() const { return static_cast<const ezAssetDocumentTypeDescriptor*>(GetDocumentTypeDescriptor()); }
+  const ezAssetDocumentTypeDescriptor* GetAssetDocumentTypeDescriptor() const
+  {
+    return static_cast<const ezAssetDocumentTypeDescriptor*>(GetDocumentTypeDescriptor());
+  }
 
   /// \brief Transforms an asset.
   ///   Typically not called manually but by the curator which takes care of dependencies first.
@@ -171,14 +171,16 @@ protected:
   /// \param szPlatform Platform for which is the output is to be created. Default is 'PC'.
   /// \param AssetHeader Header already written to the stream, provided for reference.
   /// \param transformFlags flags that affect the transform process, see ezTransformFlags.
-  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) = 0;
+  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+    const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) = 0;
 
   /// \brief Only override this function, if the transformed file for the given szOutputTag must be written from another process.
   ///
   /// szTargetFile is where the transformed asset should be written to. The overriding function must ensure to first
   /// write \a AssetHeader to the file, to make it a valid asset file or provide a custom ezAssetDocumentManager::IsOutputUpToDate function.
   /// See ezTransformFlags for definition of transform flags.
-  virtual ezStatus InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags);
+  virtual ezStatus InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+    const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags);
 
   ezStatus RemoteExport(const ezAssetFileHeader& header, const char* szOutputTarget) const;
 
@@ -213,8 +215,8 @@ protected:
   /// \brief Adds all prefab dependencies to the ezAssetDocumentInfo object. Called automatically by UpdateAssetDocumentInfo()
   void AddPrefabDependencies(const ezDocumentObject* pObject, ezAssetDocumentInfo* pInfo) const;
 
-  /// \brief Crawls through all asset properties of pObject and adds all string properties that have a ezAssetBrowserAttribute as a dependency to pInfo.
-  /// Automatically called by UpdateAssetDocumentInfo()
+  /// \brief Crawls through all asset properties of pObject and adds all string properties that have a ezAssetBrowserAttribute as a dependency to
+  /// pInfo. Automatically called by UpdateAssetDocumentInfo()
   void AddReferences(const ezDocumentObject* pObject, ezAssetDocumentInfo* pInfo, bool bInsidePrefab) const;
 
 protected:

@@ -17,4 +17,3 @@ protected:
 
   ezSkeletonContext* m_pContext;
 };
-

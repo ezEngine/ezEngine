@@ -65,5 +65,3 @@ private:
   ezInt32 m_iFrame = 0;
   ezGameEngineTestApplication_Particles* m_pOwnApplication = nullptr;
 };
-
-

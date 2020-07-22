@@ -4,8 +4,8 @@
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Time/Time.h>
-#include <QAction>
 #include <Inspector/ui_StatVisWidget.h>
+#include <QAction>
 #include <QGraphicsView>
 #include <QListWidgetItem>
 #include <ads/DockWidget.h>

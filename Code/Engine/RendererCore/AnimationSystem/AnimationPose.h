@@ -25,14 +25,14 @@ public:
   void SetToBindPoseInLocalSpace(const ezSkeleton& skeleton);
 
   /// \brief Converts each joint from local space to object space, ie. it concatenates parent transforms and bakes them into each joint.
-  /// 
+  ///
   /// The result is a pose that can be used for instance for visualizing the skeleton by drawing lines from each joint position to
   /// the parent and child joints.
   /// It is, however, not (yet) suitable for actual GPU skinning, as that happens in a different space.
   void ConvertFromLocalSpaceToObjectSpace(const ezSkeleton& skeleton);
 
   /// \brief Converts each joint from the hierarchical object space position to the final skinning space, which is used to modify a mesh.
-  /// 
+  ///
   /// This is typically the very last operation done on a pose before it is sent to the GPU for skinning.
   void ConvertFromObjectSpaceToSkinningSpace(const ezSkeleton& skeleton);
 
@@ -77,7 +77,8 @@ public:
   /// \brief Renders a debug visualization of this pose. \a objectTransform is used to position, rotate and scale the stick-figure as needed.
   ///
   /// Object scale is, however, only partially used, joint indicators are always sized according to the distance to the parent joints (after scaling).
-  void VisualizePose(const ezDebugRendererContext& context, const ezSkeleton& skeleton, const ezTransform& objectTransform, float fJointSizeRatio = 1.0f / 6.0f, ezUInt16 uiStartJoint = ezInvalidJointIndex) const;
+  void VisualizePose(const ezDebugRendererContext& context, const ezSkeleton& skeleton, const ezTransform& objectTransform,
+    float fJointSizeRatio = 1.0f / 6.0f, ezUInt16 uiStartJoint = ezInvalidJointIndex) const;
 
 private:
   // TODO: would be nicer to use ezTransform or ezShaderTransform for this data
@@ -86,4 +87,3 @@ private:
   ezDynamicArray<ezMat4, ezAlignedAllocatorWrapper> m_Transforms;
   ezDynamicBitfield m_TransformsValid;
 };
-

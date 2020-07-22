@@ -291,4 +291,3 @@ bool ezQtDashboardDlg::eventFilter(QObject* obj, QEvent* e)
   return QObject::eventFilter(obj, e);
   return false;
 }
-

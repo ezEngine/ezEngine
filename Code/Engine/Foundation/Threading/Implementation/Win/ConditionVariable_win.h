@@ -27,7 +27,8 @@ void ezConditionVariable::UnlockWaitForSignalAndLock() const
 {
   EZ_ASSERT_DEV(m_iLockCount > 0, "ezConditionVariable must be locked when calling UnlockWaitForSignalAndLock.");
 
-  SleepConditionVariableCS(reinterpret_cast<CONDITION_VARIABLE*>(&m_Data.m_ConditionVariable), (CRITICAL_SECTION*)&m_Mutex.GetMutexHandle(), INFINITE);
+  SleepConditionVariableCS(
+    reinterpret_cast<CONDITION_VARIABLE*>(&m_Data.m_ConditionVariable), (CRITICAL_SECTION*)&m_Mutex.GetMutexHandle(), INFINITE);
 }
 
 ezConditionVariable::WaitResult ezConditionVariable::UnlockWaitForSignalAndLock(ezTime timeout) const
@@ -36,7 +37,8 @@ ezConditionVariable::WaitResult ezConditionVariable::UnlockWaitForSignalAndLock(
 
   // inside the lock
   --m_iLockCount;
-  DWORD result = SleepConditionVariableCS(reinterpret_cast<CONDITION_VARIABLE*>(&m_Data.m_ConditionVariable), (CRITICAL_SECTION*)&m_Mutex.GetMutexHandle(), static_cast<DWORD>(timeout.GetMilliseconds()));
+  DWORD result = SleepConditionVariableCS(reinterpret_cast<CONDITION_VARIABLE*>(&m_Data.m_ConditionVariable),
+    (CRITICAL_SECTION*)&m_Mutex.GetMutexHandle(), static_cast<DWORD>(timeout.GetMilliseconds()));
 
   if (result == WAIT_TIMEOUT)
   {

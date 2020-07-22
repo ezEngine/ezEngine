@@ -1,8 +1,8 @@
 #pragma once
 
-#include <ToolsFoundation/ToolsFoundationDLL.h>
 #include <EditorEngineProcessFramework/Gizmos/GizmoHandle.h>
 #include <EditorFramework/Gizmos/GizmoBase.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 
 class EZ_EDITORFRAMEWORK_DLL ezRotateGizmo : public ezGizmo
 {

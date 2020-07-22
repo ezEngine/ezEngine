@@ -1,9 +1,9 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Inspector/ui_PluginsWidget.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
+#include <Inspector/ui_PluginsWidget.h>
 #include <ads/DockWidget.h>
 
 class ezQtPluginsWidget : public ads::CDockWidget, public Ui_PluginsWidget
@@ -34,5 +34,3 @@ private:
   bool m_bUpdatePlugins;
   ezMap<ezString, PluginsData> m_Plugins;
 };
-
-

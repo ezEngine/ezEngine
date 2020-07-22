@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Core/ResourceManager/ResourceHandle.h>
-#include <RendererCore/AnimationSystem/AnimationPose.h>
 #include <Foundation/Time/Time.h>
+#include <RendererCore/AnimationSystem/AnimationPose.h>
 
 typedef ezTypedResourceHandle<class ezAnimationClipResource> ezAnimationClipResourceHandle;
 typedef ezTypedResourceHandle<class ezSkeletonResource> ezSkeletonResourceHandle;
@@ -15,6 +15,4 @@ public:
 
   virtual void Step(ezTime tDiff);
   virtual bool Execute(const ezSkeleton& skeleton, ezAnimationPose& currentPose, ezTransform* pRootMotion) = 0;
-
 };
-

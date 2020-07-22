@@ -694,7 +694,8 @@ void ezVisualScriptTypeRegistry::CreateFunctionCallNodeType(const ezRTTI* pRtti,
       prd.m_sName = sName;
       prd.m_sType = pFunction->GetArgumentType(argIdx)->GetTypeName();
 
-      ezVisScriptMappingAttribute* pMappingAttr = ezVisScriptMappingAttribute::GetStaticRTTI()->GetAllocator()->Allocate<ezVisScriptMappingAttribute>();
+      ezVisScriptMappingAttribute* pMappingAttr =
+        ezVisScriptMappingAttribute::GetStaticRTTI()->GetAllocator()->Allocate<ezVisScriptMappingAttribute>();
       pMappingAttr->m_iMapping = argIdx;
       prd.m_Attributes.PushBack(pMappingAttr);
 

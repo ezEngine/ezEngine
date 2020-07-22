@@ -1,5 +1,5 @@
-#include <XBoxControllerPlugin/InputDeviceXBox.h>
 #include <Foundation/Configuration/Startup.h>
+#include <XBoxControllerPlugin/InputDeviceXBox.h>
 
 static ezInputDeviceXBox360* g_InputDeviceXBox360 = nullptr;
 
@@ -50,4 +50,3 @@ EZ_END_SUBSYSTEM_DECLARATION;
 ezPlugin g_Plugin(false);
 
 EZ_STATICLINK_FILE(System, System_XBoxController_Startup);
-

@@ -3,8 +3,8 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Configuration/Startup.h>
-#include <Foundation/Strings/String.h>
 #include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Strings/String.h>
 #include <Foundation/Time/Timestamp.h>
 
 struct ezPhantomRttiManagerEvent;
@@ -31,7 +31,10 @@ private:
 
   struct ParamData
   {
-    ParamData() : m_pType(nullptr) {}
+    ParamData()
+      : m_pType(nullptr)
+    {
+    }
 
     ezUuid m_SubAssetGuid;
     bool m_bUpToDate = true;

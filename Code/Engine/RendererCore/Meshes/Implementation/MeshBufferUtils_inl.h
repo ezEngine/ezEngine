@@ -2,13 +2,15 @@
 // static
 EZ_ALWAYS_INLINE ezGALResourceFormat::Enum ezMeshNormalPrecision::ToResourceFormatNormal(Enum value)
 {
-  return value == _10Bit ? ezGALResourceFormat::RGB10A2UIntNormalized : (value == _16Bit ? ezGALResourceFormat::RGBAUShortNormalized : ezGALResourceFormat::XYZFloat);
+  return value == _10Bit ? ezGALResourceFormat::RGB10A2UIntNormalized
+                         : (value == _16Bit ? ezGALResourceFormat::RGBAUShortNormalized : ezGALResourceFormat::XYZFloat);
 }
 
 // static
 EZ_ALWAYS_INLINE ezGALResourceFormat::Enum ezMeshNormalPrecision::ToResourceFormatTangent(Enum value)
 {
-  return value == _10Bit ? ezGALResourceFormat::RGB10A2UIntNormalized : (value == _16Bit ? ezGALResourceFormat::RGBAUShortNormalized : ezGALResourceFormat::XYZWFloat);
+  return value == _10Bit ? ezGALResourceFormat::RGB10A2UIntNormalized
+                         : (value == _16Bit ? ezGALResourceFormat::RGBAUShortNormalized : ezGALResourceFormat::XYZWFloat);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -27,15 +29,16 @@ EZ_ALWAYS_INLINE ezResult ezMeshBufferUtils::EncodeNormal(const ezVec3& normal, 
   return EncodeNormal(normal, dest, ezMeshNormalPrecision::ToResourceFormatNormal(normalPrecision));
 }
 
-// static 
-EZ_ALWAYS_INLINE ezResult ezMeshBufferUtils::EncodeTangent(const ezVec3& tangent, float biTangentSign, ezArrayPtr<ezUInt8> dest,
-  ezMeshNormalPrecision::Enum tangentPrecision)
+// static
+EZ_ALWAYS_INLINE ezResult ezMeshBufferUtils::EncodeTangent(
+  const ezVec3& tangent, float biTangentSign, ezArrayPtr<ezUInt8> dest, ezMeshNormalPrecision::Enum tangentPrecision)
 {
   return EncodeTangent(tangent, biTangentSign, dest, ezMeshNormalPrecision::ToResourceFormatTangent(tangentPrecision));
 }
 
 // static
-EZ_ALWAYS_INLINE ezResult ezMeshBufferUtils::EncodeTexCoord(const ezVec2& texCoord, ezArrayPtr<ezUInt8> dest, ezMeshTexCoordPrecision::Enum texCoordPrecision)
+EZ_ALWAYS_INLINE ezResult ezMeshBufferUtils::EncodeTexCoord(
+  const ezVec2& texCoord, ezArrayPtr<ezUInt8> dest, ezMeshTexCoordPrecision::Enum texCoordPrecision)
 {
   return EncodeTexCoord(texCoord, dest, ezMeshTexCoordPrecision::ToResourceFormat(texCoordPrecision));
 }
@@ -48,8 +51,8 @@ EZ_ALWAYS_INLINE ezResult ezMeshBufferUtils::EncodeNormal(const ezVec3& normal, 
 }
 
 // static
-EZ_ALWAYS_INLINE ezResult ezMeshBufferUtils::EncodeTangent(const ezVec3& tangent, float biTangentSign, ezArrayPtr<ezUInt8> dest,
-  ezGALResourceFormat::Enum destFormat)
+EZ_ALWAYS_INLINE ezResult ezMeshBufferUtils::EncodeTangent(
+  const ezVec3& tangent, float biTangentSign, ezArrayPtr<ezUInt8> dest, ezGALResourceFormat::Enum destFormat)
 {
   // make sure biTangentSign is either -1 or 1
   biTangentSign = (biTangentSign < 0.0f) ? -1.0f : 1.0f;
@@ -65,27 +68,29 @@ EZ_ALWAYS_INLINE ezResult ezMeshBufferUtils::EncodeTexCoord(const ezVec2& texCoo
 }
 
 // static
-EZ_ALWAYS_INLINE ezResult ezMeshBufferUtils::DecodeNormal(ezArrayPtr<const ezUInt8> source, ezVec3& destNormal, ezMeshNormalPrecision::Enum normalPrecision)
+EZ_ALWAYS_INLINE ezResult ezMeshBufferUtils::DecodeNormal(
+  ezArrayPtr<const ezUInt8> source, ezVec3& destNormal, ezMeshNormalPrecision::Enum normalPrecision)
 {
   return DecodeNormal(source, ezMeshNormalPrecision::ToResourceFormatNormal(normalPrecision), destNormal);
 }
 
 // static
-EZ_ALWAYS_INLINE ezResult ezMeshBufferUtils::DecodeTangent(ezArrayPtr<const ezUInt8> source, ezVec3& destTangent, float& destBiTangentSign,
-  ezMeshNormalPrecision::Enum tangentPrecision)
+EZ_ALWAYS_INLINE ezResult ezMeshBufferUtils::DecodeTangent(
+  ezArrayPtr<const ezUInt8> source, ezVec3& destTangent, float& destBiTangentSign, ezMeshNormalPrecision::Enum tangentPrecision)
 {
   return DecodeTangent(source, ezMeshNormalPrecision::ToResourceFormatTangent(tangentPrecision), destTangent, destBiTangentSign);
 }
 
 // static
-EZ_ALWAYS_INLINE ezResult ezMeshBufferUtils::DecodeTexCoord(ezArrayPtr<const ezUInt8> source, ezVec2& destTexCoord,
-  ezMeshTexCoordPrecision::Enum texCoordPrecision)
+EZ_ALWAYS_INLINE ezResult ezMeshBufferUtils::DecodeTexCoord(
+  ezArrayPtr<const ezUInt8> source, ezVec2& destTexCoord, ezMeshTexCoordPrecision::Enum texCoordPrecision)
 {
   return DecodeTexCoord(source, ezMeshTexCoordPrecision::ToResourceFormat(texCoordPrecision), destTexCoord);
 }
 
 // static
-EZ_ALWAYS_INLINE ezResult ezMeshBufferUtils::DecodeNormal(ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, ezVec3& destNormal)
+EZ_ALWAYS_INLINE ezResult ezMeshBufferUtils::DecodeNormal(
+  ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, ezVec3& destNormal)
 {
   ezVec3 tempNormal;
   EZ_SUCCEED_OR_RETURN(DecodeToVec3(source, sourceFormat, tempNormal));
@@ -94,8 +99,8 @@ EZ_ALWAYS_INLINE ezResult ezMeshBufferUtils::DecodeNormal(ezArrayPtr<const ezUIn
 }
 
 // static
-EZ_ALWAYS_INLINE ezResult ezMeshBufferUtils::DecodeTangent(ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat,
-  ezVec3& destTangent, float& destBiTangentSign)
+EZ_ALWAYS_INLINE ezResult ezMeshBufferUtils::DecodeTangent(
+  ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, ezVec3& destTangent, float& destBiTangentSign)
 {
   ezVec4 tempTangent;
   EZ_SUCCEED_OR_RETURN(DecodeToVec4(source, sourceFormat, tempTangent));
@@ -105,7 +110,8 @@ EZ_ALWAYS_INLINE ezResult ezMeshBufferUtils::DecodeTangent(ezArrayPtr<const ezUI
 }
 
 // static
-EZ_ALWAYS_INLINE ezResult ezMeshBufferUtils::DecodeTexCoord(ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, ezVec2& destTexCoord)
+EZ_ALWAYS_INLINE ezResult ezMeshBufferUtils::DecodeTexCoord(
+  ezArrayPtr<const ezUInt8> source, ezGALResourceFormat::Enum sourceFormat, ezVec2& destTexCoord)
 {
   return DecodeToVec2(source, sourceFormat, destTexCoord);
 }

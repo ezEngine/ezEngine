@@ -6,7 +6,8 @@
 class ezTelemetryThread : public ezThread
 {
 public:
-  ezTelemetryThread() : ezThread("ezTelemetryThread")
+  ezTelemetryThread()
+    : ezThread("ezTelemetryThread")
   {
     m_bKeepRunning = true;
   }
@@ -74,4 +75,3 @@ void ezTelemetry::StopTelemetryThread()
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_TelemetryThread);
-

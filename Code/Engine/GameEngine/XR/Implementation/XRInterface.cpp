@@ -1,7 +1,7 @@
 #include <GameEnginePCH.h>
 
-#include <GameEngine/XR/XRInterface.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <GameEngine/XR/XRInterface.h>
 
 // clang-format off
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezXRStageSpace, 1)

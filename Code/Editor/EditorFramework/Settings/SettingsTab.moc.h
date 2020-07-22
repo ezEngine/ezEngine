@@ -1,8 +1,8 @@
 #pragma once
 
+#include <EditorFramework/ui_SettingsTab.h>
 #include <Foundation/Configuration/Plugin.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
-#include <EditorFramework/ui_SettingsTab.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 
 class ezQtSettingsTab : public ezQtDocumentWindow, Ui_SettingsTab

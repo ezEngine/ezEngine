@@ -6,8 +6,8 @@
 
 void ezStringWChar::operator=(const char* szUtf8)
 {
-  EZ_ASSERT_DEV(ezUnicodeUtils::IsValidUtf8(szUtf8),
-                "Input Data is not a valid Utf8 string. Did you intend to use a Wide-String and forget the 'L' prefix?");
+  EZ_ASSERT_DEV(
+    ezUnicodeUtils::IsValidUtf8(szUtf8), "Input Data is not a valid Utf8 string. Did you intend to use a Wide-String and forget the 'L' prefix?");
 
   m_Data.Clear();
 
@@ -104,8 +104,8 @@ void ezStringWChar::operator=(const wchar_t* szWChar)
 
 void ezStringUtf8::operator=(const char* szUtf8)
 {
-  EZ_ASSERT_DEV(ezUnicodeUtils::IsValidUtf8(szUtf8),
-                "Input Data is not a valid Utf8 string. Did you intend to use a Wide-String and forget the 'L' prefix?");
+  EZ_ASSERT_DEV(
+    ezUnicodeUtils::IsValidUtf8(szUtf8), "Input Data is not a valid Utf8 string. Did you intend to use a Wide-String and forget the 'L' prefix?");
 
   m_Data.Clear();
 
@@ -225,8 +225,8 @@ void ezStringUtf8::operator=(const HSTRING& hstring)
 
 void ezStringUtf16::operator=(const char* szUtf8)
 {
-  EZ_ASSERT_DEV(ezUnicodeUtils::IsValidUtf8(szUtf8),
-                "Input Data is not a valid Utf8 string. Did you intend to use a Wide-String and forget the 'L' prefix?");
+  EZ_ASSERT_DEV(
+    ezUnicodeUtils::IsValidUtf8(szUtf8), "Input Data is not a valid Utf8 string. Did you intend to use a Wide-String and forget the 'L' prefix?");
 
   m_Data.Clear();
 
@@ -322,8 +322,8 @@ void ezStringUtf16::operator=(const wchar_t* szWChar)
 
 void ezStringUtf32::operator=(const char* szUtf8)
 {
-  EZ_ASSERT_DEV(ezUnicodeUtils::IsValidUtf8(szUtf8),
-                "Input Data is not a valid Utf8 string. Did you intend to use a Wide-String and forget the 'L' prefix?");
+  EZ_ASSERT_DEV(
+    ezUnicodeUtils::IsValidUtf8(szUtf8), "Input Data is not a valid Utf8 string. Did you intend to use a Wide-String and forget the 'L' prefix?");
 
   m_Data.Clear();
 
@@ -448,4 +448,3 @@ void ezStringHString::operator=(const wchar_t* szWChar)
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_StringConversion);
-

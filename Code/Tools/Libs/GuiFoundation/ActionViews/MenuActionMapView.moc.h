@@ -23,8 +23,8 @@ public:
 
   void SetActionContext(const ezActionContext& context);
 
-  static void AddDocumentObjectToMenu(ezHashTable<ezUuid, QSharedPointer<ezQtProxy>>& Proxies, ezActionContext& Context,
-    ezActionMap* pActionMap, QMenu* pCurrentRoot, const ezActionMap::TreeNode* pObject);
+  static void AddDocumentObjectToMenu(ezHashTable<ezUuid, QSharedPointer<ezQtProxy>>& Proxies, ezActionContext& Context, ezActionMap* pActionMap,
+    QMenu* pCurrentRoot, const ezActionMap::TreeNode* pObject);
 
 private:
   void ClearView();

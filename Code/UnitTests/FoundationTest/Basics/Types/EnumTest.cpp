@@ -12,12 +12,13 @@ struct ezTestEnumBase
   {
     No = 0,
     Yes = 1,
-    Default = No //Default initialization
+    Default = No // Default initialization
   };
 };
 
-typedef ezEnum<ezTestEnumBase //The base for the enum
-  > ezTestEnum;      //The name of the final enum
+typedef ezEnum<ezTestEnumBase // The base for the enum
+  >
+  ezTestEnum; // The name of the final enum
 // End of the definition of a example enum
 ///////////////////////////////////////////////////////////////////////
 
@@ -35,33 +36,23 @@ struct ezTestEnum2Base
 
 typedef ezEnum<ezTestEnum2Base> ezTestEnum2;
 
-//Test if the type actually has the requested size
+// Test if the type actually has the requested size
 EZ_CHECK_AT_COMPILETIME(sizeof(ezTestEnum) == sizeof(ezUInt8));
 EZ_CHECK_AT_COMPILETIME(sizeof(ezTestEnum2) == sizeof(ezUInt16));
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Basics);
 
-//This takes a c++ enum. Tests the implict conversion
-void TakeEnum1(ezTestEnum::Enum value)
-{
-}
+// This takes a c++ enum. Tests the implict conversion
+void TakeEnum1(ezTestEnum::Enum value) {}
 
-//This takes our own enum type
-void TakeEnum2(ezTestEnum value)
-{
-}
+// This takes our own enum type
+void TakeEnum2(ezTestEnum value) {}
 
 EZ_CREATE_SIMPLE_TEST(Basics, Enum)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Default initialized enum")
-  {
-    ezTestEnum e1;
-  }
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Default initialized enum") { ezTestEnum e1; }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Enum with explicit initialization")
-  {
-    ezTestEnum e2(ezTestEnum::Yes);
-  }
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Enum with explicit initialization") { ezTestEnum e2(ezTestEnum::Yes); }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "This tests if the default initialization works and if the implicit conversion works")
   {
@@ -125,4 +116,3 @@ EZ_CREATE_SIMPLE_TEST(Basics, Enum)
     EZ_TEST_BOOL(iTest == ezTestEnum::No);
   }
 }
-

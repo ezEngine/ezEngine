@@ -263,10 +263,9 @@ void ezCurve1D::CreateLinearApproximation(double fMaxError /*= 0.01f*/, ezUInt8 
     m_LinearApproximation.PushBack(m_ControlPoints[i - 1].m_Position);
 
     ApproximateCurve(m_ControlPoints[i - 1].m_Position,
-                     m_ControlPoints[i - 1].m_Position +
-                         ezVec2d(m_ControlPoints[i - 1].m_RightTangent.x, m_ControlPoints[i - 1].m_RightTangent.y),
-                     m_ControlPoints[i].m_Position + ezVec2d(m_ControlPoints[i].m_LeftTangent.x, m_ControlPoints[i].m_LeftTangent.y),
-                     m_ControlPoints[i].m_Position, fMaxErrorX, fMaxErrorY, uiMaxSubDivs);
+      m_ControlPoints[i - 1].m_Position + ezVec2d(m_ControlPoints[i - 1].m_RightTangent.x, m_ControlPoints[i - 1].m_RightTangent.y),
+      m_ControlPoints[i].m_Position + ezVec2d(m_ControlPoints[i].m_LeftTangent.x, m_ControlPoints[i].m_LeftTangent.y), m_ControlPoints[i].m_Position,
+      fMaxErrorX, fMaxErrorY, uiMaxSubDivs);
   }
 
   m_LinearApproximation.PushBack(m_ControlPoints.PeekBack().m_Position);
@@ -320,8 +319,8 @@ void ezCurve1D::ApproximateMinMaxValues(const ControlPoint& lhs, const ControlPo
   fMaxY = ezMath::Max(fMaxY, rhs.m_Position.y + rhs.m_LeftTangent.y);
 }
 
-void ezCurve1D::ApproximateCurve(const ezVec2d& p0, const ezVec2d& p1, const ezVec2d& p2, const ezVec2d& p3, double fMaxErrorX,
-                                 double fMaxErrorY, ezInt32 iSubDivLeft)
+void ezCurve1D::ApproximateCurve(
+  const ezVec2d& p0, const ezVec2d& p1, const ezVec2d& p2, const ezVec2d& p3, double fMaxErrorX, double fMaxErrorY, ezInt32 iSubDivLeft)
 {
   const ezVec2d cubicCenter = ezMath::EvaluateBezierCurve(0.5, p0, p1, p2, p3);
 
@@ -334,9 +333,8 @@ void ezCurve1D::ApproximateCurve(const ezVec2d& p0, const ezVec2d& p1, const ezV
   ApproximateCurvePiece(p0, p1, p2, p3, 0.5, cubicCenter, 1.0, p3, fMaxErrorX, fMaxErrorY, iSubDivLeft);
 }
 
-void ezCurve1D::ApproximateCurvePiece(const ezVec2d& p0, const ezVec2d& p1, const ezVec2d& p2, const ezVec2d& p3, double tLeft,
-                                      const ezVec2d& pLeft, double tRight, const ezVec2d& pRight, double fMaxErrorX, double fMaxErrorY,
-                                      ezInt32 iSubDivLeft)
+void ezCurve1D::ApproximateCurvePiece(const ezVec2d& p0, const ezVec2d& p1, const ezVec2d& p2, const ezVec2d& p3, double tLeft, const ezVec2d& pLeft,
+  double tRight, const ezVec2d& pRight, double fMaxErrorX, double fMaxErrorY, ezInt32 iSubDivLeft)
 {
   // this is a safe guard
   if (iSubDivLeft <= 0)
@@ -564,4 +562,3 @@ void ezCurve1D::MakeAutoTangentRight(ezUInt32 uiCpIdx)
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Tracks_Implementation_Curve1D);
-

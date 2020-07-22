@@ -2,12 +2,12 @@
 
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
 
-#include <WindowsMixedReality/Basics.h>
-#include <wrl/client.h>
-#include <Windows.perception.spatial.surfaces.h>
-#include <Core/World/Declarations.h>
-#include <Foundation/Configuration/Singleton.h>
-#include <RendererCore/Meshes/MeshBufferResource.h>
+#  include <Core/World/Declarations.h>
+#  include <Foundation/Configuration/Singleton.h>
+#  include <RendererCore/Meshes/MeshBufferResource.h>
+#  include <Windows.perception.spatial.surfaces.h>
+#  include <WindowsMixedReality/Basics.h>
+#  include <wrl/client.h>
 
 struct ezSrmManagerEvent
 {
@@ -32,8 +32,8 @@ struct ezSurfaceMeshInfo
   bool m_bIsObserved = true;
 
   //////////////////////////////////////////////////////////////////////////
-  //ezGameObjectHandle m_hGameObject;
-  //ezComponentHandle m_hMeshComponent;
+  // ezGameObjectHandle m_hGameObject;
+  // ezComponentHandle m_hMeshComponent;
 };
 
 class EZ_WINDOWSMIXEDREALITY_DLL ezSurfaceReconstructionMeshManager
@@ -47,7 +47,12 @@ public:
   /// \brief Helper function to write all supported vertex/normal/index formats to the log.
   static void LogSupportedFormats();
 
-  enum class SrmAvailability { Pending, Available, NotAvailable };
+  enum class SrmAvailability
+  {
+    Pending,
+    Available,
+    NotAvailable
+  };
   /// \brief Returns whether access to the surface reconstruction mesh is available.
   SrmAvailability GetSrmAvailability() const { return m_SrmAvailability; }
 

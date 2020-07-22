@@ -1,10 +1,10 @@
 #pragma once
 
-#include <Foundation/Basics.h>
-#include <EditorFramework/EditorFrameworkDLL.h>
-#include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
-#include <EditorFramework/ui_AssetCuratorPanel.h>
 #include <EditorFramework/Assets/AssetBrowserModel.moc.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
+#include <EditorFramework/ui_AssetCuratorPanel.h>
+#include <Foundation/Basics.h>
+#include <GuiFoundation/DockPanels/ApplicationPanel.moc.h>
 
 class ezQtCuratorControl;
 struct ezLoggingEventData;
@@ -35,7 +35,7 @@ public:
   ~ezQtAssetCuratorPanel();
 
 public Q_SLOTS:
-  void OnAssetSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
+  void OnAssetSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
 
 private Q_SLOTS:
   // note, because of the way we set up the widget, auto-connect doesn't work

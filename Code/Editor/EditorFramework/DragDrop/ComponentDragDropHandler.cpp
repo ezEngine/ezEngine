@@ -13,7 +13,8 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezComponentDragDropHandler, 1, ezRTTINoAllocator)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
-void ezComponentDragDropHandler::CreateDropObject(const ezVec3& vPosition, const char* szType, const char* szProperty, const ezVariant& value, ezUuid parent, ezInt32 iInsertChildIndex)
+void ezComponentDragDropHandler::CreateDropObject(
+  const ezVec3& vPosition, const char* szType, const char* szProperty, const ezVariant& value, ezUuid parent, ezInt32 iInsertChildIndex)
 {
   ezVec3 vPos = vPosition;
 

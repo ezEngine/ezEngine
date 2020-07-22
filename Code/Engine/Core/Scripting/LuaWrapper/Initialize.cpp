@@ -38,10 +38,9 @@ void ezLuaWrapper::Clear()
 
 ezResult ezLuaWrapper::ExecuteString(const char* szString, const char* szDebugChunkName, ezLogInterface* pLogInterface) const
 {
-  EZ_ASSERT_DEV(
-      m_States.m_iLuaReturnValues == 0,
-      "ezLuaWrapper::ExecuteString: You didn't discard the return-values of the previous script call. {0} Return-values were expected.",
-      m_States.m_iLuaReturnValues);
+  EZ_ASSERT_DEV(m_States.m_iLuaReturnValues == 0,
+    "ezLuaWrapper::ExecuteString: You didn't discard the return-values of the previous script call. {0} Return-values were expected.",
+    m_States.m_iLuaReturnValues);
 
   if (!pLogInterface)
     pLogInterface = ezLog::GetThreadLocalLogSystem();
@@ -100,4 +99,3 @@ void* ezLuaWrapper::lua_allocator(void* ud, void* ptr, size_t osize, size_t nsiz
 
 
 EZ_STATICLINK_FILE(Core, Core_Scripting_LuaWrapper_Initialize);
-

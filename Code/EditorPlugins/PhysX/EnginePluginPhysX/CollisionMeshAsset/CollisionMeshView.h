@@ -18,4 +18,3 @@ protected:
 
   ezCollisionMeshContext* m_pMeshContext;
 };
-

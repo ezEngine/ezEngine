@@ -1,15 +1,17 @@
 #pragma once
 
-#include <ToolsFoundation/ToolsFoundationDLL.h>
-#include <Foundation/Types/Status.h>
 #include <Foundation/Containers/Map.h>
+#include <Foundation/Types/Status.h>
 #include <Foundation/Types/Variant.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 
 struct EZ_TOOLSFOUNDATION_DLL ezToolsTag
 {
   ezToolsTag() {}
   ezToolsTag(const char* szCategory, const char* szName, bool bBuiltIn = false)
-    : m_sCategory(szCategory), m_sName(szName), m_bBuiltInTag(bBuiltIn)
+    : m_sCategory(szCategory)
+    , m_sName(szName)
+    , m_bBuiltInTag(bBuiltIn)
   {
   }
 
@@ -36,4 +38,3 @@ public:
 private:
   static ezMap<ezString, ezToolsTag> m_NameToTags;
 };
-

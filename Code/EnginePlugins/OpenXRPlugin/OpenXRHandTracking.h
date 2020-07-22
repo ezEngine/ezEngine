@@ -1,9 +1,9 @@
 #pragma once
 
+#include <Foundation/Configuration/Singleton.h>
+#include <GameEngine/XR/XRHandTrackingInterface.h>
 #include <OpenXRPlugin/Basics.h>
 #include <OpenXRPlugin/OpenXRIncludes.h>
-#include <GameEngine/XR/XRHandTrackingInterface.h>
-#include <Foundation/Configuration/Singleton.h>
 
 class ezOpenXR;
 
@@ -18,8 +18,8 @@ public:
   ezOpenXRHandTracking(ezOpenXR* pOpenXR);
   ~ezOpenXRHandTracking();
 
-  HandPartTrackingState TryGetBoneTransforms(ezEnum<ezXRHand> hand, ezEnum<ezXRHandPart> handPart, ezEnum<ezXRTransformSpace> space,
-    ezDynamicArray<ezXRHandBone>& out_bones) override;
+  HandPartTrackingState TryGetBoneTransforms(
+    ezEnum<ezXRHand> hand, ezEnum<ezXRHandPart> handPart, ezEnum<ezXRTransformSpace> space, ezDynamicArray<ezXRHandBone>& out_bones) override;
 
   void UpdateJointTransforms();
 
@@ -36,7 +36,7 @@ private:
 
   ezOpenXR* m_pOpenXR = nullptr;
 #ifdef BUILDSYSTEM_ENABLE_OPENXR_PREVIEW_SUPPORT
-  XrHandTrackerMSFT m_HandTracker[2] = { XR_NULL_HANDLE, XR_NULL_HANDLE };
+  XrHandTrackerMSFT m_HandTracker[2] = {XR_NULL_HANDLE, XR_NULL_HANDLE};
   ezStaticArray<JointData, XR_HAND_JOINT_LITTLE_TIP_MSFT + 1> m_JointData[2];
   ezStaticArray<ezUInt32, 6> m_HandParts[ezXRHandPart::Little + 1];
 #endif

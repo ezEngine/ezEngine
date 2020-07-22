@@ -42,4 +42,3 @@ private:
 private:
   ezRenderPipelineResourceDescriptor m_Desc;
 };
-

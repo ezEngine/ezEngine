@@ -85,4 +85,3 @@ void DemoComponent::DeserializeComponent(ezWorldReader& stream)
   }
 }
 // END-DOCS-CODE-SNIPPET
-

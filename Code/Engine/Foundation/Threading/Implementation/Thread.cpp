@@ -16,7 +16,7 @@ ezThread::ezThread(const char* szName /*= "ezThread"*/, ezUInt32 uiStackSize /*=
   ezThread::s_ThreadEvents.Broadcast(e, 255);
 }
 
- ezThread::~ezThread()
+ezThread::~ezThread()
 {
   EZ_ASSERT_DEV(!IsRunning(), "Thread deletion while still running detected!");
 
@@ -28,7 +28,7 @@ ezThread::ezThread(const char* szName /*= "ezThread"*/, ezUInt32 uiStackSize /*=
 
 // Deactivate Doxygen document generation for the following block.
 /// \cond
- 
+
 ezUInt32 RunThread(ezThread* pThread)
 {
   if (pThread == nullptr)

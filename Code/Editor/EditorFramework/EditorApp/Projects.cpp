@@ -177,7 +177,9 @@ void ezQtEditorApp::ProjectEventHandler(const ezToolsProjectEvent& r)
 
       ezEditorPreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezEditorPreferencesUser>();
 
-      if (m_StartupFlags.AreNoneSet(ezQtEditorApp::StartupFlags::Headless | ezQtEditorApp::StartupFlags::SafeMode | ezQtEditorApp::StartupFlags::UnitTest) && pPreferences->m_bBackgroundAssetProcessing)
+      if (m_StartupFlags.AreNoneSet(
+            ezQtEditorApp::StartupFlags::Headless | ezQtEditorApp::StartupFlags::SafeMode | ezQtEditorApp::StartupFlags::UnitTest) &&
+          pPreferences->m_bBackgroundAssetProcessing)
       {
         QTimer::singleShot(1000, this, [this]() { ezAssetProcessor::GetSingleton()->RestartProcessTask(); });
       }

@@ -17,7 +17,7 @@ static void ToolsProjectEventHandler(const ezToolsProjectEvent& e);
 void OnLoadPlugin(bool bReloading)
 {
   ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginProcGen", "ezProcGenPlugin");
-  //ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginProcGen", "ezEnginePluginProcGen");
+  // ezQtEditorApp::GetSingleton()->AddRuntimePluginDependency("EditorPluginProcGen", "ezEnginePluginProcGen");
 
   // ezToolsProject::GetSingleton()->s_Events.AddEventHandler(ToolsProjectEventHandler);
 

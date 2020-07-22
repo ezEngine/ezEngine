@@ -1,8 +1,8 @@
 #pragma once
 
+#include <Foundation/Containers/DynamicArray.h>
 #include <RendererCore/RendererCoreDLL.h>
 #include <RendererFoundation/RendererFoundationDLL.h>
-#include <Foundation/Containers/DynamicArray.h>
 
 class EZ_RENDERERCORE_DLL ezConstantBufferStorageBase
 {
@@ -19,16 +19,13 @@ public:
 
   void UploadData(ezGALContext* pContext);
 
-  EZ_ALWAYS_INLINE ezGALBufferHandle GetGALBufferHandle() const
-  { 
-    return m_hGALConstantBuffer;
-  }
+  EZ_ALWAYS_INLINE ezGALBufferHandle GetGALBufferHandle() const { return m_hGALConstantBuffer; }
 
 protected:
   bool m_bHasBeenModified;
   ezUInt32 m_uiLastHash;
   ezGALBufferHandle m_hGALConstantBuffer;
-  
+
   ezArrayPtr<ezUInt8> m_Data;
 };
 
@@ -59,4 +56,3 @@ class ezConstantBufferStorageHandle
 
   friend class ezRenderContext;
 };
-

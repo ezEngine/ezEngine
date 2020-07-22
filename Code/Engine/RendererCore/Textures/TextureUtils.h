@@ -1,9 +1,9 @@
 #pragma once
 
-#include <RendererCore/RendererCoreDLL.h>
-#include <Texture/Image/Image.h>
 #include <RendererCore/RenderContext/Implementation/RenderContextStructs.h>
+#include <RendererCore/RendererCoreDLL.h>
 #include <RendererFoundation/Resources/ResourceFormats.h>
+#include <Texture/Image/Image.h>
 
 struct EZ_RENDERERCORE_DLL ezTextureUtils
 {
@@ -14,4 +14,3 @@ struct EZ_RENDERERCORE_DLL ezTextureUtils
   /// \brief If enabled, textures are always loaded to full quality immediately. Mostly necessary for image comparison unit tests.
   static bool s_bForceFullQualityAlways;
 };
-

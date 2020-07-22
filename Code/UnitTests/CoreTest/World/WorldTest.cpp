@@ -8,7 +8,8 @@ EZ_CREATE_SIMPLE_TEST_GROUP(World);
 
 namespace
 {
-  union TestWorldObjects {
+  union TestWorldObjects
+  {
     struct
     {
       ezGameObject* pParent1;

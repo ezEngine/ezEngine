@@ -7,9 +7,8 @@
 #include <EditorFramework/InputContexts/OrthoGizmoContext.h>
 #include <EditorFramework/InputContexts/SelectionContext.h>
 
-ezQtGameObjectViewWidget::ezQtGameObjectViewWidget(QWidget* pParent, ezQtGameObjectDocumentWindow* pOwnerWindow,
-                                                   ezEngineViewConfig* pViewConfig)
-    : ezQtEngineViewWidget(pParent, pOwnerWindow, pViewConfig)
+ezQtGameObjectViewWidget::ezQtGameObjectViewWidget(QWidget* pParent, ezQtGameObjectDocumentWindow* pOwnerWindow, ezEngineViewConfig* pViewConfig)
+  : ezQtEngineViewWidget(pParent, pOwnerWindow, pViewConfig)
 {
   m_pSelectionContext = EZ_DEFAULT_NEW(ezSelectionContext, pOwnerWindow, this, &m_pViewConfig->m_Camera);
   m_pCameraMoveContext = EZ_DEFAULT_NEW(ezCameraMoveContext, pOwnerWindow, this);

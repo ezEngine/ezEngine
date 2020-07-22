@@ -48,7 +48,8 @@ void ezVisualScriptAssetManager::OnDocumentManagerEvent(const ezDocumentManager:
   }
 }
 
-void ezVisualScriptAssetManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezVisualScriptAssetManager::InternalCreateDocument(
+  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezVisualScriptAssetDocument(szPath);
 }

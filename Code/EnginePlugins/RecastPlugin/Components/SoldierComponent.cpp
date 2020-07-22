@@ -20,14 +20,14 @@ ezSoldierComponent::~ezSoldierComponent() = default;
 void ezSoldierComponent::SerializeComponent(ezWorldWriter& stream) const
 {
   SUPER::SerializeComponent(stream);
-  //ezStreamWriter& s = stream.GetStream();
+  // ezStreamWriter& s = stream.GetStream();
 }
 
 void ezSoldierComponent::DeserializeComponent(ezWorldReader& stream)
 {
   SUPER::DeserializeComponent(stream);
   // const ezUInt32 uiVersion = stream.GetComponentTypeVersion(GetStaticRTTI());
-  //ezStreamReader& s = stream.GetStream();
+  // ezStreamReader& s = stream.GetStream();
 }
 
 void ezSoldierComponent::OnSimulationStarted()

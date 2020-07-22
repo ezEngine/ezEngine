@@ -1,5 +1,6 @@
 #include <FoundationPCH.h>
 
+#include <Foundation/IO/OpenDdlReader.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <Foundation/Serialization/BinarySerializer.h>
@@ -7,15 +8,13 @@
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <Foundation/Serialization/RttiConverter.h>
 #include <Foundation/Types/ScopeExit.h>
-#include <Foundation/IO/OpenDdlReader.h>
 
 ////////////////////////////////////////////////////////////////////////
 // ezReflectionSerializer public static functions
 ////////////////////////////////////////////////////////////////////////
 
-void ezReflectionSerializer::WriteObjectToDDL(ezStreamWriter& stream, const ezRTTI* pRtti, const void* pObject,
-                                              bool bCompactMmode /*= true*/,
-                                              ezOpenDdlWriter::TypeStringMode typeMode /*= ezOpenDdlWriter::TypeStringMode::Shortest*/)
+void ezReflectionSerializer::WriteObjectToDDL(ezStreamWriter& stream, const ezRTTI* pRtti, const void* pObject, bool bCompactMmode /*= true*/,
+  ezOpenDdlWriter::TypeStringMode typeMode /*= ezOpenDdlWriter::TypeStringMode::Shortest*/)
 {
   ezAbstractObjectGraph graph;
   ezRttiConverterContext context;
@@ -362,8 +361,8 @@ namespace
               }
               else
               {
-                ezLog::Error("The property '{0}' can not be cloned as the type '{1}' cannot be allocated.", pProp->GetPropertyName(),
-                             pPropType->GetTypeName());
+                ezLog::Error(
+                  "The property '{0}' can not be cloned as the type '{1}' cannot be allocated.", pProp->GetPropertyName(), pPropType->GetTypeName());
               }
             }
           }
@@ -385,7 +384,7 @@ namespace
       CloneProperty(pObject, pClone, pProp);
     }
   }
-}
+} // namespace
 
 void* ezReflectionSerializer::Clone(const void* pObject, const ezRTTI* pType)
 {
@@ -414,11 +413,10 @@ void ezReflectionSerializer::Clone(const void* pObject, void* pClone, const ezRT
     const ezReflectedClass* pRefObject = static_cast<const ezReflectedClass*>(pObject);
     pType = pRefObject->GetDynamicRTTI();
     EZ_ASSERT_DEV(pType == static_cast<ezReflectedClass*>(pClone)->GetDynamicRTTI(), "Object '{0}' and clone '{1}' have mismatching types!",
-                  pType->GetTypeName(), static_cast<ezReflectedClass*>(pClone)->GetDynamicRTTI()->GetTypeName());
+      pType->GetTypeName(), static_cast<ezReflectedClass*>(pClone)->GetDynamicRTTI()->GetTypeName());
   }
 
   CloneProperties(pObject, pClone, pType);
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Serialization_Implementation_ReflectionSerializer);
-

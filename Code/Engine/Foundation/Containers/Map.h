@@ -41,14 +41,14 @@ public:
     typedef std::forward_iterator_tag iterator_category;
     using value_type = ConstIterator;
     using difference_type = ptrdiff_t;
-    using pointer = ConstIterator *;
-    using reference = ConstIterator &;
+    using pointer = ConstIterator*;
+    using reference = ConstIterator&;
 
     EZ_DECLARE_POD_TYPE();
 
     /// \brief Constructs an invalid iterator.
     EZ_ALWAYS_INLINE ConstIterator()
-        : m_pElement(nullptr)
+      : m_pElement(nullptr)
     {
     } // [tested]
 
@@ -100,7 +100,7 @@ public:
     friend class ezMapBase<KeyType, ValueType, Comparer>;
 
     EZ_ALWAYS_INLINE explicit ConstIterator(Node* pInit)
-        : m_pElement(pInit)
+      : m_pElement(pInit)
     {
     }
 
@@ -113,8 +113,8 @@ public:
     using iterator_category = std::forward_iterator_tag;
     using value_type = Iterator;
     using difference_type = ptrdiff_t;
-    using pointer = Iterator *;
-    using reference = Iterator &;
+    using pointer = Iterator*;
+    using reference = Iterator&;
 
     // this is required to pull in the const version of this function
     using ConstIterator::Value;
@@ -123,7 +123,7 @@ public:
 
     /// \brief Constructs an invalid iterator.
     EZ_ALWAYS_INLINE Iterator()
-        : ConstIterator()
+      : ConstIterator()
     {
     }
 
@@ -141,7 +141,7 @@ public:
     friend class ezMapBase<KeyType, ValueType, Comparer>;
 
     EZ_ALWAYS_INLINE explicit Iterator(Node* pInit)
-        : ConstIterator(pInit)
+      : ConstIterator(pInit)
     {
     }
   };
@@ -317,8 +317,7 @@ private:
 
 
 /// \brief \see ezMapBase
-template <typename KeyType, typename ValueType, typename Comparer = ezCompareHelper<KeyType>,
-    typename AllocatorWrapper = ezDefaultAllocatorWrapper>
+template <typename KeyType, typename ValueType, typename Comparer = ezCompareHelper<KeyType>, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
 class ezMap : public ezMapBase<KeyType, ValueType, Comparer>
 {
 public:

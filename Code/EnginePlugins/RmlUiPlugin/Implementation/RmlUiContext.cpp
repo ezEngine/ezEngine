@@ -8,36 +8,13 @@
 
 namespace
 {
-  static const char* s_szEzKeys[] = {
-    ezInputSlot_KeyTab,
-    ezInputSlot_KeyLeft,
-    ezInputSlot_KeyUp,
-    ezInputSlot_KeyRight,
-    ezInputSlot_KeyDown,
-    ezInputSlot_KeyPageUp,
-    ezInputSlot_KeyPageDown,
-    ezInputSlot_KeyHome,
-    ezInputSlot_KeyEnd,
-    ezInputSlot_KeyDelete,
-    ezInputSlot_KeyBackspace,
-    ezInputSlot_KeyReturn,
-    ezInputSlot_KeyNumpadEnter,
-    ezInputSlot_KeyEscape};
+  static const char* s_szEzKeys[] = {ezInputSlot_KeyTab, ezInputSlot_KeyLeft, ezInputSlot_KeyUp, ezInputSlot_KeyRight, ezInputSlot_KeyDown,
+    ezInputSlot_KeyPageUp, ezInputSlot_KeyPageDown, ezInputSlot_KeyHome, ezInputSlot_KeyEnd, ezInputSlot_KeyDelete, ezInputSlot_KeyBackspace,
+    ezInputSlot_KeyReturn, ezInputSlot_KeyNumpadEnter, ezInputSlot_KeyEscape};
 
-  static Rml::Core::Input::KeyIdentifier s_rmlKeys[] = {
-    Rml::Core::Input::KI_TAB,
-    Rml::Core::Input::KI_LEFT,
-    Rml::Core::Input::KI_UP,
-    Rml::Core::Input::KI_RIGHT,
-    Rml::Core::Input::KI_DOWN,
-    Rml::Core::Input::KI_PRIOR,
-    Rml::Core::Input::KI_NEXT,
-    Rml::Core::Input::KI_HOME,
-    Rml::Core::Input::KI_END,
-    Rml::Core::Input::KI_DELETE,
-    Rml::Core::Input::KI_BACK,
-    Rml::Core::Input::KI_RETURN,
-    Rml::Core::Input::KI_RETURN,
+  static Rml::Core::Input::KeyIdentifier s_rmlKeys[] = {Rml::Core::Input::KI_TAB, Rml::Core::Input::KI_LEFT, Rml::Core::Input::KI_UP,
+    Rml::Core::Input::KI_RIGHT, Rml::Core::Input::KI_DOWN, Rml::Core::Input::KI_PRIOR, Rml::Core::Input::KI_NEXT, Rml::Core::Input::KI_HOME,
+    Rml::Core::Input::KI_END, Rml::Core::Input::KI_DELETE, Rml::Core::Input::KI_BACK, Rml::Core::Input::KI_RETURN, Rml::Core::Input::KI_RETURN,
     Rml::Core::Input::KI_ESCAPE};
 
   EZ_CHECK_AT_COMPILETIME(EZ_ARRAY_SIZE(s_szEzKeys) == EZ_ARRAY_SIZE(s_rmlKeys));
@@ -117,9 +94,7 @@ void ezRmlUiContext::UpdateInput(const ezVec2& mousePos)
   float width = GetDimensions().x;
   float height = GetDimensions().y;
 
-  m_bWantsInput =
-    mousePos.x >= 0.0f && mousePos.x <= width &&
-    mousePos.y >= 0.0f && mousePos.y <= height;
+  m_bWantsInput = mousePos.x >= 0.0f && mousePos.x <= width && mousePos.y >= 0.0f && mousePos.y <= height;
 
   const bool bCtrlPressed = ezInputManager::GetInputSlotState(ezInputSlot_KeyLeftCtrl) >= ezKeyState::Pressed ||
                             ezInputManager::GetInputSlotState(ezInputSlot_KeyRightCtrl) >= ezKeyState::Pressed;

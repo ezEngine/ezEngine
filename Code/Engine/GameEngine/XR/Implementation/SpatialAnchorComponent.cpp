@@ -1,10 +1,10 @@
 #include <GameEnginePCH.h>
 
-#include <GameEngine/XR/SpatialAnchorComponent.h>
-#include <GameEngine/XR/XRSpatialAnchorsInterface.h>
 #include <Core/WorldSerializer/WorldReader.h>
 #include <Core/WorldSerializer/WorldWriter.h>
 #include <Foundation/Configuration/Singleton.h>
+#include <GameEngine/XR/SpatialAnchorComponent.h>
+#include <GameEngine/XR/XRSpatialAnchorsInterface.h>
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -100,4 +100,3 @@ void ezSpatialAnchorComponent::OnSimulationStarted()
 }
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_XR_Implementation_SpatialAnchorComponent);
-

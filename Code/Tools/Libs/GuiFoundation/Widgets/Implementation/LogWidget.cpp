@@ -6,7 +6,7 @@
 #include <QKeyEvent>
 
 ezQtLogWidget::ezQtLogWidget(QWidget* parent)
-    : QWidget(parent)
+  : QWidget(parent)
 {
   setupUi(this);
 
@@ -14,8 +14,7 @@ ezQtLogWidget::ezQtLogWidget(QWidget* parent)
   ListViewLog->setModel(m_pLog);
   ListViewLog->setUniformItemSizes(true);
   ListViewLog->installEventFilter(this);
-  connect(m_pLog, &QAbstractItemModel::rowsInserted, this,
-          [this](const QModelIndex& parent, int first, int last) { ScrollToBottomIfAtEnd(first); });
+  connect(m_pLog, &QAbstractItemModel::rowsInserted, this, [this](const QModelIndex& parent, int first, int last) { ScrollToBottomIfAtEnd(first); });
 
   const int logIndex = ((int)ezLogMsgType::All - (int)ezLogMsgType::InfoMsg);
   ComboFilter->setCurrentIndex(logIndex);

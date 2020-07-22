@@ -39,4 +39,3 @@ protected:
   ezVec3 m_vApplyPull;
   ezProcessingStream* m_pStreamPosition;
 };
-

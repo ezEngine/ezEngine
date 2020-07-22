@@ -16,10 +16,7 @@ namespace ezProcGenInternal
     return uiIndex;
   }
 
-  const ezTagSet& GraphSharedData::GetTagSet(ezUInt32 uiIndex) const
-  {
-    return m_TagSets[uiIndex];
-  }
+  const ezTagSet& GraphSharedData::GetTagSet(ezUInt32 uiIndex) const { return m_TagSets[uiIndex]; }
 
   static ezTypeVersion s_GraphSharedDataVersion = 1;
 

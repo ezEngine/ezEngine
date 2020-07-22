@@ -53,8 +53,7 @@ public:
     {
       ezProcessAssetResponseMsg msg;
       {
-        ezLogEntryDelegate logger(
-          [&msg](ezLogEntry& entry) -> void { msg.m_LogEntries.PushBack(std::move(entry)); }, ezLogMsgType::WarningMsg);
+        ezLogEntryDelegate logger([&msg](ezLogEntry& entry) -> void { msg.m_LogEntries.PushBack(std::move(entry)); }, ezLogMsgType::WarningMsg);
         ezLogSystemScope logScope(&logger);
 
         const ezUInt32 uiPlatform = ezAssetCurator::GetSingleton()->FindAssetProfileByName(pMsg->m_sPlatform);
@@ -72,16 +71,17 @@ public:
           // it is also not clear whether this is actually safe to execute here
           ezAssetCurator::GetSingleton()->SetActiveAssetProfileByIndex(uiPlatform);
 
-          ezAssetInfo::TransformState state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(pMsg->m_AssetGuid,
-            ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform), nullptr, uiAssetHash, uiThumbHash);
+          ezAssetInfo::TransformState state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(
+            pMsg->m_AssetGuid, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform), nullptr, uiAssetHash, uiThumbHash);
 
           // Check if asset matches the state of the editor
-          if ((state != ezAssetInfo::NeedsThumbnail && state != ezAssetInfo::NeedsTransform) || uiAssetHash != pMsg->m_AssetHash || uiThumbHash != pMsg->m_ThumbHash)
+          if ((state != ezAssetInfo::NeedsThumbnail && state != ezAssetInfo::NeedsTransform) || uiAssetHash != pMsg->m_AssetHash ||
+              uiThumbHash != pMsg->m_ThumbHash)
           {
             // Force update the state. If the asset was created automatically the file might not be known yet.
             ezAssetCurator::GetSingleton()->NotifyOfFileChange(pMsg->m_sAssetPath);
-            state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(pMsg->m_AssetGuid,
-              ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform), nullptr, uiAssetHash, uiThumbHash, true);
+            state = ezAssetCurator::GetSingleton()->IsAssetUpToDate(
+              pMsg->m_AssetGuid, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform), nullptr, uiAssetHash, uiThumbHash, true);
           }
 
           if (uiAssetHash != pMsg->m_AssetHash || uiThumbHash != pMsg->m_ThumbHash)
@@ -89,7 +89,7 @@ public:
             ezLog::Warning("Asset '{}' of state '{}' in processor with hashes '{}{}' differs from the state in the editor with hashes '{}{}'",
               pMsg->m_sAssetPath, (int)state, uiAssetHash, uiThumbHash, pMsg->m_AssetHash, pMsg->m_ThumbHash);
           }
-          
+
           if (state == ezAssetInfo::NeedsThumbnail || state == ezAssetInfo::NeedsTransform)
           {
             const ezStatus res = ezAssetCurator::GetSingleton()->TransformAsset(
@@ -154,7 +154,8 @@ public:
           }
           else
           {
-            ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::TriggeredManually, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform));
+            ezAssetCurator::GetSingleton()->TransformAllAssets(
+              ezTransformFlags::TriggeredManually, ezAssetCurator::GetSingleton()->GetAssetProfile(uiPlatform));
           }
 
           QApplication::quit();
@@ -171,20 +172,19 @@ public:
         m_IPC.m_Events.AddEventHandler(ezMakeDelegate(&ezEditorApplication::EventHandlerIPC, this));
 
         ezQtEditorApp::GetSingleton()->OpenProject(sProject);
-        ezQtEditorApp::GetSingleton()->connect(
-          ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this]() {
-            static bool bRecursionBlock = false;
-            if (bRecursionBlock)
-              return;
-            bRecursionBlock = true;
+        ezQtEditorApp::GetSingleton()->connect(ezQtEditorApp::GetSingleton(), &ezQtEditorApp::IdleEvent, ezQtEditorApp::GetSingleton(), [this]() {
+          static bool bRecursionBlock = false;
+          if (bRecursionBlock)
+            return;
+          bRecursionBlock = true;
 
-            if (!m_IPC.IsHostAlive())
-              QApplication::quit();
+          if (!m_IPC.IsHostAlive())
+            QApplication::quit();
 
-            m_IPC.WaitForMessages();
+          m_IPC.WaitForMessages();
 
-            bRecursionBlock = false;
-          });
+          bRecursionBlock = false;
+        });
 
         const ezInt32 iReturnCode = ezQtEditorApp::GetSingleton()->RunEditor();
         SetReturnCode(iReturnCode);

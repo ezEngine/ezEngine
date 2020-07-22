@@ -1,7 +1,7 @@
 
 ezUuid::ezUuid()
-    : m_uiHigh(0)
-    , m_uiLow(0)
+  : m_uiHigh(0)
+  , m_uiLow(0)
 {
 }
 
@@ -61,4 +61,3 @@ struct ezHashHelper<ezUuid>
 
   EZ_ALWAYS_INLINE static bool Equal(const ezUuid& a, const ezUuid& b) { return a == b; }
 };
-

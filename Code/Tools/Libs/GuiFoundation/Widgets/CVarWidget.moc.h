@@ -1,20 +1,20 @@
 #pragma once
 
 #include <Foundation/Basics.h>
+#include <Foundation/Containers/Map.h>
+#include <Foundation/Strings/String.h>
 #include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/ui_CVarWidget.h>
 #include <QWidget>
-#include <Foundation/Strings/String.h>
-#include <Foundation/Containers/Map.h>
 
 /// \brief Data used by ezQtCVarWidget to represent CVar states
 struct EZ_GUIFOUNDATION_DLL ezCVarWidgetData
 {
   mutable ezInt32 m_iTableRow = -1; // updated by ezQtCVarWidget::RebuildCVarUI
 
-  ezString m_sPlugin; // in which plugin a CVar is defined
+  ezString m_sPlugin;      // in which plugin a CVar is defined
   ezString m_sDescription; // CVar description text
-  ezUInt8 m_uiType = 0; // ezCVarType
+  ezUInt8 m_uiType = 0;    // ezCVarType
 
   // 'union' over the different possible CVar types
   bool m_bValue = false;

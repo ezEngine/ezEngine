@@ -55,4 +55,3 @@ private:
   ezVec2U32 m_NormalSize;
   ezVec2U32 m_ORMSize;
 };
-

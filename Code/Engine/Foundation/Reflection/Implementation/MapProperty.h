@@ -14,16 +14,13 @@ public:
     : ezAbstractMapProperty(szPropertyName)
   {
     m_Flags = ezPropertyFlags::GetParameterFlags<Type>();
-    EZ_CHECK_AT_COMPILETIME_MSG(!std::is_pointer<Type>::value ||
-                                  ezVariant::TypeDeduction<typename ezTypeTraits<Type>::NonConstReferencePointerType>::value ==
-                                    ezVariantType::Invalid,
+    EZ_CHECK_AT_COMPILETIME_MSG(
+      !std::is_pointer<Type>::value ||
+        ezVariant::TypeDeduction<typename ezTypeTraits<Type>::NonConstReferencePointerType>::value == ezVariantType::Invalid,
       "Pointer to standard types are not supported.");
   }
 
-  virtual const ezRTTI* GetSpecificType() const override
-  {
-    return ezGetStaticRTTI<typename ezTypeTraits<Type>::NonConstReferencePointerType>();
-  }
+  virtual const ezRTTI* GetSpecificType() const override { return ezGetStaticRTTI<typename ezTypeTraits<Type>::NonConstReferencePointerType>(); }
 };
 
 
@@ -79,15 +76,13 @@ public:
 
   virtual void Insert(void* pInstance, const char* szKey, const void* pObject) override
   {
-    EZ_ASSERT_DEBUG(m_Insert != nullptr, "The property '{0}' has no insert function, thus it is read-only.",
-      ezAbstractProperty::GetPropertyName());
+    EZ_ASSERT_DEBUG(m_Insert != nullptr, "The property '{0}' has no insert function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     (static_cast<Class*>(pInstance)->*m_Insert)(szKey, *static_cast<const RealType*>(pObject));
   }
 
   virtual void Remove(void* pInstance, const char* szKey) override
   {
-    EZ_ASSERT_DEBUG(m_Remove != nullptr, "The property '{0}' has no remove function, thus it is read-only.",
-      ezAbstractProperty::GetPropertyName());
+    EZ_ASSERT_DEBUG(m_Remove != nullptr, "The property '{0}' has no remove function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     (static_cast<Class*>(pInstance)->*m_Remove)(szKey);
   }
 
@@ -159,15 +154,13 @@ public:
 
   virtual void Insert(void* pInstance, const char* szKey, const void* pObject) override
   {
-    EZ_ASSERT_DEBUG(m_Insert != nullptr, "The property '{0}' has no insert function, thus it is read-only.",
-      ezAbstractProperty::GetPropertyName());
+    EZ_ASSERT_DEBUG(m_Insert != nullptr, "The property '{0}' has no insert function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     (static_cast<Class*>(pInstance)->*m_Insert)(szKey, *static_cast<const RealType*>(pObject));
   }
 
   virtual void Remove(void* pInstance, const char* szKey) override
   {
-    EZ_ASSERT_DEBUG(m_Remove != nullptr, "The property '{0}' has no remove function, thus it is read-only.",
-      ezAbstractProperty::GetPropertyName());
+    EZ_ASSERT_DEBUG(m_Remove != nullptr, "The property '{0}' has no remove function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     (static_cast<Class*>(pInstance)->*m_Remove)(szKey);
   }
 
@@ -241,22 +234,22 @@ public:
 
   virtual void Clear(void* pInstance) override
   {
-    EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.",
-      ezAbstractProperty::GetPropertyName());
+    EZ_ASSERT_DEBUG(
+      m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance)).Clear();
   }
 
   virtual void Insert(void* pInstance, const char* szKey, const void* pObject) override
   {
-    EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.",
-      ezAbstractProperty::GetPropertyName());
+    EZ_ASSERT_DEBUG(
+      m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance)).Insert(szKey, *static_cast<const RealType*>(pObject));
   }
 
   virtual void Remove(void* pInstance, const char* szKey) override
   {
-    EZ_ASSERT_DEBUG(m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.",
-      ezAbstractProperty::GetPropertyName());
+    EZ_ASSERT_DEBUG(
+      m_Getter != nullptr, "The property '{0}' has no non-const set accessor function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     m_Getter(static_cast<Class*>(pInstance)).Remove(szKey);
   }
 

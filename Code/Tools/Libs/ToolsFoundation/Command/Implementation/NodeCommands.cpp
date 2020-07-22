@@ -58,7 +58,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ////////////////////////////////////////////////////////////////////////
 
 ezRemoveNodeCommand::ezRemoveNodeCommand()
-    : m_pObject(nullptr)
+  : m_pObject(nullptr)
 {
 }
 

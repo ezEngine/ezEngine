@@ -425,5 +425,4 @@ ezResult ezStreamReader::ReadHashTable(ezHashTableBase<KeyType, ValueType, Hashe
     // Containers currently use 32 bit for counts internally. Value from file is too large.
     return EZ_FAILURE;
   }
-
 }

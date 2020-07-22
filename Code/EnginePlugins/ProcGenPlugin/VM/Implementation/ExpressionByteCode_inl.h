@@ -73,5 +73,3 @@ EZ_ALWAYS_INLINE ezUInt32 ezExpressionByteCode::GetFunctionArgCount(const Storag
   ++pByteCode;
   return uiArgCount;
 }
-
-

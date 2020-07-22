@@ -13,4 +13,3 @@ public:
 
   ezString m_sRenderPipelines;
 };
-

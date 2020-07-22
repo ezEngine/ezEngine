@@ -1,8 +1,8 @@
 #pragma once
 
 #include <RendererCore/Textures/Texture2DResource.h>
-#include <UltralightPlugin/Basics.h>
 #include <Ultralight/Ultralight.h>
+#include <UltralightPlugin/Basics.h>
 
 struct ezGALDeviceEvent;
 class ezUltralightResourceManager;
@@ -50,13 +50,13 @@ public:
   virtual void OnChangeURL(ultralight::View* caller, const ultralight::String& url) override;
   virtual void OnChangeTooltip(ultralight::View* caller, const ultralight::String& tooltip) override;
   virtual void OnChangeCursor(ultralight::View* caller, ultralight::Cursor cursor) override;
-  virtual void OnAddConsoleMessage(ultralight::View* caller, ultralight::MessageSource source, ultralight::MessageLevel level, const ultralight::String& message, uint32_t line_number, uint32_t column_number, const ultralight::String& source_id) override;
+  virtual void OnAddConsoleMessage(ultralight::View* caller, ultralight::MessageSource source, ultralight::MessageLevel level,
+    const ultralight::String& message, uint32_t line_number, uint32_t column_number, const ultralight::String& source_id) override;
 
   ultralight::View* GetView();
   ultralight::Rect GetUVCoords() const { return m_UVCoords; }
 
 protected:
-
   friend ezUltralightResourceManager;
 
   void CreateView(ultralight::Renderer* pRenderer);

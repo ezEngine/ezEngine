@@ -9,8 +9,8 @@
 #include <RendererCore/Pipeline/View.h>
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-ezCVarBool CVarVisLightSize("r_VisLightScreenSpaceSize", false, ezCVarFlags::Default,
-  "Enables debug visualization of light screen space size calculation");
+ezCVarBool CVarVisLightSize(
+  "r_VisLightScreenSpaceSize", false, ezCVarFlags::Default, "Enables debug visualization of light screen space size calculation");
 #endif
 
 // clang-format off
@@ -231,8 +231,8 @@ ezSpotLightVisualizerAttribute::ezSpotLightVisualizerAttribute()
 {
 }
 
-ezSpotLightVisualizerAttribute::ezSpotLightVisualizerAttribute(const char* szAngleProperty, const char* szRangeProperty,
-  const char* szIntensityProperty, const char* szColorProperty)
+ezSpotLightVisualizerAttribute::ezSpotLightVisualizerAttribute(
+  const char* szAngleProperty, const char* szRangeProperty, const char* szIntensityProperty, const char* szColorProperty)
   : ezVisualizerAttribute(szAngleProperty, szRangeProperty, szIntensityProperty, szColorProperty)
 {
 }

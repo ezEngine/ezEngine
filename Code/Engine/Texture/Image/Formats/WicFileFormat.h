@@ -8,7 +8,6 @@
 class EZ_TEXTURE_DLL ezWicFileFormat : public ezImageFileFormat
 {
 public:
-
   ezWicFileFormat();
   virtual ~ezWicFileFormat();
 
@@ -19,8 +18,9 @@ public:
   virtual bool CanWriteFileType(const char* szExtension) const override;
 
 private:
-  mutable bool m_bTryCoInit = true;           // Helper for keeping track of whether we have tried to init COM exactly once
-  mutable bool m_bCoUninitOnShutdown = false; // Helper for keeping track of whether we have to uninitialize COM (because we were the first to initialize it)
+  mutable bool m_bTryCoInit = true; // Helper for keeping track of whether we have tried to init COM exactly once
+  mutable bool m_bCoUninitOnShutdown =
+    false; // Helper for keeping track of whether we have to uninitialize COM (because we were the first to initialize it)
 };
 
 #endif

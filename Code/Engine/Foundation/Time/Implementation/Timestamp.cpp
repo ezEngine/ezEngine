@@ -17,8 +17,7 @@ EZ_END_STATIC_REFLECTED_TYPE;
 ezInt64 ezTimestamp::GetInt64(ezSIUnitOfTime::Enum unitOfTime) const
 {
   EZ_ASSERT_DEV(IsValid(), "Can't retrieve timestamp of invalid values!");
-  EZ_ASSERT_DEV(
-    unitOfTime >= ezSIUnitOfTime::Nanosecond && unitOfTime <= ezSIUnitOfTime::Second, "Invalid ezSIUnitOfTime value ({0})", unitOfTime);
+  EZ_ASSERT_DEV(unitOfTime >= ezSIUnitOfTime::Nanosecond && unitOfTime <= ezSIUnitOfTime::Second, "Invalid ezSIUnitOfTime value ({0})", unitOfTime);
 
   switch (unitOfTime)
   {
@@ -36,8 +35,7 @@ ezInt64 ezTimestamp::GetInt64(ezSIUnitOfTime::Enum unitOfTime) const
 
 void ezTimestamp::SetInt64(ezInt64 iTimeValue, ezSIUnitOfTime::Enum unitOfTime)
 {
-  EZ_ASSERT_DEV(
-    unitOfTime >= ezSIUnitOfTime::Nanosecond && unitOfTime <= ezSIUnitOfTime::Second, "Invalid ezSIUnitOfTime value ({0})", unitOfTime);
+  EZ_ASSERT_DEV(unitOfTime >= ezSIUnitOfTime::Nanosecond && unitOfTime <= ezSIUnitOfTime::Second, "Invalid ezSIUnitOfTime value ({0})", unitOfTime);
 
   switch (unitOfTime)
   {
@@ -96,8 +94,8 @@ ezDateTime::ezDateTime(ezTimestamp timestamp)
 
 ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezDateTime& arg)
 {
-  ezStringUtils::snprintf(tmp, uiLength, "%04u-%02u-%02u_%02u-%02u-%02u-%03u", arg.GetYear(), arg.GetMonth(),
-    arg.GetDay(), arg.GetHour(), arg.GetMinute(), arg.GetSecond(), arg.GetMicroseconds() / 1000);
+  ezStringUtils::snprintf(tmp, uiLength, "%04u-%02u-%02u_%02u-%02u-%02u-%03u", arg.GetYear(), arg.GetMonth(), arg.GetDay(), arg.GetHour(),
+    arg.GetMinute(), arg.GetSecond(), arg.GetMicroseconds() / 1000);
 
   return tmp;
 }
@@ -179,13 +177,13 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgDateTime& arg)
   {
     if ((arg.m_uiFormattingFlags & ezArgDateTime::TextualDate) == ezArgDateTime::TextualDate)
     {
-      offset += ezStringUtils::snprintf(tmp + offset, uiLength - offset,
-        "%04u %s %02u", dateTime.GetYear(), ::GetMonthShortName(dateTime), dateTime.GetDay());
+      offset += ezStringUtils::snprintf(
+        tmp + offset, uiLength - offset, "%04u %s %02u", dateTime.GetYear(), ::GetMonthShortName(dateTime), dateTime.GetDay());
     }
     else
     {
-      offset += ezStringUtils::snprintf(tmp + offset, uiLength - offset,
-        "%04u-%02u-%02u", dateTime.GetYear(), dateTime.GetMonth(), dateTime.GetDay());
+      offset +=
+        ezStringUtils::snprintf(tmp + offset, uiLength - offset, "%04u-%02u-%02u", dateTime.GetYear(), dateTime.GetMonth(), dateTime.GetDay());
     }
   }
 
@@ -199,8 +197,7 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgDateTime& arg)
       tmp[offset] = '\0';
     }
 
-    offset += ezStringUtils::snprintf(tmp + offset, uiLength - offset,
-      "(%s)", ::GetDayOfWeekShortName(dateTime));
+    offset += ezStringUtils::snprintf(tmp + offset, uiLength - offset, "(%s)", ::GetDayOfWeekShortName(dateTime));
   }
 
   if ((arg.m_uiFormattingFlags & ezArgDateTime::ShowTime) == ezArgDateTime::ShowTime)
@@ -215,25 +212,21 @@ ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezArgDateTime& arg)
       offset += 3;
     }
 
-    offset += ezStringUtils::snprintf(tmp + offset, uiLength - offset,
-      "%02u:%02u", dateTime.GetHour(), dateTime.GetMinute());
+    offset += ezStringUtils::snprintf(tmp + offset, uiLength - offset, "%02u:%02u", dateTime.GetHour(), dateTime.GetMinute());
 
     if ((arg.m_uiFormattingFlags & ezArgDateTime::ShowSeconds) == ezArgDateTime::ShowSeconds)
     {
-      offset += ezStringUtils::snprintf(tmp + offset, uiLength - offset,
-        ":%02u", dateTime.GetSecond());
+      offset += ezStringUtils::snprintf(tmp + offset, uiLength - offset, ":%02u", dateTime.GetSecond());
     }
 
     if ((arg.m_uiFormattingFlags & ezArgDateTime::ShowMilliseconds) == ezArgDateTime::ShowMilliseconds)
     {
-      offset += ezStringUtils::snprintf(tmp + offset, uiLength - offset,
-        ".%03u", dateTime.GetMicroseconds() / 1000);
+      offset += ezStringUtils::snprintf(tmp + offset, uiLength - offset, ".%03u", dateTime.GetMicroseconds() / 1000);
     }
 
     if ((arg.m_uiFormattingFlags & ezArgDateTime::ShowTimeZone) == ezArgDateTime::ShowTimeZone)
     {
-      offset += ezStringUtils::snprintf(tmp + offset, uiLength - offset,
-        " (UTC)");
+      offset += ezStringUtils::snprintf(tmp + offset, uiLength - offset, " (UTC)");
     }
   }
 

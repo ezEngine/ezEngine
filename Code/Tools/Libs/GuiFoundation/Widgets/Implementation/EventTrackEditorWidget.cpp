@@ -11,7 +11,7 @@
 #include <QPainterPath>
 
 ezQtEventTrackEditorWidget::ezQtEventTrackEditorWidget(QWidget* pParent)
-    : QWidget(pParent)
+  : QWidget(pParent)
 {
   setupUi(this);
 
@@ -182,7 +182,8 @@ void ezQtEventTrackEditorWidget::onContextMenu(QPoint pos, QPointF scenePos)
 
   m.addSeparator();
 
-  m.addAction("Frame", this, [this]() { FrameCurve(); }, QKeySequence(Qt::ControlModifier | Qt::Key_F));
+  m.addAction(
+    "Frame", this, [this]() { FrameCurve(); }, QKeySequence(Qt::ControlModifier | Qt::Key_F));
 
   m.exec(pos);
 }

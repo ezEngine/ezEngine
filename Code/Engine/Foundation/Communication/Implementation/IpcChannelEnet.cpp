@@ -4,13 +4,13 @@
 
 #ifdef BUILDSYSTEM_ENABLE_ENET_SUPPORT
 
-#include <Foundation/Communication/Implementation/MessageLoop.h>
-#include <Foundation/Communication/RemoteInterfaceEnet.h>
-#include <Foundation/Communication/RemoteMessage.h>
-#include <Foundation/Logging/Log.h>
+#  include <Foundation/Communication/Implementation/MessageLoop.h>
+#  include <Foundation/Communication/RemoteInterfaceEnet.h>
+#  include <Foundation/Communication/RemoteMessage.h>
+#  include <Foundation/Logging/Log.h>
 
 ezIpcChannelEnet::ezIpcChannelEnet(const char* szAddress, Mode::Enum mode)
-    : ezIpcChannel(szAddress, mode)
+  : ezIpcChannel(szAddress, mode)
 {
   m_sAddress = szAddress;
   m_Network = ezRemoteInterfaceEnet::Make();
@@ -115,4 +115,3 @@ void ezIpcChannelEnet::EnetEventHandler(const ezRemoteEvent& e)
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_IpcChannelEnet);
-

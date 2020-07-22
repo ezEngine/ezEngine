@@ -17,6 +17,7 @@ public:
 class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizer_ApplyVelocity final : public ezParticleFinalizer
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleFinalizer_ApplyVelocity, ezParticleFinalizer);
+
 public:
   ezParticleFinalizer_ApplyVelocity();
   ~ezParticleFinalizer_ApplyVelocity();

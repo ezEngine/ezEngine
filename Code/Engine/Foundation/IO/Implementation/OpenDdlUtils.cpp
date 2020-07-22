@@ -947,7 +947,8 @@ void ezOpenDdlUtils::StoreColor(ezOpenDdlWriter& writer, const ezColor& value, c
   writer.EndObject();
 }
 
-void ezOpenDdlUtils::StoreColorGamma(ezOpenDdlWriter& writer, const ezColorGammaUB& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
+void ezOpenDdlUtils::StoreColorGamma(
+  ezOpenDdlWriter& writer, const ezColorGammaUB& value, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/)
 {
   writer.BeginObject("ColorGamma", szName, bGlobalName, true);
   {

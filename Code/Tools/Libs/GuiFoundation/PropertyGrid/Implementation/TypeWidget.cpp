@@ -10,8 +10,8 @@
 #include <GuiFoundation/PropertyGrid/PropertyGridWidget.moc.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
-#include <GuiFoundation/Widgets/GroupBoxBase.moc.h>
 #include <GuiFoundation/Widgets/CollapsibleGroupBox.moc.h>
+#include <GuiFoundation/Widgets/GroupBoxBase.moc.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Object/ObjectAccessorBase.h>
@@ -22,11 +22,11 @@
 
 
 ezQtTypeWidget::ezQtTypeWidget(QWidget* pParent, ezQtPropertyGridWidget* pGrid, ezObjectAccessorBase* pObjectAccessor, const ezRTTI* pType,
-                               const char* szIncludeProperties, const char* szExcludeProperties)
-    : QWidget(pParent)
-    , m_pGrid(pGrid)
-    , m_pObjectAccessor(pObjectAccessor)
-    , m_pType(pType)
+  const char* szIncludeProperties, const char* szExcludeProperties)
+  : QWidget(pParent)
+  , m_pGrid(pGrid)
+  , m_pObjectAccessor(pObjectAccessor)
+  , m_pType(pType)
 {
   EZ_ASSERT_DEBUG(m_pGrid && m_pObjectAccessor && m_pType, "");
   m_pLayout = new QGridLayout(this);
@@ -182,8 +182,6 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const ezMap<ezString, const ez
     ezUInt32 iRows = m_pLayout->rowCount();
     m_pLayout->addWidget(pGroupBox, iRows, 0, 1, 3);
   }
-
-
 }
 
 void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const char* szIncludeProperties, const char* szExcludeProperties)
@@ -193,12 +191,12 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const char* szIncludePropertie
   PropertyGroup* pCurrentGroup = nullptr;
   float fOrder = -1.0f;
 
-  auto AddProperty = [&](const ezAbstractProperty* pProp)
-  {
+  auto AddProperty = [&](const ezAbstractProperty* pProp) {
     const ezGroupAttribute* pGroup = pProp->GetAttributeByType<ezGroupAttribute>();
     if (pGroup != nullptr)
     {
-      ezUniquePtr<PropertyGroup>* pFound = std::find_if(begin(groups), end(groups), [&](const ezUniquePtr<PropertyGroup>& g) { return g->m_sGroup == pGroup->GetGroup(); });
+      ezUniquePtr<PropertyGroup>* pFound =
+        std::find_if(begin(groups), end(groups), [&](const ezUniquePtr<PropertyGroup>& g) { return g->m_sGroup == pGroup->GetGroup(); });
       if (pFound != end(groups))
       {
         pCurrentGroup = pFound->Borrow();
@@ -213,7 +211,8 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const char* szIncludePropertie
     }
     if (pCurrentGroup == nullptr)
     {
-      ezUniquePtr<PropertyGroup>* pFound = std::find_if(begin(groups), end(groups), [&](const ezUniquePtr<PropertyGroup>& g) { return g->m_sGroup.IsEmpty(); });
+      ezUniquePtr<PropertyGroup>* pFound =
+        std::find_if(begin(groups), end(groups), [&](const ezUniquePtr<PropertyGroup>& g) { return g->m_sGroup.IsEmpty(); });
       if (pFound != end(groups))
       {
         pCurrentGroup = pFound->Borrow();
@@ -283,10 +282,12 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const char* szIncludePropertie
       if (pProp->GetCategory() == ezPropertyCategory::Constant)
         continue;
 
-      if (!ezStringUtils::IsNullOrEmpty(szIncludeProperties) && ezStringUtils::FindSubString(szIncludeProperties, pProp->GetPropertyName()) == nullptr)
+      if (!ezStringUtils::IsNullOrEmpty(szIncludeProperties) &&
+          ezStringUtils::FindSubString(szIncludeProperties, pProp->GetPropertyName()) == nullptr)
         continue;
 
-      if (!ezStringUtils::IsNullOrEmpty(szExcludeProperties) && ezStringUtils::FindSubString(szExcludeProperties, pProp->GetPropertyName()) != nullptr)
+      if (!ezStringUtils::IsNullOrEmpty(szExcludeProperties) &&
+          ezStringUtils::FindSubString(szExcludeProperties, pProp->GetPropertyName()) != nullptr)
         continue;
 
       AddProperty(pProp);
@@ -296,9 +297,7 @@ void ezQtTypeWidget::BuildUI(const ezRTTI* pType, const char* szIncludePropertie
     pCurrentGroup = nullptr;
   }
 
-  groups.Sort([](const ezUniquePtr<PropertyGroup>& lhs, const ezUniquePtr<PropertyGroup>& rhs) -> bool {
-    return lhs->m_fOrder < rhs->m_fOrder;
-  });
+  groups.Sort([](const ezUniquePtr<PropertyGroup>& lhs, const ezUniquePtr<PropertyGroup>& rhs) -> bool { return lhs->m_fOrder < rhs->m_fOrder; });
 
   BuildUI(pType, manipulatorMap, groups, szIncludeProperties, szExcludeProperties);
 }

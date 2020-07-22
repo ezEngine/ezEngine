@@ -89,8 +89,8 @@ EZ_ALWAYS_INLINE ezUInt32 ezHybridStringBase<Size>::GetCharacterCount() const
 template <ezUInt16 Size>
 void ezHybridStringBase<Size>::operator=(const char* szString)
 {
-  EZ_ASSERT_DEBUG(szString < m_Data.GetData() || szString >= m_Data.GetData() + m_Data.GetCount(),
-    "Can't assign string a value that points to ourself!");
+  EZ_ASSERT_DEBUG(
+    szString < m_Data.GetData() || szString >= m_Data.GetData() + m_Data.GetCount(), "Can't assign string a value that points to ourself!");
 
   ezUInt32 uiElementCount = 0;
   ezStringUtils::GetCharacterAndElementCount(szString, m_uiCharacterCount, uiElementCount);
@@ -140,8 +140,7 @@ template <ezUInt16 Size>
 ezStringView ezHybridStringBase<Size>::GetSubString(ezUInt32 uiFirstCharacter, ezUInt32 uiNumCharacters) const
 {
   EZ_ASSERT_DEV(uiFirstCharacter + uiNumCharacters <= m_uiCharacterCount,
-    "The string only has {0} characters, cannot get a sub-string up to character {1}.", m_uiCharacterCount,
-    uiFirstCharacter + uiNumCharacters);
+    "The string only has {0} characters, cannot get a sub-string up to character {1}.", m_uiCharacterCount, uiFirstCharacter + uiNumCharacters);
 
   const char* szStart = GetData();
   ezUnicodeUtils::MoveToNextUtf8(szStart, uiFirstCharacter);

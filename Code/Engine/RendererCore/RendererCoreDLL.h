@@ -14,4 +14,3 @@
 #endif
 
 #define EZ_EMBED_FONT_FILE EZ_ON
-

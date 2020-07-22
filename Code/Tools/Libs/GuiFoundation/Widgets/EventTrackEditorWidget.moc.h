@@ -38,7 +38,7 @@ private Q_SLOTS:
   void onMoveControlPoints(double x);
   void onBeginOperation(QString name);
   void onEndOperation(bool commit);
-  //void onScaleControlPoints(QPointF refPt, double scaleX);
+  // void onScaleControlPoints(QPointF refPt, double scaleX);
   void onContextMenu(QPoint pos, QPointF scenePos);
   void onAddPoint();
   void onSelectionChanged();

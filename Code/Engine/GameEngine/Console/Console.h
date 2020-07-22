@@ -4,11 +4,11 @@
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Containers/Map.h>
-#include <Foundation/Strings/StringBuilder.h>
-#include <GameEngine/GameEngineDLL.h>
-#include <GameEngine/Console/ConsoleFunction.h>
-#include <Foundation/Threading/Mutex.h>
 #include <Foundation/Containers/StaticArray.h>
+#include <Foundation/Strings/StringBuilder.h>
+#include <Foundation/Threading/Mutex.h>
+#include <GameEngine/Console/ConsoleFunction.h>
+#include <GameEngine/GameEngineDLL.h>
 
 
 /// \brief A Quake-style console for in-game configuration of ezCVar and ezConsoleFunction.
@@ -26,7 +26,7 @@ public:
   virtual ~ezConsole();
 
   /// \brief The delegate type for an interpreter of all the commands that are typed into the console.
-  typedef ezDelegate<ezResult (const char*, ezConsole*)> ezCommandProcessor;
+  typedef ezDelegate<ezResult(const char*, ezConsole*)> ezCommandProcessor;
 
   /// \brief The data for one text entry in the console window.
   struct ConsoleString
@@ -40,8 +40,12 @@ public:
     /// \brief If true, the application might show this string on screen when the console is not displayed.
     bool m_bShowOnScreen;
 
-    ConsoleString() { m_TextColor = ezColor::White; m_bShowOnScreen = false; }
-    bool operator< (const ConsoleString& rhs) const { return m_sText < rhs.m_sText; }
+    ConsoleString()
+    {
+      m_TextColor = ezColor::White;
+      m_bShowOnScreen = false;
+    }
+    bool operator<(const ConsoleString& rhs) const { return m_sText < rhs.m_sText; }
   };
 
   /// \name Events
@@ -53,11 +57,11 @@ public:
   {
     enum EventType
     {
-      BeforeProcessCommand,   ///< The console is about to process a command
-      ProcessCommandSuccess,  ///< A command was successfully processed
-      ProcessCommandFailure,  ///< A command failed to be processed
-      StringAdded,            ///< A string was added to the console
-      AutoCompleteRequest,    ///< The user tries to auto-complete the input
+      BeforeProcessCommand,  ///< The console is about to process a command
+      ProcessCommandSuccess, ///< A command was successfully processed
+      ProcessCommandFailure, ///< A command failed to be processed
+      StringAdded,           ///< A string was added to the console
+      AutoCompleteRequest,   ///< The user tries to auto-complete the input
     };
 
     EventType m_EventType;
@@ -87,7 +91,7 @@ public:
   void SetMaxConsoleStrings(ezUInt32 uiMax) { m_uiMaxConsoleStrings = ezMath::Clamp<ezUInt32>(uiMax, 0, 100000); }
 
   /// \brief Returns how many strings the console will keep in memory at maximum.
-  ezUInt32 GetMaxConsoleStrings() const  { return m_uiMaxConsoleStrings; }
+  ezUInt32 GetMaxConsoleStrings() const { return m_uiMaxConsoleStrings; }
 
   /// \brief Enables or disables that the output from ezGlobalLog is displayed in the console. Enabled by default.
   virtual void EnableLogOutput(bool bEnable);
@@ -262,5 +266,3 @@ protected:
   ezStaticArray<ezString, 16> m_InputHistory;
   ezMap<ezString, ezString> m_BoundKeys;
 };
-
-

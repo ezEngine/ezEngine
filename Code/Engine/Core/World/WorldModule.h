@@ -63,17 +63,17 @@ protected:
       m_sFunctionName.Assign(szFunctionName);
     }
 
-    UpdateFunction m_Function;                    ///< Delegate to the actual update function.
-    ezHashedString m_sFunctionName;               ///< Name of the function. Use the EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC macro to create a description
-                                                  ///< with the correct name.
+    UpdateFunction m_Function;      ///< Delegate to the actual update function.
+    ezHashedString m_sFunctionName; ///< Name of the function. Use the EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC macro to create a description
+                                    ///< with the correct name.
     ezHybridArray<ezHashedString, 4> m_DependsOn; ///< Array of other functions on which this function depends on. This function will be
                                                   ///< called after all its dependencies have been called.
-    ezEnum<Phase> m_Phase;                        ///< The update phase in which this update function should be called. See ezWorld for a description on the
-                                                  ///< different phases.
-    bool m_bOnlyUpdateWhenSimulating = false;     ///< The update function is only called when the world simulation is enabled.
-    ezUInt16 m_uiGranularity = 0;                 ///< The granularity in which batch updates should happen during the asynchronous phase. Has to be 0 for
-                                                  ///< synchronous functions.
-    float m_fPriority = 0.0f;                     ///< Higher priority (higher number) means that this function is called earlier than a function with lower priority.
+    ezEnum<Phase> m_Phase; ///< The update phase in which this update function should be called. See ezWorld for a description on the
+                           ///< different phases.
+    bool m_bOnlyUpdateWhenSimulating = false; ///< The update function is only called when the world simulation is enabled.
+    ezUInt16 m_uiGranularity = 0;             ///< The granularity in which batch updates should happen during the asynchronous phase. Has to be 0 for
+                                              ///< synchronous functions.
+    float m_fPriority = 0.0f; ///< Higher priority (higher number) means that this function is called earlier than a function with lower priority.
   };
 
   /// \brief Registers the given update function at the world.
@@ -161,19 +161,18 @@ private:
 };
 
 /// \brief Add this macro to the declaration of your module type.
-#define EZ_DECLARE_WORLD_MODULE()                                          \
-public:                                                                    \
-  static EZ_ALWAYS_INLINE ezWorldModuleTypeId TypeId() { return TYPE_ID; } \
-                                                                           \
-private:                                                                   \
+#define EZ_DECLARE_WORLD_MODULE()                                                                                                                    \
+public:                                                                                                                                              \
+  static EZ_ALWAYS_INLINE ezWorldModuleTypeId TypeId() { return TYPE_ID; }                                                                           \
+                                                                                                                                                     \
+private:                                                                                                                                             \
   static ezWorldModuleTypeId TYPE_ID;
 
 /// \brief Implements the given module type. Add this macro to a cpp outside of the type declaration.
-#define EZ_IMPLEMENT_WORLD_MODULE(moduleType) \
+#define EZ_IMPLEMENT_WORLD_MODULE(moduleType)                                                                                                        \
   ezWorldModuleTypeId moduleType::TYPE_ID = ezWorldModuleFactory::GetInstance()->RegisterWorldModule<moduleType, moduleType>();
 
 /// \brief Helper macro to create an update function description with proper name
-#define EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(func, instance) \
-  ezWorldModule::UpdateFunctionDesc(ezWorldModule::UpdateFunction(&func, instance), #func)
+#define EZ_CREATE_MODULE_UPDATE_FUNCTION_DESC(func, instance) ezWorldModule::UpdateFunctionDesc(ezWorldModule::UpdateFunction(&func, instance), #func)
 
 #include <Core/World/Implementation/WorldModule_inl.h>

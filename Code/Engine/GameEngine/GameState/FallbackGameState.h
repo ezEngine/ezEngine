@@ -34,4 +34,3 @@ protected:
 
   ezInt32 m_iActiveCameraComponentIndex;
 };
-

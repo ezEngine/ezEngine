@@ -16,4 +16,3 @@ EZ_TEXTURE_DLL ezUInt16 ezCompressB5G5R5X1(ezColorBaseUB color);
 EZ_TEXTURE_DLL ezUInt16 ezCompressB5G5R5A1(ezColorBaseUB color);
 EZ_TEXTURE_DLL ezUInt16 ezCompressX1B5G5R5(ezColorBaseUB color);
 EZ_TEXTURE_DLL ezUInt16 ezCompressA1B5G5R5(ezColorBaseUB color);
-

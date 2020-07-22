@@ -7,7 +7,6 @@
 class EZ_FOUNDATION_DLL ezEnvironmentVariableUtils
 {
 public:
-
   /// \brief Returns the current value of the request environment variable. If it isn't set szDefault will be returned.
   static ezString GetValueString(const char* szName, const char* szDefault = nullptr);
 
@@ -27,7 +26,6 @@ public:
   static ezResult UnsetVariable(const char* szName);
 
 private:
-
   /// \brief [internal]
   static ezString GetValueStringImpl(const char* szName, const char* szDefault);
 

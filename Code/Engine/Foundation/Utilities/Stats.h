@@ -64,4 +64,3 @@ private:
   static MapType s_Stats;
   static ezEventStats s_StatsEvents;
 };
-

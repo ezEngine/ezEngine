@@ -6,7 +6,8 @@
 class ezDelegateBase
 {
 public:
-  union InstancePtr {
+  union InstancePtr
+  {
     void* m_Ptr;
     const void* m_ConstPtr;
   };
@@ -102,4 +103,3 @@ template <typename Method, typename Class>
 typename ezMakeDelegateHelper<Method>::DelegateType ezMakeDelegate(Method method, Class* pClass);
 
 #include <Foundation/Types/Implementation/Delegate_inl.h>
-

@@ -1,8 +1,8 @@
 #pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
-#include <ToolsFoundation/Object/DocumentObjectMirror.h>
 #include <EditorFramework/IPC/EngineProcessConnection.h>
+#include <ToolsFoundation/Object/DocumentObjectMirror.h>
 
 /// \brief An object mirror that mirrors across IPC to the engine process.
 ///

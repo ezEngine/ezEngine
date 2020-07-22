@@ -29,8 +29,8 @@ void OnLoadPlugin(bool bReloading)
     {
       ezActionMapManager::RegisterActionMap("UltralightHTMLAssetMenuBar");
       ezProjectActions::MapActions("UltralightHTMLAssetMenuBar");
-      ezStandardMenus::MapActions("UltralightHTMLAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit |
-                                                                    ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+      ezStandardMenus::MapActions("UltralightHTMLAssetMenuBar",
+        ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
       ezDocumentActions::MapActions("UltralightHTMLAssetMenuBar", "Menu.File", false);
       ezCommandHistoryActions::MapActions("UltralightHTMLAssetMenuBar", "Menu.Edit");
     }
@@ -46,17 +46,15 @@ void OnLoadPlugin(bool bReloading)
 }
 
 
-void OnUnloadPlugin(bool bReloading)
-{
-}
+void OnUnloadPlugin(bool bReloading) {}
 
 static void ToolsProjectEventHandler(const ezToolsProjectEvent& e)
 {
   if (e.m_Type == ezToolsProjectEvent::Type::ProjectOpened)
   {
     // TODO: See if we need project preferences
-    //ezFmodProjectPreferences* pPreferences = ezPreferences::QueryPreferences<ezFmodProjectPreferences>();
-    //pPreferences->SyncCVars();
+    // ezFmodProjectPreferences* pPreferences = ezPreferences::QueryPreferences<ezFmodProjectPreferences>();
+    // pPreferences->SyncCVars();
   }
 }
 

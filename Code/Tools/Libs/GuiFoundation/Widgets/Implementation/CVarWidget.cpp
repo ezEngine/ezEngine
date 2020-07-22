@@ -10,7 +10,7 @@
 #include <QLineEdit>
 
 ezQtCVarWidget::ezQtCVarWidget(QWidget* parent)
-    : QWidget(parent)
+  : QWidget(parent)
 {
   setupUi(this);
 }

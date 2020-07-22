@@ -1,11 +1,11 @@
 #pragma once
 
-#include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/EditTools/GizmoEditTool.h>
-#include <EditorFramework/Gizmos/TranslateGizmo.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
+#include <EditorFramework/Gizmos/DragToPositionGizmo.h>
 #include <EditorFramework/Gizmos/RotateGizmo.h>
 #include <EditorFramework/Gizmos/ScaleGizmo.h>
-#include <EditorFramework/Gizmos/DragToPositionGizmo.h>
+#include <EditorFramework/Gizmos/TranslateGizmo.h>
 
 class ezQtGameObjectDocumentWindow;
 class ezPreferences;
@@ -105,4 +105,3 @@ protected:
 private:
   ezDragToPositionGizmo m_DragToPosGizmo;
 };
-

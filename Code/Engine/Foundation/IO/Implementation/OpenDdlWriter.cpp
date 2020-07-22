@@ -209,18 +209,20 @@ ezOpenDdlWriter::ezOpenDdlWriter()
   m_StateStack.ExpandAndGetRef().m_State = State::Empty;
 }
 
-//All,              ///< All whitespace is output. This is the default, it should be used for files that are read by humans.
-//LessIndentation,  ///< Saves some space by using less space for indentation
-//NoIndentation,    ///< Saves even more space by dropping all indentation from the output. The result will be noticeably less readable.
-//NewlinesOnly,     ///< All unnecessary whitespace, except for newlines, is not output.
-//None,             ///< No whitespace, not even newlines, is output. This should be used when DDL is used for data exchange, but probably not read by humans.
+// All,              ///< All whitespace is output. This is the default, it should be used for files that are read by humans.
+// LessIndentation,  ///< Saves some space by using less space for indentation
+// NoIndentation,    ///< Saves even more space by dropping all indentation from the output. The result will be noticeably less readable.
+// NewlinesOnly,     ///< All unnecessary whitespace, except for newlines, is not output.
+// None,             ///< No whitespace, not even newlines, is output. This should be used when DDL is used for data exchange, but probably not read
+// by humans.
 
 void ezOpenDdlWriter::BeginObject(const char* szType, const char* szName /*= nullptr*/, bool bGlobalName /*= false*/, bool bSingleLine /*= false*/)
 {
   {
     const auto state = m_StateStack.PeekBack().m_State;
     EZ_IGNORE_UNUSED(state);
-    EZ_ASSERT_DEBUG(state == State::Empty || state == State::ObjectMultiLine || state == State::ObjectStart, "DDL Writer is in a state where no further objects may be created");
+    EZ_ASSERT_DEBUG(state == State::Empty || state == State::ObjectMultiLine || state == State::ObjectStart,
+      "DDL Writer is in a state where no further objects may be created");
   }
 
   OutputObjectBeginning();
@@ -261,10 +263,10 @@ void ezOpenDdlWriter::OutputObjectBeginning()
 
   if (state == State::ObjectSingleLine)
   {
-    //if (m_bCompactMode)
+    // if (m_bCompactMode)
     OutputString("{", 1); // more compact
-    //else
-    //OutputString(" { ", 3);
+    // else
+    // OutputString(" { ", 3);
   }
   else if (state == State::ObjectMultiLine)
   {
@@ -289,7 +291,7 @@ void ezOpenDdlWriter::OutputObjectName(const char* szName, bool bGlobalName)
 {
   if (!ezStringUtils::IsNullOrEmpty(szName))
   {
-    //EZ_ASSERT_DEBUG(ezStringUtils::FindSubString(szName, " ") == nullptr, "Spaces are not allowed in DDL object names: '{0}'", szName);
+    // EZ_ASSERT_DEBUG(ezStringUtils::FindSubString(szName, " ") == nullptr, "Spaces are not allowed in DDL object names: '{0}'", szName);
 
 
     /// \test This code path is untested
@@ -361,7 +363,7 @@ void ezOpenDdlWriter::EndObject()
       }
       else
       {
-        //OutputString(" }\n", 3);
+        // OutputString(" }\n", 3);
         OutputString("}\n", 2); // more compact
       }
     }
@@ -375,7 +377,8 @@ void ezOpenDdlWriter::BeginPrimitiveList(ezOpenDdlPrimitiveType type, const char
   OutputObjectBeginning();
 
   const auto state = m_StateStack.PeekBack().m_State;
-  EZ_ASSERT_DEBUG(state == State::Empty || state == State::ObjectSingleLine || state == State::ObjectMultiLine, "DDL Writer is in a state where no primitive list may be created");
+  EZ_ASSERT_DEBUG(state == State::Empty || state == State::ObjectSingleLine || state == State::ObjectMultiLine,
+    "DDL Writer is in a state where no primitive list may be created");
 
   if (state == State::ObjectMultiLine)
   {
@@ -392,10 +395,10 @@ void ezOpenDdlWriter::BeginPrimitiveList(ezOpenDdlPrimitiveType type, const char
   OutputObjectName(szName, bGlobalName);
 
   // more compact
-  //if (m_bCompactMode)
+  // if (m_bCompactMode)
   OutputString("{", 1);
-  //else
-  //OutputString(" {", 2);
+  // else
+  // OutputString(" {", 2);
 
   m_StateStack.ExpandAndGetRef().m_State = static_cast<State>(type);
 }
@@ -742,4 +745,3 @@ void ezOpenDdlWriter::WriteBinaryAsString(const void* pData, ezUInt32 uiBytes)
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_OpenDdlWriter);
-

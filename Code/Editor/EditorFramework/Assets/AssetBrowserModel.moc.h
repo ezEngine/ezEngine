@@ -26,7 +26,6 @@ class EZ_EDITORFRAMEWORK_DLL ezQtAssetBrowserModel : public QAbstractItemModel
 {
   Q_OBJECT
 public:
-
   enum UserRoles
   {
     SubAssetGuid = Qt::UserRole + 0,
@@ -49,7 +48,7 @@ private Q_SLOTS:
   void ThumbnailLoaded(QString sPath, QModelIndex index, QVariant UserData1, QVariant UserData2);
   void ThumbnailInvalidated(QString sPath, ezUInt32 uiImageID);
 
-public: //QAbstractItemModel interface
+public: // QAbstractItemModel interface
   virtual QVariant data(const QModelIndex& index, int role) const override;
   virtual Qt::ItemFlags flags(const QModelIndex& index) const override;
   virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;

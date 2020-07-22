@@ -21,8 +21,7 @@ struct ezRenderWorldExtractionEvent;
 struct ezRenderWorldRenderEvent;
 class ezProcVertexColorComponent;
 
-class EZ_PROCGENPLUGIN_DLL ezProcVertexColorComponentManager
-  : public ezComponentManager<ezProcVertexColorComponent, ezBlockStorageType::Compact>
+class EZ_PROCGENPLUGIN_DLL ezProcVertexColorComponentManager : public ezComponentManager<ezProcVertexColorComponent, ezBlockStorageType::Compact>
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezProcVertexColorComponentManager);
 

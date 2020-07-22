@@ -103,7 +103,7 @@ namespace
     EZ_DECLARE_POD_TYPE();
 
     EZ_ALWAYS_INLINE AtlasCell()
-        : m_Rect(0, 0, 0, 0)
+      : m_Rect(0, 0, 0, 0)
     {
       m_uiChildIndices[0] = m_uiChildIndices[1] = m_uiChildIndices[2] = m_uiChildIndices[3] = 0xFFFF;
       m_uiDataIndex = ezInvalidIndex;
@@ -111,8 +111,7 @@ namespace
 
     EZ_ALWAYS_INLINE bool IsLeaf() const
     {
-      return m_uiChildIndices[0] == 0xFFFF && m_uiChildIndices[1] == 0xFFFF && m_uiChildIndices[2] == 0xFFFF &&
-             m_uiChildIndices[3] == 0xFFFF;
+      return m_uiChildIndices[0] == 0xFFFF && m_uiChildIndices[1] == 0xFFFF && m_uiChildIndices[2] == 0xFFFF && m_uiChildIndices[3] == 0xFFFF;
     }
 
     ezRectU32 m_Rect;
@@ -315,8 +314,8 @@ struct ezShadowPool::Data
     return shadowView;
   }
 
-  bool GetDataForExtraction(const ezLightComponent* pLight, const ezView* pReferenceView, float fShadowMapScale,
-    ezUInt32 uiPackedDataSizeInBytes, ShadowData*& out_pData)
+  bool GetDataForExtraction(
+    const ezLightComponent* pLight, const ezView* pReferenceView, float fShadowMapScale, ezUInt32 uiPackedDataSizeInBytes, ShadowData*& out_pData)
   {
     EZ_LOCK(m_ShadowDataMutex);
 
@@ -527,12 +526,21 @@ ezUInt32 ezShadowPool::AddPointLight(const ezPointLightComponent* pPointLight, f
   pData->m_Views.SetCount(6);
 
   ezVec3 faceDirs[6] = {
-      ezVec3(1.0f, 0.0f, 0.0f),  ezVec3(-1.0f, 0.0f, 0.0f), ezVec3(0.0f, 1.0f, 0.0f),
-      ezVec3(0.0f, -1.0f, 0.0f), ezVec3(0.0f, 0.0f, 1.0f),  ezVec3(0.0f, 0.0f, -1.0f),
+    ezVec3(1.0f, 0.0f, 0.0f),
+    ezVec3(-1.0f, 0.0f, 0.0f),
+    ezVec3(0.0f, 1.0f, 0.0f),
+    ezVec3(0.0f, -1.0f, 0.0f),
+    ezVec3(0.0f, 0.0f, 1.0f),
+    ezVec3(0.0f, 0.0f, -1.0f),
   };
 
   const char* viewNames[6] = {
-      "PointLightView+X", "PointLightView-X", "PointLightView+Y", "PointLightView-Y", "PointLightView+Z", "PointLightView-Z",
+    "PointLightView+X",
+    "PointLightView-X",
+    "PointLightView+Y",
+    "PointLightView-Y",
+    "PointLightView+Z",
+    "PointLightView-Z",
   };
 
   const ezGameObject* pOwner = pPointLight->GetOwner();
@@ -720,8 +728,7 @@ void ezShadowPool::OnExtractionEvent(const ezRenderWorldExtractionEvent& e)
       fadeOutEnd *= 2.0f;
     }
 
-    uiShadowMapSize =
-        ezMath::PowerOfTwo_Ceil((ezUInt32)(uiShadowMapSize * ezMath::Clamp(shadowData.m_fShadowMapScale, fadeOutStart, 1.0f)));
+    uiShadowMapSize = ezMath::PowerOfTwo_Ceil((ezUInt32)(uiShadowMapSize * ezMath::Clamp(shadowData.m_fShadowMapScale, fadeOutStart, 1.0f)));
 
     ezHybridArray<ezView*, 8> shadowViews;
     ezHybridArray<ezRectU32, 8> atlasRects;
@@ -968,4 +975,3 @@ void ezShadowPool::OnRenderEvent(const ezRenderWorldRenderEvent& e)
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Lights_Implementation_ShadowPool);
-

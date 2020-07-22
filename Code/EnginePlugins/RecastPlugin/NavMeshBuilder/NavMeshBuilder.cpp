@@ -294,8 +294,8 @@ ezResult ezRecastNavMeshBuilder::BuildRecastPolyMesh(const ezRecastConfig& confi
   if (!pgRange.BeginNextStep("Rasterize Triangles"))
     return EZ_FAILURE;
 
-  if (!rcRasterizeTriangles(pContext, pVertices, m_Vertices.GetCount(), pTriangles, m_TriangleAreaIDs.GetData(), m_Triangles.GetCount(),
-        *heightfield, cfg.walkableClimb))
+  if (!rcRasterizeTriangles(
+        pContext, pVertices, m_Vertices.GetCount(), pTriangles, m_TriangleAreaIDs.GetData(), m_Triangles.GetCount(), *heightfield, cfg.walkableClimb))
   {
     pContext->log(RC_LOG_ERROR, "Could not rasterize triangles");
     return EZ_FAILURE;

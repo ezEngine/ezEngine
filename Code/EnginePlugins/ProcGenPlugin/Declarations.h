@@ -115,8 +115,7 @@ namespace ezProcGenInternal
 
     bool IsValid() const
     {
-      return !m_ObjectsToPlace.IsEmpty() && m_pPattern != nullptr && m_fFootprint > 0.0f && m_fCullDistance > 0.0f &&
-             m_pByteCode != nullptr;
+      return !m_ObjectsToPlace.IsEmpty() && m_pPattern != nullptr && m_fFootprint > 0.0f && m_fCullDistance > 0.0f && m_pByteCode != nullptr;
     }
 
     ezHybridArray<ezPrefabResourceHandle, 4> m_ObjectsToPlace;

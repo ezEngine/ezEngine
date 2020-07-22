@@ -25,4 +25,3 @@ protected:
   ezGALMSAASampleCount::Enum m_MsaaSampleCount;
   ezShaderResourceHandle m_hDepthResolveShader;
 };
-

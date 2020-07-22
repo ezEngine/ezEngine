@@ -7,9 +7,9 @@
 #if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
 #  ifdef BUILDSYSTEM_BUILDING_EDITORPLUGINULTRALIGHT_LIB
 #    define EZ_EDITORPLUGINULTRALIGHT_DLL __declspec(dllexport)
-  #else
+#  else
 #    define EZ_EDITORPLUGINULTRALIGHT_DLL __declspec(dllimport)
-  #endif
+#  endif
 #else
 #  define EZ_EDITORPLUGINULTRALIGHT_DLL
 #endif

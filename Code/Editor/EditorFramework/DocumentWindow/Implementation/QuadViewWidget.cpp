@@ -8,8 +8,8 @@
 #include <EditorFramework/Preferences/QuadViewPreferences.h>
 #include <QGridLayout>
 
-ezQtQuadViewWidget::ezQtQuadViewWidget(ezAssetDocument* pDocument, ezQtEngineDocumentWindow* pWindow, ViewFactory viewFactory,
-                                       const char* szViewToolBarMapping)
+ezQtQuadViewWidget::ezQtQuadViewWidget(
+  ezAssetDocument* pDocument, ezQtEngineDocumentWindow* pWindow, ViewFactory viewFactory, const char* szViewToolBarMapping)
 {
   m_pDocument = pDocument;
   m_pWindow = pWindow;

@@ -1,9 +1,9 @@
 #pragma once
 
-#include <ParticlePlugin/Emitter/ParticleEmitter.h>
 #include <Core/ResourceManager/ResourceHandle.h>
-#include <ParticlePlugin/Events/ParticleEvent.h>
 #include <Foundation/Containers/Deque.h>
+#include <ParticlePlugin/Emitter/ParticleEmitter.h>
+#include <ParticlePlugin/Events/ParticleEvent.h>
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleEmitterFactory_OnEvent final : public ezParticleEmitterFactory
 {
@@ -31,7 +31,6 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleEmitter_OnEvent final : public ezParticleE
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleEmitter_OnEvent, ezParticleEmitter);
 
 public:
-
   ezTempHashedString m_sEventName;
   ezUInt32 m_uiSpawnCountMin = 1;
   ezUInt32 m_uiSpawnCountRange = 0;

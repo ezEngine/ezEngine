@@ -327,8 +327,7 @@ void ezQtEventTrackWidget::paintEvent(QPaintEvent* e)
 
   if (m_pGridBar)
   {
-    m_pGridBar->SetConfig(viewportSceneRect, fRoughGridDensity, fFineGridDensity,
-      [this](const QPointF& pt) -> QPoint { return MapFromScene(pt); });
+    m_pGridBar->SetConfig(viewportSceneRect, fRoughGridDensity, fFineGridDensity, [this](const QPointF& pt) -> QPoint { return MapFromScene(pt); });
   }
 
   PaintOutsideAreaOverlay(&painter);
@@ -973,8 +972,8 @@ void ezQtEventTrackWidget::ExecMultiSelection(ezHybridArray<SelectedPoint, 32>& 
   }
 }
 
-bool ezQtEventTrackWidget::CombineSelection(ezHybridArray<SelectedPoint, 32>& inout_Selection,
-  const ezHybridArray<SelectedPoint, 32>& change, bool add)
+bool ezQtEventTrackWidget::CombineSelection(
+  ezHybridArray<SelectedPoint, 32>& inout_Selection, const ezHybridArray<SelectedPoint, 32>& change, bool add)
 {
   bool bChange = false;
 

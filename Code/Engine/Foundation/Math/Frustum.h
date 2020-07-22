@@ -70,13 +70,15 @@ public:
   ///
   /// If the matrix is just the projection matrix, the frustum will be in local space. Pass the full ModelViewProjection
   /// matrix to create the frustum in world-space.
-  void SetFrustum(const ezMat4& ModelViewProjection, ezClipSpaceDepthRange::Enum DepthRange = ezClipSpaceDepthRange::Default, ezHandedness::Enum Handedness = ezHandedness::Default); // [tested]
+  void SetFrustum(const ezMat4& ModelViewProjection, ezClipSpaceDepthRange::Enum DepthRange = ezClipSpaceDepthRange::Default,
+    ezHandedness::Enum Handedness = ezHandedness::Default); // [tested]
 
   /// \brief Creates a frustum from the given camera position, direction vectors and the field-of-view along X and Y.
   ///
   /// The up vector does not need to be exactly orthogonal to the forwards vector, it will get recomputed properly.
   /// FOV X and Y define the entire field-of-view, so a FOV of 180 degree would mean the entire half-space in front of the camera.
-  void SetFrustum(const ezVec3& vPosition, const ezVec3& vForwards, const ezVec3& vUp, ezAngle FovX, ezAngle FovY, float fNearPlane, float fFarPlane); // [tested]
+  void SetFrustum(
+    const ezVec3& vPosition, const ezVec3& vForwards, const ezVec3& vUp, ezAngle FovX, ezAngle FovY, float fNearPlane, float fFarPlane); // [tested]
 
   /// \brief Returns the n-th plane of the frustum.
   const ezPlane& GetPlane(ezUInt8 uiPlane) const; // [tested]

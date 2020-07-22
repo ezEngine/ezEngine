@@ -46,7 +46,7 @@ ezDuktapeHelper::ezDuktapeHelper(const ezDuktapeHelper& rhs)
 
 ezDuktapeHelper::~ezDuktapeHelper() = default;
 
-void ezDuktapeHelper::operator = (const ezDuktapeHelper& rhs)
+void ezDuktapeHelper::operator=(const ezDuktapeHelper& rhs)
 {
   if (this == &rhs)
     return;
@@ -375,7 +375,8 @@ bool ezDuktapeHelper::IsNullOrUndefined(ezInt32 iStackElement /*= -1*/) const
   return duk_check_type_mask(m_pContext, iStackElement, DUK_TYPE_MASK_NULL | DUK_TYPE_MASK_UNDEFINED);
 }
 
-void ezDuktapeHelper::RegisterGlobalFunction(const char* szFunctionName, duk_c_function pFunction, ezUInt8 uiNumArguments, ezInt16 iMagicValue /*= 0*/)
+void ezDuktapeHelper::RegisterGlobalFunction(
+  const char* szFunctionName, duk_c_function pFunction, ezUInt8 uiNumArguments, ezInt16 iMagicValue /*= 0*/)
 {
   // TODO: could store iFuncIdx for faster function calls
 
@@ -397,7 +398,8 @@ void ezDuktapeHelper::RegisterGlobalFunctionWithVarArgs(const char* szFunctionNa
   duk_pop(m_pContext);                                                             // [ ]
 }
 
-void ezDuktapeHelper::RegisterObjectFunction(const char* szFunctionName, duk_c_function pFunction, ezUInt8 uiNumArguments, ezInt32 iParentObjectIndex /*= -1*/, ezInt16 iMagicValue /*= 0*/)
+void ezDuktapeHelper::RegisterObjectFunction(
+  const char* szFunctionName, duk_c_function pFunction, ezUInt8 uiNumArguments, ezInt32 iParentObjectIndex /*= -1*/, ezInt16 iMagicValue /*= 0*/)
 {
   /*const int iFuncIdx =*/duk_push_c_function(m_pContext, pFunction, uiNumArguments); // [ func ]
   duk_set_magic(m_pContext, -1, iMagicValue);                                         // [ func ]
@@ -639,4 +641,3 @@ ezResult ezDuktapeHelper::ExecuteFile(const char* szFile)
 
 
 EZ_STATICLINK_FILE(Core, Core_Scripting_Duktape_DuktapeHelper);
-

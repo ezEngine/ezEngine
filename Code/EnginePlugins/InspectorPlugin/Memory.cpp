@@ -20,7 +20,7 @@ namespace MemoryDetail
       msg.SetMessageID(' MEM', 'BGN');
       ezTelemetry::Broadcast(ezTelemetry::Unreliable, msg);
     }
-       
+
     for (auto it = ezMemoryTracker::GetIterator(); it.IsValid(); ++it)
     {
       ezTelemetryMessage msg;
@@ -44,7 +44,7 @@ namespace MemoryDetail
     }
 
     static ezUInt64 uiLastTotalAllocations = 0;
-    
+
     ezStats::SetStat("App/Allocs Per Frame", uiTotalAllocations - uiLastTotalAllocations);
     ezStats::SetStat("App/Per Frame Alloc Size (byte)", uiTotalPerFrameAllocationSize);
     ezStats::SetStat("App/Per Frame Alloc Time", TotalPerFrameAllocationTime);
@@ -79,7 +79,7 @@ void AddMemoryEventHandler()
   // to deadlocks between the ezStats and ezTelemetry system.
   if (ezGameApplicationBase::GetGameApplicationBaseInstance() != nullptr)
   {
-  ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(MemoryDetail::PerframeUpdateHandler);
+    ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.AddEventHandler(MemoryDetail::PerframeUpdateHandler);
   }
 }
 
@@ -87,7 +87,7 @@ void RemoveMemoryEventHandler()
 {
   if (ezGameApplicationBase::GetGameApplicationBaseInstance() != nullptr)
   {
-  ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(MemoryDetail::PerframeUpdateHandler);
+    ezGameApplicationBase::GetGameApplicationBaseInstance()->m_ExecutionEvents.RemoveEventHandler(MemoryDetail::PerframeUpdateHandler);
   }
 }
 

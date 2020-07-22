@@ -27,8 +27,7 @@ EZ_CREATE_SIMPLE_TEST(Time, Timestamp)
 
     // Sleep for 10 milliseconds
     ezThreadUtils::Sleep(ezTime::Milliseconds(10));
-    EZ_TEST_BOOL_MSG(currentTimestamp.GetInt64(ezSIUnitOfTime::Microsecond) <
-                       ezTimestamp::CurrentTimestamp().GetInt64(ezSIUnitOfTime::Microsecond),
+    EZ_TEST_BOOL_MSG(currentTimestamp.GetInt64(ezSIUnitOfTime::Microsecond) < ezTimestamp::CurrentTimestamp().GetInt64(ezSIUnitOfTime::Microsecond),
       "Sleeping for 10 ms should cause the timestamp to change!");
     EZ_TEST_BOOL_MSG(!currentTimestamp.Compare(ezTimestamp::CurrentTimestamp(), ezTimestamp::CompareMode::Identical),
       "Sleeping for 10 ms should cause the timestamp to change!");
@@ -58,8 +57,7 @@ EZ_CREATE_SIMPLE_TEST(Time, Timestamp)
     EZ_TEST_BOOL(firstContactTest.Compare(firstContact, ezTimestamp::CompareMode::Identical));
 
     // IsEqual
-    const ezTimestamp firstContactPlusAFewMicroseconds(firstContact.GetInt64(ezSIUnitOfTime::Microsecond) + 42,
-      ezSIUnitOfTime::Microsecond);
+    const ezTimestamp firstContactPlusAFewMicroseconds(firstContact.GetInt64(ezSIUnitOfTime::Microsecond) + 42, ezSIUnitOfTime::Microsecond);
     EZ_TEST_BOOL(firstContact.Compare(firstContactPlusAFewMicroseconds, ezTimestamp::CompareMode::FileTimeEqual));
     EZ_TEST_BOOL(!firstContact.Compare(firstContactPlusAFewMicroseconds, ezTimestamp::CompareMode::Identical));
   }
@@ -114,7 +112,8 @@ EZ_CREATE_SIMPLE_TEST(Time, Timestamp)
     EZ_TEST_INT(firstContactDataTime.GetYear(), 2063);
     EZ_TEST_INT(firstContactDataTime.GetMonth(), 4);
     EZ_TEST_INT(firstContactDataTime.GetDay(), 5);
-    EZ_TEST_BOOL(firstContactDataTime.GetDayOfWeek() == 4 || firstContactDataTime.GetDayOfWeek() == 255); // not supported on all platforms, should output 255 then
+    EZ_TEST_BOOL(firstContactDataTime.GetDayOfWeek() == 4 ||
+                 firstContactDataTime.GetDayOfWeek() == 255); // not supported on all platforms, should output 255 then
     EZ_TEST_INT(firstContactDataTime.GetHour(), 0);
     EZ_TEST_INT(firstContactDataTime.GetMinute(), 0);
     EZ_TEST_INT(firstContactDataTime.GetSecond(), 0);
@@ -126,8 +125,7 @@ EZ_CREATE_SIMPLE_TEST(Time, Timestamp)
     currentDateTime.SetTimestamp(currentTimestamp);
     ezTimestamp currentTimestamp2 = currentDateTime.GetTimestamp();
     // OS date time functions should be accurate within one second.
-    ezInt64 iDiff =
-      ezMath::Abs(currentTimestamp.GetInt64(ezSIUnitOfTime::Microsecond) - currentTimestamp2.GetInt64(ezSIUnitOfTime::Microsecond));
+    ezInt64 iDiff = ezMath::Abs(currentTimestamp.GetInt64(ezSIUnitOfTime::Microsecond) - currentTimestamp2.GetInt64(ezSIUnitOfTime::Microsecond));
     EZ_TEST_BOOL(iDiff <= 1000000);
 
     // Setter
@@ -171,19 +169,24 @@ EZ_CREATE_SIMPLE_TEST(Time, Timestamp)
     BuildString(szTimestampFormatted, 256, ezArgDateTime(dateTime, ezArgDateTime::Default | ezArgDateTime::ShowTimeZone));
     EZ_TEST_STRING("2019-08-16 - 13:40:30 (UTC)", szTimestampFormatted);
     // no names, with UTC, with milliseconds
-    BuildString(szTimestampFormatted, 256, ezArgDateTime(dateTime, ezArgDateTime::ShowDate | ezArgDateTime::ShowMilliseconds | ezArgDateTime::ShowTimeZone));
+    BuildString(
+      szTimestampFormatted, 256, ezArgDateTime(dateTime, ezArgDateTime::ShowDate | ezArgDateTime::ShowMilliseconds | ezArgDateTime::ShowTimeZone));
     EZ_TEST_STRING("2019-08-16 - 13:40:30.345 (UTC)", szTimestampFormatted);
     // with names, no UTC, no milliseconds
     BuildString(szTimestampFormatted, 256, ezArgDateTime(dateTime, ezArgDateTime::DefaultTextual | ezArgDateTime::ShowWeekday));
     EZ_TEST_STRING("2019 Aug 16 (Fri) - 13:40:30", szTimestampFormatted);
     // no names, no UTC, with milliseconds
-    BuildString(szTimestampFormatted, 256, ezArgDateTime(dateTime, ezArgDateTime::DefaultTextual | ezArgDateTime::ShowWeekday | ezArgDateTime::ShowMilliseconds));
+    BuildString(szTimestampFormatted, 256,
+      ezArgDateTime(dateTime, ezArgDateTime::DefaultTextual | ezArgDateTime::ShowWeekday | ezArgDateTime::ShowMilliseconds));
     EZ_TEST_STRING("2019 Aug 16 (Fri) - 13:40:30.345", szTimestampFormatted);
     // no names, with UTC, no milliseconds
-    BuildString(szTimestampFormatted, 256, ezArgDateTime(dateTime, ezArgDateTime::DefaultTextual | ezArgDateTime::ShowWeekday | ezArgDateTime::ShowTimeZone));
+    BuildString(
+      szTimestampFormatted, 256, ezArgDateTime(dateTime, ezArgDateTime::DefaultTextual | ezArgDateTime::ShowWeekday | ezArgDateTime::ShowTimeZone));
     EZ_TEST_STRING("2019 Aug 16 (Fri) - 13:40:30 (UTC)", szTimestampFormatted);
     // no names, with UTC, with milliseconds
-    BuildString(szTimestampFormatted, 256, ezArgDateTime(dateTime, ezArgDateTime::DefaultTextual | ezArgDateTime::ShowWeekday | ezArgDateTime::ShowMilliseconds | ezArgDateTime::ShowTimeZone));
+    BuildString(szTimestampFormatted, 256,
+      ezArgDateTime(
+        dateTime, ezArgDateTime::DefaultTextual | ezArgDateTime::ShowWeekday | ezArgDateTime::ShowMilliseconds | ezArgDateTime::ShowTimeZone));
     EZ_TEST_STRING("2019 Aug 16 (Fri) - 13:40:30.345 (UTC)", szTimestampFormatted);
 
     BuildString(szTimestampFormatted, 256, ezArgDateTime(dateTime, ezArgDateTime::ShowDate));

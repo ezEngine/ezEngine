@@ -6,8 +6,8 @@
 #include <Foundation/IO/OpenDdlWriter.h>
 #include <GameEngine/Configuration/InputConfig.h>
 
-EZ_CHECK_AT_COMPILETIME_MSG(ezGameAppInputConfig::MaxInputSlotAlternatives == ezInputActionConfig::MaxInputSlotAlternatives,
-                            "Max values should be kept in sync");
+EZ_CHECK_AT_COMPILETIME_MSG(
+  ezGameAppInputConfig::MaxInputSlotAlternatives == ezInputActionConfig::MaxInputSlotAlternatives, "Max values should be kept in sync");
 
 ezGameAppInputConfig::ezGameAppInputConfig()
 {
@@ -141,4 +141,3 @@ void ezGameAppInputConfig::ApplyAll(const ezArrayPtr<ezGameAppInputConfig>& acti
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Configuration_Implementation_InputConfig);
-

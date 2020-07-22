@@ -17,5 +17,3 @@ public:
 
   float m_fCollisionRadius;
 };
-
-

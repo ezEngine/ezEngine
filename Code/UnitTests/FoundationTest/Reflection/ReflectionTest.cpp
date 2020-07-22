@@ -47,10 +47,10 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
     EZ_TEST_BOOL(ezPropertyFlags::GetParameterFlags<int*>() == (ezPropertyFlags::StandardType | ezPropertyFlags::Pointer));
 
     EZ_TEST_BOOL(ezPropertyFlags::GetParameterFlags<const int>() == (ezPropertyFlags::StandardType | ezPropertyFlags::Const));
-    EZ_TEST_BOOL(ezPropertyFlags::GetParameterFlags<const int&>() ==
-                 (ezPropertyFlags::StandardType | ezPropertyFlags::Reference | ezPropertyFlags::Const));
-    EZ_TEST_BOOL(ezPropertyFlags::GetParameterFlags<const int*>() ==
-                 (ezPropertyFlags::StandardType | ezPropertyFlags::Pointer | ezPropertyFlags::Const));
+    EZ_TEST_BOOL(
+      ezPropertyFlags::GetParameterFlags<const int&>() == (ezPropertyFlags::StandardType | ezPropertyFlags::Reference | ezPropertyFlags::Const));
+    EZ_TEST_BOOL(
+      ezPropertyFlags::GetParameterFlags<const int*>() == (ezPropertyFlags::StandardType | ezPropertyFlags::Pointer | ezPropertyFlags::Const));
 
     EZ_TEST_BOOL(ezPropertyFlags::GetParameterFlags<ezVariant>() == (ezPropertyFlags::StandardType));
 
@@ -72,8 +72,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
     EZ_TEST_INT(ezGetStaticRTTI<ezVariant>()->GetTypeFlags().GetValue(), ezTypeFlags::StandardType);
 
     EZ_TEST_INT(ezGetStaticRTTI<ezAbstractTestClass>()->GetTypeFlags().GetValue(), (ezTypeFlags::Class | ezTypeFlags::Abstract).GetValue());
-    EZ_TEST_INT(ezGetStaticRTTI<ezAbstractTestStruct>()->GetTypeFlags().GetValue(),
-                (ezTypeFlags::Class | ezTypeFlags::Abstract).GetValue());
+    EZ_TEST_INT(ezGetStaticRTTI<ezAbstractTestStruct>()->GetTypeFlags().GetValue(), (ezTypeFlags::Class | ezTypeFlags::Abstract).GetValue());
 
     EZ_TEST_INT(ezGetStaticRTTI<ezTestStruct3>()->GetTypeFlags().GetValue(), ezTypeFlags::Class);
     EZ_TEST_INT(ezGetStaticRTTI<ezTestClass2>()->GetTypeFlags().GetValue(), ezTypeFlags::Class);
@@ -337,8 +336,8 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Hierarchies)
 
 
 template <typename T, typename T2>
-void TestMemberProperty(const char* szPropName, void* pObject, const ezRTTI* pRtti, ezBitflags<ezPropertyFlags> expectedFlags,
-                        T2 expectedValue, T2 testValue)
+void TestMemberProperty(
+  const char* szPropName, void* pObject, const ezRTTI* pRtti, ezBitflags<ezPropertyFlags> expectedFlags, T2 expectedValue, T2 testValue)
 {
   ezAbstractProperty* pProp = pRtti->FindPropertyByName(szPropName);
   EZ_TEST_BOOL(pProp != nullptr);
@@ -370,10 +369,9 @@ EZ_CREATE_SIMPLE_TEST(Reflection, MemberProperties)
 
     TestMemberProperty<float>("Float", &data, pRtti, ezPropertyFlags::StandardType, 1.1f, 5.0f);
     TestMemberProperty<ezInt32>("Int", &data, pRtti, ezPropertyFlags::StandardType, 2, -8);
-    TestMemberProperty<ezVec3>("Vector", &data, pRtti, ezPropertyFlags::StandardType | ezPropertyFlags::ReadOnly, ezVec3(3, 4, 5),
-                               ezVec3(0, -1.0f, 3.14f));
-    TestMemberProperty<ezVariant>("Variant", &data, pRtti, ezPropertyFlags::StandardType, ezVariant("Test"),
-                                  ezVariant(ezVec3(0, -1.0f, 3.14f)));
+    TestMemberProperty<ezVec3>(
+      "Vector", &data, pRtti, ezPropertyFlags::StandardType | ezPropertyFlags::ReadOnly, ezVec3(3, 4, 5), ezVec3(0, -1.0f, 3.14f));
+    TestMemberProperty<ezVariant>("Variant", &data, pRtti, ezPropertyFlags::StandardType, ezVariant("Test"), ezVariant(ezVec3(0, -1.0f, 3.14f)));
     TestMemberProperty<ezAngle>("Angle", &data, pRtti, ezPropertyFlags::StandardType, ezAngle::Degree(0.5f), ezAngle::Degree(1.0f));
 
     ezDataBuffer expected;
@@ -395,15 +393,15 @@ EZ_CREATE_SIMPLE_TEST(Reflection, MemberProperties)
     const ezRTTI* pRtti = ezGetStaticRTTI<ezTestClass2>();
 
     {
-      TestMemberProperty<const char*>("Text", &Instance, pRtti, ezPropertyFlags::StandardType | ezPropertyFlags::Const, ezString("Legen"),
-                                      ezString("dary"));
+      TestMemberProperty<const char*>(
+        "Text", &Instance, pRtti, ezPropertyFlags::StandardType | ezPropertyFlags::Const, ezString("Legen"), ezString("dary"));
       ezAbstractProperty* pProp = pRtti->FindPropertyByName("SubVector", false);
       EZ_TEST_BOOL(pProp == nullptr);
     }
 
     {
-      TestMemberProperty<ezVec3>("SubVector", &Instance, pRtti, ezPropertyFlags::StandardType | ezPropertyFlags::ReadOnly, ezVec3(3, 4, 5),
-                                 ezVec3(3, 4, 5));
+      TestMemberProperty<ezVec3>(
+        "SubVector", &Instance, pRtti, ezPropertyFlags::StandardType | ezPropertyFlags::ReadOnly, ezVec3(3, 4, 5), ezVec3(3, 4, 5));
       ezAbstractProperty* pProp = pRtti->FindPropertyByName("SubStruct", false);
       EZ_TEST_BOOL(pProp == nullptr);
     }
@@ -588,15 +586,19 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Enum)
         EZ_TEST_INT(iValue, pConstantProp->GetValue());
 
         // Testing the short enum name version
-        EZ_TEST_BOOL(ezReflectionUtils::EnumerationToString(pEnumPropertyRTTI, pConstantProp->GetValue(), sValue, ezReflectionUtils::EnumConversionMode::ValueNameOnly));
-        EZ_TEST_BOOL(sValue.IsEqual(pConstantProp->GetPropertyName()) || sValue.IsEqual(ezStringUtils::FindLastSubString(pConstantProp->GetPropertyName(), "::") + 2));
+        EZ_TEST_BOOL(ezReflectionUtils::EnumerationToString(
+          pEnumPropertyRTTI, pConstantProp->GetValue(), sValue, ezReflectionUtils::EnumConversionMode::ValueNameOnly));
+        EZ_TEST_BOOL(sValue.IsEqual(pConstantProp->GetPropertyName()) ||
+                     sValue.IsEqual(ezStringUtils::FindLastSubString(pConstantProp->GetPropertyName(), "::") + 2));
 
         EZ_TEST_BOOL(ezReflectionUtils::StringToEnumeration(pEnumPropertyRTTI, sValue, iValue));
         EZ_TEST_INT(iValue, pConstantProp->GetValue());
 
         // Testing the short enum name version
-        EZ_TEST_BOOL(ezReflectionUtils::EnumerationToString(pEnumPropertyRTTI, pConstantProp->GetValue(), sValue, ezReflectionUtils::EnumConversionMode::ValueNameOnly));
-        EZ_TEST_BOOL(sValue.IsEqual(pConstantProp->GetPropertyName()) || sValue.IsEqual(ezStringUtils::FindLastSubString(pConstantProp->GetPropertyName(), "::") + 2));
+        EZ_TEST_BOOL(ezReflectionUtils::EnumerationToString(
+          pEnumPropertyRTTI, pConstantProp->GetValue(), sValue, ezReflectionUtils::EnumConversionMode::ValueNameOnly));
+        EZ_TEST_BOOL(sValue.IsEqual(pConstantProp->GetPropertyName()) ||
+                     sValue.IsEqual(ezStringUtils::FindLastSubString(pConstantProp->GetPropertyName(), "::") + 2));
 
         EZ_TEST_BOOL(ezReflectionUtils::StringToEnumeration(pEnumPropertyRTTI, sValue, iValue));
         EZ_TEST_INT(iValue, pConstantProp->GetValue());
@@ -666,26 +668,14 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Bitflags)
 
       // Set and get all valid bitflags values. (skip default value)
       ezUInt64 constants[] = {static_cast<ezTypedConstantProperty<ezUInt64>*>(pBitflagsPropertyRTTI->GetProperties()[1])->GetValue(),
-                              static_cast<ezTypedConstantProperty<ezUInt64>*>(pBitflagsPropertyRTTI->GetProperties()[2])->GetValue(),
-                              static_cast<ezTypedConstantProperty<ezUInt64>*>(pBitflagsPropertyRTTI->GetProperties()[3])->GetValue()};
+        static_cast<ezTypedConstantProperty<ezUInt64>*>(pBitflagsPropertyRTTI->GetProperties()[2])->GetValue(),
+        static_cast<ezTypedConstantProperty<ezUInt64>*>(pBitflagsPropertyRTTI->GetProperties()[3])->GetValue()};
 
-      const char* stringValues[] = {"",
-                                    "ezExampleBitflags::Value1",
-                                    "ezExampleBitflags::Value2",
-                                    "ezExampleBitflags::Value1|ezExampleBitflags::Value2",
-                                    "ezExampleBitflags::Value3",
-                                    "ezExampleBitflags::Value1|ezExampleBitflags::Value3",
-                                    "ezExampleBitflags::Value2|ezExampleBitflags::Value3",
-                                    "ezExampleBitflags::Value1|ezExampleBitflags::Value2|ezExampleBitflags::Value3"};
+      const char* stringValues[] = {"", "ezExampleBitflags::Value1", "ezExampleBitflags::Value2",
+        "ezExampleBitflags::Value1|ezExampleBitflags::Value2", "ezExampleBitflags::Value3", "ezExampleBitflags::Value1|ezExampleBitflags::Value3",
+        "ezExampleBitflags::Value2|ezExampleBitflags::Value3", "ezExampleBitflags::Value1|ezExampleBitflags::Value2|ezExampleBitflags::Value3"};
 
-      const char* stringValuesShort[] = { "",
-                              "Value1",
-                              "Value2",
-                              "Value1|Value2",
-                              "Value3",
-                              "Value1|Value3",
-                              "Value2|Value3",
-                              "Value1|Value2|Value3" };
+      const char* stringValuesShort[] = {"", "Value1", "Value2", "Value1|Value2", "Value3", "Value1|Value3", "Value2|Value3", "Value1|Value2|Value3"};
       for (ezInt32 i = 0; i < 8; ++i)
       {
         ezUInt64 uiBitflagValue = 0;
@@ -711,14 +701,16 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Bitflags)
         EZ_TEST_INT(iValue, uiBitflagValue);
 
         // Testing the short enum name version
-        EZ_TEST_BOOL(ezReflectionUtils::EnumerationToString(pBitflagsPropertyRTTI, uiBitflagValue, sValue, ezReflectionUtils::EnumConversionMode::ValueNameOnly));
+        EZ_TEST_BOOL(ezReflectionUtils::EnumerationToString(
+          pBitflagsPropertyRTTI, uiBitflagValue, sValue, ezReflectionUtils::EnumConversionMode::ValueNameOnly));
         EZ_TEST_BOOL(sValue.IsEqual(stringValuesShort[i]));
 
         EZ_TEST_BOOL(ezReflectionUtils::StringToEnumeration(pBitflagsPropertyRTTI, sValue, iValue));
         EZ_TEST_INT(iValue, uiBitflagValue);
 
         // Testing the short enum name version
-        EZ_TEST_BOOL(ezReflectionUtils::EnumerationToString(pBitflagsPropertyRTTI, uiBitflagValue, sValue, ezReflectionUtils::EnumConversionMode::ValueNameOnly));
+        EZ_TEST_BOOL(ezReflectionUtils::EnumerationToString(
+          pBitflagsPropertyRTTI, uiBitflagValue, sValue, ezReflectionUtils::EnumConversionMode::ValueNameOnly));
         EZ_TEST_BOOL(sValue.IsEqual(stringValuesShort[i]));
 
         EZ_TEST_BOOL(ezReflectionUtils::StringToEnumeration(pBitflagsPropertyRTTI, sValue, iValue));
@@ -1070,8 +1062,8 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Maps)
 
 
 template <typename T>
-void TestPointerMemberProperty(const char* szPropName, void* pObject, const ezRTTI* pRtti, ezBitflags<ezPropertyFlags> expectedFlags,
-                               T* pExpectedValue)
+void TestPointerMemberProperty(
+  const char* szPropName, void* pObject, const ezRTTI* pRtti, ezBitflags<ezPropertyFlags> expectedFlags, T* pExpectedValue)
 {
   ezAbstractProperty* pProp = pRtti->FindPropertyByName(szPropName);
   EZ_TEST_BOOL(pProp != nullptr);
@@ -1121,12 +1113,10 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Pointer)
       EZ_TEST_BOOL(pProp->GetSpecificType() == ezGetStaticRTTI<const char*>());
     }
 
-    TestPointerMemberProperty<ezTestArrays>("ArraysPtr", &containers, pRtti,
-                                            ezPropertyFlags::Class | ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner,
-                                            containers.m_pArrays);
+    TestPointerMemberProperty<ezTestArrays>(
+      "ArraysPtr", &containers, pRtti, ezPropertyFlags::Class | ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner, containers.m_pArrays);
     TestPointerMemberProperty<ezTestArrays>("ArraysPtrDirect", &containers, pRtti,
-                                            ezPropertyFlags::Class | ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner,
-                                            containers.m_pArraysDirect);
+      ezPropertyFlags::Class | ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner, containers.m_pArraysDirect);
   }
 
   ezTestPtr containers;

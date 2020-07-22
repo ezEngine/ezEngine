@@ -7,8 +7,6 @@ class ezMaterialDragDropHandler : public ezAssetDragDropHandler
   EZ_ADD_DYNAMIC_REFLECTION(ezMaterialDragDropHandler, ezAssetDragDropHandler);
 
 public:
-
-
 protected:
   virtual void RequestConfiguration(ezDragDropConfig* pConfigToFillOut) override;
   virtual float CanHandle(const ezDragDropInfo* pInfo) const override;
@@ -20,4 +18,3 @@ protected:
   ezUuid m_AppliedToComponent;
   ezInt32 m_uiAppliedToSlot;
 };
-

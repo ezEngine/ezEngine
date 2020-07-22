@@ -23,7 +23,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezStereoTestPass::ezStereoTestPass()
-    : ezRenderPipelinePass("StereoTestPass", true)
+  : ezRenderPipelinePass("StereoTestPass", true)
 {
   {
     // Load shader.
@@ -34,8 +34,8 @@ ezStereoTestPass::ezStereoTestPass()
 
 ezStereoTestPass::~ezStereoTestPass() {}
 
-bool ezStereoTestPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
-                                                   ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezStereoTestPass::GetRenderTargetDescriptions(
+  const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   auto pInput = inputs[m_PinInput.m_uiInputIndex];
   if (pInput != nullptr)
@@ -55,7 +55,7 @@ bool ezStereoTestPass::GetRenderTargetDescriptions(const ezView& view, const ezA
 }
 
 void ezStereoTestPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-                               const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   auto pInput = inputs[m_PinInput.m_uiInputIndex];
   auto pOutput = outputs[m_PinOutput.m_uiOutputIndex];
@@ -75,8 +75,7 @@ void ezStereoTestPass::Execute(const ezRenderViewContext& renderViewContext, con
 
   renderViewContext.m_pRenderContext->BindShader(m_hShader);
 
-  renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles,
-                                                     1);
+  renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
   renderViewContext.m_pRenderContext->BindTexture2D("ColorTexture", pDevice->GetDefaultResourceView(pInput->m_TextureHandle));
 
   renderViewContext.m_pRenderContext->DrawMeshBuffer(0xFFFFFFFF, 0, renderViewContext.m_pCamera->IsStereoscopic() ? 2 : 1);
@@ -85,4 +84,3 @@ void ezStereoTestPass::Execute(const ezRenderViewContext& renderViewContext, con
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_StereoTestPass);
-

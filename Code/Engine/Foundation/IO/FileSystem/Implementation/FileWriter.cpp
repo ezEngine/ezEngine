@@ -2,7 +2,8 @@
 
 #include <Foundation/IO/FileSystem/FileWriter.h>
 
-ezResult ezFileWriter::Open(const char* szFile, ezUInt32 uiCacheSize /*= 1024 * 1024*/, ezFileShareMode::Enum FileShareMode /*= ezFileShareMode::Exclusive*/, bool bAllowFileEvents /*= true*/)
+ezResult ezFileWriter::Open(const char* szFile, ezUInt32 uiCacheSize /*= 1024 * 1024*/,
+  ezFileShareMode::Enum FileShareMode /*= ezFileShareMode::Exclusive*/, bool bAllowFileEvents /*= true*/)
 {
   uiCacheSize = ezMath::Clamp<ezUInt32>(uiCacheSize, 1024, 1024 * 1024 * 32);
 

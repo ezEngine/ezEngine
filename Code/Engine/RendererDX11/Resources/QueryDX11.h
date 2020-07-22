@@ -7,11 +7,9 @@ struct ID3D11Query;
 class ezGALQueryDX11 : public ezGALQuery
 {
 public:
-
   EZ_ALWAYS_INLINE ID3D11Query* GetDXQuery() const;
 
 protected:
-
   friend class ezGALDeviceDX11;
   friend class ezMemoryUtils;
 

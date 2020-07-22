@@ -24,7 +24,8 @@ namespace ezLogWriter
     /// \brief Closes the HTML file and stops logging the incoming message.
     void EndLog();
 
-    /// \brief Returns the name of the log-file that was really opened. Might be slightly different than what was given to BeginLog, to allow parallel execution of the same application.
+    /// \brief Returns the name of the log-file that was really opened. Might be slightly different than what was given to BeginLog, to allow parallel
+    /// execution of the same application.
     const ezFileWriter& GetOpenedLogFile() const;
 
     /// \brief Allows to indicate in what form timestamps should be added to log messages.
@@ -37,5 +38,4 @@ namespace ezLogWriter
 
     ezLog::TimestampMode m_TimestampMode = ezLog::TimestampMode::None;
   };
-}
-
+} // namespace ezLogWriter

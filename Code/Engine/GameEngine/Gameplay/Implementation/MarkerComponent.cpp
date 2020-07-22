@@ -123,4 +123,3 @@ ezMarkerComponentManager::ezMarkerComponentManager(ezWorld* pWorld)
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_MarkerComponent);
-

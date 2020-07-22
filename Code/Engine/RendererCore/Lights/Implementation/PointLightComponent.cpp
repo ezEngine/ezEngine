@@ -108,8 +108,7 @@ void ezPointLightComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) 
 
   ezTransform t = GetOwner()->GetGlobalTransform();
 
-  float fScreenSpaceSize =
-    CalculateScreenSpaceSize(ezBoundingSphere(t.m_vPosition, m_fEffectiveRange * 0.5f), *msg.m_pView->GetCullingCamera());
+  float fScreenSpaceSize = CalculateScreenSpaceSize(ezBoundingSphere(t.m_vPosition, m_fEffectiveRange * 0.5f), *msg.m_pView->GetCullingCamera());
 
   auto pRenderData = ezCreateRenderDataForThisFrame<ezPointLightRenderData>(GetOwner());
 
@@ -156,8 +155,8 @@ ezPointLightVisualizerAttribute::ezPointLightVisualizerAttribute()
 {
 }
 
-ezPointLightVisualizerAttribute::ezPointLightVisualizerAttribute(const char* szRangeProperty, const char* szIntensityProperty,
-  const char* szColorProperty)
+ezPointLightVisualizerAttribute::ezPointLightVisualizerAttribute(
+  const char* szRangeProperty, const char* szIntensityProperty, const char* szColorProperty)
   : ezVisualizerAttribute(szRangeProperty, szIntensityProperty, szColorProperty)
 {
 }
