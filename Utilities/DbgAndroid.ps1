@@ -20,7 +20,7 @@ $ErrorActionPreference = "Stop"
 
 if($MessageBoxOnError)
 {
-	[System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
+	[System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms") | Out-Null
 }
 
 $debugPort=5039
@@ -38,12 +38,12 @@ function RaiseError
 	{
 		Write-Host $msg -foreground red
 	}
+	exit 1
 }
 
 if((-not $arch) -and (-not $detectArch))
 {
 	RaiseError "Either the -arch or the -detectArch switch must be given"
-	exit 1
 }
 
 if($detectArch)
@@ -68,7 +68,6 @@ if($detectArch)
 	else
 	{
 		RaiseError "Failed to detect architecture from '$detectArch'"
-		exit 1
 	}
 	Write-Host "Detected architecture" $arch
 }
@@ -84,14 +83,12 @@ $adb = "$env:ANDROID_HOME\platform-tools\adb.exe"
 if(-not (Test-Path $adb))
 {
 	RaiseError "Failed to find adb executable in $adb. Please ensure that the ANDROID_HOME environment variable is correctly set"
-	exit 1
 }
 
 $jdb = "$env:JAVA_HOME\bin\jdb.exe"
 if(-not (Test-Path $jdb))
 {
 	RaiseError "Failed to find jdb executable in $jdb. Please ensure taht the JAVA_HOME environment variable is correctly set."
-	exit 1
 }
 $jdb = Resolve-Path $jdb
 
@@ -105,12 +102,21 @@ function Adb-Shell
 	{
 		Write-Host "Executing: adb shell" $cmd
 	}
-	$($result = (& $adb shell $cmd *>&1)) | Out-Null
+	try 
+	{
+		$($result = (& $adb shell $cmd *>&1)) | Out-Null
+	}
+	catch
+	{
+		$callstack = Get-PSCallStack
+		$callstack = $callstack[1..$callstack.Length] | % { $res = "" } { $res += $_.toString() + "`n" } { $res }
+		RaiseError ("{0}`nOutput: {1}`n`nCallstack:`n{2}`n" -f $failureMsg, ($result | Out-String), $callstack)
+	}
 	if ($lastexitcode -ne 0)
 	{
 		$callstack = Get-PSCallStack
 		$callstack = $callstack[1..$callstack.Length] | % { $res = "" } { $res += $_.toString() + "`n" } { $res }
-		throw ("{0}`nOutput: {1}`n`nCallstack:`n{2}`n" -f $failureMsg, ($result | Out-String), $callstack)		
+		RaiseError ("{0}`nOutput: {1}`n`nCallstack:`n{2}`n" -f $failureMsg, ($result | Out-String), $callstack)		
 	}
 	return $result
 }
@@ -129,12 +135,24 @@ function Adb-Cmd
 	{
 		Write-Host "Executing: adb" $cmds
 	}
-	$($result = (& $adb $cmds *>&1)) | Out-Null
+	
+	$result = ""
+	
+	try
+	{
+		$($result = (& $adb $cmds *>&1)) | Out-Null
+	}
+	catch
+	{
+		$callstack = Get-PSCallStack
+		$callstack = $callstack[1..$callstack.Length] | % { $res = "" } { $res += $_.toString() + "`n" } { $res }
+		RaiseError ("{0}`nOutput: {1}`n`nCallstack:`n{2}`n" -f "Failed to execute adb ${$cmds}", ($_.Exception.Message | Out-String), $callstack)
+	}
 	if ($lastexitcode -ne 0)
 	{
 		$callstack = Get-PSCallStack
 		$callstack = $callstack[1..$callstack.Length] | % { $res = "" } { $res += $_.toString() + "`n" } { $res }
-		throw ("{0}`nOutput: {1}`n`nCallstack:`n{2}`n" -f "Failed to execute adb ${$cmds}", ($result | Out-String), $callstack)		
+		RaiseError ("{0}`nOutput: {1}`n`nCallstack:`n{2}`n" -f "Failed to execute adb ${$cmds}", ($result | Out-String), $callstack)		
 	}
 	return $result	
 }
@@ -144,7 +162,6 @@ $gdbServerLocalPath = "$env:ANDROID_NDK_HOME/prebuilt/android-${arch}/gdbserver/
 if(-not (Test-Path $gdbServerLocalPath))
 {
 	RaiseError "Could not find gdbserver in expected location: $gdbServerLocalPath. Please ensure that the ANDROID_NDK_HOME environment variable is correctly set."
-	exit 1
 }
 $gdbServerLocalPath = Resolve-Path $gdbServerLocalPath
 
@@ -153,7 +170,6 @@ $gdbPath = "$env:ANDROID_NDK_HOME/prebuilt/windows-x86_64/bin/gdb.exe"
 if(-not (Test-Path $gdbPath))
 {
 	RaiseError "Could not find gdb in expected location: $gdbPath. Please ensure that the ANDROID_NDK_HOME environment variable is correctly set."
-	exit 1
 }
 
 if($apk)
@@ -161,7 +177,6 @@ if($apk)
 	if(-not (Test-Path $apk))
 	{
 		RaiseError "Failed to find .apk in specified location: $apk."
-		exit 1
 	}
 	Adb-Cmd install $apk
 }
@@ -173,6 +188,7 @@ Write-Host "Device API Level is $deviceApiLevel"
 #Get the application data directory
 $appDir = $(Adb-Shell "run-as $packageName /system/bin/sh -c pwd 2>/dev/null").Trim()
 Write-Host "Application directory is $appDir"
+$debugSocketFile = "$appDir/debug_socket"
 
 # Check if device is rooted or run-as works correctly
 $userIsRoot = (Adb-Shell "id") -match "root"
@@ -182,7 +198,6 @@ if(-not $userIsRoot)
 	if($runAsBroken)
 	{
 		RaiseError "ERROR: your device has a broken run-as and is not rooted. Can not debug."
-		exit 1
 	}
 }
 
@@ -198,7 +213,6 @@ if($gdbServerInfo)
 	catch
 	{
 		RaiseError "A gdbserver is still running and failed to kill. Please manually ensure that there is no gdbserver running."
-		exit 1
 	}
 }
 
@@ -224,7 +238,7 @@ Write-Host "App PID is" $appPid
 Adb-Cmd forward tcp:12345 jdwp:$appPid
 
 # Forward the gdb port
-Adb-Cmd forward tcp:$debugPort tcp:$debugPort
+Adb-Cmd forward tcp:$debugPort localfilesystem:$debugSocketFile
 
 # Copy required files from device
 $processExecutable = ""
@@ -294,7 +308,7 @@ else
 }
 
 # Start gdbserver
-Start-Process -FilePath "$env:comspec" -ArgumentList "/C `"$adb shell run-as $packageName $gdbServerRemotePath :$debugPort --attach $appPid`"" -WindowStyle Hidden
+Start-Process -FilePath "$env:comspec" -ArgumentList "/C `"$adb shell run-as $packageName $gdbServerRemotePath --once +$debugSocketFile --attach $appPid`"" -WindowStyle Hidden
 
 # Generate gdb config
 $gdbConfig = "set solib-search-path $debugTemp;$originalSoDir`n"
@@ -327,7 +341,7 @@ else
 			$jdb
 		)
 		Start-Sleep -Seconds 3
-		Start-Process -FilePath "$env:comspec" -ArgumentList "/C `"`"$jdb`" -connect com.sun.jdi.SocketAttach:port=12345,hostname=localhost`""  -WindowStyle Hidden
+		Start-Process -FilePath "$env:comspec" -ArgumentList "/C `"`"$jdb`" -connect com.sun.jdi.SocketAttach:port=12345,hostname=localhost`"" -WindowStyle Hidden
 	} -ArgumentList $jdb
 
 	# Launch gdb

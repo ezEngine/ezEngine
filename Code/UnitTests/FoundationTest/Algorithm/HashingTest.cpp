@@ -42,21 +42,66 @@ EZ_CREATE_SIMPLE_TEST(Algorithm, Hashing)
     static_assert(ezHashingUtils::xxHash32String("This is a test string. 1234") == 0xff35b049);
 
 
+    // Check MurmurHash for unaligned inputs
+    const char* alignmentTestString = "12345678_12345678__12345678___12345678";
+    ezUInt32 uiHash1 = ezHashingUtils::MurmurHash32(alignmentTestString, 8);
+    ezUInt32 uiHash2 = ezHashingUtils::MurmurHash32(alignmentTestString + 9, 8);
+    ezUInt32 uiHash3 = ezHashingUtils::MurmurHash32(alignmentTestString + 19, 8);
+    ezUInt32 uiHash4 = ezHashingUtils::MurmurHash32(alignmentTestString + 30, 8);
+    EZ_TEST_INT(uiHash1, uiHash2);
+    EZ_TEST_INT(uiHash1, uiHash3);
+    EZ_TEST_INT(uiHash1, uiHash4);
+
     // check 64bit hashes
     const ezUInt64 uiMurmurHash64 = ezHashingUtils::MurmurHash64(sb.GetData(), sb.GetElementCount());
     EZ_TEST_INT(uiMurmurHash64, 0xf8ebc5e8cb110786);
+
+    // Check MurmurHash64 for unaligned inputs
+    ezUInt64 uiHash1_64 = ezHashingUtils::MurmurHash64(alignmentTestString, 8);
+    ezUInt64 uiHash2_64 = ezHashingUtils::MurmurHash64(alignmentTestString + 9, 8);
+    ezUInt64 uiHash3_64 = ezHashingUtils::MurmurHash64(alignmentTestString + 19, 8);
+    ezUInt64 uiHash4_64 = ezHashingUtils::MurmurHash64(alignmentTestString + 30, 8);
+    EZ_TEST_INT(uiHash1_64, uiHash2_64);
+    EZ_TEST_INT(uiHash1_64, uiHash3_64);
+    EZ_TEST_INT(uiHash1_64, uiHash4_64);
 
     // test crc32
     const ezUInt32 uiCrc32 = ezHashingUtils::CRC32Hash(sb.GetData(), sb.GetElementCount());
     EZ_TEST_INT(uiCrc32, 0x73b5e898);
 
+    // Check crc32 for unaligned inputs
+    uiHash1 = ezHashingUtils::CRC32Hash(alignmentTestString, 8);
+    uiHash2 = ezHashingUtils::CRC32Hash(alignmentTestString + 9, 8);
+    uiHash3 = ezHashingUtils::CRC32Hash(alignmentTestString + 19, 8);
+    uiHash4 = ezHashingUtils::CRC32Hash(alignmentTestString + 30, 8);
+    EZ_TEST_INT(uiHash1, uiHash2);
+    EZ_TEST_INT(uiHash1, uiHash3);
+    EZ_TEST_INT(uiHash1, uiHash4);
+
     // 32 Bit xxHash
     const ezUInt32 uiXXHash32 = ezHashingUtils::xxHash32(sb.GetData(), sb.GetElementCount());
     EZ_TEST_INT(uiXXHash32, 0xff35b049);
 
+    // Check xxHash for unaligned inputs
+    uiHash1 = ezHashingUtils::xxHash32(alignmentTestString, 8);
+    uiHash2 = ezHashingUtils::xxHash32(alignmentTestString + 9, 8);
+    uiHash3 = ezHashingUtils::xxHash32(alignmentTestString + 19, 8);
+    uiHash4 = ezHashingUtils::xxHash32(alignmentTestString + 30, 8);
+    EZ_TEST_INT(uiHash1, uiHash2);
+    EZ_TEST_INT(uiHash1, uiHash3);
+    EZ_TEST_INT(uiHash1, uiHash4);
+
     // 64 Bit xxHash
     const ezUInt64 uiXXHash64 = ezHashingUtils::xxHash64(sb.GetData(), sb.GetElementCount());
     EZ_TEST_INT(uiXXHash64, 0x141fb89c0bf32020);
+    // Check xxHash64 for unaligned inputs
+    uiHash1_64 = ezHashingUtils::xxHash64(alignmentTestString, 8);
+    uiHash2_64 = ezHashingUtils::xxHash64(alignmentTestString + 9, 8);
+    uiHash3_64 = ezHashingUtils::xxHash64(alignmentTestString + 19, 8);
+    uiHash4_64 = ezHashingUtils::xxHash64(alignmentTestString + 30, 8);
+    EZ_TEST_INT(uiHash1_64, uiHash2_64);
+    EZ_TEST_INT(uiHash1_64, uiHash3_64);
+    EZ_TEST_INT(uiHash1_64, uiHash4_64);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "HashHelper")

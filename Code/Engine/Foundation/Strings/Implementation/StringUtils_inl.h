@@ -1,7 +1,5 @@
 #pragma once
 
-#include <Foundation/Math/Math.h>
-
 EZ_ALWAYS_INLINE ezInt32 ezStringUtils::CompareChars(ezUInt32 uiCharacter1, ezUInt32 uiCharacter2)
 {
   return (ezInt32)uiCharacter1 - (ezInt32)uiCharacter2;

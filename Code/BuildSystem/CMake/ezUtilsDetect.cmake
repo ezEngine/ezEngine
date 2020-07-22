@@ -396,7 +396,6 @@ function(ez_detect_compiler_and_architecture)
 	  
 	  message (STATUS "Platform is 32-Bit (EZ_CMAKE_ARCHITECTURE_32BIT)")
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_32BIT ON)
-	  set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "32")
 	  
 	elseif(EZ_DETECTED_ARCH STREQUAL "x64")
 	
@@ -405,7 +404,6 @@ function(ez_detect_compiler_and_architecture)
 	  
 	  message (STATUS "Platform is 64-Bit (EZ_CMAKE_ARCHITECTURE_64BIT)")
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_64BIT ON)
-	  set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "64")
 	  
 	elseif(EZ_DETECTED_ARCH STREQUAL "arm32")
 	
@@ -414,7 +412,6 @@ function(ez_detect_compiler_and_architecture)
 	  
 	  message (STATUS "Platform is 32-Bit (EZ_CMAKE_ARCHITECTURE_32BIT)")
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_32BIT ON)
-	  set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "Arm32")
 	  
 	elseif(EZ_DETECTED_ARCH STREQUAL "arm64")
 	
@@ -423,10 +420,26 @@ function(ez_detect_compiler_and_architecture)
 	  
 	  message (STATUS "Platform is 64-Bit (EZ_CMAKE_ARCHITECTURE_64BIT)")
 	  set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_64BIT ON)
-	  set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "Arm64")
 	  
 	else()
 	  message(FATAL_ERROR "Unhandled target architecture ${EZ_DETECTED_ARCH}")
+	endif ()
+	
+	get_property(EZ_CMAKE_ARCHITECTURE_32BIT GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_32BIT)
+	get_property(EZ_CMAKE_ARCHITECTURE_ARM GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_ARM)
+	
+	if(EZ_CMAKE_ARCHITECTURE_ARM)
+		if(EZ_CMAKE_ARCHITECTURE_32BIT)
+			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "Arm32")
+		else()
+			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "Arm64")
+		endif()
+	else()
+		if(EZ_CMAKE_ARCHITECTURE_32BIT)
+			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "32")
+		else()
+			set_property(GLOBAL PROPERTY EZ_CMAKE_ARCHITECTURE_POSTFIX "64")
+		endif()
 	endif()
 	
 endfunction()
