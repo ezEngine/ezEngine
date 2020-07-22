@@ -524,6 +524,15 @@ public:
     }
   }
 
+  struct TriggerEvent
+  {
+    ezComponentHandle m_hTriggerComponent;
+    ezComponentHandle m_hOtherComponent;
+    ezTriggerState::Enum m_TriggerState;
+  };
+
+  ezDeque<TriggerEvent> m_TriggerEvents;
+
   virtual void onTrigger(PxTriggerPair* pairs, PxU32 count) override
   {
     for (ezUInt32 i = 0; i < count; ++i)
@@ -543,8 +552,11 @@ public:
 
       if (pTriggerComponent != nullptr && pOtherComponent != nullptr)
       {
-        ezTriggerState::Enum triggerState = (pair.status == PxPairFlag::eNOTIFY_TOUCH_FOUND) ? ezTriggerState::Activated : ezTriggerState::Deactivated;
-        pTriggerComponent->PostTriggerMessage(pOtherComponent, triggerState);
+        auto& te = m_TriggerEvents.ExpandAndGetRef();
+
+        te.m_TriggerState = (pair.status == PxPairFlag::eNOTIFY_TOUCH_FOUND) ? ezTriggerState::Activated : ezTriggerState::Deactivated;
+        te.m_hTriggerComponent = pTriggerComponent->GetHandle();
+        te.m_hOtherComponent = pOtherComponent->GetHandle();
       }
     }
   }
@@ -1344,6 +1356,8 @@ void ezPhysXWorldModule::FetchResults(const ezWorldModule::UpdateContext& contex
 
   HandleBrokenConstraints();
 
+  HandleTriggerEvents();
+
   FreeUserDataAfterSimulationStep();
 }
 
@@ -1370,6 +1384,23 @@ void ezPhysXWorldModule::HandleBrokenConstraints()
   }
 
   m_pSimulationEventCallback->m_BrokenConstraints.Clear();
+}
+
+void ezPhysXWorldModule::HandleTriggerEvents()
+{
+  for (const auto& te : m_pSimulationEventCallback->m_TriggerEvents)
+  {
+    ezPxTriggerComponent* pTrigger;
+    if (!m_pWorld->TryGetComponent(te.m_hTriggerComponent, pTrigger))
+      continue;
+
+    ezComponent* pOther = nullptr;
+    m_pWorld->TryGetComponent(te.m_hOtherComponent, pOther);
+
+    pTrigger->PostTriggerMessage(pOther, te.m_TriggerState);
+  }
+
+  m_pSimulationEventCallback->m_TriggerEvents.Clear();
 }
 
 void ezPhysXWorldModule::Simulate()

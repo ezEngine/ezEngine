@@ -50,14 +50,21 @@ ezSpawnComponent::~ezSpawnComponent() = default;
 
 void ezSpawnComponent::OnSimulationStarted()
 {
+  SUPER::OnSimulationStarted();
+
   if (m_SpawnFlags.IsAnySet(ezSpawnComponentFlags::SpawnAtStart))
   {
-    m_SpawnFlags.Remove(ezSpawnComponentFlags::SpawnAtStart);
-
     ScheduleSpawn();
   }
 }
 
+
+void ezSpawnComponent::OnDeactivated()
+{
+  m_SpawnFlags.Remove(ezSpawnComponentFlags::SpawnInFlight);
+
+  SUPER::OnDeactivated();
+}
 
 bool ezSpawnComponent::SpawnOnce(const ezVec3& vLocalOffset)
 {

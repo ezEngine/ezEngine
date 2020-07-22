@@ -26,6 +26,7 @@ struct ezSpawnComponentFlags
     StorageType SpawnAtStart : 1;
     StorageType SpawnContinuously : 1;
     StorageType AttachAsChild : 1;
+    StorageType SpawnInFlight : 1;
   };
 };
 
@@ -46,6 +47,7 @@ public:
 
 protected:
   virtual void OnSimulationStarted() override;
+  virtual void OnDeactivated() override;
 
 
   //////////////////////////////////////////////////////////////////////////

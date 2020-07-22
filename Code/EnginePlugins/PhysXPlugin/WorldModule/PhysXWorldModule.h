@@ -79,6 +79,7 @@ private:
   void FetchResults(const ezWorldModule::UpdateContext& context);
 
   void HandleBrokenConstraints();
+  void HandleTriggerEvents();
 
   void Simulate();
   void SimulateStep(ezTime deltaTime);

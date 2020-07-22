@@ -52,10 +52,9 @@ public:
   const char* GetTriggerMessage() const { return m_sTriggerMessage.GetData(); } // [ property ]
 
 protected:
-  friend class ezPxSimulationEventCallback;
+  friend class ezPhysXWorldModule;
 
   physx::PxRigidDynamic* m_pActor = nullptr;
-
   void PostTriggerMessage(const ezComponent* pOtherComponent, ezTriggerState::Enum triggerState) const;
 
   ezHashedString m_sTriggerMessage;
