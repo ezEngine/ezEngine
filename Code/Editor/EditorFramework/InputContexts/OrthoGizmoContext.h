@@ -1,7 +1,7 @@
 #pragma once
 
-#include <EditorFramework/InputContexts/EditorInputContext.h>
 #include <EditorFramework/Gizmos/GizmoBase.h>
+#include <EditorFramework/InputContexts/EditorInputContext.h>
 #include <QPoint>
 
 class QWidget;
@@ -12,13 +12,9 @@ class EZ_EDITORFRAMEWORK_DLL ezOrthoGizmoContext : public ezEditorInputContext
   EZ_ADD_DYNAMIC_REFLECTION(ezOrthoGizmoContext, ezEditorInputContext);
 
 public:
-
   ezOrthoGizmoContext(ezQtEngineDocumentWindow* pOwnerWindow, ezQtEngineViewWidget* pOwnerView, const ezCamera* pCamera);
 
-  void SetWindowConfig(const ezVec2I32& viewport)
-  {
-    m_Viewport = viewport;
-  }
+  void SetWindowConfig(const ezVec2I32& viewport) { m_Viewport = viewport; }
 
   virtual void FocusLost(bool bCancel);
 
@@ -52,4 +48,3 @@ private:
   const ezCamera* m_pCamera;
   ezVec2I32 m_Viewport;
 };
-

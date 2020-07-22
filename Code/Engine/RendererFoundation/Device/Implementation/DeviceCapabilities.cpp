@@ -42,4 +42,3 @@ ezGALDeviceCapabilities::ezGALDeviceCapabilities()
 
 
 EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Device_Implementation_DeviceCapabilities);
-

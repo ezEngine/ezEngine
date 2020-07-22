@@ -106,4 +106,3 @@ bool ezSimdQuat::IsEqualRotation(const ezSimdQuat& qOther, const ezSimdFloat& fE
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_SimdMath_Implementation_SimdQuat);
-

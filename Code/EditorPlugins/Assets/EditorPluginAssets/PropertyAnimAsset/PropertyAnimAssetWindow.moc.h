@@ -122,7 +122,7 @@ private Q_SLOTS:
   void onGradientIntensityCpChanged(ezInt32 idx, float intensity);
   void onGradientBeginOperation();
   void onGradientEndOperation(bool commit);
-  //void onGradientNormalizeRange();
+  // void onGradientNormalizeRange();
 
   //////////////////////////////////////////////////////////////////////////
   // Event track editor events
@@ -138,7 +138,7 @@ private Q_SLOTS:
 
 private:
   ezPropertyAnimAssetDocument* GetPropertyAnimDocument();
-  //void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
+  // void PropertyEventHandler(const ezDocumentObjectPropertyEvent& e);
   void StructureEventHandler(const ezDocumentObjectStructureEvent& e);
   void SelectionEventHandler(const ezSelectionManagerEvent& e);
   void CommandHistoryEventHandler(const ezCommandHistoryEvent& e);

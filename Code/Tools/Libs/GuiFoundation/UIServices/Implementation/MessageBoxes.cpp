@@ -42,7 +42,7 @@ void ezQtUiServices::MessageBoxInformation(const ezFormatString& msg)
     ezLog::Info(msg.GetText(tmp));
   else
     QMessageBox::information(QApplication::activeWindow(), QString::fromUtf8(ezApplicationServices::GetSingleton()->GetApplicationName()),
-                             QString::fromUtf8(msg.GetText(tmp)), QMessageBox::StandardButton::Ok);
+      QString::fromUtf8(msg.GetText(tmp)), QMessageBox::StandardButton::Ok);
 }
 
 void ezQtUiServices::MessageBoxWarning(const ezFormatString& msg)
@@ -53,11 +53,11 @@ void ezQtUiServices::MessageBoxWarning(const ezFormatString& msg)
     ezLog::Warning(msg.GetText(tmp));
   else
     QMessageBox::warning(QApplication::activeWindow(), QString::fromUtf8(ezApplicationServices::GetSingleton()->GetApplicationName()),
-                         QString::fromUtf8(msg.GetText(tmp)), QMessageBox::StandardButton::Ok);
+      QString::fromUtf8(msg.GetText(tmp)), QMessageBox::StandardButton::Ok);
 }
 
-QMessageBox::StandardButton ezQtUiServices::MessageBoxQuestion(const ezFormatString& msg, QMessageBox::StandardButtons buttons,
-                                                               QMessageBox::StandardButton defaultButton)
+QMessageBox::StandardButton ezQtUiServices::MessageBoxQuestion(
+  const ezFormatString& msg, QMessageBox::StandardButtons buttons, QMessageBox::StandardButton defaultButton)
 {
   if (s_bHeadless)
   {
@@ -66,9 +66,7 @@ QMessageBox::StandardButton ezQtUiServices::MessageBoxQuestion(const ezFormatStr
   else
   {
     ezStringBuilder tmp;
-    return QMessageBox::question(QApplication::activeWindow(),
-                                 QString::fromUtf8(ezApplicationServices::GetSingleton()->GetApplicationName()),
-                                 QString::fromUtf8(msg.GetText(tmp)),
-                                 buttons, defaultButton);
-    }
+    return QMessageBox::question(QApplication::activeWindow(), QString::fromUtf8(ezApplicationServices::GetSingleton()->GetApplicationName()),
+      QString::fromUtf8(msg.GetText(tmp)), buttons, defaultButton);
+  }
 }

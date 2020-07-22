@@ -6,7 +6,7 @@
 #include <QSettings>
 
 ezQtLaunchFileserveDlg::ezQtLaunchFileserveDlg(QWidget* parent)
-    : QDialog(parent)
+  : QDialog(parent)
 {
   setupUi(this);
 }

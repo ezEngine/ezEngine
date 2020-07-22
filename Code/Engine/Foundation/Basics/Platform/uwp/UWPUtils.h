@@ -30,7 +30,8 @@ namespace ezUwpUtils
   /// \param callback
   ///   Callable of signature bool(UINT index, const ComPtr<Interface>& pElement). Return value of false means discontinue.
   template <typename ElementQueryType, typename ElementType, typename Callback>
-  HRESULT ezWinRtIterateIVectorView(const ComPtr<ABI::Windows::Foundation::Collections::IVectorView<ElementType>>& pVectorView, const Callback& callback)
+  HRESULT ezWinRtIterateIVectorView(
+    const ComPtr<ABI::Windows::Foundation::Collections::IVectorView<ElementType>>& pVectorView, const Callback& callback)
   {
     UINT numElements = 0;
     HRESULT result = pVectorView->get_Size(&numElements);

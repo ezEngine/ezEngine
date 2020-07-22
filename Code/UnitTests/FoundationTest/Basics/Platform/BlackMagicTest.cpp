@@ -1,7 +1,6 @@
 #include <FoundationTestPCH.h>
 
-#define INT_DECLARE(name, n) \
-  int name = n;
+#define INT_DECLARE(name, n) int name = n;
 
 namespace
 {

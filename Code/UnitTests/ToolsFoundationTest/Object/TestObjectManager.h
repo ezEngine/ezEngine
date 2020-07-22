@@ -1,11 +1,11 @@
 #pragma once
 
-#include <ToolsFoundation/Object/DocumentObjectManager.h>
-#include <ToolsFoundation/Document/Document.h>
 #include <Foundation/Serialization/RttiConverter.h>
-#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
-#include <ToolsFoundation/Object/ObjectAccessorBase.h>
+#include <ToolsFoundation/Document/Document.h>
+#include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <ToolsFoundation/Object/DocumentObjectMirror.h>
+#include <ToolsFoundation/Object/ObjectAccessorBase.h>
+#include <ToolsFoundation/Serialization/DocumentObjectConverter.h>
 
 
 class ezTestDocumentObjectManager : public ezDocumentObjectManager

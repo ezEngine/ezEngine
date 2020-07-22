@@ -1,8 +1,8 @@
 #pragma once
 
-#include <GuiFoundation/GuiFoundationDLL.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 
 /// \brief Stores the valid values and names for 'dynamic' enums.
 ///
@@ -13,7 +13,6 @@
 class EZ_GUIFOUNDATION_DLL ezDynamicEnum
 {
 public:
-
   /// \brief Returns a ezDynamicEnum under the given name. Creates a new one, if the name has not been used before.
   static ezDynamicEnum& GetDynamicEnum(const char* szEnumName);
 
@@ -40,4 +39,3 @@ private:
 
   static ezMap<ezString, ezDynamicEnum> s_DynamicEnums;
 };
-

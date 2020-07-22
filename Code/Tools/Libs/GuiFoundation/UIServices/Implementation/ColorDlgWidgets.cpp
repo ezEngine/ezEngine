@@ -6,7 +6,7 @@
 #include <qevent.h>
 
 ezQtColorAreaWidget::ezQtColorAreaWidget(QWidget* parent)
-    : QWidget(parent)
+  : QWidget(parent)
 {
   setAutoFillBackground(false);
 
@@ -109,7 +109,7 @@ void ezQtColorAreaWidget::mousePressEvent(QMouseEvent* event)
 //////////////////////////////////////////////////////////////////////////
 
 ezQtColorRangeWidget::ezQtColorRangeWidget(QWidget* parent)
-    : QWidget(parent)
+  : QWidget(parent)
 {
   setAutoFillBackground(false);
 }

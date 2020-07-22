@@ -104,7 +104,7 @@ namespace InputDetail
         break;
     }
   }
-}
+} // namespace InputDetail
 
 void AddInputEventHandler()
 {

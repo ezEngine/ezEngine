@@ -1,9 +1,9 @@
 #pragma once
 
-#include <ParticlePlugin/ParticlePluginDLL.h>
 #include <Foundation/Math/Vec3.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/ArrayPtr.h>
+#include <ParticlePlugin/ParticlePluginDLL.h>
 
 struct EZ_PARTICLEPLUGIN_DLL ezParticleEvent
 {

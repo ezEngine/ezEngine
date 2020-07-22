@@ -303,8 +303,7 @@ void ezQtEditorApp::StartupEditor(ezBitflags<StartupFlags> startupFlags, const c
   connect(m_pTimer, SIGNAL(timeout()), this, SLOT(SlotTimedUpdate()), Qt::QueuedConnection);
   m_pTimer->start(1);
 
-  if (m_StartupFlags.AreNoneSet(StartupFlags::Headless | StartupFlags::UnitTest)
-    && !ezToolsProject::GetSingleton()->IsProjectOpen())
+  if (m_StartupFlags.AreNoneSet(StartupFlags::Headless | StartupFlags::UnitTest) && !ezToolsProject::GetSingleton()->IsProjectOpen())
   {
     GuiOpenDashboard();
   }

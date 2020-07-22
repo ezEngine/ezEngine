@@ -13,7 +13,8 @@ ezPreprocessor::MacroDefinition::MacroDefinition()
   m_bHasVarArgs = false;
 }
 
-void ezPreprocessor::CopyTokensReplaceParams(const TokenStream& Source, ezUInt32 uiFirstSourceToken, TokenStream& Destination, const ezHybridArray<ezString, 16>& parameters)
+void ezPreprocessor::CopyTokensReplaceParams(
+  const TokenStream& Source, ezUInt32 uiFirstSourceToken, TokenStream& Destination, const ezHybridArray<ezString, 16>& parameters)
 {
   Destination.Clear();
   Destination.Reserve(Source.GetCount() - uiFirstSourceToken);
@@ -26,10 +27,8 @@ void ezPreprocessor::CopyTokensReplaceParams(const TokenStream& Source, ezUInt32
     // add all the relevant tokens to the definition
     for (; i < Source.GetCount(); ++i)
     {
-      if (Source[i]->m_iType == ezTokenType::BlockComment ||
-          Source[i]->m_iType == ezTokenType::LineComment ||
-          Source[i]->m_iType == ezTokenType::EndOfFile ||
-          Source[i]->m_iType == ezTokenType::Newline)
+      if (Source[i]->m_iType == ezTokenType::BlockComment || Source[i]->m_iType == ezTokenType::LineComment ||
+          Source[i]->m_iType == ezTokenType::EndOfFile || Source[i]->m_iType == ezTokenType::Newline)
         continue;
 
       if (Source[i]->m_iType == ezTokenType::Identifier)
@@ -64,9 +63,7 @@ ezResult ezPreprocessor::ExtractParameterName(const TokenStream& Tokens, ezUInt3
 {
   SkipWhitespace(Tokens, uiCurToken);
 
-  if (uiCurToken + 2 < Tokens.GetCount() &&
-      Tokens[uiCurToken + 0]->m_DataView == "." &&
-      Tokens[uiCurToken + 1]->m_DataView == "." &&
+  if (uiCurToken + 2 < Tokens.GetCount() && Tokens[uiCurToken + 0]->m_DataView == "." && Tokens[uiCurToken + 1]->m_DataView == "." &&
       Tokens[uiCurToken + 2]->m_DataView == ".")
   {
     sIdentifierName = "...";
@@ -126,8 +123,7 @@ ezResult ezPreprocessor::ExtractParameterValue(const TokenStream& Tokens, ezUInt
   // ignore commas etc. as long as they are surrounded with parenthesis
   for (; uiCurToken < Tokens.GetCount(); ++uiCurToken)
   {
-    if (Tokens[uiCurToken]->m_iType == ezTokenType::BlockComment ||
-        Tokens[uiCurToken]->m_iType == ezTokenType::LineComment ||
+    if (Tokens[uiCurToken]->m_iType == ezTokenType::BlockComment || Tokens[uiCurToken]->m_iType == ezTokenType::LineComment ||
         Tokens[uiCurToken]->m_iType == ezTokenType::Newline)
       continue;
 
@@ -176,10 +172,8 @@ void ezPreprocessor::StringifyTokens(const TokenStream& Tokens, ezStringBuilder&
 
   while (uiLastNonWhitespace > 0)
   {
-    if (Tokens[uiLastNonWhitespace - 1]->m_iType != ezTokenType::Whitespace &&
-        Tokens[uiLastNonWhitespace - 1]->m_iType != ezTokenType::Newline &&
-        Tokens[uiLastNonWhitespace - 1]->m_iType != ezTokenType::BlockComment &&
-        Tokens[uiLastNonWhitespace - 1]->m_iType != ezTokenType::LineComment)
+    if (Tokens[uiLastNonWhitespace - 1]->m_iType != ezTokenType::Whitespace && Tokens[uiLastNonWhitespace - 1]->m_iType != ezTokenType::Newline &&
+        Tokens[uiLastNonWhitespace - 1]->m_iType != ezTokenType::BlockComment && Tokens[uiLastNonWhitespace - 1]->m_iType != ezTokenType::LineComment)
       break;
 
     --uiLastNonWhitespace;
@@ -188,10 +182,8 @@ void ezPreprocessor::StringifyTokens(const TokenStream& Tokens, ezStringBuilder&
   for (ezUInt32 t = uiCurToken; t < uiLastNonWhitespace; ++t)
   {
     // comments, newlines etc. are stripped out
-    if ((Tokens[t]->m_iType == ezTokenType::LineComment) ||
-        (Tokens[t]->m_iType == ezTokenType::BlockComment) ||
-        (Tokens[t]->m_iType == ezTokenType::Newline) ||
-        (Tokens[t]->m_iType == ezTokenType::EndOfFile))
+    if ((Tokens[t]->m_iType == ezTokenType::LineComment) || (Tokens[t]->m_iType == ezTokenType::BlockComment) ||
+        (Tokens[t]->m_iType == ezTokenType::Newline) || (Tokens[t]->m_iType == ezTokenType::EndOfFile))
       continue;
 
     sTemp = Tokens[t]->m_DataView;
@@ -201,8 +193,7 @@ void ezPreprocessor::StringifyTokens(const TokenStream& Tokens, ezStringBuilder&
       sTemp = " ";
 
     // inside strings, all backslashes and double quotes are escaped
-    if ((Tokens[t]->m_iType == ezTokenType::String1) ||
-        (Tokens[t]->m_iType == ezTokenType::String2))
+    if ((Tokens[t]->m_iType == ezTokenType::String1) || (Tokens[t]->m_iType == ezTokenType::String2))
     {
       sTemp.ReplaceAll("\\", "\\\\");
       sTemp.ReplaceAll("\"", "\\\"");
@@ -218,4 +209,3 @@ void ezPreprocessor::StringifyTokens(const TokenStream& Tokens, ezStringBuilder&
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Implementation_Macros);
-

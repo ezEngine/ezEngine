@@ -17,5 +17,4 @@ namespace ezLogWriter
   private:
     static ezLog::TimestampMode s_TimestampMode;
   };
-}
-
+} // namespace ezLogWriter

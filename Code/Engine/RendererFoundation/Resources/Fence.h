@@ -6,7 +6,6 @@
 class EZ_RENDERERFOUNDATION_DLL ezGALFence : public ezRefCounted
 {
 protected:
-
   friend class ezGALDevice;
 
   ezGALFence();
@@ -17,4 +16,3 @@ protected:
 
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) = 0;
 };
-

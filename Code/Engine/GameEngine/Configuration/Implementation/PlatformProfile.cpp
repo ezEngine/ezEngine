@@ -65,8 +65,7 @@ void ezPlatformProfile::AddMissingConfigs()
   for (auto pRtti = ezRTTI::GetFirstInstance(); pRtti != nullptr; pRtti = pRtti->GetNextInstance())
   {
     // find all types derived from ezProfileConfigData
-    if (!pRtti->GetTypeFlags().IsAnySet(ezTypeFlags::Abstract) && pRtti->IsDerivedFrom<ezProfileConfigData>() &&
-        pRtti->GetAllocator()->CanAllocate())
+    if (!pRtti->GetTypeFlags().IsAnySet(ezTypeFlags::Abstract) && pRtti->IsDerivedFrom<ezProfileConfigData>() && pRtti->GetAllocator()->CanAllocate())
     {
       bool bHasTypeAlready = false;
 
@@ -160,4 +159,3 @@ ezResult ezPlatformProfile::LoadForRuntime(const char* szFile)
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Configuration_Implementation_PlatformProfile);
-

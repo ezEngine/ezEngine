@@ -1,7 +1,7 @@
 #pragma once
 
-#include <GuiFoundation/GuiFoundationDLL.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <QDockWidget>
 
 class EZ_GUIFOUNDATION_DLL ezQtDocumentPanel : public QDockWidget

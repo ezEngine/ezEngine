@@ -196,10 +196,8 @@ void ezSelectionContext::SendMarqueeMsg(QMouseEvent* e, ezUInt8 uiWhatToDo)
 
   ezVec3 vPosOnNearPlane0, vRayDir0;
   ezVec3 vPosOnNearPlane1, vRayDir1;
-  ezGraphicsUtils::ConvertScreenPosToWorldPos(
-    mInvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, vScreenSpacePos0, vPosOnNearPlane0, &vRayDir0);
-  ezGraphicsUtils::ConvertScreenPosToWorldPos(
-    mInvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, vScreenSpacePos1, vPosOnNearPlane1, &vRayDir1);
+  ezGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, vScreenSpacePos0, vPosOnNearPlane0, &vRayDir0);
+  ezGraphicsUtils::ConvertScreenPosToWorldPos(mInvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, vScreenSpacePos1, vPosOnNearPlane1, &vRayDir1);
 
   ezTransform t;
   t.SetIdentity();

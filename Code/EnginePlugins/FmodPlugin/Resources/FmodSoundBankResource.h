@@ -1,7 +1,7 @@
 #pragma once
 
-#include <FmodPlugin/FmodPluginDLL.h>
 #include <Core/ResourceManager/Resource.h>
+#include <FmodPlugin/FmodPluginDLL.h>
 
 typedef ezTypedResourceHandle<class ezFmodSoundBankResource> ezFmodSoundBankResourceHandle;
 
@@ -33,10 +33,12 @@ private:
 class EZ_FMODPLUGIN_DLL ezFmodSoundBankResourceLoader : public ezResourceTypeLoader
 {
 public:
-
   struct LoadedData
   {
-    LoadedData() : m_Reader(&m_Storage) { }
+    LoadedData()
+      : m_Reader(&m_Storage)
+    {
+    }
 
     ezMemoryStreamStorage m_Storage;
     ezMemoryStreamReader m_Reader;
@@ -48,5 +50,3 @@ public:
   virtual void CloseDataStream(const ezResource* pResource, const ezResourceLoadData& LoaderData) override;
   virtual bool IsResourceOutdated(const ezResource* pResource) const override;
 };
-
-

@@ -2,26 +2,27 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
-#include <Foundation/Communication/Implementation/MessageLoop.h>
-#include <Foundation/Communication/Implementation/Win/MessageLoop_win.h>
-#include <Foundation/Communication/Implementation/Win/PipeChannel_win.h>
-#include <Foundation/Communication/RemoteMessage.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Serialization/ReflectionSerializer.h>
+#  include <Foundation/Communication/Implementation/MessageLoop.h>
+#  include <Foundation/Communication/Implementation/Win/MessageLoop_win.h>
+#  include <Foundation/Communication/Implementation/Win/PipeChannel_win.h>
+#  include <Foundation/Communication/RemoteMessage.h>
+#  include <Foundation/Logging/Log.h>
+#  include <Foundation/Serialization/ReflectionSerializer.h>
 
-ezPipeChannel_win::State::State(ezPipeChannel_win* pChannel) : IsPending(false)
+ezPipeChannel_win::State::State(ezPipeChannel_win* pChannel)
+  : IsPending(false)
 {
   memset(&Context.Overlapped, 0, sizeof(Context.Overlapped));
   Context.pChannel = pChannel;
   IsPending = false;
 }
 
-ezPipeChannel_win::State::~State()
-{
-}
+ezPipeChannel_win::State::~State() {}
 
 ezPipeChannel_win::ezPipeChannel_win(const char* szAddress, Mode::Enum mode)
-    : ezIpcChannel(szAddress, mode), m_InputState(this), m_OutputState(this)
+  : ezIpcChannel(szAddress, mode)
+  , m_InputState(this)
+  , m_OutputState(this)
 {
   CreatePipe(szAddress);
   m_pOwner->AddChannel(this);
@@ -52,24 +53,13 @@ bool ezPipeChannel_win::CreatePipe(const char* szAddress)
     attributes.lpSecurityDescriptor = NULL;
     attributes.bInheritHandle = FALSE;
 
-    m_PipeHandle = CreateNamedPipeW(ezStringWChar(sPipename).GetData(),
-                                    PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED | FILE_FLAG_FIRST_PIPE_INSTANCE,
-                                    PIPE_TYPE_BYTE | PIPE_READMODE_BYTE,
-                                    1,
-                                    BUFFER_SIZE,
-                                    BUFFER_SIZE,
-                                    5000,
-                                    &attributes);
+    m_PipeHandle = CreateNamedPipeW(ezStringWChar(sPipename).GetData(), PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED | FILE_FLAG_FIRST_PIPE_INSTANCE,
+      PIPE_TYPE_BYTE | PIPE_READMODE_BYTE, 1, BUFFER_SIZE, BUFFER_SIZE, 5000, &attributes);
   }
   else
   {
-    m_PipeHandle = CreateFileW(ezStringWChar(sPipename).GetData(),
-                               GENERIC_READ | GENERIC_WRITE,
-                               0,
-                               NULL,
-                               OPEN_EXISTING,
-                               SECURITY_SQOS_PRESENT | SECURITY_IDENTIFICATION | FILE_FLAG_OVERLAPPED,
-                               NULL);
+    m_PipeHandle = CreateFileW(ezStringWChar(sPipename).GetData(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING,
+      SECURITY_SQOS_PRESENT | SECURITY_IDENTIFICATION | FILE_FLAG_OVERLAPPED, NULL);
   }
 
   if (m_PipeHandle == INVALID_HANDLE_VALUE)
@@ -99,10 +89,10 @@ void ezPipeChannel_win::InternalConnect()
     return;
   if (m_Connected)
     return;
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   if (m_ThreadId == 0)
     m_ThreadId = ezThreadUtils::GetCurrentThreadID();
-#endif
+#  endif
 
   if (m_Mode == Mode::Server)
   {
@@ -129,10 +119,10 @@ void ezPipeChannel_win::InternalConnect()
 
 void ezPipeChannel_win::InternalDisconnect()
 {
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   if (m_ThreadId != 0)
     EZ_ASSERT_DEBUG(m_ThreadId == ezThreadUtils::GetCurrentThreadID(), "Function must be called from worker thread!");
-#endif
+#  endif
   if (m_InputState.IsPending || m_OutputState.IsPending)
   {
     CancelIo(m_PipeHandle);
@@ -155,7 +145,8 @@ void ezPipeChannel_win::InternalDisconnect()
     m_Connected = false;
   }
 
-  m_Events.Broadcast(ezIpcChannelEvent(m_Mode == Mode::Client ? ezIpcChannelEvent::DisconnectedFromServer : ezIpcChannelEvent::DisconnectedFromClient, this));
+  m_Events.Broadcast(
+    ezIpcChannelEvent(m_Mode == Mode::Client ? ezIpcChannelEvent::DisconnectedFromServer : ezIpcChannelEvent::DisconnectedFromClient, this));
   // Raise in case another thread is waiting for new messages (as we would sleep forever otherwise).
   m_IncomingMessages.RaiseSignal();
 }
@@ -183,7 +174,7 @@ bool ezPipeChannel_win::ProcessConnection()
   BOOL res = ConnectNamedPipe(m_PipeHandle, &m_InputState.Context.Overlapped);
   if (res)
   {
-    //EZ_REPORT_FAILURE
+    // EZ_REPORT_FAILURE
     return false;
   }
 
@@ -223,8 +214,7 @@ bool ezPipeChannel_win::ProcessIncomingMessages(DWORD uiBytesRead)
       if (m_PipeHandle == INVALID_HANDLE_VALUE)
         return false;
 
-      BOOL res = ReadFile(m_PipeHandle, m_InputBuffer, BUFFER_SIZE, &uiBytesRead,
-                          &m_InputState.Context.Overlapped);
+      BOOL res = ReadFile(m_PipeHandle, m_InputBuffer, BUFFER_SIZE, &uiBytesRead, &m_InputState.Context.Overlapped);
 
       if (!res)
       {
@@ -269,7 +259,7 @@ bool ezPipeChannel_win::ProcessOutgoingMessages(DWORD uiBytesWritten)
     }
 
     EZ_LOCK(m_OutputQueueMutex);
-    //message was send
+    // message was send
     m_OutputQueue.PopFront();
   }
 
@@ -289,8 +279,7 @@ bool ezPipeChannel_win::ProcessOutgoingMessages(DWORD uiBytesWritten)
     storage = &m_OutputQueue.PeekFront();
   }
 
-  BOOL res = WriteFile(m_PipeHandle, storage->GetData(), storage->GetStorageSize(), &uiBytesWritten,
-                       &m_OutputState.Context.Overlapped);
+  BOOL res = WriteFile(m_PipeHandle, storage->GetData(), storage->GetStorageSize(), &uiBytesWritten, &m_OutputState.Context.Overlapped);
 
   if (!res)
   {
@@ -345,4 +334,3 @@ void ezPipeChannel_win::OnIOCompleted(IOContext* pContext, DWORD uiBytesTransfer
 #endif
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_Win_PipeChannel_win);
-

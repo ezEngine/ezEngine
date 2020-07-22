@@ -38,8 +38,8 @@ private Q_SLOTS:
   void OnTypeFilterChanged();
   void OnPathFilterChanged();
   void on_ListAssets_doubleClicked(const QModelIndex& index);
-  void on_ListAssets_activated(const QModelIndex & index);
-  void on_ListAssets_clicked(const QModelIndex & index);
+  void on_ListAssets_activated(const QModelIndex& index);
+  void on_ListAssets_clicked(const QModelIndex& index);
   void on_ButtonListMode_clicked();
   void on_ButtonIconMode_clicked();
   void on_IconSizeSlider_valueChanged(int iValue);
@@ -59,8 +59,8 @@ private Q_SLOTS:
   void OnListToggleSortByRecentlyUsed();
   void OnListCopyAssetGuid();
   void OnSelectionTimer();
-  void OnAssetSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
-  void OnAssetSelectionCurrentChanged(const QModelIndex &current, const QModelIndex &previous);
+  void OnAssetSelectionChanged(const QItemSelection& selected, const QItemSelection& deselected);
+  void OnAssetSelectionCurrentChanged(const QModelIndex& current, const QModelIndex& previous);
   void OnModelReset();
   void OnNewAsset();
 

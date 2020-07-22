@@ -109,8 +109,8 @@ void ezPx6DOFJointComponent::DeserializeComponent(ezWorldReader& stream)
   }
 }
 
-void ezPx6DOFJointComponent::CreateJointType(PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1,
-  const PxTransform& localFrame1)
+void ezPx6DOFJointComponent::CreateJointType(
+  PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
 {
   m_pJoint = PxD6JointCreate(*(ezPhysX::GetSingleton()->GetPhysXAPI()), actor0, localFrame0, actor1, localFrame1);
 }
@@ -277,10 +277,10 @@ void ezPx6DOFJointComponent::ApplySettings()
 
   // the linear and angular springs appear to have the exact same effect
   // it is unclear from the PhysX documentation, whether there is any difference in behavior
-  //pJoint->setDrive(PxD6Drive::eX, PxD6JointDrive(m_fLinearStiffness, m_fLinearDamping, PX_MAX_F32, true));
-  //pJoint->setDrive(PxD6Drive::eY, PxD6JointDrive(m_fLinearStiffness, m_fLinearDamping, PX_MAX_F32, true));
-  //pJoint->setDrive(PxD6Drive::eZ, PxD6JointDrive(m_fLinearStiffness, m_fLinearDamping, PX_MAX_F32, true));
-  //pJoint->setDrive(PxD6Drive::eSLERP, PxD6JointDrive(m_fAngularStiffness, m_fAngularDamping, PX_MAX_F32, true));
+  // pJoint->setDrive(PxD6Drive::eX, PxD6JointDrive(m_fLinearStiffness, m_fLinearDamping, PX_MAX_F32, true));
+  // pJoint->setDrive(PxD6Drive::eY, PxD6JointDrive(m_fLinearStiffness, m_fLinearDamping, PX_MAX_F32, true));
+  // pJoint->setDrive(PxD6Drive::eZ, PxD6JointDrive(m_fLinearStiffness, m_fLinearDamping, PX_MAX_F32, true));
+  // pJoint->setDrive(PxD6Drive::eSLERP, PxD6JointDrive(m_fAngularStiffness, m_fAngularDamping, PX_MAX_F32, true));
 }
 
 void ezPx6DOFJointComponent::SetFreeLinearAxis(ezBitflags<ezPxAxis> flags)

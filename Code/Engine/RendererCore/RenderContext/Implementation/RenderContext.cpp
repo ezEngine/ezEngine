@@ -369,8 +369,8 @@ void ezRenderContext::BindShader(const ezShaderResourceHandle& hShader, ezBitfla
 void ezRenderContext::BindMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuffer)
 {
   ezResourceLock<ezMeshBufferResource> pMeshBuffer(hMeshBuffer, ezResourceAcquireMode::AllowLoadingFallback);
-  BindMeshBuffer(pMeshBuffer->GetVertexBuffer(), pMeshBuffer->GetIndexBuffer(), &(pMeshBuffer->GetVertexDeclaration()),
-    pMeshBuffer->GetTopology(), pMeshBuffer->GetPrimitiveCount());
+  BindMeshBuffer(pMeshBuffer->GetVertexBuffer(), pMeshBuffer->GetIndexBuffer(), &(pMeshBuffer->GetVertexDeclaration()), pMeshBuffer->GetTopology(),
+    pMeshBuffer->GetPrimitiveCount());
 }
 
 void ezRenderContext::BindMeshBuffer(ezGALBufferHandle hVertexBuffer, ezGALBufferHandle hIndexBuffer,
@@ -493,8 +493,7 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
   ezShaderPermutationResource* pShaderPermutation = nullptr;
   EZ_SCOPE_EXIT(if (pShaderPermutation != nullptr) { ezResourceManager::EndAcquireResource(pShaderPermutation); });
 
-  bool bRebuildVertexDeclaration =
-    m_StateFlags.IsAnySet(ezRenderContextFlags::ShaderStateChanged | ezRenderContextFlags::MeshBufferBindingChanged);
+  bool bRebuildVertexDeclaration = m_StateFlags.IsAnySet(ezRenderContextFlags::ShaderStateChanged | ezRenderContextFlags::MeshBufferBindingChanged);
 
   if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::ShaderStateChanged))
   {
@@ -610,8 +609,7 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
     }
 
     ezGALVertexDeclarationHandle hVertexDeclaration;
-    if (m_pVertexDeclarationInfo != nullptr &&
-        BuildVertexDeclaration(m_hActiveGALShader, *m_pVertexDeclarationInfo, hVertexDeclaration).Failed())
+    if (m_pVertexDeclarationInfo != nullptr && BuildVertexDeclaration(m_hActiveGALShader, *m_pVertexDeclarationInfo, hVertexDeclaration).Failed())
       return EZ_FAILURE;
 
     // If there is a vertex buffer we need a valid vertex declaration as well.
@@ -708,8 +706,7 @@ void ezRenderContext::SetViewportAndRenderTargetSetup(const ezRectFloat& viewpor
 }
 
 // static
-ezConstantBufferStorageHandle ezRenderContext::CreateConstantBufferStorage(
-  ezUInt32 uiSizeInBytes, ezConstantBufferStorageBase*& out_pStorage)
+ezConstantBufferStorageHandle ezRenderContext::CreateConstantBufferStorage(ezUInt32 uiSizeInBytes, ezConstantBufferStorageBase*& out_pStorage)
 {
   EZ_ASSERT_DEV(ezMemoryUtils::IsSizeAligned(uiSizeInBytes, 16u), "Storage struct for constant buffer is not aligned to 16 bytes");
 
@@ -965,8 +962,7 @@ ezShaderPermutationResource* ezRenderContext::ApplyShaderState()
   if (!m_hActiveShader.IsValid())
     return nullptr;
 
-  m_hActiveShaderPermutation =
-    ezShaderManager::PreloadSinglePermutation(m_hActiveShader, m_PermutationVariables, m_bAllowAsyncShaderLoading);
+  m_hActiveShaderPermutation = ezShaderManager::PreloadSinglePermutation(m_hActiveShader, m_PermutationVariables, m_bAllowAsyncShaderLoading);
 
   if (!m_hActiveShaderPermutation.IsValid())
     return nullptr;
@@ -1170,8 +1166,8 @@ void ezRenderContext::ApplyBufferBindings(ezGALShaderStage::Enum stage, const ez
 
 void ezRenderContext::SetDefaultTextureFilter(ezTextureFilterSetting::Enum filter)
 {
-  EZ_ASSERT_DEBUG(filter >= ezTextureFilterSetting::FixedBilinear && filter <= ezTextureFilterSetting::FixedAnisotropic16x,
-    "Invalid default texture filter");
+  EZ_ASSERT_DEBUG(
+    filter >= ezTextureFilterSetting::FixedBilinear && filter <= ezTextureFilterSetting::FixedAnisotropic16x, "Invalid default texture filter");
   filter = ezMath::Clamp(filter, ezTextureFilterSetting::FixedBilinear, ezTextureFilterSetting::FixedAnisotropic16x);
 
   if (m_DefaultTextureFilter == filter)

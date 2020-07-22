@@ -6,8 +6,8 @@
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/Log.h>
 
-void ezArchiveBuilder::AddFolder(const char* szAbsFolderPath,
-  ezArchiveCompressionMode defaultMode /*= ezArchiveCompressionMode::Uncompressed*/, InclusionCallback callback /*= InclusionCallback()*/)
+void ezArchiveBuilder::AddFolder(const char* szAbsFolderPath, ezArchiveCompressionMode defaultMode /*= ezArchiveCompressionMode::Uncompressed*/,
+  InclusionCallback callback /*= InclusionCallback()*/)
 {
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
   ezFileSystemIterator fileIt;
@@ -97,7 +97,8 @@ ezResult ezArchiveBuilder::WriteArchive(ezStreamWriter& stream) const
     sHashablePath = e.m_sRelTargetPath;
     sHashablePath.ToLower();
 
-    toc.m_PathToEntryIndex[ezArchiveStoredString(ezTempHashedString::ComputeHash(sHashablePath.GetData()), uiPathStringOffset)] = toc.m_Entries.GetCount();
+    toc.m_PathToEntryIndex[ezArchiveStoredString(ezTempHashedString::ComputeHash(sHashablePath.GetData()), uiPathStringOffset)] =
+      toc.m_Entries.GetCount();
 
     if (!WriteNextFileCallback(i + 1, uiNumEntries, e.m_sAbsSourcePath))
       return EZ_FAILURE;

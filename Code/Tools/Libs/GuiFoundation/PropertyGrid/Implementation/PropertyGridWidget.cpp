@@ -19,8 +19,8 @@ ezRttiMappedObjectFactory<ezQtPropertyWidget> ezQtPropertyGridWidget::s_Factory;
 
 static ezQtPropertyWidget* StandardTypeCreator(const ezRTTI* pRtti)
 {
-  EZ_ASSERT_DEV(pRtti->GetTypeFlags().IsSet(ezTypeFlags::StandardType),
-    "This function is only valid for StandardType properties, regardless of category");
+  EZ_ASSERT_DEV(
+    pRtti->GetTypeFlags().IsSet(ezTypeFlags::StandardType), "This function is only valid for StandardType properties, regardless of category");
 
   if (pRtti == ezGetStaticRTTI<ezVariant>())
   {
@@ -230,8 +230,7 @@ ezQtPropertyGridWidget::~ezQtPropertyGridWidget()
 
   if (m_pDocument)
   {
-    m_pDocument->m_ObjectAccessorChangeEvents.RemoveEventHandler(
-      ezMakeDelegate(&ezQtPropertyGridWidget::ObjectAccessorChangeEventHandler, this));
+    m_pDocument->m_ObjectAccessorChangeEvents.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyGridWidget::ObjectAccessorChangeEventHandler, this));
     m_pDocument->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyGridWidget::SelectionEventHandler, this));
   }
 }
@@ -242,8 +241,7 @@ void ezQtPropertyGridWidget::SetDocument(ezDocument* pDocument, bool bBindToSele
   m_bBindToSelectionManager = bBindToSelectionManager;
   if (m_pDocument)
   {
-    m_pDocument->m_ObjectAccessorChangeEvents.RemoveEventHandler(
-      ezMakeDelegate(&ezQtPropertyGridWidget::ObjectAccessorChangeEventHandler, this));
+    m_pDocument->m_ObjectAccessorChangeEvents.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyGridWidget::ObjectAccessorChangeEventHandler, this));
     m_pDocument->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtPropertyGridWidget::SelectionEventHandler, this));
   }
 
@@ -251,8 +249,7 @@ void ezQtPropertyGridWidget::SetDocument(ezDocument* pDocument, bool bBindToSele
 
   if (m_pDocument)
   {
-    m_pDocument->m_ObjectAccessorChangeEvents.AddEventHandler(
-      ezMakeDelegate(&ezQtPropertyGridWidget::ObjectAccessorChangeEventHandler, this));
+    m_pDocument->m_ObjectAccessorChangeEvents.AddEventHandler(ezMakeDelegate(&ezQtPropertyGridWidget::ObjectAccessorChangeEventHandler, this));
     m_pDocument->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtPropertyGridWidget::SelectionEventHandler, this));
   }
 }
@@ -273,7 +270,8 @@ void ezQtPropertyGridWidget::ClearSelection()
   m_Selection.Clear();
 }
 
-void ezQtPropertyGridWidget::SetSelectionIncludeExcludeProperties(const char* szIncludeProperties /*= nullptr*/, const char* szExcludeProperties /*= nullptr*/)
+void ezQtPropertyGridWidget::SetSelectionIncludeExcludeProperties(
+  const char* szIncludeProperties /*= nullptr*/, const char* szExcludeProperties /*= nullptr*/)
 {
   m_sSelectionIncludeProperties = szIncludeProperties;
   m_sSelectionExcludeProperties = szExcludeProperties;
@@ -303,7 +301,8 @@ void ezQtPropertyGridWidget::SetSelection(const ezDeque<const ezDocumentObject*>
     }
 
     const ezRTTI* pCommonType = ezQtPropertyWidget::GetCommonBaseType(Items);
-    m_pTypeWidget = new ezQtTypeWidget(m_pContent, this, GetObjectAccessor(), pCommonType, m_sSelectionIncludeProperties, m_sSelectionExcludeProperties);
+    m_pTypeWidget =
+      new ezQtTypeWidget(m_pContent, this, GetObjectAccessor(), pCommonType, m_sSelectionIncludeProperties, m_sSelectionExcludeProperties);
     m_pTypeWidget->SetSelection(Items);
 
     m_pContentLayout->insertWidget(0, m_pTypeWidget, 0);
@@ -408,8 +407,7 @@ ezQtPropertyWidget* ezQtPropertyGridWidget::CreatePropertyWidget(const ezAbstrac
       {
         if (pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) && !pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner))
         {
-          return new ezQtUnsupportedPropertyWidget(
-            "Pointer: Use ezPropertyFlags::PointerOwner or provide derived ezContainerWidgetAttribute");
+          return new ezQtUnsupportedPropertyWidget("Pointer: Use ezPropertyFlags::PointerOwner or provide derived ezContainerWidgetAttribute");
         }
 
         return new ezQtPropertyTypeContainerWidget();
@@ -468,8 +466,7 @@ void GetDefaultValues(const ezRTTI* pType, const ezDocument* pDocument, ezProper
       {
         if (!pProp->GetFlags().IsSet(ezPropertyFlags::Class))
         {
-          (*e.m_pPropertyStates)[pProp->GetPropertyName()].m_bIsDefaultValue =
-            pDocument->IsDefaultValue(e.m_pObject, pProp->GetPropertyName(), true);
+          (*e.m_pPropertyStates)[pProp->GetPropertyName()].m_bIsDefaultValue = pDocument->IsDefaultValue(e.m_pObject, pProp->GetPropertyName(), true);
         }
       }
       break;

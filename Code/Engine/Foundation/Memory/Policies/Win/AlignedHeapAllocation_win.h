@@ -13,4 +13,3 @@ EZ_ALWAYS_INLINE void ezAlignedHeapAllocation::Deallocate(void* ptr)
 {
   _aligned_free(ptr);
 }
-

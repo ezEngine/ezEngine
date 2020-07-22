@@ -26,7 +26,8 @@ public:
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   void AssertNotNaN() const
   {
-    EZ_ASSERT_ALWAYS(!IsNaN(), "This object contains NaN values. This can happen when you forgot to initialize it before using it. Please check that all code-paths properly initialize this object.");
+    EZ_ASSERT_ALWAYS(!IsNaN(), "This object contains NaN values. This can happen when you forgot to initialize it before using it. Please check that "
+                               "all code-paths properly initialize this object.");
   }
 #endif
 
@@ -111,13 +112,15 @@ public:
   /// \brief Scales the box's corners by the given factors, thus also moves the box around.
   void ScaleFromOrigin(const ezVec3Template<Type>& vScale); // [tested]
 
-  /// \brief Transforms the corners of the box and recomputes the aabb of those transformed points. Rotations and scalings will influence the center position of the box.
+  /// \brief Transforms the corners of the box and recomputes the aabb of those transformed points. Rotations and scalings will influence the center
+  /// position of the box.
   void TransformFromCenter(const ezMat4Template<Type>& mTransform); // [tested]
 
   /// \brief Transforms the corners of the box in its local space. The center of the box does not change, unless the transform contains a translation.
   void TransformFromOrigin(const ezMat4Template<Type>& mTransform); // [tested]
 
-  /// \brief The given point is clamped to the volume of the box, i.e. it will be either inside the box or on its surface and it will have the closest possible distance to the original point.
+  /// \brief The given point is clamped to the volume of the box, i.e. it will be either inside the box or on its surface and it will have the closest
+  /// possible distance to the original point.
   const ezVec3Template<Type> GetClampedPoint(const ezVec3Template<Type>& vPoint) const; // [tested]
 
   /// \brief Returns the squared minimum distance from the box's surface to the point. Zero if the point is inside the box.
@@ -137,10 +140,13 @@ public:
 
   /// \brief Returns whether the given ray intersects the box. Optionally returns the intersection distance and position.
   /// Note that vRayDir is not required to be normalized.
-  bool GetRayIntersection(const ezVec3Template<Type>& vStartPos, const ezVec3Template<Type>& vRayDir, Type* out_fIntersection = nullptr, ezVec3Template<Type>* out_vIntersection = nullptr) const; // [tested]
+  bool GetRayIntersection(const ezVec3Template<Type>& vStartPos, const ezVec3Template<Type>& vRayDir, Type* out_fIntersection = nullptr,
+    ezVec3Template<Type>* out_vIntersection = nullptr) const; // [tested]
 
-  /// \brief Checks whether the line segment intersects the box. Optionally returns the intersection point and the fraction along the line segment where the intersection occurred.
-  bool GetLineSegmentIntersection(const ezVec3Template<Type>& vStartPos, const ezVec3Template<Type>& vEndPos, Type* out_fLineFraction = nullptr, ezVec3Template<Type>* out_vIntersection = nullptr) const; // [tested]
+  /// \brief Checks whether the line segment intersects the box. Optionally returns the intersection point and the fraction along the line segment
+  /// where the intersection occurred.
+  bool GetLineSegmentIntersection(const ezVec3Template<Type>& vStartPos, const ezVec3Template<Type>& vEndPos, Type* out_fLineFraction = nullptr,
+    ezVec3Template<Type>* out_vIntersection = nullptr) const; // [tested]
 
   /// \brief Returns a bounding sphere that encloses this box.
   const ezBoundingSphereTemplate<Type> GetBoundingSphere() const; // [tested]
@@ -161,4 +167,3 @@ bool operator!=(const ezBoundingBoxTemplate<Type>& lhs, const ezBoundingBoxTempl
 
 
 #include <Foundation/Math/Implementation/BoundingBox_inl.h>
-

@@ -21,5 +21,3 @@ public:
   ezInt32 m_iBelongsToPlayer;
   bool m_bDoesDamage;
 };
-
-

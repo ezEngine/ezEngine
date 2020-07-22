@@ -2,12 +2,10 @@
 
 #if EZ_DISABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
 
-#include <Foundation/Communication/Implementation/Mobile/MessageLoop_mobile.h>
-#include <Foundation/Communication/IpcChannel.h>
+#  include <Foundation/Communication/Implementation/Mobile/MessageLoop_mobile.h>
+#  include <Foundation/Communication/IpcChannel.h>
 
-ezMessageLoop_mobile::ezMessageLoop_mobile()
-{
-}
+ezMessageLoop_mobile::ezMessageLoop_mobile() {}
 
 ezMessageLoop_mobile::~ezMessageLoop_mobile()
 {
@@ -37,4 +35,3 @@ bool ezMessageLoop_mobile::WaitForMessages(ezInt32 iTimeout, ezIpcChannel* pFilt
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_Mobile_MessageLoop_mobile);
-

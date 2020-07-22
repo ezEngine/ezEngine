@@ -215,9 +215,8 @@ void ezAssetDocumentGenerator::ImportAssets()
     s_StartDir = ezToolsProject::GetSingleton()->GetProjectDirectory();
   }
 
-  QStringList filenames =
-      QFileDialog::getOpenFileNames(QApplication::activeWindow(), "Import Assets", s_StartDir.GetData(),
-                                    QString::fromUtf8(fullFilter.GetData()), nullptr, QFileDialog::Option::DontResolveSymlinks);
+  QStringList filenames = QFileDialog::getOpenFileNames(QApplication::activeWindow(), "Import Assets", s_StartDir.GetData(),
+    QString::fromUtf8(fullFilter.GetData()), nullptr, QFileDialog::Option::DontResolveSymlinks);
 
   DestroyGenerators(generators);
 
@@ -237,8 +236,7 @@ void ezAssetDocumentGenerator::ImportAssets()
 }
 
 void ezAssetDocumentGenerator::CreateImportOptionList(const ezHybridArray<ezString, 16>& filesToImport,
-                                                      ezDynamicArray<ezAssetDocumentGenerator::ImportData>& allImports,
-                                                      const ezHybridArray<ezAssetDocumentGenerator*, 16>& generators)
+  ezDynamicArray<ezAssetDocumentGenerator::ImportData>& allImports, const ezHybridArray<ezAssetDocumentGenerator*, 16>& generators)
 {
   ezQtEditorApp* pApp = ezQtEditorApp::GetSingleton();
   ezStringBuilder sInputParentRelative, sInputRelative, sGroup;
@@ -306,9 +304,8 @@ void ezAssetDocumentGenerator::SortAndSelectBestImportOption(ezDynamicArray<ezAs
   for (auto& singleImport : allImports)
   {
 
-    singleImport.m_ImportOptions.Sort([](const ezAssetDocumentGenerator::Info& lhs, const ezAssetDocumentGenerator::Info& rhs) -> bool {
-      return lhs.m_sName < rhs.m_sName;
-    });
+    singleImport.m_ImportOptions.Sort(
+      [](const ezAssetDocumentGenerator::Info& lhs, const ezAssetDocumentGenerator::Info& rhs) -> bool { return lhs.m_sName < rhs.m_sName; });
 
     ezUInt32 uiNumPrios[(ezUInt32)ezAssetDocGeneratorPriority::ENUM_COUNT] = {0};
     ezUInt32 uiBestPrio[(ezUInt32)ezAssetDocGeneratorPriority::ENUM_COUNT] = {0};
@@ -320,8 +317,7 @@ void ezAssetDocumentGenerator::SortAndSelectBestImportOption(ezDynamicArray<ezAs
     }
 
     singleImport.m_iSelectedOption = -1;
-    for (ezUInt32 prio = (ezUInt32)ezAssetDocGeneratorPriority::HighPriority; prio > (ezUInt32)ezAssetDocGeneratorPriority::Undecided;
-         --prio)
+    for (ezUInt32 prio = (ezUInt32)ezAssetDocGeneratorPriority::HighPriority; prio > (ezUInt32)ezAssetDocGeneratorPriority::Undecided; --prio)
     {
       if (uiNumPrios[prio] == 1)
       {

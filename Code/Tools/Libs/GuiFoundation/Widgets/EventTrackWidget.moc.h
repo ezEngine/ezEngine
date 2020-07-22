@@ -1,13 +1,13 @@
 #pragma once
 
-#include <GuiFoundation/GuiFoundationDLL.h>
 #include <Foundation/Containers/DynamicArray.h>
-#include <GuiFoundation/Widgets/EventTrackEditData.h>
 #include <Foundation/Math/Vec2.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
+#include <GuiFoundation/Widgets/EventTrackEditData.h>
 
-#include <QWidget>
-#include <QPen>
 #include <QBrush>
+#include <QPen>
+#include <QWidget>
 
 class ezQGridBarWidget;
 class QRubberBand;
@@ -60,9 +60,27 @@ protected:
   virtual void keyPressEvent(QKeyEvent* e) override;
 
 private:
-  enum class ClickTarget { Nothing, SelectedPoint };
-  enum class EditState { None, DraggingPoints, MultiSelect, RightClick, Panning, ScaleLeftRight };
-  enum class SelectArea { None, Center, Left, Right };
+  enum class ClickTarget
+  {
+    Nothing,
+    SelectedPoint
+  };
+  enum class EditState
+  {
+    None,
+    DraggingPoints,
+    MultiSelect,
+    RightClick,
+    Panning,
+    ScaleLeftRight
+  };
+  enum class SelectArea
+  {
+    None,
+    Center,
+    Left,
+    Right
+  };
 
   struct Point
   {

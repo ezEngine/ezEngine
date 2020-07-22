@@ -11,7 +11,7 @@ class ezQtDeltaTransformDlg : public QDialog, public Ui_DeltaTransformDlg
   Q_OBJECT
 
 public:
-  ezQtDeltaTransformDlg(QWidget *parent, ezSceneDocument* pSceneDoc);
+  ezQtDeltaTransformDlg(QWidget* parent, ezSceneDocument* pSceneDoc);
 
   enum Mode
   {
@@ -68,5 +68,4 @@ private:
 
   ezUInt32 m_uiActionsApplied = 0;
   ezSceneDocument* m_pSceneDocument = nullptr;
-
 };

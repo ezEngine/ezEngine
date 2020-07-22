@@ -21,7 +21,7 @@ namespace
       ezLog::Info("Profiling capture saved to '{0}'.", fileWriter.GetFilePathAbsolute().GetData());
     }
   }
-}
+} // namespace
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Profiling);
 

@@ -22,7 +22,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezEditorShapeIconsExtractor::ezEditorShapeIconsExtractor(const char* szName)
-    : ezExtractor(szName)
+  : ezExtractor(szName)
 {
   m_fSize = 1.0f;
   m_fMaxScreenSize = 64.0f;
@@ -33,8 +33,8 @@ ezEditorShapeIconsExtractor::ezEditorShapeIconsExtractor(const char* szName)
 
 ezEditorShapeIconsExtractor::~ezEditorShapeIconsExtractor() {}
 
-void ezEditorShapeIconsExtractor::Extract(const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects,
-                                          ezExtractedRenderData& extractedRenderData)
+void ezEditorShapeIconsExtractor::Extract(
+  const ezView& view, const ezDynamicArray<const ezGameObject*>& visibleObjects, ezExtractedRenderData& extractedRenderData)
 {
   EZ_LOCK(view.GetWorld()->GetReadMarker());
 
@@ -66,8 +66,8 @@ void ezEditorShapeIconsExtractor::Extract(const ezView& view, const ezDynamicArr
   }
 }
 
-void ezEditorShapeIconsExtractor::ExtractShapeIcon(const ezGameObject* pObject, const ezView& view,
-                                                   ezExtractedRenderData& extractedRenderData, ezRenderData::Category category)
+void ezEditorShapeIconsExtractor::ExtractShapeIcon(
+  const ezGameObject* pObject, const ezView& view, ezExtractedRenderData& extractedRenderData, ezRenderData::Category category)
 {
   static const ezTag& tagHidden = ezTagRegistry::GetGlobalRegistry().RegisterTag("EditorHidden");
   static const ezTag& tagEditor = ezTagRegistry::GetGlobalRegistry().RegisterTag("Editor");

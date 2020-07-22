@@ -6,7 +6,7 @@
 namespace ezModelImporter
 {
   Node::Node()
-      : HierarchyObject(ObjectHandle::NODE)
+    : HierarchyObject(ObjectHandle::NODE)
   {
   }
 
@@ -20,4 +20,4 @@ namespace ezModelImporter
   //
   //    outAbsoluteTransform.SetGlobalTransform(outAbsoluteTransform, m_RelativeTransform);
   //  }
-}
+} // namespace ezModelImporter

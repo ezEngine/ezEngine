@@ -68,8 +68,7 @@ void ezSphereManipulatorAdapter::GizmoEventHandler(const ezGizmoEvent& e)
     {
       const ezSphereManipulatorAttribute* pAttr = static_cast<const ezSphereManipulatorAttribute*>(m_pManipulatorAttr);
 
-      ChangeProperties(pAttr->GetInnerRadiusProperty(), m_Gizmo.GetInnerRadius(), pAttr->GetOuterRadiusProperty(),
-                       m_Gizmo.GetOuterRadius());
+      ChangeProperties(pAttr->GetInnerRadiusProperty(), m_Gizmo.GetInnerRadius(), pAttr->GetOuterRadiusProperty(), m_Gizmo.GetOuterRadius());
     }
     break;
   }

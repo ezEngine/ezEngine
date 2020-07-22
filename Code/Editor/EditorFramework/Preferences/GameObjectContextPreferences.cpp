@@ -16,7 +16,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezGameObjectContextPreferencesUser::ezGameObjectContextPreferencesUser()
-    : ezPreferences(Domain::Document, "GameObjectContext")
+  : ezPreferences(Domain::Document, "GameObjectContext")
 {
 }
 

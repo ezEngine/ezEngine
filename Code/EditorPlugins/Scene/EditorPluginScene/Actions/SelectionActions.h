@@ -1,9 +1,9 @@
 #pragma once
 
 #include <EditorPluginScene/EditorPluginSceneDLL.h>
-#include <GuiFoundation/GuiFoundationDLL.h>
-#include <GuiFoundation/Action/BaseActions.h>
 #include <EditorPluginScene/Scene/SceneDocument.h>
+#include <GuiFoundation/Action/BaseActions.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 
 ///
 class EZ_EDITORPLUGINSCENE_DLL ezSelectionActions
@@ -44,7 +44,6 @@ class EZ_EDITORPLUGINSCENE_DLL ezSelectionAction : public ezButtonAction
   EZ_ADD_DYNAMIC_REFLECTION(ezSelectionAction, ezButtonAction);
 
 public:
-
   enum class ActionType
   {
     GroupSelectedItems,
@@ -86,7 +85,3 @@ private:
   ezSceneDocument* m_pSceneDocument;
   ActionType m_Type;
 };
-
-
-
-

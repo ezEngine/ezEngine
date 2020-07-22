@@ -1,10 +1,10 @@
 #pragma once
 
+#include <Core/Messages/EventMessage.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/World/WorldModule.h>
 #include <Foundation/Communication/Message.h>
 #include <GameEngine/GameEngineDLL.h>
-#include <Core/Messages/EventMessage.h>
 
 struct ezGameObjectHandle;
 struct ezSkeletonResourceDescriptor;
@@ -50,7 +50,8 @@ EZ_DECLARE_FLAGS(ezUInt32, ezPhysicsShapeType, Static, Dynamic);
 struct ezPhysicsQueryParameters
 {
   ezPhysicsQueryParameters() = default;
-  explicit ezPhysicsQueryParameters(ezUInt32 uiCollisionLayer, ezBitflags<ezPhysicsShapeType> shapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic, ezUInt32 uiIgnoreShapeId = ezInvalidIndex)
+  explicit ezPhysicsQueryParameters(ezUInt32 uiCollisionLayer,
+    ezBitflags<ezPhysicsShapeType> shapeTypes = ezPhysicsShapeType::Static | ezPhysicsShapeType::Dynamic, ezUInt32 uiIgnoreShapeId = ezInvalidIndex)
     : m_uiCollisionLayer(uiCollisionLayer)
     , m_ShapeTypes(shapeTypes)
     , m_uiIgnoreShapeId(uiIgnoreShapeId)
@@ -79,21 +80,29 @@ protected:
   }
 
 public:
-  virtual bool Raycast(ezPhysicsCastResult& out_Result, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const = 0;
+  virtual bool Raycast(ezPhysicsCastResult& out_Result, const ezVec3& vStart, const ezVec3& vDir, float fDistance,
+    const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const = 0;
 
-  virtual bool RaycastAll(ezPhysicsCastResultArray& out_Results, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params) const = 0;
+  virtual bool RaycastAll(ezPhysicsCastResultArray& out_Results, const ezVec3& vStart, const ezVec3& vDir, float fDistance,
+    const ezPhysicsQueryParameters& params) const = 0;
 
-  virtual bool SweepTestSphere(ezPhysicsCastResult& out_Result, float fSphereRadius, const ezVec3& vStart, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const = 0;
+  virtual bool SweepTestSphere(ezPhysicsCastResult& out_Result, float fSphereRadius, const ezVec3& vStart, const ezVec3& vDir, float fDistance,
+    const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const = 0;
 
-  virtual bool SweepTestBox(ezPhysicsCastResult& out_Result, ezVec3 vBoxExtends, const ezTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const = 0;
+  virtual bool SweepTestBox(ezPhysicsCastResult& out_Result, ezVec3 vBoxExtends, const ezTransform& transform, const ezVec3& vDir, float fDistance,
+    const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const = 0;
 
-  virtual bool SweepTestCapsule(ezPhysicsCastResult& out_Result, float fCapsuleRadius, float fCapsuleHeight, const ezTransform& transform, const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params, ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const = 0;
+  virtual bool SweepTestCapsule(ezPhysicsCastResult& out_Result, float fCapsuleRadius, float fCapsuleHeight, const ezTransform& transform,
+    const ezVec3& vDir, float fDistance, const ezPhysicsQueryParameters& params,
+    ezPhysicsHitCollection collection = ezPhysicsHitCollection::Closest) const = 0;
 
   virtual bool OverlapTestSphere(float fSphereRadius, const ezVec3& vPosition, const ezPhysicsQueryParameters& params) const = 0;
 
-  virtual bool OverlapTestCapsule(float fCapsuleRadius, float fCapsuleHeight, const ezTransform& transform, const ezPhysicsQueryParameters& params) const = 0;
+  virtual bool OverlapTestCapsule(
+    float fCapsuleRadius, float fCapsuleHeight, const ezTransform& transform, const ezPhysicsQueryParameters& params) const = 0;
 
-  virtual void QueryShapesInSphere(ezPhysicsOverlapResultArray& out_Results, float fSphereRadius, const ezVec3& vPosition, const ezPhysicsQueryParameters& params) const = 0;
+  virtual void QueryShapesInSphere(
+    ezPhysicsOverlapResultArray& out_Results, float fSphereRadius, const ezVec3& vPosition, const ezPhysicsQueryParameters& params) const = 0;
 
   virtual ezVec3 GetGravity() const = 0;
 

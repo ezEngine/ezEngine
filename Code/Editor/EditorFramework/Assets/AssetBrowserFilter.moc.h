@@ -1,7 +1,7 @@
 #pragma once
 
-#include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/Assets/AssetBrowserModel.moc.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
 #include <Foundation/Strings/String.h>
 
 class EZ_EDITORFRAMEWORK_DLL ezQtAssetBrowserFilter : public ezQtAssetFilter

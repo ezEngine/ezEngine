@@ -144,9 +144,7 @@ ezStatus ezDocument::SaveDocument(bool bForce)
     ezTaskSystem::WaitForGroup(m_activeSaveTask);
   }
   ezStatus result;
-  m_activeSaveTask = InternalSaveDocument([&result](ezDocument* doc, ezStatus res) {
-    result = res;
-  });
+  m_activeSaveTask = InternalSaveDocument([&result](ezDocument* doc, ezStatus res) { result = res; });
   ezTaskSystem::WaitForGroup(m_activeSaveTask);
   return result;
 }
@@ -224,8 +222,8 @@ ezTaskGroupID ezDocument::InternalSaveDocument(AfterSaveCallback callback)
   return afterSaveID;
 }
 
-ezStatus ezDocument::ReadDocument(const char* sDocumentPath, ezUniquePtr<ezAbstractObjectGraph>& header,
-  ezUniquePtr<ezAbstractObjectGraph>& objects, ezUniquePtr<ezAbstractObjectGraph>& types)
+ezStatus ezDocument::ReadDocument(const char* sDocumentPath, ezUniquePtr<ezAbstractObjectGraph>& header, ezUniquePtr<ezAbstractObjectGraph>& objects,
+  ezUniquePtr<ezAbstractObjectGraph>& types)
 {
   ezMemoryStreamStorage storage;
   ezMemoryStreamReader memreader(&storage);
@@ -323,8 +321,8 @@ ezStatus ezDocument::InternalLoadDocument()
 
   {
     EZ_PROFILE_SCOPE("Restoring Objects");
-    ezDocumentObjectConverterReader objectConverter(objects.Borrow(), GetObjectManager(),
-      ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
+    ezDocumentObjectConverterReader objectConverter(
+      objects.Borrow(), GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
     // range.BeginNextStep("Restoring Objects");
     auto* pRootNode = objects->GetNodeByName("ObjectTree");
     objectConverter.ApplyPropertiesToObject(pRootNode, GetObjectManager()->GetRootObject());

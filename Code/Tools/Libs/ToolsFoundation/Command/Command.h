@@ -1,8 +1,8 @@
 #pragma once
 
-#include <ToolsFoundation/ToolsFoundationDLL.h>
-#include <Foundation/Types/Status.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Types/Status.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 
 class ezDocument;
 class ezCommandTransaction;
@@ -21,7 +21,11 @@ public:
   bool IsUndoable() const { return m_bUndoable; };
   bool HasChildActions() const { return !m_ChildActions.IsEmpty(); }
 
-  enum class CommandState { WasDone, WasUndone };
+  enum class CommandState
+  {
+    WasDone,
+    WasUndone
+  };
 
 protected:
   ezStatus Do(bool bRedo);
@@ -42,7 +46,7 @@ protected:
   friend class ezCommandTransaction;
 
   ezString m_sDescription; // TODO
-  bool m_bUndoable; // TODO
+  bool m_bUndoable;        // TODO
   ezHybridArray<ezCommand*, 8> m_ChildActions;
   ezDocument* m_pDocument;
 };

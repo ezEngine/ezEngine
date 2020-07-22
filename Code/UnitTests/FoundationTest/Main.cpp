@@ -1,9 +1,9 @@
 #include <FoundationTestPCH.h>
 
+#include <Foundation/Threading/ThreadUtils.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <TestFramework/Framework/TestFramework.h>
 #include <TestFramework/Utilities/TestSetup.h>
-#include <Foundation/Threading/ThreadUtils.h>
 #include <iostream>
 
 ezInt32 ezConstructionCounter::s_iConstructions = 0;

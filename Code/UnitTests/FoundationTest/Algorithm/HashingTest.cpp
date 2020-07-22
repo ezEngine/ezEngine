@@ -27,7 +27,8 @@ EZ_CREATE_SIMPLE_TEST(Algorithm, Hashing)
     EZ_TEST_INT(uiHashRT, uiHashCT);
 
     // Static assert to ensure this is happening at compile time!
-    static_assert(ezHashingUtils::MurmurHash32String("This is a test string. 1234") == static_cast<ezUInt32>(0xb999d6c4), "Error in compile time murmur hash calculation!");
+    static_assert(ezHashingUtils::MurmurHash32String("This is a test string. 1234") == static_cast<ezUInt32>(0xb999d6c4),
+      "Error in compile time murmur hash calculation!");
 
     // Test short inputs (< 16 characthers) of xx hash at compile time
     ezUInt32 uixxHashRT = ezHashingUtils::xxHash32("Test string", 11, 0);

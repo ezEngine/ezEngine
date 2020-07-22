@@ -1,7 +1,7 @@
 #pragma once
 
-#include <RendererCore/RendererCoreDLL.h>
 #include <Foundation/Serialization/RttiConverter.h>
+#include <RendererCore/RendererCoreDLL.h>
 
 class ezRenderPipeline;
 struct ezRenderPipelineResourceDescriptor;
@@ -15,7 +15,10 @@ struct EZ_RENDERERCORE_DLL ezRenderPipelineResourceLoader
 class EZ_RENDERERCORE_DLL ezRenderPipelineRttiConverterContext : public ezRttiConverterContext
 {
 public:
-  ezRenderPipelineRttiConverterContext() : m_pRenderPipeline(nullptr) {}
+  ezRenderPipelineRttiConverterContext()
+    : m_pRenderPipeline(nullptr)
+  {
+  }
 
   virtual void Clear() override;
 
@@ -24,5 +27,3 @@ public:
 
   ezRenderPipeline* m_pRenderPipeline;
 };
-
-

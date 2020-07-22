@@ -8,8 +8,7 @@
 
 ezMat4 ezUwpUtils::ConvertMat4(const ABI::Windows::Foundation::Numerics::Matrix4x4& in)
 {
-  return ezMat4(in.M11, in.M21, in.M31, in.M41, in.M12, in.M22, in.M32, in.M42, in.M13, in.M23, in.M33, in.M43, in.M14, in.M24, in.M34,
-    in.M44);
+  return ezMat4(in.M11, in.M21, in.M31, in.M41, in.M12, in.M22, in.M32, in.M42, in.M13, in.M23, in.M33, in.M43, in.M14, in.M24, in.M34, in.M44);
 }
 
 ezVec3 ezUwpUtils::ConvertVec3(const ABI::Windows::Foundation::Numerics::Vector3& in)

@@ -9,7 +9,7 @@
 #include <QProcess>
 
 ezQtDataDirsDlg::ezQtDataDirsDlg(QWidget* parent)
-    : QDialog(parent)
+  : QDialog(parent)
 {
   setupUi(this);
 
@@ -60,7 +60,7 @@ void ezQtDataDirsDlg::FillList()
     ListDataDirs->clearSelection();
   else
     ListDataDirs->item(m_iSelection)->setSelected(true);
-  
+
 
   ListDataDirs->blockSignals(false);
 
@@ -109,8 +109,8 @@ void ezQtDataDirsDlg::on_ButtonAdd_clicked()
     sPreviousFolder = QString::fromUtf8(ezToolsProject::GetSingleton()->GetProjectFile().GetData());
   }
 
-  QString sFolder = QFileDialog::getExistingDirectory(this, QLatin1String("Select Directory"), sPreviousFolder,
-                                                      QFileDialog::Option::ShowDirsOnly | QFileDialog::Option::DontResolveSymlinks);
+  QString sFolder = QFileDialog::getExistingDirectory(
+    this, QLatin1String("Select Directory"), sPreviousFolder, QFileDialog::Option::ShowDirsOnly | QFileDialog::Option::DontResolveSymlinks);
 
   if (sFolder.isEmpty())
     return;

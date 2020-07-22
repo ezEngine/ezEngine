@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Texture/TextureDLL.h>
-#include <Foundation/Types/Types.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Types/Types.h>
+#include <Texture/TextureDLL.h>
 
 struct EZ_TEXTURE_DLL ezImageAddressMode
 {

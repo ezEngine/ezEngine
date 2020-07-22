@@ -75,4 +75,3 @@ private:
 };
 
 #include <Foundation/Algorithm/Implementation/Sorting_inl.h>
-

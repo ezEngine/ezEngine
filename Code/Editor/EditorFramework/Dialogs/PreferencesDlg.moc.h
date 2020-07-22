@@ -1,9 +1,9 @@
 #pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
-#include <QDialog>
 #include <EditorFramework/ui_PreferencesDlg.h>
 #include <Foundation/Strings/String.h>
+#include <QDialog>
 
 class ezPreferencesDocument;
 class ezPreferences;
@@ -35,5 +35,3 @@ private:
   ezPreferencesDocument* m_pDocument;
   ezMap<ezUuid, const ezDocument*> m_DocumentBinding;
 };
-
-

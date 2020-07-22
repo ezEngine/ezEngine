@@ -1,7 +1,7 @@
 #pragma once
 
-#include <ParticlePlugin/Initializer/ParticleInitializer.h>
 #include <Core/ResourceManager/ResourceHandle.h>
+#include <ParticlePlugin/Initializer/ParticleInitializer.h>
 
 typedef ezTypedResourceHandle<class ezColorGradientResource> ezColorGradientResourceHandle;
 
@@ -10,7 +10,6 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleInitializerFactory_RandomColor final : pub
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializerFactory_RandomColor, ezParticleInitializerFactory);
 
 public:
-
   virtual const ezRTTI* GetInitializerType() const override;
   virtual void CopyInitializerProperties(ezParticleInitializer* pInitializer, bool bFirstTime) const override;
 
@@ -36,7 +35,6 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleInitializer_RandomColor final : public ezP
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleInitializer_RandomColor, ezParticleInitializer);
 
 public:
-
   ezColor m_Color1;
   ezColor m_Color2;
 

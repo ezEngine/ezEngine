@@ -1,7 +1,7 @@
 #include <ToolsFoundationPCH.h>
 
-#include <ToolsFoundation/Document/DocumentUtils.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
+#include <ToolsFoundation/Document/DocumentUtils.h>
 
 ezStatus ezDocumentUtils::IsValidSaveLocationForDocument(const char* szDocument, const ezDocumentTypeDescriptor** out_pTypeDesc)
 {

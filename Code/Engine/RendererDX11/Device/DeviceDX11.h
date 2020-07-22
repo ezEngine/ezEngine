@@ -89,19 +89,23 @@ protected:
 
   virtual void DestroyBufferPlatform(ezGALBuffer* pBuffer) override;
 
-  virtual ezGALTexture* CreateTexturePlatform(const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData) override;
+  virtual ezGALTexture* CreateTexturePlatform(
+    const ezGALTextureCreationDescription& Description, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData) override;
 
   virtual void DestroyTexturePlatform(ezGALTexture* pTexture) override;
 
-  virtual ezGALResourceView* CreateResourceViewPlatform(ezGALResourceBase* pResource, const ezGALResourceViewCreationDescription& Description) override;
+  virtual ezGALResourceView* CreateResourceViewPlatform(
+    ezGALResourceBase* pResource, const ezGALResourceViewCreationDescription& Description) override;
 
   virtual void DestroyResourceViewPlatform(ezGALResourceView* pResourceView) override;
 
-  virtual ezGALRenderTargetView* CreateRenderTargetViewPlatform(ezGALTexture* pTexture, const ezGALRenderTargetViewCreationDescription& Description) override;
+  virtual ezGALRenderTargetView* CreateRenderTargetViewPlatform(
+    ezGALTexture* pTexture, const ezGALRenderTargetViewCreationDescription& Description) override;
 
   virtual void DestroyRenderTargetViewPlatform(ezGALRenderTargetView* pRenderTargetView) override;
 
-  ezGALUnorderedAccessView* CreateUnorderedAccessViewPlatform(ezGALResourceBase* pResource, const ezGALUnorderedAccessViewCreationDescription& Description) override;
+  ezGALUnorderedAccessView* CreateUnorderedAccessViewPlatform(
+    ezGALResourceBase* pResource, const ezGALUnorderedAccessViewCreationDescription& Description) override;
 
   virtual void DestroyUnorderedAccessViewPlatform(ezGALUnorderedAccessView* pResource) override;
 
@@ -205,7 +209,8 @@ private:
     ezUInt32 m_uiHash;
   };
 
-  ezMap<ezUInt32, ezDynamicArray<ID3D11Resource*>, ezCompareHelper<ezUInt32>, ezLocalAllocatorWrapper> m_FreeTempResources[TempResourceType::ENUM_COUNT];
+  ezMap<ezUInt32, ezDynamicArray<ID3D11Resource*>, ezCompareHelper<ezUInt32>, ezLocalAllocatorWrapper>
+    m_FreeTempResources[TempResourceType::ENUM_COUNT];
   ezDeque<UsedTempResource, ezLocalAllocatorWrapper> m_UsedTempResources[TempResourceType::ENUM_COUNT];
 
   ezDynamicArray<ID3D11Query*, ezLocalAllocatorWrapper> m_Timestamps;

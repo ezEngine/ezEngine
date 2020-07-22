@@ -16,7 +16,10 @@ public:
   EZ_ALWAYS_INLINE bool IsCustomType() const { return m_PrimitiveType == ezOpenDdlPrimitiveType::Custom; } // [tested]
 
   /// \brief Whether this is a custom object type of the requested type.
-  EZ_ALWAYS_INLINE bool IsCustomType(const char* szTypeName) const { return m_PrimitiveType == ezOpenDdlPrimitiveType::Custom && ezStringUtils::IsEqual(m_szCustomType, szTypeName); }
+  EZ_ALWAYS_INLINE bool IsCustomType(const char* szTypeName) const
+  {
+    return m_PrimitiveType == ezOpenDdlPrimitiveType::Custom && ezStringUtils::IsEqual(m_szCustomType, szTypeName);
+  }
 
   /// \brief Returns the string for the custom type name.
   EZ_ALWAYS_INLINE const char* GetCustomType() const { return m_szCustomType; } // [tested]
@@ -34,7 +37,10 @@ public:
   ezUInt32 GetNumChildObjects() const; // [tested]
 
   /// \brief If this is a custom type element, the returned pointer is to the first child element.
-  EZ_ALWAYS_INLINE const ezOpenDdlReaderElement* GetFirstChild() const { return reinterpret_cast<const ezOpenDdlReaderElement*>(m_pFirstChild); } // [tested]
+  EZ_ALWAYS_INLINE const ezOpenDdlReaderElement* GetFirstChild() const
+  {
+    return reinterpret_cast<const ezOpenDdlReaderElement*>(m_pFirstChild);
+  } // [tested]
 
   /// \brief If the parent is a custom type element, the next child after this is returned.
   EZ_ALWAYS_INLINE const ezOpenDdlReaderElement* GetSibling() const { return m_pSiblingElement; } // [tested]
@@ -45,7 +51,8 @@ public:
   /// \brief For non-custom types this returns the type of primitive that is stored at this element.
   EZ_ALWAYS_INLINE ezOpenDdlPrimitiveType GetPrimitivesType() const { return m_PrimitiveType; } // [tested]
 
-  /// \brief Returns true if the element stores the requested type of primitives AND has at least the desired amount of them, so that accessing the data array at certain indices is safe.
+  /// \brief Returns true if the element stores the requested type of primitives AND has at least the desired amount of them, so that accessing the
+  /// data array at certain indices is safe.
   bool HasPrimitives(ezOpenDdlPrimitiveType type, ezUInt32 uiMinNumberOfPrimitives = 1) const;
 
   /// \brief Returns a pointer to the primitive data cast to a specific type. Only valid if GetPrimitivesType() actually returns this type.
@@ -116,11 +123,12 @@ public:
   /// \brief Parses the given document, returns EZ_FAILURE if an unrecoverable parsing error was encountered.
   ///
   /// \param stream is the input data.
-  /// \param uiFirstLineOffset allows to adjust the reported line numbers in error messages, in case the given stream represents a sub-section of a larger file.
-  /// \param pLog is used for outputting details about parsing errors. If nullptr is given, no details are logged.
-  /// \param uiCacheSizeInKB is the internal cache size that the parser uses. If the parsed documents contain primitives lists with several thousand elements in a single list,
-  /// increasing the cache size can improve performance, but typically this doesn't need to be adjusted.
-  ezResult ParseDocument(ezStreamReader& stream, ezUInt32 uiFirstLineOffset = 0, ezLogInterface* pLog = ezLog::GetThreadLocalLogSystem(), ezUInt32 uiCacheSizeInKB = 4); // [tested]
+  /// \param uiFirstLineOffset allows to adjust the reported line numbers in error messages, in case the given stream represents a sub-section of a
+  /// larger file. \param pLog is used for outputting details about parsing errors. If nullptr is given, no details are logged. \param uiCacheSizeInKB
+  /// is the internal cache size that the parser uses. If the parsed documents contain primitives lists with several thousand elements in a single
+  /// list, increasing the cache size can improve performance, but typically this doesn't need to be adjusted.
+  ezResult ParseDocument(ezStreamReader& stream, ezUInt32 uiFirstLineOffset = 0, ezLogInterface* pLog = ezLog::GetThreadLocalLogSystem(),
+    ezUInt32 uiCacheSizeInKB = 4); // [tested]
 
   /// \brief Every document has exactly one root element.
   const ezOpenDdlReaderElement* GetRootElement() const; // [tested]
@@ -177,4 +185,3 @@ protected:
 
   ezMap<ezString, ezOpenDdlReaderElement*> m_GlobalNames;
 };
-

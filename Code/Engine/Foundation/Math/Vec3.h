@@ -227,7 +227,6 @@ public:
   /// \note If you are going to do this many times with the same axis, rather than calling this function, instead manually
   /// do what this function does (see inline code) and only compute the quaternion once.
   static ezVec3Template<Type> CreateRandomDeviation(ezRandom& rng, const ezAngle& maxDeviation, const ezVec3& vNormal); // [tested]
-
 };
 
 // *** Operators ***

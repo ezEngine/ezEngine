@@ -53,7 +53,7 @@ void ezCapsuleVisualizerAdapter::Update()
     pObjectAccessor->GetValue(m_pObject, pProp, value);
 
     EZ_ASSERT_DEBUG(value.IsValid() && value.CanConvertTo<float>(), "Invalid property '{0}' bound to ezCapsuleVisualizerAttribute 'radius'",
-                    pAttr->GetRadiusProperty());
+      pAttr->GetRadiusProperty());
     m_fRadius = value.ConvertTo<float>();
   }
 

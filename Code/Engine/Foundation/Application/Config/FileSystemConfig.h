@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/Strings/String.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Strings/String.h>
 
 class EZ_FOUNDATION_DLL ezApplicationFileSystemConfig
 {
@@ -22,7 +22,7 @@ public:
   {
     ezString m_sDataDirSpecialPath;
     ezString m_sRootName;
-    bool m_bWritable; ///< Whether the directory is going to be mounted for writing
+    bool m_bWritable;            ///< Whether the directory is going to be mounted for writing
     bool m_bHardCodedDependency; ///< If set to true, this indicates that it may not be removed by the user (in a config dialog)
 
     DataDirConfig()
@@ -31,7 +31,10 @@ public:
       m_bHardCodedDependency = false;
     }
 
-    bool operator==(const DataDirConfig& rhs) const { return m_bWritable == rhs.m_bWritable && m_sDataDirSpecialPath == rhs.m_sDataDirSpecialPath && m_sRootName == rhs.m_sRootName;  }
+    bool operator==(const DataDirConfig& rhs) const
+    {
+      return m_bWritable == rhs.m_bWritable && m_sDataDirSpecialPath == rhs.m_sDataDirSpecialPath && m_sRootName == rhs.m_sRootName;
+    }
   };
 
   bool operator==(const ezApplicationFileSystemConfig& rhs) const { return m_DataDirs == rhs.m_DataDirs; }
@@ -44,4 +47,3 @@ typedef ezApplicationFileSystemConfig::DataDirConfig ezApplicationFileSystemConf
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezApplicationFileSystemConfig);
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezApplicationFileSystemConfig_DataDirConfig);
-

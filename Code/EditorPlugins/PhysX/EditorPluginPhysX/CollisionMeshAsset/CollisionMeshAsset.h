@@ -1,8 +1,8 @@
 #pragma once
 
+#include <EditorFramework/Assets/AssetDocumentGenerator.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <EditorPluginPhysX/CollisionMeshAsset/CollisionMeshAssetObjects.h>
-#include <EditorFramework/Assets/AssetDocumentGenerator.h>
 
 class ezPxMeshResourceDescriptor;
 class ezGeometry;
@@ -21,16 +21,16 @@ public:
 protected:
   virtual void InitializeAfterLoading(bool bFirstTimeCreation) override;
 
-  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
+  virtual ezStatus InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+    const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags) override;
 
-  ezStatus CreateMeshFromFile(const ezMat3 &mTransformation, ezPhysXCookingMesh& outMesh);
+  ezStatus CreateMeshFromFile(const ezMat3& mTransformation, ezPhysXCookingMesh& outMesh);
   ezStatus CreateMeshFromGeom(ezGeometry& geom, ezPhysXCookingMesh& outMesh);
   virtual ezStatus InternalCreateThumbnail(const ThumbnailInfo& ThumbnailInfo) override;
 
   bool m_bIsConvexMesh = false;
 
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const override;
-
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -45,7 +45,8 @@ public:
   ~ezCollisionMeshAssetDocumentGenerator();
 
   virtual void GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const override;
-  virtual ezStatus Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument) override;
+  virtual ezStatus Generate(
+    const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument) override;
   virtual const char* GetDocumentExtension() const override { return "ezCollisionMeshAsset"; }
   virtual const char* GetGeneratorGroup() const override { return "CollisionMeshes"; }
 };
@@ -58,10 +59,9 @@ public:
   ezConvexCollisionMeshAssetDocumentGenerator();
   ~ezConvexCollisionMeshAssetDocumentGenerator();
 
-  virtual void GetImportModes(const char* szParentDirRelativePath,
-                              ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const override;
-  virtual ezStatus Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info,
-                            ezDocument*& out_pGeneratedDocument) override;
+  virtual void GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const override;
+  virtual ezStatus Generate(
+    const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument) override;
   virtual const char* GetDocumentExtension() const override { return "ezConvexCollisionMeshAsset"; }
   virtual const char* GetGeneratorGroup() const override { return "CollisionMeshes"; }
 };

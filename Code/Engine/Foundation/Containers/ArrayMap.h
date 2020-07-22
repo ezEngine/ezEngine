@@ -2,7 +2,8 @@
 
 #include <Foundation/Containers/DynamicArray.h>
 
-/// \brief An associative container, similar to ezMap, but all data is stored in a sorted contiguous array, which makes frequent lookups more efficient.
+/// \brief An associative container, similar to ezMap, but all data is stored in a sorted contiguous array, which makes frequent lookups more
+/// efficient.
 ///
 /// Prefer this container over ezMap when you modify the container less often than you look things up (which is in most cases), and when
 /// you do not need to store iterators to elements and require them to stay valid when the container is modified.
@@ -21,15 +22,9 @@ public:
 
     EZ_DETECT_TYPE_CLASS(KEY, VALUE);
 
-    EZ_ALWAYS_INLINE bool operator<(const Pair& rhs) const
-    {
-      return key < rhs.key;
-    }
+    EZ_ALWAYS_INLINE bool operator<(const Pair& rhs) const { return key < rhs.key; }
 
-    EZ_ALWAYS_INLINE bool operator==(const Pair& rhs) const
-    {
-      return key == rhs.key;
-    }
+    EZ_ALWAYS_INLINE bool operator==(const Pair& rhs) const { return key == rhs.key; }
   };
 
   /// \brief Constructor.
@@ -105,7 +100,8 @@ public:
   /// are removed, or new values are going to be inserted, as well, \a bKeepSorted should be left to false.
   void RemoveAtAndCopy(ezUInt32 index, bool bKeepSorted = false);
 
-  /// \brief Removes one element with the given key. Returns true, if one was found and removed. If the same key exists multiple times, you need to call this function multiple times to remove them all.
+  /// \brief Removes one element with the given key. Returns true, if one was found and removed. If the same key exists multiple times, you need to
+  /// call this function multiple times to remove them all.
   ///
   /// If the map is sorted and bKeepSorted is true, the element will be removed such that the map stays sorted.
   /// This is only useful, if only a single (or very few) elements are removed before the next lookup. If multiple values
@@ -237,4 +233,3 @@ typename ezArrayMapBase<KEY, VALUE>::const_reverse_iterator crend(const ezArrayM
 
 
 #include <Foundation/Containers/Implementation/ArrayMap_inl.h>
-

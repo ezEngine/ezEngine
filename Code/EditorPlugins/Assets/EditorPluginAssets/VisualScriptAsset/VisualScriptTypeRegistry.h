@@ -4,14 +4,18 @@
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Strings/String.h>
-#include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
+#include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
 
 class ezAbstractFunctionProperty;
 
 struct ezVisualScriptPinDescriptor
 {
-  enum PinType { Execution, Data };
+  enum PinType
+  {
+    Execution,
+    Data
+  };
 
   ezString m_sName;
   ezString m_sTooltip;
@@ -56,7 +60,7 @@ private:
   void CreateEventMessageNodeType(const ezRTTI* pRtti);
   void CreateFunctionCallNodeType(const ezRTTI* pRtti, const ezAbstractFunctionProperty* pFunction);
 
-    ezMap<const ezRTTI*, ezVisualScriptNodeDescriptor> m_NodeDescriptors;
+  ezMap<const ezRTTI*, ezVisualScriptNodeDescriptor> m_NodeDescriptors;
 
   const ezRTTI* m_pBaseType;
 };

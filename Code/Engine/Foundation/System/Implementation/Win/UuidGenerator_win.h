@@ -1,8 +1,8 @@
 #include <Foundation/FoundationInternal.h>
 EZ_FOUNDATION_INTERNAL_HEADER
 
-#include <rpc.h>
 #include <combaseapi.h>
+#include <rpc.h>
 
 EZ_CHECK_AT_COMPILETIME(sizeof(ezUInt64) * 2 == sizeof(UUID));
 
@@ -21,4 +21,3 @@ void ezUuid::CreateNewUuid()
   m_uiHigh = uiUuidData[0];
   m_uiLow = uiUuidData[1];
 }
-

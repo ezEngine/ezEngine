@@ -41,5 +41,8 @@ public:
   virtual ezStatus InternalCanConnect(const ezPin* pSource, const ezPin* pTarget, CanConnectResult& out_Result) const override;
 
 private:
-  virtual ezConnection* InternalCreateConnection(const ezPin* pSource, const ezPin* pTarget) override { return EZ_DEFAULT_NEW(ezVisualScriptConnection); }
+  virtual ezConnection* InternalCreateConnection(const ezPin* pSource, const ezPin* pTarget) override
+  {
+    return EZ_DEFAULT_NEW(ezVisualScriptConnection);
+  }
 };

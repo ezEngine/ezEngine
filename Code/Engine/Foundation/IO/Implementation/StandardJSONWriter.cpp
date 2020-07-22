@@ -13,10 +13,8 @@ ezStandardJSONWriter::CommaWriter::CommaWriter(ezStandardJSONWriter* pWriter)
 {
   const ezStandardJSONWriter::State state = pWriter->m_StateStack.PeekBack().m_State;
   EZ_IGNORE_UNUSED(state);
-  EZ_ASSERT_DEV(state == ezStandardJSONWriter::Array ||
-                    state == ezStandardJSONWriter::NamedArray ||
-                    state == ezStandardJSONWriter::Variable,
-                "Values can only be written inside BeginVariable() / EndVariable() and BeginArray() / EndArray().");
+  EZ_ASSERT_DEV(state == ezStandardJSONWriter::Array || state == ezStandardJSONWriter::NamedArray || state == ezStandardJSONWriter::Variable,
+    "Values can only be written inside BeginVariable() / EndVariable() and BeginArray() / EndArray().");
 
   m_pWriter = pWriter;
 
@@ -100,7 +98,7 @@ void ezStandardJSONWriter::OutputEscapedString(const char* sz)
 {
   ezStringBuilder sEscaped = sz;
   sEscaped.ReplaceAll("\\", "\\\\");
-  //sEscaped.ReplaceAll("/", "\\/"); // this is not necessary to escape
+  // sEscaped.ReplaceAll("/", "\\/"); // this is not necessary to escape
   sEscaped.ReplaceAll("\"", "\\\"");
   sEscaped.ReplaceAll("\b", "\\b");
   sEscaped.ReplaceAll("\r", "\\r");
@@ -400,10 +398,8 @@ void ezStandardJSONWriter::BeginVariable(const char* szName)
 {
   const ezStandardJSONWriter::State state = m_StateStack.PeekBack().m_State;
   EZ_IGNORE_UNUSED(state);
-  EZ_ASSERT_DEV(state == ezStandardJSONWriter::Empty ||
-                    state == ezStandardJSONWriter::Object ||
-                    state == ezStandardJSONWriter::NamedObject,
-                "Variables can only be written inside objects.");
+  EZ_ASSERT_DEV(state == ezStandardJSONWriter::Empty || state == ezStandardJSONWriter::Object || state == ezStandardJSONWriter::NamedObject,
+    "Variables can only be written inside objects.");
 
   if (m_StateStack.PeekBack().m_bRequireComma)
   {
@@ -440,12 +436,12 @@ void ezStandardJSONWriter::BeginArray(const char* szName)
   const ezStandardJSONWriter::State state = m_StateStack.PeekBack().m_State;
   EZ_IGNORE_UNUSED(state);
   EZ_ASSERT_DEV((state == ezStandardJSONWriter::Empty) ||
-                    ((state == ezStandardJSONWriter::Object || state == ezStandardJSONWriter::NamedObject) && !ezStringUtils::IsNullOrEmpty(szName)) ||
-                    ((state == ezStandardJSONWriter::Array || state == ezStandardJSONWriter::NamedArray) && szName == nullptr) ||
-                    (state == ezStandardJSONWriter::Variable && szName == nullptr),
-                "Inside objects you can only begin arrays when also giving them a (non-empty) name.\n"
-                "Inside arrays you can only nest anonymous arrays, so names are forbidden.\n"
-                "Inside variables you cannot specify a name again.");
+                  ((state == ezStandardJSONWriter::Object || state == ezStandardJSONWriter::NamedObject) && !ezStringUtils::IsNullOrEmpty(szName)) ||
+                  ((state == ezStandardJSONWriter::Array || state == ezStandardJSONWriter::NamedArray) && szName == nullptr) ||
+                  (state == ezStandardJSONWriter::Variable && szName == nullptr),
+    "Inside objects you can only begin arrays when also giving them a (non-empty) name.\n"
+    "Inside arrays you can only nest anonymous arrays, so names are forbidden.\n"
+    "Inside variables you cannot specify a name again.");
 
   if (szName != nullptr)
     BeginVariable(szName);
@@ -475,7 +471,8 @@ void ezStandardJSONWriter::EndArray()
 {
   const ezStandardJSONWriter::State state = m_StateStack.PeekBack().m_State;
   EZ_IGNORE_UNUSED(state);
-  EZ_ASSERT_DEV(state == ezStandardJSONWriter::Array || state == ezStandardJSONWriter::NamedArray, "EndArray() must be called in sync with BeginArray().");
+  EZ_ASSERT_DEV(
+    state == ezStandardJSONWriter::Array || state == ezStandardJSONWriter::NamedArray, "EndArray() must be called in sync with BeginArray().");
 
 
   const State CurState = m_StateStack.PeekBack().m_State;
@@ -491,12 +488,12 @@ void ezStandardJSONWriter::BeginObject(const char* szName)
   const ezStandardJSONWriter::State state = m_StateStack.PeekBack().m_State;
   EZ_IGNORE_UNUSED(state);
   EZ_ASSERT_DEV((state == ezStandardJSONWriter::Empty) ||
-                    ((state == ezStandardJSONWriter::Object || state == ezStandardJSONWriter::NamedObject) && !ezStringUtils::IsNullOrEmpty(szName)) ||
-                    ((state == ezStandardJSONWriter::Array || state == ezStandardJSONWriter::NamedArray) && szName == nullptr) ||
-                    (state == ezStandardJSONWriter::Variable && szName == nullptr),
-                "Inside objects you can only begin objects when also giving them a (non-empty) name.\n"
-                "Inside arrays you can only nest anonymous objects, so names are forbidden.\n"
-                "Inside variables you cannot specify a name again.");
+                  ((state == ezStandardJSONWriter::Object || state == ezStandardJSONWriter::NamedObject) && !ezStringUtils::IsNullOrEmpty(szName)) ||
+                  ((state == ezStandardJSONWriter::Array || state == ezStandardJSONWriter::NamedArray) && szName == nullptr) ||
+                  (state == ezStandardJSONWriter::Variable && szName == nullptr),
+    "Inside objects you can only begin objects when also giving them a (non-empty) name.\n"
+    "Inside arrays you can only nest anonymous objects, so names are forbidden.\n"
+    "Inside variables you cannot specify a name again.");
 
   if (szName != nullptr)
     BeginVariable(szName);
@@ -530,7 +527,8 @@ void ezStandardJSONWriter::EndObject()
 {
   const ezStandardJSONWriter::State state = m_StateStack.PeekBack().m_State;
   EZ_IGNORE_UNUSED(state);
-  EZ_ASSERT_DEV(state == ezStandardJSONWriter::Object || state == ezStandardJSONWriter::NamedObject, "EndObject() must be called in sync with BeginObject().");
+  EZ_ASSERT_DEV(
+    state == ezStandardJSONWriter::Object || state == ezStandardJSONWriter::NamedObject, "EndObject() must be called in sync with BeginObject().");
 
   const State CurState = m_StateStack.PeekBack().m_State;
 
@@ -544,8 +542,7 @@ void ezStandardJSONWriter::End()
 {
   const ezStandardJSONWriter::State state = m_StateStack.PeekBack().m_State;
 
-  if (m_StateStack.PeekBack().m_State == ezStandardJSONWriter::Array ||
-      m_StateStack.PeekBack().m_State == ezStandardJSONWriter::NamedArray)
+  if (m_StateStack.PeekBack().m_State == ezStandardJSONWriter::Array || m_StateStack.PeekBack().m_State == ezStandardJSONWriter::NamedArray)
   {
     --m_iIndentation;
 
@@ -617,4 +614,3 @@ void ezStandardJSONWriter::WriteBinaryData(const char* szDataType, const void* p
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_StandardJSONWriter);
-

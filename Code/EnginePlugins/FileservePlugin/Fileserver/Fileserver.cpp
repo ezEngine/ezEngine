@@ -10,7 +10,7 @@
 EZ_IMPLEMENT_SINGLETON(ezFileserver);
 
 ezFileserver::ezFileserver()
-    : m_SingletonRegistrar(this)
+  : m_SingletonRegistrar(this)
 {
   // once a server exists, the client should stay inactive
   ezFileserveClient::DisabledFileserveClient();
@@ -453,8 +453,7 @@ void ezFileserver::HandleUploadFileFinished(ezFileserveClientContext& client, ez
 }
 
 
-ezResult ezFileserver::SendConnectionInfo(const char* szClientAddress, ezUInt16 uiMyPort, const ezArrayPtr<ezStringBuilder>& MyIPs,
-                                          ezTime timeout)
+ezResult ezFileserver::SendConnectionInfo(const char* szClientAddress, ezUInt16 uiMyPort, const ezArrayPtr<ezStringBuilder>& MyIPs, ezTime timeout)
 {
   ezStringBuilder sAddress = szClientAddress;
   sAddress.Append(":2042"); // hard-coded port

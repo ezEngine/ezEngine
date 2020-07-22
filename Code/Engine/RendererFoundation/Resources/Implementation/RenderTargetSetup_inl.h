@@ -11,9 +11,9 @@ ezUInt8 ezGALRenderTargetSetup::GetMaxRenderTargetIndex() const
   return m_uiMaxRTIndex;
 }
 
-ezGALRenderTargetViewHandle ezGALRenderTargetSetup::GetRenderTarget( ezUInt8 uiIndex ) const
+ezGALRenderTargetViewHandle ezGALRenderTargetSetup::GetRenderTarget(ezUInt8 uiIndex) const
 {
-  EZ_ASSERT_DEBUG( uiIndex <= m_uiMaxRTIndex, "Render target index out of range" );
+  EZ_ASSERT_DEBUG(uiIndex <= m_uiMaxRTIndex, "Render target index out of range");
 
   return m_hRTs[uiIndex];
 }
@@ -22,4 +22,3 @@ ezGALRenderTargetViewHandle ezGALRenderTargetSetup::GetDepthStencilTarget() cons
 {
   return m_hDSTarget;
 }
-

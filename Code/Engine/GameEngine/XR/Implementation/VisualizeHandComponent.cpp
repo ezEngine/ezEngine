@@ -1,11 +1,11 @@
 #include <GameEnginePCH.h>
 
+#include <Core/Graphics/Geometry.h>
+#include <Foundation/Configuration/Singleton.h>
 #include <GameEngine/XR/VisualizeHandComponent.h>
 #include <GameEngine/XR/XRHandTrackingInterface.h>
-#include <Core/Graphics/Geometry.h>
 #include <RendererCore/Debug/DebugRenderer.h>
 #include <RendererCore/Debug/DebugRendererContext.h>
-#include <Foundation/Configuration/Singleton.h>
 
 // clang-format off
 EZ_BEGIN_COMPONENT_TYPE(ezVisualizeHandComponent, 1, ezComponentMode::Static)
@@ -35,8 +35,7 @@ void ezVisualizeHandComponent::Update()
     for (ezUInt32 uiPart = 0; uiPart < ezXRHandPart::COUNT; ++uiPart)
     {
       ezXRHandPart::Enum part = static_cast<ezXRHandPart::Enum>(uiPart);
-      if (pXRHand->TryGetBoneTransforms(hand, part, ezXRTransformSpace::Global, bones) ==
-        ezXRHandTrackingInterface::HandPartTrackingState::Tracked)
+      if (pXRHand->TryGetBoneTransforms(hand, part, ezXRTransformSpace::Global, bones) == ezXRHandTrackingInterface::HandPartTrackingState::Tracked)
       {
         ezHybridArray<ezDebugRenderer::Line, 6> m_Lines;
         for (ezUInt32 uiBone = 0; uiBone < bones.GetCount(); uiBone++)
@@ -50,7 +49,6 @@ void ezVisualizeHandComponent::Update()
             const ezXRHandBone& nextBone = bones[uiBone + 1];
             m_Lines.PushBack(ezDebugRenderer::Line(bone.m_Transform.m_vPosition, nextBone.m_Transform.m_vPosition));
           }
-
         }
         ezDebugRenderer::DrawLines(GetWorld(), m_Lines, ezColor::IndianRed);
       }

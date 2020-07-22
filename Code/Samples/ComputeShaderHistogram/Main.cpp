@@ -139,9 +139,8 @@ void ezComputeShaderHistogramApp::AfterCoreSystemsStartup()
   SUPER::AfterCoreSystemsStartup();
 
   m_directoryWatcher = EZ_DEFAULT_NEW(ezDirectoryWatcher);
-  EZ_VERIFY(
-    m_directoryWatcher->OpenDirectory(FindProjectDirectory(), ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories)
-      .Succeeded(),
+  EZ_VERIFY(m_directoryWatcher->OpenDirectory(FindProjectDirectory(), ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Subdirectories)
+              .Succeeded(),
     "Failed to watch project directory");
 
   EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "Compiler Plugin not found");
@@ -302,8 +301,7 @@ void ezComputeShaderHistogramApp::CreateHistogramQuad()
       }
     }
 
-    m_hHistogramQuadMeshBuffer =
-      ezResourceManager::CreateResource<ezMeshBufferResource>("{4BEFA142-FEDB-42D0-84DC-58223ADD8C62}", std::move(desc));
+    m_hHistogramQuadMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>("{4BEFA142-FEDB-42D0-84DC-58223ADD8C62}", std::move(desc));
   }
 }
 

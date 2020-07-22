@@ -250,11 +250,11 @@ void ezOBJLoader::ComputeTangentSpaceVectors()
     float fScale1 = 1.0f / fDenominator;
 
     ezVec3 T, B;
-    T = ezVec3((c3c1_B * v2v1.x - c2c1_B * v3v1.x) * fScale1, (c3c1_B * v2v1.y - c2c1_B * v3v1.y) * fScale1,
-               (c3c1_B * v2v1.z - c2c1_B * v3v1.z) * fScale1);
+    T = ezVec3(
+      (c3c1_B * v2v1.x - c2c1_B * v3v1.x) * fScale1, (c3c1_B * v2v1.y - c2c1_B * v3v1.y) * fScale1, (c3c1_B * v2v1.z - c2c1_B * v3v1.z) * fScale1);
 
-    B = ezVec3((-c3c1_T * v2v1.x + c2c1_T * v3v1.x) * fScale1, (-c3c1_T * v2v1.y + c2c1_T * v3v1.y) * fScale1,
-               (-c3c1_T * v2v1.z + c2c1_T * v3v1.z) * fScale1);
+    B = ezVec3(
+      (-c3c1_T * v2v1.x + c2c1_T * v3v1.x) * fScale1, (-c3c1_T * v2v1.y + c2c1_T * v3v1.y) * fScale1, (-c3c1_T * v2v1.z + c2c1_T * v3v1.z) * fScale1);
 
     T.Normalize();
     B.Normalize();
@@ -310,4 +310,3 @@ ezResult ezOBJLoader::LoadMTL(const char* szFile, const char* szMaterialBasePath
 
 
 EZ_STATICLINK_FILE(Utilities, Utilities_FileFormats_Implementation_OBJLoader);
-

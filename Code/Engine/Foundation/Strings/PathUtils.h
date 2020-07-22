@@ -90,10 +90,9 @@ public:
   /// Fails for empty strings.
   /// \see IsValidFilenameChar()
   static ezResult MakeValidFilename(const char* szFilename, ezUInt32 replacementCharacter, ezStringBuilder& outFilename);
-  
+
   /// \brief Checks whether \a sFullPath starts with \a sPrefixPath.
   static bool IsSubPath(const ezStringView& sPrefixPath, const ezStringView& sFullPath);
 };
 
 #include <Foundation/Strings/Implementation/PathUtils_inl.h>
-

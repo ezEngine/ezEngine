@@ -14,7 +14,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezProcessingStreamSpawnerZeroInitialized::ezProcessingStreamSpawnerZeroInitialized()
-    : m_pStream(nullptr)
+  : m_pStream(nullptr)
 {
 }
 
@@ -39,11 +39,12 @@ void ezProcessingStreamSpawnerZeroInitialized::InitializeElements(ezUInt64 uiSta
 
   for (ezUInt64 i = uiStartIndex; i < uiStartIndex + uiNumElements; ++i)
   {
-    ezMemoryUtils::ZeroFill<ezUInt8>(static_cast<ezUInt8*>(ezMemoryUtils::AddByteOffset(m_pStream->GetWritableData(), static_cast<ptrdiff_t>(i * uiElementStride))), static_cast<size_t>(uiElementSize));
+    ezMemoryUtils::ZeroFill<ezUInt8>(
+      static_cast<ezUInt8*>(ezMemoryUtils::AddByteOffset(m_pStream->GetWritableData(), static_cast<ptrdiff_t>(i * uiElementStride))),
+      static_cast<size_t>(uiElementSize));
   }
 }
 
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_DataProcessing_Stream_DefaultImplementations_Implementation_ZeroInitializer);
-

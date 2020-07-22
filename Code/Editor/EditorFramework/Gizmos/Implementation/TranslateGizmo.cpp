@@ -224,8 +224,8 @@ ezResult ezTranslateGizmo::GetPointOnPlane(ezInt32 iScreenPosX, ezInt32 iScreenP
   out_Result = m_vStartPosition;
 
   ezVec3 vPos, vRayDir;
-  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(m_InvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, ezVec3(iScreenPosX, iScreenPosY, 0),
-        vPos, &vRayDir)
+  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(
+        m_InvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, ezVec3(iScreenPosX, iScreenPosY, 0), vPos, &vRayDir)
         .Failed())
     return EZ_FAILURE;
 
@@ -245,8 +245,8 @@ ezResult ezTranslateGizmo::GetPointOnAxis(ezInt32 iScreenPosX, ezInt32 iScreenPo
   out_Result = m_vStartPosition;
 
   ezVec3 vPos, vRayDir;
-  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(m_InvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, ezVec3(iScreenPosX, iScreenPosY, 0),
-        vPos, &vRayDir)
+  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(
+        m_InvViewProj, 0, 0, m_Viewport.x, m_Viewport.y, ezVec3(iScreenPosX, iScreenPosY, 0), vPos, &vRayDir)
         .Failed())
     return EZ_FAILURE;
 
@@ -326,8 +326,7 @@ ezEditorInput ezTranslateGizmo::DoMouseMoveEvent(QMouseEvent* e)
     }
     else if (m_Mode == TranslateMode::Plane)
     {
-      vTranslate =
-        m_vPlaneAxis[0] * (m_vPlaneAxis[0].Dot(vMouseDir)) * fSpeed + m_vPlaneAxis[1] * (m_vPlaneAxis[1].Dot(vMouseDir)) * fSpeed;
+      vTranslate = m_vPlaneAxis[0] * (m_vPlaneAxis[0].Dot(vMouseDir)) * fSpeed + m_vPlaneAxis[1] * (m_vPlaneAxis[1].Dot(vMouseDir)) * fSpeed;
     }
   }
 

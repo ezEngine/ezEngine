@@ -2,16 +2,16 @@
 
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
 
-#include <WindowsMixedReality/Basics.h>
-#include <Foundation/Types/UniquePtr.h>
+#  include <Foundation/Types/UniquePtr.h>
+#  include <WindowsMixedReality/Basics.h>
 
 enum class ezSpatialLocatability
 {
-  Unavailable,                    ///< Error, can't place holograms!
-  PositionalTrackingActivating,   ///< The system is preparing to use positional tracking.
-  OrientationOnly,                ///< Positional tracking has not been activated.
-  PositionalTrackingInhibited,    ///< Positional tracking is temporarily inhibited. User action may be required in order to restore positional tracking.
-  PositionalTrackingActive,       ///< Positional tracking is active. World-locked content can be rendered.
+  Unavailable,                  ///< Error, can't place holograms!
+  PositionalTrackingActivating, ///< The system is preparing to use positional tracking.
+  OrientationOnly,              ///< Positional tracking has not been activated.
+  PositionalTrackingInhibited, ///< Positional tracking is temporarily inhibited. User action may be required in order to restore positional tracking.
+  PositionalTrackingActive,    ///< Positional tracking is active. World-locked content can be rendered.
 };
 
 
@@ -40,14 +40,19 @@ public:
   /// Creates the simplest possible reference frame - stationary and at the current position and orientation of the headset.
   ezUniquePtr<ezWindowsSpatialReferenceFrame> CreateStationaryReferenceFrame_CurrentLocation();
 
-  /// \brief Creates a stationary reference frame. Uses the existing \a origin as reference. \a offset is used as a position offset from \a origin. For the rotation, the current heading (rotation around the Y axis) is used as the basis on top of which the rotation offset is added. Thus, when the rotation offset is zero (identity), the reference frame simply uses the current headset heading.
-  ezUniquePtr<ezWindowsSpatialReferenceFrame> CreateStationaryReferenceFrame_CurrentHeading(const ezWindowsSpatialReferenceFrame& origin, const ezTransform& offset);
+  /// \brief Creates a stationary reference frame. Uses the existing \a origin as reference. \a offset is used as a position offset from \a origin.
+  /// For the rotation, the current heading (rotation around the Y axis) is used as the basis on top of which the rotation offset is added. Thus, when
+  /// the rotation offset is zero (identity), the reference frame simply uses the current headset heading.
+  ezUniquePtr<ezWindowsSpatialReferenceFrame> CreateStationaryReferenceFrame_CurrentHeading(
+    const ezWindowsSpatialReferenceFrame& origin, const ezTransform& offset);
 
-  /// \brief Creates a stationary reference frame. Uses the existing \a origin as reference. \a offset adds a position and rotation offset in that space.
+  /// \brief Creates a stationary reference frame. Uses the existing \a origin as reference. \a offset adds a position and rotation offset in that
+  /// space.
   ezUniquePtr<ezWindowsSpatialReferenceFrame> CreateStationaryReferenceFrame(const ezWindowsSpatialReferenceFrame& origin, const ezTransform& offset);
 
   /// \brief Creates a new anchor at the same position as the given anchor, but with an additional rotation applied.
-  ezUniquePtr<ezWindowsSpatialReferenceFrame> CreateStationaryReferenceFrame_Rotated(const ezWindowsSpatialReferenceFrame& origin, ezAngle difference);
+  ezUniquePtr<ezWindowsSpatialReferenceFrame> CreateStationaryReferenceFrame_Rotated(
+    const ezWindowsSpatialReferenceFrame& origin, ezAngle difference);
 
   /// \brief Creates a spatial anchor at the given offset relative to the given reference frame.
   ///
@@ -74,7 +79,6 @@ private:
   EventRegistrationToken m_eventRegistrationLocatabilityChanged;
 
   ezSpatialLocatability m_currentLocatability;
-  
 };
 
 #endif

@@ -17,7 +17,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezScenePreferencesUser::ezScenePreferencesUser()
-    : ezPreferences(Domain::Document, "Scene")
+  : ezPreferences(Domain::Document, "Scene")
 {
   m_iCameraSpeed = 9;
 }

@@ -105,8 +105,8 @@ void ezPxAllocatorCallback::VerifyAllocations()
 
 //////////////////////////////////////////////////////////////////////////
 
-PxQueryHitType::Enum ezPxQueryFilter::preFilter(const PxFilterData& filterData, const PxShape* shape, const PxRigidActor* actor,
-  PxHitFlags& queryFlags)
+PxQueryHitType::Enum ezPxQueryFilter::preFilter(
+  const PxFilterData& filterData, const PxShape* shape, const PxRigidActor* actor, PxHitFlags& queryFlags)
 {
   if (shape->getFlags().isSet(PxShapeFlag::eTRIGGER_SHAPE))
   {
@@ -297,7 +297,8 @@ ezAllocatorBase* ezPhysX::GetAllocator()
   return &(m_pAllocatorCallback->m_Allocator);
 }
 
-PxFilterData ezPhysX::CreateFilterData(ezUInt32 uiCollisionLayer, ezUInt32 uiShapeId /*= ezInvalidIndex*/, ezBitflags<ezOnPhysXContact> flags /*= ezOnPhysXContact::None*/)
+PxFilterData ezPhysX::CreateFilterData(
+  ezUInt32 uiCollisionLayer, ezUInt32 uiShapeId /*= ezInvalidIndex*/, ezBitflags<ezOnPhysXContact> flags /*= ezOnPhysXContact::None*/)
 {
   PxFilterData filter;
   filter.word0 = EZ_BIT(uiCollisionLayer);
@@ -314,8 +315,7 @@ void ezPhysX::SurfaceResourceEventHandler(const ezSurfaceResource::Event& e)
   {
     const auto& desc = e.m_pSurface->GetDescriptor();
 
-    PxMaterial* pMaterial =
-      m_pPhysX->createMaterial(desc.m_fPhysicsFrictionStatic, desc.m_fPhysicsFrictionDynamic, desc.m_fPhysicsRestitution);
+    PxMaterial* pMaterial = m_pPhysX->createMaterial(desc.m_fPhysicsFrictionStatic, desc.m_fPhysicsFrictionDynamic, desc.m_fPhysicsRestitution);
     pMaterial->userData = EZ_DEFAULT_NEW(ezPxUserData, e.m_pSurface);
 
     e.m_pSurface->m_pPhysicsMaterial = pMaterial;

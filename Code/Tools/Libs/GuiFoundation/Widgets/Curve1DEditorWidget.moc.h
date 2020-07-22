@@ -1,7 +1,7 @@
 #pragma once
 
-#include <GuiFoundation/GuiFoundationDLL.h>
 #include <Foundation/Tracks/Curve1D.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/ui_Curve1DEditorWidget.h>
 
 #include <QWidget>

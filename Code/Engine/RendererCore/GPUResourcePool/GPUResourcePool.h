@@ -1,9 +1,9 @@
 #pragma once
 
-#include <RendererCore/RendererCoreDLL.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/Set.h>
 #include <Foundation/Threading/Mutex.h>
+#include <RendererCore/RendererCoreDLL.h>
 #include <RendererFoundation/Resources/ResourceFormats.h>
 
 /// \brief This class serves as a pool for GPU related resources (e.g. buffers and textures required for rendering).
@@ -11,7 +11,6 @@
 class EZ_RENDERERCORE_DLL ezGPUResourcePool
 {
 public:
-
   ezGPUResourcePool();
   ~ezGPUResourcePool();
 
@@ -20,8 +19,8 @@ public:
   ezGALTextureHandle GetRenderTarget(const ezGALTextureCreationDescription& TextureDesc);
 
   /// \brief Convenience functions which creates a texture description fit for a 2d render target without a mip chains.
-  ezGALTextureHandle GetRenderTarget(ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum eFormat,                                  
-                                      ezGALMSAASampleCount::Enum sampleCount = ezGALMSAASampleCount::None, ezUInt32 uiSliceColunt = 1);
+  ezGALTextureHandle GetRenderTarget(ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum eFormat,
+    ezGALMSAASampleCount::Enum sampleCount = ezGALMSAASampleCount::None, ezUInt32 uiSliceColunt = 1);
 
   /// \brief Returns a render target to the pool so other consumers can use it.
   /// Note that targets which are returned to the pool are susceptible to destruction due to garbage collection.
@@ -44,7 +43,6 @@ public:
   static void SetDefaultInstance(ezGPUResourcePool* pDefaultInstance);
 
 protected:
-
   void CheckAndPotentiallyRunGC();
   void UpdateMemoryStats() const;
 
@@ -64,8 +62,5 @@ protected:
   ezGALDevice* m_pDevice;
 
 private:
-
   static ezGPUResourcePool* s_pDefaultInstance;
-
 };
-

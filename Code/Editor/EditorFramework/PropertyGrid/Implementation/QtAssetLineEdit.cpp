@@ -7,7 +7,7 @@
 #include <qevent.h>
 
 ezQtAssetLineEdit::ezQtAssetLineEdit(QWidget* parent /*= nullptr*/)
-    : QLineEdit(parent)
+  : QLineEdit(parent)
 {
 }
 

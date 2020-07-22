@@ -65,8 +65,8 @@ public:
   // Helper Functions
 
 public:
-  ezResult FindNavMeshPolyAt(const ezVec3& vPosition, dtPolyRef& out_PolyRef, ezVec3* out_vAdjustedPosition = nullptr,
-    float fPlaneEpsilon = 0.01f, float fHeightEpsilon = 1.0f) const;
+  ezResult FindNavMeshPolyAt(const ezVec3& vPosition, dtPolyRef& out_PolyRef, ezVec3* out_vAdjustedPosition = nullptr, float fPlaneEpsilon = 0.01f,
+    float fHeightEpsilon = 1.0f) const;
   bool HasReachedPosition(const ezVec3& pos, float fMaxDistance) const;
   bool HasReachedGoal(float fMaxDistance) const;
   bool IsPositionVisible(const ezVec3& pos) const;

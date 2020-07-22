@@ -60,4 +60,3 @@ protected:
   ezDynamicArray<ezIpcChannel*> m_SendQueue;
   ezDynamicArray<ezIpcChannel*> m_AllAddedChannels;
 };
-

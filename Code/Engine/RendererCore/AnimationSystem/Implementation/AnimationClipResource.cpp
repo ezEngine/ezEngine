@@ -2,8 +2,8 @@
 
 #include <Core/Assets/AssetFileHeader.h>
 #include <RendererCore/AnimationSystem/AnimationClipResource.h>
-#include <RendererCore/AnimationSystem/Skeleton.h>
 #include <RendererCore/AnimationSystem/AnimationPose.h>
+#include <RendererCore/AnimationSystem/Skeleton.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAnimationClipResource, 1, ezRTTIDefaultAllocator<ezAnimationClipResource>)
@@ -13,7 +13,7 @@ EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezAnimationClipResource);
 // clang-format on
 
 ezAnimationClipResource::ezAnimationClipResource()
-    : ezResource(DoUpdate::OnAnyThread, 1)
+  : ezResource(DoUpdate::OnAnyThread, 1)
 {
 }
 
@@ -75,8 +75,7 @@ void ezAnimationClipResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
   out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezAnimationClipResource) + static_cast<ezUInt32>(m_Descriptor.GetHeapMemoryUsage());
 }
 
-void ezAnimationClipResourceDescriptor::Configure(ezUInt16 uiNumJoints, ezUInt16 uiNumFrames, ezUInt8 uiFramesPerSecond,
-                                                  bool bIncludeRootMotion)
+void ezAnimationClipResourceDescriptor::Configure(ezUInt16 uiNumJoints, ezUInt16 uiNumFrames, ezUInt8 uiFramesPerSecond, bool bIncludeRootMotion)
 {
   EZ_ASSERT_DEV(uiNumFrames >= 2, "Invalid number of key frames");
   EZ_ASSERT_DEV(uiNumJoints > 0, "Invalid number of joints");
@@ -86,7 +85,7 @@ void ezAnimationClipResourceDescriptor::Configure(ezUInt16 uiNumJoints, ezUInt16
   m_uiNumFrames = uiNumFrames;
   m_uiFramesPerSecond = uiFramesPerSecond;
 
-  m_Duration = ezTime::Seconds((double)(m_uiNumFrames-1) / (double)m_uiFramesPerSecond);
+  m_Duration = ezTime::Seconds((double)(m_uiNumFrames - 1) / (double)m_uiFramesPerSecond);
 
   ezUInt32 uiNumTransforms = m_uiNumJoints * m_uiNumFrames;
 
@@ -180,7 +179,7 @@ void ezAnimationClipResourceDescriptor::Load(ezStreamReader& stream)
 
   stream.ReadArray(m_JointTransforms);
 
-  m_Duration = ezTime::Seconds((double)(m_uiNumFrames-1) / (double)m_uiFramesPerSecond);
+  m_Duration = ezTime::Seconds((double)(m_uiNumFrames - 1) / (double)m_uiFramesPerSecond);
 
   // version 2
   if (uiVersion >= 2)
@@ -250,8 +249,8 @@ void ezAnimationClipResourceDescriptor::SetPoseToKeyframe(ezAnimationPose& pose,
 }
 
 
-void ezAnimationClipResourceDescriptor::SetPoseToBlendedKeyframe(ezAnimationPose& pose, const ezSkeleton& skeleton, ezUInt16 uiKeyframe0,
-                                                                 float fBlendToKeyframe1) const
+void ezAnimationClipResourceDescriptor::SetPoseToBlendedKeyframe(
+  ezAnimationPose& pose, const ezSkeleton& skeleton, ezUInt16 uiKeyframe0, float fBlendToKeyframe1) const
 {
   for (ezUInt32 b = 0; b < m_JointNameToIndex.GetCount(); ++b)
   {
@@ -283,4 +282,3 @@ ezTime ezAnimationClipResourceDescriptor::GetDuration() const
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_Implementation_AnimationClipResource);
-

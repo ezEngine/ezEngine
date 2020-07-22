@@ -36,8 +36,8 @@ namespace
 {
   struct RecursiveMeshImport
   {
-    RecursiveMeshImport(ezObjectAccessorBase& sceneAccessor, const ezDocumentObjectManager& objectManager,
-      const ezModelImporter::Scene& scene, const ezHashTable<const ezModelImporter::Mesh*, ezString>& rawMeshToFile)
+    RecursiveMeshImport(ezObjectAccessorBase& sceneAccessor, const ezDocumentObjectManager& objectManager, const ezModelImporter::Scene& scene,
+      const ezHashTable<const ezModelImporter::Mesh*, ezString>& rawMeshToFile)
       : sceneAccessor(sceneAccessor)
       , objectManager(objectManager)
       , scene(scene)
@@ -61,8 +61,7 @@ namespace
         if (parentNode)
           sceneAccessor.AddObject(parentNode, "Children", -1, ezRTTI::FindTypeByName("ezGameObject"), newGameObjectId).LogFailure();
         else
-          sceneAccessor
-            .AddObject(nullptr, static_cast<ezAbstractProperty*>(nullptr), -1, ezRTTI::FindTypeByName("ezGameObject"), newGameObjectId)
+          sceneAccessor.AddObject(nullptr, static_cast<ezAbstractProperty*>(nullptr), -1, ezRTTI::FindTypeByName("ezGameObject"), newGameObjectId)
             .LogFailure();
         currentGameObject = objectManager.GetObject(newGameObjectId);
       }
@@ -99,8 +98,7 @@ namespace
           if (rawMeshToFile.TryGetValue(object->Cast<ezModelImporter::Mesh>(), meshId))
           {
             ezUuid newMeshComponentId;
-            sceneAccessor.AddObject(currentGameObject, "Components", -1, ezRTTI::FindTypeByName("ezMeshComponent"), newMeshComponentId)
-              .LogFailure();
+            sceneAccessor.AddObject(currentGameObject, "Components", -1, ezRTTI::FindTypeByName("ezMeshComponent"), newMeshComponentId).LogFailure();
             const ezDocumentObject* newMeshComponent = objectManager.GetObject(newMeshComponentId);
             sceneAccessor.SetValue(newMeshComponent, "Mesh", ezVariant(*meshId));
           }
@@ -207,7 +205,8 @@ void ezQtSceneImportDlg::on_accepted()
   }
 
   // Create scene.
-  ezDocument* sceneDocument = ezQtEditorApp::GetSingleton()->CreateDocument(outputFilename, ezDocumentFlags::RequestWindow | ezDocumentFlags::AddToRecentFilesList);
+  ezDocument* sceneDocument =
+    ezQtEditorApp::GetSingleton()->CreateDocument(outputFilename, ezDocumentFlags::RequestWindow | ezDocumentFlags::AddToRecentFilesList);
   if (!sceneDocument)
   {
     QMessageBox::critical(this, "Failed to load import", "Failed to create scene document.");
@@ -238,8 +237,7 @@ void ezQtSceneImportDlg::validatePaths()
 
   ezString inputFilename = lineEditSourceFilename->text().toUtf8().data();
   ezString outputFilename = lineEditOutputFilename->text().toUtf8().data();
-  if (inputFilename.IsEmpty() || outputFilename.IsEmpty() ||
-      ezPathUtils::GetFileExtension(outputFilename).IsEqual_NoCase("ezScene") == false)
+  if (inputFilename.IsEmpty() || outputFilename.IsEmpty() || ezPathUtils::GetFileExtension(outputFilename).IsEqual_NoCase("ezScene") == false)
   {
     dialogButtonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
   }
@@ -261,8 +259,7 @@ void ezQtSceneImportDlg::on_InputBrowse_clicked()
   filter.push_back(");;All files (*.*)");
 
   QString filename = QFileDialog::getOpenFileName(QApplication::activeWindow(), QLatin1String("Input Model"),
-    ezToolsProject::GetSingleton()->GetProjectDirectory().GetData(), filter, nullptr,
-    QFileDialog::Option::DontResolveSymlinks);
+    ezToolsProject::GetSingleton()->GetProjectDirectory().GetData(), filter, nullptr, QFileDialog::Option::DontResolveSymlinks);
 
   if (!filename.isEmpty())
     lineEditSourceFilename->setText(filename);
@@ -270,9 +267,9 @@ void ezQtSceneImportDlg::on_InputBrowse_clicked()
 
 void ezQtSceneImportDlg::on_OutputBrowse_clicked()
 {
-  QString filename = QFileDialog::getSaveFileName(
-    QApplication::activeWindow(), QLatin1String("Output Scene"), ezToolsProject::GetSingleton()->GetProjectDirectory().GetData(),
-    "ezScene (*.ezScene)", nullptr, QFileDialog::Option::DontResolveSymlinks | QFileDialog::Option::DontConfirmOverwrite);
+  QString filename = QFileDialog::getSaveFileName(QApplication::activeWindow(), QLatin1String("Output Scene"),
+    ezToolsProject::GetSingleton()->GetProjectDirectory().GetData(), "ezScene (*.ezScene)", nullptr,
+    QFileDialog::Option::DontResolveSymlinks | QFileDialog::Option::DontConfirmOverwrite);
 
   if (!filename.isEmpty())
   {

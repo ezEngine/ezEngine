@@ -7,7 +7,8 @@
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/TaskSystem.h>
 
-ezTaskGroupID ezTaskSystem::StartSingleTask(const ezSharedPtr<ezTask>& pTask, ezTaskPriority::Enum Priority, ezTaskGroupID Dependency, ezOnTaskGroupFinishedCallback callback /*= ezOnTaskGroupFinishedCallback()*/)
+ezTaskGroupID ezTaskSystem::StartSingleTask(const ezSharedPtr<ezTask>& pTask, ezTaskPriority::Enum Priority, ezTaskGroupID Dependency,
+  ezOnTaskGroupFinishedCallback callback /*= ezOnTaskGroupFinishedCallback()*/)
 {
   ezTaskGroupID Group = CreateTaskGroup(Priority, callback);
   AddTaskGroupDependency(Group, Dependency);
@@ -16,7 +17,8 @@ ezTaskGroupID ezTaskSystem::StartSingleTask(const ezSharedPtr<ezTask>& pTask, ez
   return Group;
 }
 
-ezTaskGroupID ezTaskSystem::StartSingleTask(const ezSharedPtr<ezTask>& pTask, ezTaskPriority::Enum Priority, ezOnTaskGroupFinishedCallback callback /*= ezOnTaskGroupFinishedCallback()*/)
+ezTaskGroupID ezTaskSystem::StartSingleTask(
+  const ezSharedPtr<ezTask>& pTask, ezTaskPriority::Enum Priority, ezOnTaskGroupFinishedCallback callback /*= ezOnTaskGroupFinishedCallback()*/)
 {
   ezTaskGroupID Group = CreateTaskGroup(Priority, callback);
   AddTaskToGroup(Group, pTask);
@@ -38,7 +40,8 @@ void ezTaskSystem::TaskHasFinished(const ezSharedPtr<ezTask>& pTask, ezTaskGroup
     ezUInt32 groupCounter = 0;
     {
       // see ezTaskGroup::WaitForFinish() for why we need this lock here
-      // without it, there would be a race condition between these two places, reading and writing m_uiGroupCounter and waiting/signaling m_CondVarGroupFinished
+      // without it, there would be a race condition between these two places, reading and writing m_uiGroupCounter and waiting/signaling
+      // m_CondVarGroupFinished
       EZ_LOCK(pGroup->m_CondVarGroupFinished);
 
       groupCounter = pGroup->m_uiGroupCounter;
@@ -75,11 +78,13 @@ void ezTaskSystem::TaskHasFinished(const ezSharedPtr<ezTask>& pTask, ezTaskGroup
   }
 }
 
-ezTaskSystem::TaskData ezTaskSystem::GetNextTask(ezTaskPriority::Enum FirstPriority, ezTaskPriority::Enum LastPriority, bool bOnlyTasksThatNeverWait, const ezTaskGroupID& WaitingForGroup, ezAtomicInteger32* pWorkerState)
+ezTaskSystem::TaskData ezTaskSystem::GetNextTask(ezTaskPriority::Enum FirstPriority, ezTaskPriority::Enum LastPriority, bool bOnlyTasksThatNeverWait,
+  const ezTaskGroupID& WaitingForGroup, ezAtomicInteger32* pWorkerState)
 {
   // this is the central function that selects tasks for the worker threads to work on
 
-  EZ_ASSERT_DEV(FirstPriority >= ezTaskPriority::EarlyThisFrame && LastPriority < ezTaskPriority::ENUM_COUNT, "Priority Range is invalid: {0} to {1}", FirstPriority, LastPriority);
+  EZ_ASSERT_DEV(FirstPriority >= ezTaskPriority::EarlyThisFrame && LastPriority < ezTaskPriority::ENUM_COUNT, "Priority Range is invalid: {0} to {1}",
+    FirstPriority, LastPriority);
 
   EZ_LOCK(s_TaskSystemMutex);
 
@@ -106,9 +111,11 @@ ezTaskSystem::TaskData ezTaskSystem::GetNextTask(ezTaskPriority::Enum FirstPrior
   return TaskData();
 }
 
-bool ezTaskSystem::ExecuteTask(ezTaskPriority::Enum FirstPriority, ezTaskPriority::Enum LastPriority, bool bOnlyTasksThatNeverWait, const ezTaskGroupID& WaitingForGroup, ezAtomicInteger32* pWorkerState)
+bool ezTaskSystem::ExecuteTask(ezTaskPriority::Enum FirstPriority, ezTaskPriority::Enum LastPriority, bool bOnlyTasksThatNeverWait,
+  const ezTaskGroupID& WaitingForGroup, ezAtomicInteger32* pWorkerState)
 {
-  //const ezWorkerThreadType::Enum workerType = (tl_TaskWorkerInfo.m_WorkerType == ezWorkerThreadType::Unknown) ? ezWorkerThreadType::ShortTasks : tl_TaskWorkerInfo.m_WorkerType;
+  // const ezWorkerThreadType::Enum workerType = (tl_TaskWorkerInfo.m_WorkerType == ezWorkerThreadType::Unknown) ? ezWorkerThreadType::ShortTasks :
+  // tl_TaskWorkerInfo.m_WorkerType;
 
   ezTaskSystem::TaskData td = GetNextTask(FirstPriority, LastPriority, bOnlyTasksThatNeverWait, WaitingForGroup, pWorkerState);
 

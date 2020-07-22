@@ -15,15 +15,15 @@
 /// ********************************************************************
 #define OCT__(n) 0##n##LU
 
-#define EZ_8BIT__(iBits)                                                                                                           \
-  (((iBits & 000000001) ? 1 : 0) + ((iBits & 000000010) ? 2 : 0) + ((iBits & 000000100) ? 4 : 0) + ((iBits & 000001000) ? 8 : 0) + \
+#define EZ_8BIT__(iBits)                                                                                                                             \
+  (((iBits & 000000001) ? 1 : 0) + ((iBits & 000000010) ? 2 : 0) + ((iBits & 000000100) ? 4 : 0) + ((iBits & 000001000) ? 8 : 0) +                   \
     ((iBits & 000010000) ? 16 : 0) + ((iBits & 000100000) ? 32 : 0) + ((iBits & 001000000) ? 64 : 0) + ((iBits & 010000000) ? 128 : 0))
 
 #define EZ_8BIT(B) ((ezUInt8)EZ_8BIT__(OCT__(B)))
 
 #define EZ_16BIT(B2, B1) (((ezUInt8)EZ_8BIT(B2) << 8) + EZ_8BIT(B1))
 
-#define EZ_32BIT(B4, B3, B2, B1) \
+#define EZ_32BIT(B4, B3, B2, B1)                                                                                                                     \
   ((unsigned long)EZ_8BIT(B4) << 24) + ((unsigned long)EZ_8BIT(B3) << 16) + ((unsigned long)EZ_8BIT(B2) << 8) + ((unsigned long)EZ_8BIT(B1))
 
 namespace
@@ -626,10 +626,8 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     {
       EZ_TEST_BOOL(ezMath::IsNaN(ezMath::NaN<ezMathTestType>()) == true);
 
-      EZ_TEST_BOOL(ezMath::Infinity<ezMathTestType>() ==
-                   ezMath::Infinity<ezMathTestType>() - (ezMathTestType)1);
-      EZ_TEST_BOOL(ezMath::Infinity<ezMathTestType>() ==
-                   ezMath::Infinity<ezMathTestType>() + (ezMathTestType)1);
+      EZ_TEST_BOOL(ezMath::Infinity<ezMathTestType>() == ezMath::Infinity<ezMathTestType>() - (ezMathTestType)1);
+      EZ_TEST_BOOL(ezMath::Infinity<ezMathTestType>() == ezMath::Infinity<ezMathTestType>() + (ezMathTestType)1);
 
       EZ_TEST_BOOL(ezMath::IsNaN(ezMath::Infinity<ezMathTestType>() - ezMath::Infinity<ezMathTestType>()));
 
@@ -734,9 +732,8 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
   {
     // Determined through the scientific method of manually comparing the result of the function with an online Bezier curve generator:
     // https://www.desmos.com/calculator/cahqdxeshd
-    const ezVec2 res[] = {ezVec2(1, 5), ezVec2(0.893, 4.455), ezVec2(1.112, 4.008), ezVec2(1.557, 3.631),
-      ezVec2(2.136, 3.304), ezVec2(2.750, 3.000), ezVec2(3.303, 2.695), ezVec2(3.701, 2.368),
-      ezVec2(3.847, 1.991), ezVec2(3.645, 1.543), ezVec2(3, 1)};
+    const ezVec2 res[] = {ezVec2(1, 5), ezVec2(0.893, 4.455), ezVec2(1.112, 4.008), ezVec2(1.557, 3.631), ezVec2(2.136, 3.304), ezVec2(2.750, 3.000),
+      ezVec2(3.303, 2.695), ezVec2(3.701, 2.368), ezVec2(3.847, 1.991), ezVec2(3.645, 1.543), ezVec2(3, 1)};
 
     const float step = 1.0f / (EZ_ARRAY_SIZE(res) - 1);
     for (int i = 0; i < EZ_ARRAY_SIZE(res); ++i)

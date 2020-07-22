@@ -175,8 +175,8 @@ bool ezRenderWorld::TryGetView(const ezViewHandle& hView, ezView*& out_pView)
   return s_Views.TryGetValue(hView, out_pView);
 }
 
-ezView* ezRenderWorld::GetViewByUsageHint(ezCameraUsageHint::Enum usageHint,
-  ezCameraUsageHint::Enum alternativeUsageHint /*= ezCameraUsageHint::None*/, const ezWorld* pWorld /*= nullptr*/)
+ezView* ezRenderWorld::GetViewByUsageHint(
+  ezCameraUsageHint::Enum usageHint, ezCameraUsageHint::Enum alternativeUsageHint /*= ezCameraUsageHint::None*/, const ezWorld* pWorld /*= nullptr*/)
 {
   EZ_LOCK(s_ViewsMutex);
 

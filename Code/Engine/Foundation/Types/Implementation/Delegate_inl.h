@@ -12,4 +12,3 @@ EZ_ALWAYS_INLINE typename ezMakeDelegateHelper<Method>::DelegateType ezMakeDeleg
 {
   return typename ezMakeDelegateHelper<Method>::DelegateType(method, pClass);
 }
-

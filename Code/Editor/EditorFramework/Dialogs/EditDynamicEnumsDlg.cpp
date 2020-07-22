@@ -28,7 +28,7 @@ void ezQtEditDynamicEnumsDlg::FillList()
 
   EnumValues->blockSignals(false);
 
-  //on_EnumValues_itemSelectionChanged();
+  // on_EnumValues_itemSelectionChanged();
 }
 
 bool ezQtEditDynamicEnumsDlg::EditItem(ezString& item)
@@ -59,7 +59,7 @@ void ezQtEditDynamicEnumsDlg::on_ButtonAdd_clicked()
 
   EnumValues->setCurrentRow((ezInt32)m_Values.GetCount() - 1);
 
-  //EnumValues->setCurrentIndex(QModelIndex((ezInt32)m_Values.GetCount() - 1, 0));
+  // EnumValues->setCurrentIndex(QModelIndex((ezInt32)m_Values.GetCount() - 1, 0));
 }
 
 void ezQtEditDynamicEnumsDlg::on_ButtonRemove_clicked()
@@ -69,7 +69,8 @@ void ezQtEditDynamicEnumsDlg::on_ButtonRemove_clicked()
   if (idx < 0 || idx >= (ezInt32)m_Values.GetCount())
     return;
 
-  //if (QMessageBox::question(this, "Remove Item?", QString("Remove item '%1' ?").arg(m_Values[idx].GetData()), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) != QMessageBox::Yes)
+  // if (QMessageBox::question(this, "Remove Item?", QString("Remove item '%1' ?").arg(m_Values[idx].GetData()), QMessageBox::Yes | QMessageBox::No,
+  // QMessageBox::Yes) != QMessageBox::Yes)
   //  return;
 
   m_bModified = true;
@@ -91,7 +92,8 @@ void ezQtEditDynamicEnumsDlg::on_Buttons_clicked(QAbstractButton* button)
   {
     if (m_bModified)
     {
-      if (QMessageBox::question(this, "Edit Values?", "Modifying these values cannot be undone.\n\nApply changes?", QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) != QMessageBox::Yes)
+      if (QMessageBox::question(this, "Edit Values?", "Modifying these values cannot be undone.\n\nApply changes?",
+            QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) != QMessageBox::Yes)
       {
         return;
       }

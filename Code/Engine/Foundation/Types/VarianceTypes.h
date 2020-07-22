@@ -38,4 +38,3 @@ struct EZ_FOUNDATION_DLL ezVarianceTypeAngle : public ezVarianceTypeBase
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezVarianceTypeAngle);
-

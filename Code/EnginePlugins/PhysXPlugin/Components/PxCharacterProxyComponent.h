@@ -72,8 +72,9 @@ public:
   float m_fMass = 100.0f;                              ///< [ property ] mass is used to calculate pushing force from other rigid bodies
   float m_fMaxStepHeight = 0.3f;                       ///< [ property ] how tall steps the character will climb automatically
   ezAngle m_MaxClimbingSlope = ezAngle::Degree(40.0f); ///< [ property ] Max slope angle that the character can climb before being stopped
-  bool m_bForceSlopeSliding = true;                    ///< [ property ] If standing on a steep slope, the character either can't walk up, or is even forced to slide down
-  bool m_bConstrainedClimbingMode = false;             ///< [ property ] no idea what this does, try out or ask nVidia
+  bool m_bForceSlopeSliding =
+    true; ///< [ property ] If standing on a steep slope, the character either can't walk up, or is even forced to slide down
+  bool m_bConstrainedClimbingMode = false; ///< [ property ] no idea what this does, try out or ask nVidia
 
   ezUInt8 m_uiCollisionLayer = 0; // [ property ]
 

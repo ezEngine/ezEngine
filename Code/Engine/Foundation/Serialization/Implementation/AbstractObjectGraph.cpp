@@ -239,8 +239,8 @@ void ezAbstractObjectGraph::ReMapNodeGuids(const ezUuid& seedGuid, bool bRemapIn
 }
 
 
-void ezAbstractObjectGraph::ReMapNodeGuidsToMatchGraph(ezAbstractObjectNode* root, const ezAbstractObjectGraph& rhsGraph,
-  const ezAbstractObjectNode* rhsRoot)
+void ezAbstractObjectGraph::ReMapNodeGuidsToMatchGraph(
+  ezAbstractObjectNode* root, const ezAbstractObjectGraph& rhsGraph, const ezAbstractObjectNode* rhsRoot)
 {
   ezHashTable<ezUuid, ezUuid> guidMap;
   EZ_ASSERT_DEV(ezStringUtils::IsEqual(root->GetType(), rhsRoot->GetType()), "Roots must have the same type to be able re-map guids!");
@@ -259,8 +259,8 @@ void ezAbstractObjectGraph::ReMapNodeGuidsToMatchGraph(ezAbstractObjectNode* roo
   }
 }
 
-void ezAbstractObjectGraph::ReMapNodeGuidsToMatchGraphRecursive(ezHashTable<ezUuid, ezUuid>& guidMap, ezAbstractObjectNode* lhs,
-  const ezAbstractObjectGraph& rhsGraph, const ezAbstractObjectNode* rhs)
+void ezAbstractObjectGraph::ReMapNodeGuidsToMatchGraphRecursive(
+  ezHashTable<ezUuid, ezUuid>& guidMap, ezAbstractObjectNode* lhs, const ezAbstractObjectGraph& rhsGraph, const ezAbstractObjectNode* rhs)
 {
   if (!ezStringUtils::IsEqual(lhs->GetType(), rhs->GetType()))
   {
@@ -441,8 +441,7 @@ ezAbstractObjectNode* ezAbstractObjectGraph::CopyNodeIntoGraph(const ezAbstractO
 }
 
 
-void ezAbstractObjectGraph::CreateDiffWithBaseGraph(const ezAbstractObjectGraph& base,
-  ezDeque<ezAbstractGraphDiffOperation>& out_DiffResult) const
+void ezAbstractObjectGraph::CreateDiffWithBaseGraph(const ezAbstractObjectGraph& base, ezDeque<ezAbstractGraphDiffOperation>& out_DiffResult) const
 {
   out_DiffResult.Clear();
 

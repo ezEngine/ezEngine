@@ -17,7 +17,4 @@ protected:
   virtual void SetCamera(const ezViewRedrawMsgToEngine* pMsg) override;
 
   ezMeshContext* m_pMeshContext;
-
-
 };
-

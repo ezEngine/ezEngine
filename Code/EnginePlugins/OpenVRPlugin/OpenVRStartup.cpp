@@ -1,7 +1,5 @@
 #include <OpenVRPluginPCH.h>
 
-#include <OpenVRPlugin/OpenVRIncludes.h>
-#include <OpenVRPlugin/OpenVRSingleton.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
@@ -9,6 +7,8 @@
 #include <Foundation/IO/OpenDdlUtils.h>
 #include <Foundation/IO/OpenDdlWriter.h>
 #include <GameEngine/GameApplication/GameApplication.h>
+#include <OpenVRPlugin/OpenVRIncludes.h>
+#include <OpenVRPlugin/OpenVRSingleton.h>
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(OpenVR, OpenVRPlugin)

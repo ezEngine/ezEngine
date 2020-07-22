@@ -42,7 +42,9 @@ void ezCollectionResource::PreloadResources()
       }
       else
       {
-        ezLog::Error("There was no valid RTTI available for assets with type name '{}'. Could not pre-load resource '{}'. Did you forget to register the resource type with the ezResourceManager?", e.m_sAssetTypeName, ezArgSensitive(e.m_sResourceID, "ResourceID"));
+        ezLog::Error("There was no valid RTTI available for assets with type name '{}'. Could not pre-load resource '{}'. Did you forget to register "
+                     "the resource type with the ezResourceManager?",
+          e.m_sAssetTypeName, ezArgSensitive(e.m_sResourceID, "ResourceID"));
       }
     }
     else

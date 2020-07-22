@@ -29,14 +29,13 @@ void ezTokenizedFileCache::Clear()
 void ezTokenizedFileCache::SkipWhitespace(ezDeque<ezToken>& Tokens, ezUInt32& uiCurToken)
 {
   while (uiCurToken < Tokens.GetCount() &&
-         (Tokens[uiCurToken].m_iType == ezTokenType::BlockComment ||
-          Tokens[uiCurToken].m_iType == ezTokenType::LineComment ||
-          Tokens[uiCurToken].m_iType == ezTokenType::Newline ||
-          Tokens[uiCurToken].m_iType == ezTokenType::Whitespace))
+         (Tokens[uiCurToken].m_iType == ezTokenType::BlockComment || Tokens[uiCurToken].m_iType == ezTokenType::LineComment ||
+           Tokens[uiCurToken].m_iType == ezTokenType::Newline || Tokens[uiCurToken].m_iType == ezTokenType::Whitespace))
     ++uiCurToken;
 }
 
-const ezTokenizer* ezTokenizedFileCache::Tokenize(const ezString& sFileName, ezArrayPtr<const ezUInt8> FileContent, const ezTimestamp& FileTimeStamp, ezLogInterface* pLog)
+const ezTokenizer* ezTokenizedFileCache::Tokenize(
+  const ezString& sFileName, ezArrayPtr<const ezUInt8> FileContent, const ezTimestamp& FileTimeStamp, ezLogInterface* pLog)
 {
   EZ_LOCK(m_Mutex);
 
@@ -60,22 +59,18 @@ const ezTokenizer* ezTokenizedFileCache::Tokenize(const ezString& sFileName, ezA
     Tokens[i].m_File = sFile;
     Tokens[i].m_uiLine += iLineOffset;
 
-    if (Tokens[i].m_iType == ezTokenType::NonIdentifier &&
-        Tokens[i].m_DataView.IsEqual("#"))
+    if (Tokens[i].m_iType == ezTokenType::NonIdentifier && Tokens[i].m_DataView.IsEqual("#"))
     {
       ezUInt32 uiNext = i + 1;
 
       SkipWhitespace(Tokens, uiNext);
 
-      if (uiNext < Tokens.GetCount() &&
-          Tokens[uiNext].m_iType == ezTokenType::Identifier &&
-          Tokens[uiNext].m_DataView.IsEqual("line"))
+      if (uiNext < Tokens.GetCount() && Tokens[uiNext].m_iType == ezTokenType::Identifier && Tokens[uiNext].m_DataView.IsEqual("line"))
       {
         ++uiNext;
         SkipWhitespace(Tokens, uiNext);
 
-        if (uiNext < Tokens.GetCount() &&
-            Tokens[uiNext].m_iType == ezTokenType::Integer)
+        if (uiNext < Tokens.GetCount() && Tokens[uiNext].m_iType == ezTokenType::Integer)
         {
           ezInt32 iNextLine = 0;
 
@@ -122,7 +117,8 @@ void ezPreprocessor::SetFileLocatorFunction(FileLocatorCB LocateAbsFileCB)
   m_FileLocatorCallback = LocateAbsFileCB;
 }
 
-ezResult ezPreprocessor::DefaultFileLocator(const char* szCurAbsoluteFile, const char* szIncludeFile, ezPreprocessor::IncludeType IncType, ezStringBuilder& out_sAbsoluteFilePath)
+ezResult ezPreprocessor::DefaultFileLocator(
+  const char* szCurAbsoluteFile, const char* szIncludeFile, ezPreprocessor::IncludeType IncType, ezStringBuilder& out_sAbsoluteFilePath)
 {
   ezStringBuilder& s = out_sAbsoluteFilePath;
 
@@ -290,7 +286,8 @@ ezResult ezPreprocessor::HandleInclude(const TokenStream& Tokens, ezUInt32 uiCur
   if (ProcessFile(sOtherFile, TokenOutput).Failed())
     return EZ_FAILURE;
 
-  if (uiCurToken < Tokens.GetCount() && (Tokens[uiCurToken]->m_iType == ezTokenType::Newline || Tokens[uiCurToken]->m_iType == ezTokenType::EndOfFile))
+  if (uiCurToken < Tokens.GetCount() &&
+      (Tokens[uiCurToken]->m_iType == ezTokenType::Newline || Tokens[uiCurToken]->m_iType == ezTokenType::EndOfFile))
     TokenOutput.PushBack(Tokens[uiCurToken]);
 
   return EZ_SUCCESS;
@@ -299,4 +296,3 @@ ezResult ezPreprocessor::HandleInclude(const TokenStream& Tokens, ezUInt32 uiCur
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Implementation_FileHandling);
-

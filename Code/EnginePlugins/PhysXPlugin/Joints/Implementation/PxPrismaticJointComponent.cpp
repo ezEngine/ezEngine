@@ -129,7 +129,8 @@ void ezPxPrismaticJointComponent::ApplySettings()
   }
 }
 
-void ezPxPrismaticJointComponent::CreateJointType(PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
+void ezPxPrismaticJointComponent::CreateJointType(
+  PxRigidActor* actor0, const PxTransform& localFrame0, PxRigidActor* actor1, const PxTransform& localFrame1)
 {
   m_pJoint = PxPrismaticJointCreate(*(ezPhysX::GetSingleton()->GetPhysXAPI()), actor0, localFrame0, actor1, localFrame1);
 }

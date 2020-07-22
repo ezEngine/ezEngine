@@ -404,9 +404,9 @@ public:
 
       if (!ignore)
       {
-        ezLog::Error(
-          "Including '{0}' in {1}:{2} leaks underlying implementation details. Including system or thirdparty headers in public ez header "
-          "files is not allowed. Please use an interface, factory or pimpl pattern to hide the implementation and avoid the include. See the Documentation Chapter 'General->Header Files' for details.",
+        ezLog::Error("Including '{0}' in {1}:{2} leaks underlying implementation details. Including system or thirdparty headers in public ez header "
+                     "files is not allowed. Please use an interface, factory or pimpl pattern to hide the implementation and avoid the include. See "
+                     "the Documentation Chapter 'General->Header Files' for details.",
           includePath.GetView(), currentFile.GetView(), line);
       }
     }

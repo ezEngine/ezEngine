@@ -17,7 +17,7 @@ class ezFormatStringImpl : public ezFormatString
 
 public:
   ezFormatStringImpl(const char* szFormat, ARGS&&... args)
-      : m_Arguments(std::forward<ARGS>(args)...)
+    : m_Arguments(std::forward<ARGS>(args)...)
   {
     m_szString = szFormat;
   }
@@ -111,4 +111,3 @@ private:
   // stores the arguments
   std::tuple<ARGS...> m_Arguments;
 };
-

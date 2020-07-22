@@ -18,7 +18,7 @@
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 
 ezSkeletonViewContext::ezSkeletonViewContext(ezSkeletonContext* pContext)
-    : ezEngineProcessViewContext(pContext)
+  : ezEngineProcessViewContext(pContext)
 {
   m_pContext = pContext;
 

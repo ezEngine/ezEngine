@@ -7,8 +7,8 @@
 // ezTestOutput public functions
 ////////////////////////////////////////////////////////////////////////
 
-const char* const ezTestOutput::s_Names[] = {"StartOutput", "BeginBlock", "EndBlock", "ImportantInfo", "Details",    "Success",
-                                             "Message",     "Warning",    "Error",    "Duration",      "FinalResult"};
+const char* const ezTestOutput::s_Names[] = {
+  "StartOutput", "BeginBlock", "EndBlock", "ImportantInfo", "Details", "Success", "Message", "Warning", "Error", "Duration", "FinalResult"};
 
 const char* ezTestOutput::ToString(Enum type)
 {
@@ -59,13 +59,13 @@ void ezTestResultData::AddOutput(ezInt32 iOutputIndex)
 ////////////////////////////////////////////////////////////////////////
 
 ezTestConfiguration::ezTestConfiguration()
-    : m_uiInstalledMainMemory(0)
-    , m_uiMemoryPageSize(0)
-    , m_uiCPUCoreCount(0)
-    , m_b64BitOS(false)
-    , m_b64BitApplication(false)
-    , m_iDateTime(0)
-    , m_iRCSRevision(-1)
+  : m_uiInstalledMainMemory(0)
+  , m_uiMemoryPageSize(0)
+  , m_uiCPUCoreCount(0)
+  , m_b64BitOS(false)
+  , m_b64BitApplication(false)
+  , m_iDateTime(0)
+  , m_iRCSRevision(-1)
 {
 }
 
@@ -376,8 +376,8 @@ void ezTestFrameworkResult::TestOutput(ezUInt32 uiTestIndex, ezInt32 iSubTestInd
   outputMessage.m_sMessage.assign(szMsg);
 }
 
-void ezTestFrameworkResult::TestError(ezUInt32 uiTestIndex, ezInt32 iSubTestIndex, const char* szError, const char* szBlock,
-                                      const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg)
+void ezTestFrameworkResult::TestError(ezUInt32 uiTestIndex, ezInt32 iSubTestIndex, const char* szError, const char* szBlock, const char* szFile,
+  ezInt32 iLine, const char* szFunction, const char* szMsg)
 {
   // In case there is no message set, we use the error as the message.
   TestOutput(uiTestIndex, iSubTestIndex, ezTestOutput::Error, szError);
@@ -395,8 +395,7 @@ void ezTestFrameworkResult::TestError(ezUInt32 uiTestIndex, ezInt32 iSubTestInde
 
 void ezTestFrameworkResult::TestResult(ezUInt32 uiTestIndex, ezInt32 iSubTestIndex, bool bSuccess, double fDuration)
 {
-  ezTestResultData& Result =
-      (iSubTestIndex == -1) ? m_Tests[uiTestIndex].m_Result : m_Tests[uiTestIndex].m_SubTests[iSubTestIndex].m_Result;
+  ezTestResultData& Result = (iSubTestIndex == -1) ? m_Tests[uiTestIndex].m_Result : m_Tests[uiTestIndex].m_SubTests[iSubTestIndex].m_Result;
 
   Result.m_bExecuted = true;
   Result.m_bSuccess = bSuccess;
@@ -495,4 +494,3 @@ void ezTestFrameworkResult::ezTestResult::Reset()
 
 
 EZ_STATICLINK_FILE(TestFramework, TestFramework_Framework_TestResults);
-

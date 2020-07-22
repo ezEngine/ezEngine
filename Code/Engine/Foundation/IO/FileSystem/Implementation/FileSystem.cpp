@@ -438,8 +438,7 @@ const char* ezFileSystem::ExtractRootName(const char* szPath, ezString& rootName
     ++it;
   }
 
-  EZ_ASSERT_DEV(
-    !it.IsEmpty(), "Cannot parse the path \"{0}\". The data-dir root name starts with a ':' but does not end with '/'.", szPath);
+  EZ_ASSERT_DEV(!it.IsEmpty(), "Cannot parse the path \"{0}\". The data-dir root name starts with a ':' but does not end with '/'.", szPath);
 
   sCur.ToUpper();
   rootName = sCur;
@@ -592,7 +591,8 @@ ezDataDirectoryWriter* ezFileSystem::GetFileWriter(const char* szFile, ezFileSha
   return nullptr;
 }
 
-ezResult ezFileSystem::ResolvePath(const char* szPath, ezStringBuilder* out_sAbsolutePath, ezStringBuilder* out_sDataDirRelativePath, ezDataDirectoryType** out_ppDataDir /*= nullptr*/)
+ezResult ezFileSystem::ResolvePath(const char* szPath, ezStringBuilder* out_sAbsolutePath, ezStringBuilder* out_sDataDirRelativePath,
+  ezDataDirectoryType** out_ppDataDir /*= nullptr*/)
 {
   EZ_ASSERT_DEV(s_Data != nullptr, "FileSystem is not initialized.");
 
@@ -779,8 +779,8 @@ ezResult ezFileSystem::DetectSdkRootDirectory(const char* szExpectedSubFolder /*
 #else
   if (ezFileSystem::FindFolderWithSubPath(ezOSFile::GetApplicationDirectory(), szExpectedSubFolder, sdkRoot).Failed())
   {
-    ezLog::Error("Could not find SDK root. Application dir is '{0}'. Searched for parent with 'Data\\Base' sub-folder.",
-      ezOSFile::GetApplicationDirectory());
+    ezLog::Error(
+      "Could not find SDK root. Application dir is '{0}'. Searched for parent with 'Data\\Base' sub-folder.", ezOSFile::GetApplicationDirectory());
     return EZ_FAILURE;
   }
 #endif

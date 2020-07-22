@@ -9,13 +9,11 @@ struct ID3D11Buffer;
 class EZ_RENDERERDX11_DLL ezGALBufferDX11 : public ezGALBuffer
 {
 public:
-
   EZ_ALWAYS_INLINE ID3D11Buffer* GetDXBuffer() const;
 
   EZ_ALWAYS_INLINE DXGI_FORMAT GetIndexFormat() const;
 
 protected:
-
   friend class ezGALDeviceDX11;
   friend class ezMemoryUtils;
 

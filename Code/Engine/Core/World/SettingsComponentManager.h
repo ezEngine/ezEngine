@@ -36,4 +36,3 @@ private:
 };
 
 #include <Core/World/Implementation/SettingsComponentManager_inl.h>
-

@@ -1,17 +1,17 @@
 #include <TestFrameworkPCH.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-#include <Foundation/Basics/Platform/uwp/UWPUtils.h>
-#include <Foundation/Strings/StringConversion.h>
-#include <TestFramework/Framework/uwp/uwpTestApplication.h>
-#include <TestFramework/Framework/uwp/uwpTestFramework.h>
-#include <windows.ui.core.h>
-#include <wrl/event.h>
+#  include <Foundation/Basics/Platform/uwp/UWPUtils.h>
+#  include <Foundation/Strings/StringConversion.h>
+#  include <TestFramework/Framework/uwp/uwpTestApplication.h>
+#  include <TestFramework/Framework/uwp/uwpTestFramework.h>
+#  include <windows.ui.core.h>
+#  include <wrl/event.h>
 
 using namespace ABI::Windows::Foundation;
 
 ezUwpTestApplication::ezUwpTestApplication(ezTestFramework& testFramework)
-    : m_testFramework(testFramework)
+  : m_testFramework(testFramework)
 {
 }
 
@@ -26,9 +26,9 @@ HRESULT ezUwpTestApplication::CreateView(IFrameworkView** viewProvider)
 HRESULT ezUwpTestApplication::Initialize(ICoreApplicationView* applicationView)
 {
   using OnActivatedHandler =
-      __FITypedEventHandler_2_Windows__CApplicationModel__CCore__CCoreApplicationView_Windows__CApplicationModel__CActivation__CIActivatedEventArgs;
-  EZ_SUCCEED_OR_RETURN(applicationView->add_Activated(Callback<OnActivatedHandler>(this, &ezUwpTestApplication::OnActivated).Get(),
-                                                      &m_eventRegistrationOnActivate));
+    __FITypedEventHandler_2_Windows__CApplicationModel__CCore__CCoreApplicationView_Windows__CApplicationModel__CActivation__CIActivatedEventArgs;
+  EZ_SUCCEED_OR_RETURN(
+    applicationView->add_Activated(Callback<OnActivatedHandler>(this, &ezUwpTestApplication::OnActivated).Get(), &m_eventRegistrationOnActivate));
 
 
 
@@ -51,7 +51,7 @@ HRESULT ezUwpTestApplication::Run()
 {
   ComPtr<ABI::Windows::UI::Core::ICoreWindowStatic> coreWindowStatics;
   EZ_SUCCEED_OR_RETURN(
-      ABI::Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_UI_Core_CoreWindow).Get(), &coreWindowStatics));
+    ABI::Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_UI_Core_CoreWindow).Get(), &coreWindowStatics));
   ComPtr<ABI::Windows::UI::Core::ICoreWindow> coreWindow;
   EZ_SUCCEED_OR_RETURN(coreWindowStatics->GetForCurrentThread(&coreWindow));
   ComPtr<ABI::Windows::UI::Core::ICoreDispatcher> dispatcher;
@@ -96,33 +96,31 @@ HRESULT ezUwpTestApplication::OnActivated(ICoreApplicationView* applicationView,
     m_testFramework.GetTestSettingsFromCommandLine(cmd);
 
     // Setup an extended execution session to prevent app from going to sleep during testing.
-    ezUwpUtils::CreateInstance<IExtendedExecutionSession>(RuntimeClass_Windows_ApplicationModel_ExtendedExecution_ExtendedExecutionSession,
-                                                          m_extendedExecutionSession);
+    ezUwpUtils::CreateInstance<IExtendedExecutionSession>(
+      RuntimeClass_Windows_ApplicationModel_ExtendedExecution_ExtendedExecutionSession, m_extendedExecutionSession);
     EZ_ASSERT_DEV(m_extendedExecutionSession, "Failed to create extended session. Can't prevent app from backgrounding during testing.");
     m_extendedExecutionSession->put_Reason(ExtendedExecutionReason::ExtendedExecutionReason_Unspecified);
     ezStringHString desc("Keep Unit Tests Running");
     m_extendedExecutionSession->put_Description(desc.GetData().Get());
 
-    using OnRevokedHandler =
-        __FITypedEventHandler_2_IInspectable_Windows__CApplicationModel__CExtendedExecution__CExtendedExecutionRevokedEventArgs;
+    using OnRevokedHandler = __FITypedEventHandler_2_IInspectable_Windows__CApplicationModel__CExtendedExecution__CExtendedExecutionRevokedEventArgs;
     EZ_SUCCEED_OR_RETURN(m_extendedExecutionSession->add_Revoked(
-        Callback<OnRevokedHandler>(this, &ezUwpTestApplication::OnSessionRevoked).Get(), &m_eventRegistrationOnRevokedSession));
+      Callback<OnRevokedHandler>(this, &ezUwpTestApplication::OnSessionRevoked).Get(), &m_eventRegistrationOnRevokedSession));
 
     ComPtr<__FIAsyncOperation_1_Windows__CApplicationModel__CExtendedExecution__CExtendedExecutionResult> pAsyncOp;
     if (SUCCEEDED(m_extendedExecutionSession->RequestExtensionAsync(&pAsyncOp)))
     {
-      ezUwpUtils::ezWinRtPutCompleted<ExtendedExecutionResult, ExtendedExecutionResult>(
-          pAsyncOp, [this](const ExtendedExecutionResult& pResult) {
-            switch (pResult)
-            {
-              case ExtendedExecutionResult::ExtendedExecutionResult_Allowed:
-                ezLog::Info("Extended session is active.");
-                break;
-              case ExtendedExecutionResult::ExtendedExecutionResult_Denied:
-                ezLog::Error("Extended session is denied.");
-                break;
-            }
-          });
+      ezUwpUtils::ezWinRtPutCompleted<ExtendedExecutionResult, ExtendedExecutionResult>(pAsyncOp, [this](const ExtendedExecutionResult& pResult) {
+        switch (pResult)
+        {
+          case ExtendedExecutionResult::ExtendedExecutionResult_Allowed:
+            ezLog::Info("Extended session is active.");
+            break;
+          case ExtendedExecutionResult::ExtendedExecutionResult_Denied:
+            ezLog::Error("Extended session is denied.");
+            break;
+        }
+      });
     }
   }
 
@@ -138,4 +136,3 @@ HRESULT ezUwpTestApplication::OnSessionRevoked(IInspectable* sender, IExtendedEx
 #endif
 
 EZ_STATICLINK_FILE(TestFramework, TestFramework_Framework_uwp_uwpTestApplication);
-

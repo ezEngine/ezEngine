@@ -15,4 +15,3 @@ protected:
 
   ezDecalContext* m_pDecalContext;
 };
-

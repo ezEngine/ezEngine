@@ -136,4 +136,3 @@ typename ezTagSetTemplate<BlockStorageAllocator>::Iterator end(const ezTagSetTem
 }
 
 #include <Foundation/Types/Implementation/TagSet_inl.h>
-

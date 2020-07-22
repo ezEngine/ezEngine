@@ -33,8 +33,7 @@ ezLog::TimestampMode ezTestFramework::s_LogTimestampMode = ezLog::TimestampMode:
 
 constexpr int s_iMaxErrorMessageLength = 512;
 
-static bool TestAssertHandler(
-  const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
+static bool TestAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
 {
   if (ezTestFramework::s_bCallstackOnAssert)
   {
@@ -59,8 +58,7 @@ static bool TestAssertHandler(
 // ezTestFramework public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezTestFramework::ezTestFramework(
-  const char* szTestName, const char* szAbsTestOutputDir, const char* szRelTestDataDir, int argc, const char** argv)
+ezTestFramework::ezTestFramework(const char* szTestName, const char* szAbsTestOutputDir, const char* szRelTestDataDir, int argc, const char** argv)
   : m_sTestName(szTestName)
   , m_sAbsTestOutputDir(szAbsTestOutputDir)
   , m_sRelTestDataDir(szRelTestDataDir)
@@ -373,8 +371,7 @@ void ezTestFramework::CreateOutputFolder()
 {
   ezOSFile::CreateDirectoryStructure(m_sAbsTestOutputDir.c_str());
 
-  EZ_ASSERT_RELEASE(
-    ezOSFile::ExistsDirectory(m_sAbsTestOutputDir.c_str()), "Failed to create output directory '{0}'", m_sAbsTestOutputDir.c_str());
+  EZ_ASSERT_RELEASE(ezOSFile::ExistsDirectory(m_sAbsTestOutputDir.c_str()), "Failed to create output directory '{0}'", m_sAbsTestOutputDir.c_str());
 }
 
 void ezTestFramework::UpdateReferenceImages()
@@ -983,8 +980,7 @@ void ezTestFramework::ErrorImpl(const char* szError, const char* szFile, ezInt32
 {
   std::scoped_lock _(m_outputMutex);
 
-  m_Result.TestError(
-    m_iCurrentTestIndex, m_iCurrentSubTestIndex, szError, ezTestFramework::s_szTestBlockName, szFile, iLine, szFunction, szMsg);
+  m_Result.TestError(m_iCurrentTestIndex, m_iCurrentSubTestIndex, szError, ezTestFramework::s_szTestBlockName, szFile, iLine, szFunction, szMsg);
 
   g_bBlockOutput = true;
   ezTestFramework::Output(ezTestOutput::Error, "%s", szError); // This will also increase the global error count.
@@ -1099,9 +1095,9 @@ void ezTestFramework::SetImageReferenceOverrideFolderName(const char* szFolderNa
   }
 }
 
-static const ezUInt8 s_Base64EncodingTable[64] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R',
-  'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's',
-  't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'};
+static const ezUInt8 s_Base64EncodingTable[64] = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
+  'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w',
+  'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'};
 
 static const ezUInt8 BASE64_CHARS_PER_LINE = 76;
 
@@ -1199,9 +1195,9 @@ static void AppendImageData(ezStringBuilder& output, ezImage& img)
   output.AppendFormat("data:image/png;base64,{0}", imgDataBase64StringView);
 }
 
-void ezTestFramework::WriteImageDiffHtml(const char* fileName, ezImage& referenceImgRgb, ezImage& referenceImgAlpha,
-  ezImage& capturedImgRgb, ezImage& capturedImgAlpha, ezImage& diffImgRgb, ezImage& diffImgAlpha, ezUInt32 uiError, ezUInt32 uiThreshold,
-  ezUInt8 uiMinDiffRgb, ezUInt8 uiMaxDiffRgb, ezUInt8 uiMinDiffAlpha, ezUInt8 uiMaxDiffAlpha)
+void ezTestFramework::WriteImageDiffHtml(const char* fileName, ezImage& referenceImgRgb, ezImage& referenceImgAlpha, ezImage& capturedImgRgb,
+  ezImage& capturedImgAlpha, ezImage& diffImgRgb, ezImage& diffImgAlpha, ezUInt32 uiError, ezUInt32 uiThreshold, ezUInt8 uiMinDiffRgb,
+  ezUInt8 uiMaxDiffRgb, ezUInt8 uiMinDiffAlpha, ezUInt8 uiMaxDiffAlpha)
 {
 
   ezFileWriter outputFile;
@@ -1271,9 +1267,8 @@ void ezTestFramework::WriteImageDiffHtml(const char* fileName, ezImage& referenc
 
   output.AppendFormat("<b>Test result for \"{} > {}\" from ", szTestName, szSubTestName);
   ezDateTime dateTime(ezTimestamp::CurrentTimestamp());
-  output.AppendFormat("{}-{}-{} {}:{}:{}</b><br>\n", dateTime.GetYear(), ezArgI(dateTime.GetMonth(), 2, true),
-    ezArgI(dateTime.GetDay(), 2, true), ezArgI(dateTime.GetHour(), 2, true), ezArgI(dateTime.GetMinute(), 2, true),
-    ezArgI(dateTime.GetSecond(), 2, true));
+  output.AppendFormat("{}-{}-{} {}:{}:{}</b><br>\n", dateTime.GetYear(), ezArgI(dateTime.GetMonth(), 2, true), ezArgI(dateTime.GetDay(), 2, true),
+    ezArgI(dateTime.GetHour(), 2, true), ezArgI(dateTime.GetMinute(), 2, true), ezArgI(dateTime.GetSecond(), 2, true));
 
   output.Append("<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\">\n");
 
@@ -1452,11 +1447,11 @@ bool ezTestFramework::PerformImageComparison(ezStringBuilder sImgName, const ezI
 
     ezStringBuilder sDiffHtmlPath;
     sDiffHtmlPath.Format(":imgout/Html_Diff/{0}.html", sImgName);
-    WriteImageDiffHtml(sDiffHtmlPath, imgExpRgb, imgExpAlpha, imgRgb, imgAlpha, imgDiffRgb, imgDiffAlpha, uiMeanError, uiMaxError,
-      uiMinDiffRgb, uiMaxDiffRgb, uiMinDiffAlpha, uiMaxDiffAlpha);
+    WriteImageDiffHtml(sDiffHtmlPath, imgExpRgb, imgExpAlpha, imgRgb, imgAlpha, imgDiffRgb, imgDiffAlpha, uiMeanError, uiMaxError, uiMinDiffRgb,
+      uiMaxDiffRgb, uiMinDiffAlpha, uiMaxDiffAlpha);
 
-    safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Error: Image Comparison Failed: MSE of %u exceeds threshold of %u for image '%s'.",
-      uiMeanError, uiMaxError, sImgName.GetData());
+    safeprintf(szErrorMsg, s_iMaxErrorMessageLength, "Error: Image Comparison Failed: MSE of %u exceeds threshold of %u for image '%s'.", uiMeanError,
+      uiMaxError, sImgName.GetData());
 
     ezStringBuilder sDataDirRelativePath;
     ezFileSystem::ResolvePath(sDiffHtmlPath, nullptr, &sDataDirRelativePath);
@@ -1563,14 +1558,8 @@ void ezTestFramework::OutputArgs(ezTestOutput::Enum Type, const char* szMsg, va_
 
   if (ezTestFramework::s_LogTimestampMode != ezLog::TimestampMode::None)
   {
-    if (Type == ezTestOutput::BeginBlock ||
-        Type == ezTestOutput::EndBlock ||
-        Type == ezTestOutput::ImportantInfo ||
-        Type == ezTestOutput::Details ||
-        Type == ezTestOutput::Success ||
-        Type == ezTestOutput::Message ||
-        Type == ezTestOutput::Warning ||
-        Type == ezTestOutput::Error ||
+    if (Type == ezTestOutput::BeginBlock || Type == ezTestOutput::EndBlock || Type == ezTestOutput::ImportantInfo || Type == ezTestOutput::Details ||
+        Type == ezTestOutput::Success || Type == ezTestOutput::Message || Type == ezTestOutput::Warning || Type == ezTestOutput::Error ||
         Type == ezTestOutput::FinalResult)
     {
       ezStringBuilder timestamp;
@@ -1612,14 +1601,14 @@ void ezTestFramework::TestResult(ezInt32 iSubTestIndex, bool bSuccess, double fD
 // EZ_TEST_... macro functions
 ////////////////////////////////////////////////////////////////////////
 
-#define OUTPUT_TEST_ERROR                                                        \
-  {                                                                              \
-    va_list args;                                                                \
-    va_start(args, szMsg);                                                       \
-    ezTestFramework::Error(szErrorText, szFile, iLine, szFunction, szMsg, args); \
-    EZ_TEST_DEBUG_BREAK                                                          \
-    va_end(args);                                                                \
-    return EZ_FAILURE;                                                           \
+#define OUTPUT_TEST_ERROR                                                                                                                            \
+  {                                                                                                                                                  \
+    va_list args;                                                                                                                                    \
+    va_start(args, szMsg);                                                                                                                           \
+    ezTestFramework::Error(szErrorText, szFile, iLine, szFunction, szMsg, args);                                                                     \
+    EZ_TEST_DEBUG_BREAK                                                                                                                              \
+    va_end(args);                                                                                                                                    \
+    return EZ_FAILURE;                                                                                                                               \
   }
 
 ezResult ezTestBool(bool bCondition, const char* szErrorText, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
@@ -1666,8 +1655,8 @@ ezResult ezTestDouble(double f1, double f2, double fEps, const char* szF1, const
   return EZ_SUCCESS;
 }
 
-ezResult ezTestInt(ezInt64 i1, ezInt64 i2, const char* szI1, const char* szI2, const char* szFile, ezInt32 iLine, const char* szFunction,
-  const char* szMsg, ...)
+ezResult ezTestInt(
+  ezInt64 i1, ezInt64 i2, const char* szI1, const char* szI2, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
 {
   ezTestFramework::s_iAssertCounter++;
 
@@ -1690,8 +1679,8 @@ ezResult ezTestWString(std::wstring ws1, std::wstring ws2, const char* szWString
   if (ws1 != ws2)
   {
     char szErrorText[2048];
-    safeprintf(szErrorText, 2048, "Failure: '%s' (%s) does not equal '%s' (%s)",
-      szWString1, ezStringUtf8(ws1.c_str()).GetData(), szWString2, ezStringUtf8(ws2.c_str()).GetData());
+    safeprintf(szErrorText, 2048, "Failure: '%s' (%s) does not equal '%s' (%s)", szWString1, ezStringUtf8(ws1.c_str()).GetData(), szWString2,
+      ezStringUtf8(ws2.c_str()).GetData());
 
     OUTPUT_TEST_ERROR
   }
@@ -1715,8 +1704,8 @@ ezResult ezTestString(std::string s1, std::string s2, const char* szString1, con
   return EZ_SUCCESS;
 }
 
-ezResult ezTestVector(ezVec4d v1, ezVec4d v2, double fEps, const char* szCondition, const char* szFile, ezInt32 iLine,
-  const char* szFunction, const char* szMsg, ...)
+ezResult ezTestVector(
+  ezVec4d v1, ezVec4d v2, double fEps, const char* szCondition, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
 {
   ezTestFramework::s_iAssertCounter++;
 
@@ -1724,32 +1713,28 @@ ezResult ezTestVector(ezVec4d v1, ezVec4d v2, double fEps, const char* szConditi
 
   if (!ezMath::IsEqual(v1.x, v2.x, fEps))
   {
-    safeprintf(
-      szErrorText, 256, "Failure: '%s' - v1.x (%.8f) does not equal v2.x (%.8f) within an epsilon of %.8f", szCondition, v1.x, v2.x, fEps);
+    safeprintf(szErrorText, 256, "Failure: '%s' - v1.x (%.8f) does not equal v2.x (%.8f) within an epsilon of %.8f", szCondition, v1.x, v2.x, fEps);
 
     OUTPUT_TEST_ERROR
   }
 
   if (!ezMath::IsEqual(v1.y, v2.y, fEps))
   {
-    safeprintf(
-      szErrorText, 256, "Failure: '%s' - v1.y (%.8f) does not equal v2.y (%.8f) within an epsilon of %.8f", szCondition, v1.y, v2.y, fEps);
+    safeprintf(szErrorText, 256, "Failure: '%s' - v1.y (%.8f) does not equal v2.y (%.8f) within an epsilon of %.8f", szCondition, v1.y, v2.y, fEps);
 
     OUTPUT_TEST_ERROR
   }
 
   if (!ezMath::IsEqual(v1.z, v2.z, fEps))
   {
-    safeprintf(
-      szErrorText, 256, "Failure: '%s' - v1.z (%.8f) does not equal v2.z (%.8f) within an epsilon of %.8f", szCondition, v1.z, v2.z, fEps);
+    safeprintf(szErrorText, 256, "Failure: '%s' - v1.z (%.8f) does not equal v2.z (%.8f) within an epsilon of %.8f", szCondition, v1.z, v2.z, fEps);
 
     OUTPUT_TEST_ERROR
   }
 
   if (!ezMath::IsEqual(v1.w, v2.w, fEps))
   {
-    safeprintf(
-      szErrorText, 256, "Failure: '%s' - v1.w (%.8f) does not equal v2.w (%.8f) within an epsilon of %.8f", szCondition, v1.w, v2.w, fEps);
+    safeprintf(szErrorText, 256, "Failure: '%s' - v1.w (%.8f) does not equal v2.w (%.8f) within an epsilon of %.8f", szCondition, v1.w, v2.w, fEps);
 
     OUTPUT_TEST_ERROR
   }
@@ -1757,8 +1742,7 @@ ezResult ezTestVector(ezVec4d v1, ezVec4d v2, double fEps, const char* szConditi
   return EZ_SUCCESS;
 }
 
-ezResult ezTestFiles(
-  const char* szFile1, const char* szFile2, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
+ezResult ezTestFiles(const char* szFile1, const char* szFile2, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
 {
   ezTestFramework::s_iAssertCounter++;
 
@@ -1798,8 +1782,7 @@ ezResult ezTestFiles(
 
       if (uiRead1 != uiRead2)
       {
-        safeprintf(
-          szErrorText, s_iMaxErrorMessageLength, "Failure: Files could not read same amount of data: '%s' and '%s'", szFile1, szFile2);
+        safeprintf(szErrorText, s_iMaxErrorMessageLength, "Failure: Files could not read same amount of data: '%s' and '%s'", szFile1, szFile2);
 
         OUTPUT_TEST_ERROR
       }
@@ -1821,8 +1804,7 @@ ezResult ezTestFiles(
   return EZ_SUCCESS;
 }
 
-ezResult ezTestTextFiles(
-  const char* szFile1, const char* szFile2, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
+ezResult ezTestTextFiles(const char* szFile1, const char* szFile2, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
 {
   ezTestFramework::s_iAssertCounter++;
 
@@ -1864,8 +1846,7 @@ ezResult ezTestTextFiles(
   return EZ_SUCCESS;
 }
 
-ezResult ezTestImage(
-  ezUInt32 uiImageNumber, ezUInt32 uiMaxError, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
+ezResult ezTestImage(ezUInt32 uiImageNumber, ezUInt32 uiMaxError, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
 {
   char szErrorText[s_iMaxErrorMessageLength] = "";
 

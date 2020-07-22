@@ -51,10 +51,7 @@ public:
   virtual void SetClipMouseCursor(ezMouseCursorClipMode::Enum mode) override;
 
   /// \brief Returns whether the mouse is confined to the application window or not.
-  virtual ezMouseCursorClipMode::Enum GetClipMouseCursor() const override
-  {
-    return m_ClipCursorMode;
-  }
+  virtual ezMouseCursorClipMode::Enum GetClipMouseCursor() const override { return m_ClipCursorMode; }
 
   /// \brief Shows or hides the mouse cursor inside the application window.
   ///

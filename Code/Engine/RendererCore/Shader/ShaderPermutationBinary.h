@@ -1,8 +1,8 @@
 #pragma once
 
+#include <Foundation/IO/DependencyFile.h>
 #include <RendererCore/Declarations.h>
 #include <RendererCore/Shader/ShaderStageBinary.h>
-#include <Foundation/IO/DependencyFile.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 
 struct EZ_RENDERERCORE_DLL ezShaderStateResourceDescriptor
@@ -34,4 +34,3 @@ public:
 
   ezHybridArray<ezPermutationVar, 16> m_PermutationVars;
 };
-

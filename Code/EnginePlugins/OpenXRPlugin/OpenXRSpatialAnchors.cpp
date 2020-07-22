@@ -1,10 +1,10 @@
 #include <OpenXRPluginPCH.h>
 
-#include <OpenXRPlugin/OpenXRDeclarations.h>
-#include <OpenXRPlugin/OpenXRSpatialAnchors.h>
-#include <OpenXRPlugin/OpenXRSingleton.h>
-#include <GameEngine/XR/StageSpaceComponent.h>
 #include <Core/World/World.h>
+#include <GameEngine/XR/StageSpaceComponent.h>
+#include <OpenXRPlugin/OpenXRDeclarations.h>
+#include <OpenXRPlugin/OpenXRSingleton.h>
+#include <OpenXRPlugin/OpenXRSpatialAnchors.h>
 
 EZ_IMPLEMENT_SINGLETON(ezOpenXRSpatialAnchors);
 
@@ -44,7 +44,7 @@ ezXRSpatialAnchorID ezOpenXRSpatialAnchors::CreateAnchor(const ezTransform& glob
   ezTransform local;
   local.SetLocalTransform(globalStageTransform, globalTransform);
 
-  XrSpatialAnchorCreateInfoMSFT createInfo{ XR_TYPE_SPATIAL_ANCHOR_CREATE_INFO_MSFT };
+  XrSpatialAnchorCreateInfoMSFT createInfo{XR_TYPE_SPATIAL_ANCHOR_CREATE_INFO_MSFT};
   createInfo.space = m_pOpenXR->GetBaseSpace();
   createInfo.pose.position = ezOpenXR::ConvertPosition(local.m_vPosition);
   createInfo.pose.orientation = ezOpenXR::ConvertOrientation(local.m_qRotation);
@@ -55,14 +55,14 @@ ezXRSpatialAnchorID ezOpenXRSpatialAnchors::CreateAnchor(const ezTransform& glob
   if (res != XrResult::XR_SUCCESS)
     return ezXRSpatialAnchorID();
 
-  XrSpatialAnchorSpaceCreateInfoMSFT createSpaceInfo{ XR_TYPE_SPATIAL_ANCHOR_SPACE_CREATE_INFO_MSFT };
+  XrSpatialAnchorSpaceCreateInfoMSFT createSpaceInfo{XR_TYPE_SPATIAL_ANCHOR_SPACE_CREATE_INFO_MSFT};
   createSpaceInfo.anchor = anchor;
   createSpaceInfo.poseInAnchorSpace = ezOpenXR::ConvertTransform(ezTransform::IdentityTransform());
 
   XrSpace space;
   res = m_pOpenXR->m_extensions.pfn_xrCreateSpatialAnchorSpaceMSFT(m_pOpenXR->m_session, &createSpaceInfo, &space);
 
-  return m_Anchors.Insert({ anchor, space });
+  return m_Anchors.Insert({anchor, space});
 }
 
 ezResult ezOpenXRSpatialAnchors::DestroyAnchor(ezXRSpatialAnchorID id)
@@ -85,12 +85,13 @@ ezResult ezOpenXRSpatialAnchors::TryGetAnchorTransform(ezXRSpatialAnchorID id, e
     return EZ_FAILURE;
 
   const XrTime time = m_pOpenXR->m_frameState.predictedDisplayTime;
-  XrSpaceLocation viewInScene = { XR_TYPE_SPACE_LOCATION };
+  XrSpaceLocation viewInScene = {XR_TYPE_SPACE_LOCATION};
   XrResult res = xrLocateSpace(anchorData.m_Space, m_pOpenXR->m_sceneSpace, time, &viewInScene);
   if (res != XrResult::XR_SUCCESS)
     return EZ_FAILURE;
 
-  if ((viewInScene.locationFlags & (XR_SPACE_LOCATION_POSITION_VALID_BIT | XR_SPACE_LOCATION_ORIENTATION_VALID_BIT)) == (XR_SPACE_LOCATION_POSITION_VALID_BIT | XR_SPACE_LOCATION_ORIENTATION_VALID_BIT))
+  if ((viewInScene.locationFlags & (XR_SPACE_LOCATION_POSITION_VALID_BIT | XR_SPACE_LOCATION_ORIENTATION_VALID_BIT)) ==
+      (XR_SPACE_LOCATION_POSITION_VALID_BIT | XR_SPACE_LOCATION_ORIENTATION_VALID_BIT))
   {
     ezTransform globalStageTransform;
     globalStageTransform.SetIdentity();

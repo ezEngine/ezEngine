@@ -6,9 +6,7 @@ ezMat3Template<Type>::ezMat3Template()
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
   const Type TypeNaN = ezMath::NaN<Type>();
-  SetElements(TypeNaN, TypeNaN, TypeNaN,
-              TypeNaN, TypeNaN, TypeNaN,
-              TypeNaN, TypeNaN, TypeNaN);
+  SetElements(TypeNaN, TypeNaN, TypeNaN, TypeNaN, TypeNaN, TypeNaN, TypeNaN, TypeNaN, TypeNaN);
 #endif
 }
 
@@ -19,29 +17,21 @@ ezMat3Template<Type>::ezMat3Template(const Type* const pData, ezMatrixLayout::En
 }
 
 template <typename Type>
-ezMat3Template<Type>::ezMat3Template(Type c1r1, Type c2r1, Type c3r1,
-                                     Type c1r2, Type c2r2, Type c3r2,
-                                     Type c1r3, Type c2r3, Type c3r3)
+ezMat3Template<Type>::ezMat3Template(Type c1r1, Type c2r1, Type c3r1, Type c1r2, Type c2r2, Type c3r2, Type c1r3, Type c2r3, Type c3r3)
 {
-  SetElements(c1r1, c2r1, c3r1,
-              c1r2, c2r2, c3r2,
-              c1r3, c2r3, c3r3);
+  SetElements(c1r1, c2r1, c3r1, c1r2, c2r2, c3r2, c1r3, c2r3, c3r3);
 }
 
 template <typename Type>
 EZ_ALWAYS_INLINE const ezMat3Template<Type> ezMat3Template<Type>::IdentityMatrix()
 {
-  return ezMat3Template<Type>(1, 0, 0,
-                              0, 1, 0,
-                              0, 0, 1);
+  return ezMat3Template<Type>(1, 0, 0, 0, 1, 0, 0, 0, 1);
 }
 
 template <typename Type>
 EZ_ALWAYS_INLINE const ezMat3Template<Type> ezMat3Template<Type>::ZeroMatrix()
 {
-  return ezMat3Template<Type>(0, 0, 0,
-                              0, 0, 0,
-                              0, 0, 0);
+  return ezMat3Template<Type>(0, 0, 0, 0, 0, 0, 0, 0, 0);
 }
 
 template <typename Type>
@@ -83,9 +73,7 @@ void ezMat3Template<Type>::GetAsArray(Type* out_pData, ezMatrixLayout::Enum layo
 }
 
 template <typename Type>
-void ezMat3Template<Type>::SetElements(Type c1r1, Type c2r1, Type c3r1,
-                                       Type c1r2, Type c2r2, Type c3r2,
-                                       Type c1r3, Type c2r3, Type c3r3)
+void ezMat3Template<Type>::SetElements(Type c1r1, Type c2r1, Type c3r1, Type c1r2, Type c2r2, Type c3r2, Type c1r3, Type c2r3, Type c3r3)
 {
   Element(0, 0) = c1r1;
   Element(1, 0) = c2r1;
@@ -101,25 +89,19 @@ void ezMat3Template<Type>::SetElements(Type c1r1, Type c2r1, Type c3r1,
 template <typename Type>
 void ezMat3Template<Type>::SetZero()
 {
-  SetElements(0, 0, 0,
-              0, 0, 0,
-              0, 0, 0);
+  SetElements(0, 0, 0, 0, 0, 0, 0, 0, 0);
 }
 
 template <typename Type>
 void ezMat3Template<Type>::SetIdentity()
 {
-  SetElements(1, 0, 0,
-              0, 1, 0,
-              0, 0, 1);
+  SetElements(1, 0, 0, 0, 1, 0, 0, 0, 1);
 }
 
 template <typename Type>
 void ezMat3Template<Type>::SetScalingMatrix(const ezVec3Template<Type>& s)
 {
-  SetElements(s.x, 0, 0,
-              0, s.y, 0,
-              0, 0, s.z);
+  SetElements(s.x, 0, 0, 0, s.y, 0, 0, 0, s.z);
 }
 
 template <typename Type>
@@ -128,9 +110,7 @@ void ezMat3Template<Type>::SetRotationMatrixX(ezAngle angle)
   const Type fSin = ezMath::Sin(angle);
   const Type fCos = ezMath::Cos(angle);
 
-  SetElements(1.0f, 0.0f, 0.0f,
-              0.0f, fCos, -fSin,
-              0.0f, fSin, fCos);
+  SetElements(1.0f, 0.0f, 0.0f, 0.0f, fCos, -fSin, 0.0f, fSin, fCos);
 }
 
 template <typename Type>
@@ -140,9 +120,7 @@ void ezMat3Template<Type>::SetRotationMatrixY(ezAngle angle)
   const Type fCos = ezMath::Cos(angle);
 
 
-  SetElements(fCos, 0.0f, fSin,
-              0.0f, 1.0f, 0.0f,
-              -fSin, 0.0f, fCos);
+  SetElements(fCos, 0.0f, fSin, 0.0f, 1.0f, 0.0f, -fSin, 0.0f, fCos);
 }
 
 template <typename Type>
@@ -151,9 +129,7 @@ void ezMat3Template<Type>::SetRotationMatrixZ(ezAngle angle)
   const Type fSin = ezMath::Sin(angle);
   const Type fCos = ezMath::Cos(angle);
 
-  SetElements(fCos, -fSin, 0.0f,
-              fSin, fCos, 0.0f,
-              0.0f, 0.0f, 1.0f);
+  SetElements(fCos, -fSin, 0.0f, fSin, fCos, 0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 template <typename Type>
@@ -515,4 +491,3 @@ Type ezMat3Template<Type>::GetDeterminant() const
 }
 
 #include <Foundation/Math/Implementation/AllClasses_inl.h>
-

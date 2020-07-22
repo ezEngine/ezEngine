@@ -384,8 +384,8 @@ void ezDocumentNodeManager::RestoreMetaDataAfterLoading(const ezAbstractObjectGr
 }
 
 
-bool ezDocumentNodeManager::CanReachNode(const ezDocumentObject* pSource, const ezDocumentObject* pTarget,
-  ezSet<const ezDocumentObject*>& Visited) const
+bool ezDocumentNodeManager::CanReachNode(
+  const ezDocumentObject* pSource, const ezDocumentObject* pTarget, ezSet<const ezDocumentObject*>& Visited) const
 {
   if (pSource == pTarget)
     return true;

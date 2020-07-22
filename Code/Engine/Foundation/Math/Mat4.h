@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Foundation/Math/Math.h>
 #include <Foundation/Math/Angle.h>
+#include <Foundation/Math/Math.h>
 #include <Foundation/Math/Vec3.h>
 #include <Foundation/Math/Vec4.h>
 
@@ -41,8 +41,8 @@ public:
   ezMat4Template(const Type* const pData, ezMatrixLayout::Enum layout); // [tested]
 
   /// \brief Sets each element manually: Naming is "column-n row-m"
-  ezMat4Template(Type c1r1, Type c2r1, Type c3r1, Type c4r1, Type c1r2, Type c2r2, Type c3r2, Type c4r2, Type c1r3, Type c2r3, Type c3r3,
-    Type c4r3, Type c1r4, Type c2r4, Type c3r4, Type c4r4); // [tested]
+  ezMat4Template(Type c1r1, Type c2r1, Type c3r1, Type c4r1, Type c1r2, Type c2r2, Type c3r2, Type c4r2, Type c1r3, Type c2r3, Type c3r3, Type c4r3,
+    Type c1r4, Type c2r4, Type c3r4, Type c4r4); // [tested]
 
   /// \brief Creates a transformation matrix from a rotation and a translation.
   ezMat4Template(const ezMat3Template<Type>& Rotation, const ezVec3Template<Type>& vTranslation); // [tested]
@@ -69,8 +69,8 @@ public:
   void GetAsArray(Type* out_pData, ezMatrixLayout::Enum layout) const; // [tested]
 
   /// \brief Sets each element manually: Naming is "column-n row-m"
-  void SetElements(Type c1r1, Type c2r1, Type c3r1, Type c4r1, Type c1r2, Type c2r2, Type c3r2, Type c4r2, Type c1r3, Type c2r3, Type c3r3,
-    Type c4r3, Type c1r4, Type c2r4, Type c3r4, Type c4r4); // [tested]
+  void SetElements(Type c1r1, Type c2r1, Type c3r1, Type c4r1, Type c1r2, Type c2r2, Type c3r2, Type c4r2, Type c1r3, Type c2r3, Type c3r3, Type c4r3,
+    Type c1r4, Type c2r4, Type c3r4, Type c4r4); // [tested]
 
   /// \brief Sets a transformation matrix from a rotation and a translation.
   void SetTransformationMatrix(const ezMat3Template<Type>& Rotation, const ezVec3Template<Type>& vTranslation); // [tested]

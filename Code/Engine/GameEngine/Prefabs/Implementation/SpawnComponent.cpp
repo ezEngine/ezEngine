@@ -79,10 +79,8 @@ bool ezSpawnComponent::SpawnOnce(const ezVec3& vLocalOffset)
       const ezVec3 vTiltAxis = ezVec3(0, 1, 0);
       const ezVec3 vTurnAxis = ezVec3(1, 0, 0);
 
-      const ezAngle tiltAngle =
-        ezAngle::Radian((float)GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, (double)m_MaxDeviation.GetRadian()));
-      const ezAngle turnAngle =
-        ezAngle::Radian((float)GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, ezMath::Pi<double>() * 2.0));
+      const ezAngle tiltAngle = ezAngle::Radian((float)GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, (double)m_MaxDeviation.GetRadian()));
+      const ezAngle turnAngle = ezAngle::Radian((float)GetWorld()->GetRandomNumberGenerator().DoubleInRange(0.0, ezMath::Pi<double>() * 2.0));
 
       ezQuat qTilt, qTurn, qDeviate;
       qTilt.SetFromAxisAndAngle(vTiltAxis, tiltAngle);

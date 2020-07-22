@@ -16,7 +16,7 @@ template <typename DERIVED>
 class ezHashableStruct
 {
 public:
-  ezHashableStruct(); // [tested]
+  ezHashableStruct();                                       // [tested]
   ezHashableStruct(const ezHashableStruct<DERIVED>& other); // [tested]
 
   void operator=(const ezHashableStruct<DERIVED>& other); // [tested]

@@ -21,8 +21,7 @@ ezQtGameObjectDocumentWindow::ezQtGameObjectDocumentWindow(ezGameObjectDocument*
 
 ezQtGameObjectDocumentWindow::~ezQtGameObjectDocumentWindow()
 {
-  GetGameObjectDocument()->m_GameObjectEvents.RemoveEventHandler(
-    ezMakeDelegate(&ezQtGameObjectDocumentWindow::GameObjectEventHandler, this));
+  GetGameObjectDocument()->m_GameObjectEvents.RemoveEventHandler(ezMakeDelegate(&ezQtGameObjectDocumentWindow::GameObjectEventHandler, this));
   ezSnapProvider::s_Events.RemoveEventHandler(ezMakeDelegate(&ezQtGameObjectDocumentWindow::SnapProviderEventHandler, this));
 }
 
@@ -149,8 +148,7 @@ void ezQtGameObjectDocumentWindow::FocusOnSelectionHoveredView()
   msg.m_iPurpose = 0;
   GetDocument()->SendMessageToEngine(&msg);
 }
-void ezQtGameObjectDocumentWindow::HandleFocusOnSelection(const ezQuerySelectionBBoxResultMsgToEditor* pMsg,
-  ezQtGameObjectViewWidget* pSceneView)
+void ezQtGameObjectDocumentWindow::HandleFocusOnSelection(const ezQuerySelectionBBoxResultMsgToEditor* pMsg, ezQtGameObjectViewWidget* pSceneView)
 {
   const ezVec3 vPivotPoint = pMsg->m_vCenter;
 

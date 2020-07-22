@@ -57,4 +57,4 @@ namespace
   EZ_CHECK_AT_COMPILETIME(ezGetTypeClass<AggregateMemRelocateable>::value == ezTypeIsMemRelocatable::value);
   EZ_CHECK_AT_COMPILETIME(ezGetTypeClass<ClassType>::value == ezTypeIsClass::value);
   EZ_CHECK_AT_COMPILETIME(ezGetTypeClass<AggregateClass>::value == ezTypeIsClass::value);
-}
+} // namespace

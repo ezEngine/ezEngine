@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Foundation/Types/SharedPtr.h>
-#include <ModelImporter/ModelImporterDLL.h>
 #include <ModelImporter/Declarations.h>
+#include <ModelImporter/ModelImporterDLL.h>
 
 class ezStreamReader;
 
@@ -31,4 +31,4 @@ namespace ezModelImporter
     ///   Null if something went wrong (see log).
     virtual ezSharedPtr<Scene> ImportScene(const char* szFileName, ezBitflags<ImportFlags> importFlags) = 0;
   };
-}
+} // namespace ezModelImporter

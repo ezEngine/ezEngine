@@ -12,10 +12,10 @@ bool IsArrayView(const ezGALTextureCreationDescription& texDesc, const ezGALRend
 }
 
 ezGALRenderTargetViewDX11::ezGALRenderTargetViewDX11(ezGALTexture* pTexture, const ezGALRenderTargetViewCreationDescription& Description)
-    : ezGALRenderTargetView(pTexture, Description)
-    , m_pRenderTargetView(nullptr)
-    , m_pDepthStencilView(nullptr)
-    , m_pUnorderedAccessView(nullptr)
+  : ezGALRenderTargetView(pTexture, Description)
+  , m_pRenderTargetView(nullptr)
+  , m_pDepthStencilView(nullptr)
+  , m_pUnorderedAccessView(nullptr)
 {
 }
 
@@ -61,7 +61,7 @@ ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
   }
 
   ID3D11Resource* pDXResource = static_cast<const ezGALTextureDX11*>(pTexture->GetParentResource())->GetDXTexture();
-  const bool bIsArrayView = IsArrayView(texDesc, m_Description);  
+  const bool bIsArrayView = IsArrayView(texDesc, m_Description);
 
   if (bIsDepthFormat)
   {

@@ -22,8 +22,7 @@ bool ezQtAssetCuratorFilter::IsAssetFiltered(const ezSubAsset* pInfo) const
     return true;
 
   if (pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::MissingDependency &&
-      pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::MissingReference &&
-      pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::TransformError)
+      pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::MissingReference && pInfo->m_pAssetInfo->m_TransformState != ezAssetInfo::TransformError)
   {
     return true;
   }
@@ -93,19 +92,23 @@ ezQtAssetCuratorPanel::ezQtAssetCuratorPanel()
 
   ListAssets->setModel(m_pModel);
   ListAssets->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
-  EZ_VERIFY(connect(ListAssets->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ezQtAssetCuratorPanel::OnAssetSelectionChanged) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(m_pModel, &QAbstractItemModel::dataChanged, this, [this](const QModelIndex& topLeft, const QModelIndex& bottomRight, const QVector<int>& roles) {
-    if (m_selectedIndex.isValid() && topLeft.row() <= m_selectedIndex.row() && m_selectedIndex.row() <= bottomRight.row())
-    {
-      UpdateIssueInfo();
-    }
-  }),
+  EZ_VERIFY(
+    connect(ListAssets->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ezQtAssetCuratorPanel::OnAssetSelectionChanged) != nullptr,
+    "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pModel, &QAbstractItemModel::dataChanged, this,
+              [this](const QModelIndex& topLeft, const QModelIndex& bottomRight, const QVector<int>& roles) {
+                if (m_selectedIndex.isValid() && topLeft.row() <= m_selectedIndex.row() && m_selectedIndex.row() <= bottomRight.row())
+                {
+                  UpdateIssueInfo();
+                }
+              }),
     "signal/slot connection failed");
 
-  EZ_VERIFY(connect(m_pModel, &QAbstractItemModel::modelReset, this, [this]() {
-    m_selectedIndex = QPersistentModelIndex();
-    UpdateIssueInfo();
-  }),
+  EZ_VERIFY(connect(m_pModel, &QAbstractItemModel::modelReset, this,
+              [this]() {
+                m_selectedIndex = QPersistentModelIndex();
+                UpdateIssueInfo();
+              }),
     "signal/slot connection failed");
 }
 

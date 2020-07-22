@@ -1,9 +1,9 @@
 #pragma once
 
-#include <GameEngine/GameEngineDLL.h>
-#include <GameEngine/VisualScript/VisualScriptNode.h>
 #include <Core/Messages/EventMessage.h>
 #include <Core/Messages/TriggerMessage.h>
+#include <GameEngine/GameEngineDLL.h>
+#include <GameEngine/VisualScript/VisualScriptNode.h>
 
 struct ezMsgInputActionTriggered;
 
@@ -12,6 +12,7 @@ struct ezMsgInputActionTriggered;
 class EZ_GAMEENGINE_DLL ezVisualScriptNode_SimpleUserEvent : public ezVisualScriptNode
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_SimpleUserEvent, ezVisualScriptNode);
+
 public:
   ezVisualScriptNode_SimpleUserEvent();
   ~ezVisualScriptNode_SimpleUserEvent();
@@ -32,6 +33,7 @@ public:
 class EZ_GAMEENGINE_DLL ezVisualScriptNode_GenericEvent : public ezVisualScriptNode
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_GenericEvent, ezVisualScriptNode);
+
 public:
   ezVisualScriptNode_GenericEvent();
   ~ezVisualScriptNode_GenericEvent();
@@ -52,6 +54,7 @@ public:
 class EZ_GAMEENGINE_DLL ezVisualScriptNode_ScriptUpdateEvent : public ezVisualScriptNode
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_ScriptUpdateEvent, ezVisualScriptNode);
+
 public:
   ezVisualScriptNode_ScriptUpdateEvent();
   ~ezVisualScriptNode_ScriptUpdateEvent();
@@ -65,6 +68,7 @@ public:
 class EZ_GAMEENGINE_DLL ezVisualScriptNode_InputState : public ezVisualScriptNode
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_InputState, ezVisualScriptNode);
+
 public:
   ezVisualScriptNode_InputState();
   ~ezVisualScriptNode_InputState();
@@ -82,6 +86,7 @@ public:
 class EZ_GAMEENGINE_DLL ezVisualScriptNode_InputEvent : public ezVisualScriptNode
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_InputEvent, ezVisualScriptNode);
+
 public:
   ezVisualScriptNode_InputEvent();
   ~ezVisualScriptNode_InputEvent();
@@ -102,4 +107,3 @@ private:
 };
 
 //////////////////////////////////////////////////////////////////////////
-

@@ -14,7 +14,6 @@ class EZ_GAMEENGINE_DLL ezActorPluginWindow : public ezActorPlugin
   EZ_ADD_DYNAMIC_REFLECTION(ezActorPluginWindow, ezActorPlugin);
 
 public:
-
   virtual ezWindowBase* GetWindow() const = 0;
   virtual ezWindowOutputTargetBase* GetOutputTarget() const = 0;
 
@@ -45,4 +44,3 @@ public:
   ezWindowBase* m_pWindow = nullptr;
   ezWindowOutputTargetBase* m_pWindowOutputTarget = nullptr;
 };
-

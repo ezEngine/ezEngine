@@ -311,8 +311,8 @@ namespace ezInternal
     {
       EZ_ALWAYS_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData)
       {
-        WorldData::UpdateGlobalTransformAndSpatialData(pData, static_cast<UserData*>(pUserData)->m_fInvDt,
-          *static_cast<UserData*>(pUserData)->m_pSpatialSystem);
+        WorldData::UpdateGlobalTransformAndSpatialData(
+          pData, static_cast<UserData*>(pUserData)->m_fInvDt, *static_cast<UserData*>(pUserData)->m_pSpatialSystem);
         return ezVisitorExecution::Continue;
       }
     };
@@ -321,8 +321,8 @@ namespace ezInternal
     {
       EZ_ALWAYS_INLINE static ezVisitorExecution::Enum Visit(ezGameObject::TransformationData* pData, void* pUserData)
       {
-        WorldData::UpdateGlobalTransformWithParentAndSpatialData(pData, static_cast<UserData*>(pUserData)->m_fInvDt,
-          *static_cast<UserData*>(pUserData)->m_pSpatialSystem);
+        WorldData::UpdateGlobalTransformWithParentAndSpatialData(
+          pData, static_cast<UserData*>(pUserData)->m_fInvDt, *static_cast<UserData*>(pUserData)->m_pSpatialSystem);
         return ezVisitorExecution::Continue;
       }
     };

@@ -1,11 +1,11 @@
 #pragma once
 
 #include <Foundation/Application/Application.h>
-#include <Foundation/Types/UniquePtr.h>
-#include <RendererFoundation/RendererFoundationDLL.h>
-#include <RendererCore/Meshes/MeshResource.h>
-#include <RendererCore/Material/MaterialResource.h>
 #include <Foundation/IO/DirectoryWatcher.h>
+#include <Foundation/Types/UniquePtr.h>
+#include <RendererCore/Material/MaterialResource.h>
+#include <RendererCore/Meshes/MeshResource.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
 
 class ezShaderExplorerWindow;
 class ezCamera;
@@ -28,7 +28,6 @@ public:
   virtual void BeforeHighLevelSystemsShutdown() override;
 
 private:
-
   void CreateScreenQuad();
   void OnFileChanged(const char* filename, ezDirectoryWatcherAction action);
 

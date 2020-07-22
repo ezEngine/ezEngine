@@ -171,8 +171,7 @@ void ezTranslateGizmoEditTool::GetGridSettings(ezGridSettingsMsgToEngine& msg)
   ezScenePreferencesUser* pPreferences = ezPreferences::QueryPreferences<ezScenePreferencesUser>(GetDocument());
 
   // if density != 0, it is enabled at least in ortho mode
-  msg.m_fGridDensity =
-    ezSnapProvider::GetTranslationSnapValue() * (pSceneDoc->GetGizmoWorldSpace() ? 1.0f : -1.0f); // negative density = local space
+  msg.m_fGridDensity = ezSnapProvider::GetTranslationSnapValue() * (pSceneDoc->GetGizmoWorldSpace() ? 1.0f : -1.0f); // negative density = local space
 
   // to be active in perspective mode, tangents have to be non-zero
   msg.m_vGridTangent1.SetZero();
@@ -296,8 +295,7 @@ void ezRotateGizmoEditTool::TransformationGizmoEventHandlerImpl(const ezGizmoEve
           tNew.m_vPosition = vPivot + qRotation * (obj.m_GlobalTransform.m_vPosition - vPivot);
 
           if (GetDocument()->GetGizmoMoveParentOnly())
-            pDocument->SetGlobalTransformParentOnly(
-              obj.m_pObject, tNew, TransformationChanges::Rotation | TransformationChanges::Translation);
+            pDocument->SetGlobalTransformParentOnly(obj.m_pObject, tNew, TransformationChanges::Rotation | TransformationChanges::Translation);
           else
             pDocument->SetGlobalTransform(obj.m_pObject, tNew, TransformationChanges::Rotation | TransformationChanges::Translation);
         }
@@ -538,8 +536,7 @@ void ezDragToPositionGizmoEditTool::TransformationGizmoEventHandlerImpl(const ez
           }
 
           if (GetDocument()->GetGizmoMoveParentOnly())
-            pDocument->SetGlobalTransformParentOnly(
-              obj.m_pObject, tNew, TransformationChanges::Rotation | TransformationChanges::Translation);
+            pDocument->SetGlobalTransformParentOnly(obj.m_pObject, tNew, TransformationChanges::Rotation | TransformationChanges::Translation);
           else
             pDocument->SetGlobalTransform(obj.m_pObject, tNew, TransformationChanges::Translation | TransformationChanges::Rotation);
         }

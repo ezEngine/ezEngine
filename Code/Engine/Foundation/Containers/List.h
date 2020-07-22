@@ -24,7 +24,10 @@ private:
   /// \brief A list-node, containing data and prev/next pointers
   struct ListElement : public ListElementBase
   {
-    ListElement() : ListElementBase() {}
+    ListElement()
+      : ListElementBase()
+    {
+    }
     explicit ListElement(const T& data);
 
     T m_Data;
@@ -36,7 +39,10 @@ private:
     EZ_DECLARE_POD_TYPE();
 
     /// \brief Constructor.
-    ConstIterator() : m_pElement(nullptr) {} // [tested]
+    ConstIterator()
+      : m_pElement(nullptr)
+    {
+    } // [tested]
 
     /// \brief Equality comparison operator.
     bool operator==(typename ezListBase<T>::ConstIterator it2) const { return (m_pElement == it2.m_pElement); } // [tested]
@@ -68,7 +74,10 @@ private:
   private:
     friend class ezListBase<T>;
 
-    ConstIterator(ListElement* pInit) : m_pElement(pInit) {}
+    ConstIterator(ListElement* pInit)
+      : m_pElement(pInit)
+    {
+    }
 
     ListElement* m_pElement;
   };
@@ -84,7 +93,10 @@ public:
     EZ_DECLARE_POD_TYPE();
 
     /// \brief Constructor.
-    Iterator() : ConstIterator() {} // [tested]
+    Iterator()
+      : ConstIterator()
+    {
+    } // [tested]
 
     /// \brief Accesses the element stored in the node.
     T& operator*() { return (this->m_pElement->m_Data); } // [tested]
@@ -95,7 +107,10 @@ public:
   private:
     friend class ezListBase<T>;
 
-    explicit Iterator(ListElement* pInit) : ConstIterator(pInit) {}
+    explicit Iterator(ListElement* pInit)
+      : ConstIterator(pInit)
+    {
+    }
   };
 
 protected:
@@ -241,4 +256,3 @@ public:
 };
 
 #include <Foundation/Containers/Implementation/List_inl.h>
-

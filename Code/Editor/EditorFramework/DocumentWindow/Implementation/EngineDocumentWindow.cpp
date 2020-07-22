@@ -11,7 +11,7 @@
 #include <Foundation/Serialization/ReflectionSerializer.h>
 
 ezQtEngineDocumentWindow::ezQtEngineDocumentWindow(ezAssetDocument* pDocument)
-    : ezQtDocumentWindow(pDocument)
+  : ezQtDocumentWindow(pDocument)
 {
   pDocument->m_ProcessMessageEvent.AddEventHandler(ezMakeDelegate(&ezQtEngineDocumentWindow::ProcessMessageEventHandler, this));
 }
@@ -32,8 +32,7 @@ ezEditorEngineConnection* ezQtEngineDocumentWindow::GetEditorEngineConnection() 
 
 static ezObjectPickingResult s_DummyResult;
 
-const ezObjectPickingResult& ezQtEngineDocumentWindow::PickObject(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY,
-                                                                  ezQtEngineViewWidget* pView) const
+const ezObjectPickingResult& ezQtEngineDocumentWindow::PickObject(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY, ezQtEngineViewWidget* pView) const
 {
   if (pView == nullptr)
     pView = GetHoveredViewWidget();
@@ -63,8 +62,7 @@ void ezQtEngineDocumentWindow::InternalRedraw()
 
     if (m_uiRedrawCountSent > m_uiRedrawCountReceived)
     {
-      ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezGetStaticRTTI<ezSyncWithProcessMsgToEditor>(),
-                                                                      ezTime::Seconds(2.0));
+      ezEditorEngineProcessConnection::GetSingleton()->WaitForMessage(ezGetStaticRTTI<ezSyncWithProcessMsgToEditor>(), ezTime::Seconds(2.0));
     }
 
     ++m_uiRedrawCountSent;

@@ -17,7 +17,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezProjectPreferencesUser::ezProjectPreferencesUser()
-    : ezPreferences(Domain::Project, "General")
+  : ezPreferences(Domain::Project, "General")
 {
 }
 

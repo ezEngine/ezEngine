@@ -17,9 +17,11 @@ public:
 
   ezStatus CanOpenDocument(const char* szFilePath) const;
 
-  ezStatus CreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument, ezBitflags<ezDocumentFlags> flags = ezDocumentFlags::None);
+  ezStatus CreateDocument(
+    const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument, ezBitflags<ezDocumentFlags> flags = ezDocumentFlags::None);
   ezStatus OpenDocument(const char* szDocumentTypeName, const char* szPath, ezDocument*& out_pDocument,
-    ezBitflags<ezDocumentFlags> flags = ezDocumentFlags::AddToRecentFilesList | ezDocumentFlags::RequestWindow, const ezDocumentObject* pOpenContext = nullptr);
+    ezBitflags<ezDocumentFlags> flags = ezDocumentFlags::AddToRecentFilesList | ezDocumentFlags::RequestWindow,
+    const ezDocumentObject* pOpenContext = nullptr);
   virtual ezStatus CloneDocument(const char* szPath, const char* szClonePath, ezUuid& inout_cloneGuid);
   void CloseDocument(ezDocument* pDocument);
   void EnsureWindowRequested(ezDocument* pDocument, const ezDocumentObject* pOpenContext = nullptr);
@@ -31,11 +33,13 @@ public:
 
   static ezDocument* GetDocumentByGuid(const ezUuid& guid);
 
-  /// \brief If the given document is open, it will be closed. User is not asked about it, unsaved changes are discarded. Returns true if the document was open and needed to be closed.
+  /// \brief If the given document is open, it will be closed. User is not asked about it, unsaved changes are discarded. Returns true if the document
+  /// was open and needed to be closed.
   static bool EnsureDocumentIsClosedInAllManagers(const char* szPath);
 
-  /// \brief If the given document is open, it will be closed. User is not asked about it, unsaved changes are discarded. Returns true if the document was open and needed to be closed.
-  /// This function only operates on documents opened by this manager. Use EnsureDocumentIsClosedInAllManagers() to close documents of any type.
+  /// \brief If the given document is open, it will be closed. User is not asked about it, unsaved changes are discarded. Returns true if the document
+  /// was open and needed to be closed. This function only operates on documents opened by this manager. Use EnsureDocumentIsClosedInAllManagers() to
+  /// close documents of any type.
   bool EnsureDocumentIsClosed(const char* szPath);
 
   void CloseAllDocumentsOfManager();
@@ -48,11 +52,14 @@ public:
       DocumentTypesRemoved,
       DocumentTypesAdded,
       DocumentOpened,
-      DocumentWindowRequested,      ///< Sent when the window for a document is needed. Each plugin should check this and see if it can create the desired window type
+      DocumentWindowRequested, ///< Sent when the window for a document is needed. Each plugin should check this and see if it can create the desired
+                               ///< window type
       AfterDocumentWindowRequested, ///< Sent after a document window was requested. Can be used to do things after the new window has been opened
       DocumentClosing,
-      DocumentClosing2, // sent after DocumentClosing but before removing the document, use this to do stuff that depends on code executed during DocumentClosing
-      DocumentClosed,   // this will not point to a valid document anymore, as the document is deleted, use DocumentClosing to get the event before it is deleted
+      DocumentClosing2, // sent after DocumentClosing but before removing the document, use this to do stuff that depends on code executed during
+                        // DocumentClosing
+      DocumentClosed,   // this will not point to a valid document anymore, as the document is deleted, use DocumentClosing to get the event before it
+                        // is deleted
     };
 
     Type m_Type;

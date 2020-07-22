@@ -103,4 +103,3 @@ private:
 private:
   ezVisualScriptResourceDescriptor m_Descriptor;
 };
-

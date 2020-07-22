@@ -140,4 +140,3 @@ void ezDeviceTrackingComponent::Update()
 }
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_XR_Implementation_DeviceTrackingComponent);
-

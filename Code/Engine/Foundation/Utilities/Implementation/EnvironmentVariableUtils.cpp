@@ -1,10 +1,10 @@
 #include <FoundationPCH.h>
 
-#include <Foundation/Utilities/EnvironmentVariableUtils.h>
-#include <Foundation/Utilities/ConversionUtils.h>
+#include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Threading/Mutex.h>
-#include <Foundation/Logging/Log.h>
+#include <Foundation/Utilities/ConversionUtils.h>
+#include <Foundation/Utilities/EnvironmentVariableUtils.h>
 
 // The POSIX functions are not thread safe by definition.
 static ezMutex s_EnvVarMutex;
@@ -32,11 +32,11 @@ ezInt32 ezEnvironmentVariableUtils::GetValueInt(const char* szName, ezInt32 iDef
 
   ezString value = GetValueString(szName);
 
-  if(value.IsEmpty())
+  if (value.IsEmpty())
     return iDefault;
 
   ezInt32 iRetVal = 0;
-  if(ezConversionUtils::StringToInt(value, iRetVal).Succeeded())
+  if (ezConversionUtils::StringToInt(value, iRetVal).Succeeded())
     return iRetVal;
   else
     return iDefault;
@@ -65,11 +65,11 @@ ezResult ezEnvironmentVariableUtils::UnsetVariable(const char* szName)
 }
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-  #include <Foundation/Utilities/Implementation/Win/EnvironmentVariableUtils_win.h>
+#  include <Foundation/Utilities/Implementation/Win/EnvironmentVariableUtils_win.h>
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-  #include <Foundation/Utilities/Implementation/Win/EnvironmentVariableUtils_win_uwp.h>
+#  include <Foundation/Utilities/Implementation/Win/EnvironmentVariableUtils_win_uwp.h>
 #else
-  #include <Foundation/Utilities/Implementation/Posix/EnvironmentVariableUtils_posix.h>
+#  include <Foundation/Utilities/Implementation/Posix/EnvironmentVariableUtils_posix.h>
 #endif
 
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <ShaderCompilerHLSL/ShaderCompilerHLSLDLL.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
+#include <ShaderCompilerHLSL/ShaderCompilerHLSLDLL.h>
 
 struct ID3D11ShaderReflectionConstantBuffer;
 
@@ -22,9 +22,6 @@ public:
 
 private:
   void ReflectShaderStage(ezShaderProgramData& inout_Data, ezGALShaderStage::Enum Stage);
-  ezShaderConstantBufferLayout* ReflectConstantBufferLayout(ezShaderStageBinary& pStageBinary, ID3D11ShaderReflectionConstantBuffer* pConstantBufferReflection);
+  ezShaderConstantBufferLayout* ReflectConstantBufferLayout(
+    ezShaderStageBinary& pStageBinary, ID3D11ShaderReflectionConstantBuffer* pConstantBufferReflection);
 };
-
-
-
-

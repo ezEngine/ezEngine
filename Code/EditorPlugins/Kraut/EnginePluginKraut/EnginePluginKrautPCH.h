@@ -9,13 +9,13 @@
 #include <EnginePluginKraut/EnginePluginKrautDLL.h>
 
 
-#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
-#include <RendererCore/Debug/DebugRenderer.h>
-#include <Foundation/Strings/StringBuilder.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Core/Graphics/Geometry.h>
-#include <GameEngine/GameApplication/GameApplication.h>
 #include <Core/ResourceManager/ResourceManager.h>
-#include <Foundation/Utilities/GraphicsUtils.h>
-#include <Core/World/GameObject.h>
 #include <Core/World/Component.h>
+#include <Core/World/GameObject.h>
+#include <EditorEngineProcessFramework/EngineProcess/EngineProcessMessages.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/Strings/StringBuilder.h>
+#include <Foundation/Utilities/GraphicsUtils.h>
+#include <GameEngine/GameApplication/GameApplication.h>
+#include <RendererCore/Debug/DebugRenderer.h>

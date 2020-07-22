@@ -86,4 +86,3 @@ public:
 
   ezFloat16 x, y, z, w;
 };
-

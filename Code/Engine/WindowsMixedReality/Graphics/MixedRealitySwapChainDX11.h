@@ -1,9 +1,9 @@
 ﻿
 #pragma once
 
-#include <WindowsMixedReality/Basics.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <System/Window/Window.h>
+#include <WindowsMixedReality/Basics.h>
 
 namespace ABI
 {
@@ -15,9 +15,9 @@ namespace ABI
       {
         struct IHolographicCameraRenderingParameters;
       }
-    }
-  }
-}
+    } // namespace Graphics
+  }   // namespace Windows
+} // namespace ABI
 
 struct IDXGISwapChain;
 
@@ -35,13 +35,12 @@ class EZ_WINDOWSMIXEDREALITY_DLL ezGALMixedRealitySwapChainDX11 : public ezGALSw
 public:
   // TODO: Not implemented yet, keeping default plane.
   /// \brief Sets the reprojection plane for late stage reprojection.
-  //void SetReprojectionFocusPlane(const ezPlane& reprojectionPlane) { m_reprojectionPlane = reprojectionPlane; }
+  // void SetReprojectionFocusPlane(const ezPlane& reprojectionPlane) { m_reprojectionPlane = reprojectionPlane; }
 
   // TODO: Note also that in Win Creators update there is also "CommitDirect3D11DepthBuffer" for depth based stabilization.
   // We should consider jumping directly to that one instead of doing SetReprojectionFocusPlane anywhere ourselves.
 
 protected:
-
   friend class ezGALMixedRealityDeviceDX11;
   friend class ezWindowsMixedRealityCamera;
   friend class ezMemoryUtils;
@@ -49,7 +48,7 @@ protected:
   class ezHoloMockWindow : public ezWindowBase
   {
   public:
-    virtual ezSizeU32 GetClientAreaSize() const override { return ezSizeU32(0,0); }
+    virtual ezSizeU32 GetClientAreaSize() const override { return ezSizeU32(0, 0); }
     virtual ezWindowHandle GetNativeWindowHandle() const override { return nullptr; };
     virtual bool IsFullscreenWindow(bool bOnlyProperFullscreenMode) const override { return true; }
     virtual void ProcessWindowMessages() override {}
@@ -72,5 +71,5 @@ protected:
 
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
-  //ezPlane m_reprojectionPlane;
-}; 
+  // ezPlane m_reprojectionPlane;
+};

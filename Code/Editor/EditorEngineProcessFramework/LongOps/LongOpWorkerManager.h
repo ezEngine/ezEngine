@@ -2,9 +2,9 @@
 
 #include <EditorEngineProcessFramework/LongOps/Implementation/LongOpManager.h>
 
-#include <Foundation/Utilities/Progress.h>
-#include <Foundation/Threading/Implementation/TaskSystemDeclarations.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Threading/Implementation/TaskSystemDeclarations.h>
+#include <Foundation/Utilities/Progress.h>
 
 class ezLongOpWorker;
 struct ezProgressEvent;

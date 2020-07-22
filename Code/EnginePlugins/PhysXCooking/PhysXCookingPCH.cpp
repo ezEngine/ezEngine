@@ -7,4 +7,3 @@ EZ_STATICLINK_LIBRARY(PhysXCooking)
 
   EZ_STATICLINK_REFERENCE(PhysXCooking_PhysXCooking);
 }
-

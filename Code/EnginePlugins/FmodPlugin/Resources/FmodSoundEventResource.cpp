@@ -10,7 +10,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 EZ_RESOURCE_IMPLEMENT_COMMON_CODE(ezFmodSoundEventResource);
 
 ezFmodSoundEventResource::ezFmodSoundEventResource()
-    : ezResource(DoUpdate::OnAnyThread, 1)
+  : ezResource(DoUpdate::OnAnyThread, 1)
 {
   ModifyMemoryUsage().m_uiMemoryCPU = sizeof(ezFmodSoundEventResource);
 }

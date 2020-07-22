@@ -36,9 +36,9 @@ namespace
 {
   float HaltonSequence(int base, int j)
   {
-    static int primes[61] = {2,   3,   5,   7,   11,  13,  17,  19,  23,  29,  31,  37,  41,  43,  47,  53,  59,  61,  67,  71,  73,
-                             79,  83,  89,  97,  101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181,
-                             191, 193, 197, 199, 211, 223, 227, 229, 233, 239, 241, 251, 257, 263, 269, 271, 277, 281, 283};
+    static int primes[61] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 101, 103, 107, 109, 113,
+      127, 131, 137, 139, 149, 151, 157, 163, 167, 173, 179, 181, 191, 193, 197, 199, 211, 223, 227, 229, 233, 239, 241, 251, 257, 263, 269, 271, 277,
+      281, 283};
 
     EZ_ASSERT_DEV(base < 61, "Don't have prime number for this base.");
 
@@ -56,14 +56,14 @@ namespace
     }
     return h;
   }
-}
+} // namespace
 
 ezLSAOPass::ezLSAOPass()
-    : ezRenderPipelinePass("LSAOPass")
-    , m_uiLineToLinePixelOffset(2)
-    , m_uiLineSamplePixelOffsetFactor(1)
-    , m_bSweepDataDirty(true)
-    , m_bDistributedGathering(true)
+  : ezRenderPipelinePass("LSAOPass")
+  , m_uiLineToLinePixelOffset(2)
+  , m_uiLineSamplePixelOffsetFactor(1)
+  , m_bSweepDataDirty(true)
+  , m_bDistributedGathering(true)
 {
   {
     // Load shader.
@@ -91,8 +91,8 @@ ezLSAOPass::~ezLSAOPass()
   m_hLineSweepCB.Invalidate();
 }
 
-bool ezLSAOPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
-                                             ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezLSAOPass::GetRenderTargetDescriptions(
+  const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   EZ_ASSERT_DEBUG(inputs.GetCount() == 1, "Unexpected number of inputs for ezScreenSpaceAmbientOcclusionPass.");
 
@@ -115,20 +115,19 @@ bool ezLSAOPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPt
   return true;
 }
 
-void ezLSAOPass::InitRenderPipelinePass(const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-                                        const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+void ezLSAOPass::InitRenderPipelinePass(
+  const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   // Todo: Support half resolution.
-  SetupLineSweepData(
-      ezVec2I32(inputs[m_PinDepthInput.m_uiInputIndex]->m_Desc.m_uiWidth, inputs[m_PinDepthInput.m_uiInputIndex]->m_Desc.m_uiHeight));
+  SetupLineSweepData(ezVec2I32(inputs[m_PinDepthInput.m_uiInputIndex]->m_Desc.m_uiWidth, inputs[m_PinDepthInput.m_uiInputIndex]->m_Desc.m_uiHeight));
 }
 
 void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-                         const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   if (m_bSweepDataDirty)
     SetupLineSweepData(
-        ezVec2I32(inputs[m_PinDepthInput.m_uiInputIndex]->m_Desc.m_uiWidth, inputs[m_PinDepthInput.m_uiInputIndex]->m_Desc.m_uiHeight));
+      ezVec2I32(inputs[m_PinDepthInput.m_uiInputIndex]->m_Desc.m_uiWidth, inputs[m_PinDepthInput.m_uiInputIndex]->m_Desc.m_uiHeight));
 
   if (outputs[m_PinOutput.m_uiOutputIndex] == nullptr)
     return;
@@ -170,8 +169,8 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
     renderViewContext.m_pRenderContext->BindShader(m_hShaderLineSweep);
     renderViewContext.m_pRenderContext->BindBuffer("LineInstructions", m_hLineSweepInfoSRV);
     renderViewContext.m_pRenderContext->BindUAV("LineSweepOutputBuffer", m_hLineSweepOutputUAV);
-    renderViewContext.m_pRenderContext->Dispatch(m_numSweepLines / SSAO_LINESWEEP_THREAD_GROUP +
-                                                 (m_numSweepLines % SSAO_LINESWEEP_THREAD_GROUP != 0 ? 1 : 0));
+    renderViewContext.m_pRenderContext->Dispatch(
+      m_numSweepLines / SSAO_LINESWEEP_THREAD_GROUP + (m_numSweepLines % SSAO_LINESWEEP_THREAD_GROUP != 0 ? 1 : 0));
   }
 
   // Gather samples.
@@ -192,8 +191,7 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
         renderViewContext.m_pRenderContext->SetShaderPermutationVariable("LSAO_DEPTH_COMPARE", "LSAO_DEPTH_COMPARE_NORMAL");
         break;
       case ezLSAODepthCompareFunction::NormalAndSampleDistance:
-        renderViewContext.m_pRenderContext->SetShaderPermutationVariable("LSAO_DEPTH_COMPARE",
-                                                                         "LSAO_DEPTH_COMPARE_NORMAL_AND_SAMPLE_DISTANCE");
+        renderViewContext.m_pRenderContext->SetShaderPermutationVariable("LSAO_DEPTH_COMPARE", "LSAO_DEPTH_COMPARE_NORMAL_AND_SAMPLE_DISTANCE");
         break;
     }
 
@@ -205,8 +203,7 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
     renderViewContext.m_pRenderContext->BindBuffer("LineInstructions", m_hLineSweepInfoSRV);
     renderViewContext.m_pRenderContext->BindBuffer("LineSweepOutputBuffer", m_hLineSweepOutputSRV);
 
-    renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles,
-                                                       1);
+    renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
     renderViewContext.m_pRenderContext->DrawMeshBuffer();
   }
 
@@ -224,8 +221,7 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
         renderViewContext.m_pRenderContext->SetShaderPermutationVariable("LSAO_DEPTH_COMPARE", "LSAO_DEPTH_COMPARE_NORMAL");
         break;
       case ezLSAODepthCompareFunction::NormalAndSampleDistance:
-        renderViewContext.m_pRenderContext->SetShaderPermutationVariable("LSAO_DEPTH_COMPARE",
-                                                                         "LSAO_DEPTH_COMPARE_NORMAL_AND_SAMPLE_DISTANCE");
+        renderViewContext.m_pRenderContext->SetShaderPermutationVariable("LSAO_DEPTH_COMPARE", "LSAO_DEPTH_COMPARE_NORMAL_AND_SAMPLE_DISTANCE");
         break;
     }
 
@@ -241,8 +237,7 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
       renderViewContext.m_pRenderContext->BindTexture2D("SSAOGatherOutput", hTempTextureRView);
     }
 
-    renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles,
-                                                       1);
+    renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
     renderViewContext.m_pRenderContext->DrawMeshBuffer();
 
     // Give back temp texture.
@@ -250,9 +245,8 @@ void ezLSAOPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
   }
 }
 
-void ezLSAOPass::ExecuteInactive(const ezRenderViewContext& renderViewContext,
-                                 const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-                                 const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+void ezLSAOPass::ExecuteInactive(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
+  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   auto pOutput = outputs[m_PinOutput.m_uiOutputIndex];
   if (pOutput == nullptr)
@@ -360,13 +354,13 @@ void ezLSAOPass::SetupLineSweepData(const ezVec2I32& imageResolution)
       samplingDir[i * 4 + 3] = -samplingDir[i * 4 + 2];                                                   // Left
     }
 
-      // todo: Ddd debug test to check whether any direction is duplicated. Mistakes in the equations above can easily happen!
+    // todo: Ddd debug test to check whether any direction is duplicated. Mistakes in the equations above can easily happen!
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
     for (int i = 0; i < numSweepDirs - 1; ++i)
     {
       for (int j = i + 1; j < numSweepDirs; ++j)
-        EZ_ASSERT_DEBUG(samplingDir[i] != samplingDir[j],
-                        "Two SSAO sampling directions are equal. Implementation for direction determination is broken.");
+        EZ_ASSERT_DEBUG(
+          samplingDir[i] != samplingDir[j], "Two SSAO sampling directions are equal. Implementation for direction determination is broken.");
     }
 #endif
   }
@@ -440,9 +434,8 @@ void ezLSAOPass::SetupLineSweepData(const ezVec2I32& imageResolution)
       bufferDesc.m_ResourceAccess.m_bReadBack = false;
       bufferDesc.m_ResourceAccess.m_bImmutable = true;
 
-      m_hLineInfoBuffer =
-          device->CreateBuffer(bufferDesc, ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(lineInstructions.GetData()),
-                                                                     lineInstructions.GetCount() * sizeof(LineInstruction)));
+      m_hLineInfoBuffer = device->CreateBuffer(bufferDesc, ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(lineInstructions.GetData()),
+                                                             lineInstructions.GetCount() * sizeof(LineInstruction)));
 
       m_hLineSweepInfoSRV = device->GetDefaultResourceView(m_hLineInfoBuffer);
     }
@@ -452,7 +445,7 @@ void ezLSAOPass::SetupLineSweepData(const ezVec2I32& imageResolution)
 }
 
 void ezLSAOPass::AddLinesForDirection(const ezVec2I32& imageResolution, const ezVec2I32& sampleDir, ezUInt32 lineIndex,
-                                      ezDynamicArray<LineInstruction>& outinLineInstructions, ezUInt32& outinTotalNumberOfSamples)
+  ezDynamicArray<LineInstruction>& outinLineInstructions, ezUInt32& outinTotalNumberOfSamples)
 {
   EZ_ASSERT_DEBUG(sampleDir.x != 0 || sampleDir.y != 0, "Sample direction is null (not pointing anywhere)");
 
@@ -490,8 +483,7 @@ void ezLSAOPass::AddLinesForDirection(const ezVec2I32& imageResolution, const ez
       else
       {
         // Find new start on the sec axis. (dom axis is fine)
-        ezVec2 minimalStepToBorder =
-            walkDirF * ezMath::Ceil(static_cast<float>(-sec) / walkDirF.SEC); // Remember: Only walk discrete steps!
+        ezVec2 minimalStepToBorder = walkDirF * ezMath::Ceil(static_cast<float>(-sec) / walkDirF.SEC); // Remember: Only walk discrete steps!
         newLine.FirstSamplePos.DOM += minimalStepToBorder.DOM;
         newLine.FirstSamplePos.SEC += minimalStepToBorder.SEC;
 
@@ -547,18 +539,18 @@ void ezLSAOPass::AddLinesForDirection(const ezVec2I32& imageResolution, const ez
       for (ezUInt32 i = firstNewLineInstructionIndex; i < outinLineInstructions.GetCount(); ++i)
       {
         outinLineInstructions[i].FirstSamplePos.GetData()[c] =
-            imageResolution.GetData()[c] - 1 - outinLineInstructions[i].FirstSamplePos.GetData()[c];
+          imageResolution.GetData()[c] - 1 - outinLineInstructions[i].FirstSamplePos.GetData()[c];
       }
     }
   }
 
-    // Validation.
+  // Validation.
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   for (ezUInt32 i = firstNewLineInstructionIndex; i < outinLineInstructions.GetCount(); ++i)
   {
     auto p = outinLineInstructions[i].FirstSamplePos;
     EZ_ASSERT_DEV(p.x >= 0 && p.y >= 0 && p.x < imageResolution.x && p.y < imageResolution.y,
-                  "First sweep line sample pos is invalid. Something is wrong with the sweep line generation algorithm.");
+      "First sweep line sample pos is invalid. Something is wrong with the sweep line generation algorithm.");
   }
 #endif
 }
@@ -566,4 +558,3 @@ void ezLSAOPass::AddLinesForDirection(const ezVec2I32& imageResolution, const ez
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_LSAOPass);
-

@@ -182,7 +182,8 @@ ezUInt32 ezResourceManager::FreeAllUnusedResources()
 
           if (pReference->m_iReferenceCount == 0)
           {
-            bUnloadedAny = true; // make sure to try again, even if DeallocateResource() fails; need to release our lock for that to prevent dead-locks
+            bUnloadedAny =
+              true; // make sure to try again, even if DeallocateResource() fails; need to release our lock for that to prevent dead-locks
 
             if (DeallocateResource(pReference).Succeeded())
             {
@@ -321,7 +322,9 @@ void ezResourceManager::AllowResourceTypeAcquireDuringUpdateContent(const ezRTTI
 {
   auto& info = s_State->m_TypeInfo[pTypeBeingUpdated];
 
-  EZ_ASSERT_DEV(info.m_bAllowNestedAcquireCached == false, "AllowResourceTypeAcquireDuringUpdateContent for type '{}' must be called before the resource info has been requested.", pTypeBeingUpdated->GetTypeName());
+  EZ_ASSERT_DEV(info.m_bAllowNestedAcquireCached == false,
+    "AllowResourceTypeAcquireDuringUpdateContent for type '{}' must be called before the resource info has been requested.",
+    pTypeBeingUpdated->GetTypeName());
 
   if (info.m_NestedTypes.IndexOf(pTypeItWantsToAcquire) == ezInvalidIndex)
   {
@@ -394,7 +397,8 @@ bool ezResourceManager::IsResourceTypeAcquireDuringUpdateContentAllowed(const ez
 
 ezResult ezResourceManager::DeallocateResource(ezResource* pResource)
 {
-  EZ_ASSERT_DEBUG(pResource->m_iLockCount == 0, "Resource '{0}' has a refcount of zero, but is still in an acquired state.", pResource->GetResourceID());
+  EZ_ASSERT_DEBUG(
+    pResource->m_iLockCount == 0, "Resource '{0}' has a refcount of zero, but is still in an acquired state.", pResource->GetResourceID());
 
   if (RemoveFromLoadingQueue(pResource).Failed())
   {
@@ -405,8 +409,8 @@ ezResult ezResourceManager::DeallocateResource(ezResource* pResource)
 
   pResource->CallUnloadData(ezResource::Unload::AllQualityLevels);
 
-  EZ_ASSERT_DEBUG(pResource->GetLoadingState() <= ezResourceState::LoadedResourceMissing,
-    "Resource '{0}' should be in an unloaded state now.", pResource->GetResourceID());
+  EZ_ASSERT_DEBUG(pResource->GetLoadingState() <= ezResourceState::LoadedResourceMissing, "Resource '{0}' should be in an unloaded state now.",
+    pResource->GetResourceID());
 
   // broadcast that we are going to delete the resource
   {
@@ -723,8 +727,7 @@ ezResource* ezResourceManager::GetResource(const ezRTTI* pRtti, const char* szRe
   return pNewResource;
 }
 
-void ezResourceManager::RegisterResourceOverrideType(
-  const ezRTTI* pDerivedTypeToUse, ezDelegate<bool(const ezStringBuilder&)> OverrideDecider)
+void ezResourceManager::RegisterResourceOverrideType(const ezRTTI* pDerivedTypeToUse, ezDelegate<bool(const ezStringBuilder&)> OverrideDecider)
 {
   const ezRTTI* pParentType = pDerivedTypeToUse->GetParentType();
   while (pParentType != nullptr && pParentType != ezGetStaticRTTI<ezResource>())
@@ -877,10 +880,8 @@ void ezResourceManager::SetResourceLowResData(const ezTypelessResourceHandle& hR
     MemUsage.m_uiMemoryGPU = 0xFFFFFFFF;
     pResource->UpdateMemoryUsage(MemUsage);
 
-    EZ_ASSERT_DEV(
-      MemUsage.m_uiMemoryCPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its CPU memory usage", pResource->GetResourceID());
-    EZ_ASSERT_DEV(
-      MemUsage.m_uiMemoryGPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its GPU memory usage", pResource->GetResourceID());
+    EZ_ASSERT_DEV(MemUsage.m_uiMemoryCPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its CPU memory usage", pResource->GetResourceID());
+    EZ_ASSERT_DEV(MemUsage.m_uiMemoryGPU != 0xFFFFFFFF, "Resource '{0}' did not properly update its GPU memory usage", pResource->GetResourceID());
 
     pResource->m_MemoryUsage = MemUsage;
   }

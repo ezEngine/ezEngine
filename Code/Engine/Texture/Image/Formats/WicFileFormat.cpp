@@ -185,8 +185,7 @@ ezResult ezWicFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
 
   if (format == ezImageFormat::UNKNOWN)
   {
-    ezLog::Error(
-      pLog, "No conversion from format '{0}' to a format suitable for TIFF files known.", ezImageFormat::GetName(image.GetImageFormat()));
+    ezLog::Error(pLog, "No conversion from format '{0}' to a format suitable for TIFF files known.", ezImageFormat::GetName(image.GetImageFormat()));
     return EZ_FAILURE;
   }
 
@@ -197,8 +196,7 @@ ezResult ezWicFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
     if (ezImageConversion::Convert(image, convertedImage, format) != EZ_SUCCESS)
     {
       // This should never happen
-      EZ_ASSERT_DEV(
-        false, "ezImageConversion::Convert failed even though the conversion was to the format returned by FindClosestCompatibleFormat.");
+      EZ_ASSERT_DEV(false, "ezImageConversion::Convert failed even though the conversion was to the format returned by FindClosestCompatibleFormat.");
       return EZ_FAILURE;
     }
 
@@ -250,19 +248,16 @@ ezResult ezWicFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
 
 bool ezWicFileFormat::CanReadFileType(const char* szExtension) const
 {
-  return ezStringUtils::IsEqual_NoCase(szExtension, "png") ||
-         ezStringUtils::IsEqual_NoCase(szExtension, "jpg") ||
+  return ezStringUtils::IsEqual_NoCase(szExtension, "png") || ezStringUtils::IsEqual_NoCase(szExtension, "jpg") ||
          ezStringUtils::IsEqual_NoCase(szExtension, "jpeg") ||
-         //ezStringUtils::IsEqual_NoCase(szExtension, "hdr") ||
-         ezStringUtils::IsEqual_NoCase(szExtension, "tif") ||
-         ezStringUtils::IsEqual_NoCase(szExtension, "tiff");
+         // ezStringUtils::IsEqual_NoCase(szExtension, "hdr") ||
+         ezStringUtils::IsEqual_NoCase(szExtension, "tif") || ezStringUtils::IsEqual_NoCase(szExtension, "tiff");
 }
 
 bool ezWicFileFormat::CanWriteFileType(const char* szExtension) const
 {
   // png, jpg and jpeg are handled by STB (ezStbImageFileFormats)
-  return ezStringUtils::IsEqual_NoCase(szExtension, "tif") ||
-         ezStringUtils::IsEqual_NoCase(szExtension, "tiff");
+  return ezStringUtils::IsEqual_NoCase(szExtension, "tif") || ezStringUtils::IsEqual_NoCase(szExtension, "tiff");
 }
 
 #endif

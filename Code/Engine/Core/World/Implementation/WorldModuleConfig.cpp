@@ -65,7 +65,8 @@ void ezWorldModuleConfig::Load()
 
   const ezOpenDdlReaderElement* pTree = reader.GetRootElement();
 
-  for (const ezOpenDdlReaderElement* pInterfaceImpl = pTree->GetFirstChild(); pInterfaceImpl != nullptr; pInterfaceImpl = pInterfaceImpl->GetSibling())
+  for (const ezOpenDdlReaderElement* pInterfaceImpl = pTree->GetFirstChild(); pInterfaceImpl != nullptr;
+       pInterfaceImpl = pInterfaceImpl->GetSibling())
   {
     if (!pInterfaceImpl->IsCustomType("InterfaceImpl"))
       continue;

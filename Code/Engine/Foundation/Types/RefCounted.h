@@ -116,7 +116,7 @@ public:
   }
 
   /// \brief Returns the referenced object (may be nullptr).
-  operator const T*() const { return m_pReferencedObject; }
+  operator const T *() const { return m_pReferencedObject; }
 
   /// \brief Returns the referenced object (may be nullptr).
   operator T*() { return m_pReferencedObject; }

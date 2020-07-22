@@ -1,7 +1,7 @@
 #include <FoundationPCH.h>
 
-#include <Foundation/Strings/StringView.h>
 #include <Foundation/Strings/StringBuilder.h>
+#include <Foundation/Strings/StringView.h>
 
 ezUInt32 ezStringView::GetCharacter() const
 {
@@ -39,4 +39,3 @@ void ezStringView::Shrink(ezUInt32 uiShrinkCharsFront, ezUInt32 uiShrinkCharsBac
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_StringView);
-

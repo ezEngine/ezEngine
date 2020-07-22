@@ -22,8 +22,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezBlurPass::ezBlurPass()
-    : ezRenderPipelinePass("BlurPass")
-    , m_iRadius(15)
+  : ezRenderPipelinePass("BlurPass")
+  , m_iRadius(15)
 {
   {
     // Load shader.
@@ -42,8 +42,8 @@ ezBlurPass::~ezBlurPass()
   m_hBlurCB.Invalidate();
 }
 
-bool ezBlurPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
-                                             ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezBlurPass::GetRenderTargetDescriptions(
+  const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   // Color
   if (inputs[m_PinInput.m_uiInputIndex])
@@ -66,7 +66,7 @@ bool ezBlurPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPt
 }
 
 void ezBlurPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-                         const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   if (outputs[m_PinOutput.m_uiOutputIndex])
   {
@@ -88,8 +88,7 @@ void ezBlurPass::Execute(const ezRenderViewContext& renderViewContext, const ezA
 
     // Bind shader and inputs
     renderViewContext.m_pRenderContext->BindShader(m_hShader);
-    renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles,
-                                                       1);
+    renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
     renderViewContext.m_pRenderContext->BindTexture2D("Input", hResourceView);
     renderViewContext.m_pRenderContext->BindConstantBuffer("ezBlurConstants", m_hBlurCB);
 
@@ -113,4 +112,3 @@ ezInt32 ezBlurPass::GetRadius() const
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_BlurPass);
-

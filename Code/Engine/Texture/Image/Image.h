@@ -1,8 +1,8 @@
 #pragma once
 
+#include <Foundation/Containers/Blob.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/HybridArray.h>
-#include <Foundation/Containers/Blob.h>
 #include <Foundation/Logging/Log.h>
 
 #include <Texture/Image/ImageHeader.h>
@@ -49,8 +49,8 @@ public:
 
   /// \brief Returns a pointer to a given pixel or block contained in a sub-image.
   template <typename T>
-  const T* GetPixelPointer(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0, ezUInt32 x = 0, ezUInt32 y = 0,
-                           ezUInt32 z = 0) const;
+  const T* GetPixelPointer(
+    ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0, ezUInt32 x = 0, ezUInt32 y = 0, ezUInt32 z = 0) const;
 
   /// \brief Reinterprets the image with a given format; the format must have the same size in bits per pixel as the current one.
   void ReinterpretAs(ezImageFormat::Enum format);
@@ -107,7 +107,7 @@ class EZ_TEXTURE_DLL ezImage : public ezImageView
 
   /// \brief Constructs an image with the given header backed by user-supplied external storage.
   explicit ezImage(const ezImageHeader& header, ezByteBlobPtr externalData);
-  
+
   /// \brief Constructor from image view (copies the image data to internal storage)
   explicit ezImage(const ezImageView& other);
 
@@ -179,8 +179,7 @@ public:
 
   /// \brief Returns a pointer to a given pixel or block contained in a sub-image.
   template <typename T>
-  T* GetPixelPointer(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0, ezUInt32 x = 0, ezUInt32 y = 0,
-                     ezUInt32 z = 0);
+  T* GetPixelPointer(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0, ezUInt32 x = 0, ezUInt32 y = 0, ezUInt32 z = 0);
 
   using ezImageView::GetPixelPointer;
 
@@ -191,4 +190,3 @@ private:
 };
 
 #include <Texture/Image/Implementation/Image_inl.h>
-

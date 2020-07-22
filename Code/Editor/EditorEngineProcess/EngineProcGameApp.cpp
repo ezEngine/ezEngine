@@ -132,8 +132,7 @@ void ezEngineProcessGameApplication::LogWriter(const ezLoggingEventData& e)
   m_IPC.SendMessage(&msg);
 }
 
-static bool EmptyAssertHandler(
-  const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
+static bool EmptyAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
 {
   return false;
 }

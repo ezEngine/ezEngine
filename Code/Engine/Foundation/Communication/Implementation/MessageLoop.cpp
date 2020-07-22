@@ -8,9 +8,9 @@
 EZ_IMPLEMENT_SINGLETON(ezMessageLoop);
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-#include <Foundation/Communication/Implementation/Win/MessageLoop_win.h>
+#  include <Foundation/Communication/Implementation/Win/MessageLoop_win.h>
 #else
-#include <Foundation/Communication/Implementation/Mobile/MessageLoop_mobile.h>
+#  include <Foundation/Communication/Implementation/Mobile/MessageLoop_mobile.h>
 #endif
 
 // clang-format off
@@ -43,7 +43,7 @@ class ezLoopThread : public ezThread
 {
 public:
   ezLoopThread()
-      : ezThread("ezMessageLoopThread")
+    : ezThread("ezMessageLoopThread")
   {
   }
   ezMessageLoop* m_pRemoteInterface = nullptr;
@@ -55,7 +55,7 @@ public:
 };
 
 ezMessageLoop::ezMessageLoop()
-    : m_SingletonRegistrar(this)
+  : m_SingletonRegistrar(this)
 {
 }
 
@@ -117,7 +117,7 @@ void ezMessageLoop::RunLoop()
     if (didwork)
       continue;
 
-    //wait until we have work again
+    // wait until we have work again
     WaitForMessages(m_bCallTickFunction ? 50 : -1, nullptr); // timeout 20 times per second, if we need to call the tick function
   }
 }
@@ -187,4 +187,3 @@ void ezMessageLoop::RemoveChannel(ezIpcChannel* pChannel)
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_MessageLoop);
-

@@ -123,4 +123,3 @@ private:
   ezDynamicArray<const ezGraphPatch*> m_GraphPatches;
   ezHashTable<ezVersionKey, const ezGraphPatch*, ezGraphVersioningHash> m_NodePatches;
 };
-

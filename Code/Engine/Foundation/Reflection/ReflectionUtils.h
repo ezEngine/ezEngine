@@ -27,7 +27,7 @@ public:
 
   static ezVariant GetMemberPropertyValue(const ezAbstractMemberProperty* pProp, const void* pObject); // [tested] via ToolsFoundation
   static void SetMemberPropertyValue(ezAbstractMemberProperty* pProp, void* pObject,
-                                     const ezVariant& value); // [tested] via ToolsFoundation
+    const ezVariant& value); // [tested] via ToolsFoundation
 
   static ezVariant GetArrayPropertyValue(const ezAbstractArrayProperty* pProp, const void* pObject, ezUInt32 uiIndex);
   static void SetArrayPropertyValue(ezAbstractArrayProperty* pProp, void* pObject, ezUInt32 uiIndex, const ezVariant& value);
@@ -80,11 +80,13 @@ public:
   /// \brief Converts an enum or bitfield value into its string representation.
   ///
   /// The type of pEnumerationRtti will be automatically detected. The syntax of out_sOutput equals MSVC debugger output.
-  static bool EnumerationToString(const ezRTTI* pEnumerationRtti, ezInt64 iValue, ezStringBuilder& out_sOutput, ezEnum<EnumConversionMode> conversionMode = EnumConversionMode::Default); // [tested]
+  static bool EnumerationToString(const ezRTTI* pEnumerationRtti, ezInt64 iValue, ezStringBuilder& out_sOutput,
+    ezEnum<EnumConversionMode> conversionMode = EnumConversionMode::Default); // [tested]
 
   /// \brief Helper template to shorten the call for ezEnums
-  template<typename T>
-  static bool EnumerationToString(ezEnum<T> value, ezStringBuilder& out_sOutput, ezEnum<EnumConversionMode> conversionMode = EnumConversionMode::Default)
+  template <typename T>
+  static bool EnumerationToString(
+    ezEnum<T> value, ezStringBuilder& out_sOutput, ezEnum<EnumConversionMode> conversionMode = EnumConversionMode::Default)
   {
     return EnumerationToString(ezGetStaticRTTI<T>(), value.GetValue(), out_sOutput, conversionMode);
   }
@@ -95,7 +97,7 @@ public:
   static bool StringToEnumeration(const ezRTTI* pEnumerationRtti, const char* szValue, ezInt64& out_iValue); // [tested]
 
   /// \brief Helper template to shorten the call for ezEnums
-  template<typename T>
+  template <typename T>
   static bool StringToEnumeration(const char* szValue, ezEnum<T>& out_iValue)
   {
     ezInt64 value;
@@ -142,4 +144,3 @@ public:
   /// \brief Sets all member properties in \a pObject of type \a pRtti to the value returned by ezToolsReflectionUtils::GetDefaultValue()
   static void SetAllMemberPropertiesToDefault(const ezRTTI* pRtti, void* pObject);
 };
-

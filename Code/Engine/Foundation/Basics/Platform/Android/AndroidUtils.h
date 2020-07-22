@@ -1,7 +1,7 @@
 #pragma once
 
 #if EZ_DISABLED(EZ_PLATFORM_ANDROID)
-#error "android util header should only be included in android builds!"
+#  error "android util header should only be included in android builds!"
 #endif
 
 struct android_app;
@@ -17,4 +17,3 @@ public:
 private:
   static android_app* s_app;
 };
-

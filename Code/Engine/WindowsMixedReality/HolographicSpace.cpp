@@ -1,14 +1,14 @@
-﻿#includde <WindowsMixedRealityPCH.h>
+﻿#includde < WindowsMixedRealityPCH.h>
+#include <Foundation/Configuration/CVar.h>
+#include <WindowsMixedReality/Graphics/MixedRealityCamera.h>
 #include <WindowsMixedReality/HolographicSpace.h>
 #include <WindowsMixedReality/SpatialLocationService.h>
 #include <WindowsMixedReality/SpatialReferenceFrame.h>
-#include <WindowsMixedReality/Graphics/MixedRealityCamera.h>
-#include <Foundation/Configuration/CVar.h>
 //#include <GameEngine/GameApplication/GameApplication.h>
+#include <Core/Graphics/Camera.h>
+#include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <WindowsMixedReality/Graphics/MixedRealityDX11Device.h>
-#include <RendererDX11/Device/DeviceDX11.h>
-#include <Core/Graphics/Camera.h>
 
 #include <windows.graphics.holographic.h>
 #include <windows.system.profile.h>
@@ -20,7 +20,8 @@ EZ_IMPLEMENT_SINGLETON(ezWindowsHolographicSpace);
 ezWindowsHolographicSpace::ezWindowsHolographicSpace()
   : m_SingletonRegistrar(this)
 {
-  if (FAILED(ABI::Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_Graphics_Holographic_HolographicSpace).Get(), &m_pHolographicSpaceStatics)))
+  if (FAILED(ABI::Windows::Foundation::GetActivationFactory(
+        HStringReference(RuntimeClass_Windows_Graphics_Holographic_HolographicSpace).Get(), &m_pHolographicSpaceStatics)))
   {
     ezLog::Error("Failed to query HolographicSpace activation factory. Windows holographic won't be supported!");
   }
@@ -45,7 +46,8 @@ ezResult ezWindowsHolographicSpace::InitForMainCoreWindow()
     ComPtr<ABI::Windows::UI::Core::ICoreWindow> pCoreWindow;
     {
       ComPtr<ABI::Windows::ApplicationModel::Core::ICoreImmersiveApplication> application;
-      EZ_HRESULT_TO_FAILURE(ABI::Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_ApplicationModel_Core_CoreApplication).Get(), &application));
+      EZ_HRESULT_TO_FAILURE(ABI::Windows::Foundation::GetActivationFactory(
+        HStringReference(RuntimeClass_Windows_ApplicationModel_Core_CoreApplication).Get(), &application));
 
       ComPtr<ABI::Windows::ApplicationModel::Core::ICoreApplicationView> mainView;
       EZ_HRESULT_TO_FAILURE(application->get_MainView(&mainView));
@@ -58,17 +60,22 @@ ezResult ezWindowsHolographicSpace::InitForMainCoreWindow()
 
   // Register to camera added/removed
   {
-    using OnCameraAdded = __FITypedEventHandler_2_Windows__CGraphics__CHolographic__CHolographicSpace_Windows__CGraphics__CHolographic__CHolographicSpaceCameraAddedEventArgs;
-    EZ_HRESULT_TO_FAILURE_LOG(m_pHolographicSpace->add_CameraAdded(Callback<OnCameraAdded>(this, &ezWindowsHolographicSpace::OnCameraAdded).Get(), &m_eventRegistrationOnCameraAdded));
+    using OnCameraAdded =
+      __FITypedEventHandler_2_Windows__CGraphics__CHolographic__CHolographicSpace_Windows__CGraphics__CHolographic__CHolographicSpaceCameraAddedEventArgs;
+    EZ_HRESULT_TO_FAILURE_LOG(m_pHolographicSpace->add_CameraAdded(
+      Callback<OnCameraAdded>(this, &ezWindowsHolographicSpace::OnCameraAdded).Get(), &m_eventRegistrationOnCameraAdded));
 
-    using OnCameraRemoved = __FITypedEventHandler_2_Windows__CGraphics__CHolographic__CHolographicSpace_Windows__CGraphics__CHolographic__CHolographicSpaceCameraRemovedEventArgs;
-    EZ_HRESULT_TO_FAILURE_LOG(m_pHolographicSpace->add_CameraRemoved(Callback<OnCameraRemoved>(this, &ezWindowsHolographicSpace::OnCameraRemoved).Get(), &m_eventRegistrationOnCameraRemoved));
+    using OnCameraRemoved =
+      __FITypedEventHandler_2_Windows__CGraphics__CHolographic__CHolographicSpace_Windows__CGraphics__CHolographic__CHolographicSpaceCameraRemovedEventArgs;
+    EZ_HRESULT_TO_FAILURE_LOG(m_pHolographicSpace->add_CameraRemoved(
+      Callback<OnCameraRemoved>(this, &ezWindowsHolographicSpace::OnCameraRemoved).Get(), &m_eventRegistrationOnCameraRemoved));
   }
 
   // Setup locator
   {
     ComPtr<ABI::Windows::Perception::Spatial::ISpatialLocatorStatics> pSpatialLocatorStatics;
-    EZ_HRESULT_TO_FAILURE_LOG(ABI::Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_Perception_Spatial_SpatialLocator).Get(), &pSpatialLocatorStatics));
+    EZ_HRESULT_TO_FAILURE_LOG(ABI::Windows::Foundation::GetActivationFactory(
+      HStringReference(RuntimeClass_Windows_Perception_Spatial_SpatialLocator).Get(), &pSpatialLocatorStatics));
 
     ComPtr<ABI::Windows::Perception::Spatial::ISpatialLocator> pDefaultSpatialLocator;
     EZ_HRESULT_TO_FAILURE_LOG(pSpatialLocatorStatics->GetDefault(&pDefaultSpatialLocator));
@@ -125,7 +132,8 @@ void ezWindowsHolographicSpace::DeInit()
 
 // TODO: Evaluate if and how to expose this.
 // WinRT api has a bit of weirdness here:
-// "If IsAvailable is false because the user has not yet set up their holographic headset, calling CreateForCoreWindow anyway will guide them through the setup flow."
+// "If IsAvailable is false because the user has not yet set up their holographic headset, calling CreateForCoreWindow anyway will guide them through
+the setup flow."
 
 bool ezWindowsHolographicSpace::IsSupported() const
 {
@@ -163,7 +171,8 @@ bool ezWindowsHolographicSpace::IsAvailable() const
     // In this case a headset is exactly then available if we're on HoloLens!
 
     ComPtr<ABI::Windows::System::Profile::IAnalyticsInfoStatics> pAnalyticsStatics;
-    if (FAILED(ABI::Windows::Foundation::GetActivationFactory(HStringReference(RuntimeClass_Windows_System_Profile_AnalyticsInfo).Get(), &pAnalyticsStatics)))
+    if (FAILED(ABI::Windows::Foundation::GetActivationFactory(
+          HStringReference(RuntimeClass_Windows_System_Profile_AnalyticsInfo).Get(), &pAnalyticsStatics)))
       return false;
 
     ComPtr<ABI::Windows::System::Profile::IAnalyticsVersionInfo> pAnalyticsVersionInfo;
@@ -305,8 +314,7 @@ ezResult ezWindowsHolographicSpace::UpdateCameraPoses(const ComPtr<ABI::Windows:
 
   // Update camera our cameras.
   using IPose = ABI::Windows::Graphics::Holographic::IHolographicCameraPose;
-  ezUwpUtils::ezWinRtIterateIVectorView<IPose*>(pCameraPoses, [this, &pHolographicFrame](UINT, IPose* pPose)
-  {
+  ezUwpUtils::ezWinRtIterateIVectorView<IPose*>(pCameraPoses, [this, &pHolographicFrame](UINT, IPose* pPose) {
     ComPtr<ABI::Windows::Graphics::Holographic::IHolographicCamera> pCurrentHoloCamera;
     if (FAILED(pPose->get_HolographicCamera(pCurrentHoloCamera.GetAddressOf())))
       return true;
@@ -330,7 +338,8 @@ ezResult ezWindowsHolographicSpace::UpdateCameraPoses(const ComPtr<ABI::Windows:
   return EZ_SUCCESS;
 }
 
-HRESULT ezWindowsHolographicSpace::OnCameraAdded(ABI::Windows::Graphics::Holographic::IHolographicSpace* holographicSpace, ABI::Windows::Graphics::Holographic::IHolographicSpaceCameraAddedEventArgs* args)
+HRESULT ezWindowsHolographicSpace::OnCameraAdded(ABI::Windows::Graphics::Holographic::IHolographicSpace* holographicSpace,
+  ABI::Windows::Graphics::Holographic::IHolographicSpaceCameraAddedEventArgs* args)
 {
   ezLock<ezMutex> lock(m_cameraQueueMutex);
 
@@ -341,7 +350,8 @@ HRESULT ezWindowsHolographicSpace::OnCameraAdded(ABI::Windows::Graphics::Hologra
   return S_OK;
 }
 
-HRESULT ezWindowsHolographicSpace::OnCameraRemoved(ABI::Windows::Graphics::Holographic::IHolographicSpace* holographicSpace, ABI::Windows::Graphics::Holographic::IHolographicSpaceCameraRemovedEventArgs* args)
+HRESULT ezWindowsHolographicSpace::OnCameraRemoved(ABI::Windows::Graphics::Holographic::IHolographicSpace* holographicSpace,
+  ABI::Windows::Graphics::Holographic::IHolographicSpaceCameraRemovedEventArgs* args)
 {
   ezLock<ezMutex> lock(m_cameraQueueMutex);
 
@@ -373,6 +383,3 @@ const ezWindowsSpatialReferenceFrame* ezWindowsHolographicSpace::GetDefaultRefer
 {
   return m_pDefaultReferenceFrame.Borrow();
 }
-
-
-

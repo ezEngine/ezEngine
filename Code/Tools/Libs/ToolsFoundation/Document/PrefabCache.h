@@ -33,12 +33,10 @@ private:
     ezAbstractObjectGraph m_Graph;
     ezStringBuilder m_sDocContent;
     ezTimestamp m_fileModifiedTime;
-
   };
   PrefabData& GetOrCreatePrefabCache(const ezUuid& documentGuid);
   void UpdatePrefabData(PrefabData& data);
 
   ezMap<ezUInt64, ezUniquePtr<ezAbstractObjectGraph>> m_CachedGraphs;
   ezMap<ezUuid, ezUniquePtr<PrefabData>> m_PrefabData;
-
 };

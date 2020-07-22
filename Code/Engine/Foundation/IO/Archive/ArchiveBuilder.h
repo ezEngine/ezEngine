@@ -51,4 +51,3 @@ protected:
   /// Override this to get a progress report for writing a single file to the output
   virtual bool WriteFileProgressCallback(ezUInt64 bytesWritten, ezUInt64 bytesTotal) const;
 };
-

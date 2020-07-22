@@ -21,13 +21,13 @@
 #include <Foundation/Serialization/ReflectionSerializer.h>
 #include <GameEngine/GameApplication/GameApplication.h>
 #include <GameEngine/Prefabs/PrefabReferenceComponent.h>
+#include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 #include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <Texture/Image/Image.h>
 #include <Texture/Image/ImageUtils.h>
-#include <RendererCore/Pipeline/View.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineProcessDocumentContext, 1, ezRTTINoAllocator)
   ;
@@ -454,8 +454,7 @@ void ezEngineProcessDocumentContext::UpdateDocumentContext()
         header.SetHeight(m_uiThumbnailHeight);
         ezImage image;
         image.ResetAndAlloc(header);
-        EZ_ASSERT_DEV(
-          static_cast<ezUInt64>(m_uiThumbnailWidth) * static_cast<ezUInt64>(m_uiThumbnailHeight) * 4 == header.ComputeDataSize(),
+        EZ_ASSERT_DEV(static_cast<ezUInt64>(m_uiThumbnailWidth) * static_cast<ezUInt64>(m_uiThumbnailHeight) * 4 == header.ComputeDataSize(),
           "Thumbnail ezImage has different size than data buffer!");
 
         MemDesc.m_pData = image.GetPixelPointer<ezUInt8>();
@@ -534,7 +533,8 @@ void ezEngineProcessDocumentContext::CreateThumbnailViewContext(const ezCreateTh
 
   m_hThumbnailDepthRT = pDevice->CreateTexture(tcd);
 
-  m_ThumbnailRenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(m_hThumbnailColorRT)).SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(m_hThumbnailDepthRT));
+  m_ThumbnailRenderTargetSetup.SetRenderTarget(0, pDevice->GetDefaultRenderTargetView(m_hThumbnailColorRT))
+    .SetDepthStencilTarget(pDevice->GetDefaultRenderTargetView(m_hThumbnailDepthRT));
   m_pThumbnailViewContext->SetupRenderTarget(m_ThumbnailRenderTargetSetup, m_uiThumbnailWidth, m_uiThumbnailHeight);
 
   ezResourceManager::ForceNoFallbackAcquisition(3);
@@ -726,7 +726,8 @@ void ezEngineProcessDocumentContext::WorldRttiConverterContextEventHandler(const
 ///     These are needed to fix up references during undo/redo when objects get deleted and recreated.
 ///     Ie. when an object that has references or is referenced gets deleted and then undo restores it, the references should appear as well.
 ///
-ezGameObjectHandle ezEngineProcessDocumentContext::ResolveStringToGameObjectHandle(const void* pData, ezComponentHandle hThis, const char* szComponentProperty) const
+ezGameObjectHandle ezEngineProcessDocumentContext::ResolveStringToGameObjectHandle(
+  const void* pData, ezComponentHandle hThis, const char* szComponentProperty) const
 {
   const char* szTargetGuid = reinterpret_cast<const char*>(pData);
 
@@ -866,7 +867,8 @@ ref_to_is_updated:
 
       for (ezUInt32 i = 0; i < referencedBy.GetCount(); ++i)
       {
-        if (referencedBy[i].m_ReferencedByComponent == srcComponentGuid && ezStringUtils::IsEqual(referencedBy[i].m_szComponentProperty, szComponentProperty))
+        if (referencedBy[i].m_ReferencedByComponent == srcComponentGuid &&
+            ezStringUtils::IsEqual(referencedBy[i].m_szComponentProperty, szComponentProperty))
         {
           referencedBy.RemoveAtAndSwap(i);
           break;
@@ -882,7 +884,8 @@ ref_to_is_updated:
       // this loop is currently only to validate that no bugs creeped in
       for (ezUInt32 i = 0; i < referencedBy.GetCount(); ++i)
       {
-        if (referencedBy[i].m_ReferencedByComponent == srcComponentGuid && ezStringUtils::IsEqual(referencedBy[i].m_szComponentProperty, szComponentProperty))
+        if (referencedBy[i].m_ReferencedByComponent == srcComponentGuid &&
+            ezStringUtils::IsEqual(referencedBy[i].m_szComponentProperty, szComponentProperty))
         {
           EZ_REPORT_FAILURE("Go-reference was not updated correctly");
         }

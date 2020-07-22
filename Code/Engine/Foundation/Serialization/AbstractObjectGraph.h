@@ -23,10 +23,10 @@ public:
   };
 
   ezAbstractObjectNode()
-      : m_pOwner(nullptr)
-      , m_uiTypeVersion(0)
-      , m_szType(nullptr)
-      , m_szNodeName(nullptr)
+    : m_pOwner(nullptr)
+    , m_uiTypeVersion(0)
+    , m_szType(nullptr)
+    , m_szNodeName(nullptr)
   {
   }
 
@@ -157,19 +157,17 @@ public:
   void ApplyDiff(ezDeque<ezAbstractGraphDiffOperation>& Diff);
 
   void MergeDiffs(const ezDeque<ezAbstractGraphDiffOperation>& lhs, const ezDeque<ezAbstractGraphDiffOperation>& rhs,
-                  ezDeque<ezAbstractGraphDiffOperation>& out) const;
+    ezDeque<ezAbstractGraphDiffOperation>& out) const;
 
 private:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezAbstractObjectGraph);
 
   void RemapVariant(ezVariant& value, const ezHashTable<ezUuid, ezUuid>& guidMap);
-  void MergeArrays(const ezVariantArray& baseArray, const ezVariantArray& leftArray, const ezVariantArray& rightArray,
-                   ezVariantArray& out) const;
-  void ReMapNodeGuidsToMatchGraphRecursive(ezHashTable<ezUuid, ezUuid>& guidMap, ezAbstractObjectNode* lhs, const ezAbstractObjectGraph& rhsGraph,
-                                           const ezAbstractObjectNode* rhs);
+  void MergeArrays(const ezVariantArray& baseArray, const ezVariantArray& leftArray, const ezVariantArray& rightArray, ezVariantArray& out) const;
+  void ReMapNodeGuidsToMatchGraphRecursive(
+    ezHashTable<ezUuid, ezUuid>& guidMap, ezAbstractObjectNode* lhs, const ezAbstractObjectGraph& rhsGraph, const ezAbstractObjectNode* rhs);
 
   ezSet<ezString> m_Strings;
   ezMap<ezUuid, ezAbstractObjectNode*> m_Nodes;
   ezMap<const char*, ezAbstractObjectNode*, CompareConstChar> m_NodesByName;
 };
-

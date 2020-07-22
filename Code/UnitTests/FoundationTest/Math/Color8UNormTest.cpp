@@ -62,8 +62,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Color8UNorm)
                    pUIntsConst[3] == cornflowerBlue.a);
 
       ezUInt8* pUInts = cornflowerBlue.GetData();
-      EZ_TEST_BOOL(pUInts[0] == cornflowerBlue.r && pUInts[1] == cornflowerBlue.g && pUInts[2] == cornflowerBlue.b &&
-                   pUInts[3] == cornflowerBlue.a);
+      EZ_TEST_BOOL(pUInts[0] == cornflowerBlue.r && pUInts[1] == cornflowerBlue.g && pUInts[2] == cornflowerBlue.b && pUInts[3] == cornflowerBlue.a);
     }
   }
 

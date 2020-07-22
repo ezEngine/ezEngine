@@ -239,8 +239,7 @@ void ezGameEngineTestApplication_Basics::SubTestSkyboxSetup()
 
   m_pWorld->Clear();
 
-  ezTextureCubeResourceHandle hSkybox =
-    ezResourceManager::LoadResource<ezTextureCubeResource>("Textures/Cubemap/ezLogo_Cube_DXT1_Mips_D.dds");
+  ezTextureCubeResourceHandle hSkybox = ezResourceManager::LoadResource<ezTextureCubeResource>("Textures/Cubemap/ezLogo_Cube_DXT1_Mips_D.dds");
   ezMeshResourceHandle hMesh = ezResourceManager::LoadResource<ezMeshResource>("Meshes/MissingMesh.ezMesh");
 
   // Skybox

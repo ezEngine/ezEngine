@@ -181,6 +181,3 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_Progress);
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_Stats);
 }
-
-
-

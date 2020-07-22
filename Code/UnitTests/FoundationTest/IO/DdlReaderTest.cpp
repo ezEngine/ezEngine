@@ -159,8 +159,7 @@ static void TestEqual(const char* original, const char* recreation)
 
     if (cOrg != cAlt)
     {
-      EZ_TEST_FAILURE("String compare failed", "DDL Original and recreation don't match at character %u ('%c' -> '%c')", uiChar, cOrg,
-                      cAlt);
+      EZ_TEST_FAILURE("String compare failed", "DDL Original and recreation don't match at character %u ('%c' -> '%c')", uiChar, cOrg, cAlt);
       return;
     }
 

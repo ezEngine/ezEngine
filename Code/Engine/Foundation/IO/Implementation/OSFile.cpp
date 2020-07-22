@@ -497,7 +497,8 @@ ezResult ezOSFile::GetFileCasing(const char* szFileOrFolder, ezStringBuilder& ou
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) && EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
 
-void ezOSFile::GatherAllItemsInFolder(ezDynamicArray<ezFileStats>& out_ItemList, const char* szFolder, ezBitflags<ezFileSystemIteratorFlags> flags /*= ezFileSystemIteratorFlags::All*/)
+void ezOSFile::GatherAllItemsInFolder(
+  ezDynamicArray<ezFileStats>& out_ItemList, const char* szFolder, ezBitflags<ezFileSystemIteratorFlags> flags /*= ezFileSystemIteratorFlags::All*/)
 {
   out_ItemList.Clear();
 

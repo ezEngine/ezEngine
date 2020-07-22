@@ -23,8 +23,8 @@ void ezMeshComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pInfo)
   if (pInfo->m_sTargetContext == "viewport")
     CreateDropObject(pInfo->m_vDropPosition, "ezMeshComponent", "Mesh", GetAssetGuidString(pInfo), ezUuid(), -1);
   else
-    CreateDropObject(pInfo->m_vDropPosition, "ezMeshComponent", "Mesh", GetAssetGuidString(pInfo), pInfo->m_TargetObject,
-                     pInfo->m_iTargetObjectInsertChildIndex);
+    CreateDropObject(
+      pInfo->m_vDropPosition, "ezMeshComponent", "Mesh", GetAssetGuidString(pInfo), pInfo->m_TargetObject, pInfo->m_iTargetObjectInsertChildIndex);
 
   SelectCreatedObjects();
   BeginTemporaryCommands();
@@ -51,7 +51,7 @@ void ezAnimatedMeshComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* p
     CreateDropObject(pInfo->m_vDropPosition, "ezAnimatedMeshComponent", "Mesh", GetAssetGuidString(pInfo), ezUuid(), -1);
   else
     CreateDropObject(pInfo->m_vDropPosition, "ezAnimatedMeshComponent", "Mesh", GetAssetGuidString(pInfo), pInfo->m_TargetObject,
-                     pInfo->m_iTargetObjectInsertChildIndex);
+      pInfo->m_iTargetObjectInsertChildIndex);
 
   SelectCreatedObjects();
   BeginTemporaryCommands();

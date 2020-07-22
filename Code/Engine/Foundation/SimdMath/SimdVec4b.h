@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Foundation/SimdMath/SimdTypes.h>
 #include <Foundation/SimdMath/SimdSwizzle.h>
+#include <Foundation/SimdMath/SimdTypes.h>
 
 class EZ_FOUNDATION_DLL ezSimdVec4b
 {
@@ -50,4 +50,3 @@ public:
 #else
 #  error "Unknown SIMD implementation."
 #endif
-

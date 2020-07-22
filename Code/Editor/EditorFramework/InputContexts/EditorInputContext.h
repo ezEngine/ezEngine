@@ -1,8 +1,8 @@
 #pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
-#include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Math/Rect.h>
+#include <Foundation/Reflection/Reflection.h>
 
 class QWidget;
 class QKeyEvent;
@@ -64,12 +64,14 @@ public:
   /// \brief How the mouse position is updated when the mouse cursor reaches the screen borders.
   enum class MouseMode
   {
-    Normal, ///< Nothing happens, the mouse will stop at screen borders as usual
-    WrapAtScreenBorders, ///< The mouse is visibly wrapped at screen borders. When this mode is disabled, the mouse stays where it is.
-    HideAndWrapAtScreenBorders, ///< The mouse is wrapped at screen borders, which enables infinite movement, but the cursor is invisible. When this mode is disabled the mouse is restored to the position where it was when it was enabled.
+    Normal,                     ///< Nothing happens, the mouse will stop at screen borders as usual
+    WrapAtScreenBorders,        ///< The mouse is visibly wrapped at screen borders. When this mode is disabled, the mouse stays where it is.
+    HideAndWrapAtScreenBorders, ///< The mouse is wrapped at screen borders, which enables infinite movement, but the cursor is invisible. When this
+                                ///< mode is disabled the mouse is restored to the position where it was when it was enabled.
   };
 
-  /// \brief Sets how the mouse will act when it reaches the screen border. UpdateMouseMode() must be called on every mouseMoveEvent to update the state.
+  /// \brief Sets how the mouse will act when it reaches the screen border. UpdateMouseMode() must be called on every mouseMoveEvent to update the
+  /// state.
   ///
   /// The return value is the current global mouse position. Can be used to initialize a 'Last Mouse Position' variable.
   ezVec2I32 SetMouseMode(MouseMode mode);
@@ -109,9 +111,3 @@ private:
 
   virtual void UpdateContext() {}
 };
-
-
-
-
-
-

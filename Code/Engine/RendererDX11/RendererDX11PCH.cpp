@@ -19,4 +19,3 @@ EZ_STATICLINK_LIBRARY(RendererDX11)
   EZ_STATICLINK_REFERENCE(RendererDX11_Shader_Implementation_VertexDeclarationDX11);
   EZ_STATICLINK_REFERENCE(RendererDX11_State_Implementation_StateDX11);
 }
-

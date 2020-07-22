@@ -5,8 +5,8 @@ EZ_FOUNDATION_INTERNAL_HEADER
 
 #if EZ_ENABLED(EZ_PLATFORM_ANDROID)
 
-#include <Foundation/Basics.h>
-#include <Foundation/Strings/String.h>
+#  include <Foundation/Basics.h>
+#  include <Foundation/Strings/String.h>
 
 class ezApplication;
 struct AInputEvent;
@@ -27,4 +27,3 @@ private:
 };
 
 #endif
-

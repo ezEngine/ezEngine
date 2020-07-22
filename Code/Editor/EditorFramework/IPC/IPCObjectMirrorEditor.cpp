@@ -4,7 +4,7 @@
 #include <EditorFramework/IPC/IPCObjectMirrorEditor.h>
 
 ezIPCObjectMirrorEditor::ezIPCObjectMirrorEditor()
-    : ezDocumentObjectMirror()
+  : ezDocumentObjectMirror()
 {
   m_pIPC = nullptr;
 }

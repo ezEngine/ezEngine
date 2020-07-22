@@ -1,7 +1,7 @@
 #pragma once
 
-#include <ParticlePlugin/Finalizer/ParticleFinalizer.h>
 #include <Foundation/Types/VarianceTypes.h>
+#include <ParticlePlugin/Finalizer/ParticleFinalizer.h>
 
 class ezPhysicsWorldModuleInterface;
 
@@ -24,6 +24,7 @@ public:
 class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizer_Age final : public ezParticleFinalizer
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleFinalizer_Age, ezParticleFinalizer);
+
 public:
   ezParticleFinalizer_Age();
   ~ezParticleFinalizer_Age();

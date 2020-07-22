@@ -1,11 +1,11 @@
 #pragma once
 
-#include <GuiFoundation/GuiFoundationDLL.h>
 #include <Foundation/Containers/Map.h>
-#include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
-#include <ToolsFoundation/Factory/RttiMappedObjectFactory.h>
-#include <QGraphicsScene>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <QGraphicsItem>
+#include <QGraphicsScene>
+#include <ToolsFoundation/Factory/RttiMappedObjectFactory.h>
+#include <ToolsFoundation/NodeObject/DocumentNodeManager.h>
 
 class ezQtNode;
 class ezQtPin;
@@ -91,5 +91,3 @@ private:
 
   static ezVec2 s_LastMouseInteraction;
 };
-
-

@@ -2,9 +2,9 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/Types/Status.h>
-#include <Foundation/Math/Vec3.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Math/Vec3.h>
+#include <Foundation/Types/Status.h>
 
 class ezLogInterface;
 class ezStreamReader;
@@ -15,7 +15,6 @@ class ezStreamReader;
 class ezAdobeCUBEReader
 {
 public:
-
   ezAdobeCUBEReader();
   ~ezAdobeCUBEReader();
 
@@ -30,7 +29,6 @@ public:
   ezVec3 GetLUTEntry(ezUInt32 r, ezUInt32 g, ezUInt32 b) const;
 
 protected:
-
   ezUInt32 m_uiLUTSize = 0;
   ezString m_sTitle = "<UNTITLED>";
 
@@ -40,5 +38,4 @@ protected:
   ezDynamicArray<ezVec3> m_LUTValues;
 
   ezUInt32 GetLUTIndex(ezUInt32 r, ezUInt32 g, ezUInt32 b) const;
-
 };

@@ -4,7 +4,7 @@
 
 #ifdef EZ_USE_QT
 
-#include <QMainWindow>
+#  include <QMainWindow>
 
 class ezApplication;
 class ezQtFileserveWidget;
@@ -28,4 +28,3 @@ private:
 void CreateFileserveMainWindow(ezApplication* pApp);
 
 #endif
-

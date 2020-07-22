@@ -1,8 +1,8 @@
 #pragma once
 
-#include <RendererCore/RendererCoreDLL.h>
-#include <Foundation/Strings/HashedString.h>
 #include <Core/ResourceManager/ResourceHandle.h>
+#include <Foundation/Strings/HashedString.h>
+#include <RendererCore/RendererCoreDLL.h>
 
 class ezGALContext;
 class ezShaderStageBinary;
@@ -26,9 +26,5 @@ struct EZ_RENDERERCORE_DLL ezPermutationVar
   ezHashedString m_sName;
   ezHashedString m_sValue;
 
-  EZ_ALWAYS_INLINE bool operator==(const ezPermutationVar& other) const
-  {
-    return m_sName == other.m_sName && m_sValue == other.m_sValue;
-  }
+  EZ_ALWAYS_INLINE bool operator==(const ezPermutationVar& other) const { return m_sName == other.m_sName && m_sValue == other.m_sValue; }
 };
-

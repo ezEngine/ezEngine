@@ -17,7 +17,7 @@ EZ_IMPLEMENT_SINGLETON(ezModelImporter::Importer);
 namespace ezModelImporter
 {
   Importer::Importer()
-      : m_SingletonRegistrar(this)
+    : m_SingletonRegistrar(this)
   {
   }
 
@@ -83,7 +83,7 @@ namespace ezModelImporter
     {
       auto supportedFormats = m_ImporterImplementations[i]->GetSupportedFileFormats();
       if (std::any_of(cbegin(supportedFormats), cend(supportedFormats),
-                      [fileExtension](const char* ext) { return ezStringUtils::IsEqual_NoCase(ext, fileExtension); }))
+            [fileExtension](const char* ext) { return ezStringUtils::IsEqual_NoCase(ext, fileExtension); }))
       {
         ezStopwatch timer;
         scene = m_ImporterImplementations[i]->ImportScene(szFileName, importFlags);
@@ -130,8 +130,8 @@ namespace ezModelImporter
     return supportedFormats;
   }
 
-  ezStatus Importer::ImportMesh(const char* szSceneFile, const char* szSubMesh, bool bSkinnedMesh,
-                                ezSharedPtr<ezModelImporter::Scene>& outScene, ezModelImporter::Mesh*& outMesh)
+  ezStatus Importer::ImportMesh(
+    const char* szSceneFile, const char* szSubMesh, bool bSkinnedMesh, ezSharedPtr<ezModelImporter::Scene>& outScene, ezModelImporter::Mesh*& outMesh)
   {
     ezBitflags<ImportFlags> importFlags = ImportFlags::Meshes;
 
@@ -231,4 +231,4 @@ namespace ezModelImporter
     return ezStatus(EZ_SUCCESS);
   }
 
-}
+} // namespace ezModelImporter

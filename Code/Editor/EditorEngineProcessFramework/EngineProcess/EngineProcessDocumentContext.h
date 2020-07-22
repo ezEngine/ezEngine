@@ -50,7 +50,7 @@ public:
   void ClearExistingObjects();
 
   ezIPCObjectMirrorEngine m_Mirror;
-  ezWorldRttiConverterContext m_Context; //TODO: Move actual context into the EngineProcessDocumentContext
+  ezWorldRttiConverterContext m_Context; // TODO: Move actual context into the EngineProcessDocumentContext
 
   ezWorld* GetWorld() const { return m_pWorld.Borrow(); }
 
@@ -111,7 +111,10 @@ protected:
   void ClearTagRecursive(ezGameObject* pObject, const ezTag& tag);
 
 protected:
-  const ezEngineProcessViewContext* GetViewContext(ezUInt32 uiView) const { return uiView >= m_ViewContexts.GetCount() ? nullptr : m_ViewContexts[uiView]; }
+  const ezEngineProcessViewContext* GetViewContext(ezUInt32 uiView) const
+  {
+    return uiView >= m_ViewContexts.GetCount() ? nullptr : m_ViewContexts[uiView];
+  }
 
   /// \brief Tries to resolve a 'reference' (given in pData) to an ezGameObject.
   ezGameObjectHandle ResolveStringToGameObjectHandle(const void* pString, ezComponentHandle hThis, const char* szProperty) const;
@@ -143,7 +146,8 @@ private:
 private:
   enum Constants
   {
-    ThumbnailSuperscaleFactor = 2,       ///< Thumbnail render target size is multiplied by this and then the final image is downscaled again. Needs to be power-of-two.
+    ThumbnailSuperscaleFactor =
+      2, ///< Thumbnail render target size is multiplied by this and then the final image is downscaled again. Needs to be power-of-two.
     ThumbnailConvergenceFramesTarget = 4 ///< Due to multi-threaded rendering, this must be at least 4
   };
 

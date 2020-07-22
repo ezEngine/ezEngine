@@ -18,9 +18,8 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
     }
 #else
     // Placement new of the default constructor should not have any effect on the previous data.
-    ezMat3T::ComponentType testBlock[9] = {(ezMat3T::ComponentType)1, (ezMat3T::ComponentType)2, (ezMat3T::ComponentType)3,
-                                           (ezMat3T::ComponentType)4, (ezMat3T::ComponentType)5, (ezMat3T::ComponentType)6,
-                                           (ezMat3T::ComponentType)7, (ezMat3T::ComponentType)8, (ezMat3T::ComponentType)9};
+    ezMat3T::ComponentType testBlock[9] = {(ezMat3T::ComponentType)1, (ezMat3T::ComponentType)2, (ezMat3T::ComponentType)3, (ezMat3T::ComponentType)4,
+      (ezMat3T::ComponentType)5, (ezMat3T::ComponentType)6, (ezMat3T::ComponentType)7, (ezMat3T::ComponentType)8, (ezMat3T::ComponentType)9};
 
     ezMat3T* m = ::new ((void*)&testBlock[0]) ezMat3T;
 
@@ -476,9 +475,9 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
 
     ezVec3T s = m.GetScalingFactors();
     EZ_TEST_VEC3(s,
-                 ezVec3T(ezMath::Sqrt((ezMathTestType)(1 * 1 + 5 * 5 + 9 * 9)), ezMath::Sqrt((ezMathTestType)(2 * 2 + 6 * 6 + 10 * 10)),
-                         ezMath::Sqrt((ezMathTestType)(3 * 3 + 7 * 7 + 11 * 11))),
-                 0.0001f);
+      ezVec3T(ezMath::Sqrt((ezMathTestType)(1 * 1 + 5 * 5 + 9 * 9)), ezMath::Sqrt((ezMathTestType)(2 * 2 + 6 * 6 + 10 * 10)),
+        ezMath::Sqrt((ezMathTestType)(3 * 3 + 7 * 7 + 11 * 11))),
+      0.0001f);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetScalingFactors")

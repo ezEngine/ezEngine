@@ -35,7 +35,8 @@ ezLUTAssetDocument::ezLUTAssetDocument(const char* szDocumentPath)
 {
 }
 
-ezStatus ezLUTAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezStatus ezLUTAssetDocument::InternalTransformAsset(const char* szTargetFile, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
+  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   const auto props = GetProperties();
 
@@ -126,7 +127,8 @@ ezLUTAssetDocumentGenerator::ezLUTAssetDocumentGenerator()
 
 ezLUTAssetDocumentGenerator::~ezLUTAssetDocumentGenerator() = default;
 
-void ezLUTAssetDocumentGenerator::GetImportModes(const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
+void ezLUTAssetDocumentGenerator::GetImportModes(
+  const char* szParentDirRelativePath, ezHybridArray<ezAssetDocumentGenerator::Info, 4>& out_Modes) const
 {
   ezStringBuilder baseOutputFile = szParentDirRelativePath;
 
@@ -142,7 +144,8 @@ void ezLUTAssetDocumentGenerator::GetImportModes(const char* szParentDirRelative
   info.m_sIcon = ":/AssetIcons/LUT.png";
 }
 
-ezStatus ezLUTAssetDocumentGenerator::Generate(const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
+ezStatus ezLUTAssetDocumentGenerator::Generate(
+  const char* szDataDirRelativePath, const ezAssetDocumentGenerator::Info& info, ezDocument*& out_pGeneratedDocument)
 {
   auto pApp = ezQtEditorApp::GetSingleton();
 

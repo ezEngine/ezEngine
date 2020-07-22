@@ -305,8 +305,7 @@ void ezGameApplication::RenderConsole()
     ezDebugRenderer::Draw2DRectangle(
       hView, ezRectFloat(fBorderWidth, 0.0f, fViewWidth - (2.0f * fBorderWidth), fConsoleTextAreaHeight), 0.0f, foregroundColor);
     ezDebugRenderer::Draw2DRectangle(hView,
-      ezRectFloat(fBorderWidth, fConsoleTextAreaHeight + fBorderWidth, fViewWidth - (2.0f * fBorderWidth), fTextHeight), 0.0f,
-      foregroundColor);
+      ezRectFloat(fBorderWidth, fConsoleTextAreaHeight + fBorderWidth, fViewWidth - (2.0f * fBorderWidth), fTextHeight), 0.0f, foregroundColor);
   }
 
   {
@@ -322,8 +321,7 @@ void ezGameApplication::RenderConsole()
     for (ezUInt32 i = uiSkippedLines; i < uiNumConsoleLines; ++i)
     {
       auto& consoleString = consoleStrings[uiFirstLine - i];
-      ezDebugRenderer::Draw2DText(
-        hView, consoleString.m_sText, ezVec2I32(iTextLeft, iFirstLinePos + i * iTextHeight), consoleString.m_TextColor);
+      ezDebugRenderer::Draw2DText(hView, consoleString.m_sText, ezVec2I32(iTextLeft, iFirstLinePos + i * iTextHeight), consoleString.m_TextColor);
     }
 
     ezStringView sInputLine(m_pConsole->GetInputLine());
@@ -334,8 +332,8 @@ void ezGameApplication::RenderConsole()
       float fCaretPosition = (float)m_pConsole->GetCaretPosition();
       ezColor caretColor(1.0f, 1.0f, 1.0f, 0.5f);
       ezDebugRenderer::Draw2DRectangle(hView,
-        ezRectFloat(fBorderWidth + fCaretPosition * 8.0f + 2.0f, fConsoleTextAreaHeight + fBorderWidth + 1.0f, 2.0f, fTextHeight - 2.0f),
-        0.0f, caretColor);
+        ezRectFloat(fBorderWidth + fCaretPosition * 8.0f + 2.0f, fConsoleTextAreaHeight + fBorderWidth + 1.0f, 2.0f, fTextHeight - 2.0f), 0.0f,
+        caretColor);
     }
   }
 }

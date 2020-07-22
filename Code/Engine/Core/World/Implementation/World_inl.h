@@ -333,15 +333,15 @@ EZ_FORCE_INLINE void ezWorld::SendMessageRecursive(const ezGameObjectHandle& rec
   }
 }
 
-EZ_ALWAYS_INLINE void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezTime delay,
-  ezObjectMsgQueueType::Enum queueType) const
+EZ_ALWAYS_INLINE void ezWorld::PostMessage(
+  const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType) const
 {
   // This method is allowed to be called from multiple threads.
   PostMessage(receiverObject, msg, queueType, delay, false);
 }
 
-EZ_ALWAYS_INLINE void ezWorld::PostMessageRecursive(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezTime delay,
-  ezObjectMsgQueueType::Enum queueType) const
+EZ_ALWAYS_INLINE void ezWorld::PostMessageRecursive(
+  const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType) const
 {
   // This method is allowed to be called from multiple threads.
   PostMessage(receiverObject, msg, queueType, delay, true);
@@ -526,8 +526,8 @@ EZ_ALWAYS_INLINE void ezWorld::CheckForReadAccess() const
 
 EZ_ALWAYS_INLINE void ezWorld::CheckForWriteAccess() const
 {
-  EZ_ASSERT_DEV(m_Data.m_WriteThreadID == ezThreadUtils::GetCurrentThreadID(),
-    "Trying to write to World '{0}', but it is not marked for writing.", GetName());
+  EZ_ASSERT_DEV(
+    m_Data.m_WriteThreadID == ezThreadUtils::GetCurrentThreadID(), "Trying to write to World '{0}', but it is not marked for writing.", GetName());
 }
 
 EZ_ALWAYS_INLINE ezGameObject* ezWorld::GetObjectUnchecked(ezUInt32 uiIndex) const

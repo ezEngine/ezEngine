@@ -153,10 +153,10 @@ public:
 private:
   void RecomputeLinearApproxExtremes();
   void ApproximateMinMaxValues(const ControlPoint& lhs, const ControlPoint& rhs, double& fMinY, double& fMaxY);
-  void ApproximateCurve(const ezVec2d& p0, const ezVec2d& p1, const ezVec2d& p2, const ezVec2d& p3, double fMaxErrorX, double fMaxErrorY,
-                        ezInt32 iSubDivLeft);
+  void ApproximateCurve(
+    const ezVec2d& p0, const ezVec2d& p1, const ezVec2d& p2, const ezVec2d& p3, double fMaxErrorX, double fMaxErrorY, ezInt32 iSubDivLeft);
   void ApproximateCurvePiece(const ezVec2d& p0, const ezVec2d& p1, const ezVec2d& p2, const ezVec2d& p3, double tLeft, const ezVec2d& pLeft,
-                             double tRight, const ezVec2d& pRight, double fMaxErrorX, double fMaxErrorY, ezInt32 iSubDivLeft);
+    double tRight, const ezVec2d& pRight, double fMaxErrorX, double fMaxErrorY, ezInt32 iSubDivLeft);
   ezInt32 FindApproxControlPoint(double x) const;
 
   double m_fMinX, m_fMaxX;
@@ -164,4 +164,3 @@ private:
   ezHybridArray<ControlPoint, 8> m_ControlPoints;
   ezHybridArray<ezVec2d, 24> m_LinearApproximation;
 };
-

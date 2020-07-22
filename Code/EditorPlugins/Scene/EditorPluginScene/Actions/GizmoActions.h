@@ -1,8 +1,8 @@
 #pragma once
 
 #include <EditorPluginScene/EditorPluginSceneDLL.h>
-#include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/Action/BaseActions.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 
 /////
 class EZ_EDITORPLUGINSCENE_DLL ezSceneGizmoActions

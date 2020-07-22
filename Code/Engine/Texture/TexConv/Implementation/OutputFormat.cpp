@@ -2,7 +2,8 @@
 
 #include <Texture/TexConv/TexConvProcessor.h>
 
-static ezImageFormat::Enum DetermineOutputFormatPC(ezTexConvUsage::Enum targetFormat, ezTexConvCompressionMode::Enum compressionMode, ezUInt32 uiNumChannels)
+static ezImageFormat::Enum DetermineOutputFormatPC(
+  ezTexConvUsage::Enum targetFormat, ezTexConvCompressionMode::Enum compressionMode, ezUInt32 uiNumChannels)
 {
   if (targetFormat == ezTexConvUsage::NormalMap || targetFormat == ezTexConvUsage::NormalMap_Inverted || targetFormat == ezTexConvUsage::BumpMap)
   {
@@ -122,4 +123,3 @@ ezResult ezTexConvProcessor::ChooseOutputFormat(ezEnum<ezImageFormat>& out_Forma
 
 
 EZ_STATICLINK_FILE(Texture, Texture_TexConv_Implementation_OutputFormat);
-

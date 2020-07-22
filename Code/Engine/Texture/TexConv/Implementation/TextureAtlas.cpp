@@ -232,7 +232,8 @@ ezResult ezTexConvProcessor::SortItemsIntoAtlas(ezDynamicArray<TextureAtlasItem>
   return EZ_FAILURE;
 }
 
-ezResult ezTexConvProcessor::CreateAtlasTexture(ezDynamicArray<TextureAtlasItem>& items, ezUInt32 uiResX, ezUInt32 uiResY, ezImage& atlas, ezInt32 layer)
+ezResult ezTexConvProcessor::CreateAtlasTexture(
+  ezDynamicArray<TextureAtlasItem>& items, ezUInt32 uiResX, ezUInt32 uiResY, ezImage& atlas, ezInt32 layer)
 {
   ezImageHeader imgHeader;
   imgHeader.SetWidth(uiResX);
@@ -319,7 +320,8 @@ ezResult ezTexConvProcessor::FillAtlasBorders(ezDynamicArray<TextureAtlasItem>& 
   return EZ_SUCCESS;
 }
 
-ezResult ezTexConvProcessor::CreateAtlasLayerTexture(const ezTextureAtlasCreationDesc& atlasDesc, ezDynamicArray<TextureAtlasItem>& atlasItems, ezInt32 layer, ezImage& dstImg)
+ezResult ezTexConvProcessor::CreateAtlasLayerTexture(
+  const ezTextureAtlasCreationDesc& atlasDesc, ezDynamicArray<TextureAtlasItem>& atlasItems, ezInt32 layer, ezImage& dstImg)
 {
   ezUInt32 uiTexWidth, uiTexHeight;
   EZ_SUCCEED_OR_RETURN(SortItemsIntoAtlas(atlasItems, uiTexWidth, uiTexHeight, layer));

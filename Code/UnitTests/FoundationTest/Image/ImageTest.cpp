@@ -28,8 +28,8 @@ EZ_CREATE_SIMPLE_TEST(Image, Image)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "BMP - Good")
   {
     const char* testImagesGood[] = {
-      "BMPTestImages/good/pal1", "BMPTestImages/good/pal1bg", "BMPTestImages/good/pal1wb", "BMPTestImages/good/pal4",
-      "BMPTestImages/good/pal4rle", "BMPTestImages/good/pal8", "BMPTestImages/good/pal8-0", "BMPTestImages/good/pal8nonsquare",
+      "BMPTestImages/good/pal1", "BMPTestImages/good/pal1bg", "BMPTestImages/good/pal1wb", "BMPTestImages/good/pal4", "BMPTestImages/good/pal4rle",
+      "BMPTestImages/good/pal8", "BMPTestImages/good/pal8-0", "BMPTestImages/good/pal8nonsquare",
       /*"BMPTestImages/good/pal8os2",*/ "BMPTestImages/good/pal8rle",
       /*"BMPTestImages/good/pal8topdown",*/ "BMPTestImages/good/pal8v4", "BMPTestImages/good/pal8v5", "BMPTestImages/good/pal8w124",
       "BMPTestImages/good/pal8w125", "BMPTestImages/good/pal8w126", "BMPTestImages/good/rgb16", "BMPTestImages/good/rgb16-565pal",
@@ -82,8 +82,7 @@ EZ_CREATE_SIMPLE_TEST(Image, Image)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "TGA")
   {
-    const char* testImagesGood[] = {
-      "TGATestImages/good/RGB", "TGATestImages/good/RGBA", "TGATestImages/good/RGB_RLE", "TGATestImages/good/RGBA_RLE"};
+    const char* testImagesGood[] = {"TGATestImages/good/RGB", "TGATestImages/good/RGBA", "TGATestImages/good/RGB_RLE", "TGATestImages/good/RGBA_RLE"};
 
     for (int i = 0; i < EZ_ARRAY_SIZE(testImagesGood); i++)
     {
@@ -186,4 +185,3 @@ EZ_CREATE_SIMPLE_TEST(Image, Image)
 
   ezFileSystem::RemoveDataDirectoryGroup("ImageTest");
 }
-

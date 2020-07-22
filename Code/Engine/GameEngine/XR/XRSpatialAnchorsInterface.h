@@ -20,5 +20,4 @@ public:
   /// \brief Tries to resolve the anchor position. Can fail of the anchor is invalid or tracking is
   /// currently lost.
   virtual ezResult TryGetAnchorTransform(ezXRSpatialAnchorID id, ezTransform& out_globalTransform) = 0;
-
 };

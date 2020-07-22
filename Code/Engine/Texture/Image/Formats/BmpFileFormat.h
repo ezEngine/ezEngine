@@ -11,4 +11,3 @@ public:
   virtual bool CanReadFileType(const char* szExtension) const override;
   virtual bool CanWriteFileType(const char* szExtension) const override;
 };
-

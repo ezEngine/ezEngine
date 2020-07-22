@@ -84,9 +84,7 @@ void ezLogWriter::VisualStudio::LogMessageHandler(const ezLoggingEventData& even
 
 #else
 
-void ezLogWriter::VisualStudio::LogMessageHandler(const ezLoggingEventData& eventData)
-{
-}
+void ezLogWriter::VisualStudio::LogMessageHandler(const ezLoggingEventData& eventData) {}
 
 #endif
 

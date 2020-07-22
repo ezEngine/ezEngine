@@ -55,8 +55,8 @@ void ezFixedPoint<DecimalBits>::operator*=(const ezFixedPoint<DecimalBits>& rhs)
   // the lower DecimalBits Bits are nearly of no concern (we throw them away anyway), except for the upper most Bit
   // that is Bit '(DecimalBits - 1)' and its Bitmask is therefore '(1 << (DecimalBits - 1))'
   // If that Bit is set, then the lowest DecimalBits represent a value of more than '0.5' (of their range)
-  // so '(TempRes & (1 << (DecimalBits - 1))) ' is either 0 or 1 depending on whether the lower DecimalBits Bits represent a value larger than 0.5 or not
-  // we shift that Bit one to the left and add it to the original value and thus 'round up' the result
+  // so '(TempRes & (1 << (DecimalBits - 1))) ' is either 0 or 1 depending on whether the lower DecimalBits Bits represent a value larger than 0.5 or
+  // not we shift that Bit one to the left and add it to the original value and thus 'round up' the result
   TempRes += ((TempRes & (1 << (DecimalBits - 1))) << 1);
 
   TempRes >>= DecimalBits; // result format: 2N:M
@@ -141,4 +141,3 @@ ezFixedPoint<DecimalBits> operator/(const ezFixedPoint<DecimalBits>& lhs, ezInt3
   ret /= rhs;
   return ret;
 }
-

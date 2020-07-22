@@ -15,7 +15,7 @@
 #endif
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#include <conio.h>
+#  include <conio.h>
 #endif
 
 int ezTestSetup::s_argc = 0;
@@ -93,7 +93,7 @@ ezTestAppRun ezTestSetup::RunTests()
     qApp->setApplicationName(pTestFramework->GetTestName());
     ezQtTestGUI::SetDarkTheme();
   }
-  
+
   // Create main window
   {
     ezQtTestGUI mainWindow(*static_cast<ezQtTestFramework*>(pTestFramework));

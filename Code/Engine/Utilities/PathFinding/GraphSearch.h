@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Foundation/Math/Math.h>
-#include <Utilities/UtilitiesDLL.h>
 #include <Utilities/PathFinding/PathState.h>
+#include <Utilities/UtilitiesDLL.h>
 
 /// \brief Implements a directed breadth-first search through a graph (A*).
 ///
@@ -41,7 +41,7 @@ public:
   ///
   /// The path search is stopped (and thus fails) if the path reaches costs of \a fMaxPathCost or higher.
   ezResult FindPath(ezInt64 iStartNodeIndex, const PathStateType& StartState, ezInt64 iTargetNodeIndex, ezDeque<PathResultData>& out_Path,
-                    float fMaxPathCost = ezMath::Infinity<float>());
+    float fMaxPathCost = ezMath::Infinity<float>());
 
   /// \brief Searches for a path that starts at the graph node \a iStartNodeIndex with the start state \a StartState and shall terminate
   /// when a graph node is reached for which \a Callback return true.
@@ -50,8 +50,8 @@ public:
   /// Returns the path result as a list of PathResultData objects in \a out_Path.
   ///
   /// The path search is stopped (and thus fails) if the path reaches costs of \a fMaxPathCost or higher.
-  ezResult FindClosest(ezInt64 iStartNodeIndex, const PathStateType& StartState, IsSearchedObjectCallback Callback,
-                       ezDeque<PathResultData>& out_Path, float fMaxPathCost = ezMath::Infinity<float>());
+  ezResult FindClosest(ezInt64 iStartNodeIndex, const PathStateType& StartState, IsSearchedObjectCallback Callback, ezDeque<PathResultData>& out_Path,
+    float fMaxPathCost = ezMath::Infinity<float>());
 
   /// \brief Needs to be called by the used ezPathStateGenerator to add nodes to evaluate.
   void AddPathNode(ezInt64 iNodeIndex, const PathStateType& NewState);
@@ -74,4 +74,3 @@ private:
 
 
 #include <Utilities/PathFinding/Implementation/GraphSearch_inl.h>
-

@@ -32,7 +32,7 @@ namespace ezLogWriter
       ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
     }
   };
-}
+} // namespace ezLogWriter
 
 void AddLogWriter()
 {

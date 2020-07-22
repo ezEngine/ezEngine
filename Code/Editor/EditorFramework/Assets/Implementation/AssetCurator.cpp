@@ -315,7 +315,7 @@ void ezAssetCurator::MainThreadTick(bool bTopLevel)
   RunNextUpdateTask();
   ezAssetProcessor::GetSingleton()->RunNextProcessTask();
 
-  //TODO: Probably needs to be done in headless as well to make proper thumbnails
+  // TODO: Probably needs to be done in headless as well to make proper thumbnails
   if (!ezQtEditorApp::GetSingleton()->IsInHeadlessMode())
   {
     if (bTopLevel && m_bNeedToReloadResources && ezTime::Now() > m_NextReloadResources)
@@ -731,7 +731,8 @@ ezUInt64 ezAssetCurator::GetAssetReferenceHash(ezUuid assetGuid)
   return thumbHash;
 }
 
-ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetGuid, const ezPlatformProfile*, const ezAssetDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, bool bForce)
+ezAssetInfo::TransformState ezAssetCurator::IsAssetUpToDate(const ezUuid& assetGuid, const ezPlatformProfile*,
+  const ezAssetDocumentTypeDescriptor* pTypeDescriptor, ezUInt64& out_AssetHash, ezUInt64& out_ThumbHash, bool bForce)
 {
   ezAssetInfo::TransformState res = ezAssetCurator::UpdateAssetTransformState(assetGuid, out_AssetHash, out_ThumbHash, bForce);
   return res;
@@ -752,8 +753,8 @@ ezAssetInfo::TransformState ezAssetCurator::UpdateAssetTransformState(ezUuid ass
     assetGuid = pAssetInfo->m_Info->m_DocumentID;
 
     // Setting an asset to unknown actually does not change the m_TransformState but merely adds it to the m_TransformStateStale list.
-    // This is to prevent the user facing state to constantly fluctuate if something is tagged as modified but not actually changed (E.g. saving a file without modifying the content).
-    // Thus we need to check for m_TransformStateStale as well as for the set state.
+    // This is to prevent the user facing state to constantly fluctuate if something is tagged as modified but not actually changed (E.g. saving a
+    // file without modifying the content). Thus we need to check for m_TransformStateStale as well as for the set state.
     if (!bForce && pAssetInfo->m_TransformState != ezAssetInfo::Unknown && !m_TransformStateStale.Contains(assetGuid))
     {
       out_AssetHash = pAssetInfo->m_AssetHash;
@@ -809,8 +810,10 @@ ezAssetInfo::TransformState ezAssetCurator::UpdateAssetTransformState(ezUuid ass
   ezSet<ezString> missingReferences;
   // Compute final state and hashes.
   {
-    state = HashAsset(uiSettingsHash, assetTransformDependencies, runtimeDependencies, missingDependencies, missingReferences, out_AssetHash, out_ThumbHash, bForce);
-    EZ_ASSERT_DEV(state == ezAssetInfo::Unknown || state == ezAssetInfo::MissingDependency || state == ezAssetInfo::MissingReference, "Unhandled case of HashAsset return value.");
+    state = HashAsset(
+      uiSettingsHash, assetTransformDependencies, runtimeDependencies, missingDependencies, missingReferences, out_AssetHash, out_ThumbHash, bForce);
+    EZ_ASSERT_DEV(state == ezAssetInfo::Unknown || state == ezAssetInfo::MissingDependency || state == ezAssetInfo::MissingReference,
+      "Unhandled case of HashAsset return value.");
 
     if (state == ezAssetInfo::Unknown)
     {
@@ -872,8 +875,7 @@ ezAssetInfo::TransformState ezAssetCurator::UpdateAssetTransformState(ezUuid ass
   }
 }
 
-void ezAssetCurator::GetAssetTransformStats(
-  ezUInt32& out_uiNumAssets, ezHybridArray<ezUInt32, ezAssetInfo::TransformState::COUNT>& out_count)
+void ezAssetCurator::GetAssetTransformStats(ezUInt32& out_uiNumAssets, ezHybridArray<ezUInt32, ezAssetInfo::TransformState::COUNT>& out_count)
 {
   EZ_LOCK(m_CuratorMutex);
   out_count.SetCountUninitialized(ezAssetInfo::TransformState::COUNT);
@@ -904,7 +906,7 @@ ezString ezAssetCurator::FindDataDirectoryForAsset(const char* szAbsoluteAssetPa
 
 ezResult ezAssetCurator::FindBestMatchForFile(ezStringBuilder& sFile, ezArrayPtr<ezString> AllowedFileExtensions) const
 {
-  //TODO: Merge with exhaustive search in FindSubAsset
+  // TODO: Merge with exhaustive search in FindSubAsset
   sFile.MakeCleanPath();
 
   ezStringBuilder testName = sFile;
@@ -990,7 +992,7 @@ void ezAssetCurator::NotifyOfFileChange(const char* szAbsolutePath)
   ezStringBuilder sPath(szAbsolutePath);
   sPath.MakeCleanPath();
   HandleSingleFile(sPath);
-  //MainThreadTick();
+  // MainThreadTick();
 }
 
 void ezAssetCurator::NotifyOfAssetChange(const ezUuid& assetGuid)
@@ -1097,7 +1099,8 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformP
 
   const ezAssetDocumentTypeDescriptor* pTypeDesc = pAssetInfo->m_pDocumentTypeDescriptor;
 
-  EZ_ASSERT_DEV(pTypeDesc->m_pDocumentType->IsDerivedFrom<ezAssetDocument>(), "Asset document does not derive from correct base class ('{0}')", pAssetInfo->m_sDataDirRelativePath);
+  EZ_ASSERT_DEV(pTypeDesc->m_pDocumentType->IsDerivedFrom<ezAssetDocument>(), "Asset document does not derive from correct base class ('{0}')",
+    pAssetInfo->m_sDataDirRelativePath);
 
   auto assetFlags = pTypeDesc->m_AssetDocumentFlags;
 
@@ -1144,10 +1147,7 @@ ezStatus ezAssetCurator::ProcessAsset(ezAssetInfo* pAssetInfo, const ezPlatformP
   if (pDoc == nullptr)
     return ezStatus(ezFmt("Could not open asset document '{0}'", pAssetInfo->m_sDataDirRelativePath));
 
-  EZ_SCOPE_EXIT(
-    if (!pDoc->HasWindowBeenRequested() && !bWasOpen)
-      pDoc->GetDocumentManager()
-        ->CloseDocument(pDoc););
+  EZ_SCOPE_EXIT(if (!pDoc->HasWindowBeenRequested() && !bWasOpen) pDoc->GetDocumentManager()->CloseDocument(pDoc););
 
   ezStatus ret(EZ_SUCCESS);
   ezAssetDocument* pAsset = static_cast<ezAssetDocument*>(pDoc);
@@ -1757,8 +1757,7 @@ void ezAssetCurator::LoadCaches()
 
           const ezRTTI* pType = nullptr;
           ezAssetDocumentInfo* pEntry = static_cast<ezAssetDocumentInfo*>(ezReflectionSerializer::ReadObjectFromBinary(reader, pType));
-          EZ_ASSERT_DEBUG(
-            pEntry != nullptr && pType == ezGetStaticRTTI<ezAssetDocumentInfo>(), "Failed to deserialize ezAssetDocumentInfo!");
+          EZ_ASSERT_DEBUG(pEntry != nullptr && pType == ezGetStaticRTTI<ezAssetDocumentInfo>(), "Failed to deserialize ezAssetDocumentInfo!");
           m_CachedAssets.Insert(sPath, ezUniquePtr<ezAssetDocumentInfo>(pEntry, ezFoundation::GetDefaultAllocator()));
 
           ezFileStatus stat;

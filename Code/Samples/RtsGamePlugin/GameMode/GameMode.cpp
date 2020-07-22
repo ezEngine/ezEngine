@@ -156,9 +156,7 @@ void RtsGameMode::SetupSelectModeUI()
 
   pUiComponent->EnsureInitialized();
 
-  pUiComponent->GetRmlContext()->RegisterEventHandler("switchToImGui", [](Rml::Core::Event& e) {
-    s_bUseRmlUi = false;
-  });
+  pUiComponent->GetRmlContext()->RegisterEventHandler("switchToImGui", [](Rml::Core::Event& e) { s_bUseRmlUi = false; });
   pUiComponent->GetRmlContext()->RegisterEventHandler("switchMode", [](Rml::Core::Event& e) {
     auto& sValue = e.GetTargetElement()->GetId();
     if (sValue == "battle")
@@ -210,8 +208,8 @@ void RtsGameMode::DisplaySelectModeUI()
 
     ImGui::SetNextWindowPos(ImVec2(10, 10));
     ImGui::SetNextWindowSize(ImVec2(140, 130));
-    ImGui::Begin("Game Mode", nullptr,
-      ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings);
+    ImGui::Begin(
+      "Game Mode", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings);
 
     const RtsActiveGameMode mode = RtsGameState::GetSingleton()->GetActiveGameMode();
 

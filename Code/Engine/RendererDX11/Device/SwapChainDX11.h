@@ -10,11 +10,9 @@ struct IDXGISwapChain;
 class ezGALSwapChainDX11 : public ezGALSwapChain
 {
 public:
-
   EZ_ALWAYS_INLINE IDXGISwapChain* GetDXSwapChain() const;
 
 protected:
-
   friend class ezGALDeviceDX11;
   friend class ezMemoryUtils;
 

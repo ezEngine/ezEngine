@@ -62,8 +62,8 @@ template <typename PathStateType>
 void ezPathSearch<PathStateType>::AddPathNode(ezInt64 iNodeIndex, const PathStateType& NewState)
 {
   EZ_ASSERT_DEV(NewState.m_fCostToNode > m_CurState.m_fCostToNode,
-                "The costs must grow from one node to the next.\nStart Node Costs: {0}\nAdjacent Node Costs: {1}",
-                ezArgF(m_CurState.m_fCostToNode, 2), ezArgF(NewState.m_fCostToNode, 2));
+    "The costs must grow from one node to the next.\nStart Node Costs: {0}\nAdjacent Node Costs: {1}", ezArgF(m_CurState.m_fCostToNode, 2),
+    ezArgF(NewState.m_fCostToNode, 2));
   // EZ_ASSERT_DEV(NewState.m_fEstimatedCostToTarget >=  m_CurState.m_fEstimatedCostToTarget, "The estimated path costs cannot go down, the
   // heuristic must be 'optimistic' regarding to the real costs.\nEstimated Costs from Current: {0}\nEstimated Costs from Adjacent: {1}",
   // ezArgF(m_pCurPathState->m_fEstimatedCostToTarget, 2), ezArgF(NewState.m_fEstimatedCostToTarget, 2));
@@ -95,7 +95,7 @@ void ezPathSearch<PathStateType>::AddPathNode(ezInt64 iNodeIndex, const PathStat
 
 template <typename PathStateType>
 ezResult ezPathSearch<PathStateType>::FindPath(ezInt64 iStartNodeIndex, const PathStateType& StartState, ezInt64 iTargetNodeIndex,
-                                               ezDeque<PathResultData>& out_Path, float fMaxPathCost /* = Infinity */)
+  ezDeque<PathResultData>& out_Path, float fMaxPathCost /* = Infinity */)
 {
   EZ_ASSERT_DEV(m_pStateGenerator != nullptr, "No Path State Generator is set.");
 
@@ -165,8 +165,8 @@ ezResult ezPathSearch<PathStateType>::FindPath(ezInt64 iStartNodeIndex, const Pa
 
 
 template <typename PathStateType>
-ezResult ezPathSearch<PathStateType>::FindClosest(ezInt64 iStartNodeIndex, const PathStateType& StartState,
-                                                  IsSearchedObjectCallback Callback, ezDeque<PathResultData>& out_Path, float fMaxPathCost)
+ezResult ezPathSearch<PathStateType>::FindClosest(
+  ezInt64 iStartNodeIndex, const PathStateType& StartState, IsSearchedObjectCallback Callback, ezDeque<PathResultData>& out_Path, float fMaxPathCost)
 {
   EZ_ASSERT_DEV(m_pStateGenerator != nullptr, "No Path State Generator is set.");
 
@@ -217,4 +217,3 @@ ezResult ezPathSearch<PathStateType>::FindClosest(ezInt64 iStartNodeIndex, const
   m_pStateGenerator->SearchFinished(EZ_FAILURE);
   return EZ_FAILURE;
 }
-

@@ -148,7 +148,8 @@ public:
   EZ_FORCE_INLINE ezArrayPtr<T> GetSubArray(ezUInt32 uiStart, ezUInt32 uiCount) const // [tested]
   {
     // the first check is necessary to also detect errors when uiStart+uiCount would overflow
-    EZ_ASSERT_DEV(uiStart <= GetCount() && uiStart + uiCount <= GetCount(), "uiStart+uiCount ({0}) has to be smaller or equal than the count ({1}).", uiStart + uiCount, GetCount());
+    EZ_ASSERT_DEV(uiStart <= GetCount() && uiStart + uiCount <= GetCount(), "uiStart+uiCount ({0}) has to be smaller or equal than the count ({1}).",
+      uiStart + uiCount, GetCount());
     return ezArrayPtr<T>(GetPtr() + uiStart, uiCount);
   }
 
@@ -167,10 +168,7 @@ public:
   }
 
   /// \brief Reinterprets this array as a byte array.
-  EZ_ALWAYS_INLINE ezArrayPtr<ByteType> ToByteArray()
-  {
-    return ezArrayPtr<ByteType>(reinterpret_cast<ByteType*>(GetPtr()), GetCount() * sizeof(T));
-  }
+  EZ_ALWAYS_INLINE ezArrayPtr<ByteType> ToByteArray() { return ezArrayPtr<ByteType>(reinterpret_cast<ByteType*>(GetPtr()), GetCount() * sizeof(T)); }
 
 
   /// \brief Cast an ArrayPtr to an ArrayPtr to a different, but same size, type
@@ -224,8 +222,8 @@ public:
   /// \brief Copies the data from \a other into this array. The arrays must have the exact same size.
   inline void CopyFrom(const ezArrayPtr<const T>& other) // [tested]
   {
-    EZ_ASSERT_DEV(GetCount() == other.GetCount(), "Count for copy does not match. Target has {0} elements, source {1} elements", GetCount(),
-      other.GetCount());
+    EZ_ASSERT_DEV(
+      GetCount() == other.GetCount(), "Count for copy does not match. Target has {0} elements, source {1} elements", GetCount(), other.GetCount());
 
     ezMemoryUtils::Copy(static_cast<ValueType*>(GetPtr()), static_cast<const ValueType*>(other.GetPtr()), GetCount());
   }

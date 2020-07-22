@@ -53,7 +53,8 @@ void ezParticleBehaviorFactory_Raycast::CopyBehaviorProperties(ezParticleBehavio
   pBehavior->m_sOnCollideEvent = ezTempHashedString(m_sOnCollideEvent.GetData());
   pBehavior->m_fBounceFactor = m_fBounceFactor;
 
-  pBehavior->m_pPhysicsModule = (ezPhysicsWorldModuleInterface*)pBehavior->GetOwnerSystem()->GetOwnerWorldModule()->GetCachedWorldModule(ezGetStaticRTTI<ezPhysicsWorldModuleInterface>());
+  pBehavior->m_pPhysicsModule = (ezPhysicsWorldModuleInterface*)pBehavior->GetOwnerSystem()->GetOwnerWorldModule()->GetCachedWorldModule(
+    ezGetStaticRTTI<ezPhysicsWorldModuleInterface>());
 }
 
 enum class BehaviorRaycastVersion
@@ -155,7 +156,8 @@ void ezParticleBehavior_Raycast::Process(ezUInt64 uiNumElements)
 
         const float fMaxLen = vDirection.GetLengthAndNormalize();
 
-        if (m_pPhysicsModule != nullptr && m_pPhysicsModule->Raycast(hitResult, vLastPos, vDirection, fMaxLen, ezPhysicsQueryParameters(m_uiCollisionLayer)))
+        if (m_pPhysicsModule != nullptr &&
+            m_pPhysicsModule->Raycast(hitResult, vLastPos, vDirection, fMaxLen, ezPhysicsQueryParameters(m_uiCollisionLayer)))
         {
           if (m_Reaction == ezParticleRaycastHitReaction::Bounce)
           {

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <ToolsFoundation/ToolsFoundationDLL.h>
 #include <ToolsFoundation/Command/Command.h>
 #include <ToolsFoundation/Document/Document.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 
 //////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////
@@ -180,7 +180,7 @@ public: // Properties
 private:
   virtual ezStatus DoInternal(bool bRedo) override;
   virtual ezStatus UndoInternal(bool bFireEvents) override;
-  virtual void CleanupInternal(CommandState state) override { }
+  virtual void CleanupInternal(CommandState state) override {}
 
 private:
   ezDocumentObject* m_pObject;
@@ -210,7 +210,7 @@ public: // Properties
 private:
   virtual ezStatus DoInternal(bool bRedo) override;
   virtual ezStatus UndoInternal(bool bFireEvents) override;
-  virtual void CleanupInternal(CommandState state) override { }
+  virtual void CleanupInternal(CommandState state) override {}
 
 private:
   ezDocumentObject* m_pObject;
@@ -237,7 +237,7 @@ public: // Properties
 private:
   virtual ezStatus DoInternal(bool bRedo) override;
   virtual ezStatus UndoInternal(bool bFireEvents) override { return ezStatus(EZ_SUCCESS); }
-  virtual void CleanupInternal(CommandState state) override { }
+  virtual void CleanupInternal(CommandState state) override {}
 
   ezDocumentObject* m_pObject;
 };
@@ -262,7 +262,7 @@ public: // Properties
 private:
   virtual ezStatus DoInternal(bool bRedo) override;
   virtual ezStatus UndoInternal(bool bFireEvents) override;
-  virtual void CleanupInternal(CommandState state) override { }
+  virtual void CleanupInternal(CommandState state) override {}
 
 private:
   ezDocumentObject* m_pObject;
@@ -287,7 +287,7 @@ public: // Properties
 private:
   virtual ezStatus DoInternal(bool bRedo) override;
   virtual ezStatus UndoInternal(bool bFireEvents) override;
-  virtual void CleanupInternal(CommandState state) override { }
+  virtual void CleanupInternal(CommandState state) override {}
 
 private:
   ezDocumentObject* m_pObject;
@@ -314,7 +314,7 @@ public: // Properties
 private:
   virtual ezStatus DoInternal(bool bRedo) override;
   virtual ezStatus UndoInternal(bool bFireEvents) override;
-  virtual void CleanupInternal(CommandState state) override { }
+  virtual void CleanupInternal(CommandState state) override {}
 
 private:
   ezDocumentObject* m_pObject;

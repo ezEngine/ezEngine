@@ -28,13 +28,13 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezBloomPass::ezBloomPass()
-    : ezRenderPipelinePass("BloomPass")
-    , m_fRadius(0.2f)
-    , m_fThreshold(1.0f)
-    , m_fIntensity(0.3f)
-    , m_innerTintColor(ezColor::White)
-    , m_midTintColor(ezColor::White)
-    , m_outerTintColor(ezColor::White)
+  : ezRenderPipelinePass("BloomPass")
+  , m_fRadius(0.2f)
+  , m_fThreshold(1.0f)
+  , m_fIntensity(0.3f)
+  , m_innerTintColor(ezColor::White)
+  , m_midTintColor(ezColor::White)
+  , m_outerTintColor(ezColor::White)
 {
   {
     // Load shader.
@@ -53,8 +53,8 @@ ezBloomPass::~ezBloomPass()
   m_hConstantBuffer.Invalidate();
 }
 
-bool ezBloomPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
-                                              ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezBloomPass::GetRenderTargetDescriptions(
+  const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   // Color
   if (inputs[m_PinInput.m_uiInputIndex])
@@ -83,7 +83,7 @@ bool ezBloomPass::GetRenderTargetDescriptions(const ezView& view, const ezArrayP
 }
 
 void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-                          const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   auto pColorInput = inputs[m_PinInput.m_uiInputIndex];
   auto pColorOutput = outputs[m_PinOutput.m_uiOutputIndex];
@@ -118,13 +118,13 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
     auto uiSliceCount = pColorOutput->m_Desc.m_uiArraySize;
 
     tempDownscaleTextures.PushBack(ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(
-        uiWidth, uiHeight, ezGALResourceFormat::RG11B10Float, ezGALMSAASampleCount::None, uiSliceCount));
+      uiWidth, uiHeight, ezGALResourceFormat::RG11B10Float, ezGALMSAASampleCount::None, uiSliceCount));
 
     // biggest upscale target is the output and lowest is not needed
     if (i > 0 && i < uiNumBlurPasses - 1)
     {
       tempUpscaleTextures.PushBack(ezGPUResourcePool::GetDefaultInstance()->GetRenderTarget(
-          uiWidth, uiHeight, ezGALResourceFormat::RG11B10Float, ezGALMSAASampleCount::None, uiSliceCount));
+        uiWidth, uiHeight, ezGALResourceFormat::RG11B10Float, ezGALMSAASampleCount::None, uiSliceCount));
     }
     else
     {
@@ -134,8 +134,7 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
 
   renderViewContext.m_pRenderContext->BindConstantBuffer("ezBloomConstants", m_hConstantBuffer);
   renderViewContext.m_pRenderContext->BindShader(m_hShader);
-  renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles,
-                                                     1);
+  renderViewContext.m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
 
   ezGALRenderTargetSetup renderTargetSetup;
 
@@ -154,8 +153,8 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
       if (i == 0)
       {
         hInput = pColorInput->m_TextureHandle;
-        renderViewContext.m_pRenderContext->SetShaderPermutationVariable("BLOOM_PASS_MODE",
-                                                                         bFastDownscale ? sInitialDownscaleFast : sInitialDownscale);
+        renderViewContext.m_pRenderContext->SetShaderPermutationVariable(
+          "BLOOM_PASS_MODE", bFastDownscale ? sInitialDownscaleFast : sInitialDownscale);
       }
       else
       {
@@ -255,9 +254,8 @@ void ezBloomPass::Execute(const ezRenderViewContext& renderViewContext, const ez
   }
 }
 
-void ezBloomPass::ExecuteInactive(const ezRenderViewContext& renderViewContext,
-                                  const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-                                  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+void ezBloomPass::ExecuteInactive(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
+  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   auto pColorOutput = outputs[m_PinOutput.m_uiOutputIndex];
   if (pColorOutput == nullptr)
@@ -288,4 +286,3 @@ void ezBloomPass::UpdateConstantBuffer(ezVec2 pixelSize, const ezColor& tintColo
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_BloomPass);
-

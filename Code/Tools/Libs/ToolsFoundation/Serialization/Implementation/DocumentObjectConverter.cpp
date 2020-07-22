@@ -21,8 +21,7 @@ ezAbstractObjectNode* ezDocumentObjectConverterWriter::AddObjectToGraph(const ez
   return pNode;
 }
 
-void ezDocumentObjectConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbstractProperty* pProp,
-  const ezDocumentObject* pObject)
+void ezDocumentObjectConverterWriter::AddProperty(ezAbstractObjectNode* pNode, const ezAbstractProperty* pProp, const ezDocumentObject* pObject)
 {
   if (m_Filter.IsValid() && !m_Filter(pProp))
     return;
@@ -144,8 +143,7 @@ ezAbstractObjectNode* ezDocumentObjectConverterWriter::AddSubObjectToGraph(const
 
 
 
-ezDocumentObjectConverterReader::ezDocumentObjectConverterReader(const ezAbstractObjectGraph* pGraph, ezDocumentObjectManager* pManager,
-  Mode mode)
+ezDocumentObjectConverterReader::ezDocumentObjectConverterReader(const ezAbstractObjectGraph* pGraph, ezDocumentObjectManager* pManager, Mode mode)
 {
   m_pManager = pManager;
   m_pGraph = pGraph;
@@ -173,12 +171,10 @@ ezDocumentObject* ezDocumentObjectConverterReader::CreateObjectFromNode(const ez
   return pObject;
 }
 
-void ezDocumentObjectConverterReader::AddObject(ezDocumentObject* pObject, ezDocumentObject* pParent, const char* szParentProperty,
-  ezVariant index)
+void ezDocumentObjectConverterReader::AddObject(ezDocumentObject* pObject, ezDocumentObject* pParent, const char* szParentProperty, ezVariant index)
 {
   EZ_ASSERT_DEV(pObject && pParent, "Need to have valid objects to add them to the document");
-  if (m_Mode == ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument &&
-      pParent->GetDocumentObjectManager()->GetObject(pParent->GetGuid()))
+  if (m_Mode == ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument && pParent->GetDocumentObjectManager()->GetObject(pParent->GetGuid()))
   {
     m_pManager->AddObject(pObject, pParent, szParentProperty, index);
   }
@@ -204,8 +200,8 @@ void ezDocumentObjectConverterReader::ApplyPropertiesToObject(const ezAbstractOb
   }
 }
 
-void ezDocumentObjectConverterReader::ApplyDiffToObject(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pObject,
-  ezDeque<ezAbstractGraphDiffOperation>& diff)
+void ezDocumentObjectConverterReader::ApplyDiffToObject(
+  ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pObject, ezDeque<ezAbstractGraphDiffOperation>& diff)
 {
   ezHybridArray<ezAbstractGraphDiffOperation*, 4> change;
 
@@ -231,9 +227,8 @@ void ezDocumentObjectConverterReader::ApplyDiffToObject(ezObjectAccessorBase* pO
   }
 }
 
-void ezDocumentObjectConverterReader::ApplyDiff(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pObject,
-  ezAbstractProperty* pProp, ezAbstractGraphDiffOperation& op,
-  ezDeque<ezAbstractGraphDiffOperation>& diff)
+void ezDocumentObjectConverterReader::ApplyDiff(ezObjectAccessorBase* pObjectAccessor, const ezDocumentObject* pObject, ezAbstractProperty* pProp,
+  ezAbstractGraphDiffOperation& op, ezDeque<ezAbstractGraphDiffOperation>& diff)
 {
   ezStringBuilder sTemp;
 
@@ -409,8 +404,8 @@ void ezDocumentObjectConverterReader::ApplyDiff(ezObjectAccessorBase* pObjectAcc
   }
 }
 
-void ezDocumentObjectConverterReader::ApplyProperty(ezDocumentObject* pObject, ezAbstractProperty* pProp,
-  const ezAbstractObjectNode::Property* pSource)
+void ezDocumentObjectConverterReader::ApplyProperty(
+  ezDocumentObject* pObject, ezAbstractProperty* pProp, const ezAbstractObjectNode::Property* pSource)
 {
   ezStringBuilder sTemp;
 

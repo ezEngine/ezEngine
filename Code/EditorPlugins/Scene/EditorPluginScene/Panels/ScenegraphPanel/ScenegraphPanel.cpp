@@ -23,10 +23,10 @@ namespace
     pModel->AddAdapter(new ezQtGameObjectAdapter(pDocument));
     return std::move(pModel);
   }
-}
+} // namespace
 
 ezQtScenegraphPanel::ezQtScenegraphPanel(QWidget* pParent, ezSceneDocument* pDocument)
-    : ezQtGameObjectPanel(pParent, pDocument, "EditorPluginScene_ScenegraphContextMenu", CreateSceneTreeModel(pDocument))
+  : ezQtGameObjectPanel(pParent, pDocument, "EditorPluginScene_ScenegraphContextMenu", CreateSceneTreeModel(pDocument))
 {
   setObjectName("ScenegraphPanel");
   setWindowTitle("Scenegraph");

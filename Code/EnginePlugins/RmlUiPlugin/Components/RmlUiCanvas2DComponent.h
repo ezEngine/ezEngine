@@ -9,7 +9,8 @@ class ezRmlUiContext;
 
 using ezRmlUiResourceHandle = ezTypedResourceHandle<class ezRmlUiResource>;
 
-using ezRmlUiCanvas2DComponentManager = ezComponentManagerSimple<class ezRmlUiCanvas2DComponent, ezComponentUpdateType::Always, ezBlockStorageType::Compact>;
+using ezRmlUiCanvas2DComponentManager =
+  ezComponentManagerSimple<class ezRmlUiCanvas2DComponent, ezComponentUpdateType::Always, ezBlockStorageType::Compact>;
 
 class EZ_RMLUIPLUGIN_DLL ezRmlUiCanvas2DComponent : public ezRenderComponent
 {

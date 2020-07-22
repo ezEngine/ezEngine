@@ -161,17 +161,17 @@ void ezMat3Template<Type>::SetRotationMatrix(const ezVec3Template<Type>& vAxis, 
   const Type onecos_xz = oneminuscos * xz;
   const Type onecos_yz = oneminuscos * yz;
 
-  //Column 1
+  // Column 1
   Element(0, 0) = cos + (oneminuscos * (vAxis.x * vAxis.x));
   Element(0, 1) = onecos_xy + zsin;
   Element(0, 2) = onecos_xz - ysin;
 
-  //Column 2  )
+  // Column 2  )
   Element(1, 0) = onecos_xy - zsin;
   Element(1, 1) = cos + (oneminuscos * (vAxis.y * vAxis.y));
   Element(1, 2) = onecos_yz + xsin;
 
-  //Column 3  )
+  // Column 3  )
   Element(2, 0) = onecos_xz + ysin;
   Element(2, 1) = onecos_yz - xsin;
   Element(2, 2) = cos + (oneminuscos * (vAxis.z * vAxis.z));
@@ -228,25 +228,25 @@ void ezMat4Template<Type>::SetRotationMatrix(const ezVec3Template<Type>& vAxis, 
   const Type onecos_xz = oneminuscos * xz;
   const Type onecos_yz = oneminuscos * yz;
 
-  //Column 1
+  // Column 1
   Element(0, 0) = cos + (oneminuscos * (vAxis.x * vAxis.x));
   Element(0, 1) = onecos_xy + zsin;
   Element(0, 2) = onecos_xz - ysin;
   Element(0, 3) = 0;
 
-  //Column 2
+  // Column 2
   Element(1, 0) = onecos_xy - zsin;
   Element(1, 1) = cos + (oneminuscos * (vAxis.y * vAxis.y));
   Element(1, 2) = onecos_yz + xsin;
   Element(1, 3) = 0;
 
-  //Column 3
+  // Column 3
   Element(2, 0) = onecos_xz + ysin;
   Element(2, 1) = onecos_yz - xsin;
   Element(2, 2) = cos + (oneminuscos * (vAxis.z * vAxis.z));
   Element(2, 3) = 0;
 
-  //Column 4
+  // Column 4
   Element(3, 0) = 0;
   Element(3, 1) = 0;
   Element(3, 2) = 0;

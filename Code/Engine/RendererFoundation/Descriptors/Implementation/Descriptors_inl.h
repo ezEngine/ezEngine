@@ -23,8 +23,8 @@ inline bool ezGALShaderCreationDescription::HasByteCodeForStage(ezGALShaderStage
   return m_ByteCodes[Stage] != nullptr && m_ByteCodes[Stage]->IsValid();
 }
 
-inline void ezGALTextureCreationDescription::SetAsRenderTarget(ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum format,
-  ezGALMSAASampleCount::Enum sampleCount /*= ezGALMSAASampleCount::None*/)
+inline void ezGALTextureCreationDescription::SetAsRenderTarget(
+  ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum format, ezGALMSAASampleCount::Enum sampleCount /*= ezGALMSAASampleCount::None*/)
 {
   m_uiWidth = uiWidth;
   m_uiHeight = uiHeight;
@@ -43,7 +43,8 @@ inline void ezGALTextureCreationDescription::SetAsRenderTarget(ezUInt32 uiWidth,
   m_pExisitingNativeObject = nullptr;
 }
 
-EZ_FORCE_INLINE ezGALVertexAttribute::ezGALVertexAttribute(ezGALVertexAttributeSemantic::Enum eSemantic, ezGALResourceFormat::Enum eFormat, ezUInt16 uiOffset, ezUInt8 uiVertexBufferSlot, bool bInstanceData)
+EZ_FORCE_INLINE ezGALVertexAttribute::ezGALVertexAttribute(
+  ezGALVertexAttributeSemantic::Enum eSemantic, ezGALResourceFormat::Enum eFormat, ezUInt16 uiOffset, ezUInt8 uiVertexBufferSlot, bool bInstanceData)
   : m_eSemantic(eSemantic)
   , m_eFormat(eFormat)
   , m_uiOffset(uiOffset)

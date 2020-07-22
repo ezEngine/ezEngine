@@ -39,8 +39,7 @@ template <ezUInt32 BlockSizeInByte>
 class ezLargeBlockAllocator
 {
 public:
-  ezLargeBlockAllocator(const char* szName, ezAllocatorBase* pParent,
-                        ezBitflags<ezMemoryTrackingFlags> flags = ezMemoryTrackingFlags::Default);
+  ezLargeBlockAllocator(const char* szName, ezAllocatorBase* pParent, ezBitflags<ezMemoryTrackingFlags> flags = ezMemoryTrackingFlags::Default);
   ~ezLargeBlockAllocator();
 
   template <typename T>
@@ -86,4 +85,3 @@ private:
 };
 
 #include <Foundation/Memory/Implementation/LargeBlockAllocator_inl.h>
-

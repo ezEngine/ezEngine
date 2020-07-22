@@ -5,13 +5,13 @@ EZ_FOUNDATION_INTERNAL_HEADER
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
 
-#include <Foundation/Basics.h>
-#include <Foundation/Strings/String.h>
+#  include <Foundation/Basics.h>
+#  include <Foundation/Strings/String.h>
 
-#include <Windows.ApplicationModel.core.h>
-#include <Windows.Applicationmodel.h>
+#  include <Windows.ApplicationModel.core.h>
+#  include <Windows.Applicationmodel.h>
 
-#include <Foundation/Basics/Platform/uwp/UWPUtils.h>
+#  include <Foundation/Basics/Platform/uwp/UWPUtils.h>
 
 using namespace ABI::Windows::ApplicationModel::Core;
 using namespace ABI::Windows::ApplicationModel::Activation;
@@ -44,4 +44,3 @@ private:
 };
 
 #endif
-

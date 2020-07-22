@@ -1,7 +1,7 @@
 #include <GameEnginePCH.h>
 
-#include <GameEngine/Configuration/XRConfig.h>
 #include <Foundation/IO/ChunkStream.h>
+#include <GameEngine/Configuration/XRConfig.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezXRConfig, 2, ezRTTIDefaultAllocator<ezXRConfig>)
@@ -67,4 +67,3 @@ public:
 ezVRConfig_1_2 g_ezVRConfig_1_2;
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Configuration_Implementation_XRConfigs);
-

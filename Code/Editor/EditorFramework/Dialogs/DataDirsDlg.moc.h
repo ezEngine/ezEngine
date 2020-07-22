@@ -1,9 +1,9 @@
 #pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
-#include <QDialog>
 #include <EditorFramework/ui_DataDirsDlg.h>
 #include <Foundation/Application/Config/FileSystemConfig.h>
+#include <QDialog>
 
 class EZ_EDITORFRAMEWORK_DLL ezQtDataDirsDlg : public QDialog, public Ui_ezQtDataDirsDlg
 {
@@ -30,5 +30,3 @@ private:
   ezInt32 m_iSelection;
   ezApplicationFileSystemConfig m_Config;
 };
-
-

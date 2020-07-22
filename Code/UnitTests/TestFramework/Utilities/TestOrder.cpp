@@ -276,4 +276,3 @@ void LoadTestSettings(const char* szFile, TestSettings& testSettings)
 }
 
 EZ_STATICLINK_FILE(TestFramework, TestFramework_Utilities_TestOrder);
-

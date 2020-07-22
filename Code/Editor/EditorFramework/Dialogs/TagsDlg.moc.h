@@ -2,9 +2,9 @@
 
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/ui_TagsDlg.h>
+#include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
 #include <QDialog>
-#include <Foundation/Containers/Map.h>
 #include <ToolsFoundation/Settings/ToolsTagRegistry.h>
 
 class EZ_EDITORFRAMEWORK_DLL ezQtTagsDlg : public QDialog, public Ui_ezQtTagsDlg
@@ -34,7 +34,4 @@ private:
 
   ezHybridArray<ezToolsTag, 32> m_Tags;
   ezMap<ezString, QTreeWidgetItem*> m_CategoryToItem;
-
 };
-
-

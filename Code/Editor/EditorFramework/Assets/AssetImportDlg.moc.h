@@ -1,9 +1,9 @@
 #pragma once
 
+#include <EditorFramework/Assets/AssetDocumentGenerator.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/ui_AssetImportDlg.h>
 #include <QDialog>
-#include <EditorFramework/Assets/AssetDocumentGenerator.h>
 
 class ezQtAssetImportDlg : public QDialog, public Ui_AssetImportDlg
 {

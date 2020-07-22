@@ -20,4 +20,3 @@ EZ_STATICLINK_LIBRARY(TestFramework)
   EZ_STATICLINK_REFERENCE(TestFramework_Utilities_TestOrder);
   EZ_STATICLINK_REFERENCE(TestFramework_Utilities_TestSetup);
 }
-

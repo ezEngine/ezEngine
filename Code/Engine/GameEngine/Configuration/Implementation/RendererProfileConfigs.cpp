@@ -78,4 +78,3 @@ void ezRenderPipelineProfileConfig::LoadRuntimeData(ezChunkStreamReader& stream)
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Configuration_Implementation_RendererProfileConfigs);
-

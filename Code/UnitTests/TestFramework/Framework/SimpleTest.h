@@ -11,7 +11,7 @@ public:
   typedef void (*SimpleTestFunc)();
 
   ezSimpleTestGroup(const char* szName)
-      : m_szTestName(szName)
+    : m_szTestName(szName)
   {
   }
 
@@ -58,10 +58,9 @@ private:
 
 #define EZ_CREATE_SIMPLE_TEST_GROUP(GroupName) ezSimpleTestGroup EZ_CONCAT(g_SimpleTestGroup__, GroupName)(EZ_STRINGIZE(GroupName));
 
-#define EZ_CREATE_SIMPLE_TEST(GroupName, TestName)                                                                                         \
-  extern ezSimpleTestGroup EZ_CONCAT(g_SimpleTestGroup__, GroupName);                                                                      \
-  static void ezSimpleTestFunction__##GroupName##_##TestName();                                                                            \
-  ezRegisterSimpleTestHelper ezRegisterSimpleTest__##GroupName##TestName(                                                                  \
-      &EZ_CONCAT(g_SimpleTestGroup__, GroupName), EZ_STRINGIZE(TestName), ezSimpleTestFunction__##GroupName##_##TestName);                 \
+#define EZ_CREATE_SIMPLE_TEST(GroupName, TestName)                                                                                                   \
+  extern ezSimpleTestGroup EZ_CONCAT(g_SimpleTestGroup__, GroupName);                                                                                \
+  static void ezSimpleTestFunction__##GroupName##_##TestName();                                                                                      \
+  ezRegisterSimpleTestHelper ezRegisterSimpleTest__##GroupName##TestName(                                                                            \
+    &EZ_CONCAT(g_SimpleTestGroup__, GroupName), EZ_STRINGIZE(TestName), ezSimpleTestFunction__##GroupName##_##TestName);                             \
   static void ezSimpleTestFunction__##GroupName##_##TestName()
-

@@ -31,4 +31,3 @@ EZ_END_SUBSYSTEM_DECLARATION;
 // clang-format on
 
 EZ_STATICLINK_FILE(Core, Core_Input_Implementation_Startup);
-

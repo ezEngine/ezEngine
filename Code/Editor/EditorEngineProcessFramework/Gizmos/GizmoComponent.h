@@ -28,7 +28,7 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezGizmoComponent : public ezMeshCompon
 
   //////////////////////////////////////////////////////////////////////////
   // ezMeshComponentBase
-  
+
 protected:
   virtual ezMeshRenderData* CreateRenderData() const override;
 
@@ -44,4 +44,3 @@ public:
   bool m_bUseDepthPrepass = false;
   bool m_bIsPickable = true;
 };
-

@@ -246,7 +246,7 @@ namespace
       }
     }
   }
-}
+} // namespace
 
 ezShaderTypeRegistry::ezShaderTypeRegistry()
   : m_SingletonRegistrar(this)
@@ -291,7 +291,8 @@ const ezRTTI* ezShaderTypeRegistry::GetShaderType(const char* szShaderPath)
   if (it.IsValid())
   {
     ezFileStats Stats;
-    if (ezOSFile::GetFileStats(it.Value().m_sAbsShaderPath, Stats).Succeeded() && !Stats.m_LastModificationTime.Compare(it.Value().m_fileModifiedTime, ezTimestamp::CompareMode::FileTimeEqual))
+    if (ezOSFile::GetFileStats(it.Value().m_sAbsShaderPath, Stats).Succeeded() &&
+        !Stats.m_LastModificationTime.Compare(it.Value().m_fileModifiedTime, ezTimestamp::CompareMode::FileTimeEqual))
     {
       UpdateShaderType(it.Value());
     }

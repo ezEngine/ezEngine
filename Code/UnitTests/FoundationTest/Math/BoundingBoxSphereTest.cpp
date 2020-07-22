@@ -41,7 +41,12 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBoxSphere)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetFromPoints")
   {
     ezVec3T p[6] = {
-        ezVec3T(-4, 0, 0), ezVec3T(5, 0, 0), ezVec3T(0, -6, 0), ezVec3T(0, 7, 0), ezVec3T(0, 0, -8), ezVec3T(0, 0, 9),
+      ezVec3T(-4, 0, 0),
+      ezVec3T(5, 0, 0),
+      ezVec3T(0, -6, 0),
+      ezVec3T(0, 7, 0),
+      ezVec3T(0, 0, -8),
+      ezVec3T(0, 0, 9),
     };
 
     ezBoundingBoxSphereT b;

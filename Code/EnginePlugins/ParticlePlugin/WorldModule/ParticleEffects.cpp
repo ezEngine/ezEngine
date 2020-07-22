@@ -5,10 +5,8 @@
 #include <ParticlePlugin/WorldModule/ParticleWorldModule.h>
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
-ezParticleEffectHandle ezParticleWorldModule::InternalCreateEffectInstance(const ezParticleEffectResourceHandle& hResource,
-  ezUInt64 uiRandomSeed, bool bIsShared,
-  ezArrayPtr<ezParticleEffectFloatParam> floatParams,
-  ezArrayPtr<ezParticleEffectColorParam> colorParams)
+ezParticleEffectHandle ezParticleWorldModule::InternalCreateEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed,
+  bool bIsShared, ezArrayPtr<ezParticleEffectFloatParam> floatParams, ezArrayPtr<ezParticleEffectColorParam> colorParams)
 {
   EZ_LOCK(m_Mutex);
 
@@ -30,9 +28,8 @@ ezParticleEffectHandle ezParticleWorldModule::InternalCreateEffectInstance(const
   return hEffectHandle;
 }
 
-ezParticleEffectHandle ezParticleWorldModule::InternalCreateSharedEffectInstance(const char* szSharedName,
-  const ezParticleEffectResourceHandle& hResource,
-  ezUInt64 uiRandomSeed, const void* pSharedInstanceOwner)
+ezParticleEffectHandle ezParticleWorldModule::InternalCreateSharedEffectInstance(
+  const char* szSharedName, const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed, const void* pSharedInstanceOwner)
 {
   EZ_LOCK(m_Mutex);
 
@@ -50,8 +47,8 @@ ezParticleEffectHandle ezParticleWorldModule::InternalCreateSharedEffectInstance
 
   if (!pEffect)
   {
-    it.Value() = InternalCreateEffectInstance(hResource, uiRandomSeed, true, ezArrayPtr<ezParticleEffectFloatParam>(),
-      ezArrayPtr<ezParticleEffectColorParam>());
+    it.Value() =
+      InternalCreateEffectInstance(hResource, uiRandomSeed, true, ezArrayPtr<ezParticleEffectFloatParam>(), ezArrayPtr<ezParticleEffectColorParam>());
     TryGetEffectInstance(it.Value(), pEffect);
   }
 
@@ -63,8 +60,7 @@ ezParticleEffectHandle ezParticleWorldModule::InternalCreateSharedEffectInstance
 
 
 ezParticleEffectHandle ezParticleWorldModule::CreateEffectInstance(const ezParticleEffectResourceHandle& hResource, ezUInt64 uiRandomSeed,
-  const char* szSharedName, const void*& inout_pSharedInstanceOwner,
-  ezArrayPtr<ezParticleEffectFloatParam> floatParams,
+  const char* szSharedName, const void*& inout_pSharedInstanceOwner, ezArrayPtr<ezParticleEffectFloatParam> floatParams,
   ezArrayPtr<ezParticleEffectColorParam> colorParams)
 {
   EZ_ASSERT_DEBUG(hResource.IsValid(), "Invalid Particle Effect resource handle");

@@ -42,7 +42,8 @@ ezTypeScriptAssetDocumentManager::ezTypeScriptAssetDocumentManager()
 
   ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezTypeScriptAssetDocumentManager::ToolsProjectEventHandler, this));
 
-  ezGameObjectDocument::s_GameObjectDocumentEvents.AddEventHandler(ezMakeDelegate(&ezTypeScriptAssetDocumentManager::GameObjectDocumentEventHandler, this));
+  ezGameObjectDocument::s_GameObjectDocumentEvents.AddEventHandler(
+    ezMakeDelegate(&ezTypeScriptAssetDocumentManager::GameObjectDocumentEventHandler, this));
 
   // make sure the preferences exist
   ezPreferences::QueryPreferences<ezTypeScriptPreferences>();
@@ -56,7 +57,8 @@ ezTypeScriptAssetDocumentManager::~ezTypeScriptAssetDocumentManager()
 
   ezDocumentManager::s_Events.RemoveEventHandler(ezMakeDelegate(&ezTypeScriptAssetDocumentManager::OnDocumentManagerEvent, this));
 
-  ezGameObjectDocument::s_GameObjectDocumentEvents.RemoveEventHandler(ezMakeDelegate(&ezTypeScriptAssetDocumentManager::GameObjectDocumentEventHandler, this));
+  ezGameObjectDocument::s_GameObjectDocumentEvents.RemoveEventHandler(
+    ezMakeDelegate(&ezTypeScriptAssetDocumentManager::GameObjectDocumentEventHandler, this));
 }
 
 void ezTypeScriptAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::Event& e)
@@ -67,8 +69,7 @@ void ezTypeScriptAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMa
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezTypeScriptAssetDocument>())
       {
-        ezQtTypeScriptAssetDocumentWindow* pDocWnd =
-          new ezQtTypeScriptAssetDocumentWindow(static_cast<ezTypeScriptAssetDocument*>(e.m_pDocument));
+        ezQtTypeScriptAssetDocumentWindow* pDocWnd = new ezQtTypeScriptAssetDocumentWindow(static_cast<ezTypeScriptAssetDocument*>(e.m_pDocument));
       }
     }
     break;
@@ -78,7 +79,8 @@ void ezTypeScriptAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentMa
   }
 }
 
-void ezTypeScriptAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezTypeScriptAssetDocumentManager::InternalCreateDocument(
+  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezTypeScriptAssetDocument(szPath);
 }
@@ -149,7 +151,7 @@ void ezTypeScriptAssetDocumentManager::ModifyTsBeforeTranspilation(ezStringBuild
     const char* szClassAG = content.FindLastSubString("class", szBeginAG);
     if (szClassAG == nullptr)
     {
-      //return ezStatus(ezFmt("'{}' tag is incorrectly placed.", szBeginAG));
+      // return ezStatus(ezFmt("'{}' tag is incorrectly placed.", szBeginAG));
       return;
     }
 
@@ -170,7 +172,7 @@ void ezTypeScriptAssetDocumentManager::ModifyTsBeforeTranspilation(ezStringBuild
 
       if (sClassName.IsEmpty())
       {
-        //return ezStatus("Message class name not found.");
+        // return ezStatus("Message class name not found.");
         return;
       }
 

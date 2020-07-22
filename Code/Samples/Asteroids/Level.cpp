@@ -1,19 +1,19 @@
-#include <Core/ResourceManager/ResourceManager.h>
-#include <Core/Graphics/Geometry.h>
-#include <Core/Graphics/Camera.h>
-#include <Core/Input/InputManager.h>
-#include <Foundation/Logging/Log.h>
-#include <RendererCore/Meshes/MeshComponent.h>
-#include <RendererCore/Meshes/MeshResourceDescriptor.h>
 #include "Level.h"
-#include "ShipComponent.h"
-#include "ProjectileComponent.h"
 #include "AsteroidComponent.h"
 #include "CollidableComponent.h"
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <RendererCore/Lights/DirectionalLightComponent.h>
-#include <RendererCore/Lights/AmbientLightComponent.h>
+#include "ProjectileComponent.h"
+#include "ShipComponent.h"
 #include <Core/Collection/CollectionResource.h>
+#include <Core/Graphics/Camera.h>
+#include <Core/Graphics/Geometry.h>
+#include <Core/Input/InputManager.h>
+#include <Core/ResourceManager/ResourceManager.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/Logging/Log.h>
+#include <RendererCore/Lights/AmbientLightComponent.h>
+#include <RendererCore/Lights/DirectionalLightComponent.h>
+#include <RendererCore/Meshes/MeshComponent.h>
+#include <RendererCore/Meshes/MeshResourceDescriptor.h>
 
 extern const char* szPlayerActions[MaxPlayerActions];
 
@@ -75,8 +75,8 @@ void Level::UpdatePlayerInput(ezInt32 iPlayer)
 
   ezVec3 vVelocity(0.0f);
 
-  //const ezQuat qRot = pShip->GetLocalRotation();
-  //const ezVec3 vShipDir = qRot * ezVec3(0, 1, 0);
+  // const ezQuat qRot = pShip->GetLocalRotation();
+  // const ezVec3 vShipDir = qRot * ezVec3(0, 1, 0);
 
   ezStringBuilder sControls[MaxPlayerActions];
 
@@ -86,29 +86,29 @@ void Level::UpdatePlayerInput(ezInt32 iPlayer)
 
   if (ezInputManager::GetInputActionState("Game", sControls[0].GetData(), &fVal) != ezKeyState::Up)
   {
-    //ezVec3 vPos = pShip->GetLocalPosition();
-    //vVelocity += 0.1f * vShipDir * fVal;
+    // ezVec3 vPos = pShip->GetLocalPosition();
+    // vVelocity += 0.1f * vShipDir * fVal;
     vVelocity += 0.1f * ezVec3(0, 1, 0) * fVal * 60.0f;
   }
 
   if (ezInputManager::GetInputActionState("Game", sControls[1].GetData(), &fVal) != ezKeyState::Up)
   {
-    //ezVec3 vPos = pShip->GetLocalPosition();
-    //vVelocity -= 0.1f * vShipDir * fVal;
+    // ezVec3 vPos = pShip->GetLocalPosition();
+    // vVelocity -= 0.1f * vShipDir * fVal;
     vVelocity += 0.1f * ezVec3(0, -1, 0) * fVal * 60.0f;
   }
 
   if (ezInputManager::GetInputActionState("Game", sControls[2].GetData(), &fVal) != ezKeyState::Up)
   {
-    //ezVec3 vPos = pShip->GetLocalPosition();
-    //vVelocity += 0.1f * vShipDir * fVal;
+    // ezVec3 vPos = pShip->GetLocalPosition();
+    // vVelocity += 0.1f * vShipDir * fVal;
     vVelocity += 0.1f * ezVec3(-1, 0, 0) * fVal * 60.0f;
   }
 
   if (ezInputManager::GetInputActionState("Game", sControls[3].GetData(), &fVal) != ezKeyState::Up)
   {
-    //ezVec3 vPos = pShip->GetLocalPosition();
-    //vVelocity -= 0.1f * vShipDir * fVal;
+    // ezVec3 vPos = pShip->GetLocalPosition();
+    // vVelocity -= 0.1f * vShipDir * fVal;
     vVelocity += 0.1f * ezVec3(1, 0, 0) * fVal * 60.0f;
   }
 
@@ -206,5 +206,3 @@ void Level::CreateAsteroid()
     pCollidableComponent->m_fCollisionRadius = desc.m_LocalScaling.x;
   }
 }
-
-

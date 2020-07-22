@@ -48,8 +48,7 @@ private:
   ezStatus InsertPropertyValues(const ezDocumentObject* pNode, const ezVisualShaderNodeDescriptor* pDesc, ezStringBuilder& sString);
   ezStatus GenerateOutputPinCode(const ezDocumentObject* pOwnerNode, const ezPin* pPinSource);
 
-  ezStatus ReplaceInputPinsByCode(const ezDocumentObject* pOwnerNode, const ezVisualShaderNodeDescriptor* pNodeDesc,
-                                  ezStringBuilder& sInlineCode);
+  ezStatus ReplaceInputPinsByCode(const ezDocumentObject* pOwnerNode, const ezVisualShaderNodeDescriptor* pNodeDesc, ezStringBuilder& sInlineCode);
   void SetPinDefines(const ezDocumentObject* pOwnerNode, ezStringBuilder& sInlineCode);
   static void AppendStringIfUnique(ezStringBuilder& inout_String, const char* szAppend);
 

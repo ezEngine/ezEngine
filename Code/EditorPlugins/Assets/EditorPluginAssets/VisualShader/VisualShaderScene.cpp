@@ -9,7 +9,7 @@
 
 
 ezQtVisualShaderScene::ezQtVisualShaderScene(QObject* parent)
-    : ezQtNodeScene(parent)
+  : ezQtNodeScene(parent)
 {
 }
 

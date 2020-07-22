@@ -1,9 +1,9 @@
 #pragma once
 
-#include <ToolsFoundation/ToolsFoundationDLL.h>
+#include <Core/World/GameObject.h>
 #include <EditorEngineProcessFramework/IPC/SyncObject.h>
 #include <Foundation/Math/Mat4.h>
-#include <Core/World/GameObject.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 
 class ezWorld;
 class ezGizmoComponent;
@@ -64,7 +64,8 @@ public:
   ezEngineGizmoHandle();
   ~ezEngineGizmoHandle();
 
-  void Configure(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col, bool bConstantSize = true, bool bAlwaysOnTop = false, bool bVisualizer = false, bool bShowInOrtho = false, bool bIsPickable = true);
+  void Configure(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col, bool bConstantSize = true, bool bAlwaysOnTop = false,
+    bool bVisualizer = false, bool bShowInOrtho = false, bool bIsPickable = true);
 
   virtual bool SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextComponentPickingID) override;
   virtual void UpdateForEngine(ezWorld* pWorld) override;
@@ -83,4 +84,3 @@ protected:
   ezColor m_Color;
   ezWorld* m_pWorld;
 };
-

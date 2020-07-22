@@ -1,10 +1,10 @@
 #pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
-#include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
-#include <QModelIndex>
-#include <QLineEdit>
 #include <EditorFramework/PropertyGrid/QtAssetLineEdit.moc.h>
+#include <GuiFoundation/PropertyGrid/Implementation/PropertyWidget.moc.h>
+#include <QLineEdit>
+#include <QModelIndex>
 
 
 /// *** Asset Browser ***

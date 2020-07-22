@@ -2,8 +2,8 @@
 
 #include <GameEngine/GameEngineDLL.h>
 
-#include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Math/Size.h>
+#include <Foundation/Reflection/Reflection.h>
 
 struct ezHMDInfo
 {
@@ -99,18 +99,18 @@ struct ezXRDeviceFeatures
   enum Enum : ezUInt32
   {
     None = 0,
-    Trigger = EZ_BIT(0), ///< Float input. If fully pressed, will also trigger 'Select'.
-    Select = EZ_BIT(1), ///< Bool input.
-    Menu = EZ_BIT(2), ///< Bool input.
-    Squeeze = EZ_BIT(3), ///< Bool input.
-    PrimaryAnalogStick = EZ_BIT(4), ///< 2D axis input.
-    PrimaryAnalogStickClick = EZ_BIT(5), ///< Bool input.
-    PrimaryAnalogStickTouch = EZ_BIT(6), ///< Bool input.
-    SecondaryAnalogStick = EZ_BIT(7), ///< 2D axis input.
+    Trigger = EZ_BIT(0),                   ///< Float input. If fully pressed, will also trigger 'Select'.
+    Select = EZ_BIT(1),                    ///< Bool input.
+    Menu = EZ_BIT(2),                      ///< Bool input.
+    Squeeze = EZ_BIT(3),                   ///< Bool input.
+    PrimaryAnalogStick = EZ_BIT(4),        ///< 2D axis input.
+    PrimaryAnalogStickClick = EZ_BIT(5),   ///< Bool input.
+    PrimaryAnalogStickTouch = EZ_BIT(6),   ///< Bool input.
+    SecondaryAnalogStick = EZ_BIT(7),      ///< 2D axis input.
     SecondaryAnalogStickClick = EZ_BIT(8), ///< Bool input.
     SecondaryAnalogStickTouch = EZ_BIT(9), ///< Bool input.
-    GripPose = EZ_BIT(10), ///< 3D Pose input.
-    AimPose = EZ_BIT(11), ///< 3D Pose input.
+    GripPose = EZ_BIT(10),                 ///< 3D Pose input.
+    AimPose = EZ_BIT(11),                  ///< 3D Pose input.
     Default = None
   };
 

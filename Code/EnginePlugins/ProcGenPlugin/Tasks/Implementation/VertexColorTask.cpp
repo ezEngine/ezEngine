@@ -33,7 +33,8 @@ VertexColorTask::VertexColorTask()
 VertexColorTask::~VertexColorTask() = default;
 
 void VertexColorTask::Prepare(const ezWorld& world, const ezMeshBufferResourceDescriptor& mbDesc, const ezTransform& transform,
-  ezArrayPtr<ezSharedPtr<const VertexColorOutput>> outputs, ezArrayPtr<ezProcVertexColorMapping> outputMappings, ezArrayPtr<ezUInt32> outputVertexColors)
+  ezArrayPtr<ezSharedPtr<const VertexColorOutput>> outputs, ezArrayPtr<ezProcVertexColorMapping> outputMappings,
+  ezArrayPtr<ezUInt32> outputVertexColors)
 {
   EZ_PROFILE_SCOPE("VertexColorPrepare");
 
@@ -120,7 +121,7 @@ void VertexColorTask::Prepare(const ezWorld& world, const ezMeshBufferResourceDe
   //////////////////////////////////////////////////////////////////////////
 
   // TODO:
-  //ezBoundingBox box = mbDesc.GetBounds();
+  // ezBoundingBox box = mbDesc.GetBounds();
   ezBoundingBox box = ezBoundingBox(ezVec3(-1000), ezVec3(1000));
   box.TransformFromOrigin(transform.GetAsMat4());
 

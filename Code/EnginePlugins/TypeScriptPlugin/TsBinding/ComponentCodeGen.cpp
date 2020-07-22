@@ -187,8 +187,7 @@ void ezTypeScriptBinding::InjectComponentImportExport(ezStringBuilder& content, 
   for (const ezRTTI* pRtti : sorted)
   {
     GetTsName(pRtti, sTypeName);
-    sImportExport.AppendFormat("export import {0} = __AllComponents.{0};\n",
-      sTypeName);
+    sImportExport.AppendFormat("export import {0} = __AllComponents.{0};\n", sTypeName);
   }
 
   AppendToTextFile(content, sImportExport);

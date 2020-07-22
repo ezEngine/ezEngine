@@ -12,8 +12,8 @@ ezActionDescriptorHandle ezSceneGizmoActions::s_hGreyBoxingGizmo;
 
 void ezSceneGizmoActions::RegisterActions()
 {
-  s_hGreyBoxingGizmo = EZ_REGISTER_ACTION_1("Gizmo.Mode.GreyBoxing", ezActionScope::Document, "Gizmo", "B", ezGizmoAction,
-                                            ezGetStaticRTTI<ezGreyBoxEditTool>());
+  s_hGreyBoxingGizmo =
+    EZ_REGISTER_ACTION_1("Gizmo.Mode.GreyBoxing", ezActionScope::Document, "Gizmo", "B", ezGizmoAction, ezGetStaticRTTI<ezGreyBoxEditTool>());
 }
 
 void ezSceneGizmoActions::UnregisterActions()

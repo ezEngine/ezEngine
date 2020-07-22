@@ -1,9 +1,9 @@
 #pragma once
 
+#include <EditorPluginUltralight/UltralightHTMLAsset/UltralightHTMLAsset.h>
 #include <Foundation/Basics.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
-#include <EditorPluginUltralight/UltralightHTMLAsset/UltralightHTMLAsset.h>
 
 class QLabel;
 class QScrollArea;
@@ -20,7 +20,7 @@ public:
   virtual const char* GetGroupName() const { return "UltralightHTMLAsset"; }
   virtual const char* GetWindowLayoutGroupName() const override { return "UltralightHTMLAsset"; }
 
-  private slots:
+private slots:
 
 
 private:

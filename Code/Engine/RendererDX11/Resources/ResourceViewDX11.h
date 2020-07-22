@@ -8,11 +8,9 @@ struct ID3D11ShaderResourceView;
 class ezGALResourceViewDX11 : public ezGALResourceView
 {
 public:
-
   EZ_ALWAYS_INLINE ID3D11ShaderResourceView* GetDXResourceView() const;
 
 protected:
-
   friend class ezGALDeviceDX11;
   friend class ezMemoryUtils;
 

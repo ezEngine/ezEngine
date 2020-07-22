@@ -18,4 +18,3 @@ protected:
 
   ezKrautTreeContext* m_pKrautTreeContext;
 };
-

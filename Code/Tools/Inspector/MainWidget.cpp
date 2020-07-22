@@ -5,9 +5,9 @@
 #include <Inspector/MainWidget.moc.h>
 #include <Inspector/MainWindow.moc.h>
 #include <QDir>
-#include <QStandardPaths>
 #include <QMenu>
 #include <QSettings>
+#include <QStandardPaths>
 
 ezQtMainWidget* ezQtMainWidget::s_pWidget = nullptr;
 
@@ -122,8 +122,7 @@ void ezQtMainWidget::on_ButtonConnect_clicked()
   const QString sServer = Settings.value("LastConnection", QLatin1String("localhost:1040")).toString();
 
   bool bOk = false;
-  QString sRes =
-    QInputDialog::getText(this, "Host", "Host Name or IP Address:\nDefault is 'localhost:1040'", QLineEdit::Normal, sServer, &bOk);
+  QString sRes = QInputDialog::getText(this, "Host", "Host Name or IP Address:\nDefault is 'localhost:1040'", QLineEdit::Normal, sServer, &bOk);
 
   if (!bOk)
     return;
@@ -216,13 +215,12 @@ void ezQtMainWidget::UpdateStats()
   {
     LabelPing->setText("<p>Ping: N/A</p>");
     LabelStatus->setText(
-        "<p><span style=\" font-weight:600;\">Status: </span><span style=\" font-weight:600; color:#ff0000;\">Not Connected</span></p>");
+      "<p><span style=\" font-weight:600;\">Status: </span><span style=\" font-weight:600; color:#ff0000;\">Not Connected</span></p>");
     LabelServer->setText("<p>Server: N/A</p>");
   }
   else
   {
-    LabelStatus->setText(
-        "<p><span style=\" font-weight:600;\">Status: </span><span style=\" font-weight:600; color:#00aa00;\">Connected</span></p>");
+    LabelStatus->setText("<p><span style=\" font-weight:600;\">Status: </span><span style=\" font-weight:600; color:#00aa00;\">Connected</span></p>");
     LabelServer->setText(QString::fromUtf8("<p>Server: %1:%2</p>").arg(ezTelemetry::GetServerIP()).arg(ezTelemetry::s_uiPort));
   }
 }

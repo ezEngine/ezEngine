@@ -5,7 +5,8 @@
 bool ezDataTransfer::s_bInitialized = false;
 ezSet<ezDataTransfer*> ezDataTransfer::s_AllTransfers;
 
-ezDataTransferObject::ezDataTransferObject(ezDataTransfer& BelongsTo, const char* szObjectName, const char* szMimeType, const char* szFileExtension) : m_BelongsTo(BelongsTo)
+ezDataTransferObject::ezDataTransferObject(ezDataTransfer& BelongsTo, const char* szObjectName, const char* szMimeType, const char* szFileExtension)
+  : m_BelongsTo(BelongsTo)
 {
   m_bHasBeenTransferred = false;
 
@@ -127,7 +128,7 @@ void ezDataTransfer::Transfer(ezDataTransferObject& Object)
   if (!m_bEnabled)
     return;
 
-    ezTelemetry::Broadcast(ezTelemetry::Reliable, Object.m_Msg);
+  ezTelemetry::Broadcast(ezTelemetry::Reliable, Object.m_Msg);
 }
 
 void ezDataTransfer::Initialize()
@@ -197,4 +198,3 @@ void ezDataTransfer::SendAllDataTransfers()
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_DataTransfer);
-

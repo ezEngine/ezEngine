@@ -10,7 +10,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 ezReflectedTypeStorageAccessor::ezReflectedTypeStorageAccessor(const ezRTTI* pRtti, ezDocumentObject* pOwner)
-    : ezIReflectedTypeAccessor(pRtti, pOwner)
+  : ezIReflectedTypeAccessor(pRtti, pOwner)
 {
   const ezRTTI* pType = pRtti;
   EZ_ASSERT_DEV(pType != nullptr, "Trying to construct an ezReflectedTypeStorageAccessor for an invalid type!");
@@ -157,7 +157,7 @@ bool ezReflectedTypeStorageAccessor::SetValue(const char* szProperty, const ezVa
             else
             {
               const auto SpecVarType =
-                  pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProp->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
+                pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProp->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
               if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
               {
                 m_Data[storageInfo->m_uiIndex] = value;
@@ -192,7 +192,7 @@ bool ezReflectedTypeStorageAccessor::SetValue(const char* szProperty, const ezVa
           else
           {
             const auto SpecVarType =
-                pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProp->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
+              pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProp->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
             if (value.CanConvertTo(SpecVarType))
             {
               // We are lenient here regarding the type, as we may have stored values in the undo-redo stack
@@ -315,7 +315,7 @@ bool ezReflectedTypeStorageAccessor::InsertValue(const char* szProperty, ezVaria
           {
             ezVariantArray changedValues = values;
             const auto SpecVarType =
-                pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProp->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
+              pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProp->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
             if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
             {
               changedValues.Insert(value, uiIndex);
@@ -342,7 +342,7 @@ bool ezReflectedTypeStorageAccessor::InsertValue(const char* szProperty, ezVaria
           const ezString& sIndex = index.Get<ezString>();
           ezVariantDictionary changedValues = values;
           const auto SpecVarType =
-              pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProp->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
+            pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProp->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
           if (pProp->GetSpecificType() == ezGetStaticRTTI<ezVariant>())
           {
             changedValues.Insert(sIndex, value);
@@ -495,7 +495,7 @@ ezVariant ezReflectedTypeStorageAccessor::GetPropertyChildIndex(const char* szPr
       case ezPropertyCategory::Set:
       {
         const auto SpecVarType =
-            pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProp->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
+          pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProp->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
         if (value.CanConvertTo(SpecVarType))
         {
           const ezVariantArray& values = m_Data[storageInfo->m_uiIndex].Get<ezVariantArray>();
@@ -510,7 +510,7 @@ ezVariant ezReflectedTypeStorageAccessor::GetPropertyChildIndex(const char* szPr
       case ezPropertyCategory::Map:
       {
         const auto SpecVarType =
-            pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProp->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
+          pProp->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProp->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
         if (value.CanConvertTo(SpecVarType))
         {
           const ezVariantDictionary& values = m_Data[storageInfo->m_uiIndex].Get<ezVariantDictionary>();

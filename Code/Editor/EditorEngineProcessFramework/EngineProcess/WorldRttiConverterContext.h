@@ -1,9 +1,9 @@
 #pragma once
 
-#include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
-#include <EditorEngineProcessFramework/IPC/IPCObjectMirrorEngine.h>
-#include <EditorEngineProcessFramework/EngineProcess/GuidHandleMap.h>
 #include <Core/World/World.h>
+#include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
+#include <EditorEngineProcessFramework/EngineProcess/GuidHandleMap.h>
+#include <EditorEngineProcessFramework/IPC/IPCObjectMirrorEngine.h>
 
 /// \brief The world rtti converter context tracks created objects and is capable of also handling
 ///  components / game objects. Used by the ezIPCObjectMirror to create / destroy objects.
@@ -13,7 +13,12 @@
 class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezWorldRttiConverterContext : public ezRttiConverterContext
 {
 public:
-  ezWorldRttiConverterContext() : m_pWorld(nullptr), m_uiNextComponentPickingID(1), m_uiHighlightID(1) {}
+  ezWorldRttiConverterContext()
+    : m_pWorld(nullptr)
+    , m_uiNextComponentPickingID(1)
+    , m_uiHighlightID(1)
+  {
+  }
 
   virtual void Clear() override;
   void DeleteExistingObjects();

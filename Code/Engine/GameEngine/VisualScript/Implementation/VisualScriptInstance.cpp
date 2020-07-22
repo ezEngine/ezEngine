@@ -79,10 +79,10 @@ void ezVisualScriptInstance::SetupPinDataTypeConversions()
   RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Boolean, ezVisualScriptDataPinType::Boolean, ezVisualScriptAssignBoolBool);
   RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Vec3, ezVisualScriptDataPinType::Vec3, ezVisualScriptAssignVec3Vec3);
   RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Number, ezVisualScriptDataPinType::Vec3, ezVisualScriptAssignNumberVec3);
-  RegisterDataPinAssignFunction(ezVisualScriptDataPinType::GameObjectHandle, ezVisualScriptDataPinType::GameObjectHandle,
-    ezVisualScriptAssignGameObject);
-  RegisterDataPinAssignFunction(ezVisualScriptDataPinType::ComponentHandle, ezVisualScriptDataPinType::ComponentHandle,
-    ezVisualScriptAssignComponent);
+  RegisterDataPinAssignFunction(
+    ezVisualScriptDataPinType::GameObjectHandle, ezVisualScriptDataPinType::GameObjectHandle, ezVisualScriptAssignGameObject);
+  RegisterDataPinAssignFunction(
+    ezVisualScriptDataPinType::ComponentHandle, ezVisualScriptDataPinType::ComponentHandle, ezVisualScriptAssignComponent);
   RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Number, ezVisualScriptDataPinType::Boolean, ezVisualScriptAssignNumberBool);
 }
 
@@ -305,7 +305,8 @@ void ezVisualScriptInstance::CreateEventMessageNode(ezUInt32 uiNodeIdx, const ez
 
   const auto& node = resource.m_Nodes[uiNodeIdx];
 
-  ezVisualScriptNode_GenericEvent* pNode = ezGetStaticRTTI<ezVisualScriptNode_GenericEvent>()->GetAllocator()->Allocate<ezVisualScriptNode_GenericEvent>();
+  ezVisualScriptNode_GenericEvent* pNode =
+    ezGetStaticRTTI<ezVisualScriptNode_GenericEvent>()->GetAllocator()->Allocate<ezVisualScriptNode_GenericEvent>();
   pNode->m_uiNodeID = static_cast<ezUInt16>(uiNodeIdx);
 
   pNode->m_sEventType = node.m_sTypeName;
@@ -313,7 +314,8 @@ void ezVisualScriptInstance::CreateEventMessageNode(ezUInt32 uiNodeIdx, const ez
   m_Nodes.PushBack(pNode);
 }
 
-ezAbstractFunctionProperty* ezVisualScriptInstance::SearchForScriptableFunctionOnType(const ezRTTI* pObjectType, ezStringView sFuncName, const ezScriptableFunctionAttribute*& out_pSfAttr) const
+ezAbstractFunctionProperty* ezVisualScriptInstance::SearchForScriptableFunctionOnType(
+  const ezRTTI* pObjectType, ezStringView sFuncName, const ezScriptableFunctionAttribute*& out_pSfAttr) const
 {
   if (sFuncName.IsEmpty())
     return nullptr;
@@ -345,7 +347,8 @@ void ezVisualScriptInstance::CreateFunctionCallNode(ezUInt32 uiNodeIdx, const ez
 
   const auto& node = resource.m_Nodes[uiNodeIdx];
 
-  ezVisualScriptNode_FunctionCall* pNode = ezGetStaticRTTI<ezVisualScriptNode_FunctionCall>()->GetAllocator()->Allocate<ezVisualScriptNode_FunctionCall>();
+  ezVisualScriptNode_FunctionCall* pNode =
+    ezGetStaticRTTI<ezVisualScriptNode_FunctionCall>()->GetAllocator()->Allocate<ezVisualScriptNode_FunctionCall>();
   pNode->m_uiNodeID = static_cast<ezUInt16>(uiNodeIdx);
 
   pNode->m_pExpectedType = node.m_pType;
@@ -527,8 +530,8 @@ Override ezVisualScriptNode::IsManuallyStepped() for type '{}' if necessary.",
   }
 }
 
-void ezVisualScriptInstance::RegisterDataPinAssignFunction(ezVisualScriptDataPinType::Enum sourceType,
-  ezVisualScriptDataPinType::Enum dstType, ezVisualScriptDataPinAssignFunc func)
+void ezVisualScriptInstance::RegisterDataPinAssignFunction(
+  ezVisualScriptDataPinType::Enum sourceType, ezVisualScriptDataPinType::Enum dstType, ezVisualScriptDataPinAssignFunc func)
 {
   AssignFuncKey key;
   key.m_SourceType = sourceType;
@@ -537,8 +540,8 @@ void ezVisualScriptInstance::RegisterDataPinAssignFunction(ezVisualScriptDataPin
   s_DataPinAssignFunctions[key] = func;
 }
 
-ezVisualScriptDataPinAssignFunc ezVisualScriptInstance::FindDataPinAssignFunction(ezVisualScriptDataPinType::Enum sourceType,
-  ezVisualScriptDataPinType::Enum dstType)
+ezVisualScriptDataPinAssignFunc ezVisualScriptInstance::FindDataPinAssignFunction(
+  ezVisualScriptDataPinType::Enum sourceType, ezVisualScriptDataPinType::Enum dstType)
 {
   AssignFuncKey key;
   key.m_SourceType = sourceType;

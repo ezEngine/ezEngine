@@ -28,7 +28,8 @@ void OnLoadPlugin(bool bReloading)
     // Menu Bar
     ezActionMapManager::RegisterActionMap("SoundBankAssetMenuBar");
     ezProjectActions::MapActions("SoundBankAssetMenuBar");
-    ezStandardMenus::MapActions("SoundBankAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
+    ezStandardMenus::MapActions(
+      "SoundBankAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit | ezStandardMenuTypes::Panels | ezStandardMenuTypes::Help);
     ezDocumentActions::MapActions("SoundBankAssetMenuBar", "Menu.File", false);
     ezCommandHistoryActions::MapActions("SoundBankAssetMenuBar", "Menu.Edit");
 

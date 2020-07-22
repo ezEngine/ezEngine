@@ -75,9 +75,9 @@ struct ComputeHashFunc
   template <typename T>
   EZ_FORCE_INLINE void operator()()
   {
-    EZ_CHECK_AT_COMPILETIME_MSG(sizeof(typename ezVariant::TypeDeduction<T>::StorageType) <= sizeof(float) * 4 &&
-                                    !ezVariant::TypeDeduction<T>::forceSharing,
-                                "This type requires special handling! Add a specialization below.");
+    EZ_CHECK_AT_COMPILETIME_MSG(
+      sizeof(typename ezVariant::TypeDeduction<T>::StorageType) <= sizeof(float) * 4 && !ezVariant::TypeDeduction<T>::forceSharing,
+      "This type requires special handling! Add a specialization below.");
     m_uiHash = ezHashingUtils::xxHash64(m_pData, sizeof(T), m_uiHash);
   }
 
@@ -397,4 +397,3 @@ ezUInt64 ezVariant::ComputeHash(ezUInt64 uiSeed) const
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Types_Implementation_Variant);
-

@@ -21,8 +21,9 @@ namespace
 {
   // This allocator is used to get rid of some of the memory allocation tracking
   // that would otherwise occur for allocations made by the tokenizer.
-  thread_local ezAllocator<ezMemoryPolicies::ezHeapAllocation, ezMemoryTrackingFlags::None> s_ClassAllocator("ezTokenizer", ezFoundation::GetDefaultAllocator());
-}
+  thread_local ezAllocator<ezMemoryPolicies::ezHeapAllocation, ezMemoryTrackingFlags::None> s_ClassAllocator(
+    "ezTokenizer", ezFoundation::GetDefaultAllocator());
+} // namespace
 
 
 ezTokenizer::ezTokenizer(ezAllocatorBase* pAllocator)
@@ -323,7 +324,7 @@ void ezTokenizer::HandleString(char terminator)
     else if (m_uiCurChar == '\n')
     {
       ezLog::Error(m_pLog, "Unescaped Newline in string line {0} column {1}", m_uiCurLine, m_uiCurColumn);
-      //NextChar(); // not sure whether to include the newline in the string or not
+      // NextChar(); // not sure whether to include the newline in the string or not
       AddToken();
       return;
     }
@@ -549,12 +550,14 @@ ezResult ezTokenizer::GetNextLine(ezUInt32& uiFirstToken, ezHybridArray<const ez
         // for now we ignore this and assume there is a 'whitespace' between such identifiers
 
         // we could maybe at least output a warning, if we detect it
-        if (uiFirstToken > 0 && m_Tokens[uiFirstToken - 1].m_iType == ezTokenType::Identifier &&
-            uiFirstToken + 2 < uiMaxTokens && m_Tokens[uiFirstToken + 2].m_iType == ezTokenType::Identifier)
+        if (uiFirstToken > 0 && m_Tokens[uiFirstToken - 1].m_iType == ezTokenType::Identifier && uiFirstToken + 2 < uiMaxTokens &&
+            m_Tokens[uiFirstToken + 2].m_iType == ezTokenType::Identifier)
         {
           ezStringBuilder s1 = m_Tokens[uiFirstToken - 1].m_DataView;
           ezStringBuilder s2 = m_Tokens[uiFirstToken + 2].m_DataView;
-          ezLog::Warning("Line {0}: The \\ at the line end is in the middle of an identifier name ('{1}' and '{2}'). However, merging identifier names is currently not supported.", m_Tokens[uiFirstToken].m_uiLine, s1, s2);
+          ezLog::Warning("Line {0}: The \\ at the line end is in the middle of an identifier name ('{1}' and '{2}'). However, merging identifier "
+                         "names is currently not supported.",
+            m_Tokens[uiFirstToken].m_uiLine, s1, s2);
         }
 
         // ignore this
@@ -583,4 +586,3 @@ ezResult ezTokenizer::GetNextLine(ezUInt32& uiFirstToken, ezHybridArray<const ez
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_CodeUtils_Implementation_Tokenizer);
-

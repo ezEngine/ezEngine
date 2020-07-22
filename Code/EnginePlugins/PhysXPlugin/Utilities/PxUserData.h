@@ -138,12 +138,8 @@ public:
   {
     ezPxUserData* pPxUserData = static_cast<ezPxUserData*>(pUserData);
     if (pPxUserData != nullptr &&
-        (pPxUserData->m_Type == DynamicActorComponent ||
-          pPxUserData->m_Type == StaticActorComponent ||
-          pPxUserData->m_Type == TriggerComponent ||
-          pPxUserData->m_Type == CharacterProxyComponent ||
-          pPxUserData->m_Type == ShapeComponent ||
-          pPxUserData->m_Type == BreakableSheetComponent))
+        (pPxUserData->m_Type == DynamicActorComponent || pPxUserData->m_Type == StaticActorComponent || pPxUserData->m_Type == TriggerComponent ||
+          pPxUserData->m_Type == CharacterProxyComponent || pPxUserData->m_Type == ShapeComponent || pPxUserData->m_Type == BreakableSheetComponent))
     {
       return static_cast<ezComponent*>(pPxUserData->m_pObject);
     }
@@ -168,10 +164,7 @@ public:
     return pPxUserData->m_pAdditionalUserData;
   }
 
-  EZ_FORCE_INLINE void SetAdditionalUserData(void* pAdditionalUserData)
-  {
-    m_pAdditionalUserData = pAdditionalUserData;
-  }
+  EZ_FORCE_INLINE void SetAdditionalUserData(void* pAdditionalUserData) { m_pAdditionalUserData = pAdditionalUserData; }
 
 
 private:

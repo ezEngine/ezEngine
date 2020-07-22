@@ -24,9 +24,9 @@ ezAssetWatcher::ezAssetWatcher(const ezApplicationFileSystemConfig& fileSystemCo
     }
 
     ezDirectoryWatcher* pWatcher = EZ_DEFAULT_NEW(ezDirectoryWatcher);
-    ezResult res = pWatcher->OpenDirectory(sTemp, ezDirectoryWatcher::Watch::Reads | ezDirectoryWatcher::Watch::Writes |
-                                                    ezDirectoryWatcher::Watch::Creates | ezDirectoryWatcher::Watch::Renames |
-                                                    ezDirectoryWatcher::Watch::Subdirectories);
+    ezResult res =
+      pWatcher->OpenDirectory(sTemp, ezDirectoryWatcher::Watch::Reads | ezDirectoryWatcher::Watch::Writes | ezDirectoryWatcher::Watch::Creates |
+                                       ezDirectoryWatcher::Watch::Renames | ezDirectoryWatcher::Watch::Subdirectories);
 
     if (res.Failed())
     {
@@ -261,9 +261,7 @@ ezDirectoryUpdateTask::ezDirectoryUpdateTask(ezAssetWatcher* pWatcher, const cha
   ConfigureTask("ezDirectoryUpdateTask", ezTaskNesting::Never);
 }
 
-ezDirectoryUpdateTask::~ezDirectoryUpdateTask()
-{
-}
+ezDirectoryUpdateTask::~ezDirectoryUpdateTask() {}
 
 void ezDirectoryUpdateTask::Execute()
 {
@@ -272,8 +270,8 @@ void ezDirectoryUpdateTask::Execute()
   {
     CURATOR_PROFILE("FindReferencedFiles");
     // Find all currently known files that are under the given folder.
-    //TODO: is m_InverseDependency / m_InverseReferences covered by this?
-    //TODO: What about asset output files?
+    // TODO: is m_InverseDependency / m_InverseReferences covered by this?
+    // TODO: What about asset output files?
     EZ_LOCK(pCurator->m_CuratorMutex);
     auto itlowerBound = pCurator->m_ReferencedFiles.LowerBound(m_sFolder);
     while (itlowerBound.IsValid() && itlowerBound.Key().StartsWith_NoCase(m_sFolder))

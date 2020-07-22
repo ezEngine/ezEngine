@@ -1,7 +1,7 @@
 #include <EditorPluginProcGenPCH.h>
 
-#include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenNodeManager.h>
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenGraphQt.h>
+#include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenNodeManager.h>
 #include <EditorPluginProcGen/ProcGenGraphAsset/ProcGenNodes.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Utilities/Node.h>

@@ -101,7 +101,7 @@ public:
   /// \brief This function is called after the application main loop has run for the last time, before engine deinitialization.
   ///
   /// After this function call, ezApplication executes ezStartup::ShutdownHighLevelSystems().
-  /// 
+  ///
   /// \note ezApplication does NOT call ezStartup::StartupHighLevelSystems() as it may be a window-less application.
   /// This is left to ezGameApplicationBase to do. However, it does make sure to shut down the high-level systems,
   /// in case they were started.
@@ -207,4 +207,3 @@ private:
   friend EZ_FOUNDATION_DLL void ezRun_MainLoop(ezApplication* pApplicationInstance);
   friend EZ_FOUNDATION_DLL void ezRun_Shutdown(ezApplication* pApplicationInstance);
 };
-

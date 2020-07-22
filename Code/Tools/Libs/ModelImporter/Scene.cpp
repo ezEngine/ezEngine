@@ -43,10 +43,7 @@ namespace ezModelImporter
     return nullptr;
   }
 
-  HierarchyObject* Scene::GetObject(ObjectHandle handle)
-  {
-    return const_cast<HierarchyObject*>(static_cast<const Scene*>(this)->GetObject(handle));
-  }
+  HierarchyObject* Scene::GetObject(ObjectHandle handle) { return const_cast<HierarchyObject*>(static_cast<const Scene*>(this)->GetObject(handle)); }
 
   const Material* Scene::GetMaterial(MaterialHandle handle) const
   {
@@ -88,8 +85,8 @@ namespace ezModelImporter
         m_RootObjects.PushBack(it.Value().Borrow());
     }
 
-    EZ_ASSERT_DEBUG((m_Nodes.IsEmpty() && m_Meshes.IsEmpty()) || !m_RootObjects.IsEmpty(),
-                    "There are objects but no root objects. The scene graph is a circle!");
+    EZ_ASSERT_DEBUG(
+      (m_Nodes.IsEmpty() && m_Meshes.IsEmpty()) || !m_RootObjects.IsEmpty(), "There are objects but no root objects. The scene graph is a circle!");
   }
 
   namespace
@@ -131,7 +128,7 @@ namespace ezModelImporter
         }
       }
     }
-  }
+  } // namespace
 
   void Scene::CreateUniqueNames()
   {
@@ -193,4 +190,4 @@ namespace ezModelImporter
     ezLog::Debug("Merged meshes in '{0}'s", ezArgF(timer.GetRunningTotal().GetSeconds(), 2));
     return outMesh;
   }
-}
+} // namespace ezModelImporter

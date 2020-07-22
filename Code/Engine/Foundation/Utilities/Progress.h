@@ -158,4 +158,3 @@ private:
   double m_fWeightedCompletion = 0.0;
   double m_fSummedWeight = 0.0;
 };
-

@@ -2,15 +2,15 @@
 
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/IO/OSFile.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <Inspector/FileWidget.moc.h>
 #include <MainWindow.moc.h>
 #include <qgraphicsitem.h>
-#include <GuiFoundation/GuiFoundationDLL.h>
 
 ezQtFileWidget* ezQtFileWidget::s_pWidget = nullptr;
 
 ezQtFileWidget::ezQtFileWidget(QWidget* parent)
-    : ads::CDockWidget("File Operations", parent)
+  : ads::CDockWidget("File Operations", parent)
 {
   s_pWidget = this;
 
@@ -21,9 +21,7 @@ ezQtFileWidget::ezQtFileWidget(QWidget* parent)
 }
 
 
-ezQtFileWidget::~ezQtFileWidget()
-{
-}
+ezQtFileWidget::~ezQtFileWidget() {}
 
 void ezQtFileWidget::ResetStats()
 {

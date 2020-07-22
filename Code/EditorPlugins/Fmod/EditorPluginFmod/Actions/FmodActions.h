@@ -1,9 +1,9 @@
 #pragma once
 
 #include <EditorPluginFmod/EditorPluginFmodDLL.h>
-#include <GuiFoundation/GuiFoundationDLL.h>
-#include <GuiFoundation/Action/BaseActions.h>
 #include <Foundation/Configuration/CVar.h>
+#include <GuiFoundation/Action/BaseActions.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 
 class ezPreferences;
 
@@ -25,8 +25,8 @@ public:
 class EZ_EDITORPLUGINFMOD_DLL ezFmodAction : public ezButtonAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezFmodAction, ezButtonAction);
-public:
 
+public:
   enum class ActionType
   {
     ProjectSettings,
@@ -49,7 +49,6 @@ class EZ_EDITORPLUGINFMOD_DLL ezFmodSliderAction : public ezSliderAction
   EZ_ADD_DYNAMIC_REFLECTION(ezFmodSliderAction, ezSliderAction);
 
 public:
-
   enum class ActionType
   {
     MasterVolume,

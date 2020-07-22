@@ -5,10 +5,10 @@
 #include <QMouseEvent>
 
 ezQtNodeView::ezQtNodeView(QWidget* parent)
-    : QGraphicsView(parent)
-    , m_pScene(nullptr)
-    , m_bPanning(false)
-    , m_iPanCounter(0)
+  : QGraphicsView(parent)
+  , m_pScene(nullptr)
+  , m_bPanning(false)
+  , m_iPanCounter(0)
 {
   setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
   setDragMode(QGraphicsView::DragMode::RubberBandDrag);

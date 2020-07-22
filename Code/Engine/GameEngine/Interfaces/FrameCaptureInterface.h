@@ -32,6 +32,4 @@ public:
   /// \brief Retrieve the absolute file name of the last successful frame capture. Returns EZ_FAILURE if no successful capture has
   /// been performed.
   virtual ezResult GetLastAbsCaptureFileName(ezStringBuilder& out_sFileName) const = 0;
-
 };
-

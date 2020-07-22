@@ -26,12 +26,9 @@ public:
   //////////////////////////////////////////////////////////////////////////
   // Properties
 public:
-
   float m_fSelectionRadius = 1.0f;
 
   static ezSpatialData::Category s_SelectableCategory;
 
 protected:
-
 };
-

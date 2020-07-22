@@ -1,8 +1,8 @@
 #pragma once
 
-#include <ToolsFoundation/ToolsFoundationDLL.h>
-#include <Foundation/Types/Delegate.h>
 #include <Foundation/Strings/String.h>
+#include <Foundation/Types/Delegate.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 
 class ezDocumentObjectManager;
 class ezDocumentObject;
@@ -19,7 +19,8 @@ public:
   ///   Name of the property that is used for finding children on an object.
   /// \param szRootProperty
   ///   Same as szChildrenProperty, but for the root object of the document.
-  ezDocumentObjectVisitor(const ezDocumentObjectManager* pManager, const char* szChildrenProperty = "Children", const char* szRootProperty = "Children");
+  ezDocumentObjectVisitor(
+    const ezDocumentObjectManager* pManager, const char* szChildrenProperty = "Children", const char* szRootProperty = "Children");
 
   typedef ezDelegate<bool(const ezDocumentObject*)> VisitorFunction;
   /// \brief Executes depth first traversal starting at the given node.

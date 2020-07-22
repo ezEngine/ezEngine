@@ -89,4 +89,3 @@ public:
 private:
   ezMemoryStreamReader m_Reader;
 };
-

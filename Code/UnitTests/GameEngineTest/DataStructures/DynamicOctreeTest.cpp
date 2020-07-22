@@ -23,7 +23,7 @@ namespace DynamicOctreeTestDetail
     // let it give us all the objects in range and count how many that are
     return true;
   }
-}
+} // namespace DynamicOctreeTestDetail
 
 EZ_CREATE_SIMPLE_TEST(DataStructures, DynamicOctree)
 {
@@ -55,8 +55,7 @@ EZ_CREATE_SIMPLE_TEST(DataStructures, DynamicOctree)
         {
           const bool bInside = (z > -e) && (z < e) && (y > -e) && (y < e) && (x > -e) && (x < e);
 
-          EZ_TEST_BOOL(o.InsertObject(c + ezVec3(x, y, z), ezVec3(1.0f), 0, iInstance, nullptr, true) ==
-                       (bInside ? EZ_SUCCESS : EZ_FAILURE));
+          EZ_TEST_BOOL(o.InsertObject(c + ezVec3(x, y, z), ezVec3(1.0f), 0, iInstance, nullptr, true) == (bInside ? EZ_SUCCESS : EZ_FAILURE));
           EZ_TEST_BOOL(o.InsertObject(c + ezVec3(x, y, z), ezVec3(1.0f), 0, iInstance, nullptr, false) == EZ_SUCCESS);
 
           ++iInstance;
@@ -198,15 +197,13 @@ EZ_CREATE_SIMPLE_TEST(DataStructures, DynamicOctree)
 
       DynamicOctreeTestDetail::g_iReturned = 0;
       DynamicOctreeTestDetail::g_bFoundSearched = false;
-      o.FindObjectsInRange(Objects[i].m_vPos + Objects[i].m_vExtents + ezVec3(2, 0, 0), 2.5f, DynamicOctreeTestDetail::ObjectFound,
-                           nullptr);
+      o.FindObjectsInRange(Objects[i].m_vPos + Objects[i].m_vExtents + ezVec3(2, 0, 0), 2.5f, DynamicOctreeTestDetail::ObjectFound, nullptr);
       EZ_TEST_BOOL(DynamicOctreeTestDetail::g_bFoundSearched == true);
       EZ_TEST_BOOL(DynamicOctreeTestDetail::g_iReturned < Objects.GetCount());
 
       DynamicOctreeTestDetail::g_iReturned = 0;
       DynamicOctreeTestDetail::g_bFoundSearched = false;
-      o.FindObjectsInRange(Objects[i].m_vPos - Objects[i].m_vExtents - ezVec3(0, 2, 0), 2.5f, DynamicOctreeTestDetail::ObjectFound,
-                           nullptr);
+      o.FindObjectsInRange(Objects[i].m_vPos - Objects[i].m_vExtents - ezVec3(0, 2, 0), 2.5f, DynamicOctreeTestDetail::ObjectFound, nullptr);
       EZ_TEST_BOOL(DynamicOctreeTestDetail::g_bFoundSearched == true);
       EZ_TEST_BOOL(DynamicOctreeTestDetail::g_iReturned < Objects.GetCount());
     }

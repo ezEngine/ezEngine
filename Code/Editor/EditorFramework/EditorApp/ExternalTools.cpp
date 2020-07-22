@@ -33,7 +33,7 @@ ezString ezQtEditorApp::FindToolApplication(const char* szToolName)
 }
 
 ezStatus ezQtEditorApp::ExecuteTool(const char* szTool, const QStringList& arguments, ezUInt32 uiSecondsTillTimeout,
-                                    ezLogInterface* pLogOutput /*= nullptr*/, ezLogMsgType::Enum LogLevel /*= ezLogMsgType::InfoMsg*/)
+  ezLogInterface* pLogOutput /*= nullptr*/, ezLogMsgType::Enum LogLevel /*= ezLogMsgType::InfoMsg*/)
 {
   // this block is supposed to be in the global log, not the given log interface
   EZ_LOG_BLOCK("Executing Tool", szTool);
@@ -58,8 +58,8 @@ ezStatus ezQtEditorApp::ExecuteTool(const char* szTool, const QStringList& argum
     struct LogBlockData
     {
       LogBlockData(ezLogInterface* pInterface, const char* szName)
-          : m_Name(szName)
-          , m_Block(pInterface, m_Name)
+        : m_Name(szName)
+        , m_Block(pInterface, m_Name)
       {
       }
 

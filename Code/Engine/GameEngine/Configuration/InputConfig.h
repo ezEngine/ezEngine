@@ -1,8 +1,8 @@
 #pragma once
 
-#include <GameEngine/GameEngineDLL.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Types/Variant.h>
+#include <GameEngine/GameEngineDLL.h>
 
 class ezOpenDdlWriter;
 class ezOpenDdlReaderElement;
@@ -10,12 +10,15 @@ class ezOpenDdlReaderElement;
 class EZ_GAMEENGINE_DLL ezGameAppInputConfig
 {
 public:
-  enum { MaxInputSlotAlternatives = 3 };
+  enum
+  {
+    MaxInputSlotAlternatives = 3
+  };
 
   ezGameAppInputConfig();
 
   void Apply() const;
-  void WriteToDDL(ezOpenDdlWriter &writer) const;
+  void WriteToDDL(ezOpenDdlWriter& writer) const;
   void ReadFromDDL(const ezOpenDdlReaderElement* pAction);
 
   static void ApplyAll(const ezArrayPtr<ezGameAppInputConfig>& actions);
@@ -33,4 +36,3 @@ public:
 
   bool m_bApplyTimeScaling;
 };
-

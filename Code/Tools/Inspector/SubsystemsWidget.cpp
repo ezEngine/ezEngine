@@ -81,8 +81,7 @@ void ezQtSubsystemsWidget::UpdateSubSystems()
       else if (ssd.m_bStartupDone[ezStartupStage::BaseSystems])
         TableSubsystems->setCellWidget(iRow, 3, new QLabel("<p><span style=\"font-weight:600; color:#cece00;\">  Base  </span></p>"));
       else
-        TableSubsystems->setCellWidget(
-          iRow, 3, new QLabel("<p><span style=\"font-weight:600; color:#ff0000;\">Not Initialized</span></p>"));
+        TableSubsystems->setCellWidget(iRow, 3, new QLabel("<p><span style=\"font-weight:600; color:#ff0000;\">Not Initialized</span></p>"));
 
       ((QLabel*)TableSubsystems->cellWidget(iRow, 3))->setAlignment(Qt::AlignHCenter);
 

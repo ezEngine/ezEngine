@@ -2,7 +2,9 @@
 
 #include <Foundation/Communication/Implementation/TelemetryMessage.h>
 
-ezTelemetryMessage::ezTelemetryMessage() : m_Reader(&m_Storage), m_Writer(&m_Storage)
+ezTelemetryMessage::ezTelemetryMessage()
+  : m_Reader(&m_Storage)
+  , m_Writer(&m_Storage)
 {
   m_uiSystemID = 0;
   m_uiMsgID = 0;
@@ -10,7 +12,10 @@ ezTelemetryMessage::ezTelemetryMessage() : m_Reader(&m_Storage), m_Writer(&m_Sto
   EZ_ASSERT_DEV(m_Storage.GetRefCount() == 2, "Implementation Error");
 }
 
-ezTelemetryMessage::ezTelemetryMessage(const ezTelemetryMessage& rhs) : m_Storage(rhs.m_Storage), m_Reader(&m_Storage), m_Writer(&m_Storage)
+ezTelemetryMessage::ezTelemetryMessage(const ezTelemetryMessage& rhs)
+  : m_Storage(rhs.m_Storage)
+  , m_Reader(&m_Storage)
+  , m_Writer(&m_Storage)
 {
   m_uiSystemID = rhs.m_uiSystemID;
   m_uiMsgID = rhs.m_uiMsgID;
@@ -40,4 +45,3 @@ ezTelemetryMessage::~ezTelemetryMessage()
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_TelemetryMessage);
-

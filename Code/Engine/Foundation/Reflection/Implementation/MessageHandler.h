@@ -27,7 +27,8 @@ protected:
   using DispatchFunc = void (*)(void*, ezMessage&);
   using ConstDispatchFunc = void (*)(const void*, ezMessage&);
 
-  union {
+  union
+  {
     DispatchFunc m_DispatchFunc;
     ConstDispatchFunc m_ConstDispatchFunc;
   };
@@ -94,8 +95,7 @@ namespace ezInternal
       }
     };
   };
-}
+} // namespace ezInternal
 
-#define EZ_IS_CONST_MESSAGE_HANDLER(Class, MessageType, Method)                                                                            \
+#define EZ_IS_CONST_MESSAGE_HANDLER(Class, MessageType, Method)                                                                                      \
   (sizeof(ezInternal::MessageHandlerTraits<Class, MessageType>::IsConst(Method)) == sizeof(ezCompileTimeTrueType))
-

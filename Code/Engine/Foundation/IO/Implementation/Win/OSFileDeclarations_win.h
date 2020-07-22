@@ -7,23 +7,20 @@
 
 // Avoid conflicts with windows.h
 #ifdef DeleteFile
-#undef DeleteFile
+#  undef DeleteFile
 #endif
 
 #ifdef CopyFile
-#undef CopyFile
+#  undef CopyFile
 #endif
 
 #if EZ_DISABLED(EZ_USE_POSIX_FILE_API)
 
-#include <Foundation/Basics/Platform/Win/MinWindows.h>
+#  include <Foundation/Basics/Platform/Win/MinWindows.h>
 
 struct ezOSFileData
 {
-  ezOSFileData()
-  {
-    m_pFileHandle = EZ_WINDOWS_INVALID_HANDLE_VALUE;
-  }
+  ezOSFileData() { m_pFileHandle = EZ_WINDOWS_INVALID_HANDLE_VALUE; }
 
   ezMinWindows::HANDLE m_pFileHandle;
 };
@@ -36,4 +33,3 @@ struct ezFileIterationData
 #endif
 
 /// \endcond
-

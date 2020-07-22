@@ -11,8 +11,7 @@ struct ezMsgExtractRenderData;
 
 //////////////////////////////////////////////////////////////////////////
 
-class EZ_PROCGENPLUGIN_DLL ezProcPlacementComponentManager
-  : public ezComponentManager<ezProcPlacementComponent, ezBlockStorageType::Compact>
+class EZ_PROCGENPLUGIN_DLL ezProcPlacementComponentManager : public ezComponentManager<ezProcPlacementComponent, ezBlockStorageType::Compact>
 {
 public:
   ezProcPlacementComponentManager(ezWorld* pWorld);

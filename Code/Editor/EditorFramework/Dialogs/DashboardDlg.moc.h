@@ -44,5 +44,5 @@ private Q_SLOTS:
   void on_OpenTwitter_clicked();
 
 protected:
-  bool eventFilter(QObject *, QEvent *) override;
+  bool eventFilter(QObject*, QEvent*) override;
 };

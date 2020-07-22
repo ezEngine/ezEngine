@@ -1,9 +1,9 @@
 #pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
-#include <QDialog>
 #include <EditorFramework/ui_RemoteConnectionDlg.h>
 #include <Foundation/Strings/String.h>
+#include <QDialog>
 
 class EZ_EDITORFRAMEWORK_DLL ezQtRemoteConnectionDlg : public QDialog, public Ui_ezQtRemoteConnectionDlg
 {
@@ -45,5 +45,3 @@ private:
   void SetCurrentIP(const Address& addr);
   void SetCurrentFsIP(const Address& addr);
 };
-
-

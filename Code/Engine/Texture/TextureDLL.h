@@ -12,4 +12,3 @@
 #else
 #  define EZ_TEXTURE_DLL
 #endif
-

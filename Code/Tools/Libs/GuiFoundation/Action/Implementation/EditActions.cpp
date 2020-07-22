@@ -27,14 +27,11 @@ ezActionDescriptorHandle ezEditActions::s_hDelete;
 void ezEditActions::RegisterActions()
 {
   s_hEditCategory = EZ_REGISTER_CATEGORY("EditCategory");
-  s_hCopy =
-    EZ_REGISTER_ACTION_1("Selection.Copy", ezActionScope::Document, "Document", "Ctrl+C", ezEditAction, ezEditAction::ButtonType::Copy);
-  s_hPaste =
-    EZ_REGISTER_ACTION_1("Selection.Paste", ezActionScope::Document, "Document", "Ctrl+V", ezEditAction, ezEditAction::ButtonType::Paste);
-  s_hPasteAsChild = EZ_REGISTER_ACTION_1("Selection.PasteAsChild", ezActionScope::Document, "Document", "", ezEditAction,
-    ezEditAction::ButtonType::PasteAsChild);
-  s_hDelete =
-    EZ_REGISTER_ACTION_1("Selection.Delete", ezActionScope::Document, "Document", "", ezEditAction, ezEditAction::ButtonType::Delete);
+  s_hCopy = EZ_REGISTER_ACTION_1("Selection.Copy", ezActionScope::Document, "Document", "Ctrl+C", ezEditAction, ezEditAction::ButtonType::Copy);
+  s_hPaste = EZ_REGISTER_ACTION_1("Selection.Paste", ezActionScope::Document, "Document", "Ctrl+V", ezEditAction, ezEditAction::ButtonType::Paste);
+  s_hPasteAsChild =
+    EZ_REGISTER_ACTION_1("Selection.PasteAsChild", ezActionScope::Document, "Document", "", ezEditAction, ezEditAction::ButtonType::PasteAsChild);
+  s_hDelete = EZ_REGISTER_ACTION_1("Selection.Delete", ezActionScope::Document, "Document", "", ezEditAction, ezEditAction::ButtonType::Delete);
 }
 
 void ezEditActions::UnregisterActions()

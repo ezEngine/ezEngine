@@ -2,9 +2,9 @@
 
 /// \file
 
-#include <Foundation/Types/Variant.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
+#include <Foundation/Types/Variant.h>
 #include <Foundation/Utilities/EnumerableClass.h>
 
 /// \brief A class to broadcast and handle global (system-wide) events.
@@ -36,7 +36,6 @@ class EZ_FOUNDATION_DLL ezGlobalEvent : public ezEnumerable<ezGlobalEvent>
   EZ_DECLARE_ENUMERABLE_CLASS(ezGlobalEvent);
 
 public:
-
   struct EZ_FOUNDATION_DLL EventData
   {
     EventData();
@@ -49,7 +48,6 @@ public:
   typedef ezMap<ezString, EventData> EventMap;
 
 public:
-
   /// \brief [internal] Use the macro EZ_ON_GLOBAL_EVENT or EZ_ON_GLOBAL_EVENT_ONCE to create an event handler.
   typedef void (*EZ_GLOBAL_EVENT_HANDLER)(const ezVariant& param0, const ezVariant& param1, const ezVariant& param2, const ezVariant& param3);
 
@@ -59,7 +57,8 @@ public:
   /// \brief This function will broadcast a system wide event to all event handlers that are registered to handle this specific type of event.
   ///
   /// The string specifies the event type, the parameters are optional and can be used to send additional event specific data.
-  static void Broadcast(const char* szEventName, ezVariant param0 = ezVariant(), ezVariant param1 = ezVariant(), ezVariant param2 = ezVariant(), ezVariant param3 = ezVariant()); // [tested]
+  static void Broadcast(const char* szEventName, ezVariant param0 = ezVariant(), ezVariant param1 = ezVariant(), ezVariant param2 = ezVariant(),
+    ezVariant param3 = ezVariant()); // [tested]
 
   /// \brief This function will output (via ezLog) some statistics about which events are used and how often.
   ///
@@ -85,15 +84,13 @@ private:
 #define EZ_BROADCAST_EVENT(name, ...) ezGlobalEvent::Broadcast(#name, ##__VA_ARGS__);
 
 /// \brief Use this macro to handle an event every time it is broadcast (place function code in curly brackets after it)
-#define EZ_ON_GLOBAL_EVENT(name) \
-  static void EventHandler_##name (const ezVariant& param0, const ezVariant& param1, const ezVariant& param2, const ezVariant& param3); \
-  static ezGlobalEvent s_EventHandler_##name (#name, EventHandler_##name, false); \
-  static void EventHandler_##name (const ezVariant& param0, const ezVariant& param1, const ezVariant& param2, const ezVariant& param3)
+#define EZ_ON_GLOBAL_EVENT(name)                                                                                                                     \
+  static void EventHandler_##name(const ezVariant& param0, const ezVariant& param1, const ezVariant& param2, const ezVariant& param3);               \
+  static ezGlobalEvent s_EventHandler_##name(#name, EventHandler_##name, false);                                                                     \
+  static void EventHandler_##name(const ezVariant& param0, const ezVariant& param1, const ezVariant& param2, const ezVariant& param3)
 
 /// \brief Use this macro to handle an event only once (place function code in curly brackets after it)
-#define EZ_ON_GLOBAL_EVENT_ONCE(name) \
-  static void EventHandler_##name (const ezVariant& param0, const ezVariant& param1, const ezVariant& param2, const ezVariant& param3); \
-  static ezGlobalEvent s_EventHandler_##name (#name, EventHandler_##name, true); \
-  static void EventHandler_##name (const ezVariant& param0, const ezVariant& param1, const ezVariant& param2, const ezVariant& param3)
-
-
+#define EZ_ON_GLOBAL_EVENT_ONCE(name)                                                                                                                \
+  static void EventHandler_##name(const ezVariant& param0, const ezVariant& param1, const ezVariant& param2, const ezVariant& param3);               \
+  static ezGlobalEvent s_EventHandler_##name(#name, EventHandler_##name, true);                                                                      \
+  static void EventHandler_##name(const ezVariant& param0, const ezVariant& param1, const ezVariant& param2, const ezVariant& param3)

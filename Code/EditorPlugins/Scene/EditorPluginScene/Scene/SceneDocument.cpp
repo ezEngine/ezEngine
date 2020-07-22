@@ -71,8 +71,7 @@ void ezSceneDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 
   m_DocumentObjectMetaData.m_DataModifiedEvent.AddEventHandler(ezMakeDelegate(&ezSceneDocument::DocumentObjectMetaDataEventHandler, this));
   ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocument::ToolsProjectEventHandler, this));
-  ezEditorEngineProcessConnection::GetSingleton()->s_Events.AddEventHandler(
-    ezMakeDelegate(&ezSceneDocument::EngineConnectionEventHandler, this));
+  ezEditorEngineProcessConnection::GetSingleton()->s_Events.AddEventHandler(ezMakeDelegate(&ezSceneDocument::EngineConnectionEventHandler, this));
 
   m_ObjectMirror.InitSender(GetObjectManager());
   m_ObjectMirror.InitReceiver(&m_Context);
@@ -81,13 +80,11 @@ void ezSceneDocument::InitializeAfterLoading(bool bFirstTimeCreation)
 
 ezSceneDocument::~ezSceneDocument()
 {
-  m_DocumentObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(
-    ezMakeDelegate(&ezSceneDocument::DocumentObjectMetaDataEventHandler, this));
+  m_DocumentObjectMetaData.m_DataModifiedEvent.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::DocumentObjectMetaDataEventHandler, this));
 
   ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::ToolsProjectEventHandler, this));
 
-  ezEditorEngineProcessConnection::GetSingleton()->s_Events.RemoveEventHandler(
-    ezMakeDelegate(&ezSceneDocument::EngineConnectionEventHandler, this));
+  ezEditorEngineProcessConnection::GetSingleton()->s_Events.RemoveEventHandler(ezMakeDelegate(&ezSceneDocument::EngineConnectionEventHandler, this));
 
   m_ObjectMirror.Clear();
   m_ObjectMirror.DeInit();
@@ -278,8 +275,7 @@ void ezSceneDocument::AttachToObject()
     return;
 
   const auto& ctxt = ezQtEngineViewWidget::GetInteractionContext();
-  if (ctxt.m_pLastHoveredViewWidget == nullptr || ctxt.m_pLastPickingResult == nullptr ||
-      !ctxt.m_pLastPickingResult->m_PickedObject.IsValid())
+  if (ctxt.m_pLastHoveredViewWidget == nullptr || ctxt.m_pLastPickingResult == nullptr || !ctxt.m_pLastPickingResult->m_PickedObject.IsValid())
     return;
 
   ezMoveObjectCommand cmd;
@@ -546,7 +542,9 @@ void ezSceneDocument::SetGameMode(GameMode::Enum mode)
   ScheduleSendObjectSelection();
 }
 
-ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(const char* szFile, const ezRTTI* pRootType, ezDelegate<void(ezAbstractObjectNode*)> AdjustGraphNodeCB /* = ezDelegate<void(ezAbstractObjectNode * )>() */, ezDelegate<void(ezDocumentObject*)> AdjustNewNodesCB /*= ezDelegate<void(ezDocumentObject*)>()*/)
+ezStatus ezSceneDocument::CreatePrefabDocumentFromSelection(const char* szFile, const ezRTTI* pRootType,
+  ezDelegate<void(ezAbstractObjectNode*)> AdjustGraphNodeCB /* = ezDelegate<void(ezAbstractObjectNode * )>() */,
+  ezDelegate<void(ezDocumentObject*)> AdjustNewNodesCB /*= ezDelegate<void(ezDocumentObject*)>()*/)
 {
   EZ_ASSERT_DEV(!AdjustGraphNodeCB.IsValid(), "Not allowed");
   EZ_ASSERT_DEV(!AdjustNewNodesCB.IsValid(), "Not allowed");
@@ -789,7 +787,8 @@ bool ezSceneDocument::PasteAtOrignalPosition(const ezArrayPtr<PasteInfo>& info)
   return true;
 }
 
-bool ezSceneDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType)
+bool ezSceneDocument::Paste(
+  const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType)
 {
   const auto& ctxt = ezQtEngineViewWidget::GetInteractionContext();
 
@@ -827,8 +826,7 @@ bool ezSceneDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractO
   return true;
 }
 
-bool ezSceneDocument::DuplicateSelectedObjects(
-  const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bSetSelected)
+bool ezSceneDocument::DuplicateSelectedObjects(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bSetSelected)
 {
   if (!PasteAtOrignalPosition(info))
     return false;
@@ -861,13 +859,11 @@ void ezSceneDocument::EnsureSettingsObjectExist()
   // undo ops for this operation.
   ezObjectDirectAccessor accessor(GetObjectManager());
   ezVariant value;
-  EZ_VERIFY(
-    accessor.ezObjectAccessorBase::GetValue(pRoot, "Settings", value).Succeeded(), "The scene doc root should have a settings property.");
+  EZ_VERIFY(accessor.ezObjectAccessorBase::GetValue(pRoot, "Settings", value).Succeeded(), "The scene doc root should have a settings property.");
   ezUuid id = value.Get<ezUuid>();
   if (!id.IsValid())
   {
-    EZ_VERIFY(
-      accessor.ezObjectAccessorBase::AddObject(pRoot, "Settings", ezVariant(), ezGetStaticRTTI<ezSceneDocumentSettings>(), id).Succeeded(),
+    EZ_VERIFY(accessor.ezObjectAccessorBase::AddObject(pRoot, "Settings", ezVariant(), ezGetStaticRTTI<ezSceneDocumentSettings>(), id).Succeeded(),
       "Adding scene settings object to root failed.");
   }
 }
@@ -1132,8 +1128,7 @@ ezResult ezSceneDocument::CreateLevelCamera(ezUInt8 uiSlot)
   qRot.SetFromMat3(mRot);
   qRot.Normalize();
 
-  SetGlobalTransform(
-    pAccessor->GetObject(camObjGuid), ezTransform(vPos, qRot), TransformationChanges::Translation | TransformationChanges::Rotation);
+  SetGlobalTransform(pAccessor->GetObject(camObjGuid), ezTransform(vPos, qRot), TransformationChanges::Translation | TransformationChanges::Rotation);
 
   ezUuid camCompGuid;
   if (pAccessor->AddObject(pAccessor->GetObject(camObjGuid), "Components", -1, ezGetStaticRTTI<ezCameraComponent>(), camCompGuid).Failed())
@@ -1357,8 +1352,8 @@ void ezSceneDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) const
       if (const ezExposedParametersAttribute* pAttrib = key.m_pProperty->GetAttributeByType<ezExposedParametersAttribute>())
       {
         const ezAbstractProperty* pParameterSourceProp = pLeafObject->GetType()->FindPropertyByName(pAttrib->GetParametersSource());
-        EZ_ASSERT_DEBUG(pParameterSourceProp, "The exposed parameter source '{0}' does not exist on type '{1}'",
-          pAttrib->GetParametersSource(), pLeafObject->GetType()->GetTypeName());
+        EZ_ASSERT_DEBUG(pParameterSourceProp, "The exposed parameter source '{0}' does not exist on type '{1}'", pAttrib->GetParametersSource(),
+          pLeafObject->GetType()->GetTypeName());
 
         ezExposedParameterCommandAccessor proxy(context.m_pAccessor, key.m_pProperty, pParameterSourceProp);
         res = proxy.GetValue(pLeafObject, key.m_pProperty, value, key.m_Index);

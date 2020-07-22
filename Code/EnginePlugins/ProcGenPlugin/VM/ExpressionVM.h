@@ -59,8 +59,8 @@ public:
   ezExpressionVM();
   ~ezExpressionVM();
 
-  void RegisterFunction(const char* szName, ezExpressionFunction func,
-    ezExpressionValidateGlobalData validationFunc = ezExpressionValidateGlobalData());
+  void RegisterFunction(
+    const char* szName, ezExpressionFunction func, ezExpressionValidateGlobalData validationFunc = ezExpressionValidateGlobalData());
 
   void RegisterDefaultFunctions();
 

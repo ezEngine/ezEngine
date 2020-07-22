@@ -51,21 +51,12 @@ public:
     }
   }
 
-  static GPUTimingScope& AllocateScope()
-  {
-    return m_TimingScopes.ExpandAndGetRef();
-  }
+  static GPUTimingScope& AllocateScope() { return m_TimingScopes.ExpandAndGetRef(); }
 
 private:
-  static void OnEngineStartup()
-  {
-    ezGALDevice::GetDefaultDevice()->m_Events.AddEventHandler(&GPUProfilingSystem::ProcessTimestamps);
-  }
+  static void OnEngineStartup() { ezGALDevice::GetDefaultDevice()->m_Events.AddEventHandler(&GPUProfilingSystem::ProcessTimestamps); }
 
-  static void OnEngineShutdown()
-  {
-    ezGALDevice::GetDefaultDevice()->m_Events.RemoveEventHandler(&GPUProfilingSystem::ProcessTimestamps);
-  }
+  static void OnEngineShutdown() { ezGALDevice::GetDefaultDevice()->m_Events.RemoveEventHandler(&GPUProfilingSystem::ProcessTimestamps); }
 
   static ezDeque<GPUTimingScope, ezStaticAllocatorWrapper> m_TimingScopes;
 
@@ -98,8 +89,8 @@ ezDeque<GPUTimingScope, ezStaticAllocatorWrapper> GPUProfilingSystem::m_TimingSc
 //////////////////////////////////////////////////////////////////////////
 
 ezProfilingScopeAndMarker::ezProfilingScopeAndMarker(ezGALContext* pGALContext, const char* szName)
-    : ezProfilingScope(szName, nullptr)
-    , m_pGALContext(pGALContext)
+  : ezProfilingScope(szName, nullptr)
+  , m_pGALContext(pGALContext)
 {
   m_pGALContext->PushMarker(m_szName);
 
@@ -119,4 +110,3 @@ ezProfilingScopeAndMarker::~ezProfilingScopeAndMarker()
 #endif
 
 EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Profiling_Implementation_Profiling);
-

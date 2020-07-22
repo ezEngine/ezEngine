@@ -2,7 +2,7 @@
 
 #include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
 
-template<typename HandleType>
+template <typename HandleType>
 class ezEditorGuidEngineHandleMap
 {
 public:
@@ -18,7 +18,7 @@ public:
     m_HandleToGuid[handle] = guid;
 
     // apparently this happens during undo/redo (same guid, new handle on undo)
-    //EZ_ASSERT_DEV(m_GuidToHandle.GetCount() == m_HandleToGuid.GetCount(), "1:1 relationship is broken. Check operator< for handle type.");
+    // EZ_ASSERT_DEV(m_GuidToHandle.GetCount() == m_HandleToGuid.GetCount(), "1:1 relationship is broken. Check operator< for handle type.");
   }
 
   void UnregisterObject(ezUuid guid)
@@ -28,7 +28,7 @@ public:
     m_HandleToGuid.Remove(handle);
 
     // apparently this happens during undo/redo (same guid, new handle on undo)
-    //EZ_ASSERT_DEV(m_GuidToHandle.GetCount() == m_HandleToGuid.GetCount(), "1:1 relationship is broken. Check operator< for handle type.");
+    // EZ_ASSERT_DEV(m_GuidToHandle.GetCount() == m_HandleToGuid.GetCount(), "1:1 relationship is broken. Check operator< for handle type.");
   }
 
   void UnregisterObject(HandleType handle)
@@ -38,7 +38,7 @@ public:
     m_HandleToGuid.Remove(handle);
 
     // apparently this happens during undo/redo (same guid, new handle on undo)
-    //EZ_ASSERT_DEV(m_GuidToHandle.GetCount() == m_HandleToGuid.GetCount(), "1:1 relationship is broken. Check operator< for handle type.");
+    // EZ_ASSERT_DEV(m_GuidToHandle.GetCount() == m_HandleToGuid.GetCount(), "1:1 relationship is broken. Check operator< for handle type.");
   }
 
   HandleType GetHandle(ezUuid guid) const
@@ -48,15 +48,9 @@ public:
     return res;
   }
 
-  ezUuid GetGuid(HandleType handle) const
-  {
-    return m_HandleToGuid.GetValueOrDefault(handle, ezUuid());
-  }
+  ezUuid GetGuid(HandleType handle) const { return m_HandleToGuid.GetValueOrDefault(handle, ezUuid()); }
 
-  const ezMap<HandleType, ezUuid>& GetHandleToGuidMap() const
-  {
-    return m_HandleToGuid;
-  }
+  const ezMap<HandleType, ezUuid>& GetHandleToGuidMap() const { return m_HandleToGuid; }
 
 private:
   ezHashTable<ezUuid, HandleType> m_GuidToHandle;

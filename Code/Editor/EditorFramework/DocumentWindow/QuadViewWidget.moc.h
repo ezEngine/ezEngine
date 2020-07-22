@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Foundation/Basics.h>
-#include <EditorFramework/EditorFrameworkDLL.h>
-#include <Foundation/Strings/String.h>
 #include <EditorEngineProcessFramework/EngineProcess/ViewRenderSettings.h>
+#include <EditorFramework/EditorFrameworkDLL.h>
+#include <Foundation/Basics.h>
+#include <Foundation/Strings/String.h>
 #include <QWidget>
 
 class ezAssetDocument;
@@ -19,8 +19,7 @@ class EZ_EDITORFRAMEWORK_DLL ezQtQuadViewWidget : public QWidget
   Q_OBJECT
 public:
   typedef ezDelegate<ezQtEngineViewWidget*(ezQtEngineDocumentWindow*, ezEngineViewConfig*)> ViewFactory;
-  ezQtQuadViewWidget(ezAssetDocument* pDocument, ezQtEngineDocumentWindow* pWindow,
-    ViewFactory viewFactory, const char* szViewToolBarMapping);
+  ezQtQuadViewWidget(ezAssetDocument* pDocument, ezQtEngineDocumentWindow* pWindow, ViewFactory viewFactory, const char* szViewToolBarMapping);
   ~ezQtQuadViewWidget();
 
   const ezHybridArray<ezQtViewWidgetContainer*, 4>& GetActiveMainViews() { return m_ActiveMainViews; }
@@ -46,4 +45,3 @@ private:
   ezHybridArray<ezQtViewWidgetContainer*, 4> m_ActiveMainViews;
   QGridLayout* m_pViewLayout;
 };
-

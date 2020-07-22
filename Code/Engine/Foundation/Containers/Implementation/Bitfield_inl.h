@@ -19,8 +19,9 @@ EZ_ALWAYS_INLINE ezUInt32 ezBitfield<Container>::GetCount() const
 }
 
 template <class Container>
-template <typename> // Second template needed so that the compiler only instantiates it when called. Needed to prevent errors with containers that do not support this.
-void ezBitfield<Container>::SetCountUninitialized(ezUInt32 uiBitCount)
+template <typename> // Second template needed so that the compiler only instantiates it when called. Needed to prevent errors with containers that do
+                    // not support this.
+                    void ezBitfield<Container>::SetCountUninitialized(ezUInt32 uiBitCount)
 {
   const ezUInt32 uiInts = (uiBitCount + 31) >> 5;
   m_Container.SetCountUninitialized(uiInts);

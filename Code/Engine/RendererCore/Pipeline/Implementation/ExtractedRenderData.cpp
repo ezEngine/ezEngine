@@ -65,8 +65,7 @@ void ezExtractedRenderData::SortAndBatch()
       }
     }
 
-    dataPerCategory.m_Batches.ExpandAndGetRef().m_Data =
-        ezMakeArrayPtr(&data[uiCurrentBatchStartIndex], data.GetCount() - uiCurrentBatchStartIndex);
+    dataPerCategory.m_Batches.ExpandAndGetRef().m_Data = ezMakeArrayPtr(&data[uiCurrentBatchStartIndex], data.GetCount() - uiCurrentBatchStartIndex);
   }
 }
 
@@ -83,8 +82,7 @@ void ezExtractedRenderData::Clear()
   // TODO: intelligent compact
 }
 
-ezRenderDataBatchList ezExtractedRenderData::GetRenderDataBatchesWithCategory(ezRenderData::Category category,
-                                                                              ezRenderDataBatch::Filter filter) const
+ezRenderDataBatchList ezExtractedRenderData::GetRenderDataBatchesWithCategory(ezRenderData::Category category, ezRenderDataBatch::Filter filter) const
 {
   if (category.m_uiValue < m_DataPerCategory.GetCount())
   {
@@ -112,4 +110,3 @@ const ezRenderData* ezExtractedRenderData::GetFrameData(const ezRTTI* pRtti) con
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_ExtractedRenderData);
-

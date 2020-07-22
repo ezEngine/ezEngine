@@ -17,7 +17,8 @@ public:
   /// \brief Writes bytes directly to the stream. Only allowed when a chunk is open (between BeginChunk / EndChunk).
   virtual ezResult WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite) override; // [tested]
 
-  /// \brief Starts writing to the chunk file. Has to be the first thing that is called. The version number is written to the stream and is returned by ezChunkStreamReader::BeginStream()
+  /// \brief Starts writing to the chunk file. Has to be the first thing that is called. The version number is written to the stream and is returned
+  /// by ezChunkStreamReader::BeginStream()
   virtual void BeginStream(ezUInt16 uiVersion); // [tested]
 
   /// \brief Stops writing to the chunk file. Has to be the last thing that is called.
@@ -54,8 +55,10 @@ public:
 
   enum class EndChunkFileMode
   {
-    SkipToEnd, ///< Makes sure all data is properly read, so that the stream read position is after the chunk file data. Useful if the chunk file is embedded in another file stream.
-    JustClose  ///< Just stops, leaving the stream at the last read position. This should be used if definitely nothing more needs to be read from all underlying streams.
+    SkipToEnd, ///< Makes sure all data is properly read, so that the stream read position is after the chunk file data. Useful if the chunk file is
+               ///< embedded in another file stream.
+    JustClose  ///< Just stops, leaving the stream at the last read position. This should be used if definitely nothing more needs to be read from all
+               ///< underlying streams.
   };
 
   void SetEndChunkFileMode(EndChunkFileMode mode) { m_EndChunkFileMode = mode; } // [tested]
@@ -63,7 +66,8 @@ public:
   /// \brief Starts reading from the chunk file. Returns the version number that was passed to ezChunkStreamWriter::BeginStream().
   virtual ezUInt16 BeginStream(); // [tested]
 
-  /// \brief Stops reading from the chunk file. Optionally skips the remaining bytes, so that the underlying streams read position is after the chunk file content.
+  /// \brief Stops reading from the chunk file. Optionally skips the remaining bytes, so that the underlying streams read position is after the chunk
+  /// file content.
   virtual void EndStream(); // [tested]
 
   /// \brief Describes the state of the current chunk.
@@ -98,4 +102,3 @@ private:
 
   ezStreamReader& m_Stream;
 };
-

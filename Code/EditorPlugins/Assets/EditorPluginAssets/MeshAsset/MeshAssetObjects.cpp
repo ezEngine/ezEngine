@@ -1,9 +1,9 @@
 #include <EditorPluginAssetsPCH.h>
 
-#include <EditorPluginAssets/MeshAsset/MeshAssetObjects.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
+#include <EditorPluginAssets/MeshAsset/MeshAssetObjects.h>
 #include <Foundation/Serialization/GraphPatch.h>
+#include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshAssetProperties, 3, ezRTTIDefaultAllocator<ezMeshAssetProperties>)
@@ -43,7 +43,9 @@ class ezMeshAssetPropertiesPatch_1_2 : public ezGraphPatch
 {
 public:
   ezMeshAssetPropertiesPatch_1_2()
-    : ezGraphPatch("ezMeshAssetProperties", 2) {}
+    : ezGraphPatch("ezMeshAssetProperties", 2)
+  {
+  }
 
   virtual void Patch(ezGraphPatchContext& context, ezAbstractObjectGraph* pGraph, ezAbstractObjectNode* pNode) const override
   {
@@ -66,17 +68,10 @@ public:
 ezMeshAssetPropertiesPatch_1_2 g_MeshAssetPropertiesPatch_1_2;
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezMeshPrimitive, 1)
-  EZ_ENUM_CONSTANT(ezMeshPrimitive::File),
-  EZ_ENUM_CONSTANT(ezMeshPrimitive::Box),
-  EZ_ENUM_CONSTANT(ezMeshPrimitive::Rect),
-  EZ_ENUM_CONSTANT(ezMeshPrimitive::Cylinder),
-  EZ_ENUM_CONSTANT(ezMeshPrimitive::Cone),
-  EZ_ENUM_CONSTANT(ezMeshPrimitive::Pyramid),
-  EZ_ENUM_CONSTANT(ezMeshPrimitive::Sphere),
-  EZ_ENUM_CONSTANT(ezMeshPrimitive::HalfSphere),
-  EZ_ENUM_CONSTANT(ezMeshPrimitive::GeodesicSphere),
-  EZ_ENUM_CONSTANT(ezMeshPrimitive::Capsule),
-  EZ_ENUM_CONSTANT(ezMeshPrimitive::Torus),
+  EZ_ENUM_CONSTANT(ezMeshPrimitive::File), EZ_ENUM_CONSTANT(ezMeshPrimitive::Box), EZ_ENUM_CONSTANT(ezMeshPrimitive::Rect),
+    EZ_ENUM_CONSTANT(ezMeshPrimitive::Cylinder), EZ_ENUM_CONSTANT(ezMeshPrimitive::Cone), EZ_ENUM_CONSTANT(ezMeshPrimitive::Pyramid),
+    EZ_ENUM_CONSTANT(ezMeshPrimitive::Sphere), EZ_ENUM_CONSTANT(ezMeshPrimitive::HalfSphere), EZ_ENUM_CONSTANT(ezMeshPrimitive::GeodesicSphere),
+    EZ_ENUM_CONSTANT(ezMeshPrimitive::Capsule), EZ_ENUM_CONSTANT(ezMeshPrimitive::Torus),
 EZ_END_STATIC_REFLECTED_ENUM;
 
 ezMeshAssetProperties::ezMeshAssetProperties()
@@ -120,101 +115,100 @@ void ezMeshAssetProperties::PropertyMetaStateEventHandler(ezPropertyMetaStateEve
 
     switch (primType)
     {
-    case ezMeshPrimitive::File:
-      props["MeshFile"].m_Visibility = ezPropertyUiState::Default;
-      props["ImportMaterials"].m_Visibility = ezPropertyUiState::Default;
-      break;
+      case ezMeshPrimitive::File:
+        props["MeshFile"].m_Visibility = ezPropertyUiState::Default;
+        props["ImportMaterials"].m_Visibility = ezPropertyUiState::Default;
+        break;
 
-    case ezMeshPrimitive::Box:
-      break;
+      case ezMeshPrimitive::Box:
+        break;
 
-    case ezMeshPrimitive::Rect:
-      props["Detail"].m_Visibility = ezPropertyUiState::Default;
-      props["Detail2"].m_Visibility = ezPropertyUiState::Default;
+      case ezMeshPrimitive::Rect:
+        props["Detail"].m_Visibility = ezPropertyUiState::Default;
+        props["Detail2"].m_Visibility = ezPropertyUiState::Default;
 
-      props["Detail"].m_sNewLabelText = "Prim.Rect.Detail1";
-      props["Detail2"].m_sNewLabelText = "Prim.Rect.Detail2";
-      break;
+        props["Detail"].m_sNewLabelText = "Prim.Rect.Detail1";
+        props["Detail2"].m_sNewLabelText = "Prim.Rect.Detail2";
+        break;
 
-    case ezMeshPrimitive::Capsule:
-      props["Radius"].m_Visibility = ezPropertyUiState::Default;
-      props["Height"].m_Visibility = ezPropertyUiState::Default;
-      props["Detail"].m_Visibility = ezPropertyUiState::Default;
-      props["Detail2"].m_Visibility = ezPropertyUiState::Default;
+      case ezMeshPrimitive::Capsule:
+        props["Radius"].m_Visibility = ezPropertyUiState::Default;
+        props["Height"].m_Visibility = ezPropertyUiState::Default;
+        props["Detail"].m_Visibility = ezPropertyUiState::Default;
+        props["Detail2"].m_Visibility = ezPropertyUiState::Default;
 
-      props["Detail"].m_sNewLabelText = "Prim.Sphere.Detail1";
-      props["Detail2"].m_sNewLabelText = "Prim.Sphere.Detail2";
-      break;
+        props["Detail"].m_sNewLabelText = "Prim.Sphere.Detail1";
+        props["Detail2"].m_sNewLabelText = "Prim.Sphere.Detail2";
+        break;
 
-    case ezMeshPrimitive::Cone:
-      props["Radius"].m_Visibility = ezPropertyUiState::Default;
-      props["Height"].m_Visibility = ezPropertyUiState::Default;
-      props["Detail"].m_Visibility = ezPropertyUiState::Default;
-      props["Cap"].m_Visibility = ezPropertyUiState::Default;
+      case ezMeshPrimitive::Cone:
+        props["Radius"].m_Visibility = ezPropertyUiState::Default;
+        props["Height"].m_Visibility = ezPropertyUiState::Default;
+        props["Detail"].m_Visibility = ezPropertyUiState::Default;
+        props["Cap"].m_Visibility = ezPropertyUiState::Default;
 
-      props["Detail"].m_sNewLabelText = "Prim.Cylinder.Detail";
-      break;
+        props["Detail"].m_sNewLabelText = "Prim.Cylinder.Detail";
+        break;
 
-    case ezMeshPrimitive::Cylinder:
-      props["Radius"].m_Visibility = ezPropertyUiState::Default;
-      props["Radius2"].m_Visibility = ezPropertyUiState::Default;
-      props["Height"].m_Visibility = ezPropertyUiState::Default;
-      props["Detail"].m_Visibility = ezPropertyUiState::Default;
-      props["Cap"].m_Visibility = ezPropertyUiState::Default;
-      props["Cap2"].m_Visibility = ezPropertyUiState::Default;
-      props["Angle"].m_Visibility = ezPropertyUiState::Default;
+      case ezMeshPrimitive::Cylinder:
+        props["Radius"].m_Visibility = ezPropertyUiState::Default;
+        props["Radius2"].m_Visibility = ezPropertyUiState::Default;
+        props["Height"].m_Visibility = ezPropertyUiState::Default;
+        props["Detail"].m_Visibility = ezPropertyUiState::Default;
+        props["Cap"].m_Visibility = ezPropertyUiState::Default;
+        props["Cap2"].m_Visibility = ezPropertyUiState::Default;
+        props["Angle"].m_Visibility = ezPropertyUiState::Default;
 
-      props["Detail"].m_sNewLabelText = "Prim.Cylinder.Detail";
-      props["Radius"].m_sNewLabelText = "Prim.Cylinder.Radius1";
-      props["Radius2"].m_sNewLabelText = "Prim.Cylinder.Radius2";
-      props["Angle"].m_sNewLabelText = "Prim.Cylinder.Angle";
-      props["Cap"].m_sNewLabelText = "Prim.Cylinder.Cap1";
-      props["Cap2"].m_sNewLabelText = "Prim.Cylinder.Cap2";
-      break;
+        props["Detail"].m_sNewLabelText = "Prim.Cylinder.Detail";
+        props["Radius"].m_sNewLabelText = "Prim.Cylinder.Radius1";
+        props["Radius2"].m_sNewLabelText = "Prim.Cylinder.Radius2";
+        props["Angle"].m_sNewLabelText = "Prim.Cylinder.Angle";
+        props["Cap"].m_sNewLabelText = "Prim.Cylinder.Cap1";
+        props["Cap2"].m_sNewLabelText = "Prim.Cylinder.Cap2";
+        break;
 
-    case ezMeshPrimitive::GeodesicSphere:
-      props["Radius"].m_Visibility = ezPropertyUiState::Default;
-      props["Detail"].m_Visibility = ezPropertyUiState::Default;
+      case ezMeshPrimitive::GeodesicSphere:
+        props["Radius"].m_Visibility = ezPropertyUiState::Default;
+        props["Detail"].m_Visibility = ezPropertyUiState::Default;
 
-      props["Detail"].m_sNewLabelText = "Prim.GeoSphere.Detail";
-      break;
+        props["Detail"].m_sNewLabelText = "Prim.GeoSphere.Detail";
+        break;
 
-    case ezMeshPrimitive::HalfSphere:
-      props["Radius"].m_Visibility = ezPropertyUiState::Default;
-      props["Detail"].m_Visibility = ezPropertyUiState::Default;
-      props["Detail2"].m_Visibility = ezPropertyUiState::Default;
-      props["Cap"].m_Visibility = ezPropertyUiState::Default;
+      case ezMeshPrimitive::HalfSphere:
+        props["Radius"].m_Visibility = ezPropertyUiState::Default;
+        props["Detail"].m_Visibility = ezPropertyUiState::Default;
+        props["Detail2"].m_Visibility = ezPropertyUiState::Default;
+        props["Cap"].m_Visibility = ezPropertyUiState::Default;
 
-      props["Detail"].m_sNewLabelText = "Prim.Sphere.Detail1";
-      props["Detail2"].m_sNewLabelText = "Prim.Sphere.Detail2";
-      break;
+        props["Detail"].m_sNewLabelText = "Prim.Sphere.Detail1";
+        props["Detail2"].m_sNewLabelText = "Prim.Sphere.Detail2";
+        break;
 
-    case ezMeshPrimitive::Pyramid:
-      props["Cap"].m_Visibility = ezPropertyUiState::Default;
-      break;
+      case ezMeshPrimitive::Pyramid:
+        props["Cap"].m_Visibility = ezPropertyUiState::Default;
+        break;
 
-    case ezMeshPrimitive::Sphere:
-      props["Radius"].m_Visibility = ezPropertyUiState::Default;
-      props["Detail"].m_Visibility = ezPropertyUiState::Default;
-      props["Detail2"].m_Visibility = ezPropertyUiState::Default;
+      case ezMeshPrimitive::Sphere:
+        props["Radius"].m_Visibility = ezPropertyUiState::Default;
+        props["Detail"].m_Visibility = ezPropertyUiState::Default;
+        props["Detail2"].m_Visibility = ezPropertyUiState::Default;
 
-      props["Detail"].m_sNewLabelText = "Prim.Sphere.Detail1";
-      props["Detail2"].m_sNewLabelText = "Prim.Sphere.Detail2";
-      break;
+        props["Detail"].m_sNewLabelText = "Prim.Sphere.Detail1";
+        props["Detail2"].m_sNewLabelText = "Prim.Sphere.Detail2";
+        break;
 
-    case ezMeshPrimitive::Torus:
-      props["Radius"].m_Visibility = ezPropertyUiState::Default;
-      props["Radius2"].m_Visibility = ezPropertyUiState::Default;
-      props["Detail"].m_Visibility = ezPropertyUiState::Default;
-      props["Detail2"].m_Visibility = ezPropertyUiState::Default;
+      case ezMeshPrimitive::Torus:
+        props["Radius"].m_Visibility = ezPropertyUiState::Default;
+        props["Radius2"].m_Visibility = ezPropertyUiState::Default;
+        props["Detail"].m_Visibility = ezPropertyUiState::Default;
+        props["Detail2"].m_Visibility = ezPropertyUiState::Default;
 
-      props["Detail"].m_sNewLabelText = "Prim.Torus.Detail1";
-      props["Detail2"].m_sNewLabelText = "Prim.Torus.Detail2";
-      props["Radius"].m_sNewLabelText = "Prim.Torus.Radius1";
-      props["Radius2"].m_sNewLabelText = "Prim.Torus.Radius2";
-      break;
+        props["Detail"].m_sNewLabelText = "Prim.Torus.Detail1";
+        props["Detail2"].m_sNewLabelText = "Prim.Torus.Detail2";
+        props["Radius"].m_sNewLabelText = "Prim.Torus.Radius1";
+        props["Radius2"].m_sNewLabelText = "Prim.Torus.Radius2";
+        break;
     }
-
   }
 }
 
@@ -224,7 +218,7 @@ class ezMeshAssetPropertiesPatch_2_3 : public ezGraphPatch
 {
 public:
   ezMeshAssetPropertiesPatch_2_3()
-      : ezGraphPatch("ezMeshAssetProperties", 3)
+    : ezGraphPatch("ezMeshAssetProperties", 3)
   {
   }
 
@@ -243,4 +237,3 @@ public:
 };
 
 ezMeshAssetPropertiesPatch_2_3 g_ezMeshAssetPropertiesPatch_2_3;
-

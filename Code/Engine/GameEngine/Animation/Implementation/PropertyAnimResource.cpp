@@ -89,8 +89,7 @@ void ezPropertyAnimResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 
   if (m_pDescriptor)
   {
-    out_NewMemoryUsage.m_uiMemoryCPU =
-      m_pDescriptor->m_FloatAnimations.GetHeapMemoryUsage() + sizeof(ezPropertyAnimResourceDescriptor);
+    out_NewMemoryUsage.m_uiMemoryCPU = m_pDescriptor->m_FloatAnimations.GetHeapMemoryUsage() + sizeof(ezPropertyAnimResourceDescriptor);
   }
 }
 

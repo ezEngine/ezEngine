@@ -161,7 +161,7 @@ void RtsShipSteeringComponent::UpdateSteering()
 //////////////////////////////////////////////////////////////////////////
 
 RtsShipSteeringComponentManager::RtsShipSteeringComponentManager(ezWorld* pWorld)
-    : ezComponentManager<class RtsShipSteeringComponent, ezBlockStorageType::Compact>(pWorld)
+  : ezComponentManager<class RtsShipSteeringComponent, ezBlockStorageType::Compact>(pWorld)
 {
 }
 

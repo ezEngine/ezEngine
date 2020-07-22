@@ -2,8 +2,7 @@
 
 #include <Utilities/PathFinding/GridNavmesh.h>
 
-void ezGridNavmesh::UpdateRegion(ezRectU32 region, CellComparator IsSameCellType, void* pPassThrough1, CellBlocked IsCellBlocked,
-                                 void* pPassThrough2)
+void ezGridNavmesh::UpdateRegion(ezRectU32 region, CellComparator IsSameCellType, void* pPassThrough1, CellBlocked IsCellBlocked, void* pPassThrough2)
 {
   ezInt32 iInvalidNode = -(ezInt32)m_ConvexAreas.GetCount();
 
@@ -228,8 +227,8 @@ bool ezGridNavmesh::CanCreateArea(ezRectU32 region, CellComparator IsSameCellTyp
   return true;
 }
 
-bool ezGridNavmesh::OptimizeBoxes(ezRectU32 region, CellComparator IsSameCellType, void* pPassThrough, ezUInt32 uiIntervalX,
-                                  ezUInt32 uiIntervalY, ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiOffsetX, ezUInt32 uiOffsetY)
+bool ezGridNavmesh::OptimizeBoxes(ezRectU32 region, CellComparator IsSameCellType, void* pPassThrough, ezUInt32 uiIntervalX, ezUInt32 uiIntervalY,
+  ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiOffsetX, ezUInt32 uiOffsetY)
 {
   bool bMergedAny = false;
 
@@ -267,7 +266,7 @@ bool ezGridNavmesh::CanMergeRight(ezInt32 x, ezInt32 y, CellComparator IsSameCel
   // const ezInt32 iCellNode = m_NodesGrid.GetCell(ezVec2I32(x, y));
 
   if (!IsSameCellType(m_NodesGrid.ConvertCellCoordinateToIndex(ezVec2I32(x, y)),
-                      m_NodesGrid.ConvertCellCoordinateToIndex(ezVec2I32(r1.x + r1.width, y)), pPassThrough))
+        m_NodesGrid.ConvertCellCoordinateToIndex(ezVec2I32(r1.x + r1.width, y)), pPassThrough))
     return false;
 
   const ezRectU32 r2 = GetCellBBox(r1.x + r1.width, y);
@@ -293,7 +292,7 @@ bool ezGridNavmesh::CanMergeDown(ezInt32 x, ezInt32 y, CellComparator IsSameCell
   // const ezInt32 iCellNode = m_NodesGrid.GetCell(ezVec2I32(x, y));
 
   if (!IsSameCellType(m_NodesGrid.ConvertCellCoordinateToIndex(ezVec2I32(x, y)),
-                      m_NodesGrid.ConvertCellCoordinateToIndex(ezVec2I32(x, r1.y + r1.height)), pPassThrough))
+        m_NodesGrid.ConvertCellCoordinateToIndex(ezVec2I32(x, r1.y + r1.height)), pPassThrough))
     return false;
 
   const ezRectU32 r2 = GetCellBBox(x, r1.y + r1.height);
@@ -532,4 +531,3 @@ void ezGridNavmesh::CreateGraphEdges(ConvexArea& Area)
 
 
 EZ_STATICLINK_FILE(Utilities, Utilities_PathFinding_Implementation_GridNavmesh);
-

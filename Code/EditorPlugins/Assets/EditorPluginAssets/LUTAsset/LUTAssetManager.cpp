@@ -30,7 +30,7 @@ ezLUTAssetDocumentManager::ezLUTAssetDocumentManager()
 
   ezQtImageCache::GetSingleton()->RegisterTypeImage("LUT", QPixmap(":/AssetIcons/LUT.png"));
 
-  //ezQtImageCache::GetSingleton()->RegisterTypeImage("Render Target", QPixmap(":/AssetIcons/Render_Target.png"));
+  // ezQtImageCache::GetSingleton()->RegisterTypeImage("Render Target", QPixmap(":/AssetIcons/Render_Target.png"));
 }
 
 ezLUTAssetDocumentManager::~ezLUTAssetDocumentManager()
@@ -56,7 +56,8 @@ void ezLUTAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManager::
   }
 }
 
-void ezLUTAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezLUTAssetDocumentManager::InternalCreateDocument(
+  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   ezLUTAssetDocument* pDoc = new ezLUTAssetDocument(szPath);
   out_pDocument = pDoc;

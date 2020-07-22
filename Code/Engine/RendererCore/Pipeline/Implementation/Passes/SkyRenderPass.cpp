@@ -6,7 +6,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSkyRenderPass, 1, ezRTTIDefaultAllocator<ezSky
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezSkyRenderPass::ezSkyRenderPass(const char* szName)
-    : ezForwardRenderPass(szName)
+  : ezForwardRenderPass(szName)
 {
 }
 
@@ -20,4 +20,3 @@ void ezSkyRenderPass::RenderObjects(const ezRenderViewContext& renderViewContext
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_SkyRenderPass);
-

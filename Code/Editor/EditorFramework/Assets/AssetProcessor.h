@@ -1,12 +1,12 @@
 #pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
-#include <Foundation/Threading/TaskSystem.h>
-#include <Foundation/Threading/AtomicInteger.h>
+#include <EditorFramework/IPC/EditorProcessCommunicationChannel.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Logging/LogEntry.h>
-#include <EditorFramework/IPC/EditorProcessCommunicationChannel.h>
+#include <Foundation/Threading/AtomicInteger.h>
+#include <Foundation/Threading/TaskSystem.h>
 
 struct ezAssetCuratorEvent;
 class ezTask;

@@ -25,7 +25,8 @@ void ezRmlUiComponentDragDropHandler::OnDragBegin(const ezDragDropInfo* pInfo)
   }
   else
   {
-    CreateDropObject(pInfo->m_vDropPosition, "ezRmlUiCanvas2DComponent", "RmlFile", GetAssetGuidString(pInfo), pInfo->m_TargetObject, pInfo->m_iTargetObjectInsertChildIndex);
+    CreateDropObject(pInfo->m_vDropPosition, "ezRmlUiCanvas2DComponent", "RmlFile", GetAssetGuidString(pInfo), pInfo->m_TargetObject,
+      pInfo->m_iTargetObjectInsertChildIndex);
   }
 
   SelectCreatedObjects();

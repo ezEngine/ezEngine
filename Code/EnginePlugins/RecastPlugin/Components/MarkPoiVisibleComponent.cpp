@@ -101,7 +101,8 @@ void ezRcMarkPoiVisibleComponent::Update()
 
     ezPhysicsCastResult hit;
 
-    if (m_pPhysicsModule->Raycast(hit, vOwnPos, vDirToBottom, fRayLenBottom, ezPhysicsQueryParameters(m_uiCollisionLayer, ezPhysicsShapeType::Static)))
+    if (m_pPhysicsModule->Raycast(
+          hit, vOwnPos, vDirToBottom, fRayLenBottom, ezPhysicsQueryParameters(m_uiCollisionLayer, ezPhysicsShapeType::Static)))
     {
       const ezVec3 vTargetTop = poi.m_vFloorPosition + ezVec3(0, 0, 1.0f);
       ezVec3 vDirToTop = vTargetTop - vOwnPos;

@@ -83,8 +83,7 @@ void ezMotionMatchingComponent::OnSimulationStarted()
     BufferDesc.m_ResourceAccess.m_bImmutable = false;
 
     m_hSkinningTransformsBuffer = ezGALDevice::GetDefaultDevice()->CreateBuffer(
-      BufferDesc,
-      ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(m_AnimationPose.GetAllTransforms().GetPtr()), BufferDesc.m_uiTotalSize));
+      BufferDesc, ezArrayPtr<const ezUInt8>(reinterpret_cast<const ezUInt8*>(m_AnimationPose.GetAllTransforms().GetPtr()), BufferDesc.m_uiTotalSize));
   }
 
   // m_AnimationClipSampler.RestartAnimation();
@@ -257,8 +256,7 @@ void ezMotionMatchingComponent::Update()
       if (animDesc1.HasRootMotion())
         vRootMotion1 = animDesc1.GetJointKeyframes(animDesc1.GetRootMotionJoint())[m_Keyframe1.m_uiKeyframe].m_vPosition;
 
-      const ezVec3 vRootMotion =
-        ezMath::Lerp(vRootMotion0, vRootMotion1, m_fKeyframeLerp) * fKeyframeFraction * pOwner->GetGlobalScaling().x;
+      const ezVec3 vRootMotion = ezMath::Lerp(vRootMotion0, vRootMotion1, m_fKeyframeLerp) * fKeyframeFraction * pOwner->GetGlobalScaling().x;
 
       const ezQuat qRotate = GetInputRotation();
 
@@ -359,8 +357,7 @@ void ezMotionMatchingComponent::Animations_Remove(ezUInt32 uiIndex)
   m_Animations.RemoveAtAndCopy(uiIndex);
 }
 
-ezMotionMatchingComponent::TargetKeyframe ezMotionMatchingComponent::FindNextKeyframe(const TargetKeyframe& current,
-  const ezVec3& vTargetDir) const
+ezMotionMatchingComponent::TargetKeyframe ezMotionMatchingComponent::FindNextKeyframe(const TargetKeyframe& current, const ezVec3& vTargetDir) const
 {
   TargetKeyframe kf;
   kf.m_uiAnimClip = current.m_uiAnimClip;
@@ -399,9 +396,8 @@ ezMotionMatchingComponent::TargetKeyframe ezMotionMatchingComponent::FindNextKey
   return kf;
 }
 
-void ezMotionMatchingComponent::PrecomputeMotion(ezDynamicArray<MotionData>& motionData, ezTempHashedString jointName1,
-  ezTempHashedString jointName2, const ezAnimationClipResourceDescriptor& animClip,
-  ezUInt16 uiAnimClipIndex, const ezSkeleton& skeleton)
+void ezMotionMatchingComponent::PrecomputeMotion(ezDynamicArray<MotionData>& motionData, ezTempHashedString jointName1, ezTempHashedString jointName2,
+  const ezAnimationClipResourceDescriptor& animClip, ezUInt16 uiAnimClipIndex, const ezSkeleton& skeleton)
 {
   const ezUInt16 uiRootJoint = animClip.HasRootMotion() ? animClip.GetRootMotionJoint() : 0xFFFFu;
   // const ezUInt16 uiJoint1IndexInAnim = animClip.FindJointIndexByName(jointName1);
@@ -446,8 +442,8 @@ void ezMotionMatchingComponent::PrecomputeMotion(ezDynamicArray<MotionData>& mot
     md.m_uiKeyframeIndex = uiFrameIdx;
     md.m_vLeftFootVelocity.SetZero();
     md.m_vRightFootVelocity.SetZero();
-    md.m_vRootVelocity = animClip.HasRootMotion() ? fRootMotionToVelocity * animClip.GetJointKeyframes(uiRootJoint)[uiFrameIdx].m_vPosition
-                                                  : ezVec3::ZeroVector();
+    md.m_vRootVelocity =
+      animClip.HasRootMotion() ? fRootMotionToVelocity * animClip.GetJointKeyframes(uiRootJoint)[uiFrameIdx].m_vPosition : ezVec3::ZeroVector();
   }
 
   // now compute the velocity
@@ -472,8 +468,8 @@ void ezMotionMatchingComponent::PrecomputeMotion(ezDynamicArray<MotionData>& mot
   }
 }
 
-ezUInt32 ezMotionMatchingComponent::FindBestKeyframe(const TargetKeyframe& current, ezVec3 vLeftFootPosition, ezVec3 vRightFootPosition,
-  ezVec3 vTargetDir) const
+ezUInt32 ezMotionMatchingComponent::FindBestKeyframe(
+  const TargetKeyframe& current, ezVec3 vLeftFootPosition, ezVec3 vRightFootPosition, ezVec3 vTargetDir) const
 {
   float fClosest = 1000000000.0f;
   ezUInt32 uiClosest = 0xFFFFFFFFu;

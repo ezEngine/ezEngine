@@ -11,8 +11,8 @@ void TestLength(const ezCoordinateSystemConversion& AtoB, const ezCoordinateSyst
   EZ_TEST_FLOAT(BtoA.ConvertSourceLength(fTargetLength), fSourceLength, ezMath::DefaultEpsilon<float>());
 }
 
-void TestPosition(const ezCoordinateSystemConversion& AtoB, const ezCoordinateSystemConversion& BtoA,
-  const ezVec3& vSourcePos, const ezVec3& vTargetPos)
+void TestPosition(
+  const ezCoordinateSystemConversion& AtoB, const ezCoordinateSystemConversion& BtoA, const ezVec3& vSourcePos, const ezVec3& vTargetPos)
 {
   TestLength(AtoB, BtoA, vSourcePos.GetLength(), vTargetPos.GetLength());
 
@@ -22,9 +22,8 @@ void TestPosition(const ezCoordinateSystemConversion& AtoB, const ezCoordinateSy
   EZ_TEST_VEC3(BtoA.ConvertTargetPosition(vSourcePos), vTargetPos, ezMath::DefaultEpsilon<float>());
 }
 
-void TestRotation(const ezCoordinateSystemConversion& AtoB, const ezCoordinateSystemConversion& BtoA,
-  const ezVec3& vSourceStartDir, const ezVec3& vSourceEndDir, const ezQuat& qSourceRot,
-  const ezVec3& vTargetStartDir, const ezVec3& vTargetEndDir, const ezQuat& qTargetRot)
+void TestRotation(const ezCoordinateSystemConversion& AtoB, const ezCoordinateSystemConversion& BtoA, const ezVec3& vSourceStartDir,
+  const ezVec3& vSourceEndDir, const ezQuat& qSourceRot, const ezVec3& vTargetStartDir, const ezVec3& vTargetEndDir, const ezQuat& qTargetRot)
 {
   TestPosition(AtoB, BtoA, vSourceStartDir, vTargetStartDir);
   TestPosition(AtoB, BtoA, vSourceEndDir, vTargetEndDir);
@@ -69,15 +68,12 @@ void TestCoordinateSystemConversion(const ezCoordinateSystem& A, const ezCoordin
   TestPosition(AtoB, BtoA, A.m_vRightDir, B.m_vRightDir);
   TestPosition(AtoB, BtoA, A.m_vUpDir, B.m_vUpDir);
 
-  TestRotation(AtoB, BtoA,
-    A.m_vForwardDir, A.m_vRightDir, FromAxisAndAngle(A.m_vUpDir, A_CWRot),
-    B.m_vForwardDir, B.m_vRightDir, FromAxisAndAngle(B.m_vUpDir, B_CWRot));
-  TestRotation(AtoB, BtoA,
-    A.m_vUpDir, A.m_vForwardDir, FromAxisAndAngle(A.m_vRightDir, A_CWRot),
-    B.m_vUpDir, B.m_vForwardDir, FromAxisAndAngle(B.m_vRightDir, B_CWRot));
-  TestRotation(AtoB, BtoA,
-    A.m_vUpDir, A.m_vRightDir, FromAxisAndAngle(A.m_vForwardDir, -A_CWRot),
-    B.m_vUpDir, B.m_vRightDir, FromAxisAndAngle(B.m_vForwardDir, -B_CWRot));
+  TestRotation(AtoB, BtoA, A.m_vForwardDir, A.m_vRightDir, FromAxisAndAngle(A.m_vUpDir, A_CWRot), B.m_vForwardDir, B.m_vRightDir,
+    FromAxisAndAngle(B.m_vUpDir, B_CWRot));
+  TestRotation(AtoB, BtoA, A.m_vUpDir, A.m_vForwardDir, FromAxisAndAngle(A.m_vRightDir, A_CWRot), B.m_vUpDir, B.m_vForwardDir,
+    FromAxisAndAngle(B.m_vRightDir, B_CWRot));
+  TestRotation(AtoB, BtoA, A.m_vUpDir, A.m_vRightDir, FromAxisAndAngle(A.m_vForwardDir, -A_CWRot), B.m_vUpDir, B.m_vRightDir,
+    FromAxisAndAngle(B.m_vForwardDir, -B_CWRot));
 }
 
 
@@ -168,14 +164,14 @@ EZ_CREATE_SIMPLE_TEST(World, CoordinateSystem)
     TestPosition(defaultConstucted, defaultConstucted, ezCoordSysLH.m_vRightDir, ezCoordSysLH.m_vRightDir);
     TestPosition(defaultConstucted, defaultConstucted, ezCoordSysLH.m_vUpDir, ezCoordSysLH.m_vUpDir);
 
-    TestRotation(defaultConstucted, defaultConstucted,
-      ezCoordSysLH.m_vForwardDir, ezCoordSysLH.m_vRightDir, FromAxisAndAngle(ezCoordSysLH.m_vUpDir, rot),
-      ezCoordSysLH.m_vForwardDir, ezCoordSysLH.m_vRightDir, FromAxisAndAngle(ezCoordSysLH.m_vUpDir, rot));
-    TestRotation(defaultConstucted, defaultConstucted,
-      ezCoordSysLH.m_vUpDir, ezCoordSysLH.m_vForwardDir, FromAxisAndAngle(ezCoordSysLH.m_vRightDir, rot),
-      ezCoordSysLH.m_vUpDir, ezCoordSysLH.m_vForwardDir, FromAxisAndAngle(ezCoordSysLH.m_vRightDir, rot));
-    TestRotation(defaultConstucted, defaultConstucted,
-      ezCoordSysLH.m_vUpDir, ezCoordSysLH.m_vRightDir, FromAxisAndAngle(ezCoordSysLH.m_vForwardDir, -rot),
-      ezCoordSysLH.m_vUpDir, ezCoordSysLH.m_vRightDir, FromAxisAndAngle(ezCoordSysLH.m_vForwardDir, -rot));
+    TestRotation(defaultConstucted, defaultConstucted, ezCoordSysLH.m_vForwardDir, ezCoordSysLH.m_vRightDir,
+      FromAxisAndAngle(ezCoordSysLH.m_vUpDir, rot), ezCoordSysLH.m_vForwardDir, ezCoordSysLH.m_vRightDir,
+      FromAxisAndAngle(ezCoordSysLH.m_vUpDir, rot));
+    TestRotation(defaultConstucted, defaultConstucted, ezCoordSysLH.m_vUpDir, ezCoordSysLH.m_vForwardDir,
+      FromAxisAndAngle(ezCoordSysLH.m_vRightDir, rot), ezCoordSysLH.m_vUpDir, ezCoordSysLH.m_vForwardDir,
+      FromAxisAndAngle(ezCoordSysLH.m_vRightDir, rot));
+    TestRotation(defaultConstucted, defaultConstucted, ezCoordSysLH.m_vUpDir, ezCoordSysLH.m_vRightDir,
+      FromAxisAndAngle(ezCoordSysLH.m_vForwardDir, -rot), ezCoordSysLH.m_vUpDir, ezCoordSysLH.m_vRightDir,
+      FromAxisAndAngle(ezCoordSysLH.m_vForwardDir, -rot));
   }
 }

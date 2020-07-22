@@ -2,7 +2,7 @@
 
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
 
-#include <WindowsMixedReality/Basics.h>
+#  include <WindowsMixedReality/Basics.h>
 
 /// \brief Represents a fixed location in space.
 ///

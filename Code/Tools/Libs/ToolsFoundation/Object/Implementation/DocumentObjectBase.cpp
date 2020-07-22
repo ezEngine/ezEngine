@@ -23,8 +23,8 @@ void ezDocumentObject::InsertSubObject(ezDocumentObject* pObject, const char* sz
   const ezRTTI* pType = accessor.GetType();
   auto* pProp = pType->FindPropertyByName(szProperty);
   EZ_ASSERT_DEV(pProp && pProp->GetFlags().IsSet(ezPropertyFlags::Class) &&
-                    (!pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) || pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner)),
-                "Only class type or pointer to class type that own the object can be inserted, everything else is handled by value.");
+                  (!pProp->GetFlags().IsSet(ezPropertyFlags::Pointer) || pProp->GetFlags().IsSet(ezPropertyFlags::PointerOwner)),
+    "Only class type or pointer to class type that own the object can be inserted, everything else is handled by value.");
 
   if (pProp->GetCategory() == ezPropertyCategory::Array || pProp->GetCategory() == ezPropertyCategory::Set)
   {
@@ -138,8 +138,8 @@ bool ezDocumentObject::IsOnHeap() const
   /// \todo Christopher: This crashes when the pointer is nullptr, which appears to be possible
   /// It happened for me when duplicating (CTRL+D) 2 objects 2 times then moving them and finally undoing everything
   EZ_ASSERT_DEV(m_pParent != nullptr,
-                "Object being modified is not part of the document, e.g. may be in the undo stack instead. "
-                "This could happen if within an undo / redo op some callback tries to create a new undo scope / update prefabs etc.");
+    "Object being modified is not part of the document, e.g. may be in the undo stack instead. "
+    "This could happen if within an undo / redo op some callback tries to create a new undo scope / update prefabs etc.");
 
   if (GetParent() == GetDocumentObjectManager()->GetRootObject())
     return true;

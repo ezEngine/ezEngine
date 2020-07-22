@@ -23,7 +23,7 @@ EZ_IMPLEMENT_SINGLETON(ezEditorEngineProcessConnection);
 ezEvent<const ezEditorEngineProcessConnection::Event&> ezEditorEngineProcessConnection::s_Events;
 
 ezEditorEngineProcessConnection::ezEditorEngineProcessConnection()
-    : m_SingletonRegistrar(this)
+  : m_SingletonRegistrar(this)
 {
   m_bProcessShouldBeRunning = false;
   m_bProcessCrashed = false;
@@ -257,23 +257,22 @@ void ezEditorEngineProcessConnection::SendMessage(ezProcessMessage* pMessage)
   }
 }
 
-ezResult ezEditorEngineProcessConnection::WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout,
-                                                         ezProcessCommunicationChannel::WaitForMessageCallback* pCallback)
+ezResult ezEditorEngineProcessConnection::WaitForMessage(
+  const ezRTTI* pMessageType, ezTime tTimeout, ezProcessCommunicationChannel::WaitForMessageCallback* pCallback)
 {
   EZ_PROFILE_SCOPE(pMessageType->GetTypeName());
   return m_IPC.WaitForMessage(pMessageType, tTimeout, pCallback);
 }
 
-ezResult
-ezEditorEngineProcessConnection::WaitForDocumentMessage(const ezUuid& assetGuid, const ezRTTI* pMessageType, ezTime tTimeout,
-                                                        ezProcessCommunicationChannel::WaitForMessageCallback* pCallback /*= nullptr*/)
+ezResult ezEditorEngineProcessConnection::WaitForDocumentMessage(const ezUuid& assetGuid, const ezRTTI* pMessageType, ezTime tTimeout,
+  ezProcessCommunicationChannel::WaitForMessageCallback* pCallback /*= nullptr*/)
 {
   if (!m_bProcessShouldBeRunning)
   {
     return EZ_FAILURE; // if the process is not running, we can't wait for a message
   }
-  EZ_ASSERT_DEBUG(pMessageType->IsDerivedFrom(ezGetStaticRTTI<ezEditorEngineDocumentMsg>()),
-                  "The type of the message to wait for must be a document message.");
+  EZ_ASSERT_DEBUG(
+    pMessageType->IsDerivedFrom(ezGetStaticRTTI<ezEditorEngineDocumentMsg>()), "The type of the message to wait for must be a document message.");
   struct WaitData
   {
     ezUuid m_AssetGuid;

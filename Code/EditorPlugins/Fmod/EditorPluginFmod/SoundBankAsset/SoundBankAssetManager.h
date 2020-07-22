@@ -14,14 +14,15 @@ public:
   ~ezSoundBankAssetDocumentManager();
 
   virtual void FillOutSubAssetList(const ezAssetDocumentInfo& assetInfo, ezHybridArray<ezSubAssetData, 4>& out_SubAssets) const override;
-  virtual ezString GetAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory,
-                                      const ezPlatformProfile* pAssetProfile) const override;
+  virtual ezString GetAssetTableEntry(
+    const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezPlatformProfile* pAssetProfile) const override;
 
 private:
   void OnDocumentManagerEvent(const ezDocumentManager::Event& e);
   ezString GetSoundBankAssetTableEntry(const ezSubAsset* pSubAsset, const char* szDataDirectory, const ezPlatformProfile* pAssetProfile) const;
 
-  virtual void InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument) override;
+  virtual void InternalCreateDocument(
+    const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument) override;
   virtual void InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const override;
 
   virtual bool GeneratesProfileSpecificAssets() const override { return true; }

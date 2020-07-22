@@ -39,24 +39,15 @@ public:
   void operator=(ezHybridArray<T, Size, AllocatorWrapper>&& rhs) noexcept; // [tested]
 
 protected:
-
   /// \brief The fixed size array.
   struct : ezAligned<EZ_ALIGNMENT_OF(T)>
   {
     ezUInt8 m_StaticData[Size * sizeof(T)];
   };
 
-  EZ_ALWAYS_INLINE T* GetStaticArray()
-  {
-    return reinterpret_cast<T*>(m_StaticData);
-  }
+  EZ_ALWAYS_INLINE T* GetStaticArray() { return reinterpret_cast<T*>(m_StaticData); }
 
-  EZ_ALWAYS_INLINE const T* GetStaticArray() const
-  {
-    return reinterpret_cast<const T*>(m_StaticData);
-  }
+  EZ_ALWAYS_INLINE const T* GetStaticArray() const { return reinterpret_cast<const T*>(m_StaticData); }
 };
 
 #include <Foundation/Containers/Implementation/HybridArray_inl.h>
-
-

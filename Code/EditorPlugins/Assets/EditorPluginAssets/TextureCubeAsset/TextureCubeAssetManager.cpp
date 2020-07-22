@@ -38,8 +38,7 @@ void ezTextureCubeAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentM
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezTextureCubeAssetDocument>())
       {
-        ezQtTextureCubeAssetDocumentWindow* pDocWnd =
-          new ezQtTextureCubeAssetDocumentWindow(static_cast<ezTextureCubeAssetDocument*>(e.m_pDocument));
+        ezQtTextureCubeAssetDocumentWindow* pDocWnd = new ezQtTextureCubeAssetDocumentWindow(static_cast<ezTextureCubeAssetDocument*>(e.m_pDocument));
       }
     }
     break;
@@ -49,7 +48,8 @@ void ezTextureCubeAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentM
   }
 }
 
-void ezTextureCubeAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezTextureCubeAssetDocumentManager::InternalCreateDocument(
+  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   out_pDocument = new ezTextureCubeAssetDocument(szPath);
 }

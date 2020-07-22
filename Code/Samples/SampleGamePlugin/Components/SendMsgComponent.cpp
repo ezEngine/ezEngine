@@ -69,7 +69,7 @@ void SendMsgComponent::OnSendText(ezMsgComponentInternalTrigger& msg)
   // However, if the component got deactivated and activated again within the 2 second
   // message delay, OnSimulationStarted() above could queue a second message, and now
   // both of them would arrive. We don't handle that case here.
-  //if (!IsActiveAndSimulating())
+  // if (!IsActiveAndSimulating())
   //  return;
 
   if (msg.m_uiUsageStringHash = ezTempHashedString::ComputeHash("SendNextString"))
@@ -96,4 +96,3 @@ void SendMsgComponent::OnSendText(ezMsgComponentInternalTrigger& msg)
     PostMessage(msg, ezTime::Seconds(2));
   }
 }
-

@@ -53,14 +53,8 @@ void ezStageSpaceComponent::DeserializeComponent(ezWorldReader& stream)
   s >> m_space;
 }
 
-void ezStageSpaceComponent::OnActivated()
-{
-}
+void ezStageSpaceComponent::OnActivated() {}
 
-void ezStageSpaceComponent::OnDeactivated()
-{
-}
+void ezStageSpaceComponent::OnDeactivated() {}
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_XR_Implementation_StageSpaceComponent);
-
-

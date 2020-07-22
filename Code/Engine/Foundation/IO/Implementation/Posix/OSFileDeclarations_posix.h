@@ -7,14 +7,10 @@
 
 struct ezOSFileData
 {
-  ezOSFileData()
-  {
-    m_pFileHandle = nullptr;
-  }
+  ezOSFileData() { m_pFileHandle = nullptr; }
 
   FILE* m_pFileHandle;
 };
 
 
 /// \endcond
-

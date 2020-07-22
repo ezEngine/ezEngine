@@ -218,8 +218,7 @@ void ezSceneViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
       const ezUInt32 uiPickingID = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingID").ConvertTo<ezUInt32>();
       // const float fPickingDepth = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingDepth").ConvertTo<float>();
       res.m_vPickedNormal = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingNormal").ConvertTo<ezVec3>();
-      res.m_vPickingRayStartPosition =
-        pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingRayStartPosition").ConvertTo<ezVec3>();
+      res.m_vPickingRayStartPosition = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingRayStartPosition").ConvertTo<ezVec3>();
       res.m_vPickedPosition = pView->GetRenderPassReadBackProperty("EditorPickingPass", "PickingPosition").ConvertTo<ezVec3>();
 
       EZ_ASSERT_DEBUG(!res.m_vPickedPosition.IsNaN(), "");

@@ -219,7 +219,8 @@ public:
   /// \brief Deletes the given file. Returns EZ_SUCCESS, if the file was deleted or did not exist in the first place. Returns EZ_FAILURE
   static ezResult DeleteFile(const char* szFile); // [tested]
 
-  /// \brief Creates the given directory structure (meaning all directories in the path, that do not exist). Returns false, if any directory could not be created.
+  /// \brief Creates the given directory structure (meaning all directories in the path, that do not exist). Returns false, if any directory could not
+  /// be created.
   static ezResult CreateDirectoryStructure(const char* szDirectory); // [tested]
 
   /// \brief Copies the source file into the destination file.
@@ -239,7 +240,8 @@ public:
 #if (EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) && EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)) || defined(EZ_DOCS)
 
   /// \brief Returns the ezFileStats for all files and folders in the given folder
-  static void GatherAllItemsInFolder(ezDynamicArray<ezFileStats>& out_ItemList, const char* szFolder, ezBitflags<ezFileSystemIteratorFlags> flags = ezFileSystemIteratorFlags::Default);
+  static void GatherAllItemsInFolder(ezDynamicArray<ezFileStats>& out_ItemList, const char* szFolder,
+    ezBitflags<ezFileSystemIteratorFlags> flags = ezFileSystemIteratorFlags::Default);
 
   /// \brief Copies \a szSourceFolder to \a szDestinationFolder. Overwrites existing files.
   static ezResult CopyFolder(const char* szSourceFolder, const char* szDestinationFolder);
@@ -298,7 +300,8 @@ public:
     /// \brief The type of information that is sent.
     EventType::Enum m_EventType;
 
-    /// \brief A unique ID for each file access. Reads and writes to the same open file use the same ID. If the same file is opened multiple times, different IDs are used.
+    /// \brief A unique ID for each file access. Reads and writes to the same open file use the same ID. If the same file is opened multiple times,
+    /// different IDs are used.
     ezInt32 m_iFileID;
 
     /// \brief The name of the file that was operated upon.
@@ -331,7 +334,7 @@ public:
     }
   };
 
-  using Event = ezEvent<const EventData &, ezMutex>;
+  using Event = ezEvent<const EventData&, ezMutex>;
 
   /// \brief Allows to register a function as an event receiver. All receivers will be notified in the order that they registered.
   static void AddEventHandler(Event::Handler handler) { s_FileEvents.AddEventHandler(handler); }

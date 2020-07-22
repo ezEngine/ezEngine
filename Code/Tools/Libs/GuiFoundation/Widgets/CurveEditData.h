@@ -1,17 +1,17 @@
 #pragma once
 
-#include <GuiFoundation/GuiFoundationDLL.h>
-#include <Foundation/Reflection/Reflection.h>
-#include <Foundation/Math/Vec2.h>
-#include <Foundation/Math/Color8UNorm.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Math/Color8UNorm.h>
+#include <Foundation/Math/Vec2.h>
+#include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Tracks/Curve1D.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 
 class ezCurve1D;
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_GUIFOUNDATION_DLL, ezCurveTangentMode);
 
-template<typename T>
+template <typename T>
 void FindNearestControlPoints(ezArrayPtr<T> cps, ezInt64 iTick, T*& llhs, T*& lhs, T*& rhs, T*& rrhs)
 {
   llhs = nullptr;
@@ -25,7 +25,7 @@ void FindNearestControlPoints(ezArrayPtr<T> cps, ezInt64 iTick, T*& llhs, T*& lh
 
   for (decltype(auto) cp : cps)
   {
-    if (cp.m_iTick <= iTick )
+    if (cp.m_iTick <= iTick)
     {
       if (cp.m_iTick > lhsTick)
       {
@@ -64,8 +64,8 @@ void FindNearestControlPoints(ezArrayPtr<T> cps, ezInt64 iTick, T*& llhs, T*& lh
 class EZ_GUIFOUNDATION_DLL ezCurveControlPointData : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezCurveControlPointData, ezReflectedClass);
-public:
 
+public:
   ezTime GetTickAsTime() const { return ezTime::Seconds(m_iTick / 4800.0); }
   void SetTickFromTime(ezTime time, ezInt64 fps);
 
@@ -81,6 +81,7 @@ public:
 class EZ_GUIFOUNDATION_DLL ezSingleCurveData : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezSingleCurveData, ezReflectedClass);
+
 public:
   ezColorGammaUB m_CurveColor;
   ezDynamicArray<ezCurveControlPointData> m_ControlPoints;
@@ -92,6 +93,7 @@ public:
 class EZ_GUIFOUNDATION_DLL ezCurveGroupData : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezCurveGroupData, ezReflectedClass);
+
 public:
   ezCurveGroupData() = default;
   ezCurveGroupData(const ezCurveGroupData& rhs) = delete;

@@ -230,8 +230,7 @@ ezResult ezRmlUiCanvas2DComponent::GetLocalBounds(ezBoundingBoxSphere& bounds, b
 
 void ezRmlUiCanvas2DComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg) const
 {
-  if (msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::MainView &&
-      msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::EditorView &&
+  if (msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::MainView && msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::EditorView &&
       msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::Thumbnail)
     return;
 
@@ -275,12 +274,13 @@ void ezRmlUiCanvas2DComponent::UpdateCachedValues()
     {
       ezResourceLock pResource(m_hResource, ezResourceAcquireMode::PointerOnly);
 
-      pResource->m_ResourceEvents.AddEventHandler([hComponent = GetHandle(), pWorld = GetWorld()](const ezResourceEvent& e) {
-        if (e.m_Type == ezResourceEvent::Type::ResourceContentUnloading)
-        {
-          pWorld->PostMessage(hComponent, ezMsgRmlUiReload(), ezTime::Zero());
-        }
-      },
+      pResource->m_ResourceEvents.AddEventHandler(
+        [hComponent = GetHandle(), pWorld = GetWorld()](const ezResourceEvent& e) {
+          if (e.m_Type == ezResourceEvent::Type::ResourceContentUnloading)
+          {
+            pWorld->PostMessage(hComponent, ezMsgRmlUiReload(), ezTime::Zero());
+          }
+        },
         m_ResourceEventUnsubscriber);
     }
   }

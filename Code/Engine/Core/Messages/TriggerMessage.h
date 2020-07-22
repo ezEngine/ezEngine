@@ -29,4 +29,3 @@ struct EZ_CORE_DLL ezMsgComponentInternalTrigger : public ezMessage
   /// expected string. Use ezTempHashedString::ComputeHash() to assign and compare the value.
   ezUInt32 m_uiUsageStringHash = 0;
 };
-

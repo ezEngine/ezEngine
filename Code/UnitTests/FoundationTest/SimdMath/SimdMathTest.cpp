@@ -4,11 +4,8 @@
 
 namespace
 {
-  ezSimdVec4f SimdDegree(float degree)
-  {
-    return ezSimdVec4f(ezAngle::Degree(degree));
-  }
-}
+  ezSimdVec4f SimdDegree(float degree) { return ezSimdVec4f(ezAngle::Degree(degree)); }
+} // namespace
 
 EZ_CREATE_SIMPLE_TEST(SimdMath, SimdMath)
 {

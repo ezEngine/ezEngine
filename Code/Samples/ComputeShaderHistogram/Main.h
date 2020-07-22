@@ -1,10 +1,10 @@
 #pragma once
 
-#include <GameEngine/GameApplication/GameApplication.h>
-#include <Foundation/Types/UniquePtr.h>
-#include <RendererCore/Meshes/MeshResource.h>
-#include <RendererCore/Material/MaterialResource.h>
 #include <Foundation/IO/DirectoryWatcher.h>
+#include <Foundation/Types/UniquePtr.h>
+#include <GameEngine/GameApplication/GameApplication.h>
+#include <RendererCore/Material/MaterialResource.h>
+#include <RendererCore/Meshes/MeshResource.h>
 
 class ezWindow;
 class ezDirectoryWatcher;
@@ -24,7 +24,6 @@ public:
   virtual void BeforeHighLevelSystemsShutdown() override;
 
 private:
-
   void CreateHistogramQuad();
   void OnFileChanged(const char* filename, ezDirectoryWatcherAction action);
 

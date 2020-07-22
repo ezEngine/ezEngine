@@ -1,13 +1,12 @@
 #pragma once
 
 #include <Foundation/IO/Archive/ArchiveReader.h>
-#include <Foundation/IO/CompressedStreamZstd.h>
 #include <Foundation/IO/CompressedStreamZlib.h>
+#include <Foundation/IO/CompressedStreamZstd.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/FileSystem/Implementation/DataDirType.h>
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Time/Timestamp.h>
-#include <Foundation/IO/MemoryStream.h>
 
 class ezArchiveEntry;
 
@@ -23,8 +22,7 @@ namespace ezDataDirectory
     ArchiveType();
     ~ArchiveType();
 
-    static ezDataDirectoryType* Factory(
-      const char* szDataDirectory, const char* szGroup, const char* szRootName, ezFileSystem::DataDirUsage Usage);
+    static ezDataDirectoryType* Factory(const char* szDataDirectory, const char* szGroup, const char* szRootName, ezFileSystem::DataDirUsage Usage);
 
     virtual const ezString128& GetRedirectedDataDirectoryPath() const override { return m_sRedirectedDataDirPath; }
 

@@ -2,13 +2,13 @@
 
 // Configure the DLL Import/Export Define
 #if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
-  #ifdef BUILDSYSTEM_BUILDING_FMODPLUGIN_LIB
-    #define EZ_FMODPLUGIN_DLL __declspec(dllexport)
-  #else
-    #define EZ_FMODPLUGIN_DLL __declspec(dllimport)
-  #endif
+#  ifdef BUILDSYSTEM_BUILDING_FMODPLUGIN_LIB
+#    define EZ_FMODPLUGIN_DLL __declspec(dllexport)
+#  else
+#    define EZ_FMODPLUGIN_DLL __declspec(dllimport)
+#  endif
 #else
-  #define EZ_FMODPLUGIN_DLL
+#  define EZ_FMODPLUGIN_DLL
 #endif
 
 // Forward declarations
@@ -21,7 +21,7 @@ namespace FMOD
     class System;
     class EventInstance;
     class EventDescription;
-  }
+  } // namespace Studio
 
   class System;
-}
+} // namespace FMOD

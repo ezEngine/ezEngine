@@ -1,7 +1,7 @@
 #pragma once
 
-#include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/Declarations.h>
+#include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <RendererCore/Shader/ShaderResource.h>
 
@@ -43,4 +43,3 @@ protected:
   ezConstantBufferStorageHandle m_hBilateralBlurCB;
   ezShaderResourceHandle m_hShader;
 };
-

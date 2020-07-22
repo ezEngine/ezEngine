@@ -1,8 +1,8 @@
 #pragma once
 
-#include <ProcGenPlugin/Declarations.h>
 #include <Foundation/Memory/StackAllocator.h>
 #include <Foundation/Types/Variant.h>
+#include <ProcGenPlugin/Declarations.h>
 
 class ezDGMLGraph;
 

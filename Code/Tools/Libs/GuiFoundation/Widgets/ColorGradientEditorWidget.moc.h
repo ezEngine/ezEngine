@@ -1,9 +1,9 @@
 #pragma once
 
-#include <GuiFoundation/GuiFoundationDLL.h>
-#include <Foundation/Tracks/ColorGradient.h>
-#include <GuiFoundation/ui_ColorGradientEditorWidget.h>
 #include <Foundation/Math/Color8UNorm.h>
+#include <Foundation/Tracks/ColorGradient.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
+#include <GuiFoundation/ui_ColorGradientEditorWidget.h>
 
 #include <QWidget>
 

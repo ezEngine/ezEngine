@@ -1,9 +1,9 @@
-#pragma once 
+#pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
-#include <EditorFramework/Manipulators/ManipulatorAdapter.h>
 #include <EditorFramework/Gizmos/SphereGizmo.h>
 #include <EditorFramework/Gizmos/TranslateGizmo.h>
+#include <EditorFramework/Manipulators/ManipulatorAdapter.h>
 
 struct ezGizmoEvent;
 

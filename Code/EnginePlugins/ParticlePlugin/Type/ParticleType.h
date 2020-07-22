@@ -40,7 +40,8 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleType : public ezParticleModule
 public:
   virtual float GetMaxParticleRadius(float fParticleSize) const { return fParticleSize * 0.5f; }
 
-  virtual void ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const = 0;
+  virtual void ExtractTypeRenderData(
+    const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const = 0;
 
 protected:
   ezParticleType();

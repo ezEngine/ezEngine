@@ -1,10 +1,10 @@
 #pragma once
 
+#include <Core/ResourceManager/ResourceHandle.h>
+#include <Foundation/Reflection/Reflection.h>
 #include <GameEngine/ActorSystem/ActorPluginWindow.h>
 #include <GameEngine/GameApplication/WindowOutputTarget.h>
-#include <Foundation/Reflection/Reflection.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
-#include <Core/ResourceManager/ResourceHandle.h>
 #include <RendererCore/Shader/ShaderResource.h>
 
 class ezXRInterface;
@@ -36,8 +36,7 @@ private:
 class EZ_GAMEENGINE_DLL ezWindowOutputTargetXR : public ezWindowOutputTargetBase
 {
 public:
-  ezWindowOutputTargetXR(
-    ezXRInterface* pVrInterface, ezUniquePtr<ezWindowOutputTargetBase> pCompanionWindowOutputTarget);
+  ezWindowOutputTargetXR(ezXRInterface* pVrInterface, ezUniquePtr<ezWindowOutputTargetBase> pCompanionWindowOutputTarget);
   ~ezWindowOutputTargetXR();
 
   virtual void Present(bool bEnableVSync) override;
@@ -60,8 +59,8 @@ class EZ_GAMEENGINE_DLL ezActorPluginWindowXR : public ezActorPluginWindow
   EZ_ADD_DYNAMIC_REFLECTION(ezActorPluginWindowXR, ezActorPluginWindow);
 
 public:
-  ezActorPluginWindowXR(ezXRInterface* pVrInterface, ezUniquePtr<ezWindowBase> companionWindow,
-    ezUniquePtr<ezWindowOutputTargetBase> companionWindowOutput);
+  ezActorPluginWindowXR(
+    ezXRInterface* pVrInterface, ezUniquePtr<ezWindowBase> companionWindow, ezUniquePtr<ezWindowOutputTargetBase> companionWindowOutput);
   ~ezActorPluginWindowXR();
   void Initialize();
 
@@ -75,5 +74,4 @@ private:
   ezXRInterface* m_pVrInterface = nullptr;
   ezUniquePtr<ezWindowXR> m_pWindow;
   ezUniquePtr<ezWindowOutputTargetXR> m_pWindowOutputTarget;
-
 };

@@ -5,14 +5,14 @@ namespace ezMinWindows
   using BOOL = int;
   using DWORD = unsigned long;
   using UINT = unsigned int;
-  using LPSTR = char *;
+  using LPSTR = char*;
   struct ezHINSTANCE;
-  using HINSTANCE = ezHINSTANCE *;
+  using HINSTANCE = ezHINSTANCE*;
   using HMODULE = HINSTANCE;
   struct ezHWND;
-  using HWND = ezHWND *;
+  using HWND = ezHWND*;
   using HRESULT = long;
-  using HANDLE = void *;
+  using HANDLE = void*;
 
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
   using WPARAM = ezUInt64;

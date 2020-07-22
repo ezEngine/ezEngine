@@ -3,13 +3,9 @@
 #include <RtsGamePlugin/AI/GuardLocationUtility.h>
 #include <RtsGamePlugin/Components/UnitComponent.h>
 
-void RtsGuardLocationAiUtility::Activate(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent)
-{
-}
+void RtsGuardLocationAiUtility::Activate(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent) {}
 
-void RtsGuardLocationAiUtility::Deactivate(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent)
-{
-}
+void RtsGuardLocationAiUtility::Deactivate(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent) {}
 
 void RtsGuardLocationAiUtility::Execute(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent, ezTime tNow)
 {

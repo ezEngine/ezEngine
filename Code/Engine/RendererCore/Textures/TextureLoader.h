@@ -1,20 +1,22 @@
 #pragma once
 
-#include <RendererCore/RendererCoreDLL.h>
 #include <Core/ResourceManager/Resource.h>
 #include <Core/ResourceManager/ResourceTypeLoader.h>
-#include <Texture/Image/Image.h>
-#include <RendererFoundation/RendererFoundationDLL.h>
 #include <RendererCore/RenderContext/Implementation/RenderContextStructs.h>
+#include <RendererCore/RendererCoreDLL.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
+#include <Texture/Image/Image.h>
 #include <Texture/ezTexFormat/ezTexFormat.h>
 
 class EZ_RENDERERCORE_DLL ezTextureResourceLoader : public ezResourceTypeLoader
 {
 public:
-
   struct LoadedData
   {
-    LoadedData() : m_Reader(&m_Storage) { }
+    LoadedData()
+      : m_Reader(&m_Storage)
+    {
+    }
 
     ezMemoryStreamStorage m_Storage;
     ezMemoryStreamReader m_Reader;
@@ -31,5 +33,3 @@ public:
   static ezResult LoadTexFile(ezStreamReader& stream, LoadedData& data);
   static void WriteTextureLoadStream(ezStreamWriter& stream, const LoadedData& data);
 };
-
-

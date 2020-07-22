@@ -41,8 +41,8 @@ public:
 
   /// \brief For a given input pin configuration, provide the output configuration of this node.
   /// Outputs is already resized to the number of output pins.
-  virtual bool GetRenderTargetDescriptions(const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
-    ezArrayPtr<ezGALTextureCreationDescription> outputs) = 0;
+  virtual bool GetRenderTargetDescriptions(
+    const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs) = 0;
 
   /// \brief After GetRenderTargetDescriptions was called successfully for each pass, this function is called
   /// with the inputs and outputs for review. Disconnected pins have a nullptr value in the passed in arrays.
@@ -63,8 +63,8 @@ public:
   /// \brief Allows for the pass to write data back using ezView::SetRenderPassReadBackProperty. E.g. picking results etc.
   virtual void ReadBackProperties(ezView* pView);
 
-  void RenderDataWithCategory(const ezRenderViewContext& renderViewContext, ezRenderData::Category category,
-    ezRenderDataBatch::Filter filter = ezRenderDataBatch::Filter());
+  void RenderDataWithCategory(
+    const ezRenderViewContext& renderViewContext, ezRenderData::Category category, ezRenderDataBatch::Filter filter = ezRenderDataBatch::Filter());
 
   EZ_ALWAYS_INLINE ezRenderPipeline* GetPipeline() { return m_pPipeline; }
   EZ_ALWAYS_INLINE const ezRenderPipeline* GetPipeline() const { return m_pPipeline; }

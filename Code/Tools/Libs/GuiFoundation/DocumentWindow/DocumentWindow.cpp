@@ -452,8 +452,7 @@ bool ezQtDocumentWindow::InternalCanCloseWindow()
   if (m_pDocument && m_pDocument->IsModified())
   {
     QMessageBox::StandardButton res = QMessageBox::question(this, QLatin1String("ezEditor"), QLatin1String("Save before closing?"),
-      QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No | QMessageBox::StandardButton::Cancel,
-      QMessageBox::StandardButton::Cancel);
+      QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No | QMessageBox::StandardButton::Cancel, QMessageBox::StandardButton::Cancel);
 
     if (res == QMessageBox::StandardButton::Cancel)
       return false;

@@ -8,10 +8,7 @@ namespace ezInternal
   constexpr ezUInt32 PRIME32_4 = 0x27D4EB2FU;
   constexpr ezUInt32 PRIME32_5 = 0x165667B1U;
 
-  constexpr ezUInt32 ezRotLeft(ezUInt32 value, ezUInt32 amount)
-  {
-    return (value << amount) | (value >> (32 - amount));
-  }
+  constexpr ezUInt32 ezRotLeft(ezUInt32 value, ezUInt32 amount) { return (value << amount) | (value >> (32 - amount)); }
 
   template <size_t N>
   constexpr ezUInt32 CompileTimeXxHash32(const char (&str)[N], ezUInt32 seed)
@@ -32,11 +29,8 @@ namespace ezInternal
       {
         for (int i = 0; i < 4; i++)
         {
-          ezUInt32 laneN =
-            (static_cast<ezUInt32>(str[index + i * 4 + 0]) << 0) |
-            (static_cast<ezUInt32>(str[index + i * 4 + 1]) << 8) |
-            (static_cast<ezUInt32>(str[index + i * 4 + 2]) << 16) |
-            (static_cast<ezUInt32>(str[index + i * 4 + 3]) << 24);
+          ezUInt32 laneN = (static_cast<ezUInt32>(str[index + i * 4 + 0]) << 0) | (static_cast<ezUInt32>(str[index + i * 4 + 1]) << 8) |
+                           (static_cast<ezUInt32>(str[index + i * 4 + 2]) << 16) | (static_cast<ezUInt32>(str[index + i * 4 + 3]) << 24);
           accs[i] = accs[i] + (laneN * PRIME32_2);
           accs[i] = ezRotLeft(accs[i], 13);
           accs[i] = accs[i] * PRIME32_1;
@@ -51,7 +45,8 @@ namespace ezInternal
     // Step 5
     for (; length - index >= 4; index += 4)
     {
-      ezUInt32 lane = (static_cast<ezUInt32>(str[index + 0]) << 0) | (static_cast<ezUInt32>(str[index + 1]) << 8) | (static_cast<ezUInt32>(str[index + 2]) << 16) | (static_cast<ezUInt32>(str[index + 3]) << 24);
+      ezUInt32 lane = (static_cast<ezUInt32>(str[index + 0]) << 0) | (static_cast<ezUInt32>(str[index + 1]) << 8) |
+                      (static_cast<ezUInt32>(str[index + 2]) << 16) | (static_cast<ezUInt32>(str[index + 3]) << 24);
       acc = acc + lane * PRIME32_3;
       acc = ezRotLeft(acc, 17) * PRIME32_4;
     }

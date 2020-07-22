@@ -1,8 +1,8 @@
 #pragma once
 
 #include <EditorPluginProcGen/EditorPluginProcGenDLL.h>
-#include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/Action/BaseActions.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 
 class ezPreferences;
 
@@ -22,8 +22,8 @@ public:
 class EZ_EDITORPLUGINPROCGEN_DLL ezProcGenAction : public ezButtonAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezProcGenAction, ezButtonAction);
-public:
 
+public:
   enum class ActionType
   {
     DumpAST,

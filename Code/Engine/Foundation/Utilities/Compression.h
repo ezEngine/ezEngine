@@ -17,4 +17,4 @@ namespace ezCompressionUtils
 
   ///\brief Decompresses the given data using the compression method eMethod into the dynamic array given in out_Data.
   EZ_FOUNDATION_DLL ezResult Decompress(ezArrayPtr<const ezUInt8> pCompressedData, ezCompressionMethod eMethod, ezDynamicArray<ezUInt8>& out_Data);
-}
+} // namespace ezCompressionUtils

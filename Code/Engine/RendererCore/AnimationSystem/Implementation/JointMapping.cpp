@@ -25,8 +25,8 @@ void ezJointMapping::CreateMapping(const ezSkeleton& skeleton, const ezAnimation
   }
 }
 
-void ezJointMapping::CreatePartialMapping(const ezSkeleton& skeleton, const ezAnimationClipResourceDescriptor& animClip,
-                                          const ezTempHashedString& rootJoint)
+void ezJointMapping::CreatePartialMapping(
+  const ezSkeleton& skeleton, const ezAnimationClipResourceDescriptor& animClip, const ezTempHashedString& rootJoint)
 {
   const ezUInt16 uiRootJointInSkeleton = skeleton.FindJointByName(rootJoint);
   if (uiRootJointInSkeleton == ezInvalidJointIndex)
@@ -49,4 +49,3 @@ void ezJointMapping::CreatePartialMapping(const ezSkeleton& skeleton, const ezAn
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_AnimationSystem_Implementation_JointMapping);
-

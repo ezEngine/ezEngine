@@ -120,7 +120,8 @@ EZ_RESOURCE_IMPLEMENT_CREATEABLE(ezSurfaceResource, ezSurfaceResourceDescriptor)
   return res;
 }
 
-const ezSurfaceInteraction* ezSurfaceResource::FindInteraction(const ezSurfaceResource* pCurSurf, ezUInt32 uiHash, float fImpulseSqr, float& out_fImpulseParamValue)
+const ezSurfaceInteraction* ezSurfaceResource::FindInteraction(
+  const ezSurfaceResource* pCurSurf, ezUInt32 uiHash, float fImpulseSqr, float& out_fImpulseParamValue)
 {
   while (true)
   {
@@ -165,9 +166,8 @@ const ezSurfaceInteraction* ezSurfaceResource::FindInteraction(const ezSurfaceRe
   return nullptr;
 }
 
-bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle hObject, const ezVec3& vPosition,
-  const ezVec3& vSurfaceNormal, const ezVec3& vIncomingDirection,
-  const ezTempHashedString& sInteraction, const ezUInt16* pOverrideTeamID, float fImpulseSqr /*= 0.0f*/)
+bool ezSurfaceResource::InteractWithSurface(ezWorld* pWorld, ezGameObjectHandle hObject, const ezVec3& vPosition, const ezVec3& vSurfaceNormal,
+  const ezVec3& vIncomingDirection, const ezTempHashedString& sInteraction, const ezUInt16* pOverrideTeamID, float fImpulseSqr /*= 0.0f*/)
 {
   float fImpulseParam = 0;
   const ezSurfaceInteraction* pIA = FindInteraction(this, sInteraction.GetHash(), fImpulseSqr, fImpulseParam);

@@ -70,10 +70,7 @@ struct ezDocumentObjectStructureEvent
 
 struct ezDocumentObjectPropertyEvent
 {
-  ezDocumentObjectPropertyEvent()
-  {
-    m_pObject = nullptr;
-  }
+  ezDocumentObjectPropertyEvent() { m_pObject = nullptr; }
   ezVariant getInsertIndex() const;
 
   enum class Type
@@ -95,10 +92,7 @@ struct ezDocumentObjectPropertyEvent
 
 struct ezDocumentObjectEvent
 {
-  ezDocumentObjectEvent()
-  {
-    m_pObject = nullptr;
-  }
+  ezDocumentObjectEvent() { m_pObject = nullptr; }
 
   enum class Type
   {
@@ -129,7 +123,8 @@ public:
   virtual void DestroyAllObjects();
   virtual void GetCreateableTypes(ezHybridArray<const ezRTTI*, 32>& Types) const {};
 
-  /// \brief Allows to annotate types with a category (group), such that things like creator menus can use this to present the types in a more user friendly way
+  /// \brief Allows to annotate types with a category (group), such that things like creator menus can use this to present the types in a more user
+  /// friendly way
   virtual const char* GetTypeCategory(const ezRTTI* pRtti) const { return nullptr; }
   void PatchEmbeddedClassObjects(const ezDocumentObject* pObject) const;
 
@@ -167,9 +162,16 @@ private:
   void InternalRemoveObject(ezDocumentObject* pObject);
   void InternalMoveObject(ezDocumentObject* pNewParent, ezDocumentObject* pObject, const char* szParentProperty, ezVariant index);
 
-  virtual ezStatus InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty, const ezVariant& index) const { return ezStatus(EZ_SUCCESS); };
+  virtual ezStatus InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObject* pParent, const char* szParentProperty, const ezVariant& index) const
+  {
+    return ezStatus(EZ_SUCCESS);
+  };
   virtual ezStatus InternalCanRemove(const ezDocumentObject* pObject) const { return ezStatus(EZ_SUCCESS); };
-  virtual ezStatus InternalCanMove(const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const char* szParentProperty, const ezVariant& index) const { return ezStatus(EZ_SUCCESS); };
+  virtual ezStatus InternalCanMove(
+    const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const char* szParentProperty, const ezVariant& index) const
+  {
+    return ezStatus(EZ_SUCCESS);
+  };
   virtual ezStatus InternalCanSelect(const ezDocumentObject* pObject) const { return ezStatus(EZ_SUCCESS); };
 
   void RecursiveAddGuids(ezDocumentObject* pObject);

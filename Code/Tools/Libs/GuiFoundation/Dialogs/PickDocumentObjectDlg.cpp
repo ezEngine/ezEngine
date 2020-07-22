@@ -5,9 +5,9 @@
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
 ezQtPickDocumentObjectDlg::ezQtPickDocumentObjectDlg(QWidget* parent, const ezArrayPtr<Element>& objects, const ezUuid& currentObject)
-    : QDialog(parent)
-    , m_Objects(objects)
-    , m_CurrentObject(currentObject)
+  : QDialog(parent)
+  , m_Objects(objects)
+  , m_CurrentObject(currentObject)
 {
   setupUi(this);
 

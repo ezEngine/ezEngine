@@ -1,13 +1,13 @@
 #pragma once
 
-#include <Foundation/IO/FileSystem/Implementation/DataDirType.h>
-#include <Foundation/IO/OSFile.h>
+#include <FileservePlugin/Client/FileserveClient.h>
+#include <Foundation/Communication/RemoteInterface.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Containers/Map.h>
-#include <Foundation/Types/UniquePtr.h>
-#include <Foundation/Communication/RemoteInterface.h>
-#include <FileservePlugin/Client/FileserveClient.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
+#include <Foundation/IO/FileSystem/Implementation/DataDirType.h>
+#include <Foundation/IO/OSFile.h>
+#include <Foundation/Types/UniquePtr.h>
 
 namespace ezDataDirectory
 {
@@ -54,7 +54,4 @@ namespace ezDataDirectory
     ezUInt16 m_uiDataDirID = 0xffff;
     ezString128 m_sFileserveCacheMetaFolder;
   };
-}
-
-
-
+} // namespace ezDataDirectory

@@ -8,12 +8,12 @@
 #include <ToolsFoundation/Document/Document.h>
 
 ezQtDocumentTreeView::ezQtDocumentTreeView(QWidget* parent)
-    : QTreeView(parent)
+  : QTreeView(parent)
 {
 }
 
 ezQtDocumentTreeView::ezQtDocumentTreeView(QWidget* pParent, ezDocument* pDocument, std::unique_ptr<ezQtDocumentTreeModel> pModel)
-    : QTreeView(pParent)
+  : QTreeView(pParent)
 {
   Initialize(pDocument, std::move(pModel));
 }
@@ -38,8 +38,8 @@ void ezQtDocumentTreeView::Initialize(ezDocument* pDocument, std::unique_ptr<ezQ
   setUniformRowHeights(true);
 
   EZ_VERIFY(connect(selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), this,
-                    SLOT(on_selectionChanged_triggered(const QItemSelection&, const QItemSelection&))) != nullptr,
-            "signal/slot connection failed");
+              SLOT(on_selectionChanged_triggered(const QItemSelection&, const QItemSelection&))) != nullptr,
+    "signal/slot connection failed");
   pDocument->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezQtDocumentTreeView::SelectionEventHandler, this));
 }
 

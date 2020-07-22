@@ -1,9 +1,9 @@
 #pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
+#include <EditorFramework/ui_AssetProfilesDlg.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
-#include <EditorFramework/ui_AssetProfilesDlg.h>
 
 #include <QDialog>
 

@@ -136,7 +136,8 @@ void ezProcessingStreamGroup::SetSize(ezUInt64 uiNumElements)
   m_bStreamAssignmentDirty = true;
 }
 
-/// \brief Removes an element (e.g. due to the death of a particle etc.), this will be enqueued (and thus is safe to be called from within data processors).
+/// \brief Removes an element (e.g. due to the death of a particle etc.), this will be enqueued (and thus is safe to be called from within data
+/// processors).
 void ezProcessingStreamGroup::RemoveElement(ezUInt64 uiElementIndex)
 {
   if (m_PendingRemoveIndices.Contains(uiElementIndex))
@@ -147,7 +148,8 @@ void ezProcessingStreamGroup::RemoveElement(ezUInt64 uiElementIndex)
   m_PendingRemoveIndices.PushBack(uiElementIndex);
 }
 
-/// \brief Spawns a number of new elements, they will be added as newly initialized stream elements. Safe to call from data processors since the spawning will be queued.
+/// \brief Spawns a number of new elements, they will be added as newly initialized stream elements. Safe to call from data processors since the
+/// spawning will be queued.
 void ezProcessingStreamGroup::InitializeElements(ezUInt64 uiNumElements)
 {
   m_uiPendingNumberOfElementsToSpawn += uiNumElements;
@@ -206,7 +208,8 @@ void ezProcessingStreamGroup::RunPendingDeletions()
     // and point to the place where we moved the data to.
     for (ezUInt32 i = 0; i < m_PendingRemoveIndices.GetCount(); ++i)
     {
-      // Is the pending remove in the array actually the last element we use to swap with? It's simply a matter of updating it to point to the new index.
+      // Is the pending remove in the array actually the last element we use to swap with? It's simply a matter of updating it to point to the new
+      // index.
       if (m_PendingRemoveIndices[i] == uiLastActiveElementIndex)
       {
         m_PendingRemoveIndices[i] = uiElementToRemove;
@@ -221,10 +224,12 @@ void ezProcessingStreamGroup::RunPendingDeletions()
     {
       const ezUInt64 uiStreamElementStride = pStream->GetElementStride();
       const ezUInt64 uiStreamElementSize = pStream->GetElementSize();
-      const void* pSourceData = ezMemoryUtils::AddByteOffset(pStream->GetData(), static_cast<ptrdiff_t>(uiLastActiveElementIndex * uiStreamElementStride));
+      const void* pSourceData =
+        ezMemoryUtils::AddByteOffset(pStream->GetData(), static_cast<ptrdiff_t>(uiLastActiveElementIndex * uiStreamElementStride));
       void* pTargetData = ezMemoryUtils::AddByteOffset(pStream->GetWritableData(), static_cast<ptrdiff_t>(uiElementToRemove * uiStreamElementStride));
 
-      ezMemoryUtils::Copy<ezUInt8>(static_cast<ezUInt8*>(pTargetData), static_cast<const ezUInt8*>(pSourceData), static_cast<size_t>(uiStreamElementSize));
+      ezMemoryUtils::Copy<ezUInt8>(
+        static_cast<ezUInt8*>(pTargetData), static_cast<const ezUInt8*>(pSourceData), static_cast<size_t>(uiStreamElementSize));
     }
 
     // And decrease the size since we swapped the last element to the location of the element we just removed
@@ -294,4 +299,3 @@ void ezProcessingStreamGroup::SortProcessorsByPriority()
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_DataProcessing_Stream_Implementation_ProcessingStreamGroup);
-

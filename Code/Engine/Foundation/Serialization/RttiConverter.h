@@ -12,13 +12,13 @@ class ezAbstractObjectNode;
 struct EZ_FOUNDATION_DLL ezRttiConverterObject
 {
   ezRttiConverterObject()
-      : m_pType(nullptr)
-      , m_pObject(nullptr)
+    : m_pType(nullptr)
+    , m_pObject(nullptr)
   {
   }
   ezRttiConverterObject(const ezRTTI* pType, void* pObject)
-      : m_pType(pType)
-      , m_pObject(pObject)
+    : m_pType(pType)
+    , m_pObject(pObject)
   {
   }
 
@@ -101,4 +101,3 @@ private:
   ezRttiConverterContext* m_pContext;
   const ezAbstractObjectGraph* m_pGraph;
 };
-

@@ -97,10 +97,7 @@ public:
     m_Value = (StorageType)flag1;
   }
 
-  EZ_ALWAYS_INLINE void operator=(Enum flag1)
-  {
-    m_Value = (StorageType)flag1;
-  }
+  EZ_ALWAYS_INLINE void operator=(Enum flag1) { m_Value = (StorageType)flag1; }
 
   /// \brief Comparison operator.
   EZ_ALWAYS_INLINE bool operator==(const StorageType rhs) const // [tested]
@@ -225,7 +222,8 @@ private:
   {
   }
 
-  union {
+  union
+  {
     StorageType m_Value;
     Bits m_bits;
   };
@@ -234,15 +232,15 @@ private:
 
 /// \brief This macro will define the operator| and operator& function that is required for class \a FlagsType to work with ezBitflags.
 /// See class ezBitflags for more information.
-#define EZ_DECLARE_FLAGS_OPERATORS(FlagsType)                                      \
-  inline ezBitflags<FlagsType> operator|(FlagsType::Enum lhs, FlagsType::Enum rhs) \
-  {                                                                                \
-    return (ezBitflags<FlagsType>(lhs) | ezBitflags<FlagsType>(rhs));              \
-  }                                                                                \
-                                                                                   \
-  inline ezBitflags<FlagsType> operator&(FlagsType::Enum lhs, FlagsType::Enum rhs) \
-  {                                                                                \
-    return (ezBitflags<FlagsType>(lhs) & ezBitflags<FlagsType>(rhs));              \
+#define EZ_DECLARE_FLAGS_OPERATORS(FlagsType)                                                                                                        \
+  inline ezBitflags<FlagsType> operator|(FlagsType::Enum lhs, FlagsType::Enum rhs)                                                                   \
+  {                                                                                                                                                  \
+    return (ezBitflags<FlagsType>(lhs) | ezBitflags<FlagsType>(rhs));                                                                                \
+  }                                                                                                                                                  \
+                                                                                                                                                     \
+  inline ezBitflags<FlagsType> operator&(FlagsType::Enum lhs, FlagsType::Enum rhs)                                                                   \
+  {                                                                                                                                                  \
+    return (ezBitflags<FlagsType>(lhs) & ezBitflags<FlagsType>(rhs));                                                                                \
   }
 
 
@@ -263,25 +261,24 @@ private:
 /// Each flag will use a different bit. If you need to define flags that are combinations of several
 /// other flags, you need to declare the bitflag struct manually. See the ezBitflags class for more
 /// information on how to do that.
-#define EZ_DECLARE_FLAGS_WITH_DEFAULT(InternalStorageType, BitflagsTypeName, DefaultValue, ...) \
-  struct BitflagsTypeName                                                                       \
-  {                                                                                             \
-    static const ezUInt32 Count = EZ_VA_NUM_ARGS(__VA_ARGS__);                                  \
-    typedef InternalStorageType StorageType;                                                    \
-    enum Enum                                                                                   \
-    {                                                                                           \
-      EZ_EXPAND_ARGS_WITH_INDEX(EZ_DECLARE_FLAGS_ENUM, ##__VA_ARGS__)                           \
-        Default = DefaultValue                                                                  \
-    };                                                                                          \
-    struct Bits                                                                                 \
-    {                                                                                           \
-      EZ_EXPAND_ARGS(EZ_DECLARE_FLAGS_BITS, ##__VA_ARGS__)                                      \
-    };                                                                                          \
-    EZ_ENUM_TO_STRING(__VA_ARGS__)                                                              \
-  };                                                                                            \
+#define EZ_DECLARE_FLAGS_WITH_DEFAULT(InternalStorageType, BitflagsTypeName, DefaultValue, ...)                                                      \
+  struct BitflagsTypeName                                                                                                                            \
+  {                                                                                                                                                  \
+    static const ezUInt32 Count = EZ_VA_NUM_ARGS(__VA_ARGS__);                                                                                       \
+    typedef InternalStorageType StorageType;                                                                                                         \
+    enum Enum                                                                                                                                        \
+    {                                                                                                                                                \
+      EZ_EXPAND_ARGS_WITH_INDEX(EZ_DECLARE_FLAGS_ENUM, ##__VA_ARGS__) Default = DefaultValue                                                         \
+    };                                                                                                                                               \
+    struct Bits                                                                                                                                      \
+    {                                                                                                                                                \
+      EZ_EXPAND_ARGS(EZ_DECLARE_FLAGS_BITS, ##__VA_ARGS__)                                                                                           \
+    };                                                                                                                                               \
+    EZ_ENUM_TO_STRING(__VA_ARGS__)                                                                                                                   \
+  };                                                                                                                                                 \
   EZ_DECLARE_FLAGS_OPERATORS(BitflagsTypeName)
 
-#define EZ_DECLARE_FLAGS(InternalStorageType, BitflagsTypeName, ...) \
+#define EZ_DECLARE_FLAGS(InternalStorageType, BitflagsTypeName, ...)                                                                                 \
   EZ_DECLARE_FLAGS_WITH_DEFAULT(InternalStorageType, BitflagsTypeName, 0, __VA_ARGS__)
 /// \cond
 

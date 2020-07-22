@@ -1,15 +1,16 @@
 #pragma once
 
+#include <EditorFramework/Document/GameObjectDocument.h>
 #include <EditorFramework/EditorFrameworkDLL.h>
 #include <EditorFramework/GUI/RawDocumentTreeModel.moc.h>
 #include <ToolsFoundation/Object/ObjectMetaData.h>
-#include <EditorFramework/Document/GameObjectDocument.h>
 
 class ezSceneDocument;
 
 class EZ_EDITORFRAMEWORK_DLL ezQtGameObjectAdapter : public ezQtNameableAdapter
 {
   Q_OBJECT;
+
 public:
   ezQtGameObjectAdapter(ezGameObjectDocument* pDocument);
   ~ezQtGameObjectAdapter();
@@ -29,7 +30,6 @@ class EZ_EDITORFRAMEWORK_DLL ezQtGameObjectModel : public ezQtDocumentTreeModel
   Q_OBJECT
 
 public:
-
   ezQtGameObjectModel(ezGameObjectDocument* pDocument);
   ~ezQtGameObjectModel();
 };

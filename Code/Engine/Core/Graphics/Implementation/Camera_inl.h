@@ -82,4 +82,3 @@ EZ_ALWAYS_INLINE const ezMat4& ezCamera::GetViewMatrix(ezCameraEye eye) const
 {
   return m_mViewMatrix[static_cast<int>(eye)];
 }
-

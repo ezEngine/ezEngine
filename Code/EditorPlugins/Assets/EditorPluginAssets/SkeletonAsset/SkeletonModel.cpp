@@ -6,8 +6,8 @@
 #include <QIcon>
 
 ezQtJointAdapter::ezQtJointAdapter(const ezSkeletonAssetDocument* pDocument)
-    : ezQtNamedAdapter(pDocument->GetObjectManager(), ezGetStaticRTTI<ezEditableSkeletonJoint>(), "Children", "Name")
-    , m_pDocument(pDocument)
+  : ezQtNamedAdapter(pDocument->GetObjectManager(), ezGetStaticRTTI<ezEditableSkeletonJoint>(), "Children", "Name")
+  , m_pDocument(pDocument)
 {
 }
 

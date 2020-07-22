@@ -645,8 +645,8 @@ namespace ezConversionUtils
     out_Result.Printf("{ c1r1=%f, c2r1=%f, c3r1=%f, "
                       "c1r2=%f, c2r2=%f, c3r2=%f, "
                       "c1r3=%f, c2r3=%f, c3r3=%f }",
-      value.Element(0, 0), value.Element(1, 0), value.Element(2, 0), value.Element(0, 1), value.Element(1, 1),
-      value.Element(2, 1), value.Element(0, 2), value.Element(1, 2), value.Element(2, 2));
+      value.Element(0, 0), value.Element(1, 0), value.Element(2, 0), value.Element(0, 1), value.Element(1, 1), value.Element(2, 1),
+      value.Element(0, 2), value.Element(1, 2), value.Element(2, 2));
     return out_Result;
   }
 
@@ -656,10 +656,9 @@ namespace ezConversionUtils
                       "c1r2=%f, c2r2=%f, c3r2=%f, c4r2=%f, "
                       "c1r3=%f, c2r3=%f, c3r3=%f, c4r3=%f, "
                       "c1r4=%f, c2r4=%f, c3r4=%f, c4r4=%f }",
-      value.Element(0, 0), value.Element(1, 0), value.Element(2, 0), value.Element(3, 0), value.Element(0, 1),
-      value.Element(1, 1), value.Element(2, 1), value.Element(3, 1), value.Element(0, 2), value.Element(1, 2),
-      value.Element(2, 2), value.Element(3, 2), value.Element(0, 3), value.Element(1, 3), value.Element(2, 3),
-      value.Element(3, 3));
+      value.Element(0, 0), value.Element(1, 0), value.Element(2, 0), value.Element(3, 0), value.Element(0, 1), value.Element(1, 1),
+      value.Element(2, 1), value.Element(3, 1), value.Element(0, 2), value.Element(1, 2), value.Element(2, 2), value.Element(3, 2),
+      value.Element(0, 3), value.Element(1, 3), value.Element(2, 3), value.Element(3, 3));
     return out_Result;
   }
 
@@ -712,8 +711,7 @@ namespace ezConversionUtils
     const GUID* pGuid = reinterpret_cast<const GUID*>(&value);
 
     out_Result.Printf("{ %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x }", pGuid->Data1, pGuid->Data2, pGuid->Data3, pGuid->Data4[0],
-      pGuid->Data4[1], pGuid->Data4[2], pGuid->Data4[3], pGuid->Data4[4], pGuid->Data4[5], pGuid->Data4[6],
-      pGuid->Data4[7]);
+      pGuid->Data4[1], pGuid->Data4[2], pGuid->Data4[3], pGuid->Data4[4], pGuid->Data4[5], pGuid->Data4[6], pGuid->Data4[7]);
 
     return out_Result;
   }
@@ -737,8 +735,8 @@ namespace ezConversionUtils
     if (sText.GetElementCount() != 40)
       return false;
 
-    if ((szText[1] != ' ') || (szText[10] != '-') || (szText[15] != '-') || (szText[20] != '-') || (szText[25] != '-') ||
-        (szText[38] != ' ') || (szText[39] != '}'))
+    if ((szText[1] != ' ') || (szText[10] != '-') || (szText[15] != '-') || (szText[20] != '-') || (szText[25] != '-') || (szText[38] != ' ') ||
+        (szText[39] != '}'))
       return false;
 
     return true;
@@ -817,8 +815,8 @@ namespace ezConversionUtils
     return result;
   }
 
-#define Check(name)                                                   \
-  if (ezStringUtils::IsEqual_NoCase(szColorName, EZ_STRINGIZE(name))) \
+#define Check(name)                                                                                                                                  \
+  if (ezStringUtils::IsEqual_NoCase(szColorName, EZ_STRINGIZE(name)))                                                                                \
   return ezColor::name
 
   ezColor GetColorByName(const char* szColorName, bool* out_ValidColorName)
@@ -1015,8 +1013,8 @@ namespace ezConversionUtils
 
 #undef Check
 
-#define Check(name)         \
-  if (ezColor::name == col) \
+#define Check(name)                                                                                                                                  \
+  if (ezColor::name == col)                                                                                                                          \
   return #name
 
   ezString GetColorName(const ezColor& col)

@@ -21,7 +21,7 @@ namespace DynamicQuadtreeTestDetail
     // let it give us all the objects in range and count how many that are
     return true;
   }
-}
+} // namespace DynamicQuadtreeTestDetail
 
 EZ_CREATE_SIMPLE_TEST(DataStructures, DynamicQuadtree)
 {
@@ -198,15 +198,13 @@ EZ_CREATE_SIMPLE_TEST(DataStructures, DynamicQuadtree)
 
       DynamicQuadtreeTestDetail::g_iReturned = 0;
       DynamicQuadtreeTestDetail::g_bFoundSearched = false;
-      o.FindObjectsInRange(Objects[i].m_vPos + Objects[i].m_vExtents + ezVec3(2, 0, 0), 2.5f, DynamicQuadtreeTestDetail::ObjectFound,
-                           nullptr);
+      o.FindObjectsInRange(Objects[i].m_vPos + Objects[i].m_vExtents + ezVec3(2, 0, 0), 2.5f, DynamicQuadtreeTestDetail::ObjectFound, nullptr);
       EZ_TEST_BOOL(DynamicQuadtreeTestDetail::g_bFoundSearched == true);
       EZ_TEST_BOOL(DynamicQuadtreeTestDetail::g_iReturned < Objects.GetCount());
 
       DynamicQuadtreeTestDetail::g_iReturned = 0;
       DynamicQuadtreeTestDetail::g_bFoundSearched = false;
-      o.FindObjectsInRange(Objects[i].m_vPos - Objects[i].m_vExtents - ezVec3(0, 2, 0), 2.5f, DynamicQuadtreeTestDetail::ObjectFound,
-                           nullptr);
+      o.FindObjectsInRange(Objects[i].m_vPos - Objects[i].m_vExtents - ezVec3(0, 2, 0), 2.5f, DynamicQuadtreeTestDetail::ObjectFound, nullptr);
       EZ_TEST_BOOL(DynamicQuadtreeTestDetail::g_bFoundSearched == true);
       EZ_TEST_BOOL(DynamicQuadtreeTestDetail::g_iReturned < Objects.GetCount());
     }

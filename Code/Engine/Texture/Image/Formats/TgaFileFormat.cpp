@@ -68,13 +68,12 @@ static inline ezColorLinearUB GetPixelColor(const ezImageView& image, ezUInt32 x
 ezResult ezTgaFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& image, ezLogInterface* pLog, const char* szFileExtension) const
 {
   // Technically almost arbitrary formats are supported, but we only use the common ones.
-  ezImageFormat::Enum compatibleFormats[] =
-    {
-      ezImageFormat::R8G8B8A8_UNORM,
-      ezImageFormat::B8G8R8A8_UNORM,
-      ezImageFormat::B8G8R8X8_UNORM,
-      ezImageFormat::B8G8R8_UNORM,
-    };
+  ezImageFormat::Enum compatibleFormats[] = {
+    ezImageFormat::R8G8B8A8_UNORM,
+    ezImageFormat::B8G8R8A8_UNORM,
+    ezImageFormat::B8G8R8X8_UNORM,
+    ezImageFormat::B8G8R8_UNORM,
+  };
 
   // Find a compatible format closest to the one the image currently has
   ezImageFormat::Enum format = ezImageConversion::FindClosestCompatibleFormat(image.GetImageFormat(), compatibleFormats);
@@ -306,7 +305,8 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
   if ((Header.m_iImageWidth <= 0) || (Header.m_iImageHeight <= 0) || ((uiBytesPerPixel != 1) && (uiBytesPerPixel != 3) && (uiBytesPerPixel != 4)) ||
       (Header.m_ImageType != 2 && Header.m_ImageType != 3 && Header.m_ImageType != 10 && Header.m_ImageType != 11))
   {
-    ezLog::Error(pLog, "TGA has an invalid header: Width = {0}, Height = {1}, BPP = {2}, ImageType = {3}", Header.m_iImageWidth, Header.m_iImageHeight, Header.m_iBitsPerPixel, Header.m_ImageType);
+    ezLog::Error(pLog, "TGA has an invalid header: Width = {0}, Height = {1}, BPP = {2}, ImageType = {3}", Header.m_iImageWidth,
+      Header.m_iImageHeight, Header.m_iBitsPerPixel, Header.m_ImageType);
     return EZ_FAILURE;
   }
 

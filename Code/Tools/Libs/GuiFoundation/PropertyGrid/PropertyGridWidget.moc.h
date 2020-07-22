@@ -1,14 +1,14 @@
 #pragma once
 
-#include <GuiFoundation/GuiFoundationDLL.h>
 #include <Foundation/Containers/HybridArray.h>
-#include <ToolsFoundation/Object/DocumentObjectBase.h>
-#include <ToolsFoundation/Selection/SelectionManager.h>
-#include <GuiFoundation/PropertyGrid/PropertyBaseWidget.moc.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/PropertyGrid/Implementation/TypeWidget.moc.h>
-#include <ToolsFoundation/Factory/RttiMappedObjectFactory.h>
-#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
+#include <GuiFoundation/PropertyGrid/PropertyBaseWidget.moc.h>
 #include <QWidget>
+#include <ToolsFoundation/Factory/RttiMappedObjectFactory.h>
+#include <ToolsFoundation/Object/DocumentObjectBase.h>
+#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
+#include <ToolsFoundation/Selection/SelectionManager.h>
 
 class QSpacerItem;
 class QVBoxLayout;
@@ -81,5 +81,3 @@ private:
   ezQtTypeWidget* m_pTypeWidget;
   QSpacerItem* m_pSpacer;
 };
-
-

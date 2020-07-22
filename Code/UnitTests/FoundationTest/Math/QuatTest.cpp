@@ -15,8 +15,8 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
     }
 #else
     // Placement new of the default constructor should not have any effect on the previous data.
-    ezQuatT::ComponentType testBlock[4] = {(ezQuatT::ComponentType)1, (ezQuatT::ComponentType)2, (ezQuatT::ComponentType)3,
-      (ezQuatT::ComponentType)4};
+    ezQuatT::ComponentType testBlock[4] = {
+      (ezQuatT::ComponentType)1, (ezQuatT::ComponentType)2, (ezQuatT::ComponentType)3, (ezQuatT::ComponentType)4};
     ezQuatT* p = ::new ((void*)&testBlock[0]) ezQuatT;
     EZ_TEST_BOOL(p->v.x == (ezMat3T::ComponentType)1 && p->v.y == (ezMat3T::ComponentType)2 && p->v.z == (ezMat3T::ComponentType)3 &&
                  p->w == (ezMat3T::ComponentType)4);

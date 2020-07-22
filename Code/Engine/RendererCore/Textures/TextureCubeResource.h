@@ -3,11 +3,11 @@
 #include <Core/ResourceManager/Resource.h>
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <Foundation/IO/MemoryStream.h>
-#include <Texture/Image/Image.h>
-#include <RendererCore/RendererCoreDLL.h>
 #include <RendererCore/RenderContext/Implementation/RenderContextStructs.h>
-#include <RendererFoundation/RendererFoundationDLL.h>
+#include <RendererCore/RendererCoreDLL.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
+#include <RendererFoundation/RendererFoundationDLL.h>
+#include <Texture/Image/Image.h>
 
 typedef ezTypedResourceHandle<class ezTextureCubeResource> ezTextureCubeResourceHandle;
 
@@ -68,4 +68,3 @@ private:
 
   ezGALSamplerStateHandle m_hSamplerState;
 };
-

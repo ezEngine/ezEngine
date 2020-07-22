@@ -23,4 +23,3 @@ protected:
 
   ezShaderResourceHandle m_hShader;
 };
-

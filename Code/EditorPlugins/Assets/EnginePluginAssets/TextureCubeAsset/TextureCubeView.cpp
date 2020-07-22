@@ -63,7 +63,7 @@ void ezTextureCubeViewContext::SetCamera(const ezViewRedrawMsgToEngine* pMsg)
 
     sText.PrependFormat("{0}x{1}x6 - ", uiWidthAndHeight, uiWidthAndHeight);
 
-    ezDebugRenderer::Draw2DText(m_hView, sText, ezVec2I32(10, viewHeight - 10), ezColor::White, 16,
-      ezDebugRenderer::HorizontalAlignment::Left, ezDebugRenderer::VerticalAlignment::Bottom);
+    ezDebugRenderer::Draw2DText(m_hView, sText, ezVec2I32(10, viewHeight - 10), ezColor::White, 16, ezDebugRenderer::HorizontalAlignment::Left,
+      ezDebugRenderer::VerticalAlignment::Bottom);
   }
 }

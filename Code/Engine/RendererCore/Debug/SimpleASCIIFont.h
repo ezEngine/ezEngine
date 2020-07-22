@@ -14,5 +14,4 @@ namespace ezGraphicsUtils
   /// question mark. This character can be used for unknown characters (e.g. when Utf8 is printed as ASCII and thus characters
   /// above 127 are possible).
   EZ_RENDERERCORE_DLL void CreateSimpleASCIIFontTexture(ezImage& Img, bool bSetEmptyToUnknown = false);
-}
-
+} // namespace ezGraphicsUtils

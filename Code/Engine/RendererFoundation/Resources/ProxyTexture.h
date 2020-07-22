@@ -13,7 +13,7 @@ public:
 protected:
   friend class ezGALDevice;
 
-  ezGALProxyTexture(const ezGALTexture& parentTexture);  
+  ezGALProxyTexture(const ezGALTexture& parentTexture);
 
   virtual ezResult InitPlatform(ezGALDevice* pDevice, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData) override;
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
@@ -23,4 +23,3 @@ protected:
 
   const ezGALTexture* m_pParentTexture;
 };
-

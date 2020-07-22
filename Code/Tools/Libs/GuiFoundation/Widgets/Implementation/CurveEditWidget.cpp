@@ -49,8 +49,7 @@ void ezQtCurveEditWidget::SetCurves(ezCurveGroupData* pCurveEditData, double fMi
   // make sure the selection does not contain points that got deleted
   for (ezUInt32 i = 0; i < m_SelectedCPs.GetCount();)
   {
-    if (m_SelectedCPs[i].m_uiCurve >= m_Curves.GetCount() ||
-        m_SelectedCPs[i].m_uiPoint >= m_Curves[m_SelectedCPs[i].m_uiCurve].GetNumControlPoints())
+    if (m_SelectedCPs[i].m_uiCurve >= m_Curves.GetCount() || m_SelectedCPs[i].m_uiPoint >= m_Curves[m_SelectedCPs[i].m_uiCurve].GetNumControlPoints())
     {
       m_SelectedCPs.RemoveAtAndCopy(i);
     }
@@ -285,8 +284,7 @@ void ezQtCurveEditWidget::paintEvent(QPaintEvent* e)
 
   if (m_pGridBar)
   {
-    m_pGridBar->SetConfig(viewportSceneRect, fRoughGridDensity, fFineGridDensity,
-      [this](const QPointF& pt) -> QPoint { return MapFromScene(pt); });
+    m_pGridBar->SetConfig(viewportSceneRect, fRoughGridDensity, fFineGridDensity, [this](const QPointF& pt) -> QPoint { return MapFromScene(pt); });
   }
 
   RenderSideLinesAndText(&painter, viewportSceneRect);
@@ -933,8 +931,7 @@ void ezQtCurveEditWidget::PaintSelectedTangentLines(QPainter* painter) const
     bool bDrawRight = m_CurveExtents[cpSel.m_uiCurve].y != cp.m_Position.x;
 
     const ezCurveTangentMode::Enum tmLeft = m_pCurveEditData->m_Curves[cpSel.m_uiCurve]->m_ControlPoints[cpSel.m_uiPoint].m_LeftTangentMode;
-    const ezCurveTangentMode::Enum tmRight =
-      m_pCurveEditData->m_Curves[cpSel.m_uiCurve]->m_ControlPoints[cpSel.m_uiPoint].m_RightTangentMode;
+    const ezCurveTangentMode::Enum tmRight = m_pCurveEditData->m_Curves[cpSel.m_uiCurve]->m_ControlPoints[cpSel.m_uiPoint].m_RightTangentMode;
 
     if (bDrawLeft && tmLeft != ezCurveTangentMode::Linear && tmLeft != ezCurveTangentMode::Auto)
     {
@@ -966,8 +963,7 @@ void ezQtCurveEditWidget::PaintSelectedTangentHandles(QPainter* painter) const
     const ezCurve1D::ControlPoint& cp = curve.GetControlPoint(cpSel.m_uiPoint);
 
     const ezCurveTangentMode::Enum tmLeft = m_pCurveEditData->m_Curves[cpSel.m_uiCurve]->m_ControlPoints[cpSel.m_uiPoint].m_LeftTangentMode;
-    const ezCurveTangentMode::Enum tmRight =
-      m_pCurveEditData->m_Curves[cpSel.m_uiCurve]->m_ControlPoints[cpSel.m_uiPoint].m_RightTangentMode;
+    const ezCurveTangentMode::Enum tmRight = m_pCurveEditData->m_Curves[cpSel.m_uiCurve]->m_ControlPoints[cpSel.m_uiPoint].m_RightTangentMode;
 
     const bool bDrawLeft = m_CurveExtents[cpSel.m_uiCurve].x != cp.m_Position.x;
     const bool bDrawRight = m_CurveExtents[cpSel.m_uiCurve].y != cp.m_Position.x;
@@ -1341,8 +1337,8 @@ void ezQtCurveEditWidget::ExecMultiSelection(ezDynamicArray<ezSelectedCurveCP>& 
   }
 }
 
-bool ezQtCurveEditWidget::CombineSelection(ezDynamicArray<ezSelectedCurveCP>& inout_Selection,
-  const ezDynamicArray<ezSelectedCurveCP>& change, bool add)
+bool ezQtCurveEditWidget::CombineSelection(
+  ezDynamicArray<ezSelectedCurveCP>& inout_Selection, const ezDynamicArray<ezSelectedCurveCP>& change, bool add)
 {
   bool bChange = false;
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <EnginePluginParticle/EnginePluginParticleDLL.h>
 #include <EditorEngineProcessFramework/EngineProcess/EngineProcessDocumentContext.h>
+#include <EnginePluginParticle/EnginePluginParticleDLL.h>
 #include <ParticlePlugin/Resources/ParticleEffectResource.h>
 #include <RendererCore/Meshes/MeshResource.h>
 
@@ -36,5 +36,3 @@ private:
   ezMeshResourceHandle m_hPreviewMeshResource;
   ezParticleComponent* m_pComponent = nullptr;
 };
-
-

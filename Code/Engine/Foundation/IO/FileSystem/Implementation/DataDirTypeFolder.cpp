@@ -1,8 +1,8 @@
 #include <FoundationPCH.h>
 
+#include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/Logging/Log.h>
-#include <Foundation/Configuration/Startup.h>
 
 // clang-format off
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, FolderDataDirectory)
@@ -52,8 +52,7 @@ namespace ezDataDirectory
 
   ezUInt64 FolderWriter::GetFileSize() const { return m_File.GetFileSize(); }
 
-  ezDataDirectoryType* FolderType::Factory(
-    const char* szDataDirectory, const char* szGroup, const char* szRootName, ezFileSystem::DataDirUsage Usage)
+  ezDataDirectoryType* FolderType::Factory(const char* szDataDirectory, const char* szGroup, const char* szRootName, ezFileSystem::DataDirUsage Usage)
   {
     FolderType* pDataDir = EZ_DEFAULT_NEW(FolderType);
 

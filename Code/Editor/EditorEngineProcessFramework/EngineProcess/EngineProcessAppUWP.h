@@ -19,5 +19,4 @@ public:
   void LoadAnchor();
   bool m_bAnchorLoaded = false;
 #endif
-
 };

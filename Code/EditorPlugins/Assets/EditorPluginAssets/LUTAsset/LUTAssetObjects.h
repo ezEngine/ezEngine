@@ -1,8 +1,8 @@
 #pragma once
 
-#include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <GuiFoundation/PropertyGrid/PropertyMetaState.h>
+#include <ToolsFoundation/Object/DocumentObjectBase.h>
 
 
 class ezLUTAssetProperties : public ezReflectedClass

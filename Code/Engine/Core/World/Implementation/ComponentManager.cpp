@@ -8,8 +8,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezComponentManagerBase::ezComponentManagerBase(ezWorld* pWorld)
-    : ezWorldModule(pWorld)
-    , m_Components(pWorld->GetAllocator())
+  : ezWorldModule(pWorld)
+  , m_Components(pWorld->GetAllocator())
 {
 }
 
@@ -113,4 +113,3 @@ void ezComponentManagerBase::PatchIdTable(ezComponent* pComponent)
 }
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_ComponentManager);
-

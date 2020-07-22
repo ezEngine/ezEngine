@@ -34,10 +34,9 @@ class EZ_FOUNDATION_DLL ezRTTI : public ezEnumerable<ezRTTI>
 public:
   /// \brief The constructor requires all the information about the type that this object represents.
   ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType,
-    ezBitflags<ezTypeFlags> flags, ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> properties,
-    ezArrayPtr<ezAbstractProperty*> functions, ezArrayPtr<ezPropertyAttribute*> attributes,
-    ezArrayPtr<ezAbstractMessageHandler*> messageHandlers, ezArrayPtr<ezMessageSenderInfo> messageSenders,
-    const ezRTTI* (*fnVerifyParent)());
+    ezBitflags<ezTypeFlags> flags, ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> properties, ezArrayPtr<ezAbstractProperty*> functions,
+    ezArrayPtr<ezPropertyAttribute*> attributes, ezArrayPtr<ezAbstractMessageHandler*> messageHandlers,
+    ezArrayPtr<ezMessageSenderInfo> messageSenders, const ezRTTI* (*fnVerifyParent)());
 
 
   ~ezRTTI();
@@ -142,7 +141,8 @@ public:
   /// \brief Writes all types derived from \a pBaseType to the provided array. Optionally sorts the array by type name to yield a stable result.
   ///
   /// Returns the provided array, such that the function can be used in a foreach loop right away.
-  static const ezDynamicArray<const ezRTTI*>& GetAllTypesDerivedFrom(const ezRTTI* pBaseType, ezDynamicArray<const ezRTTI*>& out_DerivedTypes, bool bSortByName);
+  static const ezDynamicArray<const ezRTTI*>& GetAllTypesDerivedFrom(
+    const ezRTTI* pBaseType, ezDynamicArray<const ezRTTI*>& out_DerivedTypes, bool bSortByName);
 
 protected:
   const char* m_szPluginName;
@@ -150,8 +150,7 @@ protected:
   ezArrayPtr<ezAbstractProperty*> m_Properties;
   ezArrayPtr<ezAbstractFunctionProperty*> m_Functions;
   ezArrayPtr<ezPropertyAttribute*> m_Attributes;
-  void UpdateType(const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType,
-    ezBitflags<ezTypeFlags> flags);
+  void UpdateType(const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType, ezBitflags<ezTypeFlags> flags);
   void RegisterType(ezRTTI* pType);
   void UnregisterType(ezRTTI* pType);
 

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <RtsGamePlugin/RtsGamePluginDLL.h>
 #include <RtsGamePlugin/Components/ComponentMessages.h>
+#include <RtsGamePlugin/RtsGamePluginDLL.h>
 
 class RtsShipSteeringComponentManager : public ezComponentManager<class RtsShipSteeringComponent, ezBlockStorageType::Compact>
 {
@@ -48,10 +48,14 @@ public:
 protected:
   void UpdateSteering();
 
-  enum class Mode { None, Steering, Stop };
+  enum class Mode
+  {
+    None,
+    Steering,
+    Stop
+  };
 
   Mode m_Mode = Mode::None;
   ezVec2 m_vTargetPosition;
   float m_fCurrentSpeed = 0;
 };
-

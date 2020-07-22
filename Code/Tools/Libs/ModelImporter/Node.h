@@ -1,8 +1,8 @@
 #pragma once
 
-#include <ModelImporter/ModelImporterDLL.h>
-#include <ModelImporter/HierarchyObject.h>
 #include <Foundation/Math/Transform.h>
+#include <ModelImporter/HierarchyObject.h>
+#include <ModelImporter/ModelImporterDLL.h>
 
 namespace ezModelImporter
 {
@@ -12,7 +12,7 @@ namespace ezModelImporter
   public:
     Node();
 
-    //void ComputeAbsoluteTransform(const Scene& scene, ezTransform& outAbsoluteTransform) const;
+    // void ComputeAbsoluteTransform(const Scene& scene, ezTransform& outAbsoluteTransform) const;
 
     /// Relative transform of this node to its parent.
     ezTransform m_RelativeTransform;
@@ -29,4 +29,4 @@ namespace ezModelImporter
     /// Meta data. May contain information that otherwise do not map into ezModelImporter's data structure.
     ezDynamicArray<Metadata> m_Metadata;
   };
-}
+} // namespace ezModelImporter

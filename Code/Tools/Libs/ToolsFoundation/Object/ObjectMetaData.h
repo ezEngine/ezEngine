@@ -1,16 +1,15 @@
 #pragma once
 
-#include <ToolsFoundation/ToolsFoundationDLL.h>
-#include <Foundation/Containers/HashTable.h>
 #include <Foundation/Communication/Event.h>
-#include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <Foundation/Containers/HashTable.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
+#include <Foundation/Serialization/AbstractObjectGraph.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 
-template<typename KEY, typename VALUE>
+template <typename KEY, typename VALUE>
 class ezObjectMetaData
 {
 public:
-
   struct EventData
   {
     KEY m_ObjectKey;
@@ -37,7 +36,8 @@ public:
 
   const VALUE& GetDefaultValue() const { return m_DefaultValue; }
 
-  /// \brief Uses reflection information from VALUE to store all properties that differ from the default value as additional properties for the graph objects.
+  /// \brief Uses reflection information from VALUE to store all properties that differ from the default value as additional properties for the graph
+  /// objects.
   void AttachMetaDataToAbstractGraph(ezAbstractObjectGraph& graph) const;
 
   /// \brief Uses reflection information from VALUE to restore all meta data properties from the graph.
@@ -52,5 +52,3 @@ private:
 };
 
 #include <ToolsFoundation/Object/Implementation/ObjectMetaData_inl.h>
-
-

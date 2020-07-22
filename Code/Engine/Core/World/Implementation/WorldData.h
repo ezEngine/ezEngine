@@ -48,7 +48,7 @@ namespace ezInternal
       const ezGameObject& operator*() const;
       const ezGameObject* operator->() const;
 
-      operator const ezGameObject*() const;
+      operator const ezGameObject *() const;
 
       /// \brief Advances the iterator to the next object. The iterator will not be valid anymore, if the last object is reached.
       void Next();
@@ -133,8 +133,10 @@ namespace ezInternal
     static void UpdateGlobalTransform(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds);
     static void UpdateGlobalTransformWithParent(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds);
 
-    static void UpdateGlobalTransformAndSpatialData(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds, ezSpatialSystem& spatialSystem);
-    static void UpdateGlobalTransformWithParentAndSpatialData(ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds, ezSpatialSystem& spatialSystem);
+    static void UpdateGlobalTransformAndSpatialData(
+      ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds, ezSpatialSystem& spatialSystem);
+    static void UpdateGlobalTransformWithParentAndSpatialData(
+      ezGameObject::TransformationData* pData, const ezSimdFloat& fInvDeltaSeconds, ezSpatialSystem& spatialSystem);
 
     void UpdateGlobalTransforms(float fInvDeltaSeconds);
 
@@ -155,7 +157,7 @@ namespace ezInternal
 
       ezHashedString m_sName;
       bool m_bMustFinishWithinOneFrame = true;
-      bool m_bIsReady = false;      
+      bool m_bIsReady = false;
 
       ezUInt32 m_uiNextComponentToInitialize = 0;
       ezUInt32 m_uiNextComponentToStartSimulation = 0;
@@ -210,7 +212,8 @@ namespace ezInternal
       {
       }
 
-      union {
+      union
+      {
         struct
         {
           ezUInt64 m_uiReceiverObjectOrComponent : 62;

@@ -29,8 +29,7 @@ const ezRTTI* ezParticleInitializerFactory_RandomRotationSpeed::GetInitializerTy
   return ezGetStaticRTTI<ezParticleInitializer_RandomRotationSpeed>();
 }
 
-void ezParticleInitializerFactory_RandomRotationSpeed::CopyInitializerProperties(ezParticleInitializer* pInitializer0,
-                                                                                 bool bFirstTime) const
+void ezParticleInitializerFactory_RandomRotationSpeed::CopyInitializerProperties(ezParticleInitializer* pInitializer0, bool bFirstTime) const
 {
   ezParticleInitializer_RandomRotationSpeed* pInitializer = static_cast<ezParticleInitializer_RandomRotationSpeed*>(pInitializer0);
 

@@ -4,7 +4,7 @@
 #include <QWidget>
 
 ezQtTreeSearchFilterModel::ezQtTreeSearchFilterModel(QWidget* parent)
-    : QSortFilterProxyModel(parent)
+  : QSortFilterProxyModel(parent)
 {
   m_bIncludeChildren = false;
 }

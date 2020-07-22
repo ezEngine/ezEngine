@@ -124,6 +124,4 @@ private:
 #define ezTranslate(string) ezTranslationLookup::Translate(string, ezHashHelper<const char*>::Hash(string), ezTranslationUsage::Default)
 
 /// \brief Use this macro to query a translation for a string from the ezTranslationLookup system
-#define ezTranslateTooltip(string)                                                                                                         \
-  ezTranslationLookup::Translate(string, ezHashHelper<const char*>::Hash(string), ezTranslationUsage::Tooltip)
-
+#define ezTranslateTooltip(string) ezTranslationLookup::Translate(string, ezHashHelper<const char*>::Hash(string), ezTranslationUsage::Tooltip)

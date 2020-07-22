@@ -13,11 +13,13 @@
 EZ_APPLICATION_ENTRY_POINT(ezGameApplication, "Asteroids", "Data/Samples/Asteroids");
 
 const char* szPlayerActions[MaxPlayerActions] = {"Forwards", "Backwards", "Left", "Right", "RotLeft", "RotRight", "Shoot"};
-const char* szControlerKeys[MaxPlayerActions] = {"leftstick_posy", "leftstick_negy", "leftstick_negx", "leftstick_posx", "rightstick_negx", "rightstick_posx", "right_trigger"};
+const char* szControlerKeys[MaxPlayerActions] = {
+  "leftstick_posy", "leftstick_negy", "leftstick_negx", "leftstick_posx", "rightstick_negx", "rightstick_posx", "right_trigger"};
 
 namespace
 {
-  static void RegisterInputAction(const char* szInputSet, const char* szInputAction, const char* szKey1, const char* szKey2 = nullptr, const char* szKey3 = nullptr)
+  static void RegisterInputAction(
+    const char* szInputSet, const char* szInputAction, const char* szKey1, const char* szKey2 = nullptr, const char* szKey3 = nullptr)
   {
     ezInputActionConfig cfg;
 

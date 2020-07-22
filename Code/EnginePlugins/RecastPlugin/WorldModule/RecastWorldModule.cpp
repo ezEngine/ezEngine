@@ -71,8 +71,7 @@ void ezRecastWorldModule::UpdateNavMesh(const UpdateContext& ctxt)
 
 void ezRecastWorldModule::ResourceEventHandler(const ezResourceEvent& e)
 {
-  if (e.m_Type == ezResourceEvent::Type::ResourceContentUnloading &&
-      e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezRecastNavMeshResource>())
+  if (e.m_Type == ezResourceEvent::Type::ResourceContentUnloading && e.m_pResource->GetDynamicRTTI()->IsDerivedFrom<ezRecastNavMeshResource>())
   {
     // triggers a recreation in the next update
     m_pDetourNavMesh = nullptr;

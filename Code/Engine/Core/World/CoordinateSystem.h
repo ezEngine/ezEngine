@@ -18,7 +18,7 @@ class EZ_CORE_DLL ezCoordinateSystemProvider : public ezRefCounted
 {
 public:
   ezCoordinateSystemProvider(const ezWorld* pOwnerWorld)
-      : m_pOwnerWorld(pOwnerWorld)
+    : m_pOwnerWorld(pOwnerWorld)
   {
   }
 
@@ -43,23 +43,23 @@ class EZ_CORE_DLL ezCoordinateSystemConversion
 {
 public:
   /// \brief Creates a new conversion that until set up, does identity conversions.
-  ezCoordinateSystemConversion();  // [tested]
+  ezCoordinateSystemConversion(); // [tested]
 
   /// \brief Set up the source and target coordinate systems.
-  void SetConversion(const ezCoordinateSystem& source, const ezCoordinateSystem& target);  // [tested]
+  void SetConversion(const ezCoordinateSystem& source, const ezCoordinateSystem& target); // [tested]
   /// \brief Returns the equivalent point in the target coordinate system.
-  ezVec3 ConvertSourcePosition(const ezVec3& vPos) const;  // [tested]
+  ezVec3 ConvertSourcePosition(const ezVec3& vPos) const; // [tested]
   /// \brief Returns the equivalent rotation in the target coordinate system.
-  ezQuat ConvertSourceRotation(const ezQuat& vOrientation) const;  // [tested]
+  ezQuat ConvertSourceRotation(const ezQuat& vOrientation) const; // [tested]
   /// \brief Returns the equivalent length in the target coordinate system.
-  float ConvertSourceLength(float fLength) const;  // [tested]
+  float ConvertSourceLength(float fLength) const; // [tested]
 
   /// \brief Returns the equivalent point in the source coordinate system.
-  ezVec3 ConvertTargetPosition(const ezVec3& vPos) const;  // [tested]
+  ezVec3 ConvertTargetPosition(const ezVec3& vPos) const; // [tested]
   /// \brief Returns the equivalent rotation in the source coordinate system.
-  ezQuat ConvertTargetRotation(const ezQuat& vOrientation) const;  // [tested]
+  ezQuat ConvertTargetRotation(const ezQuat& vOrientation) const; // [tested]
   /// \brief Returns the equivalent length in the source coordinate system.
-  float ConvertTargetLength(float fLength) const;  // [tested]
+  float ConvertTargetLength(float fLength) const; // [tested]
 
 private:
   ezMat3 m_mSourceToTarget;

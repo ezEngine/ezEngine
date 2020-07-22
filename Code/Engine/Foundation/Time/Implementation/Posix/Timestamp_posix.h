@@ -1,6 +1,6 @@
 #include <Foundation/FoundationInternal.h>
 EZ_FOUNDATION_INTERNAL_HEADER
-#include<time.h>
+#include <time.h>
 
 const ezTimestamp ezTimestamp::CurrentTimestamp()
 {
@@ -74,4 +74,3 @@ bool ezDateTime::SetTimestamp(ezTimestamp timestamp)
 
   return true;
 }
-

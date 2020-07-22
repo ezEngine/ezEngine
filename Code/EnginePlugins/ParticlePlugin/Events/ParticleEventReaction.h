@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Foundation/Reflection/Reflection.h>
-#include <ParticlePlugin/ParticlePluginDLL.h>
 #include <ParticlePlugin/Module/ParticleModule.h>
+#include <ParticlePlugin/ParticlePluginDLL.h>
 
 class ezParticleEffectInstance;
 class ezParticleEventReaction;

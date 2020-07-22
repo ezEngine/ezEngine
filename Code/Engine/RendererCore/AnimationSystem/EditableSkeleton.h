@@ -61,4 +61,3 @@ public:
 
   ezHybridArray<ezEditableSkeletonJoint*, 4> m_Children;
 };
-

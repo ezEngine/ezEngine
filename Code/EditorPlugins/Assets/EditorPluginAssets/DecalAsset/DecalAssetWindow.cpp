@@ -15,7 +15,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 ezQtDecalAssetDocumentWindow::ezQtDecalAssetDocumentWindow(ezDecalAssetDocument* pDocument)
-    : ezQtEngineDocumentWindow(pDocument)
+  : ezQtEngineDocumentWindow(pDocument)
 {
   // Menu Bar
   {

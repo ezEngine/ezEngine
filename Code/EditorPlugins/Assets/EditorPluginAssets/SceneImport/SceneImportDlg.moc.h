@@ -8,7 +8,7 @@ class ezQtSceneImportDlg : public QDialog, public Ui_SceneImportDlg
   Q_OBJECT
 
 public:
-  ezQtSceneImportDlg(QWidget *parent = nullptr);
+  ezQtSceneImportDlg(QWidget* parent = nullptr);
 
 public Q_SLOTS:
   virtual void on_accepted();
@@ -18,4 +18,3 @@ public Q_SLOTS:
 private:
   void validatePaths();
 };
-

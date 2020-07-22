@@ -17,7 +17,5 @@ public:
     const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs) override;
 
 protected:
-
   ezPassThroughNodePin m_PinDepthStencil;
 };
-

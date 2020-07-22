@@ -290,11 +290,11 @@ static duk_ret_t ModuleSearchFunction(duk_context* ctx)
   ezDuktapeFunction script(ctx);
 
   /* Nargs was given as 4 and we get the following stack arguments:
-  *   index 0: id
-  *   index 1: require
-  *   index 2: exports
-  *   index 3: module
-  */
+   *   index 0: id
+   *   index 1: require
+   *   index 2: exports
+   *   index 3: module
+   */
 
   ezStringBuilder id = script.GetStringValue(0);
   id.ChangeFileExtension("js");
@@ -307,7 +307,7 @@ static duk_ret_t ModuleSearchFunction(duk_context* ctx)
   return script.ReturnString(source);
 
   /* Return 'undefined' to indicate no source code. */
-  //return 0;
+  // return 0;
 }
 
 #endif

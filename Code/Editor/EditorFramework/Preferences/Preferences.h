@@ -18,7 +18,6 @@ class EZ_EDITORFRAMEWORK_DLL ezPreferences : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezPreferences, ezReflectedClass);
 
 public:
-
   enum class Domain
   {
     Application,
@@ -28,7 +27,7 @@ public:
 
   /// \brief Static function to query a preferences object of the given type.
   /// If the instance does not exist yet, it is created and the data is restored from file.
-  template<typename TYPE>
+  template <typename TYPE>
   static TYPE* QueryPreferences(const ezDocument* pDocument = nullptr)
   {
     EZ_CHECK_AT_COMPILETIME_MSG((std::is_base_of<ezPreferences, TYPE>::value == true), "All preferences objects must be derived from ezPreferences");
@@ -76,13 +75,9 @@ public:
   ezEvent<ezPreferences*> m_ChangedEvent;
 
   /// Call this to broadcast that this preference object was modified.
-  void TriggerPreferencesChangedEvent()
-  {
-    m_ChangedEvent.Broadcast(this);
-  }
+  void TriggerPreferencesChangedEvent() { m_ChangedEvent.Broadcast(this); }
 
 protected:
-
   ezPreferences(Domain domain, const char* szUniqueName);
 
   ezString GetFilePath() const;
@@ -94,7 +89,7 @@ private:
   void Load();
   void Save() const;
 
-  
+
 
 private:
   Domain m_Domain;

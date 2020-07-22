@@ -256,8 +256,8 @@ void ezPxCharacterProxyComponent::OnSimulationStarted()
   cd.stepOffset = m_fMaxStepHeight;
   cd.reportCallback = &(m_Data->m_HitCallback);
   cd.behaviorCallback = &(m_Data->m_BehaviorCallback);
-  cd.nonWalkableMode = m_bForceSlopeSliding ? PxControllerNonWalkableMode::ePREVENT_CLIMBING_AND_FORCE_SLIDING
-                                            : PxControllerNonWalkableMode::ePREVENT_CLIMBING;
+  cd.nonWalkableMode =
+    m_bForceSlopeSliding ? PxControllerNonWalkableMode::ePREVENT_CLIMBING_AND_FORCE_SLIDING : PxControllerNonWalkableMode::ePREVENT_CLIMBING;
   cd.material = ezPhysX::GetSingleton()->GetDefaultMaterial();
 
   ezPxUserData* pUserData = nullptr;

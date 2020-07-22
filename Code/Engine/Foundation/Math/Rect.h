@@ -59,4 +59,3 @@ typedef ezRectTemplate<ezUInt32> ezRectU32;
 typedef ezRectTemplate<ezUInt16> ezRectU16;
 typedef ezRectTemplate<float> ezRectFloat;
 typedef ezRectTemplate<double> ezRectDouble;
-

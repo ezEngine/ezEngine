@@ -8,11 +8,9 @@ struct ID3D11UnorderedAccessView;
 class ezGALUnorderedAccessViewDX11 : public ezGALUnorderedAccessView
 {
 public:
-
   EZ_ALWAYS_INLINE ID3D11UnorderedAccessView* GetDXResourceView() const;
 
 protected:
-
   friend class ezGALDeviceDX11;
   friend class ezMemoryUtils;
 

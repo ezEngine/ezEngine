@@ -1,8 +1,8 @@
 #include <CorePCH.h>
 
 #include <Core/Collection/CollectionUtils.h>
-#include <Foundation/IO/OSFile.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/IO/OSFile.h>
 
 void ezCollectionUtils::AddFiles(ezCollectionResourceDescriptor& collection, const char* szAssetTypeName, const char* szAbsPathToFolder,
   const char* szFileExtension, const char* szStripPrefix, const char* szPrependPrefix)
@@ -94,9 +94,7 @@ void ezCollectionUtils::AddResourceHandle(
     absFilename.MakeCleanPath();
 
     ezFileStats stats;
-    if (!absFilename.IsEmpty()
-      && absFilename.IsAbsolutePath()
-      && ezFileSystem::GetFileStats(absFilename, stats).Succeeded())
+    if (!absFilename.IsEmpty() && absFilename.IsAbsolutePath() && ezFileSystem::GetFileStats(absFilename, stats).Succeeded())
     {
       entry.m_uiFileSize = stats.m_uiFileSize;
     }

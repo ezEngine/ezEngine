@@ -22,4 +22,3 @@ private:
 };
 
 typedef ezTypedResourceHandle<class ezCpuMeshResource> ezCpuMeshResourceHandle;
-

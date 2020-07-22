@@ -66,4 +66,3 @@ private:
 // EZ_CHECK_AT_COMPILETIME_MSG(ezGetTypeClass< ezStaticArray<int, 4> >::value == 2, "static array is not memory relocatable");
 
 #include <Foundation/Containers/Implementation/StaticArray_inl.h>
-

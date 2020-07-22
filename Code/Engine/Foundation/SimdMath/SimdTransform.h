@@ -12,7 +12,7 @@ public:
 
   /// \brief Sets position, rotation and scale.
   explicit ezSimdTransform(const ezSimdVec4f& position, const ezSimdQuat& rotation = ezSimdQuat::IdentityQuaternion(),
-                           const ezSimdVec4f& scale = ezSimdVec4f(1.0f)); // [tested]
+    const ezSimdVec4f& scale = ezSimdVec4f(1.0f)); // [tested]
 
   /// \brief Sets rotation.
   explicit ezSimdTransform(const ezSimdQuat& rotation); // [tested]
@@ -98,4 +98,3 @@ EZ_ALWAYS_INLINE bool operator!=(const ezSimdTransform& t1, const ezSimdTransfor
 
 
 #include <Foundation/SimdMath/Implementation/SimdTransform_inl.h>
-

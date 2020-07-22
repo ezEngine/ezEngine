@@ -39,14 +39,13 @@ public:
   ezMat3Template(const Type* const pData, ezMatrixLayout::Enum layout); // [tested]
 
   /// \brief Sets each element manually: Naming is "column-n row-m"
-  ezMat3Template(Type c1r1, Type c2r1, Type c3r1,
-                 Type c1r2, Type c2r2, Type c3r2,
-                 Type c1r3, Type c2r3, Type c3r3); // [tested]
+  ezMat3Template(Type c1r1, Type c2r1, Type c3r1, Type c1r2, Type c2r2, Type c3r2, Type c1r3, Type c2r3, Type c3r3); // [tested]
 
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   void AssertNotNaN() const
   {
-    EZ_ASSERT_ALWAYS(!IsNaN(), "This object contains NaN values. This can happen when you forgot to initialize it before using it. Please check that all code-paths properly initialize this object.");
+    EZ_ASSERT_ALWAYS(!IsNaN(), "This object contains NaN values. This can happen when you forgot to initialize it before using it. Please check that "
+                               "all code-paths properly initialize this object.");
   }
 #endif
 
@@ -59,13 +58,12 @@ public:
   ///   The data should be in column-major format, if you want to prevent unnecessary transposes.
   void SetFromArray(const Type* const pData, ezMatrixLayout::Enum layout); // [tested]
 
-  /// \brief Copies the 9 values of this matrix into the given array. 'layout' defines whether the data should end up in column-major or row-major format.
+  /// \brief Copies the 9 values of this matrix into the given array. 'layout' defines whether the data should end up in column-major or row-major
+  /// format.
   void GetAsArray(Type* out_pData, ezMatrixLayout::Enum layout) const; // [tested]
 
   /// \brief Sets each element manually: Naming is "column-n row-m"
-  void SetElements(Type c1r1, Type c2r1, Type c3r1,
-                   Type c1r2, Type c2r2, Type c3r2,
-                   Type c1r3, Type c2r3, Type c3r3); // [tested]
+  void SetElements(Type c1r1, Type c2r1, Type c3r1, Type c1r2, Type c2r2, Type c3r2, Type c1r3, Type c2r3, Type c3r3); // [tested]
 
   // *** Special matrix constructors ***
 public:
@@ -147,7 +145,8 @@ public:
   /// \brief Returns the 3 scaling factors that are encoded in the matrix.
   const ezVec3Template<Type> GetScalingFactors() const; // [tested]
 
-  /// \brief Tries to set the three scaling factors in the matrix. Returns EZ_FAILURE if the matrix columns cannot be normalized and thus no rescaling is possible.
+  /// \brief Tries to set the three scaling factors in the matrix. Returns EZ_FAILURE if the matrix columns cannot be normalized and thus no rescaling
+  /// is possible.
   ezResult SetScalingFactors(const ezVec3Template<Type>& vXYZ, Type fEpsilon = ezMath::DefaultEpsilon<Type>()); // [tested]
 
   /// \brief Computes the determinant of the matix.
@@ -211,4 +210,3 @@ template <typename Type>
 bool operator!=(const ezMat3Template<Type>& lhs, const ezMat3Template<Type>& rhs); // [tested]
 
 #include <Foundation/Math/Implementation/Mat3_inl.h>
-

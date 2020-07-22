@@ -1,9 +1,9 @@
 #pragma once
 
 #include <EditorEngineProcessFramework/EditorEngineProcessFrameworkDLL.h>
-#include <Foundation/Types/Delegate.h>
-#include <Foundation/Time/Time.h>
 #include <Foundation/Communication/Event.h>
+#include <Foundation/Time/Time.h>
+#include <Foundation/Types/Delegate.h>
 
 class ezIpcChannel;
 class ezProcessMessage;
@@ -19,7 +19,7 @@ public:
   /// /brief Callback for 'wait for...' functions. If true is returned, the message is accepted to match the wait criteria and
   ///        the waiting ends. If false is returned the wait for the message continues.
   typedef ezDelegate<bool(ezProcessMessage*)> WaitForMessageCallback;
-  ezResult WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout, WaitForMessageCallback* pMessageCallack = nullptr );
+  ezResult WaitForMessage(const ezRTTI* pMessageType, ezTime tTimeout, WaitForMessageCallback* pMessageCallack = nullptr);
 
   /// \brief Returns true if any message was processed
   bool ProcessMessages();
@@ -35,12 +35,10 @@ public:
   void MessageFunc(const ezProcessMessage* msg);
 
 protected:
-
   ezIpcChannel* m_pChannel = nullptr;
   const ezRTTI* m_pFirstAllowedMessageType = nullptr;
 
 private:
-
   WaitForMessageCallback m_WaitForMessageCallback;
   const ezRTTI* m_pWaitForMessageType = nullptr;
 };

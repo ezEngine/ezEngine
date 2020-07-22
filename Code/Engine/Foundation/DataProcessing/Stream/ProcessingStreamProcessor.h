@@ -25,7 +25,8 @@ protected:
   friend class ezProcessingStreamGroup;
 
   /// \brief Internal method which needs to be implemented, gets the concrete stream bindings.
-  /// This is called every time the streams are resized. Implementations should check that their required streams exist and are of the correct data types.
+  /// This is called every time the streams are resized. Implementations should check that their required streams exist and are of the correct data
+  /// types.
   virtual ezResult UpdateStreamBindings() = 0;
 
   /// \brief This method needs to be implemented in order to initialize new elements to specific values.
@@ -38,4 +39,3 @@ protected:
   /// Can be used to get stream pointers in UpdateStreamBindings();
   ezProcessingStreamGroup* m_pStreamGroup;
 };
-

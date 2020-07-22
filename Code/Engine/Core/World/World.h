@@ -203,17 +203,20 @@ public:
   void SendMessageRecursive(const ezGameObjectHandle& receiverObject, ezMessage& msg);
 
   /// \brief Queues the message for the given phase. The message is send to the receiverObject after the given delay in the corresponding phase.
-  void PostMessage(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
+  void PostMessage(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezTime delay,
+    ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
 
   /// \brief Queues the message for the given phase. The message is send to the receiverObject and all its children after the given delay in
   /// the corresponding phase.
-  void PostMessageRecursive(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
+  void PostMessageRecursive(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezTime delay,
+    ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
 
   /// \brief Sends a message to the component.
   void SendMessage(const ezComponentHandle& receiverComponent, ezMessage& msg);
 
   /// \brief Queues the message for the given phase. The message is send to the receiverComponent after the given delay in the corresponding phase.
-  void PostMessage(const ezComponentHandle& receiverComponent, const ezMessage& msg, ezTime delay, ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
+  void PostMessage(const ezComponentHandle& receiverComponent, const ezMessage& msg, ezTime delay,
+    ezObjectMsgQueueType::Enum queueType = ezObjectMsgQueueType::NextFrame) const;
 
   /// \brief Finds the closest (parent) object, starting at pSearchObject, which has an ezEventMessageHandlerComponent.
   ///
@@ -340,14 +343,16 @@ private:
 
   ezGameObject* GetObjectUnchecked(ezUInt32 uiIndex) const;
 
-  void SetParent(ezGameObject* pObject, ezGameObject* pNewParent, ezGameObject::TransformPreservation preserve = ezGameObject::TransformPreservation::PreserveGlobal);
+  void SetParent(ezGameObject* pObject, ezGameObject* pNewParent,
+    ezGameObject::TransformPreservation preserve = ezGameObject::TransformPreservation::PreserveGlobal);
   void LinkToParent(ezGameObject* pObject);
   void UnlinkFromParent(ezGameObject* pObject);
 
   void SetObjectGlobalKey(ezGameObject* pObject, const ezHashedString& sGlobalKey);
   const char* GetObjectGlobalKey(const ezGameObject* pObject) const;
 
-  void PostMessage(const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay, bool bRecursive) const;
+  void PostMessage(
+    const ezGameObjectHandle& receiverObject, const ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay, bool bRecursive) const;
   void ProcessQueuedMessage(const ezInternal::WorldData::MessageQueue::Entry& entry);
   void ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType);
 

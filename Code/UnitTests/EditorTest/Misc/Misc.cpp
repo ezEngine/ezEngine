@@ -2,13 +2,13 @@
 
 #include "Misc.h"
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
+#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Strings/StringConversion.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <RendererCore/Components/SkyBoxComponent.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
-#include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
-#include <EditorFramework/DocumentWindow/EngineDocumentWindow.moc.h>
 
 static ezEditorTestMisc s_GameEngineTestBasics;
 
@@ -84,8 +84,8 @@ ezTestAppRun ezEditorTestMisc::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvoca
   }
 
 
-  //const auto& allDesc = ezDocumentManager::GetAllDocumentDescriptors();
-  //for (auto* pDesc : allDesc)
+  // const auto& allDesc = ezDocumentManager::GetAllDocumentDescriptors();
+  // for (auto* pDesc : allDesc)
   //{
   //  if (pDesc->m_bCanCreate)
   //  {
@@ -98,10 +98,10 @@ ezTestAppRun ezEditorTestMisc::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInvoca
   //  }
   //}
   //// Make sure the engine process did not crash after creating every kind of document.
-  //EZ_TEST_BOOL(!ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed());
+  // EZ_TEST_BOOL(!ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed());
 
   ////TODO: Newly created assets actually do not transform cleanly.
-  //if (false)
+  // if (false)
   //{
   //  ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::TriggeredManually);
 

@@ -59,4 +59,3 @@ private:
 
   static ezSystemInformation s_SystemInformation;
 };
-

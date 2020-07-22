@@ -43,7 +43,8 @@ public:
   /// \brief Returns the number of registered tags.
   ezUInt32 GetNumTags() const;
 
-  /// \brief Loads the saved state and integrates it into this registry. Does not discard previously registered tag information. This function is only for backwards compatibility.
+  /// \brief Loads the saved state and integrates it into this registry. Does not discard previously registered tag information. This function is only
+  /// for backwards compatibility.
   ezResult Load(ezStreamReader& stream);
 
 protected:
@@ -52,4 +53,3 @@ protected:
   ezMap<ezTempHashedString, ezTag> m_RegisteredTags;
   ezDeque<ezTag*> m_TagsByIndex;
 };
-

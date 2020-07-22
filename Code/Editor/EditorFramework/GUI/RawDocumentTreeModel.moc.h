@@ -12,6 +12,7 @@
 class EZ_EDITORFRAMEWORK_DLL ezQtDocumentTreeModelAdapter : public QObject
 {
   Q_OBJECT;
+
 public:
   /// \brief Constructor. If m_sChildProperty is empty, this type does not have children.
   ezQtDocumentTreeModelAdapter(const ezDocumentObjectManager* pTree, const ezRTTI* pType, const char* m_sChildProperty);
@@ -39,6 +40,7 @@ protected:
 class EZ_EDITORFRAMEWORK_DLL ezQtDummyAdapter : public ezQtDocumentTreeModelAdapter
 {
   Q_OBJECT;
+
 public:
   ezQtDummyAdapter(const ezDocumentObjectManager* pTree, const ezRTTI* pType, const char* m_sChildProperty);
 
@@ -49,6 +51,7 @@ public:
 class EZ_EDITORFRAMEWORK_DLL ezQtNamedAdapter : public ezQtDocumentTreeModelAdapter
 {
   Q_OBJECT;
+
 public:
   ezQtNamedAdapter(const ezDocumentObjectManager* pTree, const ezRTTI* pType, const char* m_sChildProperty, const char* szNameProperty);
   ~ezQtNamedAdapter();
@@ -65,6 +68,7 @@ protected:
 class EZ_EDITORFRAMEWORK_DLL ezQtNameableAdapter : public ezQtNamedAdapter
 {
   Q_OBJECT;
+
 public:
   ezQtNameableAdapter(const ezDocumentObjectManager* pTree, const ezRTTI* pType, const char* m_sChildProperty, const char* szNameProperty);
   ~ezQtNameableAdapter();
@@ -93,19 +97,19 @@ public:
   void SetAllowDragDrop(bool bAllow);
 
 public: // QAbstractItemModel
-  virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
-  virtual QModelIndex parent(const QModelIndex &child) const override;
+  virtual QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
+  virtual QModelIndex parent(const QModelIndex& child) const override;
 
-  virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-  virtual int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-  virtual Qt::ItemFlags flags(const QModelIndex &index) const override;
+  virtual int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+  virtual int columnCount(const QModelIndex& parent = QModelIndex()) const override;
+  virtual Qt::ItemFlags flags(const QModelIndex& index) const override;
 
-  virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+  virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
   virtual bool setData(const QModelIndex& index, const QVariant& value, int role) override;
 
   virtual Qt::DropActions supportedDropActions() const override;
 
-  virtual bool canDropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) const override;
+  virtual bool canDropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) const override;
   virtual bool dropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) override;
   virtual QStringList mimeTypes() const override;
   virtual QMimeData* mimeData(const QModelIndexList& indexes) const override;
@@ -124,4 +128,3 @@ protected:
   ezHashTable<const ezRTTI*, ezQtDocumentTreeModelAdapter*> m_Adapters;
   bool m_bAllowDragDrop = false;
 };
-

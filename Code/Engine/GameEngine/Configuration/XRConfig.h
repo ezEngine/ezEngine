@@ -13,4 +13,3 @@ public:
   bool m_bEnableXR = false;
   ezString m_sXRRenderPipeline;
 };
-

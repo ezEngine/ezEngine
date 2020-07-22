@@ -2,17 +2,17 @@
 
 #include <Foundation/Application/Application.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
-#include <Foundation/Reflection/Reflection.h>
-#include <Foundation/Threading/ThreadUtils.h>
-#include <Foundation/System/SystemInformation.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Reflection/Reflection.h>
+#include <Foundation/System/SystemInformation.h>
+#include <Foundation/Threading/ThreadUtils.h>
 
 ezApplication::ezApplication(const char* szAppName)
-    : m_iReturnCode(0)
-    , m_uiArgumentCount(0)
-    , m_ppArguments(nullptr)
-    , m_bReportMemoryLeaks(true)
-    , m_sAppName(szAppName)
+  : m_iReturnCode(0)
+  , m_uiArgumentCount(0)
+  , m_ppArguments(nullptr)
+  , m_bReportMemoryLeaks(true)
+  , m_sAppName(szAppName)
 {
 }
 
@@ -75,6 +75,4 @@ ezApplication* ezApplication::s_pApplicationInstance = nullptr;
 
 
 
-
 EZ_STATICLINK_FILE(Foundation, Foundation_Application_Implementation_Application);
-

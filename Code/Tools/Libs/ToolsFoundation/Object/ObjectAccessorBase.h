@@ -25,16 +25,22 @@ public:
   ///@{
 
   virtual const ezDocumentObject* GetObject(const ezUuid& object) = 0;
-  virtual ezStatus GetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant& out_value, ezVariant index = ezVariant()) = 0;
-  virtual ezStatus SetValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index = ezVariant()) = 0;
-  virtual ezStatus InsertValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index = ezVariant()) = 0;
+  virtual ezStatus GetValue(
+    const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant& out_value, ezVariant index = ezVariant()) = 0;
+  virtual ezStatus SetValue(
+    const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index = ezVariant()) = 0;
+  virtual ezStatus InsertValue(
+    const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& newValue, ezVariant index = ezVariant()) = 0;
   virtual ezStatus RemoveValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index = ezVariant()) = 0;
-  virtual ezStatus MoveValue(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& oldIndex, const ezVariant& newIndex) = 0;
+  virtual ezStatus MoveValue(
+    const ezDocumentObject* pObject, const ezAbstractProperty* pProp, const ezVariant& oldIndex, const ezVariant& newIndex) = 0;
   virtual ezStatus GetCount(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezInt32& out_iCount) = 0;
 
-  virtual ezStatus AddObject(const ezDocumentObject* pParent, const ezAbstractProperty* pParentProp, const ezVariant& index, const ezRTTI* pType, ezUuid& inout_objectGuid) = 0;
+  virtual ezStatus AddObject(const ezDocumentObject* pParent, const ezAbstractProperty* pParentProp, const ezVariant& index, const ezRTTI* pType,
+    ezUuid& inout_objectGuid) = 0;
   virtual ezStatus RemoveObject(const ezDocumentObject* pObject) = 0;
-  virtual ezStatus MoveObject(const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const ezAbstractProperty* pParentProp, const ezVariant& index) = 0;
+  virtual ezStatus MoveObject(
+    const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const ezAbstractProperty* pParentProp, const ezVariant& index) = 0;
 
   virtual ezStatus GetKeys(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezHybridArray<ezVariant, 16>& out_keys) = 0;
   virtual ezStatus GetValues(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezHybridArray<ezVariant, 16>& out_values) = 0;
@@ -50,15 +56,16 @@ public:
   ezStatus MoveValue(const ezDocumentObject* pObject, const char* szProp, const ezVariant& oldIndex, const ezVariant& newIndex);
   ezStatus GetCount(const ezDocumentObject* pObject, const char* szProp, ezInt32& out_iCount);
 
-  ezStatus AddObject(const ezDocumentObject* pParent, const char* szParentProp, const ezVariant& index, const ezRTTI* pType, ezUuid& inout_objectGuid);
+  ezStatus AddObject(
+    const ezDocumentObject* pParent, const char* szParentProp, const ezVariant& index, const ezRTTI* pType, ezUuid& inout_objectGuid);
   ezStatus MoveObject(const ezDocumentObject* pObject, const ezDocumentObject* pNewParent, const char* szParentProp, const ezVariant& index);
 
   ezStatus GetKeys(const ezDocumentObject* pObject, const char* szProp, ezHybridArray<ezVariant, 16>& out_keys);
   ezStatus GetValues(const ezDocumentObject* pObject, const char* szProp, ezHybridArray<ezVariant, 16>& out_values);
 
-  template<typename T>
+  template <typename T>
   T Get(const ezDocumentObject* pObject, const ezAbstractProperty* pProp, ezVariant index = ezVariant());
-  template<typename T>
+  template <typename T>
   T Get(const ezDocumentObject* pObject, const char* szProp, ezVariant index = ezVariant());
   ezInt32 GetCount(const ezDocumentObject* pObject, const ezAbstractProperty* pProp);
 

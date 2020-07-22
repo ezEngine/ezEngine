@@ -38,8 +38,7 @@ static void WriteGraph(const ezAbstractObjectGraph* pGraph, ezStreamWriter& stre
   }
 }
 
-void ezAbstractGraphBinarySerializer::Write(ezStreamWriter& stream, const ezAbstractObjectGraph* pGraph,
-                                            const ezAbstractObjectGraph* pTypesGraph)
+void ezAbstractGraphBinarySerializer::Write(ezStreamWriter& stream, const ezAbstractObjectGraph* pGraph, const ezAbstractObjectGraph* pTypesGraph)
 {
   ezUInt32 uiVersion = ezBinarySerializerVersion::CurrentVersion;
   stream << uiVersion;
@@ -79,15 +78,15 @@ static void ReadGraph(ezStreamReader& stream, ezAbstractObjectGraph* pGraph)
   }
 }
 
-void ezAbstractGraphBinarySerializer::Read(ezStreamReader& stream, ezAbstractObjectGraph* pGraph, ezAbstractObjectGraph* pTypesGraph,
-                                           bool bApplyPatches)
+void ezAbstractGraphBinarySerializer::Read(
+  ezStreamReader& stream, ezAbstractObjectGraph* pGraph, ezAbstractObjectGraph* pTypesGraph, bool bApplyPatches)
 {
   ezUInt32 uiVersion = 0;
   stream >> uiVersion;
   if (uiVersion != ezBinarySerializerVersion::CurrentVersion)
   {
-    EZ_REPORT_FAILURE("Binary serializer version {0} does not match expected version {1}, re-export file.", uiVersion,
-                      ezBinarySerializerVersion::CurrentVersion);
+    EZ_REPORT_FAILURE(
+      "Binary serializer version {0} does not match expected version {1}, re-export file.", uiVersion, ezBinarySerializerVersion::CurrentVersion);
     return;
   }
   ReadGraph(stream, pGraph);
@@ -105,4 +104,3 @@ void ezAbstractGraphBinarySerializer::Read(ezStreamReader& stream, ezAbstractObj
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Serialization_Implementation_BinarySerializer);
-

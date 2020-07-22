@@ -10,9 +10,9 @@ class EZ_EDITORFRAMEWORK_DLL ezComponentDragDropHandler : public ezAssetDragDrop
   EZ_ADD_DYNAMIC_REFLECTION(ezComponentDragDropHandler, ezAssetDragDropHandler);
 
 public:
-
 protected:
-  void CreateDropObject(const ezVec3& vPosition, const char* szType, const char* szProperty, const ezVariant& value, ezUuid parent, ezInt32 iInsertChildIndex);
+  void CreateDropObject(
+    const ezVec3& vPosition, const char* szType, const char* szProperty, const ezVariant& value, ezUuid parent, ezInt32 iInsertChildIndex);
 
   void AttachComponentToObject(const char* szType, const char* szProperty, const ezVariant& value, ezUuid ObjectGuid);
 
@@ -40,6 +40,4 @@ protected:
   virtual void OnDrop(const ezDragDropInfo* pInfo) override;
 
   virtual float CanHandle(const ezDragDropInfo* pInfo) const override;
-
 };
-

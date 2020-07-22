@@ -1,9 +1,9 @@
 #pragma once
 
-#include <ModelImporter/ModelImporterDLL.h>
-#include <ModelImporter/Declarations.h>
-#include <Foundation/Types/Id.h>
 #include <Foundation/Algorithm/HashingUtils.h>
+#include <Foundation/Types/Id.h>
+#include <ModelImporter/Declarations.h>
+#include <ModelImporter/ModelImporterDLL.h>
 
 namespace ezModelImporter
 {
@@ -18,10 +18,14 @@ namespace ezModelImporter
 
     // Cannot use EZ_DECLARE_HANDLE_TYPE since type is an integral part.
 
-    ObjectHandle() : m_Type(NULLREF), m_Id() {}
+    ObjectHandle()
+      : m_Type(NULLREF)
+      , m_Id()
+    {
+    }
 
-    void operator = (const ObjectHandle& rhs);
-    bool operator == (const ObjectHandle& rhs) const;
+    void operator=(const ObjectHandle& rhs);
+    bool operator==(const ObjectHandle& rhs) const;
 
     bool IsValid() const { return m_Type != NULLREF && m_Id != ObjectId(); }
 
@@ -29,10 +33,10 @@ namespace ezModelImporter
     {
       NODE,
       MESH,
-      //LIGHT,
-      //CAMERA,
+      // LIGHT,
+      // CAMERA,
 
-      NULLREF = -1  // null reference.
+      NULLREF = -1 // null reference.
     };
 
     Type GetType() const { return m_Type; }
@@ -44,7 +48,11 @@ namespace ezModelImporter
     friend struct ::ezHashHelper<ObjectHandle>;
 
 
-    ObjectHandle(Type type, ObjectId id) : m_Type(type), m_Id(id) {}
+    ObjectHandle(Type type, ObjectId id)
+      : m_Type(type)
+      , m_Id(id)
+    {
+    }
 
 
     Type m_Type;
@@ -60,7 +68,7 @@ namespace ezModelImporter
     EZ_DECLARE_HANDLE_TYPE(MaterialHandle, MaterialId);
   };
 
-}
+} // namespace ezModelImporter
 
 /// Hash function for ObjectHandle
 template <>
@@ -74,8 +82,5 @@ struct ezHashHelper<ezModelImporter::ObjectHandle>
     return idValue ^ (value.m_Type << 22);
   }
 
-  static bool Equal(ezModelImporter::ObjectHandle a, ezModelImporter::ObjectHandle b)
-  {
-    return a == b;
-  }
+  static bool Equal(ezModelImporter::ObjectHandle a, ezModelImporter::ObjectHandle b) { return a == b; }
 };

@@ -21,17 +21,16 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezOpaqueForwardRenderPass::ezOpaqueForwardRenderPass(const char* szName)
-    : ezForwardRenderPass(szName)
-    , m_bWriteDepth(true)
+  : ezForwardRenderPass(szName)
+  , m_bWriteDepth(true)
 {
   m_hWhiteTexture = ezResourceManager::LoadResource<ezTexture2DResource>("White.color");
 }
 
 ezOpaqueForwardRenderPass::~ezOpaqueForwardRenderPass() {}
 
-bool ezOpaqueForwardRenderPass::GetRenderTargetDescriptions(const ezView& view,
-                                                            const ezArrayPtr<ezGALTextureCreationDescription* const> inputs,
-                                                            ezArrayPtr<ezGALTextureCreationDescription> outputs)
+bool ezOpaqueForwardRenderPass::GetRenderTargetDescriptions(
+  const ezView& view, const ezArrayPtr<ezGALTextureCreationDescription* const> inputs, ezArrayPtr<ezGALTextureCreationDescription> outputs)
 {
   if (!SUPER::GetRenderTargetDescriptions(view, inputs, outputs))
   {
@@ -56,8 +55,7 @@ bool ezOpaqueForwardRenderPass::GetRenderTargetDescriptions(const ezView& view,
 }
 
 void ezOpaqueForwardRenderPass::SetupResources(const ezRenderViewContext& renderViewContext,
-                                               const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
-                                               const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+  const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   SUPER::SetupResources(renderViewContext, inputs, outputs);
 
@@ -101,4 +99,3 @@ void ezOpaqueForwardRenderPass::RenderObjects(const ezRenderViewContext& renderV
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_Passes_OpaqueForwardRenderPass);
-

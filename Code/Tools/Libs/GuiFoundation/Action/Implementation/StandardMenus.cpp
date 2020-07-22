@@ -27,10 +27,14 @@ void ezStandardMenus::RegisterActions()
   s_hMenuScene = EZ_REGISTER_MENU("Menu.Scene");
   s_hMenuView = EZ_REGISTER_MENU("Menu.View");
   s_hMenuHelp = EZ_REGISTER_MENU("Menu.Help");
-  s_hOpenDocumentation = EZ_REGISTER_ACTION_1("Help.OpenDocumentation", ezActionScope::Document, "Help", "", ezHelpActions, ezHelpActions::ButtonType::OpenDocumentation);
-  s_hOpenReleaseNotes = EZ_REGISTER_ACTION_1("Help.OpenReleaseNotes", ezActionScope::Document, "Help", "", ezHelpActions, ezHelpActions::ButtonType::OpenReleaseNotes);
-  s_hCheckForUpdates = EZ_REGISTER_ACTION_1("Help.CheckForUpdates", ezActionScope::Document, "Help", "", ezHelpActions, ezHelpActions::ButtonType::CheckForUpdates);
-  s_hReportProblem = EZ_REGISTER_ACTION_1("Help.ReportProblem", ezActionScope::Document, "Help", "", ezHelpActions, ezHelpActions::ButtonType::ReportProblem);
+  s_hOpenDocumentation =
+    EZ_REGISTER_ACTION_1("Help.OpenDocumentation", ezActionScope::Document, "Help", "", ezHelpActions, ezHelpActions::ButtonType::OpenDocumentation);
+  s_hOpenReleaseNotes =
+    EZ_REGISTER_ACTION_1("Help.OpenReleaseNotes", ezActionScope::Document, "Help", "", ezHelpActions, ezHelpActions::ButtonType::OpenReleaseNotes);
+  s_hCheckForUpdates =
+    EZ_REGISTER_ACTION_1("Help.CheckForUpdates", ezActionScope::Document, "Help", "", ezHelpActions, ezHelpActions::ButtonType::CheckForUpdates);
+  s_hReportProblem =
+    EZ_REGISTER_ACTION_1("Help.ReportProblem", ezActionScope::Document, "Help", "", ezHelpActions, ezHelpActions::ButtonType::ReportProblem);
 }
 
 void ezStandardMenus::UnregisterActions()
@@ -95,10 +99,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 struct ezComparePanels
 {
   /// \brief Returns true if a is less than b
-  EZ_ALWAYS_INLINE bool Less(const ezDynamicMenuAction::Item& p1, const ezDynamicMenuAction::Item& p2) const
-  {
-    return p1.m_sDisplay < p2.m_sDisplay;
-  }
+  EZ_ALWAYS_INLINE bool Less(const ezDynamicMenuAction::Item& p1, const ezDynamicMenuAction::Item& p2) const { return p1.m_sDisplay < p2.m_sDisplay; }
 
   /// \brief Returns true if a is equal to b
   EZ_ALWAYS_INLINE bool Equal(const ezDynamicMenuAction::Item& p1, const ezDynamicMenuAction::Item& p2) const
@@ -118,8 +119,7 @@ void ezApplicationPanelsMenuAction::GetEntries(ezHybridArray<ezDynamicMenuAction
     item.m_sDisplay = pPanel->windowTitle().toUtf8().data();
     item.m_UserValue = pPanel;
     item.m_Icon = pPanel->icon();
-    item.m_CheckState =
-      pPanel->isClosed() ? ezDynamicMenuAction::Item::CheckMark::Unchecked : ezDynamicMenuAction::Item::CheckMark::Checked;
+    item.m_CheckState = pPanel->isClosed() ? ezDynamicMenuAction::Item::CheckMark::Unchecked : ezDynamicMenuAction::Item::CheckMark::Checked;
 
     out_Entries.PushBack(item);
   }

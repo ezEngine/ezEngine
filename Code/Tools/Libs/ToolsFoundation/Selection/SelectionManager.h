@@ -1,7 +1,7 @@
 #pragma once
 
-#include <ToolsFoundation/ToolsFoundationDLL.h>
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 
 class ezDocument;
 struct ezDocumentObjectStructureEvent;
@@ -24,7 +24,6 @@ struct ezSelectionManagerEvent
 class EZ_TOOLSFOUNDATION_DLL ezSelectionManager
 {
 public:
-
   ezCopyOnBroadcastEvent<const ezSelectionManagerEvent&> m_Events;
 
 public:
@@ -51,7 +50,8 @@ public:
 
   bool IsSelectionEmpty() const { return m_SelectionList.IsEmpty(); }
 
-  /// \brief Returns the subset of selected items which have no parent selected. Ie. if an object is selected and one of its ancestors is selected, it is culled from the list.
+  /// \brief Returns the subset of selected items which have no parent selected. Ie. if an object is selected and one of its ancestors is selected, it
+  /// is culled from the list.
   const ezDeque<const ezDocumentObject*> GetTopLevelSelection() const;
 
   /// \brief Same as GetTopLevelSelection() but additionally requires that all objects are derived from type pBase

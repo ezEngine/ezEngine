@@ -2,7 +2,8 @@
 EZ_ALWAYS_INLINE ezRational::ezRational(ezUInt32 uiNumerator, ezUInt32 uiDenominator)
   : m_uiNumerator(uiNumerator)
   , m_uiDenominator(uiDenominator)
-{}
+{
+}
 
 EZ_ALWAYS_INLINE bool ezRational::IsIntegral() const
 {
@@ -46,7 +47,6 @@ EZ_ALWAYS_INLINE double ezRational::GetFloatingPointResult() const
     return 0.0;
 
   return static_cast<double>(m_uiNumerator) / static_cast<double>(m_uiDenominator);
-
 }
 
 EZ_ALWAYS_INLINE bool ezRational::IsValid() const

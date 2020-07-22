@@ -1,7 +1,7 @@
 #pragma once
 
-#include <RendererCore/Pipeline/Declarations.h>
 #include <Foundation/Strings/HashedString.h>
+#include <RendererCore/Pipeline/Declarations.h>
 
 struct EZ_RENDERERCORE_DLL ezViewRenderMode
 {
@@ -42,4 +42,3 @@ struct EZ_RENDERERCORE_DLL ezViewRenderMode
   static void GetDebugText(Enum renderMode, ezStringBuilder& out_sDebugText);
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezViewRenderMode);
-

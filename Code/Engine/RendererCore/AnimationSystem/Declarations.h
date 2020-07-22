@@ -1,7 +1,7 @@
 #pragma once
 
-#include <RendererCore/RendererCoreDLL.h>
 #include <Foundation/Communication/Message.h>
+#include <RendererCore/RendererCoreDLL.h>
 
 class ezSkeleton;
 class ezAnimationPose;
@@ -38,4 +38,3 @@ struct EZ_RENDERERCORE_DLL ezMsgAnimationPoseUpdated : public ezMessage
   const ezSkeleton* m_pSkeleton = nullptr;
   const ezAnimationPose* m_pPose = nullptr;
 };
-

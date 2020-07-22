@@ -78,7 +78,8 @@ public:
   const char* GetStringOption(const char* szOption, ezUInt32 uiArgument = 0, const char* szDefault = "",
     bool bCaseSensitive = false) const; // [tested]
 
-  /// \brief Similar to GetStringOption() but assumes that the strings represent paths and concatenates the current working directory if a relative path is given.
+  /// \brief Similar to GetStringOption() but assumes that the strings represent paths and concatenates the current working directory if a relative
+  /// path is given.
   ///
   /// To check how many arguments are available, use GetStringOptionArguments().
   /// \note This function always returns absolute or rooted paths, never relative ones. If relative paths are supposed to be allowed,

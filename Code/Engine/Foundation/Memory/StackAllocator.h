@@ -36,4 +36,3 @@ private:
 };
 
 #include <Foundation/Memory/Implementation/StackAllocator_inl.h>
-

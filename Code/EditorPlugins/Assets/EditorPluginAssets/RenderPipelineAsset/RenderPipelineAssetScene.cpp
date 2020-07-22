@@ -6,7 +6,7 @@
 
 
 ezQtRenderPipelineAssetScene::ezQtRenderPipelineAssetScene(QObject* parent)
-    : ezQtNodeScene(parent)
+  : ezQtNodeScene(parent)
 {
 }
 

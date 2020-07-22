@@ -12,7 +12,6 @@
 class ezRational
 {
 public:
-
   EZ_DECLARE_POD_TYPE();
 
   /// \brief Constructor to initialize a rational
@@ -22,10 +21,10 @@ public:
   bool IsIntegral() const;
 
   /// \brief Equality operator
-  bool operator == (const ezRational& other) const;
+  bool operator==(const ezRational& other) const;
 
   /// \brief Inequality operator
-  bool operator != (const ezRational& other) const;
+  bool operator!=(const ezRational& other) const;
 
   /// \brief Returns the numerator of the rational number
   ezUInt32 GetNumerator() const;
@@ -48,7 +47,6 @@ public:
   ezRational ReduceIntegralFraction() const;
 
 protected:
-
   ezUInt32 m_uiNumerator = 0;
   ezUInt32 m_uiDenominator = 1;
 };

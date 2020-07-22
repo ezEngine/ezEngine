@@ -7,7 +7,7 @@
 #include <GuiFoundation/ActionViews/QtProxy.moc.h>
 
 ezQtMenuBarActionMapView::ezQtMenuBarActionMapView(QWidget* parent)
-    : QMenuBar(parent)
+  : QMenuBar(parent)
 {
 }
 

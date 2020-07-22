@@ -72,7 +72,7 @@ void ezProcVolumeComponent::OnDeactivated()
   // Don't disable notifications as other components attached to the owner game object might need them too.
   // GetOwner()->DisableStaticTransformChangesNotifications();
 
-  GetOwner()->UpdateLocalBounds();  
+  GetOwner()->UpdateLocalBounds();
 }
 
 void ezProcVolumeComponent::SetValue(float fValue)

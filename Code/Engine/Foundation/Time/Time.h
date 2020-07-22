@@ -39,7 +39,7 @@ public:
 
   /// \brief The default constructor sets the time to zero.
   EZ_ALWAYS_INLINE constexpr ezTime()
-      : m_fTime(0.0)
+    : m_fTime(0.0)
   {
   }
 
@@ -128,4 +128,3 @@ constexpr ezTime operator/(double f, ezTime t);
 
 
 #include <Foundation/Time/Implementation/Time_inl.h>
-

@@ -216,32 +216,22 @@ void ezQtIconViewDelegate::paint(QPainter* painter, const QStyleOptionViewItem& 
         ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetUnknown16.png").paint(painter, thumbnailRect);
         break;
       case ezAssetInfo::TransformState::NeedsThumbnail:
-        ezQtUiServices::GetSingleton()
-          ->GetCachedIconResource(":/EditorFramework/Icons/AssetNeedsThumbnail16.png")
-          .paint(painter, thumbnailRect);
+        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetNeedsThumbnail16.png").paint(painter, thumbnailRect);
         break;
       case ezAssetInfo::TransformState::NeedsTransform:
-        ezQtUiServices::GetSingleton()
-          ->GetCachedIconResource(":/EditorFramework/Icons/AssetNeedsTransform16.png")
-          .paint(painter, thumbnailRect);
+        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetNeedsTransform16.png").paint(painter, thumbnailRect);
         break;
       case ezAssetInfo::TransformState::UpToDate:
         ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetOk16.png").paint(painter, thumbnailRect);
         break;
       case ezAssetInfo::TransformState::MissingDependency:
-        ezQtUiServices::GetSingleton()
-          ->GetCachedIconResource(":/EditorFramework/Icons/AssetMissingDependency16.png")
-          .paint(painter, thumbnailRect);
+        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetMissingDependency16.png").paint(painter, thumbnailRect);
         break;
       case ezAssetInfo::TransformState::MissingReference:
-        ezQtUiServices::GetSingleton()
-          ->GetCachedIconResource(":/EditorFramework/Icons/AssetMissingReference16.png")
-          .paint(painter, thumbnailRect);
+        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetMissingReference16.png").paint(painter, thumbnailRect);
         break;
       case ezAssetInfo::TransformState::TransformError:
-        ezQtUiServices::GetSingleton()
-          ->GetCachedIconResource(":/EditorFramework/Icons/AssetFailedTransform16.png")
-          .paint(painter, thumbnailRect);
+        ezQtUiServices::GetSingleton()->GetCachedIconResource(":/EditorFramework/Icons/AssetFailedTransform16.png").paint(painter, thumbnailRect);
         break;
       case ezAssetInfo::TransformState::COUNT:
         break;

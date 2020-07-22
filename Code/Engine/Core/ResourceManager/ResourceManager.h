@@ -192,7 +192,7 @@ public:
   template <typename ResourceType>
   static void SetIncrementalUnloadForResourceType(bool bActive);
 
-  template<typename TypeBeingUpdated, typename TypeItWantsToAcquire>
+  template <typename TypeBeingUpdated, typename TypeItWantsToAcquire>
   static void AllowResourceTypeAcquireDuringUpdateContent()
   {
     AllowResourceTypeAcquireDuringUpdateContent(ezGetStaticRTTI<TypeBeingUpdated>(), ezGetStaticRTTI<TypeItWantsToAcquire>());

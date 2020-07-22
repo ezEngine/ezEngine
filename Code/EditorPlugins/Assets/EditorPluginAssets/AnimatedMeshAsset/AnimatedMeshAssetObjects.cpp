@@ -37,4 +37,3 @@ ezAnimatedMeshAssetProperties::ezAnimatedMeshAssetProperties()
   m_fUniformScaling = 1.0f;
   m_bImportMaterials = true;
 }
-

@@ -10,14 +10,10 @@ class EZ_EDITORENGINEPROCESSFRAMEWORK_DLL ezSceneExportModifier : public ezRefle
   EZ_ADD_DYNAMIC_REFLECTION(ezSceneExportModifier, ezReflectedClass);
 
 public:
-
   static void CreateModifiers(ezHybridArray<ezSceneExportModifier*, 8>& modifiers);
   static void DestroyModifiers(ezHybridArray<ezSceneExportModifier*, 8>& modifiers);
 
   static void ApplyAllModifiers(ezWorld& world, const ezUuid& documentGuid);
 
   virtual void ModifyWorld(ezWorld& world, const ezUuid& documentGuid) = 0;
-
 };
-
-

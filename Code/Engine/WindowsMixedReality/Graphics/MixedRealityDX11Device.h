@@ -1,7 +1,7 @@
 ﻿#pragma once
 
-#include <WindowsMixedReality/Basics.h>
 #include <RendererDX11/Device/DeviceDX11.h>
+#include <WindowsMixedReality/Basics.h>
 
 namespace ABI
 {
@@ -15,14 +15,14 @@ namespace ABI
         {
           struct IDirect3DDevice;
         }
-      }
+      } // namespace DirectX
       namespace Holographic
       {
         struct IHolographicFrame;
       }
-    }
-  }
-}
+    } // namespace Graphics
+  }   // namespace Windows
+} // namespace ABI
 
 class ezGALMixedRealitySwapChainDX11;
 
@@ -39,13 +39,11 @@ class EZ_WINDOWSMIXEDREALITY_DLL ezGALMixedRealityDeviceDX11 : public ezGALDevic
 {
   /// \todo This shouldn't be accessible, there should be a factory instantiating the correct renderer class via RTTI for example
 public:
-
   ezGALMixedRealityDeviceDX11(const ezGALDeviceCreationDescription& Description);
 
   virtual ~ezGALMixedRealityDeviceDX11();
 
 protected:
-
   virtual ezResult InitPlatform() override;
 
   virtual ezResult ShutdownPlatform() override;
@@ -64,11 +62,9 @@ protected:
   virtual void EndFramePlatform() override;
 
 private:
-
   /// WinRT DX11 interop device with current ezGALDX11 device.
   ComPtr<ABI::Windows::Graphics::DirectX::Direct3D11::IDirect3DDevice> m_pDX11InteropDevice;
 
   ComPtr<ABI::Windows::Graphics::Holographic::IHolographicFrame> m_pCurrentHolographicFrame;
   bool m_bPresentedCurrentFrame;
 };
-

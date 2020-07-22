@@ -102,16 +102,18 @@ private:
 };
 
 template <ezUInt8 DecimalBits>
-float ToFloat(ezFixedPoint<DecimalBits> f) { return f.ToFloat(); }
+float ToFloat(ezFixedPoint<DecimalBits> f)
+{
+  return f.ToFloat();
+}
 
-  // Additional operators:
-  // ezFixedPoint operator+ (ezFixedPoint, ezFixedPoint); // [tested]
-  // ezFixedPoint operator- (ezFixedPoint, ezFixedPoint); // [tested]
-  // ezFixedPoint operator* (ezFixedPoint, ezFixedPoint); // [tested]
-  // ezFixedPoint operator/ (ezFixedPoint, ezFixedPoint); // [tested]
-  // ezFixedPoint operator* (int, ezFixedPoint); // [tested]
-  // ezFixedPoint operator* (ezFixedPoint, int); // [tested]
-  // ezFixedPoint operator/ (ezFixedPoint, int); // [tested]
+// Additional operators:
+// ezFixedPoint operator+ (ezFixedPoint, ezFixedPoint); // [tested]
+// ezFixedPoint operator- (ezFixedPoint, ezFixedPoint); // [tested]
+// ezFixedPoint operator* (ezFixedPoint, ezFixedPoint); // [tested]
+// ezFixedPoint operator/ (ezFixedPoint, ezFixedPoint); // [tested]
+// ezFixedPoint operator* (int, ezFixedPoint); // [tested]
+// ezFixedPoint operator* (ezFixedPoint, int); // [tested]
+// ezFixedPoint operator/ (ezFixedPoint, int); // [tested]
 
 #include <Foundation/Math/Implementation/FixedPoint_inl.h>
-

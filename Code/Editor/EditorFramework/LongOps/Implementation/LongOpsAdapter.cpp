@@ -69,8 +69,7 @@ void ezLongOpsAdapter::DocumentManagerEventHandler(const ezDocumentManager::Even
     {
       ezLongOpControllerManager::GetSingleton()->CancelAndRemoveAllOpsForDocument(e.m_pDocument->GetGuid());
 
-      e.m_pDocument->GetObjectManager()->m_StructureEvents.RemoveEventHandler(
-        ezMakeDelegate(&ezLongOpsAdapter::StructureEventHandler, this));
+      e.m_pDocument->GetObjectManager()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezLongOpsAdapter::StructureEventHandler, this));
     }
   }
 }

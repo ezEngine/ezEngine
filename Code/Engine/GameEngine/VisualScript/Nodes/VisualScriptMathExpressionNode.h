@@ -1,8 +1,8 @@
 #pragma once
 
+#include <Foundation/CodeUtils/MathExpression.h>
 #include <GameEngine/GameEngineDLL.h>
 #include <GameEngine/VisualScript/VisualScriptNode.h>
-#include <Foundation/CodeUtils/MathExpression.h>
 
 class ezMathExpression;
 
@@ -12,6 +12,7 @@ class ezMathExpression;
 class EZ_GAMEENGINE_DLL ezVisualScriptNode_MathExpression : public ezVisualScriptNode
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezVisualScriptNode_MathExpression, ezVisualScriptNode);
+
 public:
   ezVisualScriptNode_MathExpression();
   ~ezVisualScriptNode_MathExpression();
@@ -32,4 +33,3 @@ private:
 
   ezMathExpression m_MathExpression;
 };
-

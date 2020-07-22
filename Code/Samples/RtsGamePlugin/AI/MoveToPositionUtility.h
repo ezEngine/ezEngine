@@ -9,5 +9,4 @@ public:
   virtual void Deactivate(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent) override;
   virtual void Execute(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent, ezTime tNow) override;
   virtual double ComputePriority(ezGameObject* pOwnerObject, ezComponent* pOwnerComponent) const override;
-
 };

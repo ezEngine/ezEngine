@@ -38,7 +38,8 @@ void ezParticlePointRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ez
   types.PushBack(ezGetStaticRTTI<ezParticlePointRenderData>());
 }
 
-void ezParticlePointRenderer::RenderBatch(const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
+void ezParticlePointRenderer::RenderBatch(
+  const ezRenderViewContext& renderViewContext, const ezRenderPipelinePass* pPass, const ezRenderDataBatch& batch) const
 {
   ezRenderContext* pRenderContext = renderViewContext.m_pRenderContext;
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
@@ -65,7 +66,8 @@ void ezParticlePointRenderer::RenderBatch(const ezRenderViewContext& renderViewC
 
     ezUInt32 uiNumParticles = pRenderData->m_BaseParticleData.GetCount();
 
-    systemConstants.SetGenericData(pRenderData->m_bApplyObjectTransform, pRenderData->m_GlobalTransform, pRenderData->m_TotalEffectLifeTime, 1, 1, 1, 1);
+    systemConstants.SetGenericData(
+      pRenderData->m_bApplyObjectTransform, pRenderData->m_GlobalTransform, pRenderData->m_TotalEffectLifeTime, 1, 1, 1, 1);
 
     while (uiNumParticles > 0)
     {

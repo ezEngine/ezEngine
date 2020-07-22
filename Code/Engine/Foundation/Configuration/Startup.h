@@ -88,10 +88,10 @@ public:
   /// This makes it possible for the startup functions to conditionally configure things.
   ///
   /// Strings that should be used for common things:
-  /// 'runtime' : For all applications that run the full engine, automatically added by ezGameApplication. Be aware that some tool applications have this set, even though they don't use graphical output.
-  /// 'editor' : for all applications that run the editor framework, set on the Editor and the EditorProcessor
-  /// 'testframework' : for applications that execute the ezTestFramework
-  /// 'tool' : for all stand-alone tool applications, set by the editor, editorprocessor, fileserve, etc.
+  /// 'runtime' : For all applications that run the full engine, automatically added by ezGameApplication. Be aware that some tool applications have
+  /// this set, even though they don't use graphical output. 'editor' : for all applications that run the editor framework, set on the Editor and the
+  /// EditorProcessor 'testframework' : for applications that execute the ezTestFramework 'tool' : for all stand-alone tool applications, set by the
+  /// editor, editorprocessor, fileserve, etc.
   static void AddApplicationTag(const char* szTag);
 
   /// \brief Query whether a tag was added with AddApplicationTag()
@@ -144,7 +144,8 @@ private:
   /// \brief Unloads all subsystems from the given plugin AND all subsystems that directly or indirectly depend on them.
   ///
   /// This can be used to shutdown all systems from certain DLLs before that DLL is unloaded (and possibly reloaded).
-  /// Broadcasts the global event EZ_GLOBALEVENT_UNLOAD_PLUGIN_BEGIN and EZ_GLOBALEVENT_UNLOAD_PLUGIN_END and passes szPluginName in the first event parameter.
+  /// Broadcasts the global event EZ_GLOBALEVENT_UNLOAD_PLUGIN_BEGIN and EZ_GLOBALEVENT_UNLOAD_PLUGIN_END and passes szPluginName in the first event
+  /// parameter.
   static void UnloadPluginSubSystems(const char* szPluginName);
 
   static void PluginEventHandler(const ezPluginEvent& EventData);
@@ -160,4 +161,3 @@ private:
   static ezStartupStage::Enum s_CurrentState;
   static ezDynamicArray<const char*> s_ApplicationTags;
 };
-

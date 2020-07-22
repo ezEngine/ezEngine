@@ -1,7 +1,7 @@
 #pragma once
 
-#include <RecastPlugin/RecastPluginDLL.h>
 #include <Foundation/Math/Declarations.h>
+#include <RecastPlugin/RecastPluginDLL.h>
 
 /// \brief Helper class to convert between Recast's convention (float[3] and Y is up) and ezVec3 (Z up)
 ///
@@ -17,7 +17,7 @@ struct EZ_RECASTPLUGIN_DLL ezRcPos
   void operator=(const ezVec3& v);
   void operator=(const float* pos);
 
-  operator const float*() const;
-  operator float*() ;
+  operator const float *() const;
+  operator float*();
   operator ezVec3() const;
 };

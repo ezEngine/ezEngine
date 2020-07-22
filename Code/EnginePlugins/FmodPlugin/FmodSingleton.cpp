@@ -12,7 +12,7 @@ EZ_IMPLEMENT_SINGLETON(ezFmod);
 static ezFmod g_FmodSingleton;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT) && EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
+#  include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 HANDLE g_hLiveUpdateMutex = NULL;
 #endif
 
@@ -20,7 +20,7 @@ ezCVarFloat g_FmodMasterVolume("fmod_MasterVolume", 1.0f, ezCVarFlags::Save, "Ma
 ezCVarBool g_FmodMute("fmod_Mute", false, ezCVarFlags::Default, "Whether Fmod sound output is muted");
 
 ezFmod::ezFmod()
-    : m_SingletonRegistrar(this)
+  : m_SingletonRegistrar(this)
 {
   m_bInitialized = false;
   m_ListenerPosition.SetZero();
@@ -79,7 +79,7 @@ void ezFmod::Startup()
 
     EZ_LOG_BLOCK("Fmod Configuration");
     ezLog::Dev("Platform = '{0}', Mode = {1}, Channels = {2}, SamplerRate = {3}", m_pData->m_sPlatform, sMode, config.m_uiVirtualChannels,
-               config.m_uiSamplerRate);
+      config.m_uiSamplerRate);
     ezLog::Dev("Master Bank = '{0}'", config.m_sMasterSoundBank);
   }
 
@@ -97,7 +97,7 @@ void ezFmod::Startup()
   // this could be reconfigured through the advanced settings, but for now we just enable live update for the first process
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#  if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     // mutex handle will be closed automatically on process termination
     DWORD err = GetLastError();
     g_hLiveUpdateMutex = CreateMutexW(nullptr, TRUE, L"ezFmodLiveUpdate");
@@ -116,9 +116,9 @@ void ezFmod::Startup()
         g_hLiveUpdateMutex = NULL;
       }
     }
-#else
+#  else
     studioflags |= FMOD_STUDIO_INIT_LIVEUPDATE;
-#endif
+#  endif
   }
 #endif
 
@@ -368,7 +368,7 @@ void ezFmod::DetectPlatform()
   m_pData->m_sPlatform = "Mobile";
 
 #elif
-#error "Unknown Platform"
+#  error "Unknown Platform"
 
 #endif
 }

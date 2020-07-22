@@ -28,7 +28,6 @@ namespace ezConsoleInterpreter
   /// If there is any kind of error (e.g. a Lua syntax error), the interpreter will return EZ_FAILURE;
   EZ_GAMEENGINE_DLL ezResult Lua(const char* szCommand, ezConsole* pConsole);
 
-}
+} // namespace ezConsoleInterpreter
 
 #endif // BUILDSYSTEM_ENABLE_LUA_SUPPORT
-

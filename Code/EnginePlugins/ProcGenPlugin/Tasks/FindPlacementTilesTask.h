@@ -51,4 +51,4 @@ namespace ezProcGenInternal
 
     return (sx << 32) | sy;
   }
-} // namespace ezPPInternal
+} // namespace ezProcGenInternal

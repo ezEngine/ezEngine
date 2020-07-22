@@ -27,7 +27,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleStream_Position, 1, ezRTTIDefaultAlloc
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezParticleStreamFactory_Position::ezParticleStreamFactory_Position()
-    : ezParticleStreamFactory("Position", ezProcessingStream::DataType::Float4, ezGetStaticRTTI<ezParticleStream_Position>())
+  : ezParticleStreamFactory("Position", ezProcessingStream::DataType::Float4, ezGetStaticRTTI<ezParticleStream_Position>())
 {
 }
 
@@ -59,7 +59,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleStream_Size, 1, ezRTTIDefaultAllocator
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezParticleStreamFactory_Size::ezParticleStreamFactory_Size()
-    : ezParticleStreamFactory("Size", ezProcessingStream::DataType::Half, ezGetStaticRTTI<ezParticleStream_Size>())
+  : ezParticleStreamFactory("Size", ezProcessingStream::DataType::Half, ezGetStaticRTTI<ezParticleStream_Size>())
 {
 }
 
@@ -86,7 +86,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleStream_Color, 1, ezRTTIDefaultAllocato
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezParticleStreamFactory_Color::ezParticleStreamFactory_Color()
-    : ezParticleStreamFactory("Color", ezProcessingStream::DataType::Half4, ezGetStaticRTTI<ezParticleStream_Color>())
+  : ezParticleStreamFactory("Color", ezProcessingStream::DataType::Half4, ezGetStaticRTTI<ezParticleStream_Color>())
 {
 }
 
@@ -113,7 +113,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleStream_Velocity, 1, ezRTTIDefaultAlloc
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezParticleStreamFactory_Velocity::ezParticleStreamFactory_Velocity()
-    : ezParticleStreamFactory("Velocity", ezProcessingStream::DataType::Float3, ezGetStaticRTTI<ezParticleStream_Velocity>())
+  : ezParticleStreamFactory("Velocity", ezProcessingStream::DataType::Float3, ezGetStaticRTTI<ezParticleStream_Velocity>())
 {
 }
 
@@ -143,7 +143,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleStreamFactory_LastPosition, 1, ezRTTID
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezParticleStreamFactory_LastPosition::ezParticleStreamFactory_LastPosition()
-    : ezParticleStreamFactory("LastPosition", ezProcessingStream::DataType::Float3, ezGetStaticRTTI<ezParticleStream_ZeroInit>())
+  : ezParticleStreamFactory("LastPosition", ezProcessingStream::DataType::Float3, ezGetStaticRTTI<ezParticleStream_ZeroInit>())
 {
 }
 
@@ -155,7 +155,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleStreamFactory_RotationSpeed, 1, ezRTTI
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezParticleStreamFactory_RotationSpeed::ezParticleStreamFactory_RotationSpeed()
-    : ezParticleStreamFactory("RotationSpeed", ezProcessingStream::DataType::Half, ezGetStaticRTTI<ezParticleStream_ZeroInit>())
+  : ezParticleStreamFactory("RotationSpeed", ezProcessingStream::DataType::Half, ezGetStaticRTTI<ezParticleStream_ZeroInit>())
 {
 }
 
@@ -167,7 +167,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleStreamFactory_RotationOffset, 1, ezRTT
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezParticleStreamFactory_RotationOffset::ezParticleStreamFactory_RotationOffset()
-    : ezParticleStreamFactory("RotationOffset", ezProcessingStream::DataType::Half, ezGetStaticRTTI<ezParticleStream_ZeroInit>())
+  : ezParticleStreamFactory("RotationOffset", ezProcessingStream::DataType::Half, ezGetStaticRTTI<ezParticleStream_ZeroInit>())
 {
 }
 
@@ -179,7 +179,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleStreamFactory_EffectID, 1, ezRTTIDefau
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezParticleStreamFactory_EffectID::ezParticleStreamFactory_EffectID()
-    : ezParticleStreamFactory("EffectID", ezProcessingStream::DataType::Int, ezGetStaticRTTI<ezParticleStream_ZeroInit>())
+  : ezParticleStreamFactory("EffectID", ezProcessingStream::DataType::Int, ezGetStaticRTTI<ezParticleStream_ZeroInit>())
 {
 }
 
@@ -191,7 +191,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleStreamFactory_OnOff, 1, ezRTTIDefaultA
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezParticleStreamFactory_OnOff::ezParticleStreamFactory_OnOff()
-    : ezParticleStreamFactory("OnOff", ezProcessingStream::DataType::Int, ezGetStaticRTTI<ezParticleStream_ZeroInit>())
+  : ezParticleStreamFactory("OnOff", ezProcessingStream::DataType::Int, ezGetStaticRTTI<ezParticleStream_ZeroInit>())
 {
   // TODO: smaller data type
   // TODO: "Byte" type results in memory corruptions
@@ -208,7 +208,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleStream_Axis, 1, ezRTTIDefaultAllocator
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezParticleStreamFactory_Axis::ezParticleStreamFactory_Axis()
-    : ezParticleStreamFactory("Axis", ezProcessingStream::DataType::Float3, ezGetStaticRTTI<ezParticleStream_Axis>())
+  : ezParticleStreamFactory("Axis", ezProcessingStream::DataType::Float3, ezGetStaticRTTI<ezParticleStream_Axis>())
 {
 }
 
@@ -232,7 +232,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleStreamFactory_TrailData, 1, ezRTTIDefa
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezParticleStreamFactory_TrailData::ezParticleStreamFactory_TrailData()
-    : ezParticleStreamFactory("TrailData", ezProcessingStream::DataType::Short2, ezGetStaticRTTI<ezParticleStream_ZeroInit>())
+  : ezParticleStreamFactory("TrailData", ezProcessingStream::DataType::Short2, ezGetStaticRTTI<ezParticleStream_ZeroInit>())
 {
 }
 
@@ -249,7 +249,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleStream_Variation, 1, ezRTTIDefaultAllo
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 ezParticleStreamFactory_Variation::ezParticleStreamFactory_Variation()
-    : ezParticleStreamFactory("Variation", ezProcessingStream::DataType::Int, ezGetStaticRTTI<ezParticleStream_Variation>())
+  : ezParticleStreamFactory("Variation", ezProcessingStream::DataType::Int, ezGetStaticRTTI<ezParticleStream_Variation>())
 {
 }
 

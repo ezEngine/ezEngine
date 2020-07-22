@@ -12,9 +12,9 @@ EZ_DECLARE_FLAGS(ezUInt8, ezImageConversionFlags, InPlace);
 struct ezImageConversionEntry
 {
   ezImageConversionEntry(ezImageFormat::Enum source, ezImageFormat::Enum target, ezImageConversionFlags::Enum flags)
-      : m_sourceFormat(source)
-      , m_targetFormat(target)
-      , m_flags(flags)
+    : m_sourceFormat(source)
+    , m_targetFormat(target)
+    , m_flags(flags)
   {
   }
 
@@ -53,8 +53,8 @@ class EZ_TEXTURE_DLL ezImageConversionStepLinear : public ezImageConversionStep
 {
 public:
   /// \brief Converts a batch of pixels.
-  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 numElements,
-                                 ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const = 0;
+  virtual ezResult ConvertPixels(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt64 numElements, ezImageFormat::Enum sourceFormat,
+    ezImageFormat::Enum targetFormat) const = 0;
 };
 
 /// \brief Interface for a single image conversion step where the source format is compressed and the target format is uncompressed.
@@ -62,8 +62,8 @@ class EZ_TEXTURE_DLL ezImageConversionStepDecompressBlocks : public ezImageConve
 {
 public:
   /// \brief Decompresses the given number of blocks.
-  virtual ezResult DecompressBlocks(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 numBlocks,
-                                    ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const = 0;
+  virtual ezResult DecompressBlocks(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 numBlocks, ezImageFormat::Enum sourceFormat,
+    ezImageFormat::Enum targetFormat) const = 0;
 };
 
 /// \brief Interface for a single image conversion step where the source format is uncompressed and the target format is compressed.
@@ -72,7 +72,7 @@ class EZ_TEXTURE_DLL ezImageConversionStepCompressBlocks : public ezImageConvers
 public:
   /// \brief Compresses the given number of blocks.
   virtual ezResult CompressBlocks(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 numBlocksX, ezUInt32 numBlocksY,
-                                  ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const = 0;
+    ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) const = 0;
 };
 
 
@@ -84,8 +84,7 @@ public:
   static bool IsConvertible(ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat);
 
   /// \brief Finds the image format from a given list of formats which is the cheapest to convert to.
-  static ezImageFormat::Enum FindClosestCompatibleFormat(ezImageFormat::Enum format,
-                                                         ezArrayPtr<const ezImageFormat::Enum> compatibleFormats);
+  static ezImageFormat::Enum FindClosestCompatibleFormat(ezImageFormat::Enum format, ezArrayPtr<const ezImageFormat::Enum> compatibleFormats);
 
   /// \brief A single node along a computed conversion path.
   struct ConversionPathNode
@@ -116,7 +115,7 @@ public:
   /// \param numScratchBuffers_out The number of scratch buffers required for the conversion path.
   /// \returns                      ez_SUCCESS if a path was found, ez_FAILURE otherwise.
   static ezResult BuildPath(ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat, bool sourceEqualsTarget,
-                            ezHybridArray<ConversionPathNode, 16>& path_out, ezUInt32& numScratchBuffers_out);
+    ezHybridArray<ConversionPathNode, 16>& path_out, ezUInt32& numScratchBuffers_out);
 
   /// \brief  Converts the source image into a target image with the given format. Source and target may be the same.
   static ezResult Convert(const ezImageView& source, ezImage& target, ezImageFormat::Enum targetFormat);
@@ -125,26 +124,24 @@ public:
   static ezResult Convert(const ezImageView& source, ezImage& target, ezArrayPtr<ConversionPathNode> path, ezUInt32 numScratchBuffers);
 
   /// \brief Converts the raw source data into a target data buffer with the given format. Source and target may be the same.
-  static ezResult ConvertRaw(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 numElements, ezImageFormat::Enum sourceFormat,
-                             ezImageFormat::Enum targetFormat);
+  static ezResult ConvertRaw(
+    ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 numElements, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat);
 
   /// \brief Converts the raw source data into a target data buffer using a precomputed conversion path.
-  static ezResult ConvertRaw(ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 numElements,
-                             ezArrayPtr<ConversionPathNode> path, ezUInt32 numScratchBuffers);
+  static ezResult ConvertRaw(
+    ezConstByteBlobPtr source, ezByteBlobPtr target, ezUInt32 numElements, ezArrayPtr<ConversionPathNode> path, ezUInt32 numScratchBuffers);
 
 private:
   ezImageConversion();
   ezImageConversion(const ezImageConversion&);
 
-  static ezResult ConvertSingleStep(const ezImageConversionStep* pStep, const ezImageView& source, ezImage& target,
-                                    ezImageFormat::Enum targetFormat);
+  static ezResult ConvertSingleStep(const ezImageConversionStep* pStep, const ezImageView& source, ezImage& target, ezImageFormat::Enum targetFormat);
 
   static ezResult ConvertSingleStepDecompress(const ezImageView& source, ezImage& target, ezImageFormat::Enum sourceFormat,
-                                              ezImageFormat::Enum targetFormat, const ezImageConversionStep* pStep);
+    ezImageFormat::Enum targetFormat, const ezImageConversionStep* pStep);
 
   static ezResult ConvertSingleStepCompress(const ezImageView& source, ezImage& target, ezImageFormat::Enum sourceFormat,
-                                            ezImageFormat::Enum targetFormat, const ezImageConversionStep* pStep);
+    ezImageFormat::Enum targetFormat, const ezImageConversionStep* pStep);
 
   static void RebuildConversionTable();
 };
-

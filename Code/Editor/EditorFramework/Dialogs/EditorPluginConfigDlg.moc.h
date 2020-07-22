@@ -1,8 +1,8 @@
 #pragma once
 
+#include <EditorFramework/ui_EditorPluginConfigDlg.h>
 #include <Foundation/Basics.h>
 #include <QDialog>
-#include <EditorFramework/ui_EditorPluginConfigDlg.h>
 
 class ezQtEditorPluginConfigDlg : public QDialog, public Ui_ezQtEditorPluginConfigDlg
 {
@@ -20,5 +20,3 @@ private Q_SLOTS:
 private:
   void FillPluginList();
 };
-
-

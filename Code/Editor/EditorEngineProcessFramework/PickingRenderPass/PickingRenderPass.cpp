@@ -63,8 +63,8 @@ void ezPickingRenderPass::InitRenderPipelinePass(
   CreateTarget();
 }
 
-void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext,
-  const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs, const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
+void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext, const ezArrayPtr<ezRenderPipelinePassConnection* const> inputs,
+  const ezArrayPtr<ezRenderPipelinePassConnection* const> outputs)
 {
   const ezRectFloat& viewPortRect = renderViewContext.m_pViewData->m_ViewPortRect;
   m_uiWindowWidth = (ezUInt32)viewPortRect.width;

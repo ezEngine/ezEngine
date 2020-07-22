@@ -169,7 +169,7 @@ void ezQtEditorApp::ValidateEnginePluginConfig()
       sMsg.AppendFormat("Plugins that do not conform to the expected naming scheme:\n{0}\nPure runtime plugins should use the suffix "
                         "'Plugin'.\nPlugins that implement editor functionality but need to run on the engine side should use the prefix "
                         "'EnginePlugin'.",
-                        sIllformedPlugins);
+        sIllformedPlugins);
     }
 
     ezQtUiServices::MessageBoxWarning(sMsg);

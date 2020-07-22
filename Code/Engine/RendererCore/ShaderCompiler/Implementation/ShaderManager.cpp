@@ -161,13 +161,13 @@ void ezShaderManager::ReloadPermutationVarConfig(const char* szName, const ezTem
     pConfig->m_sName.Assign(szName);
     pConfig->m_DefaultValue = defaultValue;
     pConfig->m_EnumValues = enumDef.m_Values;
-    
+
     s_PermutationVarConfigs.Insert(pConfig->m_sName, pConfig);
   }
 }
 
-bool ezShaderManager::IsPermutationValueAllowed(const char* szName, const ezTempHashedString& sHashedName, const ezTempHashedString& sValue,
-  ezHashedString& out_sName, ezHashedString& out_sValue)
+bool ezShaderManager::IsPermutationValueAllowed(
+  const char* szName, const ezTempHashedString& sHashedName, const ezTempHashedString& sValue, ezHashedString& out_sName, ezHashedString& out_sValue)
 {
   const PermutationVarConfig* pConfig = FindConfig(szName, sHashedName);
   if (pConfig == nullptr)
@@ -185,8 +185,7 @@ bool ezShaderManager::IsPermutationValueAllowed(const char* szName, const ezTemp
       return false;
     }
 
-    ezLog::Debug(
-      "Invalid Shader Permutation: '{0}' cannot be set to value '{1}' -> reloading config for variable", szName, sValue.GetHash());
+    ezLog::Debug("Invalid Shader Permutation: '{0}' cannot be set to value '{1}' -> reloading config for variable", szName, sValue.GetHash());
     ReloadPermutationVarConfig(szName, sHashedName);
 
     if (!IsValueAllowed(*pConfig, sValue, out_sValue))
@@ -287,8 +286,8 @@ void ezShaderManager::PreloadPermutations(
 #endif
 }
 
-ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutation(ezShaderResourceHandle hShader,
-  const ezHashTable<ezHashedString, ezHashedString>& permVars, bool bAllowFallback)
+ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutation(
+  ezShaderResourceHandle hShader, const ezHashTable<ezHashedString, ezHashedString>& permVars, bool bAllowFallback)
 {
   ezResourceLock<ezShaderResource> pShader(
     hShader, bAllowFallback ? ezResourceAcquireMode::AllowLoadingFallback : ezResourceAcquireMode::BlockTillLoaded);
@@ -303,8 +302,8 @@ ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutation(ezSh
 }
 
 
-ezUInt32 ezShaderManager::FilterPermutationVars(ezArrayPtr<const ezHashedString> usedVars, const ezHashTable<ezHashedString, ezHashedString>& permVars,
-  ezDynamicArray<ezPermutationVar>& out_FilteredPermutationVariables)
+ezUInt32 ezShaderManager::FilterPermutationVars(ezArrayPtr<const ezHashedString> usedVars,
+  const ezHashTable<ezHashedString, ezHashedString>& permVars, ezDynamicArray<ezPermutationVar>& out_FilteredPermutationVariables)
 {
   for (auto& sName : usedVars)
   {
@@ -335,8 +334,8 @@ ezUInt32 ezShaderManager::FilterPermutationVars(ezArrayPtr<const ezHashedString>
 
 
 
-ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutationInternal(const char* szResourceId, ezUInt32 uiResourceIdHash,
-  ezUInt32 uiPermutationHash, ezArrayPtr<ezPermutationVar> filteredPermutationVariables)
+ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutationInternal(
+  const char* szResourceId, ezUInt32 uiResourceIdHash, ezUInt32 uiPermutationHash, ezArrayPtr<ezPermutationVar> filteredPermutationVariables)
 {
   const ezUInt64 uiPermutationKey = (ezUInt64)uiResourceIdHash << 32 | uiPermutationHash;
 
@@ -354,8 +353,7 @@ ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutationInter
     *pPermutationPath = sShaderFile;
   }
 
-  ezShaderPermutationResourceHandle hShaderPermutation =
-    ezResourceManager::LoadResource<ezShaderPermutationResource>(pPermutationPath->GetData());
+  ezShaderPermutationResourceHandle hShaderPermutation = ezResourceManager::LoadResource<ezShaderPermutationResource>(pPermutationPath->GetData());
 
   {
     ezResourceLock<ezShaderPermutationResource> pShaderPermutation(hShaderPermutation, ezResourceAcquireMode::PointerOnly);

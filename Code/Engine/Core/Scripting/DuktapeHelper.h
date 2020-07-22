@@ -44,19 +44,19 @@ EZ_DECLARE_FLAGS_OPERATORS(ezDuktapeTypeMask);
 
 #  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
 
-#    define EZ_DUK_VERIFY_STACK(duk, ExpectedStackChange) \
-      duk.EnableStackChangeVerification();                \
+#    define EZ_DUK_VERIFY_STACK(duk, ExpectedStackChange)                                                                                            \
+      duk.EnableStackChangeVerification();                                                                                                           \
       duk.VerifyExpectedStackChange(ExpectedStackChange, EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION);
 
-#    define EZ_DUK_RETURN_AND_VERIFY_STACK(duk, ReturnCode, ExpectedStackChange) \
-      {                                                                          \
-        auto ret = ReturnCode;                                                   \
-        EZ_DUK_VERIFY_STACK(duk, ExpectedStackChange);                           \
-        return ret;                                                              \
+#    define EZ_DUK_RETURN_AND_VERIFY_STACK(duk, ReturnCode, ExpectedStackChange)                                                                     \
+      {                                                                                                                                              \
+        auto ret = ReturnCode;                                                                                                                       \
+        EZ_DUK_VERIFY_STACK(duk, ExpectedStackChange);                                                                                               \
+        return ret;                                                                                                                                  \
       }
 
-#    define EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, ExpectedStackChange) \
-      EZ_DUK_VERIFY_STACK(duk, ExpectedStackChange);                      \
+#    define EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, ExpectedStackChange)                                                                            \
+      EZ_DUK_VERIFY_STACK(duk, ExpectedStackChange);                                                                                                 \
       return;
 
 
@@ -64,11 +64,9 @@ EZ_DECLARE_FLAGS_OPERATORS(ezDuktapeTypeMask);
 
 #    define EZ_DUK_VERIFY_STACK(duk, ExpectedStackChange)
 
-#    define EZ_DUK_RETURN_AND_VERIFY_STACK(duk, ReturnCode, ExpectedStackChange) \
-      return ReturnCode;
+#    define EZ_DUK_RETURN_AND_VERIFY_STACK(duk, ReturnCode, ExpectedStackChange) return ReturnCode;
 
-#    define EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, ExpectedStackChange) \
-      return;
+#    define EZ_DUK_RETURN_VOID_AND_VERIFY_STACK(duk, ExpectedStackChange) return;
 
 #  endif
 
@@ -78,7 +76,7 @@ public:
   ezDuktapeHelper(duk_context* pContext);
   ezDuktapeHelper(const ezDuktapeHelper& rhs);
   ~ezDuktapeHelper();
-  void operator = (const ezDuktapeHelper& rhs);
+  void operator=(const ezDuktapeHelper& rhs);
 
   /// \name Basics
   ///@{
@@ -167,7 +165,8 @@ public:
   void RegisterGlobalFunction(const char* szFunctionName, duk_c_function pFunction, ezUInt8 uiNumArguments, ezInt16 iMagicValue = 0);
   void RegisterGlobalFunctionWithVarArgs(const char* szFunctionName, duk_c_function pFunction, ezInt16 iMagicValue = 0);
 
-  void RegisterObjectFunction(const char* szFunctionName, duk_c_function pFunction, ezUInt8 uiNumArguments, ezInt32 iParentObjectIndex = -1, ezInt16 iMagicValue = 0);
+  void RegisterObjectFunction(
+    const char* szFunctionName, duk_c_function pFunction, ezUInt8 uiNumArguments, ezInt32 iParentObjectIndex = -1, ezInt16 iMagicValue = 0);
 
   ezResult PrepareGlobalFunctionCall(const char* szFunctionName);
   ezResult PrepareObjectFunctionCall(const char* szFunctionName, ezInt32 iParentObjectIndex = -1);

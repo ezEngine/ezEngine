@@ -33,7 +33,9 @@ ezQtGameObjectReferencePropertyWidget::ezQtGameObjectReferencePropertyWidget()
   m_pButton->setCursor(Qt::WhatsThisCursor);
 
   EZ_VERIFY(connect(m_pButton, SIGNAL(clicked()), this, SLOT(on_PickObject_clicked())) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(m_pButton, &QWidget::customContextMenuRequested, this, &ezQtGameObjectReferencePropertyWidget::on_customContextMenuRequested) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(
+    connect(m_pButton, &QWidget::customContextMenuRequested, this, &ezQtGameObjectReferencePropertyWidget::on_customContextMenuRequested) != nullptr,
+    "signal/slot connection failed");
 
   m_pLayout->addWidget(m_pWidget);
   m_pLayout->addWidget(m_pButton);
@@ -42,7 +44,8 @@ ezQtGameObjectReferencePropertyWidget::ezQtGameObjectReferencePropertyWidget()
 
 void ezQtGameObjectReferencePropertyWidget::OnInit()
 {
-  EZ_ASSERT_DEV(m_pProp->GetAttributeByType<ezGameObjectReferenceAttribute>() != nullptr, "ezQtGameObjectReferencePropertyWidget was created without a ezGameObjectReferenceAttribute!");
+  EZ_ASSERT_DEV(m_pProp->GetAttributeByType<ezGameObjectReferenceAttribute>() != nullptr,
+    "ezQtGameObjectReferencePropertyWidget was created without a ezGameObjectReferenceAttribute!");
 }
 
 void ezQtGameObjectReferencePropertyWidget::InternalSetValue(const ezVariant& value)
@@ -65,15 +68,19 @@ void ezQtGameObjectReferencePropertyWidget::FillContextMenu(QMenu& menu)
   if (!menu.isEmpty())
     menu.addSeparator();
 
-  menu.setDefaultAction(menu.addAction(QIcon(":/GuiFoundation/Icons/Cursor16.png"), QLatin1String("Pick Object"), this, SLOT(on_PickObject_clicked())));
-  QAction* pCopyAction = menu.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Copy16.png")), QLatin1String("Copy Object Reference"), this, SLOT(OnCopyReference()));
+  menu.setDefaultAction(
+    menu.addAction(QIcon(":/GuiFoundation/Icons/Cursor16.png"), QLatin1String("Pick Object"), this, SLOT(on_PickObject_clicked())));
+  QAction* pCopyAction =
+    menu.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Copy16.png")), QLatin1String("Copy Object Reference"), this, SLOT(OnCopyReference()));
   menu.addAction(QIcon(":/GuiFoundation/Icons/Paste16.png"), QLatin1String("Paste Object Reference"), this, SLOT(OnPasteReference()));
-  QAction* pSelectAction = menu.addAction(QIcon(":/GuiFoundation/Icons/Go16.png"), QLatin1String("Select Referenced Object"), this, SLOT(OnSelectReferencedObject()));
-  QAction* pClearAction = menu.addAction(QIcon(":/GuiFoundation/Icons/Delete16.png"), QLatin1String("Clear Reference"), this, SLOT(OnClearReference()));
+  QAction* pSelectAction =
+    menu.addAction(QIcon(":/GuiFoundation/Icons/Go16.png"), QLatin1String("Select Referenced Object"), this, SLOT(OnSelectReferencedObject()));
+  QAction* pClearAction =
+    menu.addAction(QIcon(":/GuiFoundation/Icons/Delete16.png"), QLatin1String("Clear Reference"), this, SLOT(OnClearReference()));
 
   pCopyAction->setEnabled(!m_sInternalValue.isEmpty());
   pSelectAction->setEnabled(!m_sInternalValue.isEmpty());
-  //pClearAction->setEnabled(!m_sInternalValue.isEmpty()); // this would disable the clear button with multi selection
+  // pClearAction->setEnabled(!m_sInternalValue.isEmpty()); // this would disable the clear button with multi selection
 }
 
 void ezQtGameObjectReferencePropertyWidget::PickObjectOverride(const ezDocumentObject* pObject)
@@ -91,7 +98,8 @@ void ezQtGameObjectReferencePropertyWidget::PickObjectOverride(const ezDocumentO
 
 void ezQtGameObjectReferencePropertyWidget::ClearPicking()
 {
-  m_pGrid->GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezQtGameObjectReferencePropertyWidget::SelectionManagerEventHandler, this));
+  m_pGrid->GetDocument()->GetSelectionManager()->m_Events.RemoveEventHandler(
+    ezMakeDelegate(&ezQtGameObjectReferencePropertyWidget::SelectionManagerEventHandler, this));
 
   for (auto pContext : m_SelectionContextsToUnsubscribe)
   {
@@ -211,7 +219,8 @@ void ezQtGameObjectReferencePropertyWidget::OnCopyReference()
   QClipboard* clipboard = QApplication::clipboard();
   clipboard->setText(m_sInternalValue);
 
-  ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(ezFmt("Copied Object Reference: {}", m_sInternalValue.toUtf8().data()), ezTime::Seconds(5));
+  ezQtUiServices::GetSingleton()->ShowAllDocumentsTemporaryStatusBarMessage(
+    ezFmt("Copied Object Reference: {}", m_sInternalValue.toUtf8().data()), ezTime::Seconds(5));
 }
 
 

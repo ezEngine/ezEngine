@@ -1,7 +1,7 @@
 #pragma once
 
-#include <ParticlePlugin/Emitter/ParticleEmitter.h>
 #include <Foundation/Types/VarianceTypes.h>
+#include <ParticlePlugin/Emitter/ParticleEmitter.h>
 
 class EZ_PARTICLEPLUGIN_DLL ezParticleEmitterFactory_Distance final : public ezParticleEmitterFactory
 {

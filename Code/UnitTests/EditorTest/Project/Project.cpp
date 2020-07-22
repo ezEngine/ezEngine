@@ -1,11 +1,11 @@
 #include <EditorTestPCH.h>
 
 #include "Project.h"
+#include <EditorFramework/Assets/AssetCurator.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Strings/StringConversion.h>
 #include <RendererCore/Components/SkyBoxComponent.h>
 #include <RendererCore/Textures/TextureCubeResource.h>
-#include <EditorFramework/Assets/AssetCurator.h>
 
 static ezEditorTestProject s_GameEngineTestBasics;
 
@@ -33,7 +33,7 @@ ezResult ezEditorTestProject::InitializeTest()
 ezResult ezEditorTestProject::DeInitializeTest()
 {
   // For profiling the doc creation.
-  //SafeProfilingData();
+  // SafeProfilingData();
   if (SUPER::DeInitializeTest().Failed())
     return EZ_FAILURE;
 
@@ -60,7 +60,7 @@ ezTestAppRun ezEditorTestProject::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInv
   // Make sure the engine process did not crash after creating every kind of document.
   EZ_TEST_BOOL(!ezEditorEngineProcessConnection::GetSingleton()->IsProcessCrashed());
 
-  //TODO: Newly created assets actually do not transform cleanly.
+  // TODO: Newly created assets actually do not transform cleanly.
   if (false)
   {
     ezAssetCurator::GetSingleton()->TransformAllAssets(ezTransformFlags::TriggeredManually);
@@ -75,4 +75,3 @@ ezTestAppRun ezEditorTestProject::RunSubTest(ezInt32 iIdentifier, ezUInt32 uiInv
   }
   return ezTestAppRun::Quit;
 }
-

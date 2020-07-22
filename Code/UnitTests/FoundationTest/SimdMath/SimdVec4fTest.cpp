@@ -167,8 +167,8 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
 
     // Make sure all components have the correct values
 #if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_ENABLED(EZ_COMPILER_MSVC)
-    EZ_TEST_BOOL(vInit4F.m_v.m128_f32[0] == 1.0f && vInit4F.m_v.m128_f32[1] == 2.0f && vInit4F.m_v.m128_f32[2] == 3.0f &&
-                 vInit4F.m_v.m128_f32[3] == 4.0f);
+    EZ_TEST_BOOL(
+      vInit4F.m_v.m128_f32[0] == 1.0f && vInit4F.m_v.m128_f32[1] == 2.0f && vInit4F.m_v.m128_f32[2] == 3.0f && vInit4F.m_v.m128_f32[3] == 4.0f);
 #endif
 
     ezSimdVec4f vCopy(vInit4F);
@@ -230,8 +230,7 @@ EZ_CREATE_SIMPLE_TEST(SimdMath, SimdVec4f)
 
       // Make sure all components have the correct values
 #if EZ_SIMD_IMPLEMENTATION == EZ_SIMD_IMPLEMENTATION_SSE && EZ_ENABLED(EZ_COMPILER_MSVC)
-      EZ_TEST_BOOL(xyzw.m_v.m128_f32[0] == 1.0f && xyzw.m_v.m128_f32[1] == 2.0f && xyzw.m_v.m128_f32[2] == 3.0f &&
-                   xyzw.m_v.m128_f32[3] == 4.0f);
+      EZ_TEST_BOOL(xyzw.m_v.m128_f32[0] == 1.0f && xyzw.m_v.m128_f32[1] == 2.0f && xyzw.m_v.m128_f32[2] == 3.0f && xyzw.m_v.m128_f32[3] == 4.0f);
 #endif
     }
 

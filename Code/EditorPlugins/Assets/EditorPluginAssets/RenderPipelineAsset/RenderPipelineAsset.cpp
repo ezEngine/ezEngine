@@ -110,8 +110,8 @@ ezRenderPipelineAssetDocument::ezRenderPipelineAssetDocument(const char* szDocum
 {
 }
 
-ezStatus ezRenderPipelineAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag, const ezPlatformProfile* pAssetProfile,
-  const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
+ezStatus ezRenderPipelineAssetDocument::InternalTransformAsset(ezStreamWriter& stream, const char* szOutputTag,
+  const ezPlatformProfile* pAssetProfile, const ezAssetFileHeader& AssetHeader, ezBitflags<ezTransformFlags> transformFlags)
 {
   const ezUInt8 uiVersion = 1;
   stream << uiVersion;
@@ -163,10 +163,8 @@ void ezRenderPipelineAssetDocument::InternalGetMetaDataHash(const ezDocumentObje
 
         inout_uiHash = ezHashingUtils::xxHash64(&pPinSource->GetParent()->GetGuid(), sizeof(ezUuid), inout_uiHash);
         inout_uiHash = ezHashingUtils::xxHash64(&pPinTarget->GetParent()->GetGuid(), sizeof(ezUuid), inout_uiHash);
-        inout_uiHash =
-          ezHashingUtils::xxHash64(pPinSource->GetName(), ezStringUtils::GetStringElementCount(pPinSource->GetName()), inout_uiHash);
-        inout_uiHash =
-          ezHashingUtils::xxHash64(pPinTarget->GetName(), ezStringUtils::GetStringElementCount(pPinTarget->GetName()), inout_uiHash);
+        inout_uiHash = ezHashingUtils::xxHash64(pPinSource->GetName(), ezStringUtils::GetStringElementCount(pPinSource->GetName()), inout_uiHash);
+        inout_uiHash = ezHashingUtils::xxHash64(pPinTarget->GetName(), ezStringUtils::GetStringElementCount(pPinTarget->GetName()), inout_uiHash);
       }
     }
   }
@@ -215,8 +213,8 @@ bool ezRenderPipelineAssetDocument::CopySelectedObjects(ezAbstractObjectGraph& o
   return true;
 }
 
-bool ezRenderPipelineAssetDocument::Paste(const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph,
-  bool bAllowPickedPosition, const char* szMimeType)
+bool ezRenderPipelineAssetDocument::Paste(
+  const ezArrayPtr<PasteInfo>& info, const ezAbstractObjectGraph& objectGraph, bool bAllowPickedPosition, const char* szMimeType)
 {
   bool bAddedAll = true;
 

@@ -166,8 +166,8 @@ void ezGALContext::Dispatch(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroup
 {
   AssertRenderingThread();
 
-  EZ_ASSERT_DEBUG(uiThreadGroupCountX > 0 && uiThreadGroupCountY > 0 && uiThreadGroupCountZ > 0,
-    "Thread group counts of zero are not meaningful. Did you mean 1?");
+  EZ_ASSERT_DEBUG(
+    uiThreadGroupCountX > 0 && uiThreadGroupCountY > 0 && uiThreadGroupCountZ > 0, "Thread group counts of zero are not meaningful. Did you mean 1?");
 
   /// \todo Assert for compute
 
@@ -454,8 +454,7 @@ void ezGALContext::SetBlendState(ezGALBlendStateHandle hBlendState, const ezColo
 {
   AssertRenderingThread();
 
-  if (m_State.m_hBlendState == hBlendState && m_State.m_BlendFactor.IsEqualRGBA(BlendFactor, 0.001f) &&
-      m_State.m_uiSampleMask == uiSampleMask)
+  if (m_State.m_hBlendState == hBlendState && m_State.m_BlendFactor.IsEqualRGBA(BlendFactor, 0.001f) && m_State.m_uiSampleMask == uiSampleMask)
   {
     CountRedundantStateChange();
     return;
@@ -696,8 +695,7 @@ void ezGALContext::CopyTexture(ezGALTextureHandle hDest, ezGALTextureHandle hSou
 }
 
 void ezGALContext::CopyTextureRegion(ezGALTextureHandle hDest, const ezGALTextureSubresource& DestinationSubResource,
-  const ezVec3U32& DestinationPoint, ezGALTextureHandle hSource, const ezGALTextureSubresource& SourceSubResource,
-  const ezBoundingBoxu32& Box)
+  const ezVec3U32& DestinationPoint, ezGALTextureHandle hSource, const ezGALTextureSubresource& SourceSubResource, const ezBoundingBoxu32& Box)
 {
   AssertRenderingThread();
 
@@ -731,8 +729,8 @@ void ezGALContext::UpdateTexture(ezGALTextureHandle hDest, const ezGALTextureSub
   }
 }
 
-void ezGALContext::ResolveTexture(ezGALTextureHandle hDest, const ezGALTextureSubresource& DestinationSubResource,
-  ezGALTextureHandle hSource, const ezGALTextureSubresource& SourceSubResource)
+void ezGALContext::ResolveTexture(ezGALTextureHandle hDest, const ezGALTextureSubresource& DestinationSubResource, ezGALTextureHandle hSource,
+  const ezGALTextureSubresource& SourceSubResource)
 {
   AssertRenderingThread();
 

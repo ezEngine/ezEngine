@@ -45,4 +45,3 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALDeviceCapabilities
   ezUInt16 m_uiUAVCount;
   bool m_bAlphaToCoverage;
 };
-

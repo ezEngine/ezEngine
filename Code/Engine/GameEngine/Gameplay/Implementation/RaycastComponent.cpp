@@ -21,7 +21,8 @@ void ezRaycastComponentManager::Initialize()
   // we DO NOT want to use post transform update, because when we move the target object
   // child objects of the target node should still get the full global transform update within this frame
 
-  auto desc = ezWorldModule::UpdateFunctionDesc(ezWorldModule::UpdateFunction(&ezRaycastComponentManager::Update, this), "ezRaycastComponentManager::Update");
+  auto desc =
+    ezWorldModule::UpdateFunctionDesc(ezWorldModule::UpdateFunction(&ezRaycastComponentManager::Update, this), "ezRaycastComponentManager::Update");
   desc.m_bOnlyUpdateWhenSimulating = true;
   desc.m_Phase = UpdateFunctionDesc::Phase::PostAsync;
   desc.m_fPriority = -1000;
@@ -194,8 +195,8 @@ void ezRaycastComponent::Update()
   const ezVec3 rayStartPosition = GetOwner()->GetGlobalPosition();
   const ezVec3 rayDir = GetOwner()->GetGlobalDirForwards().GetNormalized(); // PhysX is very picky about normalized vectors
 
-  //ezDebugRenderer::Line lines[] = { {rayStartPosition, rayStartPosition + rayDir * m_fMaxDistance} };
-  //ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::RebeccaPurple);
+  // ezDebugRenderer::Line lines[] = { {rayStartPosition, rayStartPosition + rayDir * m_fMaxDistance} };
+  // ezDebugRenderer::DrawLines(GetWorld(), lines, ezColor::RebeccaPurple);
 
   float fHitDistance = m_fMaxDistance;
   ezPhysicsCastResult hit;
@@ -226,7 +227,8 @@ void ezRaycastComponent::Update()
   if (!m_sTriggerMessage.IsEmpty() && m_uiCollisionLayerEndPoint != m_uiCollisionLayerTrigger)
   {
     ezPhysicsCastResult triggerHit;
-    if (m_pPhysicsWorldModule->Raycast(triggerHit, rayStartPosition, rayDir, fHitDistance, ezPhysicsQueryParameters(m_uiCollisionLayerTrigger)) && triggerHit.m_fDistance < fHitDistance)
+    if (m_pPhysicsWorldModule->Raycast(triggerHit, rayStartPosition, rayDir, fHitDistance, ezPhysicsQueryParameters(m_uiCollisionLayerTrigger)) &&
+        triggerHit.m_fDistance < fHitDistance)
     {
       // We have a hit, check the objects
       if (m_hLastTriggerObjectInRay != triggerHit.m_hActorObject)
@@ -288,4 +290,3 @@ void ezRaycastComponent::PostTriggerMessage(ezTriggerState::Enum state, ezGameOb
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Gameplay_Implementation_RaycastComponent);
-

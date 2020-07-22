@@ -28,7 +28,6 @@ class EZ_PARTICLEPLUGIN_DLL ezParticleBehavior_Bounds final : public ezParticleB
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleBehavior_Bounds, ezParticleBehavior);
 
 public:
-
   ezVec3 m_vPositionOffset;
   ezVec3 m_vBoxExtents;
   ezEnum<ezParticleOutOfBoundsMode> m_OutOfBoundsMode;
@@ -42,4 +41,3 @@ protected:
   ezProcessingStream* m_pStreamPosition = nullptr;
   ezProcessingStream* m_pStreamLastPosition = nullptr;
 };
-

@@ -28,7 +28,7 @@ class ezPreferencesDocument : public ezDocument
 {
 public:
   ezPreferencesDocument(const char* szDocumentPath)
-      : ezDocument(szDocumentPath, EZ_DEFAULT_NEW(ezPreferencesObjectManager))
+    : ezDocument(szDocumentPath, EZ_DEFAULT_NEW(ezPreferencesObjectManager))
   {
   }
 
@@ -39,7 +39,7 @@ public:
 
 
 ezQtPreferencesDlg::ezQtPreferencesDlg(QWidget* parent)
-    : QDialog(parent)
+  : QDialog(parent)
 {
   setupUi(this);
 
@@ -96,8 +96,8 @@ ezUuid ezQtPreferencesDlg::NativeToObject(ezPreferences* pPreferences)
   ezDocumentObject* pObject = m_pDocument->GetObjectManager()->CreateObject(pType);
   m_pDocument->GetObjectManager()->AddObject(pObject, pRoot, "Children", -1);
 
-  ezDocumentObjectConverterReader objectConverter(&graph, m_pDocument->GetObjectManager(),
-                                                  ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
+  ezDocumentObjectConverterReader objectConverter(
+    &graph, m_pDocument->GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
   objectConverter.ApplyPropertiesToObject(pNode, pObject);
 
   return pObject->GetGuid();

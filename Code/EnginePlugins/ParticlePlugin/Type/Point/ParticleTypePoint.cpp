@@ -1,18 +1,18 @@
 #include <ParticlePluginPCH.h>
 
+#include <Core/World/GameObject.h>
+#include <Core/World/World.h>
+#include <Foundation/Math/Color16f.h>
+#include <Foundation/Profiling/Profiling.h>
+#include <ParticlePlugin/Effect/ParticleEffectInstance.h>
 #include <ParticlePlugin/Type/Point/ParticleTypePoint.h>
+#include <RendererCore/Pipeline/Declarations.h>
+#include <RendererCore/Pipeline/ExtractedRenderData.h>
+#include <RendererCore/Pipeline/RenderPipelinePass.h>
+#include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/Device/Device.h>
-#include <RendererCore/Pipeline/Declarations.h>
-#include <RendererCore/Pipeline/RenderPipelinePass.h>
-#include <RendererCore/RenderContext/RenderContext.h>
-#include <Core/World/GameObject.h>
-#include <RendererCore/Pipeline/ExtractedRenderData.h>
-#include <Core/World/World.h>
-#include <Foundation/Profiling/Profiling.h>
-#include <ParticlePlugin/Effect/ParticleEffectInstance.h>
-#include <Foundation/Math/Color16f.h>
 
 // clang-format off
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezParticleTypePointFactory, 1, ezRTTIDefaultAllocator<ezParticleTypePointFactory>)
@@ -36,8 +36,7 @@ const ezRTTI* ezParticleTypePointFactory::GetTypeType() const
 
 void ezParticleTypePointFactory::CopyTypeProperties(ezParticleType* pObject, bool bFirstTime) const
 {
-  //ezParticleTypePoint* pType = static_cast<ezParticleTypePoint*>(pObject);
-
+  // ezParticleTypePoint* pType = static_cast<ezParticleTypePoint*>(pObject);
 }
 
 enum class TypePointVersion
@@ -54,7 +53,6 @@ void ezParticleTypePointFactory::Save(ezStreamWriter& stream) const
 {
   const ezUInt8 uiVersion = (int)TypePointVersion::Version_Current;
   stream << uiVersion;
-
 }
 
 void ezParticleTypePointFactory::Load(ezStreamReader& stream)
@@ -63,7 +61,6 @@ void ezParticleTypePointFactory::Load(ezStreamReader& stream)
   stream >> uiVersion;
 
   EZ_ASSERT_DEV(uiVersion <= (int)TypePointVersion::Version_Current, "Invalid version {0}", uiVersion);
-
 }
 
 void ezParticleTypePoint::CreateRequiredStreams()
@@ -72,7 +69,8 @@ void ezParticleTypePoint::CreateRequiredStreams()
   CreateStream("Color", ezProcessingStream::DataType::Half4, &m_pStreamColor, false);
 }
 
-void ezParticleTypePoint::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
+void ezParticleTypePoint::ExtractTypeRenderData(
+  const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
 {
   EZ_PROFILE_SCOPE("PFX: Point");
 
@@ -113,6 +111,4 @@ void ezParticleTypePoint::ExtractTypeRenderData(const ezView& view, ezExtractedR
 
 
 
-
 EZ_STATICLINK_FILE(ParticlePlugin, ParticlePlugin_Type_Point_ParticleTypePoint);
-

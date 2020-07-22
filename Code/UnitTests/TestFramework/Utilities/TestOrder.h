@@ -17,6 +17,3 @@ void SaveTestSettings(const char* szFile, TestSettings& testSettings);
 
 /// Loads the test settings from a file
 void LoadTestSettings(const char* szFile, TestSettings& testSettings);
-
-
-

@@ -27,8 +27,8 @@ namespace
   {
   public:
     OnlyMovable(ezUInt32 hash)
-        : hash(hash)
-        , m_NumTimesMoved(0)
+      : hash(hash)
+      , m_NumTimesMoved(0)
     {
     }
     OnlyMovable(OnlyMovable&& other) { *this = std::move(other); }
@@ -49,7 +49,7 @@ namespace
     OnlyMovable(const OnlyMovable&);
     void operator=(const OnlyMovable&);
   };
-}
+} // namespace
 
 template <>
 struct ezHashHelper<Collision>

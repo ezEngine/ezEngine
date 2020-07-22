@@ -70,8 +70,8 @@ void ezGizmoHandle::SetTransformation(const ezMat4& m)
   SetTransformation(t);
 }
 
-static ezMeshBufferResourceHandle CreateMeshBufferResource(const ezGeometry& geom, const char* szResourceName, const char* szDescription,
-                                                           ezGALPrimitiveTopology::Enum topology)
+static ezMeshBufferResourceHandle CreateMeshBufferResource(
+  const ezGeometry& geom, const char* szResourceName, const char* szDescription, ezGALPrimitiveTopology::Enum topology)
 {
   ezMeshBufferResourceDescriptor desc;
   desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
@@ -441,8 +441,7 @@ static ezMeshBufferResourceHandle CreateMeshBufferFrustum()
   return CreateMeshBufferResource(geom, szResourceName, "GizmoHandle_Frustum", ezGALPrimitiveTopology::Lines);
 }
 
-static ezMeshResourceHandle CreateMeshResource(const char* szMeshResourceName, ezMeshBufferResourceHandle hMeshBuffer,
-                                               const char* szMaterial)
+static ezMeshResourceHandle CreateMeshResource(const char* szMeshResourceName, ezMeshBufferResourceHandle hMeshBuffer, const char* szMaterial)
 {
   const ezStringBuilder sIdentifier(szMeshResourceName, "-with-", szMaterial);
 
@@ -482,8 +481,8 @@ ezEngineGizmoHandle::~ezEngineGizmoHandle()
   m_pWorld->DeleteObjectDelayed(m_hGameObject);
 }
 
-void ezEngineGizmoHandle::Configure(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col, bool bConstantSize,
-                                    bool bAlwaysOnTop, bool bVisualizer, bool bShowInOrtho, bool bIsPickable)
+void ezEngineGizmoHandle::Configure(ezGizmo* pParentGizmo, ezEngineGizmoHandleType type, const ezColor& col, bool bConstantSize, bool bAlwaysOnTop,
+  bool bVisualizer, bool bShowInOrtho, bool bIsPickable)
 {
   SetParentGizmo(pParentGizmo);
 
@@ -652,8 +651,8 @@ bool ezEngineGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
     hMesh = CreateMeshResource(szMeshGuid, hMeshBuffer, "Materials/Editor/GizmoHandle.ezMaterial");
   }
 
-  m_pGizmoComponent->SetRenderDataCategory(m_bVisualizer ? ezDefaultRenderDataCategories::SimpleOpaque
-                                                         : ezDefaultRenderDataCategories::SimpleForeground);
+  m_pGizmoComponent->SetRenderDataCategory(
+    m_bVisualizer ? ezDefaultRenderDataCategories::SimpleOpaque : ezDefaultRenderDataCategories::SimpleForeground);
   m_pGizmoComponent->m_GizmoColor = m_Color;
   m_pGizmoComponent->m_bUseDepthPrepass = !m_bVisualizer;
   m_pGizmoComponent->m_bIsPickable = m_bIsPickable;

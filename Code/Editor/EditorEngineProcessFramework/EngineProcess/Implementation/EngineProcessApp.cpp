@@ -137,8 +137,7 @@ ezViewHandle ezEditorEngineProcessApp::CreateRemoteWindowAndView(ezCamera* pCame
       m_hRemoteView = ezRenderWorld::CreateView("Remote Process", pView);
 
       // EditorRenderPipeline.ezRenderPipelineAsset
-      pView->SetRenderPipelineResource(
-        ezResourceManager::LoadResource<ezRenderPipelineResource>("{ da463c4d-c984-4910-b0b7-a0b3891d0448 }"));
+      pView->SetRenderPipelineResource(ezResourceManager::LoadResource<ezRenderPipelineResource>("{ da463c4d-c984-4910-b0b7-a0b3891d0448 }"));
 
       const ezSizeU32 wndSize = pWindowPlugin->m_pWindow->GetClientAreaSize();
 

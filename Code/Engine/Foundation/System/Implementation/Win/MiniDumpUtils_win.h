@@ -17,8 +17,7 @@ EZ_FOUNDATION_INTERNAL_HEADER
 #  include <werapi.h>
 
 typedef BOOL(WINAPI* MINIDUMPWRITEDUMP)(HANDLE hProcess, DWORD ProcessId, HANDLE hFile, MINIDUMP_TYPE DumpType,
-  PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam, PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam,
-  PMINIDUMP_CALLBACK_INFORMATION CallbackParam);
+  PMINIDUMP_EXCEPTION_INFORMATION ExceptionParam, PMINIDUMP_USER_STREAM_INFORMATION UserStreamParam, PMINIDUMP_CALLBACK_INFORMATION CallbackParam);
 
 ezMinWindows::HANDLE ezMiniDumpUtils::GetProcessHandleWithNecessaryRights(ezUInt32 uiProcessID)
 {
@@ -40,7 +39,8 @@ ezMinWindows::HANDLE ezMiniDumpUtils::GetProcessHandleWithNecessaryRights(ezUInt
   return hProcess;
 }
 
-ezStatus ezMiniDumpUtils::WriteProcessMiniDump(const char* szDumpFile, ezUInt32 uiProcessID, ezMinWindows::HANDLE hProcess, struct _EXCEPTION_POINTERS* pExceptionInfo)
+ezStatus ezMiniDumpUtils::WriteProcessMiniDump(
+  const char* szDumpFile, ezUInt32 uiProcessID, ezMinWindows::HANDLE hProcess, struct _EXCEPTION_POINTERS* pExceptionInfo)
 {
   HMODULE hDLL = ::LoadLibraryA("dbghelp.dll");
 
@@ -56,7 +56,8 @@ ezStatus ezMiniDumpUtils::WriteProcessMiniDump(const char* szDumpFile, ezUInt32 
     return ezStatus("'MiniDumpWriteDump' function address could not be resolved.");
   }
 
-  ezUInt32 dumpType = MiniDumpWithHandleData | MiniDumpWithModuleHeaders | MiniDumpWithUnloadedModules | MiniDumpWithProcessThreadData | MiniDumpWithFullMemoryInfo | MiniDumpWithThreadInfo;
+  ezUInt32 dumpType = MiniDumpWithHandleData | MiniDumpWithModuleHeaders | MiniDumpWithUnloadedModules | MiniDumpWithProcessThreadData |
+                      MiniDumpWithFullMemoryInfo | MiniDumpWithThreadInfo;
 
   if (ezCommandLineUtils::GetGlobalInstance()->GetBoolOption("-fullcrashdumps"))
   {
@@ -84,8 +85,8 @@ ezStatus ezMiniDumpUtils::WriteProcessMiniDump(const char* szDumpFile, ezUInt32 
   exceptionParam.ExceptionPointers = pExceptionInfo;
   exceptionParam.ClientPointers = TRUE;
 
-  if (MiniDumpWriteDumpFunc(hProcess, uiProcessID, hFile, (MINIDUMP_TYPE)dumpType, pExceptionInfo != nullptr ? &exceptionParam : nullptr,
-        nullptr, nullptr) == FALSE)
+  if (MiniDumpWriteDumpFunc(
+        hProcess, uiProcessID, hFile, (MINIDUMP_TYPE)dumpType, pExceptionInfo != nullptr ? &exceptionParam : nullptr, nullptr, nullptr) == FALSE)
   {
     return ezStatus(ezFmt("Writing dump file failed: '{}'.", ezArgErrorCode(GetLastError())));
   }

@@ -17,4 +17,3 @@ ezActor* ezActorPlugin::GetActor() const
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_ActorSystem_Implementation_ActorPlugin);
-

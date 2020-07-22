@@ -375,14 +375,14 @@ void ezTypeScriptComponent::SetParameter(const char* szKey, const ezVariant& val
 
   m_Parameters[hs] = value;
 
-  //GetWorld()->GetComponentManager<ezTypeScriptComponentManager>()->AddToUpdateList(this);
+  // GetWorld()->GetComponentManager<ezTypeScriptComponentManager>()->AddToUpdateList(this);
 }
 
 void ezTypeScriptComponent::RemoveParameter(const char* szKey)
 {
   if (m_Parameters.RemoveAndCopy(ezTempHashedString(szKey)))
   {
-    //GetWorld()->GetComponentManager<ezTypeScriptComponentManager>()->AddToUpdateList(this);
+    // GetWorld()->GetComponentManager<ezTypeScriptComponentManager>()->AddToUpdateList(this);
   }
 }
 

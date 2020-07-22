@@ -85,9 +85,10 @@ private:
   const ezRTTI* GenerateTypeFromDesc(const ezVisualShaderNodeDescriptor& desc);
   void LoadConfigFile(const char* szFile);
 
-  void ExtractNodePins(const ezOpenDdlReaderElement* pNode, const char* szPinType, ezHybridArray<ezVisualShaderPinDescriptor, 4> &pinArray, bool bOutput);
-  void ExtractNodeProperties(const ezOpenDdlReaderElement* pNode, ezVisualShaderNodeDescriptor &nd);
-  void ExtractNodeConfig(const ezOpenDdlReaderElement* pNode, ezVisualShaderNodeDescriptor &nd);
+  void ExtractNodePins(
+    const ezOpenDdlReaderElement* pNode, const char* szPinType, ezHybridArray<ezVisualShaderPinDescriptor, 4>& pinArray, bool bOutput);
+  void ExtractNodeProperties(const ezOpenDdlReaderElement* pNode, ezVisualShaderNodeDescriptor& nd);
+  void ExtractNodeConfig(const ezOpenDdlReaderElement* pNode, ezVisualShaderNodeDescriptor& nd);
 
 
   ezMap<const ezRTTI*, ezVisualShaderNodeDescriptor> m_NodeDescriptors;

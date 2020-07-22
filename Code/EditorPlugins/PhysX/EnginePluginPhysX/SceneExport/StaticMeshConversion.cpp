@@ -9,8 +9,7 @@
 #include <PhysXCooking/PhysXCooking.h>
 #include <PhysXPlugin/Components/PxStaticActorComponent.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneExportModifier_StaticMeshConversion, 1,
-                                ezRTTIDefaultAllocator<ezSceneExportModifier_StaticMeshConversion>)
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSceneExportModifier_StaticMeshConversion, 1, ezRTTIDefaultAllocator<ezSceneExportModifier_StaticMeshConversion>)
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 
 void ezSceneExportModifier_StaticMeshConversion::ModifyWorld(ezWorld& world, const ezUuid& documentGuid)

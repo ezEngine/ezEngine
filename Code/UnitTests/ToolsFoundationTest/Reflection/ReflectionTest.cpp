@@ -336,8 +336,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedTypeReloading)
     {
       // Say we reload the engine and the InnerStruct now has a second property: IP2.
       descInner.m_Properties.PushBack(ezReflectedPropertyDescriptor(ezPropertyCategory::Member, "IP2", "ezVec4",
-                                                                    ezBitflags<ezPropertyFlags>(ezPropertyFlags::StandardType),
-                                                                    ezArrayPtr<ezPropertyAttribute* const>()));
+        ezBitflags<ezPropertyFlags>(ezPropertyFlags::StandardType), ezArrayPtr<ezPropertyAttribute* const>()));
       const ezRTTI* NewInnerHandle = ezPhantomRttiManager::RegisterType(descInner);
       EZ_TEST_BOOL(NewInnerHandle == pRttiInnerP);
 

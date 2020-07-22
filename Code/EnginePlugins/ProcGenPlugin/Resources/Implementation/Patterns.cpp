@@ -44,4 +44,4 @@ namespace ezProcGenInternal
   static bool s_bFillPatternsDummy = FillPatterns();
 
   Pattern* GetPattern(ezTempHashedString sName) { return s_Patterns.GetValue(sName.GetHash()); }
-}
+} // namespace ezProcGenInternal

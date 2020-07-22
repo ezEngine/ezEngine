@@ -10,7 +10,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
 ezProcessingStreamProcessor::ezProcessingStreamProcessor()
-    : m_pStreamGroup(nullptr)
+  : m_pStreamGroup(nullptr)
 {
 }
 
@@ -22,4 +22,3 @@ ezProcessingStreamProcessor::~ezProcessingStreamProcessor()
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_DataProcessing_Stream_Implementation_ProcessingStreamProcessor);
-

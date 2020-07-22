@@ -1,8 +1,8 @@
 #pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
-#include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/Action/BaseActions.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 
 enum class ActiveGizmo;
 class ezGameObjectDocument;
@@ -35,6 +35,7 @@ public:
 class EZ_EDITORFRAMEWORK_DLL ezGizmoAction : public ezButtonAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezGizmoAction, ezButtonAction);
+
 public:
   ezGizmoAction(const ezActionContext& context, const char* szName, const ezRTTI* pGizmoType);
   ~ezGizmoAction();
@@ -61,8 +62,8 @@ public:
 class EZ_EDITORFRAMEWORK_DLL ezTransformGizmoAction : public ezButtonAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezTransformGizmoAction, ezButtonAction);
-public:
 
+public:
   enum class ActionType
   {
     GizmoToggleWorldSpace,
@@ -113,5 +114,4 @@ public:
 private:
   const ezGameObjectDocument* m_pSceneDocument;
   ActionType m_Type;
-
 };

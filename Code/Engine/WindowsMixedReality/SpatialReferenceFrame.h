@@ -2,7 +2,7 @@
 
 #ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
 
-#include <WindowsMixedReality/Basics.h>
+#  include <WindowsMixedReality/Basics.h>
 
 /// \brief A frame of reference on windows holographic.
 ///
@@ -16,7 +16,6 @@ public:
   void GetInternalCoordinateSystem(ComPtr<ABI::Windows::Perception::Spatial::ISpatialCoordinateSystem>& outCoordinateSystem) const;
 
 private:
-
   ComPtr<ABI::Windows::Perception::Spatial::ISpatialStationaryFrameOfReference> m_pReferenceFrame;
 };
 

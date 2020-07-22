@@ -5,12 +5,12 @@
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/Memory/MemoryTracker.h>
 #include <Texture/Image/Formats/BmpFileFormat.h>
 #include <Texture/Image/Formats/DdsFileFormat.h>
 #include <Texture/Image/Formats/ImageFileFormat.h>
 #include <Texture/Image/Image.h>
 #include <Texture/Image/ImageConversion.h>
-#include <Foundation/Memory/MemoryTracker.h>
 
 static const ezImageFormat::Enum defaultFormat = ezImageFormat::R32G32B32A32_FLOAT;
 
@@ -71,8 +71,8 @@ private:
       ezLog::Info("[test]Default decoding Path:");
       for (ezUInt32 i = 0; i < decodingPath.GetCount(); ++i)
       {
-        ezLog::Info("[test]  {} -> {}", ezImageFormat::GetName(decodingPath[i].m_sourceFormat),
-          ezImageFormat::GetName(decodingPath[i].m_targetFormat));
+        ezLog::Info(
+          "[test]  {} -> {}", ezImageFormat::GetName(decodingPath[i].m_sourceFormat), ezImageFormat::GetName(decodingPath[i].m_targetFormat));
       }
     }
 
@@ -85,8 +85,8 @@ private:
       ezLog::Info("[test]Default encoding Path:");
       for (ezUInt32 i = 0; i < encodingPath.GetCount(); ++i)
       {
-        ezLog::Info("[test]  {} -> {}", ezImageFormat::GetName(encodingPath[i].m_sourceFormat),
-          ezImageFormat::GetName(encodingPath[i].m_targetFormat));
+        ezLog::Info(
+          "[test]  {} -> {}", ezImageFormat::GetName(encodingPath[i].m_sourceFormat), ezImageFormat::GetName(encodingPath[i].m_targetFormat));
       }
     }
 
@@ -228,4 +228,3 @@ private:
 };
 
 static ezImageConversionTest s_ImageConversionTest;
-

@@ -106,8 +106,7 @@ private:
   ezUInt16 MountDataDirectory(const char* szDataDir, const char* szRootName);
   void UnmountDataDirectory(ezUInt16 uiDataDir);
   static void ComputeDataDirMountPoint(const char* szDataDir, ezStringBuilder& out_sMountPoint);
-  void BuildPathInCache(const char* szFile, const char* szMountPoint, ezStringBuilder* out_pAbsPath,
-    ezStringBuilder* out_pFullPathMeta) const;
+  void BuildPathInCache(const char* szFile, const char* szMountPoint, ezStringBuilder* out_pAbsPath, ezStringBuilder* out_pFullPathMeta) const;
   void GetFullDataDirCachePath(const char* szDataDir, ezStringBuilder& out_sFullPath, ezStringBuilder& out_sFullPathMeta) const;
   void NetworkMsgHandler(ezRemoteMessage& msg);
   void HandleFileTransferMsg(ezRemoteMessage& msg);

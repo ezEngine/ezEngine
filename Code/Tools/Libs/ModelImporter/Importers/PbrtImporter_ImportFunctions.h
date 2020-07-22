@@ -16,9 +16,9 @@ namespace ezModelImporter
     void TransformBegin(Pbrt::ParseContext& context);
     void TransformEnd(Pbrt::ParseContext& context);
 
-    //void ObjectBegin(Pbrt::ParseContext& context); // Handled as object parse function.
+    // void ObjectBegin(Pbrt::ParseContext& context); // Handled as object parse function.
     void ObjectEnd(Pbrt::ParseContext& context);
-  }
+  } // namespace PbrtScopeFunctions
 
   namespace PbrtTransformFunctions
   {
@@ -29,9 +29,9 @@ namespace ezModelImporter
     void LookAt(Pbrt::ParseContext& context, ezStringView& remainingSceneText);
     void Transform(Pbrt::ParseContext& context, ezStringView& remainingSceneText);
     void ConcatTransform(Pbrt::ParseContext& context, ezStringView& remainingSceneText);
-    //void CoordinateSystem(Pbrt::ParseContext& context, ezStringView& remainingSceneText);
-    //void CoordSysTransform(Pbrt::ParseContext& context, ezStringView& remainingSceneText);
-  }
+    // void CoordinateSystem(Pbrt::ParseContext& context, ezStringView& remainingSceneText);
+    // void CoordSysTransform(Pbrt::ParseContext& context, ezStringView& remainingSceneText);
+  } // namespace PbrtTransformFunctions
 
   namespace PbrtObjectParseFunctions
   {
@@ -43,5 +43,5 @@ namespace ezModelImporter
 
     void ObjectBegin(ezStringView type, ezArrayPtr<Pbrt::Parameter> parameters, Pbrt::ParseContext& context, ezModelImporter::Scene& outScene);
     void ObjectInstance(ezStringView type, ezArrayPtr<Pbrt::Parameter> parameters, Pbrt::ParseContext& context, ezModelImporter::Scene& outScene);
-  }
-}
+  } // namespace PbrtObjectParseFunctions
+} // namespace ezModelImporter

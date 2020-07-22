@@ -2,15 +2,15 @@
 
 #include <Core/Graphics/Camera.h>
 #include <Foundation/Configuration/Singleton.h>
-#include <GameEngine/XR/XRInterface.h>
 #include <GameEngine/XR/XRInputDevice.h>
+#include <GameEngine/XR/XRInterface.h>
 #include <OpenXRPlugin/Basics.h>
 #include <OpenXRPlugin/OpenXRIncludes.h>
 #include <RendererCore/Pipeline/Declarations.h>
 #include <RendererCore/Shader/ConstantBufferStorage.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
-#include <RendererFoundation/Resources/RenderTargetSetup.h>
 #include <RendererFoundation/Device/SwapChain.h>
+#include <RendererFoundation/Resources/RenderTargetSetup.h>
 
 class ezOpenXRInputDevice;
 class ezOpenXRSpatialAnchors;
@@ -39,8 +39,7 @@ public:
   virtual ezXRInputDevice& GetXRInput() const override;
 
   virtual ezGALTextureHandle Present() override;
-  virtual ezUniquePtr<ezActor> CreateActor(
-    ezView* pView, ezGALMSAASampleCount::Enum msaaCount = ezGALMSAASampleCount::None,
+  virtual ezUniquePtr<ezActor> CreateActor(ezView* pView, ezGALMSAASampleCount::Enum msaaCount = ezGALMSAASampleCount::None,
     ezUniquePtr<ezWindowBase> companionWindow = nullptr, ezUniquePtr<ezWindowOutputTargetBase> companionWindowOutput = nullptr) override;
   virtual void OnActorDestroyed() override;
   virtual bool SupportsCompanionView() override;
@@ -102,7 +101,7 @@ private:
   {
     bool m_bD3D11 = false;
     PFN_xrGetD3D11GraphicsRequirementsKHR pfn_xrGetD3D11GraphicsRequirementsKHR;
-    
+
     bool m_bDepthComposition = false;
 
     bool m_bUnboundedReferenceSpace = false;
@@ -190,6 +189,4 @@ private:
   ezGALRenderTargetSetup m_RenderTargetSetup;
   ezGALTextureHandle m_hColorRT;
   ezGALTextureHandle m_hDepthRT;
-
-
 };

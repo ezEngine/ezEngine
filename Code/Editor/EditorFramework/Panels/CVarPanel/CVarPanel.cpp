@@ -17,7 +17,7 @@ ezQtCVarPanel::ezQtCVarPanel()
   setWindowTitle(QString::fromUtf8(ezTranslate("Panel.CVar")));
   m_pCVarWidget = new ezQtCVarWidget(this);
   m_pCVarWidget->layout()->setContentsMargins(0, 0, 0, 0);
-  //m_pCVarWidget->setContentsMargins(0, 0, 0, 0);
+  // m_pCVarWidget->setContentsMargins(0, 0, 0, 0);
   setWidget(m_pCVarWidget);
 
   ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezMakeDelegate(&ezQtCVarPanel::EngineProcessMsgHandler, this));

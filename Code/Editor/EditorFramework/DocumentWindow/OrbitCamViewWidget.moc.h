@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Foundation/Basics.h>
 #include <EditorFramework/DocumentWindow/EngineViewWidget.moc.h>
+#include <Foundation/Basics.h>
 #include <Foundation/Types/UniquePtr.h>
 
 class ezOrbitCameraContext;
@@ -10,7 +10,6 @@ class EZ_EDITORFRAMEWORK_DLL ezQtOrbitCamViewWidget : public ezQtEngineViewWidge
 {
   Q_OBJECT
 public:
-
   ezQtOrbitCamViewWidget(ezQtEngineDocumentWindow* pOwnerWindow, ezEngineViewConfig* pViewConfig);
   ~ezQtOrbitCamViewWidget();
 

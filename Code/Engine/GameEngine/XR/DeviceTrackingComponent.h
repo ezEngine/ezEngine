@@ -3,8 +3,8 @@
 #include <Core/World/Component.h>
 #include <Core/World/World.h>
 #include <GameEngine/GameEngineDLL.h>
-#include <GameEngine/XR/XRInterface.h>
 #include <GameEngine/XR/XRInputDevice.h>
+#include <GameEngine/XR/XRInterface.h>
 
 struct ezXRPoseLocation
 {
@@ -57,4 +57,3 @@ protected:
   ezEnum<ezXRPoseLocation> m_poseLocation;
   ezEnum<ezXRTransformSpace> m_space;
 };
-

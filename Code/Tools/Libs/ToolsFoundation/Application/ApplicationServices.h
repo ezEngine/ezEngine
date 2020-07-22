@@ -1,8 +1,8 @@
 #pragma once
 
-#include <ToolsFoundation/ToolsFoundationDLL.h>
 #include <Foundation/Configuration/Singleton.h>
 #include <Foundation/Strings/String.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 
 class ezDocument;
 
@@ -11,7 +11,6 @@ class EZ_TOOLSFOUNDATION_DLL ezApplicationServices
   EZ_DECLARE_SINGLETON(ezApplicationServices);
 
 public:
-
   ezApplicationServices();
 
   void SetApplicationName(const char* szName);
@@ -43,5 +42,4 @@ public:
 
 private:
   ezString m_sApplicationName;
-
 };

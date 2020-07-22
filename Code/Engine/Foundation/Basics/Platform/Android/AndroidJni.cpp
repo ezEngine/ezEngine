@@ -3,7 +3,6 @@
 #if EZ_ENABLED(EZ_PLATFORM_ANDROID)
 #  include <Foundation/Basics/Platform/Android/AndroidJni.h>
 #  include <Foundation/Basics/Platform/Android/AndroidUtils.h>
-#  include <Foundation/Basics/Platform/Android/AndroidUtils.h>
 #  include <android_native_app_glue.h>
 
 thread_local JNIEnv* ezJniAttachment::s_env;
@@ -77,10 +76,11 @@ JNIEnv* ezJniAttachment::GetEnv()
 {
   EZ_ASSERT_DEV(s_env != nullptr, "Thread not attached to the JVM - you forgot to create an instance of ezJniAttachment in the current scope.");
 
-#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+#  if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   void* unused;
-  EZ_ASSERT_DEBUG(ezAndroidUtils::GetAndroidApp()->activity->vm->GetEnv(&unused, JNI_VERSION_1_6) == JNI_OK, "Current thread has lost its attachment to the JVM - some OS calls can cause this to happen. Try to reduce the attachment to a smaller scope.");
-#endif
+  EZ_ASSERT_DEBUG(ezAndroidUtils::GetAndroidApp()->activity->vm->GetEnv(&unused, JNI_VERSION_1_6) == JNI_OK,
+    "Current thread has lost its attachment to the JVM - some OS calls can cause this to happen. Try to reduce the attachment to a smaller scope.");
+#  endif
 
   return s_env;
 }
@@ -161,8 +161,10 @@ int ezJniObject::CompareMethodSpecificity(const ezJniObject& method1, const ezJn
 
   for (jsize paramIdx = 0; paramIdx < N; ++paramIdx)
   {
-    ezJniClass paramType1(jclass(ezJniAttachment::GetEnv()->GetObjectArrayElement(jobjectArray(paramTypes1.m_object), paramIdx)), ezJniOwnerShip::OWN);
-    ezJniClass paramType2(jclass(ezJniAttachment::GetEnv()->GetObjectArrayElement(jobjectArray(paramTypes2.m_object), paramIdx)), ezJniOwnerShip::OWN);
+    ezJniClass paramType1(
+      jclass(ezJniAttachment::GetEnv()->GetObjectArrayElement(jobjectArray(paramTypes1.m_object), paramIdx)), ezJniOwnerShip::OWN);
+    ezJniClass paramType2(
+      jclass(ezJniAttachment::GetEnv()->GetObjectArrayElement(jobjectArray(paramTypes2.m_object), paramIdx)), ezJniOwnerShip::OWN);
 
     int paramDecision = paramType1.IsAssignableFrom(paramType2) - paramType2.IsAssignableFrom(paramType1);
 
@@ -184,7 +186,8 @@ int ezJniObject::CompareMethodSpecificity(const ezJniObject& method1, const ezJn
 bool ezJniObject::IsMethodViable(bool bStatic, const ezJniObject& candidateMethod, const ezJniClass& returnType, ezJniClass* inputTypes, int N)
 {
   // Check if staticness matches
-  if (ezJniClass("java/lang/reflect/Modifier").UnsafeCallStatic<bool>("isStatic", "(I)Z", candidateMethod.UnsafeCall<int>("getModifiers", "()I")) != bStatic)
+  if (ezJniClass("java/lang/reflect/Modifier").UnsafeCallStatic<bool>("isStatic", "(I)Z", candidateMethod.UnsafeCall<int>("getModifiers", "()I")) !=
+      bStatic)
   {
     return false;
   }
@@ -207,7 +210,8 @@ bool ezJniObject::IsMethodViable(bool bStatic, const ezJniObject& candidateMetho
   // Check if input parameter types are assignable to the actual parameter types
   for (jsize paramIdx = 0; paramIdx < numCandidateParams; ++paramIdx)
   {
-    ezJniClass paramType(jclass(ezJniAttachment::GetEnv()->GetObjectArrayElement(jobjectArray(parameterTypes.m_object), paramIdx)), ezJniOwnerShip::OWN);
+    ezJniClass paramType(
+      jclass(ezJniAttachment::GetEnv()->GetObjectArrayElement(jobjectArray(parameterTypes.m_object), paramIdx)), ezJniOwnerShip::OWN);
 
     if (inputTypes[paramIdx].IsNull())
     {
@@ -228,7 +232,8 @@ bool ezJniObject::IsMethodViable(bool bStatic, const ezJniObject& candidateMetho
   return true;
 }
 
-ezJniObject ezJniObject::FindMethod(bool bStatic, const char* name, const ezJniClass& searchClass, const ezJniClass& returnType, ezJniClass* inputTypes, int N)
+ezJniObject ezJniObject::FindMethod(
+  bool bStatic, const char* name, const ezJniClass& searchClass, const ezJniClass& returnType, ezJniClass* inputTypes, int N)
 {
   if (searchClass.IsNull())
   {
@@ -242,7 +247,8 @@ ezJniObject ezJniObject::FindMethod(bool bStatic, const char* name, const ezJniC
   // In case of no parameters, fetch the method directly.
   if (N == 0)
   {
-    ezJniObject candidateMethod = searchClass.UnsafeCall<ezJniObject>("getMethod", "(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;", ezJniString(name), ezJniObject());
+    ezJniObject candidateMethod = searchClass.UnsafeCall<ezJniObject>(
+      "getMethod", "(Ljava/lang/String;[Ljava/lang/Class;)Ljava/lang/reflect/Method;", ezJniString(name), ezJniObject());
 
     if (!ezJniAttachment::GetEnv()->ExceptionCheck() && IsMethodViable(bStatic, candidateMethod, returnType, inputTypes, N))
     {
@@ -262,7 +268,8 @@ ezJniObject ezJniObject::FindMethod(bool bStatic, const char* name, const ezJniC
     jsize numMethods = ezJniAttachment::GetEnv()->GetArrayLength(jarray(methodArray.m_object));
     for (jsize methodIdx = 0; methodIdx < numMethods; ++methodIdx)
     {
-      ezJniObject candidateMethod(ezJniAttachment::GetEnv()->GetObjectArrayElement(jobjectArray(methodArray.m_object), methodIdx), ezJniOwnerShip::OWN);
+      ezJniObject candidateMethod(
+        ezJniAttachment::GetEnv()->GetObjectArrayElement(jobjectArray(methodArray.m_object), methodIdx), ezJniOwnerShip::OWN);
 
       ezJniString methodName = candidateMethod.UnsafeCall<ezJniString>("getName", "()Ljava/lang/String;");
 
@@ -313,14 +320,16 @@ ezJniObject ezJniObject::FindMethod(bool bStatic, const char* name, const ezJniC
   }
   else if (bestCandidates.GetCount() == 0)
   {
-    ezLog::Error("Overload resolution failed: No method '{}' in class '{}' matches the requested return and parameter types.", name, searchClass.ToString().GetData());
+    ezLog::Error("Overload resolution failed: No method '{}' in class '{}' matches the requested return and parameter types.", name,
+      searchClass.ToString().GetData());
     DumpTypes(inputTypes, N, &returnType);
     ezJniAttachment::SetLastError(ezJniErrorState::NO_MATCHING_METHOD);
     return ezJniObject();
   }
   else
   {
-    ezLog::Error("Overload resolution failed: Call to '{}' in class '{}' is ambiguous. Cannot decide between the following candidates:", name, searchClass.ToString().GetData());
+    ezLog::Error("Overload resolution failed: Call to '{}' in class '{}' is ambiguous. Cannot decide between the following candidates:", name,
+      searchClass.ToString().GetData());
     for (int candidateIdx = 0; candidateIdx < bestCandidates.GetCount(); ++candidateIdx)
     {
       ezLog::Error("  Candidate #{}: '{}'", candidateIdx, bestCandidates[candidateIdx].ToString().GetData());
@@ -342,8 +351,10 @@ int ezJniObject::CompareConstructorSpecificity(const ezJniObject& method1, const
 
   for (jsize paramIdx = 0; paramIdx < N; ++paramIdx)
   {
-    ezJniClass paramType1(jclass(ezJniAttachment::GetEnv()->GetObjectArrayElement(jobjectArray(paramTypes1.m_object), paramIdx)), ezJniOwnerShip::OWN);
-    ezJniClass paramType2(jclass(ezJniAttachment::GetEnv()->GetObjectArrayElement(jobjectArray(paramTypes2.m_object), paramIdx)), ezJniOwnerShip::OWN);
+    ezJniClass paramType1(
+      jclass(ezJniAttachment::GetEnv()->GetObjectArrayElement(jobjectArray(paramTypes1.m_object), paramIdx)), ezJniOwnerShip::OWN);
+    ezJniClass paramType2(
+      jclass(ezJniAttachment::GetEnv()->GetObjectArrayElement(jobjectArray(paramTypes2.m_object), paramIdx)), ezJniOwnerShip::OWN);
 
     int paramDecision = paramType1.IsAssignableFrom(paramType2) - paramType2.IsAssignableFrom(paramType1);
 
@@ -375,7 +386,8 @@ bool ezJniObject::IsConstructorViable(const ezJniObject& candidateMethod, ezJniC
   // Check if input parameter types are assignable to the actual parameter types
   for (jsize paramIdx = 0; paramIdx < numCandidateParams; ++paramIdx)
   {
-    ezJniClass paramType(jclass(ezJniAttachment::GetEnv()->GetObjectArrayElement(jobjectArray(parameterTypes.m_object), paramIdx)), ezJniOwnerShip::OWN);
+    ezJniClass paramType(
+      jclass(ezJniAttachment::GetEnv()->GetObjectArrayElement(jobjectArray(parameterTypes.m_object), paramIdx)), ezJniOwnerShip::OWN);
 
     if (inputTypes[paramIdx].IsNull())
     {
@@ -410,7 +422,8 @@ ezJniObject ezJniObject::FindConstructor(const ezJniClass& type, ezJniClass* inp
   // In case of no parameters, fetch the method directly.
   if (N == 0)
   {
-    ezJniObject candidateMethod = type.UnsafeCall<ezJniObject>("getConstructor", "([Ljava/lang/Class;)Ljava/lang/reflect/Constructor;", ezJniObject());
+    ezJniObject candidateMethod =
+      type.UnsafeCall<ezJniObject>("getConstructor", "([Ljava/lang/Class;)Ljava/lang/reflect/Constructor;", ezJniObject());
 
     if (!ezJniAttachment::GetEnv()->ExceptionCheck() && IsConstructorViable(candidateMethod, inputTypes, N))
     {
@@ -430,7 +443,8 @@ ezJniObject ezJniObject::FindConstructor(const ezJniClass& type, ezJniClass* inp
     jsize numMethods = ezJniAttachment::GetEnv()->GetArrayLength(jarray(methodArray.m_object));
     for (jsize methodIdx = 0; methodIdx < numMethods; ++methodIdx)
     {
-      ezJniObject candidateMethod(ezJniAttachment::GetEnv()->GetObjectArrayElement(jobjectArray(methodArray.m_object), methodIdx), ezJniOwnerShip::OWN);
+      ezJniObject candidateMethod(
+        ezJniAttachment::GetEnv()->GetObjectArrayElement(jobjectArray(methodArray.m_object), methodIdx), ezJniOwnerShip::OWN);
 
       if (!IsConstructorViable(candidateMethod, inputTypes, N))
       {
@@ -481,7 +495,8 @@ ezJniObject ezJniObject::FindConstructor(const ezJniClass& type, ezJniClass* inp
   }
   else
   {
-    ezLog::Error("Overload resolution failed: Call to constructor in class '{}' is ambiguous. Cannot decide between the following candidates:", type.ToString().GetData());
+    ezLog::Error("Overload resolution failed: Call to constructor in class '{}' is ambiguous. Cannot decide between the following candidates:",
+      type.ToString().GetData());
     for (int candidateIdx = 0; candidateIdx < bestCandidates.GetCount(); ++candidateIdx)
     {
       ezLog::Error("  Candidate #{}: '{}'", candidateIdx, bestCandidates[candidateIdx].ToString().GetData());
@@ -691,7 +706,8 @@ bool ezJniClass::IsAssignableFrom(const ezJniClass& other) const
 
   JNIEnv* env = ezJniAttachment::GetEnv();
 
-  // Guard against JNI bug reversing order of arguments - fixed in https://android.googlesource.com/platform/art/+/1268b742c8cff7318dc0b5b283cbaeabfe0725ba
+  // Guard against JNI bug reversing order of arguments - fixed in
+  // https://android.googlesource.com/platform/art/+/1268b742c8cff7318dc0b5b283cbaeabfe0725ba
   if (!checkedApiOrder)
   {
     ezJniClass objectClass("java/lang/Object");
@@ -722,4 +738,3 @@ bool ezJniClass::IsPrimitive()
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Basics_Platform_Android_AndroidJni);
-

@@ -31,7 +31,7 @@ namespace
   EZ_IMPLEMENT_MESSAGE_TYPE(TestMessage);
   EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(TestMessage, 1, ezRTTIDefaultAllocator<TestMessage>)
   EZ_END_DYNAMIC_REFLECTED_TYPE;
-}
+} // namespace
 
 EZ_CREATE_SIMPLE_TEST(Communication, MessageQueue)
 {

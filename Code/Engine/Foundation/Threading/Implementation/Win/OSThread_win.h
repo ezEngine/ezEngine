@@ -51,8 +51,8 @@ void SetThreadName(DWORD dwThreadID, LPCSTR szThreadName)
 
 // Windows specific implementation of the thread class
 
-ezOSThread::ezOSThread(ezOSThreadEntryPoint pThreadEntryPoint, void* pUserData /*= nullptr*/, const char* szName /*= "ezThread"*/,
-                       ezUInt32 uiStackSize /*= 128 * 1024*/)
+ezOSThread::ezOSThread(
+  ezOSThreadEntryPoint pThreadEntryPoint, void* pUserData /*= nullptr*/, const char* szName /*= "ezThread"*/, ezUInt32 uiStackSize /*= 128 * 1024*/)
 {
   s_iThreadCount.Increment();
 
@@ -94,4 +94,3 @@ void ezOSThread::Join()
 {
   WaitForSingleObject(m_Handle, INFINITE);
 }
-

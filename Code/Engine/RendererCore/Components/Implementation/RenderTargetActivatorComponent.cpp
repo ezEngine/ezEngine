@@ -65,8 +65,7 @@ void ezRenderTargetActivatorComponent::OnMsgExtractRenderData(ezMsgExtractRender
 {
   // only add render target views from main views
   // otherwise every shadow casting light source would activate a render target
-  if (msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::MainView &&
-      msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::EditorView)
+  if (msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::MainView && msg.m_pView->GetCameraUsageHint() != ezCameraUsageHint::EditorView)
     return;
 
   if (!m_hRenderTarget.IsValid())

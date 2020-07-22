@@ -249,7 +249,8 @@ ezResourceTypeLoader* ezResource::GetDefaultResourceTypeLoader() const
 
 void ezResource::ReportResourceIsMissing()
 {
-  ezLog::SeriousWarning("Missing Resource of Type '{2}': '{0}' ('{1}')", ezArgSensitive(GetResourceID(), "ResourceID"), ezArgSensitive(m_sResourceDescription, "ResourceDesc"), GetDynamicRTTI()->GetTypeName());
+  ezLog::SeriousWarning("Missing Resource of Type '{2}': '{0}' ('{1}')", ezArgSensitive(GetResourceID(), "ResourceID"),
+    ezArgSensitive(m_sResourceDescription, "ResourceDesc"), GetDynamicRTTI()->GetTypeName());
 }
 
 void ezResource::VerifyAfterCreateResource(const ezResourceLoadDesc& ld)

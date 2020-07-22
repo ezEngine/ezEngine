@@ -162,7 +162,8 @@ bool ezTypeScriptBinding::RegisterGameObject(ezGameObjectHandle handle, ezUInt32
 
   // set the ezGameObjectHandle property
   {
-    ezGameObjectHandle* pHandleBuffer = reinterpret_cast<ezGameObjectHandle*>(duk_push_fixed_buffer(duk, sizeof(ezGameObjectHandle))); // [ global __GameObject object buffer ]
+    ezGameObjectHandle* pHandleBuffer =
+      reinterpret_cast<ezGameObjectHandle*>(duk_push_fixed_buffer(duk, sizeof(ezGameObjectHandle))); // [ global __GameObject object buffer ]
     *pHandleBuffer = handle;
     duk_put_prop_index(duk, -2, ezTypeScriptBindingIndexProperty::GameObjectHandle); // [ global __GameObject object ]
   }
@@ -225,7 +226,8 @@ static int __CPP_GameObject_SetX_Vec3(duk_context* pDuk)
 
   if (!pGameObject->IsDynamic())
   {
-    ezLog::SeriousWarning("TypeScript component modifies transform of static game-object '{}'. Use 'Force Dynamic' mode on owner game-object.", pGameObject->GetName());
+    ezLog::SeriousWarning(
+      "TypeScript component modifies transform of static game-object '{}'. Use 'Force Dynamic' mode on owner game-object.", pGameObject->GetName());
     pGameObject->MakeDynamic();
   }
 
@@ -319,7 +321,8 @@ static int __CPP_GameObject_SetX_Float(duk_context* pDuk)
 
   if (!pGameObject->IsDynamic())
   {
-    ezLog::SeriousWarning("TypeScript component modifies transform of static game-object '{}'. Use 'Force Dynamic' mode on owner game-object.", pGameObject->GetName());
+    ezLog::SeriousWarning(
+      "TypeScript component modifies transform of static game-object '{}'. Use 'Force Dynamic' mode on owner game-object.", pGameObject->GetName());
     pGameObject->MakeDynamic();
   }
 
@@ -369,7 +372,8 @@ static int __CPP_GameObject_SetX_Quat(duk_context* pDuk)
 
   if (!pGameObject->IsDynamic())
   {
-    ezLog::SeriousWarning("TypeScript component modifies transform of static game-object '{}'. Use 'Force Dynamic' mode on owner game-object.", pGameObject->GetName());
+    ezLog::SeriousWarning(
+      "TypeScript component modifies transform of static game-object '{}'. Use 'Force Dynamic' mode on owner game-object.", pGameObject->GetName());
     pGameObject->MakeDynamic();
   }
 
@@ -807,7 +811,8 @@ static int __CPP_GameObject_SetX_GameObject(duk_context* pDuk)
 
   ezGameObjectHandle hObject = ezTypeScriptBinding::RetrieveGameObjectHandle(pDuk, 1);
 
-  const ezGameObject::TransformPreservation preserve = duk.GetBoolValue(2) ? ezGameObject::TransformPreservation::PreserveGlobal : ezGameObject::TransformPreservation::PreserveLocal;
+  const ezGameObject::TransformPreservation preserve =
+    duk.GetBoolValue(2) ? ezGameObject::TransformPreservation::PreserveGlobal : ezGameObject::TransformPreservation::PreserveLocal;
 
   switch (duk.GetFunctionMagicValue())
   {

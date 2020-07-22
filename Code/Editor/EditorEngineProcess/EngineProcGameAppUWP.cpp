@@ -31,11 +31,11 @@ void ezEngineProcessGameApplicationUWP::Init_ConfigureInput()
 
 bool ezEngineProcessGameApplicationUWP::Run_ProcessApplicationInput()
 {
-#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
+#  ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
   m_pEngineProcessApp->LoadAnchor();
-#endif
+#  endif
 
-#ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
+#  ifdef BUILDSYSTEM_ENABLE_MIXEDREALITY_SUPPORT
   if (!HasAnyActiveGameState())
   {
     const bool bHandVisible = ezInputManager::GetInputSlotState(ezInputSlot_Spatial_Hand0_Tracked) == ezKeyState::Down;
@@ -62,7 +62,7 @@ bool ezEngineProcessGameApplicationUWP::Run_ProcessApplicationInput()
       }
     }
   }
-#endif
+#  endif
 
   return SUPER::Run_ProcessApplicationInput();
 }

@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Foundation/IO/Archive/Archive.h>
-#include <Foundation/Types/UniquePtr.h>
 #include <Foundation/IO/MemoryMappedFile.h>
+#include <Foundation/Types/UniquePtr.h>
 
 class ezRawMemoryStreamReader;
 class ezStreamReader;

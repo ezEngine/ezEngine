@@ -1,7 +1,7 @@
 #pragma once
 
-#include <RmlUiPlugin/RmlUiPluginDLL.h>
 #include <Foundation/Communication/Message.h>
+#include <RmlUiPlugin/RmlUiPluginDLL.h>
 
 struct EZ_RMLUIPLUGIN_DLL ezMsgRmlUiReload : public ezMessage
 {

@@ -8,17 +8,16 @@
 
 #include <EditorPluginFileserve/EditorPluginFileserveDLL.h>
 
-#include <GuiFoundation/GuiFoundationDLL.h>
 #include <FileservePlugin/Fileserver/Fileserver.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 
-#include <QWidget>
-#include <QTimer>
-#include <QMessageBox>
-#include <QTimer>
-#include <QHostAddress>
 #include <QAbstractSocket>
-#include <QNetworkInterface>
-#include <QTableWidget>
+#include <QHostAddress>
 #include <QInputDialog>
+#include <QMessageBox>
+#include <QNetworkInterface>
 #include <QSettings>
+#include <QTableWidget>
+#include <QTimer>
+#include <QWidget>

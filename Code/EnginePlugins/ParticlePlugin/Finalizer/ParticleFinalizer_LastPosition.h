@@ -17,6 +17,7 @@ public:
 class EZ_PARTICLEPLUGIN_DLL ezParticleFinalizer_LastPosition final : public ezParticleFinalizer
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezParticleFinalizer_LastPosition, ezParticleFinalizer);
+
 public:
   ezParticleFinalizer_LastPosition();
   ~ezParticleFinalizer_LastPosition();

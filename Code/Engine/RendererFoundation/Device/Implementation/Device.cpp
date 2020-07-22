@@ -125,9 +125,8 @@ ezResult ezGALDevice::Init()
   // Fill the capabilities
   FillCapabilitiesPlatform();
 
-  ezLog::Info("Adapter: '{}' - {} VRAM, {} Sys RAM, {} Shared RAM", m_Capabilities.m_sAdapterName,
-    ezArgFileSize(m_Capabilities.m_uiDedicatedVRAM), ezArgFileSize(m_Capabilities.m_uiDedicatedSystemRAM),
-    ezArgFileSize(m_Capabilities.m_uiSharedSystemRAM));
+  ezLog::Info("Adapter: '{}' - {} VRAM, {} Sys RAM, {} Shared RAM", m_Capabilities.m_sAdapterName, ezArgFileSize(m_Capabilities.m_uiDedicatedVRAM),
+    ezArgFileSize(m_Capabilities.m_uiDedicatedSystemRAM), ezArgFileSize(m_Capabilities.m_uiSharedSystemRAM));
 
   if (!m_Capabilities.m_bHardwareAccelerated)
   {
@@ -570,8 +569,7 @@ ezGALBufferHandle ezGALDevice::CreateVertexBuffer(ezUInt32 uiVertexSize, ezUInt3
   return CreateBuffer(desc, pInitialData);
 }
 
-ezGALBufferHandle ezGALDevice::CreateIndexBuffer(
-  ezGALIndexType::Enum IndexType, ezUInt32 uiIndexCount, ezArrayPtr<const ezUInt8> pInitialData)
+ezGALBufferHandle ezGALDevice::CreateIndexBuffer(ezGALIndexType::Enum IndexType, ezUInt32 uiIndexCount, ezArrayPtr<const ezUInt8> pInitialData)
 {
   ezGALBufferCreationDescription desc;
   desc.m_uiStructSize = ezGALIndexType::GetSize(IndexType);
@@ -594,8 +592,7 @@ ezGALBufferHandle ezGALDevice::CreateConstantBuffer(ezUInt32 uiBufferSize)
 }
 
 
-ezGALTextureHandle ezGALDevice::CreateTexture(
-  const ezGALTextureCreationDescription& desc, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData)
+ezGALTextureHandle ezGALDevice::CreateTexture(const ezGALTextureCreationDescription& desc, ezArrayPtr<ezGALSystemMemoryDescription> pInitialData)
 {
   EZ_GALDEVICE_LOCK_AND_CHECK();
 
@@ -680,8 +677,8 @@ ezResult ezGALDevice::ReplaceExisitingNativeObject(ezGALTextureHandle hTexture, 
     }
 
     EZ_VERIFY(pTexture->DeInitPlatform(this).Succeeded(), "DeInitPlatform should never fail.");
-    EZ_VERIFY(pTexture->ReplaceExisitingNativeObject(pExisitingNativeObject).Succeeded(),
-      "Failed to replace native texture, make sure the input is valid.");
+    EZ_VERIFY(
+      pTexture->ReplaceExisitingNativeObject(pExisitingNativeObject).Succeeded(), "Failed to replace native texture, make sure the input is valid.");
     EZ_VERIFY(pTexture->InitPlatform(this, {}).Succeeded(),
       "InitPlatform failed on a texture the previously succeded in the same call, is the new native object valid?");
 
@@ -1432,7 +1429,8 @@ void ezGALDevice::DestroyDeadObjects()
         ezGALDepthStencilState* pDepthStencilState = nullptr;
 
         EZ_VERIFY(m_DepthStencilStates.Remove(hDepthStencilState, &pDepthStencilState), "DepthStencilState not found in idTable");
-        EZ_VERIFY(m_DepthStencilStateTable.Remove(pDepthStencilState->GetDescription().CalculateHash()), "DepthStencilState not found in de-duplication table");
+        EZ_VERIFY(m_DepthStencilStateTable.Remove(pDepthStencilState->GetDescription().CalculateHash()),
+          "DepthStencilState not found in de-duplication table");
 
         DestroyDepthStencilStatePlatform(pDepthStencilState);
 
@@ -1444,7 +1442,8 @@ void ezGALDevice::DestroyDeadObjects()
         ezGALRasterizerState* pRasterizerState = nullptr;
 
         EZ_VERIFY(m_RasterizerStates.Remove(hRasterizerState, &pRasterizerState), "RasterizerState not found in idTable");
-        EZ_VERIFY(m_RasterizerStateTable.Remove(pRasterizerState->GetDescription().CalculateHash()), "RasterizerState not found in de-duplication table");
+        EZ_VERIFY(
+          m_RasterizerStateTable.Remove(pRasterizerState->GetDescription().CalculateHash()), "RasterizerState not found in de-duplication table");
 
         DestroyRasterizerStatePlatform(pRasterizerState);
 

@@ -2,8 +2,8 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_ANDROID)
 
-#include <Foundation/Application/Application.h>
-#include <Foundation/Application/Implementation/Android/Application_android.h>
+#  include <Foundation/Application/Application.h>
+#  include <Foundation/Application/Implementation/Android/Application_android.h>
 #  include <android/log.h>
 #  include <android_native_app_glue.h>
 
@@ -29,9 +29,7 @@ ezAndroidApplication::ezAndroidApplication(struct android_app* pApp, ezApplicati
   //#TODO: acquire sensors, set app->onAppCmd, set app->onInputEvent
 }
 
-ezAndroidApplication::~ezAndroidApplication()
-{
-}
+ezAndroidApplication::~ezAndroidApplication() {}
 
 void ezAndroidApplication::AndroidRun()
 {
@@ -98,4 +96,3 @@ EZ_FOUNDATION_DLL void ezAndroidRun(struct android_app* pApp, ezApplication* pEz
 #endif
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Application_Implementation_Android_Application_android);
-

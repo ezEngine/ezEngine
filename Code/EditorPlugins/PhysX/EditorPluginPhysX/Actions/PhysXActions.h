@@ -1,8 +1,8 @@
 #pragma once
 
 #include <EditorPluginPhysX/EditorPluginPhysXDLL.h>
-#include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/Action/BaseActions.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 
 
 class EZ_EDITORPLUGINPHYSX_DLL ezPhysXActions
@@ -21,8 +21,8 @@ public:
 class EZ_EDITORPLUGINPHYSX_DLL ezPhysXAction : public ezButtonAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezPhysXAction, ezButtonAction);
-public:
 
+public:
   enum class ActionType
   {
     ProjectSettings,
@@ -34,7 +34,5 @@ public:
   virtual void Execute(const ezVariant& value) override;
 
 private:
-
   ActionType m_Type;
 };
-

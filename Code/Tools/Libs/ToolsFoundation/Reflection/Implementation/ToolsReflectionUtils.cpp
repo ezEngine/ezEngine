@@ -98,8 +98,7 @@ namespace
 ezVariant ezToolsReflectionUtils::GetStorageDefault(const ezAbstractProperty* pProperty)
 {
   const ezDefaultValueAttribute* pAttrib = pProperty->GetAttributeByType<ezDefaultValueAttribute>();
-  auto type =
-    pProperty->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProperty->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
+  auto type = pProperty->GetFlags().IsSet(ezPropertyFlags::StandardType) ? pProperty->GetSpecificType()->GetVariantType() : ezVariantType::Uuid;
 
   switch (pProperty->GetCategory())
   {
@@ -111,8 +110,7 @@ ezVariant ezToolsReflectionUtils::GetStorageDefault(const ezAbstractProperty* pP
     case ezPropertyCategory::Array:
     case ezPropertyCategory::Set:
     {
-      if (pProperty->GetSpecificType()->GetTypeFlags().IsSet(ezTypeFlags::StandardType) && pAttrib &&
-          pAttrib->GetValue().IsA<ezVariantArray>())
+      if (pProperty->GetSpecificType()->GetTypeFlags().IsSet(ezTypeFlags::StandardType) && pAttrib && pAttrib->GetValue().IsA<ezVariantArray>())
       {
         const ezVariantArray& value = pAttrib->GetValue().Get<ezVariantArray>();
         ezVariantArray ret;
@@ -196,8 +194,8 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
       case ezPropertyCategory::Map:
       {
         const ezRTTI* pPropRtti = prop->GetSpecificType();
-        out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(prop->GetCategory(), prop->GetPropertyName(), pPropRtti->GetTypeName(),
-          prop->GetFlags(), prop->GetAttributes()));
+        out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(
+          prop->GetCategory(), prop->GetPropertyName(), pPropRtti->GetTypeName(), prop->GetFlags(), prop->GetAttributes()));
       }
       break;
 
@@ -219,8 +217,7 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
     out_desc.m_Functions.PushBack(
       ezReflectedFunctionDescriptor(prop->GetPropertyName(), prop->GetFlags(), prop->GetFunctionType(), prop->GetAttributes()));
     ezReflectedFunctionDescriptor& desc = out_desc.m_Functions.PeekBack();
-    desc.m_ReturnValue =
-      ezFunctionArgumentDescriptor(prop->GetReturnType() ? prop->GetReturnType()->GetTypeName() : "", prop->GetReturnFlags());
+    desc.m_ReturnValue = ezFunctionArgumentDescriptor(prop->GetReturnType() ? prop->GetReturnType()->GetTypeName() : "", prop->GetReturnFlags());
     const ezUInt32 uiArguments = prop->GetArgumentCount();
     desc.m_Arguments.Reserve(uiArguments);
     for (ezUInt32 a = 0; a < uiArguments; ++a)

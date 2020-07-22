@@ -27,11 +27,9 @@ ezQtMainWindow::ezQtMainWindow()
   setupUi(this);
 
   m_DockManager = new ads::CDockManager(this);
-  m_DockManager->setConfigFlags(static_cast<ads::CDockManager::ConfigFlags>(
-    ads::CDockManager::DockAreaHasCloseButton |
-    ads::CDockManager::DockAreaCloseButtonClosesTab |
-    ads::CDockManager::OpaqueSplitterResize |
-    ads::CDockManager::AllTabsHaveCloseButton));
+  m_DockManager->setConfigFlags(
+    static_cast<ads::CDockManager::ConfigFlags>(ads::CDockManager::DockAreaHasCloseButton | ads::CDockManager::DockAreaCloseButtonClosesTab |
+                                                ads::CDockManager::OpaqueSplitterResize | ads::CDockManager::AllTabsHaveCloseButton));
 
   QSettings Settings;
   SetAlwaysOnTop((OnTopMode)Settings.value("AlwaysOnTop", (int)WhenConnected).toInt());
@@ -71,7 +69,8 @@ ezQtMainWindow::ezQtMainWindow()
   EZ_VERIFY(nullptr != QWidget::connect(pSubsystemsWidget, &ads::CDockWidget::viewToggled, this, &ezQtMainWindow::DockWidgetVisibilityChanged), "");
   EZ_VERIFY(nullptr != QWidget::connect(pFileWidget, &ads::CDockWidget::viewToggled, this, &ezQtMainWindow::DockWidgetVisibilityChanged), "");
   EZ_VERIFY(nullptr != QWidget::connect(pPluginsWidget, &ads::CDockWidget::viewToggled, this, &ezQtMainWindow::DockWidgetVisibilityChanged), "");
-  EZ_VERIFY(nullptr != QWidget::connect(pGlobalEventesWidget, &ads::CDockWidget::viewToggled, this, &ezQtMainWindow::DockWidgetVisibilityChanged), "");
+  EZ_VERIFY(
+    nullptr != QWidget::connect(pGlobalEventesWidget, &ads::CDockWidget::viewToggled, this, &ezQtMainWindow::DockWidgetVisibilityChanged), "");
   EZ_VERIFY(nullptr != QWidget::connect(pDataWidget, &ads::CDockWidget::viewToggled, this, &ezQtMainWindow::DockWidgetVisibilityChanged), "");
   EZ_VERIFY(nullptr != QWidget::connect(pResourceWidget, &ads::CDockWidget::viewToggled, this, &ezQtMainWindow::DockWidgetVisibilityChanged), "");
 
@@ -85,7 +84,8 @@ ezQtMainWindow::ezQtMainWindow()
     m_pStatHistoryWidgets[i] = new ezQtStatVisWidget(this, i);
     m_DockManager->addDockWidgetTab(ads::BottomDockWidgetArea, m_pStatHistoryWidgets[i]);
 
-    EZ_VERIFY(nullptr != QWidget::connect(m_pStatHistoryWidgets[i], &ads::CDockWidget::viewToggled, this, &ezQtMainWindow::DockWidgetVisibilityChanged), "");
+    EZ_VERIFY(
+      nullptr != QWidget::connect(m_pStatHistoryWidgets[i], &ads::CDockWidget::viewToggled, this, &ezQtMainWindow::DockWidgetVisibilityChanged), "");
 
     pHistoryMenu->addAction(&m_pStatHistoryWidgets[i]->m_ShowWindowAction);
 

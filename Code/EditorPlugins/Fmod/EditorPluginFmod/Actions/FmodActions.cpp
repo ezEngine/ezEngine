@@ -24,12 +24,12 @@ ezActionDescriptorHandle ezFmodActions::s_hMasterVolume;
 void ezFmodActions::RegisterActions()
 {
   s_hCategoryFmod = EZ_REGISTER_CATEGORY("Fmod");
-  s_hProjectSettings = EZ_REGISTER_ACTION_1("Fmod.Settings.Project", ezActionScope::Document, "Fmod", "", ezFmodAction,
-                                            ezFmodAction::ActionType::ProjectSettings);
+  s_hProjectSettings =
+    EZ_REGISTER_ACTION_1("Fmod.Settings.Project", ezActionScope::Document, "Fmod", "", ezFmodAction, ezFmodAction::ActionType::ProjectSettings);
   s_hMuteSound = EZ_REGISTER_ACTION_1("Fmod.Mute", ezActionScope::Document, "Fmod", "", ezFmodAction, ezFmodAction::ActionType::MuteSound);
 
-  s_hMasterVolume = EZ_REGISTER_ACTION_1("Fmod.MasterVolume", ezActionScope::Document, "Volume", "", ezFmodSliderAction,
-                                         ezFmodSliderAction::ActionType::MasterVolume);
+  s_hMasterVolume = EZ_REGISTER_ACTION_1(
+    "Fmod.MasterVolume", ezActionScope::Document, "Volume", "", ezFmodSliderAction, ezFmodSliderAction::ActionType::MasterVolume);
 }
 
 void ezFmodActions::UnregisterActions()

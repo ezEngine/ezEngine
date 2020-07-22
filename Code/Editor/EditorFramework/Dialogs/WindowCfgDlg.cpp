@@ -8,7 +8,7 @@
 #include <ToolsFoundation/Application/ApplicationServices.h>
 
 ezQtWindowCfgDlg::ezQtWindowCfgDlg(QWidget* parent)
-    : QDialog(parent)
+  : QDialog(parent)
 {
   setupUi(this);
   LoadDescs();

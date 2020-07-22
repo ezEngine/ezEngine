@@ -1,13 +1,13 @@
 #include <GameEnginePCH.h>
 
-#include <GameEngine/XR/XRWindow.h>
-#include <GameEngine/XR/XRInterface.h>
 #include <../../../Data/Base/Shaders/Pipeline/VRCompanionViewConstants.h>
 #include <Core/ResourceManager/ResourceManager.h>
+#include <GameEngine/XR/XRInterface.h>
+#include <GameEngine/XR/XRWindow.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererFoundation/Device/SwapChain.h>
-#include <RendererFoundation/Resources/Resource.h>
 #include <RendererFoundation/Profiling/Profiling.h>
+#include <RendererFoundation/Resources/Resource.h>
 #include <RendererFoundation/Resources/Texture.h>
 
 // clang-format off
@@ -21,7 +21,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE;
 ezWindowXR::ezWindowXR(ezXRInterface* pVrInterface, ezUniquePtr<ezWindowBase> pCompanionWindow)
   : m_pVrInterface(pVrInterface)
   , m_pCompanionWindow(std::move(pCompanionWindow))
-{}
+{
+}
 
 ezWindowXR::~ezWindowXR() {}
 
@@ -59,8 +60,7 @@ const ezWindowBase* ezWindowXR::GetCompanionWindow() const
 
 //////////////////////////////////////////////////////////////////////////
 
-ezWindowOutputTargetXR::ezWindowOutputTargetXR(
-  ezXRInterface* pXrInterface, ezUniquePtr<ezWindowOutputTargetBase> pCompanionWindowOutputTarget)
+ezWindowOutputTargetXR::ezWindowOutputTargetXR(ezXRInterface* pXrInterface, ezUniquePtr<ezWindowOutputTargetBase> pCompanionWindowOutputTarget)
   : m_pXrInterface(pXrInterface)
   , m_pCompanionWindowOutputTarget(std::move(pCompanionWindowOutputTarget))
 {
@@ -99,8 +99,7 @@ void ezWindowOutputTargetXR::Present(bool bEnableVSync)
   {
     EZ_PROFILE_AND_MARKER(pGALContext, "VR CompanionView");
 
-    m_pRenderContext->BindMeshBuffer(
-      ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
+    m_pRenderContext->BindMeshBuffer(ezGALBufferHandle(), ezGALBufferHandle(), nullptr, ezGALPrimitiveTopology::Triangles, 1);
     m_pRenderContext->BindConstantBuffer("ezVRCompanionViewConstants", m_hCompanionConstantBuffer);
     m_pRenderContext->BindShader(m_hCompanionShader);
 
@@ -141,8 +140,8 @@ const ezWindowOutputTargetBase* ezWindowOutputTargetXR::GetCompanionWindowOutput
 
 //////////////////////////////////////////////////////////////////////////
 
-ezActorPluginWindowXR::ezActorPluginWindowXR(ezXRInterface* pVrInterface, ezUniquePtr<ezWindowBase> companionWindow,
-  ezUniquePtr<ezWindowOutputTargetBase> companionWindowOutput)
+ezActorPluginWindowXR::ezActorPluginWindowXR(
+  ezXRInterface* pVrInterface, ezUniquePtr<ezWindowBase> companionWindow, ezUniquePtr<ezWindowOutputTargetBase> companionWindowOutput)
   : m_pVrInterface(pVrInterface)
 {
   m_pWindow = EZ_DEFAULT_NEW(ezWindowXR, pVrInterface, std::move(companionWindow));
@@ -154,10 +153,7 @@ ezActorPluginWindowXR::~ezActorPluginWindowXR()
   m_pVrInterface->OnActorDestroyed();
 }
 
-void ezActorPluginWindowXR::Initialize()
-{
-
-}
+void ezActorPluginWindowXR::Initialize() {}
 
 ezWindowBase* ezActorPluginWindowXR::GetWindow() const
 {

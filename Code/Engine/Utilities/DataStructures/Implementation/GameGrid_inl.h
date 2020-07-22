@@ -90,8 +90,7 @@ bool ezGameGrid<CellData>::IsValidCellCoordinate(const ezVec2I32& Coord) const
 }
 
 template <class CellData>
-bool ezGameGrid<CellData>::PickCell(const ezVec3& vRayStartPos, const ezVec3& vRayDirNorm, ezVec2I32* out_CellCoord,
-                                    ezVec3* out_vIntersection) const
+bool ezGameGrid<CellData>::PickCell(const ezVec3& vRayStartPos, const ezVec3& vRayDirNorm, ezVec2I32* out_CellCoord, ezVec3* out_vIntersection) const
 {
   ezPlane p;
   p.SetFromNormalAndPoint(m_RotateToWorldspace * ezVec3(0, 0, -1), m_vWorldSpaceOrigin);
@@ -121,8 +120,8 @@ ezBoundingBox ezGameGrid<CellData>::GetWorldBoundingBox() const
 }
 
 template <class CellData>
-bool ezGameGrid<CellData>::GetRayIntersection(const ezVec3& vRayStartWorldSpace, const ezVec3& vRayDirNormalizedWorldSpace,
-                                              float fMaxLength, float& out_fIntersection, ezVec2I32& out_CellCoord) const
+bool ezGameGrid<CellData>::GetRayIntersection(const ezVec3& vRayStartWorldSpace, const ezVec3& vRayDirNormalizedWorldSpace, float fMaxLength,
+  float& out_fIntersection, ezVec2I32& out_CellCoord) const
 {
   const ezVec3 vRayStart = m_RotateToGridspace * (vRayStartWorldSpace - m_vWorldSpaceOrigin);
   const ezVec3 vRayDir = m_RotateToGridspace * vRayDirNormalizedWorldSpace;
@@ -159,7 +158,7 @@ bool ezGameGrid<CellData>::GetRayIntersection(const ezVec3& vRayStartWorldSpace,
 
 template <class CellData>
 bool ezGameGrid<CellData>::GetRayIntersectionExpandedBBox(const ezVec3& vRayStartWorldSpace, const ezVec3& vRayDirNormalizedWorldSpace,
-                                                          float fMaxLength, float& out_fIntersection, const ezVec3& vExpandBBoxByThis) const
+  float fMaxLength, float& out_fIntersection, const ezVec3& vExpandBBoxByThis) const
 {
   const ezVec3 vRayStart = m_RotateToGridspace * (vRayStartWorldSpace - m_vWorldSpaceOrigin);
   const ezVec3 vRayDir = m_RotateToGridspace * vRayDirNormalizedWorldSpace;
@@ -185,4 +184,3 @@ bool ezGameGrid<CellData>::GetRayIntersectionExpandedBBox(const ezVec3& vRayStar
 
   return true;
 }
-

@@ -1,8 +1,8 @@
 #pragma once
 
 #include <EditorFramework/EditorFrameworkDLL.h>
-#include <GuiFoundation/GuiFoundationDLL.h>
 #include <GuiFoundation/Action/BaseActions.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 
 ///
 class EZ_EDITORFRAMEWORK_DLL ezQuadViewActions
@@ -21,6 +21,7 @@ public:
 class EZ_EDITORFRAMEWORK_DLL ezQuadViewAction : public ezButtonAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezQuadViewAction, ezButtonAction);
+
 public:
   enum class ButtonType
   {

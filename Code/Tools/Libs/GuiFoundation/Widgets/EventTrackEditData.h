@@ -1,17 +1,17 @@
 #pragma once
 
-#include <GuiFoundation/GuiFoundationDLL.h>
-#include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/HashedString.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 
 class ezEventTrack;
 
 class EZ_GUIFOUNDATION_DLL ezEventTrackControlPointData : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezEventTrackControlPointData, ezReflectedClass);
-public:
 
+public:
   ezTime GetTickAsTime() const { return ezTime::Seconds(m_iTick / 4800.0); }
   void SetTickFromTime(ezTime time, ezInt64 fps);
   const char* GetEventName() const { return m_sEvent.GetData(); }
@@ -24,8 +24,8 @@ public:
 class EZ_GUIFOUNDATION_DLL ezEventTrackData : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezEventTrackData, ezReflectedClass);
-public:
 
+public:
   ezInt64 TickFromTime(ezTime time) const;
   void ConvertToRuntimeData(ezEventTrack& out_Result) const;
 
@@ -49,4 +49,3 @@ private:
   bool m_bModified = false;
   ezSet<ezString> m_AvailableEvents;
 };
-

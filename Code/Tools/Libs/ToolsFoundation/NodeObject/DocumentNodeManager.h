@@ -1,8 +1,8 @@
 #pragma once
 
-#include <ToolsFoundation/ToolsFoundationDLL.h>
 #include <Foundation/Types/Status.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 
 class ezAbstractObjectGraph;
 class ezDocumentObject;
@@ -16,8 +16,8 @@ struct EZ_TOOLSFOUNDATION_DLL ezDocumentNodeManagerEvent
     NodeMoved,
     AfterPinsConnected,
     BeforePinsDisonnected,
-    BeforePinsChanged,// todo
-    AfterPinsChanged,// todo
+    BeforePinsChanged, // todo
+    AfterPinsChanged,  // todo
     BeforeNodeAdded,
     AfterNodeAdded,
     BeforeNodeRemoved,
@@ -25,8 +25,11 @@ struct EZ_TOOLSFOUNDATION_DLL ezDocumentNodeManagerEvent
   };
 
   ezDocumentNodeManagerEvent(Type eventType, const ezDocumentObject* pObject = nullptr, const ezConnection* pConnection = nullptr)
-    : m_EventType(eventType), m_pObject(pObject), m_pConnection(pConnection)
-  {}
+    : m_EventType(eventType)
+    , m_pObject(pObject)
+    , m_pConnection(pConnection)
+  {
+  }
 
   Type m_EventType;
   const ezDocumentObject* m_pObject;
@@ -36,6 +39,7 @@ struct EZ_TOOLSFOUNDATION_DLL ezDocumentNodeManagerEvent
 class EZ_TOOLSFOUNDATION_DLL ezConnection : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezConnection, ezReflectedClass);
+
 public:
   const ezPin* GetSourcePin() const { return m_pSourcePin; }
   const ezPin* GetTargetPin() const { return m_pTargetPin; }
@@ -50,6 +54,7 @@ private:
 class EZ_TOOLSFOUNDATION_DLL ezPin : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezPin, ezReflectedClass);
+
 public:
   enum class Type
   {
@@ -129,17 +134,28 @@ protected:
 
   struct NodeInternal
   {
-    NodeInternal() : m_vPos(0, 0) {}
+    NodeInternal()
+      : m_vPos(0, 0)
+    {
+    }
     ezVec2 m_vPos;
     ezHybridArray<ezPin*, 6> m_Inputs;
     ezHybridArray<ezPin*, 6> m_Outputs;
   };
   struct PinTuple
   {
-    PinTuple() : m_pSourcePin(nullptr), m_pTargetPin(nullptr) {}
-    PinTuple(const ezPin* pPinOut, const ezPin* pPinIn) : m_pSourcePin(pPinOut), m_pTargetPin(pPinIn) {}
+    PinTuple()
+      : m_pSourcePin(nullptr)
+      , m_pTargetPin(nullptr)
+    {
+    }
+    PinTuple(const ezPin* pPinOut, const ezPin* pPinIn)
+      : m_pSourcePin(pPinOut)
+      , m_pTargetPin(pPinIn)
+    {
+    }
 
-    bool operator< (const PinTuple& rhs) const
+    bool operator<(const PinTuple& rhs) const
     {
       if (m_pSourcePin == rhs.m_pSourcePin)
       {
@@ -151,10 +167,7 @@ protected:
       }
     }
 
-    bool operator== (const PinTuple& rhs) const
-    {
-      return m_pSourcePin == rhs.m_pSourcePin && m_pTargetPin == rhs.m_pTargetPin;
-    }
+    bool operator==(const PinTuple& rhs) const { return m_pSourcePin == rhs.m_pSourcePin && m_pTargetPin == rhs.m_pTargetPin; }
 
     const ezPin* m_pSourcePin;
     const ezPin* m_pTargetPin;
@@ -162,7 +175,11 @@ protected:
 
 private:
   virtual bool InternalIsNode(const ezDocumentObject* pObject) const { return true; }
-  virtual ezStatus InternalCanConnect(const ezPin* pSource, const ezPin* pTarget, CanConnectResult& out_Result) const { out_Result = CanConnectResult::ConnectNtoN; return ezStatus(EZ_SUCCESS); }
+  virtual ezStatus InternalCanConnect(const ezPin* pSource, const ezPin* pTarget, CanConnectResult& out_Result) const
+  {
+    out_Result = CanConnectResult::ConnectNtoN;
+    return ezStatus(EZ_SUCCESS);
+  }
   virtual ezStatus InternalCanDisconnect(const ezPin* pSource, const ezPin* pTarget) const { return ezStatus(EZ_SUCCESS); }
   virtual ezStatus InternalCanMoveNode(const ezDocumentObject* pObject, const ezVec2& vPos) const { return ezStatus(EZ_SUCCESS); }
   virtual void InternalCreatePins(const ezDocumentObject* pObject, NodeInternal& node) = 0;

@@ -41,8 +41,7 @@ public:
     const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues, bool bForceDynamic);
 
   void ApplyExposedParameterValues(const ezArrayMap<ezHashedString, ezVariant>* pExposedParamValues,
-    const ezHybridArray<ezGameObject*, 8>& createdChildObjects,
-    const ezHybridArray<ezGameObject*, 8>& createdRootObjects) const;
+    const ezHybridArray<ezGameObject*, 8>& createdChildObjects, const ezHybridArray<ezGameObject*, 8>& createdRootObjects) const;
 
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;

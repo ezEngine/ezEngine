@@ -74,7 +74,8 @@ void PlacementTask::FindPlacementPoints()
     rayStart.SetZ(fZStart);
 
     ezPhysicsCastResult hitResult;
-    if (!m_pData->m_pPhysicsModule->Raycast(hitResult, ezSimdConversion::ToVec3(rayStart), rayDir, fZRange, ezPhysicsQueryParameters(uiCollisionLayer, ezPhysicsShapeType::Static)))
+    if (!m_pData->m_pPhysicsModule->Raycast(
+          hitResult, ezSimdConversion::ToVec3(rayStart), rayDir, fZRange, ezPhysicsQueryParameters(uiCollisionLayer, ezPhysicsShapeType::Static)))
       continue;
 
     if (pOutput->m_hSurface.IsValid())

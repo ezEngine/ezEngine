@@ -7,8 +7,7 @@ EZ_ALWAYS_INLINE ezSimdMat4f::ezSimdMat4f(const float* const pData, ezMatrixLayo
   SetFromArray(pData, layout);
 }
 
-EZ_ALWAYS_INLINE ezSimdMat4f::ezSimdMat4f(const ezSimdVec4f& col0, const ezSimdVec4f& col1, const ezSimdVec4f& col2,
-                                          const ezSimdVec4f& col3)
+EZ_ALWAYS_INLINE ezSimdMat4f::ezSimdMat4f(const ezSimdVec4f& col0, const ezSimdVec4f& col1, const ezSimdVec4f& col2, const ezSimdVec4f& col3)
 {
   m_col0 = col0;
   m_col1 = col1;
@@ -16,8 +15,8 @@ EZ_ALWAYS_INLINE ezSimdMat4f::ezSimdMat4f(const ezSimdVec4f& col0, const ezSimdV
   m_col3 = col3;
 }
 
-EZ_ALWAYS_INLINE ezSimdMat4f::ezSimdMat4f(float c1r1, float c2r1, float c3r1, float c4r1, float c1r2, float c2r2, float c3r2, float c4r2,
-                                          float c1r3, float c2r3, float c3r3, float c4r3, float c1r4, float c2r4, float c3r4, float c4r4)
+EZ_ALWAYS_INLINE ezSimdMat4f::ezSimdMat4f(float c1r1, float c2r1, float c3r1, float c4r1, float c1r2, float c2r2, float c3r2, float c4r2, float c1r3,
+  float c2r3, float c3r3, float c4r3, float c1r4, float c2r4, float c3r4, float c4r4)
 {
   m_col0.Set(c1r1, c1r2, c1r3, c1r4);
   m_col1.Set(c2r1, c2r2, c2r3, c2r4);
@@ -87,14 +86,14 @@ inline bool ezSimdMat4f::IsEqual(const ezSimdMat4f& rhs, const ezSimdFloat& fEps
 {
   return (m_col0.IsEqual(rhs.m_col0, fEpsilon) && m_col1.IsEqual(rhs.m_col1, fEpsilon) && m_col2.IsEqual(rhs.m_col2, fEpsilon) &&
           m_col3.IsEqual(rhs.m_col3, fEpsilon))
-      .AllSet<4>();
+    .AllSet<4>();
 }
 
 inline bool ezSimdMat4f::IsIdentity(const ezSimdFloat& fEpsilon) const
 {
   return (m_col0.IsEqual(ezSimdVec4f(1, 0, 0, 0), fEpsilon) && m_col1.IsEqual(ezSimdVec4f(0, 1, 0, 0), fEpsilon) &&
           m_col2.IsEqual(ezSimdVec4f(0, 0, 1, 0), fEpsilon) && m_col3.IsEqual(ezSimdVec4f(0, 0, 0, 1), fEpsilon))
-      .AllSet<4>();
+    .AllSet<4>();
 }
 
 inline bool ezSimdMat4f::IsValid() const
@@ -107,8 +106,7 @@ inline bool ezSimdMat4f::IsNaN() const
   return m_col0.IsNaN<4>() || m_col1.IsNaN<4>() || m_col2.IsNaN<4>() || m_col3.IsNaN<4>();
 }
 
-EZ_ALWAYS_INLINE void ezSimdMat4f::SetRows(const ezSimdVec4f& row0, const ezSimdVec4f& row1, const ezSimdVec4f& row2,
-                                           const ezSimdVec4f& row3)
+EZ_ALWAYS_INLINE void ezSimdMat4f::SetRows(const ezSimdVec4f& row0, const ezSimdVec4f& row1, const ezSimdVec4f& row2, const ezSimdVec4f& row3)
 {
   m_col0 = row0;
   m_col1 = row1;
@@ -191,4 +189,3 @@ EZ_ALWAYS_INLINE bool ezSimdMat4f::operator!=(const ezSimdMat4f& other) const
 {
   return !(*this == other);
 }
-

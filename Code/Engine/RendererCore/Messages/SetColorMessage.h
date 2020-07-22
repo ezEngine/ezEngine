@@ -1,7 +1,7 @@
 #pragma once
 
-#include <RendererCore/RendererCoreDLL.h>
 #include <Foundation/Communication/Message.h>
+#include <RendererCore/RendererCoreDLL.h>
 
 struct ezSetColorMode
 {
@@ -40,4 +40,3 @@ struct EZ_RENDERERCORE_DLL ezMsgSetColor : public ezMessage
   virtual void Serialize(ezStreamWriter& stream) const override;
   virtual void Deserialize(ezStreamReader& stream, ezUInt8 uiTypeVersion) override;
 };
-

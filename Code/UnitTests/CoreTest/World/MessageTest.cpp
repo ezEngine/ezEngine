@@ -52,8 +52,8 @@ namespace
 
   public:
     TestComponentMsg()
-        : m_iSomeData(1)
-        , m_iSomeData2(2)
+      : m_iSomeData(1)
+      , m_iSomeData2(2)
     {
     }
     ~TestComponentMsg() {}
@@ -96,7 +96,7 @@ namespace
       ResetComponents(*it);
     }
   }
-}
+} // namespace
 
 EZ_CREATE_SIMPLE_TEST(World, Messaging)
 {

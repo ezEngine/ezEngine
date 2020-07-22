@@ -94,13 +94,15 @@ EZ_CREATE_SIMPLE_TEST(Math, Frustum)
 
         const ezVec3 vCamPos(rot, rot * 0.5f, rot * -0.3f);
 
-        //const ezMat4 mViewLH = ezGraphicsUtils::CreateViewMatrix(vCamPos, vLookDir, -vRightDir, ezVec3(0, 1, 0), ezHandedness::LeftHanded);
-        //const ezMat4 mViewRH = ezGraphicsUtils::CreateViewMatrix(vCamPos, vLookDir, vRightDir, ezVec3(0, 1, 0), ezHandedness::RightHanded);
+        // const ezMat4 mViewLH = ezGraphicsUtils::CreateViewMatrix(vCamPos, vLookDir, -vRightDir, ezVec3(0, 1, 0), ezHandedness::LeftHanded);
+        // const ezMat4 mViewRH = ezGraphicsUtils::CreateViewMatrix(vCamPos, vLookDir, vRightDir, ezVec3(0, 1, 0), ezHandedness::RightHanded);
         const ezMat4 mViewLH = ezGraphicsUtils::CreateLookAtViewMatrix(vCamPos, vCamPos + vLookDir, ezVec3(0, 1, 0), ezHandedness::LeftHanded);
         const ezMat4 mViewRH = ezGraphicsUtils::CreateLookAtViewMatrix(vCamPos, vCamPos + vLookDir, ezVec3(0, 1, 0), ezHandedness::RightHanded);
 
-        const ezMat4 mProjLH = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(ezAngle::Degree(90), 1.0f, 1.0f, 100.0f, range, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
-        const ezMat4 mProjRH = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(ezAngle::Degree(90), 1.0f, 1.0f, 100.0f, range, ezClipSpaceYMode::Regular, ezHandedness::RightHanded);
+        const ezMat4 mProjLH = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(
+          ezAngle::Degree(90), 1.0f, 1.0f, 100.0f, range, ezClipSpaceYMode::Regular, ezHandedness::LeftHanded);
+        const ezMat4 mProjRH = ezGraphicsUtils::CreatePerspectiveProjectionMatrixFromFovY(
+          ezAngle::Degree(90), 1.0f, 1.0f, 100.0f, range, ezClipSpaceYMode::Regular, ezHandedness::RightHanded);
 
         const ezMat4 mViewProjLH = mProjLH * mViewLH;
         const ezMat4 mViewProjRH = mProjRH * mViewRH;

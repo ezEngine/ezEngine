@@ -111,12 +111,17 @@ public:
   /// \brief Resets the GroupID into an invalid state.
   EZ_ALWAYS_INLINE void Invalidate() { m_pTaskGroup = nullptr; }
 
-  EZ_ALWAYS_INLINE bool operator==(const ezTaskGroupID& other) const { return m_pTaskGroup == other.m_pTaskGroup && m_uiGroupCounter == other.m_uiGroupCounter; }
-  EZ_ALWAYS_INLINE bool operator!=(const ezTaskGroupID& other) const { return m_pTaskGroup != other.m_pTaskGroup || m_uiGroupCounter != other.m_uiGroupCounter; }
+  EZ_ALWAYS_INLINE bool operator==(const ezTaskGroupID& other) const
+  {
+    return m_pTaskGroup == other.m_pTaskGroup && m_uiGroupCounter == other.m_uiGroupCounter;
+  }
+  EZ_ALWAYS_INLINE bool operator!=(const ezTaskGroupID& other) const
+  {
+    return m_pTaskGroup != other.m_pTaskGroup || m_uiGroupCounter != other.m_uiGroupCounter;
+  }
   EZ_ALWAYS_INLINE bool operator<(const ezTaskGroupID& other) const
   {
-    return m_pTaskGroup < other.m_pTaskGroup ||
-           (m_pTaskGroup == other.m_pTaskGroup && m_uiGroupCounter < other.m_uiGroupCounter);
+    return m_pTaskGroup < other.m_pTaskGroup || (m_pTaskGroup == other.m_pTaskGroup && m_uiGroupCounter < other.m_uiGroupCounter);
   }
 
 private:

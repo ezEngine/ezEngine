@@ -1,8 +1,8 @@
 #pragma once
 
-#include <GameEngine/GameEngineDLL.h>
 #include <Core/Input/InputDevice.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <GameEngine/GameEngineDLL.h>
 #include <GameEngine/XR/Declarations.h>
 
 #define ezInputSlot_XR_Hand_Left_Trigger "xr_hand_left_trigger"
@@ -39,7 +39,7 @@
 #define ezInputSlot_XR_Hand_Right_Primary_Analog_Stick_PosY "xr_hand_right_primary_analog_stick_posy"
 #define ezInputSlot_XR_Hand_Right_Primary_Analog_Stick_Click "xr_hand_right_primary_analog_stick_click"
 #define ezInputSlot_XR_Hand_Right_Primary_Analog_Stick_Touch "xr_hand_right_primary_analog_stick_touch"
-                            
+
 #define ezInputSlot_XR_Hand_Right_Secondary_Analog_Stick_NegX "xr_hand_right_secondary_analog_stick_negx"
 #define ezInputSlot_XR_Hand_Right_Secondary_Analog_Stick_PosX "xr_hand_right_secondary_analog_stick_posx"
 #define ezInputSlot_XR_Hand_Right_Secondary_Analog_Stick_NegY "xr_hand_right_secondary_analog_stick_negy"
@@ -55,7 +55,6 @@ class EZ_GAMEENGINE_DLL ezXRInputDevice : public ezInputDevice
   EZ_ADD_DYNAMIC_REFLECTION(ezXRInputDevice, ezInputDevice);
 
 public:
-
   /// \name Devices
   ///@{
 

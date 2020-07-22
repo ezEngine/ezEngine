@@ -32,8 +32,8 @@ void ezQtEditorApp::GuiCreateOrOpenDocument(bool bCreate)
               .toUtf8()
               .data();
   else
-    sFile = QFileDialog::getOpenFileName(QApplication::activeWindow(), QLatin1String("Open Document"), sDir,
-      QString::fromUtf8(sAllFilters.GetData()), &sSelectedExt, QFileDialog::Option::DontResolveSymlinks)
+    sFile = QFileDialog::getOpenFileName(QApplication::activeWindow(), QLatin1String("Open Document"), sDir, QString::fromUtf8(sAllFilters.GetData()),
+      &sSelectedExt, QFileDialog::Option::DontResolveSymlinks)
               .toUtf8()
               .data();
 

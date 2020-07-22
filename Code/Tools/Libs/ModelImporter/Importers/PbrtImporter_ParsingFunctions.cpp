@@ -35,8 +35,8 @@ namespace ezModelImporter
       SkipWhiteSpaces(remainingSceneText);
 
       const char* begin = remainingSceneText.GetStartPointer();
-      while (remainingSceneText.GetCharacter() != '\0' && remainingSceneText.GetCharacter() != '\r' &&
-             remainingSceneText.GetCharacter() != '\n' && !ezStringUtils::IsWhiteSpace(remainingSceneText.GetCharacter()))
+      while (remainingSceneText.GetCharacter() != '\0' && remainingSceneText.GetCharacter() != '\r' && remainingSceneText.GetCharacter() != '\n' &&
+             !ezStringUtils::IsWhiteSpace(remainingSceneText.GetCharacter()))
       {
         ++remainingSceneText;
       }
@@ -256,5 +256,5 @@ namespace ezModelImporter
 
       return entries;
     }
-  }
-}
+  } // namespace PbrtParseHelper
+} // namespace ezModelImporter

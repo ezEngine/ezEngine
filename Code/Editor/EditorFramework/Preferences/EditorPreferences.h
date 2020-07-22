@@ -18,4 +18,3 @@ public:
   bool m_bExpandSceneTreeOnSelection = true;
   bool m_bBackgroundAssetProcessing = false;
 };
-

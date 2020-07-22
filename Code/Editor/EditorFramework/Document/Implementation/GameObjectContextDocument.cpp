@@ -12,7 +12,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGameObjectContextDocument, 2, ezRTTINoAllocato
 EZ_END_DYNAMIC_REFLECTED_TYPE;
 // clang-format on
 
-ezGameObjectContextDocument::ezGameObjectContextDocument(const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType)
+ezGameObjectContextDocument::ezGameObjectContextDocument(
+  const char* szDocumentPath, ezDocumentObjectManager* pObjectManager, ezAssetDocEngineConnection engineConnectionType)
   : ezGameObjectDocument(szDocumentPath, pObjectManager, engineConnectionType)
 {
 }
@@ -52,8 +53,7 @@ ezStatus ezGameObjectContextDocument::SetContext(ezUuid documentGuid, ezUuid obj
 
   ezRttiConverterContext context;
   ezRttiConverterReader rttiConverter(&graph, &context);
-  ezDocumentObjectConverterReader objectConverter(
-    &graph, GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
+  ezDocumentObjectConverterReader objectConverter(&graph, GetObjectManager(), ezDocumentObjectConverterReader::Mode::CreateAndAddToDocument);
   {
     EZ_PROFILE_SCOPE("Restoring Objects");
     auto* pRootNode = graph.GetNodeByName("ObjectTree");

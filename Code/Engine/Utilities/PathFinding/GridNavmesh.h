@@ -44,8 +44,8 @@ public:
 
   /// \brief Creates the navmesh from the given ezGameGrid.
   template <class CellData>
-  void CreateFromGrid(const ezGameGrid<CellData>& Grid, CellComparator IsSameCellType, void* pPassThroughSame, CellBlocked IsCellBlocked,
-                      void* pPassThroughBlocked);
+  void CreateFromGrid(
+    const ezGameGrid<CellData>& Grid, CellComparator IsSameCellType, void* pPassThroughSame, CellBlocked IsCellBlocked, void* pPassThroughBlocked);
 
   /// \brief Returns the index of the ConvexArea at the given cell coordinates. Negative, if the cell is blocked.
   ezInt32 GetAreaAt(const ezVec2I32& Coord) const { return m_NodesGrid.GetCell(Coord); }
@@ -67,7 +67,7 @@ private:
 
   void Optimize(ezRectU32 region, CellComparator IsSameCellType, void* pPassThrough);
   bool OptimizeBoxes(ezRectU32 region, CellComparator IsSameCellType, void* pPassThrough, ezUInt32 uiIntervalX, ezUInt32 uiIntervalY,
-                     ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiOffsetX = 0, ezUInt32 uiOffsetY = 0);
+    ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiOffsetX = 0, ezUInt32 uiOffsetY = 0);
   bool CanCreateArea(ezRectU32 region, CellComparator IsSameCellType, void* pPassThrough) const;
 
   bool CanMergeRight(ezInt32 x, ezInt32 y, CellComparator IsSameCellType, void* pPassThrough, ezRectU32& out_Result) const;
@@ -87,4 +87,3 @@ private:
 };
 
 #include <Utilities/PathFinding/Implementation/GridNavmesh_inl.h>
-

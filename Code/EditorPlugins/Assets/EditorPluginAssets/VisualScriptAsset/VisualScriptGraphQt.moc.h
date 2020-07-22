@@ -1,10 +1,10 @@
 ﻿#pragma once
 
 #include <Foundation/Basics.h>
+#include <GuiFoundation/NodeEditor/Connection.h>
+#include <GuiFoundation/NodeEditor/Node.h>
 #include <GuiFoundation/NodeEditor/NodeScene.moc.h>
 #include <GuiFoundation/NodeEditor/Pin.h>
-#include <GuiFoundation/NodeEditor/Node.h>
-#include <GuiFoundation/NodeEditor/Connection.h>
 
 class ezQtNodeView;
 struct ezVisualScriptActivityEvent;
@@ -27,8 +27,8 @@ private Q_SLOTS:
   void OnUpdateDisplay();
 
 private:
-  void GetAllVsNodes(ezDynamicArray<const ezDocumentObject *>& allNodes) const;
-  void ResetActiveConnections(ezDynamicArray<const ezDocumentObject *> &allNodes);
+  void GetAllVsNodes(ezDynamicArray<const ezDocumentObject*>& allNodes) const;
+  void ResetActiveConnections(ezDynamicArray<const ezDocumentObject*>& allNodes);
 
   ezUuid m_DebugObject;
 };
@@ -62,4 +62,3 @@ public:
 
   virtual void UpdateState() override;
 };
-

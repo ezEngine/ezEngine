@@ -1,19 +1,19 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <ToolsFoundation/ToolsFoundationDLL.h>
 #include <Foundation/Types/Uuid.h>
 #include <QMetaType>
+#include <ToolsFoundation/ToolsFoundationDLL.h>
 
 // Configure the DLL Import/Export Define
 #if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
-  #ifdef BUILDSYSTEM_BUILDING_GUIFOUNDATION_LIB
-    #define EZ_GUIFOUNDATION_DLL __declspec(dllexport)
-  #else
-    #define EZ_GUIFOUNDATION_DLL __declspec(dllimport)
-  #endif
+#  ifdef BUILDSYSTEM_BUILDING_GUIFOUNDATION_LIB
+#    define EZ_GUIFOUNDATION_DLL __declspec(dllexport)
+#  else
+#    define EZ_GUIFOUNDATION_DLL __declspec(dllimport)
+#  endif
 #else
-  #define EZ_GUIFOUNDATION_DLL
+#  define EZ_GUIFOUNDATION_DLL
 #endif
 
 class QWidget;
@@ -26,7 +26,8 @@ Q_DECLARE_METATYPE(ezUuid);
 class EZ_GUIFOUNDATION_DLL ezQtScopedUpdatesDisabled
 {
 public:
-  ezQtScopedUpdatesDisabled(QWidget* pWidget1, QWidget* pWidget2 = nullptr, QWidget* pWidget3 = nullptr, QWidget* pWidget4 = nullptr, QWidget* pWidget5 = nullptr, QWidget* pWidget6 = nullptr);
+  ezQtScopedUpdatesDisabled(QWidget* pWidget1, QWidget* pWidget2 = nullptr, QWidget* pWidget3 = nullptr, QWidget* pWidget4 = nullptr,
+    QWidget* pWidget5 = nullptr, QWidget* pWidget6 = nullptr);
   ~ezQtScopedUpdatesDisabled();
 
 private:
@@ -38,7 +39,8 @@ private:
 class EZ_GUIFOUNDATION_DLL ezQtScopedBlockSignals
 {
 public:
-  ezQtScopedBlockSignals(QObject* pObject1, QObject* pObject2 = nullptr, QObject* pObject3 = nullptr, QObject* pObject4 = nullptr, QObject* pObject5 = nullptr, QObject* pObject6 = nullptr);
+  ezQtScopedBlockSignals(QObject* pObject1, QObject* pObject2 = nullptr, QObject* pObject3 = nullptr, QObject* pObject4 = nullptr,
+    QObject* pObject5 = nullptr, QObject* pObject6 = nullptr);
   ~ezQtScopedBlockSignals();
 
 private:

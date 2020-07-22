@@ -236,7 +236,7 @@ void ezPxVisColMeshComponent::OnMsgExtractRenderData(ezMsgExtractRenderData& msg
 
   ezResourceLock<ezMeshResource> pMesh(m_hMesh, ezResourceAcquireMode::AllowLoadingFallback);
 
-  ezRenderData::Caching::Enum caching =  ezRenderData::Caching::IfStatic;
+  ezRenderData::Caching::Enum caching = ezRenderData::Caching::IfStatic;
 
   if (pMesh.GetAcquireResult() != ezResourceAcquireResult::Final)
   {

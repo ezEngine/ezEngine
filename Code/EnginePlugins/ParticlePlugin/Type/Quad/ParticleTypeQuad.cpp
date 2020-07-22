@@ -178,8 +178,7 @@ void ezParticleTypeQuad::CreateRequiredStreams()
     CreateStream("Axis", ezProcessingStream::DataType::Float3, &m_pStreamAxis, true);
   }
 
-  if (m_TextureAtlasType == ezParticleTextureAtlasType::RandomVariations ||
-      m_TextureAtlasType == ezParticleTextureAtlasType::RandomYAnimatedX)
+  if (m_TextureAtlasType == ezParticleTextureAtlasType::RandomVariations || m_TextureAtlasType == ezParticleTextureAtlasType::RandomYAnimatedX)
   {
     CreateStream("Variation", ezProcessingStream::DataType::Int, &m_pStreamVariation, false);
   }
@@ -197,8 +196,8 @@ struct sodComparer
   EZ_ALWAYS_INLINE bool Equal(const ezParticleTypeQuad::sod& a, const ezParticleTypeQuad::sod& b) const { return a.dist == b.dist; }
 };
 
-void ezParticleTypeQuad::ExtractTypeRenderData(const ezView& view, ezExtractedRenderData& extractedRenderData,
-  const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
+void ezParticleTypeQuad::ExtractTypeRenderData(
+  const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame) const
 {
   EZ_PROFILE_SCOPE("PFX: Quad");
 
@@ -206,10 +205,8 @@ void ezParticleTypeQuad::ExtractTypeRenderData(const ezView& view, ezExtractedRe
   if (!m_hTexture.IsValid() || numParticles == 0)
     return;
 
-  const bool bNeedsSorting = (m_RenderMode == ezParticleTypeRenderMode::Blended) ||
-                             (m_RenderMode == ezParticleTypeRenderMode::BlendedForeground) ||
-                             (m_RenderMode == ezParticleTypeRenderMode::BlendedBackground) ||
-                             (m_RenderMode == ezParticleTypeRenderMode::BlendAdd);
+  const bool bNeedsSorting = (m_RenderMode == ezParticleTypeRenderMode::Blended) || (m_RenderMode == ezParticleTypeRenderMode::BlendedForeground) ||
+                             (m_RenderMode == ezParticleTypeRenderMode::BlendedBackground) || (m_RenderMode == ezParticleTypeRenderMode::BlendAdd);
 
   // don't copy the data multiple times in the same frame, if the effect is instanced
   if ((m_uiLastExtractedFrame != uiExtractedFrame)
@@ -260,9 +257,8 @@ EZ_ALWAYS_INLINE ezUInt32 sortedRedirect(ezUInt32 idx, const ezHybridArray<ezPar
   return (*pSorted)[idx].index;
 }
 
-void ezParticleTypeQuad::CreateExtractedData(const ezView& view, ezExtractedRenderData& extractedRenderData,
-  const ezTransform& instanceTransform, ezUInt64 uiExtractedFrame,
-  const ezHybridArray<sod, 64>* pSorted) const
+void ezParticleTypeQuad::CreateExtractedData(const ezView& view, ezExtractedRenderData& extractedRenderData, const ezTransform& instanceTransform,
+  ezUInt64 uiExtractedFrame, const ezHybridArray<sod, 64>* pSorted) const
 {
   auto redirect = (pSorted != nullptr) ? sortedRedirect : noRedirect;
 
@@ -544,8 +540,7 @@ void ezParticleTypeQuad::InitializeElements(ezUInt64 uiStartIndex, ezUInt64 uiNu
   }
 }
 
-void ezParticleTypeQuad::AllocateParticleData(const ezUInt32 numParticles, const bool bNeedsBillboardData,
-  const bool bNeedsTangentData) const
+void ezParticleTypeQuad::AllocateParticleData(const ezUInt32 numParticles, const bool bNeedsBillboardData, const bool bNeedsTangentData) const
 {
   m_BillboardParticleData = nullptr;
   if (bNeedsBillboardData)
@@ -556,8 +551,8 @@ void ezParticleTypeQuad::AllocateParticleData(const ezUInt32 numParticles, const
   m_TangentParticleData = nullptr;
   if (bNeedsTangentData)
   {
-    m_TangentParticleData = EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezTangentQuadParticleShaderData,
-      (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
+    m_TangentParticleData =
+      EZ_NEW_ARRAY(ezFrameAllocator::GetCurrentAllocator(), ezTangentQuadParticleShaderData, (ezUInt32)GetOwnerSystem()->GetNumActiveParticles());
   }
 }
 

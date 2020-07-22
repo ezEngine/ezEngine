@@ -16,7 +16,7 @@ class ezTypedConstantProperty : public ezAbstractConstantProperty
 public:
   /// \brief Passes the property name through to ezAbstractMemberProperty.
   ezTypedConstantProperty(const char* szPropertyName)
-      : ezAbstractConstantProperty(szPropertyName)
+    : ezAbstractConstantProperty(szPropertyName)
   {
     m_Flags = ezPropertyFlags::GetParameterFlags<Type>();
   }
@@ -39,11 +39,10 @@ class ezConstantProperty : public ezTypedConstantProperty<Type>
 public:
   /// \brief Constructor.
   ezConstantProperty(const char* szPropertyName, Type value)
-      : ezTypedConstantProperty<Type>(szPropertyName)
-      , m_Value(value)
+    : ezTypedConstantProperty<Type>(szPropertyName)
+    , m_Value(value)
   {
-    EZ_ASSERT_DEBUG(this->m_Flags.IsSet(ezPropertyFlags::StandardType),
-                    "Only constants that can be put in an ezVariant are currently supported!");
+    EZ_ASSERT_DEBUG(this->m_Flags.IsSet(ezPropertyFlags::StandardType), "Only constants that can be put in an ezVariant are currently supported!");
   }
 
   /// \brief Returns a pointer to the member property.
@@ -60,4 +59,3 @@ public:
 private:
   Type m_Value;
 };
-

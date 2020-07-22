@@ -15,8 +15,7 @@ namespace
 #endif
 
   template <typename Func>
-  VM_INLINE void VMOperation1(const ezExpressionByteCode::StorageType*& pByteCode, ezSimdVec4f* pRegisters, ezUInt32 uiNumRegisters,
-    Func func)
+  VM_INLINE void VMOperation1(const ezExpressionByteCode::StorageType*& pByteCode, ezSimdVec4f* pRegisters, ezUInt32 uiNumRegisters, Func func)
   {
     ezSimdVec4f* r = pRegisters + ezExpressionByteCode::GetRegisterIndex(pByteCode, uiNumRegisters);
     ezSimdVec4f* re = r + uiNumRegisters;
@@ -32,8 +31,7 @@ namespace
   }
 
   template <typename Func>
-  VM_INLINE void VMOperation1_C(const ezExpressionByteCode::StorageType*& pByteCode, ezSimdVec4f* pRegisters, ezUInt32 uiNumRegisters,
-    Func func)
+  VM_INLINE void VMOperation1_C(const ezExpressionByteCode::StorageType*& pByteCode, ezSimdVec4f* pRegisters, ezUInt32 uiNumRegisters, Func func)
   {
     ezSimdVec4f* r = pRegisters + ezExpressionByteCode::GetRegisterIndex(pByteCode, uiNumRegisters);
     ezSimdVec4f* re = r + uiNumRegisters;
@@ -48,8 +46,7 @@ namespace
   }
 
   template <typename Func>
-  VM_INLINE void VMOperation2(const ezExpressionByteCode::StorageType*& pByteCode, ezSimdVec4f* pRegisters, ezUInt32 uiNumRegisters,
-    Func func)
+  VM_INLINE void VMOperation2(const ezExpressionByteCode::StorageType*& pByteCode, ezSimdVec4f* pRegisters, ezUInt32 uiNumRegisters, Func func)
   {
     ezSimdVec4f* r = pRegisters + ezExpressionByteCode::GetRegisterIndex(pByteCode, uiNumRegisters);
     ezSimdVec4f* re = r + uiNumRegisters;
@@ -67,8 +64,7 @@ namespace
   }
 
   template <typename Func>
-  VM_INLINE void VMOperation2_C(const ezExpressionByteCode::StorageType*& pByteCode, ezSimdVec4f* pRegisters, ezUInt32 uiNumRegisters,
-    Func func)
+  VM_INLINE void VMOperation2_C(const ezExpressionByteCode::StorageType*& pByteCode, ezSimdVec4f* pRegisters, ezUInt32 uiNumRegisters, Func func)
   {
     ezSimdVec4f* r = pRegisters + ezExpressionByteCode::GetRegisterIndex(pByteCode, uiNumRegisters);
     ezSimdVec4f* re = r + uiNumRegisters;
@@ -221,8 +217,8 @@ void ezExpression::Stream::ValidateDataSize(ezUInt32 uiNumInstances, const char*
   ezUInt32 uiElementSize = GetElementSize();
   ezUInt32 uiExpectedSize = m_uiByteStride * (uiNumInstances - 1) + uiElementSize;
 
-  EZ_ASSERT_DEV(m_Data.GetCount() >= uiExpectedSize, "{0} data size must be {1} bytes or more. Only {2} bytes given", szDataName,
-    uiExpectedSize, m_Data.GetCount());
+  EZ_ASSERT_DEV(m_Data.GetCount() >= uiExpectedSize, "{0} data size must be {1} bytes or more. Only {2} bytes given", szDataName, uiExpectedSize,
+    m_Data.GetCount());
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -230,8 +226,8 @@ void ezExpression::Stream::ValidateDataSize(ezUInt32 uiNumInstances, const char*
 ezExpressionVM::ezExpressionVM() = default;
 ezExpressionVM::~ezExpressionVM() = default;
 
-void ezExpressionVM::RegisterFunction(const char* szName, ezExpressionFunction func,
-  ezExpressionValidateGlobalData validationFunc /*= ezExpressionValidateGlobalData()*/)
+void ezExpressionVM::RegisterFunction(
+  const char* szName, ezExpressionFunction func, ezExpressionValidateGlobalData validationFunc /*= ezExpressionValidateGlobalData()*/)
 {
   ezUInt32 uiFunctionIndex = m_Functions.GetCount();
 

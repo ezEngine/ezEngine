@@ -17,26 +17,11 @@ public:
   {
   }
 
-  virtual bool mouseHoverEvent(QHoverEvent* event, const QStyleOptionViewItem& option, const QModelIndex& index)
-  {
-    return false;
-  }
-  virtual bool mousePressEvent(QMouseEvent* event, const QStyleOptionViewItem& option, const QModelIndex& index)
-  {
-    return false;
-  }
-  virtual bool mouseReleaseEvent(QMouseEvent* event, const QStyleOptionViewItem& option, const QModelIndex& index)
-  {
-    return false;
-  }
-  virtual bool mouseDoubleClickEvent(QMouseEvent* event, const QStyleOptionViewItem& option, const QModelIndex& index)
-  {
-    return false;
-  }
-  virtual bool mouseMoveEvent(QMouseEvent* event, const QStyleOptionViewItem& option, const QModelIndex& index)
-  {
-    return false;
-  }
+  virtual bool mouseHoverEvent(QHoverEvent* event, const QStyleOptionViewItem& option, const QModelIndex& index) { return false; }
+  virtual bool mousePressEvent(QMouseEvent* event, const QStyleOptionViewItem& option, const QModelIndex& index) { return false; }
+  virtual bool mouseReleaseEvent(QMouseEvent* event, const QStyleOptionViewItem& option, const QModelIndex& index) { return false; }
+  virtual bool mouseDoubleClickEvent(QMouseEvent* event, const QStyleOptionViewItem& option, const QModelIndex& index) { return false; }
+  virtual bool mouseMoveEvent(QMouseEvent* event, const QStyleOptionViewItem& option, const QModelIndex& index) { return false; }
 };
 
 /// \brief Template to be used with classes derived from QAbstractItemView. Allows the use of ezQtItemDelegate.

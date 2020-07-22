@@ -271,8 +271,7 @@ void ezQtDataWidget::on_ButtonSave_clicked()
 
   if (!pItem)
   {
-    QMessageBox::information(
-      this, QLatin1String("ezInspector"), QLatin1String("No valid item selected."), QMessageBox::Ok, QMessageBox::Ok);
+    QMessageBox::information(this, QLatin1String("ezInspector"), QLatin1String("No valid item selected."), QMessageBox::Ok, QMessageBox::Ok);
     return;
   }
 
@@ -303,8 +302,7 @@ void ezQtDataWidget::on_ButtonOpen_clicked()
 
   if (!pItem)
   {
-    QMessageBox::information(
-      this, QLatin1String("ezInspector"), QLatin1String("No valid item selected."), QMessageBox::Ok, QMessageBox::Ok);
+    QMessageBox::information(this, QLatin1String("ezInspector"), QLatin1String("No valid item selected."), QMessageBox::Ok, QMessageBox::Ok);
     return;
   }
 

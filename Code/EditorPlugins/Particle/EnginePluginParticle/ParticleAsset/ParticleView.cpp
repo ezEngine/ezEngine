@@ -9,7 +9,7 @@
 #include <RendererCore/RenderWorld/RenderWorld.h>
 
 ezParticleViewContext::ezParticleViewContext(ezParticleContext* pParticleContext)
-    : ezEngineProcessViewContext(pParticleContext)
+  : ezEngineProcessViewContext(pParticleContext)
 {
   m_pParticleContext = pParticleContext;
 }

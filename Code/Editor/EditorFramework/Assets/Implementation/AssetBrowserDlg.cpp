@@ -16,7 +16,7 @@ ezMap<ezString, ezString> ezQtAssetBrowserDlg::s_sPathFilter;
 ezMap<ezString, ezString> ezQtAssetBrowserDlg::s_sTypeFilter;
 
 ezQtAssetBrowserDlg::ezQtAssetBrowserDlg(QWidget* parent, const ezUuid& preselectedAsset, const char* szVisibleFilters)
-    : QDialog(parent)
+  : QDialog(parent)
 {
   setupUi(this);
 
@@ -111,8 +111,8 @@ void ezQtAssetBrowserDlg::on_ButtonFileDialog_clicked()
   m_sSelectedAssetPathRelative.Clear();
   m_sSelectedAssetPathAbsolute.Clear();
 
-  const QString sFile = QFileDialog::getOpenFileName(QApplication::activeWindow(), QLatin1String("Open File"), sLastPath, QString(),
-                                                     nullptr, QFileDialog::Option::DontResolveSymlinks);
+  const QString sFile = QFileDialog::getOpenFileName(
+    QApplication::activeWindow(), QLatin1String("Open File"), sLastPath, QString(), nullptr, QFileDialog::Option::DontResolveSymlinks);
 
   if (sFile.isEmpty())
   {

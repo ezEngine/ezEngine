@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Core/Input/DeviceTypes/MouseKeyboard.h>
-#include <System/SystemDLL.h>
 #include <Foundation/Basics/Platform/Win/MinWindows.h>
+#include <System/SystemDLL.h>
 
 class EZ_SYSTEM_DLL ezStandardInputDevice : public ezInputDeviceMouseKeyboard
 {
@@ -43,5 +43,3 @@ private:
   ezMouseCursorClipMode::Enum m_ClipCursorMode = ezMouseCursorClipMode::NoClip;
   bool m_bApplyClipRect = false;
 };
-
-

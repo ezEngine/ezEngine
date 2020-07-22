@@ -81,7 +81,8 @@ bool ezDependencyFile::HasAnyFileChanged()
 
     if (time > m_iMaxTimeStampStored)
     {
-      ezLog::Dev("Detected file change in '{0}' (TimeStamp {1} > MaxTimeStamp {2})", ezArgSensitive(sFile, "File"), ts.GetInt64(ezSIUnitOfTime::Second), m_iMaxTimeStampStored);
+      ezLog::Dev("Detected file change in '{0}' (TimeStamp {1} > MaxTimeStamp {2})", ezArgSensitive(sFile, "File"),
+        ts.GetInt64(ezSIUnitOfTime::Second), m_iMaxTimeStampStored);
       return true;
     }
 
@@ -199,4 +200,3 @@ ezResult ezDependencyFile::ReadDependencyFile(const char* szFile)
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_DependencyFile);
-

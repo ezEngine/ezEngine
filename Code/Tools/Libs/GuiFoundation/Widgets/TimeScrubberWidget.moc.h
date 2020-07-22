@@ -1,10 +1,10 @@
 #pragma once
 
-#include <GuiFoundation/GuiFoundationDLL.h>
 #include <Foundation/Time/Time.h>
+#include <GuiFoundation/GuiFoundationDLL.h>
 
-#include <QWidget>
 #include <QToolBar>
+#include <QWidget>
 
 class QMouseEvent;
 class QPushButton;

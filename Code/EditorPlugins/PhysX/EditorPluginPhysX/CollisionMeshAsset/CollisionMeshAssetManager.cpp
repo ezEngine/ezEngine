@@ -45,15 +45,15 @@ void ezCollisionMeshAssetDocumentManager::OnDocumentManagerEvent(const ezDocumen
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezCollisionMeshAssetDocument>())
       {
-        ezQtCollisionMeshAssetDocumentWindow* pDocWnd =
-          new ezQtCollisionMeshAssetDocumentWindow(static_cast<ezAssetDocument*>(e.m_pDocument));
+        ezQtCollisionMeshAssetDocumentWindow* pDocWnd = new ezQtCollisionMeshAssetDocumentWindow(static_cast<ezAssetDocument*>(e.m_pDocument));
       }
     }
     break;
   }
 }
 
-void ezCollisionMeshAssetDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
+void ezCollisionMeshAssetDocumentManager::InternalCreateDocument(
+  const char* szDocumentTypeName, const char* szPath, bool bCreateNewDocument, ezDocument*& out_pDocument)
 {
   if (ezStringUtils::IsEqual(szDocumentTypeName, "Collision Mesh (Convex)"))
   {
@@ -65,7 +65,8 @@ void ezCollisionMeshAssetDocumentManager::InternalCreateDocument(const char* szD
   }
 }
 
-void ezCollisionMeshAssetDocumentManager::InternalGetSupportedDocumentTypes(ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
+void ezCollisionMeshAssetDocumentManager::InternalGetSupportedDocumentTypes(
+  ezDynamicArray<const ezDocumentTypeDescriptor*>& inout_DocumentTypes) const
 {
   inout_DocumentTypes.PushBack(&m_DocTypeDesc);
   inout_DocumentTypes.PushBack(&m_DocTypeDesc2);

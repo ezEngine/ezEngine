@@ -5,11 +5,11 @@
 
 /// \brief This class is the base class for threads which need dispatching of calls.
 ///
-/// Used by deriving from this class and overriding the Run() method. Call DispatchQueue() regurarely so that the collected messages can be dispatched.
+/// Used by deriving from this class and overriding the Run() method. Call DispatchQueue() regurarely so that the collected messages can be
+/// dispatched.
 class EZ_FOUNDATION_DLL ezThreadWithDispatcher : public ezThread
 {
 public:
-
   using DispatchFunction = ezDelegate<void(), 128>;
 
   /// \brief Initializes the runnable class
@@ -22,12 +22,10 @@ public:
   void Dispatch(DispatchFunction&& pDelegate);
 
 protected:
-
   /// \brief Needs to be called by derived thread implementations to dispatch the function calls.
   void DispatchQueue();
 
 private:
-
   /// \brief The run function can be used to implement a long running task in a thread in a platform independent way
   virtual ezUInt32 Run() = 0;
 

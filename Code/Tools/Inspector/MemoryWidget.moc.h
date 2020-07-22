@@ -5,11 +5,11 @@
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Time/Time.h>
-#include <QGraphicsView>
 #include <Inspector/ui_MemoryWidget.h>
-#include <ads/DockWidget.h>
 #include <QAction>
+#include <QGraphicsView>
 #include <QPointer>
+#include <ads/DockWidget.h>
 
 class QTreeWidgetItem;
 

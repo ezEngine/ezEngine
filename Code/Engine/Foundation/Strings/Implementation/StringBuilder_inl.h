@@ -138,8 +138,8 @@ inline void ezStringBuilder::Prepend(ezUInt32 uiChar)
   Prepend(szChar);
 }
 
-inline void ezStringBuilder::Append(const wchar_t* pData1, const wchar_t* pData2, const wchar_t* pData3, const wchar_t* pData4,
-  const wchar_t* pData5, const wchar_t* pData6)
+inline void ezStringBuilder::Append(
+  const wchar_t* pData1, const wchar_t* pData2, const wchar_t* pData3, const wchar_t* pData4, const wchar_t* pData5, const wchar_t* pData6)
 {
   // this is a bit heavy on the stack size (6KB)
   // but it is really only a convenience function, as one could always just use the char* Append function and convert explicitly
@@ -153,8 +153,8 @@ inline void ezStringBuilder::Append(const wchar_t* pData1, const wchar_t* pData2
   Append(s1.GetData(), s2.GetData(), s3.GetData(), s4.GetData(), s5.GetData(), s6.GetData());
 }
 
-inline void ezStringBuilder::Prepend(const wchar_t* pData1, const wchar_t* pData2, const wchar_t* pData3, const wchar_t* pData4,
-  const wchar_t* pData5, const wchar_t* pData6)
+inline void ezStringBuilder::Prepend(
+  const wchar_t* pData1, const wchar_t* pData2, const wchar_t* pData3, const wchar_t* pData4, const wchar_t* pData5, const wchar_t* pData6)
 {
   // this is a bit heavy on the stack size (6KB)
   // but it is really only a convenience function, as one could always just use the char* Append function and convert explicitly
@@ -238,8 +238,8 @@ EZ_ALWAYS_INLINE void ezStringBuilder::Remove(const char* szRemoveFromPos, const
 }
 
 template <typename Container>
-void ezStringBuilder::Split(bool bReturnEmptyStrings, Container& Output, const char* szSeparator1, const char* szSeparator2,
-  const char* szSeparator3, const char* szSeparator4, const char* szSeparator5, const char* szSeparator6) const
+void ezStringBuilder::Split(bool bReturnEmptyStrings, Container& Output, const char* szSeparator1, const char* szSeparator2, const char* szSeparator3,
+  const char* szSeparator4, const char* szSeparator5, const char* szSeparator6) const
 {
   Output.Clear();
 

@@ -9,16 +9,16 @@
 #include <System/Window/Window.h>
 
 #if EZ_ENABLED(EZ_SUPPORTS_SFML)
-#include <System/Window/Implementation/SFML/InputDevice_SFML.inl>
-#include <System/Window/Implementation/SFML/Window_SFML.inl>
+#  include <System/Window/Implementation/SFML/InputDevice_SFML.inl>
+#  include <System/Window/Implementation/SFML/Window_SFML.inl>
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_DESKTOP)
-#include <System/Window/Implementation/Win32/InputDevice_win32.inl>
-#include <System/Window/Implementation/Win32/Window_win32.inl>
+#  include <System/Window/Implementation/Win32/InputDevice_win32.inl>
+#  include <System/Window/Implementation/Win32/Window_win32.inl>
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS_UWP)
-#include <System/Window/Implementation/uwp/InputDevice_uwp.inl>
-#include <System/Window/Implementation/uwp/Window_uwp.inl>
+#  include <System/Window/Implementation/uwp/InputDevice_uwp.inl>
+#  include <System/Window/Implementation/uwp/Window_uwp.inl>
 #else
-#error "Missing code for ezWindow!"
+#  error "Missing code for ezWindow!"
 #endif
 
 ezUInt8 ezWindow::s_uiNextUnusedWindowNumber = 0;
@@ -212,10 +212,7 @@ ezWindow::~ezWindow()
 }
 
 
-void ezWindow::OnWindowMessage(ezMinWindows::HWND hWnd, ezMinWindows::UINT Msg, ezMinWindows::WPARAM WParam, ezMinWindows::LPARAM LParam)
-{
-
-}
+void ezWindow::OnWindowMessage(ezMinWindows::HWND hWnd, ezMinWindows::UINT Msg, ezMinWindows::WPARAM WParam, ezMinWindows::LPARAM LParam) {}
 
 ezUInt8 ezWindow::GetNextUnusedWindowNumber()
 {
@@ -224,4 +221,3 @@ ezUInt8 ezWindow::GetNextUnusedWindowNumber()
 
 
 EZ_STATICLINK_FILE(System, System_Window_Implementation_Window);
-

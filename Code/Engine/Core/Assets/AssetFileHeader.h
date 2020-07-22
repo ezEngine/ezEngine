@@ -17,10 +17,7 @@ public:
   ezResult Write(ezStreamWriter& stream) const;
 
   /// \brief Checks whether the stored file contains the same hash.
-  bool IsFileUpToDate(ezUInt64 uiExpectedHash, ezUInt16 uiVersion) const
-  {
-    return (m_uiHash == uiExpectedHash && m_uiVersion == uiVersion);
-  }
+  bool IsFileUpToDate(ezUInt64 uiExpectedHash, ezUInt16 uiVersion) const { return (m_uiHash == uiExpectedHash && m_uiVersion == uiVersion); }
 
   /// \brief Returns the asset file hash
   ezUInt64 GetFileHash() const { return m_uiHash; }

@@ -77,8 +77,8 @@ public:
   }
 
   /// \brief Constructor that appends all the given strings.
-  ezStringBuilder(const char* pData1, const char* pData2, const char* pData3 = nullptr, const char* pData4 = nullptr,
-    const char* pData5 = nullptr, const char* pData6 = nullptr); // [tested]
+  ezStringBuilder(const char* pData1, const char* pData2, const char* pData3 = nullptr, const char* pData4 = nullptr, const char* pData5 = nullptr,
+    const char* pData6 = nullptr); // [tested]
 
   /// \brief Copies the given Utf8 string into this one.
   /* implicit */ ezStringBuilder(const char* szUTF8, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
@@ -146,7 +146,7 @@ public:
   ezStringView GetView() const;
 
   /// \brief Returns a pointer to the internal Utf8 string.
-  EZ_ALWAYS_INLINE operator const char*() const { return GetData(); }
+  EZ_ALWAYS_INLINE operator const char *() const { return GetData(); }
 
   /// \brief Resets this string to be empty. Does not deallocate any previously allocated data, as it might be reused later again.
   void Clear(); // [tested]
@@ -183,8 +183,8 @@ public:
   void ChangeCharacter(iterator& it, ezUInt32 uiCharacter); // [tested]
 
   /// \brief Sets the string by concatenating all given strings.
-  void Set(const char* pData1, const char* pData2 = nullptr, const char* pData3 = nullptr, const char* pData4 = nullptr,
-    const char* pData5 = nullptr, const char* pData6 = nullptr);
+  void Set(const char* pData1, const char* pData2 = nullptr, const char* pData3 = nullptr, const char* pData4 = nullptr, const char* pData5 = nullptr,
+    const char* pData6 = nullptr);
 
   /// \brief Copies the string starting at \a pStart up to \a pEnd (exclusive).
   void SetSubString_FromTo(const char* pStart, const char* pEnd);
@@ -403,13 +403,15 @@ public:
   /// Will call 'MakeCleanPath' internally, so the representation of the path might change.
   void AppendPath(const char* szPath1, const char* szPath2 = nullptr, const char* szPath3 = nullptr, const char* szPath4 = nullptr); // [tested]
 
-  /// \brief Similar to Append() but the very first argument is a separator that is only appended (once) if the existing string is not empty and does not already end with the separator.
+  /// \brief Similar to Append() but the very first argument is a separator that is only appended (once) if the existing string is not empty and does
+  /// not already end with the separator.
   ///
   /// This is useful when one wants to append entries that require a separator like a comma in between items. E.g. calling
   /// AppendWithSeparator(", ", "a", "b");
   /// AppendWithSeparator(", ", "c", "d");
   /// results in the string "ab, cd"
-  void AppendWithSeparator(ezStringView separator, ezStringView sText1, ezStringView sText2 = ezStringView(), ezStringView sText3 = ezStringView(), ezStringView sText4 = ezStringView(), ezStringView sText5 = ezStringView(), ezStringView sText6 = ezStringView());
+  void AppendWithSeparator(ezStringView separator, ezStringView sText1, ezStringView sText2 = ezStringView(), ezStringView sText3 = ezStringView(),
+    ezStringView sText4 = ezStringView(), ezStringView sText5 = ezStringView(), ezStringView sText6 = ezStringView());
 
   /// \brief Changes the file name part of the path, keeps the extension intact (if there is any).
   void ChangeFileName(const char* szNewFileName); // [tested]
@@ -451,10 +453,12 @@ public:
   void Trim(const char* szTrimCharsStart, const char* szTrimCharsEnd); // [tested]
 
   /// \brief If the string starts with one of the given words (case insensitive), it is removed and the function returns true.
-  bool TrimWordStart(const char* szWord1, const char* szWord2 = nullptr, const char* szWord3 = nullptr, const char* szWord4 = nullptr, const char* szWord5 = nullptr);
+  bool TrimWordStart(
+    const char* szWord1, const char* szWord2 = nullptr, const char* szWord3 = nullptr, const char* szWord4 = nullptr, const char* szWord5 = nullptr);
 
   /// \brief If the string ends with one of the given words (case insensitive), it is removed and the function returns true.
-  bool TrimWordEnd(const char* szWord1, const char* szWord2 = nullptr, const char* szWord3 = nullptr, const char* szWord4 = nullptr, const char* szWord5 = nullptr);
+  bool TrimWordEnd(
+    const char* szWord1, const char* szWord2 = nullptr, const char* szWord3 = nullptr, const char* szWord4 = nullptr, const char* szWord5 = nullptr);
 
 private:
   /// \brief Will remove all double path separators (slashes and backslashes) in a path, except if the path starts with two (back-)slashes,

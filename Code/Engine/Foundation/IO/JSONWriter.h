@@ -18,14 +18,14 @@ public:
     LessIndentation, ///< Saves some space by using less space for indentation
     NoIndentation,   ///< Saves even more space by dropping all indentation from the output. The result will be noticeably less readable.
     NewlinesOnly,    ///< All unnecessary whitespace, except for newlines, is not output.
-    None,            ///< No whitespace, not even newlines, is output. This should be used when JSON is used for data exchange, but probably not read by humans.
+    None, ///< No whitespace, not even newlines, is output. This should be used when JSON is used for data exchange, but probably not read by humans.
   };
 
   /// \brief Modes to configure how arrays are written.
   enum class ArrayMode
   {
-    InOneLine,       ///< All array items are written in a single line in the file.
-    OneLinePerItem,  ///< Each array item is put on a separate line.
+    InOneLine,      ///< All array items are written in a single line in the file.
+    OneLinePerItem, ///< Each array item is put on a separate line.
   };
 
   /// \brief Constructor
@@ -255,14 +255,13 @@ public:
 
   /// \brief Ends outputting an object variable.
   virtual void EndObject() = 0;
-  
+
   /// \brief Indicates if an error was encountered while writing
   ///
   /// If any error was encountered at any time during writing, this will return true
   bool HadWriteError() const;
 
 protected:
-
   WhitespaceMode m_WhitespaceMode = WhitespaceMode::All;
   ArrayMode m_ArrayMode = ArrayMode::InOneLine;
 
@@ -365,7 +364,8 @@ public:
   /// \brief Outputs the value via WriteBinaryData().
   virtual void WriteDataBuffer(const ezDataBuffer& value) override; // [tested]
 
-  /// \brief Implements the MongoDB way of writing binary data. First writes a "$type" variable, then a "$binary" variable that represents the raw data (Hex encoded, little endian).
+  /// \brief Implements the MongoDB way of writing binary data. First writes a "$type" variable, then a "$binary" variable that represents the raw
+  /// data (Hex encoded, little endian).
   virtual void WriteBinaryData(const char* szDataType, const void* pData, ezUInt32 uiBytes, const char* szValueString = nullptr) override; // [tested]
 
   /// \brief \copydoc ezJSONWriter::BeginVariable()
@@ -426,4 +426,3 @@ protected:
 
   ezHybridArray<JSONState, 16> m_StateStack;
 };
-

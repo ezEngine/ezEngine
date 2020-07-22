@@ -9,8 +9,8 @@
 #include <Foundation/Serialization/ReflectionSerializer.h>
 
 ezIpcChannel::ezIpcChannel(const char* szAddress, Mode::Enum mode)
-    : m_Mode(mode)
-    , m_pOwner(ezMessageLoop::GetSingleton())
+  : m_Mode(mode)
+  , m_pOwner(ezMessageLoop::GetSingleton())
 {
 }
 
@@ -153,7 +153,7 @@ void ezIpcChannel::ReceiveMessageData(ezArrayPtr<const ezUInt8> data)
     EZ_ASSERT_DEBUG(uiMagic == MAGIC_VALUE, "Message received with wrong magic value.");
     ezUInt32 uiMessageSize = *reinterpret_cast<const ezUInt32*>(m_MessageAccumulator.GetData() + 4);
     EZ_ASSERT_DEBUG(uiMessageSize < MAX_MESSAGE_SIZE,
-                    "Message too big: {0}! Either the stream got corrupted or you need to increase MAX_MESSAGE_SIZE.", uiMessageSize);
+      "Message too big: {0}! Either the stream got corrupted or you need to increase MAX_MESSAGE_SIZE.", uiMessageSize);
     if (uiMessageSize > remainingData.GetCount() + m_MessageAccumulator.GetCount())
     {
       m_MessageAccumulator.PushBackRange(remainingData);
@@ -215,4 +215,3 @@ void ezIpcChannel::FlushPendingOperations()
 
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_IpcChannel);
-

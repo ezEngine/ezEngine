@@ -30,8 +30,8 @@ static int LUAFUNC_ConsoleFunc(lua_State* state)
 
   if (pFunc->GetNumParameters() != s.GetNumberOfFunctionParameters())
   {
-    ezLog::Error("Function '{0}' expects {1} parameters, {2} were provided.", pFunc->GetName(), pFunc->GetNumParameters(),
-                 s.GetNumberOfFunctionParameters());
+    ezLog::Error(
+      "Function '{0}' expects {1} parameters, {2} were provided.", pFunc->GetName(), pFunc->GetNumParameters(), s.GetNumberOfFunctionParameters());
     return s.ReturnToScript();
   }
 
@@ -348,4 +348,3 @@ __metatable = \"Access Denied\",\n\
 
 
 EZ_STATICLINK_FILE(GameEngine, GameEngine_Console_Implementation_LuaInterpreter);
-

@@ -101,8 +101,8 @@ struct ezGALRasterizerStateCreationDescription : public ezHashableStruct<ezGALRa
   float m_fDepthBiasClamp = 0.0f;                         ///< The pixel depth bias clamp. Default is 0
   float m_fSlopeScaledDepthBias = 0.0f;                   ///< The pixel slope scaled depth bias clamp. Default is 0
   bool m_bWireFrame = false;                              ///< Whether triangles are rendered filled or as wireframe. Default is false
-  bool m_bFrontCounterClockwise = false;                  ///< Sets which triangle winding order defines the 'front' of a triangle. If true, the front of a triangle
-                                                          ///< is the one where the vertices appear in counter clockwise order. Default is false
+  bool m_bFrontCounterClockwise = false; ///< Sets which triangle winding order defines the 'front' of a triangle. If true, the front of a triangle
+                                         ///< is the one where the vertices appear in counter clockwise order. Default is false
   bool m_bScissorTest = false;
   bool m_bConservativeRasterization = false; ///< Whether conservative rasterization is enabled
 };
@@ -168,8 +168,8 @@ struct ezGALVertexAttribute
 {
   ezGALVertexAttribute() = default;
 
-  ezGALVertexAttribute(ezGALVertexAttributeSemantic::Enum eSemantic, ezGALResourceFormat::Enum eFormat, ezUInt16 uiOffset,
-    ezUInt8 uiVertexBufferSlot, bool bInstanceData);
+  ezGALVertexAttribute(ezGALVertexAttributeSemantic::Enum eSemantic, ezGALResourceFormat::Enum eFormat, ezUInt16 uiOffset, ezUInt8 uiVertexBufferSlot,
+    bool bInstanceData);
 
   ezGALVertexAttributeSemantic::Enum m_eSemantic = ezGALVertexAttributeSemantic::Position;
   ezGALResourceFormat::Enum m_eFormat = ezGALResourceFormat::XYZFloat;
@@ -178,8 +178,7 @@ struct ezGALVertexAttribute
   bool m_bInstanceData = false;
 };
 
-struct EZ_RENDERERFOUNDATION_DLL ezGALVertexDeclarationCreationDescription
-  : public ezHashableStruct<ezGALVertexDeclarationCreationDescription>
+struct EZ_RENDERERFOUNDATION_DLL ezGALVertexDeclarationCreationDescription : public ezHashableStruct<ezGALVertexDeclarationCreationDescription>
 {
   ezGALShaderHandle m_hShader;
   ezStaticArray<ezGALVertexAttribute, 16> m_VertexAttributes;
@@ -229,8 +228,8 @@ struct ezGALBufferCreationDescription : public ezHashableStruct<ezGALBufferCreat
 
 struct ezGALTextureCreationDescription : public ezHashableStruct<ezGALTextureCreationDescription>
 {
-  void SetAsRenderTarget(ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum format,
-    ezGALMSAASampleCount::Enum sampleCount = ezGALMSAASampleCount::None);
+  void SetAsRenderTarget(
+    ezUInt32 uiWidth, ezUInt32 uiHeight, ezGALResourceFormat::Enum format, ezGALMSAASampleCount::Enum sampleCount = ezGALMSAASampleCount::None);
 
   ezUInt32 m_uiWidth = 0;
   ezUInt32 m_uiHeight = 0;

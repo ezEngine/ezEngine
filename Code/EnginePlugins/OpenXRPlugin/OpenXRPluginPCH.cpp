@@ -1,9 +1,9 @@
 #include <OpenXRPluginPCH.h>
 
-#include <OpenXRPlugin/Basics.h>
-#include <OpenXRPlugin/OpenXRIncludes.h>
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Strings/TranslationLookup.h>
+#include <OpenXRPlugin/Basics.h>
+#include <OpenXRPlugin/OpenXRIncludes.h>
 
 EZ_STATICLINK_LIBRARY(OpenXRPlugin)
 {
@@ -20,4 +20,3 @@ void OnLoadPlugin(bool bReloading) {}
 void OnUnloadPlugin(bool bReloading) {}
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);
-

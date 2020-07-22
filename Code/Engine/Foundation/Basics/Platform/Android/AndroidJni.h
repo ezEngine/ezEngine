@@ -2,9 +2,9 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_ANDROID)
 
-#include <jni.h>
-#include <Foundation/Strings/StringBuilder.h>
-#include <Foundation/Logging/Log.h>
+#  include <Foundation/Logging/Log.h>
+#  include <Foundation/Strings/StringBuilder.h>
+#  include <jni.h>
 
 class ezJniObject;
 class ezJniClass;
@@ -183,10 +183,7 @@ public:
   inline bool operator!=(const ezJniObject& other) const;
 
   /// \brief Returns true if the object is null.
-  bool IsNull() const
-  {
-    return m_object == nullptr;
-  }
+  bool IsNull() const { return m_object == nullptr; }
 
   /// \brief Returns the JNI handle of the object.
   jobject GetHandle() const;
@@ -501,6 +498,6 @@ public:
   void UnsafeSetStaticField(const char* name, const char* signature, const T& arg) const;
 };
 
-#include <Foundation/Basics/Platform/Android/AndroidJni.inl>
+#  include <Foundation/Basics/Platform/Android/AndroidJni.inl>
 
 #endif

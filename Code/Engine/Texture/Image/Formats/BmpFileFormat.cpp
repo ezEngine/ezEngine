@@ -1,9 +1,9 @@
 #include <TexturePCH.h>
 
+#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 #include <Foundation/IO/Stream.h>
 #include <Texture/Image/Formats/BmpFileFormat.h>
 #include <Texture/Image/ImageConversion.h>
-#include <Foundation/Basics/Platform/Win/IncludeWindows.h>
 
 ezBmpFileFormat g_bmpFormat;
 
@@ -92,11 +92,13 @@ struct ezBmpBgrxQuad
 {
   EZ_DECLARE_POD_TYPE();
 
-  ezBmpBgrxQuad()
-  {
-  }
+  ezBmpBgrxQuad() {}
 
-  ezBmpBgrxQuad(ezUInt8 red, ezUInt8 green, ezUInt8 blue) : m_blue(blue), m_green(green), m_red(red), m_reserved(0)
+  ezBmpBgrxQuad(ezUInt8 red, ezUInt8 green, ezUInt8 blue)
+    : m_blue(blue)
+    , m_green(green)
+    , m_red(red)
+    , m_reserved(0)
   {
   }
 
@@ -109,14 +111,13 @@ struct ezBmpBgrxQuad
 ezResult ezBmpFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& image, ezLogInterface* pLog, const char* szFileExtension) const
 {
   // Technically almost arbitrary formats are supported, but we only use the common ones.
-  ezImageFormat::Enum compatibleFormats[] =
-      {
-          ezImageFormat::B8G8R8X8_UNORM,
-          ezImageFormat::B8G8R8A8_UNORM,
-          ezImageFormat::B8G8R8_UNORM,
-          ezImageFormat::B5G5R5X1_UNORM,
-          ezImageFormat::B5G6R5_UNORM,
-      };
+  ezImageFormat::Enum compatibleFormats[] = {
+    ezImageFormat::B8G8R8X8_UNORM,
+    ezImageFormat::B8G8R8A8_UNORM,
+    ezImageFormat::B8G8R8_UNORM,
+    ezImageFormat::B5G5R5X1_UNORM,
+    ezImageFormat::B5G6R5_UNORM,
+  };
 
   // Find a compatible format closest to the one the image currently has
   ezImageFormat::Enum format = ezImageConversion::FindClosestCompatibleFormat(image.GetImageFormat(), compatibleFormats);
@@ -146,7 +147,7 @@ ezResult ezBmpFileFormat::WriteImage(ezStreamWriter& stream, const ezImageView& 
   ezUInt32 uiHeight = image.GetHeight(0);
 
   ezUInt64 dataSize = uiRowPitch * uiHeight;
-  if(dataSize >= ezMath::MaxValue<ezUInt32>())
+  if (dataSize >= ezMath::MaxValue<ezUInt32>())
   {
     EZ_ASSERT_DEV(false, "Size overflow in BMP file format.");
     return EZ_FAILURE;
@@ -298,7 +299,7 @@ namespace
 
     return (reinterpret_cast<const ezUInt8*>(pData)[uiByteAddress] >> uiShiftAmount) & uiMask;
   }
-}
+} // namespace
 
 ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLogInterface* pLog, const char* szFileExtension) const
 {
@@ -417,9 +418,7 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
           {
             // For header version four and higher, the color masks are part of the header
             format = ezImageFormat::FromPixelMask(
-                fileInfoHeaderV4.m_redMask, fileInfoHeaderV4.m_greenMask,
-                fileInfoHeaderV4.m_blueMask, fileInfoHeaderV4.m_alphaMask,
-                uiBpp);
+              fileInfoHeaderV4.m_redMask, fileInfoHeaderV4.m_greenMask, fileInfoHeaderV4.m_blueMask, fileInfoHeaderV4.m_alphaMask, uiBpp);
           }
 
           break;
@@ -704,7 +703,7 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
     if (ezImageFormat::GetBitsPerPixel(format) != uiBpp)
     {
       ezLog::Error(pLog, "The number of bits per pixel specified in the file ({0}) does not match the expected value of {1} for the format '{2}'.",
-                   uiBpp, ezImageFormat::GetBitsPerPixel(format), ezImageFormat::GetName(format));
+        uiBpp, ezImageFormat::GetBitsPerPixel(format), ezImageFormat::GetName(format));
       return EZ_FAILURE;
     }
 
@@ -737,8 +736,7 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReader& stream, ezImage& image, ezLo
 
 bool ezBmpFileFormat::CanReadFileType(const char* szExtension) const
 {
-  return ezStringUtils::IsEqual_NoCase(szExtension, "bmp") ||
-         ezStringUtils::IsEqual_NoCase(szExtension, "dib") ||
+  return ezStringUtils::IsEqual_NoCase(szExtension, "bmp") || ezStringUtils::IsEqual_NoCase(szExtension, "dib") ||
          ezStringUtils::IsEqual_NoCase(szExtension, "rle");
 }
 
@@ -750,4 +748,3 @@ bool ezBmpFileFormat::CanWriteFileType(const char* szExtension) const
 
 
 EZ_STATICLINK_FILE(Texture, Texture_Image_Formats_BmpFileFormat);
-

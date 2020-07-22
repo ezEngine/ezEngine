@@ -1,11 +1,11 @@
 #pragma once
 
+#include <Foundation/Algorithm/HashingUtils.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Strings/Implementation/StringBase.h>
 #include <Foundation/Strings/StringConversion.h>
 #include <Foundation/Strings/StringUtils.h>
 #include <Foundation/Strings/StringView.h>
-#include <Foundation/Algorithm/HashingUtils.h>
 
 class ezStringBuilder;
 class ezStreamReader;
@@ -83,7 +83,7 @@ public:
   ezStringView GetView() const;
 
   /// \brief Returns a pointer to the internal Utf8 string.
-  EZ_ALWAYS_INLINE operator const char*() const { return GetData(); }
+  EZ_ALWAYS_INLINE operator const char *() const { return GetData(); }
 
   /// \brief Resets this string to an empty string.
   ///
@@ -225,8 +225,7 @@ struct ezCompareString_NoCase
   template <typename DerivedLhs, typename DerivedRhs>
   EZ_ALWAYS_INLINE bool Less(const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) const
   {
-    return ezStringUtils::Compare_NoCase(lhs.InternalGetData(), rhs.InternalGetData(), lhs.InternalGetDataEnd(), rhs.InternalGetDataEnd()) <
-           0;
+    return ezStringUtils::Compare_NoCase(lhs.InternalGetData(), rhs.InternalGetData(), lhs.InternalGetDataEnd(), rhs.InternalGetDataEnd()) < 0;
   }
 
   template <typename DerivedRhs>
@@ -274,4 +273,3 @@ EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const e
 EZ_FOUNDATION_DLL ezStringView BuildString(char* tmp, ezUInt32 uiLength, const ezUntrackedString& arg);
 
 #include <Foundation/Strings/Implementation/String_inl.h>
-
