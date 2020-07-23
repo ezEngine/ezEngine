@@ -43,3 +43,6 @@ ezPxSphericalJointComponent;PhysX Spherical Joint
 ezPxJointLimitMode::NoLimit; No Limit
 ezPxJointLimitMode::HardLimit; Hard Limit
 ezPxJointLimitMode::SoftLimit; Soft Limit
+ezPxJointDriveMode::NoDrive;No Drive
+ezPxJointDriveMode::DriveAndSpin; Drive and Spin
+ezPxJointDriveMode::DriveAndBrake; Drive and Brake

@@ -81,8 +81,6 @@ void ezPxJointComponent::OnSimulationStarted()
   EZ_ASSERT_DEV(m_pJoint != nullptr, "Joint creation failed");
 
   ApplySettings();
-
-  m_pJoint->setConstraintFlag(PxConstraintFlag::eCOLLISION_ENABLED, m_bPairCollision);
 }
 
 void ezPxJointComponent::OnDeactivated()
@@ -218,6 +216,15 @@ void ezPxJointComponent::ApplySettings()
   }
 
   m_pJoint->setConstraintFlag(PxConstraintFlag::eCOLLISION_ENABLED, m_bPairCollision);
+
+  PxRigidActor* pActor0 = nullptr;
+  PxRigidActor* pActor1 = nullptr;
+  m_pJoint->getActors(pActor0, pActor1);
+
+  if (pActor0 && pActor0->is<PxRigidDynamic>())
+    static_cast<PxRigidDynamic*>(pActor0)->wakeUp();
+  if (pActor1 && pActor1->is<PxRigidDynamic>())
+    static_cast<PxRigidDynamic*>(pActor1)->wakeUp();
 }
 
 ezResult ezPxJointComponent::FindParentBody(physx::PxRigidActor*& pActor)
