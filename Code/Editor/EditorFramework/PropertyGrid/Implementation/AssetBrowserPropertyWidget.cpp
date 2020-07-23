@@ -36,12 +36,13 @@ ezQtAssetPropertyWidget::ezQtAssetPropertyWidget()
 
   m_pButton = new QToolButton(this);
   m_pButton->setText(QStringLiteral("..."));
-  m_pButton->setToolButtonStyle(Qt::ToolButtonStyle::ToolButtonIconOnly);
-  m_pButton->setContextMenuPolicy(Qt::ContextMenuPolicy::CustomContextMenu);
+  m_pButton->setToolButtonStyle(Qt::ToolButtonStyle::ToolButtonTextOnly);
+  m_pButton->setPopupMode(QToolButton::InstantPopup);
 
-  EZ_VERIFY(connect(m_pButton, SIGNAL(clicked()), this, SLOT(on_BrowseFile_clicked())) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(m_pButton, &QWidget::customContextMenuRequested, this, &ezQtAssetPropertyWidget::on_customContextMenuRequested) != nullptr,
-    "signal/slot connection failed");
+  QMenu* pMenu = new QMenu();
+  m_pButton->setMenu(pMenu);
+
+  connect(pMenu, &QMenu::aboutToShow, this, &ezQtAssetPropertyWidget::OnShowMenu);
 
   m_pLayout->addWidget(m_pWidget);
   m_pLayout->addWidget(m_pButton);
@@ -92,14 +93,14 @@ bool ezQtAssetPropertyWidget::IsValidAssetType(const char* szAssetReference) con
 
 void ezQtAssetPropertyWidget::OnInit()
 {
-  EZ_ASSERT_DEV(
-    m_pProp->GetAttributeByType<ezAssetBrowserAttribute>() != nullptr, "ezQtAssetPropertyWidget was created without a ezAssetBrowserAttribute!");
+  EZ_ASSERT_DEV(m_pProp->GetAttributeByType<ezAssetBrowserAttribute>() != nullptr, "ezQtAssetPropertyWidget was created without a ezAssetBrowserAttribute!");
 }
 
 void ezQtAssetPropertyWidget::UpdateThumbnail(const ezUuid& guid, const char* szThumbnailPath)
 {
   if (IsUndead())
     return;
+
   const QPixmap* pThumbnailPixmap = nullptr;
 
   if (guid.IsValid())
@@ -114,8 +115,6 @@ void ezQtAssetPropertyWidget::UpdateThumbnail(const ezUuid& guid, const char* sz
     pThumbnailPixmap = ezQtImageCache::GetSingleton()->QueryPixmapForType(
       sTypeFilter, szThumbnailPath, QModelIndex(), QVariant(uiUserData1), QVariant(uiUserData2), &m_uiThumbnailID);
   }
-
-  m_pButton->setCursor(Qt::WhatsThisCursor);
 
   if (pThumbnailPixmap)
   {
@@ -207,13 +206,12 @@ void ezQtAssetPropertyWidget::FillAssetMenu(QMenu& menu)
 
   const bool bAsset = m_AssetGuid.IsValid();
   menu.setDefaultAction(menu.addAction(QIcon(), QLatin1String("Select Asset"), this, SLOT(on_BrowseFile_clicked())));
-  menu.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document16.png")), QLatin1String("Open Asset"), this, SLOT(OnOpenAssetDocument()))
-    ->setEnabled(bAsset);
+  menu.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/Document16.png")), QLatin1String("Open Asset"), this, SLOT(OnOpenAssetDocument()))->setEnabled(bAsset);
   menu.addAction(QIcon(), QLatin1String("Select in Asset Browser"), this, SLOT(OnSelectInAssetBrowser()))->setEnabled(bAsset);
-  menu.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder16.png")), QLatin1String("Open in Explorer"), this, SLOT(OnOpenExplorer()));
-  menu.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/DocumentGuid16.png")), QLatin1String("Copy Asset Guid"), this, SLOT(OnCopyAssetGuid()));
+  menu.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/OpenFolder16.png")), QLatin1String("Open in Explorer"), this, SLOT(OnOpenExplorer()))->setEnabled(bAsset);
+  menu.addAction(QIcon(QLatin1String(":/GuiFoundation/Icons/DocumentGuid16.png")), QLatin1String("Copy Asset Guid"), this, SLOT(OnCopyAssetGuid()))->setEnabled(bAsset);
   menu.addAction(QIcon(), QLatin1String("Create New Asset"), this, SLOT(OnCreateNewAsset()));
-  menu.addAction(QIcon(":/GuiFoundation/Icons/Delete16.png"), QLatin1String("Clear Asset Reference"), this, SLOT(OnClearReference()));
+  menu.addAction(QIcon(":/GuiFoundation/Icons/Delete16.png"), QLatin1String("Clear Asset Reference"), this, SLOT(OnClearReference()))->setEnabled(bAsset);
 }
 
 void ezQtAssetPropertyWidget::on_TextFinished_triggered()
@@ -254,15 +252,6 @@ void ezQtAssetPropertyWidget::ThumbnailInvalidated(QString sPath, ezUInt32 uiIma
   {
     UpdateThumbnail(ezUuid(), "");
   }
-}
-
-
-void ezQtAssetPropertyWidget::on_customContextMenuRequested(const QPoint& pt)
-{
-  QMenu m;
-  FillAssetMenu(m);
-
-  m.exec(m_pButton->mapToGlobal(pt));
 }
 
 void ezQtAssetPropertyWidget::OnOpenAssetDocument()
@@ -455,11 +444,16 @@ void ezQtAssetPropertyWidget::OnCreateNewAsset()
   }
 }
 
-
 void ezQtAssetPropertyWidget::OnClearReference()
 {
   InternalSetValue("");
   on_TextFinished_triggered();
+}
+
+void ezQtAssetPropertyWidget::OnShowMenu()
+{
+  m_pButton->menu()->clear();
+  FillAssetMenu(*m_pButton->menu());
 }
 
 void ezQtAssetPropertyWidget::on_BrowseFile_clicked()

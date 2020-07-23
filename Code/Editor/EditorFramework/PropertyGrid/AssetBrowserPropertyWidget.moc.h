@@ -26,13 +26,13 @@ protected slots:
   void on_TextChanged_triggered(const QString& value);
   void ThumbnailLoaded(QString sPath, QModelIndex index, QVariant UserData1, QVariant UserData2);
   void ThumbnailInvalidated(QString sPath, ezUInt32 uiImageID);
-  void on_customContextMenuRequested(const QPoint& pt);
   void OnOpenAssetDocument();
   void OnSelectInAssetBrowser();
   void OnOpenExplorer();
   void OnCopyAssetGuid();
   void OnCreateNewAsset();
   void OnClearReference();
+  void OnShowMenu();
 
 protected:
   virtual void OnInit() override;
