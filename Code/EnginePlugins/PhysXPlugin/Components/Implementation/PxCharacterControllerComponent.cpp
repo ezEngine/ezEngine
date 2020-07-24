@@ -32,8 +32,6 @@ void ezPxCharacterControllerComponentManager::Initialize()
   this->RegisterUpdateFunction(desc);
 }
 
-void ezPxCharacterControllerComponentManager::Deinitialize() {}
-
 void ezPxCharacterControllerComponentManager::Update(const ezWorldModule::UpdateContext& context)
 {
   for (auto it = this->m_ComponentStorage.GetIterator(context.m_uiFirstComponentIndex, context.m_uiComponentCount); it.IsValid(); ++it)
@@ -61,7 +59,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxCharacterControllerComponent, 5, ezComponentMode::Dy
     EZ_MEMBER_PROPERTY("AirFriction", m_fAirFriction)->AddAttributes(new ezDefaultValueAttribute(0.5f), new ezClampValueAttribute(0.0f, 1.0f)),
     EZ_MEMBER_PROPERTY("RotateSpeed", m_RotateSpeed)->AddAttributes(new ezDefaultValueAttribute(ezAngle::Degree(90.0f)), new ezClampValueAttribute(ezAngle::Degree(1.0f), ezAngle::Degree(360.0f))),
     EZ_MEMBER_PROPERTY("PushingForce", m_fPushingForce)->AddAttributes(new ezDefaultValueAttribute(500.0f), new ezClampValueAttribute(0.0f, ezVariant())),
-    EZ_ACCESSOR_PROPERTY("WalkSurfaceInteraction", GetWalkSurfaceInteraction, SetWalkSurfaceInteraction)->AddAttributes(new ezDynamicStringEnumAttribute("SurfaceInteractionTypeEnum")),
+    EZ_ACCESSOR_PROPERTY("WalkSurfaceInteraction", GetWalkSurfaceInteraction, SetWalkSurfaceInteraction)->AddAttributes(new ezDynamicStringEnumAttribute("SurfaceInteractionTypeEnum"), new ezDefaultValueAttribute(ezStringView("Footstep"))),
     EZ_MEMBER_PROPERTY("WalkInteractionDistance", m_fWalkInteractionDistance)->AddAttributes(new ezDefaultValueAttribute(1.0f)),
     EZ_MEMBER_PROPERTY("RunInteractionDistance", m_fRunInteractionDistance)->AddAttributes(new ezDefaultValueAttribute(3.0f)),
     EZ_ACCESSOR_PROPERTY("FallbackWalkSurface", GetFallbackWalkSurfaceFile, SetFallbackWalkSurfaceFile)->AddAttributes(new ezAssetBrowserAttribute("Surface")),
@@ -177,7 +175,12 @@ void ezPxCharacterControllerComponent::Update()
   const float fJumpFactor = 1.0f; // 0.01f;
   const float fGravity = pModule->GetCharacterGravity().z * fGravityFactor * tDiff;
 
-  if (touchesCeiling || isOnGround)
+  if (touchesCeiling)
+  {
+    m_fVelocityUp = ezMath::Min(m_fVelocityUp, 0.0f);
+  }
+
+  if (isOnGround)
   {
     m_fVelocityUp = 0.0f;
   }

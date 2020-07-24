@@ -14,7 +14,6 @@ public:
   ~ezPxCharacterControllerComponentManager();
 
   virtual void Initialize() override;
-  virtual void Deinitialize() override;
 
   void Update(const ezWorldModule::UpdateContext& context);
 };
