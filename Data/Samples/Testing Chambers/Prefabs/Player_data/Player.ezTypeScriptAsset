@@ -11,7 +11,7 @@ o
 		s %AssetType{"TypeScript"}
 		VarArray %Dependencies
 		{
-			s{"Prefabs/Player2_data/Player2.ts"}
+			s{"Prefabs/Player_data/Player.ts"}
 		}
 		Uuid %DocumentID{u4{8578378032072979072,5092232374516961900}}
 		u4 %Hash{7133714552240630597}
@@ -91,7 +91,7 @@ o
 		}
 		VarArray %ColorParameters{}
 		VarArray %NumberParameters{}
-		s %ScriptFile{"Prefabs/Player2_data/Player2.ts"}
+		s %ScriptFile{"Prefabs/Player_data/Player.ts"}
 		VarArray %StringParameters{}
 		VarArray %Vec3Parameters{}
 	}

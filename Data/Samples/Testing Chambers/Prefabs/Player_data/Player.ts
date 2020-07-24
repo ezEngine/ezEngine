@@ -4,7 +4,7 @@ import _ge = require("Scripting/GameEnums")
 import _gm = require("Scripting/GameMessages")
 import _guns = require("Prefabs/Guns/Gun")
 
-export class Player2 extends ez.TickedTypescriptComponent {
+export class Player extends ez.TickedTypescriptComponent {
 
     /* BEGIN AUTO-GENERATED: VARIABLES */
     GiveAllWeapons: boolean = false;

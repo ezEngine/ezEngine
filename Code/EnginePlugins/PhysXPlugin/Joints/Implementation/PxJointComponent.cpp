@@ -221,9 +221,9 @@ void ezPxJointComponent::ApplySettings()
   PxRigidActor* pActor1 = nullptr;
   m_pJoint->getActors(pActor0, pActor1);
 
-  if (pActor0 && pActor0->is<PxRigidDynamic>())
+  if (pActor0 && pActor0->is<PxRigidDynamic>() && !static_cast<PxRigidDynamic*>(pActor0)->getRigidBodyFlags().isSet(PxRigidBodyFlag::eKINEMATIC))
     static_cast<PxRigidDynamic*>(pActor0)->wakeUp();
-  if (pActor1 && pActor1->is<PxRigidDynamic>())
+  if (pActor1 && pActor1->is<PxRigidDynamic>() && !static_cast<PxRigidDynamic*>(pActor1)->getRigidBodyFlags().isSet(PxRigidBodyFlag::eKINEMATIC))
     static_cast<PxRigidDynamic*>(pActor1)->wakeUp();
 }
 
@@ -234,7 +234,7 @@ ezResult ezPxJointComponent::FindParentBody(physx::PxRigidActor*& pActor)
 
   if (!m_hActorA.IsInvalidated())
   {
-    if (!GetWorld()->TryGetObject(m_hActorA, pObject))
+    if (!GetWorld()->TryGetObject(m_hActorA, pObject) || !pObject->IsActive())
     {
       ezLog::Error("{0} '{1}' parent reference is a non-existing object. Joint is ignored.", GetDynamicRTTI()->GetTypeName(), GetOwner()->GetName());
       return EZ_FAILURE;
@@ -307,7 +307,7 @@ ezResult ezPxJointComponent::FindChildBody(physx::PxRigidActor*& pActor)
     return EZ_FAILURE;
   }
 
-  if (!GetWorld()->TryGetObject(m_hActorB, pObject))
+  if (!GetWorld()->TryGetObject(m_hActorB, pObject) || !pObject->IsActive())
   {
     ezLog::Error("{0} '{1}' child reference is a non-existing object. Joint is ignored.", GetDynamicRTTI()->GetTypeName(), GetOwner()->GetName());
     return EZ_FAILURE;

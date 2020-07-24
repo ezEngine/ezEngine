@@ -16,6 +16,8 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezSurfaceInteraction, ezNoBase, 1, ezRTTIDefaultA
   {
     EZ_MEMBER_PROPERTY("Type", m_sInteractionType)->AddAttributes(new ezDynamicStringEnumAttribute("SurfaceInteractionTypeEnum")),
     EZ_ACCESSOR_PROPERTY("Prefab", GetPrefab, SetPrefab)->AddAttributes(new ezAssetBrowserAttribute("Prefab")),
+    // this does not work yet (asset transform fails)
+    //EZ_MAP_ACCESSOR_PROPERTY("Parameters", GetParameters, GetParameter, SetParameter, RemoveParameter)->AddAttributes(new ezExposedParametersAttribute("Prefab")),
     EZ_ENUM_MEMBER_PROPERTY("Alignment", ezSurfaceInteractionAlignment, m_Alignment),
     EZ_MEMBER_PROPERTY("Deviation", m_Deviation)->AddAttributes(new ezClampValueAttribute(ezVariant(ezAngle::Degree(0.0f)), ezVariant(ezAngle::Degree(90.0f)))),
     EZ_MEMBER_PROPERTY("ImpulseThreshold", m_fImpulseThreshold),
@@ -61,13 +63,46 @@ const char* ezSurfaceInteraction::GetPrefab() const
   return m_hPrefab.GetResourceID();
 }
 
+const ezRangeView<const char*, ezUInt32> ezSurfaceInteraction::GetParameters() const
+{
+  return ezRangeView<const char*, ezUInt32>([]() -> ezUInt32 { return 0; }, [this]() -> ezUInt32 { return m_Parameters.GetCount(); },
+    [](ezUInt32& it) { ++it; }, [this](const ezUInt32& it) -> const char* { return m_Parameters.GetKey(it).GetString().GetData(); });
+}
+
+void ezSurfaceInteraction::SetParameter(const char* szKey, const ezVariant& value)
+{
+  ezHashedString hs;
+  hs.Assign(szKey);
+
+  auto it = m_Parameters.Find(hs);
+  if (it != ezInvalidIndex && m_Parameters.GetValue(it) == value)
+    return;
+
+  m_Parameters[hs] = value;
+}
+
+void ezSurfaceInteraction::RemoveParameter(const char* szKey)
+{
+  m_Parameters.RemoveAndCopy(ezTempHashedString(szKey));
+}
+
+bool ezSurfaceInteraction::GetParameter(const char* szKey, ezVariant& out_value) const
+{
+  ezUInt32 it = m_Parameters.Find(szKey);
+
+  if (it == ezInvalidIndex)
+    return false;
+
+  out_value = m_Parameters.GetValue(it);
+  return true;
+}
 
 void ezSurfaceResourceDescriptor::Load(ezStreamReader& stream)
 {
   ezUInt8 uiVersion = 0;
 
   stream >> uiVersion;
-  EZ_ASSERT_DEV(uiVersion <= 5, "Invalid version {0} for surface resource", uiVersion);
+  EZ_ASSERT_DEV(uiVersion <= 6, "Invalid version {0} for surface resource", uiVersion);
 
   stream >> m_fPhysicsRestitution;
   stream >> m_fPhysicsFrictionStatic;
@@ -88,21 +123,43 @@ void ezSurfaceResourceDescriptor::Load(ezStreamReader& stream)
     ezStringBuilder sTemp;
     for (ezUInt32 i = 0; i < count; ++i)
     {
-      stream >> sTemp;
-      m_Interactions[i].m_sInteractionType = sTemp;
+      auto& ia = m_Interactions[i];
 
-      stream >> m_Interactions[i].m_hPrefab;
-      stream >> m_Interactions[i].m_Alignment;
-      stream >> m_Interactions[i].m_Deviation;
+      stream >> sTemp;
+      ia.m_sInteractionType = sTemp;
+
+      stream >> ia.m_hPrefab;
+      stream >> ia.m_Alignment;
+      stream >> ia.m_Deviation;
 
       if (uiVersion >= 4)
       {
-        stream >> m_Interactions[i].m_fImpulseThreshold;
+        stream >> ia.m_fImpulseThreshold;
       }
 
       if (uiVersion >= 5)
       {
-        stream >> m_Interactions[i].m_fImpulseScale;
+        stream >> ia.m_fImpulseScale;
+      }
+
+      if (uiVersion >= 6)
+      {
+        ezUInt8 uiNumParams;
+        stream >> uiNumParams;
+
+        ia.m_Parameters.Clear();
+        ia.m_Parameters.Reserve(uiNumParams);
+
+        ezHashedString key;
+        ezVariant value;
+
+        for (ezUInt32 i = 0; i < uiNumParams; ++i)
+        {
+          stream >> key;
+          stream >> value;
+
+          ia.m_Parameters.Insert(key, value);
+        }
       }
     }
   }
@@ -110,7 +167,7 @@ void ezSurfaceResourceDescriptor::Load(ezStreamReader& stream)
 
 void ezSurfaceResourceDescriptor::Save(ezStreamWriter& stream) const
 {
-  const ezUInt8 uiVersion = 5;
+  const ezUInt8 uiVersion = 6;
 
   stream << uiVersion;
   stream << m_fPhysicsRestitution;
@@ -134,6 +191,15 @@ void ezSurfaceResourceDescriptor::Save(ezStreamWriter& stream) const
 
     // version 5
     stream << ia.m_fImpulseScale;
+
+    // version 6
+    const ezUInt8 uiNumParams = static_cast<ezUInt8>(ia.m_Parameters.GetCount());
+    stream << uiNumParams;
+    for (ezUInt32 i = 0; i < uiNumParams; ++i)
+    {
+      stream << ia.m_Parameters.GetKey(i);
+      stream << ia.m_Parameters.GetValue(i);
+    }
   }
 }
 
