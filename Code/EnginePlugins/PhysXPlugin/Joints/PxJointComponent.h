@@ -74,10 +74,13 @@ public:
 
   void SetParentActor(ezGameObjectHandle hActor);
   void SetChildActor(ezGameObjectHandle hActor);
+  void SetChildActorAnchor(ezGameObjectHandle hActor);
 
   void SetActors(ezGameObjectHandle hActorA, const ezTransform& localFrameA, ezGameObjectHandle hActorB, const ezTransform& localFrameB);
 
   virtual void ApplySettings() = 0;
+
+  physx::PxJoint* GetPxJoint() { return m_pJoint; }
 
 protected:
   ezResult FindParentBody(physx::PxRigidActor*& pActor);

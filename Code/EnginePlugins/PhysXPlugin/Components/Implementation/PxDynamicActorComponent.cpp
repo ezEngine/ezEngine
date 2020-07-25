@@ -242,6 +242,7 @@ void ezPxDynamicActorComponent::SetMass(float fMass)
     EZ_PX_WRITE_LOCK(*(m_pActor->getScene()));
 
     m_pActor->setMass(m_fMass);
+    m_pActor->wakeUp();
   }
 }
 
@@ -301,6 +302,8 @@ void ezPxDynamicActorComponent::OnSimulationStarted()
   else if (m_fDensity > 0.0f)
   {
     PxRigidBodyExt::updateMassAndInertia(*m_pActor, m_fDensity, &pxCoM);
+
+    m_fMass = m_pActor->getMass();
   }
   else
   {

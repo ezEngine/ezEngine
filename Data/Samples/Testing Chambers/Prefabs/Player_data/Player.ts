@@ -28,6 +28,7 @@ export class Player extends ez.TickedTypescriptComponent {
     interact: ez.PxRaycastInteractComponent = null;
     ammoPouch: _guns.AmmoPouch = new _guns.AmmoPouch();
     weaponUnlocked: boolean[] = [];
+    grabObject: ez.PxGrabObjectComponent = null;
 
     OnSimulationStarted(): void {
         let owner = this.GetOwner();
@@ -45,6 +46,7 @@ export class Player extends ez.TickedTypescriptComponent {
         this.guns[_ge.Weapon.RocketLauncher] = ez.Utils.FindPrefabRootNode(this.gunRoot.FindChildByName("RocketLauncher", true));
 
         this.interact = this.camera.TryGetComponentOfBaseType(ez.PxRaycastInteractComponent);
+        this.grabObject = owner.FindChildByName("GrabObject", true).TryGetComponentOfBaseType(ez.PxGrabObjectComponent);
         this.SetTickInterval(ez.Time.Milliseconds(0));
 
         this.weaponUnlocked[_ge.Weapon.Pistol] = true;
@@ -157,6 +159,7 @@ export class Player extends ez.TickedTypescriptComponent {
 
             if (msg.InputActionHash == ez.Utils.StringToHash("Use")) {
                 this.interact.ExecuteInteraction();
+                this.grabObject.TryGrabObject();
             }
         }
 

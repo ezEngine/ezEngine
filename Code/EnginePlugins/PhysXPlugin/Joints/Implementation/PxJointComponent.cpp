@@ -186,6 +186,12 @@ void ezPxJointComponent::SetChildActor(ezGameObjectHandle hActor)
   m_hActorB = hActor;
 }
 
+void ezPxJointComponent::SetChildActorAnchor(ezGameObjectHandle hActor)
+{
+  SetUserFlag(1, false); // local frame B is not valid
+  m_hActorBAnchor = hActor;
+}
+
 void ezPxJointComponent::SetActors(
   ezGameObjectHandle hActorA, const ezTransform& localFrameA, ezGameObjectHandle hActorB, const ezTransform& localFrameB)
 {
