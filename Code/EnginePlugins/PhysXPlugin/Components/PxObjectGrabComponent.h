@@ -27,9 +27,13 @@ public:
   void ThrowGrabbedObject(/*const ezVec3& vRelativeDir*/);
   void BreakObjectGrab();
 
-  float m_fBreakDistance = 1.0f;
+  float m_fGrabRadius = 1.0f;
+  float m_fBreakDistance = 0.5f;
   float m_fSpringStiffness = 50.0f;
   float m_fSpringDamping = 10.0f;
+
+  void SetMarkerType(const char* szType); // [ property ]
+  const char* GetMarkerType() const;      // [ property ]
 
 protected:
   void Update();
@@ -41,4 +45,6 @@ protected:
   ezUInt32 m_uiPrevVelIterations;
   ezComponentHandle m_hJoint;
   ezComponentHandle m_hGrabbedActor;
+  ezGameObjectHandle m_hGrabbedAnchor;
+  ezHashedString m_sMarkerType;
 };

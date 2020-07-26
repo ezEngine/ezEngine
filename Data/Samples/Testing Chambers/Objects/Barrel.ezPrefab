@@ -11,7 +11,7 @@ o
 		s %AssetType{"Prefab"}
 		VarArray %Dependencies{}
 		Uuid %DocumentID{u4{10343536139760208028,4918522812857774060}}
-		u4 %Hash{17290520511660860647}
+		u4 %Hash{71585854064464400}
 		VarArray %MetaInfo
 		{
 			Uuid{u4{969519408616889768,7780583395582206609}}
@@ -93,6 +93,7 @@ o
 		{
 			Uuid{u4{15271397146903771069,5390075707354059791}}
 			Uuid{u4{8584485513893092503,5529416803815089842}}
+			Uuid{u4{8041682011393493634,5466949424478412235}}
 		}
 		s %GlobalKey{""}
 		Vec3 %LocalPosition{f{0,0,0x8FC2F53E}}
@@ -136,7 +137,7 @@ o
 {
 	Uuid %id{u4{16562644321202315681,5390301789803891935}}
 	s %t{"ezSpawnComponent"}
-	u3 %v{2}
+	u3 %v{3}
 	p
 	{
 		b %Active{1}
@@ -144,6 +145,7 @@ o
 		Time %DelayRange{d{0}}
 		Angle %Deviation{f{0}}
 		Time %MinDelay{d{0x000000000000F03F}}
+		VarDict %Parameters{}
 		s %Prefab{"{ 9bd6d5f2-c682-451b-91a0-8b719e3e29c1 }"}
 		b %SpawnAtStart{0}
 		b %SpawnContinuously{0}
@@ -163,6 +165,18 @@ o
 			d %Health{0x0000000000003440}
 		}
 		s %Script{"{ 05aa1141-42b4-43e9-90a6-ac4d7fbb0ee6 }"}
+	}
+}
+o
+{
+	Uuid %id{u4{8041682011393493634,5466949424478412235}}
+	s %t{"ezMarkerComponent"}
+	u3 %v{1}
+	p
+	{
+		b %Active{1}
+		s %Marker{"GrabObjectMarker"}
+		f %Radius{0xCDCCCC3E}
 	}
 }
 o
@@ -264,6 +278,24 @@ o
 }
 o
 {
+	Uuid %id{u4{8577194213068516669,1439152778878942207}}
+	s %t{"ezReflectedTypeDescriptor"}
+	u3 %v{1}
+	p
+	{
+		VarArray %Attributes{}
+		s %Flags{"ezTypeFlags::Class|ezTypeFlags::Minimal"}
+		VarArray %Functions{}
+		s %ParentTypeName{"ezComponent"}
+		s %PluginName{"Static"}
+		VarArray %Properties{}
+		s %TypeName{"ezMarkerComponent"}
+		u3 %TypeSize{72}
+		u3 %TypeVersion{1}
+	}
+}
+o
+{
 	Uuid %id{u4{11638255232360359673,3108610646416571142}}
 	s %t{"ezReflectedTypeDescriptor"}
 	u3 %v{1}
@@ -330,8 +362,8 @@ o
 		s %PluginName{"Static"}
 		VarArray %Properties{}
 		s %TypeName{"ezSpawnComponent"}
-		u3 %TypeSize{88}
-		u3 %TypeVersion{2}
+		u3 %TypeSize{128}
+		u3 %TypeVersion{3}
 	}
 }
 o
