@@ -23,12 +23,14 @@ export class Player extends ez.TickedTypescriptComponent {
     flashlightObj: ez.GameObject = null;
     flashlight: ez.SpotLightComponent = null;
     activeWeapon: _ge.Weapon = _ge.Weapon.None;
+    holsteredWeapon: _ge.Weapon = _ge.Weapon.None;
     guns: ez.GameObject[] = [];
     gunComp: _guns.Gun[] = [];
     interact: ez.PxRaycastInteractComponent = null;
     ammoPouch: _guns.AmmoPouch = new _guns.AmmoPouch();
     weaponUnlocked: boolean[] = [];
     grabObject: ez.PxGrabObjectComponent = null;
+    requireNoShoot: boolean = false;
 
     OnSimulationStarted(): void {
         let owner = this.GetOwner();
@@ -49,6 +51,7 @@ export class Player extends ez.TickedTypescriptComponent {
         this.grabObject = owner.FindChildByName("GrabObject", true).TryGetComponentOfBaseType(ez.PxGrabObjectComponent);
         this.SetTickInterval(ez.Time.Milliseconds(0));
 
+        this.weaponUnlocked[_ge.Weapon.None] = true;
         this.weaponUnlocked[_ge.Weapon.Pistol] = true;
 
         if (this.GiveAllWeapons) {
@@ -107,16 +110,16 @@ export class Player extends ez.TickedTypescriptComponent {
 
         ez.Debug.Draw2DText("Health: " + Math.ceil(this.health), new ez.Vec2(10, 10), ez.Color.White(), 32);
 
-        const ammoInClip = this.gunComp[this.activeWeapon].GetAmmoInClip();
-
-        if (this.gunComp[this.activeWeapon].GetAmmoType() == _ge.Consumable.Ammo_None) {
-            ez.Debug.Draw2DText("Ammo: " + ammoInClip, new ez.Vec2(10, 50), ez.Color.White(), 32);
-        } else {
-            const ammoOfType = this.ammoPouch.ammo[this.gunComp[this.activeWeapon].GetAmmoType()];
-            ez.Debug.Draw2DText("Ammo: " + ammoInClip + " / " + ammoOfType, new ez.Vec2(10, 50), ez.Color.White(), 32);
-        }
-
         if (this.activeWeapon != _ge.Weapon.None) {
+
+            const ammoInClip = this.gunComp[this.activeWeapon].GetAmmoInClip();
+
+            if (this.gunComp[this.activeWeapon].GetAmmoType() == _ge.Consumable.Ammo_None) {
+                ez.Debug.Draw2DText("Ammo: " + ammoInClip, new ez.Vec2(10, 50), ez.Color.White(), 32);
+            } else {
+                const ammoOfType = this.ammoPouch.ammo[this.gunComp[this.activeWeapon].GetAmmoType()];
+                ez.Debug.Draw2DText("Ammo: " + ammoInClip + " / " + ammoOfType, new ez.Vec2(10, 50), ez.Color.White(), 32);
+            }
 
             this.gunComp[this.activeWeapon].RenderCrosshair();
         }
@@ -160,8 +163,13 @@ export class Player extends ez.TickedTypescriptComponent {
 
                 if (this.grabObject.HasObjectGrabbed()) {
                     this.grabObject.DropGrabbedObject();
+                    this.SwitchToWeapon(this.holsteredWeapon);
                 }
-                else if (!this.grabObject.GrabNearbyObject()) {
+                else if (this.grabObject.GrabNearbyObject()) {
+                    this.holsteredWeapon = this.activeWeapon;
+                    this.SwitchToWeapon(_ge.Weapon.None);
+                }
+                else {
                     this.interact.ExecuteInteraction();
                 }
             }
@@ -169,17 +177,28 @@ export class Player extends ez.TickedTypescriptComponent {
 
         if (msg.InputActionHash == ez.Utils.StringToHash("Shoot")) {
 
-            if (this.grabObject.HasObjectGrabbed()) {
-                let dir = new ez.Vec3(10, 0, 0);
-                this.grabObject.ThrowGrabbedObject();
+            if (this.requireNoShoot) {
+                if (msg.TriggerState == ez.TriggerState.Activated) {
+                    this.requireNoShoot = false;
+                }
             }
-            else {
-                let msgInteract = new _guns.MsgGunInteraction();
-                msgInteract.keyState = msg.TriggerState;
-                msgInteract.ammoPouch = this.ammoPouch;
-                msgInteract.interaction = _guns.GunInteraction.Fire;
 
-                this.guns[this.activeWeapon].SendMessage(msgInteract);
+            if (!this.requireNoShoot) {
+
+                if (this.grabObject.HasObjectGrabbed()) {
+                    let dir = new ez.Vec3(0.75, 0, 0);
+                    this.grabObject.ThrowGrabbedObject(dir);
+
+                    this.SwitchToWeapon(this.holsteredWeapon);
+                }
+                else {
+                    let msgInteract = new _guns.MsgGunInteraction();
+                    msgInteract.keyState = msg.TriggerState;
+                    msgInteract.ammoPouch = this.ammoPouch;
+                    msgInteract.interaction = _guns.GunInteraction.Fire;
+
+                    this.guns[this.activeWeapon].SendMessage(msgInteract);
+                }
             }
         }
 
@@ -271,6 +290,8 @@ export class Player extends ez.TickedTypescriptComponent {
 
         if (this.activeWeapon == weapon)
             return;
+
+            this.requireNoShoot = true;
 
         if (this.gunComp[this.activeWeapon])
             this.gunComp[this.activeWeapon].DeselectGun();

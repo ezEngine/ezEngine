@@ -24,7 +24,7 @@ public:
   bool GrabNearbyObject();
   bool HasObjectGrabbed() const;
   void DropGrabbedObject();
-  void ThrowGrabbedObject(/*const ezVec3& vRelativeDir*/);
+  void ThrowGrabbedObject(const ezVec3& vRelativeDir);
   void BreakObjectGrab();
 
   float m_fGrabRadius = 1.0f;

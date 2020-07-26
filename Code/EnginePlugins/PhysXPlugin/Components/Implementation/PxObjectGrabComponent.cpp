@@ -26,7 +26,7 @@ EZ_BEGIN_COMPONENT_TYPE(ezPxGrabObjectComponent, 1, ezComponentMode::Static)
     EZ_SCRIPT_FUNCTION_PROPERTY(GrabNearbyObject),
     EZ_SCRIPT_FUNCTION_PROPERTY(HasObjectGrabbed),
     EZ_SCRIPT_FUNCTION_PROPERTY(DropGrabbedObject),
-    EZ_SCRIPT_FUNCTION_PROPERTY(ThrowGrabbedObject),
+    EZ_SCRIPT_FUNCTION_PROPERTY(ThrowGrabbedObject, In, "Direction"),
   }
   EZ_END_FUNCTIONS;
   EZ_BEGIN_ATTRIBUTES
@@ -191,13 +191,12 @@ void ezPxGrabObjectComponent::DropGrabbedObject()
   ReleaseGrabbedObject();
 }
 
-void ezPxGrabObjectComponent::ThrowGrabbedObject(/*const ezVec3& vRelativeDir*/)
+void ezPxGrabObjectComponent::ThrowGrabbedObject(const ezVec3& vRelativeDir)
 {
   ezPxDynamicActorComponent* pActor;
   if (GetWorld()->TryGetComponent(m_hGrabbedActor, pActor))
   {
-    // TODO: fix TypeScript crash with parameter
-    pActor->AddLinearImpulse(GetOwner()->GetGlobalDirForwards());
+    pActor->AddLinearImpulse(GetOwner()->GetGlobalRotation() * vRelativeDir);
   }
 
   ReleaseGrabbedObject();
